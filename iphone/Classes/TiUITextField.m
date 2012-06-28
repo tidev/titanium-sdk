@@ -298,10 +298,16 @@
 	[self textWidgetView].rightButtonPadding = [TiUtils floatValue:value];
 }
 
+-(void)setEditable_:(id)value
+{
+	[[self textWidgetView] setEnabled:[TiUtils boolValue:value def:YES]];
+}
+
 -(void)setEnabled_:(id)value
 {
-	[[self textWidgetView] setEnabled:[TiUtils boolValue:value]];
+	[[self textWidgetView] setEnabled:[TiUtils boolValue:value def:YES]];
 }
+
 
 -(void)setBackgroundImage_:(id)image
 {
@@ -456,8 +462,7 @@
 
 - (BOOL)textFieldShouldBeginEditing:(UITextField *)textField;        // return NO to disallow editing.
 {
-    id editable = [[self proxy] valueForUndefinedKey:@"editable"];
-    return [TiUtils boolValue:editable def:YES];
+    return YES;
 }
 
 - (BOOL)textField:(UITextField *)tf shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString *)string
