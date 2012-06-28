@@ -19,6 +19,7 @@
 #ifdef USE_TI_UIIOS3DMATRIX
 	#import "Ti3DMatrix.h"
 #endif
+
 #ifdef USE_TI_UIIOSCOVERFLOWVIEW
 	#import "TiUIiOSCoverFlowViewProxy.h"
 #endif
@@ -27,6 +28,10 @@
 #endif
 #ifdef USE_TI_UIIOSTABBEDBAR
 	#import "TiUIiOSTabbedBarProxy.h"
+#endif
+
+#if defined(USE_TI_UIIPADDOCUMENTVIEWER) || defined(USE_TI_UIIOSDOCUMENTVIEWER)
+    #import "TiUIiOSDocumentViewerProxy.h"
 #endif
 
 @implementation TiUIiOSProxy
@@ -82,6 +87,15 @@
     return [[[TiUIiOSTabbedBarProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
 }
 #endif
+
+#if defined(USE_TI_UIIPADDOCUMENTVIEWER) || defined(USE_TI_UIIOSDOCUMENTVIEWER)
+-(id)createDocumentViewer:(id)args
+{
+	return [[[TiUIiOSDocumentViewerProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
+}
+#endif
+
+
 #ifdef USE_TI_UIIOS
 MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(ANIMATION_CURVE_EASE_IN_OUT, UIViewAnimationCurveEaseInOut, @"UI.iOS.ANIMATION_CURVE_EASE_IN_OUT", @"2.1.0", @"Ti.UI.ANIMATION_CURVE_EASE_IN_OUT");
 MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(ANIMATION_CURVE_EASE_IN, UIViewAnimationCurveEaseIn, @"UI.iOS.ANIMATION_CURVE_EASE_IN", @"2.1.0", @"Ti.UI.ANIMATION_CURVE_EASE_IN");
