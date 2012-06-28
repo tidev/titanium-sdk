@@ -58,6 +58,7 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 	private static final int FRAME_QUEUE_SIZE = 5;
 	public static final int INFINITE = 0;
 	public static final int MIN_DURATION = 30;
+	public static final int DEFAULT_DURATION = 200;
 
 	// TIMOB-3599: A bug in Gingerbread forces us to retry decoding bitmaps when they initially fail
 	private static final String PROPERTY_DECODE_RETRIES = "decodeRetries";
@@ -385,9 +386,10 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 								break;
 							}
 
-							synchronized (loader) {
-								loader.wait();
+							synchronized (this) {
+								wait();
 							}
+
 							Log.i(LCAT, "Waking from pause.");
 							// In the meantime, while paused, user could have backed out, which leads
 							// to release(), which in turn leads to nullified imageSources.
@@ -476,13 +478,10 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 			} else {
 				return duration;
 			}
-			
 		}
-
-		if (images != null) {
-			return images.length * 33;
-		}
-		return 100;
+		proxy.setProperty(TiC.PROPERTY_DURATION, DEFAULT_DURATION);
+		
+		return DEFAULT_DURATION;
 	}
 
 	public int getRepeatCount()
@@ -537,6 +536,15 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 		public void run()
 		{
 			try {
+
+				if (paused) {
+					synchronized (this) {
+						KrollDict data = new KrollDict();
+						proxy.fireEvent(TiC.EVENT_PAUSE, data);
+						wait();
+					}
+				}
+
 				BitmapWithIndex b = loader.getBitmapQueue().take();
 				if (DBG) {
 					Log.d(LCAT, "set image: " + b.index);
@@ -596,6 +604,13 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 	public void resume()
 	{
 		paused = false;
+		
+		if (animator != null) {
+			synchronized (animator) {
+				animator.notify();
+			}
+		}
+		
 		if (loader != null) {
 			synchronized (loader) {
 				loader.notify();
