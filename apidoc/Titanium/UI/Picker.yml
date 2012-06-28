@@ -129,6 +129,11 @@ events:
             picker types.
         type: Titanium.UI.PickerColumn
         
+      - name: countDownDuration
+        summary: |
+            The selected duration in milliseconds. Applicable to <Ti.UI.PICKER_TYPE_COUNT_DOWN_TIMER> picker types.
+        type: Number
+
       - name: value
         summary: |
             The selected value. Applicable to date/time pickers only. This property is read-only 
