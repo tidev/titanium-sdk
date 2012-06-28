@@ -17,6 +17,7 @@ import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiUIView;
 
 import ti.modules.titanium.ui.android.AndroidModule;
+import android.view.View;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
@@ -44,6 +45,11 @@ public class TiUISwitch extends TiUIView
 
 		if (d.containsKey(TiC.PROPERTY_STYLE)) {
 			setStyle(TiConvert.toInt(d, TiC.PROPERTY_STYLE));
+		}
+
+		View nativeView = getNativeView();
+		if (nativeView != null) {
+			updateButton((CompoundButton)nativeView, d);
 		}
 	}
 	
