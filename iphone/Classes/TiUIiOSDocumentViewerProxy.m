@@ -4,15 +4,14 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-#ifdef USE_TI_UIIPADDOCUMENTVIEWER
-
-#import "TiUIiPadDocumentViewerProxy.h"
+#if defined(USE_TI_UIIPADDOCUMENTVIEWER) || defined(USE_TI_UIIOSDOCUMENTVIEWER)
+#import "TiUIiOSDocumentViewerProxy.h"
 #import "TiUtils.h"
 #import "TiBlob.h"
 #import "TiApp.h"
 #import "TiViewProxy.h"
 
-@implementation TiUIiPadDocumentViewerProxy
+@implementation TiUIiOSDocumentViewerProxy
 
 -(void)_destroy
 {
