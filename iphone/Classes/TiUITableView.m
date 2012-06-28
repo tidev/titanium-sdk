@@ -939,6 +939,20 @@
 	}
 }
 
+-(void)handleListenerRemovedWithEvent:(NSString *)event
+{
+	if([event isEqualToString:@"longpress"])
+	{
+		for (UIGestureRecognizer *gesture in [tableview gestureRecognizers])
+		{
+			if([[gesture class] isEqual:[UILongPressGestureRecognizer class]])
+			{
+				[tableview removeGestureRecognizer:gesture];
+			}
+		}
+	}
+}
+
 -(void)handleListenerAddedWithEvent:(NSString *)event
 {
 	ENSURE_UI_THREAD_1_ARG(event);
