@@ -338,6 +338,9 @@ DEFINE_EXCEPTIONS
 			active = [[self tabController].viewControllers objectAtIndex:index];
 		}
 	}
+	if (active == nil && [self tabController].viewControllers.count > 0)  {
+		active = [self tabController].selectedViewController;
+	}
 	if (active == nil)  {
 		DebugLog(@"setActiveTab called but active view controller could not be determined");
 	}
