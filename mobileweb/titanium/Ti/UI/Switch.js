@@ -59,6 +59,7 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/css", "Ti/_/style", "Ti/UI"]
 				css.add(this.domNode, "TiUIElementGradient");
 				css.add(this.domNode, "TiUIButtonDefault");
 				this._contentContainer.borderWidth = 6;
+				this._getBorderFromCSS();
 			}
 		},
 		

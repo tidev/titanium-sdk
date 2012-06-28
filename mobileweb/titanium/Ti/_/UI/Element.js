@@ -225,7 +225,7 @@ define(
 			view._triggerLayout();
 		},
 
-		_insertAt: function(view,index, hidden) {
+		_insertAt: function(view, index, hidden) {
 			var children = this._children;
 			if (index > children.length || index < 0) {
 				return;
