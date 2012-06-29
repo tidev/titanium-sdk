@@ -32,7 +32,9 @@ Titanium.Media.showCamera({
 		win.add(imageView);
 		
 		// programatically hide the camera
-		Ti.Media.hideCamera();
+		if (Ti.Platform.osname != "android") {
+			Ti.Media.hideCamera();
+		}
 	},
 	cancel:function()
 	{
