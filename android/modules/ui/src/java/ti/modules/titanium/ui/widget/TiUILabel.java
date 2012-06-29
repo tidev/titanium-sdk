@@ -88,15 +88,8 @@ public class TiUILabel extends TiUIView
 			tv.setSingleLine(!TiConvert.toBoolean(d, TiC.PROPERTY_WORD_WRAP));
 		}
 		// This needs to be the last operation.
-		linkifyIfEnabled(tv, d.get(TiC.PROPERTY_AUTO_LINK));
+		TiUIHelper.linkifyIfEnabled(tv, d.get(TiC.PROPERTY_AUTO_LINK));
 		tv.invalidate();
-	}
-
-	private void linkifyIfEnabled(TextView tv, Object autoLink)
-	{
-		if (autoLink != null) {
-			Linkify.addLinks(tv, TiConvert.toInt(autoLink));
-		}
 	}
 	
 	@Override
@@ -105,11 +98,11 @@ public class TiUILabel extends TiUIView
 		TextView tv = (TextView) getNativeView();
 		if (key.equals(TiC.PROPERTY_HTML)) {
 			tv.setText(Html.fromHtml(TiConvert.toString(newValue)), TextView.BufferType.SPANNABLE);
-			linkifyIfEnabled(tv, proxy.getProperty(TiC.PROPERTY_AUTO_LINK));
+			TiUIHelper.linkifyIfEnabled(tv, proxy.getProperty(TiC.PROPERTY_AUTO_LINK));
 			tv.requestLayout();
 		} else if (key.equals(TiC.PROPERTY_TEXT) || key.equals(TiC.PROPERTY_TITLE)) {
 			tv.setText(TiConvert.toString(newValue));
-			linkifyIfEnabled(tv, proxy.getProperty(TiC.PROPERTY_AUTO_LINK));
+			TiUIHelper.linkifyIfEnabled(tv, proxy.getProperty(TiC.PROPERTY_AUTO_LINK));
 			tv.requestLayout();
 		} else if (key.equals(TiC.PROPERTY_COLOR)) {
 			tv.setTextColor(TiConvert.toColor((String) newValue));
