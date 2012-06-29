@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.List;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollFunction;
@@ -18,7 +19,9 @@ import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.hardware.Camera;
+import android.hardware.Camera.Parameters;
 import android.hardware.Camera.PictureCallback;
+import android.hardware.Camera.Size;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
@@ -34,6 +37,7 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 	private TiViewProxy localOverlayProxy = null;
 	private SurfaceView preview;
 	private FrameLayout previewLayout;
+	private boolean previewRunning = false;
 
 	public static TiViewProxy overlayProxy = null;
 	public static TiCameraActivity cameraActivity = null;
@@ -64,23 +68,25 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 	}
 
 	public void surfaceChanged(SurfaceHolder previewHolder, int format, int width, int height) {
-		camera.startPreview();  // make sure setPreviewDisplay is called before this
+		if (!previewRunning) {
+			// Set the preview size to the most optimal given the target size and aspect ratio.
+			Parameters param = camera.getParameters();
+			Size pictureSize = param.getPictureSize();
+			double aspectRatio = pictureSize.width / pictureSize.height;
+			List<Size> supportedPreviewSizes = param.getSupportedPreviewSizes();
+			Size previewSize = getOptimalPreviewSize(supportedPreviewSizes, width, height, aspectRatio);
+			if (previewSize != null) {
+				param.setPreviewSize(previewSize.width, previewSize.height);
+				camera.setParameters(param);
+			}
+
+			previewRunning = true;
+			camera.startPreview();
+		}
 	}
 
 	public void surfaceCreated(SurfaceHolder previewHolder) {
 		camera = Camera.open();
-
-		/*
-		 * Disabling this since it can end up picking a bad preview
-		 * size which can create stretching issues (TIMOB-8151).
-		 * Original words of wisdom left by some unknown person:
-		 * "using default preview size may be causing problem on some devices, setting dimensions manually"
-		 * We may want to expose camera parameters to the developer for extra control.
-		Parameters cameraParams = camera.getParameters();
-		Camera.Size previewSize = cameraParams.getSupportedPreviewSizes().get((cameraParams.getSupportedPreviewSizes().size()) - 1);
-		cameraParams.setPreviewSize(previewSize.width, previewSize.height );
-		camera.setParameters(cameraParams);
-		*/
 
 		try {
 			camera.setPreviewDisplay(previewHolder);
@@ -96,6 +102,7 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 	// make sure to call release() otherwise you will have to force kill the app before 
 	// the built in camera will open
 	public void surfaceDestroyed(SurfaceHolder previewHolder) {
+		stopPreview();
 		camera.release();
 		camera = null;
 	}
@@ -113,6 +120,7 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 	protected void onPause() {
 		super.onPause();
 
+		stopPreview();
 		previewLayout.removeView(preview);
 		previewLayout.removeView(localOverlayProxy.getOrCreateView().getNativeView());
 
@@ -126,13 +134,59 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 		cameraActivity = null;
 	}
 
-	@Override
-	protected void onDestroy() {
-		super.onDestroy();
-
-		if (cancelCallback != null) {
-			cancelCallback.callAsync(callbackContext, new Object[] { });
+	private void stopPreview() {
+		if (camera == null || !previewRunning) {
+			return;
 		}
+
+		camera.stopPreview();
+		previewRunning = false;
+	}
+
+	/**
+	 * Computes the optimal preview size given the target display size and aspect ratio.
+	 *
+	 * @param supportPreviewSizes a list of preview sizes the camera supports
+	 * @param targetSize the target display size that will render the preview
+	 * @param aspectRatio the aspect ratio to use for previewing the image
+	 * @return the optimal size of the preview
+	 */
+	private static Size getOptimalPreviewSize(List<Size> supportedPreviewSizes, int width, int height, double aspectRatio) {
+		final double ASPECT_TOLERANCE = 0.001;
+		Size optimalSize = null;
+		double minDiff = Double.MAX_VALUE;
+
+        int targetHeight = Math.min(height, width);
+        if (targetHeight <= 0) {
+            // We don't know the size of SurfaceView, use screen height
+            targetHeight = height;
+        }
+
+		for (Size size : supportedPreviewSizes) {
+			double ratio = (double) size.width / size.height;
+			if (Math.abs(ratio - aspectRatio) > ASPECT_TOLERANCE) continue;
+
+            if (Math.abs(size.height - targetHeight) < minDiff) {
+                optimalSize = size;
+                minDiff = Math.abs(size.height - targetHeight);
+            }
+		}
+
+		// If a size cannot be found that matches the aspect ratio, try
+		// again and just ignore the aspect ratio. We will just try to find
+		// the best size that fits best.
+		if (optimalSize == null) {
+			Log.w(LCAT, "No preview size found that matches the aspect ratio.");
+			minDiff = Double.MAX_VALUE;
+			for (Size size : supportedPreviewSizes) {
+				if (Math.abs(size.height - targetHeight) < minDiff) {
+					optimalSize = size;
+					minDiff = Math.abs(size.height - targetHeight);
+				}
+			}
+		}
+
+		return optimalSize;
 	}
 
 	private static void onError(int code, String message) {
