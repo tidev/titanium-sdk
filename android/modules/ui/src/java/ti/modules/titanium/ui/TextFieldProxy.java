@@ -19,6 +19,7 @@ import android.app.Activity;
 @Kroll.proxy(creatableInModule=UIModule.class, propertyAccessors = {
 	TiC.PROPERTY_AUTOCAPITALIZATION,
 	TiC.PROPERTY_AUTOCORRECT,
+	TiC.PROPERTY_AUTO_LINK,
 	TiC.PROPERTY_CLEAR_ON_EDIT,
 	TiC.PROPERTY_COLOR,
 	TiC.PROPERTY_EDITABLE,
