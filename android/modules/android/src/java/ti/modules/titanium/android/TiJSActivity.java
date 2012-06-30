@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -50,6 +50,16 @@ public abstract class TiJSActivity extends TiLaunchActivity
 	}
 
 	@Override
+	protected void contextCreated()
+	{
+		super.contextCreated();
+		TiActivityWindowProxy window = new TiActivityWindowProxy();
+		window.setActivity(this);
+		TiBindingHelper.bindCurrentWindow(window);
+		setWindowProxy(window);
+	}
+
+	@Override
 	protected void scriptLoaded()
 	{
 		super.scriptLoaded();
@@ -59,12 +69,9 @@ public abstract class TiJSActivity extends TiLaunchActivity
 	@Override
 	protected void windowCreated()
 	{
-		// Set window proxy here to make sure layout != null
-		TiActivityWindowProxy win = new TiActivityWindowProxy();
-		win.setActivity(this);
-		TiBindingHelper.bindCurrentWindow(win);
-		setWindowProxy(win);
-		
+		// Set the layout proxy here since it's not ready when we indirectly call it inside contextCreated()
+		setLayoutProxy(window);
+
 		// The UIWindow needs to be created before we run the script
 		activityWindow = new TiUIActivityWindow((TiActivityWindowProxy)window, this, layout);
 		super.windowCreated();
@@ -75,4 +82,11 @@ public abstract class TiJSActivity extends TiLaunchActivity
 	{
 		return getIntentBoolean(TiC.PROPERTY_EXIT_ON_CLOSE, false) || super.shouldFinishRootActivity();
 	}
+
+	@Override
+	public boolean isJSActivity()
+	{
+		return true;
+	}
+
 }
