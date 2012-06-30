@@ -20,6 +20,7 @@ import java.net.URI;
 import java.net.URL;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
+import java.nio.charset.CharacterCodingException;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 import java.util.ArrayList;
@@ -27,6 +28,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.zip.GZIPInputStream;
 
 import org.apache.http.Header;
@@ -106,6 +109,12 @@ public class TiHTTPClient
 	private static final String ON_DATA_STREAM = "ondatastream";
 	private static final String ON_SEND_STREAM = "onsendstream";
 
+	private static final String[] FALLBACK_CHARSETS = {HTTP.UTF_8, HTTP.ISO_8859_1};
+
+	// Regular expressions for detecting charset information in response documents (ex: html, xml).
+	private static final String HTML_META_TAG_REGEX = "charset=([^\"]*)";
+	private static final String XML_DECLARATION_TAG_REGEX = "encoding=\"([^\"]*)\"";
+
 	private static AtomicInteger httpClientThreadCounter;
 	private static DefaultHttpClient nonValidatingClient;
 	private static DefaultHttpClient validatingClient;
@@ -148,7 +157,6 @@ public class TiHTTPClient
 	public static final int READY_STATE_HEADERS_RECEIVED = 2; // Headers received, headers have returned and the status is available
 	public static final int READY_STATE_LOADING = 3; // Loading, responseText is being loaded with data
 	public static final int READY_STATE_DONE = 4; // Done, all operations have finished
-
 
 	class RedirectHandler extends DefaultRedirectHandler
 	{
@@ -552,47 +560,100 @@ public class TiHTTPClient
 		fireCallback(ON_ERROR, new Object[] {event});
 	}
 
-	public String getResponseText()
-	{
-		if (responseData != null && responseText == null) {
-			boolean unknownCharset = false;
-			boolean shouldRetry = false;
-			if (charset == null) {
-				unknownCharset = true;
-				charset = HTTP.UTF_8;
-			}
+	private String decodeResponseData(String charsetName) {
+		Charset charset;
+		try {
+			charset = Charset.forName(charsetName);
 
-			try {
-				CharsetDecoder decoder = Charset.forName(charset).newDecoder();
-				ByteBuffer data = ByteBuffer.wrap(responseData.getBytes());
-				CharBuffer b = decoder.decode(data);
-				responseText = b.toString();
-			} catch (Exception e) {
-				Log.e(LCAT, "Unable to decode using charset: " + charset);
-				shouldRetry = unknownCharset;
-			} catch (OutOfMemoryError e) {
-				 Log.e(LCAT, "Unable to get response text: out of memory");
-			}
-			
-			if (shouldRetry) {
-				if (DBG) {
-					Log.d(LCAT, "Decoding as UTF-8 failed. Retrying decoding of response data with ISO-8859-1");
-				}
-				charset = HTTP.ISO_8859_1;
-				try {
-					CharsetDecoder decoder = Charset.forName(charset).newDecoder();
-					ByteBuffer data = ByteBuffer.wrap(responseData.getBytes());
-					CharBuffer b = decoder.decode(data);
-					responseText = b.toString();
-				} catch (Exception e) {
-					Log.e(LCAT, "Unable to decode using charset: " + charset);
-				} catch (OutOfMemoryError e) {
-					 Log.e(LCAT, "Unable to get response text: out of memory");
-				}
-			}
-
+		} catch (IllegalArgumentException e) {
+			Log.e(LCAT, "Could not find charset: " + e.getMessage());
+			return null;
 		}
 
+		CharsetDecoder decoder = charset.newDecoder();
+		ByteBuffer in = ByteBuffer.wrap(responseData.getBytes());
+
+		try {
+			CharBuffer decodedText = decoder.decode(in);
+			return decodedText.toString();
+
+		} catch (CharacterCodingException e) {
+			return null;
+
+		} catch (OutOfMemoryError e) {
+			Log.e(LCAT, "Not enough memory to decode response data.");
+			return null;
+		}
+	}
+
+	/**
+	 * Attempts to scan the response data to determine the encoding of the text.
+	 * Looks for meta information usually found in HTML or XML documents.
+	 *
+	 * @return The name of the encoding if detected, otherwise null if no encoding could be determined.
+	 */
+	private String detectResponseDataEncoding() {
+		String regex;
+		if (contentType == null) {
+			Log.i(LCAT, "Could not detect charset, no content type specified.");
+			return null;
+
+		} else if (contentType.contains("xml")) {
+			regex = XML_DECLARATION_TAG_REGEX;
+
+		} else if (contentType.contains("html")) {
+			regex = HTML_META_TAG_REGEX;
+
+		} else {
+			Log.i(LCAT, "Cannot detect charset, unknown content type: " + contentType);
+			return null;
+		}
+
+		CharSequence responseSequence = responseData.toString();
+		Pattern pattern = Pattern.compile(regex);
+		Matcher matcher = pattern.matcher(responseSequence);
+		if (matcher.find()) {
+			return matcher.group(1);
+		}
+
+		return null;
+	}
+
+	public String getResponseText()
+	{
+		if (responseText != null || responseData == null) {
+			return responseText;
+		}
+
+		// First try decoding the response data using the charset
+		// specified in the response content-type header.
+		if (charset != null) {
+			responseText = decodeResponseData(charset);
+			if (responseText != null) {
+				return responseText;
+			}
+		}
+
+		// If the first attempt to decode fails try detecting the correct
+		// charset by scanning the response data.
+		String detectedCharset = detectResponseDataEncoding();
+		if (detectedCharset != null) {
+			Log.i(LCAT, "detected charset: " + detectedCharset);
+			responseText = decodeResponseData(detectedCharset);
+			if (responseText != null) {
+				return responseText;
+			}
+		}
+
+		// As a last resort try our fallback charsets to decode the data.
+		for (String charset : FALLBACK_CHARSETS) {
+			responseText = decodeResponseData(charset);
+			if (responseText != null) {
+				return responseText;
+			}
+		}
+
+		Log.e(LCAT, "Could not decode response text.");
 		return responseText;
 	}
 
