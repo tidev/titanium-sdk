@@ -140,8 +140,8 @@ class FastDevHandler(SocketServer.BaseRequestHandler):
 				serving = False
 				if sys.version_info < (2, 6):
 					serving = server.is_serving()
-				elif sys.version_info < (2, 7):
-					serving = server._BaseServer__serving
+				# elif sys.version_info < (2, 7):
+				# 	serving = server._BaseServer__serving
 				else:
 					serving = not server._BaseServer__is_shut_down.isSet()
 				if not serving:
