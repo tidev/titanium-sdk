@@ -24,6 +24,7 @@ import org.appcelerator.titanium.io.TitaniumBlob;
 import org.appcelerator.titanium.util.TiMimeTypeHelper;
 
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Bitmap.CompressFormat;
 
 /** 
@@ -156,6 +157,7 @@ public class TiBlob extends KrollProxy
 		if (mimetype == null || mimetype.length() == 0) {
 			return new TiBlob(TYPE_DATA, data, "application/octet-stream");
 		}
+
 		return new TiBlob(TYPE_DATA, data, mimetype);
 	}
 
@@ -342,6 +344,14 @@ public class TiBlob extends KrollProxy
 	{
 		return height;
 	}
+
+    @Kroll.method
+    public TiBlob toImage()
+    {
+        byte[] bytes = getBytes();
+        Bitmap bitmap= BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+        return TiBlob.blobFromImage(bitmap);
+    }
 
 	@Kroll.method
 	public String toString()
