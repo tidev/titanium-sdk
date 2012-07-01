@@ -91,6 +91,7 @@ import org.appcelerator.titanium.io.TiResourceFile;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiMimeTypeHelper;
 import org.appcelerator.titanium.util.TiUrl;
+import org.appcelerator.titanium.util.TiWeakList;
 
 import ti.modules.titanium.xml.DocumentProxy;
 import ti.modules.titanium.xml.XMLModule;
@@ -505,6 +506,17 @@ public class TiHTTPClient
 		eventProperties.put("source", proxy);
 
 		fireCallback(name, new Object [] {eventProperties});
+	}
+
+	private void deleteTmpFiles(TiWeakList<File> tmpFiles)
+	{
+		if (tmpFiles != null && tmpFiles.size() > 0) {
+			for (WeakReference<File> ref : tmpFiles) {
+				File tmpFile = ref.get();
+				tmpFile.delete();
+			}
+			tmpFiles.clear();
+		}
 	}
 
 	public void fireCallback(String name, Object[] args)
@@ -928,7 +940,7 @@ public class TiHTTPClient
 		}
 	}
 
-	public int addTitaniumFileAsPostData(String name, Object value)
+	public int addTitaniumFileAsPostData(String name, Object value, TiWeakList<File> tmpFiles)
 	{
 		try {
 			// TiResourceFile cannot use the FileBody approach directly, because it requires
@@ -953,7 +965,9 @@ public class TiHTTPClient
 				FileOutputStream fos = new FileOutputStream(tmpFile);
 				fos.write(blob.getBytes());
 				fos.close();
-				
+
+				tmpFiles.add(new WeakReference<File>(tmpFile));
+
 				FileBody body = new FileBody(tmpFile, mimeType);
 				parts.put(name, body);
 				return blob.getLength();
@@ -1013,6 +1027,8 @@ public class TiHTTPClient
 
 	public void send(Object userData) throws MethodNotSupportedException
 	{
+		TiWeakList<File> tmpFiles = null;
+
 		aborted = false;
 
 		// TODO consider using task manager
@@ -1025,7 +1041,9 @@ public class TiHTTPClient
 				HashMap<String, Object> data = (HashMap) userData;
 				boolean isPostOrPut = method.equals("POST") || method.equals("PUT");
 				boolean isGet = !isPostOrPut && method.equals("GET");
-								
+
+				tmpFiles = new TiWeakList<File>();
+
 				// first time through check if we need multipart for POST
 				for (String key : data.keySet()) {
 					Object value = data.get(key);
@@ -1053,7 +1071,7 @@ public class TiHTTPClient
 						}
 
 						if (value instanceof TiBaseFile || value instanceof TiBlob) {
-							totalLength += addTitaniumFileAsPostData(key, value);
+							totalLength += addTitaniumFileAsPostData(key, value, tmpFiles);
 
 						} else {
 							String str = TiConvert.toString(value);
@@ -1087,7 +1105,7 @@ public class TiHTTPClient
 			request.setHeader(header, headers.get(header));
 		}
 
-		clientThread = new Thread(new ClientRunnable(totalLength), "TiHttpClient-" + httpClientThreadCounter.incrementAndGet());
+		clientThread = new Thread(new ClientRunnable(totalLength, tmpFiles), "TiHttpClient-" + httpClientThreadCounter.incrementAndGet());
 		clientThread.setPriority(Thread.MIN_PRIORITY);
 		clientThread.start();
 
@@ -1099,10 +1117,12 @@ public class TiHTTPClient
 	private class ClientRunnable implements Runnable
 	{
 		private double totalLength;
+		private TiWeakList<File> tmpFiles;
 
-		public ClientRunnable(double totalLength)
+		public ClientRunnable(double totalLength, TiWeakList<File> tmpFiles)
 		{
 			this.totalLength = totalLength;
+			this.tmpFiles = tmpFiles;
 		}
 
 		public void run()
@@ -1216,6 +1236,7 @@ public class TiHTTPClient
 				connected = false;
 				setResponseText(result);
 				setReadyState(READY_STATE_DONE);
+				deleteTmpFiles(tmpFiles);
 
 			} catch(Throwable t) {
 				if (client != null) {
