@@ -349,8 +349,12 @@ public class TiBlob extends KrollProxy
     public TiBlob toImage()
     {
         byte[] bytes = getBytes();
-        Bitmap bitmap= BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
-        return TiBlob.blobFromImage(bitmap);
+        BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inJustDecodeBounds = true;
+        BitmapFactory.decodeByteArray(bytes, 0, bytes.length, options);
+        this.width = options.outWidth;
+        this.height = options.outHeight;
+        return this;
     }
 
 	@Kroll.method
