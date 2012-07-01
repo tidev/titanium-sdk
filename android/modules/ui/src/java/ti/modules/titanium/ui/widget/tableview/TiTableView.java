@@ -79,9 +79,11 @@ public class TiTableView extends FrameLayout
 		TableViewModel viewModel;
 		ArrayList<Integer> index;
 		private boolean filtered;
+        private TableViewProxy proxy;
 
-		TTVListAdapter(TableViewModel viewModel) {
+		TTVListAdapter(TableViewModel viewModel, TableViewProxy proxy) {
 			this.viewModel = viewModel;
+            this.proxy = proxy;
 			this.index = new ArrayList<Integer>(viewModel.getRowCount());
 			reIndexItems();
 		}
@@ -213,7 +215,21 @@ public class TiTableView extends FrameLayout
 				v.setLayoutParams(new AbsListView.LayoutParams(
 					AbsListView.LayoutParams.FILL_PARENT, AbsListView.LayoutParams.FILL_PARENT));
 			}
+            else
+            {
+                //we are reusing a cell
+                TableViewRowProxy row = (TableViewRowProxy)item.proxy;
+                KrollDict event = new KrollDict();
+                TableViewRowProxy.fillClickEvent(event, viewModel, item);
+                row.fireEvent("reuse", event);
+            }
+
 			v.setRowData(item);
+            //now it means the view will appear
+            KrollDict event = new KrollDict();
+            TableViewRowProxy.fillClickEvent(event, viewModel, item);
+            proxy.fireEvent("rowappear", event);
+
 			return v;
 		}
 
@@ -317,7 +333,7 @@ public class TiTableView extends FrameLayout
 		if (proxy.hasProperty(TiC.PROPERTY_SEPARATOR_COLOR)) {
 			setSeparatorColor(TiConvert.toString(proxy.getProperty(TiC.PROPERTY_SEPARATOR_COLOR)));
 		}
-		adapter = new TTVListAdapter(viewModel);
+		adapter = new TTVListAdapter(viewModel, proxy);
 		if (proxy.hasProperty(TiC.PROPERTY_HEADER_VIEW)) {
 			TiViewProxy view = (TiViewProxy) proxy.getProperty(TiC.PROPERTY_HEADER_VIEW);
 			listView.addHeaderView(layoutHeaderOrFooter(view), null, false);
