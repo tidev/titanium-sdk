@@ -66,16 +66,24 @@ properties:
   - name: autoLink
     summary: Automatically convert text to clickable links. 
     description: |
-        Use one of the <Titanium.UI.iOS> auto-detect constants, 
+        In iOS, use one of the <Titanium.UI.iOS> auto-detect constants: 
         [AUTODETECT_ADDRESS](Titanium.UI.iOS.AUTODETECT_ADDRESS), 
         [AUTODETECT_ALL](Titanium.UI.iOS.AUTODETECT_ALL), 
         [AUTODETECT_CALENDAR](Titanium.UI.iOS.AUTODETECT_CALENDAR), 
         [AUTODETECT_LINK](Titanium.UI.iOS.AUTODETECT_LINK), 
         [AUTODETECT_NONE](Titanium.UI.iOS.AUTODETECT_NONE), 
         or [AUTODETECT_PHONE](Titanium.UI.iOS.AUTODETECT_PHONE).
+        
+        In Android, use one of the <Titanium.UI.Android> linkify constants:
+        [LINKIFY_ALL](Titanium.UI.Android.LINKIFY_ALL),
+        [LINKIFY_EMAIL_ADDRESSES](Titanium.UI.Android.LINKIFY_EMAIL_ADDRESSES),
+        [LINKIFY_MAP_ADDRESSES](Titanium.UI.Android.LINKIFY_MAP_ADDRESSES),
+        [LINKIFY_PHONE_NUMBERS](Titanium.UI.Android.LINKIFY_PHONE_NUMBERS),
+        or [LINKIFY_WEB_URLS](Titanium.UI.Android.LINKIFY_WEB_URLS).
     type: Number
-    default: <Titanium.UI.iOS.AUTODETECT_NONE>
-    platforms: [iphone, ipad]
+    default: <Titanium.UI.iOS.AUTODETECT_NONE> in iOS, undefined in Android
+    since: {android: 2.2.0}
+    platforms: [android, iphone, ipad]
     
   - name: clearOnEdit
     summary: Determines whether the value of this text area should be cleared when it is focused.

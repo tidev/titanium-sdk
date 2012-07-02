@@ -16,6 +16,7 @@
 DEFINE_DEF_PROP(value,@"");
 DEFINE_DEF_BOOL_PROP(enabled,YES);
 DEFINE_DEF_BOOL_PROP(enableReturnKey,NO);
+DEFINE_DEF_BOOL_PROP(editable,YES);
 DEFINE_DEF_BOOL_PROP(autocorrect,NO);
 DEFINE_DEF_BOOL_PROP(clearOnEdit,NO);
 DEFINE_DEF_BOOL_PROP(passwordMask,NO);

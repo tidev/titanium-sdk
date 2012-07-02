@@ -134,15 +134,19 @@ public class TiUIText extends TiUIView
 		if (d.containsKey(TiC.PROPERTY_ENABLED)) {
 			tv.setEnabled(d.getBoolean(TiC.PROPERTY_ENABLED));
 		}
+		
 		if (d.containsKey(TiC.PROPERTY_VALUE)) {
 			tv.setText(d.getString(TiC.PROPERTY_VALUE));
 		}
+		
 		if (d.containsKey(TiC.PROPERTY_COLOR)) {
 			tv.setTextColor(TiConvert.toColor(d, TiC.PROPERTY_COLOR));
 		}
+		
 		if (d.containsKey(TiC.PROPERTY_HINT_TEXT)) {
 			tv.setHint(d.getString(TiC.PROPERTY_HINT_TEXT));
 		}
+		
 		if (d.containsKey(TiC.PROPERTY_ELLIPSIZE)) {
 			if (TiConvert.toBoolean(d, TiC.PROPERTY_ELLIPSIZE)) {
 				tv.setEllipsize(TruncateAt.END);
@@ -150,9 +154,11 @@ public class TiUIText extends TiUIView
 				tv.setEllipsize(null);
 			}
 		}
+		
 		if (d.containsKey(TiC.PROPERTY_FONT)) {
 			TiUIHelper.styleText(tv, d.getKrollDict(TiC.PROPERTY_FONT));
 		}
+		
 		if (d.containsKey(TiC.PROPERTY_TEXT_ALIGN) || d.containsKey(TiC.PROPERTY_VERTICAL_ALIGN)) {
 			String textAlign = null;
 			String verticalAlign = null;
@@ -164,12 +170,17 @@ public class TiUIText extends TiUIView
 			}
 			handleTextAlign(textAlign, verticalAlign);
 		}
+		
 		if (d.containsKey(TiC.PROPERTY_RETURN_KEY_TYPE)) {
 			handleReturnKeyType(d.getInt(TiC.PROPERTY_RETURN_KEY_TYPE));
 		}
-		if (d.containsKey(TiC.PROPERTY_KEYBOARD_TYPE) || d.containsKey(TiC.PROPERTY_AUTOCORRECT) || d.containsKey(TiC.PROPERTY_PASSWORD_MASK) || d.containsKey(TiC.PROPERTY_AUTOCAPITALIZATION) || d.containsKey(TiC.PROPERTY_EDITABLE))
-		{
+		
+		if (d.containsKey(TiC.PROPERTY_KEYBOARD_TYPE) || d.containsKey(TiC.PROPERTY_AUTOCORRECT) || d.containsKey(TiC.PROPERTY_PASSWORD_MASK) || d.containsKey(TiC.PROPERTY_AUTOCAPITALIZATION) || d.containsKey(TiC.PROPERTY_EDITABLE)) {
 			handleKeyboard(d);
+		}
+		
+		if (d.containsKey(TiC.PROPERTY_AUTO_LINK)) {
+			TiUIHelper.linkifyIfEnabled(tv, d.get(TiC.PROPERTY_AUTO_LINK));
 		}
 	}
 
@@ -215,7 +226,10 @@ public class TiUIText extends TiUIView
 			handleReturnKeyType(TiConvert.toInt(newValue));
 		} else if (key.equals(TiC.PROPERTY_FONT)) {
 			TiUIHelper.styleText(tv, (HashMap) newValue);
+		} else if (key.equals(TiC.PROPERTY_AUTO_LINK)){
+			TiUIHelper.linkifyIfEnabled(tv, newValue);
 		} else {
+		
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}
 	}
