@@ -112,8 +112,8 @@ public class TiHTTPClient
 	private static final String[] FALLBACK_CHARSETS = {HTTP.UTF_8, HTTP.ISO_8859_1};
 
 	// Regular expressions for detecting charset information in response documents (ex: html, xml).
-	private static final String HTML_META_TAG_REGEX = "charset=([^\"]*)";
-	private static final String XML_DECLARATION_TAG_REGEX = "encoding=\"([^\"]*)\"";
+	private static final String HTML_META_TAG_REGEX = "charset=([^\"\']*)";
+	private static final String XML_DECLARATION_TAG_REGEX = "encoding=[\"\']([^\"\']*)[\"\']";
 
 	private static AtomicInteger httpClientThreadCounter;
 	private static DefaultHttpClient nonValidatingClient;
