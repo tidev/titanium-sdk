@@ -500,17 +500,6 @@ public class TiHTTPClient
 		fireCallback(name, new Object [] {eventProperties});
 	}
 
-	private void deleteTmpFiles(TiWeakList<File> tmpFiles)
-	{
-		if (tmpFiles != null && tmpFiles.size() > 0) {
-			for (WeakReference<File> ref : tmpFiles) {
-				File tmpFile = ref.get();
-				tmpFile.delete();
-			}
-			tmpFiles.clear();
-		}
-	}
-
 	public void fireCallback(String name, Object[] args)
 	{
 		KrollFunction cb = getCallback(name);
@@ -880,7 +869,7 @@ public class TiHTTPClient
 		}
 	}
 
-	public int addTitaniumFileAsPostData(String name, Object value, TiWeakList<File> tmpFiles)
+	public int addTitaniumFileAsPostData(String name, Object value, ArrayList<File> tmpFiles)
 	{
 		try {
 			// TiResourceFile cannot use the FileBody approach directly, because it requires
@@ -906,7 +895,7 @@ public class TiHTTPClient
 				fos.write(blob.getBytes());
 				fos.close();
 
-				tmpFiles.add(new WeakReference<File>(tmpFile));
+				tmpFiles.add(tmpFile);
 
 				FileBody body = new FileBody(tmpFile, mimeType);
 				parts.put(name, body);
@@ -967,7 +956,7 @@ public class TiHTTPClient
 
 	public void send(Object userData) throws MethodNotSupportedException
 	{
-		TiWeakList<File> tmpFiles = null;
+		ArrayList<File> tmpFiles = null;
 
 		aborted = false;
 
@@ -982,7 +971,7 @@ public class TiHTTPClient
 				boolean isPostOrPut = method.equals("POST") || method.equals("PUT");
 				boolean isGet = !isPostOrPut && method.equals("GET");
 
-				tmpFiles = new TiWeakList<File>();
+				tmpFiles = new ArrayList<File>();
 
 				// first time through check if we need multipart for POST
 				for (String key : data.keySet()) {
@@ -1057,9 +1046,9 @@ public class TiHTTPClient
 	private class ClientRunnable implements Runnable
 	{
 		private double totalLength;
-		private TiWeakList<File> tmpFiles;
+		private ArrayList<File> tmpFiles;
 
-		public ClientRunnable(double totalLength, TiWeakList<File> tmpFiles)
+		public ClientRunnable(double totalLength, ArrayList<File> tmpFiles)
 		{
 			this.totalLength = totalLength;
 			this.tmpFiles = tmpFiles;
@@ -1104,6 +1093,7 @@ public class TiHTTPClient
 								Log.d(LCAT, "adding part " + name + ", part type: " + parts.get(name).getMimeType() + ", len: " + parts.get(name).getContentLength());
 							}
 							mpe.addPart(name, parts.get(name));
+
 						}
 
 						if (form != null) {
@@ -1176,7 +1166,6 @@ public class TiHTTPClient
 				connected = false;
 				setResponseText(result);
 				setReadyState(READY_STATE_DONE);
-				deleteTmpFiles(tmpFiles);
 
 			} catch(Throwable t) {
 				if (client != null) {
@@ -1200,6 +1189,21 @@ public class TiHTTPClient
 				Log.e(LCAT, "HTTP Error (" + t.getClass().getName() + "): " + msg, t);
 				sendError(msg);
 			}
+
+			deleteTmpFiles(tmpFiles);
+		}
+	}
+
+	private void deleteTmpFiles(ArrayList<File> tmpFiles)
+	{
+		if (tmpFiles != null && tmpFiles.size() > 0) {
+			for (File tmpFile : tmpFiles) {
+				tmpFile.delete();
+			}
+		}
+		if (tmpFiles != null) {
+			tmpFiles.clear();
+			tmpFiles = null;
 		}
 	}
 	
