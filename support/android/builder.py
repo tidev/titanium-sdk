@@ -1560,7 +1560,6 @@ class Builder(object):
 			app_apk = os.path.join(self.project_dir, 'bin', 'app.apk')	
 
 		output = run.run([self.jarsigner,
-			'-sigalg', 'MD5withRSA',
 			'-digestalg', 'SHA1',
 			'-storepass', self.keystore_pass,
 			'-keystore', self.keystore,
