@@ -83,24 +83,21 @@ module.exports = new function() {
 	}
 
 	this.connectToDriver = function() {
+		var connectMessage = {type: "ready"};
 		if(Ti.Platform.name == "mobileweb") {
 			Ti.API.info("connecting to driver...");
-			harnessGlobal.util.sendData({type: "connect"});
+			harnessGlobal.util.sendData(connectMessage);
 
 		} else {
-			harnessGlobal.util.connect();
+			Ti.API.info("listening for driver connection...");
+			harnessGlobal.util.socketListen(connectMessage);
 		}
 	}
 
 	this.processDriverData = function(data) {
 		var elements = data.split("|");
 
-		if(elements[0] == "connect") {
-			harnessGlobal.httpHost = elements[1];
-			harnessGlobal.httpPort = elements[2];
-			harnessGlobal.util.sendData({type: "ready"});
-
-		} else if(elements[0] == "getSuites") {
+		if(elements[0] == "getSuites") {
 			var suitesWrapper = {type: "suites", suites: harnessGlobal.suites};
 			harnessGlobal.util.sendData(suitesWrapper);
 
@@ -114,7 +111,7 @@ module.exports = new function() {
 			if(currentSuite.name != elements[1]) {
 				setActiveSuite(elements[1]);
 			}
-			
+
 			for(var i in currentSuite.tests) {
 				if(currentSuite.tests[i].name == elements[2]) {
 					currentTest = i;
@@ -123,20 +120,18 @@ module.exports = new function() {
 					testFinished = false;
 					resultSent = false;
 
-					/*
-					keep a unique scope for the test that can be shared among the utility 
-					functions and passed back with the result as a state check to guard against 
-					processing obsolete results
-					*/
-					var testRun = {
-						suiteName: currentSuite.name,
-						testName: currentSuite.tests[currentTest].name,
-						resultSet: false
-					}
-
 					Ti.API.info("running suite<" + elements[1] + "> test<" + elements[2] + ">...");
 					try {
-						currentSuite[currentSuite.tests[currentTest].name](testRun);
+						/*
+						keep a unique scope for the test that can be shared among the utility 
+						functions and passed back with the result as a state check to guard against 
+						processing obsolete results
+						*/
+						currentSuite[currentSuite.tests[currentTest].name]({
+							suiteName: currentSuite.name,
+							testName: currentSuite.tests[currentTest].name,
+							resultSet: false
+						});
 
 						testReturned = true;
 

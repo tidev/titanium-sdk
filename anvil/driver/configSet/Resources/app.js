@@ -5,15 +5,8 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
-var harnessGlobal = new Object();
-
-harnessGlobal.common = require("common");
-harnessGlobal.common.init(harnessGlobal);
-
-harnessGlobal.util = require("util");
-harnessGlobal.util.init(harnessGlobal);
-
-harnessGlobal.suites = [
+// start customization here
+var suites = [
 	{name: "analytics"},
 	{name: "blob"},
 	{name: "buffer"},
@@ -43,7 +36,7 @@ harnessGlobal.suites = [
 ];
 
 if (Ti.Platform.osname === 'android') {
-	harnessGlobal.suites = harnessGlobal.suites.concat([
+	suites = suites.concat([
 		{name: "android/android_database/android_database"},
 		{name: "android/android_filesystem"},
 		{name: "android/android_geolocation"},
@@ -57,12 +50,31 @@ if (Ti.Platform.osname === 'android') {
 	]);
 
 } else if((Ti.Platform.osname === 'iPhone') || (Ti.Platform.osname === 'iPad')) {
-	harnessGlobal.suites = harnessGlobal.suites.concat([
+	suites = suites.concat([
 		{name: "iphone/iphone_2Dmatrix"},
 		{name: "iphone/iphone_ui"},
 		{name: "iphone/iphone_UI_3DMatrix"}
 	]);
 }
+// end customization here
 
-harnessGlobal.socketPort = 40404;
+
+var harnessGlobal = new Object();
+
+// load required modules
+harnessGlobal.common = require("common");
+harnessGlobal.common.init(harnessGlobal);
+
+harnessGlobal.util = require("util");
+harnessGlobal.util.init(harnessGlobal);
+
+// load required properties
+harnessGlobal.socketPort = Ti.App.Properties.getInt("driver.socketPort");
+harnessGlobal.httpHost = Ti.App.Properties.getString("driver.httpHost");
+harnessGlobal.httpPort = Ti.App.Properties.getInt("driver.httpPort");
+
+// set the suites on the global for later use
+harnessGlobal.suites = suites;
+
+// start the test run
 harnessGlobal.common.connectToDriver();

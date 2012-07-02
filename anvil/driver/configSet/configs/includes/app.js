@@ -5,21 +5,29 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
+// start customization here
+var suites = [
+	{name: "includes/includes"}
+]
+// end customization here
+
+
 var harnessGlobal = new Object();
 
+// load required modules
 harnessGlobal.common = require("common");
 harnessGlobal.common.init(harnessGlobal);
 
 harnessGlobal.util = require("util");
 harnessGlobal.util.init(harnessGlobal);
 
-harnessGlobal.suites = [];
+// load required properties
+harnessGlobal.socketPort = Ti.App.Properties.getInt("driver.socketPort");
+harnessGlobal.httpHost = Ti.App.Properties.getString("driver.httpHost");
+harnessGlobal.httpPort = Ti.App.Properties.getInt("driver.httpPort");
 
-if (Ti.Platform.osname === 'android') {
-	harnessGlobal.suites = harnessGlobal.suites.concat([
-		{name: "android/android_calendar/android_calendar"}
-	]);
-}
+// set the suites on the global for later use
+harnessGlobal.suites = suites;
 
-harnessGlobal.socketPort = 40404;
+// start the test run
 harnessGlobal.common.connectToDriver();
