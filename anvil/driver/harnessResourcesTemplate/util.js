@@ -45,7 +45,7 @@ module.exports = new function() {
 		harnessGlobal = arg;
 	}
 
-	this.connect = function() {
+	this.socketListen = function(acceptedMessage) {
 		var pumpCallback = function(e) {
 			if (e.bytesProcessed == -1) { // EOF
 				Ti.API.info("<EOF> - Can't perform any more operations on connected socket");

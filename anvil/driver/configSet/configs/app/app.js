@@ -5,17 +5,29 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
+// start customization here
+var suites = [
+	{name: "app"}
+]
+// end customization here
+
+
 var harnessGlobal = new Object();
 
+// load required modules
 harnessGlobal.common = require("common");
 harnessGlobal.common.init(harnessGlobal);
 
 harnessGlobal.util = require("util");
 harnessGlobal.util.init(harnessGlobal);
 
-harnessGlobal.suites = [
-	{name: "includes/includes"}
-]
+// load required properties
+harnessGlobal.socketPort = Ti.App.Properties.getInt("driver.socketPort");
+harnessGlobal.httpHost = Ti.App.Properties.getString("driver.httpHost");
+harnessGlobal.httpPort = Ti.App.Properties.getInt("driver.httpPort");
 
-harnessGlobal.socketPort = 40404;
+// set the suites on the global for later use
+harnessGlobal.suites = suites;
+
+// start the test run
 harnessGlobal.common.connectToDriver();
