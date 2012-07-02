@@ -10,7 +10,6 @@ import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -54,6 +53,7 @@ import android.database.Cursor;
 import android.graphics.BitmapFactory;
 import android.hardware.Camera;
 import android.net.Uri;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
 import android.os.Vibrator;
@@ -135,6 +135,12 @@ public class MediaModule extends KrollModule
 	@Kroll.method
 	public void showCamera(HashMap options)
 	{
+		Activity activity = TiApplication.getInstance().getCurrentActivity();
+
+		if (DBG) {
+			Log.d(LCAT, "showCamera called");
+		}
+
 		KrollFunction successCallback = null;
 		KrollFunction cancelCallback = null;
 		KrollFunction errorCallback = null;
@@ -148,13 +154,27 @@ public class MediaModule extends KrollModule
 		if (options.containsKey("error")) {
 			errorCallback = (KrollFunction) options.get("error");
 		}
-		if (options.containsKey("overlay")) {
-			TiCameraActivity.overlayProxy = (TiViewProxy) options.get("overlay");
+
+		boolean saveToPhotoGallery = false;
+		if (options.containsKey("saveToPhotoGallery")) {
+			saveToPhotoGallery = TiConvert.toBoolean(options.get("saveToPhotoGallery"));
 		}
 
-		if (DBG) {
-			Log.d(LCAT, "showCamera called");
+		// Use our own custom camera activity when an overlay is provided.
+		if (options.containsKey("overlay")) {
+			TiCameraActivity.overlayProxy = (TiViewProxy) options.get("overlay");
+
+			TiCameraActivity.callbackContext = getKrollObject();
+			TiCameraActivity.successCallback = successCallback;
+			TiCameraActivity.errorCallback = errorCallback;
+			TiCameraActivity.cancelCallback	= cancelCallback;
+			TiCameraActivity.saveToPhotoGallery = saveToPhotoGallery;
+
+			Intent intent = new Intent(activity, TiCameraActivity.class);
+			activity.startActivity(intent);
+			return;
 		}
+
 		Camera camera = null;
 		try {
 			camera = Camera.open();
@@ -175,23 +195,43 @@ public class MediaModule extends KrollModule
 			return;
 		}
 
-		boolean saveToPhotoGallery = false;
-		if (options.containsKey("saveToPhotoGallery")) {
-			saveToPhotoGallery = TiConvert.toBoolean(options.get("saveToPhotoGallery"));
-		}
-
-		Activity activity = TiApplication.getInstance().getCurrentActivity();
 		TiActivitySupport activitySupport = (TiActivitySupport) activity;
 		TiFileHelper tfh = TiFileHelper.getInstance();
+
+		TiIntentWrapper cameraIntent = new TiIntentWrapper(new Intent());
+		if(TiCameraActivity.overlayProxy == null) {
+			cameraIntent.getIntent().setAction(MediaStore.ACTION_IMAGE_CAPTURE);
+			cameraIntent.getIntent().addCategory(Intent.CATEGORY_DEFAULT);
+		} else {
+			cameraIntent.getIntent().setClass(TiApplication.getInstance().getBaseContext(), TiCameraActivity.class);
+		}
+
+		cameraIntent.setWindowId(TiIntentWrapper.createActivityName("CAMERA"));
+		PackageManager pm = (PackageManager) activity.getPackageManager();
+		List<ResolveInfo> activities = pm.queryIntentActivities(cameraIntent.getIntent(), PackageManager.MATCH_DEFAULT_ONLY);
+
+		// See if it's the HTC camera app
+		boolean isHTCCameraApp = false;
+
+		for (ResolveInfo rs : activities) {
+			try {
+				if (rs.activityInfo.applicationInfo.sourceDir.contains("HTC")) {
+					isHTCCameraApp = true;
+					break;
+				}
+			} catch (NullPointerException e) {
+				//Ignore
+			}
+		}
 
 		File imageDir = null;
 		File imageFile = null;
 
 		try {
 			if (saveToPhotoGallery) {
-				imageDir = new File(PHOTO_DCIM_CAMERA);
-				if (!imageDir.exists()) {
-					imageDir.mkdirs();
+				// HTC camera application will create its own gallery image file.
+				if (!isHTCCameraApp) {
+					imageFile = createGalleryImageFile();
 				}
 
 			} else {
@@ -208,9 +248,9 @@ public class MediaModule extends KrollModule
 				} else {
 					imageDir = tfh.getDataDirectory(false);
 				}
-			}
 
-			imageFile = tfh.getTempFile(imageDir, ".jpg");
+				imageFile = tfh.getTempFile(imageDir, ".jpg", true);
+			}
 
 		} catch (IOException e) {
 			Log.e(LCAT, "Unable to create temp file", e);
@@ -221,48 +261,21 @@ public class MediaModule extends KrollModule
 			return;
 		}
 
-		String imageUrl = "file://" + imageFile.getAbsolutePath();
-		TiIntentWrapper cameraIntent = new TiIntentWrapper(new Intent());
-
-		if(TiCameraActivity.overlayProxy == null) {
-			cameraIntent.getIntent().setAction(MediaStore.ACTION_IMAGE_CAPTURE);
-			cameraIntent.getIntent().addCategory(Intent.CATEGORY_DEFAULT);
-		} else {
-			cameraIntent.getIntent().setClass(TiApplication.getInstance().getBaseContext(), TiCameraActivity.class);
-		}
-
-		cameraIntent.setWindowId(TiIntentWrapper.createActivityName("CAMERA"));
-
-		PackageManager pm = (PackageManager) activity.getPackageManager();
-		List<ResolveInfo> activities = pm.queryIntentActivities(cameraIntent.getIntent(), PackageManager.MATCH_DEFAULT_ONLY);
-		
-		// See if it's the HTC camera app
-		boolean isHTCCameraApp = false;
-		
-		for (ResolveInfo rs : activities) {
-			try {
-				if (rs.activityInfo.applicationInfo.sourceDir.contains("HTC")) {
-					isHTCCameraApp = true;
-					break;
-				}
-			} catch (NullPointerException e) {
-				//Ignore
-			}
-		}
-
-		if (!isHTCCameraApp) {
-			cameraIntent.getIntent().putExtra(MediaStore.EXTRA_OUTPUT, Uri.parse(imageUrl));
-		}
-
 		CameraResultHandler resultHandler = new CameraResultHandler();
 		resultHandler.imageFile = imageFile;
-		resultHandler.imageUrl = imageUrl;
 		resultHandler.saveToPhotoGallery = saveToPhotoGallery;
 		resultHandler.successCallback = successCallback;
 		resultHandler.cancelCallback = cancelCallback;
 		resultHandler.errorCallback = errorCallback;
 		resultHandler.activitySupport = activitySupport;
 		resultHandler.cameraIntent = cameraIntent.getIntent();
+
+		if (imageFile != null) {
+			String imageUrl = "file://" + imageFile.getAbsolutePath();
+			cameraIntent.getIntent().putExtra(MediaStore.EXTRA_OUTPUT, Uri.parse(imageUrl));
+			resultHandler.imageUrl = imageUrl;
+		}
+
 		activity.runOnUiThread(resultHandler);
 	}
 
@@ -302,6 +315,28 @@ public class MediaModule extends KrollModule
 		}
 
 		return super.handleMessage(message);
+	}
+
+	public static File createGalleryImageFile() {
+		File pictureDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
+		File appPictureDir = new File(pictureDir, TiApplication.getInstance().getAppInfo().getName());
+		if (!appPictureDir.exists()) {
+			if (!appPictureDir.mkdirs()) {
+				Log.e(LCAT, "Failed to create application gallery directory.");
+				return null;
+			}
+		}
+
+		File imageFile;
+		try {
+			imageFile = TiFileHelper.getInstance().getTempFile(appPictureDir, ".jpg", false);
+
+		} catch (IOException e) {
+			Log.e(LCAT, "Failed to create gallery image file: " + e.getMessage());
+			return null;
+		}
+
+		return imageFile;
 	}
 
 	private void invokeCallback(TiBaseActivity callbackActivity, KrollFunction callback, KrollObject krollObject, KrollDict callbackArgs)
@@ -373,7 +408,7 @@ public class MediaModule extends KrollModule
 					}
 					values.put("_data", imageFile.getAbsolutePath());
 
-					Uri imageUri = activity.getContentResolver().insert(Images.Media.EXTERNAL_CONTENT_URI, values);
+					activity.getContentResolver().insert(Images.Media.EXTERNAL_CONTENT_URI, values);
 
 					// puts newly captured photo into the gallery
 					MediaScannerClient mediaScanner = new MediaScannerClient(activity, new String[] {imageUrl}, null, null);
@@ -381,7 +416,7 @@ public class MediaModule extends KrollModule
 
 					try {
 						if (successCallback != null) {
-							invokeCallback((TiBaseActivity) activity, successCallback, getKrollObject(), createDictForImage(imageUri.toString(), "image/jpeg"));
+							invokeCallback((TiBaseActivity) activity, successCallback, getKrollObject(), createDictForImage(imageFile.getAbsolutePath(), "image/jpeg"));
 						}
 
 					} catch (OutOfMemoryError e) {
@@ -611,31 +646,27 @@ public class MediaModule extends KrollModule
 			});
 	}
 
-	KrollDict createDictForImage(String path, String mimeType) {
+	public static KrollDict createDictForImage(String path, String mimeType) {
+		String[] parts = { path };
+		TiBlob imageData = TiBlob.blobFromFile(TiFileFactory.createTitaniumFile(parts, false), mimeType);
+		return createDictForImage(imageData, mimeType);
+	}
+
+	public static KrollDict createDictForImage(TiBlob imageData, String mimeType) {
 		KrollDict d = new KrollDict();
 
 		int width = -1;
 		int height = -1;
 
-		try {
-			String fpath = path;
-			if (!fpath.startsWith("file://") && !fpath.startsWith("content://")) {
-				fpath = "file://" + path;
-			}
-			BitmapFactory.Options opts = new BitmapFactory.Options();
-			opts.inJustDecodeBounds = true;
+		BitmapFactory.Options opts = new BitmapFactory.Options();
+		opts.inJustDecodeBounds = true;
 
-			// We only need the ContentResolver so it doesn't matter if the root or current activity is used for
-			// accessing it
-			BitmapFactory.decodeStream(
-				TiApplication.getAppRootOrCurrentActivity().getContentResolver().openInputStream(Uri.parse(fpath)), null,
-				opts);
+		// We only need the ContentResolver so it doesn't matter if the root or current activity is used for
+		// accessing it
+		BitmapFactory.decodeStream(imageData.getInputStream(), null, opts);
 
-			width = opts.outWidth;
-			height = opts.outHeight;
-		} catch (FileNotFoundException e) {
-			Log.w(LCAT, "bitmap not found: " + path);
-		}
+		width = opts.outWidth;
+		height = opts.outHeight;
 
 		d.put("x", 0);
 		d.put("y", 0);
@@ -649,9 +680,8 @@ public class MediaModule extends KrollModule
 		cropRect.put("height", height);
 		d.put("cropRect", cropRect);
 
-		String[] parts = { path };
 		d.put("mediaType", MEDIA_TYPE_PHOTO);
-		d.put("media", TiBlob.blobFromFile(TiFileFactory.createTitaniumFile(parts, false), mimeType));
+		d.put("media", imageData);
 
 		return d;
 	}
