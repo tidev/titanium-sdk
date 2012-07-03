@@ -101,7 +101,7 @@ module.exports = new function() {
 					successCallback();
 				}
 			});
-		}
+		};
 
 		if (path.existsSync(driverGlobal.harnessDir + "/android/harness/tiapp.xml")) {
 			buildCallback();
@@ -115,22 +115,22 @@ module.exports = new function() {
 	this.startConfig = function() {
 		var deleteCallback = function() {
 			deleteHarness(installCallback);
-		}
+		};
 
 		var installCallback = function() {
 			installHarness(runCallback, commandFinishedCallback);
-		}
+		};
 
 		var runCallback = function() {
 			runHarness(connectCallback, commandFinishedCallback);
-		}
+		};
 
 		var connectCallback = function() {
 			connectToHarness(commandFinishedCallback);
-		}
+		};
 
 		self.deviceIsConnected(function(connected) {
-			if(connected) {
+			if (connected) {
 				common.startConfig(deleteCallback);
 
 			} else {
@@ -162,7 +162,7 @@ module.exports = new function() {
 				util.log("harness is not built, building");
 				buildHarness(installCallback, errorCallback);
 			}
-		}
+		};
 
 		uninstallHarness(installCallback, errorCallback);
 	};
@@ -258,11 +258,11 @@ module.exports = new function() {
 	this.resumeConfig = function() {
 		var runCallback = function() {
 			runHarness(connectCallback, commandFinishedCallback);
-		}
+		};
 
 		var connectCallback = function() {
 			connectToHarness(commandFinishedCallback);
-		}
+		};
 
 		stopHarness();
 		installHarness(runCallback, commandFinishedCallback);
@@ -274,7 +274,7 @@ module.exports = new function() {
 
 		var finishConfigCallback = function() {
 			common.finishConfig(testPassFinishedCallback);
-		}
+		};
 		uninstallHarness(finishConfigCallback, commandFinishedCallback);
 	};
 
@@ -294,7 +294,7 @@ module.exports = new function() {
 				deviceListString = deviceListString.replace(/\s/g,"");
 			}
 
-			if(deviceListString.length < 1) {
+			if (deviceListString.length < 1) {
 				callback(false);
 
 			} else {

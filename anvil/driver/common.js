@@ -89,7 +89,7 @@ module.exports = new function() {
 
 			// load standard configs
 			var files = fs.readdirSync(driverGlobal.configSetDir + "/configs");
-			if(files.length > 0) {
+			if (files.length > 0) {
 				configs.push({
 					setDir: driverGlobal.configSetDir,
 					setName: "standard",
@@ -121,7 +121,7 @@ module.exports = new function() {
 						}
 
 						var files = fs.readdirSync(configSetDir + "/configs");
-						if(files.length > 0) {
+						if (files.length > 0) {
 							configs.push({
 								setDir: configSetDir,
 								setName: configSetName,
@@ -173,7 +173,7 @@ module.exports = new function() {
 
 			// config set must have also been specified if there is more than a single config set
 			var configArg = configArg = util.getArgument(startArgs, "--config");
-			if((selectedConfigSetIndex !== null) || (configs.length === 1 )) {
+			if ((selectedConfigSetIndex !== null) || (configs.length === 1 )) {
 				if ((typeof configArg) !== "undefined") {
 					var numConfigs = configs[configSetIndex].setConfigs.length;
 					for (var i = 0; i < numConfigs; i++) {
@@ -191,7 +191,7 @@ module.exports = new function() {
 					}
 				}
 
-			} else if((selectedConfigSetIndex === null) && ((typeof configArg) !== "undefined")) {
+			} else if ((selectedConfigSetIndex === null) && ((typeof configArg) !== "undefined")) {
 				util.log("valid --config-set argument must be provided when --config is specified");
 				errorState = true;
 			}
@@ -208,7 +208,7 @@ module.exports = new function() {
 
 		loadHarnessConfigs();
 		util.openLog(processStartArgsCallback);
-	}
+	};
 
 	/*
 	 * invoked each time a run of a config is started.  the commandElements argument is only
@@ -261,7 +261,7 @@ module.exports = new function() {
 		configIndex++;
 		if ((configIndex + 1) > configs[configSetIndex].setConfigs.length) {
 			configSetIndex++;
-			if((configSetIndex + 1) > configs.length) {
+			if ((configSetIndex + 1) > configs.length) {
 				finishPass = true; // this was the last set, finish the whole pass
 
 			} else {
@@ -270,7 +270,7 @@ module.exports = new function() {
 			}
 		}
 
-		if(selectedConfigIndex !== null) {
+		if (selectedConfigIndex !== null) {
 			/*
 			if we are here then that means that the specified config has finished and we don't 
 			support running a specified config across multiple sets so finish the pass
@@ -310,7 +310,7 @@ module.exports = new function() {
 					updateHarness(platform, successCallback, errorCallback);
 				}
 			});
-		}
+		};
 
 		if (path.existsSync(harnessPlatformDir + "/harness/tiapp.xml")) {
 			this.deleteHarness(platform, createCallback);
@@ -367,13 +367,13 @@ module.exports = new function() {
 					process.exit(1);
 				}
 
-				if(self.customTiappXmlProperties.length < 1) {
+				if (self.customTiappXmlProperties.length < 1) {
 					// nothing custom to add so leave the copy alone
 					return;
 				}
 
 				var splitPos = tiappXmlContents.indexOf("</ti:app>");
-				if(splitPos === -1) {
+				if (splitPos === -1) {
 					/*
 					this could only happen if the tiapp.xml in the config is messed up so die 
 					hard if it happens
@@ -387,7 +387,7 @@ module.exports = new function() {
 				for (var key in self.customTiappXmlProperties) {
 					if (self.customTiappXmlProperties.hasOwnProperty(key)) {
 						var foundPos = tiappXmlContents.indexOf("<property name=\"" + key + "\"");
-						if(foundPos === -1) {
+						if (foundPos === -1) {
 							/*
 							make sure to only inject if the value doesn't already exist in the 
 							config tiapp.xml so we avoid duplicates
@@ -719,4 +719,4 @@ module.exports = new function() {
 
 		return "";
 	};
-}
+};

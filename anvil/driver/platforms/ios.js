@@ -37,7 +37,7 @@ module.exports = new function() {
 			customSimVersion = null;
 			simVersion = null;
 			testPassCallback(results);
-		}
+		};
 	};
 
 	this.processCommand = function(command) {
@@ -105,15 +105,15 @@ module.exports = new function() {
 	this.startConfig = function() {
 		var deleteCallback = function() {
 			deleteHarness(runCallback);
-		}
+		};
 
 		var runCallback = function() {
 			runHarness(connectCallback, commandFinishedCallback);
-		}
+		};
 
 		var connectCallback = function() {
 			connectToHarness(commandFinishedCallback);
-		}
+		};
 
 		common.startConfig(deleteCallback);
 	};
@@ -140,7 +140,7 @@ module.exports = new function() {
 					errorCallback();
 				}
 			});
-		}
+		};
 
 		if (path.existsSync(driverGlobal.harnessDir + "/ios/harness/tiapp.xml")) {
 			runCallback();
@@ -190,7 +190,7 @@ module.exports = new function() {
 			connection.on('timeout', function() {
 				this.destroy();
 			});
-		}
+		};
 
 		connectCallback();
 	};
@@ -199,7 +199,7 @@ module.exports = new function() {
 	this.resumeConfig = function() {
 		var connectCallback = function() {
 			connectToHarness(commandFinishedCallback);
-		}
+		};
 
 		stopHarness();
 		runHarness(connectCallback, commandFinishedCallback);
@@ -211,7 +211,7 @@ module.exports = new function() {
 
 		var finishConfigCallback = function() {
 			common.finishConfig(testPassFinishedCallback);
-		}
+		};
 		closeSimulator(finishConfigCallback);
 	};
 
@@ -232,7 +232,7 @@ module.exports = new function() {
 
 				callback();
 			});
-		}
+		};
 
 		util.runCommand("/usr/bin/killall 'ios-sim'", 2, function(error) {
 			if (error !== null) {

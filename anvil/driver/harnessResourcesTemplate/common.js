@@ -25,10 +25,10 @@ module.exports = new function() {
 	var setResult = function(testRun, result, description) {
 		// make sure that the result being set is not obsolete
 		var test = currentSuite.tests[currentTest];
-		if(!test) {
+		if (!test) {
 			return;
 		}
-		if((testRun.suiteName != currentSuite.name) || (testRun.testName != test.name)) {
+		if ((testRun.suiteName != currentSuite.name) || (testRun.testName != test.name)) {
 			/*
 			we ignore this as it is a possible a known timing issue that can occur sometimes 
 			but we have mechanisms in place to deal with this case
@@ -37,7 +37,7 @@ module.exports = new function() {
 			return;
 		}
 
-		if(result == undefined) {
+		if (result == undefined) {
 			result = "success";
 		}
 
@@ -48,14 +48,14 @@ module.exports = new function() {
 			result: result,
 			description: description,
 			duration: (new Date().getTime()) - testStartTime
-		}
+		};
 
 		testFinished = true;
 
-		if(testReturned) {
+		if (testReturned) {
 			sendResult();
 		}
-	}
+	};
 
 	var sendResult = function() {
 		/*
@@ -63,28 +63,28 @@ module.exports = new function() {
 		to the driver for a test - this is bad.  check here as a brute force means to catch any 
 		timing issues that slip through in this regard
 		*/
-		if(resultSent) {
+		if (resultSent) {
 			return;
 		}
 		resultSent = true;
 
 		harnessGlobal.util.sendData(testResult);
-	}
+	};
 
 	var setActiveSuite = function(suiteName) {
 		currentSuite = require("suites/" + suiteName);
 
 		testUtil.callback = setResult;
 		currentSuite.init(testUtil);
-	}
+	};
 
 	this.init = function(arg) {
 		harnessGlobal = arg;
-	}
+	};
 
 	this.connectToDriver = function() {
 		var connectMessage = {type: "ready"};
-		if(Ti.Platform.name == "mobileweb") {
+		if (Ti.Platform.name == "mobileweb") {
 			Ti.API.info("connecting to driver...");
 			harnessGlobal.util.sendData(connectMessage);
 
@@ -92,63 +92,64 @@ module.exports = new function() {
 			Ti.API.info("listening for driver connection...");
 			harnessGlobal.util.socketListen(connectMessage);
 		}
-	}
+	};
 
 	this.processDriverData = function(data) {
 		var elements = data.split("|");
 
-		if(elements[0] == "getSuites") {
+		if (elements[0] == "getSuites") {
 			var suitesWrapper = {type: "suites", suites: harnessGlobal.suites};
 			harnessGlobal.util.sendData(suitesWrapper);
 
-		} else if(elements[0] == "getTests") {
+		} else if (elements[0] == "getTests") {
 			setActiveSuite(elements[1]);
 
 			var testsWrapper = {type: "tests", tests: currentSuite.tests};
 			harnessGlobal.util.sendData(testsWrapper);
 
-		} else if(elements[0] == "run") {
-			if(currentSuite.name != elements[1]) {
+		} else if (elements[0] == "run") {
+			if (currentSuite.name != elements[1]) {
 				setActiveSuite(elements[1]);
 			}
 
-			for(var i in currentSuite.tests) {
-				if(currentSuite.tests[i].name == elements[2]) {
+			for (var i in currentSuite.tests) {
+				if (currentSuite.tests[i].name == elements[2]) {
 					currentTest = i;
 					testStartTime = new Date().getTime();
 					testReturned = false;
 					testFinished = false;
 					resultSent = false;
 
+					/*
+					keep a unique scope for the test that can be shared among the utility 
+					functions and passed back with the result as a state check to guard against 
+					processing obsolete results
+					*/
+					var testRun = {
+						suiteName: currentSuite.name,
+						testName: currentSuite.tests[currentTest].name,
+						resultSet: false
+					};
+
 					Ti.API.info("running suite<" + elements[1] + "> test<" + elements[2] + ">...");
 					try {
-						/*
-						keep a unique scope for the test that can be shared among the utility 
-						functions and passed back with the result as a state check to guard against 
-						processing obsolete results
-						*/
-						currentSuite[currentSuite.tests[currentTest].name]({
-							suiteName: currentSuite.name,
-							testName: currentSuite.tests[currentTest].name,
-							resultSet: false
-						});
-
+						currentSuite[currentSuite.tests[currentTest].name](testRun);
 						testReturned = true;
 
-						if(testFinished) {
+						if (testFinished) {
 							sendResult();
 						}
 
 					} catch(e) {
 						var exceptionDetails;
 
-						if(e.stack) {
+						if (e.stack) {
 							exceptionDetails = e.stack;
 
-						} else if(e.lineNumber) {
+						} else if (e.lineNumber) {
 							exceptionDetails = e.lineNumber;
 
-						} else if(e.line) {
+						} else if (e.line) {
 							/*
 							this is all we can get on iOS which isn't that useful compared to
 							an actual trace.  If the error is a test definition issue rather than 
@@ -167,5 +168,5 @@ module.exports = new function() {
 				}
 			}
 		}
-	}
-}
+	};
+};
