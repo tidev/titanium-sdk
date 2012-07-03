@@ -2,7 +2,12 @@ define(["Ti/_/declare", "Ti/Gesture", "Ti/Locale", "Ti/_/UI/SuperView", "Ti/UI"]
 	function(declare, Gesture, Locale, SuperView, UI) {
 
 	var UI_FILL = UI.FILL,
-		UI_SIZE = UI.SIZE;
+		UI_SIZE = UI.SIZE,
+		postNavGroup = {
+			post: function () {
+				this._navGroup && this._navGroup._updateNavBar();
+			}
+		};
 
 	return declare("Ti.UI.Window", SuperView, {
 	
@@ -28,6 +33,7 @@ define(["Ti/_/declare", "Ti/Gesture", "Ti/Locale", "Ti/_/UI/SuperView", "Ti/UI"]
 		},
 
 		properties: {
+		
 			modal: {
 				set: function(value, oldValue) {
 					if (value !== oldValue) {
@@ -61,10 +67,28 @@ define(["Ti/_/declare", "Ti/Gesture", "Ti/Locale", "Ti/_/UI/SuperView", "Ti/UI"]
 					return Gesture.orientation;
 				}
 			},
+		
+			/** Nav group properties **/
+			
+			barColor: postNavGroup,
+			
+			barImage: postNavGroup,
+			
+			leftNavButton: postNavGroup,
+			
+			navBarHidden: postNavGroup,
+			
+			rightNavButton: postNavGroup,
+			
+			titleControl: postNavGroup,
+			
+			titleImage: postNavGroup,
 
-			title: void 0,
+			title: postNavGroup,
 
-			titleid: void 0
+			titleid: postNavGroup,
+			
+			translucent: postNavGroup
 		}
 
 	});
