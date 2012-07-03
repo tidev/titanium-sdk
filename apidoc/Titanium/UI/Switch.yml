@@ -94,7 +94,7 @@ properties:
         Use the [textAlign](Titanium.UI.Switch.textAlign) property to align this text within the 
         switch.
     type: String
-    platforms: [android]
+    platforms: [android, mobileweb]
     
   - name: titleOff
     summary: Text to display on the switch in its "off" state, when the toggle button style is in use.

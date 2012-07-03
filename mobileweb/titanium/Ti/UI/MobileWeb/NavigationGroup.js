@@ -11,60 +11,118 @@ define(["Ti/_/css", "Ti/_/declare", "Ti/UI/View", "Ti/UI", "Ti/_/lang"],
 			var self = this,
 				win = self.constants.window = args && args.window,
 				tab = args && args._tab,
-				navBar = self._navBarContainer = UI.createView({
-					width: UI_FILL,
-					height: 50
+				navBarContainer = self._navBarContainer = UI.createView({
+					height: 50,
+					width: UI.FILL,
+					layout: UI._LAYOUT_CONSTRAINING_HORIZONTAL
 				});
-
+			css.add(navBarContainer.domNode, navGroupCss);
 			self.layout = UI._LAYOUT_CONSTRAINING_VERTICAL;
-
-			css.add(navBar.domNode, navGroupCss);
-
-			self._navBarContainer._add(self._backButton = UI.createButton({
-				title: "Back",
+			
+			// Create the nav bar content
+			navBarContainer.add(self._leftContainer = Ti.UI.createView({
+				width: UI.SIZE,
+				height: "100%",
 				left: 5,
-				opacity: 0,
-				enabled: true
+				right: 5
 			}));
-
-			self._backButton.addEventListener("singletap", function() {
-				self.close(self._windows[self._windows.length-1]);
-			});
-
-			self._navBarContainer._add(self._title = UI.createLabel({
-				width: UI_FILL,
-				textAlign: UI.TEXT_ALIGNMENT_CENTER,
-				touchEnabled: false
+			navBarContainer.add(self._centerContainer = Ti.UI.createView({
+				width: UI.FILL,
+				height: "100%"
 			}));
+			navBarContainer.add(self._rightContainer = Ti.UI.createView({
+				width: UI.SIZE,
+				height: "100%",
+				left: 5,
+				right: 5
+			}));
+			self._add(navBarContainer);
 
 			// Create the content container
-			self._contentContainer = UI.createView({
+			self._add(self._contentContainer = UI.createView({
 				width: UI_FILL,
 				height: UI_FILL
-			});
-
-			// init window stack and add window
+			}));
+			
+			// Stylize the top
+			this.navBarAtTop = true;
+			navBarContainer._getBorderFromCSS();
+			
+			// Initialize the window stack and add the root window
 			self._windows = [];
-			win && this._addWindow(win);
-
-			// invoke the navBarAtTop setter
-			self.navBarAtTop = true;
+			win && self.open(win);
 		},
 
 		_defaultWidth: UI_FILL,
 
 		_defaultHeight: UI_FILL,
+		
+		_updateNavBar: function() {
+			var _self = this,
+				windows = _self._windows,
+				len = windows.length,
+				activeWin = windows[len - 1],
+				navBarContainer = this._navBarContainer,
+				leftContainer = _self._leftContainer,
+				centerContainer = _self._centerContainer,
+				rightContainer = _self._rightContainer,
+				leftView,
+				centerView,
+				rightView = activeWin.rightNavButton;
+			
+			if (activeWin.leftNavButton) {
+				leftView = activeWin.leftNavButton;
+			} else {
+				if (!_self._backButton) {
+					_self._backButton = Ti.UI.createButton({
+						title: "Back"
+					});
+					require.on(_self._backButton, "singletap", function() {
+						// Note: we can reuse activeWin or length because they may have changed by the time this event 
+						// listener is called due to reuse of the back button across windows.
+						_self.close(windows[windows.length - 1]);
+					});
+				};
+				len > 1 && (leftView = _self._backButton);
+			}
+			if (leftContainer._children[0] !== leftView) {
+				leftContainer._removeAllChildren();
+				leftView && leftContainer._add(leftView);
+			}
+			
+			if (rightContainer._children[0] !== rightView) {
+				rightContainer._removeAllChildren();
+				rightView && rightContainer._add(rightView);
+			}
+			
+			navBarContainer.backgroundColor = activeWin.barColor;
+			navBarContainer.backgroundImage = activeWin.barImage;
+			navBarContainer.opacity = activeWin.translucent ? 0.5 : 1;
+			navBarContainer.height = activeWin.navBarHidden && activeWin.modal ? 0 : 50;
+			
+			if (activeWin.titleControl) {
+				centerView = activeWin.titleControl;
+			} else if (activeWin.titleImage) {
+				centerView = activeWin._titleImageView || (activeWin._titleImageView = Ti.UI.createImageView({
+					image: activeWin.titleImage
+				}));
+			} else {
+				centerView = activeWin._titleControl || (activeWin._titleControl = Ti.UI.createLabel({
+					text: activeWin._getTitle() || (this._tab && this._tab._getTitle()) || "",
+					width: "100%",
+					height: "100%",
+					textAlign: UI.TEXT_ALIGNMENT_CENTER
+				}));
+			}
+			if (centerContainer._children[0] !== centerView) {
+				centerContainer._removeAllChildren();
+				centerView && centerContainer._add(centerView);
+			}
+		},
 
 		_updateTitle: function() {
 			var len = this._windows.length;
 			this._title.text = (len && this._windows[len - 1]._getTitle()) || (this._tab && this._tab._getTitle()) || "";
-		},
-
-		_addWindow: function(win) {
-			var tab = this._tab;
-			tab && (win.tabGroup = (win.tab = tab)._tabGroup);
-			this._windows.push(win);
-			this._contentContainer._add(win);
 		},
 
 		_getTopWindow: function() {
@@ -73,40 +131,25 @@ define(["Ti/_/css", "Ti/_/declare", "Ti/UI/View", "Ti/UI", "Ti/_/lang"],
 			return len ? windows[windows.length - 1] : null;
 		},
 
-		add: function(view) {
-			this._navBarContainer._add(view);
-			this._publish(view);
-		},
-
-		remove: function(view) {
-			this._navBarContainer._remove(view);
-			this._unpublish(view);
-		},
-
 		open: function(win) {
 			if (!win._opened) {
-				var backButton = this._backButton;
-
-				// Publish the window
-				this._publish(win);
-
-				// Show the back button, if need be
-				if (!this._backButtonVisible) {
-					this._backButtonVisible = 1;
-					backButton.animate({opacity: 1, duration: 250}, function() {
-						backButton.opacity = 1;
-						backButton.enabled = true;
-					});
-				}
+				var backButton = this._backButton,
+					windows = this._windows,
+					tab = this._tab;
+				
+				win._navGroup = this;
 
 				// Set a default background
 				!isDef(win.backgroundColor) && !isDef(win.backgroundImage) && (win.backgroundColor = "#fff");
 
-				this._windows[this._windows.length - 1].fireEvent("blur");
-				this._title.text = win._getTitle();
+				~(windows.length - 1) && windows[windows.length - 1].fireEvent("blur");
 
 				// Show the window
-				this._addWindow(win);
+				tab && (win.tabGroup = (win.tab = tab)._tabGroup);
+				windows.push(win);
+				this._contentContainer._add(win);
+				this._updateNavBar();
+				
 				win._opened || win.fireEvent("open");
 				win._opened = 1;
 				win.fireEvent("focus");
@@ -118,9 +161,8 @@ define(["Ti/_/css", "Ti/_/declare", "Ti/UI/View", "Ti/UI", "Ti/_/lang"],
 				windowIdx = windows.indexOf(win),
 				self = this,
 				backButton = self._backButton;
-
-				// Unpublish the window
-				self._unpublish(win);
+				
+			win._navGroup = void 0;
 
 			// make sure the window exists and it's not the root
 			if (windowIdx > 0) {
@@ -130,18 +172,8 @@ define(["Ti/_/css", "Ti/_/declare", "Ti/UI/View", "Ti/UI", "Ti/_/lang"],
 				win.fireEvent("close");
 				win._opened = 0;
 
-				if (windowIdx > 0) {
-					// hide the back button if we're back at the root
-					windows.length <= 1 && backButton.animate({ opacity: 0, duration: 250 }, function() {
-						self._backButtonVisible = 0;
-						backButton.opacity = 0;
-						backButton.enabled = false;
-					});
-
-					win = windows[windows.length - 1];
-					self._title.text = win._getTitle();
-					win.fireEvent("focus");
-				}
+				this._updateNavBar();
+				windows[windows.length - 1].fireEvent("focus");
 			}
 		},
 
@@ -180,15 +212,14 @@ define(["Ti/_/css", "Ti/_/declare", "Ti/UI/View", "Ti/UI", "Ti/_/lang"],
 			navBarAtTop: {
 				set: function (value, oldValue) {
 					if (value !== oldValue) {
-						var containers = [this._contentContainer, this._navBarContainer],
-							node = this._navBarContainer.domNode;
-
-						containers.forEach(this._remove, this);
-						value && containers.reverse();
-						containers.forEach(this._add, this);
-
-						css.remove(node, navGroupCss + (value ? "Top" : "Bottom"));
-						css.add(node, navGroupCss + (value ? "Bottom" : "Top"));
+						var navBarContainer = this._navBarContainer,
+							navBarContainerDomNode = navBarContainer.domNode;
+							
+						this._remove(navBarContainer);
+						this._insertAt(navBarContainer, value ? 0 : 1);
+						
+						css.remove(navBarContainerDomNode, navGroupCss + (value ? "Top" : "Bottom"));
+						css.add(navBarContainerDomNode, navGroupCss + (value ? "Bottom" : "Top"));
 					}
 
 					return value;
