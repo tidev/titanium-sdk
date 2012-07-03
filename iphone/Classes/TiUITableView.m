@@ -1645,7 +1645,7 @@
     }
 }
 
--(void)setScrollViewInsets_:(id)value withObject:(id)props
+-(void)setScrollIndicatorInsets_:(id)value withObject:(id)props
 {
 	UIEdgeInsets insets = [TiUtils contentInsets:value];
 	BOOL animated = [TiUtils boolValue:@"animated" properties:props def:NO];
