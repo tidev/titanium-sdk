@@ -83,7 +83,7 @@ module.exports = new function() {
 			fs.closeSync(resultsFile);
 
 			callback();
-		}
+		};
 
 		printResults(results, packageCallback);
 	};
@@ -95,7 +95,7 @@ module.exports = new function() {
 		util.log("\nRESULTS SUMMARY:", driverGlobal.logLevels.quiet);
 
 		var numSets = results.length
-		for(var i = 0; i < numSets; i++) {
+		for (var i = 0; i < numSets; i++) {
 			var numConfigs = results[i].setConfigs.length;
 			for (var j = 0; j < numConfigs; j++) {
 				var numSuites = results[i].setConfigs[j].configSuites.length;

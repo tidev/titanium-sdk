@@ -132,7 +132,7 @@ function init() {
 	driverGlobal.platforms = {};
 
 	var platforms = ["android", "ios", "mobileweb"];
-	for(var i = 0; i < platforms.length; i++) {
+	for (var i = 0; i < platforms.length; i++) {
 		try {
 			driverGlobal.platforms[platforms[i]] = require(driverGlobal.driverDir + "/platforms/" + platforms[i]);;
 
@@ -186,14 +186,9 @@ function processCommandLineArgs(callback) {
 
 	// load platform module
 	var platformArg = util.getArgument(process.argv, "--platform");
-/*	if ((typeof platformArg) === "undefined") {
-		console.log("must specify a platform");
-		printUsageAndExit();
-	}*/
-
-	if((typeof platformArg) !== "undefined") {
+	if ((typeof platformArg) !== "undefined") {
 		var specifiedPlatform = driverGlobal.platforms[platformArg];
-		if((typeof specifiedPlatform) === "undefined") {
+		if ((typeof specifiedPlatform) === "undefined") {
 			console.log("unable to find the specified platform: " + platformArg);
 			printUsageAndExit();
 		}
@@ -224,10 +219,10 @@ function loadConfigModule() {
 
 	function checkConfigItem(configItemName, configItemValue, expectedType) {
 		var configItemType = (typeof configItemValue);
-		if(configItemType === "undefined") {
+		if (configItemType === "undefined") {
 			printFailureAndExit(configItemName + " property in the config module cannot be undefined");
 
-		} else if(configItemType !== expectedType) {
+		} else if (configItemType !== expectedType) {
 			printFailureAndExit("androidSdkDir property in the config module should be <" + expectedType +
 				"> but was <" + configItemType + ">");
 		}
@@ -267,7 +262,7 @@ function loadConfigModule() {
 			}
 
 			var defaultPlatform = driverGlobal.platforms[config.defaultPlatform];
-			if((typeof defaultPlatform) === "undefined") {
+			if ((typeof defaultPlatform) === "undefined") {
 				console.log("unable to find the default platform: " + config.defaultPlatform);
 				printUsageAndExit();
 			}

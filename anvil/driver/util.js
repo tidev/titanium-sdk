@@ -87,7 +87,7 @@ module.exports = new function() {
 			}
 
 			var argName = args[i].substr(0, splitPos);
-			if(argName === requestedArgName) {
+			if (argName === requestedArgName) {
 				value = args[i].substr(splitPos + 1, args[i].length - splitPos);
 				break;
 			}
@@ -183,8 +183,8 @@ module.exports = new function() {
 	this.getTabs = function(numTabs) {
 		var tabs = "";
 
-		for(var i = 0; i < numTabs; i++) {
-			if((typeof driverGlobal.config) !== "undefined") {
+		for (var i = 0; i < numTabs; i++) {
+			if ((typeof driverGlobal.config) !== "undefined") {
 				tabs += driverGlobal.config.tabString;
 
 			} else {
@@ -193,5 +193,5 @@ module.exports = new function() {
 		}
 
 		return tabs;
-	}
+	};
 };
