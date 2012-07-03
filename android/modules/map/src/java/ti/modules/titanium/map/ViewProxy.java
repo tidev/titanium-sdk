@@ -422,6 +422,18 @@ public class ViewProxy extends TiViewProxy implements OnLifecycleEvent
 		}
 	}
 
+	@Kroll.getProperty @Kroll.method
+	public double getLongitudeDelta()
+	{
+		return mapView.getLongitudeDelta();
+	}
+
+	@Kroll.getProperty @Kroll.method
+	public double getLatitudeDelta()
+	{
+		return mapView.getLatitudeDelta();
+	}
+
 	public void onDestroy(Activity activity)
 	{
 		destroyMapActivity();
