@@ -700,19 +700,27 @@ static NSString * const kTitaniumJavascript = @"Ti.App={};Ti.API={};Ti.App._list
 
 - (void)webView:(UIWebView *)webView didFailLoadWithError:(NSError *)error
 {
-	// this means the pending request has been cancelled and should be
-	// safely squashed
-	if ([[error domain] isEqual:NSURLErrorDomain] && [error code]==-999)
+	NSString *offendingUrl = [self url];
+
+	if ([[error domain] isEqual:NSURLErrorDomain])
 	{
-		return;
+		offendingUrl = [[error userInfo] objectForKey:NSURLErrorFailingURLStringErrorKey];
+
+		// this means the pending request has been cancelled and should be
+		// safely squashed
+		if ([error code]==-999)
+		{
+			return;
+		}
 	}
-	
-	NSLog(@"[ERROR] Error loading: %@, Error: %@",[self url],error);
+
+	NSLog(@"[ERROR] Error loading: %@, Error: %@",offendingUrl,error);
 	
 	if ([self.proxy _hasListeners:@"error"])
 	{
-		NSMutableDictionary *event = [NSMutableDictionary dictionaryWithObject:[self url] forKey:@"url"];
-		[event setObject:[error description] forKey:@"message"];
+		NSMutableDictionary *event = [NSMutableDictionary dictionaryWithObject:[error description] forKey:@"message"];
+		[event setObject:[NSNumber numberWithInteger:[error code]] forKey:@"errorCode"];
+		[event setObject:offendingUrl forKey:@"url"];
 		[self.proxy fireEvent:@"error" withObject:event];
 	}
 }
