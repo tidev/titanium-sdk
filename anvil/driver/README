@@ -192,7 +192,7 @@ USAGE:
 		- start test run for ONLY configuration "1"
 			"start --config=1"
 
-		- start test run for ONLY configuration "1" in the standard config set
+		- start test run for ONLY configuration "2" in the standard config set
 			"start --config-set=standard --config=2"
 
 		- start test run for all configs in the standard config set

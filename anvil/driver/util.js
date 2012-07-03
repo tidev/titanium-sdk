@@ -121,14 +121,18 @@ module.exports = new function() {
 			var logTimestamps = [];
 			var logsMap = {};
 
-			for (var i = 0; i < files.length; i++) {
+			var numFiles = files.length;
+			for (var i = 0; i < numFiles; i++) {
 				var stat = fs.statSync(driverGlobal.logsDir + "/" + driverGlobal.platform.name + "/" + files[i]);
 				var modifiedTime = stat.mtime.getTime();
 
 				logTimestamps.push(modifiedTime);
 				logsMap[modifiedTime] = files[i];
 			}
-			logTimestamps.sort(function(a,b){return a-b});
+
+			logTimestamps.sort(function(a,b) {
+				return a-b
+			});
 
 			function deleteLog(oldestLogIndex) {
 				if (oldestLogIndex < driverGlobal.config.maxLogs) {
@@ -149,7 +153,7 @@ module.exports = new function() {
 				}
 			}
 
-			deleteLog(files.length - 1);
+			deleteLog(numFiles - 1);
 
 		} else {
 			callback();
