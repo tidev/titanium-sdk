@@ -20,6 +20,11 @@
 
 #define DEFAULT_SECTION_HEADERFOOTER_HEIGHT 20.0
 
+@interface TiUIView(eventHandler);
+-(void)handleListenerRemovedWithEvent:(NSString *)event;
+-(void)handleListenerAddedWithEvent:(NSString *)event;
+@end
+
 @interface TiUITableView ()
 @property (nonatomic,copy,readwrite) NSString * searchString;
 - (void)updateSearchResultIndexes;
@@ -948,9 +953,11 @@
 			if([[gesture class] isEqual:[UILongPressGestureRecognizer class]])
 			{
 				[tableview removeGestureRecognizer:gesture];
+				return;
 			}
 		}
 	}
+	[super handleListenerRemovedWithEvent:event];
 }
 
 -(void)handleListenerAddedWithEvent:(NSString *)event
@@ -960,7 +967,9 @@
 		UILongPressGestureRecognizer *longPress = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(longPressGesture:)];
 		[tableview addGestureRecognizer:longPress];
 		[longPress release];
+		return;
     }
+	[super handleListenerAddedWithEvent:event];
 }
 
 -(void)longPressGesture:(UILongPressGestureRecognizer *)recognizer
