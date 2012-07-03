@@ -6,31 +6,21 @@ module.exports = new function() {
 	/*
 	local values used for defining the required properties (IE: you can change this section to 
 	taste by adding or removing values if desired)
+
+	Examples:
 	*/
 	var baseDir = "/Users/ocyrus/dev";
 	var tiDir = baseDir + "/appcelerator/git/titanium_mobile";
 
 
-	// optional values
-	/*******************************************************************************/
-
-	/*
-	list of directories that contain additonal test configs that should be included in the list of 
-	harness configs that will be run when a test pass is started (assuming no specific config set
-	is specified)
-
-	Example: this.customHarnessConfigDirs = ["/tmp/myconfigs"];
-	*/
-	this.customHarnessConfigDirs = ["/tmp/myconfigs"];
-	this.defaultPlatform = "android";
-
-
 	// required values
 	/*******************************************************************************/
 
-	this.androidSdkDir = baseDir + "/installed/android-sdk-mac_x86"
+	// Example: this.androidSdkDir = baseDir + "/installed/android-sdk-mac_x86"
+	this.androidSdkDir = baseDir + "/installed/android-sdk-mac_x86"; // location of the android SDK;
 
-	this.tiSdkDir = tiDir + "/dist/mobilesdk/osx/2.1.0";
+	// Example: this.tiSdkDir = tiDir + "/dist/mobilesdk/osx/2.1.0";
+	this.tiSdkDir = tiDir + "/dist/mobilesdk/osx/2.1.0"; // location of titanium SDK;
 
 	/*
 	this can be changed but shouldn't need to be. This is the location where the harness instances 
@@ -68,5 +58,28 @@ module.exports = new function() {
 	// string representing a tab (currently only used for printing results)
 	this.tabString = "   ";
 
+	/*
+	default sim version to use when running ios test pass if a specific sim version is not 
+	specified with the --sim-version argument to the start command
+	*/
 	this.defaultIosSimVersion = "5.0";
+
+
+	// optional values
+	/*******************************************************************************/
+
+	/*
+	list of directories that contain additonal test configs that should be included in the list of 
+	harness configs that will be run when a test pass is started (assuming no specific config set
+	is specified)
+
+	Example: this.customHarnessConfigDirs = ["/tmp/myconfigs"];
+	*/
+
+	/*
+	default platform to be used if the --platform argument is not provided
+
+	Example: this.defaultPlatform = "android";
+	*/
+
 }
