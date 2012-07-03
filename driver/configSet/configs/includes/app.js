@@ -8,26 +8,15 @@
 // start customization here
 var suites = [
 	{name: "includes/includes"}
-]
-// end customization here
+];
 
 
-var harnessGlobal = new Object();
-
-// load required modules
-harnessGlobal.common = require("common");
-harnessGlobal.common.init(harnessGlobal);
-
-harnessGlobal.util = require("util");
-harnessGlobal.util.init(harnessGlobal);
-
-// load required properties
-harnessGlobal.socketPort = Ti.App.Properties.getInt("driver.socketPort");
-harnessGlobal.httpHost = Ti.App.Properties.getString("driver.httpHost");
-harnessGlobal.httpPort = Ti.App.Properties.getInt("driver.httpPort");
-
-// set the suites on the global for later use
-harnessGlobal.suites = suites;
-
-// start the test run
-harnessGlobal.common.connectToDriver();
+/*
+these lines must be present and should not be modified.  "suites" argument to setSuites is 
+expected to be an array (should be an empty array at the very least in cases where population of 
+the suites argument is based on platform type and may result in no valid suites being added to the 
+argument)
+*/
+var init = require("init");
+init.setSuites(suites);
+init.start();

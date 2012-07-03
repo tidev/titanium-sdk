@@ -192,7 +192,7 @@ module.exports = new function() {
 			};
 
 			android.deviceIsConnected(function(connected) {
-				if(connected) {
+				if (connected) {
 					common.startConfig(deleteCallback);
 
 				} else {
@@ -306,6 +306,11 @@ module.exports = new function() {
 
 	// handles restarting the test pass (usually when an error is encountered)
 	this.resumeConfig = function() {
+		if (browserOnlyMode === "true") {
+			// in browser only mode, no action is required
+			return;
+		}
+
 		var runCallback = function() {
 			runHarness(commandFinishedCallback);
 		};
