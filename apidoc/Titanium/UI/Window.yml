@@ -119,12 +119,12 @@ properties:
         Background color for the nav bar, as a color name or hex triplet.
     description: |
         For information about color values, see the "Colors" section of <Titanium.UI>. 
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, mobileweb]
     type: String
 
   - name: barImage
     summary: Background image for the nav bar, specified as a URL to a local image.
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, mobileweb]
     type: String
 
   - name: exitOnClose
@@ -152,7 +152,7 @@ properties:
 
   - name: leftNavButton
     summary: View to show in the left nav bar area.
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, mobileweb]
     type: Titanium.UI.View
 
   - name: modal
@@ -181,7 +181,7 @@ properties:
 
   - name: navBarHidden
     summary: For modal windows, hide the nav bar (`true`) or show the nav bar (`false`).
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, mobileweb]
     default: false
     type: Boolean
 
@@ -310,7 +310,7 @@ properties:
 
   - name: rightNavButton
     summary: View to show in the right nav bar area.
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, mobileweb]
     type: Titanium.UI.View
 
   - name: tabBarHidden
@@ -329,12 +329,12 @@ properties:
 
   - name: titleControl
     summary: View to show in the title area of the nav bar.
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, mobileweb]
     type: Titanium.UI.View
 
   - name: titleImage
     summary: Image to show in the title area of the nav bar, specified as a local file path or URL.
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, mobileweb]
     type: String
 
   - name: titlePrompt
@@ -362,7 +362,8 @@ properties:
 
   - name: translucent
     summary: Boolean value indicating if the nav bar is translucent.
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, mobileweb]
+	default: false
     type: Boolean
 
   - name: url

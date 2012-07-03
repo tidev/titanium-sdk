@@ -100,7 +100,7 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/_/dom", "Ti/Locale", "Ti/UI", "Ti/UI/M
 						doEvents = tabGroup._focused && tabGroup._opened;
 					if (value) {
 						navGroup.navBarAtTop = tabGroup.tabsAtBottom;
-						navGroup._updateTitle();
+						navGroup._updateNavBar();
 						tabGroup._addTabContents(navGroup);
 						doEvents && this._focus();
 					} else {
