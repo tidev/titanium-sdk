@@ -1645,6 +1645,24 @@
     }
 }
 
+-(void)setScrollViewInsets_:(id)value withObject:(id)props
+{
+	UIEdgeInsets insets = [TiUtils contentInsets:value];
+	BOOL animated = [TiUtils boolValue:@"animated" properties:props def:NO];
+	
+	void (^setInset)(void) = ^{
+		[tableview setScrollIndicatorInsets:insets];
+	};
+	
+	if (animated) {
+	
+		double duration = [TiUtils doubleValue:@"duration" properties:props def:300]/1000;
+		[UIView animateWithDuration:duration animations:setInset];
+	} else {
+		setInset();
+	}
+}
+
 #pragma mark Datasource 
 
 
