@@ -115,31 +115,41 @@ module.exports = new function() {
 			'a+');
 
 		var files = fs.readdirSync(driverGlobal.logsDir + "/" + driverGlobal.platform.name);
-		if (files.length >= driverGlobal.maxLogs) {
+		if (files.length >= driverGlobal.config.maxLogs) {
 			var oldestTime = 0;
 			var oldestFileIndex;
+			var logTimestamps = [];
+			var logsMap = {};
 
 			for (var i = 0; i < files.length; i++) {
 				var stat = fs.statSync(driverGlobal.logsDir + "/" + driverGlobal.platform.name + "/" + files[i]);
-
 				var modifiedTime = stat.mtime.getTime();
-				if ((modifiedTime < oldestTime) || (oldestTime === 0)) {
-					oldestTime = modifiedTime;
-					oldestFileIndex = i;
-					break;
+
+				logTimestamps.push(modifiedTime);
+				logsMap[modifiedTime] = files[i];
+			}
+			logTimestamps.sort(function(a,b){return a-b});
+
+			function deleteLog(oldestLogIndex) {
+				if (oldestLogIndex < driverGlobal.config.maxLogs) {
+					callback();
+
+				} else {
+					var oldestLogFilename = logsMap[logTimestamps[(oldestLogIndex - 1)]];
+					self.runCommand("rm -r " + driverGlobal.logsDir + "/" + driverGlobal.platform.name + "/" + oldestLogFilename, 0, function(error) {
+						if (error !== null) {
+							self.log("error <" + error + "> encountered when deleting log file <" + oldestLogFilename + ">");
+
+						} else {
+							self.log("deleted log file: " + oldestLogFilename);
+						}
+
+						deleteLog(--oldestLogIndex);
+					});
 				}
 			}
 
-			self.runCommand("rm -r " + driverGlobal.logsDir + "/" + driverGlobal.platform.name + "/" + files[oldestFileIndex], 0, function(error) {
-				if (error !== null) {
-					self.log("error encountered when deleting oldest log file: " + error);
-
-				} else {
-					self.log("oldest log file deleted");
-				}
-
-				callback();
-			});
+			deleteLog(files.length - 1);
 
 		} else {
 			callback();

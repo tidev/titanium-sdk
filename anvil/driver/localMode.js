@@ -79,7 +79,7 @@ module.exports = new function() {
 	var printAndPackageResults = function(results, callback) {
 		var packageCallback = function() {
 			var resultsFile = fs.openSync(driverGlobal.logsDir + "/json_results", 'w');
-			fs.writeSync(resultsFile, JSON.stringify(driverGlobal.results));
+			fs.writeSync(resultsFile, JSON.stringify(results));
 			fs.closeSync(resultsFile);
 
 			callback();

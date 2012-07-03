@@ -1,5 +1,18 @@
 module.exports = new function() {
 
+	// local values
+	/*******************************************************************************/
+
+	/*
+	local values used for defining the required properties (IE: you can change this section to 
+	taste by adding or removing values if desired)
+
+	Examples:
+	var baseDir = "/Users/ocyrus/dev";
+	var tiDir = baseDir + "/appcelerator/git/titanium_mobile";
+	*/
+
+
 	// required values
 	/*******************************************************************************/
 
@@ -67,19 +80,6 @@ module.exports = new function() {
 	default platform to be used if the --platform argument is not provided
 
 	Example: this.defaultPlatform = "android";
-	*/
-
-
-	// local values
-	/*******************************************************************************/
-
-	/*
-	local values used for defining the required properties (IE: you can change this section to 
-	taste by adding or removing values if desired)
-
-	Examples:
-	var baseDir = "/Users/ocyrus/dev";
-	var tiDir = baseDir + "/appcelerator/git/titanium_mobile";
 	*/
 
 }
