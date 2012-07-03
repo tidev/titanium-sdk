@@ -16,8 +16,10 @@ import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
+import android.graphics.Color;
 import android.hardware.Camera;
 import android.hardware.Camera.Parameters;
 import android.hardware.Camera.PictureCallback;
@@ -25,6 +27,7 @@ import android.hardware.Camera.Size;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.ViewGroup.LayoutParams;
@@ -36,7 +39,8 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 
 	private TiViewProxy localOverlayProxy = null;
 	private SurfaceView preview;
-	private FrameLayout previewLayout;
+	private PreviewLayout previewLayout;
+	private FrameLayout cameraLayout;
 	private boolean previewRunning = false;
 
 	public static TiViewProxy overlayProxy = null;
@@ -45,6 +49,36 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 	public static KrollObject callbackContext;
 	public static KrollFunction successCallback, errorCallback, cancelCallback;
 	public static boolean saveToPhotoGallery = false;
+
+	private static class PreviewLayout extends FrameLayout {
+		private double aspectRatio;
+
+		public PreviewLayout(Context context) {
+			super(context);
+			setAspectRatio(4.0/3.0);
+		}
+
+		public void setAspectRatio(double aspectRatio) {
+			this.aspectRatio = aspectRatio;
+		}
+
+		@Override
+		protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+			int previewWidth = MeasureSpec.getSize(widthMeasureSpec);
+			int previewHeight = MeasureSpec.getSize(heightMeasureSpec);
+
+			// Resize the preview frame with correct aspect ratio.
+			if (previewWidth > previewHeight * aspectRatio) {
+				previewWidth = (int) (previewHeight * aspectRatio + .5);
+
+			} else {
+				previewHeight = (int) (previewWidth / aspectRatio + .5);
+			}
+
+			super.onMeasure(MeasureSpec.makeMeasureSpec(previewWidth, MeasureSpec.EXACTLY),
+					MeasureSpec.makeMeasureSpec(previewHeight, MeasureSpec.EXACTLY));
+		}
+	}
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -61,10 +95,13 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 		overlayProxy = null; // clear the static object once we have a local reference
 
 		// set overall layout - will populate in onResume
-		previewLayout = new FrameLayout(this);
+		previewLayout = new PreviewLayout(this);
+		cameraLayout = new FrameLayout(this);
+		cameraLayout.setBackgroundColor(Color.BLACK);
+		cameraLayout.addView(previewLayout, new FrameLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT, Gravity.CENTER));
 
 		setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
-		setContentView(previewLayout);
+		setContentView(cameraLayout);
 	}
 
 	public void surfaceChanged(SurfaceHolder previewHolder, int format, int width, int height) {
@@ -72,7 +109,8 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 			// Set the preview size to the most optimal given the target size and aspect ratio.
 			Parameters param = camera.getParameters();
 			Size pictureSize = param.getPictureSize();
-			double aspectRatio = pictureSize.width / pictureSize.height;
+			double aspectRatio = (double) pictureSize.width / pictureSize.height;
+			previewLayout.setAspectRatio(aspectRatio);
 			List<Size> supportedPreviewSizes = param.getSupportedPreviewSizes();
 			Size previewSize = getOptimalPreviewSize(supportedPreviewSizes, width, height, aspectRatio);
 			if (previewSize != null) {
@@ -112,8 +150,8 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 		super.onResume();
 
 		cameraActivity = this;
-		previewLayout.addView(preview);
-		previewLayout.addView(localOverlayProxy.getOrCreateView().getNativeView(), new FrameLayout.LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
+		previewLayout.addView(preview, new FrameLayout.LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
+		cameraLayout.addView(localOverlayProxy.getOrCreateView().getNativeView(), new FrameLayout.LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
 	}
 
 	@Override
@@ -122,7 +160,7 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 
 		stopPreview();
 		previewLayout.removeView(preview);
-		previewLayout.removeView(localOverlayProxy.getOrCreateView().getNativeView());
+		cameraLayout.removeView(localOverlayProxy.getOrCreateView().getNativeView());
 
 		try {
 			camera.release();
