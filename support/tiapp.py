@@ -367,6 +367,9 @@ class TiAppXML(object):
 							plist[keyName] = e.toxml('utf-8')
 						keyName = ''
 				self.ios['plist'] = plist
+			elif child.nodeName == 'min-ios-ver':
+				ios_version = float(getText(child.childNodes)[0:3]) # Trim to x.x
+				self.ios['min-ios-ver'] = ios_version
 
 	def has_app_property(self, property):
 		return property in self.app_properties
