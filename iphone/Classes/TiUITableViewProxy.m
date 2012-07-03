@@ -756,6 +756,26 @@ USE_VIEW_FOR_CONTENT_HEIGHT
 	[[self view] performSelector:@selector(setContentInsets_:withObject:) withObject:arg1 withObject:arg2];
 }
 
+-(void)setScrollViewInsets:(id)args
+{
+	ENSURE_UI_THREAD(setScrollViewInsets,args);
+	id arg1;
+	id arg2;
+	
+	if ([args isKindOfClass:[NSDictionary class]])
+	{
+		arg1 = args;
+		arg2 = [NSDictionary dictionary];
+	}
+	else
+	{
+		arg1 = [args objectAtIndex:0];
+		arg2 = [args count] > 1 ? [args objectAtIndex:1] : [NSDictionary dictionary];
+	}
+	
+	[[self view] performSelector:@selector(setScrollViewInsets_:withObject:) withObject:arg1 withObject:arg2];
+}
+
 
 @end 
 
