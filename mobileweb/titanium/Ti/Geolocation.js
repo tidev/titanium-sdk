@@ -77,10 +77,6 @@ define(["Ti/_/Evented", "Ti/_/lang", "Ti/Network"], function(Evented, lang, Netw
 			}
 		},
 		
-		hasCompass: function() {
-			return compassSupport;
-		},
-		
 		forwardGeocoder: function(address, callback) {
 			if (!require.is(address,"String")) {
 				return;
@@ -205,6 +201,10 @@ define(["Ti/_/Evented", "Ti/_/lang", "Ti/Network"], function(Evented, lang, Netw
 				maximumHeadingAge: 1000,
 				forwardGeocoderTimeout: void 0,
 				reverseGeocoderTimeout: void 0
+			},
+
+			hasCompass: function() {
+				return compassSupport;
 			}
 			
 		},

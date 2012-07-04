@@ -396,13 +396,25 @@ USE_PROXY_FOR_VERIFY_AUTORESIZING
 
 -(void)valueChanged:(id)sender
 {
-	if ([self.proxy _hasListeners:@"change"])
-	{
-		NSDate *date = [(UIDatePicker*)sender date];
-		NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:date,@"value",nil];
-		[self.proxy replaceValue:date forKey:@"value" notification:NO];
-		[self.proxy fireEvent:@"change" withObject:event];
-	}
+    if (sender == picker) {
+        
+        if ([self.proxy _hasListeners:@"change"])
+        {
+            if ( [self isDatePicker] && [(UIDatePicker*)picker datePickerMode] == UIDatePickerModeCountDownTimer ) {
+                double val = [(UIDatePicker*)picker countDownDuration]*1000;
+                NSNumber* newDuration = [NSNumber numberWithDouble:val];
+                NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:newDuration,@"countDownDuration",nil];
+                [self.proxy replaceValue:newDuration forKey:@"countDownDuration" notification:NO];
+                [self.proxy fireEvent:@"change" withObject:event];
+            }
+            else {
+                NSDate *date = [(UIDatePicker*)picker date];
+                NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:date,@"value",nil];
+                [self.proxy replaceValue:date forKey:@"value" notification:NO];
+                [self.proxy fireEvent:@"change" withObject:event];
+            }
+        }
+    }
 }
 
 

@@ -71,9 +71,6 @@ define(
 		}),
 		loadAppjs = Ti.deferStart();
 
-	// add has() tests
-	has.add("devmode", deployType === "development");
-
 	// Object.defineProperty() shim
 	if (!has("object-defineproperty")) {
 		// add support for Object.defineProperty() thanks to es5-shim
@@ -414,7 +411,7 @@ define(
 		}
 
 		// load app.js when ti and dom is ready
-		ready(loadAppjs);
+		setTimeout(loadAppjs, 1);
 	});
 
 	return Ti;

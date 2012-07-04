@@ -12,3 +12,4 @@ xcuserdata
 *.BASE.*
 *.LOCAL.*
 *.REMOTE.*
+driver/config.js

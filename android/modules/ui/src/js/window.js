@@ -26,8 +26,6 @@ exports.bootstrapWindow = function(Titanium) {
 	var Proxy = Titanium.Proxy;
 	var TiWindow = Titanium.TiWindow;
 
-	// A collection of windows we need to keep alive.
-	var windows = [];
 	Window.prototype.isActivity = false;
 	// set constants for representing states for the window
 	Window.prototype.state = {closed: 0, opening: 1, opened: 2, closing: 3};
@@ -166,26 +164,11 @@ exports.bootstrapWindow = function(Titanium) {
 	Window.prototype.setWindowPixelFormat = windowPixelFormatSetter;
 	Object.defineProperty(Window.prototype, "windowPixelFormat", { get: windowPixelFormatGetter, set: windowPixelFormatSetter});
 	
-	// Helper method to keep the window alive until it gets closed.
-	var rememberWindowAndAddCloseListener = function(value){
-		if (value == null){
-			return;
-		}
-		var index = windows.indexOf(value);
-		if(index < 0){
-			windows.push(value);
-			var self = value;
-			value.on('close', function () {
-				var index = windows.indexOf(self);
-				if (index >= 0) {
-					windows.splice(index, index);
-				} else {
-					kroll.log(TAG, "Unable to release window reference.");
-				}
-			});
-		}
+	var childrenGetter = function() {
+		return this._children;
 	}
-	
+
+	Window.prototype.getChildren = childrenGetter;
 
 	Window.prototype.open = function(options) {
 		var self = this;
@@ -198,7 +181,6 @@ exports.bootstrapWindow = function(Titanium) {
 			return;
 		}
 		this.currentState = this.state.opening;
-		rememberWindowAndAddCloseListener(this);
 		
 		if (!options) {
 			options = {};
@@ -265,6 +247,7 @@ exports.bootstrapWindow = function(Titanium) {
 			this.fireEvent("open");
 
 		}
+
 	}
 
 	Window.prototype.setWindow = function(existingWindow) {
@@ -525,9 +508,8 @@ exports.bootstrapWindow = function(Titanium) {
 		window._children = [];
 		window._postOpenChildren = [];
 		var self = window;
-		window.on('addedToTab', function () {
-			rememberWindowAndAddCloseListener(self);
-		});
+
+		Object.defineProperty(window, "children", { get: childrenGetter});
 
 		return window;
 		

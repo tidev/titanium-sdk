@@ -147,6 +147,10 @@
 -(id)create2DMatrix:(id)args;
 #endif
 
+#ifdef USE_TI_UI3DMATRIX
+-(id)create3DMatrix:(id)args;
+#endif
+
 #ifdef USE_TI_UIANIMATION
 -(id)createAnimation:(id)args;
 #endif

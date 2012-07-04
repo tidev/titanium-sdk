@@ -38,7 +38,6 @@ import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.view.animation.AnimationSet;
 import android.view.animation.LinearInterpolator;
-import android.view.animation.ScaleAnimation;
 import android.view.animation.Transformation;
 import android.view.animation.TranslateAnimation;
 
@@ -257,79 +256,16 @@ public class TiAnimationBuilder
 
 			TiUIView tiView = viewProxy.peekView();
 
-			// For scale animations, rely on the Android-provided ScaleAnimation rather than our
-			// TiMatrixAnimation and Operation.
 			Animation anim;
-			if (tdm.isScaleOperation()) {
-				// fromX, toX, fromY, toY, anchorX, anchorY
-				float[] params = tdm.getScaleOperationParameters();
-				float fromX = params[0];
-				float fromY = params[2];
-
-				if (fromX == Ti2DMatrix.VALUE_UNSPECIFIED) {
-					if (tiView != null) {
-						fromX = tiView.getAnimatedXScale();
-					} else {
-						fromX = 1.0f; // i.e., regular size.
-					}
-				}
-
-				if (fromY == Ti2DMatrix.VALUE_UNSPECIFIED) {
-					if (tiView != null) {
-						fromY = tiView.getAnimatedYScale();
-					} else {
-						fromY = 1.0f; // i.e., regular size.
-					}
-				}
-
-				anim = new ScaleAnimation(fromX, params[1], fromY, params[3],
-					Animation.RELATIVE_TO_SELF, params[4],
-					Animation.RELATIVE_TO_SELF, params[5]);
-
-				// Remember the toX, toY
-				if (tiView != null) {
-					float rememberX = params[1];
-					float rememberY = params[3];
-
-					// But if autoreverse is in effect, then
-					// set back to the fromX, fromY
-					if (autoreverse != null && autoreverse.booleanValue()) {
-						rememberX = fromX;
-						rememberY = fromY;
-					}
-
-					tiView.setAnimatedXScale(rememberX);
-					tiView.setAnimatedYScale(rememberY);
-				}
-
-			} else {
-
-				if (tdm.isRotateOperation()) {
-					// Make sure we rotate from the right starting position,
-					// in case a rotation has already occurred.
-					float[] params = tdm.getRotateOperationParameters();
-					float fromDegrees = params[0];
-					float toDegrees = params[1];
-
-					if (fromDegrees == Ti2DMatrix.VALUE_UNSPECIFIED) {
-						fromDegrees = tiView.getAnimatedRotationDegrees();
-						tdm.setRotationFromDegrees(fromDegrees);
-					}
-
-					// And remember for next time.
-					if (autoreverse == null || !autoreverse.booleanValue()) {
-						tiView.setAnimatedRotationDegrees(toDegrees);
-					} else {
-						// Because the animation will autoreverse, we
-						// want to save the original degrees.
-						tiView.setAnimatedRotationDegrees(fromDegrees);
-					}
-
-				}
-
-				anim = new TiMatrixAnimation(tdm, anchorX, anchorY);
-
+			if (tdm.hasScaleOperation() && tiView != null) {
+				tiView.setAnimatedScaleValues(tdm.verifyScaleValues(tiView, (autoreverse != null && autoreverse.booleanValue())));
 			}
+
+			if (tdm.hasRotateOperation() && tiView != null) {
+				tiView.setAnimatedRotationDegrees(tdm.verifyRotationValues(tiView, (autoreverse != null && autoreverse.booleanValue())));
+			}
+
+			anim = new TiMatrixAnimation(tdm, anchorX, anchorY);
 
 			anim.setFillAfter(true);
 

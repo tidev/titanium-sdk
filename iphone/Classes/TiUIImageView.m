@@ -20,6 +20,8 @@
 
 #define IMAGEVIEW_DEBUG 0
 
+#define IMAGEVIEW_MIN_INTERVAL 30
+
 @interface TiUIImageView()
 -(void)startTimerWithEvent:(NSString *)eventName;
 -(void)stopTimerWithEvent:(NSString *)eventName;
@@ -207,6 +209,17 @@ DEFINE_EXCEPTIONS
 	}
 }
 
+-(void)updateTimer{
+    if([timer isValid] && !stopped ){
+        
+        [timer invalidate];
+        RELEASE_TO_NIL(timer)
+        
+        timer = [[NSTimer scheduledTimerWithTimeInterval:interval target:self selector:@selector(timerFired:) userInfo:nil repeats:YES] retain]; 
+    }
+}
+
+
 -(void)fireLoadEventWithState:(NSString *)stateString
 {
     TiUIImageViewProxy* ourProxy = (TiUIImageViewProxy*)self.proxy;
@@ -306,7 +319,7 @@ DEFINE_EXCEPTIONS
 		[UIView commitAnimations];
 		
 		placeholderLoading = NO;
-		[self fireLoadEventWithState:@"url"];
+		[self fireLoadEventWithState:@"image"];
 	}
 }
 
@@ -471,7 +484,7 @@ DEFINE_EXCEPTIONS
                 autoWidth = fullSize.width;
                 autoHeight = fullSize.height;
                 [self imageView].image = image;
-                [self fireLoadEventWithState:@"url"];
+                [self fireLoadEventWithState:@"image"];
             }
             else {
                 [self loadDefaultImage:imageSize];
@@ -497,7 +510,7 @@ DEFINE_EXCEPTIONS
 			autoHeight = fullSize.height;
 			
 			[self imageView].image = image;
-			[self fireLoadEventWithState:@"url"];
+			[self fireLoadEventWithState:@"image"];
 		}
 	}
 }
@@ -565,17 +578,7 @@ DEFINE_EXCEPTIONS
 -(void)start
 {
 	stopped = NO;
-	
-	if (interval <= 0)
-	{
-		// use a (bad) calculation to determine how fast to rotate assuming 30 frames
-		// and then figuring out how many frames they have evenly.  this really just
-		// means the developers need to give us the frame rate or we'll do a poor job
-		// of guessing
-		interval = (1.0/30.0)*(30.0/loadTotal);
-	}
-	
-	[self.proxy replaceValue:NUMBOOL(NO) forKey:@"paused" notification:NO];
+    [self.proxy replaceValue:NUMBOOL(NO) forKey:@"paused" notification:NO];
 	
 	if (iterations<0)
 	{
@@ -691,7 +694,7 @@ DEFINE_EXCEPTIONS
 	
 	if (currentImage!=image)
 	{
-		[self fireLoadEventWithState:@"url"];
+		[self fireLoadEventWithState:@"image"];
 	}
 }
 
@@ -747,7 +750,13 @@ DEFINE_EXCEPTIONS
 
 -(void)setDuration_:(id)duration
 {
-	interval = [TiUtils floatValue:duration]/1000;
+    float dur = [TiUtils floatValue:duration];
+    dur =  MAX(IMAGEVIEW_MIN_INTERVAL,dur); 
+    
+    interval = dur/1000;
+    [self.proxy replaceValue:NUMINT(dur) forKey:@"duration" notification:NO];
+    
+    [self updateTimer];
 }
 
 -(void)setRepeatCount_:(id)count

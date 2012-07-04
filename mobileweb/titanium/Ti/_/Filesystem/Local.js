@@ -5,6 +5,7 @@ define(["Ti/_", "Ti/_/declare", "Ti/_/encoding", "Ti/_/lang", "Ti/API", "Ti/Blob
 		regDate = Date.now(),
 		File,
 		Filesystem,
+		is = require.is,
 		ls = localStorage,
 		slash = '/',
 		metaMap = {
@@ -170,7 +171,7 @@ define(["Ti/_", "Ti/_/declare", "Ti/_/encoding", "Ti/_/lang", "Ti/API", "Ti/Blob
 	return File = declare("Ti._.Filesystem.Local", null, {
 
 		constructor: function(path) {
-			if (require.is(path, "String")) {
+			if (is(path, "String")) {
 				var match = path.match(pathRegExp),
 					b = !match[1] && match[3];
 
@@ -307,6 +308,7 @@ define(["Ti/_", "Ti/_/declare", "Ti/_/encoding", "Ti/_/lang", "Ti/API", "Ti/Blob
 						ls.removeItem(key);
 					}
 				}
+				this._exists = 0;
 				ls.removeItem(metaPrefix + path);
 				ls.removeItem(blobPrefix + path);
 				return true;
@@ -317,6 +319,7 @@ define(["Ti/_", "Ti/_/declare", "Ti/_/encoding", "Ti/_/lang", "Ti/API", "Ti/Blob
 		deleteFile: function() {
 			if (this.exists() && this.isFile() && !this.readonly) {
 				var path = this.nativePath;
+				this._exists = 0;
 				ls.removeItem(metaPrefix + path);
 				ls.removeItem(blobPrefix + path);
 				return true;
@@ -475,6 +478,7 @@ define(["Ti/_", "Ti/_/declare", "Ti/_/encoding", "Ti/_/lang", "Ti/API", "Ti/Blob
 		write: function(/*String|File|Blob*/data, append) {
 			var path = this.nativePath;
 			if (path && this.isFile() && !this.readonly && this.parent && !this.parent.readonly) {
+				data && is(data, "String") && (this._mimeType = mimeTypes[1]);
 				switch (data && data.declaredClass) {
 					case "Ti.Filesystem.File":
 						data = data.read();
@@ -482,7 +486,7 @@ define(["Ti/_", "Ti/_/declare", "Ti/_/encoding", "Ti/_/lang", "Ti/API", "Ti/Blob
 						this._mimeType = data.mimeType;
 						data = data._data || "";
 				}
-				this._exists = true;
+				this._exists = 1;
 				this._modified = Date.now();
 				this._created || (this._created = this._modified);
 				this.constants.__values__.size = setLocal(path, append ? this.read() + data : data);
@@ -494,7 +498,7 @@ define(["Ti/_", "Ti/_/declare", "Ti/_/encoding", "Ti/_/lang", "Ti/API", "Ti/Blob
 		_create: function(type) {
 			if (!this.exists() && this.parent && !this.parent.readonly && mkdirs(this.parent.nativePath)) {
 				this._created = this._modified = Date.now();
-				this._exists = true;
+				this._exists = 1;
 				this._type = type;
 				return this._save();
 			}

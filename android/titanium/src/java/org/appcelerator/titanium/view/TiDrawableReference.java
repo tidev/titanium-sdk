@@ -154,6 +154,9 @@ public class TiDrawableReference
 	 */
 	public static TiDrawableReference fromUrl(KrollProxy proxy, String url)
 	{
+		if (url == null || url.length() == 0 || url.trim().length() == 0) {
+			return new TiDrawableReference(proxy.getActivity(), DrawableReferenceType.NULL);
+		}
 		return fromUrl(proxy.getActivity(), proxy.resolveUrl(null, url));
 	}
 

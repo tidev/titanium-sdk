@@ -13,8 +13,8 @@
 #ifdef USE_TI_UI2DMATRIX	
 	#import "Ti2DMatrix.h"
 #endif
-#ifdef USE_TI_UIIOS3DMATRIX
-	#import "TiUIiOS3DMatrix.h"
+#if defined(USE_TI_UIIOS3DMATRIX) || defined(USE_TI_UI3DMATRIX)
+	#import "Ti3DMatrix.h"
 #endif
 #import "TiViewProxy.h"
 #import "TiApp.h"
@@ -24,7 +24,7 @@ void InsetScrollViewForKeyboard(UIScrollView * scrollView,CGFloat keyboardTop,CG
 {
 	VerboseLog(@"ScrollView:%@, keyboardTop:%f minimumContentHeight:%f",scrollView,keyboardTop,minimumContentHeight);
 
-	CGRect scrollVisibleRect = [scrollView convertRect:[scrollView bounds] toView:[[TiApp controller] view]];
+	CGRect scrollVisibleRect = [scrollView convertRect:[scrollView bounds] toView:[[TiApp app] topMostView]];
 	//First, find out how much we have to compensate.
 
 	CGFloat obscuredHeight = scrollVisibleRect.origin.y + scrollVisibleRect.size.height - keyboardTop;	
@@ -57,7 +57,7 @@ void OffsetScrollViewForRect(UIScrollView * scrollView,CGFloat keyboardTop,CGFlo
 			scrollView,keyboardTop,minimumContentHeight,
 			responderRect.origin.x,responderRect.origin.y,responderRect.size.width,responderRect.size.height);
 
-	CGRect scrollVisibleRect = [scrollView convertRect:[scrollView bounds] toView:[[TiApp controller] view]];
+	CGRect scrollVisibleRect = [scrollView convertRect:[scrollView bounds] toView:[[TiApp app] topMostView]];
 	//First, find out how much we have to compensate.
 
 	CGFloat obscuredHeight = scrollVisibleRect.origin.y + scrollVisibleRect.size.height - keyboardTop;	
@@ -102,7 +102,7 @@ void ModifyScrollViewForKeyboardHeightAndContentHeightWithResponderRect(UIScroll
 			scrollView,keyboardTop,minimumContentHeight,
 			responderRect.origin.x,responderRect.origin.y,responderRect.size.width,responderRect.size.height);
 
-	CGRect scrollVisibleRect = [scrollView convertRect:[scrollView bounds] toView:[[TiApp controller] view]];
+	CGRect scrollVisibleRect = [scrollView convertRect:[scrollView bounds] toView:[[TiApp app] topMostView]];
 	//First, find out how much we have to compensate.
 
 	CGFloat obscuredHeight = scrollVisibleRect.origin.y + scrollVisibleRect.size.height - keyboardTop;	
@@ -360,10 +360,10 @@ DEFINE_EXCEPTIONS
 		return;
 	}
 #endif
-#ifdef USE_TI_UIIOS3DMATRIX	
-	if ([transformMatrix isKindOfClass:[TiUIiOS3DMatrix class]])
+#if defined(USE_TI_UIIOS3DMATRIX) || defined(USE_TI_UI3DMATRIX)
+	if ([transformMatrix isKindOfClass:[Ti3DMatrix class]])
 	{
-		self.layer.transform = CATransform3DConcat(CATransform3DMakeAffineTransform(virtualParentTransform),[(TiUIiOS3DMatrix*)transformMatrix matrix]);
+		self.layer.transform = CATransform3DConcat(CATransform3DMakeAffineTransform(virtualParentTransform),[(Ti3DMatrix*)transformMatrix matrix]);
 		return;
 	}
 #endif

@@ -490,7 +490,7 @@ class Builder(object):
 			'-partition-size',
 			'128' # in between nexusone and droid
 		]
-		emulator_cmd.extend(add_args);
+		emulator_cmd.extend([arg.strip() for arg in add_args if len(arg.strip()) > 0])
 		debug(' '.join(emulator_cmd))
 		
 		p = subprocess.Popen(emulator_cmd)
@@ -1506,8 +1506,9 @@ class Builder(object):
 		apk_zip.write(os.path.join(sdk_native_libs, 'armeabi', 'libtiverify.so'), 'lib/armeabi/libtiverify.so')
 		apk_zip.write(os.path.join(sdk_native_libs, 'armeabi-v7a', 'libtiverify.so'), 'lib/armeabi-v7a/libtiverify.so')
 		# See below about x86 and production
-		if self.deploy_type != 'production':
-			apk_zip.write(os.path.join(sdk_native_libs, 'x86', 'libtiverify.so'), 'lib/x86/libtiverify.so')
+		x86_dir = os.path.join(sdk_native_libs, 'x86')
+		if self.deploy_type != 'production' and os.path.exists(x86_dir):
+			apk_zip.write(os.path.join(x86_dir, 'libtiverify.so'), 'lib/x86/libtiverify.so')
 
 		if self.runtime == 'v8':
 			apk_zip.write(os.path.join(sdk_native_libs, 'armeabi', 'libkroll-v8.so'), 'lib/armeabi/libkroll-v8.so')
@@ -1516,9 +1517,9 @@ class Builder(object):
 			apk_zip.write(os.path.join(sdk_native_libs, 'armeabi-v7a', 'libstlport_shared.so'), 'lib/armeabi-v7a/libstlport_shared.so')
 			# Only include x86 in non-production builds for now, since there are
 			# no x86 devices on the market
-			if self.deploy_type != 'production':
-				apk_zip.write(os.path.join(sdk_native_libs, 'x86', 'libkroll-v8.so'), 'lib/x86/libkroll-v8.so')
-				apk_zip.write(os.path.join(sdk_native_libs, 'x86', 'libstlport_shared.so'), 'lib/x86/libstlport_shared.so')
+			if self.deploy_type != 'production' and os.path.exists(x86_dir):
+				apk_zip.write(os.path.join(x86_dir, 'libkroll-v8.so'), 'lib/x86/libkroll-v8.so')
+				apk_zip.write(os.path.join(x86_dir, 'libstlport_shared.so'), 'lib/x86/libstlport_shared.so')
 
 				
 		self.apk_updated = True
@@ -1971,13 +1972,14 @@ class Builder(object):
 			self.google_apis_supported = False
 				
 			# find the AVD we've selected and determine if we support Google APIs
-			for avd_props in avd.get_avds(self.sdk):
-				if avd_props['id'] == avd_id:
-					my_avd = avd_props
-					self.google_apis_supported = (my_avd['name'].find('Google')!=-1 or my_avd['name'].find('APIs')!=-1)
-					break
+			if avd_id is not None:
+				for avd_props in avd.get_avds(self.sdk):
+					if avd_props['id'] == avd_id:
+						my_avd = avd_props
+						self.google_apis_supported = (my_avd['name'].find('Google')!=-1 or my_avd['name'].find('APIs')!=-1)
+						break
 			
-			if build_only:
+			if build_only or avd_id is None:
 				self.google_apis_supported = True
 
 			remove_orphaned_files(resources_dir, self.assets_resources_dir, self.non_orphans)
@@ -2213,8 +2215,7 @@ if __name__ == "__main__":
 			password = dequote(sys.argv[7])
 			alias = dequote(sys.argv[8])
 			output_dir = dequote(sys.argv[9])
-			avd_id = dequote(sys.argv[10])
-			s.build_and_run(True, avd_id, key, password, alias, output_dir)
+			s.build_and_run(True, None, key, password, alias, output_dir)
 		elif command == 'build':
 			s.build_and_run(False, 1, build_only=True)
 		else:

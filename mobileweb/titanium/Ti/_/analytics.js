@@ -36,11 +36,13 @@ define(["Ti/_", "Ti/_/dom", "Ti/_/has", "Ti/_/lang", "Ti/App", "Ti/Platform"],
 						ids = [],
 						jsonStrs = [],
 						sessionId = sessionStorage.getItem("ti:sessionId"),
-						seqId = JSON.parse(sessionStorage.getItem("ti:analyticsSeqId")),
+						seqId = sessionStorage.getItem("ti:analyticsSeqId"),
 						events = getStorage(),
 						i = 0,
 						len = events.length,
 						evt;
+
+					is(seqId, "String") && (seqId = JSON.parse(seqId));
 
 					clearTimeout(sendTimer);
 

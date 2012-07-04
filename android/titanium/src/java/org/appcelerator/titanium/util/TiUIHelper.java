@@ -69,6 +69,7 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Process;
+import android.text.util.Linkify;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.View;
@@ -134,6 +135,13 @@ public class TiUIHelper
 			.setPositiveButton("Continue", positiveListener)
 			.setNegativeButton("Kill", negativeListener)
 			.setCancelable(false).create().show();
+	}
+	
+	public static void linkifyIfEnabled(TextView tv, Object autoLink)
+	{ 
+		if (autoLink != null) {
+			Linkify.addLinks(tv, TiConvert.toInt(autoLink));
+		}
 	}
 
 	/**
@@ -537,17 +545,17 @@ public class TiUIHelper
 	{
 		StateListDrawable sld = new StateListDrawable();
 
-		Drawable bgSelectedDrawable = buildBackgroundDrawable(selectedColor, selectedImage, false, gradientDrawable);
+		Drawable bgSelectedDrawable = buildBackgroundDrawable(selectedColor, selectedImage, tileImage, gradientDrawable);
 		if (bgSelectedDrawable != null) {
 			sld.addState(BACKGROUND_SELECTED_STATE, bgSelectedDrawable);
 		}
 
-		Drawable bgFocusedDrawable = buildBackgroundDrawable(focusedColor, focusedImage, false, gradientDrawable);
+		Drawable bgFocusedDrawable = buildBackgroundDrawable(focusedColor, focusedImage, tileImage, gradientDrawable);
 		if (bgFocusedDrawable != null) {
 			sld.addState(BACKGROUND_FOCUSED_STATE, bgFocusedDrawable);
 		}
 
-		Drawable bgDisabledDrawable = buildBackgroundDrawable(disabledColor, disabledImage, false, gradientDrawable);
+		Drawable bgDisabledDrawable = buildBackgroundDrawable(disabledColor, disabledImage, tileImage, gradientDrawable);
 		if (bgDisabledDrawable != null) {
 			sld.addState(BACKGROUND_DISABLED_STATE, bgDisabledDrawable);
 		}

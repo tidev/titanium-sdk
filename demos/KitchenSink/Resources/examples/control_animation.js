@@ -12,7 +12,7 @@ win.add(button);
 
 button.addEventListener('click', function()
 {
-	var t = Titanium.UI.iOS.create3DMatrix();
+	var t = Titanium.UI.create3DMatrix();
 	t = t.rotate(200,0,1,1);
 	t = t.scale(3);
 	t = t.translate(20,50,170);

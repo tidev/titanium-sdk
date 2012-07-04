@@ -354,6 +354,13 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/API", "Ti/UI", "Ti/_/lang", "Ti
 				x1 = topValue;
 			} else if(topType === "#") {
 				x4 = topValue;
+			} else if(bottomType === "%") {
+				x1 = 1 - bottomValue;
+				x3 = -1;
+			} else if(bottomType === "#") {
+				x1 = 1;
+				x3 = -1;
+				x4 = -bottomValue;
 			} else { 
 				switch(self._defaultRowAlignment) {
 					case "center": 

@@ -6,7 +6,7 @@
  */
 #import "TiAnimation.h"
 #import "Ti2DMatrix.h"
-#import "TiUIiOS3DMatrix.h"
+#import "Ti3DMatrix.h"
 #import "TiUtils.h"
 #import "TiViewProxy.h"
 #import "LayoutConstraint.h"

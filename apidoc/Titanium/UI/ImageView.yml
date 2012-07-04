@@ -86,9 +86,9 @@ events:
     properties:
       - name: state
         summary: |
-            Set to `image` on Android and Mobile Web and `url` on iOS when the image defined in the 
-            [image](Titanium.UI.ImageView.image) property is loaded. Set to `images`, when the series 
-            of images defined in the [images](Titanium.UI.ImageView.images) property are loaded.
+            Set to `image` when the image defined in the [image](Titanium.UI.ImageView.image) 
+            property is loaded. Set to `images`, when the series of images defined in the 
+            [images](Titanium.UI.ImageView.images) property are loaded.
         type: String
     
   - name: start
@@ -105,7 +105,8 @@ events:
 
   - name: pause
     summary: Fired when the animation pauses.
-    platforms: [iphone, ipad, mobileweb]
+    platforms: [android, iphone, ipad, mobileweb]
+    since: { android: "2.1.1" }
 properties:
   - name: animating
     summary: |
@@ -138,13 +139,15 @@ properties:
   - name: duration
     summary: Amount of time in milliseconds to animate one cycle.
     description: |
-        On Android, if any images are assigned to the `images` property when the animation is 
-        started, duration will be set to the number of images multiplied by 33ms. If no images 
-        are assigned, duration will be set to 100ms.
+        Starting with release 2.1.1, the minimum duration is 30 ms and the default duration is 200 ms.
+
+        On Android, prior to release 2.1.1, if any images are assigned to the `images` property when the animation is 
+        started, duration will be set to the number of images multiplied by 33 ms. If no images 
+        are assigned, duration will be set to 100 ms.
         
-        On iOS and Mobile Web, the default is 30ms.
+        On iOS and Mobile Web, prior to release 2.1.1, the default is 30 ms.
     type: Number
-    default: See description (Android), 30 (iPhone, iPad, Mobile Web)
+    default: 200 ms in Release 2.1.1 and later. Platform-specific default in earlier releases.
     
   - name: enableZoomControls
     summary: Show zoom controls when the user touches the image view.

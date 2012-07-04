@@ -12,6 +12,8 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/event", "Ti/_/lang",
 			this.backgroundColor = "#fff";
 		},
 
+		_preventDefaultTouchEvent: false,
+
 		destroy: function() {
 			App.removeEventListener(this.widgetId + ":unload");
 			this._destroy();

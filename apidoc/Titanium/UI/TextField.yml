@@ -26,6 +26,13 @@ methods:
   - name: focus
     summary: Forces the field to gain focus.
 
+  - name: hasText
+    summary: Returns `true` if this text field contains text.
+    returns:
+        type: Boolean
+        summary: True if this text field contains text.
+    since: "2.1.0"
+
   - name: remove
     description: |
         See also: [add](Titanium.UI.TextField.add), <Titanium.UI.View.add>.
@@ -57,6 +64,20 @@ properties:
     summary: Determines whether misspelled words input to this text field are automatically corrected.
     type: Boolean
     default: false
+    
+  - name: autoLink
+    summary: Automatically convert text to clickable links. 
+    description: |     
+        Use one of the <Titanium.UI.Android> linkify constants:
+        [LINKIFY_ALL](Titanium.UI.Android.LINKIFY_ALL),
+        [LINKIFY_EMAIL_ADDRESSES](Titanium.UI.Android.LINKIFY_EMAIL_ADDRESSES),
+        [LINKIFY_MAP_ADDRESSES](Titanium.UI.Android.LINKIFY_MAP_ADDRESSES),
+        [LINKIFY_PHONE_NUMBERS](Titanium.UI.Android.LINKIFY_PHONE_NUMBERS),
+        or [LINKIFY_WEB_URLS](Titanium.UI.Android.LINKIFY_WEB_URLS).
+    type: Number
+    default: undefined
+    since: 2.2.0
+    platforms: [android]
     
   - name: borderStyle
     summary: Border style for the field. 
