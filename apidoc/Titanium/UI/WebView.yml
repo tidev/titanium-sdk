@@ -225,9 +225,21 @@ events:
     summary: Fired when the web view cannot load the content. 
     description: |
         For Mobile Web, generally this event will **not** fire, even for 404, 500, and invalid URLs.
+        The `errorCode` value is platform-specific and refers to underlying [iOS NSURLError* constants](https://developer.apple.com/library/ios/#documentation/Cocoa/Reference/Foundation/Miscellaneous/Foundation_Constants/Reference/reference.html#//apple_ref/doc/uid/TP40003793-CH3g-SW40)
+        and [Android WebViewClient ERROR_* constants](http://developer.android.com/reference/android/webkit/WebViewClient.html).
     properties:
       - name: url
         summary: URL of the web document.
+        type: String
+        platforms: [iphone, ipad, mobileweb, android]
+      - name: message
+        summary: Error message.
+        type: String
+        platforms: [iphone, ipad, mobileweb, android]
+      - name: errorCode
+        summary: Error code.
+        type: Number
+        platforms: [iphone, ipad, android]
 
   - name: load
     summary: Fired when the web view content is loaded.
