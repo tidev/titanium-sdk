@@ -167,11 +167,11 @@ public class TiTableView extends FrameLayout
 		public View getView(int position, View convertView, ViewGroup parent) {
 			Item item = (Item) getItem(position);
 			TiBaseTableViewItem v = null;
-			
+			boolean sameView = false;
 			if (convertView != null) {
 				v = (TiBaseTableViewItem) convertView;
 				// Default creates view for each Item
-				boolean sameView = false;
+				
 				if (item.proxy instanceof TableViewRowProxy) {
 					TableViewRowProxy row = (TableViewRowProxy)item.proxy;
 					if (row.getTableViewRowProxyItem() != null) {
@@ -185,7 +185,7 @@ public class TiTableView extends FrameLayout
 						}
 					} else {
 						// otherwise compare class names
-						if (!v.getClassName().equals(item.className)) {
+						if (!(item.proxy instanceof TableViewRowProxy) || !v.getClassName().equals(item.className)) {
 							Log.w(LCAT, "Handed a view to convert with className " + v.getClassName() + " expected " + item.className);
 							v = null;
 						}
@@ -215,13 +215,13 @@ public class TiTableView extends FrameLayout
 				v.setLayoutParams(new AbsListView.LayoutParams(
 					AbsListView.LayoutParams.FILL_PARENT, AbsListView.LayoutParams.FILL_PARENT));
 			}
-            else
+            else if (!sameView) 
             {
                 //we are reusing a cell
-                TableViewRowProxy row = (TableViewRowProxy)item.proxy;
+                TableViewRowProxy reusedRow = (TableViewRowProxy)v.getRowData().proxy;
                 KrollDict event = new KrollDict();
-                TableViewRowProxy.fillClickEvent(event, viewModel, item);
-                row.fireEvent("reuse", event);
+                TableViewRowProxy.fillClickEvent(event, viewModel, v.getRowData());
+                reusedRow.fireEvent("reuse", event);
             }
 
 			v.setRowData(item);
