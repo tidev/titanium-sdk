@@ -6,7 +6,6 @@
  */
 package org.appcelerator.titanium.view;
 
-
 import java.lang.ref.WeakReference;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -106,6 +105,7 @@ public abstract class TiUIView
 	private Method mSetLayerTypeMethod = null; // Honeycomb, for turning off hw acceleration.
 
 	private boolean zIndexChanged = false;
+	private TiBorderWrapperView borderView;
 
 	/**
 	 * Constructs a TiUIView object with the associated proxy.
@@ -134,7 +134,18 @@ public abstract class TiUIView
 				View nv = getNativeView();
 				if (nv instanceof ViewGroup) {
 					if (cv.getParent() == null) {
-						((ViewGroup) nv).addView(cv, child.getLayoutParams());
+						TiBorderWrapperView childBorderView = child.getBorderView();
+						if (childBorderView == null) {
+							((ViewGroup) nv).addView(cv, child.getLayoutParams());
+						} else {
+							((ViewGroup) nv).addView(childBorderView, child.getLayoutParams());
+							// Create new layout params for the child view since we just want the
+							// wrapper to control the layout
+							LayoutParams params = new TiCompositeLayout.LayoutParams();
+							params.autoFillsHeight = true;
+							params.autoFillsWidth = true;
+							childBorderView.addView(cv, params);
+						}
 					}
 					children.add(child);
 					child.parent = proxy;
@@ -153,8 +164,14 @@ public abstract class TiUIView
 			View cv = child.getNativeView();
 			if (cv != null) {
 				View nv = getNativeView();
+				TiBorderWrapperView childBorderView = child.getBorderView();
 				if (nv instanceof ViewGroup) {
-					((ViewGroup) nv).removeView(cv);
+					if (childBorderView != null) {
+						childBorderView.removeView(cv);
+						((ViewGroup) nv).removeView(childBorderView);
+					} else {
+						((ViewGroup) nv).removeView(cv);
+					}
 					children.remove(child);
 					child.parent = null;
 				}
@@ -587,7 +604,7 @@ public abstract class TiUIView
 				}
 
 				if (hasBorder) {
-					if (newBackground) {
+					if (borderView == null) {
 						initializeBorder(d, bgColor);
 					} else if (key.startsWith(TiC.PROPERTY_BORDER_PREFIX)) {
 						handleBorderProperty(key, newValue);
@@ -912,66 +929,49 @@ public abstract class TiUIView
 
 	private void initializeBorder(KrollDict d, Integer bgColor)
 	{
-		if (d.containsKey(TiC.PROPERTY_BORDER_RADIUS)
-			|| d.containsKey(TiC.PROPERTY_BORDER_COLOR)
-			|| d.containsKey(TiC.PROPERTY_BORDER_WIDTH)) {
+		if (hasBorder(d)) {
 
 			if(nativeView != null) {
-				if (background == null) {
-					applyCustomBackground();
+
+				if (borderView == null) {
+					borderView = new TiBorderWrapperView(TiApplication.getAppCurrentActivity());
 				}
-
-				if (background.getBorder() == null) {
-					background.setBorder(new TiBackgroundDrawable.Border());
-				}
-
-				TiBackgroundDrawable.Border border = background.getBorder();
-
 				if (d.containsKey(TiC.PROPERTY_BORDER_RADIUS)) {
 					float radius = TiConvert.toFloat(d, TiC.PROPERTY_BORDER_RADIUS, 0f);
 					if (radius > 0f && HONEYCOMB_OR_GREATER) {
 						disableHWAcceleration();
 					}
-					border.setRadius(radius);
+					borderView.setRadius(radius);
 				}
 				if (d.containsKey(TiC.PROPERTY_BORDER_COLOR) || d.containsKey(TiC.PROPERTY_BORDER_WIDTH)) {
 					if (d.containsKey(TiC.PROPERTY_BORDER_COLOR)) {
-						border.setColor(TiConvert.toColor(d, TiC.PROPERTY_BORDER_COLOR));
+						borderView.setColor(TiConvert.toColor(d, TiC.PROPERTY_BORDER_COLOR));
 					} else {
 						if (bgColor != null) {
-							border.setColor(bgColor);
+							borderView.setColor(bgColor);
 						}
 					}
 					if (d.containsKey(TiC.PROPERTY_BORDER_WIDTH)) {
-						border.setWidth(TiConvert.toFloat(d, TiC.PROPERTY_BORDER_WIDTH, 0f));
+						borderView.setBorderWidth(TiConvert.toFloat(d, TiC.PROPERTY_BORDER_WIDTH, 0f));
 					}
 				}
-				//applyCustomBackground();
 			}
 		}
 	}
 
 	private void handleBorderProperty(String property, Object value)
 	{
-		if (background.getBorder() == null) {
-			background.setBorder(new TiBackgroundDrawable.Border());
-		}
-		TiBackgroundDrawable.Border border = background.getBorder();
-
 		if (property.equals(TiC.PROPERTY_BORDER_COLOR)) {
-			border.setColor(TiConvert.toColor(value.toString()));
+			borderView.setColor(TiConvert.toColor(value.toString()));
 		} else if (property.equals(TiC.PROPERTY_BORDER_RADIUS)) {
 			float radius = TiConvert.toFloat(value, 0f);
 			if (radius > 0f && HONEYCOMB_OR_GREATER) {
 				disableHWAcceleration();
 			}
-			border.setRadius(radius);
+			borderView.setRadius(radius);
 		} else if (property.equals(TiC.PROPERTY_BORDER_WIDTH)) {
-			border.setWidth(TiConvert.toFloat(value, 0f));
+			borderView.setBorderWidth(TiConvert.toFloat(value, 0f));
 		}
-		//recalculate bounds since border is changed.
-		background.onBoundsChange(background.getBounds());
-		applyCustomBackground();
 	}
 
 	private static HashMap<Integer, String> motionEvents = new HashMap<Integer,String>();
@@ -1011,6 +1011,10 @@ public abstract class TiUIView
 	protected boolean allowRegisterForTouch()
 	{
 		return true;
+	}
+
+	public TiBorderWrapperView getBorderView() {
+		return borderView;
 	}
 
 	public void registerForTouch()
@@ -1191,7 +1195,6 @@ public abstract class TiUIView
 		}
 	}
 
-	
 	public void clearOpacity(View view)
 	{
 		Drawable d = view.getBackground();
