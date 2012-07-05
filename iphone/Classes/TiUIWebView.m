@@ -715,11 +715,29 @@ static NSString * const kTitaniumJavascript = @"Ti.App={};Ti.API={};Ti.App._list
 	}
 
 	NSLog(@"[ERROR] Error loading: %@, Error: %@",offendingUrl,error);
-	
+
 	if ([self.proxy _hasListeners:@"error"])
 	{
 		NSMutableDictionary *event = [NSMutableDictionary dictionaryWithObject:[error description] forKey:@"message"];
-		[event setObject:[NSNumber numberWithInteger:[error code]] forKey:@"errorCode"];
+
+		// We combine some error codes into a single one which we share with Android.
+		NSInteger rawErrorCode = [error code];
+		NSInteger returnErrorCode = rawErrorCode;
+
+		if (rawErrorCode == NSURLErrorUserCancelledAuthentication)
+		{
+			returnErrorCode = NSURLErrorUserAuthenticationRequired; // URL_ERROR_AUTHENTICATION
+		}
+		else if (rawErrorCode == NSURLErrorNoPermissionsToReadFile || rawErrorCode == NSURLErrorCannotCreateFile || rawErrorCode == NSURLErrorFileIsDirectory || rawErrorCode == NSURLErrorCannotCloseFile || rawErrorCode == NSURLErrorCannotWriteToFile || rawErrorCode == NSURLErrorCannotRemoveFile || rawErrorCode == NSURLErrorCannotMoveFile)
+		{
+			returnErrorCode = NSURLErrorCannotOpenFile; // URL_ERROR_FILE
+		}
+		else if (rawErrorCode == NSURLErrorDNSLookupFailed)
+		{
+			returnErrorCode = NSURLErrorCannotFindHost; // URL_ERROR_HOST_LOOKUP
+		}
+
+		[event setObject:[NSNumber numberWithInteger:returnErrorCode] forKey:@"errorCode"];
 		[event setObject:offendingUrl forKey:@"url"];
 		[self.proxy fireEvent:@"error" withObject:event];
 	}
