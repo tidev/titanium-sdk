@@ -32,20 +32,8 @@ module.exports = new function() {
 	this.processCommand = function(command) {
 		var commandElements = command.split(" ");
 
-		if (commandElements[0] === "create") {
-			createHarness(commandFinishedCallback, commandFinishedCallback);
-
-		} else if (commandElements[0] === "delete") {
-			deleteHarness(commandFinishedCallback);
-
-		} else if (commandElements[0] === "build") {
-			buildHarness(commandFinishedCallback, commandFinishedCallback);
-
-		} else if (commandElements[0] === "start") {
+		if (commandElements[0] === "start") {
 			common.startTestPass(commandElements, self.startConfig, commandFinishedCallback);
-
-		} else if (commandElements[0] === "uninstall") {
-			uninstallHarness(commandFinishedCallback, commandFinishedCallback);
 
 		} else if (commandElements[0] === "exit") {
 			process.exit(1);
@@ -53,16 +41,12 @@ module.exports = new function() {
 		} else {
 			console.log("invalid command\n\n"
 				+ "Commands:\n"
-				+ "    create - create harness project\n"
-				+ "    delete - delete harness project\n"
-				+ "    build - build harness apk\n"
 				+ "    start - starts test run which includes starting over with clean harness project\n"
 				+ "        Arguments (optional):\n"
 				+ "            --config-set=<config set ID> - runs the specified config set\n"
 				+ "            --config=<config ID> - runs the specified configuration only\n"
 				+ "            --suite=<suite name> - runs the specified suite only\n"
 				+ "            --test=<test name> - runs the specified test only (--suite must be specified)\n\n"
-				+ "    uninstall - removes harness from device\n"
 				+ "    exit - exit driver\n");
 
 			commandFinishedCallback();

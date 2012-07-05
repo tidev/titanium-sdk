@@ -43,13 +43,7 @@ module.exports = new function() {
 	this.processCommand = function(command) {
 		var commandElements = command.split(" ");
 
-		if (commandElements[0] === "create") {
-			createHarness(commandFinishedCallback, commandFinishedCallback);
-
-		} else if (commandElements[0] === "delete") {
-			deleteHarness(commandFinishedCallback);
-
-		} else if (commandElements[0] === "start") {
+		if (commandElements[0] === "start") {
 			simVersion = driverGlobal.config.defaultIosSimVersion
 
 			var simVersionArg = util.getArgument(commandElements, "--sim-version");
@@ -68,8 +62,6 @@ module.exports = new function() {
 		} else {
 			console.log("invalid command\n\n"
 				+ "Commands:\n"
-				+ "    create - create harness project\n"
-				+ "    delete - delete harness project\n"
 				+ "    start - starts test run which includes starting over with clean harness project\n"
 				+ "        Arguments (optional):\n"
 				+ "            --config-set=<config set ID> - runs the specified config set\n"

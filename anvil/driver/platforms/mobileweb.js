@@ -36,16 +36,7 @@ module.exports = new function() {
 	this.processCommand = function(command) {
 		var commandElements = command.split(" ");
 
-		if (commandElements[0] === "create") {
-			createHarness(commandFinishedCallback, commandFinishedCallback);
-
-		} else if (commandElements[0] === "delete") {
-			deleteHarness(commandFinishedCallback);
-
-		} else if (commandElements[0] === "build") {
-			buildHarness(commandFinishedCallback, commandFinishedCallback);
-
-		} else if (commandElements[0] === "start") {
+		if (commandElements[0] === "start") {
 			var browserOnlyArg = util.getArgument(commandElements, "--browser-only");
 			if (browserOnlyArg === "true") {
 				browserOnlyMode = browserOnlyArg;
@@ -59,9 +50,6 @@ module.exports = new function() {
 		} else {
 			util.log("invalid command\n\n"
 				+ "Commands:\n"
-				+ "    create - create harness project\n"
-				+ "    delete - delete harness project\n"
-				+ "    build - build harness files to be served\n"
 				+ "    start - starts test run which includes starting over with clean harness project\n"
 				+ "        Arguments (optional):\n"
 				+ "            --config-set=<config set ID> - runs the specified config set\n"
@@ -71,8 +59,7 @@ module.exports = new function() {
 				+ "            --browser-only=<boolean> - if set to true, the harness is not deployed to a device\n"
 				+ "                and instead the user is expected to manually load the \"127.0.0.1/index.html\"\n"
 				+ "                url in order to run tests.  Reloading the page manually will be required when\n"
-				+ "                the harness is restarted due to a config finishing or an error occurring\n"
-				+ "\n"
+				+ "                the harness is restarted due to a config finishing or an error occurring\n\n"
 				+ "    exit - exit driver\n",
 				0, true);
 
