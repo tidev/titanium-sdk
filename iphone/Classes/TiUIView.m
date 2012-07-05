@@ -469,13 +469,13 @@ DEFINE_EXCEPTIONS
     
     UIGraphicsBeginImageContextWithOptions(bgImage.size, NO, bgImage.scale);
     CGContextRef imageContext = UIGraphicsGetCurrentContext();
-    CGContextDrawImage(imageContext, CGRectMake(0, 0, bgImage.size.width * bgImage.scale, bgImage.size.height * bgImage.scale), [bgImage CGImage]);
+    CGContextDrawImage(imageContext, CGRectMake(0, 0, bgImage.size.width , bgImage.size.height), [bgImage CGImage]);
     UIImage* translatedImage = UIGraphicsGetImageFromCurrentImageContext();
     UIGraphicsEndImageContext();
     
     UIGraphicsBeginImageContextWithOptions(self.bounds.size, NO, bgImage.scale);
     CGContextRef background = UIGraphicsGetCurrentContext();
-    CGRect imageRect = CGRectMake(0, 0, bgImage.size.width * bgImage.scale, bgImage.size.height * bgImage.scale);
+    CGRect imageRect = CGRectMake(0, 0, bgImage.size.width, bgImage.size.height);
     CGContextDrawTiledImage(background, imageRect, [translatedImage CGImage]);
     UIImage* renderedBg = UIGraphicsGetImageFromCurrentImageContext();
     UIGraphicsEndImageContext();
