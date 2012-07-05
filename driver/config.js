@@ -7,8 +7,7 @@ module.exports = new function() {
 	local values used for defining the required properties (IE: you can change this section to 
 	taste by adding or removing values if desired)
 
-	Examples:
-	*/
+	Examples:*/
 	var baseDir = "/Users/ocyrus/dev";
 	var tiDir = baseDir + "/appcelerator/git/titanium_mobile";
 
@@ -17,10 +16,10 @@ module.exports = new function() {
 	/*******************************************************************************/
 
 	// Example: this.androidSdkDir = baseDir + "/installed/android-sdk-mac_x86"
-	this.androidSdkDir = baseDir + "/installed/android-sdk-mac_x86"; // location of the android SDK;
+	this.androidSdkDir = baseDir + "/installed/android-sdk-mac_x86"
 
 	// Example: this.tiSdkDir = tiDir + "/dist/mobilesdk/osx/2.1.0";
-	this.tiSdkDir = tiDir + "/dist/mobilesdk/osx/2.1.0"; // location of titanium SDK;
+	this.tiSdkDir = tiDir + "/dist/mobilesdk/osx/2.1.0";
 
 	/*
 	this can be changed but shouldn't need to be. This is the location where the harness instances 

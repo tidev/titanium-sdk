@@ -172,7 +172,7 @@ module.exports = new function() {
 			}
 
 			// config set must have also been specified if there is more than a single config set
-			var configArg = configArg = util.getArgument(startArgs, "--config");
+			var configArg = util.getArgument(startArgs, "--config");
 			if ((selectedConfigSetIndex !== null) || (configs.length === 1 )) {
 				if ((typeof configArg) !== "undefined") {
 					var numConfigs = configs[configSetIndex].setConfigs.length;
