@@ -3,8 +3,6 @@ define(["Ti/_/declare", "Ti/_/dom", "Ti/_/UI/Element", "Ti/_/lang", "Ti/_/string
 
 	return declare("Ti.UI.View", Element, {
 
-		_parent: null,
-
 		constructor: function() {
 			this.constants.__values__.children = [];
 			this.layout = "composite";

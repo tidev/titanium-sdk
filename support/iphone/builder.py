@@ -967,8 +967,13 @@ def main(args):
 				o.write("Performing full rebuild\n")
 				print "[INFO] Performing full rebuild. This will take a little bit. Hold tight..."
 				sys.stdout.flush()
-				project = Projector(name,sdk_version,template_dir,project_dir,appid)
-				project.create(template_dir,iphone_dir)	
+
+				# In order to avoid dual-mangling, we need to make sure that if we're re-projecting,
+				# there is NOT an existing xcodeproj file.
+				if not os.path.exists(os.path.join(iphone_dir, "%s.xcodeproj" % name)):
+					project = Projector(name,sdk_version,template_dir,project_dir,appid)
+					project.create(template_dir,iphone_dir)
+				
 				force_xcode = True
 				if os.path.exists(app_dir): shutil.rmtree(app_dir)
 				# we have to re-copy if we have a custom version
