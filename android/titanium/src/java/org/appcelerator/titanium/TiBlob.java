@@ -358,18 +358,21 @@ public class TiBlob extends KrollProxy
         return this;
     }
 
-    private Matrix getScaleMatrix(int orig_w, int orig_h, int w, int h){
-        int scale = Math.min((int)orig_w/w, (int)orig_h/h);
-        Matrix matrix = new Matrix();
-        matrix.postScale(scale, scale);
-        return matrix;
-    }
+    private int sampleSize(int outWidth, int outHeight, int newWidth, int newHeight) {
+        int sample = 1;
 
-    private int sampleSize(BitmapFactory.Options opts, int width, int height){
-        int scaleW = Math.max(1, opts.outWidth / width);
-        int scaleH = Math.max(1, opts.outHeight / height);
-        int sampleSize = (int)Math.min(scaleW, scaleH);
-        return sampleSize;
+        int width = outWidth;
+        int height = outHeight;
+
+        while (true) {
+            if (width / 2 < newWidth || height / 2 < newHeight) {
+                break;
+            }
+            width /= 2;
+            height /= 2;
+            sample *= 2;
+        }
+        return sample;
     }
 
     @Kroll.method
@@ -383,12 +386,12 @@ public class TiBlob extends KrollProxy
 
             BitmapFactory.decodeByteArray(image_data, 0, image_data.length, opts);
 
-            opts.inSampleSize = sampleSize(opts, width, height);
-
+            opts.inSampleSize = sampleSize(opts.outWidth, opts.outHeight, width, height);
             opts.inJustDecodeBounds = false;
+            opts.inScaled = true;
+            opts.inPurgeable = true;
 
             Bitmap image_base = BitmapFactory.decodeByteArray(image_data, 0, image_data.length, opts);
-            // Matrix matrix = getScaleMatrix(opts.outWidth, opts.outHeight, width, height);
             Bitmap scaled_image = Bitmap.createScaledBitmap(image_base, width, height, true);
             TiBlob blob = TiBlob.blobFromImage(scaled_image);
             image_base.recycle();
