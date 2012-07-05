@@ -140,6 +140,7 @@ public class TiHTTPClient
 	private boolean autoRedirect = true;
 	private Uri uri;
 	private String url;
+	private ArrayList<File> tmpFiles;
 
 	protected HashMap<String,String> headers = new HashMap<String,String>();
 
@@ -868,7 +869,7 @@ public class TiHTTPClient
 		}
 	}
 
-	public int addTitaniumFileAsPostData(String name, Object value, ArrayList<File> tmpFiles)
+	public int addTitaniumFileAsPostData(String name, Object value)
 	{
 		try {
 			// TiResourceFile cannot use the FileBody approach directly, because it requires
@@ -955,8 +956,6 @@ public class TiHTTPClient
 
 	public void send(Object userData) throws MethodNotSupportedException
 	{
-		ArrayList<File> tmpFiles = null;
-
 		aborted = false;
 
 		// TODO consider using task manager
@@ -969,8 +968,6 @@ public class TiHTTPClient
 				HashMap<String, Object> data = (HashMap) userData;
 				boolean isPostOrPut = method.equals("POST") || method.equals("PUT");
 				boolean isGet = !isPostOrPut && method.equals("GET");
-
-				tmpFiles = new ArrayList<File>();
 
 				// first time through check if we need multipart for POST
 				for (String key : data.keySet()) {
@@ -990,6 +987,7 @@ public class TiHTTPClient
 				}
 
 				boolean queryStringAltered = false;
+				tmpFiles = new ArrayList<File>();
 				for (String key : data.keySet()) {
 					Object value = data.get(key);
 					if (isPostOrPut && (value != null)) {
@@ -999,7 +997,7 @@ public class TiHTTPClient
 						}
 
 						if (value instanceof TiBaseFile || value instanceof TiBlob) {
-							totalLength += addTitaniumFileAsPostData(key, value, tmpFiles);
+							totalLength += addTitaniumFileAsPostData(key, value);
 
 						} else {
 							String str = TiConvert.toString(value);
@@ -1033,7 +1031,7 @@ public class TiHTTPClient
 			request.setHeader(header, headers.get(header));
 		}
 
-		clientThread = new Thread(new ClientRunnable(totalLength, tmpFiles), "TiHttpClient-" + httpClientThreadCounter.incrementAndGet());
+		clientThread = new Thread(new ClientRunnable(totalLength), "TiHttpClient-" + httpClientThreadCounter.incrementAndGet());
 		clientThread.setPriority(Thread.MIN_PRIORITY);
 		clientThread.start();
 
@@ -1045,12 +1043,10 @@ public class TiHTTPClient
 	private class ClientRunnable implements Runnable
 	{
 		private double totalLength;
-		private ArrayList<File> tmpFiles;
 
-		public ClientRunnable(double totalLength, ArrayList<File> tmpFiles)
+		public ClientRunnable(double totalLength)
 		{
 			this.totalLength = totalLength;
-			this.tmpFiles = tmpFiles;
 		}
 
 		public void run()
@@ -1189,11 +1185,11 @@ public class TiHTTPClient
 				sendError(msg);
 			}
 
-			deleteTmpFiles(tmpFiles);
+			deleteTmpFiles();
 		}
 	}
 
-	private void deleteTmpFiles(ArrayList<File> tmpFiles)
+	private void deleteTmpFiles()
 	{
 		if (tmpFiles != null && tmpFiles.size() > 0) {
 			for (File tmpFile : tmpFiles) {
