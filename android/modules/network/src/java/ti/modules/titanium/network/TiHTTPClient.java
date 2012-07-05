@@ -1088,7 +1088,6 @@ public class TiHTTPClient
 								Log.d(LCAT, "adding part " + name + ", part type: " + parts.get(name).getMimeType() + ", len: " + parts.get(name).getContentLength());
 							}
 							mpe.addPart(name, parts.get(name));
-
 						}
 
 						if (form != null) {
