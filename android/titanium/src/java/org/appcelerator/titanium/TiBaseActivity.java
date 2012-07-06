@@ -320,10 +320,10 @@ public abstract class TiBaseActivity extends Activity
 	protected void setNavBarHidden(boolean hidden)
 	{
 		if (!hidden) {
-			this.requestWindowFeature(Window.FEATURE_LEFT_ICON); // TODO Keep?
+			/*this.requestWindowFeature(Window.FEATURE_LEFT_ICON); // TODO Keep?
 			this.requestWindowFeature(Window.FEATURE_RIGHT_ICON);
 			this.requestWindowFeature(Window.FEATURE_PROGRESS);
-			this.requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
+			this.requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);*/
 
 		} else {
 			this.requestWindowFeature(Window.FEATURE_NO_TITLE);
