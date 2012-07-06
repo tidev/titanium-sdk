@@ -18,7 +18,7 @@
  * MODIFICATIONS
  * 
  * Appcelerator Titanium Mobile
- * Copyright (c) 2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -29,6 +29,7 @@
  * - In openUrl(String, String, Bundle), add 
  * 		conn.setUseCaches(false);
  * 	 to avoid our Http cache
+ * - Add setLogEnabled() which can enable/disable log messages.
  * 
  * Original file this is based on:
  * https://github.com/facebook/facebook-android-sdk/blob/4cbe4e2f348e09b0dd1decbc51e0899c3052d00b/facebook/src/com/facebook/android/Util.java
@@ -347,4 +348,12 @@ public final class Util {
             Log.d(tag, msg);
         }
     }
+
+// *************** APPCELERATOR TITANIUM CUSTOMIZATION ***************************
+    /**
+     * Enable/disable log messages
+     */
+	public static void setLogEnabled(boolean logEnabled) {
+		ENABLE_LOG = logEnabled;
+	}
 }
