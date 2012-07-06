@@ -708,7 +708,7 @@ static NSString * const kTitaniumJavascript = @"Ti.App={};Ti.API={};Ti.App._list
 
 		// this means the pending request has been cancelled and should be
 		// safely squashed
-		if ([error code]==-999)
+		if ([error code]==NSURLErrorCancelled)
 		{
 			return;
 		}
