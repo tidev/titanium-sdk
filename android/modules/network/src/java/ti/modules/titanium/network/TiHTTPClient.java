@@ -149,7 +149,7 @@ public class TiHTTPClient
 	private boolean autoRedirect = true;
 	private Uri uri;
 	private String url;
-	private ArrayList<File> tmpFiles;
+	private ArrayList<File> tmpFiles = new ArrayList<File>();
 
 	protected HashMap<String,String> headers = new HashMap<String,String>();
 
@@ -1047,7 +1047,6 @@ public class TiHTTPClient
 				}
 
 				boolean queryStringAltered = false;
-				tmpFiles = new ArrayList<File>();
 				for (String key : data.keySet()) {
 					Object value = data.get(key);
 					if (isPostOrPut && (value != null)) {
@@ -1250,17 +1249,16 @@ public class TiHTTPClient
 
 	private void deleteTmpFiles()
 	{
-		if (tmpFiles != null && tmpFiles.size() > 0) {
-			for (File tmpFile : tmpFiles) {
-				tmpFile.delete();
-			}
+		if (tmpFiles.isEmpty()) {
+			return;
 		}
-		if (tmpFiles != null) {
-			tmpFiles.clear();
-			tmpFiles = null;
+
+		for (File tmpFile : tmpFiles) {
+			tmpFile.delete();
 		}
+		tmpFiles.clear();
 	}
-	
+
 	private void handleURLEncodedData(UrlEncodedFormEntity form)
 	{
 		AbstractHttpEntity entity = null;
