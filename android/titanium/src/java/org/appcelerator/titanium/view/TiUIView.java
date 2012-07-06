@@ -31,6 +31,7 @@ import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiCompositeLayout.LayoutParams;
 import org.appcelerator.titanium.view.TiGradientDrawable.GradientType;
 
+import android.app.Activity;
 import android.content.Context;
 import android.graphics.Paint;
 import android.graphics.Rect;
@@ -548,6 +549,11 @@ public abstract class TiUIView
 				if (hasBorder) {
 					if (borderView == null) {
 						initializeBorder(d, bgColor);
+						// Since we have created a new border wrapper view, we need to remove this view, and re-add it.
+						// This will ensure the border wrapper view is added correctly.
+						TiUIView parentView = parent.getOrCreateView();
+						parentView.remove(this);
+						parentView.add(this);
 					} else if (key.startsWith(TiC.PROPERTY_BORDER_PREFIX)) {
 						handleBorderProperty(key, newValue);
 					}
@@ -876,8 +882,13 @@ public abstract class TiUIView
 			if(nativeView != null) {
 
 				if (borderView == null) {
-					borderView = new TiBorderWrapperView(TiApplication.getAppCurrentActivity());
+					Activity currentActivity = proxy.getActivity();
+					if (currentActivity == null) {
+						currentActivity = TiApplication.getAppCurrentActivity();
+					}
+					borderView = new TiBorderWrapperView(currentActivity);
 				}
+
 				if (d.containsKey(TiC.PROPERTY_BORDER_RADIUS)) {
 					float radius = TiConvert.toFloat(d, TiC.PROPERTY_BORDER_RADIUS, 0f);
 					if (radius > 0f && HONEYCOMB_OR_GREATER) {
@@ -903,15 +914,15 @@ public abstract class TiUIView
 
 	private void handleBorderProperty(String property, Object value)
 	{
-		if (property.equals(TiC.PROPERTY_BORDER_COLOR)) {
+		if (TiC.PROPERTY_BORDER_COLOR.equals(property)) {
 			borderView.setColor(TiConvert.toColor(value.toString()));
-		} else if (property.equals(TiC.PROPERTY_BORDER_RADIUS)) {
+		} else if (TiC.PROPERTY_BORDER_RADIUS.equals(property)) {
 			float radius = TiConvert.toFloat(value, 0f);
 			if (radius > 0f && HONEYCOMB_OR_GREATER) {
 				disableHWAcceleration();
 			}
 			borderView.setRadius(radius);
-		} else if (property.equals(TiC.PROPERTY_BORDER_WIDTH)) {
+		} else if (TiC.PROPERTY_BORDER_WIDTH.equals(property)) {
 			borderView.setBorderWidth(TiConvert.toFloat(value, 0f));
 		}
 	}
