@@ -222,13 +222,20 @@ public class TiTableView extends FrameLayout
                 KrollDict event = new KrollDict();
                 TableViewRowProxy.fillClickEvent(event, viewModel, v.getRowData());
                 reusedRow.fireEvent("reuse", event);
-            }
 
-			v.setRowData(item);
-            //now it means the view will appear
-            KrollDict event = new KrollDict();
-            TableViewRowProxy.fillClickEvent(event, viewModel, item);
-            proxy.fireEvent("rowappear", event);
+            }
+            if (v.getRowData() != item)
+            {
+                v.setRowData(item);
+                //now it means the view will appear
+                KrollDict event = new KrollDict();
+                TableViewRowProxy.fillClickEvent(event, viewModel, item);
+                proxy.fireEvent("rowappear", event);
+            }
+            else
+            {
+                Log.w(LCAT, "getView for the same data, no need to set data again");
+            }
 
 			return v;
 		}
