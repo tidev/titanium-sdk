@@ -14,7 +14,9 @@ import org.appcelerator.titanium.util.TiFileHelper;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.util.TiUrl;
 
+import android.annotation.TargetApi;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.view.MenuItem;
 
 @Kroll.proxy
@@ -135,5 +137,21 @@ public class MenuItemProxy extends KrollProxy
 	public MenuItemProxy setVisible(boolean visible) {
 		item.setVisible(visible);
 		return this;
+	}
+
+	@Kroll.setProperty
+	@TargetApi(11)
+	public void setActionView(TiViewProxy view) {
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+			item.setActionView(view.getOrCreateView().getNativeView());
+		}
+	}
+
+	@Kroll.setProperty
+	@TargetApi(11)
+	public void setShowAsAction(int flag) {
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+			item.setShowAsAction(flag);
+		}
 	}
 }
