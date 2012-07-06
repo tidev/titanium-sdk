@@ -23,7 +23,9 @@ import org.appcelerator.titanium.io.TiBaseFile;
 import org.appcelerator.titanium.io.TitaniumBlob;
 import org.appcelerator.titanium.util.TiMimeTypeHelper;
 
+import android.graphics.Matrix;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Bitmap.CompressFormat;
 
 /** 
@@ -156,6 +158,7 @@ public class TiBlob extends KrollProxy
 		if (mimetype == null || mimetype.length() == 0) {
 			return new TiBlob(TYPE_DATA, data, "application/octet-stream");
 		}
+
 		return new TiBlob(TYPE_DATA, data, mimetype);
 	}
 
@@ -342,6 +345,64 @@ public class TiBlob extends KrollProxy
 	{
 		return height;
 	}
+
+    @Kroll.method
+    public TiBlob toImage()
+    {
+        byte[] bytes = getBytes();
+        BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inJustDecodeBounds = true;
+        BitmapFactory.decodeByteArray(bytes, 0, bytes.length, options);
+        this.width = options.outWidth;
+        this.height = options.outHeight;
+        return this;
+    }
+
+    private int sampleSize(int outWidth, int outHeight, int newWidth, int newHeight) {
+        int sample = 1;
+
+        int width = outWidth;
+        int height = outHeight;
+
+        while (true) {
+            if (width / 2 < newWidth || height / 2 < newHeight) {
+                break;
+            }
+            width /= 2;
+            height /= 2;
+            sample *= 2;
+        }
+        return sample;
+    }
+
+    @Kroll.method
+    public TiBlob imageAsResized(int width, int height)
+    {
+        byte[] image_data = this.getBytes();
+
+        try{
+            BitmapFactory.Options opts = new BitmapFactory.Options();
+            opts.inJustDecodeBounds = true;
+
+            BitmapFactory.decodeByteArray(image_data, 0, image_data.length, opts);
+
+            opts.inSampleSize = sampleSize(opts.outWidth, opts.outHeight, width, height);
+            opts.inJustDecodeBounds = false;
+            opts.inScaled = true;
+            opts.inPurgeable = true;
+
+            Bitmap image_base = BitmapFactory.decodeByteArray(image_data, 0, image_data.length, opts);
+            Bitmap scaled_image = Bitmap.createScaledBitmap(image_base, width, height, true);
+            TiBlob blob = TiBlob.blobFromImage(scaled_image);
+            image_base.recycle();
+            image_base = null;
+            scaled_image.recycle();
+            scaled_image = null;
+            return blob;
+        }catch(NullPointerException e){
+            return null;
+        }
+    }
 
 	@Kroll.method
 	public String toString()

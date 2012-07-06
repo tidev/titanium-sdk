@@ -79,9 +79,11 @@ public class TiTableView extends FrameLayout
 		TableViewModel viewModel;
 		ArrayList<Integer> index;
 		private boolean filtered;
+        private TableViewProxy proxy;
 
-		TTVListAdapter(TableViewModel viewModel) {
+		TTVListAdapter(TableViewModel viewModel, TableViewProxy proxy) {
 			this.viewModel = viewModel;
+            this.proxy = proxy;
 			this.index = new ArrayList<Integer>(viewModel.getRowCount());
 			reIndexItems();
 		}
@@ -165,11 +167,11 @@ public class TiTableView extends FrameLayout
 		public View getView(int position, View convertView, ViewGroup parent) {
 			Item item = (Item) getItem(position);
 			TiBaseTableViewItem v = null;
-			
+			boolean sameView = false;
 			if (convertView != null) {
 				v = (TiBaseTableViewItem) convertView;
 				// Default creates view for each Item
-				boolean sameView = false;
+				
 				if (item.proxy instanceof TableViewRowProxy) {
 					TableViewRowProxy row = (TableViewRowProxy)item.proxy;
 					if (row.getTableViewRowProxyItem() != null) {
@@ -183,7 +185,7 @@ public class TiTableView extends FrameLayout
 						}
 					} else {
 						// otherwise compare class names
-						if (!v.getClassName().equals(item.className)) {
+						if (!(item.proxy instanceof TableViewRowProxy) || !v.getClassName().equals(item.className)) {
 							Log.w(LCAT, "Handed a view to convert with className " + v.getClassName() + " expected " + item.className);
 							v = null;
 						}
@@ -213,7 +215,28 @@ public class TiTableView extends FrameLayout
 				v.setLayoutParams(new AbsListView.LayoutParams(
 					AbsListView.LayoutParams.FILL_PARENT, AbsListView.LayoutParams.FILL_PARENT));
 			}
-			v.setRowData(item);
+            else if (!sameView) 
+            {
+                //we are reusing a cell
+                TableViewRowProxy reusedRow = (TableViewRowProxy)v.getRowData().proxy;
+                KrollDict event = new KrollDict();
+                TableViewRowProxy.fillClickEvent(event, viewModel, v.getRowData());
+                reusedRow.fireEvent("reuse", event);
+
+            }
+            if (v.getRowData() != item)
+            {
+                v.setRowData(item);
+                //now it means the view will appear
+                KrollDict event = new KrollDict();
+                TableViewRowProxy.fillClickEvent(event, viewModel, item);
+                proxy.fireEvent("rowappear", event);
+            }
+            else
+            {
+                Log.w(LCAT, "getView for the same data, no need to set data again");
+            }
+
 			return v;
 		}
 
@@ -317,7 +340,7 @@ public class TiTableView extends FrameLayout
 		if (proxy.hasProperty(TiC.PROPERTY_SEPARATOR_COLOR)) {
 			setSeparatorColor(TiConvert.toString(proxy.getProperty(TiC.PROPERTY_SEPARATOR_COLOR)));
 		}
-		adapter = new TTVListAdapter(viewModel);
+		adapter = new TTVListAdapter(viewModel, proxy);
 		if (proxy.hasProperty(TiC.PROPERTY_HEADER_VIEW)) {
 			TiViewProxy view = (TiViewProxy) proxy.getProperty(TiC.PROPERTY_HEADER_VIEW);
 			listView.addHeaderView(layoutHeaderOrFooter(view), null, false);

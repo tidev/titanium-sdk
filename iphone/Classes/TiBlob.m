@@ -379,6 +379,12 @@
 	return nil;
 }
 
+-(id)toImage:(id)args
+{
+    [self ensureImageLoaded];
+    return self;
+}
+
 -(id)toString:(id)args
 {
 	id t = [self text];
