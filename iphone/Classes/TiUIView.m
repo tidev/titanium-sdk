@@ -493,6 +493,7 @@ DEFINE_EXCEPTIONS
     else {
         [self backgroundImageLayer].contents = (id)bgImage.CGImage;
         if (bgImage != nil) {
+            [self backgroundImageLayer].contentsScale = [bgImage scale];
             [self backgroundImageLayer].contentsCenter = TiDimensionLayerContentCenter(topCap, leftCap, topCap, leftCap, [bgImage size]);
         }
     }
