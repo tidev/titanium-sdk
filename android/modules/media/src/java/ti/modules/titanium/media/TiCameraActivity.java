@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.List;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollFunction;
@@ -15,13 +16,18 @@ import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
+import android.graphics.Color;
 import android.hardware.Camera;
+import android.hardware.Camera.Parameters;
 import android.hardware.Camera.PictureCallback;
+import android.hardware.Camera.Size;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.ViewGroup.LayoutParams;
@@ -33,7 +39,9 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 
 	private TiViewProxy localOverlayProxy = null;
 	private SurfaceView preview;
-	private FrameLayout previewLayout;
+	private PreviewLayout previewLayout;
+	private FrameLayout cameraLayout;
+	private boolean previewRunning = false;
 
 	public static TiViewProxy overlayProxy = null;
 	public static TiCameraActivity cameraActivity = null;
@@ -41,6 +49,36 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 	public static KrollObject callbackContext;
 	public static KrollFunction successCallback, errorCallback, cancelCallback;
 	public static boolean saveToPhotoGallery = false;
+
+	private static class PreviewLayout extends FrameLayout {
+		private double aspectRatio;
+
+		public PreviewLayout(Context context) {
+			super(context);
+			setAspectRatio(4.0/3.0);
+		}
+
+		public void setAspectRatio(double aspectRatio) {
+			this.aspectRatio = aspectRatio;
+		}
+
+		@Override
+		protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+			int previewWidth = MeasureSpec.getSize(widthMeasureSpec);
+			int previewHeight = MeasureSpec.getSize(heightMeasureSpec);
+
+			// Resize the preview frame with correct aspect ratio.
+			if (previewWidth > previewHeight * aspectRatio) {
+				previewWidth = (int) (previewHeight * aspectRatio + .5);
+
+			} else {
+				previewHeight = (int) (previewWidth / aspectRatio + .5);
+			}
+
+			super.onMeasure(MeasureSpec.makeMeasureSpec(previewWidth, MeasureSpec.EXACTLY),
+					MeasureSpec.makeMeasureSpec(previewHeight, MeasureSpec.EXACTLY));
+		}
+	}
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -57,30 +95,36 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 		overlayProxy = null; // clear the static object once we have a local reference
 
 		// set overall layout - will populate in onResume
-		previewLayout = new FrameLayout(this);
+		previewLayout = new PreviewLayout(this);
+		cameraLayout = new FrameLayout(this);
+		cameraLayout.setBackgroundColor(Color.BLACK);
+		cameraLayout.addView(previewLayout, new FrameLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT, Gravity.CENTER));
 
 		setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
-		setContentView(previewLayout);
+		setContentView(cameraLayout);
 	}
 
 	public void surfaceChanged(SurfaceHolder previewHolder, int format, int width, int height) {
-		camera.startPreview();  // make sure setPreviewDisplay is called before this
+		if (!previewRunning) {
+			// Set the preview size to the most optimal given the target size and aspect ratio.
+			Parameters param = camera.getParameters();
+			Size pictureSize = param.getPictureSize();
+			double aspectRatio = (double) pictureSize.width / pictureSize.height;
+			previewLayout.setAspectRatio(aspectRatio);
+			List<Size> supportedPreviewSizes = param.getSupportedPreviewSizes();
+			Size previewSize = getOptimalPreviewSize(supportedPreviewSizes, width, height, aspectRatio);
+			if (previewSize != null) {
+				param.setPreviewSize(previewSize.width, previewSize.height);
+				camera.setParameters(param);
+			}
+
+			previewRunning = true;
+			camera.startPreview();
+		}
 	}
 
 	public void surfaceCreated(SurfaceHolder previewHolder) {
 		camera = Camera.open();
-
-		/*
-		 * Disabling this since it can end up picking a bad preview
-		 * size which can create stretching issues (TIMOB-8151).
-		 * Original words of wisdom left by some unknown person:
-		 * "using default preview size may be causing problem on some devices, setting dimensions manually"
-		 * We may want to expose camera parameters to the developer for extra control.
-		Parameters cameraParams = camera.getParameters();
-		Camera.Size previewSize = cameraParams.getSupportedPreviewSizes().get((cameraParams.getSupportedPreviewSizes().size()) - 1);
-		cameraParams.setPreviewSize(previewSize.width, previewSize.height );
-		camera.setParameters(cameraParams);
-		*/
 
 		try {
 			camera.setPreviewDisplay(previewHolder);
@@ -96,6 +140,7 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 	// make sure to call release() otherwise you will have to force kill the app before 
 	// the built in camera will open
 	public void surfaceDestroyed(SurfaceHolder previewHolder) {
+		stopPreview();
 		camera.release();
 		camera = null;
 	}
@@ -105,16 +150,17 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 		super.onResume();
 
 		cameraActivity = this;
-		previewLayout.addView(preview);
-		previewLayout.addView(localOverlayProxy.getOrCreateView().getNativeView(), new FrameLayout.LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
+		previewLayout.addView(preview, new FrameLayout.LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
+		cameraLayout.addView(localOverlayProxy.getOrCreateView().getNativeView(), new FrameLayout.LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
 	}
 
 	@Override
 	protected void onPause() {
 		super.onPause();
 
+		stopPreview();
 		previewLayout.removeView(preview);
-		previewLayout.removeView(localOverlayProxy.getOrCreateView().getNativeView());
+		cameraLayout.removeView(localOverlayProxy.getOrCreateView().getNativeView());
 
 		try {
 			camera.release();
@@ -126,13 +172,59 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 		cameraActivity = null;
 	}
 
-	@Override
-	protected void onDestroy() {
-		super.onDestroy();
-
-		if (cancelCallback != null) {
-			cancelCallback.callAsync(callbackContext, new Object[] { });
+	private void stopPreview() {
+		if (camera == null || !previewRunning) {
+			return;
 		}
+
+		camera.stopPreview();
+		previewRunning = false;
+	}
+
+	/**
+	 * Computes the optimal preview size given the target display size and aspect ratio.
+	 *
+	 * @param supportPreviewSizes a list of preview sizes the camera supports
+	 * @param targetSize the target display size that will render the preview
+	 * @param aspectRatio the aspect ratio to use for previewing the image
+	 * @return the optimal size of the preview
+	 */
+	private static Size getOptimalPreviewSize(List<Size> supportedPreviewSizes, int width, int height, double aspectRatio) {
+		final double ASPECT_TOLERANCE = 0.001;
+		Size optimalSize = null;
+		double minDiff = Double.MAX_VALUE;
+
+        int targetHeight = Math.min(height, width);
+        if (targetHeight <= 0) {
+            // We don't know the size of SurfaceView, use screen height
+            targetHeight = height;
+        }
+
+		for (Size size : supportedPreviewSizes) {
+			double ratio = (double) size.width / size.height;
+			if (Math.abs(ratio - aspectRatio) > ASPECT_TOLERANCE) continue;
+
+            if (Math.abs(size.height - targetHeight) < minDiff) {
+                optimalSize = size;
+                minDiff = Math.abs(size.height - targetHeight);
+            }
+		}
+
+		// If a size cannot be found that matches the aspect ratio, try
+		// again and just ignore the aspect ratio. We will just try to find
+		// the best size that fits best.
+		if (optimalSize == null) {
+			Log.w(LCAT, "No preview size found that matches the aspect ratio.");
+			minDiff = Double.MAX_VALUE;
+			for (Size size : supportedPreviewSizes) {
+				if (Math.abs(size.height - targetHeight) < minDiff) {
+					optimalSize = size;
+					minDiff = Math.abs(size.height - targetHeight);
+				}
+			}
+		}
+
+		return optimalSize;
 	}
 
 	private static void onError(int code, String message) {
