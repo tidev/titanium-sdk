@@ -88,6 +88,8 @@
 
 -(void)prepareForReuse
 {
+    //first let s say we gonna disappear!
+    [proxy fireEvent:@"reuse" withObject:[proxy createEventObject:nil] propagate:YES];
 	[self setProxy:nil];
 	[super prepareForReuse];
 	
@@ -1973,6 +1975,7 @@ return result;	\
 	}
 	UIColor * cellColor = [Webcolor webColorNamed:color];
 	cell.backgroundColor = (cellColor != nil)?cellColor:[UIColor whiteColor];
+    [self triggerActionForIndexPath:index fromPath:nil tableView:ourTableView wasAccessory:NO search:NO name:@"rowappear"];
 }
 
 - (NSString *)tableView:(UITableView *)ourTableView titleForDeleteConfirmationButtonForRowAtIndexPath:(NSIndexPath *)indexPath
