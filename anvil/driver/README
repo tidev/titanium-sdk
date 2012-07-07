@@ -134,7 +134,7 @@ holds a list of directories where each directory represents a custom config set.
 
 When the --config start argument is specified and the "customHarnessConfigDirs" property has at 
 least one custom config set defined you must also specify the --config-set start argument so that 
-the driver knows which config in which config-set to actually run
+the driver knows which config in which config-set to actually run.
 
 For an example of how to setup a custom config set, please refer to the configSet directory inside 
 the anvil/driver directory.  In general, each config set will have "configs" and "Resources" 
