@@ -130,10 +130,10 @@ class Projector(object):
 		content = content.replace('../lib','lib')
 		
 		content = content.replace('Titanium.plist','Info.plist')
-
-		content = content.replace('Titanium-KitchenSink',self.name)
-		
 		content = content.replace('Titanium',self.namespace)
+		
+		content = content.replace('%s-KitchenSink' % self.namespace, self.name)
+
 		content = content.replace('path = %s.app;' % self.namespace, 'path = "%s.app";'%self.name)
 		content = content.replace('PRODUCT_NAME = %s'%self.namespace,'PRODUCT_NAME = "%s"'%self.name)
 		content = content.replace('PRODUCT_NAME = %s-iPad'%self.namespace,'PRODUCT_NAME = "%s"'%self.name)

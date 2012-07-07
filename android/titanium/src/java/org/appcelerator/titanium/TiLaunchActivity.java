@@ -304,6 +304,11 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 
 	}
 
+	public boolean isJSActivity()
+	{
+		return false;
+	}
+
 	@Override
 	protected void onRestart()
 	{

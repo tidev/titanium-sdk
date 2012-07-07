@@ -13,6 +13,7 @@ import org.appcelerator.kroll.common.TiConfig;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiC;
+import org.appcelerator.titanium.TiLaunchActivity;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.view.TiUIView;
@@ -130,10 +131,20 @@ public class TiUIActivityIndicator extends TiUIView
 
 	public void show(KrollDict options)
 	{
-		// Don't try to show indicator if the root activity is not available
-		if (visible || !TiApplication.getInstance().isRootActivityAvailable()) {
+		if (visible) {
 			return;
 		}
+
+		// Don't try to show indicator if the root activity is not available
+		if (!TiApplication.getInstance().isRootActivityAvailable()) {
+			Activity currentActivity = TiApplication.getAppCurrentActivity();
+			if (currentActivity instanceof TiLaunchActivity) {
+				if (!((TiLaunchActivity) currentActivity).isJSActivity()) {
+					return;
+				}
+			}
+		}
+
 		handleShow();
 	}
 

@@ -16,8 +16,10 @@ import org.appcelerator.kroll.common.TiConfig;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiDimension;
+import org.appcelerator.titanium.TiLaunchActivity;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 
+import android.app.Activity;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Rect;
@@ -541,8 +543,13 @@ public class TiCompositeLayout extends ViewGroup
 				}
 
 				if (!TiApplication.getInstance().isRootActivityAvailable()) {
-					Log.w(TAG, "The root activity is no longer available.  Skipping layout pass.");
-					return;
+					Activity currentActivity = TiApplication.getAppCurrentActivity();
+					if (currentActivity instanceof TiLaunchActivity) {
+						if (!((TiLaunchActivity) currentActivity).isJSActivity()) {
+							Log.w(TAG, "The root activity is no longer available.  Skipping layout pass.");
+							return;
+						}
+					}
 				}
 
 				child.layout(horizontal[0], vertical[0], horizontal[1], vertical[1]);
@@ -554,7 +561,7 @@ public class TiCompositeLayout extends ViewGroup
 			}
 		}
 
-		TiViewProxy viewProxy = proxy.get();
+		TiViewProxy viewProxy = (proxy == null ? null : proxy.get());
 
 		if (viewProxy != null && viewProxy.hasListeners(TiC.EVENT_POST_LAYOUT)) {
 			viewProxy.fireEvent(TiC.EVENT_POST_LAYOUT, null);

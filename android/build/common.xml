@@ -687,6 +687,11 @@ Common ant tasks and macros for building Android-based Titanium modules and proj
 			<fileset dir="${dist.dir}" includes="**/*" excludes="libv8/**/*" defaultexcludes="false"/>
 		</delete>
 
+		<!-- Clean up the generated rhino files -->
+		<delete includeemptydirs="true" failonerror="false">
+			<fileset dir="${kroll.rhino.project.dir}/generated" includes="**/*" defaultexcludes="false"/>
+		</delete>
+
 		<!-- V8 clean target requires we have libv8 for now -->
 		<build.ti.ant.tasks/>
 		<define.ti.ant.tasks/>
