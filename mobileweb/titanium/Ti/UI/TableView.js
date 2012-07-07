@@ -143,7 +143,7 @@ define(["Ti/_/declare", "Ti/_/UI/KineticScrollView", "Ti/_/style", "Ti/_/lang", 
 				sections = this._sections._children,
 				row = this._tableViewRowClicked,
 				section = this._tableViewSectionClicked;
-			if (type === "click" || type === "singletap") {
+			if (type === "click" || type === "singletap" || type === "longpress") {
 				if (row && section) {
 					
 					for (; i < sections.length; i += 2) {
