@@ -202,8 +202,8 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 - (void) loadUserDefaults
 {
 	NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
-	NSDictionary *appDefaults = [[NSDictionary alloc] initWithDictionary:[ApplicationDefaults copyDefaults]];
-	if(appDefaults)
+	NSDictionary *appDefaults = [ApplicationDefaults copyDefaults];
+	if(appDefaults != nil)
 	{
 		[defaults registerDefaults:appDefaults];
 	}
