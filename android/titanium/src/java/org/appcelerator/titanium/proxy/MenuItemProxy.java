@@ -16,7 +16,6 @@ import org.appcelerator.titanium.util.TiFileHelper;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.util.TiUrl;
 
-import android.annotation.TargetApi;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.view.MenuItem;
@@ -29,7 +28,6 @@ public class MenuItemProxy extends KrollProxy
 {
 	private MenuItem item;
 
-	@TargetApi(14)
 	protected MenuItemProxy(MenuItem item)
 	{
 		this.item = item;
@@ -160,7 +158,6 @@ public class MenuItemProxy extends KrollProxy
 	}
 
 	@Kroll.setProperty
-	@TargetApi(11)
 	public void setActionView(TiViewProxy view) {
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
 			View v = view.getOrCreateView().getNativeView();
@@ -169,7 +166,6 @@ public class MenuItemProxy extends KrollProxy
 	}
 
 	@Kroll.setProperty
-	@TargetApi(11)
 	public void setShowAsAction(int flag) {
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
 			item.setShowAsAction(flag);
@@ -177,7 +173,6 @@ public class MenuItemProxy extends KrollProxy
 	}
 
 	@Kroll.method
-	@TargetApi(14)
 	public void collapseActionView() {
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
 			TiMessenger.postOnMain(new Runnable() {
@@ -189,7 +184,6 @@ public class MenuItemProxy extends KrollProxy
 	}
 
 	@Kroll.method
-	@TargetApi(14)
 	public void expandActionView() {
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
 			TiMessenger.postOnMain(new Runnable() {
@@ -201,7 +195,6 @@ public class MenuItemProxy extends KrollProxy
 	}
 
 	@Kroll.getProperty
-	@TargetApi(14)
 	public boolean isActionViewExpanded() {
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
 			return item.isActionViewExpanded();
