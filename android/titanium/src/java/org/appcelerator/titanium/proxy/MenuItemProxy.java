@@ -24,27 +24,28 @@ import android.view.View;
 
 @Kroll.proxy
 public class MenuItemProxy extends KrollProxy
-	implements OnActionExpandListener
 {
 	private MenuItem item;
+
+	private final class ActionExpandListener implements OnActionExpandListener {
+		public boolean onMenuItemActionCollapse(MenuItem item) {
+			fireEvent(TiC.EVENT_COLLAPSE, null);
+			return true;
+		}
+
+		public boolean onMenuItemActionExpand(MenuItem item) {
+			fireEvent(TiC.EVENT_EXPAND, null);
+			return true;
+		}
+	}
 
 	protected MenuItemProxy(MenuItem item)
 	{
 		this.item = item;
 
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
-			item.setOnActionExpandListener(this);
+			item.setOnActionExpandListener(new ActionExpandListener());
 		}
-	}
-
-	public boolean onMenuItemActionCollapse(MenuItem item) {
-		fireEvent(TiC.EVENT_COLLAPSE, null);
-		return true;
-	}
-
-	public boolean onMenuItemActionExpand(MenuItem item) {
-		fireEvent(TiC.EVENT_EXPAND, null);
-		return true;
 	}
 
 	@Kroll.method @Kroll.getProperty
