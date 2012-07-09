@@ -431,9 +431,12 @@ class Compiler(object):
 
 		template_dir = os.path.abspath(os.path.dirname(sys._getframe(0).f_code.co_filename))
 		titanium_prep = os.path.abspath(os.path.join(template_dir,'titanium_prep'))
-		cmdargs = [titanium_prep, self.appid, self.assets_dir]
-		cmdargs.extend(js_files)
-		module_assets = run.run(cmdargs)
+
+		cmdinputfile = tempfile.TemporaryFile()
+		cmdinputfile.write('\n'.join(js_files))
+		cmdinputfile.seek(0)
+		module_assets = subprocess.Popen([titanium_prep, self.appid, self.assets_dir], stdin=cmdinputfile,stderr=subprocess.STDOUT,stdout=subprocess.PIPE).communicate()[0]
+		cmdinputfile.close()
 
 		# Clean up the generated assets
 		for file in js_files:
