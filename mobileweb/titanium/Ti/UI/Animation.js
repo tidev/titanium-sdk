@@ -1,5 +1,14 @@
 define(["Ti/_/declare", "Ti/_/Evented", "Ti/_/style", "Ti/UI"], function(declare, Evented, style, UI) {
 
+/*
+
+TODO:
+- animate colors
+- transform
+- update Ti.UI.View.rect after animation
+
+*/
+
 	var curves = [
 			function easeInOut(n) {
 				n *= 2;
@@ -46,6 +55,7 @@ define(["Ti/_/declare", "Ti/_/Evented", "Ti/_/style", "Ti/UI"], function(declare
 			width: 1
 		},
 		unitRegExp = /(\d+)(.*)/,
+		rgbaRegExp = /^rgba?\(([\s\.,0-9]+)\)/,
 		needsRender,
 		animations = {},
 		colors = require(require.config.ti.colorsModule),
@@ -96,8 +106,10 @@ define(["Ti/_/declare", "Ti/_/Evented", "Ti/_/style", "Ti/UI"], function(declare
 			ani,
 			elem,
 			i,
+			j,
 			from,
 			to,
+			dir,
 			pct,
 			val,
 			vals;
@@ -116,30 +128,52 @@ define(["Ti/_/declare", "Ti/_/Evented", "Ti/_/style", "Ti/UI"], function(declare
 							vals = ani.props[prop];
 							from = vals[0];
 							to = vals[1];
+							dir = from < to ? 1 : -1;
 
 							if (colorOptions[prop]) {
-								//
-
-							} else if (positionOptions[prop]) {
 								if (pct === 1) {
-									val = to;
+									val = ani.forward ? to : from;
 								} else {
-									val = ((to - from) * curves[ani.curve](pct)) + from;
+									val = [];
+									for (j = 0; j < 4; j++) {
+										val[j] = Math.floor(from[j] + (Math.abs(to[j] - from[j]) * dir * curves[ani.curve](ani.forward ? pct : 1 - pct)));
+									}
 									needsRender = 1;
 								}
 
-console.log("animating " + prop + " from " + from + " to " + to + " val = " + val + " " + (pct*100) + "% done [" + ts + "]");
+								val = "rgba(" + val.join(',') + ")";
 
-								elem.domNode.style[prop] = val + "px";
+							} else if (positionOptions[prop]) {
+								if (pct === 1) {
+									val = ani.forward ? to : from;
+								} else {
+									val = from + (Math.abs(to - from) * dir * curves[ani.curve](ani.forward ? pct : 1 - pct));
+									needsRender = 1;
+								}
+
+								elem.domNode.style[prop] = prop === "opacity" ? val : val + "px";
+
+							} else if (prop === "transform") {
+								// matrix!
 							}
+
+							elem.domNode.style[prop] = val;
 						}
 					}
 
 					if (pct === 1) {
-						ani.promise.resolve();
-						anis.splice(i--, 1);
-						if (!anis.length) {
-							delete animations[wid];
+						ani.ts = ts;
+						if (ani.duration && ani.reverse && ani.forward) {
+							ani.forward = 0;
+							needsRender = 1;
+						} else if (ani.repeat-- > 0) {
+							needsRender = ani.forward = 1;
+						} else {
+							ani.promise.resolve();
+							anis.splice(i--, 1);
+							if (!anis.length) {
+								delete animations[wid];
+							}
 						}
 					}
 				}
@@ -149,7 +183,45 @@ console.log("animating " + prop + " from " + from + " to " + to + " val = " + va
 		needsRender && pump();
 	}
 
+	function parseColor(color) {
+		var i, bits, mask, result;
+
+		color = color.trim().toLowerCase();
+
+		if (color.charAt(0) === '#') {
+			// hex
+			bits = color.length == 4 ? 4 : 8;
+			if (!isNaN(color = Number("0x" + color.substring(1)))) {
+				mask = (1 << bits) - 1; // 15 or 255
+				result = bits === 4 ? 17 : 1; // multiplier
+				result = [((color >> bits * 2) & mask) * result, ((color >> bits) & mask) * result, (color & mask) * result, 1];
+			}
+		} else if (i = color.match(rgbaRegExp)) {
+			// rgb, rbga
+			result = i[1].split(/\s*,\s*/);
+			for (i = 0; i < 3;) {
+				result[i++] |= 0;
+			}
+		} else if (colors) {
+			// named color
+			result = colors[color];
+		}
+
+		if (result) {
+			result[3] = isNaN(i = parseFloat(result[3])) ? 1 : Math.min(Math.max(i, 0), 1);
+			return result;
+		}
+	}
+
 	/*
+console.log("red", parseColor("red"));
+console.log("transparent", parseColor("transparent"));
+console.log("invalid color", parseColor("fuck"));
+console.log("#F00", parseColor("#F00"));
+console.log("#FF0000", parseColor("#FF0000"));
+console.log("rgb(255, 255, 0)", parseColor("rgb(255, 255, 0)"));
+console.log("rgba(255, 255, 0, 0.5)", parseColor("rgb(255, 255, 0, 0.5)"));
+
 	units
 		color
 			backgroundColor
@@ -180,16 +252,16 @@ console.log("animating " + prop + " from " + from + " to " + to + " val = " + va
 
 		function go() {
 			var i,
-				value,
 				props = {},
 				prop,
 				from,
-				to = elem._parent._layout.calculateAnimation(elem, anim);
+				to,
+				layoutTo = elem._parent._layout.calculateAnimation(elem, anim);
 
 			// get all animatable properties that are defined
 			for (prop in properties) {
-				value = properties[prop];
-				if (!ignoreOptions[prop] && value !== void 0) {
+				to = properties[prop];
+				if (!ignoreOptions[prop] && to !== void 0) {
 					// see if we are already animating this element's property
 					for (i = 0; i < elemAnis.length; i++) {
 						delete elemAnis[i].props[prop];
@@ -197,12 +269,19 @@ console.log("animating " + prop + " from " + from + " to " + to + " val = " + va
 							elemAnis.splice(i--, 1);
 						}
 					}
+
 					from = style.get(elem.domNode, prop);
-					if (!(prop in to) || (from = parseFloat(from)) !== to) {
-						props[prop] = [
-							/* from */ from,
-							/* to */   prop in to ? to[prop] : value
-						];
+
+					if (colorOptions[prop]) {
+						from = parseColor(from);
+						to = parseColor(to);
+						(from < to || to < from) && (props[prop] = [from, to]);
+					} else if (positionOptions[prop]) {
+						isNaN(from = parseFloat(from)) && prop === "opacity" && (from = 1);
+						to = prop in layoutTo ? layoutTo[prop] : to;
+						from !== to && (props[prop] = [from, to]);
+					} else if (prop === "transform") {
+						console.log("transform change from " + from + " to " + anim[prop]);
 					}
 				}
 			}
@@ -213,7 +292,8 @@ console.log("animating " + prop + " from " + from + " to " + to + " val = " + va
 				promise: promise,
 				props: props,
 				ts: now(),
-				autoreverse: !!properties.autoreverse,
+				reverse: !!properties.autoreverse,
+				forward: 1,
 				curve: Math.max(0, Math.min(curves.length - 1, properties.curve | 0)),
 				duration: properties.duration | 0,
 				repeat: !!properties.repeat
