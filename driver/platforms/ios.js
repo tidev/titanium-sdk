@@ -214,7 +214,7 @@ module.exports = new function() {
 
 	var closeSimulator = function(callback) {
 		var closeIphoneCallback = function() {
-			util.runCommand("/usr/bin/killall 'iPhone Simulator'", 2, function(error) {
+			util.runCommand("/usr/bin/killall 'iPhone Simulator'", util.logStdout, function(error) {
 				if (error !== null) {
 					util.log("error encountered when closing iPhone simulator: " + error);
 
@@ -226,7 +226,7 @@ module.exports = new function() {
 			});
 		};
 
-		util.runCommand("/usr/bin/killall 'ios-sim'", 2, function(error) {
+		util.runCommand("/usr/bin/killall 'ios-sim'", util.logStdout, function(error) {
 			if (error !== null) {
 				util.log("error encountered when closing ios-sim: " + error);
 

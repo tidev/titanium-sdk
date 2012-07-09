@@ -18,13 +18,21 @@ module.exports = new function() {
 	var self = this;
 	var logFile = undefined;
 
+	/*
+	these are stand alone from the driver wide log levels since the arguments to runCommand do 
+	not change based on the --log-level argument
+	*/
+	this.logNone = 0;
+	this.logStderr = 1;
+	this.logStdout = 2;
+
 	this.runCommand = function(command, logLevel, callback) {
 		child_process.exec(command, function(error, stdout, stderr) {
-			if ((logLevel > 1) && (stdout !== "")) {
+			if ((logLevel > self.logStderr) && (stdout !== "")) {
 				self.log(stdout, 2);
 			}
 
-			if ((logLevel > 0) && (stderr !== "")) {
+			if ((logLevel > self.logNone) && (stderr !== "")) {
 				self.log(stderr, 0);
 			}
 
@@ -140,7 +148,7 @@ module.exports = new function() {
 
 				} else {
 					var oldestLogFilename = logsMap[logTimestamps[(oldestLogIndex - 1)]];
-					self.runCommand("rm -r " + driverGlobal.logsDir + "/" + driverGlobal.platform.name + "/" + oldestLogFilename, 0, function(error) {
+					self.runCommand("rm -r " + driverGlobal.logsDir + "/" + driverGlobal.platform.name + "/" + oldestLogFilename, self.logNone, function(error) {
 						if (error !== null) {
 							self.log("error <" + error + "> encountered when deleting log file <" + oldestLogFilename + ">");
 
