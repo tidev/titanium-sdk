@@ -182,20 +182,15 @@ public class TiUIScrollView extends TiUIView
 
 		@Override
 		public boolean onTouchEvent(MotionEvent event) {
-			if (mEnabled) {
+			if (event.getAction() == MotionEvent.ACTION_MOVE) {
+				if (mEnabled) {
+					return super.onTouchEvent(event);
+				}
+				return false;
+			}
+			else {
 				return super.onTouchEvent(event);
 			}
-
-			return false;
-		}
-
-		@Override
-		public boolean onInterceptTouchEvent(MotionEvent event) {
-			if (mEnabled) {
-				return super.onInterceptTouchEvent(event);
-			}
-
-			return false;
 		}
 		
 		@Override
@@ -283,20 +278,15 @@ public class TiUIScrollView extends TiUIView
 
 		@Override
 		public boolean onTouchEvent(MotionEvent event) {
-			if (mEnabled) {
+			if (event.getAction() == MotionEvent.ACTION_MOVE) {
+				if (mEnabled) {
+					return super.onTouchEvent(event);
+				}
+				return false;
+			}
+			else {
 				return super.onTouchEvent(event);
 			}
-
-			return false;
-		}
-
-		@Override
-		public boolean onInterceptTouchEvent(MotionEvent event) {
-			if (mEnabled) {
-				return super.onInterceptTouchEvent(event);
-			}
-
-			return false;
 		}
 		
 		@Override
