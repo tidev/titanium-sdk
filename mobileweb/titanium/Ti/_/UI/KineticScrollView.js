@@ -87,14 +87,9 @@ define(["Ti/_/browser", "Ti/_/declare", "Ti/UI/View", "Ti/_/lang", "Ti/_/dom", "
 				}
 			}
 
-			// Listen for postlayouts and update the translation
-			on(self, "postlayout", function() {
-				minTranslationX = self._minTranslationX = Math.min(0, self._measuredWidth - self._borderLeftWidth - self._borderRightWidth - self._contentContainer._measuredWidth);
-				minTranslationY = self._minTranslationY = Math.min(0, self._measuredHeight - self._borderTopWidth - self._borderBottomWidth - self._contentContainer._measuredHeight);
-			});
-
 			on(self, "draggingstart", function(e) {
 				if (this.scrollingEnabled) {
+
 					// Initialize the velocity calculations
 					velocityX = void 0;
 					velocityY = void 0;
@@ -102,6 +97,9 @@ define(["Ti/_/browser", "Ti/_/declare", "Ti/UI/View", "Ti/_/lang", "Ti/_/dom", "
 					startTranslationY = self._currentTranslationY;
 					numSamples = 0;
 					previousTime = (new Date).getTime();
+
+					minTranslationX = self._minTranslationX = Math.min(0, self._measuredWidth - self._borderLeftWidth - self._borderRightWidth - self._contentContainer._measuredWidth);
+					minTranslationY = self._minTranslationY = Math.min(0, self._measuredHeight - self._borderTopWidth - self._borderBottomWidth - self._contentContainer._measuredHeight);
 
 					// Start the scroll bars
 					var width = self._measuredWidth,
