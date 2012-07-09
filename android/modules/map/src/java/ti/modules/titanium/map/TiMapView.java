@@ -889,6 +889,16 @@ public class TiMapView extends TiUIView
 		handler.obtainMessage(MSG_CHANGE_ZOOM, delta, 0).sendToTarget();
 	}
 
+	public double getLongitudeDelta()
+	{
+		return scaleFromGoogle(view.getLongitudeSpan());
+	}
+
+	public double getLatitudeDelta()
+	{
+		return scaleFromGoogle(view.getLatitudeSpan());
+	}
+
 	private Drawable makeMarker(int c)
 	{
 		OvalShape s = new OvalShape();

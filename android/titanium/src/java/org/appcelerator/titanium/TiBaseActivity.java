@@ -81,7 +81,6 @@ public abstract class TiBaseActivity extends Activity
 	public TiWindowProxy lwWindow;
 	public boolean isResumed = false;
 
-
 	public void addWindowToStack(TiBaseWindowProxy proxy)
 	{
 		if (windowStack.contains(proxy)) {
@@ -96,10 +95,8 @@ public abstract class TiBaseActivity extends Activity
 		if (!isEmpty) { 
 			proxy.fireEvent(TiC.EVENT_FOCUS, null, false);
 		}
-
-		
 	}
-	
+
 	public void removeWindowFromStack(TiBaseWindowProxy proxy)
 	{
 		proxy.fireEvent(TiC.EVENT_BLUR, null);
@@ -155,10 +152,22 @@ public abstract class TiBaseActivity extends Activity
 	public void setWindowProxy(TiWindowProxy proxy)
 	{
 		this.window = proxy;
-		layout.setProxy(proxy);
+		setLayoutProxy(proxy);
 		updateTitle();
 	}
-	
+
+	/**
+	 * Sets the proxy for our layout (used for post layout event)
+	 * 
+	 * @param proxy
+	 */
+	protected void setLayoutProxy(TiViewProxy proxy)
+	{
+		if (layout != null) {
+			layout.setProxy(proxy);
+		}
+	}
+
 	/**
 	 * Sets the view proxy.
 	 * @param proxy

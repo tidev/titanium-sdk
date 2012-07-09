@@ -122,17 +122,19 @@ public class KrollLogging
 
 		internalLog(severity, msg);
 	}
-	
+
 	private String combineLogMessages(String... args)
 	{
 		String msg;
-		if (args.length > 0) {
+		int length = (args == null ? 0 : args.length);
+
+		if (length > 0) {
 			msg = args[0];
-		}
-		else {
+		} else {
 			msg = new String();
 		}
-		for (int i=1; i < args.length; i++ ) {
+
+		for (int i = 1; i < length; i++) {
 			msg = msg.concat(String.format(" %s", args[i]));
 		}
 		return msg;

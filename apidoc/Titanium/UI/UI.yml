@@ -1026,7 +1026,84 @@ properties:
     type: Number
     permission: read-only
     platforms: [android, iphone, ipad]
+
+  - name: URL_ERROR_AUTHENTICATION
+    summary: Authentication error code reported via <Titanium.UI.WebView.error>.
+    type: Number
+    platforms: [android, iphone, ipad]
+    since: "2.2.0"
+    permission: read-only
     
+  - name: URL_ERROR_BAD_URL
+    summary: Bad url error code reported via <Titanium.UI.WebView.error>.
+    type: Number
+    platforms: [android, iphone, ipad]
+    since: "2.2.0"
+    permission: read-only
+
+  - name: URL_ERROR_CONNECT
+    summary: Error code reported via <Titanium.UI.WebView.error> for a failure to connect to host.
+    type: Number
+    platforms: [android, iphone, ipad]
+    since: "2.2.0"
+    permission: read-only
+
+  - name: URL_ERROR_SSL_FAILED
+    summary: Error code reported via <Titanium.UI.WebView.error> for an SSL failure.
+    type: Number
+    platforms: [android, iphone, ipad]
+    since: "2.2.0"
+    permission: read-only
+
+  - name: URL_ERROR_FILE
+    summary: Error code reported via <Titanium.UI.WebView.error> for a failure to access a file resource on a host, except "file not found", which has its own constant.
+    type: Number
+    platforms: [android, iphone, ipad]
+    since: "2.2.0"
+    permission: read-only
+
+  - name: URL_ERROR_FILE_NOT_FOUND
+    summary: Error code reported via <Titanium.UI.WebView.error> when a requested file does not exist on the host.
+    type: Number
+    platforms: [android, iphone, ipad]
+    since: "2.2.0"
+    permission: read-only
+
+  - name: URL_ERROR_HOST_LOOKUP
+    summary: Error code reported via <Titanium.UI.WebView.error> when a host name cannot be resolved, such as via a DNS lookup error.
+    type: Number
+    platforms: [android, iphone, ipad]
+    since: "2.2.0"
+    permission: read-only
+
+  - name: URL_ERROR_REDIRECT_LOOP
+    summary: Error code reported via <Titanium.UI.WebView.error> when a redirect loop is detected.
+    type: Number
+    platforms: [android, iphone, ipad]
+    since: "2.2.0"
+    permission: read-only
+
+  - name: URL_ERROR_TIMEOUT
+    summary: Error code reported via <Titanium.UI.WebView.error> when a timeout occurs.
+    type: Number
+    platforms: [android, iphone, ipad]
+    since: "2.2.0"
+    permission: read-only
+
+  - name: URL_ERROR_UNKNOWN
+    summary: Error code reported via <Titanium.UI.WebView.error> when an unknown error occurs.
+    type: Number
+    platforms: [android, iphone, ipad]
+    since: "2.2.0"
+    permission: read-only
+
+  - name: URL_ERROR_UNSUPPORTED_SCHEME
+    summary: Error code reported via <Titanium.UI.WebView.error> when a url contains an unsupported scheme.
+    type: Number
+    platforms: [android, iphone, ipad]
+    since: "2.2.0"
+    permission: read-only
+
   - name: backgroundColor
     summary: |
         Sets the background color of the master view (when there are no windows or other top-level 

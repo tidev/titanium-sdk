@@ -1,7 +1,9 @@
 define(["Ti/_/declare", "Ti/_/lang", "Ti/UI/View", "Ti/_/dom", "Ti/_/css", "Ti/_/style", "Ti/UI", "Ti/_/Layouts/ConstrainingHorizontal"],
 	function(declare, lang, View, dom, css, style, UI, ConstrainingHorizontal) {
 
-	var setStyle = style.set,
+	var on = require.on,
+		emptyfn = function(){},
+		setStyle = style.set,
 		isDef = lang.isDef,
 		imagePrefix = "themes/" + require.config.ti.theme + "/UI/TableViewRow/",
 		checkImage = imagePrefix + "check.png",
@@ -45,8 +47,9 @@ define(["Ti/_/declare", "Ti/_/lang", "Ti/UI/View", "Ti/_/dom", "Ti/_/css", "Ti/_
 				height: UI.SIZE
 			}));
 
-			// Force single tap to be processed.
-			this.addEventListener("singletap");
+			// Force single tap and long press to be enabled.
+			on(this, "singletap", emptyfn);
+			on(this, "longpress", emptyfn);
 		},
 
 		_defaultWidth: UI.INHERIT,
@@ -58,7 +61,7 @@ define(["Ti/_/declare", "Ti/_/lang", "Ti/UI/View", "Ti/_/dom", "Ti/_/css", "Ti/_
 		_tableViewSection: null,
 		
 		_handleTouchEvent: function(type, e) {
-			if (type === "click" || type === "singletap") {
+			if (type === "click" || type === "singletap" || type === "longpress") {
 				this._tableViewSection && this._tableViewSection._tableView && (this._tableViewSection._tableView._tableViewRowClicked = this);
 			}
 			View.prototype._handleTouchEvent.apply(this,arguments);

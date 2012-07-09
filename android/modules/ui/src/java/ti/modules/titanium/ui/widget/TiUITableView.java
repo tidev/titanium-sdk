@@ -177,6 +177,13 @@ public class TiUITableView extends TiUIView
 	@Override
 	public void release()
 	{
+		// Release search bar if there is one
+		if (nativeView instanceof RelativeLayout) {
+			((RelativeLayout) nativeView).removeAllViews();
+			TiViewProxy searchView = (TiViewProxy) (proxy.getProperty(TiC.PROPERTY_SEARCH));
+			searchView.release();
+		}
+
 		if (tableView != null) {
 			tableView.release();
 			tableView  = null;
