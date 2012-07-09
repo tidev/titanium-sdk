@@ -143,6 +143,18 @@
 @property(nonatomic,readonly) NSString *UNIT_IN;
 @property(nonatomic,readonly) NSString *UNIT_DIP;
 
+@property(nonatomic,readonly) NSNumber *URL_ERROR_AUTHENTICATION;
+@property(nonatomic,readonly) NSNumber *URL_ERROR_BAD_URL;
+@property(nonatomic,readonly) NSNumber *URL_ERROR_CONNECT;
+@property(nonatomic,readonly) NSNumber *URL_ERROR_SSL_FAILED;
+@property(nonatomic,readonly) NSNumber *URL_ERROR_FILE;
+@property(nonatomic,readonly) NSNumber *URL_ERROR_FILE_NOT_FOUND;
+@property(nonatomic,readonly) NSNumber *URL_ERROR_HOST_LOOKUP;
+@property(nonatomic,readonly) NSNumber *URL_ERROR_REDIRECT_LOOP;
+@property(nonatomic,readonly) NSNumber *URL_ERROR_TIMEOUT;
+@property(nonatomic,readonly) NSNumber *URL_ERROR_UNKNOWN;
+@property(nonatomic,readonly) NSNumber *URL_ERROR_UNSUPPORTED_SCHEME;
+
 #ifdef USE_TI_UI2DMATRIX
 -(id)create2DMatrix:(id)args;
 #endif
