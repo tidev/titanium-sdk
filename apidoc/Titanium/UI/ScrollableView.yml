@@ -352,8 +352,8 @@ properties:
     description: If this property is unset or `true`, scrolling is enabled.
     type: Boolean
     default: undefined (scrolling enabled)
-    platforms: [iphone, ipad, android]
-    since: { android: "2.1", iphone: "2.0", ipad: "2.0" }
+    platforms: [iphone, ipad, android, mobileweb]
+    since: { android: "2.1", iphone: "2.0", ipad: "2.0", mobileweb: "2.2" }
 
   - name: views
     summary: Sets the pages within this Scrollable View.

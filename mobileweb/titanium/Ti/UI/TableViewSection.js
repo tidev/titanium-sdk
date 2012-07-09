@@ -1,7 +1,9 @@
 define(["Ti/_/declare", "Ti/_/lang", "Ti/_/UI/Widget", "Ti/_/style","Ti/UI/MobileWeb/TableViewSeparatorStyle", "Ti/UI"], 
 	function(declare, lang, Widget, style, TableViewSeparatorStyle, UI) {
 	
-	var is = require.is,
+	var on = require.on,
+		emptyfn = function(){},
+		is = require.is,
 		setStyle = style.set;
 
 	return declare("Ti.UI.TableViewSection", Widget, {
@@ -24,8 +26,9 @@ define(["Ti/_/declare", "Ti/_/lang", "Ti/_/UI/Widget", "Ti/_/style","Ti/UI/Mobil
 			// Create the parts out of Ti controls so we can make use of the layout system
 			this.layout = UI._LAYOUT_CONSTRAINING_VERTICAL;
 
-			// Force single tap to be processed.
-			this.addEventListener("singletap");
+			// Force single tap and long press to be enabled.
+			on(this, "singletap", emptyfn);
+			on(this, "longpress", emptyfn);
 		},
 
 		_defaultWidth: UI.INHERIT,
@@ -33,7 +36,7 @@ define(["Ti/_/declare", "Ti/_/lang", "Ti/_/UI/Widget", "Ti/_/style","Ti/UI/Mobil
 		_defaultHeight: UI.SIZE,
 		
 		_handleTouchEvent: function(type, e) {
-			if (type === "click" || type === "singletap") {
+			if (type === "click" || type === "singletap" || type === "longpress") {
 				this._tableView && (this._tableView._tableViewSectionClicked = this);
 			}
 			Widget.prototype._handleTouchEvent.apply(this,arguments);

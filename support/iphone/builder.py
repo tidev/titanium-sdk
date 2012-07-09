@@ -279,42 +279,6 @@ def xcode_version():
 		versionLine = output.split('\n')[0]
 		return float(versionLine.split(' ')[1].rpartition('.')[0])
 
-def distribute_xc3(uuid, provisioning_profile, name, log):
-	# starting in 4.0, apple now requires submission through XCode
-	# this code mimics what xcode does on its own to package the 
-	# application for the app uploader process
-	log.write("Creating distribution for xcode3...\n");
-	archive_uuid = str(uuid.uuid4()).upper()
-	archive_dir = os.path.join(os.path.expanduser("~/Library/MobileDevice/Archived Applications"),archive_uuid)
-	archive_app_dir = os.path.join(archive_dir,"%s.app" % name)
-	archive_appdsym_dir = os.path.join(archive_dir,"%s.app.dSYM" % name)
-	os.makedirs(archive_app_dir)
-	os.makedirs(archive_appdsym_dir)
-	
-	os.system('ditto "%s.app" "%s"' % (name,archive_app_dir))
-	os.system('ditto "%s.app.dSYM" "%s"' % (name,archive_appdsym_dir))
-	
-	archive_plist = os.path.join(archive_dir,'ArchiveInfo.plist')
-	log.write("Writing archive plist to: %s\n\n" % archive_plist)
-	
-	profile_uuid = get_profile_uuid(provisioning_profile)
-	
-	os.system("/usr/bin/plutil -convert xml1 -o \"%s\" \"%s\"" % (os.path.join(archive_dir,'Info.xml.plist'),os.path.join(archive_app_dir,'Info.plist')))
-	p = plistlib.readPlist(os.path.join(archive_dir,'Info.xml.plist'))
-	archive_metadata = {
-		'CFBundleIdentifier':p['CFBundleIdentifier'],
-		'CFBundleVersion':p['CFBundleVersion'],
-		'XCApplicationFilename':'%s.app' %name,
-		'XCApplicationName':name,
-		'XCArchivedDate': time.time() - 978307200.0,
-		'XCArchiveUUID':archive_uuid,
-		'XCInfoPlist' : p,
-		'XCProfileUUID': profile_uuid
-	}
-	log.write("%s\n\n" % archive_metadata)
-	plistlib.writePlist(archive_metadata,archive_plist)
-	os.remove(os.path.join(archive_dir,'Info.xml.plist'))	
-
 def distribute_xc4(name, icon, log):
 	# Locations of bundle, app binary, dsym info
 	log.write("Creating distribution for xcode4...\n");	
@@ -485,7 +449,8 @@ def copy_tiapp_properties(project_dir):
 	if (len(tiapp.findall("property")) > 0) :
 		impf.write("\n    return _property;\n}")
 	else: 
-		impf.write("\n    return NULL;\n}")
+		impf.write("\n    [_property release];")
+		impf.write("\n    return nil;\n}")
 	impf.write(FOOTER)
 	impf.close()
 	if open(appl_default,'r').read() == open('ApplicationDefaults.m','r').read():
@@ -1125,10 +1090,22 @@ def main(args):
 			try:		
 				os.chdir(iphone_dir)
 
-				# we always target backwards to 4.0 even when we use a later
-				# version iOS SDK. this ensures our code will run on old devices
-				# no matter which SDK we compile with
-				deploy_target = "IPHONEOS_DEPLOYMENT_TARGET=4.0"
+				# target the requested value if provided; otherwise, target minimum (4.0)
+				# or maximum iphone_version
+
+				if 'min-ios-ver' in ti.ios:
+					min_ver = ti.ios['min-ios-ver']
+					if min_ver < 4.0:
+						print "[INFO] Minimum iOS version %s is lower than 4.0: Using 4.0 as minimum" % min_ver
+						min_ver = 4.0
+					elif min_ver > float(iphone_version):
+						print "[INFO] Minimum iOS version %s is greater than %s (iphone_version): Using %s as minimum" % (min_ver, iphone_version, iphone_version)
+						min_ver = float(iphone_version)
+				else:
+					min_ver = 4.0
+
+				print "[INFO] Minimum iOS version: %s" % min_ver
+				deploy_target = "IPHONEOS_DEPLOYMENT_TARGET=%s" % min_ver
 				device_target = 'TARGETED_DEVICE_FAMILY=1'  # this is non-sensical, but you can't pass empty string
 
 				# clean means we need to nuke the build 
@@ -1558,10 +1535,7 @@ def main(args):
 
 					# switch to app_bundle for zip
 					os.chdir(build_dir)
-					if xcode_version() >= 4.0:
-						distribute_xc4(name, applogo, o)
-					else:
-						distribute_xc3(uuid, provisioning_profile, name, o)
+					distribute_xc4(name, applogo, o)
 
 					# open xcode + organizer after packaging
 					# Have to force the right xcode open...

@@ -225,9 +225,23 @@ events:
     summary: Fired when the web view cannot load the content. 
     description: |
         For Mobile Web, generally this event will **not** fire, even for 404, 500, and invalid URLs.
+        The `errorCode` value refers to one of the <Titanium.UI> URL_ERROR constants or, if it does not
+        match one of those constants, it refers to a platform-specific constant. The platform-specific
+        values are underlying [iOS NSURLError*](https://developer.apple.com/library/ios/#documentation/Cocoa/Reference/Foundation/Miscellaneous/Foundation_Constants/Reference/reference.html#//apple_ref/doc/uid/TP40003793-CH3g-SW40)
+        or [Android WebViewClient ERROR_*](http://developer.android.com/reference/android/webkit/WebViewClient.html) constants.
     properties:
       - name: url
         summary: URL of the web document.
+        type: String
+        platforms: [iphone, ipad, mobileweb, android]
+      - name: message
+        summary: Error message.
+        type: String
+        platforms: [iphone, ipad, mobileweb, android]
+      - name: errorCode
+        summary: A <Titanium.UI> URL_ERROR_* constant or underlying platform specific error code.
+        type: Number
+        platforms: [iphone, ipad, android]
 
   - name: load
     summary: Fired when the web view content is loaded.
