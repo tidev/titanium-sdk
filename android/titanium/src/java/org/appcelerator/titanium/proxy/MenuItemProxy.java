@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -8,7 +8,9 @@ package org.appcelerator.titanium.proxy;
 
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
+import org.appcelerator.kroll.common.TiMessenger;
 import org.appcelerator.titanium.TiApplication;
+import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiFileHelper;
 import org.appcelerator.titanium.util.TiUIHelper;
@@ -18,15 +20,33 @@ import android.annotation.TargetApi;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.view.MenuItem;
+import android.view.MenuItem.OnActionExpandListener;
+import android.view.View;
 
 @Kroll.proxy
-public class MenuItemProxy extends KrollProxy 
+public class MenuItemProxy extends KrollProxy
+	implements OnActionExpandListener
 {
 	private MenuItem item;
-	
+
+	@TargetApi(14)
 	protected MenuItemProxy(MenuItem item)
 	{
 		this.item = item;
+
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
+			item.setOnActionExpandListener(this);
+		}
+	}
+
+	public boolean onMenuItemActionCollapse(MenuItem item) {
+		fireEvent(TiC.EVENT_COLLAPSE, null);
+		return true;
+	}
+
+	public boolean onMenuItemActionExpand(MenuItem item) {
+		fireEvent(TiC.EVENT_EXPAND, null);
+		return true;
 	}
 
 	@Kroll.method @Kroll.getProperty
@@ -143,7 +163,8 @@ public class MenuItemProxy extends KrollProxy
 	@TargetApi(11)
 	public void setActionView(TiViewProxy view) {
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-			item.setActionView(view.getOrCreateView().getNativeView());
+			View v = view.getOrCreateView().getNativeView();
+			item.setActionView(v);
 		}
 	}
 
@@ -153,5 +174,39 @@ public class MenuItemProxy extends KrollProxy
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
 			item.setShowAsAction(flag);
 		}
+	}
+
+	@Kroll.method
+	@TargetApi(14)
+	public void collapseActionView() {
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
+			TiMessenger.postOnMain(new Runnable() {
+				public void run() {
+					item.collapseActionView();
+				}
+			});
+		}
+	}
+
+	@Kroll.method
+	@TargetApi(14)
+	public void expandActionView() {
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
+			TiMessenger.postOnMain(new Runnable() {
+				public void run() {
+					item.expandActionView();
+				}
+			});
+		}
+	}
+
+	@Kroll.getProperty
+	@TargetApi(14)
+	public boolean isActionViewExpanded() {
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
+			return item.isActionViewExpanded();
+		}
+
+		return false;
 	}
 }
