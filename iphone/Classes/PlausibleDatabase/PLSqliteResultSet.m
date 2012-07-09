@@ -116,7 +116,7 @@
  */
 - (void) assertNotClosed {
     if (_sqlite_stmt == nil)
-        [NSException raise: PLSqliteException format: @"Attempt to access already-closed result set."];
+        [NSException raise: TI_PLSqliteException format: @"Attempt to access already-closed result set."];
 }
 
 -(void)reset
@@ -158,7 +158,7 @@
     NSString *error = [NSString stringWithFormat: @"Error occurred calling next on a PLSqliteResultSet. SQLite error: '%s' for '%s'", sqlite3_errmsg(sqlite3_db_handle(_sqlite_stmt)), sqlite3_sql(_sqlite_stmt)];
     NSLog(@"[ERROR] %@", error);
 
-    [NSException raise: PLSqliteException format: @"%@", error];
+    [NSException raise: TI_PLSqliteException format: @"%@", error];
 
     /* Unreachable */
     abort();
@@ -174,7 +174,7 @@
         return [number intValue];
     
     /* Not found */
-    [NSException raise: PLSqliteException format: @"Attempted to access unknown result column %@", name];
+    [NSException raise: TI_PLSqliteException format: @"Attempted to access unknown result column %@", name];
 
     /* Unreachable */
     abort();
@@ -192,14 +192,14 @@
     
     /* Verify that the index is in range */
     if (columnIndex > _columnCount - 1 || columnIndex < 0)
-        [NSException raise: PLSqliteException format: @"Attempted to access out-of-range column index %d", columnIndex];
+        [NSException raise: TI_PLSqliteException format: @"Attempted to access out-of-range column index %d", columnIndex];
 
     /* Fetch the type */
     columnType = sqlite3_column_type(_sqlite_stmt, columnIndex);
     
     /* Verify nullability */
     if (!nullable && columnType == SQLITE_NULL) {
-        [NSException raise: PLSqliteException format: @"Attempted to access null column value for column index %d. Use -[PLResultSet isNullColumn].", columnIndex];
+        [NSException raise: TI_PLSqliteException format: @"Attempted to access null column value for column index %d. Use -[PLResultSet isNullColumn].", columnIndex];
     }
 
     return columnType;
@@ -215,7 +215,7 @@
             return (Expression); \
         \
         /* unknown value */ \
-        [NSException raise: PLSqliteException format: @"Attempted to access non-%s column as %s.", #ReturnType, #ReturnType]; \
+        [NSException raise: TI_PLSqliteException format: @"Attempted to access non-%s column as %s.", #ReturnType, #ReturnType]; \
         \
         /* Unreachable */ \
         abort(); \
@@ -276,7 +276,7 @@ VALUE_ACCESSORS(NSData *, data, SQLITE_BLOB, [NSData dataWithBytes: sqlite3_colu
             return [NSNull null];
 
         default:
-            [NSException raise: PLDatabaseException format: @"Unhandled SQLite column type %d", columnType];
+            [NSException raise: TI_PLDatabaseException format: @"Unhandled SQLite column type %d", columnType];
     }
 
     /* Unreachable */
@@ -335,7 +335,7 @@ VALUE_ACCESSORS(NSData *, data, SQLITE_BLOB, [NSData dataWithBytes: sqlite3_colu
 				[result addObject:[NSNull null]]; break;
 				
 			default:
-				[NSException raise: PLDatabaseException format: @"Unhandled SQLite column type %d", columnType];
+				[NSException raise: TI_PLDatabaseException format: @"Unhandled SQLite column type %d", columnType];
 		}
 	}
 

@@ -130,12 +130,17 @@ TiValueRef ThrowException (TiContextRef ctx, NSString *message, TiValueRef *exce
 	return TiValueMakeUndefined(ctx);
 }
 
-static NSLock *timerIDLock = [[NSLock alloc] init];
-
 static TiValueRef MakeTimer(TiContextRef context, TiObjectRef jsFunction, TiValueRef fnRef, TiObjectRef jsThis, TiValueRef durationRef, BOOL onetime)
 {
+    static dispatch_once_t timerInitializer;
+    static NSLock *timerIDLock = nil;
+    dispatch_once(&timerInitializer, ^{
+        timerIDLock = [[NSLock alloc] init];
+    });
+
 	static double kjsNextTimer = 0;
-	[timerIDLock lock];
+	
+    [timerIDLock lock];
 	double timerID = ++kjsNextTimer;
 	[timerIDLock unlock];
 	
