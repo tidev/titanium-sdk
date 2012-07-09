@@ -569,10 +569,18 @@ autoreverseLayout.a = TiDimensionUndefined; \
                                 for (UIView *subview in [transitionView subviews])
                                 {
                                     if (subview != view_) {
+                                        //To ensure that the subview doesnot show up on relayout.
+                                        subview.hidden = YES;
                                         [subview removeFromSuperview];
                                     }
                                 }
-                                [transitionView addSubview:view_];                                
+                                //To ensure that view being added is not in hidden state.
+                                view_.hidden = NO;
+                                [transitionView addSubview:view_];
+                                
+                                //Ensure all flags are setup properly.
+                                [self animationStarted:[NSString stringWithFormat:@"%X",(void *)theview] 
+                                               context:self];                               
                             }
                             completion:^(BOOL finished) {
                                 [self animationCompleted:[NSString stringWithFormat:@"%X",(void *)theview]
