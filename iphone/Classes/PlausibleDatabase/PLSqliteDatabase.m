@@ -135,7 +135,7 @@ NSString *TI_PLSqliteException = @"PLSqliteException";
     err = sqlite3_open([_path fileSystemRepresentation], &_sqlite);
     if (err != SQLITE_OK) {
         [self populateError: error 
-              withErrorCode: PLDatabaseErrorFileNotFound 
+              withErrorCode: TI_PLDatabaseErrorFileNotFound 
                 description: NSLocalizedString(@"The SQLite database file could not be found.", @"")
                 queryString: nil];
         return NO;
@@ -146,7 +146,7 @@ NSString *TI_PLSqliteException = @"PLSqliteException";
     if (err != SQLITE_OK) {
         /* This should never happen. */
         [self populateError: error
-              withErrorCode: PLDatabaseErrorUnknown
+              withErrorCode: TI_PLDatabaseErrorUnknown
                 description: NSLocalizedString(@"The SQLite database busy timeout could not be set due to an internal error.", @"")
                 queryString: nil];
         return NO;
@@ -501,7 +501,7 @@ NSString *TI_PLSqliteException = @"PLSqliteException";
     /* Prepare failed */
     if (ret != SQLITE_OK) {
         [self populateError: error
-              withErrorCode: PLDatabaseErrorInvalidStatement
+              withErrorCode: TI_PLDatabaseErrorInvalidStatement
                 description: NSLocalizedString(@"An error occured parsing the provided SQL statement.", @"")
                 queryString: statement];
         return nil;
@@ -510,7 +510,7 @@ NSString *TI_PLSqliteException = @"PLSqliteException";
     /* Multiple statements were provided */
     if (*unused != '\0') {
         [self populateError: error
-              withErrorCode: PLDatabaseErrorInvalidStatement
+              withErrorCode: TI_PLDatabaseErrorInvalidStatement
                 description: NSLocalizedString(@"Multiple SQL statements were provided for a single query.", @"")
                 queryString: statement];
         return nil;

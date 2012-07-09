@@ -1061,7 +1061,9 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 	KrollObject *kroll = [[KrollObject alloc] initWithTarget:nil context:self];
 	TiValueRef krollRef = [KrollObject toValue:self value:kroll];
 	TiStringRef prop = TiStringCreateWithUTF8CString("Kroll");
-	TiObjectSetProperty(context, globalRef, prop, krollRef, NULL, NULL);
+	TiObjectSetProperty(context, globalRef, prop, krollRef, 
+                        kTiPropertyAttributeDontDelete | kTiPropertyAttributeDontEnum | kTiPropertyAttributeReadOnly, 
+                        NULL);
 	TiObjectRef krollObj = TiValueToObject(context, krollRef, NULL);
 	bool set = TiObjectSetPrivate(krollObj, self);
 	assert(set);

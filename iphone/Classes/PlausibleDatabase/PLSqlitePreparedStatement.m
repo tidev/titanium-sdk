@@ -339,7 +339,7 @@
     
     /* Query failed */
     [_database populateError: outError
-               withErrorCode: PLDatabaseErrorQueryFailed
+               withErrorCode: TI_PLDatabaseErrorQueryFailed
                  description: NSLocalizedString(@"An error occurred executing an SQL update.", @"")
                  queryString: _queryString];
     return NO;
