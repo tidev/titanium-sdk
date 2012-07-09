@@ -258,6 +258,11 @@
 	[[self scrollView] setBounces:![TiUtils boolValue:value]];
 }
 
+-(void)setScrollingEnabled_:(id)enabled
+{
+    [[self scrollView] setScrollEnabled:[TiUtils boolValue:enabled]];
+}
+
 -(void)setScrollsToTop_:(id)value
 {
 	[[self scrollView] setScrollsToTop:[TiUtils boolValue:value]];
