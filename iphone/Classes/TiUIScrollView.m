@@ -260,7 +260,9 @@
 
 -(void)setScrollingEnabled_:(id)enabled
 {
-    [[self scrollView] setScrollEnabled:[TiUtils boolValue:enabled]];
+    BOOL scrollingEnabled = [TiUtils boolValue:enabled def:YES];
+    [[self scrollView] setScrollEnabled:scrollingEnabled];
+    [[self proxy] replaceValue:NUMBOOL(scrollingEnabled) forKey:@"scrollingEnabled" notification:NO];
 }
 
 -(void)setScrollsToTop_:(id)value
