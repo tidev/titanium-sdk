@@ -49,7 +49,7 @@ module.exports = new function() {
 			};
 
 			if (path.existsSync(driverGlobal.logsDir + "/json_results")) {
-				util.runCommand("rm -r " + driverGlobal.logsDir + "/json_results", 0, function(error) {
+				util.runCommand("rm -r " + driverGlobal.logsDir + "/json_results", util.logNone, function(error) {
 					if (error != null) {
 						util.log("error encountered when deleting json results file: " + error);
 
