@@ -39,6 +39,7 @@ public class TiUIScrollView extends TiUIView
 	private static final boolean DBG = TiConfig.LOGD;
 	private int offsetX = 0, offsetY = 0;
 	private boolean setInitialOffset = false;
+	private boolean mEnabled = true;
 
 	private class TiScrollViewLayout extends TiCompositeLayout
 	{
@@ -180,6 +181,24 @@ public class TiUIScrollView extends TiUIView
 		}
 
 		@Override
+		public boolean onTouchEvent(MotionEvent event) {
+			if (mEnabled) {
+				return super.onTouchEvent(event);
+			}
+
+			return false;
+		}
+
+		@Override
+		public boolean onInterceptTouchEvent(MotionEvent event) {
+			if (mEnabled) {
+				return super.onInterceptTouchEvent(event);
+			}
+
+			return false;
+		}
+		
+		@Override
 		public void addView(View child, android.view.ViewGroup.LayoutParams params)
 		{
 			layout.addView(child, params);
@@ -262,6 +281,24 @@ public class TiUIScrollView extends TiUIView
 			return layout;
 		}
 
+		@Override
+		public boolean onTouchEvent(MotionEvent event) {
+			if (mEnabled) {
+				return super.onTouchEvent(event);
+			}
+
+			return false;
+		}
+
+		@Override
+		public boolean onInterceptTouchEvent(MotionEvent event) {
+			if (mEnabled) {
+				return super.onInterceptTouchEvent(event);
+			}
+
+			return false;
+		}
+		
 		@Override
 		public void addView(View child, android.view.ViewGroup.LayoutParams params)
 		{
@@ -371,6 +408,13 @@ public class TiUIScrollView extends TiUIView
 				((TiVerticalScrollView) view).getLayout().setCanCancelEvents(canCancelEvents);
 			}
 		}
+		if (TiC.PROPERTY_SCROLLINGENABLED.equals(key)) {
+			try {
+				mEnabled = TiConvert.toBoolean(newValue);
+			} catch (IllegalArgumentException e) {
+				mEnabled = true;
+			}
+		}
 		super.propertyChanged(key, oldValue, newValue, proxy);
 	}
 
@@ -379,6 +423,14 @@ public class TiUIScrollView extends TiUIView
 	{
 		boolean showHorizontalScrollBar = false;
 		boolean showVerticalScrollBar = false;
+
+		if (d.containsKey(TiC.PROPERTY_SCROLLINGENABLED)) {
+			try {
+				mEnabled = TiConvert.toBoolean(d, TiC.PROPERTY_SCROLLINGENABLED);
+			} catch (IllegalArgumentException e) {
+				mEnabled = true;
+			}
+		}
 
 		if (d.containsKey(TiC.PROPERTY_SHOW_HORIZONTAL_SCROLL_INDICATOR)) {
 			showHorizontalScrollBar = TiConvert.toBoolean(d, TiC.PROPERTY_SHOW_HORIZONTAL_SCROLL_INDICATOR);
@@ -481,6 +533,20 @@ public class TiUIScrollView extends TiUIView
 		} else {
 			return ((TiHorizontalScrollView) nativeView).layout;
 		}
+	}
+
+	public void setEnabled(Object value)
+	{
+		try {
+			mEnabled = TiConvert.toBoolean(value);
+		} catch (IllegalArgumentException e) {
+			mEnabled = true;
+		}
+	}
+
+	public boolean getEnabled()
+	{
+		return mEnabled;
 	}
 
 	public void scrollTo(int x, int y)
