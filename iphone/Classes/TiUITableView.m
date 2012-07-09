@@ -20,6 +20,11 @@
 
 #define DEFAULT_SECTION_HEADERFOOTER_HEIGHT 20.0
 
+@interface TiUIView(eventHandler);
+-(void)handleListenerRemovedWithEvent:(NSString *)event;
+-(void)handleListenerAddedWithEvent:(NSString *)event;
+@end
+
 @interface TiUITableView ()
 @property (nonatomic,copy,readwrite) NSString * searchString;
 - (void)updateSearchResultIndexes;
@@ -363,6 +368,8 @@
 		tableview.delegate = self;
 		tableview.dataSource = self;
 		tableview.autoresizingMask = UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight;
+		
+		
 		if (TiDimensionIsDip(rowHeight))
 		{
 			[tableview setRowHeight:rowHeight.value];
@@ -939,6 +946,55 @@
 	// Turn it into a no-op while we're editing
 	if (!editing && !moving) {
 		[super touchesBegan:touches withEvent:event];
+	}
+}
+
+-(void)handleListenerRemovedWithEvent:(NSString *)event
+{
+	if([event isEqualToString:@"longpress"])
+	{
+		for (UIGestureRecognizer *gesture in [tableview gestureRecognizers])
+		{
+			if([[gesture class] isEqual:[UILongPressGestureRecognizer class]])
+			{
+				[tableview removeGestureRecognizer:gesture];
+				return;
+			}
+		}
+	}
+	[super handleListenerRemovedWithEvent:event];
+}
+
+-(void)handleListenerAddedWithEvent:(NSString *)event
+{
+	ENSURE_UI_THREAD_1_ARG(event);
+    if ([event isEqualToString:@"longpress"]) {
+		UILongPressGestureRecognizer *longPress = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(longPressGesture:)];
+		[tableview addGestureRecognizer:longPress];
+		[longPress release];
+		return;
+    }
+	[super handleListenerAddedWithEvent:event];
+}
+
+-(void)longPressGesture:(UILongPressGestureRecognizer *)recognizer
+{
+	if([[self proxy] _hasListeners:@"longpress"] && [recognizer state] == UIGestureRecognizerStateBegan)
+	{
+		UITableView *ourTableView = [self tableView];
+		CGPoint point = [recognizer locationInView:ourTableView];
+		NSIndexPath *indexPath = [ourTableView indexPathForRowAtPoint:point];
+		
+		BOOL search = NO;
+		if (allowsSelectionSet==NO || [ourTableView allowsSelection]==NO)
+		{
+			[ourTableView deselectRowAtIndexPath:indexPath animated:YES];
+		}
+		if(ourTableView != tableview)
+		{
+			search = YES;
+		}
+		[self triggerActionForIndexPath:indexPath fromPath:nil tableView:ourTableView wasAccessory:NO search:search name:@"longpress"];
 	}
 }
 

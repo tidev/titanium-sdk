@@ -28,6 +28,7 @@ import android.graphics.drawable.Drawable;
 import android.os.Handler;
 import android.os.Message;
 import android.view.View;
+import android.webkit.WebViewClient;
 import android.widget.Toast;
 
 @Kroll.module
@@ -116,6 +117,19 @@ public class UIModule extends KrollModule implements Handler.Callback
 	@Kroll.constant public static final String UNIT_CM = TiDimension.UNIT_CM;
 	@Kroll.constant public static final String UNIT_IN = TiDimension.UNIT_IN;
 	@Kroll.constant public static final String UNIT_DIP = TiDimension.UNIT_DIP;
+
+	// TiWebViewClient onReceivedError error codes.
+	@Kroll.constant public static final int URL_ERROR_AUTHENTICATION = WebViewClient.ERROR_AUTHENTICATION;
+	@Kroll.constant public static final int URL_ERROR_BAD_URL = WebViewClient.ERROR_BAD_URL;
+	@Kroll.constant public static final int URL_ERROR_CONNECT = WebViewClient.ERROR_CONNECT;
+	@Kroll.constant public static final int URL_ERROR_SSL_FAILED = WebViewClient.ERROR_FAILED_SSL_HANDSHAKE;
+	@Kroll.constant public static final int URL_ERROR_FILE = WebViewClient.ERROR_FILE;
+	@Kroll.constant public static final int URL_ERROR_FILE_NOT_FOUND = WebViewClient.ERROR_FILE_NOT_FOUND;
+	@Kroll.constant public static final int URL_ERROR_HOST_LOOKUP = WebViewClient.ERROR_HOST_LOOKUP;
+	@Kroll.constant public static final int URL_ERROR_REDIRECT_LOOP = WebViewClient.ERROR_REDIRECT_LOOP;
+	@Kroll.constant public static final int URL_ERROR_TIMEOUT = WebViewClient.ERROR_TIMEOUT;
+	@Kroll.constant public static final int URL_ERROR_UNKNOWN = WebViewClient.ERROR_UNKNOWN;
+	@Kroll.constant public static final int URL_ERROR_UNSUPPORTED_SCHEME = WebViewClient.ERROR_UNSUPPORTED_SCHEME;
 
 	protected static final int MSG_SET_BACKGROUND_COLOR = KrollProxy.MSG_LAST_ID + 100;
 	protected static final int MSG_SET_BACKGROUND_IMAGE = KrollProxy.MSG_LAST_ID + 101;
