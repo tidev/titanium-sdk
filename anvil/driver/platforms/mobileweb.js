@@ -281,7 +281,7 @@ module.exports = new function() {
 	};
 
 	var runHarness = function(errorCallback) {
-		util.runCommand("adb shell am start -a android.intent.action.VIEW -n com.android.browser/.BrowserActivity -d " + driverGlobal.httpHost + ":" + driverGlobal.config.httpPort + "/index.html", 2, function(error) {
+		util.runCommand("adb shell am start -a android.intent.action.VIEW -n com.android.browser/.BrowserActivity -d " + driverGlobal.httpHost + ":" + driverGlobal.config.httpPort + "/index.html", util.logStdout, function(error) {
 			if (error !== null) {
 				util.log("error encountered when running harness: " + error);
 				if (errorCallback) {

@@ -127,7 +127,7 @@ module.exports = new function() {
 	var installHarness = function(successCallback, errorCallback) {
 		var installCallback = function() {
 			if (path.existsSync(driverGlobal.harnessDir + "/android/harness/build/android/bin/app.apk")) {
-				util.runCommand("adb install " + driverGlobal.harnessDir + "/android/harness/build/android/bin/app.apk", 2, function(error) {
+				util.runCommand("adb install " + driverGlobal.harnessDir + "/android/harness/build/android/bin/app.apk", util.logStdout, function(error) {
 					if (error !== null) {
 						util.log("error encountered when installing harness: " + error);
 						if (errorCallback) {
@@ -152,7 +152,7 @@ module.exports = new function() {
 	};
 
 	var uninstallHarness = function(successCallback, errorCallback) {
-		util.runCommand("adb uninstall com.appcelerator.harness", 2, function(error) {
+		util.runCommand("adb uninstall com.appcelerator.harness", util.logStdout, function(error) {
 			if (error !== null) {
 				util.log("error encountered when uninstalling harness: " + error);
 				if (errorCallback) {
@@ -169,7 +169,7 @@ module.exports = new function() {
 	};
 
 	var runHarness = function(successCallback, errorCallback) {
-		util.runCommand("adb shell am start -n com.appcelerator.harness/.HarnessActivity", 2, function(error) {
+		util.runCommand("adb shell am start -n com.appcelerator.harness/.HarnessActivity", util.logStdout, function(error) {
 			if (error !== null) {
 				util.log("error encountered when running harness: " + error);
 				if (errorCallback) {
@@ -226,7 +226,7 @@ module.exports = new function() {
 			});
 		};
 
-		util.runCommand("adb forward tcp:" + driverGlobal.config.androidSocketPort + " tcp:" + driverGlobal.config.androidSocketPort, 2, function(error) {
+		util.runCommand("adb forward tcp:" + driverGlobal.config.androidSocketPort + " tcp:" + driverGlobal.config.androidSocketPort, util.logStdout, function(error) {
 			if (error !== null) {
 				util.log("error encountered when setting up port forwarding for <" + driverGlobal.config.androidSocketPort + ">");
 				errorCallback();

@@ -298,7 +298,7 @@ module.exports = new function() {
 				util.log("temp " + platform + " harness dir already exist");
 			}
 
-			util.runCommand(command, 2, function(error) {
+			util.runCommand(command, util.logStdout, function(error) {
 				if (error !== null) {
 					util.log("error encountered when created harness: " + error);
 					if (errorCallback) {
@@ -330,7 +330,7 @@ module.exports = new function() {
 		var harnessPlatformDir = driverGlobal.harnessDir + "/" + platform;
 
 		var updateSuitesCallback = function() {
-			util.runCommand("cp -r " + configs[configSetIndex].setDir + "/Resources " + harnessPlatformDir + "/harness", 2, function(error) {
+			util.runCommand("cp -r " + configs[configSetIndex].setDir + "/Resources " + harnessPlatformDir + "/harness", util.logStdout, function(error) {
 				if (error !== null) {
 					util.log("unable to update the harness suites: " + error);
 					if (errorCallback) {
@@ -346,6 +346,11 @@ module.exports = new function() {
 
 		var updateTiappCallback = function() {
 			function injectCustomTiappXmlProperties() {
+				if (self.customTiappXmlProperties.length < 1) {
+					// nothing custom to add so leave the copy alone
+					return;
+				}
+
 				var tiappXmlPath = harnessPlatformDir + "/harness/tiapp.xml";
 				var tiappXmlContents;
 
@@ -367,17 +372,13 @@ module.exports = new function() {
 					process.exit(1);
 				}
 
-				if (self.customTiappXmlProperties.length < 1) {
-					// nothing custom to add so leave the copy alone
-					return;
-				}
-
 				var splitPos = tiappXmlContents.indexOf("</ti:app>");
 				if (splitPos === -1) {
 					/*
 					this could only happen if the tiapp.xml in the config is messed up so die 
 					hard if it happens
 					*/
+					util.log("no closing ti:app tag found in the tiapp.xml file");
 					process.exit(1);
 				}
 				var preSplit = tiappXmlContents.substring(0, splitPos);
@@ -401,7 +402,7 @@ module.exports = new function() {
 				fs.writeFileSync(tiappXmlPath, newTiappXmlContents);
 			}
 
-			util.runCommand("cp -r " + configDir + "/tiapp.xml " + harnessPlatformDir + "/harness", 2, function(error) {
+			util.runCommand("cp -r " + configDir + "/tiapp.xml " + harnessPlatformDir + "/harness", util.logStdout, function(error) {
 				if (error !== null) {
 					util.log("unable to update the harness tiapp.xml: " + error);
 					if (errorCallback) {
@@ -419,7 +420,7 @@ module.exports = new function() {
 
 		var updateAppjsCallback = function() {
 			if (path.existsSync(configDir + "/app.js")) {
-				util.runCommand("cp -r " + configDir + "/app.js " + harnessPlatformDir + "/harness/Resources", 2, function(error) {
+				util.runCommand("cp -r " + configDir + "/app.js " + harnessPlatformDir + "/harness/Resources", util.logStdout, function(error) {
 					if (error !== null) {
 						util.log("unable to update app.js for harness: " + error);
 						if (errorCallback) {
@@ -440,7 +441,7 @@ module.exports = new function() {
 		};
 
 		// update the harness based on the harness template packaged with the driver
-		util.runCommand("cp -r " + driverGlobal.harnessTemplateDir + "/* " + harnessPlatformDir + "/harness/Resources", 2, function(error) {
+		util.runCommand("cp -r " + driverGlobal.harnessTemplateDir + "/* " + harnessPlatformDir + "/harness/Resources", util.logStdout, function(error) {
 			if (error !== null) {
 				util.log("unable to update harness with template: " + error);
 				if (errorCallback) {
@@ -458,7 +459,7 @@ module.exports = new function() {
 		var harnessDir = driverGlobal.harnessDir + "/" + platform + "/harness";
 
 		if (path.existsSync(harnessDir)) {
-			util.runCommand("rm -r " + harnessDir, 0, function(error) {
+			util.runCommand("rm -r " + harnessDir, util.logNone, function(error) {
 				if (error !== null) {
 					util.log("error encountered when deleting harness: " + error);
 
