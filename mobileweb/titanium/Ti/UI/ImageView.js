@@ -202,7 +202,12 @@ define(["Ti/_/declare", "Ti/_/event", "Ti/_/lang", "Ti/_/style", "Ti/_/UI/Widget
 		},
 
 		properties: {
-			duration: 30,
+			duration: {
+				set: function(value) {
+					return Math.max(30, value);
+				},
+				value: 200
+			},
 
 			image: {
 				set: function(value) {
