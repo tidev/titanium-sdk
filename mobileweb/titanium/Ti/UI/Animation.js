@@ -195,8 +195,9 @@ TODO:
 						} else if (ani.repeat-- > 0) {
 							needsRender = ani.forward = 1;
 						} else {
-							ani.promise.resolve();
+							// we need to remove this animation before resolving
 							anis.splice(i--, 1);
+							ani.promise.resolve();
 							if (!anis.length) {
 								delete animations[wid];
 							}
