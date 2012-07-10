@@ -569,15 +569,34 @@ autoreverseLayout.a = TiDimensionUndefined; \
                                 for (UIView *subview in [transitionView subviews])
                                 {
                                     if (subview != view_) {
+                                        //Making sure the view being transitioned off is properly removed
+                                        //from the view hierarchy.
+                                        if ([subview isKindOfClass:[TiUIView class]]){
+                                            TiUIView *subView = (TiUIView *)subview;
+                                            TiViewProxy *ourProxy = (TiViewProxy *)subView.proxy ;
+                                            [[ourProxy parent] remove:ourProxy];
+                                        }
+                                        
                                         [subview removeFromSuperview];
                                     }
                                 }
-                                [transitionView addSubview:view_];                                
+                                [transitionView addSubview:view_];
+                                
+                                //AnimationStarted needs to be called here, otherwise the animation flags for 
+                                //the view being transitioned will end up in a improper state, resulting in 
+                                //layout warning.
+                                [self animationStarted:[NSString stringWithFormat:@"%X",(void *)theview] 
+                                               context:self];                               
                             }
                             completion:^(BOOL finished) {
                                 [self animationCompleted:[NSString stringWithFormat:@"%X",(void *)theview]
                                                 finished:[NSNumber numberWithBool:finished]
                                                  context:self];
+                                
+                                //Adding the new view to the transition view's hierarchy.
+                                TiViewProxy * parentProxy = (TiViewProxy *)transitionView.proxy;
+                                TiViewProxy * child = (TiViewProxy *)view_.proxy;
+                                [parentProxy add:child];
                             }
              ];
 		}
