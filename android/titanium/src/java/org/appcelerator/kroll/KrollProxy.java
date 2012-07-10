@@ -28,6 +28,7 @@ import org.appcelerator.titanium.util.TiRHelper;
 import org.appcelerator.titanium.util.TiUrl;
 
 import android.app.Activity;
+import android.content.res.Resources;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Pair;
@@ -320,7 +321,9 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 			if (entry.getValue().toString().equals(localeProperty)) {
 				String targetProperty = entry.getKey();
 				String localizedValue = getLocalizedText(newLookupId);
-				setProperty(targetProperty, localizedValue);
+				if (localizedValue == null) {
+					return null;
+				}
 
 				return Pair.create(targetProperty, localizedValue);
 			}
@@ -352,6 +355,8 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 			int resid = TiRHelper.getResource("string." + lookupId);
 			return getActivity().getString(resid);
 		} catch (TiRHelper.ResourceNotFoundException e) {
+			return null;
+		} catch (Resources.NotFoundException e) {
 			return null;
 		}
 	}
