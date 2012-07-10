@@ -235,7 +235,7 @@ properties:
   - name: scrollingEnabled
     summary: Determines whether scrolling is enabled for the view.
     type: Boolean
-    default: True
+    default: true
     platforms: [iphone, ipad, android, mobileweb]
     since: { iphone: "2.2", ipad: "2.2", android: "2.2", mobileweb: "2.2" }
 
