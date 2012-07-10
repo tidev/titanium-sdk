@@ -610,7 +610,7 @@
 /**
  * FBRequestDelegate
  */
-- (void)request:(FBRequest2*)request didLoad:(id)result
+- (void)request:(FBRequest*)request didLoad:(id)result
 {
 	VerboseLog(@"[DEBUG] facebook didLoad");
 	
@@ -624,7 +624,7 @@
 }
 
 
-- (void)request:(FBRequest2*)request didFailWithError:(NSError*)error 
+- (void)request:(FBRequest*)request didFailWithError:(NSError*)error 
 {
 	VerboseLog(@"[DEBUG] facebook didFailWithError: %@",error);
 	
