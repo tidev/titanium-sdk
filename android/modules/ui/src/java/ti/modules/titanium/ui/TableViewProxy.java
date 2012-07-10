@@ -179,8 +179,10 @@ public class TableViewProxy extends TiViewProxy
 			double x = ((KrollDict)data).getDouble(TiC.PROPERTY_X);
 			double y = ((KrollDict)data).getDouble(TiC.PROPERTY_Y);
 			int index = getTableView().getTableView().getIndexFromXY(x, y);
-			Item item = getTableView().getTableView().getItemAtPosition(index);
-			TableViewRowProxy.fillClickEvent((KrollDict) data, getTableView().getModel(), item);
+			if (index != -1) {
+				Item item = getTableView().getTableView().getItemAtPosition(index);
+				TableViewRowProxy.fillClickEvent((KrollDict) data, getTableView().getModel(), item);
+			}
 		}
 		return super.fireEvent(eventName, data);
 	}
