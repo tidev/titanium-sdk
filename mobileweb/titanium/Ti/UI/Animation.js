@@ -3,7 +3,6 @@ define(["Ti/_/declare", "Ti/_/Evented", "Ti/_/style", "Ti/UI"], function(declare
 /*
 
 TODO:
-- animate colors
 - transform
 - update Ti.UI.View.rect after animation
 
@@ -56,8 +55,13 @@ TODO:
 		},
 		unitRegExp = /(\d+)(.*)/,
 		rgbaRegExp = /^rgba?\(([\s\.,0-9]+)\)/,
+		threeDRegExp = /3d/,
+		tiMatrixRegExp = /^Ti\.UI\.(2|3)DMatrix$/,
+		matrixRegExp = /matrix(3d)?\(([^\)]*)/,
+		rotateRegExp = /rotate(3d)?\(([^\)]*)/,
 		needsRender,
 		animations = {},
+		transformName = style.discover("transform"),
 		colors = require(require.config.ti.colorsModule),
 		api = declare("Ti.UI.Animation", Evented, {
 			properties: {
@@ -107,10 +111,11 @@ TODO:
 			elem,
 			i,
 			j,
+			len,
 			from,
 			to,
-			dir,
 			pct,
+			progress,
 			val,
 			vals;
 
@@ -121,6 +126,7 @@ TODO:
 				ani = anis[i];
 				if (!ani.paused) {
 					pct = ani.duration ? Math.min(1, (ts - ani.ts) / ani.duration) : 1;
+					progress = curves[ani.curve](ani.forward ? pct : 1 - pct);
 					elem = ani.elem;
 
 					if (elem._isAttachedToActiveWin()) {
@@ -128,36 +134,56 @@ TODO:
 							vals = ani.props[prop];
 							from = vals[0];
 							to = vals[1];
-							dir = from < to ? 1 : -1;
 
-							if (colorOptions[prop]) {
-								if (pct === 1) {
-									val = ani.forward ? to : from;
-								} else {
+							if (pct === 1) {
+								val = ani.forward ? to : from;
+							}
+
+							if (prop === "transform") {
+								if (pct !== 1) {
 									val = [];
-									for (j = 0; j < 4; j++) {
-										val[j] = Math.floor(from[j] + (Math.abs(to[j] - from[j]) * dir * curves[ani.curve](ani.forward ? pct : 1 - pct)));
+									len = from.length;
+									for (j = 0; j < len; j++) {
+										// we skip index 12-14 because those are the rotation vector
+										if (j < 12) {
+											val[j] = from[j] + ((to[j] - from[j]) * progress);
+										} else if (j > 14) {
+											val[j] = Math.floor(from[j] + ((to[j] - from[j]) * progress));
+										}
 									}
 									needsRender = 1;
 								}
 
+								if (val.length === 16) {
+									j = val.splice(12);
+									val = "matrix3d(" + val.join(',') + ") rotate3d(" + j.join(',') + "deg)";
+								} else {
+									j = val.pop();
+									val = "matrix(" + val.join(',') + ") rotate(" + j + "deg)";
+								}
+
+								prop = transformName;
+
+							} else if (colorOptions[prop]) {
+								if (pct !== 1) {
+									val = [];
+									for (j = 0; j < 4; j++) {
+										val[j] = Math.floor(from[j] + ((to[j] - from[j]) * progress));
+									}
+									needsRender = 1;
+								}
 								val = "rgba(" + val.join(',') + ")";
 
 							} else if (positionOptions[prop]) {
-								if (pct === 1) {
-									val = ani.forward ? to : from;
-								} else {
-									val = from + (Math.abs(to - from) * dir * curves[ani.curve](ani.forward ? pct : 1 - pct));
+								if (pct !== 1) {
+									val = from + ((to - from) * progress);
 									needsRender = 1;
 								}
-
-								elem.domNode.style[prop] = prop === "opacity" ? val : val + "px";
-
-							} else if (prop === "transform") {
-								// matrix!
+								val = prop === "opacity" ? val : val + "px";
 							}
 
-							elem.domNode.style[prop] = val;
+							ani.prev !== val && (elem.domNode.style[prop] = val);
+							ani.prev = val;
 						}
 					}
 
@@ -213,34 +239,6 @@ TODO:
 		}
 	}
 
-	/*
-console.log("red", parseColor("red"));
-console.log("transparent", parseColor("transparent"));
-console.log("invalid color", parseColor("fuck"));
-console.log("#F00", parseColor("#F00"));
-console.log("#FF0000", parseColor("#FF0000"));
-console.log("rgb(255, 255, 0)", parseColor("rgb(255, 255, 0)"));
-console.log("rgba(255, 255, 0, 0.5)", parseColor("rgb(255, 255, 0, 0.5)"));
-
-	units
-		color
-			backgroundColor
-			color
-
-		number		none, px, em, dip, in, mm, cm, pt, %
-			bottom
-			center[x,y]
-			height
-			left
-			opacity
-			right
-			top
-			width
-
-		matrix
-			transform
-	*/
-
 	api._play = function animationPlay(elem, anim) {
 		var promise = new require.Promise,
 			wid = elem.widgetId,
@@ -252,10 +250,16 @@ console.log("rgba(255, 255, 0, 0.5)", parseColor("rgb(255, 255, 0, 0.5)"));
 
 		function go() {
 			var i,
+				len,
 				props = {},
 				prop,
 				from,
+				toType,
 				to,
+				is3d,
+				params,
+				matrix,
+				rotate,
 				layoutTo = elem._parent._layout.calculateAnimation(elem, anim);
 
 			// get all animatable properties that are defined
@@ -280,8 +284,125 @@ console.log("rgba(255, 255, 0, 0.5)", parseColor("rgb(255, 255, 0, 0.5)"));
 						isNaN(from = parseFloat(from)) && prop === "opacity" && (from = 1);
 						to = prop in layoutTo ? layoutTo[prop] : to;
 						from !== to && (props[prop] = [from, to]);
-					} else if (prop === "transform") {
-						console.log("transform change from " + from + " to " + anim[prop]);
+					} else if (prop === "transform" && (toType = to.declaredClass.match(tiMatrixRegExp))) {
+						toType = toType[1] | 0;
+
+						matrix = from.match(matrixRegExp);
+						rotate = from.match(rotateRegExp);
+
+						if (threeDRegExp.test(from)) {
+							// we are currently 3D
+
+							// parse "from" into 3D matrix
+							from = [1, 0, 0, 0,
+							        0, 1, 0, 0,
+							        0, 0, 1, 0,
+							        0, 0, 0, 0]; // m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34, rx, ry, rz, r
+
+							if (matrix) {
+								is3d = matrix[1];
+								params = matrix[2].split(',');
+								len = params.length;
+
+								if (is3d && len === 16) {
+									for (i = 0; i < 12; i++) {
+										from[i] = params[i];
+									}
+								} else if (!is3d && len === 6) {
+									from[0] = params[0];
+									from[1] = params[1];
+									from[4] = params[2];
+									from[5] = params[3];
+									from[3] = params[4];
+									from[7] = params[5];
+								} 
+							}
+
+							if (rotate) {
+								is3d = rotate[1];
+								params = rotate[2].split(',');
+								len = params.length;
+
+								if (is3d && len === 4) {
+									for (i = 0; i < 4; i++) {
+										from[12 + i] = params[i];
+									}
+								} else if (!is3d && len === 1) {
+									from[14] = 1;
+									from[15] = params[0];
+								}
+							}
+
+							if (toType === 2) {
+								// promote 2dmatrix "to" into a 3D array
+								to = [to.a, to.b, 0, to.tx,
+								      to.c, to.d, 0, to.ty,
+								      0, 0, 1, 0,
+								      0, 0, 1, to.rotation]; // m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34, rx, ry, rz, r
+							} else {
+								// translate "to" into a 3D array
+								to = [to.m11, to.m12, to.m13, to.m14,
+								      to.m21, to.m22, to.m23, to.m24,
+								      to.m31, to.m32, to.m33, to.m34,
+								      to.rotationX, to.rotationY, to.rotationZ, to.rotation];
+							}
+						} else {
+							// we are currently 2D
+
+							if (toType === 2) {
+								// parse "from" into 2D matrix
+								from = [1, 0, 0, 1, 0, 0, 0]; // a, b, c, d, tx, ty, r
+
+								if (matrix) {
+									params = matrix[2].split(',');
+									len = Math.min(6, params.length);
+									for (i = 0; i < len; i++) {
+										from[i] = params[i];
+									}
+								}
+
+								if (rotate) {
+									params = rotate[2].split(',');
+									params.length && (from[6] = params[0]);
+								}
+
+								// translate "to" into a 2D array
+								to = [to.a, to.b, to.c, to.d, to.tx, to.ty, to.rotation];
+							} else {
+								// parse "from" into 3D matrix
+								from = [1, 0, 0, 0,
+								        0, 1, 0, 0,
+								        0, 0, 1, 0,
+								        0, 0, 0, 0]; // m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34, rx, ry, rz, r
+
+								if (matrix) {
+									params = matrix[2].split(',');
+									len = Math.min(6, params.length);
+									from[0] = params[0];
+									from[1] = params[1];
+									from[4] = params[2];
+									from[5] = params[3];
+									from[3] = params[4];
+									from[7] = params[5];
+								}
+
+								if (rotate) {
+									params = rotate[2].split(',');
+									if (params.length) {
+										from[14] = 1;
+										from[15] = params[0];
+									}
+								}
+
+								// promote "to" into a 3D array
+								to = [to.m11, to.m12, to.m13, to.m14,
+								      to.m21, to.m22, to.m23, to.m24,
+								      to.m31, to.m32, to.m33, to.m34,
+								      to.rotationX, to.rotationY, to.rotationZ, to.rotation];
+							}
+						}
+
+						(from < to || to < from) && (props[prop] = [from, to]);
 					}
 				}
 			}
@@ -327,15 +448,15 @@ console.log("rgba(255, 255, 0, 0.5)", parseColor("rgb(255, 255, 0, 0.5)"));
 		};
 
 		promise.resume = function() {
-			var a = findAnimation(),
-				prop;
-				//elem._parent._layout.calculateAnimation(elem, anim)
-
+			var a = findAnimation();
 			a.paused && (a.ts += (now() - a.paused));
 
+			/*
+			elem._parent._layout.calculateAnimation(elem, anim)
 			for (prop in a.props) {
 				//
 			}
+			*/
 
 			if (!needsRender) {
 				needsRender = 1;
@@ -345,9 +466,16 @@ console.log("rgba(255, 255, 0, 0.5)", parseColor("rgb(255, 255, 0, 0.5)"));
 			return !!a && !(a.paused = 0);
 		};
 
+		promise.reset = function() {
+			// 
+		};
+
 		return promise.then(function() {
 			properties.visible !== void 0 && (elem.visible = visible);
 			properties.zIndex !== void 0 && (elem.zIndex = zIndex);
+
+			// TODO: update View.rect here: TIMOB-8930
+
 			anim.fireEvent("complete");
 			is(anim.complete, "Function") && anim.complete();
 		});
