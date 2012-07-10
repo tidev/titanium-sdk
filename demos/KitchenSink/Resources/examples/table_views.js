@@ -31,7 +31,8 @@ var data = [
 	{title:'Table View Scroll Indicators', hasChild:true, test:'../examples/table_view_scroll_indicators.js'},
 	{title:'Composite (Partial Size)', hasChild:true, test:'../examples/table_view_composite.js'},
 	{title:'Table View (Layout)', hasChild:true, test:'../examples/table_view_layout.js'},
-	{title:'Table View (Layout 2)', hasChild:true, test:'../examples/table_view_layout_2.js'}
+	{title:'Table View (Layout 2)', hasChild:true, test:'../examples/table_view_layout_2.js'},
+	{title:'Dynamic Scrolling', hasChild:true, test:'../examples/table_view_dynamic_scroll.js'}
 ];
 
 data.push({title:'Table Search', hasChild:true, test:'../examples/table_view_api_search.js'});
@@ -68,7 +69,6 @@ if (Titanium.Platform.name == 'iPhone OS')
 	data.push({title:'Edit and Move', hasChild:true, test:'../examples/table_view_edit_and_move.js'});
 	data.push({title:'No Scrolling', hasChild:true, test:'../examples/table_view_noscroll.js'});
 	data.push({title:'Pull to Refresh', hasChild:true, test:'../examples/table_view_pull_to_refresh.js'});
-	data.push({title:'Dynamic Scrolling', hasChild:true, test:'../examples/table_view_dynamic_scroll.js'});
 }
 // create table view
 var tableViewOptions = {
