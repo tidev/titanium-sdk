@@ -121,7 +121,7 @@ define(["Ti/_/browser", "Ti/_/declare", "Ti/UI/View", "Ti/_/lang", "Ti/_/dom", "
 			});
 
 			on(self, "dragging", function(e) {
-				if (this.scrollingEnabled) {
+				if (self.scrollingEnabled) {
 					// Update the velocity calculations
 					translationX = startTranslationX + e.distanceX;
 					translationY = startTranslationY + e.distanceY;
@@ -135,7 +135,7 @@ define(["Ti/_/browser", "Ti/_/declare", "Ti/UI/View", "Ti/_/lang", "Ti/_/dom", "
 						height = self._measuredHeight,
 						contentWidth = contentContainer._measuredWidth,
 						contentHeight = contentContainer._measuredHeight;
-					this._updateScrollBars({
+					self._updateScrollBars({
 						x: -self._currentTranslationX / (contentWidth - width),
 						y: -self._currentTranslationY / (contentHeight - height)
 					});
@@ -145,7 +145,7 @@ define(["Ti/_/browser", "Ti/_/declare", "Ti/UI/View", "Ti/_/lang", "Ti/_/dom", "
 			});
 
 			on(self, "draggingcancel", function(e) {
-				if (this.scrollingEnabled) {
+				if (self.scrollingEnabled) {
 					self._animateToPosition(startTranslationX, startTranslationY, 400 + 0.3 * calculateDistance(
 							startTranslationX, startTranslationY, self._currentTranslationX, self._currentTranslationY),
 						"ease-in-out", function(){
@@ -157,7 +157,7 @@ define(["Ti/_/browser", "Ti/_/declare", "Ti/UI/View", "Ti/_/lang", "Ti/_/dom", "
 			});
 
 			on(self, "draggingend", function(e) {
-				if (this.scrollingEnabled) {
+				if (self.scrollingEnabled) {
 					translationX = startTranslationX + e.distanceX;
 					translationY = startTranslationY + e.distanceY;
 					calculateVelocity();
@@ -193,7 +193,7 @@ define(["Ti/_/browser", "Ti/_/declare", "Ti/UI/View", "Ti/_/lang", "Ti/_/dom", "
 
 			// Handle mouse wheel scrolling
 			enableMouseWheel && (this._disconnectMouseWheelEvent = on(self.domNode, "mousewheel",function(e) {
-				if (this.scrollingEnabled) {
+				if (self.scrollingEnabled) {
 					var distanceX = contentContainer._measuredWidth - self._measuredWidth,
 						distanceY = contentContainer._measuredHeight - self._measuredHeight,
 						currentPositionX = -self._currentTranslationX,
