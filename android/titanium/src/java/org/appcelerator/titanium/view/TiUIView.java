@@ -51,6 +51,7 @@ import android.view.View.OnKeyListener;
 import android.view.View.OnLongClickListener;
 import android.view.View.OnTouchListener;
 import android.view.ViewGroup;
+import android.view.ViewParent;
 import android.view.animation.Animation;
 import android.view.animation.AnimationSet;
 import android.view.inputmethod.InputMethodManager;
@@ -90,7 +91,7 @@ public abstract class TiUIView
 	// rather than starting the next animation always from scale 1.0f (i.e., normal scale).
 	// This gives us parity with iPhone for scale animations that use the 2-argument variant
 	// of Ti2DMatrix.scale().
-	private Pair<Float, Float> animatedScaleValues = Pair.create(new Float(1f), new Float(1f)); // default = full size (1f)
+	private Pair<Float, Float> animatedScaleValues = Pair.create(Float.valueOf(1f), Float.valueOf(1f)); // default = full size (1f)
 
 	// Same for rotation animation.
 	private float animatedRotationDegrees = 0f; // i.e., no rotation.
@@ -252,6 +253,18 @@ public abstract class TiUIView
 				Log.d(LCAT, "starting animation: "+as);
 			}
 			nativeView.startAnimation(as);
+
+			// If the view has negative left/top and therefore might be "off-screen", then Android might not
+			// animate it immediately because by default it animates "on first frame" and apparently "first frame"
+			// won't happen right away if the view isn't yet visible.
+			// In that case invalidate its parent, which will kick off the pending animation.
+			if (nativeView.getTop() < 0 || nativeView.getLeft() < 0) {
+				ViewParent viewParent = nativeView.getParent();
+				if (viewParent instanceof View) {
+					((View) viewParent).invalidate();
+				}
+			}
+
 			// Clean up proxy
 			proxy.clearAnimation(builder);
 		}
@@ -1327,4 +1340,5 @@ public abstract class TiUIView
 		animatedRotationDegrees = 0f; // i.e., no rotation.
 		animatedScaleValues = Pair.create(Float.valueOf(1f), Float.valueOf(1f)); // 1 means no scaling
 	}
+
 }
