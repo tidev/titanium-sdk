@@ -239,11 +239,74 @@ TODO:
 		}
 	}
 
+	function parse3dMatrix(matrix, rotate, to, toType) {
+		// this function parses an existing 2d or 3d tranform into a 3d matrix
+
+		var is3d,
+			params,
+			len,
+			i,
+			from = [1, 0, 0, 0,
+			        0, 1, 0, 0,
+			        0, 0, 1, 0,
+			        0, 0, 0, 0]; // m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34, rx, ry, rz, r
+
+		if (matrix) {
+			is3d = matrix[1];
+			params = matrix[2].split(',');
+			len = params.length;
+
+			if (is3d && len === 16) {
+				for (i = 0; i < 12; i++) {
+					from[i] = params[i];
+				}
+			} else if (!is3d && len === 6) {
+				from[0] = params[0];
+				from[1] = params[1];
+				from[4] = params[2];
+				from[5] = params[3];
+				from[3] = params[4];
+				from[7] = params[5];
+			}
+		}
+
+		if (rotate) {
+			is3d = rotate[1];
+			params = rotate[2].split(',');
+			len = params.length;
+
+			if (is3d && len === 4) {
+				for (i = 0; i < 4; i++) {
+					from[12 + i] = params[i];
+				}
+			} else if (!is3d && len === 1) {
+				from[14] = 1;
+				from[15] = params[0];
+			}
+		}
+
+		if (toType === 2) {
+			// promote 2dmatrix "to" into a 3D array
+			to = [to.a, to.b, 0, to.tx,
+			      to.c, to.d, 0, to.ty,
+			      0, 0, 1, 0,
+			      0, 0, 1, to.rotation]; // m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34, rx, ry, rz, r
+		} else {
+			// translate "to" into a 3D array
+			to = [to.m11, to.m12, to.m13, to.m14,
+			      to.m21, to.m22, to.m23, to.m24,
+			      to.m31, to.m32, to.m33, to.m34,
+			      to.rotationX, to.rotationY, to.rotationZ, to.rotation];
+		}
+
+		return [from, to];
+	}
+
 	api._play = function animationPlay(elem, anim) {
 		var promise = new require.Promise,
 			wid = elem.widgetId,
 			id = Math.random() * 1e9 | 0,
-			elemAnis = animations[wid] = (animations[wid] || []),
+			anis = animations[wid] = (animations[wid] || []),
 			properties = anim.properties.__values__,
 			delay = properties.delay | 0,
 			visible = !!properties.visible;
@@ -256,7 +319,7 @@ TODO:
 				from,
 				toType,
 				to,
-				is3d,
+				tmp,
 				params,
 				matrix,
 				rotate,
@@ -267,10 +330,10 @@ TODO:
 				to = properties[prop];
 				if (!ignoreOptions[prop] && to !== void 0) {
 					// see if we are already animating this element's property
-					for (i = 0; i < elemAnis.length; i++) {
-						delete elemAnis[i].props[prop];
-						if (require.isEmpty(elemAnis[i].props)) {
-							elemAnis.splice(i--, 1);
+					for (i = 0; i < anis.length; i++) {
+						delete anis[i].props[prop];
+						if (require.isEmpty(anis[i].props)) {
+							anis.splice(i--, 1);
 						}
 					}
 
@@ -290,119 +353,33 @@ TODO:
 						matrix = from.match(matrixRegExp);
 						rotate = from.match(rotateRegExp);
 
-						if (threeDRegExp.test(from)) {
-							// we are currently 3D
-
-							// parse "from" into 3D matrix
-							from = [1, 0, 0, 0,
-							        0, 1, 0, 0,
-							        0, 0, 1, 0,
-							        0, 0, 0, 0]; // m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34, rx, ry, rz, r
+						if (threeDRegExp.test(from) || toType === 3) {
+							tmp = parse3dMatrix(matrix, rotate, to, toType);
+							from = tmp[0];
+							to = tmp[1];
+						} else if (toType === 2) {
+							// parse "from" into 2D matrix
+							from = [1, 0, 0, 1, 0, 0, 0]; // a, b, c, d, tx, ty, r
 
 							if (matrix) {
-								is3d = matrix[1];
 								params = matrix[2].split(',');
-								len = params.length;
-
-								if (is3d && len === 16) {
-									for (i = 0; i < 12; i++) {
-										from[i] = params[i];
-									}
-								} else if (!is3d && len === 6) {
-									from[0] = params[0];
-									from[1] = params[1];
-									from[4] = params[2];
-									from[5] = params[3];
-									from[3] = params[4];
-									from[7] = params[5];
-								} 
+								len = Math.min(6, params.length);
+								for (i = 0; i < len; i++) {
+									from[i] = params[i];
+								}
 							}
 
 							if (rotate) {
-								is3d = rotate[1];
 								params = rotate[2].split(',');
-								len = params.length;
-
-								if (is3d && len === 4) {
-									for (i = 0; i < 4; i++) {
-										from[12 + i] = params[i];
-									}
-								} else if (!is3d && len === 1) {
-									from[14] = 1;
-									from[15] = params[0];
-								}
+								params.length && (from[6] = params[0]);
 							}
 
-							if (toType === 2) {
-								// promote 2dmatrix "to" into a 3D array
-								to = [to.a, to.b, 0, to.tx,
-								      to.c, to.d, 0, to.ty,
-								      0, 0, 1, 0,
-								      0, 0, 1, to.rotation]; // m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34, rx, ry, rz, r
-							} else {
-								// translate "to" into a 3D array
-								to = [to.m11, to.m12, to.m13, to.m14,
-								      to.m21, to.m22, to.m23, to.m24,
-								      to.m31, to.m32, to.m33, to.m34,
-								      to.rotationX, to.rotationY, to.rotationZ, to.rotation];
-							}
-						} else {
-							// we are currently 2D
-
-							if (toType === 2) {
-								// parse "from" into 2D matrix
-								from = [1, 0, 0, 1, 0, 0, 0]; // a, b, c, d, tx, ty, r
-
-								if (matrix) {
-									params = matrix[2].split(',');
-									len = Math.min(6, params.length);
-									for (i = 0; i < len; i++) {
-										from[i] = params[i];
-									}
-								}
-
-								if (rotate) {
-									params = rotate[2].split(',');
-									params.length && (from[6] = params[0]);
-								}
-
-								// translate "to" into a 2D array
-								to = [to.a, to.b, to.c, to.d, to.tx, to.ty, to.rotation];
-							} else {
-								// parse "from" into 3D matrix
-								from = [1, 0, 0, 0,
-								        0, 1, 0, 0,
-								        0, 0, 1, 0,
-								        0, 0, 0, 0]; // m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34, rx, ry, rz, r
-
-								if (matrix) {
-									params = matrix[2].split(',');
-									len = Math.min(6, params.length);
-									from[0] = params[0];
-									from[1] = params[1];
-									from[4] = params[2];
-									from[5] = params[3];
-									from[3] = params[4];
-									from[7] = params[5];
-								}
-
-								if (rotate) {
-									params = rotate[2].split(',');
-									if (params.length) {
-										from[14] = 1;
-										from[15] = params[0];
-									}
-								}
-
-								// promote "to" into a 3D array
-								to = [to.m11, to.m12, to.m13, to.m14,
-								      to.m21, to.m22, to.m23, to.m24,
-								      to.m31, to.m32, to.m33, to.m34,
-								      to.rotationX, to.rotationY, to.rotationZ, to.rotation];
-							}
+							// translate "to" into a 2D array
+							to = [to.a, to.b, to.c, to.d, to.tx, to.ty, to.rotation];
+							tmp = [from, to];
 						}
 
-						(from < to || to < from) && (props[prop] = [from, to]);
+						(from < to || to < from) && (props[prop] = tmp);
 					}
 				}
 			}
@@ -432,42 +409,72 @@ TODO:
 		delay ? setTimeout(go, delay) : go();
 
 		function findAnimation() {
-			var elemAnis = animations[wid],
+			var anis = animations[wid],
 				i = 0,
-				len = elemAnis && elemAnis.length;
+				len = anis && anis.length;
 			while (i < len) {
-				if (elemAnis[i].id === id) {
-					return elemAnis[i];
+				if (anis[i].id === id) {
+					return anis[i];
 				}
 			}
 		}
 
 		promise.pause = function() {
 			var a = findAnimation();
-			return !!a && (a.paused = now());
+			return !!a && (a.paused || (a.paused = now()));
 		};
 
 		promise.resume = function() {
 			var a = findAnimation();
-			a.paused && (a.ts += (now() - a.paused));
 
-			/*
-			elem._parent._layout.calculateAnimation(elem, anim)
-			for (prop in a.props) {
-				//
-			}
-			*/
+			if (a) {
+				a.paused && (a.ts += (now() - a.paused));
 
-			if (!needsRender) {
-				needsRender = 1;
-				pump();
+				/*
+				TODO: if the layout changes while an animation is paused,
+				then we need to recalculate the layout prior to resuming.
+
+				elem._parent._layout.calculateAnimation(elem, anim)
+				for (prop in a.props) {
+					//
+				}
+				*/
+
+				if (!needsRender) {
+					needsRender = 1;
+					pump();
+				}
 			}
 
 			return !!a && !(a.paused = 0);
 		};
 
-		promise.reset = function() {
-			// 
+		promise.cancel = function() {
+			var anis = animations[wid],
+				ani,
+				prop,
+				node,
+				i = 0,
+				j = anis && anis.length;
+
+			while (i < j) {
+				if (anis[i].id === id) {
+					ani = anis[i];
+					node = ani.elem.domNode;
+
+					for (prop in ani.props) {
+						j = ani.props[prop][0];
+						style.set(node, prop, positionOptions[prop] && prop !== "opacity" ? j + "px" : j);
+					}
+
+					anis.splice(i, 1);
+					if (!anis.length) {
+						delete animations[wid];
+					}
+
+					break;
+				}
+			}
 		};
 
 		return promise.then(function() {
