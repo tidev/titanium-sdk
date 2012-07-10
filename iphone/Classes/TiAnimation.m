@@ -569,16 +569,22 @@ autoreverseLayout.a = TiDimensionUndefined; \
                                 for (UIView *subview in [transitionView subviews])
                                 {
                                     if (subview != view_) {
-                                        //To ensure that the subview doesnot show up on relayout.
-                                        subview.hidden = YES;
+                                        //Making sure the view being transitioned off is properly removed
+                                        //from the view hierarchy.
+                                        if ([subview isKindOfClass:[TiUIView class]]){
+                                            TiUIView *subView = (TiUIView *)subview;
+                                            TiViewProxy *ourProxy = (TiViewProxy *)subView.proxy ;
+                                            [[ourProxy parent] remove:ourProxy];
+                                        }
+                                        
                                         [subview removeFromSuperview];
                                     }
                                 }
-                                //To ensure that view being added is not in hidden state.
-                                view_.hidden = NO;
                                 [transitionView addSubview:view_];
                                 
-                                //Ensure all flags are setup properly.
+                                //AnimationStarted needs to be called here, otherwise the animation flags for 
+                                //the view being transitioned will end up in a improper state, resulting in 
+                                //layout warning.
                                 [self animationStarted:[NSString stringWithFormat:@"%X",(void *)theview] 
                                                context:self];                               
                             }
