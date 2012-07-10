@@ -27,7 +27,7 @@
  * The button will automatically change to reflect the state of the session, showing
  * "login" if the session is not connected, and "logout" if the session is connected.
  */
-@interface FBLoginButton2 : UIButton {
+@interface FBLoginButton : UIButton {
 	BOOL  _isLoggedIn;
 	NSInteger _style;
 }

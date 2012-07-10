@@ -584,12 +584,26 @@
 	[self fireEvent:@"logout"];
 }
 
+- (void)fbDidExtendToken:(NSString*)accessToken
+               expiresAt:(NSDate*)expiresAt;
+
+{
+	[self _save];
+}
+
+- (void)fbSessionInvalidated;
+{
+	//Here for protocol completeness. The end developer should check for
+	//if they are in a valid session.
+}
+
+
 //----------- these are only used when the login is successful to grab UID
 
 /**
  * FBRequestDelegate
  */
-- (void)request:(FBRequest2*)request didLoad:(id)result
+- (void)request:(FBRequest*)request didLoad:(id)result
 {
 	VerboseLog(@"[DEBUG] facebook didLoad");
 	
@@ -603,7 +617,7 @@
 }
 
 
-- (void)request:(FBRequest2*)request didFailWithError:(NSError*)error 
+- (void)request:(FBRequest*)request didFailWithError:(NSError*)error 
 {
 	VerboseLog(@"[DEBUG] facebook didFailWithError: %@",error);
 	
