@@ -592,6 +592,11 @@ autoreverseLayout.a = TiDimensionUndefined; \
                                 [self animationCompleted:[NSString stringWithFormat:@"%X",(void *)theview]
                                                 finished:[NSNumber numberWithBool:finished]
                                                  context:self];
+                                
+                                //Adding the new view to the transition view's hierarchy.
+                                TiViewProxy * parentProxy = (TiViewProxy *)transitionView.proxy;
+                                TiViewProxy * child = (TiViewProxy *)view_.proxy;
+                                [parentProxy add:child];
                             }
              ];
 		}
