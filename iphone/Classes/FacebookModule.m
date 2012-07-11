@@ -593,8 +593,15 @@
 
 - (void)fbSessionInvalidated;
 {
-	//Here for protocol completeness. The end developer should check for
-	//if they are in a valid session.
+	loggedIn = NO;
+	NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+	[defaults removeObjectForKey:@"FBAccessToken"];
+	[defaults removeObjectForKey:@"FBSessionExpires"];
+	[defaults synchronize]; 
+	[self fireLoginChange];
+	//Because the user ID is still the same, we can't unsave. The
+	//session expiring should NOT be considered an active move by the user
+	//to log out, so maintain userID and appID and do not spoof a logout.
 }
 
 
