@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -11,7 +11,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.HashMap;
+import java.util.Stack;
 import java.util.concurrent.Semaphore;
+import java.util.concurrent.TimeUnit;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollEventCallback;
@@ -35,6 +37,9 @@ public class TiWebViewBinding
 	// - minify binding.js to create binding.min.js
 	protected final static String SCRIPT_INJECTION_ID = "__ti_injection";
 	protected final static String INJECTION_CODE;
+
+	protected static String BINDING_CODE = "";
+	protected static String JSON_CODE = "";
 	static {
 		StringBuilder jsonCode = readResourceFile("json2.js");
 		StringBuilder tiCode = readResourceFile("binding.min.js");
@@ -44,6 +49,7 @@ public class TiWebViewBinding
 			Log.w(LCAT, "Unable to read JSON code for injection");
 		} else {
 			allCode.append(jsonCode);
+			JSON_CODE = jsonCode.toString();
 		}
 
 		if (tiCode == null) {
@@ -51,6 +57,7 @@ public class TiWebViewBinding
 		} else {
 			allCode.append("\n");
 			allCode.append(tiCode.toString());
+			BINDING_CODE = tiCode.toString();
 		}
 		allCode.append("\n</script>\n");
 		jsonCode = null;
@@ -59,13 +66,15 @@ public class TiWebViewBinding
 		allCode = null;
 	}
 
-	private WebView webView;
+	private Stack<String> codeSnippets;
+	private boolean destroyed;
+
 	private KrollLogging apiBinding;
 	private AppBinding appBinding;
 
 	public TiWebViewBinding(WebView webView)
 	{
-		this.webView = webView;
+		codeSnippets = new Stack<String>();
 
 		apiBinding = KrollLogging.getDefault();
 		appBinding = new AppBinding();
@@ -84,6 +93,10 @@ public class TiWebViewBinding
 		// remove any event listener that have already been added to the Ti.APP through
 		// this web view instance
 		appBinding.clearEventListeners();
+
+		returnSemaphore.release();
+		codeSnippets.clear();
+		destroyed = true;
 	}
 
 	private static StringBuilder readResourceFile(String fileName)
@@ -111,25 +124,27 @@ public class TiWebViewBinding
 		return code;
 	}
 
-	private void evalJS(String code)
-	{
-		webView.loadUrl("javascript:" + code);
-	}
-
 	private Semaphore returnSemaphore = new Semaphore(0);
 	private String returnValue;
 
 	public String getJSValue(String expression)
 	{
-		String code = "javascript:_TiReturn.setValue((function(){try{return " + expression
-			+ "+\"\";}catch(ti_eval_err){return '';}})());";
-		Log.d(LCAT, "getJSValue:" + code);
-		webView.loadUrl(code);
-		try {
-			returnSemaphore.acquire();
-			return returnValue;
-		} catch (InterruptedException e) {
-			Log.e(LCAT, "Interrupted", e);
+		// Don't try to evaluate js code again if the binding has already been destroyed
+		if (!destroyed) {
+			String code = "javascript:_TiReturn.setValue((function(){try{return " + expression
+				+ "+\"\";}catch(ti_eval_err){return '';}})());";
+			Log.d(LCAT, "getJSValue:" + code);
+			synchronized (this) {
+				codeSnippets.push(code);
+			}
+			try {
+				if (!returnSemaphore.tryAcquire(1000, TimeUnit.MILLISECONDS)) {
+					Log.w(LCAT, "Timeout waiting to evaluate JS");
+				}
+				return returnValue;
+			} catch (InterruptedException e) {
+				Log.e(LCAT, "Interrupted", e);
+			}
 		}
 		return null;
 	}
@@ -167,8 +182,10 @@ public class TiWebViewBinding
 				dataString = ", " + String.valueOf(data);
 			}
 
-			String code = "Ti.executeListener(" + id + dataString + ");";
-			evalJS(code);
+			String code = "javascript:Ti.executeListener(" + id + dataString + ");";
+			synchronized (this) {
+				codeSnippets.push(code);
+			}
 		}
 	}
 
@@ -216,6 +233,19 @@ public class TiWebViewBinding
 			for (String event : appListeners.keySet()) {
 				removeEventListener(event, appListeners.get(event));
 			}
+		}
+
+		public String getJSCode()
+		{
+			String code;
+			synchronized (this) {
+				code = codeSnippets.empty() ? "" : codeSnippets.pop();
+			}
+
+			if (destroyed) {
+				return null;
+			}
+			return code;
 		}
 	}
 }
