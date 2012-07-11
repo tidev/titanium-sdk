@@ -18,7 +18,6 @@
         id msg = [args objectAtIndex:0];
         if([msg isKindOfClass:[NSNumber class]] && [msg isEqualToNumber:[NSDecimalNumber notANumber]] ) {
             args = [NSArray arrayWithObject:@"NaN"];
-            NSLog(@"%@",[NSDecimalNumber notANumber]);
         }
     }
     NSMutableString* message = [NSMutableString string];
