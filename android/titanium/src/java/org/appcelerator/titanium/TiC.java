@@ -447,7 +447,7 @@ public class TiC
 	/**
 	 * @module.api
 	 */
-	public static final String PROPERTY_SCROLLINGENABLED = "scrollingEnabled";
+	public static final String PROPERTY_SCROLLING_ENABLED = "scrollingEnabled";
 
 	/**
 	 * @module.api
