@@ -24,6 +24,7 @@ module.exports = new function() {
 	var server;
 	var serverRunning = false;
 	var serverListening = true;
+	var browserOnlyMode = false;
 
 	this.name = "mobileweb";
 
@@ -35,32 +36,30 @@ module.exports = new function() {
 	this.processCommand = function(command) {
 		var commandElements = command.split(" ");
 
-		if (commandElements[0] == "create") {
-			createHarness(commandFinishedCallback, commandFinishedCallback);
+		if (commandElements[0] === "start") {
+			var browserOnlyArg = util.getArgument(commandElements, "--browser-only");
+			if (browserOnlyArg === "true") {
+				browserOnlyMode = browserOnlyArg;
+			}
 
-		} else if (commandElements[0] == "delete") {
-			deleteHarness(commandFinishedCallback);
+			common.startTestPass(commandElements, self.startConfig, commandFinishedCallback);
 
-		} else if (commandElements[0] == "build") {
-			buildHarness(commandFinishedCallback, commandFinishedCallback);
-
-		} else if (commandElements[0] == "start") {
-			self.startTestPass(commandElements);
-
-		} else if (commandElements[0] == "exit") {
+		} else if (commandElements[0] === "exit") {
 			process.exit(1);
 
 		} else {
-			util.log("invalid command\n"
+			util.log("invalid command\n\n"
 				+ "Commands:\n"
-				+ "    create - create harness project\n"
-				+ "    delete - delete harness project\n"
-				+ "    build - build harness files to be served\n"
 				+ "    start - starts test run which includes starting over with clean harness project\n"
-				+ "        Arguments:\n"
+				+ "        Arguments (optional):\n"
+				+ "            --config-set=<config set ID> - runs the specified config set\n"
 				+ "            --config=<config ID> - runs the specified configuration only\n"
 				+ "            --suite=<suite name> - runs the specified suite only\n"
-				+ "            --test=<test name> - runs the specified test only (--suite must be specified)\n\n"
+				+ "            --test=<test name> - runs the specified test only (--suite must be specified)\n"
+				+ "            --browser-only=<boolean> - if set to true, the harness is not deployed to a device\n"
+				+ "                and instead the user is expected to manually load the \"127.0.0.1/index.html\"\n"
+				+ "                url in order to run tests.  Reloading the page manually will be required when\n"
+				+ "                the harness is restarted due to a config finishing or an error occurring\n\n"
 				+ "    exit - exit driver\n",
 				0, true);
 
@@ -71,7 +70,7 @@ module.exports = new function() {
 	var createHarness = function(successCallback, errorCallback) {
 		common.createHarness(
 			"mobileweb",
-			driverGlobal.tiSdkDir + "/project.py harness com.appcelerator.harness " + driverGlobal.harnessDir + "/mobileweb mobileweb " + driverGlobal.tiSdkDir,
+			driverGlobal.config.tiSdkDir + "/project.py harness com.appcelerator.harness " + driverGlobal.harnessDir + "/mobileweb mobileweb " + driverGlobal.config.tiSdkDir,
 			successCallback,
 			errorCallback
 			);
@@ -84,8 +83,8 @@ module.exports = new function() {
 	var buildHarness = function(successCallback, errorCallback) {
 		var buildCallback = function() {
 			var args = [driverGlobal.harnessDir + "/mobileweb/harness", "development"];
-			util.runProcess(driverGlobal.tiSdkDir + "/mobileweb/builder.py", args, 0, 0, function(code) {
-				if (code != 0) {
+			util.runProcess(driverGlobal.config.tiSdkDir + "/mobileweb/builder.py", args, 0, 0, function(code) {
+				if (code !== 0) {
 					util.log("error encountered when building harness: " + code);
 					errorCallback();
 
@@ -105,7 +104,9 @@ module.exports = new function() {
 		}
 	};
 
-	this.startTestPass = function(commandElements) {
+	this.startConfig = function() {
+		var serverCallback;
+
 		var deleteCallback = function() {
 			deleteHarness(buildCallback);
 		};
@@ -114,30 +115,86 @@ module.exports = new function() {
 			buildHarness(serverCallback, commandFinishedCallback);
 		};
 
-		var serverCallback = function() {
-			startServer(runCallback, commandFinishedCallback);
-		};
-
 		var runCallback = function() {
 			runHarness();
 		};
 
-		android.deviceIsConnected(function(connected) {
-			if(connected) {
-				common.startTestPass(commandElements, deleteCallback);
+		// this is the same whether browser only mode is enabled or not
+		common.customTiappXmlProperties["driver.httpPort"] = driverGlobal.config.httpPort;
+
+		/*
+		check for browser only mode.  When in browser only mode, we are gonna skip invoking the 
+		browser on device and instead expect that the user will manually load the driver test page 
+		in a local browser using the loopback address.  Make sure that the host value (wifi or 
+		loopback) is injected here into the holding list so that the values are available when the 
+		harness is created
+		*/
+		if (browserOnlyMode === "true") {
+			driverGlobal.httpHost = "http://127.0.0.1";
+
+			/*
+			since we are running in browser only mode, the harness should use the loopback address
+			when making requests to the driver
+			*/
+			common.customTiappXmlProperties["driver.httpHost"] = "http://127.0.0.1";
+
+			// skip the normal logic of launching the browser on device
+			serverCallback = function() {
+				startServer(null, commandFinishedCallback);
+			};
+
+			common.startConfig(deleteCallback);
+
+		} else {
+			function getIpAddress() {
+				var networkInterfaces = require("os").networkInterfaces();
+				for (i in networkInterfaces) {
+					for (j in networkInterfaces[i]) {
+						var address = networkInterfaces[i][j];
+						if (address.family === 'IPv4' && !(address.internal)) {
+							return address.address;
+						}
+					}
+				}
+			}
+
+			// get the address for the driver that should be accessible to the harness via wifi
+			var ipAddress = getIpAddress();
+			if (ipAddress) {
+				driverGlobal.httpHost = "http://" + ipAddress;
+
+				/*
+				make sure that the harness has the correct wifi address to use when making requests to 
+				the driver
+				*/
+				common.customTiappXmlProperties["driver.httpHost"] = driverGlobal.httpHost;
 
 			} else {
-				util.log("no attached device found, unable to start test pass", driverGlobal.logLevels.quiet);
+				util.log("unable to get IP address", driverGlobal.logLevels.quiet);
 				commandFinishedCallback();
 			}
-		});
+
+			serverCallback = function() {
+				startServer(runCallback, commandFinishedCallback);
+			};
+
+			android.deviceIsConnected(function(connected) {
+				if (connected) {
+					common.startConfig(deleteCallback);
+
+				} else {
+					util.log("no attached device found, unable to start config", driverGlobal.logLevels.quiet);
+					commandFinishedCallback();
+				}
+			});
+		}
 	};
 
 	var startServer = function(successCallback, errorCallback) {
 		server = http.createServer(function (request, response) {
 			var prefix = driverGlobal.harnessDir + "/mobileweb/harness/build/mobileweb"
 			var filePath = prefix + request.url;
-			if (filePath == prefix + '/') {
+			if (filePath === prefix + '/') {
 				filePath = prefix + '/index.html';
 			}
 
@@ -153,7 +210,7 @@ module.exports = new function() {
 					break;
 			}
 
-			if (extname != ".anvil") {
+			if (extname !== ".anvil") {
 				path.exists(filePath, function(exists) {
 					if (exists) {
 						fs.readFile(filePath, function(error, content) {
@@ -195,14 +252,14 @@ module.exports = new function() {
 		});
 
 		server.on('error', function (e) {
-			if ((e.code == 'EADDRINUSE') && (serverRunning == false)) {
+			if ((e.code === 'EADDRINUSE') && (serverRunning === false)) {
 				util.log('Address in use, retrying...');
 				setTimeout(function() {
-					if (serverListening == true) {
+					if (serverListening === true) {
 						server.close();
 					}
 					serverListening = true;
-					server.listen(driverGlobal.httpPort);
+					server.listen(driverGlobal.config.httpPort);
 				}, 2000);
 
 			} else {
@@ -212,17 +269,20 @@ module.exports = new function() {
 
 		server.on('listening', function (e) {
 			serverRunning = true;
-			util.log("Server running at " + driverGlobal.httpHost + ":" + driverGlobal.httpPort);
-			successCallback();
+			util.log("Server running at " + driverGlobal.httpHost + ":" + driverGlobal.config.httpPort);
+
+			if (successCallback !== null) {
+				successCallback();
+			}
 		});
 
 		serverListening = true;
-		server.listen(driverGlobal.httpPort);
+		server.listen(driverGlobal.config.httpPort);
 	};
 
 	var runHarness = function(errorCallback) {
-		util.runCommand("adb shell am start -a android.intent.action.VIEW -n com.android.browser/.BrowserActivity -d " + driverGlobal.httpHost + ":" + driverGlobal.httpPort + "/index.html", 2, function(error) {
-			if (error != null) {
+		util.runCommand("adb shell am start -a android.intent.action.VIEW -n com.android.browser/.BrowserActivity -d " + driverGlobal.httpHost + ":" + driverGlobal.config.httpPort + "/index.html", util.logStdout, function(error) {
+			if (error !== null) {
 				util.log("error encountered when running harness: " + error);
 				if (errorCallback) {
 					errorCallback();
@@ -232,7 +292,12 @@ module.exports = new function() {
 	};
 
 	// handles restarting the test pass (usually when an error is encountered)
-	this.resumeTestPass = function() {
+	this.resumeConfig = function() {
+		if (browserOnlyMode === "true") {
+			// in browser only mode, no action is required
+			return;
+		}
+
 		var runCallback = function() {
 			runHarness(commandFinishedCallback);
 		};
@@ -242,9 +307,9 @@ module.exports = new function() {
 	};
 
 	// called when a config is finished running
-	this.finishTestPass = function() {
+	this.finishConfig = function() {
 		stopHarness();
-		common.finishTestPass(testPassFinishedCallback);
+		common.finishConfig(testPassFinishedCallback);
 	};
 
 	var stopHarness = function() {

@@ -66,7 +66,7 @@ define(["Ti/_", "Ti/_/dom", "Ti/_/has", "Ti/_/lang", "Ti/App", "Ti/Platform"],
 								deploytype: App.deployType,
 								sid: sessionId,
 								ts: evt.ts,
-								data: /(Array|Object)/.test(is(evt.data)) ? JSON.stringify(evt.data) : evt.data
+								data: evt.data
 							}));
 
 							if (evt.type === "ti.end") {

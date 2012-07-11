@@ -5,15 +5,7 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
-var harnessGlobal = new Object();
-
-harnessGlobal.common = require("common");
-harnessGlobal.common.init(harnessGlobal);
-
-harnessGlobal.util = require("util");
-harnessGlobal.util.init(harnessGlobal);
-
-harnessGlobal.suites = [
+var suites = [
 	{name: "analytics"},
 	{name: "blob"},
 	{name: "buffer"},
@@ -43,7 +35,7 @@ harnessGlobal.suites = [
 ];
 
 if (Ti.Platform.osname === 'android') {
-	harnessGlobal.suites = harnessGlobal.suites.concat([
+	suites = suites.concat([
 		{name: "android/android_database/android_database"},
 		{name: "android/android_filesystem"},
 		{name: "android/android_geolocation"},
@@ -57,12 +49,20 @@ if (Ti.Platform.osname === 'android') {
 	]);
 
 } else if((Ti.Platform.osname === 'iPhone') || (Ti.Platform.osname === 'iPad')) {
-	harnessGlobal.suites = harnessGlobal.suites.concat([
+	suites = suites.concat([
 		{name: "iphone/iphone_2Dmatrix"},
 		{name: "iphone/iphone_ui"},
 		{name: "iphone/iphone_UI_3DMatrix"}
 	]);
 }
 
-harnessGlobal.socketPort = 40404;
-harnessGlobal.common.connectToDriver();
+
+/*
+these lines must be present and should not be modified.  "suites" argument to setSuites is 
+expected to be an array (should be an empty array at the very least in cases where population of 
+the suites argument is based on platform type and may result in no valid suites being added to the 
+argument)
+*/
+var init = require("init");
+init.setSuites(suites);
+init.start();
