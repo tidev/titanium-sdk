@@ -406,7 +406,7 @@ public class TiUIScrollView extends TiUIView
 				((TiVerticalScrollView) view).getLayout().setCanCancelEvents(canCancelEvents);
 			}
 		}
-		if (TiC.PROPERTY_SCROLLINGENABLED.equals(key)) {
+		if (TiC.PROPERTY_SCROLLING_ENABLED.equals(key)) {
 			setScrollingEnabled(newValue);
 		}
 		super.propertyChanged(key, oldValue, newValue, proxy);
@@ -418,8 +418,8 @@ public class TiUIScrollView extends TiUIView
 		boolean showHorizontalScrollBar = false;
 		boolean showVerticalScrollBar = false;
 
-		if (d.containsKey(TiC.PROPERTY_SCROLLINGENABLED)) {
-			setScrollingEnabled(d.get(TiC.PROPERTY_SCROLLINGENABLED));
+		if (d.containsKey(TiC.PROPERTY_SCROLLING_ENABLED)) {
+			setScrollingEnabled(d.get(TiC.PROPERTY_SCROLLING_ENABLED));
 		}
 
 		if (d.containsKey(TiC.PROPERTY_SHOW_HORIZONTAL_SCROLL_INDICATOR)) {
