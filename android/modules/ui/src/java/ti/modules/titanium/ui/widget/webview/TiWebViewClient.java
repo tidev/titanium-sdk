@@ -30,7 +30,6 @@ public class TiWebViewClient extends WebViewClient
 	private TiUIWebView webView;
 	private TiWebViewBinding binding;
 	private String username, password;
-	private boolean loadWithBindingCode;
 
 	public TiWebViewClient(TiUIWebView tiWebView, WebView webView)
 	{
@@ -50,9 +49,8 @@ public class TiWebViewClient extends WebViewClient
 		webView.getProxy().fireEvent("load", data);
 		WebView nativeWebView = webView.getWebView();
 
-		if (loadWithBindingCode && nativeWebView != null) {
-			webView.getWebView().loadUrl("javascript:" + TiWebViewBinding.JSON_CODE);
-			webView.getWebView().loadUrl("javascript:" + TiWebViewBinding.BINDING_CODE);
+		if (nativeWebView != null) {
+			webView.getWebView().loadUrl("javascript:" + TiWebViewBinding.POLLING_CODE);
 		}
 	}
 
@@ -153,10 +151,5 @@ public class TiWebViewClient extends WebViewClient
 	{
 		this.username = username;
 		this.password = password;
-	}
-
-	public void setLoadWithBindingCode(boolean load)
-	{
-		loadWithBindingCode = load;
 	}
 }
