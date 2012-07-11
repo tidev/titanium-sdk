@@ -12,4 +12,4 @@ xcuserdata
 *.BASE.*
 *.LOCAL.*
 *.REMOTE.*
-driver/config.js
+anvil/driver/config.js

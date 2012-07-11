@@ -35,17 +35,17 @@ module.exports = new function() {
 
 		httpClient.open("POST", harnessGlobal.httpHost + ":" + harnessGlobal.httpPort + "/message.anvil");
 		httpClient.send(JSON.stringify(data));
-	}
+	};
 
 	var sendSocketData = function(data) {
 		driverSocket.write(Ti.createBuffer({value: JSON.stringify(data)}));
-	}
+	};
 
 	this.init = function(arg) {
 		harnessGlobal = arg;
-	}
+	};
 
-	this.connect = function() {
+	this.socketListen = function(acceptedMessage) {
 		var pumpCallback = function(e) {
 			if (e.bytesProcessed == -1) { // EOF
 				Ti.API.info("<EOF> - Can't perform any more operations on connected socket");
@@ -57,7 +57,7 @@ module.exports = new function() {
 			} else {
 				Ti.API.info("READ ERROR: " + e.errorDescription);
 			}
-		}
+		};
 
 		var listenSocket = Ti.Network.Socket.createTCP({
 		    port: harnessGlobal.socketPort,
@@ -81,14 +81,14 @@ module.exports = new function() {
 				e.socket.close();
 			}
 		});
-	}
+	};
 
 	this.sendData = function(data) {
-		if(Ti.Platform.name == "mobileweb") {
+		if (Ti.Platform.name == "mobileweb") {
 			sendHttpData(data);
 
 		} else {
 			sendSocketData(data);
 		}
-	}
-}
+	};
+};
