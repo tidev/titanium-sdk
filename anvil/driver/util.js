@@ -11,23 +11,32 @@
  */
 
 var fs = require("fs");
-var child_process = require('child_process');
+var child_process = require("child_process");
+var path = require("path");
 
 module.exports = new function() {
 	var self = this;
 	var logFile = undefined;
 
+	/*
+	these are stand alone from the driver wide log levels since the arguments to runCommand do 
+	not change based on the --log-level argument
+	*/
+	this.logNone = 0;
+	this.logStderr = 1;
+	this.logStdout = 2;
+
 	this.runCommand = function(command, logLevel, callback) {
 		child_process.exec(command, function(error, stdout, stderr) {
-			if ((logLevel > 1) && (stdout != "")) {
+			if ((logLevel > self.logStderr) && (stdout !== "")) {
 				self.log(stdout, 2);
 			}
 
-			if ((logLevel > 0) && (stderr != "")) {
+			if ((logLevel > self.logNone) && (stderr !== "")) {
 				self.log(stderr, 0);
 			}
 
-			if (callback != null) {
+			if (callback !== null) {
 				callback(error, stdout, stderr);
 			}
 		});
@@ -36,11 +45,11 @@ module.exports = new function() {
 	this.runProcess = function(filename, args, stdoutCallback, stderrCallback, exitCallback) {
 		var newProcess = child_process.spawn(filename, args);
 
-		if (stdoutCallback != null) {
+		if (stdoutCallback !== null) {
 			newProcess.stdout.on('data', function(data) {
 				var stdoutString = data.toString();
 
-				if ((stdoutCallback == 0) && (stdoutString != "")) {
+				if ((stdoutCallback === 0) && (stdoutString !== "")) {
 					self.log(stdoutString, 2);
 
 				} else {
@@ -49,11 +58,11 @@ module.exports = new function() {
 			});
 		}
 
-		if (stderrCallback != null) {
+		if (stderrCallback !== null) {
 			newProcess.stderr.on('data', function(data) {
 				var stderrString = data.toString();
 
-				if ((stderrCallback == 0) && (stderrString != "")) {
+				if ((stderrCallback === 0) && (stderrString !== "")) {
 					self.log(stderrString, 0);
 
 				} else {
@@ -62,9 +71,9 @@ module.exports = new function() {
 			});
 		}
 
-		if (exitCallback != null) {
+		if (exitCallback !== null) {
 			newProcess.on('exit', function(code) {
-				if ((exitCallback == 0) && (code != "")) {
+				if ((exitCallback === 0) && (code !== "")) {
 					self.log(code, 0);
 
 				} else {
@@ -76,16 +85,17 @@ module.exports = new function() {
 		return newProcess;
 	};
 
-	this.getArgument = function(args, name) {
+	this.getArgument = function(args, requestedArgName) {
 		var value;
 
 		for (var i in args) {
-			if (args[i].indexOf(name) == 0) {
-				var splitPos = args[i].indexOf("=");
-				if (splitPos == -1) {
-					continue;
-				}
+			var splitPos = args[i].indexOf("=");
+			if (splitPos === -1) {
+				continue;
+			}
 
+			var argName = args[i].substr(0, splitPos);
+			if (argName === requestedArgName) {
 				value = args[i].substr(splitPos + 1, args[i].length - splitPos);
 				break;
 			}
@@ -94,7 +104,7 @@ module.exports = new function() {
 		return value;
 	};
 
-	this.rightStringTrim = function(targetString) {
+	this.trimStringRight = function(targetString) {
 		return targetString.replace(/\s+$/,"");
 	};
 
@@ -102,7 +112,7 @@ module.exports = new function() {
 	 * sets active log file based on driver command line arguments and deletes any old logs
 	 * above the specified max number of logs if needed
 	 */
-	this.rotateLogs = function(callback) {
+	this.openLog = function(callback) {
 		// close the old log file if it has been opened
 		self.closeLog();
 
@@ -113,31 +123,45 @@ module.exports = new function() {
 			'a+');
 
 		var files = fs.readdirSync(driverGlobal.logsDir + "/" + driverGlobal.platform.name);
-		if (files.length >= driverGlobal.maxLogs) {
+		if (files.length >= driverGlobal.config.maxLogs) {
 			var oldestTime = 0;
 			var oldestFileIndex;
+			var logTimestamps = [];
+			var logsMap = {};
 
-			for (var i = 0; i < files.length; i++) {
+			var numFiles = files.length;
+			for (var i = 0; i < numFiles; i++) {
 				var stat = fs.statSync(driverGlobal.logsDir + "/" + driverGlobal.platform.name + "/" + files[i]);
-
 				var modifiedTime = stat.mtime.getTime();
-				if ((modifiedTime < oldestTime) || (oldestTime == 0)) {
-					oldestTime = modifiedTime;
-					oldestFileIndex = i;
-					break;
+
+				logTimestamps.push(modifiedTime);
+				logsMap[modifiedTime] = files[i];
+			}
+
+			logTimestamps.sort(function(a,b) {
+				return a-b
+			});
+
+			function deleteLog(oldestLogIndex) {
+				if (oldestLogIndex < driverGlobal.config.maxLogs) {
+					callback();
+
+				} else {
+					var oldestLogFilename = logsMap[logTimestamps[(oldestLogIndex - 1)]];
+					self.runCommand("rm -r " + driverGlobal.logsDir + "/" + driverGlobal.platform.name + "/" + oldestLogFilename, self.logNone, function(error) {
+						if (error !== null) {
+							self.log("error <" + error + "> encountered when deleting log file <" + oldestLogFilename + ">");
+
+						} else {
+							self.log("deleted log file: " + oldestLogFilename);
+						}
+
+						deleteLog(--oldestLogIndex);
+					});
 				}
 			}
 
-			self.runCommand("rm -r " + driverGlobal.logsDir + "/" + driverGlobal.platform.name + "/" + files[oldestFileIndex], 0, function(error) {
-				if (error != null) {
-					self.log("error encountered when deleting oldest log file: " + error);
-
-				} else {
-					self.log("oldest log file deleted");
-				}
-
-				callback();
-			});
+			deleteLog(numFiles - 1);
 
 		} else {
 			callback();
@@ -159,22 +183,37 @@ module.exports = new function() {
 	this.log = function(message, level, noTrim) {
 		// because sometimes we need to print the message without modification
 		if (noTrim !== true) {
-			message = self.rightStringTrim(message);
+			message = self.trimStringRight(message);
 		}
 
-		if (level == undefined) {
-			level = driverGlobal.defaultLogLevel;
+		if (level === undefined) {
+			level = driverGlobal.config.defaultLogLevel;
 		}
 
 		if (driverGlobal.logLevel >= level) {
 			console.log(message);
 		}
 
-		if (logFile == undefined) {
+		if (logFile === undefined) {
 			// not inside a test run currently so only print to console
 			return;
 		}
 
 		fs.writeSync(logFile, message + "\n");
+	};
+
+	this.getTabs = function(numTabs) {
+		var tabs = "";
+
+		for (var i = 0; i < numTabs; i++) {
+			if ((typeof driverGlobal.config) !== "undefined") {
+				tabs += driverGlobal.config.tabString;
+
+			} else {
+				tabs += "    ";
+			}
+		}
+
+		return tabs;
 	};
 };
