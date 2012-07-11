@@ -28,7 +28,6 @@ import org.appcelerator.titanium.util.TiRHelper;
 import org.appcelerator.titanium.util.TiUrl;
 
 import android.app.Activity;
-import android.content.res.Resources;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Pair;
