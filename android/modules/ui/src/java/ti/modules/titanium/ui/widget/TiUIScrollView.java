@@ -39,7 +39,7 @@ public class TiUIScrollView extends TiUIView
 	private static final boolean DBG = TiConfig.LOGD;
 	private int offsetX = 0, offsetY = 0;
 	private boolean setInitialOffset = false;
-	private boolean mEnabled = true;
+	private boolean mScrollingEnabled = true;
 
 	private class TiScrollViewLayout extends TiCompositeLayout
 	{
@@ -182,15 +182,10 @@ public class TiUIScrollView extends TiUIView
 
 		@Override
 		public boolean onTouchEvent(MotionEvent event) {
-			if (event.getAction() == MotionEvent.ACTION_MOVE) {
-				if (mEnabled) {
-					return super.onTouchEvent(event);
-				}
+			if (event.getAction() == MotionEvent.ACTION_MOVE && !mScrollingEnabled) {
 				return false;
 			}
-			else {
-				return super.onTouchEvent(event);
-			}
+			return super.onTouchEvent(event);
 		}
 		
 		@Override
@@ -278,15 +273,10 @@ public class TiUIScrollView extends TiUIView
 
 		@Override
 		public boolean onTouchEvent(MotionEvent event) {
-			if (event.getAction() == MotionEvent.ACTION_MOVE) {
-				if (mEnabled) {
-					return super.onTouchEvent(event);
-				}
+			if (event.getAction() == MotionEvent.ACTION_MOVE && !mScrollingEnabled) {
 				return false;
 			}
-			else {
-				return super.onTouchEvent(event);
-			}
+			return super.onTouchEvent(event);
 		}
 		
 		@Override
@@ -399,11 +389,7 @@ public class TiUIScrollView extends TiUIView
 			}
 		}
 		if (TiC.PROPERTY_SCROLLINGENABLED.equals(key)) {
-			try {
-				mEnabled = TiConvert.toBoolean(newValue);
-			} catch (IllegalArgumentException e) {
-				mEnabled = true;
-			}
+			setScrollingEnabled(newValue);
 		}
 		super.propertyChanged(key, oldValue, newValue, proxy);
 	}
@@ -415,11 +401,7 @@ public class TiUIScrollView extends TiUIView
 		boolean showVerticalScrollBar = false;
 
 		if (d.containsKey(TiC.PROPERTY_SCROLLINGENABLED)) {
-			try {
-				mEnabled = TiConvert.toBoolean(d, TiC.PROPERTY_SCROLLINGENABLED);
-			} catch (IllegalArgumentException e) {
-				mEnabled = true;
-			}
+			setScrollingEnabled(d.get(TiC.PROPERTY_SCROLLINGENABLED));
 		}
 
 		if (d.containsKey(TiC.PROPERTY_SHOW_HORIZONTAL_SCROLL_INDICATOR)) {
@@ -525,18 +507,18 @@ public class TiUIScrollView extends TiUIView
 		}
 	}
 
-	public void setEnabled(Object value)
+	public void setScrollingEnabled(Object value)
 	{
 		try {
-			mEnabled = TiConvert.toBoolean(value);
+			mScrollingEnabled = TiConvert.toBoolean(value);
 		} catch (IllegalArgumentException e) {
-			mEnabled = true;
+			mScrollingEnabled = true;
 		}
 	}
 
-	public boolean getEnabled()
+	public boolean getScrollingEnabled()
 	{
-		return mEnabled;
+		return mScrollingEnabled;
 	}
 
 	public void scrollTo(int x, int y)
