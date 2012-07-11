@@ -441,6 +441,11 @@ public class TiUIWebView extends TiUIView
 		client.setBasicAuthentication(username, password);
 	}
 
+	public void destroyWebViewBinding()
+	{
+		client.getBinding().destroy();
+	}
+
 	public void setPluginState(int pluginState)
 	{
 		if (Build.VERSION.SDK_INT > Build.VERSION_CODES.ECLAIR_MR1) {

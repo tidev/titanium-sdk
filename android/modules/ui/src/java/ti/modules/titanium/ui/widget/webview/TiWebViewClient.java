@@ -46,6 +46,12 @@ public class TiWebViewClient extends WebViewClient
 		KrollDict data = new KrollDict();
 		data.put("url", url);
 		webView.getProxy().fireEvent("load", data);
+		WebView nativeWebView = webView.getWebView();
+
+		if (nativeWebView != null) {
+			webView.getWebView().loadUrl("javascript:" + TiWebViewBinding.JSON_CODE);
+			webView.getWebView().loadUrl("javascript:" + TiWebViewBinding.BINDING_CODE);
+		}
 	}
 
 	public TiWebViewBinding getBinding()
