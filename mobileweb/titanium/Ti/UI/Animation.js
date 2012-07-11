@@ -1,13 +1,5 @@
 define(["Ti/_/declare", "Ti/_/Evented", "Ti/_/style", "Ti/UI"], function(declare, Evented, style, UI) {
 
-/*
-
-TODO:
-- transform
-- update Ti.UI.View.rect after animation
-
-*/
-
 	var curves = [
 			function easeInOut(n) {
 				n *= 2;
@@ -53,7 +45,6 @@ TODO:
 			top: 1,
 			width: 1
 		},
-		unitRegExp = /(\d+)(.*)/,
 		rgbaRegExp = /^rgba?\(([\s\.,0-9]+)\)/,
 		threeDRegExp = /3d/,
 		tiMatrixRegExp = /^Ti\.UI\.(2|3)DMatrix$/,
@@ -145,10 +136,10 @@ TODO:
 									len = from.length;
 									for (j = 0; j < len; j++) {
 										// we skip index 12-14 because those are the rotation vector
-										if (j < 12) {
-											val[j] = from[j] + ((to[j] - from[j]) * progress);
-										} else if (j > 14) {
-											val[j] = Math.floor(from[j] + ((to[j] - from[j]) * progress));
+										if (j < 12 || j > 14) {
+											prop = from[j] + ((to[j] - from[j]) * progress);
+											// index 15 is the angle which MUST be an integer
+											val[j] = j > 14 ? Math.floor(prop) : prop;
 										}
 									}
 									needsRender = 1;
@@ -420,9 +411,15 @@ TODO:
 			}
 		}
 
+		promise.source = elem;
+
+		promise.animation = anim;
+
 		promise.pause = function() {
 			var a = findAnimation();
-			return !!a && (a.paused || (a.paused = now()));
+			a = !!a && (a.paused || (a.paused = now()));
+			anim.fireEvent("pause");
+			return a;
 		};
 
 		promise.resume = function() {
@@ -447,7 +444,11 @@ TODO:
 				}
 			}
 
-			return !!a && !(a.paused = 0);
+			a = !!a && !(a.paused = 0);
+
+			anim.fireEvent("resume");
+
+			return a;
 		};
 
 		promise.cancel = function() {
@@ -456,7 +457,8 @@ TODO:
 				prop,
 				node,
 				i = 0,
-				j = anis && anis.length;
+				j = anis && anis.length,
+				result = false;
 
 			while (i < j) {
 				if (anis[i].id === id) {
@@ -473,9 +475,15 @@ TODO:
 						delete animations[wid];
 					}
 
+					result = true;
+
 					break;
 				}
 			}
+
+			anim.fireEvent("cancel");
+
+			return result;
 		};
 
 		return promise.then(function() {
