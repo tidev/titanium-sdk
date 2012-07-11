@@ -71,6 +71,18 @@ public class ScrollViewProxy extends TiViewProxy
 		}
 	}
 	
+	@Kroll.setProperty @Kroll.method
+	public void setScrollingEnabled(Object enabled)
+	{
+		getScrollView().setScrollingEnabled(enabled);
+	}
+
+	@Kroll.getProperty @Kroll.method
+	public boolean getScrollingEnabled()
+	{
+		return getScrollView().getScrollingEnabled();
+	}
+
 	@Kroll.method
 	public void scrollToBottom() {
 		if (!TiApplication.isUIThread()) {
