@@ -192,7 +192,8 @@ properties:
         
         A tab's [backgroundColor](Titanium.UI.Tab.backgroundColor) property takes precedence if set.
     type: String
-    platforms: [mobileweb]
+    since: {iOS: 2.1.1}
+    platforms: [iOS, mobileweb]
     
   - name: tabsBackgroundImage
     summary: Default background image for tabs.
