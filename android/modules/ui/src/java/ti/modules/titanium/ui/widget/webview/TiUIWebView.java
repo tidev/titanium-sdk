@@ -313,6 +313,7 @@ public class TiUIWebView extends TiUIView
 			getWebView().getSettings().setLoadWithOverviewMode(true);
 		}
 		getWebView().loadUrl(finalUrl);
+		client.setLoadWithBindingCode(true);
 
 	}
 
