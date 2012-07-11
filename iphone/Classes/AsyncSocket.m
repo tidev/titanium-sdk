@@ -38,8 +38,8 @@
 // If you constantly need to access your socket from multiple threads
 // then you may consider using GCDAsyncSocket instead, which is thread-safe.
 
-NSString *const AsyncSocketException = @"AsyncSocketException";
-NSString *const AsyncSocketErrorDomain = @"AsyncSocketErrorDomain";
+NSString *const TI_AsyncSocketException = @"AsyncSocketException";
+NSString *const TI_AsyncSocketErrorDomain = @"AsyncSocketErrorDomain";
 
 
 enum AsyncSocketFlags
@@ -179,7 +179,7 @@ static void MyCFWriteStreamCallback(CFWriteStreamRef stream, CFStreamEventType t
  *  - reading to a certain separator
  *  - or simply reading the first chunk of available data
 **/
-@interface AsyncReadPacket : NSObject
+@interface TI_AsyncReadPacket : NSObject
 {
   @public
 	NSMutableData *buffer;
@@ -208,6 +208,8 @@ static void MyCFWriteStreamCallback(CFWriteStreamRef stream, CFStreamEventType t
 - (NSUInteger)prebufferReadLengthForTerm;
 - (NSInteger)searchForTermAfterPreBuffering:(NSUInteger)numBytes;
 @end
+
+@compatibility_alias AsyncReadPacket TI_AsyncReadPacket;
 
 @implementation AsyncReadPacket
 
@@ -603,7 +605,7 @@ static void MyCFWriteStreamCallback(CFWriteStreamRef stream, CFStreamEventType t
 /**
  * The AsyncWritePacket encompasses the instructions for any given write.
 **/
-@interface AsyncWritePacket : NSObject
+@interface TI_AsyncWritePacket : NSObject
 {
   @public
 	NSData *buffer;
@@ -613,6 +615,8 @@ static void MyCFWriteStreamCallback(CFWriteStreamRef stream, CFStreamEventType t
 }
 - (id)initWithData:(NSData *)d timeout:(NSTimeInterval)t tag:(long)i;
 @end
+
+@compatibility_alias AsyncWritePacket TI_AsyncWritePacket;
 
 @implementation AsyncWritePacket
 
@@ -644,13 +648,15 @@ static void MyCFWriteStreamCallback(CFWriteStreamRef stream, CFStreamEventType t
  * The AsyncSpecialPacket encompasses special instructions for interruptions in the read/write queues.
  * This class my be altered to support more than just TLS in the future.
 **/
-@interface AsyncSpecialPacket : NSObject
+@interface TI_AsyncSpecialPacket : NSObject
 {
   @public
 	NSDictionary *tlsSettings;
 }
 - (id)initWithTLSSettings:(NSDictionary *)settings;
 @end
+
+@compatibility_alias AsyncSpecialPacket TI_AsyncSpecialPacket;
 
 @implementation AsyncSpecialPacket
 
@@ -765,7 +771,7 @@ static void MyCFWriteStreamCallback(CFWriteStreamRef stream, CFStreamEventType t
 		// This method may be enabled via the DEBUG_THREAD_SAFETY macro,
 		// and will allow you to discover the place in your code where thread-safety is being broken.
 		
-		[NSException raise:AsyncSocketException
+		[NSException raise:TI_AsyncSocketException
 		            format:@"Attempting to access AsyncSocket instance from incorrect thread."];
 		
 		// Note:
@@ -1270,13 +1276,13 @@ static void MyCFWriteStreamCallback(CFWriteStreamRef stream, CFStreamEventType t
 {
 	if (theDelegate == NULL)
     {
-		[NSException raise:AsyncSocketException
+		[NSException raise:TI_AsyncSocketException
 		            format:@"Attempting to accept without a delegate. Set a delegate first."];
     }
 	
 	if (![self isDisconnected])
     {
-		[NSException raise:AsyncSocketException
+		[NSException raise:TI_AsyncSocketException
 		            format:@"Attempting to accept while connected or accepting connections. Disconnect first."];
     }
 	
@@ -1479,13 +1485,13 @@ Failed:
 {
 	if (theDelegate == NULL)
 	{
-		[NSException raise:AsyncSocketException
+		[NSException raise:TI_AsyncSocketException
 		            format:@"Attempting to connect without a delegate. Set a delegate first."];
 	}
 
 	if (![self isDisconnected])
 	{
-		[NSException raise:AsyncSocketException
+		[NSException raise:TI_AsyncSocketException
 		            format:@"Attempting to connect while connected or accepting connections. Disconnect first."];
 	}
 	
@@ -1542,13 +1548,13 @@ Failed:
 {
 	if (theDelegate == NULL)
 	{
-		[NSException raise:AsyncSocketException
+		[NSException raise:TI_AsyncSocketException
 		            format:@"Attempting to connect without a delegate. Set a delegate first."];
 	}
 	
 	if (![self isDisconnected])
 	{
-		[NSException raise:AsyncSocketException
+		[NSException raise:TI_AsyncSocketException
 		            format:@"Attempting to connect while connected or accepting connections. Disconnect first."];
 	}
 	
@@ -1674,7 +1680,7 @@ Failed:
 			NSString *errMsg = @"Remote address is not IPv4 or IPv6";
 			NSDictionary *info = [NSDictionary dictionaryWithObject:errMsg forKey:NSLocalizedDescriptionKey];
 			
-			*errPtr = [NSError errorWithDomain:AsyncSocketErrorDomain code:AsyncSocketCFSocketError userInfo:info];
+			*errPtr = [NSError errorWithDomain:TI_AsyncSocketErrorDomain code:TI_AsyncSocketCFSocketError userInfo:info];
 		}
 		return NO;
 	}
@@ -1709,7 +1715,7 @@ Failed:
 			NSString *errMsg = @"Interface address is not IPv4 or IPv6";
 			NSDictionary *info = [NSDictionary dictionaryWithObject:errMsg forKey:NSLocalizedDescriptionKey];
 			
-			*errPtr = [NSError errorWithDomain:AsyncSocketErrorDomain code:AsyncSocketCFSocketError userInfo:info];
+			*errPtr = [NSError errorWithDomain:TI_AsyncSocketErrorDomain code:TI_AsyncSocketCFSocketError userInfo:info];
 		}
 		return NO;
 	}
@@ -2477,7 +2483,7 @@ Failed:
 	
 	NSDictionary *info = [NSDictionary dictionaryWithObject:errMsg forKey:NSLocalizedDescriptionKey];
 	
-	return [NSError errorWithDomain:AsyncSocketErrorDomain code:AsyncSocketCFSocketError userInfo:info];
+	return [NSError errorWithDomain:TI_AsyncSocketErrorDomain code:TI_AsyncSocketCFSocketError userInfo:info];
 }
 
 - (NSError *)getStreamError
@@ -2509,7 +2515,7 @@ Failed:
 	
 	NSDictionary *info = [NSDictionary dictionaryWithObject:errMsg forKey:NSLocalizedDescriptionKey];
 	
-	return [NSError errorWithDomain:AsyncSocketErrorDomain code:AsyncSocketCanceledError userInfo:info];
+	return [NSError errorWithDomain:TI_AsyncSocketErrorDomain code:TI_AsyncSocketCanceledError userInfo:info];
 }
 
 /**
@@ -2523,7 +2529,7 @@ Failed:
 	
 	NSDictionary *info = [NSDictionary dictionaryWithObject:errMsg forKey:NSLocalizedDescriptionKey];
 	
-	return [NSError errorWithDomain:AsyncSocketErrorDomain code:AsyncSocketConnectTimeoutError userInfo:info];
+	return [NSError errorWithDomain:TI_AsyncSocketErrorDomain code:TI_AsyncSocketConnectTimeoutError userInfo:info];
 }
 
 /**
@@ -2537,7 +2543,7 @@ Failed:
 	
 	NSDictionary *info = [NSDictionary dictionaryWithObject:errMsg forKey:NSLocalizedDescriptionKey];
 	
-	return [NSError errorWithDomain:AsyncSocketErrorDomain code:AsyncSocketReadMaxedOutError userInfo:info];
+	return [NSError errorWithDomain:TI_AsyncSocketErrorDomain code:TI_AsyncSocketReadMaxedOutError userInfo:info];
 }
 
 /**
@@ -2551,7 +2557,7 @@ Failed:
 	
 	NSDictionary *info = [NSDictionary dictionaryWithObject:errMsg forKey:NSLocalizedDescriptionKey];
 	
-	return [NSError errorWithDomain:AsyncSocketErrorDomain code:AsyncSocketReadTimeoutError userInfo:info];
+	return [NSError errorWithDomain:TI_AsyncSocketErrorDomain code:TI_AsyncSocketReadTimeoutError userInfo:info];
 }
 
 /**
@@ -2565,7 +2571,7 @@ Failed:
 	
 	NSDictionary *info = [NSDictionary dictionaryWithObject:errMsg forKey:NSLocalizedDescriptionKey];
 	
-	return [NSError errorWithDomain:AsyncSocketErrorDomain code:AsyncSocketWriteTimeoutError userInfo:info];
+	return [NSError errorWithDomain:TI_AsyncSocketErrorDomain code:TI_AsyncSocketWriteTimeoutError userInfo:info];
 }
 
 - (NSError *)errorFromCFStreamError:(CFStreamError)err

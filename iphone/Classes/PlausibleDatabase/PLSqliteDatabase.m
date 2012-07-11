@@ -34,12 +34,12 @@
 
 
 /** A generic SQLite exception. */
-NSString *PLSqliteException = @"PLSqliteException";
+NSString *TI_PLSqliteException = @"PLSqliteException";
 
 
 @interface PLSqliteDatabase (PLSqliteDatabasePrivate)
 
-- (NSObject<PLPreparedStatement> *) prepareStatement: (NSString *) statement error: (NSError **) outError closeAtCheckin: (BOOL) closeAtCheckin;
+- (NSObject<TI_PLPreparedStatement> *) prepareStatement: (NSString *) statement error: (NSError **) outError closeAtCheckin: (BOOL) closeAtCheckin;
 - (sqlite3_stmt *) createStatement: (NSString *) statement error: (NSError **) error;
 
 @end
@@ -129,13 +129,13 @@ NSString *PLSqliteException = @"PLSqliteException";
 
     /* Do not call open twice! */
     if (_sqlite != nil)
-        [NSException raise: PLSqliteException format: @"Attempted to open already-open SQLite database instance at '%@'. Called -[PLSqliteDatabase open] twice?", _path];
+        [NSException raise: TI_PLSqliteException format: @"Attempted to open already-open SQLite database instance at '%@'. Called -[PLSqliteDatabase open] twice?", _path];
     
     /* Open the database */
     err = sqlite3_open([_path fileSystemRepresentation], &_sqlite);
     if (err != SQLITE_OK) {
         [self populateError: error 
-              withErrorCode: PLDatabaseErrorFileNotFound 
+              withErrorCode: TI_PLDatabaseErrorFileNotFound 
                 description: NSLocalizedString(@"The SQLite database file could not be found.", @"")
                 queryString: nil];
         return NO;
@@ -146,7 +146,7 @@ NSString *PLSqliteException = @"PLSqliteException";
     if (err != SQLITE_OK) {
         /* This should never happen. */
         [self populateError: error
-              withErrorCode: PLDatabaseErrorUnknown
+              withErrorCode: TI_PLDatabaseErrorUnknown
                 description: NSLocalizedString(@"The SQLite database busy timeout could not be set due to an internal error.", @"")
                 queryString: nil];
         return NO;
@@ -178,7 +178,7 @@ NSString *PLSqliteException = @"PLSqliteException";
     
     /* Leaking prepared statements is programmer error, and is the only cause for SQLITE_BUSY */
     if (err == SQLITE_BUSY)
-        [NSException raise: PLSqliteException format: @"The SQLite database at '%@' can not be closed, as the implementation has leaked prepared statements", _path];
+        [NSException raise: TI_PLSqliteException format: @"The SQLite database at '%@' can not be closed, as the implementation has leaked prepared statements", _path];
     
     /* Unexpected! This should not happen */
     if (err != SQLITE_OK)
@@ -190,13 +190,13 @@ NSString *PLSqliteException = @"PLSqliteException";
 
 
 /* from PLDatabase */
-- (NSObject<PLPreparedStatement> *) prepareStatement: (NSString *) statement {
+- (NSObject<TI_PLPreparedStatement> *) prepareStatement: (NSString *) statement {
     return [self prepareStatement: statement error: nil];
 }
 
 
 /* from PLDatabase */
-- (NSObject<PLPreparedStatement> *) prepareStatement: (NSString *) statement error: (NSError **) outError {
+- (NSObject<TI_PLPreparedStatement> *) prepareStatement: (NSString *) statement error: (NSError **) outError {
     return [self prepareStatement: statement error: outError closeAtCheckin: YES];
 }
 
@@ -226,7 +226,7 @@ NSString *PLSqliteException = @"PLSqliteException";
 
 /* varargs version */
 - (BOOL) executeUpdateAndReturnError: (NSError **) error statement: (NSString *) statement args: (va_list) args {
-    NSObject<PLPreparedStatement> *stmt;
+    NSObject<TI_PLPreparedStatement> *stmt;
     BOOL ret;
     
     /* Create the statement */
@@ -271,9 +271,9 @@ NSString *PLSqliteException = @"PLSqliteException";
 #pragma mark Execute Query
 
 /* varargs version */
-- (NSObject<PLResultSet> *) executeQueryAndReturnError: (NSError **) error statement: (NSString *) statement args: (va_list) args {
-    NSObject<PLResultSet> *result;
-    NSObject<PLPreparedStatement> *stmt;
+- (NSObject<TI_PLResultSet> *) executeQueryAndReturnError: (NSError **) error statement: (NSString *) statement args: (va_list) args {
+    NSObject<TI_PLResultSet> *result;
+    NSObject<TI_PLPreparedStatement> *stmt;
     
     /* Create the statement */
     stmt = [self prepareStatement: statement error: error closeAtCheckin: YES];
@@ -288,8 +288,8 @@ NSString *PLSqliteException = @"PLSqliteException";
 }
 
 
-- (NSObject<PLResultSet> *) executeQueryAndReturnError: (NSError **) error statement: (NSString *) statement, ... {
-    NSObject<PLResultSet> *result;
+- (NSObject<TI_PLResultSet> *) executeQueryAndReturnError: (NSError **) error statement: (NSString *) statement, ... {
+    NSObject<TI_PLResultSet> *result;
     va_list ap;
     
     va_start(ap, statement);
@@ -301,8 +301,8 @@ NSString *PLSqliteException = @"PLSqliteException";
 
 
 /* from PLDatabase. */
-- (NSObject<PLResultSet> *) executeQuery: (NSString *) statement, ... {
-    NSObject<PLResultSet> *result;
+- (NSObject<TI_PLResultSet> *) executeQuery: (NSString *) statement, ... {
+    NSObject<TI_PLResultSet> *result;
     va_list ap;
     
     va_start(ap, statement);
@@ -353,7 +353,7 @@ NSString *PLSqliteException = @"PLSqliteException";
 
 /* from PLDatabase */
 - (BOOL) tableExists: (NSString *) tableName {
-    NSObject<PLResultSet> *rs;
+    NSObject<TI_PLResultSet> *rs;
     BOOL exists;
 
     /* If there are any results, the table exists */
@@ -420,7 +420,7 @@ NSString *PLSqliteException = @"PLSqliteException";
  * @param description A localized description of the error message.
  * @param queryString The optional SQL query which caused the error.
  */
-- (BOOL) populateError: (NSError **) error withErrorCode: (PLDatabaseError) errorCode
+- (BOOL) populateError: (NSError **) error withErrorCode: (TI_PLDatabaseError) errorCode
            description: (NSString *) localizedDescription queryString: (NSString *) queryString
 {
     NSString *vendorString = [self lastErrorMessage];
@@ -467,7 +467,7 @@ NSString *PLSqliteException = @"PLSqliteException";
  * only be used when returning a result set directly to an API client, in which case the statement
  * is not available and can not otherwise be explicitly closed.
  */
-- (NSObject<PLPreparedStatement> *) prepareStatement: (NSString *) statement error: (NSError **) outError closeAtCheckin: (BOOL) closeAtCheckin {
+- (NSObject<TI_PLPreparedStatement> *) prepareStatement: (NSString *) statement error: (NSError **) outError closeAtCheckin: (BOOL) closeAtCheckin {
     sqlite3_stmt *sqlite_stmt;
     
     /* Prepare our statement */
@@ -501,7 +501,7 @@ NSString *PLSqliteException = @"PLSqliteException";
     /* Prepare failed */
     if (ret != SQLITE_OK) {
         [self populateError: error
-              withErrorCode: PLDatabaseErrorInvalidStatement
+              withErrorCode: TI_PLDatabaseErrorInvalidStatement
                 description: NSLocalizedString(@"An error occured parsing the provided SQL statement.", @"")
                 queryString: statement];
         return nil;
@@ -510,7 +510,7 @@ NSString *PLSqliteException = @"PLSqliteException";
     /* Multiple statements were provided */
     if (*unused != '\0') {
         [self populateError: error
-              withErrorCode: PLDatabaseErrorInvalidStatement
+              withErrorCode: TI_PLDatabaseErrorInvalidStatement
                 description: NSLocalizedString(@"Multiple SQL statements were provided for a single query.", @"")
                 queryString: statement];
         return nil;

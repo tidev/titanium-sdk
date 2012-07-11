@@ -54,13 +54,13 @@
  */
 
 /* Exceptions */
-extern NSString *PLDatabaseException;
+extern NSString *TI_PLDatabaseException;
 
 /* Error Domain and Codes */
-extern NSString *PLDatabaseErrorDomain;
-extern NSString *PLDatabaseErrorQueryStringKey;
-extern NSString *PLDatabaseErrorVendorErrorKey;
-extern NSString *PLDatabaseErrorVendorStringKey;
+extern NSString *TI_PLDatabaseErrorDomain;
+extern NSString *TI_PLDatabaseErrorQueryStringKey;
+extern NSString *TI_PLDatabaseErrorVendorErrorKey;
+extern NSString *TI_PLDatabaseErrorVendorStringKey;
 
 /**
  * NSError codes in the Plausible Database error domain.
@@ -69,17 +69,17 @@ extern NSString *PLDatabaseErrorVendorStringKey;
 typedef enum {
     /** An unknown error has occured. If this
      * code is received, it is a bug, and should be reported. */
-    PLDatabaseErrorUnknown = 0,
+    TI_PLDatabaseErrorUnknown = 0,
     
     /** File not found. */
-    PLDatabaseErrorFileNotFound = 1,
+    TI_PLDatabaseErrorFileNotFound = 1,
     
     /** An SQL query failed. */
-    PLDatabaseErrorQueryFailed = 2,
+    TI_PLDatabaseErrorQueryFailed = 2,
     
     /** The provided SQL statement was invalid. */
-    PLDatabaseErrorInvalidStatement = 3,
-} PLDatabaseError;
+    TI_PLDatabaseErrorInvalidStatement = 3,
+} TI_PLDatabaseError;
 
 
 /* Library Includes */
@@ -93,14 +93,16 @@ typedef enum {
 
 #ifdef PL_DB_PRIVATE
 
-@interface PlausibleDatabase : NSObject {
+@interface TI_PlausibleDatabase : NSObject {
 }
 
-+ (NSError *) errorWithCode: (PLDatabaseError) errorCode localizedDescription: (NSString *) localizedDescription 
++ (NSError *) errorWithCode: (TI_PLDatabaseError) errorCode localizedDescription: (NSString *) localizedDescription 
                 queryString: (NSString *) queryString
                  vendorError: (NSNumber *) vendorError vendorErrorString: (NSString *) vendorErrorString;
 
 @end
+
+@compatibility_alias PlausibleDatabase TI_PlausibleDatabase;
 
 #endif /* PL_DB_PRIVATE */
 
