@@ -311,26 +311,18 @@ public class WebViewProxy extends ViewProxy
 
 	@Override
 	public void onStart(Activity activity) {
-		// TODO Auto-generated method stub
-		
 	}
 
 	@Override
 	public void onResume(Activity activity) {
-		// TODO Auto-generated method stub
-		
 	}
 
 	@Override
 	public void onPause(Activity activity) {
-		// TODO Auto-generated method stub
-		
 	}
 
 	@Override
 	public void onStop(Activity activity) {
-		// TODO Auto-generated method stub
-		
 	}
 
 	@Override
@@ -340,6 +332,8 @@ public class WebViewProxy extends ViewProxy
 			return;
 		}
 
+		webView.destroyWebViewBinding();
+
 		WebView nativeWebView = webView.getWebView();
 		if (nativeWebView == null) {
 			return;
@@ -348,6 +342,5 @@ public class WebViewProxy extends ViewProxy
 		nativeWebView.stopLoading();
 		super.releaseViews();
 	}
-	
 
 }
