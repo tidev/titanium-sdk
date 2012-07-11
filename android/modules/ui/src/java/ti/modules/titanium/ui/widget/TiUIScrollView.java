@@ -189,6 +189,15 @@ public class TiUIScrollView extends TiUIView
 		}
 		
 		@Override
+		public boolean onInterceptTouchEvent(MotionEvent event) {
+			if (mScrollingEnabled) {
+				return super.onInterceptTouchEvent(event);
+			}
+
+			return false;
+		}
+		
+		@Override
 		public void addView(View child, android.view.ViewGroup.LayoutParams params)
 		{
 			layout.addView(child, params);
@@ -279,6 +288,15 @@ public class TiUIScrollView extends TiUIView
 			return super.onTouchEvent(event);
 		}
 		
+		@Override
+		public boolean onInterceptTouchEvent(MotionEvent event) {
+			if (mScrollingEnabled) {
+				return super.onInterceptTouchEvent(event);
+			}
+
+			return false;
+		}
+
 		@Override
 		public void addView(View child, android.view.ViewGroup.LayoutParams params)
 		{
