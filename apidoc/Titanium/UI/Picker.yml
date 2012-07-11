@@ -131,7 +131,7 @@ events:
         
       - name: countDownDuration
         summary: |
-            The selected duration in milliseconds. Applicable to <Ti.UI.PICKER_TYPE_COUNT_DOWN_TIMER> picker types.
+            The selected duration in milliseconds. Applicable to <Titanium.UI.PICKER_TYPE_COUNT_DOWN_TIMER> picker types.
         type: Number
 
       - name: value

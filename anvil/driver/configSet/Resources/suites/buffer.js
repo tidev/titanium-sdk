@@ -27,7 +27,7 @@ module.exports = new function() {
 		{name: "testRelease"},
 		{name: "testToStringAndBlob"},
 		{name: "testAutoEncode"}
-	]
+	];
 
 	this.testAPI = function(testRun) {
 		valueOf(testRun, Ti.createBuffer).shouldBeFunction();

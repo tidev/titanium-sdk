@@ -7,6 +7,7 @@
 import os, sys, subprocess, re, time, poorjson, types
 from xml.dom.minidom import parseString
 import codecs
+from OpenSSL import crypto
 
 def dequote(s):
     if s[0:1] == '"':
@@ -46,6 +47,28 @@ def make_map(dict):
 				curkey = None
 	
 	return props
+
+def find_dict_element(dict,name):
+	found = False
+	for i in dict.childNodes:
+		if i.nodeType == 1:
+			if i.nodeName == 'key':
+				if str(getText(i.childNodes)).strip() == name:
+					found = True
+			elif found:
+				return i
+	return None
+				
+def get_cert(dict):
+	certs_array = find_dict_element(dict, 'DeveloperCertificates')
+	if certs_array:
+		certs_array = certs_array.getElementsByTagName('data')
+	if not certs_array or not len(certs_array):
+		return None
+	cert_text = str(getText(certs_array[0].childNodes)).strip()
+	cert_text = "-----BEGIN CERTIFICATE-----\n" + cert_text + "\n-----END CERTIFICATE-----\n"
+	cert = crypto.load_certificate(crypto.FILETYPE_PEM, cert_text)
+	return cert
 	
 def main(args):
 	if len(args)!=2:
@@ -68,6 +91,12 @@ def main(args):
 	
 		if len(re.findall('ProvisionedDevices',xml_content)) > 0:
 			profile_type = 'development'
+			try:
+				cert = get_cert(dict)
+				if cert and re.search('Distribution:', cert.get_subject().commonName):
+					profile_type = 'adhoc'
+			except Exception, e:
+				sys.stderr.write('ERROR: %s\n' % str(e))
 		else:
 			profile_type = 'distribution'
 		

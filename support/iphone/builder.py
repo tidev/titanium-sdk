@@ -449,7 +449,8 @@ def copy_tiapp_properties(project_dir):
 	if (len(tiapp.findall("property")) > 0) :
 		impf.write("\n    return _property;\n}")
 	else: 
-		impf.write("\n    return NULL;\n}")
+		impf.write("\n    [_property release];")
+		impf.write("\n    return nil;\n}")
 	impf.write(FOOTER)
 	impf.close()
 	if open(appl_default,'r').read() == open('ApplicationDefaults.m','r').read():

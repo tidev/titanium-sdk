@@ -168,6 +168,10 @@ properties:
         <Titanium.UI.iPhone.AnimationStyle.FLIP_FROM_LEFT>, 
         <Titanium.UI.iPhone.AnimationStyle.FLIP_FROM_RIGHT>, 
         or <Titanium.UI.iPhone.AnimationStyle.NONE>.
+        #### NOTE: 
+        The view being transitioned **should NOT** already be a child of another view or 
+        of the animating view.The animation in effect replaces current view from the 
+        view heirarchy and adds the new view to it.
     type: Number
     platforms: [iphone, ipad]
     

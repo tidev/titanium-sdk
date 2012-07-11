@@ -26,8 +26,6 @@ module.exports = new function() {
 	not sure this needs to be configurable beyond command line argument for the time being so
 	leaving it as a hard coded default
 	*/
-	var defaultSimVersion = "5.0";
-	var customSimVersion = null;
 	var simVersion = null;
 
 	this.name = "ios";
@@ -35,50 +33,58 @@ module.exports = new function() {
 	this.init = function(commandCallback, testPassCallback) {
 		commandFinishedCallback = commandCallback;
 
-		testPassFinishedCallback = function() {
+		testPassFinishedCallback = function(results) {
 			customSimVersion = null;
 			simVersion = null;
-			testPassCallback();
-		}
+			testPassCallback(results);
+		};
 	};
 
 	this.processCommand = function(command) {
 		var commandElements = command.split(" ");
 
-		if (commandElements[0] == "create") {
-			createHarness(commandFinishedCallback, commandFinishedCallback);
+		if (commandElements[0] === "start") {
+			simVersion = driverGlobal.config.defaultIosSimVersion
 
-		} else if (commandElements[0] == "delete") {
-			deleteHarness(commandFinishedCallback);
+			var simVersionArg = util.getArgument(commandElements, "--sim-version");
+			if ((typeof simVersionArg) === "string") {
+				simVersion = simVersionArg;
 
-		} else if (commandElements[0] == "start") {
-			self.startTestPass(commandElements);
+			} else if (((typeof simVersionArg) !== "undefined") && ((typeof simVersionArg) !== "string")) {
+				console.log("--sim-version argument found but is not a string, using default");
+			}
 
-		} else if (commandElements[0] == "exit") {
+			common.startTestPass(commandElements, self.startConfig, commandFinishedCallback);
+
+		} else if (commandElements[0] === "exit") {
 			process.exit(1);
 
 		} else {
-			util.log("invalid command\n"
+			console.log("invalid command\n\n"
 				+ "Commands:\n"
-				+ "    create - create harness project\n"
-				+ "    delete - delete harness project\n"
 				+ "    start - starts test run which includes starting over with clean harness project\n"
-				+ "        Arguments:\n"
+				+ "        Arguments (optional):\n"
+				+ "            --config-set=<config set ID> - runs the specified config set\n"
 				+ "            --config=<config ID> - runs the specified configuration only\n"
 				+ "            --suite=<suite name> - runs the specified suite only\n"
 				+ "            --test=<test name> - runs the specified test only (--suite must be specified)\n"
 				+ "            --sim-version=<version> - sets the desired iOS simulator version to run\n\n"
-				+ "    exit - exit driver\n",
-				0, true);
+				+ "    exit - exit driver\n");
 
 			commandFinishedCallback();
 		}
 	};
 
 	var createHarness = function(successCallback, errorCallback) {
+		/*
+		make sure the harness has access to what port number it should listen on for a connection 
+		from the driver
+		*/
+		common.customTiappXmlProperties["driver.socketPort"] = driverGlobal.config.iosSocketPort;
+
 		common.createHarness(
 			"ios",
-			driverGlobal.tiSdkDir + "/titanium.py create --dir=" + driverGlobal.harnessDir + "/ios --platform=iphone --name=harness --type=project --id=com.appcelerator.harness",
+			driverGlobal.config.tiSdkDir + "/titanium.py create --dir=" + driverGlobal.harnessDir + "/ios --platform=iphone --name=harness --type=project --id=com.appcelerator.harness",
 			successCallback,
 			errorCallback
 			);
@@ -88,36 +94,20 @@ module.exports = new function() {
 		common.deleteHarness("ios", callback);
 	};
 
-	this.startTestPass = function(commandElements) {
+	this.startConfig = function() {
 		var deleteCallback = function() {
 			deleteHarness(runCallback);
-		}
+		};
 
 		var runCallback = function() {
 			runHarness(connectCallback, commandFinishedCallback);
-		}
+		};
 
 		var connectCallback = function() {
 			connectToHarness(commandFinishedCallback);
-		}
+		};
 
-		/*
-		don't bother trying to load the sim version unless it has never been loaded (IE: don't wipe 
-		out the simVersion when restarting for multiple configs
-		*/
-		if(customSimVersion === null) {
-			// pull out ios specific start arguments
-			var simVersionArg = util.getArgument(commandElements, "--sim-version");
-			if (simVersionArg) {
-				customSimVersion = simVersionArg;
-				simVersion = customSimVersion;
-
-			} else {
-				simVersion = defaultSimVersion;
-			}
-		}
-
-		common.startTestPass(commandElements, deleteCallback);
+		common.startConfig(deleteCallback);
 	};
 
 	var runHarness = function(successCallback, errorCallback) {
@@ -131,14 +121,18 @@ module.exports = new function() {
 
 			util.log("running iOS simulator version " + simVersion);
 
+			/*
+			TODO: investigate running simulator separately from the build script so we can get 
+			error reporting to work correctly when the simulator fails to launch
+			*/
 			var args = ["simulator", simVersion, driverGlobal.harnessDir + "/ios/harness", "com.appcelerator.harness", "harness"];
-			util.runProcess(driverGlobal.tiSdkDir + "/iphone/builder.py", args, stdoutCallback, 0, function(code) {
-				if (code != 0) {
+			util.runProcess(driverGlobal.config.tiSdkDir + "/iphone/builder.py", args, stdoutCallback, 0, function(code) {
+				if (code !== 0) {
 					util.log("error encountered when running harness: " + code);
 					errorCallback();
 				}
 			});
-		}
+		};
 
 		if (path.existsSync(driverGlobal.harnessDir + "/ios/harness/tiapp.xml")) {
 			runCallback();
@@ -153,7 +147,7 @@ module.exports = new function() {
 		var retryCount = 0;
 
 		var connectCallback = function() {
-			connection = net.connect(driverGlobal.socketPort);
+			connection = net.connect(driverGlobal.config.iosSocketPort);
 
 			connection.on('data', function(data) {
 				var responseData = common.processHarnessMessage(data);
@@ -164,12 +158,12 @@ module.exports = new function() {
 			connection.on('close', function() {
 				this.destroy();
 
-				if (stoppingHarness == true) {
+				if (stoppingHarness === true) {
 					stoppingHarness = false;
 					return;
 				}
 
-				if (retryCount < driverGlobal.maxSocketConnectAttempts) {
+				if (retryCount < driverGlobal.config.maxSocketConnectAttempts) {
 					util.log("unable to connect, retry attempt " + (retryCount + 1) + "...");
 					retryCount += 1;
 
@@ -188,29 +182,29 @@ module.exports = new function() {
 			connection.on('timeout', function() {
 				this.destroy();
 			});
-		}
+		};
 
 		connectCallback();
 	};
 
 	// handles restarting the test pass (usually when an error is encountered)
-	this.resumeTestPass = function() {
+	this.resumeConfig = function() {
 		var connectCallback = function() {
 			connectToHarness(commandFinishedCallback);
-		}
+		};
 
 		stopHarness();
 		runHarness(connectCallback, commandFinishedCallback);
 	};
 
 	// called when a config is finished running
-	this.finishTestPass = function() {
+	this.finishConfig = function() {
 		stopHarness();
 
-		var finishCallback = function() {
-			common.finishTestPass(testPassFinishedCallback);
-		}
-		closeSimulator(finishCallback);
+		var finishConfigCallback = function() {
+			common.finishConfig(testPassFinishedCallback);
+		};
+		closeSimulator(finishConfigCallback);
 	};
 
 	var stopHarness = function() {
@@ -220,8 +214,8 @@ module.exports = new function() {
 
 	var closeSimulator = function(callback) {
 		var closeIphoneCallback = function() {
-			util.runCommand("/usr/bin/killall 'iPhone Simulator'", 2, function(error) {
-				if (error != null) {
+			util.runCommand("/usr/bin/killall 'iPhone Simulator'", util.logStdout, function(error) {
+				if (error !== null) {
 					util.log("error encountered when closing iPhone simulator: " + error);
 
 				} else {
@@ -230,10 +224,10 @@ module.exports = new function() {
 
 				callback();
 			});
-		}
+		};
 
-		util.runCommand("/usr/bin/killall 'ios-sim'", 2, function(error) {
-			if (error != null) {
+		util.runCommand("/usr/bin/killall 'ios-sim'", util.logStdout, function(error) {
+			if (error !== null) {
 				util.log("error encountered when closing ios-sim: " + error);
 
 			} else {
