@@ -37,18 +37,27 @@ public class TiWebViewBinding
 	protected final static String SCRIPT_INJECTION_ID = "__ti_injection";
 	protected final static String INJECTION_CODE;
 
-	protected static String BINDING_CODE = "";
-	protected static String JSON_CODE = "";
+	// This is based on polling.min.js. If you have to change anything...
+	// - change polling.js
+	// - minify polling.js to create polling.min.js
+	protected static String POLLING_CODE = "";
 	static {
 		StringBuilder jsonCode = readResourceFile("json2.js");
 		StringBuilder tiCode = readResourceFile("binding.min.js");
+		StringBuilder pollingCode = readResourceFile("polling.min.js");
+
+		if (pollingCode == null) {
+			Log.w(LCAT, "Unable to read polling code");
+		} else {
+			POLLING_CODE = pollingCode.toString();
+		}
+
 		StringBuilder allCode = new StringBuilder();
 		allCode.append("\n<script id=\"" + SCRIPT_INJECTION_ID + "\">\n");
 		if (jsonCode == null) {
 			Log.w(LCAT, "Unable to read JSON code for injection");
 		} else {
 			allCode.append(jsonCode);
-			JSON_CODE = jsonCode.toString();
 		}
 
 		if (tiCode == null) {
@@ -56,7 +65,6 @@ public class TiWebViewBinding
 		} else {
 			allCode.append("\n");
 			allCode.append(tiCode.toString());
-			BINDING_CODE = tiCode.toString();
 		}
 		allCode.append("\n</script>\n");
 		jsonCode = null;
