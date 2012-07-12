@@ -7,6 +7,7 @@
 package ti.modules.titanium.ui.widget;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
@@ -22,6 +23,7 @@ import ti.modules.titanium.ui.TabGroupProxy;
 import ti.modules.titanium.ui.TabProxy;
 import ti.modules.titanium.ui.TiTabActivity;
 import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.AdapterView;
@@ -34,11 +36,21 @@ public class TiUITabGroup extends TiUIView
 {
 	private static final String LCAT = "TiUITabGroup";
 	private static final boolean DBG = TiConfig.LOGD;
+	private static final String TAB = "tab";
+	private static final String TAB_GROUP = "tabGroup";
 
 	private TabHost tabHost;
 
 	private int previousTabID = -1;
 	private int currentTabID = 0;
+	
+	private int currentTabIndex = 0;
+	private HashMap<Integer, ArrayList<String>> tabBackgroundColors;
+	private HashMap<Integer, ArrayList<String>> tabBackgroundSelectedColors;
+	private Drawable defaultDrawable;
+	private Drawable defaultSelectedDrawable;
+	private boolean cacheDefaults = true;
+
 
 	public TiUITabGroup(TiViewProxy proxy, TiTabActivity activity)
 	{
@@ -116,6 +128,45 @@ public class TiUITabGroup extends TiUIView
 		}
 		final int tabCount = tabHost.getTabWidget().getTabCount();
 		if (tabCount > 0) {
+			tabHost.getTabWidget().getChildTabViewAt(currentTabIndex).setOnClickListener(new OnClickListener()
+			{
+				@Override
+				public void onClick(View v)
+				{
+					// We have to set the current tab here to restore the widget's default behavior since
+					// setOnClickListener seems to overwrite it
+					tabHost.setCurrentTab(tabCount - 1);
+					tabProxy.fireEvent(TiC.EVENT_CLICK, null);
+				}
+			});
+
+			// Store off the background/selectedBackground color when the tab is created.
+			if (tabProxy.hasProperty(TiC.PROPERTY_BACKGROUND_COLOR)) {
+				addTabsBackgroundColor(currentTabIndex, TAB, tabProxy.getProperty(TiC.PROPERTY_BACKGROUND_COLOR).toString());
+			} else if (proxy.hasProperty(TiC.PROPERTY_TABS_BACKGROUND_COLOR)) {
+				addTabsBackgroundColor(currentTabIndex, TAB_GROUP, proxy.getProperty(TiC.PROPERTY_TABS_BACKGROUND_COLOR)
+					.toString());
+			}
+
+			if (tabProxy.hasProperty(TiC.PROPERTY_SELECTED_BACKGROUND_COLOR)) {
+				addTabsBackgroundSelectedColor(currentTabIndex, TAB,
+					tabProxy.getProperty(TiC.PROPERTY_SELECTED_BACKGROUND_COLOR).toString());
+			} else if (proxy.hasProperty(TiC.PROPERTY_TABS_BACKGROUND_SELECTED_COLOR)) {
+				addTabsBackgroundSelectedColor(currentTabIndex, TAB_GROUP,
+					proxy.getProperty(TiC.PROPERTY_TABS_BACKGROUND_SELECTED_COLOR).toString());
+			}
+
+			// Don't overwrite the background color if it's the first tab. If it's the first tab being added,
+			// onTabChanged will be fired and we set the background color there
+			if (tabBackgroundColors.containsKey(currentTabIndex) && tabCount != 1) {
+				tabHost.getTabWidget().getChildAt(currentTabIndex)
+					.setBackgroundColor(TiConvert.toColor(tabBackgroundColors.get(currentTabIndex).get(1)));
+			} else if (tabBackgroundSelectedColors.containsKey(currentTabIndex) && tabCount == 1) {
+				tabHost.getTabWidget().getChildAt(currentTabIndex)
+					.setBackgroundColor(TiConvert.toColor(tabBackgroundSelectedColors.get(currentTabIndex).get(1)));
+			}
+
+			
 			registerTouchForTabGroup(tabHost.getTabWidget().getChildTabViewAt(tabCount - 1), tabProxy);
 		}
 	}
@@ -155,6 +206,15 @@ public class TiUITabGroup extends TiUIView
 
 		currentTabID = tabHost.getCurrentTab();
 		
+		// This is the first place we can cache the background info before it gets changed by some of our logic. The
+		// first addTab() call from android triggers onTabChanged(), so this is the best place to cache the default
+		// drawables.
+		if (cacheDefaults) {
+			defaultSelectedDrawable = tabHost.getTabWidget().getChildAt(currentTabID).getBackground();
+			defaultDrawable = tabHost.getBackground();
+			cacheDefaults = false;
+		}
+
 		if (DBG) {
 			Log.d(LCAT,"Tab change from " + previousTabID + " to " + currentTabID);
 		}
@@ -165,6 +225,24 @@ public class TiUITabGroup extends TiUIView
 
 		proxy.setProperty(TiC.PROPERTY_ACTIVE_TAB, currentTab);
 
+		// Apply the appropriate background color on all tabs
+		for (int i = 0; i < tabHost.getTabWidget().getChildCount(); i++) {
+			if (tabBackgroundColors.containsKey(i)) {
+				tabHost.getTabWidget().getChildAt(i)
+				.setBackgroundColor(TiConvert.toColor(tabBackgroundColors.get(i).get(1)));
+			} else {
+				tabHost.getTabWidget().getChildAt(i).setBackgroundDrawable(defaultDrawable);
+			}
+		}
+
+		// If we have tabsBackgroundSelectedColor set, apply that color to the current tab
+		if (tabBackgroundSelectedColors.containsKey(currentTabID)) {
+			tabHost.getTabWidget().getChildAt(currentTabID)
+			.setBackgroundColor(TiConvert.toColor(tabBackgroundSelectedColors.get(currentTabID).get(1)));
+		} else {
+			tabHost.getTabWidget().getChildAt(currentTabID).setBackgroundDrawable(defaultSelectedDrawable);
+		}
+		
 		KrollDict tabChangeEventData = tabGroupProxy.buildFocusEvent(currentTabID, previousTabID);
 		if (prevTab != null) {
 			// Create a clone of the event data since the 'source' needs to be
@@ -210,7 +288,23 @@ public class TiUITabGroup extends TiUIView
 			}
 		}
 	}
-
+	
+	private void addTabsBackgroundColor(int index, String type, String value)
+	{
+		ArrayList<String> arrayList = new ArrayList<String>();
+		arrayList.add(type);
+		arrayList.add(value);
+		tabBackgroundColors.put(index,arrayList);
+	}
+	
+	private void addTabsBackgroundSelectedColor(int index, String type, String value)
+	{
+		ArrayList<String> arrayList = new ArrayList<String>();
+		arrayList.add(type);
+		arrayList.add(value);
+		tabBackgroundSelectedColors.put(index,arrayList);
+	}
+	
 	public void changeActiveTab(Object t)
 	{
 		if (t != null) {
