@@ -119,7 +119,10 @@ id TiValueToId(KrollContext *context, TiValueRef v)
 			}
 			case kTITypeNumber: {
 				result = [NSNumber numberWithDouble:TiValueToNumber(jsContext, v, NULL)];
-				break;
+                if([result isEqualToNumber:[NSDecimalNumber notANumber]]){
+                    result = [NSDecimalNumber notANumber];
+                }
+                break;
 			}
 			case kTITypeString: {
 				TiStringRef stringRefValue = TiValueToStringCopy(jsContext, v, NULL);
