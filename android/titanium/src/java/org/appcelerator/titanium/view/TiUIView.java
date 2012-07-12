@@ -128,23 +128,12 @@ public abstract class TiUIView
 	public void add(TiUIView child)
 	{
 		if (child != null) {
-			View cv = child.getNativeView();
+			View cv = child.getOuterView();
 			if (cv != null) {
 				View nv = getNativeView();
 				if (nv instanceof ViewGroup) {
 					if (cv.getParent() == null) {
-						TiBorderWrapperView childBorderView = child.getBorderView();
-						if (childBorderView == null) {
-							((ViewGroup) nv).addView(cv, child.getLayoutParams());
-						} else {
-							((ViewGroup) nv).addView(childBorderView, child.getLayoutParams());
-							// Create new layout params for the child view since we just want the
-							// wrapper to control the layout
-							LayoutParams params = new TiCompositeLayout.LayoutParams();
-							params.autoFillsHeight = true;
-							params.autoFillsWidth = true;
-							childBorderView.addView(cv, params);
-						}
+						((ViewGroup) nv).addView(cv, child.getLayoutParams());
 					}
 					children.add(child);
 					child.parent = proxy;
@@ -160,17 +149,11 @@ public abstract class TiUIView
 	public void remove(TiUIView child)
 	{
 		if (child != null) {
-			View cv = child.getNativeView();
+			View cv = child.getOuterView();
 			if (cv != null) {
 				View nv = getNativeView();
-				TiBorderWrapperView childBorderView = child.getBorderView();
 				if (nv instanceof ViewGroup) {
-					if (childBorderView != null) {
-						childBorderView.removeView(cv);
-						((ViewGroup) nv).removeView(childBorderView);
-					} else {
-						((ViewGroup) nv).removeView(cv);
-					}
+					((ViewGroup) nv).removeView(cv);
 					children.remove(child);
 					child.parent = null;
 				}
@@ -548,11 +531,11 @@ public abstract class TiUIView
 
 				if (hasBorder) {
 					if (borderView == null) {
-						initializeBorder(d, bgColor);
-						// Since we have created a new border wrapper view, we need to remove this view, and re-add it.
+						// Since we have to create a new border wrapper view, we need to remove this view, and re-add it.
 						// This will ensure the border wrapper view is added correctly.
 						TiUIView parentView = parent.getOrCreateView();
 						parentView.remove(this);
+						initializeBorder(d, bgColor);
 						parentView.add(this);
 					} else if (key.startsWith(TiC.PROPERTY_BORDER_PREFIX)) {
 						handleBorderProperty(key, newValue);
@@ -887,6 +870,12 @@ public abstract class TiUIView
 						currentActivity = TiApplication.getAppCurrentActivity();
 					}
 					borderView = new TiBorderWrapperView(currentActivity);
+					// Create new layout params for the child view since we just want the
+					// wrapper to control the layout
+					LayoutParams params = new TiCompositeLayout.LayoutParams();
+					params.autoFillsHeight = true;
+					params.autoFillsWidth = true;
+					borderView.addView(nativeView, params);
 				}
 
 				if (d.containsKey(TiC.PROPERTY_BORDER_RADIUS)) {
@@ -966,7 +955,11 @@ public abstract class TiUIView
 		return true;
 	}
 
-	public TiBorderWrapperView getBorderView() {
+	public View getOuterView()
+	{
+		if (borderView == null) {
+			return nativeView;
+		}
 		return borderView;
 	}
 

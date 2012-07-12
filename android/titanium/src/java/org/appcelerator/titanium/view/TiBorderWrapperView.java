@@ -100,9 +100,6 @@ public class TiBorderWrapperView extends TiCompositeLayout
 			borderPath.addRect(outerRect, Direction.CW);
 			borderPath.addRect(innerRect, Direction.CW);
 			borderPath.setFillType(FillType.EVEN_ODD);
-			innerPath = new Path();
-			innerPath.addRect(innerRect, Direction.CW);
-			innerPath.setFillType(FillType.EVEN_ODD);
 		}
 	}
 
