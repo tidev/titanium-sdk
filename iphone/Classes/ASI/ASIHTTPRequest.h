@@ -24,9 +24,9 @@
 #import "ASIProgressDelegate.h"
 #import "ASICacheDelegate.h"
 
-@class ASIDataDecompressor;
+@class TI_ASIDataDecompressor;
 
-extern NSString *ASIHTTPRequestVersion;
+extern NSString *TI_ASIHTTPRequestVersion;
 
 // Make targeting different platforms more reliable
 // See: http://www.blumtnwerx.com/blog/2009/06/cross-sdk-code-hygiene-in-xcode/
@@ -43,11 +43,11 @@ extern NSString *ASIHTTPRequestVersion;
 	#define __MAC_10_6 1060
 #endif
 
-typedef enum _ASIAuthenticationState {
-	ASINoAuthenticationNeededYet = 0,
+typedef enum TI__ASIAuthenticationState {
+	TI_ASINoAuthenticationNeededYet = 0,
 	ASIHTTPAuthenticationNeeded = 1,
 	ASIProxyAuthenticationNeeded = 2
-} ASIAuthenticationState;
+} TI_ASIAuthenticationState;
 
 typedef enum _ASINetworkErrorType {
     ASIConnectionFailureErrorType = 1,
@@ -88,7 +88,7 @@ typedef void (^ASIProgressBlock)(unsigned long long size, unsigned long long tot
 typedef void (^ASIDataBlock)(NSData *data);
 #endif
 
-@interface ASIHTTPRequest : NSOperation <NSCopying> {
+@interface TI_ASIHTTPRequest : NSOperation <NSCopying> {
 	
 	// The url for this operation, should include GET params in the query string where appropriate
 	NSURL *url; 
@@ -100,12 +100,12 @@ typedef void (^ASIDataBlock)(NSData *data);
 	NSURL *redirectURL;
 
 	// The delegate - will be notified of various changes in state via the ASIHTTPRequestDelegate protocol
-	id <ASIHTTPRequestDelegate> delegate;
+	id <TI_ASIHTTPRequestDelegate> delegate;
 	
 	// Another delegate that is also notified of request status changes and progress updates
 	// Generally, you won't use this directly, but ASINetworkQueue sets itself as the queue so it can proxy updates to its own delegates
 	// NOTE: WILL BE RETAINED BY THE REQUEST
-	id <ASIHTTPRequestDelegate, ASIProgressDelegate> queue;
+	id <TI_ASIHTTPRequestDelegate, TI_ASIProgressDelegate> queue;
 	
 	// HTTP method to use (eg: GET / POST / PUT / DELETE / HEAD etc). Defaults to GET
 	NSString *requestMethod;
@@ -213,10 +213,10 @@ typedef void (^ASIDataBlock)(NSData *data);
 	NSString *proxyDomain;
 	
 	// Delegate for displaying upload progress (usually an NSProgressIndicator, but you can supply a different object and handle this yourself)
-	id <ASIProgressDelegate> uploadProgressDelegate;
+	id <TI_ASIProgressDelegate> uploadProgressDelegate;
 	
 	// Delegate for displaying download progress (usually an NSProgressIndicator, but you can supply a different object and handle this yourself)
-	id <ASIProgressDelegate> downloadProgressDelegate;
+	id <TI_ASIProgressDelegate> downloadProgressDelegate;
 	
 	// Whether we've seen the headers of the response yet
     BOOL haveExaminedHeaders;
@@ -326,7 +326,7 @@ typedef void (^ASIDataBlock)(NSData *data);
 	BOOL shouldResetDownloadProgress;
 	
 	// Used by HEAD requests when showAccurateProgress is YES to preset the content-length for this request
-	ASIHTTPRequest *mainRequest;
+	TI_ASIHTTPRequest *mainRequest;
 	
 	// When NO, this request will only update the progress indicator when it completes
 	// When YES, this request will update the progress indicator according to how much data it has received so far
@@ -389,7 +389,7 @@ typedef void (^ASIDataBlock)(NSData *data);
 	NSURL *PACurl;
 	
 	// See ASIAuthenticationState values above. 0 == default == No authentication needed yet
-	ASIAuthenticationState authenticationNeeded;
+	TI_ASIAuthenticationState authenticationNeeded;
 	
 	// When YES, ASIHTTPRequests will present credentials from the session store for requests to the same server before being asked for them
 	// This avoids an extra round trip for requests after authentication has succeeded, which is much for efficient for authenticated requests with large bodies, or on slower connections
@@ -457,13 +457,13 @@ typedef void (^ASIDataBlock)(NSData *data);
 	NSTimer *statusTimer;
 	
 	// The download cache that will be used for this request (use [ASIHTTPRequest setDefaultCache:cache] to configure a default cache
-	id <ASICacheDelegate> downloadCache;
+	id <TI_ASICacheDelegate> downloadCache;
 	
 	// The cache policy that will be used for this request - See ASICacheDelegate.h for possible values
-	ASICachePolicy cachePolicy;
+	TI_ASICachePolicy cachePolicy;
 	
 	// The cache storage policy that will be used for this request - See ASICacheDelegate.h for possible values
-	ASICacheStoragePolicy cacheStoragePolicy;
+	TI_ASICacheStoragePolicy cacheStoragePolicy;
 	
 	// Will be true when the response was pulled from the cache rather than downloaded
 	BOOL didUseCachedResponse;
@@ -477,7 +477,7 @@ typedef void (^ASIDataBlock)(NSData *data);
 	#endif
 	
 	// When downloading a gzipped response, the request will use this helper object to inflate the response
-	ASIDataDecompressor *dataDecompressor;
+	TI_ASIDataDecompressor *dataDecompressor;
 	
 	// Controls how responses with a gzipped encoding are inflated (decompressed)
 	// When set to YES (This is the default):
@@ -497,7 +497,7 @@ typedef void (^ASIDataBlock)(NSData *data);
 	BOOL isPACFileRequest;
 
 	// Used for downloading PAC files from http / https webservers
-	ASIHTTPRequest *PACFileRequest;
+	TI_ASIHTTPRequest *PACFileRequest;
 
 	// Used for asynchronously reading PAC files from file:// URLs
 	NSInputStream *PACFileReadStream;
@@ -562,8 +562,8 @@ typedef void (^ASIDataBlock)(NSData *data);
 // Convenience constructor
 + (id)requestWithURL:(NSURL *)newURL;
 
-+ (id)requestWithURL:(NSURL *)newURL usingCache:(id <ASICacheDelegate>)cache;
-+ (id)requestWithURL:(NSURL *)newURL usingCache:(id <ASICacheDelegate>)cache andCachePolicy:(ASICachePolicy)policy;
++ (id)requestWithURL:(NSURL *)newURL usingCache:(id <TI_ASICacheDelegate>)cache;
++ (id)requestWithURL:(NSURL *)newURL usingCache:(id <TI_ASICacheDelegate>)cache andCachePolicy:(TI_ASICachePolicy)policy;
 
 #if NS_BLOCKS_AVAILABLE
 - (void)setStartedBlock:(ASIBasicBlock)aStartedBlock;
@@ -628,7 +628,7 @@ typedef void (^ASIDataBlock)(NSData *data);
 #pragma mark HEAD request
 
 // Used by ASINetworkQueue to create a HEAD request appropriate for this request with the same headers (though you can use it yourself)
-- (ASIHTTPRequest *)HEADRequest;
+- (TI_ASIHTTPRequest *)HEADRequest;
 
 #pragma mark upload/download progress
 
@@ -863,8 +863,8 @@ typedef void (^ASIDataBlock)(NSData *data);
 
 #pragma mark cache
 
-+ (void)setDefaultCache:(id <ASICacheDelegate>)cache;
-+ (id <ASICacheDelegate>)defaultCache;
++ (void)setDefaultCache:(id <TI_ASICacheDelegate>)cache;
++ (id <TI_ASICacheDelegate>)defaultCache;
 
 // Returns the maximum amount of data we can read as part of the current measurement period, and sleeps this thread if our allowance is used up
 + (unsigned long)maxUploadReadLength;
@@ -890,7 +890,7 @@ typedef void (^ASIDataBlock)(NSData *data);
 // Returns the expiration date for the request.
 // Calculated from the Expires response header property, unless maxAge is non-zero or
 // there exists a non-zero max-age property in the Cache-Control response header.
-+ (NSDate *)expiryDateForRequest:(ASIHTTPRequest *)request maxAge:(NSTimeInterval)maxAge;
++ (NSDate *)expiryDateForRequest:(TI_ASIHTTPRequest *)request maxAge:(NSTimeInterval)maxAge;
 
 // Returns a date from a string in RFC1123 format
 + (NSDate *)dateFromRFC1123String:(NSString *)string;
@@ -910,7 +910,7 @@ typedef void (^ASIDataBlock)(NSData *data);
 // Threads returned by this method will need to run the runloop in default mode (eg CFRunLoopRun())
 // Requests will stop the runloop when they complete
 // If you have multiple requests sharing the thread you'll need to restart the runloop when this happens
-+ (NSThread *)threadForRequest:(ASIHTTPRequest *)request;
++ (NSThread *)threadForRequest:(TI_ASIHTTPRequest *)request;
 
 
 #pragma mark ===
@@ -966,7 +966,7 @@ typedef void (^ASIDataBlock)(NSData *data);
 @property (assign) unsigned long long postLength;
 @property (assign) BOOL shouldResetDownloadProgress;
 @property (assign) BOOL shouldResetUploadProgress;
-@property (assign) ASIHTTPRequest *mainRequest;
+@property (assign) TI_ASIHTTPRequest *mainRequest;
 @property (assign) BOOL showAccurateProgress;
 @property (assign) unsigned long long totalBytesRead;
 @property (assign) unsigned long long totalBytesSent;
@@ -989,7 +989,7 @@ typedef void (^ASIDataBlock)(NSData *data);
 @property (retain) NSString *proxyAuthenticationScheme;
 @property (assign) BOOL shouldPresentAuthenticationDialog;
 @property (assign) BOOL shouldPresentProxyAuthenticationDialog;
-@property (assign, readonly) ASIAuthenticationState authenticationNeeded;
+@property (assign, readonly) TI_ASIAuthenticationState authenticationNeeded;
 @property (assign) BOOL shouldPresentCredentialsBeforeChallenge;
 @property (assign, readonly) int authenticationRetryCount;
 @property (assign, readonly) int proxyAuthenticationRetryCount;
@@ -1003,17 +1003,19 @@ typedef void (^ASIDataBlock)(NSData *data);
 @property (assign) BOOL shouldUseRFC2616RedirectBehaviour;
 @property (assign, readonly) BOOL connectionCanBeReused;
 @property (retain, readonly) NSNumber *requestID;
-@property (assign) id <ASICacheDelegate> downloadCache;
-@property (assign) ASICachePolicy cachePolicy;
-@property (assign) ASICacheStoragePolicy cacheStoragePolicy;
+@property (assign) id <TI_ASICacheDelegate> downloadCache;
+@property (assign) TI_ASICachePolicy cachePolicy;
+@property (assign) TI_ASICacheStoragePolicy cacheStoragePolicy;
 @property (assign, readonly) BOOL didUseCachedResponse;
 @property (assign) NSTimeInterval secondsToCache;
 @property (retain) NSArray *clientCertificates;
 #if TARGET_OS_IPHONE && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_4_0
 @property (assign) BOOL shouldContinueWhenAppEntersBackground;
 #endif
-@property (retain) ASIDataDecompressor *dataDecompressor;
+@property (retain) TI_ASIDataDecompressor *dataDecompressor;
 @property (assign) BOOL shouldWaitToInflateCompressedResponses;
 @property (assign) ASITLSVersion tlsVersion;
 
 @end
+
+@compatibility_alias ASIHTTPRequest TI_ASIHTTPRequest;

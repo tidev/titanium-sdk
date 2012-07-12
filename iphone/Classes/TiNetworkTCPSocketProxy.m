@@ -194,7 +194,7 @@ const CFOptionFlags writeStreamEventFlags =
     CFReadStreamSetProperty((CFReadStreamRef)input, kCFStreamPropertyShouldCloseNativeSocket, kCFBooleanTrue);
     [self configureSocketForHandle:remoteSocket];
     
-    if (mode && WRITE_MODE) {
+    if (mode & WRITE_MODE) {
         if (streams->outputStream) {
             [configureCondition lock];
             [configureCondition signal];

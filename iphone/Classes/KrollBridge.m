@@ -564,8 +564,12 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 	TiStringRef prop = TiStringCreateWithCFString((CFStringRef) titaniumNS);
 	TiStringRef prop2 = TiStringCreateWithCFString((CFStringRef) [NSString stringWithFormat:@"%si","T"]);
 	TiObjectRef globalRef = TiContextGetGlobalObject(jsContext);
-	TiObjectSetProperty(jsContext, globalRef, prop, tiRef, NULL, NULL);
-	TiObjectSetProperty(jsContext, globalRef, prop2, tiRef, NULL, NULL);
+	TiObjectSetProperty(jsContext, globalRef, prop, tiRef,
+                        kTiPropertyAttributeDontDelete | kTiPropertyAttributeDontEnum, 
+                        NULL);
+	TiObjectSetProperty(jsContext, globalRef, prop2, tiRef, 
+                        kTiPropertyAttributeDontDelete | kTiPropertyAttributeDontEnum, 
+                        NULL);
 	TiStringRelease(prop);
 	TiStringRelease(prop2);	
     

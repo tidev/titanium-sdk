@@ -13,7 +13,7 @@
 #import <Foundation/Foundation.h>
 #import <zlib.h>
 
-@interface ASIDataDecompressor : NSObject {
+@interface TI_ASIDataDecompressor : NSObject {
 	BOOL streamReady;
 	z_stream zStream;
 }
@@ -39,3 +39,5 @@
 
 @property (assign, readonly) BOOL streamReady;
 @end
+
+@compatibility_alias ASIDataDecompressor TI_ASIDataDecompressor;
