@@ -14,6 +14,12 @@
 
 -(void)logMessage:(NSArray*)args severity:(NSString*)severity
 {
+    if ([args count] == 1){
+        id msg = [args objectAtIndex:0];
+        if([msg isKindOfClass:[NSNumber class]] && [msg isEqualToNumber:[NSDecimalNumber notANumber]] ) {
+            args = [NSArray arrayWithObject:@"NaN"];
+        }
+    }
     NSMutableString* message = [NSMutableString string];
     
     if ([[TiApp app] debugMode]) {
