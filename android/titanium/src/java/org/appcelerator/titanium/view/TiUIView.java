@@ -6,7 +6,6 @@
  */
 package org.appcelerator.titanium.view;
 
-
 import java.lang.ref.WeakReference;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -32,6 +31,7 @@ import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiCompositeLayout.LayoutParams;
 import org.appcelerator.titanium.view.TiGradientDrawable.GradientType;
 
+import android.app.Activity;
 import android.content.Context;
 import android.graphics.Paint;
 import android.graphics.Rect;
@@ -55,6 +55,7 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationSet;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
+import android.widget.FrameLayout;
 
 /**
  * This class is for Titanium View implementations, that correspond with TiViewProxy. 
@@ -104,6 +105,7 @@ public abstract class TiUIView
 	private Method mSetLayerTypeMethod = null; // Honeycomb, for turning off hw acceleration.
 
 	private boolean zIndexChanged = false;
+	private TiBorderWrapperView borderView;
 
 	/**
 	 * Constructs a TiUIView object with the associated proxy.
@@ -127,7 +129,7 @@ public abstract class TiUIView
 	public void add(TiUIView child)
 	{
 		if (child != null) {
-			View cv = child.getNativeView();
+			View cv = child.getOuterView();
 			if (cv != null) {
 				View nv = getNativeView();
 				if (nv instanceof ViewGroup) {
@@ -148,7 +150,7 @@ public abstract class TiUIView
 	public void remove(TiUIView child)
 	{
 		if (child != null) {
-			View cv = child.getNativeView();
+			View cv = child.getOuterView();
 			if (cv != null) {
 				View nv = getNativeView();
 				if (nv instanceof ViewGroup) {
@@ -529,8 +531,13 @@ public abstract class TiUIView
 				}
 
 				if (hasBorder) {
-					if (newBackground) {
+					if (borderView == null && parent != null) {
+						// Since we have to create a new border wrapper view, we need to remove this view, and re-add it.
+						// This will ensure the border wrapper view is added correctly.
+						TiUIView parentView = parent.getOrCreateView();
+						parentView.remove(this);
 						initializeBorder(d, bgColor);
+						parentView.add(this);
 					} else if (key.startsWith(TiC.PROPERTY_BORDER_PREFIX)) {
 						handleBorderProperty(key, newValue);
 					}
@@ -854,66 +861,61 @@ public abstract class TiUIView
 
 	private void initializeBorder(KrollDict d, Integer bgColor)
 	{
-		if (d.containsKey(TiC.PROPERTY_BORDER_RADIUS)
-			|| d.containsKey(TiC.PROPERTY_BORDER_COLOR)
-			|| d.containsKey(TiC.PROPERTY_BORDER_WIDTH)) {
+		if (hasBorder(d)) {
 
 			if(nativeView != null) {
-				if (background == null) {
-					applyCustomBackground();
-				}
 
-				if (background.getBorder() == null) {
-					background.setBorder(new TiBackgroundDrawable.Border());
-				}
+				if (borderView == null) {
+					Activity currentActivity = proxy.getActivity();
+					if (currentActivity == null) {
+						currentActivity = TiApplication.getAppCurrentActivity();
+					}
+					borderView = new TiBorderWrapperView(currentActivity);
 
-				TiBackgroundDrawable.Border border = background.getBorder();
+					// Create new layout params for the child view since we just want the
+					// wrapper to control the layout
+					LayoutParams params = new LayoutParams();
+					params.height = android.widget.FrameLayout.LayoutParams.MATCH_PARENT;
+					params.width = android.widget.FrameLayout.LayoutParams.MATCH_PARENT;
+					borderView.addView(nativeView, params);
+				}
 
 				if (d.containsKey(TiC.PROPERTY_BORDER_RADIUS)) {
 					float radius = TiConvert.toFloat(d, TiC.PROPERTY_BORDER_RADIUS, 0f);
 					if (radius > 0f && HONEYCOMB_OR_GREATER) {
 						disableHWAcceleration();
 					}
-					border.setRadius(radius);
+					borderView.setRadius(radius);
 				}
 				if (d.containsKey(TiC.PROPERTY_BORDER_COLOR) || d.containsKey(TiC.PROPERTY_BORDER_WIDTH)) {
 					if (d.containsKey(TiC.PROPERTY_BORDER_COLOR)) {
-						border.setColor(TiConvert.toColor(d, TiC.PROPERTY_BORDER_COLOR));
+						borderView.setColor(TiConvert.toColor(d, TiC.PROPERTY_BORDER_COLOR));
 					} else {
 						if (bgColor != null) {
-							border.setColor(bgColor);
+							borderView.setColor(bgColor);
 						}
 					}
 					if (d.containsKey(TiC.PROPERTY_BORDER_WIDTH)) {
-						border.setWidth(TiConvert.toFloat(d, TiC.PROPERTY_BORDER_WIDTH, 0f));
+						borderView.setBorderWidth(TiConvert.toFloat(d, TiC.PROPERTY_BORDER_WIDTH, 0f));
 					}
 				}
-				//applyCustomBackground();
 			}
 		}
 	}
 
 	private void handleBorderProperty(String property, Object value)
 	{
-		if (background.getBorder() == null) {
-			background.setBorder(new TiBackgroundDrawable.Border());
-		}
-		TiBackgroundDrawable.Border border = background.getBorder();
-
-		if (property.equals(TiC.PROPERTY_BORDER_COLOR)) {
-			border.setColor(TiConvert.toColor(value.toString()));
-		} else if (property.equals(TiC.PROPERTY_BORDER_RADIUS)) {
+		if (TiC.PROPERTY_BORDER_COLOR.equals(property)) {
+			borderView.setColor(TiConvert.toColor(value.toString()));
+		} else if (TiC.PROPERTY_BORDER_RADIUS.equals(property)) {
 			float radius = TiConvert.toFloat(value, 0f);
 			if (radius > 0f && HONEYCOMB_OR_GREATER) {
 				disableHWAcceleration();
 			}
-			border.setRadius(radius);
-		} else if (property.equals(TiC.PROPERTY_BORDER_WIDTH)) {
-			border.setWidth(TiConvert.toFloat(value, 0f));
+			borderView.setRadius(radius);
+		} else if (TiC.PROPERTY_BORDER_WIDTH.equals(property)) {
+			borderView.setBorderWidth(TiConvert.toFloat(value, 0f));
 		}
-		//recalculate bounds since border is changed.
-		background.onBoundsChange(background.getBounds());
-		applyCustomBackground();
 	}
 
 	private static HashMap<Integer, String> motionEvents = new HashMap<Integer,String>();
@@ -953,6 +955,14 @@ public abstract class TiUIView
 	protected boolean allowRegisterForTouch()
 	{
 		return true;
+	}
+
+	public View getOuterView()
+	{
+		if (borderView == null) {
+			return nativeView;
+		}
+		return borderView;
 	}
 
 	public void registerForTouch()
@@ -1144,7 +1154,6 @@ public abstract class TiUIView
 		}
 	}
 
-	
 	public void clearOpacity(View view)
 	{
 		Drawable d = view.getBackground();
