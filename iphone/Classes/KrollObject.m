@@ -464,6 +464,12 @@ TiValueRef KrollGetProperty(TiContextRef jsContext, TiObjectRef object, TiString
 		{
 			[o forgetObjectForTiString:prop context:jsContext];
 		}
+		if (result == nil) {
+			TiValueRef jsResult2 = [o jsvalueForUndefinedKey:name];
+			if (jsResult2 != NULL) {
+				jsResult = jsResult2;
+			}
+		}
 
 #if KOBJECT_DEBUG == 1
 		NSLog(@"[KROLL DEBUG] KROLL GET PROPERTY: %@=%@",name,result);
@@ -1075,6 +1081,11 @@ bool KrollHasInstance(TiContextRef ctx, TiObjectRef constructor, TiValueRef poss
 			[target setExecutionContext:nil];
 		}
 	}
+}
+
+- (TiValueRef)jsvalueForUndefinedKey:(NSString *)key
+{
+	return NULL;
 }
 
 -(void)deleteKey:(NSString*)key

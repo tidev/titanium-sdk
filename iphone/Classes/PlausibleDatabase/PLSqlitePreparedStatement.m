@@ -270,7 +270,7 @@
     
     /* Verify that a complete parameter list was provided */
     if ([strategy count] != _parameterCount)
-        [NSException raise: PLSqliteException 
+        [NSException raise: TI_PLSqliteException 
                     format: @"%@ prepared statement provided invalid parameter count (expected %d, but %d were provided)", [self class], _parameterCount, [strategy count]];
     
     /* Clear any existing bindings */
@@ -281,7 +281,7 @@
         /* (Note that NSArray indexes from 0, so we subtract one to get the current value) */
         id value = [strategy valueForParameter: valueIndex];
         if (value == nil) {
-            [NSException raise: PLSqliteException
+            [NSException raise: TI_PLSqliteException
                         format: @"Missing parameter %d binding for query %@", valueIndex, _queryString];
         }
 
@@ -291,7 +291,7 @@
         
         /* If the bind fails, throw an exception (programmer error). */
         if (ret != SQLITE_OK) {
-            [NSException raise: PLSqliteException
+            [NSException raise: TI_PLSqliteException
                         format: @"SQlite error binding parameter %d for query %@: %@", valueIndex - 1, _queryString, [_database lastErrorMessage]];
         }
     }
@@ -339,7 +339,7 @@
     
     /* Query failed */
     [_database populateError: outError
-               withErrorCode: PLDatabaseErrorQueryFailed
+               withErrorCode: TI_PLDatabaseErrorQueryFailed
                  description: NSLocalizedString(@"An error occurred executing an SQL update.", @"")
                  queryString: _queryString];
     return NO;
@@ -347,12 +347,12 @@
 
 
 /* from PLPreparedStatement */
-- (NSObject<PLResultSet> *) executeQuery {
+- (NSObject<TI_PLResultSet> *) executeQuery {
     return [self executeQueryAndReturnError: nil];
 }
 
 /* from PLPreparedStatement */
-- (NSObject<PLResultSet> *) executeQueryAndReturnError: (NSError **) outError {
+- (NSObject<TI_PLResultSet> *) executeQueryAndReturnError: (NSError **) outError {
     /*
      * Check out a new PLSqliteResultSet statement.
      * At this point, is there any way for the query to actually fail? It has already been compiled and verified.
@@ -395,7 +395,7 @@
  */
 - (void) assertNotClosed {
     if (_sqlite_stmt == nil)
-        [NSException raise: PLSqliteException format: @"Attempt to access already-closed prepared statement."];
+        [NSException raise: TI_PLSqliteException format: @"Attempt to access already-closed prepared statement."];
 }
 
 /**
@@ -407,7 +407,7 @@
     [self assertNotClosed];
 
     if (_inUse)
-        [NSException raise: PLSqliteException format: @"A PLSqliteResultSet is already active and has not been properly closed for prepared statement '%@'", _queryString];
+        [NSException raise: TI_PLSqliteException format: @"A PLSqliteResultSet is already active and has not been properly closed for prepared statement '%@'", _queryString];
 }
 
 /**
@@ -490,7 +490,7 @@
     }
     
     /* Not a known type */
-    [NSException raise: PLSqliteException format: @"SQLite error binding unknown parameter type '%@'. Value: '%@'", [value class], value];
+    [NSException raise: TI_PLSqliteException format: @"SQLite error binding unknown parameter type '%@'. Value: '%@'", [value class], value];
     
     /* Unreachable */
     abort();

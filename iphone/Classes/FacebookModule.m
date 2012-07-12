@@ -584,12 +584,33 @@
 	[self fireEvent:@"logout"];
 }
 
+- (void)fbDidExtendToken:(NSString*)accessToken
+               expiresAt:(NSDate*)expiresAt;
+
+{
+	[self _save];
+}
+
+- (void)fbSessionInvalidated;
+{
+	loggedIn = NO;
+	NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+	[defaults removeObjectForKey:@"FBAccessToken"];
+	[defaults removeObjectForKey:@"FBSessionExpires"];
+	[defaults synchronize]; 
+	[self fireLoginChange];
+	//Because the user ID is still the same, we can't unsave. The
+	//session expiring should NOT be considered an active move by the user
+	//to log out, so maintain userID and appID and do not spoof a logout.
+}
+
+
 //----------- these are only used when the login is successful to grab UID
 
 /**
  * FBRequestDelegate
  */
-- (void)request:(FBRequest2*)request didLoad:(id)result
+- (void)request:(FBRequest*)request didLoad:(id)result
 {
 	VerboseLog(@"[DEBUG] facebook didLoad");
 	
@@ -603,7 +624,7 @@
 }
 
 
-- (void)request:(FBRequest2*)request didFailWithError:(NSError*)error 
+- (void)request:(FBRequest*)request didFailWithError:(NSError*)error 
 {
 	VerboseLog(@"[DEBUG] facebook didFailWithError: %@",error);
 	
