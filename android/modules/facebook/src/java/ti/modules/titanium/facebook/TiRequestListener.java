@@ -85,9 +85,8 @@ public class TiRequestListener implements RequestListener
 	@Override
 	public void onComplete(String result, Object state)
 	{
-		JSONObject json;
 		try {
-			json = Util.parseJson(result);
+			Util.parseJson(result);
 			complete(result);
 		} catch (JSONException e) {
 			complete(result);
