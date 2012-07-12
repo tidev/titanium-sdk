@@ -212,7 +212,7 @@ properties:
     type: Number
     default: 1.0
     platforms: [iphone, ipad]
-    
+
   - name: scrollIndicatorStyle
     summary: |
         Style of the scrollbar, specified using one of the constants from 
@@ -232,6 +232,13 @@ properties:
     availability: creation
     platforms: [android]
     
+  - name: scrollingEnabled
+    summary: Determines whether scrolling is enabled for the view.
+    type: Boolean
+    default: true
+    platforms: [iphone, ipad, android, mobileweb]
+    since: { iphone: "2.2", ipad: "2.2", android: "2.2", mobileweb: "2.2" }
+
   - name: showHorizontalScrollIndicator
     summary: Determines whether the horizontal scroll indicator is visible.
     description: Set to `true` to show the horizontal scroll indicator.

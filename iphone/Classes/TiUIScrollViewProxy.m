@@ -30,6 +30,7 @@ static NSArray* scrollViewKeySequence;
     [self initializeProperty:@"maxZoomScale" defaultValue:NUMFLOAT(1.0)];
     [self initializeProperty:@"zoomScale" defaultValue:NUMFLOAT(1.0)];
     [self initializeProperty:@"canCancelEvents" defaultValue:NUMBOOL(YES)];
+    [self initializeProperty:@"scrollingEnabled" defaultValue:NUMBOOL(YES)];
     [super _initWithProperties:properties];
 }
 

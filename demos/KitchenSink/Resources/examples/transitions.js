@@ -124,8 +124,6 @@ image3.addEventListener('click', function()
 
 view.add(imageView);
 
-imageView.add(image3);
-imageView.add(image2);
 imageView.add(image1);
 
 //
@@ -172,8 +170,6 @@ bb3.addEventListener('click', function()
 	controlView.animate({view:bb1,transition:Ti.UI.iPhone.AnimationStyle.FLIP_FROM_LEFT});
 });
 
-controlView.add(bb3);
-controlView.add(bb2);
 controlView.add(bb1);
 
 
@@ -240,8 +236,6 @@ three.addEventListener('click', function()
 	toolbarView.animate({view:toolbar,transition:Ti.UI.iPhone.AnimationStyle.CURL_DOWN});
 });
 
-toolbarView.add(toolbar3);
-toolbarView.add(toolbar2);
 toolbarView.add(toolbar);
 
 
@@ -290,5 +284,4 @@ var bViewLabel = Titanium.UI.createLabel({
 b2.add(bViewLabel);
 
 
-funView.add(b2);
 funView.add(b);
