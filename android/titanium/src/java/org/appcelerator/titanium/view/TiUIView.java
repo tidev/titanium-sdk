@@ -57,6 +57,7 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationSet;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
+import android.widget.FrameLayout;
 
 /**
  * This class is for Titanium View implementations, that correspond with TiViewProxy. 
@@ -588,7 +589,7 @@ public abstract class TiUIView
 				}
 
 				if (hasBorder) {
-					if (borderView == null) {
+					if (borderView == null && parent != null) {
 						// Since we have to create a new border wrapper view, we need to remove this view, and re-add it.
 						// This will ensure the border wrapper view is added correctly.
 						TiUIView parentView = parent.getOrCreateView();
@@ -928,11 +929,12 @@ public abstract class TiUIView
 						currentActivity = TiApplication.getAppCurrentActivity();
 					}
 					borderView = new TiBorderWrapperView(currentActivity);
+
 					// Create new layout params for the child view since we just want the
 					// wrapper to control the layout
-					LayoutParams params = new TiCompositeLayout.LayoutParams();
-					params.autoFillsHeight = true;
-					params.autoFillsWidth = true;
+					LayoutParams params = new LayoutParams();
+					params.height = android.widget.FrameLayout.LayoutParams.MATCH_PARENT;
+					params.width = android.widget.FrameLayout.LayoutParams.MATCH_PARENT;
 					borderView.addView(nativeView, params);
 				}
 

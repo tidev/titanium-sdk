@@ -19,12 +19,13 @@ import android.graphics.Path.Direction;
 import android.graphics.Path.FillType;
 import android.graphics.Rect;
 import android.graphics.RectF;
+import android.widget.FrameLayout;
 
 /**
  * This class is a wrapper for Titanium Views with borders. Any view that specifies a border
  * related property will have a border wrapper view to maintain its border.
  */
-public class TiBorderWrapperView extends TiCompositeLayout
+public class TiBorderWrapperView extends FrameLayout
 {
 	public static final int SOLID = 0;
 	private static final String TAG = "TiBorderWrapperView";
