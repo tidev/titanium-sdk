@@ -174,6 +174,7 @@ public class TableViewProxy extends TiViewProxy
 		TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_APPEND_ROW), rows);
 	}
 
+	@Override
 	public boolean fireEvent(String eventName, Object data) {
 		if (eventName.equals(TiC.EVENT_LONGPRESS)) {
 			double x = ((KrollDict)data).getDouble(TiC.PROPERTY_X);
@@ -184,7 +185,9 @@ public class TableViewProxy extends TiViewProxy
 				TableViewRowProxy.fillClickEvent((KrollDict) data, getTableView().getModel(), item);
 			}
 		}
-		return super.fireEvent(eventName, data);
+		//create copy to be thread safe.
+		KrollDict dataCopy = new KrollDict((KrollDict)data);
+		return super.fireEvent(eventName, dataCopy);
 	}
 	
 	private void handleAppendRow(Object rows)
