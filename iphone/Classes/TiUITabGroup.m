@@ -293,6 +293,20 @@ DEFINE_EXCEPTIONS
 	}
 }
 
+-(void)setTabsBackgroundColor_:(id)value
+{
+    if ([TiUtils isIOS5OrGreater]) {
+        TiColor* color = [TiUtils colorValue:value];
+        if (color != nil) {
+            controller.tabBar.tintColor = color.color;
+        }
+
+    } else {
+        NSLog(@"[WARN] tabsBackgroundColor is only supported in iOS 5 or above.");
+    }
+
+
+}
 
 #pragma mark Public APIs
 
