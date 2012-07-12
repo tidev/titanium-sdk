@@ -82,7 +82,7 @@ methods:
         type: String
         
       - name: async
-        summary: Determines whether the request should be made asynchronously. Only used on iOS.
+        summary: Determines whether the request should be made asynchronously. Only used on iOS and Mobile Web.
         type: Boolean
         optional: true
         default: true
