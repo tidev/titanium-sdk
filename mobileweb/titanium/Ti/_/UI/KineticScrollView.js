@@ -199,6 +199,9 @@ define(["Ti/_/browser", "Ti/_/declare", "Ti/UI/View", "Ti/_/lang", "Ti/_/dom", "
 						currentPositionX = -self._currentTranslationX,
 						currentPositionY = -self._currentTranslationY;
 
+					minTranslationX = self._minTranslationX = Math.min(0, self._measuredWidth - self._borderLeftWidth - self._borderRightWidth - self._contentContainer._measuredWidth);
+					minTranslationY = self._minTranslationY = Math.min(0, self._measuredHeight - self._borderTopWidth - self._borderBottomWidth - self._contentContainer._measuredHeight);
+
 					// Start the scrollbar
 					self._startScrollBars({
 						x: currentPositionX / distanceX,
