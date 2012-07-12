@@ -186,13 +186,17 @@ properties:
     platforms: [android]
     
   - name: tabsBackgroundColor
-    summary: Default background color for tabs, as a color name or hex triplet.
+    summary: Default background color for inactive tabs, as a color name or hex triplet.
     description: |
         For information about color values, see the "Colors" section of <Titanium.UI>.
         
         A tab's [backgroundColor](Titanium.UI.Tab.backgroundColor) property takes precedence if set.
+
+        On iOS, this property applies to all states and tabs, not just inactive tabs.
     type: String
-    platforms: [mobileweb]
+    since: {iphone: "2.2.0", ipad: "2.2.0", mobileweb: "1.9.0"}
+    osver: {ios: {min: "5.0"}}
+    platforms: [iphone, ipad, mobileweb]
     
   - name: tabsBackgroundImage
     summary: Default background image for tabs.
