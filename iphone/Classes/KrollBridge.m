@@ -776,14 +776,23 @@ CFMutableSetRef	krollBridgeRegistry = nil;
     NSString* fullPath = nil;
     NSURL* oldURL = [self currentURL];
     
-    
-    
     // Check the position of the first '/', which will give some information
     // about resource resolution and if the path is absolute.
+    //
+    // TODO: This violates commonjs 1.1 and there is some ongoing discussion about whether or not
+    // it should make a path absolute.
     NSRange separatorLocation = [path rangeOfString:@"/"];
     NSString* workingPath = [oldURL relativePath];
-    BOOL isAbsolute = (separatorLocation.location == 0);
+    if (separatorLocation.location == 0) {
+        fullPath = [path substringFromIndex:1];
+    }
+    else {
+        fullPath = path;
+    }
     NSString* moduleID = nil;
+    NSString* leadingComponent = [[fullPath pathComponents] objectAtIndex:0];
+    BOOL isAbsolute = !([leadingComponent isEqualToString:@"."] || [leadingComponent isEqualToString:@".."]);
+    
     
     if (isAbsolute) {
         // Two possibilities: In a module, refers to toplevel of module. In an app, refers to app bundle.
@@ -799,15 +808,16 @@ CFMutableSetRef	krollBridgeRegistry = nil;
         
         moduleID = [[workingPath pathComponents] objectAtIndex:0];
         if ( [modules objectForKey:moduleID] != nil) {
-            fullPath = [moduleID stringByAppendingPathComponent:path];
+            fullPath = [moduleID stringByAppendingPathComponent:fullPath];
         }
         else {
-            fullPath = [path substringFromIndex:1]; // Remove leading /
             moduleID = [[fullPath pathComponents] objectAtIndex:0];
         }
     }
     else {
-        fullPath = (workingPath != nil) ? [workingPath stringByAppendingPathComponent:[path stringByStandardizingPath]] : [path stringByStandardizingPath];
+        fullPath = (workingPath != nil) ? 
+            [[workingPath stringByAppendingPathComponent:[fullPath stringByStandardizingPath]] stringByStandardizingPath] : 
+            [fullPath stringByStandardizingPath];
         moduleID = [[fullPath pathComponents] objectAtIndex:0];
     }
     
