@@ -84,7 +84,7 @@
 	// Create the default button, and set the default size
 	[[self module] addListener:self];
 	
-	button = [[FBLoginButton2 alloc] initWithFrame:[self frameForButtonStyle:buttonStyle]];
+	button = [[FBLoginButton alloc] initWithFrame:[self frameForButtonStyle:buttonStyle]];
 	button.isLoggedIn = [[self module] isLoggedIn];
 	button.style = buttonStyle;
 	[button updateImage];
