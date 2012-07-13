@@ -134,14 +134,14 @@ public class TiWebViewBinding
 	private Semaphore returnSemaphore = new Semaphore(0);
 	private String returnValue;
 
-	public String getJSValue(String expression)
+	synchronized public String getJSValue(String expression)
 	{
 		// Don't try to evaluate js code again if the binding has already been destroyed
 		if (!destroyed) {
 			String code = "javascript:_TiReturn.setValue((function(){try{return " + expression
 				+ "+\"\";}catch(ti_eval_err){return '';}})());";
 			Log.d(LCAT, "getJSValue:" + code);
-			synchronized (this) {
+			synchronized (codeSnippets) {
 				codeSnippets.push(code);
 			}
 			try {
@@ -190,7 +190,7 @@ public class TiWebViewBinding
 			}
 
 			String code = "javascript:Ti.executeListener(" + id + dataString + ");";
-			synchronized (this) {
+			synchronized (codeSnippets) {
 				codeSnippets.push(code);
 			}
 		}
@@ -245,7 +245,7 @@ public class TiWebViewBinding
 		public String getJSCode()
 		{
 			String code;
-			synchronized (this) {
+			synchronized (codeSnippets) {
 				code = codeSnippets.empty() ? "" : codeSnippets.pop();
 			}
 
