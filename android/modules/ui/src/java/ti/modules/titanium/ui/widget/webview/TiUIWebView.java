@@ -337,7 +337,6 @@ public class TiUIWebView extends TiUIView
 			getWebView().getSettings().setLoadWithOverviewMode(true);
 		}
 		getWebView().loadUrl(finalUrl);
-
 	}
 
 	public void changeProxyUrl(String url)
@@ -463,6 +462,11 @@ public class TiUIWebView extends TiUIView
 	public void setBasicAuthentication(String username, String password)
 	{
 		client.setBasicAuthentication(username, password);
+	}
+
+	public void destroyWebViewBinding()
+	{
+		client.getBinding().destroy();
 	}
 
 	public void setPluginState(int pluginState)
