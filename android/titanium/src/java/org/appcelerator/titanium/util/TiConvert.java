@@ -573,14 +573,14 @@ public class TiConvert
 
 	/**
 	 * Converts an array of boxed objects into a primitive int array.
-	 * @param inArray array that contains Integer objects
+	 * @param inArray array that contains Number objects
 	 * @return a primitive int array
 	 * @throws ClassCastException if a non-Integer object is found in the array.
 	 */
 	public static int[] toIntArray(Object[] inArray) {
 		int[] outArray = new int[inArray.length];
 		for (int i = 0; i < inArray.length; i++) {
-			outArray[i] = (Integer) inArray[i];
+			outArray[i] = ((Number) inArray[i]).intValue();
 		}
 		return outArray;
 	}
