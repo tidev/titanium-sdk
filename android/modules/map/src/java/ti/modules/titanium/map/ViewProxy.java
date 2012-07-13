@@ -27,8 +27,14 @@ import android.app.LocalActivityManager;
 import android.content.Intent;
 import android.view.Window;
 
-@Kroll.proxy(creatableInModule = MapModule.class, propertyAccessors = { TiC.PROPERTY_ANIMATE, TiC.PROPERTY_ANNOTATIONS,
-	TiC.PROPERTY_MAP_TYPE, TiC.PROPERTY_REGION, TiC.PROPERTY_REGION_FIT, TiC.PROPERTY_USER_LOCATION })
+@Kroll.proxy(creatableInModule = MapModule.class, propertyAccessors = {
+	TiC.PROPERTY_ANIMATE,
+	TiC.PROPERTY_ANNOTATIONS,
+	TiC.PROPERTY_MAP_TYPE,
+	TiC.PROPERTY_REGION,
+	TiC.PROPERTY_REGION_FIT,
+	TiC.PROPERTY_USER_LOCATION
+})
 public class ViewProxy extends TiViewProxy implements OnLifecycleEvent
 {
 	private static LocalActivityManager lam;
