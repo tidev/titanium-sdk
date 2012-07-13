@@ -70,6 +70,7 @@ public class FacebookModule extends KrollModule
 	public FacebookModule()
 	{
 		super();
+		Util.setLogEnabled(DBG);
 		sessionListener = new SessionListener(this);
 		SessionEvents.addAuthListener(sessionListener);
 		SessionEvents.addLogoutListener(sessionListener);
