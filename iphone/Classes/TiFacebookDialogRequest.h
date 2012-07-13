@@ -9,7 +9,7 @@
 #import "FacebookModule.h"
 #import "KrollCallback.h"
 
-@interface TiFacebookDialogRequest : NSObject <FBDialogDelegate2> {
+@interface TiFacebookDialogRequest : NSObject <FBDialogDelegate> {
 
 	KrollCallback *callback;
 	FacebookModule *module;
