@@ -739,9 +739,9 @@ USE_VIEW_FOR_CONTENT_HEIGHT
     //TIMOB-9890. Ensure data is retrieved off of the main 
     //thread to ensure any pending operations are completed
     TiThreadPerformOnMainThread(^{
-        curSections = [NSArray arrayWithArray:sections];
+        curSections = [[NSArray arrayWithArray:sections] retain];
     }, YES);
-    return curSections;
+    return [curSections autorelease];
 }
 
 -(void)setContentInsets:(id)args
