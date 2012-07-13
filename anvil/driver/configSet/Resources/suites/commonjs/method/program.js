@@ -1,6 +1,6 @@
 
 exports.run = function(runTest, valueOf) {
-	var a = require('a');
+	var a = require('./a');
 	var foo = a.foo;
 
 	valueOf(runTest, a.foo()).shouldBe(a);

@@ -1,7 +1,7 @@
 
 exports.run = function(testRun, valueOf) {
 	valueOf(testRun, function() {
-		require('submodule/a')
+		require('./submodule/a');
 	}).shouldThrowException();
 
 	return testRun;

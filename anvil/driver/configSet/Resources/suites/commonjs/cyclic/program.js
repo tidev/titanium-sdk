@@ -1,7 +1,7 @@
 
 exports.run = function(testRun, valueOf) {
-	var a = require('a');
-	var b = require('b');
+	var a = require('./a');
+	var b = require('./b');
 
 	valueOf(testRun, a.a).shouldNotBeUndefined();
 	valueOf(testRun, b.b).shouldNotBeUndefined();
