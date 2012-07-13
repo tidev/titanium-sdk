@@ -27,63 +27,59 @@ module.exports = new function() {
 	// Note that even running these tests depends on certain parts of them passing!
 	// If all of these tests fail, as a consequence, there is something seriously
 	// wrong with commonjs loading.
-	//
-	// NOTE: Test loading may actually depend on inappropriate relative loading behavior!
-	// commonjs 1.1 specifies that without a leading ./, ALL paths are absolute. This
-	// may be another commonjs breakage we have to endorse/accept.
 
 	this.test_absolute = function(testRun) {
-		var test = require('absolute/program');
+		var test = require('./absolute/program');
 		finish(test.run(testRun, valueOf));
 	}
 
 	this.test_cyclic = function(testRun) {
-		var test = require('cyclic/program');
+		var test = require('./cyclic/program');
 		finish(test.run(testRun, valueOf));
 	}
 
 	this.test_determinism = function(testRun) {
-		var test = require('determinism/program');
+		var test = require('./determinism/program');
 		finish(test.run(testRun, valueOf));
 	}
 
 	this.test_exactExports = function(testRun) {
-		var test = require('exactExports/program');
+		var test = require('./exactExports/program');
 		finish(test.run(testRun, valueOf));
 	}
 
 	this.test_hasOwnProperty = function(testRun) {
-		var test = require('hasOwnProperty/program');
+		var test = require('./hasOwnProperty/program');
 		finish(test.run(testRun, valueOf));
 	}
 
 	this.test_method = function(testRun) {
-		var test = require('method/program');
+		var test = require('./method/program');
 		finish(test.run(testRun, valueOf));
 	}
 
 	this.test_missing = function(testRun) {
-		var test = require('missing/program');
+		var test = require('./missing/program');
 		finish(test.run(testRun, valueOf));
 	}
 
 	this.test_monkeys = function(testRun) {
-		var test = require('monkeys/program');
+		var test = require('./monkeys/program');
 		finish(test.run(testRun, valueOf));
 	}
 
 	this.test_nested = function(testRun) {
-		var test = require('nested/program');
+		var test = require('./nested/program');
 		finish(test.run(testRun, valueOf));
 	}
 
 	this.test_relative = function(testRun) {
-		var test = require('relative/program');
+		var test = require('./relative/program');
 		finish(test.run(testRun, valueOf));
 	}
 
 	this.test_transitive = function(testRun) {
-		var test = require('transitive/program');
+		var test = require('./transitive/program');
 		finish(test.run(testRun, valueOf));
 	}
 

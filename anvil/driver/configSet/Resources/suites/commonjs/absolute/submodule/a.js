@@ -1,3 +1,3 @@
 exports.foo = function () {
-    return require('b');
+    return require('commonjs/absolute/b');
 };

@@ -1,7 +1,7 @@
 
 exports.run = function(testRun, valueOf) {
-	var a = require('submodule/a');
-	var b = require('submodule/b');
+	var a = require('commonjs/relative/submodule/a');
+	var b = require('commonjs/relative/submodule/b');
 
 	valueOf(testRun, a.foo).shouldBe(b.foo);
 	return testRun;
