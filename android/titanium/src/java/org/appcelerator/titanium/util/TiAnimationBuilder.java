@@ -299,10 +299,8 @@ public class TiAnimationBuilder
 			// Note that we're stringifying the values to make sure we
 			// use the correct TiDimension constructor, except when
 			// we know the values are expressed for certain in pixels.
-			int xMove = 0, yMove = 0;
 			if (top != null) {
 				optionTop = new TiDimension(String.valueOf(top), TiDimension.TYPE_TOP);
-				yMove = optionTop.getAsPixels(view);
 			} else {
 				optionTop = new TiDimension(view.getTop(), TiDimension.TYPE_TOP);
 				optionTop.setUnits(TypedValue.COMPLEX_UNIT_PX);
@@ -310,7 +308,6 @@ public class TiAnimationBuilder
 
 			if (bottom != null) {
 				optionBottom = new TiDimension(String.valueOf(bottom), TiDimension.TYPE_BOTTOM);
-				yMove = optionBottom.getAsPixels(view);
 			} else {
 				optionBottom = new TiDimension(view.getBottom(), TiDimension.TYPE_BOTTOM);
 				optionBottom.setUnits(TypedValue.COMPLEX_UNIT_PX);
@@ -318,7 +315,6 @@ public class TiAnimationBuilder
 
 			if (left != null) {
 				optionLeft = new TiDimension(String.valueOf(left), TiDimension.TYPE_LEFT);
-				xMove = optionLeft.getAsPixels(view);
 			} else {
 				optionLeft = new TiDimension(view.getLeft(), TiDimension.TYPE_LEFT);
 				optionLeft.setUnits(TypedValue.COMPLEX_UNIT_PX);
@@ -326,7 +322,6 @@ public class TiAnimationBuilder
 
 			if (right != null) {
 				optionRight = new TiDimension(String.valueOf(right), TiDimension.TYPE_RIGHT);
-				xMove = optionRight.getAsPixels(view);
 			} else {
 				optionRight = new TiDimension(view.getRight(), TiDimension.TYPE_RIGHT);
 				optionRight.setUnits(TypedValue.COMPLEX_UNIT_PX);
@@ -357,23 +352,26 @@ public class TiAnimationBuilder
 			// point where we'll want to animate now, rather than from the "true", non-animated position.
 			// Android has no built-in way of telling us the location to where the view has already been animated,
 			// so we have to look it up from a cache we keep maintain ourselves directly on the tiView.
-			int currentXDelta = 0, currentYDelta = 0;
+			int previousXDelta = 0, previousYDelta = 0;
+			int newXDelta = horizontal[0] - x;
+			int newYDelta = vertical[0] - y;
 			if (tiView != null) {
 				Pair<Integer, Integer> currentTranslation = tiView.getAnimatedXYTranslationValues();
 				if (currentTranslation != null) {
-					currentXDelta = currentTranslation.first;
-					currentYDelta = currentTranslation.second;
+					previousXDelta = currentTranslation.first;
+					previousYDelta = currentTranslation.second;
 				}
 			}
 
-			Animation animation = new TranslateAnimation(Animation.ABSOLUTE, currentXDelta, Animation.ABSOLUTE, horizontal[0]-x,
-				Animation.ABSOLUTE, currentYDelta, Animation.ABSOLUTE, vertical[0]-y);
+			Animation animation = new TranslateAnimation(Animation.ABSOLUTE, previousXDelta, Animation.ABSOLUTE, newXDelta,
+				Animation.ABSOLUTE, previousYDelta, Animation.ABSOLUTE, newYDelta);
 			animation.setFillEnabled(true);
 			animation.setFillAfter(true);
 
 			// Remember where we're going to, since there is no native way to look it up later.
-			if (tiView != null) {
-				tiView.setAnimatedXYTranslationValues(Pair.create(Integer.valueOf(xMove), Integer.valueOf(yMove)));
+			// We don't need to remember it if we're autoreversing, however.
+			if (tiView != null && (autoreverse == null || !autoreverse.booleanValue())) {
+				tiView.setAnimatedXYTranslationValues(Pair.create(Integer.valueOf(newXDelta), Integer.valueOf(newYDelta)));
 			}
 
 			if (duration != null) {
@@ -383,7 +381,7 @@ public class TiAnimationBuilder
 			as.setFillEnabled(true);
 			as.setFillAfter(true);
 			animation.setAnimationListener(animationListener);
-			as.addAnimation(animation);
+			addAnimation(as, animation);
 
 			if (DBG) {
 				Log.d(LCAT, "animate " + viewProxy + " relative to self: " + (horizontal[0]-x) + ", " + (vertical[0]-y));
