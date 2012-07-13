@@ -261,10 +261,13 @@ public abstract class TiUIView
 			// animate it immediately because by default it animates "on first frame" and apparently "first frame"
 			// won't happen right away if the view isn't yet visible.
 			// In that case invalidate its parent, which will kick off the pending animation.
-			if (nativeView.getTop() < 0 || nativeView.getLeft() < 0) {
-				ViewParent viewParent = nativeView.getParent();
-				if (viewParent instanceof View) {
-					((View) viewParent).invalidate();
+			ViewParent viewParent = nativeView.getParent();
+			if (viewParent instanceof View) {
+				View parent = (View) viewParent;
+
+				if (nativeView.getTop() < 0 || nativeView.getLeft() < 0 || nativeView.getTop() >= parent.getHeight()
+					|| nativeView.getLeft() >= parent.getWidth()) {
+					parent.invalidate();
 				}
 			}
 
