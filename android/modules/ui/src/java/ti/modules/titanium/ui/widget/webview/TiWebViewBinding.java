@@ -139,7 +139,7 @@ public class TiWebViewBinding
 	{
 		// Don't try to evaluate js code again if the binding has already been destroyed
 		if (!destroyed) {
-			String code = "javascript:_TiReturn.setValue((function(){try{return " + expression
+			String code = "_TiReturn.setValue((function(){try{return " + expression
 				+ "+\"\";}catch(ti_eval_err){return '';}})());";
 			Log.d(LCAT, "getJSValue:" + code);
 			synchronized (codeSnippets) {
@@ -190,7 +190,7 @@ public class TiWebViewBinding
 				dataString = ", " + String.valueOf(data);
 			}
 
-			String code = "javascript:Ti.executeListener(" + id + dataString + ");";
+			String code = "Ti.executeListener(" + id + dataString + ");";
 			synchronized (codeSnippets) {
 				codeSnippets.push(code);
 			}
@@ -245,13 +245,13 @@ public class TiWebViewBinding
 
 		public String getJSCode()
 		{
+			if (destroyed) {
+				return null;
+			}
+
 			String code;
 			synchronized (codeSnippets) {
 				code = codeSnippets.empty() ? "" : codeSnippets.pop();
-			}
-
-			if (destroyed) {
-				return null;
 			}
 			return code;
 		}
