@@ -572,6 +572,20 @@ public class TiConvert
 	}
 
 	/**
+	 * Converts an array of boxed objects into a primitive int array.
+	 * @param inArray array that contains Number objects
+	 * @return a primitive int array
+	 * @throws ClassCastException if a non-Integer object is found in the array.
+	 */
+	public static int[] toIntArray(Object[] inArray) {
+		int[] outArray = new int[inArray.length];
+		for (int i = 0; i < inArray.length; i++) {
+			outArray[i] = ((Number) inArray[i]).intValue();
+		}
+		return outArray;
+	}
+
+	/**
 	 * Returns a new TiDimension object given a String value and type.
 	 * Refer to {@link TiDimension#TiDimension(String, int)} for more details.
 	 * @param value the dimension value.
