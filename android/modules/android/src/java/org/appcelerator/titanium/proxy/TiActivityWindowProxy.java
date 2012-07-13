@@ -64,7 +64,7 @@ public class TiActivityWindowProxy extends TiWindowProxy
 	}
 
 	@Override
-	protected Activity handleGetActivity()
+	protected Activity getWindowActivity()
 	{
 		if (view == null) return null;
 		return ((TiUIActivityWindow)view).getActivity();
