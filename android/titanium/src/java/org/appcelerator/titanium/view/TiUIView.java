@@ -56,7 +56,6 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationSet;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
-import android.widget.FrameLayout;
 
 /**
  * This class is for Titanium View implementations, that correspond with TiViewProxy. 
@@ -429,12 +428,16 @@ public abstract class TiUIView
 		} else if (key.equals(TiC.PROPERTY_HEIGHT)) {
 			resetPostAnimationValues();
 			if (newValue != null) {
-				if (!newValue.equals(TiC.SIZE_AUTO)) {
-					layoutParams.optionHeight = TiConvert.toTiDimension(TiConvert.toString(newValue), TiDimension.TYPE_HEIGHT);
+				layoutParams.optionHeight = null;
+				layoutParams.sizeOrFillHeightEnabled = true;
+				if (newValue.equals(TiC.LAYOUT_SIZE)) {
+					layoutParams.autoFillsHeight = false;
+				} else if (newValue.equals(TiC.LAYOUT_FILL)) {
+					layoutParams.autoFillsHeight = true;
+				} else if (!newValue.equals(TiC.SIZE_AUTO)) {
+					layoutParams.optionHeight = TiConvert.toTiDimension(TiConvert.toString(newValue),
+						TiDimension.TYPE_HEIGHT);
 					layoutParams.sizeOrFillHeightEnabled = false;
-				} else {
-					layoutParams.optionHeight = null;
-					layoutParams.sizeOrFillHeightEnabled = true;
 				}
 			} else {
 				layoutParams.optionHeight = null;
@@ -448,12 +451,15 @@ public abstract class TiUIView
 		} else if (key.equals(TiC.PROPERTY_WIDTH)) {
 			resetPostAnimationValues();
 			if (newValue != null) {
-				if (!newValue.equals(TiC.SIZE_AUTO)) {
+				layoutParams.optionWidth = null;
+				layoutParams.sizeOrFillWidthEnabled = true;
+				if (newValue.equals(TiC.LAYOUT_SIZE)) {
+					layoutParams.autoFillsWidth = false;
+				} else if (newValue.equals(TiC.LAYOUT_FILL)) {
+					layoutParams.autoFillsWidth = true;
+				} else if (!newValue.equals(TiC.SIZE_AUTO)) {
 					layoutParams.optionWidth = TiConvert.toTiDimension(TiConvert.toString(newValue), TiDimension.TYPE_WIDTH);
 					layoutParams.sizeOrFillWidthEnabled = false;
-				} else {
-					layoutParams.optionWidth = null;
-					layoutParams.sizeOrFillWidthEnabled = true;
 				}
 			} else {
 				layoutParams.optionWidth = null;
