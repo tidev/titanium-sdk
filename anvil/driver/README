@@ -40,17 +40,19 @@ driver.js.  Logs contain all driver output regardless of the --log-level propert
 running the driver.
 
 A normal driver run follows this general flow:
-1) Build harness based on config
-2) Install harness to device / simulator
-3) Establish connection between driver and harness (socket for Android/iOS and http request/response 
+1) Load list of config sets and set the first set as the active set
+2) Build harness based on first config in the active config set
+3) Install harness to device / simulator
+4) Establish connection between driver and harness (socket for Android/iOS and http request/response 
 chain for mobile web).
-4) Driver asks harness for list of suites via connection established in step #3
-5) Driver asks harness for list of tests in current suite
-6) Driver tells the harness to run the current test in the current suite
-7) Harness returns results for specified test
-8) repeat #6-7 till suite is finished and then go back to #5 until all suites have run
-9) start over at #1 if there are more configurations to be run
-10) once all configurations are done, print result summary
+5) Driver asks harness for list of suites via connection established in step #3
+6) Driver asks harness for list of tests in current suite
+7) Driver tells the harness to run the current test in the current suite
+8) Harness returns results for specified test
+9) repeat #7-8 till suite is finished and then go back to #5 until all suites have run
+10) start over at #2 if there are more configurations to be run within the set
+11) once all configurations are done, move to the next config set
+12) if all config sets have run, print result summary
 
 The Anvil Driver supports two modes of operation:
 1) local mode - when started, the driver runs in a interactive mode that allows the user to run 
@@ -64,12 +66,19 @@ supported are: create, build and start.  start is the main command that will be 
 tests and it will automatically uninstall an existing harness, create a new harness instance, 
 deploy it to device or simulator, run the harness and report the results back.  When running the 
 "start" command, the following arguments can be specified:
+- "--config-set=<config set id>": specifies the configuration set to run (the name is defined in a 
+    "name.txt" file that needs to exist in the top level directory of the config set
 - "--config=<config id>": specifies the configuration (specific app.js and tiapp.xml) to run
 - "--suite=<suite name>": specifies the test suite to be run
 - "--test=<test name>": specifies the individual test to be run ("--suite" must be specified for 
 this to take effect)
 
-** it should be noted that driver testing for Mobile Web occurs only on Android devices currently
+It should be noted that driver testing for Mobile Web is designed to occur only on Android devices 
+currently.  There is a --browser-only mode that can be specified when running a test pass or mobile 
+web but it requires manual loading and re-loading of the generated mobile web index.html page.  
+In general, testing for mobile web should be done on device for validity reasons since testing in 
+the browser environment does not accurately represent performance issues or other mobile specific 
+issues.
 
 2) remote mode - when the driver is started in remote mode, the driver will run in the background 
 and maintain a socket connection with the hub.  Once this connection is established, the hub will 
@@ -114,6 +123,32 @@ In order to add new tests to a suite, the test should be added to the "tests" ar
 desired suite.  An example of this can be seen in the example suite file a the top level driver 
 directory.
 
+** NOTE ABOUT HARNESS CONFIG SETS
+Harness config sets are a collection of configs and suites.  There is a single config set included 
+with the titanium mobile project (ID is "standard") that includes all the configs and suites needed 
+to verify platform behavior.  It is possible however to setup multiple config sets which is useful 
+for when a developer wants to run their own set of custom configs and suites that are not part of 
+the default config set.  In order to use custom config sets, there is a "customHarnessConfigDirs" 
+property that can be defined in the config.js (example shown in the exampleConfig.js file) which 
+holds a list of directories where each directory represents a custom config set.
+
+When the --config start argument is specified and the "customHarnessConfigDirs" property has at 
+least one custom config set defined you must also specify the --config-set start argument so that 
+the driver knows which config in which config-set to actually run.
+
+For an example of how to setup a custom config set, please refer to the configSet directory inside 
+the anvil/driver directory.  In general, each config set will have "configs" and "Resources" 
+directories.  The "configs" directory will contain sub directories where each directory will 
+represent a single config that contains a tiapp.xml and may contain a app.js.  The "Resources" 
+directory will contain assets that will be copied into the harness for each config for the config 
+set.  
+
+It should be noted that an app.js file may exist in the "Resources" directory.  This app.js 
+file will be used as a default app.js for a config if the config does not contain a custom app.js 
+file.  This default app.js is useful when a config set is more about testing a variety of tiapp.xml 
+configurations against a common set of suites.
+
+
 
 SETUP NOTES:
 - In order to run the driver, node.js must be installed on the system where it is being run.  Last 
@@ -156,6 +191,12 @@ USAGE:
 	starting the driver):
 		- start test run for ONLY configuration "1"
 			"start --config=1"
+
+		- start test run for ONLY configuration "2" in the standard config set
+			"start --config-set=standard --config=2"
+
+		- start test run for all configs in the standard config set
+			"start --config-set=standard"
 
 		- start test run for ALL configurations
 			"start"
