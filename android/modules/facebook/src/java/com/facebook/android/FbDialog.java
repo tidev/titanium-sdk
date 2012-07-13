@@ -18,7 +18,7 @@
  * MODIFICATIONS
  *
  * Appcelerator Titanium Mobile
- * Copyright (c) 2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2011-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -31,7 +31,7 @@
  * and don't have access to R here.
  *
  * Original file this is based on:
- * https://github.com/facebook/facebook-android-sdk/blob/da41838c5859484375ec1411d2033a3262e35fa7/facebook/src/com/facebook/android/FbDialog.java
+ * https://github.com/facebook/facebook-android-sdk/blob/4cbe4e2f348e09b0dd1decbc51e0899c3052d00b/facebook/src/com/facebook/android/FbDialog.java
  *
  */
 
@@ -104,18 +104,20 @@ public class FbDialog extends Dialog {
          */
         createCrossImage();
 
-        /* Now we know 'x' drawable width and height,
-         * layout the webivew and add it the mContent layout
-         */
-        int crossWidth = mCrossImage.getDrawable().getIntrinsicWidth();
-        setUpWebView(crossWidth / 2);
+		/*
+		 * Now we know 'x' drawable width and height,
+		 * layout the webivew and add it the mContent layout
+		 */
+		int crossWidth = mCrossImage.getDrawable().getIntrinsicWidth();
+		setUpWebView(crossWidth / 2);
 
-        /* Finally add the 'x' image to the mContent layout and
-         * add mContent to the Dialog view
-         */
-        mContent.addView(mCrossImage, new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
-        addContentView(mContent, new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
-    }
+		/*
+		 * Finally add the 'x' image to the mContent layout and
+		 * add mContent to the Dialog view
+		 */
+		mContent.addView(mCrossImage, new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
+		addContentView(mContent, new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
+	}
 
     private void createCrossImage() {
         mCrossImage = new ImageView(getContext());
@@ -150,25 +152,26 @@ public class FbDialog extends Dialog {
 
     private void setUpWebView(int margin) {
         LinearLayout webViewContainer = new LinearLayout(getContext());
-        mWebView = new WebView(getContext());
-        mWebView.setVerticalScrollBarEnabled(false);
-        mWebView.setHorizontalScrollBarEnabled(false);
-        mWebView.setWebViewClient(new FbDialog.FbWebViewClient());
-        mWebView.getSettings().setJavaScriptEnabled(true);
-        mWebView.loadUrl(mUrl);
-        mWebView.setLayoutParams(FILL);
-        mWebView.setVisibility(View.INVISIBLE);
+		mWebView = new WebView(getContext());
+		mWebView.setVerticalScrollBarEnabled(false);
+		mWebView.setHorizontalScrollBarEnabled(false);
+		mWebView.setWebViewClient(new FbDialog.FbWebViewClient());
+		mWebView.getSettings().setJavaScriptEnabled(true);
+		mWebView.loadUrl(mUrl);
+		mWebView.setLayoutParams(FILL);
+		mWebView.setVisibility(View.INVISIBLE);
+		mWebView.getSettings().setSavePassword(false);
 
-        webViewContainer.setPadding(margin, margin, margin, margin);
-        webViewContainer.addView(mWebView);
-        mContent.addView(webViewContainer);
-    }
+		webViewContainer.setPadding(margin, margin, margin, margin);
+		webViewContainer.addView(mWebView);
+		mContent.addView(webViewContainer);
+	}
 
     private class FbWebViewClient extends WebViewClient {
 
         @Override
         public boolean shouldOverrideUrlLoading(WebView view, String url) {
-            Log.d("Facebook-WebView", "Redirect URL: " + url);
+            Util.logd("Facebook-WebView", "Redirect URL: " + url);
             if (url.startsWith(Facebook.REDIRECT_URI)) {
                 Bundle values = Util.parseUrl(url);
 
@@ -212,7 +215,7 @@ public class FbDialog extends Dialog {
 
         @Override
         public void onPageStarted(WebView view, String url, Bitmap favicon) {
-            Log.d("Facebook-WebView", "Webview loading URL: " + url);
+            Util.logd("Facebook-WebView", "Webview loading URL: " + url);
             super.onPageStarted(view, url, favicon);
             mSpinner.show();
         }
@@ -220,14 +223,14 @@ public class FbDialog extends Dialog {
         @Override
         public void onPageFinished(WebView view, String url) {
             super.onPageFinished(view, url);
-            mSpinner.dismiss();
-            /*
-             * Once webview is fully loaded, set the mContent background to be transparent
-             * and make visible the 'x' image.
-             */
-            mContent.setBackgroundColor(Color.TRANSPARENT);
-            mWebView.setVisibility(View.VISIBLE);
-            mCrossImage.setVisibility(View.VISIBLE);
-        }
-    }
+			mSpinner.dismiss();
+			/*
+			 * Once webview is fully loaded, set the mContent background to be transparent
+			 * and make visible the 'x' image.
+			 */
+			mContent.setBackgroundColor(Color.TRANSPARENT);
+			mWebView.setVisibility(View.VISIBLE);
+			mCrossImage.setVisibility(View.VISIBLE);
+		}
+	}
 }
