@@ -1,1 +1,1 @@
-require('a');
+require('./a');
