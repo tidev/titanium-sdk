@@ -8,6 +8,7 @@ package org.appcelerator.titanium.proxy;
 
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
+import org.appcelerator.kroll.common.TiConfig;
 import org.appcelerator.kroll.common.TiMessenger;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
@@ -18,6 +19,7 @@ import org.appcelerator.titanium.util.TiUrl;
 
 import android.graphics.drawable.Drawable;
 import android.os.Build;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.MenuItem.OnActionExpandListener;
 import android.view.View;
@@ -25,6 +27,8 @@ import android.view.View;
 @Kroll.proxy
 public class MenuItemProxy extends KrollProxy
 {
+	private static final String TAG = "MenuItem";
+
 	private MenuItem item;
 
 	private final class ActionExpandListener implements OnActionExpandListener {
@@ -163,6 +167,11 @@ public class MenuItemProxy extends KrollProxy
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
 			View v = view.getOrCreateView().getNativeView();
 			item.setActionView(v);
+
+		} else {
+			if (TiConfig.LOGD) {
+				Log.i(TAG, "Action bar not available on this device. Ignoring actionView property.");
+			}
 		}
 	}
 
@@ -170,6 +179,11 @@ public class MenuItemProxy extends KrollProxy
 	public void setShowAsAction(int flag) {
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
 			item.setShowAsAction(flag);
+
+		} else {
+			if (TiConfig.LOGD) {
+				Log.i(TAG, "Action bar unsupported by this device. Ignoring showAsAction property.");
+			}
 		}
 	}
 
@@ -181,6 +195,11 @@ public class MenuItemProxy extends KrollProxy
 					item.collapseActionView();
 				}
 			});
+
+		} else {
+			if (TiConfig.LOGD) {
+				Log.i(TAG, "This device does not support collapsing action views. No operation performed.");
+			}
 		}
 	}
 
@@ -192,6 +211,11 @@ public class MenuItemProxy extends KrollProxy
 					item.expandActionView();
 				}
 			});
+
+		} else {
+			if (TiConfig.LOGD) {
+				Log.i(TAG, "This device does not support expanding action views. No operation performed.");
+			}
 		}
 	}
 
@@ -201,6 +225,8 @@ public class MenuItemProxy extends KrollProxy
 			return item.isActionViewExpanded();
 		}
 
+		// If this system does not support expandable action views, we will
+		// always return false since the menu item can never "expand".
 		return false;
 	}
 }
