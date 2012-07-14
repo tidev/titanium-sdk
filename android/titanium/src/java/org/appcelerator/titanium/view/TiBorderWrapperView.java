@@ -107,8 +107,8 @@ public class TiBorderWrapperView extends FrameLayout
 	private void drawBorder(Canvas canvas)
 	{
 		paint.setColor(getColor());
-		if (getAlpha() > -1) {
-			paint.setAlpha(getAlpha());
+		if (getBorderAlpha() > -1) {
+			paint.setAlpha(getBorderAlpha());
 		}
 		canvas.drawPath(borderPath, paint);
 	}
@@ -143,12 +143,12 @@ public class TiBorderWrapperView extends FrameLayout
 		this.borderWidth = borderWidth;
 	}
 
-	public void setAlpha(int alpha)
+	public void setBorderAlpha(int alpha)
 	{
 		this.alpha = alpha;
 	}
 
-	public int getAlpha()
+	public int getBorderAlpha()
 	{
 		return alpha;
 	}
