@@ -6,4 +6,6 @@
 {
 }
 - (NSData*) moduleAsset;
+- (NSData*) resolveModuleAsset:(NSString*)path;
+
 @end
