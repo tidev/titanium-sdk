@@ -74,7 +74,7 @@
 -(BOOL)_handleClose:(id)args
 {
     // Ensure popup isn't visible so it can be dealloced
-	[(TiUIiPadSplitWindow*)[self view] setMasterPopupVisible_:NO];
+    [(TiUIiPadSplitWindow*)[self view] setMasterPopupVisible_:NO];
     
     return [super _handleClose:args];
 }
@@ -85,6 +85,12 @@
     if (![[[TiApp app] controller] isTopWindow:self]) {
         [(MGSplitViewController*)[(TiUIiPadSplitWindow*)[self view] controller] layoutSubviewsForInterfaceOrientation:orientation withAnimation:NO];
     }
+}
+
+-(void)hidePopover:(id)args
+{
+    ENSURE_UI_THREAD_0_ARGS;
+    [(TiUIiPadSplitWindow*)[self view] setMasterPopupVisible_:NO];
 }
 
 @end
