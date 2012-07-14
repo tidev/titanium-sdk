@@ -71,6 +71,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String EVENT_COLLAPSE = "collapse";
+
+	/**
+	 * @module.api
+	 */
 	public static final String EVENT_CHANGE = "change";
 
 	/**
@@ -117,6 +122,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String EVENT_ERROR = "error";
+
+	/**
+	 * @module.api
+	 */
+	public static final String EVENT_EXPAND = "expand";
 
 	/**
 	 * @module.api

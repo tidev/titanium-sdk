@@ -29,6 +29,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.media.AudioManager;
+import android.view.MenuItem;
 
 @Kroll.module
 public class AndroidModule extends KrollModule
@@ -229,6 +230,12 @@ public class AndroidModule extends KrollModule
 	@Kroll.constant public static final int STREAM_RING = AudioManager.STREAM_RING;
 	@Kroll.constant public static final int STREAM_SYSTEM = AudioManager.STREAM_SYSTEM;
 	@Kroll.constant public static final int STREAM_VOICE_CALL = AudioManager.STREAM_VOICE_CALL;
+
+	@Kroll.constant public static final int SHOW_AS_ACTION_ALWAYS = MenuItem.SHOW_AS_ACTION_ALWAYS;
+	@Kroll.constant public static final int SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW = MenuItem.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW;
+	@Kroll.constant public static final int SHOW_AS_ACTION_IF_ROOM = MenuItem.SHOW_AS_ACTION_IF_ROOM;
+	@Kroll.constant public static final int SHOW_AS_ACTION_NEVER = MenuItem.SHOW_AS_ACTION_NEVER;
+	@Kroll.constant public static final int SHOW_AS_ACTION_WITH_TEXT = MenuItem.SHOW_AS_ACTION_WITH_TEXT;
 
 	protected RProxy r;
 

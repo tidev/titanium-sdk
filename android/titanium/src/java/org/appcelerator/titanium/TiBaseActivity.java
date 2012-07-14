@@ -37,6 +37,7 @@ import android.app.Dialog;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.PixelFormat;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Message;
 import android.os.Messenger;
@@ -320,8 +321,12 @@ public abstract class TiBaseActivity extends Activity
 	protected void setNavBarHidden(boolean hidden)
 	{
 		if (!hidden) {
-			this.requestWindowFeature(Window.FEATURE_LEFT_ICON); // TODO Keep?
-			this.requestWindowFeature(Window.FEATURE_RIGHT_ICON);
+			if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
+				// Do not enable these features on Honeycomb or later since it will break the action bar.
+				this.requestWindowFeature(Window.FEATURE_LEFT_ICON);
+				this.requestWindowFeature(Window.FEATURE_RIGHT_ICON);
+			}
+
 			this.requestWindowFeature(Window.FEATURE_PROGRESS);
 			this.requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
 
@@ -797,6 +802,10 @@ public abstract class TiBaseActivity extends Activity
 	protected void onStart()
 	{
 		super.onStart();
+
+		// Newer versions of Android appear to turn this on by default.
+		// Turn if off until an activity indicator is shown.
+		setProgressBarIndeterminateVisibility(false);
 
 		if (DBG) {
 			Log.d(TAG, "Activity " + this + " onStart");
