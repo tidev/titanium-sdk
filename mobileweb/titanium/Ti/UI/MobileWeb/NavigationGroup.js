@@ -120,6 +120,12 @@ define(["Ti/_/css", "Ti/_/declare", "Ti/UI/View", "Ti/UI", "Ti/_/lang"],
 			}
 		},
 
+		_getTopWindow: function() {
+			var windows = this._windows,
+				len = windows.length;
+			return len ? windows[windows.length - 1] : null;
+		},
+
 		_reset: function() {
 			var windows = this._windows,
 				win,
@@ -145,12 +151,6 @@ define(["Ti/_/css", "Ti/_/declare", "Ti/UI/View", "Ti/UI", "Ti/_/lang"],
 			windows.splice(1);
 			this._updateNavBar();
 			win.fireEvent("focus");
-		},
-
-		_getTopWindow: function() {
-			var windows = this._windows,
-				len = windows.length;
-			return len ? windows[windows.length - 1] : null;
 		},
 
 		open: function(win) {
