@@ -186,6 +186,11 @@ exports.bootstrapWindow = function(Titanium) {
 		}
 	}
 	
+	var childrenGetter = function() {
+		return this._children;
+	}
+
+	Window.prototype.getChildren = childrenGetter;
 
 	Window.prototype.open = function(options) {
 		var self = this;
@@ -265,6 +270,7 @@ exports.bootstrapWindow = function(Titanium) {
 			this.fireEvent("open");
 
 		}
+
 	}
 
 	Window.prototype.setWindow = function(existingWindow) {
@@ -528,6 +534,8 @@ exports.bootstrapWindow = function(Titanium) {
 		window.on('addedToTab', function () {
 			rememberWindowAndAddCloseListener(self);
 		});
+
+		Object.defineProperty(window, "children", { get: childrenGetter});
 
 		return window;
 		
