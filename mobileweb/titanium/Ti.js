@@ -394,7 +394,7 @@ define(
 
 			// app start event
 			analytics.add("ti.start", "ti.start", {
-				tz: (new Date()).getTimezoneOffset(),
+				tz: (new Date).getTimezoneOffset(),
 				deploytype: deployType,
 				os: Platform.osname,
 				osver: Platform.ostype,

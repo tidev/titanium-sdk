@@ -32,7 +32,7 @@ define(["Ti/_", "Ti/_/dom", "Ti/_/has", "Ti/_/lang", "Ti/App", "Ti/Platform"],
 			send: function(isUrgent) {
 				if (analyticsEnabled) {
 					var rand = Math.floor(Math.random() * 1e6),
-						now = (new Date).getTime(),
+						now = Date.now(),
 						ids = [],
 						jsonStrs = [],
 						sessionId = sessionStorage.getItem("ti:sessionId"),

@@ -22,7 +22,7 @@ define(["Ti/_/declare", "Ti/_/lang","Ti/_/Gestures/GestureRecognizer"], function
 					x: e.changedTouches[0].clientX,
 					y: e.changedTouches[0].clientY
 				};
-				this._startTime = (new Date).getTime();
+				this._startTime = Date.now();
 			} else {
 				this._touchStartLocation = null;
 			}
@@ -54,7 +54,7 @@ define(["Ti/_/declare", "Ti/_/lang","Ti/_/Gestures/GestureRecognizer"], function
 							direction = xDiff > yDiff ?
 								this._touchStartLocation.x - x > 0 ? "left" : "right" :
 								this._touchStartLocation.y - y < 0 ? "down" : "up";
-							velocity = Math.abs(distance / ((new Date).getTime() - this._startTime));
+							velocity = Math.abs(distance / (Date.now() - this._startTime));
 							if (velocity > velocityThreshold) {
 								lang.hitch(element,element._handleTouchEvent(this.name,{
 									x: x,

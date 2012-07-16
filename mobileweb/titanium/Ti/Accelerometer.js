@@ -1,6 +1,6 @@
 define(["Ti/_/Evented", "Ti/_/lang"], function(Evented, lang) {
 	
-	var lastShake = (new Date()).getTime(),
+	var lastShake = Date.now(),
 		lastAccel = {},
 		threshold = 0.2,
 		api = lang.setObject("Ti.Accelerometer", Evented);
@@ -20,7 +20,7 @@ define(["Ti/_/Evented", "Ti/_/lang"], function(Evented, lang) {
 				Math.abs(lastAccel.y - accel.y) > threshold ||
 				Math.abs(lastAccel.z - accel.z) > threshold
 			)) {
-				currentTime = (new Date()).getTime();
+				currentTime = Date.now();
 				accel.timestamp = currentTime - lastShake;
 				lastShake = currentTime;
 				api.fireEvent("update", accel);
