@@ -120,6 +120,33 @@ define(["Ti/_/css", "Ti/_/declare", "Ti/UI/View", "Ti/UI", "Ti/_/lang"],
 			}
 		},
 
+		_reset: function() {
+			var windows = this._windows,
+				win,
+				i = windows.length - 1,
+				l = i;
+
+			this._backButton.animate({opacity: 0, duration: 250}, function() {
+				this.opacity = 0;
+				this.enabled = false;
+			});
+
+			while (1) {
+				win = windows[i];
+				if (!i) {
+					break;
+				}
+				i-- === l && win.fireEvent("blur");
+				this._contentContainer.remove(win);
+				win.fireEvent("close");
+				win._opened = 0;
+			}
+
+			windows.splice(1);
+			this._updateNavBar();
+			win.fireEvent("focus");
+		},
+
 		_getTopWindow: function() {
 			var windows = this._windows,
 				len = windows.length;

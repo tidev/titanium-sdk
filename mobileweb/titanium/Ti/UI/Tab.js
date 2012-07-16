@@ -35,7 +35,13 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/_/dom", "Ti/Locale", "Ti/UI", "Ti/UI/M
 
 			win && require.on(this, "singletap", this, function(e) {
 				var tabGroup = this._tabGroup;
-				tabGroup && tabGroup.activeTab !== this && (tabGroup.activeTab = this);
+				if (tabGroup) {
+					if (tabGroup.activeTab === this) {
+						navGroup._reset();
+					} else {
+						tabGroup.activeTab = this;
+					}
+				}
 			});
 		},
 
