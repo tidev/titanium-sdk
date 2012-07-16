@@ -33,11 +33,11 @@ public class NetworkModule extends KrollModule {
 	public static final String EVENT_CONNECTIVITY = "change";
 	public static final String NETWORK_USER_AGENT = System.getProperties().getProperty("http.agent") ;
 
-	public static final int NETWORK_NONE = 0;
-	public static final int NETWORK_WIFI = 1;
-	public static final int NETWORK_MOBILE = 2;
-	public static final int NETWORK_LAN = 3;
-	public static final int NETWORK_UNKNOWN = 4;
+	@Kroll.constant public static final int NETWORK_NONE = 0;
+	@Kroll.constant public static final int NETWORK_WIFI = 1;
+	@Kroll.constant public static final int NETWORK_MOBILE = 2;
+	@Kroll.constant public static final int NETWORK_LAN = 3;
+	@Kroll.constant public static final int NETWORK_UNKNOWN = 4;
 
     public enum State {
         UNKNOWN,
