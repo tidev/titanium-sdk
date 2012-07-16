@@ -17,7 +17,6 @@ define(["Ti/_/declare", "Ti/_/Evented", "Ti/_/style", "Ti/UI"], function(declare
 		],
 		global = window,
 		now = Date.now,
-		is = require.is,
 		on = require.on,
 		lastTime = 0,
 		prefixes = ["ms", "moz", "webkit", "o"],
@@ -390,7 +389,6 @@ define(["Ti/_/declare", "Ti/_/Evented", "Ti/_/style", "Ti/UI"], function(declare
 			});
 
 			anim.fireEvent("start");
-			is(anim.start, "Function") && anim.start()
 
 			if (!needsRender) {
 				needsRender = 1;
@@ -493,7 +491,6 @@ define(["Ti/_/declare", "Ti/_/Evented", "Ti/_/style", "Ti/UI"], function(declare
 			// TODO: update View.rect here: TIMOB-8930
 
 			anim.fireEvent("complete");
-			is(anim.complete, "Function") && anim.complete();
 		});
 	};
 
