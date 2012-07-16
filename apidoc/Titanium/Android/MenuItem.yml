@@ -16,6 +16,16 @@ methods:
 
     # hasSubMenu exists but is not useful at present, because we don't support submenus.
 
+  - name: collapseActionView
+    summary: Collapse the action view associated with this menu item.
+    since: "2.2"
+    osver: {android: {min: "14"}}
+
+  - name: expandActionView
+    summary: Expand the action view associated with this menu item.
+    since: "2.2"
+    osver: {android: {min: "14"}}
+
   - name: isCheckable
     summary: |
         Returns the [checkable](Titanium.Android.MenuItem.checkable) state of the menu item.
@@ -70,7 +80,29 @@ events:
   - name: click
     summary: Fired when the user clicks the menu item.
 
+  - name: expand
+    summary: Fired when the action view has been expanded.
+    since: "2.2"
+    osver: {android: {min: "14"}}
+
+  - name: collapse
+    summary: Fired when the action view has been collapsed.
+    since: "2.2"
+    osver: {android: {min: "14"}}
+
 properties:
+
+  - name: actionView
+    summary: A custom view that replaces the default menu item button.
+    type: Titanium.UI.View
+    since: "2.2"
+    osver: {android: {min: "11"}}
+
+  - name: actionViewExpanded
+    summary: True if this menu item's action view has been expanded.
+    type: Boolean
+    since: "2.2"
+    osver: {android: {min: "14"}}
 
   - name: checkable
     summary: Determines if the item can be checked.
@@ -148,6 +180,27 @@ properties:
     type: Number
     permission: read-only
     availability: creation
+
+  - name: showAsAction
+    summary: A set of flags that controls how this item appears in the action bar.
+    description: |
+        You may set one or more flags (by OR'ing them together) to control how
+        this menu item should be placed inside the action bar.
+
+        To control if your item should be displayed as an action button or
+        placed in the overflow menu set one of these flags:
+          [SHOW_AS_ACTION_ALWAYS](Titanium.Android.SHOW_AS_ACTION_ALWAYS),
+          [SHOW_AS_ACTION_IF_ROOM](Titanium.Android.SHOW_AS_ACTION_IF_ROOM),
+          or [SHOW_AS_ACTION_NEVER](Titanium.Android.SHOW_AS_ACTION_NEVER).
+
+        If you only wish to display the text label even if the item
+        has an icon set the [SHOW_AS_ACTION_WITH_TEXT](Titanium.Android.SHOW_AS_ACTION_WITH_TEXT) flag.
+
+        Starting in Android 14 (Ice Cream Sandwich) you may specify if your action view
+        is collapsible. To enable this behavior set the [SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW](Titanium.Android.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW).
+    type: Number
+    since: "2.2"
+    osver: {android: {min: "11"}}
 
   - name: title
     summary: Title of the item.

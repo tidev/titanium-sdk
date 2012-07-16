@@ -144,9 +144,10 @@ properties:
         [TEXT_VERTICAL_ALIGNMENT_CENTER](Titanium.UI.TEXT_VERTICAL_ALIGNMENT_CENTER), or 
         [TEXT_VERTICAL_ALIGNMENT_TOP](Titanium.UI.TEXT_VERTICAL_ALIGNMENT_TOP).
     type: [Number,String]
-    default: Titanium.UI.TEXT_VERTICAL_ALIGNMENT_CENTER
-    platforms: [mobileweb]
-
+    default: Titanium.UI.TEXT_VERTICAL_ALIGNMENT_CENTER on mobileweb.  Titanium.UI.TEXT_VERTICAL_ALIGNMENT_TOP on iphone and ipad. 
+    platforms: [mobileweb, iphone, ipad, android]
+    since: { iphone: "2.2", ipad: "2.2", mobileweb: "2.0", android: "2.2" }
+    
 examples:
   - title: Basic Label
     example: |

@@ -119,7 +119,10 @@ id TiValueToId(KrollContext *context, TiValueRef v)
 			}
 			case kTITypeNumber: {
 				result = [NSNumber numberWithDouble:TiValueToNumber(jsContext, v, NULL)];
-				break;
+                if([result isEqualToNumber:[NSDecimalNumber notANumber]]){
+                    result = [NSDecimalNumber notANumber];
+                }
+                break;
 			}
 			case kTITypeString: {
 				TiStringRef stringRefValue = TiValueToStringCopy(jsContext, v, NULL);
@@ -463,6 +466,12 @@ TiValueRef KrollGetProperty(TiContextRef jsContext, TiObjectRef object, TiString
 		else
 		{
 			[o forgetObjectForTiString:prop context:jsContext];
+		}
+		if (result == nil) {
+			TiValueRef jsResult2 = [o jsvalueForUndefinedKey:name];
+			if (jsResult2 != NULL) {
+				jsResult = jsResult2;
+			}
 		}
 
 #if KOBJECT_DEBUG == 1
@@ -1075,6 +1084,11 @@ bool KrollHasInstance(TiContextRef ctx, TiObjectRef constructor, TiValueRef poss
 			[target setExecutionContext:nil];
 		}
 	}
+}
+
+- (TiValueRef)jsvalueForUndefinedKey:(NSString *)key
+{
+	return NULL;
 }
 
 -(void)deleteKey:(NSString*)key

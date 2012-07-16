@@ -101,7 +101,7 @@ Common ant tasks and macros for building Android-based Titanium modules and proj
 					<property name="android.platform" location="${env.ANDROID_PLATFORM}"/>
 				</then>
 				<else>
-					<property name="android.platform" location="${android.sdk}/platforms/android-8"/>
+					<property name="android.platform" location="${android.sdk}/platforms/android-14"/>
 				</else>
 			</if>
 			<if>

@@ -516,6 +516,16 @@ public class TiMapView extends TiUIView
 		}
 	}
 
+	public void addAnnotations(Object[] annotations) {
+		for(int i = 0; i < annotations.length; i++) {
+			AnnotationProxy ap = annotationProxyForObject(annotations[i]);
+			if (ap != null) {
+				this.annotations.add(ap);
+			}
+		}
+		doSetAnnotations(this.annotations);
+	}
+
 	public void updateAnnotations()
 	{
 		handler.obtainMessage(MSG_UPDATE_ANNOTATIONS).sendToTarget();
@@ -648,13 +658,7 @@ public class TiMapView extends TiUIView
 		if (d.containsKey(TiC.PROPERTY_ANNOTATIONS)) {
 			proxy.setProperty(TiC.PROPERTY_ANNOTATIONS, d.get(TiC.PROPERTY_ANNOTATIONS));
 			Object [] annotations = (Object[]) d.get(TiC.PROPERTY_ANNOTATIONS);
-			for(int i = 0; i < annotations.length; i++) {
-				AnnotationProxy ap = annotationProxyForObject(annotations[i]);
-				if (ap != null) {
-					this.annotations.add(ap);
-				}
-			}
-			doSetAnnotations(this.annotations);
+			addAnnotations(annotations);
 		}
 		super.processProperties(d);
 	}
@@ -697,24 +701,26 @@ public class TiMapView extends TiUIView
 	@Override
 	public void propertyChanged(String key, Object oldValue, Object newValue, KrollProxy proxy)
 	{
-		if (key.equals(TiC.PROPERTY_LOCATION)) {
-			if (newValue != null) {
-				if (newValue instanceof AnnotationProxy) {
-					AnnotationProxy ap = (AnnotationProxy) newValue;
+		if (key.equals(TiC.PROPERTY_REGION) && newValue instanceof HashMap) {
+			doSetLocation((HashMap) newValue);
 
-					// TODO - implement a way to get all cached properties for a proxy - set annotation 
-					// via dict for now
-					// doSetLocation(ap.getProperties());
-				} else if (newValue instanceof HashMap) {
-					doSetLocation((HashMap) newValue);
-				}
-			}
+		} else if (key.equals(TiC.PROPERTY_REGION_FIT)) {
+			regionFit = TiConvert.toBoolean(newValue);
+
+		} else if (key.equals(TiC.PROPERTY_USER_LOCATION)) {
+			doUserLocation(TiConvert.toBoolean(newValue));
+
 		} else if (key.equals(TiC.PROPERTY_MAP_TYPE)) {
 			if (newValue == null) {
 				doSetMapType(MAP_VIEW_STANDARD);
 			} else {
 				doSetMapType(TiConvert.toInt(newValue));
 			}
+
+		} else if (key.equals(TiC.PROPERTY_ANNOTATIONS) && newValue instanceof Object[]) {
+			Object [] annotations = (Object[]) newValue;
+			addAnnotations(annotations);
+
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}

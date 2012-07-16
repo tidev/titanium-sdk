@@ -57,4 +57,5 @@ var Ti = {
 		}
 	}
 };
+
 var Titanium = Ti;

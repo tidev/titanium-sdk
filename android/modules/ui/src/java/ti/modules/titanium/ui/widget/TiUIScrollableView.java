@@ -277,8 +277,8 @@ public class TiUIScrollableView extends TiUIView
 			}
 		}
 
-		if (d.containsKey(TiC.PROPERTY_SCROLLINGENABLED)) {
-			mEnabled = TiConvert.toBoolean(d, TiC.PROPERTY_SCROLLINGENABLED);
+		if (d.containsKey(TiC.PROPERTY_SCROLLING_ENABLED)) {
+			mEnabled = TiConvert.toBoolean(d, TiC.PROPERTY_SCROLLING_ENABLED);
 		}
 
 		super.processProperties(d);
@@ -298,7 +298,7 @@ public class TiUIScrollableView extends TiUIView
 			} else {
 				hidePager();
 			}
-		} else if (TiC.PROPERTY_SCROLLINGENABLED.equals(key)) {
+		} else if (TiC.PROPERTY_SCROLLING_ENABLED.equals(key)) {
 			mEnabled = TiConvert.toBoolean(newValue);
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
