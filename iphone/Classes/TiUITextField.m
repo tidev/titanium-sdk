@@ -461,8 +461,8 @@
 
 - (BOOL)textField:(UITextField *)tf shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString *)string
 {
-	NSString *curText = [tf text];
-    
+    NSString *curText = [[tf text] stringByReplacingCharactersInRange:range withString:string];
+   
     NSInteger maxLength = [[self textWidgetView] maxLength];    
     if (maxLength > -1) {
         NSInteger length = [curText length] + [string length] - range.length;
@@ -471,15 +471,6 @@
             return NO;
         }
     }
-	
-	if ([string isEqualToString:@""])
-	{
-		curText = [curText substringToIndex:[curText length]-range.length];
-	}
-	else
-	{
-		curText = [NSString stringWithFormat:@"%@%@",curText,string];
-	}
 
 	[(TiUITextFieldProxy *)self.proxy noteValueChange:curText];
 	return YES;
