@@ -683,11 +683,14 @@ def main(args):
 		if command == 'distribute':
 			iphone_version = check_iphone_sdk(iphone_version)
 			link_version = iphone_version
+			dist_keychain = None
 			appuuid = dequote(args[6].decode("utf-8"))
 			dist_name = dequote(args[7].decode("utf-8"))
 			output_dir = os.path.expanduser(dequote(args[8].decode("utf-8")))
 			if argc > 9:
 				devicefamily = dequote(args[9].decode("utf-8"))
+			if argc > 10:
+				dist_keychain = dequote(args[10].decode("utf-8"))
 			print "[INFO] Switching to production mode for distribution"
 			deploytype = 'production'
 		elif command in ['simulator', 'build']:
@@ -716,18 +719,13 @@ def main(args):
 		elif command in ['install', 'adhoc']:
 			iphone_version = check_iphone_sdk(iphone_version)
 			link_version = iphone_version
+			dist_keychain = None
 			appuuid = dequote(args[6].decode("utf-8"))
 			dist_name = dequote(args[7].decode("utf-8"))
 			if argc > 8:
 				devicefamily = dequote(args[8].decode("utf-8"))
 			if argc > 9:
-				# this is host:port from the debugger
-				debughost = dequote(args[9].decode("utf-8"))
-				if debughost=='':
-					debughost=None
-					debugport=None
-				else:
-					debughost,debugport = debughost.split(":")
+				dist_keychain = dequote(args[9].decode("utf-8"))
 			if command == 'install':
 				target = 'Debug'
 				deploytype = 'test'
@@ -1477,6 +1475,10 @@ def main(args):
 						args += ["CODE_SIGN_IDENTITY=iPhone Developer: %s" % dist_name]
 					elif command == 'adhoc':
 						args += ["CODE_SIGN_IDENTITY=iPhone Distribution: %s" % dist_name]
+
+					if dist_keychain is not None:
+						args += ["OTHER_CODE_SIGN_FLAGS=--keychain %s" % dist_keychain]
+
 					args += ["DEPLOYMENT_POSTPROCESSING=YES"]
 
 					execute_xcode("iphoneos%s" % iphone_version,args,False)
@@ -1549,6 +1551,10 @@ def main(args):
 						"CODE_SIGN_IDENTITY=iPhone Distribution: %s" % dist_name,
 						"DEPLOYMENT_POSTPROCESSING=YES"
 					]
+
+					if dist_keychain is not None:
+						args += ["OTHER_CODE_SIGN_FLAGS=--keychain %s" % dist_keychain]
+					
 					execute_xcode("iphoneos%s" % iphone_version,args,False)
 
 					# switch to app_bundle for zip
