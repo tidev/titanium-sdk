@@ -69,13 +69,10 @@ public class TiUILabel extends TiUIView
 		if (d.containsKey(TiC.PROPERTY_FONT)) {
 			TiUIHelper.styleText(tv, d.getKrollDict(TiC.PROPERTY_FONT));
 		}
-		if (d.containsKey(TiC.PROPERTY_TEXT_ALIGN)) {
-			String textAlign = d.getString(TiC.PROPERTY_TEXT_ALIGN);
-			TiUIHelper.setAlignment(tv, textAlign, null);
-		}
-		if (d.containsKey(TiC.PROPERTY_VERTICAL_ALIGN)) {
-			String verticalAlign = d.getString(TiC.PROPERTY_VERTICAL_ALIGN);
-			TiUIHelper.setAlignment(tv, null, verticalAlign);
+		if (d.containsKey(TiC.PROPERTY_TEXT_ALIGN) || d.containsKey(TiC.PROPERTY_VERTICAL_ALIGN)) {
+			String textAlign = d.optString(TiC.PROPERTY_TEXT_ALIGN, "left");
+			String verticalAlign = d.optString(TiC.PROPERTY_VERTICAL_ALIGN, "center");
+			TiUIHelper.setAlignment(tv, textAlign, verticalAlign);
 		}
 		if (d.containsKey(TiC.PROPERTY_ELLIPSIZE)) {
 			if (TiConvert.toBoolean(d, TiC.PROPERTY_ELLIPSIZE)) {

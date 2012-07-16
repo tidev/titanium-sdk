@@ -301,6 +301,34 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 	[self replaceValue:value forKey:@"height" notification:YES];
 }
 
+-(id) backgroundLeftCap
+{
+    return [self valueForUndefinedKey:@"backgroundLeftCap"];
+}
+
+-(void)setBackgroundLeftCap:(id)value
+{
+    leftCap = TiDimensionFromObject(value);
+    [self replaceValue:value forKey:@"backgroundLeftCap" notification:NO];
+    if (callbackCell != nil) {
+        [self configureBackground:callbackCell];
+    }
+}
+
+-(id) backgroundTopCap
+{
+    return [self valueForUndefinedKey:@"backgroundTopCap"];
+}
+
+-(void)setBackgroundTopCap:(id)value
+{
+    topCap = TiDimensionFromObject(value);
+    [self replaceValue:value forKey:@"backgroundTopCap" notification:NO];
+    if (callbackCell != nil) {
+        [self configureBackground:callbackCell];
+    }
+}
+
 // Special handling to try and avoid Apple's detection of private API 'layout'
 -(void)setValue:(id)value forUndefinedKey:(NSString *)key
 {
@@ -475,7 +503,7 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 	if (bgImage!=nil)
 	{
 		NSURL *url = [TiUtils toURL:bgImage proxy:(TiProxy*)table.proxy];
-		UIImage *image = [[ImageLoader sharedLoader] loadImmediateImage:url];
+		UIImage *image = [[ImageLoader sharedLoader] loadImmediateStretchableImage:url withLeftCap:leftCap topCap:topCap];
 		if ([cell.backgroundView isKindOfClass:[UIImageView class]]==NO)
 		{
 			UIImageView *view_ = [[[UIImageView alloc] initWithFrame:CGRectZero] autorelease];
@@ -495,7 +523,7 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 	if (selBgImage!=nil)
 	{
 		NSURL *url = [TiUtils toURL:selBgImage proxy:(TiProxy*)table.proxy];
-		UIImage *image = [[ImageLoader sharedLoader] loadImmediateImage:url];
+		UIImage *image = [[ImageLoader sharedLoader] loadImmediateStretchableImage:url withLeftCap:leftCap topCap:topCap];
 		if ([cell.selectedBackgroundView isKindOfClass:[UIImageView class]]==NO)
 		{
 			UIImageView *view_ = [[[UIImageView alloc] initWithFrame:CGRectZero] autorelease];

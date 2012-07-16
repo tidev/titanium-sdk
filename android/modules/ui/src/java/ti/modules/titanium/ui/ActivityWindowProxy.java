@@ -153,8 +153,6 @@ public class ActivityWindowProxy extends TiWindowProxy
 		if (window != null) {
 			window.close(options);
 		}
-
-		releaseViews();
 	}
 
 	@Kroll.getProperty @Kroll.method
@@ -210,8 +208,13 @@ public class ActivityWindowProxy extends TiWindowProxy
 	*/
 
 	@Override
-	protected Activity handleGetActivity() 
+	protected Activity getWindowActivity() 
 	{
-		return getActivity();
+		TiUIActivityWindow window = getWindow();
+		if (window != null) {
+			return window.getActivity();
+		}
+
+		return null;
 	}
 }

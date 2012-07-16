@@ -26,7 +26,8 @@ import android.app.Activity;
 	TiC.PROPERTY_TEXT,
 	TiC.PROPERTY_TEXT_ALIGN,
 	TiC.PROPERTY_TEXTID,
-	TiC.PROPERTY_WORD_WRAP
+	TiC.PROPERTY_WORD_WRAP,
+	TiC.PROPERTY_VERTICAL_ALIGN
 })
 public class LabelProxy extends TiViewProxy
 {

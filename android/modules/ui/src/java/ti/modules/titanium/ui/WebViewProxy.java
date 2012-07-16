@@ -311,26 +311,18 @@ public class WebViewProxy extends ViewProxy
 
 	@Override
 	public void onStart(Activity activity) {
-		// TODO Auto-generated method stub
-		
 	}
 
 	@Override
 	public void onResume(Activity activity) {
-		// TODO Auto-generated method stub
-		
 	}
 
 	@Override
 	public void onPause(Activity activity) {
-		// TODO Auto-generated method stub
-		
 	}
 
 	@Override
 	public void onStop(Activity activity) {
-		// TODO Auto-generated method stub
-		
 	}
 
 	@Override
@@ -340,6 +332,11 @@ public class WebViewProxy extends ViewProxy
 			return;
 		}
 
+		// We allow JS polling to continue until we exit the app. If we want to stop the polling when the app is
+		// backgrounded, we would need to move this to onStop(), and add the appropriate logic in onResume() to restart
+		// the polling.
+		webView.destroyWebViewBinding();
+
 		WebView nativeWebView = webView.getWebView();
 		if (nativeWebView == null) {
 			return;
@@ -348,6 +345,5 @@ public class WebViewProxy extends ViewProxy
 		nativeWebView.stopLoading();
 		super.releaseViews();
 	}
-	
 
 }

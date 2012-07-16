@@ -71,6 +71,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String EVENT_COLLAPSE = "collapse";
+
+	/**
+	 * @module.api
+	 */
 	public static final String EVENT_CHANGE = "change";
 
 	/**
@@ -117,6 +122,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String EVENT_ERROR = "error";
+
+	/**
+	 * @module.api
+	 */
+	public static final String EVENT_EXPAND = "expand";
 
 	/**
 	 * @module.api
@@ -447,7 +457,7 @@ public class TiC
 	/**
 	 * @module.api
 	 */
-	public static final String PROPERTY_SCROLLINGENABLED = "scrollingEnabled";
+	public static final String PROPERTY_SCROLLING_ENABLED = "scrollingEnabled";
 
 	/**
 	 * @module.api
@@ -1368,6 +1378,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_ORGANIZATION = "organization";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_ORIENTATION_MODES = "orientationModes";
 	
 	/**
 	 * @module.api
