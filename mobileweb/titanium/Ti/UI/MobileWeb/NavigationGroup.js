@@ -126,6 +126,31 @@ define(["Ti/_/css", "Ti/_/declare", "Ti/UI/View", "Ti/UI", "Ti/_/lang"],
 			return len ? windows[windows.length - 1] : null;
 		},
 
+		open: function(win) {
+			if (!win._opened) {
+				var backButton = this._backButton,
+					windows = this._windows,
+					tab = this._tab;
+				
+				win._navGroup = this;
+
+				// Set a default background
+				!isDef(win.backgroundColor) && !isDef(win.backgroundImage) && (win.backgroundColor = "#fff");
+
+				~(windows.length - 1) && windows[windows.length - 1].fireEvent("blur");
+
+				// Show the window
+				tab && (win.tabGroup = (win.tab = tab)._tabGroup);
+				windows.push(win);
+				this._contentContainer._add(win);
+				this._updateNavBar();
+				
+				win._opened || win.fireEvent("open");
+				win._opened = 1;
+				win.fireEvent("focus");
+			}
+		},
+
 		_reset: function() {
 			var windows = this._windows,
 				win,
@@ -151,31 +176,6 @@ define(["Ti/_/css", "Ti/_/declare", "Ti/UI/View", "Ti/UI", "Ti/_/lang"],
 			windows.splice(1);
 			this._updateNavBar();
 			win.fireEvent("focus");
-		},
-
-		open: function(win) {
-			if (!win._opened) {
-				var backButton = this._backButton,
-					windows = this._windows,
-					tab = this._tab;
-				
-				win._navGroup = this;
-
-				// Set a default background
-				!isDef(win.backgroundColor) && !isDef(win.backgroundImage) && (win.backgroundColor = "#fff");
-
-				~(windows.length - 1) && windows[windows.length - 1].fireEvent("blur");
-
-				// Show the window
-				tab && (win.tabGroup = (win.tab = tab)._tabGroup);
-				windows.push(win);
-				this._contentContainer._add(win);
-				this._updateNavBar();
-				
-				win._opened || win.fireEvent("open");
-				win._opened = 1;
-				win.fireEvent("focus");
-			}
 		},
 
 		close: function(win) {
