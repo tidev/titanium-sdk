@@ -44,6 +44,10 @@ description: |
     
     Android doesn't support any animation curves or easing functions. Animations always interpolate 
     linearly between the start state and the end state.
+    
+    #### Mobile Web Platform Notes
+    
+    Mobile Web supports 2D matrix transformations and animation curves in animations.
 extends: Titanium.Proxy
 since: "0.9"
 platforms: [android, iphone, ipad, mobileweb]
