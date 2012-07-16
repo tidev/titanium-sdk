@@ -458,7 +458,7 @@ define(["Ti/_/declare", "Ti/_/Evented", "Ti/_/style", "Ti/UI"], function(declare
 				j = anis && anis.length,
 				result = false;
 
-			while (i < j) {
+			for (; i < j; i++) {
 				if (anis[i].id === id) {
 					ani = anis[i];
 					node = ani.elem.domNode;
