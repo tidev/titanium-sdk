@@ -1,0 +1,18 @@
+#
+# this is your module manifest and used by Titanium
+# during compilation, packaging, distribution, etc.
+#
+version: 2.0.3
+apiversion: 2
+description: ACS Push notifications for Android via the MQTT protocol
+author: Dawson Toth
+license: Appcelerator Commercial License
+copyright: Copyright (c) 2012 by Appcelerator, Inc.
+
+
+# these should not be edited
+name: cloudpush
+moduleid: ti.cloudpush
+guid: 2d542783-c83c-4597-bd61-1073aa16ece2
+platform: android
+minsdk: 1.8.0.1

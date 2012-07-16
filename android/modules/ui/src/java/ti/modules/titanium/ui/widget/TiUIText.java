@@ -322,6 +322,17 @@ public class TiUIText extends TiUIView
 		}
 		return false;
 	}
+	
+	public EditText getTextBox()
+	{
+		return (EditText) getNativeView();
+	}
+	
+	public void selectAll()
+	{
+		focus();
+		getTextBox().selectAll();
+	}
 
 	public void handleTextAlign(String textAlign, String verticalAlign)
 	{

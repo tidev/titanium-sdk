@@ -26,6 +26,8 @@
 
 #pragma mark public API
 
+DEFINE_DEF_BOOL_PROP(disableClipping,NO)
+
 @synthesize vzIndex, parentVisible;
 -(void)setVzIndex:(int)newZindex
 {
@@ -148,8 +150,8 @@
 		{
 			[children addObject:arg];
 		}
-        //Turn on clipping because I have children
-        [self view].clipsToBounds = YES;
+        
+        [self view].clipsToBounds = ![(NSNumber*) [self valueForUndefinedKey:@"disableClipping"] boolValue];
         
 		pthread_rwlock_unlock(&childrenLock);
 		[arg setParent:self];

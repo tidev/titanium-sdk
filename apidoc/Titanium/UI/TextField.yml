@@ -25,6 +25,12 @@ methods:
     
   - name: focus
     summary: Forces the field to gain focus.
+    
+  - name: selectAll
+    since: "2.1.0"
+    summary: Selects all of the text in the field.
+    description: |
+      Focuses on the field first, then selects the text
 
   - name: hasText
     summary: Returns `true` if this text field contains text.

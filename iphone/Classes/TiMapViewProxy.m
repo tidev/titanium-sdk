@@ -118,6 +118,16 @@
 	return proxy;
 }
 
+-(void)recognizedPinch:(UIPinchGestureRecognizer*)recognizer 
+{
+    //Override the default proxy pinch so we don't fire duplicate events
+}
+
+-(void)recognizedLongPress:(UILongPressGestureRecognizer*)recognizer 
+{
+    //Override the default proxy longpress so we don't fire duplicate events
+}
+
 #pragma mark Public API
 
 -(void)zoom:(id)arg

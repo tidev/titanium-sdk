@@ -14,6 +14,44 @@
 #import "TiMapPinAnnotationView.h"
 #import "TiMapImageAnnotationView.h"
 
+@implementation MapGestureRecognizer
+
+@synthesize touchesBeganCallback;
+@synthesize touchesMovedCallback;
+@synthesize touchesEndedCallback;
+@synthesize touchesCancelledCallback;
+
+- (BOOL)canBePreventedByGestureRecognizer:(UIGestureRecognizer *)preventingGestureRecognizer
+{
+    return NO;
+}
+
+- (BOOL)canPreventGestureRecognizer:(UIGestureRecognizer *)preventedGestureRecognizer
+{
+    return NO;
+}
+
+- (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
+{
+    if (touchesBeganCallback) touchesBeganCallback(touches, event);
+}
+
+- (void)touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event
+{
+    if (touchesMovedCallback) touchesMovedCallback(touches, event);
+}
+
+- (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event
+{
+    if (touchesEndedCallback) touchesEndedCallback(touches, event);
+}
+
+- (void)touchesCancelled:(NSSet *)touches withEvent:(UIEvent *)event
+{
+    if (touchesCancelledCallback) touchesCancelledCallback(touches, event);
+}
+@end
+
 @implementation TiMapView
 
 #pragma mark Internal
@@ -33,6 +71,15 @@
         CFRelease(mapName2Line);
         mapName2Line = nil;
     }
+    
+    [mapSingleTapRecognizer release];
+	[mapDoubleTapRecognizer release];
+	[mapTwoFingerTapRecognizer release];
+	[mapPinchRecognizer release];
+	[mapLeftSwipeRecognizer release];
+    [mapRightSwipeRecognizer release];
+	[mapLongPressRecognizer release];
+    
 	[super dealloc];
 }
 
@@ -67,6 +114,24 @@
         mapName2Line = CFDictionaryCreateMutable(NULL, 10, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
         //Initialize loaded state to YES. This will automatically go to NO if the map needs to download new data
         loaded = YES;
+        
+        MapGestureRecognizer *t = [[MapGestureRecognizer alloc] init];
+        t.cancelsTouchesInView = NO;
+        t.touchesBeganCallback = ^(NSSet* touches, UIEvent* event) {
+            [self mapTouchesBegan:touches withEvent:event];
+        };
+        t.touchesCancelledCallback = ^(NSSet* touches, UIEvent* event) {
+            [self mapTouchesCancelled:touches withEvent:event];
+        };
+        t.touchesEndedCallback = ^(NSSet* touches, UIEvent* event) {
+            [self mapTouchesEnded:touches withEvent:event];
+        };
+        t.touchesMovedCallback = ^(NSSet* touches, UIEvent* event) {
+            [self mapTouchesMoved:touches withEvent:event];
+        };
+
+        [map addGestureRecognizer:t];
+        [t release];
     }
     return map;
 }
@@ -133,6 +198,12 @@
 	{
 		[map selectAnnotation:proxy animated:NO];
 	}
+}
+
+-(BOOL)viewSupportsBaseTouchEvents
+{
+    // We'll handle things from here
+    return NO;
 }
 
 #pragma mark Public APIs
@@ -744,6 +815,7 @@
 	}
 }
 
+
 #pragma mark Click detection
 
 -(id<MKAnnotation>)wasHitOnAnnotation:(CGPoint)point inView:(UIView*)view
@@ -785,6 +857,249 @@
 	manualSelect = NO;
 	return result;
 }
+
+-(UILongPressGestureRecognizer*)longPressRecognizer;
+{
+	if (mapLongPressRecognizer == nil) {
+		mapLongPressRecognizer = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(recognizedLongPress:)];
+        [mapLongPressRecognizer setDelegate:self];
+		[self configureGestureRecognizer:mapLongPressRecognizer];
+		[self addGestureRecognizer:mapLongPressRecognizer];
+	}
+	return mapLongPressRecognizer;
+}
+
+-(UITapGestureRecognizer*)singleTapRecognizer;
+{
+	if (mapSingleTapRecognizer == nil) {
+		mapSingleTapRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(recognizedTap:)];
+        [mapSingleTapRecognizer setDelegate:self];
+		[self configureGestureRecognizer:mapSingleTapRecognizer];
+		[self addGestureRecognizer:mapSingleTapRecognizer];
+        
+		if (mapDoubleTapRecognizer != nil) {
+			[mapSingleTapRecognizer requireGestureRecognizerToFail:mapDoubleTapRecognizer];
+		}
+	}
+	return mapSingleTapRecognizer;
+}
+
+-(UITapGestureRecognizer*)doubleTapRecognizer;
+{
+	if (mapDoubleTapRecognizer == nil) {
+		mapDoubleTapRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(recognizedTap:)];
+        [mapDoubleTapRecognizer setDelegate:self];
+		[mapDoubleTapRecognizer setNumberOfTapsRequired:2];
+		[self configureGestureRecognizer:mapDoubleTapRecognizer];
+		[self addGestureRecognizer:mapDoubleTapRecognizer];
+		
+		if (mapSingleTapRecognizer != nil) {
+			[mapSingleTapRecognizer requireGestureRecognizerToFail:mapDoubleTapRecognizer];
+		}		
+	}
+	return mapDoubleTapRecognizer;
+}
+
+-(UITapGestureRecognizer*)twoFingerTapRecognizer;
+{
+	if (mapTwoFingerTapRecognizer == nil) {
+		mapTwoFingerTapRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(recognizedTap:)];
+        [mapTwoFingerTapRecognizer setDelegate:self];
+		[mapTwoFingerTapRecognizer setNumberOfTouchesRequired:2];
+		[self configureGestureRecognizer:mapTwoFingerTapRecognizer];
+		[self addGestureRecognizer:mapTwoFingerTapRecognizer];
+	}
+	return mapTwoFingerTapRecognizer;
+}
+
+-(UIPinchGestureRecognizer*)pinchRecognizer;
+{
+	if (mapPinchRecognizer == nil) {
+		mapPinchRecognizer = [[UIPinchGestureRecognizer alloc] initWithTarget:self action:@selector(recognizedPinch:)];
+        [mapPinchRecognizer setDelegate:self];
+		[self configureGestureRecognizer:mapPinchRecognizer];
+		[self addGestureRecognizer:mapPinchRecognizer];
+	}
+	return mapPinchRecognizer;
+}
+
+-(UISwipeGestureRecognizer*)leftSwipeRecognizer;
+{
+	if (mapLeftSwipeRecognizer == nil) {
+		mapLeftSwipeRecognizer = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(recognizedSwipe:)];
+        [mapLeftSwipeRecognizer setDelegate:self];
+		[mapLeftSwipeRecognizer setDirection:UISwipeGestureRecognizerDirectionLeft];
+		[self configureGestureRecognizer:mapLeftSwipeRecognizer];
+		[self addGestureRecognizer:mapLeftSwipeRecognizer];
+	}
+	return mapLeftSwipeRecognizer;
+}
+
+-(UISwipeGestureRecognizer*)rightSwipeRecognizer;
+{
+	if (mapRightSwipeRecognizer == nil) {
+		mapRightSwipeRecognizer = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(recognizedSwipe:)];
+        [mapRightSwipeRecognizer setDelegate:self];
+		[mapRightSwipeRecognizer setDirection:UISwipeGestureRecognizerDirectionRight];
+		[self configureGestureRecognizer:mapRightSwipeRecognizer];
+		[self addGestureRecognizer:mapRightSwipeRecognizer];
+	}
+	return mapRightSwipeRecognizer;
+}
+
+-(void)recognizedTap:(UITapGestureRecognizer*)recognizer
+{
+	CGPoint p = [recognizer locationInView:map];
+    CLLocationCoordinate2D l = [map convertPoint:p toCoordinateFromView:map];
+	NSMutableDictionary *event = [NSMutableDictionary dictionaryWithObjectsAndKeys:
+                                   NUMFLOAT(p.x), @"x",
+                                   NUMFLOAT(p.y), @"y",
+                                   NUMFLOAT(l.latitude), @"latitude",
+                                   NUMFLOAT(l.longitude), @"longitude",
+                                   nil];
+	
+	if ([recognizer numberOfTouchesRequired] == 2) {
+		[self.proxy fireEvent:@"twofingertap" withObject:event];
+	}
+	else if ([recognizer numberOfTapsRequired] == 2) {
+		if ([self.proxy _hasListeners:@"touchstart"])
+		{
+			[self.proxy fireEvent:@"touchstart" withObject:event propagate:YES];
+		}
+		[self.proxy fireEvent:@"doubletap" withObject:event];
+	}
+	else {
+        if ([self.proxy _hasListeners:@"singletap"]) [self.proxy fireEvent:@"singletap" withObject:event];
+	}
+}
+
+-(void)recognizedLongPress:(UILongPressGestureRecognizer*)recognizer
+{ 
+    if ([recognizer state] == UIGestureRecognizerStateBegan) {
+        CGPoint p = [recognizer locationInView:map];
+        CLLocationCoordinate2D l = [map convertPoint:p toCoordinateFromView:map];
+        NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:
+                               NUMFLOAT(p.x), @"x",
+                               NUMFLOAT(p.y), @"y",
+                               NUMFLOAT(l.latitude), @"latitude",
+                               NUMFLOAT(l.longitude), @"longitude",
+                               nil];
+        [self.proxy fireEvent:@"longpress" withObject:event]; 
+    }
+}
+
+-(void)recognizedPinch:(UIPinchGestureRecognizer*)recognizer 
+{ 
+    NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:
+                           NUMDOUBLE(recognizer.scale), @"scale", 
+                           NUMDOUBLE(recognizer.velocity), @"velocity", 
+                           nil]; 
+    [self.proxy fireEvent:@"pinch" withObject:event]; 
+}
+
+-(void)recognizedSwipe:(UISwipeGestureRecognizer *)recognizer
+{
+	NSString* swipeString;
+	switch ([recognizer direction]) {
+		case UISwipeGestureRecognizerDirectionUp:
+			swipeString = @"up";
+			break;
+		case UISwipeGestureRecognizerDirectionDown:
+			swipeString = @"down";
+			break;
+		case UISwipeGestureRecognizerDirectionLeft:
+			swipeString = @"left";
+			break;
+		case UISwipeGestureRecognizerDirectionRight:
+			swipeString = @"right";
+			break;
+		default:
+			swipeString = @"unknown";
+			break;
+	}
+	
+	CGPoint p = [recognizer locationInView:map];
+    CLLocationCoordinate2D l = [map convertPoint:p toCoordinateFromView:map];
+    NSMutableDictionary *evt = [NSMutableDictionary dictionaryWithDictionary:[TiUtils pointToDictionary:p]];
+    [evt setValue:NUMFLOAT(l.latitude) forKey:@"latitude"];
+    [evt setValue:NUMFLOAT(l.longitude) forKey:@"longitude"];
+
+	[evt setValue:swipeString forKey:@"direction"];
+    	
+	if ([self.proxy _hasListeners:@"swipe"]) [self.proxy fireEvent:@"swipe" withObject:evt];
+}
+
+-(void)mapTouchesBegan: (NSSet *)touches withEvent:(UIEvent *)event
+{	
+	if ([self.proxy _hasListeners:@"touchstart"] || [self.proxy _hasListeners:@"dblclick"])
+	{
+        UITouch *touch = [touches anyObject];
+        
+        CGPoint p = [touch locationInView:map];
+        CLLocationCoordinate2D l = [map convertPoint:p toCoordinateFromView:map];
+        
+		NSMutableDictionary *evt = [NSMutableDictionary dictionaryWithDictionary:[TiUtils pointToDictionary:p]];
+        [evt setValue:NUMFLOAT(l.latitude) forKey:@"latitude"];
+        [evt setValue:NUMFLOAT(l.longitude) forKey:@"longitude"];
+		
+		if ([self.proxy _hasListeners:@"touchstart"]) [self.proxy fireEvent:@"touchstart" withObject:evt propagate:YES];
+        if ([touch tapCount]==2 && [self.proxy _hasListeners:@"dblclick"]) {
+			[self.proxy fireEvent:@"dblclick" withObject:evt propagate:YES];
+        }
+	}
+}
+
+-(void)mapTouchesMoved: (NSSet *)touches withEvent:(UIEvent *)event
+{	
+	if ([self.proxy _hasListeners:@"touchmove"])
+	{
+        UITouch *touch = [touches anyObject];
+        
+        CGPoint p = [touch locationInView:map];
+        CLLocationCoordinate2D l = [map convertPoint:p toCoordinateFromView:map];
+        
+		NSMutableDictionary *evt = [NSMutableDictionary dictionaryWithDictionary:[TiUtils pointToDictionary:p]];
+        [evt setValue:NUMFLOAT(l.latitude) forKey:@"latitude"];
+        [evt setValue:NUMFLOAT(l.longitude) forKey:@"longitude"];
+		
+		if ([self.proxy _hasListeners:@"touchmove"]) [self.proxy fireEvent:@"touchmove" withObject:evt propagate:YES];
+	}
+}
+
+-(void)mapTouchesEnded: (NSSet *)touches withEvent:(UIEvent *)event
+{
+	if ([self.proxy _hasListeners:@"touchend"])
+	{
+        UITouch *touch = [touches anyObject];
+        
+        CGPoint p = [touch locationInView:map];
+        CLLocationCoordinate2D l = [map convertPoint:p toCoordinateFromView:map];
+        
+		NSMutableDictionary *evt = [NSMutableDictionary dictionaryWithDictionary:[TiUtils pointToDictionary:p]];
+        [evt setValue:NUMFLOAT(l.latitude) forKey:@"latitude"];
+        [evt setValue:NUMFLOAT(l.longitude) forKey:@"longitude"];
+		
+		if ([self.proxy _hasListeners:@"touchend"]) [self.proxy fireEvent:@"touchend" withObject:evt propagate:YES];
+	}
+}
+
+-(void)mapTouchesCancelled: (NSSet *)touches withEvent:(UIEvent *)event
+{	
+	if ([self.proxy _hasListeners:@"touchcancel"])
+	{
+        UITouch *touch = [touches anyObject];
+        
+        CGPoint p = [touch locationInView:map];
+        CLLocationCoordinate2D l = [map convertPoint:p toCoordinateFromView:map];
+        
+		NSMutableDictionary *evt = [NSMutableDictionary dictionaryWithDictionary:[TiUtils pointToDictionary:p]];
+        [evt setValue:NUMFLOAT(l.latitude) forKey:@"latitude"];
+        [evt setValue:NUMFLOAT(l.longitude) forKey:@"longitude"];
+		
+		if ([self.proxy _hasListeners:@"touchcancel"]) [self.proxy fireEvent:@"touchcancel" withObject:evt propagate:YES];
+	}
+}
+
 
 #pragma mark Event generation
 
@@ -832,6 +1147,17 @@
 	}
 }
 
+#pragma mark Gesture Delegate Functions
+- (BOOL)gestureRecognizerShouldBegin:(UIGestureRecognizer *)gestureRecognizer{
+    return YES;
+}
+
+- (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherGestureRecognizer{
+    return YES;
+}
+- (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldReceiveTouch:(UITouch *)touch{
+    return YES;
+}
 
 @end
 

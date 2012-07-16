@@ -60,8 +60,7 @@ description: |
         </mobileweb>
 extends: Titanium.UI.View
 excludes: {
-    events: [ 'singletap', 'doubletap', 'dblclick', 'longclick', 'longpress', 'pinch',
-    'swipe', 'touchstart', 'touchend', 'touchcancel', 'touchmove', 'twofingertap' ]
+    events: ['longclick']
 }
 since: "0.8"
 platforms: [android, iphone, ipad, mobileweb]
@@ -250,10 +249,44 @@ events:
         summary: Longitude of the clicked annotation.
         type: Number
         platforms: [android, mobileweb]
+        
+  - name: dblclick
+    summary: Fired when the device detects a double click against the map.
+    platforms: [iphone, ipad]
+    properties:
+      - name: x
+        type: Number
+        summary: X coordinate of the event from the `source` map's coordinate system.
+      - name: y
+        summary: Y coordinate of the event from the `source` map's coordinate system.
+        type: Number
+      - name: latitude
+        summary: Latitude of the event, in decimal degrees. 
+        type: Number
+      - name: longitude
+        summary: Longitude of the event, in decimal degrees.
+        type: Number 
 
   - name: complete
     summary: Fired when the map completes loading.
     platforms: [iphone, ipad, mobileweb]
+        
+  - name: doubletap
+    summary: Fired when the device detects a double tap against the map view.
+    platforms: [iphone, ipad]
+    properties:
+      - name: x
+        type: Number
+        summary: X coordinate of the event from the `source` map's coordinate system.
+      - name: y
+        summary: Y coordinate of the event from the `source` map's coordinate system.
+        type: Number
+      - name: latitude
+        summary: Latitude of the event, in decimal degrees. 
+        type: Number
+      - name: longitude
+        summary: Longitude of the event, in decimal degrees.
+        type: Number
 
   - name: error
     summary: Fired when the map receives a mapping error.
@@ -262,6 +295,37 @@ events:
   - name: loading
     summary: Fired when the map begins loading.
     platforms: [iphone, ipad, mobileweb]
+        
+  - name: longpress
+    summary: Fired when the device detects a long press.
+    platforms: [iphone, ipad]
+    properties:
+      - name: x
+        type: Number
+        summary: X coordinate of the event from the `source` map's coordinate system.
+      - name: y
+        summary: Y coordinate of the event from the `source` map's coordinate system.
+        type: Number
+      - name: latitude
+        summary: Latitude of the event, in decimal degrees. 
+        type: Number
+      - name: longitude
+        summary: Longitude of the event, in decimal degrees.
+        type: Number
+    
+  - name: pinch
+    summary: Fired when the device detects a pinch gesture.
+    description: |
+        A pinch is a touch and expand or contract 
+        with two fingers.  The event occurs continuously until a finger is lifted again.  
+    properties:
+      - name: scale
+        summary: The scale factor relative to the points of the two touches in screen coordinates.
+        type: Number
+      - name: velocity
+        summary: The velocity of the pinch in scale factor per second.
+        type: Number
+    platforms: [iphone,ipad]
 
   - name: pinchangedragstate
     summary: Fired when the user interacts with a draggable annotation.
@@ -319,6 +383,128 @@ events:
         type: Number
       - name: latitude
         summary: Latitude value for the center point of the map, in decimal degrees.
+        type: Number
+        
+  - name: singletap
+    summary: Fired when the device detects a single tap against the map view.
+    platforms: [iphone, ipad]
+    properties:
+      - name: x
+        type: Number
+        summary: X coordinate of the event from the `source` map's coordinate system.
+      - name: y
+        summary: Y coordinate of the event from the `source` map's coordinate system.
+        type: Number
+      - name: latitude
+        summary: Latitude of the event, in decimal degrees. 
+        type: Number
+      - name: longitude
+        summary: Longitude of the event, in decimal degrees.
+        type: Number
+    
+  - name: swipe
+    summary: Fired when the device detects a swipe gesture against the map view.
+    platforms: [iphone,ipad]
+    properties:
+      - name: direction
+        summary: Direction of the swipe--either 'left' or 'right'.
+        type: String
+      - name: x
+        summary: X coordinate of the event's endpoint from the `source` view's coordinate system.
+        type: Number
+      - name: y
+        summary: Y coordinate of the event's endpoint from the `source` view's coordinate system.
+        type: Number
+      - name: latitude
+        summary: Latitude of the event, in decimal degrees. 
+        type: Number
+      - name: longitude
+        summary: Longitude of the event, in decimal degrees.
+        type: Number
+        
+  - name: touchcancel
+    summary: Fired when a touch event is interrupted by the device.
+    platforms: [iphone, ipad]
+    properties:
+      - name: x
+        type: Number
+        summary: X coordinate of the event from the `source` map's coordinate system.
+      - name: y
+        summary: Y coordinate of the event from the `source` map's coordinate system.
+        type: Number
+      - name: latitude
+        summary: Latitude of the event, in decimal degrees. 
+        type: Number
+      - name: longitude
+        summary: Longitude of the event, in decimal degrees.
+        type: Number
+        
+  - name: touchend
+    summary: Fired when a touch event is completed.
+    platforms: [iphone, ipad]
+    properties:
+      - name: x
+        type: Number
+        summary: X coordinate of the event from the `source` map's coordinate system.
+      - name: y
+        summary: Y coordinate of the event from the `source` map's coordinate system.
+        type: Number
+      - name: latitude
+        summary: Latitude of the event, in decimal degrees. 
+        type: Number
+      - name: longitude
+        summary: Longitude of the event, in decimal degrees.
+        type: Number
+        
+  - name: touchmove
+    summary: Fired as soon as the device detects movement of a touch.
+    platforms: [iphone, ipad]
+    properties:
+      - name: x
+        type: Number
+        summary: X coordinate of the event from the `source` map's coordinate system.
+      - name: y
+        summary: Y coordinate of the event from the `source` map's coordinate system.
+        type: Number
+      - name: latitude
+        summary: Latitude of the event, in decimal degrees. 
+        type: Number
+      - name: longitude
+        summary: Longitude of the event, in decimal degrees. 
+        type: Number
+        
+  - name: touchstart
+    summary: Fired as soon as the device detects a touch gesture.
+    platforms: [iphone, ipad]
+    properties:
+      - name: x
+        type: Number
+        summary: X coordinate of the event from the `source` map's coordinate system.
+      - name: y
+        summary: Y coordinate of the event from the `source` map's coordinate system.
+        type: Number
+      - name: latitude
+        summary: Latitude of the event, in decimal degrees. 
+        type: Number
+      - name: longitude
+        summary: Longitude of the event, in decimal degrees. 
+        type: Number
+        
+  - name: twofingertap
+    summary: Fired when the device detects a two-finger tap against the map vew.
+    platforms: [iphone, ipad]
+    properties:
+      - name: x
+        type: Number
+        summary: X coordinate of the event from the `source` map's coordinate system.
+      - name: y
+        summary: Y coordinate of the event from the `source` map's coordinate system.
+        type: Number
+      - name: latitude
+        summary: Latitude of the event, in decimal degrees. 
+        type: Number
+      - name: longitude
+        summary: Longitude of the event, in decimal degrees. 
         type: Number
 
 properties:

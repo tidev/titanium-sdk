@@ -1,0 +1,77 @@
+<h1>Ti.CloudPush Module</h1>
+<h2>Description</h2>
+<p>Push notifications for Android via Appcelerator Cloud Services. When push is enabled, this module persistently connects
+to the ACS servers using a long lived and very light TCP socket. Using this, push notifications can be sent to your
+users.</p>
+<p>For more information, please look at the Appcelerator Cloud Services documentation on <a href="http://www.appcelerator.com/">http://www.appcelerator.com/</a>.</p>
+<h2>Getting Started</h2>
+<p>View the <a href="http://docs.appcelerator.com/titanium/2.0/#!/guide/Using_Titanium_Modules">Using Titanium Modules</a> document for instructions on getting
+started with using this module in your application.</p>
+<h2>Accessing the Ti.CloudPush Module</h2>
+<p>To access this module from JavaScript, you would do the following:</p>
+<pre><code>var CloudPush = require('ti.cloudpush');
+</code></pre>
+<h2>Methods</h2>
+<h3>void retrieveDeviceToken(Dictionary args)</h3>
+<p>Asynchronously retrieves the device token that you should use for any calls to the Appcelerator Cloud Service's subscribe
+or unsubscribe to push notification channels. This token is unique to each application, and each device.</p>
+<p>Takes a single argument, an object literal with the following required properties:</p>
+<ul>
+<li>function success(e): A callback to be executed when the token is successfully retrieved. The first argument, "e", is an object literal with one property: string deviceToken.</li>
+<li>function error(e): A callback to be executed when token retrieval fails. Network failure is the most common cause. The first argument, "e", is an object literal with one property: string error.</li>
+</ul>
+<h2>Properties</h2>
+<p><em>WARNING</em>: The defaults listed below are used until you set a property for the first time. Because the properties are
+persisted to the device settings (just like Ti.App.Properties), the most recent value you set will always be used.</p>
+<h3>boolean enabled [defaults to false]</h3>
+<p>Whether or not this device will receive push notifications. You must ask your users before enabling this. Note that once
+enabled, the application will be able to receive notifications at any time, even after the device reboots, regardless of
+if your application has been run recently or not. But if the user intentionally kills your application and its services
+in their task manager, push notifications will be disabled and this property will automatically be set to false.</p>
+<p>Also be aware that whenever your application is updated (through the market or through ADB installing a new APK), the
+push service will be stopped until the app is launched for the first time.</p>
+<h3>boolean showTrayNotification [defaults to true]</h3>
+<p>Whether or not to show a tray notification when a new push is received. If your payload is only a string, it will be
+used as the contentText and tickerText, and your application's name will be used as the contentTitle with a system icon.</p>
+<p>Note that in your payload, you can customize this tray notification using any of the properties of a
+<a href="http://docs.appcelerator.com/titanium/2.0/#!/api/Titanium.Android.Notification">Titanium.Android.Notification</a>,
+except for contentIntent and deleteIntent.</p>
+<h3>boolean showAppOnTrayClick [defaults to true]</h3>
+<p>Whether or not clicking the tray notification will bring your application to the foreground. This is only applicable if
+you have set "showTrayNotification" to true.</p>
+<h3>boolean showTrayNotificationsWhenFocused [defaults to false]</h3>
+<p>Whether or not to show tray notifications when your application is in the foreground.</p>
+<h3>boolean focusAppOnPush [defaults to false]</h3>
+<p>Whether or not your application is brought to the foreground whenever a new push is received.</p>
+<h2>Events</h2>
+<h3>trayClickLaunchedApp</h3>
+<p>Fired when a tray notification is shown and the application is not running. Touching it launches the app, and fires this
+event.</p>
+<h3>trayClickFocusedApp</h3>
+<p>Fired when a tray notification is shown and the application is already running. Touching it focuses the app, and fires
+this event.</p>
+<h3>callback</h3>
+<p>Fired whenever a push notification is received. If your application is not running when a push is received, the push
+will be saved in a queue until the next time you add an event listener for this.</p>
+<p>This event receives an object literal with a single property:</p>
+<ul>
+<li>string payload: A JSON string of your data payload. Use JSON.parse to turn this in to an object you can use.</li>
+</ul>
+<p>Example listener:
+<pre>
+    CloudPush.addEventListener('callback', function (evt) {
+        Ti.API.info('Received push! ' + evt.payload);
+        Ti.API.info('JSON: ' + JSON.parse(evt.payload));
+        alert(evt.payload);
+    });
+</pre></p>
+<h2>Usage</h2>
+<p>See example.js</p>
+<h2>Author</h2>
+<p>Dawson Toth</p>
+<h2>Module History</h2>
+<p>View the <a href="changelog.html">change log</a> for this module.</p>
+<h2>Feedback and Support</h2>
+<p>Please direct all questions, feedback, and concerns to <a href="mailto:info@appcelerator.com?subject=Android%20Push%20Module">info@appcelerator.com</a>.</p>
+<h2>License</h2>
+<p>Copyright(c) 2012 by Appcelerator, Inc. All Rights Reserved. Please see the LICENSE file included in the distribution for further details.</p>
