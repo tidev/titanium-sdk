@@ -233,13 +233,18 @@ Module.prototype.require = function (request, context, useCache) {
 
 	// Create and attempt to load the module.
 	var module = new Module(id, this, context);
-
-	module.load(filename);
-
+	
+	// NOTE: We need to cache here to handle cyclic dependencies.
+	// By caching early, this allows for a return of a "partially evaluated"
+	// module, which can provide transitive properties in a way described
+	// by the commonjs 1.1 spec.
+	
 	if (useCache) {
 		// Cache the module for future requests.
 		Module.cache[filename] = module;
 	}
+	
+	module.load(filename);
 
 	return module.exports;
 }
