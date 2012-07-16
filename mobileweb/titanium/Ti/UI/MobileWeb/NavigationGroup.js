@@ -120,11 +120,6 @@ define(["Ti/_/css", "Ti/_/declare", "Ti/UI/View", "Ti/UI", "Ti/_/lang"],
 			}
 		},
 
-		_updateTitle: function() {
-			var len = this._windows.length;
-			this._title.text = (len && this._windows[len - 1]._getTitle()) || (this._tab && this._tab._getTitle()) || "";
-		},
-
 		_getTopWindow: function() {
 			var windows = this._windows,
 				len = windows.length;
@@ -156,27 +151,6 @@ define(["Ti/_/css", "Ti/_/declare", "Ti/UI/View", "Ti/UI", "Ti/_/lang"],
 			}
 		},
 
-		close: function(win) {
-			var windows = this._windows,
-				windowIdx = windows.indexOf(win),
-				self = this,
-				backButton = self._backButton;
-				
-			win._navGroup = void 0;
-
-			// make sure the window exists and it's not the root
-			if (windowIdx > 0) {
-				windows.splice(windowIdx, 1);
-				win.fireEvent("blur");
-				self._contentContainer.remove(win);
-				win.fireEvent("close");
-				win._opened = 0;
-
-				this._updateNavBar();
-				windows[windows.length - 1].fireEvent("focus");
-			}
-		},
-
 		_reset: function() {
 			var windows = this._windows,
 				win,
@@ -200,8 +174,29 @@ define(["Ti/_/css", "Ti/_/declare", "Ti/UI/View", "Ti/UI", "Ti/_/lang"],
 			}
 
 			windows.splice(1);
-			this._title.text = win._getTitle();
+			this._updateNavBar();
 			win.fireEvent("focus");
+		},
+
+		close: function(win) {
+			var windows = this._windows,
+				windowIdx = windows.indexOf(win),
+				self = this,
+				backButton = self._backButton;
+				
+			win._navGroup = void 0;
+
+			// make sure the window exists and it's not the root
+			if (windowIdx > 0) {
+				windows.splice(windowIdx, 1);
+				win.fireEvent("blur");
+				self._contentContainer.remove(win);
+				win.fireEvent("close");
+				win._opened = 0;
+
+				this._updateNavBar();
+				windows[windows.length - 1].fireEvent("focus");
+			}
 		},
 
 		constants: {
