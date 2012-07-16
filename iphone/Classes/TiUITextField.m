@@ -464,12 +464,8 @@
     NSString *curText = [[tf text] stringByReplacingCharactersInRange:range withString:string];
    
     NSInteger maxLength = [[self textWidgetView] maxLength];    
-    if (maxLength > -1) {
-        NSInteger length = [curText length] + [string length] - range.length;
-        
-        if (length > maxLength) {
-            return NO;
-        }
+    if ( (maxLength > -1) && ([curText length] > maxLength) ) {
+        return NO;
     }
 
 	[(TiUITextFieldProxy *)self.proxy noteValueChange:curText];
