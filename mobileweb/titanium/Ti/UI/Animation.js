@@ -132,11 +132,10 @@ define(["Ti/_/declare", "Ti/_/Evented", "Ti/_/style", "Ti/UI"], function(declare
 									val = [];
 									len = from.length;
 									for (j = 0; j < len; j++) {
-										// we skip index 12-14 because those are the rotation vector
+										// for 3d matrices, indices 12-14 are normally [0, 0, 0, 1], but since they are
+										// unused, we use them to store the rotation vector which we want to skip
 										if (j < 12 || j > 14) {
-											prop = from[j] + ((to[j] - from[j]) * progress);
-											// index 15 is the angle which MUST be an integer
-											val[j] = j > 14 ? Math.floor(prop) : prop;
+											val[j] = from[j] + ((to[j] - from[j]) * progress);
 										}
 									}
 									needsRender = 1;
