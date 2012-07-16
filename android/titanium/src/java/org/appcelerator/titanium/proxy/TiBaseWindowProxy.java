@@ -76,7 +76,7 @@ public class TiBaseWindowProxy extends TiWindowProxy
 	}
 
 	@Override
-	protected Activity handleGetActivity()
+	protected Activity getWindowActivity()
 	{
 		return null;
 	}

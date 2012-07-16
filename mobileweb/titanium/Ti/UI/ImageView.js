@@ -153,7 +153,7 @@ define(["Ti/_/declare", "Ti/_/event", "Ti/_/lang", "Ti/_/style", "Ti/_/UI/Widget
 
 		start: function(){
 			if (this._images) {
-				this._setState(1, 0);
+				this._setState(0, 1);
 				this._slideshowCount = 0;
 				this._setSlideshowInterval();
 				this.fireEvent("start");
@@ -202,7 +202,12 @@ define(["Ti/_/declare", "Ti/_/event", "Ti/_/lang", "Ti/_/style", "Ti/_/UI/Widget
 		},
 
 		properties: {
-			duration: 30,
+			duration: {
+				set: function(value) {
+					return Math.max(30, value);
+				},
+				value: 200
+			},
 
 			image: {
 				set: function(value) {

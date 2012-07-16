@@ -320,6 +320,9 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 			if (entry.getValue().toString().equals(localeProperty)) {
 				String targetProperty = entry.getKey();
 				String localizedValue = getLocalizedText(newLookupId);
+				if (localizedValue == null) {
+					return null;
+				}
 				setProperty(targetProperty, localizedValue);
 
 				return Pair.create(targetProperty, localizedValue);
@@ -350,10 +353,14 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 	{
 		try {
 			int resid = TiRHelper.getResource("string." + lookupId);
-			return getActivity().getString(resid);
+			if (resid != 0) {
+				return getActivity().getString(resid);
+			} 
+			return null;
+		
 		} catch (TiRHelper.ResourceNotFoundException e) {
 			return null;
-		}
+		} 
 	}
 
 	/**
@@ -703,7 +710,9 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 
 		Object oldValue = properties.get(propertyName);
 		properties.put(propertyName, newValue);
-		firePropertyChanged(propertyName, oldValue, newValue);
+		if (shouldFireChange(oldValue, newValue)) {
+			firePropertyChanged(propertyName, oldValue, newValue);
+		}
 	}
 
 	public void onPropertiesChanged(Object[][] changes)

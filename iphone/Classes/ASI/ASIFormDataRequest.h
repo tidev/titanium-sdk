@@ -10,13 +10,13 @@
 #import "ASIHTTPRequest.h"
 #import "ASIHTTPRequestConfig.h"
 
-typedef enum _ASIPostFormat {
-    ASIMultipartFormDataPostFormat = 0,
-    ASIURLEncodedPostFormat = 1
+typedef enum TI__ASIPostFormat {
+    TI_ASIMultipartFormDataPostFormat = 0,
+    TI_ASIURLEncodedPostFormat = 1
 	
-} ASIPostFormat;
+} TI_ASIPostFormat;
 
-@interface ASIFormDataRequest : ASIHTTPRequest <NSCopying> {
+@interface TI_ASIFormDataRequest : ASIHTTPRequest <NSCopying> {
 
 	// Parameters that will be POSTed to the url
 	NSMutableArray *postData;
@@ -24,7 +24,7 @@ typedef enum _ASIPostFormat {
 	// Files that will be POSTed to the url
 	NSMutableArray *fileData;
 	
-	ASIPostFormat postFormat;
+	TI_ASIPostFormat postFormat;
 	
 	NSStringEncoding stringEncoding;
 	
@@ -71,6 +71,8 @@ typedef enum _ASIPostFormat {
 - (void)setData:(id)data withFileName:(NSString *)fileName andContentType:(NSString *)contentType forKey:(NSString *)key;
 
 
-@property (assign) ASIPostFormat postFormat;
+@property (assign) TI_ASIPostFormat postFormat;
 @property (assign) NSStringEncoding stringEncoding;
 @end
+
+@compatibility_alias ASIFormDataRequest TI_ASIFormDataRequest;

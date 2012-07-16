@@ -62,9 +62,9 @@ static const NSUInteger kDomainSection = 1;
 		sharedDialog = [[self alloc] init];
 		[sharedDialog setRequest:theRequest];
 		if ([theRequest authenticationNeeded] == ASIProxyAuthenticationNeeded) {
-			[sharedDialog setType:ASIProxyAuthenticationType];
+			[sharedDialog setType:TI_ASIProxyAuthenticationType];
 		} else {
-			[sharedDialog setType:ASIStandardAuthenticationType];
+			[sharedDialog setType:TI_ASIStandardAuthenticationType];
 		}
 		[sharedDialog show];
 	} else {
@@ -249,7 +249,7 @@ static const NSUInteger kDomainSection = 1;
 	UINavigationItem *navItem = [[navigationBar items] objectAtIndex:0];
 	if (UIInterfaceOrientationIsPortrait([[UIDevice currentDevice] orientation])) {
 		// Setup the title
-		if ([self type] == ASIProxyAuthenticationType) {
+		if ([self type] == TI_ASIProxyAuthenticationType) {
 			[navItem setPrompt:@"Login to this secure proxy server."];
 		} else {
 			[navItem setPrompt:@"Login to this secure server."];
@@ -284,7 +284,7 @@ static const NSUInteger kDomainSection = 1;
 	[self showTitle];
 
 	// Setup toolbar buttons
-	if ([self type] == ASIProxyAuthenticationType) {
+	if ([self type] == TI_ASIProxyAuthenticationType) {
 		[navItem setTitle:[[self request] proxyHost]];
 	} else {
 		[navItem setTitle:[[[self request] url] host]];
@@ -363,7 +363,7 @@ static const NSUInteger kDomainSection = 1;
 		if (username == nil) { username = @""; }
 		if (password == nil) { password = @""; }
 
-		if ([self type] == ASIProxyAuthenticationType) {
+		if ([self type] == TI_ASIProxyAuthenticationType) {
 			[theRequest setProxyUsername:username];
 			[theRequest setProxyPassword:password];
 		} else {
@@ -372,10 +372,10 @@ static const NSUInteger kDomainSection = 1;
 		}
 
 		// Handle NTLM domains
-		NSString *scheme = ([self type] == ASIStandardAuthenticationType) ? [[self request] authenticationScheme] : [[self request] proxyAuthenticationScheme];
+		NSString *scheme = ([self type] == TI_ASIStandardAuthenticationType) ? [[self request] authenticationScheme] : [[self request] proxyAuthenticationScheme];
 		if ([scheme isEqualToString:(NSString *)kCFHTTPAuthenticationSchemeNTLM]) {
 			NSString *domain = [[self domainField] text];
-			if ([self type] == ASIProxyAuthenticationType) {
+			if ([self type] == TI_ASIProxyAuthenticationType) {
 				[theRequest setProxyDomain:domain];
 			} else {
 				[theRequest setDomain:domain];
@@ -392,7 +392,7 @@ static const NSUInteger kDomainSection = 1;
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)aTableView
 {
-	NSString *scheme = ([self type] == ASIStandardAuthenticationType) ? [[self request] authenticationScheme] : [[self request] proxyAuthenticationScheme];
+	NSString *scheme = ([self type] == TI_ASIStandardAuthenticationType) ? [[self request] authenticationScheme] : [[self request] proxyAuthenticationScheme];
 	if ([scheme isEqualToString:(NSString *)kCFHTTPAuthenticationSchemeNTLM]) {
 		return 2;
 	}

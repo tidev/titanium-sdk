@@ -24,7 +24,7 @@
 #import "ASIDataCompressor.h"
 
 // Automatically set on build
-NSString *ASIHTTPRequestVersion = @"v1.8.1-61 2011-09-19";
+NSString *TI_ASIHTTPRequestVersion = @"v1.8.1-61 2011-09-19";
 
 static NSString *defaultUserAgent = nil;
 
@@ -121,7 +121,7 @@ static NSRecursiveLock *delegateAuthenticationLock = nil;
 // When throttling bandwidth, Set to a date in future that we will allow all requests to wake up and reschedule their streams
 static NSDate *throttleWakeUpTime = nil;
 
-static id <ASICacheDelegate> defaultCache = nil;
+static id <TI_ASICacheDelegate> defaultCache = nil;
 
 // Used for tracking when requests are using the network
 static unsigned int runningRequestCount = 0;
@@ -240,7 +240,7 @@ static NSMutableSet* legacyTlsServers = nil;
 @property (assign) BOOL connectionCanBeReused;
 @property (retain, nonatomic) NSMutableDictionary *connectionInfo;
 @property (retain, nonatomic) NSInputStream *readStream;
-@property (assign) ASIAuthenticationState authenticationNeeded;
+@property (assign) TI_ASIAuthenticationState authenticationNeeded;
 @property (assign, nonatomic) BOOL readStreamIsScheduled;
 @property (assign, nonatomic) BOOL downloadComplete;
 @property (retain) NSNumber *requestID;
@@ -325,12 +325,12 @@ static NSMutableSet* legacyTlsServers = nil;
 	return [[[self alloc] initWithURL:newURL] autorelease];
 }
 
-+ (id)requestWithURL:(NSURL *)newURL usingCache:(id <ASICacheDelegate>)cache
++ (id)requestWithURL:(NSURL *)newURL usingCache:(id <TI_ASICacheDelegate>)cache
 {
-	return [self requestWithURL:newURL usingCache:cache andCachePolicy:ASIUseDefaultCachePolicy];
+	return [self requestWithURL:newURL usingCache:cache andCachePolicy:TI_ASIUseDefaultCachePolicy];
 }
 
-+ (id)requestWithURL:(NSURL *)newURL usingCache:(id <ASICacheDelegate>)cache andCachePolicy:(ASICachePolicy)policy
++ (id)requestWithURL:(NSURL *)newURL usingCache:(id <TI_ASICacheDelegate>)cache andCachePolicy:(TI_ASICachePolicy)policy
 {
 	ASIHTTPRequest *request = [[[self alloc] initWithURL:newURL] autorelease];
 	[request setDownloadCache:cache];
@@ -340,7 +340,7 @@ static NSMutableSet* legacyTlsServers = nil;
 
 - (void)dealloc
 {
-	[self setAuthenticationNeeded:ASINoAuthenticationNeededYet];
+	[self setAuthenticationNeeded:TI_ASINoAuthenticationNeededYet];
 	if (requestAuthentication) {
 		CFRelease(requestAuthentication);
 	}
@@ -941,7 +941,7 @@ static NSMutableSet* legacyTlsServers = nil;
 			}
 
 			// If cached data is stale, or we have been told to ask the server if it has been modified anyway, we need to add headers for a conditional GET
-			if ([self cachePolicy] & (ASIAskServerIfModifiedWhenStaleCachePolicy|ASIAskServerIfModifiedCachePolicy)) {
+			if ([self cachePolicy] & (TI_ASIAskServerIfModifiedWhenStaleCachePolicy|TI_ASIAskServerIfModifiedCachePolicy)) {
 
 				NSDictionary *cachedHeaders = [[self downloadCache] cachedResponseHeadersForURL:[self url]];
 				if (cachedHeaders) {
@@ -2149,7 +2149,7 @@ static NSMutableSet* legacyTlsServers = nil;
 	}
 	
 	// If we have cached data, use it and ignore the error when using ASIFallbackToCacheIfLoadFailsCachePolicy
-	if ([self downloadCache] && ([self cachePolicy] & ASIFallbackToCacheIfLoadFailsCachePolicy)) {
+	if ([self downloadCache] && ([self cachePolicy] & TI_ASIFallbackToCacheIfLoadFailsCachePolicy)) {
 		if ([[self downloadCache] canUseCachedDataForRequest:self]) {
 			[self useDataFromCache];
 			return;
@@ -2186,7 +2186,7 @@ static NSMutableSet* legacyTlsServers = nil;
 
 - (void)readResponseHeaders
 {
-	[self setAuthenticationNeeded:ASINoAuthenticationNeededYet];
+	[self setAuthenticationNeeded:TI_ASINoAuthenticationNeededYet];
 
 	CFHTTPMessageRef message = (CFHTTPMessageRef)CFReadStreamCopyProperty((CFReadStreamRef)[self readStream], kCFStreamPropertyHTTPResponseHeader);
 	if (!message) {
@@ -4450,7 +4450,7 @@ static NSMutableSet* legacyTlsServers = nil;
 	[[[self class] sessionCredentialsStore] removeAllObjects];
 	[sessionCredentialsLock unlock];
 	[[self class] setSessionCookies:nil];
-	[[[self class] defaultCache] clearCachedResponsesForStoragePolicy:ASICacheForSessionDurationCacheStoragePolicy];
+	[[[self class] defaultCache] clearCachedResponsesForStoragePolicy:TI_ASICacheForSessionDurationCacheStoragePolicy];
 }
 
 #pragma mark get user agent
@@ -4779,7 +4779,7 @@ static NSMutableSet* legacyTlsServers = nil;
 
 #pragma mark cache
 
-+ (void)setDefaultCache:(id <ASICacheDelegate>)cache
++ (void)setDefaultCache:(id <TI_ASICacheDelegate>)cache
 {
 	@synchronized (self) {
 		[cache retain];
@@ -4788,7 +4788,7 @@ static NSMutableSet* legacyTlsServers = nil;
 	}
 }
 
-+ (id <ASICacheDelegate>)defaultCache
++ (id <TI_ASICacheDelegate>)defaultCache
 {
     @synchronized(self) {
         return [[defaultCache retain] autorelease];

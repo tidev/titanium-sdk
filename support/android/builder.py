@@ -267,6 +267,7 @@ class Builder(object):
 		
 	def set_java_commands(self):
 		self.jarsigner = "jarsigner"
+		self.keytool = "keytool"
 		self.javac = "javac"
 		self.java = "java"
 		java_home = None
@@ -277,6 +278,7 @@ class Builder(object):
 		if platform.system() == "Windows":
 			if java_home:
 				home_jarsigner = os.path.join(java_home, "bin", "jarsigner.exe")
+				home_keytool = os.path.join(java_home, "bin", "keytool.exe")
 				home_javac = os.path.join(java_home, "bin", "javac.exe")
 				home_java = os.path.join(java_home, "bin", "java.exe")
 				found = True
@@ -287,7 +289,13 @@ class Builder(object):
 					# Expected but not found
 					found = False
 					error("Required jarsigner not found")
-					
+				
+				if os.path.exists(home_keytool):
+					self.keytool = home_keytool
+				else:
+					error("Required keytool not found")
+					found = False
+
 				if os.path.exists(home_javac):
 					self.javac = home_javac
 				else:
@@ -308,6 +316,7 @@ class Builder(object):
 				for path in os.environ['PATH'].split(os.pathsep):
 					if os.path.exists(os.path.join(path, 'jarsigner.exe')) and os.path.exists(os.path.join(path, 'javac.exe')):
 						self.jarsigner = os.path.join(path, 'jarsigner.exe')
+						self.keytool = os.path.join(path, 'keytool.exe')
 						self.javac = os.path.join(path, 'javac.exe')
 						self.java = os.path.join(path, 'java.exe')
 						java_home = os.path.dirname(os.path.dirname(self.javac))
@@ -1533,6 +1542,27 @@ class Builder(object):
 		command.extend(args)
 		return run.run(command)
 
+	def get_sigalg(self):
+		output = run.run([self.keytool,
+			'-v', 
+			'-list',
+			'-keystore', self.keystore,
+			'-storepass', self.keystore_pass,
+			'-alias', self.keystore_alias
+		])
+
+		# If the keytool encounters an error, that means some of the provided
+		# keychain info is invalid and we should bail anyway
+		run.check_output_for_error(output, r'RuntimeException: (.*)', True)
+		run.check_output_for_error(output, r'^keytool: (.*)', True)
+
+		match = re.search(r'Signature algorithm name: (.*)', output)
+		if match is not None:
+			return match.group(1)
+
+		# Return the default:
+		return "MD5withRSA"
+
 	def package_and_deploy(self):
 		ap_ = os.path.join(self.project_dir, 'bin', 'app.ap_')
 
@@ -1560,7 +1590,7 @@ class Builder(object):
 			app_apk = os.path.join(self.project_dir, 'bin', 'app.apk')	
 
 		output = run.run([self.jarsigner,
-			'-sigalg', 'MD5withRSA',
+			'-sigalg', self.get_sigalg(),
 			'-digestalg', 'SHA1',
 			'-storepass', self.keystore_pass,
 			'-keystore', self.keystore,

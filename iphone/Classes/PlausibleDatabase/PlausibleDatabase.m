@@ -33,29 +33,29 @@
  * Generic Database Exception
  * @ingroup exceptions
  */
-NSString *PLDatabaseException = @"com.plausiblelabs.pldatabase.exception.generic";
+NSString *TI_PLDatabaseException = @"com.plausiblelabs.pldatabase.exception.generic";
 
 /** Plausible Database NSError Domain
  * @ingroup globals */
-NSString *PLDatabaseErrorDomain = @"com.plausiblelabs.pldatabase";
+NSString *TI_PLDatabaseErrorDomain = @"com.plausiblelabs.pldatabase";
 
 /**
  * Key to retrieve the optionally provided SQL query which caused the error from an NSError in the PLDatabaseErrorDomain, as an NSString
  * @ingroup globals
  */
-NSString *PLDatabaseErrorQueryStringKey = @"com.plausiblelabs.pldatabase.error.query.string";
+NSString *TI_PLDatabaseErrorQueryStringKey = @"com.plausiblelabs.pldatabase.error.query.string";
 
 /**
   * Key to retrieve the native database error code from an NSError in the PLDatabaseErrorDomain, as an NSNumber
   * @ingroup globals
   */
-NSString *PLDatabaseErrorVendorErrorKey = @"com.plausiblelabs.pldatabase.error.vendor.code";
+NSString *TI_PLDatabaseErrorVendorErrorKey = @"com.plausiblelabs.pldatabase.error.vendor.code";
 
 /** 
  * Key to retrieve the native database error string from an NSError in the PLDatabaseErrorDomain, as an NSString
  * @ingroup globals
  */
-NSString *PLDatabaseErrorVendorStringKey = @"com.plausiblelabs.pldatabase.error.vendor.string";
+NSString *TI_PLDatabaseErrorVendorStringKey = @"com.plausiblelabs.pldatabase.error.vendor.string";
 
 /**
  * @internal
@@ -75,7 +75,7 @@ NSString *PLDatabaseErrorVendorStringKey = @"com.plausiblelabs.pldatabase.error.
  * @param nativeString The native SQL driver's non-localized error string.
  * @return A NSError that may be returned to the API caller.
  */
-+ (NSError *) errorWithCode: (PLDatabaseError) errorCode localizedDescription: (NSString *) localizedDescription 
++ (NSError *) errorWithCode: (TI_PLDatabaseError) errorCode localizedDescription: (NSString *) localizedDescription 
                 queryString: (NSString *) queryString vendorError: (NSNumber *) vendorError
                 vendorErrorString: (NSString *) vendorErrorString 
 {
@@ -84,16 +84,16 @@ NSString *PLDatabaseErrorVendorStringKey = @"com.plausiblelabs.pldatabase.error.
     /* Create the userInfo dictionary */
     userInfo = [NSMutableDictionary dictionaryWithObjectsAndKeys: 
                 localizedDescription, NSLocalizedDescriptionKey,
-                vendorError, PLDatabaseErrorVendorErrorKey,
-                vendorErrorString, PLDatabaseErrorVendorStringKey,
+                vendorError, TI_PLDatabaseErrorVendorErrorKey,
+                vendorErrorString, TI_PLDatabaseErrorVendorStringKey,
                 nil];
     
     /* Optionally insert the query string. */
     if (queryString != nil)
-        [userInfo setObject: queryString forKey: PLDatabaseErrorQueryStringKey];
+        [userInfo setObject: queryString forKey: TI_PLDatabaseErrorQueryStringKey];
     
     /* Return the NSError */
-    return [NSError errorWithDomain: PLDatabaseErrorDomain code: errorCode userInfo: userInfo];
+    return [NSError errorWithDomain: TI_PLDatabaseErrorDomain code: errorCode userInfo: userInfo];
 }
 
 @end

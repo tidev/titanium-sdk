@@ -28,6 +28,8 @@ typedef enum
 	TiUITableView *table;
 	TiUITableViewSectionProxy *section;
 	TiDimension height;
+	TiDimension leftCap;
+	TiDimension topCap;
 	BOOL configuredChildren;
 	int dirtyRowFlags;
 	BOOL subviewIsAnimating;

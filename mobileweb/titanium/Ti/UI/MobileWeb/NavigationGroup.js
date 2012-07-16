@@ -120,11 +120,6 @@ define(["Ti/_/css", "Ti/_/declare", "Ti/UI/View", "Ti/UI", "Ti/_/lang"],
 			}
 		},
 
-		_updateTitle: function() {
-			var len = this._windows.length;
-			this._title.text = (len && this._windows[len - 1]._getTitle()) || (this._tab && this._tab._getTitle()) || "";
-		},
-
 		_getTopWindow: function() {
 			var windows = this._windows,
 				len = windows.length;
@@ -200,7 +195,7 @@ define(["Ti/_/css", "Ti/_/declare", "Ti/UI/View", "Ti/UI", "Ti/_/lang"],
 			}
 
 			windows.splice(1);
-			this._title.text = win._getTitle();
+			this._updateNavBar();
 			win.fireEvent("focus");
 		},
 

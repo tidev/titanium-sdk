@@ -31,6 +31,9 @@ import android.graphics.drawable.TransitionDrawable;
 import android.os.Build;
 import android.os.Looper;
 import android.os.MessageQueue;
+import android.util.FloatMath;
+import android.util.Pair;
+import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
@@ -290,26 +293,48 @@ public class TiAnimationBuilder
 			TiDimension optionTop = null, optionBottom = null;
 			TiDimension optionLeft = null, optionRight = null;
 			TiDimension optionCenterX = null, optionCenterY = null;
-			
+
+			TiUIView tiView = viewProxy.peekView();
+
+			// Note that we're stringifying the values to make sure we
+			// use the correct TiDimension constructor, except when
+			// we know the values are expressed for certain in pixels.
 			if (top != null) {
-				optionTop = new TiDimension(top, TiDimension.TYPE_TOP);
+				optionTop = new TiDimension(String.valueOf(top), TiDimension.TYPE_TOP);
+			} else {
+				optionTop = new TiDimension(view.getTop(), TiDimension.TYPE_TOP);
+				optionTop.setUnits(TypedValue.COMPLEX_UNIT_PX);
 			}
+
 			if (bottom != null) {
-				optionBottom = new TiDimension(bottom, TiDimension.TYPE_BOTTOM);
+				optionBottom = new TiDimension(String.valueOf(bottom), TiDimension.TYPE_BOTTOM);
+			} else {
+				optionBottom = new TiDimension(view.getBottom(), TiDimension.TYPE_BOTTOM);
+				optionBottom.setUnits(TypedValue.COMPLEX_UNIT_PX);
 			}
+
 			if (left != null) {
-				optionLeft = new TiDimension(left, TiDimension.TYPE_LEFT);
+				optionLeft = new TiDimension(String.valueOf(left), TiDimension.TYPE_LEFT);
+			} else {
+				optionLeft = new TiDimension(view.getLeft(), TiDimension.TYPE_LEFT);
+				optionLeft.setUnits(TypedValue.COMPLEX_UNIT_PX);
 			}
+
 			if (right != null) {
-				optionRight = new TiDimension(right, TiDimension.TYPE_RIGHT);
+				optionRight = new TiDimension(String.valueOf(right), TiDimension.TYPE_RIGHT);
+			} else {
+				optionRight = new TiDimension(view.getRight(), TiDimension.TYPE_RIGHT);
+				optionRight.setUnits(TypedValue.COMPLEX_UNIT_PX);
 			}
+
 			if (centerX != null) {
 				optionCenterX = new TiDimension(centerX, TiDimension.TYPE_CENTER_X);
 			}
+
 			if (centerY != null) {
 				optionCenterY = new TiDimension(centerY, TiDimension.TYPE_CENTER_Y);
 			}
-			
+
 			int horizontal[] = new int[2];
 			int vertical[] = new int[2];
 			ViewParent parent = view.getParent();
@@ -322,11 +347,32 @@ public class TiAnimationBuilder
 			//TODO: center
 			TiCompositeLayout.computePosition(parentView, optionLeft, optionCenterX, optionRight, w, 0, parentWidth, horizontal);
 			TiCompositeLayout.computePosition(parentView, optionTop, optionCenterY, optionBottom, h, 0, parentHeight, vertical);
-			
-			Animation animation = new TranslateAnimation(Animation.RELATIVE_TO_SELF, 0, Animation.ABSOLUTE, horizontal[0]-x,
-				Animation.RELATIVE_TO_SELF, 0, Animation.ABSOLUTE, vertical[0]-y);
+
+			// Determine where the view has been animated to already (if at all), because it's from that
+			// point where we'll want to animate now, rather than from the "true", non-animated position.
+			// Android has no built-in way of telling us the location to where the view has already been animated,
+			// so we have to look it up from a cache we keep maintain ourselves directly on the tiView.
+			int previousXDelta = 0, previousYDelta = 0;
+			int newXDelta = horizontal[0] - x;
+			int newYDelta = vertical[0] - y;
+			if (tiView != null) {
+				Pair<Integer, Integer> currentTranslation = tiView.getAnimatedXYTranslationValues();
+				if (currentTranslation != null) {
+					previousXDelta = currentTranslation.first;
+					previousYDelta = currentTranslation.second;
+				}
+			}
+
+			Animation animation = new TranslateAnimation(Animation.ABSOLUTE, previousXDelta, Animation.ABSOLUTE, newXDelta,
+				Animation.ABSOLUTE, previousYDelta, Animation.ABSOLUTE, newYDelta);
 			animation.setFillEnabled(true);
 			animation.setFillAfter(true);
+
+			// Remember where we're going to, since there is no native way to look it up later.
+			// We don't need to remember it if we're autoreversing, however.
+			if (tiView != null && (autoreverse == null || !autoreverse.booleanValue())) {
+				tiView.setAnimatedXYTranslationValues(Pair.create(Integer.valueOf(newXDelta), Integer.valueOf(newYDelta)));
+			}
 
 			if (duration != null) {
 				animation.setDuration(duration.longValue());
@@ -335,13 +381,12 @@ public class TiAnimationBuilder
 			as.setFillEnabled(true);
 			as.setFillAfter(true);
 			animation.setAnimationListener(animationListener);
-			as.addAnimation(animation);
+			addAnimation(as, animation);
 
 			if (DBG) {
 				Log.d(LCAT, "animate " + viewProxy + " relative to self: " + (horizontal[0]-x) + ", " + (vertical[0]-y));
 			}
 
-			relayoutChild = true;
 		}
 
 		if (tdm == null && (width != null || height != null)) {
@@ -395,18 +440,18 @@ public class TiAnimationBuilder
 			
 			int width = 0;
 			if (fromWidth == toWidth) {
-				width = (int)fromWidth;
+				width = (int) fromWidth;
 
 			} else {
-				width = (int)Math.floor(fromWidth + ((toWidth - fromWidth) * interpolatedTime));
+				width = (int) FloatMath.floor(fromWidth + ((toWidth - fromWidth) * interpolatedTime));
 			}
 
 			int height = 0;
 			if (fromHeight == toHeight) {
-				height = (int)fromHeight;
+				height = (int) fromHeight;
 
 			} else {
-				height = (int)Math.floor(fromHeight + ((toHeight - fromHeight) * interpolatedTime));
+				height = (int) FloatMath.floor(fromHeight + ((toHeight - fromHeight) * interpolatedTime));
 			}
 			
 			ViewGroup.LayoutParams params = view.getLayoutParams();
@@ -510,7 +555,7 @@ public class TiAnimationBuilder
 				started = true;
 				view.setBackgroundDrawable(transitionDrawable);
 				long duration = this.getDuration();
-				int durationInt = (new Long(duration)).intValue();
+				int durationInt = Long.valueOf(duration).intValue();
 				transitionDrawable.startTransition(durationInt);
 			}
 		}
@@ -520,7 +565,6 @@ public class TiAnimationBuilder
 	{
 		public void onAnimationEnd(Animation a)
 		{
-
 			if (relayoutChild) {
 				LayoutParams params = (LayoutParams) view.getLayoutParams();
 				TiConvert.fillLayout(options, params);

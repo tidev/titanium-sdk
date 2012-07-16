@@ -130,12 +130,17 @@ TiValueRef ThrowException (TiContextRef ctx, NSString *message, TiValueRef *exce
 	return TiValueMakeUndefined(ctx);
 }
 
-static NSLock *timerIDLock = [[NSLock alloc] init];
-
 static TiValueRef MakeTimer(TiContextRef context, TiObjectRef jsFunction, TiValueRef fnRef, TiObjectRef jsThis, TiValueRef durationRef, BOOL onetime)
 {
+    static dispatch_once_t timerInitializer;
+    static NSLock *timerIDLock = nil;
+    dispatch_once(&timerInitializer, ^{
+        timerIDLock = [[NSLock alloc] init];
+    });
+
 	static double kjsNextTimer = 0;
-	[timerIDLock lock];
+	
+    [timerIDLock lock];
 	double timerID = ++kjsNextTimer;
 	[timerIDLock unlock];
 	
@@ -1056,7 +1061,9 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 	KrollObject *kroll = [[KrollObject alloc] initWithTarget:nil context:self];
 	TiValueRef krollRef = [KrollObject toValue:self value:kroll];
 	TiStringRef prop = TiStringCreateWithUTF8CString("Kroll");
-	TiObjectSetProperty(context, globalRef, prop, krollRef, NULL, NULL);
+	TiObjectSetProperty(context, globalRef, prop, krollRef, 
+                        kTiPropertyAttributeDontDelete | kTiPropertyAttributeDontEnum | kTiPropertyAttributeReadOnly, 
+                        NULL);
 	TiObjectRef krollObj = TiValueToObject(context, krollRef, NULL);
 	bool set = TiObjectSetPrivate(krollObj, self);
 	assert(set);

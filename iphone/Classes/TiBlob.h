@@ -126,7 +126,7 @@ typedef enum {
  Returns the blob native path (Android compatibility).
  @return The blob native path.
  */
--(NSString*)nativePath;
+-(id)nativePath;
 
 /**
  Tells the blob to write its data to a file.
