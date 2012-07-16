@@ -125,9 +125,7 @@ define(["Ti/_/declare", "Ti/_/Evented", "Ti/_/style", "Ti/UI"], function(declare
 							from = vals[0];
 							to = vals[1];
 
-							if (pct === 1) {
-								val = ani.forward ? to : from;
-							}
+							pct === 1 && (val = ani.forward ? to : from);
 
 							if (prop === "transform") {
 								if (pct !== 1) {
