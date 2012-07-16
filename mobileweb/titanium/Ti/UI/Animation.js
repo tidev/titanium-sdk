@@ -399,7 +399,7 @@ define(["Ti/_/declare", "Ti/_/Evented", "Ti/_/style", "Ti/UI"], function(declare
 			var anis = animations[wid],
 				i = 0,
 				len = anis && anis.length;
-			while (i < len) {
+			for (; i < len; i++) {
 				if (anis[i].id === id) {
 					return anis[i];
 				}
