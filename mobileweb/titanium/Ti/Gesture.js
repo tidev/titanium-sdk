@@ -3,7 +3,7 @@ define(["Ti/_/Evented", "Ti/_/lang", "Ti/UI", "Ti/_/ready"], function(Evented, l
 	var win = window,
 		on = require.on,
 		lastOrient = null,
-		lastShake = (new Date()).getTime(),
+		lastShake = Date.now(),
 		lastAccel = {},
 		api = lang.setObject("Ti.Gesture", Evented, {
 			_updateOrientation: function() {
@@ -76,7 +76,7 @@ define(["Ti/_/Evented", "Ti/_/lang", "Ti/UI", "Ti/_/ready"], function(Evented, l
 				y = Math.abs(lastAccel.y - accel.y) > 10;
 				z = Math.abs(lastAccel.z - accel.z) > 10;
 				if ((x && (y || z)) || (y && z)) {
-					currentTime = (new Date()).getTime();
+					currentTime = Date.now();
 					if ((accel.timestamp = currentTime - lastShake) > 300) {
 						lastShake = currentTime;
 						api.fireEvent('shake', accel);

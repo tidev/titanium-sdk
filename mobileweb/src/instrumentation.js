@@ -6,7 +6,7 @@ instrumentation = {
 	
 	currentTestID: 1,
 	
-	startTime: (new Date()).getTime(),
+	startTime: Date.now(),
 	
 	startTest: function(category) {
 		var newTestID = this.currentTestID++,
@@ -19,14 +19,14 @@ instrumentation = {
 			!(category in this.counters) && (this.counters[category] = 0);
 			this.counters[category]++;
 		}
-		newTest.startTime = (new Date()).getTime();
+		newTest.startTime = Date.now();
 		return newTestID;
 	},
 
 	stopTest: function(testID, customInformation) {
 		if (this.tests[testID]) {
 			var test = this.tests[testID],
-				stopTime = test.stopTime = (new Date()).getTime();
+				stopTime = test.stopTime = Date.now();
 			test.customInformation = customInformation;
 			test.timeSinceLaunch = stopTime - this.startTime;
 			test.duration = stopTime - test.startTime;
