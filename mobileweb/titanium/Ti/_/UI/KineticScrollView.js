@@ -34,8 +34,9 @@ define(["Ti/_/browser", "Ti/_/declare", "Ti/UI/View", "Ti/_/lang", "Ti/_/dom", "
 		// This is the limit that elastic drags will go towards (i.e. limit as x->infinity = elasticityLimit)
 		elasticityLimit = 100,
 
-		// Controls the friction curve for elastic dragging. The higher the value, the sooner drag starts to kick in.
-		elasticityDrag = 30;
+		// Controls the friction curve for elastic dragging. The higher the value, the sooner drag starts to kick in. 
+		// Must be greater than or equal to elasticityLimit otherwise the curve has a slope greater than 1, which is bad.
+		elasticityDrag = 100;
 
 	return declare("Ti._.UI.KineticScrollView", View, {
 
