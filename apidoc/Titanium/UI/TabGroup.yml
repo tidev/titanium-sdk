@@ -254,8 +254,8 @@ properties:
         A tab's [backgroundSelectedColor](Titanium.UI.Tab.backgroundSelectedColor) property takes 
         precedence if set.
     type: String
-    platforms: [mobileweb]
-    since: "1.9.0"
+    platforms: [android, mobileweb]
+    since: {android: "2.2.0", mobileweb: "1.9.0"}
     
   - name: tabsBackgroundSelectedImage
     summary: Default background selected image for tabs.
