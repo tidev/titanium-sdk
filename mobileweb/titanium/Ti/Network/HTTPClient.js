@@ -38,7 +38,6 @@ define(["Ti/_", "Ti/_/declare", "Ti/_/has", "Ti/_/lang", "Ti/_/Evented", "Ti/Fil
 						c.readyState = this.DONE;
 
 						if (!this._aborted) {
-							debugger;
 							if (f = this.file) {
 								f = Filesystem.getFile(f);
 								f.writable && f.write(xhr.responseText);
