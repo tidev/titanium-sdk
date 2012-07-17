@@ -88,6 +88,9 @@
 
 -(void)prepareForReuse
 {
+	if (proxy.callbackCell == self) {
+		[proxy prepareTableRowForReuse];
+	}
 	[self setProxy:nil];
 	[super prepareForReuse];
 	
