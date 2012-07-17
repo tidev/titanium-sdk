@@ -619,8 +619,8 @@ define(
 				if (bi) {
 					tmp = repeat ? "repeat" : "no-repeat";
 					nodeStyle.backgroundRepeat !== tmp && (nodeStyle.backgroundRepeat = tmp);
-					tmp = repeat ? "auto" : "100% 100%";
-					nodeStyle.backgroundSize !== tmp && (nodeStyle.backgroundSize = tmp);
+					tmp = repeat ? "auto" : "100%";
+					nodeStyle.backgroundSize.replace(/(100%) 100%/, "$1") !== tmp && (nodeStyle.backgroundSize = tmp);
 				}
 			}
 		},
