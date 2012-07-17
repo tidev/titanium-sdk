@@ -162,6 +162,7 @@ textarea {
 		from(#fff), to(#999));
 }
 
+.TiUIElementGradientActive,
 .TiUIElementGradient:active {
 	background: -moz-linear-gradient(
 		top,
