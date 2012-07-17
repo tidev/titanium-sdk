@@ -970,7 +970,7 @@
 	ENSURE_UI_THREAD_1_ARG(event);
     if ([event isEqualToString:@"longpress"]) {
 		UILongPressGestureRecognizer *longPress = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(longPressGesture:)];
-		[tableview addGestureRecognizer:longPress];
+		[[self tableView] addGestureRecognizer:longPress];
 		[longPress release];
 		return;
     }
