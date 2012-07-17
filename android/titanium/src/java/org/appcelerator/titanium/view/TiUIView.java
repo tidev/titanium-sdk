@@ -38,8 +38,6 @@ import android.graphics.Point;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
-import android.os.Looper;
-import android.os.MessageQueue.IdleHandler;
 import android.util.Pair;
 import android.view.GestureDetector;
 import android.view.GestureDetector.SimpleOnGestureListener;
@@ -253,32 +251,34 @@ public abstract class TiUIView
 	 */
 	public void animate()
 	{
-		TiAnimationBuilder builder = proxy.getPendingAnimation();
-		proxy.clearAnimation(builder);
-
-		if (builder != null && nativeView != null) {
-			final AnimationSet as = builder.render(proxy, nativeView);
-			if (Build.VERSION.SDK_INT > TiC.API_LEVEL_HONEYCOMB) {
-				startAnimation(as);
-			} else {
-				// Waiting for the UI looper's queue to get idle
-				// seems to help avoid TIMOB-9813, a condition whereby
-				// parts of the parent of the animated view might suddenly become
-				// transparent during the animation on devices < Honeycomb.
-				Looper.myQueue().addIdleHandler(new IdleHandler() {
-
-					public boolean queueIdle()
-					{
-						startAnimation(as);
-						return false;
-					}
-				});
-			}
+		if (nativeView == null) {
+			return;
 		}
-	}
 
-	private void startAnimation(Animation animation)
-	{
+		// Pre-honeycomb, if one animation clobbers another you get a problem whereby the background of the
+		// animated view's parent (or the grandparent) bleeds through.  It seems to improve if you cancel and clear
+		// the older animation.  So here we cancel and clear, then re-queue the desired animation.
+		if (Build.VERSION.SDK_INT < TiC.API_LEVEL_HONEYCOMB) {
+			Animation currentAnimation = nativeView.getAnimation();
+			if (currentAnimation != null && currentAnimation.hasStarted() && !currentAnimation.hasEnded()) {
+				// Cancel existing animation and
+				// re-queue desired animation.
+				currentAnimation.cancel();
+				nativeView.clearAnimation();
+				proxy.handlePendingAnimation(true);
+				return;
+			}
+
+		}
+
+		TiAnimationBuilder builder = proxy.getPendingAnimation();
+		if (builder == null) {
+			return;
+		}
+
+		proxy.clearAnimation(builder);
+		AnimationSet as = builder.render(proxy, nativeView);
+
 		// If a view is "visible" but not currently seen (such as because it's covered or
 		// its position is currently set to be fully outside its parent's region),
 		// then Android might not animate it immediately because by default it animates
@@ -303,14 +303,13 @@ public abstract class TiUIView
 		}
 
 		if (DBG) {
-			Log.d(LCAT, "starting animation: " + animation);
+			Log.d(LCAT, "starting animation: " + as);
 		}
-		nativeView.startAnimation(animation);
+		nativeView.startAnimation(as);
 
 		if (invalidateParent) {
 			((View) viewParent).postInvalidate();
 		}
-
 	}
 
 	public void listenerAdded(String type, int count, KrollProxy proxy) {
