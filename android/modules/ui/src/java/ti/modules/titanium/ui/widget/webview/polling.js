@@ -1,7 +1,7 @@
 function checkForJSCode() {
 	var code = TiApp.getJSCode();
 	if ( code != undefined) {
-		eval(code);
+		eval(code + "");
 	} else {
 		clearInterval(refreshIntervalId);
 	}
