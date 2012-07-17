@@ -194,9 +194,9 @@ properties:
 
         On iOS, this property applies to all states and tabs, not just inactive tabs.
     type: String
-    since: {iphone: "2.2.0", ipad: "2.2.0", mobileweb: "1.9.0"}
+    since: {android: "2.2.0", iphone: "2.2.0", ipad: "2.2.0", mobileweb: "1.9.0"}
     osver: {ios: {min: "5.0"}}
-    platforms: [iphone, ipad, mobileweb]
+    platforms: [android, iphone, ipad, mobileweb]
     
   - name: tabsBackgroundImage
     summary: Default background image for tabs.
