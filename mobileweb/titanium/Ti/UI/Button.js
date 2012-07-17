@@ -1,7 +1,8 @@
 define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/css", "Ti/_/style", "Ti/_/lang", "Ti/Locale", "Ti/UI"],
 	function(declare, Widget, dom, css, style, lang, Locale, UI) {
 
-	var setStyle = style.set,
+	var on = require.on,
+		setStyle = style.set,
 		postDoBackground = {
 			post: function() {
 				if (this.backgroundColor || this.backgroundDisabledColor || this.backgroundDisabledImage || this.backgroundFocusedColor || 
@@ -24,12 +25,15 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/css", "Ti/_/style", 
 
 		constructor: function() {
 			var contentContainer = this._contentContainer = UI.createView({
-				width: UI.INHERIT,
-				height: UI.INHERIT,
-				layout: UI._LAYOUT_CONSTRAINING_HORIZONTAL,
-				borderColor: "transparent"
-			});
+					width: UI.INHERIT,
+					height: UI.INHERIT,
+					layout: UI._LAYOUT_CONSTRAINING_HORIZONTAL,
+					borderColor: "transparent"
+				}),
+				node = this.domNode;
+
 			this._add(contentContainer);
+
 			contentContainer._add(this._buttonImage = UI.createImageView());
 			contentContainer._add(this._buttonTitle = UI.createLabel({
 				textAlign: UI.TEXT_ALIGNMENT_CENTER,
@@ -37,18 +41,22 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/css", "Ti/_/style", 
 				width: UI.INHERIT,
 				height: UI.INHERIT
 			}));
-			
+
 			this._setDefaultLook();
-			
-			this.addEventListener("touchstart",function(){
+
+			on(this, "touchstart", this, function() {
+				css.remove(node, "TiUIElementGradient");
+				css.add(node, "TiUIElementGradientActive");
 				this.selectedColor && (this._buttonTitle.color = this.selectedColor);
 			});
-			this.addEventListener("touchend",function(){
-				this.selectedColor && (this._buttonTitle.color = this.color || "black");
+			on(this, "touchend", this, function() {
+				css.remove(node, "TiUIElementGradientActive");
+				css.add(node, "TiUIElementGradient");
+				this.selectedColor && (this._buttonTitle.color = this.color || "#000");
 			});
-			this.domNode.addEventListener("mouseout",lang.hitch(this,function(){
-				this.selectedColor && (this._buttonTitle.color = this.color || "black");
-			}));
+			on(node, "mouseout", this, function() {
+				this.selectedColor && (this._buttonTitle.color = this.color || "#000");
+			});
 		},
 
 		_defaultWidth: UI.SIZE,
