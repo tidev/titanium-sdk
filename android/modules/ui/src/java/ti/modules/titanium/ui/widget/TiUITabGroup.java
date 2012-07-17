@@ -44,7 +44,6 @@ public class TiUITabGroup extends TiUIView
 	private int previousTabID = -1;
 	private int currentTabID = 0;
 	
-	private int currentTabIndex = 0;
 	private HashMap<Integer, ArrayList<String>> tabBackgroundColors;
 	private HashMap<Integer, ArrayList<String>> tabBackgroundSelectedColors;
 	private Drawable defaultDrawable;
@@ -72,6 +71,9 @@ public class TiUITabGroup extends TiUIView
 		}
 
 		setNativeView(tabHost);
+		
+		tabBackgroundColors = new HashMap<Integer, ArrayList<String>>();
+		tabBackgroundSelectedColors = new HashMap<Integer, ArrayList<String>>();
 	}
 
 	public TabSpec newTab(String id)
@@ -128,6 +130,8 @@ public class TiUITabGroup extends TiUIView
 		}
 		final int tabCount = tabHost.getTabWidget().getTabCount();
 		if (tabCount > 0) {
+			int currentTabIndex = tabCount - 1;
+
 			tabHost.getTabWidget().getChildTabViewAt(currentTabIndex).setOnClickListener(new OnClickListener()
 			{
 				@Override
@@ -305,6 +309,44 @@ public class TiUITabGroup extends TiUIView
 		tabBackgroundSelectedColors.put(index,arrayList);
 	}
 	
+	private void updateBackgroundValues(String color, HashMap<Integer, ArrayList<String>> backgroundValues)
+	{
+		int currentTabIndex = tabHost.getCurrentTab();
+
+		// loop through and check if it's in hashmap. If it isn't (signifying that it has a default
+		// color), then update it with the new color. If the value is in hashmap, then we want to see if
+		// it's set to the correct color
+		for (int i = 0; i < tabHost.getTabWidget().getChildCount(); i++) {
+			if (backgroundValues.containsKey(i)) {
+				// if the old value in tabBackgroundColors is derived from the old tab group value, we overwrite it with
+				// the new value. Otherwise, it is derived from the tab itself, so we leave it alone
+				if (backgroundValues.get(i).get(0).equals(TAB_GROUP)) {
+					backgroundValues.get(i).set(1, color);
+				}
+			} else {
+				// We have the default color, so we update it with the new color
+				addTabsBackgroundColor(i, TAB_GROUP, color);
+			}
+			tabHost.getTabWidget().getChildAt(i).setBackgroundColor(TiConvert.toColor(tabBackgroundColors.get(i).get(1)));
+		}
+
+		// Set the backgroundSelectedColor for the current tab
+		if (tabBackgroundSelectedColors.containsKey(currentTabIndex)) {
+			tabHost.getTabWidget().getChildAt(currentTabIndex)
+				.setBackgroundColor(TiConvert.toColor(tabBackgroundSelectedColors.get(currentTabIndex).get(1)));
+		} else {
+			tabHost.getTabWidget().getChildAt(currentTabIndex).setBackgroundDrawable(defaultSelectedDrawable);
+		}
+	}
+
+	public void setTabBackgroundColor(Object colorValue){
+		updateBackgroundValues((String) colorValue, tabBackgroundColors);
+	}
+
+	public void setTabBackgroundSelectedColor(Object colorValue){
+		updateBackgroundValues((String) colorValue, tabBackgroundSelectedColors);
+	}
+	
 	public void changeActiveTab(Object t)
 	{
 		if (t != null) {
@@ -346,6 +388,10 @@ public class TiUITabGroup extends TiUIView
 	{
 		if ("activeTab".equals(key)) {
 			changeActiveTab(newValue);
+		} else if (TiC.PROPERTY_TABS_BACKGROUND_COLOR.equals(key)) {
+			setTabBackgroundColor(newValue);
+		} else if (TiC.PROPERTY_TABS_BACKGROUND_SELECTED_COLOR.equals(key)) {
+			setTabBackgroundSelectedColor(newValue);
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}

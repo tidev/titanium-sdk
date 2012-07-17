@@ -34,7 +34,11 @@ import android.os.Message;
 import android.os.Messenger;
 import android.widget.TabHost.TabSpec;
 
-@Kroll.proxy(creatableInModule=UIModule.class)
+@Kroll.proxy(creatableInModule=UIModule.class, propertyAccessors={
+	TiC.PROPERTY_TABS_BACKGROUND_COLOR,
+	TiC.PROPERTY_TABS_BACKGROUND_SELECTED_COLOR	
+})
+
 public class TabGroupProxy extends TiWindowProxy
 {
 	private static final String LCAT = "TabGroupProxy";
