@@ -295,7 +295,7 @@ public abstract class TiUIView
 				// Could be animating from nothing to something
 				invalidateParent = true;
 			} else {
-				Rect r = new Rect(0, 0, nativeView.getWidth(), nativeView.getHeight());
+				Rect r = new Rect(0, 0, width, height);
 				Point p = new Point(0, 0);
 				invalidateParent = !(viewParent.getChildVisibleRect(nativeView, r, p));
 			}
