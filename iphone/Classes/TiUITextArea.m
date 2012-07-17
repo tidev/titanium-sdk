@@ -83,20 +83,20 @@
 
 -(UIView<UITextInputTraits>*)textWidgetView
 {
-	if (textWidgetView==nil)
-	{
+    if (textWidgetView==nil)
+    {
         TiUITextViewImpl *textViewImpl = [[TiUITextViewImpl alloc] initWithFrame:CGRectZero];
         textViewImpl.delaysContentTouches = NO;
         [textViewImpl setTouchHandler:self];
         textViewImpl.delegate = self;
         [self addSubview:textViewImpl];
-		[textViewImpl setContentInset:UIEdgeInsetsZero];
-		self.clipsToBounds = YES;
+        [textViewImpl setContentInset:UIEdgeInsetsZero];
+        self.clipsToBounds = YES;
         textViewImpl.text = @""; //Setting TextArea text to empty string 
         
         textWidgetView = textViewImpl;
-	}
-	return textWidgetView;
+    }
+    return textWidgetView;
 }
 
 #pragma mark Public APIs
