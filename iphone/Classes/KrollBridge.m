@@ -498,14 +498,21 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 
 -(void)enqueueEvent:(NSString*)type forProxy:(TiProxy *)proxy withObject:(id)obj withSource:(id)source
 {
-	KrollObject * eventKrollObject = [self krollObjectForProxy:proxy];
-	KrollObject * sourceObject = [self krollObjectForProxy:source];
-	if (sourceObject == nil)
+	KrollObject* eventKrollObject = [self krollObjectForProxy:proxy];
+	KrollObject* sourceObject = [self krollObjectForProxy:source];
+    KrollObject* thisObject = [self krollObjectForProxy:proxy];
+    
+	if (thisObject == nil)
 	{
-		sourceObject = eventKrollObject;
+		thisObject = eventKrollObject;
 	}
-	KrollEvent * newEvent = [[KrollEvent alloc] initWithType:type ForKrollObject:eventKrollObject
-			 eventObject:obj thisObject:sourceObject];
+    
+	KrollEvent * newEvent = [[KrollEvent alloc] 
+                             initWithType:type 
+                             ForKrollObject:eventKrollObject
+                             eventObject:obj 
+                             thisObject:thisObject];
+    
 	[context enqueue:newEvent];
 	[newEvent release];
 }
