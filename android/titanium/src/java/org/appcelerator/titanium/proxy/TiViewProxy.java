@@ -34,6 +34,7 @@ import org.appcelerator.titanium.view.TiAnimation;
 import org.appcelerator.titanium.view.TiUIView;
 
 import android.app.Activity;
+import android.os.Build;
 import android.os.Handler;
 import android.os.Message;
 import android.view.View;
@@ -644,7 +645,14 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 	{
 		if (pendingAnimation != null && peekView() != null) {
 			if (forceQueue || !(TiApplication.isUIThread())) {
-				getMainHandler().obtainMessage(MSG_ANIMATE).sendToTarget();
+				if (Build.VERSION.SDK_INT < TiC.API_LEVEL_HONEYCOMB) {
+					// Even this very small delay can help eliminate the bug
+					// whereby the animated view's parent suddenly becomes
+					// transparent (pre-honeycomb). cf. TIMOB-9813.
+					getMainHandler().sendEmptyMessageDelayed(MSG_ANIMATE, 10);
+				} else {
+					getMainHandler().sendEmptyMessage(MSG_ANIMATE);
+				}
 			} else {
 				handleAnimate();
 			}
