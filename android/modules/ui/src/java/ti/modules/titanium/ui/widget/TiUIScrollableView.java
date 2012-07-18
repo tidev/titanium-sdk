@@ -307,14 +307,18 @@ public class TiUIScrollableView extends TiUIView
 
 	public void addView(TiViewProxy proxy)
 	{
-		mViews.add(proxy);
-		mAdapter.notifyDataSetChanged();
+		if (!mViews.contains(proxy)) {
+			mViews.add(proxy);
+			getProxy().setProperty(TiC.PROPERTY_VIEWS, mViews.toArray());
+			mAdapter.notifyDataSetChanged();
+		}
 	}
 
 	public void removeView(TiViewProxy proxy)
 	{
 		if (mViews.contains(proxy)) {
 			mViews.remove(proxy);
+			getProxy().setProperty(TiC.PROPERTY_VIEWS, mViews.toArray());
 			mAdapter.notifyDataSetChanged();
 		}
 	}
