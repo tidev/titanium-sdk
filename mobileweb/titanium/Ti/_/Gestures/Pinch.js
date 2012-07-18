@@ -76,7 +76,7 @@ define(["Ti/_/declare", "Ti/_/lang","Ti/_/Gestures/GestureRecognizer"], function
 				var currentDistance = Math.sqrt(Math.pow(e.touches[0].clientX - e.touches[1].clientX,2) + 
 					Math.pow(e.touches[0].clientY - e.touches[1].clientY,2)),
 					velocity = 0,
-					currentTime = (new Date()).getTime();
+					currentTime = Date.now();
 				if (this._previousDistance) {
 					velocity = Math.abs(this._previousDistance / this._startDistance - currentDistance / this._startDistance) / ((currentTime - this._previousTime) / 1000); 
 				}

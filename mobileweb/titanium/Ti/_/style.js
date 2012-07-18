@@ -1,7 +1,8 @@
 define(["Ti/_", "Ti/_/string", "Ti/Filesystem"], function(_, string, Filesystem) {
 
 	var vp = require.config.vendorPrefixes.dom,
-		is = require.is;
+		is = require.is,
+		dummyNode = document.createElement("p");
 
 	function set(node, name, value) {
 		var i = 0,
@@ -27,12 +28,43 @@ define(["Ti/_", "Ti/_/string", "Ti/Filesystem"], function(_, string, Filesystem)
 	}
 
 	return {
+		discover: function(name, node) {
+			var i = 0,
+				x,
+				uc;
+
+			node || (node = dummyNode);
+
+			while (i < vp.length) {
+				x = vp[i++];
+				x += x ? uc || (uc = string.capitalize(name)) : name;
+				if (x in node.style) {
+					return x;
+				}
+			}
+
+			return name;
+		},
+
+		get: function(node, name) {
+			return node.style[this.discover(name, node)];
+		},
+
+		set: set,
+
+		supports: function(name, node) {
+			var x = this.discover(name, node);
+			return x in node.style;
+		},
+
 		url: function(/*String|Blob*/url) {
 			if (url && url.declaredClass === "Ti.Blob") {
 				return "url(" + url.toString() + ")";
 			}
+
 			var match = url && url.match(/^(.+):\/\//),
 				file = match && ~Filesystem.protocols.indexOf(match[1]) && Filesystem.getFile(url);
+
 			return file && file.exists()
 				? "url(" + file.read().toString() + ")"
 				: !url || url === "none"
@@ -40,35 +72,6 @@ define(["Ti/_", "Ti/_/string", "Ti/Filesystem"], function(_, string, Filesystem)
 					: /^url\(/.test(url)
 						? url
 						: "url(" + (require.cache(url) || _.getAbsolutePath(url)) + ")";
-		},
-
-		get: function get(node, name) {
-			var i = 0,
-				x,
-				uc;
-			while (i < vp.length) {
-				x = vp[i++];
-				x += x ? uc || (uc = string.capitalize(name)) : name;
-				if (x in node.style) {
-					return node.style[x];
-				}
-			}
-		},
-
-		set: set,
-		
-		supports: function(name, node) {
-			var i = 0,
-				x,
-				uc;
-			
-			while (i < vp.length) {
-				x = vp[i++];
-				x += x ? uc || (uc = string.capitalize(name)) : name;
-				if (x in node.style) {
-					return true;
-				}
-			}
 		}
 	};
 });

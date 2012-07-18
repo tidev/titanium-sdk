@@ -29,7 +29,7 @@ define(["Ti/_/Evented", "Ti/_/lang"], function(Evented, lang) {
 			// Set the various status members
 			api.loggedIn = true;
 			api.uid = authResponse.userID;
-			api.expirationDate = new Date((new Date()).getTime() + authResponse.expiresIn * 1000);
+			api.expirationDate = new Date(Date.now() + authResponse.expiresIn * 1000);
 			api.accessToken = authResponse.accessToken;
 
 			// Set a timeout to match when the token expires

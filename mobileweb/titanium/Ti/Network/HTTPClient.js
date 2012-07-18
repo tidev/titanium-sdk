@@ -1,5 +1,5 @@
-define(["Ti/_", "Ti/_/declare", "Ti/_/has", "Ti/_/lang", "Ti/_/Evented", "Ti/Network", "Ti/Blob", "Ti/_/event"],
-	function(_, declare, has, lang, Evented, Network, Blob, event) {
+define(["Ti/_", "Ti/_/declare", "Ti/_/has", "Ti/_/lang", "Ti/_/Evented", "Ti/Filesystem", "Ti/Network", "Ti/Blob", "Ti/_/event"],
+	function(_, declare, has, lang, Evented, Filesystem, Network, Blob, event) {
 
 	var is = require.is,
 		on = require.on;
@@ -23,7 +23,10 @@ define(["Ti/_", "Ti/_/declare", "Ti/_/has", "Ti/_/lang", "Ti/_/Evented", "Ti/Net
 			];
 
 			xhr.onreadystatechange = lang.hitch(this, function() {
-				var c = this.constants;
+				var c = this.constants,
+					f,
+					onload = this.onload;
+
 				switch (xhr.readyState) {
 					case 0: c.readyState = this.UNSENT; break;
 					case 1: c.readyState = this.OPENED; break;
@@ -33,24 +36,28 @@ define(["Ti/_", "Ti/_/declare", "Ti/_/has", "Ti/_/lang", "Ti/_/Evented", "Ti/Net
 						clearTimeout(this._timeoutTimer);
 						this._completed = 1;
 						c.readyState = this.DONE;
-						if (xhr.status == 200) {
-							if (this.file) {
-								Filesystem.getFile(Filesystem.applicationDataDirectory,
-									this.file).write(xhr.responseText);
+
+						if (!this._aborted) {
+							if (f = this.file) {
+								f = Filesystem.getFile(f);
+								f.writable && f.write(xhr.responseText);
 							}
+
 							c.responseText = xhr.responseText;
 							c.responseData = new Blob({
 								data: xhr.responseText,
 								length: xhr.responseText.length,
-								mimeType: xhr.getResponseHeader("Content-Type")
+								mimeType: xhr.getResponseHeader("Content-Type") || "text/plain"
 							});
 							c.responseXML = xhr.responseXML;
+
 							has("ti-instrumentation") && (instrumentation.stopTest(this._requestInstrumentationTest, this.location));
-							is(this.onload, "Function") && this.onload.call(this);
-						} else {
-							xhr.status / 100 | 0 > 3 && this._onError();
+
+							xhr.status >= 400 && (onload = this._onError);
+							is(onload, "Function") && onload.call(this);
 						}
 				}
+
 				this._fireStateChange();
 			});
 		},
@@ -67,18 +74,18 @@ define(["Ti/_", "Ti/_/declare", "Ti/_/has", "Ti/_/lang", "Ti/_/Evented", "Ti/Net
 		_onError: function(error) {
 			this.abort();
 			is(error, "Object") || (error = { message: error });
+			error.source = this;
+			error.type = "error";
 			error.error || (error.error = error.message || this._xhr.status);
 			parseInt(error.error) || (error.error = "Can't reach host");
 			is(this.onerror, "Function") && this.onerror.call(this, error);
 		},
 
 		abort: function() {
-			var c = this.constants;
-			c.responseText = c.responseXML = c.responseData = "";
-			this._completed = true;
 			clearTimeout(this._timeoutTimer);
+			this._aborted = 1;
 			this.connected && this._xhr.abort();
-			c.readyState = this.UNSENT;
+			this.constants.readyState = this.UNSENT;
 			this._fireStateChange();
 		},
 
@@ -106,7 +113,7 @@ define(["Ti/_", "Ti/_/declare", "Ti/_/has", "Ti/_/lang", "Ti/_/Evented", "Ti/Net
 		send: function(args){
 			try {
 				var timeout = this.timeout | 0;
-				this._completed = false;
+				this._aborted = this._completed = 0;
 				has("ti-instrumentation") && (this._requestInstrumentationTest = instrumentation.startTest("HTTP Request")),
 				args = is(args, "Object") ? lang.urlEncode(args) : args;
 				args && this._xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");

@@ -44,6 +44,9 @@ description: |
     * Use [Ti.Network.httpURLFormatter](Titanium.Network.httpURLFormatter) in conjunction 
       with a proxy on the server hosting the application.
     
+    If you use a proxy, be sure to properly configure how cookies are passed through. You
+    may not want cookies proxied to third parties that could identify a user.
+    
     More information about Cross-Origin Resource Sharing can be found on the 
     [W3C Cross-Origin Resource Sharing](http://www.w3.org/TR/cors/) specification page.
 extends: Titanium.Proxy
@@ -209,9 +212,13 @@ properties:
     
   - name: file
     summary: Target local file to receive data.
-    description: Can only be set **after** calling [open](Titanium.Network.HTTPClient.open).
+    description: |
+        On iOS, can only be set **after** calling [open](Titanium.Network.HTTPClient.open).
+        
+        On Mobile Web, can be set anytime prior to calling [send](Titanium.Network.HTTPClient.send).
+        The file must be writable such as the application data directory or temp directory.
     type: String
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, mobileweb]
     
   - name: location
     summary: Absolute URL of the request.

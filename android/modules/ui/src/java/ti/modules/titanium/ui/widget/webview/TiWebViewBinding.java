@@ -146,7 +146,7 @@ public class TiWebViewBinding
 				codeSnippets.push(code);
 			}
 			try {
-				if (!returnSemaphore.tryAcquire(1000, TimeUnit.MILLISECONDS)) {
+				if (!returnSemaphore.tryAcquire(3500, TimeUnit.MILLISECONDS)) {
 					Log.w(LCAT, "Timeout waiting to evaluate JS");
 				}
 				return returnValue;

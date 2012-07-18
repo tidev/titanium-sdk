@@ -14,7 +14,7 @@ define(["Ti/_/declare", "Ti/_/lang","Ti/_/Gestures/GestureRecognizer"], function
 		_driftThreshold: 25,
 				
 		initTracker: function(x,y) {
-			this._firstTapTime = (new Date()).getTime();
+			this._firstTapTime = Date.now();
 			this._firstTapLocation = {
 				x: x,
 				y: y
@@ -28,7 +28,7 @@ define(["Ti/_/declare", "Ti/_/lang","Ti/_/Gestures/GestureRecognizer"], function
 					y = e.changedTouches[0].clientY;
 				
 				if (this._firstTapTime) {
-					var elapsedTime = (new Date()).getTime() - this._firstTapTime;
+					var elapsedTime = Date.now() - this._firstTapTime;
 					this._firstTapTime = null;
 					if (elapsedTime < this._timeThreshold && Math.abs(this._firstTapLocation.x - x) < this._driftThreshold && 
 							Math.abs(this._firstTapLocation.y - y) < this._driftThreshold) {
