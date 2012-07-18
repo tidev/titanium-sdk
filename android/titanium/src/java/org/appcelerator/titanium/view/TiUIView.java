@@ -34,6 +34,7 @@ import org.appcelerator.titanium.view.TiGradientDrawable.GradientType;
 
 import android.content.Context;
 import android.graphics.Paint;
+import android.graphics.Point;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
@@ -249,30 +250,64 @@ public abstract class TiUIView
 	 */
 	public void animate()
 	{
+		if (nativeView == null) {
+			return;
+		}
+
+		// Pre-honeycomb, if one animation clobbers another you get a problem whereby the background of the
+		// animated view's parent (or the grandparent) bleeds through.  It seems to improve if you cancel and clear
+		// the older animation.  So here we cancel and clear, then re-queue the desired animation.
+		if (Build.VERSION.SDK_INT < TiC.API_LEVEL_HONEYCOMB) {
+			Animation currentAnimation = nativeView.getAnimation();
+			if (currentAnimation != null && currentAnimation.hasStarted() && !currentAnimation.hasEnded()) {
+				// Cancel existing animation and
+				// re-queue desired animation.
+				currentAnimation.cancel();
+				nativeView.clearAnimation();
+				proxy.handlePendingAnimation(true);
+				return;
+			}
+
+		}
+
 		TiAnimationBuilder builder = proxy.getPendingAnimation();
-		if (builder != null && nativeView != null) {
-			AnimationSet as = builder.render(proxy, nativeView);
-			if (DBG) {
-				Log.d(LCAT, "starting animation: "+as);
+		if (builder == null) {
+			return;
+		}
+
+		proxy.clearAnimation(builder);
+		AnimationSet as = builder.render(proxy, nativeView);
+
+		// If a view is "visible" but not currently seen (such as because it's covered or
+		// its position is currently set to be fully outside its parent's region),
+		// then Android might not animate it immediately because by default it animates
+		// "on first frame" and apparently "first frame" won't happen right away if the
+		// view has no visible rectangle on screen.  In that case invalidate its parent, which will
+		// kick off the pending animation.
+		boolean invalidateParent = false;
+		ViewParent viewParent = nativeView.getParent();
+
+		if (nativeView.getVisibility() == View.VISIBLE && viewParent instanceof View) {
+			int width = nativeView.getWidth();
+			int height = nativeView.getHeight();
+
+			if (width == 0 || height == 0) {
+				// Could be animating from nothing to something
+				invalidateParent = true;
+			} else {
+				Rect r = new Rect(0, 0, width, height);
+				Point p = new Point(0, 0);
+				invalidateParent = !(viewParent.getChildVisibleRect(nativeView, r, p));
 			}
-			nativeView.startAnimation(as);
+		}
 
-			// If the view has negative left/top and therefore might be "off-screen", then Android might not
-			// animate it immediately because by default it animates "on first frame" and apparently "first frame"
-			// won't happen right away if the view isn't yet visible.
-			// In that case invalidate its parent, which will kick off the pending animation.
-			ViewParent viewParent = nativeView.getParent();
-			if (viewParent instanceof View) {
-				View parent = (View) viewParent;
+		if (DBG) {
+			Log.d(LCAT, "starting animation: " + as);
+		}
+		nativeView.startAnimation(as);
 
-				if (nativeView.getTop() < 0 || nativeView.getLeft() < 0 || nativeView.getTop() >= parent.getHeight()
-					|| nativeView.getLeft() >= parent.getWidth()) {
-					parent.invalidate();
-				}
-			}
-
-			// Clean up proxy
-			proxy.clearAnimation(builder);
+		if (invalidateParent) {
+			((View) viewParent).postInvalidate();
 		}
 	}
 
