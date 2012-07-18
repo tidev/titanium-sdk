@@ -641,6 +641,7 @@ public class ContactsApiLevel5 extends CommonContactsApi
 			ContentProviderResult[] providerResult = TiApplication.getAppRootOrCurrentActivity().getContentResolver().applyBatch(ContactsContract.AUTHORITY, ops);
 			long id = ContentUris.parseId(providerResult[0].uri);
 			newContact.setProperty("id", id);
+			newContact.setId(id);
 
 		} catch (RemoteException e) { 
 
@@ -779,4 +780,24 @@ public class ContactsApiLevel5 extends CommonContactsApi
 		}
 		return bm;
 	}
+
+	@Override
+	protected void save(Object people) {
+		
+		if (!(people instanceof Object[])) {
+			return;
+		}
+		
+		Object[] contacts = (Object[]) people;
+		for (int i = 0; i < contacts.length; i++) {
+			Object contact = contacts[i];
+			if (contact instanceof PersonProxy) {
+				PersonProxy person = (PersonProxy) contact;
+			} else {
+				Log.e(LCAT, "Invalid argument type to save");
+			}
+		}
+		
+	}
+
 }

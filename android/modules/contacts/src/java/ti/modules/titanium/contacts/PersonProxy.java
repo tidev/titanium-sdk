@@ -22,13 +22,24 @@ import android.graphics.Bitmap;
 @Kroll.proxy(parentModule=ContactsModule.class, propertyAccessors={
 	"lastName", "firstName", "fullName", "middleName", "firstPhonetic", "lastPhonetic", "middlePhonetic", "department",
 	"jobTitle", "nickname", "note", "organization", "prefix", "suffix", "birthday", "created", "modified", "kind", "email", 
-	"phone", "address", "id", TiC.PROPERTY_URL, TiC.PROPERTY_INSTANTMSG, TiC.PROPERTY_RELATED_NAMES, TiC.PROPERTY_DATE
+	"phone", "address", TiC.PROPERTY_URL, TiC.PROPERTY_INSTANTMSG, TiC.PROPERTY_RELATED_NAMES, TiC.PROPERTY_DATE
 })
 public class PersonProxy extends KrollProxy
 {
 	private TiBlob image = null;
+	public long id = -1;
 	private boolean imageFetched; // lazy load these bitmap images
 	protected boolean hasImage = false;
+	
+	//Flags to track modification
+	private boolean nameModified =  false;
+	private boolean phoneModified = false;
+	private boolean addressModified = false;
+	private boolean emailModified = false;
+	private boolean instantMsgModified = false;
+	private boolean relationModified = false;
+	private boolean otherModified = false;
+	private boolean urlModified = false;
 
 	public PersonProxy()
 	{
@@ -46,6 +57,16 @@ public class PersonProxy extends KrollProxy
 		return (id > 0 && hasImage );
 	}
 	
+	@Kroll.method @Kroll.getProperty
+	public long getId() 
+	{
+		return id;
+	}
+	
+	public void setId(long i) 
+	{
+		id = i;
+	}
 	@Kroll.method @Kroll.getProperty
 	public TiBlob getImage()
 	{
@@ -107,5 +128,56 @@ public class PersonProxy extends KrollProxy
 		}
 
 		setProperty("address", address);
+	}
+	
+	public boolean getNameModified() 
+	{
+		return nameModified;
+	}
+	
+	public boolean getPhoneModified() 
+	{
+		return phoneModified;
+	}
+	
+	public boolean getAddressModified()
+	{
+		return addressModified;
+	}
+	
+	public boolean getInstantMsgModified()
+	{
+		return instantMsgModified;
+	}
+	
+	public boolean getRelationModified()
+	{
+		return relationModified;
+	}
+	
+	@Override
+	public void onPropertyChanged(String name, Object value) 
+	{
+		if (name == null) {
+			return;
+		}
+		
+		if (name.equals(TiC.PROPERTY_FIRSTNAME) || name.equals(TiC.PROPERTY_LASTNAME) || 
+			name.equals(TiC.PROPERTY_MIDDLENAME) || name.equals(TiC.PROPERTY_FULLNAME)) {
+			nameModified = true;
+		} else if (name.equals(TiC.PROPERTY_PHONE)) {
+			phoneModified = true;
+		} else if (name.equals(TiC.PROPERTY_ADDRESS)) {
+			addressModified = true;
+		} else if (name.equals(TiC.PROPERTY_INSTANTMSG)) {
+			instantMsgModified = true;
+		} else if (name.equals(TiC.PROPERTY_RELATED_NAMES)) {
+			relationModified = true;
+		} else if (name.equals(TiC.PROPERTY_EMAIL)) {
+			emailModified = true;
+		} else if (name.equals(TiC.PROPERTY_BIRTHDAY) || name.equals(TiC.PROPERTY_ORGANIZATION)
+				|| name.equals(TiC.PROPERTY_NOTE) || name.equals(TiC.PROPERTY_NICKNAME)) {
+			otherModified = true;
+		}
 	}
 }
