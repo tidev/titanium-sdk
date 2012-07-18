@@ -171,7 +171,12 @@ public class TableViewRowProxy extends TiViewProxy
 	}
 
 	public static void fillClickEvent(KrollDict data, TableViewModel model, Item item) {
-		data.put(TiC.PROPERTY_ROW_DATA, item.rowData);
+		
+		//Don't include rowData if we click on a section
+		if (!(item.proxy instanceof TableViewSectionProxy)) {
+			data.put(TiC.PROPERTY_ROW_DATA, item.rowData);
+		}
+		
 		data.put(TiC.PROPERTY_SECTION, model.getSection(item.sectionIndex));
 		data.put(TiC.EVENT_PROPERTY_ROW, item.proxy);
 		data.put(TiC.EVENT_PROPERTY_INDEX, item.index);
