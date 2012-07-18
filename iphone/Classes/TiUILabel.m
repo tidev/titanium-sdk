@@ -77,7 +77,7 @@
     if (originX < 0) {
         originX = 0;
     }
-    CGRect labelRect = CGRectMake(originX, 0, actualLabelSize.width, actualLabelSize.height);
+    CGRect labelRect = CGRectMake(0, 0, initialLabelFrame.size.width, actualLabelSize.height);
     switch (verticalAlign) {
         case UIControlContentVerticalAlignmentBottom:
             labelRect.origin.y = initialLabelFrame.size.height - actualLabelSize.height;
@@ -167,7 +167,7 @@
 
 -(void)setVerticalAlign_:(id)value
 {
-    verticalAlign = [TiUtils intValue:value def:1];
+    verticalAlign = [TiUtils intValue:value def:0];
     if (label != nil) {
         [self padLabel];
     }
@@ -175,6 +175,7 @@
 -(void)setText_:(id)text
 {
 	[[self label] setText:[TiUtils stringValue:text]];
+    [self padLabel];
 	[(TiViewProxy *)[self proxy] contentsWillChange];
 }
 
