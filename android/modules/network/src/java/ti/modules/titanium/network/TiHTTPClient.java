@@ -106,8 +106,9 @@ public class TiHTTPClient
 	private static final String ON_READY_STATE_CHANGE = "onreadystatechange";
 	private static final String ON_LOAD = "onload";
 	private static final String ON_ERROR = "onerror";
-	private static final String ON_DATA_STREAM = "ondatastream";
-	private static final String ON_SEND_STREAM = "onsendstream";
+    private static final String ON_DATA_STREAM = "ondatastream";
+    private static final String ON_DOWNLOAD_PROGRESS = "ondowloadprogress";
+	private static final String ON_SEND_PROGRESS = "onsend[progress]";
 
 	private static final String[] FALLBACK_CHARSETS = {HTTP.UTF_8, HTTP.ISO_8859_1};
 
@@ -321,6 +322,22 @@ public class TiHTTPClient
 		
 		private void handleEntityData(byte[] data, int size, long totalSize, long contentLength) throws IOException
 		{
+            KrollFunction onDataStreamCallback = getCallback(ON_DATA_STREAM);
+            if (onDataStreamCallback != null) {
+                KrollDict o = new KrollDict();
+                o.put("totalCount", contentLength);
+                o.put("totalSize", totalSize);
+                o.put("size", size);
+                
+                byte[] blobData = new byte[size];
+                System.arraycopy(data, 0, blobData, 0, size);
+
+                TiBlob blob = TiBlob.blobFromData(blobData, contentType);
+                o.put("data", blob);
+
+                onDataStreamCallback.callAsync(proxy.getKrollObject(), o);
+                return;
+            }
 			if (responseOut == null) {
 				if (contentLength > maxBufferSize) {
 					createFileResponseData(false);
@@ -336,8 +353,8 @@ public class TiHTTPClient
 			}
 			
 			responseOut.write(data, 0, size);
-			KrollFunction onDataStreamCallback = getCallback(ON_DATA_STREAM);
-			if (onDataStreamCallback != null) {
+			KrollFunction onDownloadProgressCallback = getCallback(ON_DOWNLOAD_PROGRESS);
+			if (onDownloadProgressCallback != null) {
 				KrollDict o = new KrollDict();
 				o.put("totalCount", contentLength);
 				o.put("totalSize", totalSize);
@@ -350,7 +367,7 @@ public class TiHTTPClient
 				o.put("blob", blob);
 				o.put("progress", ((double)totalSize)/((double)contentLength));
 
-				onDataStreamCallback.callAsync(proxy.getKrollObject(), o);
+				onDownloadProgressCallback.callAsync(proxy.getKrollObject(), o);
 			}
 		}
 		
@@ -1164,7 +1181,7 @@ public class TiHTTPClient
 
 						ProgressEntity progressEntity = new ProgressEntity(mpe, new ProgressListener() {
 							public void progress(int progress) {
-								KrollFunction cb = getCallback(ON_SEND_STREAM);
+								KrollFunction cb = getCallback(ON_SEND_PROGRESS);
 								if (cb != null) {
 									KrollDict data = new KrollDict();
 									data.put("progress", ((double)progress)/totalLength);
