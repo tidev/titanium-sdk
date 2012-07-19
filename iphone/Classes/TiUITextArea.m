@@ -240,9 +240,8 @@ Text area constrains the text event though the content offset and edge insets ar
     if (txt.length == 0) {
         txt = @" ";
     }
-    //sizeThatFits does not seem to work properly
-    CGFloat txtHeight = [txt sizeWithFont:ourView.font constrainedToSize:CGSizeMake(constrainedWidth, 1E100) lineBreakMode:UILineBreakModeWordWrap].height;
-    return txtHeight + 2 * self.layer.borderWidth;
+    
+    return [ourView sizeThatFits:CGSizeMake(constrainedWidth, 1E100)].height;
 }
 
 - (void)scrollViewDidScroll:(id)scrollView
