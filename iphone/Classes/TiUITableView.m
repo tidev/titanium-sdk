@@ -328,6 +328,15 @@
 	return height < 1 ? tableview.rowHeight : height;
 }
 
+//Allows use of scrollsToTop property on a table.
+//Useful when you have multiple tables in your view, you can
+//set which table will respond to tap on status bar to scroll to top.
+//http://developer.apple.com/library/ios/#documentation/uikit/reference/UIScrollView_Class/Reference/UIScrollView.html
+-(void)setScrollsToTop_:(id)value
+{
+	[[self tableView] setScrollsToTop:[TiUtils boolValue:value]];
+}
+
 -(void)setBackgroundColor:(TiColor*)color onTable:(UITableView*)table
 {
 	UIColor* defaultColor = [table style] == UITableViewStylePlain ? [UIColor whiteColor] : [UIColor groupTableViewBackgroundColor];
