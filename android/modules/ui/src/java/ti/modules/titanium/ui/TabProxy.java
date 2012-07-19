@@ -171,21 +171,23 @@ public class TabProxy extends TiViewProxy
 		super.onPropertyChanged(name, value);
 		if (name.equals(TiC.PROPERTY_BACKGROUND_COLOR)) {
 			
+			//This needs to run on main thread.
 			if (TiApplication.isUIThread()) {
 				setTabBackgroundColor();
 				return;
 			}
-
-			TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_TAB_BACKGROUND_COLOR_CHANGED), null);
+			
+			getMainHandler().obtainMessage(MSG_TAB_BACKGROUND_COLOR_CHANGED).sendToTarget();
 			
 		} else if (name.equals(TiC.PROPERTY_BACKGROUND_SELECTED_COLOR)) {
 			
+			//This needs to run on main thread.
 			if (TiApplication.isUIThread()) {
 				setTabBackgroundSelectedColor();
 				return;
 			}
 			
-			TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_TAB_BACKGROUND_SELECTED_COLOR_CHANGED), null);
+			getMainHandler().obtainMessage(MSG_TAB_BACKGROUND_SELECTED_COLOR_CHANGED).sendToTarget();
 
 		}
 	}
