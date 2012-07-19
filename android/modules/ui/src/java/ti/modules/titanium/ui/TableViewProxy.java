@@ -24,6 +24,7 @@ import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.view.TiUIView;
 
 import ti.modules.titanium.ui.widget.TiUITableView;
+import ti.modules.titanium.ui.widget.tableview.TableViewModel.Item;
 import android.app.Activity;
 import android.os.Message;
 
@@ -173,6 +174,22 @@ public class TableViewProxy extends TiViewProxy
 		TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_APPEND_ROW), rows);
 	}
 
+	@Override
+	public boolean fireEvent(String eventName, Object data) {
+		if (eventName.equals(TiC.EVENT_LONGPRESS)) {
+			double x = ((KrollDict)data).getDouble(TiC.PROPERTY_X);
+			double y = ((KrollDict)data).getDouble(TiC.PROPERTY_Y);
+			int index = getTableView().getTableView().getIndexFromXY(x, y);
+			if (index != -1) {
+				Item item = getTableView().getTableView().getItemAtPosition(index);
+				TableViewRowProxy.fillClickEvent((KrollDict) data, getTableView().getModel(), item);
+			}
+		}
+		//create copy to be thread safe.
+		KrollDict dataCopy = new KrollDict((KrollDict)data);
+		return super.fireEvent(eventName, dataCopy);
+	}
+	
 	private void handleAppendRow(Object rows)
 	{
 		Object[] rowList = null;
