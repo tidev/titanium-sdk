@@ -23,6 +23,7 @@ import org.appcelerator.titanium.view.TiUIView;
 
 import android.graphics.Color;
 import android.graphics.Matrix;
+import android.graphics.Point;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.drawable.ColorDrawable;
@@ -32,7 +33,6 @@ import android.os.Build;
 import android.os.Looper;
 import android.os.MessageQueue;
 import android.util.FloatMath;
-import android.util.Pair;
 import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewGroup;
@@ -213,10 +213,11 @@ public class TiAnimationBuilder
 	{
 		this.view = view;
 		this.viewProxy = viewProxy;
-		
+		TiUIView tiView = viewProxy.peekView();
+
 		AnimationSet as = new AnimationSet(false);
 		AnimationListener animationListener = new AnimationListener();
-		
+
 		if (toOpacity != null) {
 			if (viewProxy.hasProperty(TiC.PROPERTY_OPACITY)) {
 				fromOpacity = TiConvert.toDouble(viewProxy.getProperty(TiC.PROPERTY_OPACITY));
@@ -224,31 +225,31 @@ public class TiAnimationBuilder
 			} else {
 				fromOpacity = 1.0 - toOpacity;
 			}
-			
+
 			Animation animation = new AlphaAnimation(fromOpacity.floatValue(), toOpacity.floatValue());
 			applyOpacity = true;
 			addAnimation(as, animation);
 			animation.setAnimationListener(animationListener);
 
-			TiUIView uiView = viewProxy.peekView();
 			if (viewProxy.hasProperty(TiC.PROPERTY_OPACITY) && fromOpacity != null && toOpacity != null
-				&& uiView != null) {
+				&& tiView != null) {
 				// Initialize the opacity to 1 when we are going to change it in
 				// the animation. If the opacity of the view was initialized to
 				// 0, the animation doesn't work
-				uiView.setOpacity(1);
+				tiView.setOpacity(1);
 			}
 		}
-		
+
 		if (backgroundColor != null) {
 			int fromBackgroundColor = 0;
-			
+
 			if (viewProxy.hasProperty(TiC.PROPERTY_BACKGROUND_COLOR)) {
 				fromBackgroundColor = TiConvert.toColor(TiConvert.toString(viewProxy.getProperty(TiC.PROPERTY_BACKGROUND_COLOR)));
 			} else {
 				Log.w(LCAT, "Cannot animate view without a backgroundColor. View doesn't have that property. Using #00000000");
 				fromBackgroundColor = Color.argb(0,0,0,0);
 			}
+
 			Animation a = new TiColorAnimation(view, fromBackgroundColor, backgroundColor);
 			addAnimation(as, a);
 		}
@@ -256,8 +257,6 @@ public class TiAnimationBuilder
 		if (tdm != null) {
 			as.setFillAfter(true);
 			as.setFillEnabled(true);
-
-			TiUIView tiView = viewProxy.peekView();
 
 			Animation anim;
 			if (tdm.hasScaleOperation() && tiView != null) {
@@ -293,8 +292,6 @@ public class TiAnimationBuilder
 			TiDimension optionTop = null, optionBottom = null;
 			TiDimension optionLeft = null, optionRight = null;
 			TiDimension optionCenterX = null, optionCenterY = null;
-
-			TiUIView tiView = viewProxy.peekView();
 
 			// Note that we're stringifying the values to make sure we
 			// use the correct TiDimension constructor, except when
@@ -356,10 +353,10 @@ public class TiAnimationBuilder
 			int newXDelta = horizontal[0] - x;
 			int newYDelta = vertical[0] - y;
 			if (tiView != null) {
-				Pair<Integer, Integer> currentTranslation = tiView.getAnimatedXYTranslationValues();
+				Point currentTranslation = tiView.getAnimatedXYTranslationValues();
 				if (currentTranslation != null) {
-					previousXDelta = currentTranslation.first;
-					previousYDelta = currentTranslation.second;
+					previousXDelta = currentTranslation.x;
+					previousYDelta = currentTranslation.y;
 				}
 			}
 
@@ -371,7 +368,7 @@ public class TiAnimationBuilder
 			// Remember where we're going to, since there is no native way to look it up later.
 			// We don't need to remember it if we're autoreversing, however.
 			if (tiView != null && (autoreverse == null || !autoreverse.booleanValue())) {
-				tiView.setAnimatedXYTranslationValues(Pair.create(Integer.valueOf(newXDelta), Integer.valueOf(newYDelta)));
+				tiView.setAnimatedXYTranslationValues(new Point(newXDelta, newYDelta));
 			}
 
 			if (duration != null) {
@@ -414,20 +411,26 @@ public class TiAnimationBuilder
 				sizeAnimation.setDuration(duration.longValue());
 			}
 
+			// Also wipe out any saved x,y deltas from Translate animation above,
+			// since this size animation is going to reset the layout completely.
+			if (tiView != null) {
+				tiView.setAnimatedXYTranslationValues(new Point(0, 0));
+			}
+
 			sizeAnimation.setInterpolator(new LinearInterpolator());
 			sizeAnimation.setAnimationListener(animationListener);
 			as.addAnimation(sizeAnimation);
 
 			relayoutChild = true;
 		}
-		
+
 		if (callback != null || animationProxy != null) {
 			as.setAnimationListener(animationListener);
 		}
 
 		return as;
 	}
-	
+
 	protected class SizeAnimation extends Animation
 	{
 		protected View view;
