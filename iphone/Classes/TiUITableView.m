@@ -982,22 +982,63 @@
 
 -(void)longPressGesture:(UILongPressGestureRecognizer *)recognizer
 {
-	if([[self proxy] _hasListeners:@"longpress"] && [recognizer state] == UIGestureRecognizerStateBegan)
-	{
-		UITableView *ourTableView = [self tableView];
-		CGPoint point = [recognizer locationInView:ourTableView];
-		NSIndexPath *indexPath = [ourTableView indexPathForRowAtPoint:point];
-		
-		BOOL search = NO;
-		if (allowsSelectionSet==NO || [ourTableView allowsSelection]==NO)
-		{
-			[ourTableView deselectRowAtIndexPath:indexPath animated:YES];
-		}
-		if(ourTableView != tableview)
-		{
-			search = YES;
-		}
-		[self triggerActionForIndexPath:indexPath fromPath:nil tableView:ourTableView wasAccessory:NO search:search name:@"longpress"];
+    if([[self proxy] _hasListeners:@"longpress"] && [recognizer state] == UIGestureRecognizerStateBegan)
+    {
+        UITableView *ourTableView = [self tableView];
+        CGPoint point = [recognizer locationInView:ourTableView];
+        NSIndexPath *indexPath = [ourTableView indexPathForRowAtPoint:point];
+
+        BOOL search = (ourTableView != tableview);
+        
+        if (indexPath == nil) {
+            //indexPath will also be nil if you click the header of the first section. TableView Bug??
+            TiUITableViewSectionProxy *section = [self sectionForIndex:0];
+            if (section != nil) {
+                CGRect headerRect = [ourTableView rectForHeaderInSection:0];
+                if ( CGRectContainsPoint(headerRect,point) ) {
+                    NSDictionary * eventObject = [NSDictionary dictionaryWithObjectsAndKeys:
+                                                  section,@"section",
+                                                  NUMBOOL(NO),@"detail",
+                                                  NUMBOOL(search),@"searchMode",
+                                                  NUMFLOAT(point.x), @"x",
+                                                  NUMFLOAT(point.y), @"y",
+                                                  nil];
+                    [[self proxy] fireEvent:@"longpress" withObject:eventObject]; 
+                    return;
+                }
+            }
+            NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:
+                                   NUMBOOL(NO),@"detail",
+                                   NUMBOOL(search),@"searchMode",
+                                   NUMFLOAT(point.x), @"x",
+                                   NUMFLOAT(point.y), @"y",
+                                   nil];
+            [[self proxy] fireEvent:@"longpress" withObject:event]; 
+            return;
+        }
+        
+        if (!search) {
+            //Make sure that the point does not fall into the rect for header or footer views
+            CGRect headerRect = [ourTableView rectForHeaderInSection:[indexPath section]];
+            CGRect footerRect = [ourTableView rectForFooterInSection:[indexPath section]];
+            if ( CGRectContainsPoint(headerRect,point) || CGRectContainsPoint(footerRect,point) ) {
+                TiUITableViewSectionProxy *section = [self sectionForIndex:[indexPath section]];
+                NSDictionary * eventObject = [NSDictionary dictionaryWithObjectsAndKeys:
+                                              section,@"section",
+                                              NUMBOOL(NO),@"detail",
+                                              NUMBOOL(search),@"searchMode",
+                                              NUMFLOAT(point.x), @"x",
+                                              NUMFLOAT(point.y), @"y",
+                                              nil];
+                [[self proxy] fireEvent:@"longpress" withObject:eventObject]; 
+                return;
+            }
+        }
+        if (allowsSelectionSet==NO || [ourTableView allowsSelection]==NO)
+        {
+            [ourTableView deselectRowAtIndexPath:indexPath animated:YES];
+        }
+        [self triggerActionForIndexPath:indexPath fromPath:nil tableView:ourTableView wasAccessory:NO search:search name:@"longpress"];
 	}
 }
 
