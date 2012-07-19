@@ -32,7 +32,6 @@ import android.os.Build;
 import android.os.Looper;
 import android.os.MessageQueue;
 import android.util.FloatMath;
-import android.util.Pair;
 import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewGroup;
@@ -198,8 +197,8 @@ public class TiAnimationBuilder
 
 	private void addAnimation(AnimationSet animationSet, Animation animation)
 	{
-		boolean reverse = (autoreverse != null && autoreverse.booleanValue());
-		animation.setRepeatMode(reverse ? Animation.REVERSE : Animation.RESTART);
+		// repeatCount is ignored at the AnimationSet level, so it needs to
+		// be set for each child animation manually.
 
 		// We need to reduce the repeat count by 1, since for native Android
 		// 1 would mean repeating it once.
@@ -207,7 +206,7 @@ public class TiAnimationBuilder
 
 		// In Android (native), the repeat count includes reverses. So we
 		// need to double-up and add one to the repeat count if we're reversing.
-		if (reverse) {
+		if (autoreverse != null && autoreverse.booleanValue()) {
 			repeatCount = repeatCount * 2 + 1;
 		}
 
@@ -229,13 +228,20 @@ public class TiAnimationBuilder
 
 		AnimationSet as = new AnimationSet(false);
 		AnimationListener animationListener = new AnimationListener();
+		if (callback != null || animationProxy != null) {
+			as.setAnimationListener(animationListener);
+		}
 
 		if (toOpacity != null) {
 			if (viewProxy.hasProperty(TiC.PROPERTY_OPACITY)) {
 				fromOpacity = TiConvert.toDouble(viewProxy.getProperty(TiC.PROPERTY_OPACITY));
 
 			} else {
-				fromOpacity = 1.0 - toOpacity;
+				// Not sure why we started at 1.0 - toOpacity in this case. Why wouldn't
+				// someone want to go from precisely 1.0 down to a lower opacity?
+				// Commenting out and replacing with 1.0.
+				// fromOpacity = 1.0 - toOpacity;
+				fromOpacity = 1.0;
 			}
 
 			Animation animation = new AlphaAnimation(fromOpacity.floatValue(), toOpacity.floatValue());
@@ -269,8 +275,6 @@ public class TiAnimationBuilder
 		}
 
 		if (tdm != null) {
-			as.setFillAfter(true);
-			as.setFillEnabled(true);
 
 			TiUIView tiView = viewProxy.peekView();
 
@@ -287,31 +291,14 @@ public class TiAnimationBuilder
 
 			anim = new TiMatrixAnimation(tdm, anchorX, anchorY);
 
-			anim.setFillAfter(true);
-
-			if (duration != null) {
-				anim.setDuration(duration.longValue());
-			}
-
 			addAnimation(as, anim);
 
-		}
-
-		// Set duration after adding children.
-		if (duration != null) {
-			as.setDuration(duration.longValue());
-		}
-
-		if (delay != null) {
-			as.setStartOffset(delay.longValue());
 		}
 
 		if (top != null || bottom != null || left != null || right != null || centerX != null || centerY != null) {
 			TiDimension optionTop = null, optionBottom = null;
 			TiDimension optionLeft = null, optionRight = null;
 			TiDimension optionCenterX = null, optionCenterY = null;
-
-			TiUIView tiView = viewProxy.peekView();
 
 			// Note that we're stringifying the values to make sure we
 			// use the correct TiDimension constructor, except when
@@ -366,46 +353,18 @@ public class TiAnimationBuilder
 			TiCompositeLayout.computePosition(parentView, optionTop, optionCenterY, optionBottom, h, 0, parentHeight,
 				vertical);
 
-			// Determine where the view has been animated to already (if at
-			// all), because it's from that point where we'll want to
-			// animate now, rather than from the "true", non-animated
-			// position. Android has no built-in way of telling us the
-			// location to where the view has already been animated,
-			// so we have to look it up from a cache we keep maintain
-			// ourselves directly on the tiView.
-			int previousXDelta = 0, previousYDelta = 0;
-			int newXDelta = horizontal[0] - x;
-			int newYDelta = vertical[0] - y;
-			if (tiView != null) {
-				Pair<Integer, Integer> currentTranslation = tiView.getAnimatedXYTranslationValues();
-				if (currentTranslation != null) {
-					previousXDelta = currentTranslation.first;
-					previousYDelta = currentTranslation.second;
-				}
-			}
+			Animation animation = new TranslateAnimation(Animation.ABSOLUTE, 0, Animation.ABSOLUTE,
+				horizontal[0]-x, Animation.ABSOLUTE, 0, Animation.ABSOLUTE, vertical[0]-y);
 
-			Animation animation = new TranslateAnimation(Animation.ABSOLUTE, previousXDelta, Animation.ABSOLUTE,
-				newXDelta,
-				Animation.ABSOLUTE, previousYDelta, Animation.ABSOLUTE, newYDelta);
-			animation.setFillEnabled(true);
-			animation.setFillAfter(true);
-
-			// Remember where we're going to, since there is no native way to
-			// look it up later.
-			// We don't need to remember it if we're autoreversing, however.
-			if (tiView != null && (autoreverse == null || !autoreverse.booleanValue())) {
-				tiView.setAnimatedXYTranslationValues(Pair.create(Integer.valueOf(newXDelta),
-					Integer.valueOf(newYDelta)));
-			}
-
-			if (duration != null) {
-				animation.setDuration(duration.longValue());
-			}
-
-			as.setFillEnabled(true);
-			as.setFillAfter(true);
 			animation.setAnimationListener(animationListener);
 			addAnimation(as, animation);
+
+			// Will need to update layout params at end of animation
+			// so that touch events will be recognized at new location,
+			// and so that view will stay at new location after changes in
+			// orientation. But if autoreversing to original layout, no
+			// need to re-layout.
+			relayoutChild = (autoreverse == null || !autoreverse.booleanValue());
 
 			if (DBG) {
 				Log.d(LCAT, "animate " + viewProxy + " relative to self: " + (horizontal[0] - x) + ", "
@@ -425,13 +384,34 @@ public class TiAnimationBuilder
 
 			sizeAnimation.setInterpolator(new LinearInterpolator());
 			sizeAnimation.setAnimationListener(animationListener);
-			as.addAnimation(sizeAnimation);
+			addAnimation(as, sizeAnimation);
 
-			relayoutChild = true;
+			// Will need to update layout params at end of animation
+			// so that touch events will be recognized within new
+			// size rectangle, and so that new size will survive
+			// any changes in orientation. But if autoreversing
+			// to original layout, no need to re-layout.
+			relayoutChild = (autoreverse == null || !autoreverse.booleanValue());
 		}
 
-		if (callback != null || animationProxy != null) {
-			as.setAnimationListener(animationListener);
+		// Set duration, repeatMode and fillAfter only after adding children.
+		// The values are pushed down to the child animations.
+		as.setFillAfter(true);
+
+		if (duration != null) {
+			as.setDuration(duration.longValue());
+		}
+
+		if (autoreverse != null && autoreverse.booleanValue()) {
+			as.setRepeatMode(Animation.REVERSE);
+		} else {
+			as.setRepeatMode(Animation.RESTART);
+		}
+
+		// startOffset is relevant to the animation set and thus
+		// not also set on the child animations.
+		if (delay != null) {
+			as.setStartOffset(delay.longValue());
 		}
 
 		return as;
@@ -597,7 +577,7 @@ public class TiAnimationBuilder
 				relayoutChild = false;
 			}
 
-			if (applyOpacity) {
+			if (applyOpacity && (autoreverse == null || !autoreverse.booleanValue())) {
 				// There is an android bug where animations still occur after
 				// this method. We clear it from the view to
 				// correct this.
@@ -614,7 +594,6 @@ public class TiAnimationBuilder
 					AlphaAnimation aa = new AlphaAnimation(toOpacity.floatValue(), toOpacity.floatValue());
 					aa.setDuration(1);
 					aa.setFillAfter(true);
-					aa.setFillEnabled(true);
 					view.setLayoutParams(view.getLayoutParams());
 					view.startAnimation(aa);
 				}
