@@ -41,6 +41,35 @@
 	[super dealloc];
 }
 
+-(void)setTouchHandler:(TiUIView*)handler
+{
+    //Assign only. No retain
+    touchHandler = handler;
+}
+
+- (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event 
+{
+    [touchHandler processTouchesBegan:touches withEvent:event];
+    [super touchesBegan:touches withEvent:event];
+}
+- (void)touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event 
+{
+    [touchHandler processTouchesMoved:touches withEvent:event];
+    [super touchesMoved:touches withEvent:event];
+}
+
+- (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event 
+{
+    [touchHandler processTouchesEnded:touches withEvent:event];
+    [super touchesEnded:touches withEvent:event];
+}
+
+- (void)touchesCancelled:(NSSet *)touches withEvent:(UIEvent *)event 
+{
+    [touchHandler processTouchesCancelled:touches withEvent:event];
+    [super touchesCancelled:touches withEvent:event];
+}
+
 -(UIView*)newPadView:(CGFloat)width height:(CGFloat)height
 {
 	UIView *view = [[UIView alloc] initWithFrame:CGRectMake(0, 0, width, height)];
@@ -266,6 +295,7 @@
 		((TiTextField *)textWidgetView).textAlignment = UITextAlignmentLeft;
 		((TiTextField *)textWidgetView).contentVerticalAlignment = UIControlContentVerticalAlignmentCenter;
 		[(TiTextField *)textWidgetView configure];
+		[(TiTextField *)textWidgetView setTouchHandler:self];
 		[self addSubview:textWidgetView];
 		self.clipsToBounds = YES;
 		WARN_IF_BACKGROUND_THREAD_OBJ;	//NSNotificationCenter is not threadsafe!
