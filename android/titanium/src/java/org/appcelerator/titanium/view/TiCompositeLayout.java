@@ -313,6 +313,16 @@ public class TiCompositeLayout extends ViewGroup
 		maxWidth += getPaddingLeft() + getPaddingRight();
 		maxHeight += getPaddingTop() + getPaddingBottom();
 
+		// Compute the maxHeight based on the number of horizontal rows for horizontal layout with wrap
+		if (isHorizontalArrangement() && enableHorizontalWrap && w != 0) {
+			int horizontalRows = (maxWidth / w);
+			if (horizontalRows > 1) {
+				// Reset the max width to the width of the parent (that should be the max width before we wrap)
+				maxWidth = w;
+				maxHeight *= horizontalRows;
+			}
+		}
+
 		// Account for border
 		//int padding = Math.round(borderHelper.calculatePadding());
 		//maxWidth += padding;
