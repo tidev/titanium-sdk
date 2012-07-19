@@ -76,6 +76,22 @@ public class TabGroupProxy extends TiWindowProxy
 		throw new IllegalStateException("call to getView on a Window");
 	}
 
+	public String getTabsBackgroundColor() {
+		if (hasProperty(TiC.PROPERTY_TABS_BACKGROUND_COLOR)) {
+			return getProperty(TiC.PROPERTY_TABS_BACKGROUND_COLOR).toString();
+		} else {
+			return null;
+		}
+	}
+	
+	public String getTabsBackgroundSelectedColor() {
+		if (hasProperty(TiC.PROPERTY_TABS_BACKGROUND_SELECTED_COLOR)) {
+			return getProperty(TiC.PROPERTY_TABS_BACKGROUND_SELECTED_COLOR).toString();
+		} else {
+			return null;
+		}
+	}
+
 	@Override
 	public boolean handleMessage(Message msg)
 	{

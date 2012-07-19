@@ -6,15 +6,23 @@
  */
 package ti.modules.titanium.ui;
 
+import java.util.ArrayList;
+
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.annotations.Kroll;
+import org.appcelerator.kroll.common.AsyncResult;
+import org.appcelerator.kroll.common.TiMessenger;
+import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.proxy.TiWindowProxy;
 import org.appcelerator.titanium.view.TiUIView;
 
+import ti.modules.titanium.ui.widget.TiUITabGroup;
+
 import android.app.Activity;
+import android.os.Message;
 
 @Kroll.proxy(creatableInModule=UIModule.class,
 propertyAccessors = {
@@ -29,6 +37,9 @@ public class TabProxy extends TiViewProxy
 	private TiWindowProxy win;
 	private TabGroupProxy tabGroupProxy;
 	private int windowId;
+	private final int MSG_TAB_BACKGROUND_COLOR_CHANGED = 100001;
+	private final int MSG_TAB_BACKGROUND_SELECTED_COLOR_CHANGED = 100002;
+
 
 	public TabProxy()
 	{
@@ -107,6 +118,22 @@ public class TabProxy extends TiViewProxy
 		windowId = id;
 	}
 	
+	public String getBackgroundColor() {
+		if (hasProperty(TiC.PROPERTY_BACKGROUND_COLOR)) {
+			return getProperty(TiC.PROPERTY_BACKGROUND_COLOR).toString();
+		} else {
+			return null;
+		}
+	}
+	
+	public String getBackgroundSelectedColor() {
+		if (hasProperty(TiC.PROPERTY_BACKGROUND_SELECTED_COLOR)) {
+			return getProperty(TiC.PROPERTY_BACKGROUND_SELECTED_COLOR).toString();
+		} else {
+			return null;
+		}
+	}
+	
 	public int getWindowId() 
 	{
 		return windowId;
@@ -119,6 +146,65 @@ public class TabProxy extends TiViewProxy
 			win.setTabProxy(null);
 			win.setTabGroupProxy(null);
 			win.releaseViews();
+		}
+	}
+	
+	public void setTabBackgroundColor() 
+	{
+		int index = tabGroupProxy.getTabList().indexOf(this);
+		TiUITabGroup tg = (TiUITabGroup)tabGroupProxy.peekView();
+		if (tg != null) {
+			tg.setTabBackgroundColor(index);;
+		}
+	}
+	
+	public void setTabBackgroundSelectedColor()
+	{
+		TiUITabGroup tg = (TiUITabGroup)tabGroupProxy.peekView();
+		if (tg != null) {
+			tg.setTabBackgroundSelectedColor();
+		}
+	}
+	@Override
+	public void onPropertyChanged(String name, Object value) 
+	{
+		super.onPropertyChanged(name, value);
+		if (name.equals(TiC.PROPERTY_BACKGROUND_COLOR)) {
+			
+			if (TiApplication.isUIThread()) {
+				setTabBackgroundColor();
+				return;
+			}
+
+			TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_TAB_BACKGROUND_COLOR_CHANGED), null);
+			
+		} else if (name.equals(TiC.PROPERTY_BACKGROUND_SELECTED_COLOR)) {
+			
+			if (TiApplication.isUIThread()) {
+				setTabBackgroundSelectedColor();
+				return;
+			}
+			
+			TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_TAB_BACKGROUND_SELECTED_COLOR_CHANGED), null);
+
+		}
+	}
+	
+	@Override
+	public boolean handleMessage(Message msg)
+	{
+		switch (msg.what) {
+			case MSG_TAB_BACKGROUND_SELECTED_COLOR_CHANGED: {
+				setTabBackgroundSelectedColor();
+				return true;
+			}
+			case MSG_TAB_BACKGROUND_COLOR_CHANGED: {
+				setTabBackgroundColor();
+				return true;
+			}
+			default: {
+				return super.handleMessage(msg);
+			}
 		}
 	}
 }
