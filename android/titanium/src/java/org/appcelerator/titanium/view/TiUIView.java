@@ -97,9 +97,6 @@ public abstract class TiUIView
 	// Same for rotation animation.
 	private float animatedRotationDegrees = 0f; // i.e., no rotation.
 
-	// Same for translate animation.
-	private Point animatedXYTranslationValues = new Point(0, 0);
-
 	private KrollDict lastUpEvent = new KrollDict(2);
 	// In the case of heavy-weight windows, the "nativeView" is null,
 	// so this holds a reference to the view which is used for touching,
@@ -1388,31 +1385,12 @@ public abstract class TiUIView
 	}
 
 	/**
-	 * Retrieve the saved translate animation x & y deltas, which we store here since Android provides no property
-	 * for looking them up.
-	 */
-	public Point getAnimatedXYTranslationValues()
-	{
-		return animatedXYTranslationValues;
-	}
-
-	/**
-	 * Store the translate animation x and y delta values
-	 * since Android provides no property for looking them up.
-	 */
-	public void setAnimatedXYTranslationValues(Point newValues)
-	{
-		animatedXYTranslationValues = newValues;
-	}
-
-	/**
 	 * "Forget" the values we save after scale and rotation animations.
 	 */
 	private void resetPostAnimationValues()
 	{
 		animatedRotationDegrees = 0f; // i.e., no rotation.
 		animatedScaleValues = Pair.create(Float.valueOf(1f), Float.valueOf(1f)); // 1 means no scaling
-		animatedXYTranslationValues = new Point(0, 0);
 	}
 
 }
