@@ -23,6 +23,7 @@ import org.appcelerator.titanium.view.TiUIView;
 
 import android.graphics.Color;
 import android.graphics.Matrix;
+import android.graphics.Point;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.drawable.ColorDrawable;
@@ -57,9 +58,9 @@ public class TiAnimationBuilder
 	protected Double fromOpacity = null;
 	protected Double repeat = null;
 	protected Boolean autoreverse = null;
-	protected Integer top = null, bottom = null, left = null, right = null;
-	protected Integer centerX = null, centerY = null;
-	protected Integer width = null, height = null;
+	protected String top = null, bottom = null, left = null, right = null;
+	protected String centerX = null, centerY = null;
+	protected String width = null, height = null;
 	protected Integer backgroundColor = null;
 
 	protected TiAnimation animationProxy;
@@ -126,27 +127,27 @@ public class TiAnimationBuilder
 		}
 
 		if (options.containsKey(TiC.PROPERTY_TOP)) {
-			top = TiConvert.toInt(options, TiC.PROPERTY_TOP);
+			top = TiConvert.toString(options, TiC.PROPERTY_TOP);
 		}
 
 		if (options.containsKey(TiC.PROPERTY_BOTTOM)) {
-			bottom = TiConvert.toInt(options, TiC.PROPERTY_BOTTOM);
+			bottom = TiConvert.toString(options, TiC.PROPERTY_BOTTOM);
 		}
 
 		if (options.containsKey(TiC.PROPERTY_LEFT)) {
-			left = TiConvert.toInt(options, TiC.PROPERTY_LEFT);
+			left = TiConvert.toString(options, TiC.PROPERTY_LEFT);
 		}
 
 		if (options.containsKey(TiC.PROPERTY_RIGHT)) {
-			right = TiConvert.toInt(options, TiC.PROPERTY_RIGHT);
+			right = TiConvert.toString(options, TiC.PROPERTY_RIGHT);
 		}
 
 		if (options.containsKey(TiC.PROPERTY_CENTER)) {
 			Object centerPoint = options.get(TiC.PROPERTY_CENTER);
 			if (centerPoint instanceof HashMap) {
 				HashMap center = (HashMap) centerPoint;
-				centerX = TiConvert.toInt(center, TiC.PROPERTY_X);
-				centerY = TiConvert.toInt(center, TiC.PROPERTY_Y);
+				centerX = TiConvert.toString(center, TiC.PROPERTY_X);
+				centerY = TiConvert.toString(center, TiC.PROPERTY_Y);
 
 			} else {
 				Log.e(LCAT, "Invalid argument type for center property. Ignoring");
@@ -154,11 +155,11 @@ public class TiAnimationBuilder
 		}
 
 		if (options.containsKey(TiC.PROPERTY_WIDTH)) {
-			width = TiConvert.toInt(options, TiC.PROPERTY_WIDTH);
+			width = TiConvert.toString(options, TiC.PROPERTY_WIDTH);
 		}
 
 		if (options.containsKey(TiC.PROPERTY_HEIGHT)) {
-			height = TiConvert.toInt(options, TiC.PROPERTY_HEIGHT);
+			height = TiConvert.toString(options, TiC.PROPERTY_HEIGHT);
 		}
 
 		if (options.containsKey(TiC.PROPERTY_BACKGROUND_COLOR)) {
@@ -231,6 +232,7 @@ public class TiAnimationBuilder
 		if (callback != null || animationProxy != null) {
 			as.setAnimationListener(animationListener);
 		}
+		TiUIView tiView = viewProxy.peekView();
 
 		if (toOpacity != null) {
 			if (viewProxy.hasProperty(TiC.PROPERTY_OPACITY)) {
@@ -249,13 +251,12 @@ public class TiAnimationBuilder
 			addAnimation(as, animation);
 			animation.setAnimationListener(animationListener);
 
-			TiUIView uiView = viewProxy.peekView();
 			if (viewProxy.hasProperty(TiC.PROPERTY_OPACITY) && fromOpacity != null && toOpacity != null
-				&& uiView != null) {
+				&& tiView != null) {
 				// Initialize the opacity to 1 when we are going to change it in
 				// the animation. If the opacity of the view was initialized to
 				// 0, the animation doesn't work
-				uiView.setOpacity(1);
+				tiView.setOpacity(1);
 			}
 		}
 
@@ -270,13 +271,12 @@ public class TiAnimationBuilder
 					"Cannot animate view without a backgroundColor. View doesn't have that property. Using #00000000");
 				fromBackgroundColor = Color.argb(0, 0, 0, 0);
 			}
+
 			Animation a = new TiColorAnimation(view, fromBackgroundColor, backgroundColor);
 			addAnimation(as, a);
 		}
 
 		if (tdm != null) {
-
-			TiUIView tiView = viewProxy.peekView();
 
 			Animation anim;
 			if (tdm.hasScaleOperation() && tiView != null) {
@@ -304,28 +304,28 @@ public class TiAnimationBuilder
 			// use the correct TiDimension constructor, except when
 			// we know the values are expressed for certain in pixels.
 			if (top != null) {
-				optionTop = new TiDimension(String.valueOf(top), TiDimension.TYPE_TOP);
+				optionTop = new TiDimension(top, TiDimension.TYPE_TOP);
 			} else {
 				optionTop = new TiDimension(view.getTop(), TiDimension.TYPE_TOP);
 				optionTop.setUnits(TypedValue.COMPLEX_UNIT_PX);
 			}
 
 			if (bottom != null) {
-				optionBottom = new TiDimension(String.valueOf(bottom), TiDimension.TYPE_BOTTOM);
+				optionBottom = new TiDimension(bottom, TiDimension.TYPE_BOTTOM);
 			} else {
 				optionBottom = new TiDimension(view.getBottom(), TiDimension.TYPE_BOTTOM);
 				optionBottom.setUnits(TypedValue.COMPLEX_UNIT_PX);
 			}
 
 			if (left != null) {
-				optionLeft = new TiDimension(String.valueOf(left), TiDimension.TYPE_LEFT);
+				optionLeft = new TiDimension(left, TiDimension.TYPE_LEFT);
 			} else {
 				optionLeft = new TiDimension(view.getLeft(), TiDimension.TYPE_LEFT);
 				optionLeft.setUnits(TypedValue.COMPLEX_UNIT_PX);
 			}
 
 			if (right != null) {
-				optionRight = new TiDimension(String.valueOf(right), TiDimension.TYPE_RIGHT);
+				optionRight = new TiDimension(right, TiDimension.TYPE_RIGHT);
 			} else {
 				optionRight = new TiDimension(view.getRight(), TiDimension.TYPE_RIGHT);
 				optionRight.setUnits(TypedValue.COMPLEX_UNIT_PX);
@@ -374,8 +374,25 @@ public class TiAnimationBuilder
 		}
 
 		if (tdm == null && (width != null || height != null)) {
-			int toWidth = width == null ? w : width;
-			int toHeight = height == null ? h : height;
+			TiDimension optionWidth, optionHeight;
+
+			if (width != null) {
+				optionWidth = new TiDimension(width, TiDimension.TYPE_WIDTH);
+			} else {
+				optionWidth = new TiDimension(w, TiDimension.TYPE_WIDTH);
+				optionWidth.setUnits(TypedValue.COMPLEX_UNIT_PX);
+			}
+
+			if (height != null) {
+				optionHeight = new TiDimension(height, TiDimension.TYPE_HEIGHT);
+			} else {
+				optionHeight = new TiDimension(w, TiDimension.TYPE_HEIGHT);
+				optionHeight.setUnits(TypedValue.COMPLEX_UNIT_PX);
+			}
+
+			int toWidth = optionWidth.getAsPixels(view);
+			int toHeight = optionHeight.getAsPixels(view);
+
 			SizeAnimation sizeAnimation = new SizeAnimation(view, w, h, toWidth, toHeight);
 
 			if (duration != null) {
@@ -465,7 +482,9 @@ public class TiAnimationBuilder
 			if (params instanceof TiCompositeLayout.LayoutParams) {
 				TiCompositeLayout.LayoutParams tiParams = (TiCompositeLayout.LayoutParams) params;
 				tiParams.optionHeight = new TiDimension(height, TiDimension.TYPE_HEIGHT);
+				tiParams.optionHeight.setUnits(TypedValue.COMPLEX_UNIT_PX);
 				tiParams.optionWidth = new TiDimension(width, TiDimension.TYPE_WIDTH);
+				tiParams.optionWidth.setUnits(TypedValue.COMPLEX_UNIT_PX);
 			}
 
 			view.setLayoutParams(params);

@@ -64,7 +64,7 @@ extern NSString * TitaniumModuleRequireFormat;
 + (BOOL)krollBridgeExists:(KrollBridge *)bridge;
 + (KrollBridge *)krollBridgeForThreadName:(NSString *)threadName;
 
--(void)enqueueEvent:(NSString*)type forProxy:(TiProxy *)proxy withObject:(id)obj withSource:(id)source;
+-(void)enqueueEvent:(NSString*)type forProxy:(TiProxy *)proxy withObject:(id)obj;
 -(void)registerProxy:(id)proxy krollObject:(KrollObject *)ourKrollObject;
 -(int)forceGarbageCollectNow;
 

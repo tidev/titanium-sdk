@@ -40,7 +40,7 @@ module.exports = new function() {
 		};
 		var listener = Ti.Network.Socket.createTCP({
 			host:'localhost',
-			port:40405
+			port:40505
 		});
 		var acceptPassed = false;
 		var connectPassed = false;
@@ -65,7 +65,7 @@ module.exports = new function() {
 		};
 		var connector = Ti.Network.Socket.createTCP({
 			host:'localhost',
-			port:40405
+			port:40505
 		});
 		connector.connected = function (e) {
 			try {
@@ -131,7 +131,7 @@ module.exports = new function() {
 
 		var listener = Ti.Network.Socket.createTCP({
 			host:'localhost',
-			port:40406
+			port:40506
 		});
 		listener.accepted = function (e) {
 			Ti.Stream.write(e.inbound, sourceBuffer, writeCallback);
@@ -139,7 +139,7 @@ module.exports = new function() {
 
 		var connector = Ti.Network.Socket.createTCP({
 			host:'localhost',
-			port:40406
+			port:40506
 		});
 
 		valueOf(testRun, function() { listener.listen(); }).shouldNotThrowException();
