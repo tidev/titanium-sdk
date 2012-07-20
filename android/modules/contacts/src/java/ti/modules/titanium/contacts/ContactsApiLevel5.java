@@ -466,8 +466,6 @@ public class ContactsApiLevel5 extends CommonContactsApi
 		
 		if (fullName.length() > 0) {
 			newContact.setProperty(TiC.PROPERTY_FULLNAME, fullName);
-		} else {
-			newContact.setProperty(TiC.PROPERTY_FULLNAME, "No Name");
 		}
 
 		if (options.containsKey(TiC.PROPERTY_PHONE)) {
@@ -793,6 +791,8 @@ public class ContactsApiLevel5 extends CommonContactsApi
 			Object contact = contacts[i];
 			if (contact instanceof PersonProxy) {
 				PersonProxy person = (PersonProxy) contact;
+				removePerson(person);
+				addContact(person.getProperties());
 			} else {
 				Log.e(LCAT, "Invalid argument type to save");
 			}

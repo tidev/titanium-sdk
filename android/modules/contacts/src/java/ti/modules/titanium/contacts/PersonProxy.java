@@ -67,6 +67,7 @@ public class PersonProxy extends KrollProxy
 	{
 		id = i;
 	}
+
 	@Kroll.method @Kroll.getProperty
 	public TiBlob getImage()
 	{
@@ -129,55 +130,7 @@ public class PersonProxy extends KrollProxy
 
 		setProperty("address", address);
 	}
+
 	
-	public boolean getNameModified() 
-	{
-		return nameModified;
-	}
 	
-	public boolean getPhoneModified() 
-	{
-		return phoneModified;
-	}
-	
-	public boolean getAddressModified()
-	{
-		return addressModified;
-	}
-	
-	public boolean getInstantMsgModified()
-	{
-		return instantMsgModified;
-	}
-	
-	public boolean getRelationModified()
-	{
-		return relationModified;
-	}
-	
-	@Override
-	public void onPropertyChanged(String name, Object value) 
-	{
-		if (name == null) {
-			return;
-		}
-		
-		if (name.equals(TiC.PROPERTY_FIRSTNAME) || name.equals(TiC.PROPERTY_LASTNAME) || 
-			name.equals(TiC.PROPERTY_MIDDLENAME) || name.equals(TiC.PROPERTY_FULLNAME)) {
-			nameModified = true;
-		} else if (name.equals(TiC.PROPERTY_PHONE)) {
-			phoneModified = true;
-		} else if (name.equals(TiC.PROPERTY_ADDRESS)) {
-			addressModified = true;
-		} else if (name.equals(TiC.PROPERTY_INSTANTMSG)) {
-			instantMsgModified = true;
-		} else if (name.equals(TiC.PROPERTY_RELATED_NAMES)) {
-			relationModified = true;
-		} else if (name.equals(TiC.PROPERTY_EMAIL)) {
-			emailModified = true;
-		} else if (name.equals(TiC.PROPERTY_BIRTHDAY) || name.equals(TiC.PROPERTY_ORGANIZATION)
-				|| name.equals(TiC.PROPERTY_NOTE) || name.equals(TiC.PROPERTY_NICKNAME)) {
-			otherModified = true;
-		}
-	}
 }
