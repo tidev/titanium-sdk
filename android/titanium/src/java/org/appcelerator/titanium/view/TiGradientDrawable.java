@@ -103,14 +103,18 @@ public class TiGradientDrawable extends ShapeDrawable {
 				if (offsets == null) {
 					offsets = new float[colors.length];
 				}
-				offsets[offsetCount++] = TiConvert.toFloat(colorRefObject, "offset");
+
+				float offset = TiConvert.toFloat(colorRefObject, "offset", -1);
+				if (offset >= 0.0f && offset <= 1.0f) {
+					offsets[offsetCount++] = offset;
+				}
 
 			} else {
 				this.colors[i] = TiConvert.toColor(color.toString());
 			}
 		}
 
-		// If the number of offsets doesn't not match the number of colors,
+		// If the number of offsets doesn't match the number of colors,
 		// just distribute the colors evenly along the gradient line.
 		if (offsetCount != this.colors.length) {
 			offsets = null;
