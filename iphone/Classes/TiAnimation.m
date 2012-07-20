@@ -25,7 +25,7 @@
 @synthesize zIndex, left, right, top, bottom, width, height;
 @synthesize duration, color, backgroundColor, opacity, opaque, view;
 @synthesize visible, curve, repeat, autoreverse, delay, transform, transition;
-@synthesize animatedView, autoreverseView, autoreverseLayout, transformMatrix, callback;
+@synthesize animatedView, autoreverseView, autoreverseLayout, transformMatrix, callback, isReverse;
 
 -(id)initWithDictionary:(NSDictionary*)properties context:(id<TiEvaluator>)context_ callback:(KrollCallback*)callback_
 {
@@ -421,36 +421,46 @@ newLayout->a = animation.autoreverseLayout.a;\
     
     if (!transitionAnimation) {
         UIViewAnimationOptions options = (UIViewAnimationOptionAllowUserInteraction | UIViewAnimationOptionBeginFromCurrentState); // Backwards compatible
-        CGFloat repeatCount = [repeat intValue];
         NSTimeInterval animationDuration = [self animationDuration];
-        TiAnimation* reverseAnimation = nil;
         
         options |= [curve intValue];
         // Autoreverse must always be combined with repeat: see docs
         options |= ([autoreverse boolValue] ? (UIViewAnimationOptionAutoreverse | UIViewAnimationOptionRepeat) : 0);
-        options |= ((repeatCount > 0.0) ? UIViewAnimationOptionRepeat : 0);
+        options |= (([repeat intValue] > 0) ? UIViewAnimationOptionRepeat : 0);
         
         void (^animation)() = ^{
-            [UIView setAnimationRepeatCount:repeatCount];
-            if (options & UIViewAnimationOptionAutoreverse) {
-                autoreverseView = [view_ retain];
+            CGFloat repeatCount = [repeat intValue];
+            if ((options & UIViewAnimationOptionAutoreverse) && (repeatCount > 0.0)) {
+                // What we have to do here in order to get the 'correct' animation 
+                // (where the view doesn't end up with the wrong settings) is reduce the repeat count
+                // by a half-step so the animation ends MIDWAY through the autoreverse (on the wrong frame)
+                // and then perform a SECOND animation upon completion - one which takes it back to the initial
+                // state.
+                
+                reverseAnimation = [[TiAnimation alloc] initWithDictionary:nil context:[self pageContext] callback:[[self callback] listener]];
+                [reverseAnimation setIsReverse:YES];
+                repeatCount -= 0.5;
+            }
+            
+            if (options & UIViewAnimationOptionRepeat) {
+                if (repeatCount != 0.0) { // Could be repeating indefinitely
+                    [UIView setAnimationRepeatCount:repeatCount];
+                }
             }
             
             // Allow the animation delegate to set up any additional animation information
-            if (delegate!=nil && [delegate respondsToSelector:@selector(animationWillStart:)])
-            {
-                [delegate animationWillStart:self];
+            if (![self isReverse]) {
+                if (delegate!=nil && [delegate respondsToSelector:@selector(animationWillStart:)])
+                {
+                    [delegate animationWillStart:self];
+                }
+                
+                [self animationStarted:[self description] context:self];
             }
-            
-            [self animationStarted:[self description] context:self];
             
             if (transform!=nil)
             {
-                if (autoreverse)
-                {
-                    transformMatrix = [[(TiUIView*)view_ transformMatrix] retain];
-                }
-                
+                [reverseAnimation setTransform:[(TiUIView*)view_ transformMatrix]];
                 [(TiUIView *)view_ setTransform_:transform];
             }
             
@@ -459,20 +469,17 @@ newLayout->a = animation.autoreverseLayout.a;\
                 TiUIView *uiview = (TiUIView*)view_;
                 LayoutConstraint *layoutProperties = [(TiViewProxy *)[uiview proxy] layoutProperties];
                 
-                
                 BOOL doReposition = NO;
                 
 #define CHECK_LAYOUT_CHANGE(a) \
 if (a!=nil && layoutProperties!=NULL) \
 {\
-autoreverseLayout.a = layoutProperties->a; \
+id cacheValue = [[(TiUIView*)view_ proxy] valueForKey:@#a]; \
+[reverseAnimation setValue:cacheValue forKey:@#a]; \
 layoutProperties->a = TiDimensionFromObject(a); \
 doReposition = YES;\
-}\
-else \
-{\
-autoreverseLayout.a = TiDimensionUndefined; \
 }
+
                 CHECK_LAYOUT_CHANGE(left);
                 CHECK_LAYOUT_CHANGE(right);
                 CHECK_LAYOUT_CHANGE(width);
@@ -481,21 +488,16 @@ autoreverseLayout.a = TiDimensionUndefined; \
                 CHECK_LAYOUT_CHANGE(bottom);
                 if (center!=nil && layoutProperties != NULL)
                 {
-                    autoreverseLayout.centerX = layoutProperties->centerX;
-                    autoreverseLayout.centerY = layoutProperties->centerY;
+                    [reverseAnimation setCenter:[[[TiPoint alloc] initWithPoint:[(TiUIView*)view_ center]] autorelease]];
+
                     layoutProperties->centerX = [center xDimension];
                     layoutProperties->centerY = [center yDimension];
                     doReposition = YES;
                 }
-                else
-                {
-                    autoreverseLayout.centerX = TiDimensionUndefined;
-                    autoreverseLayout.centerY = TiDimensionUndefined;
-                }
-                
                 
                 if (zIndex!=nil)
                 {
+                    [reverseAnimation setZIndex:[(TiViewProxy*)[(TiUIView*) view_ proxy] zIndex]];
                     [(TiViewProxy *)[uiview proxy] setVzIndex:[zIndex intValue]];
                 }
                 
@@ -507,32 +509,43 @@ autoreverseLayout.a = TiDimensionUndefined; \
             
             if (backgroundColor!=nil)
             {
+                [reverseAnimation setBackgroundColor:[TiUtils colorValue:[(TiViewProxy*)[(TiUIView*)view_ proxy] valueForKey:@"backgroundColor"]]];
                 TiColor *color_ = [TiUtils colorValue:backgroundColor];
                 [view_ setBackgroundColor:[color_ _color]];
             }
             
             if (color!=nil && [view_ respondsToSelector:@selector(setColor_:)])
             {
+                [reverseAnimation setColor:[TiUtils colorValue:[(TiViewProxy*)[(TiUIView*)view_ proxy] valueForKey:@"color"]]];
                 [view_ performSelector:@selector(setColor_:) withObject:color];
             }
             
             if (opacity!=nil)
             {
+                [reverseAnimation setOpacity:[NSNumber numberWithFloat:[TiUtils floatValue:[(TiViewProxy*)[(TiUIView*)view_ proxy] valueForKey:@"opacity"]]]];
                 view_.alpha = [opacity floatValue];
             }
             
             if (opaque!=nil)
             {
+                [reverseAnimation setOpaque:[NSNumber numberWithBool:[TiUtils boolValue:[(TiViewProxy*)[(TiUIView*)view_ proxy] valueForKey:@"opaque"]]]];
                 view_.opaque = [opaque boolValue];
             }
             
             if (visible!=nil)
             {
+                [reverseAnimation setVisible:[NSNumber numberWithBool:[TiUtils boolValue:[(TiViewProxy*)[(TiUIView*)view_ proxy] valueForKey:@"visible"]]]];
                 view_.hidden = ![visible boolValue];
             }
         };
         void (^complete)(BOOL) = ^(BOOL finished) {
-            [self animationCompleted:[self description] finished:[NSNumber numberWithBool:finished] context:self];
+            if (reverseAnimation != nil) {
+                [reverseAnimation animate:args];
+                RELEASE_TO_NIL(reverseAnimation);
+            }
+            else {
+                [self animationCompleted:[self description] finished:[NSNumber numberWithBool:finished] context:self];
+            }
         };
         
         [UIView animateWithDuration:animationDuration

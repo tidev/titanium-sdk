@@ -94,6 +94,9 @@
 	UIView* animatedView;
 		
 	// for autoreverse
+    TiAnimation* reverseAnimation;
+    BOOL isReverse;
+    
 	LayoutConstraint autoreverseLayout;
 	UIView *autoreverseView;
 	id transformMatrix;
@@ -109,6 +112,7 @@
 @property(nonatomic,readwrite,assign) id transformMatrix;
 @property(nonatomic,readonly) LayoutConstraint autoreverseLayout;
 @property(nonatomic,readonly) ListenerEntry* callback;
+@property(nonatomic,readwrite,assign) BOOL isReverse;
 
 // animatable properties against what is being animated
 @property(nonatomic,retain,readwrite) NSNumber	*zIndex;
