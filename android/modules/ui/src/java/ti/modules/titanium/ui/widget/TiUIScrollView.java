@@ -574,7 +574,7 @@ public class TiUIScrollView extends TiUIView
 	public void remove(TiUIView child)
 	{
 		if (child != null) {
-			View cv = child.getNativeView();
+			View cv = child.getOuterView();
 			if (cv != null) {
 				View nv = getLayout();
 				if (nv instanceof ViewGroup) {
