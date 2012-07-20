@@ -432,7 +432,7 @@ public class TiConvert
 			return Float.parseFloat((String) value);
 
 		} else {
-			throw new NumberFormatException("Unable to convert " + value.getClass().getName());
+			throw new NumberFormatException("Unable to convert value to float.");
 		}
 	}
 
