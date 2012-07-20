@@ -16,7 +16,6 @@ USE_VIEW_FOR_CONTENT_WIDTH
 
 -(void)_initWithProperties:(NSDictionary *)properties
 {
-    [self initializeProperty:@"verticalAlign" defaultValue:NUMINT(1)];
     [super _initWithProperties:properties];
 }
 
