@@ -154,7 +154,7 @@ public class TiUILabel extends TiUIView
 			int y = TiConvert.toInt(((HashMap) newValue).get(TiC.PROPERTY_Y));
 			tv.setPadding(x, y, x, y);
 			tv.requestLayout();
-		} else if (key.equals(TiC.PROPERTY_COLOR)) {
+		} else if (key.equals(TiC.PROPERTY_SHADOW_COLOR)) {
 			shadowColor = TiConvert.toColor((String) newValue);
 			tv.setShadowLayer(1, shadowDx, shadowDy, shadowColor);
 		} else if (key.equals(TiC.PROPERTY_SHADOW_OFFSET)) {

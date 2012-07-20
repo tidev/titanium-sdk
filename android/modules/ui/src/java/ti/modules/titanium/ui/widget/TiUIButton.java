@@ -33,6 +33,10 @@ public class TiUIButton extends TiUIView
 	private static final String LCAT = "TiUIButton";
 	private static final boolean DBG = TiConfig.LOGD;
 
+	private int shadowColor;
+	private int shadowDx;
+	private int shadowDy;
+
 	public TiUIButton(final TiViewProxy proxy) {
 		super(proxy);
 		if (DBG) {
@@ -93,6 +97,16 @@ public class TiUIButton extends TiUIView
 			int y = value.getInt(TiC.PROPERTY_Y);
 			btn.setPadding(x, y, x, y);
 		}
+		if (d.containsKey(TiC.PROPERTY_SHADOW_COLOR)) {
+			shadowColor = TiConvert.toColor(d, TiC.PROPERTY_SHADOW_COLOR);
+			btn.setShadowLayer(1, shadowDx, shadowDy, shadowColor);
+		}
+		if (d.containsKey(TiC.PROPERTY_SHADOW_OFFSET)) {
+			KrollDict value = d.getKrollDict(TiC.PROPERTY_SHADOW_OFFSET);
+			shadowDx = value.getInt(TiC.PROPERTY_X);
+			shadowDy = value.getInt(TiC.PROPERTY_Y);
+			btn.setShadowLayer(1, shadowDx, shadowDy, shadowColor);
+		}
 		btn.invalidate();
 	}
 
@@ -120,6 +134,13 @@ public class TiUIButton extends TiUIView
 			int y = TiConvert.toInt(((HashMap) newValue).get(TiC.PROPERTY_Y));
 			btn.setPadding(x, y, x, y);
 			btn.requestLayout();
+		} else if (key.equals(TiC.PROPERTY_SHADOW_COLOR)) {
+			shadowColor = TiConvert.toColor((String) newValue);
+			btn.setShadowLayer(1, shadowDx, shadowDy, shadowColor);
+		} else if (key.equals(TiC.PROPERTY_SHADOW_OFFSET)) {
+			shadowDx = TiConvert.toInt(((HashMap) newValue).get(TiC.PROPERTY_X));
+			shadowDy = TiConvert.toInt(((HashMap) newValue).get(TiC.PROPERTY_Y));
+			btn.setShadowLayer(1, shadowDx, shadowDy, shadowColor);
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}
