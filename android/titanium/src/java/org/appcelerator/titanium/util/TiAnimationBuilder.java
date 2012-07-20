@@ -549,35 +549,47 @@ public class TiAnimationBuilder
 			}
 		}
 	}
-	
+
 	public static class TiColorAnimation extends Animation
 	{
-		protected View view;
+		View view;
 		TransitionDrawable transitionDrawable;
-		boolean started = false;
-		
-		public TiColorAnimation(View view, int fromColor, int toColor) 
+		boolean reversing = false;
+		int duration = 0;
+
+		public TiColorAnimation(View view, int fromColor, int toColor)
 		{
 			this.view = view;
 
 			ColorDrawable fromColorDrawable = new ColorDrawable(fromColor);
 			ColorDrawable toColorDrawable = new ColorDrawable(toColor);
-			transitionDrawable = new TransitionDrawable(new Drawable[]{fromColorDrawable, toColorDrawable});
-		}
+			transitionDrawable = new TransitionDrawable(new Drawable[] { fromColorDrawable, toColorDrawable });
 
-		@Override
-		protected void applyTransformation(float interpolatedTime, Transformation t) 
-		{
-			super.applyTransformation(interpolatedTime, t);
-			if (!started) {
-				// Kick off a TransitionDrawable to do this for us. All
-				// subsequent calls to applyTransformation will just be ignored.
-				started = true;
-				view.setBackgroundDrawable(transitionDrawable);
-				long duration = this.getDuration();
-				int durationInt = Long.valueOf(duration).intValue();
-				transitionDrawable.startTransition(durationInt);
-			}
+			this.setAnimationListener(new android.view.animation.Animation.AnimationListener() {
+
+				public void onAnimationStart(Animation animation)
+				{
+					TiColorAnimation.this.view.setBackgroundDrawable(transitionDrawable);
+					TiColorAnimation.this.duration = Long.valueOf(animation.getDuration()).intValue();
+					transitionDrawable.startTransition(TiColorAnimation.this.duration);
+				}
+
+				public void onAnimationRepeat(Animation animation)
+				{
+					if (animation.getRepeatMode() == Animation.REVERSE) {
+						reversing = !reversing;
+					}
+					if (reversing) {
+						transitionDrawable.reverseTransition(TiColorAnimation.this.duration);
+					} else {
+						transitionDrawable.startTransition(TiColorAnimation.this.duration);
+					}
+				}
+
+				public void onAnimationEnd(Animation animation)
+				{
+				}
+			});
 		}
 	}
 
