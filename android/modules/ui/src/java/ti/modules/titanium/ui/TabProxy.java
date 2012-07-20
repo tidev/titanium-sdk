@@ -37,8 +37,9 @@ public class TabProxy extends TiViewProxy
 	private TiWindowProxy win;
 	private TabGroupProxy tabGroupProxy;
 	private int windowId;
-	private final int MSG_TAB_BACKGROUND_COLOR_CHANGED = 100001;
-	private final int MSG_TAB_BACKGROUND_SELECTED_COLOR_CHANGED = 100002;
+	private static final int MSG_FIRST_ID = TabGroupProxy.MSG_LAST_ID + 1;
+	private final int MSG_TAB_BACKGROUND_COLOR_CHANGED = MSG_FIRST_ID + 101;
+	private final int MSG_TAB_BACKGROUND_SELECTED_COLOR_CHANGED = MSG_FIRST_ID + 102;
 
 
 	public TabProxy()
@@ -138,6 +139,7 @@ public class TabProxy extends TiViewProxy
 	{
 		return windowId;
 	}
+	
 	@Override
 	public void releaseViews()
 	{
@@ -154,7 +156,7 @@ public class TabProxy extends TiViewProxy
 		int index = tabGroupProxy.getTabList().indexOf(this);
 		TiUITabGroup tg = (TiUITabGroup)tabGroupProxy.peekView();
 		if (tg != null) {
-			tg.setTabBackgroundColor(index);;
+			tg.setTabBackgroundColor(index);
 		}
 	}
 	
@@ -165,6 +167,7 @@ public class TabProxy extends TiViewProxy
 			tg.setTabBackgroundSelectedColor();
 		}
 	}
+	
 	@Override
 	public void onPropertyChanged(String name, Object value) 
 	{

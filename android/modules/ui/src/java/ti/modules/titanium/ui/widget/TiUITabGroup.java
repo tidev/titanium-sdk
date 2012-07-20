@@ -7,7 +7,6 @@
 package ti.modules.titanium.ui.widget;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
@@ -205,7 +204,9 @@ public class TiUITabGroup extends TiUIView
 
 		// Apply the appropriate background color on all tabs
 		for (int i = 0; i < tabHost.getTabWidget().getChildCount(); i++) {
-			setTabBackgroundColor(i);
+			if (i != currentTabID) {
+				setTabBackgroundColor(i);
+			}
 		}
 		setTabBackgroundSelectedColor();
 		
@@ -227,7 +228,7 @@ public class TiUITabGroup extends TiUIView
 		String color = tabs.get(index).getBackgroundColor();
 		View tab = tabHost.getTabWidget().getChildAt(index);
 		if (color != null) {
-			tab.setBackgroundColor(TiConvert.toColor(color));
+			tab.setBackgroundColor(TiConvert.toColor(color));	
 		} else {
 			String tabsColor = tabGroupProxy.getTabsBackgroundColor();
 			if (tabsColor != null) {
