@@ -75,13 +75,13 @@
 {
     CGSize actualLabelSize = [self sizeForFont:initialLabelFrame.size.width - 2*textPadding.x];
 
-    CGRect labelRect = CGRectMake(textPadding.x, textPadding.y, initialLabelFrame.size.width - 2*textPadding.x, actualLabelSize.height - 2*textPadding.y);
+    CGRect labelRect = CGRectMake(textPadding.x, textPadding.y, initialLabelFrame.size.width - 2*textPadding.x, actualLabelSize.height);
     switch (verticalAlign) {
         case UIControlContentVerticalAlignmentBottom:
-            labelRect.origin.y = initialLabelFrame.size.height - textPadding.y - labelRect.height;
+            labelRect.origin.y = initialLabelFrame.size.height - textPadding.y - labelRect.size.height;
             break;
         case UIControlContentVerticalAlignmentCenter:
-            labelRect.origin.y = (initialLabelFrame.size.height - labelRect.height)/2;
+            labelRect.origin.y = (initialLabelFrame.size.height - labelRect.size.height)/2;
             if (labelRect.origin.y < 0) {
                 labelRect.origin.y = 0;
                 labelRect.size.height = initialLabelFrame.size.height - 2*textPadding.y;
@@ -298,7 +298,6 @@
 
 -(void)setTextPadding_:(id)value
 {
-    UIButton *b = [self button];
     textPadding = [TiUtils pointValue:value];
     [self padLabel];
 }
