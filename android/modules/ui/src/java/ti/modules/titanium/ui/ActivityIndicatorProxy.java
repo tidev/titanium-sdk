@@ -46,6 +46,13 @@ public class ActivityIndicatorProxy extends TiViewProxy
 	}
 
 	@Override
+	protected KrollDict getLangConversionTable() {
+		KrollDict table = new KrollDict();
+		table.put(TiC.PROPERTY_MESSAGE, TiC.PROPERTY_MESSAGEID);
+		return table;
+	}
+
+	@Override
 	protected void handleShow(KrollDict options)
 	{
 		if (view == null) {
