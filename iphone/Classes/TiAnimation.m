@@ -25,7 +25,7 @@
 @synthesize zIndex, left, right, top, bottom, width, height;
 @synthesize duration, color, backgroundColor, opacity, opaque, view;
 @synthesize visible, curve, repeat, autoreverse, delay, transform, transition;
-@synthesize animatedView, callback, isReverse;
+@synthesize animatedView, callback, isReverse, reverseAnimation;
 
 -(id)initWithDictionary:(NSDictionary*)properties context:(id<TiEvaluator>)context_ callback:(KrollCallback*)callback_
 {
@@ -257,6 +257,9 @@ self.p = v;\
 #endif
 	
 	TiAnimation* animation = (TiAnimation*)context;
+    if ([animation isReverse]) {
+        animation = [animation reverseAnimation]; // Restore to the original animation
+    }
     
 	if (animation.delegate!=nil && [animation.delegate respondsToSelector:@selector(animationWillComplete:)])
 	{
@@ -410,13 +413,20 @@ self.p = v;\
                 // state.
                 
                 reverseAnimation = [[TiAnimation alloc] initWithDictionary:nil context:[self pageContext] callback:[[self callback] listener]];
+                [reverseAnimation setReverseAnimation:self];
                 [reverseAnimation setIsReverse:YES];
+                [reverseAnimation setDuration:duration];
+                [reverseAnimation setDelay:[NSNumber numberWithInt:0]];
                 repeatCount -= 0.5;
             }
             
+            // TODO: This seems to change behavior
             if (options & UIViewAnimationOptionRepeat) {
                 if (repeatCount != 0.0) { // Could be repeating indefinitely
                     [UIView setAnimationRepeatCount:repeatCount];
+                }
+                else {
+                    [UIView setAnimationRepeatCount:1.0];
                 }
             }
             
@@ -434,7 +444,13 @@ self.p = v;\
             
             if (transform!=nil)
             {
-                [reverseAnimation setTransform:[(TiUIView*)view_ transformMatrix]];
+                if (reverseAnimation != nil) {
+                    id transformMatrix = [(TiUIView*)view_ transformMatrix];
+                    if (transformMatrix == nil) {
+                        transformMatrix = [[[Ti2DMatrix alloc] init] autorelease];
+                    }
+                    [reverseAnimation setTransform:transformMatrix];
+                }
                 [(TiUIView *)view_ setTransform_:transform];
             }
             
@@ -516,7 +532,7 @@ doReposition = YES;\
             }
         };
         void (^complete)(BOOL) = ^(BOOL finished) {
-            if ((reverseAnimation != nil) && finished) {
+            if ((reverseAnimation != nil) && ![self isReverse] && finished) {
                 [reverseAnimation animate:args];
                 RELEASE_TO_NIL(reverseAnimation);
             }
@@ -544,8 +560,7 @@ doReposition = YES;\
             // NOTE: This results in a behavior change from previous versions, where interaction
             // with animations was allowed. In particular, with the new block system, animations can
             // be concurrent or interrupted, as opposed to being synchronous.
-            
-            // TODO: We need to investigate this more as part of the larger move to blocks.
+
             [UIView transitionWithView:transitionView
                               duration:[self animationDuration]
                                options:[transition unsignedIntegerValue]
