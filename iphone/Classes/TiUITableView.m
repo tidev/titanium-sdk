@@ -19,6 +19,7 @@
 #import "TiRootController.h"
 
 #define DEFAULT_SECTION_HEADERFOOTER_HEIGHT 20.0
+#define GROUPED_MARGIN_WIDTH 18.0
 
 @interface TiUIView(eventHandler);
 -(void)handleListenerRemovedWithEvent:(NSString *)event;
@@ -2114,6 +2115,9 @@ return result;	\
 -(CGFloat)computeRowWidth
 {
     CGFloat rowWidth = tableview.bounds.size.width;
+	if (self.tableView.style == UITableViewStyleGrouped) {
+		rowWidth -= GROUPED_MARGIN_WIDTH;
+	}
     
     // Apple does not provide a good way to get information about the index sidebar size
     // in the event that it exists - it silently resizes row content which is "flexible width"
