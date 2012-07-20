@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -8,7 +8,6 @@ package org.appcelerator.titanium.util;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollFunction;
-import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.ActivityProxy;
 import org.appcelerator.titanium.proxy.MenuItemProxy;
@@ -53,6 +52,15 @@ public class TiMenuSupport
 
 	public boolean onOptionsItemSelected(MenuItem item)
 	{
+		// menuProxy could be null in the case
+		// where developer has targeted sdk 11 or higher,
+		// not specified any menu/action bar, has a
+		// heavyweight window and the user clicks the
+		// auto-generated ActionBar.
+		if (menuProxy == null) {
+			return false;
+		}
+
 		MenuItemProxy mip = menuProxy.findItem(item);
 		if (mip != null) {
 			mip.fireEvent(TiC.EVENT_CLICK, null);
