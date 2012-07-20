@@ -30,16 +30,6 @@ public class PersonProxy extends KrollProxy
 	public long id = -1;
 	private boolean imageFetched; // lazy load these bitmap images
 	protected boolean hasImage = false;
-	
-	//Flags to track modification
-	private boolean nameModified =  false;
-	private boolean phoneModified = false;
-	private boolean addressModified = false;
-	private boolean emailModified = false;
-	private boolean instantMsgModified = false;
-	private boolean relationModified = false;
-	private boolean otherModified = false;
-	private boolean urlModified = false;
 
 	public PersonProxy()
 	{
@@ -130,7 +120,4 @@ public class PersonProxy extends KrollProxy
 
 		setProperty("address", address);
 	}
-
-	
-	
 }

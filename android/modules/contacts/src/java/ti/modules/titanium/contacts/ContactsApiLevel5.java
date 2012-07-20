@@ -791,6 +791,8 @@ public class ContactsApiLevel5 extends CommonContactsApi
 			Object contact = contacts[i];
 			if (contact instanceof PersonProxy) {
 				PersonProxy person = (PersonProxy) contact;
+				//For now we will delete/re-add modified contacts b/c this is a relatively fast operation.
+				//We will optimize this process if such a need arise.
 				removePerson(person);
 				addContact(person.getProperties());
 			} else {
