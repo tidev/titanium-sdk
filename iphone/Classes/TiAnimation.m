@@ -25,7 +25,7 @@
 @synthesize zIndex, left, right, top, bottom, width, height;
 @synthesize duration, color, backgroundColor, opacity, opaque, view;
 @synthesize visible, curve, repeat, autoreverse, delay, transform, transition;
-@synthesize animatedView, autoreverseView, autoreverseLayout, transformMatrix, callback, isReverse;
+@synthesize animatedView, callback, isReverse;
 
 -(id)initWithDictionary:(NSDictionary*)properties context:(id<TiEvaluator>)context_ callback:(KrollCallback*)callback_
 {
@@ -149,8 +149,6 @@ self.p = v;\
 	RELEASE_TO_NIL(transition);
 	RELEASE_TO_NIL(callback);
 	RELEASE_TO_NIL(view);
-	RELEASE_TO_NIL(autoreverseView);
-	RELEASE_TO_NIL(transformMatrix);
 	RELEASE_TO_NIL(animatedView);
     [animatedViewProxy release];
 	[super dealloc];
@@ -259,32 +257,6 @@ self.p = v;\
 #endif
 	
 	TiAnimation* animation = (TiAnimation*)context;
-    if (animation.autoreverseView!=nil)
-    {
-#define REVERSE_LAYOUT_CHANGE(a) \
-{\
-if (!TiDimensionIsUndefined(autoreverseLayout.a)) {\
-newLayout->a = animation.autoreverseLayout.a;\
-}\
-}
-        if (animation.transformMatrix==nil)
-        {
-            animation.transformMatrix = [[Ti2DMatrix alloc] init];
-        }
-        
-        [animation.autoreverseView performSelector:@selector(setTransform_:) withObject:animation.transformMatrix];
-        LayoutConstraint* newLayout = [(TiViewProxy *)[(TiUIView*)animation.autoreverseView proxy] layoutProperties];
-        REVERSE_LAYOUT_CHANGE(left);
-        REVERSE_LAYOUT_CHANGE(right);
-        REVERSE_LAYOUT_CHANGE(width);
-        REVERSE_LAYOUT_CHANGE(height);
-        REVERSE_LAYOUT_CHANGE(top);
-        REVERSE_LAYOUT_CHANGE(bottom);
-        [(TiViewProxy*)[(TiUIView*)animation.autoreverseView proxy] reposition];
-        
-        RELEASE_TO_NIL(animation.transformMatrix);
-        RELEASE_TO_NIL(animation.autoreverseView);
-    }
     
 	if (animation.delegate!=nil && [animation.delegate respondsToSelector:@selector(animationWillComplete:)])
 	{
@@ -448,6 +420,8 @@ newLayout->a = animation.autoreverseLayout.a;\
                 }
             }
             
+            // TODO: Handle reversing animation curve
+            
             // Allow the animation delegate to set up any additional animation information
             if (![self isReverse]) {
                 if (delegate!=nil && [delegate respondsToSelector:@selector(animationWillStart:)])
@@ -522,13 +496,16 @@ doReposition = YES;\
             
             if (opacity!=nil)
             {
-                [reverseAnimation setOpacity:[NSNumber numberWithFloat:[TiUtils floatValue:[(TiViewProxy*)[(TiUIView*)view_ proxy] valueForKey:@"opacity"]]]];
+                [reverseAnimation setOpacity:[NSNumber numberWithFloat:[(TiUIView*)view_ alpha]]];
                 view_.alpha = [opacity floatValue];
             }
             
             if (opaque!=nil)
             {
-                [reverseAnimation setOpaque:[NSNumber numberWithBool:[TiUtils boolValue:[(TiViewProxy*)[(TiUIView*)view_ proxy] valueForKey:@"opaque"]]]];
+                // TODO: Opacity is actually controlled only manually (by us) or via animations. We need to
+                // add a way to set it through the view.
+                
+                [reverseAnimation setOpaque:[NSNumber numberWithBool:[(TiUIView*)view_ isOpaque]]];
                 view_.opaque = [opaque boolValue];
             }
             
@@ -539,7 +516,7 @@ doReposition = YES;\
             }
         };
         void (^complete)(BOOL) = ^(BOOL finished) {
-            if (reverseAnimation != nil) {
+            if ((reverseAnimation != nil) && finished) {
                 [reverseAnimation animate:args];
                 RELEASE_TO_NIL(reverseAnimation);
             }

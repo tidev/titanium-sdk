@@ -108,9 +108,6 @@
 @property(nonatomic,assign,readwrite) NSObject<TiAnimationDelegate> *delegate;
 
 @property(nonatomic,readwrite,assign) UIView* animatedView;
-@property(nonatomic,readwrite,assign) UIView* autoreverseView;
-@property(nonatomic,readwrite,assign) id transformMatrix;
-@property(nonatomic,readonly) LayoutConstraint autoreverseLayout;
 @property(nonatomic,readonly) ListenerEntry* callback;
 @property(nonatomic,readwrite,assign) BOOL isReverse;
 
