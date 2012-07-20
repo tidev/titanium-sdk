@@ -642,6 +642,7 @@ public class TiHTTPClient
 			Log.i(LCAT, "detected charset: " + detectedCharset);
 			responseText = decodeResponseData(detectedCharset);
 			if (responseText != null) {
+				charset = detectedCharset;
 				return responseText;
 			}
 		}
