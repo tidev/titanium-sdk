@@ -39,7 +39,7 @@ public class TiUIButton extends TiUIView
 			Log.d(LCAT, "Creating a button");
 		}
 		Button btn = new Button(proxy.getActivity());
-		btn.setPadding(8, 0, 8, 0);
+		btn.setPadding(0, 0, 0, 0);
 		btn.setGravity(Gravity.CENTER);
 		setNativeView(btn);
 	}
@@ -87,6 +87,12 @@ public class TiUIButton extends TiUIView
 			String verticalAlign = d.getString(TiC.PROPERTY_VERTICAL_ALIGN);
 			TiUIHelper.setAlignment(btn, null, verticalAlign);
 		}
+		if (d.containsKey(TiC.PROPERTY_TITLE_PADDING)) {
+			KrollDict value = d.getKrollDict(TiC.PROPERTY_TITLE_PADDING);
+			int x = value.getInt(TiC.PROPERTY_X);
+			int y = value.getInt(TiC.PROPERTY_Y);
+			btn.setPadding(x, y, x, y);
+		}
 		btn.invalidate();
 	}
 
@@ -108,6 +114,11 @@ public class TiUIButton extends TiUIView
 			btn.requestLayout();
 		} else if (key.equals(TiC.PROPERTY_VERTICAL_ALIGN)) {
 			TiUIHelper.setAlignment(btn, null, TiConvert.toString(newValue));
+			btn.requestLayout();
+		} else if (key.equals(TiC.PROPERTY_TITLE_PADDING)) {
+			int x = TiConvert.toInt(((HashMap) newValue).get(TiC.PROPERTY_X));
+			int y = TiConvert.toInt(((HashMap) newValue).get(TiC.PROPERTY_Y));
+			btn.setPadding(x, y, x, y);
 			btn.requestLayout();
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);

@@ -341,6 +341,35 @@
 	}
 }
 
+-(void)setShadowColor_:(id)color
+{
+    UIButton *b = [self button];
+    if (color==nil)
+    {
+        [[b titleLabel] setShadowColor:nil];
+    }
+    else
+    {
+        color = [TiUtils colorValue:color];
+        [[b titleLabel] setShadowColor:[color _color]];
+    }
+}
+
+-(void)setShadowOffset_:(id)value
+{
+    UIButton *b = [self button];
+    CGPoint p = [TiUtils pointValue:value];
+    CGSize size = {p.x,p.y};
+    [[b titleLabel] setShadowOffset:size];
+}
+
+-(void)setTitlePadding_:(id)value
+{
+    UIButton *b = [self button];
+    CGPoint p = [TiUtils pointValue:value];
+    b.titleEdgeInsets=UIEdgeInsetsMake(p.y, p.x, p.y, p.x);
+}
+
 -(CGFloat)contentWidthForWidth:(CGFloat)value
 {
 	return [[self button] sizeThatFits:CGSizeMake(value, 0)].width;

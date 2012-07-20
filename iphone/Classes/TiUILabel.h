@@ -14,6 +14,7 @@
     UIImageView* backgroundView;
 	BOOL requiresLayout;
     CGRect padding;
+    CGPoint textPadding;
     BOOL repad;
     UIControlContentVerticalAlignment verticalAlign;
     CGRect initialLabelFrame;
