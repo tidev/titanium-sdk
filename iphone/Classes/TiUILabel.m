@@ -51,7 +51,7 @@
 		// the string having trailing spaces when given size parameter width is equal to the expected return width, so we adjust it here.
 		maxSize.width += 0.00001;
 	}
-	CGSize size = [value sizeWithFont:font constrainedToSize:maxSize lineBreakMode:[label lineBreakMode];
+	CGSize size = [value sizeWithFont:font constrainedToSize:maxSize lineBreakMode:[label lineBreakMode]];
 	if (shadowOffset.width > 0)
 	{
 		// if we have a shadow and auto, we need to adjust to prevent
