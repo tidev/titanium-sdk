@@ -1619,6 +1619,16 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_SHADOW_COLOR = "shadowColor";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_SHADOW_OFFSET = "shadowOffset";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_SHOW_HORIZONTAL_SCROLL_INDICATOR = "showHorizontalScrollIndicator";
 
 	/**
@@ -1755,6 +1765,16 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_TEXT_ALIGN = "textAlign";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_TEXT_PADDING = "textPadding";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_TITLE_PADDING = "titlePadding";
 
 	/**
 	 * @module.api
