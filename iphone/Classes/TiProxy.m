@@ -858,7 +858,7 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 
 	if ((bridgeCount == 1) && (pageKrollObject != nil))
 	{
-		[(KrollBridge *)pageContext enqueueEvent:type forProxy:self withObject:eventObject withSource:source];
+		[(KrollBridge *)pageContext enqueueEvent:type forProxy:self withObject:eventObject];
 	}
 	else
 	{
@@ -866,7 +866,7 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 
 		for (KrollBridge * currentBridge in bridges)
 		{
-			[currentBridge enqueueEvent:type forProxy:self withObject:eventObject withSource:source];
+			[currentBridge enqueueEvent:type forProxy:self withObject:eventObject];
 		}
 	}
 }

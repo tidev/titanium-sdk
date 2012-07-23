@@ -39,6 +39,12 @@ module.exports = new function() {
 	/*
 	ports that socket based test runs will use for communication between driver and harness.
 	Android and iOS use different ports in order to get around some behavior in ADB
+
+	WARNING: Make sure that the port you assign to iOS is not used in any tests!!! Otherwise there will be
+	reporting problems, test failures, and possibly other issues, since the simulator and the driver
+	are sharing a network interface.
+
+	To assist with this, ports in the range 40500-40600 should be considered reserved for harness testing.
 	*/
 	this.androidSocketPort = 40404;
 	this.iosSocketPort = 40405;

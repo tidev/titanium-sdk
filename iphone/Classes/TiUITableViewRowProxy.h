@@ -51,7 +51,7 @@ typedef enum
 @property(nonatomic,readwrite,assign) NSInteger row;
 @property(nonatomic,readwrite,assign) TiUITableViewCell* callbackCell;
 
-+(void)clearTableRowCell:(UITableViewCell*)cell;
+-(void)prepareTableRowForReuse;
 -(void)initializeTableViewCell:(UITableViewCell*)cell;
 -(CGFloat)sizeWidthForDecorations:(CGFloat)oldWidth forceResizing:(BOOL)force;
 -(CGFloat)rowHeight:(CGFloat)width;
