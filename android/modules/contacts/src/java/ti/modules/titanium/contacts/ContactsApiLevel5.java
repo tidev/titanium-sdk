@@ -466,8 +466,6 @@ public class ContactsApiLevel5 extends CommonContactsApi
 		
 		if (fullName.length() > 0) {
 			newContact.setProperty(TiC.PROPERTY_FULLNAME, fullName);
-		} else {
-			newContact.setProperty(TiC.PROPERTY_FULLNAME, "No Name");
 		}
 
 		if (options.containsKey(TiC.PROPERTY_PHONE)) {
@@ -641,6 +639,7 @@ public class ContactsApiLevel5 extends CommonContactsApi
 			ContentProviderResult[] providerResult = TiApplication.getAppRootOrCurrentActivity().getContentResolver().applyBatch(ContactsContract.AUTHORITY, ops);
 			long id = ContentUris.parseId(providerResult[0].uri);
 			newContact.setProperty("id", id);
+			newContact.setId(id);
 
 		} catch (RemoteException e) { 
 
@@ -779,4 +778,28 @@ public class ContactsApiLevel5 extends CommonContactsApi
 		}
 		return bm;
 	}
+
+	@Override
+	protected void save(Object people) {
+		
+		if (!(people instanceof Object[])) {
+			return;
+		}
+		
+		Object[] contacts = (Object[]) people;
+		for (int i = 0; i < contacts.length; i++) {
+			Object contact = contacts[i];
+			if (contact instanceof PersonProxy) {
+				PersonProxy person = (PersonProxy) contact;
+				//For now we will delete/re-add modified contacts b/c this is a relatively fast operation.
+				//We will optimize this process if such a need arise.
+				removePerson(person);
+				addContact(person.getProperties());
+			} else {
+				Log.e(LCAT, "Invalid argument type to save");
+			}
+		}
+		
+	}
+
 }

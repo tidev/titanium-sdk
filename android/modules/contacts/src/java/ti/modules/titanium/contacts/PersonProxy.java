@@ -22,11 +22,12 @@ import android.graphics.Bitmap;
 @Kroll.proxy(parentModule=ContactsModule.class, propertyAccessors={
 	"lastName", "firstName", "fullName", "middleName", "firstPhonetic", "lastPhonetic", "middlePhonetic", "department",
 	"jobTitle", "nickname", "note", "organization", "prefix", "suffix", "birthday", "created", "modified", "kind", "email", 
-	"phone", "address", "id", TiC.PROPERTY_URL, TiC.PROPERTY_INSTANTMSG, TiC.PROPERTY_RELATED_NAMES, TiC.PROPERTY_DATE
+	"phone", "address", TiC.PROPERTY_URL, TiC.PROPERTY_INSTANTMSG, TiC.PROPERTY_RELATED_NAMES, TiC.PROPERTY_DATE
 })
 public class PersonProxy extends KrollProxy
 {
 	private TiBlob image = null;
+	public long id = -1;
 	private boolean imageFetched; // lazy load these bitmap images
 	protected boolean hasImage = false;
 
@@ -46,6 +47,17 @@ public class PersonProxy extends KrollProxy
 		return (id > 0 && hasImage );
 	}
 	
+	@Kroll.method @Kroll.getProperty
+	public long getId() 
+	{
+		return id;
+	}
+	
+	public void setId(long i) 
+	{
+		id = i;
+	}
+
 	@Kroll.method @Kroll.getProperty
 	public TiBlob getImage()
 	{
