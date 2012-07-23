@@ -1,0 +1,31 @@
+{
+	"name": "titanium-mobileweb",
+	"description": "Appcelerator Titanium Mobile Web",
+	"keywords": [
+		"appcelerator",
+		"titanium",
+		"mobile",
+		"html5",
+		"mobileweb",
+		"mobile web"
+	],
+	"version": "2.2.0",
+	"author": "Appcelerator, Inc. <info@appcelerator.com>",
+	"maintainers": [
+		"Chris Barber <cbarber@appcelerator.com>",
+		"Bryan Hughes <bhughes@appcelerator.com>"
+	],
+	"repository": {
+		"type": "git",
+		"url": "git://github.com/appcelerator/titanium-mobileweb.git"
+	},
+	"dependencies": {
+	},
+	"license": "Apache Public License v2",
+	"directories": {
+		"commands": "./commands"
+	},
+	"engines": {
+		"node": ">= 0.8.2"
+	}
+}
