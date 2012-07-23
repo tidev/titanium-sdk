@@ -55,7 +55,6 @@ public class TiAnimationBuilder
 	protected Double delay = null;
 	protected Double duration = null;
 	protected Double toOpacity = null;
-	protected Double fromOpacity = null;
 	protected Double repeat = null;
 	protected Boolean autoreverse = null;
 	protected String top = null, bottom = null, left = null, right = null;
@@ -235,23 +234,41 @@ public class TiAnimationBuilder
 		TiUIView tiView = viewProxy.peekView();
 
 		if (toOpacity != null) {
-			if (viewProxy.hasProperty(TiC.PROPERTY_OPACITY)) {
-				fromOpacity = TiConvert.toDouble(viewProxy.getProperty(TiC.PROPERTY_OPACITY));
+			// Determine which value to use for "from" value, in this order:
+			// 1.)	If we previously performed an alpha animation on the view,
+			//		use that as the from value.
+			// 2.)	Else, if we have set an opacity property on the view, use
+			//		that as the from value.
+			// 3.)	Else, use 1.0f as the from value.
+
+			float fromOpacity;
+			float currentAnimatedAlpha =
+					tiView == null ? Float.MIN_VALUE : tiView.getAnimatedAlpha();
+
+			if (currentAnimatedAlpha != Float.MIN_VALUE) {
+				// MIN_VALUE is used as a signal that no value has been set.
+				fromOpacity = currentAnimatedAlpha;
+
+			} else if (viewProxy.hasProperty(TiC.PROPERTY_OPACITY)) {
+				fromOpacity = TiConvert.toFloat(viewProxy.getProperty(TiC.PROPERTY_OPACITY));
 
 			} else {
-				// Not sure why we started at 1.0 - toOpacity in this case. Why wouldn't
-				// someone want to go from precisely 1.0 down to a lower opacity?
-				// Commenting out and replacing with 1.0.
-				// fromOpacity = 1.0 - toOpacity;
-				fromOpacity = 1.0;
+				fromOpacity = 1.0f;
 			}
 
-			Animation animation = new AlphaAnimation(fromOpacity.floatValue(), toOpacity.floatValue());
-			applyOpacity = true;
+			Animation animation = new AlphaAnimation(fromOpacity, toOpacity.floatValue());
+
+			// Remember the toOpacity value for next time, since we no way of looking
+			// up animated alpha values on the Android native view itself.
+			if (tiView != null) {
+				tiView.setAnimatedAlpha(toOpacity.floatValue());
+			}
+
+			applyOpacity = true; // Used in the animation listener
 			addAnimation(as, animation);
 			animation.setAnimationListener(animationListener);
 
-			if (viewProxy.hasProperty(TiC.PROPERTY_OPACITY) && fromOpacity != null && toOpacity != null
+			if (viewProxy.hasProperty(TiC.PROPERTY_OPACITY) && toOpacity != null
 				&& tiView != null) {
 				// Initialize the opacity to 1 when we are going to change it in
 				// the animation. If the opacity of the view was initialized to
@@ -265,7 +282,7 @@ public class TiAnimationBuilder
 				// to do, we need to start with a base of 1. Surprisingly, this
 				// does not seem to show a blip if the opacity was less than
 				// 1.0 to begin with.
-				tiView.setOpacity(1f);
+				tiView.setOpacity(1.0f);
 			}
 		}
 
