@@ -255,8 +255,17 @@ public class TiAnimationBuilder
 				&& tiView != null) {
 				// Initialize the opacity to 1 when we are going to change it in
 				// the animation. If the opacity of the view was initialized to
-				// 0, the animation doesn't work
-				tiView.setOpacity(1);
+				// 0, the animation doesn't work at all. If it was initialized to
+				// something less than 1.0, then it "works" but doesn't give the
+				// expected results. The reason seems to be partially explained
+				// here:
+				// http://stackoverflow.com/a/11387049/67842
+				// Basically, the AlphaAnimation is transforming the
+				// *existing* alpha value of the view. So to do what we want it
+				// to do, we need to start with a base of 1. Surprisingly, this
+				// does not seem to show a blip if the opacity was less than
+				// 1.0 to begin with.
+				tiView.setOpacity(1f);
 			}
 		}
 
