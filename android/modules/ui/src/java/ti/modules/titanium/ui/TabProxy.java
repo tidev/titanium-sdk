@@ -6,12 +6,8 @@
  */
 package ti.modules.titanium.ui;
 
-import java.util.ArrayList;
-
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.annotations.Kroll;
-import org.appcelerator.kroll.common.AsyncResult;
-import org.appcelerator.kroll.common.TiMessenger;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
@@ -20,7 +16,6 @@ import org.appcelerator.titanium.proxy.TiWindowProxy;
 import org.appcelerator.titanium.view.TiUIView;
 
 import ti.modules.titanium.ui.widget.TiUITabGroup;
-
 import android.app.Activity;
 import android.os.Message;
 
@@ -37,7 +32,8 @@ public class TabProxy extends TiViewProxy
 	private TiWindowProxy win;
 	private TabGroupProxy tabGroupProxy;
 	private int windowId;
-	private static final int MSG_FIRST_ID = TabGroupProxy.MSG_LAST_ID + 1;
+	private String currentBackgroundColor = "";
+	private static final int MSG_FIRST_ID = TiViewProxy.MSG_LAST_ID + 1;
 	private final int MSG_TAB_BACKGROUND_COLOR_CHANGED = MSG_FIRST_ID + 101;
 	private final int MSG_TAB_BACKGROUND_SELECTED_COLOR_CHANGED = MSG_FIRST_ID + 102;
 
@@ -74,6 +70,16 @@ public class TabProxy extends TiViewProxy
 		if (window instanceof TiWindowProxy) {
 			setWindow((TiWindowProxy) window);
 		}
+	}
+
+	public void setCurrentBackgroundColor(String color)
+	{
+		currentBackgroundColor = color;
+	}
+
+	public String getCurrentBackgroundColor()
+	{
+		return currentBackgroundColor;
 	}
 
 	@Kroll.method @Kroll.setProperty

@@ -35,13 +35,12 @@ public class TiUITabGroup extends TiUIView
 {
 	private static final String LCAT = "TiUITabGroup";
 	private static final boolean DBG = TiConfig.LOGD;
-	private static final String TAB = "tab";
-	private static final String TAB_GROUP = "tabGroup";
 
 	private TabHost tabHost;
 
 	private int previousTabID = -1;
 	private int currentTabID = 0;
+
 	
 	private Drawable defaultDrawable;
 	private Drawable defaultSelectedDrawable;
@@ -225,16 +224,25 @@ public class TiUITabGroup extends TiUIView
 	{
 		TabGroupProxy tabGroupProxy = (TabGroupProxy) proxy;
 		ArrayList<TabProxy> tabs = tabGroupProxy.getTabList();
-		String color = tabs.get(index).getBackgroundColor();
+		TabProxy tProxy = tabs.get(index);
+		String color = tProxy.getBackgroundColor();
+		String currentColor = tProxy.getCurrentBackgroundColor();
 		View tab = tabHost.getTabWidget().getChildAt(index);
 		if (color != null) {
-			tab.setBackgroundColor(TiConvert.toColor(color));	
+			if (!color.equals(currentColor)) {
+				tab.setBackgroundColor(TiConvert.toColor(color));
+				tProxy.setCurrentBackgroundColor(color);
+			}
 		} else {
 			String tabsColor = tabGroupProxy.getTabsBackgroundColor();
 			if (tabsColor != null) {
-				tab.setBackgroundColor(TiConvert.toColor(tabsColor));
+				if (!tabsColor.equals(currentColor)) {
+					tab.setBackgroundColor(TiConvert.toColor(tabsColor));
+					tProxy.setCurrentBackgroundColor(tabsColor);
+				}
 			} else {
 				tab.setBackgroundDrawable(defaultDrawable);
+				tProxy.setCurrentBackgroundColor("");
 			}
 		}
 		
@@ -245,16 +253,25 @@ public class TiUITabGroup extends TiUIView
 		// If we have tabsBackgroundSelectedColor set, apply that color to the current tab
 		TabGroupProxy tabGroupProxy = (TabGroupProxy) proxy;
 		ArrayList<TabProxy> tabs = tabGroupProxy.getTabList();
-		String selColor = tabs.get(currentTabID).getBackgroundSelectedColor();
+		TabProxy tProxy = tabs.get(currentTabID);
+		String selColor = tProxy.getBackgroundSelectedColor();
+		String currentColor = tProxy.getCurrentBackgroundColor();
 		View tab = tabHost.getTabWidget().getChildAt(currentTabID);
 		if (selColor != null) {
-			tab.setBackgroundColor(TiConvert.toColor(selColor));
+			if (!selColor.equals(currentColor)) {
+				tab.setBackgroundColor(TiConvert.toColor(selColor));
+				tProxy.setCurrentBackgroundColor(selColor);
+			}
 		} else {
 			String tabsSelColor = tabGroupProxy.getTabsBackgroundSelectedColor();
 			if (tabsSelColor != null) {
-				tab.setBackgroundColor(TiConvert.toColor(tabsSelColor));
+				if (!tabsSelColor.equals(currentColor)) {
+					tab.setBackgroundColor(TiConvert.toColor(tabsSelColor));
+					tProxy.setCurrentBackgroundColor(tabsSelColor);
+				}
 			} else {
 				tab.setBackgroundDrawable(defaultSelectedDrawable);
+				tProxy.setCurrentBackgroundColor("");
 			}
 		}
 	}
