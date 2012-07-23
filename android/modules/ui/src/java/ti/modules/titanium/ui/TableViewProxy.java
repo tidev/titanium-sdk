@@ -141,6 +141,7 @@ public class TableViewProxy extends TiViewProxy
 			rowIndex = ((Number) row).intValue();
 			locateIndex(rowIndex, rr);
 			sectionProxy = rr.section;
+			rowIndex = rr.rowIndexInSection;
 		} else if (row instanceof TableViewRowProxy) {
 			ArrayList<TableViewSectionProxy> sections = getSectionsArray();
 			sectionLoop: for (int i = 0; i < sections.size(); i++) {
