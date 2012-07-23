@@ -23,7 +23,6 @@ import org.appcelerator.titanium.view.TiUIView;
 
 import android.graphics.Color;
 import android.graphics.Matrix;
-import android.graphics.Point;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.drawable.ColorDrawable;
@@ -305,30 +304,26 @@ public class TiAnimationBuilder
 			// we know the values are expressed for certain in pixels.
 			if (top != null) {
 				optionTop = new TiDimension(top, TiDimension.TYPE_TOP);
-			} else {
+			} else if (bottom == null && centerY == null) {
+				// Fix a top value since no other y-axis value is being set.
 				optionTop = new TiDimension(view.getTop(), TiDimension.TYPE_TOP);
 				optionTop.setUnits(TypedValue.COMPLEX_UNIT_PX);
 			}
 
 			if (bottom != null) {
 				optionBottom = new TiDimension(bottom, TiDimension.TYPE_BOTTOM);
-			} else {
-				optionBottom = new TiDimension(view.getBottom(), TiDimension.TYPE_BOTTOM);
-				optionBottom.setUnits(TypedValue.COMPLEX_UNIT_PX);
 			}
 
 			if (left != null) {
 				optionLeft = new TiDimension(left, TiDimension.TYPE_LEFT);
-			} else {
+			} else if (right == null && centerX == null) {
+				// Fix a left value since no other x-axis value is being set.
 				optionLeft = new TiDimension(view.getLeft(), TiDimension.TYPE_LEFT);
 				optionLeft.setUnits(TypedValue.COMPLEX_UNIT_PX);
 			}
 
 			if (right != null) {
 				optionRight = new TiDimension(right, TiDimension.TYPE_RIGHT);
-			} else {
-				optionRight = new TiDimension(view.getRight(), TiDimension.TYPE_RIGHT);
-				optionRight.setUnits(TypedValue.COMPLEX_UNIT_PX);
 			}
 
 			if (centerX != null) {
