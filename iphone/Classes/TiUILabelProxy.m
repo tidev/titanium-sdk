@@ -58,6 +58,16 @@ USE_VIEW_FOR_CONTENT_WIDTH
 	return height;
 }
 
+-(NSArray *)keySequence
+{
+	static NSArray *labelKeySequence = nil;
+	static dispatch_once_t onceToken;
+	dispatch_once(&onceToken, ^{
+		labelKeySequence = [[NSArray arrayWithObjects:@"font",nil] retain];
+	});
+	return labelKeySequence;
+}
+
 -(NSMutableDictionary*)langConversionTable
 {
     return [NSMutableDictionary dictionaryWithObject:@"text" forKey:@"textid"];
