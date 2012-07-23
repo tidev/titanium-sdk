@@ -29,29 +29,39 @@ methods:
         
 properties:
   - name: LINKIFY_ALL
-    summary: Auto-link all supported types for <Titanium.UI.Label>.
+    summary: Use the text auto-link constants in <Titanium.UI> instead.
     type: Number
     permission: read-only
+    deprecated:
+        since: "2.2.0"
     
   - name: LINKIFY_EMAIL_ADDRESSES
-    summary: Auto-link email addresses for <Titanium.UI.Label>.
+    summary: Use the text auto-link constants in <Titanium.UI> instead.
     type: Number
     permission: read-only
+    deprecated:
+        since: "2.2.0"
     
   - name: LINKIFY_MAP_ADDRESSES
-    summary: Auto-link physical addresses for <Titanium.UI.Label>.
+    summary: Use the text auto-link constants in <Titanium.UI> instead.
     type: Number
     permission: read-only
+    deprecated:
+        since: "2.2.0"
     
   - name: LINKIFY_PHONE_NUMBERS
-    summary: Auto-link phone numbers for <Titanium.UI.Label>.
+    summary: Use the text auto-link constants in <Titanium.UI> instead.
     type: Number
     permission: read-only
+    deprecated:
+        since: "2.2.0"
     
   - name: LINKIFY_WEB_URLS
-    summary: Auto-link web urls for <Titanium.UI.Label>.
+    summary: Use the text auto-link constants in <Titanium.UI> instead.
     type: Number
     permission: read-only
+    deprecated:
+        since: "2.2.0"
     
   - name: PIXEL_FORMAT_A_8
     summary: |
