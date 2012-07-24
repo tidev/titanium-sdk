@@ -134,7 +134,6 @@ enum
     //This flag is set to true on startLayout() call and false on finishLayout() call
     BOOL updateStarted;
     BOOL allowLayoutUpdate;
-    BOOL layoutChanged;
     
     NSMutableDictionary *layoutPropDictionary;
     
@@ -145,7 +144,6 @@ enum
 
 @property(nonatomic,readonly) TiRect * size;
 @property(nonatomic,readonly) TiRect * rect;
-@property(nonatomic,readwrite,assign) BOOL layoutChanged;
 /*
  Provides access to z-index value.
  */

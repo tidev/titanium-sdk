@@ -314,9 +314,6 @@ DEFINE_EXCEPTIONS
 
 -(void)setFrame:(CGRect)frame
 {
-    if (!CGRectEqualToRect([self frame], frame)) {
-        [(TiViewProxy*)[self proxy] setLayoutChanged:YES];
-    }
 	[super setFrame:frame];
 	
 	// this happens when a view is added to another view but not
@@ -336,7 +333,6 @@ DEFINE_EXCEPTIONS
 	CGRect newBounds = [self bounds];
 	if(!CGSizeEqualToSize(oldSize, newBounds.size))
 	{
-        [(TiViewProxy*)[self proxy] setLayoutChanged:YES];
 		oldSize = newBounds.size;
 		[gradientLayer setFrame:newBounds];
 		[self frameSizeChanged:[TiUtils viewPositionRect:self] bounds:newBounds];
@@ -347,14 +343,6 @@ DEFINE_EXCEPTIONS
 {
 	[super setBounds:bounds];
 	[self checkBounds];
-}
-
--(void)setCenter:(CGPoint)center
-{
-    if (!CGPointEqualToPoint([self center], center)) {
-        [(TiViewProxy*)[self proxy] setLayoutChanged:YES];        
-    }
-    [super setCenter:center];
 }
 
 -(void)layoutSubviews
