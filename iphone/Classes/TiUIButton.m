@@ -322,23 +322,10 @@
 	}
 }
 
--(void)setTextAlign_:(id)align
+-(void)setTextAlign_:(id)alignment
 {
-	UIButton *b = [self button];
-	if ([align isEqual:@"left"])
-	{
-		b.contentHorizontalAlignment = UIControlContentHorizontalAlignmentLeft;
-		b.contentEdgeInsets = UIEdgeInsetsMake(0,10,0,0);
-	}
-	else if ([align isEqual:@"right"])
-	{
-		b.contentHorizontalAlignment = UIControlContentHorizontalAlignmentRight;
-		b.contentEdgeInsets = UIEdgeInsetsMake(0,0,10,0);
-	}
-	else if ([align isEqual:@"center"])
-	{
-		b.contentHorizontalAlignment = UIControlContentHorizontalAlignmentCenter;
-	}
+    UIButton *b = [self button];
+    [[b titleLabel] setTextAlignment:[TiUtils textAlignmentValue:alignment]];
 }
 
 -(void)setShadowColor_:(id)color
@@ -368,6 +355,16 @@
 	UIButton *b = [self button];
 	CGPoint p = [TiUtils pointValue:value];
 	b.titleEdgeInsets=UIEdgeInsetsMake(p.y, p.x, p.y, p.x);
+}
+
+-(void)setWordWrap_:(id)value
+{
+    UIButton *b = [self button];
+    BOOL shouldWordWrap = [TiUtils boolValue:value def:YES];
+    if (shouldWordWrap)
+        [[b titleLabel] setLineBreakMode:UILineBreakModeWordWrap];
+    else 
+        [[b titleLabel] setLineBreakMode:UILineBreakModeTailTruncation];
 }
 
 -(CGFloat)contentWidthForWidth:(CGFloat)value
