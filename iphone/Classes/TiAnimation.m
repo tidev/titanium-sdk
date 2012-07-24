@@ -260,7 +260,7 @@ self.p = v;\
     if ([animation isReverse]) {
         RELEASE_TO_NIL(animation.animatedView);
         
-        animation = [animation reverseAnimation]; // Use the original animation for correct evenitng
+        animation = [animation reverseAnimation]; // Use the original animation for correct eventing
     }
     
 	if (animation.delegate!=nil && [animation.delegate respondsToSelector:@selector(animationWillComplete:)])
@@ -291,7 +291,6 @@ self.p = v;\
 	
     RELEASE_TO_NIL(animatedViewProxy);
 	RELEASE_TO_NIL(animation.animatedView);
-	[animation release];
 }
 
 -(BOOL)isTransitionAnimation
@@ -390,7 +389,6 @@ self.p = v;\
 		}
 	}
 
-    [self retain];
 	animatedView = [theview retain];
     
     if (!transitionAnimation) {
