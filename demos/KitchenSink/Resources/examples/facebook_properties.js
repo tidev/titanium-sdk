@@ -9,7 +9,7 @@ var sv = Ti.UI.createScrollView({
 });
 win.add(sv);
 
-Titanium.Facebook.appid = "134793934930";
+Titanium.Facebook.appid = "495338853813822";
 Titanium.Facebook.permissions = ['publish_stream', 'read_stream'];
 
 var plist = []; // list of known FB permissions as of Jan 2011 (see bottom)
