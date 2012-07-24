@@ -258,7 +258,9 @@ self.p = v;\
 	
 	TiAnimation* animation = (TiAnimation*)context;
     if ([animation isReverse]) {
-        animation = [animation reverseAnimation]; // Restore to the original animation
+        RELEASE_TO_NIL(animation.animatedView);
+        
+        animation = [animation reverseAnimation]; // Use the original animation for correct evenitng
     }
     
 	if (animation.delegate!=nil && [animation.delegate respondsToSelector:@selector(animationWillComplete:)])
@@ -388,11 +390,8 @@ self.p = v;\
 		}
 	}
 
-	// hold on to our animation during the animation and until it stops
-	[self retain];
-	[theview retain];
-	
-	animatedView = theview;
+    [self retain];
+	animatedView = [theview retain];
     
     if (!transitionAnimation) {
         UIViewAnimationOptions options = (UIViewAnimationOptionAllowUserInteraction | UIViewAnimationOptionBeginFromCurrentState); // Backwards compatible
@@ -405,32 +404,38 @@ self.p = v;\
         
         void (^animation)() = ^{
             CGFloat repeatCount = [repeat intValue];
-            if ((options & UIViewAnimationOptionAutoreverse) && (repeatCount > 0.0)) {
+            if ((options & UIViewAnimationOptionAutoreverse)) {
                 // What we have to do here in order to get the 'correct' animation 
                 // (where the view doesn't end up with the wrong settings) is reduce the repeat count
                 // by a half-step so the animation ends MIDWAY through the autoreverse (on the wrong frame)
                 // and then perform a SECOND animation upon completion - one which takes it back to the initial
                 // state.
+                //
+                // Works around radar #11919161 as a fix suggested by apple in animation documentation. Very unlikely
+                // that this bug will be fixed.
                 
                 reverseAnimation = [[TiAnimation alloc] initWithDictionary:nil context:[self pageContext] callback:[[self callback] listener]];
                 [reverseAnimation setReverseAnimation:self];
                 [reverseAnimation setIsReverse:YES];
                 [reverseAnimation setDuration:duration];
                 [reverseAnimation setDelay:[NSNumber numberWithInt:0]];
+                [reverseAnimation setCurve:curve];
                 repeatCount -= 0.5;
+                
+                // A repeat count of 0 means the animation cycles once.
+                if (repeatCount < 0.0) {
+                    repeatCount = 0.5;
+                }
             }
             
-            // TODO: This seems to change behavior
             if (options & UIViewAnimationOptionRepeat) {
-                if (repeatCount != 0.0) { // Could be repeating indefinitely
+                if (repeatCount != 0.0) {
                     [UIView setAnimationRepeatCount:repeatCount];
                 }
                 else {
                     [UIView setAnimationRepeatCount:1.0];
                 }
             }
-            
-            // TODO: Handle reversing animation curve
             
             // Allow the animation delegate to set up any additional animation information
             if (![self isReverse]) {
@@ -531,6 +536,7 @@ doReposition = YES;\
                 view_.hidden = ![visible boolValue];
             }
         };
+        
         void (^complete)(BOOL) = ^(BOOL finished) {
             if ((reverseAnimation != nil) && ![self isReverse] && finished) {
                 [reverseAnimation animate:args];
