@@ -60,6 +60,15 @@ DEFINE_DEF_BOOL_PROP(suppressReturn,YES);
     }
 }
 
+-(void)selectAll:(id)args
+{
+	ENSURE_UI_THREAD_1_ARG(args)
+	if ([self viewAttached])
+	{
+		[(UITextField*)[(TiUITextWidget*)[self view] textWidgetView] selectAll:nil];
+	}
+}
+
 
 -(void)blur:(id)args
 {

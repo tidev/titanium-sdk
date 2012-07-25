@@ -14,6 +14,8 @@ import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.view.TiUIView;
 
 import ti.modules.titanium.ui.widget.TiUIText;
+import android.os.Handler;
+import android.os.Message;
 import android.app.Activity;
 
 @Kroll.proxy(creatableInModule=UIModule.class, propertyAccessors = {
@@ -35,7 +37,12 @@ import android.app.Activity;
 	TiC.PROPERTY_RETURN_KEY_TYPE
 })
 public class TextAreaProxy extends TiViewProxy
-{
+	implements Handler.Callback
+{	
+	private static final int MSG_FIRST_ID = ViewProxy.MSG_LAST_ID + 1;
+
+	private static final int MSG_SELECT_ALL = MSG_FIRST_ID + 101;
+	
 	public TextAreaProxy()
 	{
 		super();
@@ -52,6 +59,24 @@ public class TextAreaProxy extends TiViewProxy
 	{
 		super.handleCreationArgs(createdInModule, args);
 
+	}	
+
+	public TiUIText getTextField()
+	{
+		return (TiUIText) getOrCreateView();
+	}
+	
+	@Override
+	public boolean handleMessage(Message msg)
+	{
+		if (peekView() != null) {
+			switch (msg.what) {
+			case MSG_SELECT_ALL:
+				getTextField().selectAll();
+				return true;
+			}
+		}
+		return super.handleMessage(msg);
 	}
 
 	@Override
@@ -59,7 +84,6 @@ public class TextAreaProxy extends TiViewProxy
 	{
 		return new TiUIText(this, false);
 	}
-	
 	@Kroll.method
 	public Boolean hasText()
 	{
@@ -68,5 +92,11 @@ public class TextAreaProxy extends TiViewProxy
 			return (((String)text).length() > 0);
 		}
 		return false;
+	}
+
+	@Kroll.method
+	public void selectAll()
+	{
+		getMainHandler().sendEmptyMessage(MSG_SELECT_ALL);
 	}
 }
