@@ -23,7 +23,6 @@ import org.appcelerator.titanium.view.TiUIView;
 
 import android.graphics.Color;
 import android.graphics.Matrix;
-import android.graphics.Point;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.drawable.ColorDrawable;
@@ -55,7 +54,6 @@ public class TiAnimationBuilder
 	protected Double delay = null;
 	protected Double duration = null;
 	protected Double toOpacity = null;
-	protected Double fromOpacity = null;
 	protected Double repeat = null;
 	protected Boolean autoreverse = null;
 	protected String top = null, bottom = null, left = null, right = null;
@@ -235,28 +233,55 @@ public class TiAnimationBuilder
 		TiUIView tiView = viewProxy.peekView();
 
 		if (toOpacity != null) {
-			if (viewProxy.hasProperty(TiC.PROPERTY_OPACITY)) {
-				fromOpacity = TiConvert.toDouble(viewProxy.getProperty(TiC.PROPERTY_OPACITY));
+			// Determine which value to use for "from" value, in this order:
+			// 1.)	If we previously performed an alpha animation on the view,
+			//		use that as the from value.
+			// 2.)	Else, if we have set an opacity property on the view, use
+			//		that as the from value.
+			// 3.)	Else, use 1.0f as the from value.
+
+			float fromOpacity;
+			float currentAnimatedAlpha =
+					tiView == null ? Float.MIN_VALUE : tiView.getAnimatedAlpha();
+
+			if (currentAnimatedAlpha != Float.MIN_VALUE) {
+				// MIN_VALUE is used as a signal that no value has been set.
+				fromOpacity = currentAnimatedAlpha;
+
+			} else if (viewProxy.hasProperty(TiC.PROPERTY_OPACITY)) {
+				fromOpacity = TiConvert.toFloat(viewProxy.getProperty(TiC.PROPERTY_OPACITY));
 
 			} else {
-				// Not sure why we started at 1.0 - toOpacity in this case. Why wouldn't
-				// someone want to go from precisely 1.0 down to a lower opacity?
-				// Commenting out and replacing with 1.0.
-				// fromOpacity = 1.0 - toOpacity;
-				fromOpacity = 1.0;
+				fromOpacity = 1.0f;
 			}
 
-			Animation animation = new AlphaAnimation(fromOpacity.floatValue(), toOpacity.floatValue());
-			applyOpacity = true;
+			Animation animation = new AlphaAnimation(fromOpacity, toOpacity.floatValue());
+
+			// Remember the toOpacity value for next time, since we no way of looking
+			// up animated alpha values on the Android native view itself.
+			if (tiView != null) {
+				tiView.setAnimatedAlpha(toOpacity.floatValue());
+			}
+
+			applyOpacity = true; // Used in the animation listener
 			addAnimation(as, animation);
 			animation.setAnimationListener(animationListener);
 
-			if (viewProxy.hasProperty(TiC.PROPERTY_OPACITY) && fromOpacity != null && toOpacity != null
+			if (viewProxy.hasProperty(TiC.PROPERTY_OPACITY) && toOpacity != null
 				&& tiView != null) {
 				// Initialize the opacity to 1 when we are going to change it in
 				// the animation. If the opacity of the view was initialized to
-				// 0, the animation doesn't work
-				tiView.setOpacity(1);
+				// 0, the animation doesn't work at all. If it was initialized to
+				// something less than 1.0, then it "works" but doesn't give the
+				// expected results. The reason seems to be partially explained
+				// here:
+				// http://stackoverflow.com/a/11387049/67842
+				// Basically, the AlphaAnimation is transforming the
+				// *existing* alpha value of the view. So to do what we want it
+				// to do, we need to start with a base of 1. Surprisingly, this
+				// does not seem to show a blip if the opacity was less than
+				// 1.0 to begin with.
+				tiView.setOpacity(1.0f);
 			}
 		}
 
@@ -305,30 +330,26 @@ public class TiAnimationBuilder
 			// we know the values are expressed for certain in pixels.
 			if (top != null) {
 				optionTop = new TiDimension(top, TiDimension.TYPE_TOP);
-			} else {
+			} else if (bottom == null && centerY == null) {
+				// Fix a top value since no other y-axis value is being set.
 				optionTop = new TiDimension(view.getTop(), TiDimension.TYPE_TOP);
 				optionTop.setUnits(TypedValue.COMPLEX_UNIT_PX);
 			}
 
 			if (bottom != null) {
 				optionBottom = new TiDimension(bottom, TiDimension.TYPE_BOTTOM);
-			} else {
-				optionBottom = new TiDimension(view.getBottom(), TiDimension.TYPE_BOTTOM);
-				optionBottom.setUnits(TypedValue.COMPLEX_UNIT_PX);
 			}
 
 			if (left != null) {
 				optionLeft = new TiDimension(left, TiDimension.TYPE_LEFT);
-			} else {
+			} else if (right == null && centerX == null) {
+				// Fix a left value since no other x-axis value is being set.
 				optionLeft = new TiDimension(view.getLeft(), TiDimension.TYPE_LEFT);
 				optionLeft.setUnits(TypedValue.COMPLEX_UNIT_PX);
 			}
 
 			if (right != null) {
 				optionRight = new TiDimension(right, TiDimension.TYPE_RIGHT);
-			} else {
-				optionRight = new TiDimension(view.getRight(), TiDimension.TYPE_RIGHT);
-				optionRight.setUnits(TypedValue.COMPLEX_UNIT_PX);
 			}
 
 			if (centerX != null) {
@@ -354,7 +375,7 @@ public class TiAnimationBuilder
 				vertical);
 
 			Animation animation = new TranslateAnimation(Animation.ABSOLUTE, 0, Animation.ABSOLUTE,
-				horizontal[0]-x, Animation.ABSOLUTE, 0, Animation.ABSOLUTE, vertical[0]-y);
+				horizontal[0] - x, Animation.ABSOLUTE, 0, Animation.ABSOLUTE, vertical[0] - y);
 
 			animation.setAnimationListener(animationListener);
 			addAnimation(as, animation);
@@ -555,9 +576,10 @@ public class TiAnimationBuilder
 
 	public static class TiColorAnimation extends Animation
 	{
-		protected View view;
+		View view;
 		TransitionDrawable transitionDrawable;
-		boolean started = false;
+		boolean reversing = false;
+		int duration = 0;
 
 		public TiColorAnimation(View view, int fromColor, int toColor)
 		{
@@ -565,22 +587,33 @@ public class TiAnimationBuilder
 
 			ColorDrawable fromColorDrawable = new ColorDrawable(fromColor);
 			ColorDrawable toColorDrawable = new ColorDrawable(toColor);
-			transitionDrawable = new TransitionDrawable(new Drawable[] {fromColorDrawable, toColorDrawable});
-		}
+			transitionDrawable = new TransitionDrawable(new Drawable[] { fromColorDrawable, toColorDrawable });
 
-		@Override
-		protected void applyTransformation(float interpolatedTime, Transformation t)
-		{
-			super.applyTransformation(interpolatedTime, t);
-			if (!started) {
-				// Kick off a TransitionDrawable to do this for us. All
-				// subsequent calls to applyTransformation will just be ignored.
-				started = true;
-				view.setBackgroundDrawable(transitionDrawable);
-				long duration = this.getDuration();
-				int durationInt = Long.valueOf(duration).intValue();
-				transitionDrawable.startTransition(durationInt);
-			}
+			this.setAnimationListener(new android.view.animation.Animation.AnimationListener() {
+
+				public void onAnimationStart(Animation animation)
+				{
+					TiColorAnimation.this.view.setBackgroundDrawable(transitionDrawable);
+					TiColorAnimation.this.duration = Long.valueOf(animation.getDuration()).intValue();
+					transitionDrawable.startTransition(TiColorAnimation.this.duration);
+				}
+
+				public void onAnimationRepeat(Animation animation)
+				{
+					if (animation.getRepeatMode() == Animation.REVERSE) {
+						reversing = !reversing;
+					}
+					if (reversing) {
+						transitionDrawable.reverseTransition(TiColorAnimation.this.duration);
+					} else {
+						transitionDrawable.startTransition(TiColorAnimation.this.duration);
+					}
+				}
+
+				public void onAnimationEnd(Animation animation)
+				{
+				}
+			});
 		}
 	}
 
