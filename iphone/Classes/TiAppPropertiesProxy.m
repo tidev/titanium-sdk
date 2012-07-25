@@ -17,6 +17,22 @@
 	[super dealloc];
 }
 
+-(void)_listenerAdded:(NSString*)type count:(int)count
+{
+	if (count == 1 && [type isEqual:@"change"])
+	{
+		[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(NSUserDefaultsDidChange) name:NSUserDefaultsDidChangeNotification object:nil];
+	}
+}
+
+-(void)_listenerRemoved:(NSString*)type count:(int)count
+{
+	if (count == 0 && [type isEqual:@"change"])
+	{
+		[[NSNotificationCenter defaultCenter] removeObserver:self name:NSUserDefaultsDidChangeNotification object:nil];
+	}
+}
+
 -(void)_configure
 {
 	defaultsObject = [[NSUserDefaults standardUserDefaults] retain];
@@ -148,6 +164,11 @@ if (value==nil || value==[NSNull null]) {\
 -(id)listProperties:(id)args
 {
 	return [[defaultsObject dictionaryRepresentation] allKeys];
+}
+
+-(void) NSUserDefaultsDidChange
+{
+	[self fireEvent:@"change" withObject:nil];
 }
 
 @end
