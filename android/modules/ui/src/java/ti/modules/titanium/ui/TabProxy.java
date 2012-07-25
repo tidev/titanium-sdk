@@ -15,7 +15,7 @@ import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.proxy.TiWindowProxy;
 import org.appcelerator.titanium.view.TiUIView;
 
-import ti.modules.titanium.ui.widget.TiUITabGroup;
+import ti.modules.titanium.ui.widget.TiUITabHostGroup;
 import android.app.Activity;
 import android.os.Message;
 
@@ -160,7 +160,7 @@ public class TabProxy extends TiViewProxy
 	public void setTabBackgroundColor() 
 	{
 		int index = tabGroupProxy.getTabList().indexOf(this);
-		TiUITabGroup tg = (TiUITabGroup)tabGroupProxy.peekView();
+		TiUITabHostGroup tg = (TiUITabHostGroup)tabGroupProxy.peekView();
 		if (tg != null) {
 			tg.setTabBackgroundColor(index);
 		}
@@ -168,7 +168,7 @@ public class TabProxy extends TiViewProxy
 	
 	public void setTabBackgroundSelectedColor()
 	{
-		TiUITabGroup tg = (TiUITabGroup)tabGroupProxy.peekView();
+		TiUITabHostGroup tg = (TiUITabHostGroup)tabGroupProxy.peekView();
 		if (tg != null) {
 			tg.setTabBackgroundSelectedColor();
 		}

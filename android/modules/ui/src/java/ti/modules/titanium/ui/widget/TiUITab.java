@@ -11,7 +11,7 @@ import org.appcelerator.titanium.view.TiUIView;
 
 public class TiUITab extends TiUIView {
 
-	public TiUITab(TiViewProxy proxy, TiUITabGroup tg) {
+	public TiUITab(TiViewProxy proxy, TiUITabHostGroup tg) {
 		super(proxy);
 
 

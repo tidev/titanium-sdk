@@ -30,7 +30,15 @@ import android.widget.TabHost;
 import android.widget.TabHost.OnTabChangeListener;
 import android.widget.TabHost.TabSpec;
 
-public class TiUITabGroup extends TiUIView
+/**
+ * Tab group implementation using the TabWidget/TabHost.
+ *
+ * If the target SDK version and device framework level is
+ * bellow 11 we fall back to using the TabWidget for displaying
+ * the tabs. Each window provides an activity which the
+ * TabHost starts when that window's tab is selected.
+ */
+public class TiUITabHostGroup extends TiUIView
 	implements OnTabChangeListener
 {
 	private static final String LCAT = "TiUITabGroup";
@@ -47,7 +55,7 @@ public class TiUITabGroup extends TiUIView
 	private boolean cacheDefaults = true;
 
 
-	public TiUITabGroup(TiViewProxy proxy, TiTabActivity activity)
+	public TiUITabHostGroup(TiViewProxy proxy, TiTabActivity activity)
 	{
 		super(proxy);
 		tabHost = activity.getTabHost();

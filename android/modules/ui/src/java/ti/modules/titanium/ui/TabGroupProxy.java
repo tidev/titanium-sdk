@@ -25,7 +25,7 @@ import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiUIView;
 
-import ti.modules.titanium.ui.widget.TiUITabGroup;
+import ti.modules.titanium.ui.widget.TiUITabHostGroup;
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
@@ -170,12 +170,12 @@ public class TabGroupProxy extends TiWindowProxy
 		tabs.add(tab);
 
 		if (peekView() != null) {
-			TiUITabGroup tg = (TiUITabGroup) peekView();
+			TiUITabHostGroup tg = (TiUITabHostGroup) peekView();
 			addTabToGroup(tg, tab);
 		}
 	}
 
-	private void addTabToGroup(TiUITabGroup tg, TabProxy tab)
+	private void addTabToGroup(TiUITabHostGroup tg, TabProxy tab)
 	{
 		TiTabActivity tta = weakActivity.get();
 		if (tta == null) {
@@ -243,7 +243,7 @@ public class TabGroupProxy extends TiWindowProxy
 	protected void doSetActiveTab(Object tab)
 	{
 		if (peekView() != null) {
-			TiUITabGroup tg = (TiUITabGroup) peekView();
+			TiUITabHostGroup tg = (TiUITabHostGroup) peekView();
 			tg.changeActiveTab(tab);
 
 		} else {
@@ -276,7 +276,7 @@ public class TabGroupProxy extends TiWindowProxy
 		TabProxy activeTab = null;
 		
 		if (peekView() != null) {
-			TiUITabGroup tg = (TiUITabGroup) peekView();
+			TiUITabHostGroup tg = (TiUITabHostGroup) peekView();
 			int activeTabIndex = tg.getActiveTab();
 
 			if (activeTabIndex < 0) {
@@ -329,7 +329,7 @@ public class TabGroupProxy extends TiWindowProxy
 	{
 		((TiTabActivity)activity).setTabGroupProxy(this);
 		this.weakActivity = new WeakReference<TiTabActivity>( (TiTabActivity) activity );
-		TiUITabGroup tg = (TiUITabGroup) view;
+		TiUITabHostGroup tg = (TiUITabHostGroup) view;
 		if (tabs != null) {
 			for(TabProxy tab : tabs) {
 				addTabToGroup(tg, tab);
@@ -441,7 +441,7 @@ public class TabGroupProxy extends TiWindowProxy
 			switch(msg.what) {
 				case MSG_FINISH_OPEN:
 					TiTabActivity activity = (TiTabActivity) msg.obj;
-					tabGroupProxy.view = new TiUITabGroup(tabGroupProxy, activity);
+					tabGroupProxy.view = new TiUITabHostGroup(tabGroupProxy, activity);
 					tabGroupProxy.modelListener = tabGroupProxy.view;
 					tabGroupProxy.handlePostOpen(activity);
 					return true;
