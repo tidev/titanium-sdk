@@ -45,7 +45,7 @@ properties:
     permission: read-only
 
   - name: AUTODETECT_ADDRESS
-    summary: Use the text auto-link constants in <Titanium.UI> instead.
+    summary: Use <Titanium.UI.AUTOLINK_MAP_ADDRESSES> instead.
     type: Number
     osver: {ios: {min: "4.0"}}
     permission: read-only
@@ -54,7 +54,7 @@ properties:
     platforms: [iphone, ipad]
 
   - name: AUTODETECT_ALL
-    summary: Use the text auto-link constants in <Titanium.UI> instead.
+    summary: Use <Titanium.UI.AUTOLINK_ALL> instead.
     type: Number
     permission: read-only
     deprecated:
@@ -62,7 +62,7 @@ properties:
     platforms: [iphone, ipad]
 
   - name: AUTODETECT_CALENDAR
-    summary: Use the text auto-link constants in <Titanium.UI> instead.
+    summary: Use <Titanium.UI.AUTOLINK_CALENDAR> instead.
     type: Number
     osver: {ios: {min: "4.0"}}
     permission: read-only
@@ -71,7 +71,7 @@ properties:
     platforms: [iphone, ipad]
 
   - name: AUTODETECT_LINK
-    summary: Use the text auto-link constants in <Titanium.UI> instead.
+    summary: Use <Titanium.UI.AUTOLINK_URLS> instead.
     type: Number
     permission: read-only
     deprecated:
@@ -79,7 +79,7 @@ properties:
     platforms: [iphone, ipad]
 
   - name: AUTODETECT_NONE
-    summary: Use the text auto-link constants in <Titanium.UI> instead.
+    summary: Use <Titanium.UI.AUTOLINK_NONE> instead.
     type: Number
     permission: read-only
     deprecated:
@@ -87,7 +87,7 @@ properties:
     platforms: [iphone, ipad]
 
   - name: AUTODETECT_PHONE
-    summary: Use the text auto-link constants in <Titanium.UI> instead.
+    summary: Use <Titanium.UI.AUTOLINK_PHONE_NUMBERS> instead.
     type: Number
     permission: read-only
     deprecated:

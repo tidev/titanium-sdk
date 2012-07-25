@@ -207,6 +207,7 @@ properties:
   - name: AUTOLINK_MAP_ADDRESSES
     summary: Convert strings formatted as addresses into clickable links.
     description: |
+         Two or more autolink constants can be combined using bitwise or.
          On iOS:
             Use with the <Titanium.UI.TextArea.autoLink> property.
             
@@ -230,6 +231,7 @@ properties:
   - name: AUTOLINK_ALL
     summary: Convert all detectable types of data into clickable links.
     description: |
+         Two or more autolink constants can be combined using bitwise or.
          On iOS:
             Use with the <Titanium.UI.TextArea.autoLink> property.
             
@@ -252,7 +254,7 @@ properties:
     
   - name: AUTOLINK_CALENDAR
     summary: Convert strings formatted as calendar events into clickable links.
-    description: Use with the <Titanium.UI.TextArea.autoLink> property.
+    description: Use with the <Titanium.UI.TextArea.autoLink> property. Two or more autolink constants can be combined using bitwise or.
     type: Number
     osver: {ios: {min: "4.0"}}
     since: {ios: "2.2.0"}
@@ -270,8 +272,10 @@ properties:
   - name: AUTOLINK_URLS
     summary: Convert strings formatted as URLs into clickable links.
     description: |
+         Two or more autolink constants can be combined using bitwise or.
          On iOS:
-            Use with the <Titanium.UI.TextArea.autoLink> property.
+            Use with the <Titanium.UI.TextArea.autoLink> property. This property will also convert strings formatted
+            as email addresses into clickable links.
             
          On Android:
             Use with <Titanium.UI.TextArea.autoLink>, <Titanium.UI.TextField.autoLink>, and <Titanium.UI.Label.autoLink> properties.
@@ -292,6 +296,7 @@ properties:
   - name: AUTOLINK_NONE
     summary: Disable converting strings into clickable links.
     description: |
+         Two or more autolink constants can be combined using bitwise or.
          On iOS:
             Use with the <Titanium.UI.TextArea.autoLink> property.
             
@@ -314,6 +319,7 @@ properties:
   - name: AUTOLINK_PHONE_NUMBERS
     summary: Convert strings formatted as phone numbers into clickable links.
     description: |
+         Two or more autolink constants can be combined using bitwise or.
          On iOS:
             Use with the <Titanium.UI.TextArea.autoLink> property.
             
@@ -327,9 +333,12 @@ properties:
     
   - name: AUTOLINK_EMAIL_ADDRESSES
     summary: Convert strings formatted as email addresses into clickable links.
-    description: Use with <Titanium.UI.TextArea.autoLink>, <Titanium.UI.TextField.autoLink>, and <Titanium.UI.Label.autoLink> properties.
+    description: |
+           Use with <Titanium.UI.TextArea.autoLink>, <Titanium.UI.TextField.autoLink>, and <Titanium.UI.Label.autoLink> properties.
+           Two or more autolink constants can be combined using bitwise or.
     type: Number
     permission: read-only
+    since: "2.2.0"
     platforms: [android]
     
   - name: BLEND_MODE_CLEAR

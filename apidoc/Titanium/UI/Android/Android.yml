@@ -29,35 +29,35 @@ methods:
         
 properties:
   - name: LINKIFY_ALL
-    summary: Use the text auto-link constants in <Titanium.UI> instead.
+    summary: Use <Titanium.UI.AUTOLINK_ALL> instead.
     type: Number
     permission: read-only
     deprecated:
         since: "2.2.0"
     
   - name: LINKIFY_EMAIL_ADDRESSES
-    summary: Use the text auto-link constants in <Titanium.UI> instead.
+    summary: Use <Titanium.UI.AUTOLINK_EMAIL_ADDRESSES> instead.
     type: Number
     permission: read-only
     deprecated:
         since: "2.2.0"
     
   - name: LINKIFY_MAP_ADDRESSES
-    summary: Use the text auto-link constants in <Titanium.UI> instead.
+    summary: Use <Titanium.UI.AUTOLINK_MAP_ADDRESSES> instead.
     type: Number
     permission: read-only
     deprecated:
         since: "2.2.0"
     
   - name: LINKIFY_PHONE_NUMBERS
-    summary: Use the text auto-link constants in <Titanium.UI> instead.
+    summary: Use <Titanium.UI.AUTOLINK_PHONE_NUMBERS> instead.
     type: Number
     permission: read-only
     deprecated:
         since: "2.2.0"
     
   - name: LINKIFY_WEB_URLS
-    summary: Use the text auto-link constants in <Titanium.UI> instead.
+    summary: Use <Titanium.UI.AUTOLINK_URLS> instead.
     type: Number
     permission: read-only
     deprecated:

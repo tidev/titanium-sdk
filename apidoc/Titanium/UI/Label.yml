@@ -144,9 +144,9 @@ properties:
         [TEXT_VERTICAL_ALIGNMENT_CENTER](Titanium.UI.TEXT_VERTICAL_ALIGNMENT_CENTER), or 
         [TEXT_VERTICAL_ALIGNMENT_TOP](Titanium.UI.TEXT_VERTICAL_ALIGNMENT_TOP).
     description: |
-    	On iphone and ipad the default value of the property is undefined. The behavior of the label
-    	depends on the actual content height. If the actual content height is larger than the available 
-    	height the text is truncated at the end and the content is center aligned.
+        On iphone and ipad the default value of the property is undefined. The behavior of the label
+        depends on the actual content height. If the actual content height is larger than the available 
+        height the text is truncated at the end and the content is center aligned.
     type: [Number,String]
     default: Titanium.UI.TEXT_VERTICAL_ALIGNMENT_CENTER on mobileweb.  Undefined on iphone and ipad. 
     platforms: [mobileweb, iphone, ipad, android]
