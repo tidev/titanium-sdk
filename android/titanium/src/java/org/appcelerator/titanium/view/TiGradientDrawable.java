@@ -9,6 +9,7 @@ package org.appcelerator.titanium.view;
 import java.util.HashMap;
 
 import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiDimension;
 import org.appcelerator.titanium.TiPoint;
 import org.appcelerator.titanium.util.TiConvert;
@@ -28,6 +29,7 @@ public class TiGradientDrawable extends ShapeDrawable {
 	private static final TiPoint DEFAULT_START_POINT = new TiPoint(0, 0);
 	private static final TiPoint DEFAULT_END_POINT = new TiPoint(0, 1);
 	private static final TiDimension DEFAULT_RADIUS = new TiDimension(1.0, TiDimension.TYPE_UNDEFINED);
+	private static final String LCAT = "TiGradientDrawable";
 
 	private GradientType gradientType;
 	private TiPoint startPoint = DEFAULT_START_POINT, endPoint = DEFAULT_END_POINT;
@@ -78,6 +80,7 @@ public class TiGradientDrawable extends ShapeDrawable {
 
 		Object colors = properties.get("colors");
 		if (!(colors instanceof Object[])) {
+			Log.w(LCAT, "Android does not support gradients without colors.");
 			throw new IllegalArgumentException("Must provide an array of colors.");
 		}
 		loadColors((Object[])colors);
