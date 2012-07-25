@@ -1,7 +1,12 @@
 package ti.modules.titanium.ui.widget;
 
-import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.view.TiUIView;
+
+import ti.modules.titanium.ui.TabGroupProxy;
+import android.app.ActionBar.Tab;
+import android.app.ActionBar.TabListener;
+import android.app.Fragment;
+import android.app.FragmentTransaction;
 
 /**
  * Tab group implementation using the Action Bar navigation tabs.
@@ -14,10 +19,59 @@ import org.appcelerator.titanium.view.TiUIView;
  * See http://developer.android.com/guide/topics/ui/actionbar.html#Tabs
  * for further details on how Action bar tabs work.
  */
-public class TiUIActionBarTabGroup extends TiUIView {
+public class TiUIActionBarTabGroup extends TiUIView implements TabListener {
 
-	public TiUIActionBarTabGroup(TiViewProxy proxy) {
+	private static class TabInfo {
+		/*
+		 * The fragment that will provide the content view of the tab.
+		 * This fragment will be attached when the tab is selected and
+		 * detached when it is later unselected.
+		 */
+		public Fragment fragment;
+
+		/*
+		 * Tracks if this tab's fragment has been attached yet.
+		 * This should always be initialized to 'false' and only
+		 * set to 'true' when the tab has been selected for the first time.
+		 */
+		public boolean isFragmentAttached = false;
+	}
+
+	public TiUIActionBarTabGroup(TabGroupProxy proxy) {
 		super(proxy);
+	}
+
+	@Override
+	public void onTabSelected(Tab tab, FragmentTransaction ft) {
+		TabInfo tabInfo = (TabInfo) tab.getTag();
+
+		if (!tabInfo.isFragmentAttached) {
+			// When the tab is first selected we must attach
+			// the tab fragment to the tab group's activity.
+			// At the same time we will also place the fragment's
+			// view into the content container.
+			ft.add(android.R.id.content, tabInfo.fragment);
+			tabInfo.isFragmentAttached = true;
+
+		} else {
+			// If the tab's fragment is already attached to the activity
+			// we just need to re-attach it to make it visible once again.
+			ft.attach(tabInfo.fragment);
+		}
+	}
+
+	@Override
+	public void onTabUnselected(Tab tab, FragmentTransaction ft) {
+		TabInfo tabInfo = (TabInfo) tab.getTag();
+
+		// When the tab is unselected remove the fragment's view and
+		// detach the fragment from the activity. We need to clear the
+		// tab group's content area for the next tab that gets selected.
+		ft.detach(tabInfo.fragment);
+	}
+
+	@Override
+	public void onTabReselected(Tab tab, FragmentTransaction ft) {
 	}
 
 }
