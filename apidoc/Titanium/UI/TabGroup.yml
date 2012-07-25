@@ -194,9 +194,9 @@ properties:
 
         On iOS, this property applies to all states and tabs, not just inactive tabs.
     type: String
-    since: {iphone: "2.2.0", ipad: "2.2.0", mobileweb: "1.9.0"}
+    since: {android: "2.2.0", iphone: "2.2.0", ipad: "2.2.0", mobileweb: "1.9.0"}
     osver: {ios: {min: "5.0"}}
-    platforms: [iphone, ipad, mobileweb]
+    platforms: [android, iphone, ipad, mobileweb]
     
   - name: tabsBackgroundImage
     summary: Default background image for tabs.
@@ -254,8 +254,8 @@ properties:
         A tab's [backgroundSelectedColor](Titanium.UI.Tab.backgroundSelectedColor) property takes 
         precedence if set.
     type: String
-    platforms: [mobileweb]
-    since: "1.9.0"
+    platforms: [android, mobileweb]
+    since: {android: "2.2.0", mobileweb: "1.9.0"}
     
   - name: tabsBackgroundSelectedImage
     summary: Default background selected image for tabs.

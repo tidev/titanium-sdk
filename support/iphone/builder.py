@@ -503,6 +503,14 @@ def cleanup_app_logfiles(tiapp, log_id, iphone_version):
 			print "[DEBUG] removing old log file: %s" % i
 			os.remove(i)
 
+def find_name_conflicts(project_dir, project_name):
+	for root, dirs, files in os.walk(project_dir):
+		for name in dirs:
+			if name == project_name:
+				print "[ERROR] Project name %s conflicts with resource named %s: Cannot build. Please change one." % (project_name, os.path.join(root, name))
+				exit(1)
+	pass
+
 #
 # this script is invoked from our tooling but you can run from command line too if 
 # you know the arguments
@@ -710,6 +718,9 @@ def main(args):
 		infoplist = os.path.join(iphone_dir,'Info.plist')
 		githash = None
 		custom_fonts = []
+
+		# Before doing a single thing, we want to check for conflicts and bail out if necessary.
+		find_name_conflicts(project_dir, app_name)
 
 		# if we're not running in the simulator we want to clean out the build directory
 		if command!='simulator' and os.path.exists(build_out_dir):
