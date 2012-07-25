@@ -25,7 +25,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 
-public class TiUIProgressDialog extends TiUIView
+public class TiUIProgressIndicator extends TiUIView
 	implements Handler.Callback, DialogInterface.OnCancelListener
 {
 	private static final String LCAT = "TiUIProgressDialog";
@@ -52,7 +52,7 @@ public class TiUIProgressDialog extends TiUIView
 	protected int max;
 	protected int type;
 
-	public TiUIProgressDialog(TiViewProxy proxy) {
+	public TiUIProgressIndicator(TiViewProxy proxy) {
 		super(proxy);
 		if (DBG) {
 			Log.d(LCAT, "Creating an activity indicator");
