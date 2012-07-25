@@ -186,6 +186,16 @@ properties:
     default: <Titanium.UI.KEYBOARD_DEFAULT>
     platforms: [android, iphone, ipad]
     
+  - name: maxLength
+    summary: Maximum length of text field input. 
+    description: Any attempt to input text beyond this length (including pasting a string 
+        larger than `maxLength`) will not edit the field's contents. A value of -1 
+        indicates unlimited length.
+    default: -1
+    type: Number
+    since: {android: "2.2.0"}
+    platforms: [android]
+    
   - name: returnKeyType
     summary: |
         Specifies the text to display on the keyboard `Return` key when this text area is focused.
