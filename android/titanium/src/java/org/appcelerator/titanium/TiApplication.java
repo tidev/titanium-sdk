@@ -200,7 +200,7 @@ public abstract class TiApplication extends Application implements Handler.Callb
 			activityRef = activityStack.get(i);
 			if (activityRef != null) {
 				currentActivity = activityRef.get();
-				if (currentActivity != null) {
+				if (currentActivity != null && !currentActivity.isFinishing()) {
 					currentActivity.finish();
 				}
 			}
