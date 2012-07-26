@@ -583,7 +583,7 @@ public abstract class TiUIView
 				}
 
 				if (hasImage || hasRepeat || hasColorState || hasGradient) {
-					if (newBackground || key.startsWith(TiC.PROPERTY_BACKGROUND_PREFIX)) {
+					if (newBackground || key.equals(TiC.PROPERTY_OPACITY) || key.startsWith(TiC.PROPERTY_BACKGROUND_PREFIX)) {
 						handleBackgroundImage(d);
 					}
 				}
@@ -1193,6 +1193,9 @@ public abstract class TiUIView
 	 */
 	public void setOpacity(float opacity)
 	{
+		if (borderView != null) {
+			borderView.setBorderAlpha(Math.round(opacity * 255));
+		}
 		setOpacity(nativeView, opacity);
 	}
 
