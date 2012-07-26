@@ -33,6 +33,21 @@ public class TiRootActivity extends TiLaunchActivity
 	{
 		TiApplication tiApp = getTiApp();
 
+		// If not the task root, then this "launch" activity instance is
+		// likely a manifestation of Android bug 2373, and we give
+		// developers an option to simply finish it off right away so that
+		// the running activity stack remains unchanged.
+		if (!isTaskRoot()) {
+			TiProperties sysProperties = tiApp.getSystemProperties();
+			if (sysProperties != null && sysProperties.getBool("ti.android.bug2373.finishfalseroot", false)) {
+				finishing2373 = true;
+				activityOnCreate(savedInstanceState);
+				finish();
+				return;
+			}
+		}
+
+
 		if (checkInvalidLaunch(savedInstanceState)) {
 			// Android bug 2373 detected and we're going to restart.
 			return;
@@ -68,8 +83,6 @@ public class TiRootActivity extends TiLaunchActivity
 		super.windowCreated();
 	}
 
-	// Lifecyle
-
 	@Override
 	protected void onResume()
 	{
@@ -100,7 +113,7 @@ public class TiRootActivity extends TiLaunchActivity
 	protected void onDestroy()
 	{
 		super.onDestroy();
-		if (invalidKindleFireRelaunch) {
+		if (finishing2373) {
 			return;
 		}
 
