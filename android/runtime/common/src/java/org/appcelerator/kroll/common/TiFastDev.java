@@ -292,7 +292,7 @@ public class TiFastDev
 				while (bytesRead < buffer.length)
 				{
 					int read = in.read(buffer, bytesRead, buffer.length - bytesRead);
-					if (read <= 0) {
+					if (read < 0) {
 						return false;
 					}
 

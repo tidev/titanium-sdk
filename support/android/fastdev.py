@@ -54,7 +54,10 @@ def read_tokens(socket):
 	tokens = []
 	for i in range(0, token_count):
 		length = read_int(socket)
-		data = socket.recv(length)
+		if length == 0:
+			data = ""
+		else:
+			data = socket.recv(length)
 		tokens.append(data)
 	return tokens
 
