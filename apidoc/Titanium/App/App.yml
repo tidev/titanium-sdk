@@ -214,7 +214,7 @@ properties:
         Prevents network activity indicator from being displayed.
     description: |
         Setting this property to true disables display of the network activity indicator when network activity is in progress.
-         In case network activity indicator is currently visible, it will be hidden.
+        If the network activity indicator is currently visible, it is hidden immediately.
     type: Boolean
     default: false
     platforms: [iphone, ipad]
