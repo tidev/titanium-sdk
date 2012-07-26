@@ -208,6 +208,16 @@ properties:
     type: Boolean
     permission: read-only
     platforms: [iphone]
+
+  - name: disableNetworkActivityIndicator
+    summary: |
+        Disables network activity indicator from displaying.
+    description: |
+        Setting this property to true disables appearance of network activity indicator when a network activity is in progress.
+         In case network activity indicator is currently visible, it will be hidden.
+    type: Boolean
+    default: false
+    platforms: [iphone, ipad]
     
   - name: publisher
     summary: Application publisher, from `tiapp.xml`.
