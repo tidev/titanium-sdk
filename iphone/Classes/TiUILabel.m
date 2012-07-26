@@ -19,6 +19,7 @@
 {
     if (self = [super init]) {
         padding = CGRectZero;
+        textPadding = CGRectZero;
         initialLabelFrame = CGRectZero;
         verticalAlign = -1;
     }
@@ -51,7 +52,7 @@
 		// the string having trailing spaces when given size parameter width is equal to the expected return width, so we adjust it here.
 		maxSize.width += 0.00001;
 	}
-	CGSize size = [value sizeWithFont:font constrainedToSize:maxSize lineBreakMode:UILineBreakModeTailTruncation];
+	CGSize size = [value sizeWithFont:font constrainedToSize:maxSize lineBreakMode:[[self label] lineBreakMode]];
 	if (shadowOffset.width > 0)
 	{
 		// if we have a shadow and auto, we need to adjust to prevent
@@ -73,50 +74,51 @@
 
 -(void)padLabel
 {
+	CGRect	initFrame = CGRectMake(initialLabelFrame.origin.x + textPadding.origin.x
+									, initialLabelFrame.origin.y + textPadding.origin.y
+									, initialLabelFrame.size.width - textPadding.origin.x - textPadding.size.width
+									, initialLabelFrame.size.height - textPadding.origin.y - textPadding.size.height); 
     if (verticalAlign != -1) {
-        CGSize actualLabelSize = [self sizeForFont:initialLabelFrame.size.width];
-        CGFloat originX = 0;
+        
+        CGSize actualLabelSize = [self sizeForFont:initFrame.size.width];
+        CGFloat originX = initFrame.origin.x;
         switch (label.textAlignment) {
             case UITextAlignmentRight:
-                originX = (initialLabelFrame.size.width - actualLabelSize.width);
+                originX = (initFrame.size.width - actualLabelSize.width - textPadding.size.width);
                 break;
             case UITextAlignmentCenter:
-                originX = (initialLabelFrame.size.width - actualLabelSize.width)/2.0;
+                originX = (initFrame.size.width - actualLabelSize.width)/2.0;
                 break;
             default:
                 break;
         }
         
-        if (originX < 0) {
-            originX = 0;
-        }
-        CGRect labelRect = CGRectMake(originX, 0, actualLabelSize.width, actualLabelSize.height);
+        CGRect labelRect = CGRectMake(originX, textPadding.origin.y, actualLabelSize.width, MIN(actualLabelSize.height, initFrame.size.height));
         switch (verticalAlign) {
             case UIControlContentVerticalAlignmentBottom:
-                labelRect.origin.y = initialLabelFrame.size.height - actualLabelSize.height;
+                labelRect.origin.y = initialLabelFrame.size.height - actualLabelSize.height - textPadding.size.height;
                 break;
             case UIControlContentVerticalAlignmentCenter:
-                labelRect.origin.y = (initialLabelFrame.size.height - actualLabelSize.height)/2;
-                if (labelRect.origin.y < 0) {
-                    labelRect.size.height = (initialLabelFrame.size.height - labelRect.origin.y);
-                }
+                labelRect.origin.y = (initFrame.size.height - actualLabelSize.height)/2;
+
                 break;
             default:
-                if (initialLabelFrame.size.height < actualLabelSize.height) {
-                    labelRect.size.height = initialLabelFrame.size.height;
-                }
+                
                 break;
+        }
+        if (initFrame.size.height < actualLabelSize.height) {
+            labelRect.size.height = initFrame.size.height;
         }
     
         [label setFrame:CGRectIntegral(labelRect)];
     }
     else {
-        [label setFrame:initialLabelFrame];
+        [label setFrame:initFrame];
     }
 
     if (repad &&
         backgroundView != nil && 
-        !CGRectIsEmpty(initialLabelFrame))
+        !CGRectIsEmpty(initFrame))
     {
         [backgroundView setFrame:CGRectMake(initialLabelFrame.origin.x - padding.origin.x,
                                             initialLabelFrame.origin.y - padding.origin.y,
@@ -152,6 +154,7 @@
         label = [[UILabel alloc] initWithFrame:CGRectZero];
         label.backgroundColor = [UIColor clearColor];
         label.numberOfLines = 0;
+        label.lineBreakMode = UILineBreakModeWordWrap; //default wordWrap to True
         [self addSubview:label];
         self.clipsToBounds = YES;
 	}
@@ -314,6 +317,43 @@
 	CGPoint p = [TiUtils pointValue:value];
 	CGSize size = {p.x,p.y};
 	[[self label] setShadowOffset:size];
+}
+
+-(void)setTextPaddingLeft_:(id)left
+{
+    textPadding.origin.x = [TiUtils floatValue:left];
+    repad = YES;
+    [self padLabel];
+}
+
+-(void)setTextPaddingRight_:(id)right
+{
+    textPadding.size.width = [TiUtils floatValue:right];
+    repad = YES;
+    [self padLabel];
+}
+
+-(void)setTextPaddingTop_:(id)top
+{
+    textPadding.origin.y = [TiUtils floatValue:top];
+    repad = YES;
+    [self padLabel];
+}
+
+-(void)setTextPaddingBottom_:(id)bottom
+{
+    textPadding.size.height = [TiUtils floatValue:bottom];
+    repad = YES;
+    [self padLabel];
+}
+
+-(void)setWordWrap_:(id)value
+{
+    BOOL shouldWordWrap = [TiUtils boolValue:value def:YES];
+    if (shouldWordWrap)
+        [[self label] setLineBreakMode:UILineBreakModeWordWrap];
+    else 
+        [[self label] setLineBreakMode:UILineBreakModeTailTruncation];
 }
 
 @end
