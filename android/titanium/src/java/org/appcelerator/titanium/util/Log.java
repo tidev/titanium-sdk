@@ -21,7 +21,7 @@ public class Log
 	@Deprecated
 	public static int debug(String tag, String msg)
 	{
-		return org.appcelerator.kroll.common.Log.debug(tag, msg);
+		return org.appcelerator.kroll.common.Log.d(tag, msg);
 	}
 
 	@Deprecated

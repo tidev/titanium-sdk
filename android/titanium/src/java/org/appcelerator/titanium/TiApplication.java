@@ -384,7 +384,7 @@ public abstract class TiApplication extends Application implements Handler.Callb
 			Log.w(LCAT, "Titanium Javascript runtime: unknown");
 		}
 
-		TiConfig.LOGD = systemProperties.getBool("ti.android.debug", false);
+		TiConfig.DEBUG = TiConfig.LOGD = systemProperties.getBool("ti.android.debug", false);
 
 		startExternalStorageMonitor();
 		
