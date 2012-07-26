@@ -23,6 +23,7 @@ import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiUIView;
 
 import android.graphics.Bitmap;
+import android.graphics.Rect;
 import android.graphics.drawable.BitmapDrawable;
 import android.view.Gravity;
 import android.view.View;
@@ -33,13 +34,19 @@ public class TiUIButton extends TiUIView
 	private static final String LCAT = "TiUIButton";
 	private static final boolean DBG = TiConfig.LOGD;
 
+	private int shadowColor;
+	private int shadowDx;
+	private int shadowDy;
+	private Rect titlePadding;
+
 	public TiUIButton(final TiViewProxy proxy) {
 		super(proxy);
 		if (DBG) {
 			Log.d(LCAT, "Creating a button");
 		}
+		titlePadding = new Rect();
 		Button btn = new Button(proxy.getActivity());
-		btn.setPadding(8, 0, 8, 0);
+		btn.setPadding(titlePadding.left, titlePadding.top, titlePadding.right, titlePadding.bottom);
 		btn.setGravity(Gravity.CENTER);
 		setNativeView(btn);
 	}
@@ -87,6 +94,32 @@ public class TiUIButton extends TiUIView
 			String verticalAlign = d.getString(TiC.PROPERTY_VERTICAL_ALIGN);
 			TiUIHelper.setAlignment(btn, null, verticalAlign);
 		}
+		if (d.containsKey(TiC.PROPERTY_TITLE_PADDING_LEFT)) {
+			titlePadding.left = TiConvert.toInt(d,0);
+			btn.setPadding(titlePadding.left, titlePadding.top, titlePadding.right, titlePadding.bottom);
+		}
+		if (d.containsKey(TiC.PROPERTY_TITLE_PADDING_RIGHT)) {
+			titlePadding.right = TiConvert.toInt(d,0);
+			btn.setPadding(titlePadding.left, titlePadding.top, titlePadding.right, titlePadding.bottom);
+		}
+		if (d.containsKey(TiC.PROPERTY_TITLE_PADDING_TOP)) {
+			titlePadding.top = TiConvert.toInt(d,0);
+			btn.setPadding(titlePadding.left, titlePadding.top, titlePadding.right, titlePadding.bottom);
+		}
+		if (d.containsKey(TiC.PROPERTY_TITLE_PADDING_BOTTOM)) {
+			titlePadding.bottom = TiConvert.toInt(d,0);
+			btn.setPadding(titlePadding.left, titlePadding.top, titlePadding.right, titlePadding.bottom);
+		}
+		if (d.containsKey(TiC.PROPERTY_SHADOW_COLOR)) {
+			shadowColor = TiConvert.toColor(d, TiC.PROPERTY_SHADOW_COLOR);
+			btn.setShadowLayer(1, shadowDx, shadowDy, shadowColor);
+		}
+		if (d.containsKey(TiC.PROPERTY_SHADOW_OFFSET)) {
+			KrollDict value = d.getKrollDict(TiC.PROPERTY_SHADOW_OFFSET);
+			shadowDx = value.getInt(TiC.PROPERTY_X);
+			shadowDy = value.getInt(TiC.PROPERTY_Y);
+			btn.setShadowLayer(1, shadowDx, shadowDy, shadowColor);
+		}
 		btn.invalidate();
 	}
 
@@ -109,6 +142,29 @@ public class TiUIButton extends TiUIView
 		} else if (key.equals(TiC.PROPERTY_VERTICAL_ALIGN)) {
 			TiUIHelper.setAlignment(btn, null, TiConvert.toString(newValue));
 			btn.requestLayout();
+		} else if (key.equals(TiC.PROPERTY_TITLE_PADDING_LEFT)) {
+			titlePadding.left = TiConvert.toInt(newValue);
+			btn.setPadding(titlePadding.left, titlePadding.top, titlePadding.right, titlePadding.bottom);
+			btn.requestLayout();
+		} else if (key.equals(TiC.PROPERTY_TITLE_PADDING_RIGHT)) {
+			titlePadding.right = TiConvert.toInt(newValue);
+			btn.setPadding(titlePadding.left, titlePadding.top, titlePadding.right, titlePadding.bottom);
+			btn.requestLayout();
+		} else if (key.equals(TiC.PROPERTY_TITLE_PADDING_TOP)) {
+			titlePadding.top = TiConvert.toInt(newValue);
+			btn.setPadding(titlePadding.left, titlePadding.top, titlePadding.right, titlePadding.bottom);
+			btn.requestLayout();
+		} else if (key.equals(TiC.PROPERTY_TITLE_PADDING_BOTTOM)) {
+			titlePadding.bottom = TiConvert.toInt(newValue);
+			btn.setPadding(titlePadding.left, titlePadding.top, titlePadding.right, titlePadding.bottom);
+			btn.requestLayout();
+		} else if (key.equals(TiC.PROPERTY_SHADOW_COLOR)) {
+			shadowColor = TiConvert.toColor((String) newValue);
+			btn.setShadowLayer(1, shadowDx, shadowDy, shadowColor);
+		} else if (key.equals(TiC.PROPERTY_SHADOW_OFFSET)) {
+			shadowDx = TiConvert.toInt(((HashMap) newValue).get(TiC.PROPERTY_X));
+			shadowDy = TiConvert.toInt(((HashMap) newValue).get(TiC.PROPERTY_Y));
+			btn.setShadowLayer(1, shadowDx, shadowDy, shadowColor);
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}
