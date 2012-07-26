@@ -1597,8 +1597,9 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap,horizontalWrap,horizontalWrap,[self willCha
 	
 	// Have to handle the situation in which the proxy's view might be nil... like, for example,
 	// with table rows.  Automagically assume any nil view we're firing an event for is A-OK.
-	if (proxyView == nil || [proxyView interactionEnabled]) {
-		[super fireEvent:type withObject:obj withSource:source propagate:YES];
+    // NOTE: We want to fire postlayout events on ANY view, even those which do not allow interactions.
+	if (proxyView == nil || [proxyView interactionEnabled] || [type isEqualToString:@"postlayout"]) {
+		[super fireEvent:type withObject:obj withSource:source propagate:propagate];
 		
 		// views support event propagation. we need to check our
 		// parent and if he has the same named listener, we fire
@@ -2059,7 +2060,9 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
 
 		positionCache.x += sizeCache.origin.x + sandboxBounds.origin.x;
 		positionCache.y += sizeCache.origin.y + sandboxBounds.origin.y;
-
+        
+        BOOL layoutChanged = (!CGRectEqualToRect([view bounds], sizeCache) || !CGPointEqualToPoint([view center], positionCache));
+        
 		[view setAutoresizingMask:autoresizeCache];
 		[view setCenter:positionCache];
 		[view setBounds:sizeCache];
@@ -2073,8 +2076,8 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
             [observer proxyDidRelayout:self];
         }
 
-        if ([self _hasListeners:@"postlayout"]) {
-            [self fireEvent:@"postlayout" withObject:nil];
+        if (layoutChanged && [self _hasListeners:@"postlayout"]) {
+            [self fireEvent:@"postlayout" withObject:nil withSource:self propagate:NO];
         }
 	}
 #ifdef VERBOSE
