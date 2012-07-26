@@ -8,7 +8,6 @@ package org.appcelerator.kroll;
 
 import java.lang.ref.WeakReference;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.appcelerator.kroll.common.TiMessenger;
 import org.appcelerator.kroll.util.KrollAssetHelper;
@@ -48,9 +47,13 @@ public abstract class KrollRuntime implements Handler.Callback
 	private WeakReference<KrollApplication> krollApplication;
 	private KrollRuntimeThread thread;
 	private long threadId;
-	private AtomicBoolean initialized = new AtomicBoolean(false);
 	private CountDownLatch initLatch = new CountDownLatch(1);
 	private KrollEvaluator evaluator;
+
+	private enum State {
+		INITIALIZED, RELEASED, RELAUNCHED, DISPOSED
+	}
+	private static State state = State.DISPOSED;
 
 	protected Handler handler;
 
@@ -107,7 +110,7 @@ public abstract class KrollRuntime implements Handler.Callback
 
 	public static void init(Context context, KrollRuntime runtime)
 	{
-		if (!runtime.initialized.get()) {
+		if (state != State.INITIALIZED) {
 			int stackSize = runtime.getThreadStackSize(context);
 			runtime.krollApplication = new WeakReference<KrollApplication>((KrollApplication) context);
 			runtime.thread = new KrollRuntimeThread(runtime, stackSize);
@@ -134,7 +137,9 @@ public abstract class KrollRuntime implements Handler.Callback
 	public static boolean isInitialized()
 	{
 		if (instance != null) {
-			return instance.initialized.get();
+			synchronized (state) {
+				return state == State.INITIALIZED;
+			}
 		}
 		return false;
 	}
@@ -161,7 +166,11 @@ public abstract class KrollRuntime implements Handler.Callback
 	{
 		// initializer for the specific runtime implementation (V8, Rhino, etc)
 		initRuntime();
-		initialized.set(true);
+
+		// Notify the main thread that the runtime has been initialized.
+		synchronized (state) {
+			state = State.INITIALIZED;
+		}
 		initLatch.countDown();
 	}
 
@@ -177,14 +186,6 @@ public abstract class KrollRuntime implements Handler.Callback
 
 	public void runModule(String source, String filename, KrollProxySupport activityProxy)
 	{
-		while (!initialized.get()) {
-			try {
-				Thread.sleep(200L);
-			} catch (InterruptedException e) {
-				Log.e(TAG, e.getMessage(), e);
-			}
-		}
-
 		if (isRuntimeThread()) {
 			doRunModule(source, filename, activityProxy);
 
@@ -301,11 +302,17 @@ public abstract class KrollRuntime implements Handler.Callback
 			// When the process is re-entered, "initialized" is set to false.
 			// Even though the KrollRuntime instance / thread still exists,
 			// we still need to re-initialize the runtime here.
-			if (!instance.initialized.get()) {
-				instance.initLatch = new CountDownLatch(1);
-				instance.handler.sendEmptyMessage(MSG_INIT);
-				waitForInit();
+			synchronized (state) {
+				if (state == State.DISPOSED) {
+					instance.initLatch = new CountDownLatch(1);
+					instance.handler.sendEmptyMessage(MSG_INIT);
+
+				} else if (state == State.RELEASED) {
+					state = State.RELAUNCHED;
+				}
 			}
+
+			waitForInit();
 		}
 	}
 
@@ -326,14 +333,23 @@ public abstract class KrollRuntime implements Handler.Callback
 
 	private void internalDispose()
 	{
+		synchronized (state) {
+			if (state == State.RELAUNCHED) {
+				// Abort the dispose if the application has been re-launched
+				// since we scheduled this dispose during the last exit.
+				state = State.INITIALIZED;
+				return;
+			}
+
+			state = State.DISPOSED;
+		}
+
 		doDispose();
 
 		KrollApplication app = krollApplication.get();
 		if (app != null) {
 			app.dispose();
 		}
-
-		initialized.set(false);
 	}
 
 	public KrollEvaluator getEvaluator()
