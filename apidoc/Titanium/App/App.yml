@@ -211,9 +211,9 @@ properties:
 
   - name: disableNetworkActivityIndicator
     summary: |
-        Disables network activity indicator from displaying.
+        Prevents network activity indicator from being displayed.
     description: |
-        Setting this property to true disables appearance of network activity indicator when a network activity is in progress.
+        Setting this property to true disables display of the network activity indicator when network activity is in progress.
          In case network activity indicator is currently visible, it will be hidden.
     type: Boolean
     default: false
