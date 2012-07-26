@@ -1,8 +1,7 @@
 package ti.modules.titanium.ui.widget;
 
-import org.appcelerator.titanium.view.TiUIView;
-
 import ti.modules.titanium.ui.TabGroupProxy;
+import ti.modules.titanium.ui.TabProxy;
 import android.app.ActionBar.Tab;
 import android.app.ActionBar.TabListener;
 import android.app.Fragment;
@@ -19,7 +18,7 @@ import android.app.FragmentTransaction;
  * See http://developer.android.com/guide/topics/ui/actionbar.html#Tabs
  * for further details on how Action bar tabs work.
  */
-public class TiUIActionBarTabGroup extends TiUIView implements TabListener {
+public class TiUIActionBarTabGroup extends TiUIAbstractTabGroup implements TabListener {
 
 	private static class TabInfo {
 		/*
@@ -39,6 +38,28 @@ public class TiUIActionBarTabGroup extends TiUIView implements TabListener {
 
 	public TiUIActionBarTabGroup(TabGroupProxy proxy) {
 		super(proxy);
+	}
+
+	@Override
+	public void addTab(TabProxy tab) {
+		// TODO(josh): implement
+	}
+
+	@Override
+	public void selectTab(TabProxy tab) {
+		// TODO(josh): implement		
+	}
+
+	@Override
+	public TabProxy getSelectedTab() {
+		// TODO(josh): implement
+		return null;
+	}
+
+	@Override
+	public void close() {
+		// TODO(josh): remove this stud once TiUIAbstractTabGrup
+		// implements this functionality.
 	}
 
 	@Override

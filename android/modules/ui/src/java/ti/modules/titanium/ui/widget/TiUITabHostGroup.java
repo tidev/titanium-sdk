@@ -6,21 +6,27 @@
  */
 package ti.modules.titanium.ui.widget;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.common.TiConfig;
+import org.appcelerator.titanium.TiActivity;
+import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.TiBaseWindowProxy;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
-import org.appcelerator.titanium.view.TiUIView;
+import org.appcelerator.titanium.util.TiUIHelper;
 
+import ti.modules.titanium.ui.ActivityWindowProxy;
 import ti.modules.titanium.ui.TabGroupProxy;
 import ti.modules.titanium.ui.TabProxy;
 import ti.modules.titanium.ui.TiTabActivity;
+import android.app.Activity;
+import android.content.Intent;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.view.View;
@@ -38,7 +44,7 @@ import android.widget.TabHost.TabSpec;
  * the tabs. Each window provides an activity which the
  * TabHost starts when that window's tab is selected.
  */
-public class TiUITabHostGroup extends TiUIView
+public class TiUITabHostGroup extends TiUIAbstractTabGroup
 	implements OnTabChangeListener
 {
 	private static final String LCAT = "TiUITabGroup";
@@ -49,16 +55,19 @@ public class TiUITabHostGroup extends TiUIView
 	private int previousTabID = -1;
 	private int currentTabID = 0;
 
+	private WeakReference<TiTabActivity> weakActivity;
 	
 	private Drawable defaultDrawable;
 	private Drawable defaultSelectedDrawable;
 	private boolean cacheDefaults = true;
 
 
-	public TiUITabHostGroup(TiViewProxy proxy, TiTabActivity activity)
+	public TiUITabHostGroup(TabGroupProxy proxy, TiTabActivity activity)
 	{
 		super(proxy);
+
 		tabHost = activity.getTabHost();
+
 		// Set to GONE to overcome a NullPointerException
 		// deep in Android code in pre api 8.  See Android issue
 		// 2772.
@@ -160,6 +169,77 @@ public class TiUITabHostGroup extends TiUIView
 		if (tabHost != null) {
 			tabHost.setCurrentTab(index);
 		}
+	}
+
+	@Override
+	public void addTab(TabProxy tab) {
+		TiTabActivity tta = weakActivity.get();
+		if (tta == null) {
+			if (DBG) {
+				Log.w(LCAT, "Could not add tab because tab activity no longer exists");
+			}
+		}
+		Object iconProperty = tab.getProperty(TiC.PROPERTY_ICON);
+		Drawable icon = TiUIHelper.getResourceDrawable(iconProperty);
+
+		String tag = TiConvert.toString(tab.getProperty(TiC.PROPERTY_TAG));
+		String title = TiConvert.toString(tab.getProperty(TiC.PROPERTY_TITLE));
+		if (title == null) {
+			title = "";
+		}
+
+		tab.setTabGroup((TabGroupProxy) proxy);
+
+		ActivityWindowProxy windowProxy = new ActivityWindowProxy();
+		windowProxy.setActivity(((TabGroupProxy) proxy).getActivity());
+
+		TiBaseWindowProxy baseWindow = (TiBaseWindowProxy) tab.getProperty(TiC.PROPERTY_WINDOW);
+		if (baseWindow != null) {
+			windowProxy.handleCreationDict(baseWindow.getProperties());
+			tab.setWindow(baseWindow);  // hooks up the tab and the JS window wrapper
+			baseWindow.getKrollObject().setWindow(windowProxy);
+
+		} else {
+			Log.w(LCAT, "window property was not set on tab");
+		}
+
+		if (tag != null && windowProxy != null) {
+			TabSpec tspec = newTab(tag);
+			if (icon == null) {
+				tspec.setIndicator(title);
+			} else {
+				tspec.setIndicator(title, icon);
+			}
+
+			Intent intent = new Intent(tta, TiActivity.class);
+			windowProxy.setParent(tab);
+			windowProxy.fillIntentForTab(intent, tab);
+
+			tspec.setContent(intent);
+
+			addTab(tspec, tab);
+		}
+	}
+
+	@Override
+	public void selectTab(TabProxy tab) {
+		// TODO(josh): implement
+	}
+
+	@Override
+	public TabProxy getSelectedTab() {
+		// TODO(josh): implement
+		return null;
+	}
+
+	@Override
+	public void close() {
+		Activity tabActivity = this.weakActivity.get();
+		if (tabActivity != null) {
+			tabActivity.finish();
+			// Finishing an activity is not synchronous, so we remove the activity from the activity stack here
+			TiApplication.removeFromActivityStack(tabActivity);
+		};
 	}
 
 	@Override
