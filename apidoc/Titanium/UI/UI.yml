@@ -334,12 +334,18 @@ properties:
   - name: AUTOLINK_EMAIL_ADDRESSES
     summary: Convert strings formatted as email addresses into clickable links.
     description: |
-           Use with <Titanium.UI.TextArea.autoLink>, <Titanium.UI.TextField.autoLink>, and <Titanium.UI.Label.autoLink> properties.
-           Two or more autolink constants can be combined using bitwise or.
+         Two or more autolink constants can be combined using bitwise or.
+         On iOS:
+            Use with the <Titanium.UI.TextArea.autoLink> property. This property will also convert strings formatted
+            as URLs into clickable links.
+            
+         On Android:
+            Use with <Titanium.UI.TextArea.autoLink>, <Titanium.UI.TextField.autoLink>, and <Titanium.UI.Label.autoLink> properties.
+
     type: Number
     permission: read-only
     since: "2.2.0"
-    platforms: [android]
+    platforms: [android, iphone, ipad]
     
   - name: BLEND_MODE_CLEAR
     summary: Use the blend mode constants in <Titanium.UI.iOS> instead.

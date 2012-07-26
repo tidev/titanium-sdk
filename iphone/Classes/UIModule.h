@@ -139,6 +139,7 @@
 @property(nonatomic,readonly) NSNumber *AUTOLINK_ALL;
 @property(nonatomic,readonly) NSNumber *AUTOLINK_PHONE_NUMBERS;
 @property(nonatomic,readonly) NSNumber *AUTOLINK_URLS;
+@property(nonatomic,readonly) NSNumber *AUTOLINK_EMAIL_ADDRESSES;
 @property(nonatomic,readonly) NSNumber *AUTOLINK_MAP_ADDRESSES;
 @property(nonatomic,readonly) NSNumber *AUTOLINK_CALENDAR;
 
