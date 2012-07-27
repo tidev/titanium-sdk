@@ -1193,6 +1193,10 @@ public abstract class TiUIView
 	 */
 	public void setOpacity(float opacity)
 	{
+		if (opacity < 0 || opacity > 1) {
+			Log.w(LCAT, "Ignoring invalid value for opacity: " + opacity);
+			return;
+		}
 		if (borderView != null) {
 			borderView.setBorderAlpha(Math.round(opacity * 255));
 		}

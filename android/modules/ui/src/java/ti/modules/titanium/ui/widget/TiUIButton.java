@@ -121,23 +121,33 @@ public class TiUIButton extends TiUIView
 
 	public void setOpacityForButton(float opacity)
 	{
-		TiUIHelper.setPaintOpacity(((Button) getNativeView()).getPaint(), opacity);
-		Drawable[] drawables = ((Button) getNativeView()).getCompoundDrawables();
-		if (drawables != null) {
-			for (int i = 0; i < drawables.length; i++) {
-				TiUIHelper.setDrawableOpacity(drawables[i], opacity);
+		if (opacity < 0 || opacity > 1) {
+			Log.w(LCAT, "Ignoring invalid value for opacity: " + opacity);
+			return;
+		}
+		View view = getNativeView();
+		if (view != null) {
+			TiUIHelper.setPaintOpacity(((Button) view).getPaint(), opacity);
+			Drawable[] drawables = ((Button) view).getCompoundDrawables();
+			if (drawables != null) {
+				for (int i = 0; i < drawables.length; i++) {
+					TiUIHelper.setDrawableOpacity(drawables[i], opacity);
+				}
 			}
 		}
 	}
 
 	public void clearOpacityForButton()
 	{
-		((Button) getNativeView()).getPaint().setColorFilter(null);
-		Drawable[] drawables = ((Button) getNativeView()).getCompoundDrawables();
-		if (drawables != null) {
-			for (int i = 0; i < drawables.length; i++) {
-				if (drawables[i] != null) {
-					drawables[i].clearColorFilter();
+		View view = getNativeView();
+		if (view != null) {
+			((Button) view).getPaint().setColorFilter(null);
+			Drawable[] drawables = ((Button) view).getCompoundDrawables();
+			if (drawables != null) {
+				for (int i = 0; i < drawables.length; i++) {
+					if (drawables[i] != null) {
+						drawables[i].clearColorFilter();
+					}
 				}
 			}
 		}
