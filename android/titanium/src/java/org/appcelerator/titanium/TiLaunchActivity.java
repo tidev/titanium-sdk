@@ -58,6 +58,7 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 	private PendingIntent restartPendingIntent = null;
 	private AlarmManager restartAlarmManager = null;
 	private int restartDelay = 0;
+
 	// finishing2373 is a flag indicating we've elected
 	// to finish this instance of the activity because
 	// it's not the task root (i.e., it has come to life
@@ -108,51 +109,14 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 		}
 	}
 
-	// For kindle fire, we want to prevent subsequent instances of the activity from launching if it's following the
-	// restart workaround for android 2373. For whatever reason, the Fire always tries to re-launch the launch activity
-	// (i.e., a new instance of it) whenever the user selects the application from the application drawer (or shelf, whatever
-	// it is) after the app has been restarted because of 2373 detection. We detect here when that new instance of the launch
-	// activity is coming into existence, so that we can kill it off (finish()) right away.
-	protected boolean checkInvalidKindleFireRelaunch(Bundle savedInstanceState)
-	{
-		finishing2373 = false;
-		int count = creationCounter.getAndIncrement();
-		if (count > 0 && getIntent().getFlags() == KINDLE_FIRE_RESTART_FLAGS
-			&& Build.MODEL.toLowerCase().contains(KINDLE_MODEL) && !isTaskRoot()) {
-			finishing2373 = true;
-		}
-
-		if (finishing2373) {
-			activityOnCreate(savedInstanceState);
-			finish();
-		}
-
-		return finishing2373;
-	}
-
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
 	{
-		TiApplication tiApp = getTiApp();
-
-		// If not the task root, then this "launch" activity instance is
-		// likely a manifestation of Android bug 2373, and we give
-		// developers an option to simply finish it off right away so that
-		// the running activity stack remains unchanged. We do something similar
-		// below for Kindle Fire, but in that case we do it no matter what if
-		// we detect the condition.
-		if (!isTaskRoot()) {
-			if (tiApp.getSystemProperties().getBool("ti.android.bug2373.finishfalseroot", false)) {
-				finishing2373 = true;
-				activityOnCreate(savedInstanceState);
-				finish();
-				return;
-			}
-		}
-
-		if (finishing2373 || checkInvalidKindleFireRelaunch(savedInstanceState)) {
+		if (willFinishFalseRootActivity(savedInstanceState)) {
 			return;
 		}
+
+		TiApplication tiApp = getTiApp();
 
 		if (!tiApp.isRestartPending()) {
 			// Check for a system application restart that we can't support.
@@ -366,6 +330,7 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 			activityOnPause();
 			return;
 		}
+
 		if (getTiApp().isRestartPending()) {
 			super.onPause(); // Will take care of finish() if needed.
 			return;
@@ -392,6 +357,7 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 			activityOnStop();
 			return;
 		}
+
 		super.onStop();
 	}
 
@@ -463,6 +429,66 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 		TiPlatformHelper.resetSid();
 
 		super.onDestroy();
+	}
+
+	/**
+	 * Determines whether to immediately kill of (i.e., finish()) this instance
+	 * of the activity because it is not really the task root activity, and thus
+	 * is likely a byproduct of Android bug 2373. There are two conditions when
+	 * we'll finish it:
+	 *
+	 * <p>(1) The Titanium developer has explicitly said she wants it shut down,
+	 * by setting the "finishfalseroot" property; or
+	 *
+	 * <p>(2) We recognize a specific condition we've seen on Kindle Fires. For whatever
+	 * reason, the Fire always tries to re-launch the launch activity
+	 * (i.e., a new instance of it) whenever the user selects the application
+	 * from the application drawer/shelf after the app has been restarted because
+	 * of our 2373 detection. We detect here when that new instance of the launch
+	 * activity is coming into existence, so that we can finish it immediately.
+	 *
+	 * @param savedInstanceStateThe Bundle passed to onCreate, which we will pass
+	 * on to a superclass onCreate if we decide to finish right away.
+	 *
+	 * @return true if we have detected one of the two conditions and are thus finishing
+	 * the Activity right away.
+	 */
+	protected boolean willFinishFalseRootActivity(Bundle savedInstanceState)
+	{
+		finishing2373 = false;
+
+		if (isTaskRoot()) {
+			// Not a "false root" activity. This activity
+			// instance truly is the root of the task, so
+			// nothing needs to be done.
+			return finishing2373;
+		}
+
+		TiApplication tiApp = TiApplication.getInstance();
+		TiProperties systemProperties = null;
+
+		if (tiApp != null) {
+			systemProperties = tiApp.getSystemProperties();
+		}
+
+		if (systemProperties != null
+				&& systemProperties.getBool("ti.android.bug2373.finishfalseroot", false)) {
+			finishing2373 = true;
+		} else if (Build.MODEL.toLowerCase().contains(KINDLE_MODEL)
+				&& creationCounter.getAndIncrement() > 0
+				&& getIntent().getFlags() == KINDLE_FIRE_RESTART_FLAGS) {
+			finishing2373 = true;
+		}
+
+		if (finishing2373) {
+			// Jumps over TiBaseActivity's onCreate to fulfill directly
+			// the requirement that all Activity-derived classes must
+			// call Activity.onCreate.
+			activityOnCreate(savedInstanceState);
+			finish();
+		}
+
+		return finishing2373;
 	}
 
 }
