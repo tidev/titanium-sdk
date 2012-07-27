@@ -29,6 +29,7 @@
  * - In openUrl(String, String, Bundle), add 
  * 		conn.setUseCaches(false);
  * 	 to avoid our Http cache
+ * - In parseJson(String), provide the error code when throwing an error.
  * - Add setLogEnabled() which can enable/disable log messages.
  * 
  * Original file this is based on:
@@ -296,12 +297,20 @@ public final class Util {
 
         // errors set by the server are not consistent
         // they depend on the method and endpoint
-        if (json.has("error")) {
-            JSONObject error = json.getJSONObject("error");
-            throw new FacebookError(
-                    error.getString("message"), error.getString("type"),
-                    Integer.parseInt(error.getString("code")));
-        }
+		if (json.has("error")) {
+			JSONObject error = json.getJSONObject("error");
+			// throw new FacebookError(error.getString("message"), error.getString("type"), 0); // TITANIUM
+
+			// ************* APPCELERATOR TITANIUM CUSTOMIZATION *****************
+			int code = 0;
+			try {
+				code = Integer.parseInt(error.getString("code"));
+			} catch (Exception e) {
+				code = 0;
+			}
+			throw new FacebookError(error.getString("message"), error.getString("type"), code);
+			// ********************************************************************
+		}
         if (json.has("error_code") && json.has("error_msg")) {
             throw new FacebookError(json.getString("error_msg"), "",
                     Integer.parseInt(json.getString("error_code")));

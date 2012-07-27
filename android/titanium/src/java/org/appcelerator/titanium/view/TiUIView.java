@@ -94,11 +94,9 @@ public abstract class TiUIView
 	// of Ti2DMatrix.scale().
 	private Pair<Float, Float> animatedScaleValues = Pair.create(Float.valueOf(1f), Float.valueOf(1f)); // default = full size (1f)
 
-	// Same for rotation animation.
+	// Same for rotation animation and for alpha animation.
 	private float animatedRotationDegrees = 0f; // i.e., no rotation.
-
-	// Same for translate animation.
-	private Pair<Integer, Integer> animatedXYTranslationValues = Pair.create(Integer.valueOf(0), Integer.valueOf(0));
+	private float animatedAlpha = Float.MIN_VALUE; // i.e., no animated alpha.
 
 	private KrollDict lastUpEvent = new KrollDict(2);
 	// In the case of heavy-weight windows, the "nativeView" is null,
@@ -888,10 +886,15 @@ public abstract class TiUIView
 		TiGradientDrawable gradientDrawable = null;
 		KrollDict gradientProperties = d.getKrollDict(TiC.PROPERTY_BACKGROUND_GRADIENT);
 		if (gradientProperties != null) {
-			gradientDrawable = new TiGradientDrawable(nativeView, gradientProperties);
-			if (gradientDrawable.getGradientType() == GradientType.RADIAL_GRADIENT) {
-				// TODO: Remove this once we support radial gradients.
-				Log.w(LCAT, "Android does not support radial gradients.");
+			try {
+				gradientDrawable = new TiGradientDrawable(nativeView, gradientProperties);
+				if (gradientDrawable.getGradientType() == GradientType.RADIAL_GRADIENT) {
+					// TODO: Remove this once we support radial gradients.
+					Log.w(LCAT, "Android does not support radial gradients.");
+					gradientDrawable = null;
+				}
+			}
+			catch (IllegalArgumentException e) {
 				gradientDrawable = null;
 			}
 		}
@@ -1388,31 +1391,30 @@ public abstract class TiUIView
 	}
 
 	/**
-	 * Retrieve the saved translate animation x & y deltas, which we store here since Android provides no property
-	 * for looking them up.
+	 * Set the animated alpha values, since Android provides no property for looking it up.
 	 */
-	public Pair<Integer, Integer> getAnimatedXYTranslationValues()
+	public void setAnimatedAlpha(float alpha)
 	{
-		return animatedXYTranslationValues;
+		animatedAlpha = alpha;
 	}
 
 	/**
-	 * Store the translate animation x and y delta values
-	 * since Android provides no property for looking them up.
+	 * Retrieve the animated alpha value, which we store here since Android provides no property
+	 * for looking it up.
 	 */
-	public void setAnimatedXYTranslationValues(Pair<Integer, Integer> newValues)
+	public float getAnimatedAlpha()
 	{
-		animatedXYTranslationValues = newValues;
+		return animatedAlpha;
 	}
 
 	/**
-	 * "Forget" the values we save after scale and rotation animations.
+	 * "Forget" the values we save after scale and rotation and alpha animations.
 	 */
 	private void resetPostAnimationValues()
 	{
 		animatedRotationDegrees = 0f; // i.e., no rotation.
 		animatedScaleValues = Pair.create(Float.valueOf(1f), Float.valueOf(1f)); // 1 means no scaling
-		animatedXYTranslationValues = Pair.create(Integer.valueOf(0), Integer.valueOf(0));
+		animatedAlpha = Float.MIN_VALUE; // we use min val to signal no val.
 	}
 
 }

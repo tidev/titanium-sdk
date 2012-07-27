@@ -34,7 +34,11 @@ import android.os.Message;
 import android.os.Messenger;
 import android.widget.TabHost.TabSpec;
 
-@Kroll.proxy(creatableInModule=UIModule.class)
+@Kroll.proxy(creatableInModule=UIModule.class, propertyAccessors={
+	TiC.PROPERTY_TABS_BACKGROUND_COLOR,
+	TiC.PROPERTY_TABS_BACKGROUND_SELECTED_COLOR	
+})
+
 public class TabGroupProxy extends TiWindowProxy
 {
 	private static final String LCAT = "TabGroupProxy";
@@ -70,6 +74,22 @@ public class TabGroupProxy extends TiWindowProxy
 	public TiUIView getOrCreateView()
 	{
 		throw new IllegalStateException("call to getView on a Window");
+	}
+
+	public String getTabsBackgroundColor() {
+		if (hasProperty(TiC.PROPERTY_TABS_BACKGROUND_COLOR)) {
+			return getProperty(TiC.PROPERTY_TABS_BACKGROUND_COLOR).toString();
+		} else {
+			return null;
+		}
+	}
+	
+	public String getTabsBackgroundSelectedColor() {
+		if (hasProperty(TiC.PROPERTY_TABS_BACKGROUND_SELECTED_COLOR)) {
+			return getProperty(TiC.PROPERTY_TABS_BACKGROUND_SELECTED_COLOR).toString();
+		} else {
+			return null;
+		}
 	}
 
 	@Override

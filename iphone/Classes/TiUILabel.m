@@ -19,7 +19,8 @@
 {
     if (self = [super init]) {
         padding = CGRectZero;
-		initialLabelFrame = CGRectZero;
+        initialLabelFrame = CGRectZero;
+        verticalAlign = -1;
     }
     return self;
 }
@@ -72,30 +73,46 @@
 
 -(void)padLabel
 {
-    CGSize actualLabelSize = [self sizeForFont:initialLabelFrame.size.width];
-    CGFloat originX = (initialLabelFrame.size.width - actualLabelSize.width)/2.0;
-    if (originX < 0) {
-        originX = 0;
-    }
-    CGRect labelRect = CGRectMake(originX, 0, actualLabelSize.width, actualLabelSize.height);
-    switch (verticalAlign) {
-        case UIControlContentVerticalAlignmentBottom:
-            labelRect.origin.y = initialLabelFrame.size.height - actualLabelSize.height;
-            break;
-        case UIControlContentVerticalAlignmentCenter:
-            labelRect.origin.y = (initialLabelFrame.size.height - actualLabelSize.height)/2;
-            if (labelRect.origin.y < 0) {
-                labelRect.size.height = (initialLabelFrame.size.height - labelRect.origin.y);
-            }
-            break;
-        default:
-            if (initialLabelFrame.size.height < actualLabelSize.height) {
-                labelRect.size.height = initialLabelFrame.size.height;
-            }
-            break;
-    }
+    if (verticalAlign != -1) {
+        CGSize actualLabelSize = [self sizeForFont:initialLabelFrame.size.width];
+        CGFloat originX = 0;
+        switch (label.textAlignment) {
+            case UITextAlignmentRight:
+                originX = (initialLabelFrame.size.width - actualLabelSize.width);
+                break;
+            case UITextAlignmentCenter:
+                originX = (initialLabelFrame.size.width - actualLabelSize.width)/2.0;
+                break;
+            default:
+                break;
+        }
+        
+        if (originX < 0) {
+            originX = 0;
+        }
+        CGRect labelRect = CGRectMake(originX, 0, actualLabelSize.width, actualLabelSize.height);
+        switch (verticalAlign) {
+            case UIControlContentVerticalAlignmentBottom:
+                labelRect.origin.y = initialLabelFrame.size.height - actualLabelSize.height;
+                break;
+            case UIControlContentVerticalAlignmentCenter:
+                labelRect.origin.y = (initialLabelFrame.size.height - actualLabelSize.height)/2;
+                if (labelRect.origin.y < 0) {
+                    labelRect.size.height = (initialLabelFrame.size.height - labelRect.origin.y);
+                }
+                break;
+            default:
+                if (initialLabelFrame.size.height < actualLabelSize.height) {
+                    labelRect.size.height = initialLabelFrame.size.height;
+                }
+                break;
+        }
     
-    [label setFrame:CGRectIntegral(labelRect)];
+        [label setFrame:CGRectIntegral(labelRect)];
+    }
+    else {
+        [label setFrame:initialLabelFrame];
+    }
 
     if (repad &&
         backgroundView != nil && 
@@ -167,7 +184,10 @@
 
 -(void)setVerticalAlign_:(id)value
 {
-    verticalAlign = [TiUtils intValue:value def:1];
+    verticalAlign = [TiUtils intValue:value def:-1];
+    if (verticalAlign < UIControlContentVerticalAlignmentCenter || verticalAlign > UIControlContentVerticalAlignmentBottom) {
+        verticalAlign = -1;
+    }
     if (label != nil) {
         [self padLabel];
     }
@@ -175,6 +195,7 @@
 -(void)setText_:(id)text
 {
 	[[self label] setText:[TiUtils stringValue:text]];
+    [self padLabel];
 	[(TiViewProxy *)[self proxy] contentsWillChange];
 }
 
@@ -272,6 +293,7 @@
 -(void)setTextAlign_:(id)alignment
 {
 	[[self label] setTextAlignment:[TiUtils textAlignmentValue:alignment]];
+    [self padLabel];
 }
 
 -(void)setShadowColor_:(id)color
