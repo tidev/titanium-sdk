@@ -217,11 +217,16 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 				// FLAG_ACTIVITY_RESET_TASK_IF_NEEDED from the flags, which still causes the problem.
 				// 0x4 is the flag that occurs when we restart because of the missing category/flag, so
 				// that one is okay as well.
+				// (addendum re timob-9285) Launching from history (FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY)
+				// also appears to be okay, so if that flag is there then don't consider this an invalid
+				// launch.
 				if (Build.VERSION.SDK_INT >= TiC.API_LEVEL_HONEYCOMB && intent.getFlags() != 0x4) {
-					int desiredFlags = Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED;
-					if ((intent.getFlags() & desiredFlags) != desiredFlags) {
-						invalidLaunchDetected = true;
-					}
+					int flags = intent.getFlags();
+					invalidLaunchDetected = (
+						((flags & Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED) != Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED)
+						&&
+						((flags & Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY) != Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY)
+						);
 				}
 			}
 
