@@ -464,6 +464,23 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 			return finishing2373;
 		}
 
+		Intent intent = getIntent();
+		if (intent == null) {
+			// We need it. No other checks to make.
+			return finishing2373;
+		}
+
+		String action = intent.getAction();
+		if (action == null || !action.equals(Intent.ACTION_MAIN)) {
+			// No ACTION_MAIN, which means this activity wasn't started
+			// as a launch activity anyway, so there is no reason to shut
+			// it down.  For example, it could be that the app developer
+			// has designated (using intent filters) that this activity
+			// can be used for more things beyond being the launch activity,
+			// and we should allow that.
+			return finishing2373;
+		}
+
 		TiApplication tiApp = TiApplication.getInstance();
 		TiProperties systemProperties = null;
 
@@ -476,7 +493,7 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 			finishing2373 = true;
 		} else if (Build.MODEL.toLowerCase().contains(KINDLE_MODEL)
 				&& creationCounter.getAndIncrement() > 0
-				&& getIntent().getFlags() == KINDLE_FIRE_RESTART_FLAGS) {
+				&& intent.getFlags() == KINDLE_FIRE_RESTART_FLAGS) {
 			finishing2373 = true;
 		}
 
