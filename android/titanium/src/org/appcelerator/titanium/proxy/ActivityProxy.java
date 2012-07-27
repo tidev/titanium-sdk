@@ -7,89 +7,103 @@
 package org.appcelerator.titanium.proxy;
 
 import org.appcelerator.kroll.KrollDict;
-import org.appcelerator.kroll.KrollInvocation;
+import org.appcelerator.kroll.KrollFunction;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
+import org.appcelerator.kroll.common.Log;
+import org.appcelerator.kroll.common.TiConfig;
+import org.appcelerator.titanium.TiApplication;
+import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiC;
-import org.appcelerator.titanium.TiContext;
-import org.appcelerator.titanium.kroll.KrollCallback;
 import org.appcelerator.titanium.util.TiActivityResultHandler;
 import org.appcelerator.titanium.util.TiActivitySupport;
 import org.appcelerator.titanium.util.TiActivitySupportHelper;
-import org.appcelerator.titanium.util.TiConfig;
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 
-@Kroll.proxy
-@Kroll.dynamicApis(properties = {
+@Kroll.proxy(propertyAccessors = {
 	"onCreateOptionsMenu",
 	"onPrepareOptionsMenu"
+    
 })
+/**
+ * This is a proxy representation of the Android Activity type.
+ * Refer to <a href="http://developer.android.com/reference/android/app/Activity.html">Android Activity</a>
+ * for more details.
+ */
 public class ActivityProxy extends KrollProxy
 	implements TiActivityResultHandler
 {
 	private static final String TAG = "ActivityProxy";
 	private static boolean DBG = TiConfig.LOGD;
 
-	protected Activity activity;
+	protected Activity wrappedActivity;
 	protected IntentProxy intentProxy;
-	protected KrollCallback resultCallback;
+	protected DecorViewProxy savedDecorViewProxy;
 
-	public ActivityProxy(TiContext tiContext)
-	{
-		super(tiContext);
-	}
-
-	public ActivityProxy(TiContext tiContext, Activity activity)
-	{
-		this(tiContext);
-		setActivity(tiContext, activity);
-	}
+	private KrollFunction resultCallback;
 	
-	public void setActivity(TiContext tiContext, Activity activity)
+	public ActivityProxy()
 	{
-		this.activity = activity;
+	}
+
+	public ActivityProxy(Activity activity)
+	{
+		setActivity(activity);
+		setWrappedActivity(activity);
+	}
+
+	public void setWrappedActivity(Activity activity)
+	{
+		this.wrappedActivity = activity;
 		Intent intent = activity.getIntent();
 		if (intent != null) {
-			intentProxy = new IntentProxy(tiContext, activity.getIntent());
+			intentProxy = new IntentProxy(activity.getIntent());
 		}
 	}
 
-	protected Activity getActivity(KrollInvocation invocation)
+	protected Activity getWrappedActivity()
 	{
-		Activity activity = this.activity;
-		if (activity != null) return activity;
-
-		if (invocation != null) {
-			activity = invocation.getTiContext().getActivity();
-			if (activity != null) return activity;
+		if (wrappedActivity != null) {
+			return wrappedActivity;
 		}
-
-		activity = getTiContext().getActivity();
-		if (activity != null) return activity;
-
-		activity = getTiContext().getRootActivity();
-		if (activity != null) return activity;
-
-		return null;
+		return TiApplication.getInstance().getRootActivity();
 	}
 
 	@Kroll.method
-	public void startActivity(KrollInvocation invocation, IntentProxy intent)
+	public DecorViewProxy getDecorView()
 	{
-		Activity activity = getActivity(invocation);
+		if (savedDecorViewProxy == null) {
+			Activity activity = getActivity();
+			if (!(activity instanceof TiBaseActivity)) {
+				Log.e(TAG, "unable to return decor view, activity is not TiBaseActivity");
+
+				return null;
+			}
+
+			DecorViewProxy decorViewProxy = new DecorViewProxy(((TiBaseActivity)activity).getLayout());
+			decorViewProxy.setActivity(activity);
+			savedDecorViewProxy = decorViewProxy;
+		}
+		
+		return savedDecorViewProxy;
+		
+	}
+
+	@Kroll.method
+	public void startActivity(IntentProxy intent)
+	{
+		Activity activity = getWrappedActivity();
 		if (activity != null) {
 			activity.startActivity(intent.getIntent());
 		}
 	}
 
 	@Kroll.method
-	public void startActivityForResult(KrollInvocation invocation,
-		IntentProxy intent, KrollCallback callback)
+	public void startActivityForResult(IntentProxy intent, KrollFunction callback)
 	{
-		Activity activity = getActivity(invocation);
+		Activity activity = getWrappedActivity();
 		if (activity != null) {
 			TiActivitySupport support = null;
 			if (activity instanceof TiActivitySupport) {
@@ -105,19 +119,18 @@ public class ActivityProxy extends KrollProxy
 	}
 
 	@Kroll.method
-	public void startActivityFromChild(KrollInvocation invocation,
-		ActivityProxy child, IntentProxy intent, int requestCode)
+	public void startActivityFromChild(ActivityProxy child, IntentProxy intent, int requestCode)
 	{
-		Activity activity = getActivity(invocation);
+		Activity activity = getWrappedActivity();
 		if (activity != null) {
-			activity.startActivityFromChild(child.getActivity(), intent.getIntent(), requestCode);
+			activity.startActivityFromChild(child.getWrappedActivity(), intent.getIntent(), requestCode);
 		}
 	}
 
 	@Kroll.method
-	public boolean startActivityIfNeeded(KrollInvocation invocation, IntentProxy intent, int requestCode)
+	public boolean startActivityIfNeeded(IntentProxy intent, int requestCode)
 	{
-		Activity activity = getActivity(invocation);
+		Activity activity = getWrappedActivity();
 		if (activity != null) {
 			return activity.startActivityIfNeeded(intent.getIntent(), requestCode);
 		}
@@ -125,9 +138,9 @@ public class ActivityProxy extends KrollProxy
 	}
 
 	@Kroll.method
-	public boolean startNextMatchingActivity(KrollInvocation invocation, IntentProxy intent)
+	public boolean startNextMatchingActivity(IntentProxy intent)
 	{
-		Activity activity = getActivity(invocation);
+		Activity activity = getWrappedActivity();
 		if (activity != null) {
 			return activity.startNextMatchingActivity(intent.getIntent());
 		}
@@ -135,9 +148,9 @@ public class ActivityProxy extends KrollProxy
 	}
 
 	@Kroll.method
-	public String getString(KrollInvocation invocation, int resId, Object[] formatArgs)
+	public String getString(int resId, Object[] formatArgs)
 	{
-		Activity activity = getActivity(invocation);
+		Activity activity = getWrappedActivity();
 		if (activity != null) {
 			if (formatArgs == null || formatArgs.length == 0) {
 				return activity.getString(resId);
@@ -147,6 +160,16 @@ public class ActivityProxy extends KrollProxy
 		}
 		return null;
 	}
+    
+    @Kroll.method
+	public void openOptionsMenu()
+	{
+		Activity activity = getWrappedActivity();
+		
+		activity.openOptionsMenu();
+		
+	}
+   
 
 	@Kroll.method @Kroll.getProperty
 	public IntentProxy getIntent()
@@ -155,19 +178,19 @@ public class ActivityProxy extends KrollProxy
 	}
 
 	@Kroll.method @Kroll.setProperty
-	public void setRequestedOrientation(KrollInvocation invocation, int orientation)
+	public void setRequestedOrientation(int orientation)
 	{
-		Activity activity = getActivity(invocation);
+		Activity activity = getWrappedActivity();
 		if (activity != null) {
 			activity.setRequestedOrientation(orientation);
 		}
 	}
 
 	@Kroll.method
-	public void setResult(KrollInvocation invocation, int resultCode,
+	public void setResult(int resultCode,
 		@Kroll.argument(optional=true) IntentProxy intent)
 	{
-		Activity activity = getActivity(invocation);
+		Activity activity = getWrappedActivity();
 		if (activity != null) {
 			if (intent == null) {
 				activity.setResult(resultCode);
@@ -178,52 +201,65 @@ public class ActivityProxy extends KrollProxy
 	}
 
 	@Kroll.method
-	public void finish(KrollInvocation invocation)
+	public void finish()
 	{
-		Activity activity = getActivity(invocation);
+		Activity activity = getWrappedActivity();
 		if (activity != null) {
 			activity.finish();
 		}
 	}
 
-	@Override
+	@Kroll.method
+	public String getDir(String name, int mode)
+	{
+		Activity activity = getWrappedActivity();
+		if (activity != null) {
+			return activity.getDir(name, mode).getAbsolutePath();
+		}
+		return null;
+	}
+
+
+	@Kroll.method @Kroll.getProperty
+	public TiWindowProxy getWindow()
+	{
+		Activity activity = getWrappedActivity();
+		if (!(activity instanceof TiBaseActivity)) {
+			return null;
+		}
+
+		TiBaseActivity tiActivity = (TiBaseActivity) activity;
+		return tiActivity.getWindowProxy();
+	}
+
+	
 	public void onResult(Activity activity, int requestCode, int resultCode, Intent data)
 	{
-		if (resultCallback == null) return;
+		IntentProxy intent = null;
+		if (data != null) {
+			intent = new IntentProxy(data);
+		}
+
 		KrollDict event = new KrollDict();
 		event.put(TiC.EVENT_PROPERTY_REQUEST_CODE, requestCode);
 		event.put(TiC.EVENT_PROPERTY_RESULT_CODE, resultCode);
-		event.put(TiC.EVENT_PROPERTY_INTENT, new IntentProxy(getTiContext(), data));
+		event.put(TiC.EVENT_PROPERTY_INTENT, intent);
 		event.put(TiC.EVENT_PROPERTY_SOURCE, this);
-		resultCallback.callAsync(event);
+		this.resultCallback.callAsync(krollObject, event);
 	}
 
-	@Override
 	public void onError(Activity activity, int requestCode, Exception e)
 	{
-		if (resultCallback == null) return;
 		KrollDict event = new KrollDict();
 		event.put(TiC.EVENT_PROPERTY_REQUEST_CODE, requestCode);
 		event.put(TiC.EVENT_PROPERTY_ERROR, e.getMessage());
 		event.put(TiC.EVENT_PROPERTY_SOURCE, this);
-		resultCallback.callAsync(event);
-	}
-
-	public Context getContext()
-	{
-		if (activity == null) {
-			return getTiContext().getActivity().getApplication();
-		}
-		return activity;
-	}
-
-	public Activity getActivity()
-	{
-		return activity;
+		this.resultCallback.callAsync(krollObject, event);
 	}
 
 	public void release()
 	{
-		activity = null;
+		super.release();
+		wrappedActivity = null;
 	}
 }
