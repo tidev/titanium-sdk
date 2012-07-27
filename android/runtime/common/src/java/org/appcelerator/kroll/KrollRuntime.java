@@ -53,7 +53,7 @@ public abstract class KrollRuntime implements Handler.Callback
 	private enum State {
 		INITIALIZED, RELEASED, RELAUNCHED, DISPOSED
 	}
-	private static State state = State.DISPOSED;
+	private static State runtimeState = State.DISPOSED;
 
 	protected Handler handler;
 
@@ -110,7 +110,8 @@ public abstract class KrollRuntime implements Handler.Callback
 
 	public static void init(Context context, KrollRuntime runtime)
 	{
-		if (state != State.INITIALIZED) {
+		// Initialized the runtime if it isn't already initialized
+		if (runtimeState != State.INITIALIZED) {
 			int stackSize = runtime.getThreadStackSize(context);
 			runtime.krollApplication = new WeakReference<KrollApplication>((KrollApplication) context);
 			runtime.thread = new KrollRuntimeThread(runtime, stackSize);
@@ -137,8 +138,8 @@ public abstract class KrollRuntime implements Handler.Callback
 	public static boolean isInitialized()
 	{
 		if (instance != null) {
-			synchronized (state) {
-				return state == State.INITIALIZED;
+			synchronized (runtimeState) {
+				return runtimeState == State.INITIALIZED;
 			}
 		}
 		return false;
@@ -167,15 +168,27 @@ public abstract class KrollRuntime implements Handler.Callback
 		// initializer for the specific runtime implementation (V8, Rhino, etc)
 		initRuntime();
 
-		// Notify the main thread that the runtime has been initialized.
-		synchronized (state) {
-			state = State.INITIALIZED;
+		// Notify the main thread that the runtime has been initialized
+		synchronized (runtimeState) {
+			runtimeState = State.INITIALIZED;
 		}
 		initLatch.countDown();
 	}
 
 	public void dispose()
 	{
+
+		// Set state to released when since we have not fully disposed of it yet
+		synchronized (runtimeState) {
+			runtimeState = State.RELEASED;
+		}
+
+		// Cancel all timers associated with the app
+		KrollApplication app = krollApplication.get();
+		if (app != null) {
+			app.cancelTimers(thread);
+		}
+
 		if (isRuntimeThread()) {
 			internalDispose();
 
@@ -299,16 +312,16 @@ public abstract class KrollRuntime implements Handler.Callback
 		if (activityRefCount == 1 && instance != null) {
 			waitForInit();
 
-			// When the process is re-entered, "initialized" is set to false.
-			// Even though the KrollRuntime instance / thread still exists,
-			// we still need to re-initialize the runtime here.
-			synchronized (state) {
-				if (state == State.DISPOSED) {
+			// When the process is re-entered, it is either in the RELEASED or DISPOSED state. If it is in the RELEASE
+			// state, that means we have not disposed of the runtime from the previous launch. In that case, we set the
+			// state to RELAUNCHED. If we are in the DISPOSED state, we need to re-initialize the runtime here.
+			synchronized (runtimeState) {
+				if (runtimeState == State.DISPOSED) {
 					instance.initLatch = new CountDownLatch(1);
 					instance.handler.sendEmptyMessage(MSG_INIT);
 
-				} else if (state == State.RELEASED) {
-					state = State.RELAUNCHED;
+				} else if (runtimeState == State.RELEASED) {
+					runtimeState = State.RELAUNCHED;
 				}
 			}
 
@@ -333,15 +346,15 @@ public abstract class KrollRuntime implements Handler.Callback
 
 	private void internalDispose()
 	{
-		synchronized (state) {
-			if (state == State.RELAUNCHED) {
-				// Abort the dispose if the application has been re-launched
-				// since we scheduled this dispose during the last exit.
-				state = State.INITIALIZED;
+		synchronized (runtimeState) {
+			if (runtimeState == State.RELAUNCHED) {
+				// Abort the dispose if the application has been re-launched since we scheduled this dispose during the
+				// last exit. Then set it back to the initialized state.
+				runtimeState = State.INITIALIZED;
 				return;
 			}
 
-			state = State.DISPOSED;
+			runtimeState = State.DISPOSED;
 		}
 
 		doDispose();
