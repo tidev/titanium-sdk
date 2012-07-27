@@ -74,31 +74,16 @@ public class TiRootActivity extends TiLaunchActivity
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
 	{
-		TiApplication tiApp = getTiApp();
-
-		// If not the task root, then this "launch" activity instance is
-		// likely a manifestation of Android bug 2373, and we give
-		// developers an option to simply finish it off right away so that
-		// the running activity stack remains unchanged.
-		if (!isTaskRoot()) {
-			TiProperties sysProperties = tiApp.getSystemProperties();
-			if (sysProperties != null && sysProperties.getBool("ti.android.bug2373.finishfalseroot", false)) {
-				finishing2373 = true;
-				activityOnCreate(savedInstanceState);
-				finish();
-				return;
-			}
+		if (willFinishFalseRootActivity(savedInstanceState)) {
+			return;
 		}
-
 
 		if (checkInvalidLaunch(savedInstanceState)) {
 			// Android bug 2373 detected and we're going to restart.
 			return;
 		}
 
-		if (checkInvalidKindleFireRelaunch(savedInstanceState)) {
-			return;
-		}
+		TiApplication tiApp = getTiApp();
 
 		if (tiApp.isRestartPending() || TiBaseActivity.isUnsupportedReLaunch(this, savedInstanceState)) {
 			super.onCreate(savedInstanceState); // Will take care of scheduling restart and finishing.
@@ -156,6 +141,7 @@ public class TiRootActivity extends TiLaunchActivity
 	protected void onDestroy()
 	{
 		super.onDestroy();
+
 		if (finishing2373) {
 			return;
 		}
@@ -173,6 +159,7 @@ public class TiRootActivity extends TiLaunchActivity
 			super.finish();
 			return;
 		}
+
 		// Ensure we only run the finish logic once. We want to avoid an infinite loop since this method can be called
 		// from the finish method inside TiBaseActivity ( which can be triggered by terminateActivityStack() )
 		if (!finishing) {
