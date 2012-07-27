@@ -363,7 +363,7 @@ properties:
   - name: translucent
     summary: Boolean value indicating if the nav bar is translucent.
     platforms: [iphone, ipad, mobileweb]
-	default: false
+    default: false
     type: Boolean
 
   - name: url
