@@ -15,7 +15,6 @@ import org.appcelerator.titanium.TiContext;
 
 import android.util.DisplayMetrics;
 import android.view.Display;
-import android.content.res.Configuration;
 
 @Kroll.proxy(parentModule=PlatformModule.class)
 public class DisplayCapsProxy extends KrollProxy
@@ -107,23 +106,6 @@ public class DisplayCapsProxy extends KrollProxy
 		synchronized(dm) {
 			getDisplay().getMetrics(dm);
 			return dm.density;
-		}
-	}
-    
-	@Kroll.getProperty @Kroll.method
-	public String getPhysicalSizeCategory() {
-		switch(TiApplication.getInstance().getApplicationContext().getResources().getConfiguration().screenLayout & Configuration.SCREENLAYOUT_SIZE_MASK) {
-			case Configuration.SCREENLAYOUT_SIZE_SMALL :
-				return "small";
-			case Configuration.SCREENLAYOUT_SIZE_NORMAL :
-				return "normal";
-			case Configuration.SCREENLAYOUT_SIZE_LARGE : 
-				return "large";
-			case 4 : // Configuration.SCREENLAYOUT_SIZE_XLARGE (API 9)
-				return "xlarge";
-			case Configuration.SCREENLAYOUT_SIZE_UNDEFINED:
-			default :
-				return "medium";
 		}
 	}
 }
