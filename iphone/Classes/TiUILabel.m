@@ -350,6 +350,7 @@
         [[self label] setLineBreakMode:UILineBreakModeWordWrap];
     else 
         [[self label] setLineBreakMode:UILineBreakModeTailTruncation];
+	[(TiViewProxy *)[self proxy] contentsWillChange];
 }
 
 @end
