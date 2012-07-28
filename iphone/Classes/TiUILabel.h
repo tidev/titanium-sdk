@@ -14,10 +14,7 @@
     UIImageView* backgroundView;
 	BOOL requiresLayout;
     CGRect padding;
-<<<<<<< HEAD
-=======
     CGRect textPadding;
->>>>>>> 1368f8c... removed my correction of verticalAlign.
     BOOL repad;
     UIControlContentVerticalAlignment verticalAlign;
     CGRect initialLabelFrame;
