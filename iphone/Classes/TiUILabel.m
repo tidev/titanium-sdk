@@ -323,24 +323,28 @@
 {
     textPadding.origin.x = [TiUtils floatValue:left];
     [self padLabel];
+	[(TiViewProxy *)[self proxy] contentsWillChange];
 }
 
 -(void)setTextPaddingRight_:(id)right
 {
     textPadding.size.width = [TiUtils floatValue:right];
     [self padLabel];
+	[(TiViewProxy *)[self proxy] contentsWillChange];
 }
 
 -(void)setTextPaddingTop_:(id)top
 {
     textPadding.origin.y = [TiUtils floatValue:top];
     [self padLabel];
+	[(TiViewProxy *)[self proxy] contentsWillChange];
 }
 
 -(void)setTextPaddingBottom_:(id)bottom
 {
     textPadding.size.height = [TiUtils floatValue:bottom];
     [self padLabel];
+	[(TiViewProxy *)[self proxy] contentsWillChange];
 }
 
 -(void)setWordWrap_:(id)value
