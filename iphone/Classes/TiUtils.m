@@ -1075,7 +1075,7 @@ If the new path starts with / and the base url is app://..., we have to massage 
 	return align;
 }
 
-+(UITextAlignment)contentVerticalAlignmentValue:(id)alignment
++(UIControlContentVerticalAlignment)contentVerticalAlignmentValue:(id)alignment
 {
 	UIControlContentVerticalAlignment align = UIControlContentVerticalAlignmentCenter;
 

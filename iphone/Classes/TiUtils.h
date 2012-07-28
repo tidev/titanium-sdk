@@ -401,7 +401,7 @@ typedef enum {
 
 +(UITextAlignment)textAlignmentValue:(id)alignment;
 
-+(UITextAlignment)contentVerticalAlignmentValue:(id)alignment;
++(UIControlContentVerticalAlignment)contentVerticalAlignmentValue:(id)alignment;
 
 +(NSString*)exceptionMessage:(id)arg;
 
