@@ -50,7 +50,7 @@ public abstract class KrollRuntime implements Handler.Callback
 	private CountDownLatch initLatch = new CountDownLatch(1);
 	private KrollEvaluator evaluator;
 
-	private enum State {
+	public enum State {
 		INITIALIZED, RELEASED, RELAUNCHED, DISPOSED
 	}
 	private static State runtimeState = State.DISPOSED;
@@ -312,7 +312,7 @@ public abstract class KrollRuntime implements Handler.Callback
 		if (activityRefCount == 1 && instance != null) {
 			waitForInit();
 
-			// When the process is re-entered, it is either in the RELEASED or DISPOSED state. If it is in the RELEASE
+			// When the process is re-entered, it is either in the RELEASED or DISPOSED state. If it is in the RELEASED
 			// state, that means we have not disposed of the runtime from the previous launch. In that case, we set the
 			// state to RELAUNCHED. If we are in the DISPOSED state, we need to re-initialize the runtime here.
 			synchronized (runtimeState) {
@@ -378,6 +378,11 @@ public abstract class KrollRuntime implements Handler.Callback
 	public void setGCFlag()
 	{
 		// No-op in Rhino, V8 should override.
+	}
+
+	public State getRuntimeState()
+	{
+		return runtimeState;
 	}
 
 	public abstract void doDispose();
