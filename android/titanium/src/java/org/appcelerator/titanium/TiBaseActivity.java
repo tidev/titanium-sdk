@@ -169,8 +169,6 @@ public abstract class TiBaseActivity extends Activity
 	}
 
 	/**
-<<<<<<< HEAD:android/titanium/src/org/appcelerator/titanium/TiBaseActivity.java
-=======
 	 * Sets the proxy for our layout (used for post layout event)
 	 * 
 	 * @param proxy
@@ -192,7 +190,6 @@ public abstract class TiBaseActivity extends Activity
 	}
 
 	/**
->>>>>>> 71d1553089cacb93c3a32ad4960915f16c3b1a82:android/titanium/src/java/org/appcelerator/titanium/TiBaseActivity.java
 	 * @return activity proxy associated with this activity.
 	 */
 	public ActivityProxy getActivityProxy()
