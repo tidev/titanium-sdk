@@ -322,28 +322,24 @@
 -(void)setTextPaddingLeft_:(id)left
 {
     textPadding.origin.x = [TiUtils floatValue:left];
-    repad = YES;
     [self padLabel];
 }
 
 -(void)setTextPaddingRight_:(id)right
 {
     textPadding.size.width = [TiUtils floatValue:right];
-    repad = YES;
     [self padLabel];
 }
 
 -(void)setTextPaddingTop_:(id)top
 {
     textPadding.origin.y = [TiUtils floatValue:top];
-    repad = YES;
     [self padLabel];
 }
 
 -(void)setTextPaddingBottom_:(id)bottom
 {
     textPadding.size.height = [TiUtils floatValue:bottom];
-    repad = YES;
     [self padLabel];
 }
 
