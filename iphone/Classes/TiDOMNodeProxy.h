@@ -15,18 +15,26 @@
 	GDataXMLDocument *document;
 }
 
--(void)setNode:(GDataXMLNode*)node_;
+@property(nonatomic,retain) GDataXMLNode *node;
 @property(nonatomic,retain)	GDataXMLDocument *document;
 
 -(NSString *)XMLString;
 -(id)makeNode:(id)child context:(id<TiEvaluator>)context;
 +(id)makeNode:(id)child context:(id<TiEvaluator>)context;
++(id)nodeForXMLNode:(xmlNodePtr) nodePtr;
++(void)setNode:(id)node forXMLNode:(xmlNodePtr) nodePtr;
++(void)removeNodeForXMLNode:(xmlNodePtr)nodePtr;
++(void)validateAttributeParameters:(NSString*)tagName withUri:(NSString*)theURI reason:(NSString**)error subreason:(NSString**)suberror;
++(void)validateElementParameters:(NSString*)tagName withUri:(NSString*)theURI reason:(NSString**)error subreason:(NSString**)suberror;
+
+-(id)makeNodeListProxyFromArray:(NSArray*)nodes context:(id<TiEvaluator>)context;
 
 @property(nonatomic,readonly) id nodeName;
-@property(nonatomic,readonly) id nodeValue;
+@property(nonatomic,copy,readwrite) id nodeValue;
 @property(nonatomic,readonly) id nodeType;
 
-@property(nonatomic,readonly) id text;
+@property(nonatomic,readonly) id textContent;
+@property(nonatomic,readonly) id text; // deprecated, use textContent instead
 
 @property(nonatomic,readonly) id parentNode;
 @property(nonatomic,readonly) id childNodes;

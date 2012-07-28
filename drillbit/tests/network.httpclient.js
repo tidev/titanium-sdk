@@ -28,13 +28,13 @@ describe("Ti.Network.HTTPClient tests", {
 			var xhr = Ti.Network.createHTTPClient();
 			xhr.setTimeout(60000);
 			xhr.onload = this.async(function(e) {
-				valueOf(this.responseData.length).shouldBeGreaterThan(0);
+				valueOf(xhr.responseData.length).shouldBeGreaterThan(0);
 			});
 			xhr.onerror = this.async(function(e) {
 				throw e.error;
 			});
 
-			xhr.open('GET','http://www.appcelerator.com/download-win32');
+			xhr.open('GET','http://timobile.appcelerator.com.s3.amazonaws.com/drillbit/moon%20background%203.png');
 			xhr.send();
 		},
 		timeout: 60000,
@@ -82,6 +82,30 @@ describe("Ti.Network.HTTPClient tests", {
 			});
 
 			xhr.open('GET','http://www.appcelerator.com');
+			xhr.send();
+		},
+		timeout: 30000,
+		timeoutError: "Timed out waiting for HTTP onload"
+	}),
+
+	requestHeaderMethods: asyncTest({
+		start: function() {
+			var xhr = Ti.Network.createHTTPClient();
+			xhr.setTimeout(30000);
+			xhr.onload = this.async(function(e) {
+					//TODO: set up a server that parrots back the request headers so
+					//that we can verfiy what we actually send.
+				valueOf(1).shouldBe(1);
+			});
+			xhr.onerror = this.async(function(e) {
+				throw e.error;
+			});
+			xhr.open('GET','http://www.appcelerator.com');
+			xhr.setRequestHeader('adhocHeader','notcleared');
+			xhr.setRequestHeader('clearedHeader','notcleared');
+			valueOf(function() {
+				xhr.setRequestHeader('clearedHeader',null);
+			}).shouldNotThrowException();
 			xhr.send();
 		},
 		timeout: 30000,

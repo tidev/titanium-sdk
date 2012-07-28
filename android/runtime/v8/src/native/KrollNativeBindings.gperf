@@ -1,0 +1,21 @@
+%define lookup-function-name lookupBindingInit
+%define hash-function-name getBindingHash
+%define class-name native
+%{
+#include "modules/ScriptsModule.h"
+#include "modules/AssetsModule.h"
+#include "modules/APIModule.h"
+
+namespace titanium {
+	namespace bindings {
+%}
+struct BindEntry;
+%%
+natives, KrollBindings::initNatives, NULL
+evals, ScriptsModule::Initialize, ScriptsModule::Dispose
+assets, AssetsModule::Initialize, NULL
+API, APIModule::Initialize, APIModule::Dispose
+Titanium, KrollBindings::initTitanium, KrollBindings::disposeTitanium
+%%
+	} // namespace bindings
+} // namespace titanium

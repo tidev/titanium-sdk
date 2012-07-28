@@ -1,117 +1,328 @@
 ---
 name: Titanium.Contacts
-description: The top level Contacts module.  The Contacts module is used accessing the device Address Book.  (Read-only on Android.)
+summary: |
+    The top-level Contacts module, used for accessing and modifying the system contacts address book.
+description: |
+    On Android, modification of existing contacts is currently not supported, whereas the creation of 
+    new contacts and the removal of contacts are supported.
+    
+    See examples for more information.
 extends: Titanium.Module
 since: "0.8"
+platforms: [android, iphone, ipad]
+
 methods:
   - name: createGroup
-    description: create and return an instance of <a href="Titanium.Contacts.Group.html">Titanium.Contacts.Group</a>
+    summary: Creates and returns an instance of <Titanium.Contacts.Group>.
+    description: This method must be followed by <Titanium.Contacts.save> to commit its changes.
     returns:
-        type: Titanium.Contacts.Group
-    parameters:
-      - name: parameters
-        description: (optional) a dictionary object properties defined in <a href="Titanium.Contacts.Group.html">Titanium.Contacts.Group</a>
         type: Titanium.Contacts.Group
     platforms: [iphone, ipad]
-  - name: createPerson
-    description: create and return an instance of <a href="Titanium.Contacts.Person.html">Titanium.Contacts.Person</a>
-    returns:
-        type: Titanium.Contacts.Person
     parameters:
       - name: parameters
-        description: (optional) a dictionary object properties defined in <a href="Titanium.Contacts.Person.html">Titanium.Contacts.Person</a>
+        summary: |
+            Properties to set on a new object, including any in <Titanium.Contacts.Group> except 
+            those marked as non-creation or read-only.
+        type: Dictionary<Titanium.Contacts.Group>
+        optional: true
+    
+  - name: createPerson
+    summary: |
+        Creates and returns an instance of <Titanium.Contacts.Person>, and commits all pending 
+        changes to the underlying contacts database.
+    returns:
         type: Titanium.Contacts.Person
-    platforms: [ipad,iphone]
+    platforms: [android, ipad, iphone]
+    since: {android: "2.1.0"}
+    parameters:
+      - name: parameters
+        summary: |
+            Properties to set on a new object, including any in <Titanium.Contacts.Person> except 
+            those marked as non-creation or read-only.
+        type: Dictionary<Titanium.Contacts.Person>
+        optional: true
+    
   - name: getAllGroups
-    description: Returns an of all <Titanium.Contacts.Group> objects in the contacts database
-    platforms: [ipad,iphone]
+    summary: Gets all groups.
+    returns:
+        type: Array<Titanium.Contacts.Group>
+    platforms: [ipad, iphone]
+    
   - name: getAllPeople
-    description: Returns an array of all <Titanium.Contacts.Person> objects in the contacts database
+    summary: Gets all people, unless a limit is specified.
+    returns:
+        type: Array<Titanium.Contacts.Person>    
+    parameters:
+      - name: limit
+        summary: Maximum number of people. Android only.
+        type: Number
+    
   - name: getGroupByID
-    description: Returns a <Titanium.Contacts.Group> object with the given ID
+    summary: Gets the group with the specified identifier.
     returns:
         type: Titanium.Contacts.Group
+    platforms: [iphone, ipad]
     parameters:
       - name: id
-        description: The database ID of the group to retrieve
+        summary: Group identifier.
         type: Number
-    platforms: [iphone, ipad]
+    
   - name: getPeopleWithName
-    description: Returns an array of <Titanium.Contacts.Person> objects who have a name (first, last, middle, composite) which matches the given name
+    summary: |
+        Gets people with a `firstName`, `middleName` or `lastName` field, or a combination 
+        of these fields, that match the specified name.
     returns:
         type: Array<Titanium.Contacts.Person>
     parameters:
       - name: name
-        description: The name to match in the database
+        summary: Name to match.
         type: String
+        
   - name: getPersonByID
-    description: Returns a <Titanium.Contacts.Person> object with the given ID
+    summary: Gets the person with the specified identifier.
     returns:
         type: Titanium.Contacts.Person
     parameters:
       - name: id
-        description: The database ID of the person to retrieve
+        summary: Contact identifier.
         type: Number
+        
   - name: removeGroup
-    description: |
-        Removes a group from the contacts database.
-    platforms: [iphone,ipad]
+    summary: Removes a group from the address book.
+    description: This method must be followed by <Titanium.Contacts.save> to commit its changes.
+    platforms: [iphone, ipad]
     parameters:
       - name: group
-        description: |
-            The <Titanium.Contacts.Group> object to remove from the database.
+        summary: Contact group.
         type: Titanium.Contacts.Group
+        
   - name: removePerson
+    summary: Removes a contact from the address book.
     description: |
-        Removes a person from the contacts database.
-    platforms: [iphone,ipad]
+    
+        On iOS:
+          
+        This method must be followed by a save action to commit the data to the underlying database, 
+        which can be done explicitly using <Titanium.Contacts.save> or implicitly using 
+        <Titanium.Contacts.createPerson>. Although the <Titanium.Contacts.Person> object will still 
+        exist once committed, it will no longer be valid. Continuing to use it will result in 
+        unpredictable behavior, including crashes.
+        
+        On Android:
+        
+        This method will remove the person from the Contacts book automatically. 
+        
+    platforms: [android, iphone, ipad]
+    since: {android: "2.1.0"}
     parameters:
       - name: person
-        description: |
-            The <Titanium.Contacts.Person> object to remove from the database.
+        summary: Contact.
         type: Titanium.Contacts.Person
+        
   - name: revert
-    description: |
-        Reverts all changes made to the previous save of the database.
-    platforms: [iphone,ipad]
+    summary: Reverts all changes made by the previous save to the address book.
+    platforms: [iphone, ipad]
+    
   - name: save
-    description: |
-        Saves all changes to contacts to the database.
+    summary: Commits all pending changes to the underlying contacts database.
+    platforms: [iphone, ipad]
+        
   - name: showContacts
-    description: Displays the contact picker
+    summary: Displays a picker that allows a person to be selected.
     parameters:
-      - name: cancel
-        description: The function to call when selection is cancelled
-        type: Callback<Object>
-      - name: selectedPerson
-        description: The function to call when a person is selected.  Mutually exclusive with `selectedProperty`
-        type: Callback<Object>
-      - name: selectedProperty
-        description: The function to call when a property is selected.  Mutally exclusive with `selectedPerson`
-        type: Callback<Object>
-      - name: animated
-        description: Whether or not to animate the show/hide of the contacts picker
-        type: Boolean
-      - name: fields
-        description: A list of field names to show when selecting properties, default is to show all available
-        type: Array<String>
+      - name: params
+        summary: Argument containing parameters for this method. Optional on Android.
+        type: showContactsParams
+
 properties:
   - name: CONTACTS_KIND_ORGANIZATION
-    description: constant for 'organization' kind property of Person object
+    summary: Specifies that a contact is an organization.
+    description: 
+        Used with the <Titanium.Contacts.Person.kind> property.
+        
+        One of the group of contact "kind" constants 
+        [CONTACTS_KIND_ORGANIZATION](Titanium.Contacts.CONTACTS_KIND_ORGANIZATION), 
+        and [CONTACTS_KIND_PERSON](Titanium.Contacts.CONTACTS_KIND_PERSON).
     type: Number
     permission: read-only
-  - name: CONTACTS_KIND_PERSON
-    description: constant for 'person' kind property of Person object
-    type: Number
-    permission: read-only
-  - name: CONTACTS_SORT_FIRST_NAME
-    description: constant for sorting group members by first name
-    type: Number
-    permission: read-only
-  - name: CONTACTS_SORT_LAST_NAME
-    description: constant for sorting group members by last name
-    type: Number
-    permission: read-only
-notes: Contacts on Android are currently only read-only, so methods such as `createPerson`, `removePerson`, etc., are not supported.
     
-    <Titanium.Contacts.Person> objects which have been removed from the database are invalidated after a save operation, whether from creating a new contact or explicitly calling <Titanium.Contacts.save()>.  Using them may result in unpredictable behavior, including crashes.
+  - name: CONTACTS_KIND_PERSON
+    summary: Specifies that a contact is a person.
+    description: 
+        Used with the <Titanium.Contacts.Person.kind> property.
+        
+        One of the group of contact "kind" constants 
+        [CONTACTS_KIND_ORGANIZATION](Titanium.Contacts.CONTACTS_KIND_ORGANIZATION), 
+        and [CONTACTS_KIND_PERSON](Titanium.Contacts.CONTACTS_KIND_PERSON).
+    type: Number
+    permission: read-only
+    
+  - name: CONTACTS_SORT_FIRST_NAME
+    summary: Specifies that group members will be sorted by first name.
+    description: 
+        Used with the <Titanium.Contacts.Group.sortedMembers> method.
+        
+        One of the group of contact group "sort" constants 
+        [CONTACTS_SORT_FIRST_NAME](Titanium.Contacts.CONTACTS_SORT_FIRST_NAME), 
+        and [CONTACTS_SORT_LAST_NAME](Titanium.Contacts.CONTACTS_SORT_LAST_NAME).
+    type: Number
+    permission: read-only
+    
+  - name: CONTACTS_SORT_LAST_NAME
+    summary: Specifies that group members will be sorted by last name.
+    description: 
+        Used with the <Titanium.Contacts.Group.sortedMembers> method.
+        
+        One of the group of contact group "sort" constants 
+        [CONTACTS_SORT_FIRST_NAME](Titanium.Contacts.CONTACTS_SORT_FIRST_NAME), 
+        and [CONTACTS_SORT_LAST_NAME](Titanium.Contacts.CONTACTS_SORT_LAST_NAME).
+    type: Number
+    permission: read-only
+
+examples:
+  - title: Query Existing System Address Book Records
+    example: |
+        Output to the console all properties of all people.
+        
+            var singleValue = [
+              'recordId', 'firstName', 'middleName', 'lastName', 'fullName', 'prefix', 'suffix', 
+              'nickname', 'firstPhonetic', 'middlePhonetic', 'lastPhonetic', 'organization', 
+              'jobTitle', 'department', 'note', 'birthday', 'created', 'modified', 'kind'
+            ];
+            var multiValue = [
+              'email', 'address', 'phone', 'instantMessage', 'relatedNames', 'date', 'url'
+            ];
+            var people = Ti.Contacts.getAllPeople();
+            Ti.API.info('Total contacts: ' + people.length);
+            for (var i=0, ilen=people.length; i<ilen; i++){
+              Ti.API.info('---------------------');
+              var person = people[i];
+              for (var j=0, jlen=singleValue.length; j<jlen; j++){
+                Ti.API.info(singleValue[j] + ': ' + person[singleValue[j]]);
+              }
+              for (var j=0, jlen=multiValue.length; j<jlen; j++){
+                Ti.API.info(multiValue[j] + ': ' + JSON.stringify(person[multiValue[j]]));
+              }
+            }
+  - title: Add New System Address Book Records
+    example: |
+        Create two new records in the system address book. Note that the <Titanium.Contacts.Person> 
+        object is queried in the same way that it is created (as shown in previous example.)
+        
+            Ti.API.info('Saving contact...');
+            Ti.Contacts.createPerson({
+              firstName: 'Paul',
+              lastName: 'Dowsett',
+              address:{
+                work:[
+                  {
+                    CountryCode: 'gb', // determines how the address is displayed
+                    Street: '200 Brook Drive\nGreen Park',
+                    City: 'Reading',
+                    County: 'Berkshire',
+                    Country: 'England',
+                    ZIP: 'RG2 6UB'
+                  },
+                  {
+                    CountryCode: 'gb', // determines how the address is displayed
+                    Street: '1 St Pauls Road\nClerkenwell',
+                    City: 'City of London',
+                    State: 'London',
+                    Country: 'England',
+                    ZIP: 'EC1 1AA'
+                  }
+                ],
+                home:[
+                  {
+                    CountryCode: 'gb', // determines how the address is displayed
+                    Street: '2 Boleyn Court',
+                    City: 'London',
+                    State: 'Greenwich',
+                    Country: 'England',
+                    ZIP: 'SE10'
+                  }
+                ]
+              },
+              birthday: '2012-01-01T12:00:00.000+0000',
+              instantMessage:{
+                home:[
+                  {
+                    service: 'AIM',
+                    username: 'leisureAIM'
+                  },
+                  {
+                    service: 'MSN',
+                    username: 'no_paul_here@msn.com'
+                  }
+                ],
+                work:[
+                  {
+                    service: 'AIM',
+                    username: 'seriousAIM'
+                  }
+                ]
+              },
+              organization: 'Appcelerator',
+              phone:{
+                mobile: ['07900 000001', '07900 000002'],
+                work: ['+44 (0)118 925 6128', '+44 (0)118 000 0000']
+              },
+              url:{
+                homepage: ['www.google.com'],
+                work: ['www.appcelerator.com', 'www.example.com']
+              }
+            });
+            Ti.API.info('Contact saved');
+            
+            Ti.API.info('Saving contact...');
+            var workAddress1 = {
+              'CountryCode': 'us',
+              'Street':  '440 N. Bernardo Avenue',
+              'City': 'Mountain View',
+              'State': 'California',
+              'Country': 'United States',
+              'ZIP': '94043'
+            };
+            
+            Ti.Contacts.createPerson({
+              firstName:'Arthur',
+              lastName:'Evans',
+              address:{
+                'work':[workAddress1]
+              }
+            });
+            Ti.API.info('Contact saved');
+
+---
+name: showContactsParams
+summary: Dictionary of options for the <Titanium.Contacts.showContacts> method.
+platforms: [android, iphone, ipad]
+
+properties:
+- name: animated
+  summary: Determines whether to animate the show/hide of the contacts picker (iPhone, iPad only.)
+  type: Boolean
+  default: true
+  optional: true
+
+- name: fields
+  summary: Field names to show when selecting properties. By default, shows all available.
+  type: Array<String>
+
+- name: cancel
+  summary: Function to call when selection is canceled.
+  type: Callback<Object>
+  optional: true
+  
+- name: selectedPerson
+  summary: |
+      Function to call when a person is selected. Must not be used with `selectedProperty` property.
+  type: Callback<Object>
+  optional: true
+  
+- name: selectedProperty
+  summary: |
+      Function to call when a property is selected. Must not be used with `selectedPerson` 
+      property.
+  type: Callback<Object>
+  optional: true

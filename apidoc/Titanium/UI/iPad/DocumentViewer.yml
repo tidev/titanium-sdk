@@ -1,61 +1,40 @@
 ---
 name: Titanium.UI.iPad.DocumentViewer
-description: A DocumentViewer provides in-app support for managing user interactions with files in the local system. For example, an email program might use this class to allow the user to preview attachments and open them in other apps. Use this class to present an appropriate user interface for previewing or printing a specified file. The DocumentViewere is created by the method <Titanium.UI.iPad.createDocumentViewer>.
+summary: Use <Titanium.UI.iOS.DocumentViewer> instead.
+description: |
+    A DocumentViewer provides in-app support for managing user interactions with files on the 
+    local system.
+
+    The DocumentViewer is created by the method <Titanium.UI.iOS.createDocumentViewer>. 
+    
+    For example, an email program might use this class to allow the user to preview attachments and 
+    open them in other apps. Use this class to present an appropriate user interface for previewing 
+    or printing a specified file. 
+    
+    For a code sample, see <Titanium.UI.iOS.DocumentViewer>.
+
 extends: Titanium.UI.View
 platforms: [ipad]
 since: "1.8"
+deprecated:
+    since: 2.1.1
+
 methods:
   - name: show
-    description: to display the document viewer over the current view.
+    summary: Displays the document viewer over the current view.
     parameters:
       - name: animated
-        description: is a boolean indicating if the showing of the viewer should be animated.
+        summary: Indicates whether the show transition should be animated.
         type: Boolean
+        
       - name: view
-        description: The view property would specify the view relative to where the viewer should display.
+        summary: The view property would specify the view relative to where the viewer should display.
         type: Object
+
   - name: setUrl
-    description: change the url of the document viewer
+    summary: Sets the url of the document viewer.
     parameters:
       - name: url
-        description: the new url
+        summary: The new url
         type: String
-examples:
-  - title: Document Viewer Example
-    example: |
-        In this example, we create a documentviwere with a window button and right navigation button.
-        
-           //-----------example--------
-           	Titanium.UI.setBackgroundColor('#000');
-           	//creating the window
-           	var win1 = Titanium.UI.createWindow({
-           	    title:'win 1',
-           	    backgroundColor:'#fff'
-           	    });
-           	 //add window - navigation bar
-           	 var modalWin = Ti.UI.createWindow();
-           	 //nav bar
-           	 var navmodal = Ti.UI.iPhone.createNavigationGroup({
-           	 	window:modalWin
-           	 	});
-           	 win1.add(navmodal);
-           	 //button for the nav bar
-           	 var b2t = Titanium.UI.createButton({
-           	   title:'Launch'
-           	   });
-           	 modalWin.RightNavButton = b2t;
-           	 //button for the window
-           	 var b1t = Titanium.UI.createButton({
-           	   title:'Launch',
-           	   height:40,
-           	   width:200,
-           	   top:270
-           	   });
-           	 win1.add(b1t);
-           	 //Setting up the documentviewer
-           	 z = Ti.UI.iPad.createDocumentViewer({url:'Example.pdf'});
-           	 //documentviewer with animation set on and a quicklook view poping up next to a view
-           	 b1t.addEventListener('click', function(){z.show({animated:false,view:b2t});});
-           	 //documentviewer with animation set off
-           	 b2t.addEventListener('click', function(){z.show();});
-           	 win1.open();
+

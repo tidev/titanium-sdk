@@ -86,7 +86,7 @@ UIImage* AddImageReflection(UIImage *image, CGFloat reflectionFraction)
 	
 	CGSize size = CGSizeMake(image.size.width, image.size.height + reflectionHeight);
 	
-	UIGraphicsBeginImageContext(size);
+	UIGraphicsBeginImageContextWithOptions(size, NO, image.scale);
 	
 	[image drawAtPoint:CGPointZero];
 	CGContextRef context = UIGraphicsGetCurrentContext();

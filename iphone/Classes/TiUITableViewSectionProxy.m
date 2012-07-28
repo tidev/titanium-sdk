@@ -111,12 +111,12 @@
 
 -(NSString*)headerTitle
 {
-	return [super valueForUndefinedKey:@"headerTitle"];
+	return [TiUtils stringValue:[super valueForUndefinedKey:@"headerTitle"]];
 }
 
 -(NSString*)footerTitle
 {
-	return [super valueForUndefinedKey:@"footerTitle"];
+	return [TiUtils stringValue:[super valueForUndefinedKey:@"footerTitle"]];
 }
 
 #pragma mark Delegate 
@@ -140,6 +140,14 @@
 	}
 }
 
+-(TiDimension)defaultAutoWidthBehavior:(id)unused
+{
+    return TiDimensionAutoSize;
+}
+-(TiDimension)defaultAutoHeightBehavior:(id)unused
+{
+    return TiDimensionAutoSize;
+}
 @end
 
 #endif

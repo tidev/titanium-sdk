@@ -14,6 +14,8 @@
 
 @implementation TiUIWebViewProxy
 
+static NSArray* webKeySequence;
+
 #ifdef DEBUG_MEMORY
 -(void)dealloc
 {
@@ -31,6 +33,16 @@
 }
 #endif
 
+-(NSArray *)keySequence
+{
+    if (webKeySequence == nil)
+    {
+        //URL has to be processed first since the spinner depends on URL being remote
+        webKeySequence = [[NSArray arrayWithObjects:@"url",nil] retain];
+    }
+    return webKeySequence;
+}
+
 -(BOOL)shouldDetachViewForSpace
 {
 	return NO;
@@ -38,25 +50,36 @@
 
 -(void)_initWithProperties:(NSDictionary *)properties
 {
-	[self replaceValue:[NSArray arrayWithObject:NUMINT(UIDataDetectorTypePhoneNumber)] forKey:@"autoDetect" notification:NO];
-	[super _initWithProperties:properties];
+    [self replaceValue:[NSArray arrayWithObject:NUMINT(UIDataDetectorTypePhoneNumber)] forKey:@"autoDetect" notification:NO];
+    [self initializeProperty:@"willHandleTouches" defaultValue:NUMBOOL(YES)];
+    [super _initWithProperties:properties];
 }
 
 
 - (NSString*)evalJS:(id)code
 {
 	ENSURE_SINGLE_ARG(code,NSString);
-	TiBlob *result = [[[TiBlob alloc] _initWithPageContext:[self executionContext]] autorelease];
-	[[self view] performSelectorOnMainThread:@selector(evalJS:) withObject:[NSArray arrayWithObjects:code,result,nil] waitUntilDone:YES];
-	return [result text];
+    /*
+     Using GCD either through dispatch_async/dispatch_sync or TiThreadPerformOnMainThread
+     does not work reliably for evalJS on 5.0 and above. See sample in TIMOB-7616 for fail case.
+     */
+    if (![NSThread isMainThread]) {
+        inKJSThread = YES;
+        [self performSelectorOnMainThread:@selector(evalJS:) withObject:code waitUntilDone:YES];
+        inKJSThread = NO;
+    }
+    else {
+        evalResult = [[(TiUIWebView*)[self view] stringByEvaluatingJavaScriptFromString:code] retain];
+    }
+    return (inKJSThread ? evalResult : [evalResult autorelease]);
 }
 
-USE_VIEW_FOR_AUTO_HEIGHT
-USE_VIEW_FOR_AUTO_WIDTH
+USE_VIEW_FOR_CONTENT_HEIGHT
+USE_VIEW_FOR_CONTENT_WIDTH
 
 - (NSString*)html
 {
-	NSString *html = [self evalJS:@"document.documentElement.outerHTML"];
+	NSString *html = [self evalJSAndWait:@"document.documentElement.outerHTML"];
 	// strip out the ti injection - nobody wants that - and if 
 	// you're saving off the HTML, we don't want to save that off since 
 	// it's dynamically injected and can't be preserved
@@ -76,35 +99,39 @@ USE_VIEW_FOR_AUTO_WIDTH
 
 -(void)goBack:(id)args
 {
-//Todo: We should probably replace this with using USE_VIEW_FOR_UI_METHOD, but it ain't broke currently.
-	[[self view] performSelectorOnMainThread:@selector(goBack:) withObject:args waitUntilDone:NO];
+	TiThreadPerformOnMainThread(^{[(TiUIWebView*)[self view] goBack];}, NO);
 }
 
 -(void)goForward:(id)args
 {
-//Todo: We should probably replace this with using USE_VIEW_FOR_UI_METHOD, but it ain't broke currently.
-	[[self view] performSelectorOnMainThread:@selector(goForward:) withObject:args waitUntilDone:NO];
+	TiThreadPerformOnMainThread(^{[(TiUIWebView*)[self view] goForward];}, NO);
 }
 
 -(void)stopLoading:(id)args
 {
-//Todo: We should probably replace this with using USE_VIEW_FOR_UI_METHOD, but it ain't broke currently.
-	[[self view] performSelectorOnMainThread:@selector(stopLoading:) withObject:args waitUntilDone:NO];
+	TiThreadPerformOnMainThread(^{[(TiUIWebView*)[self view] stopLoading];}, NO);
 }
 
 -(void)reload:(id)args
 {
-//Todo: We should probably replace this with using USE_VIEW_FOR_UI_METHOD, but it ain't broke currently.
-	[[self view] performSelectorOnMainThread:@selector(reload:) withObject:args waitUntilDone:NO];
+	TiThreadPerformOnMainThread(^{[(TiUIWebView*)[self view] reload];}, NO);
+}
+
+-(void)setHtml:(NSString*)content withObject:(id)property
+{
+    [self replaceValue:content forKey:@"html" notification:NO];
+    TiThreadPerformOnMainThread(^{
+        [(TiUIWebView *)[self view] setHtml_:content withObject:property];
+    }, YES);
 }
 
 -(id)canGoBack:(id)args
 {
 	if ([self viewAttached])
 	{
-		NSMutableArray *result = [NSMutableArray array];
-		[[self view] performSelectorOnMainThread:@selector(canGoBack:) withObject:result waitUntilDone:YES];
-		return [result objectAtIndex:0];
+		__block BOOL result;
+		TiThreadPerformOnMainThread(^{result = [(TiUIWebView*)[self view] canGoBack];}, YES);
+		return NUMBOOL(result);
 	}
 	return NUMBOOL(NO);
 }
@@ -113,16 +140,16 @@ USE_VIEW_FOR_AUTO_WIDTH
 {
 	if ([self viewAttached])
 	{
-		NSMutableArray *result = [NSMutableArray array];
-		[[self view] performSelectorOnMainThread:@selector(canGoForward:) withObject:result waitUntilDone:YES];
-		return [result objectAtIndex:0];
+		__block BOOL result;
+		TiThreadPerformOnMainThread(^{result = [(TiUIWebView*)[self view] canGoForward];}, YES);
+		return NUMBOOL(result);
 	}
 	return NUMBOOL(NO);
 }
 
 -(void)setBasicAuthentication:(NSArray*)args
 {
-	[[self view] performSelectorOnMainThread:@selector(setBasicAuthentication:) withObject:args waitUntilDone:NO];
+	[self makeViewPerformSelector:@selector(setBasicAuthentication:) withObject:args createIfNeeded:YES waitUntilDone:NO];
 }
 
 -(void)repaint:(id)unused
@@ -132,11 +159,15 @@ USE_VIEW_FOR_AUTO_WIDTH
 
 -(void)windowDidClose
 {
-	[self _destroy];
-	NSNotification *notification = [NSNotification notificationWithName:kTiContextShutdownNotification object:self];
-	WARN_IF_BACKGROUND_THREAD_OBJ;	//NSNotificationCenter is not threadsafe!
-	[[NSNotificationCenter defaultCenter] postNotification:notification];
-	[super windowDidClose];
+    if (pageToken!=nil)
+    {
+        [[self host] unregisterContext:(id<TiEvaluator>)self forToken:pageToken];
+        RELEASE_TO_NIL(pageToken);
+    }
+    NSNotification *notification = [NSNotification notificationWithName:kTiContextShutdownNotification object:self];
+    WARN_IF_BACKGROUND_THREAD_OBJ;
+    [[NSNotificationCenter defaultCenter] postNotification:notification];
+    [super windowDidClose];
 }
 
 -(void)_destroy
@@ -146,7 +177,7 @@ USE_VIEW_FOR_AUTO_WIDTH
 		[[self host] unregisterContext:(id<TiEvaluator>)self forToken:pageToken];
 		RELEASE_TO_NIL(pageToken);
 	}
-	[super _destroy];
+    [super _destroy];
 }
 
 -(void)setPageToken:(NSString*)pageToken_
@@ -162,6 +193,12 @@ USE_VIEW_FOR_AUTO_WIDTH
 
 #pragma mark Evaluator
 
+- (BOOL)evaluationError
+{
+	// TODO; is this correct
+	return NO;
+}
+
 - (TiHost*)host
 {
 	return [self _host];
@@ -169,17 +206,21 @@ USE_VIEW_FOR_AUTO_WIDTH
 
 - (void)evalFile:(NSString*)file
 {
-	[[self view] performSelectorOnMainThread:@selector(evalFile:) withObject:file waitUntilDone:NO];
+	TiThreadPerformOnMainThread(^{[(TiUIWebView*)[self view] evalFile:file];}, NO);
 }
 
 - (id)evalJSAndWait:(NSString*)code
 {
-	return [(TiUIWebView*)[self view] evalJSAndWait:code];
+	__block id result;
+	TiThreadPerformOnMainThread(^{result=[[(TiUIWebView*)[self view] stringByEvaluatingJavaScriptFromString:code] retain];}, YES);
+	return [result autorelease];
 }
 
 - (void)fireEvent:(id)listener withObject:(id)obj remove:(BOOL)yn thisObject:(id)thisObject_
 {
-	[(TiUIWebView*)[self view] fireEvent:listener withObject:obj remove:yn thisObject:thisObject_];
+	TiThreadPerformOnMainThread(^{
+		[(TiUIWebView*)[self view] fireEvent:listener withObject:obj remove:yn thisObject:thisObject_];
+	}, NO);
 }
 
 - (id)preloadForKey:(id)key name:(id)name

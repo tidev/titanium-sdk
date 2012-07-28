@@ -1,25 +1,121 @@
 ---
 name: Titanium.Map
-description: The top level Map module.  The Map module is used for creating in-application native maps.
+summary: The top level Map module.  The Map module is used for creating in-application native maps.
 extends: Titanium.Module
 since: "0.8"
+platforms: [android, iphone, ipad, mobileweb]
 properties:
+
+  - name: ANNOTATION_DRAG_STATE_NONE
+    summary: |
+        Used in the [pinchangedragstate](Titanium.Map.View.pinchangedragstate) event 
+        to indicate that the annotation is not being dragged.
+    type: Number
+    permission: read-only
+    platforms: [iphone, ipad]
+    since: "2.1.0"
+
+  - name: ANNOTATION_DRAG_STATE_START
+    summary: |
+        Used in the [pinchangedragstate](Titanium.Map.View.pinchangedragstate) event 
+        to indicate that the user started dragging the annotation.
+    type: Number
+    permission: read-only
+    platforms: [iphone, ipad]
+    since: "2.1.0"
+
+  - name: ANNOTATION_DRAG_STATE_DRAG
+    summary: |
+        Used in the [pinchangedragstate](Titanium.Map.View.pinchangedragstate) event 
+        to indicate that the user moved the annotation.
+    type: Number
+    permission: read-only
+    platforms: [iphone, ipad]
+    since: "2.1.0"
+
+  - name: ANNOTATION_DRAG_STATE_CANCEL
+    summary: |
+        Used in the [pinchangedragstate](Titanium.Map.View.pinchangedragstate) event 
+        to indicate that the user canceled the drag action.
+    type: Number
+    permission: read-only
+    platforms: [iphone, ipad]
+    since: "2.1.0"
+
+  - name: ANNOTATION_DRAG_STATE_END
+    summary: |
+        Used in the [pinchangedragstate](Titanium.Map.View.pinchangedragstate) event 
+        to indicate that the user finished moving the annotation.
+    type: Number
+    permission: read-only
+    platforms: [iphone, ipad]
+    since: "2.1.0"
+
+  - name: ANNOTATION_GREEN
+    summary: |
+        Color constant used to set a map annotation to green via the 
+        <Titanium.Map.Annotation.pincolor> property.
+    type: Number
+    permission: read-only
+    
+  - name: ANNOTATION_PURPLE
+    summary: |
+        Color constant used to set a map annotation to purple via the 
+        <Titanium.Map.Annotation.pincolor> property.
+    type: Number
+    permission: read-only
+    
+  - name: ANNOTATION_RED
+    summary: |
+        Color constant used to set a map annotation to red via the 
+        <Titanium.Map.Annotation.pincolor> property.
+    type: Number
+    permission: read-only
+    
   - name: HYBRID_TYPE
-    description: Displays a satellite image of the area with road and road name information layered on top.
+    summary: Used with [mapType](Titanium.Map.View.mapType) to display a satellite image of the area with road and road name information layered on top.
+    description: |
+        On Android, `HYBRID_TYPE` produces a road map that looks like 
+        [STANDARD_TYPE](Titanium.Map.STANDARD_TYPE), and does not include a satellite
+        image. This is a known issue
+        ([TIMOB-9673](https://jira.appcelerator.org/browse/TIMOB-9673)).
+
+        Use [SATELLITE_TYPE](Titanium.Map.SATELLITE_TYPE) to specify a hybrid-type map on
+        Android.
     type: Number
     permission: read-only
+    
   - name: SATELLITE_TYPE
-    description: Displays satellite imagery of the area.
+    summary: Used with [mapType](Titanium.Map.View.mapType) to display satellite imagery of the area.
+    description: |
+        The Android Google Maps API does not support displaying satellite imagery
+        _without_ roads and names, so specifying `SATELLITE_TYPE` on Android produces 
+        the same results as [HYBRID_TYPE](Titanium.Map.HYBRID_TYPE) on other platforms.
     type: Number
     permission: read-only
+    
   - name: STANDARD_TYPE
-    description: Displays a street map that shows the position of all roads and some road names.
+    summary: Used with [mapType](Titanium.Map.View.mapType) to display a street map that shows the position of all roads and some road names.
     type: Number
     permission: read-only
+    
+  - name: TERRAIN_TYPE
+    summary: Used with [mapType](Titanium.Map.View.mapType) to display the terrain that shows the position of all roads and some road names.
+    type: Number
+    permission: read-only
+    platforms: [mobileweb]
+    
 examples:
   - title: Map Example
     example: |
-        This is a basic map example that uses a custom annotation on the map.
+        This is a basic map example that places a custom annotation on the map, and 
+        listens for click events on the annotation. 
+
+        In this example, a custom property (`myid`) is added to the annotation objct.
+        While adding custom members to a Titanium object is not generally recommended,
+        in this case it provides a mechanism for uniquely identifying an annotation. This
+        can be useful, for example, if the annotations are dynamically generated 
+        and it is not practical to identify them by title.
         
             var mountainView = Titanium.Map.createAnnotation({
             	latitude:37.390749,
@@ -29,7 +125,7 @@ examples:
             	pincolor:Titanium.Map.ANNOTATION_RED,
             	animate:true,
             	leftButton: '../images/appcelerator_small.png',
-            	myid:1 // CUSTOM ATTRIBUTE THAT IS PASSED INTO EVENT OBJECTS
+            	myid:1 // Custom property to uniquely identify this annotation.
             });
             
             var mapview = Titanium.Map.createView({
@@ -43,4 +139,17 @@ examples:
             });
             
             win.add(mapview);
+            // Handle click events on any annotations on this map.
+            mapview.addEventListener('click', function(evt) {
+
+                Ti.API.info("Annotation " + evt.title + " clicked, id: " + evt.annotation.myid);
+
+                // Check for all of the possible names that clicksouce
+                // can report for the left button/view.
+                if (evt.clicksource == 'leftButton' || evt.clicksource == 'leftPane' ||
+                    evt.clicksource == 'leftView') {
+                    Ti.API.info("Annotation " + evt.title + ", left button clicked.");
+                }
+            });
+
         

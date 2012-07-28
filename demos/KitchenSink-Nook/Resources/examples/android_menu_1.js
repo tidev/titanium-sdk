@@ -64,7 +64,7 @@ b3.addEventListener('click', function(e) {
 			order : 2,
 			title : 'Item 3'
 		});
-		m3.setIcon("app://images/appc_small.png");
+		m3.setIcon("app://images/appcelerator_small.png");
 		m4 = menu.add({
 			itemId : 4,
 			groupId : 1,
@@ -125,7 +125,7 @@ activity.onCreateOptionsMenu = function(e) {
 		groupId : 0,
 		order : 0
 	});
-	m1.setIcon("/images/appc_small.png");
+	m1.setIcon("/images/appcelerator_small.png");
 };
 
 activity.onPrepareOptionsMenu = function(e) {

@@ -23,7 +23,7 @@ function getTweets(screen_name){
 	{
 		try
 		{
-			var tweets = eval('('+this.responseText+')');
+			var tweets = JSON.parse(this.responseText);
 
 			for (var c=0;c<tweets.length;c++){
 
@@ -102,7 +102,8 @@ function getTweets(screen_name){
 			}
 			// Create the tableView and add it to the window.
 			var tableview = Titanium.UI.createTableView({data:data,minRowHeight:58});
-			Ti.UI.currentWindow.add(tableview);
+			//Ti.UI.currentWindow.add(tableview);
+			win.add(tableview);
 		}
 		catch(E){
 			alert(E);

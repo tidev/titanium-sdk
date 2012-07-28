@@ -1,100 +1,316 @@
 ---
 name: Titanium.UI.Animation
-description: The Animation object is used for specifying lower-level animation properties and more low-level control of events during an animation. The Animation is created by the method <Titanium.UI.createAnimation>.
+summary: The `Animation` object defines an animation that can be applied to a view.
+description: |
+    An animation object describes the properties of an animation. At its most basic, an animation 
+    object represents a single-phase animation with an end state and a duration. 
+    
+    When [animate](Titanium.UI.View.animate) is called on a [View](Titanium.UI.View), the view is 
+    animated from its current state to the state described by the animation object. The properties 
+    that can be animated include the view's position, size, colors, transformation matrix and opacity. 
+    
+    Animations can be set to reverse themselves automatically on completion, and to repeat a given 
+    number of times. For more complicated effects, multiple animations can be combined in sequence, 
+    starting one animation when the previous animation completes.
+    
+    Use the <Titanium.UI.createAnimation> method to create an animation object.
+    
+    Note that when you animate a view's size or position, the actual layout properties (such as 
+    `top`, `left`, `width`, `height`) are not changed by the animation. See the description of the 
+    [animate](Titanium.UI.View.animate) method for more information.
+    
+    #### iOS Platform Notes
+    
+    iOS supports both 2D and 3D matrix transformations in animations.
+    
+    In iOS, you can also specify an animation curve or *easing function* to control the pace of the 
+    animation. To use an easing function, set the animation's `curve` property to one of the 
+    `ANIMATION_CURVE` constants defined in <Titanium.UI>. For example, 
+    [ANIMATION_CURVE_EASE_IN](Titanium.UI.ANIMATION_CURVE_EASE_IN) specifies an animation that 
+    starts slowly and then speeds up.
+    
+    Finally, iOS also supports *transitions* between windows or views. You can create a transition 
+    by creating an animation object and setting the `view` property to the view you want to 
+    transition to. The `transition` property specifies the transition effect to apply. Use one of 
+    the transition style constants defined in <Titanium.UI.iPhone.AnimationStyle>.
+    
+    #### Android Platform Notes
+    
+    Android supports 2D matrix transformations. Note that the 
+    [2DMatrix.rotate](Titanium.UI.2DMatrix.rotate) method operates differently on Android. Called 
+    with a single argument, it rotates from zero to the specified angle. That is, it ignores any 
+    existing rotation. Called with two arguments, it interprets the first argument as a "from" 
+    angle and the second argument as a "to" angle. 
+    
+    Android doesn't support any animation curves or easing functions. Animations always interpolate 
+    linearly between the start state and the end state.
+    
+    #### Mobile Web Platform Notes
+    
+    Mobile Web supports 2D matrix transformations and animation curves in animations.
+    
+    iOS 5.1 and older as well as Safari 5 have a bug where you cannot animate both a position and
+    transform matrix at the same time. The matrix transform animation will override the position
+    animation until the matrix transform animation is complete, then jumps to the animated position.
 extends: Titanium.Proxy
 since: "0.9"
+platforms: [android, iphone, ipad, mobileweb]
+
 events:
   - name: complete
-    description: fired when the animation completes
+    summary: Fired when the animation completes.
+    
   - name: start
-    description: fired when the animation starts
+    summary: Fired when the animation starts.
+
 properties:
+  - name: anchorPoint
+    summary: Coordinate of the view about which to pivot an animation.
+    description: |
+        Used on Android only. For iOS, use <Titanium.UI.View.anchorPoint>. 
+        
+        Anchor point is specified as a fraction of the view's size.  For example, `{0, 0}` is at 
+        the view's top-left corner, `{0.5, 0.5}` at its center and `{1, 1}` at its bottom-right 
+        corner. 
+        
+        See the "Using an anchorPoint" example for a demonstration.
+    type: Point
+    platforms: [android]
+
   - name: autoreverse
-    description: the property specifies if the animation should be replayed in reverse upon completion
+    summary: Specifies if the animation should be replayed in reverse upon completion.
     type: Boolean
+    default: false
+    
   - name: backgroundColor
-    description: value of the backgroundColor property to change during animation
+    summary: |
+        Value of the `backgroundColor` property at the end of the animation, as a color name 
+        or hex triplet.
+    description: |
+        For information about color values, see the "Colors" section of <Titanium.UI>. 
     type: String
-    platforms: [iphone, ipad]
+    platforms: [android, iphone, ipad, mobileweb]
+    
   - name: bottom
-    description: value of the bottom property to change during animation
+    summary: Value of the `bottom` property at the end of the animation.
     type: Number
+    
   - name: center
-    description: value of the center property to change during animation
+    summary: Value of the `center` property at the end of the animation.
     type: Object
+    
   - name: color
-    description: value of the color property to change during animation
+    summary: |
+        Value of the `color` property at the end of the animation, as a color name or hex triplet.
+    description: |
+        For information about color values, see the "Colors" section of <Titanium.UI>. 
     type: String
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, mobileweb]
+    
   - name: curve
-    description: the curve of the animation
+    summary: Animation curve or easing function to apply to the animation.
+    description: |
+        Specify one of the animation constants, 
+        <Titanium.UI.ANIMATION_CURVE_EASE_IN>, 
+        <Titanium.UI.ANIMATION_CURVE_EASE_IN_OUT>, 
+        <Titanium.UI.ANIMATION_CURVE_EASE_OUT>, 
+        or <Titanium.UI.ANIMATION_CURVE_LINEAR>.
     type: Number
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, mobileweb]
+    
   - name: delay
-    description: the duration of time in milliseconds before starting the animation
+    summary: Delay, in milliseconds before starting the animation.
     type: Number
+    
   - name: duration
-    description: the duration of time in milliseconds to perform the animation
+    summary: Duration of the animation, in milliseconds.
     type: Number
+    
   - name: height
-    description: value of the height property to change during animation
+    summary: Value of the `height` property at the end of the animation.
     type: Number
   - name: left
-    description: value of the left property to change during animation
+    summary: Value of the `left` property at the end of the animation.
     type: Number
-  - name: opacity
-    description: value of the opacity property to change during animation
-    type: Number
-  - name: opaque
-    description: value of the opaque property to change during animation
-    type: Boolean
-    platforms: [iphone, ipad]
-  - name: repeat
-    description: the number of times the animation should be performed
-    type: Number
-  - name: right
-    description: value of the right property to change during animation
-    type: Number
-  - name: top
-    description: value of the top property to change during animation
-    type: Number
-  - name: transform
-    description: value of the transform property to change during animation
-    type: Object
-  - name: transition
-    description: during a transition animation, this is the constant to the type of transition to use
-    type: Number
-    platforms: [iphone, ipad]
-  - name: visible
-    description: value of the visible property to change during animation
-    type: Boolean
-    platforms: [iphone, ipad]
-  - name: width
-    description: value of the width property to change during animation
-    type: Number
-  - name: zIndex
-    description: value of the zIndex property to change during animation
-    type: Number
-    platforms: [iphone, ipad]
-notes: |
     
+  - name: opacity
+    summary: Value of the `opacity` property at the end of the animation.
+    type: Number
+    
+  - name: opaque
+    summary: Value of the `opaque` property at the end of the animation.
+    type: Boolean
+    platforms: [iphone, ipad]
+    
+  - name: repeat
+    summary: Number of times the animation should be performed.
+    description: |
+        If `autoreverse` is `true`, then one repeat of the animation consists of the animation 
+        being played once forward, and once backward.
+    type: Number
+    default: 1 (no repeat)
+    
+  - name: right
+    summary: Value of the `right` property at the end of the animation.
+    type: Number
+    
+  - name: top
+    summary: Value of the `top` property at the end of the animation.
+    type: Number
+    
+  - name: transform
+    summary: Animate the view from its current tranform to the specified transform.
+    description: |
+        Over the course of the animation, the view interpolates from its current transform to the 
+        specified transform.
+        
+        3D transforms are only supported on iOS.
+    type: [Titanium.UI.2DMatrix, Titanium.UI.iOS.3DMatrix]
+    
+  - name: transition
+    summary: Transition type to use during a transition animation.
+    description: |
+        One of the activity indicator style constants 
+        <Titanium.UI.iPhone.AnimationStyle.CURL_DOWN>, 
+        <Titanium.UI.iPhone.AnimationStyle.CURL_UP>, 
+        <Titanium.UI.iPhone.AnimationStyle.FLIP_FROM_LEFT>, 
+        <Titanium.UI.iPhone.AnimationStyle.FLIP_FROM_RIGHT>, 
+        or <Titanium.UI.iPhone.AnimationStyle.NONE>.
+        #### NOTE: 
+        The view being transitioned **should NOT** already be a child of another view or 
+        of the animating view.The animation in effect replaces current view from the 
+        view heirarchy and adds the new view to it.
+    type: Number
+    platforms: [iphone, ipad]
+    
+  - name: visible
+    summary: Value of the `visible` property at the end of the animation.
+    type: Boolean
+    platforms: [iphone, ipad, mobileweb]
+    
+  - name: width
+    summary: Value of the `width` property at the end of the animation.
+    type: Number
+    
+  - name: zIndex
+    summary: Value of the `zIndex` property at the end of the animation.
+    description: Refer to <Titanium.UI.View.zIndex> for an explanation of z-index.
+    type: Number
+    platforms: [iphone, ipad, mobileweb]
+
 examples:
-  - title: Animation applied to a view
+  - title: Simple Animation Applied to a View
     example: |
-        Create a simple animation and apply it to the view.  In this example, the view will animate from red to black to orange over 2 seconds.
+        Create a simple animation and apply it to the view.  In this example, the view will animate 
+        from red to black to orange over 2 seconds.
         
             var view = Titanium.UI.createView({
-               backgroundColor:'red'
+              backgroundColor:'red'
             });
             var animation = Titanium.UI.createAnimation();
             animation.backgroundColor = 'black';
             animation.duration = 1000;
             var animationHandler = function() {
-               animation.removeEventListener('complete',animationHandler);
-               animation.backgroundColor = 'orange';
-               view.animate(animation);
+              animation.removeEventListener('complete',animationHandler);
+              animation.backgroundColor = 'orange';
+              view.animate(animation);
             };
             animation.addEventListener('complete',animationHandler);
             view.animate(animation);
+    
+  - title: Animation Using Matrix Transforms
+    example: |
+        The following example uses a transformation matrix to animate
+        a view when the view is clicked. The animation rotates and scales
+        the view, then returns it to its original size and position. The
+        entire animation is repeated three times.
         
+            var box = Ti.UI.createView({
+              backgroundColor : 'red',
+              height : '100',
+              width : '100'
+            });
+            win.add(box);
+            
+            box.addEventListener('click', function() {
+              var matrix = Ti.UI.create2DMatrix()
+              matrix = matrix.rotate(180);
+              matrix = matrix.scale(2, 2);
+              var a = Ti.UI.createAnimation({
+                transform : matrix,
+                duration : 2000,
+                autoreverse : true,
+                repeat : 3
+              });
+              box.animate(a);
+            });
+    
+  - title: Using an anchorPoint (Android and iOS)
+    example: |
+        Create a button and a blue square view. For each click of the button, apply a 90 degree 
+        rotation animation pivoted at one of a series of anchor points. In particular, note that 
+        an anchor point is configured using the <Titanium.UI.Animation.anchorPoint> property for 
+        Android and the <Titanium.UI.View.anchorPoint> property for iOS.
         
+            var animationType = [
+              { name: 'Top Left', anchorPoint: {x:0, y:0} },
+              { name: 'Top Right', anchorPoint: {x:1, y:0} },
+              { name: 'Bottom Left', anchorPoint: {x:0, y:1} },
+              { name: 'Bottom Right', anchorPoint: {x:1, y:1} },
+              { name: 'Center', anchorPoint: {x:0.5, y:0.5} }
+            ];
+            var animationTypeLength = animationType.length;
+            var animationCount = 0;
+            var animationTypePointer = 0;
+            
+            var t = Ti.UI.create2DMatrix();
+            t = t.rotate(90);
+            
+            // animation properties
+            var a = {
+              transform: t,
+              duration: 2000,
+              autoreverse: true
+            };
+            
+            Ti.UI.backgroundColor = 'white';
+            var win = Ti.UI.createWindow();
+            
+            var view = Ti.UI.createView({
+              backgroundColor:'#336699',
+              width:100, height:100
+            });
+            win.add(view);
+            
+            var button = Ti.UI.createButton({
+              title:'Animate ' + animationType[animationTypePointer].name,
+              height: (Ti.UI.Android) ? 80 : 40,
+              width: (Ti.UI.Android) ? 300 : 200,
+              top:30
+            });
+            win.add(button);
+            
+            function updateButton(name){
+              button.title = 'Animate ' + name;
+            }
+            
+            button.addEventListener('click', function(){
+              // set new anchorPoint on animation for Android
+              a.anchorPoint = animationType[animationTypePointer].anchorPoint;
+              
+              // set new anchorPoint on view for iOS
+              view.anchorPoint = animationType[animationTypePointer].anchorPoint;
+              
+              animationCount++;
+              
+              // determine position of next object in animationType array or return to first item
+              // using modulus operator
+              animationTypePointer = animationCount % animationTypeLength;
+              
+              // animate view, followed by callback to set next button title
+              view.animate(a, function(){
+                updateButton(animationType[animationTypePointer].name);
+              });
+            });
+            
+            win.open();

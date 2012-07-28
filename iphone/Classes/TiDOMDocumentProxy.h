@@ -8,9 +8,9 @@
 
 #import "TiProxy.h"
 #import "GDataXMLNode.h"
-#import "TiDOMElementProxy.h"
+#import "TiDOMNodeProxy.h"
 
-@interface TiDOMDocumentProxy : TiDOMElementProxy {
+@interface TiDOMDocumentProxy : TiDOMNodeProxy {
 @private
 }
 

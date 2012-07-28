@@ -60,6 +60,7 @@
 		controlBounds.size = [ourControl sizeThatFits:CGSizeZero];
 		[ourControl setBounds:controlBounds];
 	}
+    [super frameSizeChanged:frame_ bounds:bounds_];
 }
 
 - (void)setTabbedBar: (BOOL)newIsTabbed;
@@ -220,12 +221,12 @@
 	}
 }
 
--(CGFloat)autoWidthForWidth:(CGFloat)suggestedWidth
+-(CGFloat)contentWidthForWidth:(CGFloat)suggestedWidth
 {
 	return [[self segmentedControl] sizeThatFits:CGSizeZero].width;
 }
 
--(CGFloat)autoHeightForWidth:(CGFloat)width
+-(CGFloat)contentHeightForWidth:(CGFloat)width
 {
 	return [[self segmentedControl] sizeThatFits:CGSizeZero].height;
 }

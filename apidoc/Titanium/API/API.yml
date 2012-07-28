@@ -1,39 +1,64 @@
 ---
 name: Titanium.API
-description: The top level API module.  The API module is mainly used for logging.
+summary: |
+    The top-level API module, containing methods to output messages to the system log.
 extends: Titanium.Module
 since: "0.1"
 methods:
   - name: debug
-    description: function for logging debug messages
+    summary: Logs messages with a `debug` severity-level.
     parameters:
       - name: message
-        description: the message to log
-        type: String
+        summary: Message to log. Accepts an array on iOS only.
+        type: [Array<String>, String]
+        
   - name: error
-    description: function for logging error messages
+    summary: Logs messages with an `error` severity-level.
     parameters:
       - name: message
-        description: the message to log
-        type: String
+        summary: Message to log. Accepts an array on iOS only.
+        type: [Array<String>, String]
+        
   - name: info
-    description: function for logging informational messages
+    summary: Logs messages with an `info` severity-level.
     parameters:
       - name: message
-        description: the message to log
-        type: String
+        summary: Message to log. Accepts an array on iOS only.
+        type: [Array<String>, String]
+        
   - name: log
-    description: function for logging custom severity messages
+    summary: Logs messages with the specified severity-level.
     parameters:
       - name: level
-        description: the log level
+        summary: |
+            Log level. One of `info`, `warn`, `error`, `debug` and `trace`. If the value is not 
+            recognized, an info-level message prefixed with the value is logged.
         type: String
+        
       - name: message
-        description: the message to log
-        type: String
-  - name: warn
-    description: function for logging warning messages
+        summary: Message to log. Accepts an array on iOS only.
+        type: [Array<String>, String]
+
+  - name: timestamp
+    summary: |
+        Logs messages with a `timestamp` severity-level, prefixed with a timestamp float number 
+        representing the number of seconds since January 1st, 2001.
+    platforms: [iphone, ipad]
     parameters:
       - name: message
-        description: the message to log
-        type: String
+        summary: Message to log. Accepts an array on iOS only.
+        type: [Array<String>, String]
+        
+  - name: trace
+    summary: Logs messages with a `trace` severity-level.
+    parameters:
+      - name: message
+        summary: Message to log. Accepts an array on iOS only.
+        type: [Array<String>, String]
+        
+  - name: warn
+    summary: Logs messages with a `warn` severity-level.
+    parameters:
+      - name: message
+        summary: Message to log. Accepts an array on iOS only.
+        type: [Array<String>, String]

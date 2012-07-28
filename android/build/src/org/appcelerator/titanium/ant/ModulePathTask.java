@@ -8,7 +8,6 @@ package org.appcelerator.titanium.ant;
 
 import java.io.File;
 import java.util.List;
-import java.util.ListIterator;
 
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.Task;
@@ -40,7 +39,7 @@ public class ModulePathTask extends Task {
 		List<String> moduleDeps = deps.getModuleDependencies(module);
 		if (moduleDeps != null) {
 			for (String dep : moduleDeps) {
-				moduleDepsPath.add(new Path(getProject(), String.format("%s/%s/bin", modulesDir, dep)));
+				moduleDepsPath.add(new Path(getProject(), String.format("%s/%s", modulesDir, dep)));
 				File libDir = new File(String.format("%s/%s/lib", modulesDir, dep));
 				if (libDir.exists()) {
 					FileSet libFileset = new FileSet();

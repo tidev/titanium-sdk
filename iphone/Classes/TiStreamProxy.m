@@ -99,4 +99,39 @@
     return NUMINT(-1);
 }
 
+#pragma mark Protocol stubs
+
+-(int)readToBuffer:(TiBuffer*)buffer offset:(int)offset length:(int)length callback:(KrollCallback*)callback
+{
+	[self throwException:@"Incomplete stream implementation" subreason:[NSString stringWithFormat:@"Missing %@",NSStringFromSelector(_cmd)] location:CODELOCATION];
+}
+-(int)writeFromBuffer:(TiBuffer*)buffer offset:(int)offset length:(int)length callback:(KrollCallback*)callback
+{
+	[self throwException:@"Incomplete stream implementation" subreason:[NSString stringWithFormat:@"Missing %@",NSStringFromSelector(_cmd)] location:CODELOCATION];
+}
+
+-(int)writeToStream:(id<TiStreamInternal>)output chunkSize:(int)size callback:(KrollCallback*)callback
+{
+	[self throwException:@"Incomplete stream implementation" subreason:[NSString stringWithFormat:@"Missing %@",NSStringFromSelector(_cmd)] location:CODELOCATION];
+}
+-(void)pumpToCallback:(KrollCallback*)callback chunkSize:(int)size asynch:(BOOL)asynch
+{
+	[self throwException:@"Incomplete stream implementation" subreason:[NSString stringWithFormat:@"Missing %@",NSStringFromSelector(_cmd)] location:CODELOCATION];
+}
+
+-(NSNumber*)isReadable:(id)_void
+{
+	[self throwException:@"Incomplete stream implementation" subreason:[NSString stringWithFormat:@"Missing %@",NSStringFromSelector(_cmd)] location:CODELOCATION];
+}
+
+-(NSNumber*)isWritable:(id)_void
+{
+	[self throwException:@"Incomplete stream implementation" subreason:[NSString stringWithFormat:@"Missing %@",NSStringFromSelector(_cmd)] location:CODELOCATION];
+}
+
+-(void)close:(id)_void
+{
+	[self throwException:@"Incomplete stream implementation" subreason:[NSString stringWithFormat:@"Missing %@",NSStringFromSelector(_cmd)] location:CODELOCATION];
+}
+
 @end

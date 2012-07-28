@@ -8,10 +8,23 @@
 
 @class TiViewProxy;
 
+/**
+ Layout queue utility class.
+ */
 @interface TiLayoutQueue : NSObject {
 
 }
 
+/**
+ Adds view proxy to the layout queue.
+ @param newViewProxy The view proxy to add.
+ */
 +(void)addViewProxy:(TiViewProxy*)newViewProxy;
+
+/**
+ Forces view proxy refresh.
+ @param thisProxy The view proxy to layout.
+ */
++(void)layoutProxy:(TiViewProxy*)thisProxy;
 
 @end

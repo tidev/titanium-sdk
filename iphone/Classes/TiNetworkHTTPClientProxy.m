@@ -32,10 +32,10 @@ int CaselessCompare(const char * firstString, const char * secondString, int siz
 }
 
 
-#define TRYENCODING( encodingName, nameSize, returnValue )	\
-if((remainingSize > nameSize) && (0==CaselessCompare(data, encodingName, nameSize))) return returnValue;
+#define TRYENCODING( encodingName, nameSize, returnValue, value )	\
+if((remainingSize > nameSize) && (0==CaselessCompare(data, encodingName, nameSize))) {*value = returnValue; return YES;}
 
-NSStringEncoding ExtractEncodingFromData(NSData * inputData)
+BOOL ExtractEncodingFromData(NSData * inputData, NSStringEncoding* result)
 {
 	int remainingSize = [inputData length];
 	int unsearchableSize;
@@ -53,16 +53,19 @@ NSStringEncoding ExtractEncodingFromData(NSData * inputData)
 		{
 			enc += 10;
 			data = enc;
-			TRYENCODING("windows-1252",12,NSWindowsCP1252StringEncoding);
-			TRYENCODING("iso-8859-1",10,NSISOLatin1StringEncoding);
-			TRYENCODING("utf-8",5,NSUTF8StringEncoding);
-			TRYENCODING("shift-jis",9,NSShiftJISStringEncoding);
-			TRYENCODING("x-euc",5,NSJapaneseEUCStringEncoding);
-			TRYENCODING("windows-1250",12,NSWindowsCP1251StringEncoding);
-			TRYENCODING("windows-1251",12,NSWindowsCP1252StringEncoding);
-			TRYENCODING("windows-1253",12,NSWindowsCP1253StringEncoding);
-			TRYENCODING("windows-1254",12,NSWindowsCP1254StringEncoding);
-			return NSUTF8StringEncoding;
+			TRYENCODING("windows-1252",12,NSWindowsCP1252StringEncoding,result);
+			TRYENCODING("iso-8859-1",10,NSISOLatin1StringEncoding,result);
+			TRYENCODING("utf-8",5,NSUTF8StringEncoding,result);
+			TRYENCODING("shift-jis",9,NSShiftJISStringEncoding,result);
+			TRYENCODING("shift_jis",9,NSShiftJISStringEncoding,result);
+			TRYENCODING("x-euc",5,NSJapaneseEUCStringEncoding,result);
+			TRYENCODING("euc-jp",6,NSJapaneseEUCStringEncoding,result);
+			TRYENCODING("windows-1250",12,NSWindowsCP1251StringEncoding,result);
+			TRYENCODING("windows-1251",12,NSWindowsCP1252StringEncoding,result);
+			TRYENCODING("windows-1253",12,NSWindowsCP1253StringEncoding,result);
+			TRYENCODING("windows-1254",12,NSWindowsCP1254StringEncoding,result);
+			TRYENCODING("windows-1255",12,CFStringConvertEncodingToNSStringEncoding(kCFStringEncodingWindowsHebrew),result);
+			return NO;
 		}
 	}
 	
@@ -78,17 +81,20 @@ NSStringEncoding ExtractEncodingFromData(NSData * inputData)
 		data += 8;
 		remainingSize -= 8;
 		
-		TRYENCODING("windows-1252",12,NSWindowsCP1252StringEncoding);
-		TRYENCODING("iso-8859-1",10,NSISOLatin1StringEncoding);
-		TRYENCODING("utf-8",5,NSUTF8StringEncoding);
-		TRYENCODING("shift-jis",9,NSShiftJISStringEncoding);
-		TRYENCODING("x-euc",5,NSJapaneseEUCStringEncoding);
-		TRYENCODING("windows-1250",12,NSWindowsCP1251StringEncoding);
-		TRYENCODING("windows-1251",12,NSWindowsCP1252StringEncoding);
-		TRYENCODING("windows-1253",12,NSWindowsCP1253StringEncoding);
-		TRYENCODING("windows-1254",12,NSWindowsCP1254StringEncoding);
+		TRYENCODING("windows-1252",12,NSWindowsCP1252StringEncoding,result);
+		TRYENCODING("iso-8859-1",10,NSISOLatin1StringEncoding,result);
+		TRYENCODING("utf-8",5,NSUTF8StringEncoding,result);
+		TRYENCODING("shift-jis",9,NSShiftJISStringEncoding,result);
+		TRYENCODING("shift_jis",9,NSShiftJISStringEncoding,result);
+		TRYENCODING("x-euc",5,NSJapaneseEUCStringEncoding,result);
+		TRYENCODING("euc-jp",6,NSJapaneseEUCStringEncoding,result);
+		TRYENCODING("windows-1250",12,NSWindowsCP1251StringEncoding,result);
+		TRYENCODING("windows-1251",12,NSWindowsCP1252StringEncoding,result);
+		TRYENCODING("windows-1253",12,NSWindowsCP1253StringEncoding,result);
+		TRYENCODING("windows-1254",12,NSWindowsCP1254StringEncoding,result);
+		TRYENCODING("windows-1255",12,CFStringConvertEncodingToNSStringEncoding(kCFStringEncodingWindowsHebrew),result);
 	}	
-	return NSUTF8StringEncoding;
+	return NO;
 }
 
 extern NSString * const TI_APPLICATION_DEPLOYTYPE;
@@ -106,6 +112,11 @@ extern NSString * const TI_APPLICATION_DEPLOYTYPE;
 		validatesSecureCertificate = [[NSNumber alloc] initWithBool:NO];
 	}
 	return self;
+}
+
+-(void)_configure
+{
+    [self initializeProperty:@"cache" defaultValue:NUMBOOL(NO)];
 }
 
 -(void)setOnload:(KrollCallback *)callback
@@ -142,7 +153,7 @@ extern NSString * const TI_APPLICATION_DEPLOYTYPE;
 {
 	if (request!=nil && connected)
 	{
-		[request cancel];
+		[request clearDelegatesAndCancel];
 	}
 	RELEASE_TO_NIL(url);
 	RELEASE_TO_NIL(request);
@@ -198,8 +209,19 @@ extern NSString * const TI_APPLICATION_DEPLOYTYPE;
 		{
 			// encoding failed, probably a bad webserver or content we have to deal
 			// with in a _special_ way
-			NSStringEncoding encoding = ExtractEncodingFromData(data);
-			result = [[[NSString alloc] initWithBytes:[data bytes] length:[data length] encoding:encoding] autorelease];
+            NSStringEncoding encoding = NSUTF8StringEncoding;
+            BOOL didExtractEncoding = ExtractEncodingFromData(data, &encoding);
+            if (didExtractEncoding) {
+                //If I did extract encoding use that
+                result = [[[NSString alloc] initWithBytes:[data bytes] length:[data length] encoding:encoding] autorelease];
+            }
+            else {
+                //If the encoding was not extracted correctly, try UTF 8. If it fails try ISO-8859-1 (HTTP.DEFAULT_CONTENT_CHARSET)
+                result = [[[NSString alloc] initWithBytes:[data bytes] length:[data length] encoding:NSUTF8StringEncoding] autorelease];
+                if (result == nil) {
+                    result = [[[NSString alloc] initWithBytes:[data bytes] length:[data length] encoding:NSISOLatin1StringEncoding] autorelease];
+                }
+            }
 			
 		}
 		if (result!=nil)
@@ -333,7 +355,7 @@ extern NSString * const TI_APPLICATION_DEPLOYTYPE;
 	{
 		connected = NO;
 		[[TiApp app] stopNetwork];
-		[request cancel];
+		[request clearDelegatesAndCancel];
 		[self forgetSelf];
 	}
 }
@@ -356,7 +378,12 @@ extern NSString * const TI_APPLICATION_DEPLOYTYPE;
 	}
 	
 	request = [[ASIFormDataRequest requestWithURL:url] retain];	
-    [request setDownloadCache:[ASIDownloadCache sharedCache]];
+    if ([TiUtils boolValue:[self valueForUndefinedKey:@"cache"] def:NO]) {
+        [request setDownloadCache:[ASIDownloadCache sharedCache]];
+    }
+    else {
+        [request setDownloadCache:nil];
+    }
 	[request setDelegate:self];
     if (timeout) {
         NSTimeInterval timeoutVal = [timeout doubleValue] / 1000;
@@ -390,7 +417,7 @@ extern NSString * const TI_APPLICATION_DEPLOYTYPE;
 	[request setUseCookiePersistence:YES];
 	[request setShowAccurateProgress:YES];
 	[request setShouldUseRFC2616RedirectBehaviour:YES];
-	BOOL keepAlive = [TiUtils boolValue:[self valueForKey:@"enableKeepAlive"] def:YES];
+	BOOL keepAlive = [TiUtils boolValue:[self valueForKey:@"enableKeepAlive"] def:NO];
 	[request setShouldAttemptPersistentConnection:keepAlive];
 	//handled in send, as now optional
 	//[request setShouldRedirect:YES];
@@ -461,7 +488,7 @@ extern NSString * const TI_APPLICATION_DEPLOYTYPE;
 	// HACK: We are never actually in the "OPENED" state.  Needs to be fixed with XHR refactor.
 	if (readyState != NetworkClientStateHeaders && readyState != NetworkClientStateOpened) {
 		// TODO: Throw an exception here as per XHR standard
-		NSLog(@"[ERROR] Must set a connection to OPENED before send()");
+		DebugLog(@"[ERROR] Must set a connection to OPENED before send()");
 		return;
 	}
 	
@@ -506,9 +533,10 @@ extern NSString * const TI_APPLICATION_DEPLOYTYPE;
 					}
 				}
 			}
-			else if ([arg isKindOfClass:[TiBlob class]])
+			else if ([arg isKindOfClass:[TiBlob class]]
+					 || [arg isKindOfClass:[TiFile class]])
 			{
-				TiBlob *blob = (TiBlob*)arg;
+				TiBlob *blob = [arg isKindOfClass:[TiBlob class]] ? (TiBlob *)arg : [(TiFile *)arg blob];
 				if ([blob type] == TiBlobTypeFile)
 				{
 					// could be large if file so let's tell the 
@@ -521,7 +549,6 @@ extern NSString * const TI_APPLICATION_DEPLOYTYPE;
 					[request appendPostData:data];
 				}
 			}
-			//TODO: support TiFile post 1.4
 		}
 	}
 	
@@ -537,6 +564,9 @@ extern NSString * const TI_APPLICATION_DEPLOYTYPE;
 	
 	// allow self-signed certs (NO) or required valid SSL (YES)    
 	[request setValidatesSecureCertificate:[validatesSecureCertificate boolValue]];
+    
+    // set the TLS version if needed
+    [request setTlsVersion:[TiUtils intValue:[self valueForUndefinedKey:@"tlsVersion"]]];
 	
 	if (async)
 	{
@@ -550,13 +580,23 @@ extern NSString * const TI_APPLICATION_DEPLOYTYPE;
 	}
 }
 
+// Checked with Apache project to see if this is a known bug for them; it's
+// not, so this must be a client-side issue with Apple.
+//
+// Turns out Apple has a bug where they seem to case-correct headers;
+// this turns WWW-Authenticate into Www-Authenticate. We don't have complete
+// information on how response headers are mangled, but assume that
+// they are all case-corrected like this.
+//
+// This occurs in iOS 4 only.
+
 -(id)getResponseHeader:(id)args
 {
+    ENSURE_SINGLE_ARG(args, NSString);
+    
 	if (request!=nil)
 	{
-		id key = [args objectAtIndex:0];
-		ENSURE_TYPE(key,NSString);
-		return [[request responseHeaders] objectForKey:key];
+        return [TiUtils getResponseHeader:args fromHeaders:[request responseHeaders]];
 	}
 	return nil;
 }

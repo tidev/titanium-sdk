@@ -15,8 +15,18 @@
 
 -(void)_destroy
 {
+	item.userData = nil;
+	item.view = nil;
 	RELEASE_TO_NIL(item);
 	[super _destroy];
+}
+
+-(void)dealloc{
+	item.userData = nil;
+    item.button = nil;
+	item.view = nil;
+	RELEASE_TO_NIL(item);
+	[super dealloc];
 }
 
 -(void)setItem:(LauncherItem*)item_
@@ -24,6 +34,7 @@
 	if (item!=nil)
 	{
 		item.userData = nil;
+		item.view = nil;
 		RELEASE_TO_NIL(item);
 	}
 	item = [item_ retain];
@@ -72,11 +83,18 @@
 	
 	// called when we have a child, which means we want to use ourself
 	// as the view
-	LauncherItem *item_ = [self  ensureItem];
-	if (item_.view==nil)
-	{
-		[item_ setView:[self view]];
-	}
+    
+    // TODO: This isn't entirely accurate... doing this may cause the view to be set twice
+    // because -[TiViewProxy add:] could exit early if it's not on the main thread.
+    // On the other hand, blocking this to execute on the main thread only doesn't appear to work right.
+    
+    dispatch_async(dispatch_get_main_queue(), ^{
+        LauncherItem *item_ = [self  ensureItem];
+        if (item_.view==nil)
+        {
+            [item_ setView:[self view]];
+        }
+    });
 }
 
 

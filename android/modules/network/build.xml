@@ -2,6 +2,6 @@
 	<import file="../../build/build-module.xml"/>
 	
 	<path id="dependencies">
-		<path path="${modules.dir}/xml/bin"/>
+		<path path="${dist.classes.dir}/xml"/>
 	</path>
 </project>

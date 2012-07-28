@@ -29,7 +29,7 @@ describe("Ti.UI tests", {
 			wv.addEventListener('load', listener);
 			w.add(wv);
 		},
-		timeout: 10000,
+		timeout: 15000,
 		timeoutError: 'Timed out waiting for page to load and JS to eval'
 	}),
 	// https://appcelerator.lighthouseapp.com/projects/32238-titanium-mobile/tickets/2153
@@ -142,9 +142,33 @@ describe("Ti.UI tests", {
 
 	},
 
-	windowOrientation: function() {
+	windowOrientation_as_async: function(callback) {
 		var w = Ti.UI.createWindow();
 		valueOf(w.orientation).shouldBeOneOf([Ti.UI.PORTRAIT, Ti.UI.LANDSCAPE_LEFT]);
+		
+		w.addEventListener('open', function() {
+			
+			w.orientationModes = [Ti.UI.PORTRAIT, Ti.UI.LANDSCAPE_LEFT];
+			valueOf(w.orientationModes).shouldNotBeNull();
+
+			// Make sure the the values are integers
+			valueOf(parseInt(w.orientationModes[0]) == parseFloat(w.orientationModes[0])).shouldBeTrue();
+			valueOf(parseInt(w.orientationModes[1]) == parseFloat(w.orientationModes[1])).shouldBeTrue();
+			valueOf(w.orientationModes[0]).shouldBe(Ti.UI.PORTRAIT);
+			valueOf(w.orientationModes[1]).shouldBe(Ti.UI.LANDSCAPE_LEFT);
+			
+			setTimeout(function(){
+				if (failureTimeout !== null) {
+					clearTimeout(failureTimeout);
+				}
+				callback.passed();
+			}, 1000);
+		});
+		failureTimeout = setTimeout(function(){
+			callback.failed("Test may have crashed app.  Opacity of 1 test.");
+		},3000);
+		
+		w.open();
 	},
 	
 	windowPixelFormat: function() {
@@ -338,12 +362,12 @@ describe("Ti.UI tests", {
 			// null y -> throw exception
 			valueOf(function() {
 				view1.convertPointToView({ x: 0, y: null }, win);
-			});
+			}).shouldThrowException();
 
 			// null destView -> throw exception
 			valueOf(function() {
 				view1.convertPointToView({ x: 0, y: 0 }, null);
-			});
+			}).shouldThrowException();
 
 			// non-View destView -> throw exception
 			valueOf(function() {
@@ -367,17 +391,85 @@ describe("Ti.UI tests", {
 	}),
 	
 	// http://jira.appcelerator.org/browse/TIMOB-1333
-	imageLoadEvent: asyncTest(function(callback) {
+	imageLoadEvent: asyncTest( {
+		start: function(callback) {
+			//TODO: Genericize this test for all platforms,
+			//and check to see what proper behavior/parity is.
+			if (Ti.Platform.osname === 'android') {
+				var w = Ti.UI.createWindow();
+				var btn = Ti.UI.createImageView({
+					image: 'KS_nav_ui.png',
+					top: 1, width: 50, left: 1, height: 40
+				});
+				var listener = this.async(function() {
+					Ti.API.debug("load event fired.");
+					valueOf(true).shouldBe(true);
+				});
+				btn.addEventListener("load", listener)
+				w.add( btn );
+				w.open();
+			} else {
+				Ti.API.info("Only testing load events on local resources in Android");
+				callback.passed();
+			}
+		},
+		timeout: 10000,
+		timeoutError: 'Timed out waiting for imageview to load an image'
+	}),
+
+	// http://jira.appcelerator.org/browse/TIMOB-6891
+	tabWindowNull: function() {
+		valueOf(function() {
+			Ti.UI.createTab({window: Ti.UI.createWindow()}).
+				window.addEventListener("focus", function(){});
+		}).shouldNotThrowException();
+	},
+
+	// http://jira.appcelerator.org/browse/TIMOB-6858
+	deleteCorrectRowIndex_as_async: function(callback) {
+		var data = [];
+		for (var i = 0; i < 2; i++) {
+			data.push(Ti.UI.createTableViewRow({title: "row " + i}));
+		}
+		var tv = Ti.UI.createTableView({data: data});
 		var w = Ti.UI.createWindow();
-		var btn = Ti.UI.createImageView({
-			image: 'KS_nav_ui.png',
-			top: 1, width: 50, left: 1, height: 40
+		w.addEventListener("open", function() {
+			var section = tv.data[0];
+			if (section.rows.length !== 2) {
+				callback.failed("Expected initial data set to contain 2 rows");
+				return;
+			}
+			tv.deleteRow(1);
+			setTimeout(function() {
+				if (section.rows.length !== 1) {
+					callback.failed("Expected table view section to contain 1 row after deleting 1 row");
+					return;
+				}
+				var actual = section.rows[0].title;
+				var expected = "row 0";
+				if (actual !== expected) {
+					callback.failed("Expected remaining row to be '" + expected + "', but it is '" + actual + "'");
+				}
+				w.close();
+				callback.passed();
+			}, 1000);
 		});
-		var listener = this.async(function() {
-		 	Ti.API.debug("load event fired.");
-		});
-		btn.addEventListener("load", listener)
-		w.add( btn );
+		w.add(tv);
 		w.open();
-	})
+		setTimeout(function() {
+			callback.failed("Test timeout");
+		}, 3000);
+	},
+	
+	// https://jira.appcelerator.org/browse/TIMOB-8909
+	childrenArrayEmpty: function() {
+		var view = Ti.UI.createView();
+		valueOf(view).shouldNotBeNull();
+		valueOf(view).shouldBeObject();
+		
+		valueOf(view.children).shouldNotBeNull();
+		valueOf(view.children).shouldNotBeUndefined();
+		valueOf(view.children).shouldBeObject();
+		valueOf(view.children).shouldBe(0);
+	}
 });

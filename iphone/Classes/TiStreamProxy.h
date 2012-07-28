@@ -31,7 +31,8 @@
 -(void)close:(id)_void; // PUBLIC API FUNCTION
 @end
 
-@interface TiStreamProxy : TiProxy {
+// TODO: We absolutely MUST discuss public/private API separation and how it interacts with ducktypes.
+@interface TiStreamProxy : TiProxy<TiStreamInternal> {
     
 }
 

@@ -33,10 +33,6 @@ tableview.addEventListener('click', function(e)
 			title:e.rowData.title
 		});
 
-		if (e.index == 3)
-		{
-			win.hideTabBar();
-		}
 		if (Ti.Platform.name==='android' && e.rowData.test.indexOf('window_properties.js') >= 0) {
 			// As explained in apidoc for Window, if opacity is ever to be changed for an Android
 			// activity during its lifetime, it needs to use a translucent background.  We trigger

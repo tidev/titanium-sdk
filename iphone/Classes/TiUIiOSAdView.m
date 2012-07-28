@@ -32,14 +32,14 @@ extern NSString * const TI_APPLICATION_ANALYTICS;
 	return adview;
 }
 
--(CGFloat)autoHeightForWidth:(CGFloat)value
+-(CGFloat)contentHeightForWidth:(CGFloat)value
 {
 	ADBannerView *view = [self adview];
 	CGSize size = [ADBannerView sizeFromBannerContentSizeIdentifier:view.currentContentSizeIdentifier];
 	return size.height;
 }
 
--(CGFloat)autoWidthForWidth:(CGFloat)value
+-(CGFloat)contentWidthForWidth:(CGFloat)value
 {
 	ADBannerView *view = [self adview];
 	CGSize size = [ADBannerView sizeFromBannerContentSizeIdentifier:view.currentContentSizeIdentifier];
@@ -52,17 +52,12 @@ extern NSString * const TI_APPLICATION_ANALYTICS;
 	{
 		[TiUtils setView:[self adview] positionRect:bounds];
 	}
+    [super frameSizeChanged:frame bounds:bounds];
 }
 
--(NSString*)size
+-(void)setAdSize:(NSString*)sizeName
 {
-	return [self adview].currentContentSizeIdentifier;
-}
-
--(void)setSize:(id)arg
-{
-	ENSURE_SINGLE_ARG(arg,NSString);
-	[self adview].currentContentSizeIdentifier = arg;
+    [self adview].currentContentSizeIdentifier = sizeName;
 }
 
 #pragma mark Public APIs

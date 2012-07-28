@@ -20,6 +20,8 @@
 
 //Toolbar properties derived from the exposed ones.
 	UIToolbar *keyboardUIToolbar;
+
+	BOOL suppressFocusEvents;
 @private
 
 }
@@ -28,6 +30,8 @@
 -(void)noteValueChange:(NSString *)newValue;
 
 -(BOOL)focused;
+
+@property(nonatomic,readwrite,assign)	BOOL suppressFocusEvents;
 
 @end
 

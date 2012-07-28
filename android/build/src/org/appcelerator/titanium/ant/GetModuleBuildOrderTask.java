@@ -10,7 +10,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.ListIterator;
 
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.Task;

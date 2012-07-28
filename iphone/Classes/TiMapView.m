@@ -25,7 +25,6 @@
 		map.delegate = nil;
 		RELEASE_TO_NIL(map);
 	}
-	RELEASE_TO_NIL(pendingAnnotationSelection);
     if (mapLine2View) {
         CFRelease(mapLine2View);
         mapLine2View = nil;
@@ -39,31 +38,44 @@
 
 -(void)render
 {
-	if (![NSThread isMainThread]) {
-		[self performSelectorOnMainThread:@selector(render) withObject:nil waitUntilDone:NO];
-		return;
-	}  	  
-	if (region.center.latitude!=0 && region.center.longitude!=0)
-	{
-		[map setRegion:[map regionThatFits:region] animated:animate];
-	}
+    if (![NSThread isMainThread]) {
+        TiThreadPerformOnMainThread(^{[self render];}, NO);
+        return;
+    }  	  
+    if (region.center.latitude!=0 && region.center.longitude!=0)
+    {
+        if (regionFits) {
+            [map setRegion:[map regionThatFits:region] animated:animate];
+        }
+        else {
+            [map setRegion:region animated:animate];
+        }
+    }
 }
 
 -(MKMapView*)map
 {
-	if (map==nil)
-	{
-		map = [[MKMapView alloc] initWithFrame:CGRectMake(0, 0, 100, 100)];
-		map.delegate = self;
-		map.userInteractionEnabled = YES;
-		map.showsUserLocation = YES; // defaults
-		map.autoresizingMask = UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight;
-		[self addSubview:map];
-		mapLine2View = CFDictionaryCreateMutable(NULL, 10, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
-		mapName2Line = CFDictionaryCreateMutable(NULL, 10, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
-        
-	}
-	return map;
+    if (map==nil)
+    {
+        map = [[MKMapView alloc] initWithFrame:CGRectMake(0, 0, 100, 100)];
+        map.delegate = self;
+        map.userInteractionEnabled = YES;
+        map.showsUserLocation = YES; // defaults
+        map.autoresizingMask = UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight;
+        [self addSubview:map];
+        mapLine2View = CFDictionaryCreateMutable(NULL, 10, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
+        mapName2Line = CFDictionaryCreateMutable(NULL, 10, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
+        //Initialize loaded state to YES. This will automatically go to NO if the map needs to download new data
+        loaded = YES;
+    }
+    return map;
+}
+
+- (NSArray *)customAnnotations
+{
+    NSMutableArray *annotations = [NSMutableArray arrayWithArray:self.map.annotations];
+    [annotations removeObject:self.map.userLocation];
+    return annotations;
 }
 
 -(void)willFirePropertyChanges
@@ -79,22 +91,14 @@
 
 -(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
 {
-	[TiUtils setView:[self map] positionRect:bounds];
+    [TiUtils setView:[self map] positionRect:bounds];
+    [super frameSizeChanged:frame bounds:bounds];
+    [self render];
 }
 
 -(TiMapAnnotationProxy*)annotationFromArg:(id)arg
 {
-	if ([arg isKindOfClass:[TiMapAnnotationProxy class]])
-	{
-		[(TiMapAnnotationProxy*)arg setDelegate:self];
-		[arg setPlaced:NO];
-		return arg;
-	}
-	ENSURE_TYPE(arg,NSDictionary);
-	TiMapAnnotationProxy *proxy = [[[TiMapAnnotationProxy alloc] _initWithPageContext:[self.proxy pageContext] args:[NSArray arrayWithObject:arg]] autorelease];
-
-	[proxy setDelegate:self];
-	return proxy;
+    return [(TiMapViewProxy*)[self proxy] annotationFromArg:arg];
 }
 
 -(NSArray*)annotationsFromArgs:(id)value
@@ -160,7 +164,7 @@
 	{
 		// for pre 0.9, we supporting removing by passing the annotation title
 		NSString *title = [TiUtils stringValue:args];
-		for (id<MKAnnotation>an in [NSArray arrayWithArray:[self map].annotations])
+		for (id<MKAnnotation>an in self.customAnnotations)
 		{
 			if ([title isEqualToString:an.title])
 			{
@@ -187,46 +191,26 @@
 -(void)removeAllAnnotations:(id)args
 {
 	ENSURE_UI_THREAD(removeAllAnnotations,args);
-	[[self map] removeAnnotations:[[self map] annotations]];
+	[self.map removeAnnotations:self.customAnnotations];
 }
 
 -(void)setAnnotations_:(id)value
 {
 	ENSURE_TYPE_OR_NIL(value,NSArray);
 	ENSURE_UI_THREAD(setAnnotations_,value)
-	[[self map] removeAnnotations:[[self map] annotations]];
+	[self.map removeAnnotations:self.customAnnotations];
 	if (value != nil) {
 		[[self map] addAnnotations:[self annotationsFromArgs:value]];
 	}
 }
 
--(void)flushPendingAnnotation
-{
-	if (pendingAnnotationSelection != nil) {
-		hitSelect = NO;
-		manualSelect = YES;
-		hitAnnotation = pendingAnnotationSelection;
-		[map selectAnnotation:pendingAnnotationSelection animated:animate];
-		if([map selectedAnnotations] != nil)
-		{
-			RELEASE_TO_NIL(pendingAnnotationSelection);
-		}
-	}
-}
 
--(void)selectOrSetPendingAnnotation:(id<MKAnnotation>)annotation
+-(void)setSelectedAnnotation:(id<MKAnnotation>)annotation
 {
-	if (loaded)
-	{
-		hitAnnotation = annotation;
-		hitSelect = NO;
-		manualSelect = YES;
-		[[self map] selectAnnotation:annotation animated:animate];
-	}
-	else {
-		[pendingAnnotationSelection release];
-		pendingAnnotationSelection = [annotation retain];
-	}
+    hitAnnotation = annotation;
+    hitSelect = NO;
+    manualSelect = YES;
+    [[self map] selectAnnotation:annotation animated:animate];
 }
 
 -(void)selectAnnotation:(id)args
@@ -253,14 +237,14 @@
 			if ([title isEqualToString:an.title])
 			{
 				// TODO: Slide the view over to the selected annotation, and/or zoom so it's with all other selected.
-				[self selectOrSetPendingAnnotation:an];
+				[self setSelectedAnnotation:an];
 				break;
 			}
 		}
 	}
 	else if ([args isKindOfClass:[TiMapAnnotationProxy class]])
 	{
-		[self selectOrSetPendingAnnotation:args];
+		[self setSelectedAnnotation:args];
 	}
 }
 
@@ -277,24 +261,14 @@
 		{
 			if ([title isEqualToString:an.title])
 			{
-				if (loaded) {
-					[[self map] deselectAnnotation:an animated:animate];
-				}
-				else {
-					RELEASE_TO_NIL(pendingAnnotationSelection);
-				}
+				[[self map] deselectAnnotation:an animated:animate];
 				break;
 			}
 		}
 	}
 	else if ([args isKindOfClass:[TiMapAnnotationProxy class]])
 	{
-		if (loaded) {
-			[[self map] deselectAnnotation:args animated:animate];
-		}
-		else {
-			RELEASE_TO_NIL(pendingAnnotationSelection);
-		}
+		[[self map] deselectAnnotation:args animated:animate];
 	}
 }
 
@@ -340,6 +314,25 @@
 	return region_;
 }
 
+-(CLLocationDegrees) longitudeDelta
+{
+    if (loaded) {
+        MKCoordinateRegion _region = [[self map] region];
+        return _region.span.longitudeDelta;
+    }
+    return 0.0;
+}
+
+-(CLLocationDegrees) latitudeDelta
+{
+    if (loaded) {
+        MKCoordinateRegion _region = [[self map] region];
+        return _region.span.latitudeDelta;
+    }
+    return 0.0;
+}
+
+
 #pragma mark Public APIs
 
 -(void)setMapType_:(id)value
@@ -367,18 +360,6 @@
 	else 
 	{
 		region = [self regionFromDict:value];
-		if (regionFits)
-		{
-			MKCoordinateRegion fitRegion = [[self map] regionThatFits:region];
-			// this seems to happen sometimes where we get an invalid span back
-			if (fitRegion.span.latitudeDelta == 0 || fitRegion.span.longitudeDelta == 0)
-			{
-				// this seems to happen when you try and call this with the same region
-				// which means we can ignore (otherwise you'll get an NSInvalidException
-				return;
-			}
-			region = fitRegion;
-		}
 		[self render];
 	}
 }
@@ -390,9 +371,8 @@
 
 -(void)setRegionFit_:(id)value
 {
-	id aregion = [self.proxy valueForKey:@"region"];
-	regionFits = [TiUtils boolValue:value];
-	[self setRegion_:aregion];
+    regionFits = [TiUtils boolValue:value];
+    [self render];
 }
 
 -(void)setUserLocation_:(id)value
@@ -512,8 +492,6 @@
 
 - (void)mapView:(MKMapView *)mapView regionDidChangeAnimated:(BOOL)animated
 {
-	[self flushPendingAnnotation];
-	
 	if ([self.proxy _hasListeners:@"regionChanged"])
 	{
 		region = [mapView region];
@@ -525,6 +503,25 @@
 								[NSNumber numberWithDouble:region.span.longitudeDelta],@"longitudeDelta",nil];
 		[self.proxy fireEvent:@"regionChanged" withObject:props];
 	}
+    
+    //TODO:Remove all this code when we drop support for iOS 4.X
+    
+    //SELECT ANNOTATION WILL NOT ALWAYS WORK IF THE MAPVIEW IS ANIMATING.
+    //THIS FORCES A RESELCTION OF THE ANNOTATIONS WITHOUT SENDING OUT EVENTS
+    //SEE TIMOB-8431 (IOS 4.3)
+    ignoreClicks = YES;
+    NSArray* currentSelectedAnnotations = [[mapView selectedAnnotations] retain];
+    for (id annotation in currentSelectedAnnotations) {
+        //Only Annotations that are hidden at this point should be 
+        //made visible here.
+        if ([mapView viewForAnnotation:annotation].hidden) {
+            [mapView deselectAnnotation:annotation animated:NO];
+            [mapView selectAnnotation:annotation animated:NO];
+        }
+    }
+    [currentSelectedAnnotations release];
+    ignoreClicks = NO;
+     
 }
 
 - (void)mapViewWillStartLoadingMap:(MKMapView *)mapView
@@ -540,7 +537,6 @@
 {
 	ignoreClicks = YES;
 	loaded = YES;
-	[self flushPendingAnnotation];
 	if ([self.proxy _hasListeners:@"complete"])
 	{
 		[self.proxy fireEvent:@"complete" withObject:nil];
@@ -560,6 +556,47 @@
 - (void)reverseGeocoder:(MKReverseGeocoder *)geocoder didFindPlacemark:(MKPlacemark *)placemark
 {
 	[map addAnnotation:placemark];
+}
+
+- (void)mapView:(MKMapView *)mapView annotationView:(MKAnnotationView *)annotationView didChangeDragState:(MKAnnotationViewDragState)newState fromOldState:(MKAnnotationViewDragState)oldState
+{
+	[self firePinChangeDragState:annotationView newState:newState fromOldState:oldState];
+}
+
+- (void)firePinChangeDragState:(MKAnnotationView *) pinview newState:(MKAnnotationViewDragState)newState fromOldState:(MKAnnotationViewDragState)oldState 
+{
+	TiMapAnnotationProxy *viewProxy = [self proxyForAnnotation:pinview];
+
+	if (viewProxy == nil)
+		return;
+
+	TiProxy * ourProxy = [self proxy];
+	BOOL parentWants = [ourProxy _hasListeners:@"pinchangedragstate"];
+	BOOL viewWants = [viewProxy _hasListeners:@"pinchangedragstate"];
+	
+	if(!parentWants && !viewWants)
+		return;
+
+	id title = [viewProxy title];
+	if (title == nil)
+		title = [NSNull null];
+
+	NSNumber * indexNumber = NUMINT([pinview tag]);
+
+	NSDictionary * event = [NSDictionary dictionaryWithObjectsAndKeys:
+								viewProxy,@"annotation",
+								ourProxy,@"map",
+								title,@"title",
+								indexNumber,@"index",
+								NUMINT(newState),@"newState",
+								NUMINT(oldState),@"oldState",
+								nil];
+
+	if (parentWants)
+		[ourProxy fireEvent:@"pinchangedragstate" withObject:event];
+
+	if (viewWants)
+		[viewProxy fireEvent:@"pinchangedragstate" withObject:event];
 }
 
 - (TiMapAnnotationProxy*)proxyForAnnotation:(MKAnnotationView*)pinview
@@ -624,38 +661,32 @@
 // For MapKit provided annotations (eg. MKUserLocation) return nil to use the MapKit provided annotation view.
 - (MKAnnotationView *)mapView:(MKMapView *)mapView viewForAnnotation:(id <MKAnnotation>)annotation
 {
-	if(annotation == pendingAnnotationSelection)
-	{
-		[self performSelector:@selector(flushPendingAnnotation) withObject:nil afterDelay:0.0];
-	}
 	if ([annotation isKindOfClass:[TiMapAnnotationProxy class]])
 	{
 		TiMapAnnotationProxy *ann = (TiMapAnnotationProxy*)annotation;
-		static NSString *identifier = @"timap";
+        id imagePath = [ann valueForUndefinedKey:@"image"];
+        UIImage *image = [TiUtils image:imagePath proxy:ann];
+        NSString *identifier = (image!=nil) ? @"timap-image":@"timap-pin";
 		MKAnnotationView *annView = nil;
 		
-		if (![ann needsRefreshingWithSelection])
-		{
-			annView = (MKAnnotationView*) [mapView dequeueReusableAnnotationViewWithIdentifier:identifier];
-		}
-		if (annView==nil)
-		{
-			id imagePath = [ann valueForUndefinedKey:@"image"];
-			if (imagePath!=nil)
-			{
-				UIImage *image = [TiUtils image:imagePath proxy:ann];
-				if (image!=nil)
-				{
-					annView=[[[TiMapImageAnnotationView alloc] initWithAnnotation:ann reuseIdentifier:identifier map:self image:image] autorelease];
-				}
-			}
-			// check to make sure not already created above
-			if (annView==nil)
-			{
-				annView=[[[TiMapPinAnnotationView alloc] initWithAnnotation:ann reuseIdentifier:identifier map:self] autorelease];
-			}
-		}
-		if ([annView isKindOfClass:[MKPinAnnotationView class]])
+		annView = (MKAnnotationView*) [mapView dequeueReusableAnnotationViewWithIdentifier:identifier];
+		
+        if (annView==nil)
+        {
+            if ([identifier isEqualToString:@"timap-image"])
+            {
+                annView=[[[TiMapImageAnnotationView alloc] initWithAnnotation:ann reuseIdentifier:identifier map:self image:image] autorelease];
+            }
+            else
+            {
+                annView=[[[TiMapPinAnnotationView alloc] initWithAnnotation:ann reuseIdentifier:identifier map:self] autorelease];
+            }
+        }
+        if ([identifier isEqualToString:@"timap-image"])
+        {
+            annView.image = image;
+        }
+        else
 		{
 			MKPinAnnotationView *pinview = (MKPinAnnotationView*)annView;
 			pinview.pinColor = [ann pinColor];
@@ -674,12 +705,18 @@
 		{
 			annView.rightCalloutAccessoryView = right;
 		}
+
+		BOOL draggable = [TiUtils boolValue: [ann valueForUndefinedKey:@"draggable"]];
+		if (draggable && [[MKAnnotationView class] instancesRespondToSelector:NSSelectorFromString(@"isDraggable")])
+			[annView performSelector:NSSelectorFromString(@"setDraggable:") withObject:[NSNumber numberWithBool:YES]];
+
 		annView.userInteractionEnabled = YES;
 		annView.tag = [ann tag];
 		return annView;
 	}
 	return nil;
 }
+
 
 // mapView:didAddAnnotationViews: is called after the annotation views have been added and positioned in the map.
 // The delegate can implement this method to animate the adding of the annotations views.
@@ -692,6 +729,23 @@
 		{
 			return;
 		}
+        /*Image Annotation don't have any animation of its own. 
+         *So in this case we do a custom animation, to place the 
+         *image annotation on top of the mapview.*/
+        if([thisView isKindOfClass:[TiMapImageAnnotationView class]])
+        {
+            TiMapAnnotationProxy *anntProxy = [self proxyForAnnotation:thisView];
+            if([anntProxy animatesDrop] && ![anntProxy placed])
+            {
+                CGRect viewFrame = thisView.frame;
+                thisView.frame = CGRectMake(viewFrame.origin.x, viewFrame.origin.y - self.frame.size.height, viewFrame.size.width, viewFrame.size.height);
+                [UIView animateWithDuration:0.4 
+                                      delay:0.0 
+                                    options:UIViewAnimationCurveEaseOut 
+                                 animations:^{thisView.frame = viewFrame;}
+                                 completion:nil];
+            }
+        }
 		TiMapAnnotationProxy * thisProxy = [self proxyForAnnotation:thisView];
 		[thisProxy setPlaced:YES];
 	}

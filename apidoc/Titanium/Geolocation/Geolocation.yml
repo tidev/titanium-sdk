@@ -1,202 +1,980 @@
 ---
 name: Titanium.Geolocation
-description: The top level Geolocation module. The Geolocation module is used for accessing device location based information.
+summary: The top level Geolocation module. The Geolocation module is used for accessing device location based information.
+description: |
+    This module combines two sets of features:
+
+    *   Location services. Determining the location of the device.
+
+    *   Geocoding and reverse geocoding. Converting geographic  coordinates into
+        addresses, and converting addresses into geographic  coordinates.
+
+    Using location services can have a significant impact on a device's battery life, 
+    so it's important to use them in the most efficient manner possible. Power consumption
+    is strongly influenced by the accuracy and frequency of location updates required by 
+    your application. 
+    
+    The location services systems of the underlying platforms are very different, so there
+    are significant implementation differences between the platforms.
+
+    The basic methods of requesting location information and receiving location updates
+    are essentially the same on all platforms. However, the method of configuring the 
+    accuracy and frequency of location updates is different for each platform.
+
+    #### Getting Location Information
+
+    There are two ways to get location information:
+
+    *   Make a one-time request with [getCurrentPosition](Titanium.Geolocation.getCurrentPosition).
+
+    *   Register to receive location updates by adding an event listener for the
+        [location](Titanium.Geolocation.location) event.
+
+    **NOTE:** Location services stay enabled for as long as a listener is registered for the
+    `location` event, so be sure to remove the event listener when you do not require
+    location updates.
+
+    #### Configurating Location Updates on iOS
+
+    In iOS, the accuracy (and power consumption) of location services is primarily
+    determined by the [accuracy](Titanium.Geolocation.accuracy) setting. This can be set
+    to one of the following values:
+    
+    *   [ACCURACY_BEST](Titanium.Geolocation.ACCURACY_BEST) (highest accuracy and power consumption)
+    *   [ACCURACY_HIGH](Titanium.Geolocation.ACCURACY_HIGH)
+    *   [ACCURACY_NEAREST_TEN_METERS](Titanium.Geolocation.ACCURACY_NEAREST_TEN_METERS) 
+    *   [ACCURACY_HUNDRED_METERS](Titanium.Geolocation.ACCURACY_HUNDRED_METERS) 
+    *   [ACCURACY_KILOMETER](Titanium.Geolocation.ACCURACY_KILOMETER) 
+    *   [ACCURACY_LOW](Titanium.Geolocation.ACCURACY_LOW)
+    *   [ACCURACY_THREE_KILOMETERS](Titanium.Geolocation.ACCURACY_THREE_KILOMETERS) (lowest
+        accuracy and power consumption). 
+
+    Based on the accuracy you choose, iOS uses its own logic to select location providers
+    and filter location updates to provide location updates that meet your accuracy
+    requirements.
+
+    You can further limit power consumption on iOS by setting the
+    [distanceFilter](Titanium.Geolocation.distanceFilter) property to eliminate position
+    updates when the user is not moving.
+
+    #### Configurating Location Updates on Android
+    
+    Prior to Titanium Mobile 2.0, Titanium attempted to follow the iOS model on Android,
+    but this didn't fit the native Android model well. In Release 2.0, three different
+    location service modes are supported on Android: *simple*, *manual*, and *legacy*.
+
+    *   *Simple mode* provides a compromise mode that provides adaquate support for 
+        undemanding location applications without requiring developers to
+        write a lot of Android-specific code. To use simple mode:
+
+        1.   Leave the <Titanium.Geolocation.Android.manualMode> flag set to `false` (the 
+             default value).
+        
+        2.   Set the [accuracy](Titanium.Geolocation.accuracy) property to 
+             either [ACCURACY_HIGH](Titanium.Geolocation.ACCURACY_HIGH) or 
+             [ACCURACY_LOW](Titanium.Geolocation.ACCURACY_LOW).
+
+    *   *Manual mode* gives developers low-level control of location updates, including
+        enabling individual location providers and filtering updates, for the best
+        combination of accuracy and battery life. 
+
+        Manual mode is used when the <Titanium.Geolocation.Android.manualMode> flag is set
+        to `true`. In manual mode, the `accuracy` property is not used, and all
+        configuration is done through the <Titanium.Geolocation.Android> module.
+
+    *   *Legacy mode* is the mode that existed prior to 2.0. Legacy mode is 
+        used when the `manualMode` flag is `false` and the `accuracy` property is 
+        set to one of the iOS `ACCURACY` constants:
+
+        *   [ACCURACY_BEST](Titanium.Geolocation.ACCURACY_BEST) (highest accuracy and power consumption)
+        *   [ACCURACY_NEAREST_TEN_METERS](Titanium.Geolocation.ACCURACY_NEAREST_TEN_METERS) 
+        *   [ACCURACY_HUNDRED_METERS](Titanium.Geolocation.ACCURACY_HUNDRED_METERS) 
+        *   [ACCURACY_KILOMETER](Titanium.Geolocation.ACCURACY_KILOMETER) 
+        *   [ACCURACY_THREE_KILOMETERS](Titanium.Geolocation.ACCURACY_THREE_KILOMETERS) (lowest
+            accuracy and power consumption). 
+            
+        This mode is deprecated and should not be used for new development. 
+
+        In this mode, the specified `accuracy` value determines the 
+        *minimum distance between location updates*. If `accuracy` is set to
+        `ACCURACY_BEST`, no distance filter is used on updates.
+        
+        In legacy mode, only a single location provider (GPS, network, or passive) is
+        enabled at a time. You can specify a the location provider using the 
+        [preferredProvider](Titanium.Geolocation.preferredProvider) property.
+        
+        You can also specifying a desired update frequency using the
+        [frequency](Titanium.Geolocation.frequency) property. The `preferredProvider`
+        and `frequency` properties are not used in any other mode.
+
+    #### Configuring Location Updates on Mobile Web
+
+    Location services on Mobile Web operate similarly to the *simple mode* operations on
+    Android. Setting [accuracy](Titanium.Geolocation.accuracy) property to 
+    [ACCURACY_HIGH](Titanium.Geolocation.ACCURACY_HIGH) yeilds the best available location
+    updates, with the hightest power consumption.
+    Using [ACCURACY_LOW](Titanium.Geolocation.ACCURACY_LOW) provides lower-quality location
+    updates with lower power consumption.
+
+    In addition to the accuracy setting, there are several Mobile Web-specific settings.
+    See <Titanium.Geolocation.MobileWeb> for details.
+
+    #### Using the Compass
+
+    Both iOS and Android support a receiving heading updates from a hardware compass, if available.
+    On Mobile Web, heading updates are supported if the browser supports this feature.
+    Currently, this support is only available on Mobile Safari.
+
+    Check the [hasCompass](Titanium.Geolocation.hasCompass) property to see if the current
+    device supports a compass.
+
+    To retrieve compass readings, you can either use
+    [getCurrentHeading](Titanium.Geolocation.getCurrentHeading) as shown in the
+    previous example, or add a listener for the
+    [heading](Titanium.Geolocation.heading) event, as shown below:
+
+        var compassHandler = function(e) {
+          if (e.success === undefined || e.success) {
+            Ti.API.info("Heading: " + e.heading.magneticHeading);
+          }
+        }
+        Ti.Geolocation.addEventListener("heading", compassHandler);
+
+    Note that Android does not include a `success` property in the `heading` event.
+    Heading events are only generated on Android when heading data is available. So if
+    `success` is undefined, we assume that the event contains valid compass data.
+
+    To obtain true heading data for the compass (as opposed to magnetic heading data),
+    a current location fix is required. See the notes on
+    [trueHeading](HeadingData.trueHeading) for more information.
+
+    As with location updates, the application should unregister for heading updates
+    when it is no longer being used, or when it goes into the background. Use
+    `removeEventListener` to stop heading updates:
+
+        Ti.Geolocation.removeEventListener('heading', compassHandler);
+
+    Finally, note that neither the Android emulator nor the iOS simulator provide
+    compass support. Compass code must be tested on physical devices.
+
 extends: Titanium.Module
 since: "0.1"
+platforms: [android, iphone, ipad, mobileweb]
 methods:
   - name: forwardGeocoder
-    description: tries to resolve an address to a location.
+    summary: Resolves an address to a location.
     parameters:
       - name: address
-        description: address to resolve.
+        summary: address to resolve.
         type: String
       - name: callback
-        description: function to invoke on success or failure. The event object contains the properties described as the `place` dictionary in <Titanium.Geolocation.reverseGeocoder>.
-        type: Callback<Object>
+        summary: Function to invoke on success or failure. 
+        type: Callback<ForwardGeocodeResponse>
+    platforms: [android, iphone, ipad, mobileweb]
+
   - name: getCurrentHeading
-    description: retrieve the current compass heading.
+    summary: Retrieves the current compass heading.
     parameters:
       - name: callback
-        description: function to invoke on success or failure of obtaining the current heading. See heading event in <Titanium.Geolocation>.
-        type: Callback<Object>
+        summary: Function to invoke on success or failure of obtaining the current heading.
+        type: Callback<HeadingResponse>
+    platforms: [android, iphone, ipad, mobileweb]
+
   - name: getCurrentPosition
-    description: retrieve the last known location from the device. On Android, the radios are not turned on to update the location. On iOS the radios MAY be used if the location is too "old".
+    summary: Retrieves the last known location from the device. 
+    description: |
+        On Android, the radios are not turned on to update the location, and a cached
+        location is used.
+        
+        On iOS the radios **may** be used if the location is too "old". 
     parameters:
       - name: callback
-        description: function to invoke on success or failure of obtaining the current location. See location event in <Titanium.Geolocation>.
+        summary: Function to invoke on success or failure of obtaining the current location. 
         type: Callback<Object>
+    platforms: [android, iphone, ipad, mobileweb]
+
   - name: reverseGeocoder
-    description: tries to resolve a location to an address.
+    summary: Tries to resolve a location to an address.
+    description: |
+        The callback receives a <ReverseGeocodeResponse> object. If the request
+        is successful, the object includes one or more addresses that are possible matches
+        for the requested coordinates.
     parameters:
+
       - name: latitude
-        description: latitude to search
+        summary: Latitude to search, specified in decimal degrees.
         type: Number
+
       - name: longitude
-        description: longitude to search
+        summary: Longitude to search, specified in decimal degrees.
         type: Number
+
       - name: callback
-        description: |
-            function to invoke on success or failure. The event object passed contains a `places` array of zero or more place dictionaries. Each `place` dictionary contains the following properties: `street`, `street1`, `city`, `region1`, `region2`, `postalCode`, `country`, `countryCode`, `longitude`, `latitude`, `displayAddress`, `address`.
-        type: Callback<Object>
-  - name: setShowCalibration
-    description: configure the calibration UI. set the false to disable the calibration display.
-    platforms: [iphone, ipad]
+        summary: Function to invoke on success or failure. 
+        type: Callback<ReverseGeocodeResponse>
+    platforms: [android, iphone, ipad, mobileweb]
+
 events:
+
   - name: calibration
-    description: fired when the device detects interface and requires calibration. when this event is fired, the calibration UI is being displayed to the end user.
+    summary: Fired when the device detects interface and requires calibration. 
+    description: |
+        When this event is fired, the OS calibration UI is being displayed to the end user.
     platforms: [iphone, ipad]
+
   - name: heading
-    description: fired when a heading event is received
+    summary: Fired when an heading update is received.
+    description: 
     properties:
       - name: code
-        description: if success is false, the error code if available
+        summary: If `success` is false, the error code if available.
         platforms: [iphone, ipad]
+
       - name: success
-        description: boolean to indicate if the heading event was successfully received or an error occurred
+        summary: Indicate if the heading event was successfully received.
+        type: Boolean
+        platforms: [iphone, ipad]
+
       - name: error
-        description: if success is false, returns a string of the error description
-      - name: heading
-        description: |
-            heading results dictionary with the following sub-pro perties: `magneticHeading`, `trueHeading`, `accuracy`, `x`, `y`, `z`, `timestamp`.
-  - name: location
-    description: fired when a location event is received
-    properties:
-      - name: code
-        description: if success is false, the error code if available
+        summary: If `success` is false, a string describing the error.
+        type: String
         platforms: [iphone, ipad]
+
+      - name: heading
+        summary: Dictionary object containing the heading data.
+        type: HeadingData
+
+    platforms: [android, iphone, ipad, mobileweb]
+
+  - name: location
+    summary: Fired when a location update is received.
+    properties:
+
+      - name: code
+        summary: if `success` is false, the error code if available.
+        type: Number
+        
       - name: success
-        description: boolean to indicate if the location event was successfully received or an error occurred
+        summary: Indicates if location data was successfully retrieved.
+        type: Boolean
+
       - name: provider
         platforms: [android]
-        description: |
-            location provider dictionary with the following sub-properties: `name`, `accuracy`, `power`, and `provider`.
+        summary: If `success` is true, object describing the location provider generating this update.
+        type: LocationProviderDict
+
       - name: coords
-        description: |
-            location coordinates dictionary with the following sub-properties: `latitude`, `longitude`, `altitude`, `accuracy`, `altitudeAccuracy`, `heading`, `speed`, `timestamp`.
+        summary: If `success` is true, actual location data for this update.
+        type: LocationCoordinates
+
       - name: error
-        description: if success is false, returns a string of the error description
+        summary: If `success` is false, a string describing the error.
+        type: String
+
 properties:
+
   - name: ACCURACY_BEST
-    description: accuracy constant
+    summary: |
+        Use with [accuracy](Titanium.Geolocation.accuracy) to request the best
+        accuracy available.
+    description: |
+        Using this value results in the most accurate location updates, and the highest
+        battery usage.
+
+        Using this value on Android enables *legacy mode* operation, which is not
+        recommended. 
     type: Number
     permission: read-only
+    platforms: [android, iphone, ipad]
+
   - name: ACCURACY_HUNDRED_METERS
-    description: accuracy constant
+    summary: |
+        Use with [accuracy](Titanium.Geolocation.accuracy) to request location
+        updates accurate to the nearest 100 meters.
+    description: |
+        Using this value on Android enables *legacy mode* operation, which is not
+        recommended. 
     type: Number
     permission: read-only
+    platforms: [android, iphone, ipad]
+
   - name: ACCURACY_KILOMETER
-    description: accuracy constant
+    summary: |
+        Use with [accuracy](Titanium.Geolocation.accuracy) to request location
+        updates accurate to the nearest kilometer.
+    description: |
+        Using this value on Android enables *legacy mode* operation, which is not
+        recommended. 
     type: Number
     permission: read-only
+    platforms: [android, iphone, ipad]
+
   - name: ACCURACY_NEAREST_TEN_METERS
-    description: accuracy constant
+    summary: |
+        Use with [accuracy](Titanium.Geolocation.accuracy) to request location
+        updates accurate to the nearest 10 meters.
+    description: |
+        Using this value on Android enables *legacy mode* operation, which is not
+        recommended. 
     type: Number
     permission: read-only
+    platforms: [android, iphone, ipad]
+
   - name: ACCURACY_THREE_KILOMETERS
-    description: accuracy constant
+    summary: |
+        Use with [accuracy](Titanium.Geolocation.accuracy) to request location
+        updates accurate to the nearest three kilometers.
+    description: |
+        Using this value on Android enables *legacy mode* operation, which is not
+        recommended. 
     type: Number
     permission: read-only
+    platforms: [android, iphone, ipad]
+
+  - name: ACCURACY_HIGH
+    summary: |
+        Use with [accuracy](Titanium.Geolocation.accuracy) to request more
+        accurate location updates with higher battery usage.
+    description: |
+        Using this value on Android enables *simple mode* operation.
+    type: Number
+    permission: read-only
+    platforms: [android, iphone, ipad, mobileweb]
+    since: "2.0.0"
+
+  - name: ACCURACY_LOW
+    summary: |
+        Use with [accuracy](Titanium.Geolocation.accuracy) to request less
+        accurate location updates with lower battery usage.
+    description: |
+        Using this value on Android enables *simple mode* operation.
+    type: Number
+    permission: read-only
+    platforms: [android, iphone, ipad, mobileweb]
+    since: "2.0.0"
+
   - name: AUTHORIZATION_AUTHORIZED
-    description: authorization constant
+    summary: |
+        A [locationServicesAuthorization](Titanium.Geolocation.locationServicesAuthorization) value 
+        indicating that the application is authorized to use location services.
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
+
   - name: AUTHORIZATION_DENIED
-    description: authorization constant (user disabled authorization)
+    summary: |
+        A [locationServicesAuthorization](Titanium.Geolocation.locationServicesAuthorization) value 
+        indicating that the application is not authorized to use location services, *or*
+        location services are disabled.
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
+
   - name: AUTHORIZATION_RESTRICTED
-    description: authorization constant (system disabled authorization)
+    summary: |
+        A [locationServicesAuthorization](Titanium.Geolocation.locationServicesAuthorization) value 
+        indicating that the application is not authorized to use location servies *and*
+        the user cannot change this application's status.
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
+
   - name: AUTHORIZATION_UNKNOWN
-    description: authorization constant
+    summary: |
+        A [locationServicesAuthorization](Titanium.Geolocation.locationServicesAuthorization) value 
+        indicating that the authorization state is unknown.
+    description: |
+        This value is always returned if the device is running an iOS release prior to 4.2.
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
+
   - name: ERROR_DENIED
-    description: error constant
+    summary: Error code indicating that the user denied access to the location service.
     platforms: [iphone, ipad]
     type: Number
     permission: read-only
+
   - name: ERROR_HEADING_FAILURE
-    description: error constant
+    summary: Error code indicating that the heading could not be determined.
     platforms: [iphone, ipad]
     type: Number
     permission: read-only
+
   - name: ERROR_LOCATION_UNKNOWN
-    description: error constant
+    summary: Error code indicating that the user's location could not be determined.
     platforms: [iphone, ipad]
     type: Number
     permission: read-only
+
   - name: ERROR_NETWORK
-    description: error constant
+    summary: Error code indicating that the network was unavailable.
     platforms: [iphone, ipad]
     type: Number
     permission: read-only
+
   - name: ERROR_REGION_MONITORING_DELAYED
-    description: error constant
+    summary: Error code indicating that region monitoring is delayed.
     platforms: [iphone, ipad]
     permission: read-only
     osver:
         ios:
             min: "4.0"
     type: Number
+
   - name: ERROR_REGION_MONITORING_DENIED
-    description: error constant
+    summary: Error code indicating that region monitoring is denied.
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
     osver:
         ios:
             min: "4.0"
+
   - name: ERROR_REGION_MONITORING_FAILURE
-    description: error constant
+    summary: Error code indicating a region monitoring failure.
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
     osver:
         ios:
             min: "4.0"
+
+  - name: ERROR_TIMEOUT
+    summary: Error indicating a timeout.
+    platforms: [mobileweb]
+    type: Number
+    permission: read-only
+
   - name: PROVIDER_GPS
-    description: The GPS location provider
+    summary: |
+        Specifies the GPS location provider.
+    description: |
+        Used with [preferredProvider](Titanium.Geolocation.preferredProvider), 
+        [LocationProvider.name](Titanium.Geolocation.Android.LocationProvider),
+        [LocationRule.provider](Titanium.Geolocation.Android.LocationRule).
+
+        In general, the GPS provider has the highest power consumption and the 
+        highest accuracy, but this may vary. In some circumstances, the network 
+        provider may be more reliable.
     type: String
     permission: read-only
     platforms: [android]
+
   - name: PROVIDER_NETWORK
-    description: The Network location provider
+    summary: |
+        Specifies the network location provider.
+    description: |
+        Used with [preferredProvider](Titanium.Geolocation.preferredProvider), 
+        [LocationProvider.name](Titanium.Geolocation.Android.LocationProvider),
+        [LocationRule.provider](Titanium.Geolocation.Android.LocationRule).
+
+        Generally requires less power than the GPS provider and provides less accurate
+        results, but may produce very accurate results in densely-populated areas
+        with many cell towers and WiFi networks.
     type: String
     permission: read-only
     platforms: [android]
+
+  - name: PROVIDER_PASSIVE
+    summary: |
+        Specifies the passive location provider.
+    description: |
+        Used with [preferredProvider](Titanium.Geolocation.preferredProvider), 
+        [LocationProvider.name](Titanium.Geolocation.Android.LocationProvider),
+        [LocationRule.provider](Titanium.Geolocation.Android.LocationRule).
+
+        This provider only uses cached location information, so it does not use
+        any power, but makes no guarantee that the location results are recent.
+    type: String
+    permission: read-only
+    platforms: [android]
+
+  - name: accuracy
+    summary: Specifies the requested accuracy for location updates.
+    description: |
+        For basic location updates on all platforms, set `accuracy` to either:
+
+        *   [ACCURACY_HIGH](Titanium.Geolocation.ACCURACY_HIGH) for higher-quality location
+            updates, with the higher power consumption.
+        *   [ACCURACY_LOW](Titanium.Geolocation.ACCURACY_LOW) for lower-quality location
+            updates with lower power consumption.
+
+        For finer-grained control on iOS, specify one of `ACCURACY_BEST`, 
+        `ACCURACY_NEAREST_TEN_METERS`, `ACCURACY_HUNDRED_METERS`, `ACCURACY_KILOMETER`, or
+        `ACCURACY_THREE_KILOMETERS`. 
+
+        For finer-grained control on Android, use *manual mode*, instead of specifing an accuracy. 
+        This mode requires more active management on the part of the application, but it 
+        is recommended to maximize accuracy and battery life.
+        See <Titanium.Geolocation.Android> for details on using manual mode.
+
+        Note that for backwards compatibility, Android supports using the iOS accuracy constants. 
+        This usage is deprecated. Applications using one of the iOS constants should
+        migrate to using `ACCURACY_HIGH`, `ACCURACY_LOW`, or Android manual mode.
+    type: Number
+
   - name: distanceFilter
-    description: The minimum change of position (in meters) before a 'location' event is fired. Default is 0, meaning that location events are continuously generated.
+    summary: The minimum change of position (in meters) before a 'location' event is fired. 
+    description: |
+        If set to 0, distance filtering is disabled, meaning that location events are 
+        generated continuously.
     type: Number
+    default: 0
     platforms: [iphone, ipad]
+
+  - name: frequency
+    summary: Requested frequency for location updates, in milliseconds.
+    description: |
+        Setting a frequency value enables legacy location mode on Android.
+        Note that only a single provider can be active at one time in legacy mode.
+
+        Android legacy mode operation is deprecated. For new development, use
+        either simple mode or manual mode.
+
+        Note that the frequency value is used as a guideline: there are no guarantees
+        that the device will provide updates at the specified frequency.
+        
+        A lower frequency value generally increases power consumption. 
+        A value of 0 means that updates should be generated as quickly as possible.
+    type: Number
+
+  - name: hasCompass
+    summary: Indicates whether the current device supports a compass.
+    type: Boolean
+    permission: read-only
+    platforms: [android, iphone, ipad, mobileweb]
+    since: { mobileweb: "2.1.0" }
+
   - name: headingFilter
-    description: The minium change of heading (in degrees) before a 'heading' event is fired. Default is 0, meaning that heading events are continuously generated.
+    summary: Minimum heading change (in degrees) before a `heading` event is fired. 
+    description: |
+        Set to a value greater than zero to reduce the number of heading events generated.
     type: Number
+    default: 0 (No limit on heading updates)
     platforms: [iphone, ipad]
+
   - name: locationServicesAuthorization
-    description: Returns an authorization constant indicating if the application has access to location services. Always returns AUTHORIZATION_UNKNOWN on pre-4.2 devices. Attempting to re-authorize when AUTHORIZATION_RESTRICTED will lead to issues
+    summary: Returns an authorization constant indicating if the application has access to location services.
+    description: |
+         Always returns `AUTHORIZATION_UNKNOWN` on pre-4.2 devices. 
+         
+         If `locationServicesAuthorization` is `AUTHORIZATION_RESTRICTED`, you should not
+         attempt to re-authorize: this will lead to issues.
     type: Number
     platforms: [iphone, ipad]
     osver:
         ios:
             min: "4.2"
+
   - name: locationServicesEnabled
-    description: returns true if the user has enabled or disable location services for the device (not the application).
+    summary: Indicates if the user has enabled or disabled location services for the device (not the application).
+    description: |
+        This method returns `true` if *any* location provider is enabled.
+
+        On Android OS 2.2 and above, there is a new,  "passive" location provider that is enabled
+        at all times, even when the user disables both the GPS and Network location providers.
+        Therefore, this method always returns `true` on these devices.
     type: Boolean
     permission: read-only
+
   - name: preferredProvider
-    description: allows setting of the preferred location provider.  Returns undefined when the preferred provider is auto-detected
+    summary: |
+        Determines the preferred location provider, either
+        [PROVIDER_GPS](Titanium.Geolocation.PROVIDER_GPS),
+        [PROVIDER_NETWORK](Titanium.Geolocation.PROVIDER_NETWORK],
+        or [PROVIDER_PASSIVE](Titanium.Geolocation.PROVIDER_PASSIVE).
+    description: |
+        Setting a preferred provider enables legacy location mode on Android.
+        Note that only a single provider can be active at one time in legacy mode.
+
+        Android legacy mode operation is deprecated. For new development, use
+        either simple mode or manual mode.
+
+        The preferred provider affects power consumption. In general, `PROVIDER_GPS` 
+        requires the most power, and `PROVIDER_PASSIVE` requires the least.
+
+        If `undefined`, the preferred provider is auto-detected.
     type: String
+    platforms: [android]
+    default: <Titanium.Geolocation.PROVIDER_NETWORK>
+    deprecated:
+        since: "2.0.0"
+
   - name: purpose
-    description: This property informs the end-user why location services are being requested by the application.  This string will be display in the permission dialog. This property is REQUIRED starting in 4.0.
+    summary: |
+        Text to display in the permission dialog when requesting location
+        services.
+    description: |
+        This property informs the end user why location services are being requested by 
+        the application. This property is **required** starting in iOS 4.0.
     platforms: [iphone, ipad]
     type: String
+
   - name: showCalibration
-    description: returns true if the calibration UI can show
+    summary: Determines whether the compass calibration UI is shown if needed.
+    description: |
+        Set to `false` to disable display of the compass calibration UI. This may result
+        in invalid heading data. 
+    type: Boolean
+    default: true
+    platforms: [iphone, ipad]
+
+---
+name: LocationResults
+summary: |
+    Argument passed to the [getCurrentPosition](Titanium.Geolocation.getCurrentPosition) callback.
+properties:
+
+  - name: code
+    summary: if `success` is false, the error code if available.
+    type: Number
+
+  - name: success
+    summary: Indicates if location data was successfully retrieved.
+    type: Boolean
+
+  - name: provider
+    platforms: [android]
+    summary: If `success` is true, object describing the location provider generating this update.
+    type: LocationProviderDict
+
+  - name: coords
+    summary: If `success` is true, actual location data for this update.
+    type: LocationCoordinates
+
+  - name: error
+    summary: If `success` is false, a string describing the error.
+    type: String
+
+---
+name: LocationCoordinates
+summary: Simple object holding the data for a location update.
+properties:
+
+  - name: latitude
+    summary: Latitude of the location update, in decimal degrees.
+    type: Number
+
+  - name: longitude
+    summary: Longitude of the location update, in decimal degrees.
+    type: Number
+
+  - name: altitude
+    summary: Altitude of the location update, in meters.
+    type: Number
+
+  - name: accuracy
+    summary:  Accuracy of the location update, in meters.
+    type: Number
+
+  - name: altitudeAccuracy
+    summary:  Vertical accuracy of the location update, in meters.
+    type: Number
+
+  - name: heading
+    summary: |
+        Compass heading, in degrees. May be unknown if device is not moving. On 
+        iOS, a negative value indicates that the heading data is not valid.
+    type: Number
+
+  - name: speed
+    summary: |
+        Current speed in meters/second. On iOS, a negative value indicates that the 
+        heading data is not valid.
+    type: Number
+
+  - name: timestamp
+    summary: Timestamp for this location update, in milliseconds.
+    type: Number
+
+---
+name: ForwardGeocodeResponse
+summary: |
+    Simple object returned in the callback from the 
+    [forwardGeocoder](Titanium.Geolocation.forwardGeocoder) method.
+
+    Note that Android includes a number of extra fields.
+properties: 
+
+  - name: success
+    summary: Indicates whether the request succeeded.
+    type: Boolean 
+    platforms: [iphone, ipad]
+
+  - name: accuracy
+    summary: Estimated accuracy of the geocoding, in meters.
+    type: Number
+    platforms: [iphone, ipad]
+
+  - name: longitude
+    summary: Longitude of the geocoded address.
+    type: String
+    platforms: [android, iphone, ipad]
+
+  - name: latitude
+    summary: Latitude of the geocoded address.
+    type: String
+    platforms: [android, iphone, ipad]
+
+  - name: street
+    summary: Street name, without street address.
+    type: String
+    platforms: [android]
+
+  - name: street1
+    summary: Street name.
+    type: String
+    platforms: [android]
+
+  - name: city
+    summary: City name.
+    type: String
+    platforms: [android]
+
+  - name: region1
+    summary: First line of region.
+    type: String
+    platforms: [android]
+
+  - name: region2
+    summary: Not used.
+    type: String
+    platforms: [android]
+
+  - name: postalCode
+    summary: Postal code. 
+    type: String
+    platforms: [android]
+
+  - name: country
+    summary: Country name.
+    type: String
+    platforms: [android]
+
+  - name: countryCode
+    summary: Country code. 
+    type: String
+    platforms: [android]
+
+  - name: country_code
+    summary: Country code. Same as `country_code`.
+    type: String
+    platforms: [android]
+
+  - name: displayAddress
+    summary: Display address. Identical to `address`.
+    type: String
+    platforms: [android]
+
+  - name: address
+    summary: Full address.
+    type: String
+    platforms: [android]
+
+---
+name: HeadingResponse
+summary: |
+    Argument passed to the [getCurrentHeading](Titanium.Geolocation.getCurrentHeading) callback.
+
+properties:
+
+  - name: success
+    summary: Indicates whether the request succeeded.
     type: Boolean
     platforms: [iphone, ipad]
+
+  - name: error
+    summary: If `success` is false, includes a text description of the error.
+    type: String
+    platforms: [iphone, ipad]
+
+  - name: code
+    summary: If `success` is false, an error code, if available.
+    type: Number
+    platforms: [iphone, ipad]
+
+  - name: heading
+    summary: If `success` is true, the actual heading data.
+    type: HeadingData
+
+---
+name: HeadingData
+summary: Simple object holding compass heading data.
+properties:
+
+  - name: accuracy
+    summary: Accuracy of the compass heading, in platform-specific units.
+    description: |
+        On iOS, accuracy is returned as a maximum deviation in degrees. For example, 
+        a value of 10 means the heading is plus or minus degrees from the actual value.
+        A negative value indicates the compass heading is invalid; for example,
+        if there is magnetic interference, or if the compass is not calibrated.
+
+        On Mobile Web, compass is currently supported only on iOS, and returns the same
+        value as iOS native.
+
+        On Android, the value is set to either 1 (low accuracy), 2 (medium accuracy) or 3
+        (high accuracy). No specific definition of these accuracy values is supplied.
+    type: Number
+
+  - name: magneticHeading
+    summary: Declination in degrees from magnetic North.
+    type: Number
+
+  - name: trueHeading
+    summary: Declination in degrees from true North.
+    description: |
+        Calculating the true heading requires correcting the magnetic declination based on
+        the device's current location. So `trueHeading` can only be calculated if the device
+        has a fairly recent location fix. If you want to obtain the true heading, you
+        should register for location updates as well as compass updates. The location fix
+        does not need to be very accurate.
+
+        On Android, `trueHeading` is `undefined` if a recent location fix is not available.
+
+    type: Number
+    platforms: [android, iphone, ipad]
+
+  - name: timestamp
+    summary: Timestamp for the heading data, in milliseconds.
+    type: Number
+
+  - name: x
+    summary: Raw geomagnetic data for the X axis.
+    type: Number
+    platforms: [iphone, ipad, android]
+
+  - name: y
+    summary: Raw geomagnetic data for the Y axis.
+    type: Number
+    platforms: [iphone, ipad, android]
+
+  - name: z
+    summary: Raw geomagnetic data for the Z axis.
+    type: Number
+    platforms: [iphone, ipad, android]
+
+---
+name: LocationProviderDict
+summary: Simple object describing a location provider.
+description: |
+    The `accuracy` and `power` values correspond to constants defined in the 
+    Android API. See
+    [android.location.Criteria](http://developer.android.com/reference/android/location/Criteria.html) 
+    in the Android API Reference.
+
+    These values are generalizations. In general, a provider with coarse accuracy will
+    provide less accurate results than a provider with fine accuracy, and a provider with
+    high power requirements will use more battery power than a provider with low power
+    requirements.
+properties:
+
+  - name: accuracy
+    summary: |
+        Accuracy of the location provider, either fine (1) or coarse (2).
+    type: Number
+
+  - name: name
+    summary: Name of the location provider.
+    type: String
+
+  - name: power
+    summary: |
+        Power consumption for this provider, either low (1), medium (2), or high (3).
+    type: Number
+
+---
+name: ReverseGeocodeResponse
+summary: |
+    Simple object returned in the callback from the 
+    [reverseGeocoder](Titanium.Geolocation.reverseGeocoder) method.
+
+properties:
+
+  - name: success
+    summary: Indicates whether the request succeeded.
+    type: Boolean 
+
+  - name: places
+    summary: An array of reverse-geocoded addresses matching the requested location.
+    type: Array<GeocodedAddress>
+
+---
+name: GeocodedAddress
+summary: |
+    Simple object representing a place, returned in the callback from the 
+    [reverseGeocoder](Titanium.Geolocation.reverseGeocoder) method.
+
+properties:
+
+  - name: street
+    summary: Street name, without street address.
+    type: String
+    platforms: [android, iphone, ipad]
+
+  - name: street1
+    summary: Street name.
+    type: String
+    platforms: [android]
+
+  - name: city
+    summary: City name.
+    type: String
+    platforms: [android, iphone, ipad]
+
+  - name: region1
+    summary: First line of region.
+    type: String
+    platforms: [android]
+
+  - name: region2
+    summary: Not used.
+    type: String
+    platforms: [android]
+
+  - name: postalCode
+    summary: Postal code. On iOS, use `zipcode`.
+    type: String
+    platforms: [android]
+
+  - name: zipcode
+    summary: Postal code. On Android, use `postalCode`.
+    type: String
+    platforms: [iphone, ipad]
+
+  - name: country
+    summary: Country name.
+    type: String
+    platforms: [android, iphone, ipad]
+
+  - name: countryCode
+    summary: Country code. On iOS, use `country_code`.
+    type: String
+    platforms: [android]
+
+  - name: country_code
+    summary: Country code. Same as `country_code`.
+    type: String
+    platforms: [android, iphone, ipad]
+
+  - name: longitude
+    summary: Longitude of the geocoded point.
+    type: String
+    platforms: [android, iphone, ipad]
+
+  - name: latitude
+    summary: Latitude of the geocoded point.
+    type: String
+    platforms: [android, iphone, ipad]
+
+  - name: displayAddress
+    summary: Display address. Identical to `address`.
+    type: String
+    platforms: [android]
+
+  - name: address
+    summary: Full address.
+    type: String
+    platforms: [android, iphone, ipad]
+

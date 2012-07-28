@@ -1,26 +1,109 @@
 ---
 name: Titanium.UI.PickerColumn
-description: The picker row object created by [Titanium.UI.createPickerColumn](Titanium.UI.createPickerColumn).
+summary: 
+    A picker column, representing a selectable group of items in a <Titanium.UI.Picker>. 
+description: |
+    Use the <Titanium.UI.createPickerColumn> method to create a picker column control.
+    
+    On Android, the `useSpinner` property must be enabled to support multiple columns.
+    
+    See <Titanium.UI.Picker> for further examples of usage.
 extends: Titanium.UI.View
 since: "0.9"
+platforms: [android, iphone, ipad, mobileweb]
+
 methods:
   - name: addRow
-    description: add a row to the column.
+    summary: Adds a row to this column.
     parameters:
       - name: row
-        description: The row to add.
+        summary: A row to add.
         type: Titanium.UI.PickerRow
+        
   - name: removeRow
-    description: remove a row from the column.
+    summary: Removes a row from this column.
     parameters:
       - name: row
-        description: The row to remove.
+        summary: A row to remove.
         type: Titanium.UI.PickerRow
 properties:
   - name: rowCount
-    description: number of rows in the column
+    summary: Number of rows in this column.
     type: Number
     permission: read-only
+    
   - name: rows
-    description: an array of rows
-    type: Array<Object>
+    summary: Rows of this column.
+    description: |
+        While this property is currently writable on Android, changing its value is strongly 
+        discouraged.
+    type: Array<Titanium.UI.PickerRow>
+    permission: read-only
+    
+  - name: selectedRow
+    summary: The selected row in this column.
+    type: Titanium.UI.PickerRow
+    platforms: [mobileweb]
+    
+examples:
+  - title: Multi-Column Picker
+    example: |
+        Create a two-column, platform-specific style, picker and automatically select a row in 
+        each column.
+            
+            var win = Ti.UI.createWindow({
+              backgroundColor: 'white',
+              exitOnClose: true,
+              fullscreen: false,
+              title: 'Use picker to make selection'
+            });
+            
+            var fruit = [ 'Bananas', 'Grapes', 'Blueberries', 'Strawberries' ];
+            var color = [ 'blue', 'red', 'yellow', 'white' ];
+            
+            var column1 = Ti.UI.createPickerColumn();
+            
+            for(var i=0, ilen=fruit.length; i<ilen; i++){
+              var row = Ti.UI.createPickerRow({
+                title: fruit[i]
+              });
+              column1.addRow(row);
+            }
+            
+            var column2 = Ti.UI.createPickerColumn();
+            
+            for(var i=0, ilen=color.length; i<ilen; i++){
+              var row = Ti.UI.createPickerRow({
+                title: color[i]
+              });
+              column2.addRow(row);
+            }
+            
+            var picker = Ti.UI.createPicker({
+              columns: [column1, column2],
+              selectionIndicator: true,
+              useSpinner: true, // required in order to use multi-column pickers with Android
+              top:50
+            });
+            
+            function pickerDefaults(obj){
+              // on iOS, must be after picker has been rendered
+              picker.setSelectedRow(0, 2, false);
+              picker.setSelectedRow(1, 3, false);
+            }
+            
+            win.add(picker);
+            
+            var isAndroid = Ti.Platform.osname === 'android';
+            
+            if(isAndroid){
+              pickerDefaults(picker);
+            }
+            
+            win.open();
+            
+            if(!isAndroid){
+              setTimeout(function(){
+                pickerDefaults(picker);
+              }, 1500);
+            }

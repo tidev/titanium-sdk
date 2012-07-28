@@ -67,6 +67,8 @@
 
 -(void)invokeOnThread:(id)callback_ method:(SEL)method_ withObject:(id)obj condition:(NSCondition*)condition_;
 -(void)invokeOnThread:(id)callback_ method:(SEL)method_ withObject:(id)obj callback:(id)callback selector:(SEL)selector_;
+-(void)invokeBlockOnThread:(void(^)())block;
+
 -(void)evalJS:(NSString*)code;
 -(id)evalJSAndWait:(NSString*)code;
 
@@ -114,6 +116,7 @@
 	NSString *code;
 }
 -(id)initWithCode:(NSString*)code;
+-(TiValueRef) jsInvokeInContext: (KrollContext*)context exception: (TiValueRef *)exceptionPointer;
 -(void)invoke:(KrollContext*)context;
 -(id)invokeWithResult:(KrollContext*)context;
 @end

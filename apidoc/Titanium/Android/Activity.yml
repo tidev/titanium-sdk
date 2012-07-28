@@ -1,97 +1,250 @@
 ---
 name: Titanium.Android.Activity
-description: The Titanium binding of an [Android Activity](http://developer.android.com/reference/android/app/Activity.html)
+summary: The Titanium binding of an Android Activity.
+description: |
+    According to the Android API Reference, an activity is "a single, focused thing that a
+    user can do."
+
+    In almost all cases, an activity is associated with a window.  Activities are central
+    to the Android **Back** button navigation -- the **Back** button closes the current
+    activity and returns to whatever activity was open previously.
+
+    In Titanium, you can create either "lightweight" or a "heavyweight" windows, as
+    described on the <Titanium.UI.Window> reference page. A *heavyweight* window creates a 
+    new `Activity`. A *lightweight* window runs inside the same activity as the code that
+    created it. 
+
+    See: [android.app.Activity](http://developer.android.com/reference/android/app/Activity.html)
+    in the Android API Reference.
+
+    #### Activity Lifecycle
+
+    In Android, activities are started, stopped, paused and resumed. Titanium generates
+    lifecycle events for activities, but doesn't generate application-level start, stop, 
+    pause and resume events. To be notified when
+    an application is paused and resumed, you must add event listeners to its individual
+    activities.
+
+
 extends: Titanium.Proxy
 platforms: [android]
 createable: false
 since: "1.5"
 methods:
   - name: finish
-    description: Called when the activity is done and should be closed. Also see Android's documentation for [finish](http://developer.android.com/reference/android/app/Activity.html#finish())
+    summary: Closes this activity.
+    description: |
+        See also:
+        [finish](http://developer.android.com/reference/android/app/Activity.html#finish())
+        in the Android API Reference.
+
   - name: getString
-    description: Get an Android or Application string using the passed-in Resource ID and optional format arguments. Also see Android's documentation for [getString](http://developer.android.com/reference/android/content/Context.html#getString(int)) and [String Resources](http://developer.android.com/guide/topics/resources/string-resource.html#String)
+    summary: Gets an Android or Application string using the specified Resource ID and optional format arguments. 
+    description: |
+        If the optional format arguments are supplied, these are substituted for the
+        corresponding format specifiers in the string. For example, given the following
+        string resource:
+
+            <string name="greeting">"Hello %1$s, this is %2$s."</string>
+
+        You could call `getString` like this:
+
+            Ti.Android.currentActivity.getString(Ti.App.Android.R.string.greeting,  "Bob", "Doug" );
+
+        The resulting string is:
+
+            "Hello Bob, this is Doug."
+
+        See also:
+        *   [getString](http://developer.android.com/reference/android/content/Context.html#getString(int))
+            in the Android Developer Reference
+        *   [Formatter](http://developer.android.com/reference/java/util/Formatter.html)
+            in the Android Developer Reference
+        *   [String Resources](http://developer.android.com/guide/topics/resources/string-resource.html#String)
+            in the Android Developer Guide
     returns:
         type: String
     parameters:
       - name: resourceId
-        description: A Resource ID from the Application or Android.
+        summary: Resource ID from the Application or Android.
         type: Number
+
       - name: format
-        description: Optional format arguments for the String resource
-        type: Array<Object>
+        summary: Optional format arguments for the String resource. May be repeated.
+        type: Object
+
   - name: setRequestedOrientation
-    description: Set the requested Activity orientation. Also see Android's documentation for [setRequestedOrientation](http://developer.android.com/reference/android/app/Activity.html#setRequestedOrientation(int))
+    summary: Sets the requested Activity orientation. 
+    description: |
+        See also:
+        [setRequestedOrientation](http://developer.android.com/reference/android/app/Activity.html#setRequestedOrientation(int))
+        in the Android API Reference.
     parameters:
       - name: orientation
-        description: Can be one of <Titanium.Android.SCREEN_ORIENTATION_BEHIND>, <Titanium.Android.SCREEN_ORIENTATION_LANDSCAPE>, <Titanium.Android.SCREEN_ORIENTATION_NOSENSOR>, <Titanium.Android.SCREEN_ORIENTATION_PORTRAIT>, <Titanium.Android.SCREEN_ORIENTATION_SENSOR>, <Titanium.Android.SCREEN_ORIENTATION_UNSPECIFIED>, <Titanium.Android.SCREEN_ORIENTATION_USER>
+        summary: |
+            Can be one of <Titanium.Android.SCREEN_ORIENTATION_BEHIND>,
+            <Titanium.Android.SCREEN_ORIENTATION_LANDSCAPE>,
+            <Titanium.Android.SCREEN_ORIENTATION_NOSENSOR>,
+            <Titanium.Android.SCREEN_ORIENTATION_PORTRAIT>,
+            <Titanium.Android.SCREEN_ORIENTATION_SENSOR>,
+            <Titanium.Android.SCREEN_ORIENTATION_UNSPECIFIED>,
+            <Titanium.Android.SCREEN_ORIENTATION_USER>.
         type: Number
+
   - name: setResult
-    description: Sets the result of this Activity using an Intent. This should be used in the case when the Activity responds to startActivityForResult. Also see Android's documentation for [setResult](http://developer.android.com/reference/android/app/Activity.html#setResult(int))
+    summary: Sets the result of this activity using an `Intent`. 
+    description: |
+        This should be used in the case when the Activity responds to
+        [startActivityForResult](Titanium.Android.Activity.startActivityForResult). 
+
+        Also see Android's documentation for
+        [setResult](http://developer.android.com/reference/android/app/Activity.html#setResult(int)).
     parameters:
+
       - name: resultCode
-        description: The result code for this Activity. Must be one of <Titanium.Android.RESULT_OK>, <Titanium.Android.RESULT_CANCELED>, <Titanium.Android.RESULT_FIRST_USER>
+        summary: |
+            Result code for this activity. Can be <Titanium.Android.RESULT_OK>, 
+            <Titanium.Android.RESULT_CANCELED>, or <Titanium.Android.RESULT_FIRST_USER>.
         type: Number
+
       - name: intent
-        description: An optional <Titanium.Android.Intent> with extra result data
+        summary: An optional `Intent` with extra result data.
         type: Titanium.Android.Intent
+        optional: true
+
   - name: startActivity
-    description: Starts a new Activity, using the passed in Intent as the description. Also see Android's documentation for [startActivity](http://developer.android.com/reference/android/app/Activity.html#startActivity(android.content.Intent))
+    summary: Starts a new activity, using the passed in `Intent` as the description. 
+    description: |
+        See also: [startActivity](http://developer.android.com/reference/android/app/Activity.html#startActivity(android.content.Intent))
+            in the Android Developer Reference.
     parameters:
       - name: intent
-        description: Description of the Activity to start
+        summary: Description of the activity to start.
         type: Titanium.Android.Intent
+
   - name: startActivityForResult
-    description: The same as `startActivity`, but also accepts a callback function for handling the result of the started Activity. Also see Android's documentation for [startActivityForResult](http://developer.android.com/reference/android/app/Activity.html#startActivityForResult(android.content.Intent, int))
+    summary: The same as `startActivity`, but also accepts a callback function for handling the result of the started Activity. 
+    description:  |
+        See also: 
+        [startActivityForResult](http://developer.android.com/reference/android/app/Activity.html#startActivityForResult(android.content.Intent, int)) 
+        in the Android Developer Reference.
     parameters:
+
       - name: intent
-        description: Description of the Activity to start
+        summary: Description of the activity to start.
         type: Titanium.Android.Intent
+
       - name: callback
-        description: A callback function that is executed when the Activity has set it's result. See example in <Titanium.Android.Activity>.
-        type: Callback<Object>
+        summary: |
+            Callback function to be executed when the activity sets result. See
+            examples.
+        type: Callback<ActivityResult>
 events:
+
   - name: create
-    description: Fired from the Activity's [onCreate](http://developer.android.com/reference/android/app/Activity.html#onCreate(android.os.Bundle))
+    summary: Fired from the activity's `onCreate` method.
+    description: |
+        See also:
+        [onCreate](http://developer.android.com/reference/android/app/Activity.html#onCreate(android.os.Bundle))
+        in the Android Developer Reference.
+
   - name: destroy
-    description: Fired from the Activity's [onDestroy](http://developer.android.com/reference/android/app/Activity.html#onDestroy())
+    summary: Fired from the activity's `onDestroy` method.
+    description: |
+        See also: [onDestroy](http://developer.android.com/reference/android/app/Activity.html#onDestroy())
+        in the Android Developer Reference.
+
   - name: newIntent
-    description: Fired when the application is already running and certain flags are set in the Intent. Fired from the Activity's [onNewIntent](http://developer.android.com/reference/android/app/Activity.html#onNewIntent(android.content.Intent))
+    summary: Fired when the activity is already running and certain flags are set in its intent. 
+    description: |
+        See also:
+        [onNewIntent](http://developer.android.com/reference/android/app/Activity.html#onNewIntent(android.content.Intent))
+        in the Android Developer Reference.
     properties:
+
       - name: intent
-        description: the <Titanium.Android.Intent> passed to the native `onNewIntent` method.
+        summary: The `Intent` passed to the native `onNewIntent` method.
+        type: Titanium.Android.Intent
+
   - name: pause
-    description: Fired from the Activity's [onPause](http://developer.android.com/reference/android/app/Activity.html#onPause())
+    summary: Fired when the activity is paused.
+    description: |
+        See also:
+        [onPause](http://developer.android.com/reference/android/app/Activity.html#onPause())
+        in the Android Developer Reference.
+
   - name: resume
-    description: Fired from the Activity's [onResume](http://developer.android.com/reference/android/app/Activity.html#onResume())
+    summary: Fired when the activity is resumed.
+    description: |
+        See also: [onResume](http://developer.android.com/reference/android/app/Activity.html#onResume())
+        in the Android Developer Reference.
+
   - name: start
-    description: Fired from the Activity's [onStart](http://developer.android.com/reference/android/app/Activity.html#onStart())
+    summary: Fired when the activity is started.
+    description: |
+        See also: [onStart](http://developer.android.com/reference/android/app/Activity.html#onStart())
+        in the Android Developer Reference.
+
   - name: stop
-    description: Fired from the Activity's [onStop](http://developer.android.com/reference/android/app/Activity.html#onStop())
+    summary: Fired when the activity is stopped.
+    description: |
+        See also: [onStop](http://developer.android.com/reference/android/app/Activity.html#onStop())
+        in the Android Developer Reference.
+
 properties:
+
   - name: intent
-    description: The <Titanium.Android.Intent> that was used to start this Activity
+    summary: The `Intent` that was used to start this Activity.
     type: Titanium.Android.Intent
     permission: read-only
+
   - name: onCreateOptionsMenu
-    description: A callback function that is called to initially create an Android [Options Menu](http://developer.android.com/guide/topics/ui/menus.html#options-menu) for this Activity when the user presses the Menu button. See the menu examples in <Titanium.Android.Menu>
+    summary: |
+        Callback function called to initially create an Android options menu
+        for this Activity when the user presses the **Menu** button.
+    description: |
+         See the menu examples in <Titanium.Android.Menu>.
+
+         See also: 
+         [Creating an Options Menu](http://developer.android.com/guide/topics/ui/menus.html#options-menu) 
+         in the Android Developer's Guide.
     type: Callback<Object>
-    accessors: false
+
   - name: onPrepareOptionsMenu
-    description: A callback function that is called to prepare an [Options Menu](http://developer.android.com/guide/topics/ui/menus.html#options-menu) for displaying on this Activity when the user presses the Menu button. See the menu examples in <Titanium.Android.Menu>
+    summary:  |
+        Callback function called to prepare an options menu for display when the user presses
+        the **Menu** button. 
+    description: |
+         See the menu examples in <Titanium.Android.Menu>.
+
+         See also: 
+         [Creating an Options Menu](http://developer.android.com/guide/topics/ui/menus.html#options-menu) 
+         in the Android Developer's Guide.
     type: Callback<Object>
-    accessors: false
+
   - name: requestedOrientation
-    description: Can be one of <Titanium.Android.SCREEN_ORIENTATION_BEHIND>, <Titanium.Android.SCREEN_ORIENTATION_LANDSCAPE>, <Titanium.Android.SCREEN_ORIENTATION_NOSENSOR>, <Titanium.Android.SCREEN_ORIENTATION_PORTRAIT>, <Titanium.Android.SCREEN_ORIENTATION_SENSOR>, <Titanium.Android.SCREEN_ORIENTATION_UNSPECIFIED>, <Titanium.Android.SCREEN_ORIENTATION_USER>
+    summary: Specifies a specific orientation for this activity.
+    description: |
+        Can be one of <Titanium.Android.SCREEN_ORIENTATION_BEHIND>, 
+        <Titanium.Android.SCREEN_ORIENTATION_LANDSCAPE>, 
+        <Titanium.Android.SCREEN_ORIENTATION_NOSENSOR>, 
+        <Titanium.Android.SCREEN_ORIENTATION_PORTRAIT>, 
+        <Titanium.Android.SCREEN_ORIENTATION_SENSOR>, 
+        <Titanium.Android.SCREEN_ORIENTATION_UNSPECIFIED>, <Titanium.Android.SCREEN_ORIENTATION_USER>
     type: Number
     permission: write-only
+
 examples:
-  - title: Callback example
+  - title: Callback Example
     example: |
+        The following example shows how to start an activity and retrieve a result code
+        and optional data intent when the activity ends.
         
             activity.startActivityForResult(intent, function(e) {
                 // The request code used to start this Activity
                 var requestCode = e.requestCode;
-                // The result code returned from the Activity (http://developer.android.com/reference/android/app/Activity.html#StartingActivities)
+                // The result code returned from the activity 
+                // (http://developer.android.com/reference/android/app/Activity.html#StartingActivities)
                 var resultCode = e.resultCode;
                 // A Titanium.Android.Intent filled with data returned from the Activity
                 var intent = e.intent;
@@ -99,3 +252,27 @@ examples:
                 var source = e.source;
             });
         
+---
+name: ActivityResult
+summary: |
+    Simple object passed to the
+    [startActivityForResult](Titanium.Android.Activity.startActivityForResult) callback.
+properties:
+
+  - name: requestCode
+    summary: |
+        Unique, automatically generated integer request code.
+    type: Number
+
+  - name: resultCode
+    summary: |
+        Integer result code that the started activity passed to
+        [setResult](Titanium.Android.Activity.setResult).
+    type: Number
+
+  - name: intent
+    summary: |
+        Intent that can contain data returned to the caller. Data can be attached to
+        the intent as "extras").
+    type: Titanium.Android.Intent
+

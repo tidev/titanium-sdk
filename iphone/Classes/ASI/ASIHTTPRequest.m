@@ -24,7 +24,7 @@
 #import "ASIDataCompressor.h"
 
 // Automatically set on build
-NSString *ASIHTTPRequestVersion = @"v1.8.1-8 2011-06-05";
+NSString *TI_ASIHTTPRequestVersion = @"v1.8.1-61 2011-09-19";
 
 static NSString *defaultUserAgent = nil;
 
@@ -121,7 +121,7 @@ static NSRecursiveLock *delegateAuthenticationLock = nil;
 // When throttling bandwidth, Set to a date in future that we will allow all requests to wake up and reschedule their streams
 static NSDate *throttleWakeUpTime = nil;
 
-static id <ASICacheDelegate> defaultCache = nil;
+static id <TI_ASICacheDelegate> defaultCache = nil;
 
 // Used for tracking when requests are using the network
 static unsigned int runningRequestCount = 0;
@@ -136,6 +136,15 @@ static BOOL shouldUpdateNetworkActivityIndicator = YES;
 static NSThread *networkThread = nil;
 
 static NSOperationQueue *sharedQueue = nil;
+
+// SPT - See the following Apple technical note for why we need to define these
+// http://developer.apple.com/library/ios/#technotes/tn2287/_index.html#//apple_ref/doc/uid/DTS40011309
+
+static NSString* ASI_TLS_VERSION_1_0 = @"kCFStreamSocketSecurityLevelTLSv1_0SSLv3";
+static NSString* ASI_TLS_VERSION_1_1 = @"kCFStreamSocketSecurityLevelTLSv1_1SSLv3";
+static NSString* ASI_TLS_VERSION_1_2 = @"kCFStreamSocketSecurityLevelTLSv1_2SSLv3";
+
+static NSMutableSet* legacyTlsServers = nil;
 
 // Private stuff
 @interface ASIHTTPRequest ()
@@ -231,7 +240,7 @@ static NSOperationQueue *sharedQueue = nil;
 @property (assign) BOOL connectionCanBeReused;
 @property (retain, nonatomic) NSMutableDictionary *connectionInfo;
 @property (retain, nonatomic) NSInputStream *readStream;
-@property (assign) ASIAuthenticationState authenticationNeeded;
+@property (assign) TI_ASIAuthenticationState authenticationNeeded;
 @property (assign, nonatomic) BOOL readStreamIsScheduled;
 @property (assign, nonatomic) BOOL downloadComplete;
 @property (retain) NSNumber *requestID;
@@ -271,7 +280,7 @@ static NSOperationQueue *sharedQueue = nil;
 		ASITooMuchRedirectionError = [[NSError alloc] initWithDomain:NetworkRequestErrorDomain code:ASITooMuchRedirectionErrorType userInfo:[NSDictionary dictionaryWithObjectsAndKeys:@"The request failed because it redirected too many times",NSLocalizedDescriptionKey,nil]];
 		sharedQueue = [[NSOperationQueue alloc] init];
 		[sharedQueue setMaxConcurrentOperationCount:4];
-
+		legacyTlsServers = [[NSMutableSet alloc] init];
 	}
 }
 
@@ -316,12 +325,12 @@ static NSOperationQueue *sharedQueue = nil;
 	return [[[self alloc] initWithURL:newURL] autorelease];
 }
 
-+ (id)requestWithURL:(NSURL *)newURL usingCache:(id <ASICacheDelegate>)cache
++ (id)requestWithURL:(NSURL *)newURL usingCache:(id <TI_ASICacheDelegate>)cache
 {
-	return [self requestWithURL:newURL usingCache:cache andCachePolicy:ASIUseDefaultCachePolicy];
+	return [self requestWithURL:newURL usingCache:cache andCachePolicy:TI_ASIUseDefaultCachePolicy];
 }
 
-+ (id)requestWithURL:(NSURL *)newURL usingCache:(id <ASICacheDelegate>)cache andCachePolicy:(ASICachePolicy)policy
++ (id)requestWithURL:(NSURL *)newURL usingCache:(id <TI_ASICacheDelegate>)cache andCachePolicy:(TI_ASICachePolicy)policy
 {
 	ASIHTTPRequest *request = [[[self alloc] initWithURL:newURL] autorelease];
 	[request setDownloadCache:cache];
@@ -331,7 +340,7 @@ static NSOperationQueue *sharedQueue = nil;
 
 - (void)dealloc
 {
-	[self setAuthenticationNeeded:ASINoAuthenticationNeededYet];
+	[self setAuthenticationNeeded:TI_ASINoAuthenticationNeededYet];
 	if (requestAuthentication) {
 		CFRelease(requestAuthentication);
 	}
@@ -460,6 +469,11 @@ static NSOperationQueue *sharedQueue = nil;
 		[authenticationNeededBlock release];
 		authenticationNeededBlock = nil;
 	}
+	if (requestRedirectedBlock) {
+		[blocks addObject:requestRedirectedBlock];
+		[requestRedirectedBlock release];
+		requestRedirectedBlock = nil;
+	}
 	[[self class] performSelectorOnMainThread:@selector(releaseBlocks:) withObject:blocks waitUntilDone:[NSThread isMainThread]];
 }
 // Always called on main thread
@@ -477,7 +491,14 @@ static NSOperationQueue *sharedQueue = nil;
 	if (!requestHeaders) {
 		[self setRequestHeaders:[NSMutableDictionary dictionaryWithCapacity:1]];
 	}
-	[requestHeaders setObject:value forKey:header];
+	if (value == nil)
+	{
+		[requestHeaders removeObjectForKey:header];
+	}
+	else
+	{
+		[requestHeaders setObject:value forKey:header];
+	}
 }
 
 // This function will be called either just before a request starts, or when postLength is needed, whichever comes first
@@ -843,18 +864,20 @@ static NSOperationQueue *sharedQueue = nil;
 		
 		#if TARGET_OS_IPHONE && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_4_0
 		if ([ASIHTTPRequest isMultitaskingSupported] && [self shouldContinueWhenAppEntersBackground]) {
-			backgroundTask = [[UIApplication sharedApplication] beginBackgroundTaskWithExpirationHandler:^{
-				// Synchronize the cleanup call on the main thread in case
-				// the task actually finishes at around the same time.
-				dispatch_async(dispatch_get_main_queue(), ^{
-					if (backgroundTask != UIBackgroundTaskInvalid)
-					{
-						[[UIApplication sharedApplication] endBackgroundTask:backgroundTask];
-						backgroundTask = UIBackgroundTaskInvalid;
-						[self cancel];
-					}
-				});
-			}];
+            if (!backgroundTask || backgroundTask == UIBackgroundTaskInvalid) {
+                backgroundTask = [[UIApplication sharedApplication] beginBackgroundTaskWithExpirationHandler:^{
+                    // Synchronize the cleanup call on the main thread in case
+                    // the task actually finishes at around the same time.
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        if (backgroundTask != UIBackgroundTaskInvalid)
+                        {
+                            [[UIApplication sharedApplication] endBackgroundTask:backgroundTask];
+                            backgroundTask = UIBackgroundTaskInvalid;
+                            [self cancel];
+                        }
+                    });
+                }];
+            }
 		}
 		#endif
 
@@ -918,7 +941,7 @@ static NSOperationQueue *sharedQueue = nil;
 			}
 
 			// If cached data is stale, or we have been told to ask the server if it has been modified anyway, we need to add headers for a conditional GET
-			if ([self cachePolicy] & (ASIAskServerIfModifiedWhenStaleCachePolicy|ASIAskServerIfModifiedCachePolicy)) {
+			if ([self cachePolicy] & (TI_ASIAskServerIfModifiedWhenStaleCachePolicy|TI_ASIAskServerIfModifiedCachePolicy)) {
 
 				NSDictionary *cachedHeaders = [[self downloadCache] cachedResponseHeadersForURL:[self url]];
 				if (cachedHeaders) {
@@ -1199,13 +1222,26 @@ static NSOperationQueue *sharedQueue = nil;
     //
 
     if([[[[self url] scheme] lowercaseString] isEqualToString:@"https"]) {
-
-        NSMutableDictionary *sslProperties = [NSMutableDictionary dictionaryWithCapacity:1];
-
-        // Tell CFNetwork not to validate SSL certificates
-        if (![self validatesSecureCertificate]) {
-            [sslProperties setObject:(NSString *)kCFBooleanFalse forKey:(NSString *)kCFStreamSSLValidatesCertificateChain];
-        }
+		bool validates = [self validatesSecureCertificate];
+		CFBooleanRef validatesRef;
+		CFBooleanRef notValidatesRef;
+        if (validates) {
+			validatesRef = kCFBooleanTrue;
+			notValidatesRef = kCFBooleanFalse;
+		} else {
+			validatesRef = kCFBooleanFalse;
+			notValidatesRef = kCFBooleanTrue;
+		}
+		
+        NSMutableDictionary *sslProperties = [NSMutableDictionary dictionaryWithObjectsAndKeys:
+				(id)validatesRef,(NSString*)kCFStreamSSLValidatesCertificateChain,
+				(id)notValidatesRef,(NSString*)kCFStreamSSLAllowsAnyRoot,
+			    (id)notValidatesRef,(NSString*)kCFStreamSSLAllowsExpiredCertificates,
+											  nil];
+		
+		if (!validates) {
+			[sslProperties setObject:(id)kCFNull forKey:(NSString*)kCFStreamSSLPeerName];
+		}
 
         // Tell CFNetwork to use a client certificate
         if (clientCertificateIdentity) {
@@ -1221,6 +1257,34 @@ static NSOperationQueue *sharedQueue = nil;
 			}
             [sslProperties setObject:certificates forKey:(NSString *)kCFStreamSSLCertificates];
         }
+		NSString* sslVersion = nil;
+		if (tlsVersion != 0) {
+            switch (tlsVersion) {
+                case TLS_VERSION_1_0:
+                    sslVersion = ASI_TLS_VERSION_1_0;
+                    break;
+                case TLS_VERSION_1_1:
+                    sslVersion = ASI_TLS_VERSION_1_1;
+                    break;
+                case TLS_VERSION_1_2:
+                    sslVersion = ASI_TLS_VERSION_1_2;
+                    break;
+            }
+        } else {
+			NSString* serverName = [[[self url] host] lowercaseString];
+			if (!useLegacyTls) {
+				@synchronized(legacyTlsServers){
+					serverInlegacyTlsServers = [legacyTlsServers containsObject:serverName];
+					useLegacyTls = serverInlegacyTlsServers;
+				}
+			}
+			if (useLegacyTls) {
+				sslVersion = ASI_TLS_VERSION_1_0;
+			}
+		}
+		if (sslVersion != nil) {
+			[sslProperties setObject:sslVersion forKey:(NSString*)kCFStreamSSLLevel];
+		}
 
         CFReadStreamSetProperty((CFReadStreamRef)[self readStream], kCFStreamPropertySSLSettings, sslProperties);
     }
@@ -1337,7 +1401,15 @@ static NSOperationQueue *sharedQueue = nil;
 		}
 		[[self connectionInfo] setObject:[self requestID] forKey:@"request"];		
 		[[self connectionInfo] setObject:[self readStream] forKey:@"stream"];
-		CFReadStreamSetProperty((CFReadStreamRef)[self readStream],  kCFStreamPropertyHTTPAttemptPersistentConnection, kCFBooleanTrue);
+        
+        // SPT: This feature has a behavior change in iOS 5.0 - it turns out that the system likes to clean up these
+        // types of connections at different times now, or simply not persist them "appropriately" in some other fashion.
+        //
+        // Note that this could also be an ASI issue, due to how the persistent connection pool is managed... but because of how
+        // it's cleaned up with the start of each new request (possibly what introduces this problem in the first place), this
+        // "simple" fix should not be introducing any issues until we can replace ASI.
+        
+//		CFReadStreamSetProperty((CFReadStreamRef)[self readStream],  kCFStreamPropertyHTTPAttemptPersistentConnection, kCFBooleanTrue);
 		
 		#if DEBUG_PERSISTENT_CONNECTIONS
 		NSLog(@"[CONNECTION] Request #%@ will use connection #%i",[self requestID],[[[self connectionInfo] objectForKey:@"id"] intValue]);
@@ -1619,6 +1691,7 @@ static NSOperationQueue *sharedQueue = nil;
 	[headRequest setTimeOutSeconds:[self timeOutSeconds]];
 	[headRequest setUseHTTPVersionOne:[self useHTTPVersionOne]];
 	[headRequest setValidatesSecureCertificate:[self validatesSecureCertificate]];
+    [headRequest setTlsVersion:[self tlsVersion]];
     [headRequest setClientCertificateIdentity:clientCertificateIdentity];
 	[headRequest setClientCertificates:[[clientCertificates copy] autorelease]];
 	[headRequest setPACurl:[self PACurl]];
@@ -2076,7 +2149,7 @@ static NSOperationQueue *sharedQueue = nil;
 	}
 	
 	// If we have cached data, use it and ignore the error when using ASIFallbackToCacheIfLoadFailsCachePolicy
-	if ([self downloadCache] && ([self cachePolicy] & ASIFallbackToCacheIfLoadFailsCachePolicy)) {
+	if ([self downloadCache] && ([self cachePolicy] & TI_ASIFallbackToCacheIfLoadFailsCachePolicy)) {
 		if ([[self downloadCache] canUseCachedDataForRequest:self]) {
 			[self useDataFromCache];
 			return;
@@ -2113,7 +2186,7 @@ static NSOperationQueue *sharedQueue = nil;
 
 - (void)readResponseHeaders
 {
-	[self setAuthenticationNeeded:ASINoAuthenticationNeededYet];
+	[self setAuthenticationNeeded:TI_ASINoAuthenticationNeededYet];
 
 	CFHTTPMessageRef message = (CFHTTPMessageRef)CFReadStreamCopyProperty((CFReadStreamRef)[self readStream], kCFStreamPropertyHTTPResponseHeader);
 	if (!message) {
@@ -3383,6 +3456,13 @@ static NSOperationQueue *sharedQueue = nil;
 #if DEBUG_REQUEST_STATUS
 	NSLog(@"[STATUS] Request %@ finished downloading data (%qu bytes)",self, [self totalBytesRead]);
 #endif
+	if (!serverInlegacyTlsServers && useLegacyTls) {
+		@synchronized(legacyTlsServers){
+			NSString* serverName = [[[self url] host] lowercaseString];
+			[legacyTlsServers addObject:serverName];
+		}
+	}
+	
 	[self setStatusTimer:nil];
 	[self setDownloadComplete:YES];
 	
@@ -3515,13 +3595,16 @@ static NSOperationQueue *sharedQueue = nil;
 
 	// dealloc won't be called when running with GC, so we'll clean these up now
 	if (request) {
-		CFMakeCollectable(request);
+		CFRelease(request);
+		request = nil;
 	}
 	if (requestAuthentication) {
-		CFMakeCollectable(requestAuthentication);
+		CFRelease(requestAuthentication);
+		requestAuthentication = nil;
 	}
 	if (proxyAuthentication) {
-		CFMakeCollectable(proxyAuthentication);
+		CFRelease(proxyAuthentication);
+		proxyAuthentication = nil;
 	}
 
     BOOL wasInProgress = inProgress;
@@ -3649,6 +3732,19 @@ static NSOperationQueue *sharedQueue = nil;
 		if (([[underlyingError domain] isEqualToString:NSPOSIXErrorDomain] && ([underlyingError code] == ENOTCONN || [underlyingError code] == EPIPE)) 
 			|| ([[underlyingError domain] isEqualToString:(NSString *)kCFErrorDomainCFNetwork] && [underlyingError code] == -1005)) {
 			if ([self retryUsingNewConnection]) {
+				return;
+			}
+		}
+		
+		// If at first you don't succeed with https, scale down to TLS1.0 and try again.
+		// Note that this fallback scheme happens ONLY when a TLS version wasn't requested.
+		if (!useLegacyTls && (tlsVersion == 0) && [[[self url] scheme] isEqualToString:@"https"]) {
+			useLegacyTls = YES;
+			if ([self retryUsingNewConnection]) {
+#if defined(DEBUG) || defined(DEVELOPER)
+				NSLog(@"[WARN] Unable to securely connect to %@ with the latest TLS. Trying again with TLS1.0. "
+					  "It is highly suggested that the server be updated to the latest TLS support.",[[self url] host]);
+#endif
 				return;
 			}
 		}
@@ -4078,6 +4174,7 @@ static NSOperationQueue *sharedQueue = nil;
 	[newRequest setUseHTTPVersionOne:[self useHTTPVersionOne]];
 	[newRequest setShouldRedirect:[self shouldRedirect]];
 	[newRequest setValidatesSecureCertificate:[self validatesSecureCertificate]];
+    [newRequest setTlsVersion:[self tlsVersion]];
     [newRequest setClientCertificateIdentity:clientCertificateIdentity];
 	[newRequest setClientCertificates:[[clientCertificates copy] autorelease]];
 	[newRequest setPACurl:[self PACurl]];
@@ -4086,6 +4183,7 @@ static NSOperationQueue *sharedQueue = nil;
 	[newRequest setShouldUseRFC2616RedirectBehaviour:[self shouldUseRFC2616RedirectBehaviour]];
 	[newRequest setShouldAttemptPersistentConnection:[self shouldAttemptPersistentConnection]];
 	[newRequest setPersistentConnectionTimeoutSeconds:[self persistentConnectionTimeoutSeconds]];
+    [newRequest setAuthenticationScheme:[self authenticationScheme]];
 	return newRequest;
 }
 
@@ -4240,7 +4338,7 @@ static NSOperationQueue *sharedQueue = nil;
 		if ([self username] && [self password]) {
 			NSDictionary *usernameAndPassword = [theCredentials objectForKey:@"Credentials"];
 			NSString *storedUsername = [usernameAndPassword objectForKey:(NSString *)kCFHTTPAuthenticationUsername];
-			NSString *storedPassword = [usernameAndPassword objectForKey:(NSString *)kCFHTTPAuthenticationUsername];
+			NSString *storedPassword = [usernameAndPassword objectForKey:(NSString *)kCFHTTPAuthenticationPassword];
 			if (![storedUsername isEqualToString:[self username]] || ![storedPassword isEqualToString:[self password]]) {
 				continue;
 			}
@@ -4352,7 +4450,7 @@ static NSOperationQueue *sharedQueue = nil;
 	[[[self class] sessionCredentialsStore] removeAllObjects];
 	[sessionCredentialsLock unlock];
 	[[self class] setSessionCookies:nil];
-	[[[self class] defaultCache] clearCachedResponsesForStoragePolicy:ASICacheForSessionDurationCacheStoragePolicy];
+	[[[self class] defaultCache] clearCachedResponsesForStoragePolicy:TI_ASICacheForSessionDurationCacheStoragePolicy];
 }
 
 #pragma mark get user agent
@@ -4681,7 +4779,7 @@ static NSOperationQueue *sharedQueue = nil;
 
 #pragma mark cache
 
-+ (void)setDefaultCache:(id <ASICacheDelegate>)cache
++ (void)setDefaultCache:(id <TI_ASICacheDelegate>)cache
 {
 	@synchronized (self) {
 		[cache retain];
@@ -4690,11 +4788,12 @@ static NSOperationQueue *sharedQueue = nil;
 	}
 }
 
-+ (id <ASICacheDelegate>)defaultCache
++ (id <TI_ASICacheDelegate>)defaultCache
 {
     @synchronized(self) {
         return [[defaultCache retain] autorelease];
     }
+	return nil;
 }
 
 
@@ -4830,6 +4929,35 @@ static NSOperationQueue *sharedQueue = nil;
     }
 	
     return [[[NSString alloc] initWithData:data encoding:NSASCIIStringEncoding] autorelease];
+}
+
++ (NSDate *)expiryDateForRequest:(ASIHTTPRequest *)request maxAge:(NSTimeInterval)maxAge
+{
+	NSDictionary *responseHeaders = [request responseHeaders];
+  
+	// If we weren't given a custom max-age, lets look for one in the response headers
+	if (!maxAge) {
+		NSString *cacheControl = [[responseHeaders objectForKey:@"Cache-Control"] lowercaseString];
+		if (cacheControl) {
+			NSScanner *scanner = [NSScanner scannerWithString:cacheControl];
+			[scanner scanUpToString:@"max-age" intoString:NULL];
+			if ([scanner scanString:@"max-age" intoString:NULL]) {
+				[scanner scanString:@"=" intoString:NULL];
+				[scanner scanDouble:&maxAge];
+			}
+		}
+	}
+  
+	// RFC 2612 says max-age must override any Expires header
+	if (maxAge) {
+		return [[NSDate date] addTimeInterval:maxAge];
+	} else {
+		NSString *expires = [responseHeaders objectForKey:@"Expires"];
+		if (expires) {
+			return [ASIHTTPRequest dateFromRFC1123String:expires];
+		}
+	}
+	return nil;
 }
 
 // Based on hints from http://stackoverflow.com/questions/1850824/parsing-a-rfc-822-date-with-nsdateformatter
@@ -5078,4 +5206,5 @@ static NSOperationQueue *sharedQueue = nil;
 @synthesize PACFileData;
 
 @synthesize isSynchronous;
+@synthesize tlsVersion;
 @end

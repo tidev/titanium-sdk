@@ -11,6 +11,7 @@ var b = Titanium.UI.createButton({
 	top:10
 });
 
+var interval;
 //
 // BUTTON LISTENER TO KICK OFF PROGRESS BARS
 //
@@ -22,7 +23,8 @@ b.addEventListener('click', function()
 	ind4.show();
 
 	var val = 0;
-	var interval = setInterval(function()
+	clearInterval(interval);
+	interval = setInterval(function()
 	{
 		Ti.API.info('INTERVAL FIRED value ' + val);
 		if (val == 11)
@@ -32,8 +34,6 @@ b.addEventListener('click', function()
 			ind2.hide();
 			ind3.hide();
 			ind4.hide();
-			win.setToolbar(null,{animated:true});
-			win.setTitleControl(null);
 			win.setTitle('Progress Bar');
 			return;
 		}

@@ -1,14 +1,15 @@
 #
 # Appcelerator Titanium Mobile
-# Copyright (c) 2011 by Appcelerator, Inc. All Rights Reserved.
+# Copyright (c) 2011-2012 by Appcelerator, Inc. All Rights Reserved.
 # Licensed under the terms of the Apache Public License
 # Please see the LICENSE included with this distribution for details.
 #
 # A custom server that speeds up development time in Android significantly
 
 import os, sys, time, optparse, logging
-import urllib, simplejson, threading
+import urllib, threading
 import SocketServer, socket, struct, codecs
+import platform, mimetypes
 
 # we use our compatibility code for python 2.5
 if sys.version_info < (2, 6):
@@ -21,13 +22,16 @@ logging.basicConfig(format='[%(levelname)s] [%(asctime)s] %(message)s', level=lo
 support_android_dir = os.path.dirname(os.path.abspath(__file__))
 support_dir = os.path.dirname(support_android_dir)
 sys.path.append(support_dir)
+sys.path.append(os.path.join(support_dir, "common"))
 
-import tiapp
+import tiapp, simplejson
 
 server = None
 request_count = 0
 start_time = time.time()
 idle_thread = None
+is_windows = (platform.system() == 'Windows')
+utf8_codec = codecs.lookup("utf-8")
 
 def pack_int(i):
 	return struct.pack("!i", i)
@@ -50,11 +54,30 @@ def read_tokens(socket):
 	tokens = []
 	for i in range(0, token_count):
 		length = read_int(socket)
-		data = socket.recv(length)
+		if length == 0:
+			data = ""
+		else:
+			data = socket.recv(length)
 		tokens.append(data)
 	return tokens
 
-utf8_codec = codecs.lookup("utf-8")
+def should_open_binary(path):
+	if not is_windows:
+		return False
+	p = path.lower()
+	(base, ext) = os.path.splitext(p)
+	if not ext:
+		return True
+	# Some quick exit possibilities.
+	if ext in (".js", ".jss", ".html", ".xml", ".htm", ".txt", ".css", ".json"):
+		return False
+	if ext in (".gif", ".bmp", ".png", ".jpg", ".jpeg", ".db", ".mp3", ".mov", ".wav", ".mpg", ".mpeg", ".3gp", ".3gpp", ".m4a", ".mp4", ".flac", ".ogg"):
+		return True
+	(mime_type, encoding) = mimetypes.guess_type(p)
+	if mime_type and mime_type.startswith("text"):
+		return False
+	else:
+		return True
 
 """ A simple idle checker thread """
 class IdleThread(threading.Thread):
@@ -201,18 +224,27 @@ class FastDevHandler(SocketServer.BaseRequestHandler):
 
 	def handle_get(self, relative_path):
 		path = self.get_resource_path(relative_path)
-		if path != None:
-			logging.info("get %s: %s" % (relative_path, path))
-			self.send_file(path)
-		else:
+
+		if path is None:
 			logging.warn("get %s: path not found" % relative_path)
 			self.send_tokens("NOT_FOUND")
+			return
+		if os.path.isfile(path) is False:
+			logging.warn("get %s: path is a directory" % relative_path)
+			self.send_tokens("NOT_FOUND")
+			return
+
+		logging.info("get %s: %s" % (relative_path, path))
+		self.send_file(path)
 
 	def send_tokens(self, *tokens):
 		send_tokens(self.request, *tokens)
 
 	def send_file(self, path):
-		buffer = open(path, 'r').read()
+		mode = 'r'
+		if should_open_binary(path):
+			mode += 'b'
+		buffer = open(path, mode).read()
 		self.send_tokens(buffer)
 
 	def handle_kill_app(self):

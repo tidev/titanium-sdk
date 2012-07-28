@@ -126,8 +126,8 @@ Drillbit.prototype.initPlatforms = function() {
 	
 	if (ti.Platform.isOSX()) {
 		if (platformsArg == null || platformsArg.indexOf('iphone') != -1) {
-			// Default to 4.0 iPhone SDK
-			var iphoneVersion = 'iphoneVersion' in this.argv ? this.argv.iphoneVersion : "4.0";
+			// Default to 5.0 iPhone SDK
+			var iphoneVersion = 'iphoneVersion' in this.argv ? this.argv.iphoneVersion : "5.0";
 			ti.api.info('Adding iPhone SDK to list of drillbit target platforms: ' + iphoneVersion);
 			
 			ti.include(ti.path.join(this.module.getPath(), 'iphone.js'));
@@ -647,7 +647,7 @@ Drillbit.prototype.handleEvent = function(event) {
 };
 
 Drillbit.prototype.setupTestHarness = function(harnessManifest)
-{	
+{
 	var self = this;
 	var testHarnessTiapp = ti.fs.getFile(this.testHarnessDir, 'tiapp.xml');
 	if (!testHarnessTiapp.exists()) {
@@ -672,8 +672,15 @@ Drillbit.prototype.setupTestHarness = function(harnessManifest)
 	
 	this.renderTemplate(ti.path.join(this.templatesDir, 'app.js'), data, ti.path.join(this.testHarnessResourcesDir, 'app.js'));
 	ti.fs.getFile(this.resourcesDir, 'test_harness_console.html').copy(this.testHarnessResourcesDir);
-	ti.fs.getFile(this.contentsDir, 'tiapp_harness.xml').copy(testHarnessTiapp);
-	
+
+	this.tiappData = {};
+	this.eachEmulator(function(emulator, platform) {
+		emulator.fillTiAppData(self.tiappData);
+	});
+
+	this.renderTemplate(ti.path.join(this.contentsDir, 'tiapp_harness.xml'),
+		this.tiappData, testHarnessTiapp.nativePath());
+
 	this.eachEmulator(function(emulator, platform) {
 		emulator.run(function(data) {
 			self.readLine(data, platform);
@@ -777,8 +784,12 @@ Drillbit.prototype.stageTest = function(entry) {
 		if (!parent.exists()) {
 			parent.createDirectory(true);
 		}
-		
-		file.copy(destFile);
+
+		if (relativePath == "tiapp.xml") {
+			self.renderTemplate(file.nativePath(), self.tiappData, destFile.nativePath());
+		} else {
+			file.copy(destFile);
+		}
 		stagedFiles.push(destFile);
 	});
 	return stagedFiles;
@@ -788,13 +799,19 @@ Drillbit.prototype.runTest = function(entry)
 {
 	this.initHTTP();
 	this.frontendDo("process_data", "==========Start Test Suite : " + entry.name);
-	var data = {entry: entry, Titanium: Titanium, excludes: this.excludes, Drillbit: this, AsyncTest: AsyncTest};
-	var testScript = this.renderTemplate(ti.path.join(this.templatesDir, 'test.js'), data);
+
 
 	var self = this;
 	entry.platforms.forEach(function(platform) {
 		var emulator = self.emulators[platform];
 		if (!emulator) return;
+
+		var data = { entry: entry, Titanium: Titanium,
+			excludes: self.excludes, Drillbit: self, AsyncTest: AsyncTest };
+		emulator.fillTestTemplateData(data);
+
+		var testScript = self.renderTemplate(
+			ti.path.join(self.templatesDir, 'test.js'), data);
 		emulator.pushTestJS(testScript);
 	});
 

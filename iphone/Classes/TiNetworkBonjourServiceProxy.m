@@ -91,7 +91,7 @@ const NSString* socketKey = @"socket";
 {
     if ([obj isKindOfClass:[TiNetworkBonjourServiceProxy class]]) {
         if ([[obj name] isEqual:[self name]] &&
-            [[obj type] isEqual:[self type]] &&
+            [[(TiNetworkBonjourServiceProxy*)obj type] isEqual:[self type]] &&
             [[obj domain] isEqual:[self domain]]) {
             return true;
         }

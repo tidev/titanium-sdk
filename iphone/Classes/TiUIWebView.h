@@ -22,20 +22,29 @@
 	//TODO: make more elegant
 	BOOL ignoreNextRequest;
 	id reloadData;
+    id reloadDataProperties;
 	SEL reloadMethod;
+    
+    BOOL willHandleTouches;
 }
 
 @property(nonatomic,readonly) id url;
-@property(nonatomic,readonly) id loading;
 @property(nonatomic,readwrite,retain) id reloadData;
+@property(nonatomic,readwrite,retain) id reloadDataProperties;
 
--(void)evalJS:(NSArray*)args;
--(id)evalJSAndWait:(NSString *)code;
+-(void)evalFile:(NSString*)path;
+-(NSString*)stringByEvaluatingJavaScriptFromString:(NSString *)code;
 -(void)fireEvent:(id)listener withObject:(id)obj remove:(BOOL)yn thisObject:(id)thisObject_;
 
--(void)canGoBack:(NSMutableArray*)result;
--(void)canGoForward:(NSMutableArray*)result;
+-(void)stopLoading;
+-(void)goBack;
+-(void)goForward;
+-(BOOL)isLoading;
+-(BOOL)canGoBack;
+-(BOOL)canGoForward;
+-(void)reload;
 
+-(void)setHtml_:(NSString*)content withObject:(id)property;
 
 @end
 

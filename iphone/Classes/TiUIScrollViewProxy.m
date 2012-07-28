@@ -13,15 +13,50 @@
 
 @implementation TiUIScrollViewProxy
 
--(void)_initWithProperties:(NSDictionary *)properties
+static NSArray* scrollViewKeySequence;
+-(NSArray *)keySequence
 {
-	// set the initial scale to 1.0 which is the default
-	// FIXME: Not going to do this right before release because it might break some things, but we should rename this property to zoomScale and tie it to the scroll view's value.
-	[self replaceValue:NUMFLOAT(1.0) forKey:@"scale" notification:NO];
-	[self replaceValue:NUMBOOL(YES) forKey:@"canCancelEvents" notification:NO];
-	[super _initWithProperties:properties];
+    if (scrollViewKeySequence == nil)
+    {
+        //URL has to be processed first since the spinner depends on URL being remote
+        scrollViewKeySequence = [[NSArray arrayWithObjects:@"minZoomScale",@"maxZoomScale",@"zoomScale",nil] retain];
+    }
+    return scrollViewKeySequence;
 }
 
+-(void)_initWithProperties:(NSDictionary *)properties
+{
+    [self initializeProperty:@"minZoomScale" defaultValue:NUMFLOAT(1.0)];
+    [self initializeProperty:@"maxZoomScale" defaultValue:NUMFLOAT(1.0)];
+    [self initializeProperty:@"zoomScale" defaultValue:NUMFLOAT(1.0)];
+    [self initializeProperty:@"canCancelEvents" defaultValue:NUMBOOL(YES)];
+    [self initializeProperty:@"scrollingEnabled" defaultValue:NUMBOOL(YES)];
+    [super _initWithProperties:properties];
+}
+
+-(TiPoint *) contentOffset{
+    if([self viewAttached]){
+        TiThreadPerformOnMainThread(^{
+                   contentOffset = [[TiPoint alloc] initWithPoint:CGPointMake(
+                                        [(TiUIScrollView *)[self view] scrollView].contentOffset.x,
+                                        [(TiUIScrollView *)[self view] scrollView].contentOffset.y)] ; 
+          }, YES);
+    }
+    else{
+        contentOffset = [[TiPoint alloc] initWithPoint:CGPointMake(0,0)];
+    }
+    return [contentOffset autorelease];
+}
+
+-(void)windowWillOpen
+{
+    [super windowWillOpen];
+    //Since layout children is overridden in scrollview need to make sure that 
+    //a full layout occurs atleast once if view is attached
+    if ([self viewAttached]) {
+        [self contentsWillChange];
+    }
+}
 
 -(void)contentsWillChange
 {
@@ -49,16 +84,185 @@
 		return;
 	}
 
-	if (![(TiUIScrollView *)[self view] handleContentSizeIfNeeded])
-	{
-		[super layoutChildren:optimize];
-	}
+	[(TiUIScrollView *)[self view] handleContentSizeIfNeeded];
+}
+
+-(void)layoutChildrenAfterContentSize:(BOOL)optimize
+{
+	[super layoutChildren:optimize];	
+}
+
+-(CGFloat)autoHeightForSize:(CGSize)size
+{
+    BOOL flexibleContentWidth = YES;
+    if ([self viewAttached]) {
+        TiDimension contentWidth = [(TiUIScrollView*)[self view] contentWidth];
+        flexibleContentWidth = !TiDimensionIsDip(contentWidth);
+        
+        // If the content width is NOT flexible, then the size needs to be adjusted
+        if (!flexibleContentWidth) {
+            // Note that if the contentWidth is smaller than the view bounds, it is enforced to
+            // be the view width. See -[TiUIScrollView handleContentSize:].
+            size.width = MAX(TiDimensionCalculateValue(contentWidth, size.width), size.width);
+        }
+    }
+    
+    if(TiLayoutRuleIsHorizontal(layoutProperties.layoutStyle) && flexibleContentWidth)
+    {
+        //Horizontal Layout in scrollview is not a traditional horizontal layout. So need an override
+
+        //This is the content width, which is implemented by widgets
+        CGFloat contentHeight = -1.0;
+        if ([self respondsToSelector:@selector(contentHeightForWidth:)]) {
+            contentHeight = [self contentHeightForWidth:size.width];
+        }
+        
+        CGFloat result=0.0;
+        CGFloat thisHeight = 0.0;
+        pthread_rwlock_rdlock(&childrenLock);
+        NSArray* array = windowOpened ? children : pendingAdds;
+        
+        for (TiViewProxy * thisChildProxy in array)
+        {
+            thisHeight = [thisChildProxy minimumParentHeightForSize:size];
+            if(result<thisHeight) {
+                result = thisHeight;
+            }
+        }
+        pthread_rwlock_unlock(&childrenLock);
+        
+        if (result < contentHeight) {
+            result = contentHeight;
+        }
+        
+        if([self respondsToSelector:@selector(verifyHeight:)])
+        {
+            result = [self verifyHeight:result];
+        }
+        
+        return result;
+    }
+    else {
+        return [super autoHeightForSize:size];
+    }
+}
+
+-(CGRect)computeChildSandbox:(TiViewProxy*)child withBounds:(CGRect)bounds
+{
+    BOOL flexibleContentWidth = YES;
+    if ([self viewAttached]) {
+        //ScrollView calls this with wrapper view bounds. Make sure it is set to the right bound
+        bounds = [[self view] bounds];
+        
+        TiDimension contentWidth = [(TiUIScrollView*)[self view] contentWidth];
+        flexibleContentWidth = !TiDimensionIsDip(contentWidth);
+        
+        // If the content width is NOT flexible, then the bounds need to be adjusted so that they fit the
+        // actual content width, rather than the wrapper view bounds.
+        if (!flexibleContentWidth) {
+            // Note that if the contentWidth is smaller than the view bounds, it is enforced to
+            // be the view width. See -[TiUIScrollView handleContentSize:].
+            bounds.size.width = MAX(TiDimensionCalculateValue(contentWidth, bounds.size.width), bounds.size.width);
+        }
+    }
+    
+    // We only do this if the content width is "flexible" (horizontal will stretch forever.)
+    if(TiLayoutRuleIsHorizontal(layoutProperties.layoutStyle) && flexibleContentWidth)
+    {
+        //Horizontal Layout in scrollview is not a traditional horizontal layout. So need an override
+        BOOL followsFillBehavior = TiDimensionIsAutoFill([child defaultAutoWidthBehavior:nil]);
+        bounds.origin.x = horizontalLayoutBoundary;
+        bounds.origin.y = verticalLayoutBoundary;
+        CGFloat boundingValue = bounds.size.width-horizontalLayoutBoundary;
+        if (boundingValue < 0) {
+            boundingValue = 0;
+        }
+        //TOP + BOTTOM
+        CGFloat offset2 = TiDimensionCalculateValue([child layoutProperties]->top, bounds.size.height)
+        + TiDimensionCalculateValue([child layoutProperties]->bottom, bounds.size.height);
+        //LEFT + RIGHT
+        CGFloat offset = TiDimensionCalculateValue([child layoutProperties]->left, boundingValue)
+        + TiDimensionCalculateValue([child layoutProperties]->right, boundingValue);
+        
+        TiDimension constraint = [child layoutProperties]->width;
+        
+        if (TiDimensionIsDip(constraint) || TiDimensionIsPercent(constraint))
+        {
+            //Absolute of total width so leave the sandbox and just increment the boundary
+            bounds.size.width =  TiDimensionCalculateValue(constraint, bounds.size.width) + offset;
+            horizontalLayoutBoundary += bounds.size.width;
+        }
+        else if (TiDimensionIsAutoFill(constraint))
+        {
+            //Fill up the remaining
+            bounds.size.width = boundingValue + offset;
+            horizontalLayoutBoundary += bounds.size.width;
+        }
+        else if (TiDimensionIsAutoSize(constraint))
+        {
+			// allow child to take as much horizontal space as scroll view width
+            bounds.size.width = [child autoWidthForSize:CGSizeMake(bounds.size.width,bounds.size.height - offset2)] + offset;
+            horizontalLayoutBoundary += bounds.size.width;
+        }
+        else if (TiDimensionIsAuto(constraint) )
+        {
+            if (followsFillBehavior) {
+                //FILL behavior
+                bounds.size.width = boundingValue + offset;
+                horizontalLayoutBoundary += bounds.size.width;
+            }
+            else {
+                //SIZE behavior
+				// allow child to take as much horizontal space as scroll view width
+                bounds.size.width = [child autoWidthForSize:CGSizeMake(bounds.size.width,bounds.size.height - offset2)] + offset;
+                horizontalLayoutBoundary += bounds.size.width;
+            }
+        }
+        else if (TiDimensionIsUndefined(constraint))
+        {
+            if (!TiDimensionIsUndefined([child layoutProperties]->left) && !TiDimensionIsUndefined([child layoutProperties]->centerX) ) {
+                CGFloat width = 2 * ( TiDimensionCalculateValue([child layoutProperties]->centerX, boundingValue) - TiDimensionCalculateValue([child layoutProperties]->left, boundingValue) );
+                bounds.size.width = width + offset;
+                horizontalLayoutBoundary += bounds.size.width;
+            }
+            else if (!TiDimensionIsUndefined([child layoutProperties]->left) && !TiDimensionIsUndefined([child layoutProperties]->right) ) {
+                bounds.size.width = boundingValue + offset;
+                horizontalLayoutBoundary += bounds.size.width;
+            }
+            else if (!TiDimensionIsUndefined([child layoutProperties]->centerX) && !TiDimensionIsUndefined([child layoutProperties]->right) ) {
+                CGFloat width = 2 * ( boundingValue - TiDimensionCalculateValue([child layoutProperties]->right, boundingValue) - TiDimensionCalculateValue([child layoutProperties]->centerX, boundingValue));
+                bounds.size.width = width + offset;
+                horizontalLayoutBoundary += bounds.size.width;
+            }
+            else if (followsFillBehavior) {
+                //FILL behavior
+                bounds.size.width = boundingValue + offset;
+                horizontalLayoutBoundary += bounds.size.width;
+            }
+            else {
+                //SIZE behavior
+				// allow child to take as much horizontal space as scroll view width
+                bounds.size.width = [child autoWidthForSize:CGSizeMake(bounds.size.width,bounds.size.height - offset2)] + offset;
+                horizontalLayoutBoundary += bounds.size.width;
+            }
+        }
+        
+        return bounds;
+    }
+    else {
+        return [super computeChildSandbox:child withBounds:bounds];
+    }
 }
 
 -(void)childWillResize:(TiViewProxy *)child
 {
 	[super childWillResize:child];
 	[(TiUIScrollView *)[self view] setNeedsHandleContentSizeIfAutosizing];
+}
+
+-(BOOL)optimizeSubviewInsertion
+{
+    return YES;
 }
 
 -(UIView *)parentViewForChild:(TiViewProxy *)child
@@ -73,8 +277,22 @@
 			[TiUtils floatValue:[args objectAtIndex:0]],
 			[TiUtils floatValue:[args objectAtIndex:1]])];
 
-	[self replaceValue:offset forKey:@"contentOffset" notification:YES];
+	[self setContentOffset:offset withObject:Nil];
 	[offset release];
+}
+
+-(void)scrollToBottom:(id)args
+{
+    TiThreadPerformOnMainThread(^{
+        [(TiUIScrollView *)[self view] scrollToBottom];
+    }, YES);
+}
+
+-(void) setContentOffset:(id)value withObject:(id)animated
+{
+    TiThreadPerformOnMainThread(^{
+        [(TiUIScrollView *)[self view] setContentOffset_:value withObject:animated];
+    }, YES);
 }
 
 - (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView_               // scrolling has ended
@@ -88,10 +306,6 @@
 -(void)scrollViewDidScroll:(UIScrollView *)scrollView
 {
 	CGPoint offset = [scrollView contentOffset];
-	TiPoint * offsetPoint = [[TiPoint alloc] initWithPoint:offset];
-	[self replaceValue:offsetPoint forKey:@"contentOffset" notification:NO];
-	[offsetPoint release];
-
 	if ([self _hasListeners:@"scroll"])
 	{
 		[self fireEvent:@"scroll" withObject:[NSDictionary dictionaryWithObjectsAndKeys:
@@ -105,7 +319,7 @@
 
 - (void)scrollViewDidEndZooming:(UIScrollView *)scrollView withView:(UIView *)view atScale:(float)scale
 {
-	[self replaceValue:NUMFLOAT(scale) forKey:@"scale" notification:NO];
+	[self replaceValue:NUMFLOAT(scale) forKey:@"zoomScale" notification:NO];
 	
 	if ([self _hasListeners:@"scale"])
 	{

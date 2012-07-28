@@ -7,20 +7,19 @@
 #if defined(USE_TI_XML) || defined(USE_TI_NETWORK)
 
 #import "TiDOMNamedNodeMapProxy.h"
-#import "TiDOMNodeProxy.h"
+#import "TiDOMAttrProxy.h"
+#import "TiDOMNodeListProxy.h"
 #import "TiUtils.h"
 
 @implementation TiDOMNamedNodeMapProxy
-@synthesize document;
 
 -(void)dealloc
 {
 	RELEASE_TO_NIL(element);
-	RELEASE_TO_NIL(document);
 	[super dealloc];
 }
 
--(void)setElement:(GDataXMLElement*)element_
+-(void)setElement:(TiDOMElementProxy*)element_
 {
 	RELEASE_TO_NIL(element);
 	element = [element_ retain];
@@ -28,38 +27,113 @@
 
 -(id)getNamedItem:(id)name
 {
-	ENSURE_SINGLE_ARG(name,NSString);
-	GDataXMLNode *node = [element attributeForName:name];
-	TiDOMNodeProxy *proxy = [[[TiDOMNodeProxy alloc] _initWithPageContext:[self pageContext]] autorelease];
-	[proxy setNode:node];
-	[proxy setDocument:[self document]];
-	return proxy;
+	if (element != nil) {
+		return [element getAttributeNode:name];
+	}
+	
+    return [NSNull null];
 }
 
--(void)setNamedItem:(id)args
+-(id)getNamedItemNS:(id)args
 {
-	//TODO:
+	if (element != nil) {
+		return [element getAttributeNodeNS:args];
+	}
+	
+    return [NSNull null];
 }
 
--(void)removeNamedItem:(id)args
+-(id)setNamedItem:(id)args
 {
-	//TODO:
+	if (element != nil) {
+		return [element setAttributeNode:args];
+	}
+	
+    return [NSNull null];
+}
+
+-(id)setNamedItemNS:(id)args
+{
+	if (element != nil) {
+		return [element setAttributeNodeNS:args];
+	}
+
+    return [NSNull null];
+}
+
+-(id)removeNamedItem:(id)args
+{
+	if (element != nil) {
+		id proxy = [element getAttributeNode:args];
+		if (proxy != (id)[NSNull null]) {
+			return [element removeAttributeNode:proxy];
+		}
+		else {
+			[self throwException:@"could not find item to remove" subreason:@"" location:CODELOCATION];
+		}
+	}
+	else {
+		[self throwException:@"could not find item to remove" subreason:@"" location:CODELOCATION];
+	}
+	return [NSNull null];
+}
+
+-(id)removeNamedItemNS:(id)args
+{
+	if (element != nil) {
+		id proxy = [element getAttributeNodeNS:args];
+		if (proxy != (id)[NSNull null]) {
+			return [element removeAttributeNode:proxy];
+		}
+		else {
+			[self throwException:@"could not find item to remove" subreason:@"" location:CODELOCATION];
+		}
+	}
+	else {
+		[self throwException:@"could not find item to remove" subreason:@"" location:CODELOCATION];
+	}
+	return [NSNull null];
 }
 
 -(id)item:(id)args
 {
 	ENSURE_SINGLE_ARG(args,NSObject);
 	int index = [TiUtils intValue:args];
-	GDataXMLNode *node = [[element attributes] objectAtIndex:index];
-	TiDOMNodeProxy *proxy = [[[TiDOMNodeProxy alloc] _initWithPageContext:[self pageContext]] autorelease];
-	[proxy setNode:node];
-	[proxy setDocument:[self document]];
-	return proxy;
+
+    if( ([[(GDataXMLElement*)[element node] attributes] count] > index) && (index >= 0) )
+    {
+        GDataXMLNode *node = [[(GDataXMLElement*)[element node] attributes] objectAtIndex:index];
+        TiDOMAttrProxy *proxy = [TiDOMNodeProxy nodeForXMLNode:[node XMLNode]];
+        if(proxy == nil)
+        {
+            proxy = [[[TiDOMAttrProxy alloc] _initWithPageContext:[self executionContext]] autorelease];
+            [proxy setAttribute:[node name] value:[node stringValue] owner:(GDataXMLElement*)[element node]];
+            [proxy setNode:node];
+            [proxy setDocument:[element document]];
+            [TiDOMNodeProxy setNode:proxy forXMLNode:[node XMLNode]];
+        }
+        return proxy;
+    }
+    return [NSNull null];
 }
+
+/*
+Because of parity, we cannot enable this just yet, but this code will allow for treating index
+properties the same as foo.item(index).
+ 
+-(id)valueForUndefinedKey:(NSString *)key
+{
+	if ([[key stringByTrimmingCharactersInSet:[NSCharacterSet decimalDigitCharacterSet]] length]==0)
+	{
+		return [self item:key];
+	}
+	return [super valueForUndefinedKey:key];
+}
+*/
 
 -(NSNumber*)length
 {
-	return NUMINT([[element attributes] count]);
+	return NUMINT([[(GDataXMLElement*)[element node] attributes] count]);
 }
 
 @end

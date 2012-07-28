@@ -1,158 +1,356 @@
 ---
 name: Titanium.Android.RemoteViews
-description: The Titanium binding of [Android RemoteViews](http://developer.android.com/reference/android/widget/RemoteViews.html). RemoteViews are an API for referencing and updating views that live in another process (i.e. in a <Titanium.Android.Notification>)
+summary: |
+    The Titanium binding of [Android RemoteViews](http://developer.android.com/reference/android/widget/RemoteViews.html). 
+description: |
+    `RemoteViews` is an API for referencing and updating a remote view hierarchy that
+    lives in another process, for example, in a [Notification](Titanium.Android.Notification).
+
+    To create a remote view hierarchy, you must define an Android XML layout for the views
+    you want to display, and place the XML file in the `platform/android/res/layout` inside your
+    project folder. See the examples for a sample XML layout and sample code for creating a
+    remote view.
+
+    To use a remote view hierarchy in a notification, see
+    [Notification.contentView](Titanium.Android.Notification.contentView).
+
+    Because the remote view hierarchy belongs to another process, you cannot call methods on it
+    directly, but you can call methods on the `RemoteViews` object to update views in the
+    heirarchy by ID. To reference a view inside the layout, use the
+    <Titanium.App.Android.R> object to reference the view's ID. For example, if you have a 
+    view with the ID `notify_imageview`, you can refer to it using:
+        
+        Ti.App.Android.R.id.notify_imageview
+    
+    See also: 
+    
+    *   [RemoteViews](http://developer.android.com/reference/android/widget/RemoteViews.html)
+        in the Android Developer Reference.
+
+    *   [XML Layouts](http://developer.android.com/guide/topics/ui/declaring-layout.html)
+        in the Android Developer Guide.
 extends: Titanium.Proxy
 platforms: [android]
-createable: false
 since: "1.6"
+properties:
+  - name: layoutId
+    summary: Android layout resource ID for the view to display. Required.
+    description: |
+        To define a custom layout resource in your application, the XML layout file 
+        should be placed in `platform/android/res/layout` folder inside your project folder.
+
+        Use <Titanium.App.Android.R> to reference the ID of the layout.
+    type: Number
+    availability: creation
+
+  - name: packageName
+    summary: Package name that the resource ID lives in. Optional.
+    type: String
+    availability: creation
+
 methods:
+
   - name: setBoolean
-    description: Call a method taking one boolean on a view in the layout for this RemoteViews. See Android's documentation for [setBoolean](http://developer.android.com/reference/android/widget/RemoteViews.html#setBoolean(int, java.lang.String, boolean))
+    summary: |
+        Calls a method taking a single `boolean` argument on a view in the remote view
+        hierarchy.  See Android's documentation for
+        [setBoolean](http://developer.android.com/reference/android/widget/RemoteViews.html#setBoolean(int, java.lang.String, boolean)).
+
     parameters:
+
       - name: viewId
-        description: The resource id of the View (also see <Titanium.App.Android.R>)
+        summary: |
+            Resource ID of the view to invoke the method on.
+            Application-specific resource IDs can be specified using <Titanium.App.Android.R>.
         type: Number
+
       - name: methodName
-        description: The name of the method to call
+        summary: Name of the method to call.
         type: String
+
       - name: value
-        description: The boolean to pass to the method
+        summary: Value to pass to the method.
         type: Boolean
+
   - name: setChronometer
-    description: Sets a chronometer's base, format, and started flag. See Android's documentation for [setChronometer](http://developer.android.com/reference/android/widget/RemoteViews.html#setChronometer(int, long, java.lang.String, boolean))
+    summary: |
+        Sets the base time, format string, and started flag for a chronometer
+        in the remote view hierarchy.
+    description: |
+        See Android's documentation for 
+        [setChronometer](http://developer.android.com/reference/android/widget/RemoteViews.html#setChronometer(int, long, java.lang.String, boolean)).
+
     parameters:
+
       - name: viewId
-        description: The resource id of the Chronometer whose values will change (also see <Titanium.App.Android.R>)
+        summary: |
+            Resource ID of the Chronometer to update.
+            Application-specific resource IDs can be specified using <Titanium.App.Android.R>.
         type: Number
+
       - name: base
-        description: The time at which the timer would have read 0:00
+        summary: Time at which the timer would have read 0:00.
         type: Date
+
       - name: format
-        description: The Chronometer format string, or null to simply display the timer value
+        summary: Chronometer format string, or `null` to simply display the timer value.
         type: String
+
       - name: started
-        description: True if you want the clock to be started, false if not
+        summary: True if you want the clock to be started, false if not.
         type: Boolean
+
   - name: setDouble
-    description: Call a method taking one double on a view in the layout for this RemoteViews. See Android's documentation for [setDouble](http://developer.android.com/reference/android/widget/RemoteViews.html#setDouble(int, java.lang.String, double))
+    summary: |
+        Calls a method taking a single `double` argument on a view in the remote view
+        hierarchy.
+    description: |
+        See Android's documentation for 
+        [setDouble](http://developer.android.com/reference/android/widget/RemoteViews.html#setDouble(int, java.lang.String, double)).
+
     parameters:
       - name: viewId
-        description: The resource id of the View (also see <Titanium.App.Android.R>)
+        summary: |
+            Resource ID of the view to update.
+            Application-specific resource IDs can be specified using <Titanium.App.Android.R>.
         type: Number
+
       - name: methodName
-        description: The name of the method to call
+        summary: Name of the method to call.
         type: String
+
       - name: value
-        description: The double to pass to the method
+        summary: Value to pass to the method.
         type: Number
+
   - name: setImageViewResource
-    description: Sets an ImageView's source given a Resource ID. See Android's documentation for [setImageViewResource](http://developer.android.com/reference/android/widget/RemoteViews.html#setImageViewResource(int, int))
+    summary: Sets the image for an image view in the remote view hierarchy using an Android drawable resource.
+    description: |
+        See Android's documentation for 
+        [setImageViewResource](http://developer.android.com/reference/android/widget/RemoteViews.html#setImageViewResource(int, int)).
     parameters:
+
       - name: viewId
-        description: The resource id of the ImageView whose image should change (also see <Titanium.App.Android.R>)
+        summary: |
+            Resource ID of the `ImageView` to update.
+            Application-specific resource IDs can be specified using <Titanium.App.Android.R>.
         type: Number
+
       - name: srcId
-        description: The resource id of the image
+        summary: |
+            Resource ID of the new image.
+            Application-specific resource IDs can be specified using <Titanium.App.Android.R>.
         type: Number
+
   - name: setImageViewUri
-    description: Sets an ImageView's source given a URI (supports both Android and Titanium URLs). See Android's documentation for [setImageViewUri](http://developer.android.com/reference/android/widget/RemoteViews.html#setImageViewUri(int, android.net.Uri))
+    summary: |
+        Sets the image for an image view in the remote view hierarchy using a URI.
+    description: |
+        This method supports supports both Android and Titanium URLs. 
+        
+        See Android's documentation for
+        [setImageViewUri](http://developer.android.com/reference/android/widget/RemoteViews.html#setImageViewUri(int, android.net.Uri)).
     parameters:
+
       - name: viewId
-        description: The resource id of the ImageView whose image should change (also see <Titanium.App.Android.R>)
+        summary: |
+            Resource ID of the `ImageView` to update.
+            Application-specific resource IDs can be specified using <Titanium.App.Android.R>.
         type: Number
+
       - name: uri
-        description: The URI of the image (both Android and Titanium URLs are supported)
+        summary: URI of the image (both Android and Titanium URLs are supported).
         type: String
+
   - name: setInt
-    description: Call a method taking one int on a view in the layout for this RemoteViews. See Android's documentation for [setInt](http://developer.android.com/reference/android/widget/RemoteViews.html#setInt(int, java.lang.String, int))
+    summary: |
+        Calls a method taking a single `int` argument on a view in the remote view hierarchy.
+    description: |
+        See Android's documentation for [setInt](http://developer.android.com/reference/android/widget/RemoteViews.html#setInt(int, java.lang.String, int))
     parameters:
+
       - name: viewId
-        description: The resource id of the View (also see <Titanium.App.Android.R>)
+        summary: |
+            Resource ID of the view to update.
+            Application-specific resource IDs can be specified using <Titanium.App.Android.R>.
         type: Number
+
       - name: methodName
-        description: The name of the method to call
+        summary: Name of the method to call.
         type: String
+
       - name: value
-        description: The int to pass to the method
+        summary: Value to pass to the method.
         type: Number
+
   - name: setOnClickPendingIntent
-    description: Launches a <Titanium.Android.PendingIntent> when the specified view is clicked. See Android's documentation for [setOnClickPendingIntent](http://developer.android.com/reference/android/widget/RemoteViews.html#setOnClickPendingIntent(int, android.app.PendingIntent))
+    summary: Launches a <Titanium.Android.PendingIntent> when the specified view is clicked. 
+    description: |
+        See Android's documentation for
+        [setOnClickPendingIntent](http://developer.android.com/reference/android/widget/RemoteViews.html#setOnClickPendingIntent(int, android.app.PendingIntent)).
     parameters:
+
       - name: viewId
-        description: The resource id of the View to add a click listener to (also see <Titanium.App.Android.R>)
+        summary: |
+            Resource ID of the view to add a click listener to.
+            Application-specific resource IDs can be specified using <Titanium.App.Android.R>.
         type: Number
+
       - name: pendingIntent
-        description: The PendingIntent to execute when this view is clicked
+        summary: The `PendingIntent` to execute when this view is clicked.
         type: Titanium.Android.PendingIntent
+
   - name: setProgressBar
-    description: Sets the progress, max value, and indeterminate flag of a ProgressBar. See Android's documentation for [setProgressBar](http://developer.android.com/reference/android/widget/RemoteViews.html#setProgressBar(int, int, int, boolean))
+    summary: |
+        Sets the progress, max value, and indeterminate flag of a progress bar in the
+        remote view hierarchy.
+    description: |
+        See Android's documentation for
+        [setProgressBar](http://developer.android.com/reference/android/widget/RemoteViews.html#setProgressBar(int, int, int, boolean)).
     parameters:
+
       - name: viewId
-        description: The resource id of the ProgressBar to change (also see <Titanium.App.Android.R>)
+        summary: |
+            Resource ID of the progress bar to update.
+            Application-specific resource IDs can be specified using <Titanium.App.Android.R>.
         type: Number
+
       - name: max
-        description: The new max value of the ProgressBar
+        summary: The new maximum value of the progress bar.
         type: Number
+
       - name: progress
-        description: The new progress value of the ProgressBar (from 0..max)
+        summary: The new progress value of the progress bar (from 0..`max`).
         type: Number
+
       - name: indeterminate
-        description: Whether or not the progress in indeterminate
+        summary: |
+            Determines whether the progress bar is indeterminate.
+            If `true`, the progress bar displays an infinite looping animation.
         type: Boolean
+
   - name: setString
-    description: Call a method taking one String on a view in the layout for this RemoteViews. See Android's documentation for [setString](http://developer.android.com/reference/android/widget/RemoteViews.html#setString(int, java.lang.String, java.lang.String))
+    summary: |
+        Calls a method taking a single String argument on a view in the remote view
+        hierarchy.
+    description: |
+        See Android's documentation for
+        [setString](http://developer.android.com/reference/android/widget/RemoteViews.html#setString(int, java.lang.String, java.lang.String)).
     parameters:
+
       - name: viewId
-        description: The resource id of the View (also see <Titanium.App.Android.R>)
+        summary: |
+            Resource ID of the view to update.
+            Application-specific resource IDs can be specified using <Titanium.App.Android.R>.
         type: Number
+
       - name: methodName
-        description: The name of the method to call
+        summary: Name of the method to call.
         type: String
+
       - name: value
-        description: The String to pass to the method
+        summary: String to pass to the method.
         type: String
+
   - name: setTextColor
-    description: Sets the text color of a view. See Android's documentation for [setTextColor](http://developer.android.com/reference/android/widget/RemoteViews.html#setTextColor(int, int))
+    summary: Sets the text color of a view in the remote view hierarchy.
+    description: |
+        See Android's documentation for
+        [setTextColor](http://developer.android.com/reference/android/widget/RemoteViews.html#setTextColor(int, int)).
     parameters:
+
       - name: viewId
-        description: The resource id of the View whose text color will change (also see <Titanium.App.Android.R>)
+        summary: |
+            Resource ID of the view to update.
+            Application-specific resource IDs can be specified using <Titanium.App.Android.R>.
         type: Number
+
       - name: color
-        description: A color as an integer
+        summary: Color as an integer.
         type: Number
+
   - name: setTextViewText
-    description: Sets the text of a TextView. See Android's documentation for [setTextViewText](http://developer.android.com/reference/android/widget/RemoteViews.html#setTextViewText(int, java.lang.CharSequence))
+    summary: Sets the text of a text view in the remote view hierarchy.
+    description: |
+        See Android's documentation for
+        [setTextViewText](http://developer.android.com/reference/android/widget/RemoteViews.html#setTextViewText(int, java.lang.CharSequence)).
     parameters:
+
       - name: viewId
-        description: The resource id of the TextView whose text will change (also see <Titanium.App.Android.R>)
+        summary: |
+            Resource ID of the text view to update.
+            Application-specific resource IDs can be specified using <Titanium.App.Android.R>.
         type: Number
+
       - name: text
-        description: The new text of the TextView
+        summary: New text for the text view.
         type: String
+
   - name: setUri
-    description: Call a method taking one Uri on a view in the layout for this RemoteViews. See Android's documentation for [setUri](http://developer.android.com/reference/android/widget/RemoteViews.html#setUri(int, java.lang.String, android.net.Uri))
+    summary: Calls a method taking one URI on a view in the remote view hierarchy.
+    description: |
+        See Android's documentation for
+        [setUri](http://developer.android.com/reference/android/widget/RemoteViews.html#setUri(int, java.lang.String, android.net.Uri)).
     parameters:
+
       - name: viewId
-        description: The resource id of the View (also see <Titanium.App.Android.R>)
+        summary: |
+            Resource ID of the view to update.
+            Application-specific resource IDs can be specified using <Titanium.App.Android.R>.
         type: Number
+
       - name: methodName
-        description: The name of the method to call
+        summary: Name of the method to call.
         type: String
+
       - name: value
-        description: The URI (as a string) to pass to the method
+        summary: URI (as a string) to pass to the method.
         type: String
+
   - name: setViewVisibility
-    description: Sets the visibility of a View. See Android's documentation for [setViewVisibility](http://developer.android.com/reference/android/widget/RemoteViews.html#setViewVisibility(int, int))
+    summary: Sets the visibility of a view in the remote view hierarchy.
+    description:  |
+        See Android's documentation for [setViewVisibility](http://developer.android.com/reference/android/widget/RemoteViews.html#setViewVisibility(int, int))
     parameters:
+
       - name: viewId
-        description: The resource id of the View whose visibility will change (also see <Titanium.App.Android.R>)
+        summary: |
+            Resource ID of the view to show or hide.
+            Application-specific resource IDs can be specified using <Titanium.App.Android.R>.
         type: Number
+
       - name: visibility
-        description: The visibility, one of <Titanium.Android.VISIBLE>, <Titanium.Android.INVISIBLE>, or <Titanium.Android.GONE>
+        summary: The visibility. Either `0` (VISIBLE), `4` (INVISIBLE) or `8` (GONE).
         type: Number
+
 examples:
-  - title: Create a RemoteViews based on a custom layout called "custom_layout.xml", and set a label's text.
+  - title: Create a Remote View
     example: |
+    
+        The following code excerpt creates a `RemoteViews` object based on a custom layout 
+        called `custom_layout.xml`, and set a label's text.
+
+
             var AppR = Ti.App.Android.R;
-            var customLayout = Ti.Android.createRemoteViews(AppR.layout.custom_layout);
-            customLayout.setTextViewText(AppR.id.custom_text, "Hello World");
+            var customLayout = Ti.Android.createRemoteViews({ layoutId: AppR.layout.custom_layout });
+            customLayout.setTextViewText(AppR.id.custom_text, "Click Me!");
+
+        This example uses a simple custom layout:
+
+            <?xml version="1.0" encoding="utf-8"?>
+            <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                    android:layout_width="fill_parent" 
+                    android:layout_height="fill_parent" 
+                    android:orientation="vertical" >
+                <TextView android:id="@+id/custom_text"
+                        android:layout_width="fill_parent"
+                        android:layout_height="fill_parent"
+                        android:background="#ffffff"
+                        android:textColor="#aaff0000"
+                        android:textStyle="italic"
+                        android:gravity="center"
+                        android:text="Hello, I am a TextView" />
+            </LinearLayout>
+
+        The layout file for this example must be placed in
+        `platform/android/res/layout/custom_layout.xml`. 

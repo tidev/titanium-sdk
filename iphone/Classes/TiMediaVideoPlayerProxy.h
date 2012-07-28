@@ -24,9 +24,9 @@
 	NSMutableArray *views;
 	TiFile *tempFile;
 	KrollCallback *thumbnailCallback;
+	int callbackRequestCount;
 	
 	NSMutableDictionary* loadProperties; // Used to set properties when the player is created
-	NSMutableDictionary* returnCache; // Return values from UI thread functions
 	BOOL sizeDetermined;
 	
 	// OK, this is ridiculous.  Sometimes (always?) views which are made invisible and removed are relayed.
@@ -34,8 +34,9 @@
 	// We need some internal way whether or not to check if it's OK to create a view - this is it.
 	BOOL reallyAttached;
 	
-	// On rotate in fullscreen mode on iPad, we need to check if the orientation changed so we can redraw.
-	BOOL hasRotated;
+    // Need to preserve status bar frame information when entering/exiting fullscreen to properly re-render
+    // views when exiting it.
+    BOOL statusBarWasHidden;
     
     // Have to track loading in the proxy in addition to the view, in case we load before the view should be rendered
     BOOL loaded;
@@ -44,6 +45,7 @@
 @property(nonatomic,readwrite,assign) id url;
 @property(nonatomic,readwrite,assign) TiColor* backgroundColor;
 @property(nonatomic,readonly) NSNumber* playing;
+@property(nonatomic,copy)	NSNumber *volume;
 
 -(void)add:(id)proxy;
 -(void)remove:(id)proxy;
@@ -52,7 +54,7 @@
 -(void)configurePlayer;
 -(void)restart;
 -(void)stop:(id)args;
-
+-(void)play:(id)args;
 @end
 
 #endif

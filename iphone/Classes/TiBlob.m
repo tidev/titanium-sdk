@@ -128,7 +128,7 @@
 	{
 		type = TiBlobTypeFile;
 		path = [path_ retain];
-		mimetype = [Mimetypes mimeTypeForExtension:path];
+		mimetype = [[Mimetypes mimeTypeForExtension:path] retain];
 	}
 	return self;
 }
@@ -175,7 +175,10 @@
 		}
 		case TiBlobTypeImage:
 		{
-			return UIImageJPEGRepresentation(image,1.0);
+            if ([@"image/png" isEqualToString:mimetype]) {
+                return UIImagePNGRepresentation(image);
+            }
+            return UIImageJPEGRepresentation(image,1.0);
 		}
 		default: {
 			break;
@@ -213,8 +216,8 @@
 -(void)setImage:(UIImage *)image_
 {
 	RELEASE_TO_NIL(image);
-	type = TiBlobTypeImage;
 	image = [image_ retain];
+    [self setMimeType:@"image/jpeg" type:TiBlobTypeImage];
 }
 
 -(NSString*)path
@@ -244,9 +247,12 @@
 	return nil;
 }
 
--(NSString*)nativePath
+-(id)nativePath
 {
-	return [[NSURL fileURLWithPath:path] absoluteString];
+    if (path != nil) {
+	    return [[NSURL fileURLWithPath:path] absoluteString];
+    }
+    return [NSNull null];
 }
 
 -(NSNumber*)length

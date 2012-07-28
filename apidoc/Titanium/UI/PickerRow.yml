@@ -1,34 +1,96 @@
 ---
 name: Titanium.UI.PickerRow
-description: The picker row object created by [Titanium.UI.createPickerRow](Titanium.UI.createPickerRow).
+summary: |
+    A picker row, representing a selectable item in a <Titanium.UI.Picker>. 
+description: |
+    Use the <Titanium.UI.createPickerRow> method to create a picker row control.
+    
+    Views added to picker rows is only supported on iOS.
+platforms: [android, iphone, ipad, mobileweb]
 extends: Titanium.UI.View
 since: "0.9"
+
+methods:
+  - name: add
+    summary: Adds a child view to this picker row, to provide a custom row.
+    parameters:
+      - name: view
+        summary: A view object.
+        type: Titanium.UI.View
+    platforms: [iphone, ipad]
+
 properties:
-  - name: fontSize
-    description: the font size when displaying the text. ignored when using a custom view
-    type: Number
-  - name: selected
-    description: when used in the constructor, set the row to selected on initial display
-    type: Boolean
-  - name: title
-    description: the display text
+  - name: color
+    summary: Color of the item text, as a color name or hex triplet.
+    description: |
+        For information about color values, see the "Colors" section of <Titanium.UI>. 
     type: String
+    platforms: [mobileweb]
+  - name: fontSize
+    summary: Font size for displaying item text. Ignored when using a custom view.
+    type: Number
+    platforms: [iphone, ipad]
+  - name: font
+    summary: Font to use for the item text.
+    type: Font
+    platforms: [mobileweb]
+  - name: title
+    summary: Item text.
+    type: String
+
 examples:
-  - title: Custom Views for a picker row
+  - title: Custom View for Row (iOS only)
     example: |
+        Create a two-column picker, with the first column containing a child view, and automatically 
+        select a row in each column.
         
-        Since the row object is itself a view, you can add views and widgets to it to customize the 
-        the rows display. In the example below, we create a custom label for the row.
-        
-            var row = Ti.UI.createPickerRow();
-            var label = Ti.UI.createLabel({
-            	text:text,
-            	font:{fontSize:24,fontWeight:'bold'},
-            	color:text,
-            	width:'auto',
-            	height:'auto'
+            Ti.UI.backgroundColor = 'white';
+            var win = Ti.UI.createWindow({
+              exitOnClose: true,
+              layout: 'vertical'
             });
-            row.add(label);
-            picker.add(row);
-        
-        
+
+            var fruit = [ 'Bananas', 'Strawberries', 'Mangos', 'Grapes' ];
+            var color = [ 'red', 'green', 'blue', 'orange' ];
+
+            var column1 = Ti.UI.createPickerColumn();
+
+            for(var i=0, ilen=fruit.length; i<ilen; i++){
+              var row = Ti.UI.createPickerRow();
+                
+              var label = Ti.UI.createLabel({
+                color:'red',
+                font:{fontSize:20,fontWeight:'bold'},
+                text: fruit[i],
+                textAlign:'left',
+                height:'auto',
+                width:'126'
+              });
+              
+              row.add(label);
+              column1.addRow(row);
+            }
+
+            var column2 = Ti.UI.createPickerColumn();
+
+            for(var i=0, ilen=color.length; i<ilen; i++){
+              var row = Ti.UI.createPickerRow({
+                title: color[i]
+              });
+              column2.addRow(row);
+            }
+
+            var picker = Ti.UI.createPicker({
+              top:50,
+              columns: [column1, column2],
+              visibleItems: 3,
+              selectionIndicator: true
+            });
+
+            win.add(picker);
+
+            win.open();
+
+            // must be after picker has been displayed
+            picker.setSelectedRow(0, 2, false); // select Mangos
+            picker.setSelectedRow(1, 3, false); // select Orange

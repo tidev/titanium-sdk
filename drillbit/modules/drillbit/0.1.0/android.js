@@ -17,16 +17,16 @@ function AndroidEmulator(drillbit, androidSdk, apiLevel, platform, googleApis) {
 	if (ti.Platform.isWin32()) {
 		this.adb += ".exe";
 	}
-	
+
 	if (!ti.path.exists(this.adb)) {
 		this.adb = ti.path.join(androidSdk, 'platform-tools', 'adb');
 		if (ti.Platform.isWin32()) {
 			this.adb += ".exe";
 		}
 	}
-	
+
 	ti.api.debug('adb -> ' + this.adb);
-	
+
 	this.device = 'emulator';
 	if ('androidDevice' in drillbit.argv) {
 		this.device = drillbit.argv.androidDevice;
@@ -34,11 +34,18 @@ function AndroidEmulator(drillbit, androidSdk, apiLevel, platform, googleApis) {
 	if ('avdId' in drillbit.argv) {
 		this.avdId = drillbit.argv.avdId;
 	}
-	
+
+	this.runtime = 'v8';
+	if ('androidRuntime' in drillbit.argv) {
+		this.runtime = drillbit.argv.androidRuntime;
+	}
+
+	ti.api.debug('Using javascript runtime: ' + this.runtime);
+
 	this.androidBuilder = ti.path.join(drillbit.mobileSdk, 'android', 'builder.py');
 	this.waitForDevice = ti.path.join(drillbit.mobileSdk, 'android', 'wait_for_device.py');
 	this.testHarnessRunning = false;
-	
+
 	this.needsBuild = 'androidForceBuild' in drillbit.argv;
 
 	var androidGenDir = ti.path.join(this.drillbit.resourcesDir, 'android', 'gen');
@@ -46,9 +53,7 @@ function AndroidEmulator(drillbit, androidSdk, apiLevel, platform, googleApis) {
 	var self = this;
 	ti.path.recurse(androidGenDir, function(file) {
 		var relativePath = ti.path.relpath(file.nativePath(), androidGenDir);
-		ti.api.debug("relativePath="+relativePath);
 		var destFile = ti.fs.getFile(self.drillbit.testHarnessDir, 'platform', 'android', 'gen', relativePath);
-		ti.api.debug("destFileParentExists="+destFile.parent().exists());
 		if (!destFile.parent().exists()) {
 			destFile.parent().createDirectory(true);
 		}
@@ -73,7 +78,7 @@ AndroidEmulator.prototype.createADBProcess = function(args) {
 	} else {
 		adbArgs = adbArgs.concat(['-s', this.device]);
 	}
-	
+
 	adbArgs = adbArgs.concat(args);
 	return ti.proc.createProcess(adbArgs);
 };
@@ -88,7 +93,7 @@ AndroidEmulator.prototype.runADB = function(args) {
 AndroidEmulator.prototype.createTestHarnessBuilderProcess = function(command, args) {
 	var builderArgs = [this.androidBuilder,
 		command, 'test_harness', this.androidSdk, this.drillbit.testHarnessDir, this.drillbit.testHarnessId];
-	
+
 	if (args) {
 		builderArgs = builderArgs.concat(args);
 	}
@@ -124,8 +129,15 @@ AndroidEmulator.prototype.isEmulatorRunning = function() {
 };
 
 AndroidEmulator.prototype.getTestJSInclude = function() {
-	return "TestHarnessActivity.loadTest(this);";
-	//return "Ti.include(\"appdata://test.js\")";
+	if (this.runtime == "rhino") {
+		return "Ti.include(\"appdata://test.jar:" + this.drillbit.testHarnessId + ".js.test\")";
+	} else {
+		return "Ti.include(\"appdata://test.js\")";
+	}
+};
+
+AndroidEmulator.prototype.fillTiAppData = function(data) {
+	data.androidRuntime = this.runtime;
 };
 
 AndroidEmulator.prototype.run = function(readLineCb) {
@@ -160,7 +172,7 @@ AndroidEmulator.prototype.run = function(readLineCb) {
 		}, 5000);
 	}
 
-	if (!emulatorRunning) {
+	if (this.device == 'emulator' && !emulatorRunning) {
 		this.drillbit.frontendDo('status', 'pre-building initial APK', true);
 		var waitProcess = this.drillbit.createPythonProcess([this.waitForDevice, this.androidSdk, 'emulator']);
 		var self = this;
@@ -174,7 +186,7 @@ AndroidEmulator.prototype.run = function(readLineCb) {
 			var unlockScreenAPK = ti.path.join(self.drillbit.resourcesDir, 'android', 'UnlockScreen', 'dist', 'UnlockScreen.apk');
 			self.runADB(['install', '-r', unlockScreenAPK]);
 			self.runADB(['shell', 'am', 'start', '-n', 'org.appcelerator.titanium/.UnlockScreenActivity']);
-		
+
 			self.drillbit.frontendDo('status', 'screen unlocked, ready to run tests');
 			self.drillbit.frontendDo('setup_finished');
 		});
@@ -195,25 +207,32 @@ AndroidEmulator.prototype.handleCompleteAndroidEvent = function(event)
 	var resultsData = this.runADB(['shell', 'cat', '/sdcard/' + this.drillbit.testHarnessId + '/results.json']);
 	var results = JSON.parse(resultsData);
 
+	/* TODO coverage disabled for now in V8
 	var coverageData = this.runADB(['shell', 'cat', '/sdcard/' + this.drillbit.testHarnessId + '/coverage.json']);
-	var coverage = JSON.parse(coverageData);
+	var coverage = JSON.parse(coverageData);*/
 
 	var resultsInfo = {
 		results: results,
-		coverage: coverage,
+		//coverage: coverage,
 		suite: suite
 	}
 	this.drillbit.handleCompleteEvent(resultsInfo, 'android');
 };
 
 AndroidEmulator.prototype.removeTestJS = function(testScript) {
-	var testJS = '/sdcard/'+this.drillbit.testHarnessId+'/test.js';
+	var testJS = '/sdcard/' + this.drillbit.testHarnessId + '/test.js';
 	var results = this.runADB(['shell', 'ls', testJS]);
 	if (results.indexOf("No such file") > -1) {
 		return;
 	}
 	this.runADB(['shell', 'rm', testJS]);
 };
+
+AndroidEmulator.prototype.fillTestTemplateData = function(data) {
+	if (this.runtime == "rhino") {
+		data.withWrap = true;
+	}
+}
 
 AndroidEmulator.prototype.pushTestJS = function(testScript) {
 	var tempDir = ti.fs.createTempDirectory();
@@ -222,52 +241,58 @@ AndroidEmulator.prototype.pushTestJS = function(testScript) {
 	stream.write(testScript);
 	stream.close();
 
-	var rhinoJar = ti.path.join(this.drillbit.mobileSdk, 'android', 'js.jar');
-	var dx = ti.path.join(this.androidSdk, "platform-tools", "dx");
-	if (Ti.Platform.isWin32()) {
-		dx += ".bat";
+	if (this.runtime == "v8") {
+		this.runADB(['push', testJS, '/sdcard/' + this.drillbit.testHarnessId + '/test.js']);
+
+	} else if (this.runtime == "rhino") {
+		/* Since rhino is particular about code size, we pre-compile */
+		var rhinoJar = ti.path.join(this.drillbit.mobileSdk, 'android', 'js.jar');
+		var dx = ti.path.join(this.androidSdk, "platform-tools", "dx");
+		if (Ti.Platform.isWin32()) {
+			dx += ".bat";
+		}
+
+		var java = "java";
+		var compileArgs = [java, "-classpath", rhinoJar,
+			"org.mozilla.javascript.tools.jsc.Main", "-opt", "9", "-g",
+			"-main-method-class", "org.appcelerator.kroll.runtime.rhino.KrollScriptRunner",
+			"-package", "org.appcelerator.titanium.testharness.js",
+			"-o", "test", "-encoding", "utf8", "-d", tempDir,
+			testJS.nativePath()
+		];
+
+		var compileProcess = Ti.Process.createProcess(compileArgs);
+		Ti.API.debug(compileArgs.join(" "));
+		var out = compileProcess()
+		Ti.API.debug(out.toString());
+
+		var testOutJar = ti.path.join(tempDir.nativePath(), "test.jar");
+		var dxArgs = [dx, "--dex", "--output=" + testOutJar, tempDir.nativePath()];
+		var dxProcess = Ti.Process.createProcess(dxArgs);
+		Ti.API.debug(dxArgs.join(" "));
+		out = dxProcess();
+		Ti.API.debug(out.toString());
+
+		this.runADB(['push', testOutJar, '/sdcard/' + this.drillbit.testHarnessId + '/test.jar']);
 	}
-
-	var java = "java";
-	var compileArgs = [java, "-classpath", rhinoJar,
-		"org.mozilla.javascript.tools.jsc.Main", "-opt", "9", "-g",
-		"-main-method-class", "org.appcelerator.titanium.TiScriptRunner",
-		"-package", "org.appcelerator.titanium.testharness.js",
-		"-o", "test", "-encoding", "utf8", "-d", tempDir,
-		testJS.nativePath()
-	];
-
-	var compileProcess = Ti.Process.createProcess(compileArgs);
-	Ti.API.debug(compileArgs.join(" "));
-	var out = compileProcess()
-	Ti.API.debug(out.toString());
-
-	var testOutJar = ti.path.join(tempDir.nativePath(), "test.jar");
-	var dxArgs = [dx, "--dex", "--output=" + testOutJar, tempDir.nativePath()];
-	var dxProcess = Ti.Process.createProcess(dxArgs);
-	Ti.API.debug(dxArgs.join(" "));
-	out = dxProcess();
-	Ti.API.debug(out.toString());
-
-	this.runADB(['push', testOutJar, '/sdcard/' + this.drillbit.testHarnessId + '/test.jar']);
 };
 
 AndroidEmulator.prototype.stageSDK = function(sdkTimestamp) {
 	var distAndroidDir = ti.fs.getFile(this.drillbit.mobileRepository, 'dist', 'android');
 	var stagedFiles = [];
 	var rootJars = ['titanium.jar', 'ant-tasks.jar', 'kroll-apt.jar'];
-	
+
 	distAndroidDir.getDirectoryListing().forEach(function(file) {
 		if (file.extension() != 'jar') return;
 		if (file.modificationTimestamp() <= sdkTimestamp) return;
-		
+
 		var destFile = null;
 		if (rootJars.indexOf(file.name()) != -1) {
 			destFile = ti.fs.getFile(this.drillbit.mobileSdk, 'android', file.name());
 		} else {
 			destFile = ti.fs.getFile(this.drillbit.mobileSdk, 'android', 'modules', file.name());
 		}
-		
+
 		file.copy(destFile);
 		stagedFiles.push(file);
 	}, this);
@@ -279,7 +304,7 @@ var harnessBuildTriggers = [
 	'tiapp.xml', 'AndroidManifest.xml',
 	ti.path.join('build', 'android', 'AndroidManifest.xml'),
 	ti.path.join('build', 'android', 'AndroidManifest.custom.xml'),
-	
+
 	// Directory triggers (any file under these dirs)
 	'modules', 'Resources',
 	ti.path.join('build', 'android', 'src'),
@@ -299,7 +324,7 @@ AndroidEmulator.prototype.isBuildTrigger = function(triggers, path) {
 		ti.api.debug("file build trigger found: " + path);
 		return true;
 	}
-	
+
 	// directory triggers
 	for (var i = 0; i < triggers.length; i++) {
 		var trigger = triggers[i];
@@ -317,7 +342,7 @@ AndroidEmulator.prototype.isHarnessBuildTrigger = function(file) {
 	if (path.indexOf(this.drillbit.testHarnessDir) == -1) {
 		return false;
 	}
-	
+
 	var relativePath = ti.path.relpath(file.nativePath(), this.drillbit.testHarnessDir);
 	return this.isBuildTrigger(harnessBuildTriggers, relativePath);
 };
@@ -327,7 +352,7 @@ AndroidEmulator.prototype.isSDKBuildTrigger = function(file) {
 	if (path.indexOf(this.drillbit.mobileSdk) == -1) {
 		return false;
 	}
-	
+
 	var relativePath = ti.path.relpath(path, this.drillbit.mobileSdk);
 	return this.isBuildTrigger(sdkBuildTriggers, relativePath);
 };

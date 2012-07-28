@@ -15,6 +15,7 @@
 #import "TiBlob.h"
 
 #define DEBUG_IMAGEVIEW
+#define DEFAULT_IMAGEVIEW_INTERVAL 200
 
 @implementation TiUIImageViewProxy
 @synthesize imageURL;
@@ -32,19 +33,19 @@ static NSArray* imageKeySequence;
 	return imageKeySequence;
 }
 
-// TODO: Hack to resize 'auto' image views; other 'auto' views may still need to be
-// resized/relayed on iPad.  See #2227
--(UIViewAutoresizing)verifyAutoresizing:(UIViewAutoresizing)suggestedResizing
+-(void)propagateLoadEvent:(NSString *)stateString
 {
-	UIViewAutoresizing resizing = suggestedResizing;
-	if (TiDimensionIsAuto(layoutProperties.width)) {
-		resizing |= UIViewAutoresizingFlexibleWidth;
-	}
-	if (TiDimensionIsAuto(layoutProperties.height)) {
-		resizing |= UIViewAutoresizingFlexibleHeight;
-	}
-	
-	return resizing;
+    //Send out a content change message if we are auto sizing
+    if (TiDimensionIsAuto(layoutProperties.width) || TiDimensionIsAutoSize(layoutProperties.width) || TiDimensionIsUndefined(layoutProperties.width) ||
+        TiDimensionIsAuto(layoutProperties.height) || TiDimensionIsAutoSize(layoutProperties.height) || TiDimensionIsUndefined(layoutProperties.height)) {
+        [self refreshSize];
+        [self willChangeSize];
+    }
+    
+    if ([self _hasListeners:@"load"]) {
+        NSDictionary *event = [NSDictionary dictionaryWithObject:stateString forKey:@"state"];
+        [self fireEvent:@"load" withObject:event];
+    }
 }
 
 -(void)_configure
@@ -52,13 +53,16 @@ static NSArray* imageKeySequence;
 	[self replaceValue:NUMBOOL(NO) forKey:@"animating" notification:NO];
 	[self replaceValue:NUMBOOL(NO) forKey:@"paused" notification:NO];
 	[self replaceValue:NUMBOOL(NO) forKey:@"reverse" notification:NO];
+    [self replaceValue:NUMBOOL(YES) forKey:@"stopped" notification:YES];
+    [self replaceValue:NUMFLOAT(DEFAULT_IMAGEVIEW_INTERVAL) forKey:@"duration" notification:NO];
 }
 
 -(void)start:(id)args
 {
-	ENSURE_UI_THREAD(start,args);
-	TiUIImageView *iv= (TiUIImageView*)[self view];
-	[iv start];
+    TiThreadPerformOnMainThread(^{
+        TiUIImageView *iv = (TiUIImageView*)[self view];
+        [iv start];
+    }, NO);
 }
 
 -(void)stop:(id)args
@@ -78,9 +82,18 @@ static NSArray* imageKeySequence;
 
 -(void)pause:(id)args
 {
-	ENSURE_UI_THREAD(pause,args);
-	TiUIImageView *iv= (TiUIImageView*)[self view];
-	[iv pause];
+    TiThreadPerformOnMainThread(^{
+        TiUIImageView *iv = (TiUIImageView*)[self view];
+        [iv pause];
+    }, NO);
+}
+
+-(void)resume:(id)args
+{
+    TiThreadPerformOnMainThread(^{
+        TiUIImageView *iv = (TiUIImageView*)[self view];
+        [iv resume];
+    }, NO);
 }
 
 -(void)viewWillDetach
@@ -152,19 +165,20 @@ static NSArray* imageKeySequence;
 	
 }
 
-USE_VIEW_FOR_AUTO_WIDTH
+USE_VIEW_FOR_CONTENT_WIDTH
 
-USE_VIEW_FOR_AUTO_HEIGHT
+USE_VIEW_FOR_CONTENT_HEIGHT
 
 #pragma mark Handling ImageLoader
 
 -(void)setImage:(id)newImage
 {
-	if ([newImage isEqual:@""])
-	{
-		newImage = nil;
-	}
-	[self replaceValue:[self sanitizeURL:newImage] forKey:@"image" notification:YES];
+    id image = newImage;
+    if ([image isEqual:@""])
+    {
+        image = nil;
+    }
+    [self replaceValue:image forKey:@"image" notification:YES];
 }
 
 -(void)startImageLoad:(NSURL *)url;
@@ -219,6 +233,14 @@ USE_VIEW_FOR_AUTO_HEIGHT
 {
 }
 
+-(TiDimension)defaultAutoWidthBehavior:(id)unused
+{
+    return TiDimensionAutoSize;
+}
+-(TiDimension)defaultAutoHeightBehavior:(id)unused
+{
+    return TiDimensionAutoSize;
+}
 
 @end
 

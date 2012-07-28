@@ -24,6 +24,7 @@
 		[button sizeToFit];
 		[self recenterButton];
 	}
+    [super frameSizeChanged:frame bounds:bounds];
 }
 
 -(FacebookModule*)module
@@ -58,7 +59,8 @@
 
 -(int)getStyleAndChangeSize:(id)style
 {
-	int buttonStyle = [style isEqualToString:@"wide"] ? FB_LOGIN_BUTTON_WIDE : FB_LOGIN_BUTTON_NORMAL;
+	int buttonStyle = [TiUtils intValue:style];
+	
 	CGRect frame = [self frameForButtonStyle:buttonStyle];
 	
 	// we force a constrained size instead of letting the user or the layout engine decide -
@@ -82,7 +84,7 @@
 	// Create the default button, and set the default size
 	[[self module] addListener:self];
 	
-	button = [[FBLoginButton2 alloc] initWithFrame:[self frameForButtonStyle:buttonStyle]];
+	button = [[FBLoginButton alloc] initWithFrame:[self frameForButtonStyle:buttonStyle]];
 	button.isLoggedIn = [[self module] isLoggedIn];
 	button.style = buttonStyle;
 	[button updateImage];

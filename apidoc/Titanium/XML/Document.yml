@@ -1,164 +1,236 @@
 ---
 name: Titanium.XML.Document
-description: The DOM Document returned from <Titanium.XML.parseString> or <Titanium.XML.parse>.
-    Implements the [DOM Level 2 API](http://www.w3.org/TR/2000/REC-DOM-Level-2-Core-20001113/core.html#i-Document).
+summary: The DOM Document returned from <Titanium.XML.parseString>.
+description: |
+    Implements the [DOM Level 2 API](http://www.w3.org/TR/DOM-Level-2-Core/core.html#i-Document) on
+    Android and iOS. Exposes the 
+    [DOM Level 3 API](http://www.w3.org/TR/DOM-Level-3-Core/core.html#i-Document) implementation on 
+    Mobile Web.
+    
+    As of version 3.1, Android does not truly support DTDs.  A document with a DTD can be
+    parsed, however it is not validated, its default attributes are not be automatically
+    added into the DOM tree, and so on.
+    
+    This has been reported as [Android Issue #7395](http://code.google.com/p/android/issues/detail?id=7395).
 extends: Titanium.XML.Node
 createable: false
 since: "0.9"
+platforms: [android, iphone, ipad, mobileweb]
 properties:
+
   - name: doctype
+    summary: An interface to the list of entities that are defined for the
+        document, such as via a Document Type Definition (DTD). 
+    description: |
+        See note about Android and DTDs.
     type: Titanium.XML.DocumentType
-    description: An interface to the list of entities that are defined for the
-        document, such as via a Document Type Definition (DTD). See note about Android and DTDs.
     permission: read-only
+
   - name: documentElement
+    summary: Root element of this document.
     type: Titanium.XML.Element
-    description: the root element in the document.
     permission: read-only
+
   - name: implementation
+    summary: |
+        [DOMImplementation](Titanium.XML.DOMImplementation) object associated with this
+        document.
     type: Titanium.XML.DOMImplementation
     permission: read-only
-    description: the [DOMImplementation](Titanium.XML.DOMImplementation) that handles this document
+
 methods:
   - name: createAttribute
-    description: Creates an attribute with the given name.
-    parameters:
-      - name: name
-        type: String
-        description: Name for the new attribute
+    summary: Creates an attribute with the given name.
     returns:
         type: Titanium.XML.Attr
-        description: An attribute object, ready for putting on an element.
-  - name: createAttributeNS
-    description: Creates an attribute with the given name and namespace.
+        summary: Attribute object, ready to be added to an element.
+
     parameters:
-      - name: namespaceURI
-        type: String
-        description: Namespace URI for the new attribute.
+
       - name: name
         type: String
-        description: Name for the new attribute.
-  - name: createCDATASection
-    description: Creates and returns a <Titanium.XML.CDATASection>.
+        summary: Name for the new attribute.
+
+  - name: createAttributeNS
+    summary: Creates an attribute with the given name and namespace.
+    returns:
+        type: Titanium.XML.Attr
+        summary: Attribute object, ready to be added to an element.
+
     parameters:
-      - name: data
+
+      - name: namespaceURI
         type: String
-        description: The String data to go into the CDATA section.
+        summary: Namespace URI for the new attribute.
+
+      - name: name
+        type: String
+        summary: Qualified name for the new attribute (can include a prefix).
+
+  - name: createCDATASection
+    summary: Creates and returns a [CDATASection](Titanium.XML.CDATASection).
     returns:
         type: Titanium.XML.CDATASection
-        description: A CDATA section with the given data, ready to be applied to an element.
-  - name: createComment
-    description: Creates a <Titanium.XML.Comment> with the supplied string data.
+        summary: CDATA section with the given data, ready to be added to an element.
+
     parameters:
+
       - name: data
         type: String
-        description: The textual comment itself.
+        summary: String data to go into the CDATA section.
+
+
+  - name: createComment
+    summary: Creates a [Comment](Titanium.XML.Comment) with the supplied string data.
     returns:
         type: Titanium.XML.Comment
-        description: The comment, ready to be appended to the DOM tree.
+        summary: Comment object, ready to be appended to the DOM tree.
+
+    parameters:
+
+      - name: data
+        type: String
+        summary: Comment text.
+
+
   - name: createDocumentFragment
-    description: Creates an empty <Titanium.XML.DocumentFragment>.
+    summary: Creates an empty [DocumentFragment](Titanium.XML.DocumentFragment).
     returns:
         type: Titanium.XML.DocumentFragment
-        description: The empty <Titanium.XML.DocumentFragment>.
+        summary: The empty <Titanium.XML.DocumentFragment>.
+
   - name: createElement
-    description: Creates an element with the given tag name.
+    summary: Creates an element with the given tag name.
+    returns:
+        type: Titanium.XML.Element
+        summary: Newly created element.
+
     parameters:
+
       - name: tagName
         type: String
-        description: The name for the created element.
+        summary: Name for the created element.
+
+
+  - name: createElementNS
+    summary: Create a new element with the given namespace and name.
     returns:
         type: Titanium.XML.Element
-        description: The newly created element.
-  - name: createElementNS
-    description: Create a new element with the given namespace and name.
+        summary: New namespace-qualified element.
+
     parameters:
+
       - name: namespaceURI
         type: String
-        description: URI for the namespace the new element belongs to.
+        summary: URI for the namespace the new element belongs to.
+
       - name: name
         type: String
-        description: The name for the new element.
-    returns:
-        type: Titanium.XML.Element
-        description: the new namespace-qualified element.
+        summary: Qualified for the new element (can include a prefix).
+
+
   - name: createEntityReference
-    description: Creates an <Titanium.XML.EntityReference> with the given name.
+    summary: Creates an [EntityReference](Titanium.XML.EntityReference) with the given name.
     returns:
         type: Titanium.XML.EntityReference
-        description: The created entity reference.
+        summary: Newly-created entity reference.
+
     parameters:
       - name: name
         type: String
-        description: Name for the new entity reference.
+        summary: Name for the new entity reference.
+
   - name: createProcessingInstruction
-    description: Creates a processing instruction for inserting into the DOM tree.
+    summary: Creates a processing instruction for inserting into the DOM tree.
     returns:
         type: Titanium.XML.ProcessingInstruction
-        description: The created processing instruction.
+        summary: New processing instruction.
+
     parameters:
+
       - name: target
         type: String
-        description: The target part for the processing instruction.
+        summary: Target part for the processing instruction.
+
       - name: data
         type: String
-        description: The data for the processing instruction node.
+        summary: Data for the processing instruction node.
+
   - name: createTextNode
-    description: Creates a text node.
+    summary: Creates a text node.
     returns:
         type: Titanium.XML.Text
-        description: The created text node.
+        summary: Newly-created text node.
+
     parameters:
+
       - name: data
         type: String
-        description: The string value for the text node.
+        summary: The string value for the text node.
+
   - name: getElementById
-    description: Returns an <Titanium.XML.Element> that has an ID attribute with the given value.
+    summary: Returns an [Element](Titanium.XML.Element) that has an ID attribute with the given value.
+    returns:
+        type: Titanium.XML.Element
+        summary: The Element matching the given ID, if any.
+
     parameters:
       - name: elementId
         type: String
-        description: A unique ID value for an element to search for.
-    returns:
-        type: Titanium.XML.Element
-        description: The Element matching the given ID, if any.
+        summary: A unique ID value for an element to search for.
+
   - name: getElementsByTagName
-    description: Return a node list of elements in the document which have the given tag.
+    summary: Returns a node list of elements in the document which have the given tag.
     returns:
         type: Titanium.XML.NodeList
-        description: The NodeList of elements in the document which have the given tag name.
+        summary: List of elements in the document which have the given tag name.
+
     parameters:
       - name: tagname
         type: String
-        description: the tag name to search for.
+        summary: Tag name to search for.
+
   - name: getElementsByTagNameNS
-    description: Return a node list of elements in the document which belong
+    summary: Returns a node list of elements in the document which belong
         to the given namespace and have the given tag name.
     returns:
         type: Titanium.XML.NodeList
-        description: The NodeList of elements in the document which belong to
+        summary: List of elements in the document which belong to
             the given namespace and have the given tag name.
+
     parameters:
       - name: namespaceURI
         type: String
-        description: A namespace URI used for matching elements.
+        summary: Namespace URI used for matching elements.
+
       - name: localname
         type: String
-        description: The tag name to search for.
+        summary: Tag name to search for.
+
   - name: importNode
-    description: Imports a node from another document to this document,
-        without altering or removing the source node from the original document; this method
-        creates a new copy of the source node. The returned node has no parent.
+    summary: |
+        Imports a node from another document to this document,
+        without altering or removing the source node from the original document.
+    description: |
+        This method creates a new copy of the source node, ready to be inserted into
+        this document.  The returned node has an [ownerDocument](Titanium.XML.Node.ownerDocument) 
+        property that points to this document, but its [parentNode](Titanium.XML.Node.parentNode) 
+        property is `null`, since it has not been inserted into the current document.
+
+        For more on node ownership, see [ownerDocument issues](http://www.w3.org/DOM/faq.html#ownerdoc) 
+        in the W3C DOM FAQ.
+
     returns:
         type: Titanium.XML.Node
-        description: the imported Node that belongs now to this document.
+        summary: Imported node that belongs now to this document.
+
     parameters:
+
       - name: importedNode
-        description: The node to import.
+        summary: Node to import.
         type: Titanium.XML.Node
+
       - name: deep
         type: Boolean
-        description: If true, recursively import the subtree under the
+        summary: If true, recursively import the subtree under the
             specified node; if false, import only the node itself.
-notes: As of version 3.1, Android still does not truly support DTDs.  A document with a DTD can be
-    parsed, however it is not validated, none of its default attributes will automatically be put
-    into the tree, etc.  [Google is aware of the issue](http://code.google.com/p/android/issues/detail?id=7395).

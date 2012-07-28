@@ -1,108 +1,187 @@
 ---
 name: Titanium.UI.SearchBar
-description: A Search Bar is created by the method <Titanium.UI.createSearchBar>.
+summary: A specialized text field for entering search text.
+description: |
+    The `SearchBar` object is closely modeled on an iOS native search bar.
+    As such, not all features are supported on other platforms.
+    
+    Search bars are most commonly used for filtering the rows in a [TableView](Titanium.UI.TableView).
+    You can add a search bar to a table view by setting the table view's 
+    [search](Titanium.UI.TableView.search) property. 
+
+    A search bar can also be used without a table view.
+
+    Use the <Titanium.UI.createSearchBar> method to create a search bar.
+
+    #### Android Platform Implementation Notes
+
+    On Android, there are several issues with the current implementation:
+
+    * The cancel button does not work. It does not clear the search bar text or 
+      close the onscreen keyboard.
+
+    * Calling the `blur` method on the search bar closes the onscreen keyboard, 
+      but the search bar retains its focused appearance.
+
+    * The search bar does not lose focus when the user clicks on a row in the search
+      results.
+
+    * The `value` property cannot be specified in the `createSearchBar` method.
+
+    To use a search bar on Android, you may need to explicitly control the focus and
+    clearing of the search bar, depending on your desired behavior. For example, to clear
+    the search bar and dismiss the onscreen keyboard when the user selects a row, you
+    could add code like this to the `click` event handler on your table view:
+        
+        myTableView.addEventListener('click', function(e) {
+            if (Ti.Platform.name === 'android') {
+                // Clear search bar
+                mySearchBar.value ="";
+                // hiding and showing the search bar forces it back to its non-focused appearance.
+                mySearchBar.hide();
+                mySearchBar.show();
+            }
+            // standard click event handling here
+    
 extends: Titanium.UI.View
+excludes: { methods: [ add ] }
 since: "0.8"
+platforms: [android, iphone, ipad]
 methods:
+
   - name: blur
-    description: called to force the search bar to lose focus
+    summary: Causes the search bar to lose focus.
+
   - name: focus
-    description: called to force the search bar to focus
+    summary: Causes the search bar to gain focus.
+
+  - name: setShowCancel
+    summary: Shows or hides the cancel button.
+    description: |
+        Sets the value of the [showCancel](Titanium.UI.SearchBar.showCancel) property.
+
+        On iOS, this method can be used to specify animation properties when changing the
+        state of the cancel button. 
+
+            searchBar.setShowCancel(true, { animated: true });
+
+    parameters:
+      - name: showCancel
+        summary: New value for [showCancel](Titanium.UI.SearchBar.showCancel).
+        type: Boolean
+        
+      - name: animated
+        summary: |
+            Dictionary of animation properties. Currently only a
+            single boolean property, `animated` is supported. Only used on iOS.
+        type: Dictionary
+        optional: true
+        default: No animation.
 events:
+
   - name: blur
-    description: fired when the search bar loses focus
-    properties:
-      - name: y
-        description: the y point of the event, in receiving view coordinates
-      - name: globalPoint
-        description: a dictionary with properties x and y describing the point of the event in screen coordinates
-        platforms: [iphone, ipad]
-        deprecated:
-            since: "1.8.0"
-      - name: x
-        description: the x point of the event in receiving view coordiantes
+    summary: Fired when the search bar loses focus.
+
+  - name: bookmark
+    summary: Fired when the bookmark button is pressed.
+      
   - name: cancel
-    description: fired when the cancel button is pressed
-    properties:
-      - name: y
-        description: the y point of the event, in receiving view coordinates
-      - name: globalPoint
-        description: a dictionary with properties x and y describing the point of the event in screen coordinates
-        platforms: [iphone, ipad]
-        deprecated:
-            since: "1.8.0"
-      - name: x
-        description: the x point of the event in receiving view coordiantes
+    summary: Fired when the cancel button is pressed.
+
   - name: change
-    description: fired when the value of the search bar changes
-    properties:
-      - name: y
-        description: the y point of the event, in receiving view coordinates
-      - name: globalPoint
-        description: a dictionary with properties x and y describing the point of the event in screen coordinates
-        platforms: [iphone, ipad]
-        deprecated:
-            since: "1.8.0"
-      - name: x
-        description: the x point of the event in receiving view coordiantes
+    summary: Fired when the value of the search bar changes.
+
   - name: focus
-    description: fired when the search bar gains focus
-    properties:
-      - name: y
-        description: the y point of the event, in receiving view coordinates
-      - name: globalPoint
-        description: a dictionary with properties x and y describing the point of the event in screen coordinates
-        platforms: [iphone, ipad]
-        deprecated:
-            since: "1.8.0"
-      - name: x
-        description: the x point of the event in receiving view coordiantes
+    summary: Fired when the search bar gains focus.
+
   - name: return
-    description: fired when keyboard search button is pressed
-    properties:
-      - name: y
-        description: the y point of the event, in receiving view coordinates
-      - name: globalPoint
-        description: a dictionary with properties x and y describing the point of the event in screen coordinates
-        platforms: [iphone, ipad]
-        deprecated:
-            since: "1.8.0"
-      - name: x
-        description: the x point of the event in receiving view coordiantes
+    summary: Fired when keyboard search button is pressed.
+
 properties:
+
   - name: autocapitalization
-    description: One of <Titanium.UI.TEXT_AUTOCAPITALIZATION_NONE>, <Titanium.UI.TEXT_AUTOCAPITALIZATION_WORDS>, <Titanium.UI.TEXT_AUTOCAPITALIZATION_SENTENCES>, or <Titanium.UI.TEXT_AUTOCAPITALIZATION_ALL> to indicate how the field should be capitalized during typing.
+    summary: Determines how text is capitalized during typing. 
+    description: |
+        Specify one of the following constants from <Titanium.UI>: 
+        [TEXT_AUTOCAPITALIZATION_NONE](Titanium.UI.TEXT_AUTOCAPITALIZATION_NONE), 
+        [TEXT_AUTOCAPITALIZATION_WORDS](Titanium.UI.TEXT_AUTOCAPITALIZATION_WORDS), 
+        [TEXT_AUTOCAPITALIZATION_SENTENCES](Titanium.UI.TEXT_AUTOCAPITALIZATION_SENTENCES), or 
+        [TEXT_AUTOCAPITALIZATION_ALL](Titanium.UI.TEXT_AUTOCAPITALIZATION_ALL).
+
     type: Number
+    platforms: [iphone, ipad]
+    default: No autocapitalization.
+
   - name: autocorrect
-    description: boolean to indicate if the text in the field should be autocorrected as typed
+    summary: Determines whether the text in the search bar is autocorrected during typing.
     type: Boolean
+    platforms: [iphone, ipad]
+    default: false
+
   - name: barColor
-    description: the bar color of the search bar view
+    summary: Bar color of the search bar view, as a color name or hex triplet.
+    description: |
+        For information about color values, see the "Colors" section of <Titanium.UI>. 
+        
+        On iOS, `barColor` specifies the color of the "frame" around the search text field.
     type: String
+    platforms: [iphone, ipad]
+    default: System default bar color.
+
   - name: hintText
-    description: the text to show when the search bar field is not focused
+    summary: Text to show when the search bar field is not focused.
     type: String
+    default: On iOS, "Search"; on Android, no hint text.
+
   - name: hinttextid
-    description: the key in the locale file to use for the hintText property
+    summary: |
+        Key identifying a string from the locale file to use for the
+        [hintText](Titanium.UI.SearchBar.hintText) property.
+    description: Only one of `hintText` or `hinttextid` should be specified.
     type: String
+
   - name: keyboardType
-    description: the keyboard type constant to use when the field is focused
+    summary: Keyboard type constant to use when the field is focused.
     type: Number
+    platforms: [iphone, ipad]
+    default: System default keyboard.
+
   - name: prompt
-    description: a single line of text displayed at the top of the search bar
+    summary: Single line of text displayed at the top of the search bar.
     type: String
+    platforms: [iphone, ipad]
+    default: No prompt.
+
   - name: promptid
-    description: the key in the locale file to use for the prompt property
+    summary: |
+        Key identifying a string from the locale file to use for the
+        [prompt](Titanium.UI.SearchBar.prompt) property.
     type: String
-  - name: showCancel
-    description: boolean indicates whether the cancel button is displayed
+    platforms: [iphone, ipad]
+
+  - name: showBookmark
+    summary: Determines whether the bookmark button is displayed.
     type: Boolean
+    platforms: [iphone, ipad]
+    default: false
+
+  - name: showCancel
+    summary: Determines whether the cancel button is displayed.
+    description: |
+        On iOS, you can specify that showing and hiding the cancel button should be animated.
+        The change is not animated by default. To enable animation, call 
+        [setShowCancel](Titanium.UI.SearchBar.setShowCancel).
+    type: Boolean
+    default: false
+
   - name: value
-    description: the value of the search bar
+    summary: Value of the search bar.
+    description: |
+        On Android, the value cannot be set until after the search bar is created.
     type: String
-notes: |
     
 examples:
+
   - title: Simple Search Bar
     example: |
         

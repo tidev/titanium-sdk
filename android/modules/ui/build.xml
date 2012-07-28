@@ -2,9 +2,9 @@
 	<import file="../../build/build-module.xml"/>
 	
 	<path id="dependencies">
-		<path path="${modules.dir}/app/bin"/>
-		<path path="${modules.dir}/api/bin"/>
-		<path path="${modules.dir}/filesystem/bin"/>
-		<path path="${modules.dir}/media/bin"/>
+		<path path="${dist.classes.dir}/app"/>
+		<path path="${dist.classes.dir}/api"/>
+		<path path="${dist.classes.dir}/filesystem"/>
+		<path path="${dist.classes.dir}/media"/>
 	</path>
 </project>

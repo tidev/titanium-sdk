@@ -1,119 +1,177 @@
 ---
 name: Titanium.Android.Menu
-description: The Titanium binding of an [Android Menu](http://developer.android.com/reference/android/view/Menu.html)
+summary: The Titanium binding of an Android Options Menu.
+description: |
+    Currently, `Menu` only supports menus displayed when the **Menu** button is pressed, 
+    not the newer Action Bar style menu display.
+
+    See also: [Menu](http://developer.android.com/reference/android/view/Menu.html)
+    in the Android Developer Reference.
 extends: Titanium.Proxy
 platforms: [android]
 createable: false
 since: "1.5"
 methods:
   - name: add
-    description: creates a <Titanium.Android.MenuItem> from the passed creation options.
+    summary: Creates a <Titanium.Android.MenuItem> from the passed creation options.
     returns:
         type: Titanium.Android.MenuItem
     parameters:
       - name: options
-        description: creation options. Supported options are itemId, groupId, title, and order.
+        summary: |
+            Creation options. Supported options are
+            [itemId](Titanium.Android.MenuItem.itemId),
+            [groupId](Titanium.Android.MenuItem.groupId),
+            [title](Titanium.Android.MenuItem.title), and
+            [order](Titanium.Android.MenuItem.order).
         type: Object
+
   - name: clear
-    description: clear all items from the menu. You should release all references you have retained to <Titanium.Android.MenuItem> previously created.
+    summary: Clears all items from this menu. 
+    description: |
+        You should release all references you have retained to <Titanium.Android.MenuItem> previously created.
+
   - name: close
-    description: close the menu if visible
+    summary: Closes the menu, if visible.
+
   - name: findItem
-    description: locate a <Titanium.Android.MenuItem>
+    summary: Locates a [MenuItem](Titanium.Android.MenuItem) in this menu, by item ID or reference.
+    description: |
+        Returns the identified menu item, or `null` if the menu item was not located.
     returns:
         type: Titanium.Android.MenuItem
     parameters:
       - name: item
-        description: integer itemId or <Titanium.Android.MenuItem>
-        type: Object
+        summary: Integer [itemId](Titanium.Android.MenuItem.itemId) or a reference to a `MenuItem` object.
+        type: [Number, Titanium.Android.MenuItem]
+
   - name: getItem
-    description: return the <Titanium.Android.MenuItem> at a specific index
+    summary: Returns the [MenuItem](Titanium.Android.MenuItem) at a specific index.
+    description: |
+        Returns `null` if no menu item exists at the specified index.
     returns:
         type: Titanium.Android.MenuItem
     parameters:
       - name: index
-        description: item at index where index < size()
+        summary: Index of the menu item to return.
         type: Number
+
   - name: hasVisibleItems
-    description: query for any visible menu items
+    summary: Returns `true` if this menu has visible items.
     returns:
         type: Boolean
+
   - name: removeGroup
-    description: remove all <Titanium.Android.MenuItem> with the specified groupId
+    summary: |
+        Removes all menu items with the specified 
+        [groupId](Titanium.Android.MenuItem.groupId).
     parameters:
       - name: groupId
-        description: groupId of items to remove.
+        summary: Group ID of items to remove.
         type: Number
+
   - name: removeItem
-    description: remove a specific <Titanium.Android.MenuItem> by the specified itemId
+    summary: |
+        Removes a specific [MenuItem](Titanium.Android.MenuItem) identified by its
+        [itemId](Titanium.Android.MenuItem.itemId).
     parameters:
       - name: itemId
-        description: itemId of item to remove.
+        summary: Item ID of item to remove.
         type: Number
+
   - name: setGroupEnabled
-    description: enable or disable a group of <Titanium.Android.MenuItem> by groupId
+    summary: |
+        Enables or disables a group of menu items identified by a 
+        [groupId](Titanium.Android.MenuItem.groupId).
     parameters:
+
       - name: groupId
-        description: groupId to enable or disable
+        summary: ID of the group to enable or disable.
         type: Number
+
       - name: enabled
-        description: true to enable, false to disable.
+        summary: True to enable the specified group, false to disable it.
         type: Boolean
+
   - name: setGroupVisible
-    description: show or hide a group of <Titanium.Android.MenuItem> by groupId
+    summary: |
+        Shows or hides a group of menu items identified by a
+        [groupId](Titanium.Android.MenuItem.groupId).
     parameters:
+
       - name: groupId
-        description: groupId to enable or disable
+        summary: Group ID to enable or disable.
         type: Number
+
       - name: visible
-        description: true to show, false to hide
+        summary: True to show the group, false to hide it.
         type: Boolean
+
   - name: size
-    description: number of <Titanium.Android.MenuItem> in this menu
+    summary: Number of items in this menu.
     returns:
         type: Number
+
 properties:
   - name: items
-    description: array of <Titanium.Android.MenuItem>
+    summary: Array of menu items in this menu.
     type: Array<Titanium.Android.MenuItem>
     permission: read-only
+
 examples:
-  - title: Simple menu create
+  - title: Creating a Simple Menu
     example: |
+        This sample creates an Android menu that displays a menu item named "Item 1", 
+        which logs a debug message when clicked.
         
-            activity.onCreateOptionsMenu = function(e) {
-                var menu = e.menu;
-                var menuItem = menu.add({ title: "Item 1" });
-                menuItem.setIcon("item1.png");
-                menuItem.addEventListener("click", function(e) {
-                    Ti.API.debug("I was clicked");
-                });
+            var win = Ti.UI.createWindow({
+              fullscreen: true
+            });
+
+            var activity = win.activity;
+
+            activity.onCreateOptionsMenu = function(e){
+              var menu = e.menu;
+              var menuItem = menu.add({ title: "Item 1" });
+              menuItem.icon = "item1.png";
+              menuItem.addEventListener("click", function(e) {
+                Ti.API.debug("I was clicked");
+              });
             };
+
+            win.open();
     
-  - title: Dynamic menu create
+  - title: Creating a Dynamic Menu
     example: |
+        This sample creates an Android menu that displays a menu item named 
+        "Login" or "Logout", depending on the value of a `loggedIn` Boolean variable. 
+        Click on the item to toggle the variable's value.
         
-            var win = Ti.UI.createWindow({ fullscreen: true });
-            
+            var win = Ti.UI.createWindow({
+              fullscreen: true
+            });
             var LOGIN = 1, LOGOUT = 2;
             var loggedIn = false;
-            activity.onCreateOptionsMenu = function(e) {
-                var menu = e.menu;
-                var login = menu.add({ title: "Login", itemId: LOGIN });
-                login.setIcon("login.png");
-                login.addEventListener("click", function(e) {
-                    loggedIn = true;
-                });
-                var logout = menu.add({ title: "Logout", itemId: LOGOUT });
-                logout.setIcon("logout.png");
-                logout.addEventListener("click", function(e) {
-                    loggedIn = false;
-                });
+
+            var activity = win.activity;
+
+            activity.onCreateOptionsMenu = function(e){
+              var menu = e.menu;
+              var login = menu.add({ title: "Login", itemId: LOGIN });
+              login.setIcon("login.png");
+              login.addEventListener("click", function(e) {
+                loggedIn = true;
+              });
+              var logout = menu.add({ title: "Logout", itemId: LOGOUT });
+              logout.setIcon("logout.png");
+              logout.addEventListener("click", function(e) {
+                loggedIn = false;
+              });
             };
-            
+
             activity.onPrepareOptionsMenu = function(e) {
-                var menu = e.menu;
-                menu.findItem(LOGIN).setVisible(!loggedIn);
-                menu.findItem(LOGOUT).setVisible(loggedIn);
+              var menu = e.menu;
+              menu.findItem(LOGIN).setVisible(!loggedIn);
+              menu.findItem(LOGOUT).setVisible(loggedIn);
             };
             win.open();

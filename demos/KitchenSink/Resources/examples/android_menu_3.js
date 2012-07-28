@@ -21,7 +21,7 @@ b1.addEventListener('click', function(e) {
 		
 		var m1 = menu.add({ title : 'Close Window' });
 		m1.addEventListener('click', function(e) {
-			Ti.UI.currentWindow.close();
+			w.close();
 		});
 	};
 	

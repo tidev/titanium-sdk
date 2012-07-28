@@ -44,12 +44,12 @@ TiValueRef KrollCallAsFunction(TiContextRef jsContext, TiObjectRef func, TiObjec
 		}
 #if KMETHOD_DEBUG == 1
 		NSDate *reftime = [NSDate date];
-		NSLog(@"Invoking %@ with args: %@",o,args);
+		NSLog(@"[DEBUG] Invoking %@ with args: %@",o,args);
 #endif
 		id result = [o call:args];
 #if KMETHOD_DEBUG == 1
 		double elapsed = [[NSDate date] timeIntervalSinceDate:reftime];
-		NSLog(@"Invoked %@ with result: %@ [took: %f]",o,result,elapsed);
+		NSLog(@"[DEBUG] Invoked %@ with result: %@ [took: %f]",o,result,elapsed);
 #endif
 		[args release];
 		return [KrollObject toValue:[o context] value:result];
@@ -63,6 +63,69 @@ TiValueRef KrollCallAsFunction(TiContextRef jsContext, TiObjectRef func, TiObjec
 	}
 	@finally 
 	{
+		[pool release];
+		pool = nil;
+	}
+	return TiValueMakeUndefined(jsContext);
+}
+
+TiValueRef KrollCallAsNamedFunction(TiContextRef jsContext, TiObjectRef func, TiObjectRef thisObj, size_t argCount, const TiValueRef arguments[], TiValueRef* exception)
+{
+    waitForMemoryPanicCleared();
+	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+	
+	KrollMethod* o = (KrollMethod*) TiObjectGetPrivate(thisObj);
+	TiStringRef jsString = TiValueToStringCopy(jsContext, func, NULL);
+	NSString* funcName = (NSString *)TiStringCopyCFString(kCFAllocatorDefault, jsString);
+	TiStringRelease(jsString);
+	[funcName autorelease];
+
+	@try {
+		NSMutableArray* args = nil;
+		if (argCount > 0) {
+			args = [[NSMutableArray alloc] initWithCapacity:argCount];
+			for (size_t c=0;c<argCount;c++) {
+				id value = [KrollObject toID:[o context] value:arguments[c]];
+				//TODO: This is a temprorary workaround for the time being. We have to properly take care of [undefined] objects.
+				if(value == nil){
+					[args addObject:[NSNull null]];
+				} else {
+					[args addObject:value];
+				}
+			}
+			// Substitute target(this) with first argument
+			o = [[[KrollMethod alloc] initWithTarget:[args objectAtIndex:0] selector:o.selector argcount:o.argcount type:o.type name:o.name context:o.context] autorelease];
+			[args removeObjectAtIndex:0];
+			if ([funcName hasPrefix:@"function apply()"]) {
+				// function.apply expects the only other argument which should be array
+				if (([args count] == 1) && [[args objectAtIndex:0] isKindOfClass:[NSArray class]]) {
+					args = [args objectAtIndex:0];
+				} else {
+					o = nil;
+				}
+			}
+		} else {
+			o = nil;
+		}
+#if KMETHOD_DEBUG == 1
+		NSDate *reftime = [NSDate date];
+		NSLog(@"[DEBUG] Invoking %@ with args: %@",o,args);
+#endif
+		id result = [o call:args];
+#if KMETHOD_DEBUG == 1
+		double elapsed = [[NSDate date] timeIntervalSinceDate:reftime];
+		NSLog(@"[DEBUG] Invoked %@ with result: %@ [took: %f]",o,result,elapsed);
+#endif
+		[args release];
+		return [KrollObject toValue:[o context] value:result];
+	}
+	@catch (NSException *ex) {
+#if KMETHOD_DEBUG == 1
+		NSLog(@"[ERROR] method invoked exception: %@",ex);
+#endif	
+		*exception = [KrollObject toValue:[o context] value:ex];
+	}
+	@finally {
 		[pool release];
 		pool = nil;
 	}
@@ -140,7 +203,7 @@ TiValueRef KrollCallAsFunction(TiContextRef jsContext, TiObjectRef func, TiObjec
 	{
 		return;
 	}
-	KrollBridge * ourBridge = [context delegate];
+	KrollBridge * ourBridge = (KrollBridge*)[context delegate];
 	KrollObject * targetKrollObject = [ourBridge krollObjectForProxy:target];
 	TiStringRef keyString = TiStringCreateWithCFString((CFStringRef) key);
 
@@ -310,12 +373,24 @@ TiValueRef KrollCallAsFunction(TiContextRef jsContext, TiObjectRef func, TiObjec
 		}
 		default:
 		{
-			NSLog(@"[ERROR] unknown & unsupported primitive return type: %c for target:%@->%@",t,target,NSStringFromSelector(selector));
+			DeveloperLog(@"[ERROR] Unsupported primitive return type: %c for target:%@->%@",t,target,NSStringFromSelector(selector));
 			break;
 		}
 	}
 	
 	return nil; 
+}
+
+- (TiValueRef)jsvalueForUndefinedKey:(NSString *)key
+{
+	if (![key isEqualToString:@"call"] && ![key isEqualToString:@"apply"]) {
+		return NULL;
+	}
+	TiContextRef ctx = [context context];
+	TiStringRef jsString = TiStringCreateWithCFString((CFStringRef) key);
+	TiObjectRef jsFuncObject = TiObjectMakeFunctionWithCallback(ctx, jsString, KrollCallAsNamedFunction);
+	TiStringRelease(jsString);
+	return jsFuncObject;
 }
 
 @end

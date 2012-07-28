@@ -1,52 +1,206 @@
 ---
 name: Titanium.UI.Button
-description: A Button is created by the method <Titanium.UI.createButton>.
+summary: |
+    A button widget that has four states: normal, disabled, focused and selected.
+description: |
+    A button displays its  selected state while it is being pressed. The focused state is
+    only used on Android devices that have navigation keys or a keyboard, to indicate
+    which button has input focus.
+    
+    You can specify background images for each state, as well as button text and a button
+    icon. On iOS, there are button styles which define appearance for each state, even if
+    no button images are set.
+
+    Use the <Titanium.UI.createButton> method to create a button.
+
+    #### Android and Mobile Web Platform Notes
+
+    Android and Mobile Web use default button images for the normal, focused, selected and disabled
+    states. If you use a custom button image, you should specify versions for the focused
+    and selected states (and the disabled state, if the button is ever disabled).
+
+    Android and Mobile Web also support setting the background color for each of the states. These are not
+    supported on iOS.
+
+    #### iOS Platform Notes
+
+    iOS buttons have two special properties, `style` and `systemButton`.
+
+    The `style` property specifies the type of button decoration, and can be set to one 
+    of the values described in <Titanium.UI.iPhone.SystemButtonStyle>. 
+    
+    Unlike Android and Mobile Web, iOS doesn't supply any default background images for buttons--
+    system button styles serve this purpose.
+
+    Button style decorations are drawn above the background gradient and background color, 
+    and below any background images. 
+
+    To use a custom button style, for example using a background gradient,
+    you may need to explicitly set `style` to `PLAIN`, to prevent the button style from  
+    overriding any background color or gradient. In addition, the `backgroundImage` must be 
+    partially or wholly transparent for the background color or background gradient to be visible.
+
+    In order for a background gradient to show through, the `backgroundColor` may need to be
+    set to 'transparent'.
+
+    The `systemButton` property lets you create a predefined system-defined button, 
+    such as the **Camera** or **Add** buttons, for use in toolbars and nav bars.
+    Specifically, system buttons may be used in the following locations:
+
+    * <Titanium.UI.iOS.Toolbar>. The `items` array can contain system buttons.
+    * <Titanium.UI.iPad.Popover>. The `leftNavButton` and `rightNavButton` properties can
+      refer to system buttons
+    * <Titanium.UI.iPad.SplitWindow>. The `toolbar` array can contain system buttons.
+    * <Titanium.UI.TextField>. The `keyboardToolbar` array can contain system buttons.
+    * <Titanium.UI.TextArea>. The `keyboardToolbar` array can contain system buttons.
+    * <Titanium.UI.Window>. The `leftNavButton` and `rightNavButton` properties can refer to 
+      system buttons and the `toolbar` array can contain system buttons.
+    
+    Use the constants in <Titanium.UI.iPhone.SystemButton> 
+    to specify a button type. The size, style and decoration of system buttons is set
+    automatically, so you can create a button by setting only the `systemButton` property.
+
+    For example:
+    
+        cancelButton = Ti.UI.createButton({ systemButton: Ti.UI.iPhone.SystemButton.CANCEL });
+
+    Note that the `systemButton` property specifies *appearance*, not behavior. For
+    example, to bring up the camera when the user presses the **Camera** button, you must 
+    add an event listener to the button and call <Titanium.Media.showCamera> when the 
+    button is clicked.
+
+    ##### iOS Pressed Button Effects
+
+    If you do not supply separate background images for the normal and selected states,
+    iOS supplies a built-in effect for pressed buttons. For most iOS buttons, the effect
+    dims the entire button (except for the text) while the button is being pressed.
+
+    For toolbar buttons that use the [PLAIN](Titanium.UI.iPhone.SystemButtonStyle.PLAIN) style
+    or use system icons such as [CAMERA](Titanium.UI.iPhone.SystemButton.CAMERA), a glow effect is
+    used. The glow effect shows as a white circular glow or highlight at the center of the button
+    when the button is pressed. 
+
 extends: Titanium.UI.View
 since: "0.8"
+methods: 
+
+  - name: add
+    description: |
+        Adding children to a `Button` is not supported on all platforms.
+
+        If you need to display views on top of this object, consider using 
+        another view as a container for both this object and the views you want 
+        to appear on top of it.
+
+        See also: <Titanium.UI.View.add>.
+    platforms: [iphone, ipad, mobileweb]
+
+  - name: remove
+    description: |
+        See also: [add](Titanium.UI.Button.add), <Titanium.UI.View.add>.
+    platforms: [iphone, ipad, mobileweb]
+
 properties:
-  - name: color
-    description: the foreground color of the button text
-    type: String
-  - name: enabled
-    description: boolean that indicates if the button is enabled or not
-    type: Boolean
-  - name: font
-    description: the font properties of the button
-    type: Object
-  - name: image
-    description: the image to display on the button to the left of the title
-    type: String
-  - name: selectedColor
-    description: the selected color of the button text when the button is in the selected state
-    type: String
-  - name: style
-    description: style constant for the type of button
-    type: Number
-  - name: title
-    description: button title
-    type: String
-  - name: titleid
-    description: the key in the locale file to use for the title property
-    type: String
-    since: "1.5"
   - name: backgroundImage
-    description: the background image url of the view. Sets the background image for all four (normal, disabled, focused, selected) states of the button unless overridden.
+    summary: |
+        Background image for the button in its normal state, specified as a local file path or URL. 
+    description: |
+        Also sets the background image for the other button states (disabled, focused, selected), 
+        unless they've been specified explicitly. On iOS, if backgroundDisabledImage is unset, the
+        image will appear faded to indicate being disabled. Also on iOS, if backgroundSelectedImage
+        is unset, the image will be darkened to indicate being selected.
     type: String
   - name: backgroundDisabledImage
-    description: the disabled background image url of the view. Sets the background image for all four (normal, disabled, focused, selected) states of the button unless overridden.
+    summary: |
+        Background image for the button in its disabled state, specified as a local file path 
+        or URL. 
+    description: |
+        Also sets the background image for the other button states (normal, focused, selected), 
+        unless they've been specified explicitly, except for iOS, which requires a backgroundImage.
     type: String
   - name: backgroundFocusedImage
-    description: the focused background image url of the view. Focusable must be true for normal views. Sets the background image for focused state only.
+    summary: |
+        Background image for the button in its focused state, specified as a local file path 
+        or URL. 
+    description: |
+        Focusable must be true for normal views. Sets the background image for the focused 
+        state only. For iOS, since there is not a trackball, this does nothing.
     type: String
   - name: backgroundSelectedImage
-    description: the selected background image url of the view. Focusable must be true for normal views. Sets the background image for selected state only
+    summary: |
+        Background image for the button in its selected state, specified as a local file 
+        path or URL. 
+    description: |
+        On Android, Focusable must be true in order to be selected. Sets the background image for the selected 
+        state only.
     type: String
+  - name: color
+    summary: Default button text color, as a color name or hex triplet.
+    description: |
+        For information about color values, see the "Colors" section of <Titanium.UI>. 
+    type: String
+  - name: enabled
+    summary: Set to `true` to enable the button, `false` to disable the button.
+    type: Boolean
+    default: true
+  - name: font
+    summary: Font to use for the button text.
+    type: Font
+  - name: image
+    summary: Image to display on the button, specified as a local
+        path, URL or (on iOS only) a `Blob`.
+    description: |
+        The image is displayed to the left of the title.
+
+        Support for using <Titanium.Blob> for this property is only available on iOS.
+    type: [String, Titanium.Blob]
+  - name: selectedColor
+    summary: Button text color used to indicate the selected state, as a color name or hex triplet.
+    description: |
+        For information about color values, see the "Colors" section of <Titanium.UI>. 
+    type: String
+    platforms: [iphone,ipad,mobileweb]
+  - name: style
+    summary: Style constant for the button, as defined in <Titanium.UI.iPhone.SystemButtonStyle>.
+    type: Number
+    platforms: [iphone,ipad]
+  - name: systemButton
+    summary: Specifies an iOS system button appearance, as defined in 
+        <Titanium.UI.iPhone.SystemButton>.
+    type: Number
+    platforms: [iphone,ipad]
+  - name: textAlign
+    summary: |
+        Text alignment, specified using one of the <Titanium.UI> text alignment constants: [TEXT_ALIGNMENT_LEFT](Titanium.UI.TEXT_ALIGNMENT_LEFT), [TEXT_ALIGNMENT_CENTER](Titanium.UI.TEXT_ALIGNMENT_CENTER), or [TEXT_ALIGNMENT_RIGHT](Titanium.UI.TEXT_ALIGNMENT_RIGHT).
+    type: [String,Number]
+    default: <Titanium.UI.TEXT_ALIGNMENT_CENTER>
+  - name: title
+    summary: Button title.
+    type: String
+  - name: titleid
+    summary: Key identifying a string from the locale file to use for the button title. 
+    description: Only one of `title` or `titleid` should be specified.
+    type: String
+    since: "1.5"
+  - name: verticalAlign
+    summary: |
+        Vertical alignment for the text field, specified using one of the 
+        vertical alignment constants from <Titanium.UI>: 
+        [TEXT_VERTICAL_ALIGNMENT_BOTTOM](Titanium.UI.TEXT_VERTICAL_ALIGNMENT_BOTTOM), 
+        [TEXT_VERTICAL_ALIGNMENT_CENTER](Titanium.UI.TEXT_VERTICAL_ALIGNMENT_CENTER), or 
+        [TEXT_VERTICAL_ALIGNMENT_TOP](Titanium.UI.TEXT_VERTICAL_ALIGNMENT_TOP).
+    type: [Number,String]
+    default: Titanium.UI.TEXT_VERTICAL_ALIGNMENT_CENTER
+    platforms: [android, mobileweb]
 examples:
   - title: Simple Button Example
     example: |
         
             var button = Titanium.UI.createButton({
-               title: 'Hello'
+               title: 'Hello',
+               top: 10,
+               width: 100,
+               height: 50
             });
             button.addEventListener('click',function(e)
             {

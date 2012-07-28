@@ -11,12 +11,24 @@
 
 //By declaring a scrollView protocol, TiUITextWidget can access 
 @class TiUIView;
-@protocol TiUIScrollView
 
+/**
+ The protocol for scrolling.
+ */
+@protocol TiScrolling
+
+/**
+ Tells the scroll view that keyboard did show.
+ @param keyboardTop The keyboard height.
+ */
 -(void)keyboardDidShowAtHeight:(CGFloat)keyboardTop;
--(void)scrollToShowView:(TiUIView *)firstResponderView withKeyboardHeight:(CGFloat)keyboardTop;
 
--(void)keyboardDidShowAtHeight:(CGFloat)keyboardTop forView:(TiUIView *)firstResponderView;
+/**
+ Tells the scroll view to scroll to make the specified view visible.
+ @param firstResponderView The view to make visible.
+ @param keyboardTop The keyboard height.
+ */
+-(void)scrollToShowView:(TiUIView *)firstResponderView withKeyboardHeight:(CGFloat)keyboardTop;
 
 @end
 
@@ -27,8 +39,15 @@ void ModifyScrollViewForKeyboardHeightAndContentHeightWithResponderRect(UIScroll
 
 @class TiViewProxy;
 
+/**
+ Base class for all Titanium views.
+ @see TiViewProxy
+ */
 @interface TiUIView : UIView<TiProxyDelegate,LayoutAutosizing> 
 {
+@protected
+    BOOL configurationSet;
+
 @private
 	TiProxy *proxy;
 	TiAnimation *animation;
@@ -45,57 +64,164 @@ void ModifyScrollViewForKeyboardHeightAndContentHeightWithResponderRect(UIScroll
 	// Touch detection
     BOOL changedInteraction;
 	BOOL handlesTouches;
-	BOOL handlesTaps;
-	CGPoint tapLocation;         // Needed to record location of single tap, which will only be registered after delayed perform.
-	BOOL multipleTouches;        // YES if a touch event contains more than one touch; reset when all fingers are lifted.
-	BOOL twoFingerTapIsPossible; // Set to NO when 2-finger tap can be ruled out (e.g. 3rd finger down, fingers touch down too far apart, etc).	
-	CGPoint touchLocation;		 // Need for swipe detection
-	BOOL handlesSwipes;
 	UIView *touchDelegate;		 // used for touch delegate forwarding
 	BOOL animating;
+	
+	UITapGestureRecognizer*			singleTapRecognizer;
+	UITapGestureRecognizer*			doubleTapRecognizer;
+	UITapGestureRecognizer*			twoFingerTapRecognizer;
+	UIPinchGestureRecognizer*		pinchRecognizer;
+	UISwipeGestureRecognizer*		leftSwipeRecognizer;
+	UISwipeGestureRecognizer*		rightSwipeRecognizer;
+	UISwipeGestureRecognizer*		upSwipeRecognizer;
+	UISwipeGestureRecognizer*		downSwipeRecognizer;
+	UILongPressGestureRecognizer*	longPressRecognizer;
 	
 	//Resizing handling
 	CGSize oldSize;
     
 	// Image capping/backgrounds
-  id backgroundImage;
-  TiDimension leftCap;
-  TiDimension topCap;
+    id backgroundImage;
+    BOOL backgroundRepeat;
+    TiDimension leftCap;
+    TiDimension topCap;
 }
+
+/**
+ Returns current status of the view animation.
+ @return _YES_ if view is being animated, _NO_ otherwise.
+ */
 -(BOOL)animating;
 
+/**
+ Provides access to a proxy object of the view. 
+ */
 @property(nonatomic,readwrite,assign)	TiProxy *proxy;
+
+/**
+ Provides access to touch delegate of the view.
+ 
+ Touch delegate is the control that receives all touch events.
+ */
 @property(nonatomic,readwrite,assign)	UIView *touchDelegate;
+
+/**
+ Returns view's transformation matrix.
+ */
 @property(nonatomic,readonly)			id transformMatrix;
+
+/**
+ Provides access to background image of the view.
+ */
 @property(nonatomic,readwrite,retain) id backgroundImage;
 
+/**
+ Returns enablement of touch events.
+ @see updateTouchHandling
+ */
+@property(nonatomic,readonly) BOOL touchEnabled;
+
+@property(nonatomic,readonly)	UITapGestureRecognizer*			singleTapRecognizer;
+@property(nonatomic,readonly)	UITapGestureRecognizer*			doubleTapRecognizer;
+@property(nonatomic,readonly)	UITapGestureRecognizer*			twoFingerTapRecognizer;
+@property(nonatomic,readonly)	UIPinchGestureRecognizer*		pinchRecognizer;
+@property(nonatomic,readonly)	UISwipeGestureRecognizer*		leftSwipeRecognizer;
+@property(nonatomic,readonly)	UISwipeGestureRecognizer*		rightSwipeRecognizer;
+@property(nonatomic,readonly)	UILongPressGestureRecognizer*	longPressRecognizer;
+
+-(void)configureGestureRecognizer:(UIGestureRecognizer*)gestureRecognizer;
+- (UIGestureRecognizer *)gestureRecognizerForEvent:(NSString *)event;
+
+/**
+ Returns CA layer for the background of the view.
+ */
 -(CALayer *)backgroundImageLayer;
 
+/**
+ Tells the view to start specified animation.
+ @param newAnimation The animation to start.
+ */
 -(void)animate:(TiAnimation *)newAnimation;
 
 #pragma mark Framework
 
+/**
+ Performs view's initialization procedure.
+ */
 -(void)initializeState;
+
+/**
+ Performs view's configuration procedure.
+ */
 -(void)configurationSet;
+
+/**
+ Sets virtual parent transformation for the view.
+ @param newTransform The transformation to set.
+ */
 -(void)setVirtualParentTransform:(CGAffineTransform)newTransform;
 -(void)setTransform_:(id)matrix;
 
+/*
+ Tells the view to load an image.
+ @param image The string referring the image.
+ @return The loaded image.
+ */
 -(UIImage*)loadImage:(id)image;
 
 -(id)proxyValueForKey:(NSString *)key;
 -(void)readProxyValuesWithKeys:(id<NSFastEnumeration>)keys;
+
+/*
+ Tells the view to change its proxy to the new one provided.
+ @param newProxy The new proxy to set on the view.
+ */
 -(void)transferProxy:(TiViewProxy*)newProxy;
 
+/**
+ Tells the view to update its touch handling state.
+ @see touchEnabled
+ */
 -(void)updateTouchHandling;
+
+/**
+ Tells the view that its frame and/or bounds has chnaged.
+ @param frame The frame rect
+ @param bounds The bounds rect
+ */
 -(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds;
+
+/**
+ Tells the view to make its root view a first responder.
+ */
 -(void)makeRootViewFirstResponder;
+
 -(void)animationCompleted;
 
+/**
+ The convenience method to raise an exception for the view.
+ @param reason The exception reason.
+ @param subreason The exception subreason.
+ @param location The exception location.
+ */
 +(void)throwException:(NSString *) reason subreason:(NSString*)subreason location:(NSString *)location;
+
 -(void)throwException:(NSString *) reason subreason:(NSString*)subreason location:(NSString *)location;
 
+/**
+ Returns default enablement for interactions.
+ 
+ Subclasses may override.
+ @return _YES_ if the control has interactions enabled by default, _NO_ otherwise.
+ */
 -(BOOL)interactionDefault; 
+
 -(BOOL)interactionEnabled;
+
+/**
+ Whether or not the view has any touchable listeners attached.
+ @return _YES_ if the control has any touchable listener attached, _NO_ otherwise.
+ */
 -(BOOL)hasTouchableListener;
 
 -(void)handleControlEvents:(UIControlEvents)events;
@@ -103,7 +229,18 @@ void ModifyScrollViewForKeyboardHeightAndContentHeightWithResponderRect(UIScroll
 -(void)setVisible_:(id)visible;
 
 -(UIView *)gradientWrapperView;
+-(void)checkBounds;
 
+/**
+ Whether or not a view not normally picked up by the Titanium view hierarchy (such as wrapped iOS UIViews) was touched.
+ @return _YES_ if the view contains specialized content (such as a system view) which should register as a touch for this view, _NO_ otherwise.
+ */
+-(BOOL)touchedContentViewWithEvent:(UIEvent*)event;
+
+- (void)processTouchesBegan:(NSSet *)touches withEvent:(UIEvent *)event;
+- (void)processTouchesMoved:(NSSet *)touches withEvent:(UIEvent *)event;
+- (void)processTouchesEnded:(NSSet *)touches withEvent:(UIEvent *)event;
+- (void)processTouchesCancelled:(NSSet *)touches withEvent:(UIEvent *)event;
 @end
 
 #pragma mark TO REMOVE, used only during transition.
@@ -111,7 +248,7 @@ void ModifyScrollViewForKeyboardHeightAndContentHeightWithResponderRect(UIScroll
 #define USE_PROXY_FOR_METHOD(resultType,methodname,inputType)	\
 -(resultType)methodname:(inputType)value	\
 {	\
-	NSLog(@"[DEBUG] Using view proxy via redirection instead of directly for %@.",self);	\
+	DeveloperLog(@"[DEBUG] Using view proxy via redirection instead of directly for %@.",self);	\
 	return [(TiViewProxy *)[self proxy] methodname:value];	\
 }
 

@@ -10,9 +10,9 @@
 #import "TiUITextFieldProxy.h"
 
 #import "TiUtils.h"
-#import "TiRange.h"
 #import "TiViewProxy.h"
 #import "TiApp.h"
+#import "TiUITextWidget.h"
 
 @implementation TiTextField
 
@@ -39,6 +39,35 @@
 	RELEASE_TO_NIL(leftView);
 	RELEASE_TO_NIL(rightView);
 	[super dealloc];
+}
+
+-(void)setTouchHandler:(TiUIView*)handler
+{
+    //Assign only. No retain
+    touchHandler = handler;
+}
+
+- (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event 
+{
+    [touchHandler processTouchesBegan:touches withEvent:event];
+    [super touchesBegan:touches withEvent:event];
+}
+- (void)touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event 
+{
+    [touchHandler processTouchesMoved:touches withEvent:event];
+    [super touchesMoved:touches withEvent:event];
+}
+
+- (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event 
+{
+    [touchHandler processTouchesEnded:touches withEvent:event];
+    [super touchesEnded:touches withEvent:event];
+}
+
+- (void)touchesCancelled:(NSSet *)touches withEvent:(UIEvent *)event 
+{
+    [touchHandler processTouchesCancelled:touches withEvent:event];
+    [super touchesCancelled:touches withEvent:event];
 }
 
 -(UIView*)newPadView:(CGFloat)width height:(CGFloat)height
@@ -245,6 +274,7 @@
 -(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
 {
 	[TiUtils setView:textWidgetView positionRect:bounds];
+    [super frameSizeChanged:frame bounds:bounds];
 }
 
 - (void) dealloc
@@ -265,7 +295,9 @@
 		((TiTextField *)textWidgetView).textAlignment = UITextAlignmentLeft;
 		((TiTextField *)textWidgetView).contentVerticalAlignment = UIControlContentVerticalAlignmentCenter;
 		[(TiTextField *)textWidgetView configure];
+		[(TiTextField *)textWidgetView setTouchHandler:self];
 		[self addSubview:textWidgetView];
+		self.clipsToBounds = YES;
 		WARN_IF_BACKGROUND_THREAD_OBJ;	//NSNotificationCenter is not threadsafe!
 		NSNotificationCenter * theNC = [NSNotificationCenter defaultCenter];
 		[theNC addObserver:self selector:@selector(textFieldDidChange:) name:UITextFieldTextDidChangeNotification object:textWidgetView];
@@ -296,10 +328,18 @@
 	[self textWidgetView].rightButtonPadding = [TiUtils floatValue:value];
 }
 
+-(void)setEditable_:(id)value
+{
+    BOOL _trulyEnabled = ([TiUtils boolValue:value def:YES] && [TiUtils boolValue:[[self proxy] valueForUndefinedKey:@"enabled"] def:YES]);
+    [[self textWidgetView] setEnabled:_trulyEnabled];
+}
+
 -(void)setEnabled_:(id)value
 {
-	[[self textWidgetView] setEnabled:[TiUtils boolValue:value]];
+    BOOL _trulyEnabled = ([TiUtils boolValue:value def:YES] && [TiUtils boolValue:[[self proxy] valueForUndefinedKey:@"editable"] def:YES]);
+    [[self textWidgetView] setEnabled:_trulyEnabled];
 }
+
 
 -(void)setBackgroundImage_:(id)image
 {
@@ -454,30 +494,17 @@
 
 - (BOOL)textFieldShouldBeginEditing:(UITextField *)textField;        // return NO to disallow editing.
 {
-	return YES;
+    return YES;
 }
 
 - (BOOL)textField:(UITextField *)tf shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString *)string
 {
-	NSString *curText = [tf text];
-    
+    NSString *curText = [[tf text] stringByReplacingCharactersInRange:range withString:string];
+   
     NSInteger maxLength = [[self textWidgetView] maxLength];    
-    if (maxLength > -1) {
-        NSInteger length = [curText length] + [string length] - range.length;
-        
-        if (length > maxLength) {
-            return NO;
-        }
+    if ( (maxLength > -1) && ([curText length] > maxLength) ) {
+        return NO;
     }
-	
-	if ([string isEqualToString:@""])
-	{
-		curText = [curText substringToIndex:[curText length]-range.length];
-	}
-	else
-	{
-		curText = [NSString stringWithFormat:@"%@%@",curText,string];
-	}
 
 	[(TiUITextFieldProxy *)self.proxy noteValueChange:curText];
 	return YES;
@@ -521,6 +548,18 @@
 
 	return YES;
 }
+
+-(CGFloat)contentWidthForWidth:(CGFloat)value
+{
+	return [[self textWidgetView] sizeThatFits:CGSizeMake(value, 0)].width;
+}
+
+-(CGFloat)contentHeightForWidth:(CGFloat)value
+{
+	return [[self textWidgetView] sizeThatFits:CGSizeMake(value, 0)].height;
+}
+
+
 	
 @end
 

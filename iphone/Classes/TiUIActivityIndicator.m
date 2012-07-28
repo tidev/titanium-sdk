@@ -111,6 +111,7 @@
 -(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
 {
 	[self setNeedsLayout];
+    [super frameSizeChanged:frame bounds:bounds];
 }
 
 #pragma mark View controller stuff
@@ -210,12 +211,12 @@
 
 }
 
--(CGFloat)autoWidthForWidth:(CGFloat)suggestedWidth
+-(CGFloat)contentWidthForWidth:(CGFloat)suggestedWidth
 {
 	return [self sizeThatFits:CGSizeZero].width;
 }
 
--(CGFloat)autoHeightForWidth:(CGFloat)width
+-(CGFloat)contentHeightForWidth:(CGFloat)width
 {
 	return [self sizeThatFits:CGSizeZero].height;
 }

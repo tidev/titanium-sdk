@@ -245,7 +245,7 @@
 			CGFloat endRadiusPixels;
 			switch (startRadius.type)
 			{
-				case TiDimensionTypePixels:
+				case TiDimensionTypeDip:
 					startRadiusPixels = startRadius.value;
 					break;
 				case TiDimensionTypePercent:
@@ -257,7 +257,7 @@
 			
 			switch (endRadius.type)
 			{
-				case TiDimensionTypePixels:
+				case TiDimensionTypeDip:
 					endRadiusPixels = endRadius.value;
 					break;
 				case TiDimensionTypePercent:
@@ -280,7 +280,8 @@
 {
 	if ([value isKindOfClass:[NSDictionary class]])
 	{
-		TiGradient * newGradient = [[[TiGradient alloc] _initWithPageContext:[proxy executionContext]] autorelease];
+        id<TiEvaluator> context = ([proxy executionContext] == nil) ? [proxy pageContext] : [proxy executionContext];
+		TiGradient * newGradient = [[[TiGradient alloc] _initWithPageContext:context] autorelease];
 		[newGradient _initWithProperties:value];
 		return newGradient;
 	}

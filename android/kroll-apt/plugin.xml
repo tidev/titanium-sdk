@@ -6,7 +6,7 @@
       <java6processors
             enableDefault="true">
          <java6processor
-               class="org.appcelerator.kroll.annotations.generator.KrollBindingGenerator">
+               class="org.appcelerator.kroll.annotations.generator.KrollJSONGenerator">
          </java6processor>
       </java6processors>
    </extension>

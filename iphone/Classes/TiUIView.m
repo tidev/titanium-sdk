@@ -13,8 +13,8 @@
 #ifdef USE_TI_UI2DMATRIX	
 	#import "Ti2DMatrix.h"
 #endif
-#ifdef USE_TI_UIIOS3DMATRIX
-	#import "TiUIiOS3DMatrix.h"
+#if defined(USE_TI_UIIOS3DMATRIX) || defined(USE_TI_UI3DMATRIX)
+	#import "Ti3DMatrix.h"
 #endif
 #import "TiViewProxy.h"
 #import "TiApp.h"
@@ -24,7 +24,7 @@ void InsetScrollViewForKeyboard(UIScrollView * scrollView,CGFloat keyboardTop,CG
 {
 	VerboseLog(@"ScrollView:%@, keyboardTop:%f minimumContentHeight:%f",scrollView,keyboardTop,minimumContentHeight);
 
-	CGRect scrollVisibleRect = [scrollView convertRect:[scrollView bounds] toView:[[TiApp controller] view]];
+	CGRect scrollVisibleRect = [scrollView convertRect:[scrollView bounds] toView:[[TiApp app] topMostView]];
 	//First, find out how much we have to compensate.
 
 	CGFloat obscuredHeight = scrollVisibleRect.origin.y + scrollVisibleRect.size.height - keyboardTop;	
@@ -57,7 +57,7 @@ void OffsetScrollViewForRect(UIScrollView * scrollView,CGFloat keyboardTop,CGFlo
 			scrollView,keyboardTop,minimumContentHeight,
 			responderRect.origin.x,responderRect.origin.y,responderRect.size.width,responderRect.size.height);
 
-	CGRect scrollVisibleRect = [scrollView convertRect:[scrollView bounds] toView:[[TiApp controller] view]];
+	CGRect scrollVisibleRect = [scrollView convertRect:[scrollView bounds] toView:[[TiApp app] topMostView]];
 	//First, find out how much we have to compensate.
 
 	CGFloat obscuredHeight = scrollVisibleRect.origin.y + scrollVisibleRect.size.height - keyboardTop;	
@@ -102,7 +102,7 @@ void ModifyScrollViewForKeyboardHeightAndContentHeightWithResponderRect(UIScroll
 			scrollView,keyboardTop,minimumContentHeight,
 			responderRect.origin.x,responderRect.origin.y,responderRect.size.width,responderRect.size.height);
 
-	CGRect scrollVisibleRect = [scrollView convertRect:[scrollView bounds] toView:[[TiApp controller] view]];
+	CGRect scrollVisibleRect = [scrollView convertRect:[scrollView bounds] toView:[[TiApp app] topMostView]];
 	//First, find out how much we have to compensate.
 
 	CGFloat obscuredHeight = scrollVisibleRect.origin.y + scrollVisibleRect.size.height - keyboardTop;	
@@ -146,9 +146,15 @@ void ModifyScrollViewForKeyboardHeightAndContentHeightWithResponderRect(UIScroll
 	[scrollView setContentOffset:offsetPoint animated:YES];
 }
 
-#define DOUBLE_TAP_DELAY		0.35
-#define HORIZ_SWIPE_DRAG_MIN	12
-#define VERT_SWIPE_DRAG_MAX		4
+NSArray* listenerArray = nil;
+
+@interface TiUIView ()
+-(void)sanitycheckListeners;
+@end
+
+@interface TiUIView(Private)
+-(void)renderRepeatedBackground:(id)image;
+@end
 
 @implementation TiUIView
 
@@ -174,10 +180,19 @@ DEFINE_EXCEPTIONS
 
 -(void)dealloc
 {
-	RELEASE_TO_NIL(transformMatrix);
-	RELEASE_TO_NIL(animation);
-    RELEASE_TO_NIL(backgroundImage);
-	RELEASE_TO_NIL(gradientLayer);
+	[transformMatrix release];
+	[animation release];
+	[backgroundImage release];
+	[gradientLayer release];
+	[singleTapRecognizer release];
+	[doubleTapRecognizer release];
+	[twoFingerTapRecognizer release];
+	[pinchRecognizer release];
+	[leftSwipeRecognizer release];
+	[rightSwipeRecognizer release];
+	[upSwipeRecognizer release];
+	[downSwipeRecognizer release];
+	[longPressRecognizer release];
 	proxy = nil;
 	touchDelegate = nil;
 	[super dealloc];
@@ -191,7 +206,7 @@ DEFINE_EXCEPTIONS
 	}
 	else 
 	{
-		[super performSelectorOnMainThread:@selector(removeFromSuperview) withObject:nil waitUntilDone:YES];
+		TiThreadPerformOnMainThread(^{[super removeFromSuperview];}, YES);
 	}
 }
 
@@ -233,40 +248,41 @@ DEFINE_EXCEPTIONS
 -(void)updateTouchHandling
 {
 	BOOL touchEventsSupported = [self viewSupportsBaseTouchEvents];
-	handlesTaps = touchEventsSupported && [self proxyHasTapListener];
-	handlesTouches = touchEventsSupported && [self proxyHasTouchListener];
-	handlesSwipes = touchEventsSupported && [proxy _hasListeners:@"swipe"];
-	
-	self.multipleTouchEnabled = handlesTaps;
+	handlesTouches = touchEventsSupported && (
+                [self proxyHasTouchListener]
+                || [self proxyHasTapListener]
+                || [proxy _hasListeners:@"swipe"]
+                || [proxy _hasListeners:@"pinch"]
+                || [proxy _hasListeners:@"longpress"]);
+
+    // If a user has not explicitly set whether or not the view interacts, base it on whether or
+    // not it handles events, and if not, set it to the interaction default.
+    if (!changedInteraction) {
+        self.userInteractionEnabled = handlesTouches || [self interactionDefault];
+    }
 }
 
 -(void)initializeState
 {
 	virtualParentTransform = CGAffineTransformIdentity;
-	multipleTouches = NO;
-	twoFingerTapIsPossible = NO;
 	
 	[self updateTouchHandling];
 	 
 	self.backgroundColor = [UIColor clearColor]; 
 	self.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
-    
-    // If a user has not explicitly set whether or not the view interacts, base it on whether or
-    // not it handles events, and if not, set it to the interaction default.
-    if (!changedInteraction) {
-        self.userInteractionEnabled = (handlesTouches || handlesTaps || handlesSwipes) || [self interactionDefault];
-    }
 }
 
 -(void)configurationSet
 {
 	// can be used to trigger things after all properties are set
+    configurationSet = YES;
 }
 
 -(void)setProxy:(TiProxy *)p
 {
 	proxy = p;
 	[proxy setModelDelegate:self];
+	[self sanitycheckListeners];
 }
 
 -(UIImage*)loadImage:(id)image 
@@ -290,7 +306,9 @@ DEFINE_EXCEPTIONS
 
 -(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
 {
-	// for subclasses to do crap
+    if (backgroundRepeat) {
+        [self renderRepeatedBackground:backgroundImage];
+    }
 }
 
 
@@ -342,10 +360,10 @@ DEFINE_EXCEPTIONS
 		return;
 	}
 #endif
-#ifdef USE_TI_UIIOS3DMATRIX	
-	if ([transformMatrix isKindOfClass:[TiUIiOS3DMatrix class]])
+#if defined(USE_TI_UIIOS3DMATRIX) || defined(USE_TI_UI3DMATRIX)
+	if ([transformMatrix isKindOfClass:[Ti3DMatrix class]])
 	{
-		self.layer.transform = CATransform3DConcat(CATransform3DMakeAffineTransform(virtualParentTransform),[(TiUIiOS3DMatrix*)transformMatrix matrix]);
+		self.layer.transform = CATransform3DConcat(CATransform3DMakeAffineTransform(virtualParentTransform),[(Ti3DMatrix*)transformMatrix matrix]);
 		return;
 	}
 #endif
@@ -362,6 +380,12 @@ DEFINE_EXCEPTIONS
 -(void)fillBoundsToRect:(TiRect*)rect
 {
 	CGRect r = [self bounds];
+	[rect setRect:r];
+}
+
+-(void)fillFrameToRect:(TiRect*)rect
+{
+	CGRect r = [self frame];
 	[rect setRect:r];
 }
 
@@ -392,6 +416,12 @@ DEFINE_EXCEPTIONS
 	}
 }
 
+-(void)setTileBackground_:(id)image
+{
+    UIImage* tileImage = [TiUtils loadBackgroundImage:image forProxy:proxy];
+
+}
+
 -(void)setOpacity_:(id)opacity
 {
 	self.alpha = [TiUtils floatValue:opacity];
@@ -402,26 +432,82 @@ DEFINE_EXCEPTIONS
 	return [self layer];
 }
 
+// You might wonder why we don't just use the native feature of -[UIColor colorWithPatternImage:].
+// Here's why:
+// * It doesn't properly handle alpha channels
+// * You can't combine background tesselations with background colors
+// * By making the background-repeat flag a boolean swap, we would have to cache, check, and uncache
+//   background colors everywhere - and this starts getting really complicated for some views
+//   (on the off chance somebody wants to swap tesselation AND has a background color they want to replace it with).
+
+-(void)renderRepeatedBackground:(id)image
+{
+    if (![NSThread isMainThread]) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self renderRepeatedBackground:image];
+        });
+        return;
+    }
+    
+    UIImage* bgImage = [TiUtils loadBackgroundImage:image forProxy:proxy];
+    if (bgImage == nil) {
+        [self backgroundImageLayer].contents = nil;
+        return;
+    }
+    
+    // Due to coordinate system shenanagins (there are multiple translations between the UIKit coordinate system
+    // and the CG coordinate system happening here) we have to manually flip the background image to render
+    // before passing it to the tiling system (via passing it through another UIGraphics context; this orients the
+    // image in the "correct" way for the second pass).
+    //
+    // Note that this means passes through two different graphics contexts. They can be nested, but that makes the code
+    // even uglier.
+    //
+    // NOTE: Doing this begins the image tesselation starting at the upper-left, which is considered the 'origin' for all
+    // drawing operations on iOS (and presumably Android). By removing this code and instead blitting the [bgImage CGImage]
+    // directly into the graphics context, it tesselates from the lower-left.
+    
+    UIGraphicsBeginImageContextWithOptions(bgImage.size, NO, bgImage.scale);
+    CGContextRef imageContext = UIGraphicsGetCurrentContext();
+    CGContextDrawImage(imageContext, CGRectMake(0, 0, bgImage.size.width , bgImage.size.height), [bgImage CGImage]);
+    UIImage* translatedImage = UIGraphicsGetImageFromCurrentImageContext();
+    UIGraphicsEndImageContext();
+    
+    UIGraphicsBeginImageContextWithOptions(self.bounds.size, NO, bgImage.scale);
+    CGContextRef background = UIGraphicsGetCurrentContext();
+    CGRect imageRect = CGRectMake(0, 0, bgImage.size.width, bgImage.size.height);
+    CGContextDrawTiledImage(background, imageRect, [translatedImage CGImage]);
+    UIImage* renderedBg = UIGraphicsGetImageFromCurrentImageContext();
+    UIGraphicsEndImageContext();
+
+    [self backgroundImageLayer].contents = (id)renderedBg.CGImage;
+}
+
 -(void)setBackgroundImage_:(id)image
 {
-	NSURL *bgURL = [TiUtils toURL:image proxy:proxy];
-	UIImage *resultImage = [[ImageLoader sharedLoader] loadImmediateImage:bgURL];
-	if (resultImage==nil && [image isEqualToString:@"Default.png"])
-	{
-		// special case where we're asking for Default.png and it's in Bundle not path
-		resultImage = [UIImage imageNamed:image];
-	}
-	if((resultImage != nil) && ([resultImage imageOrientation] != UIImageOrientationUp))
-	{
-		resultImage = [UIImageResize resizedImage:[resultImage size] 
-							 interpolationQuality:kCGInterpolationNone image:resultImage hires:NO];
-	}
-
-	[self backgroundImageLayer].contents = (id)resultImage.CGImage;
-	[self backgroundImageLayer].contentsCenter = TiDimensionLayerContentCenter(topCap, leftCap, topCap, leftCap, [resultImage size]);
-	self.clipsToBounds = image!=nil;
-    self.backgroundImage = image;
+    UIImage* bgImage = [TiUtils loadBackgroundImage:image forProxy:proxy];
+    
+    if (backgroundRepeat) {
+        [self renderRepeatedBackground:bgImage];
+    }
+    else {
+        [self backgroundImageLayer].contents = (id)bgImage.CGImage;
+        if (bgImage != nil) {
+            [self backgroundImageLayer].contentsScale = [bgImage scale];
+            [self backgroundImageLayer].contentsCenter = TiDimensionLayerContentCenter(topCap, leftCap, topCap, leftCap, [bgImage size]);
+        }
+    }
+    
+    self.clipsToBounds = bgImage!=nil;
+    self.backgroundImage = bgImage;
 }
+
+-(void)setBackgroundRepeat_:(id)repeat
+{
+    backgroundRepeat = [TiUtils boolValue:repeat def:NO];
+    [self setBackgroundImage_:backgroundImage];
+}
+
 
 -(void)setBackgroundLeftCap_:(id)value
 {
@@ -466,13 +552,13 @@ DEFINE_EXCEPTIONS
 
 -(void)setVisible_:(id)visible
 {
-	self.hidden = ![TiUtils boolValue:visible];
-    
-//	Redraw ourselves if changing from invisible to visible, to handle any changes made
-	if (!self.hidden) {
-		TiViewProxy* viewProxy = (TiViewProxy*)[self proxy];
-		[viewProxy reposition];
-	}
+    BOOL oldVal = self.hidden;
+    self.hidden = ![TiUtils boolValue:visible];
+    //Redraw ourselves if changing from invisible to visible, to handle any changes made
+	if (!self.hidden && oldVal) {
+        TiViewProxy* viewProxy = (TiViewProxy*)[self proxy];
+        [viewProxy willEnqueue];
+    }
 }
 
 -(void)setTouchEnabled_:(id)arg
@@ -528,14 +614,11 @@ DEFINE_EXCEPTIONS
 	
 	if ([self.proxy isKindOfClass:[TiViewProxy class]] && [(TiViewProxy*)self.proxy viewReady]==NO)
 	{
-#ifdef DEBUG
-		NSLog(@"[DEBUG] animated called and we're not ready ... (will try again) %@",self);
-#endif		
+		DebugLog(@"[DEBUG] Ti.View.animate() called before view %@ was ready: Will re-attempt", self);
 		if (animationDelayGuard++ > 5)
 		{
-#ifdef DEBUG
-			NSLog(@"[DEBUG] animation guard triggered, we exceeded the timeout on waiting for view to become ready");
-#endif		
+			DebugLog(@"[DEBUG] Animation guard triggered, exceeded timeout to perform animation.");
+            animationDelayGuard = 0;
 			return;
 		}
 		[self performSelector:@selector(animate:) withObject:newAnimation afterDelay:0.01];
@@ -553,7 +636,7 @@ DEFINE_EXCEPTIONS
 	}	
 	else
 	{
-		NSLog(@"[WARN] animate called with %@ but couldn't make an animation object",newAnimation);
+		DebugLog(@"[WARN] Ti.View.animate() (view %@) could not make animation from: %@", self, newAnimation);
 	}
 }
 
@@ -678,6 +761,147 @@ DEFINE_EXCEPTIONS
 
 #pragma mark Recognizers
 
+-(UITapGestureRecognizer*)singleTapRecognizer;
+{
+	if (singleTapRecognizer == nil) {
+		singleTapRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(recognizedTap:)];
+		[self configureGestureRecognizer:singleTapRecognizer];
+		[self addGestureRecognizer:singleTapRecognizer];
+
+		if (doubleTapRecognizer != nil) {
+			[singleTapRecognizer requireGestureRecognizerToFail:doubleTapRecognizer];
+		}
+	}
+	return singleTapRecognizer;
+}
+
+-(UITapGestureRecognizer*)doubleTapRecognizer;
+{
+	if (doubleTapRecognizer == nil) {
+		doubleTapRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(recognizedTap:)];
+		[doubleTapRecognizer setNumberOfTapsRequired:2];
+		[self configureGestureRecognizer:doubleTapRecognizer];
+		[self addGestureRecognizer:doubleTapRecognizer];
+		
+		if (singleTapRecognizer != nil) {
+			[singleTapRecognizer requireGestureRecognizerToFail:doubleTapRecognizer];
+		}		
+	}
+	return doubleTapRecognizer;
+}
+
+-(UITapGestureRecognizer*)twoFingerTapRecognizer;
+{
+	if (twoFingerTapRecognizer == nil) {
+		twoFingerTapRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(recognizedTap:)];
+		[twoFingerTapRecognizer setNumberOfTouchesRequired:2];
+		[self configureGestureRecognizer:twoFingerTapRecognizer];
+		[self addGestureRecognizer:twoFingerTapRecognizer];
+	}
+	return twoFingerTapRecognizer;
+}
+
+-(UIPinchGestureRecognizer*)pinchRecognizer;
+{
+	if (pinchRecognizer == nil) {
+		pinchRecognizer = [[UIPinchGestureRecognizer alloc] initWithTarget:self action:@selector(recognizedPinch:)];
+		[self configureGestureRecognizer:pinchRecognizer];
+		[self addGestureRecognizer:pinchRecognizer];
+	}
+	return pinchRecognizer;
+}
+
+-(UISwipeGestureRecognizer*)leftSwipeRecognizer;
+{
+	if (leftSwipeRecognizer == nil) {
+		leftSwipeRecognizer = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(recognizedSwipe:)];
+		[leftSwipeRecognizer setDirection:UISwipeGestureRecognizerDirectionLeft];
+		[self configureGestureRecognizer:leftSwipeRecognizer];
+		[self addGestureRecognizer:leftSwipeRecognizer];
+	}
+	return leftSwipeRecognizer;
+}
+
+-(UISwipeGestureRecognizer*)rightSwipeRecognizer;
+{
+	if (rightSwipeRecognizer == nil) {
+		rightSwipeRecognizer = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(recognizedSwipe:)];
+		[rightSwipeRecognizer setDirection:UISwipeGestureRecognizerDirectionRight];
+		[self configureGestureRecognizer:rightSwipeRecognizer];
+		[self addGestureRecognizer:rightSwipeRecognizer];
+	}
+	return rightSwipeRecognizer;
+}
+-(UISwipeGestureRecognizer*)upSwipeRecognizer;
+{
+	if (upSwipeRecognizer == nil) {
+		upSwipeRecognizer = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(recognizedSwipe:)];
+		[upSwipeRecognizer setDirection:UISwipeGestureRecognizerDirectionUp];
+		[self configureGestureRecognizer:upSwipeRecognizer];
+		[self addGestureRecognizer:upSwipeRecognizer];
+	}
+	return upSwipeRecognizer;
+}
+-(UISwipeGestureRecognizer*)downSwipeRecognizer;
+{
+	if (downSwipeRecognizer == nil) {
+		downSwipeRecognizer = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(recognizedSwipe:)];
+		[downSwipeRecognizer setDirection:UISwipeGestureRecognizerDirectionDown];
+		[self configureGestureRecognizer:downSwipeRecognizer];
+		[self addGestureRecognizer:downSwipeRecognizer];
+	}
+	return downSwipeRecognizer;
+}
+
+-(UILongPressGestureRecognizer*)longPressRecognizer;
+{
+	if (longPressRecognizer == nil) {
+		longPressRecognizer = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(recognizedLongPress:)];
+		[self configureGestureRecognizer:longPressRecognizer];
+		[self addGestureRecognizer:longPressRecognizer];
+	}
+	return longPressRecognizer;
+}
+
+
+-(void)recognizedTap:(UITapGestureRecognizer*)recognizer
+{
+	CGPoint tapPoint = [recognizer locationInView:self];
+	NSMutableDictionary *event;
+
+#define GLOBALPOINT	//Remove this for 1.9, as global point is depricated.
+
+#ifdef GLOBALPOINT
+	event = [[TiUtils pointToDictionary:tapPoint] mutableCopy];
+	NSDictionary *globalPoint = [TiUtils pointToDictionary:[self convertPoint:tapPoint toView:nil]];
+	[event setValue: globalPoint forKey:@"globalPoint"];
+#else
+	event = [TiUtils pointToDictionary:tapPoint];
+#endif	//GLOBALPOINT
+	
+	if ([recognizer numberOfTouchesRequired] == 2) {
+		[proxy fireEvent:@"twofingertap" withObject:event];
+	}
+	else if ([recognizer numberOfTapsRequired] == 2) {
+		//Because double-tap suppresses touchStart and double-click, we must do this:
+		if ([proxy _hasListeners:@"touchstart"])
+		{
+			[proxy fireEvent:@"touchstart" withObject:event propagate:YES];
+		}
+		if ([proxy _hasListeners:@"dblclick"]) {
+			[proxy fireEvent:@"dblclick" withObject:event propagate:YES];
+		}
+		[proxy fireEvent:@"doubletap" withObject:event];
+	}
+	else {
+		[proxy fireEvent:@"singletap" withObject:event];		
+	}
+
+#ifdef GLOBALPOINT
+	[event release];
+#endif	
+}	
+
 -(void)recognizedPinch:(UIPinchGestureRecognizer*)recognizer 
 { 
     NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:
@@ -699,55 +923,46 @@ DEFINE_EXCEPTIONS
     }
 }
 
+-(void)recognizedSwipe:(UISwipeGestureRecognizer *)recognizer
+{
+	NSString* swipeString;
+	switch ([recognizer direction]) {
+		case UISwipeGestureRecognizerDirectionUp:
+			swipeString = @"up";
+			break;
+		case UISwipeGestureRecognizerDirectionDown:
+			swipeString = @"down";
+			break;
+		case UISwipeGestureRecognizerDirectionLeft:
+			swipeString = @"left";
+			break;
+		case UISwipeGestureRecognizerDirectionRight:
+			swipeString = @"right";
+			break;
+		default:
+			swipeString = @"unknown";
+			break;
+	}
+	
+	CGPoint tapPoint = [recognizer locationInView:self];
+	NSMutableDictionary *event = [[TiUtils pointToDictionary:tapPoint] mutableCopy];
+	[event setValue:swipeString forKey:@"direction"];
+
+#define GLOBALPOINT	//Remove this for 1.9, as global point is depricated.
+	
+#ifdef GLOBALPOINT
+	NSDictionary *globalPoint = [TiUtils pointToDictionary:[self convertPoint:tapPoint toView:nil]];
+	[event setValue: globalPoint forKey:@"globalPoint"];
+#endif	//GLOBALPOINT
+	
+	[proxy fireEvent:@"swipe" withObject:event];
+	
+	[event release];
+
+}
+
 #pragma mark Touch Events
 
-- (void)handleSwipeLeft
-{
-	NSMutableDictionary *evt = 
-		[NSMutableDictionary dictionaryWithDictionary:[TiUtils pointToDictionary:[self convertPoint:touchLocation fromView:nil]]];
-	[evt setValue:[TiUtils pointToDictionary:touchLocation] forKey:@"globalPoint"];
-	[evt setValue:@"left" forKey:@"direction"];
-	[proxy fireEvent:@"swipe" withObject:evt];
-}
-
-- (void)handleSwipeRight
-{
-	NSMutableDictionary *evt = 
-		[NSMutableDictionary dictionaryWithDictionary:[TiUtils pointToDictionary:[self convertPoint:touchLocation fromView:nil]]];
-	[evt setValue:[TiUtils pointToDictionary:touchLocation] forKey:@"globalPoint"];
-	[evt setValue:@"right" forKey:@"direction"];
-	[proxy fireEvent:@"swipe" withObject:evt];
-}
-
-- (void)handleSingleTap 
-{
-	if ([proxy _hasListeners:@"singletap"])
-	{
-		NSMutableDictionary *evt = [NSMutableDictionary dictionaryWithDictionary:[TiUtils pointToDictionary:tapLocation]];
-		[evt setValue:[TiUtils pointToDictionary:[self convertPoint:tapLocation toView:nil]] forKey:@"globalPoint"];
-		[proxy fireEvent:@"singletap" withObject:evt];
-	}
-}
-
-- (void)handleDoubleTap 
-{
-	if ([proxy _hasListeners:@"doubletap"])
-	{
-		NSMutableDictionary *evt = [NSMutableDictionary dictionaryWithDictionary:[TiUtils pointToDictionary:tapLocation]];
-		[evt setValue:[TiUtils pointToDictionary:[self convertPoint:tapLocation toView:nil]] forKey:@"globalPoint"];
-		[proxy fireEvent:@"doubletap" withObject:evt];
-	}
-}	
-
-- (void)handleTwoFingerTap 
-{
-	if ([proxy _hasListeners:@"twofingertap"])
-	{
-		NSDictionary *evt = [NSMutableDictionary dictionaryWithDictionary:[TiUtils pointToDictionary:tapLocation]];
-		[evt setValue:[TiUtils pointToDictionary:[self convertPoint:tapLocation toView:nil]] forKey:@"globalPoint"];
-		[proxy fireEvent:@"twofingertap" withObject:evt];
-	}
-}
 
 - (BOOL)interactionDefault
 {
@@ -761,7 +976,7 @@ DEFINE_EXCEPTIONS
 
 - (BOOL)hasTouchableListener
 {
-	return (handlesSwipes|| handlesTaps || handlesTouches);
+	return handlesTouches;
 }
 
 - (UIView *)hitTest:(CGPoint) point withEvent:(UIEvent *)event 
@@ -802,35 +1017,23 @@ DEFINE_EXCEPTIONS
 	}
 }
 
-// TODO: Take a very close look at event handling.  Make sure that parent controls get the right messages.
-// It's kind of broken for tables right now, but there are a couple
-// hacks to get around it.
-- (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event 
+// For subclasses
+-(BOOL)touchedContentViewWithEvent:(UIEvent *)event
 {
-	UITouch *touch = [touches anyObject];
-	
-	if (handlesSwipes)
-	{
-		touchLocation = [touch locationInView:nil];
-	}
-	
-	if (handlesTaps)
-	{
-		// cancel any pending handleSingleTap messages 
-		[NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(handleSingleTap) object:nil];
-		
-		int count = [[event touchesForView:self] count];
-		
-		// update our touch state
-		if (count > 1)
-		{
-			multipleTouches = YES;
-		}
-		if (count > 2)
-		{
-			twoFingerTapIsPossible = NO;
-		}
-	}
+    return NO;
+}
+
+- (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
+{
+    if ([[event touchesForView:self] count] > 0 || [self touchedContentViewWithEvent:event]) {
+        [self processTouchesBegan:touches withEvent:event];
+    }
+    [super touchesBegan:touches withEvent:event];
+}
+
+- (void)processTouchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
+{
+    UITouch *touch = [touches anyObject];
 	
 	if (handlesTouches)
 	{
@@ -842,7 +1045,6 @@ DEFINE_EXCEPTIONS
 			[proxy fireEvent:@"touchstart" withObject:evt propagate:YES];
 			[self handleControlEvents:UIControlEventTouchDown];
 		}
-        
         // Click handling is special; don't propagate if we have a delegate,
         // but DO invoke the touch delegate.
 		// clicks should also be handled by any control the view is embedded in.
@@ -850,20 +1052,26 @@ DEFINE_EXCEPTIONS
 		{
 			if (touchDelegate == nil) {
 				[proxy fireEvent:@"click" withObject:evt propagate:YES];
-			}
-			else {
+				return;
+			} else {
 				[touchDelegate touchesBegan:touches withEvent:event];
 			}
-		}
-		else if ([touch tapCount] == 2 && [proxy _hasListeners:@"dblclick"])
-		{
+		} else if ([touch tapCount] == 2 && [proxy _hasListeners:@"dblclick"]) {
 			[proxy fireEvent:@"dblclick" withObject:evt propagate:YES];
+			return;
 		}
 	}
-	[super touchesBegan:touches withEvent:event];
 }
 
-- (void)touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event 
+- (void)touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event
+{
+    if ([[event touchesForView:self] count] > 0 || [self touchedContentViewWithEvent:event]) {
+        [self processTouchesMoved:touches withEvent:event];
+    }
+    [super touchesMoved:touches withEvent:event];
+}
+
+- (void)processTouchesMoved:(NSSet *)touches withEvent:(UIEvent *)event
 {
 	UITouch *touch = [touches anyObject];
 	if (handlesTouches)
@@ -875,117 +1083,23 @@ DEFINE_EXCEPTIONS
 			[proxy fireEvent:@"touchmove" withObject:evt propagate:YES];
 		}
 	}
-	if (handlesSwipes)
-	{
-		// To take orientation into account, swipe calculations should be done in the root view,
-		// not in global device coords.
-		UIView* rootView = [[[TiApp app] controller] view];
-		CGPoint point = [touch locationInView:rootView];
-		CGPoint initialPoint = [rootView convertPoint:touchLocation fromView:nil];
-		// To be a swipe, direction of touch must be horizontal and long enough.
-		if (fabsf(initialPoint.x - point.x) >= HORIZ_SWIPE_DRAG_MIN &&
-			fabsf(initialPoint.y - point.y) <= VERT_SWIPE_DRAG_MAX)
-		{
-			// It appears to be a swipe.
-			if (initialPoint.x < point.x)
-			{
-				[self handleSwipeRight];
-			}
-			else 
-			{
-				[self handleSwipeLeft];
-			}
-		}
-	}
 	
 	if (touchDelegate!=nil)
 	{
 		[touchDelegate touchesMoved:touches withEvent:event];
 	}
-	[super touchesMoved:touches withEvent:event];
 }
 
 - (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event 
 {
-	if (handlesTaps)
-	{
-		BOOL allTouchesEnded = ([touches count] == [[event touchesForView:self] count]);
-		
-		// first check for plain single/double tap, which is only possible if we haven't seen multiple touches
-		if (!multipleTouches) 
-		{
-			UITouch *touch = [touches anyObject];
-			tapLocation = [touch locationInView:self];
-			
-			if ([touch tapCount] == 1) 
-			{
-				[self performSelector:@selector(handleSingleTap) withObject:nil afterDelay:DOUBLE_TAP_DELAY];
-			} 
-			else if([touch tapCount] == 2) 
-			{
-				[self handleDoubleTap];
-			}
-		}    
-		
-		// check for 2-finger tap if we've seen multiple touches and haven't yet ruled out that possibility
-		else if (multipleTouches && twoFingerTapIsPossible) 
-		{ 
-			
-			// case 1: this is the end of both touches at once 
-			if ([touches count] == 2 && allTouchesEnded) 
-			{
-				int i = 0; 
-				int tapCounts[2] = {0,0}; 
-				CGPoint tapLocations[2];
-				for (UITouch *touch in touches) {
-					tapCounts[i]    = [touch tapCount];
-					tapLocations[i] = [touch locationInView:self];
-					i++;
-				}
-				if (tapCounts[0] == 1 && tapCounts[1] == 1) 
-				{ 
-					// it's a two-finger tap if they're both single taps
-					tapLocation = midpointBetweenPoints(tapLocations[0], tapLocations[1]);
-					[self handleTwoFingerTap];
-				}
-			}
-			
-			// case 2: this is the end of one touch, and the other hasn't ended yet
-			else if ([touches count] == 1 && !allTouchesEnded) 
-			{
-				UITouch *touch = [touches anyObject];
-				if ([touch tapCount] == 1) 
-				{
-					// if touch is a single tap, store its location so we can average it with the second touch location
-					tapLocation = [touch locationInView:self];
-				} 
-				else 
-				{
-					twoFingerTapIsPossible = NO;
-				}
-			}
-			
-			// case 3: this is the end of the second of the two touches
-			else if ([touches count] == 1 && allTouchesEnded) 
-			{
-				UITouch *touch = [touches anyObject];
-				if ([touch tapCount] == 1) 
-				{
-					// if the last touch up is a single tap, this was a 2-finger tap
-					tapLocation = midpointBetweenPoints(tapLocation, [touch locationInView:self]);
-					//[self handleTwoFingerTap];
-				}
-			}
-		}
-        
-		// if all touches are up, reset touch monitoring state
-		if (allTouchesEnded) 
-		{
-			twoFingerTapIsPossible = YES;
-			multipleTouches = NO;
-		}
-	}
-	
+    if ([[event touchesForView:self] count] > 0 || [self touchedContentViewWithEvent:event]) {
+        [self processTouchesEnded:touches withEvent:event];
+    }
+    [super touchesEnded:touches withEvent:event];
+}
+
+- (void)processTouchesEnded:(NSSet *)touches withEvent:(UIEvent *)event
+{
 	if (handlesTouches)
 	{
 		UITouch *touch = [touches anyObject];
@@ -997,25 +1111,23 @@ DEFINE_EXCEPTIONS
 			[self handleControlEvents:UIControlEventTouchCancel];
 		}
 	}
-	if (handlesSwipes)
-	{
-		touchLocation = CGPointZero;
-	}
 	
 	if (touchDelegate!=nil)
 	{
 		[touchDelegate touchesEnded:touches withEvent:event];
 	}
-	[super touchesEnded:touches withEvent:event];
 }
 
 - (void)touchesCancelled:(NSSet *)touches withEvent:(UIEvent *)event 
 {
-	if (handlesTaps)
-	{
-		twoFingerTapIsPossible = YES;
-		multipleTouches = NO;
-	}
+    if ([[event touchesForView:self] count] > 0 || [self touchedContentViewWithEvent:event]) {
+        [self processTouchesCancelled:touches withEvent:event];
+    }
+    [super touchesCancelled:touches withEvent:event];
+}
+
+- (void)processTouchesCancelled:(NSSet *)touches withEvent:(UIEvent *)event
+{
 	if (handlesTouches)
 	{
 		UITouch *touch = [touches anyObject];
@@ -1026,16 +1138,11 @@ DEFINE_EXCEPTIONS
 			[proxy fireEvent:@"touchcancel" withObject:evt propagate:YES];
 		}
 	}
-	if (handlesSwipes)
-	{
-		touchLocation = CGPointZero;
-	}
 	
 	if (touchDelegate!=nil)
 	{
 		[touchDelegate touchesCancelled:touches withEvent:event];
 	}
-	[super touchesCancelled:touches withEvent:event];
 }
 
 #pragma mark Listener management
@@ -1050,37 +1157,57 @@ DEFINE_EXCEPTIONS
     }
 }
 
+-(void)configureGestureRecognizer:(UIGestureRecognizer*)gestureRecognizer
+{
+    [gestureRecognizer setDelaysTouchesBegan:NO];
+    [gestureRecognizer setDelaysTouchesEnded:NO];
+    [gestureRecognizer setCancelsTouchesInView:NO];
+}
+
+- (UIGestureRecognizer *)gestureRecognizerForEvent:(NSString *)event
+{
+    if ([event isEqualToString:@"singletap"]) {
+        return [self singleTapRecognizer];
+    }
+    if ([event isEqualToString:@"doubletap"]) {
+        return [self doubleTapRecognizer];
+    }
+    if ([event isEqualToString:@"twofingertap"]) {
+        return [self twoFingerTapRecognizer];
+    }
+    if ([event isEqualToString:@"lswipe"]) {
+        return [self leftSwipeRecognizer];
+    }
+    if ([event isEqualToString:@"rswipe"]) {
+        return [self rightSwipeRecognizer];
+    }
+    if ([event isEqualToString:@"uswipe"]) {
+        return [self upSwipeRecognizer];
+    }
+    if ([event isEqualToString:@"dswipe"]) {
+        return [self downSwipeRecognizer];
+    }
+    if ([event isEqualToString:@"pinch"]) {
+        return [self pinchRecognizer];
+    }
+    if ([event isEqualToString:@"longpress"]) {
+        return [self longPressRecognizer];
+    }
+    return nil;
+}
+
 -(void)handleListenerAddedWithEvent:(NSString *)event
 {
 	ENSURE_UI_THREAD_1_ARG(event);
-	if ([self proxyHasTouchListener])
-	{
-		handlesTouches = YES;
-	}
-	if ([event hasSuffix:@"tap"])
-	{
-		handlesTaps = YES;
-	}
-	if ([event isEqualToString:@"swipe"])
-	{
-		handlesSwipes = YES;
-	}
-	
-	if (handlesTaps)
-	{
-		self.multipleTouchEnabled = YES;
-	}
-    
-    if ([event isEqualToString:@"pinch"]) {
-        [self removeGestureRecognizerOfClass:[UIPinchGestureRecognizer class]];
-        UIPinchGestureRecognizer* pinchRecognizer = [[UIPinchGestureRecognizer alloc] initWithTarget:self action:@selector(recognizedPinch:)];
-        [self addGestureRecognizer:pinchRecognizer];
-        [pinchRecognizer release];
-    } else if ([event isEqualToString:@"longpress"]) {
-        [self removeGestureRecognizerOfClass:[UILongPressGestureRecognizer class]];
-        UILongPressGestureRecognizer* longPressRecognizer = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(recognizedLongPress:)];
-        [self addGestureRecognizer:longPressRecognizer];
-        [longPressRecognizer release];
+    [self updateTouchHandling];
+    if ([event isEqualToString:@"swipe"]) {
+        [[self gestureRecognizerForEvent:@"uswipe"] setEnabled:YES];
+        [[self gestureRecognizerForEvent:@"dswipe"] setEnabled:YES];
+        [[self gestureRecognizerForEvent:@"rswipe"] setEnabled:YES];
+        [[self gestureRecognizerForEvent:@"lswipe"] setEnabled:YES];
+    }
+    else {
+        [[self gestureRecognizerForEvent:event] setEnabled:YES];
     }
 }
 
@@ -1089,34 +1216,16 @@ DEFINE_EXCEPTIONS
 	ENSURE_UI_THREAD_1_ARG(event);
 	// unfortunately on a remove, we have to check all of them
 	// since we might be removing one but we still have others
-	
-	if (handlesTouches && 
-		[self.proxy _hasListeners:@"touchstart"]==NO &&
-		[self.proxy _hasListeners:@"touchmove"]==NO &&
-		[self.proxy _hasListeners:@"touchcancel"]==NO &&
-		[self.proxy _hasListeners:@"touchend"]==NO &&
-		[self.proxy _hasListeners:@"click"]==NO &&
-		[self.proxy _hasListeners:@"dblclick"]==NO)
-	{
-		handlesTouches = NO;
-	}
-	if (handlesTaps &&
-		[self.proxy _hasListeners:@"singletap"]==NO &&
-		[self.proxy _hasListeners:@"doubletap"]==NO &&
-		[self.proxy _hasListeners:@"twofingertap"]==NO)
-	{
-		handlesTaps = NO;
-	}
-	if (handlesSwipes &&
-		[event isEqualToString:@"swipe"])
-	{
-		handlesSwipes = NO;
-	}
 
-    if ([event isEqualToString:@"pinch"]) {
-        [self removeGestureRecognizerOfClass:[UIPinchGestureRecognizer class]];
-    } else if ([event isEqualToString:@"longpress"]) {
-        [self removeGestureRecognizerOfClass:[UILongPressGestureRecognizer class]];
+	[self updateTouchHandling];
+    if ([event isEqualToString:@"swipe"]) {
+        [[self gestureRecognizerForEvent:@"uswipe"] setEnabled:NO];
+        [[self gestureRecognizerForEvent:@"dswipe"] setEnabled:NO];
+        [[self gestureRecognizerForEvent:@"rswipe"] setEnabled:NO];
+        [[self gestureRecognizerForEvent:@"lswipe"] setEnabled:NO];
+    }
+    else {
+        [[self gestureRecognizerForEvent:event] setEnabled:NO];
     }
 }
 
@@ -1133,6 +1242,19 @@ DEFINE_EXCEPTIONS
 	if (count == 0)
 	{
 		[self handleListenerRemovedWithEvent:event];
+	}
+}
+
+-(void)sanitycheckListeners	//TODO: This can be optimized and unwound later.
+{
+	if(listenerArray == nil){
+		listenerArray = [[NSArray alloc] initWithObjects: @"singletap",
+						 @"doubletap",@"twofingertap",@"swipe",@"pinch",@"longpress",nil];
+	}
+	for (NSString * eventName in listenerArray) {
+		if ([proxy _hasListeners:eventName]) {
+			[self handleListenerAddedWithEvent:eventName];
+		}
 	}
 }
 

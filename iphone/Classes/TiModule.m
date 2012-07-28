@@ -21,7 +21,14 @@
 
 -(void)dealloc
 {	
-	[self performSelectorOnMainThread:@selector(unregisterForNotifications) withObject:nil waitUntilDone:YES];
+    // Have to jump through a hoop here to keep the dealloc block from
+    // retaining 'self' by creating a __block access ref. Note that
+    // this is only safe as long as the block until completion is YES.
+    __block id bself = self;
+	TiThreadPerformOnMainThread(^{
+        [bself unregisterForNotifications];
+    }, YES);
+    
 	RELEASE_TO_NIL(host);
 	if (classNameLookup != NULL)
 	{
@@ -65,6 +72,10 @@
 {
 }
 
+-(void)paused:(id)sender
+{
+}
+
 -(void)suspend:(id)sender
 {
 }
@@ -83,6 +94,7 @@
 	WARN_IF_BACKGROUND_THREAD_OBJ;	//NSNotificationCenter is not threadsafe!
 	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(shutdown:) name:kTiShutdownNotification object:nil];
 	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(suspend:) name:kTiSuspendNotification object:nil];
+	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(paused:) name:kTiPausedNotification object:nil];
 	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(resume:) name:kTiResumeNotification object:nil];
 	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(resumed:) name:kTiResumedNotification object:nil];
 }
@@ -94,7 +106,7 @@
 		classNameLookup = CFDictionaryCreateMutable(kCFAllocatorDefault, 1, &kCFTypeDictionaryKeyCallBacks, NULL);
 		//We do not retain the Class, but simply assign them.
 	}
-	[self performSelectorOnMainThread:@selector(registerForNotifications) withObject:nil waitUntilDone:NO];
+	TiThreadPerformOnMainThread(^{[self registerForNotifications];}, NO);
 }
 
 -(void)_configure
@@ -142,7 +154,7 @@
 		resultClass = NSClassFromString(className);
 		if (resultClass==nil)
 		{
-			NSLog(@"[WARN] attempted to load: %@",className);
+			DebugLog(@"[WARN] Attempted to load %@: Could not find class definition.",className);
 			@throw [NSException exceptionWithName:@"org.appcelerator.module" 
 										   reason:[NSString stringWithFormat:@"invalid method (%@) passed to %@",name,[self class]] 
 										 userInfo:nil];
@@ -160,27 +172,38 @@
 	return nil;
 }
 
+-(void)loadAssets
+{
+    if (moduleAssets == nil) {
+        NSString *moduleName_ = [NSString stringWithCString:class_getName([self class]) encoding:NSUTF8StringEncoding];
+        NSString *moduleAsset = [NSString stringWithFormat:@"%@Assets",moduleName_];
+        id cls = NSClassFromString(moduleAsset);
+        if (cls!=nil)
+        {
+            moduleAssets = [[cls alloc] init];
+        }
+    }    
+}
+
 -(NSData*)moduleJS
 {
-	NSString *moduleId = [self moduleId];
-	if (moduleId!=nil)
-	{
-		if (moduleAssets==nil)
-		{
-			NSString *moduleName_ = [NSString stringWithCString:class_getName([self class]) encoding:NSUTF8StringEncoding];
-			NSString *moduleAsset = [NSString stringWithFormat:@"%@Assets",moduleName_];
-			id cls = NSClassFromString(moduleAsset);
-			if (cls!=nil)
-			{
-				moduleAssets = [[cls alloc] init];
-			}
-		}
-		if (moduleAssets!=nil)
-		{
-			return [moduleAssets performSelector:@selector(moduleAsset)];
-		}
-	}
+    [self loadAssets];
+    
+    if (moduleAssets!=nil)
+    {
+        return [moduleAssets performSelector:@selector(moduleAsset)];
+    }
 	return nil;
+}
+
+-(NSData*)loadModuleAsset:(NSString*)fromPath
+{
+    [self loadAssets];
+    if ([moduleAssets respondsToSelector:@selector(resolveModuleAsset:)]) {
+        NSString* assetID = [fromPath stringByReplacingOccurrencesOfString:@"." withString:@"_"];
+        return [moduleAssets performSelector:@selector(resolveModuleAsset:) withObject:assetID];
+    }
+    return nil;
 }
 
 -(BOOL)isJSModule
@@ -203,14 +226,10 @@
 
 -(id)bindCommonJSModule:(NSString*)code
 {
-	NSMutableString *js = [NSMutableString string];
-	
-	[js appendString:@"(function(exports){"];
-	[js appendString:code];
-	[js appendString:@"return exports;"];
-	[js appendString:@"})({})"];
+	NSString *js = [[NSString alloc] initWithFormat:TitaniumModuleRequireFormat,code];
 	
 	id result = [[self pageContext] evalJSAndWait:js];
+	[js release];
 	if ([result isKindOfClass:[NSDictionary class]])
 	{
 		for (id key in result)

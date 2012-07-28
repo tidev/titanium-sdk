@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -18,22 +18,12 @@
 #import "TiColor.h"
 #import "TiFile.h"
 #import "TiBlob.h"
+#import "Base64Transcoder.h"
 
 // for checking version
 #import <sys/utsname.h>
 
 #import "UIImage+Resize.h"
-
-#import <sys/types.h>
-#import <stdio.h>
-#import <string.h>
-#import <sys/socket.h>
-#import <net/if_dl.h>
-#import <ifaddrs.h>
-
-#if !defined(IFT_ETHER)
-#define IFT_ETHER 0x6
-#endif
 
 #if TARGET_IPHONE_SIMULATOR
 extern NSString * const TI_APPLICATION_RESOURCE_DIR;
@@ -42,36 +32,50 @@ extern NSString * const TI_APPLICATION_RESOURCE_DIR;
 static NSDictionary* encodingMap = nil;
 static NSDictionary* typeMap = nil;
 static NSDictionary* sizeMap = nil;
-static NSString* kDeviceUUIDString = @"com.appcelerator.uuid"; // don't obfuscate
-	
-#if 0
-static void getAddrInternal(char* macAddress, const char* ifName) {
-    struct ifaddrs* addrs;
-    if (!getifaddrs(&addrs)) {
-        for (struct ifaddrs* cursor = addrs; cursor; cursor = cursor->ifa_next) {
-            if (cursor->ifa_addr->sa_family != AF_LINK) continue;
-            if (((const struct sockaddr_dl *) cursor->ifa_addr)->sdl_type != IFT_ETHER) continue;
-            if (strcmp(ifName, cursor->ifa_name)) continue;
-            const struct sockaddr_dl* dlAddr = (const struct sockaddr_dl*)cursor->ifa_addr;
-            const unsigned char* base = (const unsigned char*)&dlAddr->sdl_data[dlAddr->sdl_nlen];
-            strcpy(macAddress, ""); 
-            for (int i = 0; i < dlAddr->sdl_alen; ++i) {
-                if (i) {
-                    strcat(macAddress, ":");
-                }
-                char partialAddr[3];
-                sprintf(partialAddr, "%02X", base[i]);
-                strcat(macAddress, partialAddr);
-                
-            }
+static NSString* kAppUUIDString = @"com.appcelerator.uuid"; // don't obfuscate
 
-        }
-        freeifaddrs(addrs);
-    }    
+bool Base64AllocAndEncodeData(const void *inInputData, size_t inInputDataSize, char **outOutputDataPtr, size_t *outOutputDataSize)
+{
+	//outsize is the same as *outOutputDataSize, but is a local copy.
+	size_t outSize = EstimateBas64EncodedDataSize(inInputDataSize);
+	char *outData = NULL;
+	if (outSize > 0) {
+		outData = malloc(sizeof(char)*outSize);
+	}
+	if (outData == NULL) {
+		*outOutputDataSize = 0;
+		*outOutputDataPtr = NULL;
+		return NO;
+	}
+	bool result = Base64EncodeData(inInputData, inInputDataSize, outData, &outSize);
+	if (!result) {
+		free(outData);
+		*outOutputDataSize = 0;
+		*outOutputDataPtr = NULL;
+		return NO;
+	}
+	*outOutputDataSize = outSize;
+	*outOutputDataPtr = outData;
+	return YES;
 }
-#endif
 
 @implementation TiUtils
+
++(int) dpi
+{
+    if ([TiUtils isIPad]) {
+        if ([TiUtils isRetinaDisplay]) {
+            return 260;
+        }
+        return 130;
+    }
+    else {    
+        if ([TiUtils isRetinaDisplay]) {
+            return 320;
+        }
+        return 160;
+    }    
+}
 
 +(BOOL)isRetinaDisplay
 {
@@ -355,6 +359,15 @@ static void getAddrInternal(char* macAddress, const char* ifName) {
         id xVal = [value objectForKey:@"x"];
         id yVal = [value objectForKey:@"y"];
         if (xVal && yVal) {
+            if (![xVal respondsToSelector:@selector(floatValue)] ||
+                ![yVal respondsToSelector:@selector(floatValue)]) 
+            {
+                if (isValid) {
+                    *isValid = NO;
+                }
+                return CGPointMake(0.0, 0.0);
+            }
+            
             if (isValid) {
                 *isValid = YES;
             }
@@ -486,7 +499,7 @@ static void getAddrInternal(char* macAddress, const char* ifName) {
 			return [NSNull null];
 		case TiDimensionTypeAuto:
 			return @"auto";
-		case TiDimensionTypePixels:
+		case TiDimensionTypeDip:
 			return [NSNumber numberWithFloat:dimension.value];
 		default: {
 			break;
@@ -630,7 +643,6 @@ If the new path starts with / and the base url is app://..., we have to massage 
 
 	if(![relativeString isKindOfClass:[NSString class]])
 	{
-		//NSLog(@"[WARN] <%@> was an %@, not an NSString. Converting.",relativeString,[relativeString class]);
 		relativeString = [TiUtils stringValue:relativeString];
 	}
 
@@ -698,62 +710,7 @@ If the new path starts with / and the base url is app://..., we have to massage 
 
 +(NSURL*)toURL:(NSString *)object proxy:(TiProxy*)proxy
 {
-	return [self toURL:object relativeToURL:[proxy _baseURL]];
-//	NSURL *url = nil;
-//	
-//	if ([object isKindOfClass:[NSString class]])
-//	{
-//		if ([object hasPrefix:@"/"])
-//		{
-//			return [TiUtils checkFor2XImage:[NSURL fileURLWithPath:object]];
-//		}
-//		if ([object hasPrefix:@"sms:"] || 
-//			[object hasPrefix:@"tel:"] ||
-//			[object hasPrefix:@"mailto:"])
-//		{
-//			return [NSURL URLWithString:object];
-//		}
-//		
-//		// don't bother if we don't at least have a path and it's not remote
-//		///TODO: This looks ugly and klugy.
-//		NSString *urlString = [TiUtils stringValue:object];
-//		if ([urlString hasPrefix:@"http"])
-//		{
-//			NSRange range = [urlString rangeOfString:@"/" options:0 range:NSMakeRange(7, [urlString length]-7)];
-//			if (range.location!=NSNotFound)
-//			{
-//				NSString *firstPortion = [urlString substringToIndex:range.location];
-//				NSString *pathPortion = [urlString substringFromIndex:range.location];
-//				CFStringRef escapedPath = CFURLCreateStringByAddingPercentEscapes(kCFAllocatorDefault,
-//						(CFStringRef)pathPortion, charactersToNotEscape,charactersThatNeedEscaping,
-//						kCFStringEncodingUTF8);
-//				urlString = [firstPortion stringByAppendingString:(NSString *)escapedPath];
-//				if(escapedPath != NULL)
-//				{
-//					CFRelease(escapedPath);
-//				}
-//			}
-//		}
-//		
-//		url = [NSURL URLWithString:urlString relativeToURL:[proxy _baseURL]];
-//		
-//		if (url==nil)
-//		{
-//			//encoding problem - fail fast and make sure we re-escape
-//			NSRange range = [object rangeOfString:@"?"];
-//			if (range.location != NSNotFound)
-//			{
-//				NSString *qs = [TiUtils encodeURIParameters:[object substringFromIndex:range.location+1]];
-//				NSString *newurl = [NSString stringWithFormat:@"%@?%@",[object substringToIndex:range.location],qs];
-//				return [TiUtils checkFor2XImage:[NSURL URLWithString:newurl]];
-//			}
-//		}
-//	}
-//	else if ([object isKindOfClass:[NSURL class]])
-//	{
-//		return [TiUtils checkFor2XImage:[NSURL URLWithString:[(NSURL *)object absoluteString] relativeToURL:[proxy _baseURL]]];
-//	}
-//	return [TiUtils checkFor2XImage:url];			  
+	return [self toURL:object relativeToURL:[proxy _baseURL]];  
 }
 
 +(UIImage *)stretchableImage:(id)object proxy:(TiProxy*)proxy
@@ -763,7 +720,14 @@ If the new path starts with / and the base url is app://..., we have to massage 
 
 +(UIImage *)image:(id)object proxy:(TiProxy*)proxy
 {
-	return [[ImageLoader sharedLoader] loadImmediateImage:[self toURL:object proxy:proxy]];
+    if ([object isKindOfClass:[TiBlob class]]) {
+        return [(TiBlob*)object image];
+    }
+    else if ([object isKindOfClass:[NSString class]]) {
+        return [[ImageLoader sharedLoader] loadImmediateImage:[self toURL:object proxy:proxy]];
+    }
+    
+    return nil;
 }
 
 
@@ -1126,6 +1090,7 @@ If the new path starts with / and the base url is app://..., we have to massage 
 				id lineNumber = [arg objectForKey:@"line"];
 				return [NSString stringWithFormat:@"%@ at %@ (line %@)",message,[source lastPathComponent],lineNumber];
 			}
+            return [NSString stringWithFormat:@"%@ (unknown file)", message];
 		}
 	}
 	return arg;
@@ -1176,11 +1141,11 @@ if ([str isEqualToString:@#orientation]) return (UIDeviceOrientation)orientation
 //	TODO: A previous bug was DeviceOrientationUnknown == 0, which is always true. Uncomment this when pushing.
 	if (UIDeviceOrientationUnknown == orient) 
 	{
-		return UIDeviceOrientationPortrait;
+		return (UIInterfaceOrientation)UIDeviceOrientationPortrait;
 	} 
 	else 
 	{
-		return orient;
+		return (UIInterfaceOrientation)orient;
 	}
 }
 
@@ -1321,9 +1286,7 @@ if ([str isEqualToString:@#orientation]) return (UIDeviceOrientation)orientation
 			{
 				appurlstr = [appurlstr substringFromIndex:1];
 			}
-#ifdef DEBUG			
-			NSLog(@"[DEBUG] loading: %@, resource: %@",urlstring,appurlstr);
-#endif			
+			DebugLog(@"[DEBUG] Loading: %@, Resource: %@",urlstring,appurlstr);
 			return [AppRouter performSelector:@selector(resolveAppAsset:) withObject:appurlstr];
 		}
 	}
@@ -1609,30 +1572,72 @@ if ([str isEqualToString:@#orientation]) return (UIDeviceOrientation)orientation
 	return [self convertToHex:(unsigned char*)&result length:CC_MD5_DIGEST_LENGTH];    
 }
 
-+(NSString*)oldUUID
++(NSString*)appIdentifier
 {
-	NSString* result = nil;
-	UIDevice* currentDevice = [UIDevice currentDevice];
-	if ([currentDevice respondsToSelector:@selector(uniqueIdentifier)]) {
-		result = [currentDevice performSelector:@selector(uniqueIdentifier)];
-	}
-	return result;
-}
-
-#if 0
-+(NSString*)macmd5
-{
-    char addrString[18];
-    getAddrInternal(&addrString[0],"en0");
-    NSString* dataString = [[[NSString alloc] initWithCString:addrString encoding:NSUTF8StringEncoding] autorelease];
-    NSData* data = [dataString dataUsingEncoding:NSUTF8StringEncoding];
-    return [TiUtils md5:data];
-}
-#endif
-
-+(NSString*)uniqueIdentifier
-{
-    NSString* uid = [TiUtils oldUUID];
+    NSUserDefaults* defaults = [NSUserDefaults standardUserDefaults];
+    NSString* uid = [defaults stringForKey:kAppUUIDString];
+    if (uid == nil) {
+        uid = [TiUtils createUUID];
+        [defaults setObject:uid forKey:kAppUUIDString];
+        [defaults synchronize];
+    }
+    
     return uid;
 }
+
+// In pre-iOS 5, it looks like response headers were case-mangled.
+// (i.e. WWW-Authenticate became Www-Authenticate). So we have to take this
+// mangling into mind; headers such as FooBar-XYZ may also have been mangled
+// to be case-correct. We can't be certain.
+//
+// This means we need to follow the RFC2616 implied MUST that headers are case-insensitive.
+
++(NSString*)getResponseHeader:(NSString *)header fromHeaders:(NSDictionary *)responseHeaders
+{
+    // Do a direct comparison first, and then iterate through the headers if we have to.
+    // This makes things faster in almost all scenarios, and ALWAYS so under iOS 5 unless
+    // the developer is also taking advantage of RFC2616's header spec.
+    __block NSString* responseHeader = [responseHeaders valueForKey:header];
+    if (responseHeader != nil) {
+        return responseHeader;
+    }
+    
+    [responseHeaders enumerateKeysAndObjectsUsingBlock:^(id key, id obj, BOOL* stop) {
+        if ([key localizedCaseInsensitiveCompare:header] == NSOrderedSame) {
+            *stop = YES;
+            responseHeader = obj;
+        }
+    }];
+    
+    return responseHeader;
+}
+
++(UIImage*)loadBackgroundImage:(id)image forProxy:(TiProxy*)proxy
+{
+    UIImage* resultImage = nil;
+    if ([image isKindOfClass:[UIImage class]]) {
+        resultImage = image;
+    }
+    else if ([image isKindOfClass:[NSString class]]) {
+        NSURL *bgURL = [TiUtils toURL:image proxy:proxy];
+        resultImage = [[ImageLoader sharedLoader] loadImmediateImage:bgURL];
+        if (resultImage==nil && [image isEqualToString:@"Default.png"])
+        {
+            // special case where we're asking for Default.png and it's in Bundle not path
+            resultImage = [UIImage imageNamed:image];
+        }
+        if((resultImage != nil) && ([resultImage imageOrientation] != UIImageOrientationUp))
+        {
+            resultImage = [UIImageResize resizedImage:[resultImage size] 
+                                 interpolationQuality:kCGInterpolationNone 
+                                                image:resultImage 
+                                                hires:NO];
+        }
+    }
+    else if ([image isKindOfClass:[TiBlob class]]) {
+        resultImage = [image image];
+    }
+    return resultImage;
+}
+
 @end

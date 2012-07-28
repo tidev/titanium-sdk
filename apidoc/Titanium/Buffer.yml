@@ -1,154 +1,227 @@
 ---
 name: Titanium.Buffer
-description: Buffer is a container for raw data. A buffer is created by the method `Titanium.createBuffer`.
+summary: Buffer is a mutable, resizable container for raw data. 
+description: |
+    A `Buffer` works like a resizable array of byte values.
+
+    Use the <Titanium.createBuffer> method to create a buffer.
 extends: Titanium.Proxy
 since: "1.7"
+platforms: [android, iphone, ipad, mobileweb]
 
 properties:
   - name: length
     type: Number
-    description: The length of the buffer in bytes. When `length` is modified the buffer will be re-sized while preserving existing data where possible. If the new buffer length is smaller than the length of the existing data then the existing data will be truncated down to the size of the new buffer.  Resizing the buffer via setting length should be used sparingly due to the associated overhead.
-    default: 0, unless `value` is specified, at which case the length of the encoded data is used
+    summary: Length of the buffer in bytes. 
+    description: |
+        When `length` is modified the buffer will be re-sized while preserving existing data where 
+        possible. If the new buffer length is smaller than the length of the existing data then the 
+        existing data will be truncated down to the size of the new buffer. 
+        
+        Resizing a buffer by setting its length should be used sparingly due to the associated overhead.
+    default: 0 unless `value` is specified, in which case the length of the encoded data
+        is used.
+
   - name: value
     type: [Number, String]
     availability: creation
-    description: Data to be encoded. If `value` is a Number, `type` must also be set. (this is simply a convenient way of calling <Titanium.Codec.encodeString> or <Titanium.Codec.encodeNumber>).
+    summary: Data to be encoded. 
+    description: |
+        If `value` is a Number, `type` must also be set. (This is simply a convenient way of 
+        calling <Titanium.Codec.encodeString> or <Titanium.Codec.encodeNumber>.)
+
   - name:  type
     type: String
     availability: creation
-    description: The type of data encoding to use with `value`. Required when `value` is a Number. When `value` is a String, <Titanium.Codec.CHARSET_UTF8> is the default.
+    summary: The type of data encoding to use with `value`. 
+    description: |
+        Required when `value` is a Number. For numbers, specify a `TYPE` constant 
+        from <Titanium.Codec>, for example, <Titanium.Codec.TYPE_DOUBLE>.
+        
+        When `value` is a String, specify a `CHARSET` constant from <Titanium.Codec>.
+    default: For string values, defaults to [CHARSET_UTF8](Titanium.Codec.CHARSET_UTF8).
+
   - name: byteOrder
     type: Number
     availability: creation
-    description: The byte order of this buffer. The OS native byte order is used by default.
+    summary: Byte order of this buffer. 
+    description: |
+        Specify either <Titanium.Codec.BIG_ENDIAN> or <Titanium.Codec.LITTLE_ENDIAN>.   
+    default: OS native byte order.
 
 methods:
   - name: append
     returns:
         type: Number
-        description: The number of bytes appended.
-    description: appends `sourceBuffer` to the current buffer.  Buffer is grown dynamically to accommodate the additional data if need be.
+        summary: The number of bytes appended.
+    summary: Appends `sourceBuffer` to the this buffer.  
+    description: |
+        This buffer is grown dynamically to accommodate the additional data if need be.
+        
+        If `sourceOffset` and `sourceLength` are specified, data from `sourceBuffer` is
+        copied starting at position `sourceOffset`, and no more than `sourceLength` bytes
+        are copied.
+
     parameters:
       - name: sourceBuffer
-        description: buffer to append to current buffer
+        summary: Buffer to append to this buffer.
         type: Titanium.Buffer
-  - name: append
-    returns:
-        type: Number
-        description: The number of bytes appended.
-    description: same as normal append except this allows appending only `sourceLength` bytes from the `sourceBuffer` starting at `sourceOffset`.
-    parameters:
-      - name: sourceBuffer
-        description: buffer to append to current buffer
-        type: Titanium.Buffer
+
       - name: sourceOffset
-        description: offset to start reading buffer data from
+        summary: |
+            Offset to start reading buffer data from.
+            If specified, `sourceLength` must also be specified.
         type: Number
+        optional: true
+        default: 0
+
       - name: sourceLength
-        description: length of data to read from buffer
+        summary: |
+            Number of bytes to read from `sourceBuffer`.
+            If specified, `sourceOffset` must also be specified.
         type: Number
+        optional: true
+        default: Length of `sourceBuffer`.
+
   - name: insert
     returns:
         type: Number
-        description: The number of bytes inserted.
-    description: inserts `sourceBuffer` into the current buffer at `offset`.  Buffer is grown to accommodate the new data.
+        summary: The number of bytes inserted.
+    summary: Inserts data from `sourceBuffer` into this buffer at `offset`. 
+    description: |
+        Buffer is grown to accommodate the new data.
+
+        If `sourceOffset` and `sourceLength` are specified, `sourceLength` bytes
+        of data are copied from `sourceBuffer`, with the first byte at `sourceOffset`.
     parameters:
       - name: sourceBuffer
-        description: buffer to insert into current buffer
+        summary: Buffer holding data to insert into this buffer.
         type: Titanium.Buffer
+
       - name: offset
-        description: offset to insert new buffer at
+        summary: |
+            Offset in this buffer to insert the first byte copied from
+            `sourceBuffer`.
         type: Number
-  - name: insert
-    returns:
-        type: Number
-        description: The number of bytes inserted.
-    description: inserts `sourceLength` amount of data starting at `sourceOffset` from `sourceBuffer` into current buffer at `offset`.  Buffer is grown to accommodate the new data.
-    parameters:
-      - name: sourceBuffer
-        description: buffer to insert into current buffer
-        type: Titanium.Buffer
-      - name: offset
-        description: offset to insert new buffer at
-        type: Number
+
       - name: sourceOffset
-        description: offset of sourceBuffer to insert data from
+        summary: |
+            Offset in `sourceBuffer` of the first byte to insert.
+            If specified, `sourceLength` must be specified as well.
         type: Number
+        optional: true
+        default: 0
+
       - name: sourceLength
-        description: length of data from sourceBuffer to insert
+        summary: |
+            Number of bytes to insert from `sourceBuffer`.
+            If specified, `sourceOffset` must be specified as well.
         type: Number
+        optional: true
+        default: Length of source buffer.
+
   - name: copy
     returns:
         type: Number
-        description: The number of bytes copied.
-    description: copies the contents of `sourceBuffer` into the current buffer at `offset`.  will not expand buffer if there is not enough room in the current buffer to accomodate all the requested data from `sourceBuffer`.
+        summary: The number of bytes copied.
+    summary: Copies data from `sourceBuffer` into the current buffer at `offset`.
+    description: |
+        Does not expand this buffer if there is not enough room  to accomodate the data
+        from `sourceBuffer`.
+        
+        If `sourceOffset` and `sourceLength` are specified, bytes are copied from
+        `sourceBuffer` starting at `sourceOffset`, and a maximum of `sourceLength` bytes
+        are copied.
     parameters:
+
       - name: sourceBuffer
-        description: buffer to copy into current buffer
+        summary: Buffer to copy data from.
         type: Titanium.Buffer
+
       - name: offset
-        description: offset to copy new buffer at
+        summary: Offset in this buffer for the first byte of the copied data.
         type: Number
-  - name: copy
-    returns:
-        type: Number
-        description: The number of bytes copied.
-    description: copies `sourceLength` contents from `sourceBuffer` starting at `sourceOffset` into the current buffer at `offset`.  will not expand buffer if there is not enough room in the current buffer to accomodate all the request data from `sourceBuffer`.
-    parameters:
-      - name: sourceBuffer
-        description: buffer to copy into current buffer
-        type: Titanium.Buffer
-      - name: offset
-        description: offset to copy new buffer at
-        type: Number
+
       - name: sourceOffset
-        description: offset of sourceBuffer to copy data from
+        summary: |
+            Offset in `sourceBuffer` to copy data from.
+            If specified, `sourceLength` must be specified as well.
         type: Number
+        optional: true
+        default: 0
+
       - name: sourceLength
-        description: length of data from sourceBuffer to copy
+        summary: |
+            Number of bytes to copy from `sourceBuffer`.
+            If specified, `sourceOffset` must be specified as well.
         type: Number
+        optional: true
+        default: Length of source buffer.
+  
   - name: clone
     returns:
         type: Titanium.Buffer
-    description: create new copy of the current buffer
-  - name: clone
-    returns:
-        type: Titanium.Buffer
-    description: Creates a new buffer from the original buffer contents starting at `offset` and ending at `offset` + `length`
+    summary: Creates a complete or partial copy of this buffer.
+    description: |
+        If called with no arguments, retuns a complete copy of the current buffer.
+
+        If `offset` and `length` are specified, creates a new buffer from the original 
+        buffer contents starting at `offset` and ending at `offset`+`length`-1.
     parameters:
       - name: offset
-        description: offset of buffer to start clone
+        summary: |
+            Offset of first byte of this buffer to clone.
+            If specified, `length` must be specified as well.
         type: Number
+        optional: true
+        default: 0
+
       - name: length
-        description: length of buffer data starting at offset to clone
+        summary: Number of bytes of data to clone.
         type: Number
+        optional: true
+        default: Length of this buffer.
+
   - name: fill
-    description: fills buffer with `fillByte`
+    summary: Fills this buffer with the specified byte value.
+    description: |
+        Fills the buffer by setting byte values to `fillByte`.
+
+        If `offset` and `length` are specified, fills the buffer starting at 
+        `offset` and ending at `offset`+`length`-1.
+
+        If `offset` and `length` are omitted, fills the entire buffer.
     parameters:
       - name: fillByte
-        description: byte to fill buffer with
+        summary: Byte to fill buffer with.
         type: Number
-  - name: fill
-    description: fills buffer starting from `offset` until `length` number of `fillByte` has been written or the end of the buffer is reached
-    parameters:
-      - name: fillByte
-        description: byte to fill buffer with
-        type: Number
+
       - name: offset
-        description: offset of where to start fill
+        summary: Offset of the first byte to set to `fillByte`.
         type: Number
+        optional: true
+        default: 0
+
       - name: length
-        description: number of bytes to fill
+        summary: Number of bytes to fill.
         type: Number
+        optional: true
+        default: Buffer length.
+
   - name: clear
-    description: Clears buffer contents but does not change the size of the buffer
+    summary: Clears this buffer's contents but does not change the size of the buffer.
+
   - name: release
-    description: Releases the space allocated to the buffer, sets length to 0.  This is effectively the same as `buffer.length = 0`
+    summary: Releases the space allocated to the buffer, and sets its length to 0.  
+    description: |
+        This is effectively the same as `buffer.length = 0`.
+
   - name: toString
     returns:
         type: String
-    description: Converts this buffer to a String
+    summary: Converts this buffer to a String.
+
   - name: toBlob
     returns:
         type: Titanium.Blob
-    description: Converts this buffer to a <Titanium.Blob>
+    summary: Converts this buffer to a <Titanium.Blob>.

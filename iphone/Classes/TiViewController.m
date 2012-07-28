@@ -8,7 +8,7 @@
 #import "TiViewController.h"
 #import "TiApp.h"
 
-
+#import "TiViewProxy.h"
 
 @implementation TiViewController
 
@@ -54,7 +54,7 @@
 	[super willRotateToInterfaceOrientation:toInterfaceOrientation duration:duration];
 	if ([proxy respondsToSelector:@selector(willRotateToInterfaceOrientation:duration:)])
 	{
-		[proxy willRotateToInterfaceOrientation:toInterfaceOrientation duration:duration];
+		[(TiViewController*)proxy willRotateToInterfaceOrientation:toInterfaceOrientation duration:duration];
 	}
 	[[proxy childViewController] willRotateToInterfaceOrientation:toInterfaceOrientation duration:duration];
 }
@@ -64,7 +64,7 @@
 	[super didRotateFromInterfaceOrientation:fromInterfaceOrientation];
 	if ([proxy respondsToSelector:@selector(didRotateFromInterfaceOrientation:)])
 	{
-		[proxy didRotateFromInterfaceOrientation:fromInterfaceOrientation];
+		[(TiViewController*)proxy didRotateFromInterfaceOrientation:fromInterfaceOrientation];
 	}
 	[[proxy childViewController] didRotateFromInterfaceOrientation:fromInterfaceOrientation];
 }

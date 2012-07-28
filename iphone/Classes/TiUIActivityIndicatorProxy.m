@@ -11,21 +11,23 @@
 
 @implementation TiUIActivityIndicatorProxy
 
--(TiUIView*)newView
-{
-	TiUIActivityIndicator * result = [[TiUIActivityIndicator alloc] init];
-	return result;
-}
-
 -(NSMutableDictionary*)langConversionTable
 {
     return [NSMutableDictionary dictionaryWithObject:@"message" forKey:@"messageid"];
 }
 
+-(TiDimension)defaultAutoWidthBehavior:(id)unused
+{
+    return TiDimensionAutoSize;
+}
+-(TiDimension)defaultAutoHeightBehavior:(id)unused
+{
+    return TiDimensionAutoSize;
+}
 
-USE_VIEW_FOR_AUTO_WIDTH
+USE_VIEW_FOR_CONTENT_WIDTH
 
-USE_VIEW_FOR_AUTO_HEIGHT
+USE_VIEW_FOR_CONTENT_HEIGHT
 
 @end
 

@@ -1,0 +1,44 @@
+---
+name: Titanium.Geolocation.Android.LocationRule
+summary: A location rule to filter the results returned by location providers. 
+description: |
+    All of the properties are optional.
+    
+    See <Titanium.Geolocation.Android> for details on using `LocationProviders` to 
+    manually configure location updates.
+extends: Titanium.Proxy
+since: "2.0.0"
+properties:
+  - name: name
+    summary: |
+        If specified, this rule only applies to updates generated
+        by the specified provider. If `null`, this rule applies to all updates.
+    description: |
+        Can be [PROVIDER_GPS](Titanium.Geolocation.PROVIDER_GPS), 
+        [PROVIDER_NETWORK](Titanium.Geolocation.PROVIDER_NETWORK), or 
+        [PROVIDER_PASSIVE](Titanium.Geolocation.PROVIDER_PASSIVE).
+    type: String
+    default: null
+    
+  - name: accuracy
+    summary: Minimum accuracy required for a location update. 
+    description: |
+        Accuracy is expressed as the maximum allowable error, in meters. To pass this rule,
+        an update must have an accuracy value equal to or lower than this value.
+    type: Number
+
+        
+  - name: minAge
+    summary: Controls the frequency of location updates. 
+    description: |
+        Do not forward an update unless at least `minAge` milliseconds have passed since the last 
+        good location update (that is, the last update from any provider that generated a 
+        `location` event).
+    type: Number
+    
+  - name: maxAge
+    summary: |
+        Controls the freshness of location updates. Do not forward an update
+        unless it is newer than `maxAge` milliseconds.
+    type: Number
+    

@@ -1,165 +1,494 @@
 ---
 name: Titanium.UI.Android
-description: The Android specific UI capabilities. All properties, methods and events in this namespace will only work on Android related devices.
+summary: |
+    The Android-specific UI capabilities. All properties, methods and events in this namespace will 
+    only work on Android systems.
 extends: Titanium.Module
 since: "1.0"
 platforms: [android]
+
 methods:
   - name: hideSoftKeyboard
+    summary: |
+        Hides the soft keyboard.
     description: |
-        request that the soft keyboard hide. Note: It is not currently possible in the native Android API to detect that the keyboard is already visible. Note: It is not possible to globally show the keyboard at this point.
+        Be aware that it is not currently possible in the native Android API to detect that the 
+        keyboard is already visible or to globally show the keyboard.
+        
   - name: openPreferences
-    description: open Android native preferences UI activity. You need to place your preferences.xml file in the platform/android/res/xml/ folder of your project. Documentation on the file format may be found in the [Android documentation](http://developer.android.com/resources/samples/ApiDemos/res/xml/preferences.html)
+    summary: |
+        Opens an application preferences dialog, using the native Android system settings interface, 
+        defined by the platform-specific `preferences.xml` and `array.xml` files.
+    description: |
+        The preferences configuration files must be created in the project folders, 
+        `platform/android/res/xml/preferences.xml` and `platform/android/res/values/array/array.xml`.
+        
+        See the example for a demonstration, and the official Android Developer documentation for 
+        the [preferences.xml](http://developer.android.com/resources/samples/ApiDemos/res/xml/preferences.html) 
+        format.
+        
 properties:
   - name: LINKIFY_ALL
-    description: Auto link all supported types.
+    summary: Use <Titanium.UI.AUTOLINK_ALL> instead.
     type: Number
     permission: read-only
+    deprecated:
+        since: "2.2.0"
+    
   - name: LINKIFY_EMAIL_ADDRESSES
-    description: Auto link email addresses.
+    summary: Use <Titanium.UI.AUTOLINK_EMAIL_ADDRESSES> instead.
     type: Number
     permission: read-only
+    deprecated:
+        since: "2.2.0"
+    
   - name: LINKIFY_MAP_ADDRESSES
-    description: Auto link physical addresses.
+    summary: Use <Titanium.UI.AUTOLINK_MAP_ADDRESSES> instead.
     type: Number
     permission: read-only
-  - name: LINKIFY_MAP_LINKS
-    description: Convert all street addresses to clickable links
-    type: Number
-    permission: read-only
+    deprecated:
+        since: "2.2.0"
+    
   - name: LINKIFY_PHONE_NUMBERS
-    description: Auto link phone numbers.
+    summary: Use <Titanium.UI.AUTOLINK_PHONE_NUMBERS> instead.
     type: Number
     permission: read-only
+    deprecated:
+        since: "2.2.0"
+    
   - name: LINKIFY_WEB_URLS
-    description: Auto link web urls.
+    summary: Use <Titanium.UI.AUTOLINK_URLS> instead.
     type: Number
     permission: read-only
+    deprecated:
+        since: "2.2.0"
+    
   - name: PIXEL_FORMAT_A_8
-    description: See [Android Documentation for PixelFormat](http://developer.android.com/reference/android/graphics/PixelFormat.html)
+    summary: |
+        Android A_8 pixel format for <Titanium.UI.Window>. Selecting the correct pixel format 
+        can improve image clarity and performance.
+    description: |
+        See the Android Developer website for official documentation about the 
+        [PixelFormat](http://developer.android.com/reference/android/graphics/PixelFormat.html)
+        constants.
     type: Number
     permission: read-only
     since: "1.8.0"
+    
   - name: PIXEL_FORMAT_LA_88
-    description: See [Android Documentation for PixelFormat](http://developer.android.com/reference/android/graphics/PixelFormat.html)
+    summary: |
+        Android LA_88 pixel format for <Titanium.UI.Window>. Selecting the correct pixel format 
+        can improve image clarity and performance.
+    description: |
+        See the Android Developer website for official documentation about the 
+        [PixelFormat](http://developer.android.com/reference/android/graphics/PixelFormat.html)
+        constants.
     type: Number
     permission: read-only
     since: "1.8.0"
+    
   - name: PIXEL_FORMAT_L_8
-    description: See [Android Documentation for PixelFormat](http://developer.android.com/reference/android/graphics/PixelFormat.html)
+    summary: |
+        Android L_8 pixel format for <Titanium.UI.Window>. Selecting the correct pixel format 
+        can improve image clarity and performance.
+    description: |
+        See the Android Developer website for official documentation about the 
+        [PixelFormat](http://developer.android.com/reference/android/graphics/PixelFormat.html)
+        constants.
     type: Number
     permission: read-only
     since: "1.8.0"
+    
   - name: PIXEL_FORMAT_OPAQUE
-    description: System chooses an opaque format (no alpha bits required) [Android Documentation for PixelFormat](http://developer.android.com/reference/android/graphics/PixelFormat.html)
+    summary: |
+        Android OPAQUE pixel format for <Titanium.UI.Window>. Selecting the correct pixel format 
+        can improve image clarity and performance.
+    description: |
+        See the Android Developer website for official documentation about the 
+        [PixelFormat](http://developer.android.com/reference/android/graphics/PixelFormat.html)
+        constants.
     type: Number
     permission: read-only
     since: "1.8.0"
+    
   - name: PIXEL_FORMAT_RGBA_4444
-    description: See [Android Documentation for PixelFormat](http://developer.android.com/reference/android/graphics/PixelFormat.html)
+    summary: |
+        Android RGBA_4444 pixel format for <Titanium.UI.Window>. Selecting the correct pixel format 
+        can improve image clarity and performance.
+    description: |
+        See the Android Developer website for official documentation about the 
+        [PixelFormat](http://developer.android.com/reference/android/graphics/PixelFormat.html)
+        constants.
     type: Number
     permission: read-only
     since: "1.8.0"
+    
   - name: PIXEL_FORMAT_RGBA_5551
-    description: See [Android Documentation for PixelFormat](http://developer.android.com/reference/android/graphics/PixelFormat.html)
+    summary: |
+        Android RGBA_5551 pixel format for <Titanium.UI.Window>. Selecting the correct pixel format 
+        can improve image clarity and performance.
+    description: |
+        See the Android Developer website for official documentation about the 
+        [PixelFormat](http://developer.android.com/reference/android/graphics/PixelFormat.html)
+        constants.
     type: Number
     permission: read-only
     since: "1.8.0"
+    
   - name: PIXEL_FORMAT_RGBA_8888
-    description: See [Android Documentation for PixelFormat](http://developer.android.com/reference/android/graphics/PixelFormat.html)
+    summary: |
+        Android RGBA_8888 pixel format for <Titanium.UI.Window>. Selecting the correct pixel format 
+        can improve image clarity and performance.
+    description: |
+        See the Android Developer website for official documentation about the 
+        [PixelFormat](http://developer.android.com/reference/android/graphics/PixelFormat.html)
+        constants.
     type: Number
     permission: read-only
     since: "1.8.0"
+    
   - name: PIXEL_FORMAT_RGBX_8888
-    description: See [Android Documentation for PixelFormat](http://developer.android.com/reference/android/graphics/PixelFormat.html)
+    summary: |
+        Android RGBX_8888 pixel format for <Titanium.UI.Window>. Selecting the correct pixel format 
+        can improve image clarity and performance.
+    description: |
+        See the Android Developer website for official documentation about the 
+        [PixelFormat](http://developer.android.com/reference/android/graphics/PixelFormat.html)
+        constants.
     type: Number
     permission: read-only
     since: "1.8.0"
+    
   - name: PIXEL_FORMAT_RGB_332
-    description: See [Android Documentation for PixelFormat](http://developer.android.com/reference/android/graphics/PixelFormat.html)
+    summary: |
+        Android RGB_332 pixel format for <Titanium.UI.Window>. Selecting the correct pixel format 
+        can improve image clarity and performance.
+    description: |
+        See the Android Developer website for official documentation about the 
+        [PixelFormat](http://developer.android.com/reference/android/graphics/PixelFormat.html)
+        constants.
     type: Number
     permission: read-only
     since: "1.8.0"
+    
   - name: PIXEL_FORMAT_RGB_565
-    description: See [Android Documentation for PixelFormat](http://developer.android.com/reference/android/graphics/PixelFormat.html)
+    summary: |
+        Android RGB_565 pixel format for <Titanium.UI.Window>. Selecting the correct pixel format 
+        can improve image clarity and performance.
+    description: |
+        See the Android Developer website for official documentation about the 
+        [PixelFormat](http://developer.android.com/reference/android/graphics/PixelFormat.html)
+        constants.
     type: Number
     permission: read-only
     since: "1.8.0"
+    
   - name: PIXEL_FORMAT_RGB_888
-    description: See [Android Documentation for PixelFormat](http://developer.android.com/reference/android/graphics/PixelFormat.html)
+    summary: |
+        Android RGB_888 pixel format for <Titanium.UI.Window>. Selecting the correct pixel format 
+        can improve image clarity and performance.
+    description: |
+        See the Android Developer website for official documentation about the 
+        [PixelFormat](http://developer.android.com/reference/android/graphics/PixelFormat.html)
+        constants.
     type: Number
     permission: read-only
     since: "1.8.0"
+    
   - name: PIXEL_FORMAT_TRANSLUCENT
-    description: System chooses a format that supports translucency (many alpha bits). [Android Documentation for PixelFormat](http://developer.android.com/reference/android/graphics/PixelFormat.html)
+    summary: |
+        Android TRANSLUCENT pixel format for <Titanium.UI.Window>. Selecting the correct pixel format 
+        can improve image clarity and performance.
+    description: |
+        See the Android Developer website for official documentation about the 
+        [PixelFormat](http://developer.android.com/reference/android/graphics/PixelFormat.html)
+        constants.
     type: Number
     permission: read-only
     since: "1.8.0"
+    
   - name: PIXEL_FORMAT_TRANSPARENT
-    description: System chooses a format that supports transparency (at least 1 alpha bit). [Android Documentation for PixelFormat](http://developer.android.com/reference/android/graphics/PixelFormat.html)
+    summary: |
+        Android A_8 pixel format for <Titanium.UI.Window>. Selecting the correct pixel format can 
+        improve image clarity and performance.
+    description: |
+        See the Android Developer website for official documentation about the 
+        [PixelFormat](http://developer.android.com/reference/android/graphics/PixelFormat.html)
+        constants.
     type: Number
     permission: read-only
     since: "1.8.0"
+    
   - name: PIXEL_FORMAT_UNKNOWN
-    description: Allow the Window to select the format. [Android Documentation for PixelFormat](http://developer.android.com/reference/android/graphics/PixelFormat.html)
+    summary: |
+        Android UNKNOWN pixel format for <Titanium.UI.Window>. Selecting the correct pixel format 
+        can improve image clarity and performance.
+    description: |
+        See the Android Developer website for official documentation about the 
+        [PixelFormat](http://developer.android.com/reference/android/graphics/PixelFormat.html)
+        constants.
     type: Number
     permission: read-only
     since: "1.8.0"
+    
   - name: SOFT_INPUT_ADJUST_PAN
-    description: Pan contents when soft keyboard is visible. Use on Activity ("heavy weight window") to suggest how the virtual keyboard should treat the window contents. Must be specified in creation options.
+    summary: |
+        Pan the current heavyweight window when the input method (ie software keyboard) is shown, to 
+        ensure that its contents are not obscured.
+    description: |
+        Used with the <Titanium.UI.Window.windowSoftInputMode> property.
+        
+        One of the group of soft input adjustment constants, 
+        [SOFT_INPUT_ADJUST_UNSPECIFIED](Titanium.UI.Android.SOFT_INPUT_ADJUST_UNSPECIFIED), 
+        [SOFT_INPUT_ADJUST_RESIZE](Titanium.UI.Android.SOFT_INPUT_ADJUST_RESIZE), 
+        and [SOFT_INPUT_ADJUST_PAN](Titanium.UI.Android.SOFT_INPUT_ADJUST_PAN).
     type: Number
+    availability: creation
     permission: read-only
+    
   - name: SOFT_INPUT_ADJUST_RESIZE
-    description: Resize contents when soft keyboard is visible. Use on Activity ("heavy weight window") to suggest how the virtual keyboard should treat the window contents. Must be specified in creation options.
+    summary: |
+        Resize the current heavyweight window when the input method (ie software keyboard) is shown, 
+        to ensure that its contents are not obscured.
+    description: |
+        Used with the <Titanium.UI.Window.windowSoftInputMode> property.
+        
+        One of the group of soft input adjustment constants, 
+        [SOFT_INPUT_ADJUST_UNSPECIFIED](Titanium.UI.Android.SOFT_INPUT_ADJUST_UNSPECIFIED), 
+        [SOFT_INPUT_ADJUST_RESIZE](Titanium.UI.Android.SOFT_INPUT_ADJUST_RESIZE), 
+        and [SOFT_INPUT_ADJUST_PAN](Titanium.UI.Android.SOFT_INPUT_ADJUST_PAN).
     type: Number
+    availability: creation
     permission: read-only
+    
   - name: SOFT_INPUT_ADJUST_UNSPECIFIED
-    description: (default) If set in the AndroidManifest.xml use that setting. Otherwise, let the keyboard decided. Must be specified in creation options.
+    summary: |
+        Use the system-default behavior to determine how the soft input area (ie software keyboard) 
+        is accomodated by the current heavyweight window when it receives focus (default.)
+    description: |
+        Depends on the `AndroidManifest.xml` setting if defined or system-default otherwise to 
+        determine how to accomodate the soft keyboard when visible.
+        
+        Used with the <Titanium.UI.Window.windowSoftInputMode> property.
+        
+        One of the group of soft input adjustment constants, 
+        [SOFT_INPUT_ADJUST_UNSPECIFIED](Titanium.UI.Android.SOFT_INPUT_ADJUST_UNSPECIFIED), 
+        [SOFT_INPUT_ADJUST_RESIZE](Titanium.UI.Android.SOFT_INPUT_ADJUST_RESIZE), 
+        and [SOFT_INPUT_ADJUST_PAN](Titanium.UI.Android.SOFT_INPUT_ADJUST_PAN).
+    type: Number
+    availability: creation
+    permission: read-only
+
+  - name: SOFT_INPUT_STATE_ALWAYS_HIDDEN
+    summary: |
+        Always hide the soft input area (ie software keyboard) when the current heavyweight window 
+        receives focus.
+    description: |
+        Note that the unresolved bug [#7115](https://code.google.com/p/android/issues/detail?id=7115) 
+        on the Official Android Project website affects this functionality.
+        
+        Used with the <Titanium.UI.Window.windowSoftInputMode> property.
+        
+        One of the group of soft input visibility constants, 
+        [SOFT_INPUT_STATE_ALWAYS_HIDDEN](Titanium.UI.Android.SOFT_INPUT_STATE_ALWAYS_HIDDEN), 
+        [SOFT_INPUT_STATE_ALWAYS_VISIBLE](Titanium.UI.Android.SOFT_INPUT_STATE_ALWAYS_VISIBLE), 
+        [SOFT_INPUT_STATE_HIDDEN](Titanium.UI.Android.SOFT_INPUT_STATE_HIDDEN), 
+        [SOFT_INPUT_STATE_UNSPECIFIED](Titanium.UI.Android.SOFT_INPUT_STATE_UNSPECIFIED), 
+        and [SOFT_INPUT_STATE_VISIBLE](Titanium.UI.Android.SOFT_INPUT_STATE_VISIBLE).
     type: Number
     permission: read-only
+
+  - name: SOFT_INPUT_STATE_ALWAYS_VISIBLE
+    summary: |
+        Always show the soft input area (ie software keyboard) when the current heavyweight window 
+        receives focus.
+    description: |
+        Used with the <Titanium.UI.Window.windowSoftInputMode> property.
+        
+        This constant is one of the group of soft input visibility constants, 
+        [SOFT_INPUT_STATE_ALWAYS_HIDDEN](Titanium.UI.Android.SOFT_INPUT_STATE_ALWAYS_HIDDEN), 
+        [SOFT_INPUT_STATE_ALWAYS_VISIBLE](Titanium.UI.Android.SOFT_INPUT_STATE_ALWAYS_VISIBLE), 
+        [SOFT_INPUT_STATE_HIDDEN](Titanium.UI.Android.SOFT_INPUT_STATE_HIDDEN), 
+        [SOFT_INPUT_STATE_UNSPECIFIED](Titanium.UI.Android.SOFT_INPUT_STATE_UNSPECIFIED), 
+        and [SOFT_INPUT_STATE_VISIBLE](Titanium.UI.Android.SOFT_INPUT_STATE_VISIBLE).
+    type: Number
+    permission: read-only
+    
   - name: SOFT_INPUT_STATE_HIDDEN
-    description: Attempt to hide the soft keyboard when control receives keyboard focus.
+    summary: |
+        Attempt to hide the soft input area (ie software keyboard) when the current heavyweight 
+        window receives focus.
+    description: |
+        Used with the <Titanium.UI.Window.windowSoftInputMode> property.
+        
+        This constant is one of the group of soft input visibility constants, 
+        [SOFT_INPUT_STATE_ALWAYS_HIDDEN](Titanium.UI.Android.SOFT_INPUT_STATE_ALWAYS_HIDDEN), 
+        [SOFT_INPUT_STATE_ALWAYS_VISIBLE](Titanium.UI.Android.SOFT_INPUT_STATE_ALWAYS_VISIBLE), 
+        [SOFT_INPUT_STATE_HIDDEN](Titanium.UI.Android.SOFT_INPUT_STATE_HIDDEN), 
+        [SOFT_INPUT_STATE_UNSPECIFIED](Titanium.UI.Android.SOFT_INPUT_STATE_UNSPECIFIED), 
+        and [SOFT_INPUT_STATE_VISIBLE](Titanium.UI.Android.SOFT_INPUT_STATE_VISIBLE).
     type: Number
     permission: read-only
+    
   - name: SOFT_INPUT_STATE_UNSPECIFIED
-    description: Use OS default behavior for keyboard focus.
+    summary: |
+        Use the system-default behavior to determine whether to show the soft input area 
+        (ie software keyboard) when the current heavyweight window receives focus.
+    description: |
+        Used with the <Titanium.UI.Window.windowSoftInputMode> property.
+        
+        This constant is one of the group of soft input visibility constants, 
+        [SOFT_INPUT_STATE_ALWAYS_HIDDEN](Titanium.UI.Android.SOFT_INPUT_STATE_ALWAYS_HIDDEN), 
+        [SOFT_INPUT_STATE_ALWAYS_VISIBLE](Titanium.UI.Android.SOFT_INPUT_STATE_ALWAYS_VISIBLE), 
+        [SOFT_INPUT_STATE_HIDDEN](Titanium.UI.Android.SOFT_INPUT_STATE_HIDDEN), 
+        [SOFT_INPUT_STATE_UNSPECIFIED](Titanium.UI.Android.SOFT_INPUT_STATE_UNSPECIFIED), 
+        and [SOFT_INPUT_STATE_VISIBLE](Titanium.UI.Android.SOFT_INPUT_STATE_VISIBLE).
     type: Number
     permission: read-only
+    
   - name: SOFT_INPUT_STATE_VISIBLE
-    description: Attempt to show the soft keyboard when control receives keyboard focus.
+    summary: |
+        Attempt to show the soft input area (ie software keyboard) when the current heavyweight 
+        window receives focus.
+    description: |
+        Used with the <Titanium.UI.Window.windowSoftInputMode> property.
+        
+        This constant is one of the group of soft input visibility constants, 
+        [SOFT_INPUT_STATE_ALWAYS_HIDDEN](Titanium.UI.Android.SOFT_INPUT_STATE_ALWAYS_HIDDEN), 
+        [SOFT_INPUT_STATE_ALWAYS_VISIBLE](Titanium.UI.Android.SOFT_INPUT_STATE_ALWAYS_VISIBLE), 
+        [SOFT_INPUT_STATE_HIDDEN](Titanium.UI.Android.SOFT_INPUT_STATE_HIDDEN), 
+        [SOFT_INPUT_STATE_UNSPECIFIED](Titanium.UI.Android.SOFT_INPUT_STATE_UNSPECIFIED), 
+        and [SOFT_INPUT_STATE_VISIBLE](Titanium.UI.Android.SOFT_INPUT_STATE_VISIBLE).
     type: Number
     permission: read-only
+    
   - name: SOFT_KEYBOARD_DEFAULT_ON_FOCUS
-    description: Use Android default soft keyboard handling. Same as not specifying a value.
+    summary: |
+        Use Android default behavior to handle keyboard visibility when a view receives focus. 
+        (default)
     type: Number
     permission: read-only
+    
   - name: SOFT_KEYBOARD_HIDE_ON_FOCUS
-    description: |
-        Request hide soft keyboard on focus. Note: OS can override request.
+    summary: |
+        Attempt to hide the soft keyboard when a view receives focus. Note: system can override 
+        request.
     type: Number
     permission: read-only
+    
   - name: SOFT_KEYBOARD_SHOW_ON_FOCUS
-    description: |
-        Request show soft keyboard on focus. Note: OS can override request.
+    summary: |
+        Attempt to show the soft keyboard when a view receives focus. Note: system can override 
+        request.
     type: Number
     permission: read-only
+    
   - name: SWITCH_STYLE_CHECKBOX
-    description: Display Switch as an Android Checkbox
+    summary: Display <Titanium.UI.Switch> as a checkbox.
     type: Number
     permission: read-only
+    
   - name: SWITCH_STYLE_TOGGLEBUTTON
-    description: Display Switch as an Android Toggle Button (default)
+    summary: Display <Titanium.UI.Switch> as a toggle button. (default)
     type: Number
     permission: read-only
+    
   - name: WEBVIEW_PLUGINS_OFF
-    description: Disable plugins in <Titanium.UI.WebView>.
+    summary: |
+        Use with [WebView.pluginState](Titanium.UI.WebView.pluginState) to disable plugins in a web view.
+    description: |
+        Content that requires a plugin, such as Flash Player, is not loaded, and any
+        alternative content is displayed instead.
     type: Number
     permission: read-only
+    
   - name: WEBVIEW_PLUGINS_ON
-    description: Enable plugins in <Titanium.UI.WebView>.
+    summary: |
+        Use with [WebView.pluginState](Titanium.UI.WebView.pluginState) to enable plugins in a web view.
+    description: |
+        Content that requires a plugin, such as Flash Player, is always loaded, whether or not a plugin is
+        available for the content.
     type: Number
     permission: read-only
-  - name: WEBVIEW_PLUGINS_OFF
-    description: Display a placeholder and only load plugins when user selects placeholder.
+    
+  - name: WEBVIEW_PLUGINS_ON_DEMAND
+    summary: Display a placeholder and only load plugins when user selects it.
+    description: |
+        Content that requires a plugin, such as Flash Player, is replaced by a placeholder. When 
+        the user clicks on the placeholder, the plugin is loaded and the content is displayed.
+        
+        Use with [WebView.pluginState](Titanium.UI.WebView.pluginState) to load plugins on demand.
     type: Number
     permission: read-only
+
+examples:
+  - title: Android Preferences Example
+    example: |
+        Create preferences interface for the application.
+        
+        #### `app.js`
+        
+            var button = Ti.UI.createButton({
+              title:	'Click to Open Preferences'
+            });
+            button.addEventListener('click', function() {
+              Ti.UI.Android.openPreferences();
+            });
+            Ti.UI.currentWindow.add(button);
+        
+        #### `platform/android/res/xml/preferences.xml`
+        
+            <?xml version="1.0" encoding="utf-8"?>
+            <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+                android:title="Preferences">
+              <PreferenceScreen
+                  android:title="Misc. Preferences"
+                  android:summary="Click to see more options">
+                <EditTextPreference
+                  android:title="Edit Text Preference"
+                  android:summary="You may enter a string"
+                  android:defaultValue=""
+                  android:key="editText" />
+              </PreferenceScreen>
+              <PreferenceCategory android:title="Category One">
+                <CheckBoxPreference
+                  android:title="CheckBox Preference"
+                  android:defaultValue="false"
+                  android:summary="You may enter a boolean"
+                  android:key="checkbox" />
+                <RingtonePreference
+                  android:title="Ringtone Preference"
+                  android:summary="You may pick a ringtone"
+                  android:defaultValue=""
+                  android:key="ringtone" />
+              </PreferenceCategory>
+              <PreferenceCategory android:title="Category Two">
+                <ListPreference
+                  android:title="List Preference"
+                  android:summary="You may chose from multiple choices"
+                  android:key="list" 
+                android:entries="@array/listNames"
+                android:entryValues="@array/listValues" 
+                />
+              </PreferenceCategory>
+            </PreferenceScreen>
+            
+        #### `platform/android/res/values/array/array.xml`
+        
+            <?xml version="1.0" encoding="utf-8"?>
+            <resources>
+              <string-array name="listNames">
+                <item>5 Minutes</item>
+                <item>10 Minutes</item>
+                <item>15 Minutes</item>
+                <item>30 Minutes</item>
+                <item>60 Minutes</item>
+              </string-array>
+              <string-array name="listValues">
+                <item>5</item>
+                <item>10</item>
+                <item>15</item>
+                <item>30</item>
+                <item>60</item>
+              </string-array>
+            </resources>

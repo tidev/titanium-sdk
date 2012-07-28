@@ -7,8 +7,9 @@ import os, sys, shutil, tempfile, subprocess, platform
 template_dir = os.path.abspath(os.path.dirname(sys._getframe(0).f_code.co_filename))
 support_dir = os.path.join(template_dir, 'support')
 sdk_dir = os.path.dirname(template_dir)
+common_dir = os.path.join(sdk_dir, "common")
 android_support_dir = os.path.join(sdk_dir, 'android')
-sys.path.extend([sdk_dir, support_dir, android_support_dir])
+sys.path.extend([sdk_dir, support_dir, android_support_dir, common_dir])
 
 from androidsdk import AndroidSDK
 from manifest import Manifest

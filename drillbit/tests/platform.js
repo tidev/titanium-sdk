@@ -28,6 +28,14 @@ describe("Ti.Platform tests", {
        valueOf(Ti.Platform.ostype).shouldBeString();
        valueOf(Ti.Platform.processorCount).shouldBeNumber();
        valueOf(Ti.Platform.version).shouldBeString();
+       valueOf(Ti.Platform.runtime).shouldBeString();
+       if (Ti.Platform.osname === 'android') {
+              valueOf(Ti.Platform.runtime === 'rhino' || Ti.Platform.runtime === 'v8').shouldBeTrue();
+       } else if (Ti.Platform.osname === 'iphone' || Ti.Platform.osname === 'ipad') {
+              valueOf(Ti.Platform.runtime).shouldBe("javascriptcore");
+       } else {
+              valueOf(Ti.Platform.runtime.length).shouldBeGreaterThan(0);
+       }
     }
 
 });

@@ -1,31 +1,49 @@
 ---
 name: Titanium.Contacts.Group
-description: An object which represents a group in the contacts database.
+summary: An object which represents a group in the system contacts address book.
+description: See examples in <Titanium.Contacts> for more information.
 extends: Titanium.Proxy
 since: "1.4.0"
 platforms: [iphone, ipad]
+
 methods:
   - name: add
-    description: Adds a person to the group
+    summary: Adds a person to this group.
     parameters:
       - name: person
-        description: <Titanium.Contacts.Person> object to add to the group
+        summary: Person to add.
         type: Titanium.Contacts.Person
+        
   - name: members
-    description: The complete list of members of the group
+    summary: Gets people that are members of this group.
+    returns:
+        type: Array<Titanium.Contacts.Person>
+    
   - name: remove
-    description: Removes a person from the group
+    summary: Removes a person from this group.
     parameters:
       - name: person
-        description: <Titanium.Contacts.Person> object to remove from the group
+        summary: Person to remove.
         type: Titanium.Contacts.Person
+        
   - name: sortedMembers
-    description: A list of sorted members
+    summary: Gets people that are members of this group, sorted in the specified order.
+    returns:
+        type: Array<Titanium.Contacts.Person>
     parameters:
       - name: sortBy
-        description: Method for sorting.  Must be one of  <Titanium.Contacts.CONTACTS_SORT_FIRST_NAME> or <Titanium.Contacts.CONTACTS_SORT_LAST_NAME>
+        summary: |
+            Method for sorting. One of 
+            [CONTACTS_SORT_FIRST_NAME](Titanium.Contacts.CONTACTS_SORT_FIRST_NAME), 
+            or [CONTACTS_SORT_LAST_NAME](Titanium.Contacts.CONTACTS_SORT_LAST_NAME).
         type: Number
+
 properties:
   - name: name
-    description: The name of the group
+    summary: Name of this group.
     type: String
+    
+  - name: recordId
+    summary: Record identifier of the group. Single value.
+    type: Number
+    platforms: [iphone, ipad]

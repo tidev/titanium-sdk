@@ -25,7 +25,7 @@
 	CGPoint hitPoint;
 }
 @property (nonatomic,readonly) CGPoint hitPoint;
-@property (nonatomic,readwrite,assign) TiUITableViewRowProxy* proxy;
+@property (nonatomic,readwrite,retain) TiUITableViewRowProxy* proxy;
 
 -(id)initWithStyle:(UITableViewCellStyle)style_ reuseIdentifier:(NSString *)reuseIdentifier_ row:(TiUITableViewRowProxy*)row_;
 
@@ -39,16 +39,16 @@
 
 @end
 
-@interface TiUITableView : TiUIView<UISearchDisplayDelegate,UIScrollViewDelegate,UITableViewDelegate,UITableViewDataSource,UISearchBarDelegate,TiUIScrollView> {
+@interface TiUITableView : TiUIView<UISearchDisplayDelegate,UIScrollViewDelegate,UITableViewDelegate,UITableViewDataSource,UISearchBarDelegate,TiScrolling,TiProxyObserver> {
 @private
 	UITableView *tableview;
 	BOOL moving;
 	BOOL editing;
 	BOOL searchHidden;
+    BOOL hideOnSearch; // For backcompat, default 'true'
+    BOOL animateHide;
 	BOOL editable;
 	BOOL moveable;
-	BOOL initiallyDisplayed;
-	NSIndexPath *initialSelection;
 	NSMutableArray * sectionIndex;
 	NSMutableDictionary * sectionIndexMap;
 	TiDimension rowHeight;
@@ -61,13 +61,15 @@
 	NSString * filterAttribute;
 	NSString * searchString;
 	NSMutableArray * searchResultIndexes;
+    BOOL searchActivated;
 	BOOL filterCaseInsensitive;
 	BOOL allowsSelectionSet;
 	id	lastFocusedView; //DOES NOT RETAIN.	
 	UITableViewController *tableController;
 	UISearchDisplayController *searchController;
-	BOOL searchHiddenSet;
 	NSInteger frameChanges;
+    TiViewProxy* headerViewProxy;
+    TiViewProxy* footerViewProxy;
 }
 
 #pragma mark Framework
@@ -84,6 +86,11 @@
 -(IBAction)hideSearchScreen:(id)sender;
 -(UITableView*)tableView;
 -(CGFloat)tableRowHeight:(CGFloat)height;
+
+#pragma Private
+-(void)selectRow:(id)args;
+-(void)deselectRow:(id)args;
+
 
 @end
 

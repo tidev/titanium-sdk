@@ -115,13 +115,14 @@
 	return (id)[NSNull null];
 }
 
+// See comment in TiNetworkHTTPClientProxy about case-correction pre-iOS 5
 -(id)getResponseHeader:(id)args
 {
+    ENSURE_SINGLE_ARG(args, NSString);
+    
 	id result = [delegate getResponseHeader:args];
 	if (result == nil) {
-		id key = [args objectAtIndex:0];
-		ENSURE_TYPE(key,NSString);
-		result = [responseHeaders objectForKey:key];
+        return [TiUtils getResponseHeader:args fromHeaders:responseHeaders];
 	}
 	return result;
 }

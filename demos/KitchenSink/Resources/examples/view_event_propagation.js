@@ -60,24 +60,28 @@ win.addEventListener('click',function(ev)
 a.addEventListener('click',function(ev)
 {
 	l.text = "view: You clicked on " +ev.source.name;
+	Ti.API.info('Clicked: '+ev.source.name);
 	clear(l);
 });
 
 b.addEventListener('click',function(ev)
 {
 	l.text = "view: You clicked on " +ev.source.name;
+	Ti.API.info('Clicked: '+ev.source.name);	
 	clear(l);
 });
 
 c.addEventListener('click',function(ev)
 {
 	l.text = "view: You clicked on " +ev.source.name;
+	Ti.API.info('Clicked: '+ev.source.name);	
 	clear(l);
 });
 
 d.addEventListener('click',function(ev)
 {
 	l.text = "view: You clicked on " +ev.source.name;
+	Ti.API.info('Clicked: '+ev.source.name);	
 	clear(l);
 });
 

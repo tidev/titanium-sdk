@@ -35,7 +35,8 @@ function showRequestResult(e) {
 }
 
 var login = Titanium.Facebook.createLoginButton({
-	top: 10, style:'wide'
+	top: 10,
+	style: Ti.Facebook.BUTTON_STYLE_WIDE
 });
 win.add(login);
 

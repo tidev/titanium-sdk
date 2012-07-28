@@ -1,24 +1,121 @@
 ---
 name: Titanium.UI.iPhone.StatusBar
-description: A set of constants for the status bar style.
+summary: A set of constants for the status bar style.
 extends: Titanium.Proxy
 since: "0.9"
 platforms: [iphone, ipad]
 createable: false
+
 properties:
+  - name: ANIMATION_STYLE_NONE
+    summary: No animation style, when the status bar is hidden or shown.
+    description: |
+        Used with the <Titanium.UI.iPhone.showStatusBar> and <Titanium.UI.iPhone.hideStatusBar> 
+        methods.
+        
+        One of the group of status bar animation style constants 
+        [ANIMATION_STYLE_NONE](Titanium.UI.iPhone.StatusBar.ANIMATION_STYLE_NONE), 
+        [ANIMATION_STYLE_SLIDE](Titanium.UI.iPhone.StatusBar.ANIMATION_STYLE_SLIDE), 
+        and [ANIMATION_STYLE_FADE](Titanium.UI.iPhone.StatusBar.ANIMATION_STYLE_FADE).
+    type: Number
+    permission: read-only
+
+  - name: ANIMATION_STYLE_SLIDE
+    summary: Slide animation style, when the status bar is hidden or shown.
+    description: |
+        Used with the <Titanium.UI.iPhone.showStatusBar> and <Titanium.UI.iPhone.hideStatusBar> 
+        methods.
+        
+        One of the group of status bar animation style constants 
+        [ANIMATION_STYLE_NONE](Titanium.UI.iPhone.StatusBar.ANIMATION_STYLE_NONE), 
+        [ANIMATION_STYLE_SLIDE](Titanium.UI.iPhone.StatusBar.ANIMATION_STYLE_SLIDE), 
+        and [ANIMATION_STYLE_FADE](Titanium.UI.iPhone.StatusBar.ANIMATION_STYLE_FADE).
+    type: Number
+    permission: read-only
+
+  - name: ANIMATION_STYLE_FADE
+    summary: Fade animation style, when the status bar is hidden or shown.
+    description: |
+        Used with the <Titanium.UI.iPhone.showStatusBar> and <Titanium.UI.iPhone.hideStatusBar> 
+        methods.
+        
+        One of the group of status bar animation style constants 
+        [ANIMATION_STYLE_NONE](Titanium.UI.iPhone.StatusBar.ANIMATION_STYLE_NONE), 
+        [ANIMATION_STYLE_SLIDE](Titanium.UI.iPhone.StatusBar.ANIMATION_STYLE_SLIDE), 
+        and [ANIMATION_STYLE_FADE](Titanium.UI.iPhone.StatusBar.ANIMATION_STYLE_FADE).
+    type: Number
+    permission: read-only
+    
   - name: DEFAULT
-    description: The default status bar style
+    summary: Default status bar style.
+    description: |
+        Used with the <Titanium.UI.iPhone.statusBarStyle> property.
+        
+        One of the group of status bar style constants 
+        [DEFAULT](Titanium.UI.iPhone.StatusBar.DEFAULT), 
+        [GRAY](Titanium.UI.iPhone.StatusBar.GRAY), 
+        [GREY](Titanium.UI.iPhone.StatusBar.GREY), 
+        [OPAQUE_BLACK](Titanium.UI.iPhone.StatusBar.OPAQUE_BLACK), 
+        and [TRANSLUCENT_BLACK](Titanium.UI.iPhone.StatusBar.TRANSLUCENT_BLACK).
     type: Number
     permission: read-only
+    
   - name: GRAY
-    description: The gray colored status bar style
+    summary: Gray-colored status bar style.
+    description: |
+        Used with the <Titanium.UI.iPhone.statusBarStyle> property.
+        
+        One of the group of status bar style constants 
+        [DEFAULT](Titanium.UI.iPhone.StatusBar.DEFAULT), 
+        [GRAY](Titanium.UI.iPhone.StatusBar.GRAY), 
+        [GREY](Titanium.UI.iPhone.StatusBar.GREY), 
+        [OPAQUE_BLACK](Titanium.UI.iPhone.StatusBar.OPAQUE_BLACK), 
+        and [TRANSLUCENT_BLACK](Titanium.UI.iPhone.StatusBar.TRANSLUCENT_BLACK).
     type: Number
     permission: read-only
+
+  - name: GREY
+    summary: Gray-colored status bar style.
+    description: |
+        Alias for [GRAY](Titanium.UI.iPhone.StatusBar.GRAY).
+        
+        Used with the <Titanium.UI.iPhone.statusBarStyle> property.
+        
+        One of the group of status bar style constants 
+        [DEFAULT](Titanium.UI.iPhone.StatusBar.DEFAULT), 
+        [GRAY](Titanium.UI.iPhone.StatusBar.GRAY), 
+        [GREY](Titanium.UI.iPhone.StatusBar.GREY), 
+        [OPAQUE_BLACK](Titanium.UI.iPhone.StatusBar.OPAQUE_BLACK), 
+        and [TRANSLUCENT_BLACK](Titanium.UI.iPhone.StatusBar.TRANSLUCENT_BLACK).
+    type: Number
+    permission: read-only
+
   - name: OPAQUE_BLACK
-    description: The opaque black status bar style.
+    summary: Opaque black-colored status bar style.
+    description: |
+        Used with the <Titanium.UI.iPhone.statusBarStyle> property.
+        
+        One of the group of status bar style constants 
+        [DEFAULT](Titanium.UI.iPhone.StatusBar.DEFAULT), 
+        [GRAY](Titanium.UI.iPhone.StatusBar.GRAY), 
+        [GREY](Titanium.UI.iPhone.StatusBar.GREY), 
+        [OPAQUE_BLACK](Titanium.UI.iPhone.StatusBar.OPAQUE_BLACK), 
+        and [TRANSLUCENT_BLACK](Titanium.UI.iPhone.StatusBar.TRANSLUCENT_BLACK).
     type: Number
     permission: read-only
+    
   - name: TRANSLUCENT_BLACK
-    description: The translucent black status bar style. This style provides some level of transparency to the device background.
+    summary: |
+        Translucent black-colored status bar style, which provides some degree of transparency to 
+        the device background.
+    description: |
+        Used with the <Titanium.UI.iPhone.statusBarStyle> property.
+        
+        One of the group of status bar style constants 
+        [DEFAULT](Titanium.UI.iPhone.StatusBar.DEFAULT), 
+        [GRAY](Titanium.UI.iPhone.StatusBar.GRAY), 
+        [GREY](Titanium.UI.iPhone.StatusBar.GREY), 
+        [OPAQUE_BLACK](Titanium.UI.iPhone.StatusBar.OPAQUE_BLACK), 
+        and [TRANSLUCENT_BLACK](Titanium.UI.iPhone.StatusBar.TRANSLUCENT_BLACK).
     type: Number
     permission: read-only

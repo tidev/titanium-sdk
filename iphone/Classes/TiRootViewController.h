@@ -8,6 +8,9 @@
 #import "TiRootController.h"
 #import "TiWindowProxy.h"
 
+/**
+ The class represent root controller in a view hierarchy.
+ */
 @interface TiRootViewController : UIViewController<UIApplicationDelegate,TiRootController,TiOrientationController> {
 @private
 //Presentation: background image and color.
@@ -31,10 +34,10 @@
 	
 //Orientation handling:
 	TiOrientationFlags	allowedOrientations;
-	UIInterfaceOrientation orientationHistory[4];
-
-	UIInterfaceOrientation lastOrientation;
-	UIInterfaceOrientation windowOrientation;
+	UIInterfaceOrientation orientationHistory[4]; // Physical device orientation history
+    BOOL forceOrientation; // Force orientation flag
+    
+	UIInterfaceOrientation windowOrientation; // Current emulated orientation
 
 	BOOL isCurrentlyVisible;
 
@@ -55,27 +58,102 @@
 	CGFloat leaveDuration;
 }
 
+/**
+ Returns visibility of on-screen keyboard.
+ */
 @property(nonatomic,readonly) BOOL keyboardVisible;
+
+/*
+ Returns image view being displayed while application's view is loading.
+ */
 @property(nonatomic,readonly) UIImageView * defaultImageView;
+
+/**
+ Returns current window orientation.
+ */
+@property(nonatomic,readonly) UIInterfaceOrientation windowOrientation;
+
+/*
+ Tells the controller to hides and release the default image view.
+ @see defaultImageView
+ */
 -(void)dismissDefaultImageView;
 
+/*
+ Provides access to background color of the view represented by the root view controller.
+ @see backgroundImage
+ */
 @property(nonatomic,readwrite,retain)	UIColor * backgroundColor;
+
+/*
+ Provides access to background image of the view represented by the root view controller.
+ @see backgroundColor
+ */
 @property(nonatomic,readwrite,retain)	UIImage * backgroundImage;
 
+/**
+ Returns currently focused view controller.
+ @return Focused view controller.
+ */
 -(UIViewController *)focusedViewController;
 
 -(void)windowFocused:(UIViewController*)focusedViewController;
 -(void)windowClosed:(UIViewController *)closedViewController;
 
+/**
+ Tells the controller to resize its view to the size of main screen.
+ @return The bounds of the view after resize. 
+ */
 -(CGRect)resizeView;
+
+/**
+ Tells the controller to resize its view to the size of main screen adjusted according to visibility of status bar.
+ @return The bounds of the view after resize. 
+ */
+-(CGRect)resizeViewForStatusBarHidden;
+
+/**
+ Tells the controller to reposition all its subviews.
+ */
 -(void)repositionSubviews;
 
--(void)manuallyRotateToOrientation:(UIInterfaceOrientation)orientation;
+-(void)refreshOrientationWithDuration:(NSTimeInterval) duration;
+-(NSTimeInterval)suggestedRotationDuration;
+
+/**
+ Tells the controller to rotate to the specified orientation.
+ @param newOrientation The new orientation.
+ @param duration The rotation animation duration.
+ */
 -(void)manuallyRotateToOrientation:(UIInterfaceOrientation)newOrientation duration:(NSTimeInterval)duration;
 
--(void)setOrientationModes:(NSArray *)newOrientationModes;
+-(UIInterfaceOrientation)lastValidOrientation;
 
+/**
+ Tells the controller to open the specified window proxy.
+ @param window The window proxy to open.
+ @param args Reserved for future use. 
+ */
 - (void)openWindow:(TiWindowProxy *)window withObject:(id)args;
+
+/**
+ Tells the controller to close the specified window proxy.
+ @param window The window proxy to close.
+ @param args Reserved for future use. 
+ */
 - (void)closeWindow:(TiWindowProxy *)window withObject:(id)args;
+
+@end
+
+@interface TiRootViewController (unsupported_internal)
+/*
+ *	Methods declarations stored or moved in this category are NOT to be used
+ *	by modules, as these methods can be added or removed from Titanium as
+ *	needed, and have not been vetted for long-term use. This category itself
+ *	may be moved to a private header later on, even.
+ */
+
+-(void)dismissKeyboard;
+@property(nonatomic,readonly) TiViewProxy<TiKeyboardFocusableView> * keyboardFocusedProxy;
 
 @end

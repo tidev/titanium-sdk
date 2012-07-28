@@ -4,6 +4,12 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
+
+// TODO: Migrate to GCD sockets (GCDAsyncSocket). This will resolve a number of really ugly issues:
+// * Lower thread counts
+// * Explicit synchronization (no more conditions, flags, or race conditons!)
+// * Maybe even synchronize with the context itself (when TIMOB-6990 complete)
+
 #ifdef USE_TI_NETWORKSOCKET
 #import <Foundation/Foundation.h>
 #import "TiStreamProxy.h"
@@ -17,7 +23,7 @@ typedef enum {
     TO_CALLBACK,
 } ReadDestination;
 
-@interface TiNetworkSocketTCPProxy : TiStreamProxy<AsyncSocketDelegate, TiStreamInternal> {
+@interface TiNetworkSocketTCPProxy : TiStreamProxy<TI_AsyncSocketDelegate, TiStreamInternal> {
     AsyncSocket* socket;
     SocketState internalState;
     NSCondition* listening;

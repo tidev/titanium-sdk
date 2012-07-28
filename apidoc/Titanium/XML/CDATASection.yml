@@ -1,0 +1,13 @@
+---
+name: Titanium.XML.CDATASection
+extends: Titanium.XML.Text
+summary: |
+    Used to include blocks of literal text containing characters that would otherwise need
+    to be escaped.
+description: |
+    Implements the [DOM Level 2 API](http://www.w3.org/TR/DOM-Level-2-Core/core.html#ID-667469212) on
+    Android and iOS with some non-standard extensions. Exposes the 
+    [DOM Level 3 API](http://www.w3.org/TR/DOM-Level-3-Core/core.html#ID-667469212) implementation on Mobile Web. On Mobile
+    Web, there is no Titanium.XML.CDATASection object. A string object containing the data is used directly instead.
+createable: false
+platforms: [android, iphone, ipad, mobileweb]

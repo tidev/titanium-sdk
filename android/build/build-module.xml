@@ -22,7 +22,7 @@ A convenience wrapper script that standalone modules can import
 				<classpath refid="dependencies"/>
 			</extra.javac.classpath>
 		</build.module.project>
-		<jar destfile="${dist.dir}/titanium-${ant.project.name}.jar" basedir="${basedir}/bin"/>
+		<jar destfile="${dist.dir}/titanium-${ant.project.name}.jar" basedir="${dist.dir}/titanium-${ant.project.name}"/>
 	</target>
 	
 	<target name="build.annotations">

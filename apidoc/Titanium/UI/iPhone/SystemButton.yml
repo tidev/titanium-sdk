@@ -1,112 +1,224 @@
 ---
 name: Titanium.UI.iPhone.SystemButton
-description: A set of constants for the system button style for buttons.
+summary: A set of constants for creating standard iOS system buttons.
+description: |
+    Most of these constants are used with the
+    [Button.systemButton](Titanium.UI.Button.systemButton) property to define a standard
+    iOS system buttons for use in navigation bars and toolbars. 
+    
+    See <Titanium.UI.Button> for more information on the `systemButton` property, including details
+    on where system buttons can be used.
+
+    A few of these constants are used with [Button.style](Titanium.UI.Button.style) to
+    create standard iOS buttons that can be used in other places, including table view rows.
+    These standard button types are:
+
+    * [CONTACT_ADD](Titanium.UI.iPhone.SystemButton.CONTACT_ADD)
+    * [DISCLOSURE](Titanium.UI.iPhone.SystemButton.DISCLOSURE)
+    * [INFO_DARK](Titanium.UI.iPhone.SystemButton.INFO_DARK)
+    * [INFO_LIGHT](Titanium.UI.iPhone.SystemButton.INFO_LIGHT)
+
+    See Apple's 
+    [iOS Human Interface Guidelines](https://developer.apple.com/library/ios/#documentation/UserExperience/Conceptual/MobileHIG/Introduction/Introduction.html) 
+    in the iOS Developer Library for details on the proper usage of iOS standard buttons
+    and icons.
 extends: Titanium.Proxy
 since: "0.8"
 platforms: [iphone, ipad]
 createable: false
+
 properties:
   - name: ACTION
-    description: action icon. Usable in nav bars and toolbars only.
+    summary: Use with [Button.systemButton](Titanium.UI.Button.systemButton) to specify an **Action** button. 
+    description: |
+        The resulting button can only be used in navigation bars and toolbars.
     type: Number
     permission: read-only
+    
   - name: ACTIVITY
-    description: special style that shows an activity indicator. when visible, the activity indicator is already started.
+    summary: |
+        Use with [Button.systemButton](Titanium.UI.Button.systemButton) to create an activity indicator that
+        can be used in navigation bars and toolbars. 
+    description: |
+        When visible, the activity indicator is already started.
     type: Number
     permission: read-only
+    
   - name: ADD
-    description: add icon. Usable in nav bars and toolbars only.
+    summary: Use with [Button.systemButton](Titanium.UI.Button.systemButton) to specify an **Add** button. 
+    description: |
+        The resulting button can only be used in navigation bars and toolbars.
     type: Number
     permission: read-only
+    
   - name: BOOKMARKS
-    description: bookmarks icon. Usable in nav bars and toolbars only.
+    summary: Use with [Button.systemButton](Titanium.UI.Button.systemButton) to specify a **Bookmarks** button. 
+    description: |
+        The resulting button can only be used in navigation bars and toolbars.
     type: Number
     permission: read-only
+    
   - name: CAMERA
-    description: camera icon. Usable in nav bars and toolbars only.
+    summary: Use with [Button.systemButton](Titanium.UI.Button.systemButton) to specify a **Camera** button. 
+    description: |
+        The resulting button can only be used in navigation bars and toolbars.
     type: Number
     permission: read-only
+    
   - name: CANCEL
-    description: cancel icon. localized. Usable in nav bars and toolbars only.
+    summary: Use with [Button.systemButton](Titanium.UI.Button.systemButton) to specify a **Cancel** button. 
+    description: |
+        This button is displayed as a bordered button with localized text.
+
+        The resulting button can only be used in navigation bars and toolbars.
     type: Number
     permission: read-only
+    
   - name: COMPOSE
-    description: compose icon. Usable in nav bars and toolbars only.
+    summary: Use with [Button.systemButton](Titanium.UI.Button.systemButton) to specify a **Compose** button. 
+    description: |
+        The resulting button can only be used in navigation bars and toolbars.
     type: Number
     permission: read-only
+    
   - name: CONTACT_ADD
-    description: green style plus (+) icon
+    summary: Use with [Button.style](Titanium.UI.Button.style) to specify a **ContactAdd** button. 
+    description: |
+        The resulting button is not restricted to use in navigation bars and toolbars.   
     type: Number
     permission: read-only
+    
   - name: DISCLOSURE
-    description: disclosure style icon
+    summary: Use with [Button.style](Titanium.UI.Button.style) to specify a **Disclosure** button. 
+    description: |
+        The resulting button is not restricted to use in navigation bars and toolbars.
     type: Number
     permission: read-only
+
   - name: DONE
-    description: done icon. localized. Usable in nav bars and toolbars only.
+    summary: Use with [Button.systemButton](Titanium.UI.Button.systemButton) to specify a **Done** button. 
+    description: |
+        This button is displayed as a bordered button with localized text.
+
+        The resulting button can only be used in navigation bars and toolbars.
     type: Number
     permission: read-only
+    
   - name: EDIT
-    description: edit icon. localized. Usable in nav bars and toolbars only.
+    summary: Use with [Button.systemButton](Titanium.UI.Button.systemButton) to specify an **Edit** button. 
+    description: |
+        This button is displayed as a bordered button with localized text.
+
+        The resulting button can only be used in navigation bars and toolbars.
     type: Number
     permission: read-only
+    
   - name: FAST_FORWARD
-    description: fast forward icon. Usable in nav bars and toolbars only.
+    summary: Use with [Button.systemButton](Titanium.UI.Button.systemButton) to specify a **Fast Forward** button. 
+    description: |
+        The resulting button can only be used in navigation bars and toolbars.
     type: Number
     permission: read-only
+    
   - name: FIXED_SPACE
-    description: Blank space to add between other items. Only the `width` property is used when this value is set.
+    summary: |
+        Use with [Button.systemButton](Titanium.UI.Button.systemButton) to create a fixed-width blank space 
+        for spacing items in toolbars.
+    description: |
+        Only the `width` property is used when this value is set.
     type: Number
     permission: read-only
+    
   - name: FLEXIBLE_SPACE
-    description: Blank space to add between other items. The space is distributed equally between the other items. Other item properties are ignored when this value is set.
+    summary: |
+        Use with [Button.systemButton](Titanium.UI.Button.systemButton) to create a flexible blank space 
+        for spacing items in toolbars.
+    description: |
+        The space is distributed equally between the other 
+        items. Other item properties are ignored when this value is set.
     type: Number
     permission: read-only
+    
   - name: INFO_DARK
-    description: a dark style info circle icon
+    summary: Use with [Button.style](Titanium.UI.Button.style) to specify a dark-colored **Info** button. 
+    description: |
+        The resulting button is not restricted to use in navigation bars and toolbars.   
     type: Number
     permission: read-only
+    
   - name: INFO_LIGHT
-    description: a light style info circle icon
+    summary: Use with [Button.style](Titanium.UI.Button.style) to specify a light-colored **Info** button. 
+    description: |
+        The resulting button is not restricted to use in navigation bars and toolbars.   
     type: Number
     permission: read-only
+    
   - name: ORGANIZE
-    description: organize icon. Usable in nav bars and toolbars only.
+    summary: Use with [Button.systemButton](Titanium.UI.Button.systemButton) to specify an **Organize** button. 
+    description: |
+        The resulting button can only be used in navigation bars and toolbars.
     type: Number
     permission: read-only
+    
   - name: PAUSE
-    description: pause icon. Usable in nav bars and toolbars only.
+    summary: Use with [Button.systemButton](Titanium.UI.Button.systemButton) to specify a **Pause** button. 
+    description: |
+        The resulting button can only be used in navigation bars and toolbars.
     type: Number
     permission: read-only
+    
   - name: PLAY
-    description: play icon. Usable in nav bars and toolbars only.
+    summary: Use with [Button.systemButton](Titanium.UI.Button.systemButton) to specify a **Play** button. 
+    description: |
+        The resulting button can only be used in navigation bars and toolbars.
     type: Number
     permission: read-only
+    
   - name: REFRESH
-    description: refresh icon. Usable in nav bars and toolbars only.
+    summary: Use with [Button.systemButton](Titanium.UI.Button.systemButton) to specify a **Refresh** button. 
+    description: |
+        The resulting button can only be used in navigation bars and toolbars.
     type: Number
     permission: read-only
+    
   - name: REPLY
-    description: reply icon. Usable in nav bars and toolbars only.
+    summary: Use with [Button.systemButton](Titanium.UI.Button.systemButton) to specify a **Reply** button. 
+    description: |
+        The resulting button can only be used in navigation bars and toolbars.
     type: Number
     permission: read-only
+    
   - name: REWIND
-    description: rewind icon. Usable in nav bars and toolbars only.
+    summary: Use with [Button.systemButton](Titanium.UI.Button.systemButton) to specify a **Rewind** button. 
+    description: |
+        The resulting button can only be used in navigation bars and toolbars.
     type: Number
     permission: read-only
+    
   - name: SAVE
-    description: save icon. localized. Usable in nav bars and toolbars only.
+    summary: Use with [Button.systemButton](Titanium.UI.Button.systemButton) to specify a **Save** button. 
+    description: |
+        This button is displayed as a bordered button with localized text.
+
+        The resulting button can only be used in navigation bars and toolbars.
     type: Number
     permission: read-only
+    
   - name: SPINNER
-    description: same as ACTIVITY
+    summary: Identical to [ACTIVITY](Titanium.UI.iPhone.SystemButton.ACTIVITY).
     type: Number
     permission: read-only
+    
   - name: STOP
-    description: stop icon. Usable in nav bars and toolbars only.
+    summary: Use with [Button.systemButton](Titanium.UI.Button.systemButton) to specify a **Stop** button. 
+    description: |
+        The resulting button can only be used in navigation bars and toolbars.
     type: Number
     permission: read-only
+    
   - name: TRASH
-    description: trash icon. Usable in nav bars and toolbars only.
+    summary: Use with [Button.systemButton](Titanium.UI.Button.systemButton) to specify a **Trash** button. 
+    description: |
+        The resulting button can only be used in navigation bars and toolbars.
     type: Number
     permission: read-only

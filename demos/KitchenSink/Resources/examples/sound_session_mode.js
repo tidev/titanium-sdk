@@ -13,7 +13,7 @@ var modeArray = [
 	{mode:Ti.Media.AUDIO_SESSION_MODE_PLAY_AND_RECORD,desc:'Play and Record Mode'}
 ];
 
-var audio = Ti.Media.createAudioPlayer({url:'http://202.6.74.107:8060/triplej.mp3'});
+var audio = Ti.Media.createAudioPlayer({url:'http://sc1.abacast.com:8240'});
 var sound = Titanium.Media.createSound({url:'../cricket.wav'});
 
 var startAudio = Titanium.UI.createButton({

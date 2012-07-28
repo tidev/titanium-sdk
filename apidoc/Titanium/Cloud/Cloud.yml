@@ -1,0 +1,140 @@
+---
+name: Titanium.Cloud
+summary: The top level Cloud module.
+description: |
+    Appcelerator Cloud Services (ACS) provides a wide array of automatically-scaled data storage 
+    and web services, such as user logins, photo uploads, checkins, status updates, and push 
+    notifications, without the need to learn multiple third-party SDKs or do any 
+    server-side programming. Remote calls to ACS are done via a single 
+    [REST API](http://cloud.appcelerator.com/docs/docmenu_info), which may be used with almost any 
+    web technology that has access to an HTTP client.
+    
+    The `Titanium.Cloud` module makes accessing ACS as simple as using any of Titanium's other APIs, 
+    due to its familiar and intuitive API schema. 
+    
+    For a more detailed overview of ACS and how to configure an application to use it, refer to the 
+    [Integrating with Appcelerator Cloud Services](http://docs.appcelerator.com/titanium/2.0/#!/guide/Integrating_with_Appcelerator_Cloud_Services) 
+    and [ACS Quickstart](http://cloud.appcelerator.com/docs/quickstart) guides. 
+    
+    #### Beta ACS APIs
+    
+    Be aware that ACS APIs that are in pre-release form (marked "Beta" in the 
+    [ACS documentation](http://cloud.appcelerator.com/docs/docmenu_info)) may be subject to change. 
+    During this period, while they are not supported directly by the Titanium.Cloud module, 
+    they may be accessed using the REST API. 
+    
+    #### Using the Titanium.Cloud Module
+    
+    This module is not included in the Titanium namespace, but it is bundled with the 
+    Titanium SDK as of version 2.0.0. To use it, it must be registered like this: 
+    
+        var Cloud = require('ti.cloud');
+    
+    Your app must prove that it is allowed to talk to ACS. This keeps your data secure by 
+    preventing anyone from making requests to ACS that impersonate your app. ACS provides secure 
+    authentication via 2-Legged OAuth. This is a process by which a key and secret are used to sign 
+    each request made by your app. When the ACS server receives your request, the secret is used 
+    along with the data sent in the request to calculate another signature. If sent signature and 
+    calculated signature match, the request will be processed. 
+    
+    An alternate method to authenticate API requests to ACS is to supply an app key with each 
+    request. 
+    
+    Titanium Studio will create a pair of keys (Development and Production) for each Titanium 
+    application depending on the user preference specified during new project creation. This pair 
+    of keys will be stored in `tiapp.xml` and one of the keys will be used during application build 
+    depending on the build type (development or production). 
+    
+    The supported properties in `tiapp.xml` are: 
+    
+        <property name="acs-api-key-development" type="string">YOUR DEVELOPMENT API KEY HERE</property>
+        <property name="acs-oauth-key-development" type="string">YOUR DEVELOPMENT OAUTH KEY HERE</property>
+        <property name="acs-oauth-secret-development" type="string">YOUR DEVELOPMENT OAUTH SECRET HERE</property>
+        
+        <property name="acs-api-key-production" type="string">YOUR PRODUCTION API KEY HERE</property>
+        <property name="acs-oauth-key-production" type="string">YOUR PRODUCTION OAUTH KEY HERE</property>
+        <property name="acs-oauth-secret-production" type="string">YOUR PRODUCTION OAUTH SECRET HERE</property>
+        
+        <property name="acs-api-key" type="string">YOUR API KEY HERE</property>
+        <property name="acs-oauth-key" type="string">YOUR OAUTH KEY HERE</property>
+        <property name="acs-oauth-secret" type="string">YOUR OAUTH SECRET HERE</property><property name="acs-base-url" type="string">API URL HERE</property>
+    
+    The value for each setting that will be used is based on the following rules: 
+    
+    * OAuth is preferred over apiKey. If both the OAuth key and OAuth secret are provided then 
+      OAuth will be used; otherwise, apiKey will be used.
+    * If a deployment-specific setting is provided (production or development) then that value will 
+      be used for the current deployment environment.
+    
+    There is also an optional setting to allow you to change the base URL for ACS requests. You 
+    will most likely never need to specify this. It can be specified deployment-specific, or 
+    generic: 
+    
+        <property name="acs-base-url-development" type="string">DEVELOPMENT API URL HERE</property>
+        <property name="acs-base-url-production" type="string">PRODUCTION API URL HERE</property>
+        <property name="acs-base-url" type="string">API URL HERE</property>
+extends: Titanium.Module
+excludes: { methods: [ 'addEventListener', 'fireEvent', 'removeEventListener',  ] }
+since: "2.0"
+platforms: [android, iphone, ipad]
+
+methods:
+  - name: hasStoredSession
+    summary: Checks if there is a stored user session.
+    description: |
+        True is returned after successfully calling <Titanium.Cloud.Users.create> or 
+        <Titanium.Cloud.Users.login>, and false after successfully calling 
+        <Titanium.Cloud.Users.logout>.
+    returns:
+        type: Boolean
+        
+  - name: retrieveStoredSession
+    summary: Returns the stored user session identifier.
+    description: |
+        A value is returned after successfully calling <Titanium.Cloud.Users.create> or 
+        <Titanium.Cloud.Users.login>, and null after successfully calling 
+        <Titanium.Cloud.Users.logout>. 
+        
+        All calls made using the Cloud module automatically use this value and, thus, it only needs 
+        to be used when manually making calls to the ACS servers using <Titanium.Network.HTTPClient>. 
+    returns:
+        type: String
+
+properties:
+  - name: debug
+    summary: Indicates whether internal debug logging should be output to the console.
+    type: Boolean
+    default: false
+    
+  - name: ondatastream
+    summary: Function to be called at regular intervals as the request data is being received.
+    description: |
+        Set this property before calling any ACS method for which you want to track the transmission.
+        
+        When you are done tracking the transmission, set this to null.
+    type: Callback<CloudStreamProgress>
+    
+  - name: onsendstream
+    summary: Function to be called at regular intervals as the request data is being transmitted.
+    description: |
+        Set this property before calling any ACS method for which you want to track the transmission.
+        
+        When you are done tracking the transmission, set this to null.
+    type: Callback<CloudStreamProgress>
+    
+  - name: useSecure
+    summary: Indicates whether to use SSL when sending requests to ACS.
+    type: Boolean
+    default: true
+
+---
+name: CloudStreamProgress
+summary: Argument passed to the callback as a request is transmitted or received.
+properties:
+  - name: progress
+    summary: A value from 0.0-1.0 with the progress of the exchange.
+    type: Number
+    
+  - name: url
+    summary: The URL for the request, to help identify it.
+    type: String

@@ -1,0 +1,15 @@
+package ${packageName};
+
+import java.util.HashMap;
+
+import org.appcelerator.kroll.runtime.rhino.KrollBindings;
+
+public class ${className}
+{
+	public static void init()
+	{
+		<#list bindings as binding>
+		KrollBindings.addExternalBinding("${binding.class}", ${binding.class}Prototype.class);
+		</#list>
+	}
+}

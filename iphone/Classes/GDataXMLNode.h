@@ -124,6 +124,7 @@ typedef NSUInteger GDataXMLNodeKind;
 + (id)namespaceWithName:(NSString *)name stringValue:(NSString *)value;
 
 + (id)textWithStringValue:(NSString *)value;
++ (id)cDataSectionWithStringValue:(NSString *)value;
 
 - (NSString *)stringValue;
 - (void)setStringValue:(NSString *)str;
@@ -160,6 +161,14 @@ typedef NSUInteger GDataXMLNodeKind;
 - (void)releaseCachedValues;
 
 + (id)nodeBorrowingXMLNode:(xmlNodePtr)theXMLNode;
++ (id)nodeConsumingXMLNode:(xmlNodePtr)theXMLNode;
+//ADDITIONS FOR DOM MODULE
+- (void)setShouldFreeXMLNode:(BOOL)flag;
+
++ (id)createNewDocFragment;
++ (id)commentWithStringValue:(NSString *)value;
++ (id)processingInstructionWithTarget:(NSString *)theName andData:(NSString*)content;
++ (id)dtdWithQualifiedName:(NSString*)qName publicId:(NSString*)pubId sysId:(NSString*)sysId;
 
 @end
 
@@ -172,7 +181,7 @@ typedef NSUInteger GDataXMLNodeKind;
 - (void)setNamespaces:(NSArray *)namespaces;
 - (void)addNamespace:(GDataXMLNode *)aNamespace;
 
-- (void)addChild:(GDataXMLNode *)child;
+- (GDataXMLNode*)addChild:(GDataXMLNode *)child;
 - (void)removeChild:(GDataXMLNode *)child;
 
 - (NSArray *)elementsForName:(NSString *)name;
@@ -184,6 +193,8 @@ typedef NSUInteger GDataXMLNodeKind;
 - (void)addAttribute:(GDataXMLNode *)attribute;
 
 - (NSString *)resolvePrefixForNamespaceURI:(NSString *)namespaceURI;
+//Need to make this visible. Used in appendChild of ElementProxy
++ (void)fixUpNamespacesForNode:(xmlNodePtr)nodeToFix graftingToTreeNode:(xmlNodePtr)graftPointNode;
 
 @end
 
@@ -215,6 +226,12 @@ typedef NSUInteger GDataXMLNodeKind;
 - (NSArray *)nodesForXPath:(NSString *)xpath error:(NSError **)error;
 
 - (NSString *)description;
+
+//ADDITIONS FOR DOM MODULE
+- (id) importNode:(GDataXMLNode*)theNode recursive:(BOOL)deep;
+- (id) entityRefForName:(NSString*)theName;
+- (xmlDtdPtr) intDTD;
+- (xmlDocPtr) docNode;
 @end
 
 #endif

@@ -11,7 +11,6 @@ data+= 'Description: ' + Titanium.App.getDescription() + '\n';
 data+= 'Copyright: ' + Titanium.App.getCopyright() + '\n';
 data+= 'GUID: ' + Titanium.App.getGUID() + '\n';
 data+= 'Path: ' + Titanium.App.appURLToPath('index.html') + '\n';
-data+= 'Arguments: ' + JSON.stringify(Titanium.App.getArguments()) + '\n';
 data+= 'Build: ' + Titanium.version + '.' + Titanium.buildHash + ' (' + Titanium.buildDate + ')\n';
 
 

@@ -26,6 +26,18 @@ extern "C" {
 #define __IPHONE_4_2 40200
 #endif
 
+#ifndef __IPHONE_4_3
+#define __IPHONE_4_3 40300
+#endif
+    
+#ifndef __IPHONE_5_0
+#define __IPHONE_5_0 50000
+#endif
+    
+#ifndef __IPHONE_5_1
+#define __IPHONE_5_1 50100
+#endif
+    
 #ifdef DEBUG
 	// Kroll memory debugging
 	#define KROLLBRIDGE_MEMORY_DEBUG MEMORY_DEBUG
@@ -67,6 +79,8 @@ void TiLogMessage(NSString* str, ...);
 #define degreesToRadians(x) (M_PI * x / 180.0)
 #define radiansToDegrees(x) (x * (180.0 / M_PI))
 
+// TODO: Need to update RELEASE_TO_NIL etc. to be friendly to rememberproxy/forgetproxy for concurrent
+// memory mgt.
 #define RELEASE_TO_NIL(x) { if (x!=nil) { [x release]; x = nil; } }
 #define RELEASE_TO_NIL_AUTORELEASE(x) { if (x!=nil) { [x autorelease]; x = nil; } }
 #define RELEASE_AND_REPLACE(x,y) { [x release]; x = [y retain]; }
@@ -224,7 +238,7 @@ if (IS_NULL_OR_NIL(x))	\
 }	\
 else if (![x isKindOfClass:t])	\
 { \
-	[self throwException:TiExceptionInvalidType subreason:[NSString stringWithFormat:@"expected: %@ or nil, was: %@",[x class],t] location:CODELOCATION]; \
+	[self throwException:TiExceptionInvalidType subreason:[NSString stringWithFormat:@"expected: %@ or nil, was: %@",t, [x class]] location:CODELOCATION]; \
 }\
 
 #define ENSURE_TYPE_OR_NIL(x,t) ENSURE_CLASS_OR_NIL(x,[t class])
@@ -262,7 +276,7 @@ __typeof__(minX) __minX = (minX);	\
 __typeof__(maxX) __maxX = (maxX);	\
 if ((__x<__minX) || (__x>__maxX)) \
 { \
-[self throwException:TiExceptionRangeError subreason:[NSString stringWithFormat:@"%d was not > %d and < %d",__x,__maxX,__minX] location:CODELOCATION]; \
+[self throwException:TiExceptionRangeError subreason:[NSString stringWithFormat:@"%d was not >= %d and <= %d",__x,__maxX,__minX] location:CODELOCATION]; \
 }\
 }
 
@@ -308,10 +322,24 @@ void TiExceptionThrowWithNameAndReason(NSString * exceptionName, NSString * mess
 return [NSNumber numberWithInt:map];\
 }\
 
-#define MAKE_SYSTEM_PROP_DEPRECATED(name,map,api,in,removed,newapi) \
+#define MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(name,map,api,in,newapi) \
 -(NSNumber*)name \
 {\
-DEPRECATED_REPLACED(api,in,removed,newapi)\
+DEPRECATED_REPLACED(api,in,newapi)\
+return [NSNumber numberWithInt:map];\
+}\
+
+#define MAKE_SYSTEM_PROP_DEPRECATED_REPLACED_REMOVED(name,map,api,in,removed,newapi) \
+-(NSNumber*)name \
+{\
+DEPRECATED_REPLACED_REMOVED(api,in,removed,newapi)\
+return [NSNumber numberWithInt:map];\
+}\
+
+#define MAKE_SYSTEM_PROP_DEPRECATED_REMOVED(name,map,api,in,removed) \
+-(NSNumber*)name \
+{\
+DEPRECATED_REMOVED(api,in,removed)\
 return [NSNumber numberWithInt:map];\
 }\
 
@@ -339,12 +367,15 @@ return [NSNumber numberWithUnsignedInt:map];\
 return map;\
 }\
 
-#define DEPRECATED(api,in,removed) \
-NSLog(@"[WARN] Ti%@.%@ DEPRECATED in %@: REMOVED in %@",@"tanium",api,in,removed);
+#define DEPRECATED_REMOVED(api,in,removed) \
+DebugLog(@"[WARN] Ti%@.%@ DEPRECATED in %@: REMOVED in %@",@"tanium",api,in,removed);
     
-#define DEPRECATED_REPLACED(api,in,removed,newapi) \
-NSLog(@"[WARN] Ti%@.%@ DEPRECATED in %@, in favor of %@: REMOVED in %@",@"tanium",api,in,newapi,removed);
+#define DEPRECATED_REPLACED_REMOVED(api,in,removed,newapi) \
+DebugLog(@"[WARN] Ti%@.%@ DEPRECATED in %@, in favor of %@: REMOVED in %@",@"tanium",api,in,newapi,removed);
 
+#define DEPRECATED_REPLACED(api,in,newapi) \
+DebugLog(@"[WARN] Ti%@.%@ DEPRECATED in %@, in favor of %@.",@"tanium",api,in,newapi);
+    
 #define NUMBOOL(x) \
 [NSNumber numberWithBool:x]\
 
@@ -449,15 +480,23 @@ return value;\
 //#define VERBOSE
 
 #ifdef VERBOSE
-
 #define VerboseLog(...)	{NSLog(__VA_ARGS__);}
-
 #else
-
 #define VerboseLog(...)	{}
-
 #endif
 
+#ifdef DEVELOPER
+#define DeveloperLog(...) { NSLog(__VA_ARGS__); }
+#else
+#define DeveloperLog(...) {}
+#endif
+    
+#if defined(DEBUG) || defined(DEVELOPER)
+#define DebugLog(...) { NSLog(__VA_ARGS__); }
+#else
+#define DebugLog(...) {}
+#endif
+    
 #define VAL_OR_NSNULL(foo)	(((foo) != nil)?((id)foo):[NSNull null])
 
 
@@ -506,6 +545,7 @@ extern NSString * const kTiContextShutdownNotification;
 extern NSString * const kTiWillShutdownNotification;
 extern NSString * const kTiShutdownNotification;
 extern NSString * const kTiSuspendNotification;
+extern NSString * const kTiPausedNotification;
 extern NSString * const kTiResumeNotification;
 extern NSString * const kTiResumedNotification;
 extern NSString * const kTiAnalyticsNotification;
@@ -514,6 +554,20 @@ extern NSString * const kTiGestureShakeNotification;
 extern NSString * const kTiRemoteControlNotification;
 
 extern NSString * const kTiLocalNotification;
+    
+extern NSString* const kTiBehaviorSize;
+extern NSString* const kTiBehaviorFill;
+extern NSString* const kTiBehaviorAuto;
+extern NSString* const kTiUnitPixel;
+extern NSString* const kTiUnitCm;
+extern NSString* const kTiUnitMm;
+extern NSString* const kTiUnitInch;
+extern NSString* const kTiUnitDip;
+extern NSString* const kTiUnitDipAlternate;
+extern NSString* const kTiUnitSystem;
+extern NSString* const kTiUnitPercent;
+    
+
 
 #ifndef ASI_AUTOUPDATE_NETWORK_INDICATOR
 	#define ASI_AUTOUPDATE_NETWORK_INDICATOR 0
@@ -523,8 +577,72 @@ extern NSString * const kTiLocalNotification;
 	#define REACHABILITY_20_API 1
 #endif
 
+
+    
 #include "TiThreading.h"
+//Counter to keep track of KrollContext
+extern int krollContextCounter;
+void incrementKrollCounter();	
+void decrementKrollCounter();
+    
+/**
+ *	TiThreadPerformOnMainThread should replace all Titanium instances of
+ *	performSelectorOnMainThread, ESPECIALLY if wait is to be yes. That way,
+ *	exceptional-case main thread activities can process them outside of the
+ *	standard event loop.
+ */
 void TiThreadPerformOnMainThread(void (^mainBlock)(void),BOOL waitForFinish);
+
+/**
+ *	The one mixed blessing about blocks is that they retain+autorelease the
+ *	stack variables, and inside a method, that includes self. During a dealloc,
+ *	this may be dangerous. In order to make life easier for everyone, two
+ *	convenience functions are provided. By being a function, it removes self
+ *	from being a stack variable. It also has some optimizations.
+ */
+void TiThreadReleaseOnMainThread(id releasedObject,BOOL waitForFinish);
+void TiThreadRemoveFromSuperviewOnMainThread(UIView* view,BOOL waitForFinish);
+
+/**	
+ *	Blocks sent to TiThreadPerformOnMainThread will be processed on the main
+ *	thread. Most of the time, this is done using dispatch_async or
+ *	dispatch_sync onto the main queue as needed. However, there are some cases
+ *	where the main thread is busy inside a method and needs to process these
+ *	blocks without waiting for the method to complete. The most common example
+ *	is during app suspension, where any JS file waiting on the main thread
+ *	would not complete in time to get the 'pause' event.
+ *
+ *	In those instances, the method on the main thread may call
+ *	TiThreadProcessPendingMainThreadBlocks to process while waiting.
+ *
+ *	This function takes three arguments:
+ *	The maximum time duration to wait, called timeout.
+ *		The processing stops after this time has passed.
+ *	A boolean to stop when the queue is empty.
+ *		The processing stops if this boolean is YES and the queue is empty.
+ *	A function block to be designed/implemented at a later time. For now, use nil.
+ *
+ *	The function works processes blocks already queued up by
+ *	TiThreadPerformOnMainThread thusly:
+ *
+ *	1.	doneTime = currentTime() + timeout.
+ *	2.	Attempt to process a block first before checking to stop.
+ *	3.	continue = currentTime < doneTime.
+ *	4.	If (continue && doneWhenEmpty) continue = [queue count] > 0
+ *	5.	If (continue && ([queue count] == 0)) sleep briefly to allow background
+ *		tasks to queue up blocks.
+ *	6.	If (continue) go back to step 2.
+ *
+ *	Possible future use cases will have wrappers to make this function easier
+ *	to use, even to have a non-deadlocking means to fetch JS values from the
+ *	main thread (using the currently reserved/unused block call).
+ *
+ *	Returns: Whether or not the queue was empty upon return.
+ */
+BOOL TiThreadProcessPendingMainThreadBlocks(NSTimeInterval timeout, BOOL doneWhenEmpty, void * reserved );
+
+	
+void TiThreadInitalize();
 
 #include "TiPublicAPI.h"
 

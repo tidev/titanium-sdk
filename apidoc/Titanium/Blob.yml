@@ -1,148 +1,249 @@
 ---
 name: Titanium.Blob
-description: The blob is an abstract data type that represents binary information, often obtained through HTTPClient or via files. It often is used to store text or the actual data of an image.
+summary: A container for binary data.
+description: |
+    A `Blob` represents a chunk of binary information, often obtained through 
+    an [HTTPClient](Titanium.Network.HTTPClient) or by reading a [File](Titanium.Filesystem.File). 
+
+    Blobs are often used to store text or image data. 
+    The `Blob` object includes a number of properties and methods specific to image blobs.
+
+    Android and Mobile Web support an [append](Titanium.Blob.append) method, but
+    otherwise blobs are immutable. 
+
+    The <Titanium.Utils> module provides several utility methods for working with 
+    blobs, including methods for converting between blobs and Base64-encoded strings,
+    and methods for generating SHA-1 and SHA-256 hashes and MD5 digests from blob data.
+    
+    The [Buffer](Titanium.Buffer) object can also contain binary data, and is
+    more easily mutable. Extracting blob data to a buffer is somewhat roundabout:
+
+        var blobStream = Ti.Stream.createStream({ source: myBlob, mode: Ti.Stream.MODE_READ });
+        var newBuffer = Ti.createBuffer({ length: myBlob.length });
+        var bytes = blobStream.read(newBuffer);
+               
+    Creating a blob from a buffer is much easier:
+        
+        var newBlob = myBuffer.toBlob();
+        
+    In both cases, the conversion involves copying the data from one object to another, so 
+    you should be conscious of the amount of the data being copied.
+
 extends: Titanium.Proxy
 since: "0.9"
-platforms: [android, iphone, ipad]
+platforms: [android, iphone, ipad, mobileweb]
 createable: false
 properties:
+
+  - name: file
+    type: Titanium.Filesystem.File
+    summary: |
+        File object represented by this blob, or `null` if this blob is not
+        associated with a file.
+    permission: read-only
+
   - name: length
     type: Number
-    description: The length of this blob in bytes.
+    summary: Length of this blob in bytes.
     permission: read-only
+
   - name: text
     type: String
-    description: A UTF-8 string representation of the data in this blob. If this blob represents pure binary data, the value will be `null`.
+    summary: UTF-8 string representation of the data in this blob. 
+    description: |
+        If this blob represents pure binary data, the value will be `null`.
     permission: read-only
+
   - name: mimeType
     type: String
-    description: The mime type of this blob.
+    summary: Mime type of the data in this blob.
     permission: read-only
+
   - name: height
     type: Number
-    description: When this blob represents an image, this is the height of the image in pixels. Otherwise, this is 0.
+    summary: If this blob represents an image, this is the height of the image in pixels. 
+    description: |
+        If this blob doesn't represent an image, `height` is 0.
+
+        On Mobile Web, the `height` is not available until the image loads. It is advised 
+        to set a timeout to wait for the image to load before accessing the `height`.
+        
     permission: read-only
+
   - name: width
     type: Number
-    description: When this blob represents an image, this is the width of the image in pixels. Otherwise, this is 0.
+    summary: If this blob represents an image, this is the width of the image in pixels. 
+    description: |
+        If this blob doesn't represent an image, `height` is 0.
+
+        On Mobile Web, the `width` is not available until the image loads. It is advised to set a timeout 
+        to wait for the image to load before accessing the `width`.
     permission: read-only
+
   - name: nativePath
     type: String
-    description: When this blob represents a <Titanium.File>, this is the file URL that represents it
+    summary: |
+        If this blob represents a [File](Titanium.Filesystem.File), this is the file URL
+        that represents it.
+    description: |
+        If this blob doesn't represent a file, the value of `nativePath` is `null`. 
     permission: read-only
+
   - name: size
     type: Number
-    description: When this blob represents an image, this is the total number of pixels in the image.
+    summary: |
+        Size of the blob in pixels (for image blobs) or bytes (for all other blobs).
+    description: |
+        If this blob represents an image, this is the total number of pixels in the image.
         Otherwise it returns the number of bytes in the binary data.
-    platforms: [iphone, ipad]
+
+        On Mobile Web, always returns the number of bytes of the blob. Note that internally, 
+        binary data is stored base64 encoded and `size` represents the number of bytes before 
+        base64 encoding.
+    platforms: [iphone, ipad, mobileweb]
     permission: read-only
+
 methods:
+
   - name: toString
     returns:
         type: String
-    description: Converts this blob to a String
+    summary: Returns a string representation of this blob.
+    description: |
+        On Mobile Web, if the blob is binary, `toString` returns a base64 encoded data URI.
+
   - name: append
-    description: Appends the data from another blob to this blob.
-    platforms: [android]
+    summary: Appends the data from another blob to this blob.
+    platforms: [android, mobileweb]
     parameters:
       - name: blob
         type: Titanium.Blob
-        description: The blob to append to this blob
+        summary: Blob to append to this blob.
+
   - name: imageAsCropped
-    description: When this blob represents an image, this creates a new blob by cropping the underlying image to the specified dimensions.
+    summary: Creates a new blob by cropping the underlying image to the specified dimensions.
+    description: |
+        Returns the cropped image as a blob.
+
+        If this blob doesn't represent an image, returns `null`.
     platforms: [iphone, ipad]
     parameters:
       - name: options
-        description: imageAsCropped named options
+        summary: Image cropping options.
         type: Dictionary<ImageAsCroppedDict>
     returns:
         type: Titanium.Blob
-        description: The cropped image in a blob.
+        summary: Cropped image as a blob.
+
   - name: imageAsResized
-    description: When this blob represents an image, this creates a new blob by resizing and scaling the underlying image to the specified dimensions.
+    summary: Creates a new blob by resizing and scaling the underlying image to the specified dimensions.
+    description: |
+        Returns the resized image as a blob.
+
+        If this blob doesn't represent an image, returns `null`.
     platforms: [iphone, ipad]
     parameters:
       - name: width
         type: Number
-        description: The width to resize this image to.
+        summary: Width to resize this image to.
       - name: height
         type: Number
-        description: The height to resize this image to.
+        summary: Height to resize this image to.
     returns:
         type: Titanium.Blob
-        description: The resized image in a blob.
+        summary: Resized image as a blob.
+
   - name: imageAsThumbnail
-    description: Generate a thumbnail version of an image, optionally with a border and rounded corners
+    summary: Returns a thumbnail version of the underlying image, optionally with a border and rounded corners.
+    description: |
+        Returns the thumbnail image as a blob.
+
+        If this blob doesn't represent an image, returns `null`.
     platforms: [iphone, ipad]
     returns:
         type: Titanium.Blob
-        description: The image thumbnail in a blob.
+        summary: The image thumbnail in a blob.
     parameters:
+
       - name: size
         type: Number
-        description: The size of the thumbnail, in either width or height
+        summary: Size of the thumbnail, in either width or height.
+
       - name: borderSize
         type: Number
-        description: The width of the thumbnail's border.
+        summary: Width of the thumbnail's border.
         optional: true
         default: 1
+
       - name: cornerRadius
         type: Number
-        description: The radius of the thumbnail's corners.
+        summary: Radius of the thumbnail's corners.
         optional: true
         default: 0
+
   - name: imageWithAlpha
-    description: When this blob represents an image, this adds an alpha channel to the underlying image.
+    summary: Returns a copy of the underlying image with an added alpha channel.
+    description: |
+        Returns the new image as a blob, or `null` if this blob is not an image.
     platforms: [iphone, ipad]
     returns:
         type: Titanium.Blob
-        description: The image with an alpha channel in a blob, or `null` if this blob is not an image.
+        summary: The image with an alpha channel in a blob, or `null` if this blob is not an image.
+
   - name: imageWithRoundedCorner
-    description: When this blob represents an image, this adds a rounded corner to the underlying image.
+    summary: Returns a copy of the underlying image with rounded corners added.
+    description: |
+        Returns the new image as a blob, or `null` if this blob is not an image.
     platforms: [iphone, ipad]
     parameters:
       - name: cornerSize
         type: Number
-        description: The size of the rounded corners in pixels.
+        summary: Size of the rounded corners in pixels.
       - name: borderSize
         type: Number
-        description: The size of the border in pixels.
+        summary: Width of the border in pixels.
         optional: true
         default: 1
     returns:
         type: Titanium.Blob
-        description: The image with a rounded corner in a blob, or `null` if this blob is not an image.
+        summary: Image with a rounded corner in a blob, or `null` if this blob is not an image.
+
   - name: imageWithTransparentBorder
-    description: When this blob represents an image, this adds a transparent border to the underlying image.
+    summary: Returns a copy of the underlying image with an added transparent border.
+    description: |
+        Returns the new image as a blob, or `null` if this blob is not an image.
     platforms: [iphone, ipad]
     parameters:
       - name: size
         type: Number
-        description: The size of the transparent border.
+        summary: Width of the transparent border in pixels.
     returns:
         type: Titanium.Blob
-        description: The image with a transparent border in a blob, or `null` if this blob is not an image.
+        summary: The image with a transparent border in a blob, or `null` if this blob is not an image.
 ---
 name: ImageAsCroppedDict
-description: Options for <Titanium.Blob.imageAsCropped>
+summary: Simple object used to specify options for [imageAsCropped](Titanium.Blob.imageAsCropped).
 properties:
   - name: width
     type: Number
-    description: The width to crop this image to.
+    summary: Width to crop this image to.
     optional: true
-    default: The image width
+    default: Current image width.
+
   - name: height
     type: Number
-    description: The height to crop this image to.
+    summary: Height to crop this image to.
     optional: true
-    default: The image height
+    default: Current image height.
+
   - name: x
     type: Number
-    description: The x point within the image to crop.
+    summary: Left coordinate of the cropped rectangle within the source image.
     optional: true
-    default: The center of the cropped rectangle.
+    default: Cropped rectangle is centered horizontally on the original image.
+
   - name: y
     type: Number
-    description: The y point within the image to crop.
+    summary: Top coordinate of the cropped rectangle within the source image.
     optional: true
-    default: The middle of the cropped rectangle.
+    default: Cropped rectangle is centered vertically on the original image.

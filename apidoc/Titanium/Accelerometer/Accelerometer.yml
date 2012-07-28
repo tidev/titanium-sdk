@@ -1,41 +1,88 @@
 ---
 name: Titanium.Accelerometer
-description: The top level Accelerometer module.  The Accelerometer modules contains 
-    methods and properties for using the device accelerometer.
+summary: |
+    The top-level Accelerometer module, used to determine the device's physical position.
+description: |
+    An accelerometer is a hardware unit integrated into a mobile device, that detects when the 
+    device has moved, and returns its new orientation in a three-dimensional space. With its 
+    single `update` event, this module provides an interface to access the output positional data.
+    
+    An accelerometer needs to be switched on in order for it to report to the operating system, 
+    which consumes a lot of power that will deplete the battery over time. This is why it is 
+    recommended that the accelerometer is switched off when not in use.
+    
+    The accelerometer may be switched on and off by simply by adding and removing the `update` 
+    event listener function. See the example for a demonstration.
 extends: Titanium.Module
 since: "0.1"
+
 events:
   - name: update
-    description: fired when the accelerometer changes
+    summary: Fired when the accelerometer changes.
     properties:
       - name: timestamp
-        description: reference timestamp since the previous change. this is not a valid timestamp and should simply be used to determine the time between events and not an exact timestamp.
+        summary: |
+            Reference timestamp since the previous change. This is not a valid timestamp and should 
+            simply be used to determine the number of milliseconds between events.
+            
       - name: y
-        description: the y axis of the device
+        summary: Current `y` axis of the device.
+        
       - name: x
-        description: the x axis of the device
+        summary: Current `x` axis of the device.
+        
       - name: z
-        description: the z axis of the device
-notes: >
-    You'll want to be selective about turning on and off the device accelerometer.  It's recommended you 
-    turn off the accelerometer when you're not using it.
-    
-    You can turn off the accelerometer by simply removing your event listener function. 
-    
-        Titanium.Accelerometer.removeEventListener('update',myFunction);
+        summary: Current `z` axis of the device.
 
-    You can turn it back on by re-adding the same function with `addEventListener`.
 examples:
   - title: Basic Accelerometer Event
     example: |
-        Adds an accelerometer update event listener which prints out the x, y and z axis as the 
-        device is moved.  You should generally remove the event when not used to conserve device 
-        resources.  If you do not have an active event listener, the accelerometer is turned off to 
-        conserve device resources.
+        Adds an accelerometer update event listener, and displays the x, y and z axis in the 
+        window when the device is moved. On Android, the accelerometer is switched off and on when 
+        the application is paused and resumed.
         
-            Titanium.Accelerometer.addEventListener('update',function(e)
-            {
-                Ti.API.debug("accelerometer - x:"+e.x+",y:"+e.y+",z:"+e.z);
+            var win = Ti.UI.createWindow({
+              backgroundColor: 'white',
+              exitOnClose:true,
+              layout: 'vertical'
             });
-        
-        
+            
+            opts = {
+              color:'black',
+              font:{fontSize:20},
+              text:'-',
+              top:20, left:10,
+              width:300
+            };
+            var labelTimestamp = Ti.UI.createLabel(opts);
+            win.add(labelTimestamp);
+            var labelx = Ti.UI.createLabel(opts);
+            win.add(labelx);
+            var labely = Ti.UI.createLabel(opts);
+            win.add(labely);
+            var labelz = Ti.UI.createLabel(opts);
+            win.add(labelz);
+            win.open();
+            
+            var accelerometerCallback = function(e) {
+              labelTimestamp.text = 'timestamp: ' + e.timestamp;
+              labelx.text = 'x: ' + e.x;
+              labely.text = 'y: ' + e.y;
+              labelz.text = 'z: ' + e.z;
+            };
+            
+            if (Ti.Platform.model === 'Simulator' || Ti.Platform.model.indexOf('sdk') !== -1 ){
+              alert('Accelerometer does not work on a virtual device');
+            } else {
+              Ti.Accelerometer.addEventListener('update', accelerometerCallback);
+              if (Ti.Platform.name === 'android'){
+                Ti.Android.currentActivity.addEventListener('pause', function(e) {
+                  Ti.API.info("removing accelerometer callback on pause");
+                  Ti.Accelerometer.removeEventListener('update', accelerometerCallback);
+                });
+                Ti.Android.currentActivity.addEventListener('resume', function(e) {
+                  Ti.API.info("adding accelerometer callback on resume");
+                  Ti.Accelerometer.addEventListener('update', accelerometerCallback);
+                });
+              }
+            }

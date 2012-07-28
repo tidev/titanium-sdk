@@ -74,6 +74,7 @@
 	UInt64 processedPacketsCount;		// number of packets accumulated for bitrate estimation
 	UInt64 processedPacketsSizeTotal;	// byte size of accumulated estimation packets
 
+	double volume;
 	double seekTime;
 	BOOL seekWasRequested;
 	double requestedSeekTime;
@@ -85,7 +86,7 @@
 }
 
 @property TI_AudioStreamerErrorCode errorCode;
-@property (readonly) TI_AudioStreamerState state;
+@property (nonatomic, readonly) TI_AudioStreamerState state;
 @property (readonly) double progress;
 @property (readonly) double duration;
 @property (readwrite) UInt32 bitRate;

@@ -23,7 +23,7 @@ NSString* const DATA_IFACE = @"pdp_ip0";
 
 @implementation PlatformModule
 
-@synthesize name, model, version, architecture, macaddress, processorCount, username, ostype, availableMemory;
+@synthesize name, model, version, architecture, processorCount, username, ostype, availableMemory;
 
 #pragma mark Internal
 
@@ -48,8 +48,6 @@ NSString* const DATA_IFACE = @"pdp_ip0";
 			// iphone is a constant for Ti.Platform.osname
 			[self replaceValue:@"iphone" forKey:@"osname" notification:NO]; 
 		}
-		
-		macaddress = [[TiUtils uniqueIdentifier] retain];
 		
 		NSString *themodel = [theDevice model];
 		
@@ -84,11 +82,17 @@ NSString* const DATA_IFACE = @"pdp_ip0";
 		{
 			model = [[NSString stringWithFormat:@"%@ 2",themodel] retain];
 		}
-		// detect simulator
+		// detect simulator for i386
 		else if (!strcmp(u.machine, "i386")) 
 		{
 			model = [@"Simulator" retain];
 			arch = @"i386";
+		}
+		// detect simulator for x86_64
+		else if (!strcmp(u.machine, "x86_64")) 
+		{
+			model = [@"Simulator" retain];
+			arch = @"x86_64";
 		}
 		else 
 		{
@@ -108,7 +112,6 @@ NSString* const DATA_IFACE = @"pdp_ip0";
 	RELEASE_TO_NIL(model);
 	RELEASE_TO_NIL(version);
 	RELEASE_TO_NIL(architecture);
-	RELEASE_TO_NIL(macaddress);
 	RELEASE_TO_NIL(processorCount);
 	RELEASE_TO_NIL(username);
 	RELEASE_TO_NIL(address);
@@ -181,6 +184,11 @@ NSString* const DATA_IFACE = @"pdp_ip0";
 
 #pragma mark Public APIs
 
+-(NSString*)runtime
+{
+	return @"javascriptcore";
+}
+
 -(NSString*)locale
 {
 	// this will return the locale that the user has set the phone in
@@ -190,9 +198,14 @@ NSString* const DATA_IFACE = @"pdp_ip0";
 	return [languages count] > 0 ? [languages objectAtIndex:0] : @"en";
 }
 
+-(NSString*)macaddress
+{
+    return [TiUtils appIdentifier];
+}
+
 -(id)id
 {
-	return macaddress;
+    return [TiUtils appIdentifier];
 }
 
 - (NSString *)createUUID:(id)args

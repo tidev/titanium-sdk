@@ -1,0 +1,20 @@
+---
+name: Titanium.UI.MobileWeb.TableViewSeparatorStyle
+summary: |
+    A set of constants for the style that can be used for the `separatorStyle` property of 
+    <Titanium.UI.TableView>.
+extends: Titanium.Proxy
+since: "1.8.1"
+platforms: [mobileweb]
+createable: false
+
+properties:
+  - name: NONE
+    summary: The separator cell has no distinct style.
+    type: Number
+    permission: read-only
+    
+  - name: SINGLE_LINE
+    summary: The separator cell has a single line running across its width (default.)
+    type: Number
+    permission: read-only

@@ -33,7 +33,7 @@ UIViewController * ControllerForProxy(TiViewProxy * proxy)
 
 	[[proxy view] setAutoresizingMask:UIViewAutoresizingNone];
 
-	return [[[TiViewController alloc] initWithViewProxy:proxy] autorelease];
+	return [[[TiViewController alloc] initWithViewProxy:(TiViewProxy<TiUIViewController>*)proxy] autorelease];
 }
 
 
@@ -82,6 +82,7 @@ UIViewController * ControllerForProxy(TiViewProxy * proxy)
 -(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
 {
 	[[[self controller] view] setFrame:bounds];
+    [super frameSizeChanged:frame bounds:bounds];
 }
 
 //FIXME - probably should remove this ... not sure...

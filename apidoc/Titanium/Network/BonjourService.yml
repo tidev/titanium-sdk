@@ -1,38 +1,51 @@
 ---
 name: Titanium.Network.BonjourService
-description: The BonjourService instance returned either from <Titanium.Network.createBonjourService> or via the service list from a BonjourBrowser `updatedServices` event.  This object describes a service on the network which is published by Bonjour.
+summary: Describes a service on the network which is published by Bonjour.
+description: |
+    You can obtain a `BonjourService` instance by calling <Titanium.Network.createBonjourService> 
+    or from the `service` list from a [BonjourBrowser](Titanium.Network.BonjourBrowser)  
+    `updatedServices` event.   
+
+    You can only publish Bonjour services attached to a socket which is currently listening; 
+    you cannot publish a service for a remotely connected socket.  If you stop the Bonjour 
+    service and wish to close the socket it uses, it is strongly recommended that you stop 
+    the service first.  When a window which publishes a Bonjour service is closed, you must 
+    stop the service if the associated socket is also to be closed, or if it is no longer 
+    necessary to publish.  Unlike other network operations, Bonjour service resolution and 
+    publishing is synchronous, so be aware that your code may block while resolution is going 
+    on.  In particular, you may wish to display UI elements indicating background activity 
+    before beginning resolution.
 extends: Titanium.Proxy
 since: "1.2.0"
 platforms: [iphone, ipad]
 methods:
   - name: publish
-    description: Publish a Bonjour service to the network.  Only works if isLocal is TRUE
+    summary: Publish a Bonjour service to the network.  Only works if isLocal is TRUE
     parameters:
       - name: socket
-        description: a TCPSocket object to associate with the Bonjour service.
+        summary: a TCPSocket object to associate with the Bonjour service.
         type: Object
   - name: resolve
-    description: Resolve a Bonjour service from the network.  Must be done before attempting to access the service's socket information, if a remote service.  You cannot resolve a locally published service.
+    summary: Resolve a Bonjour service from the network.  Must be done before attempting to access the service's socket information, if a remote service.  You cannot resolve a locally published service.
     parameters:
       - name: timeout
-        description: the timeout for service resolution, in seconds.  Optional, default is 120s.
+        summary: the timeout for service resolution, in seconds.  Optional, default is 120s.
         type: Number
   - name: stop
-    description: Halts publication of a service.
+    summary: Halts publication of a service.
 properties:
   - name: domain
-    description: the domain of the service
+    summary: the domain of the service
     type: String
   - name: isLocal
-    description: whether or not the service is local to the device
+    summary: whether or not the service is local to the device
     type: Boolean
   - name: name
-    description: the name of the service
+    summary: the name of the service
     type: String
   - name: socket
-    description: the TCPSocket object that is used to connect to the service
+    summary: the TCPSocket object that is used to connect to the service
     type: Object
   - name: type
-    description: the type of the service
+    summary: the type of the service
     type: String
-notes: You can only publish Bonjour services attached to a socket which is currently listening; you cannot publish a service for a remotely connected socket.  If you stop the Bonjour service and wish to close the socket it uses, it is strongly recommended that you stop the service first.  When a window which publishes a Bonjour service is closed, you must stop the service if the associated socket is also to be closed, or if it is no longer necessary to publish.  Unlike other network operations, Bonjour service resolution and publishing is synchronous, so be aware that your code may block while resolution is going on.  In particular, you may wish to display UI elements indicating background activity before beginning resolution.

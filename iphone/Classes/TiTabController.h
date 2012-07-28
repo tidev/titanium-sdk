@@ -5,8 +5,14 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
+/**
+ The protocol for tab controller.
+ */
 @protocol TiTabController
 
+/**
+ Returns the window associated with the tab controller.
+ */
 -(id)window;
 
 @end

@@ -57,16 +57,31 @@ DEFINE_EXCEPTIONS
 	return -1;
 }
 
+-(void)layoutSubviews
+{
+	[super layoutSubviews];
+	UIView *view = [self tabController].view;
+	[view setTransform:CGAffineTransformIdentity];
+	[view setFrame:[self bounds]];
+}
+
 #pragma mark Dispatching focus change
 
 - (void)handleWillShowTab:(TiUITabProxy *)newFocus
 {
-	[focused handleWillBlur];
-	[newFocus handleWillFocus];
+    if (focused != newFocus) {
+        [focused handleWillBlur];
+        [newFocus handleWillFocus];
+    }
 }
 
 - (void)handleDidShowTab:(TiUITabProxy *)newFocus
 {
+    // Do nothing if no tabs are being focused or blurred (or the window is opening)
+    if ((focused == nil && newFocus == nil) || (focused == newFocus)) {
+        return;
+    }
+    
 	NSMutableDictionary * event = [NSMutableDictionary dictionaryWithCapacity:4];
 
 	NSArray * tabArray = [controller viewControllers];
@@ -98,7 +113,10 @@ DEFINE_EXCEPTIONS
 	[self.proxy replaceValue:focused forKey:@"activeTab" notification:NO];
     [focused replaceValue:[NSNumber numberWithBool:YES] forKey:@"active" notification:NO];
 
-	[self.proxy fireEvent:@"focus" withObject:event];
+    // If we're in the middle of opening, the focus happens once the tabgroup is opened
+    if (![(TiWindowProxy*)[self proxy] opening]) {
+        [self.proxy fireEvent:@"focus" withObject:event];
+    }
 	[focused handleDidFocus:event];
 }
 
@@ -275,6 +293,20 @@ DEFINE_EXCEPTIONS
 	}
 }
 
+-(void)setTabsBackgroundColor_:(id)value
+{
+    if ([TiUtils isIOS5OrGreater]) {
+        TiColor* color = [TiUtils colorValue:value];
+        if (color != nil) {
+            controller.tabBar.tintColor = color.color;
+        }
+
+    } else {
+        NSLog(@"[WARN] tabsBackgroundColor is only supported in iOS 5 or above.");
+    }
+
+
+}
 
 #pragma mark Public APIs
 
@@ -320,7 +352,12 @@ DEFINE_EXCEPTIONS
 			active = [[self tabController].viewControllers objectAtIndex:index];
 		}
 	}
-	
+	if (active == nil && [self tabController].viewControllers.count > 0)  {
+		active = [self tabController].selectedViewController;
+	}
+	if (active == nil)  {
+		DebugLog(@"setActiveTab called but active view controller could not be determined");
+	}
 	[self tabController].selectedViewController = active;
 	[self tabBarController:[self tabController] didSelectViewController:active];
 }
@@ -358,7 +395,8 @@ DEFINE_EXCEPTIONS
 			[controllers addObject:[tabProxy controller]];
 			if ([TiUtils boolValue:[tabProxy valueForKey:@"active"]])
 			{
-				focused = tabProxy;
+                RELEASE_TO_NIL(focused);
+				focused = [tabProxy retain];
 			}
 		}
 
@@ -373,7 +411,7 @@ DEFINE_EXCEPTIONS
 	}
 	else
 	{
-		focused = nil;
+		RELEASE_TO_NIL(focused);
 		[self tabController].viewControllers = nil;
 	}
 
@@ -384,13 +422,21 @@ DEFINE_EXCEPTIONS
 -(void)open:(id)args
 {
 	UIView *view = [self tabController].view;
-	[TiUtils setView:view positionRect:[self bounds]];
+	[view setFrame:[self bounds]];
 	[self addSubview:view];
 
-	// on an open, make sure we send the focus event to initial tab
-	NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:focused,@"tab",NUMINT(0),@"index",NUMINT(-1),@"previousIndex",[NSNull null],@"previousTab",nil];
+	// on an open, make sure we send the focus event to focused tab
+    NSArray * tabArray = [controller viewControllers];
+    int index = 0;
+    if (focused != nil)
+	{
+		index = [tabArray indexOfObject:[(TiUITabProxy *)focused controller]];
+	}
+	NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:focused,@"tab",NUMINT(index),@"index",NUMINT(-1),@"previousIndex",[NSNull null],@"previousTab",nil];
 	[self.proxy fireEvent:@"focus" withObject:event];
-	[focused handleDidFocus:event];
+    
+    // Tab has already been focused by the tab controller delegate
+	//[focused handleDidFocus:event];
 }
 
 -(void)close:(id)args
@@ -402,11 +448,12 @@ DEFINE_EXCEPTIONS
 		{
 			UINavigationController *navController = (UINavigationController*)c;
 			TiUITabProxy *tab = (TiUITabProxy*)navController.delegate;
-			[tab removeFromTabGroup];
+			[tab closeTab];
 		}
 		controller.viewControllers = nil;
 	}
 	RELEASE_TO_NIL(controller);
+    [focused replaceValue:NUMBOOL(NO) forKey:@"active" notification:NO];
 	RELEASE_TO_NIL(focused);
 }
 

@@ -54,7 +54,6 @@
 	[title release];
 	[image release];
 	[selectedImage release];
-	[userData release];
 	[view release];
 	[super dealloc];
 }
@@ -63,7 +62,7 @@
 {
 	if (button!=nil)
 	{
-		[button performSelectorOnMainThread:@selector(setNeedsLayout) withObject:nil waitUntilDone:NO];
+		TiThreadPerformOnMainThread(^{[button setNeedsLayout];}, NO);
 	}
 }
 

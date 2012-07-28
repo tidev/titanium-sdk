@@ -1,0 +1,77 @@
+---
+name: Titanium.UI.MobileWeb.NavigationGroup
+summary: |
+    A Navigation Group implements a specialized view that manages the navigation of hierarchical 
+    content.
+description: |
+    The navigation group is created with the method <Titanium.UI.MobileWeb.createNavigationGroup>.
+    The `window` property must be set initially in the constructor when creating a navigation group.
+    All navigation groups must have a root window that cannot be removed.
+platforms: [mobileweb]
+extends: Titanium.UI.View
+since: "1.9"
+
+properties:
+  - name: window
+    summary: Root window to add to this navigation group.
+    type: Titanium.UI.Window
+    availability: creation
+    optional: false
+  - name: navBarAtTop
+    summary: Specifies whether the navigation should be at the top of the screen or the bottom of the screen.
+    type: Boolean
+    default: true
+
+methods:
+  - name: close
+    summary: Closes a window and removes it from the navigation group.
+    parameters:
+      - name: window
+        summary: Window to close.
+        type: Titanium.UI.Window
+        
+      - name: options
+        summary: |
+            Options supporting a single `animated` boolean property to determine whether the window 
+            will be animated (default) while being closed.
+        type: Dictionary
+        
+  - name: open
+    summary: Opens a window within the navigation group.
+    parameters:
+      - name: window
+        summary: Window to open.
+        type: Titanium.UI.Window
+        
+      - name: options
+        summary: |
+            Options supporting a single `animated` boolean property to determine whether the window 
+            will be animated (default) while being closed.
+        type: Dictionary
+
+examples:
+  - title: Simple Navigation Group
+    example: |
+        Create two windows in a navigation group, with the first colored blue. When the back button 
+        is clicked a red window is shown.
+        
+            var win1 = Titanium.UI.createWindow();
+            
+            var win2 = Titanium.UI.createWindow({
+            	backgroundColor: 'red',
+            	title: 'Red Window'
+            });
+            
+            var nav = Titanium.UI.MobileWeb.createNavigationGroup({
+               window: win2
+            });
+            
+            win1.add(nav);
+            win1.open();
+            
+            var win3 = Titanium.UI.createWindow({
+            	backgroundColor: 'blue',
+            	title: 'Blue Window'
+            });
+            nav.open(win3, {animated:true});
+    

@@ -144,11 +144,11 @@ static char ctrl[0x24];
 			
 			
 			// ATTEMPT TO FIGURE OUT WHAT WENT WRONG
-			NSLog(@"[DEBUG] QUERY URL = %@",inputUrl);
-			NSLog(@"[DEBUG] QUERY STRING = %@",queryString);
-			NSLog(@"[DEBUG] QUERY STRING PRE-ESCAPED = %@",prequery);
-			NSLog(@"[DEBUG] QUERY STRING ESCAPED = %@",query);
-			NSLog(@"[ERROR] Error in decodeUrlQuery(%@): %@",queryString,error);
+			DebugLog(@"[DEBUG] QUERY URL = %@",inputUrl);
+			DebugLog(@"[DEBUG] QUERY STRING = %@",queryString);
+			DebugLog(@"[DEBUG] QUERY STRING PRE-ESCAPED = %@",prequery);
+			DebugLog(@"[DEBUG] QUERY STRING ESCAPED = %@",query);
+			DebugLog(@"[ERROR] Error in decodeUrlQuery(%@): %@",queryString,error);
 		}
 		[jsonDecoder release];
 		return result;
@@ -163,7 +163,7 @@ static char ctrl[0x24];
 	NSString * result = [stringer stringWithFragment:inputObject error:&error];
 	[stringer release];
 	if (error != nil) {
-		NSLog(@"[ERROR] Error in stringify(%@): %@",inputObject,error);
+		DebugLog(@"[ERROR] Error in stringify(%@): %@",inputObject,error);
 	}
 	return result;
 }
@@ -585,7 +585,7 @@ static char ctrl[0x24];
         
         if (![self scanValue:&v error:error]) {
 			if(error){
-				NSLog(@"[DEBUG] error in parser = %@",*error);
+				DeveloperLog(@"[DEBUG] Error in parser: %@",*error);
 				*error = errWithUnderlier(EPARSE, error, @"Expected value while parsing array");
 			}
             return NO;
@@ -808,7 +808,7 @@ static char ctrl[0x24];
             return NO;
             
         } else {
-            NSLog(@"[ERROR] should not be able to get here in SBJSON.m");
+            DeveloperLog(@"[ERROR] Should not be able to get here in SBJSON.m");
         }
     } while (*c);
     

@@ -48,7 +48,7 @@
 }
 
 /**
- * Called when the dialog get canceled by the user.
+ * Called when the dialog get cancelled by the user.
  */
 - (void)dialogDidNotCompleteWithUrl:(NSURL *)url
 {
@@ -65,7 +65,7 @@
 /**
  * Called when dialog failed to load due to an error.
  */
-- (void)dialog:(FBDialog2*)dialog didFailWithError:(NSError *)error
+- (void)dialog:(FBDialog*)dialog didFailWithError:(NSError *)error
 {
 	VerboseLog(@"[INFO] didFailWithError = %@",error);
 	
@@ -85,7 +85,7 @@
  * should hold onto the URL and once you have received their acknowledgement open the URL yourself
  * using [[UIApplication sharedApplication] openURL:].
  */
-- (BOOL)dialog:(FBDialog2*)dialog shouldOpenURLInExternalBrowser:(NSURL *)url
+- (BOOL)dialog:(FBDialog*)dialog shouldOpenURLInExternalBrowser:(NSURL *)url
 {
 	return NO;
 }

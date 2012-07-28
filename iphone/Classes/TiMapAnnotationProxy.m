@@ -11,6 +11,7 @@
 #import "TiViewProxy.h"
 #import "ImageLoader.h"
 #import "TiButtonUtil.h"
+#import "TiMapViewProxy.h"
 #import "TiMapView.h"
 
 @implementation TiMapAnnotationProxy
@@ -39,12 +40,12 @@
 
 -(UIView*)makeButton:(id)button tag:(int)buttonTag
 {
-	UIView *view = nil;
+	UIView *button_view = nil;
 	if ([button isKindOfClass:[NSNumber class]])
 	{
 		// this is button type constant
 		int type = [TiUtils intValue:button];
-		view = [TiButtonUtil buttonWithType:type];
+		button_view = [TiButtonUtil buttonWithType:type];
 	}
 	else 
 	{
@@ -56,14 +57,19 @@
 			[TiUtils setView:bview positionRect:CGRectMake(0,0,size.width,size.height)];
 			bview.backgroundColor = [UIColor clearColor];
 			[bview setImage:image forState:UIControlStateNormal];
-			view = bview;
+			button_view = bview;
 		}
 	}
-	if (view!=nil)
+	if (button_view!=nil)
 	{
-		view.tag = buttonTag;
+		button_view.tag = buttonTag;
 	}
-	return view;
+	return button_view;
+}
+
+-(void)refreshAfterDelay
+{
+	[self performSelector:@selector(refreshIfNeeded) withObject:nil afterDelay:0.1];
 }
 
 -(void)setNeedsRefreshingWithSelection: (BOOL)shouldReselect
@@ -80,14 +86,9 @@
 
 		if (invokeMethod)
 		{
-			[self performSelectorOnMainThread:@selector(refreshAfterDelay) withObject:nil waitUntilDone:NO];
+			TiThreadPerformOnMainThread(^{[self refreshAfterDelay];}, NO);
 		}
 	}
-}
-
--(void)refreshAfterDelay
-{
-	[self performSelector:@selector(refreshIfNeeded) withObject:nil afterDelay:0.1];
 }
 
 -(void)refreshIfNeeded
@@ -98,9 +99,9 @@
 		{
 			return; //Already done.
 		}
-		if (delegate!=nil)
+		if (delegate!=nil && [delegate viewAttached])
 		{
-			[delegate refreshAnnotation:self readd:needsRefreshingWithSelection];
+			[(TiMapView*)[delegate view] refreshAnnotation:self readd:needsRefreshingWithSelection];
 		}
 		needsRefreshing = NO;
 		needsRefreshingWithSelection = NO;
@@ -115,6 +116,12 @@
 	result.latitude = [TiUtils doubleValue:[self valueForUndefinedKey:@"latitude"]];
 	result.longitude = [TiUtils doubleValue:[self valueForUndefinedKey:@"longitude"]];
 	return result;
+}
+
+-(void)setCoordinate:(CLLocationCoordinate2D)coordinate
+{
+	[self setValue:[NSNumber numberWithDouble:coordinate.latitude] forUndefinedKey:@"latitude"];
+	[self setValue:[NSNumber numberWithDouble:coordinate.longitude] forUndefinedKey:@"longitude"];
 }
 
 // Title and subtitle for use by selection UI.
@@ -232,25 +239,36 @@
 	}
 }
 
-- (void)setRightView:(id)view
+- (void)setRightView:(id)rightview
 {
 	id current = [self valueForUndefinedKey:@"rightView"];
-	[self replaceValue:view forKey:@"rightView" notification:NO];
-	if (current!=view)
+	[self replaceValue:rightview forKey:@"rightView" notification:NO];
+	if (current!=rightview)
 	{
 		[self setNeedsRefreshingWithSelection:YES];
 	}
 }
 
-- (void)setLeftView:(id)view
+- (void)setLeftView:(id)leftview
 {
 	id current = [self valueForUndefinedKey:@"leftView"];
-	[self replaceValue:view forKey:@"leftView" notification:NO];
-	if (current!=view)
+	[self replaceValue:leftview forKey:@"leftView" notification:NO];
+	if (current!=leftview)
 	{
 		[self setNeedsRefreshingWithSelection:YES];
 	}
 }
+
+-(void)setImage:(id)image
+{
+	id current = [self valueForUndefinedKey:@"image"];
+	[self replaceValue:image forKey:@"image" notification:NO];
+	if ([current isEqual: image] == NO)
+	{
+		[self setNeedsRefreshingWithSelection:YES];
+	}
+}
+
 
 -(int)tag
 {

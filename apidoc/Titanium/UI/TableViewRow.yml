@@ -1,71 +1,452 @@
 ---
 name: Titanium.UI.TableViewRow
-description: A TableView row object created by the method <Titanium.UI.createTableViewRow>.
+summary: |
+    A table view row is an individual item in a table, organized into table view sections.
+description: |
+    Use the <Titanium.UI.createTableViewRow> method to create a table view row. These may be 
+    explicitly added to [TableViewSection](Titanium.UI.TableViewSection) objects, which are applied 
+    to a [TableView](Titanium.UI.TableView). If a table section is not specified, one will be 
+    automatically created. 
+    
+    A row's contents can be as simple as a single line of text, or comprised of a completely 
+    customized layout of child views. 
+    
+    #### Creating Table View Rows
+    
+    Rows may be created using the properties directly available on the `TableViewRow` object, to 
+    achieve the following:
+    
+    * Row title to display the text content in the row.
+    * Background color and background image.
+    * Images on the left and right sides of the row.
+    * System decorations, such as checkboxes.
+    
+    Alternatively, custom layouts of multiple lines of text, different fonts, and additional 
+    images or controls can be created by adding child views to the row. In this case, the row's 
+    `title` property should not be set.
+    
+    As events automatically bubble/propogate to parent views, a listener may be placed on the table 
+    view to detect events fired from the rows. The benefit is that it is not necessary to 
+    explicitly create a listener for every individual row.
+    
+    See the [TableView](Titanium.UI.TableView) description and examples section for more information 
+    about creating table rows.
+    
+    #### Improved Table Performance (Android and iOS)
+    
+    When rows contain child views, improved performance may be obtained by giving rows with the same 
+    layout a [className](Titanium.UI.TableViewRow) of the same value. The content of the rows may 
+    be different without the need for a new class name, though. For example, if the text is the only 
+    difference between two rows, both row instances should have identical class names.
+    
+    #### Platform Implementation Notes
+    
+    The `top`, `left` and other positional parameters are not used for their usual purposes, because 
+    the table view row is automatically positioned by its parent.
+    
+    On Android, these properties are used to position the content (title) inside the row. For example, 
+    setting `top` to 20 moves the title down from the top of the row.  
+    
+    On iOS, these values have no effect.
+    
+    On Mobile Web, they are used to relatively position the row, treating the `TableView` as if it 
+    were a horizontal layout.
+    
+    Also, note that the selected text color, `selectedColor`, can only be set on iOS and 
+    Mobile Web. On Android, the text color does not change when the row is selected.
+    
+    #### Row Swipe Gestures (Android and iOS)
+    
+    A common requirement is to enable the user to interact with table rows using swipe gestures. 
+    As this event is not available for the `TableViewRow` object, it will not "bubble up" to the 
+    `TableView`, where a <Titanium.UI.TableView.swipe> is recognized. 
+    
+    A typical solution is to use a standard view as a container, or wrapper, for all each row's child 
+    views, because it recognizes <Titanium.UI.View.swipe> events and allows them to pass to the table. 
+    Each child view should have touch events disabled, so that the container view provides a reliable 
+    source for these events. Refer to the "Row Swipe Gestures" example for a demonstration. 
 extends: Titanium.UI.View
 since: "0.9"
 excludes:
-    properties: []
+    events: [dblclick, doubletap, longpress, pinch, singletap, touchend, touchmove, twofingertap]
     methods: [animate]
-    events: []
+    properties: []
+
+events:
+  - name: click
+    summary: Fired when a table row is clicked by the user.
+    platforms: [android, iphone, ipad, mobileweb]
+    properties:
+      - name: detail
+        summary: |
+            Indicates whether the detail button was clicked. Only `true` if `row.hasDetail` is 
+            `true` and the detail button was clicked.
+        type: Boolean
+        
+      - name: globalPoint
+        summary: |
+            Coordinates `x` and `y` describing the location of the event in terms of screen 
+            coordinates.
+        type: Dictionary
+        deprecated:
+            since: "1.8.0"
+        platforms: [iphone, ipad]
+        
+      - name: index
+        summary: Row index.
+        type: Number
+        
+      - name: row
+        summary: Table view row object.
+        type: Titanium.UI.TableViewRow
+    
+      - name: rowData
+        summary: Dictionary containing the properties set on the row.
+        type: Dictionary<Titanium.UI.TableViewRow>
+        
+      - name: searchMode
+        summary: Boolean to indicate if the table is in search mode.
+        type: Boolean
+        
+      - name: section
+        summary: Table view section object, if the clicked row is contained in a section.
+        type: Titanium.UI.TableViewSection
+        
+      - name: x
+        summary: X coordinate of the event from the `source` view's coordinate system.
+        type: Number
+        
+      - name: y
+        summary: Y coordinate of the event from the `source` view's coordinate system.
+        type: Number
+    
+  - name: swipe
+    summary: Fired when the device detects a swipe gesture against the view.
+    platforms: [mobileweb]
+    properties:
+      - name: direction
+        summary: Direction of the swipe--either 'left' or 'right'. Android also supports 'up' and 'down'.
+        type: String
+        
+      - name: globalPoint
+        summary: |
+            Dictionary with properties `x` and `y` describing the location of the event's endpoint 
+            in screen coordinates.
+        deprecated:
+            since: "1.8.0"
+        platforms: [iphone, ipad]
+        
+      - name: x
+        summary: X coordinate of the event's endpoint from the `source` view's coordinate system.
+        type: Number
+        
+      - name: y
+        summary: Y coordinate of the event's endpoint from the `source` view's coordinate system.
+        type: Number
+        
+  - name: touchcancel
+    summary: Fired when a touch gesture is interrupted by the device.
+    description: |
+        Generated in various circumstances, including an incoming call to allow the UI to clean 
+        up state. 
+        
+        On Android and iOS, be aware that a row or table touch event and a table 
+        [scroll](Titanium.UI.TableView.scroll) event cannot occur concurrently. If a table begins 
+        to scroll during a touch event, the appropriate row or table `touchcancel` event fire 
+        before the `scroll` event begins.
+        
+        On Mobile Web, a scroll may occur in the middle of a touch, in which case a `touchend` 
+        will fire immediately following the scroll.
+    platforms: [iphone, ipad, mobileweb]
+    properties:
+      - name: globalPoint
+        summary: |
+            Coordinates `x` and `y` describing the location of the event in terms of screen 
+            coordinates.
+        platforms: [iphone, ipad]
+        type: Dictionary
+        deprecated:
+            since: "1.8.0"
+        
+      - name: x
+        summary: X coordinate of the event from the `source` view's coordinate system.
+        type: Number
+        
+      - name: y
+        summary: Y coordinate of the event from the `source` view's coordinate system.
+        type: Number
+        
+  - name: touchend
+    summary: Fired when a touch gesture is complete.
+    description: |
+        On Android and iOS, be aware that a row or table touch event and a table 
+        [scroll](Titanium.UI.TableView.scroll) event cannot occur concurrently. If a table begins 
+        to scroll during a touch event, the appropriate row or table `touchcancel` event fire 
+        before the `scroll` event begins.
+        
+        On Mobile Web, a scroll may occur in the middle of a touch, in which case a `touchend` 
+        will fire immediately following the scroll.
+    platforms: [iphone, ipad, mobileweb]
+    properties:
+      - name: globalPoint
+        summary: |
+            Coordinates `x` and `y` describing the location of the event in terms of screen 
+            coordinates.
+        type: Dictionary
+        deprecated:
+            since: "1.8.0"
+        platforms: [iphone, ipad]
+        
+      - name: x
+        summary: X coordinate of the event from the `source` view's coordinate system.
+        type: Number
+        
+      - name: y
+        summary: Y coordinate of the event from the `source` view's coordinate system.
+        type: Number
+        
+  - name: touchstart
+    summary: Fired as soon as the device detects a touch gesture against this view.
+    description: |
+        On Android and iOS, be aware that a row or table touch event and a table 
+        [scroll](Titanium.UI.TableView.scroll) event cannot occur concurrently. If a table begins 
+        to scroll during a touch event, the appropriate row or table `touchcancel` event fire 
+        before the `scroll` event begins.
+        
+        On Mobile Web, a scroll may occur in the middle of a touch, in which case a `touchend` 
+        will fire immediately following the scroll.
+    platforms: [iphone, ipad, mobileweb]
+    properties:
+      - name: globalPoint
+        summary: |
+            Coordinates `x` and `y` describing the location of the event in terms of screen 
+            coordinates.
+        type: Dictionary
+        deprecated:
+            since: "1.8.0"
+        platforms: [iphone, ipad]
+        
+      - name: x
+        summary: X coordinate of the event from the `source` view's coordinate system.
+        type: Number
+        
+      - name: y
+        summary: Y coordinate of the event from the `source` view's coordinate system.
+        type: Number
+
 properties:
   - name: className
-    description: the class name of the table. each table view cell must have a unique class name if the cell layout is different. however, use the same name for rows that have the same structural layout (even if the content is different) to provide maximum rendering performance.
+    summary: Class name for the row. 
+    description: |
+        A class name represents a unique row layout. 
+        
+        A table view row must have a unique class name if the row layout is unique. However, 
+        use the same name for rows that have the same structural layout (even if the content is 
+        different) to provide maximum rendering performance.
+        
+        For example, if some rows include images and some rows do not, you would have two class
+        names, one for image rows and one for plain rows.
+        
+        This property exists on Mobile Web, but is ignored.
     type: String
-  - name: color
-    description: default color of the row when not selected
-    type: String
-  - name: editable
-    description: whether or not the row can be deleted
-    type: Boolean
-    platforms: [iphone, ipad]
-  - name: hasCheck
-    description: render a system provided check mark in the right image area of the row cell
-    type: Boolean
-  - name: hasChild
-    description: render a system provided right arrow in the right image area of the row cell
-    type: Boolean
-  - name: hasDetail
-    description: render a system provided blue indicator icon in the right image area of the row cell
-    type: Boolean
-  - name: indentionLevel
-    description: the indention level for the cell (defaults to 0)
-    type: Number
-  - name: layout
-    description: the layout algorithm to use for the layout. either absolute (default) or vertical.
-    type: String
-  - name: leftImage
-    description: image url to render in the left image area of the row cell
-    type: String
-  - name: rightImage
-    description: image url to render in the right image area of the row cell
-    type: String
-  - name: selectedBackgroundColor
-    description: the background color to render when the row cell is selected
-    type: String
-  - name: selectedBackgroundImage
-    description: the background image to render when the row cell is selected
-    type: String
-  - name: selectedColor
-    description: color of the row during selection
-    type: String
-  - name: selectionStyle
-    description: a selection style constant to control the selection color. For iPhone, use the constants from Titanium.UI.iPhone.TableViewCellSelectionStyle
-    type: Number
-  - name: title
-    description: the title cell value. do not specify if using views as children of the row
-    type: String
-notes: |
-    Make sure you set the tableClass on each row instance if using more than one type of row layout. You can use the same value for each instance of a row where the layout is the same - even if the value of the elements inside the row have different values.  For example, if the text is the only thing different between two cells but the layout is the same, both row instances should have the same value for tableClass.
     
-    You can listen for table row events on all rows by adding an event listener to the table view instance.  Events automatically propagate to parent views.
+  - name: color
+    summary: Default text color of the row when not selected, as a color name or hex triplet.
+    description: |
+        For information about color values, see the "Colors" section of <Titanium.UI>. 
+        
+        On Android, `selectedColor` is not supported, so the text is always displayed in this color.
+    type: String
+    
+  - name: editable
+    summary: |
+        Determines the rows' editable behavior, which allows them to be deleted by the user when the 
+        table is in `editing` or `moving` mode.
+    description: |
+        If this property is not explicitly set, it will return `undefined` and the row's editable 
+        behavior will be determined by its parent table's [editable](Titanium.UI.TableView.editable) 
+        property.
+        
+        See the <Titanium.UI.TableView> description section for a full explanation of the TableView's 
+        row `editing` and `moving` modes.
+    type: Boolean
+    default: undefined
+    platforms: [iphone, ipad]
+    
+  - name: font
+    summary: Font to use for the row title.
+    description: |
+        If the table uses different fonts on different rows, the font properites may become 
+        associated with the wrong row as the table scrolls. This is a known issue.
+    type: Font
+    default: System default font.
+    
+  - name: hasCheck
+    summary: |
+        Determines whether a system-provided checkmark is displayed on the right-hand side of 
+        the row.
+    type: Boolean
+    default: false
+    
+  - name: hasChild
+    summary: |
+        Determines whether a system-provided arrow is displayed on the right-hand side of the row.
+    description: |
+        The `hasChild` flag is used to indicate to the user that clicking on the row displays more 
+        detailed information.  
+        
+        On iOS, this is specifically used when clicking on the row navigates to the next table view 
+        in a heirarchy of table views.
+    type: Boolean
+    default: false
+    
+  - name: hasDetail
+    summary: |
+        Determines whether a system-provided detail disclosure button is displayed on the right-hand 
+        side of the row.
+    description: |
+        The `hasDetail` flag is used to indicate to the user that more details are
+        available on the row.  
+        
+        Specifically on iOS the detail disclosure button indicates that clicking on the row results 
+        in a detail view of that item. 
+        
+        The `detail` property in the click event is set to `true` if the click occurred on
+        the detail button itself, `false` if the click occurs anywhere else in the row.
+        
+        For rows that have `hasDetail` set to false, the `detail` flag is always `false`.
+    type: Boolean
+    default: false
+    platforms: [iphone,ipad]
+    
+  - name: indentionLevel
+    summary: Indention level for the row.
+    description: Indentation values greater than 0 indent the row text.
+    type: Number
+    default: 0
+    platforms: [iphone, ipad]
+    
+  - name: leftImage
+    summary: Image to render in the left image area of the row, specified as a local path or URL.
+    type: String
+
+  - name: moveable
+    summary: |
+        Determines the rows' moveable behavior, which allows them to be re-ordered by the user when 
+        the table is in `editing` or `moving` mode.
+    description: |
+        If this property is not explicitly set, it will return `undefined` and the row's moveable 
+        behavior will be determined by its parent table's [moveable](Titanium.UI.TableView.moveable) 
+        property.
+        
+        See the <Titanium.UI.TableView> description section for a full explanation of the TableView's 
+        row `editing` and `moving` modes.
+    type: Boolean
+    default: undefined
+    platforms: [iphone, ipad]
+
+  - name: rightImage
+    summary: Image to render in the right image area of the row, specified as a local path or URL.
+    type: String
+    
+  - name: selectedBackgroundColor
+    summary: Background color to render when the row is selected, as a color name or hex triplet.
+    description: |
+        For information about color values, see the "Colors" section of <Titanium.UI>. 
+    type: String
+    
+  - name: selectedBackgroundImage
+    summary: Background image to render when the row is selected.
+    type: String
+    
+  - name: selectedColor
+    summary: Color of the row text when the row is selected, as a color name or hex triplet.
+    description: |
+        For information about color values, see the "Colors" section of <Titanium.UI>. 
+    type: String
+    platforms: [iphone,ipad]
+    
+  - name: selectionStyle
+    summary: Selection style constant to control the selection color. 
+    description: |
+        Specify one of the constants from <Titanium.UI.iPhone.TableViewCellSelectionStyle>.
+    type: Number
+    platforms: [iphone,ipad]
+    
+  - name: title
+    summary: Text to display on the row. 
+    description: Do not specify if using views as children of the row.
+    type: String
+
 examples:
   - title: Simple Table View Row example
     example: |
-        In this simple example, we create a table view row with a red square in the cell.
+        Create a table view row containing a red square view.
         
             var row = Titanium.UI.createTableViewRow();
-            var view = Titanium.UI.createView({backgroundColor:'red',width:20,height:20});
+            var view = Titanium.UI.createView({
+              backgroundColor:'red',
+              width: 20, height: 20
+            });
             row.height = 'auto';
             row.add(view);
+  - title: Row Swipe Gestures
+    example: |
+        Create a table of rows. When a row is swiped, output its ID to the log. 
         
-        
+            var tableData = [];
+            
+            var win = Ti.UI.createWindow({ backgroundColor: 'white' });
+            
+            var table = Ti.UI.createTableView({ objName: 'table' });
+            
+            for (var i = 0; i <= 20; i++){
+              var row = Ti.UI.createTableViewRow({
+                className: 'row',
+                objName: 'row',
+                touchEnabled: true,
+                height: 100
+              });
+              
+              var enabledWrapperView = Ti.UI.createView({
+                backgroundColor:'#008FD5',
+                objName: 'enabledWrapperView',
+                rowID: i,
+                width: Ti.UI.FILL, height: '100%'
+              });
+              
+              var disabledWrapperView = Ti.UI.createView({
+                backgroundColor:'#A2E0FF',
+                objName: 'disabledWarpperView',
+                touchEnabled: false,
+                width: 300, height: '80%'
+              });
+              enabledWrapperView.add(disabledWrapperView);
+              
+              var label = Ti.UI.createLabel({
+                backgroundColor:'#313F48',
+                color: 'white',
+                objName: 'label',
+                text: i,
+                touchEnabled: false,
+                left: 0,
+                width: 200
+              });
+              disabledWrapperView.add(label);
+              
+              row.add(enabledWrapperView);
+              tableData.push(row);
+            }
+            
+            table.setData(tableData);
+            
+            table.addEventListener('swipe', function(e){
+              if (e.source && e.source.objName !== 'table'){
+                Ti.API.info('Row swiped: ' + e.source);
+                Ti.API.info('Row swiped: ' + e.source.objName);
+                Ti.API.info('Row ID : ' + e.source.rowID);
+              }
+            });
+            
+            win.add(table);
+            win.open();

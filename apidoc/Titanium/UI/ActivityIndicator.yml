@@ -1,39 +1,220 @@
 ---
 name: Titanium.UI.ActivityIndicator
-description: An Activity Indicator is created by the method <Titanium.UI.createActivityIndicator>.  An activity indicator can be used to show the progress of an operation in the UI to let the user know some action is taking place.
+summary: An activity indicator that lets the user know an action is taking place. 
+    
+description:  |
+    An activity indicator can be used to show the progress of an operation in the UI to let the 
+    user know that some action is taking place. An activity indicator consists of a spinning 
+    animation and an optional text message, and is used to indicate an ongoing activity of 
+    indeterminate length. To show progress, use <Titanium.UI.ProgressBar> instead.
+
+    Use the <Titanium.UI.createActivityIndicator> method to create an Activity Indicator. 
+    
+    Activity indicators must be used differently on Android and iOS:
+    
+    * On Android, the activity indicator is a modal dialog that blocks the UI. Calling `show` 
+    displays the indicator, and calling `hide` removes it. 
+    
+    * On iOS and Mobile Web, the activity indicator is a view like any other view, and must be 
+    added to a window or other top-level view before it can be shown. Note that, unlike most views, 
+    the activity indicator is hidden by default and must be shown explicitly.
 extends: Titanium.Proxy
 since: "0.8"
 methods:
+  - name: add
+    summary: Adds a child to this activity indicator's hierarchy.
+    description: |
+        Adding children to an `ActivityIndicator` is not supported on all platforms.
+
+        If you need to display views on top of this object, consider using 
+        another view as a container for both this object and the views you want 
+        to appear on top of it.
+
+        See also: <Titanium.UI.View.add>.
+    platforms: [iphone, ipad, mobileweb]
+
   - name: hide
-    description: call hide to make the activity indicator hidden and stop spinning
+    summary: Hides the activity indicator and stops the animation.
+
+  - name: remove
+    summary: Removes a child from this activity indicator's hierarchy.
+    description: |
+        Adding children to an `ActivityIndicator` is not supported on all platforms.
+
+        See also: [add](Titanium.UI.ActivityIndicator.add), <Titanium.UI.View.add>.
+    platforms: [iphone, ipad, mobileweb]
+    
   - name: show
-    description: call show to make the activity indicator visible and start spinning
+    summary: Shows the activity indicator and starts the animation.
 properties:
+  - name: bottom
+    summary: Bottom position of the view.
+    description: |
+        Determines the absolute position of the view relative to its parent.  
+        
+        Can be either a float value or a dimension string (for example `100`, `'50%'` or `'auto'`.)
+    type: [Number, String]
+    platforms: [iphone, ipad]
+    
+  - name: cancelable
+    summary: |
+        When `true` allows the user to cancel the activity indicator dialog by
+        pressing the BACK button.
+    type: Boolean
+    platforms: [android]
+
   - name: color
-    description: the color of the message label
+    summary: |
+        Color of the message text, as a color name or hex triplet.
+    description: |
+        For information about color values, see the "Colors" section of <Titanium.UI>.
     type: String
+    platforms: [iphone, ipad, mobileweb]
+    
   - name: font
-    description: the font object for the activity message label
-    type: Object
+    summary: Font used for the message text.
+    type: Font
+    platforms: [iphone, ipad, mobileweb]
+
+  - name: height
+    summary: |
+        Width of the view. Only accepts value of `auto`, which must be explicitly set in order to 
+        display the message and to position the view correctly.
+    type: String
+    platforms: [iphone, ipad]
+
+  - name: left
+    summary: Left position of the view.
+    description: |
+        Determines the absolute position of the view relative to its parent.  
+        
+        Can be either a float value or a dimension string (for example `100`, `'50%'` or `'auto'`.)
+    type: [Number, String]
+    platforms: [iphone, ipad]
+    
   - name: message
-    description: the activity message label text
+    summary: Message text.
     type: String
+    platforms: [android, mobileweb]
+    
   - name: messageid
-    description: the key in the locale file to use for the message property
+    summary: Key identifying a string in the locale file to use for the message text. 
+    description: Only one of `message` or `messageid` should be specified.
     type: String
+    
+  - name: right
+    summary: Right position of the view.
+    description: |
+        Determines the absolute position of the view relative to its parent.  
+        
+        Can be either a float value or a dimension string (for example `100`, `'50%'` or `'auto'`.)
+    type: [Number, String]
+    platforms: [iphone, ipad]
+    
   - name: style
-    description: the style constant of the activity indicator
+    summary: The style for the activity indicator.
+    description: |
+        One of the activity indicator style constants. On iOS: 
+        <Titanium.UI.iPhone.ActivityIndicatorStyle.DARK>, 
+        <Titanium.UI.iPhone.ActivityIndicatorStyle.BIG>, 
+        or <Titanium.UI.iPhone.ActivityIndicatorStyle.PLAIN>. On Mobile Web: 
+        <Titanium.UI.ActivityIndicatorStyle.DARK>, 
+        <Titanium.UI.ActivityIndicatorStyle.BIG>, 
+        <Titanium.UI.ActivityIndicatorStyle.BIG_DARK>, 
+        or <Titanium.UI.ActivityIndicatorStyle.PLAIN>.
+
+        On Mobile Web, setting the style automatically sets the indicator color and diameter.
+
+        See also: [indicatorColor](Titanium.UI.ActivityIndicator.indicatorColor),
+        [indicatorDiameter](Titanium.UI.ActivityIndicator.indicatorDiameter)
     type: Number
-notes: |
-    For iPhone, the style can be set from the constants <Titanium.UI.iPhone.ActivityIndicatorStyle>.
+    default: <Titanium.UI.iPhone.ActivityIndicatorStyle.PLAIN> (iOS), <Titanium.UI.ActivityIndicatorStyle.PLAIN> (Mobile Web)
+    platforms: [iphone, ipad, mobileweb]
+
+  - name: indicatorColor
+    summary: Color of the animated indicator.
+    since: "2.1.0"
+    type: String
+    default: "#fff"
+    platforms: [mobileweb]
+    
+  - name: indicatorDiameter
+    summary: Diameter of the indicator.
+    description: |
+        The diameter of the animated indicator, exclusive of any message text.
+    since: "2.1.0"
+    type: String
+    default: 36
+    platforms: [mobileweb]
+
+  - name: top
+    summary: Top position of the view.
+    description: |
+        Determines the absolute position of the view relative to its parent.  
+        
+        Can be either a float value or a dimension string (for example `100`, `'50%'` or `'auto'`.)
+    type: [Number, String]
+    platforms: [iphone, ipad]
+
+  - name: width
+    summary: |
+        Width of the view. Only accepts value of `auto`, which must be explicitly set in order to 
+        display the message and to position the view correctly.
+    type: String
+    platforms: [iphone, ipad]
+
+events:
+  - name: cancel
+    summary: Fired when the user has canceled the activity indicator dialog.
+    description: |
+        The user triggers this event by pressing the BACK button when the dialog is visible.
+        The dialog will be hidden and this event dispatched.
+    platforms: [android]
+    
 examples:
   - title: Simple Activity Indicator
     example: |
-        In this example, we create a basic activity indicator and start it.
+        Open a yellow window immediately after a blue window. Show an activity indicator while 
+        some code executes and hide it on completion. Then close the yellow window.
         
-            var actInd = Titanium.UI.createActivityIndicator({
-            	height:50,
-            	width:10
+            Ti.UI.backgroundColor = 'white';
+
+            var win1 = Ti.UI.createWindow({
+              backgroundColor: 'blue'
             });
-            actInd.show();
-        
+
+            var win2 = Ti.UI.createWindow({
+              backgroundColor: 'yellow',
+              fullscreen: true
+            });
+
+            var activityIndicator = Ti.UI.createActivityIndicator({
+              color: 'green',
+              font: {fontFamily:'Helvetica Neue', fontSize:26, fontWeight:'bold'},
+              message: 'Loading...',
+              style:Ti.UI.iPhone.ActivityIndicatorStyle.DARK,
+              top:10,
+              left:10,
+              height:'auto',
+              width:'auto'
+            });
+
+            // On iOS, the activity indicator must be added to a window or view for it to appear
+            if (Ti.Platform.name === 'iPhone OS'){
+              win2.add(activityIndicator);
+            }
+
+            // eventListeners must always be loaded before the event is likely to fire
+            // hence, the open() method must be positioned before the window is opened
+            win2.addEventListener('open', function (e) {
+              activityIndicator.show();
+              // do some work that takes 6 seconds
+              // ie. replace the following setTimeout block with your code
+              setTimeout(function(){
+                e.source.close();
+                activityIndicator.hide();
+              }, 6000);
+            });
+
+            win1.open();
+            win2.open();

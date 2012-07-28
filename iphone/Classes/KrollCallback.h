@@ -42,25 +42,38 @@
 // if the proxy spans multiple contexts, we need to take a rain check on other
 // contexts.
 
-// In the mean time, for functions passed as a property between contexts, we
-// need a lightweight wrapper. This is probably not the best way, but this
-// should be sufficient for 1.7 in the edge case of one context needing to call
-// another context's function.
-
-// Until KrollObjectProperty and such are addressed in the future, this is an object that is never
-// made explicitly by TiIdToValue; instead, all JS functions become KrollCallbacks, and both
-// KrollCallbacks and KrollObjectProperties will be converted into functions (or TiObjectRefs at
-// any rate)
+/*
+ *	For functions and other objects that need to be held by proxies without
+ *	conversion or possible retain cycles, KrollWrapper passively refers to a
+ *	JS Object. In the future, this should become the base class, instead of a
+ *	collection of Kroll wrappers all based off of NSObject despite common
+ *	functionality.
+ *
+ *	NOTE: This is an object that is never made explicitly by TiIdToValue;
+ *	instead, all JS functions become KrollCallbacks, and both KrollCallbacks
+ *	and KrollObjectProperties will be converted into functions.
+ *	(or TiObjectRefs at any rate)
+ *	Instead, KrollWrapper is used in two places currently: When a function is
+ *	retained as a property by a proxy (to avoid the above retain loop),
+ *	and for JS-based modules which do not need proxy properties but do need to
+ *	be first-class JS object citizens.
+ *	TODO: Consolidate various KrollObjects, KrollCallbacks, etc to be
+ *	KrollWrappers.
+ */
 
 @class KrollBridge;
 
-@interface KrollFunction : NSObject
+@interface KrollWrapper : NSObject
 {
-	TiObjectRef remoteFunction;
-	KrollBridge * remoteBridge;
+	TiObjectRef jsobject;
+	KrollBridge * bridge;
+	BOOL	protecting;
 }
 
-@property (nonatomic,readwrite,assign)	TiObjectRef remoteFunction;
-@property (nonatomic,readwrite,assign)	KrollBridge * remoteBridge;
+@property (nonatomic,readwrite,assign)	TiObjectRef jsobject;
+@property (nonatomic,readwrite,assign)	KrollBridge * bridge;
+
+-(void)protectJsobject;
+-(void)unprotectJsobject;
 
 @end

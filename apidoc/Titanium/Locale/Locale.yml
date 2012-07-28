@@ -1,67 +1,174 @@
 ---
 name: Titanium.Locale
-description: The top level Locale module.  The Locale module works with localization files to which are generated during compilation into the operating system specific localization formats. The Locale module provides locale-specific strings which can be referenced at runtime.  Additionally, the module contains a few methods and properties for querying device locale information.
+summary: The top level Locale module.  
+description: |
+    The `Locale` module works with localization files to which are generated during compilation 
+    into the operating system specific localization formats. The `Locale` module provides 
+    locale-specific strings which can be referenced at runtime.  Additionally, the module 
+    contains a few methods and properties for querying device locale information.
+    
+    The macro `L` can be used as an alias for the <Titanium.Locale.getString> method.
 extends: Titanium.Module
 since: "1.5"
+platforms: [android, iphone, ipad, mobileweb]
+
 methods:
   - name: formatTelephoneNumber
-    description: format a telephone number according to the current locale.
+    summary: Formats a telephone number according to the current system locale.
+    platforms: [android]
     returns:
         type: String
     parameters:
       - name: number
-        description: the phone number to format
+        summary: Phone number.
         type: String
+        
   - name: getCurrencyCode
-    description: return a currency code for a given locale.
-    platforms: [android]
+    summary: Returns the ISO 3-letter currency code for the specified locale.
+    description: |
+        This method returns one of the ISO 4217 currency codes. For example, 
+        `getCurrencyCode('en-US')` returns `USD`. See the `xe.com` website 
+        [Currency List](http://www.xe.com/iso4217.php#section2) section of the `www.xe.com` website for 
+        reference.
+    platforms: [android, iphone, ipad]
     returns:
         type: String
     parameters:
       - name: locale
-        description: the locale for which you want to the currency code, e.g. getCurrencyCode('en-US') -> 'USD'
+        summary: |
+            Locale, as a combination of ISO 2-letter language and country codes. For example, 
+            `en-US` or `en-GB`. See the 
+            [ISO 639-1](http://en.wikipedia.org/wiki/ISO_639-1) and 
+            [ISO 3166-1 alpha-2](http://en.wikipedia.org/wiki/ISO_3166-1_alpha-2#Officially_assigned_code_elements) 
+            sections of wikipedia for reference.
         type: String
+        
   - name: getCurrencySymbol
-    description: return a currency symbol for the given currency code.
-    platforms: [android]
+    summary: Returns the currency symbol for the specified currency code.
+    description: |
+        This method returns one of the international currency symbols. For example, 
+        `getCurrencySymbol('USD')` returns `$`. See the 
+        [Currency Symbols](http://www.xe.com/symbols.php#section2) section of the 
+        `www.xe.com` website for reference.
+    platforms: [android, iphone, ipad]
     returns:
         type: String
     parameters:
       - name: currencyCode
-        description: the currency for which you want the symbol, e.g. getCurrencySymbol('USD') -> '$'
+        summary: |
+            Currency, as an ISO 3-letter code. For example, `USD` or `GBP`. See the 
+            [Currency List](http://www.xe.com/iso4217.php#section2) section of the `www.xe.com` website for 
+            reference.
         type: String
+        
   - name: getLocaleCurrencySymbol
-    description: return a currency symbol for the given locale.
-    platforms: [android]
+    summary: Returns the currency symbol for the specified locale.
+    description: |
+        This method returns one of the international currency symbols. For example, 
+        `getLocaleCurrencySymbol('en-US')` returns `$`. See the 
+        [Currency Symbols](http://www.xe.com/symbols.php#section2) section of the 
+        `www.xe.com` website for reference.
+    platforms: [android, iphone, ipad]
     returns:
         type: String
     parameters:
       - name: locale
-        description: the locale whose currency symbol you want, e.g. getLocaleCurrencySymbol('en-US') -> '$'
+        summary: |
+            Locale, as a combination of ISO 2-letter language and country codes. For example, 
+            `en-US` or `en-GB`. See the 
+            [ISO 639-1](http://en.wikipedia.org/wiki/ISO_639-1) and 
+            [ISO 3166-1 alpha-2](http://en.wikipedia.org/wiki/ISO_3166-1_alpha-2#Officially_assigned_code_elements) 
+            sections of wikipedia for reference.
         type: String
+        
   - name: getString
-    description: return a localization string
+    summary: |
+        Returns a string, localized according to the current system locale using the appropriate 
+        `/i18n/LANG/strings.xml` localization file.
+    description: |
+        This method is functionaly identical to its alias <Global.L>. For example, 
+        `Ti.Locale.getString('thisKey', 'missing key')` produces the same result as 
+        `L('thisKey', 'missing key')`.
+        
+        When using with <Global.String.format> to localize a phrase with multiple string 
+        substitution placeholders, add the `formatted="false"` directive to the relevant 
+        `strings.xml` element. See example for a demonstration.
     returns:
         type: String
     parameters:
       - name: key
-        description: the key to use when mapping into the localization file
+        summary: Key of string.
         type: String
+        
       - name: hint
-        description: the text to use if no key found in the localization file
+        summary: Text to return if key does not exist in the localization file.
         type: String
         optional: true
+    examples:
+      - title: String Localization Demonstration
+        example: |
+            Localize two strings, "hello" and "goodbye" (using the keys "greeting" and "signoff") 
+            for English and Spanish system locales.  
+            
+            Note: use the device's system settings to change locales and test this code.
+            
+            #### `/i18n/en/strings.xml`
+            
+                <?xml version="1.0" encoding="UTF-8"?>
+                <resources>
+                  <string name="phrase" formatted="false">You say %2$s and I say %1$s!</string>
+                  <string name="greeting">hello</string>
+                  <string name="signoff">goodbye</string>
+                </resources>
+            
+            #### `/i18n/es/strings.xml`
+            
+                <?xml version="1.0" encoding="UTF-8"?>
+                <resources>
+                  <string name="phrase" formatted="false">You say %2$s and I say %1$s!</string>
+                  <string name="greeting">hola</string>
+                  <string name="signoff">adios</string>
+                </resources>
+            
+            #### `/Resources/app.js`
+                
+                var i18nMissingMsg = '<no translation available>';
+                
+                // for English locales, displays "You say goodbye and I say hello!"
+                // for Spanish locales, displays "You say adios and I say hola!"
+                Ti.API.info('You say ' + Ti.Locale.getString('signoff', i18nMissingMsg) + ' and I say ' + Ti.Locale.getString('greeting', i18nMissingMsg) + '!');
+                
+                // uses alias L() instead of Ti.Locale.getString()
+                // formatted="false" is used in the strings.xml element for multiple string substitution
+                // for English locales, displays "You say goodbye and I say hello!"
+                // for Spanish locales, displays "You say adios and I say hola!"
+                Ti.API.info(String.format(L('phrase'), L('greeting', i18nMissingMsg), L('signoff', i18nMissingMsg)));
+
 properties:
   - name: currentCountry
-    description: return the current (default) ISO 2-letter country code for the device.
+    summary: Country of the current system locale, as an ISO 2-letter code.
+    description: |
+        This property holds a value such as `US` or `GB`. See the 
+        [ISO 3166-1 alpha-2](http://en.wikipedia.org/wiki/ISO_3166-1_alpha-2#Officially_assigned_code_elements) 
+        country codes section of wikipedia for reference.
+    platforms: [android, mobileweb]
     type: String
+    permission: read-only
+    
   - name: currentLanguage
-    description: return the current language for the device based on the user's settings
+    summary: Language of the current system locale, as an ISO 2-letter code.
+    description: |
+        This property holds a value such as `en` or `fr`. See the 
+        [ISO 639-1](http://en.wikipedia.org/wiki/ISO_639-1) section of wikipedia for reference.
     type: String
     permission: read-only
+    
   - name: currentLocale
-    description: return the current locale string for the device based on the user's settings (e.g., en-US).
-    platforms: [android]
+    summary: Current system locale, as a combination of ISO 2-letter language and country codes.
+    description: |
+        This property holds a value such as `en-US` or `en-GB`.
+        See the [ISO 639-1](http://en.wikipedia.org/wiki/ISO_639-1) and 
+        [ISO 3166-1 alpha-2](http://en.wikipedia.org/wiki/ISO_3166-1_alpha-2#Officially_assigned_code_elements) 
+        sections of wikipedia for reference.
     type: String
     permission: read-only
-notes: The macro `L` can also be used which aliases the method <Titanium.Locale.getString>.

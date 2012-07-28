@@ -15,7 +15,7 @@
 @end
 
 
-@interface FacebookModule : TiModule <FBSessionDelegate2, FBRequestDelegate2>
+@interface FacebookModule : TiModule <FBRequestDelegate, FBDialogDelegate, FBSessionDelegate>
 {
 	Facebook *facebook;
 	BOOL loggedIn;
@@ -28,6 +28,8 @@
 }
 
 @property(nonatomic,readonly) Facebook *facebook;
+@property(nonatomic,readonly) NSNumber *BUTTON_STYLE_NORMAL;	  	
+@property(nonatomic,readonly) NSNumber *BUTTON_STYLE_WIDE;
 
 -(BOOL)isLoggedIn;
 -(void)addListener:(id<TiFacebookStateListener>)listener;
@@ -35,6 +37,7 @@
 
 -(void)authorize:(id)args;
 -(void)logout:(id)args;
+
 
 @end
 #endif

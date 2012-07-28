@@ -1,20 +1,162 @@
 ---
 name: Titanium.Platform.DisplayCaps
-description: The Display Caps object returned by the <Titanium.Platform.displayCaps> property.
+summary: |
+    The Display Caps object returned by the <Titanium.Platform.displayCaps> property.
+description: |
+    On iPhone and iPod devices with retina display, the `density` property is `high` and the `dpi` 
+    property is `320`. For other iPhone and iPod devices, `density` is `medium` and `dpi` is `160`.
+    
+    On iPad devices with retina display, the `density` property is `high` and the `dpi` 
+    property is `260`. For other iPad devices, `density` is `medium` and `dpi` is `130`.
+    
+    Note that Xcode versions prior to 4.3.1 do not have the correct tools to detect the iPad 3 
+    retina display. Apps must be built with Xcode 4.3.1 or later to detect iPad 3 retina display.
+    
+    Note that the `displayCaps` property begins with a lowercase letter, which differentiates it 
+    from the `DisplayCaps` object that it returns. Refer to the example to understand how it should 
+    be called.
 extends: Titanium.Proxy
 since: "0.8"
 createable: false
+
 properties:
   - name: density
-    description: returns the density property of the display device.
+    summary: Logical density of the display.
     type: String
+    
   - name: dpi
-    description: the DPI of the display device.
+    summary: Display density expressed as dots-per-inch.
     type: Number
+    
+  - name: logicalDensityFactor
+    summary: |
+        Logical density of the display, as a scaling factor for the Density Independent Pixel (dip) 
+        unit.
+    description: |
+        One dip is one pixel on a 160dpi display, approximately, with a 240x320, 1.5"x2" display
+        providing a baseline. For example, for a 160dpi display, this value will be 1, and for 120dpi, 
+        it will be .75.
+        
+        This value does not precisely follow the real display size, as given by `xdpi` and `ydpi`, 
+        but instead is used to scale the size of the overall UI in steps based on changes in the 
+        display dpi. For example, a 240x320 screen will have a density of 1, whether its width is 
+        1.8" or 1.3". However, if the resolution is increased to 320x480 but the display remains 
+        1.5"x2" then the density would be increased to about 1.5.
+    type: Number
+    platforms: [android]
+    
   - name: platformHeight
-    description: the height of the device screen
+    summary: |
+        Absolute height of the display in relation to UI orientation. Measured in platform-specific 
+        units; pixels on Android and density-independent pixels (dip) on iOS.
+    description: |
+        This property depends on the orientation of the UI, rather than the physical orientation of 
+        the device. While these may often be one in the same, it is not necessarily the case when 
+        orientation is restricted by <Titanium.UI.Window.orientationModes>. See example for 
+        clarification.
     type: Number
+    examples:
+      - title: Platform Width and Height
+        example: |
+            Create a window and limit it to portrait mode. Start the app and observe that the platform 
+            width and height is output to the log. Change the physical orientation of the device and 
+            click the window to test again. Note that the logged information relates to the UI rather 
+            than the physical orientation of the device.
+            
+                var win = Ti.UI.createWindow({
+                  title: 'Click window to output UI dimensions',
+                  backgroundColor: 'white',
+                  orientationModes: [ Titanium.UI.PORTRAIT ], // UI restricted to portrait mode
+                  fullscreen: false,
+                  exitOnClose: true
+                });
+                
+                var label = Ti.UI.createLabel({
+                  text:'Hello world'
+                });
+                win.add(label);
+                
+                function logDisplayCaps(){
+                  Ti.API.info('Width x Height: ' + Ti.Platform.displayCaps.platformWidth + ' x ' + Ti.Platform.displayCaps.platformHeight);
+                }
+                
+                win.addEventListener('click',function(e){
+                  // as the UI orientation is restricted by orientationModes, this will only ever 
+                  // output the dimensions of the UI in portrait mode. For example, 480 x 800 for the 
+                  // Android device tested
+                  logDisplayCaps();
+                });
+                
+                win.open();
+                
+                logDisplayCaps();
   - name: platformWidth
-    description: the width of the device screen
+    summary: |
+        Absolute width of the display in relation to UI orientation. Measured in platform-specific 
+        units; pixels on Android and density-independent pixels (dip) on iOS.
+    description: |
+        This property depends on the orientation of the UI, rather than the physical orientation of 
+        the device. While these may often be one in the same, it is not necessarily the case when 
+        orientation is restricted by <Titanium.UI.Window.orientationModes>. See example for 
+        clarification.
     type: Number
-notes: On iPhone, the `density` property will return `high` for retina devices and `medium` otherwise, the `dpi` property will return `160`. For iPad, the `density` property will return `medium` and the `dpi` property will return `130`.  For Android, these values are device specific.
+    examples:
+      - title: Platform Width and Height
+        example: |
+            Create a window and limit it to portrait mode. Start the app and observe that the platform 
+            width and height is output to the log. Change the physical orientation of the device and 
+            click the window to test again. Note that the logged information relates to the UI rather 
+            than the physical orientation of the device.
+            
+                var win = Ti.UI.createWindow({
+                  title: 'Click window to output UI dimensions',
+                  backgroundColor: 'white',
+                  orientationModes: [ Titanium.UI.PORTRAIT ], // UI restricted to portrait mode
+                  fullscreen: false,
+                  exitOnClose: true
+                });
+                
+                var label = Ti.UI.createLabel({
+                  text:'Hello world'
+                });
+                win.add(label);
+                
+                function logDisplayCaps(){
+                  Ti.API.info('Width x Height: ' + Ti.Platform.displayCaps.platformWidth + ' x ' + Ti.Platform.displayCaps.platformHeight);
+                }
+                
+                win.addEventListener('click',function(e){
+                  // as the UI orientation is restricted by orientationModes, this will only ever 
+                  // output the dimensions of the UI in portrait mode. For example, 480 x 800 for the 
+                  // Android device tested
+                  logDisplayCaps();
+                });
+                
+                win.open();
+                
+                logDisplayCaps();    
+  - name: xdpi
+    summary: Physical pixels per inch of the display in the X dimension.
+    type: Number
+    platforms: [android]
+    
+  - name: ydpi
+    summary: Physical pixels per inch of the display in the Y dimension.
+    type: Number
+    platforms: [android]
+    
+examples:
+  - title: System Display Information
+    example: |
+        Output the display properties to the system log.
+            
+            Ti.API.info('Ti.Platform.displayCaps.density: ' + Ti.Platform.displayCaps.density);
+            Ti.API.info('Ti.Platform.displayCaps.dpi: ' + Ti.Platform.displayCaps.dpi);
+            Ti.API.info('Ti.Platform.displayCaps.platformHeight: ' + Ti.Platform.displayCaps.platformHeight);
+            Ti.API.info('Ti.Platform.displayCaps.platformWidth: ' + Ti.Platform.displayCaps.platformWidth);
+            if(Ti.Platform.osname === 'android'){
+              Ti.API.info('Ti.Platform.displayCaps.xdpi: ' + Ti.Platform.displayCaps.xdpi);
+              Ti.API.info('Ti.Platform.displayCaps.ydpi: ' + Ti.Platform.displayCaps.ydpi);
+              Ti.API.info('Ti.Platform.displayCaps.logicalDensityFactor: ' + Ti.Platform.displayCaps.logicalDensityFactor);
+            }
+            

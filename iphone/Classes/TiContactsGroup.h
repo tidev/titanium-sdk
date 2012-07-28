@@ -14,9 +14,6 @@
 	ABRecordRef record;
 	ABRecordID recordId;
 	
-	// We need this because the record has to live on the main thread
-	// (otherwise, we run into all kinds of problems with callbacks and the contacts module and etc.)
-	NSMutableDictionary* returnCache;
 	ContactsModule* module;
 }
 

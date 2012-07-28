@@ -1,36 +1,49 @@
 ---
 name: Titanium.Android.Calendar.Alert
-description: An object which represents a single alert for an event in an Android calendar.
+summary: An object that represents a single alert for an event in an Android calendar.
 extends: Titanium.Proxy
 since: "1.5"
 platforms: [android]
 createable: false
+
 properties:
   - name: alarmTime
-    description: The date/time at which the alert's alarm is triggered.
+    summary: Date/time at which this alert alarm is set to trigger.
     type: Date
     permission: read-only
+    
   - name: begin
-    description: The date/time at which the corresponding event begins.
+    summary: Start date/time for the corresponding event.
     type: Date
     permission: read-only
+    
   - name: end
-    description: The date/time at which the corresponding event ends.
+    summary: End date/time for the corresponding event.
     type: Date
     permission: read-only
+    
   - name: eventId
-    description: The integer id of the event for which the alert is set.
+    summary: Identifier of the event for which this alert is set.
     type: Number
     permission: read-only
+    
   - name: id
-    description: The id of the alert.
+    summary: Identifier of this alert.
     type: String
     permission: read-only
+    
   - name: minutes
-    description: The minutes before the event when the alert should trigger.
+    summary: |
+        Reminder notice period in minutes, that determines how long prior to the event this alert 
+        should trigger.
     type: Number
     permission: read-only
+    
   - name: state
-    description: The current state of the alert.  Possible values are the STATE_ constants in <Titanium.Android.Calendar>.
+    summary: The current state of the alert.
+    description: |
+        One of [STATE_DISMISSED](Titanium.Android.Calendar.STATE_DISMISSED), 
+        [STATE_FIRED](Titanium.Android.Calendar.STATE_FIRED), 
+        or [STATE_SCHEDULED](Titanium.Android.Calendar.STATE_SCHEDULED).
     type: Number
     permission: read-only

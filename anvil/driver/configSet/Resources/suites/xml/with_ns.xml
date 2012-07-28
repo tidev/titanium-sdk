@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<response xmlns:abc="http://example.com">
+    <abc:cake><flavor>yummy</flavor></abc:cake>
+    <abc:cake><flavor>very yummy</flavor></abc:cake>
+    <abc:pie>also yummy</abc:pie>
+    <something>123</something>
+    <something>456</something>
+</response>

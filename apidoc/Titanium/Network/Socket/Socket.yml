@@ -1,39 +1,47 @@
 ---
 name: Titanium.Network.Socket
-description: Socket module
+summary: Socket module, used for creating sockets.
 extends: Titanium.Module
 since: "1.7"
+platforms: [android, iphone, ipad]
 
 properties:
   - name: INITIALIZED
     type: Number
-    description: state representing the initialized state of a socket
+    summary: State value representing an initialized socket.
+    description: |
+        The initial state of a newly-created socket.
     permission: read-only
   - name: CONNECTED
     type: Number
-    description: state representing the connected state of a socket
+    summary: State value representing a connected socket.
     permission: read-only
   - name: LISTENING
     type: Number
-    description: state representing the listening state of a socket
+    summary: State value representing a socket that is listening for connections.
     permission: read-only
   - name: CLOSED
     type: Number
-    description: state representing the closed state of a socket
+    summary: State value representing a closed socket. 
     permission: read-only
   - name: ERROR
     type: Number
-    description: state representing the error state of a socket
+    summary: State value indicating an error has occurred on the socket.
     permission: read-only
 
 methods:
   - name: createTCP
     returns:
         type: Titanium.Network.Socket.TCP
-        description: New TCP socket.
-    description: returns new TCP socket object, takes object containing properties list defined in `Titanium.Network.Socket.TCP`.  Some properties are only needed based on whether the socket will be a connecting socket or a listening socket.
+        summary: New TCP socket.
+    summary: Returns a new TCP socket object.
+    description: |
+         Takes a dictionary containing properties defined in <Titanium.Network.Socket.TCP>.  
+         Some properties are only needed based on whether the socket will be a connecting 
+         (client) socket or a listening (server) socket.
     parameters:
       - name: params
-        description: creation parameters
-        type: Object
+        summary: Creation parameters.
+        type: Dictionary<Titanium.Network.Socket.TCP>
+        optional: true
 

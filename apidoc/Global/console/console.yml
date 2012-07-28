@@ -1,0 +1,72 @@
+---
+name: Global.console
+summary: Console logging facilities.
+description: |
+    The toplevel `console` support is intended to supplement <Titanium.API>
+    and make it easier for developers to port existing javascript code
+    (especially CommonJS modules) to Titanium.
+    
+    Note that `console` does not currently implement the complete
+    [firebug specification](http://getfirebug.com/wiki/index.php/Console_API).
+    Our support is roughly equivalent to that offered by
+    [node.js's console](http://nodejs.org/api/stdio.html).
+since: "2.1.0"
+methods:
+  - name: log
+    summary: Log a message at the `info` level.
+    description: |
+        The message to log can either be a single argument, or any number
+        of arguments, which will be converted to strings and then concatenated
+        together with a space character.
+        
+        Note that this method has different behavior from <Titanium.API.log>,
+        which can take multiple arguments, but in doing so interprets the
+        first argument as a custom log level.
+    parameters:
+      - name: message
+        summary: The message(s) to log.
+        type: Object
+
+  - name: info
+    summary: Log a message at the `info` level.
+    description: |
+        The message to log can either be a single argument, or any number
+        of arguments, which will be converted to strings and then concatenated
+        together with a space character.
+    parameters:
+      - name: message
+        summary: The message(s) to log.
+        type: Object
+
+  - name: warn
+    summary: Log a message at the `warn` level.
+    description: |
+        The message to log can either be a single argument, or any number
+        of arguments, which will be converted to strings and then concatenated
+        together with a space character.
+    parameters:
+      - name: message
+        summary: The message(s) to log.
+        type: Object
+            
+  - name: error
+    summary: Log a message at the `error` level.
+    description: |
+        The message to log can either be a single argument, or any number
+        of arguments, which will be converted to strings and then concatenated
+        together with a space character.
+    parameters:
+      - name: message
+        summary: The message(s) to log.
+        type: Object
+        
+  - name: debug
+    summary: Log a message at the `debug` level.
+    description: |
+        The message to log can either be a single argument, or any number
+        of arguments, which will be converted to strings and then concatenated
+        together with a space character.
+    parameters:
+      - name: message
+        summary: The message(s) to log.
+        type: Object

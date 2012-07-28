@@ -5,9 +5,16 @@
 #
 
 import os, sys, subprocess, re, types
-import json, run, tempfile, codecs
+import run, tempfile, codecs
 
 template_dir = os.path.abspath(os.path.dirname(sys._getframe(0).f_code.co_filename))
+sys.path.append(os.path.abspath(os.path.join(template_dir, "..", "common")))
+
+try:
+	import json
+except:
+	import simplejson as json
+
 
 # sort by the latest version first
 def version_sort(a,b):
@@ -138,7 +145,7 @@ def check_for_package():
 	sdks,ipad = get_sdks()
 	props['sdks']=sdks
 	props['ipad']=ipad
-	print json.encode(props).encode('utf-8')
+	print json.dumps(props).encode('utf-8')
 			
 def main(args):
 	if len(args)!=2:

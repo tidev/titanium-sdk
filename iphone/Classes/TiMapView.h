@@ -28,7 +28,6 @@
 	BOOL ignoreClicks;
 	MKCoordinateRegion region;
 	
-	TiMapAnnotationProxy * pendingAnnotationSelection;
     // routes
     // dictionaries for object tracking and association
     CFMutableDictionaryRef mapLine2View;   // MKPolyline(route line) -> MKPolylineView(route view)
@@ -40,9 +39,18 @@
 	BOOL manualSelect;
 }
 
+@property (nonatomic, readonly) CLLocationDegrees longitudeDelta;
+@property (nonatomic, readonly) CLLocationDegrees latitudeDelta;
+@property (nonatomic, readonly) NSArray *customAnnotations;
+
+#pragma mark Private APIs
+-(TiMapAnnotationProxy*)annotationFromArg:(id)arg;
+-(NSArray*)annotationsFromArgs:(id)value;
+
 #pragma mark Public APIs
 -(void)addAnnotation:(id)args;
 -(void)addAnnotations:(id)args;
+-(void)setAnnotations_:(id)value;
 -(void)removeAnnotation:(id)args;
 -(void)removeAnnotations:(id)args;
 -(void)removeAllAnnotations:(id)args;
@@ -51,6 +59,7 @@
 -(void)zoom:(id)args;
 -(void)addRoute:(id)args;
 -(void)removeRoute:(id)args;
+-(void)firePinChangeDragState:(MKAnnotationView *) pinview newState:(MKAnnotationViewDragState)newState fromOldState:(MKAnnotationViewDragState)oldState;
 
 #pragma mark Framework
 -(void)refreshAnnotation:(TiMapAnnotationProxy*)proxy readd:(BOOL)yn;

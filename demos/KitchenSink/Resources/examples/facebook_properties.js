@@ -17,8 +17,8 @@ var plist = []; // list of known FB permissions as of Jan 2011 (see bottom)
 // Login Button
 //
 var fbButton = Titanium.Facebook.createLoginButton({
-	style:'wide',
-	top: 10
+	top: 10,
+	style: Ti.Facebook.BUTTON_STYLE_NORMAL
 });
 sv.add(fbButton);
 

@@ -98,7 +98,7 @@
 	return @"hello world";
 }
 
--(void)exampleProp:(id)value
+-(void)setExampleProp:(id)value
 {
 	// example property setter
 }

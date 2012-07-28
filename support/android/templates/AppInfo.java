@@ -3,7 +3,7 @@ package ${config['appid']};
 import org.appcelerator.titanium.ITiAppInfo;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiProperties;
-import org.appcelerator.titanium.util.Log;
+import org.appcelerator.kroll.common.Log;
 
 /* GENERATED CODE
  * Warning - this class was generated from your application's tiapp.xml
@@ -16,6 +16,7 @@ public final class ${config['classname']}AppInfo implements ITiAppInfo
 	public ${config['classname']}AppInfo(TiApplication app) {
 		%if len(app_properties.keys()) > 0:
 		TiProperties properties = app.getSystemProperties();
+		TiProperties appProperties = app.getAppProperties();
 			%for property in app_properties.keys():
 				%try:
 					<%
@@ -28,6 +29,7 @@ public final class ${config['classname']}AppInfo implements ITiAppInfo
 					setter = 'set%s' % type[0:1].upper() + type[1:]
 					%>
 					properties.${setter}("${property}", ${javaValue});
+					appProperties.${setter}("${property}", ${javaValue});
 				%except:
 		Log.w(LCAT, "Couldn't convert application property '${property}', with value '${value}' to ${type}, skipping.");
 				%endtry

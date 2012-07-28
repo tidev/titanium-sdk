@@ -1,64 +1,126 @@
 ---
 name: Titanium.Media.Item
-description: A representation of a media item returned by the music picker as part of the `items` array in the dictionary passed to its `success` function.
+summary: A representation of a media item returned by [openMusicLibrary](Titanium.Media.openMusicLibrary) or [queryMusicLibrary](Titanium.Media.queryMusicLibrary).
+description: |
+    This is a read-only object that describes a single media item, not a playlist. 
+    Titanium does not support access to playlists.
+    
+    `Item` objects cannot be created explicitly.  The 
+    [openMusicLibrary](Titanium.Media.openMusicLibrary) returns `Item` objects in its
+    `success` callback function, while [queryMusicLibrary](Titanium.Media.queryMusicLibrary)
+    returns an array of `Item` objects.
 extends: Titanium.Proxy
 since: "1.4.0"
 platforms: [iphone, ipad]
+creatable: false
 properties:
+
   - name: albumArtist
-    description: the artist for the album of the item
+    summary: Artist credited for the album containing this item.
     type: String
+    permission: read-only
+
   - name: albumTitle
-    description: the album title of the item
+    summary: Title of the album containing this item.
     type: String
+    permission: read-only
+
   - name: albumTrackCount
-    description: the number of tracks for the album of the item
+    summary: Number of tracks for the album containing this item.
     type: Number
+    permission: read-only
+
   - name: albumTrackNumber
-    description: the track number of the item
+    summary: Track number for this item.
     type: Number
+    permission: read-only
+
   - name: artist
-    description: the artist of the item
+    summary: Artist credited for this item.
     type: String
+    permission: read-only
+
   - name: artwork
-    description: a blob object containing the image for the item's artwork, or null if none
-    type: Object
+    summary: |
+        Image for the item's artwork as a `Blob` object,  or `null` if no artwork is
+        available.
+    type: Titanium.Blob
+    permission: read-only
+
   - name: composer
-    description: the composer of the item
+    summary: Composer of this item.
     type: String
+    permission: read-only
+
   - name: discCount
-    description: the total number of discs of the item
+    summary: Total number of discs for the album containing this item.
     type: Number
+    permission: read-only
+
   - name: discNumber
-    description: the disc number of the item
+    summary: Disc number for this item in the album.
     type: Number
+    permission: read-only
+
   - name: genre
-    description: the genre of the item
+    summary: Genre of this item.
     type: String
+    permission: read-only
+
   - name: isCompilation
-    description: true if the item is part of a compilation album
+    summary: True if this item is part of a compilation album.
     type: Boolean
+    permission: read-only
+
   - name: lyrics
-    description: the lyrics of the item
+    summary: Lyrics for this item.
     type: String
+    permission: read-only
+
   - name: mediaType
-    description: the type of the item
+    summary: |
+        The type of the media. 
+    description: |
+        Specify one of the following constants from <Titanium.Media>:
+        [MUSIC_MEDIA_TYPE_ALL](Titanium.Media.MUSIC_MEDIA_TYPE_ALL),
+        [MUSIC_MEDIA_TYPE_ANY_AUDIO](Titanium.Media.MUSIC_MEDIA_TYPE_ANY_AUDIO),
+        [MUSIC_MEDIA_TYPE_AUDIOBOOK](Titanium.Media.MUSIC_MEDIA_TYPE_AUDIOBOOK),
+        [MUSIC_MEDIA_TYPE_MUSIC](Titanium.Media.MUSIC_MEDIA_TYPE_MUSIC), or
+        [MUSIC_MEDIA_TYPE_PODCAST](Titanium.Media.MUSIC_MEDIA_TYPE_PODCAST).
+
+        At least in theory, a single item can have more than one media type, in which case the
+        value represents a bitwise-OR of all the applicable media types.
     type: Number
+    permission: read-only
+
   - name: playCount
-    description: the number of times the item has been played
+    summary: Number of times the item has been played.
     type: Number
+    permission: read-only
+
   - name: playbackDuration
-    description: the length (in seconds) of the item
+    summary: Length (in seconds) of this item.
     type: Number
+    permission: read-only
+
   - name: podcastTitle
-    description: the title of a podcast item.  Only for media types of <Titanium.Media.MUSIC_MEDIA_TYPE_PODCAST>.
+    summary: Title of a podcast item.  
+    description: |
+        Only included if the media type is <Titanium.Media.MUSIC_MEDIA_TYPE_PODCAST>.
     type: String
+    permission: read-only
+
   - name: rating
-    description: the rating of the item
+    summary: Rating for this item.
     type: Number
+    permission: read-only
+
   - name: skipCount
-    description: the number of times the item has been skipped
+    summary: Number of times this item has been skipped.
     type: Number
+    permission: read-only
+
   - name: title
-    description: the title of the item
+    summary: Title of this item.
     type: String
+    permission: read-only

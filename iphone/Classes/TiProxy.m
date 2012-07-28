@@ -34,6 +34,7 @@ NSString * const TiExceptionInternalInconsistency = @"Value was not the value ex
 //Rare exceptions to indicate a bug in the titanium code (Eg, method that a subclass should have implemented)
 NSString * const TiExceptionUnimplementedFunction = @"Subclass did not implement required method";
 
+NSString * const TiExceptionMemoryFailure = @"Memory allocation failed";
 
 
 SEL SetterForKrollProperty(NSString * key)
@@ -77,7 +78,7 @@ void DoProxyDelegateChangedValuesWithProxy(UIView<TiProxyDelegate> * target, NSS
 				key = [NSString stringWithFormat:@"set%@%@_", [[key substringToIndex:1] uppercaseString], [key substringFromIndex:1]];
 			}
 			NSArray *arg = [NSArray arrayWithObjects:key,firstarg,secondarg,target,nil];
-			[proxy performSelectorOnMainThread:@selector(_dispatchWithObjectOnUIThread:) withObject:arg waitUntilDone:YES];
+			TiThreadPerformOnMainThread(^{[proxy _dispatchWithObjectOnUIThread:arg];}, YES);
 		}
 		return;
 	}
@@ -85,14 +86,7 @@ void DoProxyDelegateChangedValuesWithProxy(UIView<TiProxyDelegate> * target, NSS
 	sel = SetterForKrollProperty(key);
 	if ([target respondsToSelector:sel])
 	{
-		if ([NSThread isMainThread])
-		{
-			[target performSelector:sel withObject:newValue];
-		}
-		else
-		{
-			[target performSelectorOnMainThread:sel withObject:newValue waitUntilDone:YES modes:[NSArray arrayWithObject:NSRunLoopCommonModes]];
-		}
+		TiThreadPerformOnMainThread(^{[target performSelector:sel withObject:newValue];}, YES);
 	}
 }
 
@@ -118,7 +112,7 @@ void DoProxyDispatchToSecondaryArg(UIView<TiProxyDelegate> * target, SEL sel, NS
 			key = [NSString stringWithFormat:@"set%@%@_", [[key substringToIndex:1] uppercaseString], [key substringFromIndex:1]];
 		}
 		NSArray *arg = [NSArray arrayWithObjects:key,firstarg,secondarg,target,nil];
-		[proxy performSelectorOnMainThread:@selector(_dispatchWithObjectOnUIThread:) withObject:arg waitUntilDone:YES];
+		TiThreadPerformOnMainThread(^{[proxy _dispatchWithObjectOnUIThread:arg];}, YES);
 	}
 }
 
@@ -153,8 +147,7 @@ void DoProxyDelegateReadKeyFromProxy(UIView<TiProxyDelegate> * target, NSString 
 	}
 	else
 	{
-		[target performSelectorOnMainThread:sel withObject:value
-				waitUntilDone:NO modes:[NSArray arrayWithObject:NSRunLoopCommonModes]];
+		TiThreadPerformOnMainThread(^{[target performSelector:sel withObject:value];}, NO);
 	}
 }
 
@@ -206,12 +199,24 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 	if (self = [super init])
 	{
 #if PROXY_MEMORY_TRACK == 1
-		NSLog(@"INIT: %@ (%d)",self,[self hash]);
+		NSLog(@"[DEBUG] INIT: %@ (%d)",self,[self hash]);
 #endif
 		pthread_rwlock_init(&listenerLock, NULL);
 		pthread_rwlock_init(&dynpropsLock, NULL);
 	}
 	return self;
+}
+
+-(void)initializeProperty:(NSString*)name defaultValue:(id)value
+{
+    pthread_rwlock_wrlock(&dynpropsLock);
+    if (dynprops == nil) {
+        dynprops = [[NSMutableDictionary alloc] init];
+    }
+    if ([dynprops valueForKey:name] == nil) {
+        [dynprops setValue:((value == nil) ? [NSNull null] : value) forKey:name];
+    }
+    pthread_rwlock_unlock(&dynpropsLock);
 }
 
 +(BOOL)shouldRegisterOnInit
@@ -223,24 +228,27 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 {
 	if (self = [self init])
 	{
-		pageContext = (id)context; // do not retain 
+		pageContext = (id)context; // do not retain
+		executionContext = context; //To ensure there is an execution context during _configure.
 		if([[self class] shouldRegisterOnInit]) // && ![NSThread isMainThread])
 		{
 			[pageContext registerProxy:self];
 			// allow subclasses to configure themselves
 		}
 		[self _configure];
+		executionContext = nil;
 	}
 	return self;
 }
 
 -(void)setModelDelegate:(id <TiProxyDelegate>)md
 {
-    if (modelDelegate != self) {
+	// TODO; revisit modelDelegate/TiProxy typing issue
+    if ((void*)modelDelegate != self) {
         RELEASE_TO_NIL(modelDelegate);
     }
     
-    if (md != self) {
+    if ((void*)md != self) {
         modelDelegate = [md retain];
     }
     else {
@@ -269,7 +277,7 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 {
 	if(OSAtomicDecrement32(&bridgeCount)<0)
 	{
-		NSLog(@"[FATAL] BridgeCount for %@ is now at %d",self,bridgeCount);
+		DeveloperLog(@"[WARN] BridgeCount for %@ is now at %d",self,bridgeCount);
 	}
 	if(oldBridge == pageContext) {
 		pageKrollObject = nil;
@@ -335,6 +343,10 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 {
 	if (self = [self _initWithPageContext:context_])
 	{
+		// If we are being created with a page context, assume that this is also
+		// the execution context during creation so that recursively-made
+		// proxies have the same page context.
+		executionContext = context_;
 		id a = nil;
 		int count = [args count];
 		
@@ -349,6 +361,7 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 		}
 		
 		[self _initWithProperties:a];
+		executionContext = nil;
 	}
 	return self;
 }
@@ -363,7 +376,7 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 	destroyed = YES;
 	
 #if PROXY_MEMORY_TRACK == 1
-	NSLog(@"DESTROY: %@ (%d)",self,[self hash]);
+	NSLog(@"[DEBUG] DESTROY: %@ (%d)",self,[self hash]);
 #endif
 
 	if ((bridgeCount == 1) && (pageKrollObject != nil) && (pageContext != nil))
@@ -395,8 +408,9 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 	
 	RELEASE_TO_NIL(baseURL);
 	RELEASE_TO_NIL(krollDescription);
-    if (modelDelegate != self) {
-        RELEASE_TO_NIL(modelDelegate);
+    if ((void*)modelDelegate != self) {
+		TiThreadReleaseOnMainThread(modelDelegate, YES);
+        modelDelegate = nil;
     }
 	pageContext=nil;
 	pageKrollObject = nil;
@@ -410,18 +424,11 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 -(void)dealloc
 {
 #if PROXY_MEMORY_TRACK == 1
-	NSLog(@"DEALLOC: %@ (%d)",self,[self hash]);
+	NSLog(@"[DEBUG] DEALLOC: %@ (%d)",self,[self hash]);
 #endif
 	[self _destroy];
 	pthread_rwlock_destroy(&listenerLock);
 	pthread_rwlock_destroy(&dynpropsLock);
-/*
-	//BridgeCount will be 1 on TopTiModule and TiUIWindow, so we should not
-	//Warn of this just yet.
-	if (bridgeCount > 0) {
-		NSLog(@"[FATAL] BridgeCount of %@ is %d during dealloc.",self,bridgeCount);
-	}
-*/
 	[super dealloc];
 }
 
@@ -576,7 +583,7 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 		
 	if(![bridge usesProxy:self])
 	{
-		NSLog(@"[ERROR] Adding an event listener to a proxy that isn't already in the context");
+		DeveloperLog(@"[DEBUG] Proxy %@ may be missing its javascript representation.", self);
 	}
 	
 	return [bridge krollObjectForProxy:self];
@@ -593,7 +600,7 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 	
 	if(![ourBridge usesProxy:self])
 	{
-		NSLog(@"[ERROR] Adding an event listener to a proxy that isn't already in the context");
+		DeveloperLog(@"[DEBUG] Proxy %@ may be missing its javascript representation.", self);
 	}
 
 	return [ourBridge krollObjectForProxy:self];
@@ -606,18 +613,22 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 
 -(void)rememberProxy:(TiProxy *)rememberedProxy
 {
+	if (rememberedProxy == nil)
+	{
+		return;
+	}
 	if ((bridgeCount == 1) && (pageKrollObject != nil))
 	{
 		if (rememberedProxy == self) {
 			[pageKrollObject protectJsobject];
 			return;
 		}
-		[pageKrollObject noteKeylessKrollObject:[rememberedProxy krollObjectForBridge:pageContext]];
+		[pageKrollObject noteKeylessKrollObject:[rememberedProxy krollObjectForBridge:(KrollBridge*)pageContext]];
 		return;
 	}
 	if (bridgeCount < 1)
 	{
-		NSLog(@"[FATAL] Orphaned %@ is trying to remember %@.",self,rememberedProxy);
+		DeveloperLog(@"[DEBUG] Proxy %@ is missing its javascript representation needed to remember %@.",self,rememberedProxy);
 		return;
 	}
 	
@@ -641,18 +652,24 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 
 -(void)forgetProxy:(TiProxy *)forgottenProxy
 {
+	if (forgottenProxy == nil)
+	{
+		return;
+	}
 	if ((bridgeCount == 1) && (pageKrollObject != nil))
 	{
 		if (forgottenProxy == self) {
 			[pageKrollObject unprotectJsobject];
 			return;
 		}
-		[pageKrollObject forgetKeylessKrollObject:[forgottenProxy krollObjectForBridge:pageContext]];
+		[pageKrollObject forgetKeylessKrollObject:[forgottenProxy krollObjectForBridge:(KrollBridge*)pageContext]];
 		return;
 	}
 	if (bridgeCount < 1)
 	{
-		NSLog(@"[FATAL] Orphaned %@ is trying to forget %@.",self,forgottenProxy);
+		//While this may be of concern and there used to be a
+		//warning here, too many false alarms were raised during
+		//multi-context cleanups.
 		return;
 	}
 
@@ -698,7 +715,7 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 		return;
 	}
 
-	KrollBridge * blessedBridge = [[eventCallback context] delegate];
+	KrollBridge * blessedBridge = (KrollBridge*)[[eventCallback context] delegate];
 	NSArray * bridges = [KrollBridge krollBridgesUsingProxy:self];
 
 	for (KrollBridge * currentBridge in bridges)
@@ -841,7 +858,7 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 
 	if ((bridgeCount == 1) && (pageKrollObject != nil))
 	{
-		[(KrollBridge *)pageContext enqueueEvent:type forProxy:self withObject:eventObject withSource:source];
+		[(KrollBridge *)pageContext enqueueEvent:type forProxy:self withObject:eventObject];
 	}
 	else
 	{
@@ -849,7 +866,7 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 
 		for (KrollBridge * currentBridge in bridges)
 		{
-			[currentBridge enqueueEvent:type forProxy:self withObject:eventObject withSource:source];
+			[currentBridge enqueueEvent:type forProxy:self withObject:eventObject];
 		}
 	}
 }
@@ -864,7 +881,7 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 			id currentValue = [keyedValues objectForKey:currentKey];
 			if([currentValue isKindOfClass:[TiProxy class]] && [pageContext usesProxy:currentValue])
 			{
-				[pageKrollObject noteKrollObject:[currentValue krollObjectForBridge:pageContext] forKey:currentKey];
+				[pageKrollObject noteKrollObject:[currentValue krollObjectForBridge:(KrollBridge*)pageContext] forKey:currentKey];
 			}
 		}
 	}
@@ -953,68 +970,19 @@ DEFINE_EXCEPTIONS
 
 - (void)replaceValue:(id)value forKey:(NSString*)key notification:(BOOL)notify
 {
-	// used for replacing a value and controlling model delegate notifications
-	if (value==nil)
-	{
-		if (!notify && (dynprops == nil)) {
-			//Don't bother to create a dictionary if it's
-			//going to be a waste.
-			return;
-		}
-		value = [NSNull null];
+	if (destroyed) {
+		return;
 	}
-	id current = nil;
-	if (!ignoreValueChanged)
-	{
-		pthread_rwlock_wrlock(&dynpropsLock);
-		if (dynprops==nil)
-		{
-			dynprops = [[NSMutableDictionary alloc] init];
-		}
-		else
-		{
-			// hold it for this invocation since set may cause it to be deleted
-			current = [dynprops objectForKey:key];
-			if (current!=nil)
-			{
-				current = [[current retain] autorelease];
-			}
-		}
-		if ((current!=value)&&![current isEqual:value])
-		{
-			[dynprops setValue:value forKey:key];
-		}
-		pthread_rwlock_unlock(&dynpropsLock);
-	}
-	
-	if (notify && self.modelDelegate!=nil)
-	{
-		[self.modelDelegate propertyChanged:key oldValue:current newValue:value proxy:self];
-	}
-}
-
-- (void) deleteKey:(NSString*)key
-{
-	pthread_rwlock_wrlock(&dynpropsLock);
-	if (dynprops!=nil)
-	{
-		[dynprops removeObjectForKey:key];
-	}
-	pthread_rwlock_unlock(&dynpropsLock);
-}
-
-- (void) setValue:(id)value forUndefinedKey: (NSString *) key
-{
-	if([value isKindOfClass:[KrollCallback class]]){
+    if([value isKindOfClass:[KrollCallback class]]){
 		[self setCallback:value forKey:key];
-		//As a wrapper, we hold onto a krollFunction tuple so that other contexts
+		//As a wrapper, we hold onto a KrollWrapper tuple so that other contexts
 		//may access the function.
-		KrollFunction * newValue = [[[KrollFunction alloc] init] autorelease];
-		[newValue setRemoteBridge:[[value context] delegate]];
-		[newValue setRemoteFunction:[value function]];
+		KrollWrapper * newValue = [[[KrollWrapper alloc] init] autorelease];
+		[newValue setBridge:(KrollBridge*)[[(KrollCallback*)value context] delegate]];
+		[newValue setJsobject:[(KrollCallback*)value function]];
 		value = newValue;
 	}
-
+    
 	id current = nil;
 	pthread_rwlock_wrlock(&dynpropsLock);
 	if (dynprops!=nil)
@@ -1030,38 +998,57 @@ DEFINE_EXCEPTIONS
 	{
 		dynprops = [[NSMutableDictionary alloc] init];
 	}
-
-	id propvalue = value;
-	
-	if (value == nil)
-	{
-		propvalue = [NSNull null];
-	}
-	else if (value == [NSNull null])
-	{
-		value = nil;
-	}
-		
-	// notify our delegate
-	if (current!=value)
-	{
+    
+    // TODO: Clarify internal difference between nil/NSNull
+    // (which represent different JS values, but possibly consistent internal behavior)
+    
+    id propvalue = (value == nil) ? [NSNull null] : value;
+    
+    BOOL newValue = (current != propvalue && ![current isEqual:propvalue]);
+    
+    // We need to stage this out; the problem at hand is that some values
+    // we might store as properties (such as NSArray) use isEqual: as a
+    // strict address/hash comparison. So the notification must always
+    // occur, and it's up to the delegate to make sense of it (for now).
+    
+    if (newValue) {
         // Remember any proxies set on us so they don't get GC'd
         if ([propvalue isKindOfClass:[TiProxy class]]) {
             [self rememberProxy:propvalue];
         }
 		[dynprops setValue:propvalue forKey:key];
-		pthread_rwlock_unlock(&dynpropsLock);
-		if (self.modelDelegate!=nil)
-		{
-			[[(NSObject*)self.modelDelegate retain] autorelease];
-			[self.modelDelegate propertyChanged:key oldValue:current newValue:value proxy:self];
-		}
-        if ([current isKindOfClass:[TiProxy class]]) {
-            [self forgetProxy:current];
-        }
-		return; // so we don't unlock twice
+    }
+	pthread_rwlock_unlock(&dynpropsLock);
+    
+    if (self.modelDelegate!=nil && notify)
+    {
+        [[(NSObject*)self.modelDelegate retain] autorelease];
+        [self.modelDelegate propertyChanged:key 
+                                   oldValue:current 
+                                   newValue:propvalue
+                                      proxy:self];
+    }
+    
+    // Forget any old proxies so that they get cleaned up
+    if (newValue && [current isKindOfClass:[TiProxy class]]) {
+        [self forgetProxy:current];
+    }
+}
+
+// TODO: Shouldn't we be forgetting proxies and unprotecting callbacks and such here?
+- (void) deleteKey:(NSString*)key
+{
+	pthread_rwlock_wrlock(&dynpropsLock);
+	if (dynprops!=nil)
+	{
+		[dynprops removeObjectForKey:key];
 	}
 	pthread_rwlock_unlock(&dynpropsLock);
+}
+
+- (void) setValue:(id)value forUndefinedKey: (NSString *) key
+{
+    [self replaceValue:value forKey:key notification:YES];
 }
 
 -(NSDictionary*)allProperties
@@ -1102,6 +1089,7 @@ DEFINE_EXCEPTIONS
  
 #pragma mark Dispatching Helper
 
+//TODO: Now that we have TiThreadPerform, we should optimize this out.
 -(void)_dispatchWithObjectOnUIThread:(NSArray*)args
 {
 	//NOTE: this is called by ENSURE_UI_THREAD_WITH_OBJ and will always be on UI thread when we get here
@@ -1128,11 +1116,14 @@ DEFINE_EXCEPTIONS
 	if (krollDescription==nil) 
 	{ 
 		// if we have a cached id, use it for our identifier
-		NSString *cn = [self valueForUndefinedKey:@"id"];
-		if (cn==nil)
-		{
-			cn = [[self class] description];
-		}
+        id temp = [self valueForUndefinedKey:@"id"];
+        NSString *cn =nil;
+        if (temp==nil||![temp isKindOfClass:[NSString class]]){
+              cn = NSStringFromClass([self class]);
+        }
+        else {
+            cn = temp;
+        }
 		krollDescription = [[NSString stringWithFormat:@"[object %@]",[cn stringByReplacingOccurrencesOfString:@"Proxy" withString:@""]] retain];
 	}
 

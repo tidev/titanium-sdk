@@ -16,10 +16,16 @@
 {
 	[sliderView removeTarget:self action:@selector(sliderChanged:) forControlEvents:UIControlEventValueChanged];
 	[sliderView removeTarget:self action:@selector(sliderBegin:) forControlEvents:UIControlEventTouchDown];
-	[sliderView removeTarget:self action:@selector(sliderEnd:) forControlEvents:(UIControlEventTouchUpInside | UIControlEventTouchUpOutside)];
+	[sliderView removeTarget:self action:@selector(sliderEnd:) forControlEvents:(UIControlEventTouchUpInside | UIControlEventTouchUpOutside | UIControlEventTouchCancel)];
 	RELEASE_TO_NIL(sliderView);
 	RELEASE_TO_NIL(lastTouchUp);
 	[super dealloc];
+}
+
+-(void)layoutSubviews
+{
+    [super layoutSubviews];
+    [sliderView setFrame:[self bounds]];
 }
 
 -(UISlider*)sliderView
@@ -27,7 +33,6 @@
 	if (sliderView==nil)
 	{
 		sliderView = [[UISlider alloc] initWithFrame:[self bounds]];
-		[sliderView setAutoresizingMask:UIViewAutoresizingFlexibleWidth];
 		
 		// We have to do this to force the slider subviews to appear, in the case where value<=min==0.
 		// If the slider doesn't register a value change (or already have its subviews drawn in a nib) then
@@ -37,10 +42,14 @@
 		
 		[sliderView addTarget:self action:@selector(sliderChanged:) forControlEvents:UIControlEventValueChanged];
 		[sliderView addTarget:self action:@selector(sliderBegin:) forControlEvents:UIControlEventTouchDown];
-		[sliderView addTarget:self action:@selector(sliderEnd:) forControlEvents:(UIControlEventTouchUpInside | UIControlEventTouchUpOutside)];
+		[sliderView addTarget:self action:@selector(sliderEnd:) forControlEvents:(UIControlEventTouchUpInside | UIControlEventTouchUpOutside | UIControlEventTouchCancel)];
 		[self addSubview:sliderView];
 		lastTouchUp = [[NSDate alloc] init];
 		lastTimeInterval = 1.0; // Short-circuit so that we don't ignore the first fire
+		
+		thumbImageState = UIControlStateNormal;
+		leftTrackImageState = UIControlStateNormal;
+		rightTrackImageState = UIControlStateNormal;
 	}
 	return sliderView;
 }
@@ -73,63 +82,102 @@
 -(void)setThumbImage_:(id)value
 {
 	[self setThumb:value forState:UIControlStateNormal];
+	
+	if ((thumbImageState & UIControlStateSelected)==0) {
+		[self setThumb:value forState:UIControlStateSelected];
+	}
+	if ((thumbImageState & UIControlStateHighlighted)==0) {
+		[self setThumb:value forState:UIControlStateHighlighted];
+	}
+	if ((thumbImageState & UIControlStateDisabled)==0) {
+		[self setThumb:value forState:UIControlStateDisabled];
+	}
 }
 
 -(void)setSelectedThumbImage_:(id)value
 {
 	[self setThumb:value forState:UIControlStateSelected];
+	thumbImageState = thumbImageState | UIControlStateSelected;
 }
 
 -(void)setHighlightedThumbImage_:(id)value
 {
 	[self setThumb:value forState:UIControlStateHighlighted];
+	thumbImageState = thumbImageState | UIControlStateHighlighted;
 }
 
 -(void)setDisabledThumbImage_:(id)value
 {
 	[self setThumb:value forState:UIControlStateDisabled];
+	thumbImageState = thumbImageState | UIControlStateSelected;
 }
 
 
 -(void)setLeftTrackImage_:(id)value
 {
 	[self setLeftTrack:value forState:UIControlStateNormal];
+	
+	if ((leftTrackImageState & UIControlStateSelected)==0) {
+		[self setLeftTrack:value forState:UIControlStateSelected];
+	}
+	if ((leftTrackImageState & UIControlStateHighlighted)==0) {
+		[self setLeftTrack:value forState:UIControlStateHighlighted];
+	}
+	if ((leftTrackImageState & UIControlStateDisabled)==0) {
+		[self setLeftTrack:value forState:UIControlStateDisabled];
+	}
 }
 
 -(void)setSelectedLeftTrackImage_:(id)value
 {
 	[self setLeftTrack:value forState:UIControlStateSelected];
+	leftTrackImageState = leftTrackImageState | UIControlStateSelected;
 }
 
 -(void)setHighlightedLeftTrackImage_:(id)value
 {
 	[self setLeftTrack:value forState:UIControlStateHighlighted];
+	leftTrackImageState = leftTrackImageState | UIControlStateHighlighted;
 }
 
 -(void)setDisabledLeftTrackImage_:(id)value
 {
 	[self setLeftTrack:value forState:UIControlStateDisabled];
+	leftTrackImageState = leftTrackImageState | UIControlStateDisabled;
 }
 
 
 -(void)setRightTrackImage_:(id)value
 {
 	[self setRightTrack:value forState:UIControlStateNormal];
+	
+	if ((rightTrackImageState & UIControlStateSelected)==0) {
+		[self setRightTrack:value forState:UIControlStateSelected];
+	}
+	if ((rightTrackImageState & UIControlStateHighlighted)==0) {
+		[self setRightTrack:value forState:UIControlStateHighlighted];
+	}
+	if ((rightTrackImageState & UIControlStateDisabled)==0) {
+		[self setRightTrack:value forState:UIControlStateDisabled];
+	}
 }
 
 -(void)setSelectedRightTrackImage_:(id)value
 {
 	[self setRightTrack:value forState:UIControlStateSelected];
+	rightTrackImageState = rightTrackImageState | UIControlStateSelected;
 }
 
 -(void)setHighlightedRightTrackImage_:(id)value
 {
 	[self setRightTrack:value forState:UIControlStateHighlighted];
+	rightTrackImageState = rightTrackImageState | UIControlStateHighlighted;
 }
 
 -(void)setDisabledRightTrackImage_:(id)value
 {
 	[self setRightTrack:value forState:UIControlStateDisabled];
+	rightTrackImageState = rightTrackImageState | UIControlStateDisabled;
 }
 
 -(void)setMin_:(id)value

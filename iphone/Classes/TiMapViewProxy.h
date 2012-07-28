@@ -18,6 +18,11 @@
 	int zoomCount; // Number of times to zoom in/out on initial display
 }
 
+@property (nonatomic, readonly) NSNumber* longitudeDelta;
+@property (nonatomic, readonly) NSNumber* latitudeDelta;
+
+-(TiMapAnnotationProxy*)annotationFromArg:(id)arg;
+
 -(void)addAnnotation:(id)args;
 -(void)addAnnotations:(id)args;
 -(void)removeAnnotation:(id)args;

@@ -18,7 +18,7 @@
 
 - (id)density
 {
-	if ([TiUtils isRetinaDisplay] && ![TiUtils isIPad])
+	if ([TiUtils isRetinaDisplay])
 	{
 		return @"high";
 	}
@@ -27,18 +27,7 @@
 
 - (id)dpi
 {
-	if ([TiUtils isIPad])
-	{
-		return [NSNumber numberWithInt:130];
-	}
-	else if ([TiUtils isRetinaDisplay])
-	{
-		return [NSNumber numberWithInt:320];
-	}
-	else
-	{
-		return [NSNumber numberWithInt:160];
-	}
+	return [NSNumber numberWithInt:[TiUtils dpi]];
 }
 
 - (BOOL)isDevicePortrait

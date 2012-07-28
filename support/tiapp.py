@@ -3,7 +3,7 @@
 #
 # tiapp parser
 # 
-import os, types, uuid
+import os, types, uuid , fnmatch
 import codecs, time, sys
 from xml.dom.minidom import parseString
 from StringIO import StringIO
@@ -38,6 +38,10 @@ def get_window_properties(node):
 			wp[w.nodeName]=getText(w.childNodes)
 	return wp
 
+def touch_tiapp_xml(tiapp_xml):
+	print "[DEBUG] touching tiapp.xml to force rebuild next time: " + tiapp_xml
+	os.utime(tiapp_xml, None)
+
 			
 class TiAppXML(object):
 	def __init__(self, file, parse_only=False):
@@ -69,6 +73,7 @@ class TiAppXML(object):
 		self.android = {}
 		self.android_manifest = {}
 		self.iphone = {}
+		self.ios = {};
 		
 		root = self.dom.documentElement
 		children = root.childNodes
@@ -104,6 +109,8 @@ class TiAppXML(object):
 					self.parse_android(child)
 				elif child.nodeName == 'iphone':
 					self.parse_iphone(child)
+				elif child.nodeName == 'ios':
+					self.parse_ios(child)
 				elif child.nodeName == 'property':
 					name = child.getAttribute('name')
 					value = getText(child.childNodes)
@@ -325,12 +332,56 @@ class TiAppXML(object):
 			if child.nodeName in parse_tags:
 				local_objects['parse_'+child.nodeName](child)
 
+	def parse_ios(self, node):
+		def getText(nodelist):
+		    rc = []
+		    for node in nodelist:
+		        if node.nodeType == node.TEXT_NODE:
+		            rc.append(node.data)
+		    return ''.join(rc)
+		
+		ignore_keys = ['CFBundleDisplayName', 'CFBundleExecutable', 'CFBundleIconFile',
+				'CFBundleIdentifier', 'CFBundleInfoDictionaryVersion', 'CFBundleName', 'CFBundlePackageType', 'CFBundleSignature',
+				'CFBundleVersion', 'CFBundleShortVersionString', 'LSRequiresIPhoneOS']
+		
+		for child in node.childNodes:
+			if child.nodeName == 'plist':
+				plist_dict = child.getElementsByTagName('dict')[0]
+				plist = {}
+				keyName = ''
+				for e in plist_dict.childNodes:
+					if e.nodeName == 'key':
+						keyName = getText(e.childNodes)
+						if keyName in ignore_keys:
+							print "[WARN] Skipping key %s from tiapp.xml <plist>" % keyName
+							keyName = ''
+					elif e.nodeType == e.ELEMENT_NODE and keyName != '':
+						if keyName == 'CFBundleURLTypes':
+							types_string = ''
+							for ee in e.getElementsByTagName('dict'):
+								types_string = types_string + ee.toxml('utf-8')
+							plist['+'+keyName] = types_string
+						elif keyName == 'CFBundleDevelopmentRegion':
+							plist['+'+keyName] = e.toxml('utf-8');
+						else:
+							plist[keyName] = e.toxml('utf-8')
+						keyName = ''
+				self.ios['plist'] = plist
+			elif child.nodeName == 'min-ios-ver':
+				value = getText(child.childNodes)
+				try:
+					ios_version = float(value[0:3]) # Trim to x.x if possible
+				except:
+					print "[WARN] Could not parse <ios-min-ver> value %s as 'x.x' version: Setting to default" % value
+					ios_version = 0.0 # Set to nonsense absolute minimum value
+				self.ios['min-ios-ver'] = ios_version
+
 	def has_app_property(self, property):
 		return property in self.app_properties
-	
+
 	def get_app_property(self, property):
 		return self.app_properties[property]
-	
+
 	def to_bool(self, value):
 		return value in ['true', 'True', 'TRUE', 'yes', 'Yes', 'YES', 'y', 't', '1']
 	
@@ -360,7 +411,7 @@ class TiAppXML(object):
 	
 		# we want the icon without the extension for the plist
 		iconname = os.path.splitext(icon)[0]
-			
+		
 		self.infoplist_properties = {}	
 		for p in self.properties:
 			value = self.properties[p]
@@ -386,46 +437,88 @@ class TiAppXML(object):
 				propertyName = 'UISupportedInterfaceOrientations'
 				if prop == 'orientations_ipad':
 					propertyName += '~ipad'
-				propertyValue = '<array>\n'
+				propertyValue = '\t<array>\n'
 				for orientation in self.iphone[prop]:
-					propertyValue += "	<string>%s</string>\n" % orientation
-				propertyValue += '	</array>'
+					propertyValue += "\t\t<string>%s</string>\n" % orientation
+				propertyValue += '\t</array>'
 				self.infoplist_properties[propertyName]=propertyValue
 			if prop == 'background':
 				propertyName = 'UIBackgroundModes'
-				propertyValue = '<array>\n'
+				propertyValue = '\t<array>\n'
 				for mode in self.iphone[prop]:
-					propertyValue += "	<string>%s</string>\n" % mode
-				propertyValue += '	</array>'
+					propertyValue += "\t\t<string>%s</string>\n" % mode
+				propertyValue += '\t</array>'
 				self.infoplist_properties[propertyName]=propertyValue
 			if prop == 'requires':
 				propertyName = 'UIRequiredDeviceCapabilities'
-				propertyValue = '<array>\n'
+				propertyValue = '\t<array>\n'
 				for feature in self.iphone[prop]:
-					propertyValue += "	<string>%s</string>\n" % feature
-				propertyValue += '	</array>'
+					propertyValue += "\t\t<string>%s</string>\n" % feature
+				propertyValue += '\t</array>'
 				self.infoplist_properties[propertyName]=propertyValue
 			if prop == 'types':
 				propertyName = 'CFBundleDocumentTypes'
-				propertyValue = '<array>\n'
+				propertyValue = '\t<array>\n'
 				for type in self.iphone[prop]:
-					propertyValue += '<dict>\n'
-					propertyValue += "<key>CFBundleTypeName</key><string>%s</string>\n" % type['name']
-					propertyValue += "<key>CFBundleTypeIconFiles</key><array><string>%s</string></array>\n" % type['icon']
-					propertyValue += '<key>LSItemContentTypes</key><array>'
+					propertyValue += '\t\t<dict>\n'
+					propertyValue += "\t\t\t<key>CFBundleTypeName</key><string>%s</string>\n" % type['name']
+					propertyValue += "\t\t\t<key>CFBundleTypeIconFiles</key><array><string>%s</string></array>\n" % type['icon']
+					propertyValue += '\t\t\t<key>LSItemContentTypes</key>\n\t\t\t<array>'
 					for uti in type['uti']:
-						propertyValue += "<string>%s</string>" % uti
-					propertyValue += '</array>\n'
+						propertyValue += "\t\t\t\t<string>%s</string>" % uti
+					propertyValue += '\t\t\t</array>\n'
 					owner = 'Owner' if type['owner'] else 'Alternate'
-					propertyValue += "<key>LSHandlerRank</key><string>%s</string>\n" % owner
-					propertyValue += '</dict>\n'
-				propertyValue += '</array>'
+					propertyValue += "\t\t\t<key>LSHandlerRank</key><string>%s</string>\n" % owner
+					propertyValue += '\t\t</dict>\n'
+				propertyValue += '\t</array>'
 				
 				self.infoplist_properties[propertyName]=propertyValue
+		
+		plist_props = {}
+		if 'plist' in self.ios:
+			plist_props = self.ios['plist']
+		
+		for prop in plist_props:
+			if prop[0] != '+':
+				self.infoplist_properties[prop] = plist_props[prop]
 		
 		plist = codecs.open(file,'r','utf-8','replace').read()
 		plist = plist.replace('__APPICON__',iconname)
 
+		if '+CFBundleURLTypes' in plist_props:
+			i = plist.index('CFBundleURLTypes')
+			if i:
+				i = plist.index('<array>',i+1)
+				st = plist[0:i+8]
+				fn = plist[i+8:]
+				plist = st + plist_props['+CFBundleURLTypes'] + fn
+		
+		# replace the development region from plist section
+		if '+CFBundleDevelopmentRegion' in plist_props:
+			i = plist.index('CFBundleDevelopmentRegion')
+			if i:
+				i = plist.index('<string>',i+1)
+				e = plist.index('</string>',i+1)
+				st = plist[0:i]
+				fn = plist[e+9:]
+				plist = st + plist_props['+CFBundleDevelopmentRegion'] + fn
+
+		#Creating proper CFBundleIconFiles rather than hard coding the values in there
+		propertyName = 'CFBundleIconFiles'
+		propertyValue = '<array>\n'
+		iconsdir1 = os.path.join(project_dir,'Resources','iphone')
+		iconsdir2 = os.path.join(project_dir,'Resources')
+		tempiconslist = sorted(os.listdir(iconsdir1))
+		tempiconslist += sorted(os.listdir(iconsdir2))
+		iconslist = list(set(sorted(tempiconslist)))
+		iconorder = list([iconname+".png",iconname+"@2x.png",iconname+"-72.png",iconname+"-72@2x.png",iconname+"-Small-50.png",iconname+"-Small-50@2x.png",iconname+"-Small.png",iconname+"-Small@2x.png"])
+		for type in iconorder:
+			for nexticon in iconslist:
+				if type == nexticon:
+					propertyValue += "\t\t<string>%s</string>\n" % nexticon
+		propertyValue += '\t</array>\n'
+		self.infoplist_properties[propertyName]=propertyValue
+		
 		# replace the bundle id with the app id 
 		# in case it's changed
 		i = plist.index('CFBundleIdentifier')
@@ -446,7 +539,31 @@ class TiAppXML(object):
 			fn = plist[e:]
 			version = self.properties['version']
 			plist = st + version + fn
-
+						
+		# replace the CFBundleShortVersionString in case it's changed
+		try:
+			i = plist.index('CFBundleShortVersionString')
+			if i:
+				i = plist.index('<string>',i+1)
+				e = plist.index('</string>',i+1)
+				st = plist[0:i+8]
+				fn = plist[e:]
+				CFBundleShortVersionString = self.properties['version']
+				app_version_ = CFBundleShortVersionString.split('.')
+				if(len(app_version_) > 3):
+					CFBundleShortVersionString = app_version_[0]+'.'+app_version_[1]+'.'+app_version_[2]
+				plist = st + CFBundleShortVersionString + fn
+		except ValueError:
+			print "[WARN] The project seems to be having custom info.plist which does not contain  the `CFBundleShortVersionString` key"
+			print "[INFO] Generating the missing `CFBundleShortVersionString` key"
+			propertyName = 'CFBundleShortVersionString'
+			CFBundleShortVersionString = self.properties['version']
+			app_version_ = CFBundleShortVersionString.split('.')
+			if(len(app_version_) > 3):
+				CFBundleShortVersionString = app_version_[0]+'.'+app_version_[1]+'.'+app_version_[2]
+			propertyValue = "<string>"+CFBundleShortVersionString+'</string>'
+			self.infoplist_properties[propertyName] = propertyValue
+			
 		i = plist.rindex('</dict>')	
 		if i:
 			before = plist[0:i]
@@ -454,7 +571,7 @@ class TiAppXML(object):
 			newcontent = ''
 			for p in self.infoplist_properties:
 				v = self.infoplist_properties[p]
-				newcontent += '        <key>%s</key>\n        %s\n' %(p,v)
+				newcontent += '\t<key>%s</key>\n\t%s\n' %(p,v)
 			plist = before + newcontent + after
 
 		f = codecs.open(file,'w+','utf-8','replace')

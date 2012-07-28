@@ -4,7 +4,7 @@
 
 import os, sys
 scriptDir = os.path.dirname(__file__)
-sys.path.append(os.path.join(scriptDir, "..", "site_scons"))
+sys.path.append(os.path.join(scriptDir, "..", "support", "common"))
 
 import simplejson
 

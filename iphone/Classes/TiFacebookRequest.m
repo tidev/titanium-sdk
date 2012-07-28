@@ -49,9 +49,11 @@
 /**
  * Called when an error prevents the request from completing successfully.
  */
-- (void)request:(FBRequest2*)request didFailWithError:(NSError*)error
+- (void)request:(FBRequest*)request didFailWithError:(NSError*)error
 {
 	VerboseLog(@"[DEBUG] facebook didFailWithError = %@",error);
+    VerboseLog(@"[DEBUG] Facebook Error description : %@ ", [error userInfo]);
+    
 	NSMutableDictionary *event = [self eventParameters:NO];
 	[event setObject:[error localizedDescription] forKey:@"error"];
 	[module _fireEventToListener:@"result" withObject:event listener:callback thisObject:nil];
@@ -64,7 +66,7 @@
  * The resulting object may be a dictionary, an array, a string, or a number, depending
  * on thee format of the API response.
  */
-- (void)request:(FBRequest2*)request didLoad:(id)result
+- (void)request:(FBRequest*)request didLoad:(id)result
 {
 	VerboseLog(@"[DEBUG] facebook didLoad");
 	NSMutableDictionary *event = [self eventParameters:YES];

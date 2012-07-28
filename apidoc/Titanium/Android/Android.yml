@@ -1,777 +1,1511 @@
 ---
 name: Titanium.Android
-description: The top level Android module. <Ti.Android.currentActivity> provides each context an Activity. This object cannot be created directly.
+summary: The top level Android module. 
+description: |
+description: |
+    The [currentActivity](Titanium.Android.currentActivity) property provides a reference to the
+    context's current [Activity](Titanium.Android.Activity). Activity objects cannot be 
+    created directly, although a new activity can be started from an existing activity
+    using [Activity.startActivity](Titanium.Android.Activity.startActivity) or 
+    [Activity.startActivityForResult](Titanium.Android.Activity.startActivityForResult).
+
+    Almost all of the constants defined in this module correspond directly to Android
+    constants, and are documented in the official Android documentation. In particular, 
+    the `ACTION_`, `EXTRA_` and `CATEGORY_` constants are defined in the 
+    [Intent Class Reference](http://developer.android.com/reference/android/content/Intent.html), 
+
+    See also:
+        
+    *   [Intents and Intent Filters in the Android Developer's Guide](http://developer.android.com/guide/topics/intents/intents-filters.html)
+        
 extends: Titanium.Module
 platforms: [android]
 since: "1.5"
 methods:
-  - name: createBroadcastIntent
-    description: Create a <Titanium.Android.Intent> to be used to start a Broadcast.
-    returns:
-        type: Titanium.Android.Intent
-  - name: createIntent
-    description: Create a <Titanium.Android.Intent>. Used to start other Activities and for marshaling data.
-    returns:
-        type: Titanium.Android.Intent
+    
+
+
   - name: createIntentChooser
-    description: Display chooser interface to allow selection of desired target.
+    summary: |
+        Creates an activity chooser intent, used to allow the user to select a target activity
+        for an intent.
+    description: |
+        Use this method when the user wants to take an action that could use any one of a
+        number of applications. For example, when sending a plain text message, the user
+        may choose to send a text message, send an email, or post to a social network.
+        
+        You pass in an [Intent](Titanium.Android.Intent) representing the action being taken,
+        and a title for the chooser. 
+
+        The method returns another intent, representing the chooser, which can be used to
+        start an activity. See the code example for details on how to display the chooser.
+
+        For more information, see the official Android documentation for
+        [Intent.ACTION_CHOOSER](http://developer.android.com/reference/android/content/Intent.html#ACTION_CHOOSER)
+    parameters: 
+      - name: intent
+        summary: The intent to display a chooser for.
+        type: Titanium.Android.Intent
+
+      - name: title
+        summary: Title to display on the chooser.
+        type: String
+
     returns:
         type: Titanium.Android.Intent
-  - name: createNotification
-    description: Create a <Titanium.Android.Notification>. Used to notify the user of an event.
-    returns:
-        type: Titanium.Android.Notification
-    parameters:
-      - name: options
-        description: Options dictionary
-        type: Dictionary<Titanium.Android.Notification>
+
+    examples:
+      - title: Using a Chooser 
+        example: |
+            The following example uses an activity chooser to send a plain text message.
+
+                var intent = Ti.Android.createIntent( { 
+                    action: Ti.Android.ACTION_SEND,
+                    type: 'text/plain'
+                });
+                intent.putExtra(Ti.Android.EXTRA_SUBJECT, "This is the subject.");
+                intent.putExtra(Ti.Android.EXTRA_TEXT, "This is some text to send.")
+    
+                var chooser = Ti.Android.createIntentChooser(intent, "Send Message");
+                var activity = Ti.Android.currentActivity.startActivity(chooser);
+
   - name: createPendingIntent
-    description: Create a <Titanium.Android.PendingIntent> to be used inside a <Titanium.Android.Notification>
+    summary: |
+        Creates a [PendingIntent](Titanium.Android.PendingIntent) to be used inside a
+        [Notification](Titanium.Android.Notification).
+    description: |
+        If `FLAG_NO_CREATE` is specified and no matching pending intent exists, returns
+        `null`.
     returns:
         type: Titanium.Android.PendingIntent
     parameters:
-      - name: intent
-        description: The Intent that will be executed
-        type: Titanium.Android.Intent
-      - name: flags
-        default: 0
+      - name: parameters
+        summary: |
+            Properties to set on the new object, including any defined by
+            <Titanium.Android.PendingIntent>, except those marked not-creation or read-only.
+        type: Dictionary<Titanium.Android.PendingIntent>
         optional: true
-        description: |
-            Can be any of <Titanium.Android.FLAG_CANCEL_CURRENT>, <Titanium.Android.FLAG_NO_CREATE>, <Titanium.Android.FLAG_ONE_SHOT>, <Titanium.Android.FLAG_UPDATE_CURRENT>
-        type: Number
+
+
   - name: createService
-    description: Create a <Titanium.Android.Service> so you can start/stop it and listen for events from it.
+    summary: Create a <Titanium.Android.Service> so you can start/stop it and listen for events from it.
     returns:
         type: Titanium.Android.Service
     parameters:
       - name: intent
-        description: An Intent created with <Titanium.Android.createServiceIntent> which specifies the service to be instantiated.
+        summary: |
+            An `Intent` created with [createServiceIntent](Titanium.Android.createServiceIntent),
+            which specifies the service to be instantiated.
         type: Titanium.Android.Intent
+
   - name: createServiceIntent
-    description: Create an <Titanium.Android.Intent> to be used to start a Service.
+    summary: Create an `Intent` to be used to start a service.
     returns:
         type: Titanium.Android.Intent
     parameters:
       - name: options
-        description: Options dictionary -- pass in a `url` option to specify the path to a javascript-based service you create.
-        type: Object
+        summary: Options for the Service.
+        type: ServiceIntentOptions
+
   - name: isServiceRunning
-    description: Check on state of Service.
+    summary: Check on state of Service.
     returns:
         type: Boolean
     parameters:
       - name: intent
-        description: An Intent created with <Titanium.Android.createServiceIntent> which specifies the service to check.
+        summary: |
+            An `Intent` created with [createServiceIntent](Titanium.Android.createServiceIntent),
+            which specifies the service to check.
         type: Titanium.Android.Intent
+
   - name: startService
-    description: Start a simple service
+    summary: Starts a simple service.
     parameters:
       - name: intent
-        description: An Intent created with <Titanium.Android.createServiceIntent> which specifies the service to start.
+        summary: |
+            An `Intent` created with [createServiceIntent](Titanium.Android.createServiceIntent),
+            which specifies the service to start.
         type: Titanium.Android.Intent
+
   - name: stopService
-    description: Stop a simple service that was started with `startService`.
+    summary: Stop a simple service that was started with `startService`.
     parameters:
       - name: intent
-        description: An Intent created with <Titanium.Android.createServiceIntent> which specifies the service to stop.
+        summary: |
+            An `Intent` created with [createServiceIntent](Titanium.Android.createServiceIntent),
+            which specifies the service to stop.
         type: Titanium.Android.Intent
+
 properties:
+
   - name: ACTION_AIRPLANE_MODE_CHANGED
-    description: 
+    summary: Corresponds to the Android `Intent.ACTION_AIRPLANE_MODE_CHANGED` constant.
+    description: |
+        See [Intent.ACTION_AIRPLANE_MODE_CHANGED in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_AIRPLANE_MODE_CHANGED).
     type: String
     permission: read-only
+
   - name: ACTION_ALL_APPS
-    description: 
+    summary: Corresponds to the Android `Intent.ACTION_ALL_APPS` constant.
+    description: |
+        See [Intent.ACTION_ALL_APPS in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_ALL_APPS).
     type: String
     permission: read-only
+
   - name: ACTION_ANSWER
-    description: 
+    summary: Corresponds to the Android `Intent.ACTION_ANSWER` constant.
+    description: |
+        See [Intent.ACTION_ANSWER in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_ANSWER).
     type: String
     permission: read-only
+
   - name: ACTION_ATTACH_DATA
-    description: 
+    summary: Corresponds to the Android `Intent.ACTION_ATTACH_DATA` constant.
+    description: |
+        See [Intent.ACTION_ATTACH_DATA in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_ATTACH_DATA).
     type: String
     permission: read-only
+
   - name: ACTION_BATTERY_CHANGED
-    description: 
+    summary: Corresponds to the Android `Intent.ACTION_BATTERY_CHANGED` constant.
+    description: |
+        See [Intent.ACTION_BATTERY_CHANGED in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_BATTERY_CHANGED).
     type: String
     permission: read-only
+
   - name: ACTION_BATTERY_LOW
-    description: 
+    summary: Corresponds to the Android `Intent.ACTION_BATTERY_LOW` constant.
+    description: |
+        See [Intent.ACTION_BATTERY_LOW in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_BATTERY_LOW).
     type: String
     permission: read-only
+
   - name: ACTION_BATTERY_OKAY
-    description: 
+    summary: Corresponds to the Android `Intent.ACTION_BATTERY_OKAY` constant.
+    description: |
+        See [Intent.ACTION_BATTERY_OKAY in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_BATTERY_OKAY).
     type: String
     permission: read-only
+
   - name: ACTION_BOOT_COMPLETED
-    description: 
+    summary: Corresponds to the Android `Intent.ACTION_BOOT_COMPLETED` constant.
+    description: |
+        See [Intent.ACTION_BOOT_COMPLETED in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_BOOT_COMPLETED).
     type: String
     permission: read-only
+
   - name: ACTION_BUG_REPORT
-    description: 
+    summary: Corresponds to the Android `Intent.ACTION_BUG_REPORT` constant.
+    description: |
+        See [Intent.ACTION_BUG_REPORT in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_BUG_REPORT).
     type: String
     permission: read-only
+
   - name: ACTION_CALL
-    description: 
+    summary: Corresponds to the Android `Intent.ACTION_CALL` constant.
+    description: |
+        See [Intent.ACTION_CALL in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_CALL).
     type: String
     permission: read-only
+
   - name: ACTION_CALL_BUTTON
-    description: 
+    summary: Corresponds to the Android `Intent.ACTION_CALL_BUTTON` constant.
+    description: |
+        See [Intent.ACTION_CALL_BUTTON in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_CALL_BUTTON).
     type: String
     permission: read-only
+
   - name: ACTION_CAMERA_BUTTON
-    description: 
+    summary: Corresponds to the Android `Intent.ACTION_CAMERA_BUTTON` constant.
+    description: |
+        See [Intent.ACTION_CAMERA_BUTTON in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_CAMERA_BUTTON).
     type: String
     permission: read-only
+
   - name: ACTION_CHOOSER
-    description: 
+    summary: Corresponds to the Android `Intent.ACTION_CHOOSER` constant.
+    description: |
+        See [Intent.ACTION_CHOOSER in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_CHOOSER).
     type: String
     permission: read-only
+
   - name: ACTION_CLOSE_SYSTEM_DIALOGS
-    description: 
+    summary: Corresponds to the Android `Intent.ACTION_CLOSE_SYSTEM_DIALOGS` constant.
+    description: |
+        See [Intent.ACTION_CLOSE_SYSTEM_DIALOGS in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_CLOSE_SYSTEM_DIALOGS).
     type: String
     permission: read-only
+
   - name: ACTION_CONFIGURATION_CHANGED
-    description: 
+    summary: Corresponds to the Android `Intent.ACTION_CONFIGURATION_CHANGED` constant.
+    description: |
+        See [Intent.ACTION_CONFIGURATION_CHANGED in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_CONFIGURATION_CHANGED).
     type: String
     permission: read-only
+
   - name: ACTION_CREATE_SHORTCUT
-    description: 
+    summary: Corresponds to the Android `Intent.ACTION_CREATE_SHORTCUT` constant.
+    description: |
+        See [Intent.ACTION_CREATE_SHORTCUT in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_CREATE_SHORTCUT).
     type: String
     permission: read-only
+
   - name: ACTION_DATE_CHANGED
-    description: 
+    summary: Corresponds to the Android `Intent.ACTION_DATE_CHANGED` constant.
+    description: |
+        See [Intent.ACTION_DATE_CHANGED in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_DATE_CHANGED).
     type: String
     permission: read-only
+
   - name: ACTION_DEFAULT
-    description: 
+    summary: Corresponds to the Android `Intent.ACTION_DEFAULT` constant.
+    description: |
+        See [Intent.ACTION_DEFAULT in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_DEFAULT).
     type: String
     permission: read-only
+
   - name: ACTION_DELETE
-    description: 
+    summary: Corresponds to the Android `Intent.ACTION_DELETE` constant.
+    description: |
+        See [Intent.ACTION_DELETE in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_DELETE).
     type: String
     permission: read-only
+
   - name: ACTION_DEVICE_STORAGE_LOW
-    description: 
+    summary: Corresponds to the Android `Intent.ACTION_DEVICE_STORAGE_LOW` constant.
+    description: |
+        See [Intent.ACTION_DEVICE_STORAGE_LOW in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_DEVICE_STORAGE_LOW).
     type: String
     permission: read-only
+
   - name: ACTION_DIAL
-    description: 
+    summary: Corresponds to the Android `Intent.ACTION_DIAL` constant.
+    description: |
+        See [Intent.ACTION_DIAL in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_DIAL).
     type: String
     permission: read-only
+
   - name: ACTION_EDIT
-    description: 
+    summary: Corresponds to the Android `Intent.ACTION_EDIT` constant.
+    description: |
+        See [Intent.ACTION_EDIT in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_EDIT).
     type: String
     permission: read-only
+
   - name: ACTION_GET_CONTENT
-    description: 
+    summary: Corresponds to the Android `Intent.ACTION_GET_CONTENT` constant.
+    description: |
+        See [Intent.ACTION_GET_CONTENT in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_GET_CONTENT).
     type: String
     permission: read-only
+
   - name: ACTION_GTALK_SERVICE_CONNECTED
-    description: 
+    summary: Corresponds to the Android `Intent.ACTION_GTALK_SERVICE_CONNECTED` constant.
+    description: |
+        See [Intent.ACTION_GTALK_SERVICE_CONNECTED in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_GTALK_SERVICE_CONNECTED).
     type: String
     permission: read-only
+
   - name: ACTION_GTALK_SERVICE_DISCONNECTED
-    description: 
+    summary: Corresponds to the Android `Intent.ACTION_GTALK_SERVICE_DISCONNECTED` constant.
+    description: |
+        See [Intent.ACTION_GTALK_SERVICE_DISCONNECTED in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_GTALK_SERVICE_DISCONNECTED).
     type: String
     permission: read-only
+
   - name: ACTION_HEADSET_PLUG
-    description: 
+    summary: Corresponds to the Android `Intent.ACTION_HEADSET_PLUG` constant.
+    description: |
+        See [Intent.ACTION_HEADSET_PLUG in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_HEADSET_PLUG).
     type: String
     permission: read-only
+
   - name: ACTION_INPUT_METHOD_CHANGED
-    description: 
+    summary: Corresponds to the Android `Intent.ACTION_INPUT_METHOD_CHANGED` constant.
+    description: |
+        See [Intent.ACTION_INPUT_METHOD_CHANGED in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_INPUT_METHOD_CHANGED).
     type: String
     permission: read-only
+
   - name: ACTION_INSERT
-    description: 
+    summary: Corresponds to the Android `Intent.ACTION_INSERT` constant.
+    description: |
+        See [Intent.ACTION_INSERT in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_INSERT).
     type: String
     permission: read-only
+
   - name: ACTION_INSERT_OR_EDIT
-    description: 
+    summary: Corresponds to the Android `Intent.ACTION_INSERT_OR_EDIT` constant.
+    description: |
+        See [Intent.ACTION_INSERT_OR_EDIT in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_INSERT_OR_EDIT).
     type: String
     permission: read-only
+
   - name: ACTION_MAIN
-    description: 
+    summary: Corresponds to the Android `Intent.ACTION_MAIN` constant.
+    description: |
+        See [Intent.ACTION_MAIN in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_MAIN).
     type: String
     permission: read-only
+
   - name: ACTION_MANAGE_PACKAGE_STORAGE
-    description: 
+    summary: Corresponds to the Android `Intent.ACTION_MANAGE_PACKAGE_STORAGE` constant.
+    description: |
+        See [Intent.ACTION_MANAGE_PACKAGE_STORAGE in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_MANAGE_PACKAGE_STORAGE).
     type: String
     permission: read-only
+
   - name: ACTION_MEDIA_BAD_REMOVAL
-    description: 
+    summary: Corresponds to the Android `Intent.ACTION_MEDIA_BAD_REMOVAL` constant.
+    description: |
+        See [Intent.ACTION_MEDIA_BAD_REMOVAL in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_MEDIA_BAD_REMOVAL).
     type: String
     permission: read-only
+
   - name: ACTION_MEDIA_BUTTON
-    description: 
+    summary: Corresponds to the Android `Intent.ACTION_MEDIA_BUTTON` constant.
+    description: |
+        See [Intent.ACTION_MEDIA_BUTTON in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_MEDIA_BUTTON).
     type: String
     permission: read-only
+
   - name: ACTION_MEDIA_CHECKING
-    description: 
+    summary: Corresponds to the Android `Intent.ACTION_MEDIA_CHECKING` constant.
+    description: |
+        See [Intent.ACTION_MEDIA_CHECKING in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_MEDIA_CHECKING).
     type: String
     permission: read-only
+
   - name: ACTION_MEDIA_EJECT
-    description: 
+    summary: Corresponds to the Android `Intent.ACTION_MEDIA_EJECT` constant.
+    description: |
+        See [Intent.ACTION_MEDIA_EJECT in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_MEDIA_EJECT).
     type: String
     permission: read-only
+
   - name: ACTION_MEDIA_MOUNTED
-    description: 
+    summary: Corresponds to the Android `Intent.ACTION_MEDIA_MOUNTED` constant.
+    description: |
+        See [Intent.ACTION_MEDIA_MOUNTED in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_MEDIA_MOUNTED).
     type: String
     permission: read-only
+
   - name: ACTION_MEDIA_NOFS
-    description: 
+    summary: Corresponds to the Android `Intent.ACTION_MEDIA_NOFS` constant.
+    description: |
+        See [Intent.ACTION_MEDIA_NOFS in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_MEDIA_NOFS).
     type: String
     permission: read-only
+
   - name: ACTION_MEDIA_REMOVED
-    description: 
+    summary: Corresponds to the Android `Intent.ACTION_MEDIA_REMOVED` constant.
+    description: |
+        See [Intent.ACTION_MEDIA_REMOVED in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_MEDIA_REMOVED).
     type: String
     permission: read-only
+
   - name: ACTION_MEDIA_SCANNER_FINISHED
-    description: 
+    summary: Corresponds to the Android `Intent.ACTION_MEDIA_SCANNER_FINISHED` constant.
+    description: |
+        See [Intent.ACTION_MEDIA_SCANNER_FINISHED in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_MEDIA_SCANNER_FINISHED).
     type: String
     permission: read-only
+
   - name: ACTION_MEDIA_SCANNER_SCAN_FILE
-    description: 
+    summary: Corresponds to the Android `Intent.ACTION_MEDIA_SCANNER_SCAN_FILE` constant.
+    description: |
+        See [Intent.ACTION_MEDIA_SCANNER_SCAN_FILE in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_MEDIA_SCANNER_SCAN_FILE).
     type: String
     permission: read-only
+
   - name: ACTION_MEDIA_SCANNER_STARTED
-    description: 
+    summary: Corresponds to the Android `Intent.ACTION_MEDIA_SCANNER_STARTED` constant.
+    description: |
+        See [Intent.ACTION_MEDIA_SCANNER_STARTED in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_MEDIA_SCANNER_STARTED).
     type: String
     permission: read-only
+
   - name: ACTION_MEDIA_SHARED
-    description: 
+    summary: Corresponds to the Android `Intent.ACTION_MEDIA_SHARED` constant.
+    description: |
+        See [Intent.ACTION_MEDIA_SHARED in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_MEDIA_SHARED).
     type: String
     permission: read-only
+
   - name: ACTION_MEDIA_UNMOUNTABLE
-    description: 
+    summary: Corresponds to the Android `Intent.ACTION_MEDIA_UNMOUNTABLE` constant.
+    description: |
+        See [Intent.ACTION_MEDIA_UNMOUNTABLE in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_MEDIA_UNMOUNTABLE).
     type: String
     permission: read-only
+
   - name: ACTION_MEDIA_UNMOUNTED
-    description: 
+    summary: Corresponds to the Android `Intent.ACTION_MEDIA_UNMOUNTED` constant.
+    description: |
+        See [Intent.ACTION_MEDIA_UNMOUNTED in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_MEDIA_UNMOUNTED).
     type: String
     permission: read-only
+
   - name: ACTION_NEW_OUTGOING_CALL
-    description: 
+    summary: Corresponds to the Android `Intent.ACTION_NEW_OUTGOING_CALL` constant.
+    description: |
+        See [Intent.ACTION_NEW_OUTGOING_CALL in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_NEW_OUTGOING_CALL).
     type: String
     permission: read-only
+
   - name: ACTION_PACKAGE_ADDED
-    description: 
+    summary: Corresponds to the Android `Intent.ACTION_PACKAGE_ADDED` constant.
+    description: |
+        See [Intent.ACTION_PACKAGE_ADDED in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_PACKAGE_ADDED).
     type: String
     permission: read-only
+
   - name: ACTION_PACKAGE_CHANGED
-    description: 
+    summary: Corresponds to the Android `Intent.ACTION_PACKAGE_CHANGED` constant.
+    description: |
+        See [Intent.ACTION_PACKAGE_CHANGED in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_PACKAGE_CHANGED).
     type: String
     permission: read-only
+
   - name: ACTION_PACKAGE_DATA_CLEARED
-    description: 
+    summary: Corresponds to the Android `Intent.ACTION_PACKAGE_DATA_CLEARED` constant.
+    description: |
+        See [Intent.ACTION_PACKAGE_DATA_CLEARED in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_PACKAGE_DATA_CLEARED).
     type: String
     permission: read-only
+
   - name: ACTION_PACKAGE_INSTALL
-    description: 
+    summary: Corresponds to the Android `Intent.ACTION_PACKAGE_INSTALL` constant.
+    description: |
+        See [Intent.ACTION_PACKAGE_INSTALL in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_PACKAGE_INSTALL).
     type: String
     permission: read-only
+
   - name: ACTION_PACKAGE_REMOVED
-    description: 
+    summary: Corresponds to the Android `Intent.ACTION_PACKAGE_REMOVED` constant.
+    description: |
+        See [Intent.ACTION_PACKAGE_REMOVED in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_PACKAGE_REMOVED).
     type: String
     permission: read-only
+
   - name: ACTION_PACKAGE_REPLACED
-    description: 
+    summary: Corresponds to the Android `Intent.ACTION_PACKAGE_REPLACED` constant.
+    description: |
+        See [Intent.ACTION_PACKAGE_REPLACED in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_PACKAGE_REPLACED).
     type: String
     permission: read-only
+
   - name: ACTION_PACKAGE_RESTARTED
-    description: 
+    summary: Corresponds to the Android `Intent.ACTION_PACKAGE_RESTARTED` constant.
+    description: |
+        See [Intent.ACTION_PACKAGE_RESTARTED in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_PACKAGE_RESTARTED).
     type: String
     permission: read-only
+
   - name: ACTION_PICK
-    description: 
+    summary: Corresponds to the Android `Intent.ACTION_PICK` constant.
+    description: |
+        See [Intent.ACTION_PICK in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_PICK).
     type: String
     permission: read-only
+
   - name: ACTION_PICK_ACTIVITY
-    description: 
+    summary: Corresponds to the Android `Intent.ACTION_PICK_ACTIVITY` constant.
+    description: |
+        See [Intent.ACTION_PICK_ACTIVITY in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_PICK_ACTIVITY).
     type: String
     permission: read-only
+
   - name: ACTION_POWER_CONNECTED
-    description: 
+    summary: Corresponds to the Android `Intent.ACTION_POWER_CONNECTED` constant.
+    description: |
+        See [Intent.ACTION_POWER_CONNECTED in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_POWER_CONNECTED).
     type: String
     permission: read-only
+
   - name: ACTION_POWER_DISCONNECTED
-    description: 
+    summary: Corresponds to the Android `Intent.ACTION_POWER_DISCONNECTED` constant.
+    description: |
+        See [Intent.ACTION_POWER_DISCONNECTED in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_POWER_DISCONNECTED).
     type: String
     permission: read-only
+
   - name: ACTION_POWER_USAGE_SUMMARY
-    description: 
+    summary: Corresponds to the Android `Intent.ACTION_POWER_USAGE_SUMMARY` constant.
+    description: |
+        See [Intent.ACTION_POWER_USAGE_SUMMARY in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_POWER_USAGE_SUMMARY).
     type: String
     permission: read-only
+
   - name: ACTION_PROVIDER_CHANGED
-    description: 
+    summary: Corresponds to the Android `Intent.ACTION_PROVIDER_CHANGED` constant.
+    description: |
+        See [Intent.ACTION_PROVIDER_CHANGED in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_PROVIDER_CHANGED).
     type: String
     permission: read-only
+
   - name: ACTION_REBOOT
-    description: 
+    summary: Corresponds to the Android `Intent.ACTION_REBOOT` constant.
+    description: |
+        See [Intent.ACTION_REBOOT in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_REBOOT).
     type: String
     permission: read-only
+
   - name: ACTION_RUN
-    description: 
+    summary: Corresponds to the Android `Intent.ACTION_RUN` constant.
+    description: |
+        See [Intent.ACTION_RUN in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_RUN).
     type: String
     permission: read-only
+
   - name: ACTION_SCREEN_OFF
-    description: 
+    summary: Corresponds to the Android `Intent.ACTION_SCREEN_OFF` constant.
+    description: |
+        See [Intent.ACTION_SCREEN_OFF in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_SCREEN_OFF).
     type: String
     permission: read-only
+
   - name: ACTION_SCREEN_ON
-    description: 
+    summary: Corresponds to the Android `Intent.ACTION_SCREEN_ON` constant.
+    description: |
+        See [Intent.ACTION_SCREEN_ON in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_SCREEN_ON).
     type: String
     permission: read-only
+
   - name: ACTION_SEARCH
-    description: 
+    summary: Corresponds to the Android `Intent.ACTION_SEARCH` constant.
+    description: |
+        See [Intent.ACTION_SEARCH in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_SEARCH).
     type: String
     permission: read-only
+
   - name: ACTION_SEARCH_LONG_PRESS
-    description: 
+    summary: Corresponds to the Android `Intent.ACTION_SEARCH_LONG_PRESS` constant.
+    description: |
+        See [Intent.ACTION_SEARCH_LONG_PRESS in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_SEARCH_LONG_PRESS).
     type: String
     permission: read-only
+
   - name: ACTION_SEND
-    description: 
+    summary: Corresponds to the Android `Intent.ACTION_SEND` constant.
+    description: |
+        See [Intent.ACTION_SEND in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_SEND).
     type: String
     permission: read-only
+
   - name: ACTION_SENDTO
-    description: 
+    summary: Corresponds to the Android `Intent.ACTION_SENDTO` constant.
+    description: |
+        See [Intent.ACTION_SENDTO in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_SENDTO).
     type: String
     permission: read-only
+
   - name: ACTION_SEND_MULTIPLE
-    description: 
+    summary: Corresponds to the Android `Intent.ACTION_SEND_MULTIPLE` constant.
+    description: |
+        See [Intent.ACTION_SEND_MULTIPLE in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_SEND_MULTIPLE).
     type: String
     permission: read-only
+
   - name: ACTION_SET_WALLPAPER
-    description: 
+    summary: Corresponds to the Android `Intent.ACTION_SET_WALLPAPER` constant.
+    description: |
+        See [Intent.ACTION_SET_WALLPAPER in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_SET_WALLPAPER).
     type: String
     permission: read-only
+
   - name: ACTION_SHUTDOWN
-    description: 
+    summary: Corresponds to the Android `Intent.ACTION_SHUTDOWN` constant.
+    description: |
+        See [Intent.ACTION_SHUTDOWN in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_SHUTDOWN).
     type: String
     permission: read-only
+
   - name: ACTION_SYNC
-    description: 
+    summary: Corresponds to the Android `Intent.ACTION_SYNC` constant.
+    description: |
+        See [Intent.ACTION_SYNC in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_SYNC).
     type: String
     permission: read-only
+
   - name: ACTION_SYSTEM_TUTORIAL
-    description: 
+    summary: Corresponds to the Android `Intent.ACTION_SYSTEM_TUTORIAL` constant.
+    description: |
+        See [Intent.ACTION_SYSTEM_TUTORIAL in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_SYSTEM_TUTORIAL).
     type: String
     permission: read-only
+
   - name: ACTION_TIME_CHANGED
-    description: 
+    summary: Corresponds to the Android `Intent.ACTION_TIME_CHANGED` constant.
+    description: |
+        See [Intent.ACTION_TIME_CHANGED in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_TIME_CHANGED).
     type: String
     permission: read-only
+
   - name: ACTION_TIME_TICK
-    description: 
+    summary: Corresponds to the Android `Intent.ACTION_TIME_TICK` constant.
+    description: |
+        See [Intent.ACTION_TIME_TICK in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_TIME_TICK).
     type: String
     permission: read-only
+
   - name: ACTION_UID_REMOVED
-    description: 
+    summary: Corresponds to the Android `Intent.ACTION_UID_REMOVED` constant.
+    description: |
+        See [Intent.ACTION_UID_REMOVED in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_UID_REMOVED).
     type: String
     permission: read-only
+
   - name: ACTION_UMS_CONNECTED
-    description: 
+    summary: Corresponds to the Android `Intent.ACTION_UMS_CONNECTED` constant.
+    description: |
+        See [Intent.ACTION_UMS_CONNECTED in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_UMS_CONNECTED).
     type: String
     permission: read-only
+
   - name: ACTION_UMS_DISCONNECTED
-    description: 
+    summary: Corresponds to the Android `Intent.ACTION_UMS_DISCONNECTED` constant.
+    description: |
+        See [Intent.ACTION_UMS_DISCONNECTED in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_UMS_DISCONNECTED).
     type: String
     permission: read-only
+
   - name: ACTION_USER_PRESENT
-    description: 
+    summary: Corresponds to the Android `Intent.ACTION_USER_PRESENT` constant.
+    description: |
+        See [Intent.ACTION_USER_PRESENT in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_USER_PRESENT).
     type: String
     permission: read-only
+
   - name: ACTION_VIEW
-    description: 
+    summary: Corresponds to the Android `Intent.ACTION_VIEW` constant.
+    description: |
+        See [Intent.ACTION_VIEW in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_VIEW).
     type: String
     permission: read-only
+
   - name: ACTION_VOICE_COMMAND
-    description: 
+    summary: Corresponds to the Android `Intent.ACTION_VOICE_COMMAND` constant.
+    description: |
+        See [Intent.ACTION_VOICE_COMMAND in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_VOICE_COMMAND).
     type: String
     permission: read-only
+
   - name: ACTION_WALLPAPER_CHANGED
-    description: 
+    summary: Corresponds to the Android `Intent.ACTION_WALLPAPER_CHANGED` constant.
+    description: |
+        See [Intent.ACTION_WALLPAPER_CHANGED in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_WALLPAPER_CHANGED).
     type: String
     permission: read-only
+
   - name: ACTION_WEB_SEARCH
-    description: 
+    summary: Corresponds to the Android `Intent.ACTION_WEB_SEARCH` constant.
+    description: |
+        See [Intent.ACTION_WEB_SEARCH in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_WEB_SEARCH).
     type: String
     permission: read-only
+
   - name: CATEGORY_ALTERNATIVE
-    description: 
+    summary: Corresponds to the Android `Intent.CATEGORY_ALTERNATIVE` constant.
+    description: |
+        See [Intent.CATEGORY_ALTERNATIVE in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#CATEGORY_ALTERNATIVE).
     type: String
     permission: read-only
+
   - name: CATEGORY_BROWSABLE
-    description: 
+    summary: Corresponds to the Android `Intent.CATEGORY_BROWSABLE` constant.
+    description: |
+        See [Intent.CATEGORY_BROWSABLE in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#CATEGORY_BROWSABLE).
     type: String
     permission: read-only
+
   - name: CATEGORY_DEFAULT
-    description: 
+    summary: Corresponds to the Android `Intent.CATEGORY_DEFAULT` constant.
+    description: |
+        See [Intent.CATEGORY_DEFAULT in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#CATEGORY_DEFAULT).
     type: String
     permission: read-only
+
   - name: CATEGORY_DEVELOPMENT_PREFERENCE
-    description: 
+    summary: Corresponds to the Android `Intent.CATEGORY_DEVELOPMENT_PREFERENCE` constant.
+    description: |
+        See [Intent.CATEGORY_DEVELOPMENT_PREFERENCE in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#CATEGORY_DEVELOPMENT_PREFERENCE).
     type: String
     permission: read-only
+
   - name: CATEGORY_EMBED
-    description: 
+    summary: Corresponds to the Android `Intent.CATEGORY_EMBED` constant.
+    description: |
+        See [Intent.CATEGORY_EMBED in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#CATEGORY_EMBED).
     type: String
     permission: read-only
+
   - name: CATEGORY_FRAMEWORK_INSTRUMENTATION_TEST
-    description: 
+    summary: Corresponds to the Android `Intent.CATEGORY_FRAMEWORK_INSTRUMENTATION_TEST` constant.
+    description: |
+        See [Intent.CATEGORY_FRAMEWORK_INSTRUMENTATION_TEST in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#CATEGORY_FRAMEWORK_INSTRUMENTATION_TEST).
     type: String
     permission: read-only
+
   - name: CATEGORY_HOME
-    description: 
+    summary: Corresponds to the Android `Intent.CATEGORY_HOME` constant.
+    description: |
+        See [Intent.CATEGORY_HOME in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#CATEGORY_HOME).
     type: String
     permission: read-only
+
   - name: CATEGORY_INFO
-    description: 
+    summary: Corresponds to the Android `Intent.CATEGORY_INFO` constant.
+    description: |
+        See [Intent.CATEGORY_INFO in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#CATEGORY_INFO).
     type: String
     permission: read-only
+
   - name: CATEGORY_LAUNCHER
-    description: 
+    summary: Corresponds to the Android `Intent.CATEGORY_LAUNCHER` constant.
+    description: |
+        See [Intent.CATEGORY_LAUNCHER in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#CATEGORY_LAUNCHER).
     type: String
     permission: read-only
+
   - name: CATEGORY_MONKEY
-    description: 
+    summary: Corresponds to the Android `Intent.CATEGORY_MONKEY` constant.
+    description: |
+        See [Intent.CATEGORY_MONKEY in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#CATEGORY_MONKEY).
     type: String
     permission: read-only
+
   - name: CATEGORY_OPENABLE
-    description: 
+    summary: Corresponds to the Android `Intent.CATEGORY_OPENABLE` constant.
+    description: |
+        See [Intent.CATEGORY_OPENABLE in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#CATEGORY_OPENABLE).
     type: String
     permission: read-only
+
   - name: CATEGORY_PREFERENCE
-    description: 
+    summary: Corresponds to the Android `Intent.CATEGORY_PREFERENCE` constant.
+    description: |
+        See [Intent.CATEGORY_PREFERENCE in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#CATEGORY_PREFERENCE).
     type: String
     permission: read-only
+
   - name: CATEGORY_SAMPLE_CODE
-    description: 
+    summary: Corresponds to the Android `Intent.CATEGORY_SAMPLE_CODE` constant.
+    description: |
+        See [Intent.CATEGORY_SAMPLE_CODE in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#CATEGORY_SAMPLE_CODE).
     type: String
     permission: read-only
+
   - name: CATEGORY_SELECTED_ALTERNATIVE
-    description: 
+    summary: Corresponds to the Android `Intent.CATEGORY_SELECTED_ALTERNATIVE` constant.
+    description: |
+        See [Intent.CATEGORY_SELECTED_ALTERNATIVE in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#CATEGORY_SELECTED_ALTERNATIVE).
     type: String
     permission: read-only
+
   - name: CATEGORY_TAB
-    description: 
+    summary: Corresponds to the Android `Intent.CATEGORY_TAB` constant.
+    description: |
+        See [Intent.CATEGORY_TAB in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#CATEGORY_TAB).
     type: String
     permission: read-only
+
   - name: CATEGORY_TEST
-    description: 
+    summary: Corresponds to the Android `Intent.CATEGORY_TEST` constant.
+    description: |
+        See [Intent.CATEGORY_TEST in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#CATEGORY_TEST).
     type: String
     permission: read-only
+
   - name: CATEGORY_UNIT_TEST
-    description: 
+    summary: Corresponds to the Android `Intent.CATEGORY_UNIT_TEST` constant.
+    description: |
+        See [Intent.CATEGORY_UNIT_TEST in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#CATEGORY_UNIT_TEST).
     type: String
     permission: read-only
-  - name: DEFAULT_ALL
-    description: Use all default values (where applicable).
-    type: Number
-    permission: read-only
-  - name: DEFAULT_LIGHTS
-    description: Use the default notification lights.
-    type: Number
-    permission: read-only
-  - name: DEFAULT_SOUND
-    description: Use the default notification sound.
-    type: Number
-    permission: read-only
-  - name: DEFAULT_VIBRATE
-    description: Use the default notification vibrate.
-    type: Number
-    permission: read-only
+
+
   - name: EXTRA_ALARM_COUNT
-    description: 
+    summary: Corresponds to the Android `Intent.EXTRA_ALARM_COUNT` constant.
+    description: |
+        See [Intent.EXTRA_ALARM_COUNT in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#EXTRA_ALARM_COUNT).
     type: String
     permission: read-only
+
   - name: EXTRA_BCC
-    description: 
+    summary: Corresponds to the Android `Intent.EXTRA_BCC` constant.
+    description: |
+        See [Intent.EXTRA_BCC in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#EXTRA_BCC).
     type: String
     permission: read-only
+
   - name: EXTRA_CC
-    description: 
+    summary: Corresponds to the Android `Intent.EXTRA_CC` constant.
+    description: |
+        See [Intent.EXTRA_CC in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#EXTRA_CC).
     type: String
     permission: read-only
+
   - name: EXTRA_DATA_REMOVED
-    description: 
+    summary: Corresponds to the Android `Intent.EXTRA_DATA_REMOVED` constant.
+    description: |
+        See [Intent.EXTRA_DATA_REMOVED in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#EXTRA_DATA_REMOVED).
     type: String
     permission: read-only
+
   - name: EXTRA_DONT_KILL_APP
-    description: 
+    summary: Corresponds to the Android `Intent.EXTRA_DONT_KILL_APP` constant.
+    description: |
+        See [Intent.EXTRA_DONT_KILL_APP in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#EXTRA_DONT_KILL_APP).
     type: String
     permission: read-only
+
   - name: EXTRA_EMAIL
-    description: 
+    summary: Corresponds to the Android `Intent.EXTRA_EMAIL` constant.
+    description: |
+        See [Intent.EXTRA_EMAIL in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#EXTRA_EMAIL).
     type: String
     permission: read-only
+
   - name: EXTRA_INTENT
-    description: 
+    summary: Corresponds to the Android `Intent.EXTRA_INTENT` constant.
+    description: |
+        See [Intent.EXTRA_INTENT in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#EXTRA_INTENT).
     type: String
     permission: read-only
+
   - name: EXTRA_KEY_EVENT
-    description: 
+    summary: Corresponds to the Android `Intent.EXTRA_KEY_EVENT` constant.
+    description: |
+        See [Intent.EXTRA_KEY_EVENT in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#EXTRA_KEY_EVENT).
     type: String
     permission: read-only
+
   - name: EXTRA_PHONE_NUMBER
-    description: 
+    summary: Corresponds to the Android `Intent.EXTRA_PHONE_NUMBER` constant.
+    description: |
+        See [Intent.EXTRA_PHONE_NUMBER in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#EXTRA_PHONE_NUMBER).
     type: String
     permission: read-only
+
   - name: EXTRA_REPLACING
-    description: 
+    summary: Corresponds to the Android `Intent.EXTRA_REPLACING` constant.
+    description: |
+        See [Intent.EXTRA_REPLACING in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#EXTRA_REPLACING).
     type: String
     permission: read-only
+
   - name: EXTRA_SHORTCUT_ICON
-    description: 
+    summary: Corresponds to the Android `Intent.EXTRA_SHORTCUT_ICON` constant.
+    description: |
+        See [Intent.EXTRA_SHORTCUT_ICON in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#EXTRA_SHORTCUT_ICON).
     type: String
     permission: read-only
+
   - name: EXTRA_SHORTCUT_ICON_RESOURCE
-    description: 
+    summary: Corresponds to the Android `Intent.EXTRA_SHORTCUT_ICON_RESOURCE` constant.
+    description: |
+        See [Intent.EXTRA_SHORTCUT_ICON_RESOURCE in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#EXTRA_SHORTCUT_ICON_RESOURCE).
     type: String
     permission: read-only
+
   - name: EXTRA_SHORTCUT_INTENT
-    description: 
+    summary: Corresponds to the Android `Intent.EXTRA_SHORTCUT_INTENT` constant.
+    description: |
+        See [Intent.EXTRA_SHORTCUT_INTENT in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#EXTRA_SHORTCUT_INTENT).
     type: String
     permission: read-only
+
   - name: EXTRA_SHORTCUT_NAME
-    description: 
+    summary: Corresponds to the Android `Intent.EXTRA_SHORTCUT_NAME` constant.
+    description: |
+        See [Intent.EXTRA_SHORTCUT_NAME in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#EXTRA_SHORTCUT_NAME).
     type: String
     permission: read-only
+
   - name: EXTRA_STREAM
-    description: 
+    summary: Corresponds to the Android `Intent.EXTRA_STREAM` constant.
+    description: |
+        See [Intent.EXTRA_STREAM in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#EXTRA_STREAM).
     type: String
     permission: read-only
+
   - name: EXTRA_SUBJECT
-    description: 
+    summary: Corresponds to the Android `Intent.EXTRA_SUBJECT` constant.
+    description: |
+        See [Intent.EXTRA_SUBJECT in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#EXTRA_SUBJECT).
     type: String
     permission: read-only
+
   - name: EXTRA_TEMPLATE
-    description: 
+    summary: Corresponds to the Android `Intent.EXTRA_TEMPLATE` constant.
+    description: |
+        See [Intent.EXTRA_TEMPLATE in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#EXTRA_TEMPLATE).
     type: String
     permission: read-only
+
   - name: EXTRA_TEXT
-    description: 
+    summary: Corresponds to the Android `Intent.EXTRA_TEXT` constant.
+    description: |
+        See [Intent.EXTRA_TEXT in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#EXTRA_TEXT).
     type: String
     permission: read-only
+
   - name: EXTRA_TITLE
-    description: 
+    summary: Corresponds to the Android `Intent.EXTRA_TITLE` constant.
+    description: |
+        See [Intent.EXTRA_TITLE in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#EXTRA_TITLE).
     type: String
     permission: read-only
+
   - name: EXTRA_UID
-    description: 
+    summary: Corresponds to the Android `Intent.EXTRA_UID` constant.
+    description: |
+        See [Intent.EXTRA_UID in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#EXTRA_UID).
     type: String
     permission: read-only
+
   - name: FILL_IN_ACTION
-    description: 
+    summary: Corresponds to the Android `Intent.FILL_IN_ACTION` constant.
+    description: |
+        See [Intent.FILL_IN_ACTION in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#FILL_IN_ACTION).
     type: Number
     permission: read-only
+
   - name: FILL_IN_CATEGORIES
-    description: 
+    summary: Corresponds to the Android `Intent.FILL_IN_CATEGORIES` constant.
+    description: |
+        See [Intent.FILL_IN_CATEGORIES in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#FILL_IN_CATEGORIES).
     type: Number
     permission: read-only
+
   - name: FILL_IN_COMPONENT
-    description: 
+    summary: Corresponds to the Android `Intent.FILL_IN_COMPONENT` constant.
+    description: |
+        See [Intent.FILL_IN_COMPONENT in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#FILL_IN_COMPONENT).
     type: Number
     permission: read-only
+
   - name: FILL_IN_DATA
-    description: 
+    summary: Corresponds to the Android `Intent.FILL_IN_DATA` constant.
+    description: |
+        See [Intent.FILL_IN_DATA in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#FILL_IN_DATA).
     type: Number
     permission: read-only
+
   - name: FILL_IN_PACKAGE
-    description: 
+    summary: Corresponds to the Android `Intent.FILL_IN_PACKAGE` constant.
+    description: |
+        See [Intent.FILL_IN_PACKAGE in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#FILL_IN_PACKAGE).
     type: Number
     permission: read-only
+
   - name: FLAG_ACTIVITY_BROUGHT_TO_FRONT
-    description: 
+    summary: Corresponds to the Android `Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT` constant.
+    description: |
+        See [Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#FLAG_ACTIVITY_BROUGHT_TO_FRONT).
     type: Number
     permission: read-only
+
   - name: FLAG_ACTIVITY_CLEAR_TOP
-    description: 
+    summary: Corresponds to the Android `Intent.FLAG_ACTIVITY_CLEAR_TOP` constant.
+    description: |
+        See [Intent.FLAG_ACTIVITY_CLEAR_TOP in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#FLAG_ACTIVITY_CLEAR_TOP).
     type: Number
     permission: read-only
+
   - name: FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET
-    description: 
+    summary: Corresponds to the Android `Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET` constant.
+    description: |
+        See [Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET).
     type: Number
     permission: read-only
+
   - name: FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS
-    description: 
+    summary: Corresponds to the Android `Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS` constant.
+    description: |
+        See [Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS).
     type: Number
     permission: read-only
+
   - name: FLAG_ACTIVITY_FORWARD_RESULT
-    description: 
+    summary: Corresponds to the Android `Intent.FLAG_ACTIVITY_FORWARD_RESULT` constant.
+    description: |
+        See [Intent.FLAG_ACTIVITY_FORWARD_RESULT in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#FLAG_ACTIVITY_FORWARD_RESULT).
     type: Number
     permission: read-only
+
   - name: FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY
-    description: 
+    summary: Corresponds to the Android `Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY` constant.
+    description: |
+        See [Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY).
     type: Number
     permission: read-only
+
   - name: FLAG_ACTIVITY_MULTIPLE_TASK
-    description: 
+    summary: Corresponds to the Android `Intent.FLAG_ACTIVITY_MULTIPLE_TASK` constant.
+    description: |
+        See [Intent.FLAG_ACTIVITY_MULTIPLE_TASK in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#FLAG_ACTIVITY_MULTIPLE_TASK).
     type: Number
     permission: read-only
+
   - name: FLAG_ACTIVITY_NEW_TASK
-    description: 
+    summary: Corresponds to the Android `Intent.FLAG_ACTIVITY_NEW_TASK` constant.
+    description: |
+        See [Intent.FLAG_ACTIVITY_NEW_TASK in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#FLAG_ACTIVITY_NEW_TASK).
     type: Number
     permission: read-only
+
   - name: FLAG_ACTIVITY_NO_ANIMATION
-    description: 
+    summary: Corresponds to the Android `Intent.FLAG_ACTIVITY_NO_ANIMATION` constant.
+    description: |
+        See [Intent.FLAG_ACTIVITY_NO_ANIMATION in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#FLAG_ACTIVITY_NO_ANIMATION).
     type: Number
     permission: read-only
+
   - name: FLAG_ACTIVITY_NO_HISTORY
-    description: 
+    summary: Corresponds to the Android `Intent.FLAG_ACTIVITY_NO_HISTORY` constant.
+    description: |
+        See [Intent.FLAG_ACTIVITY_NO_HISTORY in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#FLAG_ACTIVITY_NO_HISTORY).
     type: Number
     permission: read-only
+
   - name: FLAG_ACTIVITY_NO_USER_ACTION
-    description: 
+    summary: Corresponds to the Android `Intent.FLAG_ACTIVITY_NO_USER_ACTION` constant.
+    description: |
+        See [Intent.FLAG_ACTIVITY_NO_USER_ACTION in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#FLAG_ACTIVITY_NO_USER_ACTION).
     type: Number
     permission: read-only
+
   - name: FLAG_ACTIVITY_PREVIOUS_IS_TOP
-    description: 
+    summary: Corresponds to the Android `Intent.FLAG_ACTIVITY_PREVIOUS_IS_TOP` constant.
+    description: |
+        See [Intent.FLAG_ACTIVITY_PREVIOUS_IS_TOP in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#FLAG_ACTIVITY_PREVIOUS_IS_TOP).
     type: Number
     permission: read-only
+
   - name: FLAG_ACTIVITY_REORDER_TO_FRONT
-    description: 
+    summary: Corresponds to the Android `Intent.FLAG_ACTIVITY_REORDER_TO_FRONT` constant.
+    description: |
+        See [Intent.FLAG_ACTIVITY_REORDER_TO_FRONT in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#FLAG_ACTIVITY_REORDER_TO_FRONT).
     type: Number
     permission: read-only
+
   - name: FLAG_ACTIVITY_RESET_TASK_IF_NEEDED
-    description: 
+    summary: Corresponds to the Android `Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED` constant.
+    description: |
+        See [Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#FLAG_ACTIVITY_RESET_TASK_IF_NEEDED).
     type: Number
     permission: read-only
+
   - name: FLAG_ACTIVITY_SINGLE_TOP
-    description: 
+    summary: Corresponds to the Android `Intent.FLAG_ACTIVITY_SINGLE_TOP` constant.
+    description: |
+        See [Intent.FLAG_ACTIVITY_SINGLE_TOP in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#FLAG_ACTIVITY_SINGLE_TOP).
     type: Number
     permission: read-only
-  - name: FLAG_AUTO_CANCEL
-    description: Bit to be bitwise-ored into the flags field that should be set if the notification should be canceled when it is clicked by the user.
-    type: Number
-    permission: read-only
-  - name: FLAG_CANCEL_CURRENT
-    description: 
-    type: Number
-    permission: read-only
+
+
   - name: FLAG_DEBUG_LOG_RESOLUTION
-    description: 
+    summary: Corresponds to the Android `Intent.FLAG_DEBUG_LOG_RESOLUTION` constant.
+    description: |
+        See [Intent.FLAG_DEBUG_LOG_RESOLUTION in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#FLAG_DEBUG_LOG_RESOLUTION).
     type: Number
     permission: read-only
+
   - name: FLAG_FROM_BACKGROUND
-    description: 
+    summary: Corresponds to the Android `Intent.FLAG_FROM_BACKGROUND` constant.
+    description: |
+        See [Intent.FLAG_FROM_BACKGROUND in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#FLAG_FROM_BACKGROUND).
     type: Number
     permission: read-only
+
   - name: FLAG_GRANT_READ_URI_PERMISSION
-    description: 
+    summary: Corresponds to the Android `Intent.FLAG_GRANT_READ_URI_PERMISSION` constant.
+    description: |
+        See [Intent.FLAG_GRANT_READ_URI_PERMISSION in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#FLAG_GRANT_READ_URI_PERMISSION).
     type: Number
     permission: read-only
+
   - name: FLAG_GRANT_WRITE_URI_PERMISSION
-    description: 
+    summary: Corresponds to the Android `Intent.FLAG_GRANT_WRITE_URI_PERMISSION` constant.
+    description: |
+        See [Intent.FLAG_GRANT_WRITE_URI_PERMISSION in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#FLAG_GRANT_WRITE_URI_PERMISSION).
     type: Number
     permission: read-only
-  - name: FLAG_INSISTENT
-    description: Bit to be bitwise-ored into the flags field that if set, the audio will be repeated until the notification is cancelled or the notification window is opened.
-    type: Number
-    permission: read-only
-  - name: FLAG_NO_CLEAR
-    description: Bit to be bitwise-ored into the flags field that should be set if the notification should not be canceled when the user clicks the Clear all button.
-    type: Number
-    permission: read-only
-  - name: FLAG_NO_CREATE
-    description: 
-    type: Number
-    permission: read-only
-  - name: FLAG_ONE_SHOT
-    description: 
-    type: Number
-    permission: read-only
-  - name: FLAG_ONGOING_EVENT
-    description: Bit to be bitwise-ored into the flags field that should be set if this notification is in reference to something that is ongoing, like a phone call.
-    type: Number
-    permission: read-only
-  - name: FLAG_ONLY_ALERT_ONCE
-    description: Bit to be bitwise-ored into the flags field that should be set if you want the sound and/or vibration play each time the notification is sent, even if it has not been canceled before that.
-    type: Number
-    permission: read-only
+
   - name: FLAG_RECEIVER_REGISTERED_ONLY
-    description: 
+    summary: Corresponds to the Android `Intent.FLAG_RECEIVER_REGISTERED_ONLY` constant.
+    description: |
+        See [Intent.FLAG_RECEIVER_REGISTERED_ONLY in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#FLAG_RECEIVER_REGISTERED_ONLY).
     type: Number
     permission: read-only
-  - name: FLAG_SHOW_LIGHTS
-    description: Bit to be bitwise-ored into the flags field that should be set if you want the LED on for this notification.
+
+# PendingIntent-related constants
+
+
+  - name: FLAG_CANCEL_CURRENT
+    summary: Corresponds to the Android `PendingIntent.FLAG_CANCEL_CURRENT` constant.
+    description: |
+        See [PendingIntent.FLAG_CANCEL_CURRENT in the Android API Reference](http://developer.android.com/reference/android/app/PendingIntent.html#FLAG_CANCEL_CURRENT).
     type: Number
     permission: read-only
+
+  - name: FLAG_NO_CREATE
+    summary: Corresponds to the Android `PendingIntent.FLAG_NO_CREATE` constant.
+    description: |
+        See [PendingIntent.FLAG_NO_CREATE in the Android API Reference](http://developer.android.com/reference/android/app/PendingIntent.html#FLAG_NO_CREATE).
+    type: Number
+    permission: read-only
+
+  - name: FLAG_ONE_SHOT
+    summary: Corresponds to the Android `PendingIntent.FLAG_ONE_SHOT` constant.
+    description: |
+        See [PendingIntent.FLAG_ONE_SHOT in the Android API Reference](http://developer.android.com/reference/android/app/PendingIntent.html#FLAG_ONE_SHOT).
+    type: Number
+    permission: read-only
+
   - name: FLAG_UPDATE_CURRENT
-    description: 
+    summary: Corresponds to the Android `PendingIntent.FLAG_UPDATE_CURRENT` constant.
+    description: |
+        See [PendingIntent.FLAG_UPDATE_CURRENT in the Android API
+        Reference](http://developer.android.com/reference/android/app/PendingIntent.html#FLAG_UPDATE_CURRENT).
     type: Number
     permission: read-only
+
+# Notification-related constants
+
+  - name: DEFAULT_ALL
+    summary: |
+        Use all default settings for a notification; see
+        [Notification.defaults](Titanium.Android.Notification.defaults).
+    description: |
+        See [Notification.DEFAULT_ALL in the Android API Reference](http://developer.android.com/reference/android/app/Notification.html#DEFAULT_ALL).
+    type: Number
+    permission: read-only
+
+  - name: DEFAULT_LIGHTS
+    summary: |
+        Use the default light settings for a notification; see
+        [Notification.defaults](Titanium.Android.Notification.defaults).
+    description: |
+        See [Notification.DEFAULT_LIGHTS in the Android API Reference](http://developer.android.com/reference/android/app/Notification.html#DEFAULT_LIGHTS).
+    type: Number
+    permission: read-only
+
+  - name: DEFAULT_SOUND
+    summary: |
+        Use the default sound settings for a notification; see
+        [Notification.defaults](Titanium.Android.Notification.defaults).
+    description: |
+        See [Notification.DEFAULT_SOUND in the Android API Reference](http://developer.android.com/reference/android/app/Notification.html#DEFAULT_SOUND).
+    type: Number
+    permission: read-only
+
+  - name: DEFAULT_VIBRATE
+    summary: |
+        Use the default vibration settings for a notification; see
+        [Notification.defaults](Titanium.Android.Notification.defaults).
+    description: |
+        See [Notification.DEFAULT_VIBRATE in the Android API Reference](http://developer.android.com/reference/android/app/Notification.html#DEFAULT_VIBRATE).
+    type: Number
+    permission: read-only
+
+  - name: FLAG_AUTO_CANCEL
+    summary: Cancel the notification when it is clicked by the user.
+    description: |
+        Use with [Notification.flags](Titanium.Android.Notification.flags).
+
+        See also: [Notification.FLAG_AUTO_CANCEL in the Android API Reference](http://developer.android.com/reference/android/app/Notification.html#FLAG_AUTO_CANCEL).
+    type: Number
+    permission: read-only
+
+  - name: FLAG_INSISTENT
+    summary: |
+        Repeat audio until the notification is cancelled or the notification window
+        is opened.
+    description: |
+        Use with [Notification.flags](Titanium.Android.Notification.flags).
+
+        See also: [Notification.FLAG_INSISTENT in the Android API Reference](http://developer.android.com/reference/android/app/Notification.html#FLAG_INSISTENT).
+    type: Number
+    permission: read-only
+
+  - name: FLAG_NO_CLEAR
+    summary: Do not cancel the notification when the user clicks the Clear All button.
+    description: |
+        Use with [Notification.flags](Titanium.Android.Notification.flags).
+
+        See also: [Notification.FLAG_NO_CLEAR in the Android API Reference](http://developer.android.com/reference/android/app/Notification.html#FLAG_NO_CLEAR).
+    type: Number
+    permission: read-only
+
+  - name: FLAG_ONGOING_EVENT
+    summary: Specifies that a notification is in reference to something that is ongoing, like a phone call.
+    description: |
+        Use with [Notification.flags](Titanium.Android.Notification.flags).
+
+        See also: [Notification.FLAG_ONGOING_EVENT in the Android API Reference](http://developer.android.com/reference/android/app/Notification.html#FLAG_ONGOING_EVENT).
+    type: Number
+    permission: read-only
+
+  - name: FLAG_ONLY_ALERT_ONCE
+    summary: Play an alert (sound, lights, and/or vibration) once each time the notification is sent, even if it has not been canceled before that.
+    description: |
+        Use with [Notification.flags](Titanium.Android.Notification.flags).
+
+        See also: [Notification.FLAG_ONLY_ALERT_ONCE in the Android API Reference](http://developer.android.com/reference/android/app/Notification.html#FLAG_ONLY_ALERT_ONCE).
+    type: Number
+    permission: read-only
+
+  - name: FLAG_SHOW_LIGHTS
+    summary: Use LED lights to alert the user to the notification.
+    description: |
+        Use with [Notification.flags](Titanium.Android.Notification.flags).
+
+        See also: [Notification.FLAG_SHOW_LIGHTS in the Android API Reference](http://developer.android.com/reference/android/app/Notification.html#FLAG_SHOW_LIGHTS).
+    type: Number
+    permission: read-only
+
+
+# Constants that should probably be removed
+
   - name: PENDING_INTENT_FOR_ACTIVITY
-    description: 
+    summary: Not used.
     type: Number
     permission: read-only
+    deprecated: 
+        since: "2.0.0"
+
   - name: PENDING_INTENT_FOR_BROADCAST
-    description: 
+    summary: Not used.
     type: Number
     permission: read-only
+    deprecated: 
+        since: "2.0.0"
+
   - name: PENDING_INTENT_FOR_SERVICE
-    description: 
+    summary: Not used.
     type: Number
     permission: read-only
+    deprecated: 
+        since: "2.0.0"
+
   - name: PENDING_INTENT_MAX_VALUE
-    description: 
+    summary: Not used.
     type: Number
     permission: read-only
+    deprecated: 
+        since: "2.0.0"
+
+# end of deprecated constants
+
   - name: R
-    description: Accessor for android resources
-    type: Object
+    summary: Accessor for Android system resources.
+    type: Titanium.Android.R
     permission: read-only
+    accessors: false
+
   - name: RESULT_CANCELED
-    description: 
+    summary: |
+        Used with [setResult](Titanium.Android.Activity.setResult) to specify that
+        an activity was canceled.
     type: Number
     permission: read-only
+
+# Activity-related constants
+
   - name: RESULT_FIRST_USER
-    description: 
+    summary: |
+        Used with [setResult](Titanium.Android.Activity.setResult) to specify a 
+        user-defined result.
+    description: |
+        User-defined result constants values start at `RESULT_FIRST_USER`.
     type: Number
     permission: read-only
+
   - name: RESULT_OK
-    description: 
+    summary: |
+        Used with [setResult](Titanium.Android.Activity.setResult) to specify that
+        an activity succeeded.
     type: Number
     permission: read-only
+
   - name: SCREEN_ORIENTATION_BEHIND
-    description: 
+    summary: |
+        Use with [requestedOrientation](Titanium.Android.Activity.requestedOrientation) to
+        specify the activity should run in the same orientation as the activity behind it
+        in the activity stack.
     type: Number
     permission: read-only
+
   - name: SCREEN_ORIENTATION_LANDSCAPE
-    description: 
+    summary: |
+        Use with [requestedOrientation](Titanium.Android.Activity.requestedOrientation) to
+        specify a landscape screen orientation.
     type: Number
     permission: read-only
+
   - name: SCREEN_ORIENTATION_NOSENSOR
-    description: 
+    summary: |
+        Use with [requestedOrientation](Titanium.Android.Activity.requestedOrientation) to
+        specify that the sensor should be ignored and the display should not rotate.
     type: Number
     permission: read-only
+
   - name: SCREEN_ORIENTATION_PORTRAIT
-    description: 
+    summary: |
+        Use with [requestedOrientation](Titanium.Android.Activity.requestedOrientation) to
+        specify a portrait screen orientation.
     type: Number
     permission: read-only
+
   - name: SCREEN_ORIENTATION_SENSOR
-    description: 
+    summary: |
+        Use with [requestedOrientation](Titanium.Android.Activity.requestedOrientation) to
+        specify that orientation should be determined by the orientation sensor.
     type: Number
     permission: read-only
+
   - name: SCREEN_ORIENTATION_UNSPECIFIED
-    description: 
+    summary: |
+        Use with [requestedOrientation](Titanium.Android.Activity.requestedOrientation) to
+        specify that the system should use its default rules for determining the best
+        orientation.
     type: Number
     permission: read-only
+
   - name: SCREEN_ORIENTATION_USER
-    description: 
+    summary: |
+        Use with [requestedOrientation](Titanium.Android.Activity.requestedOrientation) to
+        specify that the system should use the user's preferred orientation.
     type: Number
     permission: read-only
+
+  - name: SHOW_AS_ACTION_ALWAYS
+    summary: Always show this item as an action button in the action bar.
+    type: Number
+    permission: read-only
+    since: "2.2"
+
+  - name: SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW
+    summary: The action view can collapse to a normal menu item.
+    type: Number
+    permission: read-only
+    since: "2.2"
+
+  - name: SHOW_AS_ACTION_IF_ROOM
+    summary: |
+      Show this item as an action button if the system decides there is room for it.
+    type: Number
+    permission: read-only
+    since: "2.2"
+
+  - name: SHOW_AS_ACTION_NEVER
+    summary: Never display this item as an action button in the action bar.
+    type: Number
+    permission: read-only
+    since: "2.2"
+
+  - name: SHOW_AS_ACTION_WITH_TEXT
+    summary: When this item is in the action bar, always show it with a text label.
+    type: Number
+    permission: read-only
+    since: "2.2"
+
+  - name: START_NOT_STICKY
+    summary: |
+        A Service start mode indicating that if the host application is stopped by Android, the service should not be restarted automatically.
+    description: |
+        Use as a `startMode` value in the options object passed to 
+        [createServiceIntent](Titanium.Android.createServiceIntent).
+    type: Number
+    permission: read-only
+
+  - name: START_REDELIVER_INTENT
+    summary: A Service start mode indicating that if the host application is stopped by Android, the service should be restarted automatically and the original Intent re-sent.
+    description: |
+        Use as a `startMode` value in the options object passed to 
+        [createServiceIntent](Titanium.Android.createServiceIntent).
+    type: Number
+    permission: read-only
+
+  - name: STREAM_ALARM
+    summary: |
+        Use with [audioStreamType](Titanium.Android.Notification.audioStreamType) to
+        request that the alarm stream type for notifications be used.
+    type: Number
+    permission: read-only
+
   - name: STREAM_DEFAULT
-    description: Use this constant as the value for audioStreamType to request that the default stream type for notifications be used.
+    summary: |
+        Use with [audioStreamType](Titanium.Android.Notification.audioStreamType) to request that the 
+        default stream type for notifications be used.
     type: Number
     permission: read-only
+
+
+  - name: STREAM_MUSIC
+    summary: |
+        Use with [audioStreamType](Titanium.Android.Notification.audioStreamType) to
+        request that the music stream type for notifications be used.
+    type: Number
+    permission: read-only
+
+  - name: STREAM_NOTIFICATION
+    summary: |
+        Use with [audioStreamType](Titanium.Android.Notification.audioStreamType) to request that the 
+        notification stream type for notifications be used.
+    type: Number
+    permission: read-only
+
+  - name: STREAM_RING
+    summary: |
+        Use with [audioStreamType](Titanium.Android.Notification.audioStreamType) to request that the 
+        ring stream type for notifications be used.
+    type: Number
+    permission: read-only
+
+  - name: STREAM_SYSTEM
+    summary: |
+        Use with [audioStreamType](Titanium.Android.Notification.audioStreamType) to request that the 
+        system stream type for notifications be used.
+    type: Number
+    permission: read-only
+
+  - name: STREAM_VOICE_CALL
+    summary: |
+        Use with [audioStreamType](Titanium.Android.Notification.audioStreamType) to request that the 
+        voice call stream type for notifications be used.
+    type: Number
+    permission: read-only
+
   - name: URI_INTENT_SCHEME
-    description: 
+    summary: The URI scheme used for intent URIs.
     type: Number
     permission: read-only
-notes: Several (almost all) of the constants you see above are directly taken from Android.  So if we've failed to document all of them, have a look online at the [Android SDK reference pages](http://developer.android.com/reference/android/app/Service.html).
-    
-    The most important page there will be the [Intent reference](http://developer.android.com/reference/android/content/Intent.html), which will give you the meaning of those ACTION, EXTRA and CATEGORY constants.
+
+  - name: currentActivity
+    summary: Activity of the active context.
+    type: Titanium.Android.Activity
+    permission: read-only
+
+  - name: currentService
+    summary: Service in the active context.
+    type: Titanium.Android.Service
+    permission: read-only
+
+---
+name: ServiceIntentOptions
+summary: Options passed to <Titanium.Android.createServiceIntent>.
+properties:
+
+  - name: url
+    summary: URL for the service's JavaScript.
+    type: String
+
+  - name: startMode
+    summary: One of the `START_` constants from <Titanium.Android> to specify the "stickiness" of the Service when Android shuts down the host application.
+    type: Number
+    optional: true
+    default: Titanium.Android.START_REDELIVER_INTENT

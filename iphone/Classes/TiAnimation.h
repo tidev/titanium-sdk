@@ -12,20 +12,54 @@
 #import <QuartzCore/QuartzCore.h>
 
 @class TiViewProxy;
+@class TiAnimation;
 
+/**
+ Protocol for animation delegate.
+ */
 @protocol TiAnimationDelegate
 
 @optional
 
--(BOOL)animationShouldTransition:(id)sender;
--(void)animationWillStart:(id)sender;
--(void)animationDidStart:(id)sender;
--(void)animationWillComplete:(id)sender;
--(void)animationDidComplete:(id)sender;
+/**
+ Whether or not the animation should transition.
+ 
+ The method is only called if the animation is a transition animation type.
+ @param animation The animation this delegate is assigned to.
+ @return _YES_ if the animation should transition, _NO_ otherwise.
+ */
+-(BOOL)animationShouldTransition:(TiAnimation *)animation;
+
+/**
+ Tells the delegate that the animation will start.
+ @param animation The animation this delegate is assigned to.
+ */
+-(void)animationWillStart:(TiAnimation *)animation;
+
+/**
+ Tells the delegate that the animation did start.
+ @param animation The animation this delegate is assigned to.
+ */
+-(void)animationDidStart:(TiAnimation *)animation;
+
+/**
+ Tells the delegate that the animation will complete.
+ @param animation The animation this delegate is assigned to.
+ */
+-(void)animationWillComplete:(TiAnimation *)animation;
+
+/**
+ Tells the delegate that the animation did complete.
+ @param animation The animation this delegate is assigned to.
+ */
+-(void)animationDidComplete:(TiAnimation *)animation;
 
 @end
 
 
+/**
+ A type of proxy representing an animation to apply to a view. 
+ */
 @interface TiAnimation : TiProxy {
 @private
 	NSNumber	*zIndex;
@@ -49,6 +83,7 @@
 	TiProxy		*transform;
 	NSNumber	*transition;
 	TiViewProxy	*view;
+    TiViewProxy *animatedViewProxy;
 
 	// this is a temporary function passed in
 	ListenerEntry *callback;
@@ -59,18 +94,19 @@
 	UIView* animatedView;
 		
 	// for autoreverse
-	LayoutConstraint autoreverseLayout;
-	UIView *autoreverseView;
-	id transformMatrix;
+    TiAnimation* reverseAnimation;
+    BOOL isReverse;
 }
 
+/**
+ Provides access to animation delegate object.
+ */
 @property(nonatomic,assign,readwrite) NSObject<TiAnimationDelegate> *delegate;
 
 @property(nonatomic,readwrite,assign) UIView* animatedView;
-@property(nonatomic,readwrite,assign) UIView* autoreverseView;
-@property(nonatomic,readwrite,assign) id transformMatrix;
-@property(nonatomic,readonly) LayoutConstraint autoreverseLayout;
 @property(nonatomic,readonly) ListenerEntry* callback;
+@property(nonatomic,readwrite,assign) TiAnimation* reverseAnimation;
+@property(nonatomic,readwrite,assign) BOOL isReverse;
 
 // animatable properties against what is being animated
 @property(nonatomic,retain,readwrite) NSNumber	*zIndex;
@@ -105,6 +141,13 @@
 
 -(void)animate:(id)args;
 
+/**
+ Whether or not the animation is a transition animation type.
+ @return _YES_ if the animation is a transition animation type, _NO_ otherwise.
+ */
 -(BOOL)isTransitionAnimation;
+
+-(NSTimeInterval)animationDuration;
+-(void)animationCompleted:(NSString *)animationID finished:(NSNumber *)finished context:(void *)context;
 
 @end

@@ -10,11 +10,11 @@
 
 #import <Foundation/Foundation.h>
 
-@class AsyncSendPacket;
-@class AsyncReceivePacket;
+@class TI_AsyncSendPacket;
+@class TI_AsyncReceivePacket;
 
-extern NSString *const AsyncUdpSocketException;
-extern NSString *const AsyncUdpSocketErrorDomain;
+extern NSString *const TI_AsyncUdpSocketException;
+extern NSString *const TI_AsyncUdpSocketErrorDomain;
 
 enum AsyncUdpSocketError
 {
@@ -28,7 +28,7 @@ enum AsyncUdpSocketError
 };
 typedef enum AsyncUdpSocketError AsyncUdpSocketError;
 
-@interface AsyncUdpSocket : NSObject
+@interface TI_AsyncUdpSocket : NSObject
 {
 	CFSocketRef theSocket4;            // IPv4 socket
 	CFSocketRef theSocket6;            // IPv6 socket
@@ -40,11 +40,11 @@ typedef enum AsyncUdpSocketError AsyncUdpSocketError;
 	NSArray *theRunLoopModes;
 	
 	NSMutableArray *theSendQueue;
-	AsyncSendPacket *theCurrentSend;
+	TI_AsyncSendPacket *theCurrentSend;
 	NSTimer *theSendTimer;
 	
 	NSMutableArray *theReceiveQueue;
-	AsyncReceivePacket *theCurrentReceive;
+	TI_AsyncReceivePacket *theCurrentReceive;
 	NSTimer *theReceiveTimer;
 	
 	id theDelegate;
@@ -313,11 +313,13 @@ typedef enum AsyncUdpSocketError AsyncUdpSocketError;
 
 @end
 
+@compatibility_alias AsyncUdpSocket TI_AsyncUdpSocket;
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 #pragma mark -
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-@protocol AsyncUdpSocketDelegate
+@protocol TI_AsyncUdpSocketDelegate
 @optional
 
 /**

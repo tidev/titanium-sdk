@@ -1,3 +1,3 @@
-#Sun Jul 31 13:29:22 CDT 2011
+#Wed Sep 28 11:51:40 CDT 2011
 eclipse.preferences.version=1
-org.eclipse.jdt.core.compiler.processAnnotations=enabled
+org.eclipse.jdt.core.compiler.processAnnotations=disabled

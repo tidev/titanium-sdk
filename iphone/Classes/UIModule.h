@@ -135,10 +135,40 @@
 @property(nonatomic,readonly) NSNumber *AUTODETECT_ADDRESS;
 @property(nonatomic,readonly) NSNumber *AUTODETECT_CALENDAR;
 
+@property(nonatomic,readonly) NSNumber *AUTOLINK_NONE;
+@property(nonatomic,readonly) NSNumber *AUTOLINK_ALL;
+@property(nonatomic,readonly) NSNumber *AUTOLINK_PHONE_NUMBERS;
+@property(nonatomic,readonly) NSNumber *AUTOLINK_URLS;
+@property(nonatomic,readonly) NSNumber *AUTOLINK_EMAIL_ADDRESSES;
+@property(nonatomic,readonly) NSNumber *AUTOLINK_MAP_ADDRESSES;
+@property(nonatomic,readonly) NSNumber *AUTOLINK_CALENDAR;
 
+@property(nonatomic,readonly) NSString *SIZE;
+@property(nonatomic,readonly) NSString *FILL;
+@property(nonatomic,readonly) NSString *UNIT_PX;
+@property(nonatomic,readonly) NSString *UNIT_CM;
+@property(nonatomic,readonly) NSString *UNIT_MM;
+@property(nonatomic,readonly) NSString *UNIT_IN;
+@property(nonatomic,readonly) NSString *UNIT_DIP;
+
+@property(nonatomic,readonly) NSNumber *URL_ERROR_AUTHENTICATION;
+@property(nonatomic,readonly) NSNumber *URL_ERROR_BAD_URL;
+@property(nonatomic,readonly) NSNumber *URL_ERROR_CONNECT;
+@property(nonatomic,readonly) NSNumber *URL_ERROR_SSL_FAILED;
+@property(nonatomic,readonly) NSNumber *URL_ERROR_FILE;
+@property(nonatomic,readonly) NSNumber *URL_ERROR_FILE_NOT_FOUND;
+@property(nonatomic,readonly) NSNumber *URL_ERROR_HOST_LOOKUP;
+@property(nonatomic,readonly) NSNumber *URL_ERROR_REDIRECT_LOOP;
+@property(nonatomic,readonly) NSNumber *URL_ERROR_TIMEOUT;
+@property(nonatomic,readonly) NSNumber *URL_ERROR_UNKNOWN;
+@property(nonatomic,readonly) NSNumber *URL_ERROR_UNSUPPORTED_SCHEME;
 
 #ifdef USE_TI_UI2DMATRIX
 -(id)create2DMatrix:(id)args;
+#endif
+
+#ifdef USE_TI_UI3DMATRIX
+-(id)create3DMatrix:(id)args;
 #endif
 
 #ifdef USE_TI_UIANIMATION

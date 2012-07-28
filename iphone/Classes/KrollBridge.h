@@ -29,10 +29,11 @@
 }
 
 -(id)initWithContext:(KrollContext*)context_ host:(TiHost*)host_ context:(id<TiEvaluator>)context baseURL:(NSURL*)baseURL_;
--(KrollObject*)addModule:(NSString*)name module:(TiModule*)module;
+-(id)addModule:(NSString*)name module:(TiModule*)module;
 -(TiModule*)moduleNamed:(NSString*)name context:(id<TiEvaluator>)context;
 @end
 
+extern NSString * TitaniumModuleRequireFormat;
 
 @interface KrollBridge : Bridge<TiEvaluator,KrollDelegate> {
 @private
@@ -42,6 +43,7 @@
 	NSDictionary *preload;
 	NSMutableDictionary *modules;
 	TitaniumObject *titanium;
+    KrollObject* console;
 	BOOL shutdown;
     BOOL evaluationError;
 	//NOTE: Do NOT treat registeredProxies like a mutableDictionary; mutable dictionaries copy keys,
@@ -62,7 +64,7 @@
 + (BOOL)krollBridgeExists:(KrollBridge *)bridge;
 + (KrollBridge *)krollBridgeForThreadName:(NSString *)threadName;
 
--(void)enqueueEvent:(NSString*)type forProxy:(TiProxy *)proxy withObject:(id)obj withSource:(id)source;
+-(void)enqueueEvent:(NSString*)type forProxy:(TiProxy *)proxy withObject:(id)obj;
 -(void)registerProxy:(id)proxy krollObject:(KrollObject *)ourKrollObject;
 -(int)forceGarbageCollectNow;
 

@@ -20,6 +20,7 @@
 -(void)dealloc
 {
 	[[NSNotificationCenter defaultCenter] removeObserver:self];
+	RELEASE_TO_NIL(backgroundServices);
 	[super dealloc];
 }
 
@@ -39,29 +40,32 @@
 	}
 }
 
--(void)_scheduleNotification:(NSArray*)arg
-{
-	UILocalNotification* localNotif = [arg objectAtIndex:0];
-	NSDate *date = [arg objectAtIndex:1];
-	
-	if (date!=nil)
-	{
-		[[UIApplication sharedApplication] scheduleLocalNotification:localNotif];
-	}
-	else
-	{
-		[[UIApplication sharedApplication] presentLocalNotificationNow:localNotif];
-	}
-	
-}
-
 #pragma mark Public
 
 -(id)registerBackgroundService:(id)args
 {
-	TiAppiOSBackgroundServiceProxy *proxy = [[TiAppiOSBackgroundServiceProxy alloc] _initWithPageContext:[self executionContext] args:args];
+	NSDictionary* a;
+	ENSURE_ARG_AT_INDEX(a, args, 0, NSDictionary)
+	
+	NSString* urlString = [[TiUtils toURL:[a objectForKey:@"url"] proxy:self]absoluteString];
+	
+	if ([urlString length] == 0) {
+		return nil;
+	}
+	
+	if (backgroundServices == nil) {
+		backgroundServices = [[NSMutableDictionary alloc]init];
+	}
+	
+	TiAppiOSBackgroundServiceProxy *proxy = [backgroundServices objectForKey:urlString];
+	
+	if (proxy == nil) {
+		proxy = [[[TiAppiOSBackgroundServiceProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
+		[backgroundServices setValue:proxy forKey:urlString];
+	}
+	
 	[[TiApp app] registerBackgroundService:proxy];
-	return [proxy autorelease];
+	return proxy;
 }
 
 -(id)scheduleLocalNotification:(id)args
@@ -139,7 +143,14 @@
 		localNotif.userInfo = userInfo;
 	}
 	
-	[self performSelectorOnMainThread:@selector(_scheduleNotification:) withObject:[NSArray arrayWithObjects:localNotif,date,nil] waitUntilDone:NO];
+	TiThreadPerformOnMainThread(^{
+		if (date!=nil) {
+			[[UIApplication sharedApplication] scheduleLocalNotification:localNotif];
+		}
+		else {
+			[[UIApplication sharedApplication] presentLocalNotificationNow:localNotif];
+		}
+	}, NO);
 	
 	TiAppiOSLocalNotificationProxy *lp = [[[TiAppiOSLocalNotificationProxy alloc] _initWithPageContext:[self executionContext]] autorelease];
 	lp.notification = localNotif;
@@ -156,31 +167,20 @@
 
 -(void)cancelLocalNotification:(id)args
 {
-	ENSURE_UI_THREAD(cancelLocalNotification,args);
 	ENSURE_SINGLE_ARG(args,NSObject);
-	NSInteger theid = [TiUtils intValue:args];
+	ENSURE_UI_THREAD(cancelLocalNotification,args);
 	NSArray *notifications = [[UIApplication sharedApplication] scheduledLocalNotifications];
 	if (notifications!=nil)
 	{
-		UILocalNotification *notification = nil;
-		
-		for (notification in notifications)
+		for (UILocalNotification *notification in notifications)
 		{
-			id i = [[notification userInfo] objectForKey:@"id"];
-			if (i!=nil)
+			if([[[notification userInfo] objectForKey:@"id"] isEqual:args])
 			{
-				if ([i intValue]==theid)
-				{
-					break;
-				}
+				[[UIApplication sharedApplication] cancelLocalNotification:notification];
+				return;
 			}
-			notification = nil;
 		}
-		if (notification!=nil)
-		{
-			notification.userInfo = nil;
-			[[UIApplication sharedApplication] cancelLocalNotification:notification];
-		}
+		
 	}
 }
 

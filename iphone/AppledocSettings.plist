@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>--project-company</key>
+	<string>Apcelerator, Inc.</string>
+	<key>--company-id</key>
+	<string>com.appcelerator</string>
+	<key>--project-name</key>
+	<string>Titanium Modules API</string>
+	<key>--create-docset</key>
+	<true/>
+	<key>--install-docset</key>
+	<false/>
+	<key>--clean-output</key>
+	<true/>
+	<key>--search-undocumented-doc</key>
+	<false/>
+	<key>--repeat-first-par</key>
+	<false/>
+	<key>--explicit-crossref</key>
+	<true/>
+	<key>--verbose</key>
+	<integer>4</integer>
+	<key>--logformat</key>
+	<integer>1</integer>
+	<key>--input</key>
+	<array>
+		<string>Classes/TiRootViewController.h</string>
+		<string>Classes/TiApp.h</string>
+		<string>Classes/TiFile.h</string>
+		<string>Classes/TiUIView.h</string>
+		<string>Classes/TiViewProxy.h</string>
+		<string>Classes/TiModule.h</string>
+		<string>Classes/TiWindowProxy.h</string>
+		<string>Classes/TiViewController.h</string>
+		<string>Classes/TiProxy.h</string>
+		<string>Classes/TiBlob.h</string>
+		<string>Classes/TiBase.h</string>
+		<string>Classes/TiAnimation.h</string>
+		<string>Classes/TiToolbar.h</string>
+		<string>Classes/TiToolbarButton.h</string>
+		<string>Classes/TiRootController.h</string>
+		<string>Classes/TiLocale.h</string>
+		<string>Classes/TiBuffer.h</string>
+		<string>Classes/WebFont.h</string>
+		<string>Classes/Webcolor.h</string>
+		<string>Classes/TiRect.h</string>
+		<string>Classes/TiPoint.h</string>
+		<string>Classes/TiColor.h</string>
+		<string>Classes/Ti2DMatrix.h</string>
+		<string>Classes/ImageLoader.h</string>
+		<string>Classes/TiDimension.h</string>
+		<string>Classes/TiUtils.h</string>
+	</array>
+</dict>
+</plist>

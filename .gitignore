@@ -8,3 +8,8 @@ xcuserdata
 *.swp
 *.orig
 *.rej
+*.BACKUP.*
+*.BASE.*
+*.LOCAL.*
+*.REMOTE.*
+anvil/driver/config.js

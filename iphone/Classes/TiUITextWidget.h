@@ -27,13 +27,14 @@
 	UIView<UITextInputTraits>*	textWidgetView;
 	BOOL suppressReturn;
 	
-	TiUIView<TiUIScrollView> *	parentScrollView;
+	TiUIView<TiScrolling> *	parentScrollView;
 @private
 
 }
 
 -(void)textWidget:(UIView<UITextInputTraits>*)tw didFocusWithText:(NSString *)value;
 -(void)textWidget:(UIView<UITextInputTraits>*)tw didBlurWithText:(NSString *)value;
+-(void)setValue_:(id)text;
 
 @end
 

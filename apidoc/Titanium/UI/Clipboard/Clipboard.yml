@@ -1,72 +1,120 @@
 ---
 name: Titanium.UI.Clipboard
-description: A module used for accessing clipboard data.
+summary: A module used for accessing clipboard data.
+description: |
+    The Clipboard is a temporary data store, used to save a single item of data that may then 
+    be accessed by the user using UI copy and paste interactions within an app or between apps.
+    
+    On iOS and Mobile Web, the module's `*Data()` methods enable multiple representations of the 
+    same data item to be stored together with their respective 
+    [MIME type](http://en.wikipedia.org/wiki/Internet_media_type) to describe their format. For 
+    example, `'text'` and `'text/plain'` for text, and `'image/jpg'` and `'image/png'` for an image.
+    
+    When working with text, either the `*Data()` methods may be used with a `'text/plain'` type, or 
+    the `*Text()` methods without the need to specify the type.
+    
+    Android currently only supports text type of data to be stored. 
+    
+    #### Clipboard Data Types
+    
+    The `*Text()` methods are equivalent to calling `*Data()` with a `'text'` or `'text/plain'` 
+    type. These work with plain Unicode strings. 
+    
+    An image is stored using the `'image'` type, or an explicit image MIME type, and is returned as 
+    a <Titanium.Blob> (binary) type. 
+    
+    A URL is stored with the `'url'` or `'text/uri-list'` type, and is returned as a string. 
+    
+    Any data type that is specified but not correctly mapped to a clipboard type by the system is 
+    retrieved as a <Titanium.Blob> type. 
 extends: Titanium.Module
 since: "1.5"
+platforms: [android, iphone, ipad, mobileweb]
+
 methods:
   - name: clearData
-    description: Clear data of the given mime-type from the clipboard. If no mime-type is given, clear all data from the clipboard.
+    summary: |
+        Deletes data of the specified MIME type stored in the clipboard. If MIME type omitted, all 
+        data is deleted.
+    description: On Android, identical to `clearText` method.
     parameters:
       - name: type
-        description: (optional) The mime-type of the data to clear.
+        summary: MIME type. Ignored on Android.
         type: String
+        optional: true
+        
   - name: clearText
-    description: Clear the text portion of the clipboard.
+    summary: Deletes all text data stored in the clipboard.
+    description: |
+        This method deletes any data saved using the `setText` method, or that has a `text` or 
+        `text/plain` MIME type.
+    
   - name: getData
-    description: Get the data on the clipboard from the portion which contains data of the given mime-type.
+    summary: Gets data of the specified MIME type stored in the clipboard.
+    returns:
+        - type: String
+        - type: Titanium.Blob
     parameters:
       - name: type
-        description: The mime-type of the data to get.
+        summary: MIME type. Must be text type on Android.
         type: String
+        
   - name: getText
-    description: Get the current text on the clipboard.
+    summary: Gets text data stored in the clipboard.
+    returns:
+        type: String
+    
   - name: hasData
-    description: Return true if there is any content of the given mime-type on the clipboard.
+    summary: Indicates whether any data of the specified MIME type is stored in the clipboard.
+    returns:
+        type: Boolean
     parameters:
       - name: type
-        description: (optional) The mime-type of the data to check.
+        summary: MIME type. Must be text type on Android.
         type: String
+        
   - name: hasText
-    description: Return true if there is any content in the text portion of the clipboard.
+    summary: Indicates whether any text data is stored in the clipboard.
+    returns:
+        - type: Boolean
+        - type: Number
+    
   - name: setData
-    description: Set the data on the clipboard given a mime-type and the new data. This method will set data on the appropriate portion of the clipboard for the given mime-type.
+    summary: Stores data of the specified MIME type in the clipboard.
+    description: |
+        This method will overwrite any existing data for the specified MIME type. 
+        
+        Note that the clipboard is intended to store only one item of data at a time. This method 
+        enables different representations/formats of a data item to be saved.
     parameters:
       - name: type
-        description: The mime-type of the data to set.
+        summary: MIME type. Must be text type on Android.
         type: String
+        
       - name: data
-        description: The new clipboard text.
+        summary: New item of data.
         type: Object
+        
   - name: setText
-    description: Set the text on the clipboard. This will overwrite the current contents of the clipboard.
+    summary: Stores text data in the clipboard.
+    description: This method will overwrite any existing text data.
     parameters:
       - name: text
-        description: The new clipboard text. If the text is an empty string
+        summary: New item of data.
         type: String
+
 examples:
-  - title: Copying text to the clipboard
+  - title: Copy Text to the Clipboard
     example: |
+        Clear the clipboard and output the resulting empty clipboard to console. 
         
+        Then, store the string, "hello", to the clipboard and output it from the clipboard to the 
+        console. 
         
-            copyButton.addEventListener('click', function() {
-                Ti.UI.Clipboard.setText(data.url);
-            });
-        
-  - title: Pasting text from the clipboard
-    example: |
-        
-            if (Ti.UI.Clipboard.hasText()) {
-                doSomethingWith(Ti.UI.Clipboard.getText());
-            } else {
-                alert('Hey there was no text.');
-            }
-        
-  - title: Clipboard data types
-    example: |
-        
-        The *Text() functions are equivalent to calling *Data() with 'text' or 'text/plain' types, and work with plain Unicode strings.
-        
-        On Android, only plain text is supported; other MIME types will be ignored.
-        
-        On iOS, images will be returned as a <Titanium.Blob>; the special type 'image' or an explicit MIME type may be specified. URLs can be fetched with the special 'URL' or 'text/uri-list' types, and will return strings. Other data types may or may not be correctly mapped to clipboard types by the system, and will be retrieved as binary data in a <Titanium.Blob>.
-        
+            Ti.API.log('Deleting all text in Clipboard');
+            Ti.UI.Clipboard.clearText();
+            Ti.API.log('Clipboard.getText(): ' + Ti.UI.Clipboard.getText()); // returns empty string on Android and undefined on iOS
+            Ti.API.log('Set text Clipboard to hello');
+            Ti.UI.Clipboard.setText('hello');
+            Ti.API.log('Clipboard.hasText(), should be true: ' + Ti.UI.Clipboard.hasText()); // returns true on Android and 1 on iOS
+            Ti.API.log('Clipboard.getText(), should be hello: ' + Ti.UI.Clipboard.getText());
