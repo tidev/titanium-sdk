@@ -649,6 +649,7 @@ public abstract class TiBaseActivity extends Activity
 
     @Override
 	public void openOptionsMenu() {
+        
 		super.openOptionsMenu();
 	}
 

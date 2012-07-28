@@ -139,6 +139,12 @@ methods:
             Callback function to be executed when the activity sets result. See
             examples.
         type: Callback<ActivityResult>
+  - name: openOptionsMenu
+    summary: Opens the menu Options menu programatically. Hardware menu button doesn't need to be pressed'
+    description:  |
+        See also:
+          [openOptionsMenu](http://developer.android.com/reference/android/app/Activity.html#openOptionsMenu())
+          in the Android Developer Reference
 events:
 
   - name: create
