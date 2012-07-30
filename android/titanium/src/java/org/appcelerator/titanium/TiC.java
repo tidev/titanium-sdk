@@ -1735,6 +1735,16 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_TAB_OPEN = "tabOpen";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_TABS_BACKGROUND_COLOR = "tabsBackgroundColor";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_TABS_BACKGROUND_SELECTED_COLOR = "tabsBackgroundSelectedColor";
 
 	/**
 	 * @module.api

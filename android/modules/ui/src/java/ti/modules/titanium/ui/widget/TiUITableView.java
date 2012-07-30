@@ -90,7 +90,7 @@ public class TiUITableView extends TiUIView
 	{
 		return tableView.getListView();
 	}
-
+	
 	@Override
 	public void processProperties(KrollDict d)
 	{

@@ -1219,6 +1219,8 @@ DEFINE_EXCEPTIONS
 
 	[self updateTouchHandling];
     if ([event isEqualToString:@"swipe"]) {
+        [[self gestureRecognizerForEvent:@"uswipe"] setEnabled:NO];
+        [[self gestureRecognizerForEvent:@"dswipe"] setEnabled:NO];
         [[self gestureRecognizerForEvent:@"rswipe"] setEnabled:NO];
         [[self gestureRecognizerForEvent:@"lswipe"] setEnabled:NO];
     }

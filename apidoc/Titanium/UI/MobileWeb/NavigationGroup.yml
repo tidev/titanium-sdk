@@ -66,8 +66,8 @@ examples:
                window: win2
             });
             
-            win.add(nav);
-            win.open();
+            win1.add(nav);
+            win1.open();
             
             var win3 = Titanium.UI.createWindow({
             	backgroundColor: 'blue',
