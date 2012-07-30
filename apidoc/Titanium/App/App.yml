@@ -220,6 +220,7 @@ properties:
     type: Boolean
     default: false
     platforms: [iphone, ipad]
+    since: '2.2.0'
     
   - name: publisher
     summary: Application publisher, from `tiapp.xml`.
