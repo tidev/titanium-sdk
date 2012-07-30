@@ -145,8 +145,9 @@ public class TiUIButton extends TiUIView
 			Drawable[] drawables = ((Button) view).getCompoundDrawables();
 			if (drawables != null) {
 				for (int i = 0; i < drawables.length; i++) {
-					if (drawables[i] != null) {
-						drawables[i].clearColorFilter();
+					Drawable d = drawables[i];
+					if (d != null) {
+						d.clearColorFilter();
 					}
 				}
 			}
