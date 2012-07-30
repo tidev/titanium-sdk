@@ -48,6 +48,7 @@ module.exports = new function() {
 	*/
 	this.androidSocketPort = 40404;
 	this.iosSocketPort = 40405;
+	this.blackberrySocketPort = 40406;
 
 	// max number of connection attempts (driver to harness) for socket based test runs
 	this.maxSocketConnectAttempts = 20;

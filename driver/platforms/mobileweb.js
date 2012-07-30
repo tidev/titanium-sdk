@@ -82,8 +82,8 @@ module.exports = new function() {
 
 	var buildHarness = function(successCallback, errorCallback) {
 		var buildCallback = function() {
-			var args = [driverGlobal.harnessDir + "/mobileweb/harness", "development"];
-			util.runProcess(driverGlobal.config.tiSdkDir + "/mobileweb/builder.py", args, 0, 0, function(code) {
+			var args = [driverGlobal.config.tiSdkDir + "/mobileweb/builder.py", driverGlobal.harnessDir + "/mobileweb/harness", "development"];
+			util.runProcess("python", args, 0, 0, function(code) {
 				if (code !== 0) {
 					util.log("error encountered when building harness: " + code);
 					errorCallback();

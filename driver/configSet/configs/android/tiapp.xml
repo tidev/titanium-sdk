@@ -42,6 +42,8 @@
 		</splash>
 		<theme>default</theme>
 	</mobileweb>
+	<blackberry xmlns="http://www.qnx.com/schemas/application/1.0">
+	</blackberry>
 	<modules>
 	</modules>
 	<property name="ti.android.bug2373.disableDetection" type="bool">true</property>

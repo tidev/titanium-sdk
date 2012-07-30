@@ -108,8 +108,8 @@ module.exports = new function() {
 		{
 		//This test relies on cross-context function calls.
 		//As such, is it even a proper test? Conditioning out
-		//iOS in the meantime.
-			Ti.API.warn("Cross-context tests aren't currently being tested in iOS");
+		//iOS and BlackBerry in the meantime.
+			Ti.API.warn("Cross-context tests aren't currently being tested in iOS or BlackBerry");
 			finish(testRun);
 		}
 	}
@@ -132,7 +132,7 @@ module.exports = new function() {
 	}
 
 	this.includeFromUrlWindow = function(testRun) {
-		// Another cross-context test, will need to enable for iOS later
+		// Another cross-context test, will need to enable for iOS and BlackBerry later
 		if (Ti.Platform.osname === 'android') {
 			var win = Ti.UI.createWindow({ url: "window_include.js", passed: false });
 			win.addEventListener("open", function(e) {
@@ -141,7 +141,7 @@ module.exports = new function() {
 			});
 			win.open();
 		} else {
-			Ti.API.warn("Cross-context tests aren't currently being tested in iOS");
+			Ti.API.warn("Cross-context tests aren't currently being tested in iOS or BlackBerry");
 			finish(testRun);
 		}
 	}
