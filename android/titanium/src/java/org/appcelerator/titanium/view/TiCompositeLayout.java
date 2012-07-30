@@ -574,7 +574,7 @@ public class TiCompositeLayout extends ViewGroup
 		TiViewProxy viewProxy = (proxy == null ? null : proxy.get());
 
 		if (viewProxy != null && viewProxy.hasListeners(TiC.EVENT_POST_LAYOUT)) {
-			viewProxy.fireEvent(TiC.EVENT_POST_LAYOUT, null);
+			viewProxy.fireEvent(TiC.EVENT_POST_LAYOUT, null, false);
 		}
 	}
 
