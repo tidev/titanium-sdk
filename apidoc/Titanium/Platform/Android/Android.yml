@@ -14,3 +14,56 @@ properties:
         [API levels](http://developer.android.com/guide/appendix/api-levels.html).
     type: Number
     permission: read-only
+
+  - name: PHYSICAL_SIZE_CATEGORY_LARGE
+    summary: Constant to indicate that the physical size category of the current device/emulator is large
+    description: |
+        See the official Android Developers documentation for more information about
+        [large screen sizes](http://developer.android.com/reference/android/content/res/Configuration.html#SCREENLAYOUT_SIZE_LARGE)
+    type: Number
+    permission: read-only
+
+  - name: PHYSICAL_SIZE_CATEGORY_NORMAL
+    summary: Constant to indicate that the physical size category of the current device/emulator is normal
+    description: |
+        See the official Android Developers documentation for more information about
+        [normal screen sizes](http://developer.android.com/reference/android/content/res/Configuration.html#SCREENLAYOUT_SIZE_NORMAL)
+    type: Number
+    permission: read-only
+
+  - name: PHYSICAL_SIZE_CATEGORY_SMALL
+    summary: Constant to indicate that the physical size category of the current device/emulator is small
+    description: |
+        See the official Android Developers documentation for more information about
+        [small screen sizes](http://developer.android.com/reference/android/content/res/Configuration.html#SCREENLAYOUT_SIZE_SMALL)
+    type: Number
+    permission: read-only
+
+  - name: PHYSICAL_SIZE_CATEGORY_UNDEFINED
+    summary: Constant to indicate that the physical size category of the current device/emulator is undefined
+    description: |
+        See the official Android Developers documentation for more information about
+        [undefined screen sizes](http://developer.android.com/reference/android/content/res/Configuration.html#SCREENLAYOUT_SIZE_UNDEFINED)
+    type: Number
+    permission: read-only
+
+  - name: PHYSICAL_SIZE_CATEGORY_XLARGE
+    summary: Constant to indicate that the physical size category of the current device/emulator is extra large
+    description: |
+        See the official Android Developers documentation for more information about
+        [extra large screen sizes](http://developer.android.com/reference/android/content/res/Configuration.html#SCREENLAYOUT_SIZE_XLARGE)
+    type: Number
+    permission: read-only
+
+  - name: physicalSizeCategory
+    summary: |
+        The physical size category of the Android device or emulator. 
+    description: |
+        It can be one of the following values:
+        - Ti.Platform.Android.PHYSICAL_SIZE_CATEGORY_SMALL
+        - Ti.Platform.Android.PHYSICAL_SIZE_CATEGORY_NORMAL
+        - Ti.Platform.Android.PHYSICAL_SIZE_CATEGORY_LARGE
+        - Ti.Platform.Android.PHYSICAL_SIZE_CATEGORY_XLARGE
+        - Ti.Platform.Android.PHYSICAL_SIZE_CATEGORY_UNDEFINED
+    type: Number
+    permission: read-only
