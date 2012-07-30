@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -8,6 +8,7 @@ package org.appcelerator.titanium;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.appcelerator.kroll.KrollRuntime;
 import org.appcelerator.titanium.proxy.ServiceProxy;
 
 import android.app.Service;
@@ -73,5 +74,19 @@ public class TiBaseService extends Service
 	public int nextServiceInstanceId()
 	{
 		return proxyCounter.incrementAndGet();
+	}
+
+	@Override
+	public void onCreate()
+	{
+		super.onCreate();
+		KrollRuntime.incrementServiceRefCount();
+	}
+
+	@Override
+	public void onDestroy()
+	{
+		super.onDestroy();
+		KrollRuntime.decrementServiceRefCount();
 	}
 }
