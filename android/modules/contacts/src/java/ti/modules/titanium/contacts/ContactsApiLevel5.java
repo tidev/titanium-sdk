@@ -115,6 +115,7 @@ public class ContactsApiLevel5 extends CommonContactsApi
 	protected static String KIND_PHONE = "vnd.android.cursor.item/phone_v2";
 	protected static String KIND_ADDRESS = "vnd.android.cursor.item/postal-address_v2";
 
+	protected static String BASE_SELECTION = Data.CONTACT_ID + "=? AND " + Data.MIMETYPE + "=?";
 
 	private static String[] PEOPLE_PROJECTION = new String[] {
 		"_id",
@@ -428,7 +429,6 @@ public class ContactsApiLevel5 extends CommonContactsApi
 		
 		String firstName = "";
 		String lastName = "";
-		String fullName = "";
 		String middleName = "";
 		String displayName = "";
 		String birthday = "";
@@ -455,17 +455,14 @@ public class ContactsApiLevel5 extends CommonContactsApi
 			newContact.setProperty(TiC.PROPERTY_MIDDLENAME, middleName);
 		}
 
-		if (options.containsKey(TiC.PROPERTY_FULLNAME)) {
-			fullName = TiConvert.toString(options, TiC.PROPERTY_FULLNAME);
-			displayName = fullName;
-		} else {
-			displayName = firstName + " " + middleName + " " + lastName;
-		}
+		
+		displayName = firstName + " " + middleName + " " + lastName;
+		
 
 		updateContactField(ops, StructuredName.CONTENT_ITEM_TYPE, StructuredName.DISPLAY_NAME, displayName, null, 0);
 		
-		if (fullName.length() > 0) {
-			newContact.setProperty(TiC.PROPERTY_FULLNAME, fullName);
+		if (displayName.length() > 0) {
+			newContact.setFullName(displayName);
 		}
 
 		if (options.containsKey(TiC.PROPERTY_PHONE)) {
@@ -778,7 +775,117 @@ public class ContactsApiLevel5 extends CommonContactsApi
 		}
 		return bm;
 	}
+	
+	protected void modifyField(ArrayList<ContentProviderOperation> ops, String selection, String[] selectionArgs, String key, Object value)
+	{
+		ops.add(ContentProviderOperation.newUpdate(Data.CONTENT_URI)
+				    .withSelection(selection, selectionArgs)
+				    .withValue(key, value)
+				    .build());
+	}
 
+	protected void modifyName(ArrayList<ContentProviderOperation> ops, PersonProxy person, String id) 
+	{
+		String firstName = "";
+		String lastName = "";
+		String middleName = "";
+		String displayName = "";
+		
+		if (person.hasProperty(TiC.PROPERTY_FIRSTNAME)) {
+			firstName = TiConvert.toString(person.getProperty(TiC.PROPERTY_FIRSTNAME));
+		}
+		
+		if (person.hasProperty(TiC.PROPERTY_LASTNAME)) {
+			lastName = TiConvert.toString(person.getProperty(TiC.PROPERTY_LASTNAME));
+		}
+		
+		if (person.hasProperty(TiC.PROPERTY_MIDDLENAME)) {
+			middleName = TiConvert.toString(person.getProperty(TiC.PROPERTY_MIDDLENAME));
+		}
+		
+		displayName = firstName + " " + middleName + " " + lastName;
+		person.setFullName(displayName);
+		
+		String[] selectionArgs = new String[]{id, StructuredName.CONTENT_ITEM_TYPE};
+		modifyField(ops, BASE_SELECTION, selectionArgs, StructuredName.DISPLAY_NAME, displayName);
+	}
+	
+	protected void modifyBirthday(ArrayList<ContentProviderOperation> ops, PersonProxy person, String id)
+	{
+		String birthday = TiConvert.toString(person.getProperty(TiC.PROPERTY_BIRTHDAY));
+		String selection = BASE_SELECTION + " AND " + Event.TYPE + "=?";
+		String[] selectionArgs = new String[]{id, Event.CONTENT_ITEM_TYPE, String.valueOf(Event.TYPE_BIRTHDAY)};
+		modifyField(ops, selection, selectionArgs, Event.START_DATE, birthday);
+	}
+	
+	protected void modifyOrganization(ArrayList<ContentProviderOperation> ops, PersonProxy person, String id)
+	{
+		String company = TiConvert.toString(person.getProperty(TiC.PROPERTY_ORGANIZATION));
+		String[] selectionArgs =  new String[]{id, Organization.CONTENT_ITEM_TYPE};
+		modifyField(ops, BASE_SELECTION, selectionArgs, Organization.COMPANY, company);
+	}
+	
+	protected void modifyNote(ArrayList<ContentProviderOperation> ops, PersonProxy person, String id)
+	{
+		String note = TiConvert.toString(person.getProperty(TiC.PROPERTY_NOTE));
+		String[] selectionArgs = new String[]{id, Note.CONTENT_ITEM_TYPE};
+		modifyField(ops, BASE_SELECTION, selectionArgs, Note.NOTE, note);
+	}
+	
+	protected void modifyNickName(ArrayList<ContentProviderOperation> ops, PersonProxy person, String id)
+	{
+		String nickname = TiConvert.toString(person.getProperty(TiC.PROPERTY_NICKNAME));
+		String selection = BASE_SELECTION + " AND " + Nickname.TYPE + "=?";
+		String[] selectionArgs = new String[]{id, Nickname.CONTENT_ITEM_TYPE, String.valueOf(Nickname.TYPE_DEFAULT)};
+		modifyField(ops, selection, selectionArgs, Nickname.NAME, nickname);
+	}
+
+	protected void modifyImage(ArrayList<ContentProviderOperation> ops, PersonProxy person, String id)
+	{
+		TiBlob imageBlob = person.getImage();
+		String[] selectionArgs = new String[]{id, Photo.CONTENT_ITEM_TYPE};
+		modifyField(ops, BASE_SELECTION, selectionArgs, Photo.PHOTO, imageBlob.getData());
+	}
+
+	protected void modifyContact(PersonProxy person, String id)
+	{
+		ArrayList<ContentProviderOperation> ops = new ArrayList<ContentProviderOperation>();
+		
+		if (person.getNameModified()) {
+			modifyName(ops, person, id);
+		}
+		
+		if (person.getBdayModified()) {
+			modifyBirthday(ops, person, id);
+		}
+		
+		if (person.getOrganizationModified()) {
+			modifyOrganization(ops, person, id);
+		}
+		
+		if (person.getNoteModified()) {
+			modifyNote(ops, person, id);
+		}
+		
+		if (person.getNickNameModified()) {
+			modifyNickName(ops, person, id);
+		}
+		
+		if (person.getImageModified()) {
+			modifyImage(ops, person, id);
+		}
+		
+		try {
+			TiApplication.getAppRootOrCurrentActivity().getContentResolver().applyBatch(ContactsContract.AUTHORITY, ops);
+			person.finishModification();
+		} catch (RemoteException e) {
+			e.printStackTrace();
+		} catch (OperationApplicationException e) {
+			e.printStackTrace();
+		}
+		
+	}
+	
 	@Override
 	protected void save(Object people) {
 		
@@ -791,10 +898,12 @@ public class ContactsApiLevel5 extends CommonContactsApi
 			Object contact = contacts[i];
 			if (contact instanceof PersonProxy) {
 				PersonProxy person = (PersonProxy) contact;
-				//For now we will delete/re-add modified contacts b/c this is a relatively fast operation.
-				//We will optimize this process if such a need arise.
-				removePerson(person);
-				addContact(person.getProperties());
+				Object idObj = person.getProperty("id");
+				if (idObj instanceof Long) {
+					Long id = (Long) idObj;
+					modifyContact(person, String.valueOf(id));
+				}
+
 			} else {
 				Log.e(LCAT, "Invalid argument type to save");
 			}

@@ -20,7 +20,7 @@ import org.appcelerator.titanium.TiContext;
 import android.graphics.Bitmap;
 
 @Kroll.proxy(parentModule=ContactsModule.class, propertyAccessors={
-	"lastName", "firstName", "fullName", "middleName", "firstPhonetic", "lastPhonetic", "middlePhonetic", "department",
+	"lastName", "firstName", "middleName", "firstPhonetic", "lastPhonetic", "middlePhonetic", "department",
 	"jobTitle", "nickname", "note", "organization", "prefix", "suffix", "birthday", "created", "modified", "kind", "email", 
 	"phone", "address", TiC.PROPERTY_URL, TiC.PROPERTY_INSTANTMSG, TiC.PROPERTY_RELATED_NAMES, TiC.PROPERTY_DATE
 })
@@ -30,6 +30,15 @@ public class PersonProxy extends KrollProxy
 	public long id = -1;
 	private boolean imageFetched; // lazy load these bitmap images
 	protected boolean hasImage = false;
+	private String fullName = "";
+	
+	// Contact Modifications
+	private boolean nameModified = false;
+	private boolean bdayModified = false;
+	private boolean organizationModified = false;
+	private boolean noteModified = false;
+	private boolean nickNameModified = false;
+	private boolean imageModified = false;
 
 	public PersonProxy()
 	{
@@ -45,6 +54,57 @@ public class PersonProxy extends KrollProxy
 	{
 		long id = (Long) getProperty("id");
 		return (id > 0 && hasImage );
+	}
+	
+	public void finishModification()
+	{
+		nameModified = false;
+		bdayModified = false;
+		organizationModified = false;
+		noteModified = false;
+		nickNameModified = false;
+		imageModified = false;
+	}
+	
+	public boolean getNameModified()
+	{
+		return nameModified;
+	}
+	
+	public boolean getBdayModified()
+	{
+		return bdayModified;
+	}
+	
+	public boolean getOrganizationModified()
+	{
+		return organizationModified;
+	}
+	
+	public boolean getNoteModified()
+	{
+		return noteModified;
+	}
+	
+	public boolean getNickNameModified()
+	{
+		return nickNameModified;
+	}
+	
+	public boolean getImageModified()
+	{
+		return imageModified;
+	}
+	
+	@Kroll.method @Kroll.getProperty
+	public String getFullName() 
+	{
+		return fullName;
+	}
+	
+	public void setFullName(String fname) 
+	{
+		fullName = fname;
 	}
 	
 	@Kroll.method @Kroll.getProperty
@@ -80,6 +140,7 @@ public class PersonProxy extends KrollProxy
 		image = blob;
 		hasImage = true;
 		imageFetched = true;
+		imageModified = true;
 	}
 
 	private KrollDict contactMethodMapToDict(Map<String, ArrayList<String>> map)
@@ -119,5 +180,21 @@ public class PersonProxy extends KrollProxy
 		}
 
 		setProperty("address", address);
+	}
+	
+	public void onPropertyChanged(String name, Object value)
+	{
+		super.onPropertyChanged(name, value);
+		if (name.equals(TiC.PROPERTY_FIRSTNAME) || name.equals(TiC.PROPERTY_MIDDLENAME) || name.equals(TiC.PROPERTY_LASTNAME)) {
+			nameModified = true;
+		} else if (name.equals(TiC.PROPERTY_BIRTHDAY)) {
+			bdayModified = true;
+		} else if (name.equals(TiC.PROPERTY_ORGANIZATION)) {
+			organizationModified = true;
+		} else if (name.equals(TiC.PROPERTY_NOTE)) {
+			noteModified = true;
+		} else if (name.equals(TiC.PROPERTY_NICKNAME)) {
+			nickNameModified = true;
+		} 
 	}
 }
