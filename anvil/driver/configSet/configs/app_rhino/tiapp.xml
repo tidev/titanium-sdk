@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ti:app xmlns:ti="http://ti.appcelerator.org" xmlns:android="http://schemas.android.com/apk/res/android">
+	<property name="ti.android.runtime">rhino</property>
+    <id>org.appcelerator.titanium.testharness</id>
+    <name>test_harness</name>
+    <version>1.0.1</version>
+    <publisher>test publisher</publisher>
+    <url>http://www.test.com</url>
+    <description>test description</description>
+    <copyright>copyright 2010 test</copyright>
+	<icon>appicon.png</icon>
+	<persistent-wifi>false</persistent-wifi>
+	<prerendered-icon>false</prerendered-icon>
+	<statusbar-style>default</statusbar-style>
+	<statusbar-hidden>false</statusbar-hidden>
+	<fullscreen>false</fullscreen>
+	<navbar-hidden>false</navbar-hidden>
+	<analytics>false</analytics>
+	<guid></guid>
+	<property name="ti.ui.defaultunit">system</property>
+	<iphone>
+		<orientations device="iphone">
+			<orientation>Ti.UI.PORTRAIT</orientation>
+		</orientations>
+		<orientations device="ipad">
+			<orientation>Ti.UI.PORTRAIT</orientation>
+			<orientation>Ti.UI.UPSIDE_PORTRAIT</orientation>
+			<orientation>Ti.UI.LANDSCAPE_LEFT</orientation>
+			<orientation>Ti.UI.LANDSCAPE_RIGHT</orientation>
+		</orientations>
+	</iphone>
+	<android xmlns:android="http://schemas.android.com/apk/res/android">
+		<screens small="false" normal="true" large="true" anyDensity="false"/>
+		<manifest>
+			<instrumentation
+				android:targetPackage="org.appcelerator.titanium.testharness"
+				android:name="org.appcelerator.titanium.drillbit.TestHarnessRunner">
+				<meta-data android:name="class" android:value="org.appcelerator.titanium.testharness.Test_harnessActivity"/>
+			</instrumentation>
+		</manifest>
+	</android>
+	<mobileweb>
+		<precache>
+		</precache>
+		<splash>
+			<enabled>true</enabled>
+			<inline-css-images>true</inline-css-images>
+		</splash>
+		<theme>default</theme>
+	</mobileweb>
+	<modules>
+	</modules>
+</ti:app>
