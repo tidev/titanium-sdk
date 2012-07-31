@@ -269,6 +269,7 @@ public class TiUIText extends TiUIView
 		/** There is an Android bug regarding setting filter on EditText that impacts auto completion.
 		 *  Therefore we can't use filters to implement "maxLength" property. Instead we manipulate
 		 *  the text to achieve perfect parity with other platforms.
+		 *  Android bug url for reference: http://code.google.com/p/android/issues/detail?id=35757
 		 */
 		Object prevText = proxy.getProperty(TiC.PROPERTY_VALUE);
 		if (maxLength >= 0 && s.length() > maxLength) {
