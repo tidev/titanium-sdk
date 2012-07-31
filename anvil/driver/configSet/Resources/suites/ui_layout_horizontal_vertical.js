@@ -18,7 +18,8 @@ module.exports = new function() {
 		{name: "horizontalTopBottomUndefinedHeight"},
 		{name: "horizontalLeftRightUndefinedWidth"},
 		{name: "horizontalLeftRightUndefinedWidthNoWrap"},
-		{name: "horizontalTopBottomUndefinedHeightNoWrap"}
+		{name: "horizontalTopBottomUndefinedHeightNoWrap"},
+		{name: "horizontalWrapWithSIZEHeight"}
 	];
 
 	this.horizontalTopBottomUndefinedHeight = function(testRun) {
@@ -161,6 +162,32 @@ module.exports = new function() {
 		});
 
 		win.add(parent);
+		win.open();
+	};
+
+	this.horizontalWrapWithSIZEHeight = function(testRun) {
+		var win = Ti.UI.createWindow({
+			navBarHidden : true,
+			backgroundColor : '#000'
+		});
+
+		var topView = Ti.UI.createView({
+			backgroundColor : 'white',
+			height : Ti.UI.SIZE,
+			layout : 'horizontal'
+		});
+
+		topView.add(Ti.UI.createView({width: Ti.UI.FILL, height: 100, backgroundColor:'blue'}))
+		topView.add(Ti.UI.createView({width: Ti.UI.FILL, height: 100, backgroundColor:'red'}))
+		topView.add(Ti.UI.createView({width: Ti.UI.FILL, height: 100, backgroundColor:'purple'}))
+		topView.add(Ti.UI.createView({width: Ti.UI.FILL, height: 100, backgroundColor:'orange'}))
+
+		win.addEventListener("postlayout", function(e){
+			valueOf(testRun, topView.rect.height).shouldBe(400);
+			finish(testRun);
+		});
+
+		win.add(topView);
 		win.open();
 	};
 };
