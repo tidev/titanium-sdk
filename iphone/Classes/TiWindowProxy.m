@@ -709,8 +709,6 @@ TiOrientationFlags TiOrientationFlagsFromObject(id args)
 		[[[TiApp app] controller] windowFocused:[self controller]];
 	}
 
-	[self layoutChildren:YES];
-
 	[rootView bringSubviewToFront:view_];
 
 	// make sure the splash is gone
