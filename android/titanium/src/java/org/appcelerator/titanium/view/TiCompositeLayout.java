@@ -18,6 +18,7 @@ import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiDimension;
 import org.appcelerator.titanium.TiLaunchActivity;
 import org.appcelerator.titanium.proxy.TiViewProxy;
+import org.appcelerator.titanium.util.TiUIHelper;
 
 import android.app.Activity;
 import android.content.Context;
@@ -572,10 +573,8 @@ public class TiCompositeLayout extends ViewGroup
 		}
 
 		TiViewProxy viewProxy = (proxy == null ? null : proxy.get());
+		TiUIHelper.firePostLayoutEvent(viewProxy);
 
-		if (viewProxy != null && viewProxy.hasListeners(TiC.EVENT_POST_LAYOUT)) {
-			viewProxy.fireEvent(TiC.EVENT_POST_LAYOUT, null, false);
-		}
 	}
 
 	// option0 is left/top, option1 is right/bottom
