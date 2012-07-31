@@ -218,6 +218,17 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 	return NUMBOOL([UIDevice currentDevice].proximityMonitoringEnabled);
 }
 
+- (void)setDisableNetworkActivityIndicator:(NSNumber *)value
+{
+	BOOL yn = [TiUtils boolValue:value];
+	[TiApp app].disableNetworkActivityIndicator = yn;
+}
+
+- (NSNumber *)disableNetworkActivityIndicator
+{
+	return NUMBOOL([TiApp app].disableNetworkActivityIndicator);
+}
+
 //To fire the keyboard frame change event.
 -(void)keyboardFrameChanged:(NSNotification*) notification
 {
