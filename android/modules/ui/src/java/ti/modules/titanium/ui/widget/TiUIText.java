@@ -205,7 +205,12 @@ public class TiUIText extends TiUIView
 			Editable currentText = tv.getText();
 			if (maxLength >= 0 && currentText.length() > maxLength) {
 				CharSequence truncateText = currentText.subSequence(0, maxLength);
+				int cursor = tv.getSelectionStart() - 1;
+				if (cursor > maxLength) {
+					cursor = maxLength;
+				}
 				tv.setText(truncateText);
+				tv.setSelection(cursor);
 			}
 		} else if (key.equals(TiC.PROPERTY_COLOR)) {
 			tv.setTextColor(TiConvert.toColor((String) newValue));
@@ -261,10 +266,16 @@ public class TiUIText extends TiUIView
 	public void onTextChanged(CharSequence s, int start, int before, int count)
 	{
 
+		/** There is an Android bug regarding setting filter on EditText that impacts auto completion.
+		 *  Therefore we can't use filters to implement "maxLength" property. Instead we manipulate
+		 *  the text to achieve perfect parity with other platforms.
+		 */
 		Object prevText = proxy.getProperty(TiC.PROPERTY_VALUE);
 		if (maxLength >= 0 && s.length() > maxLength) {
 			String t = TiConvert.toString(prevText);
+			int cursor = tv.getSelectionStart() - 1;
 			tv.setText(t);
+			tv.setSelection(cursor);
 			return;
 		}
 		String newValue = tv.getText().toString();
