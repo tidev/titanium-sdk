@@ -641,6 +641,14 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 		}
 	}
 
+	@Kroll.method
+	public void cancelAllAnimations()
+	{
+		View nativeView = view.getNativeView();
+		nativeView.clearAnimation();
+		pendingAnimation = null;
+	}
+
 	public void handlePendingAnimation(boolean forceQueue)
 	{
 		if (pendingAnimation != null && peekView() != null) {
