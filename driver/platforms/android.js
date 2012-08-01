@@ -62,7 +62,7 @@ module.exports = new function() {
 
 		common.createHarness(
 			"android",
-			driverGlobal.config.tiSdkDir + "/titanium.py create --dir=" + driverGlobal.harnessDir + "/android --platform=android --name=harness --type=project --id=com.appcelerator.harness",
+			"\"" + driverGlobal.config.currentTiSdkDir + "/titanium.py\" create --dir=" + driverGlobal.harnessDir + "/android --platform=android --name=harness --type=project --id=com.appcelerator.harness",
 			successCallback,
 			errorCallback
 			);
@@ -75,7 +75,7 @@ module.exports = new function() {
 	var buildHarness = function(successCallback, errorCallback) {
 		var buildCallback = function() {
 			var args = ["build", "harness", driverGlobal.config.androidSdkDir, driverGlobal.harnessDir + "/android/harness", "com.appcelerator.harness", 8];
-			util.runProcess(driverGlobal.config.tiSdkDir + "/android/builder.py", args, 0, 0, function(code) {
+			util.runProcess(driverGlobal.config.currentTiSdkDir + "/android/builder.py", args, 0, 0, function(code) {
 				if (code !== 0) {
 					util.log("error encountered when building harness: " + code);
 					errorCallback();
