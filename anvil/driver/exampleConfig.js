@@ -19,8 +19,8 @@ module.exports = new function() {
 	// Example: this.androidSdkDir = baseDir + "/installed/android-sdk-mac_x86"
 	this.androidSdkDir = ""; // location of the android SDK;
 
-	// Example: this.tiSdkDir = tiDir + "/dist/mobilesdk/osx/2.1.0";
-	this.tiSdkDir = ""; // location of titanium SDK;
+	// Example: this.tiSdkDirs = "/Users/ocyrus/Library/Application Support/Titanium/mobilesdk/osx";
+	this.tiSdkDirs = ""; // location of titanium SDKs;
 
 	/*
 	this can be changed but shouldn't need to be. This is the location where the harness instances 
@@ -75,6 +75,12 @@ module.exports = new function() {
 	/*******************************************************************************/
 
 	/*
+	port that the hub will connect to the driver on
+
+	Example: this.hubPort = 9002;
+	*/
+
+	/*
 	list of directories that contain additonal test configs that should be included in the list of 
 	harness configs that will be run when a test pass is started (assuming no specific config set
 	is specified)
@@ -86,6 +92,27 @@ module.exports = new function() {
 	default platform to be used if the --platform argument is not provided
 
 	Example: this.defaultPlatform = "android";
+	*/
+
+
+	// >>>>>>>> when running in remote mode, all the following values must be set!!! <<<<<<<<
+
+	/*
+	hub listens for driver connections on this port
+
+	Example: this.hubPort = 9002;
+	*/
+
+	/*
+	host that the hub lives on
+
+	Example: this.hubHost = "localhost";
+	*/
+
+	/*
+	id that this driver instance will be identified as in reporting from the hub
+
+	Example: this.driverId = "driver1";
 	*/
 
 }

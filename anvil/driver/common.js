@@ -482,11 +482,11 @@ module.exports = new function() {
 	this.processHarnessMessage = function(rawMessage) {
 		var message;
 		try {
-			message = eval("(" + rawMessage + ")");
+			message = JSON.parse(rawMessage);
 
 		} catch(e) {
 			// this means something has gone waaaaaay wrong 
-			console.log("exception <" + e + "> occured when trying to evaluate message <" +
+			console.log("exception <" + e + "> occured when trying to convert JSON message <" +
 				rawMessage + "> from Driver");
 
 			process.exit(1);

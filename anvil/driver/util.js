@@ -117,51 +117,63 @@ module.exports = new function() {
 		self.closeLog();
 
 		var date = new Date();
-		logFile = fs.openSync(driverGlobal.logsDir + "/" + driverGlobal.platform.name + "/log_" + 
+		driverGlobal.currentLogDir = driverGlobal.logsDir + "/" + driverGlobal.platform.name + "/" + 
 			(date.getMonth() + 1) + "-" + date.getDate() + "-" + date.getFullYear() + "_" + 
-			(date.getHours() + 1) + "-" + date.getMinutes() + "-" + date.getSeconds() + "-" + date.getMilliseconds(),
-			'a+');
+			(date.getHours() + 1) + "-" + date.getMinutes() + "-" + date.getSeconds() + "-" + date.getMilliseconds();
 
-		var files = fs.readdirSync(driverGlobal.logsDir + "/" + driverGlobal.platform.name);
-		if (files.length >= driverGlobal.config.maxLogs) {
+		/*
+		a log directory needs to be created for the test run since you may end up with both a log 
+		file and a JSON results file
+		*/
+		try {
+			fs.mkdirSync(driverGlobal.currentLogDir);
+
+		} catch(e) {
+			console.log("exception <" + e + "> occurred when creating log directory <" + driverGlobal.currentLogDir + ">");
+		}
+
+		logFile = fs.openSync(driverGlobal.currentLogDir + "/log.txt", 'a+');
+
+		var dirs = fs.readdirSync(driverGlobal.logsDir + "/" + driverGlobal.platform.name);
+		if (dirs.length >= driverGlobal.config.maxLogs) {
 			var oldestTime = 0;
-			var oldestFileIndex;
-			var logTimestamps = [];
-			var logsMap = {};
+			var oldestDirIndex;
+			var dirTimestamps = [];
+			var dirsMap = {};
 
-			var numFiles = files.length;
-			for (var i = 0; i < numFiles; i++) {
-				var stat = fs.statSync(driverGlobal.logsDir + "/" + driverGlobal.platform.name + "/" + files[i]);
+			var numDirs = dirs.length;
+			for (var i = 0; i < numDirs; i++) {
+				var stat = fs.statSync(driverGlobal.logsDir + "/" + driverGlobal.platform.name + "/" + dirs[i]);
 				var modifiedTime = stat.mtime.getTime();
 
-				logTimestamps.push(modifiedTime);
-				logsMap[modifiedTime] = files[i];
+				dirTimestamps.push(modifiedTime);
+				dirsMap[modifiedTime] = dirs[i];
 			}
 
-			logTimestamps.sort(function(a,b) {
-				return a-b
+			dirTimestamps.sort(function(a,b) {
+				return b-a
 			});
 
-			function deleteLog(oldestLogIndex) {
-				if (oldestLogIndex < driverGlobal.config.maxLogs) {
+			function deleteLog(oldestDirIndex) {
+				if (oldestDirIndex < driverGlobal.config.maxLogs) {
 					callback();
 
 				} else {
-					var oldestLogFilename = logsMap[logTimestamps[(oldestLogIndex - 1)]];
-					self.runCommand("rm -r " + driverGlobal.logsDir + "/" + driverGlobal.platform.name + "/" + oldestLogFilename, self.logNone, function(error) {
+					var oldestDir = dirsMap[dirTimestamps[oldestDirIndex]];
+					self.runCommand("rm -r " + driverGlobal.logsDir + "/" + driverGlobal.platform.name + "/" + oldestDir, self.logNone, function(error) {
 						if (error !== null) {
-							self.log("error <" + error + "> encountered when deleting log file <" + oldestLogFilename + ">");
+							self.log("error <" + error + "> encountered when deleting log directory <" + oldestDir + ">");
 
 						} else {
-							self.log("deleted log file: " + oldestLogFilename);
+							self.log("deleted log directory: " + oldestDir);
 						}
 
-						deleteLog(--oldestLogIndex);
+						deleteLog(--oldestDirIndex);
 					});
 				}
 			}
 
-			deleteLog(numFiles - 1);
+			deleteLog(numDirs - 1);
 
 		} else {
 			callback();

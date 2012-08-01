@@ -70,7 +70,7 @@ module.exports = new function() {
 	var createHarness = function(successCallback, errorCallback) {
 		common.createHarness(
 			"mobileweb",
-			driverGlobal.config.tiSdkDir + "/project.py harness com.appcelerator.harness " + driverGlobal.harnessDir + "/mobileweb mobileweb " + driverGlobal.config.tiSdkDir,
+			"\"" + driverGlobal.config.currentTiSdkDir + "/project.py\" harness com.appcelerator.harness " + driverGlobal.harnessDir + "/mobileweb mobileweb " + driverGlobal.config.currentTiSdkDir,
 			successCallback,
 			errorCallback
 			);
@@ -83,7 +83,7 @@ module.exports = new function() {
 	var buildHarness = function(successCallback, errorCallback) {
 		var buildCallback = function() {
 			var args = [driverGlobal.harnessDir + "/mobileweb/harness", "development"];
-			util.runProcess(driverGlobal.config.tiSdkDir + "/mobileweb/builder.py", args, 0, 0, function(code) {
+			util.runProcess(driverGlobal.config.currentTiSdkDir + "/mobileweb/builder.py", args, 0, 0, function(code) {
 				if (code !== 0) {
 					util.log("error encountered when building harness: " + code);
 					errorCallback();
@@ -281,7 +281,7 @@ module.exports = new function() {
 	};
 
 	var runHarness = function(errorCallback) {
-		util.runCommand("adb shell am start -a android.intent.action.VIEW -n com.android.browser/.BrowserActivity -d " + driverGlobal.httpHost + ":" + driverGlobal.config.httpPort + "/index.html", util.logStdout, function(error) {
+		util.runCommand("adb shell am start -a android.intent.action.VIEW -d " + driverGlobal.httpHost + ":" + driverGlobal.config.httpPort + "/index.html", util.logStdout, function(error) {
 			if (error !== null) {
 				util.log("error encountered when running harness: " + error);
 				if (errorCallback) {
