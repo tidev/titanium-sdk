@@ -691,7 +691,7 @@
 			MKPinAnnotationView *pinview = (MKPinAnnotationView*)annView;
 			pinview.pinColor = [ann pinColor];
 			pinview.animatesDrop = [ann animatesDrop] && ![(TiMapAnnotationProxy *)annotation placed];
-			annView.calloutOffset = CGPointMake(-5, 5);
+			annView.calloutOffset = CGPointMake(-8, 0);
 		}
 		annView.canShowCallout = YES;
 		annView.enabled = YES;
