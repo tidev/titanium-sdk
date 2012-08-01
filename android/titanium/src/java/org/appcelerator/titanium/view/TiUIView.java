@@ -1135,8 +1135,7 @@ public abstract class TiUIView
 				if (motionEvent != null) {
 					if (event.getAction() == MotionEvent.ACTION_UP) {
 						Rect r = new Rect(0, 0, view.getWidth(), view.getHeight());
-						int actualAction = r.contains((int) event.getX(), (int) event.getY()) ? MotionEvent.ACTION_UP
-							: MotionEvent.ACTION_CANCEL;
+						int actualAction = MotionEvent.ACTION_UP;
 
 						String actualEvent = motionEvents.get(actualAction);
 						if (proxy.hierarchyHasListener(actualEvent)) {
