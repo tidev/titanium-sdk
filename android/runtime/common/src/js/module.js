@@ -169,7 +169,7 @@ Module.prototype.loadExternalModule = function(id, externalBinding, context) {
 		if (!externalModule) {
 			// Get the compiled bootstrap JS
 			var source = externalBinding.bootstrap;
-	
+
 			// Load the native module's bootstrap JS
 			var module = new Module(id, this, context);
 			module.load(id + "/bootstrap.js", source);
@@ -210,18 +210,55 @@ Module.prototype.loadExternalModule = function(id, externalBinding, context) {
 Module.prototype.require = function (request, context, useCache) {
 	useCache = useCache === undefined ? true : useCache;
 
-	// get external binding (for external / 3rd party modules)
-	var externalBinding = kroll.externalBinding(request);
-
-	if (externalBinding) {
-		return this.loadExternalModule(request, externalBinding, context);
+	// Get external binding (for external / 3rd party modules).
+	// Desired module could be a sub of an external native module
+	// containing multiple CommonJS modules along with it, but it's
+	// registered only at the top level, so only check the portion
+	// before a slash.
+	var isExternalCommonJSModule = false;
+	var checkExternal = request;
+	var slashPos = checkExternal.indexOf("/");
+	if (slashPos >= 0) {
+		checkExternal = checkExternal.substr(0, slashPos);
 	}
 
-	var resolved = resolveFilename(request, this);
-	var id = resolved[0];
-	var filename = resolved[1];
-	if (kroll.DBG) {
-		kroll.log(TAG, 'Loading module: ' + request + ' -> ' + filename);
+	var externalBinding = kroll.externalBinding(checkExternal);
+
+	if (externalBinding) {
+
+		if (slashPos < 0) {
+			// This is the "root" of an external module, since there was no slash.
+			return this.loadExternalModule(request, externalBinding, context);
+		} else {
+			var parts = request.split("/");
+			if (parts.length === 2 && parts[0] === parts[1]) {
+				// This looks like "ti.mymodule/ti.mymodule", which is,
+				// unfortunately, a secondary, valid way to refer to
+				// the root module of a set of CommonJS modules packaged
+				// with a native module. It's equivalent to
+				// requesting just "ti.mymodule", but we need to support both.
+				// It is the root, so we can load and return it just like we
+				// do above.
+				return this.loadExternalModule(parts[0], externalBinding, context);
+			} else {
+				// This is a CommonJS sub-module packaged with the
+				// native external module, something like "ti.mymodule/mysub".
+				isExternalCommonJSModule = true;
+			}
+		}
+
+	}
+
+	var filename = request;
+	var id = request;
+
+	if (!isExternalCommonJSModule) {
+		var resolved = resolveFilename(request, this);
+		id = resolved[0];
+		filename = resolved[1];
+		if (kroll.DBG) {
+			kroll.log(TAG, 'Loading module: ' + request + ' -> ' + filename);
+		}
 	}
 
 	if (useCache) {
@@ -233,18 +270,21 @@ Module.prototype.require = function (request, context, useCache) {
 
 	// Create and attempt to load the module.
 	var module = new Module(id, this, context);
-	
+
 	// NOTE: We need to cache here to handle cyclic dependencies.
 	// By caching early, this allows for a return of a "partially evaluated"
 	// module, which can provide transitive properties in a way described
 	// by the commonjs 1.1 spec.
-	
 	if (useCache) {
 		// Cache the module for future requests.
 		Module.cache[filename] = module;
 	}
-	
-	module.load(filename);
+
+	if (isExternalCommonJSModule) {
+		module.load(filename, kroll.getExternalCommonJsModule(filename));
+	} else {
+		module.load(filename);
+	}
 
 	return module.exports;
 }
