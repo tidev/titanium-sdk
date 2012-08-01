@@ -44,13 +44,16 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 	private static final int RESTART_DELAY = 500;
 	private static final int FINISH_DELAY = 500;
 
-	// Constants for Kindle fire fix for android 2373 (TIMOB-7843)
+	// Constants for Kindle fire fix for android bug 2373 (TIMOB-7843)
 	private static final AtomicInteger creationCounter = new AtomicInteger();
 	private static final int KINDLE_FIRE_RESTART_FLAGS = (Intent.FLAG_ACTIVITY_NEW_TASK
 		| Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT | Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);
 	private static final String KINDLE_MODEL = "kindle";
 
-	protected TiUrl url;
+	// For general android bug 2373 condition checking.
+	private static final int VALID_LAUNCH_FLAGS = Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED
+			| Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY;
+
 
 	// For restarting due to android bug 2373 detection.
 	private boolean invalidLaunchDetected = false;
@@ -65,6 +68,8 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 	// via android bug 2373, while there is another instance
 	// of this same activity "behind it".)
 	protected boolean finishing2373 = false;
+
+	protected TiUrl url;
 
 	/**
 	 * @return The Javascript URL that this Activity should run
@@ -183,14 +188,9 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 				// that one is okay as well.
 				// (addendum re timob-9285) Launching from history (FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY)
 				// also appears to be okay, so if that flag is there then don't consider this an invalid
-				// launch.
+				// launch. VALID_LAUNCH_FLAGS contains both of these valid flags.
 				if (Build.VERSION.SDK_INT >= TiC.API_LEVEL_HONEYCOMB && intent.getFlags() != 0x4) {
-					int flags = intent.getFlags();
-					invalidLaunchDetected = (
-						((flags & Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED) != Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED)
-						&&
-						((flags & Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY) != Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY)
-						);
+					invalidLaunchDetected = (intent.getFlags() & VALID_LAUNCH_FLAGS) == 0;
 				}
 			}
 
