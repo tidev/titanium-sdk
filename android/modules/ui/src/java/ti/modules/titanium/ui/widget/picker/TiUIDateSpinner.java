@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -23,6 +23,7 @@ import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
+import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiUIView;
 
 import android.app.Activity;
@@ -59,7 +60,7 @@ public class TiUIDateSpinner extends TiUIView
 		this(proxy);
 		createNativeView(activity);
 	}
-	
+
 	private void createNativeView(Activity activity)
 	{
 		// defaults
@@ -79,7 +80,15 @@ public class TiUIDateSpinner extends TiUIView
 		dayWheel.setItemSelectedListener(this);
 		yearWheel.setItemSelectedListener(this);
 		
-		LinearLayout layout = new LinearLayout(activity);
+		LinearLayout layout = new LinearLayout(activity)
+		{
+			@Override
+			protected void onLayout(boolean changed, int left, int top, int right, int bottom)
+			{
+				super.onLayout(changed, left, top, right, bottom);
+				TiUIHelper.firePostLayoutEvent(proxy);
+			}
+		};
 		layout.setOrientation(LinearLayout.HORIZONTAL);
 		
 		if (proxy.hasProperty("dayBeforeMonth")) {

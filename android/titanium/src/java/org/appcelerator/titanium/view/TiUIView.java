@@ -886,10 +886,15 @@ public abstract class TiUIView
 		TiGradientDrawable gradientDrawable = null;
 		KrollDict gradientProperties = d.getKrollDict(TiC.PROPERTY_BACKGROUND_GRADIENT);
 		if (gradientProperties != null) {
-			gradientDrawable = new TiGradientDrawable(nativeView, gradientProperties);
-			if (gradientDrawable.getGradientType() == GradientType.RADIAL_GRADIENT) {
-				// TODO: Remove this once we support radial gradients.
-				Log.w(LCAT, "Android does not support radial gradients.");
+			try {
+				gradientDrawable = new TiGradientDrawable(nativeView, gradientProperties);
+				if (gradientDrawable.getGradientType() == GradientType.RADIAL_GRADIENT) {
+					// TODO: Remove this once we support radial gradients.
+					Log.w(LCAT, "Android does not support radial gradients.");
+					gradientDrawable = null;
+				}
+			}
+			catch (IllegalArgumentException e) {
 				gradientDrawable = null;
 			}
 		}

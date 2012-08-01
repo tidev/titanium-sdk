@@ -66,7 +66,6 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 
 	private Timer timer;
 	private Animator animator;
-	private Object[] images;
 	private Loader loader;
 	private Thread loaderThread;
 	private AtomicBoolean animating = new AtomicBoolean(false);

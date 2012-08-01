@@ -38,7 +38,15 @@ public class TiUIButton extends TiUIView
 		if (DBG) {
 			Log.d(LCAT, "Creating a button");
 		}
-		Button btn = new Button(proxy.getActivity());
+		Button btn = new Button(proxy.getActivity())
+		{
+			@Override
+			protected void onLayout(boolean changed, int left, int top, int right, int bottom)
+			{
+				super.onLayout(changed, left, top, right, bottom);
+				TiUIHelper.firePostLayoutEvent(proxy);
+			}
+		};
 		btn.setPadding(8, 0, 8, 0);
 		btn.setGravity(Gravity.CENTER);
 		setNativeView(btn);
