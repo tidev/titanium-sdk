@@ -39,6 +39,8 @@ public class PersonProxy extends KrollProxy
 	private boolean noteModified = false;
 	private boolean nickNameModified = false;
 	private boolean imageModified = false;
+	private boolean phoneModified = false;
+	private boolean addressModified = false;
 
 	public PersonProxy()
 	{
@@ -64,6 +66,8 @@ public class PersonProxy extends KrollProxy
 		noteModified = false;
 		nickNameModified = false;
 		imageModified = false;
+		phoneModified = false;
+		addressModified = false;
 	}
 	
 	public boolean getNameModified()
@@ -94,6 +98,16 @@ public class PersonProxy extends KrollProxy
 	public boolean getImageModified()
 	{
 		return imageModified;
+	}
+	
+	public boolean getPhoneModified()
+	{
+		return phoneModified;
+	}
+	
+	public boolean getAddressModified()
+	{
+		return addressModified;
 	}
 	
 	@Kroll.method @Kroll.getProperty
@@ -184,7 +198,6 @@ public class PersonProxy extends KrollProxy
 	
 	public void onPropertyChanged(String name, Object value)
 	{
-		super.onPropertyChanged(name, value);
 		if (name.equals(TiC.PROPERTY_FIRSTNAME) || name.equals(TiC.PROPERTY_MIDDLENAME) || name.equals(TiC.PROPERTY_LASTNAME)) {
 			nameModified = true;
 		} else if (name.equals(TiC.PROPERTY_BIRTHDAY)) {
@@ -195,6 +208,11 @@ public class PersonProxy extends KrollProxy
 			noteModified = true;
 		} else if (name.equals(TiC.PROPERTY_NICKNAME)) {
 			nickNameModified = true;
-		} 
+		} else if (name.equals(TiC.PROPERTY_PHONE)) {
+			phoneModified = true;
+		} else if (name.equals(TiC.PROPERTY_ADDRESS)) {
+			addressModified = true;
+		}
+		super.onPropertyChanged(name, value);
 	}
 }
