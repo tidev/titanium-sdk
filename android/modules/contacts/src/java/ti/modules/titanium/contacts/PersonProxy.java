@@ -41,6 +41,11 @@ public class PersonProxy extends KrollProxy
 	private boolean imageModified = false;
 	private boolean phoneModified = false;
 	private boolean addressModified = false;
+	private boolean imModified = false;
+	private boolean urlModified = false;
+	private boolean emailModified = false;
+	private boolean relatedNamesModified = false;
+	private boolean dateModified = false;
 
 	public PersonProxy()
 	{
@@ -68,6 +73,11 @@ public class PersonProxy extends KrollProxy
 		imageModified = false;
 		phoneModified = false;
 		addressModified = false;
+		imModified = false;
+		urlModified = false;
+		emailModified = false;
+		relatedNamesModified = false;
+		dateModified = false;
 	}
 	
 	public boolean getNameModified()
@@ -108,6 +118,31 @@ public class PersonProxy extends KrollProxy
 	public boolean getAddressModified()
 	{
 		return addressModified;
+	}
+	
+	public boolean getImModified()
+	{
+		return imModified;
+	}
+	
+	public boolean getUrlModified()
+	{
+		return urlModified;
+	}
+	
+	public boolean getEmailModified()
+	{
+		return emailModified;
+	}
+	
+	public boolean getRelatedNamesModified()
+	{
+		return relatedNamesModified;
+	}
+	
+	public boolean getDateModified()
+	{
+		return dateModified;
 	}
 	
 	@Kroll.method @Kroll.getProperty
@@ -212,6 +247,16 @@ public class PersonProxy extends KrollProxy
 			phoneModified = true;
 		} else if (name.equals(TiC.PROPERTY_ADDRESS)) {
 			addressModified = true;
+		} else if (name.equals(TiC.PROPERTY_INSTANTMSG)) {
+			imModified = true;
+		} else if (name.equals(TiC.PROPERTY_URL)) {
+			urlModified = true;
+		} else if (name.equals(TiC.PROPERTY_EMAIL)) {
+			emailModified = true;
+		} else if (name.equals(TiC.PROPERTY_RELATED_NAMES)) {
+			relatedNamesModified = true;
+		} else if (name.equals(TiC.PROPERTY_DATE)) {
+			dateModified = true;
 		}
 		super.onPropertyChanged(name, value);
 	}

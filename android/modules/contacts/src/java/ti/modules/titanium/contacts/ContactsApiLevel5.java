@@ -115,7 +115,10 @@ public class ContactsApiLevel5 extends CommonContactsApi
 	protected static String KIND_PHONE = "vnd.android.cursor.item/phone_v2";
 	protected static String KIND_ADDRESS = "vnd.android.cursor.item/postal-address_v2";
 
-	protected static String BASE_SELECTION = Data.CONTACT_ID + "=? AND " + Data.MIMETYPE + "=?";
+	protected static String BASE_SELECTION = Data.RAW_CONTACT_ID + "=? AND " + Data.MIMETYPE + "=?";
+	protected static String[] RELATED_NAMES_TYPE = {TiC.PROPERTY_ASSISTANT, TiC.PROPERTY_BROTHER, TiC.PROPERTY_CHILD, TiC.PROPERTY_DOMESTIC_PARTNER,
+		TiC.PROPERTY_FATHER, TiC.PROPERTY_FRIEND, TiC.PROPERTY_MANAGER, TiC.PROPERTY_MOTHER, TiC.PROPERTY_PARENT,
+		TiC.PROPERTY_PARTNER, TiC.PROPERTY_REFERRED_BY, TiC.PROPERTY_OTHER, TiC.PROPERTY_SISTER};
 
 	private static String[] PEOPLE_PROJECTION = new String[] {
 		"_id",
@@ -293,7 +296,22 @@ public class ContactsApiLevel5 extends CommonContactsApi
 		}
 	}
 	
-	protected void processInstantMsg(HashMap instantHashMap, String msgType, ArrayList<ContentProviderOperation> ops, int iType) 
+	protected void parseIm(ArrayList<ContentProviderOperation> ops, HashMap instantHashMap, long rawContactId) {
+		
+		if (instantHashMap.containsKey(TiC.PROPERTY_WORK)) {
+			processInstantMsg(instantHashMap, TiC.PROPERTY_WORK, ops, Im.TYPE_WORK, rawContactId);
+		} 
+		
+		if (instantHashMap.containsKey(TiC.PROPERTY_HOME)) {
+			processInstantMsg(instantHashMap, TiC.PROPERTY_HOME, ops, Im.TYPE_HOME, rawContactId);
+		}
+		
+		if (instantHashMap.containsKey(TiC.PROPERTY_OTHER)) {
+			processInstantMsg(instantHashMap, TiC.PROPERTY_OTHER, ops, Im.TYPE_OTHER, rawContactId);
+		}
+	}
+	
+	protected void processInstantMsg(HashMap instantHashMap, String msgType, ArrayList<ContentProviderOperation> ops, int iType, long rawContactId) 
 	{
 		Object instantObject = instantHashMap.get(msgType);
 		if (instantObject instanceof Object[]) {
@@ -324,27 +342,51 @@ public class ContactsApiLevel5 extends CommonContactsApi
 						Log.e(LCAT, "User name is not provided when adding new contact");
 						continue;
 					}
-					//custom
-					if (serviceType == -1) {
-						ops.add(ContentProviderOperation
-								.newInsert(Data.CONTENT_URI)
-								.withValueBackReference(Data.RAW_CONTACT_ID, 0)
-								.withValue(Data.MIMETYPE, Im.CONTENT_ITEM_TYPE)
-								.withValue(Im.PROTOCOL, serviceType) 
-								.withValue(Im.CUSTOM_PROTOCOL, serviceName) 
-								.withValue(Im.DATA, userName)
-								.withValue(Im.TYPE, iType) 
-								.build());
+					if (rawContactId == -1) {
+						//custom
+						if (serviceType == -1) {
+							ops.add(ContentProviderOperation
+									.newInsert(Data.CONTENT_URI)
+									.withValueBackReference(Data.RAW_CONTACT_ID, 0)
+									.withValue(Data.MIMETYPE, Im.CONTENT_ITEM_TYPE)
+									.withValue(Im.PROTOCOL, serviceType) 
+									.withValue(Im.CUSTOM_PROTOCOL, serviceName) 
+									.withValue(Im.DATA, userName)
+									.withValue(Im.TYPE, iType) 
+									.build());
+						} else {
+							ops.add(ContentProviderOperation
+									.newInsert(Data.CONTENT_URI)
+									.withValueBackReference(Data.RAW_CONTACT_ID, 0)
+									.withValue(Data.MIMETYPE, Im.CONTENT_ITEM_TYPE)
+									.withValue(Im.PROTOCOL, serviceType) 
+									.withValue(Im.CUSTOM_PROTOCOL, serviceName) 
+									.withValue(Im.DATA, userName)
+									.withValue(Im.TYPE, iType) 
+									.build());
+						}
 					} else {
-						ops.add(ContentProviderOperation
-								.newInsert(Data.CONTENT_URI)
-								.withValueBackReference(Data.RAW_CONTACT_ID, 0)
-								.withValue(Data.MIMETYPE, Im.CONTENT_ITEM_TYPE)
-								.withValue(Im.PROTOCOL, serviceType) 
-								.withValue(Im.CUSTOM_PROTOCOL, serviceName) 
-								.withValue(Im.DATA, userName)
-								.withValue(Im.TYPE, iType) 
-								.build());
+						if (serviceType == -1) {
+							ops.add(ContentProviderOperation
+									.newInsert(Data.CONTENT_URI)
+									.withValue(Data.RAW_CONTACT_ID, rawContactId)
+									.withValue(Data.MIMETYPE, Im.CONTENT_ITEM_TYPE)
+									.withValue(Im.PROTOCOL, serviceType) 
+									.withValue(Im.CUSTOM_PROTOCOL, serviceName) 
+									.withValue(Im.DATA, userName)
+									.withValue(Im.TYPE, iType) 
+									.build());
+						} else {
+							ops.add(ContentProviderOperation
+									.newInsert(Data.CONTENT_URI)
+									.withValue(Data.RAW_CONTACT_ID, rawContactId)
+									.withValue(Data.MIMETYPE, Im.CONTENT_ITEM_TYPE)
+									.withValue(Im.PROTOCOL, serviceType) 
+									.withValue(Im.CUSTOM_PROTOCOL, serviceName) 
+									.withValue(Im.DATA, userName)
+									.withValue(Im.TYPE, iType) 
+									.build());
+						}
 					}
 				}
 			}
@@ -364,6 +406,24 @@ public class ContactsApiLevel5 extends CommonContactsApi
 		}
 	}
 	
+	protected void parseURL(ArrayList<ContentProviderOperation> ops, HashMap urlHashMap, long rawContactId)
+	{
+		if (urlHashMap.containsKey(TiC.PROPERTY_HOMEPAGE)) {
+			processURL(urlHashMap, TiC.PROPERTY_HOMEPAGE, ops, Website.TYPE_HOMEPAGE, rawContactId);
+		}
+		if (urlHashMap.containsKey(TiC.PROPERTY_WORK)) {
+			processURL(urlHashMap, TiC.PROPERTY_WORK, ops, Website.TYPE_WORK, rawContactId);
+		} 
+		
+		if (urlHashMap.containsKey(TiC.PROPERTY_HOME)) {
+			processURL(urlHashMap, TiC.PROPERTY_HOME, ops, Website.TYPE_HOME, rawContactId);
+		}
+		
+		if (urlHashMap.containsKey(TiC.PROPERTY_OTHER)) {
+			processURL(urlHashMap, TiC.PROPERTY_OTHER, ops, Website.TYPE_OTHER, rawContactId);
+		}
+	}
+	
 	protected void processURL(HashMap urlHashMap, String urlType, ArrayList<ContentProviderOperation> ops, int uType, long rawContactId) 
 	{
 		processData(urlHashMap, urlType, ops, uType, Website.CONTENT_ITEM_TYPE, Website.DATA, Website.TYPE, rawContactId);
@@ -374,9 +434,35 @@ public class ContactsApiLevel5 extends CommonContactsApi
 		processData(relHashMap, relType, ops, rType, Relation.CONTENT_ITEM_TYPE, Relation.DATA, Relation.TYPE, rawContactId);
 	}
 	
+	protected void parseDate(ArrayList<ContentProviderOperation> ops, HashMap dateHashMap, long rawContactId)
+	{
+		if (dateHashMap.containsKey(TiC.PROPERTY_ANNIVERSARY)) {
+			processDate(dateHashMap, TiC.PROPERTY_ANNIVERSARY, ops, Event.TYPE_ANNIVERSARY, rawContactId);
+		}
+		
+		if (dateHashMap.containsKey(TiC.PROPERTY_OTHER)) {
+			processDate(dateHashMap, TiC.PROPERTY_OTHER, ops, Event.TYPE_OTHER, rawContactId);
+		}
+	}
+	
 	protected void processDate(HashMap dateHashMap, String dateType, ArrayList<ContentProviderOperation> ops, int dType, long rawContactId)
 	{
 		processData(dateHashMap, dateType, ops, dType, Event.CONTENT_ITEM_TYPE, Event.START_DATE, Event.TYPE, rawContactId);
+	}
+	
+	protected void parseEmail(ArrayList<ContentProviderOperation> ops, HashMap emailHashMap, long rawContactId) 
+	{
+		if (emailHashMap.containsKey(TiC.PROPERTY_WORK)) {
+			processEmail(emailHashMap, TiC.PROPERTY_WORK, ops, Email.TYPE_WORK, rawContactId);
+		}
+		
+		if (emailHashMap.containsKey(TiC.PROPERTY_HOME)) {
+			processEmail(emailHashMap, TiC.PROPERTY_HOME, ops, Email.TYPE_HOME, rawContactId);
+		}
+		
+		if (emailHashMap.containsKey(TiC.PROPERTY_OTHER)) {
+			processEmail(emailHashMap, TiC.PROPERTY_OTHER, ops, Email.TYPE_OTHER, rawContactId);
+		}
 	}
 	
 	protected void processEmail(HashMap emailHashMap, String emailType, ArrayList<ContentProviderOperation> ops, int eType, long rawContactId)
@@ -485,7 +571,8 @@ public class ContactsApiLevel5 extends CommonContactsApi
 	}
 
 	@SuppressWarnings("rawtypes")
-	protected PersonProxy addContact(KrollDict options) {
+	protected PersonProxy addContact(KrollDict options) 
+	{
 
 		if (options == null) {
 			return null;
@@ -520,10 +607,20 @@ public class ContactsApiLevel5 extends CommonContactsApi
 			newContact.setProperty(TiC.PROPERTY_MIDDLENAME, middleName);
 		}
 
+		if (firstName.length() > 0) {
+			displayName = firstName;
+		} 
 		
-		displayName = firstName + " " + middleName + " " + lastName;
+		if (middleName.length() > 0) {
+			displayName += " " + middleName;
+		}
 		
-
+		if (lastName.length() > 0) {
+			displayName += " " + lastName;
+		}
+		
+		displayName = displayName.trim();
+		
 		updateContactField(ops, StructuredName.CONTENT_ITEM_TYPE, StructuredName.DISPLAY_NAME, displayName, null, 0, rawContactId);
 		
 		if (displayName.length() > 0) {
@@ -559,17 +656,7 @@ public class ContactsApiLevel5 extends CommonContactsApi
 			if (instantMsg instanceof HashMap) {
 				HashMap instantHashMap = (HashMap) instantMsg;
 				newContact.setProperty(TiC.PROPERTY_INSTANTMSG, instantHashMap);
-				if (instantHashMap.containsKey(TiC.PROPERTY_WORK)) {
-					processInstantMsg(instantHashMap, TiC.PROPERTY_WORK, ops, Im.TYPE_WORK);
-				} 
-				
-				if (instantHashMap.containsKey(TiC.PROPERTY_HOME)) {
-					processInstantMsg(instantHashMap, TiC.PROPERTY_HOME, ops, Im.TYPE_HOME);
-				}
-				
-				if (instantHashMap.containsKey(TiC.PROPERTY_OTHER)) {
-					processInstantMsg(instantHashMap, TiC.PROPERTY_OTHER, ops, Im.TYPE_OTHER);
-				}
+				parseIm(ops, instantHashMap, rawContactId);
 			}
 		}
 		
@@ -584,21 +671,7 @@ public class ContactsApiLevel5 extends CommonContactsApi
 			if (urlObject instanceof HashMap) {
 				HashMap urlHashMap = (HashMap) urlObject;
 				newContact.setProperty(TiC.PROPERTY_URL, urlHashMap);
-				
-				if (urlHashMap.containsKey(TiC.PROPERTY_HOMEPAGE)) {
-					processURL(urlHashMap, TiC.PROPERTY_HOMEPAGE, ops, Website.TYPE_HOMEPAGE, rawContactId);
-				}
-				if (urlHashMap.containsKey(TiC.PROPERTY_WORK)) {
-					processURL(urlHashMap, TiC.PROPERTY_WORK, ops, Website.TYPE_WORK, rawContactId);
-				} 
-				
-				if (urlHashMap.containsKey(TiC.PROPERTY_HOME)) {
-					processURL(urlHashMap, TiC.PROPERTY_HOME, ops, Website.TYPE_HOME, rawContactId);
-				}
-				
-				if (urlHashMap.containsKey(TiC.PROPERTY_OTHER)) {
-					processURL(urlHashMap, TiC.PROPERTY_OTHER, ops, Website.TYPE_OTHER, rawContactId);
-				}
+				parseURL(ops, urlHashMap, rawContactId);
 			}
 		}
 
@@ -607,33 +680,18 @@ public class ContactsApiLevel5 extends CommonContactsApi
 			if (emailObject instanceof HashMap) {
 				HashMap emailHashMap = (HashMap) emailObject;
 				newContact.setProperty(TiC.PROPERTY_EMAIL, emailHashMap);
-				
-				if (emailHashMap.containsKey(TiC.PROPERTY_WORK)) {
-					processEmail(emailHashMap, TiC.PROPERTY_WORK, ops, Email.TYPE_WORK, rawContactId);
-				}
-				
-				if (emailHashMap.containsKey(TiC.PROPERTY_HOME)) {
-					processEmail(emailHashMap, TiC.PROPERTY_HOME, ops, Email.TYPE_HOME, rawContactId);
-				}
-				
-				if (emailHashMap.containsKey(TiC.PROPERTY_OTHER)) {
-					processEmail(emailHashMap, TiC.PROPERTY_OTHER, ops, Email.TYPE_OTHER, rawContactId);
-				}
+				parseEmail(ops, emailHashMap, rawContactId);
 			}
 		}
 		
 		if (options.containsKey(TiC.PROPERTY_RELATED_NAMES)) {
 			Object namesObject = options.get(TiC.PROPERTY_RELATED_NAMES);
-			String[] types = {TiC.PROPERTY_ASSISTANT, TiC.PROPERTY_BROTHER, TiC.PROPERTY_CHILD, TiC.PROPERTY_DOMESTIC_PARTNER,
-					TiC.PROPERTY_FATHER, TiC.PROPERTY_FRIEND, TiC.PROPERTY_MANAGER, TiC.PROPERTY_MOTHER, TiC.PROPERTY_PARENT,
-					TiC.PROPERTY_PARTNER, TiC.PROPERTY_REFERRED_BY, TiC.PROPERTY_OTHER, TiC.PROPERTY_SISTER};
-
 			if (namesObject instanceof HashMap) {
 				HashMap namesHashMap = (HashMap) namesObject;
 				newContact.setProperty(TiC.PROPERTY_RELATED_NAMES, namesHashMap);
-				for (int i = 0; i < types.length; i++) {
-					if (namesHashMap.containsKey(types[i])) {
-						processRelation(namesHashMap, types[i], ops, i+1, rawContactId);
+				for (int i = 0; i < RELATED_NAMES_TYPE.length; i++) {
+					if (namesHashMap.containsKey(RELATED_NAMES_TYPE[i])) {
+						processRelation(namesHashMap, RELATED_NAMES_TYPE[i], ops, i+1, rawContactId);
 					}
 				}
 			}
@@ -665,20 +723,24 @@ public class ContactsApiLevel5 extends CommonContactsApi
 			if (dateObject instanceof HashMap) {
 				HashMap dateHashMap = (HashMap) dateObject;
 				newContact.setProperty(TiC.PROPERTY_DATE, dateHashMap);
-				if (dateHashMap.containsKey(TiC.PROPERTY_ANNIVERSARY)) {
-					processDate(dateHashMap, TiC.PROPERTY_ANNIVERSARY, ops, Event.TYPE_ANNIVERSARY, rawContactId);
-				}
-				
-				if (dateHashMap.containsKey(TiC.PROPERTY_OTHER)) {
-					processDate(dateHashMap, TiC.PROPERTY_OTHER, ops, Event.TYPE_OTHER, rawContactId);
-				}
+				parseDate(ops, dateHashMap, rawContactId);
 			}
 		}
 
 		try {
 
 			ContentProviderResult[] providerResult = TiApplication.getAppRootOrCurrentActivity().getContentResolver().applyBatch(ContactsContract.AUTHORITY, ops);
-			long id = ContentUris.parseId(providerResult[0].uri);
+			//ContentResolver cr =  TiApplication.getAppRootOrCurrentActivity().getContentResolver();
+			long id = 0;
+			/*Cursor cur = cr.query(Data.CONTENT_URI,
+				null, Data.DISPLAY_NAME + "=?", new String[] {displayName}, null);
+			if (cur.getCount() > 0) {
+				while (cur.moveToNext()) {
+					int column2 = cur.getColumnIndex(Data.CONTACT_ID);
+					id = cur.getLong(column2);
+				}
+			}*/
+			id = ContentUris.parseId(providerResult[0].uri);
 			newContact.setProperty("id", id);
 			newContact.setId(id);
 
@@ -820,14 +882,6 @@ public class ContactsApiLevel5 extends CommonContactsApi
 		return bm;
 	}
 	
-	protected void modifyField(ArrayList<ContentProviderOperation> ops, String selection, String[] selectionArgs, String key, Object value)
-	{
-		ops.add(ContentProviderOperation.newUpdate(Data.CONTENT_URI)
-				    .withSelection(selection, selectionArgs)
-				    .withValue(key, value)
-				    .build());
-	}
-	
 	protected void deleteField(ArrayList<ContentProviderOperation> ops, String selection, String[] selectionArgs)
 	{
 		ops.add(ContentProviderOperation.newDelete(Data.CONTENT_URI)
@@ -835,7 +889,7 @@ public class ContactsApiLevel5 extends CommonContactsApi
 			    .build());
 	}
 
-	protected void modifyName(ArrayList<ContentProviderOperation> ops, PersonProxy person, String id, long rawContactId) 
+	protected void modifyName(ArrayList<ContentProviderOperation> ops, PersonProxy person, String id) 
 	{
 		String firstName = "";
 		String lastName = "";
@@ -859,134 +913,177 @@ public class ContactsApiLevel5 extends CommonContactsApi
 		
 		String[] selectionArgs = new String[]{id, StructuredName.CONTENT_ITEM_TYPE};
 		deleteField(ops, BASE_SELECTION, selectionArgs);
-		updateContactField(ops, StructuredName.CONTENT_ITEM_TYPE, StructuredName.DISPLAY_NAME, displayName, null, 0, rawContactId);
+		updateContactField(ops, StructuredName.CONTENT_ITEM_TYPE, StructuredName.DISPLAY_NAME, displayName, null, 0, person.getId());
 	}
 	
-	protected void modifyBirthday(ArrayList<ContentProviderOperation> ops, PersonProxy person, String id, long rawContactId)
+	protected void modifyBirthday(ArrayList<ContentProviderOperation> ops, PersonProxy person, String id)
 	{
 		String birthday = TiConvert.toString(person.getProperty(TiC.PROPERTY_BIRTHDAY));
 		String selection = BASE_SELECTION + " AND " + Event.TYPE + "=?";
 		String[] selectionArgs = new String[]{id, Event.CONTENT_ITEM_TYPE, String.valueOf(Event.TYPE_BIRTHDAY)};
 		deleteField(ops, selection, selectionArgs);
-		updateContactField(ops, Event.CONTENT_ITEM_TYPE, Event.START_DATE, birthday, Event.TYPE, Event.TYPE_BIRTHDAY, rawContactId);
+		updateContactField(ops, Event.CONTENT_ITEM_TYPE, Event.START_DATE, birthday, Event.TYPE, Event.TYPE_BIRTHDAY, person.getId());
 	}
 	
-	protected void modifyOrganization(ArrayList<ContentProviderOperation> ops, PersonProxy person, String id, long rawContactId)
+	protected void modifyOrganization(ArrayList<ContentProviderOperation> ops, PersonProxy person, String id)
 	{
 		String company = TiConvert.toString(person.getProperty(TiC.PROPERTY_ORGANIZATION));
 		String[] selectionArgs =  new String[]{id, Organization.CONTENT_ITEM_TYPE};
 		deleteField(ops, BASE_SELECTION, selectionArgs);
-		updateContactField(ops, Organization.CONTENT_ITEM_TYPE, Organization.COMPANY, company, null, 0, rawContactId);
+		updateContactField(ops, Organization.CONTENT_ITEM_TYPE, Organization.COMPANY, company, null, 0, person.getId());
 	}
 	
-	protected void modifyNote(ArrayList<ContentProviderOperation> ops, PersonProxy person, String id, long rawContactId)
+	protected void modifyNote(ArrayList<ContentProviderOperation> ops, PersonProxy person, String id)
 	{
 		String note = TiConvert.toString(person.getProperty(TiC.PROPERTY_NOTE));
 		String[] selectionArgs = new String[]{id, Note.CONTENT_ITEM_TYPE};
 		deleteField(ops, BASE_SELECTION, selectionArgs);
-		updateContactField(ops, Note.CONTENT_ITEM_TYPE, Note.NOTE, note, null, 0, rawContactId);
+		updateContactField(ops, Note.CONTENT_ITEM_TYPE, Note.NOTE, note, null, 0, person.getId());
 	}
 	
-	protected void modifyNickName(ArrayList<ContentProviderOperation> ops, PersonProxy person, String id, long rawContactId)
+	protected void modifyNickName(ArrayList<ContentProviderOperation> ops, PersonProxy person, String id)
 	{
 		String nickname = TiConvert.toString(person.getProperty(TiC.PROPERTY_NICKNAME));
 		String selection = BASE_SELECTION + " AND " + Nickname.TYPE + "=?";
 		String[] selectionArgs = new String[]{id, Nickname.CONTENT_ITEM_TYPE, String.valueOf(Nickname.TYPE_DEFAULT)};
 		deleteField(ops, selection, selectionArgs);
-		updateContactField(ops, Nickname.CONTENT_ITEM_TYPE, Nickname.NAME, nickname, Nickname.TYPE, Nickname.TYPE_DEFAULT, rawContactId);
+		updateContactField(ops, Nickname.CONTENT_ITEM_TYPE, Nickname.NAME, nickname, Nickname.TYPE, Nickname.TYPE_DEFAULT, person.getId());
 	}
 
-	protected void modifyImage(ArrayList<ContentProviderOperation> ops, PersonProxy person, String id, long rawContactId)
+	protected void modifyImage(ArrayList<ContentProviderOperation> ops, PersonProxy person, String id)
 	{
 		TiBlob imageBlob = person.getImage();
 		String[] selectionArgs = new String[]{id, Photo.CONTENT_ITEM_TYPE};
 		deleteField(ops, BASE_SELECTION, selectionArgs);
-		updateContactField(ops, Photo.CONTENT_ITEM_TYPE, Photo.PHOTO, imageBlob.getData(), null, 0, rawContactId);
+		updateContactField(ops, Photo.CONTENT_ITEM_TYPE, Photo.PHOTO, imageBlob.getData(), null, 0, person.getId());
 	}
 	
-	protected void modifyPhone(ArrayList<ContentProviderOperation> ops, PersonProxy person, String id, long rawContactId)
+	protected void modifyField(ArrayList<ContentProviderOperation> ops, PersonProxy person, String id, long rawContactId, String field, String itemType)
 	{
-		Object phoneNumbers = person.getProperty(TiC.PROPERTY_PHONE);
-		if (!(phoneNumbers instanceof HashMap)) {
-			return;
+		Object fieldObject = person.getProperty(field);
+		if (fieldObject instanceof HashMap) {
+			HashMap fieldHashMap = (HashMap) fieldObject;
+			String[] selectionArgs = new String[]{id, itemType};
+			deleteField(ops, BASE_SELECTION, selectionArgs);
+			if (field.equals(TiC.PROPERTY_PHONE)) {
+				parsePhone(ops, fieldHashMap, rawContactId);
+			} else if (field.equals(TiC.PROPERTY_ADDRESS)) {
+				parseAddress(ops, fieldHashMap, rawContactId);
+			} else if (field.equals(TiC.PROPERTY_INSTANTMSG)) {
+				parseIm(ops, fieldHashMap, rawContactId);
+			} else if (field.equals(TiC.PROPERTY_URL)) {
+				parseURL(ops, fieldHashMap, rawContactId);
+			} else if (field.equals(TiC.PROPERTY_EMAIL)) {
+				parseEmail(ops, fieldHashMap, rawContactId);
+			} else if (field.equals(TiC.PROPERTY_RELATED_NAMES)) {
+				for (int i = 0; i < RELATED_NAMES_TYPE.length; i++) {
+					if (fieldHashMap.containsKey(RELATED_NAMES_TYPE[i])) {
+						processRelation(fieldHashMap, RELATED_NAMES_TYPE[i], ops, i+1, rawContactId);
+					}
+				}
+			} else if (field.equals(TiC.PROPERTY_DATE)) {
+				parseDate(ops, fieldHashMap, rawContactId);
+				//Since date contains birthday, when we modify date, we must re-add birthday event appropriately
+				if (person.hasProperty(TiC.PROPERTY_BIRTHDAY)) {
+					String birthday = TiConvert.toString(person.getProperty(TiC.PROPERTY_BIRTHDAY));
+					updateContactField(ops, Event.CONTENT_ITEM_TYPE, Event.START_DATE, birthday, Event.TYPE, Event.TYPE_BIRTHDAY, rawContactId);
+				}
+				
+			}
 		}
-		
-		HashMap phoneHashMap = (HashMap)phoneNumbers;
-		String[] selectionArgs = new String[]{id, Phone.CONTENT_ITEM_TYPE};
-		deleteField(ops, BASE_SELECTION, selectionArgs);
-		parsePhone(ops, phoneHashMap, rawContactId);
+	}
+	protected void modifyPhone(ArrayList<ContentProviderOperation> ops, PersonProxy person, String id)
+	{
+		modifyField(ops, person, id, person.getId(), TiC.PROPERTY_PHONE, Phone.CONTENT_ITEM_TYPE);
 	}
 
-	protected void modifyAddress(ArrayList<ContentProviderOperation> ops, PersonProxy person, String id, long rawContactId)
+	protected void modifyAddress(ArrayList<ContentProviderOperation> ops, PersonProxy person, String id)
 	{
-		Object address = person.getProperty(TiC.PROPERTY_ADDRESS);
-		if (address instanceof HashMap) {
-			HashMap addressHashMap = (HashMap) address;
-			String[] selectionArgs = new String[]{id, StructuredPostal.CONTENT_ITEM_TYPE};
-			deleteField(ops, BASE_SELECTION, selectionArgs);
-			parseAddress(ops, addressHashMap, rawContactId);
-		}
+		modifyField(ops, person, id, person.getId(), TiC.PROPERTY_ADDRESS, StructuredPostal.CONTENT_ITEM_TYPE);
 	}
 	
-	protected long getRawIdFromId(String contactId) 
+	protected void modifyIm(ArrayList<ContentProviderOperation> ops, PersonProxy person, String id)
 	{
-		long rawContactId = -1;
-		Cursor c = TiApplication.getAppRootOrCurrentActivity().getContentResolver().query(RawContacts.CONTENT_URI,
-			    new String[]{RawContacts._ID},
-			    RawContacts.CONTACT_ID + "=?",
-			    new String[]{contactId}, null);
-			try {
-			    if (c.moveToFirst()) {
-			        rawContactId = c.getLong(0);
-			    }
-			} finally {
-			    c.close();
-			}
-		return rawContactId;
+		modifyField(ops, person, id, person.getId(), TiC.PROPERTY_INSTANTMSG, Im.CONTENT_ITEM_TYPE);
+	}
+	
+	protected void modifyUrl(ArrayList<ContentProviderOperation> ops, PersonProxy person, String id)
+	{
+		modifyField(ops, person, id, person.getId(), TiC.PROPERTY_URL, Website.CONTENT_ITEM_TYPE);
+	}
+	
+	protected void modifyEmail(ArrayList<ContentProviderOperation> ops, PersonProxy person, String id)
+	{
+		modifyField(ops, person, id, person.getId(), TiC.PROPERTY_EMAIL, Email.CONTENT_ITEM_TYPE);
+	}
+	
+	protected void modifyRelatedNames(ArrayList<ContentProviderOperation> ops, PersonProxy person, String id)
+	{
+		modifyField(ops, person, id, person.getId(), TiC.PROPERTY_RELATED_NAMES, Relation.CONTENT_ITEM_TYPE);
+	}
+	
+	protected void modifyDate(ArrayList<ContentProviderOperation> ops, PersonProxy person, String id)
+	{
+		modifyField(ops, person, id, person.getId(), TiC.PROPERTY_DATE, Event.CONTENT_ITEM_TYPE);
 	}
 	
 	protected void modifyContact(PersonProxy person, String id)
 	{
 		ArrayList<ContentProviderOperation> ops = new ArrayList<ContentProviderOperation>();
-		long rawContactId = getRawIdFromId(id);
-		if (rawContactId == -1) {
-			return;
-		}
 		
 		if (person.getNameModified()) {
-			modifyName(ops, person, id, rawContactId);
+			modifyName(ops, person, id); 
 		}
 		
 		if (person.getBdayModified()) {
-			modifyBirthday(ops, person, id, rawContactId);
+			modifyBirthday(ops, person, id);
 		}
 		
 		if (person.getOrganizationModified()) {
-			modifyOrganization(ops, person, id, rawContactId);
+			modifyOrganization(ops, person, id);
 		}
 		
 		if (person.getNoteModified()) {
-			modifyNote(ops, person, id, rawContactId);
+			modifyNote(ops, person, id);
 		}
 		
 		if (person.getNickNameModified()) {
-			modifyNickName(ops, person, id, rawContactId);
+			modifyNickName(ops, person, id);
 		}
 		
 		if (person.getImageModified()) {
-			modifyImage(ops, person, id, rawContactId);
+			modifyImage(ops, person, id); 
 		}
 		
 		if (person.getPhoneModified()) {
-			modifyPhone(ops, person, id, rawContactId);
+			modifyPhone(ops, person, id);
 		}
 		
 		if (person.getAddressModified()) {
-			modifyAddress(ops, person, id, rawContactId);
+			modifyAddress(ops, person, id);
 		}
 		
+		if (person.getImModified()) {
+			modifyIm(ops, person, id);
+		}
+		
+		if (person.getUrlModified()) {
+			modifyUrl(ops, person, id);
+		}
+		
+		if (person.getEmailModified()) {
+			modifyEmail(ops, person, id);
+		}
+		
+		if (person.getRelatedNamesModified()) {
+			modifyRelatedNames(ops, person, id);
+		}
+		
+		if (person.getDateModified()) {
+			modifyDate(ops, person, id);
+		}
 		try {
-			ContentProviderResult[] a = TiApplication.getAppRootOrCurrentActivity().getContentResolver().applyBatch(ContactsContract.AUTHORITY, ops);
+			TiApplication.getAppRootOrCurrentActivity().getContentResolver().applyBatch(ContactsContract.AUTHORITY, ops);
 			person.finishModification();
 		} catch (RemoteException e) {
 			e.printStackTrace();
