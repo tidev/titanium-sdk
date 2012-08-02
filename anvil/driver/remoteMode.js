@@ -6,7 +6,7 @@
  *
  * Purpose: TODO
  *
- * Description: TODO - make sure to add driverGlobal.config.hubPort value
+ * Description: TODO
  */
 
 var fs = require("fs");
@@ -30,21 +30,6 @@ module.exports = new function() {
 			},
 			packageAndSendResults);
 
-		function connectCallback() {
-			var registration = JSON.stringify({
-				type: "registration",
-				id: driverGlobal.config.driverId
-			});
-
-			var sendBuffer = new Buffer(4 + registration.length);
-			sendBuffer.writeUInt32BE(registration.length, 0);
-			sendBuffer.write(registration, 4);
-
-			sendDataToHub(sendBuffer, function() {
-				util.log("registration sent to hub");
-			});
-		}
-
 		if (fs.existsSync(driverGlobal.logsDir + "/json_results")) {
 			util.runCommand("rm -r " + driverGlobal.logsDir + "/json_results", util.logNone, function(error) {
 				if (error != null) {
@@ -54,26 +39,39 @@ module.exports = new function() {
 					util.log("json results file deleted");
 				}
 
-				connectToHub(connectCallback);
+				connectToHub();
 			});
 
 		} else {
-			connectToHub(connectCallback);
+			connectToHub();
 		}
 	};
 
-	function connectToHub(callback) {
+	function connectToHub() {
 		function connectCallback() {
-			hubConnection.connection = net.connect(driverGlobal.config.hubPort, driverGlobal.config.hubHost);
-
 			var bytesReceived = 0;
 			var recvBuffer = new Buffer(0);
 			var payloadSize = null;
+			var hubReconnectDelay = 5000;
+
+			hubConnection.connection = net.connect(driverGlobal.config.hubPort, driverGlobal.config.hubHost);
 
 			hubConnection.connection.on("connect", function() {
 				hubConnection.connected = true;
 				util.log("connected to hub");
-				callback();
+
+				var registration = JSON.stringify({
+					type: "registration",
+					id: driverGlobal.config.driverId
+				});
+
+				var sendBuffer = new Buffer(4 + registration.length);
+				sendBuffer.writeUInt32BE(registration.length, 0);
+				sendBuffer.write(registration, 4);
+
+				sendDataToHub(sendBuffer, function() {
+					util.log("registration sent to hub");
+				});
 			});
 			hubConnection.connection.on("data", function(data) {
 				bytesReceived += data.length;
@@ -108,15 +106,12 @@ module.exports = new function() {
 			});
 			hubConnection.connection.on("close", function() {
 				hubConnection.connected = false;
-				util.log("close occured for hub connection");
-
-				setTimeout(function() {
-					connectCallback();
-				}, 1000);
+				util.log("close occurred for hub connection");
+				setTimeout(connectCallback, hubReconnectDelay);
 			});
 			hubConnection.connection.on("error", function() {
 				hubConnection.connected = false;
-				hubConnection.connection.destroy();
+				hubConnection.connection.destroy(); // close event will be fired
 				util.log("error occurred on hub connection");
 			});
 		};
@@ -163,12 +158,12 @@ module.exports = new function() {
 
 				} else {
 					util.log("titanium_mobile branches fetched");
-					buildCallback();
+					cleanCallback();
 				}
 			});
 		}
 
-		function cleanAndBuildCallback() {
+		function cleanCallback() {
 			if (fs.existsSync("dist")) {
 				util.runCommand("rm -rf dist", util.logStderr, function(error, stdout, stderr) {
 					if (error !== null) {
@@ -202,8 +197,7 @@ module.exports = new function() {
 
 			util.runCommand("tar -xzvf *.zip", util.logStderr, function(error, stdout, stderr) {
 				if (error !== null) {
-					util.log("error <" + error + "> occurred when trying to compress results in <" + 
-						driverGlobal.currentLogDir + ">");
+					util.log("error <" + error + "> occurred when trying to unpack SDK: " + error);
 
 					process.exit(1);
 				}

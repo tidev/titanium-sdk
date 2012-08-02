@@ -4,9 +4,9 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  *
- * Purpose: contains specific logic for running driver commands on Android
+ * Purpose: 
  *
- * Description: contains Android specific wrapper functions around common driver commands
+ * Description: 
  */
 
 var net = require("net");
@@ -15,13 +15,15 @@ var util = require(__dirname + "/util");
 
 module.exports = new function() {
 	var self = this;
-	this.driverConnections = {};
 
+	this.driverConnections = {};
 	this.messageHandler;
 
 	this.start = function() {
 		var ciServer;
 		var driverServer;
+		var ciServerRestartDelay = 5000;
+		var driverServerRestartDelay = 5000;
 
 		function startCiServer() {
 			ciServer = net.createServer(function(acceptedConnection) {
@@ -29,11 +31,10 @@ module.exports = new function() {
 
 				acceptedConnection.on("close", function() {
 					util.log("CI connection closed");
-					acceptedConnection.destroy();
 				});
 				acceptedConnection.on("error", function() {
 					util.log("error occured on CI connection");
-					acceptedConnection.destroy();
+					acceptedConnection.destroy(); // close event will be fired
 				});
 				acceptedConnection.on("data", function(data) {
 					if (Buffer.isBuffer(data)) {
@@ -45,16 +46,25 @@ module.exports = new function() {
 			});
 			ciServer.on("close", function() {
 				util.log("CI server connection closed");
-				setTimeout(startCiServer, 3000); // fine to hard code this value
+				setTimeout(startCiServer, ciServerRestartDelay);
 			});
 			ciServer.on("error", function() {
+				/*
+				the node JS docs say that the server doesn't even have a error event.  With the
+				assumption that this is the regular socket error event, the close event should 
+				follow but it does not - hence manually calling close or restarting the server
+				*/
 				util.log("error occurred when listening for CI connections");
 
 				try {
-					ciServer.close(); // server will be restarted in the close event handler
+					/*
+					if the server is not running (unable to listen, etc) then this will fail
+					so we cant rely on the close event handler restarting the server in all cases
+					*/
+					ciServer.close();
 
 				} catch(e) {
-					setTimeout(startCiServer, 3000);
+					setTimeout(startCiServer, ciServerRestartDelay);
 				}
 			});
 
@@ -75,12 +85,11 @@ module.exports = new function() {
 
 				acceptedConnection.on("close", function() {
 					util.log("connection for driver <" + driverId + "> closed");
-
 					delete self.driverConnections[driverId];
-					acceptedConnection.destroy();
 				});
 				acceptedConnection.on("error", function(error) {
 					util.log("error <" + error + "> occurred on driver <" + driverId + "> connection");
+					acceptedConnection.destroy(); // close event will be fired
 				});
 				acceptedConnection.on("data", function(data) {
 					bytesReceived += data.length;
@@ -111,7 +120,7 @@ module.exports = new function() {
 
 							} else {
 								util.log("got something other than registration as first message, closing");
-								acceptedConnection.destroy();
+								acceptedConnection.destroy(); // close event will be fired
 							}
 
 						} else {
@@ -126,16 +135,25 @@ module.exports = new function() {
 			});
 			driverServer.on("close", function() {
 				util.log("driver server connection closed");
-				setTimeout(startDriverServer, 3000);
+				setTimeout(startDriverServer, driverServerRestartDelay);
 			});
 			driverServer.on("error", function() {
+				/*
+				the node JS docs say that the server doesn't even have a error event.  With the
+				assumption that this is the regular socket error event, the close event should 
+				follow but it does not - hence manually calling close or restarting the server
+				*/
 				util.log("error occurred when listening for driver connections");
 
 				try {
-					driverServer.close(); // server will be restarted in the close event handler
+					/*
+					if the server is not running (unable to listen, etc) then this will fail
+					so we cant rely on the close event handler restarting the server in all cases
+					*/
+					driverServer.close();
 
 				} catch(e) {
-					setTimeout(startDriverServer, 3000);
+					setTimeout(startDriverServer, driverServerRestartDelay);
 				}
 			});
 

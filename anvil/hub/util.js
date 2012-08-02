@@ -147,7 +147,7 @@ module.exports = new function() {
 
 		} else {
 			var stat = fs.statSync(logFilePath);
-			if (stat.size > hubGlobal.maxLogSize) {
+			if (stat.size > hubGlobal.config.maxLogSize) {
 				logRotating = true;
 
 				self.openLog(function() {
