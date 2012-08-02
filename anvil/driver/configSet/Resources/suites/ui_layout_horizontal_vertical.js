@@ -22,7 +22,7 @@ module.exports = new function() {
 		{name: "horizontalWrapWithSIZEHeight"},
 		{name: "horizontalNoWrapWithSIZEHeight"},
 		{name: "horizontalNoWrapTopPaddingSIZEHeight"},
-		{name: "horizontalWrapWithSIZEHeight"}
+		{name: "horizontalWrapTopPaddingSIZEHeight"}
 	];
 
 	this.horizontalTopBottomUndefinedHeight = function(testRun) {
@@ -254,7 +254,7 @@ module.exports = new function() {
 		win.open();
 	};
 
-	this.horizontalWrapWithSIZEHeight = function(testRun) {
+	this.horizontalWrapTopPaddingSIZEHeight = function(testRun) {
 		var win = Ti.UI.createWindow({
 			navBarHidden : true,
 			backgroundColor : '#000'
