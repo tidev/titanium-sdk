@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -19,7 +19,6 @@ import org.appcelerator.kroll.KrollFunction;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
-import org.appcelerator.kroll.common.TiConfig;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.io.TiStream;
 import org.appcelerator.titanium.util.TiConvert;
@@ -27,12 +26,10 @@ import org.appcelerator.titanium.util.TiStreamHelper;
 
 import ti.modules.titanium.BufferProxy;
 
-
 @Kroll.proxy(creatableInModule=SocketModule.class)
 public class TCPProxy extends KrollProxy implements TiStream
 {
-	private static final String LCAT = "TCPProxy";
-	private static final boolean DBG = TiConfig.LOGD;
+	private static final String TAG = "TCPProxy";
 
 	//private boolean initialized = false;
 	private Socket clientSocket = null;
@@ -149,7 +146,7 @@ public class TCPProxy extends KrollProxy implements TiStream
 	public void setOptions(KrollDict options)
 	{
 		// not implemented yet - reserved for future use
-		Log.i(LCAT, "setting options on socket is not supported yet");
+		Log.i(TAG, "setting options on socket is not supported yet");
 	}
 
 	@Kroll.setProperty @Kroll.method
@@ -182,7 +179,7 @@ public class TCPProxy extends KrollProxy implements TiStream
 			setProperty(propertyName, propertyValue);
 
 		} else {
-			Log.e(LCAT, "Unable to set property <" + propertyName + "> on socket in <" + state + "> state");
+			Log.e(TAG, "Unable to set property <" + propertyName + "> on socket in <" + state + "> state");
 		}
 	}
 
@@ -280,7 +277,7 @@ public class TCPProxy extends KrollProxy implements TiStream
 
 					} catch (InterruptedException e) {
 						e.printStackTrace();
-						Log.e(LCAT, "listening thread interrupted");
+						Log.e(TAG, "listening thread interrupted");
 					}
 				}
 			}
@@ -329,7 +326,7 @@ public class TCPProxy extends KrollProxy implements TiStream
 				}
 
 			} catch (IOException e) {
-				Log.w(LCAT, "unable to close socket in error state");
+				Log.w(TAG, "unable to close socket in error state");
 			}
 		}
 

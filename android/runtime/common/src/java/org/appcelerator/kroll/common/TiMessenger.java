@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -44,7 +44,6 @@ import android.os.Message;
 public class TiMessenger implements Handler.Callback
 {
 	private static final String TAG = "TiMessenger";
-	private static final boolean DBG = TiConfig.LOGD;
 	private static final int MSG_RUN = 3000;
 
 	protected static TiMessenger mainMessenger;
@@ -375,9 +374,7 @@ public class TiMessenger implements Handler.Callback
 		try {
 			Message message = messageQueue.poll(timeout, timeUnit);
 			if (message != null) {
-				if (DBG) {
-					Log.d(TAG, "Dispatching message: " + message);
-				}
+				Log.d(TAG, "Dispatching message: " + message, Log.DEBUG_MODE);
 
 				if (message.getTarget() != null) {
 					message.getTarget().dispatchMessage(message);

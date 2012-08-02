@@ -4,7 +4,6 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-
 package org.appcelerator.titanium.util;
 
 import java.io.ByteArrayOutputStream;
@@ -629,7 +628,7 @@ public class TiUIHelper
 			}
 			view.measure(MeasureSpec.makeMeasureSpec(width, MeasureSpec.EXACTLY), MeasureSpec.makeMeasureSpec(height, MeasureSpec.EXACTLY));
 			if (view.getParent() == null) {
-				Log.i(LCAT, "view does not have parent, calling layout");
+				Log.i(LCAT, "View does not have parent, calling layout", Log.DEBUG_MODE);
 				view.layout(0, 0, width, height);
 			}
 

@@ -1,10 +1,9 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-
 package ti.modules.titanium.geolocation;
 
 import java.util.Calendar;
@@ -26,12 +25,10 @@ import android.location.Criteria;
 import android.location.Location;
 import android.os.SystemClock;
 
-
 public class TiCompass
 	implements SensorEventListener
 {
 	private static final String LCAT = "TiCompass";
-	private static final boolean DBG = TiConfig.LOGD;
 	private static final int DECLINATION_CHECK_INTERVAL = 60 * 1000;
 	private static final int STALE_LOCATION_THRESHOLD = 10 * 60 * 1000;
 
@@ -109,7 +106,7 @@ public class TiCompass
 		heading.put(TiC.PROPERTY_MAGNETIC_HEADING, x);
 		heading.put(TiC.PROPERTY_ACCURACY, event.accuracy);
 
-		if (DBG) {
+		if (Log.isDebugModeEnabled()) {
 			switch(event.accuracy) {
 			case SensorManager.SENSOR_STATUS_UNRELIABLE :
 				Log.i(LCAT, "Compass accuracy unreliable");

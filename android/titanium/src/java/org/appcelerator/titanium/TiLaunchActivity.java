@@ -10,7 +10,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.appcelerator.kroll.KrollRuntime;
 import org.appcelerator.kroll.common.Log;
-import org.appcelerator.kroll.common.TiConfig;
 import org.appcelerator.kroll.util.KrollAssetHelper;
 import org.appcelerator.titanium.analytics.TiAnalyticsEventFactory;
 import org.appcelerator.titanium.util.TiColorHelper;
@@ -38,7 +37,6 @@ import android.widget.Toast;
 public abstract class TiLaunchActivity extends TiBaseActivity
 {
 	private static final String TAG = "TiLaunchActivity";
-	private static final boolean DBG = TiConfig.LOGD;
 	
 	private static final int MSG_FINISH = 100;
 	private static final int RESTART_DELAY = 500;
@@ -83,9 +81,7 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 		try {
 			String fullUrl = url.resolve();
 
-			if (DBG) {
-				Log.d(TAG, "Eval JS Activity:" + fullUrl);
-			}
+			Log.d(TAG, "Eval JS Activity:" + fullUrl, Log.DEBUG_MODE);
 
 			if (fullUrl.startsWith(TiC.URL_APP_PREFIX)) {
 				fullUrl = fullUrl.replaceAll("app:/", "Resources");
@@ -97,9 +93,7 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 			KrollRuntime.getInstance().runModule(KrollAssetHelper.readAsset(fullUrl), fullUrl, activityProxy);
 
 		} finally {
-			if (DBG) {
-				Log.d(TAG, "Signal JS loaded");
-			}
+			Log.d(TAG, "Signal JS loaded", Log.DEBUG_MODE);
 		}
 	}
 

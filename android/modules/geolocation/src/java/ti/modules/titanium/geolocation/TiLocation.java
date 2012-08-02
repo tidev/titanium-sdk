@@ -4,7 +4,6 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-
 package ti.modules.titanium.geolocation;
 
 import java.io.UnsupportedEncodingException;
@@ -24,7 +23,6 @@ import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.common.Log;
-import org.appcelerator.kroll.common.TiConfig;
 import org.appcelerator.kroll.common.TiMessenger;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
@@ -42,7 +40,6 @@ import android.os.AsyncTask;
 import android.os.Handler;
 import android.os.Message;
 
-
 public class TiLocation implements Handler.Callback
 {
 	public static final int ERR_POSITION_UNAVAILABLE = 6;
@@ -53,7 +50,6 @@ public class TiLocation implements Handler.Callback
 	public LocationManager locationManager;
 
 	private static final String TAG = "TiLocation";
-	private static final boolean DBG = TiConfig.LOGD;
 	private static final String BASE_GEO_URL = "http://api.appcelerator.net/p/v1/geo?";
 
 	private String mobileId;
@@ -106,7 +102,7 @@ public class TiLocation implements Handler.Callback
 	{
 		List<String> providerNames = locationManager.getProviders(true);
 
-		if (DBG) {
+		if (Log.isDebugModeEnabled()) {
 			Log.i(TAG, "Enabled location provider count: " + providerNames.size());
 
 			for (String providerName : providerNames) {
@@ -234,9 +230,7 @@ public class TiLocation implements Handler.Callback
 					String direction = (String) args[1];
 					GeocodeResponseHandler geocodeResponseHandler = (GeocodeResponseHandler) args[2];
 
-					if (DBG) {
-						Log.d(TAG, "GEO URL [" + url + "]");
-					}
+					Log.d(TAG, "GEO URL [" + url + "]", Log.DEBUG_MODE);
 					HttpGet httpGet = new HttpGet(url);
 
 					HttpParams httpParams = new BasicHttpParams();
@@ -247,9 +241,7 @@ public class TiLocation implements Handler.Callback
 					ResponseHandler<String> responseHandler = new BasicResponseHandler();
 					String response = client.execute(httpGet, responseHandler);
 
-					if (DBG) {
-						Log.i(TAG, "received Geo [" + response + "]");
-					}
+					Log.i(TAG, "received Geo [" + response + "]", Log.DEBUG_MODE);
 
 					HashMap<String, Object> event = null;
 					if (response != null) {

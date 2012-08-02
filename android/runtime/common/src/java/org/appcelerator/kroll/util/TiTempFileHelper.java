@@ -16,7 +16,6 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 
 import org.appcelerator.kroll.common.Log;
-import org.appcelerator.kroll.common.TiConfig;
 
 import android.app.Application;
 import android.os.Environment;
@@ -29,7 +28,6 @@ import android.os.Environment;
 public class TiTempFileHelper
 {
 	private static final String TAG = "TiTempFileHelper";
-	private static final boolean DBG = TiConfig.DEBUG;
 
 	public static final String TEMPDIR = "_tmp";
 	public static final int DEFAULT_CLEAN_TIMEOUT = 5; // The number of seconds the async cleanup method uses for
@@ -147,9 +145,7 @@ public class TiTempFileHelper
 				}
 			}
 
-			if (DBG) {
-				Log.d(TAG, "Deleting temporary file " + absolutePath);
-			}
+			Log.d(TAG, "Deleting temporary file " + absolutePath, Log.DEBUG_MODE);
 			try {
 				file.delete();
 			} catch (Exception e) {

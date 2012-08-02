@@ -362,9 +362,14 @@ public class Log
 		return e(tag, msg, t, RELEASE_MODE);
 	}
 
+	public static boolean isDebugModeEnabled()
+	{
+		return TiConfig.DEBUG;
+	}
+
 	private static int processLog(int severity, String tag, String msg, String mode)
 	{
-		if (DEBUG_MODE.equals(mode) && !TiConfig.DEBUG) {
+		if (DEBUG_MODE.equals(mode) && !isDebugModeEnabled()) {
 			return 0;
 		}
 		msg = onThread(msg);
@@ -385,7 +390,7 @@ public class Log
 
 	private static int processLogWithException(int severity, String tag, String msg, Throwable t, String mode)
 	{
-		if (DEBUG_MODE.equals(mode) && !TiConfig.DEBUG) {
+		if (DEBUG_MODE.equals(mode) && !isDebugModeEnabled()) {
 			return 0;
 		}
 		msg = onThread(msg);
