@@ -232,7 +232,7 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 //To fire the keyboard frame change event.
 -(void)keyboardFrameChanged:(NSNotification*) notification
 {
-    if (![self _hasListeners:@"keyboardFrameChanged"])
+    if (![self _hasListeners:@"keyboardFrameChanged"] && ![self _hasListeners:@"keyboardframechanged"])
     {
         return;
     }
@@ -250,7 +250,7 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
                                 nil];
     
     [self fireEvent:@"keyboardFrameChanged" withObject:event]; 
-    
+    [self fireEvent:@"keyboardframechanged" withObject:event];     
 }
 
 

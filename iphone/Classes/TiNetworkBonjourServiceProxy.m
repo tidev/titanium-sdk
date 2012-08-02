@@ -402,14 +402,20 @@ const NSString* socketKey = @"socket";
 
 #pragma mark Domain management
 
+-(void)fireDomainUpdateEvent
+{
+	NSDictionary * eventObject = [NSDictionary dictionaryWithObject:
+								  [[domains copy] autorelease] forKey:@"domains"];
+	[self fireEvent:@"updatedDomains" withObject:eventObject];	//TODO: Deprecate old event.
+	[self fireEvent:@"updateddomains" withObject:eventObject];	
+}
+
 -(void)netServiceBrowser:(NSNetServiceBrowser*)browser didFindDomain:(NSString*)domain moreComing:(BOOL)more
 {
     [domains addObject:domain];
     
     if (!more) {
-        [self fireEvent:@"updatedDomains"
-             withObject:[NSDictionary dictionaryWithObject:[[domains copy] autorelease]
-                                                    forKey:@"domains"]];
+		[self fireDomainUpdateEvent];
     }
 }
 
@@ -418,9 +424,7 @@ const NSString* socketKey = @"socket";
     [domains removeObject:domain];
     
     if (!more) {
-        [self fireEvent:@"updatedDomains"
-             withObject:[NSDictionary dictionaryWithObject:[[domains copy] autorelease]
-                                                    forKey:@"domains"]];
+		[self fireDomainUpdateEvent];
     }
 }
 
