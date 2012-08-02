@@ -4,9 +4,9 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  *
- * Purpose: contains specific logic for running driver commands on Android
+ * Purpose: 
  *
- * Description: contains Android specific wrapper functions around common driver commands
+ * Description: 
  */
 
 var fs = require("fs");
@@ -72,6 +72,11 @@ module.exports = new function() {
 			if (error) {
 				throw error;
 			}
+
+			ciConnection.write("received", function() {
+				console.log("\"received\" message sent back to CI server");
+				ciConnection.destroy();
+			});
 
 			/*
 			loop through drivers we are currently connected to and tell them to start a test

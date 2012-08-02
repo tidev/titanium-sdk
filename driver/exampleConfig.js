@@ -75,12 +75,6 @@ module.exports = new function() {
 	/*******************************************************************************/
 
 	/*
-	port that the hub will connect to the driver on
-
-	Example: this.hubPort = 9002;
-	*/
-
-	/*
 	list of directories that contain additonal test configs that should be included in the list of 
 	harness configs that will be run when a test pass is started (assuming no specific config set
 	is specified)
@@ -100,19 +94,19 @@ module.exports = new function() {
 	/*
 	hub listens for driver connections on this port
 
-	Example: this.hubPort = 9002;
+	Example: this.hubPort = ;
 	*/
 
 	/*
 	host that the hub lives on
 
-	Example: this.hubHost = "localhost";
+	Example: this.hubHost = "";
 	*/
 
 	/*
 	id that this driver instance will be identified as in reporting from the hub
 
-	Example: this.driverId = "driver1";
+	Example: this.driverId = "";
 	*/
 
 }

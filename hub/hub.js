@@ -77,8 +77,6 @@ loadConfigModule();
 setupTempDirs();
 
 messageHandler.server = server;
-messageHandler.init();
-
 server.messageHandler = messageHandler;
 
 util.openLog(function() {
@@ -88,6 +86,7 @@ util.openLog(function() {
 			process.exit(1);
 
 		} else {
+			messageHandler.init();
 			server.start();
 		}
 	});
