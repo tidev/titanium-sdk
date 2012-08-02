@@ -18,7 +18,11 @@ module.exports = new function() {
 		{name: "horizontalTopBottomUndefinedHeight"},
 		{name: "horizontalLeftRightUndefinedWidth"},
 		{name: "horizontalLeftRightUndefinedWidthNoWrap"},
-		{name: "horizontalTopBottomUndefinedHeightNoWrap"}
+		{name: "horizontalTopBottomUndefinedHeightNoWrap"},
+		{name: "horizontalWrapWithSIZEHeight"},
+		{name: "horizontalNoWrapWithSIZEHeight"},
+		{name: "horizontalNoWrapTopPaddingSIZEHeight"},
+		{name: "horizontalWrapTopPaddingSIZEHeight"}
 	];
 
 	this.horizontalTopBottomUndefinedHeight = function(testRun) {
@@ -161,6 +165,118 @@ module.exports = new function() {
 		});
 
 		win.add(parent);
+		win.open();
+	};
+
+	this.horizontalWrapWithSIZEHeight = function(testRun) {
+		var win = Ti.UI.createWindow({
+			navBarHidden : true,
+			backgroundColor : '#000'
+		});
+
+		var topView = Ti.UI.createView({
+			backgroundColor : 'white',
+			height : Ti.UI.SIZE,
+			layout : 'horizontal'
+		});
+
+		topView.add(Ti.UI.createView({width: Ti.UI.FILL, height: 100, backgroundColor:'blue'}));
+		topView.add(Ti.UI.createView({width: Ti.UI.FILL, height: 100, backgroundColor:'red'}));
+		topView.add(Ti.UI.createView({width: Ti.UI.FILL, height: 100, backgroundColor:'purple'}));
+		topView.add(Ti.UI.createView({width: Ti.UI.FILL, height: 100, backgroundColor:'orange'}));
+
+		win.addEventListener("postlayout", function(e){
+			valueOf(testRun, topView.rect.height).shouldBe(400);
+			finish(testRun);
+		});
+
+		win.add(topView);
+		win.open();
+	};
+
+	this.horizontalNoWrapWithSIZEHeight = function(testRun) {
+		var win = Ti.UI.createWindow({
+			navBarHidden : true,
+			backgroundColor : '#000'
+		});
+
+		var topView = Ti.UI.createView({
+			backgroundColor : 'white',
+			width : Ti.UI.SIZE,
+			height : Ti.UI.SIZE,
+			layout : 'horizontal',
+			horizontalWrap: false
+		});
+
+		topView.add(Ti.UI.createView({width: 50, height: 100, backgroundColor:'blue'}));
+		topView.add(Ti.UI.createView({width: 50, height: 150, backgroundColor:'red'}));
+		topView.add(Ti.UI.createView({width:50, height: 200, backgroundColor:'purple'}));
+		topView.add(Ti.UI.createView({width: 100, height: 100, backgroundColor:'orange'}));
+
+		win.addEventListener("postlayout", function(e){
+			valueOf(testRun, topView.rect.width).shouldBe(250);
+			valueOf(testRun, topView.rect.height).shouldBe(200);
+
+			finish(testRun);
+		});
+
+		win.add(topView);
+		win.open();
+	};
+
+	this.horizontalNoWrapTopPaddingSIZEHeight = function(testRun) {
+		var win = Ti.UI.createWindow({
+			navBarHidden : true,
+			backgroundColor : '#000'
+		});
+
+		var topView = Ti.UI.createView({
+			backgroundColor : 'white',
+			width : Ti.UI.SIZE,
+			height : Ti.UI.SIZE,
+			layout : 'horizontal',
+			horizontalWrap: false
+		});
+
+		topView.add(Ti.UI.createView({width: 50, height: 100, backgroundColor:'blue'}));
+		topView.add(Ti.UI.createView({width: 50, height: 150, backgroundColor:'red'}));
+		topView.add(Ti.UI.createView({width:50, top: 10, bottom: 25, height: 200, backgroundColor:'purple'}));
+		topView.add(Ti.UI.createView({width: 100, height: 100, backgroundColor:'orange'}));
+
+		win.addEventListener("postlayout", function(e){
+			valueOf(testRun, topView.rect.width).shouldBe(250);
+			valueOf(testRun, topView.rect.height).shouldBe(235);
+
+			finish(testRun);
+		});
+
+		win.add(topView);
+		win.open();
+	};
+
+	this.horizontalWrapTopPaddingSIZEHeight = function(testRun) {
+		var win = Ti.UI.createWindow({
+			navBarHidden : true,
+			backgroundColor : '#000'
+		});
+
+		var topView = Ti.UI.createView({
+			backgroundColor : 'white',
+			height : Ti.UI.SIZE,
+			layout : 'horizontal'
+		});
+
+		topView.add(Ti.UI.createView({width: Ti.UI.FILL, height: 100, backgroundColor:'blue'}));
+		topView.add(Ti.UI.createView({width: 50, height: 100, backgroundColor:'red'}));
+		topView.add(Ti.UI.createView({width: 50, top: 50, bottom: 20, height: 100, backgroundColor:'purple'}));
+		topView.add(Ti.UI.createView({width: 50, height: 100, backgroundColor:'orange'}));
+
+		win.addEventListener("postlayout", function(e){
+			valueOf(testRun, topView.rect.height).shouldBe(270);
+			finish(testRun);
+		});
+
+		win.add(topView);
 		win.open();
 	};
 };
