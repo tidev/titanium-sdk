@@ -34,6 +34,7 @@ import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiDimension;
 import org.appcelerator.titanium.io.TiBaseFile;
 import org.appcelerator.titanium.io.TiFileFactory;
+import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.proxy.TiWindowProxy;
 import org.appcelerator.titanium.proxy.TiWindowProxy.PostOpenListener;
 import org.appcelerator.titanium.view.TiBackgroundDrawable;
@@ -964,6 +965,13 @@ public class TiUIHelper
 			//Handler handler = new Handler(Looper.getMainLooper());
 			//handler.post(runnable);
 			TiMessenger.getMainMessenger().getHandler().post(runnable);
+		}
+	}
+
+	public static void firePostLayoutEvent(TiViewProxy proxy)
+	{
+		if (proxy != null && proxy.hasListeners(TiC.EVENT_POST_LAYOUT)) {
+			proxy.fireEvent(TiC.EVENT_POST_LAYOUT, null, false);
 		}
 	}
 }

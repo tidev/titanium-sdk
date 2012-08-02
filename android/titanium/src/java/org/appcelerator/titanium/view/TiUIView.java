@@ -583,7 +583,7 @@ public abstract class TiUIView
 				}
 
 				if (hasImage || hasRepeat || hasColorState || hasGradient) {
-					if (newBackground || key.startsWith(TiC.PROPERTY_BACKGROUND_PREFIX)) {
+					if (newBackground || key.equals(TiC.PROPERTY_OPACITY) || key.startsWith(TiC.PROPERTY_BACKGROUND_PREFIX)) {
 						handleBackgroundImage(d);
 					}
 				}
@@ -886,10 +886,15 @@ public abstract class TiUIView
 		TiGradientDrawable gradientDrawable = null;
 		KrollDict gradientProperties = d.getKrollDict(TiC.PROPERTY_BACKGROUND_GRADIENT);
 		if (gradientProperties != null) {
-			gradientDrawable = new TiGradientDrawable(nativeView, gradientProperties);
-			if (gradientDrawable.getGradientType() == GradientType.RADIAL_GRADIENT) {
-				// TODO: Remove this once we support radial gradients.
-				Log.w(LCAT, "Android does not support radial gradients.");
+			try {
+				gradientDrawable = new TiGradientDrawable(nativeView, gradientProperties);
+				if (gradientDrawable.getGradientType() == GradientType.RADIAL_GRADIENT) {
+					// TODO: Remove this once we support radial gradients.
+					Log.w(LCAT, "Android does not support radial gradients.");
+					gradientDrawable = null;
+				}
+			}
+			catch (IllegalArgumentException e) {
 				gradientDrawable = null;
 			}
 		}
@@ -1193,6 +1198,13 @@ public abstract class TiUIView
 	 */
 	public void setOpacity(float opacity)
 	{
+		if (opacity < 0 || opacity > 1) {
+			Log.w(LCAT, "Ignoring invalid value for opacity: " + opacity);
+			return;
+		}
+		if (borderView != null) {
+			borderView.setBorderAlpha(Math.round(opacity * 255));
+		}
 		setOpacity(nativeView, opacity);
 	}
 
