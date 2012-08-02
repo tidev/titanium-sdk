@@ -5,14 +5,6 @@ define(["Ti/_/browser", "Ti/_/declare", "Ti/UI/View", "Ti/_/lang", "Ti/_/dom", "
 		unitize = dom.unitize,
 		calculateDistance = dom.calculateDistance,
 		on = require.on,
-		
-		transitionEvents = {
-			webkit: "webkitTransitionEnd",
-			trident: "msTransitionEnd",
-			gecko: "transitionend",
-			presto: "oTransitionEnd"
-		},
-		transitionEnd = transitionEvents[browser.runtime] || "transitionend",
 
 		// This is the limit that elastic drags will go towards (i.e. limit as x->infinity = elasticityLimit)
 		elasticityLimit = 100,
@@ -85,8 +77,6 @@ define(["Ti/_/browser", "Ti/_/declare", "Ti/UI/View", "Ti/_/lang", "Ti/_/dom", "
 
 					minTranslationX = self._minTranslationX = Math.min(0, self._measuredWidth - self._borderLeftWidth - self._borderRightWidth - self._contentContainer._measuredWidth);
 					minTranslationY = self._minTranslationY = Math.min(0, self._measuredHeight - self._borderTopWidth - self._borderBottomWidth - self._contentContainer._measuredHeight);
-					
-					// TODO: Cancel the previous animations
 
 					// Start the scroll bars
 					var width = self._measuredWidth,
