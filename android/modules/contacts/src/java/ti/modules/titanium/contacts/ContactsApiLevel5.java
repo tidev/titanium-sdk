@@ -606,20 +606,8 @@ public class ContactsApiLevel5 extends CommonContactsApi
 			middleName = TiConvert.toString(options, TiC.PROPERTY_MIDDLENAME);
 			newContact.setProperty(TiC.PROPERTY_MIDDLENAME, middleName);
 		}
-
-		if (firstName.length() > 0) {
-			displayName = firstName;
-		} 
 		
-		if (middleName.length() > 0) {
-			displayName += " " + middleName;
-		}
-		
-		if (lastName.length() > 0) {
-			displayName += " " + lastName;
-		}
-		
-		displayName = displayName.trim();
+		displayName = firstName + " " + middleName + " " + lastName;
 		
 		updateContactField(ops, StructuredName.CONTENT_ITEM_TYPE, StructuredName.DISPLAY_NAME, displayName, null, 0, rawContactId);
 		
