@@ -1239,6 +1239,12 @@ public class TiC
 	public static final String PROPERTY_MAP_TYPE = "mapType";
 
 	public static final String PROPERTY_MAX_AGE = "maxAge";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_MAX_LENGTH = "maxLength";
+
 
 	/**
 	 * @module.api

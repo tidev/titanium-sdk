@@ -14,6 +14,7 @@ import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.common.TiConfig;
 import org.appcelerator.titanium.proxy.TiViewProxy;
+import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiUIView;
 
 import android.app.Activity;
@@ -34,14 +35,22 @@ public class TiUIDatePicker extends TiUIView
 	{
 		super(proxy);
 	}
-	public TiUIDatePicker(TiViewProxy proxy, Activity activity)
+	public TiUIDatePicker(final TiViewProxy proxy, Activity activity)
 	{
 		this(proxy);
 		if (DBG) {
 			Log.d(LCAT, "Creating a date picker");
 		}
 		
-		DatePicker picker = new DatePicker(activity);
+		DatePicker picker = new DatePicker(activity)
+		{
+			@Override
+			protected void onLayout(boolean changed, int left, int top, int right, int bottom)
+			{
+				super.onLayout(changed, left, top, right, bottom);
+				TiUIHelper.firePostLayoutEvent(proxy);
+			}
+		};
 		setNativeView(picker);
 	}
 	
