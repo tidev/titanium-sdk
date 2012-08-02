@@ -29,14 +29,15 @@ public class TabProxy extends TiViewProxy
 {
 	private static final String TAG = "TabProxy";
 
+	private static final int MSG_FIRST_ID = TiViewProxy.MSG_LAST_ID + 1;
+	private static final int MSG_TAB_BACKGROUND_COLOR_CHANGED = MSG_FIRST_ID + 101;
+	private static final int MSG_TAB_BACKGROUND_SELECTED_COLOR_CHANGED = MSG_FIRST_ID + 102;
+
 	private TiWindowProxy win;
 	private TabGroupProxy tabGroupProxy;
 	private int windowId;
 	private String currentBackgroundColor = "";
-	private static final int MSG_FIRST_ID = TiViewProxy.MSG_LAST_ID + 1;
-	private final int MSG_TAB_BACKGROUND_COLOR_CHANGED = MSG_FIRST_ID + 101;
-	private final int MSG_TAB_BACKGROUND_SELECTED_COLOR_CHANGED = MSG_FIRST_ID + 102;
-
+	private boolean isActive = false;
 
 	public TabProxy()
 	{
@@ -70,6 +71,16 @@ public class TabProxy extends TiViewProxy
 		if (window instanceof TiWindowProxy) {
 			setWindow((TiWindowProxy) window);
 		}
+	}
+
+	public boolean isActive() {
+		return isActive;
+	}
+
+	public void setActive(boolean active) {
+		// TODO(josh): this should cause the tab to become selected.
+		// Value should also get updated due to user events (ex: they select tab).
+		isActive = active;
 	}
 
 	public void setCurrentBackgroundColor(String color)

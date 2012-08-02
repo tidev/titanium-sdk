@@ -4,10 +4,11 @@ import org.appcelerator.titanium.view.TiUIView;
 
 import ti.modules.titanium.ui.TabGroupProxy;
 import ti.modules.titanium.ui.TabProxy;
+import android.app.Activity;
 
 public abstract class TiUIAbstractTabGroup extends TiUIView {
 
-	public TiUIAbstractTabGroup(TabGroupProxy proxy) {
+	public TiUIAbstractTabGroup(TabGroupProxy proxy, Activity activity) {
 		super(proxy);
 	}
 

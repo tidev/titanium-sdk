@@ -62,11 +62,11 @@ public class TiUITabHostGroup extends TiUIAbstractTabGroup
 	private boolean cacheDefaults = true;
 
 
-	public TiUITabHostGroup(TabGroupProxy proxy, TiTabActivity activity)
+	public TiUITabHostGroup(TabGroupProxy proxy, Activity activity)
 	{
-		super(proxy);
+		super(proxy, activity);
 
-		tabHost = activity.getTabHost();
+		tabHost = ((TiTabActivity) activity).getTabHost();
 
 		// Set to GONE to overcome a NullPointerException
 		// deep in Android code in pre api 8.  See Android issue
@@ -74,7 +74,7 @@ public class TiUITabHostGroup extends TiUIAbstractTabGroup
 		tabHost.setVisibility(View.GONE);
 		tabHost.clearAllTabs();
 		tabHost.setOnTabChangedListener(this);
-		tabHost.setup(activity.getLocalActivityManager());
+		tabHost.setup(((TiTabActivity) activity).getLocalActivityManager());
 
 		Object bgColor = proxy.getProperty(TiC.PROPERTY_BACKGROUND_COLOR);
 		if (bgColor != null) {
@@ -213,7 +213,7 @@ public class TiUITabHostGroup extends TiUIAbstractTabGroup
 
 			Intent intent = new Intent(tta, TiActivity.class);
 			windowProxy.setParent(tab);
-			windowProxy.fillIntentForTab(intent, tab);
+			// TODO(josh): remove -> windowProxy.fillIntentForTab(intent, tab);
 
 			tspec.setContent(intent);
 

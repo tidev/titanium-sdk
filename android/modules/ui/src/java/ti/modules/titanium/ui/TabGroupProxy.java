@@ -6,7 +6,6 @@
  */
 package ti.modules.titanium.ui;
 
-import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 
 import org.appcelerator.kroll.KrollDict;
@@ -15,13 +14,16 @@ import org.appcelerator.kroll.common.AsyncResult;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.common.TiConfig;
 import org.appcelerator.kroll.common.TiMessenger;
+import org.appcelerator.titanium.TiActivity;
+import org.appcelerator.titanium.TiActivityWindow;
+import org.appcelerator.titanium.TiActivityWindows;
 import org.appcelerator.titanium.TiApplication;
+import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.proxy.TiWindowProxy;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiUIHelper;
-import org.appcelerator.titanium.view.TiUIView;
 
 import ti.modules.titanium.ui.widget.TiUIAbstractTabGroup;
 import ti.modules.titanium.ui.widget.TiUIActionBarTabGroup;
@@ -29,16 +31,14 @@ import ti.modules.titanium.ui.widget.TiUITabHostGroup;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Build;
-import android.os.Handler;
 import android.os.Message;
-import android.os.Messenger;
 
 @Kroll.proxy(creatableInModule=UIModule.class, propertyAccessors={
 	TiC.PROPERTY_TABS_BACKGROUND_COLOR,
 	TiC.PROPERTY_TABS_BACKGROUND_SELECTED_COLOR	
 })
 
-public class TabGroupProxy extends TiWindowProxy
+public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 {
 	private static final String LCAT = "TabGroupProxy";
 	private static boolean DBG = TiConfig.LOGD;
@@ -47,15 +47,12 @@ public class TabGroupProxy extends TiWindowProxy
 
 	private static final int MSG_ADD_TAB = MSG_FIRST_ID + 100;
 	private static final int MSG_REMOVE_TAB = MSG_FIRST_ID + 101;
-	private static final int MSG_FINISH_OPEN = MSG_FIRST_ID + 102;
-	private static final int MSG_SET_ACTIVE_TAB = MSG_FIRST_ID + 103;
-	private static final int MSG_GET_ACTIVE_TAB = MSG_FIRST_ID + 104;
+	private static final int MSG_SET_ACTIVE_TAB = MSG_FIRST_ID + 102;
+	private static final int MSG_GET_ACTIVE_TAB = MSG_FIRST_ID + 103;
 
 	protected static final int MSG_LAST_ID = MSG_FIRST_ID + 999;
 
 	private ArrayList<TabProxy> tabs = new ArrayList<TabProxy>();
-	String windowId;
-	TabProxy initialActiveTab;
 
 	public TabGroupProxy()
 	{
@@ -65,19 +62,6 @@ public class TabGroupProxy extends TiWindowProxy
 	public TabGroupProxy(TiContext tiContext)
 	{
 		this();
-	}
-
-	@Override
-	public TiUIView createView(Activity activity) {
-		// If the device is running Honeycomb or later use the
-		// Action Bar navigation tab group implementation.
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-			return new TiUIActionBarTabGroup(this);
-
-		} else {
-			// TODO(josh): remove the "activity" argument.
-			return new TiUITabHostGroup(this, null);
-		}
 	}
 
 	public String getTabsBackgroundColor() {
@@ -168,12 +152,9 @@ public class TabGroupProxy extends TiWindowProxy
 			tab.setProperty(TiC.PROPERTY_TAG, tag);
 		}
 
-		if (tabs.size() == 0) {
-			initialActiveTab = tab;
-		}
 		tabs.add(tab);
 
-		TiUIActionBarTabGroup tabGroup = (TiUIActionBarTabGroup) getOrCreateView();
+		TiUIActionBarTabGroup tabGroup = (TiUIActionBarTabGroup) view;
 		if (tabGroup != null) {
 			tabGroup.addTab(tab);
 		}
@@ -188,10 +169,12 @@ public class TabGroupProxy extends TiWindowProxy
 	{
 		TabProxy tab;
 		if (tabOrIndex instanceof Number) {
+			// TODO(josh): handle out-of-bound exceptions.
 			int tabIndex = ((Number) tabOrIndex).intValue();
 			tab = tabs.get(tabIndex);
 
 		} else if (tabOrIndex instanceof TabProxy) {
+			// TODO(josh): should check if this tab is in this group.
 			tab = (TabProxy) tabOrIndex;
 
 		} else {
@@ -209,14 +192,10 @@ public class TabGroupProxy extends TiWindowProxy
 
 	protected void handleSetActiveTab(TabProxy tab)
 	{
+		tab.setActive(true);
 		TiUIAbstractTabGroup tabGroup = (TiUIAbstractTabGroup) view;
 		if (tabGroup != null) {
 			tabGroup.selectTab(tab);
-
-		} else {
-			// handles the case where the setActiveTab is called before the TabGroup has finished opening
-			// and thus would prevent the initial tab from being set
-			initialActiveTab = tab;
 		}
 	}
 
@@ -257,50 +236,66 @@ public class TabGroupProxy extends TiWindowProxy
 			return tabGroup.getSelectedTab();
 
 		} else {
-			return initialActiveTab;
+			for (TabProxy tab : tabs) {
+				if (tab.isActive()) {
+					return tab;
+				}
+			}
 		}
+
+		return null;
 	}
 
 	@Override
 	protected void handleOpen(KrollDict options)
 	{
-		if (DBG) {
-			Log.d(LCAT, "handleOpen: " + options);
-		}
+		Activity topActivity = TiApplication.getAppCurrentActivity();
+		Intent intent = new Intent(topActivity, TiActivity.class);
 
-		Activity activity = getActivity();
-		Intent intent = new Intent(activity, TiTabActivity.class);
-		fillIntent(activity, intent);
-		activity.startActivity(intent);
+		int windowId = TiActivityWindows.addWindow(this);
+		intent.putExtra(TiC.INTENT_PROPERTY_USE_ACTIVITY_WINDOW, true);
+		intent.putExtra(TiC.INTENT_PROPERTY_WINDOW_ID, windowId);
+
+		topActivity.startActivity(intent);
 	}
 
-	public void handlePostOpen(Activity activity)
-	{
-		((TiTabActivity)activity).setTabGroupProxy(this);
+	@Override
+	public void windowCreated(TiBaseActivity activity) {
+		activity.setWindowProxy(this);
 
-		// TODO(josh): move this logic into TiUITabHostGroup
-		//this.weakActivity = new WeakReference<TiTabActivity>( (TiTabActivity) activity );
+		// Use the navigation tabs if this platform supports the action bar.
+		// Otherwise we will fall back to using the TabHost implementation.
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+			view = new TiUIActionBarTabGroup(this, activity);
 
-		TiUITabHostGroup tg = (TiUITabHostGroup) view;
-		if (tabs != null) {
-			for(TabProxy tab : tabs) {
-				tg.addTab(tab);
-			}
+		} else {
+			view = new TiUITabHostGroup(this, activity);
 		}
+
+		setModelListener(view);
+
+		handlePostOpen();
+	}
+
+	@Override
+	public void handlePostOpen()
+	{
+		super.handlePostOpen();
+
+		TiUIAbstractTabGroup tg = (TiUIAbstractTabGroup) view;
+		for(TabProxy tab : tabs) {
+			tg.addTab(tab);
+		}
+
+		// TODO(josh): verify we don't create a regression
+		// Make sure the tab indicator is selected. We need to force it to be selected due to TIMOB-7832.
+		// tg.setTabIndicatorSelected(initialActiveTab);
 
 		// Setup the new tab activity like setting orientation modes.
 		onWindowActivityCreated();
-		
-		tg.changeActiveTab(initialActiveTab);
-		// Make sure the tab indicator is selected. We need to force it to be selected due to TIMOB-7832.
-		tg.setTabIndicatorSelected(initialActiveTab);
 
 		opened = true;
-		super.handlePostOpen();
 		fireEvent(TiC.EVENT_OPEN, null);
-
-		// open event's for a tab window should be fired as part of the windowCreated callback that 
-		// is set as part of the fillIntentForTab call
 	}
 
 	@Override
@@ -312,7 +307,6 @@ public class TabGroupProxy extends TiWindowProxy
 		
 		modelListener = null;
 		releaseViews();
-		windowId = null;
 		view = null;
 
 		opened = false;
@@ -341,6 +335,7 @@ public class TabGroupProxy extends TiWindowProxy
 		return e;
 	}
 
+	// TODO(josh): remove this code and save what we need.
 	private void fillIntent(Activity activity, Intent intent)
 	{
 		if (hasProperty(TiC.PROPERTY_FULLSCREEN)) {
@@ -358,44 +353,8 @@ public class TabGroupProxy extends TiWindowProxy
 		} else {
 			intent.putExtra(TiC.INTENT_PROPERTY_FINISH_ROOT, activity.isTaskRoot());
 		}
-
-		Handler handler = new Handler(TiMessenger.getMainMessenger().getLooper(), new MessageHandler(this));
-		Messenger messenger = new Messenger(handler);
-		//Messenger messenger = new Messenger(getUIHandler());
-		intent.putExtra(TiC.INTENT_PROPERTY_MESSENGER, messenger);
-		intent.putExtra(TiC.INTENT_PROPERTY_MSG_ID, MSG_FINISH_OPEN);
 	}
 
-	private static class MessageHandler implements Handler.Callback
-	{
-
-		private WeakReference<TabGroupProxy> tabGroupProxy;
-		
-		public MessageHandler(TabGroupProxy proxy) 
-		{
-			this.tabGroupProxy = new WeakReference<TabGroupProxy>(proxy);
-		}
-		
-		@Override
-		public boolean handleMessage(Message msg) 
-		{
-			TabGroupProxy tabGroupProxy = this.tabGroupProxy.get();
-			if (tabGroupProxy == null) {
-				return false;
-			}
-			
-			switch(msg.what) {
-				case MSG_FINISH_OPEN:
-					TiTabActivity activity = (TiTabActivity) msg.obj;
-					tabGroupProxy.view = new TiUITabHostGroup(tabGroupProxy, activity);
-					tabGroupProxy.modelListener = tabGroupProxy.view;
-					tabGroupProxy.handlePostOpen(activity);
-					return true;
-			}
-			return false;
-		}
-		
-	}
 	@Override
 	public KrollDict handleToImage()
 	{
