@@ -48,7 +48,14 @@ module.exports = new function() {
 				setTimeout(startCiServer, 3000); // fine to hard code this value
 			});
 			ciServer.on("error", function() {
-				util.log("error occured when listening for CI connections");
+				util.log("error occurred when listening for CI connections");
+
+				try {
+					ciServer.close(); // server will be restarted in the close event handler
+
+				} catch(e) {
+					setTimeout(startCiServer, 3000);
+				}
 			});
 
 			ciServer.listen(hubGlobal.config.ciListenPort, function() {
@@ -72,8 +79,8 @@ module.exports = new function() {
 					delete self.driverConnections[driverId];
 					acceptedConnection.destroy();
 				});
-				acceptedConnection.on("error", function() {
-					acceptedConnection.destroy();
+				acceptedConnection.on("error", function(error) {
+					util.log("error <" + error + "> occurred on driver <" + driverId + "> connection");
 				});
 				acceptedConnection.on("data", function(data) {
 					bytesReceived += data.length;
@@ -119,11 +126,17 @@ module.exports = new function() {
 			});
 			driverServer.on("close", function() {
 				util.log("driver server connection closed");
-				setTimeout(startDriverServer, 3000); // fine to hard code this value
+				setTimeout(startDriverServer, 3000);
 			});
 			driverServer.on("error", function() {
-				util.log("error occured listening for driver connections");
-				driverServer.destroy();
+				util.log("error occurred when listening for driver connections");
+
+				try {
+					driverServer.close(); // server will be restarted in the close event handler
+
+				} catch(e) {
+					setTimeout(startDriverServer, 3000);
+				}
 			});
 
 			driverServer.listen(hubGlobal.config.driverListenPort, function() {

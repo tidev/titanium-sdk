@@ -16,7 +16,10 @@ var path = require("path");
 
 module.exports = new function() {
 	var self = this;
+	var logFilePath = "";
 	var logFile = undefined;
+	var logRotating = false;
+	var pendingLogEntries = [];
 
 	this.runCommand = function(command, callback) {
 		child_process.exec(command, function(error, stdout, stderr) {
@@ -84,63 +87,54 @@ module.exports = new function() {
 		}
 
 		var date = new Date();
-		hubGlobal.currentLogDir = hubGlobal.logsDir + "/" + hubGlobal.platform.name + "/" + 
-			(date.getMonth() + 1) + "-" + date.getDate() + "-" + date.getFullYear() + "_" + 
-			(date.getHours() + 1) + "-" + date.getMinutes() + "-" + date.getSeconds() + "-" + date.getMilliseconds();
+		logFilePath = hubGlobal.logsDir + "/" + (date.getMonth() + 1) + "-" + 
+			date.getDate() + "-" + date.getFullYear() + "_" + (date.getHours() + 1) + "-" + 
+			date.getMinutes() + "-" + date.getSeconds() + "-" + date.getMilliseconds();
 
-		/*
-		a log directory needs to be created for the test run since you may end up with both a log 
-		file and a JSON results file
-		*/
-		try {
-			fs.mkdirSync(hubGlobal.currentLogDir);
+		logFile = fs.openSync(logFilePath, 'a+');
 
-		} catch(e) {
-			console.log("exception <" + e + "> occurred when creating log directory <" + hubGlobal.currentLogDir + ">");
-		}
+		logRotating = false;
 
-		logFile = fs.openSync(hubGlobal.currentLogDir + "/log.txt", 'a+');
-
-		var dirs = fs.readdirSync(hubGlobal.logsDir + "/" + hubGlobal.platform.name);
-		if (dirs.length >= hubGlobal.config.maxLogs) {
+		var logs = fs.readdirSync(hubGlobal.logsDir);
+		if (logs.length >= hubGlobal.config.maxLogs) {
 			var oldestTime = 0;
-			var oldestDirIndex;
-			var dirTimestamps = [];
-			var dirsMap = {};
+			var oldestLogIndex;
+			var logTimestamps = [];
+			var logsMap = {};
 
-			var numDirs = dirs.length;
-			for (var i = 0; i < numDirs; i++) {
-				var stat = fs.statSync(hubGlobal.logsDir + "/" + hubGlobal.platform.name + "/" + dirs[i]);
+			var numLogs = logs.length;
+			for (var i = 0; i < numLogs; i++) {
+				var stat = fs.statSync(hubGlobal.logsDir + "/" + logs[i]);
 				var modifiedTime = stat.mtime.getTime();
 
-				dirTimestamps.push(modifiedTime);
-				dirsMap[modifiedTime] = dirs[i];
+				logTimestamps.push(modifiedTime);
+				logsMap[modifiedTime] = logs[i];
 			}
 
-			dirTimestamps.sort(function(a,b) {
+			logTimestamps.sort(function(a,b) {
 				return b-a
 			});
 
-			function deleteLog(oldestDirIndex) {
-				if (oldestDirIndex < hubGlobal.config.maxLogs) {
+			function deleteLog(oldestLogIndex) {
+				if (oldestLogIndex < hubGlobal.config.maxLogs) {
 					callback();
 
 				} else {
-					var oldestDir = dirsMap[dirTimestamps[oldestDirIndex]];
-					self.runCommand("rm -r " + hubGlobal.logsDir + "/" + hubGlobal.platform.name + "/" + oldestDir, self.logNone, function(error) {
+					var oldestLog = logsMap[logTimestamps[oldestLogIndex]];
+					self.runCommand("rm -r " + hubGlobal.logsDir + "/" + oldestLog, self.logNone, function(error) {
 						if (error !== null) {
-							self.log("error <" + error + "> encountered when deleting log directory <" + oldestDir + ">");
+							self.log("error <" + error + "> encountered when deleting log <" + oldestLog + ">");
 
 						} else {
-							self.log("deleted log directory: " + oldestDir);
+							self.log("deleted log: " + oldestLog);
 						}
 
-						deleteLog(--oldestDirIndex);
+						deleteLog(--oldestLogIndex);
 					});
 				}
 			}
 
-			deleteLog(numDirs - 1);
+			deleteLog(numLogs - 1);
 
 		} else {
 			callback();
@@ -148,14 +142,27 @@ module.exports = new function() {
 	};
 
 	this.log = function(message) {
-		console.log(message);
+		if (logRotating === true) {
+			numPendingLogEntries.push(message);
 
-		if (logFile === undefined) {
-			// not inside a test run currently so only print to console
-			return;
+		} else {
+			var stat = fs.statSync(logFilePath);
+			if (stat.size > hubGlobal.maxLogSize) {
+				logRotating = true;
+
+				self.openLog(function() {
+					while (pendingLogEntries.length > 0) {
+						self.log(numPendingLogEntries[0]);
+						numPendingLogEntries.shift();
+					}
+				});
+
+			} else {
+				fs.writeSync(logFile, message + "\n");
+			}
 		}
 
-		fs.writeSync(logFile, message + "\n");
+		console.log(message);
 	};
 
 	this.getTabs = function(numTabs) {

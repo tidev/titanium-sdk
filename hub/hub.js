@@ -4,22 +4,6 @@ var messageHandler = require(__dirname + "/messageHandler");
 var server = require(__dirname + "/server");
 var util = require(__dirname + "/util");
 
-function init(callback) {
-	global.hubGlobal = {};
-
-	hubGlobal.hubDir = __dirname;
-
-	util.runCommand("mysql -uroot < anvil.sql", function(error, stdout, stderr) {
-		if (error !== null) {
-			console.log("error encountered when running sql script: " + error);
-			process.exit(1);
-
-		} else {
-			callback();
-		}
-	});
-}
-
 function loadConfigModule() {
 	var configModulePath = __dirname + "/config.js";
 	if (!(fs.existsSync(configModulePath))) {
@@ -57,13 +41,13 @@ function loadConfigModule() {
 		process.exit(1);
 	}
 
-	checkConfigItem("tempDir", config.tempDir, "string");
+	checkConfigItem("maxLogSize", config.maxLogSize, "number");
 	checkConfigItem("maxLogs", config.maxLogs, "number");
 	checkConfigItem("ciListenPort", config.ciListenPort, "number");
 	checkConfigItem("driverListenPort", config.driverListenPort, "number");
 
-	hubGlobal.logsDir = config.tempDir + "/logs";
-	hubGlobal.workingDir = config.tempDir + "/working_dir";
+	hubGlobal.logsDir = "logs";
+	hubGlobal.workingDir = "working_dir";
 
 	hubGlobal.config = config;
 }
@@ -82,19 +66,30 @@ function setupTempDirs() {
 		}
 	}
 
-	createDir(hubGlobal.config.tempDir);
 	createDir(hubGlobal.logsDir);
 	createDir(hubGlobal.workingDir);
 }
 
-init(function() {
-	loadConfigModule();
-	setupTempDirs();
+global.hubGlobal = {};
+hubGlobal.hubDir = __dirname;
 
-	messageHandler.server = server;
-	messageHandler.init();
+loadConfigModule();
+setupTempDirs();
 
-	server.messageHandler = messageHandler;
-	server.start();
+messageHandler.server = server;
+messageHandler.init();
+
+server.messageHandler = messageHandler;
+
+util.openLog(function() {
+	util.runCommand("mysql -uroot < anvil.sql", function(error, stdout, stderr) {
+		if (error !== null) {
+			console.log("error encountered when running sql script: " + error);
+			process.exit(1);
+
+		} else {
+			server.start();
+		}
+	});
 });
 

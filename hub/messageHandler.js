@@ -96,7 +96,7 @@ module.exports = new function() {
 		fs.closeSync(resultsFile);
 
 		// extract the results set
-		var command = "tar -xzvf " + hubGlobal.workingDir + "/results.tgz -C " + hubGlobal.workingDir;
+		var command = "tar -xvf " + hubGlobal.workingDir + "/results.tgz -C " + hubGlobal.workingDir;
 		util.runCommand(command, function(error, stdout, stderr) {
 			if (error !== null) {
 				console.log("error <" + error + "> occurred when trying to extract results to <" + 
