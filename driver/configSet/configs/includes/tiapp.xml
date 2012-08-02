@@ -39,6 +39,8 @@
 		</splash>
 		<theme>default</theme>
 	</mobileweb>
+	<blackberry xmlns="http://www.qnx.com/schemas/application/1.0">
+	</blackberry>
 	<modules>
 	</modules>
 	<property name="ti.android.threadstacksize" type="int">32768</property>

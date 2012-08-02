@@ -74,8 +74,8 @@ module.exports = new function() {
 
 	var buildHarness = function(successCallback, errorCallback) {
 		var buildCallback = function() {
-			var args = ["build", "harness", driverGlobal.config.androidSdkDir, driverGlobal.harnessDir + "/android/harness", "com.appcelerator.harness", 8];
-			util.runProcess(driverGlobal.config.tiSdkDir + "/android/builder.py", args, 0, 0, function(code) {
+			var args = [driverGlobal.config.tiSdkDir + "/android/builder.py", "build", "harness", driverGlobal.config.androidSdkDir, driverGlobal.harnessDir + "/android/harness", "com.appcelerator.harness", 8];
+			util.runProcess("python", args, 0, 0, function(code) {
 				if (code !== 0) {
 					util.log("error encountered when building harness: " + code);
 					errorCallback();
