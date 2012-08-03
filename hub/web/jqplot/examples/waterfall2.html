@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+	
+	<title>Waterfall charts 2</title>
+
+    <link class="include" rel="stylesheet" type="text/css" href="../jquery.jqplot.min.css" />
+    <link rel="stylesheet" type="text/css" href="examples.min.css" />
+    <link type="text/css" rel="stylesheet" href="syntaxhighlighter/styles/shCoreDefault.min.css" />
+    <link type="text/css" rel="stylesheet" href="syntaxhighlighter/styles/shThemejqPlot.min.css" />
+  
+  <!--[if lt IE 9]><script language="javascript" type="text/javascript" src="../excanvas.js"></script><![endif]-->
+    <script class="include" type="text/javascript" src="../jquery.min.js"></script>
+    
+   
+</head>
+<body>
+    <div class="logo">
+   <div class="nav">
+   <a class="nav" href="../../../index.php"><span>&gt;</span>Home</a>
+   <a class="nav"  href="../../../docs/"><span>&gt;</span>Docs</a>
+   <a class="nav"  href="../../download/"><span>&gt;</span>Download</a>
+   <a class="nav" href="../../../info.php"><span>&gt;</span>Info</a>
+   <a class="nav"  href="../../../donate.php"><span>&gt;</span>Donate</a>
+   </div>
+</div>
+    <div class="example-content">
+
+    <div class="example-nav">
+  <a href="waterfall.html">Previous</a> <a href="./">Examples</a> <a href="zoom1.html">Next</a></div>
+
+      
+<!-- Example scripts go here -->
+
+  <style type="text/css" media="screen">
+    .jqplot-axis {
+      font-size: 0.85em;
+    }
+    .jqplot-title {
+      font-size: 16px;
+    }
+      p {
+        margin: 20px;
+        font-family:Arial,Helvetica,Sans-serif;
+      }
+  </style>
+
+
+    <div id="chart1" style="margin-top:20px; margin-left:20px; width:350px; height:350px;"></div>
+
+    <div id="chart1b" style="margin-top:20px; margin-left:20px; width:350px; height:350px;"></div>
+
+    <div id="chart1c" style="margin-top:20px; margin-left:20px; width:350px; height:350px;"></div>
+
+    <div id="chart1d" style="margin-top:20px; margin-left:20px; width:350px; height:350px;"></div>
+
+
+  
+
+<script class="code" type="text/javascript">$(document).ready(function(){
+    var line1 = [14, 4, 3, -23, 5, 2, -3, -7];
+    var ticks = ['2008', 'Apricots', 'Tomatoes', 'Potatoes', 'Rhubarb', 'Squash', 'Grapes', 'Peanuts', '2009'];
+
+
+    plot1 = $.jqplot('chart1', [line1], {
+        title: 'Crop Yield Change, 2008 to 2009',
+        seriesDefaults:{
+            fill: true,
+            fillToZero: true,
+            renderer:$.jqplot.BarRenderer, 
+            rendererOptions:{
+                waterfall:true,
+                disableStack: true,
+                varyBarColor: true
+            },
+            pointLabels: {
+                show: true,
+                hideZeros: true
+            },
+            yaxis:'y2axis'
+        },
+        axes:{
+            xaxis:{
+                renderer:$.jqplot.CategoryAxisRenderer, 
+                ticks:ticks,
+                tickRenderer: $.jqplot.CanvasAxisTickRenderer,
+                tickOptions: {
+                    angle: -90,
+                    fontSize: '10pt',
+                    showMark: false,
+                    showGridline: false
+                }
+            }
+        }
+    });
+});</script>
+
+<script class="code" type="text/javascript">$(document).ready(function(){
+    var line1 = [14, 4, 0, -23, 5, 0, -3, -7];
+    var ticks = ['2008', 'Apricots', 'Tomatoes', 'Potatoes', 'Rhubarb', 'Squash', 'Grapes', 'Peanuts', '2009'];
+
+
+    plot1b = $.jqplot('chart1b', [line1], {
+        title: 'Crop Yield Change, 2008 to 2009',
+        seriesDefaults:{
+            renderer:$.jqplot.BarRenderer, 
+            rendererOptions:{
+                waterfall:true,
+                varyBarColor: true
+            },
+            pointLabels: {
+                show: true,
+                hideZeros: true
+            },
+            yaxis:'y2axis'
+        },
+        axes:{
+            xaxis:{
+                renderer:$.jqplot.CategoryAxisRenderer, 
+                ticks:ticks,
+                tickRenderer: $.jqplot.CanvasAxisTickRenderer,
+                tickOptions: {
+                    angle: -90,
+                    fontSize: '10pt',
+                    showMark: false,
+                    showGridline: false
+                }
+            }
+        }
+    });
+});</script>
+
+<script class="code" type="text/javascript">$(document).ready(function(){
+    var line1 = [14, 0, 13, 0, -5, -9, 3, 7];
+    var ticks = ['2008', 'Apricots', 'Tomatoes', 'Potatoes', 'Rhubarb', 'Squash', 'Grapes', 'Peanuts', '2009'];
+
+
+    plot1c = $.jqplot('chart1c', [line1], {
+        title: 'Crop Yield Change, 2008 to 2009',
+        seriesDefaults:{
+            renderer:$.jqplot.BarRenderer, 
+            rendererOptions:{
+                waterfall:true,
+                varyBarColor: true
+            },
+            pointLabels: {
+                show: true,
+                hideZeros: true
+            },
+            yaxis:'y2axis'
+        },
+        axes:{
+            xaxis:{
+                renderer:$.jqplot.CategoryAxisRenderer, 
+                ticks:ticks,
+                tickRenderer: $.jqplot.CanvasAxisTickRenderer,
+                tickOptions: {
+                    angle: -90,
+                    fontSize: '10pt',
+                    showMark: false,
+                    showGridline: false
+                }
+            }
+        }
+    });
+});</script>
+
+<script class="code" type="text/javascript">$(document).ready(function(){
+    var line1 = [-14, 0, -13, 0, 5, 9, -3, -7];
+    var ticks = ['2008', 'Apricots', 'Tomatoes', 'Potatoes', 'Rhubarb', 'Squash', 'Grapes', 'Peanuts', '2009'];
+
+
+    plot1d = $.jqplot('chart1d', [line1], {
+        title: 'Crop Yield Change, 2008 to 2009',
+        seriesDefaults:{
+            renderer:$.jqplot.BarRenderer, 
+            rendererOptions:{
+                waterfall: true,
+                varyBarColor: true
+            },
+            pointLabels: {
+                show: true,
+                hideZeros: true
+            },
+            yaxis:'y2axis'
+        },
+        axes:{
+            xaxis:{
+                renderer:$.jqplot.CategoryAxisRenderer, 
+                ticks:ticks,
+                tickRenderer: $.jqplot.CanvasAxisTickRenderer,
+                tickOptions: {
+                    angle: -90,
+                    fontSize: '10pt',
+                    showMark: false,
+                    showGridline: false
+                }
+            }
+        }
+    });
+});</script>
+
+<!-- End example scripts -->
+
+<!-- Don't touch this! -->
+
+
+    <script class="include" type="text/javascript" src="../jquery.jqplot.min.js"></script>
+    <script type="text/javascript" src="syntaxhighlighter/scripts/shCore.min.js"></script>
+    <script type="text/javascript" src="syntaxhighlighter/scripts/shBrushJScript.min.js"></script>
+    <script type="text/javascript" src="syntaxhighlighter/scripts/shBrushXml.min.js"></script>
+<!-- End Don't touch this! -->
+
+<!-- Additional plugins go here -->
+  <script class="include" type="text/javascript" src="../plugins/jqplot.barRenderer.min.js"></script>
+  <script class="include" type="text/javascript" src="../plugins/jqplot.categoryAxisRenderer.min.js"></script>
+  <script class="include" type="text/javascript" src="../plugins/jqplot.canvasAxisTickRenderer.min.js"></script>
+  <script class="include" type="text/javascript" src="../plugins/jqplot.canvasTextRenderer.min.js"></script>
+  <script class="include" type="text/javascript" src="../plugins/jqplot.pointLabels.min.js"></script>
+
+<!-- End additional plugins -->
+
+
+	</div>	
+	<script type="text/javascript" src="example.min.js"></script>
+
+</body>
+
+
+</html>

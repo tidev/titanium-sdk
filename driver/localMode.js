@@ -20,6 +20,8 @@ module.exports = new function() {
 	var readlineInterface = readline.createInterface(process.stdin, process.stdout);
 
 	this.start = function() {
+		util.setCurrentTiSdk();
+
 		var command = util.getArgument(process.argv, "--command");
 		if ((typeof command) === "undefined") {
 			var printResultsCallback = function(results) {

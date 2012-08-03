@@ -1,0 +1,14 @@
+Make simple blog page + demo
+
+Post to...
+	http://wiki.jqueryui.com/w/page/12137750/ColorPicker
+		- screenshot
+		- link(s)
+		- check specs/requirements and add/fix them
+
+Colorwheel
+Triangle/wheel
+Related-colors swatching
+Configurable swatch layout
+	container-width/height, swatch-width/height
+	Autoscaling (table?)

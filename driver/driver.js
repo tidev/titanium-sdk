@@ -91,7 +91,7 @@
 var fs = require("fs");
 var path = require("path");
 
-var util = require(__dirname + "/util");
+var util = require("./util");
 
 var mode;
 
@@ -156,7 +156,7 @@ function processCommandLineArgs(callback) {
 	}
 
 	var modePath = driverGlobal.driverDir + "/" + modeArg + "Mode.js";
-	if (!(fs.existsSync(modePath))) {
+	if (!(path.existsSync(modePath))) {
 		console.log("unable to find the specified mode: " + modeArg);
 		printUsageAndExit();
 	}
@@ -198,7 +198,7 @@ function processCommandLineArgs(callback) {
 
 function loadConfigModule() {
 	var configModulePath = __dirname + "/config.js";
-	if (!(fs.existsSync(configModulePath))) {
+	if (!(path.existsSync(configModulePath))) {
 		console.log("No config module found!  Do the following:\n" +
 			util.getTabs(1) + "1) copy the exampleConfig.js to config.js in the root driver directory\n" +
 			util.getTabs(1) + "2) update the config.js with appropriate values based on the comments in\n" +
@@ -223,7 +223,7 @@ function loadConfigModule() {
 			printFailureAndExit(configItemName + " property in the config module cannot be undefined");
 
 		} else if (configItemType !== expectedType) {
-			printFailureAndExit("<" + configItemName + "> property in the config module should be <" + expectedType +
+			printFailureAndExit(configItemName + " property in the config module should be <" + expectedType +
 				"> but was <" + configItemType + ">");
 		}
 	}
@@ -243,32 +243,6 @@ function loadConfigModule() {
 	checkConfigItem("defaultTestTimeout", config.defaultTestTimeout, "number");
 	checkConfigItem("tabString", config.tabString, "string");
 	checkConfigItem("defaultIosSimVersion", config.defaultIosSimVersion, "string");
-
-	// load current SDK version
-	new function() {
-		var latestTime = 0;
-		var latestDir;
-
-		var files = fs.readdirSync(config.tiSdkDirs);
-		for (var i = 0; i < files.length; i++) {
-			var stat = fs.statSync(config.tiSdkDirs + "/" + files[i]);
-			var modifiedTime = stat.mtime.getTime();
-
-			if (modifiedTime > latestTime) {
-				latestTime = modifiedTime;
-				latestDir = files[i];
-			}
-		}
-
-		if ((typeof latestDir) === "undefined") {
-			console.log("unable to find a valid SDK");
-			process.exit(1);
-
-		} else {
-			console.log("using Titanium SDK version <" + latestDir + ">");
-			config.currentTiSdkDir = config.tiSdkDirs + "/" + latestDir;
-		}
-	}
 
 	// load the defaultPlatform config property and set the global platform property if needed
 	new function() {
@@ -324,15 +298,12 @@ function loadConfigModule() {
 		}
 	}
 
-	if (mode === "remote") {
-		checkConfigItem("hubPort", config.hubPort, "number");
-	}
 	driverGlobal.config = config;
 }
 
 function setupTempDirs() {
 	function createDir(dir) {
-		if (fs.existsSync(dir)) {
+		if (path.existsSync(dir)) {
 			return;
 		}
 
