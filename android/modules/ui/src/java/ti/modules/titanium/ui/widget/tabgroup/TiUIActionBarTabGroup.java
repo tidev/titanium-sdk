@@ -1,4 +1,4 @@
-package ti.modules.titanium.ui.widget;
+package ti.modules.titanium.ui.widget.tabgroup;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.titanium.TiC;

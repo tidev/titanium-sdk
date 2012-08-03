@@ -4,7 +4,7 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-package ti.modules.titanium.ui.widget;
+package ti.modules.titanium.ui.widget.tabgroup;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;

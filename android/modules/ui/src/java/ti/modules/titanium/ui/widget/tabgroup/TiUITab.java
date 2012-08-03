@@ -4,10 +4,11 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-package ti.modules.titanium.ui.widget;
+package ti.modules.titanium.ui.widget.tabgroup;
 
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.view.TiUIView;
+
 
 public class TiUITab extends TiUIView {
 

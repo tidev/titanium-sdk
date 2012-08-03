@@ -15,7 +15,7 @@ import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.proxy.TiWindowProxy;
 import org.appcelerator.titanium.view.TiUIView;
 
-import ti.modules.titanium.ui.widget.TiUITabHostGroup;
+import ti.modules.titanium.ui.widget.tabgroup.TiUITabHostGroup;
 import android.app.Activity;
 import android.os.Message;
 

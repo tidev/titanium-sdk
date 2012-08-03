@@ -25,9 +25,9 @@ import org.appcelerator.titanium.proxy.TiWindowProxy;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiUIHelper;
 
-import ti.modules.titanium.ui.widget.TiUIAbstractTabGroup;
-import ti.modules.titanium.ui.widget.TiUIActionBarTabGroup;
-import ti.modules.titanium.ui.widget.TiUITabHostGroup;
+import ti.modules.titanium.ui.widget.tabgroup.TiUIAbstractTabGroup;
+import ti.modules.titanium.ui.widget.tabgroup.TiUIActionBarTabGroup;
+import ti.modules.titanium.ui.widget.tabgroup.TiUITabHostGroup;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Build;
