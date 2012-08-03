@@ -482,7 +482,7 @@ DEFINE_EXCEPTIONS
         }
         
         
-		UIImage *image = [[ImageLoader sharedLoader] loadImmediateImage:url_ withSize:imageSize];
+		UIImage *image = [[ImageLoader sharedLoader] loadImmediateImage:url_];
 		if (image==nil)
 		{
             [self loadDefaultImage:imageSize];
@@ -497,7 +497,10 @@ DEFINE_EXCEPTIONS
 			CGSize fullSize = [[ImageLoader sharedLoader] fullImageSize:img];
 			autoWidth = fullSize.width;
 			autoHeight = fullSize.height;
-			
+			if ([TiUtils boolValue:[[self proxy] valueForKey:@"hires"]]) {
+				autoWidth = autoWidth/2;
+				autoHeight = autoHeight/2;
+			}
 			[self imageView].image = image;
 			[self fireLoadEventWithState:@"image"];
 		}
