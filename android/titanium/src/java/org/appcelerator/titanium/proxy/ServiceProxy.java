@@ -96,7 +96,7 @@ public class ServiceProxy extends KrollProxy
 	@Kroll.method
 	public void stop()
 	{
-		Log.d(TAG, "stop", Log.DEBUG_MODE);
+		Log.d(TAG, "Stopping service", Log.DEBUG_MODE);
 		if (!forBoundServices) {
 			Log.d(TAG, "stop via stopService", Log.DEBUG_MODE);
 			service.stopSelf();

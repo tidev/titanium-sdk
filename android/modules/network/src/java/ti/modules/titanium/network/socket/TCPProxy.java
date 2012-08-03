@@ -4,7 +4,6 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-
 package ti.modules.titanium.network.socket;
 
 import java.io.IOException;
@@ -61,7 +60,7 @@ public class TCPProxy extends KrollProxy implements TiStream
 				new ConnectedSocketThread().start();
 
 			} else {
-				throw new IllegalArgumentException("unable to call connect, socket must have a valid host and port");
+				throw new IllegalArgumentException("Unable to call connect, socket must have a valid host and port");
 			}
 
 		} else {
@@ -277,7 +276,7 @@ public class TCPProxy extends KrollProxy implements TiStream
 
 					} catch (InterruptedException e) {
 						e.printStackTrace();
-						Log.e(TAG, "listening thread interrupted");
+						Log.e(TAG, "Listening thread interrupted");
 					}
 				}
 			}
@@ -326,7 +325,7 @@ public class TCPProxy extends KrollProxy implements TiStream
 				}
 
 			} catch (IOException e) {
-				Log.w(TAG, "unable to close socket in error state");
+				Log.w(TAG, "Unable to close socket in error state", Log.DEBUG_MODE);
 			}
 		}
 

@@ -268,7 +268,7 @@ public class TiMapView extends TiUIView
 						item.setLeftView((TiViewProxy)leftView);
 
 					} else {
-						Log.e(TAG, "invalid type for leftView");
+						Log.e(TAG, "Invalid type for leftView");
 					}
 				}
 
@@ -278,7 +278,7 @@ public class TiMapView extends TiUIView
 						item.setRightView((TiViewProxy)rightView);
 
 					} else {
-						Log.e(TAG, "invalid type for rightView");
+						Log.e(TAG, "Invalid type for rightView");
 					}
 				}
 
@@ -669,7 +669,7 @@ public class TiMapView extends TiUIView
 	private AnnotationProxy annotationProxyForObject(Object ann)
 	{
 		if (ann == null) {
-			Log.e(TAG, "unable to create annotation proxy for null object passed in.");
+			Log.e(TAG, "Unable to create annotation proxy for null object passed in.");
 			return null;
 		}
 		AnnotationProxy annProxy = null;
@@ -695,7 +695,7 @@ public class TiMapView extends TiUIView
 		}
 		
 		if (annProxy == null) {
-			Log.e(TAG, "unable to create annotation proxy for object, likely an error in the type of the object passed in...");
+			Log.e(TAG, "Unable to create annotation proxy for object, likely an error in the type of the object passed in...");
 		}
 		
 		return annProxy;
@@ -747,7 +747,7 @@ public class TiMapView extends TiUIView
 		if (regionFit && location.containsKey(TiC.PROPERTY_LONGITUDE_DELTA) && location.containsKey(TiC.PROPERTY_LATITUDE_DELTA)) {
 			view.getController().zoomToSpan(scaleToGoogle(TiConvert.toDouble(location, TiC.PROPERTY_LATITUDE_DELTA)), scaleToGoogle(TiConvert.toDouble(location, TiC.PROPERTY_LONGITUDE_DELTA)));
 		} else {
-			Log.w(TAG, "span must have longitudeDelta and latitudeDelta");
+			Log.w(TAG, "Span must have longitudeDelta and latitudeDelta");
 		}
 	}
 
@@ -808,7 +808,7 @@ public class TiMapView extends TiUIView
 	public void selectAnnotation(boolean select, String title, boolean animate, boolean center)
 	{
 		if (title != null) {
-			Log.e(TAG, "calling obtainMessage");
+			Log.e(TAG, "Calling obtainMessage", Log.DEBUG_MODE);
 
 			Bundle args = new Bundle();
 			args.putBoolean("select", select);

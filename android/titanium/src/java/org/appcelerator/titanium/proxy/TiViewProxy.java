@@ -423,7 +423,7 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 				if (activity != null) {
 					((TiBaseActivity)activity).setViewProxy(view.getProxy());
 				} else {
-					Log.w(TAG, "Activity is null");
+					Log.w(TAG, "Activity is null", Log.DEBUG_MODE);
 				}
 			}
 			realizeViews(view);
@@ -488,7 +488,7 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 	public void add(TiViewProxy child)
 	{
 		if (child == null) {
-			Log.w(TAG, "add called with null child");
+			Log.e(TAG, "Add called with a null child");
 			return;
 		}
 
@@ -535,8 +535,7 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 	public void remove(TiViewProxy child)
 	{
 		if (child == null) {
-			Log.w(TAG, "add called with null child");
-
+			Log.e(TAG, "Add called with null child");
 			return;
 		}
 
@@ -938,24 +937,24 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 		TiUIView view = peekView();
 		TiUIView destView = dest.peekView();
 		if (view == null) {
-			Log.w(TAG, "convertPointToView: view has not been attached, cannot convert point");
+			Log.w(TAG, "convertPointToView: View has not been attached, cannot convert point");
 			return null;
 		}
 
 		if (destView == null) {
-			Log.w(TAG, "convertPointToView: destinationView has not been attached, cannot convert point");
+			Log.w(TAG, "convertPointToView: DestinationView has not been attached, cannot convert point");
 			return null;
 		}
 
 		View nativeView = view.getNativeView();
 		View destNativeView = destView.getNativeView();
 		if (nativeView == null || nativeView.getParent() == null) {
-			Log.w(TAG, "convertPointToView: view has not been attached, cannot convert point");
+			Log.w(TAG, "convertPointToView: View has not been attached, cannot convert point");
 			return null;
 		}
 
 		if (destNativeView == null || destNativeView.getParent() == null) {
-			Log.w(TAG, "convertPointToView: destinationView has not been attached, cannot convert point");
+			Log.w(TAG, "convertPointToView: DestinationView has not been attached, cannot convert point");
 			return null;
 		}
 
@@ -1003,7 +1002,7 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 		HashMap<String, Object> paramsMap;
 
 		if (!(params instanceof HashMap)) {
-			Log.e(TAG, "argument for updateLayout must be a dictionary");
+			Log.e(TAG, "Argument for updateLayout must be a dictionary");
 			return;
 		}
 		paramsMap = (HashMap) params;

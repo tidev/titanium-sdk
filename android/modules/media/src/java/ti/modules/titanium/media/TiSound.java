@@ -374,9 +374,9 @@ public class TiSound
 						mp.prepare();
 						mp.seekTo(0);
 					} catch (IOException e) {
-						Log.e(TAG,"Error while preparing audio after stop(). Ignoring.");
+						Log.e(TAG, "Error while preparing audio after stop(). Ignoring.", Log.DEBUG_MODE);
 					} catch (IllegalStateException e) {
-						Log.w(TAG, "Error while preparing audio after stop(). Ignoring.");
+						Log.w(TAG, "Error while preparing audio after stop(). Ignoring.", Log.DEBUG_MODE);
 					}
 				}
 

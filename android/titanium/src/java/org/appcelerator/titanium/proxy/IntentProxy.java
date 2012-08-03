@@ -295,7 +295,7 @@ public class IntentProxy extends KrollProxy
 
 			return TiBlob.blobFromData(buf);
 		} catch (Exception e) {
-			android.util.Log.e(TAG, "getBlobExtra(): " + e.getMessage(), e);
+			Log.e(TAG, "Error getting blob extra: " + e.getMessage(), e);
 			return null;
 		}
 	}

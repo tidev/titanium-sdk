@@ -87,7 +87,7 @@ public class TiAnimationBuilder
 				anchorX = TiConvert.toFloat(point, TiC.PROPERTY_X);
 				anchorY = TiConvert.toFloat(point, TiC.PROPERTY_Y);
 			} else {
-				Log.e(TAG, "invalid argument type for anchorPoint property. Ignoring");
+				Log.e(TAG, "Invalid argument type for anchorPoint property. Ignoring");
 			}
 		}
 
@@ -290,8 +290,7 @@ public class TiAnimationBuilder
 				fromBackgroundColor = TiConvert.toColor(TiConvert.toString(viewProxy
 					.getProperty(TiC.PROPERTY_BACKGROUND_COLOR)));
 			} else {
-				Log.w(TAG,
-					"Cannot animate view without a backgroundColor. View doesn't have that property. Using #00000000");
+				Log.w(TAG, "Cannot animate view without a backgroundColor. View doesn't have that property. Using #00000000");
 				fromBackgroundColor = Color.argb(0, 0, 0, 0);
 			}
 

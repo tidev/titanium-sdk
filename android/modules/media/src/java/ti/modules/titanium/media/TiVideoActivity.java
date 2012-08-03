@@ -61,7 +61,7 @@ public class TiVideoActivity extends Activity
 			try {
 				proxyMessenger.send(msg);
 			} catch (RemoteException e) {
-				Log.e(TAG, "Cannot send 'activity available' message to proxy", e);
+				Log.e(TAG, "Failed to send 'activity available' message to proxy", e);
 			}
 		}
 

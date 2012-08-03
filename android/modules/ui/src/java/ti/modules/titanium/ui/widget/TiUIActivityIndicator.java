@@ -185,7 +185,7 @@ public class TiUIActivityIndicator extends TiUIView
 				statusBarTitle = parent.getTitle().toString();
 				parent.setTitle(message);
 			} else {
-				Log.w(TAG, "Unknown type: " + type);
+				Log.w(TAG, "Unknown activity indicator type: " + type);
 			}
 		} else if (location == DIALOG) {
 			incrementFactor = 1;
@@ -217,11 +217,11 @@ public class TiUIActivityIndicator extends TiUIView
 				}
 				progressDialog.setProgress(0);
 			} else {
-				Log.w(TAG, "Unknown type: " + type);
+				Log.w(TAG, "Unknown activity indicator type: " + type);
 			}
 			progressDialog.show();
 		} else {
-			Log.w(TAG, "Unknown location: " + location);
+			Log.w(TAG, "Unknown location property: " + location);
 		}
 		visible = true;
 	}

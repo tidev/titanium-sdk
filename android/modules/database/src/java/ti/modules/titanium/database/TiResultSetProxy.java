@@ -52,7 +52,7 @@ public class TiResultSetProxy extends KrollProxy
 			Log.d(TAG, "Closing database cursor", Log.DEBUG_MODE);
 			rs.close();
 		} else {
-			Log.w(TAG, "Calling close on a closed cursor.");
+			Log.w(TAG, "Calling close on a closed cursor.", Log.DEBUG_MODE);
 		}
 
 	}
@@ -94,7 +94,7 @@ public class TiResultSetProxy extends KrollProxy
 	private Object internalGetField(int index, int type)
 	{
 		if (rs == null) {
-			Log.w(TAG, "Attempted to get field value when no result set available.");
+			Log.w(TAG, "Attempted to get field value when no result set is available.");
 			return null;
 		}
 		boolean outOfBounds = (index >= rs.getColumnCount());
@@ -216,7 +216,7 @@ public class TiResultSetProxy extends KrollProxy
 			try {
 				return rs.getColumnCount();
 			} catch (SQLException e) {
-				Log.e(TAG, "No fields");
+				Log.e(TAG, "No fields exist");
 				throw e;
 			}
 		}
@@ -271,7 +271,7 @@ public class TiResultSetProxy extends KrollProxy
 		if(isValidRow()) {
 			rs.moveToNext();
 		} else {
-			Log.w(TAG, "Ignoring next, row is already invalid.");
+			Log.w(TAG, "Ignoring next, current row is invalid.");
 		}
 	}
 }

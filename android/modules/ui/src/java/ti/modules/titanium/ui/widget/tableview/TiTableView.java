@@ -180,7 +180,8 @@ public class TiTableView extends FrameLayout
 					} else {
 						// otherwise compare class names
 						if (!v.getClassName().equals(item.className)) {
-							Log.w(TAG, "Handed a view to convert with className " + v.getClassName() + " expected " + item.className);
+							Log.w(TAG, "Handed a view to convert with className " + v.getClassName() + " expected "
+								+ item.className, Log.DEBUG_MODE);
 							v = null;
 						}
 					}

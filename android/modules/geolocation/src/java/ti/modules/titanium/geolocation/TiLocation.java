@@ -60,12 +60,10 @@ public class TiLocation implements Handler.Callback
 	private List<String> knownProviders;
 	private Handler runtimeHandler;
 
-
 	public interface GeocodeResponseHandler
 	{
 		public abstract void handleGeocodeResponse(HashMap<String, Object> geocodeResponse);
 	}
-
 
 	public TiLocation()
 	{
@@ -130,10 +128,10 @@ public class TiLocation implements Handler.Callback
 				lastKnownLocation = locationManager.getLastKnownLocation(provider);
 
 			} catch (IllegalArgumentException e) {
-				Log.e(TAG, "unable to get last know location for [" + provider + "], provider is null");
+				Log.e(TAG, "Unable to get last know location for [" + provider + "], provider is null");
 
 			} catch (SecurityException e) {
-				Log.e(TAG, "unable to get last know location for [" + provider + "], permission denied");
+				Log.e(TAG, "Unable to get last know location for [" + provider + "], permission denied");
 			}
 
 			if (lastKnownLocation == null) {
@@ -174,7 +172,7 @@ public class TiLocation implements Handler.Callback
 			}
 
 		} else {
-			Log.e(TAG, "unable to forward geocode, address is null");
+			Log.e(TAG, "Unable to forward geocode, address is null");
 		}
 	}
 
@@ -190,7 +188,7 @@ public class TiLocation implements Handler.Callback
 			message.sendToTarget();
 
 		} else {
-			Log.e(TAG, "unable to reverse geocode, geocoder url is null");
+			Log.e(TAG, "Unable to reverse geocode, geocoder url is null");
 		}
 	}
 
@@ -214,7 +212,7 @@ public class TiLocation implements Handler.Callback
 			url = sb.toString();
 
 		} catch (UnsupportedEncodingException e) {
-			Log.e(TAG, "unable to encode query to utf-8: " + e.getMessage());
+			Log.e(TAG, "Unable to encode query to utf-8: " + e.getMessage());
 		}
 
 		return url;
@@ -265,7 +263,7 @@ public class TiLocation implements Handler.Callback
 							}
 
 						} catch (JSONException e) {
-							Log.e(TAG, "error converting geo response to JSONObject [" + e.getMessage() + "]", e);
+							Log.e(TAG, "Error converting geo response to JSONObject [" + e.getMessage() + "]", e);
 						}
 					}
 
@@ -274,7 +272,7 @@ public class TiLocation implements Handler.Callback
 					}
 
 				} catch (Throwable t) {
-					Log.e(TAG, "error retrieving geocode information [" + t.getMessage() + "]", t);
+					Log.e(TAG, "Error retrieving geocode information [" + t.getMessage() + "]", t);
 				}
 
 				return -1;
@@ -335,5 +333,3 @@ public class TiLocation implements Handler.Callback
 		return address;
 	}
 }
-
-

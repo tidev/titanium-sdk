@@ -703,7 +703,7 @@ public class MediaModule extends KrollModule
 	{
 		Activity activity = TiApplication.getAppCurrentActivity();
 		if (activity == null) {
-			Log.w(TAG, "Unable to get current activity for previewImage.");
+			Log.w(TAG, "Unable to get current activity for previewImage.", Log.DEBUG_MODE);
 			return;
 		}
 
@@ -777,7 +777,7 @@ public class MediaModule extends KrollModule
 		Activity a = TiApplication.getAppCurrentActivity();
 
 		if (a == null) {
-			Log.w(TAG, "Could not get current activity for takeScreenshot.");
+			Log.w(TAG, "Could not get current activity for takeScreenshot.", Log.DEBUG_MODE);
 			callback.callAsync(getKrollObject(), new Object[] { null });
 			return;
 		}
@@ -805,7 +805,7 @@ public class MediaModule extends KrollModule
 		if (TiCameraActivity.cameraActivity != null) {
 			TiCameraActivity.takePicture();
 		} else {
-			Log.e(TAG, "camera preview is not open, unable to take photo");
+			Log.e(TAG, "Camera preview is not open, unable to take photo");
 		}
 	}
 
@@ -814,13 +814,13 @@ public class MediaModule extends KrollModule
 	{
 		Application application = TiApplication.getInstance();
 		if (application == null) {
-			Log.w(TAG, "Could not retrieve application instance, returning false for isCameraSupported.");
+			Log.w(TAG, "Could not retrieve application instance, returning false for isCameraSupported.", Log.DEBUG_MODE);
 			return false;
 		}
 
 		PackageManager pm = application.getPackageManager();
 		if (pm == null) {
-			Log.w(TAG, "Could not retrieve PackageManager instance, returning false for isCameraSupported.");
+			Log.w(TAG, "Could not retrieve PackageManager instance, returning false for isCameraSupported.", Log.DEBUG_MODE);
 		}
 
 		return pm.hasSystemFeature(PackageManager.FEATURE_CAMERA) ||

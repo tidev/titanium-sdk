@@ -626,7 +626,7 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 			try {
 				loaderThread.join();
 			} catch (InterruptedException e) {
-				Log.e(TAG, "loaderThread termination interrupted");
+				Log.e(TAG, "LoaderThread termination interrupted");
 			}
 			loaderThread = null;
 		}

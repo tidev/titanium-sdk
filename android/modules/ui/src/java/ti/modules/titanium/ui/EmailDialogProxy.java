@@ -183,7 +183,7 @@ public class EmailDialogProxy extends TiViewProxy implements ActivityTransitionL
 			});
 			
 		} else {
-			Log.e(TAG, "Current activity is null");
+			Log.e(TAG, "Could not open email dialog, current activity is null.");
 		}
 			
 	}

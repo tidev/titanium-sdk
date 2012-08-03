@@ -185,7 +185,7 @@ public class TiUISlider extends TiUIView
 		} else if (leftImage == null && rightImage == null) {
 			seekBar.setProgressDrawable(null);
 		} else {
-			Log.w(TAG, "Custom tracking images must both be set before they'll be drawn.");
+			Log.w(TAG, "Custom tracking images must both be set before they will be drawn.");
 		}
 	}
 	

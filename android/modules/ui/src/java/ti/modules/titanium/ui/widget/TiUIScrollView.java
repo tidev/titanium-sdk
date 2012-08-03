@@ -391,7 +391,7 @@ public class TiUIScrollView extends TiUIView
 			offsetX = TiConvert.toInt(contentOffset, TiC.PROPERTY_X);
 			offsetY = TiConvert.toInt(contentOffset, TiC.PROPERTY_Y);
 		} else {
-			Log.e(TAG, "contentOffset must be an instance of HashMap");
+			Log.e(TAG, "ContentOffset must be an instance of HashMap");
 		}
 	}
 

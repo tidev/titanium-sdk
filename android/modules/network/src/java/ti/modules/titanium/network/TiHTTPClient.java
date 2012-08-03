@@ -514,7 +514,7 @@ public class TiHTTPClient
 			// It's particularly interesting if an error wants to be reported
 			// but no one is listening, so log that.
 			if (ON_ERROR.equals(name)) {
-				Log.w(TAG, "No onerror callback specified; it would be called if it were.");
+				Log.w(TAG, "No onerror callback specified; it would be called if it were.", Log.DEBUG_MODE);
 			}
 		}
 	}
@@ -795,7 +795,7 @@ public class TiHTTPClient
 
 			if (headers.length == 0)
 			{
-				Log.w(TAG, "No value for response header: " + headerName);
+				Log.w(TAG, "No value for response header: " + headerName, Log.DEBUG_MODE);
 			}
 
 		} else {
@@ -811,7 +811,7 @@ public class TiHTTPClient
 
 		if (url == null)
 		{
-			Log.e(TAG, "unable to open a null URL");
+			Log.e(TAG, "Unable to open a null URL");
 			throw new IllegalArgumentException("URL cannot be null");
 		}
 

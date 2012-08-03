@@ -602,10 +602,10 @@ public class GeolocationModule extends KrollModule
 					locationProvider);
 
 		} catch (IllegalArgumentException e) {
-			Log.e(TAG, "unable to register [" + provider + "], provider is null");
+			Log.e(TAG, "Unable to register [" + provider + "], provider is null");
 
 		} catch (SecurityException e) {
-			Log.e(TAG, "unable to register [" + provider + "], permission denied");
+			Log.e(TAG, "Unable to register [" + provider + "], permission denied");
 		}
 	}
 
@@ -706,7 +706,7 @@ public class GeolocationModule extends KrollModule
 				tiLocation.doAnalytics(latestKnownLocation);
 
 			} else {
-				Log.e(TAG, "unable to get current position, location is null");
+				Log.e(TAG, "Unable to get current position, location is null");
 				callback.call(this.getKrollObject(), new Object[] {
 					buildLocationErrorEvent(TiLocation.ERR_POSITION_UNAVAILABLE, "location is currently unavailable.")
 				});

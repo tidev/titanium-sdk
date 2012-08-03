@@ -83,7 +83,7 @@ public abstract class TiBaseActivity extends Activity
 	public void addWindowToStack(TiBaseWindowProxy proxy)
 	{
 		if (windowStack.contains(proxy)) {
-			Log.e(TAG, "Error 37! Window already exists in stack");
+			Log.e(TAG, "Window already exists in stack", Log.DEBUG_MODE);
 			return;
 		}
 		boolean isEmpty = windowStack.empty();
@@ -961,7 +961,7 @@ public abstract class TiBaseActivity extends Activity
 
 		
 		if (layout != null) {
-			Log.e(TAG, "Layout cleanup.");
+			Log.e(TAG, "Layout cleanup.", Log.DEBUG_MODE);
 			layout.removeAllViews();
 			layout = null;
 		}

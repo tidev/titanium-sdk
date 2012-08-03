@@ -19,7 +19,6 @@ import org.appcelerator.kroll.KrollPropertyChange;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.KrollProxyListener;
 import org.appcelerator.kroll.common.Log;
-import org.appcelerator.kroll.common.TiConfig;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiDimension;
@@ -609,7 +608,8 @@ public abstract class TiUIView
 				nativeView.postInvalidate();
 			}
 		} else if (key.equals(TiC.PROPERTY_SOFT_KEYBOARD_ON_FOCUS)) {
-			Log.w(TAG, "Focus state changed to " + TiConvert.toString(newValue) + " not honored until next focus event.");
+			Log.w(TAG, "Focus state changed to " + TiConvert.toString(newValue) + " not honored until next focus event.",
+				Log.DEBUG_MODE);
 		} else if (key.equals(TiC.PROPERTY_TRANSFORM)) {
 			if (nativeView != null) {
 				applyTransform((Ti2DMatrix)newValue);
@@ -1325,9 +1325,11 @@ public abstract class TiUIView
 				Class<? extends View> c = nativeView.getClass();
 				mSetLayerTypeMethod = c.getMethod("setLayerType", int.class, Paint.class);
 			} catch (SecurityException e) {
-				Log.e(TAG, "SecurityException trying to get View.setLayerType to disable hardware acceleration.", e);
+				Log.e(TAG, "SecurityException trying to get View.setLayerType to disable hardware acceleration.", e,
+					Log.DEBUG_MODE);
 			} catch (NoSuchMethodException e) {
-				Log.e(TAG, "NoSuchMethodException trying to get View.setLayerType to disable hardware acceleration.", e);
+				Log.e(TAG, "NoSuchMethodException trying to get View.setLayerType to disable hardware acceleration.", e,
+					Log.DEBUG_MODE);
 			}
 		}
 

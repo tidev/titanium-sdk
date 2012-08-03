@@ -4,7 +4,6 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-
 package org.appcelerator.titanium.util;
 
 import org.appcelerator.kroll.common.Log;
@@ -43,7 +42,7 @@ public class TiSensorHelper
 	{
 		SensorManager sensorManager = getSensorManager();
 		if (sensorManager == null) {
-			Log.w(TAG, "registerListener failed, no sensor manager found.");
+			Log.w(TAG, "registerListener failed, no sensor manager found.", Log.DEBUG_MODE);
 			return;
 		}
 
@@ -52,7 +51,7 @@ public class TiSensorHelper
 			Log.d(TAG, "Enabling Listener: " + sensor.getName(), Log.DEBUG_MODE);
 			sensorManager.registerListener(listener, sensor, rate);
 		} else {
-			Log.e(TAG, "unable to register, sensor is null");
+			Log.e(TAG, "Unable to register, sensor is null");
 		}
 	}
 
@@ -72,7 +71,7 @@ public class TiSensorHelper
 	{
 		SensorManager sensorManager = getSensorManager();
 		if (sensorManager == null) {
-			Log.w(TAG, "unregisterListener failed, no sensor manager found.");
+			Log.w(TAG, "UnregisterListener failed, no sensor manager found.", Log.DEBUG_MODE);
 		}
 
 		Sensor sensor = sensorManager.getDefaultSensor(type);
@@ -80,7 +79,7 @@ public class TiSensorHelper
 			Log.d(TAG, "Disabling Listener: " + sensor.getName(), Log.DEBUG_MODE);
 			sensorManager.unregisterListener(listener, sensor);
 		} else {
-			Log.e(TAG, "unable to unregister, sensor is null");
+			Log.e(TAG, "Unable to unregister, sensor is null");
 		}
 	}
 

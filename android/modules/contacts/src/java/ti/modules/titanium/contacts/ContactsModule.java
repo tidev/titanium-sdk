@@ -103,13 +103,13 @@ public class ContactsModule extends KrollModule
 	public void showContacts(@Kroll.argument(optional=true) KrollDict d)
 	{
 		if (TiApplication.getInstance() == null) {
-			Log.e(TAG, "Could not showContacts, application is null");
+			Log.e(TAG, "Could not showContacts, application is null", Log.DEBUG_MODE);
 			return;
 		}
 		
 		Activity launchingActivity = TiApplication.getInstance().getCurrentActivity();
 		if (launchingActivity == null) {
-			Log.e(TAG, "Could not showContacts, current activity is null.");
+			Log.e(TAG, "Could not showContacts, current activity is null., Log.DEBUG_MODE");
 			return;
 		}
 		
@@ -184,11 +184,10 @@ public class ContactsModule extends KrollModule
 			} else {
 				Log.w(TAG, "Result code from contact picker activity not understood: " + resultCode);
 			}
-			
+
 			// Teardown the request -- it's a one timer.
 			request.clear();
 			requests.remove(rcode);
 		}
 	}
-	
 }

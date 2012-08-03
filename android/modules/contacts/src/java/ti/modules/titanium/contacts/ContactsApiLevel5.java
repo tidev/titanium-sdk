@@ -306,7 +306,7 @@ public class ContactsApiLevel5 extends CommonContactsApi
 					}
 					//user name isn't provided
 					if (userName.length() == 0) {
-						Log.e(TAG, "User name is not provided when adding new contact");
+						Log.e(TAG, "User name not provided when adding new contact");
 						continue;
 					}
 					//custom

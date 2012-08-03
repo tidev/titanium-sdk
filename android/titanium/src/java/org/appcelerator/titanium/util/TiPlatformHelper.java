@@ -59,7 +59,7 @@ public class TiPlatformHelper
 		// this is a fix for the emulator only I think as a normal device should
 		// never return null
 		if (platformId == null) {
-			Log.e(TAG, "platformId is null, setting to empty string");
+			Log.w(TAG, "platformId is null, setting to empty string", Log.DEBUG_MODE);
 			platformId = "";
 		}
 
@@ -82,7 +82,7 @@ public class TiPlatformHelper
 
 		for (int i = 0; i < badIds.length; i++) {
 			if (currentMachineId.equals(badIds [i])) {
-				Log.e(TAG, "renaming ID");
+				Log.d(TAG, "renaming ID", Log.DEBUG_MODE);
 				currentMachineId = createUUID();
 				break;
 			}
@@ -116,9 +116,9 @@ public class TiPlatformHelper
 				Object compatInfo = gciMethod.invoke(activity.getResources());
 				applicationScaleFactor = (Float)compatInfo.getClass().getField("applicationScale").get(compatInfo);
 			} catch (Exception e) {
-				Log.w(TAG, "Unable to get application scale factor, using reported density and it's factor");
+				Log.w(TAG, "Unable to get application scale factor, using reported density and its factor", Log.DEBUG_MODE);
 			}
-	
+
 			if (applicationScaleFactor == 1.0f) {
 				applicationLogicalDensity = dm.densityDpi;
 			} else if (applicationScaleFactor > 1.0f) {
@@ -126,7 +126,7 @@ public class TiPlatformHelper
 			} else {
 				applicationLogicalDensity = DisplayMetrics.DENSITY_LOW;
 			}
-			
+
 			applicationDisplayInfoInitialized = true;
 		}
 	}

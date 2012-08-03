@@ -90,7 +90,7 @@ public class EventProxy extends KrollProxy {
 			query, queryArgs, "startDay ASC, startMinute ASC");
 
 		if(eventCursor == null) {
-			Log.w(TAG, "unable to get any results when pulling events by date range");
+			Log.w(TAG, "Unable to get any results when pulling events by date range");
 
 			return events;
 		}
@@ -163,7 +163,7 @@ public class EventProxy extends KrollProxy {
 		eventValues.put("hasExtendedProperties", 1);
 		
 		if (!data.containsKey("title")) {
-			Log.e(TAG, "No title found for event, so it wasn't created");
+			Log.e(TAG, "Title was not created, no title found for event");
 			return null;
 		}
 		

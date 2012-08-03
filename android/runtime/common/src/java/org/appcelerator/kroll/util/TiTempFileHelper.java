@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2011-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -31,7 +31,6 @@ public class TiTempFileHelper
 
 	public static final String TEMPDIR = "_tmp";
 	public static final int DEFAULT_CLEAN_TIMEOUT = 5; // The number of seconds the async cleanup method uses for
-														// scheduling
 
 	protected File tempDir;
 	protected ArrayList<String> createdThisSession = new ArrayList<String>();
@@ -149,7 +148,7 @@ public class TiTempFileHelper
 			try {
 				file.delete();
 			} catch (Exception e) {
-				Log.w(TAG, "Exception trying to delete " + absolutePath + ", skipping", e);
+				Log.w(TAG, "Exception trying to delete " + absolutePath + ", skipping", e, Log.DEBUG_MODE);
 			}
 		}
 	}

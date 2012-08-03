@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -11,7 +11,6 @@ import org.appcelerator.kroll.KrollFunction;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
-import org.appcelerator.kroll.common.TiConfig;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiC;
@@ -35,7 +34,6 @@ public class ActivityProxy extends KrollProxy
 	implements TiActivityResultHandler
 {
 	private static final String TAG = "ActivityProxy";
-	private static boolean DBG = TiConfig.LOGD;
 
 	protected Activity wrappedActivity;
 	protected IntentProxy intentProxy;
@@ -76,7 +74,7 @@ public class ActivityProxy extends KrollProxy
 		if (savedDecorViewProxy == null) {
 			Activity activity = getActivity();
 			if (!(activity instanceof TiBaseActivity)) {
-				Log.e(TAG, "unable to return decor view, activity is not TiBaseActivity");
+				Log.e(TAG, "Unable to return decor view, activity is not TiBaseActivity", Log.DEBUG_MODE);
 
 				return null;
 			}

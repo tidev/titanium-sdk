@@ -552,7 +552,7 @@ public class TiCompositeLayout extends ViewGroup
 					Activity currentActivity = TiApplication.getAppCurrentActivity();
 					if (currentActivity instanceof TiLaunchActivity) {
 						if (!((TiLaunchActivity) currentActivity).isJSActivity()) {
-							Log.w(TAG, "The root activity is no longer available.  Skipping layout pass.");
+							Log.w(TAG, "The root activity is no longer available.  Skipping layout pass.", Log.DEBUG_MODE);
 							return;
 						}
 					}
@@ -617,7 +617,7 @@ public class TiCompositeLayout extends ViewGroup
 			try {
 				setAlphaMethod = getClass().getMethod("setAlpha", float.class);
 			} catch (NoSuchMethodException e) {
-				Log.w(TAG, "Unable to find setAlpha() method.", e);
+				Log.w(TAG, "Unable to find setAlpha() method.", e, Log.DEBUG_MODE);
 				return false;
 			}
 		}

@@ -200,7 +200,7 @@ public class TabGroupProxy extends TiWindowProxy
 			baseWindow.getKrollObject().setWindow(windowProxy);
 
 		} else {
-			Log.w(TAG, "window property was not set on tab");
+			Log.w(TAG, "Window property was not set on tab", Log.DEBUG_MODE);
 		}
 
 		if (tag != null && windowProxy != null) {
@@ -276,9 +276,9 @@ public class TabGroupProxy extends TiWindowProxy
 			int activeTabIndex = tg.getActiveTab();
 
 			if (activeTabIndex < 0) {
-				Log.e(TAG, "unable to get active tab, invalid index returned: " + activeTabIndex);
+				Log.e(TAG, "Unable to get active tab, invalid index returned: " + activeTabIndex);
 			} else if (activeTabIndex >= tabs.size()) {
-				Log.e(TAG, "unable to get active tab, index is larger than tabs array: " + activeTabIndex);
+				Log.e(TAG, "Unable to get active tab, index is larger than tabs array: " + activeTabIndex);
 			}
 			activeTab = tabs.get(activeTabIndex);
 		} else {

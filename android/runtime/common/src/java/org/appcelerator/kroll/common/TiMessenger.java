@@ -113,7 +113,7 @@ public class TiMessenger implements Handler.Callback
 	public static void postOnMain(Runnable runnable)
 	{
 		if (mainMessenger == null) {
-			Log.w(TAG, "unable to post runnable on main thread, main messenger is null");
+			Log.w(TAG, "Unable to post runnable on main thread, main messenger is null");
 
 			return;
 		}
@@ -124,7 +124,7 @@ public class TiMessenger implements Handler.Callback
 	public static void postOnRuntime(Runnable runnable)
 	{
 		if (runtimeMessenger == null) {
-			Log.w(TAG, "unable to post runnable on runtime thread, runtime messenger is null");
+			Log.w(TAG, "Unable to post runnable on runtime thread, runtime messenger is null");
 
 			return;
 		}
@@ -236,7 +236,7 @@ public class TiMessenger implements Handler.Callback
 					}
 
 				} catch (InterruptedException e) {
-					Log.e(TAG, "interrupted waiting for async result", e);
+					Log.e(TAG, "Interrupted waiting for async result", e);
 					dispatchPendingMessages();
 				}
 
@@ -298,7 +298,7 @@ public class TiMessenger implements Handler.Callback
 					messageQueue.put(message);
 
 				} catch (InterruptedException e) {
-					Log.w(TAG, "interrupted trying to put new message, sending to handler", e);
+					Log.w(TAG, "Interrupted trying to put new message, sending to handler", e);
 					message.sendToTarget();
 				}
 

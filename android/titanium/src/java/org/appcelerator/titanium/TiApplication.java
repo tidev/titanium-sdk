@@ -171,7 +171,7 @@ public abstract class TiApplication extends Application implements Handler.Callb
 			}
 		}
 
-		Log.e(TAG, "unable to get the TiApplication instance");
+		Log.e(TAG, "Unable to get the TiApplication instance");
 		return null;
 	}
 
@@ -298,7 +298,7 @@ public abstract class TiApplication extends Application implements Handler.Callb
 			}
 		}
 
-		Log.e(TAG, "no valid root or current activity found for application instance");
+		Log.e(TAG, "No valid root or current activity found for application instance");
 		return null;
 	}
 

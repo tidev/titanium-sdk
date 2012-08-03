@@ -109,7 +109,7 @@ public class GestureModule extends KrollModule
 			}
 			else
 			{
-				Log.e (TAG, "unable to remove orientation config listener, does not exist");
+				Log.e (TAG, "Unable to remove orientation config listener, does not exist");
 			}
 		}
 		else if (EVENT_SHAKE.equals(event))

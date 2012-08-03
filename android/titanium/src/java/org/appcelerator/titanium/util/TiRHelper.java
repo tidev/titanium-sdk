@@ -1,3 +1,9 @@
+/**
+ * Appcelerator Titanium Mobile
+ * Copyright (c) 2011-2012 by Appcelerator, Inc. All Rights Reserved.
+ * Licensed under the terms of the Apache Public License
+ * Please see the LICENSE included with this distribution for details.
+ */
 package org.appcelerator.titanium.util;
 
 import java.util.Collections;
@@ -5,7 +11,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.appcelerator.kroll.common.Log;
-import org.appcelerator.kroll.common.TiConfig;
 import org.appcelerator.titanium.TiApplication;
 
 /**
@@ -14,8 +19,7 @@ import org.appcelerator.titanium.TiApplication;
  * strings at runtime.
  */
 public class TiRHelper {
-	private static final String LCAT = "TiRHelper";
-	private static final boolean DBG = TiConfig.LOGD;
+	private static final String TAG = "TiRHelper";
 	
 	private static Map<String, Class<?>> clsCache = Collections.synchronizedMap(new HashMap<String, Class<?>>());
 	private static Map<String, Integer> valCache = Collections.synchronizedMap(new HashMap<String, Integer>());
@@ -72,9 +76,7 @@ public class TiRHelper {
 		try {
 			i = getClass(prefix + classAndFieldNames[0]).getDeclaredField(classAndFieldNames[1]).getInt(null);
 		} catch (Exception e) {
-			if (DBG) {
-				Log.e(LCAT, "Error looking up resource: " + e.getMessage(), e);
-			}
+			Log.e(TAG, "Error looking up resource: " + e.getMessage(), e, Log.DEBUG_MODE);
 			valCache.put(path, 0);
 			throw new ResourceNotFoundException(path);
 		}

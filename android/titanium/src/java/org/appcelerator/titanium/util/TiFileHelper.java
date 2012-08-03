@@ -44,7 +44,7 @@ import android.webkit.URLUtil;
 
 public class TiFileHelper
 {
-	private static final String TAG = "TiFileHlpr";
+	private static final String TAG = "TiFileHelper";
 
 	public static final String TI_DIR = "tiapp";
 	public static final String TI_DIR_JS = "tijs";
@@ -139,7 +139,7 @@ public class TiFileHelper
 			if (isTitaniumResource(path)) {
 				String[] parts = path.split(":");
 				if (parts.length != 3) {
-					Log.w(TAG, "malformed titanium resource url, resource not loaded: " + path);
+					Log.w(TAG, "Malformed titanium resource url, resource not loaded: " + path);
 					return null;
 				}
 				@SuppressWarnings("unused")
@@ -342,7 +342,7 @@ public class TiFileHelper
 
 			String[] parts = s.split(":");
 			if (parts.length != 2) {
-				Log.w(TAG, "malformed titanium resource url, resource not loaded: " + s);
+				Log.w(TAG, "Malformed titanium resource url, resource not loaded: " + s);
 				return null;
 			}
 			String section = parts[0];
@@ -569,8 +569,9 @@ public class TiFileHelper
 		File result = null;
 		Context context = softContext.get();
 		if (context != null) {
-			if ( ! dir.exists() ) {
-				Log.w(TAG, "getTempFile: Directory '" + dir.getAbsolutePath() + "' does not exist. Call to File.createTempFile() will fail." );
+			if (!dir.exists()) {
+				Log.w(TAG, "getTempFile: Directory '" + dir.getAbsolutePath()
+					+ "' does not exist. Call to File.createTempFile() will fail.");
 			}
 			result = File.createTempFile("tia", suffix, dir);
 

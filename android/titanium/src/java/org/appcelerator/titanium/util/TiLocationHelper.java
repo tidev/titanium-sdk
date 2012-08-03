@@ -196,7 +196,7 @@ public class TiLocationHelper
 					criteria.setSpeedRequired(false);
 					break;
 				default :
-					Log.w(TAG, "Ignoring unknown accuracy value [" + value + "]", Log.DEBUG_MODE);
+					Log.w(TAG, "Ignoring unknown accuracy value [" + value + "]");
 			}
 		}
 

@@ -199,7 +199,8 @@ public class TiDrawableReference
 		if (dict.containsKey("media")) {
 			return fromBlob(activity, TiConvert.toBlob(new KrollDict(dict), "media"));
 		} else {
-			Log.w(TAG, "Unknown drawable reference inside dictionary.  Expected key 'media' to be a blob.  Returning null drawable reference");
+			Log.w(TAG,
+				"Unknown drawable reference inside dictionary.  Expected key 'media' to be a blob.  Returning null drawable reference");
 			return fromObject(activity, null);
 		}
 	}
@@ -227,7 +228,8 @@ public class TiDrawableReference
 		} else if (object instanceof Number) {
 			return fromResourceId(activity, ((Number)object).intValue());
 		} else {
-			Log.w(TAG, "Unknown image resource type: " + object.getClass().getSimpleName() + ". Returning null drawable reference");
+			Log.w(TAG, "Unknown image resource type: " + object.getClass().getSimpleName()
+				+ ". Returning null drawable reference");
 			return fromObject(activity, null);
 		}
 	}
@@ -620,7 +622,7 @@ public class TiDrawableReference
 	public void getBitmapAsync(TiDownloadListener listener)
 	{
 		if (!isNetworkUrl()) {
-			Log.w(TAG, "getBitmapAsync called on non-network url.  Will attempt load.");
+			Log.w(TAG, "getBitmapAsync called on non-network url.  Will attempt load.", Log.DEBUG_MODE);
 		}
 		
 		try {
@@ -639,7 +641,7 @@ public class TiDrawableReference
 	public void getBitmapAsync(TiBackgroundImageLoadTask asyncTask)
 	{
 		if (!isNetworkUrl()) {
-			Log.w(TAG, "getBitmapAsync called on non-network url.  Will attempt load.");
+			Log.w(TAG, "getBitmapAsync called on non-network url.  Will attempt load.", Log.DEBUG_MODE);
 		}
 		asyncTask.load(url);
 	}
