@@ -20,7 +20,6 @@ import org.appcelerator.titanium.view.TiUIView;
 
 import android.content.Context;
 import android.graphics.Rect;
-import android.os.Build;
 import android.text.Editable;
 import android.text.InputType;
 import android.text.TextUtils.TruncateAt;
@@ -74,6 +73,7 @@ public class TiUIText extends TiUIView
 	private static final int TEXT_AUTOCAPITALIZATION_ALL = 3;
 
 	private boolean field;
+	private int maxLength = -1;
 
 	protected TiEditText tv;
 	
@@ -100,6 +100,14 @@ public class TiUIText extends TiUIView
 			}
 			return true;
 		}
+
+		@Override
+		protected void onLayout(boolean changed, int left, int top, int right, int bottom)
+		{
+			super.onLayout(changed, left, top, right, bottom);
+			TiUIHelper.firePostLayoutEvent(proxy);
+		}
+
 	}
 
 	public TiUIText(TiViewProxy proxy, boolean field)
@@ -108,6 +116,7 @@ public class TiUIText extends TiUIView
 		if (DBG) {
 			Log.d(LCAT, "Creating a text field");
 		}
+		
 		this.field = field;
 		tv = new TiEditText(getProxy().getActivity());
 		if (field) {
@@ -135,6 +144,9 @@ public class TiUIText extends TiUIView
 			tv.setEnabled(d.getBoolean(TiC.PROPERTY_ENABLED));
 		}
 		
+		if (d.containsKey(TiC.PROPERTY_MAX_LENGTH) && field) {
+			maxLength = TiConvert.toInt(d, TiC.PROPERTY_MAX_LENGTH);
+		}
 		if (d.containsKey(TiC.PROPERTY_VALUE)) {
 			tv.setText(d.getString(TiC.PROPERTY_VALUE));
 		}
@@ -195,6 +207,19 @@ public class TiUIText extends TiUIView
 			tv.setEnabled(TiConvert.toBoolean(newValue));
 		} else if (key.equals(TiC.PROPERTY_VALUE)) {
 			tv.setText((String) newValue);
+		} else if (key.equals(TiC.PROPERTY_MAX_LENGTH)) {
+			maxLength = TiConvert.toInt(newValue);
+			//truncate if current text exceeds max length
+			Editable currentText = tv.getText();
+			if (maxLength >= 0 && currentText.length() > maxLength) {
+				CharSequence truncateText = currentText.subSequence(0, maxLength);
+				int cursor = tv.getSelectionStart() - 1;
+				if (cursor > maxLength) {
+					cursor = maxLength;
+				}
+				tv.setText(truncateText);
+				tv.setSelection(cursor);
+			}
 		} else if (key.equals(TiC.PROPERTY_COLOR)) {
 			tv.setTextColor(TiConvert.toColor((String) newValue));
 		} else if (key.equals(TiC.PROPERTY_HINT_TEXT)) {
@@ -237,6 +262,7 @@ public class TiUIText extends TiUIView
 	@Override
 	public void afterTextChanged(Editable tv)
 	{
+		
 	}
 
 	@Override
@@ -247,12 +273,28 @@ public class TiUIText extends TiUIView
 	@Override
 	public void onTextChanged(CharSequence s, int start, int before, int count)
 	{
-		String value = tv.getText().toString();
-		KrollDict data = new KrollDict();
-		data.put("value", value);
 
-		proxy.setProperty(TiC.PROPERTY_VALUE, value);
-		proxy.fireEvent(TiC.EVENT_CHANGE, data);
+		/** There is an Android bug regarding setting filter on EditText that impacts auto completion.
+		 *  Therefore we can't use filters to implement "maxLength" property. Instead we manipulate
+		 *  the text to achieve perfect parity with other platforms.
+		 *  Android bug url for reference: http://code.google.com/p/android/issues/detail?id=35757
+		 */
+		Object prevText = proxy.getProperty(TiC.PROPERTY_VALUE);
+		if (maxLength >= 0 && s.length() > maxLength) {
+			String t = TiConvert.toString(prevText);
+			int cursor = tv.getSelectionStart() - 1;
+			tv.setText(t);
+			tv.setSelection(cursor);
+			return;
+		}
+		String newValue = tv.getText().toString();
+		if (proxy.shouldFireChange(prevText, newValue)) {
+			KrollDict data = new KrollDict();
+			data.put("value", newValue);
+
+			proxy.setProperty(TiC.PROPERTY_VALUE, newValue);
+			proxy.fireEvent(TiC.EVENT_CHANGE, data);
+		}
 	}
 	
 	@Override

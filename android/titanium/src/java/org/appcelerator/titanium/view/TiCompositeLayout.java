@@ -18,6 +18,7 @@ import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiDimension;
 import org.appcelerator.titanium.TiLaunchActivity;
 import org.appcelerator.titanium.proxy.TiViewProxy;
+import org.appcelerator.titanium.util.TiUIHelper;
 
 import android.app.Activity;
 import android.content.Context;
@@ -283,6 +284,10 @@ public class TiCompositeLayout extends ViewGroup
 		int maxWidth = 0;
 		int maxHeight = 0;
 
+		// Used for horizontal layout only
+		int horizontalRowWidth = 0;
+		int horizontalRowHeight = 0;
+
 		for(int i = 0; i < childCount; i++) {
 			View child = getChildAt(i);
 			if (child.getVisibility() != View.GONE) {
@@ -297,31 +302,45 @@ public class TiCompositeLayout extends ViewGroup
 			}
 
 			if (isHorizontalArrangement()) {
-				maxWidth += childWidth;
+				if (enableHorizontalWrap) {
+					// Make maxWidth the width of the view and calculate the maxHeight based on the horizontal rows with
+					// wrap
+					maxWidth = w;
+
+					if ((horizontalRowWidth + childWidth) > w) {
+						horizontalRowWidth = childWidth;
+						maxHeight += horizontalRowHeight;
+						horizontalRowHeight = childHeight;
+
+					} else {
+						horizontalRowWidth += childWidth;
+					}
+
+				} else {
+					// For horizontal layout without wrap, just keep on adding the widths since it doesn't wrap
+					maxWidth += childWidth;
+				}
+				horizontalRowHeight = Math.max(horizontalRowHeight, childHeight);
+
 			} else {
 				maxWidth = Math.max(maxWidth, childWidth);
-			}
 
-			if (isVerticalArrangement()) {
-				maxHeight += childHeight;
-			} else {
-				maxHeight = Math.max(maxHeight, childHeight);
+				if (isVerticalArrangement()) {
+					maxHeight += childHeight;
+				} else {
+					maxHeight = Math.max(maxHeight, childHeight);
+				}
 			}
+		}
+
+		// Add height for last row in horizontal layout
+		if (isHorizontalArrangement()) {
+			maxHeight += horizontalRowHeight;
 		}
 
 		// account for padding
 		maxWidth += getPaddingLeft() + getPaddingRight();
 		maxHeight += getPaddingTop() + getPaddingBottom();
-
-		// Compute the maxHeight based on the number of horizontal rows for horizontal layout with wrap
-		if (isHorizontalArrangement() && enableHorizontalWrap && w != 0) {
-			int horizontalRows = (maxWidth / w);
-			if (horizontalRows > 1) {
-				// Reset the max width to the width of the parent (that should be the max width before we wrap)
-				maxWidth = w;
-				maxHeight *= horizontalRows;
-			}
-		}
 
 		// Account for border
 		//int padding = Math.round(borderHelper.calculatePadding());
@@ -572,10 +591,8 @@ public class TiCompositeLayout extends ViewGroup
 		}
 
 		TiViewProxy viewProxy = (proxy == null ? null : proxy.get());
+		TiUIHelper.firePostLayoutEvent(viewProxy);
 
-		if (viewProxy != null && viewProxy.hasListeners(TiC.EVENT_POST_LAYOUT)) {
-			viewProxy.fireEvent(TiC.EVENT_POST_LAYOUT, null, false);
-		}
 	}
 
 	// option0 is left/top, option1 is right/bottom

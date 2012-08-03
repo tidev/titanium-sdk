@@ -31,6 +31,7 @@ import android.os.Message;
 	TiC.PROPERTY_FONT,
 	TiC.PROPERTY_HINT_TEXT,
 	TiC.PROPERTY_KEYBOARD_TYPE,
+	TiC.PROPERTY_MAX_LENGTH,
 	TiC.PROPERTY_PASSWORD_MASK,
 	TiC.PROPERTY_TEXT_ALIGN,
 	TiC.PROPERTY_VALUE,
@@ -46,6 +47,8 @@ public class TextFieldProxy extends TiViewProxy
 	{
 		super();
 		defaultValues.put(TiC.PROPERTY_VALUE, "");
+		defaultValues.put(TiC.PROPERTY_MAX_LENGTH, -1);
+
 	}
 
 	public TextFieldProxy(TiContext tiContext)

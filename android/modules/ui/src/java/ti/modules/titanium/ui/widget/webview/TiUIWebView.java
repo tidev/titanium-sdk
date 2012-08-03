@@ -25,6 +25,7 @@ import org.appcelerator.titanium.io.TiFileFactory;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiMimeTypeHelper;
+import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiBackgroundDrawable;
 import org.appcelerator.titanium.view.TiCompositeLayout;
 import org.appcelerator.titanium.view.TiUIView;
@@ -99,6 +100,14 @@ public class TiUIWebView extends TiUIView
 
 			// If performClick() can not handle the event, we pass it to WebKit.
 			return super.onTouchEvent(ev);
+		}
+
+		@SuppressWarnings("deprecation")
+		@Override
+		protected void onLayout(boolean changed, int left, int top, int right, int bottom)
+		{
+			super.onLayout(changed, left, top, right, bottom);
+			TiUIHelper.firePostLayoutEvent(proxy);
 		}
 	}
 

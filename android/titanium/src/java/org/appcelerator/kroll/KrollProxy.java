@@ -666,7 +666,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 		return getKrollObject().hasListeners(event);
 	}
 
-	protected boolean shouldFireChange(Object oldValue, Object newValue)
+	public boolean shouldFireChange(Object oldValue, Object newValue)
 	{
 		if (!(oldValue == null && newValue == null)) {
 			if ((oldValue == null && newValue != null) || (newValue == null && oldValue != null) || (!oldValue.equals(newValue))) {
