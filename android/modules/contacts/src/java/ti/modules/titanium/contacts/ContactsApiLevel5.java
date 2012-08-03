@@ -229,42 +229,21 @@ public class ContactsApiLevel5 extends CommonContactsApi
 	protected void updateContactField(ArrayList<ContentProviderOperation> ops, String mimeType, String idKey,
 			Object idValue, String typeKey, int typeValue, long rawContactId) 
 	{
+		ContentProviderOperation.Builder  builder = ContentProviderOperation.newInsert(Data.CONTENT_URI)
+				.withValue(Data.MIMETYPE, mimeType)
+				.withValue(idKey, idValue);
 		if (rawContactId == -1) {
-			if (typeKey == null) {
-				ops.add(ContentProviderOperation
-						.newInsert(Data.CONTENT_URI)
-						.withValueBackReference(Data.RAW_CONTACT_ID, 0)
-						.withValue(Data.MIMETYPE, mimeType)
-						.withValue(idKey, idValue) 
-						.build());
-			} else {
-				ops.add(ContentProviderOperation
-						.newInsert(Data.CONTENT_URI)
-						.withValueBackReference(Data.RAW_CONTACT_ID, 0)
-						.withValue(Data.MIMETYPE, mimeType)
-						.withValue(idKey, idValue) 
-						.withValue(typeKey, typeValue)
-						.build());
+			builder.withValueBackReference(Data.RAW_CONTACT_ID, 0);
+			if (typeKey != null) {
+				builder.withValue(typeKey, typeValue);
 			}
-			
 		} else {
-			if (typeKey == null) {
-				ops.add(ContentProviderOperation
-						.newInsert(Data.CONTENT_URI)
-						.withValue(Data.RAW_CONTACT_ID, rawContactId)
-						.withValue(Data.MIMETYPE, mimeType)
-						.withValue(idKey, idValue) 
-						.build());
-			} else {
-				ops.add(ContentProviderOperation
-						.newInsert(Data.CONTENT_URI)
-						.withValue(Data.RAW_CONTACT_ID, rawContactId)
-						.withValue(Data.MIMETYPE, mimeType)
-						.withValue(idKey, idValue) 
-						.withValue(typeKey, typeValue)
-						.build());
+			builder.withValue(Data.RAW_CONTACT_ID, rawContactId);
+			if (typeKey != null) {
+				builder.withValue(typeKey, typeValue);
 			}
 		}
+		ops.add(builder.build());
 	}
 	
 	protected int processIMProtocol(String serviceName) 
@@ -342,52 +321,27 @@ public class ContactsApiLevel5 extends CommonContactsApi
 						Log.e(LCAT, "User name is not provided when adding new contact");
 						continue;
 					}
+					ContentProviderOperation.Builder builder = ContentProviderOperation.newInsert(Data.CONTENT_URI)
+							.withValue(Data.MIMETYPE, Im.CONTENT_ITEM_TYPE)
+							.withValue(Im.DATA, userName)
+							.withValue(Im.TYPE, iType);
 					if (rawContactId == -1) {
+						builder.withValueBackReference(Data.RAW_CONTACT_ID, 0);
 						//custom
 						if (serviceType == -1) {
-							ops.add(ContentProviderOperation
-									.newInsert(Data.CONTENT_URI)
-									.withValueBackReference(Data.RAW_CONTACT_ID, 0)
-									.withValue(Data.MIMETYPE, Im.CONTENT_ITEM_TYPE)
-									.withValue(Im.PROTOCOL, serviceType) 
-									.withValue(Im.CUSTOM_PROTOCOL, serviceName) 
-									.withValue(Im.DATA, userName)
-									.withValue(Im.TYPE, iType) 
-									.build());
+							builder.withValue(Im.CUSTOM_PROTOCOL, serviceName);
 						} else {
-							ops.add(ContentProviderOperation
-									.newInsert(Data.CONTENT_URI)
-									.withValueBackReference(Data.RAW_CONTACT_ID, 0)
-									.withValue(Data.MIMETYPE, Im.CONTENT_ITEM_TYPE)
-									.withValue(Im.PROTOCOL, serviceType) 
-									.withValue(Im.CUSTOM_PROTOCOL, serviceName) 
-									.withValue(Im.DATA, userName)
-									.withValue(Im.TYPE, iType) 
-									.build());
+							builder.withValue(Im.PROTOCOL, serviceType);
 						}
 					} else {
+						builder.withValue(Data.RAW_CONTACT_ID, rawContactId);
 						if (serviceType == -1) {
-							ops.add(ContentProviderOperation
-									.newInsert(Data.CONTENT_URI)
-									.withValue(Data.RAW_CONTACT_ID, rawContactId)
-									.withValue(Data.MIMETYPE, Im.CONTENT_ITEM_TYPE)
-									.withValue(Im.PROTOCOL, serviceType) 
-									.withValue(Im.CUSTOM_PROTOCOL, serviceName) 
-									.withValue(Im.DATA, userName)
-									.withValue(Im.TYPE, iType) 
-									.build());
+							builder.withValue(Im.CUSTOM_PROTOCOL, serviceName);
 						} else {
-							ops.add(ContentProviderOperation
-									.newInsert(Data.CONTENT_URI)
-									.withValue(Data.RAW_CONTACT_ID, rawContactId)
-									.withValue(Data.MIMETYPE, Im.CONTENT_ITEM_TYPE)
-									.withValue(Im.PROTOCOL, serviceType) 
-									.withValue(Im.CUSTOM_PROTOCOL, serviceName) 
-									.withValue(Im.DATA, userName)
-									.withValue(Im.TYPE, iType) 
-									.build());
+							builder.withValue(Im.PROTOCOL, serviceType);
 						}
 					}
+					ops.add(builder.build());
 				}
 			}
 		}
@@ -540,31 +494,20 @@ public class ContactsApiLevel5 extends CommonContactsApi
 						state = TiConvert.toString(typeHashMap, "State");
 					}
 
+					ContentProviderOperation.Builder builder = ContentProviderOperation.newInsert(Data.CONTENT_URI)
+							.withValue(Data.MIMETYPE, StructuredPostal.CONTENT_ITEM_TYPE)
+							.withValue(StructuredPostal.CITY, city) 
+							.withValue(StructuredPostal.REGION, state) 
+							.withValue(StructuredPostal.COUNTRY, country) 
+							.withValue(StructuredPostal.STREET, street) 
+							.withValue(StructuredPostal.POSTCODE, zip) 
+							.withValue(StructuredPostal.TYPE, aType);
 					if (rawContactId == -1) {
-						ops.add(ContentProviderOperation
-								.newInsert(Data.CONTENT_URI)
-								.withValueBackReference(Data.RAW_CONTACT_ID, 0)
-								.withValue(Data.MIMETYPE, StructuredPostal.CONTENT_ITEM_TYPE)
-								.withValue(StructuredPostal.CITY, city) 
-								.withValue(StructuredPostal.REGION, state) 
-								.withValue(StructuredPostal.COUNTRY, country) 
-								.withValue(StructuredPostal.STREET, street) 
-								.withValue(StructuredPostal.POSTCODE, zip) 
-								.withValue(StructuredPostal.TYPE, aType)
-								.build());
+						builder.withValueBackReference(Data.RAW_CONTACT_ID, 0);
 					} else {
-						ops.add(ContentProviderOperation
-								.newInsert(Data.CONTENT_URI)
-								.withValue(Data.RAW_CONTACT_ID, rawContactId)
-								.withValue(Data.MIMETYPE, StructuredPostal.CONTENT_ITEM_TYPE)
-								.withValue(StructuredPostal.CITY, city) 
-								.withValue(StructuredPostal.REGION, state) 
-								.withValue(StructuredPostal.COUNTRY, country) 
-								.withValue(StructuredPostal.STREET, street) 
-								.withValue(StructuredPostal.POSTCODE, zip) 
-								.withValue(StructuredPostal.TYPE, aType)
-								.build());
+						builder.withValue(Data.RAW_CONTACT_ID, rawContactId);
 					}
+					ops.add(builder.build());
 				}
 			}
 		}
@@ -718,17 +661,7 @@ public class ContactsApiLevel5 extends CommonContactsApi
 		try {
 
 			ContentProviderResult[] providerResult = TiApplication.getAppRootOrCurrentActivity().getContentResolver().applyBatch(ContactsContract.AUTHORITY, ops);
-			//ContentResolver cr =  TiApplication.getAppRootOrCurrentActivity().getContentResolver();
-			long id = 0;
-			/*Cursor cur = cr.query(Data.CONTENT_URI,
-				null, Data.DISPLAY_NAME + "=?", new String[] {displayName}, null);
-			if (cur.getCount() > 0) {
-				while (cur.moveToNext()) {
-					int column2 = cur.getColumnIndex(Data.CONTACT_ID);
-					id = cur.getLong(column2);
-				}
-			}*/
-			id = ContentUris.parseId(providerResult[0].uri);
+			long id = ContentUris.parseId(providerResult[0].uri);
 			newContact.setProperty("id", id);
 			newContact.setId(id);
 
@@ -1018,56 +951,55 @@ public class ContactsApiLevel5 extends CommonContactsApi
 	protected void modifyContact(PersonProxy person, String id)
 	{
 		ArrayList<ContentProviderOperation> ops = new ArrayList<ContentProviderOperation>();
-		
-		if (person.getNameModified()) {
+		if (person.isFieldModified(TiC.PROPERTY_NAME)) {
 			modifyName(ops, person, id); 
 		}
 		
-		if (person.getBdayModified()) {
+		if (person.isFieldModified(TiC.PROPERTY_BIRTHDAY)) {
 			modifyBirthday(ops, person, id);
 		}
 		
-		if (person.getOrganizationModified()) {
+		if (person.isFieldModified(TiC.PROPERTY_ORGANIZATION)) {
 			modifyOrganization(ops, person, id);
 		}
 		
-		if (person.getNoteModified()) {
+		if (person.isFieldModified(TiC.PROPERTY_NOTE)) {
 			modifyNote(ops, person, id);
 		}
 		
-		if (person.getNickNameModified()) {
+		if (person.isFieldModified(TiC.PROPERTY_NICKNAME)) {
 			modifyNickName(ops, person, id);
 		}
 		
-		if (person.getImageModified()) {
+		if (person.isFieldModified(TiC.PROPERTY_IMAGE)) {
 			modifyImage(ops, person, id); 
 		}
 		
-		if (person.getPhoneModified()) {
+		if (person.isFieldModified(TiC.PROPERTY_PHONE)) {
 			modifyPhone(ops, person, id);
 		}
 		
-		if (person.getAddressModified()) {
+		if (person.isFieldModified(TiC.PROPERTY_ADDRESS)) {
 			modifyAddress(ops, person, id);
 		}
 		
-		if (person.getImModified()) {
+		if (person.isFieldModified(TiC.PROPERTY_INSTANTMSG)) {
 			modifyIm(ops, person, id);
 		}
 		
-		if (person.getUrlModified()) {
+		if (person.isFieldModified(TiC.PROPERTY_URL)) {
 			modifyUrl(ops, person, id);
 		}
 		
-		if (person.getEmailModified()) {
+		if (person.isFieldModified(TiC.PROPERTY_EMAIL)) {
 			modifyEmail(ops, person, id);
 		}
 		
-		if (person.getRelatedNamesModified()) {
+		if (person.isFieldModified(TiC.PROPERTY_RELATED_NAMES)) {
 			modifyRelatedNames(ops, person, id);
 		}
 		
-		if (person.getDateModified()) {
+		if (person.isFieldModified(TiC.PROPERTY_DATE)) {
 			modifyDate(ops, person, id);
 		}
 		try {

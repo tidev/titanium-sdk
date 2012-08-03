@@ -124,16 +124,17 @@ methods:
   - name: save
     summary: Commits all pending changes to the underlying contacts database.
     platforms: [android, iphone, ipad]
+    parameters:
+      - name: contacts
+        summary: List of contacts to save. Used on Android only. 
+        type: Array<Titanium.Contacts.Person>
     since: {android: "2.2.0"}
     description: |
       
         On Android:
         
-        When a contact is modified, it's <Titanium.Contacts.Person.id> is also modified.
-        
-        On iOS:
-        
-        This method takes in no argument and saves all pending changes to the contacts database.
+        Takes an array of <Titanium.Contacts.Person> objects and saves changes for
+        the specified contacts only.
         
   - name: showContacts
     summary: Displays a picker that allows a person to be selected.

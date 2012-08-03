@@ -8,6 +8,7 @@
 package ti.modules.titanium.contacts;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Map;
 
 import org.appcelerator.kroll.KrollDict;
@@ -33,19 +34,7 @@ public class PersonProxy extends KrollProxy
 	private String fullName = "";
 	
 	// Contact Modifications
-	private boolean nameModified = false;
-	private boolean bdayModified = false;
-	private boolean organizationModified = false;
-	private boolean noteModified = false;
-	private boolean nickNameModified = false;
-	private boolean imageModified = false;
-	private boolean phoneModified = false;
-	private boolean addressModified = false;
-	private boolean imModified = false;
-	private boolean urlModified = false;
-	private boolean emailModified = false;
-	private boolean relatedNamesModified = false;
-	private boolean dateModified = false;
+	private HashMap<String, Boolean> modified = new HashMap<String, Boolean>();
 
 	public PersonProxy()
 	{
@@ -65,85 +54,10 @@ public class PersonProxy extends KrollProxy
 	
 	public void finishModification()
 	{
-		nameModified = false;
-		bdayModified = false;
-		organizationModified = false;
-		noteModified = false;
-		nickNameModified = false;
-		imageModified = false;
-		phoneModified = false;
-		addressModified = false;
-		imModified = false;
-		urlModified = false;
-		emailModified = false;
-		relatedNamesModified = false;
-		dateModified = false;
+		modified.clear();
 	}
 	
-	public boolean getNameModified()
-	{
-		return nameModified;
-	}
 	
-	public boolean getBdayModified()
-	{
-		return bdayModified;
-	}
-	
-	public boolean getOrganizationModified()
-	{
-		return organizationModified;
-	}
-	
-	public boolean getNoteModified()
-	{
-		return noteModified;
-	}
-	
-	public boolean getNickNameModified()
-	{
-		return nickNameModified;
-	}
-	
-	public boolean getImageModified()
-	{
-		return imageModified;
-	}
-	
-	public boolean getPhoneModified()
-	{
-		return phoneModified;
-	}
-	
-	public boolean getAddressModified()
-	{
-		return addressModified;
-	}
-	
-	public boolean getImModified()
-	{
-		return imModified;
-	}
-	
-	public boolean getUrlModified()
-	{
-		return urlModified;
-	}
-	
-	public boolean getEmailModified()
-	{
-		return emailModified;
-	}
-	
-	public boolean getRelatedNamesModified()
-	{
-		return relatedNamesModified;
-	}
-	
-	public boolean getDateModified()
-	{
-		return dateModified;
-	}
 	
 	@Kroll.method @Kroll.getProperty
 	public String getFullName() 
@@ -160,6 +74,11 @@ public class PersonProxy extends KrollProxy
 	public long getId() 
 	{
 		return id;
+	}
+
+	public boolean isFieldModified(String field)
+	{
+		return (modified.containsKey(field) && modified.get(field));
 	}
 	
 	public void setId(long i) 
@@ -189,7 +108,7 @@ public class PersonProxy extends KrollProxy
 		image = blob;
 		hasImage = true;
 		imageFetched = true;
-		imageModified = true;
+		modified.put(TiC.PROPERTY_IMAGE, true);
 	}
 
 	private KrollDict contactMethodMapToDict(Map<String, ArrayList<String>> map)
@@ -234,29 +153,29 @@ public class PersonProxy extends KrollProxy
 	public void onPropertyChanged(String name, Object value)
 	{
 		if (name.equals(TiC.PROPERTY_FIRSTNAME) || name.equals(TiC.PROPERTY_MIDDLENAME) || name.equals(TiC.PROPERTY_LASTNAME)) {
-			nameModified = true;
+			modified.put(TiC.PROPERTY_NAME, true);
 		} else if (name.equals(TiC.PROPERTY_BIRTHDAY)) {
-			bdayModified = true;
+			modified.put(TiC.PROPERTY_BIRTHDAY, true);
 		} else if (name.equals(TiC.PROPERTY_ORGANIZATION)) {
-			organizationModified = true;
+			modified.put(TiC.PROPERTY_ORGANIZATION, true);
 		} else if (name.equals(TiC.PROPERTY_NOTE)) {
-			noteModified = true;
+			modified.put(TiC.PROPERTY_NOTE, true);
 		} else if (name.equals(TiC.PROPERTY_NICKNAME)) {
-			nickNameModified = true;
+			modified.put(TiC.PROPERTY_NICKNAME, true);
 		} else if (name.equals(TiC.PROPERTY_PHONE)) {
-			phoneModified = true;
+			modified.put(TiC.PROPERTY_PHONE, true);
 		} else if (name.equals(TiC.PROPERTY_ADDRESS)) {
-			addressModified = true;
+			modified.put(TiC.PROPERTY_ADDRESS, true);
 		} else if (name.equals(TiC.PROPERTY_INSTANTMSG)) {
-			imModified = true;
+			modified.put(TiC.PROPERTY_INSTANTMSG, true);
 		} else if (name.equals(TiC.PROPERTY_URL)) {
-			urlModified = true;
+			modified.put(TiC.PROPERTY_URL, true);
 		} else if (name.equals(TiC.PROPERTY_EMAIL)) {
-			emailModified = true;
+			modified.put(TiC.PROPERTY_EMAIL, true);
 		} else if (name.equals(TiC.PROPERTY_RELATED_NAMES)) {
-			relatedNamesModified = true;
+			modified.put(TiC.PROPERTY_RELATED_NAMES, true);
 		} else if (name.equals(TiC.PROPERTY_DATE)) {
-			dateModified = true;
+			modified.put(TiC.PROPERTY_DATE, true);
 		}
 		super.onPropertyChanged(name, value);
 	}
