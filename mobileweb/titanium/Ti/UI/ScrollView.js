@@ -54,11 +54,11 @@ define(["Ti/_/declare", "Ti/_/UI/KineticScrollView", "Ti/_/style", "Ti/_/lang", 
 					distanceX = distance * Math.cos(theta) * (velocityX < 0 ? -1 : 1),
 					distanceY = distance * Math.sin(theta) * (velocityY < 0 ? -1 : 1),
 					translationX = Math.min(0, Math.max(self._minTranslationX, self._currentTranslationX + distanceX)),
-					translationY = Math.min(0, Math.max(self._currentTranslationY + distanceY));
+					translationY = Math.min(0, Math.max(self._minTranslationY, self._currentTranslationY + distanceY));
 				self.fireEvent("dragEnd",{
 					decelerate: true
 				});
-				self._animateToPosition(translationX, translationY, duration, "ease-out", function() {
+				self._animateToPosition(translationX, translationY, duration, UI.ANIMATION_CURVE_EASE_OUT, function() {
 					self._setTranslation(translationX, translationY);
 					self._endScrollBars();
 					self.fireEvent("scrollEnd");

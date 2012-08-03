@@ -65,7 +65,7 @@ define(["Ti/_/declare", "Ti/_/UI/KineticScrollView", "Ti/_/style", "Ti/_/lang", 
 				self.fireEvent("dragEnd",{
 					decelerate: true
 				});
-				self._animateToPosition(self._currentTranslationX, translation, duration, "ease-out", function() {
+				self._animateToPosition(self._currentTranslationX, translation, duration, UI.ANIMATION_CURVE_EASE_OUT, function() {
 					self._setTranslation(self._currentTranslationX, translation);
 					self._endScrollBars();
 					self._fireScrollEvent("scrollEnd", e);
