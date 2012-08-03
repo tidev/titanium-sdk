@@ -41,7 +41,7 @@ import android.os.Message;
 public class TextFieldProxy extends TiViewProxy
 {
 	private static final int MSG_FIRST_ID = TiViewProxy.MSG_LAST_ID + 1;
-	private static final int MSG_SET_SELECTION = TiViewProxy.MSG_LAST_ID + 201;
+	private static final int MSG_SET_SELECTION = MSG_FIRST_ID + 201;
 
 	public TextFieldProxy()
 	{
