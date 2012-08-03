@@ -1190,7 +1190,7 @@ public abstract class TiUIView
 	public void setOpacity(float opacity)
 	{
 		if (opacity < 0 || opacity > 1) {
-			Log.w(LCAT, "Ignoring invalid value for opacity: " + opacity);
+			Log.w(TAG, "Ignoring invalid value for opacity: " + opacity);
 			return;
 		}
 		if (borderView != null) {

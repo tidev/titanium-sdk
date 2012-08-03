@@ -124,7 +124,7 @@ public class TiUIButton extends TiUIView
 	public void setOpacityForButton(float opacity)
 	{
 		if (opacity < 0 || opacity > 1) {
-			Log.w(LCAT, "Ignoring invalid value for opacity: " + opacity);
+			Log.w(TAG, "Ignoring invalid value for opacity: " + opacity);
 			return;
 		}
 		View view = getNativeView();
