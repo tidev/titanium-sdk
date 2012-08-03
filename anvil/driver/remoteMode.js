@@ -24,6 +24,8 @@ module.exports = new function() {
 		// hard code the location for remote mode since this should not change
 		driverGlobal.config.tiSdkDirs = "titanium_mobile/dist/mobilesdk/osx";
 
+		util.setCurrentTiSdk();
+
 		driverGlobal.platform.init(
 			function() {
 				process.exit(1);
@@ -209,6 +211,7 @@ module.exports = new function() {
 
 		function finishedCallback() {
 			process.chdir("..");
+			util.setCurrentTiSdk();
 			callback();
 		};
 

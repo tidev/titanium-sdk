@@ -1,0 +1,140 @@
+jQuery.colorpicker v0.6
+
+Copyright (c) 2011 Martijn W. van der Lee
+Licensed under the MIT.
+
+Full-featured colorpicker for jQueryUI with full theming support.
+Most images from jPicker by Christopher T. Tillman.
+Sourcecode created from scratch by Martijn W. van der Lee.
+
+IE support; make sure you have a doctype defined, or the colorpicker will not display correctly.
+
+Options:
+	alpha:				false
+		Whether or not to show the inputs for alpha.
+
+	altAlpha:			true
+		Change the opacity of the altField element(s) according to the alpha
+		setting.
+
+	altField:			''
+		Change the background color of the elements specified in this element.
+
+	altOnChange:		true
+		If true, the altField element(s) are updated on every change, otherwise
+		only upon closing.
+
+	altProperties:		'background-color'
+		Comma-separated list of CSS properties to set color of in the altField.
+		The following properties are allowed, all others are ignored.
+			background-color
+			color
+			border-color
+			outline-color
+
+	autoOpen:			false
+		If true, the dialog opens automatically upon page load.
+
+	buttonColorize:		false
+		If a buttonimage is specified, change the background color of the
+		image when the color is changed.
+
+	buttonImage:		'images/ui-colorpicker.png'
+		Same as jQueryUI DatePicker.
+
+	buttonImageOnly:	false
+		Same as jQueryUI DatePicker.
+
+	buttonText:			'Color'
+		Same as jQueryUI DatePicker.
+
+	closeOnOutside:		true
+		Close the window when clicking outside the colorpicker display.
+
+	color:				'#00FF00'
+		Initial color. Formats recognized are:
+			#rrggbb
+			rrggbb (same as previous, but without the #)
+			rgb(rrr,ggg,bbb)
+			rgba(rrr,ggg,bbb,a.a)
+			rgb(rrr%,ggg%,bbb%)
+			rgba(rrr%,ggg%,bbb%,aaa%)
+			w3c-defined color name
+
+	duration:			'fast'
+		Same as jQueryUI DatePicker.
+
+	hsv:				true
+		Whether or not to show the inputs for HSV.
+
+	layout:				{ ... }
+		Set the position of elements in a table layout.
+		You could create any layout possible with HTML tables by specifying cell
+		position and size of each part.
+		@todo document how this works.
+
+	limit:				''
+		Limit the selectable colors to any of the predefined limits:
+				''			No limitations, allow 8bpp color for a palette of all
+							16 million colors.
+				'websafe'	Set of 216 colors composed of 00, 33, 66, 99, cc and ff
+							color channel values in #rrggbb.
+				'nibble'	4 bits per color, can be easily converted to #rgb format.
+							The palette is limited to 4096 colors.
+				'binary'	Allow only #00 or #ff as color channel values for primary
+							colors only; only 8 colors are available with this limit.
+
+	mode:				'h'
+		Determines the functionality of the map and bar components. Allowed values
+		are; 'h', 's', 'l', 'r', 'g', 'b' or 'a', for hue, saturation, luminosity,
+		red, green, blue and alpha respectively.
+
+	parts:				''
+		Determine which parts to display.
+		Use any of the preset names ('full', 'popup' or 'inline') or specify
+		an array of part names (i.e. ['header', 'map', 'bar', 'hex', 'inputs',
+		'preview', 'swatches', 'footer']). If an empty string is given, the parts
+		will be automatically chosen as preset 'popup' or 'inline' depending on
+		the context in which the colorpicker is used.
+
+	rgb:				true,		// Show RGB controls and modes
+		Whether or not to show the inputs for RGB.
+
+	showAnim:			'fadeIn'
+		Same as jQueryUI DatePicker.
+
+	showOn:				'focus'
+		Same as jQueryUI DatePicker.
+
+	showOptions:		{}
+		Same as jQueryUI DatePicker.
+
+	swatches:			null
+		'null' to show swatches of HTML colors or provide your own object
+		with colornames and [r,g,b] array.
+		For example { 'red': [ 255, 0, 0 ], 'blue': [0, 0, 255] }
+
+	title:				'Pick a color'
+		Title to display in the header.
+
+Events:
+	onClose:			null
+		Triggered when the popup is closed.
+
+	onSelect:			null
+		Triggered on each change, confirmation (click on OK button) and
+		cancellation (click on Cancel, outside window or window close button)
+		respectively.
+		Note that onSelect may be triggered in rapid succession when dragging the
+		mouse accross the map or bar and may be triggered without a change in color
+		upon specific user interactions.
+
+Methods:
+	open
+		Open the dialog
+
+	close
+		Close the dialog
+
+	destroy
+		Destroy the widget

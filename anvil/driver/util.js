@@ -228,4 +228,29 @@ module.exports = new function() {
 
 		return tabs;
 	};
+
+	this.setCurrentTiSdk = function() {
+		var latestTime = 0;
+		var latestDir;
+
+		var files = fs.readdirSync(driverGlobal.config.tiSdkDirs);
+		for (var i = 0; i < files.length; i++) {
+			var stat = fs.statSync(driverGlobal.config.tiSdkDirs + "/" + files[i]);
+			var modifiedTime = stat.mtime.getTime();
+
+			if (modifiedTime > latestTime) {
+				latestTime = modifiedTime;
+				latestDir = files[i];
+			}
+		}
+
+		if ((typeof latestDir) === "undefined") {
+			console.log("unable to find a valid SDK");
+			process.exit(1);
+
+		} else {
+			console.log("using Titanium SDK version <" + latestDir + ">");
+			driverGlobal.config.currentTiSdkDir = driverGlobal.config.tiSdkDirs + "/" + latestDir;
+		}
+	};
 };
