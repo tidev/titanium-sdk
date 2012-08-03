@@ -740,26 +740,20 @@ DEFINE_EXCEPTIONS
 
 -(void)imageLoadSuccess:(ImageLoaderRequest*)request image:(UIImage*)image
 {
-	CGFloat computedWidth = TiDimensionCalculateValue(width, autoWidth);
-	CGFloat computedHeight = TiDimensionCalculateValue(height, autoHeight);
-	if ([TiUtils boolValue:[[self proxy] valueForKey:@"hires"]])
-	{
-		computedWidth *= 2;
-		computedHeight *= 2;
-	}
-	
-	UIImage * bestImage = [[ImageLoader sharedLoader] loadImmediateImage:[request url] withSize:CGSizeMake(computedWidth, computedHeight)];
-	if (bestImage != nil)
-	{
-		image = bestImage;
-	}
-    
+    UIImage* theImage = [[ImageLoader sharedLoader] loadImmediateImage:[request url]];
+
     autoWidth = image.size.width;
     autoHeight = image.size.height;
     
-	TiThreadPerformOnMainThread(^{
-		[self setURLImageOnUIThread:image];
-	}, NO);
+    //Setting hires to true causes image to de displayed at 50%
+    if ([TiUtils boolValue:[[self proxy] valueForKey:@"hires"]]) {
+        autoWidth = autoWidth/2;
+        autoHeight = autoHeight/2;
+    }
+        
+    TiThreadPerformOnMainThread(^{
+        [self setURLImageOnUIThread:theImage];
+    }, NO);
 }
 
 -(void)imageLoadFailed:(ImageLoaderRequest*)request error:(NSError*)error
