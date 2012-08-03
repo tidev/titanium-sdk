@@ -18,7 +18,7 @@
  * MODIFICATIONS
  * 
  * Appcelerator Titanium Mobile
- * Copyright (c) 2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2011-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -29,9 +29,11 @@
  * - In openUrl(String, String, Bundle), add 
  * 		conn.setUseCaches(false);
  * 	 to avoid our Http cache
+ * - In parseJson(String), provide the error code when throwing an error.
+ * - Add setLogEnabled() which can enable/disable log messages.
  * 
  * Original file this is based on:
- * https://github.com/facebook/facebook-android-sdk/blob/9cbf3474866d0e62fe5cf56afe416ba57622d35c/facebook/src/com/facebook/android/Util.java
+ * https://github.com/facebook/facebook-android-sdk/blob/4cbe4e2f348e09b0dd1decbc51e0899c3052d00b/facebook/src/com/facebook/android/Util.java
  */
 
 package com.facebook.android;
@@ -68,6 +70,12 @@ import android.webkit.CookieSyncManager;
 public final class Util {
 
     /**
+     * Set this to true to enable log output.  Remember to turn this back off
+     * before releasing.  Sending sensitive data to log is a security risk.
+     */
+    private static boolean ENABLE_LOG = false;
+
+    /**
      * Generate the multi-part post body providing the parameters and boundary
      * string
      * 
@@ -80,12 +88,13 @@ public final class Util {
         StringBuilder sb = new StringBuilder();
 
         for (String key : parameters.keySet()) {
-            if (parameters.getByteArray(key) != null) {
+            Object parameter = parameters.get(key);
+            if (!(parameter instanceof String)) {
                 continue;
             }
 
             sb.append("Content-Disposition: form-data; name=\"" + key +
-                    "\"\r\n\r\n" + parameters.getString(key));
+                    "\"\r\n\r\n" + (String)parameter);
             sb.append("\r\n" + "--" + boundary + "\r\n");
         }
 
@@ -100,6 +109,11 @@ public final class Util {
         StringBuilder sb = new StringBuilder();
         boolean first = true;
         for (String key : parameters.keySet()) {
+            Object parameter = parameters.get(key);
+            if (!(parameter instanceof String)) {
+                continue;
+            }
+
             if (first) first = false; else sb.append("&");
             sb.append(URLEncoder.encode(key) + "=" +
                       URLEncoder.encode(parameters.getString(key)));
@@ -113,8 +127,10 @@ public final class Util {
             String array[] = s.split("&");
             for (String parameter : array) {
                 String v[] = parameter.split("=");
-                params.putString(URLDecoder.decode(v[0]),
-                                 URLDecoder.decode(v[1]));
+                if (v.length == 2) {
+                    params.putString(URLDecoder.decode(v[0]),
+                                     URLDecoder.decode(v[1]));
+                }
             }
         }
         return params;
@@ -164,7 +180,7 @@ public final class Util {
         if (method.equals("GET")) {
             url = url + "?" + encodeUrl(params);
         }
-        Log.d("Facebook-Util", method + " URL: " + url);
+        Util.logd("Facebook-Util", method + " URL: " + url);
         HttpURLConnection conn =
             (HttpURLConnection) new URL(url).openConnection();
         conn.setUseCaches(false); // TITANIUM
@@ -173,8 +189,9 @@ public final class Util {
         if (!method.equals("GET")) {
             Bundle dataparams = new Bundle();
             for (String key : params.keySet()) {
-                if (params.getByteArray(key) != null) {
-                        dataparams.putByteArray(key, params.getByteArray(key));
+                Object parameter = params.get(key);
+                if (parameter instanceof byte[]) {
+                    dataparams.putByteArray(key, (byte[])parameter);
                 }
             }
 
@@ -280,11 +297,20 @@ public final class Util {
 
         // errors set by the server are not consistent
         // they depend on the method and endpoint
-        if (json.has("error")) {
-            JSONObject error = json.getJSONObject("error");
-            throw new FacebookError(
-                    error.getString("message"), error.getString("type"), 0);
-        }
+		if (json.has("error")) {
+			JSONObject error = json.getJSONObject("error");
+			// throw new FacebookError(error.getString("message"), error.getString("type"), 0); // TITANIUM
+
+			// ************* APPCELERATOR TITANIUM CUSTOMIZATION *****************
+			int code = 0;
+			try {
+				code = Integer.parseInt(error.getString("code"));
+			} catch (Exception e) {
+				code = 0;
+			}
+			throw new FacebookError(error.getString("message"), error.getString("type"), code);
+			// ********************************************************************
+		}
         if (json.has("error_code") && json.has("error_msg")) {
             throw new FacebookError(json.getString("error_msg"), "",
                     Integer.parseInt(json.getString("error_code")));
@@ -319,4 +345,25 @@ public final class Util {
         alertBuilder.create().show();
     }
 
+    /**
+     * A proxy for Log.d api that kills log messages in release build. It
+     * not recommended to send sensitive information to log output in
+     * shipping apps.
+     *
+     * @param tag
+     * @param msg
+     */
+    public static void logd(String tag, String msg) {
+        if (ENABLE_LOG) {
+            Log.d(tag, msg);
+        }
+    }
+
+// *************** APPCELERATOR TITANIUM CUSTOMIZATION ***************************
+    /**
+     * Enable/disable log messages
+     */
+	public static void setLogEnabled(boolean logEnabled) {
+		ENABLE_LOG = logEnabled;
+	}
 }

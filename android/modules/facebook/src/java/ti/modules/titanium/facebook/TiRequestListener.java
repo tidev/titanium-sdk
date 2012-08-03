@@ -14,9 +14,12 @@ import java.net.MalformedURLException;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollFunction;
 import org.appcelerator.kroll.common.Log;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import com.facebook.android.AsyncFacebookRunner.RequestListener;
 import com.facebook.android.FacebookError;
+import com.facebook.android.Util;
 
 public class TiRequestListener implements RequestListener
 {
@@ -82,7 +85,14 @@ public class TiRequestListener implements RequestListener
 	@Override
 	public void onComplete(String result, Object state)
 	{
-		complete(result);
+		try {
+			Util.parseJson(result);
+			complete(result);
+		} catch (JSONException e) {
+			complete(result);
+		} catch (FacebookError e) {
+			complete(e);
+		}
 	}
 
 	@Override
