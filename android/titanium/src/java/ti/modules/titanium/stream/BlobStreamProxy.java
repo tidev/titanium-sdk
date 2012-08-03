@@ -1,10 +1,9 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-
 package ti.modules.titanium.stream;
 
 import java.io.IOException;
@@ -12,31 +11,24 @@ import java.io.InputStream;
 
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
-import org.appcelerator.kroll.common.TiConfig;
 import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.io.TiStream;
 import org.appcelerator.titanium.util.TiStreamHelper;
 
 import ti.modules.titanium.BufferProxy;
 
-
 @Kroll.proxy(parentModule=StreamModule.class)
 public class BlobStreamProxy extends KrollProxy implements TiStream
 {
-	private static final String LCAT = "BlobStream";
-	private static final boolean DBG = TiConfig.LOGD;
-
 	private TiBlob tiBlob;
 	private InputStream inputStream = null;
 	private boolean isOpen = false;
-
 
 	public BlobStreamProxy(TiBlob tiBlob)
 	{
 		this.tiBlob = tiBlob;
 		isOpen = true;
 	}
-
 
 	// TiStream interface methods
 	@Kroll.method

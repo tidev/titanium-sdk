@@ -454,7 +454,7 @@ public class TiAnimationBuilder
 	{
 		protected View view;
 		protected float fromWidth, fromHeight, toWidth, toHeight;
-		protected static final String LCAT = "TiSizeAnimation";
+		protected static final String TAG = "TiSizeAnimation";
 
 		public SizeAnimation(View view, float fromWidth, float fromHeight, float toWidth, float toHeight)
 		{
@@ -464,7 +464,7 @@ public class TiAnimationBuilder
 			this.toWidth = toWidth;
 			this.toHeight = toHeight;
 
-			Log.d(LCAT, "animate view from (" + fromWidth + "x" + fromHeight + ") to (" + toWidth + "x" + toHeight + ")",
+			Log.d(TAG, "animate view from (" + fromWidth + "x" + fromHeight + ") to (" + toWidth + "x" + toHeight + ")",
 				Log.DEBUG_MODE);
 		}
 

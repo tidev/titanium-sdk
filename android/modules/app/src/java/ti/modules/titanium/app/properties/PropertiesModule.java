@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -17,7 +17,6 @@ import ti.modules.titanium.app.AppModule;
 @Kroll.module(parentModule=AppModule.class)
 public class PropertiesModule extends KrollModule {
 
-	private static final String LCAT = "PropertiesModule";
 	private TiProperties appProperties;
 
 	public PropertiesModule()

@@ -14,7 +14,6 @@ import java.util.List;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.common.Log;
-import org.appcelerator.kroll.common.TiConfig;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiC;
@@ -60,7 +59,6 @@ public class TiMapView extends TiUIView
 	implements Handler.Callback, TitaniumOverlayListener
 {
 	private static final String TAG = "TiMapView";
-	private static final boolean DBG = TiConfig.LOGD;
 
 	private static final String TI_DEVELOPMENT_KEY = "0ZnKXkWA2dIAu2EM-OV4ZD2lJY3sEWE5TSgjJNg";
 	private static final String OLD_API_KEY = "ti.android.google.map.api.key";

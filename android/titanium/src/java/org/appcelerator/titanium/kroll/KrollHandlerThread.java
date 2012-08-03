@@ -19,8 +19,6 @@
 
 package org.appcelerator.titanium.kroll;
 
-import org.appcelerator.kroll.common.TiConfig;
-
 import android.os.Looper;
 import android.os.Process;
 
@@ -32,9 +30,6 @@ import android.os.Process;
  */
 public class KrollHandlerThread extends Thread
 {
-	private static final String TAG = "KrollHandlerThread";
-	private static final boolean DBG = TiConfig.DEBUG;
-
 	private int mPriority;
 	private int mTid = -1;
 	private Looper mLooper;

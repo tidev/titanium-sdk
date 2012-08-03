@@ -11,7 +11,6 @@ import java.util.HashMap;
 
 import org.appcelerator.kroll.KrollFunction;
 import org.appcelerator.kroll.common.Log;
-import org.appcelerator.kroll.common.TiConfig;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiSensorHelper;
@@ -28,7 +27,7 @@ import android.os.SystemClock;
 public class TiCompass
 	implements SensorEventListener
 {
-	private static final String LCAT = "TiCompass";
+	private static final String TAG = "TiCompass";
 	private static final int DECLINATION_CHECK_INTERVAL = 60 * 1000;
 	private static final int STALE_LOCATION_THRESHOLD = 10 * 60 * 1000;
 
@@ -109,19 +108,19 @@ public class TiCompass
 		if (Log.isDebugModeEnabled()) {
 			switch(event.accuracy) {
 			case SensorManager.SENSOR_STATUS_UNRELIABLE :
-				Log.i(LCAT, "Compass accuracy unreliable");
+				Log.i(TAG, "Compass accuracy unreliable");
 				break;
 			case SensorManager.SENSOR_STATUS_ACCURACY_LOW :
-				Log.i(LCAT, "Compass accuracy low");
+				Log.i(TAG, "Compass accuracy low");
 				break;
 			case SensorManager.SENSOR_STATUS_ACCURACY_MEDIUM :
-				Log.i(LCAT, "Compass accuracy medium");
+				Log.i(TAG, "Compass accuracy medium");
 				break;
 			case SensorManager.SENSOR_STATUS_ACCURACY_HIGH :
-				Log.i(LCAT, "Compass accuracy high");
+				Log.i(TAG, "Compass accuracy high");
 				break;
 			default :
-				Log.w(LCAT, "Unknown compass accuracy value: " + event.accuracy);
+				Log.w(TAG, "Unknown compass accuracy value: " + event.accuracy);
 			}
 		}
 
@@ -158,9 +157,9 @@ public class TiCompass
 				}
 			}
 			if (geomagneticFieldLocation == null) {
-				Log.w(LCAT, "No location fix available, can't determine compass trueHeading.");
+				Log.w(TAG, "No location fix available, can't determine compass trueHeading.");
 			} else if (currentTime - geomagneticFieldLocation.getTime() > STALE_LOCATION_THRESHOLD) {
-				Log.w(LCAT, "Location fix is stale, compass trueHeading may be incorrect.");
+				Log.w(TAG, "Location fix is stale, compass trueHeading may be incorrect.");
 			}
 			lastDeclinationCheck = currentTime;
 		}
