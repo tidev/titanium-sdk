@@ -461,6 +461,11 @@ public class TiUIText extends TiUIView
 		}
 	}
 
+	public void setSelection(int start, int end) 
+	{
+		tv.setSelection(start, end);
+	}
+
 	public void handleReturnKeyType(int type)
 	{
 		switch(type) {
