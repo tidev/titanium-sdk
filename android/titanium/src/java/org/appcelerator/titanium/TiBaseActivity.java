@@ -158,15 +158,7 @@ public abstract class TiBaseActivity extends Activity
 		setLayoutProxy(proxy);
 		updateTitle();
 	}
-	
-	/**
-	 * Sets the view proxy.
-	 * @param proxy
-	 */
-	public void setViewProxy(TiViewProxy proxy)
-	{
-		this.view = proxy;
-	}
+
 
 	/**
 	 * Sets the proxy for our layout (used for post layout event)
@@ -647,7 +639,7 @@ public abstract class TiBaseActivity extends Activity
 	}
 	
 
-    @Override
+    
 	public void openOptionsMenu() {
         
 		super.openOptionsMenu();
