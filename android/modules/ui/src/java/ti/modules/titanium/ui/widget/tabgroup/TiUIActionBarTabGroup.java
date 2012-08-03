@@ -1,23 +1,12 @@
 package ti.modules.titanium.ui.widget.tabgroup;
 
-import org.appcelerator.kroll.KrollDict;
-import org.appcelerator.titanium.TiC;
-import org.appcelerator.titanium.proxy.TiBaseWindowProxy;
-import org.appcelerator.titanium.view.TiUIView;
-
 import ti.modules.titanium.ui.TabGroupProxy;
 import ti.modules.titanium.ui.TabProxy;
-import ti.modules.titanium.ui.ViewProxy;
 import android.app.ActionBar;
 import android.app.ActionBar.Tab;
 import android.app.ActionBar.TabListener;
 import android.app.Activity;
-import android.app.Fragment;
 import android.app.FragmentTransaction;
-import android.os.Bundle;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
 /**
@@ -33,65 +22,6 @@ import android.widget.FrameLayout;
  */
 public class TiUIActionBarTabGroup extends TiUIAbstractTabGroup implements TabListener {
 	private ActionBar actionBar;
-
-	private class TiUIActionBarTab extends TiUIView {
-		private ActionBar.Tab tab;
-
-		/**
-		 * The fragment that will provide the content view of the tab.
-		 * This fragment will be attached when the tab is selected and
-		 * detached when it is later unselected. This reference will be
-		 * initialized when the tab is first selected.
-		 */
-		private Fragment fragment;
-
-		public TiUIActionBarTab(TabProxy proxy, ActionBar.Tab tab) {
-			super(proxy);
-			this.tab = tab;
-
-			// We need to register for property changes from the proxy.
-			proxy.setModelListener(this);
-
-			// Provide a reference to this instance by placing
-			// a reference inside the "tag" slot that ActionBar.Tab provides.
-			tab.setTag(this);
-		}
-
-		@Override
-		public void processProperties(KrollDict d) {
-			super.processProperties(d);
-
-			String title = d.getString(TiC.PROPERTY_TITLE);
-			if (title != null) {
-				tab.setText(title);
-			}
-		}
-
-		private void initializeFragment() {
-			ViewProxy content = new ViewProxy();
-			content.setActivity(proxy.getActivity());
-
-			Object window = proxy.getProperty("window");
-			if (window instanceof TiBaseWindowProxy) {
-				((TiBaseWindowProxy) window).getKrollObject().setWindow(content);
-			}
-
-			fragment = new TabFragment(content.getOrCreateView().getNativeView());
-		}
-	}
-
-	public static class TabFragment extends Fragment {
-		private View content;
-
-		public TabFragment(View content) {
-			this.content = content;
-		}
-
-		@Override
-		public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-			return content;
-		}
-	}
 
 	public TiUIActionBarTabGroup(TabGroupProxy proxy, Activity activity) {
 		super(proxy, activity);
