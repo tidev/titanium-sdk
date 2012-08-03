@@ -37,7 +37,6 @@ import android.os.Message;
 	TiC.PROPERTY_TABS_BACKGROUND_COLOR,
 	TiC.PROPERTY_TABS_BACKGROUND_SELECTED_COLOR	
 })
-
 public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 {
 	private static final String LCAT = "TabGroupProxy";
@@ -87,13 +86,13 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 			case MSG_ADD_TAB : {
 				AsyncResult result = (AsyncResult) msg.obj;
 				handleAddTab((TabProxy) result.getArg());
-				result.setResult(null); // signal added
+				result.setResult(null);
 				return true;
 			}
 			case MSG_REMOVE_TAB : {
 				AsyncResult result = (AsyncResult) msg.obj;
 				handleRemoveTab((TabProxy) result.getArg());
-				result.setResult(null); // signal added
+				result.setResult(null);
 				return true;
 			}
 			case MSG_SET_ACTIVE_TAB: {
@@ -145,6 +144,7 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 
 	private void handleAddTab(TabProxy tab)
 	{
+		// TODO(josh): remove and place into TiUITabHostGroup if needed.
 		String tag = TiConvert.toString(tab.getProperty(TiC.PROPERTY_TAG) );
 		if (tag == null) {
 			//since tag is used to create tabSpec, it must be unique, otherwise tabs with same tag will use same activity (Timob-7487)
@@ -154,15 +154,31 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 
 		tabs.add(tab);
 
-		TiUIActionBarTabGroup tabGroup = (TiUIActionBarTabGroup) view;
+		TiUIAbstractTabGroup tabGroup = (TiUIAbstractTabGroup) view;
 		if (tabGroup != null) {
 			tabGroup.addTab(tab);
 		}
 	}
 
 	@Kroll.method
-	public void removeTab(TabProxy tab) { }
-	public void handleRemoveTab(TabProxy tab) { }
+	public void removeTab(TabProxy tab) {
+		if (TiApplication.isUIThread()) {
+			handleRemoveTab(tab);
+
+			return;
+		}
+
+		TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_REMOVE_TAB), tab);
+	}
+
+	public void handleRemoveTab(TabProxy tab) {
+		TiUIAbstractTabGroup tabGroup = (TiUIAbstractTabGroup) view;
+		if (tabGroup != null) {
+			tabGroup.removeTab(tab);
+		}
+
+		tabs.remove(tab);
+	}
 
 	@Kroll.setProperty @Kroll.method
 	public void setActiveTab(Object tabOrIndex)

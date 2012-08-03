@@ -15,14 +15,21 @@ public abstract class TiUIAbstractTabGroup extends TiUIView {
 	/**
 	 * Add the provided tab to this group.
 	 */
-	public abstract void addTab(TabProxy tab);
+	public abstract void addTab(TabProxy tabProxy);
+
+	/**
+	 * Remove the tab from this group.
+	 *
+	 * @param tab the tab to remove from the group
+	 */
+	public abstract void removeTab(TabProxy tabProxy);
 
 	/**
 	 * Changes the selected tab of the group.
 	 *
 	 * @param tab the tab that will become selected
 	 */
-	public abstract void selectTab(TabProxy tab);
+	public abstract void selectTab(TabProxy tabProxy);
 
 	/**
 	 * Returns the currently selected tab.

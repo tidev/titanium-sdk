@@ -118,6 +118,12 @@ public class TiUIActionBarTabGroup extends TiUIAbstractTabGroup implements TabLi
 	}
 
 	@Override
+	public void removeTab(TabProxy tabProxy) {
+		TiUIActionBarTab tabView = (TiUIActionBarTab) tabProxy.peekView();
+		actionBar.removeTab(tabView.tab);
+	}
+
+	@Override
 	public void selectTab(TabProxy tabProxy) {
 		TiUIActionBarTab tabView = (TiUIActionBarTab) tabProxy.peekView();
 		if (tabView == null) {

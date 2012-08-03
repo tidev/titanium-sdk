@@ -164,6 +164,12 @@ public class TiUITabHostGroup extends TiUIAbstractTabGroup
 		}
 	}
 
+	@Override
+	public void removeTab(TabProxy tab) {
+		// TODO(josh): see if we can implement this, otherwise just leave as a no-op
+		// and document this isn't support for this type of tab group.
+	}
+
 	public void setActiveTab(int index)
 	{
 		if (tabHost != null) {
