@@ -23,6 +23,7 @@ import org.appcelerator.titanium.view.TiUIView;
 
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.Button;
@@ -31,7 +32,8 @@ public class TiUIButton extends TiUIView
 {
 	private static final String TAG = "TiUIButton";
 
-	public TiUIButton(final TiViewProxy proxy) {
+	public TiUIButton(final TiViewProxy proxy)
+	{
 		super(proxy);
 		Log.d(TAG, "Creating a button", Log.DEBUG_MODE);
 		Button btn = new Button(proxy.getActivity())
@@ -91,6 +93,9 @@ public class TiUIButton extends TiUIView
 			String verticalAlign = d.getString(TiC.PROPERTY_VERTICAL_ALIGN);
 			TiUIHelper.setAlignment(btn, null, verticalAlign);
 		}
+		if (d.containsKey(TiC.PROPERTY_OPACITY)) {
+			setOpacityForButton(TiConvert.toFloat(d, TiC.PROPERTY_OPACITY, 1f));
+		}
 		btn.invalidate();
 	}
 
@@ -115,16 +120,53 @@ public class TiUIButton extends TiUIView
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}
 	}
-	
+
+	public void setOpacityForButton(float opacity)
+	{
+		if (opacity < 0 || opacity > 1) {
+			Log.w(LCAT, "Ignoring invalid value for opacity: " + opacity);
+			return;
+		}
+		View view = getNativeView();
+		if (view != null) {
+			TiUIHelper.setPaintOpacity(((Button) view).getPaint(), opacity);
+			Drawable[] drawables = ((Button) view).getCompoundDrawables();
+			if (drawables != null) {
+				for (int i = 0; i < drawables.length; i++) {
+					TiUIHelper.setDrawableOpacity(drawables[i], opacity);
+				}
+			}
+		}
+	}
+
+	public void clearOpacityForButton()
+	{
+		View view = getNativeView();
+		if (view != null) {
+			((Button) view).getPaint().setColorFilter(null);
+			Drawable[] drawables = ((Button) view).getCompoundDrawables();
+			if (drawables != null) {
+				for (int i = 0; i < drawables.length; i++) {
+					Drawable d = drawables[i];
+					if (d != null) {
+						d.clearColorFilter();
+					}
+				}
+			}
+		}
+	}
+
 	@Override
-	public void setOpacity(float opacity) {
-		TiUIHelper.setPaintOpacity(((Button)getNativeView()).getPaint(), opacity);
+	public void setOpacity(float opacity)
+	{
+		setOpacityForButton(opacity);
 		super.setOpacity(opacity);
 	}
-	
+
 	@Override
-	public void clearOpacity(View view) {
+	public void clearOpacity(View view)
+	{
 		super.clearOpacity(view);
-		((Button)getNativeView()).getPaint().setColorFilter(null);
+		clearOpacityForButton();
 	}
 }
