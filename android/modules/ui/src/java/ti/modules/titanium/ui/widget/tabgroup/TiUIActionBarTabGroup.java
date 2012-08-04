@@ -1,5 +1,7 @@
 package ti.modules.titanium.ui.widget.tabgroup;
 
+import org.appcelerator.titanium.TiC;
+
 import ti.modules.titanium.ui.TabGroupProxy;
 import ti.modules.titanium.ui.TabProxy;
 import android.app.ActionBar;
@@ -99,6 +101,8 @@ public class TiUIActionBarTabGroup extends TiUIAbstractTabGroup implements TabLi
 			ft.show(tabView.fragment);
 		}
 
+		TabProxy tabProxy = (TabProxy) tabView.getProxy();
+		((TabGroupProxy) proxy).onTabSelected(tabProxy);
 	}
 
 	@Override

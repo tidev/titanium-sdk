@@ -53,6 +53,9 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 
 	private ArrayList<TabProxy> tabs = new ArrayList<TabProxy>();
 
+	// The proxy of the currently selected tab of this group.
+	private TabProxy selectedTab;
+
 	public TabGroupProxy()
 	{
 		super();
@@ -152,6 +155,10 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 			tab.setProperty(TiC.PROPERTY_TAG, tag);
 		}
 
+		// Set the tab's parent to this tab group.
+		// This allows for certain events to bubble up.
+		tab.setParent(this);
+
 		tabs.add(tab);
 
 		TiUIAbstractTabGroup tabGroup = (TiUIAbstractTabGroup) view;
@@ -167,6 +174,8 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 
 			return;
 		}
+
+		tab.setParent(null);
 
 		TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_REMOVE_TAB), tab);
 	}
@@ -298,20 +307,31 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 	{
 		super.handlePostOpen();
 
+		opened = true;
+
+		// First open before we load and focus our first tab.
+		fireEvent(TiC.EVENT_OPEN, null);
+
+		// Load any tabs added before the tab group opened.
 		TiUIAbstractTabGroup tg = (TiUIAbstractTabGroup) view;
 		for(TabProxy tab : tabs) {
 			tg.addTab(tab);
 		}
 
-		// TODO(josh): verify we don't create a regression
+		// There must be a selected tab when the group opens.
+		// If none of the tabs have claimed selection give it
+		// to the first tab in the list.
+		if (tg.getSelectedTab() == null && tabs.size() > 0) {
+			TabProxy tabProxy = tabs.get(0);
+			tg.selectTab(tabProxy);
+		}
+
+		// TODO(josh): verify we don't create a regression. This only applies to TabHost.
 		// Make sure the tab indicator is selected. We need to force it to be selected due to TIMOB-7832.
 		// tg.setTabIndicatorSelected(initialActiveTab);
 
 		// Setup the new tab activity like setting orientation modes.
 		onWindowActivityCreated();
-
-		opened = true;
-		fireEvent(TiC.EVENT_OPEN, null);
 	}
 
 	@Override
@@ -328,27 +348,31 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 		opened = false;
 	}
 
+	/**
+	 * Invoked when a tab in the group is selected.
+	 *
+	 * @param tabProxy the tab that was selected
+	 */
+	public void onTabSelected(TabProxy tabProxy) {
+		TabProxy previousSelectedTab = selectedTab;
+		selectedTab = tabProxy;
 
-	public KrollDict buildFocusEvent(int toIndex, int fromIndex)
-	{
-		KrollDict e = new KrollDict();
+		// Build the tab change event we send along with the
+		// "focus" and "blur" events.
+		KrollDict eventData = new KrollDict();
+		eventData.put(TiC.EVENT_PROPERTY_PREVIOUS_TAB, previousSelectedTab);
+		eventData.put(TiC.EVENT_PROPERTY_PREVIOUS_INDEX, tabs.indexOf(previousSelectedTab));
+		eventData.put(TiC.EVENT_PROPERTY_TAB, selectedTab);
+		eventData.put(TiC.EVENT_PROPERTY_INDEX, tabs.indexOf(selectedTab));
 
-		e.put(TiC.EVENT_PROPERTY_INDEX, toIndex);
-		e.put(TiC.EVENT_PROPERTY_PREVIOUS_INDEX, fromIndex);
-
-		if (fromIndex != -1) {
-			e.put(TiC.EVENT_PROPERTY_PREVIOUS_TAB, tabs.get(fromIndex));
-		} else {
-			KrollDict fakeTab = new KrollDict();
-			fakeTab.put(TiC.PROPERTY_TITLE, "no tab");
-			e.put(TiC.EVENT_PROPERTY_PREVIOUS_TAB, fakeTab);
+		// Fire the focus and blur event to the tabs.
+		// We will allow the events to bubble back up to this tab group.
+		if (previousSelectedTab != null) {
+			// We need to create a copy of the event data to
+			// avoid concurrent modifications between the runtime and main thread.
+			previousSelectedTab.fireEvent(TiC.EVENT_BLUR, eventData.clone(), true);
 		}
-
-		if (toIndex != -1) {
-			e.put(TiC.EVENT_PROPERTY_TAB, tabs.get(toIndex));
-		}
-
-		return e;
+		selectedTab.fireEvent(TiC.EVENT_FOCUS, eventData, true);
 	}
 
 	// TODO(josh): remove this code and save what we need.

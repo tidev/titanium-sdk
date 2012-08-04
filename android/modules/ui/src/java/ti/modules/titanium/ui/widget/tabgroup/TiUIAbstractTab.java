@@ -6,13 +6,14 @@
  */
 package ti.modules.titanium.ui.widget.tabgroup;
 
-import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.view.TiUIView;
+
+import ti.modules.titanium.ui.TabProxy;
 
 
 public abstract class TiUIAbstractTab extends TiUIView {
 
-	public TiUIAbstractTab(TiViewProxy proxy) {
+	public TiUIAbstractTab(TabProxy proxy) {
 		super(proxy);
 	}
 

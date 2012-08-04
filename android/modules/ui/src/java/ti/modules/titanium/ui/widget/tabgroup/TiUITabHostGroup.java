@@ -302,7 +302,8 @@ public class TiUITabHostGroup extends TiUIAbstractTabGroup
 			}
 		}
 		setTabBackgroundSelectedColor();
-		
+
+		/** TODO(josh): let TabGroup.onTabSelected() handle this for us.
 		KrollDict tabChangeEventData = tabGroupProxy.buildFocusEvent(currentTabID, previousTabID);
 		if (prevTab != null) {
 			// Create a clone of the event data since the 'source' needs to be
@@ -310,6 +311,7 @@ public class TiUITabHostGroup extends TiUIAbstractTabGroup
 			prevTab.fireEvent(TiC.EVENT_BLUR, tabChangeEventData.clone(), true);
 		}
 		currentTab.fireEvent(TiC.EVENT_FOCUS, tabChangeEventData, true);
+		*/
 
 		previousTabID = currentTabID;
 	}
