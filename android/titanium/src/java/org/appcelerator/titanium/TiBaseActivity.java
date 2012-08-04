@@ -637,13 +637,7 @@ public abstract class TiBaseActivity extends Activity
 	{
 		return menuHelper.onPrepareOptionsMenu(super.onPrepareOptionsMenu(menu), menu);
 	}
-	
 
-    
-	public void openOptionsMenu() {
-        
-		super.openOptionsMenu();
-	}
 
 	public static void callOrientationChangedListener(Configuration newConfig) 
 	{
