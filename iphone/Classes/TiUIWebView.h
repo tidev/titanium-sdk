@@ -26,6 +26,7 @@
 	SEL reloadMethod;
     
     BOOL willHandleTouches;
+    BOOL isFiredOnce; // TIMOB-10157
 }
 
 @property(nonatomic,readonly) id url;

@@ -632,12 +632,24 @@ static NSString * const kTitaniumJavascript = @"Ti.App={};Ti.API={};Ti.App._list
 
 - (BOOL)webView:(UIWebView *)webView shouldStartLoadWithRequest:(NSURLRequest *)request navigationType:(UIWebViewNavigationType)navigationType
 {
+    isFiredOnce = false; //TIMOB-10157
 	NSURL * newUrl = [request URL];
 
 	if ([self.proxy _hasListeners:@"beforeload"])
 	{
+<<<<<<< HEAD
 		NSDictionary *event = newUrl == nil ? nil : [NSDictionary dictionaryWithObjectsAndKeys:[newUrl absoluteString], @"url", NUMINT(navigationType), @"navigationType", nil];
 		[self.proxy fireEvent:@"beforeload" withObject:event];
+=======
+        isFiredOnce = true; //TIMOB-10157
+		NSDictionary *event = newUrl == nil ? nil : [NSDictionary dictionaryWithObject:[newUrl absoluteString] forKey:@"url"];
+        NSString *updatedUrl = newUrl.absoluteString; //TIMOB-10157
+		NSRange range = [updatedUrl rangeOfString:@"#" options:NSCaseInsensitiveSearch]; //TIMOB-10157
+        if(range.location == NSNotFound && isFiredOnce == true) //TIMOB-10157
+        {
+            [self.proxy fireEvent:@"beforeload" withObject:event];
+        }
+>>>>>>> Fix for TIMOB-10157
 	}
 
 	NSString * scheme = [[newUrl scheme] lowercaseString];
