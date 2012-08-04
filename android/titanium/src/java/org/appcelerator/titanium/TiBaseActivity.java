@@ -755,6 +755,9 @@ public abstract class TiBaseActivity extends Activity
 	protected void onResume()
 	{
 		super.onResume();
+		if (isFinishing()) {
+			return;
+		}
 
 		if (DBG) {
 			Log.d(TAG, "Activity " + this + " onResume");
@@ -802,6 +805,9 @@ public abstract class TiBaseActivity extends Activity
 	protected void onStart()
 	{
 		super.onStart();
+		if (isFinishing()) {
+			return;
+		}
 
 		// Newer versions of Android appear to turn this on by default.
 		// Turn if off until an activity indicator is shown.
