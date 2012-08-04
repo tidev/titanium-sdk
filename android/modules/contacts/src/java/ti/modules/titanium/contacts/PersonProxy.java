@@ -19,6 +19,7 @@ import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
 
 import android.graphics.Bitmap;
+import android.util.Log;
 
 @Kroll.proxy(parentModule=ContactsModule.class, propertyAccessors={
 	"lastName", "firstName", "middleName", "firstPhonetic", "lastPhonetic", "middlePhonetic", "department",
@@ -27,6 +28,7 @@ import android.graphics.Bitmap;
 })
 public class PersonProxy extends KrollProxy
 {
+	private static final String TAG = "Person";
 	private TiBlob image = null;
 	public long id = -1;
 	private boolean imageFetched; // lazy load these bitmap images
@@ -56,9 +58,7 @@ public class PersonProxy extends KrollProxy
 	{
 		modified.clear();
 	}
-	
-	
-	
+
 	@Kroll.method @Kroll.getProperty
 	public String getFullName() 
 	{
@@ -152,6 +152,11 @@ public class PersonProxy extends KrollProxy
 	
 	public void onPropertyChanged(String name, Object value)
 	{
+		if (name == null) {
+			Log.w(TAG, "Property is null. Unable to process change");
+			return;
+		}
+		
 		if (name.equals(TiC.PROPERTY_FIRSTNAME) || name.equals(TiC.PROPERTY_MIDDLENAME) || name.equals(TiC.PROPERTY_LASTNAME)) {
 			modified.put(TiC.PROPERTY_NAME, true);
 		} else if (name.equals(TiC.PROPERTY_BIRTHDAY)) {

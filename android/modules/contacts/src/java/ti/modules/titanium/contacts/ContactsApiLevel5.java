@@ -1006,9 +1006,9 @@ public class ContactsApiLevel5 extends CommonContactsApi
 			TiApplication.getAppRootOrCurrentActivity().getContentResolver().applyBatch(ContactsContract.AUTHORITY, ops);
 			person.finishModification();
 		} catch (RemoteException e) {
-			e.printStackTrace();
+			Log.e(LCAT, "RemoteException - unable to save changes to contact Database.");
 		} catch (OperationApplicationException e) {
-			e.printStackTrace();
+			Log.e(LCAT, "OperationApplicationException - unable to save changes to contact Database.");
 		}
 		
 	}
