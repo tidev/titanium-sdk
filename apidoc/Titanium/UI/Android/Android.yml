@@ -230,6 +230,38 @@ properties:
     type: Number
     permission: read-only
     since: "1.8.0"
+
+  - name: PROGRESS_INDICATOR_DIALOG
+    summary: Display <Titanium.UI.Android.ProgressIndicator> as a modal dialog. (default)
+    description: Used with the <Titanium.UI.Android.ProgressIndicator.location> property.
+    type: Number
+    permission: read-only
+    since: "2.2.0"
+
+  - name: PROGRESS_INDICATOR_STATUS_BAR
+    summary: |
+       Display <Titanium.UI.Android.ProgressIndicator> as a horizontal progress bar in the title of 
+       the window.
+    description: Used with the <Titanium.UI.Android.ProgressIndicator.location> property.
+    type: Number
+    permission: read-only
+    since: "2.2.0"
+
+  - name: PROGRESS_INDICATOR_INDETERMINANT
+    summary: |
+       Used with the <Titanium.UI.Android.ProgressIndicator.type> property to indicate an ongoing 
+       activity of indeterminate length. (default)
+    type: Number
+    permission: read-only
+    since: "2.2.0"
+
+  - name: PROGRESS_INDICATOR_DETERMINANT
+    summary: |
+        Used with the <Titanium.UI.Android.ProgressIndicator.type> property to indicate an ongoing 
+        activity of determinate length.
+    type: Number
+    permission: read-only
+    since: "2.2.0"
     
   - name: SOFT_INPUT_ADJUST_PAN
     summary: |
