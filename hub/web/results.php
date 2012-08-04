@@ -13,7 +13,7 @@
 	</head>
 	<body>
 		<div>
-			<h2 style="text-align: left; margin-bottom: 30px">Detailed results for run ID [<?php echo $_GET["runId"]; ?>] and driver ID [<?php echo $_GET["driverId"]; ?>]</h2>
+			<h2 style="text-align: left; margin-bottom: 30px">Detailed results for run ID [<?php echo $_GET["run_id"]; ?>] and driver ID [<?php echo $_GET["driver_id"]; ?>]</h2>
 		</div>
 
 		<div style="margin-left: 50px;">
@@ -24,14 +24,15 @@
 		</div>
 
 		<div style="margin-top: 50px">
+
 <?php
+	echo "<!-- START GENERATED RESULTS TABLE -->\n";
+
 	$totalPassed = 0;
 	$totalFailed = 0;
 
 	require "common.php";
 	db_open();
-
-	echo "<!--  START GENERATED -->\n";
 
 	$query="SELECT * FROM driver_runs WHERE run_id = " . $_GET["run_id"] . 
 		" AND driver_id = \"" . $_GET["driver_id"] . "\"";
@@ -95,8 +96,9 @@
 		}
 	}
 
-	echo "<!--  END GENERATED -->\n";
+	echo "<!-- END GENERATED RESULTS TABLE -->\n";
 ?>
+
 		</div>
 
 		<script type="text/javascript">
