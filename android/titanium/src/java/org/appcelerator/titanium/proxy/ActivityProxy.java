@@ -25,6 +25,7 @@ import android.content.Intent;
 @Kroll.proxy(propertyAccessors = {
 	"onCreateOptionsMenu",
 	"onPrepareOptionsMenu"
+    
 })
 /**
  * This is a proxy representation of the Android Activity type.
@@ -159,6 +160,16 @@ public class ActivityProxy extends KrollProxy
 		}
 		return null;
 	}
+    
+    @Kroll.method
+	public void openOptionsMenu()
+	{
+		Activity activity = getWrappedActivity();
+		
+		activity.openOptionsMenu();
+		
+	}
+   
 
 	@Kroll.method @Kroll.getProperty
 	public IntentProxy getIntent()

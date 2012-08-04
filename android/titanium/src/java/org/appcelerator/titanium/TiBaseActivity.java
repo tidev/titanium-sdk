@@ -82,6 +82,7 @@ public abstract class TiBaseActivity extends Activity
 	public TiWindowProxy lwWindow;
 	public boolean isResumed = false;
 
+
 	public void addWindowToStack(TiBaseWindowProxy proxy)
 	{
 		if (windowStack.contains(proxy)) {
@@ -96,6 +97,7 @@ public abstract class TiBaseActivity extends Activity
 		if (!isEmpty) { 
 			proxy.fireEvent(TiC.EVENT_FOCUS, null, false);
 		}
+		
 	}
 
 	public void removeWindowFromStack(TiBaseWindowProxy proxy)
@@ -156,6 +158,7 @@ public abstract class TiBaseActivity extends Activity
 		setLayoutProxy(proxy);
 		updateTitle();
 	}
+
 
 	/**
 	 * Sets the proxy for our layout (used for post layout event)
@@ -634,7 +637,8 @@ public abstract class TiBaseActivity extends Activity
 	{
 		return menuHelper.onPrepareOptionsMenu(super.onPrepareOptionsMenu(menu), menu);
 	}
-	
+
+
 	public static void callOrientationChangedListener(Configuration newConfig) 
 	{
 		if (orientationChangedListener != null && previousOrientation != newConfig.orientation) {
@@ -802,6 +806,7 @@ public abstract class TiBaseActivity extends Activity
 	protected void onStart()
 	{
 		super.onStart();
+
 
 		// Newer versions of Android appear to turn this on by default.
 		// Turn if off until an activity indicator is shown.
