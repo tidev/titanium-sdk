@@ -638,9 +638,12 @@ static NSString * const kTitaniumJavascript = @"Ti.App={};Ti.API={};Ti.App._list
 	if ([self.proxy _hasListeners:@"beforeload"])
 	{
 <<<<<<< HEAD
+<<<<<<< HEAD
 		NSDictionary *event = newUrl == nil ? nil : [NSDictionary dictionaryWithObjectsAndKeys:[newUrl absoluteString], @"url", NUMINT(navigationType), @"navigationType", nil];
 		[self.proxy fireEvent:@"beforeload" withObject:event];
 =======
+=======
+>>>>>>> ab24b047055c99a3cc6e2cbea35f4e3ae705ae16
         isFiredOnce = true; //TIMOB-10157
 		NSDictionary *event = newUrl == nil ? nil : [NSDictionary dictionaryWithObject:[newUrl absoluteString] forKey:@"url"];
         NSString *updatedUrl = newUrl.absoluteString; //TIMOB-10157
@@ -649,7 +652,10 @@ static NSString * const kTitaniumJavascript = @"Ti.App={};Ti.API={};Ti.App._list
         {
             [self.proxy fireEvent:@"beforeload" withObject:event];
         }
+<<<<<<< HEAD
 >>>>>>> Fix for TIMOB-10157
+=======
+>>>>>>> ab24b047055c99a3cc6e2cbea35f4e3ae705ae16
 	}
 
 	NSString * scheme = [[newUrl scheme] lowercaseString];
