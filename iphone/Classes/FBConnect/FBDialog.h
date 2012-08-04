@@ -17,7 +17,8 @@
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
 
-@protocol FBDialogDelegate2;
+@protocol FBDialogDelegate;
+@class FBFrictionlessRequestSettings;
 
 /**
  * Do not use this interface directly, instead, use dialog in Facebook.h
@@ -25,40 +26,40 @@
  * Facebook dialog interface for start the facebook webView UIServer Dialog.
  */
 
-@interface FBDialog2 : UIView <UIWebViewDelegate> {
-  id<FBDialogDelegate2> _delegate;
-  NSMutableDictionary *_params;
-  NSString * _serverURL;
-  NSURL* _loadingURL;
-  UIWebView* _webView;
-  UIActivityIndicatorView* _spinner;
-  UIImageView* _iconView;
-  UILabel* _titleLabel;
-  UIButton* _closeButton;
-  UIDeviceOrientation _orientation;
-  BOOL _showingKeyboard;
+@interface FBDialog : UIView <UIWebViewDelegate> {
+    id<FBDialogDelegate> _delegate;
+    NSMutableDictionary *_params;
+    NSString * _serverURL;
+    NSURL* _loadingURL;
+    UIWebView* _webView;
+    UIActivityIndicatorView* _spinner;
+    UIButton* _closeButton;
+    UIInterfaceOrientation _orientation;
+    BOOL _showingKeyboard;
+    BOOL _isViewInvisible;
+    FBFrictionlessRequestSettings* _frictionlessSettings;
+    
+    // Ensures that UI elements behind the dialog are disabled.
+    UIView* _modalBackgroundView;
 }
 
 /**
  * The delegate.
  */
-@property(nonatomic,assign) id<FBDialogDelegate2> delegate;
+@property(nonatomic,assign) id<FBDialogDelegate> delegate;
 
 /**
  * The parameters.
  */
 @property(nonatomic, retain) NSMutableDictionary* params;
 
-/**
- * The title that is shown in the header atop the view.
- */
-@property(nonatomic,copy) NSString* title;
-
 - (NSString *) getStringFromUrl: (NSString*) url needle:(NSString *) needle;
 
-- (id)initWithURL: (NSString *) loadingURL 
-           params: (NSMutableDictionary *) params  
-         delegate: (id <FBDialogDelegate2>) delegate;
+- (id)initWithURL: (NSString *) loadingURL
+           params: (NSMutableDictionary *) params
+  isViewInvisible: (BOOL) isViewInvisible
+    frictionlessSettings: (FBFrictionlessRequestSettings *) frictionlessSettings
+         delegate: (id <FBDialogDelegate>) delegate;
 
 /**
  * Displays the view with an animation.
@@ -118,16 +119,16 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 /*
- *Your application should implement this delegate 
+ *Your application should implement this delegate
  */
-@protocol FBDialogDelegate2 <NSObject>
+@protocol FBDialogDelegate <NSObject>
 
 @optional
 
 /**
  * Called when the dialog succeeds and is about to be dismissed.
  */
-- (void)dialogDidComplete:(FBDialog2 *)dialog;
+- (void)dialogDidComplete:(FBDialog *)dialog;
 
 /**
  * Called when the dialog succeeds with a returning url.
@@ -135,31 +136,31 @@
 - (void)dialogCompleteWithUrl:(NSURL *)url;
 
 /**
- * Called when the dialog get cancelled by the user.
+ * Called when the dialog get canceled by the user.
  */
 - (void)dialogDidNotCompleteWithUrl:(NSURL *)url;
 
 /**
  * Called when the dialog is cancelled and is about to be dismissed.
  */
-- (void)dialogDidNotComplete:(FBDialog2 *)dialog;
+- (void)dialogDidNotComplete:(FBDialog *)dialog;
 
 /**
  * Called when dialog failed to load due to an error.
  */
-- (void)dialog:(FBDialog2*)dialog didFailWithError:(NSError *)error;
+- (void)dialog:(FBDialog*)dialog didFailWithError:(NSError *)error;
 
 /**
  * Asks if a link touched by a user should be opened in an external browser.
  *
- * If a user touches a link, the default behavior is to open the link in the Safari browser, 
+ * If a user touches a link, the default behavior is to open the link in the Safari browser,
  * which will cause your app to quit.  You may want to prevent this from happening, open the link
  * in your own internal browser, or perhaps warn the user that they are about to leave your app.
  * If so, implement this method on your delegate and return NO.  If you warn the user, you
  * should hold onto the URL and once you have received their acknowledgement open the URL yourself
  * using [[UIApplication sharedApplication] openURL:].
  */
-- (BOOL)dialog:(FBDialog2*)dialog shouldOpenURLInExternalBrowser:(NSURL *)url;
+- (BOOL)dialog:(FBDialog*)dialog shouldOpenURLInExternalBrowser:(NSURL *)url;
 
 @end
 #endif
