@@ -10,13 +10,13 @@
 
 		$numRuns = count($runs);
 
-		$query="SELECT DISTINCT name FROM results WHERE branch = \"" . $branch . "\" AND suite_name = \"" . $suite . "\"";
+		$query="SELECT DISTINCT name, suite_id FROM results WHERE branch = \"" . $branch . "\" AND suite_name = \"" . $suite . "\"";
 		$result=mysql_query($query);
 		while($row = mysql_fetch_array($result)) {
 			// need to use "id" for the 3rd element in order to deal with odd suite names
-			$testId = $branch . "_" . $config_set . "_" . $config . "_" . $suite . "_" . $row["name"];
+			$testId = $branch . "_" . $config_set . "_" . $config . "_" . $row["suite_id"] . "_" . $row["name"];
 
-			echo "\t<div style=\"margin-left: 50px; margin-bottom: 20px\">\n";
+			echo "\t<div style=\"margin-left: 50px; margin-bottom: 40px\">\n";
 			echo "\t\t<div id=\"" . $testId . "\" style=\"width: 80%\"></div>\n";
 
 			echo "\t\t<script type=\"text/javascript\">\n";
@@ -31,8 +31,13 @@
 				echo "\t\t\tvar driverPerformanceData = [];\n";
 
 				for ($i = 0; $i < $numRuns; $i++) {
-					echo "\t\t\trunIds.push(" . $runs[$i] . ");\n";
-					$query3="SELECT * FROM results WHERE driver_id = \"" . $row2["driver_id"] . "\" AND run_id = " . $runs[$i] . " AND name = \"" . $row["name"] . "\"";
+					$runLabel = "<div align=\\\"center\\\">" .
+						"<div><b>" . date("n-j-Y g:i:s A", $runs[$i]["timestamp"]) . "</b></div>" .
+						"<div>" . substr($runs[$i]["git_hash"], 0, 10) . "</div>" .
+						"</div>";
+
+					echo "\t\t\trunIds.push(\"" . $runLabel . "\");\n";
+					$query3="SELECT * FROM results WHERE driver_id = \"" . $row2["driver_id"] . "\" AND run_id = " . $runs[$i]["id"] . " AND name = \"" . $row["name"] . "\"";
 					$result3=mysql_query($query3);
 
 					if ($row3 = mysql_fetch_array($result3)) {
@@ -79,10 +84,13 @@
 <?php loadJsDependencies(); ?>
 
 <?php
+	// set time reporting for run history to PST since that is the main user base
+	date_default_timezone_set("America/Los_Angeles");
+
 	$runs = array();
-	$result=mysql_query("SELECT id FROM runs WHERE branch = \"" . $_GET["branch"] . "\"");
+	$result=mysql_query("SELECT * FROM runs WHERE branch = \"" . $_GET["branch"] . "\"");
 	while($row = mysql_fetch_array($result)) {
-		array_push($runs, $row["id"]);
+		array_push($runs, $row);
 	}
 	$numRuns = count($runs);
 
