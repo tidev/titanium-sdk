@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2011-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -12,6 +12,7 @@ import java.util.Map;
 
 import org.appcelerator.kroll.KrollProxySupport;
 import org.appcelerator.kroll.KrollRuntime;
+import org.appcelerator.kroll.common.Log;
 import org.json.JSONObject;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Function;
@@ -21,15 +22,12 @@ import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.ScriptableObject;
 import org.mozilla.javascript.Undefined;
 
-import android.util.Log;
-
 /**
  * This class converts values between Rhino (JS) and Java / Titanium native types
  */
 public class TypeConverter
 {
 	private static final String TAG = "TypeConverter";
-	private static final boolean DBG = false;
 
 	public static final String JS_CLASS_DATE = "Date";
 	public static final String JS_CLASS_ERROR = "Error";
@@ -321,9 +319,7 @@ public class TypeConverter
 		Object[] a = new Object[len];
 		for (int i = 0; i < len; i++) {
 			Object v = array.get(i, array);
-			if (DBG) {
-				Log.d(TAG, "Index: " + i + " value: " + v + " type: " + v.getClass().getName());
-			}
+			Log.d(TAG, "Index: " + i + " value: " + v + " type: " + v.getClass().getName(), Log.DEBUG_MODE);
 			a[i] = jsObjectToJavaObject(v, scope);
 		}
 		return a;
@@ -338,9 +334,7 @@ public class TypeConverter
 		String[] a = new String[len];
 		for (int i = 0; i < len; i++) {
 			Object v = array.get(i, array);
-			if (DBG) {
-				Log.d(TAG, "Index: " + i + " value: " + v + " type: " + v.getClass().getName());
-			}
+			Log.d(TAG, "Index: " + i + " value: " + v + " type: " + v.getClass().getName(), Log.DEBUG_MODE);
 			a[i] = jsObjectToJavaString(v, scope);
 		}
 		return a;
@@ -355,9 +349,7 @@ public class TypeConverter
 		int[] a = new int[len];
 		for (int i = 0; i < len; i++) {
 			Object v = array.get(i, array);
-			if (DBG) {
-				Log.d(TAG, "Index: " + i + " value: " + v + " type: " + v.getClass().getName());
-			}
+			Log.d(TAG, "Index: " + i + " value: " + v + " type: " + v.getClass().getName(), Log.DEBUG_MODE);
 			a[i] = jsObjectToJavaInt(v, scope);
 		}
 		return a;
@@ -372,9 +364,7 @@ public class TypeConverter
 		long[] a = new long[len];
 		for (int i = 0; i < len; i++) {
 			Object v = array.get(i, array);
-			if (DBG) {
-				Log.d(TAG, "Index: " + i + " value: " + v + " type: " + v.getClass().getName());
-			}
+			Log.d(TAG, "Index: " + i + " value: " + v + " type: " + v.getClass().getName(), Log.DEBUG_MODE);
 			a[i] = jsObjectToJavaLong(v, scope);
 		}
 		return a;
@@ -389,9 +379,7 @@ public class TypeConverter
 		float[] a = new float[len];
 		for (int i = 0; i < len; i++) {
 			Object v = array.get(i, array);
-			if (DBG) {
-				Log.d(TAG, "Index: " + i + " value: " + v + " type: " + v.getClass().getName());
-			}
+			Log.d(TAG, "Index: " + i + " value: " + v + " type: " + v.getClass().getName(), Log.DEBUG_MODE);
 			a[i] = jsObjectToJavaFloat(v, scope);
 		}
 		return a;
@@ -535,9 +523,8 @@ public class TypeConverter
 			if (value.getClass().isArray()) {
 				return jsArrayToJavaArray((Object[])value, Object.class, scope);
 			} else {
-				if (DBG) {
-					Log.d(TAG, "Unhandled type conversion: value: " + value.toString() + " type: " + value.getClass().getName());
-				}
+				Log.d(TAG, "Unhandled type conversion: value: " + value.toString() + " type: " + value.getClass().getName(),
+					Log.DEBUG_MODE);
 			}
 		}
 		return value;

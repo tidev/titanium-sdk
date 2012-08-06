@@ -1,13 +1,12 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
 package org.appcelerator.titanium.util;
 
 import org.appcelerator.kroll.common.Log;
-import org.appcelerator.kroll.common.TiConfig;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
@@ -18,9 +17,7 @@ import android.database.sqlite.SQLiteStatement;
 
 public class TiDatabaseHelper extends SQLiteOpenHelper
 {
-	private static final String LCAT = "TiDbHelper";
-	@SuppressWarnings("unused")
-	private static final boolean DBG = TiConfig.LOGD;
+	private static final String TAG = "TiDbHelper";
 
 	private static final String name = "Titanium";
 	private static final int version = 1;
@@ -86,11 +83,11 @@ public class TiDatabaseHelper extends SQLiteOpenHelper
 		catch (SQLiteDoneException e) 
 		{
 			// This is not an error, so fallthrough and let it return the default.
-			Log.i(LCAT, "No value in database for platform key: '" + key + "' returning supplied default '" + def + "'");
+			Log.i(TAG, "No value in database for platform key: '" + key + "' returning supplied default '" + def + "'");
 		}
 		catch (Exception e)
 		{
-			Log.e(LCAT, "Problem retrieving data from platform: ", e);
+			Log.e(TAG, "Problem retrieving data from platform: ", e);
 		}
 		finally
 		{

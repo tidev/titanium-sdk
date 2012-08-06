@@ -40,7 +40,7 @@ public class ViewProxy extends TiViewProxy implements OnLifecycleEvent
 	private static LocalActivityManager lam;
 	private static Window mapWindow;
 	private static OnLifecycleEvent rootLifecycleListener;
-	private static final String LCAT = "TiMapViewProxy";
+	private static final String TAG = "TiMapViewProxy";
 
 	/*
 	 * Track whether the map activity has been destroyed (or told to destroy).
@@ -94,7 +94,7 @@ public class ViewProxy extends TiViewProxy implements OnLifecycleEvent
 			 */
 			final TiRootActivity rootActivity = TiApplication.getInstance().getRootActivity();
 			if (rootActivity == null) {
-				Log.w(LCAT, "Application's root activity has been destroyed.  Unable to create MapView.");
+				Log.w(TAG, "Application's root activity has been destroyed.  Unable to create MapView.");
 				return null;
 			}
 			/*
@@ -161,7 +161,7 @@ public class ViewProxy extends TiViewProxy implements OnLifecycleEvent
 			if (location instanceof HashMap) {
 				mapView.doSetLocation((HashMap) location);
 			} else {
-				Log.e(LCAT, "location is set, but the structure is not correct");
+				Log.w(TAG, "Location is set, but the structure is not correct", Log.DEBUG_MODE);
 			}
 		}
 
@@ -266,8 +266,7 @@ public class ViewProxy extends TiViewProxy implements OnLifecycleEvent
 	public void addAnnotations(Object annotations)
 	{
 		if (!(annotations.getClass().isArray())) {
-			Log.e(LCAT, "argument to addAnnotation must be an array");
-
+			Log.e(TAG, "Argument to addAnnotation must be an array");
 			return;
 		}
 
@@ -278,7 +277,7 @@ public class ViewProxy extends TiViewProxy implements OnLifecycleEvent
 				this.annotations.add((AnnotationProxy) annotationArray[i]);
 
 			} else {
-				Log.e(LCAT, "unable to add annotation, not a AnnotationProxy");
+				Log.e(TAG, "Unable to add annotation, argument is not an AnnotationProxy");
 			}
 		}
 
@@ -377,10 +376,10 @@ public class ViewProxy extends TiViewProxy implements OnLifecycleEvent
 
 		if (title != null) {
 			if (mapView == null) {
-				Log.e(LCAT, "calling selectedAnnotations.add");
+				Log.e(TAG, "Calling selectedAnnotations.add", Log.DEBUG_MODE);
 				selectedAnnotations.add(new TiMapView.SelectedAnnotation(title, animate, center));
 			} else {
-				Log.e(LCAT, "calling selectedAnnotations.add2");
+				Log.e(TAG, "Calling selectedAnnotations.add2", Log.DEBUG_MODE);
 				mapView.selectAnnotation(true, title, animate, center);
 			}
 		}

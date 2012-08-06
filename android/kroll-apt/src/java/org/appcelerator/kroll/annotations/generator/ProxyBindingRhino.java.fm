@@ -20,8 +20,6 @@ import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.KrollProxySupport;
 import org.appcelerator.kroll.KrollRuntime;
 
-import org.appcelerator.kroll.common.TiConfig;
-
 import org.appcelerator.kroll.runtime.rhino.KrollBindings;
 import org.appcelerator.kroll.runtime.rhino.KrollGeneratedBindings;
 import org.appcelerator.kroll.runtime.rhino.Proxy;
@@ -48,7 +46,6 @@ public class ${className}Prototype extends ${superProxy}
 {
 	// GENERATE_SUID
 
-	private static final boolean DBG = TiConfig.LOGD;
 	private static final String TAG = "${className}Prototype";
 	private static final String CLASS_TAG = "${className}";
 	<#assign protoVar = className?substring(0, 1)?lower_case + className?substring(1) + "Prototype">
@@ -68,9 +65,7 @@ public class ${className}Prototype extends ${superProxy}
 
 	public static void dispose()
 	{
-		if (DBG) {
-			Log.d(TAG, "dispose()");
-		}
+		Log.d(TAG, "dispose()", Log.DEBUG_MODE);
 		${protoVar} = null;
 	}
 
@@ -132,9 +127,7 @@ public class ${className}Prototype extends ${superProxy}
 <#t>
 	public ${returnType} ${method.apiName}(Context context, Scriptable thisObj, Object[] args)
 	{
-		if (DBG) {
-			Log.d(TAG, "${method.apiName}()");
-		}
+		Log.d(TAG, "${method.apiName}()", Log.DEBUG_MODE);
 
 		try {
 		${className} proxy = (${className}) ((Proxy) thisObj).getProxy();
@@ -164,10 +157,7 @@ public class ${className}Prototype extends ${superProxy}
 	<#assign info = Proxy.getTypeInfo(property.getReturnType)>
 	public ${info.rhinoType} getter_${name}()
 	{
-		if (DBG) {
-			Log.d(TAG, "get ${name}");
-		}
-
+		Log.d(TAG, "get ${name}", Log.DEBUG_MODE);
 		${className} proxy = (${className}) getProxy();
 		Scriptable thisObj = this;
 		<@Proxy.callJavaMethod property.getMethodArgs, property.getMethodName, property.getHasInvocation,
@@ -180,10 +170,7 @@ public class ${className}Prototype extends ${superProxy}
 	<#if property.set>
 	public void setter_${name}(Object value)
 	{
-		if (DBG) {
-			Log.d(TAG, "set ${name}");
-		}
-
+		Log.d(TAG, "set ${name}", Log.DEBUG_MODE);
 		${className} proxy = (${className}) getProxy();
 		Scriptable thisObj = this;
 		<#assign info = Proxy.getTypeInfo(property.setMethodArgs[0].type)>

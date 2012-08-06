@@ -4,7 +4,6 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-
 package ti.modules.titanium.ui.widget.webview;
 
 import java.util.HashMap;
@@ -25,8 +24,8 @@ import android.webkit.WebView;
 
 public class TiWebChromeClient extends WebChromeClient
 {
-	private static final String LCAT = "TiWebChromeClient";
-	private static final String CONSOLE_TAG = LCAT + ".console";
+	private static final String TAG = "TiWebChromeClient";
+	private static final String CONSOLE_TAG = TAG + ".console";
 
 	private TiUIWebView tiWebView;
 

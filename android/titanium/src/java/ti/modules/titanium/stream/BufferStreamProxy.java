@@ -1,10 +1,9 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-
 package ti.modules.titanium.stream;
 
 import java.io.ByteArrayInputStream;
@@ -13,7 +12,6 @@ import java.io.IOException;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
-import org.appcelerator.kroll.common.TiConfig;
 import org.appcelerator.titanium.io.TiStream;
 import org.appcelerator.titanium.util.TiStreamHelper;
 
@@ -23,8 +21,7 @@ import ti.modules.titanium.BufferProxy;
 @Kroll.proxy(parentModule=StreamModule.class)
 public class BufferStreamProxy extends KrollProxy implements TiStream
 {
-	private static final String LCAT = "BufferStream";
-	private static final boolean DBG = TiConfig.LOGD;
+	private static final String TAG = "BufferStream";
 
 	private BufferProxy buffer;
 	private int mode = -1;
@@ -118,7 +115,7 @@ public class BufferStreamProxy extends KrollProxy implements TiStream
 			return bytesRead;
 
 		} catch (IOException e) {
-			Log.e(LCAT, "Unable to read from buffer stream, IO error", e);
+			Log.e(TAG, "Unable to read from buffer stream, IO error", e);
 			throw new IOException("Unable to read from buffer stream, IO error");
 		}
 	}

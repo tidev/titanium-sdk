@@ -38,7 +38,7 @@ import android.widget.Toast;
 })
 public class UIModule extends KrollModule implements Handler.Callback
 {
-	private static final String LCAT = "TiUIModule";
+	private static final String TAG = "TiUIModule";
 
 	@Kroll.constant public static final int RETURNKEY_GO = 0;
 	@Kroll.constant public static final int RETURNKEY_GOOGLE = 1;
@@ -197,7 +197,7 @@ public class UIModule extends KrollModule implements Handler.Callback
 				try {
 					imageDrawable = TiUIHelper.getResourceDrawable((Integer)image);
 				} catch (Resources.NotFoundException e) {
-					Log.w(LCAT , "Unable to set background drawable for root window.  An integer id was provided but no such drawable resource exists.");
+					Log.w(TAG , "Unable to set background drawable for root window.  An integer id was provided but no such drawable resource exists.");
 				}
 			} else {
 				imageDrawable = TiUIHelper.getResourceDrawable(image);
@@ -273,7 +273,7 @@ public class UIModule extends KrollModule implements Handler.Callback
 				}
 				else
 				{
-					Log.e(LCAT, "no window has been associated with activity, unable to set orientation");
+					Log.e(TAG, "No window has been associated with activity, unable to set orientation");
 				}
 			}
 			else

@@ -1,10 +1,9 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-
 package ti.modules.titanium.stream;
 
 import java.io.IOException;
@@ -12,7 +11,6 @@ import java.io.IOException;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
-import org.appcelerator.kroll.common.TiConfig;
 import org.appcelerator.titanium.TiFileProxy;
 import org.appcelerator.titanium.io.TiStream;
 import org.appcelerator.titanium.util.TiStreamHelper;
@@ -22,8 +20,7 @@ import ti.modules.titanium.BufferProxy;
 @Kroll.proxy(parentModule=StreamModule.class)
 public class FileStreamProxy extends KrollProxy implements TiStream
 {
-	private static final String LCAT = "FileStream";
-	private static final boolean DBG = TiConfig.LOGD;
+	private static final String TAG = "FileStream";
 
 	private TiFileProxy fileProxy;
 	private boolean isOpen = false;
@@ -89,7 +86,7 @@ public class FileStreamProxy extends KrollProxy implements TiStream
 			return TiStreamHelper.read(fileProxy.getBaseFile().getExistingInputStream(), bufferProxy, offset, length);
 
 		} catch (IOException e) {
-			Log.e(LCAT, "Unable to read from file, IO error", e);
+			Log.e(TAG, "Unable to read from file, IO error", e);
 			throw new IOException("Unable to read from file, IO error");
 		}
 	}
@@ -146,7 +143,7 @@ public class FileStreamProxy extends KrollProxy implements TiStream
 			return TiStreamHelper.write(fileProxy.getBaseFile().getExistingOutputStream(), bufferProxy, offset, length);
 
 		} catch (IOException e) {
-			Log.e(LCAT, "Unable to write to file, IO error", e);
+			Log.e(TAG, "Unable to write to file, IO error", e);
 			throw new IOException("Unable to write to file, IO error");
 		}
 	}

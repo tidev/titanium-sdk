@@ -1,3 +1,9 @@
+/**
+ * Appcelerator Titanium Mobile
+ * Copyright (c) 2011-2012 by Appcelerator, Inc. All Rights Reserved.
+ * Licensed under the terms of the Apache Public License
+ * Please see the LICENSE included with this distribution for details.
+ */
 package ti.modules.titanium.media.android;
 
 import java.io.IOException;
@@ -26,7 +32,7 @@ import android.net.Uri;
 @Kroll.module(parentModule=MediaModule.class)
 public class AndroidModule extends KrollModule
 {
-	private static final String LCAT = "TiMedia.Android";
+	private static final String TAG = "TiMedia.Android";
 
 	protected static AndroidModule _instance = null;
 
@@ -70,10 +76,10 @@ public class AndroidModule extends KrollModule
 			try {
 				wm.setBitmap(b);
 			} catch (IOException e) {
-				Log.e(LCAT, "Unable to set wallpaper bitmap", e);
+				Log.e(TAG, "Unable to set wallpaper bitmap", e);
 			}
 		} else {
-			Log.w(LCAT, "Unable to get bitmap to set wallpaper");
+			Log.w(TAG, "Unable to get bitmap to set wallpaper");
 		}
 	}
 

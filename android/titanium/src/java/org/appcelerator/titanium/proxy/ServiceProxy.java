@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -9,7 +9,6 @@ package org.appcelerator.titanium.proxy;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
-import org.appcelerator.kroll.common.TiConfig;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBaseService;
 import org.appcelerator.titanium.TiBaseService.TiServiceBinder;
@@ -33,8 +32,7 @@ public class ServiceProxy extends KrollProxy
 	private int serviceInstanceId;
 	private IntentProxy intentProxy;
 	private ServiceConnection serviceConnection = null; // Set only if the service is started via bindService as opposed to startService
-	private static final boolean DBG = TiConfig.LOGD;
-	private static final String LCAT = "TiServiceProxy";
+	private static final String TAG = "TiServiceProxy";
 	
 	public ServiceProxy()
 	{
@@ -89,7 +87,7 @@ public class ServiceProxy extends KrollProxy
 	public void start()
 	{
 		if (!forBoundServices) {
-			Log.w(LCAT, "Only services created via Ti.Android.createService can be started via the start() command. Ignoring start() request.");
+			Log.w(TAG, "Only services created via Ti.Android.createService can be started via the start() command. Ignoring start() request.");
 			return;
 		}
 		bindAndInvokeService();
@@ -98,13 +96,9 @@ public class ServiceProxy extends KrollProxy
 	@Kroll.method
 	public void stop()
 	{
-		if (DBG) {
-			Log.d(LCAT, "stop");
-		}
+		Log.d(TAG, "Stopping service", Log.DEBUG_MODE);
 		if (!forBoundServices) {
-			if (DBG) {
-				Log.d(LCAT, "stop via stopService");
-			}
+			Log.d(TAG, "stop via stopService", Log.DEBUG_MODE);
 			service.stopSelf();
 		} else {
 			unbindService();
@@ -125,9 +119,7 @@ public class ServiceProxy extends KrollProxy
 					ServiceProxy proxy =  ServiceProxy.this;
 					TiBaseService tiService =(TiBaseService) binder.getService();
 					proxy.serviceInstanceId = tiService.nextServiceInstanceId();
-					if (DBG) {
-						Log.d(LCAT, tiService.getClass().getSimpleName() + " service successfully bound");
-					}
+					Log.d(TAG, tiService.getClass().getSimpleName() + " service successfully bound", Log.DEBUG_MODE);
 					proxy.invokeBoundService(tiService);
 				}
 			}
@@ -140,7 +132,7 @@ public class ServiceProxy extends KrollProxy
 	{
 		Context context = TiApplication.getInstance();
 		if (context == null) {
-			Log.w(LCAT, "Cannot unbind service.  tiContext.getTiApp() returned null");
+			Log.w(TAG, "Cannot unbind service.  tiContext.getTiApp() returned null");
 			return;
 		}
 
@@ -148,9 +140,7 @@ public class ServiceProxy extends KrollProxy
 			((TiBaseService) service).unbindProxy(this);
 		}
 
-		if (DBG) {
-			Log.d(LCAT, "Unbinding service");
-		}
+		Log.d(TAG, "Unbinding service", Log.DEBUG_MODE);
 		context.unbindService(serviceConnection);
 		serviceConnection = null;
 	}
@@ -159,14 +149,12 @@ public class ServiceProxy extends KrollProxy
 	{
 		this.service = boundService;
 		if (!(boundService instanceof TiBaseService)) {
-			Log.w(LCAT, "Service " + boundService.getClass().getSimpleName() + " is not a Ti Service.  Cannot start directly.");
+			Log.w(TAG, "Service " + boundService.getClass().getSimpleName() + " is not a Ti Service.  Cannot start directly.");
 			return;
 		}
 
 		TiBaseService tiService = (TiBaseService) boundService;
-		if (DBG) {
-			Log.d(LCAT, "Calling tiService.start for this proxy instance");
-		}
+		Log.d(TAG, "Calling tiService.start for this proxy instance", Log.DEBUG_MODE);
 
 		tiService.start(this);
 	}
@@ -175,9 +163,7 @@ public class ServiceProxy extends KrollProxy
 	public void release()
 	{
 		super.release();
-		if (DBG) {
-			Log.d(LCAT, "Nullifying wrapped service");
-		}
+		Log.d(TAG, "Nullifying wrapped service", Log.DEBUG_MODE);
 		this.service = null;
 	}
 }

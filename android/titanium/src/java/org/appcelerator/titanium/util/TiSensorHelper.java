@@ -1,14 +1,12 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-
 package org.appcelerator.titanium.util;
 
 import org.appcelerator.kroll.common.Log;
-import org.appcelerator.kroll.common.TiConfig;
 import org.appcelerator.titanium.TiApplication;
 
 import android.app.Activity;
@@ -22,8 +20,7 @@ import android.hardware.SensorManager;
  */
 public class TiSensorHelper
 {
-	private static final String LCAT = "TiSensorHelper";
-	private static final boolean DBG = TiConfig.LOGD;
+	private static final String TAG = "TiSensorHelper";
 
 	private static SensorManager sensorManager;
 
@@ -45,18 +42,16 @@ public class TiSensorHelper
 	{
 		SensorManager sensorManager = getSensorManager();
 		if (sensorManager == null) {
-			Log.w(LCAT, "registerListener failed, no sensor manager found.");
+			Log.w(TAG, "registerListener failed, no sensor manager found.", Log.DEBUG_MODE);
 			return;
 		}
 
 		Sensor sensor  = sensorManager.getDefaultSensor(type);
 		if (sensor != null) {
-			if (DBG) {
-				Log.d(LCAT, "Enabling Listener: " + sensor.getName());
-			}
+			Log.d(TAG, "Enabling Listener: " + sensor.getName(), Log.DEBUG_MODE);
 			sensorManager.registerListener(listener, sensor, rate);
 		} else {
-			Log.e(LCAT, "unable to register, sensor is null");
+			Log.e(TAG, "Unable to register, sensor is null");
 		}
 	}
 
@@ -76,17 +71,15 @@ public class TiSensorHelper
 	{
 		SensorManager sensorManager = getSensorManager();
 		if (sensorManager == null) {
-			Log.w(LCAT, "unregisterListener failed, no sensor manager found.");
+			Log.w(TAG, "UnregisterListener failed, no sensor manager found.", Log.DEBUG_MODE);
 		}
 
 		Sensor sensor = sensorManager.getDefaultSensor(type);
 		if (sensor != null) {
-			if (DBG) {
-				Log.d(LCAT, "Disabling Listener: " + sensor.getName());
-			}
+			Log.d(TAG, "Disabling Listener: " + sensor.getName(), Log.DEBUG_MODE);
 			sensorManager.unregisterListener(listener, sensor);
 		} else {
-			Log.e(LCAT, "unable to unregister, sensor is null");
+			Log.e(TAG, "Unable to unregister, sensor is null");
 		}
 	}
 

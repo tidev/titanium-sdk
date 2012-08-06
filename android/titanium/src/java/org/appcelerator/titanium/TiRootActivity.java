@@ -7,7 +7,6 @@
 package org.appcelerator.titanium;
 
 import org.appcelerator.kroll.common.Log;
-import org.appcelerator.kroll.common.TiConfig;
 import org.appcelerator.kroll.common.TiFastDev;
 import org.appcelerator.titanium.util.TiActivitySupport;
 import org.appcelerator.titanium.util.TiRHelper;
@@ -22,8 +21,7 @@ import android.view.Window;
 public class TiRootActivity extends TiLaunchActivity
 	implements TiActivitySupport
 {
-	private static final String LCAT = "TiRootActivity";
-	private static final boolean DBG = TiConfig.LOGD;
+	private static final String TAG = "TiRootActivity";
 	private boolean finishing = false;
 
 	private Drawable[] backgroundLayers = {null, null};
@@ -92,7 +90,7 @@ public class TiRootActivity extends TiLaunchActivity
 
 		tiApp.setCurrentActivity(this, this);
 
-		Log.checkpoint(LCAT, "checkpoint, on root activity create, savedInstanceState: " + savedInstanceState);
+		Log.checkpoint(TAG, "checkpoint, on root activity create, savedInstanceState: " + savedInstanceState);
 
 		tiApp.setRootActivity(this);
 
@@ -114,7 +112,7 @@ public class TiRootActivity extends TiLaunchActivity
 	@Override
 	protected void onResume()
 	{
-		Log.checkpoint(LCAT, "checkpoint, on root activity resume. activity = " + this);
+		Log.checkpoint(TAG, "checkpoint, on root activity resume. activity = " + this);
 		super.onResume();
 	}
 
@@ -133,7 +131,7 @@ public class TiRootActivity extends TiLaunchActivity
 				}
 			}
 		} catch (Exception e) {
-			Log.e(LCAT, "Resource not found 'drawable.background': " + e.getMessage());
+			Log.e(TAG, "Resource not found 'drawable.background': " + e.getMessage());
 		}
 	}
 
@@ -146,9 +144,7 @@ public class TiRootActivity extends TiLaunchActivity
 			return;
 		}
 
-		if (DBG) {
-			Log.d(LCAT, "root activity onDestroy, activity = " + this);
-		}
+		Log.d(TAG, "root activity onDestroy, activity = " + this, Log.DEBUG_MODE);
 		TiFastDev.onDestroy();
 	}
 

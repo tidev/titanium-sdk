@@ -11,7 +11,6 @@ import java.lang.ref.WeakReference;
 
 import org.appcelerator.kroll.KrollRuntime;
 import org.appcelerator.kroll.common.Log;
-import org.appcelerator.kroll.common.TiConfig;
 import org.appcelerator.kroll.util.KrollAssetHelper;
 import org.appcelerator.titanium.kroll.KrollContext;
 import org.appcelerator.titanium.util.TiFileHelper;
@@ -27,10 +26,7 @@ import android.os.RemoteException;
 
 public class TiContext// implements ErrorReporter
 {
-	private static final String LCAT = "TiContext";
-	private static final boolean DBG = TiConfig.LOGD;
-	@SuppressWarnings("unused")
-	private static final boolean TRACE = TiConfig.LOGV;
+	private static final String TAG = "TiContext";
 
 	public static final int LIFECYCLE_ON_START = 0;
 	public static final int LIFECYCLE_ON_RESUME = 1;
@@ -75,9 +71,7 @@ public class TiContext// implements ErrorReporter
 		}
 		this.baseUrl = new TiUrl(baseUrl, null);
 
-		if (DBG) {
-			Log.e(LCAT, "BaseURL for context is " + baseUrl);
-		}
+		Log.e(TAG, "BaseURL for context is " + baseUrl, Log.DEBUG_MODE);
 	}
 
 	public boolean isUIThread()
@@ -163,11 +157,9 @@ public class TiContext// implements ErrorReporter
 				Message msg = Message.obtain();
 				msg.what = messageId;
 				messenger.send(msg);
-				if (DBG) {
-					Log.d(LCAT, "Notifying caller that evalFile has completed");
-				}
+				Log.d(TAG, "Notifying caller that evalFile has completed", Log.DEBUG_MODE);
 			} catch(RemoteException e) {
-				Log.w(LCAT, "Failed to notify caller that eval completed");
+				Log.w(TAG, "Failed to notify caller that eval completed");
 			}
 		}
 		if (setUrlBackTo != null) { this.currentUrl = setUrlBackTo; }
@@ -212,7 +204,7 @@ public class TiContext// implements ErrorReporter
 				try {
 					fireLifecycleEvent(activity, listener, which);
 				} catch (Throwable t) {
-					Log.e(LCAT, "Error dispatching lifecycle event: " + t.getMessage(), t);
+					Log.e(TAG, "Error dispatching lifecycle event: " + t.getMessage(), t);
 				}
 			}
 		}

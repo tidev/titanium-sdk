@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -12,7 +12,6 @@ import java.util.Date;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.common.Log;
-import org.appcelerator.kroll.common.TiConfig;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiUIView;
@@ -25,8 +24,7 @@ public class TiUIDatePicker extends TiUIView
 	implements OnDateChangedListener
 {
 	private boolean suppressChangeEvent = false;
-	private static final String LCAT = "TiUIDatePicker";
-	private static final boolean DBG = TiConfig.LOGD;
+	private static final String TAG = "TiUIDatePicker";
 
 	protected Date minDate, maxDate;
 	protected int minuteInterval;
@@ -38,9 +36,7 @@ public class TiUIDatePicker extends TiUIView
 	public TiUIDatePicker(final TiViewProxy proxy, Activity activity)
 	{
 		this(proxy);
-		if (DBG) {
-			Log.d(LCAT, "Creating a date picker");
-		}
+		Log.d(TAG, "Creating a date picker", Log.DEBUG_MODE);
 		
 		DatePicker picker = new DatePicker(activity)
 		{
@@ -103,7 +99,7 @@ public class TiUIDatePicker extends TiUIView
         //iPhone ignores both values if max <= min
         if (minDate != null && maxDate != null) {
             if (maxDate.compareTo(minDate) <= 0) {
-                Log.w(LCAT, "maxDate is less or equal minDate, ignoring both settings.");
+                Log.w(TAG, "maxDate is less or equal minDate, ignoring both settings.");
                 minDate = null;
                 maxDate = null;
             }   

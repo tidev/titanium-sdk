@@ -9,7 +9,6 @@ package org.appcelerator.titanium.io;
 import java.io.File;
 
 import org.appcelerator.kroll.common.Log;
-import org.appcelerator.kroll.common.TiConfig;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.util.TiFileHelper;
@@ -21,8 +20,7 @@ import android.net.Uri;
  */
 public class TiFileFactory
 {
-	private static final String LCAT = "TiFileFactory";
-	private static final boolean DBG = TiConfig.LOGD;
+	private static final String TAG = "TiFileFactory";
 
 	/**
 	 * Identical to {@link #createTitaniumFile(String[], boolean)} except that the path is passed in as a single
@@ -52,9 +50,7 @@ public class TiFileFactory
 		TiBaseFile file = null;
 
 		String initial = parts[0];
-		if (DBG) {
-			Log.d(LCAT,"getting initial from parts: " + initial);
-		}
+		Log.d(TAG, "getting initial from parts: " + initial, Log.DEBUG_MODE);
 
 		if (initial.startsWith("app://")) {
 			String path = initial.substring(6);

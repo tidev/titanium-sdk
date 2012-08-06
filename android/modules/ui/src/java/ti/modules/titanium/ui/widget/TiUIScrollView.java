@@ -11,7 +11,6 @@ import java.util.HashMap;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.common.Log;
-import org.appcelerator.kroll.common.TiConfig;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiDimension;
 import org.appcelerator.titanium.proxy.TiViewProxy;
@@ -33,12 +32,10 @@ import android.widget.ScrollView;
 
 public class TiUIScrollView extends TiUIView
 {
-
 	public static final int TYPE_VERTICAL = 0;
 	public static final int TYPE_HORIZONTAL = 1;
 
-	private static final String LCAT = "TiUIScrollView";
-	private static final boolean DBG = TiConfig.LOGD;
+	private static final String TAG = "TiUIScrollView";
 	private int offsetX = 0, offsetY = 0;
 	private boolean setInitialOffset = false;
 	private boolean mScrollingEnabled = true;
@@ -394,16 +391,14 @@ public class TiUIScrollView extends TiUIView
 			offsetX = TiConvert.toInt(contentOffset, TiC.PROPERTY_X);
 			offsetY = TiConvert.toInt(contentOffset, TiC.PROPERTY_Y);
 		} else {
-			Log.e(LCAT, "contentOffset must be an instance of HashMap");
+			Log.e(TAG, "ContentOffset must be an instance of HashMap");
 		}
 	}
 
 	@Override
 	public void propertyChanged(String key, Object oldValue, Object newValue, KrollProxy proxy)
 	{
-		if (DBG) {
-			Log.d(LCAT, "Property: " + key + " old: " + oldValue + " new: " + newValue);
-		}
+		Log.d(TAG, "Property: " + key + " old: " + oldValue + " new: " + newValue, Log.DEBUG_MODE);
 		if (key.equals(TiC.PROPERTY_CONTENT_OFFSET)) {
 			setContentOffset(newValue);
 			scrollTo(offsetX, offsetY);
@@ -441,7 +436,7 @@ public class TiUIScrollView extends TiUIView
 		}
 
 		if (showHorizontalScrollBar && showVerticalScrollBar) {
-			Log.w(LCAT, "Both scroll bars cannot be shown. Defaulting to vertical shown");
+			Log.w(TAG, "Both scroll bars cannot be shown. Defaulting to vertical shown");
 			showHorizontalScrollBar = false;
 		}
 
@@ -479,12 +474,12 @@ public class TiUIScrollView extends TiUIView
 			} else if (scrollType.equals(TiC.LAYOUT_HORIZONTAL)) {
 				type = TYPE_HORIZONTAL;
 			} else {
-				Log.w(LCAT, "scrollType value '" + TiConvert.toString(scrollType)
+				Log.w(TAG, "scrollType value '" + TiConvert.toString(scrollType)
 					+ "' is invalid. Only 'vertical' and 'horizontal' are supported.");
 			}
 		} else if (!deduced && type == TYPE_VERTICAL) {
 			Log.w(
-				LCAT,
+				TAG,
 				"Scroll direction could not be determined based on the provided view properties. Default VERTICAL scroll direction being used. Use the 'scrollType' property to explicitly set the scrolling direction.");
 		}
 
@@ -504,17 +499,13 @@ public class TiUIScrollView extends TiUIView
 
 		switch (type) {
 			case TYPE_HORIZONTAL:
-				if (DBG) {
-					Log.d(LCAT, "creating horizontal scroll view");
-				}
+				Log.d(TAG, "creating horizontal scroll view", Log.DEBUG_MODE);
 				view = new TiHorizontalScrollView(getProxy().getActivity(), arrangement);
 				((TiHorizontalScrollView) view).getLayout().setCanCancelEvents(canCancelEvents);
 				break;
 			case TYPE_VERTICAL:
 			default:
-				if (DBG) {
-					Log.d(LCAT, "creating vertical scroll view");
-				}
+				Log.d(TAG, "creating vertical scroll view", Log.DEBUG_MODE);
 				view = new TiVerticalScrollView(getProxy().getActivity(), arrangement);
 				((TiVerticalScrollView) view).getLayout().setCanCancelEvents(canCancelEvents);
 		}

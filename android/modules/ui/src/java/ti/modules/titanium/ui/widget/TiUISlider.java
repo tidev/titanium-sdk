@@ -11,7 +11,6 @@ import java.lang.ref.SoftReference;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.common.Log;
-import org.appcelerator.kroll.common.TiConfig;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
@@ -29,8 +28,7 @@ import android.widget.SeekBar;
 public class TiUISlider extends TiUIView
 	implements SeekBar.OnSeekBarChangeListener
 {
-	private static final String LCAT = "TiUISlider";
-	private static final boolean DBG = TiConfig.LOGD;
+	private static final String TAG = "TiUISlider";
 
 	private int min;
 	private int max;
@@ -45,9 +43,7 @@ public class TiUISlider extends TiUIView
 	public TiUISlider(final TiViewProxy proxy)
 	{
 		super(proxy);
-		if (DBG) {
-			Log.d(LCAT, "Creating a seekBar");
-		}
+		Log.d(TAG, "Creating a seekBar", Log.DEBUG_MODE);
 
 		layoutParams.autoFillsWidth = true;
 
@@ -67,7 +63,6 @@ public class TiUISlider extends TiUIView
 		seekBar.setOnSeekBarChangeListener(this);
 		setNativeView(seekBar);
 	}
-
 
 	@Override
 	public void processProperties(KrollDict d)
@@ -146,7 +141,7 @@ public class TiUISlider extends TiUIView
 				thumbDrawable = new SoftReference<Drawable>(thumb);
 				seekBar.setThumb(thumb);
 			} else {
-				Log.e(LCAT, "Unable to locate thumb image for progress bar: " + url);
+				Log.e(TAG, "Unable to locate thumb image for progress bar: " + url);
 			}
 		} else {
 			seekBar.setThumb(null);
@@ -178,10 +173,10 @@ public class TiUISlider extends TiUIView
 				seekBar.setProgressDrawable(ld);
 			} else {
 				if (leftDrawable == null) {
-					Log.e(LCAT, "Unable to locate left image for progress bar: " + leftUrl);
+					Log.e(TAG, "Unable to locate left image for progress bar: " + leftUrl);
 				}
 				if (rightDrawable == null) {
-					Log.e(LCAT, "Unable to locate right image for progress bar: " + rightUrl);
+					Log.e(TAG, "Unable to locate right image for progress bar: " + rightUrl);
 				}
 				// release
 				leftDrawable = null;
@@ -190,16 +185,14 @@ public class TiUISlider extends TiUIView
 		} else if (leftImage == null && rightImage == null) {
 			seekBar.setProgressDrawable(null);
 		} else {
-			Log.w(LCAT, "Custom tracking images must both be set before they'll be drawn.");
+			Log.w(TAG, "Custom tracking images must both be set before they will be drawn.");
 		}
 	}
 	
 	@Override
 	public void propertyChanged(String key, Object oldValue, Object newValue, KrollProxy proxy)
 	{
-		if (DBG) {
-			Log.d(LCAT, "Property: " + key + " old: " + oldValue + " new: " + newValue);
-		}
+		Log.d(TAG, "Property: " + key + " old: " + oldValue + " new: " + newValue, Log.DEBUG_MODE);
 		SeekBar seekBar = (SeekBar) getNativeView();
 		if (key.equals(TiC.PROPERTY_VALUE)) {
 			pos = TiConvert.toFloat(newValue);
@@ -247,11 +240,11 @@ public class TiUISlider extends TiUIView
 		} else if (key.equals("thumbImage")) {
 			//updateThumb(seekBar, proxy.getDynamicProperties());
 			//seekBar.invalidate();
-			Log.i(LCAT, "Dynamically changing thumbImage is not yet supported. Native control doesn't draw");
+			Log.i(TAG, "Dynamically changing thumbImage is not yet supported. Native control doesn't draw");
 		} else if (key.equals("leftTrackImage") || key.equals("rightTrackImage")) {
 			//updateTrackingImages(seekBar, proxy.getDynamicProperties());
 			//seekBar.invalidate();
-			Log.i(LCAT, "Dynamically changing leftTrackImage or rightTrackImage is not yet supported. Native control doesn't draw");
+			Log.i(TAG, "Dynamically changing leftTrackImage or rightTrackImage is not yet supported. Native control doesn't draw");
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}
@@ -290,9 +283,10 @@ public class TiUISlider extends TiUIView
 		}
 		KrollDict data = new KrollDict();
 		float scaledValue = scaledValue();
-		if (DBG) {
-			Log.d(LCAT,"Progress "+seekBar.getProgress()+" ScaleFactor "+scaleFactor+" Calculated Position "+pos+" ScaledValue "+scaledValue+" Min "+min+" Max"+max+" MinRange"+minRange+" MaxRange"+maxRange);
-		}
+		Log.d(TAG,
+			"Progress " + seekBar.getProgress() + " ScaleFactor " + scaleFactor + " Calculated Position " + pos
+				+ " ScaledValue " + scaledValue + " Min " + min + " Max" + max + " MinRange" + minRange + " MaxRange"
+				+ maxRange, Log.DEBUG_MODE);
 		data.put(TiC.PROPERTY_VALUE, scaledValue);
 		data.put(TiC.EVENT_PROPERTY_THUMB_OFFSET, offset);
 		data.put(TiC.EVENT_PROPERTY_THUMB_SIZE, size);

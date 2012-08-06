@@ -1,11 +1,9 @@
 /**
-
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-
 package org.appcelerator.titanium.proxy;
 
 import java.lang.ref.WeakReference;
@@ -16,7 +14,6 @@ import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.AsyncResult;
 import org.appcelerator.kroll.common.Log;
-import org.appcelerator.kroll.common.TiConfig;
 import org.appcelerator.kroll.common.TiMessenger;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBaseActivity;
@@ -46,8 +43,7 @@ import android.view.View;
 })
 public abstract class TiWindowProxy extends TiViewProxy
 {
-	private static final String LCAT = "TiWindowProxy";
-	private static final boolean DBG = TiConfig.LOGD;
+	private static final String TAG = "TiWindowProxy";
 	
 	private static final int MSG_FIRST_ID = KrollProxy.MSG_LAST_ID + 1;
 	private static final int MSG_OPEN = MSG_FIRST_ID + 100;
@@ -244,7 +240,7 @@ public abstract class TiWindowProxy extends TiViewProxy
 	@Kroll.setProperty @Kroll.method
 	public void setLeftNavButton(Object button)
 	{
-		Log.w(LCAT, "setLeftNavButton not supported in Android");
+		Log.w(TAG, "setLeftNavButton not supported in Android");
 	}
 
 	@Kroll.method
@@ -423,7 +419,7 @@ public abstract class TiWindowProxy extends TiViewProxy
 			return TiOrientationHelper.convertConfigToTiOrientationMode(activity.getResources().getConfiguration().orientation);
 		}
 
-		Log.e(LCAT, "unable to get orientation, activity not found for window");
+		Log.e(TAG, "Unable to get orientation, activity not found for window", Log.DEBUG_MODE);
 		return TiOrientationHelper.ORIENTATION_UNKNOWN;
 	}
 

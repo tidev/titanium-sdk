@@ -11,7 +11,6 @@ import java.util.HashMap;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollFunction;
 import org.appcelerator.kroll.common.Log;
-import org.appcelerator.kroll.common.TiConfig;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiDimension;
 import org.appcelerator.titanium.proxy.TiViewProxy;
@@ -45,8 +44,7 @@ import android.view.animation.TranslateAnimation;
 
 public class TiAnimationBuilder
 {
-	private static final String LCAT = "TiAnimationBuilder";
-	private static final boolean DBG = TiConfig.LOGD;
+	private static final String TAG = "TiAnimationBuilder";
 
 	protected float anchorX;
 	protected float anchorY;
@@ -89,7 +87,7 @@ public class TiAnimationBuilder
 				anchorX = TiConvert.toFloat(point, TiC.PROPERTY_X);
 				anchorY = TiConvert.toFloat(point, TiC.PROPERTY_Y);
 			} else {
-				Log.e(LCAT, "invalid argument type for anchorPoint property. Ignoring");
+				Log.e(TAG, "Invalid argument type for anchorPoint property. Ignoring");
 			}
 		}
 
@@ -148,7 +146,7 @@ public class TiAnimationBuilder
 				centerY = TiConvert.toString(center, TiC.PROPERTY_Y);
 
 			} else {
-				Log.e(LCAT, "Invalid argument type for center property. Ignoring");
+				Log.e(TAG, "Invalid argument type for center property. Ignoring");
 			}
 		}
 
@@ -292,8 +290,7 @@ public class TiAnimationBuilder
 				fromBackgroundColor = TiConvert.toColor(TiConvert.toString(viewProxy
 					.getProperty(TiC.PROPERTY_BACKGROUND_COLOR)));
 			} else {
-				Log.w(LCAT,
-					"Cannot animate view without a backgroundColor. View doesn't have that property. Using #00000000");
+				Log.w(TAG, "Cannot animate view without a backgroundColor. View doesn't have that property. Using #00000000");
 				fromBackgroundColor = Color.argb(0, 0, 0, 0);
 			}
 
@@ -387,10 +384,8 @@ public class TiAnimationBuilder
 			// need to re-layout.
 			relayoutChild = (autoreverse == null || !autoreverse.booleanValue());
 
-			if (DBG) {
-				Log.d(LCAT, "animate " + viewProxy + " relative to self: " + (horizontal[0] - x) + ", "
-					+ (vertical[0] - y));
-			}
+			Log.d(TAG, "animate " + viewProxy + " relative to self: " + (horizontal[0] - x) + ", " + (vertical[0] - y),
+				Log.DEBUG_MODE);
 
 		}
 
@@ -459,7 +454,7 @@ public class TiAnimationBuilder
 	{
 		protected View view;
 		protected float fromWidth, fromHeight, toWidth, toHeight;
-		protected static final String LCAT = "TiSizeAnimation";
+		protected static final String TAG = "TiSizeAnimation";
 
 		public SizeAnimation(View view, float fromWidth, float fromHeight, float toWidth, float toHeight)
 		{
@@ -469,10 +464,8 @@ public class TiAnimationBuilder
 			this.toWidth = toWidth;
 			this.toHeight = toHeight;
 
-			if (DBG) {
-				Log.d(LCAT, "animate view from (" + fromWidth + "x" + fromHeight + ") to (" + toWidth + "x" + toHeight
-					+ ")");
-			}
+			Log.d(TAG, "animate view from (" + fromWidth + "x" + fromHeight + ") to (" + toWidth + "x" + toHeight + ")",
+				Log.DEBUG_MODE);
 		}
 
 		@Override

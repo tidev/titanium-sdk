@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2011-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -13,7 +13,6 @@ import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.KrollRuntime;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
-import org.appcelerator.kroll.common.TiConfig;
 import org.appcelerator.titanium.util.TiRHelper;
 import org.appcelerator.titanium.util.TiRHelper.ResourceNotFoundException;
 
@@ -21,7 +20,6 @@ import org.appcelerator.titanium.util.TiRHelper.ResourceNotFoundException;
 public class RProxy extends KrollProxy
 {
 	private static final String TAG = "TiAndroidRProxy";
-	private static final boolean DBG = TiConfig.LOGD;
 
 	private static final String[] RESOURCE_TYPES = {
 		"anim", "array", "attr", "color",
@@ -85,9 +83,7 @@ public class RProxy extends KrollProxy
 
 	private Object getResourceValue(String name)
 	{
-		if (DBG) {
-			Log.d(TAG, "Getting resource " + (resourceType == RESOURCE_TYPE_ANDROID ? "android.R." : "R.") + name);
-		}
+		Log.d(TAG, "Getting resource " + (resourceType == RESOURCE_TYPE_ANDROID ? "android.R." : "R.") + name, Log.DEBUG_MODE);
 
 		try {
 			if (resourceType == RESOURCE_TYPE_ANDROID) {
