@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -9,7 +9,6 @@ package ti.modules.titanium.database;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
-import org.appcelerator.kroll.common.TiConfig;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.util.TiConvert;
@@ -23,8 +22,7 @@ import android.database.sqlite.SQLiteDatabase;
 @Kroll.proxy(parentModule=DatabaseModule.class)
 public class TiDatabaseProxy extends KrollProxy
 {
-	private static final String LCAT = "TiDB";
-	private static final boolean DBG = TiConfig.LOGD;
+	private static final String TAG = "TiDB";
 
 	protected SQLiteDatabase db;
 	protected String name;
@@ -64,14 +62,10 @@ public class TiDatabaseProxy extends KrollProxy
 	@Kroll.method
 	public void close() {
 		if (db.isOpen()) {
-			if (DBG) {
-				Log.d(LCAT, "Closing database: " + name);
-			}
+			Log.d(TAG, "Closing database: " + name, Log.DEBUG_MODE);
 			db.close();
 		} else {
-			if (DBG) {
-				Log.d(LCAT, "Database is not open, ignoring close for " + name);
-			}
+			Log.d(TAG, "Database is not open, ignoring close for " + name, Log.DEBUG_MODE);
 		}
 	}
 
@@ -102,9 +96,7 @@ public class TiDatabaseProxy extends KrollProxy
 				sb.append(TiConvert.toString(s)).append("\"");
 			}
 			sb.append(" ]");
-			if (TiConfig.LOGV) {
-				Log.v(LCAT,  sb.toString());
-			}
+			Log.v(TAG, sb.toString(), Log.DEBUG_MODE);
 		}
 
 		TiResultSetProxy rs = null;
@@ -149,7 +141,7 @@ public class TiDatabaseProxy extends KrollProxy
 			}
 		} catch (SQLException e) {
 			String msg = "Error executing sql: " + e.getMessage();
-			Log.e(LCAT, msg, e);
+			Log.e(TAG, msg, e);
 			if (c != null) {
 				try {
 					c.close();
@@ -181,19 +173,19 @@ public class TiDatabaseProxy extends KrollProxy
 	@Kroll.method
 	public void remove() {
 		if (readOnly) {
-			Log.w(LCAT, name + " is a read-only database, cannot remove");
+			Log.w(TAG, name + " is a read-only database, cannot remove");
 			return;
 		}
-		
+
 		if (db.isOpen()) {
-			Log.w(LCAT, "Attempt to remove open database. Closing then removing " + name);
+			Log.w(TAG, "Attempt to remove open database. Closing then removing " + name);
 			db.close();
 		}
 		Context ctx = TiApplication.getInstance();
 		if (ctx != null) {
 			ctx.deleteDatabase(name);
 		} else {
-			Log.w(LCAT, "Unable to remove database, context has been reclaimed by GC: " + name);
+			Log.w(TAG, "Unable to remove database, context has been reclaimed by GC: " + name);
 		}
 	}
 

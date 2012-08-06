@@ -11,7 +11,6 @@ import java.util.HashMap;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.common.Log;
-import org.appcelerator.kroll.common.TiConfig;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
@@ -40,8 +39,7 @@ import android.widget.TextView.OnEditorActionListener;
 public class TiUIText extends TiUIView
 	implements TextWatcher, OnEditorActionListener, OnFocusChangeListener
 {
-	private static final String LCAT = "TiUIText";
-	private static final boolean DBG = TiConfig.LOGD;
+	private static final String TAG = "TiUIText";
 
 	public static final int RETURNKEY_GO = 0;
 	public static final int RETURNKEY_GOOGLE = 1;
@@ -113,9 +111,7 @@ public class TiUIText extends TiUIView
 	public TiUIText(TiViewProxy proxy, boolean field)
 	{
 		super(proxy);
-		if (DBG) {
-			Log.d(LCAT, "Creating a text field");
-		}
+		Log.d(TAG, "Creating a text field", Log.DEBUG_MODE);
 		
 		this.field = field;
 		tv = new TiEditText(getProxy().getActivity());
@@ -200,9 +196,7 @@ public class TiUIText extends TiUIView
 	@Override
 	public void propertyChanged(String key, Object oldValue, Object newValue, KrollProxy proxy)
 	{
-		if (DBG) {
-			Log.d(LCAT, "Property: " + key + " old: " + oldValue + " new: " + newValue);
-		}
+		Log.d(TAG, "Property: " + key + " old: " + oldValue + " new: " + newValue, Log.DEBUG_MODE);
 		if (key.equals(TiC.PROPERTY_ENABLED)) {
 			tv.setEnabled(TiConvert.toBoolean(newValue));
 		} else if (key.equals(TiC.PROPERTY_VALUE)) {
@@ -344,9 +338,8 @@ public class TiUIText extends TiUIView
 		data.put(TiC.PROPERTY_VALUE, value);
 
 		proxy.setProperty(TiC.PROPERTY_VALUE, value);
-		if (DBG) {
-			Log.d(LCAT, "ActionID: " + actionId + " KeyEvent: " + (keyEvent != null ? keyEvent.getKeyCode() : null));
-		}
+		Log.d(TAG, "ActionID: " + actionId + " KeyEvent: " + (keyEvent != null ? keyEvent.getKeyCode() : null),
+			Log.DEBUG_MODE);
 		
 		//This is to prevent 'return' event from being fired twice when return key is hit. In other words, when return key is clicked,
 		//this callback is triggered twice (except for keys that are mapped to EditorInfo.IME_ACTION_NEXT or EditorInfo.IME_ACTION_DONE). The first check is to deal with those keys - filter out
@@ -412,7 +405,7 @@ public class TiUIText extends TiUIView
 					autoCapValue = InputType.TYPE_TEXT_FLAG_CAP_WORDS;
 					break;
 				default:
-					Log.w(LCAT, "Unknown AutoCapitalization Value ["+d.getString(TiC.PROPERTY_AUTOCAPITALIZATION)+"]");
+					Log.w(TAG, "Unknown AutoCapitalization Value ["+d.getString(TiC.PROPERTY_AUTOCAPITALIZATION)+"]");
 				break;
 			}
 		}
@@ -460,9 +453,7 @@ public class TiUIText extends TiUIView
 				});
 				break;
 			case KEYBOARD_URL:
-				if (DBG) {
-					Log.d(LCAT, "Setting keyboard type URL-3");
-				}
+				Log.d(TAG, "Setting keyboard type URL-3", Log.DEBUG_MODE);
 				tv.setImeOptions(EditorInfo.IME_ACTION_GO);
 				textTypeAndClass |= InputType.TYPE_TEXT_VARIATION_URI;
 				break;

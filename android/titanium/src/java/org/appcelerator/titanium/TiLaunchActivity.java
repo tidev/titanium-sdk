@@ -10,7 +10,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.appcelerator.kroll.KrollRuntime;
 import org.appcelerator.kroll.common.Log;
-import org.appcelerator.kroll.common.TiConfig;
 import org.appcelerator.kroll.util.KrollAssetHelper;
 import org.appcelerator.titanium.analytics.TiAnalyticsEventFactory;
 import org.appcelerator.titanium.util.TiColorHelper;
@@ -38,19 +37,21 @@ import android.widget.Toast;
 public abstract class TiLaunchActivity extends TiBaseActivity
 {
 	private static final String TAG = "TiLaunchActivity";
-	private static final boolean DBG = TiConfig.LOGD;
 	
 	private static final int MSG_FINISH = 100;
 	private static final int RESTART_DELAY = 500;
 	private static final int FINISH_DELAY = 500;
 
-	// Constants for Kindle fire fix for android 2373 (TIMOB-7843)
+	// Constants for Kindle fire fix for android bug 2373 (TIMOB-7843)
 	private static final AtomicInteger creationCounter = new AtomicInteger();
 	private static final int KINDLE_FIRE_RESTART_FLAGS = (Intent.FLAG_ACTIVITY_NEW_TASK
 		| Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT | Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);
 	private static final String KINDLE_MODEL = "kindle";
 
-	protected TiUrl url;
+	// For general android bug 2373 condition checking.
+	private static final int VALID_LAUNCH_FLAGS = Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED
+			| Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY;
+
 
 	// For restarting due to android bug 2373 detection.
 	private boolean invalidLaunchDetected = false;
@@ -58,7 +59,15 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 	private PendingIntent restartPendingIntent = null;
 	private AlarmManager restartAlarmManager = null;
 	private int restartDelay = 0;
-	protected boolean invalidKindleFireRelaunch = false;
+
+	// finishing2373 is a flag indicating we've elected
+	// to finish this instance of the activity because
+	// it's not the task root (i.e., it has come to life
+	// via android bug 2373, while there is another instance
+	// of this same activity "behind it".)
+	protected boolean finishing2373 = false;
+
+	protected TiUrl url;
 
 	/**
 	 * @return The Javascript URL that this Activity should run
@@ -83,9 +92,7 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 		try {
 			String fullUrl = url.resolve();
 
-			if (DBG) {
-				Log.d(TAG, "Eval JS Activity:" + fullUrl);
-			}
+			Log.d(TAG, "Eval JS Activity:" + fullUrl, Log.DEBUG_MODE);
 
 			if (fullUrl.startsWith(TiC.URL_APP_PREFIX)) {
 				fullUrl = fullUrl.replaceAll("app:/", "Resources");
@@ -97,38 +104,14 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 			KrollRuntime.getInstance().runModule(KrollAssetHelper.readAsset(fullUrl), fullUrl, activityProxy);
 
 		} finally {
-			if (DBG) {
-				Log.d(TAG, "Signal JS loaded");
-			}
+			Log.d(TAG, "Signal JS loaded", Log.DEBUG_MODE);
 		}
-	}
-
-	// For kindle fire, we want to prevent subsequent instances of the activity from launching if it's following the
-	// restart workaround for android 2373. For whatever reason, the Fire always tries to re-launch the launch activity
-	// (i.e., a new instance of it) whenever the user selects the application from the application drawer (or shelf, whatever
-	// it is) after the app has been restarted because of 2373 detection. We detect here when that new instance of the launch
-	// activity is coming into existence, so that we can kill it off (finish()) right away.
-	protected boolean checkInvalidKindleFireRelaunch(Bundle savedInstanceState)
-	{
-		invalidKindleFireRelaunch = false;
-		int count = creationCounter.getAndIncrement();
-		if (count > 0 && getIntent().getFlags() == KINDLE_FIRE_RESTART_FLAGS
-			&& Build.MODEL.toLowerCase().contains(KINDLE_MODEL) && !isTaskRoot()) {
-			invalidKindleFireRelaunch = true;
-		}
-
-		if (invalidKindleFireRelaunch) {
-			activityOnCreate(savedInstanceState);
-			finish();
-		}
-
-		return invalidKindleFireRelaunch;
 	}
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
 	{
-		if (invalidKindleFireRelaunch || checkInvalidKindleFireRelaunch(savedInstanceState)) {
+		if (willFinishFalseRootActivity(savedInstanceState)) {
 			return;
 		}
 
@@ -175,7 +158,8 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 		Intent intent = getIntent();
 		if (intent != null) {
 			TiProperties systemProperties = getTiApp().getSystemProperties();
-			boolean detectionDisabled = systemProperties.getBool("ti.android.bug2373.disableDetection", false);
+			boolean detectionDisabled = systemProperties.getBool("ti.android.bug2373.disableDetection", false) ||
+					systemProperties.getBool("ti.android.bug2373.finishfalseroot", false);
 			if (!detectionDisabled) {
 				return checkInvalidLaunch(intent, savedInstanceState);
 			}
@@ -196,11 +180,11 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 				// FLAG_ACTIVITY_RESET_TASK_IF_NEEDED from the flags, which still causes the problem.
 				// 0x4 is the flag that occurs when we restart because of the missing category/flag, so
 				// that one is okay as well.
+				// (addendum re timob-9285) Launching from history (FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY)
+				// also appears to be okay, so if that flag is there then don't consider this an invalid
+				// launch. VALID_LAUNCH_FLAGS contains both of these valid flags.
 				if (Build.VERSION.SDK_INT >= TiC.API_LEVEL_HONEYCOMB && intent.getFlags() != 0x4) {
-					int desiredFlags = Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED;
-					if ((intent.getFlags() & desiredFlags) != desiredFlags) {
-						invalidLaunchDetected = true;
-					}
+					invalidLaunchDetected = (intent.getFlags() & VALID_LAUNCH_FLAGS) == 0;
 				}
 			}
 
@@ -312,7 +296,7 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 	@Override
 	protected void onRestart()
 	{
-		if (invalidKindleFireRelaunch) {
+		if (finishing2373) {
 			activityOnRestart();
 			return;
 		}
@@ -336,10 +320,11 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 	@Override
 	protected void onPause()
 	{
-		if (invalidKindleFireRelaunch) {
+		if (finishing2373) {
 			activityOnPause();
 			return;
 		}
+
 		if (getTiApp().isRestartPending()) {
 			super.onPause(); // Will take care of finish() if needed.
 			return;
@@ -362,10 +347,11 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 			return;
 		}
 
-		if (invalidLaunchDetected || invalidKindleFireRelaunch) {
+		if (invalidLaunchDetected || finishing2373) {
 			activityOnStop();
 			return;
 		}
+
 		super.onStop();
 	}
 
@@ -377,7 +363,7 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 			return;
 		}
 
-		if (invalidLaunchDetected || invalidKindleFireRelaunch) {
+		if (invalidLaunchDetected || finishing2373) {
 			activityOnStart();
 			return;
 		}
@@ -387,11 +373,11 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 	@Override
 	protected void onResume()
 	{
-		if (invalidKindleFireRelaunch) {
+		if (finishing2373) {
 			activityOnResume();
 			return;
 		}
-		if (getTiApp().isRestartPending()) {
+		if (getTiApp().isRestartPending() || isFinishing()) {
 			super.onResume();
 			return;
 		}
@@ -408,7 +394,7 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 	@Override
 	protected void onDestroy()
 	{
-		if (invalidKindleFireRelaunch) {
+		if (finishing2373) {
 			activityOnDestroy();
 			return;
 		}
@@ -437,6 +423,83 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 		TiPlatformHelper.resetSid();
 
 		super.onDestroy();
+	}
+
+	/**
+	 * Determines whether to immediately kill of (i.e., finish()) this instance
+	 * of the activity because it is not really the task root activity, and thus
+	 * is likely a byproduct of Android bug 2373. There are two conditions when
+	 * we'll finish it:
+	 *
+	 * <p>(1) The Titanium developer has explicitly said she wants it shut down,
+	 * by setting the "finishfalseroot" property; or
+	 *
+	 * <p>(2) We recognize a specific condition we've seen on Kindle Fires. For whatever
+	 * reason, the Fire always tries to re-launch the launch activity
+	 * (i.e., a new instance of it) whenever the user selects the application
+	 * from the application drawer/shelf after the app has been restarted because
+	 * of our 2373 detection. We detect here when that new instance of the launch
+	 * activity is coming into existence, so that we can finish it immediately.
+	 *
+	 * @param savedInstanceStateThe Bundle passed to onCreate, which we will pass
+	 * on to a superclass onCreate if we decide to finish right away.
+	 *
+	 * @return true if we have detected one of the two conditions and are thus finishing
+	 * the Activity right away.
+	 */
+	protected boolean willFinishFalseRootActivity(Bundle savedInstanceState)
+	{
+		finishing2373 = false;
+
+		if (isTaskRoot()) {
+			// Not a "false root" activity. This activity
+			// instance truly is the root of the task, so
+			// nothing needs to be done.
+			return finishing2373;
+		}
+
+		Intent intent = getIntent();
+		if (intent == null) {
+			// We need it. No other checks to make.
+			return finishing2373;
+		}
+
+		String action = intent.getAction();
+		if (action == null || !action.equals(Intent.ACTION_MAIN)) {
+			// No ACTION_MAIN, which means this activity wasn't started
+			// as a launch activity anyway, so there is no reason to shut
+			// it down.  For example, it could be that the app developer
+			// has designated (using intent filters) that this activity
+			// can be used for more things beyond being the launch activity,
+			// and we should allow that.
+			return finishing2373;
+		}
+
+		TiApplication tiApp = TiApplication.getInstance();
+		TiProperties systemProperties = null;
+
+		if (tiApp != null) {
+			systemProperties = tiApp.getSystemProperties();
+		}
+
+		if (systemProperties != null
+				&& systemProperties.getBool("ti.android.bug2373.finishfalseroot", false)) {
+			finishing2373 = true;
+		} else if (Build.MODEL.toLowerCase().contains(KINDLE_MODEL)
+				&& creationCounter.getAndIncrement() > 0
+				&& intent.getFlags() == KINDLE_FIRE_RESTART_FLAGS) {
+			finishing2373 = true;
+		}
+
+		if (finishing2373) {
+			// Jumps over TiBaseActivity's onCreate to fulfill directly
+			// the requirement that all Activity-derived classes must
+			// call Activity.onCreate.
+			activityOnCreate(savedInstanceState);
+			finish();
+		}
+
+		return finishing2373;
 	}
 
 }

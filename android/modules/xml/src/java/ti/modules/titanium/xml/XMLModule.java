@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -30,7 +30,7 @@ import org.xml.sax.SAXException;
 public class XMLModule extends KrollModule {
 
 	private static DocumentBuilder builder;
-	private static final String LCAT = "XMLModule";
+	private static final String TAG = "XMLModule";
 	private static TransformerFactory transformerFactory;
 	
 	static {
@@ -39,7 +39,7 @@ public class XMLModule extends KrollModule {
 			factory.setNamespaceAware(true);
 			builder = factory.newDocumentBuilder();
 		} catch (ParserConfigurationException e) {
-			Log.e(LCAT, "Error finding DOM implementation", e);
+			Log.e(TAG, "Error finding DOM implementation", e);
 		}
 
 		transformerFactory = TransformerFactory.newInstance();
@@ -81,10 +81,10 @@ public class XMLModule extends KrollModule {
 			try {
 				return new DocumentProxy(builder.parse(new ByteArrayInputStream(xml.getBytes(encoding))));
 			} catch (SAXException e) {
-				Log.e(LCAT, "Error parsing XML", e);
+				Log.e(TAG, "Error parsing XML", e);
 				throw e;
 			} catch (IOException e) {
-				Log.e(LCAT, "Error reading XML", e);
+				Log.e(TAG, "Error reading XML", e);
 				throw e;
 			}
 		}

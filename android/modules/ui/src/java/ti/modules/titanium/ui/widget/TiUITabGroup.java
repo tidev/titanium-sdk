@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -11,7 +11,6 @@ import java.util.ArrayList;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.common.Log;
-import org.appcelerator.kroll.common.TiConfig;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.TiBaseWindowProxy;
 import org.appcelerator.titanium.proxy.TiViewProxy;
@@ -33,8 +32,7 @@ import android.widget.TabHost.TabSpec;
 public class TiUITabGroup extends TiUIView
 	implements OnTabChangeListener
 {
-	private static final String LCAT = "TiUITabGroup";
-	private static final boolean DBG = TiConfig.LOGD;
+	private static final String TAG = "TiUITabGroup";
 
 	private TabHost tabHost;
 
@@ -191,9 +189,7 @@ public class TiUITabGroup extends TiUIView
 			cacheDefaults = false;
 		}
 
-		if (DBG) {
-			Log.d(LCAT,"Tab change from " + previousTabID + " to " + currentTabID);
-		}
+		Log.d(TAG, "Tab change from " + previousTabID + " to " + currentTabID, Log.DEBUG_MODE);
 
 		ArrayList<TabProxy> tabs = tabGroupProxy.getTabList();
 		TabProxy prevTab = (previousTabID >= 0 ? tabs.get(previousTabID) : null);
@@ -298,7 +294,7 @@ public class TiUITabGroup extends TiUIView
 					}
 				}
 			} else {
-				Log.w(LCAT, "Attempt to set tab indicator using a non-supported argument. Ignoring");
+				Log.w(TAG, "Attempt to set tab indicator using a non-supported argument. Ignoring");
 				return;
 			}
 			
@@ -321,7 +317,7 @@ public class TiUITabGroup extends TiUIView
 				int len = tabHost.getTabWidget().getTabCount();
 				if (index >= len) {
 					// TODO consider throwing an exception to JS.
-					Log.w(LCAT, "Index out of bounds. Attempt to set active tab to " + index + ". There are " + len + " tabs.");
+					Log.w(TAG, "Index out of bounds. Attempt to set active tab to " + index + ". There are " + len + " tabs.");
 					index = null;
 				} else {
 					tabHost.setCurrentTab(index);
@@ -333,7 +329,7 @@ public class TiUITabGroup extends TiUIView
 					tabHost.setCurrentTabByTag(tag);
 				}
 			} else {
-				Log.w(LCAT, "Attempt to set active tab using a non-supported argument. Ignoring");
+				Log.w(TAG, "Attempt to set active tab using a non-supported argument. Ignoring");
 			}
 		}
 	}

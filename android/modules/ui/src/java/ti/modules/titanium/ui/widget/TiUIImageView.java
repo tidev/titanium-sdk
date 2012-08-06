@@ -19,7 +19,6 @@ import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.common.AsyncResult;
 import org.appcelerator.kroll.common.Log;
-import org.appcelerator.kroll.common.TiConfig;
 import org.appcelerator.kroll.common.TiMessenger;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBlob;
@@ -52,8 +51,7 @@ import android.webkit.URLUtil;
 
 public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler.Callback
 {
-	private static final String LCAT = "TiUIImageView";
-	private static final boolean DBG = TiConfig.LOGD;
+	private static final String TAG = "TiUIImageView";
 	private static final AtomicInteger imageTokenGenerator = new AtomicInteger(0);
 	private static final int FRAME_QUEUE_SIZE = 5;
 	public static final int INFINITE = 0;
@@ -115,7 +113,7 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 				});
 				
 			} else {
-				if (DBG) {
+				if (Log.isDebugModeEnabled()) {
 					String traceMsg = "Background image load returned null";
 					if (proxy.hasProperty(TiC.PROPERTY_IMAGE)) {
 						Object image = proxy.getProperty(TiC.PROPERTY_IMAGE);
@@ -123,7 +121,7 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 							traceMsg += " (" + TiConvert.toString(image) + ")";
 						}
 					}
-					Log.d(LCAT, traceMsg);
+					Log.d(TAG, traceMsg);
 				}
 			}
 		}
@@ -134,9 +132,7 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 		super(proxy);
 		imageViewProxy = (ImageViewProxy) proxy;
 
-		if (DBG) {
-			Log.d(LCAT, "Creating an ImageView");
-		}
+		Log.d(TAG, "Creating an ImageView", Log.DEBUG_MODE);
 
 		TiImageView view = new TiImageView(proxy.getActivity());
 		view.setOnSizeChangeListener(new OnSizeChangeListener()
@@ -360,7 +356,7 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 		public void run()
 		{
 			if (getProxy() == null) {
-				Log.d(LCAT, "Multi-image loader exiting early because proxy has been gc'd");
+				Log.d(TAG, "Multi-image loader exiting early because proxy has been gc'd");
 				return;
 			}
 			repeatIndex = 0;
@@ -379,7 +375,7 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 					}
 					if (paused && !Thread.currentThread().isInterrupted()) {
 						try {
-							Log.i(LCAT, "Pausing");
+							Log.i(TAG, "Pausing", Log.DEBUG_MODE);
 							// User backed-out while animation running
 							if (loader == null) {
 								break;
@@ -389,14 +385,14 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 								wait();
 							}
 
-							Log.i(LCAT, "Waking from pause.");
+							Log.i(TAG, "Waking from pause.", Log.DEBUG_MODE);
 							// In the meantime, while paused, user could have backed out, which leads
 							// to release(), which in turn leads to nullified imageSources.
 							if (imageSources == null) {
 								break topLoop;
 							}
 						} catch (InterruptedException e) {
-							Log.w(LCAT, "Interrupted from paused state.");
+							Log.w(TAG, "Interrupted from paused state.");
 						}
 					}
 
@@ -425,7 +421,7 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 								}
 
 							} catch (InterruptedException e) {
-								Log.w(LCAT, "Interrupted while adding Bitmap into bitmapQueue");
+								Log.w(TAG, "Interrupted while adding Bitmap into bitmapQueue");
 								break;
 							}
 						}
@@ -433,9 +429,7 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 					repeatIndex++;
 				}
 
-				if (DBG) {
-					Log.d(LCAT, "TIME TO LOAD FRAMES: " + (System.currentTimeMillis() - time) + "ms");
-				}
+				Log.d(TAG, "TIME TO LOAD FRAMES: " + (System.currentTimeMillis() - time) + "ms", Log.DEBUG_MODE);
 
 			}
 			isLoading.set(false);
@@ -460,9 +454,7 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 			firedLoad = false;
 			loader = new Loader();
 			loaderThread = new Thread(loader);
-			if (DBG) {
-				Log.d(LCAT, "STARTING LOADER THREAD " + loaderThread + " for " + this);
-			}
+			Log.d(TAG, "STARTING LOADER THREAD " + loaderThread + " for " + this, Log.DEBUG_MODE);
 			loaderThread.start();
 		}
 
@@ -545,13 +537,11 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 				}
 
 				BitmapWithIndex b = loader.getBitmapQueue().take();
-				if (DBG) {
-					Log.d(LCAT, "set image: " + b.index);
-				}
+				Log.d(TAG, "set image: " + b.index, Log.DEBUG_MODE);
 				setImage(b.bitmap);
 				fireChange(b.index);
 			} catch (InterruptedException e) {
-				Log.e(LCAT, "Loader interrupted");
+				Log.e(TAG, "Loader interrupted");
 			}
 		}
 	}
@@ -574,9 +564,7 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 			if (loader == null) {
 				loader = new Loader();
 				loaderThread = new Thread(loader);
-				if (DBG) {
-					Log.d(LCAT, "STARTING LOADER THREAD " + loaderThread + " for " + this);
-				}
+				Log.d(TAG, "STARTING LOADER THREAD " + loaderThread + " for " + this, Log.DEBUG_MODE);
 			}
 
 			animator = new Animator(loader);
@@ -638,7 +626,7 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 			try {
 				loaderThread.join();
 			} catch (InterruptedException e) {
-				Log.e(LCAT, "loaderThread termination interrupted");
+				Log.e(TAG, "LoaderThread termination interrupted");
 			}
 			loaderThread = null;
 		}
@@ -746,10 +734,10 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 					URI uri = new URI(imageUrl);
 					getAsync = !TiResponseCache.peek(uri);
 				} catch (URISyntaxException e) {
-					Log.e(LCAT, "URISyntaxException for url " + imageref.getUrl(), e);
+					Log.e(TAG, "URISyntaxException for url " + imageref.getUrl(), e);
 					getAsync = false;
 				} catch (NullPointerException e) {
-					Log.e(LCAT, "NullPointerException for url " + imageref.getUrl(), e);
+					Log.e(TAG, "NullPointerException for url " + imageref.getUrl(), e);
 					getAsync = false;
 				}
 				if (getAsync) {
@@ -801,7 +789,7 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 			{
 				public void run()
 				{
-					Log.d(LCAT, "Retrying bitmap decode: " + decodeRetries + "/" + maxRetries);
+					Log.d(TAG, "Retrying bitmap decode: " + decodeRetries + "/" + maxRetries);
 					setImage(recycle);
 				}
 			}, 250);
@@ -812,7 +800,7 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 			}
 			// Fire an error event when we've reached max retries
 			fireError();
-			Log.e(LCAT, "Max retries reached, giving up decoding image source: " + url);
+			Log.e(TAG, "Max retries reached, giving up decoding image source: " + url);
 		}
 	}
 
@@ -847,7 +835,7 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 			setImageSource(d.get(TiC.PROPERTY_IMAGES));
 			setImages();
 		} else if (d.containsKey(TiC.PROPERTY_URL)) {
-			Log.w(LCAT, "The url property of ImageView is deprecated, use image instead.");
+			Log.w(TAG, "The url property of ImageView is deprecated, use image instead.");
 			if (!d.containsKey(TiC.PROPERTY_IMAGE)) {
 				d.put(TiC.PROPERTY_IMAGE, d.get(TiC.PROPERTY_URL));
 			}
@@ -921,7 +909,7 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 		} else if (key.equals(TiC.PROPERTY_ENABLE_ZOOM_CONTROLS)) {
 			view.setEnableZoomControls(TiConvert.toBoolean(newValue));
 		} else if (key.equals(TiC.PROPERTY_URL)) {
-			Log.w(LCAT, "The url property of ImageView is deprecated, use image instead.");
+			Log.w(TAG, "The url property of ImageView is deprecated, use image instead.");
 			setImageSource(newValue);
 			firedLoad = false;
 			setImage(true);

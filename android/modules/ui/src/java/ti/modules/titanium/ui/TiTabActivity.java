@@ -34,7 +34,7 @@ import android.widget.TabHost.TabContentFactory;
 
 public class TiTabActivity extends TabActivity
 {
-	private static final String LCAT = "TiTabActivity";
+	private static final String TAG = "TiTabActivity";
 
 	protected TabGroupProxy proxy;
 	protected Handler handler;
@@ -60,7 +60,7 @@ public class TiTabActivity extends TabActivity
 		}
 
 		if (TiBaseActivity.isUnsupportedReLaunch(this, savedInstanceState)) {
-			Log.w(LCAT, "Unsupported, out-of-order activity creation. Finishing.");
+			Log.w(TAG, "Unsupported, out-of-order activity creation. Finishing.");
 			super.onCreate(savedInstanceState);
 			tiApp.scheduleRestart(250);
 			finish();
@@ -163,15 +163,15 @@ public class TiTabActivity extends TabActivity
 						msg.obj = me;
 						if (fMessenger.getBinder().pingBinder()) {
 							fMessenger.send(msg);
-							Log.w(LCAT, "Notifying TiTabGroup, activity is created");
+							Log.d(TAG, "Notifying TiTabGroup, activity is created", Log.DEBUG_MODE);
 						} else {
 							me.finish();
 						}
 					} catch (RemoteException e) {
-						Log.e(LCAT, "Unable to message creator. finishing.");
+						Log.e(TAG, "Unable to message creator. finishing.");
 						me.finish();
 					} catch (RuntimeException e) {
-						Log.w(LCAT, "Run-time exception: " + e.getMessage(), e);
+						Log.w(TAG, "Run-time exception: " + e.getMessage(), e);
 					}
 				}
 			}

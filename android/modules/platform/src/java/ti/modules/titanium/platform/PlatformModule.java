@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -12,7 +12,6 @@ import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.KrollRuntime;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
-import org.appcelerator.kroll.common.TiConfig;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
@@ -30,8 +29,7 @@ import android.os.BatteryManager;
 @Kroll.module
 public class PlatformModule extends KrollModule
 {
-	private static final String LCAT = "PlatformModule";
-	private static final boolean DBG = TiConfig.LOGD;
+	private static final String TAG = "PlatformModule";
 
 	@Kroll.constant public static final int BATTERY_STATE_UNKNOWN = 0;
 	@Kroll.constant public static final int BATTERY_STATE_UNPLUGGED = 1;
@@ -146,16 +144,14 @@ public class PlatformModule extends KrollModule
 
 	@Kroll.method
 	public boolean openURL(String url) {
-		if (DBG) {
-			Log.d(LCAT, "Launching viewer for: " + url);
-		}
+		Log.d(TAG, "Launching viewer for: " + url, Log.DEBUG_MODE);
 		Uri uri = Uri.parse(url);
 		Intent intent = new Intent(Intent.ACTION_VIEW, uri);
 		try {
 			getActivity().startActivity(intent);
 			return true;
 		} catch (ActivityNotFoundException e) {
-			Log.e(LCAT,"Activity not found: " + url, e);
+			Log.e(TAG,"Activity not found: " + url, e);
 		}
 		return false;
 	}
@@ -290,9 +286,7 @@ public class PlatformModule extends KrollModule
 	{
 		super.onResume(activity);
 		if (batteryStateReceiver != null) {
-			if (DBG) {
-				Log.i(LCAT, "Reregistering battery changed receiver");
-			}
+			Log.i(TAG, "Reregistering battery changed receiver", Log.DEBUG_MODE);
 			registerBatteryReceiver(batteryStateReceiver);
 		}
 	}

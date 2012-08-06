@@ -100,7 +100,7 @@ public class TiDialogListener implements DialogListener
 	@Override
 	public void onCancel()
 	{
-		Log.d("FacebookModule-Dialog", "Dialog canceled");
+		Log.d("FacebookModule-Dialog", "Dialog canceled", Log.DEBUG_MODE);
 		doCallback(buildEventArgs(Status.CANCEL));
 	}
 

@@ -37,8 +37,7 @@ import android.os.Handler;
 @Kroll.module @Kroll.topLevel({"Ti", "Titanium"})
 public class TitaniumModule extends KrollModule
 {
-	private static final String LCAT = "TitaniumModule";
-	private static final boolean DBG = TiConfig.LOGD;
+	private static final String TAG = "TitaniumModule";
 
 	private Stack<String> basePath;
 	private Map<String, NumberFormat> numberFormats = java.util.Collections.synchronizedMap(
@@ -136,7 +135,7 @@ public class TitaniumModule extends KrollModule
 				return;
 			}
 
-			if (DBG) {
+			if (Log.isDebugModeEnabled()) {
 				StringBuilder message = new StringBuilder("calling ")
 					.append(interval ? "interval" : "timeout")
 					.append(" timer ")
@@ -144,7 +143,7 @@ public class TitaniumModule extends KrollModule
 					.append(" @")
 					.append(new Date().getTime());
 
-				Log.d(LCAT, message.toString());
+				Log.d(TAG, message.toString());
 			}
 
 			long start = System.currentTimeMillis();
@@ -271,8 +270,7 @@ public class TitaniumModule extends KrollModule
 			}
 
 		} catch (Exception ex) {
-			Log.e(LCAT, "Error in string format", ex);
-
+			Log.e(TAG, "Error occured while formatting string", ex);
 			return null;
 		}
 	}
@@ -372,14 +370,12 @@ public class TitaniumModule extends KrollModule
 			}
 
 		} catch (TiRHelper.ResourceNotFoundException e) {
-			if (DBG) {
-				Log.d(LCAT, "Resource string with key '" + key + "' not found.  Returning default value.");
-			}
+			Log.d(TAG, "Resource string with key '" + key + "' not found.  Returning default value.", Log.DEBUG_MODE);
 
 			return defaultValue;
 
 		} catch (Exception e) {
-			Log.e(LCAT, "Exception trying to localize string '" + key + "': ", e);
+			Log.e(TAG, "Exception trying to localize string '" + key + "': ", e);
 
 			return defaultValue;
 		}
@@ -390,7 +386,7 @@ public class TitaniumModule extends KrollModule
 	{
 		TiApplication app = TiApplication.getInstance();
 		if (app == null || !app.isCoverageEnabled()) {
-			Log.w(LCAT, "Coverage is not enabled, no coverage data will be generated");
+			Log.w(TAG, "Coverage is not enabled, no coverage data will be generated");
 
 			return;
 		}
@@ -403,7 +399,7 @@ public class TitaniumModule extends KrollModule
 			reportOut.close();
 
 		} catch (IOException e) {
-			Log.e(LCAT, e.getMessage(), e);
+			Log.e(TAG, e.getMessage(), e);
 		}
 	}
 }

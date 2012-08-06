@@ -6,13 +6,10 @@
  */
 package org.appcelerator.titanium;
 
-import java.lang.ref.WeakReference;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.appcelerator.kroll.common.Log;
-import org.appcelerator.kroll.common.TiConfig;
-import org.appcelerator.titanium.proxy.TiViewProxy;
 
 import android.content.Context;
 import android.util.DisplayMetrics;
@@ -38,8 +35,7 @@ import android.view.WindowManager;
  */
 public class TiDimension
 {
-	private static final String LCAT = "TiDimension";
-	private static final boolean DBG = TiConfig.LOGD;
+	private static final String TAG = "TiDimension";
 
 	public static final int COMPLEX_UNIT_UNDEFINED = TypedValue.COMPLEX_UNIT_MASK + 1;
 	public static final int COMPLEX_UNIT_PERCENT = TypedValue.COMPLEX_UNIT_MASK + 2;
@@ -132,10 +128,8 @@ public class TiDimension
 					} else if (UNIT_IN.equals(unit)) {
 						this.units = TypedValue.COMPLEX_UNIT_IN;
 					} else {
-						if (DBG) {
-							if (unit != null) {
-								Log.w(LCAT, "Unknown unit: " + unit);
-							}
+						if (unit != null) {
+							Log.w(TAG, "Unknown unit: " + unit, Log.DEBUG_MODE);
 						}
 					}
 				}

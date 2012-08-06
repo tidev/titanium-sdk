@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -21,7 +21,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 public class TiAnalyticsModel extends SQLiteOpenHelper{
 
-	private static final String LCAT = "TiAnalyticsDb";
+	private static final String TAG = "TiAnalyticsDb";
 
 	private static final String DB_NAME = "tianalytics.db";
 	private static final int DB_VERSION = 4;
@@ -34,7 +34,7 @@ public class TiAnalyticsModel extends SQLiteOpenHelper{
 	@Override
 	public void onCreate(SQLiteDatabase db)
 	{
-		Log.d(LCAT, "Creating Database " + DB_NAME);
+		Log.d(TAG, "Creating Database " + DB_NAME, Log.DEBUG_MODE);
 		String sql =
 			"create table Events (" +
 			"  _id INTEGER PRIMARY KEY, " +
@@ -55,7 +55,7 @@ public class TiAnalyticsModel extends SQLiteOpenHelper{
 	@Override
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion)
 	{
-		Log.i(LCAT, "Upgrading Database from " + oldVersion + " to " + newVersion);
+		Log.i(TAG, "Upgrading Database from " + oldVersion + " to " + newVersion);
 
 		int version = oldVersion;
 		while(version < newVersion) {
@@ -79,9 +79,7 @@ public class TiAnalyticsModel extends SQLiteOpenHelper{
 	}
 
 	private void doMigration_1(SQLiteDatabase db) {
-		String sql =
-			"drop table if exists Events"
-			;
+		String sql = "drop table if exists Events";
 		db.execSQL(sql);
 
 		sql =
@@ -162,7 +160,7 @@ public class TiAnalyticsModel extends SQLiteOpenHelper{
 			};
 			db.execSQL(sql, args);
 		} catch (SQLException e) {
-			Log.e(LCAT, "Error adding event: " + e);
+			Log.e(TAG, "Error adding event: " + e);
 		} finally {
 			if (db != null) {
 				db.close();
@@ -187,7 +185,7 @@ public class TiAnalyticsModel extends SQLiteOpenHelper{
 				sb.append(")");
 				db.execSQL(sb.toString());
 			} catch (SQLException e) {
-				Log.e(LCAT, "Error deleting events :" + e);
+				Log.e(TAG, "Error deleting events :" + e);
 			} finally {
 				if (db != null) {
 					db.close();
@@ -214,7 +212,7 @@ public class TiAnalyticsModel extends SQLiteOpenHelper{
 				result = c.getInt(0) != 0;
 			}
 		} catch (SQLException e) {
-			Log.e(LCAT, "Error determining if there are events to send: ", e);
+			Log.e(TAG, "Error determining if there are events to send: ", e);
 		} finally {
 			if (c != null) {
 				c.close();
@@ -265,9 +263,9 @@ public class TiAnalyticsModel extends SQLiteOpenHelper{
 				result.put(seq, json);
 			}
 		} catch (JSONException e) {
-			Log.e(LCAT, "Error creating JSON.", e);
+			Log.e(TAG, "Error creating JSON.", e);
 		} catch (SQLException e) {
-			Log.e(LCAT, "Error retrieving events to send as JSON: ", e);
+			Log.e(TAG, "Error retrieving events to send as JSON: ", e);
 		} finally {
 			if (c != null) {
 				c.close();
@@ -298,7 +296,7 @@ public class TiAnalyticsModel extends SQLiteOpenHelper{
 				result = c.getInt(0) == 0;
 			}
 		} catch (SQLException e) {
-			Log.e(LCAT, "Error retrieving events to send as JSON: ", e);
+			Log.e(TAG, "Error retrieving events to send as JSON: ", e);
 		} finally {
 			if (c != null) {
 				c.close();
@@ -321,7 +319,7 @@ public class TiAnalyticsModel extends SQLiteOpenHelper{
 			db = getWritableDatabase();
 			db.execSQL(sql);
 		} catch (SQLException e) {
-			Log.e(LCAT, "Error marking enrolled :" + e);
+			Log.e(TAG, "Error marking enrolled :" + e);
 		} finally {
 			if (db != null) {
 				db.close();

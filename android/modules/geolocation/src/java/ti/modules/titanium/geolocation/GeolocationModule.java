@@ -4,7 +4,6 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-
 package ti.modules.titanium.geolocation;
 
 import java.util.ArrayList;
@@ -17,7 +16,6 @@ import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.KrollRuntime;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
-import org.appcelerator.kroll.common.TiConfig;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.util.TiConvert;
@@ -32,7 +30,6 @@ import android.location.LocationManager;
 import android.location.LocationProvider;
 import android.os.Handler;
 import android.os.Message;
-
 
 /**
  * GeolocationModule exposes all common methods and properties relating to geolocation behavior 
@@ -144,7 +141,6 @@ public class GeolocationModule extends KrollModule
 	protected static final int MSG_LAST_ID = MSG_ENABLE_LOCATION_PROVIDERS;
 
 	private static final String TAG = "GeolocationModule";
-	private static final boolean DBG = TiConfig.LOGD;
 	private static final double SIMPLE_LOCATION_PASSIVE_DISTANCE = 0.0;
 	private static final double SIMPLE_LOCATION_PASSIVE_TIME = 0;
 	private static final double SIMPLE_LOCATION_NETWORK_DISTANCE = 10.0;
@@ -256,61 +252,47 @@ public class GeolocationModule extends KrollModule
 		switch (state) {
 			case LocationProviderProxy.STATE_DISABLED:
 				message += " is disabled";
-				if (DBG) {
-					Log.i(TAG, message);
-				}
+				Log.i(TAG, message, Log.DEBUG_MODE);
 				fireEvent(TiC.EVENT_LOCATION, buildLocationErrorEvent(state, message));
 
 				break;
 
 			case LocationProviderProxy.STATE_ENABLED:
 				message += " is enabled";
-				if (DBG) {
-					Log.d(TAG, message);
-				}
+				Log.d(TAG, message, Log.DEBUG_MODE);
 
 				break;
 
 			case LocationProviderProxy.STATE_OUT_OF_SERVICE:
 				message += " is out of service";
-				if (DBG) {
-					Log.d(TAG, message);
-				}
+				Log.d(TAG, message, Log.DEBUG_MODE);
 				fireEvent(TiC.EVENT_LOCATION, buildLocationErrorEvent(state, message));
 
 				break;
 
 			case LocationProviderProxy.STATE_UNAVAILABLE:
 				message += " is unavailable";
-				if (DBG) {
-					Log.d(TAG, message);
-				}
+				Log.d(TAG, message, Log.DEBUG_MODE);
 				fireEvent(TiC.EVENT_LOCATION, buildLocationErrorEvent(state, message));
 
 				break;
 
 			case LocationProviderProxy.STATE_AVAILABLE:
 				message += " is available";
-				if (DBG) {
-					Log.d(TAG, message);
-				}
+				Log.d(TAG, message, Log.DEBUG_MODE);
 
 				break;
 
 			case LocationProviderProxy.STATE_UNKNOWN:
 				message += " is in a unknown state [" + state + "]";
-				if (DBG) {
-					Log.d(TAG, message);
-				}
+				Log.d(TAG, message, Log.DEBUG_MODE);
 				fireEvent(TiC.EVENT_LOCATION, buildLocationErrorEvent(state, message));
 
 				break;
 
 			default:
 				message += " is in a unknown state [" + state + "]";
-				if (DBG) {
-					Log.d(TAG, message);
-				}
+				Log.d(TAG, message, Log.DEBUG_MODE);
 				fireEvent(TiC.EVENT_LOCATION, buildLocationErrorEvent(state, message));
 
 				break;
@@ -620,10 +602,10 @@ public class GeolocationModule extends KrollModule
 					locationProvider);
 
 		} catch (IllegalArgumentException e) {
-			Log.e(TAG, "unable to register [" + provider + "], provider is null");
+			Log.e(TAG, "Unable to register [" + provider + "], provider is null");
 
 		} catch (SecurityException e) {
-			Log.e(TAG, "unable to register [" + provider + "], permission denied");
+			Log.e(TAG, "Unable to register [" + provider + "], permission denied");
 		}
 	}
 
@@ -724,7 +706,7 @@ public class GeolocationModule extends KrollModule
 				tiLocation.doAnalytics(latestKnownLocation);
 
 			} else {
-				Log.e(TAG, "unable to get current position, location is null");
+				Log.e(TAG, "Unable to get current position, location is null");
 				callback.call(this.getKrollObject(), new Object[] {
 					buildLocationErrorEvent(TiLocation.ERR_POSITION_UNAVAILABLE, "location is currently unavailable.")
 				});

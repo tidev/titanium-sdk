@@ -1,10 +1,9 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2011-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-
 package org.appcelerator.kroll.runtime.v8;
 
 import java.util.HashMap;
@@ -91,7 +90,6 @@ public class V8Function extends V8Object implements KrollFunction, Handler.Callb
 
 		return false;
 	}
-
 
 	// JNI method prototypes
 	private native Object nativeInvoke(long thisPointer, long functionPointer, Object[] functionArgs);

@@ -4,7 +4,6 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-
 package ti.modules.titanium.map;
 
 import java.io.IOException;
@@ -15,7 +14,6 @@ import java.util.List;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.common.Log;
-import org.appcelerator.kroll.common.TiConfig;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiC;
@@ -60,8 +58,7 @@ interface TitaniumOverlayListener {
 public class TiMapView extends TiUIView
 	implements Handler.Callback, TitaniumOverlayListener
 {
-	private static final String LCAT = "TiMapView";
-	private static final boolean DBG = TiConfig.LOGD;
+	private static final String TAG = "TiMapView";
 
 	private static final String TI_DEVELOPMENT_KEY = "0ZnKXkWA2dIAu2EM-OV4ZD2lJY3sEWE5TSgjJNg";
 	private static final String OLD_API_KEY = "ti.android.google.map.api.key";
@@ -107,6 +104,8 @@ public class TiMapView extends TiUIView
 		private int lastLatitude;
 		private int lastLatitudeSpan;
 		private int lastLongitudeSpan;
+		private boolean requestViewOnScreen = false;
+		private View view;
 
 		public LocalMapView(Context context, String apiKey)
 		{
@@ -159,8 +158,47 @@ public class TiMapView extends TiUIView
 				proxy.fireEvent(TiC.EVENT_REGION_CHANGED, location);
 			}
 		}
-	}
 
+		@Override
+		protected void onLayout(boolean changed, int left, int top, int right, int bottom)
+		{
+			super.onLayout(changed, left, top, right, bottom);
+
+			if (requestViewOnScreen) {
+				View child;
+				for (int i = 0; i < getChildCount(); i++) {
+					child = getChildAt(i);
+					if (child == view) {
+						int childLeft = child.getLeft();
+						int childRight = child.getRight();
+						int childTop = child.getTop();
+						int parentWidth = right - left;
+						if (childLeft > 0 && childTop > 0 && childRight < parentWidth) {
+							requestViewOnScreen = false;
+							return;
+						}
+						if (childLeft > 0 && childRight > parentWidth) {
+							getController().scrollBy(Math.min(childLeft, (childRight - parentWidth)), Math.min(0, childTop));
+							requestViewOnScreen = false;
+							return;
+						}
+						getController().scrollBy(Math.min(0, childLeft), Math.min(0, childTop));
+						requestViewOnScreen = false;
+						return;
+					}
+				}
+				requestViewOnScreen = false;
+			}
+		}
+
+		public void requestViewOnScreen(View v)
+		{
+			if (v != null) {
+				requestViewOnScreen = true;
+				view = v;
+			}
+		}
+	}
 	
 	class TitaniumOverlay extends ItemizedOverlay<TiOverlayItem>
 	{
@@ -251,7 +289,7 @@ public class TiMapView extends TiUIView
 
 					} catch (Exception e) {
 						// May as well catch all errors 
-						Log.w(LCAT, "Unable to parse color [" + TiConvert.toString(p.getProperty(TiC.PROPERTY_PINCOLOR))+"] for item ["+i+"]");
+						Log.w(TAG, "Unable to parse color [" + TiConvert.toString(p.getProperty(TiC.PROPERTY_PINCOLOR))+"] for item ["+i+"]");
 					}
 				}
 
@@ -269,7 +307,7 @@ public class TiMapView extends TiUIView
 						item.setLeftView((TiViewProxy)leftView);
 
 					} else {
-						Log.e(LCAT, "invalid type for leftView");
+						Log.e(TAG, "Invalid type for leftView");
 					}
 				}
 
@@ -279,12 +317,12 @@ public class TiMapView extends TiUIView
 						item.setRightView((TiViewProxy)rightView);
 
 					} else {
-						Log.e(LCAT, "invalid type for rightView");
+						Log.e(TAG, "Invalid type for rightView");
 					}
 				}
 
 			} else {
-				Log.w(LCAT, "Skipping annotation: No coordinates #" + i);
+				Log.w(TAG, "Skipping annotation: No coordinates #" + i);
 			}
 
 			return item;
@@ -365,10 +403,18 @@ public class TiMapView extends TiUIView
 		String apiKey = developmentKey;
 		if (app.getDeployType().equals(TiApplication.DEPLOY_TYPE_PRODUCTION)) {
 			apiKey = productionKey;
-			Log.d(LCAT, "Production mode using map api key ending with '" + productionKey.substring(productionKey.length() - 10, productionKey.length()) + "' retrieved from " + prodKeySourceInfo);
+			Log.d(
+				TAG,
+				"Production mode using map api key ending with '"
+					+ productionKey.substring(productionKey.length() - 10, productionKey.length()) + "' retrieved from "
+					+ prodKeySourceInfo, Log.DEBUG_MODE);
 
 		} else {
-			Log.d(LCAT, "Development mode using map api key ending with '" + developmentKey.substring(developmentKey.length() - 10, developmentKey.length()) + "' retrieved from " + devKeySourceInfo);
+			Log.d(
+				TAG,
+				"Development mode using map api key ending with '"
+					+ developmentKey.substring(developmentKey.length() - 10, developmentKey.length()) + "' retrieved from "
+					+ devKeySourceInfo, Log.DEBUG_MODE);
 		}
 
 		view = new LocalMapView(mapWindow.getContext(), apiKey);
@@ -378,9 +424,7 @@ public class TiMapView extends TiUIView
 			public void onPause(Activity activity)
 			{
 				if (myLocation != null) {
-					if (DBG) {
-						Log.d(LCAT, "onPause: Disabling My Location");
-					}
+					Log.d(TAG, "onPause: Disabling My Location", Log.DEBUG_MODE);
 					myLocation.disableMyLocation();
 				}
 			}
@@ -388,9 +432,7 @@ public class TiMapView extends TiUIView
 			public void onResume(Activity activity)
 			{
 				if (myLocation != null && userLocation) {
-					if (DBG) {
-						Log.d(LCAT, "onResume: Enabling My Location");
-					}
+					Log.d(TAG, "onResume: Enabling My Location", Log.DEBUG_MODE);
 					myLocation.enableMyLocation();
 				}
 			}
@@ -512,6 +554,7 @@ public class TiMapView extends TiUIView
 					LayoutParams.WRAP_CONTENT, item.getPoint(), 0, y, MapView.LayoutParams.BOTTOM_CENTER);
 			params.mode = MapView.LayoutParams.MODE_MAP;
 
+			view.requestViewOnScreen(itemView);
 			view.addView(itemView, params);
 		}
 	}
@@ -666,7 +709,7 @@ public class TiMapView extends TiUIView
 	private AnnotationProxy annotationProxyForObject(Object ann)
 	{
 		if (ann == null) {
-			Log.e(LCAT, "unable to create annotation proxy for null object passed in.");
+			Log.e(TAG, "Unable to create annotation proxy for null object passed in.");
 			return null;
 		}
 		AnnotationProxy annProxy = null;
@@ -692,7 +735,7 @@ public class TiMapView extends TiUIView
 		}
 		
 		if (annProxy == null) {
-			Log.e(LCAT, "unable to create annotation proxy for object, likely an error in the type of the object passed in...");
+			Log.e(TAG, "Unable to create annotation proxy for object, likely an error in the type of the object passed in...");
 		}
 		
 		return annProxy;
@@ -744,7 +787,7 @@ public class TiMapView extends TiUIView
 		if (regionFit && location.containsKey(TiC.PROPERTY_LONGITUDE_DELTA) && location.containsKey(TiC.PROPERTY_LATITUDE_DELTA)) {
 			view.getController().zoomToSpan(scaleToGoogle(TiConvert.toDouble(location, TiC.PROPERTY_LATITUDE_DELTA)), scaleToGoogle(TiConvert.toDouble(location, TiC.PROPERTY_LONGITUDE_DELTA)));
 		} else {
-			Log.w(LCAT, "span must have longitudeDelta and latitudeDelta");
+			Log.w(TAG, "Span must have longitudeDelta and latitudeDelta");
 		}
 	}
 
@@ -792,9 +835,7 @@ public class TiMapView extends TiUIView
 					int numSelectedAnnotations = selectedAnnotations.size();
 					for(int i = 0; i < numSelectedAnnotations; i++) {
 						SelectedAnnotation annotation = selectedAnnotations.get(i);
-						if (DBG) {
-							Log.d(LCAT, "Executing internal call to selectAnnotation:" + annotation.title);
-						}
+						Log.d(TAG, "Executing internal call to selectAnnotation:" + annotation.title, Log.DEBUG_MODE);
 						selectAnnotation(true, annotation.title, annotation.animate, annotation.center);
 					}
 				}
@@ -807,7 +848,7 @@ public class TiMapView extends TiUIView
 	public void selectAnnotation(boolean select, String title, boolean animate, boolean center)
 	{
 		if (title != null) {
-			Log.e(LCAT, "calling obtainMessage");
+			Log.e(TAG, "Calling obtainMessage", Log.DEBUG_MODE);
 
 			Bundle args = new Bundle();
 			args.putBoolean("select", select);
@@ -927,7 +968,7 @@ public class TiMapView extends TiUIView
 				d.setBounds(0, 0, d.getIntrinsicWidth(), d.getIntrinsicHeight());
 				return d;
 			} catch (IOException e) {
-				Log.e(LCAT, "Error creating drawable from path: " + pinImage.toString(), e);
+				Log.e(TAG, "Error creating drawable from path: " + pinImage.toString(), e);
 			}
 		}
 		return null;

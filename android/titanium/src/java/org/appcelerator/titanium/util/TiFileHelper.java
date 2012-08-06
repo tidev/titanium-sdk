@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -31,7 +31,6 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 import org.appcelerator.kroll.common.Log;
-import org.appcelerator.kroll.common.TiConfig;
 import org.appcelerator.titanium.TiApplication;
 
 import android.content.Context;
@@ -45,8 +44,7 @@ import android.webkit.URLUtil;
 
 public class TiFileHelper
 {
-	private static final String LCAT = "TiFileHlpr";
-	private static final boolean DBG = TiConfig.LOGD;
+	private static final String TAG = "TiFileHelper";
 
 	public static final String TI_DIR = "tiapp";
 	public static final String TI_DIR_JS = "tijs";
@@ -141,7 +139,7 @@ public class TiFileHelper
 			if (isTitaniumResource(path)) {
 				String[] parts = path.split(":");
 				if (parts.length != 3) {
-					Log.w(LCAT, "malformed titanium resource url, resource not loaded: " + path);
+					Log.w(TAG, "Malformed titanium resource url, resource not loaded: " + path);
 					return null;
 				}
 				@SuppressWarnings("unused")
@@ -156,10 +154,10 @@ public class TiFileHelper
 					if (id != null) {
 						is = Resources.getSystem().openRawResource(id);
 					} else {
-						Log.w(LCAT, "Drawable not found for system id: " + path);
+						Log.w(TAG, "Drawable not found for system id: " + path);
 					}
 				} else {
-					Log.e(LCAT, "Unknown section identifier: " + section);
+					Log.e(TAG, "Unknown section identifier: " + section);
 				}
 			} else if (URLUtil.isNetworkUrl(path)) {
 				try {
@@ -190,7 +188,7 @@ public class TiFileHelper
 
 				} catch (IOException e) {
 
-					Log.e(LCAT, "Problem pulling image data from " + path, e);
+					Log.e(TAG, "Problem pulling image data from " + path, e);
 					throw e;
 				} finally {
 					if (lis != null) {
@@ -297,9 +295,7 @@ public class TiFileHelper
 								path = apath;
 							}
 						} catch (IOException e) {
-							if (DBG) {
-								Log.d(LCAT, "path not found: " + apath);
-							}
+								Log.d(TAG, "path not found: " + apath);
 						}
 					}
 				}
@@ -316,7 +312,7 @@ public class TiFileHelper
 				}
 			}
 		} catch (IOException e) {
-			Log.e(LCAT, path + " not found.", e);
+			Log.e(TAG, path + " not found.", e);
 		} finally {
 			if (is != null) {
 				try {
@@ -346,7 +342,7 @@ public class TiFileHelper
 
 			String[] parts = s.split(":");
 			if (parts.length != 2) {
-				Log.w(LCAT, "malformed titanium resource url, resource not loaded: " + s);
+				Log.w(TAG, "Malformed titanium resource url, resource not loaded: " + s);
 				return null;
 			}
 			String section = parts[0];
@@ -371,14 +367,14 @@ public class TiFileHelper
 				if (id != null) {
 					d = Resources.getSystem().getDrawable(id);
 				} else {
-					Log.w(LCAT, "Drawable not found for system id: " + s);
+					Log.w(TAG, "Drawable not found for system id: " + s);
 				}
 			} else {
-				Log.e(LCAT, "Unknown section identifier: " + section);
+				Log.e(TAG, "Unknown section identifier: " + section);
 			}
 
 		} else {
-			Log.w(LCAT, "Ignoring non titanium resource string id: " + s);
+			Log.w(TAG, "Ignoring non titanium resource string id: " + s);
 		}
 
 		return d;
@@ -428,9 +424,7 @@ public class TiFileHelper
 					if(f.getName().indexOf(".") > -1) {
 						bis = new BufferedInputStream(am.open(path), 8096);
 						File df = new File(dest, path);
-						if (DBG) {
-							Log.d(LCAT, "Copying to: " + df.getAbsolutePath());
-						}
+						Log.d(TAG, "Copying to: " + df.getAbsolutePath(), Log.DEBUG_MODE);
 						fos = new FileOutputStream(df);
 
 						int read = 0;
@@ -444,7 +438,7 @@ public class TiFileHelper
 						fos = null;
 					} else {
 						File d = new File(dest,path);
-						Log.d(LCAT, "Creating directory: " + d.getAbsolutePath());
+						Log.d(TAG, "Creating directory: " + d.getAbsolutePath());
 						d.mkdirs();
 					}
 				}
@@ -485,9 +479,7 @@ public class TiFileHelper
 			int rootLen = root.length();
 			zis.close();
 
-			if (DBG) {
-				Log.d(LCAT, "Zip file root: " + root);
-			}
+			Log.d(TAG, "Zip file root: " + root, Log.DEBUG_MODE);
 
 			// Process the file
 			zis = getZipInputStream(new FileInputStream(fname));
@@ -501,15 +493,11 @@ public class TiFileHelper
 				name = name.substring(rootLen);
 
 				if(name.length() > 0) {
-					if (DBG) {
-						Log.d(LCAT, "Extracting " + name);
-					}
+					Log.d(TAG, "Extracting " + name, Log.DEBUG_MODE);
 					if (ze.isDirectory()) {
 						File d = new File(dest, name);
 						d.mkdirs();
-						if (DBG) {
-							Log.d(LCAT, "Created directory " + d.toString());
-						}
+						Log.d(TAG, "Created directory " + d.toString(), Log.DEBUG_MODE);
 						d = null;
 					} else {
 						FileOutputStream fos = null;
@@ -558,9 +546,7 @@ public class TiFileHelper
 		while(d.hasNext()) {
 			String fn = d.next();
 			File f = new File(fn);
-			if (DBG) {
-				Log.d(LCAT, "Deleting Dir: " + f.getAbsolutePath());
-			}
+			Log.d(TAG, "Deleting Dir: " + f.getAbsolutePath(), Log.DEBUG_MODE);
 			f.delete();
 		}
 	}
@@ -583,8 +569,9 @@ public class TiFileHelper
 		File result = null;
 		Context context = softContext.get();
 		if (context != null) {
-			if ( ! dir.exists() ) {
-				Log.w(LCAT, "getTempFile: Directory '" + dir.getAbsolutePath() + "' does not exist. Call to File.createTempFile() will fail." );
+			if (!dir.exists()) {
+				Log.w(TAG, "getTempFile: Directory '" + dir.getAbsolutePath()
+					+ "' does not exist. Call to File.createTempFile() will fail.");
 			}
 			result = File.createTempFile("tia", suffix, dir);
 
@@ -644,9 +631,7 @@ public class TiFileHelper
 					dirs.add(f.getAbsolutePath());
 					wipeDirectoryTree(f, dirs);
 				} else {
-					if (DBG) {
-						Log.d(LCAT, "Deleting File: " + f.getAbsolutePath());
-					}
+					Log.d(TAG, "Deleting File: " + f.getAbsolutePath(), Log.DEBUG_MODE);
 					f.delete();
 				}
 			}

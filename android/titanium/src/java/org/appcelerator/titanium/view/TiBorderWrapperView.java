@@ -59,7 +59,7 @@ public class TiBorderWrapperView extends FrameLayout
 			try {
 				canvas.clipPath(innerPath);
 			} catch (Exception e) {
-				Log.w(TAG, "clipPath failed on canvas: " + e.getMessage());
+				Log.w(TAG, "clipPath failed on canvas: " + e.getMessage(), Log.DEBUG_MODE);
 			}
 		} else {
 			canvas.clipRect(innerRect);
