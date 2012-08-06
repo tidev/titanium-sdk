@@ -839,7 +839,7 @@ public class TiMapView extends TiUIView
 					int numSelectedAnnotations = selectedAnnotations.size();
 					for(int i = 0; i < numSelectedAnnotations; i++) {
 						SelectedAnnotation annotation = selectedAnnotations.get(i);
-						Log.d(TAG, "Executing internal call to selectAnnotation:" + annotation.title);
+						Log.d(TAG, "Executing internal call to selectAnnotation:" + annotation.title, Log.DEBUG_MODE);
 						selectAnnotation(true, annotation.title, annotation.selectedAnnotation, annotation.animate, annotation.center);
 					}
 				}
@@ -852,7 +852,7 @@ public class TiMapView extends TiUIView
 	public void selectAnnotation(boolean select, String title, AnnotationProxy selectedAnnotation, boolean animate, boolean center)
 	{
 		if (title != null) {
-			Log.e(TAG, "calling obtainMessage");
+			Log.e(TAG, "calling obtainMessage", Log.DEBUG_MODE);
 			
 			KrollDict args = new KrollDict();
 			args.put("select", new Boolean(select));

@@ -391,10 +391,10 @@ public class ViewProxy extends TiViewProxy implements OnLifecycleEvent
 
 		if (title != null) {
 			if (mapView == null) {
-				Log.i(TAG, "calling selectedAnnotations.add");
+				Log.i(TAG, "calling selectedAnnotations.add", Log.DEBUG_MODE);
 				selectedAnnotations.add(new TiMapView.SelectedAnnotation(title, selAnnotation, animate, center));
 			} else {
-				Log.i(TAG, "calling selectedAnnotations.add2");
+				Log.i(TAG, "calling selectedAnnotations.add2", Log.DEBUG_MODE);
 				mapView.selectAnnotation(true, title, selAnnotation, animate, center);
 			}
 		}
