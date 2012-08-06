@@ -8,7 +8,6 @@ package org.appcelerator.titanium.kroll;
 
 import org.appcelerator.kroll.common.AsyncResult;
 import org.appcelerator.kroll.common.Log;
-import org.appcelerator.kroll.common.TiConfig;
 import org.appcelerator.kroll.common.TiMessenger;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
@@ -24,8 +23,7 @@ import android.os.RemoteException;
  */
 public class KrollContext implements Handler.Callback
 {
-	private static final String LCAT = "KrollContext";
-	private static boolean DBG = TiConfig.DEBUG;
+	private static final String TAG = "KrollContext";
 
 	private static final int MSG_EVAL_STRING = 1000;
 	private static final int MSG_EVAL_FILE = 1001;
@@ -52,9 +50,7 @@ public class KrollContext implements Handler.Callback
 
 	protected void initContext()
 	{
-		if (DBG) {
-			Log.d(LCAT, "Context Thread: " + Thread.currentThread().getName());
-		}
+		Log.d(TAG, "Context Thread: " + Thread.currentThread().getName(), Log.DEBUG_MODE);
 
 		handler = new Handler(this);
 	}
@@ -104,9 +100,7 @@ public class KrollContext implements Handler.Callback
 			filename = filename.replaceAll("file:///android_asset/", "");
 		}
 
-		if (DBG) {
-			Log.d(LCAT, "evalFile: " + filename);
-		}
+		Log.d(TAG, "evalFile: " + filename, Log.DEBUG_MODE);
 
 		if (isOurThread()) {
 			return handleEvalFile(filename);
@@ -122,11 +116,9 @@ public class KrollContext implements Handler.Callback
 				Message responseMsg = Message.obtain();
 				responseMsg.what = messageId;
 				messenger.send(responseMsg);
-				if (DBG) {
-					Log.d(LCAT, "Notifying caller that evalFile has completed");
-				}
+				Log.d(TAG, "Notifying caller that evalFile has completed", Log.DEBUG_MODE);
 			} catch(RemoteException e) {
-				Log.w(LCAT, "Failed to notify caller that eval completed");
+				Log.w(TAG, "Failed to notify caller that eval completed");
 			}
 		}
 

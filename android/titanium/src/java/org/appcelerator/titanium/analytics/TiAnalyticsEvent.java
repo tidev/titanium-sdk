@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -34,7 +34,7 @@ import org.json.JSONObject;
  */
 public class TiAnalyticsEvent
 {
-	private static final String LCAT = "TitaniumAnalyticsEvent";
+	private static final String TAG = "TitaniumAnalyticsEvent";
 
 	private static TimeZone utc = TimeZone.getTimeZone("UTC");
 	private static SimpleDateFormat isoDateFormatter =
@@ -67,7 +67,7 @@ public class TiAnalyticsEvent
 			o.put("value", eventPayload);
 			init(eventType, eventEvent, o);
 		} catch (JSONException e) {
-			Log.e(LCAT, "Error packaging string.", e);
+			Log.e(TAG, "Error packaging string.", e);
 			init(eventType, eventEvent, new JSONObject());
 		}
 	}

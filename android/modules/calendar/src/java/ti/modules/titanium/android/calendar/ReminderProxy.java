@@ -1,3 +1,9 @@
+/**
+ * Appcelerator Titanium Mobile
+ * Copyright (c) 2011-2012 by Appcelerator, Inc. All Rights Reserved.
+ * Licensed under the terms of the Apache Public License
+ * Please see the LICENSE included with this distribution for details.
+ */
 package ti.modules.titanium.android.calendar;
 
 import java.util.ArrayList;
@@ -75,7 +81,8 @@ public class ReminderProxy extends KrollProxy {
 		eventValues.put("event_id", event.getId());
 		
 		Uri reminderUri = contentResolver.insert(Uri.parse(getRemindersUri()), eventValues);
-		Log.d("TiEvents", "created reminder with uri: " + reminderUri + ", minutes: " + minutes + ", method: " + method + ", event_id: " + event.getId());
+		Log.d("TiEvents", "created reminder with uri: " + reminderUri + ", minutes: " + minutes + ", method: " + method
+			+ ", event_id: " + event.getId(), Log.DEBUG_MODE);
 		
 		String eventId = reminderUri.getLastPathSegment();
 		ReminderProxy reminder = new ReminderProxy();

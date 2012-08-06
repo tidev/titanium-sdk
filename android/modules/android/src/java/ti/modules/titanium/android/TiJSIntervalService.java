@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -16,7 +16,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollRuntime;
 import org.appcelerator.kroll.common.Log;
-import org.appcelerator.kroll.common.TiConfig;
 import org.appcelerator.kroll.util.KrollAssetHelper;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.IntentProxy;
@@ -29,8 +28,7 @@ import android.os.Bundle;
 
 public class TiJSIntervalService extends TiJSService
 {
-	private static final String LCAT = "TiJSIntervalService";
-	private static final boolean DBG = TiConfig.LOGD;
+	private static final String TAG = "TiJSIntervalService";
 	private List<IntervalServiceRunner> runners = null;
 
 	public TiJSIntervalService(String url)
@@ -45,7 +43,7 @@ public class TiJSIntervalService extends TiJSService
 
 		IntentProxy intentProxy = proxy.getIntent();
 		if (intentProxy == null || !intentProxy.hasExtra(EXTRA_NAME)) {
-			Log.w(LCAT, "The intent is missing the extra value '" + EXTRA_NAME + "', therefore the code will be executed only once.");
+			Log.w(TAG, "The intent is missing the extra value '" + EXTRA_NAME + "', therefore the code will be executed only once.");
 			super.executeServiceCode(proxy);
 			return;
 		}
@@ -59,7 +57,7 @@ public class TiJSIntervalService extends TiJSService
 		}
 
 		if (interval < 0) {
-			Log.w(LCAT, "The intent's extra '" + EXTRA_NAME + "' value is negative or non-numeric, therefore the code will be executed only once.");
+			Log.w(TAG, "The intent's extra '" + EXTRA_NAME + "' value is negative or non-numeric, therefore the code will be executed only once.");
 			super.executeServiceCode(proxy);
 			return;
 		}
@@ -114,7 +112,7 @@ public class TiJSIntervalService extends TiJSService
 			}
 			runners.clear();
 		} catch(Throwable t) {
-			Log.w(LCAT, "Thrown while clearing interval service runners: " + t.getMessage(), t);
+			Log.w(TAG, "Thrown while clearing interval service runners: " + t.getMessage(), t);
 		}
 	}
 
@@ -122,9 +120,7 @@ public class TiJSIntervalService extends TiJSService
 	@Override
 	public void onDestroy()
 	{
-		if (DBG) {
-			Log.d(LCAT, "onDestroy");
-		}
+		Log.d(TAG, "onDestroy", Log.DEBUG_MODE);
 		destroyRunners();
 		super.onDestroy();
 	}
@@ -134,9 +130,7 @@ public class TiJSIntervalService extends TiJSService
 	{
 		IntervalServiceRunner runner = findRunnerOfProxy(proxy);
 		if (runner != null) {
-			if (DBG) {
-				Log.d(LCAT, "Stopping IntervalServiceRunner because of unbind");
-			}
+			Log.d(TAG, "Stopping IntervalServiceRunner because of unbind", Log.DEBUG_MODE);
 			runner.stop();
 		}
 		runners.remove(runner);
@@ -166,30 +160,24 @@ public class TiJSIntervalService extends TiJSService
 		{
 			try {
 				if (task != null) {
-					if (DBG) {
-						Log.d(LCAT, "Canceling TimerTask");
-					}
+					Log.d(TAG, "Canceling TimerTask", Log.DEBUG_MODE);
 					task.cancel();
 					task = null;
 				}
 				if (timer != null) {
-					if (DBG) {
-						Log.d(LCAT, "Canceling Timer");
-					}
+					Log.d(TAG, "Canceling Timer", Log.DEBUG_MODE);
 					timer.cancel();
 					timer.purge();
 					timer = null;
 				}
 			} catch (Throwable t) {
-				Log.w(LCAT, "Thrown while destroying timer: " + t.getMessage(), t);
+				Log.w(TAG, "Thrown while destroying timer: " + t.getMessage(), t);
 			}
 		}
 
 		void stop()
 		{
-			if (DBG) {
-				Log.d(LCAT, "stop runner");
-			}
+			Log.d(TAG, "stop runner", Log.DEBUG_MODE);
 			if (proxy != null) {
 				proxy.fireEvent(TiC.EVENT_STOP, new KrollDict());
 			}
@@ -198,9 +186,7 @@ public class TiJSIntervalService extends TiJSService
 
 		void start()
 		{
-			if (DBG) {
-				Log.d(LCAT, "start runner");
-			}
+			Log.d(TAG, "start runner", Log.DEBUG_MODE);
 			task = new TimerTask()
 			{
 				@Override
@@ -215,7 +201,7 @@ public class TiJSIntervalService extends TiJSService
 						KrollRuntime.getInstance().runModule(source, url, proxy) ;
 						proxy.fireEvent(TiC.EVENT_PAUSE, event);
 					} catch (Throwable e) {
-						Log.e(LCAT, "Failure evaluating service JS " + url + ": " + e.getMessage(), e);
+						Log.e(TAG, "Failure evaluating service JS " + url + ": " + e.getMessage(), e);
 					}
 				}
 			};

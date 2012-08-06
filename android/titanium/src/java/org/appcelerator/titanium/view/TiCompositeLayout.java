@@ -12,7 +12,6 @@ import java.util.Comparator;
 import java.util.TreeSet;
 
 import org.appcelerator.kroll.common.Log;
-import org.appcelerator.kroll.common.TiConfig;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiDimension;
@@ -56,7 +55,6 @@ public class TiCompositeLayout extends ViewGroup
 	}
 
 	protected static final String TAG = "TiCompositeLayout";
-	protected static final boolean DBG = TiConfig.LOGD && false;
 
 	public static final int NOT_SET = Integer.MIN_VALUE;
 
@@ -186,16 +184,14 @@ public class TiCompositeLayout extends ViewGroup
 
 	public void onChildViewAdded(View parent, View child) {
 		needsSort = true;
-		if (DBG && parent != null && child != null) {
-			Log.d(TAG, "Attaching: " + viewToString(child) + " to " + viewToString(parent));
+		if (parent != null && child != null) {
+			Log.d(TAG, "Attaching: " + viewToString(child) + " to " + viewToString(parent), Log.DEBUG_MODE);
 		}
 	}
 
 	public void onChildViewRemoved(View parent, View child) {
 		needsSort = true;
-		if (DBG) {
-			Log.d(TAG, "Removing: " + viewToString(child) + " from " + viewToString(parent));
-		}
+		Log.d(TAG, "Removing: " + viewToString(child) + " from " + viewToString(parent), Log.DEBUG_MODE);
 	}
 
 	@Override
@@ -556,9 +552,8 @@ public class TiCompositeLayout extends ViewGroup
 					}
 				}
 
-				if (DBG) {
-					Log.d(TAG, child.getClass().getName() + " {" + horizontal[0] + "," + vertical[0] + "," + horizontal[1] + "," + vertical[1] + "}");
-				}
+				Log.d(TAG, child.getClass().getName() + " {" + horizontal[0] + "," + vertical[0] + "," + horizontal[1] + ","
+					+ vertical[1] + "}", Log.DEBUG_MODE);
 
 				int newWidth = horizontal[1] - horizontal[0];
 				int newHeight = vertical[1] - vertical[0];
@@ -575,7 +570,7 @@ public class TiCompositeLayout extends ViewGroup
 					Activity currentActivity = TiApplication.getAppCurrentActivity();
 					if (currentActivity instanceof TiLaunchActivity) {
 						if (!((TiLaunchActivity) currentActivity).isJSActivity()) {
-							Log.w(TAG, "The root activity is no longer available.  Skipping layout pass.");
+							Log.w(TAG, "The root activity is no longer available.  Skipping layout pass.", Log.DEBUG_MODE);
 							return;
 						}
 					}
@@ -640,7 +635,7 @@ public class TiCompositeLayout extends ViewGroup
 			try {
 				setAlphaMethod = getClass().getMethod("setAlpha", float.class);
 			} catch (NoSuchMethodException e) {
-				Log.w(TAG, "Unable to find setAlpha() method.", e);
+				Log.w(TAG, "Unable to find setAlpha() method.", e, Log.DEBUG_MODE);
 				return false;
 			}
 		}

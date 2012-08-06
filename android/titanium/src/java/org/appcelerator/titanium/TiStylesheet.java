@@ -1,3 +1,9 @@
+/**
+ * Appcelerator Titanium Mobile
+ * Copyright (c) 2011-2012 by Appcelerator, Inc. All Rights Reserved.
+ * Licensed under the terms of the Apache Public License
+ * Please see the LICENSE included with this distribution for details.
+ */
 package org.appcelerator.titanium;
 
 import java.util.Collection;
@@ -5,11 +11,9 @@ import java.util.HashMap;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.common.Log;
-import org.appcelerator.kroll.common.TiConfig;
 
 public abstract class TiStylesheet {
 	private static final String TAG = "TiStylesheet";
-	private static final boolean DBG = TiConfig.DEBUG;
 	
 	protected final HashMap<String,HashMap<String,KrollDict>> classesMap;
 	protected final HashMap<String,HashMap<String,KrollDict>> idsMap;
@@ -35,9 +39,8 @@ public abstract class TiStylesheet {
 	
 	public final KrollDict getStylesheet(String objectId, Collection<String> classes, String density, String basename)
 	{
-		if (DBG) {
-			Log.d(TAG, "getStylesheet id: "+objectId+", classes: "+classes+", density: " + density + ", basename: " + basename);
-		}
+		Log.d(TAG, "getStylesheet id: " + objectId + ", classes: " + classes + ", density: " + density + ", basename: "
+			+ basename, Log.DEBUG_MODE);
 		
 		KrollDict result = new KrollDict();
 		if (classesMap != null)

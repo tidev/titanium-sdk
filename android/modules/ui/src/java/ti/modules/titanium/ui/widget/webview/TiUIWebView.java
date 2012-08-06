@@ -17,7 +17,6 @@ import java.lang.reflect.Method;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.common.Log;
-import org.appcelerator.kroll.common.TiConfig;
 import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.io.TiBaseFile;
@@ -44,8 +43,7 @@ import android.webkit.WebView;
 public class TiUIWebView extends TiUIView
 {
 
-	private static final String LCAT = "TiUIWebView";
-	private static final boolean DBG = TiConfig.LOGD;
+	private static final String TAG = "TiUIWebView";
 	private TiWebViewClient client;
 	private boolean changingUrl = false;
 
@@ -192,13 +190,13 @@ public class TiUIWebView extends TiUIView
 				}
 			}
 		} catch (ClassNotFoundException e) {
-			Log.e(LCAT, "ClassNotFound: " + e.getMessage(), e);
+			Log.e(TAG, "ClassNotFound: " + e.getMessage(), e);
 		} catch (NoSuchMethodException e) {
-			Log.e(LCAT, "NoSuchMethod: " + e.getMessage(), e);
+			Log.e(TAG, "NoSuchMethod: " + e.getMessage(), e);
 		} catch (NoSuchFieldException e) {
-			Log.e(LCAT, "NoSuchField: " + e.getMessage(), e);
+			Log.e(TAG, "NoSuchField: " + e.getMessage(), e);
 		} catch (IllegalAccessException e) {
-			Log.e(LCAT, "IllegalAccess: " + e.getMessage(), e);
+			Log.e(TAG, "IllegalAccess: " + e.getMessage(), e);
 		}
 	}
 
@@ -322,23 +320,21 @@ public class TiUIWebView extends TiUIView
 																						 				   // to JS that use app:// etc.
 					return;
 				} catch (IOException ioe) {
-					Log.e(LCAT, "Problem reading from " + url + ": " + ioe.getMessage()
+					Log.e(TAG, "Problem reading from " + url + ": " + ioe.getMessage()
 						+ ". Will let WebView try loading it directly.", ioe);
 				} finally {
 					if (fis != null) {
 						try {
 							fis.close();
 						} catch (IOException e) {
-							Log.w(LCAT, "Problem closing stream: " + e.getMessage(), e);
+							Log.w(TAG, "Problem closing stream: " + e.getMessage(), e);
 						}
 					}
 				}
 			}
 		}
 
-		if (DBG) {
-			Log.d(LCAT, "WebView will load " + url + " directly without code injection.");
-		}
+		Log.d(TAG, "WebView will load " + url + " directly without code injection.", Log.DEBUG_MODE);
 		// iOS parity: for whatever reason, when a remote url is used, the iOS implementation
 		// explicitly sets the native webview's setScalesPageToFit to YES if the
 		// Ti scalesPageToFit property has _not_ been set.
@@ -496,12 +492,12 @@ public class TiUIWebView extends TiUIView
 							internalSetPluginState.invoke(webSettings, enumPluginStateOnDemand);
 							break;
 						default:
-							Log.w(LCAT, "Not a valid plugin state. Ignoring setPluginState request");
+							Log.w(TAG, "Not a valid plugin state. Ignoring setPluginState request");
 					}
 				} catch (InvocationTargetException e) {
-					Log.e(LCAT, "Method not supported", e);
+					Log.e(TAG, "Method not supported", e);
 				} catch (IllegalAccessException e) {
-					Log.e(LCAT, "Illegal Access", e);
+					Log.e(TAG, "Illegal Access", e);
 				}
 			}
 		}
@@ -515,9 +511,9 @@ public class TiUIWebView extends TiUIView
 				try {
 					internalWebViewPause.invoke(v);
 				} catch (InvocationTargetException e) {
-					Log.e(LCAT, "Method not supported", e);
+					Log.e(TAG, "Method not supported", e);
 				} catch (IllegalAccessException e) {
-					Log.e(LCAT, "Illegal Access", e);
+					Log.e(TAG, "Illegal Access", e);
 				}
 			}
 		}
@@ -531,9 +527,9 @@ public class TiUIWebView extends TiUIView
 				try {
 					internalWebViewResume.invoke(v);
 				} catch (InvocationTargetException e) {
-					Log.e(LCAT, "Method not supported", e);
+					Log.e(TAG, "Method not supported", e);
 				} catch (IllegalAccessException e) {
-					Log.e(LCAT, "Illegal Access", e);
+					Log.e(TAG, "Illegal Access", e);
 				}
 			}
 		}

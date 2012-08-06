@@ -29,7 +29,7 @@ import android.graphics.Typeface;
 public class TiUISpinnerColumn extends TiUIView implements WheelView.OnItemSelectedListener
 {
 	
-	private static final String LCAT = "TiUISpinnerColumn";
+	private static final String TAG = "TiUISpinnerColumn";
 	private boolean suppressItemSelected = false;
 	
 	public TiUISpinnerColumn(TiViewProxy proxy)
@@ -186,7 +186,7 @@ public class TiUISpinnerColumn extends TiUIView implements WheelView.OnItemSelec
 		if (nativeView instanceof WheelView) {
 			WheelView view = (WheelView)nativeView;
 			if (rowIndex < 0 || rowIndex >= view.getAdapter().getItemsCount()) {
-				Log.w(LCAT, "Ignoring attempt to select out-of-bound row index " + rowIndex);
+				Log.w(TAG, "Ignoring attempt to select out-of-bound row index " + rowIndex);
 				return;
 			}
 			view.setCurrentItem(rowIndex);
