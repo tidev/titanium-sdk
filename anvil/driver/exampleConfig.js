@@ -92,21 +92,27 @@ module.exports = new function() {
 	// >>>>>>>> when running in remote mode, all the following values must be set!!! <<<<<<<<
 
 	/*
-	hub listens for driver connections on this port
-
-	Example: this.hubPort = ;
-	*/
-
-	/*
 	host that the hub lives on
 
 	Example: this.hubHost = "";
 	*/
 
 	/*
+	hub listens for driver connections on this port
+
+	Example: this.hubPort = ;
+	*/
+
+	/*
 	id that this driver instance will be identified as in reporting from the hub
 
 	Example: this.driverId = "";
+	*/
+
+	/*
+	description of the driver that will be used for 
+
+	Example: this.driverDescription = "";
 	*/
 
 }

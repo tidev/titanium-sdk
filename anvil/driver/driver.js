@@ -217,32 +217,16 @@ function loadConfigModule() {
 		process.exit(1);
 	}
 
-	function checkConfigItem(configItemName, configItemValue, expectedType) {
-		var configItemType = (typeof configItemValue);
-		if (configItemType === "undefined") {
-			printFailureAndExit(configItemName + " property in the config module cannot be undefined");
-
-		} else if (configItemType !== expectedType) {
-			printFailureAndExit(configItemName + " property in the config module should be <" + expectedType +
-				"> but was <" + configItemType + ">");
-		}
-	}
-
-	function printFailureAndExit(errorMessage) {
-		console.log(errorMessage);
-		process.exit(1);
-	}
-
-	checkConfigItem("androidSdkDir", config.androidSdkDir, "string");
-	checkConfigItem("tiSdkDirs", config.tiSdkDirs, "string");
-	checkConfigItem("maxLogs", config.maxLogs, "number");
-	checkConfigItem("androidSocketPort", config.androidSocketPort, "number");
-	checkConfigItem("iosSocketPort", config.iosSocketPort, "number");
-	checkConfigItem("maxSocketConnectAttempts", config.maxSocketConnectAttempts, "number");
-	checkConfigItem("httpPort", config.httpPort, "number");
-	checkConfigItem("defaultTestTimeout", config.defaultTestTimeout, "number");
-	checkConfigItem("tabString", config.tabString, "string");
-	checkConfigItem("defaultIosSimVersion", config.defaultIosSimVersion, "string");
+	util.checkConfigItem("androidSdkDir", config.androidSdkDir, "string");
+	util.checkConfigItem("tiSdkDirs", config.tiSdkDirs, "string");
+	util.checkConfigItem("maxLogs", config.maxLogs, "number");
+	util.checkConfigItem("androidSocketPort", config.androidSocketPort, "number");
+	util.checkConfigItem("iosSocketPort", config.iosSocketPort, "number");
+	util.checkConfigItem("maxSocketConnectAttempts", config.maxSocketConnectAttempts, "number");
+	util.checkConfigItem("httpPort", config.httpPort, "number");
+	util.checkConfigItem("defaultTestTimeout", config.defaultTestTimeout, "number");
+	util.checkConfigItem("tabString", config.tabString, "string");
+	util.checkConfigItem("defaultIosSimVersion", config.defaultIosSimVersion, "string");
 
 	// load the defaultPlatform config property and set the global platform property if needed
 	new function() {
@@ -272,7 +256,7 @@ function loadConfigModule() {
 
 	// load the tempDir config property and setup other properties that rely on the tempDir property
 	new function() {
-		checkConfigItem("tempDir", config.tempDir, "string");
+		util.checkConfigItem("tempDir", config.tempDir, "string");
 		driverGlobal.harnessDir = config.tempDir + "/harness";
 		driverGlobal.logsDir = config.tempDir + "/logs";
 	}
@@ -282,7 +266,7 @@ function loadConfigModule() {
 	property
 	*/
 	new function() {
-		checkConfigItem("defaultLogLevel", config.defaultLogLevel, "string");
+		util.checkConfigItem("defaultLogLevel", config.defaultLogLevel, "string");
 
 		// translate the defaultLogLevel from string to number value defined in logLevels
 		if (driverGlobal.logLevels[config.defaultLogLevel]) {

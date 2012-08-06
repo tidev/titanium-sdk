@@ -18,6 +18,22 @@ module.exports = new function() {
 	var self = this;
 	var logFile = undefined;
 
+	this.checkConfigItem = function(configItemName, configItemValue, expectedType) {
+		function printFailureAndExit(errorMessage) {
+			console.log(errorMessage);
+			process.exit(1);
+		}
+
+		var configItemType = (typeof configItemValue);
+		if (configItemType === "undefined") {
+			printFailureAndExit(configItemName + " property in the config module cannot be undefined");
+
+		} else if (configItemType !== expectedType) {
+			printFailureAndExit(configItemName + " property in the config module should be <" + expectedType +
+				"> but was <" + configItemType + ">");
+		}
+	};
+
 	/*
 	these are stand alone from the driver wide log levels since the arguments to runCommand do 
 	not change based on the --log-level argument

@@ -10,11 +10,11 @@
 
 		$numRuns = count($runs);
 
-		$query="SELECT DISTINCT name, suite_id FROM results WHERE branch = \"" . $branch . "\" AND suite_name = \"" . $suite . "\"";
+		$query="SELECT DISTINCT name FROM results WHERE branch = \"" . $branch . "\" AND suite_name = \"" . $suite . "\"";
 		$result=mysql_query($query);
 		while($row = mysql_fetch_array($result)) {
 			// need to use "id" for the 3rd element in order to deal with odd suite names
-			$testId = $branch . "_" . $config_set . "_" . $config . "_" . $row["suite_id"] . "_" . $row["name"];
+			$testId = $config_set . "_" . $config . "_" . str_replace('/', '_', $suite) . "_" . $row["name"];
 
 			echo "\t<div style=\"margin-left: 50px; margin-bottom: 40px\">\n";
 			echo "\t\t<div id=\"" . $testId . "\" style=\"width: 80%\"></div>\n";
@@ -31,13 +31,16 @@
 				echo "\t\t\tvar driverPerformanceData = [];\n";
 
 				for ($i = 0; $i < $numRuns; $i++) {
+					echo "\t\t\tif (runIds.length < " . ($i + 1) . ") {\n";
 					$runLabel = "<div align=\\\"center\\\">" .
 						"<div><b>" . date("n-j-Y g:i:s A", $runs[$i]["timestamp"]) . "</b></div>" .
 						"<div>" . substr($runs[$i]["git_hash"], 0, 10) . "</div>" .
 						"</div>";
 
-					echo "\t\t\trunIds.push(\"" . $runLabel . "\");\n";
-					$query3="SELECT * FROM results WHERE driver_id = \"" . $row2["driver_id"] . "\" AND run_id = " . $runs[$i]["id"] . " AND name = \"" . $row["name"] . "\"";
+					echo "\t\t\t\trunIds.push(\"" . $runLabel . "\");\n";
+					echo "\t\t\t}\n";
+
+					$query3="SELECT * FROM results WHERE driver_id = \"" . $row2["driver_id"] . "\" AND run_id = " . $runs[$i]["id"] . " AND name = \"" . $row["name"] . "\" LIMIT 1";
 					$result3=mysql_query($query3);
 
 					if ($row3 = mysql_fetch_array($result3)) {
@@ -88,7 +91,7 @@
 	date_default_timezone_set("America/Los_Angeles");
 
 	$runs = array();
-	$result=mysql_query("SELECT * FROM runs WHERE branch = \"" . $_GET["branch"] . "\"");
+	$result=mysql_query("SELECT * FROM runs WHERE branch = \"" . $_GET["branch"] . "\" ORDER BY timestamp DESC");
 	while($row = mysql_fetch_array($result)) {
 		array_push($runs, $row);
 	}
@@ -112,7 +115,7 @@
 				echo "\t<div style=\"margin-left: 50px;\">\n";
 				echo "\t\t<div>Config: " . $row2["name"] . "</div>\n\n";
 
-				$query3="SELECT DISTINCT name, id FROM suites WHERE branch = \"" . $_GET["branch"] . "\" AND config_name = \"" . $row2["name"] . "\"";
+				$query3="SELECT DISTINCT name FROM suites WHERE branch = \"" . $_GET["branch"] . "\" AND config_name = \"" . $row2["name"] . "\"";
 				$result3=mysql_query($query3);
 				while($row3 = mysql_fetch_array($result3)) {
 					if(isset($_GET["all_suites"])) {

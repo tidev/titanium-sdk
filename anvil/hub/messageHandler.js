@@ -18,18 +18,50 @@ module.exports = new function() {
 	var self = this;
 	var activeRuns = {};
 	var dbConnection;
-	var driverCommand = "start --config=default --suite=codec";
-	//var driverCommand = "start";
+	var driverCommand = "start";
 
 	this.server;
 
-	this.init = function() {
+	this.init = function(callback) {
 		dbConnection = mysql.createConnection({
-			host: "localhost",
-			user: "root",
+			host: hubGlobal.config.dbHost,
+			user: hubGlobal.config.dbUser,
 			database: "anvil_hub"
 		});
-		dbConnection.connect();
+		dbConnection.on('close', function(error) {
+			if (error) {
+				if (error.code === "PROTOCOL_CONNECTION_LOST") {
+					util.log("MYSQL connection lost, re-connecting...");
+					dbConnection = mysql.createConnection(dbConnection.config);
+
+				} else {
+					// non timeout error, treat as fatal
+					util.log("MYSQL connection lost, error <" + error.code + ">");
+					process.exit(1);
+				}
+			}
+			
+			/*
+			NOTE about non error state close:
+
+			no action required here since the assumption is that this will only be triggered by
+			a manual close of the connection and that a re-connect or other behavior will by taken
+			by the caller
+			*/
+		});
+		dbConnection.connect(function(error) {
+			if (!error) {
+				// clear any needed DB state upon startup
+				dbConnection.query("DELETE FROM driver_state", function(error, rows, fields) {
+					if (error) {
+						throw error;
+					}
+
+					util.log("temp DB state cleared");
+					callback();
+				});
+			}
+		});
 	};
 
 	this.processCiMessage = function(ciConnection, message) {
@@ -95,17 +127,21 @@ module.exports = new function() {
 	};
 
 	this.processDriverResults = function(driverId, results, callback) {
+		// create unique working dir
+		var driverRunWorkingDir = hubGlobal.workingDir + "/" + activeRuns[driverId].gitHash + driverId;
+		fs.mkdirSync(driverRunWorkingDir);
+
 		// create zip
-		var resultsFile = fs.openSync(hubGlobal.workingDir + "/results.tgz", 'w');
+		var resultsFile = fs.openSync(driverRunWorkingDir + "/" + activeRuns[driverId].gitHash + driverId + ".tgz", 'w');
 		fs.writeSync(resultsFile, results, 0, results.length, null);
 		fs.closeSync(resultsFile);
 
 		// extract the results set
-		var command = "tar -xvf " + hubGlobal.workingDir + "/results.tgz -C " + hubGlobal.workingDir;
+		var command = "tar -xvf " + driverRunWorkingDir + "/" + activeRuns[driverId].gitHash + driverId + ".tgz -C " + driverRunWorkingDir;
 		util.runCommand(command, function(error, stdout, stderr) {
 			if (error !== null) {
 				console.log("error <" + error + "> occurred when trying to extract results to <" + 
-					hubGlobal.workingDir + ">");
+					driverRunWorkingDir + ">");
 
 				return;
 			}
@@ -247,7 +283,7 @@ module.exports = new function() {
 				// store the branch ID for later use
 				branch = rows[0].branch;
 
-				var results = fs.readFileSync(hubGlobal.workingDir + "/json_results", "utf-8");
+				var results = fs.readFileSync(driverRunWorkingDir + "/json_results", "utf-8");
 				results = JSON.parse(results);
 
 				insertDriverRun(results, function() {
@@ -258,6 +294,18 @@ module.exports = new function() {
 						if (error) {
 							throw error;
 						}
+
+						// copy the raw results file to a location where it can be served up
+						var command = "mv " + driverRunWorkingDir + "/" + activeRuns[driverId].gitHash + 
+							driverId + ".tgz web/results/";
+
+						util.runCommand(command, function() {
+							util.log("results file moved to serving location");
+
+							util.runCommand("rm -rf " + driverRunWorkingDir, function() {
+								util.log("temp working directory cleaned up");
+							});
+						});
 
 						/*
 						remove the run and close the driver dbConnection now that the results are 
@@ -282,6 +330,7 @@ module.exports = new function() {
 			}
 
 			var runId = null;
+			var gitHash = null;
 			var isIdle = true;
 
 			/*
@@ -291,19 +340,77 @@ module.exports = new function() {
 			*/
 			if (rows.length > 0) {
 				runId = rows[0].id;
+				gitHash = rows[0].git_hash;
 				isIdle = false;
 
+				self.updateDriverState({
+					id: driverId,
+					state: "running",
+					gitHash: gitHash
+					});
+
 				self.server.sendMessageToDriver(driverId, {
-					gitHash: rows[0].git_hash,
+					gitHash: gitHash,
 					command: driverCommand
-				});
+					});
 			}
 
 			activeRuns[driverId] = {
 				runId: runId,
+				gitHash: gitHash,
 				idle: isIdle
 			};
 		});
 	};
+
+	this.updateDriverState = function(args) {
+		function updatedCallback() {
+			util.log("driver <" + args.id + "> state updated: " + args.state);
+		}
+
+		if (args.state !== "disconnected") {
+			dbConnection.query("SELECT * FROM driver_state WHERE id = \"" + args.id + "\"", function(error, rows, fields) {
+				var timestamp = new Date().getTime() / 1000;
+				var queryArgs = {
+					id: args.id,
+					state: args.state,
+					timestamp: timestamp
+				};
+
+				if (args.description) {
+					queryArgs["description"] = args.description;
+
+				} else {
+					if (rows.length > 0) {
+						queryArgs["description"] = rows[0].description;
+					}
+				}
+
+				if (args.gitHash) {
+					queryArgs["git_hash"] = args.gitHash;
+
+				} else {
+					queryArgs["git_hash"] = "";
+				}
+
+				dbConnection.query('REPLACE INTO driver_state SET ?', queryArgs, function(error, rows, fields) {
+					if (error) {
+						throw error;
+					}
+
+					updatedCallback()
+				});
+			});
+
+		} else {
+			dbConnection.query("DELETE FROM driver_state WHERE id = \"" + args.id + "\"", function(error, rows, fields) {
+				if (error) {
+					throw error;
+				}
+
+				updatedCallback();
+			});
+		}
+	}
 };
 

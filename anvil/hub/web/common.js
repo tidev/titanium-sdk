@@ -1,7 +1,10 @@
 // assumes that the jqPlot dependencies have already been loaded
-function drawRunCharts(elementId, gitHash, timestamp, runId, driverIds, chartData) {
+function drawRunCharts(elementId, branch, gitHash, timestamp, runId, driverIds, chartData) {
 	var chartDate = new Date(timestamp * 1000).toLocaleString();
 	document.getElementById(elementId + "Date").innerHTML = chartDate;
+
+	document.getElementById(elementId + "Branch").innerHTML = branch;
+	document.getElementById(elementId + "Githash").innerHTML = gitHash;
 
 	var series = [
 		{label: "Pass"},
@@ -9,7 +12,6 @@ function drawRunCharts(elementId, gitHash, timestamp, runId, driverIds, chartDat
 	];
 
 	$.jqplot(elementId + "Contents", chartData, {
-	    title: "Git Hash: " + gitHash,
 		stackSeries: true,
 		seriesDefaults: {
 			renderer:$.jqplot.BarRenderer,
@@ -40,7 +42,8 @@ function drawRunCharts(elementId, gitHash, timestamp, runId, driverIds, chartDat
 	});
 
 	$("#" + elementId + "Contents").bind('jqplotDataClick', function (event, seriesIndex, pointIndex, data) {
-		window.location.href = "results.php?run_id=" + runId + "&driver_id=" + driverIds[pointIndex];
+		window.location.href = "results.php?branch=" + branch + "&git_hash=" + gitHash + 
+			"&run_id=" + runId + "&driver_id=" + driverIds[pointIndex];
 	});
 }
 
