@@ -30,7 +30,6 @@ public class PersonProxy extends KrollProxy
 {
 	private static final String TAG = "Person";
 	private TiBlob image = null;
-	public long id = -1;
 	private boolean imageFetched; // lazy load these bitmap images
 	protected boolean hasImage = false;
 	private String fullName = "";
@@ -73,7 +72,7 @@ public class PersonProxy extends KrollProxy
 	@Kroll.method @Kroll.getProperty
 	public long getId() 
 	{
-		return id;
+		return (Long) getProperty(TiC.PROPERTY_ID);
 	}
 
 	public boolean isFieldModified(String field)
@@ -81,10 +80,6 @@ public class PersonProxy extends KrollProxy
 		return (modified.containsKey(field) && modified.get(field));
 	}
 	
-	public void setId(long i) 
-	{
-		id = i;
-	}
 
 	@Kroll.method @Kroll.getProperty
 	public TiBlob getImage()

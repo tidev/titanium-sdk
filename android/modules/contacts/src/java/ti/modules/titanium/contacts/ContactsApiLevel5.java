@@ -663,8 +663,7 @@ public class ContactsApiLevel5 extends CommonContactsApi
 
 			ContentProviderResult[] providerResult = TiApplication.getAppRootOrCurrentActivity().getContentResolver().applyBatch(ContactsContract.AUTHORITY, ops);
 			long id = ContentUris.parseId(providerResult[0].uri);
-			newContact.setProperty("id", id);
-			newContact.setId(id);
+			newContact.setProperty(TiC.PROPERTY_ID, id);
 
 		} catch (RemoteException e) { 
 
@@ -687,7 +686,7 @@ public class ContactsApiLevel5 extends CommonContactsApi
 			return;
 		}
 
-		Object idObj = person.getProperty("id");
+		Object idObj = person.getProperty(TiC.PROPERTY_ID);
 		if (idObj instanceof Long) {
 			Long id = (Long) idObj;
 			ContentResolver cr = TiApplication.getAppRootOrCurrentActivity().getContentResolver();
@@ -1026,7 +1025,7 @@ public class ContactsApiLevel5 extends CommonContactsApi
 			Object contact = contacts[i];
 			if (contact instanceof PersonProxy) {
 				PersonProxy person = (PersonProxy) contact;
-				Object idObj = person.getProperty("id");
+				Object idObj = person.getProperty(TiC.PROPERTY_ID);
 				if (idObj instanceof Long) {
 					Long id = (Long) idObj;
 					modifyContact(person, String.valueOf(id));
