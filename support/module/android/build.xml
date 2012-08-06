@@ -425,7 +425,7 @@ timodule.xml.
 		<property name="module.jar" location="${dist}/${ant.project.name}.jar"/>
 		<jar destfile="${module.jar}">
 			<fileset dir="${classes}"/>
-			<fileset dir="${ti.module.root}" includes="assets/**" excludes="assets/README assets/${manifest.moduleid}.js"/>
+			<fileset dir="${ti.module.root}" includes="assets/**" excludes="assets/README assets/*.js assets/**/*.js"/>
 		</jar>
 		<antcall target="post.jar"/>
 		<property name="zip.prefix" value="modules/android/${module.id}/${manifest.version}"/>
