@@ -22,7 +22,7 @@
 			<div style="margin-left: 20px">Total Pass: <div id="totalPassed" style="display: inline"></div></div>
 			<div style="margin-left: 20px">Total Fail: <div id="totalFailed" style="display: inline"></div></div>
 
-			<div style="margin-top: 20px"><a href="results/<?php echo $_GET["git_hash"]; $_GET["driver_id"]; ?>.tgz">Raw results file</a></div>
+			<div style="margin-top: 20px"><a href="results/<?php echo $_GET["git_hash"] . $_GET["driver_id"]; ?>.tgz">Raw results file</a></div>
 		</div>
 
 		<div style="margin-top: 50px">
