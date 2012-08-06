@@ -210,65 +210,83 @@ Module.prototype.loadExternalModule = function(id, externalBinding, context) {
 Module.prototype.require = function (request, context, useCache) {
 	useCache = useCache === undefined ? true : useCache;
 
-	// Get external binding (for external / 3rd party modules).
-	// Desired module could be a sub of an external native module
-	// containing multiple CommonJS modules along with it, but it's
-	// registered only at the top level, so only check the portion
-	// before a slash.
-	var isExternalCommonJSModule = false;
-	var checkExternal = request;
-	var slashPos = checkExternal.indexOf("/");
-	if (slashPos >= 0) {
-		checkExternal = checkExternal.substr(0, slashPos);
-	}
+	var id;
+	var filename;
+	var cachedModule;
+	var externalCommonJsContents;
+	var located = false;
 
-	var externalBinding = kroll.externalBinding(checkExternal);
+	var resolved = resolveFilename(request, this);
 
-	if (externalBinding) {
+	if (resolved) {
+		// Found it as an asset packaged in the app. (Resources/...).
+		located = true;
+		id = resolved[0];
+		filename = resolved[1];
 
-		if (slashPos < 0) {
-			// This is the "root" of an external module, since there was no slash.
-			return this.loadExternalModule(request, externalBinding, context);
-		} else {
-			var parts = request.split("/");
-			if (parts.length === 2 && parts[0] === parts[1]) {
-				// This looks like "ti.mymodule/ti.mymodule", which is,
-				// unfortunately, a secondary, valid way to refer to
-				// the root module of a set of CommonJS modules packaged
-				// with a native module. It's equivalent to
-				// requesting just "ti.mymodule", but we need to support both.
-				// It is the root, so we can load and return it just like we
-				// do above.
-				return this.loadExternalModule(parts[0], externalBinding, context);
-			} else {
-				// This is a CommonJS sub-module packaged with the
-				// native external module, something like "ti.mymodule/mysub".
-				isExternalCommonJSModule = true;
+		if (useCache) {
+			cachedModule = Module.cache[filename];
+			if (cachedModule) {
+				return cachedModule.exports;
 			}
 		}
 
-	}
+	} else {
+		// External module?
+		var pathResolve = resolveLookupPaths(request, this);
+		id = pathResolve[0];
+		var potentialPaths = pathResolve[1];
 
-	var filename = request;
-	var id = request;
+		for (var i = 0, pathCount = potentialPaths.length; i < pathCount; ++i) {
+			var onePath = potentialPaths[i];
+			if (onePath === "." || onePath === "Resources" || onePath.indexOf("Resources/") === 0) {
+				// This could be a fully-pathed request for an external module
+				// (or a CommonJS sub-module within an external module) from inside
+				// an application JS file. We test that by simply ignoring the Resources
+				// path since it won't be in there if it exists.
+				filename = id;
+			} else {
+				filename = path.resolve(onePath, id);
+			}
 
-	if (!isExternalCommonJSModule) {
-		var resolved = resolveFilename(request, this);
-		id = resolved[0];
-		filename = resolved[1];
-		if (kroll.DBG) {
-			kroll.log(TAG, 'Loading module: ' + request + ' -> ' + filename);
+			// Something we already have cached?
+			if (useCache) {
+				cachedModule = Module.cache[filename];
+				if (cachedModule) {
+					return cachedModule.exports;
+				}
+			}
+
+			var parts = filename.split("/");
+			var checkExternal = parts[0];
+			var externalBinding = kroll.externalBinding(checkExternal);
+			if (externalBinding) {
+				if (parts.length === 1 || (parts.length === 2 && parts[0] === parts[1])) {
+					// This is the "root" of an external module. It can look like either:
+					// request("com.example.mymodule") ... or ...
+					// request("com.example.mymodule/com.example.mymodule")
+					// We can load and return it right away (caching occurs in the called function).
+					return this.loadExternalModule(parts[0], externalBinding, context);
+				} else {
+					// Could be a sub-module (CommonJS) of an external native module.
+					// We allow that since TIMOB-9730.
+					externalCommonJsContents = kroll.getExternalCommonJsModule(filename);
+					if (externalCommonJsContents) {
+						// Found it.
+						located = true;
+						break;
+					}
+				}
+			}
 		}
 	}
 
-	if (useCache) {
-		var cachedModule = Module.cache[filename];
-		if (cachedModule) {
-			return cachedModule.exports;
-		}
+	if (!located) {
+		throw new Error("Requested module not found: " + request);
 	}
 
-	// Create and attempt to load the module.
+	kroll.log(TAG, 'Loading module: ' + request + ' -> ' + filename);
+
 	var module = new Module(id, this, context);
 
 	// NOTE: We need to cache here to handle cyclic dependencies.
@@ -276,12 +294,11 @@ Module.prototype.require = function (request, context, useCache) {
 	// module, which can provide transitive properties in a way described
 	// by the commonjs 1.1 spec.
 	if (useCache) {
-		// Cache the module for future requests.
 		Module.cache[filename] = module;
 	}
 
-	if (isExternalCommonJSModule) {
-		module.load(filename, kroll.getExternalCommonJsModule(filename));
+	if (externalCommonJsContents) {
+		module.load(filename, externalCommonJsContents);
 	} else {
 		module.load(filename);
 	}
@@ -371,6 +388,14 @@ function resolveLookupPaths(request, parentModule) {
 			if (!parentModule.paths) {
 				parentModule.paths = [];
 			}
+			// Check if parent is root CommonJS module packaged
+			// with a native external module, in which case the
+			// module id is itself a path that needs to be checked.
+			var parentId = parentModule.id;
+			var pos = parentId.lastIndexOf(".commonjs");
+			if (pos === parentId.length - ".commonjs".length) {
+				paths = [parentId.substr(0, pos)].concat(paths);
+			}
 			paths = parentModule.paths.concat(paths);
 		}
 		return [request, paths];
@@ -413,7 +438,7 @@ function resolveFilename(request, parentModule) {
 		}
 	}
 
-	throw new Error("Requested module not found: " + request);
+	return null;
 }
 
 var fileIndex;

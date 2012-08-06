@@ -271,13 +271,6 @@ v8::Handle<v8::Value> KrollBindings::isExternalCommonJsModule(const Arguments& a
 	v8::String::Utf8Value nameVal(name);
 	std::string nameKey(*nameVal);
 
-	int slashPos = nameKey.find("/", 0);
-	if (slashPos != std::string::npos) {
-		// Module could be sub of an external module. We store only by
-		// the root name, so check there.
-		nameKey = nameKey.substr(0, slashPos);
-	}
-
 	bool exists = (externalCommonJsModules.count(nameKey) > 0);
 	v8::Handle<v8::Boolean> existsV8 = v8::Boolean::New(exists);
 	return scope.Close(existsV8);
