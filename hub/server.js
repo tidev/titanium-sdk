@@ -85,6 +85,11 @@ module.exports = new function() {
 
 				acceptedConnection.on("close", function() {
 					util.log("connection for driver <" + driverId + "> closed");
+					self.messageHandler.updateDriverState({
+						id: driverId,
+						state: "disconnected"
+						});
+
 					delete self.driverConnections[driverId];
 				});
 				acceptedConnection.on("error", function(error) {
@@ -113,7 +118,14 @@ module.exports = new function() {
 								util.log("registration received for driver <" + message.id + ">");
 								registered = true;
 								driverId = message.id;
-								self.driverConnections[message.id] = acceptedConnection;
+								self.driverConnections[driverId] = acceptedConnection;
+
+								// add the driver state into the DB
+								self.messageHandler.updateDriverState({
+									id: driverId, 
+									state: "connected",
+									description: message.description
+									});
 
 								// is there a run the driver can go ahead and process?
 								self.messageHandler.getDriverRun(driverId);

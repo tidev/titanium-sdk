@@ -1,3 +1,23 @@
+/*
+ * Appcelerator Titanium Mobile
+ * Copyright (c) 2011-2012 by Appcelerator, Inc. All Rights Reserved.
+ * Licensed under the terms of the Apache Public License
+ * Please see the LICENSE included with this distribution for details.
+ *
+ * Purpose: 
+ *
+ * Description: 
+ */
+
+/*
+TODO:
+- change results storage to write to a temp DB first until whole set it loaded and then transfer
+into actual results DB.  this will enable any issues during the processing of the results to be 
+discarded without impacting the "real" data set
+- i am sure there are possible DB optimizations that can be made
+- update DB to store driver state metrics (is connected, last registered time, etc)
+*/
+
 var fs = require("fs");
 
 var messageHandler = require(__dirname + "/messageHandler");
@@ -45,6 +65,8 @@ function loadConfigModule() {
 	checkConfigItem("maxLogs", config.maxLogs, "number");
 	checkConfigItem("ciListenPort", config.ciListenPort, "number");
 	checkConfigItem("driverListenPort", config.driverListenPort, "number");
+	checkConfigItem("dbHost", config.dbHost, "string");
+	checkConfigItem("dbUser", config.dbUser, "string");
 
 	hubGlobal.logsDir = "logs";
 	hubGlobal.workingDir = "working_dir";
@@ -86,8 +108,7 @@ util.openLog(function() {
 			process.exit(1);
 
 		} else {
-			messageHandler.init();
-			server.start();
+			messageHandler.init(server.start);
 		}
 	});
 });

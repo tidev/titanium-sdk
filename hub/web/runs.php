@@ -13,9 +13,12 @@
 		<div>
 			<h1 style="text-align: left; margin-bottom: 50px">
 				<?php
-					$header = "Anvil results";
+					$header = "";
 					if (isset($_GET["branch"])) {
-						$header = $header . " for branch [" . $_GET["branch"] . "]";
+						$header = "Anvil results for branch [" . $_GET["branch"] . "]";
+
+					} else {
+						$header = "Anvil reporting";
 					}
 
 					echo $header . "\n";
@@ -30,7 +33,7 @@
 		echo "<a href=\"performance.php?branch=" . $_GET["branch"] . "\">Performance</a>\n";
 
 	} else {
-		echo "\t\t\t\t<div>Branches</div>\n";
+		echo "\t\t\t\t<div style=\"font-size: large\"><b>Branches</b></div>\n";
 		echo "\t\t\t\t<div style=\"margin-left: 20px;\">\n";
 		echo "\t\t\t\t\t<!-- START GENERATED BRANCH LIST -->\n";
 
@@ -48,6 +51,53 @@
 
 			</div>
 			<div style="float: left; width: 50%">
+				<div style="font-size: large; margin-bottom: 40px"><b>
+<?php
+	if (!(isset($_GET["branch"]))) {
+		exec("ps aux | grep -i hub.js | grep -v grep", $pids);
+		if (count($pids) > 0) {
+			echo "<div style=\"color: green\">Hub is Running</div>";
+
+		} else {
+			echo "<div style=\"color: red\">Hub is not running</div>";
+		}
+	}
+?>
+				</b></div>
+
+<?php
+	if (!(isset($_GET["branch"]))) {
+		echo "\t<!-- START GENERATED DRIVER STATES -->\n";
+		echo "<div style=\"margin-bottom: 80px\">\n";
+		echo "\t<div style=\"font-size: large; margin-bottom: 3px\"><b>Driver states</b></div>\n";
+
+		echo "\t<table border=\"1\" cellpadding=\"3\" style=\"width: 100%\">\n";
+		echo "\t\t<tr>\n";
+		echo "\t\t\t<th>ID</th><th>Description</th><th>State</th><th>Last updated</th>\n";
+		echo "\t\t</tr>\n";
+
+		$query="SELECT * FROM driver_state";
+		$result=mysql_query($query);
+		while($row = mysql_fetch_array($result)) {
+			echo "\t\t<tr>\n";
+			echo "\t\t\t<td>" . $row["id"] . "</td><td>" . $row["description"] . "</td><td bgcolor=\"";
+
+			if ($row["state"] === "running") {
+				echo "yellow\">Running: " . $row["git_hash"];
+
+			} else {
+				echo "green\">Idle";
+			}
+			echo "</td><td>" . date("n-j-Y g:i:s A", $row["timestamp"]) . "</td>\n";
+
+			echo "\t\t<tr>\n";
+		}
+
+		echo "\t</table>\n";
+		echo "</div>\n";
+		echo "\t<!-- END GENERATED DRIVER STATES -->\n";
+	}
+?>
 
 <?php loadJsDependencies(); ?>
 
@@ -59,6 +109,7 @@
 	if (isset($_GET["branch"])) {
 		$query = $query . " WHERE branch = \"" . $_GET["branch"] . "\"";
 	}
+	$query = $query . " ORDER BY timestamp DESC";
 
 	$result=mysql_query($query);
 	$numRuns = mysql_num_rows($result);
@@ -71,10 +122,25 @@
 			$style = " style=\"margin-top: 60px;\"";
 		}
 
-		echo "\t<div" . $style . ">\n" .
-			"\t\t<div id=\"chart" . $i . "Date\" style=\"margin-bottom: 20px;\"></div>\n" .
-			"\t\t<div id=\"chart" . $i . "Contents\"></div>\n" .
-			"\t</div>\n";
+		echo "\t<div" . $style . ">\n";
+
+		echo "\t\t<div>\n" .
+			"\t\t\t<div style=\"float: left; width: 100px\"><b>Date: </b></div>\n" .
+			"\t\t\t<div id=\"chart" . $i . "Date\"></div>\n" .
+			"\t\t</div>\n";
+
+		echo "\t\t<div>\n" .
+			"\t\t\t<div style=\"float: left; width: 100px\"><b>Branch: </b></div>\n" .
+			"\t\t\t<div id=\"chart" . $i . "Branch\"></div>\n" .
+			"\t\t</div>\n";
+
+		echo "\t\t<div>\n" .
+			"\t\t\t<div style=\"float: left; width: 100px\"><b>Git Hash: </b></div>\n" .
+			"\t\t\t<div id=\"chart" . $i . "Githash\"></div>\n" .
+			"\t\t</div>\n";
+
+		echo "\t\t<div id=\"chart" . $i . "Contents\" style=\"margin-top: 5px\"></div>\n";
+		echo "\t</div>\n";
 
 		$i += 1;
 	}
@@ -104,8 +170,9 @@
 			$j++;
 		}
 
-		echo "\tdrawRunCharts(\"chart" . $i . "\", \"" . $row["git_hash"] . "\", " . 
-			$row["timestamp"] . ", \"" . $row["id"] . "\", driverIds, chartRows);\n";
+		echo "\tdrawRunCharts(\"chart" . $i . "\", \"" . $row["branch"] . "\", \"" . 
+			$row["git_hash"] . "\", " . $row["timestamp"] . ", \"" . $row["id"] . 
+			"\", driverIds, chartRows);\n";
 
 		$i++;
 	}

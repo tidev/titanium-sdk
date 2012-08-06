@@ -21,10 +21,14 @@ module.exports = new function() {
 	};
 
 	this.start = function() {
+		// check remote mode specific config values
+		util.checkConfigItem("hubHost", driverGlobal.config.hubHost, "string");
+		util.checkConfigItem("hubPort", driverGlobal.config.hubPort, "number");
+		util.checkConfigItem("driverId", driverGlobal.config.driverId, "string");
+		util.checkConfigItem("driverDescription", driverGlobal.config.driverDescription, "string");
+
 		// hard code the location for remote mode since this should not change
 		driverGlobal.config.tiSdkDirs = "titanium_mobile/dist/mobilesdk/osx";
-
-		util.setCurrentTiSdk();
 
 		driverGlobal.platform.init(
 			function() {
@@ -64,7 +68,8 @@ module.exports = new function() {
 
 				var registration = JSON.stringify({
 					type: "registration",
-					id: driverGlobal.config.driverId
+					id: driverGlobal.config.driverId,
+					description: driverGlobal.config.driverDescription
 				});
 
 				var sendBuffer = new Buffer(4 + registration.length);

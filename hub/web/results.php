@@ -13,7 +13,7 @@
 	</head>
 	<body>
 		<div>
-			<h2 style="text-align: left; margin-bottom: 30px">Detailed results for run ID [<?php echo $_GET["run_id"]; ?>] and driver ID [<?php echo $_GET["driver_id"]; ?>]</h2>
+			<h2 style="text-align: left; margin-bottom: 30px">Detailed results for branch [<?php echo $_GET["branch"]; ?>], driver ID [<?php echo $_GET["driver_id"]; ?>] and Git hash [<?php echo substr($_GET["git_hash"], 0, 10); ?>]</h2>
 		</div>
 
 		<div style="margin-left: 50px;">
@@ -21,6 +21,8 @@
 
 			<div style="margin-left: 20px">Total Pass: <div id="totalPassed" style="display: inline"></div></div>
 			<div style="margin-left: 20px">Total Fail: <div id="totalFailed" style="display: inline"></div></div>
+
+			<div style="margin-top: 20px"><a href="results/<?php echo $_GET["git_hash"]; $_GET["driver_id"]; ?>.tgz">Raw results file</a></div>
 		</div>
 
 		<div style="margin-top: 50px">
@@ -68,6 +70,8 @@
 						echo "\t\t\t\t<tr>\n";
 
 						echo "\t\t\t\t\t<td>" . $row5["name"] . "</td><td bgcolor=\"";
+
+						$description = "";
 						$testResult = $row5["result"];
 						if ($testResult == "success") {
 							echo "green";
@@ -76,12 +80,16 @@
 						} else if ($testResult == "timeout") {
 							echo "yellow";
 							$totalFailed += 1;
+							$description = $testResult;
 
 						} else {
 							echo "red";
 							$totalFailed += 1;
+							$description = $testResult . ": " . $row5["description"];
 						}
-						echo "\">" . $row5["result"] . "</td><td>" . $row5["duration"] . "</td><td>" . $row5["description"] . "</td>\n";
+
+						
+						echo "\">" . $row5["result"] . "</td><td>" . $row5["duration"] . "</td><td>" . $description . "</td>\n";
 
 						echo "\t\t\t\t</tr>\n";
 					}

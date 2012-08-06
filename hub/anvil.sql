@@ -2,17 +2,21 @@ CREATE DATABASE IF NOT EXISTS anvil_hub;
 
 USE anvil_hub;
 
+CREATE TABLE IF NOT EXISTS driver_state (
+	id VARCHAR(20) NOT NULL,
+	description VARCHAR(50) NOT NULL,
+	state VARCHAR(20) NOT NULL,
+	git_hash VARCHAR(50) NOT NULL,
+	timestamp INT NOT NULL,
+	PRIMARY KEY (id)
+);
+
 CREATE TABLE IF NOT EXISTS runs (
 	id INT NOT NULL AUTO_INCREMENT,
 	git_hash VARCHAR(50) NOT NULL,
 	branch VARCHAR(20) NOT NULL,
 	timestamp INT NOT NULL,
 	PRIMARY KEY (id)
-);
-
-CREATE TABLE IF NOT EXISTS pending_driver_runs (
-	run_id INT NOT NULL,
-	driver_id VARCHAR(20) NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS driver_runs (
