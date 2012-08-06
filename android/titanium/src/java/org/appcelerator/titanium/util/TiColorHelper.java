@@ -1,10 +1,9 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-
 package org.appcelerator.titanium.util;
 
 import java.util.HashMap;
@@ -24,6 +23,7 @@ public class TiColorHelper
 	static Pattern rgbPattern = Pattern.compile("rgb\\(([0-9]{1,3}),([0-9]{1,3}),([0-9]{1,3})\\)");
 	static Pattern argbPattern = Pattern.compile("rgba\\(([0-9]{1,3}),([0-9]{1,3}),([0-9]{1,3}),([0-9]{1,3})\\)");
 
+	private static final String TAG = "TiColorHelper";
 	private static HashMap<String, Integer> colorTable;
 
 	/**
@@ -71,7 +71,7 @@ public class TiColorHelper
 					if (colorTable.containsKey(lowval)) {
 						color = colorTable.get(lowval);
 					} else {
-						Log.w("TiColorHelper", "Unknown color: " + value);
+						Log.w(TAG, "Unknown color: " + value);
 					}
 				}
 			}

@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -19,7 +19,7 @@ import android.location.Location;
 
 public class TiAnalyticsEventFactory
 {
-	private static final String LCAT = "TiAnalyticsEventFactory";
+	private static final String TAG = "TiAnalyticsEventFactory";
 
 	public static final String EVENT_APP_ENROLL = "ti.enroll";
 	public static final String EVENT_APP_START = "ti.start";
@@ -76,7 +76,7 @@ public class TiAnalyticsEventFactory
 
 			event = new TiAnalyticsEvent(EVENT_APP_ENROLL, EVENT_APP_ENROLL, json);
 		} catch (JSONException e) {
-			Log.e(LCAT, "Unable to encode start event", e);
+			Log.e(TAG, "Unable to encode start event", e);
 			event = null;
 		}
 
@@ -127,7 +127,7 @@ public class TiAnalyticsEventFactory
 
 			event = new TiAnalyticsEvent(EVENT_APP_START, EVENT_APP_START, json);
 		} catch (JSONException e) {
-			Log.e(LCAT, "Unable to encode start event", e);
+			Log.e(TAG, "Unable to encode start event", e);
 			event = null;
 		}
 
@@ -249,7 +249,7 @@ public class TiAnalyticsEventFactory
 				result = new TiAnalyticsEvent(EVENT_APP_GEO, EVENT_APP_GEO, wrapper);
 				lastLocation = location;
 			} catch (JSONException e) {
-				Log.e(LCAT, "Error building ti.geo event", e);
+				Log.e(TAG, "Error building ti.geo event", e);
 			}
 		}
 		return result;
@@ -292,7 +292,7 @@ public class TiAnalyticsEventFactory
 			JSONObject o = new JSONObject(data);
 			return new TiAnalyticsEvent(type, event, o);
 		} catch (JSONException e) {
-			Log.w(LCAT,"data object was not JSON, sending as string");
+			Log.w(TAG, "Data object for event was not JSON, sending as string");
 			return new TiAnalyticsEvent(type, event, data);
 		}
 	}

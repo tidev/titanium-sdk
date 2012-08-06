@@ -4,7 +4,6 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-
 package ti.modules.titanium.ui.widget.picker;
 
 import java.text.DateFormatSymbols;
@@ -32,15 +31,15 @@ import android.widget.LinearLayout;
 public class TiUIDateSpinner extends TiUIView
 		implements WheelView.OnItemSelectedListener
 {
-	private static final String LCAT = "TiUIDateSpinner";
+	private static final String TAG = "TiUIDateSpinner";
 	private WheelView monthWheel;
 	private WheelView dayWheel;
 	private WheelView yearWheel;
-	
+
 	private FormatNumericWheelAdapter monthAdapter;
 	private FormatNumericWheelAdapter dayAdapter;
 	private FormatNumericWheelAdapter yearAdapter;
-	
+
 	private boolean suppressChangeEvent = false;
 	private boolean ignoreItemSelection = false;
 
@@ -354,7 +353,7 @@ public class TiUIDateSpinner extends TiUIView
 					locale = new Locale(language, country);
 				}
 			} else {
-				Log.w(LCAT, "Locale string '" + localeString + "' not understood.  Using default locale.");
+				Log.w(TAG, "Locale string '" + localeString + "' not understood.  Using default locale.");
 			}
 		}
 

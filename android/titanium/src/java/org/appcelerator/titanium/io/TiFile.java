@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -24,7 +24,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.appcelerator.kroll.common.Log;
-import org.appcelerator.kroll.common.TiConfig;
 import org.appcelerator.titanium.TiBlob;
 
 import android.net.Uri;
@@ -36,8 +35,7 @@ import android.os.StatFs;
  */
 public class TiFile extends TiBaseFile
 {
-	private static final String LCAT = "TiFile";
-	private static final boolean DBG = TiConfig.LOGD;
+	private static final String TAG = "TiFile";
 
 	private final File file;
 	private final String path;
@@ -367,7 +365,7 @@ public class TiFile extends TiBaseFile
 		try {
 			result = inreader.readLine();
 		} catch (IOException e) {
-			Log.e(LCAT, "Error reading a line from the file: ", e);
+			Log.e(TAG, "Error reading a line from the file: ", e);
 		}
 
 		return result;
@@ -375,9 +373,7 @@ public class TiFile extends TiBaseFile
 
 	public void write(TiBlob blob, boolean append) throws IOException
 	{
-		if (DBG) {
-			Log.d(LCAT,"write called for file = " + file);
-		}
+		Log.d(TAG, "write called for file = " + file, Log.DEBUG_MODE);
 
 		if (blob != null) {
 			if (!stream) {
@@ -404,9 +400,7 @@ public class TiFile extends TiBaseFile
 
 	public void writeFromUrl(String url, boolean append) throws IOException
 	{
-		if (DBG) {
-			Log.d(LCAT,"write called for file = " + file);
-		}
+		Log.d(TAG, "write called for file = " + file, Log.DEBUG_MODE);
 
 		String[] parts = { url };
 
@@ -458,9 +452,8 @@ public class TiFile extends TiBaseFile
 	@Override
 	public void write(String data, boolean append) throws IOException
 	{
-		if (DBG) {
-			Log.d(LCAT,"write called for file = " + file);
-		}
+		Log.d(TAG, "write called for file = " + file, Log.DEBUG_MODE);
+
 		if (!stream) {
 			try {
 				open(append ? MODE_APPEND : MODE_WRITE, false);

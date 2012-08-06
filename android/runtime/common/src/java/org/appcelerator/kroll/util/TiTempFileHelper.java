@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2011-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -16,7 +16,6 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 
 import org.appcelerator.kroll.common.Log;
-import org.appcelerator.kroll.common.TiConfig;
 
 import android.app.Application;
 import android.os.Environment;
@@ -29,11 +28,9 @@ import android.os.Environment;
 public class TiTempFileHelper
 {
 	private static final String TAG = "TiTempFileHelper";
-	private static final boolean DBG = TiConfig.DEBUG;
 
 	public static final String TEMPDIR = "_tmp";
 	public static final int DEFAULT_CLEAN_TIMEOUT = 5; // The number of seconds the async cleanup method uses for
-														// scheduling
 
 	protected File tempDir;
 	protected ArrayList<String> createdThisSession = new ArrayList<String>();
@@ -147,13 +144,11 @@ public class TiTempFileHelper
 				}
 			}
 
-			if (DBG) {
-				Log.d(TAG, "Deleting temporary file " + absolutePath);
-			}
+			Log.d(TAG, "Deleting temporary file " + absolutePath, Log.DEBUG_MODE);
 			try {
 				file.delete();
 			} catch (Exception e) {
-				Log.w(TAG, "Exception trying to delete " + absolutePath + ", skipping", e);
+				Log.w(TAG, "Exception trying to delete " + absolutePath + ", skipping", e, Log.DEBUG_MODE);
 			}
 		}
 	}

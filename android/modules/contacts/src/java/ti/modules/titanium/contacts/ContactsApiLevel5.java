@@ -1,3 +1,9 @@
+/**
+ * Appcelerator Titanium Mobile
+ * Copyright (c) 2012 by Appcelerator, Inc. All Rights Reserved.
+ * Licensed under the terms of the Apache Public License
+ * Please see the LICENSE included with this distribution for details.
+ */
 package ti.modules.titanium.contacts;
 
 import java.io.IOException;
@@ -8,6 +14,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 
 import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiC;
@@ -42,13 +49,12 @@ import android.provider.ContactsContract.CommonDataKinds.StructuredPostal;
 import android.provider.ContactsContract.CommonDataKinds.Website;
 import android.provider.ContactsContract.Data;
 import android.provider.ContactsContract.RawContacts;
-import android.util.Log;
 
 public class ContactsApiLevel5 extends CommonContactsApi
 {
 	protected boolean loadedOk;
 	//private WeakReference<TiContext> weakContext ;
-	private static final String LCAT = "TiContacts5";
+	private static final String TAG = "TiContacts5";
 	private Method openContactPhotoInputStream;
 	private static Class<?> Contacts;
 	private static Uri ContactsUri;
@@ -140,7 +146,7 @@ public class ContactsApiLevel5 extends CommonContactsApi
 			openContactPhotoInputStream = Contacts.getMethod("openContactPhotoInputStream", ContentResolver.class, Uri.class);
 
 		} catch (Throwable t) {
-			Log.d(LCAT, "Failed to load ContactsContract$Contacts " + t.getMessage(),t);
+			Log.e(TAG, "Failed to load android.provider.ContactsContract$Contacts " + t.getMessage(), t, Log.DEBUG_MODE);
 			loadedOk = false;
 			return;
 		}
@@ -166,13 +172,13 @@ public class ContactsApiLevel5 extends CommonContactsApi
 		}*/
 
 		if (TiApplication.getInstance() == null) {
-			Log.e(LCAT, "Could not getPeople, application is null");
+			Log.e(TAG, "Failed to call getPeople(), application is null", Log.DEBUG_MODE);
 			return null;
 		}
 
 		Activity activity = TiApplication.getInstance().getRootOrCurrentActivity();
 		if (activity == null) {
-			Log.e(LCAT, "Could not getPeople, activity is null");
+			Log.e(TAG, "Failed to call getPeople(), activity is null", Log.DEBUG_MODE);
 			return null;
 		}
 
@@ -295,12 +301,12 @@ public class ContactsApiLevel5 extends CommonContactsApi
 					
 					//unsupported protocol 
 					if (serviceType == -2) {
-						Log.e(LCAT, "Unsupported IM Protocol detected when adding new contact");
+						Log.e(TAG, "Unsupported IM Protocol detected when adding new contact");
 						continue;
 					}
 					//user name isn't provided
 					if (userName.length() == 0) {
-						Log.e(LCAT, "User name is not provided when adding new contact");
+						Log.e(TAG, "User name not provided when adding new contact");
 						continue;
 					}
 					//custom
@@ -644,12 +650,12 @@ public class ContactsApiLevel5 extends CommonContactsApi
 
 		} catch (RemoteException e) { 
 
-			Log.e(LCAT, "RemoteException - Failed to add new contact into database");
+			Log.e(TAG, "RemoteException - Failed to add new contact into database");
 			return null;
 
 		} catch (OperationApplicationException e) {
 
-			Log.e(LCAT, "OperationApplicationException - Failed to add new contact into database");
+			Log.e(TAG, "OperationApplicationException - Failed to add new contact into database");
 			return null;
 		}   
 		
@@ -659,7 +665,7 @@ public class ContactsApiLevel5 extends CommonContactsApi
 	protected void removePerson(PersonProxy person) 
 	{
 		if (!(person instanceof PersonProxy)) {
-			Log.e(LCAT, "Invalid argument type. Expected [PersonProxy], but was: " + person);
+			Log.e(TAG, "Invalid argument type. Expected [PersonProxy], but was: " + person);
 			return;
 		}
 
@@ -690,13 +696,13 @@ public class ContactsApiLevel5 extends CommonContactsApi
 		 */
 
 		if (TiApplication.getInstance() == null) {
-			Log.e(LCAT, "Could not getPersonById, application is null");
+			Log.e(TAG, "Failed to call getPersonById(), application is null", Log.DEBUG_MODE);
 			return null;
 		}
 
 		Activity activity = TiApplication.getInstance().getRootOrCurrentActivity();
 		if (activity == null) {
-			Log.e(LCAT, "Could not getPersonById, activity is null");
+			Log.e(TAG, "Failed to call getPersonById(), activity is null", Log.DEBUG_MODE);
 			return null;
 		}
 
@@ -755,7 +761,7 @@ public class ContactsApiLevel5 extends CommonContactsApi
 		 */
 
 		if (TiApplication.getInstance() == null) {
-			Log.e(LCAT, "Could not getInternalContactImage, application is null");
+			Log.e(TAG, "Failed to call getInternalContactImage(), application is null", Log.DEBUG_MODE);
 			return null;
 		}
 
@@ -765,7 +771,7 @@ public class ContactsApiLevel5 extends CommonContactsApi
 		try {
 			stream = (InputStream) openContactPhotoInputStream.invoke(null, cr, uri);
 		} catch (Throwable t) {
-			Log.d(LCAT, "Could not invoke openContactPhotoInputStream: " + t.getMessage(), t);
+			Log.e(TAG, "Could not invoke openContactPhotoInputStream: " + t.getMessage(), t, Log.DEBUG_MODE);
 			return null;
 		}
 		if (stream == null) {
@@ -775,7 +781,7 @@ public class ContactsApiLevel5 extends CommonContactsApi
 		try {
 			stream.close();
 		} catch (IOException e) {
-			Log.d(LCAT, "Unable to close stream from openContactPhotoInputStream: " + e.getMessage(), e);
+			Log.e(TAG, "Unable to close stream from openContactPhotoInputStream: " + e.getMessage(), e, Log.DEBUG_MODE);
 		}
 		return bm;
 	}

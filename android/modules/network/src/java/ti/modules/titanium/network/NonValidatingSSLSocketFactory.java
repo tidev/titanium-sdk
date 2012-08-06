@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  * 
@@ -29,8 +29,8 @@ import org.appcelerator.kroll.common.Log;
 
 public class NonValidatingSSLSocketFactory implements LayeredSocketFactory {
 	private SSLSocketFactory sslFactory;
-	private static final String LCAT = "NVSSLSocketFactory";
-	
+	private static final String TAG = "NVSSLSocketFactory";
+
 	public NonValidatingSSLSocketFactory() {
 		try {
 			SSLContext context = SSLContext.getInstance("TLS");
@@ -38,11 +38,11 @@ public class NonValidatingSSLSocketFactory implements LayeredSocketFactory {
 			context.init(null, managers, new SecureRandom());
 			sslFactory = context.getSocketFactory();
 		} catch (Exception e) {
-			Log.e(LCAT, e.getMessage(), e);
+			Log.e(TAG, e.getMessage(), e);
 		}
 		
 	}
-	
+
 	@Override
 	public Socket connectSocket(Socket sock, String host, int port,
 			InetAddress localAddress, int localPort, HttpParams params) throws IOException,
@@ -76,17 +76,17 @@ public class NonValidatingSSLSocketFactory implements LayeredSocketFactory {
 
 		return sslsock;
 	}
-	
+
 	@Override
 	public Socket createSocket() throws IOException {
 		return sslFactory.createSocket();
 	}
-	
+
 	@Override
 	public boolean isSecure(Socket socket) throws IllegalArgumentException {
 		return true;
 	}
-	
+
 	@Override
 	public Socket createSocket(Socket socket, String host, int port, boolean autoClose)
 			throws IOException, UnknownHostException {

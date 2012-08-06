@@ -1,10 +1,9 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-
 package ti.modules.titanium.stream;
 
 import java.io.IOException;
@@ -13,7 +12,6 @@ import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollFunction;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.annotations.Kroll;
-import org.appcelerator.kroll.common.TiConfig;
 import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.io.TiStream;
 
@@ -26,9 +24,6 @@ public class StreamModule extends KrollModule
 	@Kroll.constant public static final int MODE_READ = 0;
 	@Kroll.constant public static final int MODE_WRITE = 1;
 	@Kroll.constant public static final int MODE_APPEND = 2;
-
-	private static final String LCAT = "StreamModule";
-	private static final boolean DBG = TiConfig.LOGD;
 
 	@Kroll.method
 	public Object createStream(KrollDict params)

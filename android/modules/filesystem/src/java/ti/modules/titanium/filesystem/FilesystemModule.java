@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -14,7 +14,6 @@ import org.appcelerator.kroll.KrollInvocation;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
-import org.appcelerator.kroll.common.TiConfig;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.util.TiConvert;
@@ -24,8 +23,7 @@ import ti.modules.titanium.stream.FileStreamProxy;
 @Kroll.module
 public class FilesystemModule extends KrollModule
 {
-	private static final String LCAT = "TiFilesystem";
-	private static final boolean DBG = TiConfig.LOGD;
+	private static final String TAG = "TiFilesystem";
 
 	@Kroll.constant public static final int MODE_READ = 0;
 	@Kroll.constant public static final int MODE_WRITE = 1;
@@ -52,7 +50,7 @@ public class FilesystemModule extends KrollModule
 			String[] parts = { f.getAbsolutePath() };
 			return new FileProxy(invocation.getSourceUrl(), parts, false);
 		} catch (IOException e) {
-			Log.e(LCAT, "Unable to create tmp file: " + e.getMessage(), e);
+			Log.e(TAG, "Unable to create tmp file: " + e.getMessage(), e);
 			return null;
 		}
 	}
@@ -107,7 +105,7 @@ public class FilesystemModule extends KrollModule
 			return cacheDir.toURL().toString();
 
 		} catch (MalformedURLException e) {
-			Log.e(LCAT, "Exception converting cache directory to URL", e);
+			Log.e(TAG, "Exception converting cache directory to URL", e);
 			return null;
 		}
 	}

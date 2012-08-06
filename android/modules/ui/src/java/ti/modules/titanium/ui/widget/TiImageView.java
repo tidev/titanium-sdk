@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -9,7 +9,6 @@ package ti.modules.titanium.ui.widget;
 import java.lang.ref.SoftReference;
 
 import org.appcelerator.kroll.common.Log;
-import org.appcelerator.kroll.common.TiConfig;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -34,8 +33,7 @@ import android.widget.ZoomControls;
 public class TiImageView extends ViewGroup
 	implements Handler.Callback, OnClickListener
 {
-	private static final String LCAT = "TiImageView";
-	private static final boolean DBG = TiConfig.LOGD;
+	private static final String TAG = "TiImageView";
 
 	private static final int CONTROL_TIMEOUT = 4000;
 
@@ -88,9 +86,7 @@ public class TiImageView extends ViewGroup
 		protected void onSizeChanged(int w, int h, int oldw, int oldh) 
 		{
 			super.onSizeChanged(w, h, oldw, oldh);
-			if (DBG) {
-				Log.d(LCAT, "ImageView size change: w: " + w + " h: " + h + " oldw: " + oldw + " oldh: " + oldh);
-			}
+			Log.d(TAG, "ImageView size change: w: " + w + " h: " + h + " oldw: " + oldw + " oldh: " + oldh, Log.DEBUG_MODE);
 			if (listener != null) {
 				OnSizeChangeListener l = listener.get();
 				if (l != null) {

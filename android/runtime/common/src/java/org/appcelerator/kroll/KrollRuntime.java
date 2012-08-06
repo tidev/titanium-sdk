@@ -9,7 +9,7 @@ package org.appcelerator.kroll;
 import java.lang.ref.WeakReference;
 import java.util.concurrent.CountDownLatch;
 
-import org.appcelerator.kroll.common.TiConfig;
+import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.common.TiMessenger;
 import org.appcelerator.kroll.util.KrollAssetHelper;
 
@@ -17,7 +17,6 @@ import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
-import android.util.Log;
 
 /**
  * The common Javascript runtime instance that Titanium interacts with.
@@ -180,9 +179,7 @@ public abstract class KrollRuntime implements Handler.Callback
 	public void dispose()
 	{
 
-		if (TiConfig.LOGD) {
-			Log.d(TAG, "Disposing runtime.");
-		}
+		Log.d(TAG, "Disposing runtime.", Log.DEBUG_MODE);
 
 		// Set state to released when since we have not fully disposed of it yet
 		synchronized (runtimeState) {
