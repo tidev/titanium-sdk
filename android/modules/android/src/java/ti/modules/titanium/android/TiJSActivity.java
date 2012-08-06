@@ -57,16 +57,23 @@ public abstract class TiJSActivity extends TiLaunchActivity
 	}
 
 	@Override
-	protected void windowCreated()
+	protected void contextCreated()
 	{
-		// Set window proxy here to make sure layout != null
+		super.contextCreated();
 		TiActivityWindowProxy win = new TiActivityWindowProxy();
 		win.setActivity(this);
 		TiBindingHelper.bindCurrentWindow(win);
 		setWindowProxy(win);
-		
+	}
+
+	@Override
+	protected void windowCreated()
+	{
+		// Set the layout proxy here since it's not ready when we indirectly call it inside contextCreated()
+		setLayoutProxy(window);
+
 		// The UIWindow needs to be created before we run the script
-		activityWindow = new TiUIActivityWindow((TiActivityWindowProxy)window, this, layout);
+		activityWindow = new TiUIActivityWindow((TiActivityWindowProxy) window, this, layout);
 		super.windowCreated();
 	}
 
@@ -75,4 +82,5 @@ public abstract class TiJSActivity extends TiLaunchActivity
 	{
 		return getIntentBoolean(TiC.PROPERTY_EXIT_ON_CLOSE, false) || super.shouldFinishRootActivity();
 	}
+
 }

@@ -125,7 +125,7 @@ public abstract class TiBaseActivity extends Activity
 	public void setWindowProxy(TiWindowProxy proxy)
 	{
 		this.window = proxy;
-		layout.setProxy(proxy);
+		setLayoutProxy(proxy);
 		updateTitle();
 	}
 	
@@ -136,6 +136,18 @@ public abstract class TiBaseActivity extends Activity
 	public void setViewProxy(TiViewProxy proxy)
 	{
 		this.view = proxy;
+	}
+
+	/**
+	 * Sets the proxy for our layout (used for post layout event)
+	 * 
+	 * @param proxy
+	 */
+	protected void setLayoutProxy(TiViewProxy proxy)
+	{
+		if (layout != null) {
+			layout.setProxy(proxy);
+		}
 	}
 
 	/**
