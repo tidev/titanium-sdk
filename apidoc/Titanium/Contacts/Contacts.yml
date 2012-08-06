@@ -3,9 +3,7 @@ name: Titanium.Contacts
 summary: |
     The top-level Contacts module, used for accessing and modifying the system contacts address book.
 description: |
-    On Android, modification of existing contacts is currently not supported, whereas the creation of 
-    new contacts and the removal of contacts are supported.
-    
+ 
     See examples for more information.
 extends: Titanium.Module
 since: "0.8"
@@ -125,7 +123,18 @@ methods:
     
   - name: save
     summary: Commits all pending changes to the underlying contacts database.
-    platforms: [iphone, ipad]
+    platforms: [android, iphone, ipad]
+    parameters:
+      - name: contacts
+        summary: List of contacts to save. Used on Android only. 
+        type: Array<Titanium.Contacts.Person>
+    since: {android: "2.2.0"}
+    description: |
+      
+        On Android:
+        
+        Takes an array of <Titanium.Contacts.Person> objects and saves changes for
+        the specified contacts only.
         
   - name: showContacts
     summary: Displays a picker that allows a person to be selected.
