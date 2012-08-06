@@ -19,6 +19,9 @@ module.exports = new function() {
 	// Example: this.androidSdkDir = baseDir + "/installed/android-sdk-mac_x86"
 	this.androidSdkDir = ""; // location of the android SDK;
 
+	// Example: this.blackberryNdkDir = baseDir + "/installed/bbndk"
+	this.blackberryNdkDir = ""; // location of the BlackBerry NDK;
+
 	// Example: this.tiSdkDir = tiDir + "/dist/mobilesdk/osx/2.1.0";
 	this.tiSdkDir = ""; // location of titanium SDK;
 
@@ -70,6 +73,12 @@ module.exports = new function() {
 	specified with the --sim-version argument to the start command
 	*/
 	this.defaultIosSimVersion = "5.0";
+
+	/*
+	IP for the BlackBerry device
+	Example: this.blackberryDeviceIp = "169.254.0.1";
+	*/
+	this.blackberryDeviceIp = "";
 
 
 	// optional values

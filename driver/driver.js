@@ -12,7 +12,7 @@
  *
  * DRIVER / HARNESS COMMUNICATION PROTOCOL:
  * The communication protocol used between the driver and harness is outlined below.  The protocol 
- * is the same when running tests for socket based platforms (Android and iOS currently) but is 
+ * is the same when running tests for socket based platforms (Android, iOS, and BlackBerry currently) but is 
  * slightly modified for http based platforms like Mobile Web.  Messages sent from the Driver to 
  * the harness are in a simple pipe delimited format.  Messages sent from the Harness to the Driver 
  * are all JSON object identified via a "type" property that exists in all messages
@@ -105,6 +105,7 @@ function printUsageAndExit() {
 		+ "    android - starts driver for Android\n"
 		+ "    ios - starts driver for iOS\n"
 		+ "    mobileweb - starts driver for Mobile Web\n"
+		+ "    blackberry - starts driver for BlackBerry\n"
 		+ "\n"
 		+ "Log level:\n"
 		+ "    quiet - only print test results summary and error output\n"
@@ -131,7 +132,7 @@ function init() {
 
 	driverGlobal.platforms = {};
 
-	var platforms = ["android", "ios", "mobileweb"];
+	var platforms = ["android", "ios", "mobileweb", "blackberry"];
 	for (var i = 0; i < platforms.length; i++) {
 		try {
 			driverGlobal.platforms[platforms[i]] = require(driverGlobal.driverDir + "/platforms/" + platforms[i]);;
@@ -223,7 +224,7 @@ function loadConfigModule() {
 			printFailureAndExit(configItemName + " property in the config module cannot be undefined");
 
 		} else if (configItemType !== expectedType) {
-			printFailureAndExit("androidSdkDir property in the config module should be <" + expectedType +
+			printFailureAndExit(configItemName + " property in the config module should be <" + expectedType +
 				"> but was <" + configItemType + ">");
 		}
 	}
@@ -234,15 +235,18 @@ function loadConfigModule() {
 	}
 
 	checkConfigItem("androidSdkDir", config.androidSdkDir, "string");
+	checkConfigItem("blackberryNdkDir", config.blackberryNdkDir, "string");
 	checkConfigItem("tiSdkDir", config.tiSdkDir, "string");
 	checkConfigItem("maxLogs", config.maxLogs, "number");
 	checkConfigItem("androidSocketPort", config.androidSocketPort, "number");
 	checkConfigItem("iosSocketPort", config.iosSocketPort, "number");
+	checkConfigItem("blackberrySocketPort", config.blackberrySocketPort, "number");
 	checkConfigItem("maxSocketConnectAttempts", config.maxSocketConnectAttempts, "number");
 	checkConfigItem("httpPort", config.httpPort, "number");
 	checkConfigItem("defaultTestTimeout", config.defaultTestTimeout, "number");
 	checkConfigItem("tabString", config.tabString, "string");
 	checkConfigItem("defaultIosSimVersion", config.defaultIosSimVersion, "string");
+	checkConfigItem("blackberryDeviceIp", config.blackberryDeviceIp, "string");
 
 	// load the defaultPlatform config property and set the global platform property if needed
 	new function() {
