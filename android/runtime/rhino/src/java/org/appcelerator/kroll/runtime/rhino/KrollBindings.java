@@ -251,12 +251,12 @@ public class KrollBindings
 				loadedCommonJsSourceProviders.get(nameKey);
 
 		if (providerInstance == null) {
-			Class<? extends KrollSourceCodeProvider> providerClass = externalCommonJsModules.get(request);
+			Class<? extends KrollSourceCodeProvider> providerClass = externalCommonJsModules.get(nameKey);
 			try {
 				providerInstance = providerClass.newInstance();
-				loadedCommonJsSourceProviders.put(request, providerInstance);
+				loadedCommonJsSourceProviders.put(nameKey, providerInstance);
 			} catch (Exception e) {
-				Log.e(TAG, "Cannot instantiate KrollSourceCodeProvider for module " + request, e);
+				Log.e(TAG, "Cannot instantiate KrollSourceCodeProvider for module " + nameKey, e);
 				return null;
 			}
 		}
