@@ -240,15 +240,14 @@ public class ContactsApiLevel5 extends CommonContactsApi
 				.withValue(idKey, idValue);
 		if (rawContactId == -1) {
 			builder.withValueBackReference(Data.RAW_CONTACT_ID, 0);
-			if (typeKey != null) {
-				builder.withValue(typeKey, typeValue);
-			}
 		} else {
 			builder.withValue(Data.RAW_CONTACT_ID, rawContactId);
-			if (typeKey != null) {
-				builder.withValue(typeKey, typeValue);
-			}
 		}
+		
+		if (typeKey != null) {
+			builder.withValue(typeKey, typeValue);
+		}
+
 		ops.add(builder.build());
 	}
 	
@@ -333,20 +332,16 @@ public class ContactsApiLevel5 extends CommonContactsApi
 							.withValue(Im.TYPE, iType);
 					if (rawContactId == -1) {
 						builder.withValueBackReference(Data.RAW_CONTACT_ID, 0);
-						//custom
-						if (serviceType == -1) {
-							builder.withValue(Im.CUSTOM_PROTOCOL, serviceName);
-						} else {
-							builder.withValue(Im.PROTOCOL, serviceType);
-						}
 					} else {
 						builder.withValue(Data.RAW_CONTACT_ID, rawContactId);
-						if (serviceType == -1) {
-							builder.withValue(Im.CUSTOM_PROTOCOL, serviceName);
-						} else {
-							builder.withValue(Im.PROTOCOL, serviceType);
-						}
 					}
+					//custom
+					if (serviceType == -1) {
+						builder.withValue(Im.CUSTOM_PROTOCOL, serviceName);
+					} else {
+						builder.withValue(Im.PROTOCOL, serviceType);
+					}
+					
 					ops.add(builder.build());
 				}
 			}
@@ -1012,9 +1007,9 @@ public class ContactsApiLevel5 extends CommonContactsApi
 			TiApplication.getAppRootOrCurrentActivity().getContentResolver().applyBatch(ContactsContract.AUTHORITY, ops);
 			person.finishModification();
 		} catch (RemoteException e) {
-			Log.e(LCAT, "RemoteException - unable to save changes to contact Database.");
+			Log.e(TAG, "RemoteException - unable to save changes to contact Database.");
 		} catch (OperationApplicationException e) {
-			Log.e(LCAT, "OperationApplicationException - unable to save changes to contact Database.");
+			Log.e(TAG, "OperationApplicationException - unable to save changes to contact Database.");
 		}
 		
 	}
@@ -1038,7 +1033,7 @@ public class ContactsApiLevel5 extends CommonContactsApi
 				}
 
 			} else {
-				Log.e(LCAT, "Invalid argument type to save");
+				Log.e(TAG, "Invalid argument type to save");
 			}
 		}
 		
