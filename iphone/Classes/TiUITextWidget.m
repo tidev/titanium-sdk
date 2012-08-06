@@ -34,13 +34,13 @@
         string = [string substringToIndex:maxLength];
     }
     [(id)[self textWidgetView] setText:string];
-    [[self proxy] replaceValue:string forKey:@"value" notification:NO];
+    [(TiUITextWidgetProxy*)[self proxy] noteValueChange:string];
 }
 
 -(void)setMaxLength_:(id)value
 {
     maxLength = [TiUtils intValue:value def:-1];
-    [self setValue_:[(id)[self textWidgetView] text]];
+    [self setValue_:[[self proxy] valueForUndefinedKey:@"value"]];
     [[self proxy] replaceValue:value forKey:@"maxLength" notification:NO];
 }
 

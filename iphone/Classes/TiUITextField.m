@@ -483,6 +483,7 @@
     NSString *curText = [[tf text] stringByReplacingCharactersInRange:range withString:string];
    
     if ( (maxLength > -1) && ([curText length] > maxLength) ) {
+        [self setValue_:curText];
         return NO;
     }
 
