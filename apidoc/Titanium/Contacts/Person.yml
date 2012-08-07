@@ -16,7 +16,7 @@ description: |
     
     #### Adding and Modifying Properties
     
-    Support for adding and modifying properties is currently only supported on iOS.
+    Support for adding and modifying properties is currently supported on iOS and Android.
     
     #### Keys as Address Book UI Labels
     
@@ -121,6 +121,7 @@ properties:
     summary: Record identifier of the person. Single value.
     type: Number
     platforms: [android]
+    permission: read-only
     
   - name: image
     summary: Image for the person. Single value.

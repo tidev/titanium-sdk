@@ -88,6 +88,12 @@ public class ContactsModule extends KrollModule
 	}
 	
 	@Kroll.method
+	public void save (KrollDict people) 
+	{
+		contactsApi.save(people);
+	}
+	
+	@Kroll.method
 	public PersonProxy getPersonByID(long id)
 	{
 		return contactsApi.getPersonById(id);
