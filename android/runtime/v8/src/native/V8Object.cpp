@@ -120,7 +120,6 @@ Java_org_appcelerator_kroll_runtime_v8_V8Object_nativeCallProperty
 	Persistent<Object> object = Persistent<Object>((Object*) ptr);
 	Local<Value> property = object->Get(jsPropertyName);
 	if (!property->IsFunction()) {
-		LOGE(TAG, "Not a function!");
 		return JNIUtil::undefinedObject;
 	}
 
