@@ -102,7 +102,7 @@ updateUI = function(e) {
 	tableView.setData(data);
 };
 
-serviceBrowser.addEventListener('updatedServices', updateUI);
+serviceBrowser.addEventListener('updatedservices', updateUI);
 
 // Cleanup
 Titanium.UI.currentWindow.addEventListener('close', function(e) {

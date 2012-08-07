@@ -46,13 +46,13 @@ messageView.add(message2);
 message2.hide();
 win.add(messageView);
 
-scrollView.addEventListener('dragStart', function(e) {
+scrollView.addEventListener('dragstart', function(e) {
     Ti.API.info('Drag started');
     message1.text = "Drag Started!";
     message1.show();
     setTimeout(function(){message1.hide();},1000);
 });
-scrollView.addEventListener('dragEnd', function(e) {
+scrollView.addEventListener('dragend', function(e) {
     Ti.API.info('Drag End detected! Decelerating? ' + (e.decelerate ? 'Yes' : 'No'));
     message2.text = "Drag End detected! Decelerating :" + (e.decelerate ? 'Yes' : 'No');
     message2.show();
