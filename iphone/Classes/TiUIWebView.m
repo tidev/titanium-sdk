@@ -632,12 +632,17 @@ static NSString * const kTitaniumJavascript = @"Ti.App={};Ti.API={};Ti.App._list
 
 - (BOOL)webView:(UIWebView *)webView shouldStartLoadWithRequest:(NSURLRequest *)request navigationType:(UIWebViewNavigationType)navigationType
 {
+    isFiredOnce = false; 
 	NSURL * newUrl = [request URL];
 
 	if ([self.proxy _hasListeners:@"beforeload"])
 	{
+        isFiredOnce = true; 
 		NSDictionary *event = newUrl == nil ? nil : [NSDictionary dictionaryWithObjectsAndKeys:[newUrl absoluteString], @"url", NUMINT(navigationType), @"navigationType", nil];
-		[self.proxy fireEvent:@"beforeload" withObject:event];
+		if([[newUrl fragment] length] == 0)
+		{
+			[self.proxy fireEvent:@"beforeload" withObject:event];
+		}
 	}
 
 	NSString * scheme = [[newUrl scheme] lowercaseString];
