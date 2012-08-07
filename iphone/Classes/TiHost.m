@@ -136,23 +136,30 @@ extern NSString * const TI_APPLICATION_ID;
 	TiModule *m = [modules objectForKey:name];
 	if (m == nil || [m destroyed]) // Need to re-allocate any modules which have been destroyed
 	{
-		Class moduleClass = NSClassFromString([NSString stringWithFormat:@"%@Module",name]);
-		if (moduleClass!=nil)
+		@synchronized(self)
 		{
-			m = [[moduleClass alloc] _initWithPageContext:context];
-			if (![m isJSModule])
+			m = [modules objectForKey:name];
+			if (m == nil || [m destroyed])
 			{
-				[m setHost:self];
-				[modules setObject:m forKey:name];
-				[m release];
-			}
-			else
-			{
-				[m release];
-				m = [[self krollBridge] require:context path:name];
-				if (m != nil)
+				Class moduleClass = NSClassFromString([NSString stringWithFormat:@"%@Module",name]);
+				if (moduleClass!=nil)
 				{
-					[modules setObject:m forKey:name];
+					m = [[moduleClass alloc] _initWithPageContext:context];
+					if (![m isJSModule])
+					{
+						[m setHost:self];
+						[modules setObject:m forKey:name];
+						[m release];
+					}
+					else
+					{
+						[m release];
+						m = [[self krollBridge] require:context path:name];
+						if (m != nil)
+						{
+							[modules setObject:m forKey:name];
+						}
+					}
 				}
 			}
 		}

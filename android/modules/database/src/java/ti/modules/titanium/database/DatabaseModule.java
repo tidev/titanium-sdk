@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -18,7 +18,6 @@ import org.appcelerator.kroll.KrollInvocation;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
-import org.appcelerator.kroll.common.TiConfig;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiFileProxy;
@@ -34,8 +33,7 @@ import android.database.sqlite.SQLiteDatabase;
 @Kroll.module
 public class DatabaseModule extends KrollModule
 {
-	private static final String LCAT = "TiDatabase";
-	private static final boolean DBG = TiConfig.LOGD;
+	private static final String TAG = "TiDatabase";
 
 	@Kroll.constant public static final int FIELD_TYPE_UNKNOWN = -1;
 	@Kroll.constant public static final int FIELD_TYPE_STRING = 0;
@@ -63,7 +61,7 @@ public class DatabaseModule extends KrollModule
 				// File support is read-only for now. The NO_LOCALIZED_COLLATORS flag means the database doesn't have Android metadata (i.e. vanilla)
 				TiFileProxy tiFile = (TiFileProxy) file;
 				String absolutePath = tiFile.getBaseFile().getNativeFile().getAbsolutePath();
-				Log.d(LCAT, "Opening database from filesystem: " + absolutePath);
+				Log.d(TAG, "Opening database from filesystem: " + absolutePath);
 				
 				SQLiteDatabase db = SQLiteDatabase.openDatabase(absolutePath, null, SQLiteDatabase.OPEN_READONLY | SQLiteDatabase.NO_LOCALIZED_COLLATORS);
 				dbp = new TiDatabaseProxy(db);
@@ -73,13 +71,11 @@ public class DatabaseModule extends KrollModule
 				dbp = new TiDatabaseProxy(name, db);
 			}
 			
-			if (DBG) {
-				Log.d(LCAT, "Opened database: " + dbp.getName());
-			}
+			Log.d(TAG, "Opened database: " + dbp.getName(), Log.DEBUG_MODE);
 
 		} catch (SQLException e) {
 			String msg = "Error opening database: " + dbp.getName() + " msg=" + e.getMessage();
-			Log.e(LCAT, msg, e);
+			Log.e(TAG, msg, e);
 			throw e;
 		}
 
@@ -102,19 +98,15 @@ public class DatabaseModule extends KrollModule
 			// open an empty one to get the full path and then close and delete it
 			File dbPath = ctx.getDatabasePath(name);
 
-			if (DBG) {
-				Log.d(LCAT,"db path is = "+dbPath);
-				Log.d(LCAT,"db url is = "+url);
-			}
+			Log.d(TAG, "db path is = " + dbPath, Log.DEBUG_MODE);
+			Log.d(TAG, "db url is = " + url, Log.DEBUG_MODE);
 
 			TiUrl tiUrl = TiUrl.createProxyUrl(invocation.getSourceUrl());
 			String path = TiUrl.resolve(tiUrl.baseUrl, url, null);
 			
 			TiBaseFile srcDb = TiFileFactory.createTitaniumFile(path, false);
 
-			if (DBG) {
-				Log.d(LCAT,"new url is = "+url);
-			}
+			Log.d(TAG, "new url is = " + url, Log.DEBUG_MODE);
 
 			InputStream is = null;
 			OutputStream os = null;
@@ -140,12 +132,12 @@ public class DatabaseModule extends KrollModule
 
 		} catch (SQLException e) {
 			String msg = "Error installing database: " + name + " msg=" + e.getMessage();
-			Log.e(LCAT, msg, e);
+			Log.e(TAG, msg, e);
 			throw e;
 		}
 		catch (IOException e) {
 			String msg = "Error installing database: " + name + " msg=" + e.getMessage();
-			Log.e(LCAT, msg, e);
+			Log.e(TAG, msg, e);
 			throw e;
 		}
 	}

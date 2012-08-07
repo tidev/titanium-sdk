@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -25,10 +25,6 @@ import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.common.TiConfig;
 import org.appcelerator.titanium.TiApplication;
-import org.appcelerator.titanium.TiBaseActivity;
-import org.appcelerator.titanium.TiLaunchActivity;
-import org.appcelerator.titanium.TiLifecycle.OnLifecycleEvent;
-import org.appcelerator.titanium.proxy.TiWindowProxy;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiPlatformHelper;
 import org.appcelerator.titanium.util.TiRHelper;
@@ -40,10 +36,8 @@ import android.os.Handler;
 
 @Kroll.module @Kroll.topLevel({"Ti", "Titanium"})
 public class TitaniumModule extends KrollModule
-	implements OnLifecycleEvent
 {
-	private static final String LCAT = "TitaniumModule";
-	private static final boolean DBG = TiConfig.LOGD;
+	private static final String TAG = "TitaniumModule";
 
 	private Stack<String> basePath;
 	private Map<String, NumberFormat> numberFormats = java.util.Collections.synchronizedMap(
@@ -107,7 +101,7 @@ public class TitaniumModule extends KrollModule
 	@Kroll.method
 	public void testThrow(){ throw new Error("Testing throwing throwables"); }
 
-	private HashMap<Thread, HashMap<Integer, Timer>> timers = new HashMap<Thread, HashMap<Integer, Timer>>();
+	private static HashMap<Thread, HashMap<Integer, Timer>> timers = new HashMap<Thread, HashMap<Integer, Timer>>();
 	private int currentTimerId;
 
 	protected class Timer implements Runnable
@@ -141,7 +135,7 @@ public class TitaniumModule extends KrollModule
 				return;
 			}
 
-			if (DBG) {
+			if (Log.isDebugModeEnabled()) {
 				StringBuilder message = new StringBuilder("calling ")
 					.append(interval ? "interval" : "timeout")
 					.append(" timer ")
@@ -149,7 +143,7 @@ public class TitaniumModule extends KrollModule
 					.append(" @")
 					.append(new Date().getTime());
 
-				Log.d(LCAT, message.toString());
+				Log.d(TAG, message.toString());
 			}
 
 			long start = System.currentTimeMillis();
@@ -235,31 +229,7 @@ public class TitaniumModule extends KrollModule
 		TiUIHelper.doOkDialog("Alert", msg, null);
 	}
 
-	public void cancelTimers(TiBaseActivity activity)
-	{
-		TiWindowProxy window = activity.getWindowProxy();
-		Thread thread = null;
-
-		// FIXME this used to look at the activity / tiContext, but we don't care now
-		if (window != null) {
-			thread = getRuntimeHandler().getLooper().getThread();
-
-		} else {
-			if (activity instanceof TiLaunchActivity) {
-				//TiLaunchActivity launchActivity = (TiLaunchActivity) activity;
-				thread = getRuntimeHandler().getLooper().getThread();
-			}
-		}
-
-		if (thread != null) {
-			cancelTimers(thread);
-
-		} else {
-			Log.w(LCAT, "Tried cancelling timers for an activity with no associated JS thread: " + activity);
-		}
-	}
-
-	public void cancelTimers(Thread thread)
+	public static void cancelTimers(Thread thread)
 	{
 		HashMap<Integer, Timer> threadTimers = timers.get(thread);
 		if (threadTimers == null) {
@@ -300,8 +270,7 @@ public class TitaniumModule extends KrollModule
 			}
 
 		} catch (Exception ex) {
-			Log.e(LCAT, "Error in string format", ex);
-
+			Log.e(TAG, "Error occured while formatting string", ex);
 			return null;
 		}
 	}
@@ -401,14 +370,12 @@ public class TitaniumModule extends KrollModule
 			}
 
 		} catch (TiRHelper.ResourceNotFoundException e) {
-			if (DBG) {
-				Log.d(LCAT, "Resource string with key '" + key + "' not found.  Returning default value.");
-			}
+			Log.d(TAG, "Resource string with key '" + key + "' not found.  Returning default value.", Log.DEBUG_MODE);
 
 			return defaultValue;
 
 		} catch (Exception e) {
-			Log.e(LCAT, "Exception trying to localize string '" + key + "': ", e);
+			Log.e(TAG, "Exception trying to localize string '" + key + "': ", e);
 
 			return defaultValue;
 		}
@@ -419,7 +386,7 @@ public class TitaniumModule extends KrollModule
 	{
 		TiApplication app = TiApplication.getInstance();
 		if (app == null || !app.isCoverageEnabled()) {
-			Log.w(LCAT, "Coverage is not enabled, no coverage data will be generated");
+			Log.w(TAG, "Coverage is not enabled, no coverage data will be generated");
 
 			return;
 		}
@@ -432,17 +399,8 @@ public class TitaniumModule extends KrollModule
 			reportOut.close();
 
 		} catch (IOException e) {
-			Log.e(LCAT, e.getMessage(), e);
+			Log.e(TAG, e.getMessage(), e);
 		}
-	}
-
-	@Override
-	public void onDestroy(Activity activity) {
-		if (activity instanceof TiBaseActivity) {
-			cancelTimers((TiBaseActivity) activity);
-		}
-
-		super.onDestroy(activity);
 	}
 }
 

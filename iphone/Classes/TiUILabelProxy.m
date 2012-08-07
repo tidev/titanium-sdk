@@ -16,7 +16,6 @@ USE_VIEW_FOR_CONTENT_WIDTH
 
 -(void)_initWithProperties:(NSDictionary *)properties
 {
-    [self initializeProperty:@"verticalAlign" defaultValue:NUMINT(1)];
     [super _initWithProperties:properties];
 }
 
@@ -56,6 +55,16 @@ USE_VIEW_FOR_CONTENT_WIDTH
 		height ++;
 	}
 	return height;
+}
+
+-(NSArray *)keySequence
+{
+	static NSArray *labelKeySequence = nil;
+	static dispatch_once_t onceToken;
+	dispatch_once(&onceToken, ^{
+		labelKeySequence = [[NSArray arrayWithObjects:@"font",nil] retain];
+	});
+	return labelKeySequence;
 }
 
 -(NSMutableDictionary*)langConversionTable

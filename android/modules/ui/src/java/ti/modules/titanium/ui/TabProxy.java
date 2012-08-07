@@ -8,13 +8,16 @@ package ti.modules.titanium.ui;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.annotations.Kroll;
+import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.proxy.TiWindowProxy;
 import org.appcelerator.titanium.view.TiUIView;
 
+import ti.modules.titanium.ui.widget.TiUITabGroup;
 import android.app.Activity;
+import android.os.Message;
 
 @Kroll.proxy(creatableInModule=UIModule.class,
 propertyAccessors = {
@@ -29,6 +32,11 @@ public class TabProxy extends TiViewProxy
 	private TiWindowProxy win;
 	private TabGroupProxy tabGroupProxy;
 	private int windowId;
+	private String currentBackgroundColor = "";
+	private static final int MSG_FIRST_ID = TiViewProxy.MSG_LAST_ID + 1;
+	private final int MSG_TAB_BACKGROUND_COLOR_CHANGED = MSG_FIRST_ID + 101;
+	private final int MSG_TAB_BACKGROUND_SELECTED_COLOR_CHANGED = MSG_FIRST_ID + 102;
+
 
 	public TabProxy()
 	{
@@ -62,6 +70,16 @@ public class TabProxy extends TiViewProxy
 		if (window instanceof TiWindowProxy) {
 			setWindow((TiWindowProxy) window);
 		}
+	}
+
+	public void setCurrentBackgroundColor(String color)
+	{
+		currentBackgroundColor = color;
+	}
+
+	public String getCurrentBackgroundColor()
+	{
+		return currentBackgroundColor;
 	}
 
 	@Kroll.method @Kroll.setProperty
@@ -107,10 +125,27 @@ public class TabProxy extends TiViewProxy
 		windowId = id;
 	}
 	
+	public String getBackgroundColor() {
+		if (hasProperty(TiC.PROPERTY_BACKGROUND_COLOR)) {
+			return getProperty(TiC.PROPERTY_BACKGROUND_COLOR).toString();
+		} else {
+			return null;
+		}
+	}
+	
+	public String getBackgroundSelectedColor() {
+		if (hasProperty(TiC.PROPERTY_BACKGROUND_SELECTED_COLOR)) {
+			return getProperty(TiC.PROPERTY_BACKGROUND_SELECTED_COLOR).toString();
+		} else {
+			return null;
+		}
+	}
+	
 	public int getWindowId() 
 	{
 		return windowId;
 	}
+	
 	@Override
 	public void releaseViews()
 	{
@@ -119,6 +154,68 @@ public class TabProxy extends TiViewProxy
 			win.setTabProxy(null);
 			win.setTabGroupProxy(null);
 			win.releaseViews();
+		}
+	}
+	
+	public void setTabBackgroundColor() 
+	{
+		int index = tabGroupProxy.getTabList().indexOf(this);
+		TiUITabGroup tg = (TiUITabGroup)tabGroupProxy.peekView();
+		if (tg != null) {
+			tg.setTabBackgroundColor(index);
+		}
+	}
+	
+	public void setTabBackgroundSelectedColor()
+	{
+		TiUITabGroup tg = (TiUITabGroup)tabGroupProxy.peekView();
+		if (tg != null) {
+			tg.setTabBackgroundSelectedColor();
+		}
+	}
+	
+	@Override
+	public void onPropertyChanged(String name, Object value) 
+	{
+		super.onPropertyChanged(name, value);
+		if (name.equals(TiC.PROPERTY_BACKGROUND_COLOR)) {
+			
+			//This needs to run on main thread.
+			if (TiApplication.isUIThread()) {
+				setTabBackgroundColor();
+				return;
+			}
+			
+			getMainHandler().obtainMessage(MSG_TAB_BACKGROUND_COLOR_CHANGED).sendToTarget();
+			
+		} else if (name.equals(TiC.PROPERTY_BACKGROUND_SELECTED_COLOR)) {
+			
+			//This needs to run on main thread.
+			if (TiApplication.isUIThread()) {
+				setTabBackgroundSelectedColor();
+				return;
+			}
+			
+			getMainHandler().obtainMessage(MSG_TAB_BACKGROUND_SELECTED_COLOR_CHANGED).sendToTarget();
+
+		}
+	}
+	
+	@Override
+	public boolean handleMessage(Message msg)
+	{
+		switch (msg.what) {
+			case MSG_TAB_BACKGROUND_SELECTED_COLOR_CHANGED: {
+				setTabBackgroundSelectedColor();
+				return true;
+			}
+			case MSG_TAB_BACKGROUND_COLOR_CHANGED: {
+				setTabBackgroundColor();
+				return true;
+			}
+			default: {
+				return super.handleMessage(msg);
+			}
 		}
 	}
 }

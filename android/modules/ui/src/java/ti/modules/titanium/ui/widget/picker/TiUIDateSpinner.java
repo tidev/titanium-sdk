@@ -1,10 +1,9 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-
 package ti.modules.titanium.ui.widget.picker;
 
 import java.text.DateFormatSymbols;
@@ -23,6 +22,7 @@ import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
+import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiUIView;
 
 import android.app.Activity;
@@ -31,15 +31,15 @@ import android.widget.LinearLayout;
 public class TiUIDateSpinner extends TiUIView
 		implements WheelView.OnItemSelectedListener
 {
-	private static final String LCAT = "TiUIDateSpinner";
+	private static final String TAG = "TiUIDateSpinner";
 	private WheelView monthWheel;
 	private WheelView dayWheel;
 	private WheelView yearWheel;
-	
+
 	private FormatNumericWheelAdapter monthAdapter;
 	private FormatNumericWheelAdapter dayAdapter;
 	private FormatNumericWheelAdapter yearAdapter;
-	
+
 	private boolean suppressChangeEvent = false;
 	private boolean ignoreItemSelection = false;
 
@@ -59,7 +59,7 @@ public class TiUIDateSpinner extends TiUIView
 		this(proxy);
 		createNativeView(activity);
 	}
-	
+
 	private void createNativeView(Activity activity)
 	{
 		// defaults
@@ -79,7 +79,15 @@ public class TiUIDateSpinner extends TiUIView
 		dayWheel.setItemSelectedListener(this);
 		yearWheel.setItemSelectedListener(this);
 		
-		LinearLayout layout = new LinearLayout(activity);
+		LinearLayout layout = new LinearLayout(activity)
+		{
+			@Override
+			protected void onLayout(boolean changed, int left, int top, int right, int bottom)
+			{
+				super.onLayout(changed, left, top, right, bottom);
+				TiUIHelper.firePostLayoutEvent(proxy);
+			}
+		};
 		layout.setOrientation(LinearLayout.HORIZONTAL);
 		
 		if (proxy.hasProperty("dayBeforeMonth")) {
@@ -345,7 +353,7 @@ public class TiUIDateSpinner extends TiUIView
 					locale = new Locale(language, country);
 				}
 			} else {
-				Log.w(LCAT, "Locale string '" + localeString + "' not understood.  Using default locale.");
+				Log.w(TAG, "Locale string '" + localeString + "' not understood.  Using default locale.");
 			}
 		}
 

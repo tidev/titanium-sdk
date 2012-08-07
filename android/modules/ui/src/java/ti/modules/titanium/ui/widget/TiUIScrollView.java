@@ -11,7 +11,6 @@ import java.util.HashMap;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.common.Log;
-import org.appcelerator.kroll.common.TiConfig;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiDimension;
 import org.appcelerator.titanium.proxy.TiViewProxy;
@@ -22,6 +21,8 @@ import org.appcelerator.titanium.view.TiUIView;
 
 import android.content.Context;
 import android.graphics.Canvas;
+import android.view.GestureDetector;
+import android.view.GestureDetector.SimpleOnGestureListener;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -31,12 +32,10 @@ import android.widget.ScrollView;
 
 public class TiUIScrollView extends TiUIView
 {
-
 	public static final int TYPE_VERTICAL = 0;
 	public static final int TYPE_HORIZONTAL = 1;
 
-	private static final String LCAT = "TiUIScrollView";
-	private static final boolean DBG = TiConfig.LOGD;
+	private static final String TAG = "TiUIScrollView";
 	private int offsetX = 0, offsetY = 0;
 	private boolean setInitialOffset = false;
 	private boolean mScrollingEnabled = true;
@@ -47,10 +46,20 @@ public class TiUIScrollView extends TiUIView
 		private int parentWidth = 0;
 		private int parentHeight = 0;
 		private boolean canCancelEvents = true;
+		private GestureDetector gestureDetector;
 
 		public TiScrollViewLayout(Context context, LayoutArrangement arrangement)
 		{
 			super(context, arrangement, proxy);
+			gestureDetector = new GestureDetector(new SimpleOnGestureListener()
+			{
+				@Override
+				public void onLongPress(MotionEvent e)
+				{
+					// Only do this for long presses to match iOS behavior
+					requestDisallowInterceptTouchEvent(true);
+				}
+			});
 		}
 
 		public void setParentWidth(int width)
@@ -72,11 +81,10 @@ public class TiUIScrollView extends TiUIView
 		public boolean dispatchTouchEvent(MotionEvent ev)
 		{
 			// If canCancelEvents is false, then we want to prevent the scroll view from canceling the touch
-			// events of the child view
+			// events of the child view by calling requestDisallowInterceptTouchEvent(true)
 			if (!canCancelEvents) {
-				requestDisallowInterceptTouchEvent(true);
+				gestureDetector.onTouchEvent(ev);
 			}
-
 			return super.dispatchTouchEvent(ev);
 		}
 
@@ -383,16 +391,14 @@ public class TiUIScrollView extends TiUIView
 			offsetX = TiConvert.toInt(contentOffset, TiC.PROPERTY_X);
 			offsetY = TiConvert.toInt(contentOffset, TiC.PROPERTY_Y);
 		} else {
-			Log.e(LCAT, "contentOffset must be an instance of HashMap");
+			Log.e(TAG, "ContentOffset must be an instance of HashMap");
 		}
 	}
 
 	@Override
 	public void propertyChanged(String key, Object oldValue, Object newValue, KrollProxy proxy)
 	{
-		if (DBG) {
-			Log.d(LCAT, "Property: " + key + " old: " + oldValue + " new: " + newValue);
-		}
+		Log.d(TAG, "Property: " + key + " old: " + oldValue + " new: " + newValue, Log.DEBUG_MODE);
 		if (key.equals(TiC.PROPERTY_CONTENT_OFFSET)) {
 			setContentOffset(newValue);
 			scrollTo(offsetX, offsetY);
@@ -430,7 +436,7 @@ public class TiUIScrollView extends TiUIView
 		}
 
 		if (showHorizontalScrollBar && showVerticalScrollBar) {
-			Log.w(LCAT, "Both scroll bars cannot be shown. Defaulting to vertical shown");
+			Log.w(TAG, "Both scroll bars cannot be shown. Defaulting to vertical shown");
 			showHorizontalScrollBar = false;
 		}
 
@@ -468,12 +474,12 @@ public class TiUIScrollView extends TiUIView
 			} else if (scrollType.equals(TiC.LAYOUT_HORIZONTAL)) {
 				type = TYPE_HORIZONTAL;
 			} else {
-				Log.w(LCAT, "scrollType value '" + TiConvert.toString(scrollType)
+				Log.w(TAG, "scrollType value '" + TiConvert.toString(scrollType)
 					+ "' is invalid. Only 'vertical' and 'horizontal' are supported.");
 			}
 		} else if (!deduced && type == TYPE_VERTICAL) {
 			Log.w(
-				LCAT,
+				TAG,
 				"Scroll direction could not be determined based on the provided view properties. Default VERTICAL scroll direction being used. Use the 'scrollType' property to explicitly set the scrolling direction.");
 		}
 
@@ -493,17 +499,13 @@ public class TiUIScrollView extends TiUIView
 
 		switch (type) {
 			case TYPE_HORIZONTAL:
-				if (DBG) {
-					Log.d(LCAT, "creating horizontal scroll view");
-				}
+				Log.d(TAG, "creating horizontal scroll view", Log.DEBUG_MODE);
 				view = new TiHorizontalScrollView(getProxy().getActivity(), arrangement);
 				((TiHorizontalScrollView) view).getLayout().setCanCancelEvents(canCancelEvents);
 				break;
 			case TYPE_VERTICAL:
 			default:
-				if (DBG) {
-					Log.d(LCAT, "creating vertical scroll view");
-				}
+				Log.d(TAG, "creating vertical scroll view", Log.DEBUG_MODE);
 				view = new TiVerticalScrollView(getProxy().getActivity(), arrangement);
 				((TiVerticalScrollView) view).getLayout().setCanCancelEvents(canCancelEvents);
 		}
@@ -574,7 +576,7 @@ public class TiUIScrollView extends TiUIView
 	public void remove(TiUIView child)
 	{
 		if (child != null) {
-			View cv = child.getNativeView();
+			View cv = child.getOuterView();
 			if (cv != null) {
 				View nv = getLayout();
 				if (nv instanceof ViewGroup) {

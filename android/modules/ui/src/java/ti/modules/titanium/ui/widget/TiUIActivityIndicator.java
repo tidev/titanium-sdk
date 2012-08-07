@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -11,15 +11,12 @@ import java.util.HashMap;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.common.Log;
-import org.appcelerator.kroll.common.TiConfig;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiUIView;
 
-import android.app.Activity;
-import android.os.Message;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.LinearLayout;
@@ -28,8 +25,7 @@ import android.widget.TextView;
 
 public class TiUIActivityIndicator extends TiUIView
 {
-	private static final String LCAT = "TiUIActivityIndicator";
-	private static final boolean DBG = TiConfig.LOGD;
+	private static final String TAG = "TiUIActivityIndicator";
 
 	protected int currentStyle;
 	protected boolean visible;
@@ -45,9 +41,7 @@ public class TiUIActivityIndicator extends TiUIView
 	public TiUIActivityIndicator(TiViewProxy proxy)
 	{
 		super(proxy);
-		if (DBG) {
-			Log.d(LCAT, "Creating an activity indicator");
-		}
+		Log.d(TAG, "Creating an activity indicator", Log.DEBUG_MODE);
 
 		view = new LinearLayout(proxy.getActivity());
 		view.setOrientation(LinearLayout.HORIZONTAL);
@@ -93,9 +87,7 @@ public class TiUIActivityIndicator extends TiUIView
 	@Override
 	public void propertyChanged(String key, Object oldValue, Object newValue, KrollProxy proxy)
 	{
-		if (DBG) {
-			Log.d(LCAT, "Property: " + key + " old: " + oldValue + " new: " + newValue);
-		}
+		Log.d(TAG, "Property: " + key + " old: " + oldValue + " new: " + newValue, Log.DEBUG_MODE);
 
 		if (key.equals(TiC.PROPERTY_STYLE)) {
 			setStyle(TiConvert.toInt(newValue));
@@ -137,7 +129,7 @@ public class TiUIActivityIndicator extends TiUIView
 		if (proxy.hasProperty(TiC.PROPERTY_STYLE)) {
 			int style = TiConvert.toInt(proxy.getProperty(TiC.PROPERTY_STYLE));
 			if (style != PLAIN && style != BIG && style != DARK && style != BIG_DARK) {
-				Log.w(LCAT, "Invalid value \"" + style + "\" for style.");
+				Log.w(TAG, "Invalid value \"" + style + "\" for style.");
 				return PLAIN;
 			}
 			return style;
@@ -151,7 +143,7 @@ public class TiUIActivityIndicator extends TiUIView
 			return;
 		}
 		if (style != PLAIN && style != BIG && style != DARK && style != BIG_DARK) {
-			Log.w(LCAT, "Invalid value \"" + style + "\" for style.");
+			Log.w(TAG, "Invalid value \"" + style + "\" for style.");
 			return;
 		}
 

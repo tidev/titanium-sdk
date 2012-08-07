@@ -4,7 +4,6 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-
 package org.appcelerator.titanium.util;
 
 import java.io.ByteArrayOutputStream;
@@ -24,7 +23,6 @@ import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.common.CurrentActivityListener;
 import org.appcelerator.kroll.common.Log;
-import org.appcelerator.kroll.common.TiConfig;
 import org.appcelerator.kroll.common.TiFastDev;
 import org.appcelerator.kroll.common.TiMessenger;
 import org.appcelerator.titanium.TiApplication;
@@ -34,6 +32,7 @@ import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiDimension;
 import org.appcelerator.titanium.io.TiBaseFile;
 import org.appcelerator.titanium.io.TiFileFactory;
+import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.proxy.TiWindowProxy;
 import org.appcelerator.titanium.proxy.TiWindowProxy.PostOpenListener;
 import org.appcelerator.titanium.view.TiBackgroundDrawable;
@@ -82,8 +81,7 @@ import android.widget.TextView;
  */
 public class TiUIHelper
 {
-	private static final String LCAT = "TiUIHelper";
-	private static final boolean DBG = TiConfig.LOGD;
+	private static final String TAG = "TiUIHelper";
 	private static final String customFontPath = "Resources/fonts";
 
 	public static final int PORTRAIT = 1;
@@ -250,12 +248,9 @@ public class TiUIHelper
 					} else if (TiDimension.UNIT_IN.equals(unit)) {
 						units = TypedValue.COMPLEX_UNIT_IN;
 					} else {
-						if (DBG) {
-							if (unit != null) {
-								Log.w(LCAT, "Unknown unit: " + unit);
-							}
+						if (unit != null) {
+							Log.w(TAG, "Unknown unit: " + unit, Log.DEBUG_MODE);
 						}
-						//units = TypedValue.COMPLEX_UNIT_PX;
 					}
 				}
 			}
@@ -335,9 +330,8 @@ public class TiUIHelper
 					loadedTf = loadTypeface(context, fontFamily);
 				}
 				if (loadedTf == null) {
-					if (DBG) {
-						Log.w(LCAT, "Unsupported font: '" + fontFamily + "' supported fonts are 'monospace', 'serif', 'sans-serif'.");
-					}
+					Log.w(TAG, "Unsupported font: '" + fontFamily
+						+ "' supported fonts are 'monospace', 'serif', 'sans-serif'.", Log.DEBUG_MODE);
 				} else {
 					tf = loadedTf;
 				}
@@ -370,9 +364,7 @@ public class TiUIHelper
 				}
 			}
 		} catch (IOException e) {
-			if (DBG) {
-				Log.e(LCAT, "Unable to load 'fonts' assets. Perhaps doesn't exist? " + e.getMessage());
-			}
+			Log.e(TAG, "Unable to load 'fonts' assets. Perhaps doesn't exist? " + e.getMessage());
 		}
 
 		mCustomTypeFaces.put(fontFamily, null);
@@ -415,14 +407,14 @@ public class TiUIHelper
 			} else if ("right".equals(textAlign)) {
 				gravity |=  Gravity.RIGHT;
 			} else {
-				Log.w(LCAT, "Unsupported horizontal alignment: " + textAlign);
+				Log.w(TAG, "Unsupported horizontal alignment: " + textAlign);
 			}
 		} else {
 			// Nothing has been set - let's set if something was set previously
 			// You can do this with shortcut syntax - but long term maint of code is easier if it's explicit
-			if (DBG) {
-				Log.w(LCAT, "No alignment set - old horiz align was: " + (tv.getGravity() & Gravity.HORIZONTAL_GRAVITY_MASK));
-			}
+			Log.w(TAG,
+				"No alignment set - old horizontal align was: " + (tv.getGravity() & Gravity.HORIZONTAL_GRAVITY_MASK),
+				Log.DEBUG_MODE);
 			
 			if ((tv.getGravity() & Gravity.HORIZONTAL_GRAVITY_MASK) != Gravity.NO_GRAVITY) {
 				// Something was set before - so let's use it
@@ -438,14 +430,13 @@ public class TiUIHelper
 			} else if ("bottom".equals(verticalAlign)) {
 				gravity |= Gravity.BOTTOM;			
 			} else {
-				Log.w(LCAT, "Unsupported vertical alignment: " + verticalAlign);			
+				Log.w(TAG, "Unsupported vertical alignment: " + verticalAlign);
 			}
 		} else {
 			// Nothing has been set - let's set if something was set previously
 			// You can do this with shortcut syntax - but long term maint of code is easier if it's explicit
-			if (DBG) {
-				Log.w(LCAT, "No alignment set - old vert align was: " + (tv.getGravity() & Gravity.VERTICAL_GRAVITY_MASK));
-			}
+			Log.w(TAG, "No alignment set - old vertical align was: " + (tv.getGravity() & Gravity.VERTICAL_GRAVITY_MASK),
+				Log.DEBUG_MODE);
 			if ((tv.getGravity() & Gravity.VERTICAL_GRAVITY_MASK) != Gravity.NO_GRAVITY) {
 				// Something was set before - so let's use it
 				gravity |= tv.getGravity() & Gravity.VERTICAL_GRAVITY_MASK;
@@ -495,7 +486,7 @@ public class TiUIHelper
 					}
 
 				} catch (IOException e) {
-					Log.e(LCAT, "Exception occured when trying to open stream to specified background image: ", e);
+					Log.e(TAG, "Exception occured when trying to open stream to specified background image: ", e);
 				}
 
 			} else {
@@ -628,7 +619,7 @@ public class TiUIHelper
 			}
 			view.measure(MeasureSpec.makeMeasureSpec(width, MeasureSpec.EXACTLY), MeasureSpec.makeMeasureSpec(height, MeasureSpec.EXACTLY));
 			if (view.getParent() == null) {
-				Log.i(LCAT, "view does not have parent, calling layout");
+				Log.i(TAG, "View does not have parent, calling layout", Log.DEBUG_MODE);
 				view.layout(0, 0, width, height);
 			}
 
@@ -639,11 +630,11 @@ public class TiUIHelper
 			// set a default BS value if the dimension is still 0 and log a warning
 			if(width == 0) {
 				width = 100;
-				Log.e(LCAT, "width property is 0 for view, display view before calling toImage()");
+				Log.e(TAG, "Width property is 0 for view, display view before calling toImage()", Log.DEBUG_MODE);
 			}
 			if(height == 0) {
 				height = 100;
-				Log.e(LCAT, "height property is 0 for view, display view before calling toImage()");
+				Log.e(TAG, "Height property is 0 for view, display view before calling toImage()", Log.DEBUG_MODE);
 			}
 
 			Bitmap bitmap = Bitmap.createBitmap(width, height, Config.RGB_565);
@@ -680,7 +671,7 @@ public class TiUIHelper
 		try {
 			b = BitmapFactory.decodeResourceStream(null, null, stream, pad, opts);
 		} catch (OutOfMemoryError e) {
-			Log.e(LCAT, "Unable to load bitmap. Not enough memory: " + e.getMessage());
+			Log.e(TAG, "Unable to load bitmap. Not enough memory: " + e.getMessage());
 		}
 		return b;
 	}
@@ -777,7 +768,7 @@ public class TiUIHelper
 		try {
 			bitmap = BitmapFactory.decodeResource(TiApplication.getInstance().getResources(), res_id, opts);
 		} catch (OutOfMemoryError e) {
-			Log.e(LCAT, "Unable to load bitmap. Not enough memory: " + e.getMessage());
+			Log.e(TAG, "Unable to load bitmap. Not enough memory: " + e.getMessage());
 		}
 		return bitmap;
 	}
@@ -791,7 +782,7 @@ public class TiUIHelper
 			stream.close();
 			return d;
 		} catch (IOException e) {
-			Log.w(LCAT, e.getMessage(), e);
+			Log.w(TAG, e.getMessage(), e);
 		}
 		return null;
 	}
@@ -842,7 +833,7 @@ public class TiUIHelper
 			try {
 				overridePendingTransition = Activity.class.getMethod("overridePendingTransition", Integer.TYPE, Integer.TYPE);
 			} catch (NoSuchMethodException e) {
-				Log.w(LCAT, "Activity.overridePendingTransition() not found");
+				Log.w(TAG, "Activity.overridePendingTransition() not found");
 			}
 			
 		}
@@ -851,9 +842,9 @@ public class TiUIHelper
 			try {
 				overridePendingTransition.invoke(activity, new Object[]{0,0});
 			} catch (InvocationTargetException e) {
-				Log.e(LCAT, "Called incorrectly: " + e.getMessage());
+				Log.e(TAG, "Called incorrectly: " + e.getMessage());
 			} catch (IllegalAccessException e) {
-				Log.e(LCAT, "Illegal access: " + e.getMessage());
+				Log.e(TAG, "Illegal access: " + e.getMessage());
 			}
 		}
 	}
@@ -896,7 +887,7 @@ public class TiUIHelper
 			} else if (focusState == TiUIView.SOFT_KEYBOARD_HIDE_ON_FOCUS) {
 				showSoftKeyboard(view, false);
 			} else {
-				Log.w(LCAT, "Unknown onFocus state: " + focusState);
+				Log.w(TAG, "Unknown onFocus state: " + focusState);
 			}
 		}
 	}
@@ -964,6 +955,13 @@ public class TiUIHelper
 			//Handler handler = new Handler(Looper.getMainLooper());
 			//handler.post(runnable);
 			TiMessenger.getMainMessenger().getHandler().post(runnable);
+		}
+	}
+
+	public static void firePostLayoutEvent(TiViewProxy proxy)
+	{
+		if (proxy != null && proxy.hasListeners(TiC.EVENT_POST_LAYOUT)) {
+			proxy.fireEvent(TiC.EVENT_POST_LAYOUT, null, false);
 		}
 	}
 }

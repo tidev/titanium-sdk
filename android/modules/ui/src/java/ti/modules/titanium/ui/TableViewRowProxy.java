@@ -37,7 +37,7 @@ propertyAccessors = {
 })
 public class TableViewRowProxy extends TiViewProxy
 {
-	private static final String LCAT = "TableViewRowProxy";
+	private static final String TAG = "TableViewRowProxy";
 
 	protected ArrayList<TiViewProxy> controls;
 	protected TiTableViewRowProxyItem tableViewItem;
@@ -70,11 +70,11 @@ public class TableViewRowProxy extends TiViewProxy
 	{
 		super.handleCreationDict(options);
 		if (options.containsKey(TiC.PROPERTY_SELECTED_BACKGROUND_COLOR)) {
-			Log.w(LCAT, "selectedBackgroundColor is deprecated, use backgroundSelectedColor instead");
+			Log.w(TAG, "selectedBackgroundColor is deprecated, use backgroundSelectedColor instead");
 			setProperty(TiC.PROPERTY_BACKGROUND_SELECTED_COLOR, options.get(TiC.PROPERTY_SELECTED_BACKGROUND_COLOR));
 		}
 		if (options.containsKey(TiC.PROPERTY_SELECTED_BACKGROUND_IMAGE)) {
-			Log.w(LCAT, "selectedBackgroundImage is deprecated, use backgroundSelectedImage instead");
+			Log.w(TAG, "selectedBackgroundImage is deprecated, use backgroundSelectedImage instead");
 			setProperty(TiC.PROPERTY_BACKGROUND_SELECTED_IMAGE, options.get(TiC.PROPERTY_SELECTED_BACKGROUND_IMAGE));
 		}
 	}
@@ -171,7 +171,12 @@ public class TableViewRowProxy extends TiViewProxy
 	}
 
 	public static void fillClickEvent(KrollDict data, TableViewModel model, Item item) {
-		data.put(TiC.PROPERTY_ROW_DATA, item.rowData);
+		
+		//Don't include rowData if we click on a section
+		if (!(item.proxy instanceof TableViewSectionProxy)) {
+			data.put(TiC.PROPERTY_ROW_DATA, item.rowData);
+		}
+		
 		data.put(TiC.PROPERTY_SECTION, model.getSection(item.sectionIndex));
 		data.put(TiC.EVENT_PROPERTY_ROW, item.proxy);
 		data.put(TiC.EVENT_PROPERTY_INDEX, item.index);

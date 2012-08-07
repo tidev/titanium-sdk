@@ -1,12 +1,11 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
 package ti.modules.titanium.ui.widget.tableview;
 
-import org.appcelerator.kroll.common.TiConfig;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.util.TiConvert;
 
@@ -22,9 +21,6 @@ import android.widget.ListView;
 
 public class TiTableViewSelector extends Drawable
 {
-	private static final String LCAT = "TiTableViewSelector";
-	private static final boolean DBG = TiConfig.LOGD;
-
 	private ListView listView;
 	private Drawable defaultDrawable;
 	private Drawable selectedDrawable;

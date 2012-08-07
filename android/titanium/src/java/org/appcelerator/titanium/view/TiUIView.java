@@ -19,7 +19,6 @@ import org.appcelerator.kroll.KrollPropertyChange;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.KrollProxyListener;
 import org.appcelerator.kroll.common.Log;
-import org.appcelerator.kroll.common.TiConfig;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiDimension;
@@ -67,8 +66,7 @@ public abstract class TiUIView
 {
 	private static final boolean HONEYCOMB_OR_GREATER = (Build.VERSION.SDK_INT >= 11);
 	private static final int LAYER_TYPE_SOFTWARE = 1;
-	private static final String LCAT = "TiUIView";
-	private static final boolean DBG = TiConfig.LOGD;
+	private static final String TAG = "TiUIView";
 
 	private static AtomicInteger idGenerator;
 
@@ -94,11 +92,9 @@ public abstract class TiUIView
 	// of Ti2DMatrix.scale().
 	private Pair<Float, Float> animatedScaleValues = Pair.create(Float.valueOf(1f), Float.valueOf(1f)); // default = full size (1f)
 
-	// Same for rotation animation.
+	// Same for rotation animation and for alpha animation.
 	private float animatedRotationDegrees = 0f; // i.e., no rotation.
-
-	// Same for translate animation.
-	private Pair<Integer, Integer> animatedXYTranslationValues = Pair.create(Integer.valueOf(0), Integer.valueOf(0));
+	private float animatedAlpha = Float.MIN_VALUE; // i.e., no animated alpha.
 
 	private KrollDict lastUpEvent = new KrollDict(2);
 	// In the case of heavy-weight windows, the "nativeView" is null,
@@ -302,9 +298,7 @@ public abstract class TiUIView
 			}
 		}
 
-		if (DBG) {
-			Log.d(LCAT, "starting animation: " + as);
-		}
+		Log.d(TAG, "starting animation: " + as, Log.DEBUG_MODE);
 		nativeView.startAnimation(as);
 
 		if (invalidateParent) {
@@ -458,7 +452,7 @@ public abstract class TiUIView
 				propertyChanged(TiC.PROPERTY_WIDTH, oldValue, d.get(TiC.PROPERTY_WIDTH), proxy);
 				propertyChanged(TiC.PROPERTY_HEIGHT, oldValue, d.get(TiC.PROPERTY_HEIGHT), proxy);
 			}else if (newValue != null){
-				Log.w(LCAT, "Unsupported property type ("+(newValue.getClass().getSimpleName())+") for key: " + key+". Must be an object/dictionary");
+				Log.w(TAG, "Unsupported property type ("+(newValue.getClass().getSimpleName())+") for key: " + key+". Must be an object/dictionary");
 			}
 		} else if (key.equals(TiC.PROPERTY_HEIGHT)) {
 			resetPostAnimationValues();
@@ -527,7 +521,7 @@ public abstract class TiUIView
 		} else if (key.equals(TiC.PROPERTY_ENABLED)) {
 			nativeView.setEnabled(TiConvert.toBoolean(newValue));
 		} else if (key.startsWith(TiC.PROPERTY_BACKGROUND_PADDING)) {
-			Log.i(LCAT, key + " not yet implemented.");
+			Log.i(TAG, key + " not yet implemented.");
 		} else if (key.equals(TiC.PROPERTY_OPACITY)
 			|| key.startsWith(TiC.PROPERTY_BACKGROUND_PREFIX)
 			|| key.startsWith(TiC.PROPERTY_BORDER_PREFIX)) {
@@ -585,7 +579,7 @@ public abstract class TiUIView
 				}
 
 				if (hasImage || hasRepeat || hasColorState || hasGradient) {
-					if (newBackground || key.startsWith(TiC.PROPERTY_BACKGROUND_PREFIX)) {
+					if (newBackground || key.equals(TiC.PROPERTY_OPACITY) || key.startsWith(TiC.PROPERTY_BACKGROUND_PREFIX)) {
 						handleBackgroundImage(d);
 					}
 				}
@@ -614,7 +608,8 @@ public abstract class TiUIView
 				nativeView.postInvalidate();
 			}
 		} else if (key.equals(TiC.PROPERTY_SOFT_KEYBOARD_ON_FOCUS)) {
-			Log.w(LCAT, "Focus state changed to " + TiConvert.toString(newValue) + " not honored until next focus event.");
+			Log.w(TAG, "Focus state changed to " + TiConvert.toString(newValue) + " not honored until next focus event.",
+				Log.DEBUG_MODE);
 		} else if (key.equals(TiC.PROPERTY_TRANSFORM)) {
 			if (nativeView != null) {
 				applyTransform((Ti2DMatrix)newValue);
@@ -624,9 +619,7 @@ public abstract class TiUIView
 				nativeView.setKeepScreenOn(TiConvert.toBoolean(newValue));
 			}
 		} else {
-			if (DBG) {
-				Log.d(LCAT, "Unhandled property key: " + key);
-			}
+			Log.d(TAG, "Unhandled property key: " + key, Log.DEBUG_MODE);
 		}
 	}
 
@@ -635,7 +628,7 @@ public abstract class TiUIView
 		boolean nativeViewNull = false;
 		if (nativeView == null) {
 			nativeViewNull = true;
-			Log.d(LCAT, "Nativeview is null");
+			Log.d(TAG, "Nativeview is null", Log.DEBUG_MODE);
 		}
 		if (d.containsKey(TiC.PROPERTY_LAYOUT)) {
 			String layout = TiConvert.toString(d, TiC.PROPERTY_LAYOUT);
@@ -798,16 +791,12 @@ public abstract class TiUIView
 
 	public void release()
 	{
-		if (DBG) {
-			Log.d(LCAT, "Releasing: " + this);
-		}
+		Log.d(TAG, "Releasing: " + this, Log.DEBUG_MODE);
 		View nv = getNativeView();
 		if (nv != null) {
 			if (nv instanceof ViewGroup) {
 				ViewGroup vg = (ViewGroup) nv;
-				if (DBG) {
-					Log.d(LCAT, "Group has: " + vg.getChildCount());
-				}
+				Log.d(TAG, "Group has: " + vg.getChildCount(), Log.DEBUG_MODE);
 				if (!(vg instanceof AdapterView<?>)) {
 					vg.removeAllViews();
 				}
@@ -836,9 +825,7 @@ public abstract class TiUIView
 		if (nativeView != null) {
 			nativeView.setVisibility(View.VISIBLE);
 		} else {
-			if (DBG) {
-				Log.w(LCAT, "Attempt to show null native control");
-			}
+			Log.w(TAG, "Attempt to show null native control", Log.DEBUG_MODE);
 		}
 	}
 
@@ -850,9 +837,7 @@ public abstract class TiUIView
 		if (nativeView != null) {
 			nativeView.setVisibility(View.INVISIBLE);
 		} else {
-			if (DBG) {
-				Log.w(LCAT, "Attempt to hide null native control");
-			}
+			Log.w(TAG, "Attempt to hide null native control", Log.DEBUG_MODE);
 		}
 	}
 
@@ -888,10 +873,15 @@ public abstract class TiUIView
 		TiGradientDrawable gradientDrawable = null;
 		KrollDict gradientProperties = d.getKrollDict(TiC.PROPERTY_BACKGROUND_GRADIENT);
 		if (gradientProperties != null) {
-			gradientDrawable = new TiGradientDrawable(nativeView, gradientProperties);
-			if (gradientDrawable.getGradientType() == GradientType.RADIAL_GRADIENT) {
-				// TODO: Remove this once we support radial gradients.
-				Log.w(LCAT, "Android does not support radial gradients.");
+			try {
+				gradientDrawable = new TiGradientDrawable(nativeView, gradientProperties);
+				if (gradientDrawable.getGradientType() == GradientType.RADIAL_GRADIENT) {
+					// TODO: Remove this once we support radial gradients.
+					Log.w(TAG, "Android does not support radial gradients.");
+					gradientDrawable = null;
+				}
+			}
+			catch (IllegalArgumentException e) {
 				gradientDrawable = null;
 			}
 		}
@@ -1038,17 +1028,19 @@ public abstract class TiUIView
 		touchView = new WeakReference<View>(touchable);
 
 		final ScaleGestureDetector scaleDetector = new ScaleGestureDetector(touchable.getContext(),
-			new SimpleOnScaleGestureListener() {
+			new SimpleOnScaleGestureListener()
+			{
 				// protect from divide by zero errors
 				long minTimeDelta = 1;
 				float minStartSpan = 1.0f;
 				float startSpan;
 
 				@Override
-				public boolean onScale(ScaleGestureDetector sgd) {
+				public boolean onScale(ScaleGestureDetector sgd)
+				{
 					if (proxy.hierarchyHasListener(TiC.EVENT_PINCH)) {
 						float timeDelta = sgd.getTimeDelta() == 0 ? minTimeDelta : sgd.getTimeDelta();
-						
+
 						KrollDict data = new KrollDict();
 						data.put(TiC.EVENT_PROPERTY_SCALE, sgd.getCurrentSpan() / startSpan);
 						data.put(TiC.EVENT_PROPERTY_VELOCITY, (sgd.getScaleFactor() - 1.0f) / timeDelta * 1000);
@@ -1058,71 +1050,73 @@ public abstract class TiUIView
 					}
 					return false;
 				}
-				
+
 				@Override
-				public boolean onScaleBegin(ScaleGestureDetector sgd) {
+				public boolean onScaleBegin(ScaleGestureDetector sgd)
+				{
 					startSpan = sgd.getCurrentSpan() == 0 ? minStartSpan : sgd.getCurrentSpan();
 					return true;
 				}
 			});
 
-		final GestureDetector detector = new GestureDetector(touchable.getContext(),
-			new SimpleOnGestureListener() {
-				@Override
-				public boolean onDoubleTap(MotionEvent e) {
-					if (proxy.hierarchyHasListener(TiC.EVENT_DOUBLE_TAP) || proxy.hierarchyHasListener(TiC.EVENT_DOUBLE_CLICK)) {
-						boolean handledTap = proxy.fireEvent(TiC.EVENT_DOUBLE_TAP, dictFromEvent(e));
-						boolean handledClick = proxy.fireEvent(TiC.EVENT_DOUBLE_CLICK, dictFromEvent(e));
-						return handledTap || handledClick;
-					}
-					return false;
+		final GestureDetector detector = new GestureDetector(touchable.getContext(), new SimpleOnGestureListener()
+		{
+			@Override
+			public boolean onDoubleTap(MotionEvent e)
+			{
+				if (proxy.hierarchyHasListener(TiC.EVENT_DOUBLE_TAP) || proxy.hierarchyHasListener(TiC.EVENT_DOUBLE_CLICK)) {
+					boolean handledTap = proxy.fireEvent(TiC.EVENT_DOUBLE_TAP, dictFromEvent(e));
+					boolean handledClick = proxy.fireEvent(TiC.EVENT_DOUBLE_CLICK, dictFromEvent(e));
+					return handledTap || handledClick;
 				}
-				@Override
-				public boolean onSingleTapConfirmed(MotionEvent e) {
-					if (DBG) { Log.d(LCAT, "TAP, TAP, TAP on " + proxy); }
-					if (proxy.hierarchyHasListener(TiC.EVENT_SINGLE_TAP)) {
-						return proxy.fireEvent(TiC.EVENT_SINGLE_TAP, dictFromEvent(e));
-						// Moved click handling to the onTouch listener, because a single tap is not the
-						// same as a click.  A single tap is a quick tap only, whereas clicks can be held
-						// before lifting.
-						// boolean handledClick = proxy.fireEvent(TiC.EVENT_CLICK, dictFromEvent(event));
-						// Note: this return value is irrelevant in our case.  We "want" to use it
-						// in onTouch below, when we call detector.onTouchEvent(event);  But, in fact,
-						// onSingleTapConfirmed is *not* called in the course of onTouchEvent.  It's
-						// called via Handler in GestureDetector. <-- See its Java source.
-						//return handledTap;// || handledClick;
-					}
-					return false;
+				return false;
+			}
+
+			@Override
+			public boolean onSingleTapConfirmed(MotionEvent e)
+			{
+				Log.d(TAG, "TAP, TAP, TAP on " + proxy, Log.DEBUG_MODE);
+				if (proxy.hierarchyHasListener(TiC.EVENT_SINGLE_TAP)) {
+					return proxy.fireEvent(TiC.EVENT_SINGLE_TAP, dictFromEvent(e));
+					// Moved click handling to the onTouch listener, because a single tap is not the
+					// same as a click. A single tap is a quick tap only, whereas clicks can be held
+					// before lifting.
+					// boolean handledClick = proxy.fireEvent(TiC.EVENT_CLICK, dictFromEvent(event));
+					// Note: this return value is irrelevant in our case. We "want" to use it
+					// in onTouch below, when we call detector.onTouchEvent(event); But, in fact,
+					// onSingleTapConfirmed is *not* called in the course of onTouchEvent. It's
+					// called via Handler in GestureDetector. <-- See its Java source.
+					// return handledTap;// || handledClick;
 				}
-				@Override
-				public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY)
-				{
-					if (DBG){
-						Log.d(LCAT, "SWIPE on " + proxy);
+				return false;
+			}
+
+			@Override
+			public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY)
+			{
+				Log.d(TAG, "SWIPE on " + proxy, Log.DEBUG_MODE);
+				if (proxy.hierarchyHasListener(TiC.EVENT_SWIPE)) {
+					KrollDict data = dictFromEvent(e2);
+					if (Math.abs(velocityX) > Math.abs(velocityY)) {
+						data.put(TiC.EVENT_PROPERTY_DIRECTION, velocityX > 0 ? "right" : "left");
+					} else {
+						data.put(TiC.EVENT_PROPERTY_DIRECTION, velocityY > 0 ? "down" : "up");
 					}
-					if (proxy.hierarchyHasListener(TiC.EVENT_SWIPE)) {
-						KrollDict data = dictFromEvent(e2);
-						if (Math.abs(velocityX) > Math.abs(velocityY)) {
-							data.put(TiC.EVENT_PROPERTY_DIRECTION, velocityX > 0 ? "right" : "left");
-						} else {
-							data.put(TiC.EVENT_PROPERTY_DIRECTION, velocityY > 0 ? "down" : "up");
-						}
-						return proxy.fireEvent(TiC.EVENT_SWIPE, data);
-					}
-					return false;
+					return proxy.fireEvent(TiC.EVENT_SWIPE, data);
 				}
-				@Override
-				public void onLongPress(MotionEvent e)
-				{
-					if (DBG){
-						Log.d(LCAT, "LONGPRESS on " + proxy);
-					}
-					
-					if (proxy.hierarchyHasListener(TiC.EVENT_LONGPRESS)) {
-						proxy.fireEvent(TiC.EVENT_LONGPRESS, dictFromEvent(e));
-					}
+				return false;
+			}
+
+			@Override
+			public void onLongPress(MotionEvent e)
+			{
+				Log.d(TAG, "LONGPRESS on " + proxy, Log.DEBUG_MODE);
+
+				if (proxy.hierarchyHasListener(TiC.EVENT_LONGPRESS)) {
+					proxy.fireEvent(TiC.EVENT_LONGPRESS, dictFromEvent(e));
 				}
-			});
+			}
+		});
 		
 		touchable.setOnTouchListener(new OnTouchListener()
 		{
@@ -1145,19 +1139,8 @@ public abstract class TiUIView
 
 				String motionEvent = motionEvents.get(event.getAction());
 				if (motionEvent != null) {
-					if (event.getAction() == MotionEvent.ACTION_UP) {
-						Rect r = new Rect(0, 0, view.getWidth(), view.getHeight());
-						int actualAction = r.contains((int) event.getX(), (int) event.getY()) ? MotionEvent.ACTION_UP
-							: MotionEvent.ACTION_CANCEL;
-
-						String actualEvent = motionEvents.get(actualAction);
-						if (proxy.hierarchyHasListener(actualEvent)) {
-							proxy.fireEvent(actualEvent, dictFromEvent(event));
-						}
-					} else {
-						if (proxy.hierarchyHasListener(motionEvent)) {
-							proxy.fireEvent(motionEvent, dictFromEvent(event));
-						}
+					if (proxy.hierarchyHasListener(motionEvent)) {
+						proxy.fireEvent(motionEvent, dictFromEvent(event));
 					}
 				}
 
@@ -1195,6 +1178,13 @@ public abstract class TiUIView
 	 */
 	public void setOpacity(float opacity)
 	{
+		if (opacity < 0 || opacity > 1) {
+			Log.w(TAG, "Ignoring invalid value for opacity: " + opacity);
+			return;
+		}
+		if (borderView != null) {
+			borderView.setBorderAlpha(Math.round(opacity * 255));
+		}
 		setOpacity(nativeView, opacity);
 	}
 
@@ -1324,17 +1314,18 @@ public abstract class TiUIView
 		if (nativeView == null) {
 			return;
 		}
-		if (DBG) {
-			Log.d(LCAT, "Disabling hardware acceleration for instance of " + nativeView.getClass().getSimpleName());
-		}
+		Log.d(TAG, "Disabling hardware acceleration for instance of " + nativeView.getClass().getSimpleName(),
+			Log.DEBUG_MODE);
 		if (mSetLayerTypeMethod == null) {
 			try {
 				Class<? extends View> c = nativeView.getClass();
 				mSetLayerTypeMethod = c.getMethod("setLayerType", int.class, Paint.class);
 			} catch (SecurityException e) {
-				Log.e(LCAT, "SecurityException trying to get View.setLayerType to disable hardware acceleration.", e);
+				Log.e(TAG, "SecurityException trying to get View.setLayerType to disable hardware acceleration.", e,
+					Log.DEBUG_MODE);
 			} catch (NoSuchMethodException e) {
-				Log.e(LCAT, "NoSuchMethodException trying to get View.setLayerType to disable hardware acceleration.", e);
+				Log.e(TAG, "NoSuchMethodException trying to get View.setLayerType to disable hardware acceleration.", e,
+					Log.DEBUG_MODE);
 			}
 		}
 
@@ -1344,11 +1335,11 @@ public abstract class TiUIView
 		try {
 			mSetLayerTypeMethod.invoke(nativeView, LAYER_TYPE_SOFTWARE, null);
 		} catch (IllegalArgumentException e) {
-			Log.e(LCAT, e.getMessage(), e);
+			Log.e(TAG, e.getMessage(), e);
 		} catch (IllegalAccessException e) {
-			Log.e(LCAT, e.getMessage(), e);
+			Log.e(TAG, e.getMessage(), e);
 		} catch (InvocationTargetException e) {
-			Log.e(LCAT, e.getMessage(), e);
+			Log.e(TAG, e.getMessage(), e);
 		}
 	}
 
@@ -1388,31 +1379,30 @@ public abstract class TiUIView
 	}
 
 	/**
-	 * Retrieve the saved translate animation x & y deltas, which we store here since Android provides no property
-	 * for looking them up.
+	 * Set the animated alpha values, since Android provides no property for looking it up.
 	 */
-	public Pair<Integer, Integer> getAnimatedXYTranslationValues()
+	public void setAnimatedAlpha(float alpha)
 	{
-		return animatedXYTranslationValues;
+		animatedAlpha = alpha;
 	}
 
 	/**
-	 * Store the translate animation x and y delta values
-	 * since Android provides no property for looking them up.
+	 * Retrieve the animated alpha value, which we store here since Android provides no property
+	 * for looking it up.
 	 */
-	public void setAnimatedXYTranslationValues(Pair<Integer, Integer> newValues)
+	public float getAnimatedAlpha()
 	{
-		animatedXYTranslationValues = newValues;
+		return animatedAlpha;
 	}
 
 	/**
-	 * "Forget" the values we save after scale and rotation animations.
+	 * "Forget" the values we save after scale and rotation and alpha animations.
 	 */
 	private void resetPostAnimationValues()
 	{
 		animatedRotationDegrees = 0f; // i.e., no rotation.
 		animatedScaleValues = Pair.create(Float.valueOf(1f), Float.valueOf(1f)); // 1 means no scaling
-		animatedXYTranslationValues = Pair.create(Integer.valueOf(0), Integer.valueOf(0));
+		animatedAlpha = Float.MIN_VALUE; // we use min val to signal no val.
 	}
 
 }

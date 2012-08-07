@@ -1,10 +1,9 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-
 package ti.modules.titanium.gesture;
 
 import java.util.ArrayList;
@@ -15,7 +14,6 @@ import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
-import org.appcelerator.kroll.common.TiConfig;
 import org.appcelerator.titanium.ContextSpecific;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBaseActivity;
@@ -33,8 +31,7 @@ import android.hardware.SensorManager;
 public class GestureModule extends KrollModule
 	implements SensorEventListener
 {
-	private static final String LCAT = "GestureModule";
-	private static final boolean DBG = TiConfig.LOGD;
+	private static final String TAG = "GestureModule";
 	private static final String EVENT_ORIENTATION_CHANGE = "orientationchange";
 	private static final String EVENT_SHAKE = "shake";
 
@@ -59,11 +56,11 @@ public class GestureModule extends KrollModule
 		postShakePeriod = props.getInt("ti.android.shake.quiet.milliseconds", 500);
 		inShakePeriod = props.getInt("ti.android.shake.active.milliseconds", 1000);
 		threshold = shakeFactor * shakeFactor * SensorManager.GRAVITY_EARTH * SensorManager.GRAVITY_EARTH;
-		if (DBG) {
-			Log.i(LCAT, "Shake Factor: " + shakeFactor);
-			Log.i(LCAT, "Post Shake Period (ms): " + postShakePeriod);
-			Log.i(LCAT, "In Shake Period(ms): " + inShakePeriod);
-			Log.i(LCAT, "Threshold: " + threshold);
+		if (Log.isDebugModeEnabled()) {
+			Log.i(TAG, "Shake Factor: " + shakeFactor);
+			Log.i(TAG, "Post Shake Period (ms): " + postShakePeriod);
+			Log.i(TAG, "In Shake Period(ms): " + inShakePeriod);
+			Log.i(TAG, "Threshold: " + threshold);
 		}
 	}
 
@@ -112,7 +109,7 @@ public class GestureModule extends KrollModule
 			}
 			else
 			{
-				Log.e (LCAT, "unable to remove orientation config listener, does not exist");
+				Log.e (TAG, "Unable to remove orientation config listener, does not exist");
 			}
 		}
 		else if (EVENT_SHAKE.equals(event))
@@ -149,7 +146,8 @@ public class GestureModule extends KrollModule
 			}
 			lastEventInShake = currentEventInShake;
 
-			Log.d(LCAT, "ACC-Shake : threshold: " + threshold + " force: " + force + " delta : " + force + " x: " + x + " y: " + y + " z: " + z);
+			Log.d(TAG, "ACC-Shake : threshold: " + threshold + " force: " + force + " delta : " + force + " x: " + x
+				+ " y: " + y + " z: " + z, Log.DEBUG_MODE);
 		} else {
 			if (shakeInitialized && inShake) {
 				if (difftime > postShakePeriod) {
@@ -163,7 +161,7 @@ public class GestureModule extends KrollModule
 						data.put("z", z);
 						fireEvent(EVENT_SHAKE, data);
 						
-						Log.d(LCAT, "Firing shake event (x:" + x + " y:" + y + " z:" + z + ")");
+						Log.d(TAG, "Firing shake event (x:" + x + " y:" + y + " z:" + z + ")", Log.DEBUG_MODE);
 					}
 				}
 			}

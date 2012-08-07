@@ -40,10 +40,21 @@ NSArray* pickerKeySequence;
 
 -(void)viewDidAttach
 {
-	if (selectOnLoad != nil) {
-		[self setSelectedRow:selectOnLoad];
-		RELEASE_TO_NIL(selectOnLoad);
-	}
+    //Window might not have opened yet, so delay till we get windowDidOpen
+    if (selectOnLoad != nil && windowOpened) {
+        [self setSelectedRow:selectOnLoad];
+        RELEASE_TO_NIL(selectOnLoad);
+    }
+    [super viewDidAttach];
+}
+
+-(void)windowDidOpen
+{
+    [super windowDidOpen];
+    if (selectOnLoad != nil) {
+        [self setSelectedRow:selectOnLoad];
+        RELEASE_TO_NIL(selectOnLoad);
+    }
 }
 
 -(BOOL)supportsNavBarPositioning

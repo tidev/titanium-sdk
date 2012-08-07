@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -13,7 +13,6 @@ import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.AsyncResult;
 import org.appcelerator.kroll.common.Log;
-import org.appcelerator.kroll.common.TiConfig;
 import org.appcelerator.kroll.common.TiMessenger;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
@@ -26,8 +25,7 @@ import android.view.MenuItem;
 @Kroll.proxy
 public class MenuProxy extends KrollProxy
 {
-	private static final String LCAT = "MenuProxy";
-	private final boolean DBG = TiConfig.LOGD;
+	private static final String TAG = "MenuProxy";
 
 	private static final int MSG_FIRST_ID = KrollProxy.MSG_LAST_ID + 1;
 	private static final int MSG_ADD = MSG_FIRST_ID + 100;
@@ -337,9 +335,7 @@ public class MenuProxy extends KrollProxy
 	
 	public void setMenu(Menu menu) {
 		if (this.menu != null && this.menu != menu) {
-			if (DBG) {
-				Log.w(LCAT, "A new menu has been set, cleaning up old menu first");
-			}
+			Log.w(TAG, "A new menu has been set, cleaning up old menu first", Log.DEBUG_MODE);
 			release();
 		}
 		this.menu = menu;

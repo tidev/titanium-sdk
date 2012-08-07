@@ -533,9 +533,10 @@ extern NSString * const TI_APPLICATION_DEPLOYTYPE;
 					}
 				}
 			}
-			else if ([arg isKindOfClass:[TiBlob class]])
+			else if ([arg isKindOfClass:[TiBlob class]]
+					 || [arg isKindOfClass:[TiFile class]])
 			{
-				TiBlob *blob = (TiBlob*)arg;
+				TiBlob *blob = [arg isKindOfClass:[TiBlob class]] ? (TiBlob *)arg : [(TiFile *)arg blob];
 				if ([blob type] == TiBlobTypeFile)
 				{
 					// could be large if file so let's tell the 
@@ -548,7 +549,6 @@ extern NSString * const TI_APPLICATION_DEPLOYTYPE;
 					[request appendPostData:data];
 				}
 			}
-			//TODO: support TiFile post 1.4
 		}
 	}
 	

@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -13,7 +13,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.common.Log;
-import org.appcelerator.kroll.common.TiConfig;
 import org.appcelerator.titanium.TiActivity;
 import org.appcelerator.titanium.TiActivityWindow;
 import org.appcelerator.titanium.TiActivityWindows;
@@ -44,12 +43,10 @@ import android.view.View.OnFocusChangeListener;
 import android.view.ViewGroup.LayoutParams;
 import android.view.Window;
 
-
 public class TiUIActivityWindow extends TiUIView
 	implements TiActivityWindow
 {
-	private static final String LCAT = "TiUIActivityWindow";
-	private static final boolean DBG = TiConfig.LOGD;
+	private static final String TAG = "TiUIActivityWindow";
 	private static final int MSG_ACTIVITY_CREATED = 1000;
 	private static final String WINDOW_ID_PREFIX = "window$";
 
@@ -64,7 +61,6 @@ public class TiUIActivityWindow extends TiUIView
 	protected Messenger messenger;
 	protected int messageId;
 	protected int lastWidth, lastHeight;
-
 
 	public TiUIActivityWindow(ActivityWindowProxy proxy, KrollDict options, Messenger messenger, int messageId)
 	{
@@ -146,7 +142,7 @@ public class TiUIActivityWindow extends TiUIView
 	{
 		ActivityProxy activityProxy = null;
 
-		Log.d(LCAT, "we shouldnt be getting in here to bindWindowActivity!!!");
+		Log.d(TAG, "we shouldnt be getting in here to bindWindowActivity!!!");
 		// TODO old logic before we started creating the activity proxy on the onCreate of TiBaseActivity
 		/*
 		if (activity instanceof TiBaseActivity) {
@@ -202,7 +198,7 @@ public class TiUIActivityWindow extends TiUIView
 				messenger.send(msg);
 
 			} catch (RemoteException e) {
-				Log.e(LCAT, "Unable to send message: " + e.getMessage(), e);
+				Log.e(TAG, "Unable to send message: " + e.getMessage(), e);
 
 			} finally {
 				messenger = null;
@@ -265,19 +261,17 @@ public class TiUIActivityWindow extends TiUIView
 			}
 
 			switch (msg.what) {
-			case MSG_ACTIVITY_CREATED :
-				if (DBG) {
-					Log.d(LCAT, "Received Activity creation message");
-				}
+				case MSG_ACTIVITY_CREATED:
+					Log.d(TAG, "Received Activity creation message", Log.DEBUG_MODE);
 
-				if (activityWindow.windowActivity == null) {
-					activityWindow.windowActivity = (Activity) msg.obj;
-				}
+					if (activityWindow.windowActivity == null) {
+						activityWindow.windowActivity = (Activity) msg.obj;
+					}
 
-				activityWindow.proxy.setModelListener(activityWindow);
-				activityWindow.handleBooted();
+					activityWindow.proxy.setModelListener(activityWindow);
+					activityWindow.handleBooted();
 
-				return true;
+					return true;
 			}
 
 			return false;
@@ -360,7 +354,7 @@ public class TiUIActivityWindow extends TiUIView
 			handleBackground(cd, opacityValue, post);
 
 		} else {
-			Log.w(LCAT, "Unable to set opacity w/o a backgroundColor");
+			Log.w(TAG, "Unable to set opacity w/o a backgroundColor");
 		}
 	}
 
@@ -537,7 +531,7 @@ public class TiUIActivityWindow extends TiUIView
 			windowActivity.getWindow().getDecorView().invalidate();
 
 		} else {
-			Log.w(LCAT, "Activity is null. windowPixelFormat not set.");
+			Log.w(TAG, "Activity is null. windowPixelFormat not set.");
 		}
 	}
 

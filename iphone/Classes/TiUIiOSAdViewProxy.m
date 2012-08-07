@@ -58,7 +58,7 @@ USE_VIEW_FOR_CONTENT_WIDTH
     // Sanity check values
     if (!([arg isEqualToString:[TiUIiOSAdViewProxy portraitSize]] || [arg isEqualToString:[TiUIiOSAdViewProxy landscapeSize]])) {
         [self throwException:@"TiInvalidArg" 
-                   subreason:@"Invalid value for Titanium.UI.iOS.AdView.adSize"
+                   subreason:@"Invalid value for Ti.UI.iOS.AdView.adSize"
                     location:CODELOCATION];
     }
     

@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -13,7 +13,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.common.Log;
-import org.appcelerator.kroll.common.TiConfig;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.proxy.TiViewProxy;
@@ -45,8 +44,7 @@ public class TiTableView extends FrameLayout
 	implements OnSearchChangeListener
 {
 	public static final int TI_TABLE_VIEW_ID = 101;
-	private static final String LCAT = "TiTableView";
-	private static final boolean DBG = TiConfig.LOGD;
+	private static final String TAG = "TiTableView";
 
 	//TODO make this configurable
 	protected static final int MAX_CLASS_NAMES = 32;
@@ -88,9 +86,7 @@ public class TiTableView extends FrameLayout
 
 		protected void registerClassName(String className) {
 			if (!rowTypes.containsKey(className)) {
-				if (DBG) {
-					Log.d(LCAT, "registering new className " + className);
-				}
+				Log.d(TAG, "registering new className " + className, Log.DEBUG_MODE);
 				rowTypes.put(className, rowTypeCounter.incrementAndGet());
 			}
 		}
@@ -184,7 +180,8 @@ public class TiTableView extends FrameLayout
 					} else {
 						// otherwise compare class names
 						if (!v.getClassName().equals(item.className)) {
-							Log.w(LCAT, "Handed a view to convert with className " + v.getClassName() + " expected " + item.className);
+							Log.w(TAG, "Handed a view to convert with className " + v.getClassName() + " expected "
+								+ item.className, Log.DEBUG_MODE);
 							v = null;
 						}
 					}
@@ -389,10 +386,21 @@ public class TiTableView extends FrameLayout
 		}
 	}
 	
-	protected Item getItemAtPosition(int position) {
+	public Item getItemAtPosition(int position) {
 		return viewModel.getViewModel().get(adapter.index.get(position));
 	}
 
+	public int getIndexFromXY(double x, double y) {
+		int bound = listView.getLastVisiblePosition() - listView.getFirstVisiblePosition();
+		for (int i = 0; i <= bound; i++) {
+			View child = listView.getChildAt(i);
+			if (child != null && x >= child.getLeft() && x <= child.getRight() && y >= child.getTop() && y <= child.getBottom()) {
+				return listView.getFirstVisiblePosition() + i;
+			}
+		}
+		return -1;
+	}
+	
 	protected boolean rowClicked(TiBaseTableViewItem rowView, int position, boolean longClick) {
 		String viewClicked = rowView.getLastClickedViewName();
 		Item item = getItemAtPosition(position);

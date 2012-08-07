@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2011-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -28,7 +28,7 @@ import android.net.Uri;
 @Kroll.proxy
 public class TiFileProxy extends KrollProxy
 {
-	private static final String LCAT = "TiFileProxy";
+	private static final String TAG = "TiFileProxy";
 
 	protected String path;
 	protected TiBaseFile tbf;
@@ -287,7 +287,7 @@ public class TiFileProxy extends KrollProxy
 				} else if (args[0] instanceof TiFileProxy) {
 					tbf.write(((TiFileProxy)args[0]).read(), append);
 				} else {
-					Log.i(LCAT, "unable to write, unrecognized type");
+					Log.i(TAG, "Unable to write to an unrecognized file type");
 					return false;
 				}
 
@@ -296,7 +296,7 @@ public class TiFileProxy extends KrollProxy
 
 			return false;
 		} catch(IOException e) {
-			Log.e(LCAT, "IOException encountered");
+			Log.e(TAG, "IOException encountered", e);
 			return false;
 		}
 	}

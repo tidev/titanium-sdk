@@ -664,7 +664,7 @@ public class TiC
 	/**
 	 * @module.api
 	 */
-	public static final String PROPERTY_BROTHER = "bottom";
+	public static final String PROPERTY_BROTHER = "brother";
 
 	/**
 	 * @module.api
@@ -1238,7 +1238,18 @@ public class TiC
 	 */
 	public static final String PROPERTY_MAP_TYPE = "mapType";
 
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_MAX = "max";
+
 	public static final String PROPERTY_MAX_AGE = "maxAge";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_MAX_LENGTH = "maxLength";
+
 
 	/**
 	 * @module.api
@@ -1273,12 +1284,17 @@ public class TiC
 	/**
 	 * @module.api
 	 */
-	public static final String PROPERTY_MIMETYPE = "mimeType";
-	
+	public static final String PROPERTY_MIDDLENAME = "middleName";
+
 	/**
 	 * @module.api
 	 */
-	public static final String PROPERTY_MIDDLENAME = "middleName";
+	public static final String PROPERTY_MIMETYPE = "mimeType";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_MIN = "min";
 
 	public static final String PROPERTY_MIN_AGE = "minAge";
 	public static final String PROPERTY_MIN_UPDATE_DISTANCE = "minUpdateDistance";
@@ -1735,6 +1751,16 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_TAB_OPEN = "tabOpen";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_TABS_BACKGROUND_COLOR = "tabsBackgroundColor";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_TABS_BACKGROUND_SELECTED_COLOR = "tabsBackgroundSelectedColor";
 
 	/**
 	 * @module.api

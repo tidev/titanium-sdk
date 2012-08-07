@@ -347,7 +347,8 @@ properties:
         indicates unlimited length.
     default: -1
     type: Number
-    platforms: [iphone, mobileweb]
+    since: {android: "2.2.0"}
+    platforms: [android, iphone, mobileweb]
 
 events:
   - name: blur

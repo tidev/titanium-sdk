@@ -14,7 +14,6 @@ import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.AsyncResult;
 import org.appcelerator.kroll.common.Log;
-import org.appcelerator.kroll.common.TiConfig;
 import org.appcelerator.kroll.common.TiMessenger;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
@@ -24,6 +23,7 @@ import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.view.TiUIView;
 
 import ti.modules.titanium.ui.widget.TiUITableView;
+import ti.modules.titanium.ui.widget.tableview.TableViewModel.Item;
 import android.app.Activity;
 import android.os.Message;
 
@@ -39,8 +39,7 @@ import android.os.Message;
 })
 public class TableViewProxy extends TiViewProxy
 {
-	private static final String LCAT = "TableViewProxy";
-	private static final boolean DBG = TiConfig.LOGD;
+	private static final String TAG = "TableViewProxy";
 
 	private static final int INSERT_ROW_BEFORE = 0;
 	private static final int INSERT_ROW_AFTER = 1;
@@ -140,6 +139,7 @@ public class TableViewProxy extends TiViewProxy
 			rowIndex = ((Number) row).intValue();
 			locateIndex(rowIndex, rr);
 			sectionProxy = rr.section;
+			rowIndex = rr.rowIndexInSection;
 		} else if (row instanceof TableViewRowProxy) {
 			ArrayList<TableViewSectionProxy> sections = getSectionsArray();
 			sectionLoop: for (int i = 0; i < sections.size(); i++) {
@@ -173,6 +173,22 @@ public class TableViewProxy extends TiViewProxy
 		TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_APPEND_ROW), rows);
 	}
 
+	@Override
+	public boolean fireEvent(String eventName, Object data) {
+		if (eventName.equals(TiC.EVENT_LONGPRESS)) {
+			double x = ((KrollDict)data).getDouble(TiC.PROPERTY_X);
+			double y = ((KrollDict)data).getDouble(TiC.PROPERTY_Y);
+			int index = getTableView().getTableView().getIndexFromXY(x, y);
+			if (index != -1) {
+				Item item = getTableView().getTableView().getItemAtPosition(index);
+				TableViewRowProxy.fillClickEvent((KrollDict) data, getTableView().getModel(), item);
+			}
+		}
+		//create copy to be thread safe.
+		KrollDict dataCopy = new KrollDict((KrollDict)data);
+		return super.fireEvent(eventName, dataCopy);
+	}
+	
 	private void handleAppendRow(Object rows)
 	{
 		Object[] rowList = null;
@@ -465,8 +481,8 @@ public class TableViewProxy extends TiViewProxy
 		}
 
 		if (rowProxy == null) {
-			Log.e(LCAT,
-				"unable to create table view row proxy for object, likely an error in the type of the object passed in...");
+			Log.e(TAG,
+				"Unable to create table view row proxy for object, likely an error in the type of the object passed in...");
 			return null;
 		}
 
