@@ -992,6 +992,18 @@ properties:
     since: 2.1.0
     platforms: [iphone, ipad]
 
+  - name: scrollsToTop
+    summary: Controls whether the scroll-to-top gesture is effective.
+    description: |
+        The scroll-to-top gesture is a tap on the status bar; The default value of this property is true. 
+        This gesture works when you have a single visible table view.
+        If there are multiple table views visible, you will need to disable (set to false) on the tables you 
+        DON'T want this behaviour on. The remaining table will then respond to scroll-to-top gesture. 
+    type: Boolean
+    default: true
+    platforms: [iphone,ipad]
+    since: 2.2.0
+
   - name: search
     summary: Search field to use for the table view.
     type: Titanium.UI.SearchBar
