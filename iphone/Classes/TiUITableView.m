@@ -334,7 +334,7 @@
 //http://developer.apple.com/library/ios/#documentation/uikit/reference/UIScrollView_Class/Reference/UIScrollView.html
 -(void)setScrollsToTop_:(id)value
 {
-	[[self tableView] setScrollsToTop:[TiUtils boolValue:value]];
+	[[self tableView] setScrollsToTop:[TiUtils boolValue:value def:YES]];
 }
 
 -(void)setBackgroundColor:(TiColor*)color onTable:(UITableView*)table

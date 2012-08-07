@@ -420,7 +420,7 @@ static NSString * const kTitaniumJavascript = @"Ti.App={};Ti.API={};Ti.App._list
 
 -(void)setScrollsToTop_:(id)value
 {
-	BOOL scrollsToTop = [TiUtils boolValue:value];
+	BOOL scrollsToTop = [TiUtils boolValue:value def:YES];
 	[[self scrollview] setScrollsToTop:scrollsToTop];
 }
 
