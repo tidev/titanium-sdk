@@ -639,11 +639,7 @@ static NSString * const kTitaniumJavascript = @"Ti.App={};Ti.API={};Ti.App._list
 	{
         isFiredOnce = true; 
 		NSDictionary *event = newUrl == nil ? nil : [NSDictionary dictionaryWithObjectsAndKeys:[newUrl absoluteString], @"url", NUMINT(navigationType), @"navigationType", nil];
-		if([newUrl fragment])
-		{
-			
-		}
-		else
+		if([[newUrl fragment] length] == 0)
 		{
 			[self.proxy fireEvent:@"beforeload" withObject:event];
 		}
