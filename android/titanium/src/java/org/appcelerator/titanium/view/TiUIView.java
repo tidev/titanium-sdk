@@ -1139,19 +1139,8 @@ public abstract class TiUIView
 
 				String motionEvent = motionEvents.get(event.getAction());
 				if (motionEvent != null) {
-					if (event.getAction() == MotionEvent.ACTION_UP) {
-						Rect r = new Rect(0, 0, view.getWidth(), view.getHeight());
-						int actualAction = r.contains((int) event.getX(), (int) event.getY()) ? MotionEvent.ACTION_UP
-							: MotionEvent.ACTION_CANCEL;
-
-						String actualEvent = motionEvents.get(actualAction);
-						if (proxy.hierarchyHasListener(actualEvent)) {
-							proxy.fireEvent(actualEvent, dictFromEvent(event));
-						}
-					} else {
-						if (proxy.hierarchyHasListener(motionEvent)) {
-							proxy.fireEvent(motionEvent, dictFromEvent(event));
-						}
+					if (proxy.hierarchyHasListener(motionEvent)) {
+						proxy.fireEvent(motionEvent, dictFromEvent(event));
 					}
 				}
 
