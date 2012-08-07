@@ -126,6 +126,10 @@
 	//TODO
 }
 
+-(void)setScrollsToTop_:(id)value
+{
+	[(UITextView *)[self textWidgetView] setScrollsToTop:[TiUtils boolValue:value def:YES]];
+}
 
 -(void)setBackgroundColor_:(id)color
 {
