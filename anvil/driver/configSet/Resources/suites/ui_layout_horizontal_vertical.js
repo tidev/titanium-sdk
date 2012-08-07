@@ -22,7 +22,8 @@ module.exports = new function() {
 		{name: "horizontalWrapWithSIZEHeight"},
 		{name: "horizontalNoWrapWithSIZEHeight"},
 		{name: "horizontalNoWrapTopPaddingSIZEHeight"},
-		{name: "horizontalWrapTopPaddingSIZEHeight"}
+		{name: "horizontalWrapTopPaddingSIZEHeight"},
+		{name: "verticalWithTopBottomPadding"}
 	];
 
 	this.horizontalTopBottomUndefinedHeight = function(testRun) {
@@ -277,6 +278,48 @@ module.exports = new function() {
 		});
 
 		win.add(topView);
+		win.open();
+	};
+
+	this.verticalWithTopBottomPadding = function(testRun) {
+		var win = Ti.UI.createWindow({
+			backgroundColor : 'white'
+		})
+
+		var container = Ti.UI.createView({
+			height : Ti.UI.SIZE,
+			backgroundColor : 'yellow',
+			width: 400,
+			layout : 'vertical'
+		})
+
+		var view1 = Ti.UI.createView({
+			width : 100,
+			height : 100,
+			top: 5,
+			bottom : 5,
+			backgroundColor : 'red'
+		})
+
+		var view2 = Ti.UI.createView({
+			width : 100,
+			height : 100,
+			top: 5,
+			bottom : 5,
+			backgroundColor : 'green'
+		})
+
+		win.addEventListener("open", function(e){
+			valueOf(testRun, view1.rect.y).shouldBe(5);
+			valueOf(testRun, view2.rect.y).shouldBe(115);
+			valueOf(testRun, container.rect.height).shouldBe(220);
+
+			finish(testRun);
+		});
+
+		container.add(view1);
+		container.add(view2);
+		win.add(container);
 		win.open();
 	};
 };
