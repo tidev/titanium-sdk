@@ -12,6 +12,7 @@ import java.util.HashMap;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
+import org.appcelerator.kroll.common.TiConfig;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiC;
@@ -286,12 +287,22 @@ public class ViewProxy extends TiViewProxy implements OnLifecycleEvent
 		}
 	}
 
-	protected int findAnnotation(String title)
+	protected int findAnnotation(String title, AnnotationProxy annotation)
 	{
 		int existsIndex = -1;
 		// Check for existence
 		int len = annotations.size();
-		for (int i = 0; i < len; i++) {
+		
+		if (annotation != null) {
+			for (int i = 0; i < len && existsIndex == -1; i++) {
+				if (annotation == annotations.get(i)) {
+					existsIndex = i;
+					break;
+				}
+			}
+		}
+		
+		for (int i = 0; i < len && existsIndex == -1; i++) {
 			AnnotationProxy a = annotations.get(i);
 			String t = (String) a.getProperty(TiC.PROPERTY_TITLE);
 
@@ -310,16 +321,17 @@ public class ViewProxy extends TiViewProxy implements OnLifecycleEvent
 	public void removeAnnotation(Object arg)
 	{
 		String title = null;
-
+		AnnotationProxy annotation = null;
 		if (arg != null) {
 			if (arg instanceof AnnotationProxy) {
-				title = TiConvert.toString(((AnnotationProxy) arg).getProperty("title"));
+				annotation = (AnnotationProxy)arg;
+				title = TiConvert.toString(annotation.getProperty(TiC.PROPERTY_TITLE));
 			} else {
 				title = TiConvert.toString(arg);
 			}
 
 			if (title != null) {
-				int existsIndex = findAnnotation(title);
+				int existsIndex = findAnnotation(title, annotation);
 				if (existsIndex > -1) {
 					annotations.get(existsIndex).setViewProxy(null);
 					annotations.remove(existsIndex);
@@ -335,6 +347,7 @@ public class ViewProxy extends TiViewProxy implements OnLifecycleEvent
 	@Kroll.method
 	public void selectAnnotation(Object[] args)
 	{
+		AnnotationProxy selAnnotation = null;
 		String title = null;
 		boolean animate = false;
 		boolean center = true; // keep existing default behavior
@@ -345,7 +358,8 @@ public class ViewProxy extends TiViewProxy implements OnLifecycleEvent
 
 				Object selectedAnnotation = params.get(TiC.PROPERTY_ANNOTATION);
 				if (selectedAnnotation instanceof AnnotationProxy) {
-					title = TiConvert.toString(((AnnotationProxy) selectedAnnotation).getProperty(TiC.PROPERTY_TITLE));
+					selAnnotation = (AnnotationProxy)selectedAnnotation;
+					title = TiConvert.toString(selAnnotation.getProperty(TiC.PROPERTY_TITLE));
 				} else {
 					title = TiConvert.toString(params, TiC.PROPERTY_TITLE);
 				}
@@ -362,7 +376,8 @@ public class ViewProxy extends TiViewProxy implements OnLifecycleEvent
 
 			} else {
 				if (args[0] instanceof AnnotationProxy) {
-					title = TiConvert.toString(((AnnotationProxy) args[0]).getProperty(TiC.PROPERTY_TITLE));
+					selAnnotation = (AnnotationProxy) args[0];
+					title = TiConvert.toString(selAnnotation.getProperty(TiC.PROPERTY_TITLE));
 
 				} else if (args[0] instanceof String) {
 					title = TiConvert.toString(args[0]);
@@ -376,11 +391,11 @@ public class ViewProxy extends TiViewProxy implements OnLifecycleEvent
 
 		if (title != null) {
 			if (mapView == null) {
-				Log.e(TAG, "Calling selectedAnnotations.add", Log.DEBUG_MODE);
-				selectedAnnotations.add(new TiMapView.SelectedAnnotation(title, animate, center));
+				Log.i(TAG, "calling selectedAnnotations.add", Log.DEBUG_MODE);
+				selectedAnnotations.add(new TiMapView.SelectedAnnotation(title, selAnnotation, animate, center));
 			} else {
-				Log.e(TAG, "Calling selectedAnnotations.add2", Log.DEBUG_MODE);
-				mapView.selectAnnotation(true, title, animate, center);
+				Log.i(TAG, "calling selectedAnnotations.add2", Log.DEBUG_MODE);
+				mapView.selectAnnotation(true, title, selAnnotation, animate, center);
 			}
 		}
 	}
@@ -389,10 +404,11 @@ public class ViewProxy extends TiViewProxy implements OnLifecycleEvent
 	public void deselectAnnotation(Object[] args)
 	{
 		String title = null;
-
+		AnnotationProxy selectedAnnotation = null;
 		if (args.length > 0) {
 			if (args[0] instanceof AnnotationProxy) {
-				title = TiConvert.toString(((AnnotationProxy) args[0]).getProperty("title"));
+				selectedAnnotation = (AnnotationProxy) args[0];
+				title = TiConvert.toString(selectedAnnotation.getProperty("title"));
 			} else if (args[0] instanceof String) {
 				title = TiConvert.toString(args[0]);
 			}
@@ -412,7 +428,7 @@ public class ViewProxy extends TiViewProxy implements OnLifecycleEvent
 					}
 				}
 			} else {
-				mapView.selectAnnotation(false, title, animate, false);
+				mapView.selectAnnotation(false, title, selectedAnnotation, animate, false);
 			}
 		}
 	}
