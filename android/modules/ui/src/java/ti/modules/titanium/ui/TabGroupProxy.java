@@ -6,6 +6,7 @@
  */
 package ti.modules.titanium.ui;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 
 import org.appcelerator.kroll.KrollDict;
@@ -52,8 +53,7 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 	protected static final int MSG_LAST_ID = MSG_FIRST_ID + 999;
 
 	private ArrayList<TabProxy> tabs = new ArrayList<TabProxy>();
-
-	// The proxy of the currently selected tab of this group.
+	private WeakReference<Activity> tabGroupActivity;
 	private TabProxy selectedTab;
 
 	public TabGroupProxy()
@@ -280,6 +280,7 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 
 	@Override
 	public void windowCreated(TiBaseActivity activity) {
+		tabGroupActivity = new WeakReference<Activity>(activity);
 		activity.setWindowProxy(this);
 
 		// Use the navigation tabs if this platform supports the action bar.
@@ -344,6 +345,11 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 		view = null;
 
 		opened = false;
+
+		Activity activity = tabGroupActivity.get();
+		if (activity != null) {
+			activity.finish();
+		}
 	}
 
 	/**
