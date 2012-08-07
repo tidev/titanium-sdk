@@ -157,7 +157,7 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 
 		// Set the tab's parent to this tab group.
 		// This allows for certain events to bubble up.
-		tab.setParent(this);
+		tab.setTabGroup(this);
 
 		tabs.add(tab);
 
