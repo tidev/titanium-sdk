@@ -1,7 +1,5 @@
 package ti.modules.titanium.ui.widget.tabgroup;
 
-import org.appcelerator.titanium.TiC;
-
 import ti.modules.titanium.ui.TabGroupProxy;
 import ti.modules.titanium.ui.TabProxy;
 import android.app.ActionBar;
@@ -9,7 +7,6 @@ import android.app.ActionBar.Tab;
 import android.app.ActionBar.TabListener;
 import android.app.Activity;
 import android.app.FragmentTransaction;
-import android.widget.FrameLayout;
 
 /**
  * Tab group implementation using the Action Bar navigation tabs.
@@ -32,10 +29,6 @@ public class TiUIActionBarTabGroup extends TiUIAbstractTabGroup implements TabLi
 		// Setup the action bar for navigation tabs.
 		actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
 		actionBar.setDisplayShowTitleEnabled(false);
-
-		FrameLayout content = new FrameLayout(activity);
-		activity.setContentView(content);
-		setNativeView(content);
 	}
 
 	@Override
@@ -46,7 +39,7 @@ public class TiUIActionBarTabGroup extends TiUIAbstractTabGroup implements TabLi
 		// Create a view for this tab proxy.
 		tabProxy.setView(new TiUIActionBarTab(tabProxy, tab));
 
-		actionBar.addTab(tab, tabProxy.isActive());
+		actionBar.addTab(tab);
 	}
 
 	@Override

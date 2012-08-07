@@ -2,10 +2,11 @@ package ti.modules.titanium.ui.widget.tabgroup;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.titanium.TiC;
-import org.appcelerator.titanium.proxy.TiBaseWindowProxy;
+import org.appcelerator.titanium.proxy.TiWindowProxy;
 
 import ti.modules.titanium.ui.TabProxy;
 import ti.modules.titanium.ui.ViewProxy;
+import ti.modules.titanium.ui.widget.TiView;
 import android.app.ActionBar;
 import android.app.Fragment;
 import android.os.Bundle;
@@ -16,15 +17,22 @@ import android.view.ViewGroup;
 public class TiUIActionBarTab extends TiUIAbstractTab {
 
 	public static class TabFragment extends Fragment {
-		private View content;
+		private TiView contentView;
 
-		public TabFragment(View content) {
-			this.content = content;
+		public void setContentWindow(TiWindowProxy windowProxy) {
+			ViewProxy contentProxy = new ViewProxy();
+			contentProxy.setActivity(windowProxy.getActivity());
+			contentView = (TiView) contentProxy.getOrCreateView();
+			windowProxy.getKrollObject().setWindow(contentProxy);
 		}
 
 		@Override
 		public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-			return content;
+			if (contentView != null) {
+				return contentView.getNativeView();
+			}
+
+			return null;
 		}
 	}
 
@@ -36,7 +44,7 @@ public class TiUIActionBarTab extends TiUIAbstractTab {
 	 * detached when it is later unselected. This reference will be
 	 * initialized when the tab is first selected.
 	 */
-	Fragment fragment;
+	TabFragment fragment;
 
 	public TiUIActionBarTab(TabProxy proxy, ActionBar.Tab tab) {
 		super(proxy);
@@ -66,15 +74,12 @@ public class TiUIActionBarTab extends TiUIAbstractTab {
 	 * will display the tab's content view.
 	 */
 	void initializeFragment() {
-		ViewProxy content = new ViewProxy();
-		content.setActivity(proxy.getActivity());
+		fragment = new TabFragment();
 
-		Object window = proxy.getProperty("window");
-		if (window instanceof TiBaseWindowProxy) {
-			((TiBaseWindowProxy) window).getKrollObject().setWindow(content);
+		Object windowProxy = proxy.getProperty("window");
+		if (windowProxy instanceof TiWindowProxy) {
+			fragment.setContentWindow((TiWindowProxy) windowProxy);
 		}
-
-		fragment = new TabFragment(content.getOrCreateView().getNativeView());
 	}
 
 }
