@@ -73,12 +73,6 @@ public class TiUIActionBarTabGroup extends TiUIAbstractTabGroup implements TabLi
 	}
 
 	@Override
-	public void close() {
-		// TODO(josh): remove this stud once TiUIAbstractTabGrup
-		// implements this functionality.
-	}
-
-	@Override
 	public void onTabSelected(Tab tab, FragmentTransaction ft) {
 		TiUIActionBarTab tabView = (TiUIActionBarTab) tab.getTag();
 

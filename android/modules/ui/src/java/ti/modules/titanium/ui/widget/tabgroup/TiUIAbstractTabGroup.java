@@ -36,9 +36,4 @@ public abstract class TiUIAbstractTabGroup extends TiUIView {
 	 */
 	public abstract TabProxy getSelectedTab();
 
-	// TODO(josh): implement the activity clean up in this abstract class.
-	// The activity management for both tab group implementations can share
-	// a lot of common code.
-	public abstract void close();
-
 }

@@ -1,33 +1,26 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
 package ti.modules.titanium.ui.widget.tabgroup;
 
-import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.HashMap;
 
-import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.common.TiConfig;
-import org.appcelerator.titanium.TiActivity;
-import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.TiBaseWindowProxy;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
-import org.appcelerator.titanium.util.TiUIHelper;
 
-import ti.modules.titanium.ui.ActivityWindowProxy;
+import ti.modules.titanium.ui.R;
 import ti.modules.titanium.ui.TabGroupProxy;
 import ti.modules.titanium.ui.TabProxy;
-import ti.modules.titanium.ui.TiTabActivity;
 import android.app.Activity;
-import android.content.Intent;
-import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -51,48 +44,35 @@ public class TiUITabHostGroup extends TiUIAbstractTabGroup
 	private static final boolean DBG = TiConfig.LOGD;
 
 	private TabHost tabHost;
-
-	private int previousTabID = -1;
-	private int currentTabID = 0;
-
-	private WeakReference<TiTabActivity> weakActivity;
+	private HashMap<String, TiUITabHostTab> tabViews = new HashMap<String, TiUITabHostTab>();
 	
 	private Drawable defaultDrawable;
 	private Drawable defaultSelectedDrawable;
 	private boolean cacheDefaults = true;
 
-
 	public TiUITabHostGroup(TabGroupProxy proxy, Activity activity)
 	{
 		super(proxy, activity);
 
-		tabHost = ((TiTabActivity) activity).getTabHost();
+		activity.setContentView(R.layout.titanium_tabgroup);
 
+		tabHost = (TabHost) activity.findViewById(android.R.id.tabhost);
+
+		/* TODO(josh): remove?
 		// Set to GONE to overcome a NullPointerException
 		// deep in Android code in pre api 8.  See Android issue
 		// 2772.
 		tabHost.setVisibility(View.GONE);
 		tabHost.clearAllTabs();
-		tabHost.setOnTabChangedListener(this);
-		tabHost.setup(((TiTabActivity) activity).getLocalActivityManager());
+		*/
 
-		Object bgColor = proxy.getProperty(TiC.PROPERTY_BACKGROUND_COLOR);
-		if (bgColor != null) {
-			tabHost.setBackgroundColor(TiConvert.toColor(bgColor.toString()));
-		} else {
-			tabHost.setBackgroundDrawable(new ColorDrawable(TiConvert.toColor("#ff1a1a1a")));
-		}
+		tabHost.setOnTabChangedListener(this);
+		tabHost.setup();
 
 		setNativeView(tabHost);
-		
-
 	}
 
-	public TabSpec newTab(String id)
-	{
-		return tabHost.newTabSpec(id);
-	}
-
+	// TODO(josh): yuck! Figure out this mess. Looks like a hack to get tab click events.
 	protected void registerTouchForTabGroup(final View touchable, final TabProxy tabProxy)
 	{
 		if (touchable == null) {
@@ -179,52 +159,22 @@ public class TiUITabHostGroup extends TiUIAbstractTabGroup
 
 	@Override
 	public void addTab(TabProxy tab) {
-		TiTabActivity tta = weakActivity.get();
-		if (tta == null) {
-			if (DBG) {
-				Log.w(LCAT, "Could not add tab because tab activity no longer exists");
-			}
-		}
+		/* TODO(josh): move into TiUITab view?
 		Object iconProperty = tab.getProperty(TiC.PROPERTY_ICON);
 		Drawable icon = TiUIHelper.getResourceDrawable(iconProperty);
+		*/
 
-		String tag = TiConvert.toString(tab.getProperty(TiC.PROPERTY_TAG));
+		/* TODO(josh): move
 		String title = TiConvert.toString(tab.getProperty(TiC.PROPERTY_TITLE));
 		if (title == null) {
 			title = "";
 		}
+		*/
 
-		tab.setTabGroup((TabGroupProxy) proxy);
+		TiUITabHostTab tabView = new TiUITabHostTab(tab);
+		TabSpec spec = tabHost.newTabSpec(tabView.id);
 
-		ActivityWindowProxy windowProxy = new ActivityWindowProxy();
-		windowProxy.setActivity(((TabGroupProxy) proxy).getActivity());
-
-		TiBaseWindowProxy baseWindow = (TiBaseWindowProxy) tab.getProperty(TiC.PROPERTY_WINDOW);
-		if (baseWindow != null) {
-			windowProxy.handleCreationDict(baseWindow.getProperties());
-			tab.setWindow(baseWindow);  // hooks up the tab and the JS window wrapper
-			baseWindow.getKrollObject().setWindow(windowProxy);
-
-		} else {
-			Log.w(LCAT, "window property was not set on tab");
-		}
-
-		if (tag != null && windowProxy != null) {
-			TabSpec tspec = newTab(tag);
-			if (icon == null) {
-				tspec.setIndicator(title);
-			} else {
-				tspec.setIndicator(title, icon);
-			}
-
-			Intent intent = new Intent(tta, TiActivity.class);
-			windowProxy.setParent(tab);
-			// TODO(josh): remove -> windowProxy.fillIntentForTab(intent, tab);
-
-			tspec.setContent(intent);
-
-			addTab(tspec, tab);
-		}
+		tabHost.addTab(spec);
 	}
 
 	@Override
@@ -236,16 +186,6 @@ public class TiUITabHostGroup extends TiUIAbstractTabGroup
 	public TabProxy getSelectedTab() {
 		// TODO(josh): implement
 		return null;
-	}
-
-	@Override
-	public void close() {
-		Activity tabActivity = this.weakActivity.get();
-		if (tabActivity != null) {
-			tabActivity.finish();
-			// Finishing an activity is not synchronous, so we remove the activity from the activity stack here
-			TiApplication.removeFromActivityStack(tabActivity);
-		};
 	}
 
 	@Override
