@@ -17,9 +17,13 @@ import ti.modules.titanium.ui.widget.TiUIProgressIndicator;
 import android.app.Activity;
 
 @Kroll.proxy(creatableInModule=AndroidModule.class, propertyAccessors = {
-	"message", "value",
-	"location", "min", "max",
-	"messageid", "type",
+	TiC.PROPERTY_MESSAGE,
+	TiC.PROPERTY_MESSAGEID,
+	TiC.PROPERTY_VALUE,
+	TiC.PROPERTY_LOCATION,
+	TiC.PROPERTY_TYPE,
+	TiC.PROPERTY_MIN,
+	TiC.PROPERTY_MAX,
 	TiC.PROPERTY_CANCELABLE
 })
 @Kroll.dynamicApis(methods = {
@@ -40,7 +44,7 @@ public class ProgressIndicatorProxy extends TiDialogProxy
 	@Override
 	protected KrollDict getLangConversionTable() {
 		KrollDict table = new KrollDict();
-		table.put("message", "messageid");
+		table.put(TiC.PROPERTY_MESSAGE, TiC.PROPERTY_MESSAGEID);
 		return table;
 	}
 

@@ -9,7 +9,6 @@ package ti.modules.titanium.ui.widget;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.common.Log;
-import org.appcelerator.kroll.common.TiConfig;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiC;
@@ -28,8 +27,7 @@ import android.os.Message;
 public class TiUIProgressIndicator extends TiUIView
 	implements Handler.Callback, DialogInterface.OnCancelListener
 {
-	private static final String LCAT = "TiUIProgressDialog";
-	private static final boolean DBG = TiConfig.LOGD;
+	private static final String TAG = "TiUIProgressDialog";
 
 	private static final int MSG_SHOW = 100;
 	private static final int MSG_PROGRESS = 101;
@@ -54,9 +52,7 @@ public class TiUIProgressIndicator extends TiUIView
 
 	public TiUIProgressIndicator(TiViewProxy proxy) {
 		super(proxy);
-		if (DBG) {
-			Log.d(LCAT, "Creating an activity indicator");
-		}
+		Log.d(TAG, "Creating an progress indicator", Log.DEBUG_MODE);
 		handler = new Handler(Looper.getMainLooper(), this);
 	}
 
@@ -96,11 +92,9 @@ public class TiUIProgressIndicator extends TiUIView
 	@Override
 	public void propertyChanged(String key, Object oldValue, Object newValue, KrollProxy proxy)
 	{
-		if (DBG) {
-			Log.d(LCAT, "Property: " + key + " old: " + oldValue + " new: " + newValue);
-		}
+		Log.d(TAG, "Property: " + key + " old: " + oldValue + " new: " + newValue, Log.DEBUG_MODE);
 
-		if (key.equals("message")) {
+		if (key.equals(TiC.PROPERTY_MESSAGE)) {
 			if (visible) {
 				if (progressDialog != null) {
 					progressDialog.setMessage((String) newValue);
@@ -111,7 +105,7 @@ public class TiUIProgressIndicator extends TiUIView
 				}
 			}
 
-		} else if (key.equals("value")) {
+		} else if (key.equals(TiC.PROPERTY_VALUE)) {
 			if (visible) {
 				int value = TiConvert.toInt(newValue);
 				int thePos = (value - min) * incrementFactor;
@@ -151,28 +145,28 @@ public class TiUIProgressIndicator extends TiUIView
 	protected void handleShow()
 	{
 		String message = "";
-		if (proxy.hasProperty("message")) {
-			message = (String) proxy.getProperty("message");
+		if (proxy.hasProperty(TiC.PROPERTY_MESSAGE)) {
+			message = (String) proxy.getProperty(TiC.PROPERTY_MESSAGE);
 		}
 
 		location = DIALOG;
-		if (proxy.hasProperty("location")) {
-			location = TiConvert.toInt(proxy.getProperty("location"));
+		if (proxy.hasProperty(TiC.PROPERTY_LOCATION)) {
+			location = TiConvert.toInt(proxy.getProperty(TiC.PROPERTY_LOCATION));
 		}
 
 		min = 0;
-		if (proxy.hasProperty("min")) {
-			min = TiConvert.toInt(proxy.getProperty("min"));
+		if (proxy.hasProperty(TiC.PROPERTY_MIN)) {
+			min = TiConvert.toInt(proxy.getProperty(TiC.PROPERTY_MIN));
 		}
 
 		max = 100;
-		if (proxy.hasProperty("max")) {
-			max = TiConvert.toInt(proxy.getProperty("max"));
+		if (proxy.hasProperty(TiC.PROPERTY_MAX)) {
+			max = TiConvert.toInt(proxy.getProperty(TiC.PROPERTY_MAX));
 		}
 
 		type = INDETERMINANT;
-		if (proxy.hasProperty("type")) {
-			type = TiConvert.toInt(proxy.getProperty("type"));
+		if (proxy.hasProperty(TiC.PROPERTY_TYPE)) {
+			type = TiConvert.toInt(proxy.getProperty(TiC.PROPERTY_TYPE));
 		}
 
 		if (location == STATUS_BAR) {
@@ -191,7 +185,7 @@ public class TiUIProgressIndicator extends TiUIView
 				statusBarTitle = parent.getTitle().toString();
 				parent.setTitle(message);
 			} else {
-				Log.w(LCAT, "Unknown type: " + type);
+				Log.w(TAG, "Unknown type: " + type);
 			}
 		} else if (location == DIALOG) {
 			incrementFactor = 1;
@@ -223,11 +217,11 @@ public class TiUIProgressIndicator extends TiUIView
 				}
 				progressDialog.setProgress(0);
 			} else {
-				Log.w(LCAT, "Unknown type: " + type);
+				Log.w(TAG, "Unknown type: " + type);
 			}
 			progressDialog.show();
 		} else {
-			Log.w(LCAT, "Unknown location: " + location);
+			Log.w(TAG, "Unknown location: " + location);
 		}
 		visible = true;
 	}
