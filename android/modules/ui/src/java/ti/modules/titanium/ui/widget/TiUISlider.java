@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -16,6 +16,7 @@ import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiFileHelper;
+import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiUIView;
 
 import android.graphics.Rect;
@@ -41,7 +42,8 @@ public class TiUISlider extends TiUIView
 	
 	private SoftReference<Drawable> thumbDrawable;
 
-	public TiUISlider(TiViewProxy proxy) {
+	public TiUISlider(final TiViewProxy proxy)
+	{
 		super(proxy);
 		if (DBG) {
 			Log.d(LCAT, "Creating a seekBar");
@@ -53,7 +55,15 @@ public class TiUISlider extends TiUIView
 		this.max = 1;
 		this.pos = 0;
 		
-		SeekBar seekBar = new SeekBar(proxy.getActivity());
+		SeekBar seekBar = new SeekBar(proxy.getActivity())
+		{
+			@Override
+			protected void onLayout(boolean changed, int left, int top, int right, int bottom)
+			{
+				super.onLayout(changed, left, top, right, bottom);
+				TiUIHelper.firePostLayoutEvent(proxy);
+			}
+		};
 		seekBar.setOnSeekBarChangeListener(this);
 		setNativeView(seekBar);
 	}

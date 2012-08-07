@@ -38,7 +38,8 @@ public class TiUILabel extends TiUIView
 	private Rect textPadding;
 
 
-	public TiUILabel(TiViewProxy proxy) {
+	public TiUILabel(final TiViewProxy proxy)
+	{
 		super(proxy);
 		if (DBG) {
 			Log.d(LCAT, "Creating a text label");
@@ -47,8 +48,18 @@ public class TiUILabel extends TiUIView
 		shadowDx = 0;
 		shadowDy = 0;
 		textPadding = new Rect();
+		TextView tv = new TextView(getProxy().getActivity())
+		{
+			@Override
+			protected void onLayout(boolean changed, int left, int top, int right, int bottom)
+			{
+				super.onLayout(changed, left, top, right, bottom);
 
-		TextView tv = new TextView(getProxy().getActivity());
+				if (proxy != null && proxy.hasListeners(TiC.EVENT_POST_LAYOUT)) {
+					proxy.fireEvent(TiC.EVENT_POST_LAYOUT, null, false);
+				}
+			}
+		};
 		tv.setGravity(Gravity.CENTER_VERTICAL | Gravity.LEFT);
 		tv.setPadding(textPadding.left, textPadding.top, textPadding.right, textPadding.bottom);
 		tv.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_MULTI_LINE);

@@ -135,6 +135,14 @@
 @property(nonatomic,readonly) NSNumber *AUTODETECT_ADDRESS;
 @property(nonatomic,readonly) NSNumber *AUTODETECT_CALENDAR;
 
+@property(nonatomic,readonly) NSNumber *AUTOLINK_NONE;
+@property(nonatomic,readonly) NSNumber *AUTOLINK_ALL;
+@property(nonatomic,readonly) NSNumber *AUTOLINK_PHONE_NUMBERS;
+@property(nonatomic,readonly) NSNumber *AUTOLINK_URLS;
+@property(nonatomic,readonly) NSNumber *AUTOLINK_EMAIL_ADDRESSES;
+@property(nonatomic,readonly) NSNumber *AUTOLINK_MAP_ADDRESSES;
+@property(nonatomic,readonly) NSNumber *AUTOLINK_CALENDAR;
+
 @property(nonatomic,readonly) NSString *SIZE;
 @property(nonatomic,readonly) NSString *FILL;
 @property(nonatomic,readonly) NSString *UNIT_PX;

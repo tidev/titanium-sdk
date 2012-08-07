@@ -1,0 +1,198 @@
+name: Titanium.Cloud.Files
+summary: Provides methods for accessing ACS files.
+extends: Titanium.Module
+excludes: { methods: [ 'addEventListener', 'fireEvent', 'removeEventListener',  ] }
+
+methods:
+  - name: create
+    summary: Create a file.
+    description: |
+        Requires user login. 
+        
+        See [Files: Create a File](http://cloud.appcelerator.com/docs/api/v1/files/create)
+        for the request parameters supported by this method.
+        
+        Data is returned in the `files` property of the parameter passed to the callback.
+    parameters:
+      - name: parameters
+        summary: Parameters to send in the request.
+        type: Dictionary
+        
+      - name: callback
+        summary: Callback function to execute when the method completes.
+        type: Callback<CloudFilesResponse>
+  
+  - name: query
+    summary: Retrieve a list of files with sorting and pagination.
+    description: |
+        See [Files: Custom Query Files](http://cloud.appcelerator.com/docs/api/v1/files/query)
+        for the request parameters supported by this method.
+        
+        Data is returned in the `files` property of the parameter passed to the callback.
+    parameters:
+      - name: parameters
+        summary: Parameters to send in the request.
+        type: Dictionary
+        optional: true
+        
+      - name: callback
+        summary: Callback function to execute when the method completes.
+        type: Callback<CloudFilesResponse>
+  
+  - name: remove
+    summary: Delete a file.
+    description: |
+        Requires user login. 
+        
+        See [Files: Delete a File](http://cloud.appcelerator.com/docs/api/v1/files/delete)
+        for the request parameters supported by this method.
+    parameters:
+      - name: parameters
+        summary: Parameters to send in the request.
+        type: Dictionary
+        
+      - name: callback
+        summary: Callback function to execute when the method completes.
+        type: Callback<CloudFilesResponse>
+  
+  - name: show
+    summary: Retrieve information about a file.
+    description: |
+        See [Files: Show File Info](http://cloud.appcelerator.com/docs/api/v1/files/show)
+        for the request parameters supported by this method.
+        
+        Data is returned in the `files` property of the parameter passed to the callback.
+    parameters:
+      - name: parameters
+        summary: Parameters to send in the request.
+        type: Dictionary
+        
+      - name: callback
+        summary: Callback function to execute when the method completes.
+        type: Callback<CloudFilesResponse>
+  
+  - name: update
+    summary: Update the information for a file.
+    description: |
+        Requires user login. 
+        
+        See [Files: Update a File](http://cloud.appcelerator.com/docs/api/v1/files/update)
+        for the request parameters supported by this method.
+        
+        Data is returned in the `files` property of the parameter passed to the callback.
+    parameters:
+      - name: parameters
+        summary: Parameters to send in the request.
+        type: Dictionary
+        
+      - name: callback
+        summary: Callback function to execute when the method completes.
+        type: Callback<CloudFilesResponse>
+
+examples:
+  - title: Create File
+    example: |
+        This example creates a new file and checks the response.
+        
+            Cloud.Files.create({
+                name: 'test.dat',
+                file: Titanium.Filesystem.getFile('test.dat')
+            }, function (e) {
+                if (e.success) {
+                    var file = e.files[0];
+                    alert('Success:\\n' +
+                        'id: ' + file.id + '\\n' +
+                        'name: ' + file.name + '\\n' +
+                        'updated_at: ' + file.updated_at);
+                } else {
+                    alert('Error:\\n' +
+                        ((e.error && e.message) || JSON.stringify(e)));
+                }
+            });
+  
+  - title: Show a File
+    example: |
+        This example retrieves information about a file and checks the response.
+        
+            Cloud.Files.show({
+                file_id: savedFileId
+            }, function (e) {
+                if (e.success) {
+                    var file = e.files[0];
+                    alert('Success:\\n' +
+                        'id: ' + file.id + '\\n' +
+                        'name: ' + file.name + '\\n' +
+                        'updated_at: ' + file.updated_at);
+                } else {
+                    alert('Error:\\n' +
+                        ((e.error && e.message) || JSON.stringify(e)));
+                }
+            });
+  
+  - title: Query for Files
+    example: |
+        This example requests a list of files and checks the response.
+        
+            Cloud.Files.query({
+                page: 1,
+                per_page: 20
+            }, function (e) {
+                if (e.success) {
+                    alert('Success:\\n' +
+                        'Count: ' + e.files.length);
+                    for (var i = 0; i < e.files.length; i++) {
+                        var file = e.files[i];
+                        alert('id: ' + file.id + '\\n' +
+                            'name: ' + file.name + '\\n' +
+                            'updated_at: ' + file.updated_at);
+                    }
+                } else {
+                    alert('Error:\\n' +
+                        ((e.error && e.message) || JSON.stringify(e)));
+                }
+            });
+  
+  - title: Update a File
+    example: |
+        This example updates a file and checks the response.
+        
+            Cloud.Files.update({
+                file_id: savedFileId,
+                name: 'Notice'
+            }, function (e) {
+                if (e.success) {
+                    var file = e.files[0];
+                    alert('Success:\\n' +
+                        'id: ' + file.id + '\\n' +
+                        'name: ' + file.name + '\\n' +
+                        'updated_at: ' + file.updated_at);
+                } else {
+                    alert('Error:\\n' +
+                        ((e.error && e.message) || JSON.stringify(e)));
+                }
+            });
+  
+  - title: Remove a File
+    example: |
+        This example deletes a file and checks the response.
+        
+            Cloud.Files.remove({
+                file_id: savedFileId
+            }, function (e) {
+                if (e.success) {
+                    alert('Removed');
+                } else {
+                    alert('Error:\\n' +
+                        ((e.error && e.message) || JSON.stringify(e)));
+                }
+            });
+
+---
+name: CloudFilesResponse
+summary: Argument passed to the callback when a request finishes successfully or erroneously.
+extends: CloudResponse
+properties:
+  - name: files
+    summary: Set of `file` objects, if any exist.
+    description: Only included if `success` is `true`.
+    type: Array<Dictionary>
