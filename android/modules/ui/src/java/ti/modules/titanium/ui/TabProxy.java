@@ -37,7 +37,6 @@ public class TabProxy extends TiViewProxy
 	private TabGroupProxy tabGroupProxy;
 	private int windowId;
 	private String currentBackgroundColor = "";
-	private boolean isActive = false;
 
 	public TabProxy()
 	{
@@ -73,16 +72,6 @@ public class TabProxy extends TiViewProxy
 		}
 	}
 
-	public boolean isActive() {
-		return isActive;
-	}
-
-	public void setActive(boolean active) {
-		// TODO(josh): this should cause the tab to become selected.
-		// Value should also get updated due to user events (ex: they select tab).
-		isActive = active;
-	}
-
 	public void setCurrentBackgroundColor(String color)
 	{
 		currentBackgroundColor = color;
@@ -91,6 +80,22 @@ public class TabProxy extends TiViewProxy
 	public String getCurrentBackgroundColor()
 	{
 		return currentBackgroundColor;
+	}
+
+	@Kroll.getProperty @Kroll.method
+	public boolean getActive() {
+		if (tabGroupProxy != null) {
+			return tabGroupProxy.getActiveTab() == this;
+		}
+
+		return false;
+	}
+
+	@Kroll.setProperty @Kroll.method
+	public void setActive(boolean active) {
+		if (tabGroupProxy != null) {
+			tabGroupProxy.setActiveTab(this);
+		}
 	}
 
 	@Kroll.method @Kroll.setProperty

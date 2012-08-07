@@ -217,10 +217,16 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 
 	protected void handleSetActiveTab(TabProxy tab)
 	{
-		tab.setActive(true);
 		TiUIAbstractTabGroup tabGroup = (TiUIAbstractTabGroup) view;
 		if (tabGroup != null) {
+			// Change the selected tab of the group.
+			// Once the change is completed onTabSelected() will be
+			// called to fire events and update the active tab.
 			tabGroup.selectTab(tab);
+
+		} else {
+			// Mark this tab to be selected when the tab group opens.
+			selectedTab = tab;
 		}
 	}
 
@@ -256,19 +262,7 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 	}
 
 	private TabProxy handleGetActiveTab() {
-		TiUIAbstractTabGroup tabGroup = (TiUIAbstractTabGroup) view;
-		if (tabGroup != null) {
-			return tabGroup.getSelectedTab();
-
-		} else {
-			for (TabProxy tab : tabs) {
-				if (tab.isActive()) {
-					return tab;
-				}
-			}
-		}
-
-		return null;
+		return selectedTab;
 	}
 
 	@Override
@@ -318,12 +312,16 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 			tg.addTab(tab);
 		}
 
-		// There must be a selected tab when the group opens.
-		// If none of the tabs have claimed selection give it
-		// to the first tab in the list.
-		if (tg.getSelectedTab() == null && tabs.size() > 0) {
-			TabProxy tabProxy = tabs.get(0);
-			tg.selectTab(tabProxy);
+		// The first tab will be selected by default if
+		// no other tab has been set as the active tab.
+		if (selectedTab == null) {
+			if (tabs.size() > 0) {
+				TabProxy firstTab = tabs.get(0);
+				tg.selectTab(firstTab);
+			}
+
+		} else {
+			tg.selectTab(selectedTab);
 		}
 
 		// TODO(josh): verify we don't create a regression. This only applies to TabHost.
