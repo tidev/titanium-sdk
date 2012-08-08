@@ -122,6 +122,7 @@
 		[scrollview setShowsVerticalScrollIndicator:NO];
 		[scrollview setShowsHorizontalScrollIndicator:NO];
 		[scrollview setDelaysContentTouches:NO];
+		[scrollview setScrollsToTop:NO];
 		BOOL clipsToBounds = [TiUtils boolValue:[self.proxy valueForKey:@"clipViews"] def:YES];
 		[scrollview setClipsToBounds:clipsToBounds];
 		[self insertSubview:scrollview atIndex:0];
