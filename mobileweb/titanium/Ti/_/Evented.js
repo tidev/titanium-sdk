@@ -54,6 +54,13 @@ define(function() {
 			}
 		},
 
+		applyProperties: function(props) {
+			var i;
+			for(i in props) {
+				this[i] = props[i];
+			}
+		},
+
 		_addEventModifier: function(name, handler) {
 			this._modifiers || (this._modifiers = {});
 			(require.is(name, "Array") ? name : [name]).forEach(function(n) {
