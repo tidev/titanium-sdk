@@ -141,7 +141,7 @@ tableView.addEventListener('scroll',function(e)
 	}    
 });
 
-tableView.addEventListener('dragend', function()
+tableView.addEventListener('dragEnd', function()
 {	
 	if(pulling && !reloading)
 	{

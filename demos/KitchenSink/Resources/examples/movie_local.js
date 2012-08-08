@@ -62,7 +62,7 @@ activeMovie.addEventListener('complete',function()
 	}
 });
 
-activeMovie.addEventListener('playbackstate',function(e){
+activeMovie.addEventListener('playbackState',function(e){
     Ti.API.info('Event PlaybackState Fired: '+e.playbackState);
     Ti.API.info('activeMovie.endPlaybackTime: '+activeMovie.endPlaybackTime);
     Ti.API.info('activeMovie.playableDuration: '+activeMovie.playableDuration);

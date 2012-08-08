@@ -69,12 +69,12 @@ dashboard.addEventListener('move', function(e) {
 	Ti.API.log('Moved item '+e.item.label);
 });
 
-dashboard.addEventListener('dragstart', function(e) {
+dashboard.addEventListener('dragStart', function(e) {
 	Ti.API.log('Dragging item '+e.item.label);
 	win.rightNavButton = null;
 });
 
-dashboard.addEventListener('dragend', function(e) {
+dashboard.addEventListener('dragEnd', function(e) {
 	Ti.API.log('Drag ended: ' + e.item.label);
 	win.rightNavButton = cancel;
 });
