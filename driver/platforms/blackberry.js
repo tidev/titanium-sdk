@@ -59,7 +59,7 @@ module.exports = new function() {
 
 		common.createHarness(
 			"blackberry",
-			driverGlobal.config.tiSdkDir + "/titanium.py create --dir=" + driverGlobal.harnessDir + "/blackberry --platform=blackberry --name=harness --type=project --id=com.appcelerator.harness",
+			driverGlobal.config.tiSdkDir + "/titanium.py create --dir=" + driverGlobal.harnessDir + "/blackberry --platform=blackberry --name=harness --type=project --id=com.appcelerator.harness --blackberry=" + driverGlobal.config.blackberryNdkDir,
 			successCallback,
 			errorCallback
 			);
@@ -70,7 +70,6 @@ module.exports = new function() {
 	};
 
 	var buildHarness = function(successCallback, errorCallback) {
-		console.log("buildHarness\n\n");
 		var buildCallback = function() {
 			var args = [driverGlobal.config.tiSdkDir + "/blackberry/builder.py", "build", "-t", "simulator", "-d", driverGlobal.harnessDir + "/blackberry/harness", "-p", driverGlobal.config.blackberryNdkDir];
 			util.runProcess("python", args, 0, 0, function(code) {
@@ -122,7 +121,6 @@ module.exports = new function() {
 	};
 
 	var installHarness = function(successCallback, errorCallback) {
-		console.log("installHarness\n\n");
 		var installCallback = function() {
 			if (path.existsSync(driverGlobal.harnessDir + "/blackberry/harness/build/blackberry/harness/x86/o-g/harness")) {
 				// build scripts currently only allow us to run
@@ -137,13 +135,11 @@ module.exports = new function() {
 	};
 
 	var uninstallHarness = function(successCallback, errorCallback) {
-		console.log("uninstallHarness\n\n");
 		// not implemented by build scripts, and may not be needed
 		successCallback();
 	};
 
 	var runHarness = function(successCallback, errorCallback) {
-		console.log("runHarness\n\n");
 		var args = [driverGlobal.config.tiSdkDir + "/blackberry/builder.py", "run", "-t", "simulator", "--ip_address=" + driverGlobal.config.blackberryDeviceIp, "-d", driverGlobal.harnessDir + "/blackberry/harness", "-p", driverGlobal.config.blackberryNdkDir];
 		util.runProcess("python", args, 0, 0, function(code) {
 			if (code !== 0) {
@@ -233,7 +229,6 @@ module.exports = new function() {
 	};
 
 	this.deviceIsConnected = function(callback) {
-		console.log("deviceIsConnected\n\n");
 		// Not yet implemented in the scripts, so assume true. Running the harness will fail instead for now
 		callback(true);
 	};
