@@ -215,6 +215,19 @@ properties:
     type: Number
     default: <Titanium.UI.RETURNKEY_DEFAULT>
     platforms: [android, iphone, ipad]
+
+  - name: scrollsToTop
+    summary: Controls whether the scroll-to-top gesture is effective.
+    description: |
+        The scroll-to-top gesture is a tap on the status bar; The default value of this property is true. 
+        This gesture works when you have a single visible text area.
+        If there are multiple table views, web views, text areas, and/or scroll views visible,
+        you will need to disable (set to false) on the above views you DON'T want this
+        behaviour on. The remaining view will then respond to scroll-to-top gesture. 
+    type: Boolean
+    default: true
+    platforms: [iphone,ipad]
+    since: 2.1.2
     
   - name: suppressReturn
     summary: Determines if the return key should be suppressed during text entry.
