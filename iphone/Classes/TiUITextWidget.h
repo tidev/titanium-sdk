@@ -26,7 +26,8 @@
 @protected
 	UIView<UITextInputTraits>*	textWidgetView;
 	BOOL suppressReturn;
-	
+	NSInteger maxLength;
+
 	TiUIView<TiScrolling> *	parentScrollView;
 @private
 

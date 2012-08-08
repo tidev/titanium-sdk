@@ -204,7 +204,7 @@ public class AndroidModule extends KrollModule
 	{
 		String providerName = TiConvert.toString(locationProvider.getProperty(TiC.PROPERTY_NAME));
 		if (!(tiLocation.isProvider(providerName))) {
-			Log.e(TAG, "unable to add location provider [" + providerName + "], does not exist");
+			Log.e(TAG, "Unable to add location provider [" + providerName + "], does not exist");
 
 			return;
 		}

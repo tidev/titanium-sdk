@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -29,7 +29,7 @@ import android.content.SharedPreferences;
 public class TiCookieStore implements CookieStore
 {
 
-	private static final String LCAT = "TiCookieStore";
+	private static final String TAG = "TiCookieStore";
 
 	private static final String COOKIE_PREFERENCES = "TiCookiePreferences";
 	private static final String COOKIE_PREFIX = "ti_cookie_";
@@ -161,7 +161,7 @@ public class TiCookieStore implements CookieStore
 			cookie.setPath((String) objectInputStream.readObject());
 
 		} catch (Exception e) {
-			Log.w(LCAT, "Failed to decode cookie");
+			Log.w(TAG, "Failed to decode cookie", Log.DEBUG_MODE);
 			return null;
 		}
 
@@ -185,7 +185,7 @@ public class TiCookieStore implements CookieStore
 			objectOutputStream.writeObject(cookie.getPath());
 
 		} catch (Exception e) {
-			Log.w(LCAT, "Failed to encode cookie");
+			Log.w(TAG, "Failed to encode cookie", Log.DEBUG_MODE);
 			return null;
 		}
 

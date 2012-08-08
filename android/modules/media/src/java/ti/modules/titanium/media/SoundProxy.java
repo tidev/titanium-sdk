@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -10,7 +10,6 @@ import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
-import org.appcelerator.kroll.common.TiConfig;
 import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiC;
@@ -26,8 +25,7 @@ import android.app.Activity;
 public class SoundProxy extends KrollProxy
 	implements org.appcelerator.titanium.TiLifecycle.OnLifecycleEvent
 {
-	private static final String LCAT = "SoundProxy";
-	private static final boolean DBG = TiConfig.LOGD;
+	private static final String TAG = "SoundProxy";
 
 	protected TiSound snd;
 
@@ -67,7 +65,7 @@ public class SoundProxy extends KrollProxy
 				path = blob.getFile().getNativePath();
 			}
 		} else {
-			Log.e(LCAT, "Invalid type for url.");
+			Log.e(TAG, "Invalid type for url.");
 		}
 		return path;
 	}
@@ -86,9 +84,7 @@ public class SoundProxy extends KrollProxy
 		if (options.containsKey(TiC.PROPERTY_ALLOW_BACKGROUND)) {
 			setProperty(TiC.PROPERTY_ALLOW_BACKGROUND, options.get(TiC.PROPERTY_ALLOW_BACKGROUND));
 		}
-		if (DBG) {
-			Log.i(LCAT, "Creating sound proxy for url: " + TiConvert.toString(getProperty(TiC.PROPERTY_URL)));
-		}
+		Log.i(TAG, "Creating sound proxy for url: " + TiConvert.toString(getProperty(TiC.PROPERTY_URL)), Log.DEBUG_MODE);
 	}
 	
 	@Kroll.getProperty

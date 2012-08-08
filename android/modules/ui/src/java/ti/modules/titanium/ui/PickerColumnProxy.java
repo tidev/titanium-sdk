@@ -1,10 +1,9 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-
 package ti.modules.titanium.ui;
 
 import org.appcelerator.kroll.KrollDict;
@@ -26,7 +25,7 @@ import android.util.Log;
 @Kroll.proxy(creatableInModule=UIModule.class)
 public class PickerColumnProxy extends TiViewProxy implements PickerRowListener
 {
-	private static final String LCAT = "PickerColumnProxy";
+	private static final String TAG = "PickerColumnProxy";
 	private static final int MSG_FIRST_ID = TiViewProxy.MSG_LAST_ID + 1;
 	private static final int MSG_ADD = MSG_FIRST_ID + 100;
 	private static final int MSG_REMOVE = MSG_FIRST_ID + 101;
@@ -114,7 +113,7 @@ public class PickerColumnProxy extends TiViewProxy implements PickerRowListener
 				columnListener.rowAdded(this, index);
 			}
 		} else {
-			Log.w(LCAT, "add() unsupported argument type: " + o.getClass().getSimpleName());
+			Log.w(TAG, "add() unsupported argument type: " + o.getClass().getSimpleName());
 		}
 	}
 	
@@ -140,7 +139,7 @@ public class PickerColumnProxy extends TiViewProxy implements PickerRowListener
 				columnListener.rowRemoved(this, index);
 			}
 		} else {
-			Log.w(LCAT, "remove() unsupported argment type: " + o.getClass().getSimpleName());
+			Log.w(TAG, "remove() unsupported argment type: " + o.getClass().getSimpleName());
 		}
 	}
 
@@ -156,7 +155,7 @@ public class PickerColumnProxy extends TiViewProxy implements PickerRowListener
 			if (obj instanceof PickerRowProxy) {
 				this.add((PickerRowProxy)obj);
 			} else {
-				Log.w(LCAT, "Unexpected type not added to picker column: " + obj.getClass().getName());
+				Log.w(TAG, "Unexpected type not added to picker column: " + obj.getClass().getName());
 			}
 		}
 	}

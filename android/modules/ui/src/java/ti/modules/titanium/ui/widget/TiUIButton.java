@@ -12,7 +12,6 @@ import java.util.HashMap;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.common.Log;
-import org.appcelerator.kroll.common.TiConfig;
 import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.io.TiBaseFile;
@@ -31,15 +30,12 @@ import android.widget.Button;
 
 public class TiUIButton extends TiUIView
 {
-	private static final String LCAT = "TiUIButton";
-	private static final boolean DBG = TiConfig.LOGD;
+	private static final String TAG = "TiUIButton";
 
 	public TiUIButton(final TiViewProxy proxy)
 	{
 		super(proxy);
-		if (DBG) {
-			Log.d(LCAT, "Creating a button");
-		}
+		Log.d(TAG, "Creating a button", Log.DEBUG_MODE);
 		Button btn = new Button(proxy.getActivity())
 		{
 			@Override
@@ -69,7 +65,7 @@ public class TiUIButton extends TiUIView
 					TiBaseFile file = TiFileFactory.createTitaniumFile(new String[] { url }, false);
 					bitmap = TiUIHelper.createBitmap(file.getInputStream());
 				} catch (IOException e) {
-					Log.e(LCAT, "Error setting button image", e);
+					Log.e(TAG, "Error setting button image", e);
 				}
 			} else if (value instanceof TiBlob) {
 				bitmap = TiUIHelper.createBitmap(((TiBlob) value).getInputStream());
@@ -106,9 +102,7 @@ public class TiUIButton extends TiUIView
 	@Override
 	public void propertyChanged(String key, Object oldValue, Object newValue, KrollProxy proxy)
 	{
-		if (DBG) {
-			Log.d(LCAT, "Property: " + key + " old: " + oldValue + " new: " + newValue);
-		}
+		Log.d(TAG, "Property: " + key + " old: " + oldValue + " new: " + newValue, Log.DEBUG_MODE);
 		Button btn = (Button) getNativeView();
 		if (key.equals(TiC.PROPERTY_TITLE)) {
 			btn.setText((String) newValue);
@@ -130,7 +124,7 @@ public class TiUIButton extends TiUIView
 	public void setOpacityForButton(float opacity)
 	{
 		if (opacity < 0 || opacity > 1) {
-			Log.w(LCAT, "Ignoring invalid value for opacity: " + opacity);
+			Log.w(TAG, "Ignoring invalid value for opacity: " + opacity);
 			return;
 		}
 		View view = getNativeView();

@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -9,7 +9,6 @@ package ti.modules.titanium.ui.widget;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.common.Log;
-import org.appcelerator.kroll.common.TiConfig;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiC;
@@ -28,8 +27,7 @@ import android.os.Message;
 public class TiUIActivityIndicator extends TiUIView
 	implements Handler.Callback, DialogInterface.OnCancelListener
 {
-	private static final String LCAT = "TiUIActivityIndicator";
-	private static final boolean DBG = TiConfig.LOGD;
+	private static final String TAG = "TiUIActivityIndicator";
 
 	private static final int MSG_SHOW = 100;
 	private static final int MSG_PROGRESS = 101;
@@ -54,9 +52,7 @@ public class TiUIActivityIndicator extends TiUIView
 
 	public TiUIActivityIndicator(TiViewProxy proxy) {
 		super(proxy);
-		if (DBG) {
-			Log.d(LCAT, "Creating an activity indicator");
-		}
+		Log.d(TAG, "Creating an activity indicator", Log.DEBUG_MODE);
 		handler = new Handler(Looper.getMainLooper(), this);
 	}
 
@@ -96,9 +92,7 @@ public class TiUIActivityIndicator extends TiUIView
 	@Override
 	public void propertyChanged(String key, Object oldValue, Object newValue, KrollProxy proxy)
 	{
-		if (DBG) {
-			Log.d(LCAT, "Property: " + key + " old: " + oldValue + " new: " + newValue);
-		}
+		Log.d(TAG, "Property: " + key + " old: " + oldValue + " new: " + newValue, Log.DEBUG_MODE);
 
 		if (key.equals("message")) {
 			if (visible) {
@@ -191,7 +185,7 @@ public class TiUIActivityIndicator extends TiUIView
 				statusBarTitle = parent.getTitle().toString();
 				parent.setTitle(message);
 			} else {
-				Log.w(LCAT, "Unknown type: " + type);
+				Log.w(TAG, "Unknown activity indicator type: " + type);
 			}
 		} else if (location == DIALOG) {
 			incrementFactor = 1;
@@ -223,11 +217,11 @@ public class TiUIActivityIndicator extends TiUIView
 				}
 				progressDialog.setProgress(0);
 			} else {
-				Log.w(LCAT, "Unknown type: " + type);
+				Log.w(TAG, "Unknown activity indicator type: " + type);
 			}
 			progressDialog.show();
 		} else {
-			Log.w(LCAT, "Unknown location: " + location);
+			Log.w(TAG, "Unknown location property: " + location);
 		}
 		visible = true;
 	}
