@@ -252,8 +252,12 @@ class Builder(object):
 			self.force_rebuild = True
 			sys.stdout.flush()
 		
+		# favor the ANDROID_SDK_HOME environment variable if used
+		if os.environ.has_key('ANDROID_SDK_HOME') and os.path.exists(os.environ['ANDROID_SDK_HOME']):
+			self.home_dir = os.path.join(os.environ['ANDROID_SDK_HOME'], '.titanium')
+			self.android_home_dir = os.path.join(os.environ['ANDROID_SDK_HOME'], '.android')
 		# we place some files in the users home
-		if platform.system() == "Windows":
+		elif platform.system() == "Windows":
 			self.home_dir = os.path.join(os.environ['USERPROFILE'], '.titanium')
 			self.android_home_dir = os.path.join(os.environ['USERPROFILE'], '.android')
 		else:
