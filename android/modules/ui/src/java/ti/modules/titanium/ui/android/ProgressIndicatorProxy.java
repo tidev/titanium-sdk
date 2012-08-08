@@ -4,44 +4,41 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-package ti.modules.titanium.ui;
+package ti.modules.titanium.ui.android;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
-import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.view.TiUIView;
 
-import ti.modules.titanium.ui.widget.TiUIActivityIndicator;
+import ti.modules.titanium.ui.TiDialogProxy;
+import ti.modules.titanium.ui.widget.TiUIProgressIndicator;
 import android.app.Activity;
 
-@Kroll.proxy(creatableInModule=UIModule.class, propertyAccessors = {
+@Kroll.proxy(creatableInModule=AndroidModule.class, propertyAccessors = {
 	TiC.PROPERTY_MESSAGE,
 	TiC.PROPERTY_MESSAGEID,
-	TiC.PROPERTY_COLOR,
-	TiC.PROPERTY_FONT,
-	TiC.PROPERTY_STYLE
+	TiC.PROPERTY_VALUE,
+	TiC.PROPERTY_LOCATION,
+	TiC.PROPERTY_TYPE,
+	TiC.PROPERTY_MIN,
+	TiC.PROPERTY_MAX,
+	TiC.PROPERTY_CANCELABLE
 })
 @Kroll.dynamicApis(methods = {
 	"hide", "show"
 })
-public class ActivityIndicatorProxy extends TiViewProxy
+public class ProgressIndicatorProxy extends TiDialogProxy
 {
-	public ActivityIndicatorProxy()
+	public ProgressIndicatorProxy()
 	{
 		super();
 	}
 
-	public ActivityIndicatorProxy(TiContext tiContext)
+	public ProgressIndicatorProxy(TiContext tiContext)
 	{
 		this();
-	}
-
-	@Override
-	public TiUIView createView(Activity activity)
-	{
-		return new TiUIActivityIndicator(this);
 	}
 
 	@Override
@@ -52,24 +49,24 @@ public class ActivityIndicatorProxy extends TiViewProxy
 	}
 
 	@Override
-	protected void handleShow(KrollDict options)
+	public TiUIView createView(Activity activity)
 	{
-		if (view == null) {
-			TiUIActivityIndicator ai = (TiUIActivityIndicator) getOrCreateView();
-			ai.show();
-			return;
-		}
-		super.handleShow(options);
+		return new TiUIProgressIndicator(this);
 	}
 
 	@Override
-	protected void handleHide(KrollDict options)
-	{
-		if (view == null) {
-			TiUIActivityIndicator ai = (TiUIActivityIndicator) getOrCreateView();
-			ai.hide();
-			return;
-		}
+	protected void handleShow(KrollDict options) {
+		super.handleShow(options);
+
+		TiUIProgressIndicator ai = (TiUIProgressIndicator) getOrCreateView();
+		ai.show(options);
+	}
+
+	@Override
+	protected void handleHide(KrollDict options) {
 		super.handleHide(options);
+
+		TiUIProgressIndicator ai = (TiUIProgressIndicator) getOrCreateView();
+		ai.hide(options);
 	}
 }
