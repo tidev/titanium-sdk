@@ -41,8 +41,8 @@ public class TiUIButton extends TiUIView
 	public TiUIButton(final TiViewProxy proxy)
 	{
 		super(proxy);
-		Log.d(TAG, "Creating a button", Log.DEBUG_MODE);
 		titlePadding = new Rect();
+		Log.d(TAG, "Creating a button", Log.DEBUG_MODE);
 		Button btn = new Button(proxy.getActivity())
 		{
 			@Override
