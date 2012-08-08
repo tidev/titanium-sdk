@@ -70,6 +70,10 @@ DEFINE_EXCEPTIONS
 
 -(CGFloat)contentHeightForWidth:(CGFloat)width_
 {
+    if (width_ != autoWidth && autoWidth>0 && autoHeight > 0) {
+        return (width_*autoHeight/autoWidth);
+    }
+    
 	if (autoHeight > 0)
 	{
 		return autoHeight;
@@ -123,7 +127,7 @@ DEFINE_EXCEPTIONS
 		index=position-1;
 	}
 	UIView *view = [[container subviews] objectAtIndex:position];
-
+    
 	// see if we have an activity indicator... if we do, that means the image hasn't yet loaded
 	// and we want to start the spinner to let the user know that we're still loading. we 
 	// don't initially start the spinner when added since we don't want to prematurely show
@@ -139,7 +143,7 @@ DEFINE_EXCEPTIONS
 	[self bringSubviewToFront:container];
 	
 	view.hidden = NO;
-
+    
 	if (previous!=nil)
 	{
 		previous.hidden = YES;
@@ -147,7 +151,7 @@ DEFINE_EXCEPTIONS
 	}
 	
 	previous = [view retain];
-
+    
 	if ([self.proxy _hasListeners:@"change"])
 	{
 		NSDictionary *evt = [NSDictionary dictionaryWithObject:[NSNumber numberWithInt:position] forKey:@"index"];
@@ -226,34 +230,6 @@ DEFINE_EXCEPTIONS
     [ourProxy propagateLoadEvent:stateString];
 }
 
--(UIImage*)scaleImageIfRequired:(UIImage*)theimage
-{
-	UIImage* newImage = theimage;
-	// attempt to scale the image
-	
-	CGFloat calculatedWidth;
-	CGFloat calculatedHeight;
-	
-	if (!TiDimensionIsUndefined(width) || !TiDimensionIsUndefined(height))
-	{
-		if (!(calculatedWidth = TiDimensionCalculateValue(width, autoWidth))) {
-			calculatedWidth = autoWidth;
-		}
-		
-		if (!(calculatedHeight = TiDimensionCalculateValue(height, autoHeight))) {
-			calculatedHeight = autoHeight;
-		}
-		
-		calculatedWidth = (calculatedWidth != 0.0) ? calculatedWidth : newImage.size.width;
-		calculatedHeight = (calculatedHeight != 0.0) ? calculatedHeight : newImage.size.height;
-		newImage = [UIImageResize resizedImage:CGSizeMake(calculatedWidth, calculatedHeight) 
-						  interpolationQuality:kCGInterpolationDefault 
-										 image:theimage
-										 hires:[TiUtils boolValue:[[self proxy] valueForKey:@"hires"]]];
-	}
-	return newImage;
-}
-
 -(void)animationCompleted:(NSString *)animationID finished:(NSNumber *)finished context:(void *)context
 {
 	for (UIView *view in [self subviews])
@@ -267,6 +243,33 @@ DEFINE_EXCEPTIONS
 	}
 }
 
+-(UIViewContentMode)contentModeForImageView
+{
+    if (TiDimensionIsAuto(width) || TiDimensionIsAutoSize(width) || TiDimensionIsUndefined(width) ||
+        TiDimensionIsAuto(height) || TiDimensionIsAutoSize(height) || TiDimensionIsUndefined(height)) {
+        return UIViewContentModeScaleAspectFit;
+    }
+    else {
+        return UIViewContentModeScaleToFill;
+    }
+}
+
+-(void)updateContentMode
+{
+    UIViewContentMode curMode = [self contentModeForImageView];
+    if (imageView != nil) {
+        imageView.contentMode = curMode;
+    }
+    if (container != nil) {
+        for (UIView *view in [container subviews]) {
+            UIView *child = [[view subviews] count] > 0 ? [[view subviews] objectAtIndex:0] : nil;
+            if (child!=nil && [child isKindOfClass:[UIImageView class]])
+            {
+                child.contentMode = curMode;
+            }
+        }
+    }
+}
 
 -(UIImageView *)imageView
 {
@@ -274,11 +277,12 @@ DEFINE_EXCEPTIONS
 	{
 		imageView = [[UIImageView alloc] initWithFrame:[self bounds]];
 		[imageView setAutoresizingMask:UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight];
-		[imageView setContentMode:UIViewContentModeScaleAspectFit];
+		[imageView setContentMode:[self contentModeForImageView]];
 		[self addSubview:imageView];
 	}
 	return imageView;
 }
+
 
 -(void)setURLImageOnUIThread:(UIImage*)image
 {
@@ -293,8 +297,6 @@ DEFINE_EXCEPTIONS
 	iv.image = image;
 	if (placeholderLoading)
 	{
-		iv.autoresizingMask = UIViewAutoresizingNone;
-		iv.contentMode = UIViewContentModeScaleAspectFit;
 		iv.alpha = 0;
 		
 		[(TiViewProxy *)[self proxy] contentsWillChange];
@@ -323,20 +325,6 @@ DEFINE_EXCEPTIONS
 	}
 }
 
--(void)loadURLImageInBackground:(NSURL*)url
-{
-	UIImage *image = [[ImageLoader sharedLoader] loadRemote:url];
-	
-	CGSize fullSize = [[ImageLoader sharedLoader] fullImageSize:url];
-	autoHeight = fullSize.height;
-	autoWidth = fullSize.width;
-	
-	image = [self scaleImageIfRequired:image];
-	TiThreadPerformOnMainThread(^{
-		[self setURLImageOnUIThread:image];
-	}, NO);
-}
-
 -(void)loadImageInBackground:(NSNumber*)pos
 {
 	int position = [TiUtils intValue:pos];
@@ -351,12 +339,19 @@ DEFINE_EXCEPTIONS
 		NSLog(@"[ERROR] couldn't load imageview image: %@ at position: %d",theurl,position);
 		return;
 	}
-
-	theimage = [self scaleImageIfRequired:theimage];
-
+    
+    if (autoWidth < theimage.size.width) {
+        autoWidth = theimage.size.width;
+    }
+    
+    if (autoHeight < theimage.size.height) {
+        autoHeight = theimage.size.height;
+    }
+    
 	TiThreadPerformOnMainThread(^{
 		UIView *view = [[container subviews] objectAtIndex:position];
 		UIImageView *newImageView = [[UIImageView alloc] initWithImage:theimage];
+		newImageView.contentMode = [self contentModeForImageView];
 		
 		// remove the spinner now that we've loaded our image
 		UIView *spinner = [[view subviews] count] > 0 ? [[view subviews] objectAtIndex:0] : nil;
@@ -365,12 +360,6 @@ DEFINE_EXCEPTIONS
 			[spinner removeFromSuperview];
 		}
 		[view addSubview:newImageView];
-        if (autoWidth < newImageView.bounds.size.width){
-            autoWidth = newImageView.bounds.size.width;
-        }
-        if (autoHeight < newImageView.bounds.size.height) {
-            autoHeight = newImageView.bounds.size.height;
-        }
 		[newImageView release];
 		view.hidden = YES;
 		
@@ -491,9 +480,9 @@ DEFINE_EXCEPTIONS
             }
             return;
         }
-    
         
-		UIImage *image = [[ImageLoader sharedLoader] loadImmediateImage:url_ withSize:imageSize];
+        
+		UIImage *image = [[ImageLoader sharedLoader] loadImmediateImage:url_];
 		if (image==nil)
 		{
             [self loadDefaultImage:imageSize];
@@ -508,7 +497,10 @@ DEFINE_EXCEPTIONS
 			CGSize fullSize = [[ImageLoader sharedLoader] fullImageSize:img];
 			autoWidth = fullSize.width;
 			autoHeight = fullSize.height;
-			
+			if ([TiUtils boolValue:[[self proxy] valueForKey:@"hires"]]) {
+				autoWidth = autoWidth/2;
+				autoHeight = autoHeight/2;
+			}
 			[self imageView].image = image;
 			[self fireLoadEventWithState:@"image"];
 		}
@@ -531,37 +523,30 @@ DEFINE_EXCEPTIONS
 
 -(UIImage*)convertToUIImage:(id)arg
 {
-	UIImage *image = nil;
+    UIImage *image = nil;
 	
-	if ([arg isKindOfClass:[TiBlob class]])
-	{
-		TiBlob *blob = (TiBlob*)arg;
-		
-		autoHeight = [[blob image] size].height;
-		autoWidth = [[blob image] size].width;
-		
-		image = [self scaleImageIfRequired:[blob image]];
-	}
-	else if ([arg isKindOfClass:[TiFile class]])
-	{
-		TiFile *file = (TiFile*)arg;
-		NSURL * fileUrl = [NSURL fileURLWithPath:[file path]];
-		
-		CGSize fullSize = [[ImageLoader sharedLoader] fullImageSize:fileUrl];
-		autoHeight = fullSize.height;
-		autoWidth = fullSize.width;
-		
-		image = [[ImageLoader sharedLoader] loadImmediateImage:fileUrl withSize:CGSizeMake(TiDimensionCalculateValue(width, autoWidth),
-																						   TiDimensionCalculateValue(height, autoHeight))];
-	}
-	else if ([arg isKindOfClass:[UIImage class]])
-	{
+    if ([arg isKindOfClass:[TiBlob class]]) {
+        TiBlob *blob = (TiBlob*)arg;
+        image = [blob image];
+    }
+    else if ([arg isKindOfClass:[TiFile class]]) {
+        TiFile *file = (TiFile*)arg;
+        NSURL * fileUrl = [NSURL fileURLWithPath:[file path]];
+        image = [[ImageLoader sharedLoader] loadImmediateImage:fileUrl];
+    }
+    else if ([arg isKindOfClass:[UIImage class]]) {
 		// called within this class
-		image = (UIImage*)arg; 
-		image = [self scaleImageIfRequired:image];
-	}
+        image = (UIImage*)arg; 
+    }
 	
-	return image;
+    if (image != nil) {
+        autoHeight = image.size.height;
+        autoWidth = image.size.width;
+    }
+    else {
+        autoHeight = autoWidth = 0;
+    }
+    return image;
 }
 
 #pragma mark Public APIs
@@ -631,18 +616,14 @@ DEFINE_EXCEPTIONS
 
 -(void)setWidth_:(id)width_
 {
-	width = TiDimensionFromObject(width_);
-	if (imageView != nil) {
-		[self setImage_:[self scaleImageIfRequired:[imageView image]]];
-	}
+    width = TiDimensionFromObject(width_);
+    [self updateContentMode];
 }
 
 -(void)setHeight_:(id)height_
 {
-	height = TiDimensionFromObject(height_);
-	if (imageView != nil) {
-		[self setImage_:[self scaleImageIfRequired:[imageView image]]];
-	}
+    height = TiDimensionFromObject(height_);
+    [self updateContentMode];
 }
 
 -(void)setImage_:(id)arg
@@ -662,19 +643,7 @@ DEFINE_EXCEPTIONS
 	BOOL replaceProperty = YES;
 	UIImage *image = nil;
     NSURL* imageURL = nil;
-	if ([arg isKindOfClass:[UIImage class]]) 
-	{
-		// called within this class
-		image = (UIImage*)arg;
-		image = [self scaleImageIfRequired:image];
-        
-        autoWidth = image.size.width;
-        autoHeight = image.size.height;
-	}
-	else 
-	{
-		image = [self convertToUIImage:arg];
-	}
+    image = [self convertToUIImage:arg];
 	
 	if (image == nil) 
 	{
@@ -684,7 +653,7 @@ DEFINE_EXCEPTIONS
                        subreason:[NSString stringWithFormat:@"expected TiBlob, String, TiFile, was: %@",[arg class]] 
                         location:CODELOCATION];
         }
-
+        
         [self loadUrl:imageURL];
 		return;
 	}
@@ -714,7 +683,7 @@ DEFINE_EXCEPTIONS
 	
 	RELEASE_TO_NIL(images);
 	ENSURE_TYPE_OR_NIL(args,NSArray);
-
+    
 	if (args!=nil)
 	{
 		[self container];
@@ -774,31 +743,20 @@ DEFINE_EXCEPTIONS
 
 -(void)imageLoadSuccess:(ImageLoaderRequest*)request image:(UIImage*)image
 {
-	CGSize fullSize = [[ImageLoader sharedLoader] fullImageSize:[request url]];
-	autoWidth = fullSize.width;
-	autoHeight = fullSize.height;
-	
-	CGFloat computedWidth = TiDimensionCalculateValue(width, autoWidth);
-	CGFloat computedHeight = TiDimensionCalculateValue(height, autoHeight);
-	if ([TiUtils boolValue:[[self proxy] valueForKey:@"hires"]])
-	{
-		computedWidth *= 2;
-		computedHeight *= 2;
-	}
-	
-	UIImage * bestImage = [[ImageLoader sharedLoader] loadImmediateImage:[request url] withSize:CGSizeMake(computedWidth, computedHeight)];
-	if (bestImage != nil)
-	{
-		image = bestImage;
-	}
-	else
-	{
-		image = [self scaleImageIfRequired:image];
-	}
+    UIImage* theImage = [[ImageLoader sharedLoader] loadImmediateImage:[request url]];
+
+    autoWidth = image.size.width;
+    autoHeight = image.size.height;
     
-	TiThreadPerformOnMainThread(^{
-		[self setURLImageOnUIThread:image];
-	}, NO);
+    //Setting hires to true causes image to de displayed at 50%
+    if ([TiUtils boolValue:[[self proxy] valueForKey:@"hires"]]) {
+        autoWidth = autoWidth/2;
+        autoHeight = autoHeight/2;
+    }
+        
+    TiThreadPerformOnMainThread(^{
+        [self setURLImageOnUIThread:theImage];
+    }, NO);
 }
 
 -(void)imageLoadFailed:(ImageLoaderRequest*)request error:(NSError*)error
