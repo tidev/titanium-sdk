@@ -1,0 +1,32 @@
+{
+	"name": "titanium-mobile",
+	"description": "Appcelerator Titanium Mobile",
+	"keywords": [
+		"appcelerator",
+		"titanium",
+		"mobile",
+		"ios",
+		"iphone",
+		"android",
+		"blackberry",
+		"html5",
+		"mobileweb",
+		"mobile web"
+	],
+	"version": "2.2.0",
+	"author": "Appcelerator, Inc. <info@appcelerator.com>",
+	"repository": {
+		"type": "git",
+		"url": "git://github.com/appcelerator/titanium_mobile.git"
+	},
+	"dependencies": {
+		"pkginfo": "0.2.3"
+	},
+	"scripts": {
+		"preinstall": "npm i -g jake"
+	},
+	"license": "Apache Public License v2",
+	"engines": {
+		"node": ">= 0.8.2"
+	}
+}

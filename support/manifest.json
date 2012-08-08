@@ -1,0 +1,7 @@
+{
+	"version": "__VERSION__",
+	"moduleAPIVersion": "__MODULE_API_VERSION__",
+	"timestamp": "__TIMESTAMP__",
+	"githash": "__GITHASH__",
+	"platforms": ["android", "iphone", "mobileweb"]
+}
