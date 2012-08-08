@@ -526,12 +526,13 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 
 		public void run()
 		{
+			boolean isWakingFromPause = false;
 			try {
-
 				if (paused) {
 					synchronized (this) {
 						KrollDict data = new KrollDict();
 						proxy.fireEvent(TiC.EVENT_PAUSE, data);
+						isWakingFromPause = true;
 						wait();
 					}
 				}
@@ -540,6 +541,11 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 				Log.d(TAG, "set image: " + b.index, Log.DEBUG_MODE);
 				setImage(b.bitmap);
 				fireChange(b.index);
+
+				if (isWakingFromPause) {
+					Thread.sleep((int) getDuration());
+					isWakingFromPause = false;
+				}
 			} catch (InterruptedException e) {
 				Log.e(TAG, "Loader interrupted");
 			}
