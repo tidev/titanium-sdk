@@ -144,12 +144,7 @@
 -(BOOL)resignFirstResponder
 {
     becameResponder = NO;
-    
-    if ([textWidgetView resignFirstResponder])
-    {
-        return YES;
-    }
-    return NO;
+    return [textWidgetView resignFirstResponder];
 }
 
 -(BOOL)becomeFirstResponder

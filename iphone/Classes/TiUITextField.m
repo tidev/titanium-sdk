@@ -193,10 +193,7 @@
 
 -(BOOL)canBecomeFirstResponder
 {
-    if(self.isEnabled){
-        return YES;
-    }
-    return NO;
+    return self.isEnabled;
 }
 
 -(BOOL)resignFirstResponder
