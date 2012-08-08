@@ -20,11 +20,29 @@
 	if (self != nil)
 	{
 		suppressReturn = YES;
+		maxLength = -1;
         [self textWidgetView];
 	}
 	return self;
 }
 
+
+-(void)setValue_:(id)value
+{
+    NSString* string = [TiUtils stringValue:value];
+    if (maxLength > -1 && [string length] > maxLength) {
+        string = [string substringToIndex:maxLength];
+    }
+    [(id)[self textWidgetView] setText:string];
+    [(TiUITextWidgetProxy*)[self proxy] noteValueChange:string];
+}
+
+-(void)setMaxLength_:(id)value
+{
+    maxLength = [TiUtils intValue:value def:-1];
+    [self setValue_:[[self proxy] valueForUndefinedKey:@"value"]];
+    [[self proxy] replaceValue:value forKey:@"maxLength" notification:NO];
+}
 
 -(void)setSuppressReturn_:(id)value
 {
@@ -144,11 +162,6 @@
 -(void)setAutocapitalization_:(id)value
 {
 	[[self textWidgetView] setAutocapitalizationType:[TiUtils intValue:value]];
-}
-
--(void)setValue_:(id)text
-{
-	[(id)[self textWidgetView] setText:[TiUtils stringValue:text]];
 }
 
 #pragma mark Keyboard Delegates

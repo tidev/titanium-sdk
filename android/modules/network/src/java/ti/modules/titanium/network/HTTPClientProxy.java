@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -14,11 +14,7 @@ import org.appcelerator.titanium.TiContext;
 
 import ti.modules.titanium.xml.DocumentProxy;
 
-@Kroll.proxy(creatableInModule=NetworkModule.class, propertyAccessors = {
-	"ondatastream", "onerror", "onload",
-	"onreadystatechange", "onsendstream"
-})
-
+@Kroll.proxy(creatableInModule=NetworkModule.class)
 public class HTTPClientProxy extends KrollProxy
 {
 	@Kroll.constant public static final int UNSENT = TiHTTPClient.READY_STATE_UNSENT;
@@ -27,9 +23,7 @@ public class HTTPClientProxy extends KrollProxy
 	@Kroll.constant public static final int LOADING = TiHTTPClient.READY_STATE_LOADING;
 	@Kroll.constant public static final int DONE = TiHTTPClient.READY_STATE_DONE;
 
-
 	private TiHTTPClient client;
-
 
 	public HTTPClientProxy()
 	{
@@ -176,8 +170,9 @@ public class HTTPClientProxy extends KrollProxy
 	}
 
 	@Kroll.setProperty @Kroll.method
-	void setValidatesSecureCertificate(boolean value)
+	public void setValidatesSecureCertificate(boolean value)
 	{
 		this.setProperty("validatesSecureCertificate", value);
 	}
+
 }

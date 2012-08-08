@@ -82,7 +82,7 @@ properties:
         or [LINKIFY_WEB_URLS](Titanium.UI.Android.LINKIFY_WEB_URLS).
     type: Number
     default: <Titanium.UI.iOS.AUTODETECT_NONE> in iOS, undefined in Android
-    since: {android: 2.2.0}
+    since: {android: "2.2.0"}
     platforms: [android, iphone, ipad]
     
   - name: clearOnEdit
@@ -193,8 +193,8 @@ properties:
         indicates unlimited length.
     default: -1
     type: Number
-    since: {android: "2.2.0"}
-    platforms: [android]
+    since: {android: "2.2.0", iphone: "2.2.0", ipad: "2.2.0"}
+    platforms: [android, iphone, ipad]
     
   - name: returnKeyType
     summary: |

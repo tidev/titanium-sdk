@@ -546,7 +546,13 @@ public class TiCompositeLayout extends ViewGroup
 
 					computePosition(this, params.optionLeft, params.optionCenterX, params.optionRight, childMeasuredWidth, left, right, horizontal);
 					if (isVerticalArrangement()) {
-						computeVerticalLayoutPosition(currentHeight, params.optionTop, params.optionBottom, childMeasuredHeight, top, bottom, vertical, bottom);
+						computeVerticalLayoutPosition(currentHeight, params.optionTop, childMeasuredHeight, top, vertical,
+							bottom);
+						// Include bottom in height calculation for vertical layout (used as padding)
+						TiDimension optionBottom = params.optionBottom;
+						if (optionBottom != null) {
+							currentHeight += optionBottom.getAsPixels(this);
+						}
 					} else {
 						computePosition(this, params.optionTop, params.optionCenterY, params.optionBottom, childMeasuredHeight, top, bottom, vertical);
 					}
@@ -691,8 +697,8 @@ public class TiCompositeLayout extends ViewGroup
 		}
 	}
 
-	private void computeVerticalLayoutPosition(int currentHeight,
-		TiDimension optionTop, TiDimension optionBottom, int measuredHeight, int layoutTop, int layoutBottom, int[] pos, int maxBottom)
+	private void computeVerticalLayoutPosition(int currentHeight, TiDimension optionTop, int measuredHeight, int layoutTop,
+		int[] pos, int maxBottom)
 	{
 		int top = layoutTop + currentHeight;
 		if (optionTop != null) {
