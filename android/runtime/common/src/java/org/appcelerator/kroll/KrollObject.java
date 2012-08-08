@@ -84,6 +84,32 @@ public abstract class KrollObject implements Handler.Callback
 	}
 
 	/**
+	 * Call a function referenced by a property on this object.
+	 *
+	 * <p>
+	 * For example if we have the following JavaScript:
+	 *   <pre>
+	 *   math.add = function(x, y) { return a + b; }
+	 *   </pre>
+	 *
+	 * To call the "add" function on the "math" object from Java:
+	 *   <pre>
+	 *   Number sum = (Number) krollObject.callProperty("add", new Object[] { 1, 2});
+	 *   </pre>
+	 * </p>
+	 *
+	 * <p>
+	 * If the property does not reference a function this method
+	 * will return the {@link KrollRuntime.UNDEFINED} value.
+	 * </p>
+	 *
+	 * @param propertyName name of the property that references the function to call
+	 * @param args the arguments to pass when calling function
+	 * @return the value returned by the function call
+	 */
+	public abstract Object callProperty(String propertyName, Object[] args);
+
+	/**
 	 * Releases this KrollObject, that is, removes event listeners and any associated native views or content.	
 	 */
 	protected void release()
