@@ -17,6 +17,7 @@ import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.view.TiUIView;
 
+import ti.modules.titanium.ui.widget.TiUITableView;
 import ti.modules.titanium.ui.widget.tableview.TableViewModel;
 import ti.modules.titanium.ui.widget.tableview.TableViewModel.Item;
 import ti.modules.titanium.ui.widget.tableview.TiTableViewRowProxyItem;
@@ -164,6 +165,10 @@ public class TableViewRowProxy extends TiViewProxy
 		if (msg.what == MSG_SET_DATA) {
 			if (tableViewItem != null) {
 				tableViewItem.setRowData(this);
+				// update/refresh table view when a row's data changed.
+				TiUITableView table = getTable().getTableView();
+				table.setModelDirty();
+				table.updateView();
 			}
 			return true;
 		}
