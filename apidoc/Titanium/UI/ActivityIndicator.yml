@@ -10,12 +10,7 @@ description:  |
 
     Use the <Titanium.UI.createActivityIndicator> method to create an Activity Indicator. 
     
-    Activity indicators must be used differently on Android and iOS:
-    
-    * On Android, the activity indicator is a modal dialog that blocks the UI. Calling `show` 
-    displays the indicator, and calling `hide` removes it. 
-    
-    * On iOS and Mobile Web, the activity indicator is a view like any other view, and must be 
+    The activity indicator is a view like any other view, and must be
     added to a window or other top-level view before it can be shown. Note that, unlike most views, 
     the activity indicator is hidden by default and must be shown explicitly.
 extends: Titanium.Proxy
@@ -54,34 +49,23 @@ properties:
         
         Can be either a float value or a dimension string (for example `100`, `'50%'` or `'auto'`.)
     type: [Number, String]
-    platforms: [iphone, ipad]
     
-  - name: cancelable
-    summary: |
-        When `true` allows the user to cancel the activity indicator dialog by
-        pressing the BACK button.
-    type: Boolean
-    platforms: [android]
-
   - name: color
     summary: |
         Color of the message text, as a color name or hex triplet.
     description: |
         For information about color values, see the "Colors" section of <Titanium.UI>.
     type: String
-    platforms: [iphone, ipad, mobileweb]
     
   - name: font
     summary: Font used for the message text.
     type: Font
-    platforms: [iphone, ipad, mobileweb]
 
   - name: height
     summary: |
-        Width of the view. Only accepts value of `auto`, which must be explicitly set in order to 
+        Width of the view. Only accepts value of <Titanium.UI.SIZE>, which must be explicitly set in order to
         display the message and to position the view correctly.
     type: String
-    platforms: [iphone, ipad]
 
   - name: left
     summary: Left position of the view.
@@ -90,12 +74,10 @@ properties:
         
         Can be either a float value or a dimension string (for example `100`, `'50%'` or `'auto'`.)
     type: [Number, String]
-    platforms: [iphone, ipad]
     
   - name: message
     summary: Message text.
     type: String
-    platforms: [android, mobileweb]
     
   - name: messageid
     summary: Key identifying a string in the locale file to use for the message text. 
@@ -109,7 +91,6 @@ properties:
         
         Can be either a float value or a dimension string (for example `100`, `'50%'` or `'auto'`.)
     type: [Number, String]
-    platforms: [iphone, ipad]
     
   - name: style
     summary: The style for the activity indicator.
@@ -117,7 +98,7 @@ properties:
         One of the activity indicator style constants. On iOS: 
         <Titanium.UI.iPhone.ActivityIndicatorStyle.DARK>, 
         <Titanium.UI.iPhone.ActivityIndicatorStyle.BIG>, 
-        or <Titanium.UI.iPhone.ActivityIndicatorStyle.PLAIN>. On Mobile Web: 
+        or <Titanium.UI.iPhone.ActivityIndicatorStyle.PLAIN>. On Android and Mobile Web:
         <Titanium.UI.ActivityIndicatorStyle.DARK>, 
         <Titanium.UI.ActivityIndicatorStyle.BIG>, 
         <Titanium.UI.ActivityIndicatorStyle.BIG_DARK>, 
@@ -128,8 +109,7 @@ properties:
         See also: [indicatorColor](Titanium.UI.ActivityIndicator.indicatorColor),
         [indicatorDiameter](Titanium.UI.ActivityIndicator.indicatorDiameter)
     type: Number
-    default: <Titanium.UI.iPhone.ActivityIndicatorStyle.PLAIN> (iOS), <Titanium.UI.ActivityIndicatorStyle.PLAIN> (Mobile Web)
-    platforms: [iphone, ipad, mobileweb]
+    default: <Titanium.UI.iPhone.ActivityIndicatorStyle.PLAIN> (iOS), <Titanium.UI.ActivityIndicatorStyle.PLAIN> (Android and Mobile Web)
 
   - name: indicatorColor
     summary: Color of the animated indicator.
@@ -154,22 +134,12 @@ properties:
         
         Can be either a float value or a dimension string (for example `100`, `'50%'` or `'auto'`.)
     type: [Number, String]
-    platforms: [iphone, ipad]
 
   - name: width
     summary: |
-        Width of the view. Only accepts value of `auto`, which must be explicitly set in order to 
+        Width of the view. Only accepts value of <Titanium.UI.SIZE>, which must be explicitly set in order to
         display the message and to position the view correctly.
     type: String
-    platforms: [iphone, ipad]
-
-events:
-  - name: cancel
-    summary: Fired when the user has canceled the activity indicator dialog.
-    description: |
-        The user triggers this event by pressing the BACK button when the dialog is visible.
-        The dialog will be hidden and this event dispatched.
-    platforms: [android]
     
 examples:
   - title: Simple Activity Indicator
@@ -188,21 +158,23 @@ examples:
               fullscreen: true
             });
 
+            var style = Ti.UI.ActivityIndicatorStyle.DARK;
+            if (Ti.Platform.name === 'iPhone OS'){
+              style = Ti.UI.iPhone.ActivityIndicatorStyle.DARK;
+            }
             var activityIndicator = Ti.UI.createActivityIndicator({
               color: 'green',
               font: {fontFamily:'Helvetica Neue', fontSize:26, fontWeight:'bold'},
               message: 'Loading...',
-              style:Ti.UI.iPhone.ActivityIndicatorStyle.DARK,
+              style:style,
               top:10,
               left:10,
-              height:'auto',
-              width:'auto'
+              height:Ti.UI.SIZE,
+              width:Ti.UI.SIZE
             });
 
-            // On iOS, the activity indicator must be added to a window or view for it to appear
-            if (Ti.Platform.name === 'iPhone OS'){
-              win2.add(activityIndicator);
-            }
+            // The activity indicator must be added to a window or view for it to appear
+            win2.add(activityIndicator);
 
             // eventListeners must always be loaded before the event is likely to fire
             // hence, the open() method must be positioned before the window is opened
