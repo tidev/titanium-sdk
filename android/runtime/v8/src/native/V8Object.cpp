@@ -109,6 +109,37 @@ Java_org_appcelerator_kroll_runtime_v8_V8Object_nativeFireEvent
 	return JNI_FALSE;
 }
 
+JNIEXPORT jobject JNICALL
+Java_org_appcelerator_kroll_runtime_v8_V8Object_nativeCallProperty
+	(JNIEnv* env, jclass clazz, jlong ptr, jstring propertyName, jobjectArray args)
+{
+	ENTER_V8(V8Runtime::globalContext);
+	JNIScope jniScope(env);
+
+	Handle<Value> jsPropertyName = TypeConverter::javaStringToJsString(propertyName);
+	Persistent<Object> object = Persistent<Object>((Object*) ptr);
+	Local<Value> property = object->Get(jsPropertyName);
+	if (!property->IsFunction()) {
+		return JNIUtil::undefinedObject;
+	}
+
+	int argc = 0;
+	Handle<Value>* argv = NULL;
+	if (args) {
+		argv = TypeConverter::javaObjectArrayToJsArguments(args, &argc);
+	}
+
+	Local<Function> function = Local<Function>::Cast(property);
+	Local<Value> returnValue = function->Call(object, argc, argv);
+
+	if (argv) {
+		delete[] argv;
+	}
+
+	bool isNew;
+	return TypeConverter::jsValueToJavaObject(returnValue, &isNew);
+}
+
 JNIEXPORT jboolean JNICALL
 Java_org_appcelerator_kroll_runtime_v8_V8Object_nativeRelease
 	(JNIEnv *env, jclass clazz, jlong refPointer)

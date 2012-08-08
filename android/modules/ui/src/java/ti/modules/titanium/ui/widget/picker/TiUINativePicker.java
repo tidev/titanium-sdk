@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -11,6 +11,7 @@ import java.util.Arrays;
 
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.proxy.TiViewProxy;
+import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiUIView;
 
 import ti.modules.titanium.ui.PickerColumnProxy;
@@ -25,17 +26,25 @@ import android.widget.Spinner;
 public class TiUINativePicker extends TiUIPicker 
 		implements OnItemSelectedListener
 {
-	private static final String LCAT = "TiUINativePicker";
+	private static final String TAG = "TiUINativePicker";
 	private boolean firstSelectedFired = false;
 	
 	public TiUINativePicker(TiViewProxy proxy) 
 	{
 		super(proxy);
 	}
-	public TiUINativePicker(TiViewProxy proxy, Activity activity)
+	public TiUINativePicker(final TiViewProxy proxy, Activity activity)
 	{
 		this(proxy);
-		Spinner spinner = new Spinner(activity);
+		Spinner spinner = new Spinner(activity)
+		{
+			@Override
+			protected void onLayout(boolean changed, int left, int top, int right, int bottom)
+			{
+				super.onLayout(changed, left, top, right, bottom);
+				TiUIHelper.firePostLayoutEvent(proxy);
+			}
+		};
 		setNativeView(spinner);
 		refreshNativeView();
 		preselectRows();
@@ -70,13 +79,13 @@ public class TiUINativePicker extends TiUIPicker
 	{
 		// At the moment we only support one column.
 		if (columnIndex != 0) {
-			Log.w(LCAT, "Only one column is supported. Ignoring request to set selected row of column " + columnIndex);
+			Log.w(TAG, "Only one column is supported. Ignoring request to set selected row of column " + columnIndex);
 			return;
 		}
 		Spinner view = (Spinner)nativeView;
 		int rowCount = view.getAdapter().getCount();
 		if (rowIndex < 0 || rowIndex >= rowCount) {
-			Log.w(LCAT, "Ignoring request to select out-of-bounds row index " + rowIndex);
+			Log.w(TAG, "Ignoring request to select out-of-bounds row index " + rowIndex);
 			return;
 		}
 		view.setSelection(rowIndex, animated);
@@ -86,7 +95,7 @@ public class TiUINativePicker extends TiUIPicker
 	public int getSelectedRowIndex(int columnIndex)
 	{
 		if (columnIndex != 0) {
-			Log.w(LCAT, "Ignoring request to get selected row from out-of-bounds columnIndex " + columnIndex);
+			Log.w(TAG, "Ignoring request to get selected row from out-of-bounds columnIndex " + columnIndex);
 			return -1;
 		}
 		return ((Spinner)getNativeView()).getSelectedItemPosition();
@@ -132,7 +141,7 @@ public class TiUINativePicker extends TiUIPicker
 			}
 			
 		} catch(Throwable t) {
-			Log.e(LCAT, "Unable to refresh native spinner control: " + t.getMessage(), t);
+			Log.e(TAG, "Unable to refresh native spinner control: " + t.getMessage(), t);
 		} finally {
 			suppressChangeEvent = false;
 			spinner.setOnItemSelectedListener(this);

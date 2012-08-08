@@ -1,3 +1,9 @@
+/**
+ * Appcelerator Titanium Mobile
+ * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
+ * Licensed under the terms of the Apache Public License
+ * Please see the LICENSE included with this distribution for details.
+ */
 package org.appcelerator.titanium.util;
 
 import java.io.BufferedReader;
@@ -28,12 +34,10 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.codec.digest.DigestUtils;
 import org.appcelerator.kroll.common.Log;
-import org.appcelerator.kroll.common.TiConfig;
 import org.appcelerator.titanium.TiApplication;
 
 public class TiResponseCache extends ResponseCache
 {
-	private static final boolean DBG = TiConfig.LOGD;
 	private static final String TAG = "TiResponseCache";
 
 	private static final String HEADER_SUFFIX = ".hdr";
@@ -42,7 +46,6 @@ public class TiResponseCache extends ResponseCache
 	private static final int DEFAULT_CACHE_SIZE = 25 * 1024 * 1024; // 25MB
 	private static final int INITIAL_DELAY = 10000;
 	private static final int CLEANUP_DELAY = 60000;
-	private static final String LCAT = "TiResponseCache"; 
 	private static HashMap<String, ArrayList<CompleteListener>> completeListeners = new HashMap<String, ArrayList<CompleteListener>>();
 	private static long maxCacheSize = 0;
 
@@ -172,7 +175,7 @@ public class TiResponseCache extends ResponseCache
 			// This works around a bug where Android calls abort()
 			// whenever the file is closed, successful writes or not
 			if (bFile.length() != this.contentLength) {
-				Log.e(LCAT, "Failed to add item to the cache!");
+				Log.e(TAG, "Failed to add item to the cache!");
 				if (bFile.exists()) bFile.delete();
 				if (hFile.exists()) hFile.delete();
 			}
@@ -238,9 +241,7 @@ public class TiResponseCache extends ResponseCache
 		cacheDir = cachedir;
 
 		maxCacheSize = tiApp.getSystemProperties().getInt(CACHE_SIZE_KEY, DEFAULT_CACHE_SIZE) * 1024;
-		if(DBG) {
-			Log.d(LCAT, "max cache size is:" + maxCacheSize);
-		}
+		Log.d(TAG, "max cache size is:" + maxCacheSize, Log.DEBUG_MODE);
 
 		cleanupExecutor = Executors.newSingleThreadScheduledExecutor();
 		TiCacheCleanup command = new TiCacheCleanup(cacheDir, maxCacheSize);

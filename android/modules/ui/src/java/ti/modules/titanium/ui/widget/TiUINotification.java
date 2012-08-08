@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -9,7 +9,6 @@ package ti.modules.titanium.ui.widget;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.common.Log;
-import org.appcelerator.kroll.common.TiConfig;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.view.TiUIView;
@@ -18,16 +17,13 @@ import android.widget.Toast;
 
 public class TiUINotification extends TiUIView
 {
-	private static final String LCAT = "TiUINotifier";
-	private static final boolean DBG = TiConfig.LOGD;
+	private static final String TAG = "TiUINotifier";
 
 	private Toast toast;
 
 	public TiUINotification(TiViewProxy proxy) {
 		super(proxy);
-		if (DBG) {
-			Log.d(LCAT, "Creating a notifier");
-		}
+		Log.d(TAG, "Creating a notifier", Log.DEBUG_MODE);
 		toast = Toast.makeText(proxy.getActivity(), "", Toast.LENGTH_SHORT);
 	}
 
@@ -86,9 +82,8 @@ public class TiUINotification extends TiUIView
 		d.put(key, newValue);
 		processProperties(d);
 
-		if (DBG) {
-			Log.d(LCAT, "PropertyChanged - Property '" + key + "' changed to '" + newValue + "' from '" + oldValue + "'");
-		}
+		Log.d(TAG, "PropertyChanged - Property '" + key + "' changed to '" + newValue + "' from '" + oldValue + "'",
+			Log.DEBUG_MODE);
 
 	}
 

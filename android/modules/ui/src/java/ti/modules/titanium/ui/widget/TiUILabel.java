@@ -11,7 +11,6 @@ import java.util.HashMap;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.common.Log;
-import org.appcelerator.kroll.common.TiConfig;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
@@ -28,15 +27,24 @@ import android.widget.TextView;
 
 public class TiUILabel extends TiUIView
 {
-	private static final String LCAT = "TiUILabel";
-	private static final boolean DBG = TiConfig.LOGD;
+	private static final String TAG = "TiUILabel";
 
-	public TiUILabel(TiViewProxy proxy) {
+	public TiUILabel(final TiViewProxy proxy)
+	{
 		super(proxy);
-		if (DBG) {
-			Log.d(LCAT, "Creating a text label");
-		}
-		TextView tv = new TextView(getProxy().getActivity());
+		Log.d(TAG, "Creating a text label", Log.DEBUG_MODE);
+		TextView tv = new TextView(getProxy().getActivity())
+		{
+			@Override
+			protected void onLayout(boolean changed, int left, int top, int right, int bottom)
+			{
+				super.onLayout(changed, left, top, right, bottom);
+
+				if (proxy != null && proxy.hasListeners(TiC.EVENT_POST_LAYOUT)) {
+					proxy.fireEvent(TiC.EVENT_POST_LAYOUT, null, false);
+				}
+			}
+		};
 		tv.setGravity(Gravity.CENTER_VERTICAL | Gravity.LEFT);
 		tv.setPadding(0, 0, 0, 0);
 		tv.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_MULTI_LINE);

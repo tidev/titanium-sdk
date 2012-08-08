@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -32,7 +32,7 @@ import android.net.Uri;
 })
 public class NotificationProxy extends KrollProxy 
 {
-	private static final String LCAT = "TiNotification";
+	private static final String TAG = "TiNotification";
 
 	protected Notification notification;
 
@@ -118,7 +118,7 @@ public class NotificationProxy extends KrollProxy
 			String iconFullUrl = resolveUrl(null, iconUrl);
 			notification.icon = TiUIHelper.getResourceId(iconFullUrl);
 			if (notification.icon == 0) {
-				Log.w(LCAT, "No image found for " + iconUrl);
+				Log.w(TAG, "No image found for " + iconUrl);
 			}
 		}
 	}

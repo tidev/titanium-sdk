@@ -1,0 +1,134 @@
+---
+name: Titanium.UI.Android.ProgressIndicator
+summary: A progress dialog or a horizontal progress bar in the title of the window.
+
+description:  |
+    A progress indicator can be used to show the progress of an operation in the UI to let the
+    user know that some action is taking place. It is used to indicate an ongoing activity of
+    determinate or indeterminate length.
+
+    Use the <Titanium.UI.Android.createProgressIndicator> method to create a progress indicator.
+
+    A progress indicator can be either a progress dialog or a horizontal progress bar in the title 
+    of the window. The progress dialog is a modal dialog that blocks the UI. See also: 
+    <Titanium.UI.Android.PROGRESS_INDICATOR_DIALOG>,
+    <Titanium.UI.Android.PROGRESS_INDICATOR_STATUS_BAR>.
+
+    Calling `show` displays the indicator, and calling `hide` removes it.
+extends: Titanium.Proxy
+since: "2.2.0"
+platforms: [android]
+
+methods:
+  - name: hide
+    summary: Hides the progress indicator and stops the animation.
+    platforms: [android]
+
+  - name: show
+    summary: Shows the progress indicator and starts the animation.
+    platforms: [android]
+
+properties:
+  - name: cancelable
+    summary: |
+        When `true` allows the user to cancel the progress dialog by pressing the BACK button.
+    type: Boolean
+    platforms: [android]
+
+  - name: message
+    summary: Message text.
+    type: String
+    platforms: [android]
+
+  - name: messageid
+    summary: Key identifying a string in the locale file to use for the message text.
+    description: Only one of `message` or `messageid` should be specified.
+    type: String
+    platforms: [android]
+
+  - name: min
+    summary: Minimum value of the progress bar.
+    type: Number
+    platforms: [android]
+
+  - name: max
+    summary: Maximum value of the progress bar.
+    type: Number
+    platforms: [android]
+
+  - name: location
+    summary: Location for the progress indicator.
+    description: |
+        One of the constants:
+        <Titanium.UI.Android.PROGRESS_INDICATOR_DIALOG>,
+        <Titanium.UI.Android.PROGRESS_INDICATOR_STATUS_BAR>.
+    type: Number
+    default: <Titanium.UI.Android.PROGRESS_INDICATOR_DIALOG>
+    platforms: [android]
+
+  - name: type
+    summary: Type for the progress indicator.
+    description: |
+        One of the constants:
+        <Titanium.UI.Android.PROGRESS_INDICATOR_INDETERMINANT>,
+        <Titanium.UI.Android.PROGRESS_INDICATOR_DETERMINANT>.
+    type: Number
+    default: <Titanium.UI.Android.PROGRESS_INDICATOR_INDETERMINANT>
+    platforms: [android]
+
+events:
+  - name: cancel
+    summary: Fired when the user has canceled the progress indicator dialog.
+    description: |
+        The user triggers this event by pressing the BACK button when the dialog is visible.
+        The dialog will be hidden and this event dispatched.
+    platforms: [android]
+
+examples:
+  - title: Simple Progress Indicator
+    example: |
+        Open a yellow window immediately after a blue window. Show an progress indicator while
+        some code executes and hide it on completion. Then close the yellow window.
+
+            Ti.UI.backgroundColor = 'white';
+
+            var win1 = Ti.UI.createWindow({
+              backgroundColor: 'blue'
+            });
+
+            var win2 = Ti.UI.createWindow({
+              backgroundColor: 'yellow',
+              fullscreen: true
+            });
+
+            var progressIndicator = Ti.UI.Android.createProgressIndicator({
+              message: 'Loading...',
+              location: Ti.UI.Android.PROGRESS_INDICATOR_DIALOG,
+              type: Ti.UI.Android.PROGRESS_INDICATOR_DETERMINANT,
+              cancelable: true,
+              min: 0,
+              max: 10
+            });
+
+            // eventListeners must always be loaded before the event is likely to fire
+            // hence, the open() method must be positioned before the window is opened
+            win2.addEventListener('open', function (e) {
+              progressIndicator.show();
+              var value = 0;
+              setInterval(function(){
+                if (value > 10) {
+                    return;
+                }
+                progressIndicator.value = value;
+                value ++;
+              }, 200);
+              // do some work that takes 3 seconds
+              // ie. replace the following setTimeout block with your code
+              setTimeout(function(){
+                e.source.close();
+                progressIndicator.hide();
+              }, 3000);
+            });
+
+            win1.open();
+            win2.open();

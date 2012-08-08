@@ -13,7 +13,6 @@ import java.util.Stack;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollRuntime;
 import org.appcelerator.kroll.common.Log;
-import org.appcelerator.kroll.common.TiConfig;
 import org.appcelerator.kroll.common.TiMessenger;
 import org.appcelerator.titanium.TiLifecycle.OnLifecycleEvent;
 import org.appcelerator.titanium.proxy.ActivityProxy;
@@ -56,7 +55,6 @@ public abstract class TiBaseActivity extends Activity
 	implements TiActivitySupport/*, ITiWindowHandler*/
 {
 	private static final String TAG = "TiBaseActivity";
-	private static final boolean DBG = TiConfig.LOGD;
 
 	private static OrientationChangedListener orientationChangedListener = null;
 
@@ -85,7 +83,7 @@ public abstract class TiBaseActivity extends Activity
 	public void addWindowToStack(TiBaseWindowProxy proxy)
 	{
 		if (windowStack.contains(proxy)) {
-			Log.e(TAG, "Error 37! Window already exists in stack");
+			Log.e(TAG, "Window already exists in stack", Log.DEBUG_MODE);
 			return;
 		}
 		boolean isEmpty = windowStack.empty();
@@ -353,10 +351,7 @@ public abstract class TiBaseActivity extends Activity
 		}
 
 		if (hasSoftInputMode) {
-			if (DBG) {
-				Log.d(TAG, "windowSoftInputMode: " + softInputMode);
-			}
-
+			Log.d(TAG, "windowSoftInputMode: " + softInputMode, Log.DEBUG_MODE);
 			getWindow().setSoftInputMode(softInputMode);
 		}
 
@@ -375,9 +370,7 @@ public abstract class TiBaseActivity extends Activity
 	 */
 	protected void onCreate(Bundle savedInstanceState)
 	{
-		if (DBG) {
-			Log.d(TAG, "Activity " + this + " onCreate");
-		}
+		Log.d(TAG, "Activity " + this + " onCreate", Log.DEBUG_MODE);
 
 		TiApplication tiApp = getTiApp();
 
@@ -662,10 +655,8 @@ public abstract class TiBaseActivity extends Activity
 	{
 		super.onNewIntent(intent);
 
-		if (DBG) {
-			Log.d(TAG, "Activity " + this + " onNewIntent");
-		}
-		
+		Log.d(TAG, "Activity " + this + " onNewIntent", Log.DEBUG_MODE);
+
 		if (activityProxy != null) {
 			IntentProxy ip = new IntentProxy(intent);
 			KrollDict data = new KrollDict();
@@ -706,9 +697,7 @@ public abstract class TiBaseActivity extends Activity
 		super.onPause();
 		isResumed = false;
 
-		if (DBG) {
-			Log.d(TAG, "Activity " + this + " onPause");
-		}
+		Log.d(TAG, "Activity " + this + " onPause", Log.DEBUG_MODE);
 
 		TiApplication tiApp = getTiApp();
 
@@ -755,10 +744,11 @@ public abstract class TiBaseActivity extends Activity
 	protected void onResume()
 	{
 		super.onResume();
-
-		if (DBG) {
-			Log.d(TAG, "Activity " + this + " onResume");
+		if (isFinishing()) {
+			return;
 		}
+
+		Log.d(TAG, "Activity " + this + " onResume", Log.DEBUG_MODE);
 
 		TiApplication tiApp = getTiApp();
 		if (tiApp.isRestartPending()) {
@@ -802,14 +792,15 @@ public abstract class TiBaseActivity extends Activity
 	protected void onStart()
 	{
 		super.onStart();
+		if (isFinishing()) {
+			return;
+		}
 
 		// Newer versions of Android appear to turn this on by default.
 		// Turn if off until an activity indicator is shown.
 		setProgressBarIndeterminateVisibility(false);
 
-		if (DBG) {
-			Log.d(TAG, "Activity " + this + " onStart");
-		}
+		Log.d(TAG, "Activity " + this + " onStart", Log.DEBUG_MODE);
 
 		TiApplication tiApp = getTiApp();
 
@@ -859,9 +850,7 @@ public abstract class TiBaseActivity extends Activity
 	{
 		super.onStop();
 
-		if (DBG) {
-			Log.d(TAG, "Activity " + this + " onStop");
-		}
+		Log.d(TAG, "Activity " + this + " onStop", Log.DEBUG_MODE);
 
 		if (getTiApp().isRestartPending()) {
 			if (!isFinishing()) {
@@ -896,10 +885,7 @@ public abstract class TiBaseActivity extends Activity
 	{
 		super.onRestart();
 
-		if (DBG) {
-			Log.d(TAG, "Activity " + this + " onRestart");
-		}
-
+		Log.d(TAG, "Activity " + this + " onRestart", Log.DEBUG_MODE);
 		
 		TiApplication tiApp = getTiApp();
 		if (tiApp.isRestartPending()) {
@@ -931,9 +917,7 @@ public abstract class TiBaseActivity extends Activity
 	 */
 	protected void onDestroy()
 	{
-		if (DBG) {
-			Log.d(TAG, "Activity " + this + " onDestroy");
-		}
+		Log.d(TAG, "Activity " + this + " onDestroy", Log.DEBUG_MODE);
 
 		TiApplication tiApp = getTiApp();
 
@@ -983,7 +967,7 @@ public abstract class TiBaseActivity extends Activity
 
 		
 		if (layout != null) {
-			Log.e(TAG, "Layout cleanup.");
+			Log.e(TAG, "Layout cleanup.", Log.DEBUG_MODE);
 			layout.removeAllViews();
 			layout = null;
 		}

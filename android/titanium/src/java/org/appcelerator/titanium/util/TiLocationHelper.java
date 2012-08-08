@@ -1,17 +1,15 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-
 package org.appcelerator.titanium.util;
 
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.appcelerator.kroll.common.Log;
-import org.appcelerator.kroll.common.TiConfig;
 import org.appcelerator.titanium.TiApplication;
 
 import android.content.Context;
@@ -33,8 +31,7 @@ public class TiLocationHelper
 	public static final int DEFAULT_UPDATE_FREQUENCY = 5000;
 	public static final float DEFAULT_UPDATE_DISTANCE = 10;
 
-	private static final String LCAT = "TiLocationHelper";
-	private static final Boolean DBG = TiConfig.LOGD;
+	private static final String TAG = "TiLocationHelper";
 
 	private static AtomicInteger listenerCount = new AtomicInteger();
 	private static LocationManager locationManager;
@@ -69,7 +66,7 @@ public class TiLocationHelper
 				case ACCURACY_KILOMETER : updateDistance = 1000.0f; break;
 				case ACCURACY_THREE_KILOMETERS : updateDistance = 3000.0f; break;
 				default :
-					Log.w(LCAT, "Ignoring unknown accuracy value [" + accuracy.intValue() + "]");
+					Log.w(TAG, "Ignoring unknown accuracy value [" + accuracy.intValue() + "]");
 			}
 		}
 
@@ -85,12 +82,13 @@ public class TiLocationHelper
 			int updateFrequency = buildUpdateFrequency(frequency);
 			float updateDistance = buildUpdateDistance(accuracy);
 
-			Log.i(LCAT, "registering listener with provider [" + provider + "], frequency [" + updateFrequency + "], distance [" + updateDistance + "]");
+			Log.i(TAG, "registering listener with provider [" + provider + "], frequency [" + updateFrequency
+				+ "], distance [" + updateDistance + "]", Log.DEBUG_MODE);
 
 			locationManager.requestLocationUpdates(provider, updateFrequency, updateDistance, listener);
 			listenerCount.incrementAndGet();
 		} else {
-			Log.e(LCAT, "unable to register, provider is null");
+			Log.e(TAG, "Unable to register listener, provider is null");
 		}
 	}
 
@@ -103,7 +101,7 @@ public class TiLocationHelper
 				locationManager = null;
 			}
 		} else {
-			Log.e(LCAT, "unable to unregister, locationManager is null");
+			Log.e(TAG, "Unable to unregister listener, locationManager is null");
 		}
 	}
 
@@ -116,13 +114,14 @@ public class TiLocationHelper
 				int updateFrequency = buildUpdateFrequency(frequency);
 				float updateDistance = buildUpdateDistance(accuracy);
 
-				Log.i(LCAT, "updating listener with provider [" + currentProvider + "], frequency [" + updateFrequency + "], distance [" + updateDistance + "]");
+				Log.i(TAG, "updating listener with provider [" + currentProvider + "], frequency [" + updateFrequency
+					+ "], distance [" + updateDistance + "]", Log.DEBUG_MODE);
 
 				locationManager.removeUpdates(listener);
 				locationManager.requestLocationUpdates(currentProvider, updateFrequency, updateDistance, listener);
 			}
 		} else {
-			Log.e(LCAT, "unable to update provider, locationManager is null");
+			Log.e(TAG, "Unable to update provider, locationManager is null");
 		}
 	}
 
@@ -150,7 +149,7 @@ public class TiLocationHelper
 				ex = null;
 			} finally {
 				if (!enabled) {
-					Log.w(LCAT, "Preferred provider [" + name + "] isn't enabled on this device.  Will default to auto-select of GPS provider.");
+					Log.w(TAG, "Preferred provider [" + name + "] isn't enabled on this device. Will default to auto-select of GPS provider.");
 				}
 			}
 		}
@@ -197,7 +196,7 @@ public class TiLocationHelper
 					criteria.setSpeedRequired(false);
 					break;
 				default :
-					Log.w(LCAT, "Ignoring unknown accuracy value [" + value + "]");
+					Log.w(TAG, "Ignoring unknown accuracy value [" + value + "]");
 			}
 		}
 
@@ -210,15 +209,13 @@ public class TiLocationHelper
 
 		List<String> providers = getLocationManager().getProviders(true);
 		if (providers != null && providers.size() > 0) {
-			if (DBG) {
-				Log.i(LCAT, "Enabled location provider count: " + providers.size());
-				for (String name : providers) {
-					Log.i(LCAT, "Location [" + name + "] service available");
-				}
+			Log.i(TAG, "Enabled location provider count: " + providers.size(), Log.DEBUG_MODE);
+			for (String name : providers) {
+				Log.i(TAG, "Location [" + name + "] service available", Log.DEBUG_MODE);
 			}
 			enabled = true;
 		} else {
-			Log.i(LCAT, "No available providers");
+			Log.i(TAG, "No available providers", Log.DEBUG_MODE);
 		}
 
 		return enabled;

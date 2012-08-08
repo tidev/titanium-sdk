@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2011-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -12,7 +12,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 import org.appcelerator.kroll.common.Log;
-import org.appcelerator.kroll.common.TiConfig;
 
 /**
  * Helper methods for InputStream / OutputStream
@@ -20,7 +19,6 @@ import org.appcelerator.kroll.common.TiConfig;
 public class KrollStreamHelper
 {
 	private static final String TAG = "KrollStreamHelper";
-	private static final boolean DBG = TiConfig.LOGD;
 
 	public static final int DEFAULT_BUFFER_SIZE = 1024;
 

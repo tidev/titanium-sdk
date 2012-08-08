@@ -1,13 +1,10 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-
 package org.appcelerator.titanium.util;
-
-import org.appcelerator.kroll.common.TiConfig;
 
 import android.content.res.Configuration;
 
@@ -21,11 +18,6 @@ public class TiOrientationHelper
 	public static final int ORIENTATION_PORTRAIT_REVERSE = 3;
 	public static final int ORIENTATION_LANDSCAPE_REVERSE = 4;
 	public static final int ORIENTATION_SQUARE = 5;
-
-	// private member declarations
-	private static final String LCAT = "TiOrientationHelper";
-	private static final boolean DBG = TiConfig.LOGD;
-
 
 	public static int convertConfigToTiOrientationMode (int configOrientationMode)
 	{

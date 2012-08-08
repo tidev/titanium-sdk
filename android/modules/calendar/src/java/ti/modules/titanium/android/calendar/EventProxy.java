@@ -1,3 +1,9 @@
+/**
+ * Appcelerator Titanium Mobile
+ * Copyright (c) 2011-2012 by Appcelerator, Inc. All Rights Reserved.
+ * Licensed under the terms of the Apache Public License
+ * Please see the LICENSE included with this distribution for details.
+ */
 package ti.modules.titanium.android.calendar;
 
 import java.util.ArrayList;
@@ -84,7 +90,7 @@ public class EventProxy extends KrollProxy {
 			query, queryArgs, "startDay ASC, startMinute ASC");
 
 		if(eventCursor == null) {
-			Log.w(TAG, "unable to get any results when pulling events by date range");
+			Log.w(TAG, "Unable to get any results when pulling events by date range");
 
 			return events;
 		}
@@ -157,7 +163,7 @@ public class EventProxy extends KrollProxy {
 		eventValues.put("hasExtendedProperties", 1);
 		
 		if (!data.containsKey("title")) {
-			Log.e(TAG, "No title found for event, so it wasn't created");
+			Log.e(TAG, "Title was not created, no title found for event");
 			return null;
 		}
 		
@@ -197,7 +203,7 @@ public class EventProxy extends KrollProxy {
 		}
 		
 		Uri eventUri = contentResolver.insert(Uri.parse(CalendarProxy.getBaseCalendarUri()+"/events"), eventValues);
-		Log.d("TiEvents", "created event with uri: " + eventUri);
+		Log.d("TiEvents", "created event with uri: " + eventUri, Log.DEBUG_MODE);
 		
 		String eventId = eventUri.getLastPathSegment();
 		event.id = eventId;
@@ -374,7 +380,7 @@ public class EventProxy extends KrollProxy {
 		if (!hasExtendedProperties) {
 			hasExtendedProperties = true;
 		}
-		Log.d("TiEvent", "set extended property: " + name + " = " + value);
+		Log.d("TiEvent", "set extended property: " + name + " = " + value, Log.DEBUG_MODE);
 		
 		// we need to update the DB
 		ContentResolver contentResolver = TiApplication.getInstance().getContentResolver();
