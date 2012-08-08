@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -10,7 +10,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 
 import org.appcelerator.kroll.common.Log;
-import org.appcelerator.kroll.common.TiConfig;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.io.TiBaseFile;
 import org.appcelerator.titanium.io.TiFileFactory;
@@ -23,7 +22,6 @@ import android.net.Uri;
 public class TiUrl
 {
 	protected static final String TAG = "TiUrl";
-	protected static final boolean DBG = TiConfig.LOGD;
 
 	public static final String PATH_SEPARATOR = "/";
 	public static final String SCHEME_SUFFIX = "://";
@@ -130,11 +128,9 @@ public class TiUrl
 
 	public static TiUrl normalizeWindowUrl(String baseUrl, String url)
 	{
-		if (DBG) {
-			Log.d(TAG, "Window Base URL: " + baseUrl);
-			if (url != null) {
-				Log.d(TAG, "Window Relative URL: " + url);
-			}
+		Log.d(TAG, "Window Base URL: " + baseUrl, Log.DEBUG_MODE);
+		if (url != null) {
+			Log.d(TAG, "Window Relative URL: " + url, Log.DEBUG_MODE);
 		}
 		try {
 			URI uri = new URI(url);

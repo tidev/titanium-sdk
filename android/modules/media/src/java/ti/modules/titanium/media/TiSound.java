@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -16,7 +16,6 @@ import org.appcelerator.kroll.KrollPropertyChange;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.KrollProxyListener;
 import org.appcelerator.kroll.common.Log;
-import org.appcelerator.kroll.common.TiConfig;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.util.TiConvert;
@@ -31,8 +30,7 @@ public class TiSound
 	implements MediaPlayer.OnCompletionListener, MediaPlayer.OnErrorListener, KrollProxyListener,
 	MediaPlayer.OnBufferingUpdateListener, MediaPlayer.OnInfoListener
 {
-	private static final String LCAT = "TiSound";
-	private static final boolean DBG = TiConfig.LOGD;
+	private static final String TAG = "TiSound";
 
 	public static final int STATE_BUFFERING	= 0;	// current playback is in the buffering from the network state
 	public static final int STATE_INITIALIZED = 1;	// current playback is in the initialization state
@@ -94,7 +92,7 @@ public class TiSound
 					// http://groups.google.com/group/android-developers/browse_thread/thread/225c4c150be92416
 					mp.setDataSource(afd.getFileDescriptor(), afd.getStartOffset(), afd.getLength());
 				} catch (IOException e) {
-					Log.e(LCAT, "Error setting file descriptor: ", e);
+					Log.e(TAG, "Error setting file descriptor: ", e);
 				} finally {
 					if (afd != null) {
 						afd.close();
@@ -124,7 +122,7 @@ public class TiSound
 				setTime(TiConvert.toInt(proxy.getProperty(TiC.PROPERTY_TIME)));
 			}
 		} catch (Throwable t) {
-			Log.w(LCAT, "Issue while initializing : " , t);
+			Log.w(TAG, "Issue while initializing : " , t);
 			release();
 			setState(STATE_STOPPED);
 		}
@@ -154,9 +152,7 @@ public class TiSound
 		try {
 			if (mp != null) {
 				if(mp.isPlaying()) {
-					if (DBG) {
-						Log.d(LCAT,"audio is playing, pause");
-					}
+					Log.d(TAG, "audio is playing, pause", Log.DEBUG_MODE);
 					if (remote) {
 						stopProgressTimer();
 					}
@@ -166,7 +162,7 @@ public class TiSound
 				}
 			}
 		} catch (Throwable t) {
-			Log.w(LCAT, "Issue while pausing : " , t);
+			Log.w(TAG, "Issue while pausing : " , t);
 		}
 	}
 
@@ -180,12 +176,8 @@ public class TiSound
 
 			if (mp != null) {
 				if (!isPlaying()) {
-					if (DBG) {
-						Log.d(LCAT,"audio is not playing, starting.");
-					}
-					if (DBG) {
-						Log.d(LCAT, "Play: Volume set to " + volume);
-					}
+					Log.d(TAG, "audio is not playing, starting.", Log.DEBUG_MODE);
+					Log.d(TAG, "Play: Volume set to " + volume, Log.DEBUG_MODE);
 					mp.start();
 					setState(STATE_PLAYING);
 					paused = false;
@@ -196,7 +188,7 @@ public class TiSound
 				setState(STATE_PLAYING);
 			}
 		} catch (Throwable t) {
-			Log.w(LCAT, "Issue while playing : " , t);
+			Log.w(TAG, "Issue while playing : " , t);
 			reset();
 		}
 	}
@@ -216,7 +208,7 @@ public class TiSound
 				setState(STATE_STOPPED);
 			}
 		} catch (Throwable t) {
-			Log.w(LCAT, "Issue while resetting : " , t);
+			Log.w(TAG, "Issue while resetting : " , t);
 		}
 	}
 
@@ -232,13 +224,11 @@ public class TiSound
 
 				mp.release();
 				mp = null;
-				if (DBG) {
-					Log.d(LCAT, "Native resources released.");
-				}
+				Log.d(TAG, "Native resources released.", Log.DEBUG_MODE);
 				remote = false;
 			}
 		} catch (Throwable t) {
-			Log.w(LCAT, "Issue while releasing : " , t);
+			Log.w(TAG, "Issue while releasing : " , t);
 		}
 	}
 
@@ -252,7 +242,7 @@ public class TiSound
 				looping = loop;
 			}
 		} catch (Throwable t) {
-			Log.w(LCAT, "Issue while configuring looping : " , t);
+			Log.w(TAG, "Issue while configuring looping : " , t);
 		}
 	}
 
@@ -261,11 +251,11 @@ public class TiSound
 		try {
 			if (volume < 0.0f) {
 				this.volume = 0.0f;
-				Log.w(LCAT, "Attempt to set volume less than 0.0. Volume set to 0.0");
+				Log.w(TAG, "Attempt to set volume less than 0.0. Volume set to 0.0");
 			} else if (volume > 1.0) {
 				this.volume = 1.0f;
 				proxy.setProperty(TiC.PROPERTY_VOLUME, volume);
-				Log.w(LCAT, "Attempt to set volume greater than 1.0. Volume set to 1.0");
+				Log.w(TAG, "Attempt to set volume greater than 1.0. Volume set to 1.0");
 			} else {
 				this.volume = volume; // Store in 0.0 to 1.0, scale when setting hw
 			}
@@ -274,7 +264,7 @@ public class TiSound
 				mp.setVolume(scaledVolume, scaledVolume);
 			}
 		} catch (Throwable t) {
-			Log.w(LCAT, "Issue while setting volume : " , t);
+			Log.w(TAG, "Issue while setting volume : " , t);
 		}
 	}
 
@@ -315,7 +305,7 @@ public class TiSound
 			try {
 				mp.seekTo(position);
 			} catch (IllegalStateException e) {
-				Log.w(LCAT, "Error calling seekTo() in an incorrect state. Ignoring.");
+				Log.w(TAG, "Error calling seekTo() in an incorrect state. Ignoring.");
 			}
 		}
 
@@ -358,9 +348,7 @@ public class TiSound
 		}
 
 		proxy.setProperty("stateDescription", stateDescription);
-		if (DBG) {
-			Log.d(LCAT, "Audio state changed: " + stateDescription);
-		}
+		Log.d(TAG, "Audio state changed: " + stateDescription, Log.DEBUG_MODE);
 
 		KrollDict data = new KrollDict();
 		data.put("state", state);
@@ -375,9 +363,7 @@ public class TiSound
 			if (mp != null) {
 
 				if (mp.isPlaying() || isPaused()) {
-					if (DBG) {
-						Log.d(LCAT, "audio is playing, stop()");
-					}
+					Log.d(TAG, "audio is playing, stop()", Log.DEBUG_MODE);
 					setState(STATE_STOPPING);
 					mp.stop();
 					setState(STATE_STOPPED);
@@ -388,9 +374,9 @@ public class TiSound
 						mp.prepare();
 						mp.seekTo(0);
 					} catch (IOException e) {
-						Log.e(LCAT,"Error while preparing audio after stop(). Ignoring.");
+						Log.e(TAG, "Error while preparing audio after stop(). Ignoring.", Log.DEBUG_MODE);
 					} catch (IllegalStateException e) {
-						Log.w(LCAT, "Error while preparing audio after stop(). Ignoring.");
+						Log.w(TAG, "Error while preparing audio after stop(). Ignoring.", Log.DEBUG_MODE);
 					}
 				}
 
@@ -399,7 +385,7 @@ public class TiSound
 				}
 			}
 		} catch (Throwable t) {
-			Log.e(LCAT, "Error : " , t);
+			Log.e(TAG, "Error : " , t);
 		}
 	}
 
@@ -458,9 +444,7 @@ public class TiSound
 	@Override
 	public void onBufferingUpdate(MediaPlayer mp, int percent)
 	{
-		if (DBG) {
-			Log.d(LCAT, "Buffering: " + percent + "%");
-		}
+		Log.d(TAG, "Buffering: " + percent + "%", Log.DEBUG_MODE);
 	}
 
 	private void startProgressTimer()

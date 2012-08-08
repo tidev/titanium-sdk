@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -12,7 +12,6 @@ import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.AsyncResult;
 import org.appcelerator.kroll.common.Log;
-import org.appcelerator.kroll.common.TiConfig;
 import org.appcelerator.kroll.common.TiMessenger;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBaseActivity;
@@ -37,8 +36,7 @@ import android.os.Messenger;
 })
 public class VideoPlayerProxy extends TiViewProxy implements TiLifecycle.OnLifecycleEvent
 {
-	private static final String LCAT = "VideoPlayerProxy";
-	private static final boolean DBG = TiConfig.LOGD;
+	private static final String TAG = "VideoPlayerProxy";
 
 	protected static final int CONTROL_MSG_ACTIVITY_AVAILABLE = 101;
 	protected static final int CONTROL_MSG_CONFIG_CHANGED = 102;
@@ -136,10 +134,10 @@ public class VideoPlayerProxy extends TiViewProxy implements TiLifecycle.OnLifec
 		if (mcStyle != null) {
 			mediaControlStyle = TiConvert.toInt(mcStyle);
 		} else if (mcModeDeprecated != null) {
-			Log.w(LCAT, "movieControlMode is deprecated.  Use mediaControlStyle instead.");
+			Log.w(TAG, "movieControlMode is deprecated.  Use mediaControlStyle instead.");
 			mediaControlStyle = TiConvert.toInt(mcModeDeprecated);
 		} else if (mcStyleDeprecated != null) {
-			Log.w(LCAT, "movieControlStyle is deprecated.  Use mediaControlStyle instead.");
+			Log.w(TAG, "movieControlStyle is deprecated.  Use mediaControlStyle instead.");
 			mediaControlStyle = TiConvert.toInt(mcStyleDeprecated);
 		}
 
@@ -188,9 +186,7 @@ public class VideoPlayerProxy extends TiViewProxy implements TiLifecycle.OnLifec
 				boolean handled = false;
 				switch (msg.what) {
 					case CONTROL_MSG_CONFIG_CHANGED:
-						if (DBG) {
-							Log.d(LCAT, "TiVideoActivity sending configuration changed message to proxy");
-						}
+						Log.d(TAG, "TiVideoActivity sending configuration changed message to proxy", Log.DEBUG_MODE);
 						// In case the orientation changed and the media controller is still showing (now in the
 						// wrong place since the screen flipped), hide it.
 						if (view != null) {
@@ -203,9 +199,7 @@ public class VideoPlayerProxy extends TiViewProxy implements TiLifecycle.OnLifec
 						handled = true;
 						break;
 					case CONTROL_MSG_ACTIVITY_AVAILABLE:
-						if (DBG) {
-							Log.d(LCAT, "TiVideoActivity sending activity started message to proxy");
-						}
+						Log.d(TAG, "TiVideoActivity sending activity started message to proxy", Log.DEBUG_MODE);
 						// The TiVideoActivity has started and has called its own
 						// setContentView, which is a TiCompositeLayout with the
 						// TiVideoView8 view on it.  In chain of calls below,
@@ -228,9 +222,7 @@ public class VideoPlayerProxy extends TiViewProxy implements TiLifecycle.OnLifec
 
 	private void control(int action)
 	{
-		if (DBG) {
-			Log.d(LCAT, getActionName(action));
-		}
+		Log.d(TAG, getActionName(action), Log.DEBUG_MODE);
 
 		if (!TiApplication.isUIThread()) {
 			getMainHandler().sendEmptyMessage(action);
@@ -239,7 +231,7 @@ public class VideoPlayerProxy extends TiViewProxy implements TiLifecycle.OnLifec
 
 		TiUIView view = peekView();
 		if (view == null) {
-			Log.w(LCAT, "Player action ignored; player has not been created.");
+			Log.w(TAG, "Player action ignored; player has not been created.");
 			return;
 		}
 
@@ -256,7 +248,7 @@ public class VideoPlayerProxy extends TiViewProxy implements TiLifecycle.OnLifec
 				vv.pause();
 				break;
 			default:
-				Log.w(LCAT, "Unknown player action (" + action + ") ignored.");
+				Log.w(TAG, "Unknown player action (" + action + ") ignored.");
 		}
 	}
 
@@ -292,9 +284,7 @@ public class VideoPlayerProxy extends TiViewProxy implements TiLifecycle.OnLifec
 	@Kroll.method
 	public void release()
 	{
-		if (DBG) {
-			Log.d(LCAT, "release()");
-		}
+		Log.d(TAG, "release()", Log.DEBUG_MODE);
 
 		if (view != null) {
 			if (TiApplication.isUIThread()) {
@@ -429,14 +419,14 @@ public class VideoPlayerProxy extends TiViewProxy implements TiLifecycle.OnLifec
 	@Kroll.getProperty @Kroll.method
 	public int getMovieControlMode()
 	{
-		Log.w(LCAT, "movieControlMode is deprecated.  Use mediaControlStyle instead.");
+		Log.w(TAG, "movieControlMode is deprecated.  Use mediaControlStyle instead.");
 		return getMediaControlStyle();
 	}
 
 	@Kroll.setProperty @Kroll.method
 	public void setMovieControlMode(int style)
 	{
-		Log.w(LCAT, "movieControlMode is deprecated.  Use mediaControlStyle instead.");
+		Log.w(TAG, "movieControlMode is deprecated.  Use mediaControlStyle instead.");
 		setMediaControlStyle(style);
 	}
 
@@ -449,14 +439,14 @@ public class VideoPlayerProxy extends TiViewProxy implements TiLifecycle.OnLifec
 	@Kroll.getProperty @Kroll.method
 	public int getMovieControlStyle()
 	{
-		Log.w(LCAT, "movieControlStyle is deprecated.  Use mediaControlStyle instead.");
+		Log.w(TAG, "movieControlStyle is deprecated.  Use mediaControlStyle instead.");
 		return getMediaControlStyle();
 	}
 
 	@Kroll.setProperty @Kroll.method
 	public void setMovieControlStyle(int style)
 	{
-		Log.w(LCAT, "movieControlStyle is deprecated.  Use mediaControlStyle instead.");
+		Log.w(TAG, "movieControlStyle is deprecated.  Use mediaControlStyle instead.");
 		setMediaControlStyle(style);
 	}
 
@@ -512,9 +502,7 @@ public class VideoPlayerProxy extends TiViewProxy implements TiLifecycle.OnLifec
 	@Kroll.method @Kroll.setProperty
 	public void setCurrentPlaybackTime(int milliseconds)
 	{
-		if (DBG) {
-			Log.d(LCAT, "setCurrentPlaybackTime(" + milliseconds + ")");
-		}
+		Log.d(TAG, "setCurrentPlaybackTime(" + milliseconds + ")", Log.DEBUG_MODE);
 
 		if (view != null) {
 			if (TiApplication.isUIThread()) {

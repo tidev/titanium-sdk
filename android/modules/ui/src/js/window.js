@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2011-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -44,7 +44,7 @@ exports.bootstrapWindow = function(Titanium) {
 		}
 		
 		if (kroll.DBG) {
-			kroll.log(TAG, "unable to find valid activity for decor view");
+			kroll.log(TAG, "Unable to find valid activity for decor view");
 		}
 		return null;
 	}
@@ -104,7 +104,7 @@ exports.bootstrapWindow = function(Titanium) {
 			}
 
 		} else if (kroll.DBG) { 
-			kroll.log(TAG, "not allowed to set orientationModes to null");
+			kroll.log(TAG, "Not allowed to set orientationModes to null");
 		}
 	}
 
@@ -175,7 +175,7 @@ exports.bootstrapWindow = function(Titanium) {
 		// if the window is not closed, do not open
 		if (this.currentState != this.state.closed) {
 			if (kroll.DBG) {
-				kroll.log(TAG, "unable to open, window is not closed");
+				kroll.log(TAG, "Unable to open, window is not closed");
 				
 			}
 			return;
@@ -321,9 +321,9 @@ exports.bootstrapWindow = function(Titanium) {
 			return;
 		}
 
-		if (kroll.DBG) {
-			kroll.log(TAG, "Loading window with URL: " + this.url);
-		}
+//		if (kroll.DBG) {
+//			kroll.log(TAG, "Loading window with URL: " + this.url);
+//		}
 
 		// Reset creationUrl of the window
 		var currentUrl = url.resolve(this._sourceUrl, this.url);
@@ -344,7 +344,7 @@ exports.bootstrapWindow = function(Titanium) {
 		// if the window is not opened, do not close
 		if (this.currentState != this.state.opened) {
 			if (kroll.DBG) {
-				kroll.log(TAG, "unable to close, window is not opened");
+				kroll.log(TAG, "Unable to close, window is not opened");
 			}
 			return;
 		}
@@ -456,7 +456,7 @@ exports.bootstrapWindow = function(Titanium) {
 			}
 
 		} else if (kroll.DBG) {
-			kroll.log(TAG, "unable to call animate, view is undefined");
+			kroll.log(TAG, "Unable to call animate, view is undefined");
 		}
 	}
 

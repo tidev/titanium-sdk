@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -28,7 +28,7 @@ import android.widget.TextView;
 
 public class TiOverlayItemView extends FrameLayout
 {
-	private static final String LCAT = "TitaniumOverlayItemView";
+	private static final String TAG = "TitaniumOverlayItemView";
 
 	private RelativeLayout layout;
 	private TiCompositeLayout leftPane;
@@ -159,7 +159,7 @@ public class TiOverlayItemView extends FrameLayout
 					leftPane.addView(leftImage);
 
 				} catch (Exception e) {
-					Log.e(LCAT, "Error loading left button - " + leftButton + ": " + e.getMessage());
+					Log.e(TAG, "Error loading left button - " + leftButton + ": " + e.getMessage());
 
 				}
 
@@ -183,7 +183,7 @@ public class TiOverlayItemView extends FrameLayout
 					rightPane.addView(rightImage);
 
 				} catch (Exception e) {
-					Log.e(LCAT, "Error loading right button - " + rightButton + ": " + e.getMessage());
+					Log.e(TAG, "Error loading right button - " + rightButton + ": " + e.getMessage());
 
 				}
 
@@ -245,7 +245,7 @@ public class TiOverlayItemView extends FrameLayout
 	public void fireClickEvent(int index, String clickedItem)
 	{
 		if (overlayClickedListener == null) {
-			Log.w(LCAT, "unable to fire click listener for map overlay, no listener found");
+			Log.w(TAG, "Unable to fire click listener for map overlay, no listener found");
 
 			return;
 		}

@@ -12,7 +12,6 @@ import java.util.Date;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.common.Log;
-import org.appcelerator.kroll.common.TiConfig;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiUIHelper;
@@ -25,8 +24,7 @@ import android.widget.TimePicker.OnTimeChangedListener;
 public class TiUITimePicker extends TiUIView
 	implements OnTimeChangedListener
 {
-	private static final String LCAT = "TiUITimePicker";
-	private static final boolean DBG = TiConfig.LOGD;
+	private static final String TAG = "TiUITimePicker";
 	private boolean suppressChangeEvent = false;
 	
 	protected Date minDate, maxDate;
@@ -39,9 +37,7 @@ public class TiUITimePicker extends TiUIView
 	public TiUITimePicker(final TiViewProxy proxy, Activity activity)
 	{
 		this(proxy);
-		if (DBG) {
-			Log.d(LCAT, "Creating a time picker");
-		}
+		Log.d(TAG, "Creating a time picker", Log.DEBUG_MODE);
 		
 		TimePicker picker = new TimePicker(activity)
 		{
@@ -98,7 +94,7 @@ public class TiUITimePicker extends TiUIView
         //iPhone ignores both values if max <= min
         if (minDate != null && maxDate != null) {
             if (maxDate.compareTo(minDate) <= 0) {
-                Log.w(LCAT, "maxDate is less or equal minDate, ignoring both settings.");
+                Log.w(TAG, "maxDate is less or equal minDate, ignoring both settings.");
                 minDate = null;
                 maxDate = null;
             }   

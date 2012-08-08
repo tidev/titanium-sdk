@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2011-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -24,7 +24,6 @@ import android.os.Environment;
 public class TiDeployData
 {
 	private static final String TAG = "TiDeployData";
-	private static final boolean DBG = TiConfig.LOGD;
 
 	protected static final String DEBUGGER_ENABLED = "debuggerEnabled";
 	protected static final String DEBUGGER_PORT = "debuggerPort";
@@ -51,10 +50,7 @@ public class TiDeployData
 		try {
 			FileInputStream stream = new FileInputStream(deployJson);
 			deployData = new JSONObject(KrollStreamHelper.toString(stream));
-
-			if (DBG) {
-				Log.d(TAG, "Read deploy data: " + deployData.toString());
-			}
+			Log.d(TAG, "Read deploy data: " + deployData.toString(), Log.DEBUG_MODE);
 
 		} catch (FileNotFoundException e) {
 			Log.e(TAG, e.getMessage(), e);

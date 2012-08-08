@@ -209,6 +209,11 @@
 		}
 	}
 	
+    if ( (maxLength > -1) && ([curText length] > maxLength) ) {
+        [self setValue_:curText];
+        return NO;
+    }
+
 	[(TiUITextAreaProxy *)self.proxy noteValueChange:curText];
 	return TRUE;
 }

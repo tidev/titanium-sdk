@@ -14,7 +14,7 @@ import org.appcelerator.kroll.KrollExternalModule;
 import org.appcelerator.kroll.KrollProxySupport;
 import org.appcelerator.kroll.KrollRuntime;
 import org.appcelerator.kroll.common.KrollSourceCodeProvider;
-import org.appcelerator.kroll.common.TiConfig;
+import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.common.TiDeployData;
 
 import android.os.Build;
@@ -22,12 +22,10 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.os.MessageQueue.IdleHandler;
-import android.util.Log;
 
 public final class V8Runtime extends KrollRuntime implements Handler.Callback
 {
 	private static final String TAG = "KrollV8Runtime";
-	private static final boolean DBG = TiConfig.LOGD;
 	private static final String NAME = "v8";
 	private static final int MSG_PROCESS_DEBUG_MESSAGES = KrollRuntime.MSG_LAST_ID + 100;
 	private static final int MAX_V8_IDLE_INTERVAL = 30 * 1000; // ms
@@ -49,9 +47,7 @@ public final class V8Runtime extends KrollRuntime implements Handler.Callback
 		TiDeployData deployData = getKrollApplication().getDeployData();
 
 		if (Build.PRODUCT.equals("sdk") || Build.PRODUCT.equals("google_sdk") || Build.FINGERPRINT.startsWith("generic")) {
-			if (DBG) {
-				Log.d(TAG, "Emulator detected, storing global references in a global Map");
-			}
+			Log.d(TAG, "Emulator detected, storing global references in a global Map", Log.DEBUG_MODE);
 			useGlobalRefs = false;
 		}
 
@@ -103,9 +99,7 @@ public final class V8Runtime extends KrollRuntime implements Handler.Callback
 	private void loadExternalModules()
 	{
 		for (String libName : externalModules.keySet()) {
-			if (DBG) {
-				Log.d(TAG, "Bootstrapping module: " + libName);
-			}
+			Log.d(TAG, "Bootstrapping module: " + libName, Log.DEBUG_MODE);
 
 			if (!loadedLibs.contains(libName)) {
 				System.loadLibrary(libName);

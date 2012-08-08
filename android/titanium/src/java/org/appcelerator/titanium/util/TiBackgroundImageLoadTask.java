@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -10,7 +10,6 @@ import java.lang.ref.SoftReference;
 import java.util.concurrent.RejectedExecutionException;
 
 import org.appcelerator.kroll.common.Log;
-import org.appcelerator.kroll.common.TiConfig;
 import org.appcelerator.titanium.TiDimension;
 import org.appcelerator.titanium.view.TiDrawableReference;
 
@@ -24,8 +23,7 @@ import android.view.View;
 public abstract class TiBackgroundImageLoadTask
 	extends AsyncTask<String, Long, Drawable>
 {
-	private static final String LCAT = "TiBackgroundImageLoadTask";
-	private static final boolean DBG = TiConfig.LOGD;
+	private static final String TAG = "TiBackgroundImageLoadTask";
 
 	protected SoftReference<View> parent;
 	protected TiDimension imageHeight;
@@ -42,16 +40,14 @@ public abstract class TiBackgroundImageLoadTask
 	protected Drawable doInBackground(String... arg) {
 
 		if (arg.length == 0) {
-			Log.w(LCAT, "url argument is missing.  Returning null drawable");
+			Log.w(TAG, "url argument is missing.  Returning null drawable");
 			return null;
 		}
-		
+
 		String url = arg[0];
 		Drawable d = null;
 		if (parent.get() == null) {
-			if (DBG) {
-				Log.d(LCAT, "doInBackground exiting early because context already gc'd");
-			}
+			Log.d(TAG, "doInBackground exiting early because context already gc'd", Log.DEBUG_MODE);
 			return null;
 		}
 
@@ -68,28 +64,26 @@ public abstract class TiBackgroundImageLoadTask
 			if (b != null) {
 				d = new BitmapDrawable(b);
 			} else if (ref.outOfMemoryOccurred()) {
-				Log.e(LCAT, "Not enough memory left to load image: " + url);
+				Log.e(TAG, "Not enough memory left to load image: " + url);
 				retryCount -= 1;
 				if (retryCount > 0) {
 					retry = true;
-					Log.i(LCAT, "Signalling a GC, will retry load.");
+					Log.i(TAG, "Signalling a GC, will retry load.");
 					System.gc(); // See if we can force a compaction
 					try {
 						Thread.sleep(1000);
 					} catch (InterruptedException ie) {
 						// Ignore
 					}
-					Log.i(LCAT, "Retry #" + (3 - retryCount) + " for " + url);
+					Log.i(TAG, "Retry #" + (3 - retryCount) + " for " + url);
 				}
 			} else {
 				// ref.getBitmap() returned null and it wasn't because of OOM
-				if (DBG) {
-					Log.d(LCAT, "TiDrawableReference.getBitmap() (url '" + url + "') returned null");
-				}
+				Log.d(TAG, "TiDrawableReference.getBitmap() (url '" + url + "') returned null", Log.DEBUG_MODE);
 				return null;
 			}
 		}
-		
+
 		return d;
 	}
 
@@ -97,8 +91,8 @@ public abstract class TiBackgroundImageLoadTask
 		try {
 			execute(url);
 		} catch (RejectedExecutionException e) {
-			Log.w(LCAT, "Thread pool rejected attempt to load image: " + url);
-			Log.w(LCAT, "ADD Handler for retry");
+			Log.w(TAG, "Thread pool rejected attempt to load image: " + url);
+			Log.w(TAG, "ADD Handler for retry");
 		}
 	}
 }

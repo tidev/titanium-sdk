@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -8,6 +8,7 @@ package ti.modules.titanium.ui.android;
 
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.annotations.Kroll;
+import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.util.TiUIHelper;
@@ -19,7 +20,6 @@ import android.app.Activity;
 import android.content.Intent;
 import android.graphics.PixelFormat;
 import android.text.util.Linkify;
-import android.util.Log;
 import android.view.WindowManager;
 
 @Kroll.module(parentModule=UIModule.class)
@@ -28,7 +28,7 @@ import android.view.WindowManager;
 })
 public class AndroidModule extends KrollModule
 {
-	private static final String LCAT = "UIAndroidModule";
+	private static final String TAG = "UIAndroidModule";
 	
 	@Kroll.constant public static final int PIXEL_FORMAT_A_8 = PixelFormat.A_8;
 	@Kroll.constant public static final int PIXEL_FORMAT_LA_88 = PixelFormat.LA_88;
@@ -94,7 +94,7 @@ public class AndroidModule extends KrollModule
 			}
 			getActivity().startActivity(i);
 		} else {
-			Log.w(LCAT, "Unable to open preferences. Activity is null");
+			Log.w(TAG, "Unable to open preferences. Activity is null", Log.DEBUG_MODE);
 		}
 	}
 
@@ -108,7 +108,7 @@ public class AndroidModule extends KrollModule
 		} else if (activity != null) {
 			TiUIHelper.showSoftKeyboard(getActivity().getWindow().getDecorView(), false);
 		} else {
-			Log.w(LCAT, "Unable to hide soft keyboard. Activity is null");
+			Log.w(TAG, "Unable to hide soft keyboard. Activity is null", Log.DEBUG_MODE);
 		}
 	}
 }

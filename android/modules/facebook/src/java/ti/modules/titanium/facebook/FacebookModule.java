@@ -1,10 +1,9 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2011-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-
 package ti.modules.titanium.facebook;
 
 import java.io.FileNotFoundException;
@@ -20,7 +19,6 @@ import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.CurrentActivityListener;
 import org.appcelerator.kroll.common.Log;
-import org.appcelerator.kroll.common.TiConfig;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiContext;
@@ -49,8 +47,7 @@ import com.facebook.android.Util;
 @Kroll.module(name="Facebook", id="ti.facebook")
 public class FacebookModule extends KrollModule
 {
-	protected static final String LCAT = "FacebookModule";
-	protected static final boolean DBG = TiConfig.LOGD;
+	protected static final String TAG = "FacebookModule";
 
     @Kroll.constant public static final int BUTTON_STYLE_NORMAL = 0;
     @Kroll.constant public static final int BUTTON_STYLE_WIDE = 1;
@@ -70,7 +67,7 @@ public class FacebookModule extends KrollModule
 	public FacebookModule()
 	{
 		super();
-		Util.setLogEnabled(DBG);
+		Util.setLogEnabled(Log.isDebugModeEnabled());
 		sessionListener = new SessionListener(this);
 		SessionEvents.addAuthListener(sessionListener);
 		SessionEvents.addLogoutListener(sessionListener);
@@ -124,7 +121,7 @@ public class FacebookModule extends KrollModule
 			if (facebook != null && facebook.isSessionValid()) {
 				// A facebook session existed, but the appid was changed.  Any session info
 				// should be destroyed.
-				Log.w(LCAT, "Appid was changed while session active.  Removing session info.");
+				Log.w(TAG, "Appid was changed while session active.  Removing session info.");
 				destroyFacebookSession();
 				facebook = null;
 			}
@@ -196,7 +193,7 @@ public class FacebookModule extends KrollModule
 		}
 
 		if (appid == null) {
-			Log.w(LCAT, "authorize() called without appid being set; throwing...");
+			Log.w(TAG, "authorize() called without appid being set; throwing...");
 			throw new IllegalStateException("missing appid");
 		}
 
@@ -234,7 +231,7 @@ public class FacebookModule extends KrollModule
 	public void requestWithGraphPath(String path, KrollDict params, String httpMethod, KrollFunction callback)
 	{
 		if (facebook == null) {
-			Log.w(LCAT, "requestWithGraphPath called without Facebook being instantiated.  Have you set appid?");
+			Log.w(TAG, "requestWithGraphPath called without Facebook being instantiated.  Have you set appid?");
 			return;
 		}
 		AsyncFacebookRunner runner = getFBRunner();
@@ -249,7 +246,7 @@ public class FacebookModule extends KrollModule
 	public void request(String method, KrollDict params, KrollFunction callback)
 	{
 		if (facebook == null) {
-			Log.w(LCAT, "request called without Facebook being instantiated.  Have you set appid?");
+			Log.w(TAG, "request called without Facebook being instantiated.  Have you set appid?");
 			return;
 		}
 
@@ -274,7 +271,7 @@ public class FacebookModule extends KrollModule
 	public void dialog(final String action, final KrollDict params, final KrollFunction callback)
 	{
 		if (facebook == null) {
-			Log.w(LCAT, "dialog called without Facebook being instantiated.  Have you set appid?");
+			Log.w(TAG, "dialog called without Facebook being instantiated.  Have you set appid?");
 			return;
 		}
 
@@ -341,9 +338,9 @@ public class FacebookModule extends KrollModule
 					fireLoginChange();
 					fireEvent("login", data);
 				} catch (JSONException e) {
-					Log.e(LCAT, e.getMessage(), e);
+					Log.e(TAG, e.getMessage(), e);
 				} catch (FacebookError e) {
-					Log.e(LCAT, e.getMessage(), e);
+					Log.e(TAG, e.getMessage(), e);
 				}
 			}
 		});
@@ -359,9 +356,7 @@ public class FacebookModule extends KrollModule
 
 	protected void debug(String message)
 	{
-		if (DBG) {
-			Log.d(LCAT, message);
-		}
+		Log.d(TAG, message, Log.DEBUG_MODE);
 	}
 
 	protected void addListener(TiFacebookStateListener listener)
@@ -391,15 +386,13 @@ public class FacebookModule extends KrollModule
 				@Override
 				public void onResult(Activity activity, int requestCode, int resultCode, Intent data)
 				{
-					if (DBG) {
-						Log.d(LCAT, "onResult from Facebook single sign-on attempt. resultCode: " + resultCode);
-					}
+					Log.d(TAG, "onResult from Facebook single sign-on attempt. resultCode: " + resultCode, Log.DEBUG_MODE);
 					facebook.authorizeCallback(requestCode, resultCode, data);
 				}
 				@Override
 				public void onError(Activity activity, int requestCode, Exception e)
 				{
-					Log.e(LCAT, e.getLocalizedMessage(), e);
+					Log.e(TAG, e.getLocalizedMessage(), e);
 				}
 			};
 			facebook.authorize(activity, activitySupport, permissions, activityCode, new LoginDialogListener(), 
@@ -434,7 +427,7 @@ public class FacebookModule extends KrollModule
 
 	private void loginError(Throwable t)
 	{
-		Log.e(LCAT, t.getMessage(), t);
+		Log.e(TAG, t.getMessage(), t);
 		loggedIn = false;
 		KrollDict data = new KrollDict();
 		data.put("cancelled", false);
@@ -500,14 +493,14 @@ public class FacebookModule extends KrollModule
 
 		public void onFacebookError(FacebookError error)
 		{
-			Log.e(LCAT, "LoginDialogListener onFacebookError: " + error.getMessage(), error);
+			Log.e(TAG, "LoginDialogListener onFacebookError: " + error.getMessage(), error);
 			loginContext = null;
 			SessionEvents.onLoginError(error.getMessage());
 		}
 
 		public void onError(DialogError error)
 		{
-			Log.e(LCAT, "LoginDialogListener onError: " + error.getMessage(), error);
+			Log.e(TAG, "LoginDialogListener onError: " + error.getMessage(), error);
 			loginContext = null;
 			SessionEvents.onLoginError(error.getMessage());
 		}
@@ -531,25 +524,25 @@ public class FacebookModule extends KrollModule
 		@Override
 		public void onFacebookError(FacebookError e, Object state)
 		{
-			Log.e(LCAT, "Logout failure: " + e.getMessage(), e);
+			Log.e(TAG, "Logout failure: " + e.getMessage(), e);
 		}
 
 		@Override
 		public void onFileNotFoundException(FileNotFoundException e, Object state)
 		{
-			Log.e(LCAT, "Logout failure: " + e.getMessage(), e);
+			Log.e(TAG, "Logout failure: " + e.getMessage(), e);
 		}
 
 		@Override
 		public void onIOException(IOException e, Object state)
 		{
-			Log.e(LCAT, "Logout failure: " + e.getMessage(), e);
+			Log.e(TAG, "Logout failure: " + e.getMessage(), e);
 		}
 
 		@Override
 		public void onMalformedURLException(MalformedURLException e, Object state)
 		{
-			Log.e(LCAT, "Logout failure: " + e.getMessage(), e);
+			Log.e(TAG, "Logout failure: " + e.getMessage(), e);
 		}
 	}
 

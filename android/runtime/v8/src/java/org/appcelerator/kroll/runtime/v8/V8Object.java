@@ -11,7 +11,6 @@ import org.appcelerator.kroll.KrollRuntime;
 
 import android.util.Log;
 
-
 public class V8Object extends KrollObject
 {
 	private static final String TAG = "V8Object";
@@ -88,7 +87,6 @@ public class V8Object extends KrollObject
 			release();
 		}
 	}
-
 
 	// JNI method prototypes
 	protected static native void nativeInitObject(Class<?> proxyClass, Object proxyObject);

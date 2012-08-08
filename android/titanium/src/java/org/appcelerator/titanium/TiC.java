@@ -664,7 +664,7 @@ public class TiC
 	/**
 	 * @module.api
 	 */
-	public static final String PROPERTY_BROTHER = "bottom";
+	public static final String PROPERTY_BROTHER = "brother";
 
 	/**
 	 * @module.api

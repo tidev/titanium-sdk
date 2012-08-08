@@ -1,10 +1,9 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-
 package ti.modules.titanium.ui;
 
 import org.appcelerator.kroll.KrollDict;
@@ -21,7 +20,7 @@ import android.app.Activity;
 @Kroll.proxy(creatableInModule=UIModule.class)
 public class PickerRowProxy extends TiViewProxy
 {
-	private static final String LCAT = "PickerRowProxy";
+	private static final String TAG = "PickerRowProxy";
 	private String title = "[PickerRow]";
 	private PickerRowListener rowListener = null;
 
@@ -64,12 +63,12 @@ public class PickerRowProxy extends TiViewProxy
 	@Override
 	public void add(TiViewProxy child)
 	{
-		Log.w(LCAT, "PickerRow does not support child controls");
+		Log.w(TAG, "PickerRow does not support child controls");
 	}
 	@Override
 	public void remove(TiViewProxy child)
 	{
-		Log.w(LCAT, "PickerRow does not support child controls");
+		Log.w(TAG, "PickerRow does not support child controls");
 	}
 
 	@Override

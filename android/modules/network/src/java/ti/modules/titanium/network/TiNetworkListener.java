@@ -1,13 +1,12 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
 package ti.modules.titanium.network;
  
 import org.appcelerator.kroll.common.Log;
-import org.appcelerator.kroll.common.TiConfig;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -25,8 +24,7 @@ import android.os.Message;
  * {@hide}
  */
 public class TiNetworkListener {
-    private static final String LCAT = "TiNetListener";
-    private static final boolean DBG = TiConfig.LOGD;
+    private static final String TAG = "TiNetListener";
  
     public static final String EXTRA_CONNECTED = "connected";
     public static final String EXTRA_NETWORK_TYPE = "networkType";
@@ -52,7 +50,7 @@ public class TiNetworkListener {
             }
  
             if (messageHandler == null) {
-            	Log.w(LCAT, "Network receiver is active but no handler has been set.");
+            	Log.w(TAG, "Network receiver is active but no handler has been set.");
             	return;
             }
  
@@ -67,11 +65,9 @@ public class TiNetworkListener {
             boolean failover =
                 intent.getBooleanExtra(ConnectivityManager.EXTRA_IS_FAILOVER, false);
  
-            if (DBG) {
-                Log.d(LCAT, "onReceive(): mNetworkInfo=" + networkInfo +  " mOtherNetworkInfo = "
+                Log.d(TAG, "onReceive(): mNetworkInfo=" + networkInfo +  " mOtherNetworkInfo = "
                         + (otherNetworkInfo == null ? "[none]" : otherNetworkInfo +
-                        " noConn=" + noConnectivity));
-            }
+                        " noConn=" + noConnectivity), Log.DEBUG_MODE);
  
         	Message message = Message.obtain(messageHandler);
  
@@ -109,7 +105,7 @@ public class TiNetworkListener {
     		context.registerReceiver(receiver, connectivityIntentFilter);
     		listening = true;
     	} else {
-    		Log.w(LCAT, "Connectivity listener is already attached");
+    		Log.w(TAG, "Connectivity listener is already attached");
     	}
     }
  

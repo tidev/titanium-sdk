@@ -11,7 +11,6 @@ import java.util.HashMap;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.common.Log;
-import org.appcelerator.kroll.common.TiConfig;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
@@ -29,8 +28,7 @@ import android.graphics.Rect;
 
 public class TiUILabel extends TiUIView
 {
-	private static final String LCAT = "TiUILabel";
-	private static final boolean DBG = TiConfig.LOGD;
+	private static final String TAG = "TiUILabel";
 
 	private int shadowColor;
 	private int shadowDx;
@@ -41,13 +39,11 @@ public class TiUILabel extends TiUIView
 	public TiUILabel(final TiViewProxy proxy)
 	{
 		super(proxy);
-		if (DBG) {
-			Log.d(LCAT, "Creating a text label");
-		}
 		shadowColor = 0;
 		shadowDx = 0;
 		shadowDy = 0;
 		textPadding = new Rect();
+		Log.d(TAG, "Creating a text label", Log.DEBUG_MODE);
 		TextView tv = new TextView(getProxy().getActivity())
 		{
 			@Override
