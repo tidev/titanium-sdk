@@ -2340,16 +2340,16 @@ return result;	\
 
 - (void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate 
 {
-	if (decelerate==NO)
-	{
-		// resume image loader when we're done scrolling
-		[[ImageLoader sharedLoader] resume];
+    if (decelerate==NO)
+    {
+        // resume image loader when we're done scrolling
+        [[ImageLoader sharedLoader] resume];
         [self reloadAndRestoreSelection];
-	}
-	if ([self.proxy _hasListeners:@"dragEnd"])
-	{
-		[self.proxy fireEvent:@"dragEnd" withObject:[NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool:decelerate],@"decelerate",nil]]	;
-	}
+    }
+    if ([self.proxy _hasListeners:@"dragEnd"])
+    {
+        [self.proxy fireEvent:@"dragEnd" withObject:[NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool:decelerate],@"decelerate",nil]]	;
+    }
     
     // Update keyboard status to insure that any fields actively being edited remain in view
     if ([[[TiApp app] controller] keyboardVisible]) {
@@ -2359,16 +2359,16 @@ return result;	\
 
 - (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView 
 {
-	// resume image loader when we're done scrolling
-	[[ImageLoader sharedLoader] resume];
+    // resume image loader when we're done scrolling
+    [[ImageLoader sharedLoader] resume];
     if ([self.proxy _hasListeners:@"scrollEnd"])
-	{
-		NSMutableDictionary *event = [NSMutableDictionary dictionary];
-		[event setObject:[TiUtils pointToDictionary:scrollView.contentOffset] forKey:@"contentOffset"];
-		[event setObject:[TiUtils sizeToDictionary:scrollView.contentSize] forKey:@"contentSize"];
-		[event setObject:[TiUtils sizeToDictionary:tableview.bounds.size] forKey:@"size"];
-		[self.proxy fireEvent:@"scrollEnd" withObject:event];
-	}
+    {
+        NSMutableDictionary *event = [NSMutableDictionary dictionary];
+        [event setObject:[TiUtils pointToDictionary:scrollView.contentOffset] forKey:@"contentOffset"];
+        [event setObject:[TiUtils sizeToDictionary:scrollView.contentSize] forKey:@"contentSize"];
+        [event setObject:[TiUtils sizeToDictionary:tableview.bounds.size] forKey:@"size"];
+        [self.proxy fireEvent:@"scrollEnd" withObject:event];
+    }
     [self reloadAndRestoreSelection];
 }
 
