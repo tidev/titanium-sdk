@@ -15,11 +15,10 @@ define(
 
 		_preventDefaultTouchEvent: false,
 
-		_initTextBox: function() {
+		_initTextBox: function(field) {
 			// wire up events
-			var field = this._field,
-				form = this._form = dom.create("form", null, this.domNode),
-				updateInterval = null,
+			this._field = field;
+			var updateInterval = null,
 				previousText = "";
 
 			this._addStyleableDomNode(this._setFocusNode(field));
@@ -35,6 +34,7 @@ define(
 					}
 				} else {
 					event.stop(e);
+					return false;
 				}
 			});
 
@@ -82,7 +82,7 @@ define(
 		},
 
 		hasText: function() {
-			return !!this._field.value.length;
+			return !!this._field.value;
 		},
 
 		properties: {
@@ -104,22 +104,16 @@ define(
 
 			editable: true,
 
-			returnKeyType: {
-				value: UI.RETURNKEY_DEFAULT,
+			maxLength: {
 				set: function(value) {
-					var title = "",
-						dest = this.domNode,
-						disp = "none";
-					if (value !== UI.RETURNKEY_DEFAULT) {
-						dest = this._form;
-						disp = "inherit";
-						~[4,8,10].indexOf(value) && (title = "Search");
-					}
-					setStyle(this._form, "display", disp);
-					this._field.title = title;
-					dom.place(this._fieldWrapper, dest);
+					value = Math.max(value|0, 0);
+					dom.attr[value > 0 ? "set" : "remove"](this._field, "maxlength", value);
 					return value;
 				}
+			},
+
+			returnKeyType:  function() {
+				return UI.RETURNKEY_DEFAULT;
 			},
 
 			suppressReturn: true,
