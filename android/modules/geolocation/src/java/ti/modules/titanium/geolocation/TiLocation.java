@@ -223,10 +223,12 @@ public class TiLocation implements Handler.Callback
 		AsyncTask<Object, Void, Integer> task = new AsyncTask<Object, Void, Integer>() {
 			@Override
 			protected Integer doInBackground(Object... args) {
+				GeocodeResponseHandler geocodeResponseHandler = null;
+				HashMap<String, Object> event = null;
 				try {
 					String url = (String) args[0];
 					String direction = (String) args[1];
-					GeocodeResponseHandler geocodeResponseHandler = (GeocodeResponseHandler) args[2];
+					geocodeResponseHandler = (GeocodeResponseHandler) args[2];
 
 					Log.d(TAG, "GEO URL [" + url + "]", Log.DEBUG_MODE);
 					HttpGet httpGet = new HttpGet(url);
@@ -241,7 +243,6 @@ public class TiLocation implements Handler.Callback
 
 					Log.i(TAG, "received Geo [" + response + "]", Log.DEBUG_MODE);
 
-					HashMap<String, Object> event = null;
 					if (response != null) {
 						try {
 							JSONObject jsonObject = new JSONObject(response);
@@ -267,12 +268,15 @@ public class TiLocation implements Handler.Callback
 						}
 					}
 
-					if (event != null) {
-						geocodeResponseHandler.handleGeocodeResponse(event);
-					}
-
 				} catch (Throwable t) {
 					Log.e(TAG, "Error retrieving geocode information [" + t.getMessage() + "]", t);
+				}
+
+				if (geocodeResponseHandler != null) {
+					if (event == null) {
+						event = new KrollDict();
+					}
+					geocodeResponseHandler.handleGeocodeResponse(event);
 				}
 
 				return -1;
