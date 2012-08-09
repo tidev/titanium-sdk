@@ -2327,14 +2327,18 @@ return result;	\
 /*
  TIMOB-9944. Observed that on IOS 5 and above the tableViewCell does not reliably 
  get touchCancel events on dragging. So the next touch gets delivered to the wrong
- cell. This is a workaround that particular issue.
+ cell. This worksaround that particular issue.
+ 
+ Can't reload when editing or moving since reloadData clears current state
  */
 - (void) reloadAndRestoreSelection
 {
-    NSIndexPath* curSelected = [[self tableView] indexPathForSelectedRow];
-    [[self tableView] reloadData];
-    if (curSelected != nil) {
-        [[self tableView] selectRowAtIndexPath:curSelected animated:NO scrollPosition:UITableViewScrollPositionNone];
+    if (!editing && !moving) {
+        NSIndexPath* curSelected = [[self tableView] indexPathForSelectedRow];
+        [[self tableView] reloadData];
+        if (curSelected != nil) {
+            [[self tableView] selectRowAtIndexPath:curSelected animated:NO scrollPosition:UITableViewScrollPositionNone];
+        }
     }
 }
 
