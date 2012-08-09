@@ -425,15 +425,14 @@ def generate(raw_apis, annotated_apis, options):
 				output.write("\t*/\n\n")
 
 			# handle excluded members
-			if True:
-				api_obj = annotated_obj.api_obj
-				if "excludes" in api_obj:
-					for member_type in [ "properties", "methods", "events" ]:
-						if member_type in api_obj["excludes"]:
-							annotation_string = { "properties":"@property", "methods":"@method", 
-									"events":"@event" }[member_type]
-							excluded_members = api_obj["excludes"][member_type]
-							for one_member in excluded_members:
-								output.write("/**\n\t * %s %s \n\t * @hide\n*/\n" % (annotation_string, one_member))
+			api_obj = annotated_obj.api_obj
+			if "excludes" in api_obj:
+				for member_type in [ "properties", "methods", "events" ]:
+					if member_type in api_obj["excludes"]:
+						annotation_string = { "properties":"@property", "methods":"@method", 
+								"events":"@event" }[member_type]
+						excluded_members = api_obj["excludes"][member_type]
+						for one_member in excluded_members:
+							output.write("/**\n\t * %s %s \n\t * @hide\n*/\n" % (annotation_string, one_member))
 
 		output.close()
