@@ -139,6 +139,10 @@ methods:
             Callback function to be executed when the activity sets result. See
             examples.
         type: Callback<ActivityResult>
+        
+  - name: openOptionsMenu
+    summary: Programmatically opens the options menu.
+    since: "2.2.0"
 events:
 
   - name: create
