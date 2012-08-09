@@ -42,6 +42,7 @@ import org.appcelerator.titanium.util.TiResponseCache;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.util.TiWeakList;
 
+import ti.modules.titanium.TitaniumModule;
 import android.app.Activity;
 import android.app.Application;
 import android.app.TabActivity;
@@ -869,6 +870,11 @@ public abstract class TiApplication extends Application implements Handler.Callb
 	public void dispose()
 	{
 		TiActivityWindows.dispose();
+	}
+
+	public void cancelTimers(Thread thread)
+	{
+		TitaniumModule.cancelTimers(thread);
 	}
 
 	/**
