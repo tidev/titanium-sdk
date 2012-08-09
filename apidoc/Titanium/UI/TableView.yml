@@ -762,6 +762,10 @@ methods:
       - name: row
         summary: Row index to select.
         type: Number
+    platforms: [iphone, ipad]
+    since : "1.8.2"
+    platforms: [Android]
+    since : "2.2.0"
     
   - name: setData
     summary: Sets the data in the table.
