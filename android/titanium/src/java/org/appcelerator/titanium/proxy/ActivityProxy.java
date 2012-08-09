@@ -217,6 +217,13 @@ public class ActivityProxy extends KrollProxy
 		TiBaseActivity tiActivity = (TiBaseActivity) activity;
 		return tiActivity.getWindowProxy();
 	}
+    
+    @Kroll.method
+    public void openOptionsMenu()
+    {
+        Activity activity = getWrappedActivity();
+        activity.openOptionsMenu();
+    }
 
 	
 	public void onResult(Activity activity, int requestCode, int resultCode, Intent data)
