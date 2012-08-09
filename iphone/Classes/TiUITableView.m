@@ -2288,7 +2288,7 @@ return result;	\
 	return YES;
 }
 
-- (NSDictionary *) eventObjectForScrollEvent
+- (NSDictionary *) eventObjectForScrollView: (UIScrollView *) scrollView
 {
 	return [NSDictionary dictionaryWithObjectsAndKeys:
 			[TiUtils pointToDictionary:scrollView.contentOffset],@"contentOffset",
@@ -2300,7 +2300,7 @@ return result;	\
 - (void)fireScrollEvent:(UIScrollView *)scrollView {
 	if ([self.proxy _hasListeners:@"scroll"])
 	{
-		[self.proxy fireEvent:@"scroll" withObject:[self eventObjectForScrollEvent]];
+		[self.proxy fireEvent:@"scroll" withObject:[self eventObjectForScrollView:scrollView]];
 	}
 }
 
@@ -2363,11 +2363,11 @@ return result;	\
 	[[ImageLoader sharedLoader] resume];
 	if ([self.proxy _hasListeners:@"scrollEnd"])
 	{	//TODO: Deprecate old event.
-		[self.proxy fireEvent:@"scrollEnd" withObject:[self eventObjectForScrollEvent]];
+		[self.proxy fireEvent:@"scrollEnd" withObject:[self eventObjectForScrollView:scrollView]];
 	}
 	if ([self.proxy _hasListeners:@"scrollend"])
 	{
-		[self.proxy fireEvent:@"scrollend" withObject:[self eventObjectForScrollEvent]];
+		[self.proxy fireEvent:@"scrollend" withObject:[self eventObjectForScrollView:scrollView]];
 	}
 
 }
