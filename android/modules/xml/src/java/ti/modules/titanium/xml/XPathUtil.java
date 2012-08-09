@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -16,7 +16,7 @@ import org.jaxen.dom.DOMXPath;
 
 public class XPathUtil {
 
-	private static final String LCAT = "XPath";
+	private static final String TAG = "XPath";
 	
 	public static XPathNodeListProxy evaluate(NodeProxy start, String xpathExpr)
 	{
@@ -26,7 +26,7 @@ public class XPathUtil {
 			
 			return new XPathNodeListProxy(nodes);
 		} catch (JaxenException e) {
-			Log.e(LCAT, "Exception selecting nodes in XPath ("+xpathExpr+")", e);
+			Log.e(TAG, "Exception selecting nodes in XPath ("+xpathExpr+")", e);
 		}
 		
 		return new XPathNodeListProxy(new ArrayList());

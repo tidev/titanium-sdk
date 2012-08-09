@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -11,7 +11,6 @@ import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
-import org.appcelerator.kroll.common.TiConfig;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiContext;
 
@@ -27,8 +26,7 @@ import android.os.Message;
 @Kroll.module
 public class NetworkModule extends KrollModule {
 
-	private static final String LCAT = "TiNetwork";
-	private static final boolean DBG = TiConfig.LOGD;
+	private static final String TAG = "TiNetwork";
 
 	public static final String EVENT_CONNECTIVITY = "change";
 	public static final String NETWORK_USER_AGENT = System.getProperties().getProperty("http.agent") ;
@@ -166,9 +164,7 @@ public class NetworkModule extends KrollModule {
 				result = true;
 			}
 		} else {
-			if (DBG) {
-				Log.w(LCAT, "ConnectivityManager was null");
-			}
+			Log.w(TAG, "ConnectivityManager was null", Log.DEBUG_MODE);
 		}
 		return result;
 	}
@@ -208,7 +204,7 @@ public class NetworkModule extends KrollModule {
 				type = NetworkModule.NETWORK_NONE;
 			}
 		} catch (SecurityException e) {
-			Log.w(LCAT, "Permission has been removed. Cannot determine network type: " + e.getMessage());
+			Log.w(TAG, "Permission has been removed. Cannot determine network type: " + e.getMessage());
 		}
 		return type;
 	}
@@ -250,18 +246,14 @@ public class NetworkModule extends KrollModule {
 					}
 					networkListener.attach(TiApplication.getInstance().getApplicationContext());
 					isListeningForConnectivity = true;
-					if (DBG) {
-						Log.d(LCAT, "Resuming: adding connectivity listener");
-					}
+					Log.d(TAG, "Resuming: adding connectivity listener", Log.DEBUG_MODE);
 				}
 			}
 		} else {
 			if (isListeningForConnectivity) {
 				networkListener.detach();
 				isListeningForConnectivity = false;
-				if (DBG) {
-					Log.d(LCAT, "Pausing: removing connectivity listener.");
-				}
+				Log.d(TAG, "Pausing: removing connectivity listener.", Log.DEBUG_MODE);
 			}
 		}
 	}
@@ -274,9 +266,7 @@ public class NetworkModule extends KrollModule {
 		if (a != null) {
 			cm = (ConnectivityManager) a.getSystemService(Context.CONNECTIVITY_SERVICE);
 		} else {
-			if (DBG) {
-				Log.w(LCAT, "Activity is null when trying to retrieve the connectivity service");
-			}
+			Log.w(TAG, "Activity is null when trying to retrieve the connectivity service", Log.DEBUG_MODE);
 		}
 
 		return cm;

@@ -4,7 +4,6 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-
 package ti.modules.titanium.geolocation.android;
 
 import org.appcelerator.kroll.KrollProxy;
@@ -169,7 +168,7 @@ public class LocationProviderProxy extends KrollProxy
 	{
 		Object property = getProperty(TiC.PROPERTY_NAME);
 		if (property == null) {
-			Log.e(TAG, "no name found for location provider");
+			Log.e(TAG, "No name found for location provider");
 
 			return ""; // this shouldnt be possible
 		}
@@ -185,7 +184,7 @@ public class LocationProviderProxy extends KrollProxy
 	@Kroll.setProperty
 	public void setName(String value)
 	{
-		Log.e(TAG, "not allowed to set the name of a provider after creation");
+		Log.e(TAG, "Not allowed to set the name of a provider after creation");
 	}
 
 	/**
@@ -198,7 +197,7 @@ public class LocationProviderProxy extends KrollProxy
 	{
 		Object property = getProperty(TiC.PROPERTY_MIN_UPDATE_DISTANCE);
 		if (property == null || !(property instanceof Double)) {
-			Log.e(TAG, "invalid value [" + property + "] found for minUpdateDistance, returning default");
+			Log.e(TAG, "Invalid value [" + property + "] found for minUpdateDistance, returning default");
 
 			return defaultMinUpdateDistance;
 		}
@@ -228,7 +227,7 @@ public class LocationProviderProxy extends KrollProxy
 	{
 		Object property = getProperty(TiC.PROPERTY_MIN_UPDATE_TIME);
 		if (property == null || !(property instanceof Double)) {
-			Log.e(TAG, "invalid value [" + property + "] found for minUpdateTime, returning default");
+			Log.e(TAG, "Invalid value [" + property + "] found for minUpdateTime, returning default");
 
 			return defaultMinUpdateTime;
 		}

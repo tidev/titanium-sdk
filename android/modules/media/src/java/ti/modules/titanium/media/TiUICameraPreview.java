@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -8,12 +8,12 @@ package ti.modules.titanium.media;
 
 import java.io.IOException;
 
+import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.view.TiCompositeLayout;
 import org.appcelerator.titanium.view.TiUIView;
 
 import android.hardware.Camera;
-import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
@@ -21,7 +21,7 @@ import android.widget.FrameLayout;
 
 public class TiUICameraPreview extends TiUIView implements SurfaceHolder.Callback
 {
-	private static final String LCAT = "TiUICameraPreview";
+	private static final String TAG = "TiUICameraPreview";
 
 	private Camera camera;
 	private TiCompositeLayout overlayLayout;
@@ -52,19 +52,19 @@ public class TiUICameraPreview extends TiUIView implements SurfaceHolder.Callbac
 
 		setNativeView(previewLayout);
 
-		Log.i("CameraTest", "Camera started");
+		Log.i(TAG, "Camera started", Log.DEBUG_MODE);
 	}
 
 	public void surfaceChanged(SurfaceHolder previewHolder, int format, int width, int height) {
-		Log.i(LCAT, "starting preview");
+		Log.i(TAG, "Staring preview", Log.DEBUG_MODE);
 		camera.startPreview();  // make sure setPreviewDisplay is called before this
 	}
 
 	public void surfaceCreated(SurfaceHolder previewHolder) {
-		Log.i(LCAT, "opening camera");
+		Log.i(TAG, "Opening camera", Log.DEBUG_MODE);
 
 		try {
-			Log.i(LCAT, "setting preview display");
+			Log.i(TAG, "Setting preview display", Log.DEBUG_MODE);
 			camera.setPreviewDisplay(previewHolder);
 
 			//Parameters cameraParams = camera.getParameters();

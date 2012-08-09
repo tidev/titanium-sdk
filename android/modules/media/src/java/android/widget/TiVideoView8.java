@@ -17,7 +17,7 @@
 /**
  * Modifications copyright:
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  * 
@@ -31,7 +31,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Map;
 
-import org.appcelerator.kroll.common.TiConfig;
+import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.util.TiPlatformHelper;
 
@@ -49,7 +49,6 @@ import android.net.Uri;
 import android.os.Build;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.Display;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
@@ -69,7 +68,6 @@ import android.widget.MediaController.MediaPlayerControl;
 public class TiVideoView8 extends SurfaceView implements MediaPlayerControl
 {
 	private static final String TAG = "TiVideoView8";
-	private static final boolean DBG = TiConfig.LOGD;
 	// TITANIUM
 	private int mScalingMode = MediaModule.VIDEO_SCALING_ASPECT_FIT;
 	// settable by the client
@@ -182,10 +180,8 @@ public class TiVideoView8 extends SurfaceView implements MediaPlayerControl
 
 	protected void measureVideo(int videoWidth, int videoHeight, int widthMeasureSpec, int heightMeasureSpec)
 	{
-		if (DBG) {
-			Log.e(TAG, "******* mVideoWidth: " + videoWidth + " mVideoHeight: " + videoHeight + " width: "
-				+ MeasureSpec.getSize(widthMeasureSpec) + " height: " + MeasureSpec.getSize(heightMeasureSpec));
-		}
+		Log.e(TAG, "******* mVideoWidth: " + videoWidth + " mVideoHeight: " + videoHeight + " width: "
+			+ MeasureSpec.getSize(widthMeasureSpec) + " height: " + MeasureSpec.getSize(heightMeasureSpec), Log.DEBUG_MODE);
 
 		int width = getDefaultSize(videoWidth, widthMeasureSpec);
 		int height = getDefaultSize(videoHeight, heightMeasureSpec);
@@ -234,23 +230,17 @@ public class TiVideoView8 extends SurfaceView implements MediaPlayerControl
 					if (width * TiPlatformHelper.applicationScaleFactor > maxScaledWidth) {
 						int oldWidth = width;
 						width = d.getWidth() - 1;
-						if (DBG) {
-							Log.d(TAG, "TOO WIDE: " + oldWidth + " changed to " + width);
-						}
+						Log.d(TAG, "TOO WIDE: " + oldWidth + " changed to " + width, Log.DEBUG_MODE);
 					}
 					if (height * TiPlatformHelper.applicationScaleFactor > maxScaledHeight) {
 						int oldHeight = height;
 						height = d.getHeight() - 1;
-						if (DBG) {
-							Log.d(TAG, "TOO HIGH: " + oldHeight + " changed to " + height);
-						}
+						Log.d(TAG, "TOO HIGH: " + oldHeight + " changed to " + height, Log.DEBUG_MODE);
 					}
 				}
 			}
 		}
-		if (DBG) {
-			Log.i(TAG, "setting size: " + width + 'x' + height);
-		}
+		Log.i(TAG, "setting size: " + width + 'x' + height, Log.DEBUG_MODE);
 		setMeasuredDimension(width, height);
 	}
 
@@ -442,13 +432,13 @@ public class TiVideoView8 extends SurfaceView implements MediaPlayerControl
 			mCurrentState = STATE_PREPARING;
 			attachMediaController();
 		} catch (IOException ex) {
-			Log.w(TAG, "Unable to open content: " + mUri, ex);
+			Log.e(TAG, "Unable to open content: " + mUri, ex);
 			mCurrentState = STATE_ERROR;
 			mTargetState = STATE_ERROR;
 			mErrorListener.onError(mMediaPlayer, MediaPlayer.MEDIA_ERROR_UNKNOWN, 0);
 			return;
 		} catch (IllegalArgumentException ex) {
-			Log.w(TAG, "Unable to open content: " + mUri, ex);
+			Log.e(TAG, "Unable to open content: " + mUri, ex);
 			mCurrentState = STATE_ERROR;
 			mTargetState = STATE_ERROR;
 			mErrorListener.onError(mMediaPlayer, MediaPlayer.MEDIA_ERROR_UNKNOWN, 0);

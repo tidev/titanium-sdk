@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -19,13 +19,13 @@ import android.hardware.Camera.ShutterCallback;
 
 public class TiCamera
 {
-	private static final String LCAT = "TiCamera";
+	private static final String TAG = "TiCamera";
 	private static Camera camera;
 
 	public TiCamera()
 	{
 		if (camera == null) {
-			Log.i(LCAT, "camera created");
+			Log.i(TAG, "Camera created.", Log.DEBUG_MODE);
 			camera = Camera.open();
 		}
 	}
@@ -40,7 +40,7 @@ public class TiCamera
 	{
 		public void onShutter()
 		{
-			Log.i(LCAT, "Pretend you heard a 'click' sound");
+			Log.i(TAG, "onShutter() called. Capturing image.", Log.DEBUG_MODE);
 		}
 	};
 
@@ -49,7 +49,7 @@ public class TiCamera
 	{
 		public void onPictureTaken(byte[] data, Camera camera)
 		{
-			Log.i(LCAT, "raw picture available");
+			Log.i(TAG, "Picture taken: raw picture available", Log.DEBUG_MODE);
 		}
 	};
 

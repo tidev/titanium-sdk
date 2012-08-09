@@ -1,10 +1,9 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2011-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-
 package ti.modules.titanium;
 
 import java.io.UnsupportedEncodingException;
@@ -15,7 +14,6 @@ import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
-import org.appcelerator.kroll.common.TiConfig;
 import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.util.TiConvert;
@@ -32,8 +30,7 @@ import ti.modules.titanium.codec.CodecModule;
 })
 public class BufferProxy extends KrollProxy
 {
-	private static final String LCAT = "BufferProxy";
-	private static final boolean DBG = TiConfig.LOGD;
+	private static final String TAG = "BufferProxy";
 
 	private byte[] buffer;
 
@@ -119,7 +116,7 @@ public class BufferProxy extends KrollProxy
 				System.arraycopy(bytes, 0, buffer, 0, bytes.length);
 			}
 		} catch (UnsupportedEncodingException e) {
-			Log.w(LCAT, e.getMessage(), e);
+			Log.w(TAG, e.getMessage(), e);
 			throw new IllegalArgumentException("Unsupported Encoding: " + charset);
 		}
 	}

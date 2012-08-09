@@ -11,13 +11,11 @@ import org.appcelerator.kroll.KrollRuntime;
 
 import android.util.Log;
 
-
 public class V8Object extends KrollObject
 {
 	private static final String TAG = "V8Object";
 
 	private volatile long ptr;
-
 
 	public V8Object(long ptr)
 	{
@@ -61,6 +59,11 @@ public class V8Object extends KrollObject
 	}
 
 	@Override
+	public Object callProperty(String propertyName, Object[] args) {
+		return nativeCallProperty(ptr, propertyName, args);
+	}
+
+	@Override
 	public void doRelease()
 	{
 		if (ptr == 0) {
@@ -89,9 +92,9 @@ public class V8Object extends KrollObject
 		}
 	}
 
-
 	// JNI method prototypes
 	protected static native void nativeInitObject(Class<?> proxyClass, Object proxyObject);
+	private static native Object nativeCallProperty(long ptr, String propertyName, Object[] args);
 	private static native boolean nativeRelease(long ptr);
 
 	private native void nativeSetProperty(long ptr, String name, Object value);

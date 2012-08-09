@@ -267,7 +267,7 @@
 
 -(void)setScrollsToTop_:(id)value
 {
-	[[self scrollView] setScrollsToTop:[TiUtils boolValue:value]];
+	[[self scrollView] setScrollsToTop:[TiUtils boolValue:value def:YES]];
 }
 
 -(void)setHorizontalBounce_:(id)value

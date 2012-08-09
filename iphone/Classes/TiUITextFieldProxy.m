@@ -40,6 +40,7 @@ DEFINE_DEF_INT_PROP(leftButtonMode,UITextFieldViewModeNever);
 DEFINE_DEF_INT_PROP(rightButtonMode,UITextFieldViewModeNever);
 DEFINE_DEF_INT_PROP(appearance,UIKeyboardAppearanceDefault);
 DEFINE_DEF_INT_PROP(autocapitalization,UITextAutocapitalizationTypeNone);
+DEFINE_DEF_INT_PROP(maxLength,-1);
 					
 @end
 

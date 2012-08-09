@@ -7,7 +7,6 @@
 package org.appcelerator.titanium;
 
 import org.appcelerator.kroll.common.Log;
-import org.appcelerator.kroll.common.TiConfig;
 import org.appcelerator.kroll.common.TiFastDev;
 import org.appcelerator.titanium.util.TiActivitySupport;
 import org.appcelerator.titanium.util.TiRHelper;
@@ -22,8 +21,7 @@ import android.view.Window;
 public class TiRootActivity extends TiLaunchActivity
 	implements TiActivitySupport
 {
-	private static final String LCAT = "TiRootActivity";
-	private static final boolean DBG = TiConfig.LOGD;
+	private static final String TAG = "TiRootActivity";
 	private boolean finishing = false;
 
 	private Drawable[] backgroundLayers = {null, null};
@@ -74,16 +72,16 @@ public class TiRootActivity extends TiLaunchActivity
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
 	{
-		TiApplication tiApp = getTiApp();
+		if (willFinishFalseRootActivity(savedInstanceState)) {
+			return;
+		}
 
 		if (checkInvalidLaunch(savedInstanceState)) {
 			// Android bug 2373 detected and we're going to restart.
 			return;
 		}
 
-		if (checkInvalidKindleFireRelaunch(savedInstanceState)) {
-			return;
-		}
+		TiApplication tiApp = getTiApp();
 
 		if (tiApp.isRestartPending() || TiBaseActivity.isUnsupportedReLaunch(this, savedInstanceState)) {
 			super.onCreate(savedInstanceState); // Will take care of scheduling restart and finishing.
@@ -92,7 +90,7 @@ public class TiRootActivity extends TiLaunchActivity
 
 		tiApp.setCurrentActivity(this, this);
 
-		Log.checkpoint(LCAT, "checkpoint, on root activity create, savedInstanceState: " + savedInstanceState);
+		Log.checkpoint(TAG, "checkpoint, on root activity create, savedInstanceState: " + savedInstanceState);
 
 		tiApp.setRootActivity(this);
 
@@ -111,12 +109,10 @@ public class TiRootActivity extends TiLaunchActivity
 		super.windowCreated();
 	}
 
-	// Lifecyle
-
 	@Override
 	protected void onResume()
 	{
-		Log.checkpoint(LCAT, "checkpoint, on root activity resume. activity = " + this);
+		Log.checkpoint(TAG, "checkpoint, on root activity resume. activity = " + this);
 		super.onResume();
 	}
 
@@ -135,7 +131,7 @@ public class TiRootActivity extends TiLaunchActivity
 				}
 			}
 		} catch (Exception e) {
-			Log.e(LCAT, "Resource not found 'drawable.background': " + e.getMessage());
+			Log.e(TAG, "Resource not found 'drawable.background': " + e.getMessage());
 		}
 	}
 
@@ -143,19 +139,23 @@ public class TiRootActivity extends TiLaunchActivity
 	protected void onDestroy()
 	{
 		super.onDestroy();
-		if (invalidKindleFireRelaunch) {
+
+		if (finishing2373) {
 			return;
 		}
 
-		if (DBG) {
-			Log.d(LCAT, "root activity onDestroy, activity = " + this);
-		}
+		Log.d(TAG, "root activity onDestroy, activity = " + this, Log.DEBUG_MODE);
 		TiFastDev.onDestroy();
 	}
 
 	@Override
 	public void finish()
 	{
+		if (finishing2373) {
+			super.finish();
+			return;
+		}
+
 		// Ensure we only run the finish logic once. We want to avoid an infinite loop since this method can be called
 		// from the finish method inside TiBaseActivity ( which can be triggered by terminateActivityStack() )
 		if (!finishing) {

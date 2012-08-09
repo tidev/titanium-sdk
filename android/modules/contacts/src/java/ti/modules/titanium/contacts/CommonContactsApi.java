@@ -1,10 +1,9 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-
 package ti.modules.titanium.contacts;
 
 import java.util.ArrayList;
@@ -24,7 +23,7 @@ import android.provider.Contacts;
 public abstract class CommonContactsApi 
 {
 	private static final boolean TRY_NEWER_API = (android.os.Build.VERSION.SDK_INT > android.os.Build.VERSION_CODES.DONUT);
-	private static final String LCAT = "TiCommonContactsApi";
+	private static final String TAG = "TiCommonContactsApi";
 	
 	protected static CommonContactsApi getInstance()
 	{
@@ -35,17 +34,17 @@ public abstract class CommonContactsApi
 				useNew = true;
 
 			} catch (ClassNotFoundException e) {
-				Log.e(LCAT, "Unable to load contacts api: " + e.getMessage(), e);
+				Log.e(TAG, "Unable to load contacts api: " + e.getMessage(), e);
 				useNew = false;
 			}
 		} else {
-			Log.e(LCAT, "Contacts API 4 is not supported");
+			Log.e(TAG, "Contacts API 4 is not supported");
 		}
 		
 		if (useNew) {
 			ContactsApiLevel5 c = new ContactsApiLevel5();
 			if (!c.loadedOk) {
-				Log.e(LCAT, "ContactsApiLevel5 did not load successfully.");
+				Log.e(TAG, "ContactsApiLevel5 did not load successfully.");
 				return null;
 
 			} else {
@@ -75,6 +74,7 @@ public abstract class CommonContactsApi
 
 	protected abstract PersonProxy getPersonById(long id);
 	protected abstract PersonProxy addContact(KrollDict options);
+	protected abstract void save(Object people);
 	protected abstract PersonProxy getPersonByUri(Uri uri);
 	protected abstract PersonProxy[] getAllPeople(int limit);
 	protected abstract PersonProxy[] getPeopleWithName(String name);

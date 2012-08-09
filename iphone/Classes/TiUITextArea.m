@@ -126,6 +126,10 @@
 	//TODO
 }
 
+-(void)setScrollsToTop_:(id)value
+{
+	[(UITextView *)[self textWidgetView] setScrollsToTop:[TiUtils boolValue:value def:YES]];
+}
 
 -(void)setBackgroundColor_:(id)color
 {
@@ -209,6 +213,11 @@
 		}
 	}
 	
+    if ( (maxLength > -1) && ([curText length] > maxLength) ) {
+        [self setValue_:curText];
+        return NO;
+    }
+
 	[(TiUITextAreaProxy *)self.proxy noteValueChange:curText];
 	return TRUE;
 }

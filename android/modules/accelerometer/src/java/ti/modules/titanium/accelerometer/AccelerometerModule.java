@@ -1,10 +1,9 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-
 package ti.modules.titanium.accelerometer;
 
 import org.appcelerator.kroll.KrollDict;
@@ -23,7 +22,6 @@ import android.hardware.SensorManager;
 @Kroll.module
 public class AccelerometerModule extends KrollModule implements SensorEventListener
 {
-	private static final String LCAT = "TiAccelerometer";
 	private static final String EVENT_UPDATE = "update";
 
 	private boolean accelerometerRegistered = false;
