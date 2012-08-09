@@ -188,7 +188,7 @@ public class TitaniumModule extends KrollModule
 		}
 	}
 
-	public static void cancelTimers(Thread thread)
+	public static void cancelTimers()
 	{
 		final int timerCount = activeTimers.size();
 		for (int i = 0; i < timerCount; i++) {
