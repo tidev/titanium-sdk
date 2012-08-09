@@ -50,24 +50,11 @@ WrappedContext::WrappedContext(Persistent<Context> context)
 WrappedContext::~WrappedContext()
 {
 	context_.Dispose();
-	if (!initCallback_.IsEmpty()) {
-		initCallback_.Dispose();
-	}
 }
 
 Persistent<Context> WrappedContext::GetV8Context()
 {
 	return context_;
-}
-
-Persistent<Function> WrappedContext::GetInitCallback()
-{
-	return initCallback_;
-}
-
-void WrappedContext::SetInitCallback(Persistent<Function> initCallback)
-{
-	initCallback_ = initCallback;
 }
 
 void WrappedScript::Initialize(Handle<Object> target)
@@ -131,10 +118,6 @@ Handle<Value> WrappedScript::CreateContext(const Arguments& args)
 				value = global;
 			}
 			global->Set(key, value);
-		}
-
-		if (args.Length() > 1 && args[1]->IsFunction()) {
-			wrappedContext->SetInitCallback(Persistent<Function>::New(Handle<Function>::Cast(args[1])));
 		}
 	}
 
@@ -234,16 +217,6 @@ Handle<Value> WrappedScript::EvalMachine(const Arguments& args)
 	if (context_flag == userContext || context_flag == newContext) {
 		// Enter the context
 		context->Enter();
-
-		// Call the initCallback, if it exists
-		if (nContext) {
-			Persistent<Function> initCallback = nContext->GetInitCallback();
-
-			if (!initCallback.IsEmpty()) {
-				Handle<Value> callbackArgs[] = { contextArg, context->Global() };
-				initCallback->Call(contextArg, 2, callbackArgs);
-			}
-		}
 	}
 
 	Handle<Value> result;
