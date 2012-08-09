@@ -51,7 +51,7 @@ public class TableViewProxy extends TiViewProxy
 	private static final int MSG_INSERT_ROW = TiViewProxy.MSG_LAST_ID + 5005;
 	private static final int MSG_APPEND_ROW = TiViewProxy.MSG_LAST_ID + 5006;
 	private static final int MSG_SCROLL_TO_TOP = TiViewProxy.MSG_LAST_ID + 5007;
-    private static final int MSG_SELECT_ROW = TiViewProxy.MSG_LAST_ID + 5008;
+	private static final int MSG_SELECT_ROW = TiViewProxy.MSG_LAST_ID + 5008;
 
 	public static final String CLASSNAME_DEFAULT = "__default__";
 	public static final String CLASSNAME_HEADER = "__header__";
@@ -534,16 +534,15 @@ public class TableViewProxy extends TiViewProxy
 		message.arg1 = index;
 		message.sendToTarget();
 	}
+	
+	@Kroll.method
+	public void selectRow(int row_id)
+	{
+		Message message = getMainHandler().obtainMessage(MSG_SELECT_ROW);
+		message.arg1 = row_id;
+		message.sendToTarget();
+	}
     
-    @Kroll.method
-    	
-    public void selectRow(int row_id)
-    {
-        Message message = getMainHandler().obtainMessage(MSG_SELECT_ROW);
-        message.arg1 = row_id;
-        message.sendToTarget();
-        	
-    }
 
 	@Kroll.method
 	public void scrollToTop(int index)
@@ -603,10 +602,11 @@ public class TableViewProxy extends TiViewProxy
 			getTableView().scrollToTop(msg.arg1);
 			return true;
 		}
-        else if (msg.what == MSG_SELECT_ROW){
-            getTableView().selectRow(msg.arg1);
-            return true;
-            }
+		  else if (ms.what = MSG_SELECT_ROW){
+			getTableView().selectRow(msg.arg1);
+			return true;
+		  }
+
 
 		return super.handleMessage(msg);
 	}
