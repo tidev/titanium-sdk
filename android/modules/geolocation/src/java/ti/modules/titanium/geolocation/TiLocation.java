@@ -256,11 +256,8 @@ public class TiLocation implements Handler.Callback
 
 							} else {
 								event = new KrollDict();
-								KrollDict errorDict = new KrollDict();
 								String errorCode = jsonObject.getString(TiC.ERROR_PROPERTY_ERRORCODE);
-								errorDict.put(TiC.PROPERTY_MESSAGE, "Unable to resolve message: Code (" + errorCode + ")");
-								errorDict.put(TiC.PROPERTY_CODE, errorCode);
-								event.put(TiC.EVENT_PROPERTY_ERROR, errorDict);
+								event.put(TiC.EVENT_PROPERTY_ERROR, "Unable to resolve message: Code (" + errorCode + ")");
 							}
 
 						} catch (JSONException e) {
@@ -275,6 +272,8 @@ public class TiLocation implements Handler.Callback
 				if (geocodeResponseHandler != null) {
 					if (event == null) {
 						event = new KrollDict();
+						event.put(TiC.PROPERTY_SUCCESS, false);
+						event.put(TiC.EVENT_PROPERTY_ERROR, "Error obtaining geolocation");
 					}
 					geocodeResponseHandler.handleGeocodeResponse(event);
 				}
@@ -296,6 +295,7 @@ public class TiLocation implements Handler.Callback
 			address = buildAddress(places.getJSONObject(0));
 		}
 
+		address.put(TiC.PROPERTY_SUCCESS, true);
 		return address;
 	}
 

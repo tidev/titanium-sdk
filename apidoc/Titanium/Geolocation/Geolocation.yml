@@ -700,7 +700,12 @@ properties:
   - name: success
     summary: Indicates whether the request succeeded.
     type: Boolean 
-    platforms: [iphone, ipad]
+    platforms: [android, iphone, ipad]
+
+  - name: error
+    summary: Error message when the request failed.
+    type: String
+    platforms: [android, iphone, ipad]
 
   - name: accuracy
     summary: Estimated accuracy of the geocoding, in meters.
@@ -758,7 +763,7 @@ properties:
     platforms: [android]
 
   - name: country_code
-    summary: Country code. Same as `country_code`.
+    summary: Country code. Same as `countryCode`.
     type: String
     platforms: [android]
 
