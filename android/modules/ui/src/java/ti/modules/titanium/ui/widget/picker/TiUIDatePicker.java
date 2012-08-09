@@ -17,11 +17,13 @@ import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiUIView;
 
 import android.app.Activity;
+import android.content.DialogInterface;
+import android.content.DialogInterface.OnClickListener;
 import android.widget.DatePicker;
 import android.widget.DatePicker.OnDateChangedListener;
 
 public class TiUIDatePicker extends TiUIView
-	implements OnDateChangedListener
+	implements OnDateChangedListener, OnClickListener
 {
 	private boolean suppressChangeEvent = false;
 	private static final String TAG = "TiUIDatePicker";
@@ -159,5 +161,10 @@ public class TiUIDatePicker extends TiUIView
 		picker.updateDate(calendar.get(Calendar.YEAR), calendar
 				.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH));
 		suppressChangeEvent = false;
+	}
+	@Override
+	public void onClick(DialogInterface dialog, int which) {
+		// TODO Auto-generated method stub
+		
 	}
 }
