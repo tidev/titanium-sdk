@@ -92,7 +92,9 @@ define(["Ti/_/declare", "Ti/_/UI/TextBox", "Ti/_/css", "Ti/_/dom", "Ti/_/lang", 
 
 			hintText: {
 				set: function(value) {
-					//this._field.placeholder = value;
+					try { // IE9 doesn't support placeholder and throws an exception if you try and set it.
+						this._field.placeholder = value;
+					} catch(e) {}
 					return value;
 				}
 			},
