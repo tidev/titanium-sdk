@@ -73,6 +73,8 @@
 
 @implementation TiUITextArea
 
+@synthesize becameResponder;
+
 #pragma mark Internal
 
 -(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
@@ -143,16 +145,34 @@
 	return [(UITextView *)[self textWidgetView] hasText];
 }
 
+-(BOOL)resignFirstResponder
+{
+    becameResponder = NO;
+    return [textWidgetView resignFirstResponder];
+}
+
 -(BOOL)becomeFirstResponder
 {
-	if ([textWidgetView isFirstResponder])
-	{
-		return NO;
-	}
-
-	[self makeRootViewFirstResponder];
-	BOOL result = [super becomeFirstResponder];
-	return result;
+    UITextView* ourView = (UITextView*)[self textWidgetView];
+    if (ourView.isEditable) {
+        becameResponder = YES;
+        
+        if ([textWidgetView isFirstResponder])
+        {
+            return NO;
+        }
+        
+        [self makeRootViewFirstResponder];
+        BOOL result = [super becomeFirstResponder];
+        return result;
+    }
+    return NO;
+}
+-(BOOL)isFirstResponder
+{
+    if (becameResponder)
+        return YES;
+    return [super isFirstResponder];
 }
 
 //TODO: scrollRangeToVisible

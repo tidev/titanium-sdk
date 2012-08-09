@@ -192,7 +192,7 @@
 
 -(BOOL)canBecomeFirstResponder
 {
-	return YES;
+    return self.isEnabled;
 }
 
 -(BOOL)resignFirstResponder
@@ -209,15 +209,17 @@
 
 -(BOOL)becomeFirstResponder
 {
-	becameResponder = YES;
-	
-	if ([super becomeFirstResponder])
-	{
-		[self repaintMode];
-		return YES;
-	}
-	return NO;
+    if (self.canBecomeFirstResponder) {
+        if ([super becomeFirstResponder])
+        {
+            becameResponder = YES;
+            [self repaintMode];
+            return YES;
+        }
+    }
+    return NO;
 }
+
 
 -(BOOL)isFirstResponder
 {
