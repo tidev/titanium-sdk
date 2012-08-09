@@ -33,6 +33,22 @@ methods:
     description: |
         See also: [add](Titanium.UI.TextArea.add), <Titanium.UI.View.add>.
     platforms: [iphone, ipad]
+    
+  - name: setSelection
+    summary: Selects the text in range (start, end).
+    platforms: [android]
+    since: 2.2.0
+    parameters:
+      - name: start
+        summary: Start index for selection. Value ranges from 0 to the text's length.
+        type: Number
+      - name: end
+        summary: End index for selection, not inclusive. Value ranges from 0 to the text's length.
+        type: Number
+    description: |
+          Selects the text in range (start, end). If start equals end, no text will be selected, 
+          and the cursor will move to the start position. End is not inclusive, meaning setSelection(0,0) 
+          will not select the first character, but will move the cursor to the position before the first character.
 
 properties:
   - name: appearance
@@ -215,6 +231,19 @@ properties:
     type: Number
     default: <Titanium.UI.RETURNKEY_DEFAULT>
     platforms: [android, iphone, ipad]
+
+  - name: scrollsToTop
+    summary: Controls whether the scroll-to-top gesture is effective.
+    description: |
+        The scroll-to-top gesture is a tap on the status bar; The default value of this property is true. 
+        This gesture works when you have a single visible text area.
+        If there are multiple table views, web views, text areas, and/or scroll views visible,
+        you will need to disable (set to false) on the above views you DON'T want this
+        behaviour on. The remaining view will then respond to scroll-to-top gesture. 
+    type: Boolean
+    default: true
+    platforms: [iphone,ipad]
+    since: 2.1.2
     
   - name: suppressReturn
     summary: Determines if the return key should be suppressed during text entry.

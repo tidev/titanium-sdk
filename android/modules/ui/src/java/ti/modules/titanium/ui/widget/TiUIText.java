@@ -494,6 +494,16 @@ public class TiUIText extends TiUIView
 		}
 	}
 
+	public void setSelection(int start, int end) 
+	{
+		int textLength = tv.length();
+		if (start < 0 || start > textLength || end < 0 || end > textLength) {
+			Log.w(TAG, "Invalid range for text selection. Ignoring.");
+			return;
+		}
+		tv.setSelection(start, end);
+	}
+
 	public void handleReturnKeyType(int type)
 	{
 		switch(type) {

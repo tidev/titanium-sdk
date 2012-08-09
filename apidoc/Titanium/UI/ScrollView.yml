@@ -213,6 +213,19 @@ properties:
     default: 1.0
     platforms: [iphone, ipad]
 
+  - name: scrollsToTop
+    summary: Controls whether the scroll-to-top gesture is effective.
+    description: |
+        The scroll-to-top gesture is a tap on the status bar; The default value of this property is true. 
+        This gesture works when you have a single visible scroll view.
+        If there are multiple table views, web views, text areas, and/or scroll views visible,
+        you will need to disable (set to false) on the above views you DON'T want this
+        behaviour on. The remaining view will then respond to scroll-to-top gesture. 
+    type: Boolean
+    default: true
+    platforms: [iphone,ipad]
+    since: 2.0.0
+
   - name: scrollIndicatorStyle
     summary: |
         Style of the scrollbar, specified using one of the constants from 
