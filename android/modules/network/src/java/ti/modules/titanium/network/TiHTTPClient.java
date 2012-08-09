@@ -764,7 +764,8 @@ public class TiHTTPClient
 		// if the url is not prepended with either http or 
 		// https, then default to http and prepend the protocol
 		// to the url
-		if (!url.startsWith("http://") && !url.startsWith("https://")) {
+		String lowerCaseUrl = url.toLowerCase();
+		if (!lowerCaseUrl.startsWith("http://") && !lowerCaseUrl.startsWith("https://")) {
 			url = "http://" + url;
 		}
 
