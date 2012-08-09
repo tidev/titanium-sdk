@@ -756,7 +756,8 @@ methods:
     since: "2.1.0"
     
   - name: selectRow
-    summary: Programmatically selects a row.
+    summary: Programmatically selects a row. In Android, it sets the currently selected item. If in touch mode, the item will not be selected but it will still be positioned appropriately. If the specified selection position is less than 0,
+             then the item at position 0 will be selected.
     parameters:
       - name: row
         summary: Row index to select.
