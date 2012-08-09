@@ -872,9 +872,9 @@ public abstract class TiApplication extends Application implements Handler.Callb
 		TiActivityWindows.dispose();
 	}
 
-	public void cancelTimers(Thread thread)
+	public void cancelTimers()
 	{
-		TitaniumModule.cancelTimers(thread);
+		TitaniumModule.cancelTimers();
 	}
 
 	/**
