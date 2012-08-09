@@ -189,7 +189,7 @@ public abstract class KrollRuntime implements Handler.Callback
 		// Cancel all timers associated with the app
 		KrollApplication app = krollApplication.get();
 		if (app != null) {
-			app.cancelTimers(thread);
+			app.cancelTimers();
 		}
 
 		if (isRuntimeThread()) {
