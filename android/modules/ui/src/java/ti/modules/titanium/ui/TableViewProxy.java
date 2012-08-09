@@ -602,7 +602,7 @@ public class TableViewProxy extends TiViewProxy
 			getTableView().scrollToTop(msg.arg1);
 			return true;
 		}
-		  else if (ms.what = MSG_SELECT_ROW){
+		  else if (msg.what == MSG_SELECT_ROW){
 			getTableView().selectRow(msg.arg1);
 			return true;
 		  }
