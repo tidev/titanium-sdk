@@ -219,7 +219,7 @@ public class ActivityProxy extends KrollProxy
 	}
     
     @Kroll.method
-    public openOptionsMenu()
+    public void openOptionsMenu()
     {
         Activity activity = getWrappedActivity();
         activity.openOptionsMenu();
