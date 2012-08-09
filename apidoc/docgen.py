@@ -140,11 +140,8 @@ def load_one_yaml(filepath):
 	except KeyboardInterrupt:
 		raise
 	except:
-		e = traceback.format_exc()
-		log.error("Exception occured while processing %s:" % filepath)
-		for line in e.splitlines():
-			log.error(line)
-		return None
+		log.error("Exception occurred while processing %s:" % filepath)
+		raise
 	finally:
 		if f is not None:
 			try:
