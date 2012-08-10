@@ -74,6 +74,7 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 	private int token;
 	private boolean firedLoad;
 	private ImageViewProxy imageViewProxy;
+	private int currentDuration;
 
 	private TiDimension requestedWidth;
 	private TiDimension requestedHeight;
@@ -547,7 +548,7 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 				// one frame is left out when resumed (TIMOB-10207).
 				// To avoid this, we force the thread to wait for one period on resume.
 				if (waitOnResume) {
-					Thread.sleep((int) getDuration());
+					Thread.sleep(currentDuration);
 					waitOnResume = false;
 				}
 			} catch (InterruptedException e) {
@@ -583,11 +584,11 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 				loaderThread.start();
 			}
 
-			int duration = (int) getDuration();
+			currentDuration = (int) getDuration();
 
 			animating.set(true);
 			fireStart();
-			timer.schedule(animator, duration, duration);
+			timer.schedule(animator, currentDuration, currentDuration);
 		} else {
 			resume();
 		}
