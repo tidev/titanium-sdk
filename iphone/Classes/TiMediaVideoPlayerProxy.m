@@ -933,27 +933,42 @@ NSArray* moviePlayerKeys = nil;
 -(void)handleSourceTypeNotification:(NSNotification*)note
 {
 	if ([self _hasListeners:@"sourceChange"])
-	{
+	{	//TODO: Deprecate old event.
 		NSDictionary *event = [NSDictionary dictionaryWithObject:[self sourceType] forKey:@"sourceType"];
 		[self fireEvent:@"sourceChange" withObject:event];
+	}
+	if ([self _hasListeners:@"sourcechange"])
+	{
+		NSDictionary *event = [NSDictionary dictionaryWithObject:[self sourceType] forKey:@"sourceType"];
+		[self fireEvent:@"sourcechange" withObject:event];
 	}
 }
 
 -(void)handleDurationAvailableNotification:(NSNotification*)note
 {
 	if ([self _hasListeners:@"durationAvailable"])
-	{
+	{	//TODO: Deprecate old event.
 		NSDictionary *event = [NSDictionary dictionaryWithObject:[self duration] forKey:@"duration"];
 		[self fireEvent:@"durationAvailable" withObject:event];
+	}
+	if ([self _hasListeners:@"durationavailable"])
+	{
+		NSDictionary *event = [NSDictionary dictionaryWithObject:[self duration] forKey:@"duration"];
+		[self fireEvent:@"durationavailable" withObject:event];
 	}
 }
 
 -(void)handleMediaTypesNotification:(NSNotification*)note
 {
 	if ([self _hasListeners:@"mediaTypesAvailable"])
-	{
+	{	//TODO: Deprecate old event.
 		NSDictionary *event = [NSDictionary dictionaryWithObject:[self mediaTypes] forKey:@"mediaTypes"];
 		[self fireEvent:@"mediaTypesAvailable" withObject:event];
+	}
+	if ([self _hasListeners:@"mediatypesavailable"])
+	{
+		NSDictionary *event = [NSDictionary dictionaryWithObject:[self mediaTypes] forKey:@"mediaTypes"];
+		[self fireEvent:@"mediatypesavailable" withObject:event];
 	}
 }
 
@@ -962,9 +977,14 @@ NSArray* moviePlayerKeys = nil;
 	sizeDetermined = YES;
 	[self setFullscreen:[loadProperties valueForKey:@"fullscreen"]];
 	if ([self _hasListeners:@"naturalSizeAvailable"])
-	{
+	{	//TODO: Deprecate old event.
 		NSDictionary *event = [NSDictionary dictionaryWithObject:[self naturalSize] forKey:@"naturalSize"];
 		[self fireEvent:@"naturalSizeAvailable" withObject:event];
+	}
+	if ([self _hasListeners:@"naturalsizeavailable"])
+	{
+		NSDictionary *event = [NSDictionary dictionaryWithObject:[self naturalSize] forKey:@"naturalSize"];
+		[self fireEvent:@"naturalsizeavailable" withObject:event];
 	}
 }
 
@@ -1012,6 +1032,11 @@ NSArray* moviePlayerKeys = nil;
 	{
 		NSDictionary *event = [NSDictionary dictionaryWithObject:[self playbackState] forKey:@"playbackState"];
 		[self fireEvent:@"playbackState" withObject:event];
+	}
+	if ([self _hasListeners:@"playbackstate"])
+	{
+		NSDictionary *event = [NSDictionary dictionaryWithObject:[self playbackState] forKey:@"playbackState"];
+		[self fireEvent:@"playbackstate" withObject:event];
 	}
 	switch ([movie playbackState]) {
 		case MPMoviePlaybackStatePaused:
