@@ -74,16 +74,16 @@ public class TiRootActivity extends TiLaunchActivity
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
 	{
-		TiApplication tiApp = getTiApp();
+		if (willFinishFalseRootActivity(savedInstanceState)) {
+			return;
+		}
 
 		if (checkInvalidLaunch(savedInstanceState)) {
 			// Android bug 2373 detected and we're going to restart.
 			return;
 		}
 
-		if (checkInvalidKindleFireRelaunch(savedInstanceState)) {
-			return;
-		}
+		TiApplication tiApp = getTiApp();
 
 		if (tiApp.isRestartPending() || TiBaseActivity.isUnsupportedReLaunch(this, savedInstanceState)) {
 			super.onCreate(savedInstanceState); // Will take care of scheduling restart and finishing.
@@ -110,8 +110,6 @@ public class TiRootActivity extends TiLaunchActivity
 		getIntent().putExtra(TiC.PROPERTY_NAV_BAR_HIDDEN, appInfo.isNavBarHidden());
 		super.windowCreated();
 	}
-
-	// Lifecyle
 
 	@Override
 	protected void onResume()
@@ -143,7 +141,8 @@ public class TiRootActivity extends TiLaunchActivity
 	protected void onDestroy()
 	{
 		super.onDestroy();
-		if (invalidKindleFireRelaunch) {
+
+		if (finishing2373) {
 			return;
 		}
 
@@ -156,6 +155,11 @@ public class TiRootActivity extends TiLaunchActivity
 	@Override
 	public void finish()
 	{
+		if (finishing2373) {
+			super.finish();
+			return;
+		}
+
 		// Ensure we only run the finish logic once. We want to avoid an infinite loop since this method can be called
 		// from the finish method inside TiBaseActivity ( which can be triggered by terminateActivityStack() )
 		if (!finishing) {
