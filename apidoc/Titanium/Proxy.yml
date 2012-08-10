@@ -61,3 +61,13 @@ methods:
         summary: A dictionary of keys and values to add to the <Titanium.Event> object
             sent to the listeners.
         type: Dictionary
+  - name: applyProperties
+    summary: Applies the properties to the proxy.
+    description: |
+        Properties are supplied as a dictionary. Each key-value pair in the object is applied to the proxy such that
+        myproxy[key] = value.
+    parameters:
+      - name: props
+        summary: A dictionary of properties to apply.
+        type: Dictionary
+    since: "2.2.0"
