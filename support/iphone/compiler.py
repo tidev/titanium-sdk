@@ -424,7 +424,7 @@ class Compiler(object):
 		root_asset = self.compile_commonjs_file(self.appid+'.js', os.path.join(self.assets_dir, self.appid+'.js'))
 
 		js_files = []
-		for root, dirs, files in os.walk(self.assets_dir):
+		for root, dirs, files in os.walk(self.assets_dir, True, None, True):
 			for file in [f for f in files if os.path.splitext(f)[1] == '.js']:
 				full_path = os.path.join(root, file)
 				self.compile_js_file(os.path.relpath(full_path, self.assets_dir), full_path, js_files)
@@ -615,7 +615,7 @@ class Compiler(object):
 		def add_compiled_resources(source,target):
 			print "[DEBUG] copy resources from %s to %s" % (source,target)
 			compiled_targets = {}
-			for root, dirs, files in os.walk(source):
+			for root, dirs, files in os.walk(source, True, None, True):
 				for name in ignoreDirs:
 					if name in dirs:
 						dirs.remove(name)	# don't visit ignored directories
