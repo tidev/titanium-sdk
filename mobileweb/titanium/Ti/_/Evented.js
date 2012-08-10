@@ -55,10 +55,7 @@ define(function() {
 		},
 
 		applyProperties: function(props) {
-			var i;
-			for(i in props) {
-				this[i] = props[i];
-			}
+			require.mix(this, props);
 		},
 
 		_addEventModifier: function(name, handler) {
