@@ -504,10 +504,10 @@ def cleanup_app_logfiles(tiapp, log_id, iphone_version):
 			os.remove(i)
 
 def find_name_conflicts(project_dir, project_name):
-	for root, dirs, files in os.walk(project_dir):
-		for name in dirs:
-			if name == project_name:
-				print "[ERROR] Project name %s conflicts with resource named %s: Cannot build. Please change one." % (project_name, os.path.join(root, name))
+	for dir in ['Resources', 'Resources/iphone']:
+		for name in os.listdir(os.path.join(project_dir, dir)):
+			if name.lower() == project_name.lower():
+				print "[ERROR] Project name %s conflicts with resource named %s: Cannot build. Please change one." % (project_name, os.path.join(project_dir, dir, name))
 				exit(1)
 	pass
 
