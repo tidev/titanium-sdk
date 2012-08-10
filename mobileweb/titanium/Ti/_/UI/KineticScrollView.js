@@ -62,6 +62,16 @@ define(["Ti/_/browser", "Ti/_/declare", "Ti/UI/View", "Ti/_/lang", "Ti/_/dom", "
 					velocityY = (translationY - startTranslationY) / period;
 				}
 			}
+			
+			function setMinTranslations() {
+				minTranslationX = self._minTranslationX = Math.min(0, self._measuredWidth - self._borderLeftWidth - self._borderRightWidth - self._contentContainer._measuredWidth);
+				minTranslationY = self._minTranslationY = Math.min(0, self._measuredHeight - self._borderTopWidth - self._borderBottomWidth - self._contentContainer._measuredHeight);
+			}
+			
+			on(self._contentContainer, "postlayout", function() {
+				setMinTranslations();
+				self._setTranslation(self._currentTranslationX, self._currentTranslationY);
+			});
 
 			on(self, "draggingstart", function(e) {
 				if (self.scrollingEnabled) {
@@ -75,8 +85,7 @@ define(["Ti/_/browser", "Ti/_/declare", "Ti/UI/View", "Ti/_/lang", "Ti/_/dom", "
 					numSamples = 0;
 					previousTime = (new Date).getTime();
 
-					minTranslationX = self._minTranslationX = Math.min(0, self._measuredWidth - self._borderLeftWidth - self._borderRightWidth - self._contentContainer._measuredWidth);
-					minTranslationY = self._minTranslationY = Math.min(0, self._measuredHeight - self._borderTopWidth - self._borderBottomWidth - self._contentContainer._measuredHeight);
+					setMinTranslations();
 
 					// Start the scroll bars
 					var width = self._measuredWidth,
@@ -168,8 +177,7 @@ define(["Ti/_/browser", "Ti/_/declare", "Ti/UI/View", "Ti/_/lang", "Ti/_/dom", "
 						currentPositionX = -self._currentTranslationX,
 						currentPositionY = -self._currentTranslationY;
 
-					minTranslationX = self._minTranslationX = Math.min(0, self._measuredWidth - self._borderLeftWidth - self._borderRightWidth - self._contentContainer._measuredWidth);
-					minTranslationY = self._minTranslationY = Math.min(0, self._measuredHeight - self._borderTopWidth - self._borderBottomWidth - self._contentContainer._measuredHeight);
+					setMinTranslations();
 
 					// Start the scrollbar
 					self._startScrollBars({
