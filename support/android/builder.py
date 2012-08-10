@@ -137,7 +137,7 @@ def error(msg):
 
 def copy_all(source_folder, dest_folder, ignore_dirs=[], ignore_files=[], ignore_exts=[], one_time_msg=""):
 	msg_shown = False
-	for root, dirs, files in os.walk(source_folder):
+	for root, dirs, files in os.walk(source_folder, True, None, True):
 		for d in dirs:
 			if d in ignore_dirs:
 				dirs.remove(d)
@@ -1252,7 +1252,7 @@ class Builder(object):
 		if not os.path.exists(app_stylesheet):
 			update_stylesheet = True
 		else:
-			for root, dirs, files in os.walk(resources_dir):
+			for root, dirs, files in os.walk(resources_dir, True, None, True):
 				remove_ignored_dirs(dirs)
 				for f in files:
 					if f in ignoreFiles:
@@ -1456,7 +1456,7 @@ class Builder(object):
 			apk_zip.write(self.classes_dex, 'classes.dex')
 		
 		# add all resource files from the project
-		for root, dirs, files in os.walk(self.project_src_dir):
+		for root, dirs, files in os.walk(self.project_src_dir, True, None, True):
 			remove_ignored_dirs(dirs)
 			for f in files:
 				if f in ignoreFiles:
