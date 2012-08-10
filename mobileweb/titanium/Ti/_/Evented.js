@@ -54,6 +54,10 @@ define(function() {
 			}
 		},
 
+		applyProperties: function(props) {
+			require.mix(this, props);
+		},
+
 		_addEventModifier: function(name, handler) {
 			this._modifiers || (this._modifiers = {});
 			(require.is(name, "Array") ? name : [name]).forEach(function(n) {
