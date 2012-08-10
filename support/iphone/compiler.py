@@ -20,8 +20,8 @@ try:
 except:
 	import simplejson as json
 
-ignoreFiles = ['.gitignore', '.cvsignore', '.DS_Store'];
-ignoreDirs = ['.git','.svn','_svn','CVS','android','mobileweb'];
+ignoreFiles = ['.gitignore', '.cvsignore', '.DS_Store', '.git','.svn','_svn','CVS'];
+ignoreDirs = ['android','mobileweb'];
 
 HEADER = """/**
  * Appcelerator Titanium Mobile
@@ -152,7 +152,7 @@ def softlink_resources(source,target,use_ignoreDirs=True):
 		to_ = os.path.join(target, file)
 		if os.path.isdir(from_):
 			print "[DEBUG] creating: %s" % (to_)
-			softlink_resources(from_,to_,False)
+			softlink_resources(from_,to_,use_ignoreDirs)
 		else:
 			print "[DEBUG] linking: %s to %s" % (from_,to_)
 			if os.path.exists(to_):
