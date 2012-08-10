@@ -1,36 +1,27 @@
 define(["Ti/_/declare", "Ti/_/UI/TextBox", "Ti/_/css", "Ti/_/dom", "Ti/_/lang", "Ti/_/style", "Ti/UI"],
 	function(declare, TextBox, css, dom, lang, style, UI) {
 
-	var borderStyles = ["None", "Line", "Bezel", "Rounded"];
+	var borderStyles = ["None", "Line", "Bezel", "Rounded"],
+		keyboardPost = {
+			post: "_setKeyboardType"
+		},
+		setStyle = style.set;
 
 	return declare("Ti.UI.TextField", TextBox, {
 
 		constructor: function(args) {
-			var f = this._field = dom.create("input", {
+			// note: do NOT add position:absolute to this style under ANY circumstances. It will break text field on WebKit
+			var field = dom.create("input", {
 				autocomplete: "off",
-				style: {
-					position: "absolute",
-					left: 0,
-					right: 0,
-					top: 0,
-					bottom: 0
-				}
-			}, this._fieldWrapper = dom.create("span", {
-				style: {
-					position: "absolute",
-					left: 0,
-					right: 0,
-					top: 0,
-					bottom: 0
-				}
-			}, this.domNode));
+				className: "TiUITextFieldInput"
+			}, this.domNode);
 
-			this._initTextBox();
-			this._keyboardType();
+			this._initTextBox(field);
+			this._setKeyboardType();
 			this.borderStyle = UI.INPUT_BORDERSTYLE_BEZEL;
 
-			this._disconnectFocusEvent = require.on(f, "focus", this, function() {
-				this.clearOnEdit && (f.value = "");
+			this._disconnectFocusEvent = require.on(field, "focus", this, function() {
+				this.clearOnEdit && (field.value = "");
 			});
 		},
 
@@ -51,31 +42,35 @@ define(["Ti/_/declare", "Ti/_/UI/TextBox", "Ti/_/css", "Ti/_/dom", "Ti/_/lang", 
 		},
 
 		_setTouchEnabled: function(value) {
-			this.slider && style.set(this._field, "pointerEvents", value ? "auto" : "none");
+			this.slider && setStyle(this._field, "pointerEvents", value ? "auto" : "none");
 		},
 
-		_keyboardType: function(args) {
-			var t = "text",
-				args = args || {};
-			if (lang.val(args.pm, this.passwordMask)) {
-				t = "password";
+		_setKeyboardType: function() {
+			var type = "text";
+			if (this.passwordMask) {
+				type = "password";
 			} else {
-				switch (lang.val(args.kt, this.keyboardType)) {
+				switch (this.keyboardType) {
 					case UI.KEYBOARD_EMAIL:
-						t = "email";
+						type = "email";
 						break;
 					case UI.KEYBOARD_NUMBER_PAD:
-						t = "number";
+						type = "number";
 						break;
 					case UI.KEYBOARD_PHONE_PAD:
-						t = "tel";
+						type = "tel";
 						break;
 					case UI.KEYBOARD_URL:
-						t = "url";
+						type = "url";
 						break;
 				}
 			}
-			this._field.type = t;
+			// Note: IE9 throws an exception if you don't set an input type it supports
+			try {
+				this._field.type = type;
+			} catch(e) {
+				this._field.type = "text";
+			}
 		},
 
 		properties: {
@@ -97,33 +92,16 @@ define(["Ti/_/declare", "Ti/_/UI/TextBox", "Ti/_/css", "Ti/_/dom", "Ti/_/lang", 
 
 			hintText: {
 				set: function(value) {
-					this._field.placeholder = value;
+					try { // IE9 doesn't support placeholder and throws an exception if you try and set it.
+						this._field.placeholder = value;
+					} catch(e) {}
 					return value;
 				}
 			},
 
-			keyboardType: {
-				set: function(value) {
-					this._keyboardType({ kt:value });
-					return value;
-				}
-			},
+			keyboardType: keyboardPost,
 
-			maxLength: {
-				set: function(value) {
-					value = Math.min(value|0, 0);
-					dom.attr[value > 0 ? "set" : "remove"](this._field, "maxlength", value);
-					return value;
-				}
-			},
-
-			passwordMask: {
-				value: false,
-				set: function(value) {
-					this._keyboardType({ pm:value });
-					return value;
-				}
-			}
+			passwordMask: keyboardPost
 		}
 
 	});

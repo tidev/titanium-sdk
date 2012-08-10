@@ -83,6 +83,7 @@ def pretty_platform_name(name):
 		return "Mobile Web"
 
 def combine_platforms_and_since(annotated_obj):
+	parent = annotated_obj.parent
 	obj = annotated_obj.api_obj
 	result = []
 	platforms = None
@@ -93,10 +94,10 @@ def combine_platforms_and_since(annotated_obj):
 	if (platforms is None or
 			isinstance(annotated_obj, AnnotatedMethod) or isinstance(annotated_obj, AnnotatedProperty) or
 			isinstance(annotated_obj, AnnotatedEvent)):
-		if annotated_obj.parent is not None:
-			if dict_has_non_empty_member(annotated_obj.parent.api_obj, "platforms"):
-				if platforms is None or len(annotated_obj.parent.api_obj["platforms"]) < len(platforms):
-					platforms = annotated_obj.parent.api_obj["platforms"]
+		if parent is not None:
+			if dict_has_non_empty_member(parent.api_obj, "platforms"):
+				if platforms is None or len(parent.api_obj["platforms"]) < len(platforms):
+					platforms = parent.api_obj["platforms"]
 	# Last resort is the default list of platforms
 	if platforms is None:
 		platforms = DEFAULT_PLATFORMS
@@ -106,9 +107,9 @@ def combine_platforms_and_since(annotated_obj):
 		# If a method/event/property we can check type's "since"
 		if (isinstance(annotated_obj, AnnotatedMethod) or isinstance(annotated_obj, AnnotatedProperty) or
 				isinstance(annotated_obj, AnnotatedEvent)):
-			if (annotated_obj.parent is not None and
-					dict_has_non_empty_member(annotated_obj.parent.api_obj, "since")):
-				since = annotated_obj.parent.api_obj["since"]
+			if (parent is not None and
+					dict_has_non_empty_member(parent.api_obj, "since")):
+				since = parent.api_obj["since"]
 
 	since_is_dict = isinstance(since, dict)
 	for name in platforms:
@@ -129,6 +130,17 @@ def combine_platforms_and_since(annotated_obj):
 					one_platform["since"] = DEFAULT_SINCE
 		result.append(one_platform)
 
+	# Be sure no "since" is _before_ a parent object since.
+	if parent and parent.platforms:
+		for entry in result:
+			platform_name = entry["name"]
+			version_parts = entry["since"].split(".")
+			for parent_entry in parent.platforms:
+				if parent_entry["name"] == platform_name:
+					parent_version_parts = parent_entry["since"].split(".")
+					if parent_version_parts > version_parts:
+						entry["since"] = parent_entry["since"]
+					break
 	return result
 
 def load_one_yaml(filepath):
@@ -140,11 +152,8 @@ def load_one_yaml(filepath):
 	except KeyboardInterrupt:
 		raise
 	except:
-		e = traceback.format_exc()
-		log.error("Exception occured while processing %s:" % filepath)
-		for line in e.splitlines():
-			log.error(line)
-		return None
+		log.error("Exception occurred while processing %s:" % filepath)
+		raise
 	finally:
 		if f is not None:
 			try:

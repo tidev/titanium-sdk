@@ -1238,6 +1238,11 @@ public class TiC
 	 */
 	public static final String PROPERTY_MAP_TYPE = "mapType";
 
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_MAX = "max";
+
 	public static final String PROPERTY_MAX_AGE = "maxAge";
 	
 	/**
@@ -1279,12 +1284,16 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_MIDDLENAME = "middleName";
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_MIMETYPE = "mimeType";
 	
 	/**
 	 * @module.api
 	 */
-	public static final String PROPERTY_MIDDLENAME = "middleName";
+	public static final String PROPERTY_MIN = "min";
 
 	public static final String PROPERTY_MIN_AGE = "minAge";
 	public static final String PROPERTY_MIN_UPDATE_DISTANCE = "minUpdateDistance";
