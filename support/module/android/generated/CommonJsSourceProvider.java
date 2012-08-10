@@ -8,8 +8,6 @@
  */
 package ${moduleid};
 
-import java.util.ArrayList;
-
 import org.appcelerator.kroll.common.KrollSourceCodeProvider;
 
 public class CommonJsSourceProvider implements KrollSourceCodeProvider
