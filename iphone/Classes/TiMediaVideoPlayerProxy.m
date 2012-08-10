@@ -1033,6 +1033,11 @@ NSArray* moviePlayerKeys = nil;
 		NSDictionary *event = [NSDictionary dictionaryWithObject:[self playbackState] forKey:@"playbackState"];
 		[self fireEvent:@"playbackState" withObject:event];
 	}
+	if ([self _hasListeners:@"playbackstate"])
+	{
+		NSDictionary *event = [NSDictionary dictionaryWithObject:[self playbackState] forKey:@"playbackState"];
+		[self fireEvent:@"playbackstate" withObject:event];
+	}
 	switch ([movie playbackState]) {
 		case MPMoviePlaybackStatePaused:
 		case MPMoviePlaybackStateStopped:
