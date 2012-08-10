@@ -526,13 +526,13 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 
 		public void run()
 		{
-			boolean isWakingFromPause = false;
+			boolean waitOnResume = false;
 			try {
 				if (paused) {
 					synchronized (this) {
 						KrollDict data = new KrollDict();
 						proxy.fireEvent(TiC.EVENT_PAUSE, data);
-						isWakingFromPause = true;
+						waitOnResume = true;
 						wait();
 					}
 				}
@@ -542,9 +542,13 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 				setImage(b.bitmap);
 				fireChange(b.index);
 
-				if (isWakingFromPause) {
+				// When the animation is paused, the timer will pause in the middle of a period.
+				// When the animation resumes, the timer resumes from where it left off. As a result, it will look like
+				// one frame is left out when resumed (TIMOB-10207).
+				// To avoid this, we force the thread to wait for one period on resume.
+				if (waitOnResume) {
 					Thread.sleep((int) getDuration());
-					isWakingFromPause = false;
+					waitOnResume = false;
 				}
 			} catch (InterruptedException e) {
 				Log.e(TAG, "Loader interrupted");
