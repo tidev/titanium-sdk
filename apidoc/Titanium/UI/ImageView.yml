@@ -146,6 +146,9 @@ properties:
         are assigned, duration will be set to 100 ms.
         
         On iOS and Mobile Web, prior to release 2.1.1, the default is 30 ms.
+
+        On Android, if the value of duration is changed, [stop](Titanium.UI.ImageView.stop)
+        and [start](Titanium.UI.ImageView.start) need to be called for the new value to take effect.
     type: Number
     default: 200 ms in Release 2.1.1 and later. Platform-specific default in earlier releases.
     
