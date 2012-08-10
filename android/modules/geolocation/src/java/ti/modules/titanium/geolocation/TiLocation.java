@@ -261,12 +261,12 @@ public class TiLocation implements Handler.Callback
 							}
 
 						} catch (JSONException e) {
-							Log.e(TAG, "Error converting geo response to JSONObject [" + e.getMessage() + "]", e);
+							Log.e(TAG, "Error converting geo response to JSONObject [" + e.getMessage() + "]", e, Log.DEBUG_MODE);
 						}
 					}
 
 				} catch (Throwable t) {
-					Log.e(TAG, "Error retrieving geocode information [" + t.getMessage() + "]", t);
+					Log.e(TAG, "Error retrieving geocode information [" + t.getMessage() + "]", t, Log.DEBUG_MODE);
 				}
 
 				if (geocodeResponseHandler != null) {
