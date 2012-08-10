@@ -601,11 +601,10 @@ public class TableViewProxy extends TiViewProxy
 		} else if (msg.what == MSG_SCROLL_TO_TOP) {
 			getTableView().scrollToTop(msg.arg1);
 			return true;
-		}
-		  else if (msg.what == MSG_SELECT_ROW){
+		} else if (msg.what == MSG_SELECT_ROW) {
 			getTableView().selectRow(msg.arg1);
 			return true;
-		  }
+		}
 
 
 		return super.handleMessage(msg);
