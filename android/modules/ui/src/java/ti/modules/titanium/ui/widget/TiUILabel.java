@@ -192,6 +192,7 @@ public class TiUILabel extends TiUIView
 			shadowDx = TiConvert.toInt(((HashMap) newValue).get(TiC.PROPERTY_X));
 			shadowDy = TiConvert.toInt(((HashMap) newValue).get(TiC.PROPERTY_Y));
 			tv.setShadowLayer(1, shadowDx, shadowDy, shadowColor);
+			tv.requestLayout();
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}

@@ -42,6 +42,8 @@ public class TiUIButton extends TiUIView
 	{
 		super(proxy);
 		titlePadding = new Rect();
+		titlePadding.left = 8;
+		titlePadding.right = 8;
 		Log.d(TAG, "Creating a button", Log.DEBUG_MODE);
 		Button btn = new Button(proxy.getActivity())
 		{
@@ -172,6 +174,7 @@ public class TiUIButton extends TiUIView
 			shadowDx = TiConvert.toInt(((HashMap) newValue).get(TiC.PROPERTY_X));
 			shadowDy = TiConvert.toInt(((HashMap) newValue).get(TiC.PROPERTY_Y));
 			btn.setShadowLayer(1, shadowDx, shadowDy, shadowColor);
+			btn.requestLayout();
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}
