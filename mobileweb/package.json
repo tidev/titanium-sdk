@@ -9,7 +9,7 @@
 		"mobileweb",
 		"mobile web"
 	],
-	"version": "2.2.0",
+	"version": "__VERSION__",
 	"author": "Appcelerator, Inc. <info@appcelerator.com>",
 	"maintainers": [
 		"Chris Barber <cbarber@appcelerator.com>",
@@ -20,6 +20,7 @@
 		"url": "git://github.com/appcelerator/titanium-mobileweb.git"
 	},
 	"dependencies": {
+		"colors": "0.6.x"
 	},
 	"license": "Apache Public License v2",
 	"directories": {

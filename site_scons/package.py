@@ -2,7 +2,7 @@
 #
 # zip up the titanium mobile SDKs into suitable distribution formats
 #
-import os, types, glob, shutil, sys, platform
+import os, types, glob, shutil, sys, platform, codecs
 import zipfile, datetime, subprocess, tempfile, time
 
 if platform.system() == 'Darwin':
@@ -284,12 +284,32 @@ def zip_iphone_ipad(zf,basepath,platform,version,version_tag):
 				zip_dir(zf,module_images,'%s/%s/modules/%s/images' % (basepath,platform,module_name))
 	
 def zip_mobileweb(zf,basepath,version):
-	subs = {
-		"__VERSION__":version,
-		"__TIMESTAMP__":ts,
-		"__GITHASH__": githash
-	}
 	dir = os.path.join(top_dir, 'mobileweb')
+	package_json_file = os.path.join(dir, 'package.json')
+	
+	# package.json should always exist
+	if os.path.exists(package_json_file):
+		package_json_original = codecs.open(package_json_file, 'r', 'utf-8').read()
+		package_json_contents = package_json_original
+		
+		subs = {
+			"__VERSION__":version,
+			"__TIMESTAMP__":ts,
+			"__GITHASH__": githash
+		}
+		for key in subs:
+			package_json_contents = package_json_contents.replace(key, subs[key])
+		codecs.open(package_json_file, 'w', 'utf-8').write(package_json_contents)
+		
+		# need to npm install all node dependencies
+		print 'Calling npm from %s' % dir
+		p = subprocess.Popen('npm install', shell=True, cwd=dir, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+		stdout, stderr = p.communicate()
+		if p.returncode != 0:
+			print '[ERROR] failed to npm install Mobile Web\'s dependencies'
+			print stdout
+			print stderr
+			sys.exit(1)
 	
 	# for speed, mobileweb has its own zip logic
 	for root, dirs, files in os.walk(dir):
@@ -301,13 +321,11 @@ def zip_mobileweb(zf,basepath,version):
 			if len(e)==2 and e[1] in ignoreExtensions: continue
 			from_ = os.path.join(root, file)
 			to_ = from_.replace(dir, os.path.join(basepath,'mobileweb'), 1)
-			if file == 'package.json':
-				c = open(from_).read()
-				for key in subs:
-					c = c.replace(key, subs[key])
-				zf.writestr(to_, c)
-			else:
-				zf.write(from_, to_)
+			zf.write(from_, to_)
+	
+	if os.path.exists(package_json_file):
+		# restore the original contents
+		codecs.open(package_json_file, 'w', 'utf-8').write(package_json_original)
 
 def create_platform_zip(platform,dist_dir,osname,version,version_tag):
 	if not os.path.exists(dist_dir):
@@ -325,8 +343,17 @@ module_apiversion=%s
 timestamp=%s
 githash=%s
 """ % (version,module_apiversion,ts,githash)
-
 	zf.writestr('%s/version.txt' % basepath,version_txt)
+	
+	manifest_json = '''{
+	"version": "%s",
+	"moduleAPIVersion": "%s",
+	"timestamp": "%s",
+	"githash": "%s",
+	"platforms": ["android", "iphone", "mobileweb"]
+}''' % (version, module_apiversion, ts, githash)
+	zf.writestr('%s/manifest.json' % basepath, manifest_json)
+	
 	if build_jsca:
 		jsca = generate_jsca()
 		zf.writestr('%s/api.jsca' % basepath, jsca)

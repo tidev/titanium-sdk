@@ -78,4 +78,8 @@ exports.validate = function (logger, config, cli) {
 
 exports.run = function (logger, config, cli) {
 	dump(cli.argv);
+	
+	/*
+	
+	*/
 };

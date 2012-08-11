@@ -1,6 +1,6 @@
 {
 	"name": "Ti",
-	"description": "The mobile web platform for rapidly developing applications",
+	"description": "The TItanium Mobile Web AMD package",
 	"version": "__VERSION__",
 	"keywords": ["Titanium", "Ti", "mobile", "JavaScript"],
 	"licenses": [
