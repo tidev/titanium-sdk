@@ -2378,7 +2378,6 @@ return result;	\
 	{
 		[self.proxy fireEvent:@"scrollend" withObject:[self eventObjectForScrollView:scrollView]];
 	}
-
 }
 
 #pragma mark Search Display Controller Delegates
