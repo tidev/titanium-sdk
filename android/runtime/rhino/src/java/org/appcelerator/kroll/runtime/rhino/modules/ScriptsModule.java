@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2011-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -40,6 +40,7 @@ public class ScriptsModule extends ScriptableObject
 		putProperty(this, "runInThisContext", new RunInThisContext());
 		putProperty(this, "runInSandbox", new RunInSandbox());
 		putProperty(this, "createContext", new CreateContext());
+		putProperty(this, "disposeContext", new BaseFunction());
 	}
 
 	private static Object runCompiledJar(Context context, Scriptable scope, Scriptable sandbox, String jarPath, String className)
