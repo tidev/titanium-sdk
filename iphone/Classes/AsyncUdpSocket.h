@@ -10,11 +10,30 @@
 
 #import <Foundation/Foundation.h>
 
-@class TI_AsyncSendPacket;
-@class TI_AsyncReceivePacket;
+#ifndef AsyncSendPacket
+#define AsyncSendPacket __TI_NS_SYMBOL(AsyncSendPacket)
+#endif
+#ifndef AsyncReceivePacket
+#define AsyncReceivePacket __TI_NS_SYMBOL(AsyncReceivePacket)
+#endif
+#ifndef AsyncUdpSocketException
+#define AsyncUdpSocketException __TI_NS_SYMBOL(AsyncUdpSocketException)
+#endif
+#ifndef AsyncUdpSocketErrorDomain
+#define AsyncUdpSocketErrorDomain __TI_NS_SYMBOL(AsyncUdpSocketErrorDomain)
+#endif
+#ifndef AsyncUdpSocket
+#define AsyncUdpSocket __TI_NS_SYMBOL(AsyncUdpSocket)
+#endif
+#ifndef AsyncUdpSocketDelegate
+#define AsyncUdpSocketDelegate __TI_NS_SYMBOL(AsyncUdpSocketDelegate)
+#endif
 
-extern NSString *const TI_AsyncUdpSocketException;
-extern NSString *const TI_AsyncUdpSocketErrorDomain;
+@class AsyncSendPacket;
+@class AsyncReceivePacket;
+
+extern NSString *const AsyncUdpSocketException;
+extern NSString *const AsyncUdpSocketErrorDomain;
 
 enum AsyncUdpSocketError
 {
@@ -28,7 +47,7 @@ enum AsyncUdpSocketError
 };
 typedef enum AsyncUdpSocketError AsyncUdpSocketError;
 
-@interface TI_AsyncUdpSocket : NSObject
+@interface AsyncUdpSocket : NSObject
 {
 	CFSocketRef theSocket4;            // IPv4 socket
 	CFSocketRef theSocket6;            // IPv6 socket
@@ -40,11 +59,11 @@ typedef enum AsyncUdpSocketError AsyncUdpSocketError;
 	NSArray *theRunLoopModes;
 	
 	NSMutableArray *theSendQueue;
-	TI_AsyncSendPacket *theCurrentSend;
+	AsyncSendPacket *theCurrentSend;
 	NSTimer *theSendTimer;
 	
 	NSMutableArray *theReceiveQueue;
-	TI_AsyncReceivePacket *theCurrentReceive;
+	AsyncReceivePacket *theCurrentReceive;
 	NSTimer *theReceiveTimer;
 	
 	id theDelegate;
@@ -313,13 +332,11 @@ typedef enum AsyncUdpSocketError AsyncUdpSocketError;
 
 @end
 
-@compatibility_alias AsyncUdpSocket TI_AsyncUdpSocket;
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 #pragma mark -
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-@protocol TI_AsyncUdpSocketDelegate
+@protocol AsyncUdpSocketDelegate
 @optional
 
 /**
