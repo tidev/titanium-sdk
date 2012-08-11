@@ -851,7 +851,7 @@ methods:
         summary: Row index to select.
         type: Number
     platforms: [iphone, ipad, android]
-    since : {iphone:"1.8.2", ipad:"1.8.2", android:"2.2"}
+    since: {iphone: "1.8.2", ipad: "1.8.2", android: "2.2"}
     
   - name: setData
     summary: Sets the data in the table.
