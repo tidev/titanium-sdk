@@ -149,4 +149,23 @@
 #define ASIDataCompressor __TI_NS_SYMBOL(ASIDataCompressor)
 #endif
 
+// AudioStreamerCUR
+#ifndef AudioStreamerCUR
+#define AudioStreamerCUR __TI_NS_SYMBOL(AudioStreamerCUR)
+#endif
+
+// AudioStreamer
+#ifndef ASStatusChangedNotification
+#define ASStatusChangedNotification __TI_NS_SYMBOL(ASStatusChangedNotification)
+#endif
+#ifndef AudioStreamerDelegate
+#define AudioStreamerDelegate __TI_NS_SYMBOL(AudioStreamerDelegate)
+#endif
+#ifndef AudioStreamerProtocol
+#define AudioStreamerProtocol __TI_NS_SYMBOL(AudioStreamerProtocol)
+#endif
+#ifndef AudioStreamer
+#define AudioStreamer __TI_NS_SYMBOL(AudioStreamer)
+#endif
+
 #endif
