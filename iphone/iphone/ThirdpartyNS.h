@@ -68,27 +68,18 @@
 #define MGSplitView __TI_NS_SYMBOL(MGSplitView)
 #endif
 
-//
-#ifndef AsyncSendPacket
-#define AsyncSendPacket __TI_NS_SYMBOL(AsyncSendPacket)
+// Reachalility
+#ifndef kInternetConnection
+#define kInternetConnection __TI_NS_SYMBOL(kInternetConnection)
 #endif
-#ifndef AsyncSendPacket
-#define AsyncSendPacket __TI_NS_SYMBOL(AsyncSendPacket)
+#ifndef kLocalWiFiConnection
+#define kLocalWiFiConnection __TI_NS_SYMBOL(kLocalWiFiConnection)
 #endif
-#ifndef AsyncSendPacket
-#define AsyncSendPacket __TI_NS_SYMBOL(AsyncSendPacket)
+#ifndef kReachabilityChangedNotification
+#define kReachabilityChangedNotification __TI_NS_SYMBOL(kReachabilityChangedNotification)
 #endif
-#ifndef AsyncSendPacket
-#define AsyncSendPacket __TI_NS_SYMBOL(AsyncSendPacket)
-#endif
-#ifndef AsyncSendPacket
-#define AsyncSendPacket __TI_NS_SYMBOL(AsyncSendPacket)
-#endif
-#ifndef AsyncSendPacket
-#define AsyncSendPacket __TI_NS_SYMBOL(AsyncSendPacket)
-#endif
-#ifndef AsyncSendPacket
-#define AsyncSendPacket __TI_NS_SYMBOL(AsyncSendPacket)
+#ifndef Reachability
+#define Reachability __TI_NS_SYMBOL(Reachability)
 #endif
 
 #endif
