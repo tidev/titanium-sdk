@@ -215,4 +215,45 @@
 #define SBJSON __TI_NS_SYMBOL(SBJSON)
 #endif
 
+// PlausibleDatabase
+#ifndef PlausibleDatabase
+#define PlausibleDatabase __TI_NS_SYMBOL(PlausibleDatabase)
+#endif
+#ifndef PLDatabaseException
+#define PLDatabaseException __TI_NS_SYMBOL(PLDatabaseException)
+#endif
+#ifndef PLDatabaseErrorDomain
+#define PLDatabaseErrorDomain __TI_NS_SYMBOL(PLDatabaseErrorDomain)
+#endif
+#ifndef PLDatabaseErrorQueryStringKey
+#define PLDatabaseErrorQueryStringKey __TI_NS_SYMBOL(PLDatabaseErrorQueryStringKey)
+#endif
+#ifndef PLDatabaseErrorVendorErrorKey
+#define PLDatabaseErrorVendorErrorKey __TI_NS_SYMBOL(PLDatabaseErrorVendorErrorKey)
+#endif
+#ifndef PLDatabaseErrorVendorStringKey
+#define PLDatabaseErrorVendorStringKey __TI_NS_SYMBOL(PLDatabaseErrorVendorStringKey)
+#endif
+#ifndef PLDatabase
+#define PLDatabase __TI_NS_SYMBOL(PLDatabase)
+#endif
+#ifndef PLPreparedStatement
+#define PLPreparedStatement __TI_NS_SYMBOL(PLPreparedStatement)
+#endif
+#ifndef PLResultSet
+#define PLResultSet __TI_NS_SYMBOL(PLResultSet)
+#endif
+#ifndef PLSqliteException
+#define PLSqliteException __TI_NS_SYMBOL(PLSqliteException)
+#endif
+#ifndef PLSqliteDatabase
+#define PLSqliteDatabase __TI_NS_SYMBOL(PLSqliteDatabase)
+#endif
+#ifndef PLSqlitePreparedStatement
+#define PLSqlitePreparedStatement __TI_NS_SYMBOL(PLSqlitePreparedStatement)
+#endif
+#ifndef PLSqliteResultSet
+#define PLSqliteResultSet __TI_NS_SYMBOL(PLSqliteResultSet)
+#endif
+
 #endif
