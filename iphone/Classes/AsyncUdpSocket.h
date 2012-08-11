@@ -10,25 +10,6 @@
 
 #import <Foundation/Foundation.h>
 
-#ifndef AsyncSendPacket
-#define AsyncSendPacket __TI_NS_SYMBOL(AsyncSendPacket)
-#endif
-#ifndef AsyncReceivePacket
-#define AsyncReceivePacket __TI_NS_SYMBOL(AsyncReceivePacket)
-#endif
-#ifndef AsyncUdpSocketException
-#define AsyncUdpSocketException __TI_NS_SYMBOL(AsyncUdpSocketException)
-#endif
-#ifndef AsyncUdpSocketErrorDomain
-#define AsyncUdpSocketErrorDomain __TI_NS_SYMBOL(AsyncUdpSocketErrorDomain)
-#endif
-#ifndef AsyncUdpSocket
-#define AsyncUdpSocket __TI_NS_SYMBOL(AsyncUdpSocket)
-#endif
-#ifndef AsyncUdpSocketDelegate
-#define AsyncUdpSocketDelegate __TI_NS_SYMBOL(AsyncUdpSocketDelegate)
-#endif
-
 @class AsyncSendPacket;
 @class AsyncReceivePacket;
 

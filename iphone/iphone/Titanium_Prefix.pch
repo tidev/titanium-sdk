@@ -26,3 +26,5 @@
 #define __TI_NS_BRIDGE(ns, symbol) __TI_NS_REWRITE(ns, symbol)
 #define __TI_NS_SYMBOL(symbol) __TI_NS_BRIDGE(__TI_NAMESPACE_PREFIX_, symbol)
 #endif
+
+#include "ThirdpartyNS.h"

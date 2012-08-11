@@ -10,28 +10,6 @@
 
 #import <Foundation/Foundation.h>
 
-#ifndef AsyncSocket
-#define AsyncSocket __TI_NS_SYMBOL(AsyncSocket)
-#endif
-#ifndef AsyncReadPacket
-#define AsyncReadPacket __TI_NS_SYMBOL(AsyncReadPacket)
-#endif
-#ifndef AsyncWritePacket
-#define AsyncWritePacket __TI_NS_SYMBOL(AsyncWritePacket)
-#endif
-#ifndef AsyncSocketException
-#define AsyncSocketException __TI_NS_SYMBOL(AsyncSocketException)
-#endif
-#ifndef AsyncSocketErrorDomain
-#define AsyncSocketErrorDomain __TI_NS_SYMBOL(AsyncSocketErrorDomain)
-#endif
-#ifndef AsyncSocketDelegate
-#define AsyncSocketDelegate __TI_NS_SYMBOL(AsyncSocketDelegate)
-#endif
-#ifndef AsyncSpecialPacket
-#define AsyncSpecialPacket __TI_NS_SYMBOL(AsyncSpecialPacket)
-#endif
-
 @class AsyncSocket;
 @class AsyncReadPacket;
 @class AsyncWritePacket;
