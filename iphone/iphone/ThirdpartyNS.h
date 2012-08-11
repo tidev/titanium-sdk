@@ -168,4 +168,51 @@
 #define AudioStreamer __TI_NS_SYMBOL(AudioStreamer)
 #endif
 
+// AQRecorder
+#ifndef AQRecorder
+#define AQRecorder __TI_NS_SYMBOL(AQRecorder)
+#endif
+
+// SCListener
+#ifndef SCListener
+#define SCListener __TI_NS_SYMBOL(SCListener)
+#endif
+
+// CAStreamBasicDescription
+#ifndef CAStreamBasicDescription
+#define CAStreamBasicDescription __TI_NS_SYMBOL(CAStreamBasicDescription)
+#endif
+
+// CAXException
+#ifndef CAX4CCString
+#define CAX4CCString __TI_NS_SYMBOL(CAX4CCString)
+#endif
+#ifndef CAXException
+#define CAXException __TI_NS_SYMBOL(CAXException)
+#endif
+
+// Base64Transcoder
+#ifndef EstimateBas64EncodedDataSize
+#define EstimateBas64EncodedDataSize __TI_NS_SYMBOL(EstimateBas64EncodedDataSize)
+#endif
+#ifndef EstimateBas64DecodedDataSize
+// libtiverify dependency
+//#define EstimateBas64DecodedDataSize __TI_NS_SYMBOL(EstimateBas64DecodedDataSize)
+#endif
+#ifndef Base64EncodeData
+#define Base64EncodeData __TI_NS_SYMBOL(Base64EncodeData)
+#endif
+#ifndef Base64DecodeData
+// libtiverify dependency
+//#define Base64DecodeData __TI_NS_SYMBOL(Base64DecodeData)
+#endif
+
+// SBJSON
+#ifndef SBJSONErrorDomain
+#define SBJSONErrorDomain __TI_NS_SYMBOL(SBJSONErrorDomain)
+#endif
+#ifndef SBJSON
+#define SBJSON __TI_NS_SYMBOL(SBJSON)
+#endif
+
 #endif
