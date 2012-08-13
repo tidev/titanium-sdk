@@ -6,7 +6,7 @@
  */
 #import "TiProxy.h"
 
-#if defined(USE_TI_UIIOS3DMATRIX) || defined(USE_TI_UI3DMATRIX)
+#if defined(USE_TI_UI3DMATRIX)
 
 #import <QuartzCore/QuartzCore.h>
 
