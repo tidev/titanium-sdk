@@ -56,7 +56,7 @@ NSArray* moviePlayerKeys = nil;
 -(NSArray*)keySequence
 {
 	if (moviePlayerKeys == nil) {
-		moviePlayerKeys = [[NSArray alloc] initWithObjects:@"url",@"contentURL",nil];
+		moviePlayerKeys = [[NSArray alloc] initWithObjects:@"url",nil];
 	}
 	return moviePlayerKeys;
 }
@@ -413,17 +413,7 @@ NSArray* moviePlayerKeys = nil;
 
 }
 
--(void)setContentURL:(id)newUrl
-{
-	[self setUrl:newUrl];
-}
-
 -(id)url
-{
-	return url;
-}
-
--(id)contentURL
 {
 	return url;
 }
@@ -740,7 +730,7 @@ NSArray* moviePlayerKeys = nil;
 	if (url == nil)
 	{
 		[self throwException:TiExceptionInvalidType
-				subreason:@"Tried to play movie player without a valid url, media, or contentURL property"
+				subreason:@"Tried to play movie player without a valid url or media property"
 				location:CODELOCATION];
 	}
 	
