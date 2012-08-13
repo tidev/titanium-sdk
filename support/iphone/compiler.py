@@ -91,6 +91,13 @@ def read_module_properties(dir):
 			dict[k]=v
 	return dict
 
+#Convert non-unicode obj to unicode encoded in utf-8.
+def to_unicode_or_not(obj, encoding='utf-8'):
+	if isinstance(obj, basestring):
+		if not isinstance(obj, unicode):
+			obj = unicode(obj, encoding)
+	return obj
+
 # Need to pre-parse xcconfig files to mangle variable names, and then
 # dump them into a map so that we can re-assemble them later
 def parse_xcconfig(xcconfig, moduleId, variables):
@@ -148,8 +155,8 @@ def softlink_resources(source,target,use_ignoreDirs=True):
 	for file in os.listdir(source):
 		if (use_ignoreDirs and (file in ignoreDirs)) or (file in ignoreFiles):
 			continue
-		from_ = os.path.join(source, file)
-		to_ = os.path.join(target, file)
+		from_ = to_unicode_or_not(os.path.join(source, file))
+		to_ = to_unicode_or_not(os.path.join(target, file))
 		if os.path.isdir(from_):
 			print "[DEBUG] creating: %s" % (to_)
 			softlink_resources(from_,to_,False)
@@ -612,13 +619,6 @@ class Compiler(object):
 			year, month, day, hour, minute, second, weekday, yearday, daylight = time.localtime(time.time())
 			print "[DEBUG] (%02d:%02d:%02d) packaging finished" % (hour, minute, second)
 
-		#Convert non-unicode obj to unicode encoded in utf-8.
-		def to_unicode_or_not(obj, encoding='utf-8'):
-			if isinstance(obj, basestring):
-				if not isinstance(obj, unicode):
-					obj = unicode(obj, encoding)
-			return obj
-		
 		def add_compiled_resources(source,target):
 			print "[DEBUG] copy resources from %s to %s" % (source,target)
 			compiled_targets = {}
