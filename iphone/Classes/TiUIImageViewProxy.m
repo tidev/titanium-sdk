@@ -126,10 +126,6 @@ static NSArray* imageKeySequence;
 -(id)toBlob:(id)args
 {
 	id imageValue = [self valueForKey:@"image"];
-	if (imageValue == nil)
-	{
-		imageValue = [self valueForKey:@"url"];
-	}
 
 	if ([imageValue isKindOfClass:[TiBlob class]])
 	{
