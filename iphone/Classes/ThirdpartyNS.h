@@ -8,6 +8,18 @@
 #ifndef Titanium_ThirdpartyNS_h
 #define Titanium_ThirdpartyNS_h
 
+#ifndef __TI_NAMESPACE_PREFIX_
+#define __TI_NAMESPACE_PREFIX_	TI
+#endif
+
+#ifndef __TI_NS_SYMBOL
+// Must have multiple levels of macros so that __TI_NAMESPACE_PREFIX_ is
+// properly replaced by the time the namespace prefix is concatenated.
+#define __TI_NS_REWRITE(ns, symbol) ns ## _ ## symbol
+#define __TI_NS_BRIDGE(ns, symbol) __TI_NS_REWRITE(ns, symbol)
+#define __TI_NS_SYMBOL(symbol) __TI_NS_BRIDGE(__TI_NAMESPACE_PREFIX_, symbol)
+#endif
+
 // AsyncSocket
 #ifndef AsyncSocket
 #define AsyncSocket __TI_NS_SYMBOL(AsyncSocket)
