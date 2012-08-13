@@ -343,15 +343,6 @@ events:
         type: Number
         platforms: [android, mobileweb]
         
-      - name: globalPoint
-        summary: |
-            Coordinates `x` and `y` describing the location of the event in terms of screen 
-            coordinates.
-        type: Dictionary
-        deprecated:
-            since: "1.8.0"
-        platforms: [iphone, ipad]
-        
       - name: size
         summary: |
             Dictionary with `width` and `height` properties containing the size of the visible 
@@ -371,10 +362,12 @@ events:
       - name: x
         summary: X coordinate of the event from the `source` view's coordinate system.
         type: Number
+        platforms: [mobileweb]
         
       - name: y
         summary: Y coordinate of the event from the `source` view's coordinate system.
         type: Number
+        platforms: [mobileweb]
         
   - name: scrollEnd
     summary: fired when the table view stops scrolling
