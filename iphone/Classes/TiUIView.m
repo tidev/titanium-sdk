@@ -13,7 +13,7 @@
 #ifdef USE_TI_UI2DMATRIX	
 	#import "Ti2DMatrix.h"
 #endif
-#if defined(USE_TI_UIIOS3DMATRIX) || defined(USE_TI_UI3DMATRIX)
+#if defined(USE_TI_UI3DMATRIX)
 	#import "Ti3DMatrix.h"
 #endif
 #import "TiViewProxy.h"
@@ -360,7 +360,7 @@ DEFINE_EXCEPTIONS
 		return;
 	}
 #endif
-#if defined(USE_TI_UIIOS3DMATRIX) || defined(USE_TI_UI3DMATRIX)
+#if defined(USE_TI_UI3DMATRIX)
 	if ([transformMatrix isKindOfClass:[Ti3DMatrix class]])
 	{
 		self.layer.transform = CATransform3DConcat(CATransform3DMakeAffineTransform(virtualParentTransform),[(Ti3DMatrix*)transformMatrix matrix]);
