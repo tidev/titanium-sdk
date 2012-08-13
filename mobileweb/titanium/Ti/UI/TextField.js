@@ -107,9 +107,7 @@ define(["Ti/_/declare", "Ti/_/UI/TextBox", "Ti/_/css", "Ti/_/dom", "Ti/_/lang", 
 			clearOnEdit: false,
 
 			hintText: {
-				post: function() {
-					this._updateHint();
-				}
+				post: "_updateHint"
 			},
 
 			keyboardType: keyboardPost,
