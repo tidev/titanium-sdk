@@ -26,9 +26,6 @@
 @property(nonatomic,readonly) NSString* AD_SIZE_LANDSCAPE;
 
 #endif
-#ifdef USE_TI_UIIOS3DMATRIX
--(id)create3DMatrix:(id)args;
-#endif
 #ifdef USE_TI_UIIOSCOVERFLOWVIEW
 -(id)createCoverFlowView:(id)args;
 #endif
