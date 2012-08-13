@@ -35,15 +35,6 @@
 #ifdef USE_TI_UICLIPBOARD
 #import "TiUIClipboardProxy.h"
 #endif
-#ifdef USE_TI_UICOVERFLOWVIEW
-	#import "TiUIiOSCoverFlowViewProxy.h"
-#endif
-#ifdef USE_TI_UITOOLBAR
-	#import "TiUIiOSToolbarProxy.h"
-#endif
-#ifdef USE_TI_UITABBEDBAR
-    #import "TiUIiOSTabbedBarProxy.h"
-#endif
 #import "TiApp.h"
 #import "ImageLoader.h"
 #import "Webcolor.h"
