@@ -99,13 +99,6 @@
 @property(nonatomic,readonly) NSNumber *PICKER_TYPE_TIME;
 @property(nonatomic,readonly) NSNumber *PICKER_TYPE_COUNT_DOWN_TIMER;
 
-@property(nonatomic,readonly) NSNumber *AUTODETECT_NONE;
-@property(nonatomic,readonly) NSNumber *AUTODETECT_ALL;
-@property(nonatomic,readonly) NSNumber *AUTODETECT_PHONE;
-@property(nonatomic,readonly) NSNumber *AUTODETECT_LINK;
-@property(nonatomic,readonly) NSNumber *AUTODETECT_ADDRESS;
-@property(nonatomic,readonly) NSNumber *AUTODETECT_CALENDAR;
-
 @property(nonatomic,readonly) NSNumber *AUTOLINK_NONE;
 @property(nonatomic,readonly) NSNumber *AUTOLINK_ALL;
 @property(nonatomic,readonly) NSNumber *AUTOLINK_PHONE_NUMBERS;
