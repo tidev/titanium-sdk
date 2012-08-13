@@ -910,9 +910,6 @@
 	[eventObject setObject:NUMFLOAT(point.x) forKey:@"x"];
 	[eventObject setObject:NUMFLOAT(point.y) forKey:@"y"];
 
-	CGPoint globalPoint = [thisCell convertPoint:point toView:nil];
-	[eventObject setObject:[TiUtils pointToDictionary:globalPoint] forKey:@"globalPoint"];
-	
     // Hiding the search screen after a search should not be something we do automatically;
     // see the behavior of, say, Contacts. If users want to hide search, they can do so
     // in an event callback.
