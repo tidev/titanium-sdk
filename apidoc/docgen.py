@@ -517,6 +517,10 @@ class AnnotatedMethodParameter(AnnotatedApi):
 		self.parent = annotated_parent
 		self.typestr = "parameter"
 		self.yaml_source_folder = self.parent.yaml_source_folder
+		if "repeatable" in api_obj:
+			self.repeatable = api_obj["repeatable"]
+		else:
+			self.repeatable = None
 
 class AnnotatedProperty(AnnotatedApi):
 	def __init__(self, api_obj, annotated_parent):
