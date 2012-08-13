@@ -1244,18 +1244,6 @@ MAKE_SYSTEM_PROP(VIDEO_FINISH_REASON_USER_EXITED,MPMovieFinishReasonUserExited);
 	return appMusicPlayer;
 }
 
--(void)setDefaultAudioSessionMode:(NSNumber*)mode
-{
-	DebugLog(@"[WARN] Deprecated; use 'audioSessionMode'");
-    [[TiMediaAudioSession sharedSession] setSessionMode:[mode unsignedIntValue]];
-} 
-
--(NSNumber*)defaultAudioSessionMode
-{
-	DebugLog(@"[WARN] Deprecated; use 'audioSessionMode'");	
-    return [NSNumber numberWithUnsignedInt:[[TiMediaAudioSession sharedSession] sessionMode]];
-}
-
 -(void)setAudioSessionMode:(NSNumber*)mode
 {
     [[TiMediaAudioSession sharedSession] setSessionMode:[mode unsignedIntValue]];
