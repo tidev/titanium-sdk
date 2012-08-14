@@ -229,10 +229,12 @@ public class TiLocation implements Handler.Callback
 		AsyncTask<Object, Void, Integer> task = new AsyncTask<Object, Void, Integer>() {
 			@Override
 			protected Integer doInBackground(Object... args) {
+				GeocodeResponseHandler geocodeResponseHandler = null;
+				HashMap<String, Object> event = null;
 				try {
 					String url = (String) args[0];
 					String direction = (String) args[1];
-					GeocodeResponseHandler geocodeResponseHandler = (GeocodeResponseHandler) args[2];
+					geocodeResponseHandler = (GeocodeResponseHandler) args[2];
 
 					if (DBG) {
 						Log.d(TAG, "GEO URL [" + url + "]");
@@ -251,7 +253,6 @@ public class TiLocation implements Handler.Callback
 						Log.i(TAG, "received Geo [" + response + "]");
 					}
 
-					HashMap<String, Object> event = null;
 					if (response != null) {
 						try {
 							JSONObject jsonObject = new JSONObject(response);
@@ -265,11 +266,8 @@ public class TiLocation implements Handler.Callback
 
 							} else {
 								event = new KrollDict();
-								KrollDict errorDict = new KrollDict();
 								String errorCode = jsonObject.getString(TiC.ERROR_PROPERTY_ERRORCODE);
-								errorDict.put(TiC.PROPERTY_MESSAGE, "Unable to resolve message: Code (" + errorCode + ")");
-								errorDict.put(TiC.PROPERTY_CODE, errorCode);
-								event.put(TiC.EVENT_PROPERTY_ERROR, errorDict);
+								event.put(TiC.EVENT_PROPERTY_ERROR, "Unable to resolve message: Code (" + errorCode + ")");
 							}
 
 						} catch (JSONException e) {
@@ -277,12 +275,17 @@ public class TiLocation implements Handler.Callback
 						}
 					}
 
-					if (event != null) {
-						geocodeResponseHandler.handleGeocodeResponse(event);
-					}
-
 				} catch (Throwable t) {
 					Log.e(TAG, "error retrieving geocode information [" + t.getMessage() + "]", t);
+				}
+
+				if (geocodeResponseHandler != null) {
+					if (event == null) {
+						event = new KrollDict();
+						event.put(TiC.PROPERTY_SUCCESS, false);
+						event.put(TiC.EVENT_PROPERTY_ERROR, "Error obtaining geolocation");
+					}
+					geocodeResponseHandler.handleGeocodeResponse(event);
 				}
 
 				return -1;
@@ -302,6 +305,7 @@ public class TiLocation implements Handler.Callback
 			address = buildAddress(places.getJSONObject(0));
 		}
 
+		address.put(TiC.PROPERTY_SUCCESS, true);
 		return address;
 	}
 
