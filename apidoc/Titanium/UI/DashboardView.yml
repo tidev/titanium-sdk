@@ -30,13 +30,6 @@ events:
     description: |
         This event is invoked by the <Titanium.UI.DashboardView.stopEditing> method.
     properties:
-      - name: globalPoint
-        summary: Coordinates `x` and `y` of the event from the `source` view's coordinate system.
-        type: Dictionary
-        platforms: [iphone, ipad]
-        deprecated:
-            since: "1.8.0"
-            
       - name: x
         summary: X coordinate of the event from the `source` view's coordinate system.
         type: Number
@@ -48,13 +41,6 @@ events:
   - name: delete
     summary: Fired when an item is deleted in edit mode.
     properties:
-      - name: globalPoint
-        summary: Coordinates `x` and `y` of the event from the `source` view's coordinate system.
-        type: Dictionary
-        platforms: [iphone, ipad]
-        deprecated:
-            since: "1.8.0"
-            
       - name: item
         summary: Item that was deleted.
         type: Titanium.UI.DashboardItem
@@ -70,13 +56,6 @@ events:
   - name: dragEnd
     summary: Fired when an item finishes being dragged in edit mode.
     properties:
-      - name: globalPoint
-        summary: Coordinates `x` and `y` of the event from the `source` view's coordinate system.
-        type: Dictionary
-        platforms: [iphone, ipad]
-        deprecated:
-            since: "1.8.0"
-            
       - name: item
         summary: Item that was dragged.
         type: Titanium.UI.DashboardItem
@@ -92,13 +71,6 @@ events:
   - name: dragStart
     summary: Fired when an item starts being dragged in edit mode.
     properties:
-      - name: globalPoint
-        summary: Coordinates `x` and `y` of the event from the `source` view's coordinate system.
-        type: Dictionary
-        platforms: [iphone, ipad]
-        deprecated:
-            since: "1.8.0"
-            
       - name: item
         summary: Item that was dragged.
         type: Titanium.UI.DashboardItem
@@ -117,13 +89,6 @@ events:
         This event is invoked by a longpress of a <Titanium.UI.DashboardItem> item or the 
         <Titanium.UI.DashboardView.startEditing> method.
     properties:
-      - name: globalPoint
-        summary: Coordinates `x` and `y` of the event from the `source` view's coordinate system.
-        type: Dictionary
-        platforms: [iphone, ipad]
-        deprecated:
-            since: "1.8.0"
-            
       - name: x
         summary: X coordinate of the event from the `source` view's coordinate system.
         type: Number
@@ -135,13 +100,6 @@ events:
   - name: move
     summary: Fired when an item is moved in edit mode.
     properties:
-      - name: globalPoint
-        summary: Coordinates `x` and `y` of the event from the `source` view's coordinate system.
-        type: Dictionary
-        platforms: [iphone, ipad]
-        deprecated:
-            since: "1.8.0"
-
       - name: item
         summary: Item that was moved.
         type: Titanium.UI.DashboardItem
