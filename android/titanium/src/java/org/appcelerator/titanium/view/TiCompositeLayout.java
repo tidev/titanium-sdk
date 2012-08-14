@@ -283,6 +283,10 @@ public class TiCompositeLayout extends ViewGroup
 		int maxWidth = 0;
 		int maxHeight = 0;
 
+		// Used for horizontal layout with wrap only
+		int horizontalRowWidth = 0;
+		int horizontalRowHeight = 0;
+
 		for(int i = 0; i < childCount; i++) {
 			View child = getChildAt(i);
 			if (child.getVisibility() != View.GONE) {
@@ -297,16 +301,38 @@ public class TiCompositeLayout extends ViewGroup
 			}
 
 			if (isHorizontalArrangement()) {
-				maxWidth += childWidth;
+				if(enableHorizontalWrap) {
+					//Make maxWidth the width of the view and calculate the maxHeight based on the horizontal rows with wrap
+					maxWidth = w;
+
+					if ((horizontalRowWidth + childWidth) > w) {
+						horizontalRowWidth = childWidth;
+						maxHeight += horizontalRowHeight;
+						horizontalRowHeight = childHeight;
+
+					} else {
+						horizontalRowWidth += childWidth;
+					}
+					horizontalRowHeight = Math.max(horizontalRowHeight, childHeight);
+
+				} else {
+					// For horizontal layout without wrap, just keep on adding the widths since it doesn't wrap
+					maxWidth += childWidth;
+				}
 			} else {
 				maxWidth = Math.max(maxWidth, childWidth);
-			}
 
-			if (isVerticalArrangement()) {
-				maxHeight += childHeight;
-			} else {
-				maxHeight = Math.max(maxHeight, childHeight);
+				if(isVerticalArrangement()) {
+					maxHeight += childHeight;
+				} else {
+					maxHeight = Math.max(maxHeight, childHeight);
+				}
 			}
+		}
+
+		// Add height for last row in horizontal layout
+		if (isHorizontalArrangement() && enableHorizontalWrap) {
+			maxHeight += horizontalRowHeight;
 		}
 
 		// account for padding
@@ -521,7 +547,13 @@ public class TiCompositeLayout extends ViewGroup
 
 					computePosition(this, params.optionLeft, params.optionCenterX, params.optionRight, childMeasuredWidth, left, right, horizontal);
 					if (isVerticalArrangement()) {
-						computeVerticalLayoutPosition(currentHeight, params.optionTop, params.optionBottom, childMeasuredHeight, top, bottom, vertical, bottom);
+						computeVerticalLayoutPosition(currentHeight, params.optionTop, childMeasuredHeight, top, vertical,
+							bottom);
+						// Include bottom in height calculation for vertical layout (used as padding)
+						TiDimension optionBottom = params.optionBottom;
+						if (optionBottom != null) {
+							currentHeight += optionBottom.getAsPixels(this);
+						}
 					} else {
 						computePosition(this, params.optionTop, params.optionCenterY, params.optionBottom, childMeasuredHeight, top, bottom, vertical);
 					}
@@ -669,8 +701,8 @@ public class TiCompositeLayout extends ViewGroup
 		}
 	}
 
-	private void computeVerticalLayoutPosition(int currentHeight,
-		TiDimension optionTop, TiDimension optionBottom, int measuredHeight, int layoutTop, int layoutBottom, int[] pos, int maxBottom)
+	private void computeVerticalLayoutPosition(int currentHeight, TiDimension optionTop, int measuredHeight, int layoutTop,
+		int[] pos, int maxBottom)
 	{
 		int top = layoutTop + currentHeight;
 		if (optionTop != null) {
