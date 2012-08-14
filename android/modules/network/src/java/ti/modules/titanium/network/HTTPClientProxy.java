@@ -23,7 +23,7 @@ public class HTTPClientProxy extends KrollProxy
 	@Kroll.constant public static final int LOADING = TiHTTPClient.READY_STATE_LOADING;
 	@Kroll.constant public static final int DONE = TiHTTPClient.READY_STATE_DONE;
 
-	private TiHTTPClient client;
+	protected TiHTTPClient client;
 
 	public HTTPClientProxy()
 	{
