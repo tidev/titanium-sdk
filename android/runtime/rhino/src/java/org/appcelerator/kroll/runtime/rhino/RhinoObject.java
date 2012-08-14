@@ -45,7 +45,7 @@ public class RhinoObject extends KrollObject
 			return TypeConverter.jsObjectToJavaObject(returnValue, proxy);
 
 		} catch (Exception e) {
-			Log.d(TAG, "Exception thrown while calling JS function: " + e, Log.DEBUG_MODE);
+			Log.d(TAG, "Exception thrown while calling JS function: " + e);
 
 		} finally {
 			Context.exit();
