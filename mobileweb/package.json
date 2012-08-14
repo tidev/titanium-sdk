@@ -20,7 +20,6 @@
 		"url": "git://github.com/appcelerator/titanium-mobileweb.git"
 	},
 	"dependencies": {
-		"colors": "0.6.x"
 	},
 	"license": "Apache Public License v2",
 	"directories": {

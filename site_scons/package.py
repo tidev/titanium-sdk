@@ -59,12 +59,13 @@ def generate_jsca():
 	 finally:
 		 jsca_temp_file.close()
 
-def zip_dir(zf,dir,basepath,subs=None,cb=None):
+def zip_dir(zf,dir,basepath,subs=None,cb=None, ignore_paths=None):
 	for root, dirs, files in os.walk(dir):
 		for name in ignoreDirs:
 			if name in dirs:
 				dirs.remove(name)	# don't visit ignored directories
 		for file in files:
+			if ignore_paths != None and os.path.join(root, file) in ignore_paths: continue
 			e = os.path.splitext(file)
 			if len(e)==2 and e[1] in ignoreExtensions: continue
 			from_ = os.path.join(root, file)
@@ -285,31 +286,7 @@ def zip_iphone_ipad(zf,basepath,platform,version,version_tag):
 	
 def zip_mobileweb(zf,basepath,version):
 	dir = os.path.join(top_dir, 'mobileweb')
-	package_json_file = os.path.join(dir, 'package.json')
-	
-	# package.json should always exist
-	if os.path.exists(package_json_file):
-		package_json_original = codecs.open(package_json_file, 'r', 'utf-8').read()
-		package_json_contents = package_json_original
-		
-		subs = {
-			"__VERSION__":version,
-			"__TIMESTAMP__":ts,
-			"__GITHASH__": githash
-		}
-		for key in subs:
-			package_json_contents = package_json_contents.replace(key, subs[key])
-		codecs.open(package_json_file, 'w', 'utf-8').write(package_json_contents)
-		
-		# need to npm install all node dependencies
-		print 'Calling npm from %s' % dir
-		p = subprocess.Popen('npm install', shell=True, cwd=dir, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-		stdout, stderr = p.communicate()
-		if p.returncode != 0:
-			print '[ERROR] failed to npm install Mobile Web\'s dependencies'
-			print stdout
-			print stderr
-			sys.exit(1)
+	finalize = resolve_npm_deps(dir, version)
 	
 	# for speed, mobileweb has its own zip logic
 	for root, dirs, files in os.walk(dir):
@@ -323,9 +300,34 @@ def zip_mobileweb(zf,basepath,version):
 			to_ = from_.replace(dir, os.path.join(basepath,'mobileweb'), 1)
 			zf.write(from_, to_)
 	
+	finalize()
+
+def resolve_npm_deps(dir, version):
+	package_json_file = os.path.join(dir, 'package.json')
 	if os.path.exists(package_json_file):
-		# restore the original contents
-		codecs.open(package_json_file, 'w', 'utf-8').write(package_json_original)
+		package_json_original = codecs.open(package_json_file, 'r', 'utf-8').read()
+		package_json_contents = package_json_original
+		
+		subs = {
+			"__VERSION__": version,
+			"__TIMESTAMP__": ts,
+			"__GITHASH__": githash
+		}
+		for key in subs:
+			package_json_contents = package_json_contents.replace(key, subs[key])
+		codecs.open(package_json_file, 'w', 'utf-8').write(package_json_contents)
+		
+		# need to npm install all node dependencies
+		print 'Calling npm from %s' % dir
+		p = subprocess.Popen('npm install', shell=True, cwd=dir, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+		stdout, stderr = p.communicate()
+		if p.returncode != 0:
+			print '[ERROR] Failed to npm install dependencies: %s' % dir
+			print stdout
+			print stderr
+			sys.exit(1)
+		
+	return lambda: None if not os.path.exists(package_json_file) else codecs.open(package_json_file, 'w', 'utf-8').write(package_json_original)
 
 def create_platform_zip(platform,dist_dir,osname,version,version_tag):
 	if not os.path.exists(dist_dir):
@@ -354,13 +356,17 @@ githash=%s
 }''' % (version, module_apiversion, ts, githash)
 	zf.writestr('%s/manifest.json' % basepath, manifest_json)
 	
+	# get all SDK level npm dependencies
+	resolve_npm_deps(template_dir, version)()
+	
+	# check if we should build the content assist file
 	if build_jsca:
 		jsca = generate_jsca()
 		zf.writestr('%s/api.jsca' % basepath, jsca)
 	
 	zip_packaged_modules(zf, os.path.join(template_dir, "module", "packaged"))
-	zip_dir(zf,all_dir,basepath)
-	zip_dir(zf,template_dir,basepath)
+	zip_dir(zf, all_dir, basepath)
+	zip_dir(zf, template_dir, basepath, ignore_paths=[os.path.join(template_dir, 'package.json')]) # ignore the dependency package.json
 	if android: zip_android(zf,basepath)
 	if (iphone or ipad) and osname == "osx": zip_iphone_ipad(zf,basepath,'iphone',version,version_tag)
 	if mobileweb: zip_mobileweb(zf,basepath,version)

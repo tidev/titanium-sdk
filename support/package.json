@@ -1,0 +1,12 @@
+{
+	"name": "titanium-mobile-deps",
+	"description": "Appcelerator Titanium Mobile dependencies - this file is omitted from distribution",
+	"version": "__VERSION__",
+	"dependencies": {
+		"colors": "0.6.x",
+		"node-appc": "git://github.com/appcelerator/node-appc.git"
+	},
+	"engines": {
+		"node": ">= 0.8.2"
+	}
+}
