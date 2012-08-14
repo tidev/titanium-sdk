@@ -42,11 +42,6 @@
 }
 
 
-@interface TiMediaVideoPlayerProxy ()
-@property(nonatomic,readwrite,copy)	NSNumber*	movieControlStyle;
-@property(nonatomic,readwrite,copy)	NSNumber*	mediaControlStyle;
-@end
-
 NSArray* moviePlayerKeys = nil;
 
 @implementation TiMediaVideoPlayerProxy

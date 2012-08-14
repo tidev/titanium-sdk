@@ -19,12 +19,6 @@
 {
 	volume = [TiUtils doubleValue:@"volume" properties:properties def:1.0];
 	url = [[TiUtils toURL:[properties objectForKey:@"url"] proxy:self] retain];
-    int initialMode = [TiUtils intValue:@"audioSessionMode" 
-                             properties:properties
-                                    def:0];
-	if (initialMode) {
-		[self setAudioSessionMode:[NSNumber numberWithInt:initialMode]];
-	}
 }
 
 -(void)_destroy
