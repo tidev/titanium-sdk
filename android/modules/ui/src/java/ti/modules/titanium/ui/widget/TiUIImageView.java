@@ -74,6 +74,7 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 	private int token;
 	private boolean firedLoad;
 	private ImageViewProxy imageViewProxy;
+	private int currentDuration;
 
 	private TiDimension requestedWidth;
 	private TiDimension requestedHeight;
@@ -526,12 +527,13 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 
 		public void run()
 		{
+			boolean waitOnResume = false;
 			try {
-
 				if (paused) {
 					synchronized (this) {
 						KrollDict data = new KrollDict();
 						proxy.fireEvent(TiC.EVENT_PAUSE, data);
+						waitOnResume = true;
 						wait();
 					}
 				}
@@ -540,6 +542,15 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 				Log.d(TAG, "set image: " + b.index, Log.DEBUG_MODE);
 				setImage(b.bitmap);
 				fireChange(b.index);
+
+				// When the animation is paused, the timer will pause in the middle of a period.
+				// When the animation resumes, the timer resumes from where it left off. As a result, it will look like
+				// one frame is left out when resumed (TIMOB-10207).
+				// To avoid this, we force the thread to wait for one period on resume.
+				if (waitOnResume) {
+					Thread.sleep(currentDuration);
+					waitOnResume = false;
+				}
 			} catch (InterruptedException e) {
 				Log.e(TAG, "Loader interrupted");
 			}
@@ -573,11 +584,11 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 				loaderThread.start();
 			}
 
-			int duration = (int) getDuration();
+			currentDuration = (int) getDuration();
 
 			animating.set(true);
 			fireStart();
-			timer.schedule(animator, duration, duration);
+			timer.schedule(animator, currentDuration, currentDuration);
 		} else {
 			resume();
 		}

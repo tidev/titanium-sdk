@@ -866,9 +866,9 @@ public abstract class TiApplication extends Application implements Handler.Callb
 		TiFileHelper.getInstance().destroyTempFiles();
 	}
 
-	public void cancelTimers(Thread thread)
+	public void cancelTimers()
 	{
-		TitaniumModule.cancelTimers(thread);
+		TitaniumModule.cancelTimers();
 	}
 
 	/**

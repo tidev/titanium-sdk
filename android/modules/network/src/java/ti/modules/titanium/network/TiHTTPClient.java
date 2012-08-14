@@ -78,7 +78,6 @@ import org.apache.http.protocol.HTTP;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.util.EntityUtils;
 import org.appcelerator.kroll.KrollDict;
-import org.appcelerator.kroll.KrollFunction;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.util.TiTempFileHelper;
@@ -102,11 +101,6 @@ public class TiHTTPClient
 	private static final int DEFAULT_MAX_BUFFER_SIZE = 512 * 1024;
 	private static final String PROPERTY_MAX_BUFFER_SIZE = "ti.android.httpclient.maxbuffersize";
 	private static final int PROTOCOL_DEFAULT_PORT = -1;
-	private static final String ON_READY_STATE_CHANGE = "onreadystatechange";
-	private static final String ON_LOAD = "onload";
-	private static final String ON_ERROR = "onerror";
-	private static final String ON_DATA_STREAM = "ondatastream";
-	private static final String ON_SEND_STREAM = "onsendstream";
 
 	private static final String[] FALLBACK_CHARSETS = {HTTP.UTF_8, HTTP.ISO_8859_1};
 
@@ -332,22 +326,20 @@ public class TiHTTPClient
 			}
 			
 			responseOut.write(data, 0, size);
-			KrollFunction onDataStreamCallback = getCallback(ON_DATA_STREAM);
-			if (onDataStreamCallback != null) {
-				KrollDict o = new KrollDict();
-				o.put("totalCount", contentLength);
-				o.put("totalSize", totalSize);
-				o.put("size", size);
-				
-				byte[] blobData = new byte[size];
-				System.arraycopy(data, 0, blobData, 0, size);
 
-				TiBlob blob = TiBlob.blobFromData(blobData, contentType);
-				o.put("blob", blob);
-				o.put("progress", ((double)totalSize)/((double)contentLength));
+			KrollDict callbackData = new KrollDict();
+			callbackData.put("totalCount", contentLength);
+			callbackData.put("totalSize", totalSize);
+			callbackData.put("size", size);
 
-				onDataStreamCallback.callAsync(proxy.getKrollObject(), o);
-			}
+			byte[] blobData = new byte[size];
+			System.arraycopy(data, 0, blobData, 0, size);
+
+			TiBlob blob = TiBlob.blobFromData(blobData, contentType);
+			callbackData.put("blob", blob);
+			callbackData.put("progress", ((double)totalSize)/((double)contentLength));
+
+			dispatchCallback("ondatastream", callbackData);
 		}
 		
 		private void finishedReceivingEntityData(long contentLength) throws IOException
@@ -485,40 +477,6 @@ public class TiHTTPClient
 		return readyState;
 	}
 
-	public KrollFunction getCallback(String name)
-	{
-		Object value = proxy.getProperty(name);
-		if (value != null && value instanceof KrollFunction)
-		{
-			return (KrollFunction) value;
-		}
-		return null;
-	}
-
-	public void fireCallback(String name)
-	{
-		KrollDict eventProperties = new KrollDict();
-		eventProperties.put("source", proxy);
-
-		fireCallback(name, new Object [] {eventProperties});
-	}
-
-	public void fireCallback(String name, Object[] args)
-	{
-		KrollFunction cb = getCallback(name);
-		if (cb != null)
-		{
-			// TODO - implement converter method for array to hashmap?
-			cb.callAsync(proxy.getKrollObject(), args);
-		} else {
-			// It's particularly interesting if an error wants to be reported
-			// but no one is listening, so log that.
-			if (ON_ERROR.equals(name)) {
-				Log.w(TAG, "No onerror callback specified; it would be called if it were.", Log.DEBUG_MODE);
-			}
-		}
-	}
-
 	public boolean validatesSecureCertificate()
 	{
 		if (proxy.hasProperty("validatesSecureCertificate")) {
@@ -538,20 +496,11 @@ public class TiHTTPClient
 		Log.d(TAG, "Setting ready state to " + readyState, Log.DEBUG_MODE);
 		this.readyState = readyState;
 
-		fireCallback(ON_READY_STATE_CHANGE);
-		if (readyState == READY_STATE_DONE) {
-			// Fire onload callback
-			fireCallback(ON_LOAD);
-		}
-	}
+		dispatchCallback("onreadystatechanged", null);
 
-	public void sendError(String error)
-	{
-		Log.i(TAG, "Sending error " + error);
-		KrollDict event = new KrollDict();
-		event.put("error", error);
-		event.put("source", proxy);
-		fireCallback(ON_ERROR, new Object[] {event});
+		if (readyState == READY_STATE_DONE) {
+			dispatchCallback("onload", null);
+		}
 	}
 
 	private String decodeResponseData(String charsetName) {
@@ -752,7 +701,7 @@ public class TiHTTPClient
 
 	public void clearCookies(String url)
 	{
-		List<Cookie> cookies = new ArrayList(client.getCookieStore().getCookies());
+		List<Cookie> cookies = new ArrayList<Cookie>(client.getCookieStore().getCookies());
 		client.getCookieStore().clear();
 		String lower_url = url.toLowerCase();
 
@@ -818,7 +767,8 @@ public class TiHTTPClient
 		// if the url is not prepended with either http or 
 		// https, then default to http and prepend the protocol
 		// to the url
-		if (!url.startsWith("http://") && !url.startsWith("https://")) {
+		String lowerCaseUrl = url.toLowerCase();
+		if (!lowerCaseUrl.startsWith("http://") && !lowerCaseUrl.startsWith("https://")) {
 			url = "http://" + url;
 		}
 
@@ -920,6 +870,16 @@ public class TiHTTPClient
 		} catch (UnsupportedEncodingException e) {
 			nvPairs.add(new BasicNameValuePair(name, value.toString()));
 		}
+	}
+
+	private void dispatchCallback(String name, KrollDict data) {
+		if (data == null) {
+			data = new KrollDict();
+		}
+
+		data.put("source", proxy);
+
+		proxy.callPropertyAsync(name, new Object[] { data });
 	}
 
 	private int addTitaniumFileAsPostData(String name, Object value)
@@ -1040,7 +1000,7 @@ public class TiHTTPClient
 		aborted = false;
 
 		// TODO consider using task manager
-		double totalLength = 0;
+		int totalLength = 0;
 		needMultipart = false;
 		
 		if (userData != null)
@@ -1127,9 +1087,9 @@ public class TiHTTPClient
 	
 	private class ClientRunnable implements Runnable
 	{
-		private double totalLength;
+		private final int totalLength;
 
-		public ClientRunnable(double totalLength)
+		public ClientRunnable(int totalLength)
 		{
 			this.totalLength = totalLength;
 		}
@@ -1190,13 +1150,9 @@ public class TiHTTPClient
 
 						ProgressEntity progressEntity = new ProgressEntity(mpe, new ProgressListener() {
 							public void progress(int progress) {
-								KrollFunction cb = getCallback(ON_SEND_STREAM);
-								if (cb != null) {
-									KrollDict data = new KrollDict();
-									data.put("progress", ((double)progress)/totalLength);
-									data.put("source", proxy);
-									cb.callAsync(proxy.getKrollObject(), data);
-								}
+								KrollDict data = new KrollDict();
+								data.put("progress", ((double)progress)/totalLength);
+								dispatchCallback("onsendstream", data);
 							}
 						});
 						e.setEntity(progressEntity);
@@ -1257,7 +1213,10 @@ public class TiHTTPClient
 					msg = t.getClass().getName();
 				}
 				Log.e(TAG, "HTTP Error (" + t.getClass().getName() + "): " + msg, t);
-				sendError(msg);
+
+				KrollDict data = new KrollDict();
+				data.put("error", msg);
+				dispatchCallback("onerror", data);
 			}
 
 			deleteTmpFiles();

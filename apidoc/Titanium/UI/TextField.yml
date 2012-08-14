@@ -37,7 +37,23 @@ methods:
     description: |
         See also: [add](Titanium.UI.TextField.add), <Titanium.UI.View.add>.
     platforms: [iphone, ipad]
-
+    
+  - name: setSelection
+    summary: Selects the text in range (start, end).
+    platforms: [android]
+    since: 2.2.0
+    parameters:
+      - name: start
+        summary: Start index for selection. Value ranges from 0 to the text's length.
+        type: Number
+      - name: end
+        summary: End index for selection, not inclusive. Value ranges from 0 to the text's length.
+        type: Number
+    description: |
+         Selects the text in range (start, end). If start equals end, no text will be selected, 
+         and the cursor will move to the start position. End is not inclusive, meaning setSelection(0,0) 
+         will not select the first character, but will move the cursor to the position before the first character.
+         
 properties:
   - name: appearance
     summary: Determines the appearance of the keyboard displayed when this field is focused.

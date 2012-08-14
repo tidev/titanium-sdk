@@ -121,12 +121,20 @@
 	[event setObject:item.userData forKey:@"item"];
 	
 	if ([self.proxy _hasListeners:@"dragStart"])
-	{
+	{	//TODO: Deprecate old event
 		[self.proxy fireEvent:@"dragStart" withObject:event];
 	}
 	if ([item.userData _hasListeners:@"dragStart"])
-	{
+	{	//TODO: Deprecate old event
 		[item.userData fireEvent:@"dragStart" withObject:event];
+	}
+	if ([self.proxy _hasListeners:@"dragstart"])
+	{
+		[self.proxy fireEvent:@"dragstart" withObject:event];
+	}
+	if ([item.userData _hasListeners:@"dragstart"])
+	{
+		[item.userData fireEvent:@"dragstart" withObject:event];
 	}
 }
 
@@ -137,12 +145,20 @@
 	[event setObject:item.userData forKey:@"item"];
 	
 	if ([self.proxy _hasListeners:@"dragEnd"])
-	{
+	{	//TODO: Deprecate old event
 		[self.proxy fireEvent:@"dragEnd" withObject:event];
 	}
 	if ([item.userData _hasListeners:@"dragEnd"])
-	{
+	{	//TODO: Deprecate old event
 		[item.userData fireEvent:@"dragEnd" withObject:event];
+	}
+	if ([self.proxy _hasListeners:@"dragend"])
+	{
+		[self.proxy fireEvent:@"dragend" withObject:event];
+	}
+	if ([item.userData _hasListeners:@"dragend"])
+	{
+		[item.userData fireEvent:@"dragend" withObject:event];
 	}
 }
 

@@ -1065,9 +1065,7 @@ DEFINE_EXCEPTIONS
 			if (touchDelegate == nil) {
 				[proxy fireEvent:@"click" withObject:evt propagate:YES];
 				return;
-			} else {
-				[touchDelegate touchesBegan:touches withEvent:event];
-			}
+			} 
 		} else if ([touch tapCount] == 2 && [proxy _hasListeners:@"dblclick"]) {
 			[proxy fireEvent:@"dblclick" withObject:evt propagate:YES];
 			return;
@@ -1095,11 +1093,6 @@ DEFINE_EXCEPTIONS
 			[proxy fireEvent:@"touchmove" withObject:evt propagate:YES];
 		}
 	}
-	
-	if (touchDelegate!=nil)
-	{
-		[touchDelegate touchesMoved:touches withEvent:event];
-	}
 }
 
 - (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event 
@@ -1123,11 +1116,6 @@ DEFINE_EXCEPTIONS
 			[self handleControlEvents:UIControlEventTouchCancel];
 		}
 	}
-	
-	if (touchDelegate!=nil)
-	{
-		[touchDelegate touchesEnded:touches withEvent:event];
-	}
 }
 
 - (void)touchesCancelled:(NSSet *)touches withEvent:(UIEvent *)event 
@@ -1149,11 +1137,6 @@ DEFINE_EXCEPTIONS
 		{
 			[proxy fireEvent:@"touchcancel" withObject:evt propagate:YES];
 		}
-	}
-	
-	if (touchDelegate!=nil)
-	{
-		[touchDelegate touchesCancelled:touches withEvent:event];
 	}
 }
 

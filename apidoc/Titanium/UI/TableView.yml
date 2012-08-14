@@ -617,6 +617,28 @@ methods:
         summary: Animation properties. (iOS only.)
         type: TableViewAnimationProperties
         optional: true
+        
+  - name: appendSection
+    summary: Appends one or more sections to the table.
+    description: |
+        Appends a single section or an array of sections to the end of the table.
+        
+        Each row can be passed as a [TableViewSection](Titanium.UI.TableViewSection) object, or as 
+        dictionary specifying the properties for a table section, in which case this `TableView` will 
+        create `TableViewSection` objects as needed. 
+        
+        On iOS, the row(s) can be inserted with animation by specifying a `properties` parameter.
+    parameters:
+      - name: section
+        summary: Section or section to add to the table.
+        type: [Titanium.UI.TableViewSection, Dictionary<Titanium.UI.TableViewSection>, Array<Titanium.UI.TableViewSection>, Array<Dictionary<Titanium.UI.TableViewSection>>]
+        
+      - name: animation
+        summary: Animation properties. (iOS only.)
+        type: TableViewAnimationProperties
+        optional: true
+    since: 2.2.0
+    platforms: [mobileweb]
     
   - name: deleteRow
     summary: Deletes an existing row.
@@ -631,6 +653,22 @@ methods:
         summary: Animation properties. (iOS only.)
         type: TableViewAnimationProperties
         optional: true
+    
+  - name: deleteSection
+    summary: Deletes an existing section.
+    description: |
+        On iOS, the section can be deleted with animation by specifying a `properties` parameter.
+    parameters:
+      - name: section
+        summary: Index of the section to delete.
+        type: Number
+        
+      - name: animation
+        summary: Animation properties. (iOS only.)
+        type: TableViewAnimationProperties
+        optional: true
+    since: 2.2.0
+    platforms: [mobileweb]
     
   - name: deselectRow
     summary: Programmatically deselects a row.
@@ -661,6 +699,30 @@ methods:
         summary: Animation properties. (iOS only.)
         type: TableViewAnimationProperties
         optional: true
+    
+  - name: insertSectionAfter
+    summary: Inserts a section after another section.
+    description: |
+        Each section can be passed as a [TableViewSection](Titanium.UI.TableViewSection) object, or as 
+        dictionary specifying the properties for a table section, in which case this `TableView` will 
+        create `TableViewSection` objects as needed. 
+        
+        On iOS, the section(s) may be inserted with animation by setting the `animation` parameter.
+    parameters:
+      - name: index
+        summary: Index of the section to insert after.
+        type: Number
+        
+      - name: section
+        summary: section to insert.
+        type: [Titanium.UI.TableViewSection, Dictionary<Titanium.UI.TableViewSection>]
+        
+      - name: animation
+        summary: Animation properties. (iOS only.)
+        type: TableViewAnimationProperties
+        optional: true
+    since: 2.2.0
+    platforms: [mobileweb]
         
   - name: insertRowBefore
     summary: Inserts a row before another row.
@@ -683,6 +745,30 @@ methods:
         summary: Animation properties. (iOS only.)
         type: TableViewAnimationProperties
         optional: true
+        
+  - name: insertSectionBefore
+    summary: Inserts a section before another section.
+    description: |
+        Each section can be passed as a [TableViewSection](Titanium.UI.TableViewSection) object, or as 
+        dictionary specifying the properties for a table section, in which case this `TableViewSection` will 
+        create `TableViewSection` objects as needed. 
+        
+        On iOS, the section(s) may be inserted with animation by setting the `animation` parameter.
+    parameters:
+      - name: index
+        summary: Index of the section to insert before.
+        type: Number
+        
+      - name: section
+        summary: section to insert.
+        type: [Titanium.UI.TableViewSection, Dictionary<Titanium.UI.TableViewSection>]
+        
+      - name: animation
+        summary: Animation properties. (iOS only.)
+        type: TableViewAnimationProperties
+        optional: true
+    since: 2.2.0
+    platforms: [mobileweb]
     
   - name: scrollToIndex
     summary: Scrolls the table view to ensure that the specified row is on screen.
@@ -756,11 +842,16 @@ methods:
     since: "2.1.0"
     
   - name: selectRow
-    summary: Programmatically selects a row.
+    summary: | 
+        Programmatically selects a row. In Android, it sets the currently selected item. If in touch mode,
+        the item will not be selected but it will still be positioned appropriately. If the specified 
+        selection position is less than 0, then the item at position 0 will be selected.
     parameters:
       - name: row
         summary: Row index to select.
         type: Number
+    platforms: [iphone, ipad, android]
+    since: {iphone: "1.8.2", ipad: "1.8.2", android: "2.2"}
     
   - name: setData
     summary: Sets the data in the table.
@@ -803,6 +894,23 @@ methods:
       - name: animation
         summary: Animation properties. (iOS only.)
         type: TableViewAnimationProperties
+
+  - name: updateSection
+    summary: Updates an existing section, optionally with animation
+    parameters:
+      - name: index
+        summary: Index of the section to update.
+        type: Number
+        
+      - name: section
+        summary: section data to update.
+        type: Titanium.UI.TableViewSection
+        
+      - name: animation
+        summary: Animation properties. (iOS only.)
+        type: TableViewAnimationProperties
+    since: 2.2.0
+    platforms: [mobileweb]
 
 properties:
   - name: allowsSelection
@@ -992,6 +1100,19 @@ properties:
     since: 2.1.0
     platforms: [iphone, ipad]
 
+  - name: scrollsToTop
+    summary: Controls whether the scroll-to-top gesture is effective.
+    description: |
+        The scroll-to-top gesture is a tap on the status bar; The default value of this property is true. 
+        This gesture works when you have a single visible table view.
+        If there are multiple table views, web views, text areas, and/or scroll views visible,
+        you will need to disable (set to false) on the above views you DON'T want this
+        behaviour on. The remaining view will then respond to scroll-to-top gesture. 
+    type: Boolean
+    default: true
+    platforms: [iphone,ipad]
+    since: 2.1.2
+
   - name: search
     summary: Search field to use for the table view.
     type: Titanium.UI.SearchBar
@@ -1003,11 +1124,19 @@ properties:
     type: Boolean
     default: false (search field visible)
     platforms: [iphone, ipad]
+    
+  - name: sectionCount
+    summary: Number of sections in this table view.
+    type: Number
+    permission: read-only
+    since: 2.2.0
+    platforms: [iphone, ipad, mobileweb]
 
-  - name: section
+  - name: sections
     summary: Sections of this table.
     type: Array<Titanium.UI.TableViewSection>
-    platforms: [iphone, ipad]
+    since: 2.2.0
+    platforms: [iphone, ipad, mobileweb]
 
   - name: separatorColor
     summary: Separator line color between rows, as a color name or hex triplet.

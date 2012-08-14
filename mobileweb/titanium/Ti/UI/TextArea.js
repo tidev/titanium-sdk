@@ -4,19 +4,12 @@ define(["Ti/_/declare", "Ti/_/UI/TextBox", "Ti/_/dom", "Ti/_/css", "Ti/_/style",
 	return declare("Ti.UI.TextArea", TextBox, {
 
 		constructor: function(args) {
-			this._field = this._fieldWrapper = dom.create("textarea", {
+			var field = dom.create("textarea", {
 				autocomplete: "off",
-				style: {
-					backgroundColor: "transparent",
-					position: "absolute",
-					left: 0,
-					right: 0,
-					top: 0,
-					bottom: 0
-				}
+				className: "TiUITextFieldInput"
 			}, this.domNode);
 
-			this._initTextBox();
+			this._initTextBox(field);
 		},
 
 		_defaultWidth: UI.SIZE,

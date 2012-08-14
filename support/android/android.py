@@ -43,7 +43,7 @@ def pipe(args1,args2):
 def copy_resources(source, target):
 	 if not os.path.exists(os.path.expanduser(target)):
 		  os.mkdir(os.path.expanduser(target))
-	 for root, dirs, files in os.walk(source):
+	 for root, dirs, files in os.walk(source, True, None, True):
 		  for name in ignoreDirs:
 		  	    if name in dirs:
 				    dirs.remove(name)	# don't visit ignored directories			  
