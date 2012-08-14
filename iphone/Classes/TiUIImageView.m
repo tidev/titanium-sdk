@@ -51,6 +51,8 @@ DEFINE_EXCEPTIONS
 {
 	if (autoWidth > 0)
 	{
+		if (autoHeight > 0 && !TiDimensionIsAuto(height) && !TiDimensionIsAutoSize(height) && !TiDimensionIsUndefined(height))
+            return (height.value*autoWidth/autoHeight);
 		return autoWidth;
 	}
 	
