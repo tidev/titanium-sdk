@@ -617,14 +617,16 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 
 -(void)setTrackSignificantLocationChange: (NSNumber*)value
 {
-    if (trackSignificantLocationChange && trackingLocation && locationManager != Nil ) {
-        <#statements#>
+    BOOL newval = [TiUtils boolValue:value def:NO];
+    if (newval != trackSignificantLocationChange) {
+        if (trackSignificantLocationChange && trackingLocation && locationManager != nil ) {
+            TiThreadPerformOnMainThread(^{[self startStopLocationManagerIfNeeded];}, NO);
+        }
+        trackSignificantLocationChange = newval;
+        if (trackSignificantLocationChange && trackingLocation && locationManager != nil ) {
+            [self restart:Nil];
+        }
     }
-    if (trackingLocation && locationManager != Nil) {
-        [self startStopLocationManagerIfNeeded];
-    }
-    
-    
 }
 
 -(void)restart:(id)arg
