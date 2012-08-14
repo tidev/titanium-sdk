@@ -238,8 +238,11 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 	heading = kCLHeadingFilterNone;
 	
 	// should we show heading calibration dialog? defaults to YES
-	calibration = YES; 
-	
+	calibration = YES;
+    
+    // 
+	trackSignificantLocationChange = NO;
+    
 	lock = [[NSRecursiveLock alloc] init];
 	
 	[super _configure]; 
@@ -253,16 +256,18 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 		RELEASE_TO_NIL(tempManager);
 		locationManager = [[CLLocationManager alloc] init];
 		locationManager.delegate = self;
-		if (accuracy!=-1)
-		{
-			locationManager.desiredAccuracy = accuracy;
-		}
-		else 
-		{
-			locationManager.desiredAccuracy = kCLLocationAccuracyThreeKilometers;
-		}
-		locationManager.distanceFilter = distance;
-		locationManager.headingFilter = heading;
+		if (!trackSignificantLocationChange) {
+            if (accuracy!=-1)
+            {
+                locationManager.desiredAccuracy = accuracy;
+            }
+            else
+            {
+                locationManager.desiredAccuracy = kCLLocationAccuracyThreeKilometers;
+            }
+            locationManager.distanceFilter = distance;
+            locationManager.headingFilter = heading;
+        }
 		
 		if (purpose==nil)
 		{ 
@@ -337,8 +342,13 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 		}
 		if (startLocation && trackingLocation==NO)
 		{
-			[lm startUpdatingLocation];
-			trackingLocation = YES;
+			if (trackSignificantLocationChange) {
+                [lm startMonitoringSignificantLocationChanges];
+            }
+            else{
+                [lm startUpdatingLocation];
+            }
+            trackingLocation = YES;
 		}
 	}
 	else if ((!startHeading || !startLocation) && locationManager!=nil)
@@ -352,14 +362,20 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 		if (startLocation==NO && trackingLocation)
 		{
 			trackingLocation = NO;
-			[lm stopUpdatingLocation];
-		}
+            if (trackSignificantLocationChange){
+                [lm stopMonitoringSignificantLocationChanges];
+            }
+            else{
+                [lm stopUpdatingLocation];
+            }
+            
+        }
 		if ((startHeading==NO && startLocation==NO) ||
 			(trackingHeading==NO && trackingLocation==NO))
 		{
 			[self shutdownLocationManager];
 			trackingLocation = NO;
-			trackingHeading = NO;
+            trackingHeading = NO;
 		}
 	}
 }
@@ -592,6 +608,23 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 	}
 #endif
 	return [self AUTHORIZATION_UNKNOWN];
+}
+
+-(NSNumber*)trackSignificantLocationChange
+{
+    return NUMBOOL(trackSignificantLocationChange);
+}
+
+-(void)setTrackSignificantLocationChange: (NSNumber*)value
+{
+    if (trackSignificantLocationChange && trackingLocation && locationManager != Nil ) {
+        <#statements#>
+    }
+    if (trackingLocation && locationManager != Nil) {
+        [self startStopLocationManagerIfNeeded];
+    }
+    
+    
 }
 
 -(void)restart:(id)arg
