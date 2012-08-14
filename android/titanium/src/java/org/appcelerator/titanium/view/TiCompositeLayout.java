@@ -28,6 +28,7 @@ import android.os.Build;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewGroup.OnHierarchyChangeListener;
+import android.view.MotionEvent;
 
 /**
  * Base layout class for all Titanium views. 
@@ -77,6 +78,7 @@ public class TiCompositeLayout extends ViewGroup
 	private static final int HAS_SIZE_FILL_CONFLICT = 1;
 	private static final int NO_SIZE_FILL_CONFLICT = 2;
 
+	private boolean touchPassThrough = false;
 	// We need these two constructors for backwards compatibility with modules
 
 	/**
@@ -927,6 +929,18 @@ public class TiCompositeLayout extends ViewGroup
 	public void setProxy(TiViewProxy proxy)
 	{
 		this.proxy = new WeakReference<TiViewProxy>(proxy);
+	}
+
+	public void setTouchPassThrough(boolean passthrough)
+	{
+		touchPassThrough = passthrough;
+	}
+
+	@Override
+	public boolean dispatchTouchEvent(MotionEvent event)
+	{
+		if (touchPassThrough) return false;
+		return super.dispatchTouchEvent(event);
 	}
 
 }
