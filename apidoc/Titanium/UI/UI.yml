@@ -16,7 +16,7 @@ description:  |
     and radius, can fire events such as swipe events or touches, and can optionally contain a 
     hierarchy or other views as children. In Titanium, most views are specialized to perform both a 
     visual function and set of interaction behaviors such as [Table View](Titanium.UI.TableView) or
-    [Coverflow View](Titanium.UI.CoverFlowView).  Views are always named with the suffix `View`.
+    [Coverflow View](Titanium.UI.iOS.CoverFlowView).  Views are always named with the suffix `View`.
     
     * **Controls** - controls, or sometimes referred as widgets, are visual elements such as 
     [sliders](Titanium.UI.Slider),  [buttons](Titanium.UI.Button) and [switches](Titanium.UI.Switch). 
