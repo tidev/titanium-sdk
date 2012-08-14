@@ -37,6 +37,7 @@ typedef enum {
     NSNumber* timeout;
     NSNumber* autoRedirect;
 	
+@protected
 	// callbacks are now in the JS object
 	BOOL hasOnload;
 	BOOL hasOnerror;
