@@ -2297,14 +2297,19 @@ return result;	\
 	return YES;
 }
 
+- (NSDictionary *) eventObjectForScrollView: (UIScrollView *) scrollView
+{
+	return [NSDictionary dictionaryWithObjectsAndKeys:
+			[TiUtils pointToDictionary:scrollView.contentOffset],@"contentOffset",
+			[TiUtils sizeToDictionary:scrollView.contentSize], @"contentSize",
+			[TiUtils sizeToDictionary:tableview.bounds.size], @"size",
+			nil];
+}
+
 - (void)fireScrollEvent:(UIScrollView *)scrollView {
 	if ([self.proxy _hasListeners:@"scroll"])
 	{
-		NSMutableDictionary *event = [NSMutableDictionary dictionary];
-		[event setObject:[TiUtils pointToDictionary:scrollView.contentOffset] forKey:@"contentOffset"];
-		[event setObject:[TiUtils sizeToDictionary:scrollView.contentSize] forKey:@"contentSize"];
-		[event setObject:[TiUtils sizeToDictionary:tableview.bounds.size] forKey:@"size"];
-		[self.proxy fireEvent:@"scroll" withObject:event];
+		[self.proxy fireEvent:@"scroll" withObject:[self eventObjectForScrollView:scrollView]];
 	}
 }
 
@@ -2329,8 +2334,12 @@ return result;	\
 	// suspend image loader while we're scrolling to improve performance
 	[[ImageLoader sharedLoader] suspend];
     if([self.proxy _hasListeners:@"dragStart"])
-    {
+    {	//TODO: Deprecate old event.
         [self.proxy fireEvent:@"dragStart" withObject:nil];
+    }
+    if([self.proxy _hasListeners:@"dragstart"])
+	{
+        [self.proxy fireEvent:@"dragstart" withObject:nil];
     }
 }
 
@@ -2342,8 +2351,12 @@ return result;	\
 		[[ImageLoader sharedLoader] resume];
 	}
 	if ([self.proxy _hasListeners:@"dragEnd"])
-	{
+	{	//TODO: Deprecate old event
 		[self.proxy fireEvent:@"dragEnd" withObject:[NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool:decelerate],@"decelerate",nil]]	;
+	}
+	if ([self.proxy _hasListeners:@"dragend"])
+	{
+		[self.proxy fireEvent:@"dragend" withObject:[NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool:decelerate],@"decelerate",nil]]	;
 	}
     
     // Update keyboard status to insure that any fields actively being edited remain in view
@@ -2352,17 +2365,18 @@ return result;	\
     }
 }
 
+
 - (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView 
 {
 	// resume image loader when we're done scrolling
 	[[ImageLoader sharedLoader] resume];
-    if ([self.proxy _hasListeners:@"scrollEnd"])
+	if ([self.proxy _hasListeners:@"scrollEnd"])
+	{	//TODO: Deprecate old event.
+		[self.proxy fireEvent:@"scrollEnd" withObject:[self eventObjectForScrollView:scrollView]];
+	}
+	if ([self.proxy _hasListeners:@"scrollend"])
 	{
-		NSMutableDictionary *event = [NSMutableDictionary dictionary];
-		[event setObject:[TiUtils pointToDictionary:scrollView.contentOffset] forKey:@"contentOffset"];
-		[event setObject:[TiUtils sizeToDictionary:scrollView.contentSize] forKey:@"contentSize"];
-		[event setObject:[TiUtils sizeToDictionary:tableview.bounds.size] forKey:@"size"];
-		[self.proxy fireEvent:@"scrollEnd" withObject:event];
+		[self.proxy fireEvent:@"scrollend" withObject:[self eventObjectForScrollView:scrollView]];
 	}
 }
 

@@ -31,7 +31,7 @@ VALID_KEYS = {
 			"events"],
 		"method": ["name", "summary", "description", "returns", "platforms", "since",
 			"deprecated", "osver", "examples", "parameters"],
-		"parameter": ["name", "summary", "type", "optional", "default"],
+		"parameter": ["name", "summary", "type", "optional", "default", "repeatable"],
 		"property": ["name", "summary", "description", "type", "platforms", "since",
 			"deprecated", "osver", "examples", "permission", "availability", "accessors",
 			"optional", "value", "default"],
@@ -314,6 +314,9 @@ def validateCommon(tracker, map):
 
 	if 'optional' in map:
 		validateIsBool(tracker, 'optional', map['optional'])
+
+	if 'repeatable' in map:
+		validateIsBool(tracker, 'repeatable', map['repeatable'])
 
 	if 'notes' in map:
 		tracker.trackError('"notes" field is no longer valid')

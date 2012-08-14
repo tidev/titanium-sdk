@@ -78,6 +78,11 @@ public class TiUITableView extends TiUIView
 	{
 		tableView.getListView().setSelectionFromTop(index, 0);
 	}
+	
+	public void selectRow(final int row_id)
+	{
+		tableView.getListView().setSelection(row_id);
+	}
 
 	public TiTableView getTableView()
 	{
