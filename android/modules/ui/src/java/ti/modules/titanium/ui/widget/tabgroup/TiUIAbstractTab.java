@@ -15,6 +15,10 @@ public abstract class TiUIAbstractTab extends TiUIView {
 
 	public TiUIAbstractTab(TabProxy proxy) {
 		super(proxy);
+
+		// We need to register for property changes from the proxy.
+		proxy.setModelListener(this);
+		proxy.setView(this);
 	}
 
 }

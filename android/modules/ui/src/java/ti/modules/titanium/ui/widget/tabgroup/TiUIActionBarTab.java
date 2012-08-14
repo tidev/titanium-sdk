@@ -50,9 +50,6 @@ public class TiUIActionBarTab extends TiUIAbstractTab {
 		super(proxy);
 		this.tab = tab;
 
-		// We need to register for property changes from the proxy.
-		proxy.setModelListener(this);
-
 		// Provide a reference to this instance by placing
 		// a reference inside the "tag" slot that ActionBar.Tab provides.
 		tab.setTag(this);
