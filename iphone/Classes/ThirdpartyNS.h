@@ -267,5 +267,14 @@
 #ifndef PLSqliteResultSet
 #define PLSqliteResultSet __TI_NS_SYMBOL(PLSqliteResultSet)
 #endif
+#ifndef PLSqliteParameterStrategy
+#define PLSqliteParameterStrategy __TI_NS_SYMBOL(PLSqliteParameterStrategy)
+#endif
+#ifndef PLSqliteArrayParameterStrategy
+#define PLSqliteArrayParameterStrategy __TI_NS_SYMBOL(PLSqliteArrayParameterStrategy)
+#endif
+#ifndef PLSqliteDictionaryParameterStrategy
+#define PLSqliteDictionaryParameterStrategy __TI_NS_SYMBOL(PLSqliteDictionaryParameterStrategy)
+#endif
 
 #endif

@@ -50,13 +50,13 @@
 
 #pragma mark Audio Callback Function Prototypes
 
-void MyAudioQueueOutputCallbackCUR(void* inClientData, AudioQueueRef inAQ, AudioQueueBufferRef inBuffer);
-void MyAudioQueueIsRunningCallbackCUR(void *inUserData, AudioQueueRef inAQ, AudioQueuePropertyID inID);
-void MyPropertyListenerProcCUR(	void *							inClientData,
+static void MyAudioQueueOutputCallbackCUR(void* inClientData, AudioQueueRef inAQ, AudioQueueBufferRef inBuffer);
+static void MyAudioQueueIsRunningCallbackCUR(void *inUserData, AudioQueueRef inAQ, AudioQueuePropertyID inID);
+static void MyPropertyListenerProcCUR(	void *							inClientData,
 								AudioFileStreamID				inAudioFileStream,
 								AudioFileStreamPropertyID		inPropertyID,
 								UInt32 *						ioFlags);
-void MyPacketsProcCUR(				void *							inClientData,
+static void MyPacketsProcCUR(				void *							inClientData,
 								UInt32							inNumberBytes,
 								UInt32							inNumberPackets,
 								const void *					inInputData,
@@ -64,7 +64,7 @@ void MyPacketsProcCUR(				void *							inClientData,
 OSStatus MyEnqueueBufferCUR(AudioStreamerCUR* myData);
 
 #ifdef TARGET_OS_IPHONE			
-void MyAudioSessionInterruptionListenerCUR(void *inClientData, UInt32 inInterruptionState);
+static void MyAudioSessionInterruptionListenerCUR(void *inClientData, UInt32 inInterruptionState);
 #endif
 
 #pragma mark Audio Callback Function Implementations
@@ -175,7 +175,7 @@ void MyAudioSessionInterruptionListenerCUR(void *inClientData, UInt32 inInterrup
 //
 // Invoked when an error occurs, the stream ends or we have data to read.
 //
-void ASReadStreamCallBackCUR
+static void ASReadStreamCallBackCUR
 (
    CFReadStreamRef aStream,
    CFStreamEventType eventType,

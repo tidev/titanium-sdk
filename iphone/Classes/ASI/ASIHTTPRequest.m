@@ -45,7 +45,7 @@ static NSRecursiveLock *sessionCredentialsLock = nil;
 static NSMutableArray *sessionCookies = nil;
 
 // The number of times we will allow requests to redirect before we fail with a redirection error
-const int RedirectionLimit = 5;
+static const int RedirectionLimit = 5;
 
 // The default number of seconds to use for a timeout
 static NSTimeInterval defaultTimeOutSeconds = 10;
