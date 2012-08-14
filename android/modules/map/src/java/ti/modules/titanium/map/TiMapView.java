@@ -107,6 +107,8 @@ public class TiMapView extends TiUIView
 		private int lastLatitude;
 		private int lastLatitudeSpan;
 		private int lastLongitudeSpan;
+		private boolean requestViewOnScreen = false;
+		private View view;
 
 		public LocalMapView(Context context, String apiKey)
 		{
@@ -159,8 +161,47 @@ public class TiMapView extends TiUIView
 				proxy.fireEvent(TiC.EVENT_REGION_CHANGED, location);
 			}
 		}
-	}
 
+		@Override
+		protected void onLayout(boolean changed, int left, int top, int right, int bottom)
+		{
+			super.onLayout(changed, left, top, right, bottom);
+
+			if (requestViewOnScreen) {
+				View child;
+				for (int i = 0; i < getChildCount(); i++) {
+					child = getChildAt(i);
+					if (child == view) {
+						int childLeft = child.getLeft();
+						int childRight = child.getRight();
+						int childTop = child.getTop();
+						int parentWidth = right - left;
+						if (childLeft > 0 && childTop > 0 && childRight < parentWidth) {
+							requestViewOnScreen = false;
+							return;
+						}
+						if (childLeft > 0 && childRight > parentWidth) {
+							getController().scrollBy(Math.min(childLeft, (childRight - parentWidth)), Math.min(0, childTop));
+							requestViewOnScreen = false;
+							return;
+						}
+						getController().scrollBy(Math.min(0, childLeft), Math.min(0, childTop));
+						requestViewOnScreen = false;
+						return;
+					}
+				}
+				requestViewOnScreen = false;
+			}
+		}
+
+		public void requestViewOnScreen(View v)
+		{
+			if (v != null) {
+				requestViewOnScreen = true;
+				view = v;
+			}
+		}
+	}
 	
 	class TitaniumOverlay extends ItemizedOverlay<TiOverlayItem>
 	{
@@ -516,6 +557,7 @@ public class TiMapView extends TiUIView
 					LayoutParams.WRAP_CONTENT, item.getPoint(), 0, y, MapView.LayoutParams.BOTTOM_CENTER);
 			params.mode = MapView.LayoutParams.MODE_MAP;
 
+			view.requestViewOnScreen(itemView);
 			view.addView(itemView, params);
 		}
 	}
