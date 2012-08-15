@@ -45,7 +45,7 @@ TI_INLINE void waitForMemoryPanicCleared()   //WARNING: This must never be run o
 	NSMutableDictionary *launchOptions;
 	NSTimeInterval started;
 	
-	int networkActivityCount; //We now can use atomic increment/decrement instead. This value is 0 upon initialization anyways.
+	int32_t networkActivityCount;
 	
 	TiRootViewController *controller;
 	NSString *userAgent;
@@ -135,6 +135,15 @@ TI_INLINE void waitForMemoryPanicCleared()   //WARNING: This must never be run o
  @see startNetwork
  */
 -(void)stopNetwork;
+
+/**
+ Prevents network activity indicator from showing.
+ Setting this property to YES disables appearance of network activity indicator when startNetwork is called.
+ In case network activity indicator is currently visible, it will be hidden.
+ @see startNetwork
+ @see stopNetwork
+ */
+@property (nonatomic, assign) BOOL disableNetworkActivityIndicator;
 
 -(void)showModalError:(NSString*)message;
 

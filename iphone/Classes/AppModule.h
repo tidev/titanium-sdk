@@ -43,6 +43,8 @@
 @property(nonatomic,readwrite,assign) NSNumber *proximityDetection;
 
 @property(nonatomic,readonly) NSNumber* keyboardVisible;
+@property(nonatomic,readwrite,assign) NSNumber* disableNetworkActivityIndicator;
+
 
 #ifdef USE_TI_APPIOS
 @property(nonatomic,readonly)			TiProxy* iOS;
