@@ -401,8 +401,6 @@ public class TabGroupProxy extends TiWindowProxy
 
 		if (hasProperty(TiC.PROPERTY_EXIT_ON_CLOSE)) {
 			intent.putExtra(TiC.INTENT_PROPERTY_FINISH_ROOT, TiConvert.toBoolean(getProperty(TiC.PROPERTY_EXIT_ON_CLOSE)));
-		} else {
-			intent.putExtra(TiC.INTENT_PROPERTY_FINISH_ROOT, activity.isTaskRoot());
 		}
 
 		Handler handler = new Handler(TiMessenger.getMainMessenger().getLooper(), new MessageHandler(this));
