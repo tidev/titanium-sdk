@@ -165,8 +165,11 @@ jobject TypeConverter::jsObjectToJavaFunction(v8::Handle<v8::Object> jsObject)
 		return NULL;
 	}
 
-	jlong pointer = (jlong) *Persistent<Function>::New(Handle<Function>::Cast(jsObject));
-	return env->NewObject(JNIUtil::v8FunctionClass, JNIUtil::v8FunctionInitMethod, pointer);
+	Persistent<Function> jsFunction = Persistent<Function>::New(Handle<Function>::Cast(jsObject));
+	jsFunction.MarkIndependent();
+
+	jlong ptr = (jlong) *jsFunction;
+	return env->NewObject(JNIUtil::v8FunctionClass, JNIUtil::v8FunctionInitMethod, ptr);
 }
 
 v8::Handle<v8::Function> TypeConverter::javaObjectToJsFunction(jobject javaObject)

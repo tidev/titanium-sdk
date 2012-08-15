@@ -63,6 +63,18 @@ JNIEXPORT jobject JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Function_nati
 	return TypeConverter::jsValueToJavaObject(object, &isNew);
 }
 
+JNIEXPORT void JNICALL
+Java_org_appcelerator_kroll_runtime_v8_V8Function_nativeRelease
+	(JNIEnv *env, jclass clazz, jlong ptr)
+{
+	ASSERT(ptr != 0);
+	Persistent<Function> function = Persistent<Function>((Function*) ptr);
+
+	// Release the JS function so it can be collected.
+	function.Dispose();
+	function.Clear();
+}
+
 #ifdef __cplusplus
 }
 #endif
