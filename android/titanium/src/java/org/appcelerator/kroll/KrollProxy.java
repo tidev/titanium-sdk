@@ -23,6 +23,7 @@ import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.proxy.ActivityProxy;
+import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiRHelper;
 import org.appcelerator.titanium.util.TiUrl;
 
@@ -576,10 +577,10 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 		if (arg instanceof HashMap) {
 			HashMap props = (HashMap) arg;
 			for (Object name : props.keySet()) {
-				setPropertyAndFire((String) name, props.get(name));
+				setPropertyAndFire(TiConvert.toString(name), props.get(name));
 			}
 		} else {
-			Log.w(TAG, "Cannot apply properties: invalid format for properties", Log.DEBUG_MODE);
+			Log.w(TAG, "Cannot apply properties: invalid type for properties", Log.DEBUG_MODE);
 		}
 	}
 
