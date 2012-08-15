@@ -570,6 +570,19 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 		}
 	}
 
+	@Kroll.method
+	public void applyProperties(Object arg)
+	{
+		if (arg instanceof HashMap) {
+			HashMap props = (HashMap) arg;
+			for (Object name : props.keySet()) {
+				setPropertyAndFire((String) name, props.get(name));
+			}
+		} else {
+			Log.w(TAG, "Cannot apply properties: invalid format for properties", Log.DEBUG_MODE);
+		}
+	}
+
 	/**
 	 * Asynchronously calls a function referenced by a property on this object.
 	 * This may be called safely on any thread.
