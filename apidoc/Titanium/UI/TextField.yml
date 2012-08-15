@@ -41,7 +41,7 @@ methods:
    -name: setSelection
     summary: Selects the text in range (start, end).
     platforms: [android]
-    since: 2.2.0
+    since: 2.1.2
     parameters:
       - name: start
         summary: Start index for selection. Value ranges from 0 to the text's length.
