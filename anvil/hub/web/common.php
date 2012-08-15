@@ -21,6 +21,8 @@
 		echo "<script type=\"text/javascript\" src=\"jqplot/jquery.jqplot.min.js\"></script>\n";
 		echo "<script type=\"text/javascript\" src=\"jqplot/plugins/jqplot.barRenderer.min.js\"></script>\n";
 		echo "<script type=\"text/javascript\" src=\"jqplot/plugins/jqplot.categoryAxisRenderer.min.js\"></script>\n";
+		echo "<script type=\"text/javascript\" src=\"jqplot/plugins/jqplot.canvasTextRenderer.min.js\"></script>\n";
+		echo "<script type=\"text/javascript\" src=\"jqplot/plugins/jqplot.canvasAxisTickRenderer.min.js\"></script>\n";
 		echo "<script type=\"text/javascript\" src=\"jqplot/plugins/jqplot.pointLabels.min.js\"></script>\n";
 		echo "<script type=\"text/javascript\" src=\"common.js\"></script>\n\n";
 

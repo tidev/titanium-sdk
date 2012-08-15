@@ -17,14 +17,14 @@
 			$testId = $config_set . "_" . $config . "_" . str_replace('/', '_', $suite) . "_" . $row["name"];
 
 			echo "\t<div style=\"margin-left: 50px; margin-bottom: 40px\">\n";
-			echo "\t\t<div id=\"" . $testId . "\" style=\"width: 80%\"></div>\n";
+			echo "\t\t<div id=\"" . $testId . "\" style=\"width: " . ($numRuns * 100) . "px\"></div>\n";
 
 			echo "\t\t<script type=\"text/javascript\">\n";
 			echo "\t\t\tvar runIds = [];\n";
 			echo "\t\t\tvar driverIds = [];\n";
 			echo "\t\t\tvar chartData = [];\n\n";
 
-			$query2="SELECT DISTINCT driver_id FROM results WHERE branch = \"" . $branch . "\" AND name = \"" . $row["name"] . "\"";
+			$query2="SELECT DISTINCT driver_id FROM results WHERE branch = \"" . $branch . "\" AND name = \"" . $row["name"] . "\" AND suite_name = \"" . $suite . "\" ORDER BY driver_id ASC";
 			$result2=mysql_query($query2);
 			while($row2 = mysql_fetch_array($result2)) {
 				echo "\t\t\tdriverIds.push(\"" . $row2["driver_id"] . "\");\n\n";
@@ -32,12 +32,9 @@
 
 				for ($i = 0; $i < $numRuns; $i++) {
 					echo "\t\t\tif (runIds.length < " . ($i + 1) . ") {\n";
-					$runLabel = "<div align=\\\"center\\\">" .
-						"<div><b>" . date("n-j-Y g:i:s A", $runs[$i]["timestamp"]) . "</b></div>" .
-						"<div>" . substr($runs[$i]["git_hash"], 0, 10) . "</div>" .
-						"</div>";
+					echo "\t\t\t\trunIds.push(\"" . date("n-j-Y g:i:s A", $runs[$i]["timestamp"]) . "  /  " .
+						substr($runs[$i]["git_hash"], 0, 10) . "\");\n";
 
-					echo "\t\t\t\trunIds.push(\"" . $runLabel . "\");\n";
 					echo "\t\t\t}\n";
 
 					$query3="SELECT * FROM results WHERE driver_id = \"" . $row2["driver_id"] . "\" AND run_id = " . $runs[$i]["id"] . " AND name = \"" . $row["name"] . "\" LIMIT 1";
@@ -95,7 +92,6 @@
 	while($row = mysql_fetch_array($result)) {
 		array_push($runs, $row);
 	}
-	$numRuns = count($runs);
 
 	if (isset($_GET["suite"])) {
 		print_suite_performance($_GET["branch"], $_GET["config_set"], $_GET["config"], $_GET["suite"], $runs);
