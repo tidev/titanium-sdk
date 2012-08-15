@@ -275,6 +275,12 @@
 	return tag;
 }
 
+- (void)setCenterOffset:(id)setCenterOffset
+{
+	id current = [self valueForUndefinedKey:@"centerOffset"];
+	[self replaceValue:centeroffset forKey:@"centerOffset" notification:NO];
+}
+
 @end
 
 #endif

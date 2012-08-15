@@ -687,6 +687,11 @@
             if ([identifier isEqualToString:@"timap-image"])
             {
                 annView=[[[TiMapImageAnnotationView alloc] initWithAnnotation:ann reuseIdentifier:identifier map:self image:image] autorelease];
+                id offsetValue = [ann valueForUndefinedKey: @"centerOffset"];
+                if(offsetValue != nil){
+                    CGPoint centerOffset = [TiUtils pointValue: offsetValue];
+                    annView.centerOffset = centerOffset;
+                }
             }
             else
             {
