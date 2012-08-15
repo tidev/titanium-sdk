@@ -58,14 +58,19 @@ function drawPerformanceCharts(elementId, chartTitle, runIds, driverIds, chartDa
 		title: chartTitle, 
 		seriesDefaults: {
 			showMarker:false,
-			pointLabels: {show:true}
+			pointLabels: {show:true},
+			shadow: false
 		},
 		series: series,
 		axes: {
 			xaxis: {
 				label: "Run ID",
 				renderer: $.jqplot.CategoryAxisRenderer,
-				ticks: runIds,
+				tickRenderer: $.jqplot.CanvasAxisTickRenderer,
+				tickOptions: {
+					angle: -30
+				},
+				ticks: runIds
 			},
 			yaxis: {
 				label: "Milliseconds"
