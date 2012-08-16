@@ -246,7 +246,7 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 	// should we show heading calibration dialog? defaults to YES
 	calibration = YES;
     
-    // 
+    // track all location changes by default 
 	trackSignificantLocationChange = NO;
     
 	lock = [[NSRecursiveLock alloc] init];
