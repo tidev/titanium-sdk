@@ -2,11 +2,8 @@ package ti.modules.titanium.ui.widget.tabgroup;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.titanium.TiC;
-import org.appcelerator.titanium.proxy.TiWindowProxy;
 
 import ti.modules.titanium.ui.TabProxy;
-import ti.modules.titanium.ui.ViewProxy;
-import ti.modules.titanium.ui.widget.TiView;
 import android.app.ActionBar;
 import android.app.Fragment;
 import android.os.Bundle;
@@ -17,22 +14,15 @@ import android.view.ViewGroup;
 public class TiUIActionBarTab extends TiUIAbstractTab {
 
 	public static class TabFragment extends Fragment {
-		private TiView contentView;
+		private View contentView;
 
-		public void setContentWindow(TiWindowProxy windowProxy) {
-			ViewProxy contentProxy = new ViewProxy();
-			contentProxy.setActivity(windowProxy.getActivity());
-			contentView = (TiView) contentProxy.getOrCreateView();
-			windowProxy.getKrollObject().setWindow(contentProxy);
+		public void setContentView(View view) {
+			contentView = view;
 		}
 
 		@Override
 		public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-			if (contentView != null) {
-				return contentView.getNativeView();
-			}
-
-			return null;
+			return contentView;
 		}
 	}
 
@@ -72,11 +62,7 @@ public class TiUIActionBarTab extends TiUIAbstractTab {
 	 */
 	void initializeFragment() {
 		fragment = new TabFragment();
-
-		Object windowProxy = proxy.getProperty("window");
-		if (windowProxy instanceof TiWindowProxy) {
-			fragment.setContentWindow((TiWindowProxy) windowProxy);
-		}
+		fragment.setContentView(getContentView());
 	}
 
 }
