@@ -364,11 +364,4 @@ properties:
         `true` if the file identified by this object is writable.
     type: Boolean
     permission: read-only
-  - name: writeable
-    summary: |
-        Use [writable](Titanium.Filesystem.File.writable) instead.
-    type: Boolean
-    permission: read-only
-    platforms: [iphone, ipad]
-    deprecated: 
-        since: "1.8.1"
+
