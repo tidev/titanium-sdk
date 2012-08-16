@@ -74,11 +74,6 @@ def process_markdown_links(s):
 	results = find_links_re.findall(new_string)
 	if results is not None and len(results) > 0:
 		for link in results:
-			# if link.find('http:') >= 0 or link.find('https:') >= 0:
-				# [Facebook Graph API](http://developers.facebook.com/docs/reference/api/)  -> unchanged
-				# do not convert external links
-			# 	continue
-
 			match = link_parts_re.match(link)
 			if match == None:
 				print "no match:" + link
