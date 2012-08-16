@@ -317,10 +317,12 @@ events:
       - name: x
         summary: X coordinate of the event from the `source` view's coordinate system.
         type: Number
+        platforms: [mobileweb]
         
       - name: y
         summary: Y coordinate of the event from the `source` view's coordinate system.
         type: Number
+        platforms: [mobileweb]
         
   - name: scrollEnd
     summary: fired when the table view stops scrolling
