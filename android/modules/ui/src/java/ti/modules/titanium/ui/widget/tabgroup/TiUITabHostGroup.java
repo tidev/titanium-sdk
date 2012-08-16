@@ -9,14 +9,20 @@ package ti.modules.titanium.ui.widget.tabgroup;
 import java.util.HashMap;
 
 import org.appcelerator.titanium.TiApplication;
+import org.appcelerator.titanium.TiBaseActivity;
 
 import ti.modules.titanium.ui.TabGroupProxy;
 import ti.modules.titanium.ui.TabProxy;
-import android.app.Activity;
-import android.widget.Button;
+import android.content.Context;
+import android.view.View;
+import android.view.ViewGroup.LayoutParams;
+import android.widget.FrameLayout;
+import android.widget.LinearLayout;
 import android.widget.TabHost;
 import android.widget.TabHost.OnTabChangeListener;
+import android.widget.TabHost.TabContentFactory;
 import android.widget.TabHost.TabSpec;
+import android.widget.TabWidget;
 
 /**
  * Tab group implementation using the TabWidget/TabHost.
@@ -26,49 +32,57 @@ import android.widget.TabHost.TabSpec;
  * the tabs. Each window provides an activity which the
  * TabHost starts when that window's tab is selected.
  */
-public class TiUITabHostGroup extends TiUIAbstractTabGroup implements OnTabChangeListener
-{
-	private static final String TAG = "TiUITabGroup";
+public class TiUITabHostGroup extends TiUIAbstractTabGroup
+		implements OnTabChangeListener, TabContentFactory {
 
 	private TabHost tabHost;
-	private HashMap<String, TiUITabHostTab> tabViews = new HashMap<String, TiUITabHostTab>();
+	private final HashMap<String, TiUITabHostTab> tabViews = new HashMap<String, TiUITabHostTab>();
 
-	public TiUITabHostGroup(TabGroupProxy proxy, Activity activity)
+	public TiUITabHostGroup(TabGroupProxy proxy, TiBaseActivity activity)
 	{
 		super(proxy, activity);
+		setupTabHost();
+		activity.setLayout(tabHost);
+	}
 
-		tabHost = (TabHost) activity.findViewById(android.R.id.tabhost);
+	private void setupTabHost() {
+		Context context = TiApplication.getInstance().getApplicationContext();
+		LayoutParams params;
+
+		tabHost = new TabHost(context, null);
+		tabHost.setId(android.R.id.tabhost);
+		params = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
+		tabHost.setLayoutParams(params);
 		tabHost.setOnTabChangedListener(this);
+
+		LinearLayout container = new LinearLayout(context);
+		container.setOrientation(LinearLayout.VERTICAL);
+		params = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
+		tabHost.addView(container, params);
+
+		TabWidget tabWidget = new TabWidget(context);
+		tabWidget.setId(android.R.id.tabs);
+		tabWidget.setOrientation(LinearLayout.HORIZONTAL);
+		params = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
+		container.addView(tabWidget, params);
+
+		FrameLayout tabcontent = new FrameLayout(context);
+		tabcontent.setId(android.R.id.tabcontent);
+		params = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
+		container.addView(tabcontent, params);
+
 		tabHost.setup();
 	}
 
 	@Override
 	public void addTab(TabProxy tab) {
-		/* TODO(josh): move into TiUITab view?
-		Object iconProperty = tab.getProperty(TiC.PROPERTY_ICON);
-		Drawable icon = TiUIHelper.getResourceDrawable(iconProperty);
-		*/
-
-		/* TODO(josh): move
-		String title = TiConvert.toString(tab.getProperty(TiC.PROPERTY_TITLE));
-		if (title == null) {
-			title = "";
-		}
-		*/
-
 		TiUITabHostTab tabView = new TiUITabHostTab(tab);
-		TabSpec spec = tabHost.newTabSpec(tabView.id);
 		tabViews.put(tabView.id, tabView);
 
-		spec.setIndicator("Hello!");
-
-		Button btn = new Button(TiApplication.getInstance().getApplicationContext());
-		btn.setText("click, me!");
-		btn.setId(1);
-		tabHost.getTabContentView().addView(btn);
-		spec.setContent(1);
-
-		tabHost.addTab(spec);
+		TabSpec tabSpec = tabHost.newTabSpec(tabView.id);
+		tabView.setupTabSpec(tabSpec);
+		tabSpec.setContent(this);
+		tabHost.addTab(tabSpec);
 	}
 
 	@Override
@@ -115,6 +129,13 @@ public class TiUITabHostGroup extends TiUIAbstractTabGroup implements OnTabChang
 		}
 		setTabBackgroundSelectedColor();
 		*/
+	}
+
+	@Override
+	public View createTabContent(String tag) {
+		// TODO(josh): test tabs with empty content view.
+		TiUITabHostTab tabView = tabViews.get(tag);
+		return tabView.getContentView();
 	}
 
 	/** TODO(josh): refactor

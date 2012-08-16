@@ -1,11 +1,12 @@
 package ti.modules.titanium.ui.widget.tabgroup;
 
+import org.appcelerator.titanium.TiBaseActivity;
+
 import ti.modules.titanium.ui.TabGroupProxy;
 import ti.modules.titanium.ui.TabProxy;
 import android.app.ActionBar;
 import android.app.ActionBar.Tab;
 import android.app.ActionBar.TabListener;
-import android.app.Activity;
 import android.app.FragmentTransaction;
 
 /**
@@ -22,7 +23,7 @@ import android.app.FragmentTransaction;
 public class TiUIActionBarTabGroup extends TiUIAbstractTabGroup implements TabListener {
 	private ActionBar actionBar;
 
-	public TiUIActionBarTabGroup(TabGroupProxy proxy, Activity activity) {
+	public TiUIActionBarTabGroup(TabGroupProxy proxy, TiBaseActivity activity) {
 		super(proxy, activity);
 		actionBar = activity.getActionBar();
 
