@@ -180,6 +180,17 @@ public class TiUIScrollView extends TiUIView
 		}
 
 		@Override
+		public boolean onTouchEvent(MotionEvent event) {
+			//There's a known Android bug (version 3.1 and above) that will throw an exception when we use 3+ fingers to touch the scrollview.
+			//Link: http://code.google.com/p/android/issues/detail?id=18990
+			try {
+				return super.onTouchEvent(event);
+			} catch (IllegalArgumentException e) {
+				return false;
+			}
+		}
+
+		@Override
 		public void addView(View child, android.view.ViewGroup.LayoutParams params)
 		{
 			layout.addView(child, params);
@@ -260,6 +271,17 @@ public class TiUIScrollView extends TiUIView
 		public TiScrollViewLayout getLayout()
 		{
 			return layout;
+		}
+
+		@Override
+		public boolean onTouchEvent(MotionEvent event) {
+			//There's a known Android bug (version 3.1 and above) that will throw an exception when we use 3+ fingers to touch the scrollview.
+			//Link: http://code.google.com/p/android/issues/detail?id=18990
+			try {
+				return super.onTouchEvent(event);
+			} catch (IllegalArgumentException e) {
+				return false;
+			}
 		}
 
 		@Override
