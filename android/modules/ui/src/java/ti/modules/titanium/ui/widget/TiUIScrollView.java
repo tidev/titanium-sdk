@@ -193,7 +193,7 @@ public class TiUIScrollView extends TiUIView
 			if (event.getAction() == MotionEvent.ACTION_MOVE && !mScrollingEnabled) {
 				return false;
 			}
-			//There's a known Android bug (version 3.1 and above) that will throw an exception when use 3+ fingers to touch the scrollview.
+			//There's a known Android bug (version 3.1 and above) that will throw an exception when we use 3+ fingers to touch the scrollview.
 			//Link: http://code.google.com/p/android/issues/detail?id=18990
 			try {
 				return super.onTouchEvent(event);
@@ -299,7 +299,7 @@ public class TiUIScrollView extends TiUIView
 			if (event.getAction() == MotionEvent.ACTION_MOVE && !mScrollingEnabled) {
 				return false;
 			}
-			//There's a known Android bug (version 3.1 and above) that will throw an exception when use 3+ fingers to touch the scrollview.
+			//There's a known Android bug (version 3.1 and above) that will throw an exception when we use 3+ fingers to touch the scrollview.
 			//Link: http://code.google.com/p/android/issues/detail?id=18990
 			try {
 				return super.onTouchEvent(event);
