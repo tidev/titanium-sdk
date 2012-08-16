@@ -170,8 +170,14 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 	if (trackingHeading) {
 		[locationManager stopUpdatingHeading];
 	}
+    
 	if (trackingLocation) {
-		[locationManager stopUpdatingLocation];
+        if (trackSignificantLocationChange) {
+            [locationManager stopMonitoringSignificantLocationChanges];
+        }
+        else{
+            [locationManager stopUpdatingLocation];
+        }
 	}
 	RELEASE_TO_NIL_AUTORELEASE(locationManager);
 	[lock unlock];
@@ -615,18 +621,24 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
     return NUMBOOL(trackSignificantLocationChange);
 }
 
--(void)setTrackSignificantLocationChange: (NSNumber*)value
+-(void)setTrackSignificantLocationChange:(id)value
 {
-    BOOL newval = [TiUtils boolValue:value def:NO];
+    BOOL newval = [TiUtils boolValue:value def:YES];
+    
     if (newval != trackSignificantLocationChange) {
-        if (trackSignificantLocationChange && trackingLocation && locationManager != nil ) {
+        if ( trackingLocation && locationManager != nil ) {
+            [lock lock];
+            [self shutdownLocationManager];
+            trackingHeading = NO;
+            trackingLocation = NO;
+            trackSignificantLocationChange = newval;
+            [lock unlock];
             TiThreadPerformOnMainThread(^{[self startStopLocationManagerIfNeeded];}, NO);
-        }
-        trackSignificantLocationChange = newval;
-        if (trackSignificantLocationChange && trackingLocation && locationManager != nil ) {
-            [self restart:Nil];
+            return ;
         }
     }
+        
+    trackSignificantLocationChange = newval;
 }
 
 -(void)restart:(id)arg
