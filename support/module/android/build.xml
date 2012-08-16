@@ -44,12 +44,12 @@ produces .cpp and .h files (for V8) down in build/generated/jni, and [Proxy/Modu
 It then uses bootstrap.py (see https://github.com/appcelerator/titanium_mobile/blob/master/support/module/android/bootstrap.py) to produce [Name]Bootstrap.java, [Name]Bootstrap.cpp,
 bootstrap.js and KrollGeneratedBindings.gperf.
 
-(3) (js.compile) If the file assets/[moduleid].js is located, then
-this "native module" that is being built is actually just carrying around
-a CommonJS module. So if that file is found, it goes through our
-jspacker.py and gets encrypted and placed into a Java class file just
-like we do for JS files in production mode when compiling a normal Titanium
-Android project.
+(3) (js.compile) If JavaScript files are found in the assets/ directory,
+then they go through our jspacker.py and get encrypted and placed into
+a Java class file just like we do for JS files in production mode when
+compiling a normal Titanium Android project. In this way, module developers
+can use these native module projects as a means of creating CommonJS modules
+which are distributed in an encrypted form.
 
 (4) (ndk.build) This step runs the stock Android NDK ndk-build command
 after setting up the appropriate environment for it. It copies the
@@ -79,7 +79,7 @@ Post-Compilation:
 
 The last steps of the "dist" target are responsible for packaging up
 the module jar (including putting anything in assets/ into the jar, except
-for the CommonJS module, if any, since that gets compiled),
+for JavaScript files, if any, since they get compiled),
 then zipping it together with the manifest, any docs, other libs in
 the lib folder as well as example/* and platform/* and the
 timodule.xml.
@@ -111,7 +111,6 @@ timodule.xml.
 	<property name="genjava" location="${build}/generated/java"/>
 	<property name="genjni" location="${build}/generated/jni"/>
 	<property name="genjni.local" location="${genjni}-local"/>
-	<property name="genjs" location="${build}/generated/js"/>
 	<property name="classes" location="${build}/classes"/>
 	<property name="docs" location="${build}/docs"/>
 	<property name="dist" location="${ti.module.root}/dist"/>
@@ -119,8 +118,6 @@ timodule.xml.
 	<property name="jni" location="${ti.module.root}/jni"/>
 	<property name="libs" location="${ti.module.root}/libs"/>
 	<property name="assets" location="${ti.module.root}/assets"/>
-	<property name="jsmodule.source" location="${assets}/${manifest.moduleid}.js"/>
-	<property name="jsmodule.compiled" location="${genjs}/${manifest.moduleid}.js"/>
 	<property name="javac.debug" value="true"/>
 
 	<path id="project.classpath">
@@ -244,16 +241,13 @@ timodule.xml.
 
 	<target name="pre.compile">
 		<available file="${ti.module.root}/jni" type="dir" property="jni.local"/>
-		<available file="${jsmodule.source}" type="file" property="isJSModule"/>
-		<!-- If applicable, will set commonjs key value in manifest and
-		prepare a Java class that will hand-off the source code to that JavaScript
-		at runtime of the Titanium application the module is used in.-->
-		<property name="android.py" location="${ti.module.support.dir}/android/android.py"/>
-		<python file="${android.py}">
-			<arg value="--prepare-commonjs"/>
-			<arg value="${ti.module.root}"/>
-		</python>
-
+		<condition property="isJSModule">
+			<resourcecount count="0" when="greater">
+				<fileset dir="${assets}">
+					<include name="**/*.js"/>
+				</fileset>
+			</resourcecount>
+		</condition>
 	</target>
 
 	<target name="compile" depends="process.annotations,generate.bindings,pre.compile,js.compile,ndk.build,ndk.build.local" description="Compile this module's source code">
@@ -370,31 +364,16 @@ timodule.xml.
 	</target>
 	
 	<target name="js.compile" if="${isJSModule}">
-		<echo>CommonJS module ${jsmodule.source} found. Compiling.</echo>
-		<mkdir dir="${genjs}"/>
-
-		<!-- Closure compiler -->
-		<java jar="${titanium.platform}/lib/closure-compiler.jar" fork="true" failonerror="true">
-			<arg value="--js"/>
-			<arg value="${jsmodule.source}"/>
-			<arg value="--js_output_file"/>
-			<arg value="${jsmodule.compiled}"/>
-			<arg value="--jscomp_off=internetExplorerChecks"/>
-		</java>
-
-		<!-- Packer -->
-		<property name="jspacker.py" location="${titanium.platform}/jspacker.py"/>
-		<python file="${jspacker.py}">
-			<!-- generated/js dir -->
-			<arg value="${genjs}"/>
-			<!-- commonjs file -->
-			<arg value="${jsmodule.compiled}"/>
-			<!-- package -->
-			<arg value="${manifest.moduleid}"/>
-			<!-- output dir -->
-			<arg value="${genjava}"/>
+		<echo>CommonJS module files found. Compiling.</echo>
+		<!-- If applicable, will set commonjs key value in manifest and
+		prepare a Java class that will hand-off the source code to that JavaScript
+		at runtime of the Titanium application the module is used in. The compiling
+		and packing of the JavaScript assets occurs here.-->
+		<property name="android.py" location="${ti.module.support.dir}/android/android.py"/>
+		<python file="${android.py}">
+			<arg value="--prepare-commonjs"/>
+			<arg value="${ti.module.root}"/>
 		</python>
-
 	</target>
 
 	<target name="ndk.build.local" if="${jni.local}">
@@ -446,7 +425,7 @@ timodule.xml.
 		<property name="module.jar" location="${dist}/${ant.project.name}.jar"/>
 		<jar destfile="${module.jar}">
 			<fileset dir="${classes}"/>
-			<fileset dir="${ti.module.root}" includes="assets/**" excludes="assets/README assets/${manifest.moduleid}.js"/>
+			<fileset dir="${ti.module.root}" includes="assets/**" excludes="assets/README assets/*.js assets/**/*.js"/>
 		</jar>
 		<antcall target="post.jar"/>
 		<property name="zip.prefix" value="modules/android/${module.id}/${manifest.version}"/>
