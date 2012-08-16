@@ -272,9 +272,8 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
                 locationManager.desiredAccuracy = kCLLocationAccuracyThreeKilometers;
             }
             locationManager.distanceFilter = distance;
-            locationManager.headingFilter = heading;
         }
-		
+		locationManager.headingFilter = heading;
 		if (purpose==nil)
 		{ 
 			DebugLog(@"[WARN] The Ti.Geolocation.purpose property must be set.");
