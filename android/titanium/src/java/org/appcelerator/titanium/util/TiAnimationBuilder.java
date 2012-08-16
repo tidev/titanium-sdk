@@ -57,9 +57,9 @@ public class TiAnimationBuilder
 	protected Double fromOpacity = null;
 	protected Double repeat = null;
 	protected Boolean autoreverse = null;
-	protected Integer top = null, bottom = null, left = null, right = null;
-	protected Integer centerX = null, centerY = null;
-	protected Integer width = null, height = null;
+	protected String top = null, bottom = null, left = null, right = null;
+	protected String centerX = null, centerY = null;
+	protected String width = null, height = null;
 	protected Integer backgroundColor = null;
 
 	protected TiAnimation animationProxy;
@@ -126,39 +126,39 @@ public class TiAnimationBuilder
 		}
 
 		if (options.containsKey(TiC.PROPERTY_TOP)) {
-			top = TiConvert.toInt(options, TiC.PROPERTY_TOP);
+			top = TiConvert.toString(options, TiC.PROPERTY_TOP);
 		}
 
 		if (options.containsKey(TiC.PROPERTY_BOTTOM)) {
-			bottom = TiConvert.toInt(options, TiC.PROPERTY_BOTTOM);
+			bottom = TiConvert.toString(options, TiC.PROPERTY_BOTTOM);
 		}
 
 		if (options.containsKey(TiC.PROPERTY_LEFT)) {
-			left = TiConvert.toInt(options, TiC.PROPERTY_LEFT);
+			left = TiConvert.toString(options, TiC.PROPERTY_LEFT);
 		}
 
 		if (options.containsKey(TiC.PROPERTY_RIGHT)) {
-			right = TiConvert.toInt(options, TiC.PROPERTY_RIGHT);
+			right = TiConvert.toString(options, TiC.PROPERTY_RIGHT);
 		}
 
 		if (options.containsKey(TiC.PROPERTY_CENTER)) {
 			Object centerPoint = options.get(TiC.PROPERTY_CENTER);
 			if (centerPoint instanceof HashMap) {
 				HashMap center = (HashMap) centerPoint;
-				centerX = TiConvert.toInt(center, TiC.PROPERTY_X);
-				centerY = TiConvert.toInt(center, TiC.PROPERTY_Y);
-
+				centerX = TiConvert.toString(center, TiC.PROPERTY_X);
+				centerY = TiConvert.toString(center, TiC.PROPERTY_Y);
+				
 			} else {
 				Log.e(LCAT, "Invalid argument type for center property. Ignoring");
 			}
 		}
 
 		if (options.containsKey(TiC.PROPERTY_WIDTH)) {
-			width = TiConvert.toInt(options, TiC.PROPERTY_WIDTH);
+			width = TiConvert.toString(options, TiC.PROPERTY_WIDTH);
 		}
 
 		if (options.containsKey(TiC.PROPERTY_HEIGHT)) {
-			height = TiConvert.toInt(options, TiC.PROPERTY_HEIGHT);
+			height = TiConvert.toString(options, TiC.PROPERTY_HEIGHT);
 		}
 
 		if (options.containsKey(TiC.PROPERTY_BACKGROUND_COLOR)) {
@@ -304,7 +304,7 @@ public class TiAnimationBuilder
 			// use the correct TiDimension constructor, except when
 			// we know the values are expressed for certain in pixels.
 			if (top != null) {
-				optionTop = new TiDimension(String.valueOf(top), TiDimension.TYPE_TOP);
+				optionTop = new TiDimension(top, TiDimension.TYPE_TOP);
 			} else if (bottom == null && centerY == null) {
 				// Fix a top value since no other y-axis value is being set.
 				optionTop = new TiDimension(view.getTop(), TiDimension.TYPE_TOP);
@@ -312,11 +312,11 @@ public class TiAnimationBuilder
 			}
 
 			if (bottom != null) {
-				optionBottom = new TiDimension(String.valueOf(bottom), TiDimension.TYPE_BOTTOM);
+				optionBottom = new TiDimension(bottom, TiDimension.TYPE_BOTTOM);
 			}
 
 			if (left != null) {
-				optionLeft = new TiDimension(String.valueOf(left), TiDimension.TYPE_LEFT);
+				optionLeft = new TiDimension(left, TiDimension.TYPE_LEFT);
 			} else if (right == null && centerX == null) {
 				// Fix a left value since no other x-axis value is being set.
 				optionLeft = new TiDimension(view.getLeft(), TiDimension.TYPE_LEFT);
@@ -324,7 +324,7 @@ public class TiAnimationBuilder
 			}
 
 			if (right != null) {
-				optionRight = new TiDimension(String.valueOf(right), TiDimension.TYPE_RIGHT);
+				optionRight = new TiDimension(right, TiDimension.TYPE_RIGHT);
 			}
 
 			if (centerX != null) {
@@ -370,8 +370,24 @@ public class TiAnimationBuilder
 		}
 
 		if (tdm == null && (width != null || height != null)) {
-			int toWidth = width == null ? w : width;
-			int toHeight = height == null ? h : height;
+			TiDimension optionWidth, optionHeight;
+			// we need to setup a custom animation for this, is there a better way?
+			if (width != null) {
+				optionWidth = new TiDimension(width, TiDimension.TYPE_WIDTH);
+			} else {
+				optionWidth = new TiDimension(w, TiDimension.TYPE_WIDTH);
+				optionWidth.setUnits(TypedValue.COMPLEX_UNIT_PX);
+			}
+
+			if (height != null) {
+				optionHeight = new TiDimension(height, TiDimension.TYPE_HEIGHT);
+			} else {
+				optionHeight = new TiDimension(w, TiDimension.TYPE_HEIGHT);
+				optionHeight.setUnits(TypedValue.COMPLEX_UNIT_PX);
+			}
+
+			int toWidth = optionWidth.getAsPixels(view);
+			int toHeight = optionHeight.getAsPixels(view);
 			SizeAnimation sizeAnimation = new SizeAnimation(view, w, h, toWidth, toHeight);
 
 			if (duration != null) {
@@ -461,7 +477,9 @@ public class TiAnimationBuilder
 			if (params instanceof TiCompositeLayout.LayoutParams) {
 				TiCompositeLayout.LayoutParams tiParams = (TiCompositeLayout.LayoutParams) params;
 				tiParams.optionHeight = new TiDimension(height, TiDimension.TYPE_HEIGHT);
+				tiParams.optionHeight.setUnits(TypedValue.COMPLEX_UNIT_PX);
 				tiParams.optionWidth = new TiDimension(width, TiDimension.TYPE_WIDTH);
+				tiParams.optionWidth.setUnits(TypedValue.COMPLEX_UNIT_PX);
 			}
 
 			view.setLayoutParams(params);
