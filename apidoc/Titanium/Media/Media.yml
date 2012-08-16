@@ -589,12 +589,6 @@ properties:
         <Titanium.Media.VideoPlayer> in iPhone 3.2+.
     type: Number
     permission: read-only
-  - name: VIDEO_CONTROL_VOLUME_ONLY
-    summary: Constant for video controls volume only.
-    type: Number
-    permission: read-only
-    platforms: [iphone, ipad]
-    deprecated: {since: "1.8.0", removed: "1.9.0"}
   - name: VIDEO_FINISH_REASON_PLAYBACK_ENDED
     summary: Video playback ended normally.
     type: Number

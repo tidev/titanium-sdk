@@ -31,7 +31,7 @@
 #import "TiProxy.h"
 #import "TiHost.h"
 
-NSString * TI_SBJSONErrorDomain = @"org.brautaset.JSON.ErrorDomain";
+NSString * SBJSONErrorDomain = @"org.brautaset.JSON.ErrorDomain";
 
 @interface SBJSON (Generator)
 
@@ -73,7 +73,7 @@ NSString * TI_SBJSONErrorDomain = @"org.brautaset.JSON.ErrorDomain";
 
 static NSError *err(int code, NSString *str) {
     NSDictionary *ui = [NSDictionary dictionaryWithObject:str forKey:NSLocalizedDescriptionKey];
-    return [NSError errorWithDomain:TI_SBJSONErrorDomain code:code userInfo:ui];
+    return [NSError errorWithDomain:SBJSONErrorDomain code:code userInfo:ui];
 }
 
 static NSError *errWithUnderlier(int code, NSError **u, NSString *str) {
@@ -84,7 +84,7 @@ static NSError *errWithUnderlier(int code, NSError **u, NSString *str) {
                         str, NSLocalizedDescriptionKey,
                         *u, NSUnderlyingErrorKey,
                         nil];
-    return [NSError errorWithDomain:TI_SBJSONErrorDomain code:code userInfo:ui];
+    return [NSError errorWithDomain:SBJSONErrorDomain code:code userInfo:ui];
 }
 
 

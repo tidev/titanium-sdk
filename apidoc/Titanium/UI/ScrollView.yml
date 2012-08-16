@@ -69,13 +69,6 @@ events:
     summary: Fired when the zoom scale factor changes.
     platforms: [iphone, ipad]
     properties:
-      - name: globalPoint
-        summary: X and Y coordinates of the event from the display's coordinate system.
-        type: Dictionary
-        platforms: [iphone, ipad]
-        deprecated:
-            since: "1.8.0"
-
       - name: scale
         summary: New scaling factor as a float.
         type: Number
@@ -96,13 +89,6 @@ events:
         type: Boolean
         platforms: [iphone, ipad, mobileweb]
         
-      - name: globalPoint
-        summary: X and Y coordinates of the event from the display's coordinate system.
-        type: Dictionary
-        platforms: [iphone, ipad]
-        deprecated:
-            since: "1.8.0"
-            
       - name: x
         summary: X coordinate of the event from the `source` view's coordinate system.
         type: Number
