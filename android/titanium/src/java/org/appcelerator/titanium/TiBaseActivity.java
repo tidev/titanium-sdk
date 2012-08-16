@@ -45,6 +45,7 @@ import android.os.RemoteException;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 
@@ -64,7 +65,7 @@ public abstract class TiBaseActivity extends Activity
 	private int originalOrientationMode = -1;
 	private TiWeakList<OnLifecycleEvent> lifecycleListeners = new TiWeakList<OnLifecycleEvent>();
 
-	protected TiCompositeLayout layout;
+	protected View layout;
 	protected TiActivitySupportHelper supportHelper;
 	protected TiWindowProxy window;
 	protected TiViewProxy view;
@@ -164,8 +165,8 @@ public abstract class TiBaseActivity extends Activity
 	 */
 	protected void setLayoutProxy(TiViewProxy proxy)
 	{
-		if (layout != null) {
-			layout.setProxy(proxy);
+		if (layout instanceof TiCompositeLayout) {
+			((TiCompositeLayout) layout).setProxy(proxy);
 		}
 	}
 
@@ -203,9 +204,14 @@ public abstract class TiBaseActivity extends Activity
 	/**
 	 * @return the activity's current layout.
 	 */
-	public TiCompositeLayout getLayout()
+	public View getLayout()
 	{
 		return layout;
+	}
+
+	public void setLayout(View layout)
+	{
+		this.layout = layout;
 	}
 
 	public void addConfigurationChangedListener(ConfigurationChangedListener listener)
@@ -293,7 +299,7 @@ public abstract class TiBaseActivity extends Activity
 	}
 
 	// Subclasses can override to provide a custom layout
-	protected TiCompositeLayout createLayout()
+	protected View createLayout()
 	{
 		LayoutArrangement arrangement = LayoutArrangement.DEFAULT;
 
@@ -423,11 +429,6 @@ public abstract class TiBaseActivity extends Activity
 		// Doing this on every create in case the activity is externally created.
 		TiPlatformHelper.intializeDisplayMetrics(this);
 
-		layout = createLayout();
-		if (intent != null && intent.hasExtra(TiC.PROPERTY_KEEP_SCREEN_ON)) {
-			layout.setKeepScreenOn(intent.getBooleanExtra(TiC.PROPERTY_KEEP_SCREEN_ON, layout.getKeepScreenOn()));
-		}
-
 		super.onCreate(savedInstanceState);
 		
 		// we only want to set the current activity for good in the resume state but we need it right now.
@@ -445,6 +446,12 @@ public abstract class TiBaseActivity extends Activity
 		// set the current activity back to what it was originally
 		tiApp.setCurrentActivity(this, tempCurrentActivity);
 
+		if (layout == null) {
+			layout = createLayout();
+		}
+		if (intent != null && intent.hasExtra(TiC.PROPERTY_KEEP_SCREEN_ON)) {
+			layout.setKeepScreenOn(intent.getBooleanExtra(TiC.PROPERTY_KEEP_SCREEN_ON, layout.getKeepScreenOn()));
+		}
 		setContentView(layout);
 
 		sendMessage(msgActivityCreatedId);
@@ -982,11 +989,11 @@ public abstract class TiBaseActivity extends Activity
 		fireOnDestroy();
 
 		
-		if (layout != null) {
+		if (layout instanceof TiCompositeLayout) {
 			Log.e(TAG, "Layout cleanup.");
-			layout.removeAllViews();
-			layout = null;
+			((TiCompositeLayout) layout).removeAllViews();
 		}
+		layout = null;
 
 		if (window != null) {
 			window.closeFromActivity();

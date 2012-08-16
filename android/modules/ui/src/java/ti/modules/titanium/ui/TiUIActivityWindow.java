@@ -413,14 +413,11 @@ public class TiUIActivityWindow extends TiUIView
 		}
 
 		if (d.containsKey(TiC.PROPERTY_LAYOUT)) {
-			TiCompositeLayout layout = null;
-
 			if (windowActivity instanceof TiActivity) {
-				layout = ((TiActivity)windowActivity).getLayout();
-			}
-
-			if (layout != null) {
-				layout.setLayoutArrangement(TiConvert.toString(d, TiC.PROPERTY_LAYOUT));
+				View layout = ((TiActivity)windowActivity).getLayout();
+				if (layout instanceof TiCompositeLayout) {
+					((TiCompositeLayout) layout).setLayoutArrangement(TiConvert.toString(d, TiC.PROPERTY_LAYOUT));
+				}
 			}
 		}
 
@@ -504,14 +501,11 @@ public class TiUIActivityWindow extends TiUIView
 			}
 
 		} else if (key.equals(TiC.PROPERTY_LAYOUT)) {
-			TiCompositeLayout layout = null;
-
 			if (windowActivity instanceof TiActivity) {
-				layout = ((TiActivity)windowActivity).getLayout();
-			}
-
-			if (layout != null) {
-				layout.setLayoutArrangement(TiConvert.toString(newValue));
+				View layout = ((TiActivity)windowActivity).getLayout();
+				if (layout instanceof TiCompositeLayout) {
+					((TiCompositeLayout) layout).setLayoutArrangement(TiConvert.toString(newValue));
+				}
 			}
 
 		} else if (key.equals(TiC.PROPERTY_OPACITY)) {
