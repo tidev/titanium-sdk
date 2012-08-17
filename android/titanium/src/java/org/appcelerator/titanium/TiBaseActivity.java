@@ -544,6 +544,13 @@ public abstract class TiBaseActivity extends Activity
 					}
 					handled = true;
 				}
+				// TODO: Deprecate old event
+				if (window.hasListeners("android:back")) {
+					if (event.getAction() == KeyEvent.ACTION_UP) {
+						window.fireEvent("android:back", null);
+					}
+					handled = true;
+				}
 
 				break;
 			}
@@ -551,6 +558,13 @@ public abstract class TiBaseActivity extends Activity
 				if (window.hasListeners(TiC.EVENT_ANDROID_CAMERA)) {
 					if (event.getAction() == KeyEvent.ACTION_UP) {
 						window.fireEvent(TiC.EVENT_ANDROID_CAMERA, null);
+					}
+					handled = true;
+				}
+				// TODO: Deprecate old event
+				if (window.hasListeners("android:camera")) {
+					if (event.getAction() == KeyEvent.ACTION_UP) {
+						window.fireEvent("android:camera", null);
 					}
 					handled = true;
 				}
@@ -564,6 +578,13 @@ public abstract class TiBaseActivity extends Activity
 					}
 					handled = true;
 				}
+				// TODO: Deprecate old event
+				if (window.hasListeners("android:focus")) {
+					if (event.getAction() == KeyEvent.ACTION_UP) {
+						window.fireEvent("android:focus", null);
+					}
+					handled = true;
+				}
 
 				break;
 			}
@@ -571,6 +592,13 @@ public abstract class TiBaseActivity extends Activity
 				if (window.hasListeners(TiC.EVENT_ANDROID_SEARCH)) {
 					if (event.getAction() == KeyEvent.ACTION_UP) {
 						window.fireEvent(TiC.EVENT_ANDROID_SEARCH, null);
+					}
+					handled = true;
+				}
+				// TODO: Deprecate old event
+				if (window.hasListeners("android:search")) {
+					if (event.getAction() == KeyEvent.ACTION_UP) {
+						window.fireEvent("android:search", null);
 					}
 					handled = true;
 				}
@@ -584,6 +612,13 @@ public abstract class TiBaseActivity extends Activity
 					}
 					handled = true;
 				}
+				// TODO: Deprecate old event
+				if (window.hasListeners("android:volup")) {
+					if (event.getAction() == KeyEvent.ACTION_UP) {
+						window.fireEvent("android:volup", null);
+					}
+					handled = true;
+				}
 
 				break;
 			}
@@ -591,6 +626,13 @@ public abstract class TiBaseActivity extends Activity
 				if (window.hasListeners(TiC.EVENT_ANDROID_VOLDOWN)) {
 					if (event.getAction() == KeyEvent.ACTION_UP) {
 						window.fireEvent(TiC.EVENT_ANDROID_VOLDOWN, null);
+					}
+					handled = true;
+				}
+				// TODO: Deprecate old event
+				if (window.hasListeners("android:voldown")) {
+					if (event.getAction() == KeyEvent.ACTION_UP) {
+						window.fireEvent("android:voldown", null);
 					}
 					handled = true;
 				}
@@ -662,6 +704,8 @@ public abstract class TiBaseActivity extends Activity
 			KrollDict data = new KrollDict();
 			data.put(TiC.PROPERTY_INTENT, ip);
 			activityProxy.fireSyncEvent(TiC.EVENT_NEW_INTENT, data);
+			// TODO: Deprecate old event
+			activityProxy.fireSyncEvent("newIntent", data);
 		}
 	}
 
