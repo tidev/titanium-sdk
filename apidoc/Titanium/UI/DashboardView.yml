@@ -54,6 +54,8 @@ events:
         type: Number
         
   - name: dragEnd
+    description: |
+        This event has been deprecated and renamed dragend (lower case).
     summary: Fired when an item finishes being dragged in edit mode.
     properties:
       - name: item
@@ -67,8 +69,59 @@ events:
       - name: y
         summary: Y coordinate of the event from the `source` view's coordinate system.
         type: Number
+    deprecated:
+        since: "2.2.0"
         
   - name: dragStart
+    description: |
+        This event has been deprecated and renamed dragstart (lower case).
+    summary: Fired when an item starts being dragged in edit mode.
+    properties:
+      - name: globalPoint
+        summary: Coordinates `x` and `y` of the event from the `source` view's coordinate system.
+        type: Dictionary
+        platforms: [iphone, ipad]
+        deprecated:
+            since: "1.8.0"
+            
+      - name: item
+        summary: Item that was dragged.
+        type: Titanium.UI.DashboardItem
+        
+      - name: x
+        summary: X coordinate of the event from the `source` view's coordinate system.
+        type: Number
+        
+      - name: y
+        summary: Y coordinate of the event from the `source` view's coordinate system.
+        type: Number
+    deprecated:
+        since: "2.2.0"
+        
+  - name: dragend
+    summary: Fired when an item finishes being dragged in edit mode.
+    properties:
+      - name: globalPoint
+        summary: Coordinates `x` and `y` of the event from the `source` view's coordinate system.
+        type: Dictionary
+        platforms: [iphone, ipad]
+        deprecated:
+            since: "1.8.0"
+            
+      - name: item
+        summary: Item that was dragged.
+        type: Titanium.UI.DashboardItem
+        
+      - name: x
+        summary: X coordinate of the event from the `source` view's coordinate system.
+        type: Number
+        
+      - name: y
+        summary: Y coordinate of the event from the `source` view's coordinate system.
+        type: Number
+    since: '2.2.0'
+        
+  - name: dragstart
     summary: Fired when an item starts being dragged in edit mode.
     properties:
       - name: item
@@ -82,6 +135,7 @@ events:
       - name: y
         summary: Y coordinate of the event from the `source` view's coordinate system.
         type: Number
+    since: '2.2.0'
         
   - name: edit
     summary: Fired when edit mode starts.
