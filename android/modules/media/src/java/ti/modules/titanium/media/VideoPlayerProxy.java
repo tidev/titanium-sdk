@@ -521,6 +521,8 @@ public class VideoPlayerProxy extends TiViewProxy implements TiLifecycle.OnLifec
 		KrollDict data = new KrollDict();
 		data.put(TiC.EVENT_PROPERTY_PLAYBACK_STATE, state);
 		fireEvent(TiC.EVENT_PLAYBACK_STATE, data);
+		// TODO: Deprecate old event
+		fireEvent("playbackState", data);
 	}
 
 	public void fireLoadState(int state)
@@ -554,6 +556,9 @@ public class VideoPlayerProxy extends TiViewProxy implements TiLifecycle.OnLifec
 			setProperty(TiC.PROPERTY_INITIAL_PLAYBACK_TIME, 0);
 		}
 		fireEvent(TiC.EVENT_DURATION_AVAILABLE, data);
+		// TODO: Deprecate old event
+		fireEvent("durationAvailable", data);
+
 		fireEvent(TiC.EVENT_PRELOAD, null);
 		fireEvent(TiC.EVENT_LOAD, null); // No distinction between load and preload in our case.
 		fireLoadState(MediaModule.VIDEO_LOAD_STATE_PLAYABLE);
