@@ -29,8 +29,8 @@ module.exports = new function() {
 	]
 
 	this.testInvert = function(testRun) {
-		var matrix1 = Ti.UI.iOS.create3DMatrix();
-	    var matrix2 = Ti.UI.iOS.create3DMatrix();
+		var matrix1 = Ti.UI.create3DMatrix();
+	    var matrix2 = Ti.UI.create3DMatrix();
 	    valueOf(testRun, matrix1.invert()).shouldBeObject();
 	    matrix1 = matrix1.scale(2, 2, 2);
 	    valueOf(testRun, matrix1.invert()).shouldBeObject();
@@ -45,8 +45,8 @@ module.exports = new function() {
 	}
 
 	this.testMultiply = function(testRun) {
-		var matrix1 = Ti.UI.iOS.create3DMatrix();
-	    var matrix2 = Ti.UI.iOS.create3DMatrix();
+		var matrix1 = Ti.UI.create3DMatrix();
+	    var matrix2 = Ti.UI.create3DMatrix();
 	    valueOf(testRun, matrix1.multiply(matrix2)).shouldBeObject();
 	    valueOf(testRun, matrix1.multiply(matrix1)).shouldBeObject();
 
@@ -54,7 +54,7 @@ module.exports = new function() {
 	}
 
 	this.testRotate = function(testRun) {
-		var matrix1 = Ti.UI.iOS.create3DMatrix();
+		var matrix1 = Ti.UI.create3DMatrix();
 	    valueOf(testRun, matrix1.rotate(0, 0, 0, 0)).shouldBeObject();
 	    valueOf(testRun, matrix1.rotate(90, 1, 0, 0)).shouldBeObject();
 	    valueOf(testRun, matrix1.rotate(90, 0, 1, 0)).shouldBeObject();
@@ -72,7 +72,7 @@ module.exports = new function() {
 	}
 
 	this.testTranslate = function(testRun) {
-		var matrix1 = Ti.UI.iOS.create3DMatrix();
+		var matrix1 = Ti.UI.create3DMatrix();
 	    valueOf(testRun, matrix1.translate(-1.0, 0, 0)).shouldBeObject();
 	    valueOf(testRun, matrix1.translate(0, -1.0, 0)).shouldBeObject();
 	    valueOf(testRun, matrix1.translate(0, 0, -1.0)).shouldBeObject();
@@ -88,7 +88,7 @@ module.exports = new function() {
 	}
 
 	this.testScale = function(testRun) {
-		var matrix1 = Ti.UI.iOS.create3DMatrix();
+		var matrix1 = Ti.UI.create3DMatrix();
 	    valueOf(testRun, matrix1.scale()).shouldBeObject();
 	    valueOf(testRun, matrix1.scale(1.0)).shouldBeObject();
 	    valueOf(testRun, matrix1.scale(-1.0)).shouldBeObject();
@@ -104,7 +104,7 @@ module.exports = new function() {
 	}
 
 	this.testCreate3DMatrixValue = function(testRun) {
-		var matrix1 = Ti.UI.iOS.create3DMatrix();
+		var matrix1 = Ti.UI.create3DMatrix();
 	    valueOf(testRun, matrix1.m11).shouldBe(1);
 	    valueOf(testRun, matrix1.m12).shouldBe(0);
 	    valueOf(testRun, matrix1.m13).shouldBe(0);
@@ -126,7 +126,7 @@ module.exports = new function() {
 	}
 
 	this.testInvertValue = function(testRun) {
-		var matrix1 = Ti.UI.iOS.create3DMatrix();
+		var matrix1 = Ti.UI.create3DMatrix();
 	    matrix1.invert();
 	    valueOf(testRun, matrix1.m11).shouldBe(1);
 	    valueOf(testRun, matrix1.m12).shouldBe(0);
@@ -149,7 +149,7 @@ module.exports = new function() {
 	}
 
 	this.testRotateValue = function(testRun) {
-		var matrix1 = Ti.UI.iOS.create3DMatrix();
+		var matrix1 = Ti.UI.create3DMatrix();
 	    matrix1 = matrix1.rotate(-180, 50, 0, 0);
 	    valueOf(testRun, matrix1.m11).shouldBe(1);
 	    valueOf(testRun, matrix1.m12).shouldBe(0);
@@ -172,7 +172,7 @@ module.exports = new function() {
 	}
 
 	this.testScaleValue = function(testRun) {
-		var matrix1 = Ti.UI.iOS.create3DMatrix();
+		var matrix1 = Ti.UI.create3DMatrix();
 	    matrix1 = matrix1.scale(5, -5, 0);
 	    valueOf(testRun, matrix1.m11).shouldBe(5);
 	    valueOf(testRun, matrix1.m12).shouldBe(0);
@@ -195,7 +195,7 @@ module.exports = new function() {
 	}
 
 	this.testTranslateValue = function(testRun) {
-		var matrix1 = Ti.UI.iOS.create3DMatrix();
+		var matrix1 = Ti.UI.create3DMatrix();
 	    matrix1 = matrix1.translate(5, -10, 5);
 	    valueOf(testRun, matrix1.m11).shouldBe(1);
 	    valueOf(testRun, matrix1.m12).shouldBe(0);
@@ -218,8 +218,8 @@ module.exports = new function() {
 	}
 
 	this.testMultiplyValue = function(testRun) {
-		var matrix1 = Ti.UI.iOS.create3DMatrix();
-	    var matrix2 = Ti.UI.iOS.create3DMatrix();
+		var matrix1 = Ti.UI.create3DMatrix();
+	    var matrix2 = Ti.UI.create3DMatrix();
 	    matrix1 = matrix1.multiply(matrix1);
 	    valueOf(testRun, matrix1.m11).shouldBe(1);
 	    valueOf(testRun, matrix1.m12).shouldBe(0);
