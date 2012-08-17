@@ -1387,6 +1387,7 @@ def main(args):
 						sim = subprocess.Popen("\"%s\" launch \"%s\" --sdk %s" % (iphonesim,app_dir,iphone_version),shell=True,cwd=template_dir)
 					else:
 						sim = subprocess.Popen("\"%s\" launch \"%s\" --sdk %s --family %s" % (iphonesim,app_dir,iphone_version,simtype),shell=True,cwd=template_dir)
+					os.unsetenv('DYLD_FRAMEWORK_PATH')
 
 					# activate the simulator window
 					command = 'osascript -e "tell application \\\"%s/Platforms/iPhoneSimulator.platform/Developer/Applications/iPhone Simulator.app\\\" to activate"'
