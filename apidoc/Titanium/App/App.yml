@@ -113,6 +113,8 @@ events:
   - name: keyboardFrameChanged
     summary: Fired when the soft keyboard is presented, on and off the screen.
     description: |
+        This event has been deprecated and renamed keyboardframechanged (lower case).
+
         This event fires when the application presents the soft keyboard on/off the screen . The 
         event returns the dictionary containing `keyboardFrame.x`, `keyboardFrame.y`, 
         `keyboardFrame.height` and `keyboardFrame.width` variables, corresponding to the frame of 
@@ -121,7 +123,22 @@ events:
         Note that the keyboard `height` and `width` properties will not be accurate when the keyboard 
         is being dissmissed.
     platforms: [iphone, ipad]
+    deprecated:
+        since: "2.2.0"
     since: '2.1.0'
+
+  - name: keyboardframechanged
+    summary: Fired when the soft keyboard is presented, on and off the screen.
+    description: |
+        This event fires when the application presents the soft keyboard on/off the screen . The 
+        event returns the dictionary containing `keyboardFrame.x`, `keyboardFrame.y`, 
+        `keyboardFrame.height` and `keyboardFrame.width` variables, corresponding to the frame of 
+        the keyboard with respect to the screen coordinates.
+        
+        Note that the keyboard `height` and `width` properties will not be accurate when the keyboard 
+        is being dissmissed.
+    platforms: [iphone, ipad]
+    since: '2.2.0'
     
 methods:
   - name: getArguments
