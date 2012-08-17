@@ -326,6 +326,8 @@ events:
         
   - name: scrollEnd
     summary: fired when the table view stops scrolling
+    description: |
+        This event has been deprecated and renamed scrollend (lower case).
     platforms: [android, iphone, ipad, mobileweb]
     properties:
       - name: contentSize
@@ -353,6 +355,48 @@ events:
       - name: y
         summary: Y coordinate of the event from the `source` view's coordinate system.
         type: Number
+    deprecated:
+        since: "2.2.0"
+
+  - name: scrollend
+    summary: fired when the table view stops scrolling
+    platforms: [android, iphone, ipad, mobileweb]
+    properties:
+      - name: contentSize
+        summary: |
+            Dictionary with `width` and `height` properties containing the size of the content 
+            (regardless of the display size in the case of scrolling).
+        type: Dictionary
+        platforms: [iphone, ipad, mobileweb]
+        
+      - name: contentOffset
+        summary: Dictionary with `x` and `y` properties containing the content offset.
+        type: Point
+        platforms: [iphone, ipad, mobileweb]
+        
+      - name: globalPoint
+        summary: |
+            Coordinates `x` and `y` describing the location of the event in terms of screen 
+            coordinates.
+        type: Dictionary
+        deprecated:
+            since: "1.8.0"
+        platforms: [iphone, ipad]
+        
+      - name: size
+        summary: |
+            Dictionary with `width` and `height` properties containing the size of the visible 
+            table view.
+        type: Dictionary
+        
+      - name: x
+        summary: X coordinate of the event from the `source` view's coordinate system.
+        type: Number
+        
+      - name: y
+        summary: Y coordinate of the event from the `source` view's coordinate system.
+        type: Number
+    since: '2.2.0'
         
   - name: singletap
     summary: Fired when the device detects a single tap against the view.
@@ -474,11 +518,40 @@ events:
   - name: dragStart
     summary: Fired when the scrollable region starts being dragged.
     description: |
+        This event has been deprecated and renamed dragstart (lower case).
+
         A dragging gesture is when a touch remains in contact with the display to physically drag 
         the view, as opposed to it being the result of scrolling momentum.
     platforms: [iphone, ipad, mobileweb]
+    deprecated:
+        since: "2.2.0"
 
   - name: dragEnd
+    summary: Fired when the scrollable region stops being dragged.
+    description: |
+        This event has been deprecated and renamed dragend (lower case).
+
+        A dragging gesture is when a touch remains in contact with the display to physically drag 
+        the view, as opposed to it being the result of scrolling momentum.
+    platforms: [iphone, ipad, mobileweb]
+    properties:
+      - name: decelerate
+        summary: |
+            Indicates whether scrolling will continue but decelerate, now that the drag gesture has 
+            been released by the touch. If `false`, scrolling will stop immediately.
+        type: Boolean
+    deprecated:
+        since: "2.2.0"
+
+  - name: dragstart
+    summary: Fired when the scrollable region starts being dragged.
+    description: |
+        A dragging gesture is when a touch remains in contact with the display to physically drag 
+        the view, as opposed to it being the result of scrolling momentum.
+    platforms: [iphone, ipad, mobileweb]
+    since: '2.2.0'
+
+  - name: dragend
     summary: Fired when the scrollable region stops being dragged.
     description: |
         A dragging gesture is when a touch remains in contact with the display to physically drag 
@@ -490,6 +563,7 @@ events:
             Indicates whether scrolling will continue but decelerate, now that the drag gesture has 
             been released by the touch. If `false`, scrolling will stop immediately.
         type: Boolean
+    since: '2.2.0'
 
 methods:
   - name: appendRow
