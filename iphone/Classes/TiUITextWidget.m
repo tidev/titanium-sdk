@@ -30,7 +30,10 @@
 -(void)setValue_:(id)value
 {
     NSString* string = [TiUtils stringValue:value];
-    if (string == nil) return;
+    if (string == nil)
+	{
+		return;
+	}
     if (maxLength > -1 && [string length] > maxLength) {
         string = [string substringToIndex:maxLength];
     }
