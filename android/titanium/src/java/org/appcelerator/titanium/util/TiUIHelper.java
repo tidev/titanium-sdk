@@ -637,7 +637,7 @@ public class TiUIHelper
 				Log.e(TAG, "Height property is 0 for view, display view before calling toImage()", Log.DEBUG_MODE);
 			}
 
-			Bitmap bitmap = Bitmap.createBitmap(width, height, Config.RGB_565);
+			Bitmap bitmap = Bitmap.createBitmap(width, height, Config.ARGB_8888);
 			Canvas canvas = new Canvas(bitmap);
 
 			view.draw(canvas);
