@@ -736,6 +736,11 @@ public class TiC
 	 */
 	public static final String PROPERTY_CLEAR_ON_EDIT = "clearOnEdit";
 
+		/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_CLIP_CHILDREN = "clipChildren";
+
 	/**
 	 * @module.api
 	 */
