@@ -21,37 +21,37 @@ public class TiC
 	/**
 	 * @module.api
 	 */
-	public static final String EVENT_ADDED_TO_TAB = "addedToTab";
+	public static final String EVENT_ADDED_TO_TAB = "addedtotab";
 
 	/**
 	 * @module.api
 	 */
-	public static final String EVENT_ANDROID_BACK = "android:back";
+	public static final String EVENT_ANDROID_BACK = "androidback";
 
 	/**
 	 * @module.api
 	 */
-	public static final String EVENT_ANDROID_CAMERA = "android:camera";
+	public static final String EVENT_ANDROID_CAMERA = "androidcamera";
 
 	/**
 	 * @module.api
 	 */
-	public static final String EVENT_ANDROID_FOCUS = "android:focus";
+	public static final String EVENT_ANDROID_FOCUS = "androidfocus";
 
 	/**
 	 * @module.api
 	 */
-	public static final String EVENT_ANDROID_SEARCH = "android:search";
+	public static final String EVENT_ANDROID_SEARCH = "androidsearch";
 
 	/**
 	 * @module.api
 	 */
-	public static final String EVENT_ANDROID_VOLDOWN = "android:voldown";
+	public static final String EVENT_ANDROID_VOLDOWN = "androidvoldown";
 
 	/**
 	 * @module.api
 	 */
-	public static final String EVENT_ANDROID_VOLUP = "android:volup";
+	public static final String EVENT_ANDROID_VOLUP = "androidvolup";
 
 	/**
 	 * @module.api
@@ -116,7 +116,7 @@ public class TiC
 	/**
 	 * @module.api
 	 */
-	public static final String EVENT_DURATION_AVAILABLE = "durationAvailable";
+	public static final String EVENT_DURATION_AVAILABLE = "durationavailable";
 
 	/**
 	 * @module.api
@@ -171,7 +171,7 @@ public class TiC
 	/**
 	 * @module.api
 	 */
-	public static final String EVENT_NEW_INTENT = "newIntent";
+	public static final String EVENT_NEW_INTENT = "newintent";
 
 	/**
 	 * @module.api
@@ -191,7 +191,7 @@ public class TiC
 	/**
 	 * @module.api
 	 */
-	public static final String EVENT_PLAYBACK_STATE = "playbackState";
+	public static final String EVENT_PLAYBACK_STATE = "playbackstate";
 
 	/**
 	 * @module.api
@@ -361,7 +361,7 @@ public class TiC
 	/**
 	 * @module.api
 	 */
-	public static final String EVENT_REGION_CHANGED = "regionChanged";
+	public static final String EVENT_REGION_CHANGED = "regionchanged";
 
 	/**
 	 * @module.api
@@ -381,12 +381,12 @@ public class TiC
 	/**
 	 * @module.api
 	 */
-	public static final String EVENT_SCROLLEND = "scrollEnd";
+	public static final String EVENT_SCROLLEND = "scrollend";
 
 	/**
 	 * @module.api
 	 */
-	public static final String EVENT_DRAGEND = "dragEnd";
+	public static final String EVENT_DRAGEND = "dragend";
 
 	/**
 	 * @module.api

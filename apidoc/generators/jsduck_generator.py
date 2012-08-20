@@ -359,9 +359,13 @@ def generate(raw_apis, annotated_apis, options):
 
 				if obj.has_key("parameters"):
 					for param in obj["parameters"]:
-						if 'summary' in param:
-							summary = param['summary']
-						type = "{" + transform_type(param["type"]) + "}" if param.has_key('type') else ""
+						if "summary" in param:
+							summary = param["summary"]
+							if "repeatable" in param and param["repeatable"]:
+								repeatable = "..."
+							else:
+								repeatable = ""
+						type = "{" + transform_type(param["type"]) + repeatable + "}" if param.has_key("type") else ""
 						optional = "(optional)" if param.has_key('optional') and param["optional"] == True else ""
 						if param.has_key('default'):
 							output.write("\t * @param %s [%s=%s] %s\n\t * %s\n" % (type, param['name'], param['default'], optional, markdown_to_html(summary)))
