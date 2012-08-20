@@ -32,7 +32,11 @@
 {
 	if (launcher==nil)
 	{
-		launcher = [[LauncherView alloc] initWithFrame:CGRectMake(0, 0, 320, 400)];
+        int rowCount = [TiUtils intValue:[self.proxy valueForKey:@"rowCount"] def:3];
+        int columnCount = [TiUtils intValue:[self.proxy valueForKey:@"columnCount"] def:3];
+		launcher = [[LauncherView alloc] initWithFrame:CGRectMake(0, 0, 320, 400) 
+                                          withRowCount:rowCount 
+                                       withColumnCount:columnCount];
 		launcher.delegate = self;
         [launcher setEditable:[[[self proxy] valueForUndefinedKey:@"editable"] boolValue]];
 		[self addSubview:launcher];
