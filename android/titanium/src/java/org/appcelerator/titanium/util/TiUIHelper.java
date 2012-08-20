@@ -897,23 +897,31 @@ public class TiUIHelper
 	 * @param view the current focused view.
 	 * @param show whether to show soft keyboard.
 	 */
-	public static void showSoftKeyboard(View view, boolean show) 
+	public static void showSoftKeyboard(final View view, final boolean show) 
 	{
-		InputMethodManager imm = (InputMethodManager) view.getContext().getSystemService(Activity.INPUT_METHOD_SERVICE);
+		//Since InputMethodManager will ignore keyboard requests unless both the EditText and the window have focus, we need to wait a bit for focus to settle in before making requests.
+		view.postDelayed(new Runnable() {
 
-		if (imm != null) {
-			boolean useForce = (Build.VERSION.SDK_INT <= Build.VERSION_CODES.DONUT || Build.VERSION.SDK_INT >= 8) ? true : false;
-			String model = TiPlatformHelper.getModel(); 
-			if (model != null && model.toLowerCase().startsWith("droid")) {
-				useForce = true;
+			public void run() {
+				final InputMethodManager imm = (InputMethodManager) view.getContext().getSystemService(Activity.INPUT_METHOD_SERVICE);
+
+				if (imm != null) {
+					boolean useForce = (Build.VERSION.SDK_INT <= Build.VERSION_CODES.DONUT || Build.VERSION.SDK_INT >= 8) ? true : false;
+					String model = TiPlatformHelper.getModel(); 
+					if (model != null && model.toLowerCase().startsWith("droid")) {
+						useForce = true;
+					}
+
+					if (show) {
+						imm.showSoftInput(view, useForce ? InputMethodManager.SHOW_FORCED : InputMethodManager.SHOW_IMPLICIT);
+					} else {
+						imm.hideSoftInputFromWindow(view.getWindowToken(), useForce ? 0 : InputMethodManager.HIDE_IMPLICIT_ONLY);
+					}
+
+
+				}
 			}
-			
-			if (show) {
-				imm.showSoftInput(view, useForce ? InputMethodManager.SHOW_FORCED : InputMethodManager.SHOW_IMPLICIT);
-			} else {
-				imm.hideSoftInputFromWindow(view.getWindowToken(), useForce ? 0 : InputMethodManager.HIDE_IMPLICIT_ONLY);
-			}
-		}
+		}, 10);
 	}
 
 	/**
