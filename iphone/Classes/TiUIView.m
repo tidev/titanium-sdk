@@ -215,7 +215,7 @@ DEFINE_EXCEPTIONS
 	self = [super init];
 	if (self != nil)
 	{
-
+		self.clipsToBounds = YES;
 	}
 	return self;
 }
@@ -597,6 +597,16 @@ DEFINE_EXCEPTIONS
 		[(TiGradientLayer *)gradientLayer setGradient:arg];
 		[gradientLayer setNeedsDisplay];
 	}
+}
+
+-(void)setClipChildren_:(id)arg
+{
+    self.clipsToBounds = [TiUtils boolValue:arg];
+}
+
+-(BOOL)clipChildren
+{
+    return self.clipsToBounds;
 }
 
 -(void)didAddSubview:(UIView*)view
