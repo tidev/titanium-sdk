@@ -168,6 +168,16 @@ methods:
     description: This method causes the <Titanium.UI.DashboardView.commit> event to fire.
 
 properties:
+  - name: columnCount
+    availability: creation
+    summary: The number of columns of items in the view.
+    type: Number
+
+  - name: rowCount
+    availability: creation
+    summary: The number of rows of items in the view.
+    type: Number
+
   - name: data
     summary: Items to display in this view.
     type: Array<Titanium.UI.DashboardItem>
