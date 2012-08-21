@@ -621,7 +621,7 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
         return NUMBOOL(trackSignificantLocationChange);
     }
     else{
-        DebugLog(@"[WARN] The Ti.Geolocation.setTrackSignificantLocationChange is supported on this device.");
+        DebugLog(@"[WARN] Ti.Geolocation.setTrackSignificantLocationChange is not supported on this device.");
         return NO;
     }
 }
@@ -647,7 +647,7 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
     }
     else{
         trackSignificantLocationChange = NO;
-        DebugLog(@"[WARN] The Ti.Geolocation.setTrackSignificantLocationChange is supported on this device.");
+        DebugLog(@"[WARN] Ti.Geolocation.setTrackSignificantLocationChange is not supported on this device.");
     }
 }
 
