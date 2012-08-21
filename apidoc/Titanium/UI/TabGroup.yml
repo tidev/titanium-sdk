@@ -173,7 +173,7 @@ properties:
         You can only set this as a createTabGroup({...}) option.  Setting it after
         tab group creation has no effect.
     platforms: [android]
-    default: false
+    default: True if tab group is opened on top of the root activity. False otherwise.
     type: Boolean
     availability: creation
 
