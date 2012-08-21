@@ -280,6 +280,8 @@ public class TiTableView extends FrameLayout
 					size.put("width", TiTableView.this.getWidth());
 					size.put("height", TiTableView.this.getHeight());
 					eventArgs.put("size", size);
+					fProxy.fireEvent(TiC.EVENT_SCROLLEND, eventArgs);
+					// TODO: Deprecate old event
 					fProxy.fireEvent("scrollEnd", eventArgs);
 				}
 				else if (scrollState == OnScrollListener.SCROLL_STATE_TOUCH_SCROLL) {

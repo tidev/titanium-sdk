@@ -73,11 +73,21 @@ class android(module.ModulePlatform):
 # properly, and prepares a source code provider class (Java)
 # template.
 def prepare_commonjs(module_dir):
+	module_dir = os.path.abspath(os.path.expanduser(module_dir))
 	truthy = ("true", "True", 1, "1", "Yes", "yes")
 	manifest_file = os.path.join(module_dir, "manifest")
 	if not os.path.exists(manifest_file):
 		print >> sys.stderr, "Manifest %s does not exist"
 		sys.exit(1)
+
+	assets_folder = os.path.join(module_dir, "assets")
+	js_assets = []
+	for dirpath, dirnames, filenames in os.walk(assets_folder):
+		for f in filenames:
+			if f.endswith(".js"):
+				js_assets.append(os.path.join(dirpath, f))
+
+	is_commonjs = (len(js_assets) > 0)
 
 	f = open(manifest_file, "r")
 	lines = f.readlines()
@@ -95,10 +105,6 @@ def prepare_commonjs(module_dir):
 	if commonjs_lines:
 		curval = commonjs_lines[0].split(":")[1].strip() in truthy
 
-	commonjs_filename = os.path.join(module_dir, "assets", "%s.js" % moduleid)
-
-	is_commonjs = os.path.exists(commonjs_filename)
-
 	if (is_commonjs and not curval) or (not is_commonjs and curval):
 		# Need to re-write the key-value
 		for l in commonjs_lines:
@@ -110,6 +116,8 @@ def prepare_commonjs(module_dir):
 		print "[DEBUG] manifest re-written to set commonjs value"
 
 	if is_commonjs:
+		# Create the java source file that will hold the results of
+		# jspacker.py (i.e., the encrypted js file contents)
 		f = open(os.path.join(module_android_dir, "generated", "CommonJsSourceProvider.java"), "r")
 		source_provider_template = Template(f.read())
 		f.close()
@@ -121,20 +129,63 @@ def prepare_commonjs(module_dir):
 		f.write(source_provider_class)
 		f.close()
 
-		# Determine which Titanium modules are used within the CommonJS code.
-		# We piggy-back on the functionality in compiler.py for this.
 		from compiler import Compiler
-		c = Compiler(None, None, None, None, None, None)
-		f = open(commonjs_filename, "r")
-		c.extract_modules(f.read())
-		f.close()
-		if c.modules:
-			import simplejson
+		import simplejson, java, run, jspacker
+
+		java_command_locations = java.find_java_commands()
+		java_command = java_command_locations["java"]
+		if not java_command:
+			print >> sys.stderr, "[ERROR] java command could not be located. Please check your JAVA_HOME environment variable"
+			sys.exit(1)
+
+		modules_used = set()
+		output_folder = os.path.join(module_dir, "build", "generated", "js")
+		compiled_files = []
+
+		for commonjs_filename in js_assets:
+			# Determine which Titanium modules are used within the CommonJS code.
+			# We piggy-back on the functionality in compiler.py for this.
+			c = Compiler(None, None, None, None, None, None)
+			f = open(commonjs_filename, "r")
+			c.extract_modules(f.read())
+			f.close()
+			modules_used |= c.modules
+
+			# Compile the JS file.
+			relative_name = os.path.relpath(commonjs_filename, assets_folder)
+			compiled_filename = os.path.join(output_folder, relative_name)
+			if not os.path.exists(os.path.dirname(compiled_filename)):
+				os.makedirs(os.path.dirname(compiled_filename))
+			command_args = [java_command,
+					"-jar",
+					os.path.join(sdk_android_dir, "lib", "closure-compiler.jar"),
+					"--js",
+					commonjs_filename,
+					"--js_output_file",
+					compiled_filename,
+					"--jscomp_off=internetExplorerChecks"]
+
+			print "[DEBUG] Compiling '%s'" % commonjs_filename
+			(out, err, javac_process) = run.run(
+					command_args, ignore_error=True, return_error=True, return_process=True)
+
+			if javac_process.returncode != 0:
+				print >> sys.stderr, "[ERROR] %s" % str(err)
+				sys.exit(1)
+
+			compiled_files.append(compiled_filename)
+
+		# Pack (encrypt) the compiled JS files.
+		print "[DEBUG] Packing compiled JavaScript files"
+		generated_java_folder = os.path.join(module_dir, "build", "generated", "java")
+		jspacker.pack(output_folder, compiled_files, moduleid, generated_java_folder)
+
+		if len(modules_used) > 0:
 			output_folder = os.path.join(module_dir, "build", "generated", "json")
 			if not os.path.exists(output_folder):
 				os.makedirs(output_folder)
 			f = open(os.path.join(output_folder, "metadata.json"), "w")
-			simplejson.dump({"exports": list(c.modules)}, f)
+			simplejson.dump({"exports": list(modules_used)}, f)
 			f.close()
 
 if __name__ == "__main__":

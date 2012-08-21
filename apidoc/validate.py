@@ -471,12 +471,19 @@ def loadTypesFromDocgen():
 
 def validateTDoc(tdocPath):
 	global typesFromDocgen
-	if not typesFromDocgen:
-		loadTypesFromDocgen()
 
 	tdocTypes = [type for type in yaml.load_all(codecs.open(tdocPath, 'r', 'utf8').read())]
+
 	if options.parseOnly:
 		return
+
+	if not typesFromDocgen:
+		try:
+			loadTypesFromDocgen()
+		except Exception, e:
+			# This should be fatal
+			print >> sys.stderr, e
+			sys.exit(1)
 
 	for type in tdocTypes:
 		validateType(type)
