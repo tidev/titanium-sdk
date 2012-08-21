@@ -101,6 +101,7 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 			case MSG_SET_ACTIVE_TAB: {
 				AsyncResult result = (AsyncResult) msg.obj;
 				handleSetActiveTab((TabProxy) result.getArg());
+				result.setResult(null);
 				return true;
 			}
 			case MSG_GET_ACTIVE_TAB: {
@@ -284,7 +285,7 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 
 		// Use the navigation tabs if this platform supports the action bar.
 		// Otherwise we will fall back to using the TabHost implementation.
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB && activity.getActionBar() != null) {
 			view = new TiUIActionBarTabGroup(this, activity);
 
 		} else {
