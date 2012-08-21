@@ -257,7 +257,7 @@ define(["Ti/_/browser", "Ti/_/declare", "Ti/_/UI/KineticScrollView", "Ti/_/lang"
 						self._removeViewFromList(self._viewToRemoveAfterScroll);
 						self._viewToRemoveAfterScroll = -1;
 					}
-					self.fireEvent("scrollEnd",{
+					self.fireEvent("scrollend",{
 						currentPage: viewIndex,
 						view: self.views[viewIndex]
 					});
