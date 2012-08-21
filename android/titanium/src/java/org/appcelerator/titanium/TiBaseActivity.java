@@ -748,6 +748,7 @@ public abstract class TiBaseActivity extends Activity
 	
 		TiApplication.updateActivityTransitionState(true);
 		tiApp.setCurrentActivity(this, null);
+		TiUIHelper.showSoftKeyboard(getWindow().getDecorView(), false);
 
 		if (this.isFinishing()) {
 			releaseDialogs();
