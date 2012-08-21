@@ -247,6 +247,17 @@
 	[self forgetProxy:arg];
 }
 
+-(void)removeAllChildren:(id)arg
+{
+	if (children != nil) {
+		NSArray* toRemove = [NSArray arrayWithArray:children];
+		for (TiViewProxy* child in toRemove)
+		{
+			[self remove:child];
+		}
+	}
+}
+
 -(void)show:(id)arg
 {
     dispatch_async(dispatch_get_main_queue(), ^{
