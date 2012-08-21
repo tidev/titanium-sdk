@@ -617,13 +617,7 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 
 -(NSNumber*)trackSignificantLocationChange
 {
-    if ([CLLocationManager significantLocationChangeMonitoringAvailable]) {
-        return NUMBOOL(trackSignificantLocationChange);
-    }
-    else{
-        DebugLog(@"[WARN] Ti.Geolocation.setTrackSignificantLocationChange is not supported on this device.");
-        return NO;
-    }
+    return NUMBOOL(trackSignificantLocationChange);
 }
 
 -(void)setTrackSignificantLocationChange:(id)value
