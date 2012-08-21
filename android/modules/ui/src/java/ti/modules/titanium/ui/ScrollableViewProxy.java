@@ -216,7 +216,14 @@ public class ScrollableViewProxy extends TiViewProxy
 			options.put("view", currentView);
 			options.put("currentPage", currentPage);
 			fireEvent(TiC.EVENT_DRAGEND, options);
-		} 
+		}
+		// TODO: Deprecate old event
+		if (hasListeners("dragEnd")) {
+			KrollDict options = new KrollDict();
+			options.put("view", currentView);
+			options.put("currentPage", currentPage);
+			fireEvent("dragEnd", options);
+		}
 	}
 
 	public void fireScrollEnd(int currentPage, TiViewProxy currentView)
@@ -226,7 +233,14 @@ public class ScrollableViewProxy extends TiViewProxy
 			options.put("view", currentView);
 			options.put("currentPage", currentPage);
 			fireEvent(TiC.EVENT_SCROLLEND, options);
-		} 
+		}
+		// TODO: Deprecate old event
+		if (hasListeners("scrollEnd")) {
+			KrollDict options = new KrollDict();
+			options.put("view", currentView);
+			options.put("currentPage", currentPage);
+			fireEvent("scrollEnd", options);
+		}
 	}
 
 	public void fireScroll(int currentPage, float currentPageAsFloat, TiViewProxy currentView)

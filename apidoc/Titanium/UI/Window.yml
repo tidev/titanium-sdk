@@ -34,49 +34,127 @@ events:
     platforms: [android]
     summary: Fired when the Back button is released.
     description: |
+        This event has been deprecated and renamed androidback (without colon).
+        
         Setting a listener disables the default key handling for the Back button.
         To restore default behavior, remove the listener. It is recommended that you only
         have one handler per heavyweight window.
+    deprecated:
+        since: "2.2.0"
 
   - name: android:camera
+    summary: Fired when the Camera button is released.
+    description: |
+        This event has been deprecated and renamed androidcamera (without colon).
+        
+        Setting a listener disables the default key handling for this button. To restore
+        default behavior, remove the listener. It is recommended that you only have one
+        handler per heavyweight window.
+    platforms: [android]
+    deprecated:
+        since: "2.2.0"
+
+  - name: android:focus
+    summary: Fired when the Camera button is half-pressed then released.
+    description: |
+        This event has been deprecated and renamed androidfocus (without colon).
+        
+        Setting a listener disables the default key handling for this button. To restore
+        default behavior, remove the listener. It is recommended that you only have one
+        handler per heavyweight window.
+    platforms: [android]
+    deprecated:
+        since: "2.2.0"
+
+  - name: android:search
+    summary: Fired when the Search button is released.
+    description: |
+        This event has been deprecated and renamed androidsearch (without colon).
+        
+        Setting a listener disables the default key handling for this button. To restore
+        default behavior, remove the listener. It is recommended that you only have
+        one handler per heavyweight window.
+    platforms: [android]
+    deprecated:
+        since: "2.2.0"
+
+  - name: android:voldown
+    summary: Fired when the volume down button is released.
+    description: |
+        This event has been deprecated and renamed androidvoldown (without colon).
+        
+        Setting a listener disables the default key handling for this button. To restore
+        default behavior, remove the listener. It is recommended that you only have one
+        handler per heavyweight window.
+    platforms: [android]
+    deprecated:
+        since: "2.2.0"
+
+  - name: android:volup
+    summary: Fired when the volume up button is released.
+    description: |
+        This event has been deprecated and renamed androidvolup (without colon).
+        
+        Setting a listener disables the default key handling for this button. To restore
+        default behavior, remove the listener. It is recommended that you only have one
+        handler per heavyweight window.
+    platforms: [android]
+    deprecated:
+        since: "2.2.0"
+
+  - name: androidback
+    platforms: [android]
+    summary: Fired when the Back button is released.
+    description: |
+        Setting a listener disables the default key handling for the Back button.
+        To restore default behavior, remove the listener. It is recommended that you only
+        have one handler per heavyweight window.
+    since: '2.2.0'
+
+  - name: androidcamera
     summary: Fired when the Camera button is released.
     description: |
         Setting a listener disables the default key handling for this button. To restore
         default behavior, remove the listener. It is recommended that you only have one
         handler per heavyweight window.
     platforms: [android]
+    since: '2.2.0'
 
-  - name: android:focus
+  - name: androidfocus
     summary: Fired when the Camera button is half-pressed then released.
     description: |
         Setting a listener disables the default key handling for this button. To restore
         default behavior, remove the listener. It is recommended that you only have one
         handler per heavyweight window.
     platforms: [android]
+    since: '2.2.0'
 
-  - name: android:search
+  - name: androidsearch
     summary: Fired when the Search button is released.
     description: |
         Setting a listener disables the default key handling for this button. To restore
         default behavior, remove the listener. It is recommended that you only have
         one handler per heavyweight window.
     platforms: [android]
+    since: '2.2.0'
 
-  - name: android:voldown
+  - name: androidvoldown
     summary: Fired when the volume down button is released.
     description: |
         Setting a listener disables the default key handling for this button. To restore
         default behavior, remove the listener. It is recommended that you only have one
         handler per heavyweight window.
     platforms: [android]
+    since: '2.2.0'
 
-  - name: android:volup
+  - name: androidvolup
     summary: Fired when the volume up button is released.
     description: |
         Setting a listener disables the default key handling for this button. To restore
         default behavior, remove the listener. It is recommended that you only have one
         handler per heavyweight window.
     platforms: [android]
+    since: '2.2.0'
 
   - name: blur
     summary: Fired when the window loses focus.
