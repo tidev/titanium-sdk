@@ -167,6 +167,7 @@ properties:
 
   - name: expiresIn
     since: "2.1.2"
+    permission: read-only
     summary: Indicates the number of seconds before the access token expires
     type: Number
     description: |
