@@ -23,6 +23,15 @@ log = TiLogger(None)
 all_annotated_apis = None
 apis = None
 
+# compiling REs ahead of time, since we use them heavily.
+link_parts_re = re.compile(r"(?:\[([^\]]+?)\]\(([^\)\s]+?)\)|\<([^\>\s]+)\>)", re.MULTILINE)
+find_links_re = re.compile(r"(\[[^\]]+?\]\([^\)\s]+?\)|\<[^\>\s]+\>)", re.MULTILINE)
+html_scheme_re = re.compile(r"^http:|^https:")
+doc_site_url_re = re.compile(r"http://docs.appcelerator.com/titanium/.*(#!.*)")
+# we use this to distinguish inline HTML tags from Markdown links. Not foolproof, and a
+# we should probably find a better technique in the long run.
+html_element_re = re.compile("([a-z]|\/)")
+
 try:
 	from pygments import highlight
 	from pygments.formatters import HtmlFormatter
@@ -62,28 +71,53 @@ def convert_string_to_jsduck_link(obj_specifier):
 
 def process_markdown_links(s):
 	new_string = s
-	regexp = re.compile(r"(?:\[([^\]]+?)\]\(([^\)\s]+?)\)|\<([^\>\s]+)\>)", re.MULTILINE)
-	results = re.compile(r"(\[[^\]]+?\]\([^\)\s]+?\)|\<[^\>\s]+\>)", re.MULTILINE).findall(new_string)
+	results = find_links_re.findall(new_string)
 	if results is not None and len(results) > 0:
 		for link in results:
-			if link.find('http:') >= 0 or link.find('https:') >= 0:
-				# [Facebook Graph API](http://developers.facebook.com/docs/reference/api/)  -> unchanged
-				# do not convert external links
-				continue
-
-			match = regexp.match(link)
+			match = link_parts_re.match(link)
 			if match == None:
 				print "no match:" + link
 				continue
-
+			
+			# Process links with a defined name [foo](url)
 			if match.group(1) != None and match.group(2)!= None:
+				url = match.group(2)
+				name = match.group(1)
+			# For simple markdown links, such as <Titanium.Analytics> or <www.google.com>
+			# skip links that look like HTML elements (<span>).
+			elif  match.group(3) != None and not html_element_re.match(link, 1):
+				url = match.group(3)
+				name = None
+			# Otherwise, our "link" was probably an HTML tag, so we leave it alone
+			else:
+				continue
+
+			# Process URLs
+			docs_site_link = False
+			api_link = False
+			# For links back to the doc site -- guides pages, videos, etc.
+			# extract just the part following the hash, to avoid re-loading the site
+			# [Quick Start](http://docs.appcelerator.com/titanium/2.1/index.html#!/guide/Quick_Start) ->
+			# [Quick Start](#!/guide/Quick_Start Quick Start)
+			#
+			# Generic absolute URLs pass through unchanged
+			# [Facebook Graph API](http://developers.facebook.com/docs/reference/api/)  -> unchanged
+			if url.startswith("http"):
+				url_match = doc_site_url_re.match(url)
+				if url_match:
+						url = url_match.group(1)
+						docs_site_link = True
+						if not name:
+							name = url
+						new_string = new_string.replace(link, "[%s](%s)" % (name, url))
+			else:
+				# Reformat API object links so jsduck can process them.
 				# [systemId](Titanium.XML.Entity.systemId -> {@link Titanium.XML.Entity#systemId systemId}
-				new_string = new_string.replace(link, "{@link %s %s}" % (convert_string_to_jsduck_link(match.group(2)), match.group(1)))
-			elif  match.group(3) != None and not re.compile("([a-z]|\/)").match(link, 1):
-				# skip links that look like HTML elements
-				# <Titanium.Android.Notification>	-> {@link Titanium.Android.Notification}
-				# <Titanium.UI.ScrollableView.views> -> {@link Titanium.UI.ScrollableView#views views}
-				new_string = new_string.replace(link, "{@link %s}" % (convert_string_to_jsduck_link(match.group(3))))
+				url = convert_string_to_jsduck_link(url)
+				if name:
+					new_string = new_string.replace(link, "{@link %s %s}" % (url, name))
+				else:
+					new_string = new_string.replace(link, "{@link %s}" % url)
 
 	return new_string
 
