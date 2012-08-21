@@ -278,10 +278,6 @@ define(["Ti/_/declare", "Ti/_/UI/KineticScrollView", "Ti/_/style", "Ti/_/lang", 
 			this._setTranslation(0,-top);
 		},
 		
-		sectionAtIndex: function(index) {
-			return this.sections[index];
-		},
-		
 		_insertSection: function(sections, index) {
 			!is(sections,"Array") && (sections = [sections]);
 			var i = 0,
@@ -310,10 +306,9 @@ define(["Ti/_/declare", "Ti/_/UI/KineticScrollView", "Ti/_/style", "Ti/_/lang", 
 		},
 		
 		deleteSection: function(section) {
-			var index = this.sections.indexOf(section);
-			if (~index) {
-				this._sections._remove(section);
-				this.sections.splice(index,1);
+			if (section in this.sections) {
+				this._sections._remove(this.sections[section]);
+				this.sections.splice(section,1);
 			}
 		},
 		
