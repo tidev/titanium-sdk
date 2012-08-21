@@ -77,7 +77,7 @@ def zip_dir(zf,dir,basepath,subs=None,cb=None, ignore_paths=None):
 				if cb!=None:
 					c = cb(file,e[1],c)
 				zf.writestr(to_,c)
-			else:		
+			else:
 				zf.write(from_, to_)
 
 def zip2zip(src_zip, dest_zip, prepend_path=None):
@@ -114,6 +114,9 @@ def zip_android(zf, basepath):
 	for jar in ['titanium.jar', 'kroll-apt.jar', 'kroll-common.jar', 'kroll-v8.jar', 'kroll-rhino.jar']:
 		jar_path = os.path.join(android_dist_dir, jar)
 		zf.write(jar_path, '%s/android/%s' % (basepath, jar))
+	
+	zip_dir(zf, os.path.join(top_dir, 'android', 'cli'), basepath+'/android/cli')
+	zip_dir(zf, os.path.join(top_dir, 'android', 'templates'), basepath+'/android/templates')
 
 	# include headers for v8 3rd party module building
 	def add_headers(dir):
@@ -233,7 +236,7 @@ def zip_iphone_ipad(zf,basepath,platform,version,version_tag):
 	for f in os.listdir(tp_headers_dir):
 		if os.path.isfile(os.path.join(tp_headers_dir,f)) and os.path.splitext(f)[1]=='.h':
 			 zf.write(os.path.join(tp_headers_dir,f),'%s/iphone/include/TiCore/%s' % (basepath,f))
-
+	
 	subs = {
 		"__VERSION__":version,
 		"__TIMESTAMP__":ts,
@@ -249,6 +252,8 @@ def zip_iphone_ipad(zf,basepath,platform,version,version_tag):
 	zip_dir(zf,os.path.join(top_dir,'iphone','headers'),basepath+'/iphone/headers',subs)
 	zip_dir(zf,os.path.join(top_dir,'iphone','iphone'),basepath+'/iphone/iphone',subs)
 	zf.write(os.path.join(top_dir, 'iphone', 'AppledocSettings.plist'),'%s/iphone/AppledocSettings.plist'%(basepath))
+	zip_dir(zf, os.path.join(top_dir, 'iphone', 'cli'), basepath+'/iphone/cli')
+	zip_dir(zf, os.path.join(top_dir, 'iphone', 'templates'), basepath+'/iphone/templates')
 	
 	ticore_lib = os.path.join(top_dir,'iphone','lib')
 	

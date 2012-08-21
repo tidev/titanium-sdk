@@ -4,7 +4,8 @@
 	"version": "__VERSION__",
 	"dependencies": {
 		"colors": "0.6.x",
-		"node-appc": "git://github.com/appcelerator/node-appc.git"
+		"node-appc": "git://github.com/appcelerator/node-appc.git",
+		"wrench": "1.3.x"
 	},
 	"engines": {
 		"node": ">= 0.8.2"

@@ -1,5 +1,5 @@
 /*
- * build.js: Titanium Mobile Web CLI build command
+ * build.js: Titanium IOS CLI build command
  *
  * Copyright (c) 2012, Appcelerator, Inc.  All Rights Reserved.
  * See the LICENSE file for more information.

@@ -72,7 +72,7 @@ exports.validate = function (logger, config, cli) {
 	}
 	
 	if (!~manifest.platforms.indexOf(cli.argv.platform)) {
-		logger.error(__('Invalid platform "%s"'.red, cli.argv.platform) + '\n');
+		logger.error(__('Invalid platform "%s"', cli.argv.platform) + '\n');
 		logger.log(__('Available platforms for SDK version %s:', manifest.version) + '\n');
 		manifest.platforms.forEach(function (p) {
 			logger.log('    ' + p.cyan);
