@@ -1397,6 +1397,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_ORIENTATION = "orientation";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_ORIENTATION_MODES = "orientationModes";
 	
 	/**

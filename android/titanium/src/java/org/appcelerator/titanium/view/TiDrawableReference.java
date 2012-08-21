@@ -38,6 +38,7 @@ import android.content.pm.ApplicationInfo;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.util.DisplayMetrics;
@@ -77,6 +78,7 @@ public class TiDrawableReference
 	private DrawableReferenceType type;
 	private boolean oomOccurred = false;
 	private boolean anyDensityFalse = false;
+	private int orientation = 0;
 
 	private SoftReference<Activity> softActivity = null;
 
@@ -298,6 +300,14 @@ public class TiDrawableReference
 				Log.e(TAG, "Problem closing stream: " + e.getMessage(), e);
 			}
 		}
+
+		// Orient the image when orientation is set.
+		if (orientation > 0) {
+			Matrix m = new Matrix();
+			m.postRotate(orientation);
+			return Bitmap.createBitmap(b, 0, 0, b.getWidth(), b.getHeight(), m, false);
+		}
+
 		return b;
 	}
 
@@ -574,6 +584,13 @@ public class TiDrawableReference
 				displayMetrics.setToDefaults();
 				bTemp.setDensity(displayMetrics.densityDpi);
 
+				// Orient the image when orientation is set.
+				if (orientation > 0) {
+					Matrix m = new Matrix();
+					m.postRotate(orientation);
+					return Bitmap.createBitmap(bTemp, 0, 0, bTemp.getWidth(), bTemp.getHeight(), m, false);
+				}
+
 				if (bTemp.getNinePatchChunk() != null) {
 					// Don't scale nine-patches
 					b = bTemp;
@@ -708,7 +725,7 @@ public class TiDrawableReference
 			} catch (IOException e) {
 				Log.e(TAG, "Problem opening stream with url " + url + ": " + e.getMessage(), e);
 			}
-			
+
 		} else if (isTypeFile() && file != null) {
 			try {
 				stream = file.getInputStream();
@@ -778,8 +795,23 @@ public class TiDrawableReference
 		return oomOccurred;
 	}
 
+	public void setOrientation(int orientation)
+	{
+		this.orientation = orientation;
+	}
+
 	public String getUrl()
 	{
 		return url;
+	}
+
+	public TiBlob getBlob()
+	{
+		return blob;
+	}
+
+	public TiBaseFile getFile()
+	{
+		return file;
 	}
 }
