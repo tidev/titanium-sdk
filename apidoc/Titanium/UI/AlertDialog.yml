@@ -115,6 +115,19 @@ properties:
     accessors: false
     platforms: [android, iphone, ipad, mobileweb]
 
+  - name: style
+    summary: The style for the alert dialog.
+    description: |
+        Style of the alert dialog, specified using one of the constants from
+        <Titanium.UI.iPhone.AlertDialogStyle>. All of the styles except the default
+        one can handle two buttons comfortably, default style can handle up to six buttons
+        when the title and message is empty. Note that this property available on 
+        iOS SDK 5 or above. 
+    type: Number
+    default: <Titanium.UI.iPhone.AlertDialogStyle.DEFAULT>
+    since: 2.2.0
+    platforms: [iphone, ipad]
+
   - name: title
     summary: Title of the dialog.
     description: If not set, a dialog with no title bar will be created.
