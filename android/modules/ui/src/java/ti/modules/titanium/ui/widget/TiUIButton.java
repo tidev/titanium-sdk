@@ -106,19 +106,19 @@ public class TiUIButton extends TiUIView
 			setOpacityForButton(TiConvert.toFloat(d, TiC.PROPERTY_OPACITY, 1f));
 		}
 		if (d.containsKey(TiC.PROPERTY_TITLE_PADDING_LEFT)) {
-			titlePadding.left = TiConvert.toInt(d,0);
+			titlePadding.left = TiConvert.toInt(d, TiC.PROPERTY_TITLE_PADDING_LEFT);
 			btn.setPadding(titlePadding.left, titlePadding.top, titlePadding.right, titlePadding.bottom);
 		}
 		if (d.containsKey(TiC.PROPERTY_TITLE_PADDING_RIGHT)) {
-			titlePadding.right = TiConvert.toInt(d,0);
+			titlePadding.right = TiConvert.toInt(d, TiC.PROPERTY_TITLE_PADDING_RIGHT);
 			btn.setPadding(titlePadding.left, titlePadding.top, titlePadding.right, titlePadding.bottom);
 		}
 		if (d.containsKey(TiC.PROPERTY_TITLE_PADDING_TOP)) {
-			titlePadding.top = TiConvert.toInt(d,0);
+			titlePadding.top = TiConvert.toInt(d, TiC.PROPERTY_TITLE_PADDING_TOP);
 			btn.setPadding(titlePadding.left, titlePadding.top, titlePadding.right, titlePadding.bottom);
 		}
 		if (d.containsKey(TiC.PROPERTY_TITLE_PADDING_BOTTOM)) {
-			titlePadding.bottom = TiConvert.toInt(d,0);
+			titlePadding.bottom = TiConvert.toInt(d, TiC.PROPERTY_TITLE_PADDING_BOTTOM);
 			btn.setPadding(titlePadding.left, titlePadding.top, titlePadding.right, titlePadding.bottom);
 		}
 		if (d.containsKey(TiC.PROPERTY_SHADOW_COLOR)) {
@@ -130,6 +130,9 @@ public class TiUIButton extends TiUIView
 			shadowDx = value.getInt(TiC.PROPERTY_X);
 			shadowDy = value.getInt(TiC.PROPERTY_Y);
 			btn.setShadowLayer(1, shadowDx, shadowDy, shadowColor);
+		}
+		if (d.containsKey(TiC.PROPERTY_WORD_WRAP)) {
+			btn.setSingleLine(!TiConvert.toBoolean(d, TiC.PROPERTY_WORD_WRAP));
 		}
 		btn.invalidate();
 	}
@@ -175,6 +178,8 @@ public class TiUIButton extends TiUIView
 			shadowDy = TiConvert.toInt(((HashMap) newValue).get(TiC.PROPERTY_Y));
 			btn.setShadowLayer(1, shadowDx, shadowDy, shadowColor);
 			btn.requestLayout();
+		} else if (key.equals(TiC.PROPERTY_WORD_WRAP)) {
+			btn.setSingleLine(!TiConvert.toBoolean(newValue));
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}

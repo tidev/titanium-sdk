@@ -104,19 +104,19 @@ public class TiUILabel extends TiUIView
 			tv.setSingleLine(!TiConvert.toBoolean(d, TiC.PROPERTY_WORD_WRAP));
 		}
 		if (d.containsKey(TiC.PROPERTY_TEXT_PADDING_LEFT)) {
-			textPadding.left = TiConvert.toInt(d,0);
+			textPadding.left = TiConvert.toInt(d, TiC.PROPERTY_TEXT_PADDING_LEFT);
 			tv.setPadding(textPadding.left, textPadding.top, textPadding.right, textPadding.bottom);
 		}
 		if (d.containsKey(TiC.PROPERTY_TEXT_PADDING_RIGHT)) {
-			textPadding.right = TiConvert.toInt(d,0);
+			textPadding.right = TiConvert.toInt(d, TiC.PROPERTY_TEXT_PADDING_RIGHT);
 			tv.setPadding(textPadding.left, textPadding.top, textPadding.right, textPadding.bottom);
 		}
 		if (d.containsKey(TiC.PROPERTY_TEXT_PADDING_TOP)) {
-			textPadding.top = TiConvert.toInt(d,0);
+			textPadding.top = TiConvert.toInt(d, TiC.PROPERTY_TEXT_PADDING_TOP);
 			tv.setPadding(textPadding.left, textPadding.top, textPadding.right, textPadding.bottom);
 		}
 		if (d.containsKey(TiC.PROPERTY_TEXT_PADDING_BOTTOM)) {
-			textPadding.bottom = TiConvert.toInt(d,0);
+			textPadding.bottom = TiConvert.toInt(d, TiC.PROPERTY_TEXT_PADDING_BOTTOM);
 			tv.setPadding(textPadding.left, textPadding.top, textPadding.right, textPadding.bottom);
 		}
 		if (d.containsKey(TiC.PROPERTY_SHADOW_COLOR)) {
