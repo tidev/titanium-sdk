@@ -48,7 +48,7 @@ define(["Ti/_/declare", "Ti/_/UI/KineticScrollView", "Ti/_/style", "Ti/_/lang", 
 		},
 
 		_handleDragStart: function(e) {
-			this.fireEvent("dragStart");
+			this.fireEvent("dragstart");
 		},
 
 		_handleDrag: function(e) {
@@ -62,13 +62,13 @@ define(["Ti/_/declare", "Ti/_/UI/KineticScrollView", "Ti/_/style", "Ti/_/lang", 
 				var distance = velocityY * velocityY / (1.724 * deceleration) * (velocityY < 0 ? -1 : 1),
 					duration = Math.abs(velocityY) / deceleration,
 					translation = Math.min(0, Math.max(self._minTranslationY, self._currentTranslationY + distance));
-				self.fireEvent("dragEnd",{
+				self.fireEvent("dragend",{
 					decelerate: true
 				});
 				self._animateToPosition(self._currentTranslationX, translation, duration, UI.ANIMATION_CURVE_EASE_OUT, function() {
 					self._setTranslation(self._currentTranslationX, translation);
 					self._endScrollBars();
-					self._fireScrollEvent("scrollEnd", e);
+					self._fireScrollEvent("scrollend", e);
 				});
 			}
 			
