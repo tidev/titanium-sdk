@@ -347,11 +347,10 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 		}
 		if (startLocation && trackingLocation==NO)
 		{
-			if (trackSignificantLocationChange && [CLLocationManager significantLocationChangeMonitoringAvailable]) {
+			if (trackSignificantLocationChange) {
                 [lm startMonitoringSignificantLocationChanges];
             }
             else{
-                trackSignificantLocationChange = NO;
                 [lm startUpdatingLocation];
             }
             trackingLocation = YES;
