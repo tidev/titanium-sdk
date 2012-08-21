@@ -576,6 +576,10 @@ DEFINE_EXCEPTIONS
 	touchPassThrough = [TiUtils boolValue:arg];
 }
 
+-(BOOL)touchPassThrough {
+    return touchPassThrough;
+}
+
 -(UIView *)gradientWrapperView
 {
 	return self;
