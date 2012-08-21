@@ -196,6 +196,10 @@ public class TiPlatformHelper
 		return Build.MODEL;
 	}
 
+	public static String getManufacturer() {
+		return Build.MANUFACTURER;
+	}
+
 	public static String getOstype() {
 		return "32bit";
 	}
