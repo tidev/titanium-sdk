@@ -622,22 +622,27 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 
 -(void)setTrackSignificantLocationChange:(id)value
 {
-    BOOL newval = [TiUtils boolValue:value def:YES];
-    
-    if (newval != trackSignificantLocationChange) {
-        if ( trackingLocation && locationManager != nil ) {
-            [lock lock];
-            [self shutdownLocationManager];
-            trackingHeading = NO;
-            trackingLocation = NO;
-            trackSignificantLocationChange = newval;
-            [lock unlock];
-            TiThreadPerformOnMainThread(^{[self startStopLocationManagerIfNeeded];}, NO);
-            return ;
-        }
-    }
+    if ([CLLocationManager significantLocationChangeMonitoringAvailable]) {
+        BOOL newval = [TiUtils boolValue:value def:YES];
         
-    trackSignificantLocationChange = newval;
+        if (newval != trackSignificantLocationChange) {
+            if ( trackingLocation && locationManager != nil ) {
+                [lock lock];
+                [self shutdownLocationManager];
+                trackingHeading = NO;
+                trackingLocation = NO;
+                trackSignificantLocationChange = newval;
+                [lock unlock];
+                TiThreadPerformOnMainThread(^{[self startStopLocationManagerIfNeeded];}, NO);
+                return ;
+            }
+        }
+        trackSignificantLocationChange = newval;
+    }
+    else{
+        trackSignificantLocationChange = NO;
+        DebugLog(@"[WARN] Ti.Geolocation.setTrackSignificantLocationChange is not supported on this device.");
+    }
 }
 
 -(void)restart:(id)arg
