@@ -205,6 +205,19 @@ methods:
         summary: Property value.
         type: String
         
+events:
+  
+  - name: change
+    summary: Fired when a property is changed.
+    description: |
+        On iOS, the event is fired when the user re-enters the application after 
+        making a change using the Settings application.
+
+        The event is also fired when the application changes a property directly using one of the 
+        `Ti.App.Properties` methods.
+    platforms: [iphone, ipad]
+    since: "2.2.0"
+
 examples:
   - title: Store a property
     example: |
