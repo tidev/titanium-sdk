@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -147,14 +147,6 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 
 	private void handleAddTab(TabProxy tab)
 	{
-		// TODO(josh): remove and place into TiUITabHostGroup if needed.
-		String tag = TiConvert.toString(tab.getProperty(TiC.PROPERTY_TAG) );
-		if (tag == null) {
-			//since tag is used to create tabSpec, it must be unique, otherwise tabs with same tag will use same activity (Timob-7487)
-			tag = tab.toString();
-			tab.setProperty(TiC.PROPERTY_TAG, tag);
-		}
-
 		// Set the tab's parent to this tab group.
 		// This allows for certain events to bubble up.
 		tab.setTabGroup(this);
@@ -194,17 +186,23 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 	{
 		TabProxy tab;
 		if (tabOrIndex instanceof Number) {
-			// TODO(josh): handle out-of-bound exceptions.
 			int tabIndex = ((Number) tabOrIndex).intValue();
+			if (tabIndex < 0 || tabIndex >= tabs.size()) {
+				Log.e(LCAT, "Invalid tab index.");
+				return;
+			}
 			tab = tabs.get(tabIndex);
 
 		} else if (tabOrIndex instanceof TabProxy) {
-			// TODO(josh): should check if this tab is in this group.
 			tab = (TabProxy) tabOrIndex;
+			if (!tabs.contains(tab)) {
+				Log.e(LCAT, "Cannot activate tab not in this group.");
+				return;
+			}
 
 		} else {
-			// TODO(josh): verify this is converted to a JS exception, otherwise just log an error.
-			throw new IllegalArgumentException("First argument must be a tab object or a numeric index.");
+			Log.e(LCAT, "No valid tab provided when setting active tab.");
+			return;
 		}
 
 		if (TiApplication.isUIThread()) {
@@ -270,6 +268,7 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 	{
 		Activity topActivity = TiApplication.getAppCurrentActivity();
 		Intent intent = new Intent(topActivity, TiActivity.class);
+		fillIntent(topActivity, intent);
 
 		int windowId = TiActivityWindows.addWindow(this);
 		intent.putExtra(TiC.INTENT_PROPERTY_USE_ACTIVITY_WINDOW, true);
@@ -325,10 +324,6 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 			tg.selectTab(selectedTab);
 		}
 
-		// TODO(josh): verify we don't create a regression. This only applies to TabHost.
-		// Make sure the tab indicator is selected. We need to force it to be selected due to TIMOB-7832.
-		// tg.setTabIndicatorSelected(initialActiveTab);
-
 		// Setup the new tab activity like setting orientation modes.
 		onWindowActivityCreated();
 	}
@@ -379,7 +374,6 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 		selectedTab.fireEvent(TiC.EVENT_FOCUS, eventData, true);
 	}
 
-	// TODO(josh): remove this code and save what we need.
 	private void fillIntent(Activity activity, Intent intent)
 	{
 		if (hasProperty(TiC.PROPERTY_FULLSCREEN)) {
@@ -418,15 +412,12 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 				}
 			}
 		}
-		// Don't clear the tabs collection -- it contains proxies, not views
-		//tabs.clear();
 	}
 
 	@Override
 	protected Activity getWindowActivity()
 	{
-		// TODO(josh): do we need to return the tab group activity here?
-		return null;
+		return (tabGroupActivity != null) ? tabGroupActivity.get() : null;
 	}
 
 	@Kroll.method @Kroll.setProperty

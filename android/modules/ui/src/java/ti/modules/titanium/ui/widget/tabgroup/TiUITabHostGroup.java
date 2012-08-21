@@ -14,6 +14,7 @@ import org.appcelerator.titanium.TiBaseActivity;
 import ti.modules.titanium.ui.TabGroupProxy;
 import ti.modules.titanium.ui.TabProxy;
 import android.content.Context;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.FrameLayout;
@@ -34,6 +35,8 @@ import android.widget.TabWidget;
  */
 public class TiUITabHostGroup extends TiUIAbstractTabGroup
 		implements OnTabChangeListener, TabContentFactory {
+
+	private static final String TAG = "TiUITabHostGroup";
 
 	private TabHost tabHost;
 	private final HashMap<String, TiUITabHostTab> tabViews = new HashMap<String, TiUITabHostTab>();
@@ -87,8 +90,8 @@ public class TiUITabHostGroup extends TiUIAbstractTabGroup
 
 	@Override
 	public void removeTab(TabProxy tab) {
-		// TODO(josh): see if we can implement this, otherwise just leave as a no-op
-		// and document this isn't support for this type of tab group.
+		// Not supported.
+		Log.w(TAG, "Tab removal not supported by this group.");
 	}
 
 	@Override
@@ -133,7 +136,6 @@ public class TiUITabHostGroup extends TiUIAbstractTabGroup
 
 	@Override
 	public View createTabContent(String tag) {
-		// TODO(josh): test tabs with empty content view.
 		TiUITabHostTab tabView = tabViews.get(tag);
 		return tabView.getContentView();
 	}
