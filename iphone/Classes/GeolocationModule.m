@@ -347,10 +347,11 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 		}
 		if (startLocation && trackingLocation==NO)
 		{
-			if (trackSignificantLocationChange) {
+			if (trackSignificantLocationChange && [CLLocationManager significantLocationChangeMonitoringAvailable]) {
                 [lm startMonitoringSignificantLocationChanges];
             }
             else{
+                trackSignificantLocationChange = NO;
                 [lm startUpdatingLocation];
             }
             trackingLocation = YES;
@@ -617,27 +618,38 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 
 -(NSNumber*)trackSignificantLocationChange
 {
-    return NUMBOOL(trackSignificantLocationChange);
+    if ([CLLocationManager significantLocationChangeMonitoringAvailable]) {
+        return NUMBOOL(trackSignificantLocationChange);
+    }
+    else{
+        DebugLog(@"[WARN] The Ti.Geolocation.setTrackSignificantLocationChange is supported on this device.");
+        return NO;
+    }
 }
 
 -(void)setTrackSignificantLocationChange:(id)value
 {
-    BOOL newval = [TiUtils boolValue:value def:YES];
-    
-    if (newval != trackSignificantLocationChange) {
-        if ( trackingLocation && locationManager != nil ) {
-            [lock lock];
-            [self shutdownLocationManager];
-            trackingHeading = NO;
-            trackingLocation = NO;
-            trackSignificantLocationChange = newval;
-            [lock unlock];
-            TiThreadPerformOnMainThread(^{[self startStopLocationManagerIfNeeded];}, NO);
-            return ;
-        }
-    }
+    if ([CLLocationManager significantLocationChangeMonitoringAvailable]) {
+        BOOL newval = [TiUtils boolValue:value def:YES];
         
-    trackSignificantLocationChange = newval;
+        if (newval != trackSignificantLocationChange) {
+            if ( trackingLocation && locationManager != nil ) {
+                [lock lock];
+                [self shutdownLocationManager];
+                trackingHeading = NO;
+                trackingLocation = NO;
+                trackSignificantLocationChange = newval;
+                [lock unlock];
+                TiThreadPerformOnMainThread(^{[self startStopLocationManagerIfNeeded];}, NO);
+                return ;
+            }
+        }
+        trackSignificantLocationChange = newval;
+    }
+    else{
+        trackSignificantLocationChange = NO;
+        DebugLog(@"[WARN] The Ti.Geolocation.setTrackSignificantLocationChange is supported on this device.");
+    }
 }
 
 -(void)restart:(id)arg
