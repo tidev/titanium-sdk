@@ -23,6 +23,8 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
+import android.provider.CalendarContract.Events;
+import android.provider.CalendarContract.Instances;
 
 // Columns and value constants taken from android.provider.Calendar in the android source base
 @Kroll.proxy(parentModule=CalendarModule.class)
@@ -82,11 +84,19 @@ public class EventProxy extends KrollProxy {
 		ContentResolver contentResolver = TiApplication.getInstance().getContentResolver();
 		
 		Uri.Builder builder = Uri.parse(getInstancesWhenUri()).buildUpon();
+		
 		ContentUris.appendId(builder, date1);
 		ContentUris.appendId(builder, date2);
+		
+		String visibility = "";
+		if (Build.VERSION.SDK_INT >= 14) {
+			visibility = Instances.ACCESS_LEVEL;
+		} else {
+			visibility = "visibility";
+		}
 
 		Cursor eventCursor = contentResolver.query(builder.build(),
-			new String[] { "event_id", "title", "description", "eventLocation", "begin", "end", "allDay", "hasAlarm", "eventStatus", "visibility"},
+			new String[] { "event_id", "title", "description", "eventLocation", "begin", "end", "allDay", "hasAlarm", "eventStatus", visibility},
 			query, queryArgs, "startDay ASC, startMinute ASC");
 
 		if(eventCursor == null) {
@@ -125,8 +135,16 @@ public class EventProxy extends KrollProxy {
 	{
 		ArrayList<EventProxy> events = new ArrayList<EventProxy>();
 		ContentResolver contentResolver = TiApplication.getInstance().getContentResolver();
+		
+		String visibility = "";
+		if (Build.VERSION.SDK_INT >= 14) {
+			visibility = Instances.ACCESS_LEVEL;
+		} else {
+			visibility = "visibility";
+		}
+		
 		Cursor eventCursor = contentResolver.query(uri,
-			new String[] { "_id", "title", "description", "eventLocation", "dtstart", "dtend", "allDay", "hasAlarm", "eventStatus", "visibility", "hasExtendedProperties"},
+			new String[] { "_id", "title", "description", "eventLocation", "dtstart", "dtend", "allDay", "hasAlarm", "eventStatus", visibility, "hasExtendedProperties"},
 			query, queryArgs, orderBy);
 		
 		while (eventCursor.moveToNext()) {
@@ -170,6 +188,12 @@ public class EventProxy extends KrollProxy {
 		event.title = TiConvert.toString(data, "title");
 		eventValues.put("title", event.title);
 		eventValues.put("calendar_id", calendar.getId());
+		
+		//ICS requires eventTimeZone field when inserting new event
+		if (Build.VERSION.SDK_INT >= 14) {
+			eventValues.put(Events.EVENT_TIMEZONE, new Date().toString());
+		}
+
 		
 		if (data.containsKey("description")) {
 			event.description = TiConvert.toString(data, "description");
