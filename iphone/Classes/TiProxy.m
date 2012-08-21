@@ -1051,6 +1051,12 @@ DEFINE_EXCEPTIONS
     [self replaceValue:value forKey:key notification:YES];
 }
 
+-(void)applyProperties:(id)args
+{
+	ENSURE_SINGLE_ARG(args, NSDictionary)
+	[self setValuesForKeysWithDictionary:args];	
+}
+
 -(NSDictionary*)allProperties
 {
 	pthread_rwlock_rdlock(&dynpropsLock);

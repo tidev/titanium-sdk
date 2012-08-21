@@ -229,29 +229,62 @@ public class KrollBindings
 
 	public static String getExternalCommonJsModule(String request)
 	{
-		if (!isExternalCommonJsModule(request)) {
+		String nameKey = request;
+		String subPath = request;
+
+		// The source provider is stored by the root
+		// name of the module, so if there is a subpath
+		// on this request, get rid of it for purposes
+		// of looking up the source provider.
+		int slashPos = nameKey.indexOf("/");
+		if (slashPos > 0) {
+			subPath = nameKey.substring(slashPos + 1);
+			nameKey = nameKey.substring(0, slashPos);
+		}
+
+		if (!isExternalCommonJsModule(nameKey)) {
 			return null;
 		}
 
-		if (loadedCommonJsSourceProviders.containsKey(request)) {
-			return loadedCommonJsSourceProviders.get(request).getSourceCode();
+		// Perhaps already cached.
+		KrollSourceCodeProvider providerInstance =
+				loadedCommonJsSourceProviders.get(nameKey);
+
+		if (providerInstance == null) {
+			Class<? extends KrollSourceCodeProvider> providerClass = externalCommonJsModules.get(nameKey);
+			try {
+				providerInstance = providerClass.newInstance();
+				loadedCommonJsSourceProviders.put(nameKey, providerInstance);
+			} catch (Exception e) {
+				Log.e(TAG, "Cannot instantiate KrollSourceCodeProvider for module " + nameKey, e);
+				return null;
+			}
 		}
 
-		Class<? extends KrollSourceCodeProvider> providerClass = externalCommonJsModules.get(request);
-		KrollSourceCodeProvider providerInstance = null;
-		try {
-			providerInstance = providerClass.newInstance();
-			loadedCommonJsSourceProviders.put(request, providerInstance);
-		} catch (Exception e) {
-			Log.e(TAG, "Cannot instantiate KrollSourceCodeProvider for module " + request, e);
-			return null;
-		}
+		String sourceCode = null;
 
 		if (providerInstance != null) {
-			return providerInstance.getSourceCode();
+			// The older version of KrollSourceCodeProvider.getSourceCode() (the method being called
+			// below) took no arguments, because we only
+			// supported one possible CommonJS module file packaged in a native module. There could be some
+			// modules out there that were created during the time when we only had that no-arg version of
+			// getSourceCode(), so we have to continue to support that. But we first try the newer version:
+			// getSourceCode(String), which allows you to get any CommonJS module packaged with the native
+			// module since we now support multiple CommonJS modules.
+			try {
+				sourceCode = providerInstance.getSourceCode(subPath);
+			} catch (java.lang.AbstractMethodError e) {
+				// Go ahead and use the old, no-arg method, but only if
+				// the root CommonJS module is being requested.
+				if (nameKey.equals(subPath)) {
+					sourceCode = providerInstance.getSourceCode();
+				}
+			} catch (Throwable t) {
+				Log.e(TAG, "Could not load source code for " + request, t);
+			}
 		}
 
-		return null;
+		return sourceCode;
 	}
 
 	public static void addExternalCommonJsModule(String id, Class<? extends KrollSourceCodeProvider> jsSourceProvider)

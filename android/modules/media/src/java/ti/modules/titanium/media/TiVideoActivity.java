@@ -7,7 +7,6 @@
 package ti.modules.titanium.media;
 
 import org.appcelerator.kroll.common.Log;
-import org.appcelerator.kroll.common.TiConfig;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiLifecycle;
@@ -26,8 +25,7 @@ import android.widget.TiVideoView8;
 
 public class TiVideoActivity extends Activity
 {
-	private static final String LCAT = "TiVideoActivity";
-	private static final boolean DBG = TiConfig.LOGD;
+	private static final String TAG = "TiVideoActivity";
 
 	protected TiCompositeLayout layout = null;
 	private Messenger proxyMessenger = null;
@@ -40,9 +38,7 @@ public class TiVideoActivity extends Activity
 	{
 		super.onCreate(savedInstanceState);
 
-		if (DBG) {
-			Log.i(LCAT, "TiVideoActivity onCreate");
-		}
+		Log.i(TAG, "TiVideoActivity onCreate", Log.DEBUG_MODE);
 
 		final Intent intent = getIntent();
 
@@ -65,11 +61,11 @@ public class TiVideoActivity extends Activity
 			try {
 				proxyMessenger.send(msg);
 			} catch (RemoteException e) {
-				Log.e(LCAT, "Cannot send activity available message to proxy", e);
+				Log.e(TAG, "Failed to send 'activity available' message to proxy", e);
 			}
 		}
 
-		Log.e(LCAT, "exiting onCreate");
+		Log.i(TAG, "exiting onCreate", Log.DEBUG_MODE);
 	}
 
 	@Override
@@ -124,7 +120,7 @@ public class TiVideoActivity extends Activity
 			try {
 				proxyMessenger.send(msg);
 			} catch (RemoteException e) {
-				Log.w(LCAT, "VideoPlayerProxy no longer available: " + e.getMessage());
+				Log.w(TAG, "VideoPlayerProxy no longer available: " + e.getMessage());
 			}
 		}
 	}

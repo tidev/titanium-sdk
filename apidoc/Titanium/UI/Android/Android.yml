@@ -29,29 +29,39 @@ methods:
         
 properties:
   - name: LINKIFY_ALL
-    summary: Auto-link all supported types for <Titanium.UI.Label>.
+    summary: Use <Titanium.UI.AUTOLINK_ALL> instead.
     type: Number
     permission: read-only
+    deprecated:
+        since: "2.2.0"
     
   - name: LINKIFY_EMAIL_ADDRESSES
-    summary: Auto-link email addresses for <Titanium.UI.Label>.
+    summary: Use <Titanium.UI.AUTOLINK_EMAIL_ADDRESSES> instead.
     type: Number
     permission: read-only
+    deprecated:
+        since: "2.2.0"
     
   - name: LINKIFY_MAP_ADDRESSES
-    summary: Auto-link physical addresses for <Titanium.UI.Label>.
+    summary: Use <Titanium.UI.AUTOLINK_MAP_ADDRESSES> instead.
     type: Number
     permission: read-only
+    deprecated:
+        since: "2.2.0"
     
   - name: LINKIFY_PHONE_NUMBERS
-    summary: Auto-link phone numbers for <Titanium.UI.Label>.
+    summary: Use <Titanium.UI.AUTOLINK_PHONE_NUMBERS> instead.
     type: Number
     permission: read-only
+    deprecated:
+        since: "2.2.0"
     
   - name: LINKIFY_WEB_URLS
-    summary: Auto-link web urls for <Titanium.UI.Label>.
+    summary: Use <Titanium.UI.AUTOLINK_URLS> instead.
     type: Number
     permission: read-only
+    deprecated:
+        since: "2.2.0"
     
   - name: PIXEL_FORMAT_A_8
     summary: |
@@ -220,6 +230,38 @@ properties:
     type: Number
     permission: read-only
     since: "1.8.0"
+
+  - name: PROGRESS_INDICATOR_DIALOG
+    summary: Display <Titanium.UI.Android.ProgressIndicator> as a modal dialog. (default)
+    description: Used with the <Titanium.UI.Android.ProgressIndicator.location> property.
+    type: Number
+    permission: read-only
+    since: "2.2.0"
+
+  - name: PROGRESS_INDICATOR_STATUS_BAR
+    summary: |
+       Display <Titanium.UI.Android.ProgressIndicator> as a horizontal progress bar in the title of 
+       the window.
+    description: Used with the <Titanium.UI.Android.ProgressIndicator.location> property.
+    type: Number
+    permission: read-only
+    since: "2.2.0"
+
+  - name: PROGRESS_INDICATOR_INDETERMINANT
+    summary: |
+       Used with the <Titanium.UI.Android.ProgressIndicator.type> property to indicate an ongoing 
+       activity of indeterminate length. (default)
+    type: Number
+    permission: read-only
+    since: "2.2.0"
+
+  - name: PROGRESS_INDICATOR_DETERMINANT
+    summary: |
+        Used with the <Titanium.UI.Android.ProgressIndicator.type> property to indicate an ongoing 
+        activity of determinate length.
+    type: Number
+    permission: read-only
+    since: "2.2.0"
     
   - name: SOFT_INPUT_ADJUST_PAN
     summary: |

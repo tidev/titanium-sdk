@@ -13,7 +13,6 @@ import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.AsyncResult;
 import org.appcelerator.kroll.common.Log;
-import org.appcelerator.kroll.common.TiConfig;
 import org.appcelerator.kroll.common.TiMessenger;
 import org.appcelerator.titanium.TiActivity;
 import org.appcelerator.titanium.TiActivityWindow;
@@ -40,8 +39,7 @@ import android.os.Message;
 })
 public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 {
-	private static final String LCAT = "TabGroupProxy";
-	private static boolean DBG = TiConfig.LOGD;
+	private static final String TAG = "TabGroupProxy";
 
 	private static final int MSG_FIRST_ID = TiWindowProxy.MSG_LAST_ID + 1;
 
@@ -165,12 +163,11 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 		if (TiApplication.isUIThread()) {
 			handleRemoveTab(tab);
 
-			return;
+		} else {
+			TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_REMOVE_TAB), tab);
 		}
 
 		tab.setParent(null);
-
-		TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_REMOVE_TAB), tab);
 	}
 
 	public void handleRemoveTab(TabProxy tab) {
@@ -189,7 +186,7 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 		if (tabOrIndex instanceof Number) {
 			int tabIndex = ((Number) tabOrIndex).intValue();
 			if (tabIndex < 0 || tabIndex >= tabs.size()) {
-				Log.e(LCAT, "Invalid tab index.");
+				Log.e(TAG, "Invalid tab index.");
 				return;
 			}
 			tab = tabs.get(tabIndex);
@@ -197,12 +194,12 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 		} else if (tabOrIndex instanceof TabProxy) {
 			tab = (TabProxy) tabOrIndex;
 			if (!tabs.contains(tab)) {
-				Log.e(LCAT, "Cannot activate tab not in this group.");
+				Log.e(TAG, "Cannot activate tab not in this group.");
 				return;
 			}
 
 		} else {
-			Log.e(LCAT, "No valid tab provided when setting active tab.");
+			Log.e(TAG, "No valid tab provided when setting active tab.");
 			return;
 		}
 
@@ -241,7 +238,7 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 				setOrientationModes(modes);
 
 			} catch (ClassCastException e) {
-				Log.e(LCAT, "Invalid orientationMode array. Must only contain orientation mode constants.");
+				Log.e(TAG, "Invalid orientationMode array. Must only contain orientation mode constants.");
 			}
 		}
 
@@ -332,9 +329,7 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 	@Override
 	protected void handleClose(KrollDict options)
 	{
-		if (DBG) {
-			Log.d(LCAT, "handleClose: " + options);
-		}
+		Log.d(TAG, "handleClose: " + options, Log.DEBUG_MODE);
 		
 		modelListener = null;
 		releaseViews();

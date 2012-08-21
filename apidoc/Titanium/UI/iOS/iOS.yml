@@ -8,84 +8,54 @@ since: "1.4"
 platforms: [iphone, ipad]
 properties:
 
-  - name: ANIMATION_CURVE_EASE_IN
-    summary: |
-        Use with [Animation.curve](Titanium.UI.Animation.curve) to specify an animation that starts 
-        slowly and speeds up.
-    type: Number
-    deprecated:
-        since: "2.1.0"
-    permission: read-only
-
-  - name: ANIMATION_CURVE_EASE_IN_OUT
-    summary: |
-        Use with [Animation.curve](Titanium.UI.Animation.curve) to specify an animation that starts 
-        slowly, and speeds up, then slows down at the end of the animation.
-    type: Number
-    deprecated:
-        since: "2.1.0"
-    permission: read-only
-
-  - name: ANIMATION_CURVE_EASE_OUT
-    summary: |
-        Use with [Animation.curve](Titanium.UI.Animation.curve) to specify an animation that starts 
-        quickly, then slows down at the end of the animation.
-    type: Number
-    deprecated:
-        since: "2.1.0"
-    permission: read-only
-
-  - name: ANIMATION_CURVE_LINEAR
-    summary: |
-        Use with [Animation.curve](Titanium.UI.Animation.curve) to specify an animation that proceeds 
-        at a constant rate.
-    type: Number
-    deprecated:
-        since: "2.1.0"
-    permission: read-only
-
   - name: AUTODETECT_ADDRESS
-    summary: Convert strings formatted as addresses into clickable links.
-    description: Use with the <Titanium.UI.TextArea.autoLink> property.
+    summary: Use <Titanium.UI.AUTOLINK_MAP_ADDRESSES> instead.
     type: Number
     osver: {ios: {min: "4.0"}}
     permission: read-only
+    deprecated:
+        since: "2.2.0"
     platforms: [iphone, ipad]
 
   - name: AUTODETECT_ALL
-    summary: Convert all detectable types of data into clickable links.
-    description: Use with the <Titanium.UI.TextArea.autoLink> property.
+    summary: Use <Titanium.UI.AUTOLINK_ALL> instead.
     type: Number
     permission: read-only
+    deprecated:
+        since: "2.2.0"
     platforms: [iphone, ipad]
 
   - name: AUTODETECT_CALENDAR
-    summary: Convert strings formatted as calendar events into clickable links.
-    description: Use with the <Titanium.UI.TextArea.autoLink> property.
+    summary: Use <Titanium.UI.AUTOLINK_CALENDAR> instead.
     type: Number
     osver: {ios: {min: "4.0"}}
     permission: read-only
+    deprecated:
+        since: "2.2.0"
     platforms: [iphone, ipad]
 
   - name: AUTODETECT_LINK
-    summary: Convert strings formatted as URLs into clickable links.
-    description: Use with the <Titanium.UI.TextArea.autoLink> property.
+    summary: Use <Titanium.UI.AUTOLINK_URLS> instead.
     type: Number
     permission: read-only
+    deprecated:
+        since: "2.2.0"
     platforms: [iphone, ipad]
 
   - name: AUTODETECT_NONE
-    summary: Disable converting strings into clickable links.
-    description: Use with the <Titanium.UI.TextArea.autoLink> property.
+    summary: Use <Titanium.UI.AUTOLINK_NONE> instead.
     type: Number
     permission: read-only
+    deprecated:
+        since: "2.2.0"
     platforms: [iphone, ipad]
 
   - name: AUTODETECT_PHONE
-    summary: Convert strings formatted as phone numbers into clickable links.
-    description: Use with the <Titanium.UI.TextArea.autoLink> property.
+    summary: Use <Titanium.UI.AUTOLINK_PHONE_NUMBERS> instead.
     type: Number
     permission: read-only
+    deprecated:
+        since: "2.2.0"
     platforms: [iphone, ipad]
 
   - name: BLEND_MODE_CLEAR

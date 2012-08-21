@@ -16,7 +16,7 @@ description:  |
     and radius, can fire events such as swipe events or touches, and can optionally contain a 
     hierarchy or other views as children. In Titanium, most views are specialized to perform both a 
     visual function and set of interaction behaviors such as [Table View](Titanium.UI.TableView) or
-    [Coverflow View](Titanium.UI.CoverFlowView).  Views are always named with the suffix `View`.
+    [Coverflow View](Titanium.UI.iOS.CoverFlowView).  Views are always named with the suffix `View`.
     
     * **Controls** - controls, or sometimes referred as widgets, are visual elements such as 
     [sliders](Titanium.UI.Slider),  [buttons](Titanium.UI.Button) and [switches](Titanium.UI.Switch). 
@@ -195,280 +195,108 @@ properties:
     permission: read-only
     platforms: [iphone, ipad, mobileweb]
     
-  - name: AUTODETECT_ADDRESS
-    summary: Use the text auto-detection constants in <Titanium.UI.iOS> instead.
+  - name: AUTOLINK_MAP_ADDRESSES
+    summary: Convert strings formatted as addresses into clickable links.
+    description: |
+         Two or more autolink constants can be combined using bitwise or.
+         On iOS:
+            Use with the <Titanium.UI.TextArea.autoLink> property.
+            
+         On Android:
+            Use with <Titanium.UI.TextArea.autoLink>, <Titanium.UI.TextField.autoLink>, and <Titanium.UI.Label.autoLink> properties.
+
     type: Number
-    deprecated:
-        since: "1.8.0"
     osver: {ios: {min: "4.0"}}
+    since: "2.2.0"
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [android, iphone, ipad]
     
-  - name: AUTODETECT_ALL
-    summary: Use the text auto-detection constants in <Titanium.UI.iOS> instead.
+  - name: AUTOLINK_ALL
+    summary: Convert all detectable types of data into clickable links.
+    description: |
+         Two or more autolink constants can be combined using bitwise or.
+         On iOS:
+            Use with the <Titanium.UI.TextArea.autoLink> property.
+            
+         On Android:
+            Use with <Titanium.UI.TextArea.autoLink>, <Titanium.UI.TextField.autoLink>, and <Titanium.UI.Label.autoLink> properties.
+
     type: Number
-    deprecated:
-        since: "1.8.0"
+    since: "2.2.0"
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [android, iphone, ipad]
     
-  - name: AUTODETECT_CALENDAR
-    summary: Use the text auto-detection constants in <Titanium.UI.iOS> instead.
+  - name: AUTOLINK_CALENDAR
+    summary: Convert strings formatted as calendar events into clickable links.
+    description: Use with the <Titanium.UI.TextArea.autoLink> property. Two or more autolink constants can be combined using bitwise or.
     type: Number
-    deprecated:
-        since: "1.8.0"
     osver: {ios: {min: "4.0"}}
+    since: {ios: "2.2.0"}
     permission: read-only
     platforms: [iphone, ipad]
     
-  - name: AUTODETECT_LINK
-    summary: Use the text auto-detection constants in <Titanium.UI.iOS> instead.
+  - name: AUTOLINK_URLS
+    summary: Convert strings formatted as URLs into clickable links.
+    description: |
+         Two or more autolink constants can be combined using bitwise or.
+         On iOS:
+            Use with the <Titanium.UI.TextArea.autoLink> property. This property will also convert strings formatted
+            as email addresses into clickable links.
+            
+         On Android:
+            Use with <Titanium.UI.TextArea.autoLink>, <Titanium.UI.TextField.autoLink>, and <Titanium.UI.Label.autoLink> properties.
+            
     type: Number
-    deprecated:
-        since: "1.8.0"
+    since: "2.2.0"
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [android, iphone, ipad]
     
-  - name: AUTODETECT_NONE
-    summary: Use the text auto-detection constants in <Titanium.UI.iOS> instead.
+  - name: AUTOLINK_NONE
+    summary: Disable converting strings into clickable links.
+    description: |
+         Two or more autolink constants can be combined using bitwise or.
+         On iOS:
+            Use with the <Titanium.UI.TextArea.autoLink> property.
+            
+         On Android:
+            Use with <Titanium.UI.TextArea.autoLink>, <Titanium.UI.TextField.autoLink>, and <Titanium.UI.Label.autoLink> properties.
+
     type: Number
-    deprecated:
-        since: "1.8.0"
     permission: read-only
-    platforms: [iphone, ipad]
+    since: "2.2.0"
+    platforms: [android, iphone, ipad]
     
-  - name: AUTODETECT_PHONE
-    summary: Use the text auto-detection constants in <Titanium.UI.iOS> instead.
+  - name: AUTOLINK_PHONE_NUMBERS
+    summary: Convert strings formatted as phone numbers into clickable links.
+    description: |
+         Two or more autolink constants can be combined using bitwise or.
+         On iOS:
+            Use with the <Titanium.UI.TextArea.autoLink> property.
+            
+         On Android:
+            Use with <Titanium.UI.TextArea.autoLink>, <Titanium.UI.TextField.autoLink>, and <Titanium.UI.Label.autoLink> properties.
+
     type: Number
-    deprecated:
-        since: "1.8.0"
     permission: read-only
-    platforms: [iphone, ipad]
+    since: "2.2.0"
+    platforms: [android, iphone, ipad]
     
-  - name: BLEND_MODE_CLEAR
-    summary: Use the blend mode constants in <Titanium.UI.iOS> instead.
+  - name: AUTOLINK_EMAIL_ADDRESSES
+    summary: Convert strings formatted as email addresses into clickable links.
+    description: |
+         Two or more autolink constants can be combined using bitwise or.
+         On iOS:
+            Use with the <Titanium.UI.TextArea.autoLink> property. This property will also convert strings formatted
+            as URLs into clickable links.
+            
+         On Android:
+            Use with <Titanium.UI.TextArea.autoLink>, <Titanium.UI.TextField.autoLink>, and <Titanium.UI.Label.autoLink> properties.
+
     type: Number
-    deprecated:
-        since: "1.8.0"
     permission: read-only
-    platforms: [iphone, ipad]
-    
-  - name: BLEND_MODE_COLOR
-    summary: Use the blend mode constants in <Titanium.UI.iOS> instead.
-    type: Number
-    deprecated:
-        since: "1.8.0"
-    permission: read-only
-    platforms: [iphone, ipad]
-    
-  - name: BLEND_MODE_COLOR_BURN
-    summary: Use the blend mode constants in <Titanium.UI.iOS> instead.
-    type: Number
-    deprecated:
-        since: "1.8.0"
-    permission: read-only
-    platforms: [iphone, ipad]
-    
-  - name: BLEND_MODE_COLOR_DODGE
-    summary: Use the blend mode constants in <Titanium.UI.iOS> instead.
-    type: Number
-    deprecated:
-        since: "1.8.0"
-    permission: read-only
-    platforms: [iphone, ipad]
-    
-  - name: BLEND_MODE_COPY
-    summary: Use the blend mode constants in <Titanium.UI.iOS> instead.
-    type: Number
-    deprecated:
-        since: "1.8.0"
-    permission: read-only
-    platforms: [iphone, ipad]
-    
-  - name: BLEND_MODE_DARKEN
-    summary: Use the blend mode constants in <Titanium.UI.iOS> instead.
-    type: Number
-    deprecated:
-        since: "1.8.0"
-    permission: read-only
-    platforms: [iphone, ipad]
-    
-  - name: BLEND_MODE_DESTINATION_ATOP
-    summary: Use the blend mode constants in <Titanium.UI.iOS> instead.
-    type: Number
-    deprecated:
-        since: "1.8.0"
-    permission: read-only
-    platforms: [iphone, ipad]
-    
-  - name: BLEND_MODE_DESTINATION_IN
-    summary: Use the blend mode constants in <Titanium.UI.iOS> instead.
-    type: Number
-    deprecated:
-        since: "1.8.0"
-    permission: read-only
-    platforms: [iphone, ipad]
-    
-  - name: BLEND_MODE_DESTINATION_OUT
-    summary: Use the blend mode constants in <Titanium.UI.iOS> instead.
-    type: Number
-    deprecated:
-        since: "1.8.0"
-    permission: read-only
-    platforms: [iphone, ipad]
-    
-  - name: BLEND_MODE_DESTINATION_OVER
-    summary: Use the blend mode constants in <Titanium.UI.iOS> instead.
-    type: Number
-    deprecated:
-        since: "1.8.0"
-    permission: read-only
-    platforms: [iphone, ipad]
-    
-  - name: BLEND_MODE_DIFFERENCE
-    summary: Use the blend mode constants in <Titanium.UI.iOS> instead.
-    type: Number
-    deprecated:
-        since: "1.8.0"
-    permission: read-only
-    platforms: [iphone, ipad]
-    
-  - name: BLEND_MODE_EXCLUSION
-    summary: Use the blend mode constants in <Titanium.UI.iOS> instead.
-    type: Number
-    deprecated:
-        since: "1.8.0"
-    permission: read-only
-    platforms: [iphone, ipad]
-    
-  - name: BLEND_MODE_HARD_LIGHT
-    summary: Use the blend mode constants in <Titanium.UI.iOS> instead.
-    type: Number
-    deprecated:
-        since: "1.8.0"
-    permission: read-only
-    platforms: [iphone, ipad]
-    
-  - name: BLEND_MODE_HUE
-    summary: Use the blend mode constants in <Titanium.UI.iOS> instead.
-    type: Number
-    deprecated:
-        since: "1.8.0"
-    permission: read-only
-    platforms: [iphone, ipad]
-    
-  - name: BLEND_MODE_LIGHTEN
-    summary: Use the blend mode constants in <Titanium.UI.iOS> instead.
-    type: Number
-    deprecated:
-        since: "1.8.0"
-    permission: read-only
-    platforms: [iphone, ipad]
-    
-  - name: BLEND_MODE_LUMINOSITY
-    summary: Use the blend mode constants in <Titanium.UI.iOS> instead.
-    type: Number
-    deprecated:
-        since: "1.8.0"
-    permission: read-only
-    platforms: [iphone, ipad]
-    
-  - name: BLEND_MODE_MULTIPLY
-    summary: Use the blend mode constants in <Titanium.UI.iOS> instead.
-    type: Number
-    deprecated:
-        since: "1.8.0"
-    permission: read-only
-    platforms: [iphone, ipad]
-    
-  - name: BLEND_MODE_NORMAL
-    summary: Use the blend mode constants in <Titanium.UI.iOS> instead.
-    type: Number
-    deprecated:
-        since: "1.8.0"
-    permission: read-only
-    platforms: [iphone, ipad]
-    
-  - name: BLEND_MODE_OVERLAY
-    summary: Use the blend mode constants in <Titanium.UI.iOS> instead.
-    type: Number
-    deprecated:
-        since: "1.8.0"
-    permission: read-only
-    platforms: [iphone, ipad]
-    
-  - name: BLEND_MODE_PLUS_DARKER
-    summary: Use the blend mode constants in <Titanium.UI.iOS> instead.
-    type: Number
-    deprecated:
-        since: "1.8.0"
-    permission: read-only
-    platforms: [iphone, ipad]
-    
-  - name: BLEND_MODE_PLUS_LIGHTER
-    summary: Use the blend mode constants in <Titanium.UI.iOS> instead.
-    type: Number
-    deprecated:
-        since: "1.8.0"
-    permission: read-only
-    platforms: [iphone, ipad]
-    
-  - name: BLEND_MODE_SATURATION
-    summary: Use the blend mode constants in <Titanium.UI.iOS> instead.
-    type: Number
-    deprecated:
-        since: "1.8.0"
-    permission: read-only
-    platforms: [iphone, ipad]
-    
-  - name: BLEND_MODE_SCREEN
-    summary: Use the blend mode constants in <Titanium.UI.iOS> instead.
-    type: Number
-    deprecated:
-        since: "1.8.0"
-    permission: read-only
-    platforms: [iphone, ipad]
-    
-  - name: BLEND_MODE_SOFT_LIGHT
-    summary: Use the blend mode constants in <Titanium.UI.iOS> instead.
-    type: Number
-    deprecated:
-        since: "1.8.0"
-    permission: read-only
-    platforms: [iphone, ipad]
-    
-  - name: BLEND_MODE_SOURCE_ATOP
-    summary: Use the blend mode constants in <Titanium.UI.iOS> instead.
-    type: Number
-    deprecated:
-        since: "1.8.0"
-    permission: read-only
-    platforms: [iphone, ipad]
-    
-  - name: BLEND_MODE_SOURCE_IN
-    summary: Use the blend mode constants in <Titanium.UI.iOS> instead.
-    type: Number
-    deprecated:
-        since: "1.8.0"
-    permission: read-only
-    platforms: [iphone, ipad]
-    
-  - name: BLEND_MODE_SOURCE_OUT
-    summary: Use the blend mode constants in <Titanium.UI.iOS> instead.
-    type: Number
-    deprecated:
-        since: "1.8.0"
-    permission: read-only
-    platforms: [iphone, ipad]
-    
-  - name: BLEND_MODE_XOR
-    summary: Use the blend mode constants in <Titanium.UI.iOS> instead.
-    type: Number
-    deprecated:
-        since: "1.8.0"
-    permission: read-only
-    platforms: [iphone, ipad]
-    
+    since: "2.2.0"
+    platforms: [android, iphone, ipad]
+        
   - name: FACE_DOWN
     summary: Constant value for face-down orientation.
     description: |

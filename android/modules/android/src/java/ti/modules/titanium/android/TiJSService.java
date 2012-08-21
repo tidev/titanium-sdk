@@ -9,7 +9,6 @@ package ti.modules.titanium.android;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollRuntime;
 import org.appcelerator.kroll.common.Log;
-import org.appcelerator.kroll.common.TiConfig;
 import org.appcelerator.kroll.util.KrollAssetHelper;
 import org.appcelerator.titanium.TiBaseService;
 import org.appcelerator.titanium.TiC;
@@ -20,8 +19,7 @@ import android.content.Intent;
 public class TiJSService extends TiBaseService
 {
 	protected String url = null;
-	private static final String LCAT = "TiJSService";
-	private static final boolean DBG = TiConfig.LOGD;
+	private static final String TAG = "TiJSService";
 
 	public TiJSService(String url)
 	{
@@ -43,9 +41,7 @@ public class TiJSService extends TiBaseService
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId)
 	{
-		if (DBG) {
-			Log.d(LCAT, "onStartCommand");
-		}
+		Log.d(TAG, "onStartCommand", Log.DEBUG_MODE);
 		finalizeUrl(intent);
 		ServiceProxy proxy = createProxy(intent);
 		start(proxy);
@@ -59,11 +55,11 @@ public class TiJSService extends TiBaseService
 		if (!fullUrl.contains("://") && !fullUrl.startsWith("/") && proxy.getCreationUrl().baseUrl != null) {
 			fullUrl = proxy.getCreationUrl().baseUrl + fullUrl;
 		}
-		if (DBG) {
+		if (Log.isDebugModeEnabled()) {
 			if (url != fullUrl) {
-				Log.d(LCAT, "Eval JS Service:" + url + " (" + fullUrl+ ")");
+				Log.d(TAG, "Eval JS Service:" + url + " (" + fullUrl+ ")");
 			} else {
-				Log.d(LCAT, "Eval JS Service:" + url);
+				Log.d(TAG, "Eval JS Service:" + url);
 			}
 		}
 

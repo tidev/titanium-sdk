@@ -115,7 +115,7 @@ public class TiUIScrollableView extends TiUIView
 							// oldIndex will be -1 if the view has just
 							// been created and is setting currentPage
 							// to something other than 0. In that case we
-							// don't want a scrollEnd to fire.
+							// don't want a `scrollend` to fire.
 							((ScrollableViewProxy)proxy).fireScrollEnd(mCurIndex, mViews.get(mCurIndex));
 						}
 
@@ -132,8 +132,8 @@ public class TiUIScrollableView extends TiUIView
 				} else if (scrollState == ViewPager.SCROLL_STATE_SETTLING) {
 					((ScrollableViewProxy)proxy).fireDragEnd(mCurIndex, mViews.get(mCurIndex));
 
-					// Note that we just fired a dragEnd so the `onPageSelected`
-					// handler below doesn't fire a `scrollEnd`.  Read below comment.
+					// Note that we just fired a `dragend` so the `onPageSelected`
+					// handler below doesn't fire a `scrollend`.  Read below comment.
 					justFiredDragEnd = true;
 				}
 			}
@@ -142,7 +142,7 @@ public class TiUIScrollableView extends TiUIView
 			public void onPageSelected(int page)
 			{
 
-				// If we didn't just fire a `dragEnd` event then this is the case
+				// If we didn't just fire a `dragend` event then this is the case
 				// where a user drags the view and settles it on a different view.
 				// Since the OS settling logic is never run, the
 				// `onPageScrollStateChanged` handler is never run, and therefore
@@ -184,7 +184,7 @@ public class TiUIScrollableView extends TiUIView
 				mCurIndex = (int) Math.floor(positionFloat + 0.5);
 				((ScrollableViewProxy)proxy).fireScroll(mCurIndex, positionFloat, mViews.get(mCurIndex));
 
-				// Note that we didn't just fire a dragEnd.  See the above comment
+				// Note that we didn't just fire a `dragend`.  See the above comment
 				// in `onPageSelected`.
 				justFiredDragEnd = false;
 			}

@@ -21,7 +21,6 @@ import org.appcelerator.kroll.KrollRuntime;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.AsyncResult;
 import org.appcelerator.kroll.common.Log;
-import org.appcelerator.kroll.common.TiConfig;
 import org.appcelerator.kroll.common.TiMessenger;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBaseActivity;
@@ -61,8 +60,7 @@ import android.view.View;
 })
 public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 {
-	private static final String LCAT = "TiViewProxy";
-	private static final boolean DBG = TiConfig.LOGD;
+	private static final String TAG = "TiViewProxy";
 
 	private static final int MSG_FIRST_ID = KrollProxy.MSG_LAST_ID + 1;
 
@@ -163,9 +161,8 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 			extend(dict);
 		}
 
-		if (DBG) {
-			Log.d(LCAT, "trying to get stylesheet for base:" + baseUrl + ",classes:" + styleClasses + ",id:" + viewId + ",dict:" + dict);
-		}
+		Log.d(TAG, "trying to get stylesheet for base:" + baseUrl + ",classes:" + styleClasses + ",id:" + viewId + ",dict:"
+			+ dict, Log.DEBUG_MODE);
 		if (dict != null) {
 			// merge in our stylesheet details to the passed in dictionary
 			// our passed in dictionary takes precedence over the stylesheet
@@ -418,9 +415,7 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 	protected TiUIView handleGetView()
 	{
 		if (view == null) {
-			if (DBG) {
-				Log.d(LCAT, "getView: " + getClass().getSimpleName());
-			}
+			Log.d(TAG, "getView: " + getClass().getSimpleName(), Log.DEBUG_MODE);
 
 			Activity activity = getActivity();
 			view = createView(activity);
@@ -428,7 +423,7 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 				if (activity != null) {
 					((TiBaseActivity)activity).setViewProxy(view.getProxy());
 				} else {
-					Log.w(LCAT, "Activity is null");
+					Log.w(TAG, "Activity is null", Log.DEBUG_MODE);
 				}
 			}
 			realizeViews(view);
@@ -450,7 +445,7 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 					view.add(cv);
 				}
 			} catch (ConcurrentModificationException e) {
-				Log.e(LCAT, e.getMessage(), e);
+				Log.e(TAG, e.getMessage(), e);
 			}
 		}
 
@@ -493,7 +488,7 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 	public void add(TiViewProxy child)
 	{
 		if (child == null) {
-			Log.w(LCAT, "add called with null child");
+			Log.e(TAG, "Add called with a null child");
 			return;
 		}
 
@@ -540,8 +535,7 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 	public void remove(TiViewProxy child)
 	{
 		if (child == null) {
-			Log.w(LCAT, "add called with null child");
-
+			Log.e(TAG, "Add called with null child");
 			return;
 		}
 
@@ -948,24 +942,24 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 		TiUIView view = peekView();
 		TiUIView destView = dest.peekView();
 		if (view == null) {
-			Log.w(LCAT, "convertPointToView: view has not been attached, cannot convert point");
+			Log.w(TAG, "convertPointToView: View has not been attached, cannot convert point");
 			return null;
 		}
 
 		if (destView == null) {
-			Log.w(LCAT, "convertPointToView: destinationView has not been attached, cannot convert point");
+			Log.w(TAG, "convertPointToView: DestinationView has not been attached, cannot convert point");
 			return null;
 		}
 
 		View nativeView = view.getNativeView();
 		View destNativeView = destView.getNativeView();
 		if (nativeView == null || nativeView.getParent() == null) {
-			Log.w(LCAT, "convertPointToView: view has not been attached, cannot convert point");
+			Log.w(TAG, "convertPointToView: View has not been attached, cannot convert point");
 			return null;
 		}
 
 		if (destNativeView == null || destNativeView.getParent() == null) {
-			Log.w(LCAT, "convertPointToView: destinationView has not been attached, cannot convert point");
+			Log.w(TAG, "convertPointToView: DestinationView has not been attached, cannot convert point");
 			return null;
 		}
 
@@ -974,10 +968,8 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 		nativeView.getLocationInWindow(viewLocation);
 		destNativeView.getLocationInWindow(destLocation);
 
-		if (DBG) {
-			Log.d(LCAT, "nativeView location in window, x: " + viewLocation[0] + ", y: " + viewLocation[1]);
-			Log.d(LCAT, "destNativeView location in window, x: " + destLocation[0] + ", y: " + destLocation[1]);
-		}
+		Log.d(TAG, "nativeView location in window, x: " + viewLocation[0] + ", y: " + viewLocation[1], Log.DEBUG_MODE);
+		Log.d(TAG, "destNativeView location in window, x: " + destLocation[0] + ", y: " + destLocation[1], Log.DEBUG_MODE);
 
 		int pointWindowX = viewLocation[0] + x;
 		int pointWindowY = viewLocation[1] + y;
@@ -1015,7 +1007,7 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 		HashMap<String, Object> paramsMap;
 
 		if (!(params instanceof HashMap)) {
-			Log.e(LCAT, "argument for updateLayout must be a dictionary");
+			Log.e(TAG, "Argument for updateLayout must be a dictionary");
 			return;
 		}
 		paramsMap = (HashMap) params;

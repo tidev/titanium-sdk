@@ -23,29 +23,6 @@ excludes: { methods: [ addEventListener, fireEvent, removeEventListener ] }
 since: "0.1"
 methods:
 
-  - name: addEvent
-    summary: |
-        Sends a generic event for this application session.
-        **Not displayed in Analytics UI**.
-    deprecated: 
-        since: "2.0.0"
-    parameters:
-
-      - name: type
-        summary: Event type.
-        type: String
-
-      - name: name
-        summary: Event name.
-        type: String
-
-      - name: data
-        summary: |
-            Extra data related to the event. Must be serializable as JSON.
-        type: Object
-        optional: true
-        default: null
-
   - name: featureEvent
     summary: Sends a feature event for this application session.
     parameters:
@@ -84,72 +61,6 @@ methods:
 
       - name: data
         summary: Extra data related to the event. The object must be serializable as JSON.
-        type: Object
-        optional: true
-        default: null
-
-  - name: settingsEvent
-    summary: |
-        Sends a settings event for this application session.
-        **Not displayed in Analytics UI**.
-    deprecated: 
-        since: "2.0.0"
-    parameters:
-
-      - name: name
-        summary: Event name.
-        type: String
-
-      - name: data
-        summary: Extra data related to the event. Must be serializable as JSON.
-        type: Object
-        optional: true
-        default: null
-
-  - name: timedEvent
-    summary: |
-        Send a timed event for this application session.
-        **Not displayed in Analytics UI**.
-    deprecated: 
-        since: "2.0.0"
-    parameters:
-
-      - name: name
-        summary: Event name.
-        type: String
-
-      - name: start
-        summary: Event start as a Date object.
-        type: Date
-
-      - name: stop
-        summary: Event end as a Date object.
-        type: Date
-
-      - name: duration
-        summary: Event duration.
-        type: Number
-
-      - name: data
-        summary: Extra data related to the event. Must be serializable as JSON.
-        type: Object
-        optional: true
-        default: null
-
-  - name: userEvent
-    summary: 
-        Sends a user event for this application session.
-        **Not displayed in Analytics UI**.
-    deprecated: 
-        since: "2.0.0"
-    parameters:
-
-      - name: name
-        summary: Event name.
-        type: String
-
-      - name: data
-        summary: Extra data related to the event. Must be serializable as JSON.
         type: Object
         optional: true
         default: null

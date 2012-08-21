@@ -6,7 +6,6 @@
  */
 package ti.modules.titanium.network;
 
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -59,7 +58,6 @@ import org.apache.http.conn.scheme.SchemeRegistry;
 import org.apache.http.conn.ssl.SSLSocketFactory;
 import org.apache.http.cookie.Cookie;
 import org.apache.http.entity.AbstractHttpEntity;
-import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.entity.FileEntity;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.entity.mime.MultipartEntity;
@@ -80,10 +78,8 @@ import org.apache.http.protocol.HTTP;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.util.EntityUtils;
 import org.appcelerator.kroll.KrollDict;
-import org.appcelerator.kroll.KrollFunction;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.common.Log;
-import org.appcelerator.kroll.common.TiConfig;
 import org.appcelerator.kroll.util.TiTempFileHelper;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBlob;
@@ -101,22 +97,16 @@ import android.net.Uri;
 
 public class TiHTTPClient
 {
-	private static final String LCAT = "TiHttpClient";
-	private static final boolean DBG = TiConfig.LOGD;
+	private static final String TAG = "TiHttpClient";
 	private static final int DEFAULT_MAX_BUFFER_SIZE = 512 * 1024;
 	private static final String PROPERTY_MAX_BUFFER_SIZE = "ti.android.httpclient.maxbuffersize";
 	private static final int PROTOCOL_DEFAULT_PORT = -1;
-	private static final String ON_READY_STATE_CHANGE = "onreadystatechange";
-	private static final String ON_LOAD = "onload";
-	private static final String ON_ERROR = "onerror";
-	private static final String ON_DATA_STREAM = "ondatastream";
-	private static final String ON_SEND_STREAM = "onsendstream";
 
 	private static final String[] FALLBACK_CHARSETS = {HTTP.UTF_8, HTTP.ISO_8859_1};
 
 	// Regular expressions for detecting charset information in response documents (ex: html, xml).
-	private static final String HTML_META_TAG_REGEX = "charset=([^\"]*)";
-	private static final String XML_DECLARATION_TAG_REGEX = "encoding=\"([^\"]*)\"";
+	private static final String HTML_META_TAG_REGEX = "charset=([^\"\']*)";
+	private static final String XML_DECLARATION_TAG_REGEX = "encoding=[\"\']([^\"\']*)[\"\']";
 
 	private static AtomicInteger httpClientThreadCounter;
 	private static DefaultHttpClient nonValidatingClient;
@@ -225,12 +215,12 @@ public class TiHTTPClient
 					c.setReadyState(READY_STATE_LOADING);
 				}
 
-				if (DBG) {
+				if (Log.isDebugModeEnabled()) {
 					try {
-						Log.d(LCAT, "Entity Type: " + response.getEntity().getClass());
-						Log.d(LCAT, "Entity Content Type: " + response.getEntity().getContentType().getValue());
-						Log.d(LCAT, "Entity isChunked: " + response.getEntity().isChunked());
-						Log.d(LCAT, "Entity isStreaming: " + response.getEntity().isStreaming());
+						Log.d(TAG, "Entity Type: " + response.getEntity().getClass());
+						Log.d(TAG, "Entity Content Type: " + response.getEntity().getContentType().getValue());
+						Log.d(TAG, "Entity isChunked: " + response.getEntity().isChunked());
+						Log.d(TAG, "Entity isStreaming: " + response.getEntity().isStreaming());
 					} catch (Throwable t) {
 						// Ignore
 					}
@@ -262,15 +252,11 @@ public class TiHTTPClient
 
 				if (is != null) {
 					long contentLength = entity.getContentLength();
-					if (DBG) {
-						Log.d(LCAT, "Content length: " + contentLength);
-					}
+					Log.d(TAG, "Content length: " + contentLength, Log.DEBUG_MODE);
 					int count = 0;
 					long totalSize = 0;
 					byte[] buf = new byte[4096];
-					if (DBG) {
-						Log.d(LCAT, "Available: " + is.available());
-					}
+					Log.d(TAG, "Available: " + is.available(), Log.DEBUG_MODE);
 
 					if (entity != null) {
 						charset = EntityUtils.getContentCharSet(entity);
@@ -280,7 +266,7 @@ public class TiHTTPClient
 						try {
 							handleEntityData(buf, count, totalSize, contentLength);
 						} catch (IOException e) {
-							Log.e(LCAT, "Error handling entity data", e);
+							Log.e(TAG, "Error handling entity data", e);
 
 							// TODO
 							//Context.throwAsScriptRuntimeEx(e);
@@ -340,22 +326,20 @@ public class TiHTTPClient
 			}
 			
 			responseOut.write(data, 0, size);
-			KrollFunction onDataStreamCallback = getCallback(ON_DATA_STREAM);
-			if (onDataStreamCallback != null) {
-				KrollDict o = new KrollDict();
-				o.put("totalCount", contentLength);
-				o.put("totalSize", totalSize);
-				o.put("size", size);
-				
-				byte[] blobData = new byte[size];
-				System.arraycopy(data, 0, blobData, 0, size);
 
-				TiBlob blob = TiBlob.blobFromData(blobData, contentType);
-				o.put("blob", blob);
-				o.put("progress", ((double)totalSize)/((double)contentLength));
+			KrollDict callbackData = new KrollDict();
+			callbackData.put("totalCount", contentLength);
+			callbackData.put("totalSize", totalSize);
+			callbackData.put("size", size);
 
-				onDataStreamCallback.callAsync(proxy.getKrollObject(), o);
-			}
+			byte[] blobData = new byte[size];
+			System.arraycopy(data, 0, blobData, 0, size);
+
+			TiBlob blob = TiBlob.blobFromData(blobData, contentType);
+			callbackData.put("blob", blob);
+			callbackData.put("progress", ((double)totalSize)/((double)contentLength));
+
+			dispatchCallback("ondatastream", callbackData);
 		}
 		
 		private void finishedReceivingEntityData(long contentLength) throws IOException
@@ -493,40 +477,6 @@ public class TiHTTPClient
 		return readyState;
 	}
 
-	public KrollFunction getCallback(String name)
-	{
-		Object value = proxy.getProperty(name);
-		if (value != null && value instanceof KrollFunction)
-		{
-			return (KrollFunction) value;
-		}
-		return null;
-	}
-
-	public void fireCallback(String name)
-	{
-		KrollDict eventProperties = new KrollDict();
-		eventProperties.put("source", proxy);
-
-		fireCallback(name, new Object [] {eventProperties});
-	}
-
-	public void fireCallback(String name, Object[] args)
-	{
-		KrollFunction cb = getCallback(name);
-		if (cb != null)
-		{
-			// TODO - implement converter method for array to hashmap?
-			cb.callAsync(proxy.getKrollObject(), args);
-		} else {
-			// It's particularly interesting if an error wants to be reported
-			// but no one is listening, so log that.
-			if (ON_ERROR.equals(name)) {
-				Log.w(LCAT, "No onerror callback specified; it would be called if it were.");
-			}
-		}
-	}
-
 	public boolean validatesSecureCertificate()
 	{
 		if (proxy.hasProperty("validatesSecureCertificate")) {
@@ -543,25 +493,14 @@ public class TiHTTPClient
 	
 	public void setReadyState(int readyState)
 	{
-		if (DBG) {
-			Log.d(LCAT, "Setting ready state to " + readyState);
-		}
+		Log.d(TAG, "Setting ready state to " + readyState, Log.DEBUG_MODE);
 		this.readyState = readyState;
 
-		fireCallback(ON_READY_STATE_CHANGE);
-		if (readyState == READY_STATE_DONE) {
-			// Fire onload callback
-			fireCallback(ON_LOAD);
-		}
-	}
+		dispatchCallback("onreadystatechanged", null);
 
-	public void sendError(String error)
-	{
-		Log.i(LCAT, "Sending error " + error);
-		KrollDict event = new KrollDict();
-		event.put("error", error);
-		event.put("source", proxy);
-		fireCallback(ON_ERROR, new Object[] {event});
+		if (readyState == READY_STATE_DONE) {
+			dispatchCallback("onload", null);
+		}
 	}
 
 	private String decodeResponseData(String charsetName) {
@@ -570,7 +509,7 @@ public class TiHTTPClient
 			charset = Charset.forName(charsetName);
 
 		} catch (IllegalArgumentException e) {
-			Log.e(LCAT, "Could not find charset: " + e.getMessage());
+			Log.e(TAG, "Could not find charset: " + e.getMessage());
 			return null;
 		}
 
@@ -585,7 +524,7 @@ public class TiHTTPClient
 			return null;
 
 		} catch (OutOfMemoryError e) {
-			Log.e(LCAT, "Not enough memory to decode response data.");
+			Log.e(TAG, "Not enough memory to decode response data.");
 			return null;
 		}
 	}
@@ -599,7 +538,7 @@ public class TiHTTPClient
 	private String detectResponseDataEncoding() {
 		String regex;
 		if (contentType == null) {
-			Log.i(LCAT, "Could not detect charset, no content type specified.");
+			Log.w(TAG, "Could not detect charset, no content type specified.", Log.DEBUG_MODE);
 			return null;
 
 		} else if (contentType.contains("xml")) {
@@ -609,7 +548,7 @@ public class TiHTTPClient
 			regex = HTML_META_TAG_REGEX;
 
 		} else {
-			Log.i(LCAT, "Cannot detect charset, unknown content type: " + contentType);
+			Log.w(TAG, "Cannot detect charset, unknown content type: " + contentType, Log.DEBUG_MODE);
 			return null;
 		}
 
@@ -642,9 +581,10 @@ public class TiHTTPClient
 		// charset by scanning the response data.
 		String detectedCharset = detectResponseDataEncoding();
 		if (detectedCharset != null) {
-			Log.i(LCAT, "detected charset: " + detectedCharset);
+			Log.d(TAG, "detected charset: " + detectedCharset, Log.DEBUG_MODE);
 			responseText = decodeResponseData(detectedCharset);
 			if (responseText != null) {
+				charset = detectedCharset;
 				return responseText;
 			}
 		}
@@ -657,7 +597,7 @@ public class TiHTTPClient
 			}
 		}
 
-		Log.e(LCAT, "Could not decode response text.");
+		Log.e(TAG, "Could not decode response text.");
 		return responseText;
 	}
 
@@ -689,7 +629,7 @@ public class TiHTTPClient
 				}
 
 			} catch (Exception e) {
-				Log.e(LCAT, "Error parsing XML", e);
+				Log.e(TAG, "Error parsing XML", e);
 			}
 		}
 
@@ -761,7 +701,7 @@ public class TiHTTPClient
 
 	public void clearCookies(String url)
 	{
-		List<Cookie> cookies = new ArrayList(client.getCookieStore().getCookies());
+		List<Cookie> cookies = new ArrayList<Cookie>(client.getCookieStore().getCookies());
 		client.getCookieStore().clear();
 		String lower_url = url.toLowerCase();
 
@@ -804,7 +744,7 @@ public class TiHTTPClient
 
 			if (headers.length == 0)
 			{
-				Log.w(LCAT, "No value for response header: " + headerName);
+				Log.w(TAG, "No value for response header: " + headerName, Log.DEBUG_MODE);
 			}
 
 		} else {
@@ -816,20 +756,19 @@ public class TiHTTPClient
 
 	public void open(String method, String url)
 	{
-		if (DBG) {
-			Log.d(LCAT, "open request method=" + method + " url=" + url);
-		}
+		Log.d(TAG, "open request method=" + method + " url=" + url, Log.DEBUG_MODE);
 
 		if (url == null)
 		{
-			Log.e(LCAT, "unable to open a null URL");
+			Log.e(TAG, "Unable to open a null URL");
 			throw new IllegalArgumentException("URL cannot be null");
 		}
 
 		// if the url is not prepended with either http or 
 		// https, then default to http and prepend the protocol
 		// to the url
-		if (!url.startsWith("http://") && !url.startsWith("https://")) {
+		String lowerCaseUrl = url.toLowerCase();
+		if (!lowerCaseUrl.startsWith("http://") && !lowerCaseUrl.startsWith("https://")) {
 			url = "http://" + url;
 		}
 
@@ -877,16 +816,17 @@ public class TiHTTPClient
 				port = javaUrl.getPort();
 
 			} catch (MalformedURLException e) {
-				Log.e(LCAT, "Error attempting to derive Java url from uri: " + e.getMessage(), e);
+				Log.e(TAG, "Error attempting to derive Java url from uri: " + e.getMessage(), e);
 			}
 
 		} else {
 			port = uri.getPort();
 		}
 
-		if (DBG) {
-			Log.d(LCAT, "Instantiating host with hostString='" + hostString + "', port='" + port + "', scheme='" + uri.getScheme() + "'");
-		}
+		Log.d(
+			TAG,
+			"Instantiating host with hostString='" + hostString + "', port='" + port + "', scheme='" + uri.getScheme() + "'",
+			Log.DEBUG_MODE);
 
 		host = new HttpHost(hostString, port, uri.getScheme());
 		if (uri.getUserInfo() != null) {
@@ -900,7 +840,7 @@ public class TiHTTPClient
 			setRequestHeader("X-Requested-With","XMLHttpRequest");
 
 		} else {
-			Log.i(LCAT, "Twitter: not sending X-Requested-With header");
+			Log.i(TAG, "Twitter: not sending X-Requested-With header", Log.DEBUG_MODE);
 		}
 	}
 
@@ -930,6 +870,16 @@ public class TiHTTPClient
 		} catch (UnsupportedEncodingException e) {
 			nvPairs.add(new BasicNameValuePair(name, value.toString()));
 		}
+	}
+
+	private void dispatchCallback(String name, KrollDict data) {
+		if (data == null) {
+			data = new KrollDict();
+		}
+
+		data.put("source", proxy);
+
+		proxy.callPropertyAsync(name, new Object[] { data });
 	}
 
 	private int addTitaniumFileAsPostData(String name, Object value)
@@ -966,15 +916,15 @@ public class TiHTTPClient
 
 			} else {
 				if (value != null) {
-					Log.e(LCAT, name + " is a " + value.getClass().getSimpleName());
+					Log.e(TAG, name + " is a " + value.getClass().getSimpleName());
 
 				} else {
-					Log.e(LCAT, name + " is null");
+					Log.e(TAG, name + " is null");
 				}
 			}
 
 		} catch (IOException e) {
-			Log.e(LCAT, "Error adding post data ("+name+"): " + e.getMessage());
+			Log.e(TAG, "Error adding post data ("+name+"): " + e.getMessage());
 		}
 		return 0;
 	}
@@ -1001,7 +951,7 @@ public class TiHTTPClient
 				tmpFiles.add(tmpFile);
 				return new FileEntity(tmpFile, mimeType);
 			} catch (IOException e) {
-				Log.e(LCAT, "Error adding put data: " + e.getMessage());
+				Log.e(TAG, "Error adding put data: " + e.getMessage());
 			}
 		}
 		return value;
@@ -1050,7 +1000,7 @@ public class TiHTTPClient
 		aborted = false;
 
 		// TODO consider using task manager
-		double totalLength = 0;
+		int totalLength = 0;
 		needMultipart = false;
 		
 		if (userData != null)
@@ -1120,10 +1070,8 @@ public class TiHTTPClient
 			}
 		}
 
-		if (DBG) {
-			Log.d(LCAT, "Instantiating http request with method='" + method + "' and this url:");
-			Log.d(LCAT, this.url);
-		}
+		Log.d(TAG, "Instantiating http request with method='" + method + "' and this url:", Log.DEBUG_MODE);
+		Log.d(TAG, this.url, Log.DEBUG_MODE);
 
 		request = new DefaultHttpRequestFactory().newHttpRequest(method, this.url);
 		for (String header : headers.keySet()) {
@@ -1134,16 +1082,14 @@ public class TiHTTPClient
 		clientThread.setPriority(Thread.MIN_PRIORITY);
 		clientThread.start();
 
-		if (DBG) {
-			Log.d(LCAT, "Leaving send()");
-		}
+		Log.d(TAG, "Leaving send()", Log.DEBUG_MODE);
 	}
 	
 	private class ClientRunnable implements Runnable
 	{
-		private double totalLength;
+		private final int totalLength;
 
-		public ClientRunnable(double totalLength)
+		public ClientRunnable(int totalLength)
 		{
 			this.totalLength = totalLength;
 		}
@@ -1152,9 +1098,7 @@ public class TiHTTPClient
 		{
 			try {
 				Thread.sleep(10);
-				if (DBG) {
-					Log.d(LCAT, "send()");
-				}
+				Log.d(TAG, "send()", Log.DEBUG_MODE);
 
 				handler = new LocalResponseHandler(TiHTTPClient.this);
 
@@ -1176,16 +1120,15 @@ public class TiHTTPClient
 							form = new UrlEncodedFormEntity(nvPairs, "UTF-8");
 
 						} catch (UnsupportedEncodingException e) {
-							Log.e(LCAT, "Unsupported encoding: ", e);
+							Log.e(TAG, "Unsupported encoding: ", e);
 						}
 					}
 
 					if (parts.size() > 0 && needMultipart) {
 						mpe = new MultipartEntity();
 						for(String name : parts.keySet()) {
-							if (DBG) {
-								Log.d(LCAT, "adding part " + name + ", part type: " + parts.get(name).getMimeType() + ", len: " + parts.get(name).getContentLength());
-							}
+							Log.d(TAG, "adding part " + name + ", part type: " + parts.get(name).getMimeType() + ", len: "
+								+ parts.get(name).getContentLength(), Log.DEBUG_MODE);
 							mpe.addPart(name, parts.get(name));
 						}
 
@@ -1196,10 +1139,10 @@ public class TiHTTPClient
 								mpe.addPart("form", new StringBody(bos.toString(), "application/x-www-form-urlencoded", Charset.forName("UTF-8")));
 
 							} catch (UnsupportedEncodingException e) {
-								Log.e(LCAT, "Unsupported encoding: ", e);
+								Log.e(TAG, "Unsupported encoding: ", e);
 
 							} catch (IOException e) {
-								Log.e(LCAT, "Error converting form to string: ", e);
+								Log.e(TAG, "Error converting form to string: ", e);
 							}
 						}
 
@@ -1207,13 +1150,9 @@ public class TiHTTPClient
 
 						ProgressEntity progressEntity = new ProgressEntity(mpe, new ProgressListener() {
 							public void progress(int progress) {
-								KrollFunction cb = getCallback(ON_SEND_STREAM);
-								if (cb != null) {
-									KrollDict data = new KrollDict();
-									data.put("progress", ((double)progress)/totalLength);
-									data.put("source", proxy);
-									cb.callAsync(proxy.getKrollObject(), data);
-								}
+								KrollDict data = new KrollDict();
+								data.put("progress", ((double)progress)/totalLength);
+								dispatchCallback("onsendstream", data);
 							}
 						});
 						e.setEntity(progressEntity);
@@ -1237,9 +1176,7 @@ public class TiHTTPClient
 					HttpConnectionParams.setSoTimeout(request.getParams(), timeout);
 				}
 
-				if (DBG) {
-					Log.d(LCAT, "Preparing to execute request");
-				}
+				Log.d(TAG, "Preparing to execute request", Log.DEBUG_MODE);
 
 				String result = null;
 				try {
@@ -1252,9 +1189,7 @@ public class TiHTTPClient
 				}
 
 				if(result != null) {
-					if (DBG) {
-						Log.d(LCAT, "Have result back from request len=" + result.length());
-					}
+					Log.d(TAG, "Have result back from request len=" + result.length(), Log.DEBUG_MODE);
 				}
 				connected = false;
 				setResponseText(result);
@@ -1262,14 +1197,12 @@ public class TiHTTPClient
 
 			} catch(Throwable t) {
 				if (client != null) {
-					if (DBG) {
-						Log.d(LCAT, "clearing the expired and idle connections");
-					}
+					Log.d(TAG, "clearing the expired and idle connections", Log.DEBUG_MODE);
 					client.getConnectionManager().closeExpiredConnections();
 					client.getConnectionManager().closeIdleConnections(0, TimeUnit.NANOSECONDS);
 
 				} else {
-					Log.d(LCAT, "client is not valid, unable to clear expired and idle connections");
+					Log.d(TAG, "client is not valid, unable to clear expired and idle connections");
 				}
 
 				String msg = t.getMessage();
@@ -1279,8 +1212,11 @@ public class TiHTTPClient
 				if (msg == null) {
 					msg = t.getClass().getName();
 				}
-				Log.e(LCAT, "HTTP Error (" + t.getClass().getName() + "): " + msg, t);
-				sendError(msg);
+				Log.e(TAG, "HTTP Error (" + t.getClass().getName() + "): " + msg, t);
+
+				KrollDict data = new KrollDict();
+				data.put("error", msg);
+				dispatchCallback("onerror", data);
 			}
 
 			deleteTmpFiles();
@@ -1308,7 +1244,7 @@ public class TiHTTPClient
 
 			} catch(Exception ex) {
 				//FIXME
-				Log.e(LCAT, "Exception, implement recovery: ", ex);
+				Log.e(TAG, "Exception, implement recovery: ", ex);
 			}
 		} else if (data instanceof AbstractHttpEntity) {
 			entity = (AbstractHttpEntity) data;

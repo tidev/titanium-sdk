@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -10,6 +10,7 @@ import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
+import org.appcelerator.titanium.util.TiUIHelper;
 
 import ti.modules.titanium.ui.widget.TiUIText;
 import android.view.Gravity;
@@ -58,7 +59,15 @@ public class TiUISearchBar extends TiUIText
 			}
 		});
 
-		RelativeLayout layout = new RelativeLayout(proxy.getActivity());
+		RelativeLayout layout = new RelativeLayout(proxy.getActivity())
+		{
+			@Override
+			protected void onLayout(boolean changed, int left, int top, int right, int bottom)
+			{
+				super.onLayout(changed, left, top, right, bottom);
+				TiUIHelper.firePostLayoutEvent(proxy);
+			}
+		};
 
 		layout.setGravity(Gravity.NO_GRAVITY);
 		layout.setPadding(0,0,0,0);

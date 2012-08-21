@@ -38,4 +38,6 @@ public interface KrollApplication
 	public String getDeployType();
 
 	public String getDefaultUnit();
+
+	public void cancelTimers();
 }

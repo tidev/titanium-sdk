@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -9,7 +9,6 @@ package ti.modules.titanium.ui;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
-import org.appcelerator.kroll.common.TiConfig;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiC;
@@ -26,8 +25,7 @@ import android.os.Messenger;
 @Kroll.proxy(creatableInModule=UIModule.class)
 public class ActivityWindowProxy extends TiWindowProxy
 {
-	private static final String LCAT = "ActivityWindowProxy";
-	private static final boolean DBG = TiConfig.LOGD;
+	private static final String TAG = "ActivityWindowProxy";
 	private static final int MSG_FIRST_ID = TiWindowProxy.MSG_LAST_ID + 1;
 	private static final int MSG_FINISH_OPEN = MSG_FIRST_ID + 100;
 
@@ -95,9 +93,7 @@ public class ActivityWindowProxy extends TiWindowProxy
 	@Override
 	protected void handleOpen(KrollDict options)
 	{
-		if (DBG) {
-			Log.d(LCAT, "handleOpen");
-		}
+		Log.d(TAG, "handleOpen", Log.DEBUG_MODE);
 
 		Messenger messenger = new Messenger(getMainHandler());
 
@@ -115,9 +111,7 @@ public class ActivityWindowProxy extends TiWindowProxy
 	@Override
 	protected void handleClose(KrollDict options)
 	{
-		if (DBG) {
-			Log.d(LCAT, "handleClose");
-		}
+		Log.d(TAG, "handleClose", Log.DEBUG_MODE);
 
 		TiUIActivityWindow window = getWindow();
 

@@ -101,7 +101,7 @@ class Projector(object):
 	def copy_module_resources(self, source, target):
 		if not os.path.exists(os.path.expanduser(target)):
 			os.mkdir(os.path.expanduser(target))
-		for root, dirs, files in os.walk(source):
+		for root, dirs, files in os.walk(source, True, None, True):
 			for name in ignoreDirs:
 				if name in dirs:
 					dirs.remove(name)	# don't visit ignored directories

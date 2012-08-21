@@ -259,7 +259,7 @@ class Compiler(object):
 		if info_message:
 			print "[INFO] %s" % info_message
 		sys.stdout.flush()
-		for root, dirs, files in os.walk(self.project_dir):
+		for root, dirs, files in os.walk(self.project_dir, True, None, True):
 			for dir in dirs:
 				if dir in ignoreDirs:
 					dirs.remove(dir)

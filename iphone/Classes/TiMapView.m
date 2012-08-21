@@ -493,7 +493,7 @@
 - (void)mapView:(MKMapView *)mapView regionDidChangeAnimated:(BOOL)animated
 {
 	if ([self.proxy _hasListeners:@"regionChanged"])
-	{
+	{	//TODO: Deprecate old event
 		region = [mapView region];
 		NSDictionary * props = [NSDictionary dictionaryWithObjectsAndKeys:
 								@"regionChanged",@"type",
@@ -502,6 +502,17 @@
 								[NSNumber numberWithDouble:region.span.latitudeDelta],@"latitudeDelta",
 								[NSNumber numberWithDouble:region.span.longitudeDelta],@"longitudeDelta",nil];
 		[self.proxy fireEvent:@"regionChanged" withObject:props];
+	}
+	if ([self.proxy _hasListeners:@"regionchanged"])
+	{
+		region = [mapView region];
+		NSDictionary * props = [NSDictionary dictionaryWithObjectsAndKeys:
+								@"regionchanged",@"type",
+								[NSNumber numberWithDouble:region.center.latitude],@"latitude",
+								[NSNumber numberWithDouble:region.center.longitude],@"longitude",
+								[NSNumber numberWithDouble:region.span.latitudeDelta],@"latitudeDelta",
+								[NSNumber numberWithDouble:region.span.longitudeDelta],@"longitudeDelta",nil];
+		[self.proxy fireEvent:@"regionchanged" withObject:props];
 	}
     
     //TODO:Remove all this code when we drop support for iOS 4.X
@@ -691,7 +702,7 @@
 			MKPinAnnotationView *pinview = (MKPinAnnotationView*)annView;
 			pinview.pinColor = [ann pinColor];
 			pinview.animatesDrop = [ann animatesDrop] && ![(TiMapAnnotationProxy *)annotation placed];
-			annView.calloutOffset = CGPointMake(-5, 5);
+			annView.calloutOffset = CGPointMake(-8, 0);
 		}
 		annView.canShowCallout = YES;
 		annView.enabled = YES;

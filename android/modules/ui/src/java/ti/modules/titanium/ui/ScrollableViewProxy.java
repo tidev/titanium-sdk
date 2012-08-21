@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -216,7 +216,14 @@ public class ScrollableViewProxy extends TiViewProxy
 			options.put("view", currentView);
 			options.put("currentPage", currentPage);
 			fireEvent(TiC.EVENT_DRAGEND, options);
-		} 
+		}
+		// TODO: Deprecate old event
+		if (hasListeners("dragEnd")) {
+			KrollDict options = new KrollDict();
+			options.put("view", currentView);
+			options.put("currentPage", currentPage);
+			fireEvent("dragEnd", options);
+		}
 	}
 
 	public void fireScrollEnd(int currentPage, TiViewProxy currentView)
@@ -226,7 +233,14 @@ public class ScrollableViewProxy extends TiViewProxy
 			options.put("view", currentView);
 			options.put("currentPage", currentPage);
 			fireEvent(TiC.EVENT_SCROLLEND, options);
-		} 
+		}
+		// TODO: Deprecate old event
+		if (hasListeners("scrollEnd")) {
+			KrollDict options = new KrollDict();
+			options.put("view", currentView);
+			options.put("currentPage", currentPage);
+			fireEvent("scrollEnd", options);
+		}
 	}
 
 	public void fireScroll(int currentPage, float currentPageAsFloat, TiViewProxy currentView)

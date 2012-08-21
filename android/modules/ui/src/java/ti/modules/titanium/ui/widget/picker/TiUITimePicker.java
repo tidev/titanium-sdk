@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -12,9 +12,9 @@ import java.util.Date;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.common.Log;
-import org.appcelerator.kroll.common.TiConfig;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
+import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiUIView;
 
 import android.app.Activity;
@@ -24,8 +24,7 @@ import android.widget.TimePicker.OnTimeChangedListener;
 public class TiUITimePicker extends TiUIView
 	implements OnTimeChangedListener
 {
-	private static final String LCAT = "TiUITimePicker";
-	private static final boolean DBG = TiConfig.LOGD;
+	private static final String TAG = "TiUITimePicker";
 	private boolean suppressChangeEvent = false;
 	
 	protected Date minDate, maxDate;
@@ -35,14 +34,20 @@ public class TiUITimePicker extends TiUIView
 	{
 		super(proxy);
 	}
-	public TiUITimePicker(TiViewProxy proxy, Activity activity)
+	public TiUITimePicker(final TiViewProxy proxy, Activity activity)
 	{
 		this(proxy);
-		if (DBG) {
-			Log.d(LCAT, "Creating a time picker");
-		}
+		Log.d(TAG, "Creating a time picker", Log.DEBUG_MODE);
 		
-		TimePicker picker = new TimePicker(activity);
+		TimePicker picker = new TimePicker(activity)
+		{
+			@Override
+			protected void onLayout(boolean changed, int left, int top, int right, int bottom)
+			{
+				super.onLayout(changed, left, top, right, bottom);
+				TiUIHelper.firePostLayoutEvent(proxy);
+			}
+		};
 		picker.setIs24HourView(false);
 		picker.setOnTimeChangedListener(this);
 		setNativeView(picker);
@@ -89,7 +94,7 @@ public class TiUITimePicker extends TiUIView
         //iPhone ignores both values if max <= min
         if (minDate != null && maxDate != null) {
             if (maxDate.compareTo(minDate) <= 0) {
-                Log.w(LCAT, "maxDate is less or equal minDate, ignoring both settings.");
+                Log.w(TAG, "maxDate is less or equal minDate, ignoring both settings.");
                 minDate = null;
                 maxDate = null;
             }   

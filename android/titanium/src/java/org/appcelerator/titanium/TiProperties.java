@@ -9,7 +9,6 @@ package org.appcelerator.titanium;
 import java.util.ArrayList;
 
 import org.appcelerator.kroll.common.Log;
-import org.appcelerator.kroll.common.TiConfig;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -20,8 +19,7 @@ import android.content.SharedPreferences;
  */
 public class TiProperties
 {
-	private static final String LCAT = "TiProperties";
-	public static boolean DBG = TiConfig.LOGD && false;
+	private static final String TAG = "TiProperties";
 
 	SharedPreferences preferences;
 
@@ -48,9 +46,7 @@ public class TiProperties
 	 */
 	public String getString(String key, String def)
 	{
-		if (DBG) {
-			Log.d(LCAT,"getString called with key:"+key+", def:"+def);
-		}
+		Log.d(TAG, "getString called with key:" + key + ", def:" + def, Log.DEBUG_MODE);
 
 		if (!preferences.contains(key))
 			return def;
@@ -67,9 +63,7 @@ public class TiProperties
 	 */
 	public void setString(String key, String value)
 	{
-		if (DBG) {
-			Log.d(LCAT,"setString called with key:"+key+", value:"+value);
-		}
+		Log.d(TAG,"setString called with key:"+key+", value:"+value, Log.DEBUG_MODE);
 		SharedPreferences.Editor editor = preferences.edit();
 		if (value==null)
 		{
@@ -91,9 +85,7 @@ public class TiProperties
 	 */
 	public int getInt(String key, int def)
 	{
-		if (DBG) {
-			Log.d(LCAT,"getInt called with key:"+key+", def:"+def);
-		}
+		Log.d(TAG, "getInt called with key:" + key + ", def:" + def, Log.DEBUG_MODE);
 		try {
 			return preferences.getInt(key,def);
 		} catch(ClassCastException cce) {
@@ -115,9 +107,7 @@ public class TiProperties
 	 */
 	public void setInt(String key, int value)
 	{
-		if (DBG) {
-			Log.d(LCAT,"setInt called with key:"+key+", value:"+value);
-		}
+		Log.d(TAG, "setInt called with key:" + key + ", value:" + value, Log.DEBUG_MODE);
 
 		SharedPreferences.Editor editor = preferences.edit();
 		editor.putInt(key,value);
@@ -133,9 +123,7 @@ public class TiProperties
 	 */
 	public double getDouble(String key, double def)
 	{
-		if (DBG) {
-			Log.d(LCAT,"getDouble called with key:"+key+", def:"+def);
-		}
+		Log.d(TAG, "getDouble called with key:" + key + ", def:" + def, Log.DEBUG_MODE);
 		if (!hasProperty(key)) {
 			return def;
 		}
@@ -162,9 +150,7 @@ public class TiProperties
 	 */
 	public void setDouble(String key, double value)
 	{
-		if (DBG) {
-			Log.d(LCAT,"setDouble called with key:"+key+", value:"+value);
-		}
+		Log.d(TAG, "setDouble called with key:" + key + ", value:" + value, Log.DEBUG_MODE);
 		
 		SharedPreferences.Editor editor = preferences.edit();
 		editor.putString(key,value + "");
@@ -180,9 +166,7 @@ public class TiProperties
 	 */
 	public boolean getBool(String key, boolean def)
 	{
-		if (DBG) {
-			Log.d(LCAT,"getBool called with key:"+key+", def:"+def);
-		}
+		Log.d(TAG, "getBool called with key:" + key + ", def:" + def, Log.DEBUG_MODE);
 		try {
 			return preferences.getBoolean(key,def);
 		} catch(ClassCastException cce) {
@@ -205,9 +189,7 @@ public class TiProperties
 	 */
 	public void setBool(String key, boolean value)
 	{
-		if (DBG) {
-			Log.d(LCAT,"setBool called with key:"+key+", value:"+value);
-		}
+		Log.d(TAG, "setBool called with key:" + key + ", value:" + value, Log.DEBUG_MODE);
 
 		SharedPreferences.Editor editor = preferences.edit();
 		editor.putBoolean(key,value);
@@ -223,9 +205,7 @@ public class TiProperties
 	 */
 	public String[] getList(String key, String def[])
 	{
-		if (DBG) {
-			Log.d(LCAT,"getList called with key:"+key+", def:"+def);
-		}
+		Log.d(TAG, "getList called with key:" + key + ", def:" + def, Log.DEBUG_MODE);
 
 		int length = preferences.getInt(key+".length", -1);
 		if (length == -1) {
@@ -248,9 +228,7 @@ public class TiProperties
 	 */
 	public void setList(String key, String[] value)
 	{
-		if (DBG) {
-			Log.d(LCAT,"setList called with key:"+key+", value:"+value);
-		}
+		Log.d(TAG, "setList called with key:" + key + ", value:" + value, Log.DEBUG_MODE);
 
 		SharedPreferences.Editor editor = preferences.edit();
 		for (int i = 0; i < value.length; i++)

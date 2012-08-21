@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -13,7 +13,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.common.Log;
-import org.appcelerator.kroll.common.TiConfig;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.proxy.TiViewProxy;
@@ -45,8 +44,7 @@ public class TiTableView extends FrameLayout
 	implements OnSearchChangeListener
 {
 	public static final int TI_TABLE_VIEW_ID = 101;
-	private static final String LCAT = "TiTableView";
-	private static final boolean DBG = TiConfig.LOGD;
+	private static final String TAG = "TiTableView";
 
 	//TODO make this configurable
 	protected static final int MAX_CLASS_NAMES = 32;
@@ -88,9 +86,7 @@ public class TiTableView extends FrameLayout
 
 		protected void registerClassName(String className) {
 			if (!rowTypes.containsKey(className)) {
-				if (DBG) {
-					Log.d(LCAT, "registering new className " + className);
-				}
+				Log.d(TAG, "registering new className " + className, Log.DEBUG_MODE);
 				rowTypes.put(className, rowTypeCounter.incrementAndGet());
 			}
 		}
@@ -184,7 +180,8 @@ public class TiTableView extends FrameLayout
 					} else {
 						// otherwise compare class names
 						if (!v.getClassName().equals(item.className)) {
-							Log.w(LCAT, "Handed a view to convert with className " + v.getClassName() + " expected " + item.className);
+							Log.w(TAG, "Handed a view to convert with className " + v.getClassName() + " expected "
+								+ item.className, Log.DEBUG_MODE);
 							v = null;
 						}
 					}
@@ -283,6 +280,8 @@ public class TiTableView extends FrameLayout
 					size.put("width", TiTableView.this.getWidth());
 					size.put("height", TiTableView.this.getHeight());
 					eventArgs.put("size", size);
+					fProxy.fireEvent(TiC.EVENT_SCROLLEND, eventArgs);
+					// TODO: Deprecate old event
 					fProxy.fireEvent("scrollEnd", eventArgs);
 				}
 				else if (scrollState == OnScrollListener.SCROLL_STATE_TOUCH_SCROLL) {

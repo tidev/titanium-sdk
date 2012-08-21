@@ -1,10 +1,9 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-
 package org.appcelerator.titanium.io;
 
 import java.io.BufferedInputStream;
@@ -19,7 +18,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.appcelerator.kroll.common.Log;
-import org.appcelerator.kroll.common.TiConfig;
 import org.appcelerator.kroll.common.TiFastDev;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBlob;
@@ -30,10 +28,7 @@ import android.content.Context;
 
 public class TiResourceFile extends TiBaseFile
 {
-	private static final String LCAT = "TiResourceFile";
-
-	@SuppressWarnings("unused")
-	private static final boolean DBG = TiConfig.LOGD;
+	private static final String TAG = "TiResourceFile";
 
 	private final String path;
 
@@ -122,7 +117,7 @@ public class TiResourceFile extends TiBaseFile
 		try {
 			result = inreader.readLine();
 		} catch (IOException e) {
-			Log.e(LCAT, "Error reading a line from the file: ", e);
+			Log.e(TAG, "Error reading a line from the file: ", e);
 		}
 
 		return result;
@@ -208,13 +203,13 @@ public class TiResourceFile extends TiBaseFile
 				is = getInputStream();
 				length = is.available();
 			} catch (IOException e) {
-				Log.w(LCAT, "Error while trying to determine file size: " + e.getMessage(), e);
+				Log.w(TAG, "Error while trying to determine file size: " + e.getMessage(), e);
 			} finally {
 				if (is != null) {
 					try {
 						is.close();
 					} catch (IOException e) {
-						Log.w(LCAT, e.getMessage(), e);
+						Log.w(TAG, e.getMessage(), e, Log.DEBUG_MODE);
 					}
 				}
 			}
@@ -239,7 +234,7 @@ public class TiResourceFile extends TiBaseFile
 				}
 			}
 		} catch (IOException e) {
-			Log.e(LCAT, "Error while getting a directory listing: " + e.getMessage(), e);
+			Log.e(TAG, "Error while getting a directory listing: " + e.getMessage(), e);
 		}
 		return listing;
 	}

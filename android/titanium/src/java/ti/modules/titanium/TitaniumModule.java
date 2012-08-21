@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -14,7 +14,6 @@ import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Stack;
 
@@ -23,12 +22,7 @@ import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.KrollRuntime;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
-import org.appcelerator.kroll.common.TiConfig;
 import org.appcelerator.titanium.TiApplication;
-import org.appcelerator.titanium.TiBaseActivity;
-import org.appcelerator.titanium.TiLaunchActivity;
-import org.appcelerator.titanium.TiLifecycle.OnLifecycleEvent;
-import org.appcelerator.titanium.proxy.TiWindowProxy;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiPlatformHelper;
 import org.appcelerator.titanium.util.TiRHelper;
@@ -37,17 +31,19 @@ import org.appcelerator.titanium.util.TiUIHelper;
 import android.app.Activity;
 import android.os.Environment;
 import android.os.Handler;
+import android.util.SparseArray;
 
 @Kroll.module @Kroll.topLevel({"Ti", "Titanium"})
 public class TitaniumModule extends KrollModule
-	implements OnLifecycleEvent
 {
-	private static final String LCAT = "TitaniumModule";
-	private static final boolean DBG = TiConfig.LOGD;
+	private static final String TAG = "TitaniumModule";
 
 	private Stack<String> basePath;
 	private Map<String, NumberFormat> numberFormats = java.util.Collections.synchronizedMap(
 		new HashMap<String, NumberFormat>());
+
+	private static final SparseArray<Timer> activeTimers = new SparseArray<TitaniumModule.Timer>();
+	private static int lastTimerId = 1;
 
 	public TitaniumModule()
 	{
@@ -107,10 +103,7 @@ public class TitaniumModule extends KrollModule
 	@Kroll.method
 	public void testThrow(){ throw new Error("Testing throwing throwables"); }
 
-	private HashMap<Thread, HashMap<Integer, Timer>> timers = new HashMap<Thread, HashMap<Integer, Timer>>();
-	private int currentTimerId;
-
-	protected class Timer implements Runnable
+	private class Timer implements Runnable
 	{
 		protected long timeout;
 		protected boolean interval;
@@ -141,7 +134,7 @@ public class TitaniumModule extends KrollModule
 				return;
 			}
 
-			if (DBG) {
+			if (Log.isDebugModeEnabled()) {
 				StringBuilder message = new StringBuilder("calling ")
 					.append(interval ? "interval" : "timeout")
 					.append(" timer ")
@@ -149,13 +142,19 @@ public class TitaniumModule extends KrollModule
 					.append(" @")
 					.append(new Date().getTime());
 
-				Log.d(LCAT, message.toString());
+				Log.d(TAG, message.toString());
 			}
 
 			long start = System.currentTimeMillis();
 			callback.call(getKrollObject(), args);
+
+			// If this timer is repeating schedule it for another round.
+			// Otherwise remove the timer from the active list and quit.
 			if (interval && !canceled) {
 				handler.postDelayed(this, timeout - (System.currentTimeMillis() - start));
+
+			} else {
+				activeTimers.remove(id);
 			}
 		}
 
@@ -167,56 +166,61 @@ public class TitaniumModule extends KrollModule
 	}
 
 	private int createTimer(KrollFunction callback, long timeout, Object[] args, boolean interval)
-		throws IllegalArgumentException
 	{
-		int timerId = currentTimerId++;
-		Handler handler = getRuntimeHandler();
+		// Generate an unique identifier for this timer.
+		// This will later be used by the developer to cancel a timer.
+		final int timerId = lastTimerId++;
 
-		Timer timer = new Timer(timerId, handler, callback, timeout, args, interval);
-		Thread thread = handler.getLooper().getThread();
-		HashMap<Integer, Timer> threadTimers = timers.get(thread);
-		if (threadTimers == null) {
-			threadTimers = new HashMap<Integer, Timer>();
-			timers.put(thread, threadTimers);
-		}
-		threadTimers.put(timerId, timer);
+		Timer timer = new Timer(timerId, getRuntimeHandler(), callback, timeout, args, interval);
+		activeTimers.append(timerId, timer);
+
 		timer.schedule();
 
 		return timerId;
 	}
 
+	private void cancelTimer(int timerId)
+	{
+		Timer timer = activeTimers.get(timerId);
+		if (timer != null) {
+			timer.cancel();
+			activeTimers.remove(timerId);
+		}
+	}
+
+	public static void cancelTimers()
+	{
+		final int timerCount = activeTimers.size();
+		for (int i = 0; i < timerCount; i++) {
+			Timer timer = activeTimers.valueAt(i);
+			timer.cancel();
+		}
+
+		activeTimers.clear();
+	}
+
 	@Kroll.method @Kroll.topLevel
 	public int setTimeout(KrollFunction krollFunction, long timeout, final Object[] args)
-		throws IllegalArgumentException
 	{
 		return createTimer(krollFunction, timeout, args, false);
 	}
 
 	@Kroll.method @Kroll.topLevel
-	public void clearTimeout(int timerId)
-	{
-		for (Thread thread : timers.keySet()) {
-			HashMap<Integer, Timer> threadTimers = timers.get(thread);
-			if (threadTimers.containsKey(timerId)) {
-				Timer timer = threadTimers.remove(timerId);
-				timer.cancel();
-
-				break;
-			}
-		}
-	}
-
-	@Kroll.method @Kroll.topLevel
 	public int setInterval(KrollFunction krollFunction, long timeout, final Object[] args)
-		throws IllegalArgumentException
 	{
 		return createTimer(krollFunction, timeout, args, true);
 	}
 
 	@Kroll.method @Kroll.topLevel
+	public void clearTimeout(int timerId)
+	{
+		cancelTimer(timerId);
+	}
+
+	@Kroll.method @Kroll.topLevel
 	public void clearInterval(int timerId)
 	{
-		clearTimeout(timerId);
+		cancelTimer(timerId);
 	}
 
 	@Kroll.method @Kroll.topLevel
@@ -233,49 +237,6 @@ public class TitaniumModule extends KrollModule
 		*/
 
 		TiUIHelper.doOkDialog("Alert", msg, null);
-	}
-
-	public void cancelTimers(TiBaseActivity activity)
-	{
-		TiWindowProxy window = activity.getWindowProxy();
-		Thread thread = null;
-
-		// FIXME this used to look at the activity / tiContext, but we don't care now
-		if (window != null) {
-			thread = getRuntimeHandler().getLooper().getThread();
-
-		} else {
-			if (activity instanceof TiLaunchActivity) {
-				//TiLaunchActivity launchActivity = (TiLaunchActivity) activity;
-				thread = getRuntimeHandler().getLooper().getThread();
-			}
-		}
-
-		if (thread != null) {
-			cancelTimers(thread);
-
-		} else {
-			Log.w(LCAT, "Tried cancelling timers for an activity with no associated JS thread: " + activity);
-		}
-	}
-
-	public void cancelTimers(Thread thread)
-	{
-		HashMap<Integer, Timer> threadTimers = timers.get(thread);
-		if (threadTimers == null) {
-			return;
-		}
-
-		Iterator<Timer> timerIter = threadTimers.values().iterator();
-		while (timerIter.hasNext()) {
-			Timer timer = timerIter.next();
-			if (timer != null) {
-				timer.cancel();
-				timerIter.remove();
-			}
-		}
-
-		threadTimers.clear();
 	}
 
 	@Kroll.method @Kroll.topLevel("String.format")
@@ -300,8 +261,7 @@ public class TitaniumModule extends KrollModule
 			}
 
 		} catch (Exception ex) {
-			Log.e(LCAT, "Error in string format", ex);
-
+			Log.e(TAG, "Error occured while formatting string", ex);
 			return null;
 		}
 	}
@@ -401,14 +361,12 @@ public class TitaniumModule extends KrollModule
 			}
 
 		} catch (TiRHelper.ResourceNotFoundException e) {
-			if (DBG) {
-				Log.d(LCAT, "Resource string with key '" + key + "' not found.  Returning default value.");
-			}
+			Log.d(TAG, "Resource string with key '" + key + "' not found.  Returning default value.", Log.DEBUG_MODE);
 
 			return defaultValue;
 
 		} catch (Exception e) {
-			Log.e(LCAT, "Exception trying to localize string '" + key + "': ", e);
+			Log.e(TAG, "Exception trying to localize string '" + key + "': ", e);
 
 			return defaultValue;
 		}
@@ -419,7 +377,7 @@ public class TitaniumModule extends KrollModule
 	{
 		TiApplication app = TiApplication.getInstance();
 		if (app == null || !app.isCoverageEnabled()) {
-			Log.w(LCAT, "Coverage is not enabled, no coverage data will be generated");
+			Log.w(TAG, "Coverage is not enabled, no coverage data will be generated");
 
 			return;
 		}
@@ -432,17 +390,8 @@ public class TitaniumModule extends KrollModule
 			reportOut.close();
 
 		} catch (IOException e) {
-			Log.e(LCAT, e.getMessage(), e);
+			Log.e(TAG, e.getMessage(), e);
 		}
-	}
-
-	@Override
-	public void onDestroy(Activity activity) {
-		if (activity instanceof TiBaseActivity) {
-			cancelTimers((TiBaseActivity) activity);
-		}
-
-		super.onDestroy(activity);
 	}
 }
 

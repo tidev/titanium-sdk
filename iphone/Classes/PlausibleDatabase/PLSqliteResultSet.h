@@ -29,7 +29,7 @@
 
 #ifdef PL_DB_PRIVATE
 
-@interface TI_PLSqliteResultSet : NSObject <TI_PLResultSet> {    
+@interface PLSqliteResultSet : NSObject <PLResultSet> {    
     /** The prepared statement */
     PLSqlitePreparedStatement *_stmt;
     
@@ -53,7 +53,5 @@
 - (void)reset;
 
 @end
-
-@compatibility_alias PLSqliteResultSet TI_PLSqliteResultSet;
 
 #endif

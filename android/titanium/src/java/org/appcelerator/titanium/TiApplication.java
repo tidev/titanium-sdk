@@ -43,6 +43,7 @@ import org.appcelerator.titanium.util.TiResponseCache;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.util.TiWeakList;
 
+import ti.modules.titanium.TitaniumModule;
 import android.app.Activity;
 import android.app.Application;
 import android.app.TabActivity;
@@ -61,8 +62,7 @@ import android.util.DisplayMetrics;
 public abstract class TiApplication extends Application implements Handler.Callback, KrollApplication
 {
 	private static final String SYSTEM_UNIT = "system";
-	private static final String LCAT = "TiApplication";
-	private static final boolean DBG = TiConfig.LOGD;
+	private static final String TAG = "TiApplication";
 	private static final long STATS_WAIT = 300000;
 	private static final int MSG_SEND_ANALYTICS = 100;
 	private static final long SEND_ANALYTICS_DELAY = 30000; // Time analytics send request sits in queue before starting service.
@@ -141,7 +141,7 @@ public abstract class TiApplication extends Application implements Handler.Callb
 
 	public TiApplication()
 	{
-		Log.checkpoint(LCAT, "checkpoint, app created.");
+		Log.checkpoint(TAG, "checkpoint, app created.");
 
 		analyticsHandler = new Handler(this);
 		needsEnrollEvent = false; // test is after DB is available
@@ -154,7 +154,7 @@ public abstract class TiApplication extends Application implements Handler.Callb
 		modules = new HashMap<String, WeakReference<KrollModule>>();
 		TiMessenger.getMessenger(); // initialize message queue for main thread
 
-		Log.i(LCAT, "Titanium " + buildVersion + " (" + buildTimestamp + " " + buildHash + ")");
+		Log.i(TAG, "Titanium " + buildVersion + " (" + buildTimestamp + " " + buildHash + ")");
 	}
 
 	/**
@@ -171,7 +171,7 @@ public abstract class TiApplication extends Application implements Handler.Callb
 			}
 		}
 
-		Log.e(LCAT, "unable to get the TiApplication instance");
+		Log.e(TAG, "Unable to get the TiApplication instance");
 		return null;
 	}
 
@@ -200,7 +200,7 @@ public abstract class TiApplication extends Application implements Handler.Callb
 			activityRef = activityStack.get(i);
 			if (activityRef != null) {
 				currentActivity = activityRef.get();
-				if (currentActivity != null) {
+				if (currentActivity != null && !currentActivity.isFinishing()) {
 					currentActivity.finish();
 				}
 			}
@@ -274,9 +274,7 @@ public abstract class TiApplication extends Application implements Handler.Callb
 			return activity;
 		}
 
-		if (DBG) {
-			Log.d(LCAT, "activity stack is empty, unable to get current activity");
-		}
+		Log.d(TAG, "activity stack is empty, unable to get current activity", Log.DEBUG_MODE);
 		return null;
 	}
 	
@@ -300,7 +298,7 @@ public abstract class TiApplication extends Application implements Handler.Callb
 			}
 		}
 
-		Log.e(LCAT, "no valid root or current activity found for application instance");
+		Log.e(TAG, "No valid root or current activity found for application instance");
 		return null;
 	}
 
@@ -331,15 +329,13 @@ public abstract class TiApplication extends Application implements Handler.Callb
 	public void onCreate()
 	{
 		super.onCreate();
-		if (DBG) {
-			Log.d(LCAT, "Application onCreate");
-		}
+		Log.d(TAG, "Application onCreate", Log.DEBUG_MODE);
 
 		final UncaughtExceptionHandler defaultHandler = Thread.getDefaultUncaughtExceptionHandler();
 		Thread.setDefaultUncaughtExceptionHandler(new UncaughtExceptionHandler() {
 			public void uncaughtException(Thread t, Throwable e) {
 				String tiVer = buildVersion + "," + buildTimestamp + "," + buildHash ;
-				Log.e(LCAT, "Sending event: exception on thread: " + t.getName() + " msg:" + e.toString() + "; Titanium " + tiVer, e);
+				Log.e(TAG, "Sending event: exception on thread: " + t.getName() + " msg:" + e.toString() + "; Titanium " + tiVer, e);
 				postAnalyticsEvent(TiAnalyticsEventFactory.createErrorEvent(t, e, tiVer));
 				defaultHandler.uncaughtException(t, e);
 			}
@@ -378,13 +374,13 @@ public abstract class TiApplication extends Application implements Handler.Callb
 	{
 		KrollRuntime runtime = KrollRuntime.getInstance();
 		if (runtime != null) {
-			Log.i(LCAT, "Titanium Javascript runtime: " + runtime.getRuntimeName());
+			Log.i(TAG, "Titanium Javascript runtime: " + runtime.getRuntimeName());
 		} else {
 			// This ought not to be possible.
-			Log.w(LCAT, "Titanium Javascript runtime: unknown");
+			Log.w(TAG, "Titanium Javascript runtime: unknown");
 		}
 
-		TiConfig.LOGD = systemProperties.getBool("ti.android.debug", false);
+		TiConfig.DEBUG = TiConfig.LOGD = systemProperties.getBool("ti.android.debug", false);
 
 		startExternalStorageMonitor();
 		
@@ -447,7 +443,7 @@ public abstract class TiApplication extends Application implements Handler.Callb
 		} else {
 			needsEnrollEvent = false;
 			needsStartEvent = false;
-			Log.i(LCAT, "Analytics have been disabled");
+			Log.i(TAG, "Analytics have been disabled");
 		}
 		tempFileHelper.scheduleCleanTempDir();
 	}
@@ -518,7 +514,7 @@ public abstract class TiApplication extends Application implements Handler.Callb
 
 	public void addAppEventProxy(KrollProxy appEventProxy)
 	{
-		Log.e(LCAT, "APP PROXY: " + appEventProxy);
+		Log.e(TAG, "APP PROXY: " + appEventProxy);
 		if (appEventProxy != null && !appEventProxies.contains(appEventProxy)) {
 			appEventProxies.add(new WeakReference<KrollProxy>(appEventProxy));
 		}
@@ -623,13 +619,11 @@ public abstract class TiApplication extends Application implements Handler.Callb
 	public synchronized void postAnalyticsEvent(TiAnalyticsEvent event)
 	{
 		if (!collectAnalytics()) {
-			if (DBG) {
-				Log.i(LCAT, "Analytics are disabled, ignoring postAnalyticsEvent");
-			}
+			Log.i(TAG, "Analytics are disabled, ignoring postAnalyticsEvent", Log.DEBUG_MODE);
 			return;
 		}
 
-		if (DBG) {
+		if (Log.isDebugModeEnabled()) {
 			StringBuilder sb = new StringBuilder();
 			sb.append("Analytics Event: type=").append(event.getEventType())
 				.append("\n event=").append(event.getEventEvent())
@@ -638,9 +632,8 @@ public abstract class TiApplication extends Application implements Handler.Callb
 				.append("\n sid=").append(event.getEventSid())
 				.append("\n aguid=").append(event.getEventAppGuid())
 				.append("\n isJSON=").append(event.mustExpandPayload())
-				.append("\n payload=").append(event.getEventPayload())
-				;
-			Log.d(LCAT, sb.toString());
+				.append("\n payload=").append(event.getEventPayload());
+			Log.d(TAG, sb.toString());
 		}
 
 		if (event.getEventType() == TiAnalyticsEventFactory.EVENT_APP_ENROLL) {
@@ -679,7 +672,7 @@ public abstract class TiApplication extends Application implements Handler.Callb
 	{
 		if (msg.what == MSG_SEND_ANALYTICS) {
 			if (startService(analyticsIntent) == null) {
-				Log.w(LCAT, "Analytics service not found.");
+				Log.w(TAG, "Analytics service not found.");
 			}
 			return true;
 		}
@@ -767,9 +760,9 @@ public abstract class TiApplication extends Application implements Handler.Callb
 
 	public void scheduleRestart(int delay)
 	{
-		Log.w(LCAT, "Scheduling application restart");
-		if (DBG) {
-			Log.d(LCAT, "Here is call stack leading to restart. (NOTE: this is not a real exception, just a stack trace.) :");
+		Log.w(TAG, "Scheduling application restart");
+		if (Log.isDebugModeEnabled()) {
+			Log.d(TAG, "Here is call stack leading to restart. (NOTE: this is not a real exception, just a stack trace.) :");
 			(new Exception()).printStackTrace();
 		}
 		this.restartPending = true;
@@ -815,7 +808,7 @@ public abstract class TiApplication extends Application implements Handler.Callb
 	public void registerModuleInstance(String name, KrollModule module)
 	{
 		if (modules.containsKey(name)) {
-			Log.w(LCAT, "Registering module with name already in use.");
+			Log.w(TAG, "Registering module with name already in use.");
 		}
 
 		modules.put(name, new WeakReference<KrollModule>(module));
@@ -841,12 +834,12 @@ public abstract class TiApplication extends Application implements Handler.Callb
 				if (Intent.ACTION_MEDIA_MOUNTED.equals(intent.getAction())) {
 					responseCache.setCacheDir(getRemoteCacheDir());
 					TiResponseCache.setDefault(responseCache);
-					Log.i(LCAT, "SD card has been mounted. Enabling cache for http responses.");
+					Log.i(TAG, "SD card has been mounted. Enabling cache for http responses.", Log.DEBUG_MODE);
 					
 				} else {
 					// if the sd card is removed, we don't cache http responses
 					TiResponseCache.setDefault(null);
-					Log.i(LCAT, "SD card has been unmounted. Disabling cache for http responses.");
+					Log.i(TAG, "SD card has been unmounted. Disabling cache for http responses.", Log.DEBUG_MODE);
 				}
 			}
 		};
@@ -871,6 +864,11 @@ public abstract class TiApplication extends Application implements Handler.Callb
 	{
 		TiActivityWindows.dispose();
 		TiFileHelper.getInstance().destroyTempFiles();
+	}
+
+	public void cancelTimers()
+	{
+		TitaniumModule.cancelTimers();
 	}
 
 	/**

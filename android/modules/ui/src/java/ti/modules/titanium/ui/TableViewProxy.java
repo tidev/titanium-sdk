@@ -14,7 +14,6 @@ import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.AsyncResult;
 import org.appcelerator.kroll.common.Log;
-import org.appcelerator.kroll.common.TiConfig;
 import org.appcelerator.kroll.common.TiMessenger;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
@@ -40,8 +39,7 @@ import android.os.Message;
 })
 public class TableViewProxy extends TiViewProxy
 {
-	private static final String LCAT = "TableViewProxy";
-	private static final boolean DBG = TiConfig.LOGD;
+	private static final String TAG = "TableViewProxy";
 
 	private static final int INSERT_ROW_BEFORE = 0;
 	private static final int INSERT_ROW_AFTER = 1;
@@ -53,6 +51,7 @@ public class TableViewProxy extends TiViewProxy
 	private static final int MSG_INSERT_ROW = TiViewProxy.MSG_LAST_ID + 5005;
 	private static final int MSG_APPEND_ROW = TiViewProxy.MSG_LAST_ID + 5006;
 	private static final int MSG_SCROLL_TO_TOP = TiViewProxy.MSG_LAST_ID + 5007;
+	private static final int MSG_SELECT_ROW = TiViewProxy.MSG_LAST_ID + 5008;
 
 	public static final String CLASSNAME_DEFAULT = "__default__";
 	public static final String CLASSNAME_HEADER = "__header__";
@@ -483,8 +482,8 @@ public class TableViewProxy extends TiViewProxy
 		}
 
 		if (rowProxy == null) {
-			Log.e(LCAT,
-				"unable to create table view row proxy for object, likely an error in the type of the object passed in...");
+			Log.e(TAG,
+				"Unable to create table view row proxy for object, likely an error in the type of the object passed in...");
 			return null;
 		}
 
@@ -535,6 +534,15 @@ public class TableViewProxy extends TiViewProxy
 		message.arg1 = index;
 		message.sendToTarget();
 	}
+	
+	@Kroll.method
+	public void selectRow(int row_id)
+	{
+		Message message = getMainHandler().obtainMessage(MSG_SELECT_ROW);
+		message.arg1 = row_id;
+		message.sendToTarget();
+	}
+    
 
 	@Kroll.method
 	public void scrollToTop(int index)
@@ -593,7 +601,11 @@ public class TableViewProxy extends TiViewProxy
 		} else if (msg.what == MSG_SCROLL_TO_TOP) {
 			getTableView().scrollToTop(msg.arg1);
 			return true;
+		} else if (msg.what == MSG_SELECT_ROW) {
+			getTableView().selectRow(msg.arg1);
+			return true;
 		}
+
 
 		return super.handleMessage(msg);
 	}

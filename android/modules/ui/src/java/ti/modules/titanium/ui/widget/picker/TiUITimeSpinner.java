@@ -1,10 +1,9 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-
 package ti.modules.titanium.ui.widget.picker;
 
 import java.text.DecimalFormat;
@@ -34,7 +33,7 @@ public class TiUITimeSpinner extends TiUIView
 	private WheelView amPmWheel;
 	private boolean suppressChangeEvent = false;
 	private boolean ignoreItemSelection = false;
-	private static final String LCAT = "TiUITimeSpinner";
+	private static final String TAG = "TiUITimeSpinner";
 	
 	private Calendar calendar = Calendar.getInstance();
 	
@@ -80,7 +79,7 @@ public class TiUITimeSpinner extends TiUIView
 			if((dirtyMinuteInterval > 0) && (dirtyMinuteInterval <= 30) && (60 % dirtyMinuteInterval == 0)  ){
 				minuteInterval = dirtyMinuteInterval;
 			} else {
-				Log.w(LCAT, "Clearing invalid minuteInterval property value of " + dirtyMinuteInterval);
+				Log.w(TAG, "Clearing invalid minuteInterval property value of " + dirtyMinuteInterval);
 				proxy.setProperty(TiC.PROPERTY_MINUTE_INTERVAL, null);
 			}
 		}
@@ -163,7 +162,7 @@ public class TiUITimeSpinner extends TiUIView
 				minutesWheel.setAdapter(adapter); // forces the wheel to re-do its items listing
 			} else {
 				// Reject it
-				Log.w(LCAT, "Ignoring illegal minuteInterval value: " + interval);
+				Log.w(TAG, "Ignoring illegal minuteInterval value: " + interval);
 				proxy.setProperty(TiC.PROPERTY_MINUTE_INTERVAL, oldValue, false);
 			}
 		}

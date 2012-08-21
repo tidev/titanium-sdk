@@ -454,9 +454,11 @@ def help(args=[],suppress_banner=False):
 			print 
 			print "  --dir=d    project directory"
 		elif cmd == 'run':
-			print "Usage: %s run [--dir=d]" % os.path.basename(sys.argv[0])
+			print "Usage: %s run [--dir=d] [--platform-p] [--type=t]" % os.path.basename(sys.argv[0])
 			print 
-			print "  --dir=d    project directory"
+			print "  --dir=d        project directory"
+			print "  --platform=p   platform: iphone, ipad, android, mobileweb, blackberry, etc."
+			print "  --type=t       type of project: project, module"
 		elif cmd == 'clean':
 			print "Usage: %s clean [--platform=p1,p2]" % os.path.basename(sys.argv[0])
 			print

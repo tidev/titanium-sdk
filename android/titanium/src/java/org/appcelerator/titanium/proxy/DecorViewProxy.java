@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -57,7 +57,7 @@ public class DecorViewProxy extends TiViewProxy
 			return TiOrientationHelper.convertConfigToTiOrientationMode(activity.getResources().getConfiguration().orientation);
 		}
 
-		Log.e(TAG, "unable to get orientation, activity not found for window");
+		Log.e(TAG, "Unable to get orientation, activity not found for window", Log.DEBUG_MODE);
 		return TiOrientationHelper.ORIENTATION_UNKNOWN;
 	}
 
