@@ -24,6 +24,11 @@ harnessGlobal.socketPort = Ti.App.Properties.getInt("driver.socketPort");
 harnessGlobal.httpHost = Ti.App.Properties.getString("driver.httpHost");
 harnessGlobal.httpPort = Ti.App.Properties.getInt("driver.httpPort");
 
+// TODO: remove this when TIMOB-10499 is fixed
+if (Ti.Platform.name == "blackberry") {
+	harnessGlobal.socketPort = 40406;
+}
+
 module.exports = new function() {
 	// set the suites on the global for later use
 	this.setSuites = function(suites) {

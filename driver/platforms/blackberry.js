@@ -159,7 +159,7 @@ module.exports = new function() {
 		var retryCount = 0;
 
 		var connectCallback = function() {
-			connection = net.connect(driverGlobal.config.blackberrySocketPort);
+			connection = net.connect(driverGlobal.config.blackberrySocketPort, driverGlobal.config.blackberryDeviceIp);
 
 			connection.on('data', function(data) {
 				var responseData = common.processHarnessMessage(data);
