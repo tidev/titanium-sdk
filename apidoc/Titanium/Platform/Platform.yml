@@ -190,6 +190,15 @@ properties:
                 } else {
                   // Add Accelerometer event listener
                 }
+                
+  - name: manufacturer
+    summary: The manufacturer of the product/hardware
+    description: |
+        On Android, an identifier of the hardware manufacturer of the device. For example, `HTC`.
+    type: String
+    permission: read-only
+    platforms: [android]
+
   - name: name
     summary: The name of the platform.
     type: String
