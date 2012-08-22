@@ -157,7 +157,13 @@ exports.run = function (logger, config, cli) {
 		.save();
 	
 	platforms.forEach(function (p) {
-		require('../../' + p + '/cli/commands/_create')(logger, projectDir, cli.argv.template);
+		var templatePath = appc.fs.resolvePath('..', '..', p, 'templates', cli.argv.template);
+		if (appc.fs.exists(templatePath)) {
+			wrench.copyDirSyncRecursive(templatePath, projectDir, { preserve: true });
+		}
+		if (appc.fs.exists(appc.fs.resolvePath('..', '..', p, 'cli', 'commands', '_create.js'))) {
+			require('../../' + p + '/cli/commands/_create')(logger, projectDir, tiapp);
+		}
 	});
 	
 	logger.log(__("Project '%s' created successfully in %s", projectName.cyan, appc.time.printDiff(cli.startTime, Date.now())) + '\n');
