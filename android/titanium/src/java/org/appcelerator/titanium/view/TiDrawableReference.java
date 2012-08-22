@@ -6,6 +6,7 @@
  */
 package org.appcelerator.titanium.view;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.ref.SoftReference;
@@ -41,6 +42,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.media.ExifInterface;
 import android.util.DisplayMetrics;
 import android.view.View;
 import android.webkit.URLUtil;
@@ -69,6 +71,7 @@ public class TiDrawableReference
 	}
 
 	private static final String TAG = "TiDrawableReference";
+	private static final String FILE_PREFIX = "file://";
 	private static final int UNKNOWN = -1;
 	private static final int DEFAULT_SAMPLE_SIZE = 1;
 	private int resourceId = UNKNOWN;
@@ -78,7 +81,8 @@ public class TiDrawableReference
 	private DrawableReferenceType type;
 	private boolean oomOccurred = false;
 	private boolean anyDensityFalse = false;
-	private int orientation = 0;
+	private boolean autoRotate;
+	private int orientation = -1;
 
 	private SoftReference<Activity> softActivity = null;
 
@@ -302,10 +306,14 @@ public class TiDrawableReference
 		}
 
 		// Orient the image when orientation is set.
-		if (orientation > 0) {
-			Matrix m = new Matrix();
-			m.postRotate(orientation);
-			return Bitmap.createBitmap(b, 0, 0, b.getWidth(), b.getHeight(), m, false);
+		if (autoRotate) {
+			// Only set the orientation if it is uninitialized
+			if (orientation < 0) {
+				orientation = getOrientation();
+			}
+			if (orientation > 0) {
+				b = getRotatedBitmap(b, orientation);
+			}
 		}
 
 		return b;
@@ -585,10 +593,14 @@ public class TiDrawableReference
 				bTemp.setDensity(displayMetrics.densityDpi);
 
 				// Orient the image when orientation is set.
-				if (orientation > 0) {
-					Matrix m = new Matrix();
-					m.postRotate(orientation);
-					return Bitmap.createBitmap(bTemp, 0, 0, bTemp.getWidth(), bTemp.getHeight(), m, false);
+				if (autoRotate) {
+					// Only set the orientation if it is uninitialized
+					if(orientation < 0) {
+						orientation = getOrientation();
+					}
+					if (orientation > 0) {
+						return getRotatedBitmap(bTemp, orientation);
+					}
 				}
 
 				if (bTemp.getNinePatchChunk() != null) {
@@ -795,23 +807,69 @@ public class TiDrawableReference
 		return oomOccurred;
 	}
 
-	public void setOrientation(int orientation)
+	private Bitmap getRotatedBitmap (Bitmap src, int orientation) {
+		Matrix m = new Matrix();
+		m.postRotate(orientation);
+		return Bitmap.createBitmap(src, 0, 0, src.getWidth(), src.getHeight(), m, false);
+	}
+
+	private int getOrientation()
 	{
-		this.orientation = orientation;
+		String path = null;
+		int orientation = 0;
+
+		if (isTypeBlob() && blob != null) {
+			path = blob.getNativePath();
+		} else if (isTypeFile() && file != null) {
+			path = file.getNativeFile().getAbsolutePath();
+		} else {
+			InputStream is = getInputStream();
+			if (is != null) {
+				File file = TiFileHelper.getInstance().getTempFileFromInputStream(is, "EXIF-TMP", true);
+				path = file.getAbsolutePath();
+			}
+		}
+
+		try {
+			if (path == null) {
+				Log.e(TAG,
+					"Path of image file could not determined. Could not create an exifInterface from an invalid path.");
+				return 0;
+			}
+
+			// Remove path prefix
+			if (path.startsWith(FILE_PREFIX)) {
+				path = path.replaceFirst(FILE_PREFIX, "");
+			}
+
+			ExifInterface exifInterface = new ExifInterface(path);
+			orientation = exifInterface.getAttributeInt(ExifInterface.TAG_ORIENTATION, 0);
+
+			if (orientation == ExifInterface.ORIENTATION_ROTATE_90) {
+				orientation = 90;
+			} else if (orientation == ExifInterface.ORIENTATION_ROTATE_180) {
+				orientation = 180;
+			} else if (orientation == ExifInterface.ORIENTATION_ROTATE_270) {
+				orientation = 270;
+			} else {
+				orientation = 0;
+			}
+
+		} catch (IOException e) {
+			Log.e(TAG, "Error creating exifInterface, could not determine orientation.", Log.DEBUG_MODE);
+		}
+
+		return orientation;
+
+	}
+
+	public void setAutoRotate(boolean autoRotate)
+	{
+		this.autoRotate = autoRotate;
 	}
 
 	public String getUrl()
 	{
 		return url;
-	}
-
-	public TiBlob getBlob()
-	{
-		return blob;
-	}
-
-	public TiBaseFile getFile()
-	{
-		return file;
 	}
 }

@@ -21,28 +21,10 @@ import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiContext;
 
-import android.media.ExifInterface;
-
 @Kroll.module
 public class UtilsModule extends KrollModule
 {
 	private static final String TAG = "UtilsModule";
-
-	@Kroll.constant public static final String TAG_DATETIME = ExifInterface.TAG_DATETIME;
-	@Kroll.constant public static final String TAG_FLASH = ExifInterface.TAG_FLASH;
-	@Kroll.constant public static final String TAG_FOCAL_LENGTH = ExifInterface.TAG_FOCAL_LENGTH;
-	@Kroll.constant public static final String TAG_GPS_DATESTAMP = ExifInterface.TAG_GPS_DATESTAMP;
-	@Kroll.constant public static final String TAG_GPS_LATITUDE = ExifInterface.TAG_GPS_LATITUDE;
-	@Kroll.constant public static final String TAG_GPS_LATITUDE_REF = ExifInterface.TAG_GPS_LATITUDE_REF;
-	@Kroll.constant public static final String TAG_GPS_LONGITUDE = ExifInterface.TAG_GPS_LONGITUDE;
-	@Kroll.constant public static final String TAG_GPS_PROCESSING_METHOD = ExifInterface.TAG_GPS_PROCESSING_METHOD;
-	@Kroll.constant public static final String TAG_GPS_TIMESTAMP = ExifInterface.TAG_GPS_TIMESTAMP;
-	@Kroll.constant public static final String TAG_IMAGE_LENGTH = ExifInterface.TAG_IMAGE_LENGTH;
-	@Kroll.constant public static final String TAG_IMAGE_WIDTH = ExifInterface.TAG_IMAGE_WIDTH;
-	@Kroll.constant public static final String TAG_MAKE = ExifInterface.TAG_MAKE;
-	@Kroll.constant public static final String TAG_MODEL = ExifInterface.TAG_MODEL;
-	@Kroll.constant public static final String TAG_ORIENTATION = ExifInterface.TAG_ORIENTATION;
-	@Kroll.constant public static final String TAG_WHITE_BALANCE = ExifInterface.TAG_WHITE_BALANCE;
 
 	public UtilsModule()
 	{

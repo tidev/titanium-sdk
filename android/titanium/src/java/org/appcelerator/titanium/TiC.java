@@ -567,6 +567,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_AUTOROTATE = "autorotate";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_BACKGROUND_COLOR = "backgroundColor";
 
 	/**
@@ -1393,11 +1398,6 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_ORGANIZATION = "organization";
-
-	/**
-	 * @module.api
-	 */
-	public static final String PROPERTY_ORIENTATION = "orientation";
 
 	/**
 	 * @module.api
