@@ -133,23 +133,32 @@ exports.validate = function (logger, config, cli) {
 
 exports.run = function (logger, config, cli) {
 	var projectName = cli.argv._[0],
+		platforms = cli.argv.platforms,
 		sdk = cli.env.getSDK(cli.argv.sdk),
 		projectDir = appc.fs.resolvePath(cli.argv.dir, projectName),
 		templateDir = appc.fs.resolvePath(sdk.path, 'templates', cli.argv.template),
-		tiapp = path.join(projectDir, 'tiapp.xml');
+		tiappFile = path.join(projectDir, 'tiapp.xml');
 	
 	appc.fs.exists(projectDir) || wrench.mkdirSyncRecursive(projectDir);
 	wrench.copyDirSyncRecursive(templateDir, projectDir);
 	
-	fs.writeFileSync(tiapp, fs.readFileSync(tiapp).toString()
-		.replace('__PROJECT_ID__', cli.argv.id)
-		.replace('__PROJECT_NAME__', projectName)
-		.replace('__PROJECT_VERSION__', '1.0')
-	);
+	var tiapp = new appc.xml.tiapp(tiappFile);
+	tiapp.set('id', cli.argv.id)
+		.set('name', projectName)
+		.set('version', '1.0')
+		.set('deployment-targets', manifest.platforms.map(function (p) {
+			return {
+				tag: 'target',
+				attrs: { 'device': p },
+				value: platforms.indexOf(p) != -1
+			};
+		}))
+		.set('sdk-version', sdk.name)
+		.save();
 	
-	cli.argv.platforms.forEach(function (p) {
+	platforms.forEach(function (p) {
 		require('../../' + p + '/cli/commands/_create')(logger, projectDir, cli.argv.template);
 	});
 	
-	logger.log(__("Project '%s' created successfully!", projectName.cyan) + '\n');
+	logger.log(__("Project '%s' created successfully in %s", projectName.cyan, appc.time.printDiff(cli.startTime, Date.now())) + '\n');
 };
