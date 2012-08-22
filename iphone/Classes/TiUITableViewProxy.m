@@ -921,6 +921,7 @@ DEFINE_DEF_PROP(scrollsToTop,[NSNumber numberWithBool:YES]);
 
 	//Step three: Main thread
 	TiThreadPerformOnMainThread(^{
+		BOOL falseFirstSection = [sections count] == 0;
 		NSRange sectionRange = NSMakeRange([sections count], 1);
 		if (sectionArray != nil){
 			sectionRange.length = [sectionArray count];
@@ -943,7 +944,15 @@ DEFINE_DEF_PROP(scrollsToTop,[NSNumber numberWithBool:YES]);
 			for (TiUITableViewSectionProxy * thisSection in sectionArray) {
 				[thisSection setTable:ourView];
 			}
-			[ourTable insertSections:[NSIndexSet indexSetWithIndexesInRange:sectionRange] withRowAnimation:ourAnimation];
+			if (!falseFirstSection) { 
+				[ourTable insertSections:[NSIndexSet indexSetWithIndexesInRange:sectionRange] withRowAnimation:ourAnimation];
+			} else { //UITableView doesn't know we had 0 sections.
+				[ourTable beginUpdates];
+				NSRange insertedSectionRange = NSMakeRange(1, sectionRange.length - 1);
+				[ourTable deleteSections:[NSIndexSet indexSetWithIndex:0] withRowAnimation:ourAnimation];
+				[ourTable insertSections:[NSIndexSet indexSetWithIndexesInRange:sectionRange] withRowAnimation:ourAnimation];
+				[ourTable endUpdates];
+			}
 		} forceReload:NO];
 	}, NO);
 }
@@ -958,7 +967,10 @@ DEFINE_DEF_PROP(scrollsToTop,[NSNumber numberWithBool:YES]);
 	}
 	int sectionIndex;
 	ENSURE_INT_AT_INDEX(sectionIndex, args, 0);
-
+	if (sectionIndex < 0){
+		[self throwException:TiExceptionRangeError subreason:@"index must be non-negative" location:CODELOCATION];
+	}
+	
 	NSDictionary * options = nil;
 	if(argCount > 1){
 		options = [args objectAtIndex:1];
@@ -974,7 +986,11 @@ DEFINE_DEF_PROP(scrollsToTop,[NSNumber numberWithBool:YES]);
 			UITableViewRowAnimation ourAnimation = [TiUITableViewAction animationStyleForProperties:options];
 			TiUITableView * ourView = (TiUITableView *)[self view];
 			UITableView * ourTable = [ourView tableView];
-			[ourTable deleteSections:[NSIndexSet indexSetWithIndex:sectionIndex] withRowAnimation:ourAnimation];
+			if ([sections count]==0) { //UITableView can't handle 0 sections.
+				[ourTable reloadSections:[NSIndexSet indexSetWithIndex:0] withRowAnimation:ourAnimation];
+			} else {
+				[ourTable deleteSections:[NSIndexSet indexSetWithIndex:sectionIndex] withRowAnimation:ourAnimation];
+			}
 		} forceReload:NO];
 	}, NO);	
 }
@@ -983,7 +999,8 @@ DEFINE_DEF_PROP(scrollsToTop,[NSNumber numberWithBool:YES]);
 {
 	[self rememberSection:section];
 	TiThreadPerformOnMainThread(^{
-		int boundSectionIndex = MAX(0, MIN(sectionIndex, [sections count]));
+		int oldSectionCount = [sections count];
+		int boundSectionIndex = MIN(sectionIndex, oldSectionCount);
 		[section setSection:boundSectionIndex];
 		[sections insertObject:section atIndex:boundSectionIndex];
 
@@ -992,7 +1009,11 @@ DEFINE_DEF_PROP(scrollsToTop,[NSNumber numberWithBool:YES]);
 			TiUITableView * ourView = (TiUITableView *)[self view];
 			UITableView * ourTable = [ourView tableView];
 			[section setTable:ourView];
-			[ourTable insertSections:[NSIndexSet indexSetWithIndex:sectionIndex] withRowAnimation:ourAnimation];
+			if (oldSectionCount == 0) { //UITableView doesn't know we have 0 sections.
+				[ourTable reloadSections:[NSIndexSet indexSetWithIndex:0] withRowAnimation:ourAnimation];
+			} else {
+				[ourTable insertSections:[NSIndexSet indexSetWithIndex:boundSectionIndex] withRowAnimation:ourAnimation];
+			}
 		} forceReload:NO];
 	}, NO);
 }
@@ -1009,9 +1030,12 @@ DEFINE_DEF_PROP(scrollsToTop,[NSNumber numberWithBool:YES]);
 	}
 
 	int sectionIndex;
-	ENSURE_INT_AT_INDEX(sectionIndex, args, 1);
+	ENSURE_INT_AT_INDEX(sectionIndex, args, 0);
+	if (sectionIndex < 0){
+		[self throwException:TiExceptionRangeError subreason:@"index must be non-negative" location:CODELOCATION];
+	}
 
-	id sectionObject = [args objectAtIndex:0];
+	id sectionObject = [args objectAtIndex:1];
 	TiUITableViewSectionProxy * section = [self tableSectionFromArg:sectionObject];
 	
 	if (section == nil) {
@@ -1032,9 +1056,12 @@ DEFINE_DEF_PROP(scrollsToTop,[NSNumber numberWithBool:YES]);
 	}
 	
 	int sectionIndex;
-	ENSURE_INT_AT_INDEX(sectionIndex, args, 1);
-	
-	id sectionObject = [args objectAtIndex:0];
+	ENSURE_INT_AT_INDEX(sectionIndex, args, 0);
+	if (sectionIndex < 0){
+		[self throwException:TiExceptionRangeError subreason:@"index must be non-negative" location:CODELOCATION];
+	}
+
+	id sectionObject = [args objectAtIndex:1];
 	TiUITableViewSectionProxy * section = [self tableSectionFromArg:sectionObject];
 	
 	if (section == nil) {
