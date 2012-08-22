@@ -288,7 +288,14 @@ class AnnotatedApi(object):
 		else:
 			self.availability = None
 		if "default" in api_obj:
-			self.default = api_obj["default"]
+			# TIDOC-708: avoid capitalizing booleans
+			if isinstance(api_obj["default"], bool):
+				if api_obj["default"]:
+					self.default = "true"
+				else:
+					self.default = "false"
+			else:
+				self.default = api_obj["default"]
 		else:
 			self.default = None
 		if "optional" in api_obj:
