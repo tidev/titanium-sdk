@@ -118,37 +118,3 @@ exports.run = function (logger, config, cli) {
 	
 	logger.log(__('Project cleaned successfully in %s', appc.time.printDiff(cli.startTime, Date.now())) + '\n');
 };
-
-/*
-def clean_build(project_dir,platform):
-	project_build_dir = os.path.join(project_dir,'build',platform)
-	for root, dirs, files in os.walk(project_build_dir, topdown=False):
-		for name in files:
-			os.remove(os.path.join(root, name))
-		for name in dirs:
-			os.rmdir(os.path.join(root, name))
-
-def clean_platform(project_dir,platform):
-	if platform == 'android':
-		clean_build(project_dir,'android')
-	elif is_ios(platform):
-		clean_build(project_dir,'iphone')
-	elif platform == 'mobileweb':
-		clean_build(project_dir,'mobileweb')
-
-def clean(args):
-	project_dir = get_required(args,'dir')
-	tiapp_xml = os.path.join(project_dir,'tiapp.xml')
-	touch_tiapp_xml(tiapp_xml)
-	
-	platform = get_optional(args,'platform')
-	if type(platform) == types.NoneType:
-		clean_build(project_dir,'android')
-		clean_build(project_dir,'iphone')
-		clean_build(project_dir,'mobileweb')
-	elif type(platform) == types.ListType:
-		for osname in platform:
-			clean_platform(project_dir,osname)
-	else:
-		clean_platform(project_dir,platform)
-*/
