@@ -456,6 +456,7 @@ methods:
     
   - name: finishLayout
     since: "2.0.0"
+    deprecated: {since: "2.2.0"}
     summary: |
         Finishes a batch update of the View's layout properties and schedules a layout pass of the 
         view tree.
@@ -509,6 +510,7 @@ methods:
         
         On Mobile Web, this method is included for parity only, and thus has no effect.
     since: "2.0.0"
+    deprecated: {since: "2.2.0"}
 
   - name: toImage
     summary: Returns an image of the rendered view, as a Blob.
@@ -558,6 +560,7 @@ methods:
         
         On Mobile Web, this method is included for parity only, and thus has no effect.
     since: "2.0.0"
+    deprecated: {since: "2.2.0"}
     parameters:
       - name: params
         summary: Layout properties to be updated.
