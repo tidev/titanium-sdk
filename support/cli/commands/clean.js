@@ -25,6 +25,12 @@ exports.config = function (logger, config, cli) {
 				desc: __('a platform to clean'),
 				values: manifest.platforms
 			},
+			sdk: {
+				abbr: 's',
+				default: 'latest',
+				desc: __('Titanium SDK version to use'),
+				hint: __('version')
+			},
 			user: {
 				desc: __('user to log in as, if not already logged in')
 			},
@@ -37,7 +43,7 @@ exports.config = function (logger, config, cli) {
 				},
 				desc: __('minimum logging level'),
 				default: 'warn',
-				values: Object.keys(logger.levels)
+				values: logger.getLevels()
 			}
 		},
 		args: [

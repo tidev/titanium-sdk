@@ -65,7 +65,7 @@ exports.config = function (logger, config, cli) {
 				},
 				desc: __('minimum logging level'),
 				default: 'warn',
-				values: Object.keys(logger.levels)
+				values: logger.getLevels()
 			}
 		},
 		args: [
