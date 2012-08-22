@@ -9,7 +9,7 @@
 @interface TiUIAlertDialogProxy : TiProxy<UIAlertViewDelegate> {
 @private
 	UIAlertView *alert;
-    BOOL persistantFlag;
+    BOOL persistentFlag;
 }
 
 -(void)show:(id)args;

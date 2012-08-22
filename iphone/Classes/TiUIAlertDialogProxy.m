@@ -18,7 +18,7 @@ static BOOL alertShowing = NO;
     if (alert != nil) {
         [alertCondition lock];
         alertShowing = NO;
-        persistantFlag = NO;
+        persistentFlag = NO;
         [alertCondition broadcast];
         [alertCondition unlock];
     }
@@ -42,7 +42,7 @@ static BOOL alertShowing = NO;
 	{
 		[alertCondition lock];
 		alertShowing = NO;
-        persistantFlag = NO;
+        persistentFlag = NO;
 		[alertCondition broadcast];
 		[alertCondition unlock];
 		[self forgetSelf];
@@ -109,7 +109,7 @@ static BOOL alertShowing = NO;
 			}
 			[buttonNames addObject:ok];
 		}
-		persistantFlag = [TiUtils boolValue:[self valueForKey:@"persistant"] def:NO];
+		persistentFlag = [TiUtils boolValue:[self valueForKey:@"persistent"] def:NO];
 		alert = [[UIAlertView alloc] initWithTitle:[TiUtils stringValue:[self valueForKey:@"title"]]
 												message:[TiUtils stringValue:[self valueForKey:@"message"]] 
 												delegate:self cancelButtonTitle:nil otherButtonTitles:nil];
@@ -128,7 +128,7 @@ static BOOL alertShowing = NO;
 
 -(void)suspended:(NSNotification*)note
 {
-    if (!persistantFlag) {
+    if (!persistentFlag) {
         [self hide:[NSDictionary dictionaryWithObject:NUMBOOL(NO) forKey:@"animated"]];
     }
 }
@@ -154,7 +154,7 @@ static BOOL alertShowing = NO;
 
 -(void)alertViewCancel:(UIAlertView *)alertView
 {
-    if (!persistantFlag) {
+    if (!persistentFlag) {
         [self hide:[NSDictionary dictionaryWithObject:NUMBOOL(NO) forKey:@"animated"]];
     }
 }
