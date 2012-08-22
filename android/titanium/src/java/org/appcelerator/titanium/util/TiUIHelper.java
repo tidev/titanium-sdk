@@ -897,7 +897,7 @@ public class TiUIHelper
 	 * @param view the current focused view.
 	 * @param show whether to show soft keyboard.
 	 */
-	public static void showSoftKeyboard(final View view, final boolean show) 
+	public static void showSoftKeyboard(View view, final boolean show) 
 	{
 		InputMethodManager imm = (InputMethodManager) view.getContext().getSystemService(Activity.INPUT_METHOD_SERVICE);
 
@@ -913,10 +913,7 @@ public class TiUIHelper
 			} else {
 				imm.hideSoftInputFromWindow(view.getWindowToken(), useForce ? 0 : InputMethodManager.HIDE_IMPLICIT_ONLY);
 			}
-
-
 		}
-		
 	}
 
 	/**
