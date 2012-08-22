@@ -114,6 +114,15 @@ properties:
     type: Boolean
     default: false on creation, true on load (Android), false (iPhone, iPad, Mobile Web)
     permission: read-only
+  
+  - name: autorotate
+    summary: |
+        Indicates whether the image should be rotated based on exif orientation data. This is false by default on android. 
+        iOS always has this behavior enabled, and currently can't be changed.  The auto rotate behavior is not supported on Mobile Web.
+    type: Boolean
+    default: false
+    availability: creation
+    platforms: [android]
     
   - name: canScale
     summary: |
