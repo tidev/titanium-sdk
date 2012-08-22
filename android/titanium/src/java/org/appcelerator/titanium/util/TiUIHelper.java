@@ -897,7 +897,7 @@ public class TiUIHelper
 	 * @param view the current focused view.
 	 * @param show whether to show soft keyboard.
 	 */
-	public static void showSoftKeyboard(View view, final boolean show) 
+	public static void showSoftKeyboard(View view, boolean show) 
 	{
 		InputMethodManager imm = (InputMethodManager) view.getContext().getSystemService(Activity.INPUT_METHOD_SERVICE);
 
@@ -907,7 +907,6 @@ public class TiUIHelper
 			if (model != null && model.toLowerCase().startsWith("droid")) {
 				useForce = true;
 			}
-
 			if (show) {
 				imm.showSoftInput(view, useForce ? InputMethodManager.SHOW_FORCED : InputMethodManager.SHOW_IMPLICIT);
 			} else {
