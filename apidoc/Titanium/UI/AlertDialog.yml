@@ -31,7 +31,9 @@ description: |
     the message.
     
     On iOS 4.0 and later, alert dialogs are automatically cancelled when the application is 
-    paused/suspended.
+    paused/suspended. This behavior can avoided by setting `persistant` property on alert dialog 
+    to be `true`.
+    
     
     #### Global Alias
     
@@ -140,6 +142,15 @@ properties:
     type: String
     accessors: false
     platforms: [iphone, ipad, mobileweb]
+    
+  - name: persistant
+    summary: Boolean value indicating if the alert dialog should only be cancelled by user gesture.
+    description: |
+        This property is useful to avoid the alert dialog from being automatically cancelled by 
+        system at any time - for example, when the user taps on the Home button.
+    type: Boolean
+    default: false
+    platforms: [iphone, ipad]
 
 examples:
   - title: Single-button Alert Dialog (using alias)
