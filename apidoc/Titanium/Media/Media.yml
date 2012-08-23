@@ -574,8 +574,8 @@ properties:
     description: |
         Used in conjunction with the `movieControlStyle` property of <Titanium.Media.VideoPlayer> 
         in iPhone 3.2+ and with either a modal or full screen window.
-        In iOS, displays the media controls and navigation bar over the media. When the media controls
-        disappear, the status bar disappears too.
+        In iOS, displays the media controls and navigation bar over the media. Status bar appears
+        and disappears with the media controls.
     type: Number
     permission: read-only
     platforms: [android, iphone, ipad]
