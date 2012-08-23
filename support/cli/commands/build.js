@@ -1,41 +1,39 @@
 /*
- * build.js: Titanium Mobile Web CLI build command
+ * build.js: Titanium Mobile CLI build command
  *
  * Copyright (c) 2012, Appcelerator, Inc.  All Rights Reserved.
  * See the LICENSE file for more information.
  */
 
 var appc = require('node-appc'),
-	manifest = appc.manifest(module);
+	lib = require('./lib/common');
 
 exports.config = function (logger, config, cli) {
 	return {
 		title: __('Build'),
 		desc: __('builds a project'),
-		requiresAuth: true,
-		options: {
+		options: appc.util.mix({
 			platform: {
 				abbr: 'p',
 				desc: __('the target build platform'),
 				hint: __('platform'),
-				values: manifest.platforms
-			},
-			sdk: {
-				abbr: 's',
-				default: 'latest',
-				desc: __('Titanium SDK version to use'),
-				hint: __('version')
-			},
-			'log-level': {
-				callback: function (value) {
-					logger.levels[value] && logger.setLevel(value);
+				prompt: {
+					label: __('Platform to build for [%s]', lib.availablePlatforms.join(',')),
+					validator: function (platform) {
+						if (lib.availablePlatforms.indexOf(platform) == -1) {
+							throw new appc.exception(__('Invalid platform: %s', platform));
+						}
+						return true;
+					}
 				},
-				desc: __('minimum logging level'),
-				default: 'warn',
-				hint: __('level'),
-				values: logger.getLevels()
+				required: true,
+				values: lib.availablePlatforms
+			},
+			dir: {
+				abbr: 'd',
+				desc: __('the directory containing the project, otherwise the current working directory')
 			}
-		},
+		}, lib.commonOptions(logger, config)),
 		flags: {
 			device: {
 				desc: __('builds the project for device')
@@ -54,49 +52,17 @@ exports.config = function (logger, config, cli) {
 				alias: 'emulator',
 				desc: __('builds the project to run on a development machine')
 			}
-		},
-		args: [
-			{
-				desc: __('the directory where the project is located'),
-				name: 'project-dir',
-				required: true
-			}
-		]
+		}
 	};
 };
 
 exports.validate = function (logger, config, cli) {
-	if (!cli.argv.hasOwnProperty('platform')) {
-		logger.error(__('Missing required "platform" argument') + '\n');
-		process.exit(1);
-	}
-	
-	if (!~manifest.platforms.indexOf(cli.argv.platform)) {
-		logger.error(__('Invalid platform "%s"', cli.argv.platform) + '\n');
-		logger.log(__('Available platforms for SDK version %s:', manifest.version) + '\n');
-		manifest.platforms.forEach(function (p) {
-			logger.log('    ' + p.cyan);
-		});
-		logger.log();
-		process.exit(1);
-	}
-	
-	if (cli.argv._.length == 0) {
-		logger.error(__('Missing required argument "project-dir"') + '\n');
-		process.exit(1);
-	}
-	
-	var projectDir = cli.argv._[0];
-	if (!appc.fs.exists(projectDir)) {
-		logger.error(__('Project directory "%s" does not exist', projectDir) + '\n');
-		process.exit(1);
-	}
+	cli.argv.platform = lib.validatePlatform(cli.argv.platform);
+	cli.argv.dir = lib.validateProjectDir(cli.argv.dir);
 };
 
 exports.run = function (logger, config, cli) {
 	dump(cli.argv);
 	
-	/*
-	
-	*/
+	logger.log(__('Project built successfully in %s', appc.time.printDiff(cli.startTime, Date.now())) + '\n');
 };

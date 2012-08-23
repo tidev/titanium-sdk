@@ -1,5 +1,5 @@
 /*
- * create.js: Titanium CLI create command
+ * create.js: Titanium Mobile CLI create command
  *
  * Copyright (c) 2012, Appcelerator, Inc.  All Rights Reserved.
  * See the LICENSE file for more information.
@@ -9,11 +9,7 @@ var fs = require('fs'),
 	path = require('path'),
 	wrench = require('wrench'),
 	appc = require('node-appc'),
-	manifest = appc.manifest(module),
-	platformAliases = {
-		'ipad': 'iphone',
-		'ios': 'iphone'
-	};
+	lib = require('./lib/common');
 
 exports.config = function (logger, config, cli) {
 	return {
@@ -24,12 +20,23 @@ exports.config = function (logger, config, cli) {
 				desc: __('force project creation even if path already exists')
 			}
 		},
-		options: {
+		options: appc.util.mix({
 			platforms: {
 				abbr: 'p',
 				desc: __('the target build platform'),
+				prompt: {
+					label: __('Target platforms'),
+					error: __('Invalid list of target platforms'),
+					validator: function (platforms) {
+						var p = exports.scrubPlatforms(platforms);
+						if (p.bad.length) {
+							throw new appc.exception(__('Invalid platforms: %s', p.bad.join(', ')));
+						}
+						return true;
+					}
+				},
 				required: true,
-				values: manifest.platforms
+				values: lib.availablePlatforms
 			},
 			type: {
 				abbr: 't',
@@ -38,92 +45,66 @@ exports.config = function (logger, config, cli) {
 				values: ['app', 'module']
 			},
 			id: {
-				desc: __('the project ID'),
-			},
-			sdk: {
-				abbr: 's',
-				default: 'latest',
-				desc: __('Titanium SDK version to use')
+				desc: __("the App ID in the format 'com.companyname.appname'"),
+				prompt: {
+					label: __('App ID'),
+					error: __('Invalid App ID'),
+					pattern: /^([a-z_]{1}[a-z0-9_]*(\.[a-z_]{1}[a-z0-9_]*)*)$/
+				},
+				required: true
 			},
 			template: {
 				desc: __('the name of the project template to use'),
 				default: 'default'
 			},
+			name: {
+				abbr: 'n',
+				desc: __('the name of the project'),
+				prompt: {
+					label: __('Project name'),
+					error: __('Invalid project name'),
+					pattern: /\w+/
+				},
+				required: true
+			},
 			dir: {
 				abbr: 'd',
-				desc: __('the directory to place the project in')
-			},
-			user: {
-				desc: __('user to log in as, if not already logged in')
-			},
-			password: {
-				desc: __('the password to log in with')
-			},
-			'log-level': {
-				callback: function (value) {
-					logger.levels[value] && logger.setLevel(value);
+				desc: __('the directory to place the project in'),
+				prompt: {
+					label: __('Directory to place project'),
+					error: __('Invalid directory'),
+					validator: function (dir) {
+						dir = appc.fs.resolvePath(dir);
+						if (!appc.fs.exists(dir)) {
+							throw new appc.exception(__('Specified directory does not exist'));
+						}
+						if (!appc.fs.isDirWritable(dir)) {
+							throw new appc.exception(__('Specified directory not writable'));
+						}
+						return true;
+					}
 				},
-				desc: __('minimum logging level'),
-				default: 'warn',
-				values: logger.getLevels()
-			}
-		},
-		args: [
-			{
-				desc: __('the name of the project'),
-				name: 'project-name',
 				required: true
 			}
-		]
+		}, lib.commonOptions(logger, config))
 	};
 };
 
 exports.validate = function (logger, config, cli) {
-	if (!cli.argv.hasOwnProperty('platforms')) {
-		logger.error(__('Missing required "platforms" argument') + '\n');
-		process.exit(1);
-	}
+	var platforms = lib.scrubPlatforms(cli.argv.platforms);
+	cli.argv.platforms = platforms.scrubbed;
 	
-	var platforms = [],
-		badPlatforms = [];
-	
-	cli.argv.platforms.toLowerCase().split(',').map(function (p) {
-		return platformAliases[p] || p;
-	}).forEach(function (p) {
-		if (manifest.platforms.indexOf(p) == -1) {
-			badPlatforms.push(p);
-		} else if (platforms.indexOf(p) == -1) {
-			platforms.push(p);
-		}
-	});
-	cli.argv.platforms = platforms;
-	
-	if (badPlatforms.length) {
-		logger.error(__('Invalid platforms: %s', badPlatforms.join(', ')) + '\n');
-		logger.log(__('Available platforms for SDK version %s:', manifest.version) + '\n');
-		manifest.platforms.forEach(function (p) {
+	if (platforms.bad.length) {
+		logger.error(__('Invalid platforms: %s', platforms.bad.join(', ')) + '\n');
+		logger.log(__('Available platforms for SDK version %s:', lib.sdkVersion) + '\n');
+		lib.availablePlatforms.forEach(function (p) {
 			logger.log('    ' + p.cyan);
 		});
 		logger.log();
 		process.exit(1);
 	}
 	
-	if (!cli.argv.hasOwnProperty('id')) {
-		logger.error(__('Missing required "id" argument') + '\n');
-		process.exit(1);
-	}
-	
-	if (!cli.argv.hasOwnProperty('dir')) {
-		logger.error(__('Missing required "dir" argument') + '\n');
-		process.exit(1);
-	}
-	
-	if (cli.argv._.length == 0) {
-		logger.error(__('Missing required argument "project-name"') + '\n');
-		process.exit(1);
-	}
-	
-	var projectDir = appc.fs.resolvePath(cli.argv.dir, cli.argv._[0]);
+	var projectDir = appc.fs.resolvePath(cli.argv.dir, cli.argv.name);
 	if (!cli.argv.force && appc.fs.exists(projectDir)) {
 		logger.error(__('Project directory alread exists: %s', projectDir) + '\n');
 		logger.log(__("Run '%s' to overwrite existing project.", (cli.argv.$ + ' ' + process.argv.slice(2).join(' ') + ' --force').cyan) + '\n');
@@ -132,7 +113,7 @@ exports.validate = function (logger, config, cli) {
 };
 
 exports.run = function (logger, config, cli) {
-	var projectName = cli.argv._[0],
+	var projectName = cli.argv.name,
 		platforms = cli.argv.platforms,
 		sdk = cli.env.getSDK(cli.argv.sdk),
 		projectDir = appc.fs.resolvePath(cli.argv.dir, projectName),
@@ -146,7 +127,7 @@ exports.run = function (logger, config, cli) {
 	tiapp.set('id', cli.argv.id)
 		.set('name', projectName)
 		.set('version', '1.0')
-		.set('deployment-targets', manifest.platforms.map(function (p) {
+		.set('deployment-targets', lib.availablePlatforms.map(function (p) {
 			return {
 				tag: 'target',
 				attrs: { 'device': p },
