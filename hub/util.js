@@ -121,7 +121,7 @@ module.exports = new function() {
 
 				} else {
 					var oldestLog = logsMap[logTimestamps[oldestLogIndex]];
-					self.runCommand("rm -r " + hubGlobal.logsDir + "/" + oldestLog, self.logNone, function(error) {
+					self.runCommand("rm -r " + hubGlobal.logsDir + "/" + oldestLog, function(error) {
 						if (error !== null) {
 							self.log("error <" + error + "> encountered when deleting log <" + oldestLog + ">");
 
