@@ -40,6 +40,7 @@
 -(BOOL)handleContentSizeIfNeeded;
 -(void)handleContentSize;
 -(void)setContentOffset_:(id)value withObject:(id)property;
+-(void)setZoomScale_:(id)value withObject:(id)property;
 -(UIView *)wrapperView;
 -(void)scrollToBottom;
 
