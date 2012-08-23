@@ -84,23 +84,23 @@ properties:
     permission: read-only
     
   - name: address
-    summary: The system's WIFI IP address. No other network types are supported.
+    summary: System's WIFI IP address. No other network types are supported.
     type: String
     permission: read-only
     
   - name: architecture
-    summary: The system's processor architecture.
+    summary: System's processor architecture.
     type: String
     permission: read-only
     
   - name: availableMemory
-    summary: The system's unused memory, measured in megabytes on iOS and bytes on Android.
+    summary: System's unused memory, measured in megabytes on iOS and bytes on Android.
     type: Number
     permission: read-only
     
   - name: batteryLevel
     summary: |
-        The battery level in percent, accessible only when `batteryMonitoring` is enabled. Measured 
+        Battery level in percent, accessible only when `batteryMonitoring` is enabled. Measured 
         in 5% increments on iPhone/iPad.
     type: Number
     permission: read-only
@@ -134,7 +134,7 @@ properties:
     permission: read-only
     
   - name: id
-    summary: The applications's globally-unique ID (UUID).
+    summary: Applications's globally-unique ID (UUID).
     description: |
         On Android, this may be the UDID (unique device ID). For iOS, this
         is a unique identifier for this install of the application.
@@ -147,7 +147,7 @@ properties:
     permission: read-only
         
   - name: locale
-    summary: The system's default language.
+    summary: System's default language.
     description: |
         Locale, as a combination of ISO 2-letter language and country codes. For example, 
         `en-US` or `en-GB`. See the 
@@ -158,7 +158,7 @@ properties:
     permission: read-only
     
   - name: macaddress
-    summary: The system's network interface mac address, or app UUID.
+    summary: System's network interface mac address, or app UUID.
     description: |
         On iOS, this value is the app's UUID. Apple does not allow
         access to any hardware identifier information as it can be used for
@@ -167,7 +167,7 @@ properties:
     permission: read-only
     
   - name: model
-    summary: The model of the device.
+    summary: Model of the device.
     description: |
         An identifier of the hardware model of the device. For example, `HTC Sensation Z710e`.
         
@@ -192,7 +192,7 @@ properties:
                 }
                 
   - name: manufacturer
-    summary: The manufacturer of the product/hardware
+    summary: Manufacturer of the product/hardware
     description: |
         On Android, an identifier of the hardware manufacturer of the device. For example, `HTC`.
     type: String
@@ -200,34 +200,37 @@ properties:
     platforms: [android]
 
   - name: name
-    summary: The name of the platform.
+    summary: |
+        Name of the platform. Returns `android` for the Android platform, `iPhone OS` for the iOS
+        platform (iPhone, iPad, or iPod Touch), and `mobileweb` for the Mobile Web platform.
     type: String
     permission: read-only
     
   - name: netmask
-    summary: The system's WIFI network mask. No other network types are supported.
+    summary: System's WIFI network mask. No other network types are supported.
     type: String
     permission: read-only
     
   - name: osname
     summary: |
-        The short name of the system's Operating System. For example, iPhone will return `iphone`, 
-        iPad will return `ipad`, Android will return `android` and Mobile Web will return `mobileweb`.
+        Short name of the system's Operating System. Returns `android` for the Android platfrom,
+        `iphone` for the iPhone or iPod Touch, `ipad` for the iPad, and `mobileweb` for the Mobile Web
+        platform.
     type: String
     permission: read-only
     
   - name: ostype
-    summary: The Operating System architecture. On Android, this is `32bit`.
+    summary: Operating System architecture. On Android, this is `32bit`.
     type: String
     permission: read-only
     
   - name: processorCount
-    summary: The number of processing cores.
+    summary: Number of processing cores.
     type: Number
     permission: read-only
     
   - name: runtime
-    summary: The short name of the JavaScript runtime in use.
+    summary: Short name of the JavaScript runtime in use.
     description: |
       On iOS this is "javascriptcore", on Android either "v8" or "rhino" and on Mobile Web it is 
       determined by the browser used.
@@ -236,12 +239,12 @@ properties:
     
   - name: username
     summary: |
-      The system name, if set. On iOS, this can be found in Settings > General > About > Name.
+      System name, if set. On iOS, this can be found in Settings > General > About > Name.
     type: String
     permission: read-only
     
   - name: version
-    summary: The system's OS version.
+    summary: System's OS version.
     type: String
     permission: read-only
 
