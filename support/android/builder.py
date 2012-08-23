@@ -1666,7 +1666,8 @@ class Builder(object):
 		output = self.run_adb('shell', 'am', 'start',
 			'-a', 'android.intent.action.MAIN',
 			'-c','android.intent.category.LAUNCHER',
-			'-n', '%s/.%sActivity' % (self.app_id , self.classname))
+			'-n', '%s/.%sActivity' % (self.app_id , self.classname),
+			'-f', '0x10200000')
 		trace("Launch output: %s" % output)
 
 	def wait_for_sdcard(self):
