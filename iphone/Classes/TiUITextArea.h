@@ -19,9 +19,11 @@
 @interface TiUITextArea : TiUITextWidget <UITextViewDelegate>
 {
 @private
-	BOOL returnActive;
+	BOOL becameResponder;
+    BOOL returnActive;
 }
 
+@property(nonatomic,readonly) BOOL becameResponder;
 @end
 
 #endif

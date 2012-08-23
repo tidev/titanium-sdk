@@ -25,7 +25,7 @@ sys.path.append(top_support_dir)
 sys.path.append(os.path.join(top_support_dir, 'common'))
 sys.path.append(os.path.join(top_support_dir, 'module'))
 
-import simplejson
+import simplejson, java
 from mako.template import Template
 from tiapp import *
 from android import Android
@@ -137,7 +137,7 @@ def error(msg):
 
 def copy_all(source_folder, dest_folder, ignore_dirs=[], ignore_files=[], ignore_exts=[], one_time_msg=""):
 	msg_shown = False
-	for root, dirs, files in os.walk(source_folder):
+	for root, dirs, files in os.walk(source_folder, True, None, True):
 		for d in dirs:
 			if d in ignore_dirs:
 				dirs.remove(d)
@@ -252,8 +252,12 @@ class Builder(object):
 			self.force_rebuild = True
 			sys.stdout.flush()
 		
+		# favor the ANDROID_SDK_HOME environment variable if used
+		if os.environ.has_key('ANDROID_SDK_HOME') and os.path.exists(os.environ['ANDROID_SDK_HOME']):
+			self.home_dir = os.path.join(os.environ['ANDROID_SDK_HOME'], '.titanium')
+			self.android_home_dir = os.path.join(os.environ['ANDROID_SDK_HOME'], '.android')
 		# we place some files in the users home
-		if platform.system() == "Windows":
+		elif platform.system() == "Windows":
 			self.home_dir = os.path.join(os.environ['USERPROFILE'], '.titanium')
 			self.android_home_dir = os.path.join(os.environ['USERPROFILE'], '.android')
 		else:
@@ -266,68 +270,26 @@ class Builder(object):
 		self.classname = Android.strip_classname(self.name)
 		
 	def set_java_commands(self):
-		self.jarsigner = "jarsigner"
-		self.keytool = "keytool"
-		self.javac = "javac"
-		self.java = "java"
-		java_home = None
+		commands = java.find_java_commands()
+		to_check = ("java", "javac", "keytool", "jarsigner")
 
-		if os.environ.has_key("JAVA_HOME") and os.path.exists(os.environ["JAVA_HOME"]):
-			java_home = os.environ["JAVA_HOME"]
-
-		if platform.system() == "Windows":
-			if java_home:
-				home_jarsigner = os.path.join(java_home, "bin", "jarsigner.exe")
-				home_keytool = os.path.join(java_home, "bin", "keytool.exe")
-				home_javac = os.path.join(java_home, "bin", "javac.exe")
-				home_java = os.path.join(java_home, "bin", "java.exe")
-				found = True
-				# TODO Document this path and test properly under windows
-				if os.path.exists(home_jarsigner):
-					self.jarsigner = home_jarsigner
-				else:
-					# Expected but not found
-					found = False
-					error("Required jarsigner not found")
-				
-				if os.path.exists(home_keytool):
-					self.keytool = home_keytool
-				else:
-					error("Required keytool not found")
-					found = False
-
-				if os.path.exists(home_javac):
-					self.javac = home_javac
-				else:
-					error("Required javac not found")
-					found = False
-					
-				if os.path.exists(home_java):
-					self.java = home_java
-				else:
-					error("Required java not found")
-					found = False
-					
-				if found == False:
-					error("One or more required files not found - please check your JAVA_HOME environment variable")
-					sys.exit(1)
-			else:
+		found = True
+		for check in to_check:
+			if not commands[check]:
 				found = False
-				for path in os.environ['PATH'].split(os.pathsep):
-					if os.path.exists(os.path.join(path, 'jarsigner.exe')) and os.path.exists(os.path.join(path, 'javac.exe')):
-						self.jarsigner = os.path.join(path, 'jarsigner.exe')
-						self.keytool = os.path.join(path, 'keytool.exe')
-						self.javac = os.path.join(path, 'javac.exe')
-						self.java = os.path.join(path, 'java.exe')
-						java_home = os.path.dirname(os.path.dirname(self.javac))
-						found = True
-						break
-				if not found:
-					error("Error locating JDK: set $JAVA_HOME or put javac and jarsigner on your $PATH")
-					sys.exit(1)
+				error("Required Java tool '%s' not located." % check)
 
-		if not os.environ.has_key("JAVA_HOME") and java_home:
-			os.environ["JAVA_HOME"] = java_home
+		if not found:
+			error("One or more required files not found - please check your JAVA_HOME environment variable")
+			sys.exit(1)
+
+		self.jarsigner = commands["jarsigner"]
+		self.keytool = commands["keytool"]
+		self.javac = commands["javac"]
+		self.java = commands["java"]
+
+		if not commands["environ_java_home"] and commands["java_home"]:
+			os.environ["JAVA_HOME"] = commands["java_home"]
 
 	def wait_for_home(self, type):
 		max_wait = 20
@@ -1252,7 +1214,7 @@ class Builder(object):
 		if not os.path.exists(app_stylesheet):
 			update_stylesheet = True
 		else:
-			for root, dirs, files in os.walk(resources_dir):
+			for root, dirs, files in os.walk(resources_dir, True, None, True):
 				remove_ignored_dirs(dirs)
 				for f in files:
 					if f in ignoreFiles:
@@ -1456,7 +1418,7 @@ class Builder(object):
 			apk_zip.write(self.classes_dex, 'classes.dex')
 		
 		# add all resource files from the project
-		for root, dirs, files in os.walk(self.project_src_dir):
+		for root, dirs, files in os.walk(self.project_src_dir, True, None, True):
 			remove_ignored_dirs(dirs)
 			for f in files:
 				if f in ignoreFiles:

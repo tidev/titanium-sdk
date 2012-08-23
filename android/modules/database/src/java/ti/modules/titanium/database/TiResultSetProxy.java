@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -11,7 +11,6 @@ import java.util.HashMap;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
-import org.appcelerator.kroll.common.TiConfig;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.util.TiConvert;
 
@@ -23,8 +22,7 @@ import android.os.Build;
 @Kroll.proxy(parentModule=DatabaseModule.class)
 public class TiResultSetProxy extends KrollProxy
 {
-	private static final String LCAT = "TiResultSet";
-	private static final boolean DBG = TiConfig.LOGD;
+	private static final String TAG = "TiResultSet";
 	
 	protected Cursor rs;
 	protected String lastException;
@@ -51,12 +49,10 @@ public class TiResultSetProxy extends KrollProxy
 	public void close() 
 	{
 		if (rs != null && !rs.isClosed()) {
-			if (DBG) {
-				Log.d(LCAT, "Closing database cursor");
-			}
+			Log.d(TAG, "Closing database cursor", Log.DEBUG_MODE);
 			rs.close();
 		} else {
-			Log.w(LCAT, "Calling close on a closed cursor.");
+			Log.w(TAG, "Calling close on a closed cursor.", Log.DEBUG_MODE);
 		}
 
 	}
@@ -98,7 +94,7 @@ public class TiResultSetProxy extends KrollProxy
 	private Object internalGetField(int index, int type)
 	{
 		if (rs == null) {
-			Log.w(LCAT, "Attempted to get field value when no result set available.");
+			Log.w(TAG, "Attempted to get field value when no result set is available.");
 			return null;
 		}
 		boolean outOfBounds = (index >= rs.getColumnCount());
@@ -134,7 +130,7 @@ public class TiResultSetProxy extends KrollProxy
 			// Both SQLException and IllegalStateException (exceptions known to occur
 			// in this block) are RuntimeExceptions and since we anyway re-throw
 			// and log the same error message, we're just catching all RuntimeExceptions.
-			Log.e(LCAT, "Exception getting value for column " + index + ": " + e.getMessage(), e);
+			Log.e(TAG, "Exception getting value for column " + index + ": " + e.getMessage(), e);
 			throw e;
 		}
 
@@ -205,7 +201,7 @@ public class TiResultSetProxy extends KrollProxy
 					result = internalGetField(ndx.intValue(), type);
 			} catch (SQLException e) {
 				String msg = "Field name " + fieldName + " not found. msg=" + e.getMessage();
-				Log.e(LCAT, msg);
+				Log.e(TAG, msg);
 				throw e;
 			}
 		}
@@ -220,7 +216,7 @@ public class TiResultSetProxy extends KrollProxy
 			try {
 				return rs.getColumnCount();
 			} catch (SQLException e) {
-				Log.e(LCAT, "No fields");
+				Log.e(TAG, "No fields exist");
 				throw e;
 			}
 		}
@@ -242,7 +238,7 @@ public class TiResultSetProxy extends KrollProxy
 			try {
 				return rs.getColumnName(index);
 			} catch (SQLException e) {
-				Log.e(LCAT, "No column at index: " + index);
+				Log.e(TAG, "No column at index: " + index);
 				throw e;
 			}
 		}
@@ -275,7 +271,7 @@ public class TiResultSetProxy extends KrollProxy
 		if(isValidRow()) {
 			rs.moveToNext();
 		} else {
-			Log.w(LCAT, "Ignoring next, row is already invalid.");
+			Log.w(TAG, "Ignoring next, current row is invalid.");
 		}
 	}
 }

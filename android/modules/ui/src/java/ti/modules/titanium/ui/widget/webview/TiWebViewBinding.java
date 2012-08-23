@@ -31,7 +31,7 @@ import android.webkit.WebView;
 public class TiWebViewBinding
 {
 
-	private static final String LCAT = "TiWebViewBinding";
+	private static final String TAG = "TiWebViewBinding";
 	// This is based on binding.min.js. If you have to change anything...
 	// - change binding.js
 	// - minify binding.js to create binding.min.js
@@ -48,7 +48,7 @@ public class TiWebViewBinding
 		StringBuilder pollingCode = readResourceFile("polling.min.js");
 
 		if (pollingCode == null) {
-			Log.w(LCAT, "Unable to read polling code");
+			Log.w(TAG, "Unable to read polling code");
 		} else {
 			POLLING_CODE = pollingCode.toString();
 		}
@@ -56,13 +56,13 @@ public class TiWebViewBinding
 		StringBuilder allCode = new StringBuilder();
 		allCode.append("\n<script id=\"" + SCRIPT_INJECTION_ID + "\">\n");
 		if (jsonCode == null) {
-			Log.w(LCAT, "Unable to read JSON code for injection");
+			Log.w(TAG, "Unable to read JSON code for injection");
 		} else {
 			allCode.append(jsonCode);
 		}
 
 		if (tiCode == null) {
-			Log.w(LCAT, "Unable to read Titanium binding code for injection");
+			Log.w(TAG, "Unable to read Titanium binding code for injection");
 		} else {
 			allCode.append("\n");
 			allCode.append(tiCode.toString());
@@ -118,14 +118,14 @@ public class TiWebViewBinding
 				code.append(line + "\n");
 			}
 		} catch (IOException e) {
-			Log.e(LCAT, "Error reading input stream", e);
+			Log.e(TAG, "Error reading input stream", e);
 			return null;
 		} finally {
 			if (stream != null) {
 				try {
 					stream.close();
 				} catch (IOException e) {
-					Log.w(LCAT, "Problem closing input stream.", e);
+					Log.w(TAG, "Problem closing input stream.", e);
 				}
 			}
 		}
@@ -141,17 +141,17 @@ public class TiWebViewBinding
 		if (!destroyed) {
 			String code = "_TiReturn.setValue((function(){try{return " + expression
 				+ "+\"\";}catch(ti_eval_err){return '';}})());";
-			Log.d(LCAT, "getJSValue:" + code);
+			Log.d(TAG, "getJSValue:" + code, Log.DEBUG_MODE);
 			synchronized (codeSnippets) {
 				codeSnippets.push(code);
 			}
 			try {
 				if (!returnSemaphore.tryAcquire(3500, TimeUnit.MILLISECONDS)) {
-					Log.w(LCAT, "Timeout waiting to evaluate JS");
+					Log.w(TAG, "Timeout waiting to evaluate JS");
 				}
 				return returnValue;
 			} catch (InterruptedException e) {
-				Log.e(LCAT, "Interrupted", e);
+				Log.e(TAG, "Interrupted", e);
 			}
 		}
 		return null;
@@ -217,7 +217,7 @@ public class TiWebViewBinding
 				}
 				module.fireEvent(event, dict);
 			} catch (JSONException e) {
-				Log.e(LCAT, "Error parsing event JSON", e);
+				Log.e(TAG, "Error parsing event JSON", e);
 			}
 		}
 

@@ -353,13 +353,13 @@ define(["Ti/_/declare", "Ti/_/Evented", "Ti/_/style", "Ti/UI"], function(declare
 								params = matrix[2].split(',');
 								len = Math.min(6, params.length);
 								for (i = 0; i < len; i++) {
-									from[i] = params[i];
+									from[i] = parseFloat(params[i]);
 								}
 							}
 
 							if (rotate) {
 								params = rotate[2].split(',');
-								params.length && (from[6] = params[0]);
+								params.length && (from[6] = parseFloat(params[0]));
 							}
 
 							// translate "to" into a 2D array
@@ -446,7 +446,7 @@ define(["Ti/_/declare", "Ti/_/Evented", "Ti/_/style", "Ti/UI"], function(declare
 			return a;
 		};
 
-		promise.cancel = function() {
+		promise.cancel = function(reset) {
 			var anis = animations[wid],
 				ani,
 				prop,
@@ -458,11 +458,13 @@ define(["Ti/_/declare", "Ti/_/Evented", "Ti/_/style", "Ti/UI"], function(declare
 			for (; i < j; i++) {
 				if (anis[i].id === id) {
 					ani = anis[i];
-					node = ani.elem.domNode;
 
-					for (prop in ani.props) {
-						j = ani.props[prop][0];
-						style.set(node, prop, positionOptions[prop] && prop !== "opacity" ? j + "px" : j);
+					if (reset) {
+						node = ani.elem.domNode;
+						for (prop in ani.props) {
+							j = ani.props[prop][0];
+							style.set(node, prop, positionOptions[prop] && prop !== "opacity" ? j + "px" : j);
+						}
 					}
 
 					anis.splice(i, 1);

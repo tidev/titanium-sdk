@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -18,7 +18,6 @@ import java.util.StringTokenizer;
 import java.util.UUID;
 
 import org.appcelerator.kroll.common.Log;
-import org.appcelerator.kroll.common.TiConfig;
 import org.appcelerator.titanium.ITiAppInfo;
 import org.appcelerator.titanium.TiApplication;
 
@@ -39,8 +38,7 @@ import android.util.DisplayMetrics;
 
 public class TiPlatformHelper
 {
-	public static final String LCAT = "TiPlatformHelper";
-	public static final boolean DBG = TiConfig.LOGD;
+	public static final String TAG = "TiPlatformHelper";
 	private static final Map<String, Locale> locales = java.util.Collections.synchronizedMap(new HashMap<String, Locale>());
 	private static final Map<Locale,  String> currencyCodes = java.util.Collections.synchronizedMap(new HashMap<Locale, String>());
 	private static final Map<Locale,  String> currencySymbols = java.util.Collections.synchronizedMap(new HashMap<Locale, String>());
@@ -61,7 +59,7 @@ public class TiPlatformHelper
 		// this is a fix for the emulator only I think as a normal device should
 		// never return null
 		if (platformId == null) {
-			Log.e(LCAT, "platformId is null, setting to empty string");
+			Log.w(TAG, "platformId is null, setting to empty string", Log.DEBUG_MODE);
 			platformId = "";
 		}
 
@@ -84,7 +82,7 @@ public class TiPlatformHelper
 
 		for (int i = 0; i < badIds.length; i++) {
 			if (currentMachineId.equals(badIds [i])) {
-				Log.e(LCAT, "renaming ID");
+				Log.d(TAG, "renaming ID", Log.DEBUG_MODE);
 				currentMachineId = createUUID();
 				break;
 			}
@@ -118,9 +116,9 @@ public class TiPlatformHelper
 				Object compatInfo = gciMethod.invoke(activity.getResources());
 				applicationScaleFactor = (Float)compatInfo.getClass().getField("applicationScale").get(compatInfo);
 			} catch (Exception e) {
-				Log.w(LCAT, "Unable to get application scale factor, using reported density and it's factor");
+				Log.w(TAG, "Unable to get application scale factor, using reported density and its factor", Log.DEBUG_MODE);
 			}
-	
+
 			if (applicationScaleFactor == 1.0f) {
 				applicationLogicalDensity = dm.densityDpi;
 			} else if (applicationScaleFactor > 1.0f) {
@@ -128,7 +126,7 @@ public class TiPlatformHelper
 			} else {
 				applicationLogicalDensity = DisplayMetrics.DENSITY_LOW;
 			}
-			
+
 			applicationDisplayInfoInitialized = true;
 		}
 	}
@@ -196,6 +194,10 @@ public class TiPlatformHelper
 
 	public static String getModel() {
 		return Build.MODEL;
+	}
+
+	public static String getManufacturer() {
+		return Build.MANUFACTURER;
 	}
 
 	public static String getOstype() {
@@ -334,7 +336,7 @@ public class TiPlatformHelper
 			}
 
 		} catch (IOException e) {
-			Log.e(LCAT, "Error while trying to access processor info in /proc/cpuinfo", e);
+			Log.e(TAG, "Error while trying to access processor info in /proc/cpuinfo", e);
 		}
 
 		return arch;
@@ -351,40 +353,28 @@ public class TiPlatformHelper
 				WifiInfo wi = wm.getConnectionInfo();
 				if (wi != null) {
 					macaddr = wi.getMacAddress();
-					if (DBG) {
-						Log.d(LCAT, "Found mac address " + macaddr);
-					}
+					Log.d(TAG, "Found mac address " + macaddr, Log.DEBUG_MODE);
 				} else {
-					if (DBG) {
-						Log.d(LCAT, "no WifiInfo, enabling Wifi to get macaddr");
-					}
+					Log.d(TAG, "Mo WifiInfo, enabling Wifi to get mac address", Log.DEBUG_MODE);
 					if (!wm.isWifiEnabled()) {
-						if(wm.setWifiEnabled(true)) {
+						if (wm.setWifiEnabled(true)) {
 							if ((wi = wm.getConnectionInfo()) != null) {
 								macaddr = wi.getMacAddress();
 							} else {
-								if (DBG) {
-									Log.d(LCAT, "still no WifiInfo, assuming no macaddr");
-								}
+								Log.d(TAG, "Still no WifiInfo, assuming no mac address", Log.DEBUG_MODE);
 							}
-							if (DBG) {
-								Log.d(LCAT, "disabling wifi because we enabled it.");
-							}
+							Log.d(TAG, "Disabling wifi because we enabled it.", Log.DEBUG_MODE);
 							wm.setWifiEnabled(false);
 						} else {
-							if (DBG) {
-								Log.d(LCAT, "enabling wifi failed, assuming no macaddr");
-							}
+							Log.d(TAG, "Enabling wifi failed, assuming no mac address", Log.DEBUG_MODE);
 						}
 					} else {
-						if (DBG) {
-							Log.d(LCAT, "wifi already enabled, assuming no macaddr");
-						}
+						Log.d(TAG, "Wifi already enabled, assuming no mac address", Log.DEBUG_MODE);
 					}
 				}
 			}
 		} else {
-			Log.i(LCAT, "Must have android.permission.ACCESS_WIFI_STATE");
+			Log.w(TAG, "Must have android.permission.ACCESS_WIFI_STATE to get mac address.");
 		}
 
 		if (macaddr == null) {
@@ -404,17 +394,15 @@ public class TiPlatformHelper
 				WifiInfo wifiInfo = wifiManager.getConnectionInfo();
 				if (wifiInfo != null) {
 					ipAddress = Formatter.formatIpAddress(wifiInfo.getIpAddress());
-					if (DBG) {
-						Log.d(LCAT, "Found IP address: " + ipAddress);
-					}
+					Log.d(TAG, "Found IP address: " + ipAddress, Log.DEBUG_MODE);
 				} else {
-					Log.e(LCAT, "Unable to access WifiInfo, failed to get IP address");
+					Log.e(TAG, "Unable to access WifiInfo, failed to get IP address");
 				}
 			} else {
-				Log.e(LCAT, "Unable to access the WifiManager, failed to get IP address");
+				Log.e(TAG, "Unable to access the WifiManager, failed to get IP address");
 			}
 		} else {
-			Log.e(LCAT, "Must have android.permission.ACCESS_WIFI_STATE, failed to get IP address");
+			Log.e(TAG, "Must have android.permission.ACCESS_WIFI_STATE, failed to get IP address");
 		}
 
 		return ipAddress;
@@ -430,17 +418,15 @@ public class TiPlatformHelper
 				DhcpInfo dhcpInfo = wifiManager.getDhcpInfo();
 				if(dhcpInfo != null) {
 					netmask = Formatter.formatIpAddress(dhcpInfo.netmask);
-					if (DBG) {
-						Log.d(LCAT, "Found netmask: " + netmask);
-					}
+					Log.d(TAG, "Found netmask: " + netmask, Log.DEBUG_MODE);
 				} else {
-					Log.e(LCAT, "Unable to access DhcpInfo, failed to get netmask");
+					Log.e(TAG, "Unable to access DhcpInfo, failed to get netmask");
 				}
 			} else {
-				Log.e(LCAT, "Unable to access the WifiManager, failed to get netmask");
+				Log.e(TAG, "Unable to access the WifiManager, failed to get netmask");
 			}
 		} else {
-			Log.e(LCAT, "Must have android.permission.ACCESS_WIFI_STATE, failed to get netmask");
+			Log.e(TAG, "Must have android.permission.ACCESS_WIFI_STATE, failed to get netmask");
 		}
 
 		return netmask;
@@ -464,7 +450,7 @@ public class TiPlatformHelper
 					type = -2 /*None*/;
 				}
 			} catch (SecurityException e) {
-				Log.w(LCAT, "Permission has been removed. Cannot determine network type: " + e.getMessage());
+				Log.w(TAG, "Permission has been removed. Cannot determine network type: " + e.getMessage());
 			}
 		}
 

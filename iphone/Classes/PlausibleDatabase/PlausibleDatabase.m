@@ -33,29 +33,29 @@
  * Generic Database Exception
  * @ingroup exceptions
  */
-NSString *TI_PLDatabaseException = @"com.plausiblelabs.pldatabase.exception.generic";
+NSString *PLDatabaseException = @"com.plausiblelabs.pldatabase.exception.generic";
 
 /** Plausible Database NSError Domain
  * @ingroup globals */
-NSString *TI_PLDatabaseErrorDomain = @"com.plausiblelabs.pldatabase";
+NSString *PLDatabaseErrorDomain = @"com.plausiblelabs.pldatabase";
 
 /**
  * Key to retrieve the optionally provided SQL query which caused the error from an NSError in the PLDatabaseErrorDomain, as an NSString
  * @ingroup globals
  */
-NSString *TI_PLDatabaseErrorQueryStringKey = @"com.plausiblelabs.pldatabase.error.query.string";
+NSString *PLDatabaseErrorQueryStringKey = @"com.plausiblelabs.pldatabase.error.query.string";
 
 /**
   * Key to retrieve the native database error code from an NSError in the PLDatabaseErrorDomain, as an NSNumber
   * @ingroup globals
   */
-NSString *TI_PLDatabaseErrorVendorErrorKey = @"com.plausiblelabs.pldatabase.error.vendor.code";
+NSString *PLDatabaseErrorVendorErrorKey = @"com.plausiblelabs.pldatabase.error.vendor.code";
 
 /** 
  * Key to retrieve the native database error string from an NSError in the PLDatabaseErrorDomain, as an NSString
  * @ingroup globals
  */
-NSString *TI_PLDatabaseErrorVendorStringKey = @"com.plausiblelabs.pldatabase.error.vendor.string";
+NSString *PLDatabaseErrorVendorStringKey = @"com.plausiblelabs.pldatabase.error.vendor.string";
 
 /**
  * @internal
@@ -75,7 +75,7 @@ NSString *TI_PLDatabaseErrorVendorStringKey = @"com.plausiblelabs.pldatabase.err
  * @param nativeString The native SQL driver's non-localized error string.
  * @return A NSError that may be returned to the API caller.
  */
-+ (NSError *) errorWithCode: (TI_PLDatabaseError) errorCode localizedDescription: (NSString *) localizedDescription 
++ (NSError *) errorWithCode: (PLDatabaseError) errorCode localizedDescription: (NSString *) localizedDescription 
                 queryString: (NSString *) queryString vendorError: (NSNumber *) vendorError
                 vendorErrorString: (NSString *) vendorErrorString 
 {

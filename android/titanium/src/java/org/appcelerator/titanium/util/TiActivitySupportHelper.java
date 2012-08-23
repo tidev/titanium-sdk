@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -10,7 +10,6 @@ import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.appcelerator.kroll.common.Log;
-import org.appcelerator.kroll.common.TiConfig;
 
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
@@ -22,8 +21,7 @@ import android.content.Intent;
 public class TiActivitySupportHelper
 	implements TiActivitySupport
 {
-	private static final String LCAT = "TiActivitySupportHelper";
-	private static final boolean DBG = TiConfig.LOGD;
+	private static final String TAG = "TiActivitySupportHelper";
 	
 	protected Activity activity;
 	protected HashMap<Integer, TiActivityResultHandler> resultHandlers;
@@ -95,7 +93,7 @@ public class TiActivitySupportHelper
 	 */
 	public void registerResultHandler(int code, TiActivityResultHandler resultHandler) {
 		if (resultHandler == null) {
-			Log.w(LCAT, "Received a null result handler");
+			Log.w(TAG, "Received a null result handler");
 		}
 		resultHandlers.put(code, resultHandler);
 	}

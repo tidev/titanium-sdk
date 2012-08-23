@@ -13,7 +13,6 @@ import java.util.Stack;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollRuntime;
 import org.appcelerator.kroll.common.Log;
-import org.appcelerator.kroll.common.TiConfig;
 import org.appcelerator.kroll.common.TiMessenger;
 import org.appcelerator.titanium.TiLifecycle.OnLifecycleEvent;
 import org.appcelerator.titanium.proxy.ActivityProxy;
@@ -56,7 +55,6 @@ public abstract class TiBaseActivity extends Activity
 	implements TiActivitySupport/*, ITiWindowHandler*/
 {
 	private static final String TAG = "TiBaseActivity";
-	private static final boolean DBG = TiConfig.LOGD;
 
 	private static OrientationChangedListener orientationChangedListener = null;
 
@@ -85,7 +83,7 @@ public abstract class TiBaseActivity extends Activity
 	public void addWindowToStack(TiBaseWindowProxy proxy)
 	{
 		if (windowStack.contains(proxy)) {
-			Log.e(TAG, "Error 37! Window already exists in stack");
+			Log.e(TAG, "Window already exists in stack", Log.DEBUG_MODE);
 			return;
 		}
 		boolean isEmpty = windowStack.empty();
@@ -353,10 +351,7 @@ public abstract class TiBaseActivity extends Activity
 		}
 
 		if (hasSoftInputMode) {
-			if (DBG) {
-				Log.d(TAG, "windowSoftInputMode: " + softInputMode);
-			}
-
+			Log.d(TAG, "windowSoftInputMode: " + softInputMode, Log.DEBUG_MODE);
 			getWindow().setSoftInputMode(softInputMode);
 		}
 
@@ -375,9 +370,7 @@ public abstract class TiBaseActivity extends Activity
 	 */
 	protected void onCreate(Bundle savedInstanceState)
 	{
-		if (DBG) {
-			Log.d(TAG, "Activity " + this + " onCreate");
-		}
+		Log.d(TAG, "Activity " + this + " onCreate", Log.DEBUG_MODE);
 
 		TiApplication tiApp = getTiApp();
 
@@ -551,6 +544,13 @@ public abstract class TiBaseActivity extends Activity
 					}
 					handled = true;
 				}
+				// TODO: Deprecate old event
+				if (window.hasListeners("android:back")) {
+					if (event.getAction() == KeyEvent.ACTION_UP) {
+						window.fireEvent("android:back", null);
+					}
+					handled = true;
+				}
 
 				break;
 			}
@@ -558,6 +558,13 @@ public abstract class TiBaseActivity extends Activity
 				if (window.hasListeners(TiC.EVENT_ANDROID_CAMERA)) {
 					if (event.getAction() == KeyEvent.ACTION_UP) {
 						window.fireEvent(TiC.EVENT_ANDROID_CAMERA, null);
+					}
+					handled = true;
+				}
+				// TODO: Deprecate old event
+				if (window.hasListeners("android:camera")) {
+					if (event.getAction() == KeyEvent.ACTION_UP) {
+						window.fireEvent("android:camera", null);
 					}
 					handled = true;
 				}
@@ -571,6 +578,13 @@ public abstract class TiBaseActivity extends Activity
 					}
 					handled = true;
 				}
+				// TODO: Deprecate old event
+				if (window.hasListeners("android:focus")) {
+					if (event.getAction() == KeyEvent.ACTION_UP) {
+						window.fireEvent("android:focus", null);
+					}
+					handled = true;
+				}
 
 				break;
 			}
@@ -578,6 +592,13 @@ public abstract class TiBaseActivity extends Activity
 				if (window.hasListeners(TiC.EVENT_ANDROID_SEARCH)) {
 					if (event.getAction() == KeyEvent.ACTION_UP) {
 						window.fireEvent(TiC.EVENT_ANDROID_SEARCH, null);
+					}
+					handled = true;
+				}
+				// TODO: Deprecate old event
+				if (window.hasListeners("android:search")) {
+					if (event.getAction() == KeyEvent.ACTION_UP) {
+						window.fireEvent("android:search", null);
 					}
 					handled = true;
 				}
@@ -591,6 +612,13 @@ public abstract class TiBaseActivity extends Activity
 					}
 					handled = true;
 				}
+				// TODO: Deprecate old event
+				if (window.hasListeners("android:volup")) {
+					if (event.getAction() == KeyEvent.ACTION_UP) {
+						window.fireEvent("android:volup", null);
+					}
+					handled = true;
+				}
 
 				break;
 			}
@@ -598,6 +626,13 @@ public abstract class TiBaseActivity extends Activity
 				if (window.hasListeners(TiC.EVENT_ANDROID_VOLDOWN)) {
 					if (event.getAction() == KeyEvent.ACTION_UP) {
 						window.fireEvent(TiC.EVENT_ANDROID_VOLDOWN, null);
+					}
+					handled = true;
+				}
+				// TODO: Deprecate old event
+				if (window.hasListeners("android:voldown")) {
+					if (event.getAction() == KeyEvent.ACTION_UP) {
+						window.fireEvent("android:voldown", null);
 					}
 					handled = true;
 				}
@@ -662,15 +697,15 @@ public abstract class TiBaseActivity extends Activity
 	{
 		super.onNewIntent(intent);
 
-		if (DBG) {
-			Log.d(TAG, "Activity " + this + " onNewIntent");
-		}
-		
+		Log.d(TAG, "Activity " + this + " onNewIntent", Log.DEBUG_MODE);
+
 		if (activityProxy != null) {
 			IntentProxy ip = new IntentProxy(intent);
 			KrollDict data = new KrollDict();
 			data.put(TiC.PROPERTY_INTENT, ip);
 			activityProxy.fireSyncEvent(TiC.EVENT_NEW_INTENT, data);
+			// TODO: Deprecate old event
+			activityProxy.fireSyncEvent("newIntent", data);
 		}
 	}
 
@@ -706,9 +741,7 @@ public abstract class TiBaseActivity extends Activity
 		super.onPause();
 		isResumed = false;
 
-		if (DBG) {
-			Log.d(TAG, "Activity " + this + " onPause");
-		}
+		Log.d(TAG, "Activity " + this + " onPause", Log.DEBUG_MODE);
 
 		TiApplication tiApp = getTiApp();
 
@@ -726,6 +759,7 @@ public abstract class TiBaseActivity extends Activity
 	
 		TiApplication.updateActivityTransitionState(true);
 		tiApp.setCurrentActivity(this, null);
+		TiUIHelper.showSoftKeyboard(getWindow().getDecorView(), false);
 
 		if (this.isFinishing()) {
 			releaseDialogs();
@@ -755,10 +789,11 @@ public abstract class TiBaseActivity extends Activity
 	protected void onResume()
 	{
 		super.onResume();
-
-		if (DBG) {
-			Log.d(TAG, "Activity " + this + " onResume");
+		if (isFinishing()) {
+			return;
 		}
+
+		Log.d(TAG, "Activity " + this + " onResume", Log.DEBUG_MODE);
 
 		TiApplication tiApp = getTiApp();
 		if (tiApp.isRestartPending()) {
@@ -802,14 +837,15 @@ public abstract class TiBaseActivity extends Activity
 	protected void onStart()
 	{
 		super.onStart();
+		if (isFinishing()) {
+			return;
+		}
 
 		// Newer versions of Android appear to turn this on by default.
 		// Turn if off until an activity indicator is shown.
 		setProgressBarIndeterminateVisibility(false);
 
-		if (DBG) {
-			Log.d(TAG, "Activity " + this + " onStart");
-		}
+		Log.d(TAG, "Activity " + this + " onStart", Log.DEBUG_MODE);
 
 		TiApplication tiApp = getTiApp();
 
@@ -859,9 +895,7 @@ public abstract class TiBaseActivity extends Activity
 	{
 		super.onStop();
 
-		if (DBG) {
-			Log.d(TAG, "Activity " + this + " onStop");
-		}
+		Log.d(TAG, "Activity " + this + " onStop", Log.DEBUG_MODE);
 
 		if (getTiApp().isRestartPending()) {
 			if (!isFinishing()) {
@@ -896,10 +930,7 @@ public abstract class TiBaseActivity extends Activity
 	{
 		super.onRestart();
 
-		if (DBG) {
-			Log.d(TAG, "Activity " + this + " onRestart");
-		}
-
+		Log.d(TAG, "Activity " + this + " onRestart", Log.DEBUG_MODE);
 		
 		TiApplication tiApp = getTiApp();
 		if (tiApp.isRestartPending()) {
@@ -931,9 +962,7 @@ public abstract class TiBaseActivity extends Activity
 	 */
 	protected void onDestroy()
 	{
-		if (DBG) {
-			Log.d(TAG, "Activity " + this + " onDestroy");
-		}
+		Log.d(TAG, "Activity " + this + " onDestroy", Log.DEBUG_MODE);
 
 		TiApplication tiApp = getTiApp();
 
@@ -983,7 +1012,7 @@ public abstract class TiBaseActivity extends Activity
 
 		
 		if (layout != null) {
-			Log.e(TAG, "Layout cleanup.");
+			Log.e(TAG, "Layout cleanup.", Log.DEBUG_MODE);
 			layout.removeAllViews();
 			layout = null;
 		}

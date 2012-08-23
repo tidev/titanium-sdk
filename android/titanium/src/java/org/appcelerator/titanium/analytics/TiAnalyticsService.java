@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -32,7 +32,7 @@ import android.os.IBinder;
 
 public class TiAnalyticsService extends Service
 {
-	private final static String LCAT = "TiAnalyticsSvc";
+	private final static String TAG = "TiAnalyticsSvc";
 
 	private final static int BUCKET_SIZE_FAST_NETWORK = 10;
 	@SuppressWarnings("unused")
@@ -69,7 +69,7 @@ public class TiAnalyticsService extends Service
 		super.onStart(intent, startId);
 
 		if (!sending.compareAndSet(false, true)) {
-			Log.i(LCAT, "Send already in progress, skipping intent");
+			Log.i(TAG, "Send already in progress, skipping intent");
 		}
 
 		final TiAnalyticsService self = this;
@@ -77,17 +77,17 @@ public class TiAnalyticsService extends Service
 		Thread t = new Thread(new Runnable(){
 
 			public void run() {
-				Log.w(LCAT, "Analytics Service Started");
+				Log.i(TAG, "Analytics Service Started");
 				try {
 
 					if (connectivityManager == null) {
-						Log.w(LCAT, "Connectivity manager not available.");
+						Log.w(TAG, "Connectivity manager not available.");
 						stopSelf(startId);
 						return;
 					}
 					TiAnalyticsModel model = new TiAnalyticsModel(self);
 					if (!model.hasEvents()) {
-						Log.i(LCAT, "No events to send.");
+						Log.d(TAG, "No events to send.", Log.DEBUG_MODE);
 						stopSelf(startId);
 						return;
 					}
@@ -114,7 +114,7 @@ public class TiAnalyticsService extends Service
 							if (records.length() > 0) {
 								String jsonData = records.toString() + "\n";
 
-								Log.i(LCAT, "Sending " + records.length() + " analytics events.");
+								Log.d(TAG, "Sending " + records.length() + " analytics events.", Log.DEBUG_MODE);
 						   		try {
 							   		HttpPost httpPost = new HttpPost(ANALYTICS_URL);
 							   		StringEntity entity = new StringEntity(jsonData);
@@ -132,7 +132,7 @@ public class TiAnalyticsService extends Service
 						   			@SuppressWarnings("unused")
 									String response = client.execute(httpPost, responseHandler);
 						   		} catch (Throwable t) {
-						   			Log.e(LCAT, "Error posting events: " + t.getMessage(), t);
+									Log.e(TAG, "Error posting events: " + t.getMessage(), t);
 						   			deleteEvents = false;
 						   			records = null;
 						   			break;
@@ -147,20 +147,20 @@ public class TiAnalyticsService extends Service
 
 							events.clear();
 						} else {
-							Log.i(LCAT, "Network unavailable, can't send analytics");
+							Log.w(TAG, "Network unavailable, can't send analytics");
 							//TODO reset alarm?
 							break;
 						}
 					}
 
-					Log.w(LCAT, "Stopping Analytics Service");
+					Log.i(TAG, "Stopping Analytics Service");
 					stopSelf(startId);
 				} catch (Throwable t) {
-					Log.e(LCAT, "Unhandle exception in analytics thread: ", t);
+					Log.e(TAG, "Unhandled exception in analytics thread: ", t);
 					stopSelf(startId);
 				} finally {
 					if (!sending.compareAndSet(true, false)) {
-						Log.w(LCAT, "Expected to be in a sending state. Sending was already false.");
+						Log.w(TAG, "Expected to be in a sending state. Sending was already false.", Log.DEBUG_MODE);
 					}
 				}
 			}
@@ -180,7 +180,7 @@ public class TiAnalyticsService extends Service
 		try {
 			netInfo = connectivityManager.getActiveNetworkInfo();
 		} catch (SecurityException e) {
-			Log.w(LCAT, "Connectivity permissions have been removed from AndroidManifest.xml: " + e.getMessage());
+			Log.w(TAG, "Connectivity permissions have been removed from AndroidManifest.xml: " + e.getMessage());
 		}
 		if (netInfo != null && netInfo.isConnected() && !netInfo.isRoaming()) {
 			result = true;

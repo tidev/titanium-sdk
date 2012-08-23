@@ -1,10 +1,9 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2011-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-
 package org.appcelerator.kroll.runtime.v8;
 
 import java.util.HashMap;
@@ -22,18 +21,14 @@ import android.util.Log;
 
 public class V8Function extends V8Object implements KrollFunction, Handler.Callback
 {
-	private Handler handler;
+	private static final String TAG = "V8Function";
 
 	protected static final int MSG_CALL_SYNC = V8Object.MSG_LAST_ID + 100;
 	protected static final int MSG_LAST_ID = MSG_CALL_SYNC;
 
-	private static final String TAG = "V8Function";
-
-
 	public V8Function(long pointer)
 	{
 		super(pointer);
-		handler = new Handler(TiMessenger.getRuntimeMessenger().getLooper(), this);
 	}
 
 	public Object call(KrollObject krollObject, HashMap args)
@@ -77,6 +72,7 @@ public class V8Function extends V8Object implements KrollFunction, Handler.Callb
 		});
 	}
 
+	@Override
 	public boolean handleMessage(Message message)
 	{
 		switch (message.what) {
@@ -89,11 +85,27 @@ public class V8Function extends V8Object implements KrollFunction, Handler.Callb
 			}
 		}
 
-		return false;
+		return super.handleMessage(message);
 	}
 
+	@Override
+	public void doRelease() {
+		long functionPointer = getPointer();
+		if (functionPointer == 0) {
+			return;
+		}
+
+		nativeRelease(functionPointer);
+		KrollRuntime.suggestGC();
+	}
+
+	@Override
+	protected void finalize() throws Throwable {
+		super.finalize();
+	}
 
 	// JNI method prototypes
 	private native Object nativeInvoke(long thisPointer, long functionPointer, Object[] functionArgs);
+	private static native void nativeRelease(long functionPointer);
 }
 

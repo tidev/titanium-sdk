@@ -4,12 +4,10 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-
 package ti.modules.titanium.ui.widget.webview;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.common.Log;
-import org.appcelerator.kroll.common.TiConfig;
 import org.appcelerator.titanium.TiC;
 
 import ti.modules.titanium.media.TiVideoActivity;
@@ -24,8 +22,7 @@ import android.webkit.WebViewClient;
 
 public class TiWebViewClient extends WebViewClient
 {
-	private static final String LCAT = "TiWVC";
-	private static final boolean DBG = TiConfig.LOGD;
+	private static final String TAG = "TiWVC";
 
 	private TiUIWebView webView;
 	private TiWebViewBinding binding;
@@ -85,26 +82,24 @@ public class TiWebViewClient extends WebViewClient
 	@Override
 	public boolean shouldOverrideUrlLoading(final WebView view, String url)
 	{
-		if (DBG) {
-			Log.d(LCAT, "url=" + url);
-		}
+		Log.d(TAG, "url=" + url, Log.DEBUG_MODE);
 
 		if (URLUtil.isAssetUrl(url) || URLUtil.isContentUrl(url) || URLUtil.isFileUrl(url)) {
 			// go through the proxy to ensure we're on the UI thread
 			webView.getProxy().setPropertyAndFire(TiC.PROPERTY_URL, url);
 			return true;
 		} else if(url.startsWith(WebView.SCHEME_TEL)) {
-			Log.i(LCAT, "Launching dialer for " + url);
+			Log.i(TAG, "Launching dialer for " + url, Log.DEBUG_MODE);
 			Intent dialer = Intent.createChooser(new Intent(Intent.ACTION_DIAL, Uri.parse(url)), "Choose Dialer");
 			webView.getProxy().getActivity().startActivity(dialer);
 			return true;
 		} else if (url.startsWith(WebView.SCHEME_MAILTO)) {
-			Log.i(LCAT, "Launching mailer for " + url);
+			Log.i(TAG, "Launching mailer for " + url, Log.DEBUG_MODE);
 			Intent mailer = Intent.createChooser(new Intent(Intent.ACTION_SENDTO, Uri.parse(url)), "Send Message");
 			webView.getProxy().getActivity().startActivity(mailer);
 			return true;
 		} else if (url.startsWith(WebView.SCHEME_GEO)) {
-			Log.i(LCAT, "Launching app for " + url);
+			Log.i(TAG, "Launching app for " + url, Log.DEBUG_MODE);
 			/*geo:latitude,longitude
 			geo:latitude,longitude?z=zoom
 			geo:0,0?q=my+street+address

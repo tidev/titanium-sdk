@@ -49,7 +49,7 @@
  * either re-execute a statement or rebind its parameters without first closing any PLResultSet previously
  * returned by the statement will throw an exception.
  */
-@protocol TI_PLPreparedStatement
+@protocol PLPreparedStatement
 
 /**
  * Returns the number of parameters in the prepared statement.
@@ -100,7 +100,7 @@
  *
  * @return PLResultSet on success, or nil on failure.
  */
-- (NSObject<TI_PLResultSet> *) executeQuery;
+- (NSObject<PLResultSet> *) executeQuery;
 
 
 /**
@@ -112,7 +112,7 @@
  * parameter, and no error information will be provided.
  * @return PLResultSet on success, or nil on failure.
  */
-- (NSObject<TI_PLResultSet> *) executeQueryAndReturnError: (NSError **) outError;
+- (NSObject<PLResultSet> *) executeQueryAndReturnError: (NSError **) outError;
 
 /**
  * Close the prepared statement, and return any held database resources. After calling,

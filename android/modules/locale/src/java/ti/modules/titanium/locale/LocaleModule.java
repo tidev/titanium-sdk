@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2010-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -11,7 +11,6 @@ import java.util.Locale;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
-import org.appcelerator.kroll.common.TiConfig;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.util.TiPlatformHelper;
@@ -22,8 +21,7 @@ import android.telephony.PhoneNumberUtils;
 @Kroll.module
 public class LocaleModule extends KrollModule
 {
-	private static final String LCAT = "LocaleModule";
-	private static final boolean DBG = TiConfig.LOGD;
+	private static final String TAG = "LocaleModule";
 
 	public LocaleModule()
 	{
@@ -88,7 +86,7 @@ public class LocaleModule extends KrollModule
 	@Kroll.method @Kroll.setProperty
 	public void setLanguage(String language) 
 	{
-		Log.w(LCAT, "Locale.setLanguage not supported for Android.");
+		Log.w(TAG, "Locale.setLanguage not supported for Android.");
 	}
 
 	@Kroll.method
@@ -102,12 +100,10 @@ public class LocaleModule extends KrollModule
 				return defaultValue;
 			}
 		} catch (TiRHelper.ResourceNotFoundException e) {
-			if (DBG) {
-				Log.d(LCAT, "Resource string with key '" + key + "' not found.  Returning default value.");
-			}
+			Log.d(TAG, "Resource string with key '" + key + "' not found.  Returning default value.", Log.DEBUG_MODE);
 			return defaultValue;
 		} catch (Exception e) {
-			Log.e(LCAT, "Error trying to get resource string with key '" + key + "':", e);
+			Log.e(TAG, "Error trying to get resource string with key '" + key + "':", e);
 			return defaultValue;
 		}
 	}

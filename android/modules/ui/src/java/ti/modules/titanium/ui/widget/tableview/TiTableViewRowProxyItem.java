@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -11,7 +11,6 @@ import java.util.HashMap;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.common.Log;
-import org.appcelerator.kroll.common.TiConfig;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiDimension;
@@ -34,8 +33,7 @@ import android.widget.ImageView;
 
 public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 {
-	private static final String LCAT = "TitaniumTableViewItem";
-	private static final boolean DBG = TiConfig.LOGD;
+	private static final String TAG = "TitaniumTableViewItem";
 
 	private static final int LEFT_MARGIN = 5;
 	private static final int RIGHT_MARGIN = 7;
@@ -88,9 +86,7 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 	}
 
 	protected TiViewProxy addViewToOldRow(int index, TiUIView titleView, TiViewProxy newViewProxy) {
-		if (DBG) {
-			Log.w(LCAT, newViewProxy + " was added an old style row, reusing the title TiUILabel");
-		}
+		Log.w(TAG, newViewProxy + " was added an old style row, reusing the title TiUILabel", Log.DEBUG_MODE);
 		LabelProxy label = new LabelProxy();
 		label.handleCreationDict(titleView.getProxy().getProperties());
 		label.setView(titleView);
@@ -347,9 +343,7 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 				} else {
 					h = Math.max(minRowHeight, height.getAsPixels(this));
 				}
-				if (DBG) {
-					Log.d(LCAT, "Row content measure (" + adjustedWidth + "x" + h + ")");
-				}
+				Log.d(TAG, "Row content measure (" + adjustedWidth + "x" + h + ")", Log.DEBUG_MODE);
 				measureChild(content, MeasureSpec.makeMeasureSpec(adjustedWidth, wMode), MeasureSpec.makeMeasureSpec(h, hMode));
 			}
 		}

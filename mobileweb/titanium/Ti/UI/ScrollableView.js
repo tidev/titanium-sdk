@@ -67,7 +67,7 @@ define(["Ti/_/browser", "Ti/_/declare", "Ti/_/UI/KineticScrollView", "Ti/_/lang"
 				this._showView(currentPage - 1);
 				this._showView(currentPage);
 				this._showView(currentPage + 1);
-				this.fireEvent("dragStart");
+				this.fireEvent("dragstart");
 			}
 		},
 
@@ -120,7 +120,7 @@ define(["Ti/_/browser", "Ti/_/declare", "Ti/_/UI/KineticScrollView", "Ti/_/lang"
 				destinationPosition = -destination._measuredLeft;
 
 				// Fire the drag end event
-				self.fireEvent("dragEnd", {
+				self.fireEvent("dragend", {
 					currentPage: destinationIndex,
 					view: destination
 				});
@@ -128,14 +128,14 @@ define(["Ti/_/browser", "Ti/_/declare", "Ti/_/UI/KineticScrollView", "Ti/_/lang"
 				// Animate the view. Note: the 1.724 constance was calculated, not estimated. It is NOT for tweaking.
 				// If tweaking is needed, tweak the velocity algorithm in KineticScrollView.
 				self._animateToPosition(destinationPosition, 0, Math.abs(1.724 * 
-						(destinationPosition - self._currentTranslationX) / velocityX), "ease-out", function(){
+						(destinationPosition - self._currentTranslationX) / velocityX), UI.ANIMATION_CURVE_EASE_OUT, function(){
 					destinationIndex !== currentPage - 1 && self._hideView(currentPage - 1);
 					destinationIndex !== currentPage && self._hideView(currentPage);
 					destinationIndex !== currentPage + 1 && self._hideView(currentPage + 1);
 					self.properties.__values__.currentPage = destinationIndex;
 					self._showView(destinationIndex);
 					setTimeout(function(){
-						self.fireEvent("scrollEnd",{
+						self.fireEvent("scrollend",{
 							currentPage: destinationIndex,
 							view: destination
 						});
@@ -241,7 +241,7 @@ define(["Ti/_/browser", "Ti/_/declare", "Ti/_/UI/KineticScrollView", "Ti/_/lang"
 
 				// Animate the views
 				self._updatePagingControl(viewIndex);
-				self._animateToPosition(destination, 0, duration, "ease-in-out", function(){
+				self._animateToPosition(destination, 0, duration, UI.ANIMATION_CURVE_EASE_IN_OUT, function(){
 					self.properties.__values__.currentPage = viewIndex;
 					if (currentPage < viewIndex) {
 						for(i = currentPage; i < viewIndex; i++) {
@@ -257,7 +257,7 @@ define(["Ti/_/browser", "Ti/_/declare", "Ti/_/UI/KineticScrollView", "Ti/_/lang"
 						self._removeViewFromList(self._viewToRemoveAfterScroll);
 						self._viewToRemoveAfterScroll = -1;
 					}
-					self.fireEvent("scrollEnd",{
+					self.fireEvent("scrollend",{
 						currentPage: viewIndex,
 						view: self.views[viewIndex]
 					});

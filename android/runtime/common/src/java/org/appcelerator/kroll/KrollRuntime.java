@@ -9,6 +9,7 @@ package org.appcelerator.kroll;
 import java.lang.ref.WeakReference;
 import java.util.concurrent.CountDownLatch;
 
+import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.common.TiMessenger;
 import org.appcelerator.kroll.util.KrollAssetHelper;
 
@@ -16,7 +17,6 @@ import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
-import android.util.Log;
 
 /**
  * The common Javascript runtime instance that Titanium interacts with.
@@ -43,6 +43,7 @@ public abstract class KrollRuntime implements Handler.Callback
 
 	private static KrollRuntime instance;
 	private static int activityRefCount = 0;
+	private static int serviceRefCount = 0;
 
 	private WeakReference<KrollApplication> krollApplication;
 	private KrollRuntimeThread thread;
@@ -178,6 +179,8 @@ public abstract class KrollRuntime implements Handler.Callback
 	public void dispose()
 	{
 
+		Log.d(TAG, "Disposing runtime.", Log.DEBUG_MODE);
+
 		// Set state to released when since we have not fully disposed of it yet
 		synchronized (runtimeState) {
 			runtimeState = State.RELEASED;
@@ -186,7 +189,7 @@ public abstract class KrollRuntime implements Handler.Callback
 		// Cancel all timers associated with the app
 		KrollApplication app = krollApplication.get();
 		if (app != null) {
-			app.cancelTimers(thread);
+			app.cancelTimers();
 		}
 
 		if (isRuntimeThread()) {
@@ -303,36 +306,42 @@ public abstract class KrollRuntime implements Handler.Callback
 		}
 	}
 
+	private static void syncInit()
+	{
+		waitForInit();
+
+		// When the process is re-entered, it is either in the RELEASED or DISPOSED state. If it is in the RELEASED
+		// state, that means we have not disposed of the runtime from the previous launch. In that case, we set the
+		// state to RELAUNCHED. If we are in the DISPOSED state, we need to re-initialize the runtime here.
+		synchronized (runtimeState) {
+			if (runtimeState == State.DISPOSED) {
+				instance.initLatch = new CountDownLatch(1);
+				instance.handler.sendEmptyMessage(MSG_INIT);
+
+			} else if (runtimeState == State.RELEASED) {
+				runtimeState = State.RELAUNCHED;
+			}
+		}
+
+		waitForInit();
+	}
+
 	// The runtime instance keeps an internal reference count of all Titanium activities
-	// that have been opened by the TiApplication. When the ref count drops to 0,
-	// (i.e. all activities have been destroyed), we dispose of all runtime data.
+	// and all Titanium services that have been opened/started by the application.
+	// When the ref counts for both of them drop to 0, then we know there is nothing left
+	// to execute on the runtime, and we can therefore dispose of it.
 	public static void incrementActivityRefCount()
 	{
 		activityRefCount++;
-		if (activityRefCount == 1 && instance != null) {
-			waitForInit();
-
-			// When the process is re-entered, it is either in the RELEASED or DISPOSED state. If it is in the RELEASED
-			// state, that means we have not disposed of the runtime from the previous launch. In that case, we set the
-			// state to RELAUNCHED. If we are in the DISPOSED state, we need to re-initialize the runtime here.
-			synchronized (runtimeState) {
-				if (runtimeState == State.DISPOSED) {
-					instance.initLatch = new CountDownLatch(1);
-					instance.handler.sendEmptyMessage(MSG_INIT);
-
-				} else if (runtimeState == State.RELEASED) {
-					runtimeState = State.RELAUNCHED;
-				}
-			}
-
-			waitForInit();
+		if ((activityRefCount + serviceRefCount) == 1 && instance != null) {
+			syncInit();
 		}
 	}
 
 	public static void decrementActivityRefCount()
 	{
 		activityRefCount--;
-		if (activityRefCount > 0 || instance == null) {
+		if ((activityRefCount + serviceRefCount) > 0 || instance == null) {
 			return;
 		}
 
@@ -342,6 +351,30 @@ public abstract class KrollRuntime implements Handler.Callback
 	public static int getActivityRefCount()
 	{
 		return activityRefCount;
+	}
+
+	// Similar to {@link #incrementActivityRefCount} but for a Titanium Service.
+	public static void incrementServiceRefCount()
+	{
+		serviceRefCount++;
+		if ((activityRefCount + serviceRefCount) == 1 && instance != null) {
+			syncInit();
+		}
+	}
+
+	public static void decrementServiceRefCount()
+	{
+		serviceRefCount--;
+		if ((activityRefCount + serviceRefCount) > 0 || instance == null) {
+			return;
+		}
+
+		instance.dispose();
+	}
+
+	public static int getServiceRefCount()
+	{
+		return serviceRefCount;
 	}
 
 	private void internalDispose()

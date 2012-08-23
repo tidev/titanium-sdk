@@ -1,10 +1,9 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-
 package ti.modules.titanium.facebook;
 
 import org.appcelerator.kroll.KrollDict;
@@ -27,7 +26,7 @@ import android.widget.ImageButton;
 
 public class LoginButton extends TiUIView implements TiFacebookStateListener
 {
-	private static final String LCAT = "TiLoginButton";
+	private static final String TAG = "TiLoginButton";
 	private static final int FB_BLUE = 0xFF6D84B4;
 	private FacebookModule facebook = null;
 	private boolean wide;
@@ -125,7 +124,7 @@ public class LoginButton extends TiUIView implements TiFacebookStateListener
 			btn.setBackgroundColor(Color.TRANSPARENT);
 			btn.setImageResource(resid);
 		} else {
-			Log.w(LCAT, "Facebook resource image could not be located!  State: " + stateDescription);
+			Log.w(TAG, "Facebook resource image could not be located!  State: " + stateDescription);
 			// At least give it a "facebook blue" background so it can be seen.
 			btn.setBackgroundColor(FB_BLUE);
 		}

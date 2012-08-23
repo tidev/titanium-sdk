@@ -13,10 +13,9 @@ define(["Ti/_/declare", "Ti/_/UI/KineticScrollView", "Ti/_/style", "Ti/_/lang", 
 
 		constructor: function(args) {
 
-			var self = this,
-				scrollbarTimeout,
+			var scrollbarTimeout,
 				contentContainer;
-			self._initKineticScrollView(contentContainer = UI.createView({
+			this._initKineticScrollView(contentContainer = UI.createView({
 				width: UI.INHERIT,
 				height: UI.SIZE,
 				left: 0,
@@ -24,23 +23,24 @@ define(["Ti/_/declare", "Ti/_/UI/KineticScrollView", "Ti/_/style", "Ti/_/lang", 
 				layout: UI._LAYOUT_CONSTRAINING_VERTICAL
 			}), "vertical", "vertical", 1);
 
-			contentContainer._add(self._header = UI.createView({
+			contentContainer._add(this._header = UI.createView({
 				height: UI.SIZE, 
 				width: UI.INHERIT, 
 				layout: UI._LAYOUT_CONSTRAINING_VERTICAL
 			}));
-			contentContainer._add(self._sections = UI.createView({
+			contentContainer._add(this._sections = UI.createView({
 				height: UI.SIZE, 
 				width: UI.INHERIT, 
 				layout: UI._LAYOUT_CONSTRAINING_VERTICAL
 			}));
-			contentContainer._add(self._footer = UI.createView({
+			contentContainer._add(this._footer = UI.createView({
 				height: UI.SIZE, 
 				width: UI.INHERIT, 
 				layout: UI._LAYOUT_CONSTRAINING_VERTICAL
 			}));
 
-			self.data = [];
+			this.data = [];
+			this.constants.__values__.sections = [];
 		},
 
 		_handleMouseWheel: function() {
@@ -48,7 +48,7 @@ define(["Ti/_/declare", "Ti/_/UI/KineticScrollView", "Ti/_/style", "Ti/_/lang", 
 		},
 
 		_handleDragStart: function(e) {
-			this.fireEvent("dragStart");
+			this.fireEvent("dragstart");
 		},
 
 		_handleDrag: function(e) {
@@ -62,13 +62,13 @@ define(["Ti/_/declare", "Ti/_/UI/KineticScrollView", "Ti/_/style", "Ti/_/lang", 
 				var distance = velocityY * velocityY / (1.724 * deceleration) * (velocityY < 0 ? -1 : 1),
 					duration = Math.abs(velocityY) / deceleration,
 					translation = Math.min(0, Math.max(self._minTranslationY, self._currentTranslationY + distance));
-				self.fireEvent("dragEnd",{
+				self.fireEvent("dragend",{
 					decelerate: true
 				});
-				self._animateToPosition(self._currentTranslationX, translation, duration, "ease-out", function() {
+				self._animateToPosition(self._currentTranslationX, translation, duration, UI.ANIMATION_CURVE_EASE_OUT, function() {
 					self._setTranslation(self._currentTranslationX, translation);
 					self._endScrollBars();
-					self._fireScrollEvent("scrollEnd", e);
+					self._fireScrollEvent("scrollend", e);
 				});
 			}
 			
@@ -233,8 +233,8 @@ define(["Ti/_/declare", "Ti/_/UI/KineticScrollView", "Ti/_/style", "Ti/_/lang", 
 		
 		_removeRow: function(index) {
 			var location = this._calculateLocation(index);
-			this._unpublish(location.section._rows._children[2 * location.localIndex + 1]);
 			if (location) {
+				this._unpublish(location.section._rows._children[2 * location.localIndex + 1]);
 				location.section._removeAt(location.localIndex);
 			}
 		},
@@ -242,6 +242,7 @@ define(["Ti/_/declare", "Ti/_/UI/KineticScrollView", "Ti/_/style", "Ti/_/lang", 
 		appendRow: function(value) {
 			if (!this._currentSection) {
 				this._sections._add(this._currentSection = UI.createTableViewSection({_tableView: this}));
+				this.sections.push(this._currentSection);
 				this._sections._add(this._createSeparator());
 				this.data.push(this._currentSection);
 			}
@@ -277,6 +278,62 @@ define(["Ti/_/declare", "Ti/_/UI/KineticScrollView", "Ti/_/style", "Ti/_/lang", 
 			this._setTranslation(0,-top);
 		},
 		
+		_insertSection: function(sections, index) {
+			!is(sections,"Array") && (sections = [sections]);
+			var i = 0,
+				len = sections.length;
+			for(; i < len; i++) {
+				if (!isDef(sections[i].declaredClass) || sections[i].declaredClass != "Ti.UI.TableViewSection") {
+					sections[i] = UI.createTableViewSection(sections[i]);
+				}
+				this._sections._insertAt(sections[i], index + i);
+				if (index === len) {
+					this.sections.push(sections[i]);
+				} else {
+					this.sections.splice(index,0,sections[i]);
+				}
+			}
+			this._refreshSections();
+		},
+		
+		_removeSection: function(index) {
+			this._sections._remove(this.sections[index]);
+			this.sections.splice(index,1);
+		},
+		
+		appendSection: function(section) {
+			this._insertSection(section, this.sections.length);
+		},
+		
+		deleteSection: function(section) {
+			if (section in this.sections) {
+				this._sections._remove(this.sections[section]);
+				this.sections.splice(section,1);
+			}
+		},
+		
+		insertSectionBefore: function(index, section) {
+			this._insertSection(section, index);
+		},
+		
+		insertSectionAfter: function(index, section) {
+			this._insertSection(section, index + 1);
+		},
+		
+		updateSection: function(index, section) {
+			this._removeSection(index);
+			this._insertSection(section, index);
+		},
+		
+		constants: {
+			sectionCount: {
+				get: function() {
+					return this.sections.length;
+				}
+			},			
+			sections: void 0,
+		},
+		
 		properties: {
 			data: {
 				set: function(value) {
@@ -286,6 +343,7 @@ define(["Ti/_/declare", "Ti/_/UI/KineticScrollView", "Ti/_/style", "Ti/_/lang", 
 						
 						// Remove all of the previous sections
 						this._sections._removeAllChildren();
+						this.constants.__values__.sections = [];
 						this._currentSection = void 0;
 						
 						// Convert any object literals to TableViewRow instances
@@ -300,15 +358,13 @@ define(["Ti/_/declare", "Ti/_/UI/KineticScrollView", "Ti/_/style", "Ti/_/lang", 
 							if (value[i].declaredClass === "Ti.UI.TableViewRow") {
 								// Check if we need a default section
 								if (!this._currentSection) {
-									this._sections._add(this._currentSection = UI.createTableViewSection({_tableView: this}));
-									this._sections._add(this._createSeparator());
+									this.appendSection(this._currentSection = UI.createTableViewSection({_tableView: this}));
 									retval.push(this._currentSection);
 								}
 								this._currentSection.add(value[i]); // We call the normal .add() method to hook into the sections proper add mechanism
 							} else if (value[i].declaredClass === "Ti.UI.TableViewSection") {
 								value[i]._tableView = this;
-								this._sections._add(this._currentSection = value[i]);
-								this._sections._add(this._createSeparator());
+								this.appendSection(this._currentSection = value[i]);
 								retval.push(this._currentSection);
 							}
 							this._publish(value[i]);
@@ -369,6 +425,7 @@ define(["Ti/_/declare", "Ti/_/UI/KineticScrollView", "Ti/_/style", "Ti/_/lang", 
 				post: "_refreshSections",
 				value: "50px"
 			},
+			
 			separatorColor: {
 				post: "_refreshSections",
 				value: "lightGrey"

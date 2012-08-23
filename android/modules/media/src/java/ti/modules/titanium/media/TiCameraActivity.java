@@ -1,3 +1,9 @@
+/**
+ * Appcelerator Titanium Mobile
+ * Copyright (c) 2012 by Appcelerator, Inc. All Rights Reserved.
+ * Licensed under the terms of the Apache Public License
+ * Please see the LICENSE included with this distribution for details.
+ */
 package ti.modules.titanium.media;
 
 import java.io.File;
@@ -9,6 +15,7 @@ import java.util.List;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollFunction;
 import org.appcelerator.kroll.KrollObject;
+import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiBlob;
@@ -26,7 +33,6 @@ import android.hardware.Camera.PictureCallback;
 import android.hardware.Camera.Size;
 import android.net.Uri;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -34,7 +40,7 @@ import android.view.ViewGroup.LayoutParams;
 import android.widget.FrameLayout;
 
 public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Callback {
-	private static final String LCAT = "TiCameraActivity";
+	private static final String TAG = "TiCameraActivity";
 	private static Camera camera;
 
 	private TiViewProxy localOverlayProxy = null;
@@ -166,7 +172,7 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 			camera.release();
 			camera = null;
 		} catch (Throwable t) {
-			Log.d(LCAT, "Camera is not open, unable to release");
+			Log.d(TAG, "Camera is not open, unable to release", Log.DEBUG_MODE);
 		}
 
 		cameraActivity = null;
@@ -214,7 +220,7 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 		// again and just ignore the aspect ratio. We will just try to find
 		// the best size that fits best.
 		if (optimalSize == null) {
-			Log.w(LCAT, "No preview size found that matches the aspect ratio.");
+			Log.w(TAG, "No preview size found that matches the aspect ratio.", Log.DEBUG_MODE);
 			minDiff = Double.MAX_VALUE;
 			for (Size size : supportedPreviewSizes) {
 				if (Math.abs(size.height - targetHeight) < minDiff) {
@@ -229,7 +235,7 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 
 	private static void onError(int code, String message) {
 		if (errorCallback == null) {
-			Log.e(LCAT, message);
+			Log.e(TAG, message);
 			return;
 		}
 
@@ -248,10 +254,10 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 			imageOut.close();
 
 		} catch (FileNotFoundException e) {
-			Log.e(LCAT, "Failed to open gallery image file: " + e.getMessage());
+			Log.e(TAG, "Failed to open gallery image file: " + e.getMessage());
 
 		} catch (IOException e) {
-			Log.e(LCAT, "Failed to write image to gallery file: " + e.getMessage());
+			Log.e(TAG, "Failed to write image to gallery file: " + e.getMessage());
 		}
 
 		// Notify media scanner to add image to gallery.

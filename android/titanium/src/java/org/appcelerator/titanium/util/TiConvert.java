@@ -17,7 +17,6 @@ import java.util.TimeZone;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.common.Log;
-import org.appcelerator.kroll.common.TiConfig;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiC;
@@ -31,14 +30,12 @@ import org.json.JSONObject;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 
-
 /**
  * Utility class for type conversions.
  */
 public class TiConvert
 {
-	private static final String LCAT = "TiConvert";
-	private static final boolean DBG = TiConfig.LOGD;
+	private static final String TAG = "TiConvert";
 
 	public static final String ASSET_URL = "file:///android_asset/"; // class scope on URLUtil
 	public static final String JSON_DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
@@ -64,13 +61,11 @@ public class TiConvert
 			int len = a.length;
 			if (len > 0) {
 				Object v = a[0];
-				if (DBG) {
-					if (v != null) {
-						Log.w(LCAT, "Array member is type: " + v.getClass().getSimpleName());
+				if (v != null) {
+					Log.w(TAG, "Array member is type: " + v.getClass().getSimpleName(), Log.DEBUG_MODE);
 
-					} else {
-						Log.w(LCAT, "First member of array is null");
-					}
+				} else {
+					Log.w(TAG, "First member of array is null", Log.DEBUG_MODE);
 				}
 
 				if (v != null && v instanceof String) {
@@ -713,11 +708,11 @@ public class TiConvert
 					json.put(key, toJSONArray((Object[]) o));
 
 				} else {
-					Log.w(LCAT, "Unsupported type " + o.getClass());
+					Log.w(TAG, "Unsupported type " + o.getClass());
 				}
 
 			} catch (JSONException e) {
-				Log.w(LCAT, "Unable to JSON encode key: " + key);
+				Log.w(TAG, "Unable to JSON encode key: " + key);
 			}
 		}
 
@@ -734,10 +729,7 @@ public class TiConvert
 		JSONArray ja = new JSONArray();
 		for (Object o : a) {
 			if (o == null) {
-				if (DBG) {
-					Log.w(LCAT, "Skipping null value in array");
-				}
-
+				Log.w(TAG, "Skipping null value in array", Log.DEBUG_MODE);
 				continue;
 			}
 
@@ -764,7 +756,7 @@ public class TiConvert
 				ja.put(toJSONArray((Object[]) o));
 
 			} else {
-				Log.w(LCAT, "Unsupported type " + o.getClass());
+				Log.w(TAG, "Unsupported type " + o.getClass());
 			}
 		}
 

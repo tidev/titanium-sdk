@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -20,8 +20,7 @@ import ti.modules.titanium.ui.TableViewSectionProxy;
 
 public class TableViewModel
 {
-	private static final String LCAT = "TableViewModel";
-	private static final boolean DUMP = false;
+	private static final String TAG = "TableViewModel";
 
 	// Flat view
 
@@ -127,7 +126,7 @@ public class TableViewModel
 							item.className = TableViewProxy.CLASSNAME_HEADERVIEW;
 							viewModel.add(item);
 						} else {
-							Log.e(LCAT, "headerView must be of type TiViewProxy");
+							Log.e(TAG, "HeaderView must be of type TiViewProxy");
 						}
 					}
 					for (TableViewRowProxy row : section.getRows()) {

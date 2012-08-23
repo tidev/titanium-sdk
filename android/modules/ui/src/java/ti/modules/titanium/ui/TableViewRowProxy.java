@@ -17,6 +17,7 @@ import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.view.TiUIView;
 
+import ti.modules.titanium.ui.widget.TiUITableView;
 import ti.modules.titanium.ui.widget.tableview.TableViewModel;
 import ti.modules.titanium.ui.widget.tableview.TableViewModel.Item;
 import ti.modules.titanium.ui.widget.tableview.TiTableViewRowProxyItem;
@@ -37,7 +38,7 @@ propertyAccessors = {
 })
 public class TableViewRowProxy extends TiViewProxy
 {
-	private static final String LCAT = "TableViewRowProxy";
+	private static final String TAG = "TableViewRowProxy";
 
 	protected ArrayList<TiViewProxy> controls;
 	protected TiTableViewRowProxyItem tableViewItem;
@@ -70,11 +71,11 @@ public class TableViewRowProxy extends TiViewProxy
 	{
 		super.handleCreationDict(options);
 		if (options.containsKey(TiC.PROPERTY_SELECTED_BACKGROUND_COLOR)) {
-			Log.w(LCAT, "selectedBackgroundColor is deprecated, use backgroundSelectedColor instead");
+			Log.w(TAG, "selectedBackgroundColor is deprecated, use backgroundSelectedColor instead");
 			setProperty(TiC.PROPERTY_BACKGROUND_SELECTED_COLOR, options.get(TiC.PROPERTY_SELECTED_BACKGROUND_COLOR));
 		}
 		if (options.containsKey(TiC.PROPERTY_SELECTED_BACKGROUND_IMAGE)) {
-			Log.w(LCAT, "selectedBackgroundImage is deprecated, use backgroundSelectedImage instead");
+			Log.w(TAG, "selectedBackgroundImage is deprecated, use backgroundSelectedImage instead");
 			setProperty(TiC.PROPERTY_BACKGROUND_SELECTED_IMAGE, options.get(TiC.PROPERTY_SELECTED_BACKGROUND_IMAGE));
 		}
 	}
@@ -164,6 +165,10 @@ public class TableViewRowProxy extends TiViewProxy
 		if (msg.what == MSG_SET_DATA) {
 			if (tableViewItem != null) {
 				tableViewItem.setRowData(this);
+				// update/refresh table view when a row's data changed.
+				TiUITableView table = getTable().getTableView();
+				table.setModelDirty();
+				table.updateView();
 			}
 			return true;
 		}

@@ -18,12 +18,6 @@ events:
   - name: hide
     summary: Fired when the popover is hidden.
     properties:
-      - name: globalPoint
-        summary: Coordinates `x` and `y` of the event from the `source` view's coordinate system.
-        deprecated:
-            since: "1.8.0"
-        platforms: [iphone, ipad]
-            
       - name: x
         summary: X coordinate of the event from the `source` view's coordinate system.
       

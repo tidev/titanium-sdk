@@ -4,7 +4,6 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-
 package ti.modules.titanium.geolocation;
 
 import java.io.UnsupportedEncodingException;
@@ -24,7 +23,6 @@ import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.common.Log;
-import org.appcelerator.kroll.common.TiConfig;
 import org.appcelerator.kroll.common.TiMessenger;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
@@ -42,7 +40,6 @@ import android.os.AsyncTask;
 import android.os.Handler;
 import android.os.Message;
 
-
 public class TiLocation implements Handler.Callback
 {
 	public static final int ERR_POSITION_UNAVAILABLE = 6;
@@ -53,7 +50,6 @@ public class TiLocation implements Handler.Callback
 	public LocationManager locationManager;
 
 	private static final String TAG = "TiLocation";
-	private static final boolean DBG = TiConfig.LOGD;
 	private static final String BASE_GEO_URL = "http://api.appcelerator.net/p/v1/geo?";
 
 	private String mobileId;
@@ -64,12 +60,10 @@ public class TiLocation implements Handler.Callback
 	private List<String> knownProviders;
 	private Handler runtimeHandler;
 
-
 	public interface GeocodeResponseHandler
 	{
 		public abstract void handleGeocodeResponse(HashMap<String, Object> geocodeResponse);
 	}
-
 
 	public TiLocation()
 	{
@@ -106,7 +100,7 @@ public class TiLocation implements Handler.Callback
 	{
 		List<String> providerNames = locationManager.getProviders(true);
 
-		if (DBG) {
+		if (Log.isDebugModeEnabled()) {
 			Log.i(TAG, "Enabled location provider count: " + providerNames.size());
 
 			for (String providerName : providerNames) {
@@ -134,10 +128,10 @@ public class TiLocation implements Handler.Callback
 				lastKnownLocation = locationManager.getLastKnownLocation(provider);
 
 			} catch (IllegalArgumentException e) {
-				Log.e(TAG, "unable to get last know location for [" + provider + "], provider is null");
+				Log.e(TAG, "Unable to get last know location for [" + provider + "], provider is null");
 
 			} catch (SecurityException e) {
-				Log.e(TAG, "unable to get last know location for [" + provider + "], permission denied");
+				Log.e(TAG, "Unable to get last know location for [" + provider + "], permission denied");
 			}
 
 			if (lastKnownLocation == null) {
@@ -178,7 +172,7 @@ public class TiLocation implements Handler.Callback
 			}
 
 		} else {
-			Log.e(TAG, "unable to forward geocode, address is null");
+			Log.e(TAG, "Unable to forward geocode, address is null");
 		}
 	}
 
@@ -194,7 +188,7 @@ public class TiLocation implements Handler.Callback
 			message.sendToTarget();
 
 		} else {
-			Log.e(TAG, "unable to reverse geocode, geocoder url is null");
+			Log.e(TAG, "Unable to reverse geocode, geocoder url is null");
 		}
 	}
 
@@ -218,7 +212,7 @@ public class TiLocation implements Handler.Callback
 			url = sb.toString();
 
 		} catch (UnsupportedEncodingException e) {
-			Log.e(TAG, "unable to encode query to utf-8: " + e.getMessage());
+			Log.e(TAG, "Unable to encode query to utf-8: " + e.getMessage());
 		}
 
 		return url;
@@ -229,14 +223,14 @@ public class TiLocation implements Handler.Callback
 		AsyncTask<Object, Void, Integer> task = new AsyncTask<Object, Void, Integer>() {
 			@Override
 			protected Integer doInBackground(Object... args) {
+				GeocodeResponseHandler geocodeResponseHandler = null;
+				HashMap<String, Object> event = null;
 				try {
 					String url = (String) args[0];
 					String direction = (String) args[1];
-					GeocodeResponseHandler geocodeResponseHandler = (GeocodeResponseHandler) args[2];
+					geocodeResponseHandler = (GeocodeResponseHandler) args[2];
 
-					if (DBG) {
-						Log.d(TAG, "GEO URL [" + url + "]");
-					}
+					Log.d(TAG, "GEO URL [" + url + "]", Log.DEBUG_MODE);
 					HttpGet httpGet = new HttpGet(url);
 
 					HttpParams httpParams = new BasicHttpParams();
@@ -247,11 +241,8 @@ public class TiLocation implements Handler.Callback
 					ResponseHandler<String> responseHandler = new BasicResponseHandler();
 					String response = client.execute(httpGet, responseHandler);
 
-					if (DBG) {
-						Log.i(TAG, "received Geo [" + response + "]");
-					}
+					Log.i(TAG, "received Geo [" + response + "]", Log.DEBUG_MODE);
 
-					HashMap<String, Object> event = null;
 					if (response != null) {
 						try {
 							JSONObject jsonObject = new JSONObject(response);
@@ -265,24 +256,26 @@ public class TiLocation implements Handler.Callback
 
 							} else {
 								event = new KrollDict();
-								KrollDict errorDict = new KrollDict();
 								String errorCode = jsonObject.getString(TiC.ERROR_PROPERTY_ERRORCODE);
-								errorDict.put(TiC.PROPERTY_MESSAGE, "Unable to resolve message: Code (" + errorCode + ")");
-								errorDict.put(TiC.PROPERTY_CODE, errorCode);
-								event.put(TiC.EVENT_PROPERTY_ERROR, errorDict);
+								event.put(TiC.EVENT_PROPERTY_ERROR, "Unable to resolve message: Code (" + errorCode + ")");
 							}
 
 						} catch (JSONException e) {
-							Log.e(TAG, "error converting geo response to JSONObject [" + e.getMessage() + "]", e);
+							Log.e(TAG, "Error converting geo response to JSONObject [" + e.getMessage() + "]", e, Log.DEBUG_MODE);
 						}
 					}
 
-					if (event != null) {
-						geocodeResponseHandler.handleGeocodeResponse(event);
-					}
-
 				} catch (Throwable t) {
-					Log.e(TAG, "error retrieving geocode information [" + t.getMessage() + "]", t);
+					Log.e(TAG, "Error retrieving geocode information [" + t.getMessage() + "]", t, Log.DEBUG_MODE);
+				}
+
+				if (geocodeResponseHandler != null) {
+					if (event == null) {
+						event = new KrollDict();
+						event.put(TiC.PROPERTY_SUCCESS, false);
+						event.put(TiC.EVENT_PROPERTY_ERROR, "Error obtaining geolocation");
+					}
+					geocodeResponseHandler.handleGeocodeResponse(event);
 				}
 
 				return -1;
@@ -302,6 +295,7 @@ public class TiLocation implements Handler.Callback
 			address = buildAddress(places.getJSONObject(0));
 		}
 
+		address.put(TiC.PROPERTY_SUCCESS, true);
 		return address;
 	}
 
@@ -343,5 +337,3 @@ public class TiLocation implements Handler.Callback
 		return address;
 	}
 }
-
-

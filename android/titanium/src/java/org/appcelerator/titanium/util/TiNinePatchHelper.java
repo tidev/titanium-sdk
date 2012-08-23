@@ -1,14 +1,12 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
 package org.appcelerator.titanium.util;
 
 import java.util.ArrayList;
-
-import org.appcelerator.kroll.common.TiConfig;
 
 import android.graphics.Bitmap;
 import android.graphics.Color;
@@ -19,8 +17,6 @@ import android.graphics.drawable.NinePatchDrawable;
 
 public class TiNinePatchHelper
 {
-	private static final String LCAT = "TiNinePatch";
-	private static final boolean DBG = TiConfig.LOGD;
 
 	class SegmentColor {
 		int index;

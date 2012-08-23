@@ -8,7 +8,7 @@ package org.appcelerator.titanium.proxy;
 
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
-import org.appcelerator.kroll.common.TiConfig;
+import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.common.TiMessenger;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
@@ -19,7 +19,6 @@ import org.appcelerator.titanium.util.TiUrl;
 
 import android.graphics.drawable.Drawable;
 import android.os.Build;
-import android.util.Log;
 import android.view.MenuItem;
 import android.view.MenuItem.OnActionExpandListener;
 import android.view.View;
@@ -169,9 +168,7 @@ public class MenuItemProxy extends KrollProxy
 			item.setActionView(v);
 
 		} else {
-			if (TiConfig.LOGD) {
-				Log.i(TAG, "Action bar not available on this device. Ignoring actionView property.");
-			}
+			Log.i(TAG, "Action bar not available on this device. Ignoring actionView property.", Log.DEBUG_MODE);
 		}
 	}
 
@@ -181,9 +178,7 @@ public class MenuItemProxy extends KrollProxy
 			item.setShowAsAction(flag);
 
 		} else {
-			if (TiConfig.LOGD) {
-				Log.i(TAG, "Action bar unsupported by this device. Ignoring showAsAction property.");
-			}
+			Log.i(TAG, "Action bar unsupported by this device. Ignoring showAsAction property.", Log.DEBUG_MODE);
 		}
 	}
 
@@ -197,9 +192,7 @@ public class MenuItemProxy extends KrollProxy
 			});
 
 		} else {
-			if (TiConfig.LOGD) {
-				Log.i(TAG, "This device does not support collapsing action views. No operation performed.");
-			}
+			Log.i(TAG, "This device does not support collapsing action views. No operation performed.", Log.DEBUG_MODE);
 		}
 	}
 
@@ -213,9 +206,7 @@ public class MenuItemProxy extends KrollProxy
 			});
 
 		} else {
-			if (TiConfig.LOGD) {
-				Log.i(TAG, "This device does not support expanding action views. No operation performed.");
-			}
+			Log.i(TAG, "This device does not support expanding action views. No operation performed.", Log.DEBUG_MODE);
 		}
 	}
 

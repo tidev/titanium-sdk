@@ -218,10 +218,21 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 	return NUMBOOL([UIDevice currentDevice].proximityMonitoringEnabled);
 }
 
+- (void)setDisableNetworkActivityIndicator:(NSNumber *)value
+{
+	BOOL yn = [TiUtils boolValue:value];
+	[TiApp app].disableNetworkActivityIndicator = yn;
+}
+
+- (NSNumber *)disableNetworkActivityIndicator
+{
+	return NUMBOOL([TiApp app].disableNetworkActivityIndicator);
+}
+
 //To fire the keyboard frame change event.
 -(void)keyboardFrameChanged:(NSNotification*) notification
 {
-    if (![self _hasListeners:@"keyboardFrameChanged"])
+    if (![self _hasListeners:@"keyboardFrameChanged"] && ![self _hasListeners:@"keyboardframechanged"])
     {
         return;
     }
@@ -239,7 +250,7 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
                                 nil];
     
     [self fireEvent:@"keyboardFrameChanged" withObject:event]; 
-    
+    [self fireEvent:@"keyboardframechanged" withObject:event];     
 }
 
 

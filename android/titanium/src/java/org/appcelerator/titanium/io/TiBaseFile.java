@@ -1,10 +1,9 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-
 package org.appcelerator.titanium.io;
 
 import java.io.BufferedInputStream;
@@ -28,7 +27,7 @@ import org.appcelerator.titanium.TiBlob;
  */
 public abstract class TiBaseFile
 {
-	private static final String LCAT = "TiBaseFile";
+	private static final String TAG = "TiBaseFile";
 
 	public static final int MODE_READ = 0;
 	public static final int MODE_WRITE = 1;
@@ -161,7 +160,7 @@ public abstract class TiBaseFile
 
 			copied = true;
 		} catch (IOException e) {
-			Log.e(LCAT, "Error while copying file: ", e);
+			Log.e(TAG, "Error while copying file: ", e);
 			throw e;
 		} finally {
 			if (is != null) {
@@ -427,7 +426,7 @@ public abstract class TiBaseFile
 		if (method == null) {
 			method = Thread.currentThread().getStackTrace()[1].getMethodName();
 		}
-		Log.w(LCAT, "Method is not supported " + this.getClass().getName() + " : " + method);
+		Log.w(TAG, "Method is not supported " + this.getClass().getName() + " : " + method);
 	}
 
 	protected void copyStream(InputStream is, OutputStream os) throws IOException {

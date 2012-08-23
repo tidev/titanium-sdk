@@ -14,6 +14,7 @@ import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiRootActivity;
+import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiCompositeLayout;
 import org.appcelerator.titanium.view.TiCompositeLayout.LayoutArrangement;
 
@@ -34,7 +35,7 @@ import android.widget.TabHost.TabContentFactory;
 
 public class TiTabActivity extends TabActivity
 {
-	private static final String LCAT = "TiTabActivity";
+	private static final String TAG = "TiTabActivity";
 
 	protected TabGroupProxy proxy;
 	protected Handler handler;
@@ -60,7 +61,7 @@ public class TiTabActivity extends TabActivity
 		}
 
 		if (TiBaseActivity.isUnsupportedReLaunch(this, savedInstanceState)) {
-			Log.w(LCAT, "Unsupported, out-of-order activity creation. Finishing.");
+			Log.w(TAG, "Unsupported, out-of-order activity creation. Finishing.");
 			super.onCreate(savedInstanceState);
 			tiApp.scheduleRestart(250);
 			finish();
@@ -163,15 +164,15 @@ public class TiTabActivity extends TabActivity
 						msg.obj = me;
 						if (fMessenger.getBinder().pingBinder()) {
 							fMessenger.send(msg);
-							Log.w(LCAT, "Notifying TiTabGroup, activity is created");
+							Log.d(TAG, "Notifying TiTabGroup, activity is created", Log.DEBUG_MODE);
 						} else {
 							me.finish();
 						}
 					} catch (RemoteException e) {
-						Log.e(LCAT, "Unable to message creator. finishing.");
+						Log.e(TAG, "Unable to message creator. finishing.");
 						me.finish();
 					} catch (RuntimeException e) {
-						Log.w(LCAT, "Run-time exception: " + e.getMessage(), e);
+						Log.w(TAG, "Run-time exception: " + e.getMessage(), e);
 					}
 				}
 			}
@@ -219,7 +220,7 @@ public class TiTabActivity extends TabActivity
 			}
 			return;
 		}
-
+		TiUIHelper.showSoftKeyboard(getWindow().getDecorView(), false);
 		tiApp.setCurrentActivity(this, null);
 	}
 
@@ -279,16 +280,18 @@ public class TiTabActivity extends TabActivity
 			finish();
 			return;
 		}
-		
-		//Remove activityWindows reference from tabs. ActivityWindow reference is only removed when a tab is created (but is added when a tab is added to a tabGroup).
-		//Furthermore, when a tabGroup opens, only the current tab is created (the rest won't create until clicked on). This introduces a memory leak when we have multiple tabs,
-		//and attempt to open/close tabGroup without navigating through all the tabs.
-		TabProxy[] tabs = proxy.getTabs();
-		for (int i = 0; i < tabs.length; ++i) {
-			TiActivityWindows.removeWindow(tabs[i].getWindowId());
-		}
-		
+
 		if (proxy != null) {
+			//Remove activityWindows reference from tabs. ActivityWindow reference is only removed when a tab is created (but is added when a tab is added to a tabGroup).
+			//Furthermore, when a tabGroup opens, only the current tab is created (the rest won't create until clicked on). This introduces a memory leak when we have multiple tabs,
+			//and attempt to open/close tabGroup without navigating through all the tabs.
+			TabProxy[] tabs = proxy.getTabs();
+			if (tabs != null) {
+				for (int i = 0; i < tabs.length; ++i) {
+					TiActivityWindows.removeWindow(tabs[i].getWindowId());
+				}
+			}
+
 			proxy.closeFromActivity();
 			proxy = null;
 		}
