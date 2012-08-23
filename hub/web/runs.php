@@ -89,7 +89,12 @@
 			echo "\t\t\t<td>" . $row["id"] . "</td><td>" . $row["description"] . "</td><td bgcolor=\"";
 
 			if ($row["state"] === "running") {
-				echo "yellow\">Running: " . $row["git_hash"];
+				if ($row["timestamp"] < time() - (20 * 60)) {
+					echo "red\">Non responsive: " . $row["git_hash"];
+
+				} else {
+					echo "yellow\">Running: " . $row["git_hash"];
+				}
 
 			} else {
 				echo "green\">Idle";
