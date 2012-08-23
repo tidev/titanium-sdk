@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ti:app xmlns:ti="http://ti.appcelerator.org" xmlns:android="http://schemas.android.com/apk/res/android">
+	<id>org.appcelerator.titanium.testharness</id>
+	<name>test_harness</name>
+	<version>1.0</version>
+	<publisher>not specified</publisher>
+	<url>not specified</url>
+	<description>not specified</description>
+	<copyright>not specified</copyright>
+	<icon>appicon.png</icon>
+	<persistent-wifi>false</persistent-wifi>
+	<prerendered-icon>false</prerendered-icon>
+	<statusbar-style>default</statusbar-style>
+	<statusbar-hidden>false</statusbar-hidden>
+	<fullscreen>false</fullscreen>
+	<navbar-hidden>false</navbar-hidden>
+	<analytics>false</analytics>
+	<guid>CF0D2CB7-B4BD-488F-9F8E-669E6B53E0C4</guid>
+	<android>
+		<screens small="false" normal="true" large="true" anyDensity="false" />
+		<manifest>
+			<instrumentation
+				android:targetPackage="org.appcelerator.titanium.testharness"
+				android:name="org.appcelerator.titanium.drillbit.TestHarnessRunner">
+				<meta-data android:name="class" android:value="org.appcelerator.titanium.testharness.Test_harnessActivity"/>
+			</instrumentation>
+		</manifest>
+	</android>
+	<property name="ti.android.enablecoverage" type="bool">true</property>
+	<property name="ti.android.include_all_modules" type="bool">true</property>
+	<property name="ti.android.fastdev" type="bool">false</property>
+	<property name="ti.android.threadstacksize" type="int">102400</property>
+	<property name="ti.ios.enablecoverage" type="bool">true</property>
+	<property name="ti.ios.enablemdfind" type="bool">false</property>
+</ti:app>
