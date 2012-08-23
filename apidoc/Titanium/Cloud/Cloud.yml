@@ -57,7 +57,7 @@ description: |
         
         <property name="acs-api-key" type="string">YOUR API KEY HERE</property>
         <property name="acs-oauth-key" type="string">YOUR OAUTH KEY HERE</property>
-        <property name="acs-oauth-secret" type="string">YOUR OAUTH SECRET HERE</property><property name="acs-base-url" type="string">API URL HERE</property>
+        <property name="acs-oauth-secret" type="string">YOUR OAUTH SECRET HERE</property>
     
     The value for each setting that will be used is based on the following rules: 
     
@@ -73,6 +73,10 @@ description: |
         <property name="acs-base-url-development" type="string">DEVELOPMENT API URL HERE</property>
         <property name="acs-base-url-production" type="string">PRODUCTION API URL HERE</property>
         <property name="acs-base-url" type="string">API URL HERE</property>
+
+        <property name="acs-authbase-url-development" type="string">AUTHENTICATION URL HERE</property>
+        <property name="acs-authbase-url-production" type="string">AUTHENTICATION URL HERE</property>
+        <property name="acs-authbase-url" type="string">AUTHENTICATION URL HERE</property>
 extends: Titanium.Module
 excludes: { methods: [ 'addEventListener', 'fireEvent', 'removeEventListener',  ] }
 since: "2.0"
@@ -81,6 +85,8 @@ platforms: [android, iphone, ipad]
 methods:
   - name: hasStoredSession
     summary: Checks if there is a stored user session.
+    deprecated:
+        since: "2.1.2"
     description: |
         True is returned after successfully calling <Titanium.Cloud.Users.create> or 
         <Titanium.Cloud.Users.login>, and false after successfully calling 
@@ -90,6 +96,8 @@ methods:
         
   - name: retrieveStoredSession
     summary: Returns the stored user session identifier.
+    deprecated:
+        since: "2.1.2"
     description: |
         A value is returned after successfully calling <Titanium.Cloud.Users.create> or 
         <Titanium.Cloud.Users.login>, and null after successfully calling 
@@ -126,6 +134,46 @@ properties:
     summary: Indicates whether to use SSL when sending requests to ACS.
     type: Boolean
     default: true
+
+  - name: sessionId
+    since: "2.1.2"
+    summary: Identifies the current session
+    type: String
+    description: |
+        Contains the session identifier after successfully calling <Titanium.Cloud.Users.create> or
+        <Titanium.Cloud.Users.login>, and null after successfully calling <Titanium.Cloud.Users.logout>.
+
+        All calls made using the Cloud module automatically use this value and, thus, it only needs
+        to be used when manually making calls to the ACS servers using <Titanium.Network.HTTPClient>.
+
+        The session identifier is not persisted across application sessions by the module. An application
+        can persist the session identifier by saving the value in secure storage and restoring the value
+        of this property in the next application session.
+
+  - name: accessToken
+    since: "2.1.2"
+    summary: Identifies the current access token when using 3-Legged OAuth
+    type: String
+    description: |
+        Contains the access token after successfully calling <Titanium.Cloud.Users.secureCreate> or
+        <Titanium.Cloud.Users.secureLogin>, and null after successfully calling <Titanium.Cloud.Users.logout>.
+
+        All calls made using the Cloud module automatically use this value and, thus, it only needs
+        to be used when manually making calls to the ACS servers using <Titanium.Network.HTTPClient>.
+
+        The accessToken is not persisted across application sessions by the module. An application
+        can persist the accessToken by saving the value in secure storage and restoring the value
+        of this property in the next application session.
+
+  - name: expiresIn
+    since: "2.1.2"
+    permission: read-only
+    summary: Indicates the number of seconds before the access token expires
+    type: Number
+    description: |
+        Contains the number of seconds until the access token expires after successfully calling
+        <Titanium.Cloud.Users.secureCreate> or <Titanium.Cloud.Users.secureLogin>, and null after successfully
+        calling <Titanium.Cloud.Users.logout>.
 
 ---
 name: CloudStreamProgress

@@ -67,7 +67,7 @@ define(["Ti/_/browser", "Ti/_/declare", "Ti/_/UI/KineticScrollView", "Ti/_/lang"
 				this._showView(currentPage - 1);
 				this._showView(currentPage);
 				this._showView(currentPage + 1);
-				this.fireEvent("dragStart");
+				this.fireEvent("dragstart");
 			}
 		},
 
@@ -120,7 +120,7 @@ define(["Ti/_/browser", "Ti/_/declare", "Ti/_/UI/KineticScrollView", "Ti/_/lang"
 				destinationPosition = -destination._measuredLeft;
 
 				// Fire the drag end event
-				self.fireEvent("dragEnd", {
+				self.fireEvent("dragend", {
 					currentPage: destinationIndex,
 					view: destination
 				});
@@ -135,7 +135,7 @@ define(["Ti/_/browser", "Ti/_/declare", "Ti/_/UI/KineticScrollView", "Ti/_/lang"
 					self.properties.__values__.currentPage = destinationIndex;
 					self._showView(destinationIndex);
 					setTimeout(function(){
-						self.fireEvent("scrollEnd",{
+						self.fireEvent("scrollend",{
 							currentPage: destinationIndex,
 							view: destination
 						});
@@ -257,7 +257,7 @@ define(["Ti/_/browser", "Ti/_/declare", "Ti/_/UI/KineticScrollView", "Ti/_/lang"
 						self._removeViewFromList(self._viewToRemoveAfterScroll);
 						self._viewToRemoveAfterScroll = -1;
 					}
-					self.fireEvent("scrollEnd",{
+					self.fireEvent("scrollend",{
 						currentPage: viewIndex,
 						view: self.views[viewIndex]
 					});

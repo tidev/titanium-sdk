@@ -306,7 +306,10 @@ events:
     since: "2.1.0"
 
   - name: regionChanged
-    summary: Fired when the mapping region changes.
+    summary: |
+        This event has been deprecated and renamed regionchanged (lower case).
+        
+        Fired when the mapping region changes.
     properties:
       - name: longitude
         summary: Longitude value for the center point of the map, in decimal degrees.
@@ -320,6 +323,26 @@ events:
       - name: latitude
         summary: Latitude value for the center point of the map, in decimal degrees.
         type: Number
+    deprecated:
+        since: "2.2.0"
+
+  - name: regionchanged
+    summary: |
+        Fired when the mapping region changes.
+    properties:
+      - name: longitude
+        summary: Longitude value for the center point of the map, in decimal degrees.
+        type: Number
+      - name: latitudeDelta
+        summary: The amount of north-to-south distance displayed on the map, measured in decimal degrees.
+        type: Number
+      - name: longitudeDelta
+        summary: The amount of east-to-west distance displayed on the map, measured in decimal degrees.
+        type: Number
+      - name: latitude
+        summary: Latitude value for the center point of the map, in decimal degrees.
+        type: Number
+    since: '2.2.0'
 
 properties:
 

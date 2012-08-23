@@ -19,6 +19,12 @@
 	<% platform_names = ", ".join([p["pretty_name"] for p in item.platforms]) %>
 	<% append_cell_class = " deprecated" if item.deprecated else "" %>
 	<%
+		if hasattr(item, "repeatable") and item.repeatable:
+			item_name = "%s..." % item.name
+		else:
+			item_name = item.name
+	%>
+	<%
 		summary = item.summary_html
 		was_para_close = False
 		if summary.endswith("</p>"):
@@ -28,9 +34,9 @@
 
 	<tr class="${row_class}">
 		% if item.typestr=="parameter" or (item.typestr=="property" and item.parent.typestr=="event"):
-			<td class="name${append_cell_class}">${item.name}</td>
+			<td class="name${append_cell_class}">${item_name}</td>
 		% else:
-			<td class="name${append_cell_class}"><a href="${item.filename_html}.html">${item.name}</a></td>
+			<td class="name${append_cell_class}"><a href="${item.filename_html}.html">${item_name}</a></td>
 		% endif
 		% if is_property_list:
 			<td class="type${append_cell_class}">${item.type_html}</td>
@@ -55,6 +61,9 @@
 				% if item.typestr=="parameter":
 					% if item.optional is not None:
 						<span class="optional">Optional.</span>
+					% endif
+					% if item.repeatable:
+						<span class="optional">Repeatable.</span>
 					% endif
 					% if item.default is not None:
 						<%

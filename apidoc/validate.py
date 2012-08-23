@@ -31,7 +31,7 @@ VALID_KEYS = {
 			"events"],
 		"method": ["name", "summary", "description", "returns", "platforms", "since",
 			"deprecated", "osver", "examples", "parameters"],
-		"parameter": ["name", "summary", "type", "optional", "default"],
+		"parameter": ["name", "summary", "type", "optional", "default", "repeatable"],
 		"property": ["name", "summary", "description", "type", "platforms", "since",
 			"deprecated", "osver", "examples", "permission", "availability", "accessors",
 			"optional", "value", "default"],
@@ -315,6 +315,9 @@ def validateCommon(tracker, map):
 	if 'optional' in map:
 		validateIsBool(tracker, 'optional', map['optional'])
 
+	if 'repeatable' in map:
+		validateIsBool(tracker, 'repeatable', map['repeatable'])
+
 	if 'notes' in map:
 		tracker.trackError('"notes" field is no longer valid')
 		
@@ -468,12 +471,19 @@ def loadTypesFromDocgen():
 
 def validateTDoc(tdocPath):
 	global typesFromDocgen
-	if not typesFromDocgen:
-		loadTypesFromDocgen()
 
 	tdocTypes = [type for type in yaml.load_all(codecs.open(tdocPath, 'r', 'utf8').read())]
+
 	if options.parseOnly:
 		return
+
+	if not typesFromDocgen:
+		try:
+			loadTypesFromDocgen()
+		except Exception, e:
+			# This should be fatal
+			print >> sys.stderr, e
+			sys.exit(1)
 
 	for type in tdocTypes:
 		validateType(type)

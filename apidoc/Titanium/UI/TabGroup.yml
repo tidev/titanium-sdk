@@ -165,6 +165,18 @@ properties:
     type: String
     platforms: [iphone, ipad]
     
+  - name: exitOnClose
+    summary: |
+        Boolean value indicating if the application should exit when closing the tab group, whether via Android
+        back button or the [close](Titanium.UI.TabGroup.close) method
+    description:  |
+        You can only set this as a createTabGroup({...}) option.  Setting it after
+        tab group creation has no effect.
+    platforms: [android]
+    default: True if tab group is opened on top of the root activity. False otherwise.
+    type: Boolean
+    availability: creation
+
   - name: tabs
     summary: |
         Tabs managed by the tab group.
