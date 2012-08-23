@@ -82,7 +82,6 @@ events:
             Value of login field if dialog `style` property is defined as 
             <Titanium.UI.iPhone.AlertDialogStyle.LOGIN_AND_PASSWORD_INPUT>.
         type: String
-        since: 2.2.0
         platforms: [iphone, ipad]
 
       - name: password
@@ -90,7 +89,6 @@ events:
             Value of password field if dialog `style` property is defined as 
             <Titanium.UI.iPhone.AlertDialogStyle.LOGIN_AND_PASSWORD_INPUT>.
         type: String
-        since: 2.2.0
         platforms: [iphone, ipad]
 
       - name: text
@@ -99,7 +97,6 @@ events:
             <Titanium.UI.iPhone.AlertDialogStyle.PLAIN_TEXT_INPUT> or 
             <Titanium.UI.iPhone.AlertDialogStyle.SECURE_TEXT_INPUT>.
         type: String
-        since: 2.2.0
         platforms: [iphone, ipad]
 
 methods:
