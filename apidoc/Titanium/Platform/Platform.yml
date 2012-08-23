@@ -200,7 +200,9 @@ properties:
     platforms: [android]
 
   - name: name
-    summary: The name of the platform.
+    summary: |
+        The name of the platform. For example, iPhone and iPad will return `iPhone OS`, Android will
+        return `android` and Mobile Web will return `mobileweb`.
     type: String
     permission: read-only
     
