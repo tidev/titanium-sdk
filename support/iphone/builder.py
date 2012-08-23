@@ -1398,6 +1398,7 @@ def main(args):
 						sim = subprocess.Popen("\"%s\" launch \"%s\" --sdk %s" % (iphonesim,app_dir,iphone_version),shell=True,cwd=template_dir)
 					else:
 						sim = subprocess.Popen("\"%s\" launch \"%s\" --sdk %s --family %s" % (iphonesim,app_dir,iphone_version,simtype),shell=True,cwd=template_dir)
+					os.unsetenv('DYLD_FRAMEWORK_PATH')
 
 					# activate the simulator window
 					ass = os.path.join(template_dir, 'iphone_sim_activate.scpt')

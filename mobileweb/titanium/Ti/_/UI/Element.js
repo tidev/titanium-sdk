@@ -652,7 +652,7 @@ define(
 		},
 
 		animate: function(anim, callback) {
-			return Animation._play(this, anim && anim.declaredClass === "Ti.UI.Animation" ? anim : new Animation(anim)).then(callback);
+			return this._isAttachedToActiveWin() && Animation._play(this, anim && anim.declaredClass === "Ti.UI.Animation" ? anim : new Animation(anim)).then(callback);
 		},
 
 		_setTouchEnabled: function(value) {
