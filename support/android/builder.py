@@ -1534,6 +1534,8 @@ class Builder(object):
 			self.tiappxml.to_bool(self.tiappxml.get_app_property('ti.android.compilejs')))
 
 		pkg_assets_dir = self.assets_dir
+		if self.deploy_type == "test":
+			compile_js = False
 		if self.deploy_type == "production" and compile_js:
 			non_js_assets = os.path.join(self.project_dir, 'bin', 'non-js-assets')
 			if not os.path.exists(non_js_assets):
@@ -1980,7 +1982,7 @@ class Builder(object):
 			generated_classes_built = self.build_generated_classes()
 
 			# TODO: enable for "test" / device mode for debugger / fastdev
-			if not self.build_only and self.deploy_type == "development":
+			if not self.build_only and (self.deploy_type == "development" or self.deploy_type == "test"):
 				self.push_deploy_json()
 			self.classes_dex = os.path.join(self.project_dir, 'bin', 'classes.dex')
 			
