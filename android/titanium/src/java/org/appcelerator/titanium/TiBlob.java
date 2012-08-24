@@ -12,18 +12,28 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
+import java.util.Arrays;
+import java.util.HashMap;
 
 import org.apache.commons.codec.binary.Base64;
+import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.util.KrollStreamHelper;
 import org.appcelerator.titanium.io.TiBaseFile;
 import org.appcelerator.titanium.io.TitaniumBlob;
+import org.appcelerator.titanium.util.TiImageHelper;
 import org.appcelerator.titanium.util.TiMimeTypeHelper;
 
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.CompressFormat;
+import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.Path;
+import android.graphics.Path.Direction;
+import android.graphics.RectF;
+import android.media.ThumbnailUtils;
 
 /** 
  * A Titanium Blob object. A Blob can represent any opaque data or input stream.
@@ -60,7 +70,7 @@ public class TiBlob extends KrollProxy
 	private int type;
 	private Object data;
 	private String mimetype;
-	private int width, height;
+	private Bitmap image;
 
 	private TiBlob(int type, Object data, String mimetype)
 	{
@@ -68,8 +78,7 @@ public class TiBlob extends KrollProxy
 		this.type = type;
 		this.data = data;
 		this.mimetype = mimetype;
-		this.width = 0;
-		this.height = 0;
+		this.image = null;
 	}
 
 	/**
@@ -125,8 +134,7 @@ public class TiBlob extends KrollProxy
 		}
 
 		TiBlob blob = new TiBlob(TYPE_IMAGE, data, "image/bitmap");
-		blob.width = image.getWidth();
-		blob.height = image.getHeight();
+		blob.image = image;
 		return blob;
 	}
 
@@ -332,13 +340,47 @@ public class TiBlob extends KrollProxy
 	@Kroll.getProperty @Kroll.method
 	public int getWidth()
 	{
-		return width;
+		if (image != null) {
+			return image.getWidth();
+		}
+
+		// Query the dimensions of a bitmap without allocating the memory for its pixels
+		BitmapFactory.Options opts = new BitmapFactory.Options();
+		opts.inJustDecodeBounds = true;
+		switch (type) {
+			case TYPE_FILE:
+				BitmapFactory.decodeStream(getInputStream(), null, opts);
+				return opts.outWidth;
+			case TYPE_DATA:
+				byte[] byteArray = (byte[]) data;
+				BitmapFactory.decodeByteArray(byteArray, 0, byteArray.length, opts);
+				return opts.outWidth;
+		}
+
+		return 0;
 	}
 
 	@Kroll.getProperty @Kroll.method
 	public int getHeight()
 	{
-		return height;
+		if (image != null) {
+			return image.getHeight();
+		}
+
+		// Query the dimensions of a bitmap without allocating the memory for its pixels
+		BitmapFactory.Options opts = new BitmapFactory.Options();
+		opts.inJustDecodeBounds = true;
+		switch (type) {
+			case TYPE_FILE:
+				BitmapFactory.decodeStream(getInputStream(), null, opts);
+				return opts.outHeight;
+			case TYPE_DATA:
+				byte[] byteArray = (byte[]) data;
+				BitmapFactory.decodeByteArray(byteArray, 0, byteArray.length, opts);
+				return opts.outHeight;
+		}
+
+		return 0;
 	}
 
 	@Kroll.method
@@ -401,5 +443,126 @@ public class TiBlob extends KrollProxy
 	public String toBase64()
 	{
 		return new String(Base64.encodeBase64(getBytes()));
+	}
+
+	public Bitmap getImage()
+	{
+		switch(type) {
+			case TYPE_FILE:
+				return BitmapFactory.decodeStream(getInputStream());
+			case TYPE_DATA:
+				byte[] byteArray = (byte[])data;
+				return BitmapFactory.decodeByteArray(byteArray, 0, byteArray.length);
+		}
+		return image;
+	}
+
+	@Kroll.method
+	public TiBlob imageAsCropped(Object params)
+	{
+		Bitmap img = getImage();
+		if (img == null) {
+			return null;
+		}
+		if (!(params instanceof HashMap)) {
+			Log.e(TAG, "Argument for imageAsCropped must be a dictionary");
+			return null;
+		}
+
+		KrollDict options = new KrollDict((HashMap) params);
+		int width = img.getWidth();
+		int height = img.getHeight();
+		int widthCropped = options.optInt(TiC.PROPERTY_WIDTH, width);
+		int heightCropped = options.optInt(TiC.PROPERTY_HEIGHT, height);
+		int x = options.optInt(TiC.PROPERTY_X, (width - widthCropped) / 2);
+		int y = options.optInt(TiC.PROPERTY_Y, (height - heightCropped) / 2);
+		Bitmap imageCropped = Bitmap.createBitmap(img, x, y, widthCropped, heightCropped);
+		return blobFromImage(imageCropped);
+	}
+
+	@Kroll.method
+	public TiBlob imageAsResized(Number width, Number height)
+	{
+		Bitmap img = getImage();
+		if (img == null) {
+			return null;
+		}
+
+		int dstWidth = width.intValue();
+		int dstHeight = height.intValue();
+		Bitmap imageResized = Bitmap.createScaledBitmap(img, dstWidth, dstHeight, true);
+		return blobFromImage(imageResized);
+	}
+
+	@Kroll.method
+	public TiBlob imageAsThumbnail(Number size, @Kroll.argument(optional = true) Number borderSize,
+		@Kroll.argument(optional = true) Number cornerRadius)
+	{
+		Bitmap img = getImage();
+		if (img == null) {
+			return null;
+		}
+
+		int thumbnailSize = size.intValue();
+		Bitmap imageThumbnail = ThumbnailUtils.extractThumbnail(img, thumbnailSize, thumbnailSize);
+
+		float border = 1f;
+		if (borderSize != null) {
+			border = borderSize.floatValue();
+		}
+		float radius = 0f;
+		if (cornerRadius != null) {
+			radius = cornerRadius.floatValue();
+		}
+
+		if (border == 0 && radius == 0) {
+			return blobFromImage(imageThumbnail);
+		}
+
+		Bitmap imageThumbnailBorder = TiImageHelper.imageWithRoundedCorner(imageThumbnail, radius, border);
+		return blobFromImage(imageThumbnailBorder);
+	}
+
+	@Kroll.method
+	public TiBlob imageWithAlpha()
+	{
+		Bitmap img = getImage();
+		if (img == null) {
+			return null;
+		}
+
+		Bitmap imageWithAlpha = TiImageHelper.imageWithAlpha(img);
+		return blobFromImage(imageWithAlpha);
+	}
+
+	@Kroll.method
+	public TiBlob imageWithRoundedCorner(Number cornerRadius, @Kroll.argument(optional = true) Number borderSize)
+	{
+		Bitmap img = getImage();
+		if (img == null) {
+			return null;
+		}
+
+		float radius = cornerRadius.floatValue();
+		float border = 1f;
+		if (borderSize != null) {
+			border = borderSize.floatValue();
+		}
+
+		Bitmap imageRoundedCorner = TiImageHelper.imageWithRoundedCorner(img, radius, border);
+		return blobFromImage(imageRoundedCorner);
+	}
+
+	@Kroll.method
+	public TiBlob imageWithTransparentBorder(Number size)
+	{
+		Bitmap img = getImage();
+		if (img == null) {
+			return null;
+		}
+
+		int borderSize = size.intValue();
+		Bitmap imageWithBorder = TiImageHelper.imageWithTransparentBorder(img, borderSize);
+		return blobFromImage(imageWithBorder);
 	}
 }
