@@ -51,5 +51,5 @@ exports.run = function (logger, config, cli) {
 		});
 	}
 	
-	logger.log(__('Project cleaned successfully in %s', appc.time.printDiff(cli.startTime, Date.now())) + '\n');
+	logger.log(__('Project cleaned successfully in %s', appc.time.prettyDiff(cli.startTime, Date.now())) + '\n');
 };

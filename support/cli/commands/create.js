@@ -156,5 +156,5 @@ exports.run = function (logger, config, cli) {
 			break;
 	}
 	
-	logger.log(__("Project '%s' created successfully in %s", projectName.cyan, appc.time.printDiff(cli.startTime, Date.now())) + '\n');
+	logger.log(__("Project '%s' created successfully in %s", projectName.cyan, appc.time.prettyDiff(cli.startTime, Date.now())) + '\n');
 };
