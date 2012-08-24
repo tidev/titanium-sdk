@@ -1628,7 +1628,8 @@ class Builder(object):
 		output = self.run_adb('shell', 'am', 'start',
 			'-a', 'android.intent.action.MAIN',
 			'-c','android.intent.category.LAUNCHER',
-			'-n', '%s/.%sActivity' % (self.app_id , self.classname))
+			'-n', '%s/.%sActivity' % (self.app_id , self.classname),
+			'-f', '0x10200000')
 		trace("Launch output: %s" % output)
 
 	def wait_for_sdcard(self):
@@ -2199,9 +2200,12 @@ if __name__ == "__main__":
 		elif command == 'install':
 			avd_id = dequote(sys.argv[6])
 			device_args = ['-d']
-			if len(sys.argv) >= 8:
+			if len(sys.argv) >= 8 and len(sys.argv[7]) > 0:
 				device_args = ['-s', sys.argv[7]]
-			s.build_and_run(True, avd_id, device_args=device_args)
+			debugger_host = None
+			if len(sys.argv) >= 9 and len(sys.argv[8]) > 0:
+				debugger_host = dequote(sys.argv[8])
+			s.build_and_run(True, avd_id, device_args=device_args, debugger_host=debugger_host)
 		elif command == 'distribute':
 			key = os.path.abspath(os.path.expanduser(dequote(sys.argv[6])))
 			password = dequote(sys.argv[7])
