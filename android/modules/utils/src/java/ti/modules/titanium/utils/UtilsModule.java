@@ -30,7 +30,7 @@ public class UtilsModule extends KrollModule
 	{
 		super();
 	}
-	
+
 	private String convertToString(Object obj)
 	{
 		if (obj instanceof String) {
@@ -103,6 +103,7 @@ public class UtilsModule extends KrollModule
 	{
 		return true;
 	}
+
 	@Kroll.method
 	public String sha256(Object obj)
 	{

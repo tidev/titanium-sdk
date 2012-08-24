@@ -885,11 +885,18 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 			boolean changeImage = true;
 			Object newImage = d.get(TiC.PROPERTY_IMAGE);
 			TiDrawableReference source = makeImageSource(newImage);
+
+			// Check for orientation only if they specified an image
+			if (d.containsKey(TiC.PROPERTY_AUTOROTATE)) {
+				source.setAutoRotate(d.getBoolean(TiC.PROPERTY_AUTOROTATE));
+			}
+
 			if (imageSources != null && imageSources.size() == 1) {
 				if (imageSources.get(0).equals(source)) {
 					changeImage = false;
 				}
 			}
+
 			if (changeImage) {
 				setImageSource(source);
 				firedLoad = false;
