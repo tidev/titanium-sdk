@@ -224,6 +224,11 @@ public class TiImageView extends ViewGroup
 
 	public void setImageDrawable(Drawable d, boolean recycle) {
 		Drawable od = imageView.getDrawable();
+		if (od == d) {
+			// If setting the same image drawable just return here.
+			return;
+		}
+
 		if (od != null) {
 			od.setCallback(null);
 			if (od instanceof BitmapDrawable && recycle) {

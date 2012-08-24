@@ -617,17 +617,25 @@ public class TiDrawableReference
 						destWidth = (int) (destWidth * displayMetrics.density + 0.5f); // 0.5 is to force round up of dimension. Casting to int drops decimals.
 						destHeight = (int) (destHeight * displayMetrics.density + 0.5f);
 					}
+
+					// Created a scaled copy of the bitmap. Note we will get
+					// back the same bitmap if no scaling is required.
 					b = Bitmap.createScaledBitmap(bTemp, destWidth, destHeight, true);
 				}
+
 			} catch (OutOfMemoryError e) {
 				oomOccurred = true;
 				Log.e(TAG, "Unable to load bitmap. Not enough memory: " + e.getMessage(), e);
+
 			} finally {
-				if (bTemp != null) {
+				// Recycle the temporary bitmap only if it isn't
+				// the same instance as our scaled bitmap.
+				if (bTemp != null && bTemp != b) {
 					bTemp.recycle();
 					bTemp = null;
 				}
 			}
+
 		} finally {
 			try {
 				is.close();
