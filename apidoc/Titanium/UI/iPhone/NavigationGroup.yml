@@ -59,7 +59,7 @@ examples:
 
             var win2 = Titanium.UI.createWindow({
             	backgroundColor : 'red',
-           		title : 'Red Window'
+            	title : 'Red Window'
             });
 
             var nav = Titanium.UI.iPhone.createNavigationGroup({
