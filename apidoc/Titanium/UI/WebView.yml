@@ -266,6 +266,13 @@ properties:
         See also: [url](Titanium.UI.WebView.url) and [html](Titanium.UI.WebView.html).
     type: [Titanium.Blob, Titanium.Filesystem.File]
 
+  - name: hideDefaultSpinner
+    summary: Hides default spinner when loading remote URL.
+    type: Boolean
+    platforms: [iphone, ipad]
+    since: "2.2.0"
+    default: false
+
   - name: html
     summary: HTML content of this web view.
     description: |
