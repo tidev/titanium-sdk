@@ -8,6 +8,8 @@ import zipfile, datetime, subprocess, tempfile, time
 if platform.system() == 'Darwin':
 	import importresolver
 
+packaging_all = False
+os_names = { "Windows":"win32", "Linux":"linux", "Darwin":"osx" }
 cur_dir = os.path.abspath(os.path.dirname(sys._getframe(0).f_code.co_filename))
 top_dir = os.path.abspath(os.path.join(os.path.dirname(sys._getframe(0).f_code.co_filename),'..'))
 template_dir = os.path.join(top_dir,'support')
@@ -34,6 +36,13 @@ githash = p.communicate()[0][7:].split('\n')[0].strip()
 ignoreExtensions = ['.pbxuser','.perspectivev3','.pyc']
 ignoreDirs = ['.DS_Store','.git','.gitignore','libTitanium.a','titanium.jar','build','bridge.txt', 'packaged']
 
+def remove_existing_zips(dist_dir, version_tag):
+	for os_name in os_names.values():
+		filename = os.path.join(dist_dir,
+				'mobilesdk-%s-%s.zip' % (version_tag, os_name))
+		if os.path.exists(filename):
+			os.remove(filename)
+
 def ignore(file):
 	 for f in ignoreDirs:
 		if file == f:
@@ -52,7 +61,7 @@ def generate_jsca():
 			 err_output = process.stderr.read()
 			 print >> sys.stderr, "Failed to generate JSCA JSON.  Output:"
 			 print >> sys.stderr, err_output
-			 sys.exit(1)
+			 return None
 		 jsca_temp_file.seek(0)
 		 jsca_json = jsca_temp_file.read()
 		 return jsca_json
@@ -315,10 +324,10 @@ def create_platform_zip(platform,dist_dir,osname,version,version_tag):
 	basepath = '%s/%s/%s' % (platform,osname,version_tag)
 	sdkzip = os.path.join(dist_dir,'%s-%s-%s.zip' % (platform,version_tag,osname))
 	zf = zipfile.ZipFile(sdkzip, 'w', zipfile.ZIP_DEFLATED)
-	return (zf,basepath)
+	return (zf, basepath, sdkzip)
 
 def zip_mobilesdk(dist_dir, osname, version, module_apiversion, android, iphone, ipad, mobileweb, version_tag, build_jsca):
-	zf, basepath = create_platform_zip('mobilesdk', dist_dir, osname, version, version_tag)
+	zf, basepath, filename = create_platform_zip('mobilesdk', dist_dir, osname, version, version_tag)
 
 	version_txt = """version=%s
 module_apiversion=%s
@@ -329,6 +338,23 @@ githash=%s
 	zf.writestr('%s/version.txt' % basepath,version_txt)
 	if build_jsca:
 		jsca = generate_jsca()
+		if jsca is None:
+			# This is fatal. If we were meant to build JSCA
+			# but couldn't, then packaging fails.
+			# Delete the zip to be sure any build/packaging
+			# script that fails to read the exit code
+			# will at least not have any zip file.
+			zf.close()
+			if os.path.exists(filename):
+				os.remove(filename)
+			# If the script was in the middle of packaging
+			# for all platforms, remove zips for all platforms
+			# to make it clear that packaging failed (since all
+			# platforms get the api.jsca which has just failed.)
+			if packaging_all:
+				remove_existing_zips(dist_dir, version_tag)
+			sys.exit(1)
+
 		zf.writestr('%s/api.jsca' % basepath, jsca)
 	
 	zip_packaged_modules(zf, os.path.join(template_dir, "module", "packaged"))
@@ -348,17 +374,22 @@ def zip_it(dist_dir, osname, version, module_apiversion, android,iphone, ipad, m
 class Packager(object):
 	def __init__(self, build_jsca=1):
 		self.build_jsca = build_jsca
-		self.os_names = { "Windows":"win32", "Linux":"linux", "Darwin":"osx" }
 	 
 	def build(self, dist_dir, version, module_apiversion, android=True, iphone=True, ipad=True, mobileweb=True, version_tag=None):
 		if version_tag == None:
 			version_tag = version
-		zip_it(dist_dir, self.os_names[platform.system()], version, module_apiversion, android, iphone, ipad, mobileweb, version_tag, self.build_jsca)
+		zip_it(dist_dir, os_names[platform.system()], version, module_apiversion, android, iphone, ipad, mobileweb, version_tag, self.build_jsca)
 
 	def build_all_platforms(self, dist_dir, version, module_apiversion, android=True, iphone=True, ipad=True, mobileweb=True, version_tag=None):
+		global packaging_all
+		packaging_all = True
+
 		if version_tag == None:
 			version_tag = version
-		for os in self.os_names.values():
+
+		remove_existing_zips(dist_dir, version_tag)
+
+		for os in os_names.values():
 			zip_it(dist_dir, os, version, module_apiversion, android, iphone, ipad, mobileweb, version_tag, self.build_jsca)
 		
 if __name__ == '__main__':
