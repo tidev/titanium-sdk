@@ -406,7 +406,6 @@ TiOrientationFlags TiOrientationFlagsFromObject(id args)
 -(void)openOnUIThread:(NSArray*)args
 {
 	navWindow = NO;
-	statusBarHiddenInFullscreen = YES;
 	BOOL rootViewAttached = [self isRootViewAttached];
 	[self parentWillShow];
 	// give it to our subclass. he'll either return true to continue with open state and animation or 
@@ -437,9 +436,9 @@ TiOrientationFlags TiOrientationFlagsFromObject(id args)
 		}
 		if (fullscreenFlag)
 		{
-			statusBarHiddenInFullscreen = [self argOrWindowProperty:@"hideStatusBarInFullscreen" args:args];
+			showStatusBar = [self argOrWindowProperty:@"statusBarHiddenInFullscreen" args:args];
 
-			if (statusBarHiddenInFullscreen)
+			if (!showStatusBar)
 			{
 				restoreFullscreen = [UIApplication sharedApplication].statusBarHidden;
 				[[UIApplication sharedApplication] setStatusBarHidden:YES];
@@ -667,7 +666,7 @@ TiOrientationFlags TiOrientationFlagsFromObject(id args)
 		  
 		if (fullscreenFlag)
 		{
-			if (statusBarHiddenInFullscreen)
+			if (!showStatusBar)
 			{
 				[[UIApplication sharedApplication] setStatusBarHidden:restoreFullscreen];
 			}
