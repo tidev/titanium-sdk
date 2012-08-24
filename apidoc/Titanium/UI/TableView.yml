@@ -972,7 +972,7 @@ properties:
         user to refresh a table's data.  Typically used with the 
         [setContentInsets](Titanium.UI.TableView.setContentInsets) method.
         
-        The [TableView Refresh with headerPullView](http://docs.appcelerator.com/titanium/2.0/index.html#!/guide/TableView_Refresh_with_headerPullView)
+        The [TableView Refresh with headerPullView](http://docs.appcelerator.com/titanium/latest/#!/guide/TableView_Refresh_with_headerPullView)
         guide describes one way a `headerPullView` may be untilized.
     type: Titanium.UI.View
     platforms: [iphone, ipad]
