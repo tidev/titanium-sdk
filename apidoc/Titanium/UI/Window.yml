@@ -776,6 +776,18 @@ since: 1.9.0
 platforms: [iphone, ipad]
 
 properties:
+
+  - name: animated
+    summary: 
+    type: Boolean
+    default: false
+
+  - name: fullscreen
+    summary: Determines whether the window is fullscreen.
+    type: Boolean
+    default: true
+    optional: true
+
   - name: modal
     summary: Determines whether the window is modal.
     type: Boolean
@@ -801,3 +813,9 @@ properties:
         <Titanium.UI.iPhone.MODAL_PRESENTATION_FULLSCREEN>, 
         or <Titanium.UI.iPhone.MODAL_PRESENTATION_PAGESHEET>.
     type: Number
+
+  - name: navBarHidden
+    summary: Hides the navigation bar in a modal window.
+    type: Boolean
+    default: false
+    optional: true
