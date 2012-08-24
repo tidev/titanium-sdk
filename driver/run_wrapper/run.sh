@@ -20,8 +20,15 @@ do
                 fi
 
         else
+		# this is only needed when the driver is running for Android or Mobile Web.
+		# Note that this can sometimes fix adb issues but some adb issues require
+		# physical interaction
+		adb kill-server
+		adb start-server
+
                 /usr/local/bin/node $process > run_wrapper/run_out.txt 2>&1 &
         fi
 
         sleep 10
 done
+
