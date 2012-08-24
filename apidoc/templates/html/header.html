@@ -15,11 +15,15 @@
 % if data.deprecated:
     <div class="deprecation_warning">Deprecated
         % if "since" in data.deprecated:
-            since ${data.deprecated["since"]}
+            since ${data.deprecated["since"]}.
         % endif
         % if "removed" in data.deprecated:
-            - Removed in ${data.deprecated["removed"]}
+            Removed in ${data.deprecated["removed"]}.
         % endif
+		% if "notes_html" in data.deprecated:
+			${data.deprecated["notes_html"]}
+		% endif
+
     </div>
 % endif
 
