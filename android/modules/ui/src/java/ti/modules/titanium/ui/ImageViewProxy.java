@@ -22,6 +22,7 @@ import android.graphics.Bitmap;
 
 @Kroll.proxy(creatableInModule=UIModule.class, propertyAccessors = {
 	"decodeRetries",
+	TiC.PROPERTY_AUTOROTATE,
 	TiC.PROPERTY_DEFAULT_IMAGE,
 	TiC.PROPERTY_DURATION,
 	TiC.PROPERTY_ENABLE_ZOOM_CONTROLS,
