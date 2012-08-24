@@ -92,7 +92,7 @@ TiOrientationFlags TiOrientationFlagsFromObject(id args);
 	BOOL modalFlag;
 	BOOL restoreFullscreen;
 	BOOL navWindow;
-    BOOL hideStatusBarInFullscreen;
+    BOOL statusBarHiddenInFullscreen;
 	TiViewProxy<TiTab> *tab;
 	UIViewController *controller;
 	UINavigationController *navController;
