@@ -144,7 +144,8 @@ properties:
     platforms: [iphone, ipad, mobileweb]
     
   - name: persistent
-    summary: Boolean value indicating if the alert dialog should only be cancelled by user gesture.
+    summary: Boolean value indicating if the alert dialog should only be cancelled by user 
+        gesture or by hide method.
     description: |
         This property is useful to avoid the alert dialog from being automatically cancelled by 
         system at any time - for example, when the user taps on the Home button.
