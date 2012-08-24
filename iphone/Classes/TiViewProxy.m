@@ -1300,7 +1300,8 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap,horizontalWrap,horizontalWrap,[self willCha
 
 -(void)_initWithProperties:(NSDictionary*)properties
 {
-    [self startLayout:nil];
+    updateStarted = YES;
+    allowLayoutUpdate = NO;
 	// Set horizontal layout wrap:true as default 
 	layoutProperties.layoutFlags.horizontalWrap = YES;
 	[self initializeProperty:@"horizontalWrap" defaultValue:NUMBOOL(YES)];
@@ -1372,7 +1373,10 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap,horizontalWrap,horizontalWrap,[self willCha
 		}
 	}
 	[super _initWithProperties:properties];
-    [self finishLayout:nil];
+    updateStarted = NO;
+    allowLayoutUpdate = YES;
+    [self processTempProperties:nil];
+    allowLayoutUpdate = NO;
 
 }
 
