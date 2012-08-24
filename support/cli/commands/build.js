@@ -57,8 +57,8 @@ exports.config = function (logger, config, cli) {
 };
 
 exports.validate = function (logger, config, cli) {
-	cli.argv.platform = lib.validatePlatform(cli.argv.platform);
-	cli.argv.dir = lib.validateProjectDir(cli.argv.dir);
+	cli.argv.platform = lib.validatePlatform(logger, cli.argv.platform);
+	cli.argv.dir = lib.validateProjectDir(logger, cli.argv.dir);
 };
 
 exports.run = function (logger, config, cli) {

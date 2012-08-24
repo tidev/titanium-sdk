@@ -28,7 +28,7 @@ exports.config = function (logger, config, cli) {
 					label: __('Target platforms'),
 					error: __('Invalid list of target platforms'),
 					validator: function (platforms) {
-						var p = exports.scrubPlatforms(platforms);
+						var p = lib.scrubPlatforms(platforms);
 						if (p.bad.length) {
 							throw new appc.exception(__('Invalid platforms: %s', p.bad.join(', ')));
 						}
@@ -36,7 +36,8 @@ exports.config = function (logger, config, cli) {
 					}
 				},
 				required: true,
-				values: lib.availablePlatforms
+				values: lib.availablePlatforms,
+				skipValueCheck: true // we do our own validation
 			},
 			type: {
 				abbr: 't',
@@ -95,7 +96,7 @@ exports.validate = function (logger, config, cli) {
 	cli.argv.platforms = platforms.scrubbed;
 	
 	if (platforms.bad.length) {
-		logger.error(__('Invalid platforms: %s', platforms.bad.join(', ')) + '\n');
+		logger.error(__n('Invalid platform: %%s', 'Invalid platforms: %%s', platforms.bad.length, platforms.bad.join(', ')) + '\n');
 		logger.log(__('Available platforms for SDK version %s:', lib.sdkVersion) + '\n');
 		lib.availablePlatforms.forEach(function (p) {
 			logger.log('    ' + p.cyan);
@@ -113,39 +114,47 @@ exports.validate = function (logger, config, cli) {
 };
 
 exports.run = function (logger, config, cli) {
-	var projectName = cli.argv.name,
-		platforms = cli.argv.platforms,
-		sdk = cli.env.getSDK(cli.argv.sdk),
-		projectDir = appc.fs.resolvePath(cli.argv.dir, projectName),
-		templateDir = appc.fs.resolvePath(sdk.path, 'templates', cli.argv.template),
-		tiappFile = path.join(projectDir, 'tiapp.xml');
-	
-	appc.fs.exists(projectDir) || wrench.mkdirSyncRecursive(projectDir);
-	wrench.copyDirSyncRecursive(templateDir, projectDir);
-	
-	var tiapp = new appc.xml.tiapp(tiappFile);
-	tiapp.set('id', cli.argv.id)
-		.set('name', projectName)
-		.set('version', '1.0')
-		.set('deployment-targets', lib.availablePlatforms.map(function (p) {
-			return {
-				tag: 'target',
-				attrs: { 'device': p },
-				value: platforms.indexOf(p) != -1
-			};
-		}))
-		.set('sdk-version', sdk.name)
-		.save();
-	
-	platforms.forEach(function (p) {
-		var templatePath = appc.fs.resolvePath('..', '..', p, 'templates', cli.argv.template);
-		if (appc.fs.exists(templatePath)) {
-			wrench.copyDirSyncRecursive(templatePath, projectDir, { preserve: true });
-		}
-		if (appc.fs.exists(appc.fs.resolvePath('..', '..', p, 'cli', 'commands', '_create.js'))) {
-			require('../../' + p + '/cli/commands/_create')(logger, projectDir, tiapp);
-		}
-	});
+	switch (cli.argv.type) {
+		case 'app':
+			var projectName = cli.argv.name,
+				platforms = cli.argv.platforms,
+				sdk = cli.env.getSDK(cli.argv.sdk),
+				projectDir = appc.fs.resolvePath(cli.argv.dir, projectName),
+				templateDir = appc.fs.resolvePath(sdk.path, 'templates', cli.argv.template),
+				tiappFile = path.join(projectDir, 'tiapp.xml');
+			
+			appc.fs.exists(projectDir) || wrench.mkdirSyncRecursive(projectDir);
+			wrench.copyDirSyncRecursive(templateDir, projectDir);
+			
+			var tiapp = new appc.xml.tiapp(tiappFile);
+			tiapp.set('id', cli.argv.id)
+				.set('name', projectName)
+				.set('version', '1.0')
+				.set('deployment-targets', lib.availablePlatforms.map(function (p) {
+					return {
+						tag: 'target',
+						attrs: { 'device': p },
+						value: platforms.indexOf(p) != -1
+					};
+				}))
+				.set('sdk-version', sdk.name)
+				.save();
+			
+			platforms.forEach(function (p) {
+				var templatePath = appc.fs.resolvePath('..', '..', p, 'templates', cli.argv.template);
+				if (appc.fs.exists(templatePath)) {
+					wrench.copyDirSyncRecursive(templatePath, projectDir, { preserve: true });
+				}
+				if (appc.fs.exists(appc.fs.resolvePath('..', '..', p, 'cli', 'commands', '_create.js'))) {
+					require('../../' + p + '/cli/commands/_create')(logger, projectDir, tiapp);
+				}
+			});
+			break;
+			
+		case 'module':
+			logger.log('module creation not done yet');
+			break;
+	}
 	
 	logger.log(__("Project '%s' created successfully in %s", projectName.cyan, appc.time.printDiff(cli.startTime, Date.now())) + '\n');
 };

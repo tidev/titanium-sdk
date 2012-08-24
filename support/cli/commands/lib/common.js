@@ -16,27 +16,6 @@ var path = require('path'),
 
 exports.sdkVersion = manifest.version;
 
-exports.availablePlatforms = manifest.platforms;
-
-exports.scrubPlatforms = function (platforms) {
-	var r = {
-		scrubbed: [], // distinct list of un-aliased platforms
-		bad: []
-	};
-	
-	platforms.toLowerCase().split(',').map(function (p) {
-		return platformAliases[p] || p;
-	}).forEach(function (p) {
-		if (manifest.platforms.indexOf(p) == -1) {
-			r.bad.push(p);
-		} else if (platforms.indexOf(p) == -1) {
-			r.scrubbed.push(p);
-		}
-	});
-	
-	return r;
-}
-
 exports.commonOptions = function (logger, config) {
 	return {
 		sdk: {
@@ -63,7 +42,9 @@ exports.commonOptions = function (logger, config) {
 };
 
 exports.validateProjectDir = function(logger, dir) {
-	var d = appc.fs.resolvePath(dir || '.');
+	dir = dir || '.';
+	
+	var d = appc.fs.resolvePath(dir);
 	if (!appc.fs.exists(d)) {
 		logger.error(__('Project directory does not exist') + '\n');
 		process.exit(1);
@@ -76,15 +57,41 @@ exports.validateProjectDir = function(logger, dir) {
 	}
 	
 	if (d == '/') {
-		logger.error(__('Invalid project directory "%s"', dir || '.') + '\n');
+		logger.error(__('Invalid project directory "%s"', dir) + '\n');
+		dir == '.' && logger.log(__("Use the %s property to specify the project's directory", '--dir'.cyan) + '\n');
 		process.exit(1);
 	}
 	
 	return d;
 };
 
+exports.availablePlatforms = manifest.platforms;
+
+exports.scrubPlatforms = function (platforms) {
+	var r = {
+		scrubbed: [], // distinct list of un-aliased platforms
+		bad: []
+	};
+	
+	platforms.toLowerCase().split(',').map(function (p) {
+		return platformAliases[p] || p;
+	}).forEach(function (p) {
+		if (manifest.platforms.indexOf(p) == -1) {
+			r.bad.push(p);
+		} else if (platforms.indexOf(p) == -1) {
+			r.scrubbed.push(p);
+		}
+	});
+	
+	return r;
+};
+
+exports.unaliasPlatform = function(platform) {
+	return platformAliases[platform] || platform;
+};
+
 exports.validatePlatform = function(logger, platform) {
-	var p = platform && platformAliases[platform] || platform;
+	var p = exports.unaliasPlatform(platform);
 	if (!p || manifest.platforms.indexOf(p) == -1) {
 		logger.error(__('Invalid platform "%s"', platform) + '\n');
 		appc.string.suggest(platform, manifest.platforms, logger);
