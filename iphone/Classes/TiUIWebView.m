@@ -112,9 +112,11 @@ static NSString * const kTitaniumJavascript = @"Ti.App={};Ti.API={};Ti.App._list
 		webview.backgroundColor = [UIColor whiteColor];
 		webview.contentMode = UIViewContentModeRedraw;
 		[self addSubview:webview];
+
+		BOOL hideDefaultSpinner = [TiUtils boolValue:[self.proxy valueForKey:@"hideDefaultSpinner"] def:NO];
 		
-		// only show the loading indicator if it's a remote URL
-		if ([self isURLRemote])
+		// only show the loading indicator if it's a remote URL and 'hideDefaultSpinner' property is not set.
+		if ([self isURLRemote] && !hideDefaultSpinner)
 		{
 			TiColor *bgcolor = [TiUtils colorValue:[self.proxy valueForKey:@"backgroundColor"]];
 			UIActivityIndicatorViewStyle style = UIActivityIndicatorViewStyleGray;
