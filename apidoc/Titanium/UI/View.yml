@@ -607,7 +607,7 @@ properties:
     type: Point
     platforms: [iphone, ipad]
     
-  - name: animatedCenterPoint
+  - name: animatedCenter
     summary: Current position of the view during an animation.
     type: Point
     permission: read-only
