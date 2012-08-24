@@ -25,6 +25,7 @@ exports.config = function (logger, config, cli) {
 				abbr: 'p',
 				desc: __('the target build platform'),
 				prompt: {
+					default: lib.availablePlatforms,
 					label: __('Target platforms'),
 					error: __('Invalid list of target platforms'),
 					validator: function (platforms) {
@@ -33,7 +34,7 @@ exports.config = function (logger, config, cli) {
 							throw new appc.exception(__('Invalid platforms: %s', p.bad.join(', ')));
 						}
 						return true;
-					}
+					},
 				},
 				required: true,
 				values: lib.availablePlatforms,

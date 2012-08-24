@@ -86,16 +86,12 @@ exports.scrubPlatforms = function (platforms) {
 	return r;
 };
 
-exports.unaliasPlatform = function(platform) {
-	return platformAliases[platform] || platform;
-};
-
 exports.validatePlatform = function(logger, platform) {
-	var p = exports.unaliasPlatform(platform);
+	var p = platformAliases[platform] || platform;
 	if (!p || manifest.platforms.indexOf(p) == -1) {
 		logger.error(__('Invalid platform "%s"', platform) + '\n');
-		appc.string.suggest(platform, manifest.platforms, logger);
-		logger.log(__('Available platforms for SDK version %s:', manifest.version) + '\n');
+		appc.string.suggest(platform, manifest.platforms, logger.log);
+		logger.log(__('Available platforms for SDK version %s:', manifest.version));
 		manifest.platforms.forEach(function (p) {
 			logger.log('    ' + p.cyan);
 		});

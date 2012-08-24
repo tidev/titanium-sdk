@@ -30,7 +30,9 @@ exports.config = function (logger, config, cli) {
 };
 
 exports.validate = function (logger, config, cli) {
-	cli.argv.platform = lib.unaliasPlatform(cli.argv.platform);
+	if (cli.argv.platform) {
+		cli.argv.platform = lib.validatePlatform(logger, cli.argv.platform);
+	}
 	cli.argv.dir = lib.validateProjectDir(logger, cli.argv.dir);
 };
 

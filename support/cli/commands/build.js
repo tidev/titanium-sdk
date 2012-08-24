@@ -18,8 +18,13 @@ exports.config = function (logger, config, cli) {
 				desc: __('the target build platform'),
 				hint: __('platform'),
 				prompt: {
-					label: __('Platform to build for [%s]', lib.availablePlatforms.join(',')),
+					label: __('Target platform [%s]', lib.availablePlatforms.join(',')),
+					error: __('Invalid platform'),
 					validator: function (platform) {
+						platform = platform.trim();
+						if (!platform) {
+							throw new appc.exception(__('Invalid platform'));
+						}
 						if (lib.availablePlatforms.indexOf(platform) == -1) {
 							throw new appc.exception(__('Invalid platform: %s', platform));
 						}
