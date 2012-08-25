@@ -12,7 +12,21 @@ exports.config = function (logger, config, cli) {
 	return {
 		title: __('Build'),
 		desc: __('builds a project'),
+		extendedDesc: 'Builds an existing app or module project.',
 		options: appc.util.mix({
+			'build-type': {
+				abbr: 'b',
+				default: 'development',
+				desc: __('the type of build to perform'),
+				hint: __('type'),
+				values: ['production', 'development']
+			},
+			dest: {
+				alias: 'destination',
+				default: 'device',
+				desc: __('the destination to build for'),
+				values: ['device', 'simulator|emulator', 'package']
+			},
 			platform: {
 				abbr: 'p',
 				desc: __('the target build platform'),
@@ -38,26 +52,7 @@ exports.config = function (logger, config, cli) {
 				abbr: 'd',
 				desc: __('the directory containing the project, otherwise the current working directory')
 			}
-		}, lib.commonOptions(logger, config)),
-		flags: {
-			device: {
-				desc: __('builds the project for device')
-			},
-			package: {
-				desc: __('packages the project into a submittable binary or distributable zip file')
-			},
-			development: {
-				desc: __('builds in development mode'),
-				default: true
-			},
-			production: {
-				desc: __('builds in production mode')
-			},
-			simulator: {
-				alias: 'emulator',
-				desc: __('builds the project to run on a development machine')
-			}
-		}
+		}, lib.commonOptions(logger, config))
 	};
 };
 

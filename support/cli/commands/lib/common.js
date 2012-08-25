@@ -7,7 +7,7 @@
 
 var path = require('path'),
 	appc = require('node-appc'),
-	manifest = appc.manifest(module),
+	manifest = appc.pkginfo.manifest(module),
 	platformAliases = {
 		// add additional aliases here for new platforms
 		'ipad': 'iphone',
@@ -36,6 +36,7 @@ exports.commonOptions = function (logger, config) {
 			},
 			desc: __('minimum logging level'),
 			default: 'warn',
+			hint: __('level'),
 			values: logger.getLevels()
 		}
 	};
@@ -78,7 +79,7 @@ exports.scrubPlatforms = function (platforms) {
 	}).forEach(function (p) {
 		if (manifest.platforms.indexOf(p) == -1) {
 			r.bad.push(p);
-		} else if (platforms.indexOf(p) == -1) {
+		} else if (r.scrubbed.indexOf(p) == -1) {
 			r.scrubbed.push(p);
 		}
 	});

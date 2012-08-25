@@ -117,6 +117,8 @@ exports.validate = function (logger, config, cli) {
 exports.run = function (logger, config, cli) {
 	switch (cli.argv.type) {
 		case 'app':
+			logger.info('Creating Titanium Mobile application project');
+			
 			var projectName = cli.argv.name,
 				platforms = cli.argv.platforms,
 				sdk = cli.env.getSDK(cli.argv.sdk),
@@ -142,7 +144,7 @@ exports.run = function (logger, config, cli) {
 				.save();
 			
 			platforms.forEach(function (p) {
-				var templatePath = appc.fs.resolvePath('..', '..', p, 'templates', cli.argv.template);
+				var templatePath = appc.fs.resolvePath(path.dirname(module.filename), '..', '..', p, 'templates', cli.argv.template);
 				if (appc.fs.exists(templatePath)) {
 					wrench.copyDirSyncRecursive(templatePath, projectDir, { preserve: true });
 				}
@@ -153,9 +155,11 @@ exports.run = function (logger, config, cli) {
 			break;
 			
 		case 'module':
-			logger.log('module creation not done yet');
+			logger.info('Creating Titanium Mobile Module project');
+			
+			logger.warn('module creation not done yet');
 			break;
 	}
 	
-	logger.log(__("Project '%s' created successfully in %s", projectName.cyan, appc.time.prettyDiff(cli.startTime, Date.now())) + '\n');
+	logger.info(__("Project '%s' created successfully in %s", projectName.cyan, appc.time.prettyDiff(cli.startTime, Date.now())) + '\n');
 };
