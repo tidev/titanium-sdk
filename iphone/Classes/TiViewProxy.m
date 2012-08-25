@@ -96,11 +96,13 @@
 
 -(void)startLayout:(id)arg
 {
+    DebugLog(@"startLayout() method is deprecated since 2.2.0 .");
     updateStarted = YES;
     allowLayoutUpdate = NO;
 }
 -(void)finishLayout:(id)arg
 {
+    DebugLog(@"finishLayout() method is deprecated since 2.2.0 .");
     updateStarted = NO;
     allowLayoutUpdate = YES;
     [self processTempProperties:nil];
@@ -108,6 +110,7 @@
 }
 -(void)updateLayout:(id)arg
 {
+    DebugLog(@"updateLayout() method is deprecated since 2.2.0, use applyProperties() instead.");
     id val = nil;
     if ([arg isKindOfClass:[NSArray class]]) {
         val = [arg objectAtIndex:0];
@@ -1297,7 +1300,8 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap,horizontalWrap,horizontalWrap,[self willCha
 
 -(void)_initWithProperties:(NSDictionary*)properties
 {
-    [self startLayout:nil];
+    updateStarted = YES;
+    allowLayoutUpdate = NO;
 	// Set horizontal layout wrap:true as default 
 	layoutProperties.layoutFlags.horizontalWrap = YES;
 	[self initializeProperty:@"horizontalWrap" defaultValue:NUMBOOL(YES)];
@@ -1369,7 +1373,10 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap,horizontalWrap,horizontalWrap,[self willCha
 		}
 	}
 	[super _initWithProperties:properties];
-    [self finishLayout:nil];
+    updateStarted = NO;
+    allowLayoutUpdate = YES;
+    [self processTempProperties:nil];
+    allowLayoutUpdate = NO;
 
 }
 
