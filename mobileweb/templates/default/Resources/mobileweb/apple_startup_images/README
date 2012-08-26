@@ -1,8 +1,0 @@
-These startup images are used by iPhone and iPad apps that are installed to the
-home screen. These images are displayed before the splash screen is displayed.
-
-If you want to create a new splash screen, it is recommended that you start by
-modifying the files in the adjacent "splash" folder, then take screenshots of
-device, crop, and save into this directory. This is the best way to avoid visual
-artifacts when the app transitions from the Apple startup images to the splash
-screen assets.

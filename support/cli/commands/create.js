@@ -65,7 +65,7 @@ exports.config = function (logger, config, cli) {
 				prompt: {
 					label: __('Project name'),
 					error: __('Invalid project name'),
-					pattern: /\w+/
+					pattern: /^[A-Za-z]+[A-Za-z0-9_-]*$/
 				},
 				required: true
 			},
@@ -115,51 +115,61 @@ exports.validate = function (logger, config, cli) {
 };
 
 exports.run = function (logger, config, cli) {
-	switch (cli.argv.type) {
-		case 'app':
-			logger.info('Creating Titanium Mobile application project');
-			
-			var projectName = cli.argv.name,
-				platforms = cli.argv.platforms,
-				sdk = cli.env.getSDK(cli.argv.sdk),
-				projectDir = appc.fs.resolvePath(cli.argv.dir, projectName),
-				templateDir = appc.fs.resolvePath(sdk.path, 'templates', cli.argv.template),
-				tiappFile = path.join(projectDir, 'tiapp.xml');
-			
-			appc.fs.exists(projectDir) || wrench.mkdirSyncRecursive(projectDir);
-			wrench.copyDirSyncRecursive(templateDir, projectDir);
-			
-			var tiapp = new appc.xml.tiapp(tiappFile);
-			tiapp.set('id', cli.argv.id)
-				.set('name', projectName)
-				.set('version', '1.0')
-				.set('deployment-targets', lib.availablePlatforms.map(function (p) {
-					return {
-						tag: 'target',
-						attrs: { 'device': p },
-						value: platforms.indexOf(p) != -1
-					};
-				}))
-				.set('sdk-version', sdk.name)
-				.save();
-			
-			platforms.forEach(function (p) {
-				var templatePath = appc.fs.resolvePath(path.dirname(module.filename), '..', '..', p, 'templates', cli.argv.template);
-				if (appc.fs.exists(templatePath)) {
-					wrench.copyDirSyncRecursive(templatePath, projectDir, { preserve: true });
-				}
-				if (appc.fs.exists(appc.fs.resolvePath('..', '..', p, 'cli', 'commands', '_create.js'))) {
-					require('../../' + p + '/cli/commands/_create')(logger, projectDir, tiapp);
-				}
-			});
-			break;
-			
-		case 'module':
-			logger.info('Creating Titanium Mobile Module project');
-			
-			logger.warn('module creation not done yet');
-			break;
+	var projectName = cli.argv.name,
+		platforms = cli.argv.platforms,
+		id = cli.argv.id,
+		type = cli.argv.type,
+		sdk = cli.env.getSDK(cli.argv.sdk),
+		projectDir = appc.fs.resolvePath(cli.argv.dir, projectName),
+		templateDir = appc.fs.resolvePath(sdk.path, 'templates', type, cli.argv.template),
+		projectConfig;
+	
+	appc.fs.exists(projectDir) || wrench.mkdirSyncRecursive(projectDir);
+	wrench.copyDirSyncRecursive(templateDir, projectDir);
+	
+	if (type == 'app') {
+		logger.info(__('Creating Titanium Mobile application project'));
+		
+		projectConfig = new appc.xml.tiapp(path.join(projectDir, 'tiapp.xml'));
+		projectConfig.set('id', id)
+			.set('name', projectName)
+			.set('version', '1.0')
+			.set('deployment-targets', lib.availablePlatforms.map(function (p) {
+				return {
+					tag: 'target',
+					attrs: { 'device': p },
+					value: platforms.indexOf(p) != -1
+				};
+			}))
+			.set('sdk-version', sdk.name)
+			.save();
+	} else if (type == 'module') {
+		logger.info(__('Creating Titanium Mobile module project'));
+		
+		projectConfig = {
+			'___PROJECTNAMEASIDENTIFIER___': projectName.toLowerCase().split(/\./).map(function (s) { return appc.string.capitalize(s); }).join(''),
+			'___MODULE_NAME_CAMEL___': projectName.toLowerCase().split(/[\W_]/).map(function (s) { return appc.string.capitalize(s); }).join(''),
+			'___MODULE_ID_AS_FOLDER___': id.replace(/\./g, path.sep),
+			'___PROJECTNAME___': projectName.toLowerCase(),
+			'__MODULE_ID__': id,
+			'__PROJECT_SHORT_NAME__': projectName,
+			'__VERSION__': sdk.name,
+			'__SDK__': sdk.path,
+			'__SDK_ROOT__': sdk.path,
+			'__GUID__': require('node-uuid').v4(),
+			'__YEAR__': (new Date).getFullYear()
+		};
 	}
+	
+	platforms.forEach(function (p) {
+		var templatePath = appc.fs.resolvePath(path.dirname(module.filename), '..', '..', p, 'templates', type, cli.argv.template);
+		if (appc.fs.exists(templatePath)) {
+			wrench.copyDirSyncRecursive(templatePath, projectDir, { preserve: true });
+		}
+		if (appc.fs.exists(appc.fs.resolvePath('..', '..', p, 'cli', 'commands', '_create.js'))) {
+			require('../../' + p + '/cli/commands/_create')(logger, type, projectDir, projectConfig);
+		}
+	});
 	
 	logger.info(__("Project '%s' created successfully in %s", projectName.cyan, appc.time.prettyDiff(cli.startTime, Date.now())) + '\n');
 };

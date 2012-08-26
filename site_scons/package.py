@@ -319,6 +319,11 @@ def zip_mobileweb(zf,basepath,version):
 def resolve_npm_deps(dir, version):
 	package_json_file = os.path.join(dir, 'package.json')
 	if os.path.exists(package_json_file):
+		# ensure fresh npm install
+		node_modules_dir = os.path.join(dir, 'node_modules')
+		if os.path.exists(node_modules_dir):
+			shutil.rmtree(node_modules_dir, True)
+		
 		package_json_original = codecs.open(package_json_file, 'r', 'utf-8').read()
 		package_json_contents = package_json_original
 		
