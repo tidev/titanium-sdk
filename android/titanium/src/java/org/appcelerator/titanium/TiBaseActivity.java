@@ -759,6 +759,7 @@ public abstract class TiBaseActivity extends Activity
 	
 		TiApplication.updateActivityTransitionState(true);
 		tiApp.setCurrentActivity(this, null);
+		TiUIHelper.showSoftKeyboard(getWindow().getDecorView(), false);
 
 		if (this.isFinishing()) {
 			releaseDialogs();
@@ -964,6 +965,8 @@ public abstract class TiBaseActivity extends Activity
 		Log.d(TAG, "Activity " + this + " onDestroy", Log.DEBUG_MODE);
 
 		TiApplication tiApp = getTiApp();
+		//Clean up dialogs when activity is destroyed. 
+		releaseDialogs();
 
 		if (tiApp.isRestartPending()) {
 			super.onDestroy();

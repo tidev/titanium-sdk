@@ -925,7 +925,6 @@ public class TiUIHelper
 			if (model != null && model.toLowerCase().startsWith("droid")) {
 				useForce = true;
 			}
-			
 			if (show) {
 				imm.showSoftInput(view, useForce ? InputMethodManager.SHOW_FORCED : InputMethodManager.SHOW_IMPLICIT);
 			} else {

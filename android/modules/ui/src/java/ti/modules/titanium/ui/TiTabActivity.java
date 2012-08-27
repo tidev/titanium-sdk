@@ -14,6 +14,7 @@ import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiRootActivity;
+import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiCompositeLayout;
 import org.appcelerator.titanium.view.TiCompositeLayout.LayoutArrangement;
 
@@ -219,7 +220,7 @@ public class TiTabActivity extends TabActivity
 			}
 			return;
 		}
-
+		TiUIHelper.showSoftKeyboard(getWindow().getDecorView(), false);
 		tiApp.setCurrentActivity(this, null);
 	}
 

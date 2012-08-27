@@ -1534,6 +1534,8 @@ class Builder(object):
 			self.tiappxml.to_bool(self.tiappxml.get_app_property('ti.android.compilejs')))
 
 		pkg_assets_dir = self.assets_dir
+		if self.deploy_type == "test":
+			compile_js = False
 		if self.deploy_type == "production" and compile_js:
 			non_js_assets = os.path.join(self.project_dir, 'bin', 'non-js-assets')
 			if not os.path.exists(non_js_assets):
@@ -1628,7 +1630,8 @@ class Builder(object):
 		output = self.run_adb('shell', 'am', 'start',
 			'-a', 'android.intent.action.MAIN',
 			'-c','android.intent.category.LAUNCHER',
-			'-n', '%s/.%sActivity' % (self.app_id , self.classname))
+			'-n', '%s/.%sActivity' % (self.app_id , self.classname),
+			'-f', '0x10200000')
 		trace("Launch output: %s" % output)
 
 	def wait_for_sdcard(self):
@@ -1979,7 +1982,7 @@ class Builder(object):
 			generated_classes_built = self.build_generated_classes()
 
 			# TODO: enable for "test" / device mode for debugger / fastdev
-			if not self.build_only and self.deploy_type == "development":
+			if not self.build_only and (self.deploy_type == "development" or self.deploy_type == "test"):
 				self.push_deploy_json()
 			self.classes_dex = os.path.join(self.project_dir, 'bin', 'classes.dex')
 			
@@ -2199,9 +2202,12 @@ if __name__ == "__main__":
 		elif command == 'install':
 			avd_id = dequote(sys.argv[6])
 			device_args = ['-d']
-			if len(sys.argv) >= 8:
+			if len(sys.argv) >= 8 and len(sys.argv[7]) > 0:
 				device_args = ['-s', sys.argv[7]]
-			s.build_and_run(True, avd_id, device_args=device_args)
+			debugger_host = None
+			if len(sys.argv) >= 9 and len(sys.argv[8]) > 0:
+				debugger_host = dequote(sys.argv[8])
+			s.build_and_run(True, avd_id, device_args=device_args, debugger_host=debugger_host)
 		elif command == 'distribute':
 			key = os.path.abspath(os.path.expanduser(dequote(sys.argv[6])))
 			password = dequote(sys.argv[7])
