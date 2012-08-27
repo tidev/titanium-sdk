@@ -499,11 +499,16 @@ NSString * const TI_DB_VERSION = @"1";
 	
 	id platform = [self platform];
 	id network = [self network];
+	UIDevice * device = [UIDevice currentDevice];
 	
 	NSString * version = [NSString stringWithCString:TI_VERSION_STR encoding:NSUTF8StringEncoding];
-	NSString * os = [platform valueForKey:@"version"];
-	NSString * username = [platform valueForKey:@"username"];
-	NSString * mmodel = [platform valueForKey:@"model"];
+	NSString * os = [device systemVersion];
+	NSString * username = [device name];
+	NSString * mmodel = nil;
+	//TIMOB 10553: Platform module might not be included.
+	if ([platform isKindOfClass:[TiModule class]]) {
+		mmodel = [platform valueForKey:@"model"];
+	}
 	NSString * nettype = [network valueForKey:@"networkTypeName"];
 	
 	NSDictionary * data = [NSDictionary dictionaryWithObjectsAndKeys:
