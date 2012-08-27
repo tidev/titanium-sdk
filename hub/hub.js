@@ -4,9 +4,11 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  *
- * Purpose: 
+ * Purpose: Entry point for the Anvil hub
  *
- * Description: 
+ * Description: The hub handles connections from the drivers and CI server in order to drive new 
+ * test runs.  Results from test runs are reported back and stored so they can be reported via a 
+ * web interface.
  */
 
 /*
@@ -15,7 +17,6 @@ TODO:
 into actual results DB.  this will enable any issues during the processing of the results to be 
 discarded without impacting the "real" data set
 - i am sure there are possible DB optimizations that can be made
-- update DB to store driver state metrics (is connected, last registered time, etc)
 */
 
 var fs = require("fs");

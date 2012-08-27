@@ -24,6 +24,7 @@ do
 		# Note that this can sometimes fix adb issues but some adb issues require
 		# physical interaction
 		adb kill-server
+		sleep 5;
 		adb start-server
 
                 /usr/local/bin/node $process > run_wrapper/run_out.txt 2>&1 &

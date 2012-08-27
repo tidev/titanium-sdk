@@ -4,9 +4,7 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  *
- * Purpose: 
- *
- * Description: 
+ * Purpose: general data and message processing that comes from either the Drivers or CI server
  */
 
 var fs = require("fs");
@@ -137,7 +135,7 @@ module.exports = new function() {
 		fs.closeSync(resultsFile);
 
 		// extract the results set
-		var command = "tar -xvf " + driverRunWorkingDir + "/" + activeRuns[driverId].gitHash + driverId + ".tgz -C " + driverRunWorkingDir;
+		var command = "tar -xzvf " + driverRunWorkingDir + "/" + activeRuns[driverId].gitHash + driverId + ".tgz -C " + driverRunWorkingDir;
 		util.runCommand(command, function(error, stdout, stderr) {
 			if (error !== null) {
 				console.log("error <" + error + "> occurred when trying to extract results to <" + 

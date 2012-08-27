@@ -4,9 +4,7 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  *
- * Purpose: 
- *
- * Description: 
+ * Purpose: handles network connection with Drivers and CI server
  */
 
 var net = require("net");
@@ -15,6 +13,7 @@ var util = require(__dirname + "/util");
 
 module.exports = new function() {
 	var self = this;
+	var 32B_INT_SIZE = 4; // size in bytes of a 32 bit integer
 
 	this.driverConnections = {};
 	this.messageHandler;
@@ -101,14 +100,14 @@ module.exports = new function() {
 					recvBuffer = Buffer.concat([recvBuffer, data]);
 
 					if (payloadSize === null) {
-						if (bytesReceived >= 4) {
+						if (bytesReceived >= 32B_INT_SIZE) {
 							payloadSize = recvBuffer.readUInt32BE(0);
 						}
 					}
 
-					if ((payloadSize !== null) && (bytesReceived >= (4 + payloadSize))) {
+					if ((payloadSize !== null) && (bytesReceived >= (32B_INT_SIZE + payloadSize))) {
 						if (registered === false) {
-							var message = JSON.parse(recvBuffer.slice(4));
+							var message = JSON.parse(recvBuffer.slice(32B_INT_SIZE));
 
 							bytesReceived = 0;
 							recvBuffer = new Buffer(0);
@@ -137,7 +136,7 @@ module.exports = new function() {
 
 						} else {
 							util.log("results received from driver: " + bytesReceived);
-							self.messageHandler.processDriverResults(driverId, recvBuffer.slice(4), function() {
+							self.messageHandler.processDriverResults(driverId, recvBuffer.slice(32B_INT_SIZE), function() {
 								// close the driver connection once the results are processed
 								acceptedConnection.destroy();
 							});
@@ -189,9 +188,9 @@ module.exports = new function() {
 			message = JSON.stringify(message);
 		}
 
-		var sendBuffer = new Buffer(4 + message.length);
+		var sendBuffer = new Buffer(32B_INT_SIZE + message.length);
 		sendBuffer.writeUInt32BE(message.length, 0);
-		sendBuffer.write(message, 4);
+		sendBuffer.write(message, 32B_INT_SIZE);
 
 		driverConnection.write(sendBuffer, function() {
 			util.log("message sent to the driver");
