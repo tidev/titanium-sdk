@@ -14,6 +14,8 @@ var path = require('path'),
 		'ios': 'iphone'
 	};
 
+exports.manifest = manifest;
+
 exports.sdkVersion = manifest.version;
 
 exports.commonOptions = function (logger, config) {
