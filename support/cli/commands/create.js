@@ -130,19 +130,19 @@ exports.run = function (logger, config, cli) {
 	if (type == 'app') {
 		logger.info(__('Creating Titanium Mobile application project'));
 		
-		projectConfig = new appc.xml.tiapp(path.join(projectDir, 'tiapp.xml'));
-		projectConfig.set('id', id)
-			.set('name', projectName)
-			.set('version', '1.0')
-			.set('deployment-targets', lib.availablePlatforms.map(function (p) {
-				return {
-					tag: 'target',
-					attrs: { 'device': p },
-					value: platforms.indexOf(p) != -1
-				};
-			}))
-			.set('sdk-version', sdk.name)
-			.save();
+		projectConfig = new appc.tiappxml(projectDir + '/tiapp.xml');
+		projectConfig.id = id;
+		projectConfig.name = projectName;
+		projectConfig.version = '1.0';
+		projectConfig['deployment-targets'] = lib.availablePlatforms.map(function (p) {
+			return {
+				tag: 'target',
+				attrs: { 'device': p },
+				value: platforms.indexOf(p) != -1
+			};
+		});
+		projectConfig['sdk-version'] = sdk.name;
+		projectConfig.save();
 	} else if (type == 'module') {
 		logger.info(__('Creating Titanium Mobile module project'));
 		

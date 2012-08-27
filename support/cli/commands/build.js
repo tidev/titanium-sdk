@@ -6,7 +6,8 @@
  */
 
 var appc = require('node-appc'),
-	lib = require('./lib/common');
+	lib = require('./lib/common'),
+	path = require('path');
 
 exports.config = function (logger, config, cli) {
 	return {
@@ -62,7 +63,16 @@ exports.validate = function (logger, config, cli) {
 };
 
 exports.run = function (logger, config, cli) {
-	dump(cli.argv);
+	var sdk = cli.env.getSDK(cli.argv.sdk),
+		buildModule = path.join(path.dirname(module.filename), '..', '..', cli.argv.platform, 'cli', 'commands', '_build.js');
 	
-	logger.log(__('Project built successfully in %s', appc.time.prettyDiff(cli.startTime, Date.now())) + '\n');
+	if (!appc.fs.exists(buildModule)) {
+		logger.error(__('Unable to find platform specific build command') + '\n');
+		logger.log(__("Your SDK installation may be corrupt. You can reinstall it by running '%s'.", (cli.argv.$ + ' sdk update --force --default').cyan) + '\n');
+		process.exit(1);
+	}
+	
+	new (require(buildModule))(logger, config, cli, sdk.name, lib);
+	
+	logger.info(__('Project built successfully in %s', appc.time.prettyDiff(cli.startTime, Date.now())) + '\n');
 };

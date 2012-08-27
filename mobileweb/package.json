@@ -23,7 +23,6 @@
 	},
 	"license": "Apache Public License v2",
 	"directories": {
-		"cli": "./cli"
 	},
 	"engines": {
 		"node": ">= 0.8.2"

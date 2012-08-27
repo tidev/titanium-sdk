@@ -35,7 +35,7 @@ exports.commonOptions = function (logger, config) {
 				logger.levels[value] && logger.setLevel(value);
 			},
 			desc: __('minimum logging level'),
-			default: 'warn',
+			default: config.cli.logLevel || 'warn',
 			hint: __('level'),
 			values: logger.getLevels()
 		}

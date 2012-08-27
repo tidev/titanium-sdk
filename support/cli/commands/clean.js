@@ -39,15 +39,23 @@ exports.validate = function (logger, config, cli) {
 exports.run = function (logger, config, cli) {
 	var buildDir = path.join(cli.argv.dir, 'build');
 	
+	logger.debug(__('Touching tiapp.xml'));
 	appc.fs.touch(path.join(cli.argv.dir, 'tiapp.xml'));
 	
 	if (cli.argv.platform) {
 		var dir = path.join(buildDir, cli.argv.platform);
-		appc.fs.exists(dir) && wrench.rmdirSyncRecursive(dir);
+		if (appc.fs.exists(dir)) {
+			logger.debug(__('Deleting %s', dir.cyan));
+			wrench.rmdirSyncRecursive(dir);
+		} else {
+			logger.debug(__('Directory does not exist %s', dir.cyan));
+		}
 	} else {
+		logger.debug(__('Deleting all platform build directories'));
 		fs.readdirSync(buildDir).forEach(function (dir) {
 			dir = path.join(buildDir, dir);
 			if (fs.lstatSync(dir).isDirectory()) {
+				logger.debug(__('Deleting %s', dir.cyan));
 				wrench.rmdirSyncRecursive(dir);
 			}
 		});
