@@ -71,6 +71,7 @@ public class TiBlob extends KrollProxy
 	private Object data;
 	private String mimetype;
 	private Bitmap image;
+	private int width, height;
 
 	private TiBlob(int type, Object data, String mimetype)
 	{
@@ -79,6 +80,8 @@ public class TiBlob extends KrollProxy
 		this.data = data;
 		this.mimetype = mimetype;
 		this.image = null;
+		this.width = 0;
+		this.height = 0;
 	}
 
 	/**
@@ -116,7 +119,16 @@ public class TiBlob extends KrollProxy
 		if (mimeType == null) {
 			mimeType = TiMimeTypeHelper.getMimeType(file.nativePath());
 		}
-		return new TiBlob(TYPE_FILE, file, mimeType);
+		TiBlob blob = new TiBlob(TYPE_FILE, file, mimeType);
+
+		// Query the dimensions of a bitmap without allocating the memory for its pixels
+		BitmapFactory.Options opts = new BitmapFactory.Options();
+		opts.inJustDecodeBounds = true;
+		BitmapFactory.decodeStream(blob.getInputStream(), null, opts);
+		blob.width = opts.outWidth;
+		blob.height = opts.outHeight;
+
+		return blob;
 	}
 
 	/**
@@ -135,6 +147,8 @@ public class TiBlob extends KrollProxy
 
 		TiBlob blob = new TiBlob(TYPE_IMAGE, data, "image/bitmap");
 		blob.image = image;
+		blob.width = image.getWidth();
+		blob.height = image.getHeight();
 		return blob;
 	}
 
@@ -162,7 +176,16 @@ public class TiBlob extends KrollProxy
 		if (mimetype == null || mimetype.length() == 0) {
 			return new TiBlob(TYPE_DATA, data, "application/octet-stream");
 		}
-		return new TiBlob(TYPE_DATA, data, mimetype);
+		TiBlob blob = new TiBlob(TYPE_DATA, data, mimetype);
+
+		// Query the dimensions of a bitmap without allocating the memory for its pixels
+		BitmapFactory.Options opts = new BitmapFactory.Options();
+		opts.inJustDecodeBounds = true;
+		BitmapFactory.decodeByteArray(data, 0, data.length, opts);
+		blob.width = opts.outWidth;
+		blob.height = opts.outHeight;
+
+		return blob;
 	}
 
 	/**
@@ -340,47 +363,13 @@ public class TiBlob extends KrollProxy
 	@Kroll.getProperty @Kroll.method
 	public int getWidth()
 	{
-		if (image != null) {
-			return image.getWidth();
-		}
-
-		// Query the dimensions of a bitmap without allocating the memory for its pixels
-		BitmapFactory.Options opts = new BitmapFactory.Options();
-		opts.inJustDecodeBounds = true;
-		switch (type) {
-			case TYPE_FILE:
-				BitmapFactory.decodeStream(getInputStream(), null, opts);
-				return opts.outWidth;
-			case TYPE_DATA:
-				byte[] byteArray = (byte[]) data;
-				BitmapFactory.decodeByteArray(byteArray, 0, byteArray.length, opts);
-				return opts.outWidth;
-		}
-
-		return 0;
+		return width;
 	}
 
 	@Kroll.getProperty @Kroll.method
 	public int getHeight()
 	{
-		if (image != null) {
-			return image.getHeight();
-		}
-
-		// Query the dimensions of a bitmap without allocating the memory for its pixels
-		BitmapFactory.Options opts = new BitmapFactory.Options();
-		opts.inJustDecodeBounds = true;
-		switch (type) {
-			case TYPE_FILE:
-				BitmapFactory.decodeStream(getInputStream(), null, opts);
-				return opts.outHeight;
-			case TYPE_DATA:
-				byte[] byteArray = (byte[]) data;
-				BitmapFactory.decodeByteArray(byteArray, 0, byteArray.length, opts);
-				return opts.outHeight;
-		}
-
-		return 0;
+		return height;
 	}
 
 	@Kroll.method
