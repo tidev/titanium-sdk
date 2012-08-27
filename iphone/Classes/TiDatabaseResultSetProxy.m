@@ -199,7 +199,7 @@
 	return nil;
 }
 
--(id)fieldCount:(id)args
+-(NSNumber*)fieldCount
 {
 	if (results!=nil)
 	{

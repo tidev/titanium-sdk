@@ -136,7 +136,7 @@ properties:
     summary: The number of columns in this result set.
     type: Number
     permission: read-only
-    platforms: [android]
+    platforms: [android, iphone, ipad]
 
   - name: rowCount
     summary: The number of rows in this result set.
