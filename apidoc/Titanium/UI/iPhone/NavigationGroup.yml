@@ -66,18 +66,18 @@ examples:
             	window : win2
             });
 
-            var addRedWindow = function() {
+            var addBlueWindow = function() {
             	var win3 = Titanium.UI.createWindow({
             		backgroundColor : 'blue',
             		title : 'Blue Window'
             	});
             	nav.open(win3, {animated : true});
             	// clean up the event handler 
-            	win2.removeEventListener('open', addRedWindow);
+            	win2.removeEventListener('open', addBlueWindow);
             } 
             // To avoid a race condition, wait for the open event on the main window
             // before opening a sub-window.
-            win2.addEventListener('open', addRedWindow);
+            win2.addEventListener('open', addBlueWindow);
 
             win1.add(nav);
             win1.open();
