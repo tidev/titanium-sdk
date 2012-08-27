@@ -29,9 +29,9 @@
 
 #if PL_DB_PRIVATE
 
-@class TI_PLSqliteResultSet;
+@class PLSqliteResultSet;
 
-@interface TI_PLSqlitePreparedStatement : NSObject <TI_PLPreparedStatement> {
+@interface PLSqlitePreparedStatement : NSObject <PLPreparedStatement> {
 @private
     /** Our backing database. */
     PLSqliteDatabase *_database;
@@ -55,12 +55,10 @@
 - (id) initWithDatabase: (PLSqliteDatabase *) db sqliteStmt: (sqlite3_stmt *) sqlite_stmt queryString: (NSString *) queryString closeAtCheckin: (BOOL) closeAtCheckin;
 
 // DO NOT CALL. Must only be called from PLSqliteResultSet
-- (void) checkinResultSet: (TI_PLSqliteResultSet *) resultSet;
+- (void) checkinResultSet: (PLSqliteResultSet *) resultSet;
 
 - (NSString *) queryString;
 
 @end
-
-@compatibility_alias PLSqlitePreparedStatement TI_PLSqlitePreparedStatement;
 
 #endif

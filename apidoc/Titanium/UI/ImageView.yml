@@ -114,6 +114,15 @@ properties:
     type: Boolean
     default: false on creation, true on load (Android), false (iPhone, iPad, Mobile Web)
     permission: read-only
+  
+  - name: autorotate
+    summary: |
+        Indicates whether the image should be rotated based on exif orientation data. This is false by default on android. 
+        iOS always has this behavior enabled, and currently can't be changed.  The auto rotate behavior is not supported on Mobile Web.
+    type: Boolean
+    default: false
+    availability: creation
+    platforms: [android]
     
   - name: canScale
     summary: |
@@ -146,6 +155,9 @@ properties:
         are assigned, duration will be set to 100 ms.
         
         On iOS and Mobile Web, prior to release 2.1.1, the default is 30 ms.
+
+        On Android, if the value of duration is changed, [stop](Titanium.UI.ImageView.stop)
+        and [start](Titanium.UI.ImageView.start) need to be called for the new value to take effect.
     type: Number
     default: 200 ms in Release 2.1.1 and later. Platform-specific default in earlier releases.
     
@@ -208,12 +220,6 @@ properties:
     summary: Run the animation in reverse.
     type: Boolean
     default: false
-    
-  - name: url
-    summary: |
-        URL to the image to display. Deprecated: use [image](Titanium.UI.ImageView.image) instead.
-    type: String
-    deprecated: {since: "1.5.0"}
 
 examples:
   - title: Basic Image View

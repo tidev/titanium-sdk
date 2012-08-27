@@ -137,6 +137,12 @@ public class Log
 		return d(tag, msg, RELEASE_MODE);
 	}
 
+	// Old debug method to support backwards compatibility.
+	public static int debug(String tag, String msg)
+	{
+		return d(tag, msg, RELEASE_MODE);
+	}
+
 	/**
 	 * Sends a 'debug' log message, with the thread name and time stamp pre-appended, and log the exception.
 	 * For more information regarding formatting, refer to {@link #w(String, String)}.

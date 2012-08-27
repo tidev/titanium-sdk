@@ -135,11 +135,18 @@ def to_jsca_method_parameter(p):
 				type_in_method_name = p.parent.name.replace("create", "")
 				if len(type_in_method_name) > 0 and type_in_method_name == method_return_type.split(".")[-1]:
 					data_type = to_jsca_type_name(method_return_type)
+	usage = "required"
+
+	if "optional" in p.api_obj and p.api_obj["optional"]:
+		usage = "optional"
+	elif p.repeatable:
+		usage = "one-or-more"
+
 	result = {
 			"name": p.name,
 			"description": "" if "summary" not in p.api_obj else to_jsca_description(p.api_obj["summary"]),
 			"type": data_type,
-			"usage": "optional" if "optional" in p.api_obj and p.api_obj["optional"] else "required"
+			"usage": usage
 			}
 	return to_ordered_dict(result, ('name',))
 

@@ -10,12 +10,6 @@ events:
   - name: action
     summary: Fired when a banner action is performed.
     properties:
-      - name: globalPoint
-        summary: Properties x and y describing the point of the event in screen coordinates.
-        platforms: [iphone, ipad]
-        deprecated:
-            since: "1.8.0"
-            
       - name: x
         summary: X coordinate of the event from the `source` view's coordinate system.
         
@@ -25,12 +19,6 @@ events:
   - name: error
     summary: Fired when a banner could not be loaded.
     properties:
-      - name: globalPoint
-        summary: Properties x and y describing the point of the event in screen coordinates.
-        platforms: [iphone, ipad]
-        deprecated:
-            since: "1.8.0"
-        
       - name: message
         summary: Error message.
         
@@ -43,12 +31,6 @@ events:
   - name: load
     summary: Fired when a banner is loaded and displayed.
     properties:
-      - name: globalPoint
-        summary: Properties x and y describing the point of the event in screen coordinates.
-        platforms: [iphone, ipad]
-        deprecated:
-            since: "1.8.0"
-        
       - name: x
         summary: X coordinate of the event from the `source` view's coordinate system.
         

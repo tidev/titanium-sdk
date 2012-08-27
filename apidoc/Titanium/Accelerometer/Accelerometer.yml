@@ -11,7 +11,7 @@ description: |
     which consumes a lot of power that will deplete the battery over time. This is why it is 
     recommended that the accelerometer is switched off when not in use.
     
-    The accelerometer may be switched on and off by simply by adding and removing the `update` 
+    The accelerometer may be switched on and off by simply adding and removing the `update` 
     event listener function. See the example for a demonstration.
 extends: Titanium.Module
 since: "0.1"

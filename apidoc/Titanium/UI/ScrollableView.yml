@@ -71,15 +71,6 @@ events:
     summary: Fired when the device detects a double click against the view.
     platforms: [iphone, ipad]
     properties:
-      - name: globalPoint
-        summary: |
-            Coordinates `x` and `y` describing the location of the event in terms of screen 
-            coordinates.
-        type: Dictionary
-        deprecated:
-            since: "1.8.0"
-        platforms: [iphone, ipad]
-        
       - name: x
         summary: X coordinate of the event from the `source` view's coordinate system.
         type: Number
@@ -92,15 +83,6 @@ events:
     summary: Fired when the device detects a double tap against this page.
     platforms: [iphone, ipad]
     properties:
-      - name: globalPoint
-        summary: |
-            Coordinates `x` and `y` describing the location of the event in terms of screen 
-            coordinates.
-        type: Dictionary
-        deprecated:
-            since: "1.8.0"
-        platforms: [iphone, ipad]
-        
       - name: x
         summary: X coordinate of the event from the `source` view's coordinate system.
         type: Number
@@ -128,15 +110,6 @@ events:
     summary: Fired when the device detects a single tap against this view.
     platforms: [iphone, ipad]
     properties:
-      - name: globalPoint
-        summary: |
-            Coordinates `x` and `y` describing the location of the event in terms of screen 
-            coordinates.
-        type: Dictionary
-        deprecated:
-            since: "1.8.0"
-        platforms: [iphone, ipad]
-        
       - name: x
         summary: X coordinate of the event from the `source` view's coordinate system.
         type: Number
@@ -152,15 +125,6 @@ events:
         up state.
     platforms: [iphone, ipad]
     properties:
-      - name: globalPoint
-        summary: |
-            Coordinates `x` and `y` describing the location of the event in terms of screen 
-            coordinates.
-        type: Dictionary
-        deprecated:
-            since: "1.8.0"
-        platforms: [iphone, ipad]
-        
       - name: x
         summary: X coordinate of the event from the `source` view's coordinate system.
         type: Number
@@ -173,15 +137,6 @@ events:
     summary: Fired as soon as the device detects a touch gesture against this view.
     platforms: [iphone, ipad]
     properties:
-      - name: globalPoint
-        summary: |
-            Coordinates `x` and `y` describing the location of the event in terms of screen 
-            coordinates.
-        type: Dictionary
-        deprecated:
-            since: "1.8.0"
-        platforms: [iphone, ipad]
-        
       - name: x
         summary: X coordinate of the event from the `source` view's coordinate system.
         type: Number
@@ -194,15 +149,6 @@ events:
     summary: Fired when the device detects a two-finger tap against the view.
     platforms: [iphone, ipad]
     properties:
-      - name: globalPoint
-        summary: |
-            Coordinates `x` and `y` describing the location of the event in terms of screen 
-            coordinates.
-        type: Dictionary
-        deprecated:
-            since: "1.8.0"
-        platforms: [iphone, ipad]
-        
       - name: y
         summary: Y coordinate of the event from the `source` view's coordinate system.
         type: Number
@@ -237,8 +183,12 @@ events:
 
   - name: scrollEnd
     summary: Fired when the view has stopped moving completely.
+    description: |
+        This event has been deprecated and renamed scrollend (lower case).
     platforms: [iphone, ipad, android, mobileweb]
     since: "2.1.0"
+    deprecated:
+        since: "2.2.0"
 
     properties:
       - name: currentPage
@@ -252,21 +202,60 @@ events:
   - name: dragStart
     summary: Fired when the scrollable region starts being dragged.
     description: |
+        This event has been deprecated and renamed dragstart (lower case).
+    description: |
         A dragging gesture is when a touch remains in contact with the display to physically drag 
         the view, as opposed to it being the result of scrolling momentum.
     since: "2.1.0"
     platforms: [mobileweb]
+    deprecated:
+        since: "2.2.0"
 
   - name: dragEnd
     summary: Fired when the scrolling drag gesture on the view has been completed.
+    description: |
+        This event has been deprecated and renamed dragend (lower case).
     platforms: [android, mobileweb]
     since: "2.1.0"
     properties:
-
       - name: currentPage
         summary: Index of the currently visible view of <Titanium.UI.ScrollableView.views>.
         type: Number
- 
+      - name: view
+        summary: The currently visible view.
+        type: Titanium.UI.View
+    deprecated:
+        since: "2.2.0"
+
+  - name: scrollend
+    summary: Fired when the view has stopped moving completely.
+    platforms: [iphone, ipad, android, mobileweb]
+    properties:
+      - name: currentPage
+        summary: Index of the currently visible view of <Titanium.UI.ScrollableView.views>.
+        type: Number
+        
+      - name: view
+        summary: The currently visible view.
+        type: Titanium.UI.View
+    since: '2.2.0'
+
+  - name: dragstart
+    summary: Fired when the scrollable region starts being dragged.
+    description: |
+        A dragging gesture is when a touch remains in contact with the display to physically drag 
+        the view, as opposed to it being the result of scrolling momentum.
+    platforms: [mobileweb]
+    since: '2.2.0'
+
+  - name: dragend
+    summary: Fired when the scrolling drag gesture on the view has been completed.
+    platforms: [android, mobileweb]
+    since: "2.2.0"
+    properties:
+      - name: currentPage
+        summary: Index of the currently visible view of <Titanium.UI.ScrollableView.views>.
+        type: Number
       - name: view
         summary: The currently visible view.
         type: Titanium.UI.View

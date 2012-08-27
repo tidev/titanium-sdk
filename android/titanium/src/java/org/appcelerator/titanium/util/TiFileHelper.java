@@ -582,6 +582,31 @@ public class TiFileHelper
 		return result;
 	}
 
+	public File getTempFileFromInputStream(InputStream is, String suffix, boolean destroyOnExit)
+	{
+		try {
+			File tempFile = getTempFile(suffix, destroyOnExit);
+
+			if (tempFile.exists()) {
+				byte[] bytes = new byte[1024];
+				int length;
+				FileOutputStream os = new FileOutputStream(tempFile);
+
+				while ((length = is.read(bytes)) != -1) {
+					os.write(bytes, 0, length);
+				}
+				os.close();
+			}
+			return tempFile;
+
+		} catch (FileNotFoundException e) {
+			Log.w(TAG, "Could not find temp file: " + suffix);
+		} catch (IOException e) {
+			Log.w(TAG, "Error occurred while creating output stream from temp file: " + suffix);
+		}
+		return null;
+	}
+
 	// Destroys all temporary files that have been created.
 	// This is called when the application is exited/destroyed.
 	public void destroyTempFiles()

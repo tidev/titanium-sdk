@@ -795,24 +795,7 @@ CFMutableSetRef	krollBridgeRegistry = nil;
     
     
     if (isAbsolute) {
-        // Two possibilities: In a module, refers to toplevel of module. In an app, refers to app bundle.
-        // But this is where things get ugly. Say that we have the following sequence of require()s:
-        // app.js: require('UI/foo'); // workingPath: nil
-        // UI/foo.js: require('/bar'); // workingPath: UI
-        // When we pull the first component of the working path, it says we're in 'UI' which is a module.
-        //
-        // We have to handle this with additional logic in the module loader (since the bar_js resource
-        // will not load off the UI module) which for absolute URLs knocks back the file path to
-        // the app bundle. Note that this means module resources have priority over app resources in
-        // the event of a naming conflict.
-        
-        moduleID = [[workingPath pathComponents] objectAtIndex:0];
-        if ( [modules objectForKey:moduleID] != nil) {
-            fullPath = [moduleID stringByAppendingPathComponent:fullPath];
-        }
-        else {
-            moduleID = [[fullPath pathComponents] objectAtIndex:0];
-        }
+        moduleID = [[fullPath pathComponents] objectAtIndex:0];
     }
     else {
         fullPath = (workingPath != nil) ? 

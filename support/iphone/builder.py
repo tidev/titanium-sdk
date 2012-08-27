@@ -107,7 +107,7 @@ def infoplist_has_appid(f,appid):
 def copy_module_resources(source, target, copy_all=False, force=False):
 	if not os.path.exists(os.path.expanduser(target)):
 		os.makedirs(os.path.expanduser(target))
-	for root, dirs, files in os.walk(source):
+	for root, dirs, files in os.walk(source, True, None, True):
 		for name in ignoreDirs:
 			if name in dirs:
 				dirs.remove(name)	# don't visit ignored directories			  
@@ -184,7 +184,7 @@ def make_map(dict):
 def dump_resources_listing(rootdir,out):
 	out.write("\nFile listing for %s\n\n" % rootdir)
 	total = 0
-	for root, subFolders, files in os.walk(rootdir):
+	for root, subFolders, files in os.walk(rootdir, True, None, True):
 		for file in files:
 			p = os.path.join(root,file)
 			s = os.path.getsize(p)
@@ -504,10 +504,10 @@ def cleanup_app_logfiles(tiapp, log_id, iphone_version):
 			os.remove(i)
 
 def find_name_conflicts(project_dir, project_name):
-	for root, dirs, files in os.walk(project_dir):
-		for name in dirs:
-			if name == project_name:
-				print "[ERROR] Project name %s conflicts with resource named %s: Cannot build. Please change one." % (project_name, os.path.join(root, name))
+	for dir in ['Resources', 'Resources/iphone']:
+		for name in os.listdir(os.path.join(project_dir, dir)):
+			if name.lower() == project_name.lower():
+				print "[ERROR] Project name %s conflicts with resource named %s: Cannot build. Please change one." % (project_name, os.path.join(project_dir, dir, name))
 				exit(1)
 	pass
 
@@ -1398,6 +1398,7 @@ def main(args):
 						sim = subprocess.Popen("\"%s\" launch \"%s\" --sdk %s" % (iphonesim,app_dir,iphone_version),shell=True,cwd=template_dir)
 					else:
 						sim = subprocess.Popen("\"%s\" launch \"%s\" --sdk %s --family %s" % (iphonesim,app_dir,iphone_version,simtype),shell=True,cwd=template_dir)
+					os.unsetenv('DYLD_FRAMEWORK_PATH')
 
 					# activate the simulator window
 					ass = os.path.join(template_dir, 'iphone_sim_activate.scpt')
