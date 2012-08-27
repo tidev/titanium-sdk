@@ -23,6 +23,8 @@ log = TiLogger(None)
 all_annotated_apis = None
 apis = None
 
+# Avoid obliterating our four spaces pattern with a careless %s:/    /^I/
+FOUR_SPACES='  ' + '  '
 # compiling REs ahead of time, since we use them heavily.
 link_parts_re = re.compile(r"(?:\[([^\]]+?)\]\(([^\)\s]+?)\)|\<([^\>\s]+)\>)", re.MULTILINE)
 find_links_re = re.compile(r"(\[[^\]]+?\]\([^\)\s]+?\)|\<[^\>\s]+\>)", re.MULTILINE)
@@ -154,9 +156,12 @@ def output_properties_for_obj(obj):
 	if obj.has_key("extends"):
 		res.append("@extends %s" % (obj["extends"]))
 	if obj.has_key("deprecated"):
-		str = "@deprecated %s" % (obj["deprecated"]["since"])
 		if obj["deprecated"].has_key("removed"):
-			str += ". Removed at %s" % (obj["deprecated"]["removed"])
+			str = "@removed  %s" % (obj["deprecated"]["removed"])
+		else:
+			str = "@deprecated %s" % (obj["deprecated"]["since"])
+		if obj["deprecated"].has_key("notes"):
+			str += " %s" % markdown_to_html(obj["deprecated"]["notes"])
 		res.append(str)
 
 	if(len(res) == 0):
@@ -176,7 +181,7 @@ def output_example(desc, code, convert_empty_code):
 	# determine if we need t remove leading spaces from all code lines
 	need_strip = True
 	for line in code:
-		if len(line) > 0 and line[0:4] != '	':
+		if len(line) > 0 and line[0:4] != FOUR_SPACES:
 			need_strip = False
 			break
 
@@ -192,11 +197,11 @@ def output_example(desc, code, convert_empty_code):
 	desc = "\n".join(desc)
 
 	if len(desc) > 0 and len(code) > 0:
-		return "<p>%s</p><pre>%s</pre>" % (desc, code)
+		return "<p>%s</p><pre>%s</pre>" % (markdown_to_html(desc), code)
 	elif len(desc) == 0 and len(code) > 0:
 		return "<pre>%s</pre>" % (code)
 	elif len(desc) > 0 and len(code) == 0:
-		return "<p>%s</p>" % (desc)
+		return "<p>%s</p>" % markdown_to_html(desc)
 
 
 def output_examples_for_obj(obj):
@@ -219,11 +224,11 @@ def output_examples_for_obj(obj):
 				# parse description part until code starts
 				# skip empty string between desc and code
 				if not desc_finished:
-					if prev_line_empty == True and (line.find('	') == 0 or line.find('\t') == 0):
+					if prev_line_empty == True and (line.find(FOUR_SPACES) == 0 or line.find('\t') == 0):
 						desc_finished = True
 				else:
 					# parsing code until code finishes or another description starts
-					if line.find('	') != 0 and line.find('\t') != 0 and len(line) != 0:
+					if line.find(FOUR_SPACES) != 0 and line.find('\t') != 0 and len(line) != 0:
 						# code block finished - another description started - flush content
 						desc_finished = False
 						res.append(output_example(desc, code, first_code_block))
@@ -237,7 +242,7 @@ def output_examples_for_obj(obj):
 				else:
 					code.append(line)
 
-				prev_line_empty = len(line) == 0
+				prev_line_empty = len(line.strip()) == 0
 
 			res.append(output_example(desc, code, first_code_block))
 

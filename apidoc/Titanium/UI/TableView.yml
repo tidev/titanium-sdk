@@ -606,7 +606,7 @@ methods:
         type: TableViewAnimationProperties
         optional: true
     since: 2.2.0
-    platforms: [mobileweb]
+    platforms: [android, mobileweb]
     
   - name: deleteRow
     summary: Deletes an existing row.
@@ -636,7 +636,7 @@ methods:
         type: TableViewAnimationProperties
         optional: true
     since: 2.2.0
-    platforms: [mobileweb]
+    platforms: [android, mobileweb]
     
   - name: deselectRow
     summary: Programmatically deselects a row.
@@ -690,7 +690,7 @@ methods:
         type: TableViewAnimationProperties
         optional: true
     since: 2.2.0
-    platforms: [mobileweb]
+    platforms: [android, mobileweb]
         
   - name: insertRowBefore
     summary: Inserts a row before another row.
@@ -736,7 +736,7 @@ methods:
         type: TableViewAnimationProperties
         optional: true
     since: 2.2.0
-    platforms: [mobileweb]
+    platforms: [android, mobileweb]
     
   - name: scrollToIndex
     summary: Scrolls the table view to ensure that the specified row is on screen.
@@ -878,7 +878,7 @@ methods:
         summary: Animation properties. (iOS only.)
         type: TableViewAnimationProperties
     since: 2.2.0
-    platforms: [mobileweb]
+    platforms: [android, mobileweb]
 
 properties:
   - name: allowsSelection
@@ -972,7 +972,7 @@ properties:
         user to refresh a table's data.  Typically used with the 
         [setContentInsets](Titanium.UI.TableView.setContentInsets) method.
         
-        The [TableView Refresh with headerPullView](https://wiki.appcelerator.org/display/guides2/TableView+Refresh+with+headerPullView) 
+        The [TableView Refresh with headerPullView](http://docs.appcelerator.com/titanium/latest/#!/guide/TableView_Refresh_with_headerPullView)
         guide describes one way a `headerPullView` may be untilized.
     type: Titanium.UI.View
     platforms: [iphone, ipad]
@@ -1098,13 +1098,13 @@ properties:
     type: Number
     permission: read-only
     since: 2.2.0
-    platforms: [iphone, ipad, mobileweb]
+    platforms: [android, iphone, ipad, mobileweb]
 
   - name: sections
     summary: Sections of this table.
     type: Array<Titanium.UI.TableViewSection>
     since: 2.2.0
-    platforms: [iphone, ipad, mobileweb]
+    platforms: [android, iphone, ipad, mobileweb]
 
   - name: separatorColor
     summary: Separator line color between rows, as a color name or hex triplet.

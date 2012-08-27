@@ -346,15 +346,9 @@ Module.prototype._runScript = function (source, filename) {
 	var ti = new Titanium.Wrapper(context);
 	contextGlobal.Ti = contextGlobal.Titanium = ti;
 
-	// This function is called by the context when it is finished initializing
-	// the builtin Javascript APIs
-	function initContext(ctx, contextGlobal) {
-		// Bootstrap Titanium global APIs onto the new context global
-		bootstrap.bootstrapGlobals(contextGlobal, Titanium);
-	}
-
 	// We initialize the context with the standard Javascript APIs and globals first before running the script
-	var newContext = context.global = ti.global = Script.createContext(contextGlobal, initContext);
+	var newContext = context.global = ti.global = Script.createContext(contextGlobal);
+	bootstrap.bootstrapGlobals(newContext, Titanium);
 
 	if (kroll.runtime == "rhino") {
 		// The Rhino version of this API takes a custom global object but uses the same Rhino "Context".
