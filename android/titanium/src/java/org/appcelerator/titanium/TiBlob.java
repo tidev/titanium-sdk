@@ -125,8 +125,9 @@ public class TiBlob extends KrollProxy
 		BitmapFactory.Options opts = new BitmapFactory.Options();
 		opts.inJustDecodeBounds = true;
 		BitmapFactory.decodeStream(blob.getInputStream(), null, opts);
-		blob.width = opts.outWidth;
-		blob.height = opts.outHeight;
+		// If there is an error trying to decode, outWidth and outHeight will be set to -1.
+		blob.width = opts.outWidth > 0? opts.outWidth: 0;
+		blob.height = opts.outHeight > 0? opts.outHeight: 0;
 
 		return blob;
 	}
@@ -182,8 +183,9 @@ public class TiBlob extends KrollProxy
 		BitmapFactory.Options opts = new BitmapFactory.Options();
 		opts.inJustDecodeBounds = true;
 		BitmapFactory.decodeByteArray(data, 0, data.length, opts);
-		blob.width = opts.outWidth;
-		blob.height = opts.outHeight;
+		// If there is an error trying to decode, outWidth and outHeight will be set to -1.
+		blob.width = opts.outWidth > 0? opts.outWidth: 0;
+		blob.height = opts.outHeight > 0? opts.outHeight: 0;
 
 		return blob;
 	}
