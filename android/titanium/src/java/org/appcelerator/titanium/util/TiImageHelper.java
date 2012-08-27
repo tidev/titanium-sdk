@@ -29,7 +29,8 @@ public class TiImageHelper
 	 * 
 	 * @param image
 	 *            the image to add an alpha channel to.
-	 * @return a copy of the given image with an alpha channel.
+	 * @return a copy of the given image with an alpha channel. If the image already have the alpha channel, return the
+	 *         image itself.
 	 */
 	public static Bitmap imageWithAlpha(Bitmap image)
 	{
@@ -51,20 +52,17 @@ public class TiImageHelper
 	 *            the radius of the rounded corners.
 	 * @param borderSize
 	 *            the size of the border to be added.
-	 * @return a copy of the given image with rounded corners and a transparent border.
+	 * @return a copy of the given image with rounded corners and a transparent border. If the cornerRadius <= 0 or
+	 *         borderSize < 0, return the image itself.
 	 */
 	public static Bitmap imageWithRoundedCorner(Bitmap image, float cornerRadius, float borderSize)
 	{
 		if (image == null) {
 			return null;
 		}
-		if (cornerRadius < 0 || borderSize < 0) {
-			Log.e(TAG, "Invalid corner radius or border size for imageWithRoundedCorner");
+		if (cornerRadius <= 0 || borderSize < 0) {
+			Log.w(TAG, "Unable to add rounded corners. Invalid corner radius or borderSize for imageWithRoundedCorner");
 			return image;
-		}
-
-		if (cornerRadius == 0) {
-			return imageWithTransparentBorder(image, (int) borderSize);
 		}
 
 		int width = image.getWidth();
@@ -99,19 +97,15 @@ public class TiImageHelper
 	 *            the image to add a transparent border to.
 	 * @param borderSize
 	 *            the size of the border to be added.
-	 * @return a copy of the given image with a transparent border.
+	 * @return a copy of the given image with a transparent border. If the borderSize <= 0, return the image itself.
 	 */
 	public static Bitmap imageWithTransparentBorder(Bitmap image, int borderSize)
 	{
 		if (image == null) {
 			return null;
 		}
-		if (borderSize < 0) {
-			Log.e(TAG, "Invalid border size for imageWithTransparentBorder");
-			return image;
-		}
-
-		if (borderSize == 0) {
+		if (borderSize <= 0) {
+			Log.w(TAG, "Unable to add a transparent border. Invalid border size for imageWithTransparentBorder.");
 			return image;
 		}
 
