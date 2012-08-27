@@ -156,9 +156,12 @@ def output_properties_for_obj(obj):
 	if obj.has_key("extends"):
 		res.append("@extends %s" % (obj["extends"]))
 	if obj.has_key("deprecated"):
-		str = "@deprecated %s" % (obj["deprecated"]["since"])
 		if obj["deprecated"].has_key("removed"):
-			str += ". Removed at %s" % (obj["deprecated"]["removed"])
+			str = "@removed  %s" % (obj["deprecated"]["removed"])
+		else:
+			str = "@deprecated %s" % (obj["deprecated"]["since"])
+		if obj["deprecated"].has_key("notes"):
+			str += " %s" % markdown_to_html(obj["deprecated"]["notes"])
 		res.append(str)
 
 	if(len(res) == 0):
