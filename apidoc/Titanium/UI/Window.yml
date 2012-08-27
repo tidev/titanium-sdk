@@ -778,9 +778,11 @@ platforms: [iphone, ipad]
 properties:
 
   - name: animated
-    summary: 
+    summary: |
+        Determines whether to use an animated transition when the modal window is shown or hidden.
     type: Boolean
-    default: false
+    default: true
+    optional: true
 
   - name: fullscreen
     summary: Determines whether the window is fullscreen.
@@ -794,16 +796,6 @@ properties:
     default: false
     optional: true
     
-  - name: modalTransitionStyle
-    summary: Transition style of this modal window.
-    description: |
-        One of the modal window transition style constants 
-        <Titanium.UI.iPhone.MODAL_TRANSITION_STYLE_COVER_VERTICAL>, 
-        <Titanium.UI.iPhone.MODAL_TRANSITION_STYLE_CROSS_DISSOLVE>, 
-        <Titanium.UI.iPhone.MODAL_TRANSITION_STYLE_FLIP_HORIZONTAL>, 
-        or <Titanium.UI.iPhone.MODAL_TRANSITION_STYLE_PARTIAL_CURL>.
-    type: Number
-    
   - name: modalStyle
     summary: Presentation style of this modal window.
     description: |
@@ -813,9 +805,37 @@ properties:
         <Titanium.UI.iPhone.MODAL_PRESENTATION_FULLSCREEN>, 
         or <Titanium.UI.iPhone.MODAL_PRESENTATION_PAGESHEET>.
     type: Number
+    default: <Titanium.UI.iPhone.MODAL_PRESENTATION_CURRENT_CONTEXT>
+    optional: true
+
+  - name: modalTransitionStyle
+    summary: Transition style of this modal window.
+    description: |
+        One of the modal window transition style constants
+        <Titanium.UI.iPhone.MODAL_TRANSITION_STYLE_COVER_VERTICAL>,
+        <Titanium.UI.iPhone.MODAL_TRANSITION_STYLE_CROSS_DISSOLVE>,
+        <Titanium.UI.iPhone.MODAL_TRANSITION_STYLE_FLIP_HORIZONTAL>,
+        or <Titanium.UI.iPhone.MODAL_TRANSITION_STYLE_PARTIAL_CURL>.
+    type: Number
+    default: <Titanium.UI.iPhone.MODAL_TRANSITION_STYLE_COVER_VERTICAL>
+    optional: true
 
   - name: navBarHidden
     summary: Hides the navigation bar in a modal window.
     type: Boolean
     default: false
     optional: true
+
+  - name: transition
+    summary: Transition style of this non-modal window.
+    description: |
+        One of the animation style constants 
+        <Titanium.UI.iPhone.AnimationStyle.CURL_DOWN>,
+        <Titanium.UI.iPhone.AnimationStyle.CURL_UP>,
+        <Titanium.UI.iPhone.AnimationStyle.FLIP_FROM_LEFT>,
+        <Titanium.UI.iPhone.AnimationStyle.FLIP_FROM_RIGHT>,
+        or <Titanium.UI.iPhone.AnimationStyle.NONE>. 
+    type: Number
+    default: <Titanium.UI.iPhone.AnimationStyle.NONE>
+    optional: true
+
