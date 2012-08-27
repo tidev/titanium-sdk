@@ -23,7 +23,7 @@ typedef enum {
     TO_CALLBACK,
 } ReadDestination;
 
-@interface TiNetworkSocketTCPProxy : TiStreamProxy<TI_AsyncSocketDelegate, TiStreamInternal> {
+@interface TiNetworkSocketTCPProxy : TiStreamProxy<AsyncSocketDelegate, TiStreamInternal> {
     AsyncSocket* socket;
     SocketState internalState;
     NSCondition* listening;

@@ -5,7 +5,8 @@ define(["Ti/_/declare", "Ti/_/UI/TextBox", "Ti/_/css", "Ti/_/dom", "Ti/_/lang", 
 		keyboardPost = {
 			post: "_setKeyboardType"
 		},
-		setStyle = style.set;
+		setStyle = style.set,
+		on = require.on;
 
 	return declare("Ti.UI.TextField", TextBox, {
 
@@ -20,14 +21,29 @@ define(["Ti/_/declare", "Ti/_/UI/TextBox", "Ti/_/css", "Ti/_/dom", "Ti/_/lang", 
 			this._setKeyboardType();
 			this.borderStyle = UI.INPUT_BORDERSTYLE_BEZEL;
 
-			this._disconnectFocusEvent = require.on(field, "focus", this, function() {
+			this._disconnectFocusEvent = on(field, "focus", this, function() {
 				this.clearOnEdit && (field.value = "");
+				this._focused = 1;
+				this._updateHint();
+			});
+			this._disconnectBlurEvent = on(field, "blur", this, function() {
+				this._focused = 0;
+				this._updateHint();
 			});
 		},
 
 		destroy: function() {
 			this._disconnectFocusEvent();
+			this._disconnectBlurEvent();
 			TextBox.prototype.destroy.apply(this, arguments);
+		},
+		
+		_showingHint: 1,
+		
+		_updateHint: function() {
+			var field = this._field;
+			this._focused && this._showingHint && (field.value = "");
+			(this._showingHint = !this._focused && !this.value ? 1 : 0) && (field.value = this.hintText);
 		},
 
         _defaultWidth: UI.SIZE,
@@ -91,12 +107,7 @@ define(["Ti/_/declare", "Ti/_/UI/TextBox", "Ti/_/css", "Ti/_/dom", "Ti/_/lang", 
 			clearOnEdit: false,
 
 			hintText: {
-				set: function(value) {
-					try { // IE9 doesn't support placeholder and throws an exception if you try and set it.
-						this._field.placeholder = value;
-					} catch(e) {}
-					return value;
-				}
+				post: "_updateHint"
 			},
 
 			keyboardType: keyboardPost,

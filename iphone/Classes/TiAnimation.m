@@ -392,7 +392,15 @@ self.p = v;\
 	animatedView = [theview retain];
     
     if (!transitionAnimation) {
-        UIViewAnimationOptions options = (UIViewAnimationOptionAllowUserInteraction | UIViewAnimationOptionBeginFromCurrentState); // Backwards compatible
+        UIViewAnimationOptions options = (UIViewAnimationOptionAllowUserInteraction); // Backwards compatible
+        if ([view_ animating]) {
+            //TIMOB-10318
+            //Start from current state if animations are already running. Otherwise from initial value.
+            options = options | UIViewAnimationOptionBeginFromCurrentState;
+        }
+        else {
+            [view_ animationStarted];
+        }
         NSTimeInterval animationDuration = [self animationDuration];
         
         options |= [curve intValue];
@@ -564,7 +572,7 @@ doReposition = YES;\
             // NOTE: This results in a behavior change from previous versions, where interaction
             // with animations was allowed. In particular, with the new block system, animations can
             // be concurrent or interrupted, as opposed to being synchronous.
-
+            [view_ animationStarted];
             [UIView transitionWithView:transitionView
                               duration:[self animationDuration]
                                options:[transition unsignedIntegerValue]

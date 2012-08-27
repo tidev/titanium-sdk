@@ -8,7 +8,8 @@ var EventEmitter = require("events").EventEmitter,
 	assets = kroll.binding("assets"),
 	vm = require("vm"),
 	url = require("url"),
-	Script = kroll.binding('evals').Script;
+	Script = kroll.binding('evals').Script,
+	bootstrap = require('bootstrap');
 
 var TAG = "Window";
 
@@ -291,6 +292,13 @@ exports.bootstrapWindow = function(Titanium) {
 			self.window = null;
 			self.view = null;
 			self.currentState = self.state.closed;
+
+			// Dispose the URL context if the window's activity
+			// is destroyed since close() will not get called.
+			if (self._urlContext) {
+				Script.disposeContext(self._urlContext);
+				self._urlContext = null;
+			}
 		}, this);
 		
 		if (this.cachedActivityProxy) {
@@ -305,29 +313,19 @@ exports.bootstrapWindow = function(Titanium) {
 		this.addPostOpenChildren();
 	}
 
-	Window.prototype.runWindowUrl = function(scopeVars) {
-		var parent = this._module || kroll.Module.main;
-		var moduleId = this.url;
-
-		if (this.url.indexOf(".js") == this.url.length - 3) {
-			moduleId = this.url.substring(0, this.url.length - 3);
-		}
-
-		parent.require(moduleId, scopeVars, false);
-	}
-
 	Window.prototype.loadUrl = function() {
 		if (this.url == null) {
 			return;
 		}
 
-//		if (kroll.DBG) {
-//			kroll.log(TAG, "Loading window with URL: " + this.url);
-//		}
+		var resolvedUrl = url.resolve(this._sourceUrl, this.url);
+		if (!resolvedUrl.assetPath) {
+			kroll.log(TAG, "Window URL must be a resources file.");
+			return;
+		}
 
 		// Reset creationUrl of the window
-		var currentUrl = url.resolve(this._sourceUrl, this.url);
-		this.window.setCreationUrl(currentUrl.href);
+		this.window.setCreationUrl(resolvedUrl.href);
 
 		var scopeVars = {
 			currentWindow: this,
@@ -335,9 +333,21 @@ exports.bootstrapWindow = function(Titanium) {
 			currentTab: this.tab,
 			currentTabGroup: this.tabGroup
 		};
-		scopeVars = Titanium.initScopeVars(scopeVars, currentUrl);
+		scopeVars = Titanium.initScopeVars(scopeVars, resolvedUrl);
 
-		this.runWindowUrl(scopeVars);
+		var context = this._urlContext = Script.createContext(scopeVars);
+		context.Titanium = context.Ti = new Titanium.Wrapper(scopeVars);
+		bootstrap.bootstrapGlobals(context, Titanium);
+
+		var scriptPath = url.toAssetPath(resolvedUrl);
+		var scriptSource = assets.readAsset(scriptPath);
+
+		if (kroll.runtime == "v8") {
+			Script.runInContext(scriptSource, context, scriptPath, true);
+
+		} else {
+			Script.runInThisContext(scriptSource, scriptPath, true, context);
+		}
 	}
 
 	Window.prototype.close = function(options) {
@@ -366,6 +376,12 @@ exports.bootstrapWindow = function(Titanium) {
 			this.removeSelfFromStack();
 			this.currentState = this.state.closed;
 			this.fireEvent("close");
+		}
+
+		// Dispose the URL script context if one was created during open.
+		if (this._urlContext) {
+			Script.disposeContext(this._urlContext);
+			this._urlContext = null;
 		}
 	}
 

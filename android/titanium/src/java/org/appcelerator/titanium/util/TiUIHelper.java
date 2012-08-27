@@ -55,6 +55,7 @@ import android.graphics.ColorFilter;
 import android.graphics.ColorMatrix;
 import android.graphics.ColorMatrixColorFilter;
 import android.graphics.Paint;
+import android.graphics.PixelFormat;
 import android.graphics.Rect;
 import android.graphics.Shader;
 import android.graphics.Typeface;
@@ -637,9 +638,26 @@ public class TiUIHelper
 				Log.e(TAG, "Height property is 0 for view, display view before calling toImage()", Log.DEBUG_MODE);
 			}
 
-			Bitmap bitmap = Bitmap.createBitmap(width, height, Config.RGB_565);
-			Canvas canvas = new Canvas(bitmap);
+			// opacity should support transparency by default
+			Config bitmapConfig = Config.ARGB_8888;
 
+			Drawable viewBackground = view.getBackground();
+			if (viewBackground != null) {
+				/*
+				 * If the background is opaque then we should be able to safely use a space saving format that 
+				 * does not support the alpha channel.  Basically, if a view has a background color set then the 
+				 * the pixel format will be opaque.  If a background image supports an alpha channel, the pixel 
+				 * format will report transparency (even if the image doesn't actually look transparent).  In 
+				 * short, most of the time the Config.ARGB_8888 format will be used when viewToImage is used 
+				 * but in the cases where the background is opaque, the lower memory approach will be used.
+				 */
+				if (viewBackground.getOpacity() == PixelFormat.OPAQUE) {
+					bitmapConfig = Config.RGB_565;
+				}
+			}
+
+			Bitmap bitmap = Bitmap.createBitmap(width, height, bitmapConfig);
+			Canvas canvas = new Canvas(bitmap);
 			view.draw(canvas);
 
 			ByteArrayOutputStream bos = new ByteArrayOutputStream();
@@ -907,7 +925,6 @@ public class TiUIHelper
 			if (model != null && model.toLowerCase().startsWith("droid")) {
 				useForce = true;
 			}
-			
 			if (show) {
 				imm.showSoftInput(view, useForce ? InputMethodManager.SHOW_FORCED : InputMethodManager.SHOW_IMPLICIT);
 			} else {

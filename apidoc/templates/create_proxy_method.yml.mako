@@ -13,4 +13,7 @@ platforms: ${data["platforms"]}
 % endif
 % if "since" in data:
 since: ${data["since"]}
-% endif 
+% endif
+% if "deprecated" in data:
+deprecated: ${data["deprecated"]}
+% endif
