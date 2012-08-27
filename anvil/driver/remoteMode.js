@@ -4,9 +4,12 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  *
- * Purpose: TODO
+ * Purpose: Manages driver operation when started in remote mode
  *
- * Description: TODO
+ * Description: The remote mode for the driver manages communication with the hub and waits for 
+ * messages from the hub telling the driver instance to start a test run on the specified git hash.
+ * Upon completion, the results are sent back to the hub for storage and reporting.  There should 
+ * never be a reason to manually interact with a driver running in remote mode.
  */
 
 var fs = require("fs");
@@ -15,6 +18,8 @@ var net = require("net");
 var util = require(driverGlobal.driverDir + "/util");
 
 module.exports = new function() {
+	var 32B_INT_SIZE = 4; // size in bytes of a 32 bit integer
+
 	var hubConnection = {
 		connection: null,
 		connected: false
@@ -31,8 +36,10 @@ module.exports = new function() {
 		driverGlobal.config.tiSdkDirs = "titanium_mobile/dist/mobilesdk/osx";
 
 		driverGlobal.platform.init(
+			// this function is the 
 			function() {
-				process.exit(1);
+				// command finished so exit
+				process.exit(0);
 			},
 			packageAndSendResults);
 
@@ -72,9 +79,9 @@ module.exports = new function() {
 					description: driverGlobal.config.driverDescription
 				});
 
-				var sendBuffer = new Buffer(4 + registration.length);
+				var sendBuffer = new Buffer(32B_INT_SIZE + registration.length);
 				sendBuffer.writeUInt32BE(registration.length, 0);
-				sendBuffer.write(registration, 4);
+				sendBuffer.write(registration, 32B_INT_SIZE);
 
 				sendDataToHub(sendBuffer, function() {
 					util.log("registration sent to hub");
@@ -86,14 +93,14 @@ module.exports = new function() {
 				recvBuffer = Buffer.concat([recvBuffer, data]);
 
 				if (payloadSize === null) {
-					if (bytesReceived >= 4) {
+					if (bytesReceived >= 32B_INT_SIZE) {
 						payloadSize = recvBuffer.readUInt32BE(0);
 					}
 				}
 
-				if ((payloadSize !== null) && (bytesReceived >= (4 + payloadSize))) {
+				if ((payloadSize !== null) && (bytesReceived >= (32B_INT_SIZE + payloadSize))) {
 					console.log("message received");
-					var payload = recvBuffer.slice(4);
+					var payload = recvBuffer.slice(32B_INT_SIZE);
 
 					var payloadObject = JSON.parse(payload);
 					if ((typeof payloadObject.command) === "undefined") {
@@ -116,10 +123,10 @@ module.exports = new function() {
 				util.log("close occurred for hub connection");
 				setTimeout(connectCallback, hubReconnectDelay);
 			});
-			hubConnection.connection.on("error", function() {
+			hubConnection.connection.on("error", function(exception) {
 				hubConnection.connected = false;
 				hubConnection.connection.destroy(); // close event will be fired
-				util.log("error occurred on hub connection");
+				util.log("error <" + exception.code + "> occurred on hub connection");
 			});
 		};
 
@@ -202,7 +209,7 @@ module.exports = new function() {
 		function unpackCallback() {
 			process.chdir("dist");
 
-			util.runCommand("tar -xzvf *.zip", util.logStderr, function(error, stdout, stderr) {
+			util.runCommand("tar -xvf *.zip", util.logStderr, function(error, stdout, stderr) {
 				if (error !== null) {
 					util.log("error <" + error + "> occurred when trying to unpack SDK: " + error);
 
@@ -257,7 +264,7 @@ module.exports = new function() {
 		fs.closeSync(resultsFile);
 
 		// package up the entire results set to be reported
-		var command = "tar -cvf " + driverGlobal.currentLogDir + "/results.tgz -C " +
+		var command = "tar -czvf " + driverGlobal.currentLogDir + "/results.tgz -C " +
 			driverGlobal.currentLogDir + " log.txt json_results";
 
 		util.runCommand(command, util.logStderr, function(error, stdout, stderr) {
@@ -271,7 +278,7 @@ module.exports = new function() {
 			var resultsStat = fs.statSync(driverGlobal.currentLogDir + "/results.tgz");
 			var resultsSize = resultsStat.size;
 
-			var sendBuffer = new Buffer(4 + resultsSize);
+			var sendBuffer = new Buffer(32B_INT_SIZE + resultsSize);
 			sendBuffer.writeUInt32BE(resultsSize, 0);
 
 			try {
@@ -280,7 +287,7 @@ module.exports = new function() {
 			} catch(e) {
 				util.log("exception <" + e + "> occurred when trying to open <" + driverGlobal.currentLogDir + "/results.tgz>");
 			}
-			fs.readSync(resultsFile, sendBuffer, 4, resultsSize, 0);
+			fs.readSync(resultsFile, sendBuffer, 32B_INT_SIZE, resultsSize, 0);
 			fs.closeSync(resultsFile);
 
 			sendDataToHub(sendBuffer, function() {
