@@ -9,7 +9,6 @@ package ti.modules.titanium.app.properties;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiApplication;
-import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiProperties;
 
@@ -70,7 +69,7 @@ public class PropertiesModule extends KrollModule {
 
 	@Kroll.method
 	public void removeProperty(String key)
-	{	
+	{
 		appProperties.removeProperty(key);		
 	}
 
