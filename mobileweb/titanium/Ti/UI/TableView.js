@@ -331,7 +331,7 @@ define(["Ti/_/declare", "Ti/_/UI/KineticScrollView", "Ti/_/style", "Ti/_/lang", 
 					return this.sections.length;
 				}
 			},			
-			sections: void 0,
+			sections: void 0
 		},
 		
 		properties: {
