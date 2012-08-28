@@ -454,6 +454,12 @@
 
     [self updateOrientationHistory:newOrientation];
     
+	UIInterfaceOrientation latestOrientation = [self lastValidOrientation];
+	if ((latestOrientation == oldOrientation) && (latestOrientation == windowOrientation))
+	{
+		return;
+	}
+    
     // We appear to do this in order to synchronize rotation animations with the keyboard.
     // But there is an interesting edge case where the status bar sometimes updates its orientation,
     // but does not animate, before we trigger the refresh. This means that the keyboard refuses to
