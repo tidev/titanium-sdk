@@ -80,67 +80,39 @@ public class PropertiesModule extends KrollModule {
 	@Kroll.method
 	public void setBool(String key, boolean value)
 	{
-		fireChange(key, value);
-		appProperties.setBool(key, value);
+		if (!hasProperty(key) || getBool(key) != value) {
+			appProperties.setBool(key, value);
+			fireEvent(TiC.EVENT_CHANGE, null);
+		}
 		
 	}
 
 	@Kroll.method
 	public void setDouble(String key, double value)
 	{
-		fireChange(key, value);
-		appProperties.setDouble(key, value);
+		if (!hasProperty(key) || getDouble(key) != value) {
+			appProperties.setDouble(key, value);
+			fireEvent(TiC.EVENT_CHANGE, null);
+		}
 	}
 
 	@Kroll.method
 	public void setInt(String key, int value)
 	{
-		fireChange(key, value);
-		appProperties.setInt(key, value);
+		if (!hasProperty(key) || getInt(key) != value) {
+			appProperties.setInt(key, value);
+			fireEvent(TiC.EVENT_CHANGE, null);
+		}
 	}
 
 	@Kroll.method
 	public void setString(String key, String value)
 	{
-		fireChange(key, value);
-		appProperties.setString(key, value);
-	}
-	
-	private boolean shouldFireChange(String key, Object newValue) 
-	{
-		if (!hasProperty(key)) {
-			return true;
-		}
-		
-		String newString = getString(key);
-		//if newValue is null and the key's oldValue is a non-null String, we will remove the key
-		//from our database so we need to fire change.
-		if (newValue == null && newString != null) {
-			return true;
-		}
-
-		Object oldValue = null;
-		if (newValue instanceof String) {
-			oldValue = newString;
-		} else if (newValue instanceof Integer) {
-			oldValue = getInt(key);
-		} else if (newValue instanceof Double) {
-			oldValue = getDouble(key);
-		} else if (newValue instanceof Boolean) {
-			oldValue = getBool(key);
-		}
-		
-		if (oldValue != null && newValue != null && !oldValue.equals(newValue)) {
-			return true;
-		} else {
-			return false;
-		}
-	}
-	
-	private void fireChange(String key, Object value)
-	{
-		if (shouldFireChange(key, value)) {
+		String oldValue = getString(key);
+		if (oldValue != null && oldValue.equals(value)) {
+			appProperties.setString(key, value);
 			fireEvent(TiC.EVENT_CHANGE, null);
 		}
 	}
+	
 }
