@@ -3,6 +3,7 @@
 	"description": "Appcelerator Titanium Mobile dependencies - this file is omitted from distribution",
 	"version": "__VERSION__",
 	"dependencies": {
+		"async": "0.1.x",
 		"colors": "0.6.x",
 		"less": "1.3.0",
 		"node-appc": "git://github.com/appcelerator/node-appc.git",

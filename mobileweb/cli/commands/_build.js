@@ -7,11 +7,13 @@
 
 var appc = require('node-appc'),
 	afs = appc.fs,
+	hitch = appc.util.hitch,
+	xml = appc.xml,
+	async = require('async'),
 	fs = require('fs'),
 	path = require('path'),
 	semver = require('semver'),
 	wrench = require('wrench'),
-	xml = appc.xml,
 	DOMParser = require('xmldom').DOMParser,
 	HTML_HEADER = [
 			'<!--',
@@ -32,7 +34,7 @@ function badInstall(msg) {
 	process.exit(1);
 }
 
-function build(logger, config, cli, sdkVersion, lib) {
+function build(logger, config, cli, sdkVersion, lib, finished) {
 	logger.info(__('Compiling "%s" build', cli.argv['build-type']));
 	
 	this.logger = logger;
@@ -68,35 +70,91 @@ function build(logger, config, cli, sdkVersion, lib) {
 		main: pkgJson.main
 	}];
 	
+	// read the tiapp.xml and initialize some sensible defaults
 	this.tiapp = this.readTiappXml();
-	this.tiapp.mobileweb || (this.tiapp.mobileweb = {});
-	this.tiapp.mobileweb.build || (this.tiapp.mobileweb.build = {});
+	applyDefaults(this.tiapp, {
+		'mobileweb': {
+			analytics: {
+				'use-xhr': false
+			},
+			build: {},
+			'disable-error-screen': false,
+			filesystem: {
+				backend: '', // blank defaults to Ti/_/Filesystem/Local
+				registry: 'ondemand'
+			},
+			map: {
+				backend: '', // blank defaults to Ti/_/Map/Google
+				apikey: ''
+			},
+			splash: {
+				'enabled': true,
+				'inline-css-images': true
+			},
+			theme: 'default'
+		}
+	});
+	
+	this.validateTheme();
 	
 	var mwBuildSettings = this.tiapp.mobileweb.build[this.buildType];
 	this.minifyJS = mwBuildSettings && mwBuildSettings.js ? !!mwBuildSettings.js.minify : this.buildType == 'production';
 	
-	this.validateTheme();
-	this.copyFiles();
-	this.findProjectDependencies();
-	this.findModulesToCache();
-	this.findPrecacheModules();
-	this.findDistinctCachedModules();
-	this.findPrecacheImages();
-	this.findTiModules();
-	this.detectCircularDependencies();
-	this.findI18N();
+	var self = this;
+	async.parallel([
+		hitch(self, 'copyFiles'),
+		hitch(self, 'findProjectDependencies')
+	], function () {
+		async.parallel([
+			hitch(self, 'findModulesToCache'),
+			hitch(self, 'findPrecacheModules'),
+			hitch(self, 'findPrecacheImages'),
+			hitch(self, 'findTiModules'),
+			hitch(self, 'findI18N')
+		], hitch(self, function () {
+			async.parallel([
+				hitch(self, 'findDistinctCachedModules'),
+				hitch(self, 'detectCircularDependencies')
+			], function () {
+				self.logger.info(
+					__n('Found %s dependency', 'Found %s dependencies', self.projectDependencies.length) + ', ' +
+					__n('%s package', '%s packages', self.packages.length) + ', ' +
+					__n('%s module', '%s modules', self.modulesToCache.length)
+				);
+				async.parallel([
+					hitch(self, "assembleTitaniumJS"),
+					hitch(self, "assembleTitaniumCSS"),
+					hitch(self, "createIcons"),
+					hitch(self, "createFilesystemRegistry"),
+				], hitch(self, function () {
+					self.createIndexHtml();
+					finished();
+				}));
+			});
+		}));
+	});
 	
-	this.logger.info(
-		__n('Found %s dependency', 'Found %s dependencies', this.projectDependencies.length) + ', ' +
-		__n('%s package', '%s packages', this.packages.length) + ', ' +
-		__n('%s module', '%s modules', this.modulesToCache.length)
-	);
+	//this.copyFiles();
+	//this.findProjectDependencies();
+	//this.findModulesToCache();
+	//this.findPrecacheModules();
+	//this.findDistinctCachedModules();
+	//this.findPrecacheImages();
+	//this.findTiModules();
+	//this.detectCircularDependencies();
+	//this.findI18N();
 	
-	// TODO: break up the dependencies into layers
+	//this.logger.info(
+	//	__n('Found %s dependency', 'Found %s dependencies', this.projectDependencies.length) + ', ' +
+	//	__n('%s package', '%s packages', this.packages.length) + ', ' +
+	//	__n('%s module', '%s modules', this.modulesToCache.length)
+	//);
 	
-	// TODO: minify the project's code first
-	
-	this.assembleTiJS();
+	//this.assembleTitaniumJS();
+	//this.assembleTitaniumCSS();
+	//this.createIcons();
+	//this.createFilesystemRegistry();
+	//this.createIndexHtml();
 };
 
 build.prototype = {
@@ -132,7 +190,7 @@ build.prototype = {
 		this.logger.debug(__('Using %s theme', this.theme.cyan));
 	},
 	
-	copyFiles: function () {
+	copyFiles: function (callback) {
 		this.logger.info(__('Copying project files'));
 		if (afs.exists(this.buildDir)) {
 			this.logger.debug(__('Deleting existing build directory'));
@@ -146,11 +204,15 @@ build.prototype = {
 		afs.copyFileSync(this.projectResDir + '/mobileweb/apple_startup_images/Default.jpg', this.buildDir + '/mobileweb/apple_startup_images', { logger: this.logger.debug });
 		afs.copyFileSync(this.projectResDir + '/mobileweb/apple_startup_images/Default-Portrait.jpg', this.buildDir + '/mobileweb/apple_startup_images', { logger: this.logger.debug });
 		afs.copyFileSync(this.projectResDir + '/mobileweb/apple_startup_images/Default-Landscape.jpg', this.buildDir + '/mobileweb/apple_startup_images', { logger: this.logger.debug });
+		callback();
 	},
 	
-	findProjectDependencies: function () {
-		// TODO: have the code processor begin scan of project for dependencies
+	findProjectDependencies: function (callback) {
 		this.logger.info(__('Finding all Titanium API dependencies'));
+		
+		// TODO: have the code processor begin scan of project for dependencies
+		// IMPORTANT! scan this.projectResDir, not the this.buildDir since it's not copied yet
+		
 		this.projectDependencies = [
 			'Ti',
 			'Ti/Accelerometer',
@@ -226,17 +288,19 @@ build.prototype = {
 			'Ti/XML',
 			'Ti/Yahoo'
 		];
+		callback();
 	},
 	
-	findModulesToCache: function () {
+	findModulesToCache: function (callback) {
 		this.logger.info(__('Finding all required modules to be cached'));
 		this.projectDependencies.forEach(function (mid) {
 			this.parseModule(mid);
 		}, this);
 		this.modulesToCache = this.modulesToCache.concat(Object.keys(this.requireCache));
+		callback();
 	},
 	
-	findPrecacheModules: function () {
+	findPrecacheModules: function (callback) {
 		this.logger.info(__('Finding all precached modules'));
 		var mwTiapp = this.tiapp.mobileweb;
 		if (mwTiapp.precache) {
@@ -247,9 +311,10 @@ build.prototype = {
 				this.modulesToCache.push('url:' + x);
 			}, this);
 		}
+		callback();
 	},
 	
-	findDistinctCachedModules: function () {
+	findDistinctCachedModules: function (callback) {
 		this.logger.info(__('Finding all distinct cached modules'));
 		var depMap = {};
 		this.modulesToCache.forEach(function (m) {
@@ -262,16 +327,18 @@ build.prototype = {
 		Object.keys(this.moduleMap).forEach(function (m) {
 			depMap[m] || this.modulesToLoad.push(m);
 		}, this);
+		callback();
 	},
 	
-	findPrecacheImages: function () {
+	findPrecacheImages: function (callback) {
 		this.logger.info(__('Finding all precached images'));
 		this.moduleMap['Ti/UI/TableViewRow'] && this.precacheImages.push('/themes/' + this.theme + '/UI/TableViewRow/child.png');
 		var images = (this.tiapp.mobileweb.precache && this.tiapp.mobileweb.precache.images) || [];
 		images && (this.precacheImages = this.precacheImages.concat(images));
+		callback();
 	},
 	
-	findTiModules: function () {
+	findTiModules: function (callback) {
 		var modules = (this.tiapp.modules || []).filter(function (m) { return /^(|mobileweb|commonjs)$/.test(m.platform); });
 		if (!modules.length) {
 			return;
@@ -391,9 +458,10 @@ build.prototype = {
 			wrench.mkdirSyncRecursive(dest);
 			afs.copyDirSyncRecursive(moduleDir, dest, { preserve: true });
 		}, this);
+		callback();
 	},
 	
-	detectCircularDependencies: function () {
+	detectCircularDependencies: function (callback) {
 		this.modulesToCache.forEach(function (m) {
 			var deps = this.moduleMap[m];
 			deps && deps.forEach(function (d) {
@@ -402,9 +470,10 @@ build.prototype = {
 				}
 			}, this);
 		}, this);
+		callback();
 	},
 	
-	findI18N: function () {
+	findI18N: function (callback) {
 		var self = this,
 			precacheLocales = (this.tiapp.precache || {}).locales || {},
 			i18nDir = this.projectDir + '/i18n';
@@ -427,6 +496,8 @@ build.prototype = {
 				}
 			});
 		}
+		
+		callback();
 	},
 	
 	loadI18N: function (xmlFile, callback) {
@@ -449,7 +520,7 @@ build.prototype = {
 		return data;
 	},
 	
-	assembleTiJS: function () {
+	assembleTitaniumJS: function (callback) {
 		this.logger.info(__('Assembling titanium.js'));
 		
 		var tiapp = this.tiapp,
@@ -469,7 +540,7 @@ build.prototype = {
 				packages: JSON.stringify(this.packages),
 				project_id: tiapp.id,
 				project_name: tiapp.name,
-				ti_fs_registry: tiapp.mobileweb.filesystem ? tiapp.mobileweb.filesystem.registry : 'ondemand',
+				ti_fs_registry: tiapp.mobileweb.filesystem.registry,
 				ti_theme: this.theme,
 				ti_githash: this.lib.manifest.githash,
 				ti_timestamp: this.lib.manifest.timestamp,
@@ -479,7 +550,7 @@ build.prototype = {
 				has_instrumentation: !!tiapp.mobileweb.instrumentation
 			},
 			tiJS = [
-				HEADER,
+				HEADER, '\n',
 				
 				// 1) read in the config.js and fill in the template
 				fs.readFileSync(this.mwPath + '/src/config.js').toString().replace(/\$\{([^\:\}]+)(?:\:([^\s\:\}]+))?\}/g, function (match, key, format) {
@@ -487,18 +558,18 @@ build.prototype = {
 					key = parts[0];
 					var value = '' + (configProps.hasOwnProperty(key) ? configProps[key] : 'null');
 					return parts.length > 1 && parts[1] == 'jsQuoteEscapeFilter' ? value.replace(/\\"/g,'\\\\\\"') : value;
-				})
+				}), '\n', '\n'
 			];
 		
 		// 2) copy in instrumentation if it's enabled
-		!tiapp.mobileweb.instrumentation || tiJS.push(fs.readFileSync(this.mwPath + '/src/instrumentation.js').toString());
+		!tiapp.mobileweb.instrumentation || tiJS.push(fs.readFileSync(this.mwPath + '/src/instrumentation.js').toString() + '\n');
 		
 		// 3) copy in the loader
-		tiJS.push(fs.readFileSync(this.mwPath + '/src/loader.js').toString() + '\n');
+		tiJS.push(fs.readFileSync(this.mwPath + '/src/loader.js').toString() + '\n\n');
 		
 		// 4) cache the dependencies
 		var first = true,
-			requireCacheWritten = true,
+			requireCacheWritten = false,
 			moduleCounter = 0;
 		
 		// uncomment next line to bypass module caching (which is ill advised):
@@ -514,11 +585,11 @@ build.prototype = {
 			if (!dep.length) return;
 			
 			if (!requireCacheWritten) {
-				tiJS.push('require.cache({');
+				tiJS.push('require.cache({\n');
 				requireCacheWritten = true;
 			}
 			
-			first || tiJS.push(',');
+			first || tiJS.push(',\n');
 			first = false;
 			moduleCounter++;
 			
@@ -549,61 +620,205 @@ build.prototype = {
 				tiJS.push('"' + moduleName + '":function(){\n/* ' + file.replace(this.buildDir, '') + ' */\n\n' + fs.readFileSync(file).toString() + '\n}');
 			}
 		}, this);
-/*
-		image_mime_types = {
+		
+		var imageMimeTypes = {
 			'.png': 'image/png',
 			'.gif': 'image/gif',
 			'.jpg': 'image/jpg',
 			'.jpeg': 'image/jpg'
-		}
-		for x in precache_images:
-			x = x.replace('\\', '/')
-			y = x
-			if y.startswith(os.sep):
-				y = '.' + y
-			img = os.path.join(self.resources_path, os.sep.join(y.split('/')))
-			if os.path.exists(img):
-				fname, ext = os.path.splitext(img.lower())
-				if ext in image_mime_types:
-					if not require_cache_written:
-						ti_js.write('require.cache({\n');
-						require_cache_written = True;
-					if not first:
-						ti_js.write(',\n')
-					first = False
-					module_counter += 1
-					ti_js.write('"url:%s":"data:%s;base64,%s"' % (x, image_mime_types[ext], base64.b64encode(open(img,'rb').read())))
+		};
 		
-		if require_cache_written:
-			ti_js.write('});\n')
-		
-		# 4) write the ti.app.properties
-		def addProp(prop, val):
-			tiapp_xml['properties'][prop] = {
-				'type': 'string',
-				'value': val
+		this.precacheImages.forEach(function (url) {
+			url = url.replace(/\\/g, '/');
+			
+			var img = path.join(this.projectResDir, /^\//.test(url) ? '.' + url : url),
+				type = imageMimeTypes[img.match(/\.([a-zA-Z]+)$/)[1]];
+			
+			if (afs.exists(img) && type) {
+				if (!requireCacheWritten) {
+					tiJS.push('require.cache({');
+					requireCacheWritten = true;
+				}
+				
+				first || tiJS.push(',\n');
+				first = false;
+				moduleCounter++;
+				
+				tiJS.push('"url:' + url + '":"data:' + type + ';base64,' + fs.readFileSync(img).toString('base64') + '"');
 			}
-		addProp('ti.fs.backend', tiapp_xml['mobileweb']['filesystem']['backend'])
-		addProp('ti.map.backend', tiapp_xml['mobileweb']['map']['backend'])
-		addProp('ti.map.apikey', tiapp_xml['mobileweb']['map']['apikey'])
-		s = ''
-		for name in tiapp_xml['properties']:
-			prop = tiapp_xml['properties'][name]
-			if prop['type'] == 'bool':
-				s += 'p.setBool("' + name + '",' + prop['value'] + ');\n'
-			elif prop['type'] == 'int':
-				s += 'p.setInt("' + name + '",' + prop['value'] + ');\n'
-			elif prop['type'] == 'double':
-				s += 'p.setDouble("' + name + '",' + prop['value'] + ');\n'
-			else:
-				s += 'p.setString("' + name + '","' + str(prop['value']).replace('"', '\\"') + '");\n'
-		ti_js.write('require("Ti/App/Properties", function(p) {\n%s});\n' % s)
+		});
 		
-		# 5) write require() to load all Ti modules
-		self.modules_to_load.sort()
-		self.modules_to_load += self.tiplus_modules_to_load
-		ti_js.write('require(%s);\n' % simplejson.dumps(self.modules_to_load))
-*/
+		requireCacheWritten && tiJS.push('});\n');
+		
+		// 4) write the ti.app.properties
+		var props = this.tiapp.properties;
+		this.tiapp.mobileweb.filesystem.backend && (props['ti.fs.backend'] = { type: 'string', value: this.tiapp.mobileweb.filesystem.backend });
+		this.tiapp.mobileweb.map.backend && (props['ti.map.backend'] = { type: 'string', value: this.tiapp.mobileweb.map.backend });
+		this.tiapp.mobileweb.map.apikey && (props['ti.map.apikey'] = { type: 'string', value: this.tiapp.mobileweb.map.apikey });
+		
+		tiJS.push('require("Ti/App/Properties", function(p) {\n');
+		Object.keys(props).forEach(function (name) {
+			var prop = props[name],
+				type = prop.type || 'string';
+			tiJS.push('\tp.set' + type.charAt(0).toUpperCase() + type.substring(1).toLowerCase() + '("'
+				+ name.replace(/"/g, '\\"') + '",' + (type == 'string' ? '"' + prop.value.replace(/"/g, '\\"') + '"': prop.value) + ');\n');
+		});
+		tiJS.push('});\n');
+		
+		// 5) write require() to load all Ti modules
+		this.modulesToLoad.sort();
+		this.modulesToLoad = this.modulesToLoad.concat(this.tiModulesToLoad);
+		tiJS.push('require(' + JSON.stringify(this.modulesToLoad) + ');\n');
+		
+		fs.writeFileSync(this.buildDir + '/titanium.js', tiJS.join(''));
+		
+		callback();
+	},
+	
+	assembleTitaniumCSS: function (callback) {
+		this.logger.info(__('Assembling splash screen'));
+		/*
+		splash_html = ''
+		splash_css = ''
+		if tiapp_xml['mobileweb']['splash']['enabled'] == 'true':
+			print '[INFO] Processing splash screen...'
+			splash_path = os.path.join(self.project_path, 'Resources', 'mobileweb', 'splash')
+			splash_root_path = os.path.join(self.project_path, 'Resources')
+			if not os.path.exists(splash_path):
+				splash_path = os.path.join(self.sdk_path, 'splash')
+				splash_root_path = splash_path
+			splash_html_file = os.path.join(splash_path, 'splash.html')
+			splash_css_file = os.path.join(splash_path, 'splash.css')
+			if os.path.exists(splash_html_file):
+				splash_html = codecs.open(splash_html_file, 'r', 'utf-8').read()
+			if os.path.exists(splash_css_file):
+				splash_css = codecs.open(splash_css_file, 'r', 'utf-8').read()
+				if tiapp_xml['mobileweb']['splash']['inline-css-images'] == 'true':
+					parts = splash_css.split('url(')
+					for i in range(1, len(parts)):
+						j = parts[i].find(')')
+						if j != -1:
+							img = parts[i][:j].replace('"', '').replace('\'', '').strip()
+							if img.find('data:') == -1:
+								if img[1] == '/':
+									img_path = os.path.join(splash_root_path, img[1:])
+								else:
+									img_path = os.path.join(splash_path, img)
+								if os.path.exists(img_path):
+									fname, ext = os.path.splitext(img_path.lower())
+									if ext in image_mime_types:
+										parts[i] = 'data:%s;base64,%s%s' % (image_mime_types[ext], base64.b64encode(open(img_path,'rb').read()), parts[i][j:])
+					splash_css = 'url('.join(parts)
+		*/
+		
+		this.logger.info(__('Assembling titanium.css'));
+		/*
+		ti_css = HEADER + '\n' + splash_css + '\n' + codecs.open(os.path.join(self.themes_path, 'common.css'), 'r', 'utf-8').read()
+		# TODO: need to rewrite absolute paths for urls
+		
+		# TODO: code below does NOT inline imports, nor remove them... do NOT use imports until themes are fleshed out
+		
+		if len(theme):
+			theme_path = os.path.join(self.resources_path, 'themes', theme)
+			if not os.path.exists(theme_path):
+				theme_path = os.path.join(self.resources_path, theme)
+			if not os.path.exists(theme_path):
+				theme_path = os.path.join(self.themes_path, theme)
+			if not os.path.exists(theme_path):
+				print '[ERROR] Unable to locate theme "%s"' % theme
+			else:
+				for dirname, dirnames, filenames in os.walk(theme_path):
+					for filename in filenames:
+						fname, ext = os.path.splitext(filename.lower())
+						if ext == '.css':
+							ti_css += codecs.open(os.path.join(dirname, filename), 'r', 'utf-8').read()
+		
+		# detect any fonts and add font face rules to the css file
+		fonts = {}
+		for dirname, dirnames, filenames in os.walk(self.resources_path):
+			for filename in filenames:
+				fname, ext = os.path.splitext(filename.lower())
+				if ext == '.otf' or ext == '.woff':
+					if not fname in fonts:
+						fonts[fname] = []
+					fonts[fname].append(os.path.join(dirname, filename)[len(self.resources_path):])
+		for font in fonts:
+			ti_css += '@font-face{font-family:%s;src:url(%s);}\n' % (font, '),url('.join(fonts[font]))
+		
+		# minify the css
+		if self.minify:
+			ti_css = CSSPacker(ti_css).pack()
+		
+		# write the titanium.css
+		ti_css_file = codecs.open(os.path.join(self.build_path, 'titanium.css'), 'w', 'utf-8')
+		ti_css_file.write(ti_css)
+		ti_css_file.close()
+		*/
+		
+		callback();
+	},
+	
+	createIcons: function (callback) {
+		this.logger.info(__('Creating favicon and Apple touch icons'));
+		/*
+		icon_file = os.path.join(self.resources_path, tiapp_xml['icon'])
+		fname, ext = os.path.splitext(icon_file.lower())
+		if os.path.exists(icon_file) and (ext == '.png' or ext == '.jpg' or ext == '.gif'):
+			self.build_icons(icon_file)
+		else:
+			icon_file = os.path.join(self.resources_path, 'mobileweb', 'appicon.png')
+			if os.path.exists(icon_file):
+				self.build_icons(icon_file)
+		*/
+		callback();
+	},
+	
+	createFilesystemRegistry: function (callback) {
+		this.logger.info(__('Creating the filesystem registry'));
+		/*
+		filesystem_registry = 'ts\t' + str(int(os.path.getctime(self.build_path)) * 1000) + '\n' + self.walk_fs(self.build_path, 0)
+		filesystem_registry_file = codecs.open(os.path.join(self.build_path, 'titanium', 'filesystem.registry'), 'w', 'utf-8')
+		filesystem_registry_file.write(filesystem_registry)
+		filesystem_registry_file.close()
+		
+		// if we're preloading the filesystem registry, write it to the require cache
+		if tiapp_xml['mobileweb']['filesystem']['registry'] == 'preload':
+			ti_js = codecs.open(self.ti_js_file, 'a', 'utf-8')
+			ti_js.write('require.cache({"url:/titanium/filesystem.registry":"' + filesystem_registry.strip().replace('\n', '|') + '"});')
+			ti_js.close()
+		*/
+		callback()
+	},
+	
+	createIndexHtml: function () {
+		this.logger.info(__('Creating the index.html'));
+		/*
+		// get status bar style
+		status_bar_style = 'default'
+		if 'statusbar-style' in tiapp_xml:
+			status_bar_style = tiapp_xml['statusbar-style']
+			if status_bar_style == 'opaque_black' or status_bar_style == 'opaque':
+				status_bar_style = 'black'
+			elif status_bar_style == 'translucent_black' or status_bar_style == 'transparent' or status_bar_style == 'translucent':
+				status_bar_style = 'black-translucent'
+			else:
+				status_bar_style = 'default'
+		
+		# populate index.html
+		index_html_file = codecs.open(os.path.join(self.build_path, 'index.html'), 'w', 'utf-8')
+		index_html_file.write(AppcTemplate(codecs.open(os.path.join(self.sdk_src_path, 'index.html'), 'r', 'utf-8').read().strip(), input_encoding='utf-8', output_encoding='utf-8').render(
+			ti_header          = HTML_HEADER,
+			project_name       = tiapp_xml['name'] or '',
+			app_description    = tiapp_xml['description'] or '',
+			app_publisher      = tiapp_xml['publisher'] or '',
+			splash_screen      = splash_html,
+			ti_generator       = 'Appcelerator Titanium Mobile ' + sdk_version,
+			ti_statusbar_style = status_bar_style,
+			ti_css             = ti_css,
+			ti_js              = codecs.open(self.ti_js_file, 'r', 'utf-8').read()
+		))
+		index_html_file.close()
+		*/
 	},
 	
 	collapsePath: function (p) {
@@ -736,5 +951,22 @@ build.prototype = {
 	}
 
 };
+
+function applyDefaults(dest, src) {
+	Object.keys(src).forEach(function (key) {
+		if (dest.hasOwnProperty(key)) {
+			if (Object.prototype.toString.call(dest[key]) == '[object Object]') {
+				applyDefaults(dest[key], src[key]);
+			}
+		} else {
+			if (Object.prototype.toString.call(src[key]) == '[object Object]') {
+				dest[key] = {};
+				applyDefaults(dest[key], src[key]);
+			} else {
+				dest[key] = src[key];
+			}
+		}
+	});
+}
 
 module.exports = build;

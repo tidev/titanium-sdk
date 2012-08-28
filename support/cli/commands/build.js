@@ -72,7 +72,7 @@ exports.run = function (logger, config, cli) {
 		process.exit(1);
 	}
 	
-	new (require(buildModule))(logger, config, cli, sdk.name, lib);
-	
-	logger.info(__('Project built successfully in %s', appc.time.prettyDiff(cli.startTime, Date.now())) + '\n');
+	new (require(buildModule))(logger, config, cli, sdk.name, lib, function () {
+		logger.info(__('Project built successfully in %s', appc.time.prettyDiff(cli.startTime, Date.now())) + '\n');
+	});
 };
