@@ -112,7 +112,7 @@ module.exports = new function() {
 			}
 
 			logTimestamps.sort(function(a,b) {
-				return b-a
+				return b-a;
 			});
 
 			function deleteLog(oldestLogIndex) {
