@@ -165,7 +165,16 @@ properties:
         unique device identification, which they have prohibited.
     type: String
     permission: read-only
-    
+  
+  - name: manufacturer
+    summary: Manufacturer of the device.
+    description: |
+        Returns the manufacturer of the device. For example, `motorola`.
+        Virtual devices return `unknown`.
+    type: String
+    permission: read-only
+    platforms: [android, iphone, ipad]
+
   - name: model
     summary: Model of the device.
     description: |
