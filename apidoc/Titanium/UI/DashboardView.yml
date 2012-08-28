@@ -172,11 +172,15 @@ properties:
     availability: creation
     summary: The number of columns of items in the view.
     type: Number
+    since: "3.0"
+    default: 3
 
   - name: rowCount
     availability: creation
     summary: The number of rows of items in the view.
     type: Number
+    since: "3.0"
+    default: 3
 
   - name: data
     summary: Items to display in this view.
