@@ -71,6 +71,7 @@ exports.config = function (logger, config, cli) {
 			},
 			dir: {
 				abbr: 'd',
+				default: config.app.workspace || '',
 				desc: __('the directory to place the project in'),
 				prompt: {
 					label: __('Directory to place project'),
@@ -86,7 +87,7 @@ exports.config = function (logger, config, cli) {
 						return true;
 					}
 				},
-				required: true
+				required: !config.app.workspace
 			}
 		}, lib.commonOptions(logger, config))
 	};
@@ -134,15 +135,12 @@ exports.run = function (logger, config, cli) {
 		projectConfig.id = id;
 		projectConfig.name = projectName;
 		projectConfig.version = '1.0';
-		projectConfig['deployment-targets'] = lib.availablePlatforms.map(function (p) {
-			return {
-				tag: 'target',
-				attrs: { 'device': p },
-				value: platforms.indexOf(p) != -1
-			};
+		projectConfig['deployment-targets'] = {};
+		lib.availablePlatforms.forEach(function (p) {
+			projectConfig['deployment-targets'][p] = platforms.indexOf(p) != -1;
 		});
 		projectConfig['sdk-version'] = sdk.name;
-		projectConfig.save();
+		projectConfig.save(projectDir + '/tiapp.xml');
 	} else if (type == 'module') {
 		logger.info(__('Creating Titanium Mobile module project'));
 		
