@@ -15,6 +15,9 @@
 #import "LauncherItem.h"
 #import "LauncherButton.h"
 
+static const NSInteger kDashboardViewDefaultRowCount = 3;
+static const NSInteger kDashboardViewDefaultColumnCount = 3;
+
 @implementation TiUIDashboardView
 
 -(void)dealloc
@@ -32,8 +35,8 @@
 {
 	if (launcher==nil)
 	{
-        int rowCount = [TiUtils intValue:[self.proxy valueForKey:@"rowCount"] def:3];
-        int columnCount = [TiUtils intValue:[self.proxy valueForKey:@"columnCount"] def:3];
+		int rowCount = [TiUtils intValue:[self.proxy valueForKey:@"rowCount"] def:kDashboardViewDefaultRowCount];
+		int columnCount = [TiUtils intValue:[self.proxy valueForKey:@"columnCount"] def:kDashboardViewDefaultColumnCount];
 		launcher = [[LauncherView alloc] initWithFrame:CGRectMake(0, 0, 320, 400) 
                                           withRowCount:rowCount 
                                        withColumnCount:columnCount];
