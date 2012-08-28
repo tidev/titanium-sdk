@@ -81,6 +81,8 @@ public class TiUIWebView extends TiUIView
 		@Override
 		public boolean onTouchEvent(MotionEvent ev)
 		{
+
+			
 			boolean handled = false;
 
 			// In Android WebView, all the click events are directly sent to WebKit. As a result, OnClickListener() is
@@ -91,13 +93,10 @@ public class TiUIWebView extends TiUIView
 					handled = proxy.fireEvent(TiC.EVENT_CLICK, dictFromEvent(ev));
 				}
 			}
-
-			if (handled) {
-				return true;
-			}
-
-			// If performClick() can not handle the event, we pass it to WebKit.
-			return super.onTouchEvent(ev);
+			
+			boolean superHandled = super.onTouchEvent(ev);
+			
+			return (superHandled || handled);
 		}
 
 		@SuppressWarnings("deprecation")
