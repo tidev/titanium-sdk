@@ -92,10 +92,8 @@ module.exports = new function() {
 				console.log("data received: " + bytesReceived);
 				recvBuffer = Buffer.concat([recvBuffer, data]);
 
-				if (payloadSize === null) {
-					if (bytesReceived >= 32B_INT_SIZE) {
-						payloadSize = recvBuffer.readUInt32BE(0);
-					}
+				if ((payloadSize === null) && (bytesReceived >= 32B_INT_SIZE)) {
+					payloadSize = recvBuffer.readUInt32BE(0);
 				}
 
 				if ((payloadSize !== null) && (bytesReceived >= (32B_INT_SIZE + payloadSize))) {

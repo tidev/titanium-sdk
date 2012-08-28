@@ -167,7 +167,7 @@ module.exports = new function() {
 			}
 
 			dirTimestamps.sort(function(a,b) {
-				return b-a
+				return b-a;
 			});
 
 			function deleteLog(oldestDirIndex) {
