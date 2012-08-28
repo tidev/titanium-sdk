@@ -70,7 +70,7 @@ public class PropertiesModule extends KrollModule {
 	@Kroll.method
 	public void removeProperty(String key)
 	{
-		appProperties.removeProperty(key);		
+		appProperties.removeProperty(key);
 	}
 
 	@Kroll.method
