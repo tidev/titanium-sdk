@@ -106,7 +106,12 @@ public class TabProxy extends TiViewProxy
 		}
 
 		this.win.setTabProxy(this);
-		this.win.setTabGroupProxy(tabGroupProxy);
+
+		if (tabGroupProxy != null) {
+			// Set window's tab group if this tab has been added to a group.
+			this.win.setTabGroupProxy(tabGroupProxy);
+		}
+
 		//Send out a sync event to indicate window is added to tab
 		this.win.fireSyncEvent(TiC.EVENT_ADDED_TO_TAB, null);
 		// TODO: Deprecate old event
@@ -129,6 +134,13 @@ public class TabProxy extends TiViewProxy
 	{
 		setParent(tabGroupProxy);
 		this.tabGroupProxy = tabGroupProxy;
+
+		if (win != null) {
+			// If a window was set before the tab
+			// was added to a group we need to initialize
+			// the window's tab group reference.
+			win.setTabGroupProxy(tabGroupProxy);
+		}
 	}
 
 	public void setWindowId(int id)
