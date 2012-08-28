@@ -161,6 +161,8 @@ events:
   - name: newIntent
     summary: Fired when the activity is already running and certain flags are set in its intent. 
     description: |
+        This event has been deprecated and renamed newintent (lower case).
+
         See also:
         [onNewIntent](http://developer.android.com/reference/android/app/Activity.html#onNewIntent(android.content.Intent))
         in the Android Developer Reference.
@@ -169,6 +171,21 @@ events:
       - name: intent
         summary: The `Intent` passed to the native `onNewIntent` method.
         type: Titanium.Android.Intent
+    deprecated:
+        since: "2.2.0"
+
+  - name: newintent
+    summary: Fired when the activity is already running and certain flags are set in its intent. 
+    description: |
+        See also:
+        [onNewIntent](http://developer.android.com/reference/android/app/Activity.html#onNewIntent(android.content.Intent))
+        in the Android Developer Reference.
+    properties:
+
+      - name: intent
+        summary: The `Intent` passed to the native `onNewIntent` method.
+        type: Titanium.Android.Intent
+    since: '2.2.0'
 
   - name: pause
     summary: Fired when the activity is paused.

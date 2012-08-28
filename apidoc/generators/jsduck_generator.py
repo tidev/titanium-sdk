@@ -23,6 +23,17 @@ log = TiLogger(None)
 all_annotated_apis = None
 apis = None
 
+# Avoid obliterating our four spaces pattern with a careless %s:/    /^I/
+FOUR_SPACES='  ' + '  '
+# compiling REs ahead of time, since we use them heavily.
+link_parts_re = re.compile(r"(?:\[([^\]]+?)\]\(([^\)\s]+?)\)|\<([^\>\s]+)\>)", re.MULTILINE)
+find_links_re = re.compile(r"(\[[^\]]+?\]\([^\)\s]+?\)|\<[^\>\s]+\>)", re.MULTILINE)
+html_scheme_re = re.compile(r"^http:|^https:")
+doc_site_url_re = re.compile(r"http://docs.appcelerator.com/titanium/.*(#!.*)")
+# we use this to distinguish inline HTML tags from Markdown links. Not foolproof, and a
+# we should probably find a better technique in the long run.
+html_element_re = re.compile("([a-z]|\/)")
+
 try:
 	from pygments import highlight
 	from pygments.formatters import HtmlFormatter
@@ -62,28 +73,53 @@ def convert_string_to_jsduck_link(obj_specifier):
 
 def process_markdown_links(s):
 	new_string = s
-	regexp = re.compile(r"(?:\[([^\]]+?)\]\(([^\)\s]+?)\)|\<([^\>\s]+)\>)", re.MULTILINE)
-	results = re.compile(r"(\[[^\]]+?\]\([^\)\s]+?\)|\<[^\>\s]+\>)", re.MULTILINE).findall(new_string)
+	results = find_links_re.findall(new_string)
 	if results is not None and len(results) > 0:
 		for link in results:
-			if link.find('http:') >= 0 or link.find('https:') >= 0:
-				# [Facebook Graph API](http://developers.facebook.com/docs/reference/api/)  -> unchanged
-				# do not convert external links
-				continue
-
-			match = regexp.match(link)
+			match = link_parts_re.match(link)
 			if match == None:
 				print "no match:" + link
 				continue
-
+			
+			# Process links with a defined name [foo](url)
 			if match.group(1) != None and match.group(2)!= None:
+				url = match.group(2)
+				name = match.group(1)
+			# For simple markdown links, such as <Titanium.Analytics> or <www.google.com>
+			# skip links that look like HTML elements (<span>).
+			elif  match.group(3) != None and not html_element_re.match(link, 1):
+				url = match.group(3)
+				name = None
+			# Otherwise, our "link" was probably an HTML tag, so we leave it alone
+			else:
+				continue
+
+			# Process URLs
+			docs_site_link = False
+			api_link = False
+			# For links back to the doc site -- guides pages, videos, etc.
+			# extract just the part following the hash, to avoid re-loading the site
+			# [Quick Start](http://docs.appcelerator.com/titanium/2.1/index.html#!/guide/Quick_Start) ->
+			# [Quick Start](#!/guide/Quick_Start Quick Start)
+			#
+			# Generic absolute URLs pass through unchanged
+			# [Facebook Graph API](http://developers.facebook.com/docs/reference/api/)  -> unchanged
+			if url.startswith("http"):
+				url_match = doc_site_url_re.match(url)
+				if url_match:
+						url = url_match.group(1)
+						docs_site_link = True
+						if not name:
+							name = url
+						new_string = new_string.replace(link, "[%s](%s)" % (name, url))
+			else:
+				# Reformat API object links so jsduck can process them.
 				# [systemId](Titanium.XML.Entity.systemId -> {@link Titanium.XML.Entity#systemId systemId}
-				new_string = new_string.replace(link, "{@link %s %s}" % (convert_string_to_jsduck_link(match.group(2)), match.group(1)))
-			elif  match.group(3) != None and not re.compile("([a-z]|\/)").match(link, 1):
-				# skip links that look like HTML elements
-				# <Titanium.Android.Notification>	-> {@link Titanium.Android.Notification}
-				# <Titanium.UI.ScrollableView.views> -> {@link Titanium.UI.ScrollableView#views views}
-				new_string = new_string.replace(link, "{@link %s}" % (convert_string_to_jsduck_link(match.group(3))))
+				url = convert_string_to_jsduck_link(url)
+				if name:
+					new_string = new_string.replace(link, "{@link %s %s}" % (url, name))
+				else:
+					new_string = new_string.replace(link, "{@link %s}" % url)
 
 	return new_string
 
@@ -120,9 +156,12 @@ def output_properties_for_obj(obj):
 	if obj.has_key("extends"):
 		res.append("@extends %s" % (obj["extends"]))
 	if obj.has_key("deprecated"):
-		str = "@deprecated %s" % (obj["deprecated"]["since"])
 		if obj["deprecated"].has_key("removed"):
-			str += ". Removed at %s" % (obj["deprecated"]["removed"])
+			str = "@removed  %s" % (obj["deprecated"]["removed"])
+		else:
+			str = "@deprecated %s" % (obj["deprecated"]["since"])
+		if obj["deprecated"].has_key("notes"):
+			str += " %s" % markdown_to_html(obj["deprecated"]["notes"])
 		res.append(str)
 
 	if(len(res) == 0):
@@ -142,7 +181,7 @@ def output_example(desc, code, convert_empty_code):
 	# determine if we need t remove leading spaces from all code lines
 	need_strip = True
 	for line in code:
-		if len(line) > 0 and line[0:4] != '	':
+		if len(line) > 0 and line[0:4] != FOUR_SPACES:
 			need_strip = False
 			break
 
@@ -158,11 +197,11 @@ def output_example(desc, code, convert_empty_code):
 	desc = "\n".join(desc)
 
 	if len(desc) > 0 and len(code) > 0:
-		return "<p>%s</p><pre>%s</pre>" % (desc, code)
+		return "<p>%s</p><pre>%s</pre>" % (markdown_to_html(desc), code)
 	elif len(desc) == 0 and len(code) > 0:
 		return "<pre>%s</pre>" % (code)
 	elif len(desc) > 0 and len(code) == 0:
-		return "<p>%s</p>" % (desc)
+		return "<p>%s</p>" % markdown_to_html(desc)
 
 
 def output_examples_for_obj(obj):
@@ -185,11 +224,11 @@ def output_examples_for_obj(obj):
 				# parse description part until code starts
 				# skip empty string between desc and code
 				if not desc_finished:
-					if prev_line_empty == True and (line.find('	') == 0 or line.find('\t') == 0):
+					if prev_line_empty == True and (line.find(FOUR_SPACES) == 0 or line.find('\t') == 0):
 						desc_finished = True
 				else:
 					# parsing code until code finishes or another description starts
-					if line.find('	') != 0 and line.find('\t') != 0 and len(line) != 0:
+					if line.find(FOUR_SPACES) != 0 and line.find('\t') != 0 and len(line) != 0:
 						# code block finished - another description started - flush content
 						desc_finished = False
 						res.append(output_example(desc, code, first_code_block))
@@ -203,7 +242,7 @@ def output_examples_for_obj(obj):
 				else:
 					code.append(line)
 
-				prev_line_empty = len(line) == 0
+				prev_line_empty = len(line.strip()) == 0
 
 			res.append(output_example(desc, code, first_code_block))
 
@@ -359,9 +398,13 @@ def generate(raw_apis, annotated_apis, options):
 
 				if obj.has_key("parameters"):
 					for param in obj["parameters"]:
-						if 'summary' in param:
-							summary = param['summary']
-						type = "{" + transform_type(param["type"]) + "}" if param.has_key('type') else ""
+						if "summary" in param:
+							summary = param["summary"]
+							if "repeatable" in param and param["repeatable"]:
+								repeatable = "..."
+							else:
+								repeatable = ""
+						type = "{" + transform_type(param["type"]) + repeatable + "}" if param.has_key("type") else ""
 						optional = "(optional)" if param.has_key('optional') and param["optional"] == True else ""
 						if param.has_key('default'):
 							output.write("\t * @param %s [%s=%s] %s\n\t * %s\n" % (type, param['name'], param['default'], optional, markdown_to_html(summary)))

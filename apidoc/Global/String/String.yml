@@ -13,8 +13,8 @@ methods:
         The format string follows the 
         [IEEE printf specification](http://www.opengroup.org/onlinepubs/009695399/functions/printf.html).
         
-        For each "conversion specification" (ie. `%s` for a string or `%d` for a number) used inside 
-        the string, `formatString` argument, the respective value is substituted from the second 
+        For each "conversion specification" (ie. `%s` for a string or `%d` for a number) used inside
+        the string, `formatString` argument, the respective value is substituted from the
         argument list. For example:
         
             var forename = 'Paul';
@@ -30,9 +30,11 @@ methods:
         type: String
         
       - name: value
+        repeatable: true
         summary: |
-            Comma-separated list of one or more values to substitute into the `formatString`. 
-            Optional on Android.
+            Values to substitute into the `formatString`.  The method expects a variable number
+            of `value` arugments, one for each `%` conversion specification in the format
+            string. Optional on Android.
         type: [ String, Number ]
         
   - name: formatCurrency

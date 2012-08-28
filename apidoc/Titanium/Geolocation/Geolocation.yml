@@ -620,6 +620,24 @@ properties:
     default: true
     platforms: [iphone, ipad]
 
+  - name: trackSignificantLocationChange
+    summary: |
+        Indicates if the location changes should be updated only when a significant change 
+        in location occurs.
+    description: |
+        The trackSignificantLocationChange service offers a low-power location service for 
+        devices with cellular radios.This service is available only in iOS 4.0 and later.
+        This service offers a significant power savings and provides accuracy that is good 
+        enough for most applications. It uses the device's cellular radio to determine the 
+        user's location  and report changes in that location, allowing the system to manage 
+        power usage much more aggressively than it could otherwise. This service is also 
+        capable of waking up an application that is currently suspended or not running in 
+        order to deliver new location data.
+    type: Boolean
+    default: false
+    platforms: [iphone, ipad]
+    since: "2.1.2"
+
 ---
 name: LocationResults
 summary: |

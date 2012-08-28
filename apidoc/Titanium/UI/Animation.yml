@@ -165,7 +165,7 @@ properties:
         specified transform.
         
         3D transforms are only supported on iOS.
-    type: [Titanium.UI.2DMatrix, Titanium.UI.iOS.3DMatrix]
+    type: [Titanium.UI.2DMatrix, Titanium.UI.3DMatrix]
     
   - name: transition
     summary: Transition type to use during a transition animation.

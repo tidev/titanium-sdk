@@ -159,6 +159,8 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 		for (TiUIView childView : view.getChildren()) {
 			TiViewProxy childProxy = childProxies[i];
 			childView.setProxy(childProxy);
+			//Since we wipe out children's views earlier we need to reset them.
+			childProxy.setView(childView);
 			childView.processProperties(childProxy.getProperties());
 			applyChildProxies(childProxy, childView);
 			i++;

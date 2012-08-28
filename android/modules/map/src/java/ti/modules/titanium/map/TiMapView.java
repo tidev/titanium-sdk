@@ -156,6 +156,8 @@ public class TiMapView extends TiUIView
 				location.put(TiC.PROPERTY_LATITUDE_DELTA, scaleFromGoogle(lastLatitudeSpan));
 				location.put(TiC.PROPERTY_LONGITUDE_DELTA, scaleFromGoogle(lastLongitudeSpan));
 				proxy.fireEvent(TiC.EVENT_REGION_CHANGED, location);
+				// TODO: Deprecate old event
+				proxy.fireEvent("regionChanged", location);
 			}
 		}
 

@@ -247,11 +247,24 @@ events:
         type: Number
 
   - name: durationAvailable
+    summary: |
+        This event has been deprecated and renamed durationavailable (lower case).
+
+        Fired when the video duration is available.
+    properties:
+      - name: duration
+        summary: Video duration, in milliseconds.
+        type: Number
+    deprecated:
+        since: "2.2.0"
+
+  - name: durationavailable
     summary: Fired when the video duration is available.
     properties:
       - name: duration
         summary: Video duration, in milliseconds.
         type: Number
+    since: '2.2.0'
 
   - name: error
     summary: Fired when movie playback encounters an error.
@@ -280,7 +293,6 @@ events:
         summary: Duration of the animated transition to or from fullscreen mode, in seconds.
         type: Number
         platforms: [iphone, ipad]
-        
 
   - name: load
     summary: Fired when the movie play loads.
@@ -294,22 +306,64 @@ events:
         type: Number
 
   - name: mediaTypesAvailable
+    summary: |
+        This event has been deprecated and renamed mediatypesavailable (lower case).
+
+        Fired when the media types in the current movie are determined.
+    platforms: [iphone, ipad]
+    properties:
+      - name: mediaTypes
+        summary: Current value of the [mediaTypes](Titanium.Media.VideoPlayer.mediaTypes) property.
+        type: Number
+    deprecated:
+        since: "2.2.0"
+
+  - name: naturalSizeAvailable
+    summary: |
+        This event has been deprecated and renamed naturalsizeavailable (lower case).
+
+        Fired when the natural size of the current movie is determined.
+    platforms: [iphone, ipad]
+    properties:
+      - name: naturalSize
+        summary: Current value of the [naturalSize](Titanium.Media.VideoPlayer.naturalSize) property.
+        type: Number
+    deprecated:
+        since: "2.2.0"
+
+  - name: playbackState
+    summary: |
+        This event has been deprecated and renamed playbackstate (lower case).
+
+        Fired when the [playbackState](Titanium.Media.VideoPlayer.playbackState) changes.
+    properties:
+      - name: playbackState
+        summary: |
+            Current value of the [playbackState](Titanium.Media.VideoPlayer.playbackState) property, 
+            such as <Titanium.Media.VIDEO_PLAYBACK_STATE_PLAYING>.
+        type: Number
+    deprecated:
+        since: "2.2.0"
+
+  - name: mediatypesavailable
     summary: Fired when the media types in the current movie are determined.
     platforms: [iphone, ipad]
     properties:
       - name: mediaTypes
         summary: Current value of the [mediaTypes](Titanium.Media.VideoPlayer.mediaTypes) property.
         type: Number
+    since: '2.2.0'
 
-  - name: naturalSizeAvailable
+  - name: naturalsizeavailable
     summary: Fired when the natural size of the current movie is determined.
     platforms: [iphone, ipad]
     properties:
       - name: naturalSize
         summary: Current value of the [naturalSize](Titanium.Media.VideoPlayer.naturalSize) property.
         type: Number
+    since: '2.2.0'
 
-  - name: playbackState
+  - name: playbackstate
     summary: Fired when the [playbackState](Titanium.Media.VideoPlayer.playbackState) changes.
     properties:
       - name: playbackState
@@ -317,6 +371,7 @@ events:
             Current value of the [playbackState](Titanium.Media.VideoPlayer.playbackState) property, 
             such as <Titanium.Media.VIDEO_PLAYBACK_STATE_PLAYING>.
         type: Number
+    since: '2.2.0'
 
   - name: playing
     summary: Fired when the currently playing movie changes.
@@ -336,12 +391,26 @@ events:
 
   - name: sourceChange
     summary: |
+        This event has been deprecated and renamed sourcechanged (lower case).
+
         Fired when the [sourceType](Titanium.Media.VideoPlayer.sourceType) property
         changes.
     platforms: [iphone, ipad]
     properties:
       - name: sourceType
         summary: New `sourceType` value.
+    deprecated:
+        since: "2.2.0"
+
+  - name: sourcechange
+    summary: |
+        Fired when the [sourceType](Titanium.Media.VideoPlayer.sourceType) property
+        changes.
+    platforms: [iphone, ipad]
+    properties:
+      - name: sourceType
+        summary: New `sourceType` value.
+    since: '2.2.0'
 
   - name: click
     summary: Fired when the device detects a click against the view.
@@ -433,12 +502,6 @@ properties:
     type: Boolean
     default: true
 
-  - name: contentURL
-    summary: Use the [url](Titanium.Media.VideoPlayer.url) property instead.
-    type: String
-    deprecated:
-        since: "1.4.0"
-
   - name: currentPlaybackTime
     summary: Current playback time of the current movie in milliseconds.
     type: Number
@@ -522,18 +585,6 @@ properties:
             Titanium.Media.VIDEO_MEDIA_TYPE_VIDEO|Titanium.Media.VIDEO_MEDIA_TYPE_AUDIO
     platforms: [iphone, ipad]
     type: Number
-
-  - name: movieControlMode
-    summary: Use `mediaControlStyle` instead.
-    description: |
-        Provides the ability to set the control mode of the movie player. 
-    platforms: [iphone, ipad]
-    type: Number
-    default: <Titanium.Media.VIDEO_CONTROL_DEFAULT>
-    osver:
-        ios:
-            max: "3.1"
-    deprecated: {since: "1.8.0", removed: "1.9.0"}
 
   - name: naturalSize
     summary: Returns the natural size of the movie.
