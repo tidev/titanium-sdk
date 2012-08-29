@@ -145,7 +145,10 @@ properties:
     summary: The style for the alert dialog.
     description: |
         Style of the alert dialog, specified using one of the constants from
-        <Titanium.UI.iPhone.AlertDialogStyle>. Note that this property available on 
+        <Titanium.UI.iPhone.AlertDialogStyle>. Using styles other than default one can break
+        your dialog layout if more than two buttons used. All styles can handle up to two
+        buttons comfortably, except for default style can handle up to six buttons when `title`
+        and `message` is empty or not given. Note that this property available on 
         iOS SDK 5 or above. 
     type: Number
     default: <Titanium.UI.iPhone.AlertDialogStyle.DEFAULT>
