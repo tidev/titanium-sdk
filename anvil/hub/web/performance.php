@@ -5,7 +5,7 @@
 	function print_suite_performance($branch, $config_set, $config, $suite, $runs)
 	{
 		echo "<!-- START GENERATED CHART FOR SUITE [" . $suite . "] -->\n";
-		echo "<div style=\"margin-left: 50px; margin-bottom: 50px\">\n";
+		echo "<div id=\"suite_chart_container\">\n";
 		echo "\t<div>Suite: " . $suite . "</div>\n\n";
 
 		$numRuns = count($runs);
@@ -16,7 +16,7 @@
 			// need to use "id" for the 3rd element in order to deal with odd suite names
 			$testId = $config_set . "_" . $config . "_" . str_replace('/', '_', $suite) . "_" . $row["name"];
 
-			echo "\t<div style=\"margin-left: 50px; margin-bottom: 40px\">\n";
+			echo "\t<div id=\"suite_chart_contents\">\n";
 			echo "\t\t<div id=\"" . $testId . "\" style=\"width: " . ($numRuns * 100) . "px\"></div>\n";
 
 			echo "\t\t<script type=\"text/javascript\">\n";
@@ -66,6 +66,41 @@
 	<head>
 		<meta http-equiv="content-type" content="text/html; charset=utf-8"/>
 		<title>Reporting</title>
+		<style type="text/css">
+			#all_suites_container
+			{
+				margin-left: 50px;
+				margin-bottom: 30px;
+			}
+
+			#config_container
+			{
+				margin-left: 50px;
+			}
+
+			#suite_contents
+			{
+				margin-left: 50px;
+				margin-bottom: 50px;
+			}
+
+			#suite_link
+			{
+				margin-left: 50px;
+			}
+
+			#suite_chart_container
+			{
+				margin-left: 50px;
+				margin-bottom: 50px;
+			}
+
+			#suite_chart_contents
+			{
+				margin-left: 50px;
+				margin-bottom: 40px;
+			}
+		</style>
 	</head>
 	<body>
 		<div>
@@ -74,7 +109,7 @@
 
 <?php
 	if (!(isset($_GET["suite"])) && !(isset($_GET["all_suites"]))) {
-		echo "\t\t<div style=\"margin-left: 50px; margin-bottom: 30px\">\n";
+		echo "\t\t<div id=\"all_suite_container\">\n";
 		echo "\t\t\t<a href=\"performance.php?branch=" . $_GET["branch"] . "&all_suites=true\">All Suites</a> (this can take a long time to load)\n";
 		echo "\t\t</div>\n";
 	}
@@ -108,20 +143,20 @@
 			$query2="SELECT DISTINCT name FROM configs WHERE branch = \"" . $_GET["branch"] . "\" AND config_set_name = \"" . $row["name"] . "\"";
 			$result2=mysql_query($query2);
 			while($row2 = mysql_fetch_array($result2)) {
-				echo "\t<div style=\"margin-left: 50px;\">\n";
+				echo "\t<div id=\"config_container\">\n";
 				echo "\t\t<div>Config: " . $row2["name"] . "</div>\n\n";
 
 				$query3="SELECT DISTINCT name FROM suites WHERE branch = \"" . $_GET["branch"] . "\" AND config_name = \"" . $row2["name"] . "\"";
 				$result3=mysql_query($query3);
 				while($row3 = mysql_fetch_array($result3)) {
 					if(isset($_GET["all_suites"])) {
-						echo "\t\t<div style=\"margin-left: 50px; margin-bottom: 50px\">\n";
+						echo "\t\t<div id=\"suite_contents\">\n";
 						echo "\t\t\t<div>Suite: " . $row3["name"] . "</div>\n\n";
 						print_suite_performance($_GET["branch"], $row["name"], $row2["name"], $row3["name"], $runs);
 						echo "\t\t</div>\n";
 
 					} else {
-						echo "\t\t<div style=\"margin-left: 50px\">\n" .
+						echo "\t\t<div id=\"suite_link\">\n" .
 							"\t\t\t<a href=\"performance.php?branch=" . $_GET["branch"] . 
 							"&config_set=" . $row["name"] . "&config=" . $row2["name"] .
 							"&suite=" . $row3["name"] . "\">Suite: " . $row3["name"] . "</a>\n" .

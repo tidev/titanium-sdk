@@ -8,10 +8,78 @@
 	<head>
 		<meta http-equiv="content-type" content="text/html; charset=utf-8"/>
 		<title>Anvil reporting</title>
+
+		<style type="text/css">
+			#run_description
+			{
+				text-align: left;
+				margin-bottom: 50px;
+			}
+
+			#branches_container
+			{
+				float: left;
+				width: 20%;
+			}
+
+			#branches_title
+			{
+				font-size: large;
+			}
+
+			#branch_list_container
+			{
+				margin-left: 20px;
+			}
+
+			#hub_state_container
+			{
+				float: left;
+				width: 50%;
+			}
+
+			#hub_state_title
+			{
+				font-size: large;
+				margin-bottom: 40px;
+			}
+
+			#hub_state_running
+			{
+				color: green
+			}
+
+			#hub_state_dead
+			{
+				color: red
+			}
+
+			#driver_state_container
+			{
+				margin-bottom: 80px;
+			}
+
+			#driver_state_title
+			{
+				font-size: large;
+				margin-bottom: 3px;
+			}
+
+			#run_container
+			{
+				margin-top: 50px;
+			}
+
+			#run_summary_element
+			{
+				float: left;
+				width: 100px;
+			}
+		</style>
 	</head>
 	<body>
 		<div>
-			<h1 style="text-align: left; margin-bottom: 50px">
+			<h1 id="run_description">
 				<?php
 					$header = "";
 					if (isset($_GET["branch"])) {
@@ -27,14 +95,14 @@
 		</div>
 
 		<div>
-			<div style="float: left; width: 20%">
+			<div id="branches_container">
 <?php
 	if (isset($_GET["branch"])) {
 		echo "<a href=\"performance.php?branch=" . $_GET["branch"] . "\">Performance</a>\n";
 
 	} else {
-		echo "\t\t\t\t<div style=\"font-size: large\"><b>Branches</b></div>\n";
-		echo "\t\t\t\t<div style=\"margin-left: 20px;\">\n";
+		echo "\t\t\t\t<div id=\"branches_title\"><b>Branches</b></div>\n";
+		echo "\t\t\t\t<div id=\"branch_list_container\">\n";
 		echo "<!-- START GENERATED BRANCH LIST -->\n";
 
 		$query="SELECT DISTINCT branch FROM runs;";
@@ -50,8 +118,8 @@
 ?>
 
 			</div>
-			<div style="float: left; width: 50%">
-				<div style="font-size: large; margin-bottom: 40px">
+			<div id="hub_state_container">
+				<div id="hub_state_title">
 <?php
 	if (!(isset($_GET["branch"]))) {
 		echo "<!-- START GENERATED HUB STATE -->\n";
@@ -59,10 +127,10 @@
 
 		exec("ps aux | grep -i hub.js | grep -v grep", $pids);
 		if (count($pids) > 0) {
-			echo "<div style=\"color: green\">Hub is Running</div>";
+			echo "<div id=\"hub_state_running\">Hub is Running</div>";
 
 		} else {
-			echo "<div style=\"color: red\">Hub is not running</div>";
+			echo "<div id=\"hub_state_dead\">Hub is not running</div>";
 		}
 
 		echo "</b>\n";
@@ -74,8 +142,8 @@
 <?php
 	if (!(isset($_GET["branch"]))) {
 		echo "<!-- START GENERATED DRIVER STATES -->\n";
-		echo "<div style=\"margin-bottom: 80px\">\n";
-		echo "\t<div style=\"font-size: large; margin-bottom: 3px\"><b>Driver states</b></div>\n";
+		echo "<div id=\"driver_state_container\">\n";
+		echo "\t<div id=\"driver_state_title\"><b>Driver states</b></div>\n";
 
 		echo "\t<table border=\"1\" cellpadding=\"3\" style=\"width: 100%\">\n";
 		echo "\t\t<tr>\n";
@@ -134,22 +202,22 @@
 			echo "\n<!-- START GENERATED CHART -->\n";
 			echo "<div";
 			if ($displayedRuns > 0) {
-				echo " style=\"margin-top: 50px\"";
+				echo " id=\"run_container\"";
 			}
 			echo ">\n";
 
 			echo "\t<div>\n" .
-				"\t\t<div style=\"float: left; width: 100px\"><b>Date: </b></div>\n" .
+				"\t\t<div id=\"run_summary_element\"><b>Date: </b></div>\n" .
 				"\t\t<div id=\"chart" . $row["id"] . "Date\"></div>\n" .
 				"\t</div>\n";
 
 			echo "\t<div>\n" .
-				"\t\t<div style=\"float: left; width: 100px\"><b>Branch: </b></div>\n" .
+				"\t\t<div id=\"run_summary_element\"><b>Branch: </b></div>\n" .
 				"\t\t<div id=\"chart" . $row["id"] . "Branch\"></div>\n" .
 				"\t</div>\n";
 
 			echo "\t<div>\n" .
-				"\t\t<div style=\"float: left; width: 100px\"><b>Git Hash: </b></div>\n" .
+				"\t\t<div id=\"run_summary_element\"><b>Git Hash: </b></div>\n" .
 				"\t\t<div id=\"chart" . $row["id"] . "Githash\"></div>\n" .
 				"\t</div>\n";
 

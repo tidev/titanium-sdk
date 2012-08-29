@@ -133,9 +133,11 @@ module.exports = new function() {
 		self.closeLog();
 
 		var date = new Date();
-		driverGlobal.currentLogDir = driverGlobal.logsDir + "/" + driverGlobal.platform.name + "/" + 
-			(date.getMonth() + 1) + "-" + date.getDate() + "-" + date.getFullYear() + "_" + 
-			(date.getHours() + 1) + "-" + date.getMinutes() + "-" + date.getSeconds() + "-" + date.getMilliseconds();
+		var logFilename = (date.getMonth() + 1) + "-" + date.getDate() + "-" + date.getFullYear() + 
+			"_" + (date.getHours() + 1) + "-" + date.getMinutes() + "-" + date.getSeconds() + "-" + 
+			date.getMilliseconds();
+
+		driverGlobal.currentLogDir = path.join(driverGlobal.logsDir, driverGlobal.platform.name, logFilename);
 
 		/*
 		a log directory needs to be created for the test run since you may end up with both a log 
@@ -148,9 +150,9 @@ module.exports = new function() {
 			console.log("exception <" + e + "> occurred when creating log directory <" + driverGlobal.currentLogDir + ">");
 		}
 
-		logFile = fs.openSync(driverGlobal.currentLogDir + "/log.txt", 'a+');
+		logFile = fs.openSync(path.join(driverGlobal.currentLogDir, "log.txt"), 'a+');
 
-		var dirs = fs.readdirSync(driverGlobal.logsDir + "/" + driverGlobal.platform.name);
+		var dirs = fs.readdirSync(path.join(driverGlobal.logsDir, driverGlobal.platform.name));
 		if (dirs.length >= driverGlobal.config.maxLogs) {
 			var oldestTime = 0;
 			var oldestDirIndex;
@@ -159,7 +161,7 @@ module.exports = new function() {
 
 			var numDirs = dirs.length;
 			for (var i = 0; i < numDirs; i++) {
-				var stat = fs.statSync(driverGlobal.logsDir + "/" + driverGlobal.platform.name + "/" + dirs[i]);
+				var stat = fs.statSync(path.join(driverGlobal.logsDir, driverGlobal.platform.name, dirs[i]));
 				var modifiedTime = stat.mtime.getTime();
 
 				dirTimestamps.push(modifiedTime);
@@ -176,7 +178,7 @@ module.exports = new function() {
 
 				} else {
 					var oldestDir = dirsMap[dirTimestamps[oldestDirIndex]];
-					self.runCommand("rm -r " + driverGlobal.logsDir + "/" + driverGlobal.platform.name + "/" + oldestDir, self.logNone, function(error) {
+					self.runCommand("rm -r " + path.join(driverGlobal.logsDir, driverGlobal.platform.name, oldestDir), self.logNone, function(error) {
 						if (error !== null) {
 							self.log("error <" + error + "> encountered when deleting log directory <" + oldestDir + ">");
 
@@ -251,7 +253,7 @@ module.exports = new function() {
 
 		var files = fs.readdirSync(driverGlobal.config.tiSdkDirs);
 		for (var i = 0; i < files.length; i++) {
-			var stat = fs.statSync(driverGlobal.config.tiSdkDirs + "/" + files[i]);
+			var stat = fs.statSync(path.join(driverGlobal.config.tiSdkDirs, files[i]));
 			var modifiedTime = stat.mtime.getTime();
 
 			if (modifiedTime > latestTime) {
@@ -266,7 +268,7 @@ module.exports = new function() {
 
 		} else {
 			console.log("using Titanium SDK version <" + latestDir + ">");
-			driverGlobal.config.currentTiSdkDir = driverGlobal.config.tiSdkDirs + "/" + latestDir;
+			driverGlobal.config.currentTiSdkDir = path.join(driverGlobal.config.tiSdkDirs, latestDir);
 		}
 	};
 };
