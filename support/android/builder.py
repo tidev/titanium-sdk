@@ -218,6 +218,8 @@ class Builder(object):
 		self.fastdev_port = -1
 		self.fastdev = False
 		self.compile_js = False
+		self.abi = 'all'
+		self.tool_api_level = MIN_API_LEVEL
 		
 		# don't build if a java keyword in the app id would cause the build to fail
 		tok = self.app_id.split('.')
@@ -227,10 +229,12 @@ class Builder(object):
 				sys.exit(1)
 
 		temp_tiapp = TiAppXML(self.project_tiappxml)
-		if temp_tiapp and temp_tiapp.android and 'tool-api-level' in temp_tiapp.android:
-			self.tool_api_level = int(temp_tiapp.android['tool-api-level'])
-		else:
-			self.tool_api_level = MIN_API_LEVEL
+		if temp_tiapp and temp_tiapp.android:
+			if 'tool-api-level' in temp_tiapp.android:
+				self.tool_api_level = int(temp_tiapp.android['tool-api-level'])
+			if 'abi' in temp_tiapp.android:
+				self.abi = temp_tiapp.android['abi']
+
 		self.sdk = AndroidSDK(sdk, self.tool_api_level)
 		self.tiappxml = temp_tiapp
 
@@ -1511,26 +1515,27 @@ class Builder(object):
 
 		# add sdk runtime native libraries
 		debug("installing native SDK libs")
+		abis = ['armeabi', 'armeabi-v7a', 'x86'] # default all, though x86 is given special attention below
+		if self.abi != 'all':
+			abis = self.abi.split(',')
+			info('This build targets these architectures: %s' % ', '.join(abis))
 		sdk_native_libs = os.path.join(template_dir, 'native', 'libs')
-		apk_zip.write(os.path.join(sdk_native_libs, 'armeabi', 'libtiverify.so'), 'lib/armeabi/libtiverify.so')
-		apk_zip.write(os.path.join(sdk_native_libs, 'armeabi-v7a', 'libtiverify.so'), 'lib/armeabi-v7a/libtiverify.so')
-		# See below about x86 and production
-		x86_dir = os.path.join(sdk_native_libs, 'x86')
-		if self.deploy_type != 'production' and os.path.exists(x86_dir):
-			apk_zip.write(os.path.join(x86_dir, 'libtiverify.so'), 'lib/x86/libtiverify.so')
 
-		if self.runtime == 'v8':
-			apk_zip.write(os.path.join(sdk_native_libs, 'armeabi', 'libkroll-v8.so'), 'lib/armeabi/libkroll-v8.so')
-			apk_zip.write(os.path.join(sdk_native_libs, 'armeabi', 'libstlport_shared.so'), 'lib/armeabi/libstlport_shared.so')
-			apk_zip.write(os.path.join(sdk_native_libs, 'armeabi-v7a', 'libkroll-v8.so'), 'lib/armeabi-v7a/libkroll-v8.so')
-			apk_zip.write(os.path.join(sdk_native_libs, 'armeabi-v7a', 'libstlport_shared.so'), 'lib/armeabi-v7a/libstlport_shared.so')
-			# Only include x86 in non-production builds for now, since there are
-			# no x86 devices on the market
-			if self.deploy_type != 'production' and os.path.exists(x86_dir):
-				apk_zip.write(os.path.join(x86_dir, 'libkroll-v8.so'), 'lib/x86/libkroll-v8.so')
-				apk_zip.write(os.path.join(x86_dir, 'libstlport_shared.so'), 'lib/x86/libstlport_shared.so')
+		for abi in abis:
+			abi = abi.strip()
+			lib_source_dir = os.path.join(sdk_native_libs, abi)
+			lib_dest_dir = 'lib/%s/' % abi
+			if abi == 'x86' and ((not os.path.exists(lib_source_dir)) or self.deploy_type == 'production'):
+				# x86 only in non-production builds for now.
+				continue
 
-				
+			# libtiverify is always included, even if targeting rhino.
+			apk_zip.write(os.path.join(lib_source_dir, 'libtiverify.so'), lib_dest_dir + 'libtiverify.so')
+
+			if self.runtime == 'v8':
+				for fname in ('libkroll-v8.so', 'libstlport_shared.so'):
+					apk_zip.write(os.path.join(lib_source_dir, fname), lib_dest_dir + fname)
+
 		self.apk_updated = True
 
 		apk_zip.close()
@@ -1671,6 +1676,14 @@ class Builder(object):
 		trace("Launch output: %s" % output)
 
 	def wait_for_sdcard(self):
+		mount_points_check = ['/sdcard', '/mnt/sdcard']
+		# Check the symlink that is typically in root.
+		# If you find it, add its target to the mount points to check.
+		output = self.run_adb('shell', 'ls', '-l', '/sdcard')
+		if output:
+			target_pattern = r"\-\> (\S+)\s*$"
+			mount_points_check.extend(re.findall(target_pattern, output))
+
 		info("Waiting for SDCard to become available..")
 		waited = 0
 		max_wait = 60
@@ -1682,7 +1695,7 @@ class Builder(object):
 					tokens = mount_point.split()
 					if len(tokens) < 2: continue
 					mount_path = tokens[1]
-					if mount_path in ['/sdcard', '/mnt/sdcard']:
+					if mount_path in mount_points_check:
 						return True
 			else:
 				error("Error checking for SDCard using 'mount'")
