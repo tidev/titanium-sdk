@@ -206,7 +206,7 @@ public class ViewProxy extends TiViewProxy implements OnLifecycleEvent
 		}
 	}
 
-	protected void addRouteHelper(HashMap routeMap)
+	protected void handleAddRoute(HashMap routeMap)
 	{
 		Object routeArray = routeMap.get("points");
 		if (routeArray instanceof Object[]) {
@@ -238,7 +238,7 @@ public class ViewProxy extends TiViewProxy implements OnLifecycleEvent
 	{
 		//This needs to run on main thread.
 		if (TiApplication.isUIThread()) {
-			addRouteHelper(routeMap);
+			handleAddRoute(routeMap);
 			return;
 		}
 		
@@ -250,7 +250,7 @@ public class ViewProxy extends TiViewProxy implements OnLifecycleEvent
 		return this.mapView;
 	}
 
-	protected void removeRouteHelper(HashMap route)
+	protected void handleRemoveRoute(HashMap route)
 	{
 		// We remove the route by "name" for parity with iOS
 		Object routeName = route.get("name");
@@ -280,7 +280,7 @@ public class ViewProxy extends TiViewProxy implements OnLifecycleEvent
 	{
 		//This needs to run on main thread.
 		if (TiApplication.isUIThread()) {
-			removeRouteHelper(route);
+			handleRemoveRoute(route);
 			return;
 		}
 
@@ -530,11 +530,11 @@ public class ViewProxy extends TiViewProxy implements OnLifecycleEvent
 	{
 		switch (msg.what) {
 			case MSG_ADD_ROUTE: {
-				addRouteHelper((HashMap)msg.obj);
+				handleAddRoute((HashMap)msg.obj);
 				return true;
 			}
 			case MSG_REMOVE_ROUTE: {
-				removeRouteHelper((HashMap)msg.obj);
+				handleRemoveRoute((HashMap)msg.obj);
 				return true;
 			}
 			default: {
