@@ -12,6 +12,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
+import java.net.URLConnection;
 import java.util.Arrays;
 import java.util.HashMap;
 
@@ -121,13 +122,23 @@ public class TiBlob extends KrollProxy
 		}
 		TiBlob blob = new TiBlob(TYPE_FILE, file, mimeType);
 
-		// Query the dimensions of a bitmap without allocating the memory for its pixels
-		BitmapFactory.Options opts = new BitmapFactory.Options();
-		opts.inJustDecodeBounds = true;
-		BitmapFactory.decodeStream(blob.getInputStream(), null, opts);
-		// If there is an error trying to decode, outWidth and outHeight will be set to -1.
-		blob.width = opts.outWidth > 0? opts.outWidth: 0;
-		blob.height = opts.outHeight > 0? opts.outHeight: 0;
+		String mt = blob.guessContentTypeFromStream();
+		// Update mimetype based on the guessed MIME-type.
+		if (mt != null && mt != blob.mimetype) {
+			blob.mimetype = mt;
+		}
+		// If the MIME-type is "image/*" or undetermined, try to decode the file into a bitmap.
+		if (mt == null || mt.startsWith("image/")) {
+			// Query the dimensions of a bitmap without allocating the memory for its pixels
+			BitmapFactory.Options opts = new BitmapFactory.Options();
+			opts.inJustDecodeBounds = true;
+			BitmapFactory.decodeStream(blob.getInputStream(), null, opts);
+			// If there is an error trying to decode, outWidth and outHeight will be set to -1.
+			if (opts.outWidth != -1 && opts.outHeight != -1) {
+				blob.width = opts.outWidth;
+				blob.height = opts.outHeight;
+			}
+		}
 
 		return blob;
 	}
@@ -179,15 +190,43 @@ public class TiBlob extends KrollProxy
 		}
 		TiBlob blob = new TiBlob(TYPE_DATA, data, mimetype);
 
-		// Query the dimensions of a bitmap without allocating the memory for its pixels
-		BitmapFactory.Options opts = new BitmapFactory.Options();
-		opts.inJustDecodeBounds = true;
-		BitmapFactory.decodeByteArray(data, 0, data.length, opts);
-		// If there is an error trying to decode, outWidth and outHeight will be set to -1.
-		blob.width = opts.outWidth > 0? opts.outWidth: 0;
-		blob.height = opts.outHeight > 0? opts.outHeight: 0;
+		String mt = blob.guessContentTypeFromStream();
+		// Update mimetype based on the guessed MIME-type.
+		if (mt != null && mt != blob.mimetype) {
+			blob.mimetype = mt;
+		}
+		// If the MIME-type is "image/*" or undetermined, try to decode the byte array into a bitmap.
+		if (mt == null || mt.startsWith("image/")) {
+			// Query the dimensions of a bitmap without allocating the memory for its pixels
+			BitmapFactory.Options opts = new BitmapFactory.Options();
+			opts.inJustDecodeBounds = true;
+			BitmapFactory.decodeByteArray(data, 0, data.length, opts);
+			// If there is an error trying to decode, outWidth and outHeight will be set to -1.
+			if (opts.outWidth != -1  && opts.outHeight != -1) {
+				blob.width = opts.outWidth;
+				blob.height = opts.outHeight;
+			}
+		}
 
 		return blob;
+	}
+
+	/**
+	 * Determines the MIME-type by reading first few characters from the given input stream.
+	 * @return the guessed MIME-type or null if the type could not be determined.
+	 */
+	public String guessContentTypeFromStream()
+	{
+		String mt = null;
+		InputStream is = getInputStream();
+		if (is != null) {
+			try {
+				mt = URLConnection.guessContentTypeFromStream(is);
+			} catch (IOException e) {
+				Log.e(TAG, e.getMessage(), e, Log.DEBUG_MODE);
+			}
+		}
+		return mt;
 	}
 
 	/**
@@ -438,12 +477,16 @@ public class TiBlob extends KrollProxy
 
 	public Bitmap getImage()
 	{
-		switch(type) {
-			case TYPE_FILE:
-				return BitmapFactory.decodeStream(getInputStream());
-			case TYPE_DATA:
-				byte[] byteArray = (byte[])data;
-				return BitmapFactory.decodeByteArray(byteArray, 0, byteArray.length);
+		// If the image is not available but the width and height of the image are successfully fetched, the image can
+		// be created by decoding the data.
+		if (image == null && (width > 0 && height > 0)) {
+			switch (type) {
+				case TYPE_FILE:
+					return BitmapFactory.decodeStream(getInputStream());
+				case TYPE_DATA:
+					byte[] byteArray = (byte[]) data;
+					return BitmapFactory.decodeByteArray(byteArray, 0, byteArray.length);
+			}
 		}
 		return image;
 	}
@@ -461,8 +504,6 @@ public class TiBlob extends KrollProxy
 		}
 
 		KrollDict options = new KrollDict((HashMap) params);
-		int width = img.getWidth();
-		int height = img.getHeight();
 		int widthCropped = options.optInt(TiC.PROPERTY_WIDTH, width);
 		int heightCropped = options.optInt(TiC.PROPERTY_HEIGHT, height);
 		int x = options.optInt(TiC.PROPERTY_X, (width - widthCropped) / 2);
