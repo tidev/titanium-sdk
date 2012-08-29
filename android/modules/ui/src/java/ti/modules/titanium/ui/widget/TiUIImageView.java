@@ -934,7 +934,7 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 				setImages();
 			}
 		} else {
-			// Update requestedWidth / requestedHeight and set image when width / height is changed.
+			// Update requestedWidth / requestedHeight when width / height is changed.
 			if (key.equals(TiC.PROPERTY_WIDTH)) {
 				View parentView = getParentView();
 				if (TiC.LAYOUT_FILL.equals(TiConvert.toString(newValue)) && parentView != null) {
