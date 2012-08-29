@@ -934,8 +934,6 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 				setImages();
 			}
 		} else {
-			super.propertyChanged(key, oldValue, newValue, proxy);
-
 			// Update requestedWidth / requestedHeight and set image when width / height is changed.
 			if (key.equals(TiC.PROPERTY_WIDTH)) {
 				View parentView = getParentView();
@@ -945,7 +943,6 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 				} else {
 					requestedWidth = TiConvert.toTiDimension(newValue, TiDimension.TYPE_WIDTH);
 				}
-				setImage(true);
 			} else if (key.equals(TiC.PROPERTY_HEIGHT)) {
 				View parentView = getParentView();
 				// Use the parent's height when it's fill
@@ -954,8 +951,9 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 				} else {
 					requestedHeight = TiConvert.toTiDimension(newValue, TiDimension.TYPE_HEIGHT);
 				}
-				setImage(true);
 			}
+
+			super.propertyChanged(key, oldValue, newValue, proxy);
 		}
 	}
 
