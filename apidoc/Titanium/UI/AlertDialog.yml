@@ -147,8 +147,8 @@ properties:
     summary: Boolean value indicating if the alert dialog should only be cancelled by user 
         gesture or by hide method.
     description: |
-        This property is useful to avoid the alert dialog from being automatically cancelled by 
-        system at any time - for example, when the user taps on the Home button.
+        This property is useful to ensure that the alert dialog will not be ignored 
+        by the user when the application is paused/suspended.
     type: Boolean
     default: false
     platforms: [iphone, ipad]
