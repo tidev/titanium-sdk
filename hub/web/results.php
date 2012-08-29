@@ -10,22 +10,66 @@
 				document.getElementById("totalFailed").innerHTML = totalFailed;
 			}
 		</script>
+
+		<style type="text/css">
+			#results_description
+			{
+				text-align: left;
+				margin-bottom: 30px;
+			}
+
+			#results_summary
+			{
+				margin-left: 50px;
+			}
+
+			#num_results_item
+			{
+				margin-left: 20px;
+			}
+
+			#raw_results_link
+			{
+				margin-top: 20px;
+			}
+
+			#results_container
+			{
+				margin-top: 50px;
+			}
+
+			#config_set
+			{
+				margin-left: 50px;
+			}
+
+			#config
+			{
+				margin-left: 50px;
+			}
+
+			#suite
+			{
+				margin-left: 50px;
+				margin-bottom: 50px;
+			}
+		</style>
 	</head>
 	<body>
 		<div>
-			<h2 style="text-align: left; margin-bottom: 30px">Detailed results for branch [<?php echo $_GET["branch"]; ?>], driver ID [<?php echo $_GET["driver_id"]; ?>] and Git hash [<?php echo substr($_GET["git_hash"], 0, 10); ?>]</h2>
+			<h2 id="results_description">Detailed results for branch [<?php echo $_GET["branch"]; ?>], driver ID [<?php echo $_GET["driver_id"]; ?>] and Git hash [<?php echo substr($_GET["git_hash"], 0, 10); ?>]</h2>
 		</div>
 
-		<div style="margin-left: 50px;">
+		<div id="results_summary">
 			Summary
 
-			<div style="margin-left: 20px">Total Pass: <div id="totalPassed" style="display: inline"></div></div>
-			<div style="margin-left: 20px">Total Fail: <div id="totalFailed" style="display: inline"></div></div>
+			<div id="num_results_item">Total Pass: <div id="totalPassed" style="display: inline"></div></div>
+			<div id="num_results_item">Total Fail: <div id="totalFailed" style="display: inline"></div></div>
 
-			<div style="margin-top: 20px"><a href="results/<?php echo $_GET["git_hash"] . $_GET["driver_id"]; ?>.tgz">Raw results file</a></div>
+			<div id="raw_results_link"><a href="results/<?php echo $_GET["git_hash"] . $_GET["driver_id"]; ?>.tgz">Raw results file</a></div>
 		</div>
 
-		<div style="margin-top: 50px">
+		<div id="results_container">
 
 <?php
 	echo "<!-- START GENERATED RESULTS TABLE -->\n";
@@ -44,19 +88,19 @@
 		$query2="SELECT * FROM config_sets WHERE driver_run_id = " . $row["id"];
 		$result2=mysql_query($query2);
 		while($row2 = mysql_fetch_array($result2)) {
-			echo "<div style=\"margin-left: 50px;\">\n";
+			echo "<div id=\"config_set\">\n";
 			echo "\t<div>Config Set: " . $row2["name"] . "</div>\n\n";
 
 			$query3="SELECT * FROM configs WHERE config_set_id = " . $row2["id"];
 			$result3=mysql_query($query3);
 			while($row3 = mysql_fetch_array($result3)) {
-				echo "\t<div style=\"margin-left: 50px;\">\n";
+				echo "\t<div id=\"config\">\n";
 				echo "\t\t<div>Config: " . $row3["name"] . "</div>\n\n";
 
 				$query4="SELECT * FROM suites WHERE config_id = " . $row3["id"];
 				$result4=mysql_query($query4);
 				while($row4 = mysql_fetch_array($result4)) {
-					echo "\t\t<div style=\"margin-left: 50px; margin-bottom: 50px\">\n";
+					echo "\t\t<div id=\"suite\">\n";
 					echo "\t\t\t<div>Suite: " . $row4["name"] . "</div>\n\n";
 
 					echo "\t\t\t<table border=\"1\">\n";

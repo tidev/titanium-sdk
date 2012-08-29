@@ -23,16 +23,16 @@ var fs = require("fs");
 
 var messageHandler = require(__dirname + "/messageHandler");
 var server = require(__dirname + "/server");
-var util = require(__dirname + "/util");
+var hubUtils = require(__dirname + "/hubUtils");
 
 function loadConfigModule() {
 	var configModulePath = __dirname + "/config.js";
 	if (!(fs.existsSync(configModulePath))) {
 		console.log("No config module found!  Do the following:\n" +
-			util.getTabs(1) + "1) copy the exampleConfig.js to config.js in the root driver directory\n" +
-			util.getTabs(1) + "2) update the config.js with appropriate values based on the comments in\n" +
-			util.getTabs(1) + "   the exampleConfig.js file\n" +
-			util.getTabs(1) + "3) restart hub\n");
+			hubUtils.getTabs(1) + "1) copy the exampleConfig.js to config.js in the root driver directory\n" +
+			hubUtils.getTabs(1) + "2) update the config.js with appropriate values based on the comments in\n" +
+			hubUtils.getTabs(1) + "   the exampleConfig.js file\n" +
+			hubUtils.getTabs(1) + "3) restart hub\n");
 
 		process.exit(1);
 	}
@@ -102,8 +102,8 @@ setupTempDirs();
 messageHandler.server = server;
 server.messageHandler = messageHandler;
 
-util.openLog(function() {
-	util.runCommand("mysql -uroot < anvil.sql", function(error, stdout, stderr) {
+hubUtils.openLog(function() {
+	hubUtils.runCommand("mysql -uroot < anvil.sql", function(error, stdout, stderr) {
 		if (error !== null) {
 			console.log("error encountered when running sql script: " + error);
 			process.exit(1);

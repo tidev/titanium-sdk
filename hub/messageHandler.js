@@ -8,9 +8,11 @@
  */
 
 var fs = require("fs");
+var path = require("path");
+
 var mysql = require("mysql");
 
-var util = require(__dirname + "/util");
+var hubUtils = require(__dirname + "/hubUtils");
 
 module.exports = new function() {
 	var self = this;
@@ -29,12 +31,12 @@ module.exports = new function() {
 		dbConnection.on('close', function(error) {
 			if (error) {
 				if (error.code === "PROTOCOL_CONNECTION_LOST") {
-					util.log("MYSQL connection lost, re-connecting...");
+					hubUtils.log("MYSQL connection lost, re-connecting...");
 					dbConnection = mysql.createConnection(dbConnection.config);
 
 				} else {
 					// non timeout error, treat as fatal
-					util.log("MYSQL connection lost, error <" + error.code + ">");
+					hubUtils.log("MYSQL connection lost, error <" + error.code + ">");
 					process.exit(1);
 				}
 			}
@@ -55,7 +57,7 @@ module.exports = new function() {
 						throw error;
 					}
 
-					util.log("temp DB state cleared");
+					hubUtils.log("temp DB state cleared");
 					callback();
 				});
 			}
@@ -67,7 +69,7 @@ module.exports = new function() {
 			message = JSON.parse(message);
 
 		} catch (e) {
-			util.log("error occured when trying to parse message from CI server");
+			hubUtils.log("error occured when trying to parse message from CI server");
 			ciConnection.destroy();
 			return;
 		}
@@ -126,17 +128,17 @@ module.exports = new function() {
 
 	this.processDriverResults = function(driverId, results, callback) {
 		// create unique working dir
-		var driverRunWorkingDir = hubGlobal.workingDir + "/" + activeRuns[driverId].gitHash + driverId;
+		var driverRunWorkingDir = path.join(hubGlobal.workingDir, activeRuns[driverId].gitHash + driverId);
 		fs.mkdirSync(driverRunWorkingDir);
 
 		// create zip
-		var resultsFile = fs.openSync(driverRunWorkingDir + "/" + activeRuns[driverId].gitHash + driverId + ".tgz", 'w');
+		var resultsFile = fs.openSync(path.join(driverRunWorkingDir, activeRuns[driverId].gitHash + driverId + ".tgz"), 'w');
 		fs.writeSync(resultsFile, results, 0, results.length, null);
 		fs.closeSync(resultsFile);
 
 		// extract the results set
-		var command = "tar -xzvf " + driverRunWorkingDir + "/" + activeRuns[driverId].gitHash + driverId + ".tgz -C " + driverRunWorkingDir;
-		util.runCommand(command, function(error, stdout, stderr) {
+		var command = "tar -xzvf " + path.join(driverRunWorkingDir, activeRuns[driverId].gitHash + driverId + ".tgz") + " -C " + driverRunWorkingDir;
+		hubUtils.runCommand(command, function(error, stdout, stderr) {
 			if (error !== null) {
 				console.log("error <" + error + "> occurred when trying to extract results to <" + 
 					driverRunWorkingDir + ">");
@@ -281,7 +283,7 @@ module.exports = new function() {
 				// store the branch ID for later use
 				branch = rows[0].branch;
 
-				var results = fs.readFileSync(driverRunWorkingDir + "/json_results", "utf-8");
+				var results = fs.readFileSync(path.join(driverRunWorkingDir, "json_results"), "utf-8");
 				results = JSON.parse(results);
 
 				insertDriverRun(results, function() {
@@ -294,14 +296,14 @@ module.exports = new function() {
 						}
 
 						// copy the raw results file to a location where it can be served up
-						var command = "mv " + driverRunWorkingDir + "/" + activeRuns[driverId].gitHash + 
-							driverId + ".tgz web/results/";
+						var command = "mv " + path.join(driverRunWorkingDir, activeRuns[driverId].gitHash + 
+							driverId + ".tgz") + " web/results/";
 
-						util.runCommand(command, function() {
-							util.log("results file moved to serving location");
+						hubUtils.runCommand(command, function() {
+							hubUtils.log("results file moved to serving location");
 
-							util.runCommand("rm -rf " + driverRunWorkingDir, function() {
-								util.log("temp working directory cleaned up");
+							hubUtils.runCommand("rm -rf " + driverRunWorkingDir, function() {
+								hubUtils.log("temp working directory cleaned up");
 							});
 						});
 
@@ -363,7 +365,7 @@ module.exports = new function() {
 
 	this.updateDriverState = function(args) {
 		function updatedCallback() {
-			util.log("driver <" + args.id + "> state updated: " + args.state);
+			hubUtils.log("driver <" + args.id + "> state updated: " + args.state);
 		}
 
 		if (args.state !== "disconnected") {

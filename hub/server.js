@@ -9,7 +9,7 @@
 
 var net = require("net");
 
-var util = require(__dirname + "/util");
+var hubUtils = require(__dirname + "/hubUtils");
 
 module.exports = new function() {
 	var self = this;
@@ -26,13 +26,13 @@ module.exports = new function() {
 
 		function startCiServer() {
 			ciServer = net.createServer(function(acceptedConnection) {
-				util.log("connection accepted from CI server");
+				hubUtils.log("connection accepted from CI server");
 
 				acceptedConnection.on("close", function() {
-					util.log("CI connection closed");
+					hubUtils.log("CI connection closed");
 				});
 				acceptedConnection.on("error", function() {
-					util.log("error occured on CI connection");
+					hubUtils.log("error occured on CI connection");
 					acceptedConnection.destroy(); // close event will be fired
 				});
 				acceptedConnection.on("data", function(data) {
@@ -40,11 +40,11 @@ module.exports = new function() {
 						data = data.toString();
 					}
 
-					self.messageHandler.processCiMessage(acceptedConnection, util.trimStringRight(data));
+					self.messageHandler.processCiMessage(acceptedConnection, hubUtils.trimStringRight(data));
 				});
 			});
 			ciServer.on("close", function() {
-				util.log("CI server connection closed");
+				hubUtils.log("CI server connection closed");
 				setTimeout(startCiServer, ciServerRestartDelay);
 			});
 			ciServer.on("error", function() {
@@ -53,7 +53,7 @@ module.exports = new function() {
 				assumption that this is the regular socket error event, the close event should 
 				follow but it does not - hence manually calling close or restarting the server
 				*/
-				util.log("error occurred when listening for CI connections");
+				hubUtils.log("error occurred when listening for CI connections");
 
 				try {
 					/*
@@ -68,7 +68,7 @@ module.exports = new function() {
 			});
 
 			ciServer.listen(hubGlobal.config.ciListenPort, function() {
-				util.log("listening for CI connections");
+				hubUtils.log("listening for CI connections");
 			});
 		}
 
@@ -80,10 +80,10 @@ module.exports = new function() {
 				var recvBuffer = new Buffer(0);
 				var payloadSize = null;
 
-				util.log("connection accepted from driver server");
+				hubUtils.log("connection accepted from driver server");
 
 				acceptedConnection.on("close", function() {
-					util.log("connection for driver <" + driverId + "> closed");
+					hubUtils.log("connection for driver <" + driverId + "> closed");
 					self.messageHandler.updateDriverState({
 						id: driverId,
 						state: "disconnected"
@@ -92,7 +92,7 @@ module.exports = new function() {
 					delete self.driverConnections[driverId];
 				});
 				acceptedConnection.on("error", function(error) {
-					util.log("error <" + error + "> occurred on driver <" + driverId + "> connection");
+					hubUtils.log("error <" + error + "> occurred on driver <" + driverId + "> connection");
 					acceptedConnection.destroy(); // close event will be fired
 				});
 				acceptedConnection.on("data", function(data) {
@@ -112,7 +112,7 @@ module.exports = new function() {
 							payloadSize = null;
 
 							if (message.type === "registration") {
-								util.log("registration received for driver <" + message.id + ">");
+								hubUtils.log("registration received for driver <" + message.id + ">");
 								registered = true;
 								driverId = message.id;
 								self.driverConnections[driverId] = acceptedConnection;
@@ -128,12 +128,12 @@ module.exports = new function() {
 								self.messageHandler.getDriverRun(driverId);
 
 							} else {
-								util.log("got something other than registration as first message, closing");
+								hubUtils.log("got something other than registration as first message, closing");
 								acceptedConnection.destroy(); // close event will be fired
 							}
 
 						} else {
-							util.log("results received from driver: " + bytesReceived);
+							hubUtils.log("results received from driver: " + bytesReceived);
 							self.messageHandler.processDriverResults(driverId, recvBuffer.slice(32B_INT_SIZE), function() {
 								// close the driver connection once the results are processed
 								acceptedConnection.destroy();
@@ -143,7 +143,7 @@ module.exports = new function() {
 				});
 			});
 			driverServer.on("close", function() {
-				util.log("driver server connection closed");
+				hubUtils.log("driver server connection closed");
 				setTimeout(startDriverServer, driverServerRestartDelay);
 			});
 			driverServer.on("error", function() {
@@ -152,7 +152,7 @@ module.exports = new function() {
 				assumption that this is the regular socket error event, the close event should 
 				follow but it does not - hence manually calling close or restarting the server
 				*/
-				util.log("error occurred when listening for driver connections");
+				hubUtils.log("error occurred when listening for driver connections");
 
 				try {
 					/*
@@ -167,7 +167,7 @@ module.exports = new function() {
 			});
 
 			driverServer.listen(hubGlobal.config.driverListenPort, function() {
-				util.log("listening for driver connections");
+				hubUtils.log("listening for driver connections");
 			});
 		}
 
@@ -178,7 +178,7 @@ module.exports = new function() {
 	this.sendMessageToDriver = function(driverId, message) {
 		var driverConnection = self.driverConnections[driverId];
 		if ((typeof driverConnection) === "undefined") {
-			util.log("requested driver <" + driverId + "> not found");
+			hubUtils.log("requested driver <" + driverId + "> not found");
 			return null;
 		}
 
@@ -191,7 +191,7 @@ module.exports = new function() {
 		sendBuffer.write(message, 32B_INT_SIZE);
 
 		driverConnection.write(sendBuffer, function() {
-			util.log("message sent to the driver");
+			hubUtils.log("message sent to the driver");
 		});
 	};
 };

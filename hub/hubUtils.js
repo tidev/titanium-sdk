@@ -87,10 +87,11 @@ module.exports = new function() {
 		}
 
 		var date = new Date();
-		logFilePath = hubGlobal.logsDir + "/" + (date.getMonth() + 1) + "-" + 
-			date.getDate() + "-" + date.getFullYear() + "_" + (date.getHours() + 1) + "-" + 
-			date.getMinutes() + "-" + date.getSeconds() + "-" + date.getMilliseconds();
+		var logFilename = (date.getMonth() + 1) + "-" + date.getDate() + "-" + date.getFullYear() + 
+			"_" + (date.getHours() + 1) + "-" + date.getMinutes() + "-" + date.getSeconds() + "-" + 
+			date.getMilliseconds();
 
+		logFilePath = path.join(hubGlobal.logsDir, logFilename);
 		logFile = fs.openSync(logFilePath, 'a+');
 
 		logRotating = false;
@@ -104,7 +105,7 @@ module.exports = new function() {
 
 			var numLogs = logs.length;
 			for (var i = 0; i < numLogs; i++) {
-				var stat = fs.statSync(hubGlobal.logsDir + "/" + logs[i]);
+				var stat = fs.statSync(path.join(hubGlobal.logsDir, logs[i]));
 				var modifiedTime = stat.mtime.getTime();
 
 				logTimestamps.push(modifiedTime);
@@ -121,7 +122,7 @@ module.exports = new function() {
 
 				} else {
 					var oldestLog = logsMap[logTimestamps[oldestLogIndex]];
-					self.runCommand("rm -r " + hubGlobal.logsDir + "/" + oldestLog, function(error) {
+					self.runCommand("rm -r " + path.join(hubGlobal.logsDir, oldestLog), function(error) {
 						if (error !== null) {
 							self.log("error <" + error + "> encountered when deleting log <" + oldestLog + ">");
 
