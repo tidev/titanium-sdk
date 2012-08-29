@@ -354,6 +354,7 @@
         [[self label] setLineBreakMode:UILineBreakModeWordWrap];
     else 
         [[self label] setLineBreakMode:UILineBreakModeTailTruncation];
+    [self padLabel];
 	[(TiViewProxy *)[self proxy] contentsWillChange];
 }
 
