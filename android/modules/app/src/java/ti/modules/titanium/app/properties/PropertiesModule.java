@@ -77,10 +77,17 @@ public class PropertiesModule extends KrollModule {
 		}
 	}
 
+	//Convenience method for pulling raw values
+	public Object getPreferenceValue(String key)
+	{
+		return appProperties.getPreference().getAll().get(key);
+	}
+	
 	@Kroll.method
 	public void setBool(String key, boolean value)
 	{
-		if (!hasProperty(key) || getBool(key) != value) {
+		Object boolValue = getPreferenceValue(key);
+		if (boolValue == null || !boolValue.equals(value)) {
 			appProperties.setBool(key, value);
 			fireEvent(TiC.EVENT_CHANGE, null);
 		}
@@ -90,7 +97,10 @@ public class PropertiesModule extends KrollModule {
 	@Kroll.method
 	public void setDouble(String key, double value)
 	{
-		if (!hasProperty(key) || getDouble(key) != value) {
+		Object doubleValue = getPreferenceValue(key);
+		//Since there is no double type in SharedPreferences, we store doubles as strings, i.e "10.0"
+		//so we need to convert before comparing.
+		if (doubleValue == null || !doubleValue.equals(String.valueOf(value))) {
 			appProperties.setDouble(key, value);
 			fireEvent(TiC.EVENT_CHANGE, null);
 		}
@@ -99,7 +109,8 @@ public class PropertiesModule extends KrollModule {
 	@Kroll.method
 	public void setInt(String key, int value)
 	{
-		if (!hasProperty(key) || getInt(key) != value) {
+		Object intValue = getPreferenceValue(key);
+		if (intValue == null || !intValue.equals(value)) {
 			appProperties.setInt(key, value);
 			fireEvent(TiC.EVENT_CHANGE, null);
 		}
@@ -108,8 +119,8 @@ public class PropertiesModule extends KrollModule {
 	@Kroll.method
 	public void setString(String key, String value)
 	{
-		String oldValue = getString(key);
-		if (oldValue != null && oldValue.equals(value)) {
+		Object stringValue = getPreferenceValue(key);
+		if (stringValue == null || !stringValue.equals(value)) {
 			appProperties.setString(key, value);
 			fireEvent(TiC.EVENT_CHANGE, null);
 		}

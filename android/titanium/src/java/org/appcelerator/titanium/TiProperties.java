@@ -54,6 +54,11 @@ public class TiProperties
 		}
 	}
 
+	public SharedPreferences getPreference()
+	{
+		return preferences;
+	}
+	
 	/**
 	 * Maps the specified key with a String value. If value is null, existing key will be removed from preferences.
 	 * Otherwise, its value will be overwritten.
