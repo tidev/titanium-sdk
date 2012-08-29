@@ -422,6 +422,13 @@ public abstract class TiBaseActivity extends Activity
 		// Doing this on every create in case the activity is externally created.
 		TiPlatformHelper.intializeDisplayMetrics(this);
 
+		if (layout == null) {
+			layout = createLayout();
+		}
+		if (intent != null && intent.hasExtra(TiC.PROPERTY_KEEP_SCREEN_ON)) {
+			layout.setKeepScreenOn(intent.getBooleanExtra(TiC.PROPERTY_KEEP_SCREEN_ON, layout.getKeepScreenOn()));
+		}
+
 		super.onCreate(savedInstanceState);
 		
 		// we only want to set the current activity for good in the resume state but we need it right now.
@@ -439,12 +446,6 @@ public abstract class TiBaseActivity extends Activity
 		// set the current activity back to what it was originally
 		tiApp.setCurrentActivity(this, tempCurrentActivity);
 
-		if (layout == null) {
-			layout = createLayout();
-		}
-		if (intent != null && intent.hasExtra(TiC.PROPERTY_KEEP_SCREEN_ON)) {
-			layout.setKeepScreenOn(intent.getBooleanExtra(TiC.PROPERTY_KEEP_SCREEN_ON, layout.getKeepScreenOn()));
-		}
 		setContentView(layout);
 
 		sendMessage(msgActivityCreatedId);
