@@ -203,8 +203,11 @@ module.exports = new function() {
 			fs.closeSync(logFile);
 
 			/*
-			there doesn't seem to be an exposed API for checking if the file is open so just set 
-			to undefined so we have something to test against
+			Wrapping a call to fstatSync in a try/catch can be used as a means of checking if the 
+			provided file descriptor is valid (open) since it will throw an exception if the file
+			is not open.  However, I see this as kind of a hack and prefer the clarity of just using
+			undefined on the file handle as a flag since the behavior is explicit and the behavior
+			is faster than the exception mechanism.
 			*/
 			logFile = undefined;
 		}
