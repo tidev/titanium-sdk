@@ -70,6 +70,7 @@ java_keywords = [
 
 
 MIN_API_LEVEL = 8
+KNOWN_ABIS = ("armeabi", "armeabi-v7a", "x86")
 
 def render_template_with_tiapp(template_text, tiapp_obj):
 	t = Template(template_text)
@@ -218,8 +219,8 @@ class Builder(object):
 		self.fastdev_port = -1
 		self.fastdev = False
 		self.compile_js = False
-		self.abi = 'all'
 		self.tool_api_level = MIN_API_LEVEL
+		self.abis = list(KNOWN_ABIS)
 		
 		# don't build if a java keyword in the app id would cause the build to fail
 		tok = self.app_id.split('.')
@@ -232,8 +233,19 @@ class Builder(object):
 		if temp_tiapp and temp_tiapp.android:
 			if 'tool-api-level' in temp_tiapp.android:
 				self.tool_api_level = int(temp_tiapp.android['tool-api-level'])
-			if 'abi' in temp_tiapp.android:
-				self.abi = temp_tiapp.android['abi']
+
+			if 'abi' in temp_tiapp.android and temp_tiapp.android['abi'] != 'all':
+				tiapp_abis = [abi.strip() for abi in temp_tiapp.android['abi'].split(",")]
+				to_remove = [bad_abi for bad_abi in tiapp_abis if bad_abi not in KNOWN_ABIS]
+				if to_remove:
+					warn("The following ABIs listed in the Android <abi> section of tiapp.xml are unknown and will be ignored: %s." % ", ".join(to_remove))
+					tiapp_abis = [abi for abi in tiapp_abis if abi not in to_remove]
+
+				self.abis = tiapp_abis
+				if not self.abis:
+					warn("Android <abi> tiapp.xml section does not specify any valid ABIs. Defaulting to '%s'." %
+							",".join(KNOWN_ABIS))
+					self.abis = list(KNOWN_ABIS)
 
 		self.sdk = AndroidSDK(sdk, self.tool_api_level)
 		self.tiappxml = temp_tiapp
@@ -1489,6 +1501,8 @@ class Builder(object):
 		def add_native_libs(libs_dir, exclude=[]):
 			if os.path.exists(libs_dir):
 				for abi_dir in os.listdir(libs_dir):
+					if abi_dir not in self.abis:
+						continue
 					libs_abi_dir = os.path.join(libs_dir, abi_dir)
 					if not os.path.isdir(libs_abi_dir): continue
 					for file in os.listdir(libs_abi_dir):
@@ -1515,14 +1529,9 @@ class Builder(object):
 
 		# add sdk runtime native libraries
 		debug("installing native SDK libs")
-		abis = ['armeabi', 'armeabi-v7a', 'x86'] # default all, though x86 is given special attention below
-		if self.abi != 'all':
-			abis = self.abi.split(',')
-			info('This build targets these architectures: %s' % ', '.join(abis))
 		sdk_native_libs = os.path.join(template_dir, 'native', 'libs')
 
-		for abi in abis:
-			abi = abi.strip()
+		for abi in self.abis:
 			lib_source_dir = os.path.join(sdk_native_libs, abi)
 			lib_dest_dir = 'lib/%s/' % abi
 			if abi == 'x86' and ((not os.path.exists(lib_source_dir)) or self.deploy_type == 'production'):
