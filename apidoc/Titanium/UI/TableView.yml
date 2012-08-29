@@ -1137,8 +1137,8 @@ properties:
   - name: style
     summary: |
         Style of the table view, specified using one of the constants from 
-        <Titanium.UI.iPhone.TableViewStyle>.Style should always be set before setting the 
-        `data` on table view. 
+        <Titanium.UI.iPhone.TableViewStyle>.
+    description: Style should always be set before setting the `data` on table view. 
     type: Number
     platforms: [iphone, ipad]
 
