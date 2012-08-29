@@ -107,6 +107,15 @@ public abstract class TiBaseActivity extends Activity
 		}
 	}
 
+	/**
+	 * Returns the window at the top of the stack.
+	 * @return the top window or null if the stack is empty.
+	 */
+	public TiBaseWindowProxy topWindowOnStack()
+	{
+		return (windowStack.isEmpty()) ? null : windowStack.peek();
+	}
+
 	// could use a normal ConfigurationChangedListener but since only orientation changes are
 	// forwarded, create a separate interface in order to limit scope and maintain clarity 
 	public static interface OrientationChangedListener
@@ -520,6 +529,21 @@ public abstract class TiBaseActivity extends Activity
 	{
 		super.onActivityResult(requestCode, resultCode, data);
 		getSupportHelper().onActivityResult(requestCode, resultCode, data);
+	}
+
+	@Override
+	public void onBackPressed()
+	{
+		// Prevent default Android behavior for "back" press
+		// if the top window has a listener to handle the event.
+		TiWindowProxy topWindow = topWindowOnStack();
+		if (topWindow != null && topWindow.hasListeners(TiC.EVENT_ANDROID_BACK_2)) {
+			topWindow.fireEvent(TiC.EVENT_ANDROID_BACK_2, null);
+
+		} else {
+			// If event is not handled by any listeners allow default behavior.
+			super.onBackPressed();
+		}
 	}
 
 	@Override
