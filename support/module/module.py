@@ -147,9 +147,16 @@ class Module(object):
 		self.manifest = manifest
 
 		self.jar = None
-		module_jar = self.get_resource(manifest.name+'.jar')
+		module_jar = self.get_resource(manifest.name + '.jar')
 		if os.path.exists(module_jar):
 			self.jar = module_jar
+		else:
+			# To account for Linux filename case-sensitivity,
+			# we began to force our external module jars to be lower-case,
+			# so give that a shot here.
+			module_jar = self.get_resource(manifest.name.lower() + '.jar')
+			if os.path.exists(module_jar):
+				self.jar = module_jar
 		self.lib = None
 
 		module_lib = self.get_resource('lib%s.a' % manifest.moduleid)
