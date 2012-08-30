@@ -284,7 +284,7 @@ class Builder(object):
 			os.makedirs(self.home_dir)
 		self.sdcard = os.path.join(self.home_dir,'android2.sdcard')
 		self.classname = Android.strip_classname(self.name)
-		
+
 	def set_java_commands(self):
 		commands = java.find_java_commands()
 		to_check = ("java", "javac", "keytool", "jarsigner")
@@ -1739,6 +1739,7 @@ class Builder(object):
 		self.build_only = build_only
 		self.device_args = device_args
 		self.postbuild_modules = []
+		self.finalize_modules = []
 		self.non_orphans = []
 		if install:
 			if self.device_args == None:
@@ -1773,7 +1774,7 @@ class Builder(object):
 				'template_dir':template_dir,
 				'project_name':self.name,
 				'command':self.command,
-				'build_dir':s.project_dir,
+				'build_dir':self.project_dir,
 				'app_name':self.name,
 				'android_builder':self,
 				'deploy_type':deploy_type,
@@ -1801,6 +1802,9 @@ class Builder(object):
 				if module_functions.has_key('postbuild'):
 					debug("plugin contains a postbuild function. Will execute after project is built and packaged")
 					self.postbuild_modules.append((plugin['name'], p))
+				if module_functions.has_key('finalize'):
+					debug("plugin contains a finalize function. Will execute before script exits")
+					self.finalize_modules.append((plugin['name'], p))
 				p.compile(compiler_config)
 				fin.close()
 			
@@ -2109,6 +2113,14 @@ class Builder(object):
 		except Exception,e:
 			error("Error performing post-build steps: %s" % e)
 
+	def finalize(self):
+		try:
+			if self.finalize_modules:
+				for p in self.finalize_modules:
+					info("Running finalize function in %s plugin" % p[0])
+					p[1].finalize()
+		except Exception,e:
+			error("Error performing finalize steps: %s" % e)
 
 if __name__ == "__main__":
 	def usage():
@@ -2171,14 +2183,14 @@ if __name__ == "__main__":
 	log = TiLogger(os.path.join(os.path.abspath(os.path.expanduser(dequote(project_dir))), 'build.log'))
 	log.debug(" ".join(sys.argv))
 	
-	s = Builder(project_name,sdk_dir,project_dir,template_dir,app_id)
-	s.command = command
+	builder = Builder(project_name,sdk_dir,project_dir,template_dir,app_id)
+	builder.command = command
 
 	try:
 		if command == 'run-emulator':
-			s.run_emulator(avd_id, avd_skin, None, None, [])
+			builder.run_emulator(avd_id, avd_skin, None, None, [])
 		elif command == 'run':
-			s.build_and_run(False, avd_id)
+			builder.build_and_run(False, avd_id)
 		elif command == 'emulator':
 			avd_id = dequote(sys.argv[6])
 			if avd_id.isdigit():
@@ -2213,14 +2225,14 @@ if __name__ == "__main__":
 					avd_abi = None
 					add_args = sys.argv[7:]
 
-			s.run_emulator(avd_id, avd_skin, avd_name, avd_abi, add_args)
+			builder.run_emulator(avd_id, avd_skin, avd_name, avd_abi, add_args)
 		elif command == 'simulator':
 			info("Building %s for Android ... one moment" % project_name)
 			avd_id = dequote(sys.argv[6])
 			debugger_host = None
 			if len(sys.argv) > 8:
 				debugger_host = dequote(sys.argv[8])
-			s.build_and_run(False, avd_id, debugger_host=debugger_host)
+			builder.build_and_run(False, avd_id, debugger_host=debugger_host)
 		elif command == 'install':
 			avd_id = dequote(sys.argv[6])
 			device_args = ['-d']
@@ -2229,15 +2241,15 @@ if __name__ == "__main__":
 			debugger_host = None
 			if len(sys.argv) >= 9 and len(sys.argv[8]) > 0:
 				debugger_host = dequote(sys.argv[8])
-			s.build_and_run(True, avd_id, device_args=device_args, debugger_host=debugger_host)
+			builder.build_and_run(True, avd_id, device_args=device_args, debugger_host=debugger_host)
 		elif command == 'distribute':
 			key = os.path.abspath(os.path.expanduser(dequote(sys.argv[6])))
 			password = dequote(sys.argv[7])
 			alias = dequote(sys.argv[8])
 			output_dir = dequote(sys.argv[9])
-			s.build_and_run(True, None, key, password, alias, output_dir)
+			builder.build_and_run(True, None, key, password, alias, output_dir)
 		elif command == 'build':
-			s.build_and_run(False, 1, build_only=True)
+			builder.build_and_run(False, 1, build_only=True)
 		else:
 			error("Unknown command: %s" % command)
 			usage()
@@ -2249,3 +2261,8 @@ if __name__ == "__main__":
 		for line in e.splitlines():
 			error(line)
 		sys.exit(1)
+	finally:
+		# Don't run plugin finalizer functions if all we were doing is
+		# starting up the emulator.
+		if builder and command not in ("emulator", "run-emulator"):
+			builder.finalize()
