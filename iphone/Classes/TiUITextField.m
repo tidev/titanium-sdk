@@ -464,23 +464,27 @@
 	return [[f text] length] > 0;
 }
 
--(void)setSelection_:(id)arg withObject:(id)property 
+-(void)setSelectionFrom:(id)start to:(id)end 
 {
-    
-    UITextField *textField = [self textWidgetView];
-    [self becomeFirstResponder];
-    NSInteger start = [TiUtils intValue: arg];
-    NSInteger end = [TiUtils intValue: property];
-    UITextPosition *beginning = textField.beginningOfDocument;
-    UITextPosition *startPos = [textField positionFromPosition:beginning offset:start];
-    UITextPosition *endPos = [textField positionFromPosition:beginning offset:end];
-    UITextRange *textRange;
-    if (start < end) {
-        textRange = [textField textRangeFromPosition:startPos toPosition:endPos];
+    if([TiUtils isIOS5OrGreater]) {
+        UITextField *textField = [self textWidgetView];
+        if (textField!= nil && [textField conformsToProtocol:@protocol(UITextInput)]) {
+            if([self becomeFirstResponder]){
+                UITextPosition *beginning = textField.beginningOfDocument;
+                UITextPosition *startPos = [textField positionFromPosition:beginning offset:[TiUtils intValue: start]];
+                UITextPosition *endPos = [textField positionFromPosition:beginning offset:[TiUtils intValue: end]];
+                UITextRange *textRange;
+                textRange = [textField textRangeFromPosition:startPos toPosition:endPos];
+                [textField setSelectedTextRange:textRange];
+            }
+            
+        } else {
+            DebugLog(@"UITextField does not conform with UITextInput protocol. Ignore");
+        }
     } else {
-        textRange = [textField textRangeFromPosition:endPos toPosition:startPos];
+        DebugLog(@"Selecting text is only supported with iOS5+");
     }
-    [textField setSelectedTextRange:textRange];
+    
 }
 
 #pragma mark UITextFieldDelegate

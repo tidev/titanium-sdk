@@ -53,7 +53,7 @@ DEFINE_DEF_INT_PROP(maxLength,-1);
         DebugLog(@"Invalid range for text selection. Ignoring.");
         return;
     }
-    TiThreadPerformOnMainThread(^{[(TiUITextField *) [self view] setSelection_:arg withObject:property];}, NO);
+    TiThreadPerformOnMainThread(^{[(TiUITextField *)[self view] setSelectionFrom:arg to:property];}, NO);
 }
 
 @end
