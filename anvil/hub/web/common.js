@@ -1,20 +1,23 @@
+var getElementById = document.getElementById;
+var jqplotRef = jqplotRef;
+
 // assumes that the jqPlot dependencies have already been loaded
 function drawRunCharts(elementId, branch, gitHash, timestamp, runId, driverIds, chartData) {
 	var chartDate = new Date(timestamp * 1000).toLocaleString();
-	document.getElementById(elementId + "Date").innerHTML = chartDate;
+	getElementById(elementId + "Date").innerHTML = chartDate;
 
-	document.getElementById(elementId + "Branch").innerHTML = branch;
-	document.getElementById(elementId + "Githash").innerHTML = gitHash;
+	getElementById(elementId + "Branch").innerHTML = branch;
+	getElementById(elementId + "Githash").innerHTML = gitHash;
 
 	var series = [
 		{label: "Pass"},
 		{label: "Fail"}
 	];
 
-	$.jqplot(elementId + "Contents", chartData, {
+	jqplotRef(elementId + "Contents", chartData, {
 		stackSeries: true,
 		seriesDefaults: {
-			renderer:$.jqplot.BarRenderer,
+			renderer:jqplotRef.BarRenderer,
 			rendererOptions: {
 				barDirection: 'horizontal',
 				barMargin: 20,
@@ -29,7 +32,7 @@ function drawRunCharts(elementId, branch, gitHash, timestamp, runId, driverIds, 
 			},
 			yaxis: {
 				label: "Driver ID",
-				renderer: $.jqplot.CategoryAxisRenderer,
+				renderer: jqplotRef.CategoryAxisRenderer,
 				ticks: driverIds,
 				padMin: 0
 			}
@@ -54,7 +57,7 @@ function drawPerformanceCharts(elementId, chartTitle, runIds, driverIds, chartDa
 		series.push({label: driverIds[i]});
 	}
 
-	$.jqplot(elementId, chartData, {
+	jqplotRef(elementId, chartData, {
 		title: chartTitle, 
 		seriesDefaults: {
 			showMarker:false,
@@ -65,8 +68,8 @@ function drawPerformanceCharts(elementId, chartTitle, runIds, driverIds, chartDa
 		axes: {
 			xaxis: {
 				label: "Run ID",
-				renderer: $.jqplot.CategoryAxisRenderer,
-				tickRenderer: $.jqplot.CanvasAxisTickRenderer,
+				renderer: jqplotRef.CategoryAxisRenderer,
+				tickRenderer: jqplotRef.CanvasAxisTickRenderer,
 				tickOptions: {
 					angle: -30
 				},
