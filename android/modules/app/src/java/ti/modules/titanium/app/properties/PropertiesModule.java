@@ -71,7 +71,10 @@ public class PropertiesModule extends KrollModule {
 	@Kroll.method
 	public void removeProperty(String key)
 	{
-		appProperties.removeProperty(key);
+		if (hasProperty(key)) {
+			appProperties.removeProperty(key);
+			fireEvent(TiC.EVENT_CHANGE, null);
+		}
 	}
 
 	//Convenience method for pulling raw values
