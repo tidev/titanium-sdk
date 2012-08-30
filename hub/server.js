@@ -19,10 +19,10 @@ module.exports = new function() {
 	this.messageHandler;
 
 	this.start = function() {
-		var ciServer;
-		var driverServer;
-		var ciServerRestartDelay = 5000;
-		var driverServerRestartDelay = 5000;
+		var ciServer,
+		driverServer,
+		ciServerRestartDelay = 5000,
+		driverServerRestartDelay = 5000;
 
 		function startCiServer() {
 			ciServer = net.createServer(function(acceptedConnection) {
@@ -74,11 +74,11 @@ module.exports = new function() {
 
 		function startDriverServer() {
 			driverServer = net.createServer(function(acceptedConnection) {
-				var registered = false;
-				var driverId = "";
-				var bytesReceived = 0;
-				var recvBuffer = new Buffer(0);
-				var payloadSize = null;
+				var registered = false,
+				driverId = "",
+				bytesReceived = 0,
+				recvBuffer = new Buffer(0),
+				payloadSize = null;
 
 				hubUtils.log("connection accepted from driver server");
 

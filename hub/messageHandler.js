@@ -329,9 +329,9 @@ module.exports = new function() {
 				throw error;
 			}
 
-			var runId = null;
-			var gitHash = null;
-			var isIdle = true;
+			var runId = null,
+			gitHash = null,
+			isIdle = true;
 
 			/*
 			here we are basically checking to see if there are any runs that the driver has not

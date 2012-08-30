@@ -1,13 +1,14 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
+<!DOCTYPE html>
+<html>
 	<head>
 		<meta http-equiv="content-type" content="text/html; charset=utf-8"/>
 		<title>Reporting</title>
 
-		<script type="text/javascript">
+		<script src="common.js"></script>
+		<script>
 			function updateSummary(totalPassed, totalFailed) {
-				document.getElementById("totalPassed").innerHTML = totalPassed;
-				document.getElementById("totalFailed").innerHTML = totalFailed;
+				getElementById("totalPassed").innerHTML = totalPassed;
+				getElementById("totalFailed").innerHTML = totalFailed;
 			}
 		</script>
 
