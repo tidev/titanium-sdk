@@ -464,6 +464,25 @@
 	return [[f text] length] > 0;
 }
 
+-(void)setSelection_:(id)arg withObject:(id)property 
+{
+    
+    UITextField *textField = [self textWidgetView];
+    [self becomeFirstResponder];
+    NSInteger start = [TiUtils intValue: arg];
+    NSInteger end = [TiUtils intValue: property];
+    UITextPosition *beginning = textField.beginningOfDocument;
+    UITextPosition *startPos = [textField positionFromPosition:beginning offset:start];
+    UITextPosition *endPos = [textField positionFromPosition:beginning offset:end];
+    UITextRange *textRange;
+    if (start < end) {
+        textRange = [textField textRangeFromPosition:startPos toPosition:endPos];
+    } else {
+        textRange = [textField textRangeFromPosition:endPos toPosition:startPos];
+    }
+    [textField setSelectedTextRange:textRange];
+}
+
 #pragma mark UITextFieldDelegate
 
 - (void)textFieldDidBeginEditing:(UITextField *)tf
