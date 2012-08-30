@@ -13,6 +13,7 @@ import org.appcelerator.kroll.common.Log;
 
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.Path.Direction;
 import android.graphics.RectF;
@@ -86,7 +87,11 @@ public class TiImageHelper
 			canvas.clipRect(imgRect);
 		}
 
-		canvas.drawBitmap(imageWithAlpha(image), borderSize, borderSize, null);
+		Paint paint = new Paint();
+		paint.setAntiAlias(true);
+		paint.setFilterBitmap(true);
+		paint.setDither(true);
+		canvas.drawBitmap(imageWithAlpha(image), borderSize, borderSize, paint);
 		return imageRoundedCorner;
 	}
 
@@ -109,11 +114,16 @@ public class TiImageHelper
 			return image;
 		}
 
+		Paint paint = new Paint();
+		paint.setAntiAlias(true);
+		paint.setFilterBitmap(true);
+		paint.setDither(true);
+
 		int width = image.getWidth();
 		int height = image.getHeight();
 		Bitmap imageBorder = Bitmap.createBitmap(width + borderSize * 2, height + borderSize * 2, Bitmap.Config.ARGB_8888);
 		Canvas canvas = new Canvas(imageBorder);
-		canvas.drawBitmap(imageWithAlpha(image), borderSize, borderSize, null);
+		canvas.drawBitmap(imageWithAlpha(image), borderSize, borderSize, paint);
 		return imageBorder;
 	}
 }

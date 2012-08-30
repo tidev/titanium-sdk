@@ -121,25 +121,7 @@ public class TiBlob extends KrollProxy
 			mimeType = TiMimeTypeHelper.getMimeType(file.nativePath());
 		}
 		TiBlob blob = new TiBlob(TYPE_FILE, file, mimeType);
-
-		String mt = blob.guessContentTypeFromStream();
-		// Update mimetype based on the guessed MIME-type.
-		if (mt != null && mt != blob.mimetype) {
-			blob.mimetype = mt;
-		}
-		// If the MIME-type is "image/*" or undetermined, try to decode the file into a bitmap.
-		if (mt == null || mt.startsWith("image/")) {
-			// Query the dimensions of a bitmap without allocating the memory for its pixels
-			BitmapFactory.Options opts = new BitmapFactory.Options();
-			opts.inJustDecodeBounds = true;
-			BitmapFactory.decodeStream(blob.getInputStream(), null, opts);
-			// If there is an error trying to decode, outWidth and outHeight will be set to -1.
-			if (opts.outWidth != -1 && opts.outHeight != -1) {
-				blob.width = opts.outWidth;
-				blob.height = opts.outHeight;
-			}
-		}
-
+		blob.loadBitmapInfo();
 		return blob;
 	}
 
@@ -189,25 +171,7 @@ public class TiBlob extends KrollProxy
 			return new TiBlob(TYPE_DATA, data, "application/octet-stream");
 		}
 		TiBlob blob = new TiBlob(TYPE_DATA, data, mimetype);
-
-		String mt = blob.guessContentTypeFromStream();
-		// Update mimetype based on the guessed MIME-type.
-		if (mt != null && mt != blob.mimetype) {
-			blob.mimetype = mt;
-		}
-		// If the MIME-type is "image/*" or undetermined, try to decode the byte array into a bitmap.
-		if (mt == null || mt.startsWith("image/")) {
-			// Query the dimensions of a bitmap without allocating the memory for its pixels
-			BitmapFactory.Options opts = new BitmapFactory.Options();
-			opts.inJustDecodeBounds = true;
-			BitmapFactory.decodeByteArray(data, 0, data.length, opts);
-			// If there is an error trying to decode, outWidth and outHeight will be set to -1.
-			if (opts.outWidth != -1  && opts.outHeight != -1) {
-				blob.width = opts.outWidth;
-				blob.height = opts.outHeight;
-			}
-		}
-
+		blob.loadBitmapInfo();
 		return blob;
 	}
 
@@ -227,6 +191,41 @@ public class TiBlob extends KrollProxy
 			}
 		}
 		return mt;
+	}
+
+	/**
+	 * Update width and height if the file / data can be decoded into a bitmap successfully.
+	 */
+	public void loadBitmapInfo()
+	{
+		String mt = guessContentTypeFromStream();
+		// Update mimetype based on the guessed MIME-type.
+		if (mt != null && mt != mimetype) {
+			mimetype = mt;
+		}
+
+		// If the MIME-type is "image/*" or undetermined, try to decode the file / data into a bitmap.
+		if (mt == null || mt.startsWith("image/")) {
+			// Query the dimensions of a bitmap without allocating the memory for its pixels
+			BitmapFactory.Options opts = new BitmapFactory.Options();
+			opts.inJustDecodeBounds = true;
+
+			switch (type) {
+				case TYPE_FILE:
+					BitmapFactory.decodeStream(getInputStream(), null, opts);
+					break;
+				case TYPE_DATA:
+					byte[] byteArray = (byte[]) data;
+					BitmapFactory.decodeByteArray(byteArray, 0, byteArray.length, opts);
+					break;
+			}
+
+			// Update width and height after the file / data is decoded successfully
+			if (opts.outWidth != -1 && opts.outHeight != -1) {
+				width = opts.outWidth;
+				height = opts.outHeight;
+			}
+		}
 	}
 
 	/**
