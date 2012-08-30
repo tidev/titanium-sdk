@@ -641,6 +641,7 @@ def main(args):
 		debughost = None
 		debugport = None
 		postbuild_modules = []
+		finalize_modules = []
 		
 		# starting in 1.4, you don't need to actually keep the build/iphone directory
 		# if we don't find it, we'll just simply re-generate it
@@ -1090,9 +1091,13 @@ def main(args):
 					p = imp.load_source(code_hash, code_path, fin)
 					module_functions = dict(inspect.getmembers(p, inspect.isfunction))
 					if module_functions.has_key('postbuild'):
-						print "[DBEUG] Plugin has postbuild"
+						print "[DEBUG] Plugin has postbuild"
 						o.write("+ Plugin has postbuild")
 						postbuild_modules.append((plugin['name'], p))
+					if module_functions.has_key('finalize'):
+						print "[DEBUG] Plugin has finalize"
+						o.write("+ Plugin has finalize")
+						finalize_modules.append((plugin['name'], p))
 					p.compile(compiler_config)
 					fin.close()
 					
@@ -1288,6 +1293,16 @@ def main(args):
 						o.write("Error in post-build: %s" % e)
 						print "[ERROR] Error in post-build: %s" % e
 						
+				def run_finalize():
+					try:
+						if finalize_modules:
+							for p in finalize_modules:
+								o.write("Running finalize %s" % p[0])
+								print "[INFO] Running finalize %s..." % p[0]
+								p[1].finalize()
+					except Exception,e:
+						o.write("Error in finalize: %s" % e)
+						print "[ERROR] Error in finalize: %s" % e
 
 				# build the final release distribution
 				args = []
@@ -1591,6 +1606,9 @@ def main(args):
 				sys.exit(1)
 			else:
 				o.close()
+		finally:
+			if command not in ("xcode") and "run_finalize" in locals():
+				run_finalize()
 
 if __name__ == "__main__":
 	main(sys.argv)
