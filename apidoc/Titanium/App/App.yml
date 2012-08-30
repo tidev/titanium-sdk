@@ -12,6 +12,48 @@ description: |
     While most values may be changed by editing the `tiapp.xml` file after creating the project, 
     the GUID is automatically generated and should not be changed.
 
+    #### iOS Application Life Cycle
+
+    At any given moment, you applications can be in one of the following possible states
+    
+    Not running  the app has not been launched or was running but was terminated by the system.
+    
+    Inactive  The app is running in the foreground but is currently not receiving events. 
+    An app usually stays in this state only briefly as it transitions to a different state. 
+    The `pause` event is fired during this state.
+    
+    Active  The app is running in the foreground and is receiving events. This the normal 
+    mode for foreground apps. 
+    
+    Background  The app is in the background and executing code. Most apps enter this state 
+    briefly on their way to being suspended. 
+    
+    Suspended  The app is in the background but is not executing code. The system moves 
+    apps to this statue automatically and does not notify them before doing so. While suspended, 
+    an app remains in memory but does not execute any code. The `paused` event is fired 
+    during this state.
+    
+    Responding To interruptions
+    
+    When an alert-based interruption occurs, such as an incoming phone call, the app moves 
+    temporarily to the inactive state firing the `pause` event, so that the system can prompt 
+    the user about how to proceed. The app remains in this until the user dismiss the alert. 
+    At this point, the app either returns to the active state firing the `resumed` event or 
+    moves to the background state firing the `paused` event.
+    
+    In iOS 5, notifications that display a banner do not deactivate your app in the way 
+    that alert-based notifications do.
+    
+    Alet-based interruptions result in temporary loss of control by your app. Your app 
+    continues to run in the foreground, but it does not recieve touch events form the system. 
+    (It does continue to receive notifications and other types of events, such as accelerometer 
+    events, though.)
+    
+    When your app is moved back to the active state, the `resumed` event is fired . 
+    
+    The same set events take place when user double taps on the home button 
+    Pressing the Sleep/Wake button is another type of interruption that causes your app to
+    
     #### Application Level Events
 
     Application-level events are custom events that are defined globally for your
