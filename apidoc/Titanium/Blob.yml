@@ -126,7 +126,8 @@ methods:
         Returns the cropped image as a blob.
 
         If this blob doesn't represent an image, returns `null`.
-    platforms: [iphone, ipad]
+    platforms: [android, iphone, ipad]
+    since: {android: "2.2.0"}
     parameters:
       - name: options
         summary: Image cropping options.
@@ -141,7 +142,8 @@ methods:
         Returns the resized image as a blob.
 
         If this blob doesn't represent an image, returns `null`.
-    platforms: [iphone, ipad]
+    platforms: [android, iphone, ipad]
+    since: {android: "2.2.0"}
     parameters:
       - name: width
         type: Number
@@ -159,7 +161,8 @@ methods:
         Returns the thumbnail image as a blob.
 
         If this blob doesn't represent an image, returns `null`.
-    platforms: [iphone, ipad]
+    platforms: [android, iphone, ipad]
+    since: {android: "2.2.0"}
     returns:
         type: Titanium.Blob
         summary: The image thumbnail in a blob.
@@ -185,7 +188,8 @@ methods:
     summary: Returns a copy of the underlying image with an added alpha channel.
     description: |
         Returns the new image as a blob, or `null` if this blob is not an image.
-    platforms: [iphone, ipad]
+    platforms: [android, iphone, ipad]
+    since: {android: "2.2.0"}
     returns:
         type: Titanium.Blob
         summary: The image with an alpha channel in a blob, or `null` if this blob is not an image.
@@ -194,7 +198,8 @@ methods:
     summary: Returns a copy of the underlying image with rounded corners added.
     description: |
         Returns the new image as a blob, or `null` if this blob is not an image.
-    platforms: [iphone, ipad]
+    platforms: [android, iphone, ipad]
+    since: {android: "2.2.0"}
     parameters:
       - name: cornerSize
         type: Number
@@ -212,7 +217,8 @@ methods:
     summary: Returns a copy of the underlying image with an added transparent border.
     description: |
         Returns the new image as a blob, or `null` if this blob is not an image.
-    platforms: [iphone, ipad]
+    platforms: [android, iphone, ipad]
+    since: {android: "2.2.0"}
     parameters:
       - name: size
         type: Number
