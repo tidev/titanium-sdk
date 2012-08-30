@@ -9,7 +9,6 @@ package ti.modules.titanium.app.properties;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiApplication;
-import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiProperties;
 
@@ -71,10 +70,7 @@ public class PropertiesModule extends KrollModule {
 	@Kroll.method
 	public void removeProperty(String key)
 	{
-		if (hasProperty(key)) {
-			appProperties.removeProperty(key);
-			fireEvent(TiC.EVENT_CHANGE, null);
-		}
+		appProperties.removeProperty(key);
 	}
 
 	//Convenience method for pulling raw values
@@ -92,6 +88,7 @@ public class PropertiesModule extends KrollModule {
 			fireEvent(TiC.EVENT_CHANGE, null);
 		}
 		
+
 	}
 
 	@Kroll.method
@@ -104,6 +101,7 @@ public class PropertiesModule extends KrollModule {
 			appProperties.setDouble(key, value);
 			fireEvent(TiC.EVENT_CHANGE, null);
 		}
+
 	}
 
 	@Kroll.method
@@ -114,6 +112,7 @@ public class PropertiesModule extends KrollModule {
 			appProperties.setInt(key, value);
 			fireEvent(TiC.EVENT_CHANGE, null);
 		}
+
 	}
 
 	@Kroll.method
@@ -125,5 +124,5 @@ public class PropertiesModule extends KrollModule {
 			fireEvent(TiC.EVENT_CHANGE, null);
 		}
 	}
-	
+
 }
