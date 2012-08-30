@@ -249,13 +249,21 @@
 
 -(void)removeAllChildren:(id)arg
 {
+	ENSURE_UI_THREAD_1_ARG(arg);
+    
+	pthread_rwlock_wrlock(&childrenLock);
+    
 	if (children != nil) {
 		NSArray* toRemove = [NSArray arrayWithArray:children];
 		for (TiViewProxy* child in toRemove)
 		{
+            //proxy will be forgotten in the remove method
+            //also layout will be refreshed if necessary upon every remove
 			[self remove:child];
 		}
 	}
+    
+	pthread_rwlock_unlock(&childrenLock);
 }
 
 -(void)show:(id)arg
