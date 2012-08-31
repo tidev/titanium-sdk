@@ -199,6 +199,12 @@
 	[(TiViewProxy *)[self proxy] contentsWillChange];
 }
 
+-(void)setLineBreakMode_:(id)type_
+{
+	[[self label] setLineBreakMode:[TiUtils intValue:type_ def:UILineBreakModeTailTruncation]];
+}
+
+
 -(void)setColor_:(id)color
 {
 	UIColor * newColor = [[TiUtils colorValue:color] _color];
