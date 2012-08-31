@@ -10,16 +10,16 @@
  * manipulation, log management, etc
  */
 
-var fs = require("fs");
-var child_process = require("child_process");
-var path = require("path");
+var fs = require("fs"),
+child_process = require("child_process"),
+path = require("path");
 
 module.exports = new function() {
-	var self = this;
-	var logFilePath = "";
-	var logFile = undefined;
-	var logRotating = false;
-	var pendingLogEntries = [];
+	var self = this,
+	logFilePath = "",
+	logFile = undefined,
+	logRotating = false,
+	pendingLogEntries = [];
 
 	this.runCommand = function(command, callback) {
 		child_process.exec(command, function(error, stdout, stderr) {
@@ -89,8 +89,8 @@ module.exports = new function() {
 			logFile = undefined;
 		}
 
-		var date = new Date();
-		var logFilename = (date.getMonth() + 1) + "-" + date.getDate() + "-" + date.getFullYear() + 
+		var date = new Date(),
+		logFilename = (date.getMonth() + 1) + "-" + date.getDate() + "-" + date.getFullYear() + 
 			"_" + (date.getHours() + 1) + "-" + date.getMinutes() + "-" + date.getSeconds() + "-" + 
 			date.getMilliseconds();
 
@@ -101,15 +101,15 @@ module.exports = new function() {
 
 		var logs = fs.readdirSync(hubGlobal.logsDir);
 		if (logs.length >= hubGlobal.config.maxLogs) {
-			var oldestTime = 0;
-			var oldestLogIndex;
-			var logTimestamps = [];
-			var logsMap = {};
+			var oldestTime = 0,
+			oldestLogIndex,
+			logTimestamps = [],
+			logsMap = {};
 
 			var numLogs = logs.length;
 			for (var i = 0; i < numLogs; i++) {
-				var stat = fs.statSync(path.join(hubGlobal.logsDir, logs[i]));
-				var modifiedTime = stat.mtime.getTime();
+				var stat = fs.statSync(path.join(hubGlobal.logsDir, logs[i])),
+				modifiedTime = stat.mtime.getTime();
 
 				logTimestamps.push(modifiedTime);
 				logsMap[modifiedTime] = logs[i];

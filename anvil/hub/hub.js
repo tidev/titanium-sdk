@@ -21,9 +21,9 @@ discarded without impacting the "real" data set
 
 var fs = require("fs");
 
-var messageHandler = require(__dirname + "/messageHandler");
-var server = require(__dirname + "/server");
-var hubUtils = require(__dirname + "/hubUtils");
+var messageHandler = require(__dirname + "/messageHandler"),
+server = require(__dirname + "/server"),
+hubUtils = require(__dirname + "/hubUtils");
 
 function loadConfigModule() {
 	var configModulePath = __dirname + "/config.js";

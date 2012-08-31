@@ -12,9 +12,9 @@
  * never be a reason to manually interact with a driver running in remote mode.
  */
 
-var fs = require("fs");
-var net = require("net");
-var path = require("path");
+var fs = require("fs"),
+net = require("net"),
+path = require("path");
 
 var driverUtils = require(path.join(driverGlobal.driverDir, "driverUtils"));
 
@@ -63,10 +63,10 @@ module.exports = new function() {
 
 	function connectToHub() {
 		function connectCallback() {
-			var bytesReceived = 0;
-			var recvBuffer = new Buffer(0);
-			var payloadSize = null;
-			var hubReconnectDelay = 5000;
+			var bytesReceived = 0,
+			recvBuffer = new Buffer(0),
+			payloadSize = null,
+			hubReconnectDelay = 5000;
 
 			hubConnection.connection = net.connect(driverGlobal.config.hubPort, driverGlobal.config.hubHost);
 
@@ -237,11 +237,11 @@ module.exports = new function() {
 	}
 
 	function packageAndSendResults(results, callback) {
-		var versionContents = fs.readFileSync(path.join(driverGlobal.config.currentTiSdkDir, "version.txt"), "utf-8");
-		var version = "";
+		var versionContents = fs.readFileSync(path.join(driverGlobal.config.currentTiSdkDir, "version.txt"), "utf-8"),
+		version = "";
 
-		var splitPos = versionContents.indexOf("=");
-		var endPos = versionContents.indexOf("\n");
+		var splitPos = versionContents.indexOf("="),
+		endPos = versionContents.indexOf("\n");
 		if ((splitPos !== -1) && (endPos !== -1)) {
 			version = versionContents.substr(splitPos + 1, (endPos - splitPos) - 1);
 		}
@@ -274,8 +274,8 @@ module.exports = new function() {
 				process.exit(1);
 			}
 
-			var resultsStat = fs.statSync(path.join(driverGlobal.currentLogDir, "results.tgz"));
-			var resultsSize = resultsStat.size;
+			var resultsStat = fs.statSync(path.join(driverGlobal.currentLogDir, "results.tgz")),
+			resultsSize = resultsStat.size;
 
 			var sendBuffer = new Buffer(INT_SIZE + resultsSize);
 			sendBuffer.writeUInt32BE(resultsSize, 0);

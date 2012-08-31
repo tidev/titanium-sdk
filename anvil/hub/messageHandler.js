@@ -7,18 +7,18 @@
  * Purpose: general data and message processing that comes from either the Drivers or CI server
  */
 
-var fs = require("fs");
-var path = require("path");
+var fs = require("fs"),
+path = require("path");
 
 var mysql = require("mysql");
 
 var hubUtils = require(__dirname + "/hubUtils");
 
 module.exports = new function() {
-	var self = this;
-	var activeRuns = {};
-	var dbConnection;
-	var driverCommand = "start";
+	var self = this,
+	activeRuns = {},
+	dbConnection,
+	driverCommand = "start";
 
 	this.server;
 
@@ -147,9 +147,9 @@ module.exports = new function() {
 			}
 
 			console.log("storing results...");
-			var numPassed = 0;
-			var numFailed = 0;
-			var branch;
+			var numPassed = 0,
+			numFailed = 0,
+			branch;
 
 			function insertDriverRun(results, callback) {
 				var queryArgs = {
