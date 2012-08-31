@@ -23,7 +23,7 @@ DEFINE_DEF_INT_PROP(maxLength,-1);
     NSInteger end = [TiUtils intValue:property def:-1];
     UITextView* textView = (UITextView*)[(TiUITextArea *) [self view] textWidgetView];
     NSInteger textLength = [ [textView text] length];
-    if (start < 0 || start > textLength || end < 0 || end > textLength) {
+    if ((start < 0) || (start > textLength) || (end < 0) || (end > textLength)) {
         DebugLog(@"Invalid range for text selection. Ignoring.");
         return;
     }

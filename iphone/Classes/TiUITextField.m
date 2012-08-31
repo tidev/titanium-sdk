@@ -468,7 +468,7 @@
 {
     if([TiUtils isIOS5OrGreater]) {
         UITextField *textField = [self textWidgetView];
-        if (textField!= nil && [textField conformsToProtocol:@protocol(UITextInput)]) {
+        if ([textField conformsToProtocol:@protocol(UITextInput)]) {
             if([self becomeFirstResponder]){
                 UITextPosition *beginning = textField.beginningOfDocument;
                 UITextPosition *startPos = [textField positionFromPosition:beginning offset:[TiUtils intValue: start]];

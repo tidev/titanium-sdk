@@ -88,7 +88,7 @@
     
     if([TiUtils isIOS5OrGreater]) {
         UITextView *textView = (UITextView*)[self textWidgetView];
-        if (textView!= nil && [textView conformsToProtocol:@protocol(UITextInput)]) {
+        if ([textView conformsToProtocol:@protocol(UITextInput)]) {
             if([self becomeFirstResponder]){
                 UITextPosition *beginning = textView.beginningOfDocument;
                 UITextPosition *startPos = [textView positionFromPosition:beginning offset:[TiUtils intValue: start]];
