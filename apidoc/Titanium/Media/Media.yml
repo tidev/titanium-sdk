@@ -559,12 +559,18 @@ properties:
     permission: read-only
   - name: VIDEO_CONTROL_DEFAULT
     summary: Constant for default video controls.
+    description: |
+        Used in conjunction with the
+        [mediaControlStyle](Titanium.Media.VideoPlayer.mediaControlStyle) property 
+        of <Titanium.Media.VideoPlayer>.
     type: Number
     permission: read-only
   - name: VIDEO_CONTROL_EMBEDDED
     summary: Constant for video controls for an embedded view. 
-    description: 
-        Used in conjunction with the `movieControlStyle` property of <Titanium.Media.VideoPlayer>.
+    description: |
+        Used in conjunction with the
+        [mediaControlStyle](Titanium.Media.VideoPlayer.mediaControlStyle) property 
+        of <Titanium.Media.VideoPlayer>.
 
         On Android, this constant has the same effect as VIDEO_CONTROL_DEFAULT. Video controls may
         only be shown or hidden. 
@@ -574,6 +580,10 @@ properties:
   - name: VIDEO_CONTROL_FULLSCREEN
     summary: Constant for fullscreen video controls. 
     description: |
+        Used in conjunction with the
+        [mediaControlStyle](Titanium.Media.VideoPlayer.mediaControlStyle) property 
+        of <Titanium.Media.VideoPlayer>.
+
         On iOS, use VIDEO_CONTROL_FULLSCREEN when creating a video player that occupies the entire 
         screen, that is, the parent window should be a fullscreen window 
         ([fullscreen](Titanium.UI.Window.fullscreen) set to `true`) and the video player should 
@@ -597,13 +607,19 @@ properties:
     platforms: [android, iphone, ipad]
   - name: VIDEO_CONTROL_HIDDEN
     summary: Constant for video controls hidden.
+    description: |
+        Used in conjunction with the
+        [mediaControlStyle](Titanium.Media.VideoPlayer.mediaControlStyle) property 
+        of <Titanium.Media.VideoPlayer>.
     type: Number
     permission: read-only
     platforms: [android, iphone, ipad]
   - name: VIDEO_CONTROL_NONE
     summary: Constant for no video controls. 
     description: |
-        Used in conjunction with the `movieControlStyle` property of <Titanium.Media.VideoPlayer>.
+        Used in conjunction with the
+        [mediaControlStyle](Titanium.Media.VideoPlayer.mediaControlStyle) property 
+        of <Titanium.Media.VideoPlayer>.
     type: Number
     permission: read-only
   - name: VIDEO_FINISH_REASON_PLAYBACK_ENDED
