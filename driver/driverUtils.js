@@ -10,13 +10,13 @@
  * manipulation, log management, etc
  */
 
-var fs = require("fs");
-var child_process = require("child_process");
-var path = require("path");
+var fs = require("fs"),
+child_process = require("child_process"),
+path = require("path");
 
 module.exports = new function() {
-	var self = this;
-	var logFile = undefined;
+	var self = this,
+	logFile = undefined;
 
 	this.checkConfigItem = function(configItemName, configItemValue, expectedType) {
 		function printFailureAndExit(errorMessage) {
@@ -132,8 +132,8 @@ module.exports = new function() {
 		// close the old log file if it has been opened
 		self.closeLog();
 
-		var date = new Date();
-		var logFilename = (date.getMonth() + 1) + "-" + date.getDate() + "-" + date.getFullYear() + 
+		var date = new Date(),
+		logFilename = (date.getMonth() + 1) + "-" + date.getDate() + "-" + date.getFullYear() + 
 			"_" + (date.getHours() + 1) + "-" + date.getMinutes() + "-" + date.getSeconds() + "-" + 
 			date.getMilliseconds();
 
@@ -154,15 +154,15 @@ module.exports = new function() {
 
 		var dirs = fs.readdirSync(path.join(driverGlobal.logsDir, driverGlobal.platform.name));
 		if (dirs.length >= driverGlobal.config.maxLogs) {
-			var oldestTime = 0;
-			var oldestDirIndex;
-			var dirTimestamps = [];
-			var dirsMap = {};
+			var oldestTime = 0,
+			oldestDirIndex,
+			dirTimestamps = [],
+			dirsMap = {};
 
 			var numDirs = dirs.length;
 			for (var i = 0; i < numDirs; i++) {
-				var stat = fs.statSync(path.join(driverGlobal.logsDir, driverGlobal.platform.name, dirs[i]));
-				var modifiedTime = stat.mtime.getTime();
+				var stat = fs.statSync(path.join(driverGlobal.logsDir, driverGlobal.platform.name, dirs[i])),
+				modifiedTime = stat.mtime.getTime();
 
 				dirTimestamps.push(modifiedTime);
 				dirsMap[modifiedTime] = dirs[i];
@@ -251,13 +251,13 @@ module.exports = new function() {
 	};
 
 	this.setCurrentTiSdk = function() {
-		var latestTime = 0;
-		var latestDir;
+		var latestTime = 0,
+		latestDir;
 
 		var files = fs.readdirSync(driverGlobal.config.tiSdkDirs);
 		for (var i = 0; i < files.length; i++) {
-			var stat = fs.statSync(path.join(driverGlobal.config.tiSdkDirs, files[i]));
-			var modifiedTime = stat.mtime.getTime();
+			var stat = fs.statSync(path.join(driverGlobal.config.tiSdkDirs, files[i])),
+			modifiedTime = stat.mtime.getTime();
 
 			if (modifiedTime > latestTime) {
 				latestTime = modifiedTime;
