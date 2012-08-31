@@ -16,6 +16,7 @@ var appc = require('node-appc'),
 	semver = require('semver'),
 	wrench = require('wrench'),
 	DOMParser = require('xmldom').DOMParser,
+	jsExtRegExp = /\.js$/,
 	HTML_HEADER = [
 		'<!--',
 		'	WARNING: this is generated code and will be lost if changes are made.',
@@ -423,7 +424,7 @@ build.prototype = {
 			
 			var libDir = ((pkgJson.directories && pkgJson.directories.lib) || '').replace(/^\//, '');
 			
-			var mainFilePath = path.join(moduleDir, libDir, (pkgJson.main || '').replace(/\.js$/, '') + '.js')
+			var mainFilePath = path.join(moduleDir, libDir, (pkgJson.main || '').replace(jsExtRegExp, '') + '.js')
 			if (!afs.exists(mainFilePath)) {
 				this.logger.error(__('Invalid Titanium Mobile Module "%s": unable to find main file "%s"', m.id, pkgJson.main) + '\n');
 				process.exit(1);
@@ -588,7 +589,7 @@ build.prototype = {
 			first = false;
 			moduleCounter++;
 			
-			var file = path.join(dep[0], /\.js$/.test(dep[1]) ? dep[1] : dep[1] + '.js');
+			var file = path.join(dep[0], jsExtRegExp.test(dep[1]) ? dep[1] : dep[1] + '.js');
 			
 			if (/^url\:/.test(moduleName)) {
 				if (this.minifyJS) {
@@ -657,16 +658,22 @@ build.prototype = {
 	minifyJavaScript: function () {
 		if (this.minifyJS) {
 			this.logger.info(__('Minifying JavaScript'));
-			var pro = uglify.uglify;
-			wrench.readdirSyncRecursive(this.buildDir).forEach(function (dest) {
-				if (/\.js$/.test(dest)) {
-					dest = this.buildDir + '/' + dest;
-					var source = dest + '.uncompressed.js';
-					fs.renameSync(dest, source);
-					this.logger.debug(__('Minifying include %s', dest));
-					fs.writeFileSync(dest, pro.gen_code(pro.ast_squeeze(pro.ast_mangle(uglify.parser.parse(fs.readFileSync(source).toString())))));
-				}
-			}, this);
+			var pro = uglify.uglify,
+				self = this;
+			(function walk(dir) {
+				fs.readdirSync(dir).sort().forEach(function (dest) {
+					var stat = fs.statSync(dir + '/' + dest);
+					if (stat.isDirectory()) {
+						walk(dir + '/' + dest);
+					} else if (jsExtRegExp.test(dest)) {
+						dest = dir + '/' + dest;
+						var source = dest + '.uncompressed.js';
+						fs.renameSync(dest, source);
+						self.logger.debug(__('Minifying include %s', dest));
+						fs.writeFileSync(dest, pro.gen_code(pro.ast_squeeze(pro.ast_mangle(uglify.parser.parse(fs.readFileSync(source).toString())))));
+					}
+				});
+			}(this.buildDir))
 		}
 	},
 	
@@ -869,7 +876,7 @@ build.prototype = {
 		}
 		
 		if (mid.indexOf(':') != -1) return [];
-		if (/^\//.test(mid) || (parts.length == 1 && /\.js$/.test(mid))) return [this.buildDir, mid];
+		if (/^\//.test(mid) || (parts.length == 1 && jsExtRegExp.test(mid))) return [this.buildDir, mid];
 		/^\./.test(mid) && ref && (mid = this.collapsePath(ref + mid));
 		parts = mid.split('/');
 		
@@ -919,7 +926,7 @@ build.prototype = {
 		parts.length > 1 && (this.requireCache['url:' + parts[1]] = 1);
 		
 		var filename = dep[1];
-		/\.js$/.test(filename) || (filename += '.js');
+		jsExtRegExp.test(filename) || (filename += '.js');
 		
 		var source = fs.readFileSync(dep[0] + '/' + filename).toString().substring(0, 1000), // define should be within the first 1000 bytes
 			match = source.match(/define\(\s*(['"][^'"]*['"]\s*)?,?\s*(\[[^\]]+\])\s*?,?\s*(function|\{)/);
@@ -965,6 +972,29 @@ build.prototype = {
 	}
 
 };
+
+/*
+function walkDir(dir, re) {
+	var files = [];
+	fs.readdirSync(dir).forEach(function (file) {
+	});
+}
+
+			(function walk(dir, depth) {
+				var s = '';
+				depth = depth | 0;
+				
+					// TODO: screen out specific file/folder patterns (i.e. uncompressed js files)
+					var stat = fs.statSync(dir + '/' + file);
+					if (stat.isDirectory()) {
+						s += (depth ? (new Array(depth + 1)).join('\t') : '') + file + '\n' + walk(dir + '/' + file, depth + 1);
+					} else {
+						s += (depth ? (new Array(depth + 1)).join('\t') : '') + file + '\t' + stat.size + '\n';
+					}
+				});
+				return s;
+			}(this.buildDir)).trim();
+*/
 
 function applyDefaults(dest, src) {
 	Object.keys(src).forEach(function (key) {
