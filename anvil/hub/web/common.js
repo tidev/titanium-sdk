@@ -1,18 +1,17 @@
 var getElementById = document.getElementById;
-var jqplotRef = jqplotRef;
+var jqplotRef = $.jqplot;
 
 // assumes that the jqPlot dependencies have already been loaded
 function drawRunCharts(elementId, branch, gitHash, timestamp, runId, driverIds, chartData) {
-	var chartDate = new Date(timestamp * 1000).toLocaleString();
-	getElementById(elementId + "Date").innerHTML = chartDate;
-
-	getElementById(elementId + "Branch").innerHTML = branch;
-	getElementById(elementId + "Githash").innerHTML = gitHash;
-
-	var series = [
+	var chartDate = new Date(timestamp * 1000).toLocaleString(),
+	series = [
 		{label: "Pass"},
 		{label: "Fail"}
 	];
+
+	getElementById(elementId + "Date").innerHTML = chartDate;
+	getElementById(elementId + "Branch").innerHTML = branch;
+	getElementById(elementId + "Githash").innerHTML = gitHash;
 
 	jqplotRef(elementId + "Contents", chartData, {
 		stackSeries: true,

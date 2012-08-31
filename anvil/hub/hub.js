@@ -26,7 +26,9 @@ server = require(__dirname + "/server"),
 hubUtils = require(__dirname + "/hubUtils");
 
 function loadConfigModule() {
-	var configModulePath = __dirname + "/config.js";
+	var configModulePath = __dirname + "/config.js",
+	config;
+
 	if (!(fs.existsSync(configModulePath))) {
 		console.log("No config module found!  Do the following:\n" +
 			hubUtils.getTabs(1) + "1) copy the exampleConfig.js to config.js in the root driver directory\n" +
@@ -37,7 +39,6 @@ function loadConfigModule() {
 		process.exit(1);
 	}
 
-	var config;
 	try {
 		config = require(configModulePath);
 

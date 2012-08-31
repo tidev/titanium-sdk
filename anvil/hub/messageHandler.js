@@ -8,11 +8,9 @@
  */
 
 var fs = require("fs"),
-path = require("path");
-
-var mysql = require("mysql");
-
-var hubUtils = require(__dirname + "/hubUtils");
+path = require("path"),
+mysql = require("mysql"),
+hubUtils = require(__dirname + "/hubUtils");
 
 module.exports = new function() {
 	var self = this,
@@ -74,7 +72,7 @@ module.exports = new function() {
 			return;
 		}
 
-		if((typeof message.gitHash) === "undefined") {
+		if(typeof message.gitHash === "undefined") {
 			console.log("received CI JSON object <" + JSON.stringify(message) + "> does not " +
 				"contain a \"gitHash\" property, ignoring");
 
@@ -105,6 +103,8 @@ module.exports = new function() {
 				throw error;
 			}
 
+			var driverId;
+
 			ciConnection.write("received", function() {
 				console.log("\"received\" message sent back to CI server");
 				ciConnection.destroy();
@@ -114,7 +114,7 @@ module.exports = new function() {
 			loop through drivers we are currently connected to and tell them to start a test
 			run if they are idle
 			*/
-			for (var driverId in activeRuns) {
+			for (driverId in activeRuns) {
 				if (!(activeRuns.hasOwnProperty(driverId))) {
 					continue;
 				}
@@ -127,17 +127,17 @@ module.exports = new function() {
 	};
 
 	this.processDriverResults = function(driverId, results, callback) {
-		// create unique working dir
-		var driverRunWorkingDir = path.join(hubGlobal.workingDir, activeRuns[driverId].gitHash + driverId);
+		var driverRunWorkingDir = path.join(hubGlobal.workingDir, activeRuns[driverId].gitHash + driverId), // create unique working dir
+		resultsFile = fs.openSync(path.join(driverRunWorkingDir, activeRuns[driverId].gitHash + driverId + ".tgz"), 'w'),
+		command = "tar -xzvf " + path.join(driverRunWorkingDir, activeRuns[driverId].gitHash + driverId + ".tgz") + " -C " + driverRunWorkingDir;
+
 		fs.mkdirSync(driverRunWorkingDir);
 
 		// create zip
-		var resultsFile = fs.openSync(path.join(driverRunWorkingDir, activeRuns[driverId].gitHash + driverId + ".tgz"), 'w');
 		fs.writeSync(resultsFile, results, 0, results.length, null);
 		fs.closeSync(resultsFile);
 
 		// extract the results set
-		var command = "tar -xzvf " + path.join(driverRunWorkingDir, activeRuns[driverId].gitHash + driverId + ".tgz") + " -C " + driverRunWorkingDir;
 		hubUtils.runCommand(command, function(error, stdout, stderr) {
 			if (error !== null) {
 				console.log("error <" + error + "> occurred when trying to extract results to <" + 
@@ -146,10 +146,11 @@ module.exports = new function() {
 				return;
 			}
 
-			console.log("storing results...");
 			var numPassed = 0,
 			numFailed = 0,
 			branch;
+
+			console.log("storing results...");
 
 			function insertDriverRun(results, callback) {
 				var queryArgs = {
@@ -168,8 +169,10 @@ module.exports = new function() {
 			}
 
 			function insertConfigSet(configSets, configSetIndex, driverRunId, callback) {
-				if ((typeof configSets[configSetIndex]) !== "undefined") {
-					var queryArgs = {
+				var queryArgs;
+
+				if (typeof configSets[configSetIndex] !== "undefined") {
+					queryArgs = {
 						branch: branch,
 						driver_run_id: driverRunId,
 						name: configSets[configSetIndex].setName
@@ -190,9 +193,11 @@ module.exports = new function() {
 			}
 
 			function insertConfig(configs, configIndex, configSetName, configSetId, callback) {
-				var config = configs[configIndex];
+				var config = configs[configIndex],
+				queryArgs;
+
 				if ((typeof config) !== "undefined") {
-					var queryArgs = {
+					queryArgs = {
 						branch: branch,
 						config_set_name: configSetName,
 						config_set_id: configSetId,
@@ -214,9 +219,11 @@ module.exports = new function() {
 			}
 
 			function insertSuite(suites, suiteIndex, configName, configId, callback) {
-				var suite = suites[suiteIndex];
+				var suite = suites[suiteIndex],
+				queryArgs;
+
 				if ((typeof suite) !== "undefined") {
-					var queryArgs = {
+					queryArgs = {
 						branch: branch,
 						config_name: configName,
 						config_id: configId,
@@ -238,7 +245,9 @@ module.exports = new function() {
 			}
 
 			function insertTest(tests, testIndex, suiteName, suiteId, callback) {
-				var test = tests[testIndex];
+				var test = tests[testIndex],
+				queryArgs;
+
 				if ((typeof test) !== "undefined") {
 					if (test.testResult.result === "success") {
 						numPassed++;
@@ -247,7 +256,7 @@ module.exports = new function() {
 						numFailed++;
 					}
 
-					var queryArgs = {
+					queryArgs = {
 						branch: branch,
 						run_id: activeRuns[driverId].runId,
 						driver_id: driverId,
@@ -255,7 +264,7 @@ module.exports = new function() {
 						suite_id: suiteId,
 						name: test.testName,
 						duration: test.testResult.duration,
-						result: test.testResult.result,
+						result: test.testResult.result
 					};
 
 					// description is a optional field
@@ -280,11 +289,11 @@ module.exports = new function() {
 			}
 
 			dbConnection.query("SELECT * FROM runs WHERE id = " + activeRuns[driverId].runId, function(error, rows, fields) {
-				// store the branch ID for later use
-				branch = rows[0].branch;
-
 				var results = fs.readFileSync(path.join(driverRunWorkingDir, "json_results"), "utf-8");
 				results = JSON.parse(results);
+
+				// store the branch ID for later use
+				branch = rows[0].branch;
 
 				insertDriverRun(results, function() {
 					dbConnection.query("UPDATE driver_runs SET passed_tests=" + numPassed +
@@ -370,8 +379,8 @@ module.exports = new function() {
 
 		if (args.state !== "disconnected") {
 			dbConnection.query("SELECT * FROM driver_state WHERE id = \"" + args.id + "\"", function(error, rows, fields) {
-				var timestamp = new Date().getTime() / 1000;
-				var queryArgs = {
+				var timestamp = new Date().getTime() / 1000,
+				queryArgs = {
 					id: args.id,
 					state: args.state,
 					timestamp: timestamp
@@ -380,10 +389,8 @@ module.exports = new function() {
 				if (args.description) {
 					queryArgs["description"] = args.description;
 
-				} else {
-					if (rows.length > 0) {
-						queryArgs["description"] = rows[0].description;
-					}
+				} else if (rows.length > 0) {
+					queryArgs["description"] = rows[0].description;
 				}
 
 				if (args.gitHash) {

@@ -125,8 +125,8 @@ module.exports = new function() {
 			TODO: investigate running simulator separately from the build script so we can get 
 			error reporting to work correctly when the simulator fails to launch
 			*/
-			var args = ["simulator", simVersion, path.join(driverGlobal.harnessDir, "ios/harness"), "com.appcelerator.harness", "harness"];
-			driverUtils.runProcess(path.join(driverGlobal.config.currentTiSdkDir, "iphone/builder.py"), args, stdoutCallback, 0, function(code) {
+			var args = ["simulator", simVersion, path.join(driverGlobal.harnessDir, "ios", "harness"), "com.appcelerator.harness", "harness"];
+			driverUtils.runProcess(path.join(driverGlobal.config.currentTiSdkDir, "iphone", "builder.py"), args, stdoutCallback, 0, function(code) {
 				if (code !== 0) {
 					driverUtils.log("error encountered when running harness: " + code);
 					errorCallback();
@@ -134,7 +134,7 @@ module.exports = new function() {
 			});
 		};
 
-		if (path.existsSync(path.join(driverGlobal.harnessDir, "ios/harness/tiapp.xml"))) {
+		if (path.existsSync(path.join(driverGlobal.harnessDir, "ios", "harness", "tiapp.xml"))) {
 			runCallback();
 
 		} else {

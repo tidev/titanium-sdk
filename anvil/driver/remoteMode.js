@@ -14,14 +14,12 @@
 
 var fs = require("fs"),
 net = require("net"),
-path = require("path");
-
-var driverUtils = require(path.join(driverGlobal.driverDir, "driverUtils"));
+path = require("path"),
+driverUtils = require(path.join(driverGlobal.driverDir, "driverUtils"));
 
 module.exports = new function() {
-	var INT_SIZE = 4; // size in bytes of a 32 bit integer
-
-	var hubConnection = {
+	var INT_SIZE = 4, // size in bytes of a 32 bit integer
+	hubConnection = {
 		connection: null,
 		connected: false
 	};
@@ -71,16 +69,16 @@ module.exports = new function() {
 			hubConnection.connection = net.connect(driverGlobal.config.hubPort, driverGlobal.config.hubHost);
 
 			hubConnection.connection.on("connect", function() {
-				hubConnection.connected = true;
-				driverUtils.log("connected to hub");
-
 				var registration = JSON.stringify({
 					type: "registration",
 					id: driverGlobal.config.driverId,
 					description: driverGlobal.config.driverDescription
-				});
+				}),
+				sendBuffer = new Buffer(INT_SIZE + registration.length);
 
-				var sendBuffer = new Buffer(INT_SIZE + registration.length);
+				hubConnection.connected = true;
+				driverUtils.log("connected to hub");
+
 				sendBuffer.writeUInt32BE(registration.length, 0);
 				sendBuffer.write(registration, INT_SIZE);
 
@@ -89,6 +87,9 @@ module.exports = new function() {
 				});
 			});
 			hubConnection.connection.on("data", function(data) {
+				var payload,
+				payloadObject;
+
 				bytesReceived += data.length;
 				console.log("data received: " + bytesReceived);
 				recvBuffer = Buffer.concat([recvBuffer, data]);
@@ -99,9 +100,9 @@ module.exports = new function() {
 
 				if ((payloadSize !== null) && (bytesReceived >= (INT_SIZE + payloadSize))) {
 					console.log("message received");
-					var payload = recvBuffer.slice(INT_SIZE);
+					payload = recvBuffer.slice(INT_SIZE);
 
-					var payloadObject = JSON.parse(payload);
+					payloadObject = JSON.parse(payload);
 					if ((typeof payloadObject.command) === "undefined") {
 						console.log("no command property on message, ignoring");
 						return;
@@ -238,9 +239,12 @@ module.exports = new function() {
 
 	function packageAndSendResults(results, callback) {
 		var versionContents = fs.readFileSync(path.join(driverGlobal.config.currentTiSdkDir, "version.txt"), "utf-8"),
-		version = "";
+		version = "",
+		splitPos = versionContents.indexOf("="),
+		resultsFile = fs.openSync(path.join(driverGlobal.currentLogDir, "json_results"), 'w'),
+		command = "tar -czvf " + path.join(driverGlobal.currentLogDir, "results.tgz") + " -C " +
+			driverGlobal.currentLogDir + " log.txt json_results";
 
-		var splitPos = versionContents.indexOf("="),
 		endPos = versionContents.indexOf("\n");
 		if ((splitPos !== -1) && (endPos !== -1)) {
 			version = versionContents.substr(splitPos + 1, (endPos - splitPos) - 1);
@@ -258,14 +262,10 @@ module.exports = new function() {
 		when reporting to the hub, make sure we provide a JSON output file since it's easier to
 		parse
 		*/
-		var resultsFile = fs.openSync(path.join(driverGlobal.currentLogDir, "json_results"), 'w');
 		fs.writeSync(resultsFile, JSON.stringify(results));
 		fs.closeSync(resultsFile);
 
 		// package up the entire results set to be reported
-		var command = "tar -czvf " + path.join(driverGlobal.currentLogDir, "results.tgz") + " -C " +
-			driverGlobal.currentLogDir + " log.txt json_results";
-
 		driverUtils.runCommand(command, driverUtils.logStderr, function(error, stdout, stderr) {
 			if (error !== null) {
 				driverUtils.log("error <" + error + "> occurred when trying to compress results in <" + 
@@ -275,9 +275,9 @@ module.exports = new function() {
 			}
 
 			var resultsStat = fs.statSync(path.join(driverGlobal.currentLogDir, "results.tgz")),
-			resultsSize = resultsStat.size;
+			resultsSize = resultsStat.size,
+			sendBuffer = new Buffer(INT_SIZE + resultsSize);
 
-			var sendBuffer = new Buffer(INT_SIZE + resultsSize);
 			sendBuffer.writeUInt32BE(resultsSize, 0);
 
 			try {

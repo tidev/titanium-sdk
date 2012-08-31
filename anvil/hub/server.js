@@ -7,13 +7,12 @@
  * Purpose: handles network connection with Drivers and CI server
  */
 
-var net = require("net");
-
-var hubUtils = require(__dirname + "/hubUtils");
+var net = require("net"),
+hubUtils = require(__dirname + "/hubUtils");
 
 module.exports = new function() {
-	var self = this;
-	var 32B_INT_SIZE = 4; // size in bytes of a 32 bit integer
+	var self = this,
+	32B_INT_SIZE = 4; // size in bytes of a 32 bit integer
 
 	this.driverConnections = {};
 	this.messageHandler;
@@ -78,7 +77,8 @@ module.exports = new function() {
 				driverId = "",
 				bytesReceived = 0,
 				recvBuffer = new Buffer(0),
-				payloadSize = null;
+				payloadSize = null,
+				message;
 
 				hubUtils.log("connection accepted from driver server");
 
@@ -105,7 +105,7 @@ module.exports = new function() {
 
 					if ((payloadSize !== null) && (bytesReceived >= (32B_INT_SIZE + payloadSize))) {
 						if (registered === false) {
-							var message = JSON.parse(recvBuffer.slice(32B_INT_SIZE));
+							message = JSON.parse(recvBuffer.slice(32B_INT_SIZE));
 
 							bytesReceived = 0;
 							recvBuffer = new Buffer(0);
@@ -176,17 +176,19 @@ module.exports = new function() {
 	};
 
 	this.sendMessageToDriver = function(driverId, message) {
-		var driverConnection = self.driverConnections[driverId];
-		if ((typeof driverConnection) === "undefined") {
+		var driverConnection = self.driverConnections[driverId],
+		sendBuffer;
+
+		if (typeof driverConnection === "undefined") {
 			hubUtils.log("requested driver <" + driverId + "> not found");
 			return null;
 		}
 
-		if ((typeof message) === "object") {
+		if (typeof message === "object") {
 			message = JSON.stringify(message);
 		}
 
-		var sendBuffer = new Buffer(32B_INT_SIZE + message.length);
+		sendBuffer = new Buffer(32B_INT_SIZE + message.length);
 		sendBuffer.writeUInt32BE(message.length, 0);
 		sendBuffer.write(message, 32B_INT_SIZE);
 

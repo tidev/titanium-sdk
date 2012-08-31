@@ -13,10 +13,9 @@
  * this file.
  */
 
-var fs = require("fs");
-var path = require("path");
-
-var driverUtils = require(path.join(driverGlobal.driverDir, "driverUtils"));
+var fs = require("fs"),
+path = require("path"),
+driverUtils = require(path.join(driverGlobal.driverDir, "driverUtils"));
 
 module.exports = new function() {
 	var self = this;
@@ -351,7 +350,7 @@ module.exports = new function() {
 					return;
 				}
 
-				var tiappXmlPath = path.join(harnessPlatformDir, "harness/tiapp.xml");
+				var tiappXmlPath = path.join(harnessPlatformDir, "harness", "tiapp.xml");
 				var tiappXmlContents;
 
 				// load the config set name
@@ -420,7 +419,7 @@ module.exports = new function() {
 
 		var updateAppjsCallback = function() {
 			if (path.existsSync(path.join(configDir, "app.js"))) {
-				driverUtils.runCommand("cp -r " + path.join(configDir, "app.js") + " " + path.join(harnessPlatformDir, "harness/Resources"), driverUtils.logStdout, function(error) {
+				driverUtils.runCommand("cp -r " + path.join(configDir, "app.js ", harnessPlatformDir, "harness/Resources"), driverUtils.logStdout, function(error) {
 					if (error !== null) {
 						driverUtils.log("unable to update app.js for harness: " + error);
 						if (errorCallback) {
@@ -441,7 +440,7 @@ module.exports = new function() {
 		};
 
 		// update the harness based on the harness template packaged with the driver
-		driverUtils.runCommand("cp -r " + driverGlobal.harnessTemplateDir + "/* " + path.join(harnessPlatformDir, "harness/Resources"), driverUtils.logStdout, function(error) {
+		driverUtils.runCommand("cp -r " + path.join(driverGlobal.harnessTemplateDir, "* ", harnessPlatformDir, "harness", "Resources"), driverUtils.logStdout, function(error) {
 			if (error !== null) {
 				driverUtils.log("unable to update harness with template: " + error);
 				if (errorCallback) {
