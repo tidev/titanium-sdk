@@ -165,10 +165,16 @@ New Feature:
     This prevents the application from launching on devices running an iOS version earlier
     than the specified version (in this case, 5.0).
 
-*   Geolocation: Expose `startMonitoringSignificantLocationChanges` method 
+    **NOTE**: If you use the `transport.py` script to export your application as a generic
+    Xcode project, the `min-ios-ver` property is **not** applied to generated project--you
+    must set the minimum version directly through Xcode in this case.
+
+*   Geolocation: Expose iOS `startMonitoringSignificantLocationChanges` method 
     ([TIMOB-10041](https://jira.appcelerator.org/browse/TIMOB-10041)).  
     This new feature adds the ability to receive location updates on significant location changes 
-    only, greatly reducing battery usage.
+    only, greatly reducing battery usage. Enable this feature by setting the 
+    [trackSignificantLocationChange](http://docs.appcelerator.com/titanium/latest/#!/api/Titanium.Geolocation-property-trackSignificantLocationChange) 
+    property to `true`.
 
 Bug Fixes:
 
@@ -236,6 +242,7 @@ version of the `ti.cloudpush` module, version 2.0.7. New features and fixes in t
 This release includes a number of documentation fixes and enhancements, including:
 
 *   Documentation site "search" box now searches Guides titles. 
+*   New options to show or hide deprecated & removed APIs.
 *   Documentation site is more stable on iPad.
 *   Numerous content improvements and corrections.
 
