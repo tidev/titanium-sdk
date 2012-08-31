@@ -3,7 +3,7 @@
 ##### Contents
 
 *   [About This Release](#about)
-*   [New in This Release](#new)
+*   [Known Issues](#known_issues)
 *   [Note on OS X Mountain Lion (10.8)](#osx)
 *   [Android Platform Fixes and Enhancements](#android)
 *   [iOS Platform Fixes and Enhancements](#ios)
@@ -21,13 +21,23 @@ Titanium Mobile SDK Release 2.1.2 is a service pack release of the Titanium Mobi
 bug fixes for high-priority issues occurring in Releases 2.1.0 and 2.1.1. This includes fixes for
 the Android and iOS platforms, and an updated version of the Ti.Cloud module.
 
+**Note**: Changes to the way the Ti.Cloud module handles authentication may require changes to your 
+application. See [Ti.Cloud Module Fixes and Enhancements](#cloud) for details.
+
 [Full list of Issues that were addressed in Release 2.1.2](
 https://jira.appcelerator.org/secure/IssueNavigator.jspa?mode=hide&requestId=13553)
 
-<a name="new"></a>
+<a name="known_issues"></a>
 
-## New in This Release
+## Known Issues
 
+During testing for this release, the following issue was discovered. 
+
+*   Windows 7: Packaging fails for Android modules
+    ([TIMOB-10726](https://jira.appcelerator.org/browse/TIMOB-10726)).
+
+    This issue has been reproduced with Titanium SDK 2.1.1 and 2.1.2. The workaround is 
+    to manually create the `build/docs` folder in the module project directory.
 
 <a name="osx"></a>
 
@@ -221,9 +231,25 @@ JIRA](https://jira.appcelerator.org/secure/IssueNavigator.jspa?mode=hide&request
 This release includes a new version of the `ti.cloud` module, version 2.3.0, and a new
 version of the `ti.cloudpush` module, version 2.0.7. New features and fixes in this release include:
 
-*   The Ti.Cloud module now supports secure login and secure user creation using 3-legged
-    OAuth. For details, see the reference pages for the new methods:
+*   For improved security, the Ti.Cloud module **no longer persists user login data**. The application can
+    persist this data in its own secure storage, if desired. If you do not change your
+    application, the user will be required to login each time the application restarts.
 
+    The data that the application must store depends on the type of authentication in use.
+    
+    *   If using 2-legged OAuth or access key authentication, you must store and restore 
+        the [sessionId](http://docs.appcelerator.com/titanium/latest/#!/api/Titanium.Cloud.sessionId) value. 
+    
+    *   If using 3-legged OAuth, introduced in this release, you must store and restore the 
+        [accessToken](http://docs.appcelerator.com/titanium/latest/#!/api/Titanium.Cloud.accessToken) value. Unlike session IDs, access
+        tokens expire after a set period of time. After the access token expires, the user
+        will need to reauthenticate. The
+        [expiresIn](http://docs.appcelerator.com/titanium/latest/#!/api/Titanium.Cloud.expiresIn) 
+        property is set when a secure login succeeds, and gives the lifespan of the new access token, in seconds.
+
+*   The Ti.Cloud module now supports secure login and secure user creation using 3-legged
+    OAuth. For more information, see:
+    
     *   [Users.secureCreate](http://docs.appcelerator.com/titanium/latest/#!/api/Titanium.Cloud.Users-method-secureCreate) 
 
     *   [Users.secureLogin](http://docs.appcelerator.com/titanium/latest/#!/api/Titanium.Cloud.Users-method-secureLogin)
