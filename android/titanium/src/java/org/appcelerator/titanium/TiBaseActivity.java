@@ -532,11 +532,17 @@ public abstract class TiBaseActivity extends Activity
 	@Override
 	public void onBackPressed()
 	{
+		TiViewProxy window;
+		if (this.window != null) {
+			window = this.window;
+		} else {
+			window = this.view;
+		}
+
 		// Prevent default Android behavior for "back" press
 		// if the top window has a listener to handle the event.
-		TiWindowProxy topWindow = topWindowOnStack();
-		if (topWindow != null && topWindow.hasListeners(TiC.EVENT_ANDROID_BACK)) {
-			topWindow.fireEvent(TiC.EVENT_ANDROID_BACK, null);
+		if (window.hasListeners(TiC.EVENT_ANDROID_BACK)) {
+			window.fireEvent(TiC.EVENT_ANDROID_BACK, null);
 
 		} else {
 			// If event is not handled by any listeners allow default behavior.
