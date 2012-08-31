@@ -508,7 +508,7 @@ def find_name_conflicts(project_dir, project_name):
 		for name in os.listdir(os.path.join(project_dir, dir)):
 			if name.lower() == project_name.lower():
 				print "[ERROR] Project name %s conflicts with resource named %s: Cannot build. Please change one." % (project_name, os.path.join(project_dir, dir, name))
-				exit(1)
+				sys.exit(1)
 	pass
 
 #
@@ -642,6 +642,18 @@ def main(args):
 		debugport = None
 		postbuild_modules = []
 		finalize_modules = []
+
+		def run_finalize():
+			try:
+				if finalize_modules:
+					for p in finalize_modules:
+						print "[INFO] Running finalize %s..." % p[0]
+						o.write("Running finalize %s" % p[0])
+						p[1].finalize()
+			except Exception,e:
+				print "[ERROR] Error in finalize: %s" % e
+				o.write("Error in finalize: %s" % e)
+
 		
 		# starting in 1.4, you don't need to actually keep the build/iphone directory
 		# if we don't find it, we'll just simply re-generate it
@@ -781,7 +793,7 @@ def main(args):
 				print '[ERROR] Could not find the following required iOS modules:'
 				for module in missing_modules:
 					print "[ERROR]\tid: %s\tversion: %s" % (module['id'], module['version'])
-				exit(1)
+				sys.exit(1)
 
 			# search for modules that the project is using
 			# and make sure we add them to the compile
@@ -1293,17 +1305,6 @@ def main(args):
 						o.write("Error in post-build: %s" % e)
 						print "[ERROR] Error in post-build: %s" % e
 						
-				def run_finalize():
-					try:
-						if finalize_modules:
-							for p in finalize_modules:
-								o.write("Running finalize %s" % p[0])
-								print "[INFO] Running finalize %s..." % p[0]
-								p[1].finalize()
-					except Exception,e:
-						o.write("Error in finalize: %s" % e)
-						print "[ERROR] Error in finalize: %s" % e
-
 				# build the final release distribution
 				args = []
 
@@ -1602,13 +1603,11 @@ def main(args):
 			if not script_ok:
 				o.write("\nException detected in script:\n")
 				traceback.print_exc(file=o)
-				o.close()
 				sys.exit(1)
-			else:
-				o.close()
 		finally:
 			if command not in ("xcode") and "run_finalize" in locals():
 				run_finalize()
+			o.close()
 
 if __name__ == "__main__":
 	main(sys.argv)
