@@ -154,7 +154,7 @@
 
 		</div>
 
-		<script type="text/javascript">
+		<script>
 			updateSummary(<?php echo $totalPassed . ", " . $totalFailed; ?>);
 		</script>
 	</body>

@@ -67,10 +67,21 @@
 		<meta http-equiv="content-type" content="text/html; charset=utf-8"/>
 		<title>Reporting</title>
 		<style type="text/css">
+			#performance_title
+			{
+				text-align: left;
+				margin-bottom: 30px;
+			}
+
 			#all_suites_container
 			{
 				margin-left: 50px;
 				margin-bottom: 30px;
+			}
+
+			#branch_performance_container
+			{
+				margin-left: 50px;
 			}
 
 			#config_container
@@ -104,7 +115,7 @@
 	</head>
 	<body>
 		<div>
-			<h1 style="text-align: left; margin-bottom: 30px">Anvil performance for branch [<?php echo $_GET["branch"]; ?>]</h1>
+			<h1 id="performance_title">Anvil performance for branch [<?php echo $_GET["branch"]; ?>]</h1>
 		</div>
 
 <?php
@@ -115,7 +126,7 @@
 	}
 ?>
 
-		<div style="margin-left: 50px">
+		<div id="branch_performance_container">
 <?php loadJsDependencies(); ?>
 
 <?php
