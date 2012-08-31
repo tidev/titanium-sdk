@@ -219,6 +219,14 @@ public class GeolocationModule extends KrollModule
 		return super.handleMessage(message);
 	}
 
+	private void doAnalytics(Location location)
+	{
+		if (!sentAnalytics) {
+			tiLocation.doAnalytics(location);
+			sentAnalytics = true;
+		}
+	}
+
 	/**
 	 * Called by a registered location provider when a location update is received
 	 * 
@@ -231,10 +239,7 @@ public class GeolocationModule extends KrollModule
 		if (shouldUseUpdate(location)) {
 			fireEvent(TiC.EVENT_LOCATION, buildLocationEvent(location, tiLocation.locationManager.getProvider(location.getProvider())));
 			currentLocation = location;
-			if (!sentAnalytics) {
-				tiLocation.doAnalytics(location);
-				sentAnalytics = true;
-			}
+			doAnalytics(location);
 		}
 	}
 
@@ -520,10 +525,7 @@ public class GeolocationModule extends KrollModule
 				Location lastKnownLocation = tiLocation.getLastKnownLocation();
 				if (lastKnownLocation != null) {
 					fireEvent(TiC.EVENT_LOCATION, buildLocationEvent(lastKnownLocation, tiLocation.locationManager.getProvider(lastKnownLocation.getProvider())));
-					if(!sentAnalytics) {
-						tiLocation.doAnalytics(lastKnownLocation);
-						sentAnalytics = true;
-					}
+					doAnalytics(lastKnownLocation);
 				}
 			}
 		}
