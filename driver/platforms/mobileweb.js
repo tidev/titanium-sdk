@@ -9,13 +9,12 @@
  * Description: contains Mobile Web specific wrapper functions around common driver commands
  */
 
-var path = require("path");
-var http = require('http');
-var fs = require('fs');
-
-var common = require(path.join(driverGlobal.driverDir, "common"));
-var driverUtils = require(path.join(driverGlobal.driverDir, "driverUtils"));
-var android = require(path.join(driverGlobal.driverDir, "platforms/android"));
+var path = require("path"),
+http = require('http'),
+fs = require('fs'),
+common = require(path.join(driverGlobal.driverDir, "common")),
+driverUtils = require(path.join(driverGlobal.driverDir, "driverUtils")),
+android = require(path.join(driverGlobal.driverDir, "platforms/android"));
 
 module.exports = new function() {
 	var self = this;
@@ -82,8 +81,8 @@ module.exports = new function() {
 
 	var buildHarness = function(successCallback, errorCallback) {
 		var buildCallback = function() {
-			var args = [path.join(driverGlobal.harnessDir, "mobileweb/harness"), "development"];
-			driverUtils.runProcess(path.join(driverGlobal.config.currentTiSdkDir, "mobileweb/builder.py"), args, 0, 0, function(code) {
+			var args = [path.join(driverGlobal.harnessDir, "mobileweb", "harness"), "development"];
+			driverUtils.runProcess(path.join(driverGlobal.config.currentTiSdkDir, "mobileweb", "builder.py"), args, 0, 0, function(code) {
 				if (code !== 0) {
 					driverUtils.log("error encountered when building harness: " + code);
 					errorCallback();
@@ -95,7 +94,7 @@ module.exports = new function() {
 			});
 		};
 
-		if (path.existsSync(path.join(driverGlobal.harnessDir, "mobileweb/harness/tiapp.xml"))) {
+		if (path.existsSync(path.join(driverGlobal.harnessDir, "mobileweb", "harness", "tiapp.xml"))) {
 			buildCallback();
 
 		} else {
@@ -192,7 +191,7 @@ module.exports = new function() {
 
 	var startServer = function(successCallback, errorCallback) {
 		server = http.createServer(function (request, response) {
-			var prefix = path.join(driverGlobal.harnessDir, "mobileweb/harness/build/mobileweb");
+			var prefix = path.join(driverGlobal.harnessDir, "mobileweb", "harness", "build", "mobileweb");
 			var filePath = prefix + request.url;
 			if (filePath === prefix + '/') {
 				filePath = prefix + '/index.html';

@@ -75,6 +75,17 @@ module.exports = new function() {
 	 * above the specified max number of logs if needed
 	 */
 	this.openLog = function(callback) {
+		var date = new Date(),
+		logFilename = (date.getMonth() + 1) + "-" + date.getDate() + "-" + date.getFullYear() + 
+			"_" + (date.getHours() + 1) + "-" + date.getMinutes() + "-" + date.getSeconds() + "-" + 
+			date.getMilliseconds(),
+		logs,
+		oldestTime = 0,
+		logTimestamps = [],
+		logsMap = {},
+		numLogs,
+		stat;
+
 		// close the old log file if it has been opened
 		if (logFile) {
 			fs.closeSync(logFile);
@@ -89,26 +100,16 @@ module.exports = new function() {
 			logFile = undefined;
 		}
 
-		var date = new Date(),
-		logFilename = (date.getMonth() + 1) + "-" + date.getDate() + "-" + date.getFullYear() + 
-			"_" + (date.getHours() + 1) + "-" + date.getMinutes() + "-" + date.getSeconds() + "-" + 
-			date.getMilliseconds();
-
 		logFilePath = path.join(hubGlobal.logsDir, logFilename);
 		logFile = fs.openSync(logFilePath, 'a+');
 
 		logRotating = false;
 
-		var logs = fs.readdirSync(hubGlobal.logsDir);
+		logs = fs.readdirSync(hubGlobal.logsDir);
 		if (logs.length >= hubGlobal.config.maxLogs) {
-			var oldestTime = 0,
-			oldestLogIndex,
-			logTimestamps = [],
-			logsMap = {};
-
-			var numLogs = logs.length;
+			numLogs = logs.length;
 			for (var i = 0; i < numLogs; i++) {
-				var stat = fs.statSync(path.join(hubGlobal.logsDir, logs[i])),
+				stat = fs.statSync(path.join(hubGlobal.logsDir, logs[i])),
 				modifiedTime = stat.mtime.getTime();
 
 				logTimestamps.push(modifiedTime);
@@ -120,11 +121,13 @@ module.exports = new function() {
 			});
 
 			function deleteLog(oldestLogIndex) {
+				var oldestLog;
+
 				if (oldestLogIndex < hubGlobal.config.maxLogs) {
 					callback();
 
 				} else {
-					var oldestLog = logsMap[logTimestamps[oldestLogIndex]];
+					oldestLog = logsMap[logTimestamps[oldestLogIndex]];
 					self.runCommand("rm -r " + path.join(hubGlobal.logsDir, oldestLog), function(error) {
 						if (error !== null) {
 							self.log("error <" + error + "> encountered when deleting log <" + oldestLog + ">");
@@ -146,11 +149,13 @@ module.exports = new function() {
 	};
 
 	this.log = function(message) {
+		var stat;
+
 		if (logRotating === true) {
 			numPendingLogEntries.push(message);
 
 		} else {
-			var stat = fs.statSync(logFilePath);
+			stat = fs.statSync(logFilePath);
 			if (stat.size > hubGlobal.config.maxLogSize) {
 				logRotating = true;
 

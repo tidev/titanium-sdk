@@ -265,7 +265,7 @@ module.exports = new function() {
 			}
 		}
 
-		if ((typeof latestDir) === "undefined") {
+		if (typeof latestDir === "undefined") {
 			console.log("unable to find a valid SDK");
 			process.exit(1);
 
