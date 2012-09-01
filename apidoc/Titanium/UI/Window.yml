@@ -34,7 +34,7 @@ events:
     platforms: [android]
     summary: Fired when the Back button is released.
     description: |
-        This event has been deprecated and renamed androidback (without colon).
+        This event has been deprecated and replaced by androidback (without colon).
         
         Setting a listener disables the default key handling for the Back button.
         To restore default behavior, remove the listener. It is recommended that you only
@@ -104,11 +104,20 @@ events:
 
   - name: androidback
     platforms: [android]
-    summary: Fired when the Back button is released.
+    summary: Fired when the back button is pressed by the user.
     description: |
-        Setting a listener disables the default key handling for the Back button.
-        To restore default behavior, remove the listener. It is recommended that you only
-        have one handler per heavyweight window.
+        This event is fired when the current window's activity detects
+        a back button press by the user to navigate back.
+
+        By default this event would trigger the current activity to be finished
+        and removed from the task stack. Subscribing to this event with a listener
+        will prevent the default behavior. To finish the activity from your listener
+        just call the *close* method of the window.
+
+        This event replaces the android:back event. Some behavior
+        changes way exist such as the event no longer firing when the
+        user dismisses the keyboard with the back button.
+
     since: '2.2.0'
 
   - name: androidcamera

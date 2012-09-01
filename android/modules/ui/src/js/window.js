@@ -18,7 +18,7 @@ exports.bootstrapWindow = function(Titanium) {
 	var newActivityRequiredKeys = ["fullscreen", "navBarHidden", "modal", "windowSoftInputMode"];
 	
 	//list of TiBaseWindow event listeners
-	var windowEventListeners = ["open", "close", "focus", "blur"];
+	var windowEventListeners = ["open", "close", "focus", "blur", "androidback"];
 
 	// Backward compatibility for lightweight windows
 	var UI = Titanium.UI;
