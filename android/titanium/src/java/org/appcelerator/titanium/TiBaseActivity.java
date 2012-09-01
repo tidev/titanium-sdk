@@ -106,6 +106,15 @@ public abstract class TiBaseActivity extends Activity
 		}
 	}
 
+	/**
+	 * Returns the window at the top of the stack.
+	 * @return the top window or null if the stack is empty.
+	 */
+	public TiBaseWindowProxy topWindowOnStack()
+	{
+		return (windowStack.isEmpty()) ? null : windowStack.peek();
+	}
+
 	// could use a normal ConfigurationChangedListener but since only orientation changes are
 	// forwarded, create a separate interface in order to limit scope and maintain clarity 
 	public static interface OrientationChangedListener
@@ -521,6 +530,22 @@ public abstract class TiBaseActivity extends Activity
 	}
 
 	@Override
+	public void onBackPressed()
+	{
+		TiBaseWindowProxy topWindow = topWindowOnStack();
+
+		// Prevent default Android behavior for "back" press
+		// if the top window has a listener to handle the event.
+		if (topWindow.hasListeners(TiC.EVENT_ANDROID_BACK)) {
+			topWindow.fireEvent(TiC.EVENT_ANDROID_BACK, null);
+
+		} else {
+			// If event is not handled by any listeners allow default behavior.
+			super.onBackPressed();
+		}
+	}
+
+	@Override
 	public boolean dispatchKeyEvent(KeyEvent event) 
 	{
 		boolean handled = false;
@@ -538,13 +563,7 @@ public abstract class TiBaseActivity extends Activity
 
 		switch(event.getKeyCode()) {
 			case KeyEvent.KEYCODE_BACK : {
-				if (window.hasListeners(TiC.EVENT_ANDROID_BACK)) {
-					if (event.getAction() == KeyEvent.ACTION_UP) {
-						window.fireEvent(TiC.EVENT_ANDROID_BACK, null);
-					}
-					handled = true;
-				}
-				// TODO: Deprecate old event
+				// Deprecated and replaced by "androidback" event.
 				if (window.hasListeners("android:back")) {
 					if (event.getAction() == KeyEvent.ACTION_UP) {
 						window.fireEvent("android:back", null);
