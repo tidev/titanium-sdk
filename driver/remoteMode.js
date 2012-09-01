@@ -267,6 +267,10 @@ module.exports = new function() {
 
 		// package up the entire results set to be reported
 		driverUtils.runCommand(command, driverUtils.logStderr, function(error, stdout, stderr) {
+			var resultsStat,
+			resultsSize,
+			sendBuffer;
+
 			if (error !== null) {
 				driverUtils.log("error <" + error + "> occurred when trying to compress results in <" + 
 					driverGlobal.currentLogDir + ">");
@@ -274,8 +278,8 @@ module.exports = new function() {
 				process.exit(1);
 			}
 
-			var resultsStat = fs.statSync(path.join(driverGlobal.currentLogDir, "results.tgz")),
-			resultsSize = resultsStat.size,
+			resultsStat = fs.statSync(path.join(driverGlobal.currentLogDir, "results.tgz"));
+			resultsSize = resultsStat.size;
 			sendBuffer = new Buffer(INT_SIZE + resultsSize);
 
 			sendBuffer.writeUInt32BE(resultsSize, 0);

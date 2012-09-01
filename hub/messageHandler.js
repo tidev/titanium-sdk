@@ -63,6 +63,8 @@ module.exports = new function() {
 	};
 
 	this.processCiMessage = function(ciConnection, message) {
+		var queryArgs;
+
 		try {
 			message = JSON.parse(message);
 
@@ -93,17 +95,17 @@ module.exports = new function() {
 			return;
 		}
 
-		var queryArgs = {
+		queryArgs = {
 			git_hash: message.gitHash,
 			branch: message.branch,
 			timestamp: message.buildTime
 		};
 		dbConnection.query('INSERT INTO runs SET ?', queryArgs, function(error, rows, fields) {
+			var driverId;
+
 			if (error) {
 				throw error;
 			}
-
-			var driverId;
 
 			ciConnection.write("received", function() {
 				console.log("\"received\" message sent back to CI server");
@@ -139,6 +141,10 @@ module.exports = new function() {
 
 		// extract the results set
 		hubUtils.runCommand(command, function(error, stdout, stderr) {
+			var numPassed,
+			numFailed,
+			branch;
+
 			if (error !== null) {
 				console.log("error <" + error + "> occurred when trying to extract results to <" + 
 					driverRunWorkingDir + ">");
@@ -146,9 +152,8 @@ module.exports = new function() {
 				return;
 			}
 
-			var numPassed = 0,
-			numFailed = 0,
-			branch;
+			numPassed = 0;
+			numFailed = 0;
 
 			console.log("storing results...");
 
@@ -334,12 +339,16 @@ module.exports = new function() {
 			"WHERE run_id = runs.id AND driver_id = \"" + driverId + "\")";
 
 		dbConnection.query(query, function(error, rows, fields) {
+			var runId,
+			gitHash,
+			isIdle;
+
 			if (error) {
 				throw error;
 			}
 
-			var runId = null,
-			gitHash = null,
+			runId = null;
+			gitHash = null;
 			isIdle = true;
 
 			/*

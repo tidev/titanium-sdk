@@ -311,7 +311,7 @@ module.exports = new function() {
 			});
 		};
 
-		if (path.existsSync(path.join(harnessPlatformDir, "harness/tiapp.xml"))) {
+		if (path.existsSync(path.join(harnessPlatformDir, "harness", "tiapp.xml"))) {
 			this.deleteHarness(platform, createCallback);
 
 		} else {
@@ -419,7 +419,7 @@ module.exports = new function() {
 
 		var updateAppjsCallback = function() {
 			if (path.existsSync(path.join(configDir, "app.js"))) {
-				driverUtils.runCommand("cp -r " + path.join(configDir, "app.js ", harnessPlatformDir, "harness/Resources"), driverUtils.logStdout, function(error) {
+				driverUtils.runCommand("cp -r " + path.join(configDir, "app.js ", harnessPlatformDir, "harness", "Resources"), driverUtils.logStdout, function(error) {
 					if (error !== null) {
 						driverUtils.log("unable to update app.js for harness: " + error);
 						if (errorCallback) {
