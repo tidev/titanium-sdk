@@ -51,8 +51,10 @@ function drawRunCharts(elementId, branch, gitHash, timestamp, runId, driverIds, 
 
 // assumes that the jqPlot dependencies have already been loaded
 function drawPerformanceCharts(elementId, chartTitle, runIds, driverIds, chartData) {
-	var series = [];
-	for (var i = 0; i < driverIds.length; i++) {
+	var series = [],
+	i = 0;
+
+	for (; i < driverIds.length; i++) {
 		series.push({label: driverIds[i]});
 	}
 
