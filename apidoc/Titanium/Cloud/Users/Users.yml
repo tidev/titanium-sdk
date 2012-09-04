@@ -212,8 +212,6 @@ methods:
     since: 2.1.2
     platforms: [android, iphone, ipad]
     summary: Checks if the user is authenticated with 3-Legged OAuth.
-    deprecated:
-        since: "2.1.2"
     description: |
         True is returned after successfully calling <Titanium.Cloud.Users.secureCreate> or
         <Titanium.Cloud.Users.secureLogin>, and false after successfully calling
