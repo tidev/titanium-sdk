@@ -665,9 +665,11 @@ module.exports = new function() {
 				make sure we skip to the next test in the event of failure otherwise this will 
 				loop forever (assuming that the timeout is consistent with each run of the test)
 				*/
-				incrementTest();
+				var next = incrementTest();
 
-				driverGlobal.platform.resumeConfig();
+				if (next !== "") {
+					driverGlobal.platform.resumeConfig();
+				}
 			}
 		}, timeout);
 
