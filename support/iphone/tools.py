@@ -123,7 +123,7 @@ def create_info_plist(tiapp, template_dir, project_dir, output):
 		infoplist_tmpl = os.path.join(template_dir,'Info.plist')
 		write_info_plist(infoplist_tmpl)
 
-def write_debugger_plist(debughost, debugport, template_dir, debuggerplist):
+def write_debugger_plist(debughost, debugport, debugairkey, template_dir, debuggerplist):
 	debugger_tmpl = os.path.join(template_dir,'debugger.plist')
 	plist = codecs.open(debugger_tmpl, encoding='utf-8').read()
 	if debughost:
@@ -132,6 +132,10 @@ def write_debugger_plist(debughost, debugport, template_dir, debuggerplist):
 	else:
 		plist = plist.replace('__DEBUGGER_HOST__','')
 		plist = plist.replace('__DEBUGGER_PORT__','')
+	if debugairkey:
+		plist = plist.replace('__DEBUGGER_AIRKEY__',debugairkey)
+	else:
+		plist = plist.replace('__DEBUGGER_AIRKEY__','')		
 
 	tempfile = debuggerplist+'.tmp'
 	pf = codecs.open(tempfile,'w',encoding='utf-8')

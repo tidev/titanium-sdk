@@ -9,6 +9,7 @@ package ti.modules.titanium.app.properties;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiApplication;
+import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiProperties;
 
@@ -70,30 +71,62 @@ public class PropertiesModule extends KrollModule {
 	@Kroll.method
 	public void removeProperty(String key)
 	{
-		appProperties.removeProperty(key);
+		if (hasProperty(key)) {
+			appProperties.removeProperty(key);
+			fireEvent(TiC.EVENT_CHANGE, null);
+		}
 	}
 
+	//Convenience method for pulling raw values
+	public Object getPreferenceValue(String key)
+	{
+		return appProperties.getPreference().getAll().get(key);
+	}
+	
 	@Kroll.method
 	public void setBool(String key, boolean value)
 	{
-		appProperties.setBool(key, value);
+		Object boolValue = getPreferenceValue(key);
+		if (boolValue == null || !boolValue.equals(value)) {
+			appProperties.setBool(key, value);
+			fireEvent(TiC.EVENT_CHANGE, null);
+		}
+		
+
 	}
 
 	@Kroll.method
 	public void setDouble(String key, double value)
 	{
-		appProperties.setDouble(key, value);
+		Object doubleValue = getPreferenceValue(key);
+		//Since there is no double type in SharedPreferences, we store doubles as strings, i.e "10.0"
+		//so we need to convert before comparing.
+		if (doubleValue == null || !doubleValue.equals(String.valueOf(value))) {
+			appProperties.setDouble(key, value);
+			fireEvent(TiC.EVENT_CHANGE, null);
+		}
+
 	}
 
 	@Kroll.method
 	public void setInt(String key, int value)
 	{
-		appProperties.setInt(key, value);
+		Object intValue = getPreferenceValue(key);
+		if (intValue == null || !intValue.equals(value)) {
+			appProperties.setInt(key, value);
+			fireEvent(TiC.EVENT_CHANGE, null);
+		}
+
 	}
 
 	@Kroll.method
 	public void setString(String key, String value)
 	{
-		appProperties.setString(key, value);
+		Object stringValue = getPreferenceValue(key);
+		if (stringValue == null || !stringValue.equals(value)) {
+			appProperties.setString(key, value);
+			fireEvent(TiC.EVENT_CHANGE, null);
+		}
 	}
+
 }
