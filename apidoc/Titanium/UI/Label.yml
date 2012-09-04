@@ -84,7 +84,19 @@ properties:
     summary: Simple HTML formatting.
     platforms: [android, mobileweb]
     type: String
-    
+
+  - name: lineBreakMode
+    summary: |
+        Wrapping and truncating the label’s text. Specified using one of <Titanium.UI> constants,
+        [LINEBREAK_WORDWRAP](Titanium.UI.LINEBREAK_WORDWRAP),
+        [LINEBREAK_CHARWRAP](Titanium.UI.LINEBREAK_CHARWRAP),
+        [LINEBREAK_CLIP](Titanium.UI.LINEBREAK_CLIP),
+        [LINEBREAK_HEADTRUNCATE](Titanium.UI.LINEBREAK_HEADTRUNCATE),
+        [LINEBREAK_TAILTRUNCATE](Titanium.UI.LINEBREAK_TAILTRUNCATE),
+        [LINEBREAK_MIDTRUNCATE](Titanium.UI.LINEBREAK_MIDTRUNCATE)    
+    platforms: [iphone, ipad]
+    type: [String, Number]
+       
   - name: minimumFontSize
     summary: Minimum font size when the font is sized based on the contents. 
     description: |
