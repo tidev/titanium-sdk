@@ -31,6 +31,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String EVENT_ANDROID_BACK_2 = "androidback";
+
+	/**
+	 * @module.api
+	 */
 	public static final String EVENT_ANDROID_CAMERA = "android:camera";
 
 	/**
