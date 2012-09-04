@@ -10,7 +10,7 @@ var bootstrap = require("bootstrap");
 // Objects retained by persistent handles.
 // Each element in this array acts as a storage "cell"
 // keeping the object reachable and alive until it is removed.
-var persistentObjects = [];
+persistentObjects = [];
 
 // Keeps an object alive until dispose() is called.
 // This is currently used to keep "top level" objects
