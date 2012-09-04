@@ -10,13 +10,29 @@
  * manipulation, log management, etc
  */
 
-var fs = require("fs");
-var child_process = require("child_process");
-var path = require("path");
+var fs = require("fs"),
+child_process = require("child_process"),
+path = require("path");
 
 module.exports = new function() {
-	var self = this;
-	var logFile = undefined;
+	var self = this,
+	logFile = undefined;
+
+	this.checkConfigItem = function(configItemName, configItemValue, expectedType) {
+		function printFailureAndExit(errorMessage) {
+			console.log(errorMessage);
+			process.exit(1);
+		}
+
+		var configItemType = (typeof configItemValue);
+		if (configItemType === "undefined") {
+			printFailureAndExit(configItemName + " property in the config module cannot be undefined");
+
+		} else if (configItemType !== expectedType) {
+			printFailureAndExit(configItemName + " property in the config module should be <" + expectedType +
+				"> but was <" + configItemType + ">");
+		}
+	};
 
 	/*
 	these are stand alone from the driver wide log levels since the arguments to runCommand do 
@@ -116,52 +132,66 @@ module.exports = new function() {
 		// close the old log file if it has been opened
 		self.closeLog();
 
-		var date = new Date();
-		logFile = fs.openSync(driverGlobal.logsDir + "/" + driverGlobal.platform.name + "/log_" + 
-			(date.getMonth() + 1) + "-" + date.getDate() + "-" + date.getFullYear() + "_" + 
-			(date.getHours() + 1) + "-" + date.getMinutes() + "-" + date.getSeconds() + "-" + date.getMilliseconds(),
-			'a+');
+		var date = new Date(),
+		logFilename = (date.getMonth() + 1) + "-" + date.getDate() + "-" + date.getFullYear() + 
+			"_" + (date.getHours() + 1) + "-" + date.getMinutes() + "-" + date.getSeconds() + "-" + 
+			date.getMilliseconds();
 
-		var files = fs.readdirSync(driverGlobal.logsDir + "/" + driverGlobal.platform.name);
-		if (files.length >= driverGlobal.config.maxLogs) {
-			var oldestTime = 0;
-			var oldestFileIndex;
-			var logTimestamps = [];
-			var logsMap = {};
+		driverGlobal.currentLogDir = path.join(driverGlobal.logsDir, driverGlobal.platform.name, logFilename);
 
-			var numFiles = files.length;
-			for (var i = 0; i < numFiles; i++) {
-				var stat = fs.statSync(driverGlobal.logsDir + "/" + driverGlobal.platform.name + "/" + files[i]);
-				var modifiedTime = stat.mtime.getTime();
+		/*
+		a log directory needs to be created for the test run since you may end up with both a log 
+		file and a JSON results file
+		*/
+		try {
+			fs.mkdirSync(driverGlobal.currentLogDir);
 
-				logTimestamps.push(modifiedTime);
-				logsMap[modifiedTime] = files[i];
+		} catch(e) {
+			console.log("exception <" + e + "> occurred when creating log directory <" + driverGlobal.currentLogDir + ">");
+		}
+
+		logFile = fs.openSync(path.join(driverGlobal.currentLogDir, "log.txt"), 'a+');
+
+		var dirs = fs.readdirSync(path.join(driverGlobal.logsDir, driverGlobal.platform.name));
+		if (dirs.length >= driverGlobal.config.maxLogs) {
+			var oldestTime = 0,
+			oldestDirIndex,
+			dirTimestamps = [],
+			dirsMap = {};
+
+			var numDirs = dirs.length;
+			for (var i = 0; i < numDirs; i++) {
+				var stat = fs.statSync(path.join(driverGlobal.logsDir, driverGlobal.platform.name, dirs[i])),
+				modifiedTime = stat.mtime.getTime();
+
+				dirTimestamps.push(modifiedTime);
+				dirsMap[modifiedTime] = dirs[i];
 			}
 
-			logTimestamps.sort(function(a,b) {
-				return a-b
+			dirTimestamps.sort(function(a,b) {
+				return b-a;
 			});
 
-			function deleteLog(oldestLogIndex) {
-				if (oldestLogIndex < driverGlobal.config.maxLogs) {
+			function deleteLog(oldestDirIndex) {
+				if (oldestDirIndex < driverGlobal.config.maxLogs) {
 					callback();
 
 				} else {
-					var oldestLogFilename = logsMap[logTimestamps[(oldestLogIndex - 1)]];
-					self.runCommand("rm -r " + driverGlobal.logsDir + "/" + driverGlobal.platform.name + "/" + oldestLogFilename, self.logNone, function(error) {
+					var oldestDir = dirsMap[dirTimestamps[oldestDirIndex]];
+					self.runCommand("rm -r " + path.join(driverGlobal.logsDir, driverGlobal.platform.name, oldestDir), self.logNone, function(error) {
 						if (error !== null) {
-							self.log("error <" + error + "> encountered when deleting log file <" + oldestLogFilename + ">");
+							self.log("error <" + error + "> encountered when deleting log directory <" + oldestDir + ">");
 
 						} else {
-							self.log("deleted log file: " + oldestLogFilename);
+							self.log("deleted log directory: " + oldestDir);
 						}
 
-						deleteLog(--oldestLogIndex);
+						deleteLog(--oldestDirIndex);
 					});
 				}
 			}
 
-			deleteLog(numFiles - 1);
+			deleteLog(numDirs - 1);
 
 		} else {
 			callback();
@@ -173,8 +203,11 @@ module.exports = new function() {
 			fs.closeSync(logFile);
 
 			/*
-			there doesn't seem to be an exposed API for checking if the file is open so just set 
-			to undefined so we have something to test against
+			Wrapping a call to fstatSync in a try/catch can be used as a means of checking if the 
+			provided file descriptor is valid (open) since it will throw an exception if the file
+			is not open.  However, I see this as kind of a hack and prefer the clarity of just using
+			undefined on the file handle as a flag since the behavior is explicit and the behavior
+			is faster than the exception mechanism.
 			*/
 			logFile = undefined;
 		}
@@ -215,5 +248,30 @@ module.exports = new function() {
 		}
 
 		return tabs;
+	};
+
+	this.setCurrentTiSdk = function() {
+		var latestTime = 0,
+		latestDir;
+
+		var files = fs.readdirSync(driverGlobal.config.tiSdkDirs);
+		for (var i = 0; i < files.length; i++) {
+			var stat = fs.statSync(path.join(driverGlobal.config.tiSdkDirs, files[i])),
+			modifiedTime = stat.mtime.getTime();
+
+			if (modifiedTime > latestTime) {
+				latestTime = modifiedTime;
+				latestDir = files[i];
+			}
+		}
+
+		if (typeof latestDir === "undefined") {
+			console.log("unable to find a valid SDK");
+			process.exit(1);
+
+		} else {
+			console.log("using Titanium SDK version <" + latestDir + ">");
+			driverGlobal.config.currentTiSdkDir = path.join(driverGlobal.config.tiSdkDirs, latestDir);
+		}
 	};
 };

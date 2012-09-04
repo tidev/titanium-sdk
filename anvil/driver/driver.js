@@ -91,7 +91,7 @@
 var fs = require("fs");
 var path = require("path");
 
-var util = require("./util");
+var driverUtils = require("./driverUtils");
 
 var mode;
 
@@ -126,15 +126,15 @@ function init() {
 	};
 
 	driverGlobal.driverDir = __dirname;
-	driverGlobal.configSetDir = driverGlobal.driverDir + "/configSet";
-	driverGlobal.harnessTemplateDir = driverGlobal.driverDir + "/harnessResourcesTemplate";
+	driverGlobal.configSetDir = path.join(driverGlobal.driverDir, "configSet");
+	driverGlobal.harnessTemplateDir = path.join(driverGlobal.driverDir, "harnessResourcesTemplate");
 
 	driverGlobal.platforms = {};
 
 	var platforms = ["android", "ios", "mobileweb"];
 	for (var i = 0; i < platforms.length; i++) {
 		try {
-			driverGlobal.platforms[platforms[i]] = require(driverGlobal.driverDir + "/platforms/" + platforms[i]);;
+			driverGlobal.platforms[platforms[i]] = require(path.join(driverGlobal.driverDir, "platforms", platforms[i]));
 
 		} catch(e) {
 			console.log("exception occurred when loading platform module for <" + platforms[i] + ">: " + e);
@@ -150,12 +150,12 @@ function processCommandLineArgs(callback) {
 	 * mode represents whether the driver is being run via command line(local) or remotely
 	 * such as would be the case for CI integration(remote)
 	 */
-	var modeArg = util.getArgument(process.argv, "--mode");
+	var modeArg = driverUtils.getArgument(process.argv, "--mode");
 	if ((typeof modeArg) === "undefined") {
 		modeArg = "local";
 	}
 
-	var modePath = driverGlobal.driverDir + "/" + modeArg + "Mode.js";
+	var modePath = path.join(driverGlobal.driverDir, modeArg + "Mode.js");
 	if (!(path.existsSync(modePath))) {
 		console.log("unable to find the specified mode: " + modeArg);
 		printUsageAndExit();
@@ -173,7 +173,7 @@ function processCommandLineArgs(callback) {
 	 * logLevel represents the level of logging that will be printed out to the console.
 	 * NOTE: this does not change what gets written to the log file
 	 */
-	var logLevelArg = util.getArgument(process.argv, "--log-level");
+	var logLevelArg = driverUtils.getArgument(process.argv, "--log-level");
 	if ((typeof logLevelArg) !== "undefined") {
 		var logLevel = driverGlobal.logLevels[logLevelArg];
 		if ((typeof logLevel) === "undefined") {
@@ -185,7 +185,7 @@ function processCommandLineArgs(callback) {
 	}
 
 	// load platform module
-	var platformArg = util.getArgument(process.argv, "--platform");
+	var platformArg = driverUtils.getArgument(process.argv, "--platform");
 	if ((typeof platformArg) !== "undefined") {
 		var specifiedPlatform = driverGlobal.platforms[platformArg];
 		if ((typeof specifiedPlatform) === "undefined") {
@@ -197,13 +197,13 @@ function processCommandLineArgs(callback) {
 }
 
 function loadConfigModule() {
-	var configModulePath = __dirname + "/config.js";
+	var configModulePath = path.join(__dirname, "config.js");
 	if (!(path.existsSync(configModulePath))) {
 		console.log("No config module found!  Do the following:\n" +
-			util.getTabs(1) + "1) copy the exampleConfig.js to config.js in the root driver directory\n" +
-			util.getTabs(1) + "2) update the config.js with appropriate values based on the comments in\n" +
-			util.getTabs(1) + "   the exampleConfig.js file\n" +
-			util.getTabs(1) + "3) restart driver\n");
+			driverUtils.getTabs(1) + "1) copy the exampleConfig.js to config.js in the root driver directory\n" +
+			driverUtils.getTabs(1) + "2) update the config.js with appropriate values based on the comments in\n" +
+			driverUtils.getTabs(1) + "   the exampleConfig.js file\n" +
+			driverUtils.getTabs(1) + "3) restart driver\n");
 
 		process.exit(1);
 	}
@@ -217,32 +217,16 @@ function loadConfigModule() {
 		process.exit(1);
 	}
 
-	function checkConfigItem(configItemName, configItemValue, expectedType) {
-		var configItemType = (typeof configItemValue);
-		if (configItemType === "undefined") {
-			printFailureAndExit(configItemName + " property in the config module cannot be undefined");
-
-		} else if (configItemType !== expectedType) {
-			printFailureAndExit("androidSdkDir property in the config module should be <" + expectedType +
-				"> but was <" + configItemType + ">");
-		}
-	}
-
-	function printFailureAndExit(errorMessage) {
-		console.log(errorMessage);
-		process.exit(1);
-	}
-
-	checkConfigItem("androidSdkDir", config.androidSdkDir, "string");
-	checkConfigItem("tiSdkDir", config.tiSdkDir, "string");
-	checkConfigItem("maxLogs", config.maxLogs, "number");
-	checkConfigItem("androidSocketPort", config.androidSocketPort, "number");
-	checkConfigItem("iosSocketPort", config.iosSocketPort, "number");
-	checkConfigItem("maxSocketConnectAttempts", config.maxSocketConnectAttempts, "number");
-	checkConfigItem("httpPort", config.httpPort, "number");
-	checkConfigItem("defaultTestTimeout", config.defaultTestTimeout, "number");
-	checkConfigItem("tabString", config.tabString, "string");
-	checkConfigItem("defaultIosSimVersion", config.defaultIosSimVersion, "string");
+	driverUtils.checkConfigItem("androidSdkDir", config.androidSdkDir, "string");
+	driverUtils.checkConfigItem("tiSdkDirs", config.tiSdkDirs, "string");
+	driverUtils.checkConfigItem("maxLogs", config.maxLogs, "number");
+	driverUtils.checkConfigItem("androidSocketPort", config.androidSocketPort, "number");
+	driverUtils.checkConfigItem("iosSocketPort", config.iosSocketPort, "number");
+	driverUtils.checkConfigItem("maxSocketConnectAttempts", config.maxSocketConnectAttempts, "number");
+	driverUtils.checkConfigItem("httpPort", config.httpPort, "number");
+	driverUtils.checkConfigItem("defaultTestTimeout", config.defaultTestTimeout, "number");
+	driverUtils.checkConfigItem("tabString", config.tabString, "string");
+	driverUtils.checkConfigItem("defaultIosSimVersion", config.defaultIosSimVersion, "string");
 
 	// load the defaultPlatform config property and set the global platform property if needed
 	new function() {
@@ -272,9 +256,9 @@ function loadConfigModule() {
 
 	// load the tempDir config property and setup other properties that rely on the tempDir property
 	new function() {
-		checkConfigItem("tempDir", config.tempDir, "string");
-		driverGlobal.harnessDir = config.tempDir + "/harness";
-		driverGlobal.logsDir = config.tempDir + "/logs";
+		driverUtils.checkConfigItem("tempDir", config.tempDir, "string");
+		driverGlobal.harnessDir = path.join(config.tempDir, "harness");
+		driverGlobal.logsDir = path.join(config.tempDir, "logs");
 	}
 
 	/*
@@ -282,7 +266,7 @@ function loadConfigModule() {
 	property
 	*/
 	new function() {
-		checkConfigItem("defaultLogLevel", config.defaultLogLevel, "string");
+		driverUtils.checkConfigItem("defaultLogLevel", config.defaultLogLevel, "string");
 
 		// translate the defaultLogLevel from string to number value defined in logLevels
 		if (driverGlobal.logLevels[config.defaultLogLevel]) {
@@ -318,7 +302,7 @@ function setupTempDirs() {
 	createDir(driverGlobal.config.tempDir);
 	createDir(driverGlobal.harnessDir);
 	createDir(driverGlobal.logsDir);
-	createDir(driverGlobal.logsDir + "/" + driverGlobal.platform.name);
+	createDir(path.join(driverGlobal.logsDir, driverGlobal.platform.name));
 }
 
 init();
