@@ -290,6 +290,13 @@
 	[self animate:arg];
 }
 
+-(void)cancelAllAnimations:(id)arg
+{
+	[CATransaction begin];
+	[[[self view] layer] removeAllAnimations];
+	[CATransaction commit];
+}
+
 #define CHECK_LAYOUT_UPDATE(layoutName,value) \
 if (ENFORCE_BATCH_UPDATE) { \
     if (updateStarted) { \
