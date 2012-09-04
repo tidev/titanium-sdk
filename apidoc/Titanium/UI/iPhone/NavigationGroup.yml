@@ -54,24 +54,30 @@ examples:
     example: |
         Create two windows in a navigation group, with the first colored blue. When the back button 
         is clicked a red window is shown.
-        
+
             var win1 = Titanium.UI.createWindow();
-            
+
             var win2 = Titanium.UI.createWindow({
-            	backgroundColor: 'red',
-            	title: 'Red Window'
+            	backgroundColor : 'red',
+            	title : 'Red Window'
             });
-            
+
             var nav = Titanium.UI.iPhone.createNavigationGroup({
-               window: win2
+            	window : win2
             });
-            
-            win.add(nav);
-            win.open();
-            
-            var win3 = Titanium.UI.createWindow({
-            	backgroundColor: 'blue',
-            	title: 'Blue Window'
-            });
-            nav.open(win3, {animated:true});
-    
+
+            var addBlueWindow = function() {
+            	var win3 = Titanium.UI.createWindow({
+            		backgroundColor : 'blue',
+            		title : 'Blue Window'
+            	});
+            	nav.open(win3, {animated : true});
+            	// clean up the event handler 
+            	win2.removeEventListener('open', addBlueWindow);
+            } 
+            // To avoid a race condition, wait for the open event on the main window
+            // before opening a sub-window.
+            win2.addEventListener('open', addBlueWindow);
+
+            win1.add(nav);
+            win1.open();

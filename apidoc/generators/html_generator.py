@@ -178,6 +178,13 @@ def annotate(annotated_obj):
 		if annotated_obj.inherited_from in all_annotated_apis:
 			annotated_obj.inherited_from_obj = all_annotated_apis[annotated_obj.inherited_from]
 	is_inherited = (annotated_obj.inherited_from_obj is not None)
+	if annotated_obj.deprecated:
+		if "notes" in annotated_obj.deprecated:
+			annotated_obj.deprecated["notes_html"] = markdown_to_html(
+					annotated_obj.deprecated["notes"],
+					obj=annotated_obj,
+					suppress_link_warnings=is_inherited,
+					strip_outer_paragraph=True)
 	if dict_has_non_empty_member(annotated_obj.api_obj, "summary"):
 		summary = annotated_obj.api_obj["summary"]
 		annotated_obj.summary_html = markdown_to_html(summary, obj=annotated_obj, suppress_link_warnings=is_inherited)
@@ -433,14 +440,21 @@ def process_markdown_links(s, suppress_link_warnings=False):
 				new_string = replace_with_link(new_string, r, suppress_warnings=suppress_link_warnings)
 	return new_string
 
-def markdown_to_html(s, obj=None, suppress_link_warnings=False):
+def markdown_to_html(s, obj=None, suppress_link_warnings=False, strip_outer_paragraph=False):
 	if s is None or len(s) == 0:
 		return ""
 	if s.startswith("file:") and obj is not None:
 		return markdown_to_html(load_file_markdown(s, obj))
 	if "<" in s or "[" in s:
 		s = process_markdown_links(s, suppress_link_warnings=suppress_link_warnings)
-	return markdown.markdown(s)
+	s = markdown.markdown(s)
+	if strip_outer_paragraph:
+		if s.lower()[0:3] == "<p>":
+			s = s[3:]
+		if s.lower()[-4:] == "</p>":
+			s = s[:-4]
+
+	return s
 
 def data_type_to_html(type_spec):
 	result = ""

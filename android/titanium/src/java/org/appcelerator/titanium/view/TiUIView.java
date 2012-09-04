@@ -19,6 +19,7 @@ import org.appcelerator.kroll.KrollPropertyChange;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.KrollProxyListener;
 import org.appcelerator.kroll.common.Log;
+import org.appcelerator.kroll.common.TiMessenger;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiDimension;
@@ -769,10 +770,14 @@ public abstract class TiUIView
 		}
 	}
 
-	public void onFocusChange(View v, boolean hasFocus)
+	public void onFocusChange(final View v, boolean hasFocus)
 	{
 		if (hasFocus) {
-			TiUIHelper.requestSoftInputChange(proxy, v);
+			TiMessenger.postOnMain(new Runnable() {
+				public void run() {
+					TiUIHelper.requestSoftInputChange(proxy, v);
+				}
+			});
 			proxy.fireEvent(TiC.EVENT_FOCUS, getFocusEventObject(hasFocus));
 		} else {
 			proxy.fireEvent(TiC.EVENT_BLUR, getFocusEventObject(hasFocus));

@@ -158,9 +158,9 @@ enum
  */
 @property(nonatomic,readonly) NSArray *children;
 
--(void)startLayout:(id)arg;
--(void)finishLayout:(id)arg;
--(void)updateLayout:(id)arg;
+-(void)startLayout:(id)arg;//Deprecated since 2.2.0
+-(void)finishLayout:(id)arg;//Deprecated since 2.2.0
+-(void)updateLayout:(id)arg;//Deprecated since 2.2.0
 -(void)setTempProperty:(id)propVal forKey:(id)propName;
 -(void)processTempProperties:(NSDictionary*)arg;
 

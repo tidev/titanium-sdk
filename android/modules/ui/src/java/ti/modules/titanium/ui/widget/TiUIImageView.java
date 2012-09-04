@@ -885,11 +885,18 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 			boolean changeImage = true;
 			Object newImage = d.get(TiC.PROPERTY_IMAGE);
 			TiDrawableReference source = makeImageSource(newImage);
+
+			// Check for orientation only if they specified an image
+			if (d.containsKey(TiC.PROPERTY_AUTOROTATE)) {
+				source.setAutoRotate(d.getBoolean(TiC.PROPERTY_AUTOROTATE));
+			}
+
 			if (imageSources != null && imageSources.size() == 1) {
 				if (imageSources.get(0).equals(source)) {
 					changeImage = false;
 				}
 			}
+
 			if (changeImage) {
 				setImageSource(source);
 				firedLoad = false;
@@ -934,6 +941,25 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 				setImages();
 			}
 		} else {
+			// Update requestedWidth / requestedHeight when width / height is changed.
+			if (key.equals(TiC.PROPERTY_WIDTH)) {
+				View parentView = getParentView();
+				if (TiC.LAYOUT_FILL.equals(TiConvert.toString(newValue)) && parentView != null) {
+					// Use the parent's width when it's fill
+					requestedWidth = TiConvert.toTiDimension(parentView.getMeasuredWidth(), TiDimension.TYPE_WIDTH);
+				} else {
+					requestedWidth = TiConvert.toTiDimension(newValue, TiDimension.TYPE_WIDTH);
+				}
+			} else if (key.equals(TiC.PROPERTY_HEIGHT)) {
+				View parentView = getParentView();
+				// Use the parent's height when it's fill
+				if (TiC.LAYOUT_FILL.equals(TiConvert.toString(newValue)) && parentView != null) {
+					requestedHeight = TiConvert.toTiDimension(parentView.getMeasuredHeight(), TiDimension.TYPE_HEIGHT);
+				} else {
+					requestedHeight = TiConvert.toTiDimension(newValue, TiDimension.TYPE_HEIGHT);
+				}
+			}
+
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}
 	}

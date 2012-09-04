@@ -66,12 +66,12 @@ static const NSTimeInterval kLauncherViewFastTransitionDuration = 0.2;
 
 @synthesize columnCount, rowCount, delegate, editable;
 
-- (id)initWithFrame:(CGRect)frame 
+- (id)initWithFrame:(CGRect)frame withRowCount:(int)newRowCount withColumnCount:(int)newColumnCount
 {
     if ((self = [super initWithFrame:frame])) 
 	{
-		self.columnCount = kLauncherViewDefaultColumnCount;
-		self.rowCount = 0;
+        self.rowCount = newRowCount;
+        self.columnCount = newColumnCount;
 		self.currentPageIndex = 0;
         self.editable = YES;
         
@@ -125,7 +125,7 @@ static const NSTimeInterval kLauncherViewFastTransitionDuration = 0.2;
 
 -(NSInteger)rowHeight
 {
-	return MAX(33,(scrollView.frame.size.height /3));
+	return MAX(33,(scrollView.frame.size.height / rowCount));
 }
 
 - (NSMutableArray*)pageWithFreeSpace:(NSInteger)pageIndex 
@@ -142,15 +142,6 @@ static const NSTimeInterval kLauncherViewFastTransitionDuration = 0.2;
 	NSMutableArray* page = [NSMutableArray array];
 	[pages addObject:page];
 	return page;
-}
-
-- (NSInteger)rowCount 
-{
-	if (!rowCount) 
-	{
-		rowCount = floor(self.frame.size.height / [self rowHeight]);
-	}
-	return rowCount;
 }
 
 - (NSInteger)currentPageIndex 

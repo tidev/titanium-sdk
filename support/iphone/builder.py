@@ -640,6 +640,7 @@ def main(args):
 		provisioning_profile = None
 		debughost = None
 		debugport = None
+		debugairkey = None
 		postbuild_modules = []
 		
 		# starting in 1.4, you don't need to actually keep the build/iphone directory
@@ -699,6 +700,19 @@ def main(args):
 				devicefamily = dequote(args[8].decode("utf-8"))
 			if argc > 9:
 				dist_keychain = dequote(args[9].decode("utf-8"))
+				if dist_keychain=='':
+					dist_keychain = None
+			
+			if argc > 10:
+				# this is host:port:airkey from the debugger
+				debughost = dequote(args[10].decode("utf-8"))
+				if debughost=='':
+					debughost = None
+					debugport = None
+					debugairkey = None
+				else:
+					debughost,debugport,debugairkey = debughost.split(":")
+			
 			if command == 'install':
 				target = 'Debug'
 				deploytype = 'test'
@@ -1024,7 +1038,7 @@ def main(args):
 			debug_plist = os.path.join(iphone_dir,'Resources','debugger.plist')
 			
 			# Force an xcodebuild if the debugger.plist has changed
-			force_xcode = write_debugger_plist(debughost, debugport, template_dir, debug_plist)
+			force_xcode = write_debugger_plist(debughost, debugport, debugairkey, template_dir, debug_plist)
 
 			if command not in ['simulator', 'build']:
 				# compile plist into binary format so it's faster to load
@@ -1398,6 +1412,7 @@ def main(args):
 						sim = subprocess.Popen("\"%s\" launch \"%s\" --sdk %s" % (iphonesim,app_dir,iphone_version),shell=True,cwd=template_dir)
 					else:
 						sim = subprocess.Popen("\"%s\" launch \"%s\" --sdk %s --family %s" % (iphonesim,app_dir,iphone_version,simtype),shell=True,cwd=template_dir)
+					os.unsetenv('DYLD_FRAMEWORK_PATH')
 
 					# activate the simulator window
 					ass = os.path.join(template_dir, 'iphone_sim_activate.scpt')

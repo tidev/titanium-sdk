@@ -37,7 +37,8 @@ VALID_KEYS = {
 			"optional", "value", "default"],
 		"event": ["name", "summary", "description", "extends", "platforms", "since",
 			"deprecated", "osver", "properties"],
-		"eventprop": ["name", "summary", "type", "platforms", "deprecated"]
+		"eventprop": ["name", "summary", "type", "platforms", "deprecated"],
+		"deprecated": ["since", "removed", "notes"]
 		}
 
 types = {}
@@ -152,11 +153,13 @@ class ErrorTracker(object):
 				return True
 		return False
 
-def validateKeys(tracker, obj, objType):
+def validateKeys(tracker, obj, objType, displayName=None):
 	validKeys = VALID_KEYS[objType]
 	if not isinstance(obj, dict):
 		return
-	if "name" in obj:
+	if displayName:
+		objName = displayName
+	elif "name" in obj:
 		objName = obj["name"]
 	else:
 		objName = "object"
@@ -225,6 +228,7 @@ def validateSince(tracker, since):
 def validateDeprecated(tracker, deprecated):
 	if type(deprecated) != dict or 'since' not in deprecated:
 			tracker.trackError('"deprecated" should be a dictionary with "since" and optional "removed" versions: %s' % deprecated)
+	validateKeys(tracker, deprecated, "deprecated", "deprecated")
 
 def validateOsVer(tracker, osver):
 	if type(osver) != dict:

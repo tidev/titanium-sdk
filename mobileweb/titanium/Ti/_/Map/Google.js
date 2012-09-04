@@ -313,7 +313,7 @@ define(["Ti/_/declare", "Ti/_/dom", "Ti/_/event", "Ti/_/lang", "Ti/App/Propertie
 					this.fireEvent("complete");
 				}
 
-				this.fireEvent("regionChanged", region);
+				this.fireEvent("regionchanged", region);
 			},
 
 			_updateMap: function(region, dontAnimate) {

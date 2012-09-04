@@ -376,7 +376,7 @@ class Compiler(object):
 		if self.deploytype!='development' or has_modules:
 
 			if os.path.exists(app_dir) and self.deploytype != 'development':
-				self.copy_resources([resources_dir],app_dir,True,module_js)
+				self.copy_resources([resources_dir],app_dir,self.deploytype != 'test',module_js)
 
 			if self.deploytype == 'production':
 				debugger_plist = os.path.join(app_dir,'debugger.plist')
@@ -579,7 +579,7 @@ class Compiler(object):
 		js_files.append(path);
 
 	def copy_resources(self,sources,target,write_routing=True,module_js=[]):
-
+		js_files = []
 		if write_routing:
 			intf = open(os.path.join(self.classes_dir,'ApplicationRouting.h'),'w+')
 			impf = open(os.path.join(self.classes_dir,'ApplicationRouting.m'),'w+')
@@ -590,7 +590,6 @@ class Compiler(object):
 			impf.write(HEADER)
 			impf.write(IMPL_HEADER)
 			impf.write("+ (NSData*) resolveAppAsset:(NSString*)path;\n{\n")
-			js_files = []
 
 		if not os.path.exists(os.path.expanduser(target)):
 			os.makedirs(os.path.expanduser(target))
@@ -638,7 +637,7 @@ class Compiler(object):
 					fp = os.path.splitext(file)
 					ext = fp[1]
 					if ext == '.jss': continue
-					if len(fp)>1 and write_routing and ext in ['.html','.js','.css']:
+					if len(fp)>1 and ext in ['.html','.js','.css']:
 						path = prefix + os.sep + file
 						path = path[1:]
 						entry = {'path':path,'from':from_,'to':to_}
@@ -646,7 +645,7 @@ class Compiler(object):
 							compiled_targets[ext].append(entry)
 						else:
 							compiled_targets[ext]=[entry]
-					else:
+					if not write_routing:
 						# only copy if different filesize or doesn't exist
 						if not os.path.exists(to_) or os.path.getsize(from_)!=os.path.getsize(to_):
 							print "[DEBUG] copying: %s to %s" % (from_,to_)
@@ -700,10 +699,10 @@ class Compiler(object):
 		for source in sources:
 			add_compiled_resources(source,target)
 
-		if write_routing:
-			for js_file in module_js:
-				compile_js_file(js_file['path'], js_file['from'])
+		for js_file in module_js:
+			compile_js_file(js_file['path'], js_file['from'])
 
+		if write_routing:
 			compile_js_files();
 			impf.write("\tNSNumber *index = [map objectForKey:path];\n")
 			impf.write("\tif (index == nil) { return nil; }\n")
