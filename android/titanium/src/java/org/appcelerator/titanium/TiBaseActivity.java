@@ -536,7 +536,7 @@ public abstract class TiBaseActivity extends Activity
 
 		// Prevent default Android behavior for "back" press
 		// if the top window has a listener to handle the event.
-		if (topWindow.hasListeners(TiC.EVENT_ANDROID_BACK)) {
+		if (topWindow != null && topWindow.hasListeners(TiC.EVENT_ANDROID_BACK)) {
 			topWindow.fireEvent(TiC.EVENT_ANDROID_BACK, null);
 
 		} else {

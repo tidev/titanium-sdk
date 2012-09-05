@@ -32,10 +32,14 @@ description: |
     
     Your app must prove that it is allowed to talk to ACS. This keeps your data secure by 
     preventing anyone from making requests to ACS that impersonate your app. ACS provides secure 
-    authentication via 2-Legged OAuth. This is a process by which a key and secret are used to sign 
+    authentication via either 3-Legged OAuth or 2-Legged OAuth. This is a process by which a key and secret are used to sign 
     each request made by your app. When the ACS server receives your request, the secret is used 
     along with the data sent in the request to calculate another signature. If sent signature and 
     calculated signature match, the request will be processed. 
+
+    3-Legged OAuth, using [secureLogin](Titanium.Cloud.Users.secureLogin) and
+    [secureCreate](Titanium.Cloud.Users.secureCreate) is the recommended authentication
+    method.
     
     An alternate method to authenticate API requests to ACS is to supply an app key with each 
     request. 
@@ -87,6 +91,7 @@ methods:
     summary: Checks if there is a stored user session.
     deprecated:
         since: "2.1.2"
+        notes: See [accessToken](Titanium.Cloud.accessToken) and [sessionId](Titanium.Cloud.sessionId) for details on persisting session data.
     description: |
         True is returned after successfully calling <Titanium.Cloud.Users.create> or 
         <Titanium.Cloud.Users.login>, and false after successfully calling 
@@ -98,6 +103,7 @@ methods:
     summary: Returns the stored user session identifier.
     deprecated:
         since: "2.1.2"
+        notes: See [accessToken](Titanium.Cloud.accessToken) and [sessionId](Titanium.Cloud.sessionId) for details on persisting session data.
     description: |
         A value is returned after successfully calling <Titanium.Cloud.Users.create> or 
         <Titanium.Cloud.Users.login>, and null after successfully calling 
