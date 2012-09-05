@@ -75,10 +75,17 @@ module.exports = new function() {
 	this.defaultIosSimVersion = "5.0";
 
 	/*
-	IP for the BlackBerry device
-	Example: this.blackberryDeviceIp = "169.254.0.1";
+	BlackBerry device info
+	Examples:
+	this.blackberryDeviceType = "device";
+	this.blackberryDeviceIp = "169.254.0.1";
+	this.blackberryDevicePassword = "1234";
+	this.blackberryDebugToken = "/keys/debugtoken.bar";
 	*/
+	this.blackberryDeviceType = "";
 	this.blackberryDeviceIp = "";
+	this.blackberryDevicePassword = "";
+	this.blackberryDebugToken = "";
 
 
 	// optional values

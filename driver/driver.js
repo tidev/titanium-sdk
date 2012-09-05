@@ -246,6 +246,7 @@ function loadConfigModule() {
 	checkConfigItem("defaultTestTimeout", config.defaultTestTimeout, "number");
 	checkConfigItem("tabString", config.tabString, "string");
 	checkConfigItem("defaultIosSimVersion", config.defaultIosSimVersion, "string");
+	checkConfigItem("blackberryDeviceType", config.blackberryDeviceType, "string");
 	checkConfigItem("blackberryDeviceIp", config.blackberryDeviceIp, "string");
 
 	// load the defaultPlatform config property and set the global platform property if needed

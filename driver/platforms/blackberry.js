@@ -23,10 +23,25 @@ module.exports = new function() {
 	var stoppingHarness = false;
 
 	this.name = "blackberry";
+	var builderScript;
+	var builderCommonArgs;
 
 	this.init = function(commandCallback, testPassCallback) {
 		commandFinishedCallback = commandCallback;
 		testPassFinishedCallback = testPassCallback;
+		builderScript = driverGlobal.config.tiSdkDir + "/blackberry/builder.py";
+		builderCommonArgs = [
+			"--type", driverGlobal.config.blackberryDeviceType,
+			"--ip_address", driverGlobal.config.blackberryDeviceIp,
+			"--project_path", driverGlobal.harnessDir + "/blackberry/harness",
+			"--ndk_path", driverGlobal.config.blackberryNdkDir,
+		];
+		if (driverGlobal.config.blackberryDevicePassword != undefined && driverGlobal.config.blackberryDevicePassword != "") {
+			builderCommonArgs.push("--device_password", driverGlobal.config.blackberryDevicePassword);
+		}
+		if (driverGlobal.config.blackberryDebugToken != undefined && driverGlobal.config.blackberryDebugToken != "") {
+			builderCommonArgs.push("--debug_token", driverGlobal.config.blackberryDebugToken);
+		}
 	};
 
 	this.processCommand = function(command) {
@@ -71,7 +86,7 @@ module.exports = new function() {
 
 	var buildHarness = function(successCallback, errorCallback) {
 		var buildCallback = function() {
-			var args = [driverGlobal.config.tiSdkDir + "/blackberry/builder.py", "build", "-t", "simulator", "-d", driverGlobal.harnessDir + "/blackberry/harness", "-p", driverGlobal.config.blackberryNdkDir];
+			var args = [builderScript, "build"].concat(builderCommonArgs);
 			util.runProcess("python", args, 0, 0, function(code) {
 				if (code !== 0) {
 					util.log("error encountered when building harness: " + code);
@@ -123,7 +138,9 @@ module.exports = new function() {
 	var installHarness = function(successCallback, errorCallback) {
 		var installCallback = function() {
 			// TODO: need a better way to determine if we need to build
-			if (path.existsSync(driverGlobal.harnessDir + "/blackberry/harness/build/blackberry/x86/o-g/harness")
+			if (path.existsSync(driverGlobal.harnessDir + "/blackberry/harness/build/blackberry/arm/o.le-v7-g/harness")
+				|| path.existsSync(driverGlobal.harnessDir + "/blackberry/harness/build/blackberry/arm/o.le-v7-g/test_harness")
+				|| path.existsSync(driverGlobal.harnessDir + "/blackberry/harness/build/blackberry/x86/o-g/harness")
 				|| path.existsSync(driverGlobal.harnessDir + "/blackberry/harness/build/blackberry/x86/o-g/test_harness")) {
 				// build scripts currently only allow us to run
 				successCallback();
@@ -137,7 +154,7 @@ module.exports = new function() {
 	};
 
 	var uninstallHarness = function(successCallback, errorCallback) {
-		var args = [driverGlobal.config.tiSdkDir + "/blackberry/builder.py", "uninstallApp", "-t", "simulator", "--ip_address=" + driverGlobal.config.blackberryDeviceIp, "-d", driverGlobal.harnessDir + "/blackberry/harness", "-p", driverGlobal.config.blackberryNdkDir];
+		var args = [builderScript, "uninstallApp"].concat(builderCommonArgs);
 		util.runProcess("python", args, 0, 0, function(code) {
 			if (code !== 0) {
 				util.log("error encountered when uninstalling harness: " + code);
@@ -150,7 +167,7 @@ module.exports = new function() {
 	};
 
 	var runHarness = function(successCallback, errorCallback) {
-		var args = [driverGlobal.config.tiSdkDir + "/blackberry/builder.py", "run", "-t", "simulator", "--ip_address=" + driverGlobal.config.blackberryDeviceIp, "-d", driverGlobal.harnessDir + "/blackberry/harness", "-p", driverGlobal.config.blackberryNdkDir];
+		var args = [builderScript, "run"].concat(builderCommonArgs);
 		util.runProcess("python", args, 0, 0, function(code) {
 			if (code !== 0) {
 				util.log("error encountered when running harness: " + code);
