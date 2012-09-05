@@ -251,19 +251,68 @@
 {
 	ENSURE_UI_THREAD_1_ARG(arg);
     
-	pthread_rwlock_wrlock(&childrenLock);
     
 	if (children != nil) {
-		NSArray* toRemove = [NSArray arrayWithArray:children];
-		for (TiViewProxy* child in toRemove)
+		pthread_rwlock_wrlock(&childrenLock);
+
+		for (TiViewProxy* child in children)
 		{
-            //proxy will be forgotten in the remove method
-            //also layout will be refreshed if necessary upon every remove
-			[self remove:child];
+			if ([pendingAdds containsObject:child])
+			{
+				[pendingAdds removeObject:child];
+			}
+
+			[child setParent:nil];
+			[self forgetProxy:child];
+
+			if (view!=nil)
+			{
+				TiUIView *childView = [(TiViewProxy *)child view];
+				if ([NSThread isMainThread])
+				{
+					[childView removeFromSuperview];
+				}
+				else
+				{
+					TiThreadPerformOnMainThread(^{
+						[childView removeFromSuperview];
+					}, NO);
+				}
+			}
+		}
+
+		[self contentsWillChange];
+		if(parentVisible && !hidden)
+		{
+			[arg parentWillHide];
+		}
+
+		[children removeAllObjects];
+		RELEASE_TO_NIL(children);
+
+		pthread_rwlock_unlock(&childrenLock);
+
+		if (view!=nil)
+		{
+			BOOL layoutNeedsRearranging = !TiLayoutRuleIsAbsolute(layoutProperties.layoutStyle);
+			if ([NSThread isMainThread])
+			{
+				if (layoutNeedsRearranging)
+				{
+					[self layoutChildren:NO];
+				}
+			}
+			else
+			{
+				TiThreadPerformOnMainThread(^{
+					if (layoutNeedsRearranging)
+					{
+						[self layoutChildren:NO];
+					}
+				}, NO);
+			}
 		}
 	}
-    
-	pthread_rwlock_unlock(&childrenLock);
 }
 
 -(void)show:(id)arg
