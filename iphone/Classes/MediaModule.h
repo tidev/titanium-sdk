@@ -74,7 +74,6 @@
 
 // these have been deprecated in 3.2 but we map them to their new values
 @property(nonatomic,readonly) NSNumber* VIDEO_CONTROL_DEFAULT;
-@property(nonatomic,readonly) NSNumber* VIDEO_CONTROL_VOLUME_ONLY;
 @property(nonatomic,readonly) NSNumber* VIDEO_CONTROL_HIDDEN;
 
 @property(nonatomic,readonly) NSNumber* VIDEO_SCALING_NONE;

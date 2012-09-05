@@ -527,13 +527,6 @@ MAKE_SYSTEM_PROP(NO_MUSIC_PLAYER,MediaModuleErrorNoMusicPlayer);
 // >=3.2 dependent value; this one isn't deprecated
 MAKE_SYSTEM_PROP(VIDEO_CONTROL_DEFAULT, MPMovieControlStyleDefault);
 
-// Deprecated old-school video control modes, mapped to the new values
--(NSNumber*)VIDEO_CONTROL_VOLUME_ONLY
-{
-    DEPRECATED_REPLACED(@"Media.VIDEO_CONTROL_VOLUME_ONLY", @"1.8.0", @"Ti.Media.VIDEO_CONTROL_EMBEDDED");
-    return [self VIDEO_CONTROL_EMBEDDED];
-}
-
 -(NSNumber*)VIDEO_CONTROL_HIDDEN
 {
     // This constant is still available in a non-deprecated manner in Android for 1.8; we should keep it around
@@ -1249,18 +1242,6 @@ MAKE_SYSTEM_PROP(VIDEO_FINISH_REASON_USER_EXITED,MPMovieFinishReasonUserExited);
 		appMusicPlayer = [[TiMediaMusicPlayer alloc] _initWithPageContext:[self pageContext] player:[MPMusicPlayerController applicationMusicPlayer]];
 	} 
 	return appMusicPlayer;
-}
-
--(void)setDefaultAudioSessionMode:(NSNumber*)mode
-{
-	DebugLog(@"[WARN] Deprecated; use 'audioSessionMode'");
-    [[TiMediaAudioSession sharedSession] setSessionMode:[mode unsignedIntValue]];
-} 
-
--(NSNumber*)defaultAudioSessionMode
-{
-	DebugLog(@"[WARN] Deprecated; use 'audioSessionMode'");	
-    return [NSNumber numberWithUnsignedInt:[[TiMediaAudioSession sharedSession] sessionMode]];
 }
 
 -(void)setAudioSessionMode:(NSNumber*)mode

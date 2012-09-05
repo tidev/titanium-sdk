@@ -618,23 +618,6 @@ NSString * const TI_DB_VERSION = @"1";
 
 #pragma mark Public APIs
 
--(void)addEvent:(id)args
-{
-	if ([args count] < 2)
-	{
-		[self throwException:@"invalid number of arguments, expected at least 2" subreason:nil location:CODELOCATION];
-		return;
-	}
-	NSString *type = [args objectAtIndex:0];
-	NSString *name = [args objectAtIndex:1];
-	id data = [args count] > 2 ? [args objectAtIndex:2] : [NSDictionary dictionary];
-	[self enqueueBlock:^{
-		DeveloperLog(@"[INFO] Analytics->addEvent with type: %@, name: %@, data: %@",type,name,data);
-		
-		[self queueEvent:type name:name data:[self dataToDictionary:data] immediate:NO];
-	}];
-}
-
 -(void)navEvent:(id)args
 {
 	// from, to, event, data
@@ -657,36 +640,6 @@ NSString * const TI_DB_VERSION = @"1";
 	}];
 }
 
--(void)timedEvent:(id)args
-{
-	// event, start, stop, duration, data
-	if ([args count] < 4)
-	{
-		[self throwException:@"invalid number of arguments, expected at least 4" subreason:nil location:CODELOCATION];
-		return;
-	}
-	NSString *event = [args objectAtIndex:0];
-	NSDate *start = [args objectAtIndex:1];	
-	NSDate *stop = [args objectAtIndex:2];
-	ENSURE_TYPE(start,NSDate);
-	ENSURE_TYPE(stop,NSDate);
-	
-	id duration = [args objectAtIndex:3];
-	id data = [args count] > 4 ? [args objectAtIndex:4] : [NSDictionary dictionary];
-	
-	[self enqueueBlock:^{
-		NSDictionary *payload = [NSDictionary dictionaryWithObjectsAndKeys:
-								 [TiUtils UTCDateForDate:start],@"start",
-								 [TiUtils UTCDateForDate:stop],@"stop",
-								 duration,@"duration",
-								 [self dataToDictionary:data],@"data",nil];
-		
-		DeveloperLog(@"[INFO] Analytics->timedEvent with event: %@, start: %@, stop: %@, duration: %@, data: %@",event,start,stop,duration,data);
-
-		[self queueEvent:@"app.timed_event" name:event data:payload immediate:NO];
-	}];
-}
-
 #define PRINT_EVENT_DETAILS(name,args) \
   id event = [args objectAtIndex:0];\
   id data = [args count] > 1 ? [args objectAtIndex:1] : nil;\
@@ -697,18 +650,6 @@ NSString * const TI_DB_VERSION = @"1";
 {
 	PRINT_EVENT_DETAILS(featureEvent,args);
 	[self queueKeyValueEvent:args type:@"app.feature"];
-}
-
--(void)settingsEvent:(id)args
-{
-	PRINT_EVENT_DETAILS(settingsEvent,args);
-	[self queueKeyValueEvent:args type:@"app.settings"];
-}
-
--(void)userEvent:(id)args
-{
-	PRINT_EVENT_DETAILS(userEvent,args);
-	[self queueKeyValueEvent:args type:@"app.user"];
 }
 
 @end

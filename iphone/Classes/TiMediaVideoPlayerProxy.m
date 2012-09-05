@@ -42,11 +42,6 @@
 }
 
 
-@interface TiMediaVideoPlayerProxy ()
-@property(nonatomic,readwrite,copy)	NSNumber*	movieControlStyle;
-@property(nonatomic,readwrite,copy)	NSNumber*	mediaControlStyle;
-@end
-
 NSArray* moviePlayerKeys = nil;
 
 @implementation TiMediaVideoPlayerProxy
@@ -56,7 +51,7 @@ NSArray* moviePlayerKeys = nil;
 -(NSArray*)keySequence
 {
 	if (moviePlayerKeys == nil) {
-		moviePlayerKeys = [[NSArray alloc] initWithObjects:@"url",@"contentURL",nil];
+		moviePlayerKeys = [[NSArray alloc] initWithObjects:@"url",nil];
 	}
 	return moviePlayerKeys;
 }
@@ -315,31 +310,6 @@ NSArray* moviePlayerKeys = nil;
     }
 }
 
-// < 3.2 functions for controls - deprecated
--(void)setMovieControlMode:(NSNumber *)value
-{
-    DEPRECATED_REPLACED(@"Media.VideoPlayer.movieControlMode", @"1.8.0", @"Ti.Media.VideoPlayer.mediaControlStyle");    
-	[self setMediaControlStyle:value];
-}
-
--(NSNumber*)movieControlMode
-{
-    DEPRECATED_REPLACED(@"Media.VideoPlayer.movieControlMode", @"1.8.0", @"Ti.Media.VideoPlayer.mediaControlStyle");        
-	return [self mediaControlStyle];
-}
-
--(void)setMovieControlStyle:(NSNumber *)value
-{
-    DEPRECATED_REPLACED(@"Media.VideoPlayer.movieControlStyle", @"1.8.0", @"Ti.Media.VideoPlayer.mediaControlStyle");
-    [self setMediaControlStyle:value];
-}
-
--(NSNumber*)movieControlStyle
-{
-    DEPRECATED_REPLACED(@"Media.VideoPlayer.movieControlStyle", @"1.8.0", @"Ti.Media.VideoPlayer.mediaControlStyle");
-    return [self mediaControlStyle];
-}
-
 -(void)setMediaControlStyle:(NSNumber *)value
 {
 	if (movie != nil) {
@@ -438,17 +408,7 @@ NSArray* moviePlayerKeys = nil;
 
 }
 
--(void)setContentURL:(id)newUrl
-{
-	[self setUrl:newUrl];
-}
-
 -(id)url
-{
-	return url;
-}
-
--(id)contentURL
 {
 	return url;
 }
@@ -765,7 +725,7 @@ NSArray* moviePlayerKeys = nil;
 	if (url == nil)
 	{
 		[self throwException:TiExceptionInvalidType
-				subreason:@"Tried to play movie player without a valid url, media, or contentURL property"
+				subreason:@"Tried to play movie player without a valid url or media property"
 				location:CODELOCATION];
 	}
 	

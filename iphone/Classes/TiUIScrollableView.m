@@ -425,13 +425,6 @@
     }
 }
 
--(void)setPageControlHeight_:(id)arg
-{
-	// for 0.8 backwards compat, renamed all for consistency
-     DEPRECATED_REPLACED(@"ScrollableView.PageControlHeight()", @"2.1.0", @"Ti.ScrollableView.PagingControlHeight()");
-	[self setPagingControlHeight_:arg];
-}
-
 -(void)setPagingControlColor_:(id)args
 {
     TiColor* val = [TiUtils colorValue:args];

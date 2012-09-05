@@ -16,10 +16,6 @@
     #import <iAd/iAd.h>
 #endif
 
-#ifdef USE_TI_UIIOS3DMATRIX
-	#import "Ti3DMatrix.h"
-#endif
-
 #ifdef USE_TI_UIIOSCOVERFLOWVIEW
 	#import "TiUIiOSCoverFlowViewProxy.h"
 #endif
@@ -55,19 +51,7 @@
 
 #endif
 
-#ifdef USE_TI_UIIOS3DMATRIX
--(id)create3DMatrix:(id)args
-{
-	DEPRECATED_REPLACED(@"UI.iOS.create3DMatrix()", @"2.1.0", @"Ti.UI.create3DMatrix()");
-    if (args==nil || [args count] == 0)
-	{
-		return [[[Ti3DMatrix alloc] init] autorelease];
-	}
-	ENSURE_SINGLE_ARG(args,NSDictionary);
-	Ti3DMatrix *matrix = [[Ti3DMatrix alloc] initWithProperties:args];
-	return [matrix autorelease];
-}
-#endif
+
 #ifdef USE_TI_UIIOSCOVERFLOWVIEW
 -(id)createCoverFlowView:(id)args
 {
@@ -97,10 +81,6 @@
 
 
 #ifdef USE_TI_UIIOS
-MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(ANIMATION_CURVE_EASE_IN_OUT, UIViewAnimationOptionCurveEaseInOut, @"UI.iOS.ANIMATION_CURVE_EASE_IN_OUT", @"2.1.0", @"Ti.UI.ANIMATION_CURVE_EASE_IN_OUT");
-MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(ANIMATION_CURVE_EASE_IN, UIViewAnimationOptionCurveEaseIn, @"UI.iOS.ANIMATION_CURVE_EASE_IN", @"2.1.0", @"Ti.UI.ANIMATION_CURVE_EASE_IN");
-MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(ANIMATION_CURVE_EASE_OUT,UIViewAnimationOptionCurveEaseOut,  @"UI.iOS.ANIMATION_CURVE_EASE_OUT", @"2.1.0", @"Ti.UI.ANIMATION_CURVE_EASE_OUT");
-MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(ANIMATION_CURVE_LINEAR,UIViewAnimationOptionCurveLinear, @"UI.iOS.ANIMATION_CURVE_LINEAR", @"2.1.0", @"Ti.UI.ANIMATION_CURVE_LINEAR");
 
 MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(AUTODETECT_NONE,UIDataDetectorTypeNone, @"UI.iOS.AUTODETECT_NONE", @"2.2.0", @"Ti.UI.AUTOLINK_NONE");
 MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(AUTODETECT_ALL,UIDataDetectorTypeAll, @"UI.iOS.AUTODETECT_ALL", @"2.2.0", @"Ti.UI.AUTOLINK_ALL");
