@@ -502,6 +502,11 @@ properties:
     type: Boolean
     default: true
 
+  - name: contentURL
+    summary: Use the [url](Titanium.Media.VideoPlayer.url) property instead.
+    type: String
+    deprecated: { since: "1.4.0", removed: "2.2.0" }
+        
   - name: currentPlaybackTime
     summary: Current playback time of the current movie in milliseconds.
     type: Number
