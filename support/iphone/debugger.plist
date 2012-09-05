@@ -6,5 +6,7 @@
 	<string>__DEBUGGER_HOST__</string>
 	<key>port</key>
 	<string>__DEBUGGER_PORT__</string>
+	<key>airkey</key>
+	<string>__DEBUGGER_AIRKEY__</string>
 </dict>
 </plist>

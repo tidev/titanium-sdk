@@ -34,7 +34,6 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.shapes.OvalShape;
-import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
@@ -134,9 +133,9 @@ public class TiMapView extends TiUIView
 			if (!scrollEnabled && ev.getAction() == MotionEvent.ACTION_MOVE) {
 				return true;
 			}
-
 			return super.dispatchTrackballEvent(ev);
 		}
+	
 
 		@Override
 		public void computeScroll()
@@ -578,11 +577,6 @@ public class TiMapView extends TiUIView
 	public void updateAnnotations()
 	{
 		handler.obtainMessage(MSG_UPDATE_ANNOTATIONS).sendToTarget();
-	}
-
-	public ArrayList<MapRoute> getRoutes() 
-	{
-		return routes;
 	}
 	
 	public void addRoute(MapRoute mr) 

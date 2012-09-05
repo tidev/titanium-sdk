@@ -456,6 +456,9 @@ methods:
     
   - name: finishLayout
     since: "2.0.0"
+    deprecated:
+        since: "2.2.0"
+        notes: Use the [applyProperties](Titanium.Proxy.applyProperties) method to batch-update layout properties.
     summary: |
         Finishes a batch update of the View's layout properties and schedules a layout pass of the 
         view tree.
@@ -509,6 +512,9 @@ methods:
         
         On Mobile Web, this method is included for parity only, and thus has no effect.
     since: "2.0.0"
+    deprecated:
+        since: "2.2.0"
+        notes: Use the [applyProperties](Titanium.Proxy.applyProperties) method to batch-update layout properties.
 
   - name: toImage
     summary: Returns an image of the rendered view, as a Blob.
@@ -558,6 +564,9 @@ methods:
         
         On Mobile Web, this method is included for parity only, and thus has no effect.
     since: "2.0.0"
+    deprecated:
+        since: "2.2.0"
+        notes: Use the [applyProperties](Titanium.Proxy.applyProperties) method to batch-update layout properties.
     parameters:
       - name: params
         summary: Layout properties to be updated.
@@ -607,7 +616,7 @@ properties:
     type: Point
     platforms: [iphone, ipad]
     
-  - name: animatedCenterPoint
+  - name: animatedCenter
     summary: Current position of the view during an animation.
     type: Point
     permission: read-only

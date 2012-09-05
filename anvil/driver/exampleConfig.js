@@ -19,8 +19,8 @@ module.exports = new function() {
 	// Example: this.androidSdkDir = baseDir + "/installed/android-sdk-mac_x86"
 	this.androidSdkDir = ""; // location of the android SDK;
 
-	// Example: this.tiSdkDir = tiDir + "/dist/mobilesdk/osx/2.1.0";
-	this.tiSdkDir = ""; // location of titanium SDK;
+	// Example: this.tiSdkDirs = "/Users/ocyrus/Library/Application Support/Titanium/mobilesdk/osx";
+	this.tiSdkDirs = ""; // location of titanium SDKs;
 
 	/*
 	this can be changed but shouldn't need to be. This is the location where the harness instances 
@@ -86,6 +86,33 @@ module.exports = new function() {
 	default platform to be used if the --platform argument is not provided
 
 	Example: this.defaultPlatform = "android";
+	*/
+
+
+	// >>>>>>>> when running in remote mode, all the following values must be set!!! <<<<<<<<
+
+	/*
+	host that the hub lives on
+
+	Example: this.hubHost = "";
+	*/
+
+	/*
+	hub listens for driver connections on this port
+
+	Example: this.hubPort = ;
+	*/
+
+	/*
+	id that this driver instance will be identified as in reporting from the hub
+
+	Example: this.driverId = "";
+	*/
+
+	/*
+	description of the driver that will be used for 
+
+	Example: this.driverDescription = "";
 	*/
 
 }

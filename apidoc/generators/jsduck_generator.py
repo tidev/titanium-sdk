@@ -23,6 +23,8 @@ log = TiLogger(None)
 all_annotated_apis = None
 apis = None
 
+# Avoid obliterating our four spaces pattern with a careless %s:/    /^I/
+FOUR_SPACES='  ' + '  '
 # compiling REs ahead of time, since we use them heavily.
 link_parts_re = re.compile(r"(?:\[([^\]]+?)\]\(([^\)\s]+?)\)|\<([^\>\s]+)\>)", re.MULTILINE)
 find_links_re = re.compile(r"(\[[^\]]+?\]\([^\)\s]+?\)|\<[^\>\s]+\>)", re.MULTILINE)
@@ -128,25 +130,44 @@ def markdown_to_html(s, obj=None):
 		s = process_markdown_links(s)
 	return markdown.markdown(s)
 
-def output_properties_for_obj(obj):
-	res = []
-	if obj.has_key("platforms"):
-		for platform in obj["platforms"]:
-			res.append("@platform %s" % (platform))
-	if obj.has_key("since"):
-		since = obj["since"]
-		# Quick fix ... Fix this later, after TIMOB-9823 is addressed
-		if isinstance(since, basestring):
-			sinceStr = since
+# Print two digit version if third digit is 0.
+def format_version(version_str):
+	digits = version_str.split(".")
+	if len(digits) <= 2:
+		return version_str
+	else:
+		if digits[2] == '0':
+			return ".".join(digits[0:2])
 		else:
-			sinceStr = ""
-			platformNames = { "android": "Android", "iphone": "iPhone", "ipad": "iPad", "mobileweb": "Mobile Web" }
-			for platform in ( "android", "iphone", "ipad", "mobileweb" ):
-				if since.has_key(platform):
-					if len(sinceStr) > 0:
-						sinceStr += ", "
-					sinceStr += "%s: %s" % ( platformNames[platform], since[platform] )
-		res.append("@since %s" % sinceStr)
+			return ".".join(digits)
+
+def output_properties_for_obj(annotated_obj):
+	obj = annotated_obj.api_obj
+	res = []
+	# Only output platforms if platforms or since versions are different from
+	# containing object.
+	if obj.has_key("platforms") or obj.has_key("since"):
+		for platform in annotated_obj.platforms:
+			res.append("@platform %s %s" % (platform["name"], format_version(platform["since"])))
+
+	#	if obj.has_key("platforms"):
+	#		for platform in obj["platforms"]:
+	#			res.append("@platform %s" % (platform))
+	#if obj.has_key("since"):
+	#	since = ["since"]
+	# Quick fix ... Fix this later, after TIMOB-9823 is addressed
+	#		if isinstance(since, basestring):
+	#			sinceStr = since
+	#		else:
+	#			sinceStr = ""
+	#			platformNames = { "android": "Android", "iphone": "iPhone", "ipad": "iPad", "mobileweb": "Mobile Web" }
+	#			for platform in ( "android", "iphone", "ipad", "mobileweb" ):
+	#				if since.has_key(platform):
+	#					if len(sinceStr) > 0:
+	#						sinceStr += ", "
+	#					sinceStr += "%s: %s" % ( platformNames[platform], since[platform] )
+	#		res.append("@since %s" % sinceStr)
+
 	if obj.has_key("availability") and obj['availability'] == 'creation':
 		res.append("@creationOnly")
 	if obj.has_key("availability") and obj['availability'] == 'not-creation':
@@ -154,9 +175,12 @@ def output_properties_for_obj(obj):
 	if obj.has_key("extends"):
 		res.append("@extends %s" % (obj["extends"]))
 	if obj.has_key("deprecated"):
-		str = "@deprecated %s" % (obj["deprecated"]["since"])
 		if obj["deprecated"].has_key("removed"):
-			str += ". Removed at %s" % (obj["deprecated"]["removed"])
+			str = "@removed  %s" % (obj["deprecated"]["removed"])
+		else:
+			str = "@deprecated %s" % (obj["deprecated"]["since"])
+		if obj["deprecated"].has_key("notes"):
+			str += " %s" % markdown_to_html(obj["deprecated"]["notes"])
 		res.append(str)
 
 	if(len(res) == 0):
@@ -176,7 +200,7 @@ def output_example(desc, code, convert_empty_code):
 	# determine if we need t remove leading spaces from all code lines
 	need_strip = True
 	for line in code:
-		if len(line) > 0 and line[0:4] != '	':
+		if len(line) > 0 and line[0:4] != FOUR_SPACES:
 			need_strip = False
 			break
 
@@ -192,11 +216,11 @@ def output_example(desc, code, convert_empty_code):
 	desc = "\n".join(desc)
 
 	if len(desc) > 0 and len(code) > 0:
-		return "<p>%s</p><pre>%s</pre>" % (desc, code)
+		return "<p>%s</p><pre>%s</pre>" % (markdown_to_html(desc), code)
 	elif len(desc) == 0 and len(code) > 0:
 		return "<pre>%s</pre>" % (code)
 	elif len(desc) > 0 and len(code) == 0:
-		return "<p>%s</p>" % (desc)
+		return "<p>%s</p>" % markdown_to_html(desc)
 
 
 def output_examples_for_obj(obj):
@@ -219,11 +243,11 @@ def output_examples_for_obj(obj):
 				# parse description part until code starts
 				# skip empty string between desc and code
 				if not desc_finished:
-					if prev_line_empty == True and (line.find('	') == 0 or line.find('\t') == 0):
+					if prev_line_empty == True and (line.find(FOUR_SPACES) == 0 or line.find('\t') == 0):
 						desc_finished = True
 				else:
 					# parsing code until code finishes or another description starts
-					if line.find('	') != 0 and line.find('\t') != 0 and len(line) != 0:
+					if line.find(FOUR_SPACES) != 0 and line.find('\t') != 0 and len(line) != 0:
 						# code block finished - another description started - flush content
 						desc_finished = False
 						res.append(output_example(desc, code, first_code_block))
@@ -237,7 +261,7 @@ def output_examples_for_obj(obj):
 				else:
 					code.append(line)
 
-				prev_line_empty = len(line) == 0
+				prev_line_empty = len(line.strip()) == 0
 
 			res.append(output_example(desc, code, first_code_block))
 
@@ -347,7 +371,7 @@ def generate(raw_apis, annotated_apis, options):
 			
 			if not (has_ancestor(raw_apis[name], "Titanium.Proxy") or has_ancestor(raw_apis[name], "Global")):
 				output.write("\t * @pseudo\n")
-			output.write(output_properties_for_obj(annotated_obj.api_obj))
+			output.write(output_properties_for_obj(annotated_obj))
 			output.write(get_summary_and_description(annotated_obj.api_obj))
 			output.write(output_examples_for_obj(annotated_obj.api_obj))
 			output.write("*/\n\n")
@@ -376,7 +400,7 @@ def generate(raw_apis, annotated_apis, options):
 					output.write("\t * @type %s\n" % (transform_type(obj["type"])))
 				if obj.has_key('permission') and obj["permission"] == "read-only":
 					output.write("\t * @readonly\n")
-				output.write(output_properties_for_obj(obj))
+				output.write(output_properties_for_obj(k))
 				output.write(get_summary_and_description(obj))
 				output.write(output_examples_for_obj(obj))
 				output.write(" */\n\n")
@@ -432,7 +456,7 @@ def generate(raw_apis, annotated_apis, options):
 				else:
 					output.write("\t * @return void\n")
 
-				output.write(output_properties_for_obj(obj))
+				output.write(output_properties_for_obj(k))
 				output.write("\t*/\n\n")
 
 			p = annotated_obj.events
@@ -459,7 +483,7 @@ def generate(raw_apis, annotated_apis, options):
 						output.write(get_summary_and_description(param.api_obj))
 
 
-				output.write(output_properties_for_obj(obj))
+				output.write(output_properties_for_obj(k))
 				output.write("\t*/\n\n")
 
 			# handle excluded members

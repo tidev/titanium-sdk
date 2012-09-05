@@ -295,6 +295,13 @@ static NSArray* scrollViewKeySequence;
     }, YES);
 }
 
+-(void) setZoomScale:(id)value withObject:(id)animated
+{
+    TiThreadPerformOnMainThread(^{
+        [(TiUIScrollView *)[self view] setZoomScale_:value withObject:animated];
+    }, YES);
+}
+
 - (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView_               // scrolling has ended
 {
 	if ([self _hasListeners:@"scrollEnd"])

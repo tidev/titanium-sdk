@@ -95,7 +95,8 @@ BOOL applicationInMemoryPanic = NO;
 TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run on main thread, or else there is a risk of deadlock!
 
 @interface TiApp()
--(void)checkBackgroundServices;
+- (void)checkBackgroundServices;
+- (void)appBoot;
 @end
 
 @implementation TiApp
@@ -227,15 +228,34 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
     if (filePath != nil) {
         NSMutableDictionary *params = [[NSMutableDictionary alloc] initWithContentsOfFile:filePath];
         NSString *host = [params objectForKey:@"host"];
-        NSString *port = [params objectForKey:@"port"];
-        if (host != nil && ![host isEqual:@""] && ![host isEqual:@"__DEBUGGER_HOST__"])
+        NSInteger port = [[params objectForKey:@"port"] integerValue];
+        NSString *airkey = [params objectForKey:@"airkey"];
+        if (([host length] > 0) && ![host isEqualToString:@"__DEBUGGER_HOST__"])
         {
             [self setDebugMode:YES];
-            TiDebuggerStart(host,[port intValue]);
+            TiDebuggerStart(host, port);
         }
-        [params release];
+#if !TARGET_IPHONE_SIMULATOR
+		else if (([airkey length] > 0) && ![airkey isEqualToString:@"__DEBUGGER_AIRKEY__"])
+		{
+			TiDebuggerDiscoveryStart(airkey, ^(NSString *host, NSInteger port) {
+				if (host != nil) {
+					[self setDebugMode:YES];
+					TiDebuggerStart(host, port);
+				}
+				[self appBoot];
+			});
+			[params release];
+			return;
+		}
+		[params release];
+#endif
     }
-	
+	[self appBoot];
+}
+
+- (void)appBoot
+{	
 	kjsBridge = [[KrollBridge alloc] initWithHost:self];
 	
 	[kjsBridge boot:self url:nil preload:nil];
