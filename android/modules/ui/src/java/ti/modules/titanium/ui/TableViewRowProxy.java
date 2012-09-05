@@ -42,6 +42,7 @@ public class TableViewRowProxy extends TiViewProxy
 
 	protected ArrayList<TiViewProxy> controls;
 	protected TiTableViewRowProxyItem tableViewItem;
+	public Item rowItem;
 
 	private static final int MSG_SET_DATA = TiViewProxy.MSG_LAST_ID + 5001;
 
@@ -194,6 +195,16 @@ public class TableViewRowProxy extends TiViewProxy
 			// Inject row click data for events coming from row children.
 			TableViewProxy table = getTable();
 			Item item = tableViewItem.getRowData();
+
+			//For rows that have a different className than default, we always recycle these views - since we assume that they
+			//will have the same content. Due to timob-10238 and how Android recycle views during the first pass of getView(), i.e the recycler
+			//always scrap the view that was previously returned from getView(), we need a more accurate way of getting the correct item. Since
+			//rowItem is set ONCE when the item is instantiated, if the row is not destroyed(which it shouldn't during the first pass,
+			//it will always give us the original item that is attached to this row, which is also the correct item.
+			if (eventName.equals((TiC.EVENT_CLICK)) && rowItem != null && !rowItem.className.equals(TableViewProxy.CLASSNAME_DEFAULT)) {
+				item = rowItem;
+			}
+			
 			if (table != null && item != null && data instanceof KrollDict) {
 				// The data object may already be in use by the runtime thread
 				// due to a child view's event fire. Create a copy to be thread safe.
