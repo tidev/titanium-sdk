@@ -145,7 +145,7 @@ events:
         platforms: [iphone, ipad]
         deprecated:
             since: "1.8.0"
-	
+    
       - name: x
         type: Number
         summary: X coordinate of the event from the `source` view's coordinate system.
@@ -164,7 +164,7 @@ events:
         platforms: [iphone, ipad]
         deprecated:
             since: "1.8.0"
-	
+    
       - name: x
         type: Number
         summary: X coordinate of the event from the `source` view's coordinate system.
@@ -184,7 +184,7 @@ events:
         platforms: [iphone, ipad]
         deprecated:
             since: "1.8.0"
-	
+    
       - name: x
         summary: X coordinate of the event from the `source` view's coordinate system.
         type: Number
@@ -273,7 +273,7 @@ events:
         platforms: [iphone, ipad]
         deprecated:
             since: "1.8.0"
-	
+    
       - name: x
         summary: X coordinate of the event from the `source` view's coordinate system.
         type: Number
@@ -297,7 +297,7 @@ events:
         platforms: [iphone, ipad]
         deprecated:
             since: "1.8.0"
-	
+    
       - name: x
         summary: X coordinate of the event's endpoint from the `source` view's coordinate system.
         type: Number
@@ -319,7 +319,7 @@ events:
         platforms: [iphone, ipad]
         deprecated:
             since: "1.8.0"
-	
+    
       - name: x
         summary: X coordinate of the event from the `source` view's coordinate system.
         type: Number
@@ -338,7 +338,7 @@ events:
         platforms: [iphone, ipad]
         deprecated:
             since: "1.8.0"
-	
+    
       - name: x
         summary: X coordinate of the event from the `source` view's coordinate system.
         type: Number
@@ -359,7 +359,7 @@ events:
         platforms: [iphone, ipad]
         deprecated:
             since: "1.8.0"
-	
+    
       - name: x
         summary: X coordinate of the event from the `source` view's coordinate system.
         type: Number
@@ -378,7 +378,7 @@ events:
         platforms: [iphone, ipad]
         deprecated:
             since: "1.8.0"
-	
+    
       - name: x
         summary: X coordinate of the event from the `source` view's coordinate system.
         type: Number
@@ -397,7 +397,7 @@ events:
         platforms: [iphone, ipad]
         deprecated:
             since: "1.8.0"
-	
+    
       - name: x
         summary: X coordinate of the event from the `source` view's coordinate system.
         type: Number

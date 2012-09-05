@@ -22,7 +22,7 @@ description: |
     
     Viewing navigation events in the Analytics UI will be supported in a future version 
     of the Analytics product. There is no plan to support the other event types, and they 
-    and should not be used.
+    should not be used.
 
     See also [Ti
     Analytics](http://docs.appcelerator.com/titanium/2.1/index.html#!/guide/Ti_Analytics)
