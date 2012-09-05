@@ -7,10 +7,9 @@
 
 var appc = require('node-appc'),
 	afs = appc.fs,
-	hitch = appc.util.hitch,
 	xml = appc.xml,
+	parallel = appc.async.parallel,
 	uglify = require('uglify-js'),
-	async = require('async'),
 	fs = require('fs'),
 	path = require('path'),
 	semver = require('semver'),
@@ -108,14 +107,6 @@ function build(logger, config, cli, sdkVersion, lib, finished) {
 	
 	var mwBuildSettings = this.tiapp.mobileweb.build[this.buildType];
 	this.minifyJS = mwBuildSettings && mwBuildSettings.js ? !!mwBuildSettings.js.minify : this.buildType == 'production';
-	
-	function parallel(ctx, tasks, cb) {
-		async.parallel(tasks.map(function (task) {
-			return hitch(ctx, task);
-		}), function () {
-			cb.apply(ctx, arguments);
-		});
-	}
 	
 	parallel(this, [
 		'copyFiles',

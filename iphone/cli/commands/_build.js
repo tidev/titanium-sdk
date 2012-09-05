@@ -6,56 +6,36 @@
  */
 
 var fs = require('fs'),
-	async = require('async'),
+	appc = require('node-appc'),
+	ios = appc.ios,
+	hitch = appc.util.hitch,
+	parallel = appc.async.parallel,
+	series = appc.async.series,
 	exec = require('child_process').exec;
 
 function build(logger, config, cli, sdkVersion, lib, finished) {
 	logger.info(__('Compiling "%s" build', cli.argv['build-type']));
 	
-	var xcodePath;
+	this.env = {};
 	
-	async.series([
+	parallel(this, [
 		function (callback) {
-			exec('xcode-select -print-path', function (err, stdout, stderr) {
-				if (!err) {
-					var p = stdout.toString().trim();
-					if (fs.lstatSync(p).isDirectory()) {
-						xcodePath = p;
-						callback();
-						return;
-					}
-				}
-				
-				logger.info('Xcode 4.3+ likely, searching for developer folders');
-				
-				for (var a = ['/Developer', '/Applications/Xcode.app/Contents/Developer'], i = 0; i < 2; i++) {
-					if (fs.lstatSync(a[i]).isDirectory()) {
-						xcodePath = a[i];
-						callback();
-						return;
-					}
-				}
-				
-				exec('mdfind kMDItemDisplayName==Xcode&&kMDItemKind==Application', function (err, stdout, stderr) {
-					if (!err) {
-						for (var a = stdout.toString().trim().split('\n'), i = 0, l = a.length; i < l; i++) {
-							if (fs.lstatSync(a[i]).isDirectory()) {
-								xcodePath = a[i];
-								break;
-							}
-						}
-					}
-					callback();
-				});
-			});
+			ios.detect(hitch(this, function (env) {
+				this.env = env;
+				logger.debug(__('Xcode installation: %s', env.xcodePath));
+				logger.debug(__('Installed iOS SDKs: %s', env.sdks.join(', ')));
+				logger.debug(__('Installed iOS Simulators: %s', env.simulators.join(', ')));
+				logger.debug(__('iOS development certificates: %s', env.dev ? env.devNames.join(', ') : __('not found')));
+				logger.debug(__('iOS distribution certificates: %s', env.dist ? env.distNames.join(', ') : __('not found')));
+				logger.debug(__('iOS WWDR certificate: %s', env.wwdr ? __('installed') : __('not found')));
+				callback();
+			}));
 		}
 	], function () {
-		if (!xcodePath) {
+		if (!this.env.xcodePath) {
 			logger.error(__('Unable to locate Xcode. Please verify that you have properly installed Xcode.') + '\n');
 			return;
 		}
-		
-		logger.info(__('Found Xcode installation: %s', xcodePath));
 		
 		finished();
 	});
