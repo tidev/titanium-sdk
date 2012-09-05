@@ -1,5 +1,5 @@
 /*
- * run.js: Titanium Mobile CLI run command
+ * project.js: Titanium Mobile CLI project command
  *
  * Copyright (c) 2012, Appcelerator, Inc.  All Rights Reserved.
  * See the LICENSE file for more information.
@@ -7,7 +7,7 @@
 
 exports.config = function (logger, config, cli) {
 	return {
-		desc: __('install and run an app')
+		desc: __('get and set tiapp.xml settings')
 	};
 };
 

@@ -5,6 +5,6 @@
  * See the LICENSE file for more information.
  */
 
-module.exports = function (logger, config, cli) {
-	dump(cli.argv);
+function build(logger, config, cli, sdkVersion, lib, finished) {
+	logger.info(__('Compiling "%s" build', cli.argv['build-type']));
 };
