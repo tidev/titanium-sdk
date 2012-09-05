@@ -34,6 +34,7 @@ exports.PersistentHandle = PersistentHandle;
 
 exports.bootstrap = function(Titanium) {
 	var Window = require("window").bootstrapWindow(Titanium);
+	require("tabgroup").bootstrap(Titanium);
 	require("tab").bootstrap(Titanium);
 	require("webview").bootstrap(Titanium);
 
