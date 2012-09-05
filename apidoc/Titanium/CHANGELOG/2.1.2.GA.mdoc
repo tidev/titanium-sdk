@@ -63,7 +63,7 @@ When using Xcode 4.4,  note the following known issues:
 
 ## Android Fixes and Enhancements
 
-The following sections lists all bug fixes and enhancements for the Android
+The following section lists all bug fixes and enhancements for the Android
 platform.
 
 New Feature:
@@ -78,7 +78,7 @@ Bug Fixes:
 *   Animations don't work with 'dp' values 
     ([TIMOB-9825](https://jira.appcelerator.org/browse/TIMOB-9825)).
 
-*   App crashes if scrolling a scrollview on android with 3 fingers 
+*   App crashes when scrolling a scroll view on Android with 3 fingers 
     ([TIMOB-10452](https://jira.appcelerator.org/browse/TIMOB-10452)).
 
 *   App intermittently crashes on app restart 
@@ -304,12 +304,10 @@ The following APIs are deprecated in this release:
 *   `Titanium.Cloud.hasStoredSession` and `Titanium.Cloud.retrieveStoredSession`.
 
     Session data is no longer persisted by the module. The application can _optionally_
-    store session data in its own secure storage maintain a login session 
-    across application restarts. The session data that needs to be persisted is stored in the 
-    [accessToken](http://docs.appcelerator.com/titanium/latest/#!/api/Titanium.Cloud-property-accessToken) 
-    and [sessionId](http://docs.appcelerator.com/titanium/latest/#!/api/Titanium.Cloud-property-sessionId)
-    properties.
-
+    store session data in its own secure storage to maintain a login session 
+    across application restarts.  See 
+    [Ti.Cloud and Ti.CloudPush Module Fixes and Enhancements](#cloud) for details.
+    
 <a name="to_remove"></a>
 
 ## APIs To Be Removed in the Next Major Release
