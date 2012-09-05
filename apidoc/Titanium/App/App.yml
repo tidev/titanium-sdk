@@ -59,12 +59,12 @@ description: |
     pressed, the following events takes place:
     
         In iOS 4.X the system fires `pause` event and becomes inactive and on waking up the app fires 
-    `resumed` event.
-    
+        `resumed` event.
+
          In iOS 5.0 and greater the system fires `pause` event followed by the `paused` event and 
-    becomes inactive. This is an intentionally behaviorial change by Apple to conserve battery when 
-    the Sleep/Wake button is pressed.
-    
+         becomes inactive. This is an intentionally behaviorial change by Apple to conserve battery when 
+         the Sleep/Wake button is pressed.
+
     ***Home Button***
     
     Background the app by pressing the **home** button is another kind of interruption, this causes 
@@ -73,10 +73,10 @@ description: |
     event, returning to the app to the normal state.
     
     <table border="1" CELLPADDING="3" CELLSPACING="3"summary="This table gives the order of 
-    events fired when the app is in foreground.">
-    <CAPTION ><EM >App events fired during different interruptions.</EM></CAPTION><TR >
+    events fired when the app is in normal state.">
+    <CAPTION ><EM >Application level events fired during different interruptions.</EM></CAPTION><TR >
     <TH colspan="2" >Type of <BR>Interruption<TH colspan="2">App going into Background<TH 
-    colspan="2">App coming into foreground<TR ><TH colspan="2" ALIGN="left">Home Button 
+    colspan="2">App coming into Foreground<TR ><TH colspan="2" ALIGN="left">Home Button 
     (backgrounding)<TD ALIGN="center">pause<TD ALIGN="center">paused<TD ALIGN="center">
     resume<TD ALIGN="center">resumed<TR ><TH colspan="2" ALIGN = "left">Fast Switching 
     (switching between apps)<TD ALIGN="center">pause<TD ALIGN="center"><TD ALIGN="center">
