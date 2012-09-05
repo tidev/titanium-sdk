@@ -973,29 +973,6 @@ build.prototype = {
 
 };
 
-/*
-function walkDir(dir, re) {
-	var files = [];
-	fs.readdirSync(dir).forEach(function (file) {
-	});
-}
-
-			(function walk(dir, depth) {
-				var s = '';
-				depth = depth | 0;
-				
-					// TODO: screen out specific file/folder patterns (i.e. uncompressed js files)
-					var stat = fs.statSync(dir + '/' + file);
-					if (stat.isDirectory()) {
-						s += (depth ? (new Array(depth + 1)).join('\t') : '') + file + '\n' + walk(dir + '/' + file, depth + 1);
-					} else {
-						s += (depth ? (new Array(depth + 1)).join('\t') : '') + file + '\t' + stat.size + '\n';
-					}
-				});
-				return s;
-			}(this.buildDir)).trim();
-*/
-
 function applyDefaults(dest, src) {
 	Object.keys(src).forEach(function (key) {
 		if (dest.hasOwnProperty(key)) {

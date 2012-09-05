@@ -4,6 +4,7 @@
 #
 import os, types, glob, shutil, sys, platform, codecs
 import zipfile, datetime, subprocess, tempfile, time
+import simplejson
 
 if platform.system() == 'Darwin':
 	import importresolver
@@ -298,9 +299,9 @@ def zip_iphone_ipad(zf,basepath,platform,version,version_tag):
 				module_name = f.replace('Module','').lower()
 				zip_dir(zf,module_images,'%s/%s/modules/%s/images' % (basepath,platform,module_name))
 	
-def zip_mobileweb(zf,basepath,version):
+def zip_mobileweb(zf, basepath, version, build_v3):
 	dir = os.path.join(top_dir, 'mobileweb')
-	finalize = resolve_npm_deps(dir, version)
+	finalize = resolve_npm_deps(dir, version, build_v3)
 	
 	# for speed, mobileweb has its own zip logic
 	for root, dirs, files in os.walk(dir):
@@ -316,7 +317,7 @@ def zip_mobileweb(zf,basepath,version):
 	
 	finalize()
 
-def resolve_npm_deps(dir, version):
+def resolve_npm_deps(dir, version, build_v3):
 	package_json_file = os.path.join(dir, 'package.json')
 	if os.path.exists(package_json_file):
 		# ensure fresh npm install
@@ -336,15 +337,43 @@ def resolve_npm_deps(dir, version):
 			package_json_contents = package_json_contents.replace(key, subs[key])
 		codecs.open(package_json_file, 'w', 'utf-8').write(package_json_contents)
 		
-		# need to npm install all node dependencies
-		print 'Calling npm from %s' % dir
-		p = subprocess.Popen('npm install', shell=True, cwd=dir, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-		stdout, stderr = p.communicate()
-		if p.returncode != 0:
-			print '[ERROR] Failed to npm install dependencies: %s' % dir
-			print stdout
-			print stderr
-			sys.exit(1)
+		node_installed = False
+		npm_installed = False
+		try:
+			p = subprocess.Popen('node --version', shell=True, cwd=dir, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+			stdout, stderr = p.communicate()
+			if p.returncode == 0:
+				node_installed = True
+				p = subprocess.Popen('npm --version', shell=True, cwd=dir, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+				stdout, stderr = p.communicate()
+				if p.returncode == 0:
+					npm_installed = True
+		except:
+			pass
+		
+		if build_v3:
+			if not node_installed:
+				print '[ERROR] Unable to find node.js. Please download and install: http://nodejs.org/'
+				sys.exit(1)
+			
+			if not npm_installed:
+				print '[ERROR] Unable to find npm. Please download and install: http://nodejs.org/'
+				sys.exit(1)
+			
+			# need to npm install all node dependencies
+			print 'Calling npm from %s' % dir
+			p = subprocess.Popen('npm install', shell=True, cwd=dir, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+			stdout, stderr = p.communicate()
+			if p.returncode != 0:
+				print '[ERROR] Failed to npm install dependencies'
+				print stdout
+				print stderr
+				sys.exit(1)
+		else:
+			if not node_installed:
+				print '[WARN] Unable to find node.js, which is required for version 3.0. Please download and install: http://nodejs.org/'
+			elif not npm_installed:
+				print '[WARN] Unable to find npm, which is required for version 3.0. Please download and install: http://nodejs.org/'
 		
 	return lambda: None if not os.path.exists(package_json_file) else codecs.open(package_json_file, 'w', 'utf-8').write(package_json_original)
 
@@ -356,7 +385,7 @@ def create_platform_zip(platform,dist_dir,osname,version,version_tag):
 	zf = zipfile.ZipFile(sdkzip, 'w', zipfile.ZIP_DEFLATED)
 	return (zf, basepath, sdkzip)
 
-def zip_mobilesdk(dist_dir, osname, version, module_apiversion, android, iphone, ipad, mobileweb, version_tag, build_jsca):
+def zip_mobilesdk(dist_dir, osname, version, module_apiversion, android, iphone, ipad, mobileweb, version_tag, build_v3, build_jsca):
 	zf, basepath, filename = create_platform_zip('mobilesdk', dist_dir, osname, version, version_tag)
 
 	version_txt = """version=%s
@@ -366,17 +395,22 @@ githash=%s
 """ % (version,module_apiversion,ts,githash)
 	zf.writestr('%s/version.txt' % basepath,version_txt)
 	
+	platforms = []
+	for dir in os.listdir(top_dir):
+		if dir != 'support' and os.path.isdir(os.path.join(top_dir, dir)) and os.path.isfile(os.path.join(top_dir, dir, 'package.json')):
+			platforms.append(dir)
+	
 	manifest_json = '''{
 	"version": "%s",
 	"moduleAPIVersion": "%s",
 	"timestamp": "%s",
 	"githash": "%s",
-	"platforms": ["android", "iphone", "mobileweb"]
-}''' % (version, module_apiversion, ts, githash)
+	"platforms": %s
+}''' % (version, module_apiversion, ts, githash, simplejson.dumps(platforms))
 	zf.writestr('%s/manifest.json' % basepath, manifest_json)
 	
 	# get all SDK level npm dependencies
-	resolve_npm_deps(template_dir, version)()
+	resolve_npm_deps(template_dir, version, build_v3)()
 	
 	# check if we should build the content assist file
 	if build_jsca:
@@ -405,25 +439,25 @@ githash=%s
 	zip_dir(zf, template_dir, basepath, ignore_paths=[os.path.join(template_dir, 'package.json')]) # ignore the dependency package.json
 	if android: zip_android(zf,basepath)
 	if (iphone or ipad) and osname == "osx": zip_iphone_ipad(zf,basepath,'iphone',version,version_tag)
-	if mobileweb: zip_mobileweb(zf,basepath,version)
+	if mobileweb: zip_mobileweb(zf, basepath, version, build_v3)
 	if osname == 'win32':
 		zip_dir(zf, win32_dir, basepath)
 	
 	zf.close()
 				
-def zip_it(dist_dir, osname, version, module_apiversion, android,iphone, ipad, mobileweb, version_tag, build_jsca):
-	zip_mobilesdk(dist_dir, osname, version, module_apiversion, android, iphone, ipad, mobileweb, version_tag, build_jsca)
+def zip_it(dist_dir, osname, version, module_apiversion, android,iphone, ipad, mobileweb, version_tag, build_v3, build_jsca):
+	zip_mobilesdk(dist_dir, osname, version, module_apiversion, android, iphone, ipad, mobileweb, version_tag, build_v3, build_jsca)
 
 class Packager(object):
 	def __init__(self, build_jsca=1):
 		self.build_jsca = build_jsca
 	 
-	def build(self, dist_dir, version, module_apiversion, android=True, iphone=True, ipad=True, mobileweb=True, version_tag=None):
+	def build(self, dist_dir, version, module_apiversion, android=True, iphone=True, ipad=True, mobileweb=True, version_tag=None, build_v3=False):
 		if version_tag == None:
 			version_tag = version
-		zip_it(dist_dir, os_names[platform.system()], version, module_apiversion, android, iphone, ipad, mobileweb, version_tag, self.build_jsca)
+		zip_it(dist_dir, os_names[platform.system()], version, module_apiversion, android, iphone, ipad, mobileweb, version_tag, build_v3, self.build_jsca)
 
-	def build_all_platforms(self, dist_dir, version, module_apiversion, android=True, iphone=True, ipad=True, mobileweb=True, version_tag=None):
+	def build_all_platforms(self, dist_dir, version, module_apiversion, android=True, iphone=True, ipad=True, mobileweb=True, version_tag=None, build_v3=False):
 		global packaging_all
 		packaging_all = True
 
@@ -433,7 +467,7 @@ class Packager(object):
 		remove_existing_zips(dist_dir, version_tag)
 
 		for os in os_names.values():
-			zip_it(dist_dir, os, version, module_apiversion, android, iphone, ipad, mobileweb, version_tag, self.build_jsca)
+			zip_it(dist_dir, os, version, module_apiversion, android, iphone, ipad, mobileweb, version_tag, build_v3, self.build_jsca)
 		
 if __name__ == '__main__':
 	Packager().build(os.path.abspath('../dist'), "1.1.0")

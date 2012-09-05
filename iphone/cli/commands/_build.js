@@ -61,7 +61,13 @@ function build(logger, config, cli, sdkVersion, lib, finished) {
 	});
 }
 
-function createXcodeProject() {
-	// project = Projector(self.name,version,template_dir,project_dir,self.id)
-	// project.create(template_dir,iphone_dir)
-}
+build.prototype = {
+
+	createXcodeProject: function() {
+		// project = Projector(self.name,version,template_dir,project_dir,self.id)
+		// project.create(template_dir,iphone_dir)
+	}
+
+};
+
+module.exports = build;
