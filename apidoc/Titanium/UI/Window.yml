@@ -773,28 +773,44 @@ examples:
 name: openWindowParams
 summary: Dictionary of options for the <Titanium.UI.Window.open> method.
 since: 1.9.0
-platforms: [iphone, ipad]
+platforms: [android, iphone, ipad]
 
 properties:
 
   - name: animated
     summary: |
-        Determines whether to use an animated transition when the modal window is shown or hidden.
+        Determines whether to use an animated effect when the window is shown.
+    description: |
+        On Android, this property supports animated transitions to fullscreen windows
+        (`fullscreen:true`) or windows without navigation bars (`navBarHidden:true`).
+
+        On iOS, only use this property to disable animated transitions on modal windows. 
+        This property has unintended side effects on non-modal windows if it is defined. 
     type: Boolean
-    default: true
-    optional: true
+
+  - name: bottom
+    summary: Window's bottom position, in platform-specific units.
+    type: [Number,String]
+    default: 0
 
   - name: fullscreen
-    summary: Determines whether the window is fullscreen.
-    type: Boolean
-    default: true
-    optional: true
-
-  - name: modal
-    summary: Determines whether the window is modal.
+    summary: Determines if the window is fullscreen.
     type: Boolean
     default: false
-    optional: true
+
+  - name: height
+    summary: Window's height, in platform-specific units.
+    type: [Number,String]
+
+  - name: left
+    summary: Window's left position, in platform-specific units.
+    type: [Number,String]
+    default: 0
+
+  - name: modal
+    summary: Determines whether to open the window modal in front of other windows.
+    type: Boolean
+    default: false
     
   - name: modalStyle
     summary: Presentation style of this modal window.
@@ -804,9 +820,9 @@ properties:
         <Titanium.UI.iPhone.MODAL_PRESENTATION_FORMSHEET>, 
         <Titanium.UI.iPhone.MODAL_PRESENTATION_FULLSCREEN>, 
         or <Titanium.UI.iPhone.MODAL_PRESENTATION_PAGESHEET>.
+    platforms: [iphone, ipad]
     type: Number
-    default: <Titanium.UI.iPhone.MODAL_PRESENTATION_CURRENT_CONTEXT>
-    optional: true
+    default: <Titanium.UI.iPhone.MODAL_PRESENTATION_FULLSCREEN>
 
   - name: modalTransitionStyle
     summary: Transition style of this modal window.
@@ -816,15 +832,24 @@ properties:
         <Titanium.UI.iPhone.MODAL_TRANSITION_STYLE_CROSS_DISSOLVE>,
         <Titanium.UI.iPhone.MODAL_TRANSITION_STYLE_FLIP_HORIZONTAL>,
         or <Titanium.UI.iPhone.MODAL_TRANSITION_STYLE_PARTIAL_CURL>.
+    platforms: [iphone, ipad]
     type: Number
     default: <Titanium.UI.iPhone.MODAL_TRANSITION_STYLE_COVER_VERTICAL>
-    optional: true
 
   - name: navBarHidden
-    summary: Hides the navigation bar in a modal window.
+    summary: For modal windows, hides the nav bar (`true`) or shows the nav bar (`false`).
     type: Boolean
     default: false
-    optional: true
+
+  - name: right
+    summary: Window's right position, in platform-specific units.
+    type: [Number,String]
+    default: 0
+
+  - name: top
+    summary: Window's top position, in platform-specific units.
+    type: [Number,String]
+    default: 0
 
   - name: transition
     summary: Transition style of this non-modal window.
@@ -835,7 +860,11 @@ properties:
         <Titanium.UI.iPhone.AnimationStyle.FLIP_FROM_LEFT>,
         <Titanium.UI.iPhone.AnimationStyle.FLIP_FROM_RIGHT>,
         or <Titanium.UI.iPhone.AnimationStyle.NONE>. 
+    platforms: [iphone, ipad]
     type: Number
     default: <Titanium.UI.iPhone.AnimationStyle.NONE>
-    optional: true
+
+  - name: width
+    summary: Window's width, in platform-specific units.
+    type: [Number,String]
 
