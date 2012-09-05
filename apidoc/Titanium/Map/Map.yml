@@ -116,6 +116,8 @@ examples:
         in this case it provides a mechanism for uniquely identifying an annotation. This
         can be useful, for example, if the annotations are dynamically generated 
         and it is not practical to identify them by title.
+
+            var win = Titanium.UI.createWindow();
         
             var mountainView = Titanium.Map.createAnnotation({
             	latitude:37.390749,
@@ -153,4 +155,3 @@ examples:
             });
             win.open();
 
-        
