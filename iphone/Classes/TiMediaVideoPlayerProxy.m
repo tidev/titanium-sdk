@@ -917,17 +917,17 @@ NSArray* moviePlayerKeys = nil;
 
 -(void)handleFullscreenExitNotification:(NSNotification*)note
 {
-	if ([self _hasListeners:@"fullscreen"])
+	NSDictionary *userinfo = [note userInfo];
+    if ([self _hasListeners:@"fullscreen"])
 	{
-		NSDictionary *userinfo = [note userInfo];
 		NSMutableDictionary *event = [NSMutableDictionary dictionary];
 		[event setObject:[userinfo valueForKey:MPMoviePlayerFullscreenAnimationDurationUserInfoKey] forKey:@"duration"];
 		[event setObject:NUMBOOL(NO) forKey:@"entering"];
 		[self fireEvent:@"fullscreen" withObject:event];
 	}	
 	[[UIApplication sharedApplication] setStatusBarHidden:statusBarWasHidden];
-    
-    [self performSelector:@selector(resizeRootView) withObject:nil afterDelay:[[UIApplication sharedApplication] statusBarOrientationAnimationDuration]];
+    //Wait untill the movie player animation is over before calculating the size of the movie player frame.
+    [self performSelector:@selector(resizeRootView) withObject:nil afterDelay:[TiUtils doubleValue:[userinfo valueForKey:MPMoviePlayerFullscreenAnimationDurationUserInfoKey]]];
 }
 
 -(void)handleSourceTypeNotification:(NSNotification*)note
