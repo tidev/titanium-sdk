@@ -38,9 +38,10 @@
 {
 	if (hasOndatastream)
 	{
-		NSString *dataToString = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
 		TiNetworkHTTPClientResultProxy *thisPointer = [[TiNetworkHTTPClientResultProxy alloc] initWithDelegate:self];
-		NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:[[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding],@"data",@"datastream",@"type",nil];
+        TiBlob* dataBlob = [[[TiBlob alloc] initWithData:data mimetype:@"application/octet-stream"] autorelease];
+
+		NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:dataBlob,@"blob",@"datastream",@"type",nil];
 		[self fireCallback:@"ondatastream" withArg:event withSource:thisPointer];
 		[thisPointer release];
 	}
