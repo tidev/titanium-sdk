@@ -328,6 +328,7 @@ module.exports = new function() {
 		var config = configs[configSetIndex].setConfigs[configIndex];
 		var configDir = config.configDir + "/" + config.configName;
 		var harnessPlatformDir = driverGlobal.harnessDir + "/" + platform;
+		util.log("updating harness for config: " + config.configName);
 
 		var updateSuitesCallback = function() {
 			util.runCommand("cp -r " + configs[configSetIndex].setDir + "/Resources " + harnessPlatformDir + "/harness", util.logStdout, function(error) {
