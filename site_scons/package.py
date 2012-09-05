@@ -398,7 +398,9 @@ githash=%s
 	platforms = []
 	for dir in os.listdir(top_dir):
 		if dir != 'support' and os.path.isdir(os.path.join(top_dir, dir)) and os.path.isfile(os.path.join(top_dir, dir, 'package.json')):
-			platforms.append(dir)
+			# if new platforms are added, be sure to add them to the line below!
+			if (dir == 'android' and android) or (dir == 'iphone' and (iphone or ipad)) or (dir == 'mobileweb' and mobileweb):
+				platforms.append(dir)
 	
 	manifest_json = '''{
 	"version": "%s",
