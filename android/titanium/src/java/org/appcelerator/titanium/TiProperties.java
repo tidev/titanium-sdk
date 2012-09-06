@@ -7,9 +7,7 @@
 package org.appcelerator.titanium;
 
 import java.util.ArrayList;
-
 import org.appcelerator.kroll.common.Log;
-
 import android.content.Context;
 import android.content.SharedPreferences;
 
@@ -48,12 +46,19 @@ public class TiProperties
 	{
 		Log.d(TAG, "getString called with key:" + key + ", def:" + def, Log.DEBUG_MODE);
 
-		if (!preferences.contains(key))
+		Object value = preferences.getAll().get(key);
+		if (value != null) {
+			return value.toString();
+		} else {
 			return def;
-
-		return preferences.getAll().get(key).toString();
+		}
 	}
 
+	public SharedPreferences getPreference()
+	{
+		return preferences;
+	}
+	
 	/**
 	 * Maps the specified key with a String value. If value is null, existing key will be removed from preferences.
 	 * Otherwise, its value will be overwritten.
@@ -65,12 +70,9 @@ public class TiProperties
 	{
 		Log.d(TAG,"setString called with key:"+key+", value:"+value, Log.DEBUG_MODE);
 		SharedPreferences.Editor editor = preferences.edit();
-		if (value==null)
-		{
+		if (value==null) {
 			editor.remove(key);
-		}
-		else
-		{
+		} else {
 			editor.putString(key,value);
 		}
 		editor.commit();
@@ -124,16 +126,12 @@ public class TiProperties
 	public double getDouble(String key, double def)
 	{
 		Log.d(TAG, "getDouble called with key:" + key + ", def:" + def, Log.DEBUG_MODE);
-		if (!hasProperty(key)) {
-			return def;
-		}
 		String stringValue = null;
-		try {
-			stringValue = preferences.getString(key, "");
-		} catch (ClassCastException cce) {
-			//Value stored as something other than String. Try and convert to String
-			stringValue = getString(key,"");
+		Object string = preferences.getAll().get(key);
+		if (string != null) {
+			stringValue = string.toString();
 		}
+		
 		try {
 			return Double.parseDouble(stringValue);
 		} catch (NumberFormatException e) {

@@ -619,7 +619,7 @@ define(
 				if (bi) {
 					tmp = repeat ? "repeat" : "no-repeat";
 					nodeStyle.backgroundRepeat !== tmp && (nodeStyle.backgroundRepeat = tmp);
-					tmp = repeat ? "auto" : "100%";
+					tmp = repeat ? "auto" : "100% 100%";
 					nodeStyle.backgroundSize.replace(/(100%) 100%/, "$1") !== tmp && (nodeStyle.backgroundSize = tmp);
 				}
 			}
@@ -652,7 +652,7 @@ define(
 		},
 
 		animate: function(anim, callback) {
-			return Animation._play(this, anim && anim.declaredClass === "Ti.UI.Animation" ? anim : new Animation(anim)).then(callback);
+			return this._isAttachedToActiveWin() && Animation._play(this, anim && anim.declaredClass === "Ti.UI.Animation" ? anim : new Animation(anim)).then(callback);
 		},
 
 		_setTouchEnabled: function(value) {

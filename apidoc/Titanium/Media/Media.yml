@@ -559,42 +559,69 @@ properties:
     permission: read-only
   - name: VIDEO_CONTROL_DEFAULT
     summary: Constant for default video controls.
+    description: |
+        Used in conjunction with the
+        [mediaControlStyle](Titanium.Media.VideoPlayer.mediaControlStyle) property 
+        of <Titanium.Media.VideoPlayer>.
     type: Number
     permission: read-only
   - name: VIDEO_CONTROL_EMBEDDED
     summary: Constant for video controls for an embedded view. 
-    description: 
-        Used in conjunction with the `movieControlStyle` property of <Titanium.Media.VideoPlayer> 
-        in iPhone 3.2+.
+    description: |
+        Used in conjunction with the
+        [mediaControlStyle](Titanium.Media.VideoPlayer.mediaControlStyle) property 
+        of <Titanium.Media.VideoPlayer>.
+
+        On Android, this constant has the same effect as VIDEO_CONTROL_DEFAULT. Video controls may
+        only be shown or hidden. 
     type: Number
     permission: read-only
     platforms: [android, iphone, ipad]
   - name: VIDEO_CONTROL_FULLSCREEN
     summary: Constant for fullscreen video controls. 
     description: |
-        Used in conjunction with the `movieControlStyle` property of <Titanium.Media.VideoPlayer> 
-        in iPhone 3.2+.
+        Used in conjunction with the
+        [mediaControlStyle](Titanium.Media.VideoPlayer.mediaControlStyle) property 
+        of <Titanium.Media.VideoPlayer>.
+
+        On iOS, use VIDEO_CONTROL_FULLSCREEN when creating a video player that occupies the entire 
+        screen, that is, the parent window should be a fullscreen window 
+        ([fullscreen](Titanium.UI.Window.fullscreen) set to `true`) and the video player should 
+        occupy the entirety of the parent window.
+
+        If the user clicks the **Done** button in the fullscreen control bar, the video player 
+        pauses playback and generates a [complete](Titanium.Media.VideoPlayer.complete) event. 
+
+        Note that if you create a video player that does *not* occupy the entire screen, and later 
+        switch to fullscreen mode, the video controls are switched automatically. That is, if 
+        `mediaControlStyle` is set to VIDEO_CONTROL_DEFAULT or VIDEO_CONTROL_EMBEDDED, it is 
+        automatically switched to the fullscreen controls when the player enters fullscreen mode. 
+        This is true whether the user initiates the mode switch by clicking the fullscreen button
+        in the embedded controls, or if you programmatically switch to full screen mode (by setting 
+        the `fullscreen` property to true). 
+
+        On Android, this constant has the same effect as VIDEO_CONTROL_DEFAULT. Video controls may 
+        only be shown or hidden.  
     type: Number
     permission: read-only
     platforms: [android, iphone, ipad]
   - name: VIDEO_CONTROL_HIDDEN
     summary: Constant for video controls hidden.
+    description: |
+        Used in conjunction with the
+        [mediaControlStyle](Titanium.Media.VideoPlayer.mediaControlStyle) property 
+        of <Titanium.Media.VideoPlayer>.
     type: Number
     permission: read-only
     platforms: [android, iphone, ipad]
   - name: VIDEO_CONTROL_NONE
     summary: Constant for no video controls. 
     description: |
-        Used in conjunction with the `movieControlStyle` property of 
-        <Titanium.Media.VideoPlayer> in iPhone 3.2+.
+        Used in conjunction with the
+        [mediaControlStyle](Titanium.Media.VideoPlayer.mediaControlStyle) property 
+        of <Titanium.Media.VideoPlayer>.
     type: Number
     permission: read-only
-  - name: VIDEO_CONTROL_VOLUME_ONLY
-    summary: Constant for video controls volume only.
-    type: Number
-    permission: read-only
-    platforms: [iphone, ipad]
-    deprecated: {since: "1.8.0", removed: "1.9.0"}
   - name: VIDEO_FINISH_REASON_PLAYBACK_ENDED
     summary: Video playback ended normally.
     type: Number

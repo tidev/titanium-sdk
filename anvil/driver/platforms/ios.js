@@ -12,8 +12,8 @@
 var net = require("net");
 var path = require("path");
 
-var common = require(driverGlobal.driverDir + "/common");
-var util = require(driverGlobal.driverDir + "/util");
+var common = require(path.join(driverGlobal.driverDir, "common"));
+var driverUtils = require(path.join(driverGlobal.driverDir, "driverUtils"));
 
 module.exports = new function() {
 	var self = this;
@@ -46,7 +46,7 @@ module.exports = new function() {
 		if (commandElements[0] === "start") {
 			simVersion = driverGlobal.config.defaultIosSimVersion
 
-			var simVersionArg = util.getArgument(commandElements, "--sim-version");
+			var simVersionArg = driverUtils.getArgument(commandElements, "--sim-version");
 			if ((typeof simVersionArg) === "string") {
 				simVersion = simVersionArg;
 
@@ -84,7 +84,7 @@ module.exports = new function() {
 
 		common.createHarness(
 			"ios",
-			driverGlobal.config.tiSdkDir + "/titanium.py create --dir=" + driverGlobal.harnessDir + "/ios --platform=iphone --name=harness --type=project --id=com.appcelerator.harness",
+			"\"" + path.join(driverGlobal.config.currentTiSdkDir, "titanium.py") + "\" create --dir=" + path.join(driverGlobal.harnessDir, "ios") + " --platform=iphone --name=harness --type=project --id=com.appcelerator.harness",
 			successCallback,
 			errorCallback
 			);
@@ -113,32 +113,32 @@ module.exports = new function() {
 	var runHarness = function(successCallback, errorCallback) {
 		var runCallback = function() {
 			var stdoutCallback = function(message) {
-				util.log(message, driverGlobal.logLevels.verbose);
+				driverUtils.log(message, driverGlobal.logLevels.verbose);
 				if (message.indexOf("[INFO] Application started") > -1) {
 					successCallback();
 				}
 			}
 
-			util.log("running iOS simulator version " + simVersion);
+			driverUtils.log("running iOS simulator version " + simVersion);
 
 			/*
 			TODO: investigate running simulator separately from the build script so we can get 
 			error reporting to work correctly when the simulator fails to launch
 			*/
-			var args = ["simulator", simVersion, driverGlobal.harnessDir + "/ios/harness", "com.appcelerator.harness", "harness"];
-			util.runProcess(driverGlobal.config.tiSdkDir + "/iphone/builder.py", args, stdoutCallback, 0, function(code) {
+			var args = ["simulator", simVersion, path.join(driverGlobal.harnessDir, "ios", "harness"), "com.appcelerator.harness", "harness"];
+			driverUtils.runProcess(path.join(driverGlobal.config.currentTiSdkDir, "iphone", "builder.py"), args, stdoutCallback, 0, function(code) {
 				if (code !== 0) {
-					util.log("error encountered when running harness: " + code);
+					driverUtils.log("error encountered when running harness: " + code);
 					errorCallback();
 				}
 			});
 		};
 
-		if (path.existsSync(driverGlobal.harnessDir + "/ios/harness/tiapp.xml")) {
+		if (path.existsSync(path.join(driverGlobal.harnessDir, "ios", "harness", "tiapp.xml"))) {
 			runCallback();
 
 		} else {
-			util.log("harness does not exist, creating");
+			driverUtils.log("harness does not exist, creating");
 			createHarness(runCallback, errorCallback);
 		}
 	};
@@ -164,7 +164,7 @@ module.exports = new function() {
 				}
 
 				if (retryCount < driverGlobal.config.maxSocketConnectAttempts) {
-					util.log("unable to connect, retry attempt " + (retryCount + 1) + "...");
+					driverUtils.log("unable to connect, retry attempt " + (retryCount + 1) + "...");
 					retryCount += 1;
 
 					setTimeout(function() {
@@ -172,7 +172,7 @@ module.exports = new function() {
 					}, 1000);
 
 				} else {
-					util.log("max number of retry attempts reached");
+					driverUtils.log("max number of retry attempts reached");
 					errorCallback();
 				}
 			});
@@ -214,24 +214,24 @@ module.exports = new function() {
 
 	var closeSimulator = function(callback) {
 		var closeIphoneCallback = function() {
-			util.runCommand("/usr/bin/killall 'iPhone Simulator'", util.logStdout, function(error) {
+			driverUtils.runCommand("/usr/bin/killall 'iPhone Simulator'", driverUtils.logStdout, function(error) {
 				if (error !== null) {
-					util.log("error encountered when closing iPhone simulator: " + error);
+					driverUtils.log("error encountered when closing iPhone simulator: " + error);
 
 				} else {
-					util.log("iPhone simulator closed");
+					driverUtils.log("iPhone simulator closed");
 				}
 
 				callback();
 			});
 		};
 
-		util.runCommand("/usr/bin/killall 'ios-sim'", util.logStdout, function(error) {
+		driverUtils.runCommand("/usr/bin/killall 'ios-sim'", driverUtils.logStdout, function(error) {
 			if (error !== null) {
-				util.log("error encountered when closing ios-sim: " + error);
+				driverUtils.log("error encountered when closing ios-sim: " + error);
 
 			} else {
-				util.log("ios-sim closed");
+				driverUtils.log("ios-sim closed");
 			}
 
 			closeIphoneCallback();

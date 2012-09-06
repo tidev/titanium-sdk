@@ -454,6 +454,12 @@
 
     [self updateOrientationHistory:newOrientation];
     
+	UIInterfaceOrientation latestOrientation = [self lastValidOrientation];
+	if ((latestOrientation == oldOrientation) && (latestOrientation == windowOrientation))
+	{
+		return;
+	}
+    
     // We appear to do this in order to synchronize rotation animations with the keyboard.
     // But there is an interesting edge case where the status bar sometimes updates its orientation,
     // but does not animate, before we trigger the refresh. This means that the keyboard refuses to
@@ -1250,7 +1256,7 @@
 	{
 		UIView * ourView = [self viewForKeyboardAccessory];
         CGRect rect = [ourView convertRect:endFrame fromView:nil];
-		CGFloat keyboardHeight = rect.origin.y + rect.size.height;
+		CGFloat keyboardHeight = rect.origin.y;
         if (keyboardHeight > 0) {
             UIView * possibleScrollView = [scrolledView superview];
             UIView<TiScrolling> * confirmedScrollView = nil;

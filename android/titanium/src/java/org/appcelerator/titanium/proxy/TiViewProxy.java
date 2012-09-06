@@ -87,7 +87,9 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 	protected Object pendingAnimationLock;
 	protected TiAnimationBuilder pendingAnimation;
 	private boolean isDecorView = false;
-	private AtomicBoolean layoutStarted = new AtomicBoolean();
+
+	// TODO: Deprecated since Release 2.2.0
+	@Deprecated private AtomicBoolean layoutStarted = new AtomicBoolean();
 
 	/**
 	 * Constructs a new TiViewProxy instance.
@@ -992,15 +994,21 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 		return destPoint;
 	}
 
-	@Kroll.method
+	// TODO: Deprecated since Release 2.2.0
+	@Kroll.method @Deprecated
 	public void startLayout()
 	{
+		Log.w(TAG, "startLayout() is deprecated.", Log.DEBUG_MODE);
+
 		layoutStarted.set(true);
 	}
 
-	@Kroll.method
+	// TODO: Deprecated since Release 2.2.0
+	@Kroll.method @Deprecated
 	public void finishLayout()
 	{
+		Log.w(TAG, "finishLayout() is deprecated.", Log.DEBUG_MODE);
+
 		// Don't force a layout if startLayout() was never called
 		if (!isLayoutStarted()) {
 			return;
@@ -1013,9 +1021,12 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 		layoutStarted.set(false);
 	}
 
-	@Kroll.method
+	// TODO: Deprecated since Release 2.2.0
+	@Kroll.method @Deprecated
 	public void updateLayout(Object params)
 	{
+		Log.w(TAG, "updateLayout() is deprecated.", Log.DEBUG_MODE);
+
 		HashMap<String, Object> paramsMap;
 
 		if (!(params instanceof HashMap)) {
@@ -1051,8 +1062,10 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 		handleFinishLayout();
 	}
 
+	// TODO: Deprecated since Release 2.2.0
 	// This is used to check if the user has called startLayout(). We mainly use this to perform a check before running
 	// deprecated behavior. (i.e. performing layout when a property has changed, and the user didn't call startLayout)
+	@Deprecated
 	public boolean isLayoutStarted()
 	{
 		return layoutStarted.get();

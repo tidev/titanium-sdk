@@ -34,49 +34,136 @@ events:
     platforms: [android]
     summary: Fired when the Back button is released.
     description: |
+        This event has been deprecated and replaced by androidback (without colon).
+        
         Setting a listener disables the default key handling for the Back button.
         To restore default behavior, remove the listener. It is recommended that you only
         have one handler per heavyweight window.
+    deprecated:
+        since: "2.2.0"
 
   - name: android:camera
+    summary: Fired when the Camera button is released.
+    description: |
+        This event has been deprecated and renamed androidcamera (without colon).
+        
+        Setting a listener disables the default key handling for this button. To restore
+        default behavior, remove the listener. It is recommended that you only have one
+        handler per heavyweight window.
+    platforms: [android]
+    deprecated:
+        since: "2.2.0"
+
+  - name: android:focus
+    summary: Fired when the Camera button is half-pressed then released.
+    description: |
+        This event has been deprecated and renamed androidfocus (without colon).
+        
+        Setting a listener disables the default key handling for this button. To restore
+        default behavior, remove the listener. It is recommended that you only have one
+        handler per heavyweight window.
+    platforms: [android]
+    deprecated:
+        since: "2.2.0"
+
+  - name: android:search
+    summary: Fired when the Search button is released.
+    description: |
+        This event has been deprecated and renamed androidsearch (without colon).
+        
+        Setting a listener disables the default key handling for this button. To restore
+        default behavior, remove the listener. It is recommended that you only have
+        one handler per heavyweight window.
+    platforms: [android]
+    deprecated:
+        since: "2.2.0"
+
+  - name: android:voldown
+    summary: Fired when the volume down button is released.
+    description: |
+        This event has been deprecated and renamed androidvoldown (without colon).
+        
+        Setting a listener disables the default key handling for this button. To restore
+        default behavior, remove the listener. It is recommended that you only have one
+        handler per heavyweight window.
+    platforms: [android]
+    deprecated:
+        since: "2.2.0"
+
+  - name: android:volup
+    summary: Fired when the volume up button is released.
+    description: |
+        This event has been deprecated and renamed androidvolup (without colon).
+        
+        Setting a listener disables the default key handling for this button. To restore
+        default behavior, remove the listener. It is recommended that you only have one
+        handler per heavyweight window.
+    platforms: [android]
+    deprecated:
+        since: "2.2.0"
+
+  - name: androidback
+    platforms: [android]
+    summary: Fired when the back button is pressed by the user.
+    description: |
+        This event is fired when the current window's activity detects
+        a back button press by the user to navigate back.
+
+        By default this event would trigger the current activity to be finished
+        and removed from the task stack. Subscribing to this event with a listener
+        will prevent the default behavior. To finish the activity from your listener
+        just call the *close* method of the window.
+
+        This event replaces the android:back event. Some behavior
+        changes way exist such as the event no longer firing when the
+        user dismisses the keyboard with the back button.
+
+    since: '2.2.0'
+
+  - name: androidcamera
     summary: Fired when the Camera button is released.
     description: |
         Setting a listener disables the default key handling for this button. To restore
         default behavior, remove the listener. It is recommended that you only have one
         handler per heavyweight window.
     platforms: [android]
+    since: '2.2.0'
 
-  - name: android:focus
+  - name: androidfocus
     summary: Fired when the Camera button is half-pressed then released.
     description: |
         Setting a listener disables the default key handling for this button. To restore
         default behavior, remove the listener. It is recommended that you only have one
         handler per heavyweight window.
     platforms: [android]
+    since: '2.2.0'
 
-  - name: android:search
+  - name: androidsearch
     summary: Fired when the Search button is released.
     description: |
         Setting a listener disables the default key handling for this button. To restore
         default behavior, remove the listener. It is recommended that you only have
         one handler per heavyweight window.
     platforms: [android]
+    since: '2.2.0'
 
-  - name: android:voldown
+  - name: androidvoldown
     summary: Fired when the volume down button is released.
     description: |
         Setting a listener disables the default key handling for this button. To restore
         default behavior, remove the listener. It is recommended that you only have one
         handler per heavyweight window.
     platforms: [android]
+    since: '2.2.0'
 
-  - name: android:volup
+  - name: androidvolup
     summary: Fired when the volume up button is released.
     description: |
         Setting a listener disables the default key handling for this button. To restore
         default behavior, remove the listener. It is recommended that you only have one
         handler per heavyweight window.
     platforms: [android]
+    since: '2.2.0'
 
   - name: blur
     summary: Fired when the window loses focus.
@@ -146,6 +233,10 @@ properties:
         such as the iOS nav bar or the Android status bar. Must be specified
         at creation time or in the `options` dictionary passed to the 
         [Window.open](Titanium.UI.Window.open) method.
+
+        On Android, setting this property forces the creation of a heavyweight window. See "Android
+        Heavyweight and Lightweight Windows" in the main description of this class for more
+        information.
     platforms: [android, iphone, ipad]
     type: Boolean
     default: false
@@ -163,6 +254,10 @@ properties:
         a translucent window cannot appear above the status bar.  I.e., even though
         you set `fullscreen:true`, the status bar will still be visible *if* it was visible
         in the previous window.  `navBarHidden` and `modal` do work fine together, however.
+
+        On Android, setting this property forces the creation of a heavyweight window. See "Android
+        Heavyweight and Lightweight Windows" in the main description of this class for more
+        information.
         
         iOS note: modal windows should not support orientation modes that the
         window they are opened over do not support. Doing otherwise *may* cause
@@ -181,6 +276,10 @@ properties:
 
   - name: navBarHidden
     summary: For modal windows, hide the nav bar (`true`) or show the nav bar (`false`).
+    description: |
+        On Android, setting this property forces the creation of a heavyweight window. See "Android
+        Heavyweight and Lightweight Windows" in the main description of this class for more
+        information.
     platforms: [android, iphone, ipad, mobileweb]
     default: false
     type: Boolean
@@ -384,6 +483,9 @@ properties:
         In order for this property to take effect on an emulator, its Android Virtual Device (AVD) 
         must be configured with the `Keyboard Support` setting set to `No`. Note that it is always 
         recommended to test an application on a physical device to understand its true behavior.
+
+        Setting this property forces the creation of a heavyweight window. See "Android Heavyweight
+        and Lightweight Windows" in the main description of this class for more information.
         
         This property is capable of representing two settings from the following two groups of 
         settings using the [bitwise OR](http://en.wikipedia.org/wiki/Bitwise_operation#OR) operation. 
@@ -489,7 +591,7 @@ description: |
     It will also execute in its own separate thread.
 
     On Android, a new context is also created when you create a heavyweight window. See the
-    section, "Android Heavyweight and Lightweight Windows" for more information.
+    section, "Android Heavyweight and Lightweight Windows," for more information.
 
     The special property <Titanium.UI.currentWindow> is available inside a sub-context that
     points to the JavaScript instance by reference in the global context.

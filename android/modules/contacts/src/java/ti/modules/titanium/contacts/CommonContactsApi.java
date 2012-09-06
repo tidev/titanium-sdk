@@ -246,7 +246,7 @@ public abstract class CommonContactsApi
 		PersonProxy proxify()
 		{
 			PersonProxy proxy = new PersonProxy();
-			proxy.setProperty("fullName", name);
+			proxy.setFullName(name);
 			proxy.setProperty("note", notes);
 			proxy.setEmailFromMap(emails);
 			proxy.setPhoneFromMap(phones);

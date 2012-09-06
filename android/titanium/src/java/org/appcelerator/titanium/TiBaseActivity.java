@@ -106,6 +106,15 @@ public abstract class TiBaseActivity extends Activity
 		}
 	}
 
+	/**
+	 * Returns the window at the top of the stack.
+	 * @return the top window or null if the stack is empty.
+	 */
+	public TiBaseWindowProxy topWindowOnStack()
+	{
+		return (windowStack.isEmpty()) ? null : windowStack.peek();
+	}
+
 	// could use a normal ConfigurationChangedListener but since only orientation changes are
 	// forwarded, create a separate interface in order to limit scope and maintain clarity 
 	public static interface OrientationChangedListener
@@ -521,6 +530,22 @@ public abstract class TiBaseActivity extends Activity
 	}
 
 	@Override
+	public void onBackPressed()
+	{
+		TiBaseWindowProxy topWindow = topWindowOnStack();
+
+		// Prevent default Android behavior for "back" press
+		// if the top window has a listener to handle the event.
+		if (topWindow != null && topWindow.hasListeners(TiC.EVENT_ANDROID_BACK)) {
+			topWindow.fireEvent(TiC.EVENT_ANDROID_BACK, null);
+
+		} else {
+			// If event is not handled by any listeners allow default behavior.
+			super.onBackPressed();
+		}
+	}
+
+	@Override
 	public boolean dispatchKeyEvent(KeyEvent event) 
 	{
 		boolean handled = false;
@@ -538,9 +563,10 @@ public abstract class TiBaseActivity extends Activity
 
 		switch(event.getKeyCode()) {
 			case KeyEvent.KEYCODE_BACK : {
-				if (window.hasListeners(TiC.EVENT_ANDROID_BACK)) {
+				// Deprecated and replaced by "androidback" event.
+				if (window.hasListeners("android:back")) {
 					if (event.getAction() == KeyEvent.ACTION_UP) {
-						window.fireEvent(TiC.EVENT_ANDROID_BACK, null);
+						window.fireEvent("android:back", null);
 					}
 					handled = true;
 				}
@@ -554,6 +580,13 @@ public abstract class TiBaseActivity extends Activity
 					}
 					handled = true;
 				}
+				// TODO: Deprecate old event
+				if (window.hasListeners("android:camera")) {
+					if (event.getAction() == KeyEvent.ACTION_UP) {
+						window.fireEvent("android:camera", null);
+					}
+					handled = true;
+				}
 
 				break;
 			}
@@ -561,6 +594,13 @@ public abstract class TiBaseActivity extends Activity
 				if (window.hasListeners(TiC.EVENT_ANDROID_FOCUS)) {
 					if (event.getAction() == KeyEvent.ACTION_UP) {
 						window.fireEvent(TiC.EVENT_ANDROID_FOCUS, null);
+					}
+					handled = true;
+				}
+				// TODO: Deprecate old event
+				if (window.hasListeners("android:focus")) {
+					if (event.getAction() == KeyEvent.ACTION_UP) {
+						window.fireEvent("android:focus", null);
 					}
 					handled = true;
 				}
@@ -574,6 +614,13 @@ public abstract class TiBaseActivity extends Activity
 					}
 					handled = true;
 				}
+				// TODO: Deprecate old event
+				if (window.hasListeners("android:search")) {
+					if (event.getAction() == KeyEvent.ACTION_UP) {
+						window.fireEvent("android:search", null);
+					}
+					handled = true;
+				}
 
 				break;
 			}
@@ -584,6 +631,13 @@ public abstract class TiBaseActivity extends Activity
 					}
 					handled = true;
 				}
+				// TODO: Deprecate old event
+				if (window.hasListeners("android:volup")) {
+					if (event.getAction() == KeyEvent.ACTION_UP) {
+						window.fireEvent("android:volup", null);
+					}
+					handled = true;
+				}
 
 				break;
 			}
@@ -591,6 +645,13 @@ public abstract class TiBaseActivity extends Activity
 				if (window.hasListeners(TiC.EVENT_ANDROID_VOLDOWN)) {
 					if (event.getAction() == KeyEvent.ACTION_UP) {
 						window.fireEvent(TiC.EVENT_ANDROID_VOLDOWN, null);
+					}
+					handled = true;
+				}
+				// TODO: Deprecate old event
+				if (window.hasListeners("android:voldown")) {
+					if (event.getAction() == KeyEvent.ACTION_UP) {
+						window.fireEvent("android:voldown", null);
 					}
 					handled = true;
 				}
@@ -662,6 +723,8 @@ public abstract class TiBaseActivity extends Activity
 			KrollDict data = new KrollDict();
 			data.put(TiC.PROPERTY_INTENT, ip);
 			activityProxy.fireSyncEvent(TiC.EVENT_NEW_INTENT, data);
+			// TODO: Deprecate old event
+			activityProxy.fireSyncEvent("newIntent", data);
 		}
 	}
 
@@ -715,6 +778,7 @@ public abstract class TiBaseActivity extends Activity
 	
 		TiApplication.updateActivityTransitionState(true);
 		tiApp.setCurrentActivity(this, null);
+		TiUIHelper.showSoftKeyboard(getWindow().getDecorView(), false);
 
 		if (this.isFinishing()) {
 			releaseDialogs();
@@ -920,6 +984,8 @@ public abstract class TiBaseActivity extends Activity
 		Log.d(TAG, "Activity " + this + " onDestroy", Log.DEBUG_MODE);
 
 		TiApplication tiApp = getTiApp();
+		//Clean up dialogs when activity is destroyed. 
+		releaseDialogs();
 
 		if (tiApp.isRestartPending()) {
 			super.onDestroy();

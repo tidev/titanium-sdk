@@ -40,8 +40,9 @@ methods:
     
   - name: setSelection
     summary: Selects the text in range (start, end).
-    platforms: [android]
+    platforms: [android, iphone, ipad]
     since: 2.2.0
+    osver: {ios: {min: "5.0"}}
     parameters:
       - name: start
         summary: Start index for selection. Value ranges from 0 to the text's length.
@@ -53,6 +54,8 @@ methods:
          Selects the text in range (start, end). If start equals end, no text will be selected, 
          and the cursor will move to the start position. End is not inclusive, meaning setSelection(0,0) 
          will not select the first character, but will move the cursor to the position before the first character.
+         
+         On iOS, soft keyboard would show when text is selected.
          
 properties:
   - name: appearance
