@@ -128,17 +128,17 @@ public class TiProperties
 		Log.d(TAG, "getDouble called with key:" + key + ", def:" + def, Log.DEBUG_MODE);
 		String stringValue = null;
 		Object string = preferences.getAll().get(key);
-		if (string != null) {
-			stringValue = string.toString();
+		if (string == null) {
+			return def;
 		}
-		
+		stringValue = string.toString();
 		try {
 			return Double.parseDouble(stringValue);
 		} catch (NumberFormatException e) {
 			return def;
-		} 
+		}
 	}
-	
+
 	/**
 	 * Maps the specified key with a double value. If key exists, its value will be
 	 * overwritten.
