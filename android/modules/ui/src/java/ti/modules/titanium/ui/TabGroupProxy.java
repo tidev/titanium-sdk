@@ -35,7 +35,7 @@ import android.os.Message;
 
 @Kroll.proxy(creatableInModule=UIModule.class, propertyAccessors={
 	TiC.PROPERTY_TABS_BACKGROUND_COLOR,
-	TiC.PROPERTY_TABS_BACKGROUND_SELECTED_COLOR	
+	TiC.PROPERTY_ACTIVE_TAB_BACKGROUND_COLOR
 })
 public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 {
@@ -62,22 +62,6 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 	public TabGroupProxy(TiContext tiContext)
 	{
 		this();
-	}
-
-	public String getTabsBackgroundColor() {
-		if (hasProperty(TiC.PROPERTY_TABS_BACKGROUND_COLOR)) {
-			return getProperty(TiC.PROPERTY_TABS_BACKGROUND_COLOR).toString();
-		} else {
-			return null;
-		}
-	}
-	
-	public String getTabsBackgroundSelectedColor() {
-		if (hasProperty(TiC.PROPERTY_TABS_BACKGROUND_SELECTED_COLOR)) {
-			return getProperty(TiC.PROPERTY_TABS_BACKGROUND_SELECTED_COLOR).toString();
-		} else {
-			return null;
-		}
 	}
 
 	@Override
@@ -351,6 +335,12 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 	public void onTabSelected(TabProxy tabProxy) {
 		TabProxy previousSelectedTab = selectedTab;
 		selectedTab = tabProxy;
+
+		// Notify each tab about the change in selection.
+		if (previousSelectedTab != null) {
+			previousSelectedTab.onSelectionChanged(false);
+		}
+		selectedTab.onSelectionChanged(true);
 
 		// Build the tab change event we send along with the
 		// "focus" and "blur" events.

@@ -24,6 +24,13 @@ public abstract class TiUIAbstractTab extends TiUIView {
 	}
 
 	/**
+	 * Called when the selection of this tab has changed.
+	 *
+	 * @param selected true if the tab is now selected or false if it was unselected.
+	 */
+	public void onSelectionChange(boolean selected) { }
+
+	/**
 	 * Returns the content view for this tab.
 	 *
 	 * @return the content view or null if the tab is empty

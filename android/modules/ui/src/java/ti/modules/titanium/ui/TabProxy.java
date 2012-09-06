@@ -12,8 +12,10 @@ import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.proxy.TiWindowProxy;
+import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.view.TiUIView;
 
+import ti.modules.titanium.ui.widget.tabgroup.TiUIAbstractTab;
 import android.app.Activity;
 
 @Kroll.proxy(creatableInModule=UIModule.class,
@@ -24,12 +26,12 @@ propertyAccessors = {
 })
 public class TabProxy extends TiViewProxy
 {
+	@SuppressWarnings("unused")
 	private static final String TAG = "TabProxy";
 
 	private TiWindowProxy win;
 	private TabGroupProxy tabGroupProxy;
 	private int windowId;
-	private String currentBackgroundColor = "";
 
 	public TabProxy()
 	{
@@ -63,16 +65,6 @@ public class TabProxy extends TiViewProxy
 		if (window instanceof TiWindowProxy) {
 			setWindow((TiWindowProxy) window);
 		}
-	}
-
-	public void setCurrentBackgroundColor(String color)
-	{
-		currentBackgroundColor = color;
-	}
-
-	public String getCurrentBackgroundColor()
-	{
-		return currentBackgroundColor;
 	}
 
 	@Kroll.getProperty @Kroll.method
@@ -148,22 +140,6 @@ public class TabProxy extends TiViewProxy
 		windowId = id;
 	}
 	
-	public String getBackgroundColor() {
-		if (hasProperty(TiC.PROPERTY_BACKGROUND_COLOR)) {
-			return getProperty(TiC.PROPERTY_BACKGROUND_COLOR).toString();
-		} else {
-			return null;
-		}
-	}
-	
-	public String getBackgroundSelectedColor() {
-		if (hasProperty(TiC.PROPERTY_BACKGROUND_SELECTED_COLOR)) {
-			return getProperty(TiC.PROPERTY_BACKGROUND_SELECTED_COLOR).toString();
-		} else {
-			return null;
-		}
-	}
-	
 	public int getWindowId() 
 	{
 		return windowId;
@@ -180,22 +156,47 @@ public class TabProxy extends TiViewProxy
 		}
 	}
 
-	/** TODO(josh): fix
-	public void setTabBackgroundColor() 
+	/**
+	 * Get the color of the tab when it is active.
+	 *
+	 * @return the active color if specified, otherwise returns zero.
+	 */
+	public int getActiveTabColor()
 	{
-		int index = tabGroupProxy.getTabList().indexOf(this);
-		TiUITabHostGroup tg = (TiUITabHostGroup)tabGroupProxy.peekView();
-		if (tg != null) {
-			tg.setTabBackgroundColor(index);
+		Object color = getProperty(TiC.PROPERTY_BACKGROUND_SELECTED_COLOR);
+		if (color == null) {
+			color = tabGroupProxy.getProperty(TiC.PROPERTY_ACTIVE_TAB_BACKGROUND_COLOR);
 		}
+
+		if (color != null) {
+			return TiConvert.toColor(color.toString());
+		}
+
+		return 0;
 	}
-	
-	public void setTabBackgroundSelectedColor()
+
+	/**
+	 * Get the color of the tab when it is inactive.
+	 *
+	 * @return the inactive color if specified, otherwise returns zero.
+	 */
+	public int getTabColor()
 	{
-		TiUITabHostGroup tg = (TiUITabHostGroup)tabGroupProxy.peekView();
-		if (tg != null) {
-			tg.setTabBackgroundSelectedColor();
+		Object color = getProperty(TiC.PROPERTY_BACKGROUND_COLOR);
+		if (color == null) {
+			color = tabGroupProxy.getProperty(TiC.PROPERTY_TABS_BACKGROUND_COLOR);
 		}
+
+		if (color != null) {
+			return TiConvert.toColor(color.toString());
+		}
+
+		return 0;
 	}
-	*/
+
+	void onSelectionChanged(boolean selected)
+	{
+		((TiUIAbstractTab) view).onSelectionChange(selected);
+	}
+
 }

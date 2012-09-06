@@ -7,9 +7,13 @@
 package ti.modules.titanium.ui.widget.tabgroup;
 
 import java.util.HashMap;
+import java.util.Map.Entry;
 
+import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBaseActivity;
+import org.appcelerator.titanium.TiC;
+import org.appcelerator.titanium.util.TiConvert;
 
 import ti.modules.titanium.ui.TabGroupProxy;
 import ti.modules.titanium.ui.TabProxy;
@@ -79,6 +83,10 @@ public class TiUITabHostGroup extends TiUIAbstractTabGroup
 
 	@Override
 	public void addTab(TabProxy tab) {
+		TabWidget tabWidget = tabHost.getTabWidget();
+
+		final int tabIndex = tabHost.getTabWidget().getTabCount();
+
 		TiUITabHostTab tabView = new TiUITabHostTab(tab);
 		tabViews.put(tabView.id, tabView);
 
@@ -86,6 +94,12 @@ public class TiUITabHostGroup extends TiUIAbstractTabGroup
 		tabView.setupTabSpec(tabSpec);
 		tabSpec.setContent(this);
 		tabHost.addTab(tabSpec);
+
+		tabView.setIndicatorView(tabWidget.getChildTabViewAt(tabIndex));
+
+		// Allow the tab view to initialize its background color.
+		// If this is the first tab mark it as being selected.
+		tabView.onSelectionChange(tabIndex == 0);
 	}
 
 	@Override
@@ -113,25 +127,6 @@ public class TiUITabHostGroup extends TiUIAbstractTabGroup
 		TabGroupProxy tabGroupProxy = ((TabGroupProxy) proxy);
 		TiUITabHostTab tab = tabViews.get(id);
 		tabGroupProxy.onTabSelected((TabProxy) tab.getProxy());
-
-		/** TODO(josh): refactor this background color code.
-		// This is the first place we can cache the background info before it gets changed by some of our logic. The
-		// first addTab() call from android triggers onTabChanged(), so this is the best place to cache the default
-		// drawables.
-		if (cacheDefaults) {
-			defaultSelectedDrawable = tabHost.getTabWidget().getChildAt(currentTabID).getBackground();
-			defaultDrawable = tabHost.getBackground();
-			cacheDefaults = false;
-		}
-
-		// Apply the appropriate background color on all tabs
-		for (int i = 0; i < tabHost.getTabWidget().getChildCount(); i++) {
-			if (i != currentTabID) {
-				setTabBackgroundColor(i);
-			}
-		}
-		setTabBackgroundSelectedColor();
-		*/
 	}
 
 	@Override
@@ -140,62 +135,23 @@ public class TiUITabHostGroup extends TiUIAbstractTabGroup
 		return tabView.getContentView();
 	}
 
-	/** TODO(josh): refactor
-	public void setTabBackgroundColor(int index) 
-	{
-		TabGroupProxy tabGroupProxy = (TabGroupProxy) proxy;
-		ArrayList<TabProxy> tabs = tabGroupProxy.getTabList();
-		TabProxy tProxy = tabs.get(index);
-		String color = tProxy.getBackgroundColor();
-		String currentColor = tProxy.getCurrentBackgroundColor();
-		View tab = tabHost.getTabWidget().getChildAt(index);
-		if (color != null) {
-			if (!color.equals(currentColor)) {
-				tab.setBackgroundColor(TiConvert.toColor(color));
-				tProxy.setCurrentBackgroundColor(color);
-			}
-		} else {
-			String tabsColor = tabGroupProxy.getTabsBackgroundColor();
-			if (tabsColor != null) {
-				if (!tabsColor.equals(currentColor)) {
-					tab.setBackgroundColor(TiConvert.toColor(tabsColor));
-					tProxy.setCurrentBackgroundColor(tabsColor);
+	@Override
+	public void propertyChanged(String key, Object oldValue, Object newValue, KrollProxy proxy) {
+		if (key.equals(TiC.PROPERTY_TABS_BACKGROUND_COLOR)) {
+			String activeTab = tabHost.getCurrentTabTag();
+			int color = TiConvert.toColor(newValue.toString());
+
+			// Update each inactive tab to the new background color.
+			for (Entry<String, TiUITabHostTab> e : tabViews.entrySet()) {
+				if (e.getKey() == activeTab) {
+					continue;
 				}
-			} else {
-				tab.setBackgroundDrawable(defaultDrawable);
-				tProxy.setCurrentBackgroundColor("");
+				e.getValue().setBackgroundColor(color);
 			}
-		}
-		
-	}
-	
-	public void setTabBackgroundSelectedColor() 
-	{
-		// If we have tabsBackgroundSelectedColor set, apply that color to the current tab
-		TabGroupProxy tabGroupProxy = (TabGroupProxy) proxy;
-		ArrayList<TabProxy> tabs = tabGroupProxy.getTabList();
-		TabProxy tProxy = getSelectedTab();
-		String selColor = tProxy.getBackgroundSelectedColor();
-		String currentColor = tProxy.getCurrentBackgroundColor();
-		View tab = tabHost.getTabWidget().getChildAt(currentTabID);
-		if (selColor != null) {
-			if (!selColor.equals(currentColor)) {
-				tab.setBackgroundColor(TiConvert.toColor(selColor));
-				tProxy.setCurrentBackgroundColor(selColor);
-			}
+
 		} else {
-			String tabsSelColor = tabGroupProxy.getTabsBackgroundSelectedColor();
-			if (tabsSelColor != null) {
-				if (!tabsSelColor.equals(currentColor)) {
-					tab.setBackgroundColor(TiConvert.toColor(tabsSelColor));
-					tProxy.setCurrentBackgroundColor(tabsSelColor);
-				}
-			} else {
-				tab.setBackgroundDrawable(defaultSelectedDrawable);
-				tProxy.setCurrentBackgroundColor("");
-			}
+			super.propertyChanged(key, oldValue, newValue, proxy);
 		}
 	}
-	*/
 
 }
