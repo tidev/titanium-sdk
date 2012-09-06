@@ -498,6 +498,7 @@ DEFINE_EXCEPTIONS
         }
     }
     
+    self.layer.masksToBounds = bgImage!=nil;
     self.backgroundImage = bgImage;
 }
 
@@ -529,6 +530,7 @@ DEFINE_EXCEPTIONS
 -(void)setBorderRadius_:(id)radius
 {
 	self.layer.cornerRadius = [TiUtils floatValue:radius];
+    self.layer.masksToBounds = YES;
 }
 
 -(void)setAnchorPoint_:(id)point
