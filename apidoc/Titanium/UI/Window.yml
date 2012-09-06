@@ -732,7 +732,8 @@ description: |
       JavaScript context if it was created with the 'url' property set.
 
     The [createWindow](Titanium.UI.createWindow) call creates a heavyweight window 
-    if any of the following properties are true on creation:
+    if any of the following properties are defined (set to either `true` or `false`)
+    on creation:
 
     * `fullscreen`
     * `navBarHidden`
@@ -781,8 +782,9 @@ properties:
     summary: |
         Determines whether to use an animated effect when the window is shown.
     description: |
-        On Android, this property supports animated transitions to fullscreen windows
-        (`fullscreen:true`) or windows without navigation bars (`navBarHidden:true`).
+        On Android, this property supports animated transitions on heavyweight windows
+        except for modal windows (`modal:true`).  See "Android Heavyweight and Lightweight
+        Windows" in the main description of Titanium.UI.Window for more information.
 
         On iOS, only use this property to disable animated transitions on modal windows. 
         This property has unintended side effects on non-modal windows if it is defined. 
@@ -790,6 +792,10 @@ properties:
 
   - name: bottom
     summary: Window's bottom position, in platform-specific units.
+    description: |
+        On Android, this property will only work with lightweight windows.
+        See "Android Heavyweight and Lightweight Windows" in the main description
+        of Titanium.UI.Window for more information.
     type: [Number,String]
     default: 0
 
@@ -800,10 +806,18 @@ properties:
 
   - name: height
     summary: Window's height, in platform-specific units.
+    description: |
+        On Android, this property will only work with lightweight windows.
+        See "Android Heavyweight and Lightweight Windows" in the main description 
+        of Titanium.UI.Window for more information.
     type: [Number,String]
 
   - name: left
     summary: Window's left position, in platform-specific units.
+    description: |
+        On Android, this property will only work with lightweight windows.
+        See "Android Heavyweight and Lightweight Windows" in the main description 
+        of Titanium.UI.Window for more information.
     type: [Number,String]
     default: 0
 
@@ -843,11 +857,19 @@ properties:
 
   - name: right
     summary: Window's right position, in platform-specific units.
+    description: |
+        On Android, this property will only work with lightweight windows.
+        See "Android Heavyweight and Lightweight Windows" in the main description 
+        of Titanium.UI.Window for more information.
     type: [Number,String]
     default: 0
 
   - name: top
     summary: Window's top position, in platform-specific units.
+    description: |
+        On Android, this property will only work with lightweight windows.
+        See "Android Heavyweight and Lightweight Windows" in the main description 
+        of Titanium.UI.Window for more information.
     type: [Number,String]
     default: 0
 
@@ -866,5 +888,9 @@ properties:
 
   - name: width
     summary: Window's width, in platform-specific units.
+    description: |
+        On Android, this property will only work with lightweight windows.
+        See "Android Heavyweight and Lightweight Windows" in the main description 
+        of Titanium.UI.Window for more information.
     type: [Number,String]
 
