@@ -48,7 +48,7 @@ class ModulePlatform(object):
 class ModuleProject(object):
 	def __init__(self,platform,project_dir,config):
 		self.project_short_name = config['name']
-		self.project_name = config['name'].lower()
+		self.project_name = config['name']
 		self.platform = platform
 		self.module_id = config['id']
 		self.module_name = self.generate_module_name(self.module_id)
@@ -81,6 +81,7 @@ class ModuleProject(object):
 		string = string.replace('___PROJECTNAME___',self.project_name)
 		string = string.replace('__MODULE_ID__',self.module_id)
 		string = string.replace('__PROJECT_SHORT_NAME__',self.project_short_name)
+		string = string.replace('__PROJECT_SHORT_NAME_LOWER__',self.project_short_name.lower())
 		string = string.replace('__VERSION__',self.sdk_version)
 		string = string.replace('__SDK__',sdk_dir)
 		string = string.replace('__SDK_ROOT__',os.path.split(sdk_dir)[0].replace(os.path.expanduser('~'),'~',1))
@@ -146,9 +147,16 @@ class Module(object):
 		self.manifest = manifest
 
 		self.jar = None
-		module_jar = self.get_resource(manifest.name+'.jar')
+		module_jar = self.get_resource(manifest.name + '.jar')
 		if os.path.exists(module_jar):
 			self.jar = module_jar
+		else:
+			# To account for Linux filename case-sensitivity,
+			# we began to force our external module jars to be lower-case,
+			# so give that a shot here.
+			module_jar = self.get_resource(manifest.name.lower() + '.jar')
+			if os.path.exists(module_jar):
+				self.jar = module_jar
 		self.lib = None
 
 		module_lib = self.get_resource('lib%s.a' % manifest.moduleid)

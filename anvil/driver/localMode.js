@@ -14,13 +14,15 @@ var fs = require("fs");
 var path = require("path");
 var readline = require("readline");
 
-var util = require(driverGlobal.driverDir + "/util");
+var driverUtils = require(path.join(driverGlobal.driverDir, "driverUtils"));
 
 module.exports = new function() {
 	var readlineInterface = readline.createInterface(process.stdin, process.stdout);
 
 	this.start = function() {
-		var command = util.getArgument(process.argv, "--command");
+		driverUtils.setCurrentTiSdk();
+
+		var command = driverUtils.getArgument(process.argv, "--command");
 		if ((typeof command) === "undefined") {
 			var printResultsCallback = function(results) {
 				printResults(results, resumeReadingCommands);
@@ -29,7 +31,7 @@ module.exports = new function() {
 
 			readlineInterface.on("line", function(line) {
 				readlineInterface.pause();
-				driverGlobal.platform.processCommand(util.trimStringRight(line));
+				driverGlobal.platform.processCommand(driverUtils.trimStringRight(line));
 			});
 
 			showPrompt();
@@ -48,13 +50,13 @@ module.exports = new function() {
 				printAndPackageResults(results, exitCallback);
 			};
 
-			if (path.existsSync(driverGlobal.logsDir + "/json_results")) {
-				util.runCommand("rm -r " + driverGlobal.logsDir + "/json_results", util.logNone, function(error) {
+			if (path.existsSync(path.join(driverGlobal.logsDir, "json_results"))) {
+				driverUtils.runCommand("rm -r " + path.join(driverGlobal.logsDir, "json_results"), driverUtils.logNone, function(error) {
 					if (error != null) {
-						util.log("error encountered when deleting json results file: " + error);
+						driverUtils.log("error encountered when deleting json results file: " + error);
 
 					} else {
-						util.log("json results file deleted");
+						driverUtils.log("json results file deleted");
 					}
 
 					startCallback();
@@ -78,7 +80,7 @@ module.exports = new function() {
 
 	var printAndPackageResults = function(results, callback) {
 		var packageCallback = function() {
-			var resultsFile = fs.openSync(driverGlobal.logsDir + "/json_results", 'w');
+			var resultsFile = fs.openSync(path.join(driverGlobal.logsDir, "json_results"), 'w');
 			fs.writeSync(resultsFile, JSON.stringify(results));
 			fs.closeSync(resultsFile);
 
@@ -92,7 +94,7 @@ module.exports = new function() {
 		var passedCount = 0;
 		var failedCount = 0;
 
-		util.log("\nRESULTS SUMMARY:", driverGlobal.logLevels.quiet);
+		driverUtils.log("\nRESULTS SUMMARY:", driverGlobal.logLevels.quiet);
 
 		var numSets = results.length
 		for (var i = 0; i < numSets; i++) {
@@ -101,13 +103,13 @@ module.exports = new function() {
 				var numSuites = results[i].setConfigs[j].configSuites.length;
 
 				if (numSuites > 0) {
-					util.log(util.getTabs(1) + "Set name <" + results[i].setName + "> Config ID <" + results[i].setConfigs[j].configName + ">:", driverGlobal.logLevels.quiet);
+					driverUtils.log(driverUtils.getTabs(1) + "Set name <" + results[i].setName + "> Config ID <" + results[i].setConfigs[j].configName + ">:", driverGlobal.logLevels.quiet);
 
 					for (var k = 0; k < numSuites; k++) {
 						if (k > 0) {
-							util.log("", driverGlobal.logLevels.quiet);
+							driverUtils.log("", driverGlobal.logLevels.quiet);
 						}
-						util.log(util.getTabs(2) + "Suite name <" + results[i].setConfigs[j].configSuites[k].suiteName + ">:", driverGlobal.logLevels.quiet);
+						driverUtils.log(driverUtils.getTabs(2) + "Suite name <" + results[i].setConfigs[j].configSuites[k].suiteName + ">:", driverGlobal.logLevels.quiet);
 
 						var numTests = results[i].setConfigs[j].configSuites[k].suiteTests.length;
 						for (var l = 0; l < numTests; l++) {
@@ -122,7 +124,7 @@ module.exports = new function() {
 							} else {
 								testDescription = "";
 							}
-							util.log(util.getTabs(3) + testName + " - " + testDuration + "ms - " + testResult + testDescription, driverGlobal.logLevels.quiet);
+							driverUtils.log(driverUtils.getTabs(3) + testName + " - " + testDuration + "ms - " + testResult + testDescription, driverGlobal.logLevels.quiet);
 
 							if (testResult == "success") {
 								passedCount++;
@@ -133,15 +135,15 @@ module.exports = new function() {
 						}
 					}
 
-					util.log("", driverGlobal.logLevels.quiet);
+					driverUtils.log("", driverGlobal.logLevels.quiet);
 				}
 			}
 		}
 
-		util.log(util.getTabs(1) + "Results count:", driverGlobal.logLevels.quiet);
-		util.log(util.getTabs(2) + "PASSED - " + passedCount, driverGlobal.logLevels.quiet);
-		util.log(util.getTabs(2) + "FAILED - " + failedCount, driverGlobal.logLevels.quiet);
-		util.log("", 0);
+		driverUtils.log(driverUtils.getTabs(1) + "Results count:", driverGlobal.logLevels.quiet);
+		driverUtils.log(driverUtils.getTabs(2) + "PASSED - " + passedCount, driverGlobal.logLevels.quiet);
+		driverUtils.log(driverUtils.getTabs(2) + "FAILED - " + failedCount, driverGlobal.logLevels.quiet);
+		driverUtils.log("", 0);
 
 		callback();
 	};
