@@ -1,6 +1,6 @@
 package ti.modules.titanium.ui.widget.tabgroup;
 
-import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.titanium.TiC;
 
 import ti.modules.titanium.ui.TabProxy;
@@ -40,18 +40,22 @@ public class TiUIActionBarTab extends TiUIAbstractTab {
 		super(proxy);
 		this.tab = tab;
 
+		proxy.setModelListener(this);
+
 		// Provide a reference to this instance by placing
 		// a reference inside the "tag" slot that ActionBar.Tab provides.
 		tab.setTag(this);
+
+		Object title = proxy.getProperty(TiC.PROPERTY_TITLE);
+		if (title != null) {
+			tab.setText(title.toString());
+		}
 	}
 
 	@Override
-	public void processProperties(KrollDict d) {
-		super.processProperties(d);
-
-		String title = d.getString(TiC.PROPERTY_TITLE);
-		if (title != null) {
-			tab.setText(title);
+	public void propertyChanged(String key, Object oldValue, Object newValue, KrollProxy proxy) {
+		if (key.equals(TiC.PROPERTY_TITLE)) {
+			tab.setText(newValue.toString());
 		}
 	}
 
