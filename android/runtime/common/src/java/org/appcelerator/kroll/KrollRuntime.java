@@ -9,6 +9,7 @@ package org.appcelerator.kroll;
 import java.lang.ref.WeakReference;
 import java.util.concurrent.CountDownLatch;
 
+import org.appcelerator.kroll.KrollExceptionHandler.ErrorMessage;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.common.TiMessenger;
 import org.appcelerator.kroll.util.KrollAssetHelper;
@@ -50,6 +51,7 @@ public abstract class KrollRuntime implements Handler.Callback
 	private long threadId;
 	private CountDownLatch initLatch = new CountDownLatch(1);
 	private KrollEvaluator evaluator;
+	private KrollExceptionHandler exceptionHandler;
 
 	public enum State {
 		INITIALIZED, RELEASED, RELAUNCHED, DISPOSED
@@ -416,6 +418,27 @@ public abstract class KrollRuntime implements Handler.Callback
 	public State getRuntimeState()
 	{
 		return runtimeState;
+	}
+
+	/**
+	 * Sets the exception handler for the runtime
+	 * @param handler the exception handler to set
+	 * @module.api
+	 */
+	public static void setExecptionHandler(KrollExceptionHandler handler)
+	{
+		if (instance != null) {
+			instance.exceptionHandler = handler;
+		}
+	}
+
+	public static void dispatchExceptionHandler(final String title, final String message, final String sourceName,
+		final int line, final String lineSource, final int lineOffset)
+	{
+		if (instance != null) {
+			instance.exceptionHandler.handleException(new ErrorMessage(title, message, sourceName, line, lineSource,
+				lineOffset));
+		}
 	}
 
 	public abstract void doDispose();
