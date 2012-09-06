@@ -55,6 +55,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.util.DisplayMetrics;
+import android.view.accessibility.AccessibilityManager;
 
 /**
  * The main application entry point for all Titanium applications and services.
@@ -99,6 +100,7 @@ public abstract class TiApplication extends Application implements Handler.Callb
 	private String defaultUnit;
 	private TiResponseCache responseCache;
 	private BroadcastReceiver externalStorageReceiver;
+	private AccessibilityManager accessibilityManager = null;
 
 	protected TiAnalyticsModel analyticsModel;
 	protected Intent analyticsIntent;
@@ -361,6 +363,7 @@ public abstract class TiApplication extends Application implements Handler.Callb
 	public void onTerminate()
 	{
 		stopExternalStorageMonitor();
+		accessibilityManager = null;
 		super.onTerminate();
 	}
 
@@ -887,6 +890,14 @@ public abstract class TiApplication extends Application implements Handler.Callb
 		if (TiApplication.activityStack != null) {
 			TiApplication.activityTransitionListeners.clear();
 		}
+	}
+
+	public AccessibilityManager getAccessibilityManager()
+	{
+		if (accessibilityManager == null) {
+			accessibilityManager = (AccessibilityManager) getSystemService(Context.ACCESSIBILITY_SERVICE);
+		}
+		return accessibilityManager;
 	}
 
 	public abstract void verifyCustomModules(TiRootActivity rootActivity);

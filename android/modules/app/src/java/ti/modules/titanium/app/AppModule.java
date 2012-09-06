@@ -8,20 +8,27 @@ package ti.modules.titanium.app;
 
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.annotations.Kroll;
+import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.ITiAppInfo;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
+import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiPlatformHelper;
 
-import android.content.Context;
 import android.os.Build;
 import android.provider.Settings;
+import android.support.v4.view.accessibility.AccessibilityEventCompat;
+import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityManager;
 
 @Kroll.module
 public class AppModule extends KrollModule
 {
+	private static final String TAG = "AppModule";
+
+	@Kroll.constant public static final String SYSTEM_EVENT_ACCESSIBILITY_ANNOUNCEMENT = "accessibilityannouncement";
+
 	private ITiAppInfo appInfo;
 
 	public AppModule()
@@ -119,8 +126,7 @@ public class AppModule extends KrollModule
 	@Kroll.method @Kroll.getProperty
 	public boolean getAccessibilityEnabled()
 	{
-		AccessibilityManager manager = (AccessibilityManager) TiApplication.getInstance().getSystemService(
-			Context.ACCESSIBILITY_SERVICE);
+		AccessibilityManager manager = TiApplication.getInstance().getAccessibilityManager();
 		boolean enabled = manager.isEnabled();
 
 		if (!enabled && Build.VERSION.SDK_INT < TiC.API_LEVEL_HONEYCOMB) {
@@ -135,5 +141,32 @@ public class AppModule extends KrollModule
 		}
 
 		return enabled;
+	}
+
+	@Kroll.method
+	public void fireSystemEvent(String eventName, @Kroll.argument(optional = true) Object arg)
+	{
+		if (eventName.equals(SYSTEM_EVENT_ACCESSIBILITY_ANNOUNCEMENT)) {
+
+			if (!getAccessibilityEnabled()) {
+				Log.w(TAG, "Accessibility announcement ignored. Accessibility services are not enabled on this device.");
+				return;
+			}
+
+			if (arg == null) {
+				Log.w(TAG, "Accessibility announcement ignored. No announcement text was provided.");
+				return;
+			}
+
+			AccessibilityManager accessibilityManager = TiApplication.getInstance().getAccessibilityManager();
+			AccessibilityEvent event = AccessibilityEvent.obtain(AccessibilityEventCompat.TYPE_ANNOUNCEMENT);
+			event.setEnabled(true);
+			event.getText().clear();
+			event.getText().add(TiConvert.toString(arg));
+			accessibilityManager.sendAccessibilityEvent(event);
+
+		} else {
+			Log.w(TAG, "Unknown system event: " + eventName);
+		}
 	}
 }
