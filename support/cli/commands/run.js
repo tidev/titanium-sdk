@@ -11,7 +11,7 @@ var appc = require('node-appc'),
 exports.config = function (logger, config, cli) {
 	return {
 		desc: __('install and run an app'),
-		platforms: lib.platformOptions()
+		platforms: lib.platformOptions(logger, config, cli, module)
 	};
 };
 
