@@ -34,6 +34,19 @@ module.exports = new function() {
 		}
 	};
 
+	this.createDir = function(dir) {
+		if (path.existsSync(dir)) {
+			return;
+		}
+
+		try {
+			fs.mkdirSync(dir, 0777);
+
+		} catch(e) {
+			console.log("exception <" + e + "> occurred when creating " + dir);
+		}
+	};
+
 	/*
 	these are stand alone from the driver wide log levels since the arguments to runCommand do 
 	not change based on the --log-level argument

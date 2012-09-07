@@ -31,6 +31,10 @@ module.exports = new function() {
 	this.name = "ios";
 
 	this.init = function(commandCallback, testPassCallback) {
+		// check ios specific config items
+		driverUtils.checkConfigItem("iosSocketPort", driverGlobal.config.iosSocketPort, "number");
+		driverUtils.checkConfigItem("defaultIosSimVersion", driverGlobal.config.defaultIosSimVersion, "string");
+
 		commandFinishedCallback = commandCallback;
 
 		testPassFinishedCallback = function(results) {

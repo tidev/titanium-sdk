@@ -25,6 +25,10 @@ module.exports = new function() {
 	this.name = "android";
 
 	this.init = function(commandCallback, testPassCallback) {
+		// check android specific config items
+		driverUtils.checkConfigItem("androidSdkDir", driverGlobal.config.androidSdkDir, "string");
+		driverUtils.checkConfigItem("androidSocketPort", driverGlobal.config.androidSocketPort, "number");
+
 		commandFinishedCallback = commandCallback;
 		testPassFinishedCallback = testPassCallback;
 	};

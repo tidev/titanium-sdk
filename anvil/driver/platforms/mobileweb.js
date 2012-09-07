@@ -28,6 +28,9 @@ module.exports = new function() {
 	this.name = "mobileweb";
 
 	this.init = function(commandCallback, testPassCallback) {
+		// check mobile web specific config items
+		driverUtils.checkConfigItem("httpPort", driverGlobal.config.httpPort, "number");
+
 		commandFinishedCallback = commandCallback;
 		testPassFinishedCallback = testPassCallback;
 	};

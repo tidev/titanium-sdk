@@ -217,16 +217,11 @@ function loadConfigModule() {
 		process.exit(1);
 	}
 
-	driverUtils.checkConfigItem("androidSdkDir", config.androidSdkDir, "string");
 	driverUtils.checkConfigItem("tiSdkDirs", config.tiSdkDirs, "string");
 	driverUtils.checkConfigItem("maxLogs", config.maxLogs, "number");
-	driverUtils.checkConfigItem("androidSocketPort", config.androidSocketPort, "number");
-	driverUtils.checkConfigItem("iosSocketPort", config.iosSocketPort, "number");
 	driverUtils.checkConfigItem("maxSocketConnectAttempts", config.maxSocketConnectAttempts, "number");
-	driverUtils.checkConfigItem("httpPort", config.httpPort, "number");
 	driverUtils.checkConfigItem("defaultTestTimeout", config.defaultTestTimeout, "number");
 	driverUtils.checkConfigItem("tabString", config.tabString, "string");
-	driverUtils.checkConfigItem("defaultIosSimVersion", config.defaultIosSimVersion, "string");
 
 	// load the defaultPlatform config property and set the global platform property if needed
 	new function() {
@@ -286,23 +281,10 @@ function loadConfigModule() {
 }
 
 function setupTempDirs() {
-	function createDir(dir) {
-		if (path.existsSync(dir)) {
-			return;
-		}
-
-		try {
-			fs.mkdirSync(dir, 0777);
-
-		} catch(e) {
-			console.log("exception <" + e + "> occurred when creating " + dir);
-		}
-	}
-
-	createDir(driverGlobal.config.tempDir);
-	createDir(driverGlobal.harnessDir);
-	createDir(driverGlobal.logsDir);
-	createDir(path.join(driverGlobal.logsDir, driverGlobal.platform.name));
+	driverUtils.createDir(driverGlobal.config.tempDir);
+	driverUtils.createDir(driverGlobal.harnessDir);
+	driverUtils.createDir(driverGlobal.logsDir);
+	driverUtils.createDir(path.join(driverGlobal.logsDir, driverGlobal.platform.name));
 }
 
 init();
