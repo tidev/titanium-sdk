@@ -4,6 +4,8 @@
 #
 import os, types, glob, shutil, sys, platform, codecs
 import zipfile, datetime, subprocess, tempfile, time
+
+sys.path.append(os.path.join(os.path.abspath(os.path.dirname(sys._getframe(0).f_code.co_filename)),'..','support','common'))
 import simplejson
 
 if platform.system() == 'Darwin':
@@ -342,12 +344,24 @@ def resolve_npm_deps(dir, version, build_v3):
 		codecs.open(package_json_file, 'w', 'utf-8').write(package_json_contents)
 		
 		node_installed = False
+		node_version = ''
+		node_minimum_minor_ver = 6
+		node_too_old = False
 		npm_installed = False
 		try:
 			p = subprocess.Popen('node --version', shell=True, cwd=dir, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 			stdout, stderr = p.communicate()
 			if p.returncode == 0:
 				node_installed = True
+				
+				ver = stdout.strip()
+				if ver[0] == 'v':
+					ver = ver[1:]
+				node_version = ver
+				ver = ver.split('.')
+				if len(ver) > 1 and int(ver[0]) == 0 and int(ver[1]) < node_minimum_minor_ver:
+					node_too_old = True
+				
 				p = subprocess.Popen('npm --version', shell=True, cwd=dir, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 				stdout, stderr = p.communicate()
 				if p.returncode == 0:
@@ -359,8 +373,10 @@ def resolve_npm_deps(dir, version, build_v3):
 			if not node_installed:
 				print '[ERROR] Unable to find node.js. Please download and install: http://nodejs.org/'
 				sys.exit(1)
-			
-			if not npm_installed:
+			elif node_too_old:
+				print '[ERROR] Your version of node.js %s is too old. Please download and install a newer version: http://nodejs.org/' % node_version
+				sys.exit(1)
+			elif not npm_installed:
 				print '[ERROR] Unable to find npm. Please download and install: http://nodejs.org/'
 				sys.exit(1)
 			
@@ -376,6 +392,8 @@ def resolve_npm_deps(dir, version, build_v3):
 		else:
 			if not node_installed:
 				print '[WARN] Unable to find node.js, which is required for version 3.0. Please download and install: http://nodejs.org/'
+			elif node_too_old:
+				print '[WARN] Your version of node.js %s is too old. Titanium 3.0 requires 0.%s or newer. Please download and install a newer version: http://nodejs.org/' % (node_version, node_minimum_minor_ver)
 			elif not npm_installed:
 				print '[WARN] Unable to find npm, which is required for version 3.0. Please download and install: http://nodejs.org/'
 		
