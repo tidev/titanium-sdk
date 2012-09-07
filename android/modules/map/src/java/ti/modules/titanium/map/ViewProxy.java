@@ -176,7 +176,7 @@ public class ViewProxy extends TiViewProxy implements OnLifecycleEvent
 		return mapView;
 	}
 
-	public ArrayList<MapRoute> getRoutes()
+	public ArrayList<MapRoute> getMapRoutes()
 	{
 		return routes;
 	}
@@ -271,7 +271,9 @@ public class ViewProxy extends TiViewProxy implements OnLifecycleEvent
 
 			// if the route exists, remove it
 			if (mr != null) {
-				if (mapView != null) {
+				if (mapView == null) {
+					this.routes.remove(mr);
+				} else {
 					mapView.removeRoute(mr);
 				}
 			}

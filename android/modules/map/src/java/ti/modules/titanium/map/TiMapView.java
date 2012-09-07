@@ -581,7 +581,7 @@ public class TiMapView extends TiUIView
 	{
 		//check if route exists - by name
 		String rname = mr.getName();
-		ArrayList<MapRoute> routes = ((ViewProxy) proxy).getRoutes();
+		ArrayList<MapRoute> routes = ((ViewProxy) proxy).getMapRoutes();
 		for (int i = 0; i < routes.size(); i++) {
 			if (rname.equals(routes.get(i).getName())) {
 				return;
@@ -601,17 +601,16 @@ public class TiMapView extends TiUIView
 	public void removeRoute(MapRoute mr)
 	{
 		String rname = mr.getName();
-		ArrayList<MapRoute> routes = ((ViewProxy) proxy).getRoutes();
+		ArrayList<MapRoute> routes = ((ViewProxy) proxy).getMapRoutes();
 		for (int i = 0; i < routes.size(); i++) {
 			MapRoute maproute = routes.get(i);
 			if (rname.equals(maproute.getName())) {
-				routes.remove(maproute);
 				ArrayList<RouteOverlay> o = maproute.getRoutes();
 				List<Overlay> overlaysList = view.getOverlays();
-				while (!o.isEmpty()) {
-					RouteOverlay ro = o.remove(0);
-					overlaysList.remove(ro);
+				for (int j = 0; j < o.size(); j++) {
+					overlaysList.remove(o.get(j));
 				}
+				routes.remove(i);
 				return;
 			}
 		}
@@ -620,7 +619,7 @@ public class TiMapView extends TiUIView
 	public void updateRoute() 
 	{
 		int i = 0;
-		ArrayList<MapRoute> routes = ((ViewProxy) proxy).getRoutes();
+		ArrayList<MapRoute> routes = ((ViewProxy) proxy).getMapRoutes();
 		while (i < routes.size()) {
 			MapRoute mr = routes.remove(i);
 			ArrayList<RouteOverlay> o = mr.getRoutes();			
