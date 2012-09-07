@@ -30,6 +30,8 @@ import ti.modules.titanium.map.MapRoute.RouteOverlay;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Color;
+import android.graphics.Point;
+import android.graphics.Rect;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.ShapeDrawable;
@@ -52,6 +54,7 @@ import com.google.android.maps.Overlay;
 
 interface TitaniumOverlayListener {
 	public void onTap(int index);
+	public void onTap(GeoPoint p, MapView mapView);
 }
 
 public class TiMapView extends TiUIView
@@ -206,12 +209,14 @@ public class TiMapView extends TiUIView
 		ArrayList<AnnotationProxy> annotations;
 		TitaniumOverlayListener listener;
 		Drawable defaultMarker;
+		boolean isMultitouch;
 
 		public TitaniumOverlay(Drawable defaultDrawable, TitaniumOverlayListener listener)
 		{
 			super(defaultDrawable);
 			this.defaultMarker = defaultDrawable;
 			this.listener = listener;
+			this.isMultitouch = false;
 		}
 
 		public Drawable getDefaultMarker()
@@ -339,14 +344,43 @@ public class TiMapView extends TiUIView
 		protected boolean onTap(int index)
 		{
 			boolean handled = super.onTap(index);
-			if(!handled ) {
+
+			// If the "tap" is on an item, handle it here.
+			if (!handled) {
 				listener.onTap(index);
+				return true;
 			}
 
 			return handled;
 		}
+
+		@Override
+		public boolean onTap(GeoPoint p, MapView mapView)
+		{
+			// If the "tap" is on an item, handle it by onTap(int).
+			boolean handled = super.onTap(p, mapView);
+
+			// If the "tap" is not on an item, handle it here.
+			if (!handled && !isMultitouch) {
+				listener.onTap(p, mapView);
+				return true;
+			}
+
+			return false;
+		}
+
+		@Override
+		public boolean onTouchEvent(MotionEvent event, MapView mapView)
+		{
+			if (event.getPointerCount() > 1) {
+				isMultitouch = true;
+			} else if (event.getAction() == MotionEvent.ACTION_DOWN) {
+				isMultitouch = false;
+			}
+			return super.onTouchEvent(event, mapView);
+		}
 	}
-	
+
 	public static class SelectedAnnotation
 	{
 		AnnotationProxy selectedAnnotation;
@@ -578,7 +612,7 @@ public class TiMapView extends TiUIView
 	{
 		handler.obtainMessage(MSG_UPDATE_ANNOTATIONS).sendToTarget();
 	}
-	
+
 	public void addRoute(MapRoute mr) 
 	{
 		//check if route exists - by name
@@ -649,16 +683,19 @@ public class TiMapView extends TiUIView
 	public void onTap(int index)
 	{
 		if (overlay != null) {
-			synchronized(overlay) {
+			synchronized (overlay) {
 				TiOverlayItem item = overlay.getItem(index);
 
 				// fire the click event event when the "pin" is clicked regardless of the popup
 				// being visible or not
 				this.itemView.fireClickEvent(index, "pin");
 
-				if (itemView != null && index == itemView.getLastIndex() && itemView.getVisibility() == View.VISIBLE) {
+				// If the zoom controls are visible and the annotation is shown, hide the annotation by clicking the
+				// annotation pin.
+				if ((itemView != null && index == itemView.getLastIndex() && itemView.getVisibility() == View.VISIBLE)
+					&& !(proxy.hasProperty(TiC.PROPERTY_ENABLE_ZOOM_CONTROLS) && !TiConvert.toBoolean(proxy
+						.getProperty(TiC.PROPERTY_ENABLE_ZOOM_CONTROLS)))) {
 					hideAnnotation();
-
 					return;
 				}
 
@@ -673,6 +710,40 @@ public class TiMapView extends TiUIView
 		}
 	}
 
+	public void onTap(GeoPoint p, MapView mapView)
+	{
+		// If the zoom controls are invisible and the annotation is shown, hide the annotation by clicking in the map
+		// view outside of the annotation.
+		if (proxy.hasProperty(TiC.PROPERTY_ENABLE_ZOOM_CONTROLS)
+			&& !TiConvert.toBoolean(proxy.getProperty(TiC.PROPERTY_ENABLE_ZOOM_CONTROLS))) {
+			if (itemView != null && view.indexOfChild(itemView) != -1) {
+				Point pointOnTap = new Point();
+				view.getProjection().toPixels(p, pointOnTap);
+				Rect rectItemView = new Rect();
+				itemView.getHitRect(rectItemView);
+
+				// If the "tap" is on the annotation itself, don't hide it.
+				if (rectItemView.contains(pointOnTap.x, pointOnTap.y)) {
+					return;
+				}
+
+				int lastShownItemIndex = itemView.getLastIndex();
+				if (lastShownItemIndex != -1) {
+					hideAnnotation();
+					TiOverlayItem item = overlay.getItem(lastShownItemIndex);
+					KrollDict d = new KrollDict();
+					d.put(TiC.EVENT_PROPERTY_CLICKSOURCE, "null");
+					d.put(TiC.PROPERTY_TITLE, item.getTitle());
+					d.put(TiC.PROPERTY_SUBTITLE, item.getSnippet());
+					d.put(TiC.PROPERTY_ANNOTATION, item.getProxy());
+					d.put(TiC.PROPERTY_LATITUDE, scaleFromGoogle(item.getPoint().getLatitudeE6()));
+					d.put(TiC.PROPERTY_LONGITUDE, scaleFromGoogle(item.getPoint().getLongitudeE6()));
+					proxy.fireEvent(TiC.EVENT_CLICK, d);
+				}
+			}
+		}
+	}
+
 	@Override
 	public void processProperties(KrollDict d)
 	{
@@ -682,6 +753,11 @@ public class TiMapView extends TiUIView
 		}
 		if (d.containsKey(TiC.PROPERTY_ZOOM_ENABLED)) {
 			view.setBuiltInZoomControls(TiConvert.toBoolean(d,TiC.PROPERTY_ZOOM_ENABLED));
+		}
+		if (d.containsKey(TiC.PROPERTY_ENABLE_ZOOM_CONTROLS)) {
+			if (!TiConvert.toBoolean(d, TiC.PROPERTY_ENABLE_ZOOM_CONTROLS)) {
+				view.getZoomButtonsController().getZoomControls().setVisibility(View.INVISIBLE);
+			}
 		}
 		if (d.containsKey(TiC.PROPERTY_SCROLL_ENABLED)) {
 			view.setScrollable(TiConvert.toBoolean(d, TiC.PROPERTY_SCROLL_ENABLED));
@@ -764,6 +840,13 @@ public class TiMapView extends TiUIView
 			Object [] annotations = (Object[]) newValue;
 			addAnnotations(annotations);
 
+		} else if (key.equals(TiC.PROPERTY_ENABLE_ZOOM_CONTROLS)) {
+			boolean enabled = TiConvert.toBoolean(newValue);
+			if (enabled) {
+				view.getZoomButtonsController().getZoomControls().setVisibility(View.VISIBLE);
+			} else {
+				view.getZoomButtonsController().getZoomControls().setVisibility(View.INVISIBLE);
+			}
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}
