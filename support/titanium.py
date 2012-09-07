@@ -139,7 +139,7 @@ def create_android_project(project_dir, osname, args):
 def create_android_module(project_dir, osname, args):
 	script = os.path.join(template_dir, 'module', 'module.py')
 	
-	name = get_required(args, 'name').lower()
+	name = get_required(args, 'name')
 	validate_project_name(name)
 	appid = get_required(args, 'id')
 	android_sdk = get_android_sdk(args)

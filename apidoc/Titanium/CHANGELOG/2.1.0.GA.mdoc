@@ -1,0 +1,295 @@
+# Titanium Mobile 2.1.0.GA - 6/29/2012
+
+##### Contents
+
+*   [About This Release](#about)
+*   [New In This Release](#new)
+*   [Known Issues](#issues)
+*   [Android Platform Fixes and Enhancements](#android)
+*   [iOS Platform Fixes and Enhancements](#ios)
+*   [Mobile Web Platform Fixes and Enhancements](#mobileweb)
+*   [Documentation Fixes and Enhancements](#docs)
+
+<a name="about"></a>
+
+## About This Release
+
+Titanium Mobile SDK Release 2.1.0 is a feature release of the Titanium Mobile SDK, including
+several new features and a number of bug fixes and parity improvements. 
+
+This release includes breaking changes that may require changes to existing
+applications developed with previous releases. Please read these release notes completely
+before installing and using the Release 2.1.0 SDK. In particular, you should review the
+[New in This Release](#new) sections.
+
+[Full list of Issues that were addressed in Release 2.1.0](https://jira.appcelerator.org/secure/IssueNavigator.jspa?mode=hide&requestId=13022)
+
+If you are upgrading from Titanium Mobile SDK 2.0.1, this release also includes all fixes included 
+in Release 2.0.2.
+
+For a list of issues addressed in Release 2.0.2, see the release notes for the previous
+releases:
+
+* [Release Notes for Release 2.0.2](http://docs.appcelerator.com/titanium/release-notes/?version=2.0.2.GA)
+    
+Further information is available in the updated [Titanium Mobile SDK and Titanium Studio
+Documentation](http://docs.appcelerator.com/titanium/2.1/).
+
+<a name="new"></a>
+
+## New in This Release
+
+*   Improved JavaScript code security.
+
+*   Support for ACS Access Control Lists (ACLs). ACLs allow you to control which users can 
+    read or write an ACS object. 
+
+*   Parity enhancements for horizontal layouts. Horizontal layouts now follow the same
+    rules on iOS, Android and Mobile Web. 
+    
+    A new property, [horizontalWrap](http://docs.appcelerator.com/titanium/2.1/index.html#!/api/Titanium.UI.View-property-horizontalWrap), 
+    has been added to enable or disable wrapping on horizontal layouts. With
+    `horizontalWrap` set to `false`, a horizontal layout lays out its children in a single
+    row, left to right. With `horizontalWrap` set to `true` (default) horizontal layout
+    lays out its children in multiple rows, as Android and iOS did in previous releases. 
+    When wrapping is enabled, the first row is aligned at the top of the parent view --
+    this matches the iOS behavior in previous releases.
+
+    See the discussion of horizontal layout in the description for the
+    [layout](http://docs.appcelerator.com/titanium/2.1/index.html#!/api/Titanium.UI.View-property-layout)
+    property for more details.
+
+*   Support for Android and iOS modules combining JavaScript and native code
+    ([TIMOB-9314](https://jira.appcelerator.org/browse/TIMOB-9314)).
+
+*   `ScrollableView` scroll event enhancements. Prior to Release 2.1, the `ScrollableView`
+    `scroll` event behavior was not consistent with the `scroll` event on other views. 
+    On Android, it fired when dragging ended, and on iOS it fired when the view finished 
+    scrolling. To be more consistent with other views, the `scroll` event was redefined to 
+    fire continuously while the view is scrolling. 
+    
+    To obtain the previous behavior on Android, add a listener for the `dragEnd`
+    event instead. To obtain the previous behavior on iOS, add a listener for the
+    `scrollEnd` event instead.
+
+*   A `volume` property was added to all media player types that didn't already support
+    it.
+
+*   Added `setObject` and `getObject` methods to
+    [Ti.App.Properties](http://docs.appcelerator.com/titanium/2.1/index.html#!/api/Titanium.App.Properties) 
+    ([TIMOB-322](https://jira.appcelerator.org/browse/TIMOB-322)).
+    
+*   New unit test framework. This release includes the first version of the new Anvil unit
+    test framework. Anvil is designed as a replacement for the existing Drillbit unit test
+    framework, which is based on Titanium Desktop. Anvil is written in JavaScript using 
+    Node.js, and is designed to allow for test automation. If you are currently using 
+    Drillbit and you are interested in using Anvil, see the [`driver/README`](https://github.com/appcelerator/titanium_mobile/blob/master/driver/README)
+    file in the Titanium Mobile GitHub repo. 
+    
+    Anvil supports the same basic types of tests as Drillbit, but each test suite is 
+    defined as a CommonJS module. See `driver/harnessTemplate/Resources/suites` for examples of 
+    Anvil test suites.
+    
+*   Deprecation updates. Some API members that were moved to the iOS namespace in previous
+    releases are now supported on both iOS and Mobile Web, so these objects are being moved
+    back into the common namespace and the previous deprecation is being reversed.
+
+    In this release, the
+    [3DMatrix](http://docs.appcelerator.com/titanium/2.1/index.html#!/api/Titanium.UI.3DMatrix)
+    object and the `ANIMATION_CURVE` constants are being moved back into the common namespace.
+
+    <table>
+    <tr>
+    <th>Old name</th><th>New name</th>
+    </tr>
+    <tr><td>
+    Ti.UI.iOS.3DMatrix 
+    </td><td>
+    Ti.UI.3DMatrix
+    </td></tr>
+    <tr><td>
+    Ti.UI.iOS.ANIMATION_CURVE_EASE_IN
+    </td><td>
+    Ti.UI.ANIMATION_CURVE_EASE_IN
+    </td></tr>
+    <tr><td>
+    Ti.UI.iOS.ANIMATION_CURVE_EASE_IN_OUT
+    </td><td>
+    Ti.UI.ANIMATION_CURVE_EASE_IN_OUT
+    </td></tr>
+    <tr><td>
+    Ti.UI.iOS.ANIMATION_CURVE_EASE_OUT
+    </td><td>
+    Ti.UI.ANIMATION_CURVE_EASE_OUT
+    </td></tr>
+    <tr><td>
+    Ti.UI.iOS.ANIMATION_CURVE_LINEAR
+    </td><td>
+    Ti.UI.ANIMATION_CURVE_LINEAR
+    </td></tr>
+    </table>
+
+
+<a name="android"></a>
+
+## Android Fixes and Enhancements
+
+The following is a sample of notable new Android features and bug fixes in this release:
+
+*   Added support for adding and removing contacts.
+
+*   Added x86 emulator support.
+
+*   Added `blur` and `focus` events for lightweight windows 
+    ([TIMOB-9262](https://jira.appcelerator.org/browse/TIMOB-9262)).
+
+*   Added support for `pinch` events ([TIMOB-5224](https://jira.appcelerator.org/browse/TIMOB-5224)).
+
+*   Added support for background gradients on views. Only linear background gradients are
+    supported on Android at this point
+    ([TIMOB-1125](https://jira.appcelerator.org/browse/TIMOB-1124)).
+
+*   Added support for `addRoute` on map views
+    ([TIMOB-1343](https://jira.appcelerator.org/browse/TIMOB-1343)).
+
+*   Fixes related to `trueHeading` support in compass events 
+    ([TIMOB-9434](https://jira.appcelerator.org/browse/TIMOB-9434), 
+    [TIMOB-8672](https://jira.appcelerator.org/browse/TIMOB-8672)).
+
+
+For a complete list of Android features and bug fixes in this release, see: 
+[Fixed Android Issues in JIRA](https://jira.appcelerator.org/secure/IssueNavigator.jspa?mode=hide&requestId=13033)
+
+<a name="ios"></a>
+
+## iOS Fixes and Enhancements
+-----------
+
+The following section lists notable new iOS features and bug fixes in this release.
+
+*   TLS version fallback. With iOS Release 5.0, Apple changed the default TLS version for
+    secure HTTP from 1.0 to 1.2, causing secure HTTP connections to fail when
+    communicating with older servers. With this fix, when using 
+    [HTTPClient](http://docs.appcelerator.com/titanium/2.1/index.html#!/api/Titanium.Network.HTTPClient)
+    to access an HTTPS URL, if the initial connection fails _and no TLS version was
+    specified_, the HTTP client retries the connection using TLS 1.0. 
+
+    Other objects that use `HTTPClient` internally, such as `ImageView`, will also fall
+    back to the earlier TLS version if 1.2 is not supported.
+
+    Upgrading your servers to support TLS 1.2 is recommended.
+
+    When running in Debug mode, a warning will be printed to the console when falling back to
+    TLS 1.0.
+
+*   Enhancements to
+    [ScrollableView](http://docs.appcelerator.com/titanium/2.1/index.html#!/api/Titanium.UI.ScrollableView). 
+    Improvements include new properties for customizing the paging control appearance and position: 
+    `pagingControlAlpha`, `pagingControlOnTop`, and `overlayEnabled`  
+    ([TIMOB-8995](https://jira.appcelerator.org/browse/TIMOB-8995)). 
+    
+    Also, the new `hitRect` property allows a `ScrollableView` to detect touch events outside 
+    of its bounds. This is useful when width of the `ScrollableView` is less than the full width of
+    the parent view, and `clipViews` is set to `false`, so the edges of the previous and next views are
+    displayed outside the bounds of the scrollable view.  
+
+*   Support for custom `Info.plist` values in `tiapp.xml`. Many of the existing
+    iOS-specific `tiapp.xml` values are deprecated in favor of the new values. 
+
+    See [`tiapp.xml` and `timodule.xml` Reference](http://docs.appcelerator.com/titanium/2.1/index.html#!/guide/tiapp.xml_and_timodule.xml_Reference)
+    for details.
+
+*   Added drag and drop for map annotations ([TIMOB-1242](https://jira.appcelerator.org/browse/TIMOB-1242)).
+
+*   Added `dragStart` and `dragEnd` events on [`TableView`](http://docs.appcelerator.com/titanium/2.1/index.html#!/api/Titanium.UI.TableView) objects.
+
+*   Added [`TableView.setContentInsets`](http://docs.appcelerator.com/titanium/2.1/index.html#!/api/Titanium.UI.TableView-method-setContentInsets)
+   method to define padding around the table's contents.
+
+*   `Ti.App` supports a new [`paused`](Titanium.App.paused) event.
+
+*   Support for iOS system textures. The following constants, defined in
+    [Ti.UI.iOS](http://docs.appcelerator.com/titanium/2.1/index.html#!/api/Titanium.UI.iOS), 
+    can be used wherever a color value is required:
+
+    *   `COLOR_GROUP_TABLEVIEW_BACKGROUND`. Background color for group table views. 
+        In current versions of iOS, this is a blue pinstriped texture on iPhone and 
+        iPod Touch devices, and is transparent on iPad devices.
+
+    *   `COLOR_SCROLLVIEW_BACKGROUND`. System texture used behind scrollable content.
+         In current versions of iOS, specifies a "linen" texture.
+
+    *   `COLOR_UNDER_PAGE_BACKGROUND`. System texture used behind, supported in iOS 5.0
+         and newer only. In current versions of iOS, specifies a "light linen" texture.
+
+    *   `COLOR_VIEW_FLIPSIDE_BACKGROUND`. System texture used for the back side of a
+        flipped view. In current versions of iOS, specifies a "dark linen" texture.
+
+    Note that the exact representation of these textures may vary between devices and 
+    between SDK versions. 
+
+*   Undocumented properties removed. The following undocumented properties were removed:
+    *   `Ti.Media.Sound` `sound` property --  use `url` instead.
+    *   `Ti.UI.ScrollView` `scale` property --  use `zoomScale` instead.
+
+
+For a complete list of iOS features and bug fixes in this release, see: 
+[Fixed iOS Issues in JIRA](https://jira.appcelerator.org/secure/IssueNavigator.jspa?mode=hide&requestId=13032).
+
+<a name="mobileweb"></a>
+
+## Mobile Web Fixes and Enhancements
+
+With this release, the Mobile Web platform is general availability (GA) platform. 
+
+The following section lists notable new Mobile Web features and bug fixes in this release:
+
+*   Support for IE9/Windows Phone 7.5.
+
+*   Improved UI performance.
+
+*   Kinetic scrolling (momentum) and elastic scrolling (overscroll/snapback) for `ScrollableView`, 
+    `TableView`, and `ScrollView`.
+
+*   Fixed parent-child relationships for views.
+
+    * Event `source` property set correctly.
+
+    * `View.children` set correctly.
+
+*   Ti.Cloud Module works on Mobile Web in Chrome, Firefox, and Safari
+    ([TIMOB-8877](https://jira.appcelerator.org/browse/TIMOB-8877)).
+
+*   Performance instrumentation for view debugging. <!-- Add link to guide -->
+
+For a complete list of Mobile Web features and bug fixes in this release, see: [Fixed Mobile Web Issues in
+JIRA](https://jira.appcelerator.org/secure/IssueNavigator.jspa?mode=hide&requestId=13018).
+
+<a name="docs"></a>
+
+
+
+## Documentation Fixes and Enhancements
+
+This release includes a number of documentation fixes and enhancements, including updates
+to the unified documentation site for the Titanium Mobile SDK and Titanium Studio:
+
+*   [Titanium Mobile SDK and Titanium Studio Documentation](http://docs.appcelerator.com/titanium/2.1/)
+
+*Fixed Documentation Site Issues*
+
+*   Several issues related to inheritance were fixed, including improper display of 
+    inheritance and the show/hide inherited checkbox not working correctly.
+
+*Known Issues With the Documentation Site*
+
+*   Usability problems on iPad.
+*   Site crashes on iPad with Mobile Safari 5.1.
+*   Left-hand navigation tree occasionally stops scrolling. Reloading the site should
+    fix this problem.
+*   Display anomalies when a large number of tabs are open.
+    
+For a complete list of documentation fixes in this release, see:
+
+[Fixed Documentation Issues in JIRA](https://jira.appcelerator.org/secure/IssueNavigator.jspa?mode=hide&requestId=13034)
+
