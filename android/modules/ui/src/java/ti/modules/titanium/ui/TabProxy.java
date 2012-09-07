@@ -82,7 +82,7 @@ public class TabProxy extends TiViewProxy
 		return currentBackgroundColor;
 	}
 
-	@Kroll.method @Kroll.setProperty
+	@Kroll.method
 	public void setWindow(TiWindowProxy window)
 	{
 		this.win = window;
@@ -104,7 +104,6 @@ public class TabProxy extends TiViewProxy
 		this.win.fireSyncEvent("addedToTab", null);
 	}
 
-	@Kroll.method @Kroll.getProperty
 	public TiWindowProxy getWindow()
 	{
 		return this.win;

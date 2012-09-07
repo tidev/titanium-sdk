@@ -9,7 +9,8 @@ var EventEmitter = require("events").EventEmitter,
 	vm = require("vm"),
 	url = require("url"),
 	Script = kroll.binding('evals').Script,
-	bootstrap = require('bootstrap');
+	bootstrap = require('bootstrap'),
+	PersistentHandle = require('ui').PersistentHandle;
 
 var TAG = "Window";
 
@@ -173,6 +174,7 @@ exports.bootstrapWindow = function(Titanium) {
 
 	Window.prototype.open = function(options) {
 		var self = this;
+
 		// if the window is not closed, do not open
 		if (this.currentState != this.state.closed) {
 			if (kroll.DBG) {
@@ -182,6 +184,12 @@ exports.bootstrapWindow = function(Titanium) {
 			return;
 		}
 		this.currentState = this.state.opening;
+
+		// Retain the window until it has been closed.
+		var handle = new PersistentHandle(this);
+		this.on("close", function() {
+			handle.dispose();
+		});
 		
 		if (!options) {
 			options = {};
@@ -200,7 +208,6 @@ exports.bootstrapWindow = function(Titanium) {
 		if (!this.isActivity && "tabOpen" in this._properties && options.tabOpen) {
 			this.isActivity = true;
 		}
-        
 
 		// Set any cached properties on the properties given to the "true" view
 		if (this.propertyCache) {
@@ -230,7 +237,6 @@ exports.bootstrapWindow = function(Titanium) {
 		}
 
 		this.setWindowView(this.view);
-
 
 		if (needsOpen) {
 			this.window.on("windowCreated", function () {
