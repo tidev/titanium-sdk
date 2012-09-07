@@ -46,7 +46,9 @@ public class TiUIActionBarTabGroup extends TiUIAbstractTabGroup implements TabLi
 		// Create a view for this tab proxy.
 		tabProxy.setView(new TiUIActionBarTab(tabProxy, tab));
 
-		actionBar.addTab(tab);
+		// Add the new tab, but don't select it just yet.
+		// The selected tab is set once the group is done opening.
+		actionBar.addTab(tab, false);
 	}
 
 	@Override
