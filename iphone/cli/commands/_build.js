@@ -14,34 +14,53 @@ var fs = require('fs'),
 	ios = appc.ios,
 	hitch = appc.util.hitch,
 	parallel = appc.async.parallel,
-	series = appc.async.series;
+	series = appc.async.series,
+	targets = ['device', 'simulator', 'package'],
+	targetTypes = ['universal', 'iphone', 'ipad'];
 
 exports.config = function (logger, config, cli) {
 	return {
 		options: {
+			target: {
+				abbr: 't',
+				default: 'device',
+				desc: __('the target to build for'),
+				required: true,
+				values: targets
+			},
 			'target-type': {
 				abbr: 'T',
 				default: 'universal',
 				desc: __('the target device family type'),
 				hint: __('type'),
 				required: true,
-				values: ['universal', 'iphone', 'ipad']
+				values: targetTypes
 			}
 		}
 	};
 };
 
-exports.run = function (opts) {
-	new build(opts);
+exports.validate = function (logger, config, cli) {
+	if (targets.indexOf(cli.argv.target) == -1) {
+		logger.error(__('Invalid target "%s"', cli.argv.target) + '\n');
+		appc.string.suggest(cli.argv.target, targets, logger.log, 3);
+		process.exit(1);
+	}
+	
+	if (targetTypes.indexOf(cli.argv['target-type']) == -1) {
+		logger.error(__('Invalid target type "%s"', cli.argv['target-type']) + '\n');
+		appc.string.suggest(cli.argv['target-type'], targetTypes, logger.log, 3);
+		process.exit(1);
+	}
 };
 
-function build(opts) {
-	var logger = opts.logger,
-		config = opts.config,
-		cli = opts.cli,
-		sdkVersion = opts.sdkVersion,
-		lib = opts.lib,
-		finished = opts.finished;
+exports.run = function (logger, config, cli, opts) {
+	new build(logger, config, cli, opts);
+};
+
+function build(logger, config, cli, opts) {
+	var sdkVersion = opts.sdkVersion,
+		lib = opts.lib;
 	
 	logger.info(__('Compiling "%s" build', cli.argv['build-type']));
 	
@@ -50,6 +69,11 @@ function build(opts) {
 	this.projectDir = afs.resolvePath(cli.argv.dir);
 	this.buildDir = this.projectDir + '/build/iphone';
 	this.env = {};
+	
+	this.xcodeTarget = cli.argv.target == 'simulator' ? 'Debug' : 'Release';
+	this.logger.debug(__('Setting Xcode target to "%s"', this.xcodeTarget));
+	this.xcodeTargetOS = cli.argv.target == 'simulator' ? 'simulator' : 'os';
+	this.logger.debug(__('Setting Xcode build OS to "iphone%s"', this.xcodeTargetOS));
 	
 	parallel(this, [
 		function (callback) {
@@ -78,6 +102,16 @@ function build(opts) {
 			this.tiapp = new appc.tiappxml(path.join(cli.argv.dir, 'tiapp.xml'));
 			wrench.mkdirSyncRecursive(this.buildDir);
 			this.createInfoPlist();
+			
+			// if we're not running in the simulator we want to clean out the build directory
+			var xcodeBuildDir = path.join(this.buildDir, 'build', this.xcodeTarget + '-iphone' + this.xcodeTargetOS);
+			if (cli.argv.target == 'simulator' && afs.exists(xcodeBuildDir)) {
+				wrench.rmdirSyncRecursive(xcodeBuildDir);
+			}
+			
+			// TODO: do we need this?
+			// wrench.mkdirSyncRecursive(xcodeBuildDir);
+			
 			callback();
 		},
 		
@@ -87,7 +121,7 @@ function build(opts) {
 		}
 	], function () {
 		dump(cli.argv);
-		finished();
+		opts.finished && opts.finished();
 	});
 }
 

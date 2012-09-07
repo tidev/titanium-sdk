@@ -8,6 +8,7 @@
 var fs = require('fs'),
 	path = require('path'),
 	appc = require('node-appc'),
+	afs = appc.fs,
 	manifest = appc.pkginfo.manifest(module),
 	platformAliases = {
 		// add additional aliases here for new platforms
@@ -45,36 +46,36 @@ exports.commonOptions = function (logger, config) {
 	};
 };
 
-exports.platformOptions = function (logger, config, cli, pmodule) {
-	var result = {},
-		command = pmodule.filename.match(/.*\/_?(.+)\.js$/);
+exports.platformOptions = function (logger, config, cli, commandName) {
+	var result = {};
 	
 	// for each platform, fetch their specific flags/options
-	command && manifest.platforms.forEach(function (platform) {
-		var platformBuildModule = path.join(path.dirname(module.filename), '..', '..', '..', platform, 'cli', 'commands', '_' + command[1] + '.js'),
-			conf,
-			title;
-		
-		try {
-			// try to get the platform specific configuration
-			conf = require(platformBuildModule).config(logger, config, cli);
-			
-			try {
-				// try to read a title from the platform's package.json
-				title = JSON.parse(fs.readFileSync(path.join(path.dirname(module.filename), '..', '..', '..', platform, 'package.json'))).title;
-			} catch (e) {}
-			
-			// add the platform and title to the options and flags
-			['options', 'flags'].forEach(function (type) {
-				if (conf[type]) {
-					result[platform] = {
-						platform: platform,
-						title: title || platform
-					};
-					result[platform][type] = conf[type];
-				}
-			});
-		} catch (ee) {}
+	commandName && manifest.platforms.forEach(function (platform) {
+		var platformCommand = path.join(path.dirname(module.filename), '..', '..', '..', platform, 'cli', 'commands', '_' + commandName + '.js');
+		if (afs.exists(platformCommand)) {
+			var command = require(platformCommand);
+			if (command && command.config) {
+				// try to get the platform specific configuration
+				var conf = command.config(logger, config, cli),
+					title;
+				
+				try {
+					// try to read a title from the platform's package.json
+					title = JSON.parse(fs.readFileSync(path.join(path.dirname(module.filename), '..', '..', '..', platform, 'package.json'))).title;
+				} catch (e) {}
+				
+				// add the platform and title to the options and flags
+				['options', 'flags'].forEach(function (type) {
+					if (conf[type]) {
+						result[platform] = {
+							platform: platform,
+							title: title || platform
+						};
+						result[platform][type] = conf[type];
+					}
+				});
+			}
+		}
 	});
 	
 	return result;
@@ -102,6 +103,16 @@ exports.validateProjectDir = function(logger, dir) {
 	}
 	
 	return d;
+};
+
+exports.validatePlatformOptions = function (logger, config, cli, commandName) {
+	commandName && manifest.platforms.forEach(function (platform) {
+		var platformCommand = path.join(path.dirname(module.filename), '..', '..', '..', platform, 'cli', 'commands', '_' + commandName + '.js');
+		if (afs.exists(platformCommand)) {
+			var command = require(platformCommand);
+			command && command.validate && command.validate(logger, config, cli);
+		}
+	});
 };
 
 exports.availablePlatforms = manifest.platforms;

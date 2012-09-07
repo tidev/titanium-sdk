@@ -22,12 +22,6 @@ exports.config = function (logger, config, cli) {
 				hint: __('type'),
 				values: ['production', 'development']
 			},
-			target: {
-				abbr: 't',
-				default: 'device',
-				desc: __('the target to build for'),
-				values: ['device', 'simulator|emulator', 'package']
-			},
 			platform: {
 				abbr: 'p',
 				desc: __('the target build platform'),
@@ -54,13 +48,14 @@ exports.config = function (logger, config, cli) {
 				desc: __('the directory containing the project, otherwise the current working directory')
 			}
 		}, lib.commonOptions(logger, config)),
-		platforms: lib.platformOptions(logger, config, cli, module)
+		platforms: lib.platformOptions(logger, config, cli, 'build')
 	};
 };
 
 exports.validate = function (logger, config, cli) {
 	cli.argv.platform = lib.validatePlatform(logger, cli.argv.platform);
 	cli.argv.dir = lib.validateProjectDir(logger, cli.argv.dir);
+	lib.validatePlatformOptions(logger, config, cli, 'build');
 };
 
 exports.run = function (logger, config, cli) {
@@ -73,10 +68,7 @@ exports.run = function (logger, config, cli) {
 		process.exit(1);
 	}
 	
-	require(buildModule).run({
-		logger: logger,
-		config: config,
-		cli: cli,
+	require(buildModule).run(logger, config, cli, {
 		sdkVersion: sdk.name,
 		lib: lib,
 		finished: function () {

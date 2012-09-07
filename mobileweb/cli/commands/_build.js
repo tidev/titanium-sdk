@@ -35,17 +35,13 @@ var appc = require('node-appc'),
 		'.jpeg': 'image/jpg'
 	};
 
-exports.run = function (opts) {
-	new build(opts);
+exports.run = function (logger, config, cli, opts) {
+	new build(logger, config, cli, opts);
 };
 
-function build(opts) {
-	var logger = opts.logger,
-		config = opts.config,
-		cli = opts.cli,
-		sdkVersion = opts.sdkVersion,
-		lib = opts.lib,
-		finished = opts.finished;
+function build(logger, config, cli, opts) {
+	var sdkVersion = opts.sdkVersion,
+		lib = opts.lib;
 	
 	logger.info(__('Compiling "%s" build', cli.argv['build-type']));
 	
@@ -147,7 +143,7 @@ function build(opts) {
 			this.minifyJavaScript();
 			this.createFilesystemRegistry();
 			this.createIndexHtml();
-			finished();
+			opts.finished && opts.finished();
 		});
 	});
 };

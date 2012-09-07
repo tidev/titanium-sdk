@@ -35,16 +35,20 @@ exports.config = function (logger, config, cli) {
 	};
 };
 
-exports.run = function (opts) {
-	new build(opts);
+exports.validate = function (logger, config, cli) {
+	//
 };
 
-function build(opts) {
-	opts.logger.info(__('Compiling "%s" build', opts.cli.argv['build-type']));
+exports.run = function (logger, config, cli, opts) {
+	new build(logger, config, cli, opts);
+};
+
+function build(logger, config, cli, opts) {
+	logger.info(__('Compiling "%s" build', cli.argv['build-type']));
 	
-	dump(opts.cli.argv);
+	dump(cli.argv);
 	
-	opts.finished();
+	opts.finished && opts.finished();
 }
 
 build.prototype = {
