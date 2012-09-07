@@ -543,7 +543,7 @@
 	}
 }
 
--(void)_updateTitleView
+-(void)updateNavBar
 {
     //Called from the view when the screen rotates. 
     //Resize titleControl and barImage based on navbar bounds
