@@ -5,7 +5,8 @@
  * See the LICENSE file for more information.
  */
 
-var path = require('path'),
+var fs = require('fs'),
+	path = require('path'),
 	appc = require('node-appc'),
 	manifest = appc.pkginfo.manifest(module),
 	platformAliases = {
@@ -42,6 +43,41 @@ exports.commonOptions = function (logger, config) {
 			values: logger.getLevels()
 		}
 	};
+};
+
+exports.platformOptions = function (logger, config, cli, pmodule) {
+	var result = {},
+		command = pmodule.filename.match(/.*\/_?(.+)\.js$/);
+	
+	// for each platform, fetch their specific flags/options
+	command && manifest.platforms.forEach(function (platform) {
+		var platformBuildModule = path.join(path.dirname(module.filename), '..', '..', '..', platform, 'cli', 'commands', '_' + command[1] + '.js'),
+			conf,
+			title;
+		
+		try {
+			// try to get the platform specific configuration
+			conf = require(platformBuildModule).config(logger, config, cli);
+			
+			try {
+				// try to read a title from the platform's package.json
+				title = JSON.parse(fs.readFileSync(path.join(path.dirname(module.filename), '..', '..', '..', platform, 'package.json'))).title;
+			} catch (e) {}
+			
+			// add the platform and title to the options and flags
+			['options', 'flags'].forEach(function (type) {
+				if (conf[type]) {
+					result[platform] = {
+						platform: platform,
+						title: title || platform
+					};
+					result[platform][type] = conf[type];
+				}
+			});
+		} catch (ee) {}
+	});
+	
+	return result;
 };
 
 exports.validateProjectDir = function(logger, dir) {

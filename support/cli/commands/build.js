@@ -22,10 +22,10 @@ exports.config = function (logger, config, cli) {
 				hint: __('type'),
 				values: ['production', 'development']
 			},
-			dest: {
-				alias: 'destination',
+			target: {
+				abbr: 't',
 				default: 'device',
-				desc: __('the destination to build for'),
+				desc: __('the target to build for'),
 				values: ['device', 'simulator|emulator', 'package']
 			},
 			platform: {
@@ -53,7 +53,8 @@ exports.config = function (logger, config, cli) {
 				abbr: 'd',
 				desc: __('the directory containing the project, otherwise the current working directory')
 			}
-		}, lib.commonOptions(logger, config))
+		}, lib.commonOptions(logger, config)),
+		platforms: lib.platformOptions(logger, config, cli, module)
 	};
 };
 
@@ -72,7 +73,14 @@ exports.run = function (logger, config, cli) {
 		process.exit(1);
 	}
 	
-	new (require(buildModule))(logger, config, cli, sdk.name, lib, function () {
-		logger.info(__('Project built successfully in %s', appc.time.prettyDiff(cli.startTime, Date.now())) + '\n');
+	new (require(buildModule))({
+		logger: logger,
+		config: config,
+		cli: cli,
+		sdkVersion: sdk.name,
+		lib: lib,
+		finished: function () {
+			logger.info(__('Project built successfully in %s', appc.time.prettyDiff(cli.startTime, Date.now())) + '\n');
+		}
 	});
 };

@@ -41,7 +41,14 @@ function badInstall(msg) {
 	process.exit(1);
 }
 
-function build(logger, config, cli, sdkVersion, lib, finished) {
+function build(opts) {
+	var logger = opts.logger,
+		config = opts.config,
+		cli = opts.cli,
+		sdkVersion = opts.sdkVersion,
+		lib = opts.lib,
+		finished = opts.finished;
+	
 	logger.info(__('Compiling "%s" build', cli.argv['build-type']));
 	
 	this.logger = logger;
@@ -53,9 +60,9 @@ function build(logger, config, cli, sdkVersion, lib, finished) {
 	this.projectDir = afs.resolvePath(cli.argv.dir);
 	this.projectResDir = this.projectDir + '/Resources';
 	this.buildDir = this.projectDir + '/build/mobileweb';
-	this.mwPath = afs.resolvePath(path.dirname(module.filename) + '/../..');
-	this.mwThemeDir = this.mwPath + '/themes';
-	this.mwTitaniumDir = this.mwPath + '/titanium';
+	this.mobilewebSdkPath = afs.resolvePath(path.dirname(module.filename) + '/../..');
+	this.mobilewebThemeDir = this.mobilewebSdkPath + '/themes';
+	this.mobilewebTitaniumDir = this.mobilewebSdkPath + '/titanium';
 	
 	this.projectDependencies = [];
 	this.modulesToLoad = [];
@@ -151,7 +158,7 @@ build.prototype = {
 
 	readTiPackageJson: function () {
 		this.logger.info(__('Reading Titanium Mobile Web package.json file'));
-		var mwPackageFile = this.mwPath + '/titanium/package.json';
+		var mwPackageFile = this.mobilewebSdkPath + '/titanium/package.json';
 		afs.exists(mwPackageFile) || badInstall(__('Unable to find Titanium Mobile Web package.json file'));
 		try {
 			return JSON.parse(fs.readFileSync(mwPackageFile));
@@ -173,7 +180,7 @@ build.prototype = {
 	validateTheme: function () {
 		this.logger.info(__('Validating theme'));
 		this.theme = this.tiapp.mobileweb.theme || 'default';
-		if (!afs.exists(this.mwThemeDir + '/' + this.theme)) {
+		if (!afs.exists(this.mobilewebThemeDir + '/' + this.theme)) {
 			logger.error(__('Unable to find the "%s" theme. Please verify the theme setting in the tiapp.xml.', this.theme) + '\n');
 			process.exit(1);
 		}
@@ -187,8 +194,8 @@ build.prototype = {
 			wrench.rmdirSyncRecursive(this.buildDir);
 		}
 		wrench.mkdirSyncRecursive(this.buildDir);
-		afs.copyDirSyncRecursive(this.mwThemeDir, this.buildDir + '/themes', { preserve: true, logger: this.logger.debug });
-		afs.copyDirSyncRecursive(this.mwTitaniumDir, this.buildDir + '/titanium', { preserve: true, logger: this.logger.debug });
+		afs.copyDirSyncRecursive(this.mobilewebThemeDir, this.buildDir + '/themes', { preserve: true, logger: this.logger.debug });
+		afs.copyDirSyncRecursive(this.mobilewebTitaniumDir, this.buildDir + '/titanium', { preserve: true, logger: this.logger.debug });
 		afs.copyDirSyncRecursive(this.projectResDir, this.buildDir, { preserve: true, logger: this.logger.debug }, this.lib.availablePlatforms.filter(function (p) { return p != 'mobileweb'; }));
 		afs.copyDirSyncRecursive(this.projectResDir + '/mobileweb', this.buildDir + '/mobileweb', { preserve: true, logger: this.logger.debug }, ['apple_startup_images', 'splash']);
 		afs.copyFileSync(this.projectResDir + '/mobileweb/apple_startup_images/Default.jpg', this.buildDir + '/mobileweb/apple_startup_images', { logger: this.logger.debug });
@@ -519,7 +526,7 @@ build.prototype = {
 				HEADER, '\n',
 				
 				// 1) read in the config.js and fill in the template
-				renderTemplate(fs.readFileSync(this.mwPath + '/src/config.js').toString(), {
+				renderTemplate(fs.readFileSync(this.mobilewebSdkPath + '/src/config.js').toString(), {
 					app_analytics: tiapp.analytics,
 					app_copyright: tiapp.copyright,
 					app_description: tiapp.description,
@@ -549,10 +556,10 @@ build.prototype = {
 			];
 		
 		// 2) copy in instrumentation if it's enabled
-		!tiapp.mobileweb.instrumentation || tiJS.push(fs.readFileSync(this.mwPath + '/src/instrumentation.js').toString() + '\n');
+		!tiapp.mobileweb.instrumentation || tiJS.push(fs.readFileSync(this.mobilewebSdkPath + '/src/instrumentation.js').toString() + '\n');
 		
 		// 3) copy in the loader
-		tiJS.push(fs.readFileSync(this.mwPath + '/src/loader.js').toString() + '\n\n');
+		tiJS.push(fs.readFileSync(this.mobilewebSdkPath + '/src/loader.js').toString() + '\n\n');
 		
 		// 4) cache the dependencies
 		var first = true,
@@ -561,6 +568,7 @@ build.prototype = {
 		
 		// uncomment next line to bypass module caching (which is ill advised):
 		// this.modulesToCache = [];
+		
 		this.modulesToCache.forEach(function (moduleName) {
 			var isCommonJS = false;
 			if (/^commonjs\:/.test(moduleName)) {
@@ -708,7 +716,7 @@ build.prototype = {
 		
 		this.logger.info(__('Assembling titanium.css'));
 		
-		var commonCss = this.mwThemeDir + '/common.css';
+		var commonCss = this.mobilewebThemeDir + '/common.css';
 		afs.exists(commonCss) && tiCSS.push(fs.readFileSync(commonCss).toString());
 		
 		// TODO: need to rewrite absolute paths for urls
@@ -717,7 +725,7 @@ build.prototype = {
 		
 		var themePath = this.projectResDir + '/themes/' + this.theme;
 		afs.exists(themePath) || (themePath = this.projectResDir + '/' + this.theme);
-		afs.exists(themePath) || (themePath = this.mwPath + '/themes/' + this.theme);
+		afs.exists(themePath) || (themePath = this.mobilewebSdkPath + '/themes/' + this.theme);
 		if (!afs.exists(themePath)) {
 			this.logger.error(__('Unable to locate theme "%s"', this.theme) + '\n');
 			process.exit(1);
@@ -820,7 +828,7 @@ build.prototype = {
 		}
 		
 		// write the index.html
-		fs.writeFileSync(this.buildDir + '/index.html', renderTemplate(fs.readFileSync(this.mwPath + '/src/index.html').toString().trim(), {
+		fs.writeFileSync(this.buildDir + '/index.html', renderTemplate(fs.readFileSync(this.mobilewebSdkPath + '/src/index.html').toString().trim(), {
 			ti_header: HTML_HEADER,
 			project_name: this.tiapp.name || '',
 			app_description: this.tiapp.description || '',

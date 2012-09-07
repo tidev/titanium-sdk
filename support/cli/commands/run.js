@@ -5,9 +5,13 @@
  * See the LICENSE file for more information.
  */
 
+var appc = require('node-appc'),
+	lib = require('./lib/common');
+
 exports.config = function (logger, config, cli) {
 	return {
-		desc: __('install and run an app')
+		desc: __('install and run an app'),
+		platforms: lib.platformOptions()
 	};
 };
 

@@ -89,7 +89,8 @@ exports.config = function (logger, config, cli) {
 				},
 				required: !config.app.workspace
 			}
-		}, lib.commonOptions(logger, config))
+		}, lib.commonOptions(logger, config)),
+		platforms: lib.platformOptions()
 	};
 };
 
