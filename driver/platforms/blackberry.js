@@ -12,8 +12,8 @@
 var net = require("net");
 var path = require("path");
 
-var common = require(driverGlobal.driverDir + "/common");
-var util = require(driverGlobal.driverDir + "/util");
+var common = require(path.join(driverGlobal.driverDir, "common"));
+var driverUtils = require(path.join(driverGlobal.driverDir, "driverUtils"));
 
 module.exports = new function() {
 	var self = this;
@@ -59,7 +59,7 @@ module.exports = new function() {
 
 		common.createHarness(
 			"blackberry",
-			driverGlobal.config.tiSdkDir + "/titanium.py create --dir=" + driverGlobal.harnessDir + "/blackberry --platform=blackberry --name=harness --type=project --id=com.appcelerator.harness --blackberry=" + driverGlobal.config.blackberryNdkDir,
+			driverGlobal.config.currentTiSdkDir + "/titanium.py create --dir=" + driverGlobal.harnessDir + "/blackberry --platform=blackberry --name=harness --type=project --id=com.appcelerator.harness --blackberry=" + driverGlobal.config.blackberryNdkDir,
 			successCallback,
 			errorCallback
 			);
@@ -71,14 +71,14 @@ module.exports = new function() {
 
 	var buildHarness = function(successCallback, errorCallback) {
 		var buildCallback = function() {
-			var args = [driverGlobal.config.tiSdkDir + "/blackberry/builder.py", "build", "-t", "simulator", "-d", driverGlobal.harnessDir + "/blackberry/harness", "-p", driverGlobal.config.blackberryNdkDir];
-			util.runProcess("python", args, 0, 0, function(code) {
+			var args = [driverGlobal.config.currentTiSdkDir + "/blackberry/builder.py", "build", "-t", "simulator", "-d", driverGlobal.harnessDir + "/blackberry/harness", "-p", driverGlobal.config.blackberryNdkDir];
+			driverUtils.runProcess("python", args, 0, 0, function(code) {
 				if (code !== 0) {
-					util.log("error encountered when building harness: " + code);
+					driverUtils.log("error encountered when building harness: " + code);
 					errorCallback();
 
 				} else {
-					util.log("harness built");
+					driverUtils.log("harness built");
 					successCallback();
 				}
 			});
@@ -88,7 +88,7 @@ module.exports = new function() {
 			buildCallback();
 
 		} else {
-			util.log("harness does not exist, creating");
+			driverUtils.log("harness does not exist, creating");
 			createHarness(buildCallback, errorCallback);
 		}
 	};
@@ -114,7 +114,7 @@ module.exports = new function() {
 			if (connected) {
 				common.startConfig(deleteCallback);
 			} else {
-				util.log("no attached device found, unable to start config", driverGlobal.logLevels.quiet);
+				driverUtils.log("no attached device found, unable to start config", driverGlobal.logLevels.quiet);
 				commandFinishedCallback();
 			}
 		});
@@ -128,7 +128,7 @@ module.exports = new function() {
 				// build scripts currently only allow us to run
 				successCallback();
 			} else {
-				util.log("harness is not built, building");
+				driverUtils.log("harness is not built, building");
 				buildHarness(installCallback, errorCallback);
 			}
 		};
@@ -137,27 +137,27 @@ module.exports = new function() {
 	};
 
 	var uninstallHarness = function(successCallback, errorCallback) {
-		var args = [driverGlobal.config.tiSdkDir + "/blackberry/builder.py", "uninstallApp", "-t", "simulator", "--ip_address=" + driverGlobal.config.blackberryDeviceIp, "-d", driverGlobal.harnessDir + "/blackberry/harness", "-p", driverGlobal.config.blackberryNdkDir];
-		util.runProcess("python", args, 0, 0, function(code) {
+		var args = [driverGlobal.config.currentTiSdkDir + "/blackberry/builder.py", "uninstallApp", "-t", "simulator", "--ip_address=" + driverGlobal.config.blackberryDeviceIp, "-d", driverGlobal.harnessDir + "/blackberry/harness", "-p", driverGlobal.config.blackberryNdkDir];
+		driverUtils.runProcess("python", args, 0, 0, function(code) {
 			if (code !== 0) {
-				util.log("error encountered when uninstalling harness: " + code);
+				driverUtils.log("error encountered when uninstalling harness: " + code);
 				// continue anyways
 			} else {
-				util.log("harness uninstalled");
+				driverUtils.log("harness uninstalled");
 			}
 			successCallback();
 		});
 	};
 
 	var runHarness = function(successCallback, errorCallback) {
-		var args = [driverGlobal.config.tiSdkDir + "/blackberry/builder.py", "run", "-t", "simulator", "--ip_address=" + driverGlobal.config.blackberryDeviceIp, "-d", driverGlobal.harnessDir + "/blackberry/harness", "-p", driverGlobal.config.blackberryNdkDir];
-		util.runProcess("python", args, 0, 0, function(code) {
+		var args = [driverGlobal.config.currentTiSdkDir + "/blackberry/builder.py", "run", "-t", "simulator", "--ip_address=" + driverGlobal.config.blackberryDeviceIp, "-d", driverGlobal.harnessDir + "/blackberry/harness", "-p", driverGlobal.config.blackberryNdkDir];
+		driverUtils.runProcess("python", args, 0, 0, function(code) {
 			if (code !== 0) {
-				util.log("error encountered when running harness: " + code);
+				driverUtils.log("error encountered when running harness: " + code);
 				errorCallback();
 
 			} else {
-				util.log("running harness");
+				driverUtils.log("running harness");
 				if (successCallback) {
 					successCallback();
 				}
@@ -186,7 +186,7 @@ module.exports = new function() {
 				}
 
 				if (retryCount < driverGlobal.config.maxSocketConnectAttempts) {
-					util.log("unable to connect, retry attempt " + (retryCount + 1) + "...");
+					driverUtils.log("unable to connect, retry attempt " + (retryCount + 1) + "...");
 					retryCount += 1;
 
 					setTimeout(function() {
@@ -194,7 +194,7 @@ module.exports = new function() {
 					}, 1000);
 
 				} else {
-					util.log("max number of retry attempts reached");
+					driverUtils.log("max number of retry attempts reached");
 					errorCallback();
 				}
 			});

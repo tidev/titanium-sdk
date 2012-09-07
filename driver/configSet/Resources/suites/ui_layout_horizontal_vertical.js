@@ -18,7 +18,12 @@ module.exports = new function() {
 		{name: "horizontalTopBottomUndefinedHeight"},
 		{name: "horizontalLeftRightUndefinedWidth"},
 		{name: "horizontalLeftRightUndefinedWidthNoWrap"},
-		{name: "horizontalTopBottomUndefinedHeightNoWrap"}
+		{name: "horizontalTopBottomUndefinedHeightNoWrap"},
+		{name: "horizontalWrapWithSIZEHeight"},
+		{name: "horizontalNoWrapWithSIZEHeight"},
+		{name: "horizontalNoWrapTopPaddingSIZEHeight"},
+		{name: "horizontalWrapTopPaddingSIZEHeight"},
+		{name: "verticalWithTopBottomPadding"}
 	];
 
 	this.horizontalTopBottomUndefinedHeight = function(testRun) {
@@ -161,6 +166,160 @@ module.exports = new function() {
 		});
 
 		win.add(parent);
+		win.open();
+	};
+
+	this.horizontalWrapWithSIZEHeight = function(testRun) {
+		var win = Ti.UI.createWindow({
+			navBarHidden : true,
+			backgroundColor : '#000'
+		});
+
+		var topView = Ti.UI.createView({
+			backgroundColor : 'white',
+			height : Ti.UI.SIZE,
+			layout : 'horizontal'
+		});
+
+		topView.add(Ti.UI.createView({width: Ti.UI.FILL, height: 100, backgroundColor:'blue'}));
+		topView.add(Ti.UI.createView({width: Ti.UI.FILL, height: 100, backgroundColor:'red'}));
+		topView.add(Ti.UI.createView({width: Ti.UI.FILL, height: 100, backgroundColor:'purple'}));
+		topView.add(Ti.UI.createView({width: Ti.UI.FILL, height: 100, backgroundColor:'orange'}));
+
+		win.addEventListener("postlayout", function(e){
+			valueOf(testRun, topView.rect.height).shouldBe(400);
+			finish(testRun);
+		});
+
+		win.add(topView);
+		win.open();
+	};
+
+	this.horizontalNoWrapWithSIZEHeight = function(testRun) {
+		var win = Ti.UI.createWindow({
+			navBarHidden : true,
+			backgroundColor : '#000'
+		});
+
+		var topView = Ti.UI.createView({
+			backgroundColor : 'white',
+			width : Ti.UI.SIZE,
+			height : Ti.UI.SIZE,
+			layout : 'horizontal',
+			horizontalWrap: false
+		});
+
+		topView.add(Ti.UI.createView({width: 50, height: 100, backgroundColor:'blue'}));
+		topView.add(Ti.UI.createView({width: 50, height: 150, backgroundColor:'red'}));
+		topView.add(Ti.UI.createView({width:50, height: 200, backgroundColor:'purple'}));
+		topView.add(Ti.UI.createView({width: 100, height: 100, backgroundColor:'orange'}));
+
+		win.addEventListener("postlayout", function(e){
+			valueOf(testRun, topView.rect.width).shouldBe(250);
+			valueOf(testRun, topView.rect.height).shouldBe(200);
+
+			finish(testRun);
+		});
+
+		win.add(topView);
+		win.open();
+	};
+
+	this.horizontalNoWrapTopPaddingSIZEHeight = function(testRun) {
+		var win = Ti.UI.createWindow({
+			navBarHidden : true,
+			backgroundColor : '#000'
+		});
+
+		var topView = Ti.UI.createView({
+			backgroundColor : 'white',
+			width : Ti.UI.SIZE,
+			height : Ti.UI.SIZE,
+			layout : 'horizontal',
+			horizontalWrap: false
+		});
+
+		topView.add(Ti.UI.createView({width: 50, height: 100, backgroundColor:'blue'}));
+		topView.add(Ti.UI.createView({width: 50, height: 150, backgroundColor:'red'}));
+		topView.add(Ti.UI.createView({width:50, top: 10, bottom: 25, height: 200, backgroundColor:'purple'}));
+		topView.add(Ti.UI.createView({width: 100, height: 100, backgroundColor:'orange'}));
+
+		win.addEventListener("postlayout", function(e){
+			valueOf(testRun, topView.rect.width).shouldBe(250);
+			valueOf(testRun, topView.rect.height).shouldBe(235);
+
+			finish(testRun);
+		});
+
+		win.add(topView);
+		win.open();
+	};
+
+	this.horizontalWrapTopPaddingSIZEHeight = function(testRun) {
+		var win = Ti.UI.createWindow({
+			navBarHidden : true,
+			backgroundColor : '#000'
+		});
+
+		var topView = Ti.UI.createView({
+			backgroundColor : 'white',
+			height : Ti.UI.SIZE,
+			layout : 'horizontal'
+		});
+
+		topView.add(Ti.UI.createView({width: Ti.UI.FILL, height: 100, backgroundColor:'blue'}));
+		topView.add(Ti.UI.createView({width: 50, height: 100, backgroundColor:'red'}));
+		topView.add(Ti.UI.createView({width: 50, top: 50, bottom: 20, height: 100, backgroundColor:'purple'}));
+		topView.add(Ti.UI.createView({width: 50, height: 100, backgroundColor:'orange'}));
+
+		win.addEventListener("postlayout", function(e){
+			valueOf(testRun, topView.rect.height).shouldBe(270);
+			finish(testRun);
+		});
+
+		win.add(topView);
+		win.open();
+	};
+
+	this.verticalWithTopBottomPadding = function(testRun) {
+		var win = Ti.UI.createWindow({
+			backgroundColor : 'white'
+		})
+
+		var container = Ti.UI.createView({
+			height : Ti.UI.SIZE,
+			backgroundColor : 'yellow',
+			width: 400,
+			layout : 'vertical'
+		})
+
+		var view1 = Ti.UI.createView({
+			width : 100,
+			height : 100,
+			top: 5,
+			bottom : 5,
+			backgroundColor : 'red'
+		})
+
+		var view2 = Ti.UI.createView({
+			width : 100,
+			height : 100,
+			top: 5,
+			bottom : 5,
+			backgroundColor : 'green'
+		})
+
+		win.addEventListener("open", function(e){
+			valueOf(testRun, view1.rect.y).shouldBe(5);
+			valueOf(testRun, view2.rect.y).shouldBe(115);
+			valueOf(testRun, container.rect.height).shouldBe(220);
+
+			finish(testRun);
+		});
+
+		container.add(view1);
+		container.add(view2);
+		win.add(container);
 		win.open();
 	};
 };
