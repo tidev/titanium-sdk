@@ -330,7 +330,7 @@ module.exports = new function() {
 		driverUtils.log("updating harness for config: " + config.configName);
 
 		var updateSuitesCallback = function() {
-			driverUtils.runCommand("cp -r " + path.join(configs[configSetIndex].setDir, "Resources") + " " + path.join(harnessPlatformDir, "harness"), driverUtils.logStdout, function(error) {
+			driverUtils.runCommand("cp -r " + driverUtils.fixPathSeparator(path.join(configs[configSetIndex].setDir, "Resources") + " " + path.join(harnessPlatformDir, "harness")), driverUtils.logStdout, function(error) {
 				if (error !== null) {
 					driverUtils.log("unable to update the harness suites: " + error);
 					if (errorCallback) {
@@ -402,7 +402,7 @@ module.exports = new function() {
 				fs.writeFileSync(tiappXmlPath, newTiappXmlContents);
 			}
 
-			driverUtils.runCommand("cp -r " + path.join(configDir, "tiapp.xml") + " " + path.join(harnessPlatformDir, "harness"), driverUtils.logStdout, function(error) {
+			driverUtils.runCommand("cp -r " + driverUtils.fixPathSeparator(path.join(configDir, "tiapp.xml") + " " + path.join(harnessPlatformDir, "harness")), driverUtils.logStdout, function(error) {
 				if (error !== null) {
 					driverUtils.log("unable to update the harness tiapp.xml: " + error);
 					if (errorCallback) {
@@ -420,7 +420,7 @@ module.exports = new function() {
 
 		var updateAppjsCallback = function() {
 			if (path.existsSync(path.join(configDir, "app.js"))) {
-				driverUtils.runCommand("cp -r " + path.join(configDir, "app.js ", harnessPlatformDir, "harness", "Resources"), driverUtils.logStdout, function(error) {
+				driverUtils.runCommand("cp -r " + driverUtils.fixPathSeparator(path.join(configDir, "app.js") + " " + path.join(harnessPlatformDir, "harness", "Resources")), driverUtils.logStdout, function(error) {
 					if (error !== null) {
 						driverUtils.log("unable to update app.js for harness: " + error);
 						if (errorCallback) {
@@ -441,7 +441,7 @@ module.exports = new function() {
 		};
 
 		// update the harness based on the harness template packaged with the driver
-		driverUtils.runCommand("cp -r " + path.join(driverGlobal.harnessTemplateDir, "* ", harnessPlatformDir, "harness", "Resources"), driverUtils.logStdout, function(error) {
+		driverUtils.runCommand("cp -r " + driverUtils.fixPathSeparator(path.join(driverGlobal.harnessTemplateDir, "*") + " " + path.join(harnessPlatformDir, "harness", "Resources")), driverUtils.logStdout, function(error) {
 			if (error !== null) {
 				driverUtils.log("unable to update harness with template: " + error);
 				if (errorCallback) {

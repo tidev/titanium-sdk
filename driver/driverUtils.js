@@ -124,6 +124,11 @@ module.exports = new function() {
 		return targetString.replace(/\s+$/,"");
 	};
 
+	// TODO: this shouldn't be necessary once we replace the cp command with something cross-platform
+	this.fixPathSeparator = function(pathString) {
+		return pathString.split("\\").join("/");
+	};
+
 	/*
 	 * sets active log file based on driver command line arguments and deletes any old logs
 	 * above the specified max number of logs if needed
