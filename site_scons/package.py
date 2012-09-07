@@ -190,6 +190,8 @@ def zip_android(zf, basepath):
 	android_modules = os.path.join(android_dist_dir, 'modules.json')
 	zf.write(android_modules, '%s/android/modules.json' % basepath)
 
+	zf.write(os.path.join(top_dir, 'android', 'package.json'), '%s/android/package.json' % basepath)
+	
 	titanium_lib_dir = os.path.join(top_dir, 'android', 'titanium', 'lib')
 	for thirdparty_jar in os.listdir(titanium_lib_dir):
 		if thirdparty_jar == "commons-logging-1.1.1.jar": continue
@@ -288,6 +290,8 @@ def zip_iphone_ipad(zf,basepath,platform,version,version_tag):
 	zf.write(os.path.join(ticore_lib,'libTiCore.a'),'%s/%s/libTiCore.a'%(basepath,platform))
 	zf.write(os.path.join(ticore_lib,'libtiverify.a'),'%s/%s/libtiverify.a'%(basepath,platform))
 	zf.write(os.path.join(ticore_lib,'libti_ios_debugger.a'),'%s/%s/libti_ios_debugger.a'%(basepath,platform))
+	
+	zf.write(os.path.join(top_dir, 'iphone', 'package.json'), '%s/iphone/package.json' % basepath)
 	
 	zip_dir(zf,osx_dir,basepath)
 	
