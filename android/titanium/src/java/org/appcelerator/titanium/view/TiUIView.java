@@ -38,6 +38,7 @@ import android.graphics.Point;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
+import android.support.v4.view.ViewCompat;
 import android.text.TextUtils;
 import android.util.Pair;
 import android.view.GestureDetector;
@@ -108,21 +109,6 @@ public abstract class TiUIView
 
 	private boolean zIndexChanged = false;
 	private TiBorderWrapperView borderView;
-
-	// Accessibility
-	// Our view proxy supports three properties to match iOS:
-	//
-	// 1) accessibilityLabel
-	// 2) accessibilityHint
-	// 3) accessibilityValue
-	//
-	// We combine these to create the single Android property contentDescription.
-	// (e.g., View.setContentDescription(...));
-	protected String contentDescription = null;
-
-	// Flag to call setContentDescription() later if nativeView was not
-	// available at the time the description was composed.
-	protected boolean doSetContentDescription = false;
 
 	/**
 	 * Constructs a TiUIView object with the associated proxy.
@@ -252,6 +238,8 @@ public abstract class TiUIView
 		}
 		doSetClickable(nativeView, clickable);
 		nativeView.setOnFocusChangeListener(this);
+
+		applyAccessibilityProperties();
 	}
 
 	protected void setLayoutParams(LayoutParams layoutParams)
@@ -635,8 +623,13 @@ public abstract class TiUIView
 			if (nativeView != null) {
 				nativeView.setKeepScreenOn(TiConvert.toBoolean(newValue));
 			}
-		} else if (key.indexOf("accessibility") == 0) {
+
+		} else if (key.indexOf("accessibility") == 0 && !key.equals(TiC.PROPERTY_ACCESSIBILITY_HIDDEN)) {
 			composeContentDescription();
+
+		} else if (key.equals(TiC.PROPERTY_ACCESSIBILITY_HIDDEN)) {
+			applyAccessibilityHidden(newValue);
+
 		} else {
 			Log.d(TAG, "Unhandled property key: " + key, Log.DEBUG_MODE);
 		}
@@ -728,12 +721,12 @@ public abstract class TiUIView
 		}
 
 		if (d.containsKey(TiC.PROPERTY_ACCESSIBILITY_HINT) || d.containsKey(TiC.PROPERTY_ACCESSIBILITY_LABEL)
-				|| d.containsKey(TiC.PROPERTY_ACCESSIBILITY_VALUE)) {
-			composeContentDescription();
+				|| d.containsKey(TiC.PROPERTY_ACCESSIBILITY_VALUE) || d.containsKey(TiC.PROPERTY_ACCESSIBILITY_HIDDEN)) {
+			applyAccessibilityProperties();
 		}
 	}
 
-	// TODO @Override
+	// TODO dead code? @Override
 	public void propertiesChanged(List<KrollPropertyChange> changes, KrollProxy proxy)
 	{
 		for (KrollPropertyChange change : changes) {
@@ -1433,14 +1426,22 @@ public abstract class TiUIView
 		animatedAlpha = Float.MIN_VALUE; // we use min val to signal no val.
 	}
 
+	/**
+	 * Our view proxy supports three properties to match iOS regarding
+	 * the text that is read aloud (or otherwise communicated) by the
+	 * assistive technology: accessibilityLabel, accessibilityHint
+	 * and accessibilityValue.
+	 *
+	 * We combine these to create the single Android property contentDescription.
+	 * (e.g., View.setContentDescription(...));
+	 */
 	private void composeContentDescription()
 	{
-		final String punctuationPattern = "^.*\\p{Punct}\\s*$";
-		contentDescription = "";
-		if (proxy == null) {
+		if (nativeView == null || proxy == null) {
 			return;
 		}
 
+		final String punctuationPattern = "^.*\\p{Punct}\\s*$";
 		StringBuilder buffer = new StringBuilder();
 
 		KrollDict properties = proxy.getProperties();
@@ -1476,13 +1477,40 @@ public abstract class TiUIView
 			}
 		}
 
-		contentDescription = buffer.toString();
+		nativeView.setContentDescription(buffer.toString());
+	}
+
+	private void applyAccessibilityProperties()
+	{
 		if (nativeView != null) {
-			nativeView.setContentDescription(contentDescription);
-			doSetContentDescription = false;
-		} else {
-			doSetContentDescription = true;
+			composeContentDescription();
+			applyAccessibilityHidden();
 		}
+
+	}
+
+	private void applyAccessibilityHidden()
+	{
+		if (nativeView == null || proxy == null) {
+			return;
+		}
+
+		applyAccessibilityHidden(proxy.getProperty(TiC.PROPERTY_ACCESSIBILITY_HIDDEN));
+	}
+
+	private void applyAccessibilityHidden(Object hiddenPropertyValue)
+	{
+		if (nativeView == null) {
+			return;
+		}
+
+		int importanceMode = ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_AUTO;
+
+		if (hiddenPropertyValue != null && TiConvert.toBoolean(hiddenPropertyValue)) {
+				importanceMode = ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_NO;
+		}
+
+		ViewCompat.setImportantForAccessibility(nativeView, importanceMode);
 	}
 
 }
