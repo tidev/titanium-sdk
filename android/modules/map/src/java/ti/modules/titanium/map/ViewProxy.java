@@ -159,7 +159,7 @@ public class ViewProxy extends TiViewProxy implements OnLifecycleEvent
 		Intent intent = new Intent(tiApp, TiMapActivity.class);
 		mapWindow = lam.startActivity("TIMAP", intent);
 		lam.dispatchResume();
-		mapView = new TiMapView(this, mapWindow, annotations, routes, selectedAnnotations);
+		mapView = new TiMapView(this, mapWindow, annotations, selectedAnnotations);
 
 		Object location = getProperty(TiC.PROPERTY_LOCATION);
 		if (location != null) {
@@ -174,6 +174,11 @@ public class ViewProxy extends TiViewProxy implements OnLifecycleEvent
 		mapView.updateRoute();
 
 		return mapView;
+	}
+
+	public ArrayList<MapRoute> getMapRoutes()
+	{
+		return routes;
 	}
 
 	@Kroll.method
@@ -266,9 +271,8 @@ public class ViewProxy extends TiViewProxy implements OnLifecycleEvent
 
 			// if the route exists, remove it
 			if (mr != null) {
-
 				if (mapView == null) {
-					routes.remove(mr);
+					this.routes.remove(mr);
 				} else {
 					mapView.removeRoute(mr);
 				}
