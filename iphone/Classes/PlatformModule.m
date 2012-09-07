@@ -189,6 +189,15 @@ NSString* const DATA_IFACE = @"pdp_ip0";
 	return @"javascriptcore";
 }
 
+-(NSString*)manufacturer
+{
+#if TARGET_IPHONE_SIMULATOR
+    return @"unknown";
+#else
+    return @"apple";
+#endif
+}
+
 -(NSString*)locale
 {
 	// this will return the locale that the user has set the phone in

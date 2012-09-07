@@ -144,9 +144,13 @@ public class PickerColumnProxy extends TiViewProxy implements PickerRowListener
 	}
 
 	@Kroll.method
-	public void addRow(PickerRowProxy row)
+	public void addRow(Object row)
 	{
-		this.add(row);
+		if (row instanceof PickerRowProxy) {
+			this.add((PickerRowProxy) row);
+		} else {
+			Log.w(TAG, "Unable to add the row. Invalid type for row.");
+		}
 	}
 
 	protected void addRows(Object[] rows) 
@@ -161,9 +165,13 @@ public class PickerColumnProxy extends TiViewProxy implements PickerRowListener
 	}
 
 	@Kroll.method
-	public void removeRow(PickerRowProxy row) 
+	public void removeRow(Object row)
 	{
-		this.remove(row);
+		if (row instanceof PickerRowProxy) {
+			this.remove((PickerRowProxy) row);
+		} else {
+			Log.w(TAG, "Unable to remove the row. Invalid type for row.");
+		}
 	}
 
 	@Kroll.getProperty @Kroll.method
