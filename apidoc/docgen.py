@@ -288,7 +288,14 @@ class AnnotatedApi(object):
 		else:
 			self.availability = None
 		if "default" in api_obj:
-			self.default = api_obj["default"]
+			# TIDOC-708: avoid capitalizing booleans
+			if isinstance(api_obj["default"], bool):
+				if api_obj["default"]:
+					self.default = "true"
+				else:
+					self.default = "false"
+			else:
+				self.default = api_obj["default"]
 		else:
 			self.default = None
 		if "optional" in api_obj:
@@ -473,10 +480,9 @@ class AnnotatedModule(AnnotatedProxy):
 			if method_name in existing_names:
 				continue
 			method_template_obj = {"proxy_name": proxy.name}
-			if "platforms" in proxy.api_obj:
-				method_template_obj["platforms"] = yaml.dump(proxy.api_obj["platforms"])
-			if "since" in proxy.api_obj:
-				method_template_obj["since"] = yaml.dump(proxy.api_obj["since"])
+			for key in ("platforms", "since", "deprecated"):
+				if key in proxy.api_obj:
+					method_template_obj[key] = yaml.dump(proxy.api_obj[key])
 			generated_method = yaml.load(AnnotatedModule.render_create_proxy_method(method_template_obj))
 			methods.append(AnnotatedMethod(generated_method, self))
 

@@ -165,7 +165,12 @@ file for the harness
 problems can be encountered in terms of adb and device connection.  when switching back from ios 
 to android/mw it is suggested that adb be started (type "adb devices") and the device be unplugged 
 and replugged in so that the connection is "reset"
-
+-when in remote mode, the driver expects a cloned version of the "titanium_mobile" repo to exist at
+"anvil/driver/titanium_mobile".  This should be setup manually when a remote driver instance is 
+setup (Example from anvil/driver: "git clone git@github.com:appcelerator/titanium_mobile.git") as
+this is where branches will be pulled down and stored in remote mode.
+-for remote mode, github access needs to be setup for access to the appcelerator "titanium_mobile"
+repo
 
 USAGE:
 	Driver:
@@ -185,6 +190,9 @@ USAGE:
 		- start driver with one shot command for ios platform that will only run the suite "x" 
 		for configuration "1"
 			'node driver.js --mode=local --platform=ios --command="start --config=1 --suite=x"'
+
+		- start driver in remote mode for the iOS platform
+			"node driver.js --mode=remote --platform=ios"
 
 
 	Harness examples (via command line interface once driver is started or startup arguments when 

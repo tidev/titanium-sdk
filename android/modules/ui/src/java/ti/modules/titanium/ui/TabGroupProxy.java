@@ -97,7 +97,6 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 		}
 	}
 
-	@Kroll.getProperty @Kroll.method
 	public TabProxy[] getTabs()
 	{
 		TabProxy[] tps = null;

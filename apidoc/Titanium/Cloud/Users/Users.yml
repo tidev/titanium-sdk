@@ -164,6 +164,61 @@ methods:
         summary: Callback function to execute when the method completes.
         type: Callback<CloudUsersResponse>
 
+  - name: secureCreate
+    since: 2.1.2
+    platforms: [android, iphone, ipad]
+    summary: Create a new user using 3-Legged OAuth.
+    description: |
+        Invokes a modal dialog that allows the authentication server to display a
+        web page for creating a new user.
+
+        See [Authentication](http://cloud.appcelerator.com/docs/authentication)
+        for instructions on enabling 3-Legged OAuth for your application.
+
+        Authentication data is returned in the parameter passed to the callback.
+    parameters:
+      - name: parameters
+        summary: A dictionary of properties for the request.
+        type: Dictionary<CloudUsersSecureDialog>
+        optional: true
+
+      - name: callback
+        summary: Callback function to execute when the method completes.
+        type: Callback<CloudUsersSecureResponse>
+
+  - name: secureLogin
+    since: 2.1.2
+    platforms: [android, iphone, ipad]
+    summary: Log in a user using 3-Legged OAuth.
+    description: |
+        Invokes a modal dialog that allows the authentication server to display a
+        web page for authenticating a user.
+
+        See [Authentication](http://cloud.appcelerator.com/docs/authentication)
+        for instructions on enabling 3-Legged OAuth for your application.
+
+        Authentication data is returned in the parameter passed to the callback.
+    parameters:
+      - name: parameters
+        summary: A dictionary of properties for the request.
+        type: Dictionary<CloudUsersSecureDialog>
+        optional: true
+
+      - name: callback
+        summary: Callback function to execute when the method completes.
+        type: Callback<CloudUsersSecureResponse>
+
+  - name: secureStatus
+    since: 2.1.2
+    platforms: [android, iphone, ipad]
+    summary: Checks if the user is authenticated with 3-Legged OAuth.
+    description: |
+        True is returned after successfully calling <Titanium.Cloud.Users.secureCreate> or
+        <Titanium.Cloud.Users.secureLogin>, and false after successfully calling
+        <Titanium.Cloud.Users.logout>.
+    returns:
+        type: Boolean
+
 examples:
   - title: Create User
     example: |
@@ -360,6 +415,49 @@ examples:
                 }
             });
 
+  - title: Create User Using 3-Legged OAuth
+    example: |
+        This example creates a new user using 3-Legged OAuth and checks the response.
+
+            Cloud.Users.secureCreate({
+                title: 'Sign Up Here'
+            }, function (e) {
+                if (e.success) {
+                    alert('Success:\\n' +
+                        'accessToken: ' + e.accessToken + '\\n' +
+                        'expiresIn: ' + e.expiresIn);
+                } else {
+                    alert('Error:\\n' +
+                        ((e.error && e.message) || JSON.stringify(e)));
+                }
+            });
+
+  - title: Log in User Using 3-Legged OAuth
+    example: |
+        This example logs a user in using 3-Legged OAuth and checks the response.
+
+            Cloud.Users.secureLogin({
+                title: 'Log In Here'
+            }, function (e) {
+                if (e.success) {
+                    alert('Success:\\n' +
+                        'accessToken: ' + e.accessToken + '\\n' +
+                        'expiresIn: ' + e.expiresIn);
+                } else {
+                    alert('Error:\\n' +
+                        ((e.error && e.message) || JSON.stringify(e)));
+                }
+            });
+
+---
+name: CloudUsersSecureDialog
+summary: Properties for the modal dialog used in 3-Legged OAuth
+properties:
+  - name: title
+    summary: Defines the title for the dialog.
+    type: String
+    default: 'Appcelerator Cloud Service'
+
 ---
 name: CloudUsersResponse
 summary: Argument passed to the callback when a request finishes successfully or erroneously.
@@ -369,3 +467,18 @@ properties:
     summary: Set of `user` objects, if any exist.
     description: Only included if `success` is `true`.
     type: Array<Dictionary>
+
+---
+name: CloudUsersSecureResponse
+summary: Argument passed to the callback when a request finishes successfully or erroneously.
+extends: CloudResponse
+properties:
+  - name: accessToken
+    summary: Identifies the current access token when using 3-Legged OAuth.
+    description: Only included if `success` is `true`.
+    type: String
+
+  - name: expiresIn
+    summary: Indicates the number of seconds before the access token expires.
+    description: Only included if `success` is `true`.
+    type: Number

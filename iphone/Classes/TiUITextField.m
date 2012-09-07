@@ -464,6 +464,29 @@
 	return [[f text] length] > 0;
 }
 
+-(void)setSelectionFrom:(id)start to:(id)end 
+{
+    if([TiUtils isIOS5OrGreater]) {
+        UITextField *textField = [self textWidgetView];
+        if ([textField conformsToProtocol:@protocol(UITextInput)]) {
+            if([self becomeFirstResponder]){
+                UITextPosition *beginning = textField.beginningOfDocument;
+                UITextPosition *startPos = [textField positionFromPosition:beginning offset:[TiUtils intValue: start]];
+                UITextPosition *endPos = [textField positionFromPosition:beginning offset:[TiUtils intValue: end]];
+                UITextRange *textRange;
+                textRange = [textField textRangeFromPosition:startPos toPosition:endPos];
+                [textField setSelectedTextRange:textRange];
+            }
+            
+        } else {
+            DebugLog(@"UITextField does not conform with UITextInput protocol. Ignore");
+        }
+    } else {
+        DebugLog(@"Selecting text is only supported with iOS5+");
+    }
+    
+}
+
 #pragma mark UITextFieldDelegate
 
 - (void)textFieldDidBeginEditing:(UITextField *)tf

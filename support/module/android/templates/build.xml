@@ -1,4 +1,4 @@
-<project name="__PROJECT_SHORT_NAME__" default="dist">
+<project name="__PROJECT_SHORT_NAME_LOWER__" default="dist">
 	<description>
 		Ant build script for Titanium Android module __PROJECT_SHORT_NAME__
 	</description>

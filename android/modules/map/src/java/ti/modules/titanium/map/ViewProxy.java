@@ -12,7 +12,6 @@ import java.util.HashMap;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
-import org.appcelerator.kroll.common.TiConfig;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiC;
@@ -26,6 +25,7 @@ import org.appcelerator.titanium.view.TiUIView;
 import android.app.Activity;
 import android.app.LocalActivityManager;
 import android.content.Intent;
+import android.os.Message;
 import android.view.Window;
 
 @Kroll.proxy(creatableInModule = MapModule.class, propertyAccessors = {
@@ -42,6 +42,10 @@ public class ViewProxy extends TiViewProxy implements OnLifecycleEvent
 	private static Window mapWindow;
 	private static OnLifecycleEvent rootLifecycleListener;
 	private static final String TAG = "TiMapViewProxy";
+	private static final int MSG_FIRST_ID = TiViewProxy.MSG_LAST_ID + 1;
+	private static final int MSG_ADD_ROUTE = MSG_FIRST_ID + 50;
+	private static final int MSG_REMOVE_ROUTE = MSG_FIRST_ID + 51;
+
 
 	/*
 	 * Track whether the map activity has been destroyed (or told to destroy).
@@ -202,8 +206,7 @@ public class ViewProxy extends TiViewProxy implements OnLifecycleEvent
 		}
 	}
 
-	@Kroll.method
-	public void addRoute(KrollDict routeMap)
+	protected void handleAddRoute(HashMap routeMap)
 	{
 		Object routeArray = routeMap.get("points");
 		if (routeArray instanceof Object[]) {
@@ -228,7 +231,18 @@ public class ViewProxy extends TiViewProxy implements OnLifecycleEvent
 				mapView.addRoute(mr);
 			}
 		}
+	}
 
+	@Kroll.method
+	public void addRoute(KrollDict routeMap)
+	{
+		//This needs to run on main thread.
+		if (TiApplication.isUIThread()) {
+			handleAddRoute(routeMap);
+			return;
+		}
+		
+		getMainHandler().obtainMessage(MSG_ADD_ROUTE, routeMap).sendToTarget();		
 	}
 
 	public TiMapView getMapView()
@@ -236,8 +250,7 @@ public class ViewProxy extends TiViewProxy implements OnLifecycleEvent
 		return this.mapView;
 	}
 
-	@Kroll.method
-	public void removeRoute(KrollDict route)
+	protected void handleRemoveRoute(HashMap route)
 	{
 		// We remove the route by "name" for parity with iOS
 		Object routeName = route.get("name");
@@ -261,6 +274,17 @@ public class ViewProxy extends TiViewProxy implements OnLifecycleEvent
 				}
 			}
 		}
+	}
+	@Kroll.method
+	public void removeRoute(KrollDict route)
+	{
+		//This needs to run on main thread.
+		if (TiApplication.isUIThread()) {
+			handleRemoveRoute(route);
+			return;
+		}
+
+		getMainHandler().obtainMessage(MSG_REMOVE_ROUTE, route).sendToTarget();
 	}
 
 	@Kroll.method
@@ -499,5 +523,23 @@ public class ViewProxy extends TiViewProxy implements OnLifecycleEvent
 			lam.dispatchDestroy(true);
 		}
 		mapWindow = null;
+	}
+	
+	@Override
+	public boolean handleMessage(Message msg)
+	{
+		switch (msg.what) {
+			case MSG_ADD_ROUTE: {
+				handleAddRoute((HashMap)msg.obj);
+				return true;
+			}
+			case MSG_REMOVE_ROUTE: {
+				handleRemoveRoute((HashMap)msg.obj);
+				return true;
+			}
+			default: {
+				return super.handleMessage(msg);
+			}
+		}
 	}
 }

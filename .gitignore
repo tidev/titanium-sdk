@@ -13,3 +13,6 @@ xcuserdata
 *.LOCAL.*
 *.REMOTE.*
 anvil/driver/config.js
+anvil/driver/titanium_mobile
+anvil/hub/config.js
+
