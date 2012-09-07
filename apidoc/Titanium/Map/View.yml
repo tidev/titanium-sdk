@@ -369,7 +369,7 @@ properties:
     type: Boolean
     default: true
     platforms: [android]
-    since: {android: "2.2.0"}
+    since: {android: "3.0.0"}
 
   - name: mapType
     summary: |
