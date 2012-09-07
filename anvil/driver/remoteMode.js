@@ -129,8 +129,7 @@ module.exports = new function() {
 						return;
 					}
 
-					var sdkFilename = "mobilesdk-" + payloadObject.sdkBaseFilename + "-osx.zip";
-					downloadAndUnpackSdk(payloadObject.branch, sdkFilename, function() {
+					downloadAndUnpackSdk(payloadObject.branch, "mobilesdk-" + payloadObject.sdkBaseFilename + "-osx.zip", function() {
 						driverGlobal.platform.processCommand(payloadObject.command);
 					});
 				}
