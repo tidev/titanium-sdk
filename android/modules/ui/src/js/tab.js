@@ -8,6 +8,14 @@
 exports.bootstrap = function(Titanium) {
 	var Tab = Titanium.UI.Tab;
 
+	function createTab(scopeVars, options) {
+		var tab = new Tab(options);
+		this._window = options.window;
+		return tab;
+  }
+
+	Titanium.UI.createTab = createTab;
+
 	var tabOpen = Tab.prototype.open;
 	Tab.prototype.open = function(window, options) {
 		if (!window) {
@@ -31,4 +39,21 @@ exports.bootstrap = function(Titanium) {
 			this.setWindow(null);
 		}
 	}
+
+	var _setWindow = Tab.prototype.setWindow;
+	Tab.prototype.setWindow = function(window) {
+		this._window = window;
+		_setWindow.call(this, window);
+	}
+
+	Tab.prototype.getWindow = function() {
+		return this._window;
+	}
+
+	Object.defineProperty(Tab.prototype, 'window', {
+		enumerable: true,
+		set: Tab.prototype.setWindow,
+		get: Tab.prototype.getWindow
+	});
 }
+
