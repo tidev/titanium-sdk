@@ -73,7 +73,7 @@ exports.run = function (logger, config, cli) {
 		process.exit(1);
 	}
 	
-	new (require(buildModule))({
+	require(buildModule).run({
 		logger: logger,
 		config: config,
 		cli: cli,

@@ -166,7 +166,7 @@ exports.run = function (logger, config, cli) {
 			wrench.copyDirSyncRecursive(templatePath, projectDir, { preserve: true });
 		}
 		if (appc.fs.exists(appc.fs.resolvePath('..', '..', p, 'cli', 'commands', '_create.js'))) {
-			require('../../' + p + '/cli/commands/_create')(logger, type, projectDir, projectConfig);
+			require('../../' + p + '/cli/commands/_create').run(logger, type, projectDir, projectConfig);
 		}
 	});
 	

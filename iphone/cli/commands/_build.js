@@ -16,6 +16,25 @@ var fs = require('fs'),
 	parallel = appc.async.parallel,
 	series = appc.async.series;
 
+exports.config = function (logger, config, cli) {
+	return {
+		options: {
+			'target-type': {
+				abbr: 'T',
+				default: 'universal',
+				desc: __('the target device family type'),
+				hint: __('type'),
+				required: true,
+				values: ['universal', 'iphone', 'ipad']
+			}
+		}
+	};
+};
+
+exports.run = function (opts) {
+	new build(opts);
+};
+
 function build(opts) {
 	var logger = opts.logger,
 		config = opts.config,
@@ -71,21 +90,6 @@ function build(opts) {
 		finished();
 	});
 }
-
-build.config = function (logger, config, cli) {
-	return {
-		options: {
-			'target-type': {
-				abbr: 'T',
-				default: 'universal',
-				desc: __('the target device family type'),
-				hint: __('type'),
-				required: true,
-				values: ['universal', 'iphone', 'ipad']
-			}
-		}
-	};
-};
 
 build.prototype = {
 
@@ -190,5 +194,3 @@ build.prototype = {
 	}
 
 };
-
-module.exports = build;

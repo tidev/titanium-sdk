@@ -35,11 +35,9 @@ var appc = require('node-appc'),
 		'.jpeg': 'image/jpg'
 	};
 
-function badInstall(msg) {
-	logger.error(msg + '\n');
-	logger.log(__("Your SDK installation may be corrupt. You can reinstall it by running '%s'.", (cli.argv.$ + ' sdk update --force --default').cyan) + '\n');
-	process.exit(1);
-}
+exports.run = function (opts) {
+	new build(opts);
+};
 
 function build(opts) {
 	var logger = opts.logger,
@@ -972,6 +970,12 @@ build.prototype = {
 
 };
 
+function badInstall(msg) {
+	logger.error(msg + '\n');
+	logger.log(__("Your SDK installation may be corrupt. You can reinstall it by running '%s'.", (cli.argv.$ + ' sdk update --force --default').cyan) + '\n');
+	process.exit(1);
+}
+
 function applyDefaults(dest, src) {
 	Object.keys(src).forEach(function (key) {
 		if (dest.hasOwnProperty(key)) {
@@ -1008,5 +1012,3 @@ function renderTemplate(template, props) {
 		return value;
 	});
 }
-
-module.exports = build;

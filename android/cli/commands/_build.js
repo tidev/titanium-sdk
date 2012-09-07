@@ -8,15 +8,7 @@
 var appc = require('node-appc'),
 	afs = appc.fs;
 
-function build(opts) {
-	opts.logger.info(__('Compiling "%s" build', opts.cli.argv['build-type']));
-	
-	dump(opts.cli.argv);
-	
-	opts.finished();
-}
-
-build.config = function (logger, config, cli) {
+exports.config = function (logger, config, cli) {
 	return {
 		options: {
 			'android-sdk': {
@@ -43,10 +35,20 @@ build.config = function (logger, config, cli) {
 	};
 };
 
+exports.run = function (opts) {
+	new build(opts);
+};
+
+function build(opts) {
+	opts.logger.info(__('Compiling "%s" build', opts.cli.argv['build-type']));
+	
+	dump(opts.cli.argv);
+	
+	opts.finished();
+}
+
 build.prototype = {
 
 	//
 
 };
-
-module.exports = build;
