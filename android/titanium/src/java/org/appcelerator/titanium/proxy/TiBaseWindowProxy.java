@@ -39,8 +39,9 @@ public class TiBaseWindowProxy extends TiWindowProxy
 		// adding window to stack
 		Activity topActivity = TiApplication.getAppCurrentActivity();
 		if (topActivity instanceof TiBaseActivity) {
-			hostActivity = new WeakReference<TiBaseActivity>((TiBaseActivity) topActivity);
-			((TiBaseActivity)topActivity).addWindowToStack(this);
+			TiBaseActivity baseActivity = (TiBaseActivity)topActivity;
+			hostActivity = new WeakReference<TiBaseActivity>(baseActivity);
+			baseActivity.addWindowToStack(this);
 		}
 	}
 	
