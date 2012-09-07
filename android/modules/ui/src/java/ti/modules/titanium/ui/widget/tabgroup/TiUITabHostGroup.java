@@ -14,6 +14,7 @@ import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.util.TiConvert;
+import org.appcelerator.titanium.view.TiCompositeLayout;
 
 import ti.modules.titanium.ui.TabGroupProxy;
 import ti.modules.titanium.ui.TabProxy;
@@ -49,7 +50,12 @@ public class TiUITabHostGroup extends TiUIAbstractTabGroup
 	{
 		super(proxy, activity);
 		setupTabHost();
-		activity.setLayout(tabHost);
+
+		TiCompositeLayout.LayoutParams params = new TiCompositeLayout.LayoutParams();
+		params.autoFillsHeight = true;
+		params.autoFillsWidth = true;
+
+		((TiCompositeLayout) activity.getLayout()).addView(tabHost, params);
 	}
 
 	private void setupTabHost() {
