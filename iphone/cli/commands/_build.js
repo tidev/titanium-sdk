@@ -57,12 +57,8 @@ function build(opts) {
 		
 		function (callback) {
 			this.tiapp = new appc.tiappxml(path.join(cli.argv.dir, 'tiapp.xml'));
-			this.createInfoPlist();
-			callback();
-		},
-		
-		function (callback) {
 			wrench.mkdirSyncRecursive(this.buildDir);
+			this.createInfoPlist();
 			callback();
 		},
 		
