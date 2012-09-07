@@ -40,16 +40,16 @@ public class TiUITabHostTab extends TiUIAbstractTab {
 	void setIndicatorView(View indicatorView) {
 		this.indicatorView = indicatorView;
 		defaultTabBackground = indicatorView.getBackground();
+
+		// Initialize custom background color of tab if provided.
+		int tabBackgroundColor = ((TabProxy) proxy).getTabColor();
+		if (tabBackgroundColor != 0) {
+			setBackgroundColor(tabBackgroundColor);
+		}
 	}
 
 	@Override
 	public void onSelectionChange(boolean selected) {
-		if (indicatorView == null) {
-			// Abort if the indicator view isn't setup yet.
-			// This will get called again once the indicator view is initialized.
-			return;
-		}
-
 		TabProxy tabProxy = (TabProxy) proxy;
 		int backgroundColor;
 

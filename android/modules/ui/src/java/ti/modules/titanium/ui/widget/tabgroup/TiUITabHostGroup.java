@@ -60,7 +60,6 @@ public class TiUITabHostGroup extends TiUIAbstractTabGroup
 		tabHost.setId(android.R.id.tabhost);
 		params = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
 		tabHost.setLayoutParams(params);
-		tabHost.setOnTabChangedListener(this);
 
 		LinearLayout container = new LinearLayout(context);
 		container.setOrientation(LinearLayout.VERTICAL);
@@ -97,9 +96,11 @@ public class TiUITabHostGroup extends TiUIAbstractTabGroup
 
 		tabView.setIndicatorView(tabWidget.getChildTabViewAt(tabIndex));
 
-		// Allow the tab view to initialize its background color.
-		// If this is the first tab mark it as being selected.
-		tabView.onSelectionChange(tabIndex == 0);
+		// TabHost will trigger a tab change when adding the first tab.
+		// Avoid this tab change by setting the listener after adding the tab.
+		if (tabIndex == 0) {
+			tabHost.setOnTabChangedListener(this);
+		}
 	}
 
 	@Override
