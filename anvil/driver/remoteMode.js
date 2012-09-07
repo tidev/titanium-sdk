@@ -35,7 +35,7 @@ module.exports = new function() {
 		driverUtils.checkConfigItem("driverDescription", driverGlobal.config.driverDescription, "string");
 
 		// hard code the location for remote mode since this should not change
-		driverGlobal.config.tiSdkDirs = path.join(driverGlobal.config.tempDir, "sdk/mobilesdk/osx");
+		driverGlobal.config.tiSdkDirs = path.join(driverGlobal.config.tempDir, "sdk", "mobilesdk", "osx");
 
 		// setup the location where we will download the SDK to
 		driverUtils.createDir(path.join(driverGlobal.config.tempDir, "sdk"));

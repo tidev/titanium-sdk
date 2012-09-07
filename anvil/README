@@ -16,7 +16,11 @@ that make up a anvil test pass
 
 
 HUB:
-To be defined once the hub implementation is finished.
+The hub is a collection of various software components that live in a hosted linux environment and 
+whos purpose is to serve as a bridge between driver instances and the CI server.  An additional role 
+of the hub is to populate a mysql database that is used as the driving data source behind Anvil 
+reports accesible via the web.  The hub serves as a TCP server that both the CI server and driver 
+instances connect to.
 
 
 DRIVER:
@@ -165,12 +169,7 @@ file for the harness
 problems can be encountered in terms of adb and device connection.  when switching back from ios 
 to android/mw it is suggested that adb be started (type "adb devices") and the device be unplugged 
 and replugged in so that the connection is "reset"
--when in remote mode, the driver expects a cloned version of the "titanium_mobile" repo to exist at
-"anvil/driver/titanium_mobile".  This should be setup manually when a remote driver instance is 
-setup (Example from anvil/driver: "git clone git@github.com:appcelerator/titanium_mobile.git") as
-this is where branches will be pulled down and stored in remote mode.
--for remote mode, github access needs to be setup for access to the appcelerator "titanium_mobile"
-repo
+
 
 USAGE:
 	Driver:

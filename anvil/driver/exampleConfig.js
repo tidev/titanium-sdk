@@ -19,7 +19,9 @@ module.exports = new function() {
 	/*******************************************************************************/
 
 	/*
-	location of titanium SDKs
+	location of titanium SDKs.  This directory should be the containing directory of various 
+	versions of the titanium SDK.  For example, the contents of an example directory location 
+	might contain the following: "1.8.2 1.8.3 2.0.0 2.0.1 2.0.2 2.1.0 2.1.1 2.2.0"
 
 	Example: this.tiSdkDirs = path.join(path.sep, "Users", "ocyrus", "Library",
 		"Application Support", "Titanium", "mobilesdk", "osx");
