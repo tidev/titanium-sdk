@@ -92,7 +92,6 @@ public class TiMapView extends TiUIView
 	private MyLocationOverlay myLocation;
 	private TiOverlayItemView itemView;
 	private ArrayList<AnnotationProxy> annotations;
-	private ArrayList<MapRoute> routes;
 	private ArrayList<SelectedAnnotation> selectedAnnotations;
 	private Handler handler;
 
@@ -363,14 +362,13 @@ public class TiMapView extends TiUIView
 		}
 	}
 	
-	public TiMapView(TiViewProxy proxy, Window mapWindow, ArrayList<AnnotationProxy> annotations, ArrayList<MapRoute> routes, ArrayList<SelectedAnnotation>selectedAnnotations)
+	public TiMapView(TiViewProxy proxy, Window mapWindow, ArrayList<AnnotationProxy> annotations, ArrayList<SelectedAnnotation>selectedAnnotations)
 	{
 		super(proxy);
 
 		this.mapWindow = mapWindow;
 		this.handler = new Handler(Looper.getMainLooper(), this);
 		this.annotations = annotations;
-		this.routes = routes;
 		this.selectedAnnotations = selectedAnnotations;
 
 		TiApplication app = TiApplication.getInstance();
@@ -583,8 +581,8 @@ public class TiMapView extends TiUIView
 	{
 		//check if route exists - by name
 		String rname = mr.getName();
+		ArrayList<MapRoute> routes = ((ViewProxy) proxy).getRoutes();
 		for (int i = 0; i < routes.size(); i++) {
-
 			if (rname.equals(routes.get(i).getName())) {
 				return;
 			}
@@ -603,17 +601,16 @@ public class TiMapView extends TiUIView
 	public void removeRoute(MapRoute mr)
 	{
 		String rname = mr.getName();
+		ArrayList<MapRoute> routes = ((ViewProxy) proxy).getRoutes();
 		for (int i = 0; i < routes.size(); i++) {
 			MapRoute maproute = routes.get(i);
 			if (rname.equals(maproute.getName())) {
 				routes.remove(maproute);
 				ArrayList<RouteOverlay> o = maproute.getRoutes();
 				List<Overlay> overlaysList = view.getOverlays();
-				for (int j = 0; j < o.size(); j++) {
-					RouteOverlay ro = o.get(j);
-					if (overlaysList.contains(ro)) {
-						overlaysList.remove(ro);
-					}
+				while (!o.isEmpty()) {
+					RouteOverlay ro = o.remove(0);
+					overlaysList.remove(ro);
 				}
 				return;
 			}
@@ -623,9 +620,9 @@ public class TiMapView extends TiUIView
 	public void updateRoute() 
 	{
 		int i = 0;
-		
+		ArrayList<MapRoute> routes = ((ViewProxy) proxy).getRoutes();
 		while (i < routes.size()) {
-			MapRoute mr = routes.get(i);
+			MapRoute mr = routes.remove(i);
 			ArrayList<RouteOverlay> o = mr.getRoutes();			
 			List<Overlay> overlaysList = view.getOverlays();
 			for (int j = 0; j < o.size(); j++) {
