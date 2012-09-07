@@ -1,0 +1,10 @@
+<project name="__PROJECT_SHORT_NAME__" default="dist">
+	<description>
+		Ant build script for Titanium Android module __PROJECT_SHORT_NAME__
+	</description>
+
+	<property name="ti.module.root" location="${basedir}"/>
+	<property file="build.properties" />
+
+	<import file="${titanium.platform}/../module/android/build.xml"/>
+</project>
