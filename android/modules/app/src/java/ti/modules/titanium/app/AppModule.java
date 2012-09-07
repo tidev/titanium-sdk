@@ -6,6 +6,7 @@
  */
 package ti.modules.titanium.app;
 
+import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
@@ -19,6 +20,8 @@ import org.appcelerator.titanium.util.TiPlatformHelper;
 import android.os.Build;
 import android.provider.Settings;
 import android.support.v4.view.accessibility.AccessibilityEventCompat;
+import android.support.v4.view.accessibility.AccessibilityManagerCompat;
+import android.support.v4.view.accessibility.AccessibilityManagerCompat.AccessibilityStateChangeListenerCompat;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityManager;
 
@@ -27,9 +30,11 @@ public class AppModule extends KrollModule
 {
 	private static final String TAG = "AppModule";
 
-	@Kroll.constant public static final String SYSTEM_EVENT_ACCESSIBILITY_ANNOUNCEMENT = "accessibilityannouncement";
+	@Kroll.constant public static final String EVENT_ACCESSIBILITY_ANNOUNCEMENT = "accessibilityannouncement";
+	@Kroll.constant public static final String EVENT_ACCESSIBILITY_CHANGED = "accessibilitychanged";
 
 	private ITiAppInfo appInfo;
+	private AccessibilityStateChangeListenerCompat accessibilityStateChangeListener = null;;
 
 	public AppModule()
 	{
@@ -146,7 +151,7 @@ public class AppModule extends KrollModule
 	@Kroll.method
 	public void fireSystemEvent(String eventName, @Kroll.argument(optional = true) Object arg)
 	{
-		if (eventName.equals(SYSTEM_EVENT_ACCESSIBILITY_ANNOUNCEMENT)) {
+		if (eventName.equals(EVENT_ACCESSIBILITY_ANNOUNCEMENT)) {
 
 			if (!getAccessibilityEnabled()) {
 				Log.w(TAG, "Accessibility announcement ignored. Accessibility services are not enabled on this device.");
@@ -169,4 +174,31 @@ public class AppModule extends KrollModule
 			Log.w(TAG, "Unknown system event: " + eventName);
 		}
 	}
+
+	@Override
+	public void onHasListenersChanged(String event, boolean hasListeners)
+	{
+		super.onHasListenersChanged(event, hasListeners);
+
+		// If listening for "accessibilitychanged", we need to register
+		// our own listener with the system.
+		if (!hasListeners && accessibilityStateChangeListener != null) {
+			AccessibilityManagerCompat.removeAccessibilityStateChangeListener(TiApplication.getInstance().getAccessibilityManager(), accessibilityStateChangeListener);
+			accessibilityStateChangeListener = null;
+		} else if (hasListeners && accessibilityStateChangeListener == null) {
+			accessibilityStateChangeListener = new AccessibilityStateChangeListenerCompat() {
+
+				@Override
+				public void onAccessibilityStateChanged(boolean enabled)
+				{
+					KrollDict data = new KrollDict();
+					data.put(TiC.PROPERTY_ENABLED, enabled);
+					fireEvent(EVENT_ACCESSIBILITY_CHANGED, data);
+				}
+			};
+
+			AccessibilityManagerCompat.addAccessibilityStateChangeListener(TiApplication.getInstance().getAccessibilityManager(), accessibilityStateChangeListener);
+		}
+	}
+
 }
