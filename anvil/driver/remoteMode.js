@@ -185,6 +185,8 @@ module.exports = new function() {
 
 		function unpackSdk() {
 			driverUtils.runCommand("tar -xvf *.zip", driverUtils.logStderr, function(error, stdout, stderr) {
+				var configSetsPath;
+
 				if (error != null) {
 					driverUtils.log("error <" + error + "> occurred when trying to unpack SDK");
 					process.exit(1);
@@ -192,6 +194,17 @@ module.exports = new function() {
 
 				process.chdir(driverGlobal.driverDir);
 				driverUtils.setCurrentTiSdk();
+
+				/*
+				Make sure we use the tests that are part of the downloaded SDK and not the local driver 
+				instance itself.  If the SDK does not have anvil tests (older version of the SDK) then keep
+				using the local tests
+				*/
+				configSetsPath = path.join(driverGlobal.config.currentTiSdkDir, "anvil", "configSet");
+				if (path.existsSync(configSetsPath)) {
+					driverGlobal.configSetDir = configSetsPath;
+				}
+
 				callback();
 			});
 		}

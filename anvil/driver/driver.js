@@ -126,7 +126,7 @@ function init() {
 	};
 
 	driverGlobal.driverDir = __dirname;
-	driverGlobal.configSetDir = path.join(driverGlobal.driverDir, "configSet");
+	driverGlobal.configSetDir = path.join(driverGlobal.driverDir, "..", "..", "support", "anvil", "configSet");
 	driverGlobal.harnessTemplateDir = path.join(driverGlobal.driverDir, "harnessResourcesTemplate");
 
 	driverGlobal.platforms = {};
