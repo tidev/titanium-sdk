@@ -124,6 +124,7 @@ exports.run = function (logger, config, cli) {
 		sdk = cli.env.getSDK(cli.argv.sdk),
 		projectDir = appc.fs.resolvePath(cli.argv.dir, projectName),
 		templateDir = appc.fs.resolvePath(sdk.path, 'templates', type, cli.argv.template),
+		uuid = require('node-uuid'),
 		projectConfig;
 	
 	appc.fs.exists(projectDir) || wrench.mkdirSyncRecursive(projectDir);
@@ -132,16 +133,31 @@ exports.run = function (logger, config, cli) {
 	if (type == 'app') {
 		logger.info(__('Creating Titanium Mobile application project'));
 		
+		// read and populate the tiapp.xml
 		projectConfig = new appc.tiappxml(projectDir + '/tiapp.xml');
 		projectConfig.id = id;
 		projectConfig.name = projectName;
 		projectConfig.version = '1.0';
+		projectConfig.guid = uuid.v4();
 		projectConfig['deployment-targets'] = {};
 		lib.availablePlatforms.forEach(function (p) {
 			projectConfig['deployment-targets'][p] = platforms.indexOf(p) != -1;
 		});
 		projectConfig['sdk-version'] = sdk.name;
 		projectConfig.save(projectDir + '/tiapp.xml');
+		
+		// create the manifest file
+		fs.writeFileSync(projectDir + '/manifest', [
+			'#appname: ' + projectName,
+			'#appid: ' + id,
+			'#type: mobile',
+			'#guid: ' + projectConfig.guid,
+			'#version: ' + projectConfig.version,
+			'#publisher: not specified',
+			'#url: not specified',
+			'#image: appicon.png',
+			'#desc: not specified'
+		].join('\n'));
 	} else if (type == 'module') {
 		logger.info(__('Creating Titanium Mobile module project'));
 		
@@ -155,7 +171,7 @@ exports.run = function (logger, config, cli) {
 			'__VERSION__': sdk.name,
 			'__SDK__': sdk.path,
 			'__SDK_ROOT__': sdk.path,
-			'__GUID__': require('node-uuid').v4(),
+			'__GUID__': uuid.v4(),
 			'__YEAR__': (new Date).getFullYear()
 		};
 	}
