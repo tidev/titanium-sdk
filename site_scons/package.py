@@ -120,7 +120,7 @@ def zip_packaged_modules(zf, source_dir):
 			finally:
 				source_zip.close()
 
-def zip_android(zf, basepath):
+def zip_android(zf, basepath, version):
 	android_dist_dir = os.path.join(top_dir, 'dist', 'android')
 
 	for jar in ['titanium.jar', 'kroll-apt.jar', 'kroll-common.jar', 'kroll-v8.jar', 'kroll-rhino.jar']:
@@ -192,7 +192,7 @@ def zip_android(zf, basepath):
 	android_modules = os.path.join(android_dist_dir, 'modules.json')
 	zf.write(android_modules, '%s/android/modules.json' % basepath)
 	
-	zf.writestr(codecs.open(os.path.join(top_dir, 'android', 'package.json'), 'r', 'utf-8').read().replace('__VERSION__', version), '%s/android/package.json' % basepath)
+	zf.writestr('%s/android/package.json' % basepath, codecs.open(os.path.join(top_dir, 'android', 'package.json'), 'r', 'utf-8').read().replace('__VERSION__', version))
 	
 	titanium_lib_dir = os.path.join(top_dir, 'android', 'titanium', 'lib')
 	for thirdparty_jar in os.listdir(titanium_lib_dir):
@@ -293,7 +293,7 @@ def zip_iphone_ipad(zf,basepath,platform,version,version_tag):
 	zf.write(os.path.join(ticore_lib,'libtiverify.a'),'%s/%s/libtiverify.a'%(basepath,platform))
 	zf.write(os.path.join(ticore_lib,'libti_ios_debugger.a'),'%s/%s/libti_ios_debugger.a'%(basepath,platform))
 	
-	zf.writestr(codecs.open(os.path.join(top_dir, 'iphone', 'package.json'), 'r', 'utf-8').read().replace('__VERSION__', version), '%s/iphone/package.json' % basepath)
+	zf.writestr('%s/%s/package.json' % (basepath, platform), codecs.open(os.path.join(top_dir, 'iphone', 'package.json'), 'r', 'utf-8').read().replace('__VERSION__', version))
 	
 	zip_dir(zf,osx_dir,basepath)
 	
@@ -461,7 +461,7 @@ githash=%s
 	zip_packaged_modules(zf, os.path.join(template_dir, "module", "packaged"))
 	zip_dir(zf, all_dir, basepath)
 	zip_dir(zf, template_dir, basepath, ignore_paths=[os.path.join(template_dir, 'package.json')]) # ignore the dependency package.json
-	if android: zip_android(zf,basepath)
+	if android: zip_android(zf, basepath, version)
 	if (iphone or ipad) and osname == "osx": zip_iphone_ipad(zf,basepath,'iphone',version,version_tag)
 	if mobileweb: zip_mobileweb(zf, basepath, version, build_v3)
 	if osname == 'win32':

@@ -158,62 +158,35 @@ function build(logger, config, cli, opts) {
 						}
 					}
 					
-					// check if we need to do a rebuild
-					var forceRebuild = this.cli.argv.force;
-					forceRebuild && this.logger.debug(__('Forcing rebuild: --force flag was set'));
-					if (!forceRebuild) {
-						forceRebuild = !afs.exists(this.buildVersionFile); // if no .version file, rebuild!
-						forceRebuild && this.logger.debug(__('Forcing rebuild: %s does not exist', this.buildVersionFile));
-					}
-					if (!forceRebuild && afs.exists(this.xcodeProjectConfigFile)) {
-						// we have a previous build, see if the Titanium SDK changed
-						var m = fs.readFileSync(this.xcodeProjectConfigFile).toString().match(/TI_VERSION\=([^\n]*)/);
-						forceRebuild = m && appc.version.eq(m[1], this.titaniumSdkVersion);
-						forceRebuild && this.logger.debug(__("Forcing rebuild: last build was under Titanium SDK version %s and we're compiling for version %s", m[1].cyan, this.titaniumSdkVersion.cyan));
-					}
-					if (!forceRebuild) {
-						forceRebuild = !afs.exists(this.xcodeAppDir);
-						forceRebuild && this.logger.debug(__('Forcing rebuild: %s does not exist', this.xcodeAppDir));
-					}
-					if (!forceRebuild) {
+					// read the version file
+					var versionIosSdkPath,
+						versionGuid,
+						versionTiCoreHash,
+						versionGitHash;
+					if (afs.exists(this.buildVersionFile)) {
 						var parts = fs.readFileSync(this.buildVersionFile).toString().split(',');
-						forceRebuild = parts.length < 2; // obviously doesn't have a libhash
-						forceRebuild && this.logger.debug(__('Forcing rebuild: incomplete version file %s', this.buildVersionFile));
-						// check if the titanium sdk paths are different
-						if (!forceRebuild && parts[0] != this.titaniumIosSdkPath) {
-							forceRebuild = true;
-							this.logger.debug(__('Forcing rebuild: Titanium SDK path changed since last build'));
-							this.logger.debug('  ' + __('Was: %s', parts[0]));
-							this.logger.debug('  ' + __('Now: %s', this.titaniumIosSdkPath));
-						}
-						// check the git hashes are different
-						if (!forceRebuild && parts.length > 3 && parts[3] != this.lib.manifest.githash) {
-							forceRebuild = true;
-							this.logger.debug(__('Forcing rebuild: githash changed since last build'));
-							this.logger.debug('  ' + __('Was: %s', parts[3]));
-							this.logger.debug('  ' + __('Now: %s', this.lib.manifest.githash));
-						}
-						// check if the libhashes are different
-						if (!forceRebuild && libTiCoreHash != parts[2]) {
-							forceRebuild = true;
-							this.logger.debug(__('Forcing rebuild: libTiCore hash changed since last build'));
-							this.logger.debug('  ' + __('Was: %s', parts[2]));
-							this.logger.debug('  ' + __('Now: %s', libTiCoreHash));
-						}
+						parts.length > 0 && (versionIosSdkPath = parts[0]);
+						parts.length > 1 && (versionGuid = parts[1]);
+						parts.length > 2 && (versionTiCoreHash = parts[2]);
+						parts.length > 3 && (versionGitHash = parts[3]);
 					}
 					
+					// check if we need to do a rebuild
+					var forceRebuild = this.checkForceRebuild(versionIosSdkPath, versionGuid, versionTiCoreHash, versionGitHash, libTiCoreHash);
 					if (forceRebuild) {
 						this.logger.info(__('Performing full rebuild'));
 						this.createXcodeProject();
 					}
 					
-					// build the .version file
-					fs.writeFileSync(this.buildVersionFile, [
-						this.titaniumIosSdkPath,
-						this.tiapp.guid,
-						libTiCoreHash,
-						this.lib.manifest.githash
-					].join(','));
+					// only build if force rebuild (different version) or the app hasn't yet been built initially
+					if (this.tiapp.guid != versionGuid) { // TODO: or force_xcode
+						fs.writeFileSync(this.buildVersionFile, [
+							this.titaniumIosSdkPath,
+							this.tiapp.guid,
+							libTiCoreHash,
+							this.lib.manifest.githash
+						].join(','));
+					}
 					
 					callback();
 				},
@@ -427,6 +400,65 @@ build.prototype = {
 		
 		this.logger.info(__('Writing Xcode module configuration: %s', 'module.xcconfig'));
 		fs.writeFileSync(path.join(this.buildDir, 'module.xcconfig'), '// this is a generated file - DO NOT EDIT\n\n');
+	},
+	
+	checkForceRebuild: function (versionIosSdkPath, versionGuid, versionTiCoreHash, versionGitHash, libTiCoreHash) {
+		if (this.cli.argv.force) {
+			this.logger.debug(__('Forcing rebuild: --force flag was set'));
+			return true;
+		}
+		
+		if (!afs.exists(this.buildVersionFile)) {
+			// if no .version file, rebuild!
+			this.logger.debug(__('Forcing rebuild: %s does not exist', this.buildVersionFile));
+			return true;
+		}
+		
+		if (afs.exists(this.xcodeProjectConfigFile)) {
+			// we have a previous build, see if the Titanium SDK changed
+			var m = fs.readFileSync(this.xcodeProjectConfigFile).toString().match(/TI_VERSION\=([^\n]*)/);
+			if (m && !appc.version.eq(m[1], this.titaniumSdkVersion)) {
+				this.logger.debug(__("Forcing rebuild: last build was under Titanium SDK version %s and we're compiling for version %s", m[1].cyan, this.titaniumSdkVersion.cyan));
+				return true;
+			}
+		}
+		
+		if (!afs.exists(this.xcodeAppDir)) {
+			this.logger.debug(__('Forcing rebuild: %s does not exist', this.xcodeAppDir));
+			return true;
+		}
+		
+		// check that we have a libTiCore hash
+		if (!versionTiCoreHash) {
+			this.logger.debug(__('Forcing rebuild: incomplete version file %s', this.buildVersionFile));
+			return true;
+		}
+		
+		// check if the libTiCore hashes are different
+		if (libTiCoreHash != versionTiCoreHash) {
+			this.logger.debug(__('Forcing rebuild: libTiCore hash changed since last build'));
+			this.logger.debug('  ' + __('Was: %s', versionTiCoreHash));
+			this.logger.debug('  ' + __('Now: %s', libTiCoreHash));
+			return true;
+		}
+		
+		// check if the titanium sdk paths are different
+		if (versionIosSdkPath != this.titaniumIosSdkPath) {
+			this.logger.debug(__('Forcing rebuild: Titanium SDK path changed since last build'));
+			this.logger.debug('  ' + __('Was: %s', versionIosSdkPath));
+			this.logger.debug('  ' + __('Now: %s', this.titaniumIosSdkPath));
+			return true;
+		}
+		
+		// check the git hashes are different
+		if (!versionGitHash || versionGitHash != this.lib.manifest.githash) {
+			this.logger.debug(__('Forcing rebuild: githash changed since last build'));
+			this.logger.debug('  ' + __('Was: %s', versionGitHash));
+			this.logger.debug('  ' + __('Now: %s', this.lib.manifest.githash));
+			return true;
+		}
+		
+		return false;
 	}
 
 };
