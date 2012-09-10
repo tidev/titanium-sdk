@@ -6,7 +6,6 @@
  */
 package ti.modules.titanium.ui.widget;
 
-import java.io.IOException;
 import java.util.HashMap;
 
 import org.appcelerator.kroll.KrollDict;
@@ -14,15 +13,12 @@ import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiC;
-import org.appcelerator.titanium.io.TiBaseFile;
-import org.appcelerator.titanium.io.TiFileFactory;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiUIHelper;
+import org.appcelerator.titanium.view.TiDrawableReference;
 import org.appcelerator.titanium.view.TiUIView;
 
-import android.graphics.Bitmap;
-import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.view.Gravity;
 import android.view.View;
@@ -58,21 +54,15 @@ public class TiUIButton extends TiUIView
 		Button btn = (Button) getNativeView();
 		if (d.containsKey(TiC.PROPERTY_IMAGE)) {
 			Object value = d.get(TiC.PROPERTY_IMAGE);
-			Bitmap bitmap = null;
+			TiDrawableReference drawableRef = null;
 			if (value instanceof String) {
-				try {
-					String url = getProxy().resolveUrl(null, (String) value);
-					TiBaseFile file = TiFileFactory.createTitaniumFile(new String[] { url }, false);
-					bitmap = TiUIHelper.createBitmap(file.getInputStream());
-				} catch (IOException e) {
-					Log.e(TAG, "Error setting button image", e);
-				}
+				drawableRef = TiDrawableReference.fromUrl(proxy, (String) value);
 			} else if (value instanceof TiBlob) {
-				bitmap = TiUIHelper.createBitmap(((TiBlob) value).getInputStream());
+				drawableRef = TiDrawableReference.fromBlob(proxy.getActivity(), (TiBlob) value);
 			}
 
-			if (bitmap != null) {
-				BitmapDrawable image = new BitmapDrawable(btn.getResources(), bitmap);
+			if (drawableRef != null) {
+				Drawable image = drawableRef.getDrawable();
 				btn.setCompoundDrawablesWithIntrinsicBounds(image, null, null, null);
 			}
 		}
@@ -116,6 +106,17 @@ public class TiUIButton extends TiUIView
 		} else if (key.equals(TiC.PROPERTY_VERTICAL_ALIGN)) {
 			TiUIHelper.setAlignment(btn, null, TiConvert.toString(newValue));
 			btn.requestLayout();
+		} else if (key.equals(TiC.PROPERTY_IMAGE)) {
+			TiDrawableReference drawableRef = null;
+			if (newValue instanceof String) {
+				drawableRef = TiDrawableReference.fromUrl(proxy, (String) newValue);
+			} else if (newValue instanceof TiBlob) {
+				drawableRef = TiDrawableReference.fromBlob(proxy.getActivity(), (TiBlob) newValue);
+			}
+			if (drawableRef != null) {
+				Drawable image = drawableRef.getDrawable();
+				btn.setCompoundDrawablesWithIntrinsicBounds(image, null, null, null);
+			}
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}
