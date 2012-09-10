@@ -212,7 +212,7 @@ examples:
 ---
 name: hideParams
 summary: Dictionary of options for the <Titanium.UI.OptionDialog.hide> method.
-since: 1.9.0
+since: 2.0.0
 platforms: [iphone, ipad]
 
 properties:

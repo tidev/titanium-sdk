@@ -457,7 +457,7 @@ methods:
   - name: finishLayout
     since: "2.0.0"
     deprecated:
-        since: "2.2.0"
+        since: "3.0.0"
         notes: Use the [applyProperties](Titanium.Proxy.applyProperties) method to batch-update layout properties.
     summary: |
         Finishes a batch update of the View's layout properties and schedules a layout pass of the 
@@ -513,7 +513,7 @@ methods:
         On Mobile Web, this method is included for parity only, and thus has no effect.
     since: "2.0.0"
     deprecated:
-        since: "2.2.0"
+        since: "3.0.0"
         notes: Use the [applyProperties](Titanium.Proxy.applyProperties) method to batch-update layout properties.
 
   - name: toImage
@@ -565,7 +565,7 @@ methods:
         On Mobile Web, this method is included for parity only, and thus has no effect.
     since: "2.0.0"
     deprecated:
-        since: "2.2.0"
+        since: "3.0.0"
         notes: Use the [applyProperties](Titanium.Proxy.applyProperties) method to batch-update layout properties.
     parameters:
       - name: params
