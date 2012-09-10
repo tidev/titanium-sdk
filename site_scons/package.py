@@ -2,8 +2,11 @@
 #
 # zip up the titanium mobile SDKs into suitable distribution formats
 #
-import os, types, glob, shutil, sys, platform
+import os, types, glob, shutil, sys, platform, codecs
 import zipfile, datetime, subprocess, tempfile, time
+
+sys.path.append(os.path.join(os.path.abspath(os.path.dirname(sys._getframe(0).f_code.co_filename)),'..','support','common'))
+import simplejson
 
 if platform.system() == 'Darwin':
 	import importresolver
@@ -68,12 +71,13 @@ def generate_jsca():
 	 finally:
 		 jsca_temp_file.close()
 
-def zip_dir(zf,dir,basepath,subs=None,cb=None):
+def zip_dir(zf,dir,basepath,subs=None,cb=None, ignore_paths=None):
 	for root, dirs, files in os.walk(dir):
 		for name in ignoreDirs:
 			if name in dirs:
 				dirs.remove(name)	# don't visit ignored directories
 		for file in files:
+			if ignore_paths != None and os.path.join(root, file) in ignore_paths: continue
 			e = os.path.splitext(file)
 			if len(e)==2 and e[1] in ignoreExtensions: continue
 			from_ = os.path.join(root, file)
@@ -85,7 +89,7 @@ def zip_dir(zf,dir,basepath,subs=None,cb=None):
 				if cb!=None:
 					c = cb(file,e[1],c)
 				zf.writestr(to_,c)
-			else:		
+			else:
 				zf.write(from_, to_)
 
 def zip2zip(src_zip, dest_zip, prepend_path=None):
@@ -122,6 +126,9 @@ def zip_android(zf, basepath):
 	for jar in ['titanium.jar', 'kroll-apt.jar', 'kroll-common.jar', 'kroll-v8.jar', 'kroll-rhino.jar']:
 		jar_path = os.path.join(android_dist_dir, jar)
 		zf.write(jar_path, '%s/android/%s' % (basepath, jar))
+	
+	zip_dir(zf, os.path.join(top_dir, 'android', 'cli'), basepath+'/android/cli')
+	zip_dir(zf, os.path.join(top_dir, 'android', 'templates'), basepath+'/android/templates')
 
 	# include headers for v8 3rd party module building
 	def add_headers(dir):
@@ -185,6 +192,8 @@ def zip_android(zf, basepath):
 	android_modules = os.path.join(android_dist_dir, 'modules.json')
 	zf.write(android_modules, '%s/android/modules.json' % basepath)
 
+	zf.write(os.path.join(top_dir, 'android', 'package.json'), '%s/android/package.json' % basepath)
+	
 	titanium_lib_dir = os.path.join(top_dir, 'android', 'titanium', 'lib')
 	for thirdparty_jar in os.listdir(titanium_lib_dir):
 		if thirdparty_jar == "commons-logging-1.1.1.jar": continue
@@ -241,7 +250,7 @@ def zip_iphone_ipad(zf,basepath,platform,version,version_tag):
 	for f in os.listdir(tp_headers_dir):
 		if os.path.isfile(os.path.join(tp_headers_dir,f)) and os.path.splitext(f)[1]=='.h':
 			 zf.write(os.path.join(tp_headers_dir,f),'%s/iphone/include/TiCore/%s' % (basepath,f))
-
+	
 	subs = {
 		"__VERSION__":version,
 		"__TIMESTAMP__":ts,
@@ -257,6 +266,8 @@ def zip_iphone_ipad(zf,basepath,platform,version,version_tag):
 	zip_dir(zf,os.path.join(top_dir,'iphone','headers'),basepath+'/iphone/headers',subs)
 	zip_dir(zf,os.path.join(top_dir,'iphone','iphone'),basepath+'/iphone/iphone',subs)
 	zf.write(os.path.join(top_dir, 'iphone', 'AppledocSettings.plist'),'%s/iphone/AppledocSettings.plist'%(basepath))
+	zip_dir(zf, os.path.join(top_dir, 'iphone', 'cli'), basepath+'/iphone/cli')
+	zip_dir(zf, os.path.join(top_dir, 'iphone', 'templates'), basepath+'/iphone/templates')
 	
 	ticore_lib = os.path.join(top_dir,'iphone','lib')
 	
@@ -282,6 +293,8 @@ def zip_iphone_ipad(zf,basepath,platform,version,version_tag):
 	zf.write(os.path.join(ticore_lib,'libtiverify.a'),'%s/%s/libtiverify.a'%(basepath,platform))
 	zf.write(os.path.join(ticore_lib,'libti_ios_debugger.a'),'%s/%s/libti_ios_debugger.a'%(basepath,platform))
 	
+	zf.write(os.path.join(top_dir, 'iphone', 'package.json'), '%s/iphone/package.json' % basepath)
+	
 	zip_dir(zf,osx_dir,basepath)
 	
 	modules_dir = os.path.join(top_dir,'iphone','Resources','modules')
@@ -292,13 +305,9 @@ def zip_iphone_ipad(zf,basepath,platform,version,version_tag):
 				module_name = f.replace('Module','').lower()
 				zip_dir(zf,module_images,'%s/%s/modules/%s/images' % (basepath,platform,module_name))
 	
-def zip_mobileweb(zf,basepath,version):
-	subs = {
-		"__VERSION__":version,
-		"__TIMESTAMP__":ts,
-		"__GITHASH__": githash
-	}
+def zip_mobileweb(zf, basepath, version, build_v3):
 	dir = os.path.join(top_dir, 'mobileweb')
+	finalize = resolve_npm_deps(dir, version, build_v3)
 	
 	# for speed, mobileweb has its own zip logic
 	for root, dirs, files in os.walk(dir):
@@ -310,13 +319,85 @@ def zip_mobileweb(zf,basepath,version):
 			if len(e)==2 and e[1] in ignoreExtensions: continue
 			from_ = os.path.join(root, file)
 			to_ = from_.replace(dir, os.path.join(basepath,'mobileweb'), 1)
-			if file == 'package.json':
-				c = open(from_).read()
-				for key in subs:
-					c = c.replace(key, subs[key])
-				zf.writestr(to_, c)
-			else:
-				zf.write(from_, to_)
+			zf.write(from_, to_)
+	
+	finalize()
+
+def resolve_npm_deps(dir, version, build_v3):
+	package_json_file = os.path.join(dir, 'package.json')
+	if os.path.exists(package_json_file):
+		# ensure fresh npm install
+		node_modules_dir = os.path.join(dir, 'node_modules')
+		if os.path.exists(node_modules_dir):
+			shutil.rmtree(node_modules_dir, True)
+		
+		package_json_original = codecs.open(package_json_file, 'r', 'utf-8').read()
+		package_json_contents = package_json_original
+		
+		subs = {
+			"__VERSION__": version,
+			"__TIMESTAMP__": ts,
+			"__GITHASH__": githash
+		}
+		for key in subs:
+			package_json_contents = package_json_contents.replace(key, subs[key])
+		codecs.open(package_json_file, 'w', 'utf-8').write(package_json_contents)
+		
+		node_installed = False
+		node_version = ''
+		node_minimum_minor_ver = 6
+		node_too_old = False
+		npm_installed = False
+		try:
+			p = subprocess.Popen('node --version', shell=True, cwd=dir, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+			stdout, stderr = p.communicate()
+			if p.returncode == 0:
+				node_installed = True
+				
+				ver = stdout.strip()
+				if ver[0] == 'v':
+					ver = ver[1:]
+				node_version = ver
+				ver = ver.split('.')
+				if len(ver) > 1 and int(ver[0]) == 0 and int(ver[1]) < node_minimum_minor_ver:
+					node_too_old = True
+				
+				p = subprocess.Popen('npm --version', shell=True, cwd=dir, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+				stdout, stderr = p.communicate()
+				if p.returncode == 0:
+					npm_installed = True
+		except:
+			pass
+		
+		if build_v3:
+			if not node_installed:
+				print '[ERROR] Unable to find node.js. Please download and install: http://nodejs.org/'
+				sys.exit(1)
+			elif node_too_old:
+				print '[ERROR] Your version of node.js %s is too old. Please download and install a newer version: http://nodejs.org/' % node_version
+				sys.exit(1)
+			elif not npm_installed:
+				print '[ERROR] Unable to find npm. Please download and install: http://nodejs.org/'
+				sys.exit(1)
+			
+			# need to npm install all node dependencies
+			print 'Calling npm from %s' % dir
+			p = subprocess.Popen('npm install', shell=True, cwd=dir, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+			stdout, stderr = p.communicate()
+			if p.returncode != 0:
+				print '[ERROR] Failed to npm install dependencies'
+				print stdout
+				print stderr
+				sys.exit(1)
+		else:
+			if not node_installed:
+				print '[WARN] Unable to find node.js, which is required for version 3.0. Please download and install: http://nodejs.org/'
+			elif node_too_old:
+				print '[WARN] Your version of node.js %s is too old. Titanium 3.0 requires 0.%s or newer. Please download and install a newer version: http://nodejs.org/' % (node_version, node_minimum_minor_ver)
+			elif not npm_installed:
+				print '[WARN] Unable to find npm, which is required for version 3.0. Please download and install: http://nodejs.org/'
+		
+	return lambda: None if not os.path.exists(package_json_file) else codecs.open(package_json_file, 'w', 'utf-8').write(package_json_original)
 
 def create_platform_zip(platform,dist_dir,osname,version,version_tag):
 	if not os.path.exists(dist_dir):
@@ -326,7 +407,7 @@ def create_platform_zip(platform,dist_dir,osname,version,version_tag):
 	zf = zipfile.ZipFile(sdkzip, 'w', zipfile.ZIP_DEFLATED)
 	return (zf, basepath, sdkzip)
 
-def zip_mobilesdk(dist_dir, osname, version, module_apiversion, android, iphone, ipad, mobileweb, version_tag, build_jsca):
+def zip_mobilesdk(dist_dir, osname, version, module_apiversion, android, iphone, ipad, mobileweb, version_tag, build_v3, build_jsca):
 	zf, basepath, filename = create_platform_zip('mobilesdk', dist_dir, osname, version, version_tag)
 
 	version_txt = """version=%s
@@ -334,8 +415,28 @@ module_apiversion=%s
 timestamp=%s
 githash=%s
 """ % (version,module_apiversion,ts,githash)
-
 	zf.writestr('%s/version.txt' % basepath,version_txt)
+	
+	platforms = []
+	for dir in os.listdir(top_dir):
+		if dir != 'support' and os.path.isdir(os.path.join(top_dir, dir)) and os.path.isfile(os.path.join(top_dir, dir, 'package.json')):
+			# if new platforms are added, be sure to add them to the line below!
+			if (dir == 'android' and android) or (dir == 'iphone' and (iphone or ipad)) or (dir == 'mobileweb' and mobileweb):
+				platforms.append(dir)
+	
+	manifest_json = '''{
+	"version": "%s",
+	"moduleAPIVersion": "%s",
+	"timestamp": "%s",
+	"githash": "%s",
+	"platforms": %s
+}''' % (version, module_apiversion, ts, githash, simplejson.dumps(platforms))
+	zf.writestr('%s/manifest.json' % basepath, manifest_json)
+	
+	# get all SDK level npm dependencies
+	resolve_npm_deps(template_dir, version, build_v3)()
+	
+	# check if we should build the content assist file
 	if build_jsca:
 		jsca = generate_jsca()
 		if jsca is None:
@@ -358,29 +459,29 @@ githash=%s
 		zf.writestr('%s/api.jsca' % basepath, jsca)
 	
 	zip_packaged_modules(zf, os.path.join(template_dir, "module", "packaged"))
-	zip_dir(zf,all_dir,basepath)
-	zip_dir(zf,template_dir,basepath)
+	zip_dir(zf, all_dir, basepath)
+	zip_dir(zf, template_dir, basepath, ignore_paths=[os.path.join(template_dir, 'package.json')]) # ignore the dependency package.json
 	if android: zip_android(zf,basepath)
 	if (iphone or ipad) and osname == "osx": zip_iphone_ipad(zf,basepath,'iphone',version,version_tag)
-	if mobileweb: zip_mobileweb(zf,basepath,version)
+	if mobileweb: zip_mobileweb(zf, basepath, version, build_v3)
 	if osname == 'win32':
 		zip_dir(zf, win32_dir, basepath)
 	
 	zf.close()
 				
-def zip_it(dist_dir, osname, version, module_apiversion, android,iphone, ipad, mobileweb, version_tag, build_jsca):
-	zip_mobilesdk(dist_dir, osname, version, module_apiversion, android, iphone, ipad, mobileweb, version_tag, build_jsca)
+def zip_it(dist_dir, osname, version, module_apiversion, android,iphone, ipad, mobileweb, version_tag, build_v3, build_jsca):
+	zip_mobilesdk(dist_dir, osname, version, module_apiversion, android, iphone, ipad, mobileweb, version_tag, build_v3, build_jsca)
 
 class Packager(object):
 	def __init__(self, build_jsca=1):
 		self.build_jsca = build_jsca
 	 
-	def build(self, dist_dir, version, module_apiversion, android=True, iphone=True, ipad=True, mobileweb=True, version_tag=None):
+	def build(self, dist_dir, version, module_apiversion, android=True, iphone=True, ipad=True, mobileweb=True, version_tag=None, build_v3=False):
 		if version_tag == None:
 			version_tag = version
-		zip_it(dist_dir, os_names[platform.system()], version, module_apiversion, android, iphone, ipad, mobileweb, version_tag, self.build_jsca)
+		zip_it(dist_dir, os_names[platform.system()], version, module_apiversion, android, iphone, ipad, mobileweb, version_tag, build_v3, self.build_jsca)
 
-	def build_all_platforms(self, dist_dir, version, module_apiversion, android=True, iphone=True, ipad=True, mobileweb=True, version_tag=None):
+	def build_all_platforms(self, dist_dir, version, module_apiversion, android=True, iphone=True, ipad=True, mobileweb=True, version_tag=None, build_v3=False):
 		global packaging_all
 		packaging_all = True
 
@@ -390,7 +491,7 @@ class Packager(object):
 		remove_existing_zips(dist_dir, version_tag)
 
 		for os in os_names.values():
-			zip_it(dist_dir, os, version, module_apiversion, android, iphone, ipad, mobileweb, version_tag, self.build_jsca)
+			zip_it(dist_dir, os, version, module_apiversion, android, iphone, ipad, mobileweb, version_tag, build_v3, self.build_jsca)
 		
 if __name__ == '__main__':
 	Packager().build(os.path.abspath('../dist'), "1.1.0")
