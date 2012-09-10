@@ -174,6 +174,27 @@ exports.run = function (logger, config, cli) {
 			'__GUID__': uuid.v4(),
 			'__YEAR__': (new Date).getFullYear()
 		};
+		
+		// create the manifest file
+		fs.writeFileSync(projectDir + '/manifest', [
+			'#',
+			'# this is your module manifest and used by Titanium',
+			'# during compilation, packaging, distribution, etc.',
+			'#',
+			'version: 1.0',
+			'apiversion: 2',
+			'description: ' + projectName,
+			'author: ' + ((config.user && config.user.name) || 'Your Name'),
+			'license: Specify your license',
+			'copyright: Copyright (c) 2012 by ' + ((config.user && config.user.name) || 'Your Company'),
+			'',
+			'# these should not be edited',
+			'name: ' + projectName,
+			'moduleid: ' + id,
+			'guid: ' + projectConfig.__GUID__,
+			'platforms: ' + platforms.sort().join(', '),
+			'minsdk: ' + sdk.name
+		].join('\n'));
 	}
 	
 	platforms.forEach(function (p) {
