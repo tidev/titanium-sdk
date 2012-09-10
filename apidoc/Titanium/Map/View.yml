@@ -360,7 +360,7 @@ properties:
     summary: An array of annotations to add to the map.
     description: |
         There is no guarantee that the order of elements in the `annotations` property will be 
-        stored in the same order when creating, adding or deleting annotations from the Ti.Map.View 
+        maintained when creating, adding or deleting annotations from the Ti.Map.View 
         object. If the application depends on the annotations being in a set order, such as inside 
         an array, do not use this property to retrieve the annotation data.  Instead, keep a 
         separate copy of the array to reference the data. 
