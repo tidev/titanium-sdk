@@ -6,7 +6,7 @@
  */
 
 var appc = require('node-appc'),
-	lib = require('./lib/common'),
+	lib = require('titanium-sdk'),
 	path = require('path');
 
 exports.config = function (logger, config, cli) {

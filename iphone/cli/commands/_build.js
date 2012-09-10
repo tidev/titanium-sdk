@@ -11,6 +11,7 @@ var fs = require('fs'),
 	exec = require('child_process').exec,
 	Buffer = require('buffer').Buffer,
 	wrench = require('wrench'),
+	ti = require('titanium-sdk'),
 	appc = require('node-appc'),
 	afs = appc.fs,
 	ios = appc.ios,
@@ -131,7 +132,7 @@ function build(logger, config, cli, opts) {
 		},
 		
 		function (callback) {
-			this.tiapp = new appc.tiappxml(path.join(this.projectDir, 'tiapp.xml'));
+			this.tiapp = new ti.tiappxml(path.join(this.projectDir, 'tiapp.xml'));
 			this.xcodeAppDir = path.join(this.xcodeBuildDir, this.tiapp.name + '.app')
 			
 			parallel(this, [
@@ -159,10 +160,7 @@ function build(logger, config, cli, opts) {
 					}
 					
 					// read the version file
-					var versionIosSdkPath,
-						versionGuid,
-						versionTiCoreHash,
-						versionGitHash;
+					var versionIosSdkPath, versionGuid, versionTiCoreHash, versionGitHash;
 					if (afs.exists(this.buildVersionFile)) {
 						var parts = fs.readFileSync(this.buildVersionFile).toString().split(',');
 						parts.length > 0 && (versionIosSdkPath = parts[0]);
@@ -192,8 +190,59 @@ function build(logger, config, cli, opts) {
 				},
 				
 				function (callback) {
-					// TODO: detect modules
 					this.logger.info('Detecting modules');
+					/*
+					detector = ModuleDetector(this.projectDir)
+					missing_modules, modules = detector.find_app_modules(ti, 'iphone')
+					module_lib_search_path, module_asset_dirs = locate_modules(modules, this.projectDir, this.xcodeAppDir, log)
+					common_js_modules = []
+					
+					if len(missing_modules) != 0:
+						print '[ERROR] Could not find the following required iOS modules:'
+						for module in missing_modules:
+							print "[ERROR]\tid: %s\tversion: %s" % (module['id'], module['version'])
+						sys.exit(1)
+		
+					# search for modules that the project is using
+					# and make sure we add them to the compile
+					for module in modules:
+						if module.js:
+							common_js_modules.append(module)
+							continue
+						module_id = module.manifest.moduleid.lower()
+						module_version = module.manifest.version
+						module_lib_name = ('lib%s.a' % module_id).lower()
+						# check first in the local project
+						local_module_lib = os.path.join(this.projectDir, 'modules', 'iphone', module_lib_name)
+						local = False
+						if os.path.exists(local_module_lib):
+							module_lib_search_path.append([module_lib_name, local_module_lib])
+							local = True
+							log("[INFO] Detected third-party module: %s" % (local_module_lib))
+						else:
+							if module.lib is None:
+								module_lib_path = module.get_resource(module_lib_name)
+								log("[ERROR] Third-party module: %s/%s missing library at %s" % (module_id, module_version, module_lib_path))
+								sys.exit(1)
+							module_lib_search_path.append([module_lib_name, os.path.abspath(module.lib).rsplit('/',1)[0]])
+							log("[INFO] Detected third-party module: %s/%s" % (module_id, module_version))
+						force_xcode = True
+		
+						if not local:
+							# copy module resources
+							img_dir = module.get_resource('assets', 'images')
+							if os.path.exists(img_dir):
+								dest_img_dir = os.path.join(this.xcodeAppDir, 'modules', module_id, 'images')
+								if not os.path.exists(dest_img_dir):
+									os.makedirs(dest_img_dir)
+								module_asset_dirs.append([img_dir, dest_img_dir])
+		
+							# copy in any module assets
+							module_assets_dir = module.get_resource('assets')
+							if os.path.exists(module_assets_dir): 
+								module_dir = os.path.join(this.xcodeAppDir, 'modules', module_id)
+								module_asset_dirs.append([module_assets_dir, module_dir])
+					*/
 					callback();
 				}
 			], function () {

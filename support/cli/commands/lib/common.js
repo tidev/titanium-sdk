@@ -16,6 +16,10 @@ var fs = require('fs'),
 		'ios': 'iphone'
 	};
 
+exports.module = require('./module');
+
+exports.tiappxml = require('./tiappxml');
+
 exports.manifest = manifest;
 
 exports.sdkVersion = manifest.version;

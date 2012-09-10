@@ -6,7 +6,7 @@
  */
 
 var appc = require('node-appc'),
-	lib = require('./lib/common'),
+	lib = require('titanium-sdk'),
 	fs = require('fs'),
 	path = require('path'),
 	wrench = require('wrench');

@@ -9,7 +9,7 @@ var fs = require('fs'),
 	path = require('path'),
 	wrench = require('wrench'),
 	appc = require('node-appc'),
-	lib = require('./lib/common');
+	lib = require('titanium-sdk');
 
 exports.config = function (logger, config, cli) {
 	return {
