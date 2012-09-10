@@ -10,6 +10,7 @@
 var fs = require("fs"),
 path = require("path"),
 mysql = require("mysql"),
+wrench = require("wrench"),
 hubUtils = require(__dirname + "/hubUtils");
 
 module.exports = new function() {
@@ -318,16 +319,12 @@ module.exports = new function() {
 						}
 
 						// copy the raw results file to a location where it can be served up
-						var command = "mv " + path.join(driverRunWorkingDir, activeRuns[driverId].gitHash + 
-							driverId + ".tgz") + " web/results/";
+						var rawResultsFilename = path.join(driverRunWorkingDir, activeRuns[driverId].gitHash + driverId + ".tgz");
+						fs.renameSync(rawResultsFilename, path.join("web", "results", rawResultsFilename));
+						hubUtils.log("results file moved to serving location");
 
-						hubUtils.runCommand(command, function() {
-							hubUtils.log("results file moved to serving location");
-
-							hubUtils.runCommand("rm -rf " + driverRunWorkingDir, function() {
-								hubUtils.log("temp working directory cleaned up");
-							});
-						});
+						wrench.rmdirSyncRecursive(driverRunWorkingDir, failSilent);
+						hubUtils.log("temp working directory cleaned up");
 
 						/*
 						remove the run and close the driver dbConnection now that the results are 

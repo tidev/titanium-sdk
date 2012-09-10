@@ -190,17 +190,8 @@ module.exports = new function() {
 					callback();
 
 				} else {
-					var oldestDir = dirsMap[dirTimestamps[oldestDirIndex]];
-					self.runCommand("rm -r " + path.join(driverGlobal.logsDir, driverGlobal.platform.name, oldestDir), self.logNone, function(error) {
-						if (error !== null) {
-							self.log("error <" + error + "> encountered when deleting log directory <" + oldestDir + ">");
-
-						} else {
-							self.log("deleted log directory: " + oldestDir);
-						}
-
-						deleteLog(--oldestDirIndex);
-					});
+					wrench.rmdirSyncRecursive(path.join(driverGlobal.logsDir, driverGlobal.platform.name, dirsMap[dirTimestamps[oldestDirIndex]]), failSilent);
+					deleteLog(--oldestDirIndex);
 				}
 			}
 
@@ -286,5 +277,45 @@ module.exports = new function() {
 			console.log("using Titanium SDK version <" + latestDir + ">");
 			driverGlobal.config.currentTiSdkDir = path.join(driverGlobal.config.tiSdkDirs, latestDir);
 		}
+	};
+
+	this.deleteFiles = function(extension) {
+		var files,
+		i,
+		deleteAll = true;
+
+		if (typeof extension !== "undefined") {
+			deleteAll = false;
+			extension = "." + extension;
+		}
+
+		files = fs.readdirSync(__dirname);
+		for(i = 0; i < files.length; i++) {
+			if (deleteAll === false && files[i].substr(-extension.length) != extension) {
+				continue;
+			}
+
+			fs.unlinkSync(files[i]);
+		}
+	};
+
+	this.copyFile = function(sourceFilePath, destFilePath, callback) {
+		var sourceStream,
+		destStream;
+
+		sourceStream = fs.createReadStream(sourceFilePath);
+		sourceStream.on("end", function() {
+			callback(null);
+		});
+		sourceStream.on("error", function(exception) {
+			console.log("error occurred when reading from source stream");
+			callback(exception);
+		});
+
+		destStream = fs.createWriteStream(destFilePath);
+		destStream.on("error", function() {
+			console.log("error occurred when writing to source stream");
+		});
+		sourceStream.pipe(destStream);
 	};
 };

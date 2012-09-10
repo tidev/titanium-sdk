@@ -17,6 +17,7 @@ var fs = require("fs"),
 http = require("http"),
 net = require("net"),
 path = require("path"),
+wrench = require("wrench"),
 driverUtils = require(path.join(driverGlobal.driverDir, "driverUtils"));
 
 module.exports = new function() {
@@ -47,20 +48,10 @@ module.exports = new function() {
 			packageAndSendResults);
 
 		if (fs.existsSync(path.join(driverGlobal.logsDir, "json_results"))) {
-			driverUtils.runCommand("rm -r " + path.join(driverGlobal.logsDir, "json_results"), driverUtils.logNone, function(error) {
-				if (error != null) {
-					driverUtils.log("error encountered when deleting json results file: " + error);
-
-				} else {
-					driverUtils.log("json results file deleted");
-				}
-
-				connectToHub();
-			});
-
-		} else {
-			connectToHub();
+			wrench.rmdirSyncRecursive(path.join(driverGlobal.logsDir, "json_results"), failSilent);
 		}
+
+		connectToHub();
 	};
 
 	function connectToHub() {
@@ -210,14 +201,12 @@ module.exports = new function() {
 		}
 
 		process.chdir(path.join(driverGlobal.config.tempDir, "sdk"));
-		driverUtils.runCommand("rm *.zip; rm -rf mobilesdk; rm -rf modules", driverUtils.logStderr, function(error, stdout, stderr) {
-			if (error != null) {
-				driverUtils.log("error <" + error + "> occurred when trying to clean SDK dir");
-				process.exit(1);
-			}
 
-			downloadSdk();
-		});
+		driverUtils.deleteFiles("zip");
+		wrench.rmdirSyncRecursive("mobilesdk", failSilent);
+		wrench.rmdirSyncRecursive("modules", failSilent);
+
+		downloadSdk();
 	}
 
 	function packageAndSendResults(results, callback) {

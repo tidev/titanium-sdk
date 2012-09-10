@@ -15,6 +15,7 @@
 
 var fs = require("fs"),
 path = require("path"),
+wrench = require("wrench"),
 driverUtils = require(path.join(driverGlobal.driverDir, "driverUtils"));
 
 module.exports = new function() {
@@ -329,18 +330,17 @@ module.exports = new function() {
 		var harnessPlatformDir = path.join(driverGlobal.harnessDir, platform);
 
 		var updateSuitesCallback = function() {
-			driverUtils.runCommand("cp -r " + path.join(configs[configSetIndex].setDir, "Resources") + " " + path.join(harnessPlatformDir, "harness"), driverUtils.logStdout, function(error) {
-				if (error !== null) {
-					driverUtils.log("unable to update the harness suites: " + error);
-					if (errorCallback) {
-						errorCallback();
-					}
+			try {
+				wrench.copyDirSyncRecursive(path.join(configs[configSetIndex].setDir, "Resources"), path.join(harnessPlatformDir, "harness", "Resources"), {preserve: true});
+				driverUtils.log("harness suites updated");
+				updateTiappCallback();
 
-				} else {
-					driverUtils.log("harness suites updated");
-					updateTiappCallback();
+			} catch(exception) {
+				driverUtils.log("unable to update the harness suites: " + exception);
+				if (errorCallback) {
+					errorCallback();
 				}
-			});
+			}
 		};
 
 		var updateTiappCallback = function() {
@@ -401,7 +401,7 @@ module.exports = new function() {
 				fs.writeFileSync(tiappXmlPath, newTiappXmlContents);
 			}
 
-			driverUtils.runCommand("cp -r " + path.join(configDir, "tiapp.xml") + " " + path.join(harnessPlatformDir, "harness"), driverUtils.logStdout, function(error) {
+			driverUtils.copyFile(path.join(configDir, "tiapp.xml"), path.join(harnessPlatformDir, "harness", "tiapp.xml"), function(error) {
 				if (error !== null) {
 					driverUtils.log("unable to update the harness tiapp.xml: " + error);
 					if (errorCallback) {
@@ -419,7 +419,7 @@ module.exports = new function() {
 
 		var updateAppjsCallback = function() {
 			if (path.existsSync(path.join(configDir, "app.js"))) {
-				driverUtils.runCommand("cp -r " + path.join(configDir, "app.js ", harnessPlatformDir, "harness", "Resources"), driverUtils.logStdout, function(error) {
+				driverUtils.copyFile(path.join(configDir, "app.js"), path.join(harnessPlatformDir, "harness", "Resources", "app.js"), function(error) {
 					if (error !== null) {
 						driverUtils.log("unable to update app.js for harness: " + error);
 						if (errorCallback) {
@@ -440,38 +440,28 @@ module.exports = new function() {
 		};
 
 		// update the harness based on the harness template packaged with the driver
-		driverUtils.runCommand("cp -r " + path.join(driverGlobal.harnessTemplateDir, "* ", harnessPlatformDir, "harness", "Resources"), driverUtils.logStdout, function(error) {
-			if (error !== null) {
-				driverUtils.log("unable to update harness with template: " + error);
-				if (errorCallback) {
-					errorCallback();
-				}
+		try {
+			wrench.copyDirSyncRecursive(driverGlobal.harnessTemplateDir, path.join(harnessPlatformDir, "harness", "Resources"), {preserve: true});
+			driverUtils.log("harness updated with template");
+			updateSuitesCallback();
 
-			} else {
-				driverUtils.log("harness updated with template");
-				updateSuitesCallback();
+		} catch(exception) {
+			driverUtils.log("unable to update harness with template: " + exception);
+			if (errorCallback) {
+				errorCallback();
 			}
-		});
+		}
 	};
 
 	this.deleteHarness = function(platform, callback) {
 		var harnessDir = path.join(driverGlobal.harnessDir, platform, "harness");
 
 		if (path.existsSync(harnessDir)) {
-			driverUtils.runCommand("rm -r " + harnessDir, driverUtils.logNone, function(error) {
-				if (error !== null) {
-					driverUtils.log("error encountered when deleting harness: " + error);
-
-				} else {
-					driverUtils.log("harness deleted");
-				}
-
-				callback();
-			});
-
-		} else {
-			callback();
+			wrench.rmdirSyncRecursive(harnessDir, failSilent);
+			driverUtils.log("harness deleted");
 		}
+
+		callback();
 	};
 
 	/*
