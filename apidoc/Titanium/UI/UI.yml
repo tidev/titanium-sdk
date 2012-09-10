@@ -967,7 +967,7 @@ properties:
         When set, this will update the orientation of the current window to the specified 
         orientation value.
     type: Number
-    deprecated: {since: "1.7.2"}
+    deprecated: {since: "1.7.2", removed: "3.0.0"}
     platforms: [android, iphone, ipad]
 
 examples:
