@@ -34,8 +34,8 @@
     
     //Need the delay so that we get the right navbar bounds
     TiProxy* windowProxy = [self proxy];
-    if ([windowProxy respondsToSelector:@selector(_updateTitleView)]) {
-        [windowProxy performSelector:@selector(_updateTitleView) 
+    if ([windowProxy respondsToSelector:@selector(updateNavBar)]) {
+        [windowProxy performSelector:@selector(updateNavBar) 
                            withObject:nil 
                            afterDelay:[[UIApplication sharedApplication] statusBarOrientationAnimationDuration] ];
     }
