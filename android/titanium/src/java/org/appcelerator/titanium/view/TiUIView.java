@@ -107,6 +107,8 @@ public abstract class TiUIView
 
 	private boolean zIndexChanged = false;
 	private TiBorderWrapperView borderView;
+    // For twofingertap detection
+    private boolean didScale = false;
 
 	/**
 	 * Constructs a TiUIView object with the associated proxy.
@@ -1045,6 +1047,7 @@ public abstract class TiUIView
 				{
 					if (proxy.hierarchyHasListener(TiC.EVENT_PINCH)) {
 						float timeDelta = sgd.getTimeDelta() == 0 ? minTimeDelta : sgd.getTimeDelta();
+                        didScale = true;
 
 						KrollDict data = new KrollDict();
 						data.put(TiC.EVENT_PROPERTY_SCALE, sgd.getCurrentSpan() / startSpan);
@@ -1125,6 +1128,8 @@ public abstract class TiUIView
 		
 		touchable.setOnTouchListener(new OnTouchListener()
 		{
+            int pointersDown = 0;
+
 			public boolean onTouch(View view, MotionEvent event)
 			{
 				if (event.getAction() == MotionEvent.ACTION_UP) {
@@ -1134,13 +1139,32 @@ public abstract class TiUIView
 
 				scaleDetector.onTouchEvent(event);
 				if (scaleDetector.isInProgress()) {
+                    pointersDown = 0;
 					return true;
 				}
 
 				boolean handled = detector.onTouchEvent(event);
 				if (handled) {
+                    pointersDown = 0;
 					return true;
 				}
+
+                if (event.getActionMasked() == MotionEvent.ACTION_POINTER_UP) {
+                    if (didScale) {
+                        didScale = false;
+                        pointersDown = 0;
+                    } else {
+                        pointersDown++;
+                    }
+                } else if (event.getAction() == MotionEvent.ACTION_UP) {
+                    if (pointersDown == 1) {
+                        proxy.fireEvent(TiC.EVENT_TWOFINGERTAP, dictFromEvent(event));
+                        pointersDown = 0;
+                        return true;
+                    }
+                    pointersDown = 0;
+                }
+
 
 				String motionEvent = motionEvents.get(event.getAction());
 				if (motionEvent != null) {
