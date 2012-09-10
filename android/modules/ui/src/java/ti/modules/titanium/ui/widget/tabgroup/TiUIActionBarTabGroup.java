@@ -7,12 +7,14 @@
 package ti.modules.titanium.ui.widget.tabgroup;
 
 import org.appcelerator.titanium.TiBaseActivity;
+import org.appcelerator.titanium.TiLifecycle.OnLifecycleEvent;
 
 import ti.modules.titanium.ui.TabGroupProxy;
 import ti.modules.titanium.ui.TabProxy;
 import android.app.ActionBar;
 import android.app.ActionBar.Tab;
 import android.app.ActionBar.TabListener;
+import android.app.Activity;
 import android.app.FragmentTransaction;
 
 /**
@@ -26,14 +28,20 @@ import android.app.FragmentTransaction;
  * See http://developer.android.com/guide/topics/ui/actionbar.html#Tabs
  * for further details on how Action bar tabs work.
  */
-public class TiUIActionBarTabGroup extends TiUIAbstractTabGroup implements TabListener {
+public class TiUIActionBarTabGroup extends TiUIAbstractTabGroup implements TabListener, OnLifecycleEvent {
 	private ActionBar actionBar;
+	private boolean activityPaused = false;
+
+	// The tab to be selected once the activity resumes.
+	private Tab selectedTabOnResume;
 
 	public TiUIActionBarTabGroup(TabGroupProxy proxy, TiBaseActivity activity) {
 		super(proxy, activity);
-		actionBar = activity.getActionBar();
+
+		activity.addOnLifecycleEventListener(this);
 
 		// Setup the action bar for navigation tabs.
+		actionBar = activity.getActionBar();
 		actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
 		actionBar.setDisplayShowTitleEnabled(false);
 	}
@@ -65,7 +73,14 @@ public class TiUIActionBarTabGroup extends TiUIAbstractTabGroup implements TabLi
 			return;
 		}
 
-		actionBar.selectTab(tabView.tab);
+		if (activityPaused) {
+			// Action bar does not allow tab selection if the activity is paused.
+			// Postpone the tab selection until the activity resumes.
+			selectedTabOnResume = tabView.tab;
+
+		} else {
+			actionBar.selectTab(tabView.tab);
+		}
 	}
 
 	@Override
@@ -113,5 +128,29 @@ public class TiUIActionBarTabGroup extends TiUIAbstractTabGroup implements TabLi
 	@Override
 	public void onTabReselected(Tab tab, FragmentTransaction ft) {
 	}
+
+	@Override
+	public void onStart(Activity activity) { }
+
+	@Override
+	public void onResume(Activity activity) {
+		activityPaused = false;
+
+		if (selectedTabOnResume != null) {
+			selectedTabOnResume.select();
+			selectedTabOnResume = null;
+		}
+	}
+
+	@Override
+	public void onPause(Activity activity) {
+		activityPaused = true;
+	}
+
+	@Override
+	public void onStop(Activity activity) { }
+
+	@Override
+	public void onDestroy(Activity activity) { }
 
 }
