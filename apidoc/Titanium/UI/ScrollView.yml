@@ -283,7 +283,7 @@ properties:
     type: Boolean
     default: true
     platforms: [iphone, ipad, android, mobileweb]
-    since: { iphone: "2.2", ipad: "2.2", android: "2.2", mobileweb: "2.2" }
+    since: { iphone: "3.0.0", ipad: "3.0.0", android: "3.0.0", mobileweb: "3.0.0" }
 
   - name: showHorizontalScrollIndicator
     summary: Determines whether the horizontal scroll indicator is visible.

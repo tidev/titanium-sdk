@@ -342,7 +342,7 @@ properties:
     type: Boolean
     default: undefined (scrolling enabled)
     platforms: [iphone, ipad, android, mobileweb]
-    since: { android: "2.1", iphone: "2.0", ipad: "2.0", mobileweb: "2.2" }
+    since: { android: "2.1.0", iphone: "2.0.0", ipad: "2.0.0", mobileweb: "3.0.0" }
 
   - name: views
     summary: Sets the pages within this Scrollable View.
