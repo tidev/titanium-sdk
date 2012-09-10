@@ -311,7 +311,7 @@
 
 		UINavigationController * ourNC = [controller navigationController];
 		[TiUtils applyColor:newColor toNavigationController:ourNC];
-		[self performSelector:@selector(_refreshBackButton) withObject:nil afterDelay:0.0];
+		[self performSelector:@selector(refreshBackButton) withObject:nil afterDelay:0.0];
 	}
 }
 
@@ -480,7 +480,7 @@
 	[self setTabBarHidden:[NSNumber numberWithBool:NO]];
 }
 
--(void)_refreshBackButton
+-(void)refreshBackButton
 {
 	ENSURE_UI_THREAD_0_ARGS;
 	
@@ -527,7 +527,7 @@
 	[self replaceValue:proxy forKey:@"backButtonTitle" notification:NO];
 	if (controller!=nil)
 	{
-		[self _refreshBackButton];	//Because this is actually a property of a DIFFERENT view controller,
+		[self refreshBackButton];	//Because this is actually a property of a DIFFERENT view controller,
 		//we can't attach this until we're in the navbar stack.
 	}
 }
@@ -538,12 +538,12 @@
 	[self replaceValue:proxy forKey:@"backButtonTitleImage" notification:NO];
 	if (controller!=nil)
 	{
-		[self _refreshBackButton];	//Because this is actually a property of a DIFFERENT view controller, 
+		[self refreshBackButton];	//Because this is actually a property of a DIFFERENT view controller,
 		//we can't attach this until we're in the navbar stack.
 	}
 }
 
--(void)_updateTitleView
+-(void)updateNavBar
 {
     //Called from the view when the screen rotates. 
     //Resize titleControl and barImage based on navbar bounds
@@ -816,7 +816,7 @@ else{\
 	SETPROPOBJ(@"rightNavButton",setRightNavButton);
 	SETPROPOBJ(@"toolbar",setToolbar);
 	SETPROP(@"barImage",setBarImage);
-	[self _refreshBackButton];
+	[self refreshBackButton];
 	
 	id navBarHidden = [self valueForKey:@"navBarHidden"];
 	if (navBarHidden!=nil)
