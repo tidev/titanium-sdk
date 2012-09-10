@@ -326,12 +326,24 @@ build.prototype = {
 	},
 	
 	findTiModules: function (callback) {
+		/*
+		if (!this.tiapp.modules || !this.tiapp.modules.length) {
+			this.logger.info(__('No Titanium Modules required, continuing'));
+			callback();
+			return;
+		}
+		
+		this.logger.info(__n('Searching for %s Titanium Module', 'Searching for %s Titanium Modules', this.tiapp.modules.length));
+		ti.module.find(this.tiapp.modules, 'mobileweb', this.projectDir, this.logger, function (modules) {
+		*/
+		
 		var modules = (this.tiapp.modules || []).filter(function (m) { return /^(|mobileweb|commonjs)$/.test(m.platform); });
 		if (!modules.length) {
 			callback();
 			return;
 		}
 		
+		// TODO: remove unused i18n strings from below...
 		this.logger.info(__('Locating Titanium Mobile Modules'));
 		
 		var sdkVersion = ti.manifest.version.split('.').slice(0, 3).join('.'),

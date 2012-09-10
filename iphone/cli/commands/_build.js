@@ -197,8 +197,6 @@ function build(logger, config, cli, finished) {
 					
 					this.logger.info(__n('Searching for %s Titanium Module', 'Searching for %s Titanium Modules', this.tiapp.modules.length));
 					ti.module.find(this.tiapp.modules, ['ios', 'iphone'], this.projectDir, this.logger, function (modules) {
-						// TODO: validate modules
-						//console.log('build command validating find module results:');
 						//dump(modules);
 						/*
 						detector = ModuleDetector(this.projectDir)
