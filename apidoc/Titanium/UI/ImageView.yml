@@ -126,8 +126,10 @@ properties:
     
   - name: canScale
     summary: |
-        Allow the user to scale the image (using pinch-zoom or the optional zoom controls).
-    description: See also [enableZoomControls](Titanium.UI.ImageView.enableZoomControls).
+        Allow the user to scale the image using the on-screen zoom controls.
+    description: |
+        Zoom controls must also be enabled: see 
+        [enableZoomControls](Titanium.UI.ImageView.enableZoomControls).
     type: Boolean
     default: false
     platforms: [android]
