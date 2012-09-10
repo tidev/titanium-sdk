@@ -9,6 +9,8 @@ var appc = require('node-appc'),
 	ti = require('titanium-sdk'),
 	path = require('path');
 
+// TODO: need to support building modules... how do we know if --dir is a module or app? where is the module _build.js located?
+
 exports.config = function (logger, config, cli) {
 	return {
 		title: __('Build'),

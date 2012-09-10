@@ -5,11 +5,11 @@
  * See the LICENSE file for more information.
  */
 
-var fs = require('fs'),
+var ti = require('titanium-sdk'),
+	fs = require('fs'),
 	path = require('path'),
 	wrench = require('wrench'),
-	appc = require('node-appc'),
-	ti = require('titanium-sdk');
+	appc = require('node-appc');
 
 exports.config = function (logger, config, cli) {
 	return {
@@ -134,7 +134,7 @@ exports.run = function (logger, config, cli) {
 		logger.info(__('Creating Titanium Mobile application project'));
 		
 		// read and populate the tiapp.xml
-		projectConfig = new appc.tiappxml(projectDir + '/tiapp.xml');
+		projectConfig = new ti.tiappxml(projectDir + '/tiapp.xml');
 		projectConfig.id = id;
 		projectConfig.name = projectName;
 		projectConfig.version = '1.0';

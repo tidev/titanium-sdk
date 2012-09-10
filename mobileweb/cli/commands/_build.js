@@ -164,7 +164,7 @@ build.prototype = {
 			this.logger.error(__('Unable to read tiapp.xml file in project directory') + '\n');
 			process.exit(1);
 		}
-		return new appc.tiappxml(tiappFile);
+		return new ti.tiappxml(tiappFile);
 	},
 	
 	validateTheme: function () {
