@@ -122,7 +122,7 @@ public:
 	static jmethodID krollProxyOnPropertyChangedMethod;
 	static jmethodID krollProxyOnPropertiesChangedMethod;
 	static jmethodID krollLoggingLogWithDefaultLoggerMethod;
-	static jmethodID krollRuntimeDispatchExceptionHandlerMethod;
+	static jmethodID krollRuntimeDispatchExceptionMethod;
 
 	static jmethodID krollAssetHelperReadAssetMethod;
 	static jmethodID krollAssetHelperFileExistsMethod;

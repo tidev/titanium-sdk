@@ -183,14 +183,14 @@ public class RhinoRuntime extends KrollRuntime implements ErrorReporter
 	@Override
 	public void error(String message, String sourceName, int line, String lineSource, int lineOffset)
 	{
-		KrollRuntime.dispatchExceptionHandler("Error", message, sourceName, line, lineSource, lineOffset);
+		KrollRuntime.dispatchException("Error", message, sourceName, line, lineSource, lineOffset);
 	}
 
 	@Override
 	public EvaluatorException runtimeError(String message, String sourceName, int line, String lineSource,
 		int lineOffset)
 	{
-		KrollRuntime.dispatchExceptionHandler("Runtime Error", message, sourceName, line, lineSource, lineOffset);
+		KrollRuntime.dispatchException("Runtime Error", message, sourceName, line, lineSource, lineOffset);
 		return new EvaluatorException(message, sourceName, line, lineSource, lineOffset);
 	}
 

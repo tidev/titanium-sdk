@@ -36,7 +36,7 @@ public class TiExceptionHandler implements Handler.Callback, KrollExceptionHandl
 {
 	private static final String TAG = "TiExceptionHandler";
 	private static final int MSG_OPEN_ERROR_DIALOG = 10011;
-	private static LinkedList<ErrorMessage> errorMessages = new LinkedList<ErrorMessage>();
+	private static LinkedList<ExceptionMessage> errorMessages = new LinkedList<ExceptionMessage>();
 	private static boolean dialogShowing = false;
 	private static Handler mainHandler;
 
@@ -54,7 +54,7 @@ public class TiExceptionHandler implements Handler.Callback, KrollExceptionHandl
 		mainHandler = new Handler(TiMessenger.getMainMessenger().getLooper(), this);
 	}
 
-	public void openErrorDialog(ErrorMessage error)
+	public void openErrorDialog(ExceptionMessage error)
 	{
 		if (TiApplication.isUIThread()) {
 			handleOpenErrorDialog(error);
@@ -63,7 +63,7 @@ public class TiExceptionHandler implements Handler.Callback, KrollExceptionHandl
 		}
 	}
 
-	protected void handleOpenErrorDialog(ErrorMessage error)
+	protected void handleOpenErrorDialog(ExceptionMessage error)
 	{
 		KrollApplication application = KrollRuntime.getInstance().getKrollApplication();
 		if (application == null) {
@@ -80,7 +80,7 @@ public class TiExceptionHandler implements Handler.Callback, KrollExceptionHandl
 
 		if (!dialogShowing) {
 			dialogShowing = true;
-			final ErrorMessage fError = error;
+			final ExceptionMessage fError = error;
 			application.waitForCurrentActivity(new CurrentActivityListener()
 			{
 				// TODO @Override
@@ -94,7 +94,7 @@ public class TiExceptionHandler implements Handler.Callback, KrollExceptionHandl
 		}
 	}
 
-	protected static void createDialog(final ErrorMessage error)
+	protected static void createDialog(final ExceptionMessage error)
 	{
 		KrollApplication application = KrollRuntime.getInstance().getKrollApplication();
 		if (application == null) {
@@ -206,7 +206,7 @@ public class TiExceptionHandler implements Handler.Callback, KrollExceptionHandl
 		switch (msg.what) {
 			case MSG_OPEN_ERROR_DIALOG:
 				AsyncResult asyncResult = (AsyncResult) msg.obj;
-				ErrorMessage errorMessage = (ErrorMessage) asyncResult.getArg();
+				ExceptionMessage errorMessage = (ExceptionMessage) asyncResult.getArg();
 				handleOpenErrorDialog(errorMessage);
 				asyncResult.setResult(null);
 				return true;
@@ -222,7 +222,7 @@ public class TiExceptionHandler implements Handler.Callback, KrollExceptionHandl
 	 * @param error An error message containing line number, error title, message, etc
 	 * @module.api
 	 */
-	public void handleException(ErrorMessage error)
+	public void handleException(ExceptionMessage error)
 	{
 		openErrorDialog(error);
 	}

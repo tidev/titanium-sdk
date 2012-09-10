@@ -140,7 +140,7 @@ void V8Util::openJSErrorDialog(TryCatch &tryCatch)
 
 	env->CallStaticVoidMethod(
 		JNIUtil::krollRuntimeClass,
-		JNIUtil::krollRuntimeDispatchExceptionHandlerMethod,
+		JNIUtil::krollRuntimeDispatchExceptionMethod,
 		title,
 		errorMessage,
 		resourceName,
