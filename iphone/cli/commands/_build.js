@@ -196,7 +196,17 @@ function build(logger, config, cli, finished) {
 					}
 					
 					this.logger.info(__n('Searching for %s Titanium Module', 'Searching for %s Titanium Modules', this.tiapp.modules.length));
-					ti.module.find(this.tiapp.modules, ['ios', 'iphone'], this.projectDir, this.logger, function (modules) {
+					ti.module.find(this.tiapp.modules, ['ios', 'iphone'], this.projectDir, this.logger, hitch(this, function (modules) {
+						if (modules.missing && modules.missing.length) {
+							this.logger.error(__('Could not all required Titanium Modules:'))
+							this.logger.error(__('Missing the following modules:'));
+							modules.missing.forEach(function (m) {
+								this.logger.error('   id: ' + m.id + '\t version: ' + m.version + '\t platform: ' + m.platform);
+							}, this);
+							this.logger.log();
+							process.exit(1);
+						}
+						
 						//dump(modules);
 						/*
 						detector = ModuleDetector(this.projectDir)
@@ -204,12 +214,6 @@ function build(logger, config, cli, finished) {
 						module_lib_search_path, module_asset_dirs = locate_modules(modules, this.projectDir, this.xcodeAppDir, log)
 						common_js_modules = []
 						
-						if len(missing_modules) != 0:
-							print '[ERROR] Could not find the following required iOS modules:'
-							for module in missing_modules:
-								print "[ERROR]\tid: %s\tversion: %s" % (module['id'], module['version'])
-							sys.exit(1)
-			
 						# search for modules that the project is using
 						# and make sure we add them to the compile
 						for module in modules:
@@ -251,7 +255,7 @@ function build(logger, config, cli, finished) {
 									module_asset_dirs.append([module_assets_dir, module_dir])
 						*/
 						callback();
-					});
+					}));
 				}
 			], function () {
 				callback();
