@@ -96,13 +96,13 @@
 
 -(void)startLayout:(id)arg
 {
-    DebugLog(@"startLayout() method is deprecated since 2.2.0 .");
+    DebugLog(@"startLayout() method is deprecated since 3.0.0 .");
     updateStarted = YES;
     allowLayoutUpdate = NO;
 }
 -(void)finishLayout:(id)arg
 {
-    DebugLog(@"finishLayout() method is deprecated since 2.2.0 .");
+    DebugLog(@"finishLayout() method is deprecated since 3.0.0 .");
     updateStarted = NO;
     allowLayoutUpdate = YES;
     [self processTempProperties:nil];
@@ -110,7 +110,7 @@
 }
 -(void)updateLayout:(id)arg
 {
-    DebugLog(@"updateLayout() method is deprecated since 2.2.0, use applyProperties() instead.");
+    DebugLog(@"updateLayout() method is deprecated since 3.0.0, use applyProperties() instead.");
     id val = nil;
     if ([arg isKindOfClass:[NSArray class]]) {
         val = [arg objectAtIndex:0];
