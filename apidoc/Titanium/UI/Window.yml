@@ -628,15 +628,20 @@ description: |
     To _give_ your new window access to `message`, you would need to assign it to a
     property on the new window reference, `w`.
 
-        w.alertMessage = message;
+        w.myAlertMessage = message;
 
     This creates a new `alertMessage` property on the new window that holds a reference to the
     `message` property in the global context.  Now, let's look at the code for `foo.js`.
 
-        alert(Titanium.UI.currentWindow.alertMessage);
+        alert(Titanium.UI.currentWindow.myAlertMessage);
 
     In the above code, the `foo.js` will show an alert containing the text from the `message`
     property in the global context.
+
+    **Note:** You should use caution when adding a custom property to a Titanium object.
+    Your property might overwrite an existing property or conflict with a future Titanium 
+    property.  If you do this, try to choose a property name unlikely to be used by the Titanium SDK
+    in the future. 
 
     ##### Passing Data with Events
 
