@@ -24,7 +24,6 @@ static NSUncaughtExceptionHandler *prevUncaughtExceptionHandler = NULL;
 	static dispatch_once_t onceToken;
 	dispatch_once(&onceToken, ^{
 		defaultExceptionHandler = [[self alloc] init];
-		defaultExceptionHandler.delegate = defaultExceptionHandler;
 		prevUncaughtExceptionHandler = NSGetUncaughtExceptionHandler();
 		NSSetUncaughtExceptionHandler(&TiUncaughtExceptionHandler);
 	});
@@ -37,15 +36,22 @@ static NSUncaughtExceptionHandler *prevUncaughtExceptionHandler = NULL;
 				@"[ERROR] The application has crashed with an uncaught exception '%@'.\nReason:\n%@\nStack trace:\n\n%@\n",
 				exception.name, exception.reason, [stackTrace componentsJoinedByString:@"\n"]];
 	NSLog(@"%@",message);
-	
-	[_delegate handleUncaughtException:exception withStackTrace:stackTrace];
+	id <TiExceptionHandlerDelegate> currentDelegate = _delegate;
+	if (currentDelegate == nil) {
+		currentDelegate = self;
+	}
+	[currentDelegate handleUncaughtException:exception withStackTrace:stackTrace];
 }
 
 - (void)reportScriptError:(TiScriptError *)scriptError
 {
 	DebugLog(@"[ERROR] Script Error = %@.", scriptError);
 	
-	[_delegate handleScriptError:scriptError];
+	id <TiExceptionHandlerDelegate> currentDelegate = _delegate;
+	if (currentDelegate == nil) {
+		currentDelegate = self;
+	}
+	[currentDelegate handleScriptError:scriptError];
 }
 
 - (void)showScriptError:(TiScriptError *)error
