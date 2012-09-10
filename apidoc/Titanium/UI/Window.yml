@@ -630,7 +630,7 @@ description: |
 
         w.myAlertMessage = message;
 
-    This creates a new `alertMessage` property on the new window that holds a reference to the
+    This creates a new `myAlertMessage` property on the new window that holds a reference to the
     `message` property in the global context.  Now, let's look at the code for `foo.js`.
 
         alert(Titanium.UI.currentWindow.myAlertMessage);
