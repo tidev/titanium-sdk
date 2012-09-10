@@ -63,7 +63,7 @@ import android.widget.AdapterView;
  * A TiUIView is responsible for creating and maintaining a native Android View instance.
  */
 public abstract class TiUIView
-	implements KrollProxyListener, OnFocusChangeListener
+	implements KrollProxyListener, OnFocusChangeListener, OnKeyListener
 {
 	private static final boolean HONEYCOMB_OR_GREATER = (Build.VERSION.SDK_INT >= 11);
 	private static final int LAYER_TYPE_SOFTWARE = 1;
@@ -236,6 +236,7 @@ public abstract class TiUIView
 		}
 		doSetClickable(nativeView, clickable);
 		nativeView.setOnFocusChangeListener(this);
+		nativeView.setOnKeyListener(this);
 	}
 
 	protected void setLayoutParams(LayoutParams layoutParams)
@@ -513,7 +514,7 @@ public abstract class TiUIView
 				registerForKeyClick(nativeView);
 			} else {
 				//nativeView.setOnClickListener(null); // ? mistake? I assume OnKeyListener was meant
-				nativeView.setOnKeyListener(null);
+				nativeView.setOnKeyListener(this);
 			}
 		} else if (key.equals(TiC.PROPERTY_TOUCH_ENABLED)) {
 			doSetClickable(TiConvert.toBoolean(newValue));
@@ -686,7 +687,7 @@ public abstract class TiUIView
 				registerForKeyClick(nativeView);
 			} else {
 				//nativeView.setOnClickListener(null); // ? mistake? I assume OnKeyListener was meant
-				nativeView.setOnKeyListener(null);
+				nativeView.setOnKeyListener(this);
 			}
 		}
 
@@ -1286,6 +1287,18 @@ public abstract class TiUIView
 			return;
 		}
 		doSetClickable(view, view.isClickable());
+	}
+	
+	public boolean onKey(View v, int keyCode, KeyEvent event)
+	{
+
+		if (event.getAction() == KeyEvent.ACTION_UP) {
+			//KeyEvent.keyCodeToString(keyCode) only since API 12
+			lastUpEvent.put(TiC.PROPERTY_KEY_CODE, KeyEvent.keyCodeToString(keyCode));
+			getProxy().fireEvent(TiC.EVENT_KEY, dictFromEvent(lastUpEvent));
+		}
+		
+		 return true;
 	}
 
 	/**
