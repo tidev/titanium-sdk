@@ -9,7 +9,7 @@ var fs = require('fs'),
 	path = require('path'),
 	wrench = require('wrench'),
 	appc = require('node-appc'),
-	lib = require('titanium-sdk');
+	ti = require('titanium-sdk');
 
 exports.config = function (logger, config, cli) {
 	return {
@@ -25,11 +25,11 @@ exports.config = function (logger, config, cli) {
 				abbr: 'p',
 				desc: __('the target build platform'),
 				prompt: {
-					default: lib.availablePlatforms,
+					default: ti.availablePlatforms,
 					label: __('Target platforms'),
 					error: __('Invalid list of target platforms'),
 					validator: function (platforms) {
-						var p = lib.scrubPlatforms(platforms);
+						var p = ti.scrubPlatforms(platforms);
 						if (p.bad.length) {
 							throw new appc.exception(__('Invalid platforms: %s', p.bad.join(', ')));
 						}
@@ -37,7 +37,7 @@ exports.config = function (logger, config, cli) {
 					},
 				},
 				required: true,
-				values: lib.availablePlatforms,
+				values: ti.availablePlatforms,
 				skipValueCheck: true // we do our own validation
 			},
 			type: {
@@ -89,19 +89,19 @@ exports.config = function (logger, config, cli) {
 				},
 				required: !config.app.workspace
 			}
-		}, lib.commonOptions(logger, config)),
-		platforms: lib.platformOptions(logger, config, cli, module)
+		}, ti.commonOptions(logger, config)),
+		platforms: ti.platformOptions(logger, config, cli, module)
 	};
 };
 
 exports.validate = function (logger, config, cli) {
-	var platforms = lib.scrubPlatforms(cli.argv.platforms);
+	var platforms = ti.scrubPlatforms(cli.argv.platforms);
 	cli.argv.platforms = platforms.scrubbed;
 	
 	if (platforms.bad.length) {
 		logger.error(__n('Invalid platform: %%s', 'Invalid platforms: %%s', platforms.bad.length, platforms.bad.join(', ')) + '\n');
-		logger.log(__('Available platforms for SDK version %s:', lib.sdkVersion) + '\n');
-		lib.availablePlatforms.forEach(function (p) {
+		logger.log(__('Available platforms for SDK version %s:', ti.sdkVersion) + '\n');
+		ti.availablePlatforms.forEach(function (p) {
 			logger.log('    ' + p.cyan);
 		});
 		logger.log();
@@ -140,7 +140,7 @@ exports.run = function (logger, config, cli) {
 		projectConfig.version = '1.0';
 		projectConfig.guid = uuid.v4();
 		projectConfig['deployment-targets'] = {};
-		lib.availablePlatforms.forEach(function (p) {
+		ti.availablePlatforms.forEach(function (p) {
 			projectConfig['deployment-targets'][p] = platforms.indexOf(p) != -1;
 		});
 		projectConfig['sdk-version'] = sdk.name;

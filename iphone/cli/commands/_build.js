@@ -5,13 +5,13 @@
  * See the LICENSE file for more information.
  */
 
-var fs = require('fs'),
+var ti = require('titanium-sdk'),
+	fs = require('fs'),
 	path = require('path'),
 	crypto = require('crypto'),
 	exec = require('child_process').exec,
 	Buffer = require('buffer').Buffer,
 	wrench = require('wrench'),
-	ti = require('titanium-sdk'),
 	appc = require('node-appc'),
 	afs = appc.fs,
 	ios = appc.ios,
@@ -69,19 +69,18 @@ exports.validate = function (logger, config, cli) {
 	}
 };
 
-exports.run = function (logger, config, cli, opts) {
-	new build(logger, config, cli, opts);
+exports.run = function (logger, config, cli, finished) {
+	new build(logger, config, cli, finished);
 };
 
-function build(logger, config, cli, opts) {
+function build(logger, config, cli, finished) {
 	logger.info(__('Compiling "%s" build', cli.argv['build-type']));
 	
 	this.logger = logger;
 	this.cli = cli;
-	this.lib = opts.lib;
 	this.env = {};
 	
-	this.titaniumSdkVersion = opts.sdkVersion;
+	this.titaniumSdkVersion = ti.manifest.version;
 	this.titaniumIosSdkPath = afs.resolvePath(path.dirname(module.filename), '..', '..');
 	
 	this.platformName = path.basename(this.titaniumIosSdkPath); // the name of the actual platform directory which will some day be "ios"
@@ -182,7 +181,7 @@ function build(logger, config, cli, opts) {
 							this.titaniumIosSdkPath,
 							this.tiapp.guid,
 							libTiCoreHash,
-							this.lib.manifest.githash
+							ti.manifest.githash
 						].join(','));
 					}
 					
@@ -190,7 +189,8 @@ function build(logger, config, cli, opts) {
 				},
 				
 				function (callback) {
-					this.logger.info('Detecting modules');
+					var modules = ti.module.find(this.tiapp.modules, ['iphone', 'ios'], this.projectDir, this.logger);
+					
 					/*
 					detector = ModuleDetector(this.projectDir)
 					missing_modules, modules = detector.find_app_modules(ti, 'iphone')
@@ -251,7 +251,7 @@ function build(logger, config, cli, opts) {
 		}
 	], function () {
 		dump(cli.argv);
-		opts.finished && opts.finished();
+		finished && finished();
 	});
 }
 
@@ -500,7 +500,7 @@ build.prototype = {
 		}
 		
 		// check the git hashes are different
-		if (!versionGitHash || versionGitHash != this.lib.manifest.githash) {
+		if (!versionGitHash || versionGitHash != ti.manifest.githash) {
 			this.logger.debug(__('Forcing rebuild: githash changed since last build'));
 			this.logger.debug('  ' + __('Was: %s', versionGitHash));
 			this.logger.debug('  ' + __('Now: %s', this.lib.manifest.githash));
