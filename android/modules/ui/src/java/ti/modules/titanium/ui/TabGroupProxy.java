@@ -311,7 +311,13 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 			}
 
 		} else {
-			tg.selectTab(selectedTab);
+			// Move initially active tab into a local variable.
+			// We must clear selectedTab so it does not appear
+			// to be the previously selected tab and gets blurred.
+			TabProxy tab = selectedTab;
+			selectedTab = null;
+
+			tg.selectTab(tab);
 		}
 
 		// Setup the new tab activity like setting orientation modes.
