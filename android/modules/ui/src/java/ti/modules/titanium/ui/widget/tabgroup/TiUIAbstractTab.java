@@ -6,12 +6,14 @@
  */
 package ti.modules.titanium.ui.widget.tabgroup;
 
+import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.TiWindowProxy;
 import org.appcelerator.titanium.view.TiUIView;
 
 import ti.modules.titanium.ui.TabProxy;
 import ti.modules.titanium.ui.ViewProxy;
+import android.graphics.Color;
 import android.view.View;
 
 
@@ -39,7 +41,10 @@ public abstract class TiUIAbstractTab extends TiUIView {
 		if (contentView == null) {
 			TiWindowProxy windowProxy = getWindowProxy();
 			if (windowProxy == null) {
-				return null;
+				// If no window is provided use an empty view.
+				View emptyContent = new View(TiApplication.getInstance().getApplicationContext());
+				emptyContent.setBackgroundColor(Color.BLACK);
+				return emptyContent;
 			}
 
 			ViewProxy contentViewProxy = new ViewProxy();
