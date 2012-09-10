@@ -20,6 +20,10 @@ public abstract class TiUIAbstractTabGroup extends TiUIView {
 
 	/**
 	 * Add the provided tab to this group.
+	 *
+	 * Implementations may automatically select the first tab
+	 * added, but must not call {@link TabGroupProxy#onTabSelected(TabProxy)}
+	 * when doing so.
 	 */
 	public abstract void addTab(TabProxy tabProxy);
 

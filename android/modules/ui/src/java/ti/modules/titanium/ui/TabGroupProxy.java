@@ -298,7 +298,16 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 		if (selectedTab == null) {
 			if (tabs.size() > 0) {
 				TabProxy firstTab = tabs.get(0);
-				tg.selectTab(firstTab);
+				if (tg.getSelectedTab() == firstTab) {
+					// Some tab group implementations will automatically
+					// select the first tab when added. It is our
+					// responsibility to invoke onTabSelected() when this
+					// condition occurs for the first tab.
+					onTabSelected(firstTab);
+
+				} else {
+					tg.selectTab(firstTab);
+				}
 			}
 
 		} else {

@@ -102,8 +102,10 @@ public class TiUITabHostGroup extends TiUIAbstractTabGroup
 
 		tabView.setIndicatorView(tabWidget.getChildTabViewAt(tabIndex));
 
-		// TabHost will trigger a tab change when adding the first tab.
-		// Avoid this tab change by setting the listener after adding the tab.
+		// TabHost will automatically select the first tab.
+		// We must suppress the tab selection callback when this selection
+		// happens to comply with the abstract tab group contract.
+		// We will only hook up the tab listener after the first tab is added.
 		if (tabIndex == 0) {
 			tabHost.setOnTabChangedListener(this);
 		}
