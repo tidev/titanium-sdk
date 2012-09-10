@@ -11,7 +11,7 @@
 @interface TiUILabel : TiUIView<LayoutAutosizing> {
 @private
 	UILabel *label;
-    UIImageView* backgroundView;
+    TiUIView* backgroundView;
 	BOOL requiresLayout;
     CGRect padding;
     BOOL repad;

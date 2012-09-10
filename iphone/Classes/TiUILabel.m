@@ -18,6 +18,9 @@
 -(id)init
 {
     if (self = [super init]) {
+        backgroundView = [[TiUIView alloc] init];
+        backgroundView.userInteractionEnabled = NO;
+        [self insertSubview:backgroundView atIndex:0];
         padding = CGRectZero;
         initialLabelFrame = CGRectZero;
         verticalAlign = -1;
@@ -115,7 +118,6 @@
     }
 
     if (repad &&
-        backgroundView != nil &&
         !CGRectIsEmpty(initialLabelFrame))
     {
         [backgroundView setFrame:CGRectMake(initialLabelFrame.origin.x - padding.origin.x,
@@ -235,31 +237,18 @@
 
 -(void)setBackgroundImage_:(id)url
 {
-    if (url != nil) {
-        UIImage* bgImage = [self loadImage:url];
-        if (backgroundView == nil) {
-            backgroundView = [[UIImageView alloc] initWithImage:bgImage];
-            backgroundView.userInteractionEnabled = NO;
-            [self insertSubview:backgroundView atIndex:0];
-            repad = YES;
-            [self padLabel];
-        }
-        else {
-            backgroundView.image = bgImage;
-            [backgroundView setNeedsDisplay];
-
-            repad = YES;
-            [self padLabel];
-        }
-    }
-    else {
-        if (backgroundView) {
-            [backgroundView removeFromSuperview];
-            RELEASE_TO_NIL(backgroundView);
-        }
-    }
-
+    [backgroundView setBackgroundImage_:url];
     self.backgroundImage = url;
+}
+
+-(void)setBackgroundLeftCap_:(id)value
+{
+    [backgroundView setBackgroundLeftCap_:value];
+}
+
+-(void)setBackgroundTopCap_:(id)value
+{
+    [backgroundView setBackgroundTopCap_:value];
 }
 
 -(void)setBackgroundPaddingLeft_:(id)left
