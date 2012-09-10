@@ -60,7 +60,7 @@ description: |
     
     Pressing the **Sleep/Wake** button is another type of interruption that causes your app to 
     move to an inactive state. When the app is in the foreground, if the **Sleep/Wake button** 
-    is pressed when the app is in the foreground, the following events take place:
+    is pressed the following events take place:
     
     *   In iOS 4.X the system fires the `pause` event and becomes inactive and on waking up the app fires 
     the `resumed` event.
@@ -72,10 +72,9 @@ description: |
 
     ***Home Button***
     
-    Background the app by pressing the **home button** is another kind of interruption, this causes 
-    the app to fire `pause` and `paused` event before the app goes into the background and 
-    becomes inactive. When app is reopened it fires the `resume` event followed by the `resumed` 
-    event, returning to the app to the normal state.
+    Pressing the **home button** is another kind of interruption. The app fires `pause` and 
+    `paused`events before going into background. When app is reopened it fires the `resume` 
+    event followed by the `resumed` event, returning the app to the normal state.
     
     <table class="doc-table" summary="This table gives the order of events fired when the app is in normal state.">
     <caption><b>Lifecycle events fired during different interruptions</b></caption>
