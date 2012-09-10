@@ -465,7 +465,7 @@ def copy_tiapp_properties(project_dir):
 def cleanup_app_logfiles(tiapp, log_id, iphone_version):
 	print "[DEBUG] finding old log files"
 	sys.stdout.flush()
-	simulator_dir = os.path.expanduser('~/Library/Application Support/iPhone Simulator/%s' % iphone_version)
+	simulator_dir = os.path.expanduser('~/Library/Application\ Support/iPhone\ Simulator/%s' % iphone_version)
 
 	# No need to clean if the directory doesn't exist
 	if not os.path.exists(simulator_dir):

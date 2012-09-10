@@ -1,0 +1,35 @@
+{
+	"name": "titanium-mobile-ios",
+	"title": "iOS",
+	"description": "Appcelerator Titanium Mobile iOS",
+	"keywords": [
+		"appcelerator",
+		"titanium",
+		"mobile",
+		"ios",
+		"iphone",
+		"ipad"
+	],
+	"version": "__VERSION__",
+	"author": "Appcelerator, Inc. <info@appcelerator.com>",
+	"maintainers": [
+		"Blain Hamon <bhamon@appcelerator.com>",
+		"Sabil Rahim <srahim@appcelerator.com>",
+		"Max Stepanov <mstepanov@appcelerator.com>",
+		"Vishal Duggal <vduggal@appcelerator.com>",
+		"Karl Rowley <krowley@appcelerator.com>",
+		"Chris Barber <cbarber@appcelerator.com>"
+	],
+	"repository": {
+		"type": "git",
+		"url": "git://github.com/appcelerator/titanium_mobile_android.git"
+	},
+	"dependencies": {
+	},
+	"license": "Apache Public License v2",
+	"directories": {
+	},
+	"engines": {
+		"node": ">= 0.6.6"
+	}
+}
