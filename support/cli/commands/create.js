@@ -1,0 +1,174 @@
+/*
+ * create.js: Titanium Mobile CLI create command
+ *
+ * Copyright (c) 2012, Appcelerator, Inc.  All Rights Reserved.
+ * See the LICENSE file for more information.
+ */
+
+var fs = require('fs'),
+	path = require('path'),
+	wrench = require('wrench'),
+	appc = require('node-appc'),
+	lib = require('./lib/common');
+
+exports.config = function (logger, config, cli) {
+	return {
+		desc: __('creates a new mobile application or module'),
+		flags: {
+			force: {
+				abbr: 'f',
+				desc: __('force project creation even if path already exists')
+			}
+		},
+		options: appc.util.mix({
+			platforms: {
+				abbr: 'p',
+				desc: __('the target build platform'),
+				prompt: {
+					default: lib.availablePlatforms,
+					label: __('Target platforms'),
+					error: __('Invalid list of target platforms'),
+					validator: function (platforms) {
+						var p = lib.scrubPlatforms(platforms);
+						if (p.bad.length) {
+							throw new appc.exception(__('Invalid platforms: %s', p.bad.join(', ')));
+						}
+						return true;
+					},
+				},
+				required: true,
+				values: lib.availablePlatforms,
+				skipValueCheck: true // we do our own validation
+			},
+			type: {
+				abbr: 't',
+				default: 'app',
+				desc: __('the type of project to create'),
+				values: ['app', 'module']
+			},
+			id: {
+				desc: __("the App ID in the format 'com.companyname.appname'"),
+				prompt: {
+					label: __('App ID'),
+					error: __('Invalid App ID'),
+					pattern: /^([a-z_]{1}[a-z0-9_]*(\.[a-z_]{1}[a-z0-9_]*)*)$/
+				},
+				required: true
+			},
+			template: {
+				desc: __('the name of the project template to use'),
+				default: 'default'
+			},
+			name: {
+				abbr: 'n',
+				desc: __('the name of the project'),
+				prompt: {
+					label: __('Project name'),
+					error: __('Invalid project name'),
+					pattern: /^[A-Za-z]+[A-Za-z0-9_-]*$/
+				},
+				required: true
+			},
+			dir: {
+				abbr: 'd',
+				default: config.app.workspace || '',
+				desc: __('the directory to place the project in'),
+				prompt: {
+					label: __('Directory to place project'),
+					error: __('Invalid directory'),
+					validator: function (dir) {
+						dir = appc.fs.resolvePath(dir);
+						if (!appc.fs.exists(dir)) {
+							throw new appc.exception(__('Specified directory does not exist'));
+						}
+						if (!appc.fs.isDirWritable(dir)) {
+							throw new appc.exception(__('Specified directory not writable'));
+						}
+						return true;
+					}
+				},
+				required: !config.app.workspace
+			}
+		}, lib.commonOptions(logger, config)),
+		platforms: lib.platformOptions(logger, config, cli, module)
+	};
+};
+
+exports.validate = function (logger, config, cli) {
+	var platforms = lib.scrubPlatforms(cli.argv.platforms);
+	cli.argv.platforms = platforms.scrubbed;
+	
+	if (platforms.bad.length) {
+		logger.error(__n('Invalid platform: %%s', 'Invalid platforms: %%s', platforms.bad.length, platforms.bad.join(', ')) + '\n');
+		logger.log(__('Available platforms for SDK version %s:', lib.sdkVersion) + '\n');
+		lib.availablePlatforms.forEach(function (p) {
+			logger.log('    ' + p.cyan);
+		});
+		logger.log();
+		process.exit(1);
+	}
+	
+	var projectDir = appc.fs.resolvePath(cli.argv.dir, cli.argv.name);
+	if (!cli.argv.force && appc.fs.exists(projectDir)) {
+		logger.error(__('Project directory alread exists: %s', projectDir) + '\n');
+		logger.log(__("Run '%s' to overwrite existing project.", (cli.argv.$ + ' ' + process.argv.slice(2).join(' ') + ' --force').cyan) + '\n');
+		process.exit(1);
+	}
+};
+
+exports.run = function (logger, config, cli) {
+	var projectName = cli.argv.name,
+		platforms = cli.argv.platforms,
+		id = cli.argv.id,
+		type = cli.argv.type,
+		sdk = cli.env.getSDK(cli.argv.sdk),
+		projectDir = appc.fs.resolvePath(cli.argv.dir, projectName),
+		templateDir = appc.fs.resolvePath(sdk.path, 'templates', type, cli.argv.template),
+		projectConfig;
+	
+	appc.fs.exists(projectDir) || wrench.mkdirSyncRecursive(projectDir);
+	wrench.copyDirSyncRecursive(templateDir, projectDir);
+	
+	if (type == 'app') {
+		logger.info(__('Creating Titanium Mobile application project'));
+		
+		projectConfig = new appc.tiappxml(projectDir + '/tiapp.xml');
+		projectConfig.id = id;
+		projectConfig.name = projectName;
+		projectConfig.version = '1.0';
+		projectConfig['deployment-targets'] = {};
+		lib.availablePlatforms.forEach(function (p) {
+			projectConfig['deployment-targets'][p] = platforms.indexOf(p) != -1;
+		});
+		projectConfig['sdk-version'] = sdk.name;
+		projectConfig.save(projectDir + '/tiapp.xml');
+	} else if (type == 'module') {
+		logger.info(__('Creating Titanium Mobile module project'));
+		
+		projectConfig = {
+			'___PROJECTNAMEASIDENTIFIER___': projectName.toLowerCase().split(/\./).map(function (s) { return appc.string.capitalize(s); }).join(''),
+			'___MODULE_NAME_CAMEL___': projectName.toLowerCase().split(/[\W_]/).map(function (s) { return appc.string.capitalize(s); }).join(''),
+			'___MODULE_ID_AS_FOLDER___': id.replace(/\./g, path.sep),
+			'___PROJECTNAME___': projectName.toLowerCase(),
+			'__MODULE_ID__': id,
+			'__PROJECT_SHORT_NAME__': projectName,
+			'__VERSION__': sdk.name,
+			'__SDK__': sdk.path,
+			'__SDK_ROOT__': sdk.path,
+			'__GUID__': require('node-uuid').v4(),
+			'__YEAR__': (new Date).getFullYear()
+		};
+	}
+	
+	platforms.forEach(function (p) {
+		var templatePath = appc.fs.resolvePath(path.dirname(module.filename), '..', '..', p, 'templates', type, cli.argv.template);
+		if (appc.fs.exists(templatePath)) {
+			wrench.copyDirSyncRecursive(templatePath, projectDir, { preserve: true });
+		}
+		if (appc.fs.exists(appc.fs.resolvePath('..', '..', p, 'cli', 'commands', '_create.js'))) {
+			require('../../' + p + '/cli/commands/_create').run(logger, type, projectDir, projectConfig);
+		}
+	});
+	
+	logger.info(__("Project '%s' created successfully in %s", projectName.cyan, appc.time.prettyDiff(cli.startTime, Date.now())) + '\n');
+};
