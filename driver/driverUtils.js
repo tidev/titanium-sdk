@@ -13,6 +13,7 @@
 var fs = require("fs"),
 child_process = require("child_process"),
 path = require("path");
+var os = require("os");
 
 module.exports = new function() {
 	var self = this,
@@ -122,6 +123,15 @@ module.exports = new function() {
 
 	this.trimStringRight = function(targetString) {
 		return targetString.replace(/\s+$/,"");
+	};
+
+	// TODO: this shouldn't be necessary once we replace the cp command with something cross-platform
+	this.fixPathSeparator = function(pathString) {
+		if (os.platform().toLowerCase().match(/^win/)) {
+			return pathString.split("\\").join("/");
+		} else {
+			return pathString;
+		}
 	};
 
 	/*
