@@ -511,7 +511,7 @@ properties:
     summary: The duration of the current movie in milliseconds, or 0.0 if not known.
     description: |
         The duration of the movie may not be available when playback is started. The
-        [durationAvailable](Titanium.Media.VideoPlayer.durationAvailable) event is 
+        [durationavailable](Titanium.Media.VideoPlayer.durationavailable) event is 
         fired when the duration is known.
     type: Number
 
@@ -523,8 +523,8 @@ properties:
         stop playing at the specified point. On iOS, this value is not applicable to
         streaming media, so NaN is returned if the current media is being streamed.
         
-        On Android, this is always the same as `duration` (the natural end time),
-        and changing the value has no effect.
+        On Android, this is always the same as [duration](Titanium.Media.VideoPlayer.duration)
+        (the natural end time), and changing the value has no effect.
     type: Number
 
   - name: fullscreen
@@ -598,9 +598,11 @@ properties:
     type: MovieSize
 
   - name: playableDuration
-    summary: The currently playable duration of the movie, for progressively downloaded network content. 
+    summary: |
+        Currently playable duration of the movie, in milliseconds, for progressively 
+        downloaded network content, or 0.0 if not known.
     description: |
-        On Android, this is always the same as `duration`.
+        On Android, this is always the same as [duration](Titanium.Media.VideoPlayer.duration).
     type: Number
     permission: read-only
 
