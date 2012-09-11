@@ -153,7 +153,7 @@ properties:
     type: [Number,String]
     default: Titanium.UI.TEXT_VERTICAL_ALIGNMENT_CENTER on Mobile Web. Undefined on Android, iPhone and iPad.
     platforms: [mobileweb, iphone, ipad, android]
-    since: { iphone: "2.2", ipad: "2.2", mobileweb: "2.0", android: "2.2" }
+    since: { iphone: "3.0.0", ipad: "3.0.0", mobileweb: "2.0.0", android: "3.0.0" }
     
 examples:
   - title: Basic Label

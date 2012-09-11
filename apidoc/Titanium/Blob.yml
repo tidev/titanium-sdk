@@ -127,7 +127,7 @@ methods:
 
         If this blob doesn't represent an image, returns `null`.
     platforms: [android, iphone, ipad]
-    since: {android: "2.2.0"}
+    since: {android: "3.0.0"}
     parameters:
       - name: options
         summary: Image cropping options.
@@ -143,7 +143,7 @@ methods:
 
         If this blob doesn't represent an image, returns `null`.
     platforms: [android, iphone, ipad]
-    since: {android: "2.2.0"}
+    since: {android: "3.0.0"}
     parameters:
       - name: width
         type: Number
@@ -162,7 +162,7 @@ methods:
 
         If this blob doesn't represent an image, returns `null`.
     platforms: [android, iphone, ipad]
-    since: {android: "2.2.0"}
+    since: {android: "3.0.0"}
     returns:
         type: Titanium.Blob
         summary: The image thumbnail in a blob.
@@ -189,7 +189,7 @@ methods:
     description: |
         Returns the new image as a blob, or `null` if this blob is not an image.
     platforms: [android, iphone, ipad]
-    since: {android: "2.2.0"}
+    since: {android: "3.0.0"}
     returns:
         type: Titanium.Blob
         summary: The image with an alpha channel in a blob, or `null` if this blob is not an image.
@@ -199,7 +199,7 @@ methods:
     description: |
         Returns the new image as a blob, or `null` if this blob is not an image.
     platforms: [android, iphone, ipad]
-    since: {android: "2.2.0"}
+    since: {android: "3.0.0"}
     parameters:
       - name: cornerSize
         type: Number
@@ -218,7 +218,7 @@ methods:
     description: |
         Returns the new image as a blob, or `null` if this blob is not an image.
     platforms: [android, iphone, ipad]
-    since: {android: "2.2.0"}
+    since: {android: "3.0.0"}
     parameters:
       - name: size
         type: Number

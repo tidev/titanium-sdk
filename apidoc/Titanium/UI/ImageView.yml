@@ -223,6 +223,11 @@ properties:
     type: Boolean
     default: false
 
+  - name: url
+    summary: |
+        URL to the image to display. Deprecated: use [image](Titanium.UI.ImageView.image) instead.
+    type: String
+    deprecated: { since: "1.5.0", removed: "3.0.0" }
 examples:
   - title: Basic Image View
     example: |

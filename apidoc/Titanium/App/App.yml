@@ -124,7 +124,7 @@ events:
         is being dissmissed.
     platforms: [iphone, ipad]
     deprecated:
-        since: "2.2.0"
+        since: "3.0.0"
     since: '2.1.0'
 
   - name: keyboardframechanged
@@ -138,7 +138,7 @@ events:
         Note that the keyboard `height` and `width` properties will not be accurate when the keyboard 
         is being dissmissed.
     platforms: [iphone, ipad]
-    since: '2.2.0'
+    since: '3.0.0'
     
 methods:
   - name: getArguments
@@ -237,7 +237,7 @@ properties:
     type: Boolean
     default: false
     platforms: [iphone, ipad]
-    since: '2.2.0'
+    since: '3.0.0'
     
   - name: publisher
     summary: Application publisher, from `tiapp.xml`.

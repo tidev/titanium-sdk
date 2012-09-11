@@ -324,7 +324,7 @@ events:
         summary: Latitude value for the center point of the map, in decimal degrees.
         type: Number
     deprecated:
-        since: "2.2.0"
+        since: "3.0.0"
 
   - name: regionchanged
     summary: |
@@ -342,7 +342,7 @@ events:
       - name: latitude
         summary: Latitude value for the center point of the map, in decimal degrees.
         type: Number
-    since: '2.2.0'
+    since: '3.0.0'
 
 properties:
 
@@ -396,13 +396,13 @@ properties:
     summary: The amount of north-to-south distance displayed on the map, measured in decimal degrees.
     type: Number
     permission: read-only
-    since: {android: "2.2.0", iphone: "1.9.0", ipad: "1.9.0", mobileweb: "1.9.0"}
+    since: {android: "3.0.0", iphone: "2.0.0", ipad: "2.0.0", mobileweb: "2.0.0"}
 
   - name: longitudeDelta
     summary: The amount of east-to-west distance displayed on the map, measured in decimal degrees.
     type: Number
     permission: read-only
-    since: {android: "2.2.0", iphone: "1.9.0", ipad: "1.9.0", mobileweb: "1.9.0"}
+    since: {android: "3.0.0", iphone: "2.0.0", ipad: "2.0.0", mobileweb: "2.0.0"}
 
 ---
 name: MapRegionType

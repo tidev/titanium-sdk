@@ -153,7 +153,7 @@ properties:
         iOS SDK 5 or above. 
     type: Number
     default: <Titanium.UI.iPhone.AlertDialogStyle.DEFAULT>
-    since: 2.2.0
+    since: 3.0.0
     platforms: [iphone, ipad]
 
   - name: title
