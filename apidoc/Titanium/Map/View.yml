@@ -192,8 +192,8 @@ events:
         - The user deselects an annotation.
 
         On iOS, the user deselects an annotation by clicking in the map view outside of
-        the annotation. On Android, if [enableZoomControls](Titanium.Map.View.enableZoomControls) is
-        set to false, the user deselects an annotation by clicking in the map view outside of
+        the annotation. On Android, if [hideAnnotationWhenTouchMap](Titanium.Map.View.hideAnnotationWhenTouchMap)
+        is set to true, the user deselects an annotation by clicking in the map view outside of
         the annotation. Otherwise, the user deselects an annotation by clicking on the
         annotation pin.
 
@@ -359,15 +359,13 @@ properties:
     summary: An array of annotations to add to the map.
     type: Array<Titanium.Map.Annotation>
 
-  - name: enableZoomControls
-    summary: Show zoom controls when the user touches the map view.
+  - name: hideAnnotationWhenTouchMap
+    summary: Hide the annotation when clicking in the map view outside of the annotation.
     description: |
-        If 'true', the zoom controls are visible. The user zooms in / out the map using the zoom
-        controls or the pinch gesture and deselects an annotation by clicking on the annotation pin.
-        If 'false', the zoom controls are invisible. The user zooms in / out the map using the pinch
-        gesture and deselects an annotation by clicking in the map view outside of the annotation.
+        If 'false', the user deselects an annotation by clicking on the annotation pin.
+        If 'true', the user deselects an annotation by clicking in the map view outside of the annotation.
     type: Boolean
-    default: true
+    default: false
     platforms: [android]
     since: {android: "3.0.0"}
 

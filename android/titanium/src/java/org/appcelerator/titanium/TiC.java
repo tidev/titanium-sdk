@@ -1066,6 +1066,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_HIDE_ANNOTATION_WHEN_TOUCH_MAP = "hideAnnotationWhenTouchMap";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_HIGHLIGHTED_COLOR = "highlightedColor";
 
 	/**

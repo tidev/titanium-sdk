@@ -690,11 +690,11 @@ public class TiMapView extends TiUIView
 				// being visible or not
 				this.itemView.fireClickEvent(index, "pin");
 
-				// If the zoom controls are visible and the annotation is shown, hide the annotation by clicking the
-				// annotation pin.
+				// If the property "hideAnnotationWhenTouchMap" is set to false and the annotation is shown, hide the
+				// annotation by clicking the annotation pin.
 				if ((itemView != null && index == itemView.getLastIndex() && itemView.getVisibility() == View.VISIBLE)
-					&& !(proxy.hasProperty(TiC.PROPERTY_ENABLE_ZOOM_CONTROLS) && !TiConvert.toBoolean(proxy
-						.getProperty(TiC.PROPERTY_ENABLE_ZOOM_CONTROLS)))) {
+					&& !(proxy.hasProperty(TiC.PROPERTY_HIDE_ANNOTATION_WHEN_TOUCH_MAP) && TiConvert.toBoolean(proxy
+						.getProperty(TiC.PROPERTY_HIDE_ANNOTATION_WHEN_TOUCH_MAP)))) {
 					hideAnnotation();
 					return;
 				}
@@ -712,10 +712,10 @@ public class TiMapView extends TiUIView
 
 	public void onTap(GeoPoint p, MapView mapView)
 	{
-		// If the zoom controls are invisible and the annotation is shown, hide the annotation by clicking in the map
-		// view outside of the annotation.
-		if (proxy.hasProperty(TiC.PROPERTY_ENABLE_ZOOM_CONTROLS)
-			&& !TiConvert.toBoolean(proxy.getProperty(TiC.PROPERTY_ENABLE_ZOOM_CONTROLS))) {
+		// If the property "hideAnnotationWhenTouchMap" is set to true and the annotation is shown, hide the annotation
+		// by clicking in the map view outside of the annotation.
+		if (proxy.hasProperty(TiC.PROPERTY_HIDE_ANNOTATION_WHEN_TOUCH_MAP)
+			&& TiConvert.toBoolean(proxy.getProperty(TiC.PROPERTY_HIDE_ANNOTATION_WHEN_TOUCH_MAP))) {
 			if (itemView != null && view.indexOfChild(itemView) != -1) {
 				Point pointOnTap = new Point();
 				view.getProjection().toPixels(p, pointOnTap);
@@ -753,11 +753,6 @@ public class TiMapView extends TiUIView
 		}
 		if (d.containsKey(TiC.PROPERTY_ZOOM_ENABLED)) {
 			view.setBuiltInZoomControls(TiConvert.toBoolean(d,TiC.PROPERTY_ZOOM_ENABLED));
-		}
-		if (d.containsKey(TiC.PROPERTY_ENABLE_ZOOM_CONTROLS)) {
-			if (!TiConvert.toBoolean(d, TiC.PROPERTY_ENABLE_ZOOM_CONTROLS)) {
-				view.getZoomButtonsController().getZoomControls().setVisibility(View.INVISIBLE);
-			}
 		}
 		if (d.containsKey(TiC.PROPERTY_SCROLL_ENABLED)) {
 			view.setScrollable(TiConvert.toBoolean(d, TiC.PROPERTY_SCROLL_ENABLED));
@@ -840,13 +835,6 @@ public class TiMapView extends TiUIView
 			Object [] annotations = (Object[]) newValue;
 			addAnnotations(annotations);
 
-		} else if (key.equals(TiC.PROPERTY_ENABLE_ZOOM_CONTROLS)) {
-			boolean enabled = TiConvert.toBoolean(newValue);
-			if (enabled) {
-				view.getZoomButtonsController().getZoomControls().setVisibility(View.VISIBLE);
-			} else {
-				view.getZoomButtonsController().getZoomControls().setVisibility(View.INVISIBLE);
-			}
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}
