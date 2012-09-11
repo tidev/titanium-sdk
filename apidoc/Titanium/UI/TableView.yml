@@ -696,7 +696,7 @@ methods:
         type: TableViewAnimationProperties
         optional: true
     since: 2.2.0
-    platforms: [android, mobileweb]
+    platforms: [android, mobileweb, iphone, ipad]
     
   - name: deleteRow
     summary: Deletes an existing row.
@@ -726,7 +726,7 @@ methods:
         type: TableViewAnimationProperties
         optional: true
     since: 2.2.0
-    platforms: [android, mobileweb]
+    platforms: [android, mobileweb, iphone, ipad]
     
   - name: deselectRow
     summary: Programmatically deselects a row.
@@ -780,7 +780,7 @@ methods:
         type: TableViewAnimationProperties
         optional: true
     since: 2.2.0
-    platforms: [android, mobileweb]
+    platforms: [android, mobileweb, iphone, ipad]
         
   - name: insertRowBefore
     summary: Inserts a row before another row.
@@ -826,7 +826,7 @@ methods:
         type: TableViewAnimationProperties
         optional: true
     since: 2.2.0
-    platforms: [android, mobileweb]
+    platforms: [android, mobileweb, iphone, ipad]
     
   - name: scrollToIndex
     summary: Scrolls the table view to ensure that the specified row is on screen.
@@ -968,7 +968,7 @@ methods:
         summary: Animation properties. (iOS only.)
         type: TableViewAnimationProperties
     since: 2.2.0
-    platforms: [android, mobileweb]
+    platforms: [android, mobileweb, iphone, ipad]
 
 properties:
   - name: allowsSelection
