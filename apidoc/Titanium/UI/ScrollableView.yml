@@ -71,6 +71,15 @@ events:
     summary: Fired when the device detects a double click against the view.
     platforms: [iphone, ipad]
     properties:
+      - name: globalPoint
+        summary: |
+            Coordinates `x` and `y` describing the location of the event in terms of screen 
+            coordinates.
+        type: Dictionary
+        deprecated:
+            since: "1.8.0"
+        platforms: [iphone, ipad]
+        
       - name: x
         summary: X coordinate of the event from the `source` view's coordinate system.
         type: Number
@@ -83,6 +92,15 @@ events:
     summary: Fired when the device detects a double tap against this page.
     platforms: [iphone, ipad]
     properties:
+      - name: globalPoint
+        summary: |
+            Coordinates `x` and `y` describing the location of the event in terms of screen 
+            coordinates.
+        type: Dictionary
+        deprecated:
+            since: "1.8.0"
+        platforms: [iphone, ipad]
+        
       - name: x
         summary: X coordinate of the event from the `source` view's coordinate system.
         type: Number
@@ -110,6 +128,15 @@ events:
     summary: Fired when the device detects a single tap against this view.
     platforms: [iphone, ipad]
     properties:
+      - name: globalPoint
+        summary: |
+            Coordinates `x` and `y` describing the location of the event in terms of screen 
+            coordinates.
+        type: Dictionary
+        deprecated:
+            since: "1.8.0"
+        platforms: [iphone, ipad]
+        
       - name: x
         summary: X coordinate of the event from the `source` view's coordinate system.
         type: Number
@@ -125,6 +152,15 @@ events:
         up state.
     platforms: [iphone, ipad]
     properties:
+      - name: globalPoint
+        summary: |
+            Coordinates `x` and `y` describing the location of the event in terms of screen 
+            coordinates.
+        type: Dictionary
+        deprecated:
+            since: "1.8.0"
+        platforms: [iphone, ipad]
+        
       - name: x
         summary: X coordinate of the event from the `source` view's coordinate system.
         type: Number
@@ -137,6 +173,15 @@ events:
     summary: Fired as soon as the device detects a touch gesture against this view.
     platforms: [iphone, ipad]
     properties:
+      - name: globalPoint
+        summary: |
+            Coordinates `x` and `y` describing the location of the event in terms of screen 
+            coordinates.
+        type: Dictionary
+        deprecated:
+            since: "1.8.0"
+        platforms: [iphone, ipad]
+        
       - name: x
         summary: X coordinate of the event from the `source` view's coordinate system.
         type: Number
@@ -149,6 +194,15 @@ events:
     summary: Fired when the device detects a two-finger tap against the view.
     platforms: [iphone, ipad]
     properties:
+      - name: globalPoint
+        summary: |
+            Coordinates `x` and `y` describing the location of the event in terms of screen 
+            coordinates.
+        type: Dictionary
+        deprecated:
+            since: "1.8.0"
+        platforms: [iphone, ipad]
+        
       - name: y
         summary: Y coordinate of the event from the `source` view's coordinate system.
         type: Number

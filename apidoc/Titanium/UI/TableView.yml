@@ -110,6 +110,15 @@ events:
             `true` and the detail button was clicked.
         type: Boolean
         
+      - name: globalPoint
+        summary: |
+            Coordinates `x` and `y` describing the location of the event in terms of screen 
+            coordinates.
+        type: Dictionary
+        deprecated:
+            since: "1.8.0"
+        platforms: [iphone, ipad]
+        
       - name: index
         summary: Row index.
         type: Number
@@ -144,6 +153,15 @@ events:
     summary: Fired when the device detects a double click against the view.
     platforms: [mobileweb]
     properties:
+      - name: globalPoint
+        summary: |
+            Coordinates `x` and `y` describing the location of the event in terms of screen 
+            coordinates.
+        type: Dictionary
+        deprecated:
+            since: "1.8.0"
+        platforms: [iphone, ipad]
+        
       - name: x
         summary: X coordinate of the event from the `source` view's coordinate system.
         type: Number
@@ -159,6 +177,15 @@ events:
       - name: detail
         summary: Indicates whether the delete button was clicked. Always `false` for this event.
         type: Boolean
+        
+      - name: globalPoint
+        summary: |
+            Coordinates `x` and `y` describing the location of the event in terms of screen 
+            coordinates.
+        type: Dictionary
+        deprecated:
+            since: "1.8.0"
+        platforms: [iphone, ipad]
         
       - name: index
         summary: Row index.
@@ -194,6 +221,15 @@ events:
     summary: Fired when the device detects a double tap against this view.
     platforms: [iphone, ipad, mobileweb]
     properties:
+      - name: globalPoint
+        summary: |
+            Coordinates `x` and `y` describing the location of the event in terms of screen 
+            coordinates.
+        type: Dictionary
+        deprecated:
+            since: "1.8.0"
+        platforms: [iphone, ipad]
+        
       - name: x
         summary: X coordinate of the event from the `source` view's coordinate system.
         type: Number
@@ -230,6 +266,15 @@ events:
       - name: detail
         summary: Boolean to indicate if the right area was clicked. Always `false` for this event.
         type: Boolean
+        
+      - name: globalPoint
+        summary: |
+            Coordinates `x` and `y` describing the location of the event in terms of screen 
+            coordinates.
+        type: Dictionary
+        deprecated:
+            since: "1.8.0"
+        platforms: [iphone, ipad]
         
       - name: index
         summary: Row index.
@@ -374,15 +419,6 @@ events:
         type: Point
         platforms: [iphone, ipad, mobileweb]
         
-      - name: globalPoint
-        summary: |
-            Coordinates `x` and `y` describing the location of the event in terms of screen 
-            coordinates.
-        type: Dictionary
-        deprecated:
-            since: "1.8.0"
-        platforms: [iphone, ipad]
-        
       - name: size
         summary: |
             Dictionary with `width` and `height` properties containing the size of the visible 
@@ -418,6 +454,15 @@ events:
         summary: Direction of the swipe, either `left` or `right`.
         type: String
         
+      - name: globalPoint
+        summary: |
+            Coordinates `x` and `y` describing the location of the event in terms of screen 
+            coordinates.
+        type: Dictionary
+        deprecated:
+            since: "1.8.0"
+        platforms: [iphone, ipad]
+        
       - name: x
         summary: X coordinate of the event's endpoint from the `source` view's coordinate system.
         type: Number
@@ -441,6 +486,15 @@ events:
         will fire immediately following the scroll.
     platforms: [iphone, ipad, mobileweb]
     properties:
+      - name: globalPoint
+        summary: |
+            Coordinates `x` and `y` describing the location of the event in terms of screen 
+            coordinates.
+        type: Dictionary
+        deprecated:
+            since: "1.8.0"
+        platforms: [iphone, ipad]
+        
       - name: x
         summary: X coordinate of the event from the `source` view's coordinate system.
         type: Number
@@ -461,6 +515,15 @@ events:
         will fire immediately following the scroll.
     platforms: [iphone, ipad, mobileweb]
     properties:
+      - name: globalPoint
+        summary: |
+            Coordinates `x` and `y` describing the location of the event in terms of screen 
+            coordinates.
+        type: Dictionary
+        deprecated:
+            since: "1.8.0"
+        platforms: [iphone, ipad]
+        
       - name: x
         summary: X coordinate of the event from the `source` view's coordinate system.
         type: Number
@@ -475,6 +538,15 @@ events:
         Event coordinates are always relative to the view in which the initial touch occurred
     platforms: [mobileweb]
     properties:
+      - name: globalPoint
+        summary: |
+            Coordinates `x` and `y` describing the location of the event in terms of screen 
+            coordinates.
+        type: Dictionary
+        deprecated:
+            since: "1.8.0"
+        platforms: [iphone, ipad]
+        
       - name: x
         summary: X coordinate of the event from the `source` view's coordinate system.
         type: Number
@@ -495,6 +567,15 @@ events:
         will fire immediately following the scroll.
     platforms: [iphone, ipad, mobileweb]
     properties:
+      - name: globalPoint
+        summary: |
+            Coordinates `x` and `y` describing the location of the event in terms of screen 
+            coordinates.
+        type: Dictionary
+        deprecated:
+            since: "1.8.0"
+        platforms: [iphone, ipad]
+        
       - name: x
         summary: X coordinate of the event from the `source` view's coordinate system.
         type: Number
@@ -507,6 +588,15 @@ events:
     summary: Fired when the device detects a two-finger tap against the view.
     platforms: [iphone, ipad, mobileweb]
     properties:
+      - name: globalPoint
+        summary: |
+            Coordinates `x` and `y` describing the location of the event in terms of screen 
+            coordinates.
+        type: Dictionary
+        deprecated:
+            since: "1.8.0"
+        platforms: [iphone, ipad]
+        
       - name: x
         summary: X coordinate of the event from the `source` view's coordinate system.
         type: Number

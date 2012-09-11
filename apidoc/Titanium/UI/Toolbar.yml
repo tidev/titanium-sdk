@@ -1,0 +1,54 @@
+---
+name: Titanium.UI.Toolbar
+summary: An iOS toolbar. See <Titanium.UI.iOS.Toolbar> instead.
+description: |
+    This iOS-specific object has been moved to the `Titanium.UI.iOS` namespace. See
+    <Titanium.UI.iOS.Toolbar> for a full description and sample code.
+extends: Titanium.UI.View
+excludes: { properties: [ backgroundColor, backgroundDisabledColor, backgroundDisabledImage,         
+            backgroundFocusedColor, backgroundFocusedImage,
+            backgroundLeftCap, backgroundTopCap, backgroundRepeat,
+            backgroundSelectedColor, backgroundSelectedImage, layout,
+            softKeyboardOnFocus ],
+            events: [ longclick, twofingertap ] }
+since: "0.8"
+platforms: [iphone, ipad]
+deprecated:
+    since: "1.8.0"
+
+properties:
+  - name: barColor
+    summary: Background color for the toolbar, as a color name or hex triplet.
+    description: |
+        To use a background image on the toolbar, either `barColor` must be a fully or
+        partially transparent color, 
+        or the [translucent](Titanium.UI.Toolbar.translucent) property must be `true`.
+
+        To use a background gradient on a toolbar, `barColor` must be `'transparent'`
+        *and* the the [translucent](Titanium.UI.Toolbar.translucent) property must be `true`.
+
+        For information about color values, see the "Colors" section of <Titanium.UI>. 
+    type: String
+    
+  - name: items
+    summary: An array of buttons (or other widgets) contained in the toolbar.
+    type: Array<Titanium.UI.View>
+    
+  - name: borderTop
+    summary: If `true`, a border is drawn on the top of the toolbar.
+    type: Boolean
+    default: true
+    
+  - name: borderBottom
+    summary: If `true`, a border is drawn on the bottom of the toolbar.
+    type: Boolean
+    default: true
+    
+  - name: translucent
+    summary: If `true`, a translucent background color is used for the toolbar.
+    description: |
+        Note that if `translucent` is `false`, views under the toolbar are hidden, even
+        if [barColor](Titanium.UI.Toolbar.barColor) is set to a semi-transparent or 
+        transparent color.
+    type: Boolean
+    default: false
