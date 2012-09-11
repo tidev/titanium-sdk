@@ -61,7 +61,7 @@ events:
     properties:
       - name: item
         summary: Item that was deleted.
-        type: Object
+        type: Titanium.UI.DashboardItem
     
       - name: source
         summary: Source object that fired the event.
