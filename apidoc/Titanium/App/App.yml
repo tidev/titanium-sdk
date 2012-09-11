@@ -52,9 +52,9 @@ description: |
     event being fired. Your app continues to run in the foreground, but it does not recieve 
     touch events from the system. (It does continue to receive notifications and other types 
     of events, such as accelerometer events.) When your app is moved back to the 
-    active state, the `resumed` event is fired . 
+    active state, the `resumed` event is fired. 
     
-    The same set of events take place when user **double tap on the home button** 
+    The same set of events takes place when user **double taps on the home button**.
     
     ***Sleep/Wake Button***
     
@@ -79,10 +79,10 @@ description: |
     <table class="doc-table" summary="This table gives the order of events fired when the app is in normal state.">
     <caption><b>Lifecycle events fired during different interruptions</b></caption>
     <tr><th colspan="2">Type of Interruption<th colspan="2">Going into Background<th colspan="2">Coming into  Foreground</tr>
-    <tr><th colspan="2" align="left">Home Button (backgrounding)<td align="center">pause<td align="center">paused<td align="center"> resume<td align="center">resumed</tr>
-    <tr><th colspan="2" align = "left">Fast Switching (switching between apps)<td align="center">pause</td><td align="center"></td><td align="center"> </td><td align="center">resumed</td></tr>
+    <tr><th colspan="2" align = "left">Alert-Based/Fast App Switching<td align="center">pause</td><td align="center"></td><td align="center"> </td><td align="center">resumed</td></tr>
     <tr><th rowspan="2" align="left">Sleep/Wake Button</th><td> iOS 4.X</td><td align="center">pause</td><td  align="center"><td align="center"><td align="center"> resumed</tr >
-    <tr><td>iOS 5.0 +</td><td align="center">pause</td><td align="center">paused</td><td align="center">resume<td align="center">resumed</td></tr></table>
+    <tr><td>iOS 5.0 +</td><td align="center">pause</td><td align="center">paused</td><td align="center">resume<td align="center">resumed</td></tr>
+    <tr><th colspan="2" align="left">Home Button (backgrounding)<td align="center">pause<td align="center">paused<td align="center"> resume<td align="center">resumed</tr></table>
     
     #### Application Level Events
 
