@@ -1,0 +1,37 @@
+{
+	"name": "titanium-mobile-android",
+	"title": "Android",
+	"description": "Appcelerator Titanium Mobile Android",
+	"keywords": [
+		"appcelerator",
+		"titanium",
+		"mobile",
+		"android"
+	],
+	"version": "__VERSION__",
+	"author": "Appcelerator, Inc. <info@appcelerator.com>",
+	"maintainers": [
+		"Opie Cyrus <ncyrus@appcelerator.com>",
+		"Bill Dawson <bdawson@appcelerator.com>",
+		"Josh Roesslein <jroesslein@appcelerator.com>",
+		"Max Stepanov <mstepanov@appcelerator.com>",
+		"Vishal Duggal <vduggal@appcelerator.com>",
+		"Hieu Pham <hpham@appcelerator.com>",
+		"Ping Wang <pwang@appcelerator.com>",
+		"Allen Yeung <ayeung@appcelerator.com>",
+		"Karl Rowley <krowley@appcelerator.com>",
+		"Chris Barber <cbarber@appcelerator.com>"
+	],
+	"repository": {
+		"type": "git",
+		"url": "git://github.com/appcelerator/titanium_mobile_android.git"
+	},
+	"dependencies": {
+	},
+	"license": "Apache Public License v2",
+	"directories": {
+	},
+	"engines": {
+		"node": ">= 0.6.6"
+	}
+}

@@ -628,15 +628,20 @@ description: |
     To _give_ your new window access to `message`, you would need to assign it to a
     property on the new window reference, `w`.
 
-        w.alertMessage = message;
+        w.myAlertMessage = message;
 
-    This creates a new `alertMessage` property on the new window that holds a reference to the
+    This creates a new `myAlertMessage` property on the new window that holds a reference to the
     `message` property in the global context.  Now, let's look at the code for `foo.js`.
 
-        alert(Titanium.UI.currentWindow.alertMessage);
+        alert(Titanium.UI.currentWindow.myAlertMessage);
 
     In the above code, the `foo.js` will show an alert containing the text from the `message`
     property in the global context.
+
+    **Note:** You should use caution when adding a custom property to a Titanium object.
+    Your property might overwrite an existing property or conflict with a future Titanium 
+    property.  If you do this, try to choose a property name unlikely to be used by the Titanium SDK
+    in the future. 
 
     ##### Passing Data with Events
 
@@ -756,7 +761,8 @@ description: |
       JavaScript context if it was created with the 'url' property set.
 
     The [createWindow](Titanium.UI.createWindow) call creates a heavyweight window 
-    if any of the following properties are true on creation:
+    if any of the following properties are defined (set to either `true` or `false`)
+    on creation:
 
     * `fullscreen`
     * `navBarHidden`
@@ -797,24 +803,57 @@ examples:
 name: openWindowParams
 summary: Dictionary of options for the <Titanium.UI.Window.open> method.
 since: 1.9.0
-platforms: [iphone, ipad]
+platforms: [android, iphone, ipad]
 
 properties:
-  - name: modal
-    summary: Determines whether the window is modal.
+
+  - name: animated
+    summary: |
+        Determines whether to use an animated effect when the window is shown.
+    description: |
+        On Android, this property supports animated transitions on heavyweight windows
+        except for modal windows (`modal:true`).  See "Android Heavyweight and Lightweight
+        Windows" in the main description of Titanium.UI.Window for more information.
+
+        On iOS, only use this property to disable animated transitions on modal windows. 
+        This property has unintended side effects on non-modal windows if it is defined. 
+    type: Boolean
+
+  - name: bottom
+    summary: Window's bottom position, in platform-specific units.
+    description: |
+        On Android, this property will only work with lightweight windows.
+        See "Android Heavyweight and Lightweight Windows" in the main description
+        of Titanium.UI.Window for more information.
+    type: [Number,String]
+    default: 0
+
+  - name: fullscreen
+    summary: Determines if the window is fullscreen.
     type: Boolean
     default: false
-    optional: true
-    
-  - name: modalTransitionStyle
-    summary: Transition style of this modal window.
+
+  - name: height
+    summary: Window's height, in platform-specific units.
     description: |
-        One of the modal window transition style constants 
-        <Titanium.UI.iPhone.MODAL_TRANSITION_STYLE_COVER_VERTICAL>, 
-        <Titanium.UI.iPhone.MODAL_TRANSITION_STYLE_CROSS_DISSOLVE>, 
-        <Titanium.UI.iPhone.MODAL_TRANSITION_STYLE_FLIP_HORIZONTAL>, 
-        or <Titanium.UI.iPhone.MODAL_TRANSITION_STYLE_PARTIAL_CURL>.
-    type: Number
+        On Android, this property will only work with lightweight windows.
+        See "Android Heavyweight and Lightweight Windows" in the main description 
+        of Titanium.UI.Window for more information.
+    type: [Number,String]
+
+  - name: left
+    summary: Window's left position, in platform-specific units.
+    description: |
+        On Android, this property will only work with lightweight windows.
+        See "Android Heavyweight and Lightweight Windows" in the main description 
+        of Titanium.UI.Window for more information.
+    type: [Number,String]
+    default: 0
+
+  - name: modal
+    summary: Determines whether to open the window modal in front of other windows.
+    type: Boolean
+    default: false
     
   - name: modalStyle
     summary: Presentation style of this modal window.
@@ -824,4 +863,63 @@ properties:
         <Titanium.UI.iPhone.MODAL_PRESENTATION_FORMSHEET>, 
         <Titanium.UI.iPhone.MODAL_PRESENTATION_FULLSCREEN>, 
         or <Titanium.UI.iPhone.MODAL_PRESENTATION_PAGESHEET>.
+    platforms: [iphone, ipad]
     type: Number
+    default: <Titanium.UI.iPhone.MODAL_PRESENTATION_FULLSCREEN>
+
+  - name: modalTransitionStyle
+    summary: Transition style of this modal window.
+    description: |
+        One of the modal window transition style constants
+        <Titanium.UI.iPhone.MODAL_TRANSITION_STYLE_COVER_VERTICAL>,
+        <Titanium.UI.iPhone.MODAL_TRANSITION_STYLE_CROSS_DISSOLVE>,
+        <Titanium.UI.iPhone.MODAL_TRANSITION_STYLE_FLIP_HORIZONTAL>,
+        or <Titanium.UI.iPhone.MODAL_TRANSITION_STYLE_PARTIAL_CURL>.
+    platforms: [iphone, ipad]
+    type: Number
+    default: <Titanium.UI.iPhone.MODAL_TRANSITION_STYLE_COVER_VERTICAL>
+
+  - name: navBarHidden
+    summary: For modal windows, hides the nav bar (`true`) or shows the nav bar (`false`).
+    type: Boolean
+    default: false
+
+  - name: right
+    summary: Window's right position, in platform-specific units.
+    description: |
+        On Android, this property will only work with lightweight windows.
+        See "Android Heavyweight and Lightweight Windows" in the main description 
+        of Titanium.UI.Window for more information.
+    type: [Number,String]
+    default: 0
+
+  - name: top
+    summary: Window's top position, in platform-specific units.
+    description: |
+        On Android, this property will only work with lightweight windows.
+        See "Android Heavyweight and Lightweight Windows" in the main description 
+        of Titanium.UI.Window for more information.
+    type: [Number,String]
+    default: 0
+
+  - name: transition
+    summary: Transition style of this non-modal window.
+    description: |
+        One of the animation style constants 
+        <Titanium.UI.iPhone.AnimationStyle.CURL_DOWN>,
+        <Titanium.UI.iPhone.AnimationStyle.CURL_UP>,
+        <Titanium.UI.iPhone.AnimationStyle.FLIP_FROM_LEFT>,
+        <Titanium.UI.iPhone.AnimationStyle.FLIP_FROM_RIGHT>,
+        or <Titanium.UI.iPhone.AnimationStyle.NONE>. 
+    platforms: [iphone, ipad]
+    type: Number
+    default: <Titanium.UI.iPhone.AnimationStyle.NONE>
+
+  - name: width
+    summary: Window's width, in platform-specific units.
+    description: |
+        On Android, this property will only work with lightweight windows.
+        See "Android Heavyweight and Lightweight Windows" in the main description 
+        of Titanium.UI.Window for more information.
+    type: [Number,String]
+
