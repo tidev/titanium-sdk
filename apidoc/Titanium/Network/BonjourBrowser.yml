@@ -32,14 +32,14 @@ events:
       - name: services
         summary: An array of BonjourService objects corresponding to currently available services.  If you cache this value, including using it as table data, be aware that it could become out of date at any time due to the asynchronous nature of Bonjour service discovery.
     deprecated:
-        since: "2.2.0"
+        since: "3.0.0"
 
   - name: updatedservices
     summary: Fired when the discovered services list is updated
     properties:
       - name: services
         summary: An array of BonjourService objects corresponding to currently available services.  If you cache this value, including using it as table data, be aware that it could become out of date at any time due to the asynchronous nature of Bonjour service discovery.
-    since: '2.2.0'
+    since: '3.0.0'
 
 properties:
   - name: domain

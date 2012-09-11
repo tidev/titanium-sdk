@@ -63,4 +63,4 @@ properties:
         recommended that the `auto` value is used for these properties instead, to compute the 
         view's size from the adSize.
     type: String
-    since: "1.9.0"
+    since: "2.0.0"
