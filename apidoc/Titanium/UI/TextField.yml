@@ -182,7 +182,7 @@ properties:
         Array of toolbar button objects or a [toolbar](Titanium.UI.iOS.Toolbar) to be used when the 
         keyboard is displayed.
     description: |
-        As of 2.0.0, because iOS disallows a view (including toolbar buttons) to be in two places at
+        As of Release 2.0, because iOS disallows a view (including toolbar buttons) to be in two places at
         once, developers desiring textAreas or [textFields](Titanium.UI.TextField) to share a toolbar
         can instead use a single [toolbar](Titanium.UI.iOS.Toolbar) instead of having arrays sharing
         toolbar buttons.
