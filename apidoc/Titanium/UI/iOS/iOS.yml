@@ -50,7 +50,7 @@ properties:
     osver: {ios: {min: "4.0"}}
     permission: read-only
     deprecated:
-        since: "2.2.0"
+        since: "3.0.0"
     platforms: [iphone, ipad]
 
   - name: AUTODETECT_ALL
@@ -58,7 +58,7 @@ properties:
     type: Number
     permission: read-only
     deprecated:
-        since: "2.2.0"
+        since: "3.0.0"
     platforms: [iphone, ipad]
 
   - name: AUTODETECT_CALENDAR
@@ -67,7 +67,7 @@ properties:
     osver: {ios: {min: "4.0"}}
     permission: read-only
     deprecated:
-        since: "2.2.0"
+        since: "3.0.0"
     platforms: [iphone, ipad]
 
   - name: AUTODETECT_LINK
@@ -75,7 +75,7 @@ properties:
     type: Number
     permission: read-only
     deprecated:
-        since: "2.2.0"
+        since: "3.0.0"
     platforms: [iphone, ipad]
 
   - name: AUTODETECT_NONE
@@ -83,7 +83,7 @@ properties:
     type: Number
     permission: read-only
     deprecated:
-        since: "2.2.0"
+        since: "3.0.0"
     platforms: [iphone, ipad]
 
   - name: AUTODETECT_PHONE
@@ -91,7 +91,7 @@ properties:
     type: Number
     permission: read-only
     deprecated:
-        since: "2.2.0"
+        since: "3.0.0"
     platforms: [iphone, ipad]
 
   - name: BLEND_MODE_CLEAR

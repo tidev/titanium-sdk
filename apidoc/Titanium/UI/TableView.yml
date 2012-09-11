@@ -401,7 +401,7 @@ events:
         summary: Y coordinate of the event from the `source` view's coordinate system.
         type: Number
     deprecated:
-        since: "2.2.0"
+        since: "3.0.0"
 
   - name: scrollend
     summary: fired when the table view stops scrolling
@@ -432,7 +432,7 @@ events:
       - name: y
         summary: Y coordinate of the event from the `source` view's coordinate system.
         type: Number
-    since: '2.2.0'
+    since: '3.0.0'
         
   - name: singletap
     summary: Fired when the device detects a single tap against the view.
@@ -614,7 +614,7 @@ events:
         the view, as opposed to it being the result of scrolling momentum.
     platforms: [iphone, ipad, mobileweb]
     deprecated:
-        since: "2.2.0"
+        since: "3.0.0"
 
   - name: dragEnd
     summary: Fired when the scrollable region stops being dragged.
@@ -631,7 +631,7 @@ events:
             been released by the touch. If `false`, scrolling will stop immediately.
         type: Boolean
     deprecated:
-        since: "2.2.0"
+        since: "3.0.0"
 
   - name: dragstart
     summary: Fired when the scrollable region starts being dragged.
@@ -639,7 +639,7 @@ events:
         A dragging gesture is when a touch remains in contact with the display to physically drag 
         the view, as opposed to it being the result of scrolling momentum.
     platforms: [iphone, ipad, mobileweb]
-    since: '2.2.0'
+    since: '3.0.0'
 
   - name: dragend
     summary: Fired when the scrollable region stops being dragged.
@@ -653,7 +653,7 @@ events:
             Indicates whether scrolling will continue but decelerate, now that the drag gesture has 
             been released by the touch. If `false`, scrolling will stop immediately.
         type: Boolean
-    since: '2.2.0'
+    since: '3.0.0'
 
 methods:
   - name: appendRow
@@ -695,7 +695,7 @@ methods:
         summary: Animation properties. (iOS only.)
         type: TableViewAnimationProperties
         optional: true
-    since: 2.2.0
+    since: 3.0.0
     platforms: [android, mobileweb]
     
   - name: deleteRow
@@ -725,7 +725,7 @@ methods:
         summary: Animation properties. (iOS only.)
         type: TableViewAnimationProperties
         optional: true
-    since: 2.2.0
+    since: 3.0.0
     platforms: [android, mobileweb]
     
   - name: deselectRow
@@ -779,7 +779,7 @@ methods:
         summary: Animation properties. (iOS only.)
         type: TableViewAnimationProperties
         optional: true
-    since: 2.2.0
+    since: 3.0.0
     platforms: [android, mobileweb]
         
   - name: insertRowBefore
@@ -825,7 +825,7 @@ methods:
         summary: Animation properties. (iOS only.)
         type: TableViewAnimationProperties
         optional: true
-    since: 2.2.0
+    since: 3.0.0
     platforms: [android, mobileweb]
     
   - name: scrollToIndex
@@ -909,7 +909,7 @@ methods:
         summary: Row index to select.
         type: Number
     platforms: [iphone, ipad, android]
-    since: {iphone: "1.8.2", ipad: "1.8.2", android: "2.2"}
+    since: {iphone: "1.8.2", ipad: "1.8.2", android: "3.0.0"}
     
   - name: setData
     summary: Sets the data in the table.
@@ -967,7 +967,7 @@ methods:
       - name: animation
         summary: Animation properties. (iOS only.)
         type: TableViewAnimationProperties
-    since: 2.2.0
+    since: 3.0.0
     platforms: [android, mobileweb]
 
 properties:
@@ -1187,13 +1187,13 @@ properties:
     summary: Number of sections in this table view.
     type: Number
     permission: read-only
-    since: 2.2.0
+    since: 3.0.0
     platforms: [android, iphone, ipad, mobileweb]
 
   - name: sections
     summary: Sections of this table.
     type: Array<Titanium.UI.TableViewSection>
-    since: 2.2.0
+    since: 3.0.0
     platforms: [android, iphone, ipad, mobileweb]
 
   - name: separatorColor
