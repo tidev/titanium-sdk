@@ -719,7 +719,7 @@ public class TableViewProxy extends TiViewProxy
 				rowResult.sectionIndex = sectionIndex;
 				TableViewRowProxy[] rowsInSection = section.getRows();
 				int rowIndexInSection = index - rowCount;
-				if (rowIndexInSection > 0 && rowIndexInSection < rowsInSection.length) {
+				if (rowIndexInSection >= 0 && rowIndexInSection < rowsInSection.length) {
 					rowResult.row = rowsInSection[rowIndexInSection];
 					rowResult.rowIndexInSection = rowIndexInSection;
 					found = true;

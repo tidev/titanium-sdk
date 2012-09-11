@@ -52,10 +52,7 @@ static const NSInteger kDashboardViewDefaultColumnCount = 3;
 	if (!CGRectIsEmpty(bounds))
 	{
 		[TiUtils setView:launcher positionRect:bounds];
-		if(launcher.editing == NO)
-		{
-			[launcher recreateButtons];
-		}
+		[launcher layoutButtons];
 	}
     [super frameSizeChanged:frame bounds:bounds];
 }
