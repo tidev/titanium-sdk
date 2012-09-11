@@ -8,7 +8,6 @@ package org.appcelerator.kroll.runtime.rhino;
 
 import org.appcelerator.kroll.KrollProxySupport;
 import org.appcelerator.kroll.KrollRuntime;
-import org.appcelerator.kroll.common.TiJSErrorDialog;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.ContextFactory;
 import org.mozilla.javascript.ErrorReporter;
@@ -184,14 +183,14 @@ public class RhinoRuntime extends KrollRuntime implements ErrorReporter
 	@Override
 	public void error(String message, String sourceName, int line, String lineSource, int lineOffset)
 	{
-		TiJSErrorDialog.openErrorDialog("Error", message, sourceName, line, lineSource, lineOffset);
+		KrollRuntime.dispatchException("Error", message, sourceName, line, lineSource, lineOffset);
 	}
 
 	@Override
 	public EvaluatorException runtimeError(String message, String sourceName, int line, String lineSource,
 		int lineOffset)
 	{
-		TiJSErrorDialog.openErrorDialog("Runtime Error", message, sourceName, line, lineSource, lineOffset);
+		KrollRuntime.dispatchException("Runtime Error", message, sourceName, line, lineSource, lineOffset);
 		return new EvaluatorException(message, sourceName, line, lineSource, lineOffset);
 	}
 

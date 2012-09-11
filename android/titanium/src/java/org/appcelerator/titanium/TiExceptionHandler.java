@@ -4,12 +4,17 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-package org.appcelerator.kroll.common;
+package org.appcelerator.titanium;
 
 import java.util.LinkedList;
 
 import org.appcelerator.kroll.KrollApplication;
+import org.appcelerator.kroll.KrollExceptionHandler;
 import org.appcelerator.kroll.KrollRuntime;
+import org.appcelerator.kroll.common.AsyncResult;
+import org.appcelerator.kroll.common.CurrentActivityListener;
+import org.appcelerator.kroll.common.Log;
+import org.appcelerator.kroll.common.TiMessenger;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -27,16 +32,15 @@ import android.widget.TextView;
 /**
  * A utility class for creating a dialog that displays Javascript errors
  */
-public class TiJSErrorDialog implements Handler.Callback
+public class TiExceptionHandler implements Handler.Callback, KrollExceptionHandler
 {
-	private static final String TAG = "TiJSError";
-	private static LinkedList<ErrorMessage> errorMessages = new LinkedList<ErrorMessage>();
-	private static boolean dialogShowing = false;
+	private static final String TAG = "TiExceptionHandler";
 	private static final int MSG_OPEN_ERROR_DIALOG = 10011;
+	private static LinkedList<ExceptionMessage> errorMessages = new LinkedList<ExceptionMessage>();
+	private static boolean dialogShowing = false;
 	private static Handler mainHandler;
-	private static TiJSErrorDialog _instance;
 
-	public static void printError(String title, String message, String sourceName, int line, String lineSource,
+	public void printError(String title, String message, String sourceName, int line, String lineSource,
 		int lineOffset)
 	{
 		Log.e(TAG, "----- Titanium Javascript " + title + " -----");
@@ -45,40 +49,21 @@ public class TiJSErrorDialog implements Handler.Callback
 		Log.e(TAG, "- Source: " + lineSource);
 	}
 
-	private static class ErrorMessage
+	public TiExceptionHandler()
 	{
-		String title, message, sourceName, lineSource;
-		int line, lineOffset;
+		mainHandler = new Handler(TiMessenger.getMainMessenger().getLooper(), this);
 	}
 
-	private static Handler getMainHandler()
+	public void openErrorDialog(ExceptionMessage error)
 	{
-		if (_instance == null) {
-			_instance = new TiJSErrorDialog();
+		if (TiApplication.isUIThread()) {
+			handleOpenErrorDialog(error);
+		} else {
+			TiMessenger.sendBlockingMainMessage(mainHandler.obtainMessage(MSG_OPEN_ERROR_DIALOG), error);
 		}
-
-		if (mainHandler == null) {
-			mainHandler = new Handler(TiMessenger.getMainMessenger().getLooper(), _instance);
-		}
-
-		return mainHandler;
 	}
 
-	public static void openErrorDialog(final String title, final String message, final String sourceName, final int line,
-		final String lineSource, final int lineOffset)
-	{
-		ErrorMessage error = new ErrorMessage();
-		error.title = title;
-		error.message = message;
-		error.sourceName = sourceName;
-		error.line = line;
-		error.lineSource = lineSource;
-		error.lineOffset = lineOffset;
-
-		TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_OPEN_ERROR_DIALOG), error);
-	}
-
-	protected static void handleOpenErrorDialog(ErrorMessage error)
+	protected void handleOpenErrorDialog(ExceptionMessage error)
 	{
 		KrollApplication application = KrollRuntime.getInstance().getKrollApplication();
 		if (application == null) {
@@ -95,7 +80,7 @@ public class TiJSErrorDialog implements Handler.Callback
 
 		if (!dialogShowing) {
 			dialogShowing = true;
-			final ErrorMessage fError = error;
+			final ExceptionMessage fError = error;
 			application.waitForCurrentActivity(new CurrentActivityListener()
 			{
 				// TODO @Override
@@ -109,7 +94,7 @@ public class TiJSErrorDialog implements Handler.Callback
 		}
 	}
 
-	protected static void createDialog(final ErrorMessage error)
+	protected static void createDialog(final ExceptionMessage error)
 	{
 		KrollApplication application = KrollRuntime.getInstance().getKrollApplication();
 		if (application == null) {
@@ -216,13 +201,12 @@ public class TiJSErrorDialog implements Handler.Callback
 		 */
 	}
 
-	@Override
 	public boolean handleMessage(Message msg)
 	{
 		switch (msg.what) {
 			case MSG_OPEN_ERROR_DIALOG:
 				AsyncResult asyncResult = (AsyncResult) msg.obj;
-				ErrorMessage errorMessage = (ErrorMessage) asyncResult.getArg();
+				ExceptionMessage errorMessage = (ExceptionMessage) asyncResult.getArg();
 				handleOpenErrorDialog(errorMessage);
 				asyncResult.setResult(null);
 				return true;
@@ -231,5 +215,15 @@ public class TiJSErrorDialog implements Handler.Callback
 		}
 
 		return false;
+	}
+
+	/**
+	 * Handles the exception by opening an error dialog with an error message
+	 * @param error An error message containing line number, error title, message, etc
+	 * @module.api
+	 */
+	public void handleException(ExceptionMessage error)
+	{
+		openErrorDialog(error);
 	}
 }
