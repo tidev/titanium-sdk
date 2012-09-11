@@ -6,7 +6,7 @@
  */
 
 var appc = require('node-appc'),
-	lib = require('./lib/common'),
+	ti = require('titanium-sdk'),
 	fs = require('fs'),
 	path = require('path'),
 	wrench = require('wrench');
@@ -19,21 +19,21 @@ exports.config = function (logger, config, cli) {
 				// note: --platform is not required for the clean command
 				abbr: 'p',
 				desc: __('a platform to clean'),
-				values: lib.availablePlatforms
+				values: ti.availablePlatforms
 			},
 			dir: {
 				abbr: 'd',
 				desc: __('the directory containing the project, otherwise the current working directory')
 			}
-		}, lib.commonOptions(logger, config))
+		}, ti.commonOptions(logger, config))
 	};
 };
 
 exports.validate = function (logger, config, cli) {
 	if (cli.argv.platform) {
-		cli.argv.platform = lib.validatePlatform(logger, cli.argv.platform);
+		cli.argv.platform = ti.validatePlatform(logger, cli.argv.platform);
 	}
-	cli.argv.dir = lib.validateProjectDir(logger, cli.argv.dir);
+	cli.argv.dir = ti.validateProjectDir(logger, cli.argv.dir);
 };
 
 exports.run = function (logger, config, cli) {
