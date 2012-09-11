@@ -1016,12 +1016,6 @@ public abstract class TiBaseActivity extends Activity
 			}
 		}
 
-		boolean isTab = isTabActivity();
-		//When we close a tabgroup, we don't remove its children from the stack, so here we remove the children if the parent is finishing.
-		if (!isTab || (isTab && this.getParent().isFinishing())) {
-			TiApplication.removeFromActivityStack(this);
-		}
-
 		super.onDestroy();
 
 		// Our Activities are currently unable to recover from Android-forced restarts,
@@ -1110,21 +1104,6 @@ public abstract class TiBaseActivity extends Activity
 		if (!animate) {
 			TiUIHelper.overridePendingTransition(this);
 		}
-	}
-
-	/**
-	 * @return true if this activity is a tab activity, false otherwise.
-	 */
-	protected boolean isTabActivity()
-	{
-		boolean isTab = false;
-		if (this instanceof TiActivity) {
-			if (((TiActivity)this).isTab()) {
-				isTab = true;
-			}
-		}
-
-		return isTab;
 	}
 
 	// These activityOnXxxx are all used by TiLaunchActivity when
