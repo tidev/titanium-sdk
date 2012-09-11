@@ -5,7 +5,8 @@
  * See the LICENSE file for more information.
  */
 
-var appc = require('node-appc'),
+var ti = require('titanium-sdk'),
+	appc = require('node-appc'),
 	afs = appc.fs,
 	xml = appc.xml,
 	parallel = appc.async.parallel,
@@ -35,19 +36,14 @@ var appc = require('node-appc'),
 		'.jpeg': 'image/jpg'
 	};
 
-exports.run = function (logger, config, cli, opts) {
-	new build(logger, config, cli, opts);
+exports.run = function (logger, config, cli, finished) {
+	new build(logger, config, cli, finished);
 };
 
-function build(logger, config, cli, opts) {
-	var sdkVersion = opts.sdkVersion,
-		lib = opts.lib;
-	
+function build(logger, config, cli, finished) {
 	logger.info(__('Compiling "%s" build', cli.argv['build-type']));
 	
 	this.logger = logger;
-	this.sdkVersion = sdkVersion;
-	this.lib = lib;
 	this.buildType = cli.argv['build-type'];
 	this.os = cli.env.os;
 	
@@ -143,7 +139,7 @@ function build(logger, config, cli, opts) {
 			this.minifyJavaScript();
 			this.createFilesystemRegistry();
 			this.createIndexHtml();
-			opts.finished && opts.finished();
+			finished && finished();
 		});
 	});
 };
@@ -168,7 +164,7 @@ build.prototype = {
 			this.logger.error(__('Unable to read tiapp.xml file in project directory') + '\n');
 			process.exit(1);
 		}
-		return new appc.tiappxml(tiappFile);
+		return new ti.tiappxml(tiappFile);
 	},
 	
 	validateTheme: function () {
@@ -190,8 +186,8 @@ build.prototype = {
 		wrench.mkdirSyncRecursive(this.buildDir);
 		afs.copyDirSyncRecursive(this.mobilewebThemeDir, this.buildDir + '/themes', { preserve: true, logger: this.logger.debug });
 		afs.copyDirSyncRecursive(this.mobilewebTitaniumDir, this.buildDir + '/titanium', { preserve: true, logger: this.logger.debug });
-		afs.copyDirSyncRecursive(this.projectResDir, this.buildDir, { preserve: true, logger: this.logger.debug }, this.lib.availablePlatforms.filter(function (p) { return p != 'mobileweb'; }));
-		afs.copyDirSyncRecursive(this.projectResDir + '/mobileweb', this.buildDir + '/mobileweb', { preserve: true, logger: this.logger.debug }, ['apple_startup_images', 'splash']);
+		afs.copyDirSyncRecursive(this.projectResDir, this.buildDir, { preserve: true, logger: this.logger.debug }, ti.availablePlatforms.filter(function (p) { return p != 'mobileweb'; }));
+		afs.copyDirSyncRecursive(this.projectResDir + '/mobileweb', this.buildDir + '/mobileweb', { preserve: true, logger: this.logger.debug, rootIgnores: ['apple_startup_images', 'splash'] });
 		afs.copyFileSync(this.projectResDir + '/mobileweb/apple_startup_images/Default.jpg', this.buildDir + '/mobileweb/apple_startup_images', { logger: this.logger.debug });
 		afs.copyFileSync(this.projectResDir + '/mobileweb/apple_startup_images/Default-Portrait.jpg', this.buildDir + '/mobileweb/apple_startup_images', { logger: this.logger.debug });
 		afs.copyFileSync(this.projectResDir + '/mobileweb/apple_startup_images/Default-Landscape.jpg', this.buildDir + '/mobileweb/apple_startup_images', { logger: this.logger.debug });
@@ -330,16 +326,27 @@ build.prototype = {
 	},
 	
 	findTiModules: function (callback) {
+		/*
+		if (!this.tiapp.modules || !this.tiapp.modules.length) {
+			this.logger.info(__('No Titanium Modules required, continuing'));
+			callback();
+			return;
+		}
+		
+		this.logger.info(__n('Searching for %s Titanium Module', 'Searching for %s Titanium Modules', this.tiapp.modules.length));
+		ti.module.find(this.tiapp.modules, 'mobileweb', this.projectDir, this.logger, function (modules) {
+		*/
+		
 		var modules = (this.tiapp.modules || []).filter(function (m) { return /^(|mobileweb|commonjs)$/.test(m.platform); });
 		if (!modules.length) {
 			callback();
 			return;
 		}
 		
+		// TODO: remove unused i18n strings from below...
 		this.logger.info(__('Locating Titanium Mobile Modules'));
 		
-		var sdkVersion = this.sdkVersion.split('.').slice(0, 3).join('.'),
-			sdkPaths = this.os.sdkPaths,
+		var sdkVersion = ti.manifest.version.split('.').slice(0, 3).join('.'),
 			searchPaths = [
 				this.projectDir + '/modules/__ID__/__VERSION__/mobileweb',
 				this.projectDir + '/modules/__ID__/__VERSION__/commonjs',
@@ -347,7 +354,7 @@ build.prototype = {
 				this.projectDir + '/modules/commonjs/__ID__/__VERSION__'
 			];
 		
-		sdkPaths.forEach(function (p) {
+		this.os.sdkPaths.forEach(function (p) {
 			searchPaths.push(afs.resolvePath(p, 'modules/__ID__/__VERSION__/mobileweb'));
 			searchPaths.push(afs.resolvePath(p, 'modules/__ID__/__VERSION__/commonjs'));
 			searchPaths.push(afs.resolvePath(p, 'modules/mobileweb/__ID__/__VERSION__'));
@@ -538,9 +545,9 @@ build.prototype = {
 					project_name: tiapp.name,
 					ti_fs_registry: tiapp.mobileweb.filesystem.registry,
 					ti_theme: this.theme,
-					ti_githash: this.lib.manifest.githash,
-					ti_timestamp: this.lib.manifest.timestamp,
-					ti_version: this.sdkVersion,
+					ti_githash: ti.manifest.githash,
+					ti_timestamp: ti.manifest.timestamp,
+					ti_version: ti.manifest.version,
 					has_analytics_use_xhr: tiapp.mobileweb.analytics ? tiapp.mobileweb.analytics['use-xhr'] === true : false,
 					has_show_errors: this.buildType != 'production' && tiapp.mobileweb['disable-error-screen'] !== true,
 					has_instrumentation: !!tiapp.mobileweb.instrumentation
@@ -827,7 +834,7 @@ build.prototype = {
 			project_name: this.tiapp.name || '',
 			app_description: this.tiapp.description || '',
 			app_publisher: this.tiapp.publisher || '',
-			ti_generator: 'Appcelerator Titanium Mobile ' + this.sdkVersion,
+			ti_generator: 'Appcelerator Titanium Mobile ' + ti.manifest.version,
 			ti_statusbar_style: statusBarStyle,
 			ti_css: fs.readFileSync(this.buildDir + '/titanium.css').toString(),
 			splash_screen: this.splashHtml,

@@ -39,16 +39,16 @@ exports.validate = function (logger, config, cli) {
 	//
 };
 
-exports.run = function (logger, config, cli, opts) {
-	new build(logger, config, cli, opts);
+exports.run = function (logger, config, cli, finished) {
+	new build(logger, config, cli, finished);
 };
 
-function build(logger, config, cli, opts) {
+function build(logger, config, cli, finished) {
 	logger.info(__('Compiling "%s" build', cli.argv['build-type']));
 	
 	dump(cli.argv);
 	
-	opts.finished && opts.finished();
+	finished && finished();
 }
 
 build.prototype = {

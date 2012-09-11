@@ -17,7 +17,7 @@ extends: Titanium.UI.View
 platforms: [ipad]
 since: "1.8"
 deprecated:
-    since: 2.2.0
+    since: 3.0.0
 
 methods:
   - name: show

@@ -216,7 +216,7 @@ events:
         The event is also fired when the application changes a property directly using one of the 
         `Ti.App.Properties` methods.
     platforms: [iphone, ipad]
-    since: "2.2.0"
+    since: "3.0.0"
 
 examples:
   - title: Store a property

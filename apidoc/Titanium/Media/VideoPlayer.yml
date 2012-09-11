@@ -256,7 +256,7 @@ events:
         summary: Video duration, in milliseconds.
         type: Number
     deprecated:
-        since: "2.2.0"
+        since: "3.0.0"
 
   - name: durationavailable
     summary: Fired when the video duration is available.
@@ -264,7 +264,7 @@ events:
       - name: duration
         summary: Video duration, in milliseconds.
         type: Number
-    since: '2.2.0'
+    since: '3.0.0'
 
   - name: error
     summary: Fired when movie playback encounters an error.
@@ -316,7 +316,7 @@ events:
         summary: Current value of the [mediaTypes](Titanium.Media.VideoPlayer.mediaTypes) property.
         type: Number
     deprecated:
-        since: "2.2.0"
+        since: "3.0.0"
 
   - name: naturalSizeAvailable
     summary: |
@@ -329,7 +329,7 @@ events:
         summary: Current value of the [naturalSize](Titanium.Media.VideoPlayer.naturalSize) property.
         type: Number
     deprecated:
-        since: "2.2.0"
+        since: "3.0.0"
 
   - name: playbackState
     summary: |
@@ -343,7 +343,7 @@ events:
             such as <Titanium.Media.VIDEO_PLAYBACK_STATE_PLAYING>.
         type: Number
     deprecated:
-        since: "2.2.0"
+        since: "3.0.0"
 
   - name: mediatypesavailable
     summary: Fired when the media types in the current movie are determined.
@@ -352,7 +352,7 @@ events:
       - name: mediaTypes
         summary: Current value of the [mediaTypes](Titanium.Media.VideoPlayer.mediaTypes) property.
         type: Number
-    since: '2.2.0'
+    since: '3.0.0'
 
   - name: naturalsizeavailable
     summary: Fired when the natural size of the current movie is determined.
@@ -361,7 +361,7 @@ events:
       - name: naturalSize
         summary: Current value of the [naturalSize](Titanium.Media.VideoPlayer.naturalSize) property.
         type: Number
-    since: '2.2.0'
+    since: '3.0.0'
 
   - name: playbackstate
     summary: Fired when the [playbackState](Titanium.Media.VideoPlayer.playbackState) changes.
@@ -371,7 +371,7 @@ events:
             Current value of the [playbackState](Titanium.Media.VideoPlayer.playbackState) property, 
             such as <Titanium.Media.VIDEO_PLAYBACK_STATE_PLAYING>.
         type: Number
-    since: '2.2.0'
+    since: '3.0.0'
 
   - name: playing
     summary: Fired when the currently playing movie changes.
@@ -400,7 +400,7 @@ events:
       - name: sourceType
         summary: New `sourceType` value.
     deprecated:
-        since: "2.2.0"
+        since: "3.0.0"
 
   - name: sourcechange
     summary: |
@@ -410,7 +410,7 @@ events:
     properties:
       - name: sourceType
         summary: New `sourceType` value.
-    since: '2.2.0'
+    since: '3.0.0'
 
   - name: click
     summary: Fired when the device detects a click against the view.
@@ -502,6 +502,11 @@ properties:
     type: Boolean
     default: true
 
+  - name: contentURL
+    summary: Use the [url](Titanium.Media.VideoPlayer.url) property instead.
+    type: String
+    deprecated: { since: "1.4.0", removed: "3.0.0" }
+        
   - name: currentPlaybackTime
     summary: Current playback time of the current movie in milliseconds.
     type: Number
@@ -585,6 +590,18 @@ properties:
             Titanium.Media.VIDEO_MEDIA_TYPE_VIDEO|Titanium.Media.VIDEO_MEDIA_TYPE_AUDIO
     platforms: [iphone, ipad]
     type: Number
+
+  - name: movieControlMode
+    summary: Use `mediaControlStyle` instead.
+    description: |
+        Provides the ability to set the control mode of the movie player. 
+    platforms: [iphone, ipad]
+    type: Number
+    default: <Titanium.Media.VIDEO_CONTROL_DEFAULT>
+    osver:
+        ios:
+            max: "3.1"
+    deprecated: {since: "1.8.0", removed: "2.0.0"}
 
   - name: naturalSize
     summary: Returns the natural size of the movie.
