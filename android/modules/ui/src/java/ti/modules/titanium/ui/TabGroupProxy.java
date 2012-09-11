@@ -350,28 +350,19 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 		TabProxy previousSelectedTab = selectedTab;
 		selectedTab = tabProxy;
 
-		// Notify each tab about the change in selection.
-		if (previousSelectedTab != null) {
-			previousSelectedTab.onSelectionChanged(false);
-		}
-		selectedTab.onSelectionChanged(true);
-
-		// Build the tab change event we send along with the
-		// "focus" and "blur" events.
+		// Tab focus and blur event data.
 		KrollDict eventData = new KrollDict();
 		eventData.put(TiC.EVENT_PROPERTY_PREVIOUS_TAB, previousSelectedTab);
 		eventData.put(TiC.EVENT_PROPERTY_PREVIOUS_INDEX, tabs.indexOf(previousSelectedTab));
 		eventData.put(TiC.EVENT_PROPERTY_TAB, selectedTab);
 		eventData.put(TiC.EVENT_PROPERTY_INDEX, tabs.indexOf(selectedTab));
 
-		// Fire the focus and blur event to the tabs.
-		// We will allow the events to bubble back up to this tab group.
+		// Delegate tab change to the previously and currently focused tabs.
+		// The tabs are also responsible for dispatching the focus and blur events.
 		if (previousSelectedTab != null) {
-			// We need to create a copy of the event data to
-			// avoid concurrent modifications between the runtime and main thread.
-			previousSelectedTab.fireEvent(TiC.EVENT_BLUR, eventData.clone(), true);
+			previousSelectedTab.onSelectionChanged(false, (KrollDict) eventData.clone());
 		}
-		selectedTab.fireEvent(TiC.EVENT_FOCUS, eventData, true);
+		selectedTab.onSelectionChanged(true, eventData);
 	}
 
 	private void fillIntent(Activity activity, Intent intent)

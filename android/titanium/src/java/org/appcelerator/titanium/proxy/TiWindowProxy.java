@@ -189,6 +189,7 @@ public abstract class TiWindowProxy extends TiViewProxy
 	@Kroll.setProperty(name="tab")
 	public void setTabProxy(TiViewProxy tabProxy)
 	{
+		setParent(tabProxy);
 		this.tab = tabProxy;
 	}
 
