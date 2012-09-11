@@ -845,12 +845,7 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 		if (d.containsKey(TiC.PROPERTY_IMAGES)) {
 			setImageSource(d.get(TiC.PROPERTY_IMAGES));
 			setImages();
-		} else if (d.containsKey(TiC.PROPERTY_URL)) {
-			Log.w(TAG, "The url property of ImageView is deprecated, use image instead.");
-			if (!d.containsKey(TiC.PROPERTY_IMAGE)) {
-				d.put(TiC.PROPERTY_IMAGE, d.get(TiC.PROPERTY_URL));
-			}
-		}
+		} 
 		if (d.containsKey(TiC.PROPERTY_CAN_SCALE)) {
 			view.setCanScaleImage(TiConvert.toBoolean(d, TiC.PROPERTY_CAN_SCALE));
 		}
@@ -926,11 +921,6 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 			view.setCanScaleImage(TiConvert.toBoolean(newValue));
 		} else if (key.equals(TiC.PROPERTY_ENABLE_ZOOM_CONTROLS)) {
 			view.setEnableZoomControls(TiConvert.toBoolean(newValue));
-		} else if (key.equals(TiC.PROPERTY_URL)) {
-			Log.w(TAG, "The url property of ImageView is deprecated, use image instead.");
-			setImageSource(newValue);
-			firedLoad = false;
-			setImage(true);
 		} else if (key.equals(TiC.PROPERTY_IMAGE)) {
 			setImageSource(newValue);
 			firedLoad = false;
