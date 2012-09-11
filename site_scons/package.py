@@ -305,9 +305,8 @@ def zip_iphone_ipad(zf,basepath,platform,version,version_tag):
 				module_name = f.replace('Module','').lower()
 				zip_dir(zf,module_images,'%s/%s/modules/%s/images' % (basepath,platform,module_name))
 	
-def zip_mobileweb(zf, basepath, version, build_v3):
+def zip_mobileweb(zf, basepath, version):
 	dir = os.path.join(top_dir, 'mobileweb')
-	finalize = resolve_npm_deps(dir, version, build_v3)
 	
 	# for speed, mobileweb has its own zip logic
 	for root, dirs, files in os.walk(dir):
@@ -320,8 +319,6 @@ def zip_mobileweb(zf, basepath, version, build_v3):
 			from_ = os.path.join(root, file)
 			to_ = from_.replace(dir, os.path.join(basepath,'mobileweb'), 1)
 			zf.write(from_, to_)
-	
-	finalize()
 
 def resolve_npm_deps(dir, version, build_v3):
 	package_json_file = os.path.join(dir, 'package.json')
@@ -474,7 +471,7 @@ githash=%s
 	zip_dir(zf, template_dir, basepath, ignore_paths=[os.path.join(template_dir, 'package.json')]) # ignore the dependency package.json
 	if android: zip_android(zf, basepath, version)
 	if (iphone or ipad) and osname == "osx": zip_iphone_ipad(zf,basepath,'iphone',version,version_tag)
-	if mobileweb: zip_mobileweb(zf, basepath, version, build_v3)
+	if mobileweb: zip_mobileweb(zf, basepath, version)
 	if osname == 'win32':
 		zip_dir(zf, win32_dir, basepath)
 	
