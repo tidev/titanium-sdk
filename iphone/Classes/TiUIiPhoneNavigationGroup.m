@@ -123,13 +123,15 @@
 
 -(void)delayedClose:(NSArray*)args
 {
-    if ( (closingProxy == nil) && ([closingProxyArray count] > 0) ) {
-        NSArray* args = [closingProxyArray objectAtIndex:0];
-        [self removeWindowFromControllerStack:[args objectAtIndex:0] withObject:[args objectAtIndex:1]];
-        [closingProxyArray removeObjectAtIndex:0];
-    }
-    else {
-        [self performSelector:@selector(delayedClose:) withObject:nil afterDelay:UINavigationControllerHideShowBarDuration];
+    if ([closingProxyArray count] > 0) {
+        if ( closingProxy == nil) {
+            NSArray* args = [closingProxyArray objectAtIndex:0];
+            [self removeWindowFromControllerStack:[args objectAtIndex:0] withObject:[args objectAtIndex:1]];
+            [closingProxyArray removeObjectAtIndex:0];
+        }
+        else {
+            [self performSelector:@selector(delayedClose:) withObject:nil afterDelay:UINavigationControllerHideShowBarDuration];
+        }
     }
 }
 
