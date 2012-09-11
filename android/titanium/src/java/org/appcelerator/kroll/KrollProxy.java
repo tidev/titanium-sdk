@@ -1038,39 +1038,5 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 		return new TiContext(getActivity(), proxyId);
 	}
 
-	// TODO RM_TICONTEXT
-	@Deprecated
-	public Object sendBlockingUiMessage(int what, Object asyncArg)
-	{
-		return sendBlockingUiMessage(getMainHandler().obtainMessage(what), new AsyncResult(asyncArg));
-	}
-
-	// TODO RM_TICONTEXT
-	@Deprecated
-	public Object sendBlockingUiMessage(int what, int arg1)
-	{
-		return sendBlockingUiMessage(getMainHandler().obtainMessage(what, arg1), new AsyncResult());
-	}
-
-	// TODO RM_TICONTEXT
-	@Deprecated
-	public Object sendBlockingUiMessage(int what, Object asyncArg, int arg1, int arg2)
-	{
-		return sendBlockingUiMessage(getMainHandler().obtainMessage(what, arg1, arg2), new AsyncResult(asyncArg));
-	}
-
-	// TODO RM_TICONTEXT
-	@Deprecated
-	public Object sendBlockingUiMessage(Message message, AsyncResult asyncResult)
-	{
-		// If current thread is the UI thread, dispatch message directly.
-		if (TiApplication.isUIThread()) {
-			handleMessage(message);
-
-			return asyncResult.getResultUnsafe();
-		}
-
-		return TiMessenger.sendBlockingMainMessage(message, asyncResult.getArg());
-	}
 }
 

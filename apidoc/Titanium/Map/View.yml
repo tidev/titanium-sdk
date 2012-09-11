@@ -358,6 +358,11 @@ properties:
 
   - name: annotations
     summary: An array of annotations to add to the map.
+    description: |
+        There is no guarantee that the order of elements in the `annotations` property will be 
+        maintained when creating, adding or deleting annotations from the Ti.Map.View object.
+        If the application depends on the annotations being in a set order, it should keep 
+        references to all of the annotations in a separate array.
     type: Array<Titanium.Map.Annotation>
 
   - name: mapType
