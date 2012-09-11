@@ -13,10 +13,9 @@
  * this file.
  */
 
-var fs = require("fs");
-var path = require("path");
-
-var util = require(driverGlobal.driverDir + "/util");
+var fs = require("fs"),
+path = require("path"),
+driverUtils = require(path.join(driverGlobal.driverDir, "driverUtils"));
 
 module.exports = new function() {
 	var self = this;
@@ -78,7 +77,7 @@ module.exports = new function() {
 		// build list of tiapp.xml and app.js combinations
 		function loadHarnessConfigs() {
 			function loadConfig(setIndex, configDir, configName) {
-				var stat = fs.statSync(configDir + "/" + configName);
+				var stat = fs.statSync(path.join(configDir, configName));
 				if (stat.isDirectory()) {
 					configs[setIndex].setConfigs.push({
 						configDir: configDir,
@@ -88,7 +87,7 @@ module.exports = new function() {
 			}
 
 			// load standard configs
-			var files = fs.readdirSync(driverGlobal.configSetDir + "/configs");
+			var files = fs.readdirSync(path.join(driverGlobal.configSetDir, "configs"));
 			if (files.length > 0) {
 				configs.push({
 					setDir: driverGlobal.configSetDir,
@@ -97,7 +96,7 @@ module.exports = new function() {
 				});
 
 				for (var i = 0; i < files.length; i++) {
-					loadConfig((configs.length - 1), driverGlobal.configSetDir + "/configs", files[i]);
+					loadConfig((configs.length - 1), path.join(driverGlobal.configSetDir, "configs"), files[i]);
 				}
 			}
 
@@ -109,18 +108,18 @@ module.exports = new function() {
 						var configSetName;
 
 						// load the config set name
-						if (path.existsSync(configSetDir + "/name.txt")) {
-							configSetName = util.trimStringRight(fs.readFileSync(configSetDir + "/name.txt", "ascii"));
+						if (path.existsSync(path.join(configSetDir, "name.txt"))) {
+							configSetName = driverUtils.trimStringRight(fs.readFileSync(path.join(configSetDir, "name.txt"), "ascii"));
 
 						} else {
-							util.log("the custom harness config set at <" + configSetDir + "/name.txt" + 
+							driverUtils.log("the custom harness config set at <" + configSetDir + "/name.txt" + 
 							"> does not contain a name.txt file that provides a harness config set name, ignoring",
 								driverGlobal.logLevels.quiet);
 
 							continue;
 						}
 
-						var files = fs.readdirSync(configSetDir + "/configs");
+						var files = fs.readdirSync(path.join(configSetDir, "configs"));
 						if (files.length > 0) {
 							configs.push({
 								setDir: configSetDir,
@@ -129,19 +128,19 @@ module.exports = new function() {
 							});
 
 							for (var j = 0; j < files.length; j++) {
-								loadConfig((configs.length - 1), configSetDir + "/configs", files[j]);
+								loadConfig((configs.length - 1), path.join(configSetDir, "configs"), files[j]);
 							}
 						}
 					}
 
 				} else {
-					util.log("the customHarnessConfigDirs property in the config module is set but is not an array",
+					driverUtils.log("the customHarnessConfigDirs property in the config module is set but is not an array",
 						driverGlobal.logLevels.quiet);
 				}
 			}
 
 			if (configs.length < 1) {
-				util.log("there must be at least one harness config, exiting");
+				driverUtils.log("there must be at least one harness config, exiting");
 				process.exit(1);
 			}
 		}
@@ -153,7 +152,7 @@ module.exports = new function() {
 		var processStartArgsCallback = function() {
 			var errorState = false;
 
-			var configSetArg = util.getArgument(startArgs, "--config-set");
+			var configSetArg = driverUtils.getArgument(startArgs, "--config-set");
 			if ((typeof configSetArg) !== "undefined") {
 				var numConfigSets = configs.length;
 				for (var i = 0; i < numConfigSets; i++) {
@@ -166,13 +165,13 @@ module.exports = new function() {
 				}
 
 				if (selectedConfigSetIndex === null) {
-					util.log("specified config set is not recognized");
+					driverUtils.log("specified config set is not recognized");
 					errorState = true;
 				}
 			}
 
 			// config set must have also been specified if there is more than a single config set
-			var configArg = util.getArgument(startArgs, "--config");
+			var configArg = driverUtils.getArgument(startArgs, "--config");
 			if ((selectedConfigSetIndex !== null) || (configs.length === 1 )) {
 				if ((typeof configArg) !== "undefined") {
 					var numConfigs = configs[configSetIndex].setConfigs.length;
@@ -186,19 +185,19 @@ module.exports = new function() {
 					}
 
 					if (selectedConfigIndex === null) {
-						util.log("specified config is not recognized");
+						driverUtils.log("specified config is not recognized");
 						errorState = true;
 					}
 				}
 
 			} else if ((selectedConfigSetIndex === null) && ((typeof configArg) !== "undefined")) {
-				util.log("valid --config-set argument must be provided when --config is specified");
+				driverUtils.log("valid --config-set argument must be provided when --config is specified");
 				errorState = true;
 			}
 
 			if (!errorState) {
-				selectedSuiteArg = util.getArgument(startArgs, "--suite");
-				selectedTestArg = util.getArgument(startArgs, "--test");
+				selectedSuiteArg = driverUtils.getArgument(startArgs, "--suite");
+				selectedTestArg = driverUtils.getArgument(startArgs, "--test");
 				successCallback();
 
 			} else {
@@ -207,7 +206,7 @@ module.exports = new function() {
 		};
 
 		loadHarnessConfigs();
-		util.openLog(processStartArgsCallback);
+		driverUtils.openLog(processStartArgsCallback);
 	};
 
 	/*
@@ -279,7 +278,7 @@ module.exports = new function() {
 		}
 
 		if (finishPass) {
-			util.closeLog();
+			driverUtils.closeLog();
 			passFinishedCallback(results);
 
 		} else {
@@ -288,31 +287,31 @@ module.exports = new function() {
 	};
 
 	this.createHarness = function(platform, command, successCallback, errorCallback) {
-		var harnessPlatformDir = driverGlobal.harnessDir + "/" + platform;
+		var harnessPlatformDir = path.join(driverGlobal.harnessDir, platform);
 
 		var createCallback = function() {
 			try {
 				fs.mkdirSync(harnessPlatformDir, 0777);
 
 			} catch(e) {
-				util.log("temp " + platform + " harness dir already exist");
+				driverUtils.log("temp " + platform + " harness dir already exist");
 			}
 
-			util.runCommand(command, util.logStdout, function(error) {
+			driverUtils.runCommand(command, driverUtils.logStdout, function(error) {
 				if (error !== null) {
-					util.log("error encountered when created harness: " + error);
+					driverUtils.log("error encountered when created harness: " + error);
 					if (errorCallback) {
 						errorCallback();
 					}
 
 				} else {
-					util.log("harness created");
+					driverUtils.log("harness created");
 					updateHarness(platform, successCallback, errorCallback);
 				}
 			});
 		};
 
-		if (path.existsSync(harnessPlatformDir + "/harness/tiapp.xml")) {
+		if (path.existsSync(path.join(harnessPlatformDir, "harness", "tiapp.xml"))) {
 			this.deleteHarness(platform, createCallback);
 
 		} else {
@@ -326,19 +325,19 @@ module.exports = new function() {
 	 */
 	var updateHarness = function(platform, successCallback, errorCallback) {
 		var config = configs[configSetIndex].setConfigs[configIndex];
-		var configDir = config.configDir + "/" + config.configName;
-		var harnessPlatformDir = driverGlobal.harnessDir + "/" + platform;
+		var configDir = path.join(config.configDir, config.configName);
+		var harnessPlatformDir = path.join(driverGlobal.harnessDir, platform);
 
 		var updateSuitesCallback = function() {
-			util.runCommand("cp -r " + configs[configSetIndex].setDir + "/Resources " + harnessPlatformDir + "/harness", util.logStdout, function(error) {
+			driverUtils.runCommand("cp -r " + path.join(configs[configSetIndex].setDir, "Resources") + " " + path.join(harnessPlatformDir, "harness"), driverUtils.logStdout, function(error) {
 				if (error !== null) {
-					util.log("unable to update the harness suites: " + error);
+					driverUtils.log("unable to update the harness suites: " + error);
 					if (errorCallback) {
 						errorCallback();
 					}
 
 				} else {
-					util.log("harness suites updated");
+					driverUtils.log("harness suites updated");
 					updateTiappCallback();
 				}
 			});
@@ -351,7 +350,7 @@ module.exports = new function() {
 					return;
 				}
 
-				var tiappXmlPath = harnessPlatformDir + "/harness/tiapp.xml";
+				var tiappXmlPath = path.join(harnessPlatformDir, "harness", "tiapp.xml");
 				var tiappXmlContents;
 
 				// load the config set name
@@ -368,7 +367,7 @@ module.exports = new function() {
 					this should not happen since the path to the tiapp.xml is passed in and it is assumed 
 					that the file should exist in the harness before we start injecting values.  Die hard!
 					*/
-					util.log("no tiapp.xml file found at: " + tiappXmlPath, driverGlobal.logLevels.quiet);
+					driverUtils.log("no tiapp.xml file found at: " + tiappXmlPath, driverGlobal.logLevels.quiet);
 					process.exit(1);
 				}
 
@@ -378,7 +377,7 @@ module.exports = new function() {
 					this could only happen if the tiapp.xml in the config is messed up so die 
 					hard if it happens
 					*/
-					util.log("no closing ti:app tag found in the tiapp.xml file");
+					driverUtils.log("no closing ti:app tag found in the tiapp.xml file");
 					process.exit(1);
 				}
 				var preSplit = tiappXmlContents.substring(0, splitPos);
@@ -402,16 +401,16 @@ module.exports = new function() {
 				fs.writeFileSync(tiappXmlPath, newTiappXmlContents);
 			}
 
-			util.runCommand("cp -r " + configDir + "/tiapp.xml " + harnessPlatformDir + "/harness", util.logStdout, function(error) {
+			driverUtils.runCommand("cp -r " + path.join(configDir, "tiapp.xml") + " " + path.join(harnessPlatformDir, "harness"), driverUtils.logStdout, function(error) {
 				if (error !== null) {
-					util.log("unable to update the harness tiapp.xml: " + error);
+					driverUtils.log("unable to update the harness tiapp.xml: " + error);
 					if (errorCallback) {
 						errorCallback();
 					}
 
 				} else {
 					injectCustomTiappXmlProperties();
-					util.log("harness tiapp.xml updated");
+					driverUtils.log("harness tiapp.xml updated");
 
 					updateAppjsCallback();
 				}
@@ -419,16 +418,16 @@ module.exports = new function() {
 		};
 
 		var updateAppjsCallback = function() {
-			if (path.existsSync(configDir + "/app.js")) {
-				util.runCommand("cp -r " + configDir + "/app.js " + harnessPlatformDir + "/harness/Resources", util.logStdout, function(error) {
+			if (path.existsSync(path.join(configDir, "app.js"))) {
+				driverUtils.runCommand("cp -r " + path.join(configDir, "app.js ", harnessPlatformDir, "harness", "Resources"), driverUtils.logStdout, function(error) {
 					if (error !== null) {
-						util.log("unable to update app.js for harness: " + error);
+						driverUtils.log("unable to update app.js for harness: " + error);
 						if (errorCallback) {
 							errorCallback();
 						}
 
 					} else {
-						util.log("app.js updated for harness");
+						driverUtils.log("app.js updated for harness");
 						if (successCallback) {
 							successCallback();
 						}
@@ -441,30 +440,30 @@ module.exports = new function() {
 		};
 
 		// update the harness based on the harness template packaged with the driver
-		util.runCommand("cp -r " + driverGlobal.harnessTemplateDir + "/* " + harnessPlatformDir + "/harness/Resources", util.logStdout, function(error) {
+		driverUtils.runCommand("cp -r " + path.join(driverGlobal.harnessTemplateDir, "* ", harnessPlatformDir, "harness", "Resources"), driverUtils.logStdout, function(error) {
 			if (error !== null) {
-				util.log("unable to update harness with template: " + error);
+				driverUtils.log("unable to update harness with template: " + error);
 				if (errorCallback) {
 					errorCallback();
 				}
 
 			} else {
-				util.log("harness updated with template");
+				driverUtils.log("harness updated with template");
 				updateSuitesCallback();
 			}
 		});
 	};
 
 	this.deleteHarness = function(platform, callback) {
-		var harnessDir = driverGlobal.harnessDir + "/" + platform + "/harness";
+		var harnessDir = path.join(driverGlobal.harnessDir, platform, "harness");
 
 		if (path.existsSync(harnessDir)) {
-			util.runCommand("rm -r " + harnessDir, util.logNone, function(error) {
+			driverUtils.runCommand("rm -r " + harnessDir, driverUtils.logNone, function(error) {
 				if (error !== null) {
-					util.log("error encountered when deleting harness: " + error);
+					driverUtils.log("error encountered when deleting harness: " + error);
 
 				} else {
-					util.log("harness deleted");
+					driverUtils.log("harness deleted");
 				}
 
 				callback();
@@ -482,11 +481,11 @@ module.exports = new function() {
 	this.processHarnessMessage = function(rawMessage) {
 		var message;
 		try {
-			message = eval("(" + rawMessage + ")");
+			message = JSON.parse(rawMessage);
 
 		} catch(e) {
 			// this means something has gone waaaaaay wrong 
-			console.log("exception <" + e + "> occured when trying to evaluate message <" +
+			console.log("exception <" + e + "> occured when trying to convert JSON message <" +
 				rawMessage + "> from Driver");
 
 			process.exit(1);
@@ -495,7 +494,7 @@ module.exports = new function() {
 		var responseData = "";
 
 		if ((typeof message) !== "object") {
-			util.log("invalid message, expecting object");
+			driverUtils.log("invalid message, expecting object");
 			return responseData;
 		}
 
@@ -523,7 +522,7 @@ module.exports = new function() {
 				}
 
 				if (!found) {
-					util.log("specified suite not found");
+					driverUtils.log("specified suite not found");
 
 					// maybe the next config has the suite we are looking for?
 					driverGlobal.platform.finishConfig();
@@ -531,7 +530,7 @@ module.exports = new function() {
 
 			} else {
 				if (reportedSuites.length === 0) {
-					util.log("no suites found for configuration");
+					driverUtils.log("no suites found for configuration");
 					driverGlobal.platform.finishConfig();
 
 				} else {
@@ -588,7 +587,7 @@ module.exports = new function() {
 					the entire suite but I would prefer to log an error and just finish the config 
 					rather than running tests that the user did not specify
 					*/
-					util.log("specified test not found");
+					driverUtils.log("specified test not found");
 					driverGlobal.platform.finishConfig();
 				}
 
@@ -604,7 +603,7 @@ module.exports = new function() {
 			clearTimeout(timer);
 
 			addResult(message.result, message.description, message.duration);
-			util.log("suite<" + message.suite + "> test<" + message.test + "> result<" + message.result + ">");
+			driverUtils.log("suite<" + message.suite + "> test<" + message.test + "> result<" + message.result + ">");
 
 			if (selectedSuiteArg && selectedTestArg) {
 				/*
@@ -655,7 +654,7 @@ module.exports = new function() {
 		*/
 		timer = setTimeout(function() {
 			addResult("timeout", "", timeout);
-			util.log("suite<" + suiteName + "> test<" + testName + "> result<timeout>");
+			driverUtils.log("suite<" + suiteName + "> test<" + testName + "> result<timeout>");
 
 			if (selectedSuiteArg && selectedTestArg) {
 				driverGlobal.platform.finishConfig();
@@ -699,7 +698,7 @@ module.exports = new function() {
 			return "test";
 
 		} else {
-			util.log("test run finished for suite<" + reportedSuites[resultSuiteIndex].name + ">");
+			driverUtils.log("test run finished for suite<" + reportedSuites[resultSuiteIndex].name + ">");
 
 			if (resultSuiteIndex < (reportedSuites.length - 1)) {
 				if (selectedSuiteArg) {
@@ -713,7 +712,7 @@ module.exports = new function() {
 				}
 
 			} else {
-				util.log("all suites completed");
+				driverUtils.log("all suites completed");
 				driverGlobal.platform.finishConfig();
 			}
 		}

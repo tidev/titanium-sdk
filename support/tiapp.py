@@ -238,9 +238,12 @@ class TiAppXML(object):
 		def parse_tool_api_level(node):
 			lazy_init('tool-api-level', get_text(node))
 
+		def parse_abi(node):
+			lazy_init('abi', get_text(node))
+
 
 		local_objects = locals()
-		parse_tags = ['services', 'activities', 'manifest', 'tool-api-level']
+		parse_tags = ['services', 'activities', 'manifest', 'tool-api-level', 'abi']
 		for child in node.childNodes:
 			if child.nodeName in parse_tags:
 				local_objects['parse_'+child.nodeName.replace('-', '_')](child)

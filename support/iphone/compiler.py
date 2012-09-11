@@ -20,8 +20,8 @@ try:
 except:
 	import simplejson as json
 
-ignoreFiles = ['.gitignore', '.cvsignore', '.DS_Store'];
-ignoreDirs = ['.git','.svn','_svn','CVS','android','mobileweb'];
+ignoreFiles = ['.gitignore', '.cvsignore', '.DS_Store', '.git','.svn','_svn','CVS'];
+ignoreDirs = ['android','mobileweb'];
 
 HEADER = """/**
  * Appcelerator Titanium Mobile
@@ -91,6 +91,13 @@ def read_module_properties(dir):
 			dict[k]=v
 	return dict
 
+#Convert non-unicode obj to unicode encoded in utf-8.
+def to_unicode_or_not(obj, encoding='utf-8'):
+	if isinstance(obj, basestring):
+		if not isinstance(obj, unicode):
+			obj = unicode(obj, encoding)
+	return obj
+
 # Need to pre-parse xcconfig files to mangle variable names, and then
 # dump them into a map so that we can re-assemble them later
 def parse_xcconfig(xcconfig, moduleId, variables):
@@ -148,11 +155,11 @@ def softlink_resources(source,target,use_ignoreDirs=True):
 	for file in os.listdir(source):
 		if (use_ignoreDirs and (file in ignoreDirs)) or (file in ignoreFiles):
 			continue
-		from_ = os.path.join(source, file)
-		to_ = os.path.join(target, file)
+		from_ = to_unicode_or_not(os.path.join(source, file))
+		to_ = to_unicode_or_not(os.path.join(target, file))
 		if os.path.isdir(from_):
 			print "[DEBUG] creating: %s" % (to_)
-			softlink_resources(from_,to_,False)
+			softlink_resources(from_,to_,use_ignoreDirs)
 		else:
 			print "[DEBUG] linking: %s to %s" % (from_,to_)
 			if os.path.exists(to_):
@@ -369,7 +376,7 @@ class Compiler(object):
 		if self.deploytype!='development' or has_modules:
 
 			if os.path.exists(app_dir) and self.deploytype != 'development':
-				self.copy_resources([resources_dir],app_dir,True,module_js)
+				self.copy_resources([resources_dir],app_dir,self.deploytype != 'test',module_js)
 
 			if self.deploytype == 'production':
 				debugger_plist = os.path.join(app_dir,'debugger.plist')
@@ -424,7 +431,7 @@ class Compiler(object):
 		root_asset = self.compile_commonjs_file(self.appid+'.js', os.path.join(self.assets_dir, self.appid+'.js'))
 
 		js_files = []
-		for root, dirs, files in os.walk(self.assets_dir):
+		for root, dirs, files in os.walk(self.assets_dir, True, None, True):
 			for file in [f for f in files if os.path.splitext(f)[1] == '.js']:
 				full_path = os.path.join(root, file)
 				self.compile_js_file(os.path.relpath(full_path, self.assets_dir), full_path, js_files)
@@ -572,7 +579,7 @@ class Compiler(object):
 		js_files.append(path);
 
 	def copy_resources(self,sources,target,write_routing=True,module_js=[]):
-
+		js_files = []
 		if write_routing:
 			intf = open(os.path.join(self.classes_dir,'ApplicationRouting.h'),'w+')
 			impf = open(os.path.join(self.classes_dir,'ApplicationRouting.m'),'w+')
@@ -583,7 +590,6 @@ class Compiler(object):
 			impf.write(HEADER)
 			impf.write(IMPL_HEADER)
 			impf.write("+ (NSData*) resolveAppAsset:(NSString*)path;\n{\n")
-			js_files = []
 
 		if not os.path.exists(os.path.expanduser(target)):
 			os.makedirs(os.path.expanduser(target))
@@ -615,7 +621,7 @@ class Compiler(object):
 		def add_compiled_resources(source,target):
 			print "[DEBUG] copy resources from %s to %s" % (source,target)
 			compiled_targets = {}
-			for root, dirs, files in os.walk(source):
+			for root, dirs, files in os.walk(source, True, None, True):
 				for name in ignoreDirs:
 					if name in dirs:
 						dirs.remove(name)	# don't visit ignored directories
@@ -623,7 +629,7 @@ class Compiler(object):
 					if file in ignoreFiles:
 						continue
 					prefix = root[len(source):]
-					from_ = os.path.join(root, file)
+					from_ = to_unicode_or_not(os.path.join(root, file))
 					to_ = os.path.expanduser(from_.replace(source, target, 1))
 					to_directory = os.path.expanduser(os.path.split(to_)[0])
 					if not os.path.exists(to_directory):
@@ -631,7 +637,7 @@ class Compiler(object):
 					fp = os.path.splitext(file)
 					ext = fp[1]
 					if ext == '.jss': continue
-					if len(fp)>1 and write_routing and ext in ['.html','.js','.css']:
+					if len(fp)>1 and ext in ['.html','.js','.css']:
 						path = prefix + os.sep + file
 						path = path[1:]
 						entry = {'path':path,'from':from_,'to':to_}
@@ -639,7 +645,7 @@ class Compiler(object):
 							compiled_targets[ext].append(entry)
 						else:
 							compiled_targets[ext]=[entry]
-					else:
+					if not write_routing:
 						# only copy if different filesize or doesn't exist
 						if not os.path.exists(to_) or os.path.getsize(from_)!=os.path.getsize(to_):
 							print "[DEBUG] copying: %s to %s" % (from_,to_)
@@ -693,10 +699,10 @@ class Compiler(object):
 		for source in sources:
 			add_compiled_resources(source,target)
 
-		if write_routing:
-			for js_file in module_js:
-				compile_js_file(js_file['path'], js_file['from'])
+		for js_file in module_js:
+			compile_js_file(js_file['path'], js_file['from'])
 
+		if write_routing:
 			compile_js_files();
 			impf.write("\tNSNumber *index = [map objectForKey:path];\n")
 			impf.write("\tif (index == nil) { return nil; }\n")

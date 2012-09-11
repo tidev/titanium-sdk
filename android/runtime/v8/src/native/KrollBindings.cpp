@@ -270,6 +270,7 @@ v8::Handle<v8::Value> KrollBindings::isExternalCommonJsModule(const Arguments& a
 	v8::Handle<v8::String> name = args[0]->ToString();
 	v8::String::Utf8Value nameVal(name);
 	std::string nameKey(*nameVal);
+
 	bool exists = (externalCommonJsModules.count(nameKey) > 0);
 	v8::Handle<v8::Boolean> existsV8 = v8::Boolean::New(exists);
 	return scope.Close(existsV8);
@@ -290,11 +291,42 @@ v8::Handle<v8::Value> KrollBindings::getExternalCommonJsModule(const Arguments& 
 	v8::Handle<v8::String> name = args[0]->ToString();
 	v8::String::Utf8Value nameVal(name);
 	std::string nameKey(*nameVal);
+	std::string moduleRoot = nameKey;
+	std::string subPath = nameKey;
+
+	int slashPos = nameKey.find("/", 0);
+	if (slashPos != std::string::npos) {
+		moduleRoot = nameKey.substr(0, slashPos);
+		subPath = nameKey.substr(slashPos + 1);
+	}
 
 	JNIEnv *env = JNIScope::getEnv();
-	jobject sourceProvider = externalCommonJsModules[nameKey];
-	jmethodID sourceRetrievalMethod = commonJsSourceRetrievalMethods[nameKey];
-	jstring sourceJavaString = (jstring) env->CallObjectMethod(sourceProvider, sourceRetrievalMethod);
+	jobject sourceProvider = externalCommonJsModules[moduleRoot];
+	jmethodID sourceRetrievalMethod = commonJsSourceRetrievalMethods[moduleRoot];
+
+	// The older version of KrollSourceCodeProvider.getSourceCode() (the method being called
+	// below) took no arguments, because we only
+	// supported one possible CommonJS module file packaged in a native module. There could be some
+	// modules out there that were created during the time when we only had that no-arg version of
+	// getSourceCode(), so we have to continue to support that. But we first try the newer version:
+	// getSourceCode(String), which allows you to get any CommonJS module packaged with the native
+	// module since we now support multiple CommonJS modules.
+	jstring sourceJavaString = (jstring) env->CallObjectMethod(sourceProvider,
+		sourceRetrievalMethod, env->NewStringUTF(subPath.c_str()));
+	jthrowable exc = env->ExceptionOccurred();
+
+	if (exc && slashPos == std::string::npos) {
+		// An exception occurred trying the newer getSourceCode(String).
+		// Try the old, no-arg way of getting source, but only if indeed the
+		// root module is being requested (i.e., no slashes in path).
+		env->ExceptionClear();
+		sourceRetrievalMethod = env->GetMethodID(env->GetObjectClass(sourceProvider),
+			"getSourceCode", "()Ljava/lang/String;");
+		if (sourceRetrievalMethod) {
+			sourceJavaString = (jstring) env->CallObjectMethod(sourceProvider, sourceRetrievalMethod);
+		}
+	}
+
 	v8::Handle<v8::Value> sourceCode = TypeConverter::javaStringToJsString(sourceJavaString);
 	return scope.Close(sourceCode);
 }

@@ -74,6 +74,7 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 	private int token;
 	private boolean firedLoad;
 	private ImageViewProxy imageViewProxy;
+	private int currentDuration;
 
 	private TiDimension requestedWidth;
 	private TiDimension requestedHeight;
@@ -526,12 +527,13 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 
 		public void run()
 		{
+			boolean waitOnResume = false;
 			try {
-
 				if (paused) {
 					synchronized (this) {
 						KrollDict data = new KrollDict();
 						proxy.fireEvent(TiC.EVENT_PAUSE, data);
+						waitOnResume = true;
 						wait();
 					}
 				}
@@ -540,6 +542,15 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 				Log.d(TAG, "set image: " + b.index, Log.DEBUG_MODE);
 				setImage(b.bitmap);
 				fireChange(b.index);
+
+				// When the animation is paused, the timer will pause in the middle of a period.
+				// When the animation resumes, the timer resumes from where it left off. As a result, it will look like
+				// one frame is left out when resumed (TIMOB-10207).
+				// To avoid this, we force the thread to wait for one period on resume.
+				if (waitOnResume) {
+					Thread.sleep(currentDuration);
+					waitOnResume = false;
+				}
 			} catch (InterruptedException e) {
 				Log.e(TAG, "Loader interrupted");
 			}
@@ -573,11 +584,11 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 				loaderThread.start();
 			}
 
-			int duration = (int) getDuration();
+			currentDuration = (int) getDuration();
 
 			animating.set(true);
 			fireStart();
-			timer.schedule(animator, duration, duration);
+			timer.schedule(animator, currentDuration, currentDuration);
 		} else {
 			resume();
 		}
@@ -834,12 +845,7 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 		if (d.containsKey(TiC.PROPERTY_IMAGES)) {
 			setImageSource(d.get(TiC.PROPERTY_IMAGES));
 			setImages();
-		} else if (d.containsKey(TiC.PROPERTY_URL)) {
-			Log.w(TAG, "The url property of ImageView is deprecated, use image instead.");
-			if (!d.containsKey(TiC.PROPERTY_IMAGE)) {
-				d.put(TiC.PROPERTY_IMAGE, d.get(TiC.PROPERTY_URL));
-			}
-		}
+		} 
 		if (d.containsKey(TiC.PROPERTY_CAN_SCALE)) {
 			view.setCanScaleImage(TiConvert.toBoolean(d, TiC.PROPERTY_CAN_SCALE));
 		}
@@ -874,11 +880,18 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 			boolean changeImage = true;
 			Object newImage = d.get(TiC.PROPERTY_IMAGE);
 			TiDrawableReference source = makeImageSource(newImage);
+
+			// Check for orientation only if they specified an image
+			if (d.containsKey(TiC.PROPERTY_AUTOROTATE)) {
+				source.setAutoRotate(d.getBoolean(TiC.PROPERTY_AUTOROTATE));
+			}
+
 			if (imageSources != null && imageSources.size() == 1) {
 				if (imageSources.get(0).equals(source)) {
 					changeImage = false;
 				}
 			}
+
 			if (changeImage) {
 				setImageSource(source);
 				firedLoad = false;
@@ -908,11 +921,6 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 			view.setCanScaleImage(TiConvert.toBoolean(newValue));
 		} else if (key.equals(TiC.PROPERTY_ENABLE_ZOOM_CONTROLS)) {
 			view.setEnableZoomControls(TiConvert.toBoolean(newValue));
-		} else if (key.equals(TiC.PROPERTY_URL)) {
-			Log.w(TAG, "The url property of ImageView is deprecated, use image instead.");
-			setImageSource(newValue);
-			firedLoad = false;
-			setImage(true);
 		} else if (key.equals(TiC.PROPERTY_IMAGE)) {
 			setImageSource(newValue);
 			firedLoad = false;
@@ -923,6 +931,25 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 				setImages();
 			}
 		} else {
+			// Update requestedWidth / requestedHeight when width / height is changed.
+			if (key.equals(TiC.PROPERTY_WIDTH)) {
+				View parentView = getParentView();
+				if (TiC.LAYOUT_FILL.equals(TiConvert.toString(newValue)) && parentView != null) {
+					// Use the parent's width when it's fill
+					requestedWidth = TiConvert.toTiDimension(parentView.getMeasuredWidth(), TiDimension.TYPE_WIDTH);
+				} else {
+					requestedWidth = TiConvert.toTiDimension(newValue, TiDimension.TYPE_WIDTH);
+				}
+			} else if (key.equals(TiC.PROPERTY_HEIGHT)) {
+				View parentView = getParentView();
+				// Use the parent's height when it's fill
+				if (TiC.LAYOUT_FILL.equals(TiConvert.toString(newValue)) && parentView != null) {
+					requestedHeight = TiConvert.toTiDimension(parentView.getMeasuredHeight(), TiDimension.TYPE_HEIGHT);
+				} else {
+					requestedHeight = TiConvert.toTiDimension(newValue, TiDimension.TYPE_HEIGHT);
+				}
+			}
+
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}
 	}

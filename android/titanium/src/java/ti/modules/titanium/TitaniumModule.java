@@ -14,7 +14,6 @@ import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Stack;
 
@@ -23,7 +22,6 @@ import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.KrollRuntime;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
-import org.appcelerator.kroll.common.TiConfig;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiPlatformHelper;
@@ -33,6 +31,7 @@ import org.appcelerator.titanium.util.TiUIHelper;
 import android.app.Activity;
 import android.os.Environment;
 import android.os.Handler;
+import android.util.SparseArray;
 
 @Kroll.module @Kroll.topLevel({"Ti", "Titanium"})
 public class TitaniumModule extends KrollModule
@@ -42,6 +41,9 @@ public class TitaniumModule extends KrollModule
 	private Stack<String> basePath;
 	private Map<String, NumberFormat> numberFormats = java.util.Collections.synchronizedMap(
 		new HashMap<String, NumberFormat>());
+
+	private static final SparseArray<Timer> activeTimers = new SparseArray<TitaniumModule.Timer>();
+	private static int lastTimerId = 1;
 
 	public TitaniumModule()
 	{
@@ -101,10 +103,7 @@ public class TitaniumModule extends KrollModule
 	@Kroll.method
 	public void testThrow(){ throw new Error("Testing throwing throwables"); }
 
-	private static HashMap<Thread, HashMap<Integer, Timer>> timers = new HashMap<Thread, HashMap<Integer, Timer>>();
-	private int currentTimerId;
-
-	protected class Timer implements Runnable
+	private class Timer implements Runnable
 	{
 		protected long timeout;
 		protected boolean interval;
@@ -148,8 +147,14 @@ public class TitaniumModule extends KrollModule
 
 			long start = System.currentTimeMillis();
 			callback.call(getKrollObject(), args);
+
+			// If this timer is repeating schedule it for another round.
+			// Otherwise remove the timer from the active list and quit.
 			if (interval && !canceled) {
 				handler.postDelayed(this, timeout - (System.currentTimeMillis() - start));
+
+			} else {
+				activeTimers.remove(id);
 			}
 		}
 
@@ -161,56 +166,61 @@ public class TitaniumModule extends KrollModule
 	}
 
 	private int createTimer(KrollFunction callback, long timeout, Object[] args, boolean interval)
-		throws IllegalArgumentException
 	{
-		int timerId = currentTimerId++;
-		Handler handler = getRuntimeHandler();
+		// Generate an unique identifier for this timer.
+		// This will later be used by the developer to cancel a timer.
+		final int timerId = lastTimerId++;
 
-		Timer timer = new Timer(timerId, handler, callback, timeout, args, interval);
-		Thread thread = handler.getLooper().getThread();
-		HashMap<Integer, Timer> threadTimers = timers.get(thread);
-		if (threadTimers == null) {
-			threadTimers = new HashMap<Integer, Timer>();
-			timers.put(thread, threadTimers);
-		}
-		threadTimers.put(timerId, timer);
+		Timer timer = new Timer(timerId, getRuntimeHandler(), callback, timeout, args, interval);
+		activeTimers.append(timerId, timer);
+
 		timer.schedule();
 
 		return timerId;
 	}
 
+	private void cancelTimer(int timerId)
+	{
+		Timer timer = activeTimers.get(timerId);
+		if (timer != null) {
+			timer.cancel();
+			activeTimers.remove(timerId);
+		}
+	}
+
+	public static void cancelTimers()
+	{
+		final int timerCount = activeTimers.size();
+		for (int i = 0; i < timerCount; i++) {
+			Timer timer = activeTimers.valueAt(i);
+			timer.cancel();
+		}
+
+		activeTimers.clear();
+	}
+
 	@Kroll.method @Kroll.topLevel
 	public int setTimeout(KrollFunction krollFunction, long timeout, final Object[] args)
-		throws IllegalArgumentException
 	{
 		return createTimer(krollFunction, timeout, args, false);
 	}
 
 	@Kroll.method @Kroll.topLevel
-	public void clearTimeout(int timerId)
-	{
-		for (Thread thread : timers.keySet()) {
-			HashMap<Integer, Timer> threadTimers = timers.get(thread);
-			if (threadTimers.containsKey(timerId)) {
-				Timer timer = threadTimers.remove(timerId);
-				timer.cancel();
-
-				break;
-			}
-		}
-	}
-
-	@Kroll.method @Kroll.topLevel
 	public int setInterval(KrollFunction krollFunction, long timeout, final Object[] args)
-		throws IllegalArgumentException
 	{
 		return createTimer(krollFunction, timeout, args, true);
 	}
 
 	@Kroll.method @Kroll.topLevel
+	public void clearTimeout(int timerId)
+	{
+		cancelTimer(timerId);
+	}
+
+	@Kroll.method @Kroll.topLevel
 	public void clearInterval(int timerId)
 	{
-		clearTimeout(timerId);
+		cancelTimer(timerId);
 	}
 
 	@Kroll.method @Kroll.topLevel
@@ -227,25 +237,6 @@ public class TitaniumModule extends KrollModule
 		*/
 
 		TiUIHelper.doOkDialog("Alert", msg, null);
-	}
-
-	public static void cancelTimers(Thread thread)
-	{
-		HashMap<Integer, Timer> threadTimers = timers.get(thread);
-		if (threadTimers == null) {
-			return;
-		}
-
-		Iterator<Timer> timerIter = threadTimers.values().iterator();
-		while (timerIter.hasNext()) {
-			Timer timer = timerIter.next();
-			if (timer != null) {
-				timer.cancel();
-				timerIter.remove();
-			}
-		}
-
-		threadTimers.clear();
 	}
 
 	@Kroll.method @Kroll.topLevel("String.format")

@@ -337,6 +337,15 @@
 	return height < 1 ? tableview.rowHeight : height;
 }
 
+//Allows use of scrollsToTop property on a table.
+//Useful when you have multiple tables in your view, you can
+//set which table will respond to tap on status bar to scroll to top.
+//http://developer.apple.com/library/ios/#documentation/uikit/reference/UIScrollView_Class/Reference/UIScrollView.html
+-(void)setScrollsToTop_:(id)value
+{
+	[[self tableView] setScrollsToTop:[TiUtils boolValue:value def:YES]];
+}
+
 -(void)setBackgroundColor:(TiColor*)color onTable:(UITableView*)table
 {
 	UIColor* defaultColor = [table style] == UITableViewStylePlain ? [UIColor whiteColor] : [UIColor groupTableViewBackgroundColor];
@@ -462,15 +471,13 @@
 	//won't have any problems in the case that it is actually nil.	
 	TiUITableViewProxy * ourProxy = (TiUITableViewProxy *)[self proxy];
 
-	int oldCount = [(TiUITableViewProxy *)[self proxy] sectionCount];
+	int oldCount = [ourProxy sectionCount];
 	
-	for (TiUITableViewSectionProxy *section in [(TiUITableViewProxy *)[self proxy] sections])
+	for (TiUITableViewSectionProxy *section in [(TiUITableViewProxy *)[self proxy] internalSections])
 	{
 		if ([section parent] == ourProxy)
 		{
-			[section setTable:nil];
-			[section setParent:nil];
-			[self.proxy forgetProxy:section];
+			[ourProxy forgetSection:section];
 		}
 	}
 	
@@ -481,24 +488,21 @@
         [self tableView];
     }
     
-	[ourProxy setSections:data];
+	[ourProxy setInternalSections:data];
 
 	int newCount = 0;	//Since we're iterating anyways, we might as well not get count.
 
-	for (TiUITableViewSectionProxy *section in [(TiUITableViewProxy *)[self proxy] sections])
+	for (TiUITableViewSectionProxy *section in [(TiUITableViewProxy *)[self proxy] internalSections])
 	{
 		[section setTable:self];
-		[section setParent:ourProxy];
 		[section setSection:newCount ++];
-		[section reorderRows];
+		[ourProxy rememberSection:section];
 		//TODO: Shouldn't this be done by Section itself? Doesn't it already?
 		for (TiUITableViewRowProxy *row in section)
 		{
 			row.section = section;
 			row.parent = section;
 		}
-		[self.proxy rememberProxy:section];
-
 	}
 
 	[self reloadDataFromCount:oldCount toCount:newCount animation:animation];
@@ -584,7 +588,7 @@
 //for this protection.
 -(TiUITableViewSectionProxy *)sectionForIndex:(NSInteger) index
 {
-	NSArray * sections = [(TiUITableViewProxy *)[self proxy] sections];
+	NSArray * sections = [(TiUITableViewProxy *)[self proxy] internalSections];
 	if(index >= [sections count])
 	{
 		return nil;
@@ -592,11 +596,32 @@
 	return [sections objectAtIndex:index];
 }
 
+-(void)refreshSearchControllerUsingReload:(BOOL)reloadSearch
+{
+	if ([searchController isActive]) {
+		[self updateSearchResultIndexes];
+        
+		// Because -[UITableView reloadData] queues on the main runloop, we need to sync the search
+		// table reload to the same method. The only time we reloadData, though, is when setting the
+		// data, so toggle a flag to indicate what the search should do.
+		if (reloadSearch) {
+			[[searchController searchResultsTableView] reloadData];
+		}
+		else {
+			[[searchController searchResultsTableView] reloadSections:[NSIndexSet indexSetWithIndex:0]
+                                                     withRowAnimation:UITableViewRowAnimationFade];
+		}
+    }
+    else if (searchHidden) {
+        [self hideSearchScreen:nil];
+    }
+}
+
 -(void)dispatchAction:(TiUITableViewAction*)action
 {
 	ENSURE_UI_THREAD(dispatchAction,action);
 	
-	NSMutableArray * sections = [(TiUITableViewProxy *)[self proxy] sections];
+	NSMutableArray * sections = [(TiUITableViewProxy *)[self proxy] internalSections];
     BOOL reloadSearch = NO;
 
 	TiViewProxy<TiKeyboardFocusableView> * chosenField = [[[TiApp controller] keyboardFocusedProxy] retain];
@@ -773,24 +798,7 @@
 	[chosenField focus:nil];
 	[chosenField setSuppressFocusEvents:oldSuppress];
 	[chosenField release];
-
-	if ([searchController isActive]) {
-		[self updateSearchResultIndexes];
-        
-		// Because -[UITableView reloadData] queues on the main runloop, we need to sync the search
-		// table reload to the same method. The only time we reloadData, though, is when setting the
-		// data, so toggle a flag to indicate what the search should do.
-		if (reloadSearch) {
-			[[searchController searchResultsTableView] reloadData];
-		}
-		else {
-			[[searchController searchResultsTableView] reloadSections:[NSIndexSet indexSetWithIndex:0]
-                                                     withRowAnimation:UITableViewRowAnimationFade];
-		}
-    }
-    else if (searchHidden) {
-        [self hideSearchScreen:nil];
-    }
+	[self refreshSearchControllerUsingReload:reloadSearch];
 }
 
 -(UIView*)titleViewForText:(NSString*)text footer:(BOOL)footer
@@ -853,7 +861,7 @@
 		index = [self indexPathFromSearchIndex:[indexPath row]];
 	}
 	int sectionIdx = [index section];
-	NSArray * sections = [(TiUITableViewProxy *)[self proxy] sections];
+	NSArray * sections = [(TiUITableViewProxy *)[self proxy] internalSections];
 	TiUITableViewSectionProxy *section = [self sectionForIndex:sectionIdx];
 	
 	int rowIndex = [index row];
@@ -1116,7 +1124,7 @@
 	
 	NSStringCompareOptions searchOpts = (filterCaseInsensitive ? NSCaseInsensitiveSearch : 0);
 	
-	for (TiUITableViewSectionProxy * thisSection in [(TiUITableViewProxy *)[self proxy] sections]) 
+	for (TiUITableViewSectionProxy * thisSection in [(TiUITableViewProxy *)[self proxy] internalSections]) 
 	{
 		NSMutableIndexSet * thisIndexSet = [searchResultIndexEnumerator nextObject];
 		if (thisIndexSet == nil)
@@ -1853,7 +1861,7 @@ return result;	\
         // If the section is empty, we want to remove it as well.
         BOOL emptySection = ([[section rows] count] == 0);
         if (emptySection) {
-            [[(TiUITableViewProxy *)[self proxy] sections] removeObjectAtIndex:[indexPath section]];
+            [[(TiUITableViewProxy *)[self proxy] internalSections] removeObjectAtIndex:[indexPath section]];
         }
 
 		[table beginUpdates];
@@ -2069,7 +2077,13 @@ return result;	\
 		}
 	}
 	UIColor * cellColor = [Webcolor webColorNamed:color];
-	cell.backgroundColor = (cellColor != nil)?cellColor:[UIColor whiteColor];
+	if (cellColor == nil) {
+		cellColor = [UIColor whiteColor];
+	}
+	cell.backgroundColor = cellColor;
+	if(CGColorGetAlpha([cellColor CGColor])<1.0) {
+		[[cell textLabel] setBackgroundColor:[UIColor clearColor]];
+	}
 }
 
 - (NSString *)tableView:(UITableView *)ourTableView titleForDeleteConfirmationButtonForRowAtIndexPath:(NSIndexPath *)indexPath
@@ -2288,14 +2302,19 @@ return result;	\
 	return YES;
 }
 
+- (NSDictionary *) eventObjectForScrollView: (UIScrollView *) scrollView
+{
+	return [NSDictionary dictionaryWithObjectsAndKeys:
+			[TiUtils pointToDictionary:scrollView.contentOffset],@"contentOffset",
+			[TiUtils sizeToDictionary:scrollView.contentSize], @"contentSize",
+			[TiUtils sizeToDictionary:tableview.bounds.size], @"size",
+			nil];
+}
+
 - (void)fireScrollEvent:(UIScrollView *)scrollView {
 	if ([self.proxy _hasListeners:@"scroll"])
 	{
-		NSMutableDictionary *event = [NSMutableDictionary dictionary];
-		[event setObject:[TiUtils pointToDictionary:scrollView.contentOffset] forKey:@"contentOffset"];
-		[event setObject:[TiUtils sizeToDictionary:scrollView.contentSize] forKey:@"contentSize"];
-		[event setObject:[TiUtils sizeToDictionary:tableview.bounds.size] forKey:@"size"];
-		[self.proxy fireEvent:@"scroll" withObject:event];
+		[self.proxy fireEvent:@"scroll" withObject:[self eventObjectForScrollView:scrollView]];
 	}
 }
 
@@ -2320,8 +2339,12 @@ return result;	\
 	// suspend image loader while we're scrolling to improve performance
 	[[ImageLoader sharedLoader] suspend];
     if([self.proxy _hasListeners:@"dragStart"])
-    {
+    {	//TODO: Deprecate old event.
         [self.proxy fireEvent:@"dragStart" withObject:nil];
+    }
+    if([self.proxy _hasListeners:@"dragstart"])
+	{
+        [self.proxy fireEvent:@"dragstart" withObject:nil];
     }
 }
 
@@ -2333,8 +2356,12 @@ return result;	\
 		[[ImageLoader sharedLoader] resume];
 	}
 	if ([self.proxy _hasListeners:@"dragEnd"])
-	{
+	{	//TODO: Deprecate old event
 		[self.proxy fireEvent:@"dragEnd" withObject:[NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool:decelerate],@"decelerate",nil]]	;
+	}
+	if ([self.proxy _hasListeners:@"dragend"])
+	{
+		[self.proxy fireEvent:@"dragend" withObject:[NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool:decelerate],@"decelerate",nil]]	;
 	}
     
     // Update keyboard status to insure that any fields actively being edited remain in view
@@ -2343,17 +2370,18 @@ return result;	\
     }
 }
 
+
 - (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView 
 {
 	// resume image loader when we're done scrolling
 	[[ImageLoader sharedLoader] resume];
-    if ([self.proxy _hasListeners:@"scrollEnd"])
+	if ([self.proxy _hasListeners:@"scrollEnd"])
+	{	//TODO: Deprecate old event.
+		[self.proxy fireEvent:@"scrollEnd" withObject:[self eventObjectForScrollView:scrollView]];
+	}
+	if ([self.proxy _hasListeners:@"scrollend"])
 	{
-		NSMutableDictionary *event = [NSMutableDictionary dictionary];
-		[event setObject:[TiUtils pointToDictionary:scrollView.contentOffset] forKey:@"contentOffset"];
-		[event setObject:[TiUtils sizeToDictionary:scrollView.contentSize] forKey:@"contentSize"];
-		[event setObject:[TiUtils sizeToDictionary:tableview.bounds.size] forKey:@"size"];
-		[self.proxy fireEvent:@"scrollEnd" withObject:event];
+		[self.proxy fireEvent:@"scrollend" withObject:[self eventObjectForScrollView:scrollView]];
 	}
 }
 

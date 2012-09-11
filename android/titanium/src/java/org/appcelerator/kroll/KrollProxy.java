@@ -23,6 +23,7 @@ import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.proxy.ActivityProxy;
+import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiRHelper;
 import org.appcelerator.titanium.util.TiUrl;
 
@@ -56,7 +57,8 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 	protected static final int MSG_SET_PROPERTY = KrollObject.MSG_LAST_ID + 106;
 	protected static final int MSG_FIRE_EVENT = KrollObject.MSG_LAST_ID + 107;
 	protected static final int MSG_FIRE_SYNC_EVENT = KrollObject.MSG_LAST_ID + 108;
-	protected static final int MSG_LAST_ID = MSG_FIRE_SYNC_EVENT;
+	protected static final int MSG_CALL_PROPERTY = KrollObject.MSG_LAST_ID + 109;
+	protected static final int MSG_LAST_ID = MSG_CALL_PROPERTY;
 	protected static final String PROPERTY_NAME = "name";
 	protected static final String PROPERTY_HAS_JAVA_LISTENER = "_hasJavaListener";
 
@@ -569,6 +571,33 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 		}
 	}
 
+	@Kroll.method
+	public void applyProperties(Object arg)
+	{
+		if (arg instanceof HashMap) {
+			HashMap props = (HashMap) arg;
+			for (Object name : props.keySet()) {
+				setPropertyAndFire(TiConvert.toString(name), props.get(name));
+			}
+		} else {
+			Log.w(TAG, "Cannot apply properties: invalid type for properties", Log.DEBUG_MODE);
+		}
+	}
+
+	/**
+	 * Asynchronously calls a function referenced by a property on this object.
+	 * This may be called safely on any thread.
+	 *
+	 * @see KrollObject#callProperty(String, Object[])
+	 * @param name the property that references the function
+	 * @param args the arguments to pass when calling the function.
+	 */
+	public void callPropertyAsync(String name, Object[] args) {
+		Message msg = getRuntimeHandler().obtainMessage(MSG_CALL_PROPERTY, args);
+		msg.getData().putString(PROPERTY_NAME, name);
+		msg.sendToTarget();
+	}
+
 	protected void doSetProperty(String name, Object value)
 	{
 		getKrollObject().setProperty(name, value);
@@ -836,6 +865,11 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 
 				return handled;
 			}
+			case MSG_CALL_PROPERTY: {
+				String propertyName = msg.getData().getString(PROPERTY_NAME);
+				Object[] args = (Object[]) msg.obj;
+				getKrollObject().callProperty(propertyName, args);
+			}
 		}
 
 		return false;
@@ -1004,39 +1038,5 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 		return new TiContext(getActivity(), proxyId);
 	}
 
-	// TODO RM_TICONTEXT
-	@Deprecated
-	public Object sendBlockingUiMessage(int what, Object asyncArg)
-	{
-		return sendBlockingUiMessage(getMainHandler().obtainMessage(what), new AsyncResult(asyncArg));
-	}
-
-	// TODO RM_TICONTEXT
-	@Deprecated
-	public Object sendBlockingUiMessage(int what, int arg1)
-	{
-		return sendBlockingUiMessage(getMainHandler().obtainMessage(what, arg1), new AsyncResult());
-	}
-
-	// TODO RM_TICONTEXT
-	@Deprecated
-	public Object sendBlockingUiMessage(int what, Object asyncArg, int arg1, int arg2)
-	{
-		return sendBlockingUiMessage(getMainHandler().obtainMessage(what, arg1, arg2), new AsyncResult(asyncArg));
-	}
-
-	// TODO RM_TICONTEXT
-	@Deprecated
-	public Object sendBlockingUiMessage(Message message, AsyncResult asyncResult)
-	{
-		// If current thread is the UI thread, dispatch message directly.
-		if (TiApplication.isUIThread()) {
-			handleMessage(message);
-
-			return asyncResult.getResultUnsafe();
-		}
-
-		return TiMessenger.sendBlockingMainMessage(message, asyncResult.getArg());
-	}
 }
 

@@ -272,7 +272,7 @@ JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nativeAd
 		return;
 	}
 
-	jmethodID method = env->GetMethodID(cls, "getSourceCode", "()Ljava/lang/String;");
+	jmethodID method = env->GetMethodID(cls, "getSourceCode", "(Ljava/lang/String;)Ljava/lang/String;");
 	if (!method) {
 		LOGE(TAG, "Could not find getSourceCode method in source code provider class for module: %s", mName);
 		return;

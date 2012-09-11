@@ -122,6 +122,7 @@
 		[scrollview setShowsVerticalScrollIndicator:NO];
 		[scrollview setShowsHorizontalScrollIndicator:NO];
 		[scrollview setDelaysContentTouches:NO];
+		[scrollview setScrollsToTop:NO];
 		BOOL clipsToBounds = [TiUtils boolValue:[self.proxy valueForKey:@"clipViews"] def:YES];
 		[scrollview setClipsToBounds:clipsToBounds];
 		[self insertSubview:scrollview atIndex:0];
@@ -635,10 +636,16 @@
 	[self.proxy replaceValue:NUMINT(pageNum) forKey:@"currentPage" notification:NO];
 	
 	if ([self.proxy _hasListeners:@"scrollEnd"])
-	{
+	{	//TODO: Deprecate old event.
 		[self.proxy fireEvent:@"scrollEnd" withObject:[NSDictionary dictionaryWithObjectsAndKeys:
 											  NUMINT(pageNum),@"currentPage",
 											  [[self proxy] viewAtIndex:pageNum],@"view",nil]]; 
+	}
+	if ([self.proxy _hasListeners:@"scrollend"])
+	{
+		[self.proxy fireEvent:@"scrollend" withObject:[NSDictionary dictionaryWithObjectsAndKeys:
+													   NUMINT(pageNum),@"currentPage",
+													   [[self proxy] viewAtIndex:pageNum],@"view",nil]]; 
 	}
 	currentPage=pageNum;
 	[pageControl setCurrentPage:pageNum];

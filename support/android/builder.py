@@ -25,7 +25,7 @@ sys.path.append(top_support_dir)
 sys.path.append(os.path.join(top_support_dir, 'common'))
 sys.path.append(os.path.join(top_support_dir, 'module'))
 
-import simplejson
+import simplejson, java
 from mako.template import Template
 from tiapp import *
 from android import Android
@@ -70,6 +70,7 @@ java_keywords = [
 
 
 MIN_API_LEVEL = 8
+KNOWN_ABIS = ("armeabi", "armeabi-v7a", "x86")
 
 def render_template_with_tiapp(template_text, tiapp_obj):
 	t = Template(template_text)
@@ -137,7 +138,7 @@ def error(msg):
 
 def copy_all(source_folder, dest_folder, ignore_dirs=[], ignore_files=[], ignore_exts=[], one_time_msg=""):
 	msg_shown = False
-	for root, dirs, files in os.walk(source_folder):
+	for root, dirs, files in os.walk(source_folder, True, None, True):
 		for d in dirs:
 			if d in ignore_dirs:
 				dirs.remove(d)
@@ -218,6 +219,8 @@ class Builder(object):
 		self.fastdev_port = -1
 		self.fastdev = False
 		self.compile_js = False
+		self.tool_api_level = MIN_API_LEVEL
+		self.abis = list(KNOWN_ABIS)
 		
 		# don't build if a java keyword in the app id would cause the build to fail
 		tok = self.app_id.split('.')
@@ -227,10 +230,23 @@ class Builder(object):
 				sys.exit(1)
 
 		temp_tiapp = TiAppXML(self.project_tiappxml)
-		if temp_tiapp and temp_tiapp.android and 'tool-api-level' in temp_tiapp.android:
-			self.tool_api_level = int(temp_tiapp.android['tool-api-level'])
-		else:
-			self.tool_api_level = MIN_API_LEVEL
+		if temp_tiapp and temp_tiapp.android:
+			if 'tool-api-level' in temp_tiapp.android:
+				self.tool_api_level = int(temp_tiapp.android['tool-api-level'])
+
+			if 'abi' in temp_tiapp.android and temp_tiapp.android['abi'] != 'all':
+				tiapp_abis = [abi.strip() for abi in temp_tiapp.android['abi'].split(",")]
+				to_remove = [bad_abi for bad_abi in tiapp_abis if bad_abi not in KNOWN_ABIS]
+				if to_remove:
+					warn("The following ABIs listed in the Android <abi> section of tiapp.xml are unknown and will be ignored: %s." % ", ".join(to_remove))
+					tiapp_abis = [abi for abi in tiapp_abis if abi not in to_remove]
+
+				self.abis = tiapp_abis
+				if not self.abis:
+					warn("Android <abi> tiapp.xml section does not specify any valid ABIs. Defaulting to '%s'." %
+							",".join(KNOWN_ABIS))
+					self.abis = list(KNOWN_ABIS)
+
 		self.sdk = AndroidSDK(sdk, self.tool_api_level)
 		self.tiappxml = temp_tiapp
 
@@ -252,8 +268,12 @@ class Builder(object):
 			self.force_rebuild = True
 			sys.stdout.flush()
 		
+		# favor the ANDROID_SDK_HOME environment variable if used
+		if os.environ.has_key('ANDROID_SDK_HOME') and os.path.exists(os.environ['ANDROID_SDK_HOME']):
+			self.home_dir = os.path.join(os.environ['ANDROID_SDK_HOME'], '.titanium')
+			self.android_home_dir = os.path.join(os.environ['ANDROID_SDK_HOME'], '.android')
 		# we place some files in the users home
-		if platform.system() == "Windows":
+		elif platform.system() == "Windows":
 			self.home_dir = os.path.join(os.environ['USERPROFILE'], '.titanium')
 			self.android_home_dir = os.path.join(os.environ['USERPROFILE'], '.android')
 		else:
@@ -264,70 +284,28 @@ class Builder(object):
 			os.makedirs(self.home_dir)
 		self.sdcard = os.path.join(self.home_dir,'android2.sdcard')
 		self.classname = Android.strip_classname(self.name)
-		
+
 	def set_java_commands(self):
-		self.jarsigner = "jarsigner"
-		self.keytool = "keytool"
-		self.javac = "javac"
-		self.java = "java"
-		java_home = None
+		commands = java.find_java_commands()
+		to_check = ("java", "javac", "keytool", "jarsigner")
 
-		if os.environ.has_key("JAVA_HOME") and os.path.exists(os.environ["JAVA_HOME"]):
-			java_home = os.environ["JAVA_HOME"]
-
-		if platform.system() == "Windows":
-			if java_home:
-				home_jarsigner = os.path.join(java_home, "bin", "jarsigner.exe")
-				home_keytool = os.path.join(java_home, "bin", "keytool.exe")
-				home_javac = os.path.join(java_home, "bin", "javac.exe")
-				home_java = os.path.join(java_home, "bin", "java.exe")
-				found = True
-				# TODO Document this path and test properly under windows
-				if os.path.exists(home_jarsigner):
-					self.jarsigner = home_jarsigner
-				else:
-					# Expected but not found
-					found = False
-					error("Required jarsigner not found")
-				
-				if os.path.exists(home_keytool):
-					self.keytool = home_keytool
-				else:
-					error("Required keytool not found")
-					found = False
-
-				if os.path.exists(home_javac):
-					self.javac = home_javac
-				else:
-					error("Required javac not found")
-					found = False
-					
-				if os.path.exists(home_java):
-					self.java = home_java
-				else:
-					error("Required java not found")
-					found = False
-					
-				if found == False:
-					error("One or more required files not found - please check your JAVA_HOME environment variable")
-					sys.exit(1)
-			else:
+		found = True
+		for check in to_check:
+			if not commands[check]:
 				found = False
-				for path in os.environ['PATH'].split(os.pathsep):
-					if os.path.exists(os.path.join(path, 'jarsigner.exe')) and os.path.exists(os.path.join(path, 'javac.exe')):
-						self.jarsigner = os.path.join(path, 'jarsigner.exe')
-						self.keytool = os.path.join(path, 'keytool.exe')
-						self.javac = os.path.join(path, 'javac.exe')
-						self.java = os.path.join(path, 'java.exe')
-						java_home = os.path.dirname(os.path.dirname(self.javac))
-						found = True
-						break
-				if not found:
-					error("Error locating JDK: set $JAVA_HOME or put javac and jarsigner on your $PATH")
-					sys.exit(1)
+				error("Required Java tool '%s' not located." % check)
 
-		if not os.environ.has_key("JAVA_HOME") and java_home:
-			os.environ["JAVA_HOME"] = java_home
+		if not found:
+			error("One or more required files not found - please check your JAVA_HOME environment variable")
+			sys.exit(1)
+
+		self.jarsigner = commands["jarsigner"]
+		self.keytool = commands["keytool"]
+		self.javac = commands["javac"]
+		self.java = commands["java"]
+
+		if not commands["environ_java_home"] and commands["java_home"]:
+			os.environ["JAVA_HOME"] = commands["java_home"]
 
 	def wait_for_home(self, type):
 		max_wait = 20
@@ -1252,7 +1230,7 @@ class Builder(object):
 		if not os.path.exists(app_stylesheet):
 			update_stylesheet = True
 		else:
-			for root, dirs, files in os.walk(resources_dir):
+			for root, dirs, files in os.walk(resources_dir, True, None, True):
 				remove_ignored_dirs(dirs)
 				for f in files:
 					if f in ignoreFiles:
@@ -1456,7 +1434,7 @@ class Builder(object):
 			apk_zip.write(self.classes_dex, 'classes.dex')
 		
 		# add all resource files from the project
-		for root, dirs, files in os.walk(self.project_src_dir):
+		for root, dirs, files in os.walk(self.project_src_dir, True, None, True):
 			remove_ignored_dirs(dirs)
 			for f in files:
 				if f in ignoreFiles:
@@ -1485,6 +1463,8 @@ class Builder(object):
 		def add_native_libs(libs_dir, exclude=[]):
 			if os.path.exists(libs_dir):
 				for abi_dir in os.listdir(libs_dir):
+					if abi_dir not in self.abis:
+						continue
 					libs_abi_dir = os.path.join(libs_dir, abi_dir)
 					if not os.path.isdir(libs_abi_dir): continue
 					for file in os.listdir(libs_abi_dir):
@@ -1512,25 +1492,21 @@ class Builder(object):
 		# add sdk runtime native libraries
 		debug("installing native SDK libs")
 		sdk_native_libs = os.path.join(template_dir, 'native', 'libs')
-		apk_zip.write(os.path.join(sdk_native_libs, 'armeabi', 'libtiverify.so'), 'lib/armeabi/libtiverify.so')
-		apk_zip.write(os.path.join(sdk_native_libs, 'armeabi-v7a', 'libtiverify.so'), 'lib/armeabi-v7a/libtiverify.so')
-		# See below about x86 and production
-		x86_dir = os.path.join(sdk_native_libs, 'x86')
-		if self.deploy_type != 'production' and os.path.exists(x86_dir):
-			apk_zip.write(os.path.join(x86_dir, 'libtiverify.so'), 'lib/x86/libtiverify.so')
 
-		if self.runtime == 'v8':
-			apk_zip.write(os.path.join(sdk_native_libs, 'armeabi', 'libkroll-v8.so'), 'lib/armeabi/libkroll-v8.so')
-			apk_zip.write(os.path.join(sdk_native_libs, 'armeabi', 'libstlport_shared.so'), 'lib/armeabi/libstlport_shared.so')
-			apk_zip.write(os.path.join(sdk_native_libs, 'armeabi-v7a', 'libkroll-v8.so'), 'lib/armeabi-v7a/libkroll-v8.so')
-			apk_zip.write(os.path.join(sdk_native_libs, 'armeabi-v7a', 'libstlport_shared.so'), 'lib/armeabi-v7a/libstlport_shared.so')
-			# Only include x86 in non-production builds for now, since there are
-			# no x86 devices on the market
-			if self.deploy_type != 'production' and os.path.exists(x86_dir):
-				apk_zip.write(os.path.join(x86_dir, 'libkroll-v8.so'), 'lib/x86/libkroll-v8.so')
-				apk_zip.write(os.path.join(x86_dir, 'libstlport_shared.so'), 'lib/x86/libstlport_shared.so')
+		for abi in self.abis:
+			lib_source_dir = os.path.join(sdk_native_libs, abi)
+			lib_dest_dir = 'lib/%s/' % abi
+			if abi == 'x86' and ((not os.path.exists(lib_source_dir)) or self.deploy_type == 'production'):
+				# x86 only in non-production builds for now.
+				continue
 
-				
+			# libtiverify is always included, even if targeting rhino.
+			apk_zip.write(os.path.join(lib_source_dir, 'libtiverify.so'), lib_dest_dir + 'libtiverify.so')
+
+			if self.runtime == 'v8':
+				for fname in ('libkroll-v8.so', 'libstlport_shared.so'):
+					apk_zip.write(os.path.join(lib_source_dir, fname), lib_dest_dir + fname)
+
 		self.apk_updated = True
 
 		apk_zip.close()
@@ -1572,6 +1548,8 @@ class Builder(object):
 			self.tiappxml.to_bool(self.tiappxml.get_app_property('ti.android.compilejs')))
 
 		pkg_assets_dir = self.assets_dir
+		if self.deploy_type == "test":
+			compile_js = False
 		if self.deploy_type == "production" and compile_js:
 			non_js_assets = os.path.join(self.project_dir, 'bin', 'non-js-assets')
 			if not os.path.exists(non_js_assets):
@@ -1666,10 +1644,19 @@ class Builder(object):
 		output = self.run_adb('shell', 'am', 'start',
 			'-a', 'android.intent.action.MAIN',
 			'-c','android.intent.category.LAUNCHER',
-			'-n', '%s/.%sActivity' % (self.app_id , self.classname))
+			'-n', '%s/.%sActivity' % (self.app_id , self.classname),
+			'-f', '0x10200000')
 		trace("Launch output: %s" % output)
 
 	def wait_for_sdcard(self):
+		mount_points_check = ['/sdcard', '/mnt/sdcard']
+		# Check the symlink that is typically in root.
+		# If you find it, add its target to the mount points to check.
+		output = self.run_adb('shell', 'ls', '-l', '/sdcard')
+		if output:
+			target_pattern = r"\-\> (\S+)\s*$"
+			mount_points_check.extend(re.findall(target_pattern, output))
+
 		info("Waiting for SDCard to become available..")
 		waited = 0
 		max_wait = 60
@@ -1681,7 +1668,7 @@ class Builder(object):
 					tokens = mount_point.split()
 					if len(tokens) < 2: continue
 					mount_path = tokens[1]
-					if mount_path in ['/sdcard', '/mnt/sdcard']:
+					if mount_path in mount_points_check:
 						return True
 			else:
 				error("Error checking for SDCard using 'mount'")
@@ -1752,6 +1739,7 @@ class Builder(object):
 		self.build_only = build_only
 		self.device_args = device_args
 		self.postbuild_modules = []
+		self.finalize_modules = []
 		self.non_orphans = []
 		if install:
 			if self.device_args == None:
@@ -1786,7 +1774,7 @@ class Builder(object):
 				'template_dir':template_dir,
 				'project_name':self.name,
 				'command':self.command,
-				'build_dir':s.project_dir,
+				'build_dir':self.project_dir,
 				'app_name':self.name,
 				'android_builder':self,
 				'deploy_type':deploy_type,
@@ -1814,6 +1802,9 @@ class Builder(object):
 				if module_functions.has_key('postbuild'):
 					debug("plugin contains a postbuild function. Will execute after project is built and packaged")
 					self.postbuild_modules.append((plugin['name'], p))
+				if module_functions.has_key('finalize'):
+					debug("plugin contains a finalize function. Will execute before script exits")
+					self.finalize_modules.append((plugin['name'], p))
 				p.compile(compiler_config)
 				fin.close()
 			
@@ -2017,7 +2008,7 @@ class Builder(object):
 			generated_classes_built = self.build_generated_classes()
 
 			# TODO: enable for "test" / device mode for debugger / fastdev
-			if not self.build_only and self.deploy_type == "development":
+			if not self.build_only and (self.deploy_type == "development" or self.deploy_type == "test"):
 				self.push_deploy_json()
 			self.classes_dex = os.path.join(self.project_dir, 'bin', 'classes.dex')
 			
@@ -2122,6 +2113,14 @@ class Builder(object):
 		except Exception,e:
 			error("Error performing post-build steps: %s" % e)
 
+	def finalize(self):
+		try:
+			if self.finalize_modules:
+				for p in self.finalize_modules:
+					info("Running finalize function in %s plugin" % p[0])
+					p[1].finalize()
+		except Exception,e:
+			error("Error performing finalize steps: %s" % e)
 
 if __name__ == "__main__":
 	def usage():
@@ -2184,14 +2183,14 @@ if __name__ == "__main__":
 	log = TiLogger(os.path.join(os.path.abspath(os.path.expanduser(dequote(project_dir))), 'build.log'))
 	log.debug(" ".join(sys.argv))
 	
-	s = Builder(project_name,sdk_dir,project_dir,template_dir,app_id)
-	s.command = command
+	builder = Builder(project_name,sdk_dir,project_dir,template_dir,app_id)
+	builder.command = command
 
 	try:
 		if command == 'run-emulator':
-			s.run_emulator(avd_id, avd_skin, None, None, [])
+			builder.run_emulator(avd_id, avd_skin, None, None, [])
 		elif command == 'run':
-			s.build_and_run(False, avd_id)
+			builder.build_and_run(False, avd_id)
 		elif command == 'emulator':
 			avd_id = dequote(sys.argv[6])
 			if avd_id.isdigit():
@@ -2226,28 +2225,31 @@ if __name__ == "__main__":
 					avd_abi = None
 					add_args = sys.argv[7:]
 
-			s.run_emulator(avd_id, avd_skin, avd_name, avd_abi, add_args)
+			builder.run_emulator(avd_id, avd_skin, avd_name, avd_abi, add_args)
 		elif command == 'simulator':
 			info("Building %s for Android ... one moment" % project_name)
 			avd_id = dequote(sys.argv[6])
 			debugger_host = None
 			if len(sys.argv) > 8:
 				debugger_host = dequote(sys.argv[8])
-			s.build_and_run(False, avd_id, debugger_host=debugger_host)
+			builder.build_and_run(False, avd_id, debugger_host=debugger_host)
 		elif command == 'install':
 			avd_id = dequote(sys.argv[6])
 			device_args = ['-d']
-			if len(sys.argv) >= 8:
+			if len(sys.argv) >= 8 and len(sys.argv[7]) > 0:
 				device_args = ['-s', sys.argv[7]]
-			s.build_and_run(True, avd_id, device_args=device_args)
+			debugger_host = None
+			if len(sys.argv) >= 9 and len(sys.argv[8]) > 0:
+				debugger_host = dequote(sys.argv[8])
+			builder.build_and_run(True, avd_id, device_args=device_args, debugger_host=debugger_host)
 		elif command == 'distribute':
 			key = os.path.abspath(os.path.expanduser(dequote(sys.argv[6])))
 			password = dequote(sys.argv[7])
 			alias = dequote(sys.argv[8])
 			output_dir = dequote(sys.argv[9])
-			s.build_and_run(True, None, key, password, alias, output_dir)
+			builder.build_and_run(True, None, key, password, alias, output_dir)
 		elif command == 'build':
-			s.build_and_run(False, 1, build_only=True)
+			builder.build_and_run(False, 1, build_only=True)
 		else:
 			error("Unknown command: %s" % command)
 			usage()
@@ -2259,3 +2261,8 @@ if __name__ == "__main__":
 		for line in e.splitlines():
 			error(line)
 		sys.exit(1)
+	finally:
+		# Don't run plugin finalizer functions if all we were doing is
+		# starting up the emulator.
+		if builder and command not in ("emulator", "run-emulator"):
+			builder.finalize()

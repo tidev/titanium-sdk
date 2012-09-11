@@ -112,9 +112,11 @@ static NSString * const kTitaniumJavascript = @"Ti.App={};Ti.API={};Ti.App._list
 		webview.backgroundColor = [UIColor whiteColor];
 		webview.contentMode = UIViewContentModeRedraw;
 		[self addSubview:webview];
+
+		BOOL hideLoadIndicator = [TiUtils boolValue:[self.proxy valueForKey:@"hideLoadIndicator"] def:NO];
 		
-		// only show the loading indicator if it's a remote URL
-		if ([self isURLRemote])
+		// only show the loading indicator if it's a remote URL and 'hideLoadIndicator' property is not set.
+		if ([self isURLRemote] && !hideLoadIndicator)
 		{
 			TiColor *bgcolor = [TiUtils colorValue:[self.proxy valueForKey:@"backgroundColor"]];
 			UIActivityIndicatorViewStyle style = UIActivityIndicatorViewStyleGray;
@@ -420,7 +422,7 @@ static NSString * const kTitaniumJavascript = @"Ti.App={};Ti.API={};Ti.App._list
 
 -(void)setScrollsToTop_:(id)value
 {
-	BOOL scrollsToTop = [TiUtils boolValue:value];
+	BOOL scrollsToTop = [TiUtils boolValue:value def:YES];
 	[[self scrollview] setScrollsToTop:scrollsToTop];
 }
 

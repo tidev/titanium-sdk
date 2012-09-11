@@ -83,6 +83,7 @@ def pretty_platform_name(name):
 		return "Mobile Web"
 
 def combine_platforms_and_since(annotated_obj):
+	parent = annotated_obj.parent
 	obj = annotated_obj.api_obj
 	result = []
 	platforms = None
@@ -93,10 +94,10 @@ def combine_platforms_and_since(annotated_obj):
 	if (platforms is None or
 			isinstance(annotated_obj, AnnotatedMethod) or isinstance(annotated_obj, AnnotatedProperty) or
 			isinstance(annotated_obj, AnnotatedEvent)):
-		if annotated_obj.parent is not None:
-			if dict_has_non_empty_member(annotated_obj.parent.api_obj, "platforms"):
-				if platforms is None or len(annotated_obj.parent.api_obj["platforms"]) < len(platforms):
-					platforms = annotated_obj.parent.api_obj["platforms"]
+		if parent is not None:
+			if dict_has_non_empty_member(parent.api_obj, "platforms"):
+				if platforms is None or len(parent.api_obj["platforms"]) < len(platforms):
+					platforms = parent.api_obj["platforms"]
 	# Last resort is the default list of platforms
 	if platforms is None:
 		platforms = DEFAULT_PLATFORMS
@@ -106,9 +107,9 @@ def combine_platforms_and_since(annotated_obj):
 		# If a method/event/property we can check type's "since"
 		if (isinstance(annotated_obj, AnnotatedMethod) or isinstance(annotated_obj, AnnotatedProperty) or
 				isinstance(annotated_obj, AnnotatedEvent)):
-			if (annotated_obj.parent is not None and
-					dict_has_non_empty_member(annotated_obj.parent.api_obj, "since")):
-				since = annotated_obj.parent.api_obj["since"]
+			if (parent is not None and
+					dict_has_non_empty_member(parent.api_obj, "since")):
+				since = parent.api_obj["since"]
 
 	since_is_dict = isinstance(since, dict)
 	for name in platforms:
@@ -129,6 +130,17 @@ def combine_platforms_and_since(annotated_obj):
 					one_platform["since"] = DEFAULT_SINCE
 		result.append(one_platform)
 
+	# Be sure no "since" is _before_ a parent object since.
+	if parent and parent.platforms:
+		for entry in result:
+			platform_name = entry["name"]
+			version_parts = entry["since"].split(".")
+			for parent_entry in parent.platforms:
+				if parent_entry["name"] == platform_name:
+					parent_version_parts = parent_entry["since"].split(".")
+					if parent_version_parts > version_parts:
+						entry["since"] = parent_entry["since"]
+					break
 	return result
 
 def load_one_yaml(filepath):
@@ -140,11 +152,8 @@ def load_one_yaml(filepath):
 	except KeyboardInterrupt:
 		raise
 	except:
-		e = traceback.format_exc()
-		log.error("Exception occured while processing %s:" % filepath)
-		for line in e.splitlines():
-			log.error(line)
-		return None
+		log.error("Exception occurred while processing %s:" % filepath)
+		raise
 	finally:
 		if f is not None:
 			try:
@@ -279,7 +288,14 @@ class AnnotatedApi(object):
 		else:
 			self.availability = None
 		if "default" in api_obj:
-			self.default = api_obj["default"]
+			# TIDOC-708: avoid capitalizing booleans
+			if isinstance(api_obj["default"], bool):
+				if api_obj["default"]:
+					self.default = "true"
+				else:
+					self.default = "false"
+			else:
+				self.default = api_obj["default"]
 		else:
 			self.default = None
 		if "optional" in api_obj:
@@ -464,10 +480,9 @@ class AnnotatedModule(AnnotatedProxy):
 			if method_name in existing_names:
 				continue
 			method_template_obj = {"proxy_name": proxy.name}
-			if "platforms" in proxy.api_obj:
-				method_template_obj["platforms"] = yaml.dump(proxy.api_obj["platforms"])
-			if "since" in proxy.api_obj:
-				method_template_obj["since"] = yaml.dump(proxy.api_obj["since"])
+			for key in ("platforms", "since", "deprecated"):
+				if key in proxy.api_obj:
+					method_template_obj[key] = yaml.dump(proxy.api_obj[key])
 			generated_method = yaml.load(AnnotatedModule.render_create_proxy_method(method_template_obj))
 			methods.append(AnnotatedMethod(generated_method, self))
 
@@ -508,6 +523,10 @@ class AnnotatedMethodParameter(AnnotatedApi):
 		self.parent = annotated_parent
 		self.typestr = "parameter"
 		self.yaml_source_folder = self.parent.yaml_source_folder
+		if "repeatable" in api_obj:
+			self.repeatable = api_obj["repeatable"]
+		else:
+			self.repeatable = None
 
 class AnnotatedProperty(AnnotatedApi):
 	def __init__(self, api_obj, annotated_parent):

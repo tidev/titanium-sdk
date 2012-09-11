@@ -295,11 +295,22 @@ static NSArray* scrollViewKeySequence;
     }, YES);
 }
 
+-(void) setZoomScale:(id)value withObject:(id)animated
+{
+    TiThreadPerformOnMainThread(^{
+        [(TiUIScrollView *)[self view] setZoomScale_:value withObject:animated];
+    }, YES);
+}
+
 - (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView_               // scrolling has ended
 {
 	if ([self _hasListeners:@"scrollEnd"])
-	{
+	{	//TODO: Deprecate old event.
 		[self fireEvent:@"scrollEnd" withObject:nil];
+	}
+	if ([self _hasListeners:@"scrollend"])
+	{
+		[self fireEvent:@"scrollend" withObject:nil];
 	}
 }
 
@@ -332,8 +343,12 @@ static NSArray* scrollViewKeySequence;
 -(void)scrollViewWillBeginDragging:(UIScrollView *)scrollView
 {
 	if([self _hasListeners:@"dragStart"])
-	{
+	{	//TODO: Deprecate old event
 		[self fireEvent:@"dragStart" withObject:nil];
+	}
+	if([self _hasListeners:@"dragstart"])
+	{
+		[self fireEvent:@"dragstart" withObject:nil];
 	}
 }
 
@@ -342,11 +357,16 @@ static NSArray* scrollViewKeySequence;
 -(void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate
 {
 	if([self _hasListeners:@"dragEnd"])
-	{
+	{	//TODO: Deprecate old event
 		[self fireEvent:@"dragEnd" withObject:[NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool:decelerate],@"decelerate",nil]]	;
+	}
+	if([self _hasListeners:@"dragend"])
+	{
+		[self fireEvent:@"dragend" withObject:[NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool:decelerate],@"decelerate",nil]]	;
 	}
 }
 
+DEFINE_DEF_PROP(scrollsToTop,[NSNumber numberWithBool:YES]);
 
 @end
 

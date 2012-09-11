@@ -118,7 +118,6 @@ public class TabGroupProxy extends TiWindowProxy
 		}
 	}
 
-	@Kroll.getProperty @Kroll.method
 	public TabProxy[] getTabs()
 	{
 		TabProxy[] tps = null;

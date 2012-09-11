@@ -34,7 +34,6 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.shapes.OvalShape;
-import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
@@ -93,7 +92,6 @@ public class TiMapView extends TiUIView
 	private MyLocationOverlay myLocation;
 	private TiOverlayItemView itemView;
 	private ArrayList<AnnotationProxy> annotations;
-	private ArrayList<MapRoute> routes;
 	private ArrayList<SelectedAnnotation> selectedAnnotations;
 	private Handler handler;
 
@@ -134,9 +132,9 @@ public class TiMapView extends TiUIView
 			if (!scrollEnabled && ev.getAction() == MotionEvent.ACTION_MOVE) {
 				return true;
 			}
-
 			return super.dispatchTrackballEvent(ev);
 		}
+	
 
 		@Override
 		public void computeScroll()
@@ -156,6 +154,8 @@ public class TiMapView extends TiUIView
 				location.put(TiC.PROPERTY_LATITUDE_DELTA, scaleFromGoogle(lastLatitudeSpan));
 				location.put(TiC.PROPERTY_LONGITUDE_DELTA, scaleFromGoogle(lastLongitudeSpan));
 				proxy.fireEvent(TiC.EVENT_REGION_CHANGED, location);
+				// TODO: Deprecate old event
+				proxy.fireEvent("regionChanged", location);
 			}
 		}
 
@@ -362,14 +362,13 @@ public class TiMapView extends TiUIView
 		}
 	}
 	
-	public TiMapView(TiViewProxy proxy, Window mapWindow, ArrayList<AnnotationProxy> annotations, ArrayList<MapRoute> routes, ArrayList<SelectedAnnotation>selectedAnnotations)
+	public TiMapView(TiViewProxy proxy, Window mapWindow, ArrayList<AnnotationProxy> annotations, ArrayList<SelectedAnnotation>selectedAnnotations)
 	{
 		super(proxy);
 
 		this.mapWindow = mapWindow;
 		this.handler = new Handler(Looper.getMainLooper(), this);
 		this.annotations = annotations;
-		this.routes = routes;
 		this.selectedAnnotations = selectedAnnotations;
 
 		TiApplication app = TiApplication.getInstance();
@@ -577,18 +576,13 @@ public class TiMapView extends TiUIView
 	{
 		handler.obtainMessage(MSG_UPDATE_ANNOTATIONS).sendToTarget();
 	}
-
-	public ArrayList<MapRoute> getRoutes() 
-	{
-		return routes;
-	}
 	
 	public void addRoute(MapRoute mr) 
 	{
 		//check if route exists - by name
 		String rname = mr.getName();
+		ArrayList<MapRoute> routes = ((ViewProxy) proxy).getMapRoutes();
 		for (int i = 0; i < routes.size(); i++) {
-
 			if (rname.equals(routes.get(i).getName())) {
 				return;
 			}
@@ -607,18 +601,16 @@ public class TiMapView extends TiUIView
 	public void removeRoute(MapRoute mr)
 	{
 		String rname = mr.getName();
+		ArrayList<MapRoute> routes = ((ViewProxy) proxy).getMapRoutes();
 		for (int i = 0; i < routes.size(); i++) {
 			MapRoute maproute = routes.get(i);
 			if (rname.equals(maproute.getName())) {
-				routes.remove(maproute);
 				ArrayList<RouteOverlay> o = maproute.getRoutes();
 				List<Overlay> overlaysList = view.getOverlays();
 				for (int j = 0; j < o.size(); j++) {
-					RouteOverlay ro = o.get(j);
-					if (overlaysList.contains(ro)) {
-						overlaysList.remove(ro);
-					}
+					overlaysList.remove(o.get(j));
 				}
+				routes.remove(i);
 				return;
 			}
 		}
@@ -627,9 +619,9 @@ public class TiMapView extends TiUIView
 	public void updateRoute() 
 	{
 		int i = 0;
-		
+		ArrayList<MapRoute> routes = ((ViewProxy) proxy).getMapRoutes();
 		while (i < routes.size()) {
-			MapRoute mr = routes.get(i);
+			MapRoute mr = routes.remove(i);
 			ArrayList<RouteOverlay> o = mr.getRoutes();			
 			List<Overlay> overlaysList = view.getOverlays();
 			for (int j = 0; j < o.size(); j++) {
