@@ -567,10 +567,11 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 	public void removeAllChildren()
 	{
 		if (children != null) {
-			//we first copy the list of views to remove to another array
-			ArrayList<TiViewProxy> toRemove = new ArrayList<TiViewProxy>();
-			toRemove.addAll(children);
-			for (TiViewProxy child : toRemove) {
+			//children might be altered while we loop through it (threading)
+			//so we first copy children as it was when asked to remove all children
+			ArrayList<TiViewProxy> childViews = new ArrayList<TiViewProxy>();
+			childViews.addAll(children);
+			for (TiViewProxy child : childViews) {
 				remove(child);
 			}
 		}
