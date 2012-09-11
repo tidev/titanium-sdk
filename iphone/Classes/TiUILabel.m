@@ -93,13 +93,10 @@
                 break;
         }
 
-        if (originX < 0) {
-            originX = 0;
-        }
-        CGRect labelRect = CGRectMake(originX, textPadding.origin.y, actualLabelSize.width, MIN(actualLabelSize.height, initFrame.size.height));
+        CGRect labelRect = CGRectMake(MAX(0,originX), MAX(0,textPadding.origin.y), actualLabelSize.width, MIN(actualLabelSize.height, initFrame.size.height));
         switch (verticalAlign) {
             case UIControlContentVerticalAlignmentBottom:
-                labelRect.origin.y = initialLabelFrame.size.height - actualLabelSize.height - textPadding.size.height;
+                labelRect.origin.y = initFrame.size.height - actualLabelSize.height - textPadding.size.height;
                 break;
             case UIControlContentVerticalAlignmentCenter:
                 labelRect.origin.y = (initFrame.size.height - actualLabelSize.height)/2;
@@ -108,10 +105,6 @@
             default:
                 
                 break;
-        }
-        //the actual labe frame should be bigger than the initialLabeFrame
-        if (initFrame.size.height < actualLabelSize.height) {
-            labelRect.size.height = initFrame.size.height;
         }
     
         [label setFrame:CGRectIntegral(labelRect)];
@@ -124,6 +117,7 @@
         backgroundView != nil &&
         !CGRectIsEmpty(initFrame))
     {
+    	//backgroundView frame is based on the label real frame
         [backgroundView setFrame:CGRectMake(initialLabelFrame.origin.x - padding.origin.x,
                                             initialLabelFrame.origin.y - padding.origin.y,
                                             initialLabelFrame.size.width + padding.origin.x + padding.size.width,
