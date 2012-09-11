@@ -33,7 +33,7 @@ events:
         type: Array<Titanium.UI.DashboardItem>
         
       - name: item
-        summary: Item that was deleted.
+        summary: Item that was moved.
         type: Titanium.UI.DashboardItem
         
 properties:

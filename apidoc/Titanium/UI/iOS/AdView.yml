@@ -10,32 +10,31 @@ events:
   - name: action
     summary: Fired when a banner action is performed.
     properties:
-      - name: x
-        summary: X coordinate of the event from the `source` view's coordinate system.
-        
-      - name: y
-        summary: Y coordinate of the event from the `source` view's coordinate system.
+      - name: source
+        summary: Source object that fired the event.
+        type: Object
+
+      - name: type
+        summary: Name of the event fired.
+        type: String
         
   - name: error
     summary: Fired when a banner could not be loaded.
     properties:
       - name: message
         summary: Error message.
-        
-      - name: x
-        summary: Y coordinate of the event from the `source` view's coordinate system.
-        
-      - name: y
-        summary: Y coordinate of the event from the `source` view's coordinate system.
+        type: String
+
+      - name: source
+        summary: Source object that fired the event.
+        type: Object
+
+      - name: type
+        summary: Name of the event fired.
+        type: String      
     
   - name: load
     summary: Fired when a banner is loaded and displayed.
-    properties:
-      - name: x
-        summary: X coordinate of the event from the `source` view's coordinate system.
-        
-      - name: y
-        summary: Y coordinate of the event from the `source` view's coordinate system.
 
 methods:
   - name: cancelAction
