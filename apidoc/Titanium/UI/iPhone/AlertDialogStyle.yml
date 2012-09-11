@@ -4,7 +4,7 @@ summary: |
     A set of constants for the style that can be used for the `style` property of 
     <Titanium.UI.AlertDialog>.
 extends: Titanium.Proxy
-since: "2.2.0"
+since: "3.0.0"
 platforms: [iphone, ipad]
 createable: false
 

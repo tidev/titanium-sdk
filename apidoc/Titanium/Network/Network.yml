@@ -19,7 +19,7 @@ methods:
     summary: Use the [change](Titanium.Network.change) event to monitor connectivity changes.
     description: |
         This legacy method adds a connectivity listener to listen for network changes.
-    deprecated: { since: "1.7.0", removed: "2.2.0" }
+    deprecated: { since: "1.7.0", removed: "3.0.0" }
     parameters:
       - name: callback
         summary: Callback function to invoke upon network connectivity changes.
@@ -131,7 +131,7 @@ methods:
     summary: Use the [change](Titanium.Network.change) event to monitor connectivity changes.
     description: |
         This legacy method removes a connectivity listener.
-    deprecated: { since: "1.7.0", removed: "2.2.0" }
+    deprecated: { since: "1.7.0", removed: "3.0.0" }
     parameters:
       - name: callback
         summary: Callback function to remove.
