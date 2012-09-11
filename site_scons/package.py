@@ -326,10 +326,17 @@ def zip_mobileweb(zf, basepath, version, build_v3):
 def resolve_npm_deps(dir, version, build_v3):
 	package_json_file = os.path.join(dir, 'package.json')
 	if os.path.exists(package_json_file):
-		# ensure fresh npm install
+		# ensure fresh npm install for everything EXCEPT titanium-sdk
 		node_modules_dir = os.path.join(dir, 'node_modules')
-		if os.path.exists(node_modules_dir):
-			shutil.rmtree(node_modules_dir, True)
+		for dir in os.listdir(node_modules_dir):
+			if dir != 'titanium-sdk':
+				dir = os.path.join(node_modules_dir, dir)
+				if os.path.isdir(dir):
+					print 'REMOVING DIRECTORY %s' % dir
+					shutil.rmtree(dir, True)
+				else:
+					print 'REMOVING FILE %s' % dir
+					os.remove(dir);
 		
 		package_json_original = codecs.open(package_json_file, 'r', 'utf-8').read()
 		package_json_contents = package_json_original
@@ -348,35 +355,39 @@ def resolve_npm_deps(dir, version, build_v3):
 		node_minimum_minor_ver = 6
 		node_too_old = False
 		npm_installed = False
-		try:
-			p = subprocess.Popen('node --version', shell=True, cwd=dir, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+		
+		#try:
+		p = subprocess.Popen('node --version', shell=True, cwd=dir, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+		stdout, stderr = p.communicate()
+		if p.returncode == 0:
+			node_installed = True
+			
+			ver = stdout.strip()
+			if ver[0] == 'v':
+				ver = ver[1:]
+			node_version = ver
+			ver = ver.split('.')
+			if len(ver) > 1 and int(ver[0]) == 0 and int(ver[1]) < node_minimum_minor_ver:
+				node_too_old = True
+			
+			p = subprocess.Popen('npm --version', shell=True, cwd=dir, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 			stdout, stderr = p.communicate()
 			if p.returncode == 0:
-				node_installed = True
-				
-				ver = stdout.strip()
-				if ver[0] == 'v':
-					ver = ver[1:]
-				node_version = ver
-				ver = ver.split('.')
-				if len(ver) > 1 and int(ver[0]) == 0 and int(ver[1]) < node_minimum_minor_ver:
-					node_too_old = True
-				
-				p = subprocess.Popen('npm --version', shell=True, cwd=dir, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-				stdout, stderr = p.communicate()
-				if p.returncode == 0:
-					npm_installed = True
-		except:
-			pass
+				npm_installed = True
+		#except:
+		#	pass
 		
 		if build_v3:
 			if not node_installed:
+				codecs.open(package_json_file, 'w', 'utf-8').write(package_json_original)
 				print '[ERROR] Unable to find node.js. Please download and install: http://nodejs.org/'
 				sys.exit(1)
 			elif node_too_old:
+				codecs.open(package_json_file, 'w', 'utf-8').write(package_json_original)
 				print '[ERROR] Your version of node.js %s is too old. Please download and install a newer version: http://nodejs.org/' % node_version
 				sys.exit(1)
 			elif not npm_installed:
+				codecs.open(package_json_file, 'w', 'utf-8').write(package_json_original)
 				print '[ERROR] Unable to find npm. Please download and install: http://nodejs.org/'
 				sys.exit(1)
 			
@@ -385,6 +396,7 @@ def resolve_npm_deps(dir, version, build_v3):
 			p = subprocess.Popen('npm install', shell=True, cwd=dir, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 			stdout, stderr = p.communicate()
 			if p.returncode != 0:
+				codecs.open(package_json_file, 'w', 'utf-8').write(package_json_original)
 				print '[ERROR] Failed to npm install dependencies'
 				print stdout
 				print stderr

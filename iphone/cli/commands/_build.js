@@ -207,7 +207,7 @@ function build(logger, config, cli, finished) {
 							process.exit(1);
 						}
 						
-						//dump(modules);
+						dump(modules);
 						/*
 						detector = ModuleDetector(this.projectDir)
 						missing_modules, modules = detector.find_app_modules(ti, 'iphone')
