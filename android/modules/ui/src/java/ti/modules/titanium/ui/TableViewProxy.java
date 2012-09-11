@@ -138,17 +138,20 @@ public class TableViewProxy extends TiViewProxy
 	@Override
 	public boolean fireEvent(String eventName, Object data) {
 		if (eventName.equals(TiC.EVENT_LONGPRESS)) {
-			double x = ((KrollDict)data).getDouble(TiC.PROPERTY_X);
-			double y = ((KrollDict)data).getDouble(TiC.PROPERTY_Y);
+			// The data object may already be in use by the runtime thread
+			// due to a child view's event fire. Create a copy to be thread safe.
+			KrollDict dataCopy = new KrollDict((KrollDict)data);
+			double x = dataCopy.getDouble(TiC.PROPERTY_X);
+			double y = dataCopy.getDouble(TiC.PROPERTY_Y);
 			int index = getTableView().getTableView().getIndexFromXY(x, y);
 			if (index != -1) {
 				Item item = getTableView().getTableView().getItemAtPosition(index);
-				TableViewRowProxy.fillClickEvent((KrollDict) data, getTableView().getModel(), item);
+				TableViewRowProxy.fillClickEvent(dataCopy, getTableView().getModel(), item);
+				data = dataCopy;
 			}
 		}
-		//create copy to be thread safe.
-		KrollDict dataCopy = new KrollDict((KrollDict)data);
-		return super.fireEvent(eventName, dataCopy);
+
+		return super.fireEvent(eventName, data);
 	}
 
 	@Kroll.method
@@ -716,7 +719,7 @@ public class TableViewProxy extends TiViewProxy
 				rowResult.sectionIndex = sectionIndex;
 				TableViewRowProxy[] rowsInSection = section.getRows();
 				int rowIndexInSection = index - rowCount;
-				if (rowIndexInSection > 0 && rowIndexInSection < rowsInSection.length) {
+				if (rowIndexInSection >= 0 && rowIndexInSection < rowsInSection.length) {
 					rowResult.row = rowsInSection[rowIndexInSection];
 					rowResult.rowIndexInSection = rowIndexInSection;
 					found = true;

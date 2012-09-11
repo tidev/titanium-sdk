@@ -845,12 +845,7 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 		if (d.containsKey(TiC.PROPERTY_IMAGES)) {
 			setImageSource(d.get(TiC.PROPERTY_IMAGES));
 			setImages();
-		} else if (d.containsKey(TiC.PROPERTY_URL)) {
-			Log.w(TAG, "The url property of ImageView is deprecated, use image instead.");
-			if (!d.containsKey(TiC.PROPERTY_IMAGE)) {
-				d.put(TiC.PROPERTY_IMAGE, d.get(TiC.PROPERTY_URL));
-			}
-		}
+		} 
 		if (d.containsKey(TiC.PROPERTY_CAN_SCALE)) {
 			view.setCanScaleImage(TiConvert.toBoolean(d, TiC.PROPERTY_CAN_SCALE));
 		}
@@ -926,11 +921,6 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 			view.setCanScaleImage(TiConvert.toBoolean(newValue));
 		} else if (key.equals(TiC.PROPERTY_ENABLE_ZOOM_CONTROLS)) {
 			view.setEnableZoomControls(TiConvert.toBoolean(newValue));
-		} else if (key.equals(TiC.PROPERTY_URL)) {
-			Log.w(TAG, "The url property of ImageView is deprecated, use image instead.");
-			setImageSource(newValue);
-			firedLoad = false;
-			setImage(true);
 		} else if (key.equals(TiC.PROPERTY_IMAGE)) {
 			setImageSource(newValue);
 			firedLoad = false;
@@ -941,6 +931,25 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 				setImages();
 			}
 		} else {
+			// Update requestedWidth / requestedHeight when width / height is changed.
+			if (key.equals(TiC.PROPERTY_WIDTH)) {
+				View parentView = getParentView();
+				if (TiC.LAYOUT_FILL.equals(TiConvert.toString(newValue)) && parentView != null) {
+					// Use the parent's width when it's fill
+					requestedWidth = TiConvert.toTiDimension(parentView.getMeasuredWidth(), TiDimension.TYPE_WIDTH);
+				} else {
+					requestedWidth = TiConvert.toTiDimension(newValue, TiDimension.TYPE_WIDTH);
+				}
+			} else if (key.equals(TiC.PROPERTY_HEIGHT)) {
+				View parentView = getParentView();
+				// Use the parent's height when it's fill
+				if (TiC.LAYOUT_FILL.equals(TiConvert.toString(newValue)) && parentView != null) {
+					requestedHeight = TiConvert.toTiDimension(parentView.getMeasuredHeight(), TiDimension.TYPE_HEIGHT);
+				} else {
+					requestedHeight = TiConvert.toTiDimension(newValue, TiDimension.TYPE_HEIGHT);
+				}
+			}
+
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}
 	}

@@ -70,7 +70,9 @@ if clean and os.path.exists('iphone/iphone/build'):
 
 build_type = 'full'
 build_dirs = ['iphone', 'android', 'mobileweb']
+build_v3 = False
 force_iphone = False
+
 if ARGUMENTS.get('iphone',0):
 	build_type='iphone'
 	build_dirs=['iphone']
@@ -86,6 +88,9 @@ if ARGUMENTS.get('ipad',0):
 if ARGUMENTS.get('mobileweb',0):
 	build_type='mobileweb'
 	build_dirs=['mobileweb']
+
+if ARGUMENTS.get('v3', 0):
+	build_v3 = True
 
 if ARGUMENTS.get('force_iphone',0):
 	force_iphone = True
@@ -164,9 +169,9 @@ def package_sdk(target, source, env):
 	print "Packaging MobileSDK (%s)..." % version_tag
 	packager = package.Packager(build_jsca=build_jsca)
 	if package_all:
-		packager.build_all_platforms(os.path.abspath('dist'), version, module_apiversion, android, iphone, ipad, mobileweb, version_tag)
+		packager.build_all_platforms(os.path.abspath('dist'), version, module_apiversion, android, iphone, ipad, mobileweb, version_tag, build_v3)
 	else:
-		packager.build(os.path.abspath('dist'), version, module_apiversion, android, iphone, ipad, mobileweb, version_tag)
+		packager.build(os.path.abspath('dist'), version, module_apiversion, android, iphone, ipad, mobileweb, version_tag, build_v3)
 	if install and not clean:
 		install_mobilesdk(version_tag)
 

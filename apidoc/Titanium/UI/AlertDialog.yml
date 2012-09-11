@@ -31,7 +31,8 @@ description: |
     the message.
     
     On iOS 4.0 and later, alert dialogs are automatically cancelled when the application is 
-    paused/suspended.
+    paused/suspended. This behavior can avoided by setting `persistent` property on alert dialog 
+    to be `true`.
 
     On iOS 5.0 and later, `style` property can be used to allow the user to enter plain text, 
     obscured text or login identifier and password. Entered values can be captured with listening
@@ -180,6 +181,16 @@ properties:
     type: String
     accessors: false
     platforms: [iphone, ipad, mobileweb]
+    
+  - name: persistent
+    summary: Boolean value indicating if the alert dialog should only be cancelled by user 
+        gesture or by hide method.
+    description: |
+        This property is useful to ensure that the alert dialog will not be ignored 
+        by the user when the application is paused/suspended.
+    type: Boolean
+    default: false
+    platforms: [iphone, ipad]
 
 examples:
   - title: Single-button Alert Dialog (using alias)

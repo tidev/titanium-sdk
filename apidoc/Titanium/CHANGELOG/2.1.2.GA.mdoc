@@ -1,0 +1,317 @@
+# Titanium Mobile 2.1.2.GA  - 8/31/2012
+
+##### Contents
+
+*   [About This Release](#about)
+*   [Known Issues](#known_issues)
+*   [Note on OS X Mountain Lion (10.8)](#osx)
+*   [Android Platform Fixes and Enhancements](#android)
+*   [iOS Platform Fixes and Enhancements](#ios)
+*   [Ti.Cloud Module Fixes and Enhancements](#cloud)
+*   [Documentation Fixes and Enhancements](#docs)
+*   [New APIs](#new_apis)
+*   [Deprecated APIs](#deprecated)
+*   [APIs To Be Removed](#to_remove)
+
+<a name="about"></a>
+
+## About This Release
+
+Titanium Mobile SDK Release 2.1.2 is a service pack release of the Titanium Mobile SDK, including
+bug fixes for high-priority issues occurring in Releases 2.1.0 and 2.1.1. This includes fixes for
+the Android and iOS platforms, and an updated version of the Ti.Cloud module.
+
+**Note**: Changes to the way the Ti.Cloud module handles authentication may require changes to your 
+application. See [Ti.Cloud Module Fixes and Enhancements](#cloud) for details.
+
+[Full list of Issues that were addressed in Release 2.1.2](
+https://jira.appcelerator.org/secure/IssueNavigator.jspa?mode=hide&requestId=13553)
+
+<a name="known_issues"></a>
+
+## Known Issues
+
+During testing for this release, the following issue was discovered. 
+
+*   Windows 7: Packaging fails for Android modules
+    ([TIMOB-10726](https://jira.appcelerator.org/browse/TIMOB-10726)).
+
+    This issue has been reproduced with Titanium SDK 2.1.1 and 2.1.2. The workaround is 
+    to manually create the `build/docs` folder in the module project directory.
+
+<a name="osx"></a>
+
+## Note on OS X Mountain Lion (10.8) and Xcode 4.4
+
+The Titanium Mobile SDK has been tested with OS X Mountain Lion (10.8). To develop 
+iOS apps on 10.8, you must upgrade to Xcode 4.4. Xcode 4.4 is also supported on OS X
+Lion (10.7).
+
+When using Xcode 4.4,  note the following known issues:
+
+*   Xcode does not function as expected when installed on a partition other than the boot
+    parition ([TIMOB-10360](https://jira.appcelerator.org/browse/TIMOB-10360)).
+
+*   A warning is generated when launching the simulator 
+    ([TIMOB-10243](https://jira.appcelerator.org/browse/TIMOB-10243)). The warning reads:
+
+        dyld: DYLD_ environment variables being ignored because main executable (/usr/bin/osascript) is code signed with entitlements
+
+    This warning can be safely ignored. It will be fixed in a subsequent release
+    
+<a name="android"></a>
+
+## Android Fixes and Enhancements
+
+The following section lists all bug fixes and enhancements for the Android
+platform.
+
+New Feature:
+
+*   Expose method for controlling selection and cursor in `TextField` and `TextArea` 
+    ([TIMOB-6006](https://jira.appcelerator.org/browse/TIMOB-6006)).
+    The new `setSelection` method sets the selection area and cursor position 
+    for a text field or text area.
+
+Bug Fixes:
+
+*   Animations don't work with 'dp' values 
+    ([TIMOB-9825](https://jira.appcelerator.org/browse/TIMOB-9825)).
+
+*   App crashes when scrolling a scroll view on Android with 3 fingers 
+    ([TIMOB-10452](https://jira.appcelerator.org/browse/TIMOB-10452)).
+
+*   App intermittently crashes on app restart 
+    ([TIMOB-10012](https://jira.appcelerator.org/browse/TIMOB-10012)).
+
+*   Background services stop when the app is closed via the **Back** button 
+    ([TIMOB-9831](https://jira.appcelerator.org/browse/TIMOB-9831)).
+
+*   `Button`: `touchend` event not fired when `touchmove` gesture moves out of button 
+    ([TIMOB-10153](https://jira.appcelerator.org/browse/TIMOB-10153)).
+
+*   Default project appears with an alert "Restart Required" while launching Android Jelly Bean emulator 
+    ([TIMOB-10306](https://jira.appcelerator.org/browse/TIMOB-10306)).
+
+*   Geolocation: `forwardGeocoder` callback is not called for a bad address 
+    ([TIMOB-10309](https://jira.appcelerator.org/browse/TIMOB-10309)).
+
+*   `HTTPClient`: POST of a Blob or File object leaves behind a temporary file on 
+    internal phone storage ([TIMOB-9797](https://jira.appcelerator.org/browse/TIMOB-9797)).
+
+*   `HTTPClient`: PUT fails for binary Blob or File objects
+    ([TIMOB-9590](https://jira.appcelerator.org/browse/TIMOB-9590)).
+
+*   `HTTPClient`: Uppercase HTTP or HTTPS in URL scheme causes failure 
+    ([TIMOB-10350](https://jira.appcelerator.org/browse/TIMOB-10350)).
+
+*   KitchenSink crashes on relaunch after opening a tab and leaving the device idle for some time 
+    ([TIMOB-10227](https://jira.appcelerator.org/browse/TIMOB-10227)).
+
+*   Map View: Annotations with the same title cannot be uniquely selected. The first is always selected 
+    ([TIMOB-10296](https://jira.appcelerator.org/browse/TIMOB-10296)).
+
+*   Map View `selectAnnotation` parity with iOS 
+    ([TIMOB-10009](https://jira.appcelerator.org/browse/TIMOB-10009)). In previous releases, 
+    `selectAnnotation` centered the view exactly on the annotation's coordinates. On very
+    small maps, this can result in cutting off the top of the annotation.  With this fix, 
+    the map center is adjusted to show the annotation.
+
+*   Message "An application restart is required" fires incorrectly 
+    ([TIMOB-9285](https://jira.appcelerator.org/browse/TIMOB-9285)).
+    This fix provides a new workaround for Android bug 2373. This fix supersedes previous
+    fixes for this issue, and has been tested with Android versions 2.x, 3.x, and 4.x. For
+    complete details on the fix, see JIRA issue.
+
+    To use the new fix, add the following property to `tiapp.xml`:
+
+        <property name="ti.android.bug2373.finishfalseroot" type="bool">true</property>
+
+    Make sure that the `tiapp.xml` file doesn't include any other `ti.android.bug2373`
+    properties.
+
+*   `ScrollView` not scrolling with horizontal layout 
+    ([TIMOB-9966](https://jira.appcelerator.org/browse/TIMOB-9966)).
+
+*   `ScrollableView`: `addView` method not working 
+    ([TIMOB-9423](https://jira.appcelerator.org/browse/TIMOB-9423)).
+    This method was already supported on iOS. A parity bug is open for Mobile Web
+    ([TIMOB-10723](https://jira.appcelerator.org/browse/TIMOB-10723)).
+
+*   `Switch`: Values of switches added to a `TableView` get changed while scrolling 
+    ([TIMOB-9795](https://jira.appcelerator.org/browse/TIMOB-9795)).
+
+*   `Ti.UI.SIZE` does not work well with nested views 
+    ([TIMOB-10003](https://jira.appcelerator.org/browse/TIMOB-10003)).
+
+*   Timers leak memory ([TIMOB-10351](https://jira.appcelerator.org/browse/TIMOB-10351)).
+    This issue prevented the callback functions passed to `setTimeout` and
+    `setInterval` from being garbage collected.
+
+*   `View`: vertical layout does not respect the `bottom` value when padding views 
+    ([TIMOB-10175](https://jira.appcelerator.org/browse/TIMOB-10175)).
+
+
+To browse this list in JIRA, see: 
+[Fixed Android Issues in
+JIRA](https://jira.appcelerator.org/secure/IssueNavigator.jspa?mode=hide&requestId=13554).
+
+<a name="ios"></a>
+
+## iOS Fixes and Enhancements
+
+The following section lists all bug fixes and enhancements for the iOS platform.
+
+New Feature:
+
+*   Allow setting base iOS SDK version in `tiapp.xml`
+    ([TIMOB-2999](https://jira.appcelerator.org/browse/TIMOB-2999)). With this fix, the
+    minimum SDK version can be set by adding text like this to the `tiapp.xml` file:
+
+        <ios>
+            <min-ios-ver>5.0</min-ios-ver>
+        </ios>
+
+    This prevents the application from launching on devices running an iOS version earlier
+    than the specified version (in this case, 5.0).
+
+    **NOTE**: If you use the `transport.py` script to export your application as a generic
+    Xcode project, the `min-ios-ver` property is **not** applied to generated project--you
+    must set the minimum version directly through Xcode in this case.
+
+*   Geolocation: Expose iOS `startMonitoringSignificantLocationChanges` method 
+    ([TIMOB-10041](https://jira.appcelerator.org/browse/TIMOB-10041)).  
+    This new feature adds the ability to receive location updates on significant location changes 
+    only, greatly reducing battery usage. Enable this feature by setting the 
+    [trackSignificantLocationChange](http://docs.appcelerator.com/titanium/latest/#!/api/Titanium.Geolocation-property-trackSignificantLocationChange) 
+    property to `true`.
+
+Bug Fixes:
+
+*   Camera overlay rendering issues 
+    ([TIMOB-10354](https://jira.appcelerator.org/browse/TIMOB-10354)).
+
+*   Debugger: The `this` variable does not occur in variables view in the Studio debugger 
+    ([TIMOB-9636](https://jira.appcelerator.org/browse/TIMOB-9636)).
+
+*   Map View: Annotation image cannot be changed dynamically 
+    ([TIMOB-10203](https://jira.appcelerator.org/browse/TIMOB-10203)).
+
+*   Map View: Annotations caret is offset from pin top and overlaps pin top 
+    ([TIMOB-10220](https://jira.appcelerator.org/browse/TIMOB-10220)).
+
+*   Networking: Allow network activity indicator to be hidden 
+    ([TIMOB-9841](https://jira.appcelerator.org/browse/TIMOB-9841)).
+
+*   Picker: `setSelectedRow` on picker not working if window is not open 
+    ([TIMOB-10146](https://jira.appcelerator.org/browse/TIMOB-10146)).
+
+*   Precompiled headers modified error 
+    ([TIMOB-8025](https://jira.appcelerator.org/browse/TIMOB-8025)).
+
+*   Refactored Kitchen Sink crashes randomly on start 
+    ([TIMOB-10236](https://jira.appcelerator.org/browse/TIMOB-10236)).
+
+*   TableView: Add `scrollsToTop` property 
+    ([TIMOB-10052](https://jira.appcelerator.org/browse/TIMOB-10052)). When using multiple table 
+    views in a single page, this feature allows the developer to specify which tableview scrolls 
+    to the top of the screen when the status bar is tapped.
+
+*   TextField: Focusing text fields based on 'return' bounces the keyboard 
+    ([TIMOB-10356](https://jira.appcelerator.org/browse/TIMOB-10356)).
+
+To browse this list in JIRA, see: 
+[Fixed iOS Issues in
+JIRA](https://jira.appcelerator.org/secure/IssueNavigator.jspa?mode=hide&requestId=13555).
+
+<a name="cloud"></a>
+
+## Ti.Cloud and Ti.CloudPush Module Fixes and Enhancements
+
+This release includes a new version of the `ti.cloud` module, version 2.3.0, and a new
+version of the `ti.cloudpush` module, version 2.0.7. New features and fixes in this release include:
+
+*   For improved security, the Ti.Cloud module **no longer persists user login data**. The application can
+    persist this data in its own secure storage, if desired. If you do not change your
+    application, the user will be required to login each time the application restarts.
+
+    The data that the application must store depends on the type of authentication in use.
+    
+    *   If using 2-legged OAuth or access key authentication, you must store and restore 
+        the [sessionId](http://docs.appcelerator.com/titanium/latest/#!/api/Titanium.Cloud.sessionId) value. 
+    
+    *   If using 3-legged OAuth, introduced in this release, you must store and restore the 
+        [accessToken](http://docs.appcelerator.com/titanium/latest/#!/api/Titanium.Cloud.accessToken) value. Unlike session IDs, access
+        tokens expire after a set period of time. After the access token expires, the user
+        will need to reauthenticate. The
+        [expiresIn](http://docs.appcelerator.com/titanium/latest/#!/api/Titanium.Cloud.expiresIn) 
+        property is set when a secure login succeeds, and gives the lifespan of the new access token, in seconds.
+
+*   The Ti.Cloud module now supports secure login and secure user creation using 3-legged
+    OAuth. For more information, see:
+    
+    *   [Users.secureCreate](http://docs.appcelerator.com/titanium/latest/#!/api/Titanium.Cloud.Users-method-secureCreate) 
+
+    *   [Users.secureLogin](http://docs.appcelerator.com/titanium/latest/#!/api/Titanium.Cloud.Users-method-secureLogin)
+
+    For general information on ACS Authentication, see:
+
+    *   <http://cloud.appcelerator.com/docs/authentication>
+
+*   The Ti.CloudPush module fixes an issue where badge numbers were not displayed on
+    Android 4.x devices.
+
+<a name="docs"></a>
+
+## Documentation Fixes and Enhancements
+
+This release includes a number of documentation fixes and enhancements, including:
+
+*   Documentation site "search" box now searches Guides titles. 
+*   New options to show or hide deprecated & removed APIs.
+*   Documentation site is more stable on iPad.
+*   Numerous content improvements and corrections.
+
+<a name="new_apis"></a>
+
+## New APIs
+
+The following APIs are new in this release:
+
+*   [Titanium.Geolocation.trackSignificantLocationChange](http://docs.appcelerator.com/titanium/latest/#!/api/Titanium.Geolocation-property-trackSignificantLocationChange) 
+    (iOS only)
+*   [Titanium.UI.TextField.setSelection](http://docs.appcelerator.com/titanium/latest/#!/api/Titanium.UI.TextArea-method-setSelection) 
+    (Android only)
+*   [Titanium.UI.TextArea.setSelection](http://docs.appcelerator.com/titanium/latest/#!/api/Titanium.UI.TextArea-method-setSelection) 
+    (Android only)
+*   [Titanium.UI.TextArea.scrollsToTop](http://docs.appcelerator.com/titanium/latest/#!/api/Titanium.UI.TextArea-property-scrollsToTop) 
+    (iOS only)
+*   [Titanium.UI.TableView.scrollsToTop](http://docs.appcelerator.com/titanium/latest/#!/api/Titanium.UI.TableView-property-scrollsToTop) 
+    (iOS only)
+*   [Titanium.Cloud.accessToken](http://docs.appcelerator.com/titanium/latest/#!/api/Titanium.Cloud-property-accessToken) 
+*   [Titanium.Cloud.expiresIn](http://docs.appcelerator.com/titanium/latest/#!/api/Titanium.Cloud-property-expiresIn) 
+*   [Titanium.Cloud.sessionId](http://docs.appcelerator.com/titanium/latest/#!/api/Titanium.Cloud-property-sessionId) 
+*   [Titanium.Cloud.Users.secureCreate](http://docs.appcelerator.com/titanium/latest/#!/api/Titanium.Cloud.Users-method-secureCreate) 
+*   [Titanium.Cloud.Users.secureLogin](http://docs.appcelerator.com/titanium/latest/#!/api/Titanium.Cloud.Users-method-secureLogin) 
+*   [Titanium.Cloud.Users.secureStatus](http://docs.appcelerator.com/titanium/latest/#!/api/Titanium.Cloud.Users-method-secureStatus) 
+
+<a name="deprecated"></a>
+
+## Deprecated APIs
+
+The following APIs are deprecated in this release:
+
+*   `Titanium.Cloud.hasStoredSession` and `Titanium.Cloud.retrieveStoredSession`.
+
+    Session data is no longer persisted by the module. The application can _optionally_
+    store session data in its own secure storage to maintain a login session 
+    across application restarts.  See 
+    [Ti.Cloud and Ti.CloudPush Module Fixes and Enhancements](#cloud) for details.
+    
+<a name="to_remove"></a>
+
+## APIs To Be Removed in the Next Major Release
+
+In the next major release, any APIs deprecated _prior to_ 
+release 1.8 will be removed. 
+
