@@ -120,7 +120,7 @@ def zip_packaged_modules(zf, source_dir):
 			finally:
 				source_zip.close()
 
-def zip_android(zf, basepath):
+def zip_android(zf, basepath, version):
 	android_dist_dir = os.path.join(top_dir, 'dist', 'android')
 
 	for jar in ['titanium.jar', 'kroll-apt.jar', 'kroll-common.jar', 'kroll-v8.jar', 'kroll-rhino.jar']:
@@ -191,8 +191,8 @@ def zip_android(zf, basepath):
 
 	android_modules = os.path.join(android_dist_dir, 'modules.json')
 	zf.write(android_modules, '%s/android/modules.json' % basepath)
-
-	zf.write(os.path.join(top_dir, 'android', 'package.json'), '%s/android/package.json' % basepath)
+	
+	zf.writestr('%s/android/package.json' % basepath, codecs.open(os.path.join(top_dir, 'android', 'package.json'), 'r', 'utf-8').read().replace('__VERSION__', version))
 	
 	titanium_lib_dir = os.path.join(top_dir, 'android', 'titanium', 'lib')
 	for thirdparty_jar in os.listdir(titanium_lib_dir):
@@ -293,7 +293,7 @@ def zip_iphone_ipad(zf,basepath,platform,version,version_tag):
 	zf.write(os.path.join(ticore_lib,'libtiverify.a'),'%s/%s/libtiverify.a'%(basepath,platform))
 	zf.write(os.path.join(ticore_lib,'libti_ios_debugger.a'),'%s/%s/libti_ios_debugger.a'%(basepath,platform))
 	
-	zf.write(os.path.join(top_dir, 'iphone', 'package.json'), '%s/iphone/package.json' % basepath)
+	zf.writestr('%s/%s/package.json' % (basepath, platform), codecs.open(os.path.join(top_dir, 'iphone', 'package.json'), 'r', 'utf-8').read().replace('__VERSION__', version))
 	
 	zip_dir(zf,osx_dir,basepath)
 	
@@ -305,9 +305,8 @@ def zip_iphone_ipad(zf,basepath,platform,version,version_tag):
 				module_name = f.replace('Module','').lower()
 				zip_dir(zf,module_images,'%s/%s/modules/%s/images' % (basepath,platform,module_name))
 	
-def zip_mobileweb(zf, basepath, version, build_v3):
+def zip_mobileweb(zf, basepath, version):
 	dir = os.path.join(top_dir, 'mobileweb')
-	finalize = resolve_npm_deps(dir, version, build_v3)
 	
 	# for speed, mobileweb has its own zip logic
 	for root, dirs, files in os.walk(dir):
@@ -320,16 +319,20 @@ def zip_mobileweb(zf, basepath, version, build_v3):
 			from_ = os.path.join(root, file)
 			to_ = from_.replace(dir, os.path.join(basepath,'mobileweb'), 1)
 			zf.write(from_, to_)
-	
-	finalize()
 
 def resolve_npm_deps(dir, version, build_v3):
 	package_json_file = os.path.join(dir, 'package.json')
 	if os.path.exists(package_json_file):
-		# ensure fresh npm install
+		# ensure fresh npm install for everything EXCEPT titanium-sdk
 		node_modules_dir = os.path.join(dir, 'node_modules')
 		if os.path.exists(node_modules_dir):
-			shutil.rmtree(node_modules_dir, True)
+			for file in os.listdir(node_modules_dir):
+				if file != 'titanium-sdk':
+					file = os.path.join(node_modules_dir, file)
+					if os.path.isdir(file):
+						shutil.rmtree(file, True)
+					else:
+						os.remove(file);
 		
 		package_json_original = codecs.open(package_json_file, 'r', 'utf-8').read()
 		package_json_contents = package_json_original
@@ -348,6 +351,7 @@ def resolve_npm_deps(dir, version, build_v3):
 		node_minimum_minor_ver = 6
 		node_too_old = False
 		npm_installed = False
+		
 		try:
 			p = subprocess.Popen('node --version', shell=True, cwd=dir, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 			stdout, stderr = p.communicate()
@@ -371,12 +375,15 @@ def resolve_npm_deps(dir, version, build_v3):
 		
 		if build_v3:
 			if not node_installed:
+				codecs.open(package_json_file, 'w', 'utf-8').write(package_json_original)
 				print '[ERROR] Unable to find node.js. Please download and install: http://nodejs.org/'
 				sys.exit(1)
 			elif node_too_old:
+				codecs.open(package_json_file, 'w', 'utf-8').write(package_json_original)
 				print '[ERROR] Your version of node.js %s is too old. Please download and install a newer version: http://nodejs.org/' % node_version
 				sys.exit(1)
 			elif not npm_installed:
+				codecs.open(package_json_file, 'w', 'utf-8').write(package_json_original)
 				print '[ERROR] Unable to find npm. Please download and install: http://nodejs.org/'
 				sys.exit(1)
 			
@@ -385,6 +392,7 @@ def resolve_npm_deps(dir, version, build_v3):
 			p = subprocess.Popen('npm install', shell=True, cwd=dir, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 			stdout, stderr = p.communicate()
 			if p.returncode != 0:
+				codecs.open(package_json_file, 'w', 'utf-8').write(package_json_original)
 				print '[ERROR] Failed to npm install dependencies'
 				print stdout
 				print stderr
@@ -461,9 +469,9 @@ githash=%s
 	zip_packaged_modules(zf, os.path.join(template_dir, "module", "packaged"))
 	zip_dir(zf, all_dir, basepath)
 	zip_dir(zf, template_dir, basepath, ignore_paths=[os.path.join(template_dir, 'package.json')]) # ignore the dependency package.json
-	if android: zip_android(zf,basepath)
+	if android: zip_android(zf, basepath, version)
 	if (iphone or ipad) and osname == "osx": zip_iphone_ipad(zf,basepath,'iphone',version,version_tag)
-	if mobileweb: zip_mobileweb(zf, basepath, version, build_v3)
+	if mobileweb: zip_mobileweb(zf, basepath, version)
 	if osname == 'win32':
 		zip_dir(zf, win32_dir, basepath)
 	

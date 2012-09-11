@@ -14,17 +14,17 @@ exports.config = function (logger, config, cli) {
 	};
 };
 
-exports.run = function (opts) {
-	new build(opts);
+exports.run = function (logger, config, cli, finished) {
+	new run(logger, config, cli, finished);
 };
 
-function build(opts) {
-	dump(opts.cli.argv);
+function run(logger, config, cli, finished) {
+	dump(cli.argv);
 	
-	opts.finished();
+	finished && finished();
 }
 
-build.prototype = {
+run.prototype = {
 
 	//
 

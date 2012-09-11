@@ -20,12 +20,5 @@
 		"type": "git",
 		"url": "git://github.com/appcelerator/titanium_mobile_web.git"
 	},
-	"dependencies": {
-	},
-	"license": "Apache Public License v2",
-	"directories": {
-	},
-	"engines": {
-		"node": ">= 0.6.6"
-	}
+	"license": "Apache Public License v2"
 }
