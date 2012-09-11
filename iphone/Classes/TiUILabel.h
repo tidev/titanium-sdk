@@ -11,10 +11,10 @@
 @interface TiUILabel : TiUIView<LayoutAutosizing> {
 @private
 	UILabel *label;
-    TiUIView* backgroundView;
+    CALayer* bgdLayer;
 	BOOL requiresLayout;
     CGRect padding;
-    BOOL repad;
+    CGRect textPadding;
     UIControlContentVerticalAlignment verticalAlign;
     CGRect initialLabelFrame;
 }

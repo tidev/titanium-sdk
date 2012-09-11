@@ -18,9 +18,7 @@
 -(id)init
 {
     if (self = [super init]) {
-        backgroundView = [[TiUIView alloc] init];
-        backgroundView.userInteractionEnabled = NO;
-        [self insertSubview:backgroundView atIndex:0];
+        bgdLayer = nil;
         padding = CGRectZero;
         initialLabelFrame = CGRectZero;
         verticalAlign = -1;
@@ -31,7 +29,7 @@
 -(void)dealloc
 {
     RELEASE_TO_NIL(label);
-    RELEASE_TO_NIL(backgroundView);
+    RELEASE_TO_NIL(bgdLayer);
     [super dealloc];
 }
 
@@ -117,14 +115,9 @@
         [label setFrame:initialLabelFrame];
     }
 
-    if (repad &&
-        !CGRectIsEmpty(initialLabelFrame))
+    if (bgdLayer != nil && !CGRectIsEmpty(initialLabelFrame))
     {
-        [backgroundView setFrame:CGRectMake(initialLabelFrame.origin.x - padding.origin.x,
-                                            initialLabelFrame.origin.y - padding.origin.y,
-                                            initialLabelFrame.size.width + padding.origin.x + padding.size.width,
-                                            initialLabelFrame.size.height + padding.origin.y + padding.size.height)];
-        repad = NO;
+        [self updateBackgroundImageFrameWithPadding];
     }
 	return;
 }
@@ -140,8 +133,7 @@
 -(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
 {
 	initialLabelFrame = bounds;
-
-    repad = YES;
+    
     [self padLabel];
 
     [super frameSizeChanged:frame bounds:bounds];
@@ -155,7 +147,7 @@
         label.backgroundColor = [UIColor clearColor];
         label.numberOfLines = 0;
         [self addSubview:label];
-        self.clipsToBounds = YES;
+//        self.clipsToBounds = YES;
 	}
 	return label;
 }
@@ -235,48 +227,55 @@
 
 }
 
+-(CALayer *)backgroundImageLayer
+{
+    if (bgdLayer == nil)
+    {
+        bgdLayer = [[CALayer alloc]init];
+        bgdLayer.frame = self.layer.bounds;
+        [self.layer insertSublayer:bgdLayer atIndex:0];
+    }
+	return bgdLayer;
+}
+-(void) updateBackgroundImageFrameWithPadding
+{
+    CGRect backgroundFrame = CGRectMake(self.bounds.origin.x - padding.origin.x,
+               self.bounds.origin.y - padding.origin.y,
+               self.bounds.size.width + padding.origin.x + padding.size.width,
+                                        self.bounds.size.height + padding.origin.y + padding.size.height);
+    [self backgroundImageLayer].frame = backgroundFrame;
+}
+
 -(void)setBackgroundImage_:(id)url
 {
-    [backgroundView setBackgroundImage_:url];
-    self.backgroundImage = url;
-}
-
--(void)setBackgroundLeftCap_:(id)value
-{
-    [backgroundView setBackgroundLeftCap_:value];
-}
-
--(void)setBackgroundTopCap_:(id)value
-{
-    [backgroundView setBackgroundTopCap_:value];
+    [super setBackgroundImage_:url];
+    //setBackgroundimage puts masksToBounds to FALSE if bgdImage!=nil
+    //but it goes against the meaning of backgroundPadding
+    self.layer.masksToBounds = NO;
 }
 
 -(void)setBackgroundPaddingLeft_:(id)left
 {
     padding.origin.x = [TiUtils floatValue:left];
-    repad = YES;
-    [self padLabel];
+    [self updateBackgroundImageFrameWithPadding];
 }
 
 -(void)setBackgroundPaddingRight_:(id)right
 {
     padding.size.width = [TiUtils floatValue:right];
-    repad = YES;
-    [self padLabel];
+    [self updateBackgroundImageFrameWithPadding];
 }
 
 -(void)setBackgroundPaddingTop_:(id)top
 {
     padding.origin.y = [TiUtils floatValue:top];
-    repad = YES;
-    [self padLabel];
+    [self updateBackgroundImageFrameWithPadding];
 }
 
 -(void)setBackgroundPaddingBottom_:(id)bottom
 {
     padding.size.height = [TiUtils floatValue:bottom];
-    repad = YES;
-    [self padLabel];
+    [self updateBackgroundImageFrameWithPadding];
 }
 
 -(void)setTextAlign_:(id)alignment
