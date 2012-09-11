@@ -1410,7 +1410,7 @@ def main(args):
 					# set the DYLD_FRAMEWORK_PATH environment variable for the following Popen iphonesim command
 					# this allows the XCode developer folder to be arbitrarily named
 					xcodeselectpath = os.popen("/usr/bin/xcode-select -print-path").readline().rstrip('\n')
-					iphoneprivateframeworkspath = xcodeselectpath + '/Platforms/iPhoneSimulator.platform/Developer/Library/PrivateFrameworks'
+					iphoneprivateframeworkspath = xcodeselectpath + '/Platforms/iPhoneSimulator.platform/Developer/Library/PrivateFrameworks:' + xcodeselectpath + '/../OtherFrameworks'
 					os.putenv('DYLD_FRAMEWORK_PATH', iphoneprivateframeworkspath)
 
 					# launch the simulator
