@@ -9,7 +9,7 @@ define(
 
 		constructor: function(){
 			this._addEventModifier(["click", "singletap", "blur", "change", "focus", "return"], function(data) {
-				data.value = this.value;
+				data.value = this._getInternalText();
 			});
 		},
 
@@ -60,17 +60,28 @@ define(
 			});
 		},
 
+		_setInternalText: function(value) {
+			return this._capitalize(this._field.value = value);
+		},
+		
+		_getInternalText: function() {
+			return this._field.value;
+		},
+		
+		_updateInternalText: function() {
+			this._setInternalText(this._getInternalText());
+		},
+
 		_capitalize: function(ac, val) {
-			var f = this._field,
-				ac = "off";
+			var acval = "off";
 			switch (ac || this.autocapitalization) {
 				case UI.TEXT_AUTOCAPITALIZATION_ALL:
-					f.value = f.value.toUpperCase();
+					this._setInternalText(this._getInternalText().toUpperCase());
 					break;
 				case UI.TEXT_AUTOCAPITALIZATION_SENTENCES:
-					ac = "on";
+					acval = "on";
 			}
-			this._field.autocapitalize = ac;
+			this._field.autocapitalize = acval;
 		},
 
 		blur: function() {
@@ -127,11 +138,9 @@ define(
 
 			value: {
 				get: function() {
-					return this._showingHint ? "" : this._field.value;
+					return this._getInternalText();
 				},
-				set: function(value) {
-					return this._capitalize(this._field.value = value);
-				},
+				post: "_setInternalText",
 				value: ""
 			}
 		}

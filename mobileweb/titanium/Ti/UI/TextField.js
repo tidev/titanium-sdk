@@ -22,13 +22,12 @@ define(["Ti/_/declare", "Ti/_/UI/TextBox", "Ti/_/css", "Ti/_/dom", "Ti/_/lang", 
 			this.borderStyle = UI.INPUT_BORDERSTYLE_BEZEL;
 
 			this._disconnectFocusEvent = on(field, "focus", this, function() {
-				this.clearOnEdit && (field.value = "");
 				this._focused = 1;
-				this._updateHint();
+				this._setInternalText(this.clearOnEdit ? "" : this._getInternalText())
 			});
 			this._disconnectBlurEvent = on(field, "blur", this, function() {
 				this._focused = 0;
-				this._updateHint();
+				this._updateInternalText();
 			});
 		},
 
@@ -39,11 +38,13 @@ define(["Ti/_/declare", "Ti/_/UI/TextBox", "Ti/_/css", "Ti/_/dom", "Ti/_/lang", 
 		},
 		
 		_showingHint: 1,
+
+		_setInternalText: function(value) {
+			TextBox.prototype._setInternalText.call(this, (this._showingHint = !this._focused && !value) ? this.hintText : value);
+		},
 		
-		_updateHint: function() {
-			var field = this._field;
-			this._focused && this._showingHint && (field.value = "");
-			(this._showingHint = !this._focused && !this.value ? 1 : 0) && (field.value = this.hintText);
+		_getInternalText: function() {
+			return this._showingHint ? "" : TextBox.prototype._getInternalText.call(this);
 		},
 
         _defaultWidth: UI.SIZE,
@@ -107,7 +108,8 @@ define(["Ti/_/declare", "Ti/_/UI/TextBox", "Ti/_/css", "Ti/_/dom", "Ti/_/lang", 
 			clearOnEdit: false,
 
 			hintText: {
-				post: "_updateHint"
+				post: "_updateInternalText",
+				value: ""
 			},
 
 			keyboardType: keyboardPost,
