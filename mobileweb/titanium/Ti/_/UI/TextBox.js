@@ -130,8 +130,10 @@ define(
 					return this._showingHint ? "" : this._field.value;
 				},
 				set: function(value) {
+					this._showingHint = (value === "");
 					return this._capitalize(this._field.value = value);
 				},
+				post: "_updateHint",
 				value: ""
 			}
 		}
