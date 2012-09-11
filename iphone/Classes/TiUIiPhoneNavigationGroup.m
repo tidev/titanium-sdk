@@ -34,7 +34,10 @@
 -(void)dealloc
 {
 	RELEASE_TO_NIL(controller);
-	
+    if ([closingProxyArray count] > 0) {
+        [closingProxyArray removeAllObjects];
+    }
+    RELEASE_TO_NIL(closingProxyArray)
 	[self setVisibleProxy:nil];
 	//This is done this way so that proper methods are called as well.
 	[super dealloc];
@@ -101,6 +104,10 @@
 		RELEASE_TO_NIL(controller);
 		[visibleProxy autorelease];
 		visibleProxy = nil; // close/release handled by view removal
+        if ([closingProxyArray count] > 0) {
+            [closingProxyArray removeAllObjects];
+        }
+        RELEASE_TO_NIL(closingProxyArray)
 	}
 	[self release];
 }
@@ -116,18 +123,35 @@
 
 -(void)delayedClose:(NSArray*)args
 {
-    [self close:[args objectAtIndex:0] withObject:[args objectAtIndex:1]];
+    if ( (closingProxy == nil) && ([closingProxyArray count] > 0) ) {
+        NSArray* args = [closingProxyArray objectAtIndex:0];
+        [self removeWindowFromControllerStack:[args objectAtIndex:0] withObject:[args objectAtIndex:1]];
+        [closingProxyArray removeObjectAtIndex:0];
+    }
+    else {
+        [self performSelector:@selector(delayedClose:) withObject:nil afterDelay:UINavigationControllerHideShowBarDuration];
+    }
 }
 
 -(void)close:(TiWindowProxy*)window withObject:(NSDictionary*)properties
 {
     //TIMOB-10802. If a window is being popped off the stack wait until the 
     //animation is complete before trying to pop another window
-    if (closingProxy != nil) {
+    if ( (closingProxy != nil) || ([closingProxyArray count] >0) ) {
         DebugLog(@"NavController is closing a proxy. Delaying this close call")
-        [self performSelector:@selector(delayedClose:) withObject:[NSArray arrayWithObjects:window,properties,nil] afterDelay:UINavigationControllerHideShowBarDuration];
-        return;
+        if (closingProxyArray == nil) {
+            closingProxyArray = [[NSMutableArray alloc] init];
+        }
+        [closingProxyArray addObject:[NSArray arrayWithObjects:window,properties,nil]];
+        [self performSelector:@selector(delayedClose:) withObject:nil afterDelay:UINavigationControllerHideShowBarDuration];
     }
+    else {
+        [self removeWindowFromControllerStack:window withObject:properties];
+    }
+}
+
+-(void)removeWindowFromControllerStack:(TiWindowProxy*)window withObject:(NSDictionary*)properties
+{
     UIViewController* windowController = [window controller];
     NSMutableArray* newControllers = [NSMutableArray arrayWithArray:controller.viewControllers];
     BOOL lastObject = (windowController == [newControllers lastObject]);
@@ -148,7 +172,6 @@
         [closingProxy release];
         closingProxy = nil;
     }
-
 }
 
 - (void)willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration
