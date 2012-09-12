@@ -129,8 +129,13 @@ events:
 
       - name: rowData
         summary: |
-            Properties of the row.  Use this property rather than `row` to access any custom row 
-            properties.
+            Properties of the row.  When the row is created implicitly using a JavaScript dictionary object,
+            use this property rather than `row` to access any custom row properties.
+            
+            Here's an example of creating a row implicitly, which is not the recommended way.
+                var data = [{title:'Row 1', hasChild:true, color:'red', selectedColor:'#fff', special:'special 1'},];
+                var table = Ti.UI.createTableView({data: data});
+           
         type: Dictionary<Titanium.UI.TableViewRow>
         
       - name: searchMode
