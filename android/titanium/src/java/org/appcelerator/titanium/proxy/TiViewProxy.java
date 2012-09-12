@@ -774,6 +774,11 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 
 	public void setParent(TiViewProxy parent)
 	{
+		if (parent == null) {
+			this.parent = null;
+			return;
+		}
+
 		this.parent = new WeakReference<TiViewProxy>(parent);
 	}
 
