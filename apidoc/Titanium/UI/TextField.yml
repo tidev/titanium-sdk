@@ -402,6 +402,7 @@ examples:
   - title: Basic Text Field with rounded border
     example: |
         Create a simple text field with a round border style.
+
             var win = Ti.UI.createWindow({
               backgroundColor: 'white'
             });
