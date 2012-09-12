@@ -46,9 +46,41 @@ class AndroidSDK:
 		self.android_sdk = self.find_sdk(android_sdk)
 		if self.android_sdk is None:
 			raise Exception('No Android SDK directory found')
-		self.api_level = api_level
+		self.set_api_level(api_level)
+
+	def set_api_level(self, level):
+		self.api_level = level
 		self.find_platform_dir()
 		self.find_google_apis_dir()
+
+	def use_latest_api_level(self):
+		platforms_dir = os.path.join(self.android_sdk, "platforms")
+
+		if not os.path.exists(platforms_dir):
+			return
+
+		sub_dirs = os.listdir(platforms_dir)
+
+		if not sub_dirs:
+			return
+
+		pattern = r"android-(\d+)"
+
+		current_best = self.api_level
+
+		for sub_dir in sub_dirs:
+			if not os.path.exists(os.path.join(platforms_dir, sub_dir, "android.jar")):
+				# A sanity check to be sure it's really installed.
+				continue
+
+			matches = re.findall(pattern, sub_dir)
+			if matches:
+				this_ver = int(matches[0])
+				if this_ver > current_best:
+					current_best = this_ver
+
+		if current_best != self.api_level:
+			self.set_api_level(current_best)
 
 	def find_sdk(self, supplied):
 		if platform.system() == 'Windows':
