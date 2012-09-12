@@ -6,8 +6,10 @@
  */
 
 var appc = require('node-appc'),
-	lib = require('./lib/common'),
+	ti = require('titanium-sdk'),
 	path = require('path');
+
+// TODO: need to support building modules... how do we know if --dir is a module or app? where is the module _build.js located?
 
 exports.config = function (logger, config, cli) {
 	return {
@@ -27,35 +29,35 @@ exports.config = function (logger, config, cli) {
 				desc: __('the target build platform'),
 				hint: __('platform'),
 				prompt: {
-					label: __('Target platform [%s]', lib.availablePlatforms.join(',')),
+					label: __('Target platform [%s]', ti.availablePlatforms.join(',')),
 					error: __('Invalid platform'),
 					validator: function (platform) {
 						platform = platform.trim();
 						if (!platform) {
 							throw new appc.exception(__('Invalid platform'));
 						}
-						if (lib.availablePlatforms.indexOf(platform) == -1) {
+						if (ti.availablePlatforms.indexOf(platform) == -1) {
 							throw new appc.exception(__('Invalid platform: %s', platform));
 						}
 						return true;
 					}
 				},
 				required: true,
-				values: lib.availablePlatforms
+				values: ti.availablePlatforms
 			},
 			dir: {
 				abbr: 'd',
 				desc: __('the directory containing the project, otherwise the current working directory')
 			}
-		}, lib.commonOptions(logger, config)),
-		platforms: lib.platformOptions(logger, config, cli, 'build')
+		}, ti.commonOptions(logger, config)),
+		platforms: ti.platformOptions(logger, config, cli, 'build')
 	};
 };
 
 exports.validate = function (logger, config, cli) {
-	cli.argv.platform = lib.validatePlatform(logger, cli.argv.platform);
-	cli.argv.dir = lib.validateProjectDir(logger, cli.argv.dir);
-	lib.validatePlatformOptions(logger, config, cli, 'build');
+	cli.argv.platform = ti.validatePlatform(logger, cli.argv.platform);
+	cli.argv.dir = ti.validateProjectDir(logger, cli.argv.dir);
+	ti.validatePlatformOptions(logger, config, cli, 'build');
 };
 
 exports.run = function (logger, config, cli) {
@@ -68,11 +70,7 @@ exports.run = function (logger, config, cli) {
 		process.exit(1);
 	}
 	
-	require(buildModule).run(logger, config, cli, {
-		sdkVersion: sdk.name,
-		lib: lib,
-		finished: function () {
-			logger.info(__('Project built successfully in %s', appc.time.prettyDiff(cli.startTime, Date.now())) + '\n');
-		}
+	require(buildModule).run(logger, config, cli, function () {
+		logger.info(__('Project built successfully in %s', appc.time.prettyDiff(cli.startTime, Date.now())) + '\n');
 	});
 };

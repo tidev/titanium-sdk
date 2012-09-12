@@ -1,0 +1,73 @@
+---
+name: Titanium.UI.CoverFlowView
+summary: Use <Titanium.UI.iOS.CoverFlowView> instead.
+description: |
+    This iOS-specific API has been moved to <Titanium.UI.iOS.CoverFlowView>.
+
+    Use the <Titanium.UI.createCoverFlowView> method to create a cover flow view.
+extends: Titanium.UI.View
+since: "0.8"
+deprecated:
+    since: "1.8.0"
+    removed: "2.0.0"
+platforms: [iphone, ipad]
+excludes: {
+   events: [ "dblclick", "doubletap", "longclick", "longpress", "pinch", "singletap", "swipe", "touchcancel", "touchend", "touchmove", "touchstart", "twofingertap" ]
+}
+methods:
+  - name: setImage
+    summary: Changes the image for a specified index.
+    description: |
+        To specify a size for the image, you may pass the image as a simple dictionary, as
+        defined in <CoverFlowImageType>.  If you specify a size, the size must be exact,
+        not 'auto' or a percentage size.
+
+        If the image is passed as a `File` object or file path, the filename is checked.
+        If the filename includes the '@2x' string used to identify high-resolution images
+        for the Retina display, the image is treated accordingly.
+    parameters:
+      - name: index
+        summary: Index to add the image at.
+        type: Number
+      - name: image
+        summary: Image to add at this index.
+        type: [String, Titanium.Blob, Titanium.Filesystem.File, CoverFlowImageType]
+events:
+  - name: change
+    summary: Fired when the user changes the image using a gesture.
+    properties:
+      - name: index
+        summary: Index of the image that is now visible.
+        type: Number
+      - name: previous
+        summary: Index of the previously-visible image.
+        type: Number
+  - name: click
+    summary: Fired when the user clicks on the view.
+    properties:
+      - name: index
+        summary: Index of the image that is now visible.
+        type: Number
+      - name: previous
+        summary: Index of the previously-visible image.
+        type: Number
+properties:
+  - name: images
+    summary: Array of images to display in the view.
+    type: [Array<String>, Array<Titanium.Blob>, Array<Titanium.Filesystem.File>, Array<CoverFlowImageType>]
+  - name: selected
+    summary: Index to make selected.
+    type: Number
+    
+examples:
+  - title: Simple 3 image cover flow example
+    example: |
+        
+        Create a simple cover flow view.
+        
+            var view = Titanium.UI.createCoverFlowView({
+            	images:['a.png','b.png','c.png'],
+            	backgroundColor:'#000'
+            });
+            window.add(view);
+        

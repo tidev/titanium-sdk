@@ -79,7 +79,7 @@ events:
         See [nowPlaying](Titanium.Media.MusicPlayer.nowPlaying) to identify the current
         media item.
     deprecated:
-        since: "2.2.0"
+        since: "3.0.0"
 
   - name: stateChange
     summary: Fired when the music player's playback state changes.
@@ -89,7 +89,7 @@ events:
         See [playbackState](Titanium.Media.MusicPlayer.playbackState) to identify the current
         playback state.
     deprecated:
-        since: "2.2.0"
+        since: "3.0.0"
 
   - name: volumeChange
     summary: Fired when the volume changes.
@@ -99,28 +99,28 @@ events:
         Use the [volume](Titanium.Media.MusicPlayer.volume) property to set or determine
         the current volume level for this player.
     deprecated:
-        since: "2.2.0"
+        since: "3.0.0"
 
   - name: playingchange
     summary: Fired when the currently playing media item changes.
     description: |
         See [nowPlaying](Titanium.Media.MusicPlayer.nowPlaying) to identify the current
         media item.
-    since: '2.2.0'
+    since: '3.0.0'
 
   - name: statechange
     summary: Fired when the music player's playback state changes.
     description: |
         See [playbackState](Titanium.Media.MusicPlayer.playbackState) to identify the current
         playback state.
-    since: '2.2.0'
+    since: '3.0.0'
 
   - name: volumechange
     summary: Fired when the volume changes.
     description: |
         Use the [volume](Titanium.Media.MusicPlayer.volume) property to set or determine
         the current volume level for this player.
-    since: '2.2.0'
+    since: '3.0.0'
 
 properties:
 

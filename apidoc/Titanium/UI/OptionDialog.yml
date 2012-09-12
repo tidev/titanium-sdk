@@ -52,7 +52,7 @@ events:
         Fired when an option of this dialog is clicked or, under certain circumstances, when this 
         dialog is dismissed.
     description: |
-        On iOS as of 1.9, when the dialog is dismissed without using an option, for example, using 
+        On iOS as of Release 2.0, when the dialog is dismissed without using an option, for example, using
         the [hide](Titanium.UI.OptionDialog.hide) method (iPhone, iPad) or a tap outside of the 
         dialog (iPad), this event is fired as though the cancel option was selected. In these 
         circumstances, the `index` property will be the cancel option index if defined or `-1` 
@@ -212,7 +212,7 @@ examples:
 ---
 name: hideParams
 summary: Dictionary of options for the <Titanium.UI.OptionDialog.hide> method.
-since: 1.9.0
+since: 2.0.0
 platforms: [iphone, ipad]
 
 properties:

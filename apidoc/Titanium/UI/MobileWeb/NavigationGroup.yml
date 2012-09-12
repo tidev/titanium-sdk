@@ -9,7 +9,7 @@ description: |
     All navigation groups must have a root window that cannot be removed.
 platforms: [mobileweb]
 extends: Titanium.UI.View
-since: "1.9"
+since: "2.0.0"
 
 properties:
   - name: window
