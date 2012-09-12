@@ -121,7 +121,7 @@
 	[controller pushViewController:viewController animated:animated];
 }
 
--(void)delayedClose:(NSArray*)args
+-(void)delayedClose:(id)unused
 {
     if ([closingProxyArray count] > 0) {
         if ( closingProxy == nil) {
