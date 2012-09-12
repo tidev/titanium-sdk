@@ -144,7 +144,7 @@ events:
   - name: scrollend
     summary: Fired when the view has stopped moving completely.
     platforms: [mobileweb]
-    since: "2.2.0"
+    since: "3.0.0"
 
   - name: dragstart
     summary: Fired when the scrollable region starts being dragged.
@@ -152,7 +152,7 @@ events:
         A dragging gesture is when a touch remains in contact with the display to physically drag 
         the view, as opposed to it being the result of scrolling momentum.
     platforms: [iphone, ipad, mobileweb]
-    since: "2.2.0"
+    since: "3.0.0"
    
   - name: dragend
     summary: Fired when the scrollable region stops being dragged.
@@ -166,7 +166,7 @@ events:
             Indicates whether scrolling will continue but decelerate, now that the drag gesture has 
             been released by the touch. If `false`, scrolling will stop immediately.
         type: Boolean
-    since: "2.2.0"
+    since: "3.0.0"
 
 properties:
   - name: canCancelEvents
@@ -283,7 +283,7 @@ properties:
     type: Boolean
     default: true
     platforms: [iphone, ipad, android, mobileweb]
-    since: { iphone: "2.2", ipad: "2.2", android: "2.2", mobileweb: "2.2" }
+    since: { iphone: "3.0.0", ipad: "3.0.0", android: "3.0.0", mobileweb: "3.0.0" }
 
   - name: showHorizontalScrollIndicator
     summary: Determines whether the horizontal scroll indicator is visible.
@@ -428,7 +428,7 @@ description: |
 
         setZoomScale(2, {animated:true})
 optional: true
-since: 2.2.0
+since: 3.0.0
 platforms: [iphone, ipad]
 
 properties:

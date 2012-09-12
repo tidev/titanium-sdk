@@ -206,7 +206,7 @@ properties:
 
         On iOS, this property applies to all states and tabs, not just inactive tabs.
     type: String
-    since: {android: "2.2.0", iphone: "2.2.0", ipad: "2.2.0", mobileweb: "1.9.0"}
+    since: {android: "3.0.0", iphone: "3.0.0", ipad: "3.0.0", mobileweb: "2.0.0"}
     osver: {ios: {min: "5.0"}}
     platforms: [android, iphone, ipad, mobileweb]
     
@@ -216,7 +216,7 @@ properties:
         A tab's [backgroundImage](Titanium.UI.Tab.backgroundImage) property takes precedence if set.
     type: String
     platforms: [mobileweb]
-    since: "1.9.0"
+    since: "2.0.0"
     
   - name: tabsBackgroundDisabledColor
     summary: Default background disabled color for tabs, as a color name or hex triplet.
@@ -227,7 +227,7 @@ properties:
         precedence if set.
     type: String
     platforms: [mobileweb]
-    since: "1.9.0"
+    since: "2.0.0"
     
   - name: tabsBackgroundDisabledImage
     summary: Default background disabled image for tabs.
@@ -236,7 +236,7 @@ properties:
         precedence if set.
     type: String
     platforms: [mobileweb]
-    since: "1.9.0"
+    since: "2.0.0"
     
   - name: tabsBackgroundFocusedColor
     summary: Default background focused color for tabs, as a color name or hex triplet.
@@ -247,7 +247,7 @@ properties:
         precedence if set.
     type: String
     platforms: [mobileweb]
-    since: "1.9.0"
+    since: "2.0.0"
     
   - name: tabsBackgroundFocusedImage
     summary: Default background focused image for tabs.
@@ -256,7 +256,7 @@ properties:
         precedence if set.
     type: String
     platforms: [mobileweb]
-    since: "1.9.0"
+    since: "2.0.0"
     
   - name: tabsBackgroundSelectedColor
     summary: Default background selected color for tabs, as a color name or hex triplet.
@@ -267,7 +267,7 @@ properties:
         precedence if set.
     type: String
     platforms: [android, mobileweb]
-    since: {android: "2.2.0", mobileweb: "1.9.0"}
+    since: {android: "3.0.0", mobileweb: "2.0.0"}
     
   - name: tabsBackgroundSelectedImage
     summary: Default background selected image for tabs.
@@ -276,7 +276,7 @@ properties:
         precedence if set.
     type: String
     platforms: [mobileweb]
-    since: "1.9.0"
+    since: "2.0.0"
     
   - name: activeTabBackgroundColor
     summary: Default background color for the active tab, as a color name or hex triplet.
@@ -286,7 +286,7 @@ properties:
         A tab's [backgroundColor](Titanium.UI.Tab.backgroundColor)  property takes precedence if set.
     type: String
     platforms: [mobileweb]
-    since: "1.9.0"
+    since: "2.0.0"
     
   - name: activeTabBackgroundImage
     summary: Default background image for the active tab.
@@ -294,7 +294,7 @@ properties:
         A tab's [backgroundImage](Titanium.UI.Tab.backgroundImage) property takes precedence if set.
     type: String
     platforms: [mobileweb]
-    since: "1.9.0"
+    since: "2.0.0"
     
   - name: activeTabBackgroundDisabledColor
     summary: Default background disabled color for the active tab, as a color name or hex triplet.
@@ -305,7 +305,7 @@ properties:
         precedence if set.
     type: String
     platforms: [mobileweb]
-    since: "1.9.0"
+    since: "2.0.0"
     
   - name: activeTabBackgroundDisabledImage
     summary: Default background disabled image for the active tab.
@@ -314,7 +314,7 @@ properties:
         precedence if set.
     type: String
     platforms: [mobileweb]
-    since: "1.9.0"
+    since: "2.0.0"
     
   - name: activeTabBackgroundFocusedColor
     summary: Default background focused color for the active tab, as a color name or hex triplet.
@@ -325,7 +325,7 @@ properties:
         precedence if set.
     type: String
     platforms: [mobileweb]
-    since: "1.9.0"
+    since: "2.0.0"
     
   - name: activeTabBackgroundFocusedImage
     summary: Default background focused image for the active tab.
@@ -334,7 +334,7 @@ properties:
         precedence if set.
     type: String
     platforms: [mobileweb]
-    since: "1.9.0"
+    since: "2.0.0"
     
   - name: activeTabBackgroundSelectedColor
     summary: Default background selected color for the active tab, as a color name or hex triplet.
@@ -345,7 +345,7 @@ properties:
         precedence if set.
     type: String
     platforms: [mobileweb]
-    since: "1.9.0"
+    since: "2.0.0"
     
   - name: activeTabBackgroundSelectedImage
     summary: Default background selected image for the active tab.
@@ -354,7 +354,7 @@ properties:
         precedence if set.
     type: String
     platforms: [mobileweb]
-    since: "1.9.0"
+    since: "2.0.0"
     
   - name: tabDividerColor
     summary: Color of the divider between tabs, as a color name or hex triplet.
@@ -362,7 +362,7 @@ properties:
         For information about color values, see the "Colors" section of <Titanium.UI>. 
     type: String
     platforms: [mobileweb]
-    since: "1.9.0"
+    since: "2.0.0"
     
   - name: tabDividerWidth
     summary: Width of the divider between tabs.
@@ -371,7 +371,7 @@ properties:
         a dimension string (for example, `'50%'` or `'auto'`).
     type: [Number, String]
     platforms: [mobileweb]
-    since: "1.9.0"
+    since: "2.0.0"
     
   - name: tabHeight
     summary: Height of the tabs.
@@ -380,7 +380,7 @@ properties:
         a dimension string (for example, `'50%'` or `'auto'`).
     type: [Number, String]
     platforms: [mobileweb]
-    since: "1.9.0"
+    since: "2.0.0"
     
   - name: tabsAtBottom
     summary: |
@@ -390,4 +390,4 @@ properties:
     type: Boolean
     default: true
     platforms: [mobileweb]
-    since: "1.9.0"
+    since: "2.0.0"

@@ -142,7 +142,7 @@ methods:
         
   - name: openOptionsMenu
     summary: Programmatically opens the options menu.
-    since: "2.2.0"
+    since: "3.0.0"
 events:
 
   - name: create
@@ -172,7 +172,7 @@ events:
         summary: The `Intent` passed to the native `onNewIntent` method.
         type: Titanium.Android.Intent
     deprecated:
-        since: "2.2.0"
+        since: "3.0.0"
 
   - name: newintent
     summary: Fired when the activity is already running and certain flags are set in its intent. 
@@ -185,7 +185,7 @@ events:
       - name: intent
         summary: The `Intent` passed to the native `onNewIntent` method.
         type: Titanium.Android.Intent
-    since: '2.2.0'
+    since: '3.0.0'
 
   - name: pause
     summary: Fired when the activity is paused.

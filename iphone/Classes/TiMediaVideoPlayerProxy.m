@@ -56,7 +56,7 @@ NSArray* moviePlayerKeys = nil;
 -(NSArray*)keySequence
 {
 	if (moviePlayerKeys == nil) {
-		moviePlayerKeys = [[NSArray alloc] initWithObjects:@"url",@"contentURL",nil];
+		moviePlayerKeys = [[NSArray alloc] initWithObjects:@"url",nil];
 	}
 	return moviePlayerKeys;
 }
@@ -438,17 +438,7 @@ NSArray* moviePlayerKeys = nil;
 
 }
 
--(void)setContentURL:(id)newUrl
-{
-	[self setUrl:newUrl];
-}
-
 -(id)url
-{
-	return url;
-}
-
--(id)contentURL
 {
 	return url;
 }
@@ -765,7 +755,7 @@ NSArray* moviePlayerKeys = nil;
 	if (url == nil)
 	{
 		[self throwException:TiExceptionInvalidType
-				subreason:@"Tried to play movie player without a valid url, media, or contentURL property"
+				subreason:@"Tried to play movie player without a valid url or media property"
 				location:CODELOCATION];
 	}
 	
@@ -917,17 +907,17 @@ NSArray* moviePlayerKeys = nil;
 
 -(void)handleFullscreenExitNotification:(NSNotification*)note
 {
-	if ([self _hasListeners:@"fullscreen"])
+	NSDictionary *userinfo = [note userInfo];
+    if ([self _hasListeners:@"fullscreen"])
 	{
-		NSDictionary *userinfo = [note userInfo];
 		NSMutableDictionary *event = [NSMutableDictionary dictionary];
 		[event setObject:[userinfo valueForKey:MPMoviePlayerFullscreenAnimationDurationUserInfoKey] forKey:@"duration"];
 		[event setObject:NUMBOOL(NO) forKey:@"entering"];
 		[self fireEvent:@"fullscreen" withObject:event];
 	}	
 	[[UIApplication sharedApplication] setStatusBarHidden:statusBarWasHidden];
-    
-    [self performSelector:@selector(resizeRootView) withObject:nil afterDelay:[[UIApplication sharedApplication] statusBarOrientationAnimationDuration]];
+    //Wait untill the movie player animation is over before calculating the size of the movie player frame.
+    [self performSelector:@selector(resizeRootView) withObject:nil afterDelay:[TiUtils doubleValue:[userinfo valueForKey:MPMoviePlayerFullscreenAnimationDurationUserInfoKey]]];
 }
 
 -(void)handleSourceTypeNotification:(NSNotification*)note

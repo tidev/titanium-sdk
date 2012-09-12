@@ -8,13 +8,49 @@ since: "1.4"
 platforms: [iphone, ipad]
 properties:
 
+  - name: ANIMATION_CURVE_EASE_IN
+    summary: |
+        Use with [Animation.curve](Titanium.UI.Animation.curve) to specify an animation that starts 
+        slowly and speeds up.
+    type: Number
+    deprecated:
+        since: "2.1.0"
+    permission: read-only
+
+  - name: ANIMATION_CURVE_EASE_IN_OUT
+    summary: |
+        Use with [Animation.curve](Titanium.UI.Animation.curve) to specify an animation that starts 
+        slowly, and speeds up, then slows down at the end of the animation.
+    type: Number
+    deprecated:
+        since: "2.1.0"
+    permission: read-only
+
+  - name: ANIMATION_CURVE_EASE_OUT
+    summary: |
+        Use with [Animation.curve](Titanium.UI.Animation.curve) to specify an animation that starts 
+        quickly, then slows down at the end of the animation.
+    type: Number
+    deprecated:
+        since: "2.1.0"
+    permission: read-only
+
+  - name: ANIMATION_CURVE_LINEAR
+    summary: |
+        Use with [Animation.curve](Titanium.UI.Animation.curve) to specify an animation that proceeds 
+        at a constant rate.
+    type: Number
+    deprecated:
+        since: "2.1.0"
+    permission: read-only
+
   - name: AUTODETECT_ADDRESS
     summary: Use <Titanium.UI.AUTOLINK_MAP_ADDRESSES> instead.
     type: Number
     osver: {ios: {min: "4.0"}}
     permission: read-only
     deprecated:
-        since: "2.2.0"
+        since: "3.0.0"
     platforms: [iphone, ipad]
 
   - name: AUTODETECT_ALL
@@ -22,7 +58,7 @@ properties:
     type: Number
     permission: read-only
     deprecated:
-        since: "2.2.0"
+        since: "3.0.0"
     platforms: [iphone, ipad]
 
   - name: AUTODETECT_CALENDAR
@@ -31,7 +67,7 @@ properties:
     osver: {ios: {min: "4.0"}}
     permission: read-only
     deprecated:
-        since: "2.2.0"
+        since: "3.0.0"
     platforms: [iphone, ipad]
 
   - name: AUTODETECT_LINK
@@ -39,7 +75,7 @@ properties:
     type: Number
     permission: read-only
     deprecated:
-        since: "2.2.0"
+        since: "3.0.0"
     platforms: [iphone, ipad]
 
   - name: AUTODETECT_NONE
@@ -47,7 +83,7 @@ properties:
     type: Number
     permission: read-only
     deprecated:
-        since: "2.2.0"
+        since: "3.0.0"
     platforms: [iphone, ipad]
 
   - name: AUTODETECT_PHONE
@@ -55,7 +91,7 @@ properties:
     type: Number
     permission: read-only
     deprecated:
-        since: "2.2.0"
+        since: "3.0.0"
     platforms: [iphone, ipad]
 
   - name: BLEND_MODE_CLEAR

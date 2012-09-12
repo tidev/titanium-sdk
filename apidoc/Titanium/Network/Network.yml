@@ -15,6 +15,17 @@ description: |
 extends: Titanium.Module
 since: "0.1"
 methods:
+  - name: addConnectivityListener
+    summary: Use the [change](Titanium.Network.change) event to monitor connectivity changes.
+    description: |
+        This legacy method adds a connectivity listener to listen for network changes.
+    deprecated: { since: "1.7.0", removed: "3.0.0" }
+    parameters:
+      - name: callback
+        summary: Callback function to invoke upon network connectivity changes.
+        type: Callback<Object>
+    platforms: [iphone, ipad]
+    
   - name: createBonjourBrowser
     summary: Creates and returns a `BonjourBrowser` object.
     platforms: [iphone, ipad]
@@ -115,6 +126,18 @@ methods:
       - name: config
         summary: Dictionary specifying push-notification related options. 
         type: PushNotificationConfig
+
+  - name: removeConnectivityListener
+    summary: Use the [change](Titanium.Network.change) event to monitor connectivity changes.
+    description: |
+        This legacy method removes a connectivity listener.
+    deprecated: { since: "1.7.0", removed: "3.0.0" }
+    parameters:
+      - name: callback
+        summary: Callback function to remove.
+        type: Callback<Object>
+    platforms: [iphone, ipad]
+    
   - name: unregisterForPushNotifications
     summary: Unregisters the application for push notifications.
     description: |
