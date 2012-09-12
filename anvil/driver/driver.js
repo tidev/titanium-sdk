@@ -126,15 +126,15 @@ function init() {
 	};
 
 	driverGlobal.driverDir = __dirname;
-	driverGlobal.configSetDir = path.join(driverGlobal.driverDir, "..", "..", "support", "anvil", "configSet");
-	driverGlobal.harnessTemplateDir = path.join(driverGlobal.driverDir, "harnessResourcesTemplate");
+	driverGlobal.configSetDir = path.resolve(driverGlobal.driverDir, "..", "..", "support", "anvil", "configSet");
+	driverGlobal.harnessTemplateDir = path.resolve(driverGlobal.driverDir, "harnessResourcesTemplate");
 
 	driverGlobal.platforms = {};
 
 	var platforms = ["android", "ios", "mobileweb"];
 	for (var i = 0; i < platforms.length; i++) {
 		try {
-			driverGlobal.platforms[platforms[i]] = require(path.join(driverGlobal.driverDir, "platforms", platforms[i]));
+			driverGlobal.platforms[platforms[i]] = require(path.resolve(driverGlobal.driverDir, "platforms", platforms[i]));
 
 		} catch(e) {
 			console.log("exception occurred when loading platform module for <" + platforms[i] + ">: " + e);
@@ -155,7 +155,7 @@ function processCommandLineArgs(callback) {
 		modeArg = "local";
 	}
 
-	var modePath = path.join(driverGlobal.driverDir, modeArg + "Mode.js");
+	var modePath = path.resolve(driverGlobal.driverDir, modeArg + "Mode.js");
 	if (!(path.existsSync(modePath))) {
 		console.log("unable to find the specified mode: " + modeArg);
 		printUsageAndExit();
@@ -197,7 +197,7 @@ function processCommandLineArgs(callback) {
 }
 
 function loadConfigModule() {
-	var configModulePath = path.join(__dirname, "config.js");
+	var configModulePath = path.resolve(__dirname, "config.js");
 	if (!(path.existsSync(configModulePath))) {
 		console.log("No config module found!  Do the following:\n" +
 			driverUtils.getTabs(1) + "1) copy the exampleConfig.js to config.js in the root driver directory\n" +
@@ -252,8 +252,8 @@ function loadConfigModule() {
 	// load the tempDir config property and setup other properties that rely on the tempDir property
 	new function() {
 		driverUtils.checkConfigItem("tempDir", config.tempDir, "string");
-		driverGlobal.harnessDir = path.join(config.tempDir, "harness");
-		driverGlobal.logsDir = path.join(config.tempDir, "logs");
+		driverGlobal.harnessDir = path.resolve(config.tempDir, "harness");
+		driverGlobal.logsDir = path.resolve(config.tempDir, "logs");
 	}
 
 	/*
@@ -284,7 +284,7 @@ function setupTempDirs() {
 	driverUtils.createDir(driverGlobal.config.tempDir);
 	driverUtils.createDir(driverGlobal.harnessDir);
 	driverUtils.createDir(driverGlobal.logsDir);
-	driverUtils.createDir(path.join(driverGlobal.logsDir, driverGlobal.platform.name));
+	driverUtils.createDir(path.resolve(driverGlobal.logsDir, driverGlobal.platform.name));
 }
 
 init();

@@ -142,7 +142,7 @@ module.exports = new function() {
 		command = "tar -xzvf " + path.join(driverRunWorkingDir, activeRuns[driverId].gitHash + driverId + ".tgz") + " -C " + driverRunWorkingDir;
 
 		fs.mkdirSync(driverRunWorkingDir);
-		resultsFile = fs.openSync(path.join(driverRunWorkingDir, activeRuns[driverId].gitHash + driverId + ".tgz"), 'w')
+		resultsFile = fs.openSync(path.join(driverRunWorkingDir, activeRuns[driverId].gitHash + driverId + ".tgz"), 'w');
 
 		// create zip
 		fs.writeSync(resultsFile, results, 0, results.length, null);

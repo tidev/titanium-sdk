@@ -8,10 +8,10 @@ module.exports = new function() {
 	this.dbUser = ""; // username for connecting to the DB instance
 
 	/*
-	Update the version object when you a version has a specific requirement such as needing a 
-	specific version of Xcode, Android SDK, etc.  First a change should be made within 
-	messageHandler.js to add logic for checking the new desired value and then the actual value 
-	to check against (min value, etc) should be added to the version object.
+	Update the object for a specific version when a Titanium version has a specific 
+	requirement such as needing a specific version of Xcode, Android SDK, etc.  First a change 
+	should be made within messageHandler.js to add logic for checking the new desired value and 
+	then the actual value to check against (min value, etc) should be added to the version object.
 	
 	If no specific requirements exist, just specify an empty object for the version.  Versions 
 	that are not listed will be ignored.

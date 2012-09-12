@@ -16,7 +16,7 @@
 var fs = require("fs"),
 path = require("path"),
 wrench = require("wrench"),
-driverUtils = require(path.join(driverGlobal.driverDir, "driverUtils"));
+driverUtils = require(path.resolve(driverGlobal.driverDir, "driverUtils"));
 
 module.exports = new function() {
 	var self = this;
@@ -78,7 +78,7 @@ module.exports = new function() {
 		// build list of tiapp.xml and app.js combinations
 		function loadHarnessConfigs() {
 			function loadConfig(setIndex, configDir, configName) {
-				var stat = fs.statSync(path.join(configDir, configName));
+				var stat = fs.statSync(path.resolve(configDir, configName));
 				if (stat.isDirectory()) {
 					configs[setIndex].setConfigs.push({
 						configDir: configDir,
@@ -88,7 +88,7 @@ module.exports = new function() {
 			}
 
 			// load standard configs
-			var files = fs.readdirSync(path.join(driverGlobal.configSetDir, "configs"));
+			var files = fs.readdirSync(path.resolve(driverGlobal.configSetDir, "configs"));
 			if (files.length > 0) {
 				configs.push({
 					setDir: driverGlobal.configSetDir,
@@ -97,7 +97,7 @@ module.exports = new function() {
 				});
 
 				for (var i = 0; i < files.length; i++) {
-					loadConfig((configs.length - 1), path.join(driverGlobal.configSetDir, "configs"), files[i]);
+					loadConfig((configs.length - 1), path.resolve(driverGlobal.configSetDir, "configs"), files[i]);
 				}
 			}
 
@@ -109,8 +109,8 @@ module.exports = new function() {
 						var configSetName;
 
 						// load the config set name
-						if (path.existsSync(path.join(configSetDir, "name.txt"))) {
-							configSetName = driverUtils.trimStringRight(fs.readFileSync(path.join(configSetDir, "name.txt"), "ascii"));
+						if (path.existsSync(path.resolve(configSetDir, "name.txt"))) {
+							configSetName = driverUtils.trimStringRight(fs.readFileSync(path.resolve(configSetDir, "name.txt"), "ascii"));
 
 						} else {
 							driverUtils.log("the custom harness config set at <" + configSetDir + "/name.txt" + 
@@ -120,7 +120,7 @@ module.exports = new function() {
 							continue;
 						}
 
-						var files = fs.readdirSync(path.join(configSetDir, "configs"));
+						var files = fs.readdirSync(path.resolve(configSetDir, "configs"));
 						if (files.length > 0) {
 							configs.push({
 								setDir: configSetDir,
@@ -129,7 +129,7 @@ module.exports = new function() {
 							});
 
 							for (var j = 0; j < files.length; j++) {
-								loadConfig((configs.length - 1), path.join(configSetDir, "configs"), files[j]);
+								loadConfig((configs.length - 1), path.resolve(configSetDir, "configs"), files[j]);
 							}
 						}
 					}
@@ -288,7 +288,7 @@ module.exports = new function() {
 	};
 
 	this.createHarness = function(platform, command, successCallback, errorCallback) {
-		var harnessPlatformDir = path.join(driverGlobal.harnessDir, platform);
+		var harnessPlatformDir = path.resolve(driverGlobal.harnessDir, platform);
 
 		var createCallback = function() {
 			try {
@@ -300,7 +300,7 @@ module.exports = new function() {
 
 			driverUtils.runCommand(command, driverUtils.logStdout, function(error) {
 				if (error !== null) {
-					driverUtils.log("error encountered when created harness: " + error);
+					driverUtils.log("error encountered when creating harness: " + error);
 					if (errorCallback) {
 						errorCallback();
 					}
@@ -312,7 +312,7 @@ module.exports = new function() {
 			});
 		};
 
-		if (path.existsSync(path.join(harnessPlatformDir, "harness", "tiapp.xml"))) {
+		if (path.existsSync(path.resolve(harnessPlatformDir, "harness", "tiapp.xml"))) {
 			this.deleteHarness(platform, createCallback);
 
 		} else {
@@ -326,12 +326,12 @@ module.exports = new function() {
 	 */
 	var updateHarness = function(platform, successCallback, errorCallback) {
 		var config = configs[configSetIndex].setConfigs[configIndex];
-		var configDir = path.join(config.configDir, config.configName);
-		var harnessPlatformDir = path.join(driverGlobal.harnessDir, platform);
+		var configDir = path.resolve(config.configDir, config.configName);
+		var harnessPlatformDir = path.resolve(driverGlobal.harnessDir, platform);
 
 		var updateSuitesCallback = function() {
 			try {
-				wrench.copyDirSyncRecursive(path.join(configs[configSetIndex].setDir, "Resources"), path.join(harnessPlatformDir, "harness", "Resources"), {preserve: true});
+				wrench.copyDirSyncRecursive(path.resolve(configs[configSetIndex].setDir, "Resources"), path.resolve(harnessPlatformDir, "harness", "Resources"), {preserve: true});
 				driverUtils.log("harness suites updated");
 				updateTiappCallback();
 
@@ -350,7 +350,7 @@ module.exports = new function() {
 					return;
 				}
 
-				var tiappXmlPath = path.join(harnessPlatformDir, "harness", "tiapp.xml");
+				var tiappXmlPath = path.resolve(harnessPlatformDir, "harness", "tiapp.xml");
 				var tiappXmlContents;
 
 				// load the config set name
@@ -401,7 +401,7 @@ module.exports = new function() {
 				fs.writeFileSync(tiappXmlPath, newTiappXmlContents);
 			}
 
-			driverUtils.copyFile(path.join(configDir, "tiapp.xml"), path.join(harnessPlatformDir, "harness", "tiapp.xml"), function(error) {
+			driverUtils.copyFile(path.resolve(configDir, "tiapp.xml"), path.resolve(harnessPlatformDir, "harness", "tiapp.xml"), function(error) {
 				if (error !== null) {
 					driverUtils.log("unable to update the harness tiapp.xml: " + error);
 					if (errorCallback) {
@@ -418,8 +418,8 @@ module.exports = new function() {
 		};
 
 		var updateAppjsCallback = function() {
-			if (path.existsSync(path.join(configDir, "app.js"))) {
-				driverUtils.copyFile(path.join(configDir, "app.js"), path.join(harnessPlatformDir, "harness", "Resources", "app.js"), function(error) {
+			if (path.existsSync(path.resolve(configDir, "app.js"))) {
+				driverUtils.copyFile(path.resolve(configDir, "app.js"), path.resolve(harnessPlatformDir, "harness", "Resources", "app.js"), function(error) {
 					if (error !== null) {
 						driverUtils.log("unable to update app.js for harness: " + error);
 						if (errorCallback) {
@@ -441,7 +441,7 @@ module.exports = new function() {
 
 		// update the harness based on the harness template packaged with the driver
 		try {
-			wrench.copyDirSyncRecursive(driverGlobal.harnessTemplateDir, path.join(harnessPlatformDir, "harness", "Resources"), {preserve: true});
+			wrench.copyDirSyncRecursive(driverGlobal.harnessTemplateDir, path.resolve(harnessPlatformDir, "harness", "Resources"), {preserve: true});
 			driverUtils.log("harness updated with template");
 			updateSuitesCallback();
 
@@ -454,10 +454,10 @@ module.exports = new function() {
 	};
 
 	this.deleteHarness = function(platform, callback) {
-		var harnessDir = path.join(driverGlobal.harnessDir, platform, "harness");
+		var harnessDir = path.resolve(driverGlobal.harnessDir, platform, "harness");
 
 		if (path.existsSync(harnessDir)) {
-			wrench.rmdirSyncRecursive(harnessDir, failSilent);
+			wrench.rmdirSyncRecursive(harnessDir, true);
 			driverUtils.log("harness deleted");
 		}
 

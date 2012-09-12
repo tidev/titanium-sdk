@@ -12,9 +12,9 @@
 var path = require("path"),
 http = require('http'),
 fs = require('fs'),
-common = require(path.join(driverGlobal.driverDir, "common")),
-driverUtils = require(path.join(driverGlobal.driverDir, "driverUtils")),
-android = require(path.join(driverGlobal.driverDir, "platforms/android"));
+common = require(path.resolve(driverGlobal.driverDir, "common")),
+driverUtils = require(path.resolve(driverGlobal.driverDir, "driverUtils")),
+android = require(path.resolve(driverGlobal.driverDir, "platforms", "android"));
 
 module.exports = new function() {
 	var self = this;
@@ -70,9 +70,16 @@ module.exports = new function() {
 	};
 
 	var createHarness = function(successCallback, errorCallback) {
+		var argString = "harness com.appcelerator.harness " + path.resolve(driverGlobal.harnessDir, "mobileweb mobileweb") + " " + driverGlobal.config.currentTiSdkDir;
+
+		// due to python behavior on windows, we need to escape the slashes in the argument string
+		if (os.platform().substr(0 ,3) === "win") {
+			argString = argString.replace(/\\/g, "\\\\");
+		}
+
 		common.createHarness(
 			"mobileweb",
-			"\"" + path.join(driverGlobal.config.currentTiSdkDir, "project.py") + "\" harness com.appcelerator.harness " + path.join(driverGlobal.harnessDir, "mobileweb mobileweb") + " " + driverGlobal.config.currentTiSdkDir,
+			"\"" + path.resolve(driverGlobal.config.currentTiSdkDir, "project.py") + "\" " + argString,
 			successCallback,
 			errorCallback
 			);
@@ -84,8 +91,13 @@ module.exports = new function() {
 
 	var buildHarness = function(successCallback, errorCallback) {
 		var buildCallback = function() {
-			var args = [path.join(driverGlobal.harnessDir, "mobileweb", "harness"), "development"];
-			driverUtils.runProcess(path.join(driverGlobal.config.currentTiSdkDir, "mobileweb", "builder.py"), args, 0, 0, function(code) {
+			var args = [
+				path.resolve(driverGlobal.config.currentTiSdkDir, "mobileweb", "builder.py"),
+				path.resolve(driverGlobal.harnessDir, "mobileweb", "harness"),
+				"development"
+				];
+
+			driverUtils.runProcess("python", args, 0, 0, function(code) {
 				if (code !== 0) {
 					driverUtils.log("error encountered when building harness: " + code);
 					errorCallback();
@@ -97,7 +109,7 @@ module.exports = new function() {
 			});
 		};
 
-		if (path.existsSync(path.join(driverGlobal.harnessDir, "mobileweb", "harness", "tiapp.xml"))) {
+		if (path.existsSync(path.resolve(driverGlobal.harnessDir, "mobileweb", "harness", "tiapp.xml"))) {
 			buildCallback();
 
 		} else {
@@ -194,7 +206,7 @@ module.exports = new function() {
 
 	var startServer = function(successCallback, errorCallback) {
 		server = http.createServer(function (request, response) {
-			var prefix = path.join(driverGlobal.harnessDir, "mobileweb", "harness", "build", "mobileweb");
+			var prefix = path.resolve(driverGlobal.harnessDir, "mobileweb", "harness", "build", "mobileweb");
 			var filePath = prefix + request.url;
 			if (filePath === prefix + '/') {
 				filePath = prefix + '/index.html';
@@ -283,7 +295,7 @@ module.exports = new function() {
 	};
 
 	var runHarness = function(errorCallback) {
-		driverUtils.runCommand("adb shell am start -a android.intent.action.VIEW -d " + driverGlobal.httpHost + ":" + path.join("" + driverGlobal.config.httpPort, "index.html"), driverUtils.logStdout, function(error) {
+		driverUtils.runCommand("adb shell am start -a android.intent.action.VIEW -d " + driverGlobal.httpHost + ":" + path.resolve("" + driverGlobal.config.httpPort, "index.html"), driverUtils.logStdout, function(error) {
 			if (error !== null) {
 				driverUtils.log("error encountered when running harness: " + error);
 				if (errorCallback) {

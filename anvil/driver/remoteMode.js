@@ -178,7 +178,7 @@ module.exports = new function() {
 			driverUtils.runCommand("tar -xvf *.zip", driverUtils.logStderr, function(error, stdout, stderr) {
 				var configSetsPath;
 
-				if (error != null) {
+				if (error !== null) {
 					driverUtils.log("error <" + error + "> occurred when trying to unpack SDK");
 					process.exit(1);
 				}

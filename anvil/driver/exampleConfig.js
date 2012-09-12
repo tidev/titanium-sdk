@@ -10,8 +10,8 @@ module.exports = new function() {
 	taste by adding or removing values if desired)
 
 	Examples:
-	var baseDir = path.join(path.sep, "Users", "ocyrus", "dev");
-	var tiDir = path.join(baseDir, "appcelerator", "git", "titanium_mobile");
+	var baseDir = path.resolve(path.sep, "Users", "ocyrus", "dev");
+	var tiDir = path.resolve(baseDir, "appcelerator", "git", "titanium_mobile");
 	*/
 
 
@@ -23,7 +23,7 @@ module.exports = new function() {
 	versions of the titanium SDK.  For example, the contents of an example directory location 
 	might contain the following: "1.8.2 1.8.3 2.0.0 2.0.1 2.0.2 2.1.0 2.1.1 2.2.0"
 
-	Example: this.tiSdkDirs = path.join(path.sep, "Users", "ocyrus", "Library",
+	Example: this.tiSdkDirs = path.resolve(path.sep, "Users", "ocyrus", "Library",
 		"Application Support", "Titanium", "mobilesdk", "osx");
 	*/
 	this.tiSdkDirs = "";
@@ -32,9 +32,9 @@ module.exports = new function() {
 	this can be changed but shouldn't need to be. This is the location where the harness instances 
 	and log output is stored under
 
-	Example: this.tempDir = path.join(__dirname, "tmp");
+	Example: this.tempDir = path.resolve(__dirname, "tmp");
 	*/
-	this.tempDir = path.join(path.sep, "tmp", "driver");
+	this.tempDir = path.resolve(path.sep, "tmp", "driver");
 
 	// change this to control how many log files are kept per platform
 	this.maxLogs = 20;
@@ -71,7 +71,7 @@ module.exports = new function() {
 	/*
 	location of the android SDK - only needed when running with --platform=android;
 
-	Example: this.androidSdkDir = path.join(baseDir, "installed", "android-sdk-mac_x86");
+	Example: this.androidSdkDir = path.resolve(baseDir, "installed", "android-sdk-mac_x86");
 	*/
 	this.androidSdkDir = "";
 
@@ -142,10 +142,10 @@ module.exports = new function() {
 	*/
 	this.driverEnvironment = {
 		// always specify a platform
-		platform = "android",
+		platform: "android",
 
 		// if running for iOS, specify the version of Xcode
-		xcodeVersion = "4.2.1"
+		xcodeVersion: "4.2.1"
 	};
 
 
@@ -160,7 +160,7 @@ module.exports = new function() {
 	harness configs that will be run when a test pass is started (assuming no specific config set
 	is specified)
 
-	Example: this.customHarnessConfigDirs = [path.join(path.sep, "tmp", "myconfigs")];
+	Example: this.customHarnessConfigDirs = [path.resolve(path.sep, "tmp", "myconfigs")];
 	*/
 }
 
