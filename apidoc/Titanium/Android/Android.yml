@@ -1386,32 +1386,32 @@ properties:
     summary: Always show this item as an action button in the action bar.
     type: Number
     permission: read-only
-    since: "2.2"
+    since: "3.0.0"
 
   - name: SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW
     summary: The action view can collapse to a normal menu item.
     type: Number
     permission: read-only
-    since: "2.2"
+    since: "3.0.0"
 
   - name: SHOW_AS_ACTION_IF_ROOM
     summary: |
       Show this item as an action button if the system decides there is room for it.
     type: Number
     permission: read-only
-    since: "2.2"
+    since: "3.0.0"
 
   - name: SHOW_AS_ACTION_NEVER
     summary: Never display this item as an action button in the action bar.
     type: Number
     permission: read-only
-    since: "2.2"
+    since: "3.0.0"
 
   - name: SHOW_AS_ACTION_WITH_TEXT
     summary: When this item is in the action bar, always show it with a text label.
     type: Number
     permission: read-only
-    since: "2.2"
+    since: "3.0.0"
 
   - name: START_NOT_STICKY
     summary: |

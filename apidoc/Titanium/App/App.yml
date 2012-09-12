@@ -12,6 +12,78 @@ description: |
     While most values may be changed by editing the `tiapp.xml` file after creating the project, 
     the GUID is automatically generated and should not be changed.
 
+    #### iOS Application Life Cycle
+
+    At any given moment, you applications can be in one of the following possible states:
+    
+    *   Not running: The app has not been launched or was running but was terminated by the system.
+    
+    *   Inactive: The app is running in the foreground but is currently not receiving events. 
+    An app usually stays in this state only briefly as it transitions to a different state. 
+    The `pause` event is fired during this state.
+    
+    *   Active: The app is running in the foreground and is receiving events. This is the normal 
+    mode for foreground apps. 
+    
+    *   Background: The app is in the background and executing code. Most apps enter this state 
+    briefly on their way to being suspended. 
+    
+    *   Suspended: The app is in the background but is not executing code. The system moves 
+    apps to this state automatically and does not notify them before doing so. While suspended, 
+    an app remains in memory but does not execute any code. The `paused` event is fired 
+    during this state. The system tries to keep as many apps in memory at the same time as it 
+    can, but when memory runs low it terminates suspended apps to reclaim that memory. Apps 
+    that consume large amounts of memory while in the background are the first apps to be terminated.
+    
+    **Responding To interruptions**
+    
+    ***System Alerts***
+    
+    When an **alert-based** interruption occurs, such as an incoming phone call, the app moves 
+    temporarily to the inactive state, and fires the `pause` event. The system then displays 
+    an alert to the user. The app remains in this state until the user dismisses the alert. 
+    At this point, the app either returns to the active state and fires the `resumed` event; 
+    or moves to the background state and fires the `paused` event. In iOS 5, notifications that 
+    display a banner do not deactivate your app in the way that alert-based notifications do.
+    However, if the user pulls down the banner to reveal the notification center, your app 
+    moves to the inactive state just as if an alert-based interruption had occurred.
+    
+    Alert-based interruptions result in temporary loss of control by your app and results in `pause` 
+    event being fired. Your app continues to run in the foreground, but it does not recieve 
+    touch events from the system. (It does continue to receive notifications and other types 
+    of events, such as accelerometer events.) When your app is moved back to the 
+    active state, the `resumed` event is fired. 
+    
+    The same set of events takes place when user **double taps on the home button**.
+    
+    ***Sleep/Wake Button***
+    
+    Pressing the **Sleep/Wake** button is another type of interruption that causes your app to 
+    move to an inactive state. When the app is in the foreground, if the **Sleep/Wake button** 
+    is pressed the following events take place:
+    
+    *   In iOS 4.X the system fires the `pause` event and becomes inactive and on waking up the app fires 
+    the `resumed` event.
+
+    *   In iOS 5.0 and greater the system fires the `pause` event followed by the `paused` event and 
+    becomes inactive. This is an intentionally behavioral change by Apple to conserve battery when 
+    the Sleep/Wake button is pressed. On waking up the app fires the `resume` event followed by the 
+    `resumed` event and returns the app to normal state. 
+
+    ***Home Button***
+    
+    Pressing the **home button** is another kind of interruption. The app fires `pause` and 
+    `paused`events before going into background. When app is reopened it fires the `resume` 
+    event followed by the `resumed` event, returning the app to the normal state.
+    
+    <table class="doc-table" summary="This table gives the order of events fired when the app is in normal state.">
+    <caption><b>Lifecycle events fired during different interruptions</b></caption>
+    <tr><th colspan="2">Type of Interruption<th colspan="2">Going into Background<th colspan="2">Coming into  Foreground</tr>
+    <tr><th colspan="2" align = "left">Alert-Based/Fast App Switching<td align="center">pause</td><td align="center"></td><td align="center"> </td><td align="center">resumed</td></tr>
+    <tr><th rowspan="2" align="left">Sleep/Wake Button</th><td> iOS 4.X</td><td align="center">pause</td><td  align="center"><td align="center"><td align="center"> resumed</tr >
+    <tr><td>iOS 5.0 +</td><td align="center">pause</td><td align="center">paused</td><td align="center">resume<td align="center">resumed</td></tr>
+    <tr><th colspan="2" align="left">Home Button (backgrounding)<td align="center">pause<td align="center">paused<td align="center"> resume<td align="center">resumed</tr></table>
+    
     #### Application Level Events
 
     Application-level events are custom events that are defined globally for your
@@ -124,7 +196,7 @@ events:
         is being dissmissed.
     platforms: [iphone, ipad]
     deprecated:
-        since: "2.2.0"
+        since: "3.0.0"
     since: '2.1.0'
 
   - name: keyboardframechanged
@@ -138,7 +210,7 @@ events:
         Note that the keyboard `height` and `width` properties will not be accurate when the keyboard 
         is being dissmissed.
     platforms: [iphone, ipad]
-    since: '2.2.0'
+    since: '3.0.0'
     
 methods:
   - name: getArguments
@@ -237,7 +309,7 @@ properties:
     type: Boolean
     default: false
     platforms: [iphone, ipad]
-    since: '2.2.0'
+    since: '3.0.0'
     
   - name: publisher
     summary: Application publisher, from `tiapp.xml`.

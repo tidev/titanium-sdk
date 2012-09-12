@@ -128,7 +128,7 @@ methods:
       - name: contacts
         summary: List of contacts to save. Used on Android only. 
         type: Array<Titanium.Contacts.Person>
-    since: {android: "2.2.0"}
+    since: {android: "3.0.0"}
     description: |
       
         On Android:

@@ -40,7 +40,7 @@ events:
         To restore default behavior, remove the listener. It is recommended that you only
         have one handler per heavyweight window.
     deprecated:
-        since: "2.2.0"
+        since: "3.0.0"
 
   - name: android:camera
     summary: Fired when the Camera button is released.
@@ -52,7 +52,7 @@ events:
         handler per heavyweight window.
     platforms: [android]
     deprecated:
-        since: "2.2.0"
+        since: "3.0.0"
 
   - name: android:focus
     summary: Fired when the Camera button is half-pressed then released.
@@ -64,7 +64,7 @@ events:
         handler per heavyweight window.
     platforms: [android]
     deprecated:
-        since: "2.2.0"
+        since: "3.0.0"
 
   - name: android:search
     summary: Fired when the Search button is released.
@@ -76,7 +76,7 @@ events:
         one handler per heavyweight window.
     platforms: [android]
     deprecated:
-        since: "2.2.0"
+        since: "3.0.0"
 
   - name: android:voldown
     summary: Fired when the volume down button is released.
@@ -88,7 +88,7 @@ events:
         handler per heavyweight window.
     platforms: [android]
     deprecated:
-        since: "2.2.0"
+        since: "3.0.0"
 
   - name: android:volup
     summary: Fired when the volume up button is released.
@@ -100,7 +100,7 @@ events:
         handler per heavyweight window.
     platforms: [android]
     deprecated:
-        since: "2.2.0"
+        since: "3.0.0"
 
   - name: androidback
     platforms: [android]
@@ -118,7 +118,7 @@ events:
         changes way exist such as the event no longer firing when the
         user dismisses the keyboard with the back button.
 
-    since: '2.2.0'
+    since: '3.0.0'
 
   - name: androidcamera
     summary: Fired when the Camera button is released.
@@ -127,7 +127,7 @@ events:
         default behavior, remove the listener. It is recommended that you only have one
         handler per heavyweight window.
     platforms: [android]
-    since: '2.2.0'
+    since: '3.0.0'
 
   - name: androidfocus
     summary: Fired when the Camera button is half-pressed then released.
@@ -136,7 +136,7 @@ events:
         default behavior, remove the listener. It is recommended that you only have one
         handler per heavyweight window.
     platforms: [android]
-    since: '2.2.0'
+    since: '3.0.0'
 
   - name: androidsearch
     summary: Fired when the Search button is released.
@@ -145,7 +145,7 @@ events:
         default behavior, remove the listener. It is recommended that you only have
         one handler per heavyweight window.
     platforms: [android]
-    since: '2.2.0'
+    since: '3.0.0'
 
   - name: androidvoldown
     summary: Fired when the volume down button is released.
@@ -154,7 +154,7 @@ events:
         default behavior, remove the listener. It is recommended that you only have one
         handler per heavyweight window.
     platforms: [android]
-    since: '2.2.0'
+    since: '3.0.0'
 
   - name: androidvolup
     summary: Fired when the volume up button is released.
@@ -163,7 +163,7 @@ events:
         default behavior, remove the listener. It is recommended that you only have one
         handler per heavyweight window.
     platforms: [android]
-    since: '2.2.0'
+    since: '3.0.0'
 
   - name: blur
     summary: Fired when the window loses focus.
@@ -802,7 +802,7 @@ examples:
 ---
 name: openWindowParams
 summary: Dictionary of options for the <Titanium.UI.Window.open> method.
-since: 1.9.0
+since: 2.0.0
 platforms: [android, iphone, ipad]
 
 properties:

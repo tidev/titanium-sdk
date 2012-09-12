@@ -70,4 +70,4 @@ methods:
       - name: props
         summary: A dictionary of properties to apply.
         type: Dictionary
-    since: "2.2.0"
+    since: "3.0.0"

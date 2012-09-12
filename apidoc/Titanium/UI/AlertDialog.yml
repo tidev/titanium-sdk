@@ -33,7 +33,10 @@ description: |
     On iOS 4.0 and later, alert dialogs are automatically cancelled when the application is 
     paused/suspended. This behavior can avoided by setting `persistent` property on alert dialog 
     to be `true`.
-    
+
+    On iOS 5.0 and later, `style` property can be used to allow the user to enter plain text, 
+    obscured text or login identifier and password. Entered values can be captured with listening
+    `cancel` event.
     
     #### Global Alias
     
@@ -74,6 +77,28 @@ events:
       - name: index
         summary: Index of the button that was clicked.
         type: Number
+
+      - name: login
+        summary: |
+            Value of login field if dialog `style` property is defined as 
+            <Titanium.UI.iPhone.AlertDialogStyle.LOGIN_AND_PASSWORD_INPUT>.
+        type: String
+        platforms: [iphone, ipad]
+
+      - name: password
+        summary: |
+            Value of password field if dialog `style` property is defined as 
+            <Titanium.UI.iPhone.AlertDialogStyle.LOGIN_AND_PASSWORD_INPUT>.
+        type: String
+        platforms: [iphone, ipad]
+
+      - name: text
+        summary: |
+            Value of text field if dialog `style` property is defined as
+            <Titanium.UI.iPhone.AlertDialogStyle.PLAIN_TEXT_INPUT> or 
+            <Titanium.UI.iPhone.AlertDialogStyle.SECURE_TEXT_INPUT>.
+        type: String
+        platforms: [iphone, ipad]
 
 methods:
   - name: show
@@ -116,6 +141,20 @@ properties:
     type: String
     accessors: false
     platforms: [android, iphone, ipad, mobileweb]
+
+  - name: style
+    summary: The style for the alert dialog.
+    description: |
+        Style of the alert dialog, specified using one of the constants from
+        <Titanium.UI.iPhone.AlertDialogStyle>. Using styles other than default one can break
+        your dialog layout if more than two buttons used. All styles can handle up to two
+        buttons comfortably, except for default style can handle up to six buttons when `title`
+        and `message` is empty or not given. Note that this property available on 
+        iOS SDK 5 or above. 
+    type: Number
+    default: <Titanium.UI.iPhone.AlertDialogStyle.DEFAULT>
+    since: 3.0.0
+    platforms: [iphone, ipad]
 
   - name: title
     summary: Title of the dialog.
@@ -219,6 +258,29 @@ examples:
                 Ti.API.info('e.cancel: ' + e.cancel);
                 Ti.API.info('e.source.cancel: ' + e.source.cancel);
                 Ti.API.info('e.index: ' + e.index);
+              });
+              dialog.show();
+            });
+            win.open();
+
+  - title: Alert Dialog with Plain Text Input (iOS 5 and later)
+    example: |
+        Create an alert dialog and allow the user enter plain text, which is invoked when the
+        app window is clicked.
+        Output entered text value to the log when the OK button is clicked.
+
+            Ti.UI.setBackgroundColor('white');
+            var win = Ti.UI.createWindow({
+              title: 'Click window to test'
+            });
+            win.addEventListener('click', function(e){
+              var dialog = Ti.UI.createAlertDialog({
+                title: 'Enter text',
+                style: Ti.UI.iPhone.AlertDialogStyle.PLAIN_TEXT_INPUT,
+                buttonNames: ['OK']
+              });
+              dialog.addEventListener('click', function(e){
+                Ti.API.info('e.text: ' + e.text);
               });
               dialog.show();
             });
