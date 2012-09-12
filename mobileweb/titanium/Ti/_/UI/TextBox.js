@@ -39,7 +39,7 @@ define(
 			});
 
 			on(field, "keypress", this, function() {
-				this._capitalize();
+				setTimeout(lang.hitch(this, function () { this._capitalize() }));
 			});
 
 			on(field, "focus", this, function(){
@@ -58,10 +58,16 @@ define(
 				clearInterval(updateInterval);
 				this.fireEvent("blur");
 			});
+			
+			// Set the autocorrect value via the setter
+			this.autocorrect = true;
 		},
 
 		_setInternalText: function(value) {
-			return this._capitalize(this._field.value = value);
+			if (this._field.value !== value) {
+				this._field.value = value;
+				this._capitalize();
+			}
 		},
 		
 		_getInternalText: function() {
@@ -72,11 +78,12 @@ define(
 			this._setInternalText(this._getInternalText());
 		},
 
-		_capitalize: function(ac, val) {
-			var acval = "off";
-			switch (ac || this.autocapitalization) {
+		_capitalize: function() {
+			var acval = "off",
+				field = this._field;
+			switch (this.autocapitalization) {
 				case UI.TEXT_AUTOCAPITALIZATION_ALL:
-					this._setInternalText(this._getInternalText().toUpperCase());
+					field.value = field.value.toUpperCase();
 					break;
 				case UI.TEXT_AUTOCAPITALIZATION_SENTENCES:
 					acval = "on";
@@ -99,17 +106,12 @@ define(
 		properties: {
 			autocapitalization: {
 				value: UI.TEXT_AUTOCAPITALIZATION_SENTENCES,
-				set: function(value, oldValue) {
-					value !== oldValue && this._capitalize(value);
-					return value;
-				}
+				post: "_capitalize"
 			},
 
 			autocorrect: {
-				value: false,
-				set: function(value) {
+				post: function(value) {
 					this._field.autocorrect = !!value ? "on" : "off";
-					return value;
 				}
 			},
 
@@ -130,9 +132,8 @@ define(
 			suppressReturn: true,
 
 			textAlign: {
-				set: function(value) {
+				post: function(value) {
 					setStyle(this._field, "textAlign", /(center|right)/.test(value) ? value : "left");
-					return value;
 				}
 			},
 
