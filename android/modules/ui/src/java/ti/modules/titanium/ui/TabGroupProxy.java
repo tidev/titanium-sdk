@@ -384,21 +384,28 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 		TabProxy previousSelectedTab = selectedTab;
 		selectedTab = tabProxy;
 
-		// Tab focus and blur event data.
-		KrollDict eventData = new KrollDict();
-		eventData.put(TiC.EVENT_PROPERTY_PREVIOUS_TAB, previousSelectedTab);
-		eventData.put(TiC.EVENT_PROPERTY_PREVIOUS_INDEX, tabs.indexOf(previousSelectedTab));
-		eventData.put(TiC.EVENT_PROPERTY_TAB, selectedTab);
-		eventData.put(TiC.EVENT_PROPERTY_INDEX, tabs.indexOf(selectedTab));
+		// Focus event data which will be dispatched to the selected tab.
+		// The 'source' of these events will always be the tab being focused.
+		KrollDict focusEventData = new KrollDict();
+		focusEventData.put(TiC.EVENT_PROPERTY_SOURCE, selectedTab);
+		focusEventData.put(TiC.EVENT_PROPERTY_PREVIOUS_TAB, previousSelectedTab);
+		focusEventData.put(TiC.EVENT_PROPERTY_PREVIOUS_INDEX, tabs.indexOf(previousSelectedTab));
+		focusEventData.put(TiC.EVENT_PROPERTY_TAB, selectedTab);
+		focusEventData.put(TiC.EVENT_PROPERTY_INDEX, tabs.indexOf(selectedTab));
+
+		// We cannot modify event data after firing an event with it.
+		// To change the 'source' to the previously selected tab we must clone it.
+		KrollDict blurEventData = (KrollDict) focusEventData.clone();
+		blurEventData.put(TiC.EVENT_PROPERTY_SOURCE, previousSelectedTab);
 
 		// Notify the previously and currently selected tabs about the change.
 		// Tab implementations should update their UI state and fire focus/blur events.
 		if (previousSelectedTab != null) {
 			previousSelectedTab.onSelectionChanged(false);
-			previousSelectedTab.onFocusChanged(false, (KrollDict) eventData.clone());
+			previousSelectedTab.onFocusChanged(false, blurEventData);
 		}
 		selectedTab.onSelectionChanged(true);
-		selectedTab.onFocusChanged(true, eventData);
+		selectedTab.onFocusChanged(true, focusEventData);
 	}
 
 	private void fillIntent(Activity activity, Intent intent)
