@@ -71,6 +71,10 @@ public abstract class TiUIView
 
 	private static AtomicInteger idGenerator;
 
+	// When distinguishing twofingertap and pinch events, minimum motion (in pixels) 
+	// to qualify as a scale event. 
+	private static final float SCALE_THRESHOLD = 6.0f;
+
 	public static final int SOFT_KEYBOARD_DEFAULT_ON_FOCUS = 0;
 	public static final int SOFT_KEYBOARD_HIDE_ON_FOCUS = 1;
 	public static final int SOFT_KEYBOARD_SHOW_ON_FOCUS = 2;
@@ -1047,14 +1051,24 @@ public abstract class TiUIView
 				{
 					if (proxy.hierarchyHasListener(TiC.EVENT_PINCH)) {
 						float timeDelta = sgd.getTimeDelta() == 0 ? minTimeDelta : sgd.getTimeDelta();
-						didScale = true;
 
-						KrollDict data = new KrollDict();
-						data.put(TiC.EVENT_PROPERTY_SCALE, sgd.getCurrentSpan() / startSpan);
-						data.put(TiC.EVENT_PROPERTY_VELOCITY, (sgd.getScaleFactor() - 1.0f) / timeDelta * 1000);
-						data.put(TiC.EVENT_PROPERTY_SOURCE, proxy);
+                        // Suppress scale events (and allow for possible two-finger tap events)
+                        // until we've moved at least a few pixels. Without this check, two-finger 
+                        // taps are very hard to register on some older devices.
+						if (! didScale) {
+							if (Math.abs(sgd.getCurrentSpan() - startSpan) > SCALE_THRESHOLD) {
+								didScale = true;
+							} 
+						}
 
-						return proxy.fireEvent(TiC.EVENT_PINCH, data);
+						if (didScale) {
+							KrollDict data = new KrollDict();
+							data.put(TiC.EVENT_PROPERTY_SCALE, sgd.getCurrentSpan() / startSpan);
+							data.put(TiC.EVENT_PROPERTY_VELOCITY, (sgd.getScaleFactor() - 1.0f) / timeDelta * 1000);
+							data.put(TiC.EVENT_PROPERTY_SOURCE, proxy);
+	
+							return proxy.fireEvent(TiC.EVENT_PINCH, data);
+						}
 					}
 					return false;
 				}
