@@ -197,11 +197,19 @@ function build(logger, config, cli, finished) {
 					
 					this.logger.info(__n('Searching for %s Titanium Module', 'Searching for %s Titanium Modules', this.tiapp.modules.length));
 					ti.module.find(this.tiapp.modules, ['ios', 'iphone'], this.projectDir, this.logger, hitch(this, function (modules) {
-						if (modules.missing && modules.missing.length) {
-							this.logger.error(__('Could not all required Titanium Modules:'))
-							this.logger.error(__('Missing the following modules:'));
+						if (modules.missing.length) {
+							this.logger.error(__('Could not find all required Titanium Modules:'))
 							modules.missing.forEach(function (m) {
 								this.logger.error('   id: ' + m.id + '\t version: ' + m.version + '\t platform: ' + m.platform);
+							}, this);
+							this.logger.log();
+							process.exit(1);
+						}
+						
+						if (modules.incompatible.length) {
+							this.logger.error(__('Found incompatible Titanium Modules:'));
+							modules.incompatible.forEach(function (m) {
+								this.logger.error('   id: ' + m.id + '\t version: ' + m.version + '\t platform: ' + m.platform + '\t min sdk: ' + m.minsdk);
 							}, this);
 							this.logger.log();
 							process.exit(1);
@@ -254,6 +262,30 @@ function build(logger, config, cli, finished) {
 									module_dir = os.path.join(this.xcodeAppDir, 'modules', module_id)
 									module_asset_dirs.append([module_assets_dir, module_dir])
 						*/
+						callback();
+					}));
+				},
+				
+				function (callback) {
+					if (!this.tiapp.plugins || !this.tiapp.plugins.length) {
+						this.logger.info(__('No legacy Titanium plugins required, continuing'));
+						callback();
+						return;
+					}
+					
+					this.logger.info(__n('Searching for %s Titanium plugin', 'Searching for %s Titanium plugins', this.tiapp.plugins.length));
+					ti.plugin.find(this.tiapp.plugins, this.projectDir, this.logger, hitch(this, function (plugins) {
+						if (plugins.missing.length) {
+							this.logger.error(__('Could not find all required Titanium plugins:'))
+							plugins.missing.forEach(function (m) {
+								this.logger.error('   id: ' + m.id + '\t version: ' + m.version);
+							}, this);
+							this.logger.log();
+							process.exit(1);
+						}
+						
+						dump(plugins);
+						
 						callback();
 					}));
 				}
