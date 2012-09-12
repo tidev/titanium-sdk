@@ -23,6 +23,20 @@ description: |
 extends: Titanium.UI.View
 since: "1.2"
 platforms: [iphone, ipad]
+excludes: {
+    events: [longclick, touchcancel, touchend, touchmove, touchstart],
+    methods: [getBackgroundDisabledColor, getBackgroundDisabledImage, getBackgroundFocusedColor,
+              getBackgroundFocusedImage, getBackgroundSelectedColor, getBackgroundSelectedImage,
+              getFocusable, getKeepScreenOn, getSoftKeyboardOnFocus,
+              setBackgroundDisabledColor, setBackgroundDisabledImage, setBackgroundFocusedColor,
+              setBackgroundFocusedImage, setBackgroundSelectedColor, setBackgroundSelectedImage,
+              setFocusable, setKeepScreenOn, setSoftKeyboardOnFocus,
+    ],
+    properties: [backgroundDisabledColor, backgroundDisabledImage, backgroundFocusedColor,
+                 backgroundFocusedImage, backgroundSelectedColor, backgroundSelectedImage,
+                 focusable, keepScreenOn, softKeyboardOnFocus
+    ]
+}
 
 events:
   - name: click
