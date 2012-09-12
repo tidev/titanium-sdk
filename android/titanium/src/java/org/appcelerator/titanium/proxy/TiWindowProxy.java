@@ -238,6 +238,18 @@ public abstract class TiWindowProxy extends TiViewProxy
 		}
 	}
 
+	/**
+	 * Called when the window gained or lost focus.
+	 *
+	 * Default implementation will fire "focus" and "blur" events
+	 * when the focus state has changed.
+	 *
+	 * @param focused true if focus was gained
+	 */
+	public void onWindowFocusChange(boolean focused) {
+		fireEvent((focused) ? TiC.EVENT_FOCUS : TiC.EVENT_BLUR, null, false);
+	}
+
 	@Kroll.setProperty @Kroll.method
 	public void setLeftNavButton(Object button)
 	{

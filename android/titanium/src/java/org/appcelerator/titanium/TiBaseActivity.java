@@ -17,7 +17,6 @@ import org.appcelerator.kroll.common.TiMessenger;
 import org.appcelerator.titanium.TiLifecycle.OnLifecycleEvent;
 import org.appcelerator.titanium.proxy.ActivityProxy;
 import org.appcelerator.titanium.proxy.IntentProxy;
-import org.appcelerator.titanium.proxy.TiBaseWindowProxy;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.proxy.TiWindowProxy;
 import org.appcelerator.titanium.util.TiActivityResultHandler;
@@ -76,12 +75,12 @@ public abstract class TiBaseActivity extends Activity
 	protected int msgId = -1;
 	protected static int previousOrientation = -1;
 	private ArrayList<Dialog> dialogs = new ArrayList<Dialog>();
-	private Stack<TiBaseWindowProxy> windowStack = new Stack<TiBaseWindowProxy>();
+	private Stack<TiWindowProxy> windowStack = new Stack<TiWindowProxy>();
 
 	public TiWindowProxy lwWindow;
 	public boolean isResumed = false;
 
-	public void addWindowToStack(TiBaseWindowProxy proxy)
+	public void addWindowToStack(TiWindowProxy proxy)
 	{
 		if (windowStack.contains(proxy)) {
 			Log.e(TAG, "Window already exists in stack", Log.DEBUG_MODE);
@@ -89,23 +88,25 @@ public abstract class TiBaseActivity extends Activity
 		}
 		boolean isEmpty = windowStack.empty();
 		if (!isEmpty) {
-			windowStack.peek().fireEvent(TiC.EVENT_BLUR, null);
+			windowStack.peek().onWindowFocusChange(false);
 		}
 		windowStack.add(proxy);
-		if (!isEmpty) { 
-			proxy.fireEvent(TiC.EVENT_FOCUS, null, false);
+		if (!isEmpty) {
+			proxy.onWindowFocusChange(true);
 		}
 	}
 
-	public void removeWindowFromStack(TiBaseWindowProxy proxy)
+	public void removeWindowFromStack(TiWindowProxy proxy)
 	{
-		proxy.fireEvent(TiC.EVENT_BLUR, null);
+		proxy.onWindowFocusChange(false);
+
 		boolean isTopWindow = ( (!windowStack.isEmpty()) && (windowStack.peek() == proxy) ) ? true : false;
 		windowStack.remove(proxy);
+
 		//Fire focus only if activity is not paused and the removed window was topWindow
 		if (!windowStack.empty() && isResumed && isTopWindow) {
-			TiBaseWindowProxy nextWindow = windowStack.peek();
-			nextWindow.fireEvent(TiC.EVENT_FOCUS, null, false);
+			TiWindowProxy nextWindow = windowStack.peek();
+			nextWindow.onWindowFocusChange(true);
 		}
 	}
 
@@ -113,7 +114,7 @@ public abstract class TiBaseActivity extends Activity
 	 * Returns the window at the top of the stack.
 	 * @return the top window or null if the stack is empty.
 	 */
-	public TiBaseWindowProxy topWindowOnStack()
+	public TiWindowProxy topWindowOnStack()
 	{
 		return (windowStack.isEmpty()) ? null : windowStack.peek();
 	}
@@ -407,9 +408,7 @@ public abstract class TiBaseActivity extends Activity
 			return;
 		}
 
-		if (!isTabActivity()) {
-			TiApplication.addToActivityStack(this);
-		}
+		TiApplication.addToActivityStack(this);
 
 		// create the activity proxy here so that it is accessible from the activity in all cases
 		activityProxy = new ActivityProxy(this);
@@ -542,7 +541,7 @@ public abstract class TiBaseActivity extends Activity
 	@Override
 	public void onBackPressed()
 	{
-		TiBaseWindowProxy topWindow = topWindowOnStack();
+		TiWindowProxy topWindow = topWindowOnStack();
 
 		// Prevent default Android behavior for "back" press
 		// if the top window has a listener to handle the event.
@@ -783,7 +782,7 @@ public abstract class TiBaseActivity extends Activity
 		}
 
 		if (!windowStack.empty()) {
-			windowStack.peek().fireEvent(TiC.EVENT_BLUR, null);
+			windowStack.peek().onWindowFocusChange(false);
 		}
 	
 		TiApplication.updateActivityTransitionState(true);
@@ -833,7 +832,7 @@ public abstract class TiBaseActivity extends Activity
 		}
 
 		if (!windowStack.empty()) {
-			windowStack.peek().fireEvent(TiC.EVENT_FOCUS, null, false);
+			windowStack.peek().onWindowFocusChange(true);
 		} 
 		
 		tiApp.setCurrentActivity(this, this);

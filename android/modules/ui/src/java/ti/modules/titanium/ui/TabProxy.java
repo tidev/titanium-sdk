@@ -193,17 +193,19 @@ public class TabProxy extends TiViewProxy
 		return 0;
 	}
 
-	void onSelectionChanged(boolean selected, KrollDict eventData)
+	void onFocusChanged(boolean focused, KrollDict eventData)
 	{
-		((TiUIAbstractTab) view).onSelectionChange(selected);
-
-
 		// The focus and blur events for tab changes propagate like so:
 		//    window -> tab -> tab group
 		//
 		// The window is optional and will be skipped if it does not exist.
 		TiViewProxy eventEmitter = (win != null) ? win : this;
-		eventEmitter.fireEvent((selected) ? TiC.EVENT_FOCUS : TiC.EVENT_BLUR, eventData, true);
+		eventEmitter.fireEvent((focused) ? TiC.EVENT_FOCUS : TiC.EVENT_BLUR, eventData, true);
+	}
+
+	void onSelectionChanged(boolean selected)
+	{
+		((TiUIAbstractTab) view).onSelectionChange(selected);
 	}
 
 }

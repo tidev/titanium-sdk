@@ -53,6 +53,7 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 	private ArrayList<TabProxy> tabs = new ArrayList<TabProxy>();
 	private WeakReference<Activity> tabGroupActivity;
 	private TabProxy selectedTab;
+	private boolean isFocused;
 
 	public TabGroupProxy()
 	{
@@ -275,6 +276,11 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 		setModelListener(view);
 
 		handlePostOpen();
+
+		// Push the tab group onto the window stack. It needs to intercept
+		// stack changes to properly dispatch tab focus and blur events
+		// when windows open and close on top of it.
+		activity.addWindowToStack(this);
 	}
 
 	@Override
@@ -320,6 +326,11 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 			tg.selectTab(tab);
 		}
 
+		// Selected tab should have been focused by now.
+		// Prevent any duplicate events from firing by marking
+		// this group has having focus.
+		isFocused = true;
+
 		// Setup the new tab activity like setting orientation modes.
 		onWindowActivityCreated();
 	}
@@ -341,6 +352,29 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 		}
 	}
 
+	@Override
+	public void onWindowFocusChange(boolean focused) {
+		// Do not dispatch duplicate focus events.
+		// Duplicates may occur when the group opens because
+		// both the initial tab selection and the activity resuming
+		// will attempt to focus the tabs.
+		if (isFocused == focused) {
+			return;
+		}
+		isFocused = focused;
+
+		if (selectedTab == null) {
+			// If no tab is selected fall back to the default behavior.
+			super.onWindowFocusChange(focused);
+		}
+
+		// When the tab group gains focus we need to re-focus
+		// the currently selected tab. No UI state change is required
+		// since no tab selection actually occurred. This should only
+		// happen if the activity is paused or the window stack changed.
+		selectedTab.onFocusChanged(focused, null);
+	}
+
 	/**
 	 * Invoked when a tab in the group is selected.
 	 *
@@ -357,12 +391,14 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 		eventData.put(TiC.EVENT_PROPERTY_TAB, selectedTab);
 		eventData.put(TiC.EVENT_PROPERTY_INDEX, tabs.indexOf(selectedTab));
 
-		// Delegate tab change to the previously and currently focused tabs.
-		// The tabs are also responsible for dispatching the focus and blur events.
+		// Notify the previously and currently selected tabs about the change.
+		// Tab implementations should update their UI state and fire focus/blur events.
 		if (previousSelectedTab != null) {
-			previousSelectedTab.onSelectionChanged(false, (KrollDict) eventData.clone());
+			previousSelectedTab.onSelectionChanged(false);
+			previousSelectedTab.onFocusChanged(false, (KrollDict) eventData.clone());
 		}
-		selectedTab.onSelectionChanged(true, eventData);
+		selectedTab.onSelectionChanged(true);
+		selectedTab.onFocusChanged(true, eventData);
 	}
 
 	private void fillIntent(Activity activity, Intent intent)
