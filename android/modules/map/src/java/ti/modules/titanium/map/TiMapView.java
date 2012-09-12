@@ -688,11 +688,12 @@ public class TiMapView extends TiUIView
 
 				// If the property "hideAnnotationWhenTouchMap" is set to false and the annotation is shown, hide the
 				// annotation by clicking the annotation pin.
-				if ((itemView != null && index == itemView.getLastIndex() && itemView.getVisibility() == View.VISIBLE)
-					&& !(proxy.hasProperty(TiC.PROPERTY_HIDE_ANNOTATION_WHEN_TOUCH_MAP) && TiConvert.toBoolean(proxy
-						.getProperty(TiC.PROPERTY_HIDE_ANNOTATION_WHEN_TOUCH_MAP)))) {
-					hideAnnotation();
-					return;
+				if ((itemView != null && index == itemView.getLastIndex() && itemView.getVisibility() == View.VISIBLE)) {
+					Object value = proxy.getProperty(TiC.PROPERTY_HIDE_ANNOTATION_WHEN_TOUCH_MAP);
+					if (value == null || !TiConvert.toBoolean(value)) {
+						hideAnnotation();
+						return;
+					}
 				}
 
 				if (item.hasData()) {
@@ -710,9 +711,9 @@ public class TiMapView extends TiUIView
 	{
 		// If the property "hideAnnotationWhenTouchMap" is set to true and the annotation is shown, hide the annotation
 		// by clicking in the map view outside of the annotation.
-		if (proxy.hasProperty(TiC.PROPERTY_HIDE_ANNOTATION_WHEN_TOUCH_MAP)
-			&& TiConvert.toBoolean(proxy.getProperty(TiC.PROPERTY_HIDE_ANNOTATION_WHEN_TOUCH_MAP))) {
-			if (itemView != null && view.indexOfChild(itemView) != -1) {
+		Object value = proxy.getProperty(TiC.PROPERTY_HIDE_ANNOTATION_WHEN_TOUCH_MAP);
+		if (value != null && TiConvert.toBoolean(value)) {
+			if (itemView != null && view.indexOfChild(itemView) != -1 && itemView.getVisibility() == View.VISIBLE) {
 				Point pointOnTap = new Point();
 				view.getProjection().toPixels(p, pointOnTap);
 				Rect rectItemView = new Rect();
