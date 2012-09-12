@@ -70,6 +70,7 @@ java_keywords = [
 
 
 MIN_API_LEVEL = 8
+HONEYCOMB_MR2_LEVEL = 13
 KNOWN_ABIS = ("armeabi", "armeabi-v7a", "x86")
 
 def render_template_with_tiapp(template_text, tiapp_obj):
@@ -248,6 +249,11 @@ class Builder(object):
 					self.abis = list(KNOWN_ABIS)
 
 		self.sdk = AndroidSDK(sdk, self.tool_api_level)
+		# If the tool-api-level is not explicitly set in tiapp.xml,
+		# then use the latest tools available
+		if not 'tool-api-level' in temp_tiapp.android:
+			self.sdk.use_latest_api_level()
+
 		self.tiappxml = temp_tiapp
 
 		json_contents = open(os.path.join(template_dir,'dependency.json')).read()
@@ -1045,6 +1051,13 @@ class Builder(object):
 			info("Detected custom ApplicationManifest.xml -- no Titanium version migration supported")
 		
 		default_manifest_contents = self.android.render_android_manifest()
+
+		if self.sdk.api_level < HONEYCOMB_MR2_LEVEL:
+			# Keeping "screenSize" in our default "configChanges" attribute on
+			# <activity> elements will fail a project build in versions prior
+			# to 13 (Honeycomb MR2).
+			default_manifest_contents = default_manifest_contents.replace("orientation|screenSize", "orientation")
+
 		custom_manifest_contents = None
 		if is_custom:
 			custom_manifest_contents = open(android_manifest_to_read,'r').read()
