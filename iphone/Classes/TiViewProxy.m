@@ -2287,7 +2287,7 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
         else if (TiDimensionIsAutoFill(constraint))
         {
             //Fill up the remaining
-            bounds.size.height = boundingValue + offsetV;
+            bounds.size.height = boundingValue;
             verticalLayoutBoundary += bounds.size.height;
         }
         else if (TiDimensionIsAutoSize(constraint))
@@ -2316,7 +2316,7 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
                 verticalLayoutBoundary += bounds.size.height;
             }
             else if (!TiDimensionIsUndefined([child layoutProperties]->top) && !TiDimensionIsUndefined([child layoutProperties]->bottom) ) {
-                bounds.size.height = boundingValue + offsetV;
+                bounds.size.height = boundingValue;
                 verticalLayoutBoundary += bounds.size.height;
             }
             else if (!TiDimensionIsUndefined([child layoutProperties]->centerY) && !TiDimensionIsUndefined([child layoutProperties]->bottom) ) {
