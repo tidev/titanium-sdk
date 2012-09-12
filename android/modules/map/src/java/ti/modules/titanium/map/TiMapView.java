@@ -688,7 +688,7 @@ public class TiMapView extends TiUIView
 
 				// If the property "hideAnnotationWhenTouchMap" is set to false and the annotation is shown, hide the
 				// annotation by clicking the annotation pin.
-				if ((itemView != null && index == itemView.getLastIndex() && itemView.getVisibility() == View.VISIBLE)) {
+				if (itemView != null && index == itemView.getLastIndex() && itemView.getVisibility() == View.VISIBLE) {
 					Object value = proxy.getProperty(TiC.PROPERTY_HIDE_ANNOTATION_WHEN_TOUCH_MAP);
 					if (value == null || !TiConvert.toBoolean(value)) {
 						hideAnnotation();
