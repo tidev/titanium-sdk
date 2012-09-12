@@ -207,7 +207,7 @@ module.exports = new function() {
 	var startServer = function(successCallback, errorCallback) {
 		server = http.createServer(function (request, response) {
 			var prefix = path.resolve(driverGlobal.harnessDir, "mobileweb", "harness", "build", "mobileweb");
-			var filePath = prefix + request.url;
+			var filePath = prefix + request.url.split("?")[0];
 			if (filePath === prefix + '/') {
 				filePath = prefix + '/index.html';
 			}
@@ -295,7 +295,7 @@ module.exports = new function() {
 	};
 
 	var runHarness = function(errorCallback) {
-		driverUtils.runCommand("adb shell am start -a android.intent.action.VIEW -d " + driverGlobal.httpHost + ":" + path.resolve("" + driverGlobal.config.httpPort, "index.html"), driverUtils.logStdout, function(error) {
+		driverUtils.runCommand("adb shell am start -a android.intent.action.VIEW -d " + driverGlobal.httpHost + ":" + path.resolve("" + driverGlobal.config.httpPort, "index.html?" + Math.floor(Math.random() * 100000)), driverUtils.logStdout, function(error) {
 			if (error !== null) {
 				driverUtils.log("error encountered when running harness: " + error);
 				if (errorCallback) {
