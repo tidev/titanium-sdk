@@ -104,6 +104,10 @@ if (value==nil || value==[NSNull null]) {\
 	[defaultsObject synchronize]; \
 	return;\
 }\
+if ([self propertyExists:key] && [ [defaultsObject objectForKey:key] isEqual:value]) {\
+    return;\
+}\
+
 
 
 -(void)setBool:(id)args
@@ -117,7 +121,7 @@ if (value==nil || value==[NSNull null]) {\
 {
 	SETPROP
 	[defaultsObject setDouble:[TiUtils doubleValue:value] forKey:key];
-	[defaultsObject synchronize];	
+	[defaultsObject synchronize];
 }
 
 -(void)setInt:(id)args
