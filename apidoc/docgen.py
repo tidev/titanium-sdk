@@ -34,9 +34,10 @@ sys.path.append(android_support_dir)
 from tilogger import *
 log = TiLogger(None)
 
-DEFAULT_PLATFORMS = ["android", "iphone", "ipad", "mobileweb"]
+DEFAULT_PLATFORMS = ["android", "iphone", "ipad", "mobileweb", "blackberry"]
 DEFAULT_SINCE = "0.8"
 DEFAULT_MOBILEWEB_SINCE = "1.8"
+DEFAULT_BLACKBERRY_SINCE = "3.0"
 apis = {} # raw conversion from yaml
 annotated_apis = {} # made friendlier for templates, etc.
 current_api = None
@@ -76,7 +77,7 @@ def pretty_platform_name(name):
 	if name.lower() == "ipad":
 		return "iPad"
 	if name.lower() == "blackberry":
-		return "Blackberry"
+		return "BlackBerry"
 	if name.lower() == "android":
 		return "Android"
 	if name.lower() == "mobileweb":
@@ -120,12 +121,18 @@ def combine_platforms_and_since(annotated_obj):
 				if len(since) >= 3:
 					if float(since[0:3]) < float(DEFAULT_MOBILEWEB_SINCE[0:3]):
 						one_platform["since"] = DEFAULT_MOBILEWEB_SINCE
+			elif one_platform["name"] == "blackberry":
+				if len(since) >= 3:
+					if float(since[0:3]) < float(DEFAULT_BLACKBERRY_SINCE[0:3]):
+						one_platform["since"] = DEFAULT_BLACKBERRY_SINCE
 		else:
 			if name in since:
 				one_platform["since"] = since[name]
 			else:
 				if one_platform["name"] == "mobileweb":
 					one_platform["since"] = DEFAULT_MOBILEWEB_SINCE
+				elif one_platform["name"] == "blackberry":
+					one_platform["since"] = DEFAULT_BLACKBERRY_SINCE
 				else:
 					one_platform["since"] = DEFAULT_SINCE
 		result.append(one_platform)
