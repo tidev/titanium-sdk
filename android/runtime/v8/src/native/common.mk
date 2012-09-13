@@ -30,8 +30,8 @@ CLEAN_GEN := rm -f $(GENERATED_DIR)/*
 CLEAN_OBJ := rm -rf $(OBJ_DIR)/*
 
 ifeq ($(OSNAME), Windows_NT)
-CLEAN_GEN := rd /s /q $(GENERATED_DIR) && mkdir $(GENERATED_DIR)
-CLEAN_OBJ := rd /s /q $(OBJ_DIR) && mkdir $(OBJ_DIR)
+CLEAN_GEN := rd /s /q $(subst /,\\,$(GENERATED_DIR)) && mkdir $(subst /,\\,$(GENERATED_DIR))
+CLEAN_OBJ := rd /s /q $(subst /,\\,$(OBJ_DIR)) && mkdir $(subst /,\\,$(OBJ_DIR))
 endif
 
 LDLIBS := -L$(SYSROOT)/usr/lib -ldl -llog -L$(TARGET_OUT)
