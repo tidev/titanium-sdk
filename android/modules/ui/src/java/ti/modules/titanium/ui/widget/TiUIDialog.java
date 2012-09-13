@@ -55,14 +55,13 @@ public class TiUIDialog extends TiUIView
 	{
 		super(proxy);
 		Log.d(TAG, "Creating a dialog", Log.DEBUG_MODE);
+		//Native dialogs are persistent by default.
+		isPersistent = true;
 
 		if (proxy instanceof AlertDialogProxy) {
 			Object persistent = proxy.getProperty(TiC.PROPERTY_PERSISTENT);
 			if (persistent != null) {
-			isPersistent = TiConvert.toBoolean(persistent);
-			} else {
-				//AlertDialogs are persistent by default.
-				isPersistent = true;
+				isPersistent = TiConvert.toBoolean(persistent);
 			}
 		}
 		createBuilder();

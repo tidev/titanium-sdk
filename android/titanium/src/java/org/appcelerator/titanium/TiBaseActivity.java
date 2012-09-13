@@ -749,7 +749,7 @@ public abstract class TiBaseActivity extends Activity
 		// TODO stub
 	}
 
-	private void releaseDialogs(boolean force)
+	private void releaseDialogs(boolean finish)
 	{
 		//clean up dialogs when activity is pausing or finishing
 		for (int i = 0; i < dialogs.size(); i++) {
@@ -758,7 +758,7 @@ public abstract class TiBaseActivity extends Activity
 			boolean persistent = pair.second;
 			//if the activity is pausing but not finishing, clean up dialogs only if
 			//they are non-persistent
-			if (force || !persistent) {
+			if (finish || !persistent) {
 				if (dialog.isShowing()) {
 					dialog.dismiss();
 				}

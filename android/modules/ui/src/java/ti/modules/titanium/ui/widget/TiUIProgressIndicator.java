@@ -240,7 +240,7 @@ public class TiUIProgressIndicator extends TiUIView
 		if (progressDialog != null) {
 			Activity ownerActivity = progressDialog.getOwnerActivity();
 			if (ownerActivity != null && !ownerActivity.isFinishing()) {
-				((TiBaseActivity)ownerActivity).removeDialog(new Pair<Dialog, Boolean>(progressDialog,true));
+				((TiBaseActivity)ownerActivity).removeDialog(new Pair<Dialog, Boolean>(progressDialog, true));
 				progressDialog.dismiss();
 			}
 			progressDialog = null;
