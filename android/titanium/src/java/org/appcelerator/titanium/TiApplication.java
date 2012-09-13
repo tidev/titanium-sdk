@@ -46,7 +46,6 @@ import org.appcelerator.titanium.util.TiWeakList;
 import ti.modules.titanium.TitaniumModule;
 import android.app.Activity;
 import android.app.Application;
-import android.app.TabActivity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -479,19 +478,7 @@ public abstract class TiApplication extends Application implements Handler.Callb
 	public void setCurrentActivity(Activity callingActivity, Activity newValue)
 	{
 		synchronized (this) {
-			// TabActivity (the container for tab activities) doesn't pause itself while it's
-			// children tabs are being paused and resumed (while switching tabs), so this
-			// covers that special case
 			Activity currentActivity = getCurrentActivity();
-			if (currentActivity instanceof TabActivity && newValue instanceof TiActivity) {
-				TiActivity tiActivity = (TiActivity)newValue;
-				if (tiActivity.isTab()) {
-					this.currentActivity = new WeakReference<Activity>(newValue);
-
-					return;
-				}
-			}
-
 			if (currentActivity == null || (callingActivity == currentActivity && newValue == null)) {
 				this.currentActivity = new WeakReference<Activity>(newValue);
 			}
