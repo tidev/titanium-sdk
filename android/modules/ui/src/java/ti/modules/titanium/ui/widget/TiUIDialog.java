@@ -12,16 +12,21 @@ import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
+import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.view.TiUIView;
 
+import ti.modules.titanium.ui.AlertDialogProxy;
+
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
+import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnCancelListener;
+import android.util.Pair;
 
 public class TiUIDialog extends TiUIView
 {
@@ -32,6 +37,7 @@ public class TiUIDialog extends TiUIView
 	protected AlertDialog dialog;
 	protected TiUIView view;
 	protected WeakReference<Activity> ownerActivity;
+	private boolean isPersistent;
 
 	protected class ClickHandler implements DialogInterface.OnClickListener
 	{
@@ -49,6 +55,16 @@ public class TiUIDialog extends TiUIView
 	{
 		super(proxy);
 		Log.d(TAG, "Creating a dialog", Log.DEBUG_MODE);
+
+		if (proxy instanceof AlertDialogProxy) {
+			Object persistent = proxy.getProperty(TiC.PROPERTY_PERSISTENT);
+			if (persistent != null) {
+			isPersistent = TiConvert.toBoolean(persistent);
+			} else {
+				//AlertDialogs are persistent by default.
+				isPersistent = true;
+			}
+		}
 		createBuilder();
 	}
 
@@ -240,7 +256,11 @@ public class TiUIDialog extends TiUIView
 		try {
 			Activity dialogActivity = ownerActivity.get();
 			if (dialogActivity != null && !dialogActivity.isFinishing()) {
-				dialog.show();
+				if (dialogActivity instanceof TiBaseActivity) {
+					//add dialog to its activity so we can clean it up later to prevent memory leak.
+					((TiBaseActivity) dialogActivity).addDialog(new Pair<Dialog, Boolean>(dialog, isPersistent));
+					dialog.show();
+				}
 			} else {
 				dialog = null;
 				Log.w(TAG, "Dialog activity is destroyed, unable to show dialog with message: " + TiConvert.toString(proxy.getProperty(TiC.PROPERTY_MESSAGE)));

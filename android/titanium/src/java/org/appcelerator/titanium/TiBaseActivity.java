@@ -40,6 +40,7 @@ import android.os.Bundle;
 import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
+import android.util.Pair;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -74,7 +75,8 @@ public abstract class TiBaseActivity extends Activity
 	protected int msgActivityCreatedId = -1;
 	protected int msgId = -1;
 	protected static int previousOrientation = -1;
-	private ArrayList<Dialog> dialogs = new ArrayList<Dialog>();
+	//Storing the activity's dialogs and their persistence 
+	private ArrayList<Pair<Dialog, Boolean>> dialogs = new ArrayList<Pair<Dialog, Boolean>>();
 	private Stack<TiWindowProxy> windowStack = new Stack<TiWindowProxy>();
 
 	public TiWindowProxy lwWindow;
@@ -197,12 +199,12 @@ public abstract class TiBaseActivity extends Activity
 		return activityProxy;
 	}
 
-	public void addDialog(Dialog d) 
+	public void addDialog(Pair<Dialog, Boolean> d) 
 	{
 		dialogs.add(d);
 	}
 	
-	public void removeDialog(Dialog d) 
+	public void removeDialog(Pair<Dialog, Boolean> d) 
 	{
 		dialogs.remove(d);
 	}
@@ -747,15 +749,21 @@ public abstract class TiBaseActivity extends Activity
 		// TODO stub
 	}
 
-	private void releaseDialogs()
+	private void releaseDialogs(boolean force)
 	{
-		//clean up dialogs when activity is finishing
-		while (dialogs.size() > 0) {
-			Dialog dialog = dialogs.get(0);
-			if (dialog.isShowing()) {
-				dialog.dismiss();
+		//clean up dialogs when activity is pausing or finishing
+		for (int i = 0; i < dialogs.size(); i++) {
+			Pair<Dialog, Boolean> pair = dialogs.get(i);
+			Dialog dialog = pair.first;
+			boolean persistent = pair.second;
+			//if the activity is pausing but not finishing, clean up dialogs only if
+			//they are non-persistent
+			if (force || !persistent) {
+				if (dialog.isShowing()) {
+					dialog.dismiss();
+				}
+				removeDialog(pair);
 			}
-			removeDialog(dialog);
 		}
 	}
 
@@ -772,9 +780,8 @@ public abstract class TiBaseActivity extends Activity
 		Log.d(TAG, "Activity " + this + " onPause", Log.DEBUG_MODE);
 
 		TiApplication tiApp = getTiApp();
-
 		if (tiApp.isRestartPending()) {
-			releaseDialogs();
+			releaseDialogs(true);
 			if (!isFinishing()) {
 				finish();
 			}
@@ -790,7 +797,10 @@ public abstract class TiBaseActivity extends Activity
 		TiUIHelper.showSoftKeyboard(getWindow().getDecorView(), false);
 
 		if (this.isFinishing()) {
-			releaseDialogs();
+			releaseDialogs(true);
+		} else {
+			//release non-persistent dialogs when activity hides
+			releaseDialogs(false);
 		}
 
 		if (activityProxy != null) {
@@ -994,7 +1004,7 @@ public abstract class TiBaseActivity extends Activity
 
 		TiApplication tiApp = getTiApp();
 		//Clean up dialogs when activity is destroyed. 
-		releaseDialogs();
+		releaseDialogs(true);
 
 		if (tiApp.isRestartPending()) {
 			super.onDestroy();

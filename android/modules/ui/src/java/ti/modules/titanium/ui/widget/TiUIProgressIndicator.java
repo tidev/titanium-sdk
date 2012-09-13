@@ -18,11 +18,13 @@ import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.view.TiUIView;
 
 import android.app.Activity;
+import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
+import android.util.Pair;
 
 public class TiUIProgressIndicator extends TiUIView
 	implements Handler.Callback, DialogInterface.OnCancelListener
@@ -196,7 +198,7 @@ public class TiUIProgressIndicator extends TiUIView
 				}
 				progressDialog = new ProgressDialog(a);
 				if (a instanceof TiBaseActivity) {
-					((TiBaseActivity) a).addDialog(progressDialog);
+					((TiBaseActivity) a).addDialog(new Pair<Dialog, Boolean>(progressDialog, true));
 					progressDialog.setOwnerActivity(a);
 				}
 				progressDialog.setOnCancelListener(this);
@@ -238,7 +240,7 @@ public class TiUIProgressIndicator extends TiUIView
 		if (progressDialog != null) {
 			Activity ownerActivity = progressDialog.getOwnerActivity();
 			if (ownerActivity != null && !ownerActivity.isFinishing()) {
-				((TiBaseActivity)ownerActivity).removeDialog(progressDialog);
+				((TiBaseActivity)ownerActivity).removeDialog(new Pair<Dialog, Boolean>(progressDialog,true));
 				progressDialog.dismiss();
 			}
 			progressDialog = null;

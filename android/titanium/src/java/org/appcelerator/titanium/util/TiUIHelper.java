@@ -41,6 +41,7 @@ import org.appcelerator.titanium.view.TiUIView;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
@@ -70,6 +71,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Process;
 import android.text.util.Linkify;
+import android.util.Pair;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.View;
@@ -189,7 +191,7 @@ public class TiUIHelper
 					Activity ownerActivity = ((AlertDialog)dialog).getOwnerActivity();
 					//if activity is not finishing, remove dialog to free memory
 					if (ownerActivity != null && !ownerActivity.isFinishing()) {
-						((TiBaseActivity)ownerActivity).removeDialog((AlertDialog)dialog);
+						((TiBaseActivity)ownerActivity).removeDialog(new Pair<Dialog, Boolean>((AlertDialog)dialog, true));
 					}
 				}};
 		}
@@ -204,7 +206,7 @@ public class TiUIHelper
 							.setPositiveButton(android.R.string.ok, fListener)
 							.setCancelable(false).create();
 					if (activity instanceof TiBaseActivity) {
-						((TiBaseActivity)activity).addDialog(dialog);
+						((TiBaseActivity)activity).addDialog(new Pair<Dialog, Boolean>(dialog, true));
 						dialog.setOwnerActivity(activity);
 					}
 					dialog.show();
