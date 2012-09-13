@@ -14,7 +14,7 @@
 
 		<activity android:name=".${config['classname']}Activity"
 			android:label="${config['appname']}" android:theme="@style/Theme.Titanium"
-			android:configChanges="keyboardHidden|orientation|screenSize">
+			android:configChanges="keyboardHidden|orientation">
 			<intent-filter>
 				<action android:name="android.intent.action.MAIN" />
 				<category android:name="android.intent.category.LAUNCHER" />
@@ -24,15 +24,15 @@
 		<!-- TI_ACTIVITIES -->
 
 		<activity android:name="org.appcelerator.titanium.TiActivity"
-			android:configChanges="keyboardHidden|orientation|screenSize" />
+			android:configChanges="keyboardHidden|orientation" />
 		<activity android:name="org.appcelerator.titanium.TiTranslucentActivity"
-			android:configChanges="keyboardHidden|orientation|screenSize"
+			android:configChanges="keyboardHidden|orientation"
 			android:theme="@android:style/Theme.Translucent" />
 		<activity android:name="org.appcelerator.titanium.TiModalActivity"
-			android:configChanges="keyboardHidden|orientation|screenSize"
+			android:configChanges="keyboardHidden|orientation"
 			android:theme="@android:style/Theme.Translucent" />
 		<activity android:name="ti.modules.titanium.ui.TiTabActivity"
-			android:configChanges="keyboardHidden|orientation|screenSize" />
+			android:configChanges="keyboardHidden|orientation" />
 		<activity android:name="ti.modules.titanium.ui.android.TiPreferencesActivity" />
 
 		<service android:name="org.appcelerator.titanium.analytics.TiAnalyticsService"

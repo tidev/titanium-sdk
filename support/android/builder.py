@@ -230,10 +230,12 @@ class Builder(object):
 				error("Do not use java keywords for project app id, such as " + token)
 				sys.exit(1)
 
+		tool_api_level_explicit = False
 		temp_tiapp = TiAppXML(self.project_tiappxml)
 		if temp_tiapp and temp_tiapp.android:
 			if 'tool-api-level' in temp_tiapp.android:
 				self.tool_api_level = int(temp_tiapp.android['tool-api-level'])
+				tool_api_level_explicit = True
 
 			if 'abi' in temp_tiapp.android and temp_tiapp.android['abi'] != 'all':
 				tiapp_abis = [abi.strip() for abi in temp_tiapp.android['abi'].split(",")]
@@ -249,10 +251,12 @@ class Builder(object):
 					self.abis = list(KNOWN_ABIS)
 
 		self.sdk = AndroidSDK(sdk, self.tool_api_level)
-		# If the tool-api-level is not explicitly set in tiapp.xml,
-		# then use the latest tools available
-		if not 'tool-api-level' in temp_tiapp.android:
-			self.sdk.use_latest_api_level()
+
+		# If the tool-api-level was not explicitly set in the tiapp.xml, but
+		# <uses-sdk android:targetSdkVersion> *is* set, try to match the target version.
+		if (not tool_api_level_explicit and temp_tiapp and temp_tiapp.android_manifest
+				and "manifest" in temp_tiapp.android_manifest):
+			self.check_target_api_version(temp_tiapp.android_manifest["manifest"])
 
 		self.tiappxml = temp_tiapp
 
@@ -286,7 +290,19 @@ class Builder(object):
 			os.makedirs(self.home_dir)
 		self.sdcard = os.path.join(self.home_dir,'android2.sdcard')
 		self.classname = Android.strip_classname(self.name)
-		
+
+	def check_target_api_version(self, manifest_elements):
+		pattern = r'android:targetSdkVersion=\"(\d+)\"'
+		for el in manifest_elements:
+			if el.nodeName == "uses-sdk":
+				xml = el.toxml()
+				matches = re.findall(pattern, xml)
+				if matches:
+					new_level = self.sdk.try_best_match_api_level(int(matches[0]))
+					if new_level != self.tool_api_level:
+						self.tool_api_level = new_level
+				break
+
 	def set_java_commands(self):
 		self.jarsigner = "jarsigner"
 		self.keytool = "keytool"
@@ -1090,11 +1106,12 @@ class Builder(object):
 		
 		default_manifest_contents = self.android.render_android_manifest()
 
-		if self.sdk.api_level < HONEYCOMB_MR2_LEVEL:
-			# Keeping "screenSize" in our default "configChanges" attribute on
-			# <activity> elements will fail a project build in versions prior
-			# to 13 (Honeycomb MR2).
-			default_manifest_contents = default_manifest_contents.replace("orientation|screenSize", "orientation")
+		if self.sdk.api_level >= HONEYCOMB_MR2_LEVEL:
+			# Need to add "screenSize" in our default "configChanges" attribute on
+			# <activity> elements, else changes in orientation will cause the app
+			# to restart. cf. TIMOB-10863.
+			default_manifest_contents = default_manifest_contents.replace('|orientation"', '|orientation|screenSize"')
+			debug("Added 'screenSize' to <activity android:configChanges> because targeted api level %s is >= %s" % (self.sdk.api_level, HONEYCOMB_MR2_LEVEL))
 
 		custom_manifest_contents = None
 		if is_custom:
