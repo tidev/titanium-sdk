@@ -472,6 +472,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_ACTIVE_TAB_BACKGROUND_COLOR = "activeTabBackgroundColor";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_ACTIVITY = "activity";
 
 	/**
@@ -1062,6 +1067,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_HEIGHT = "height";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_HIDE_ANNOTATION_WHEN_TOUCH_MAP = "hideAnnotationWhenTouchMap";
 
 	/**
 	 * @module.api

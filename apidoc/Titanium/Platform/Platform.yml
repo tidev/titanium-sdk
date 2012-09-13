@@ -169,11 +169,12 @@ properties:
   - name: manufacturer
     summary: Manufacturer of the device.
     description: |
-        Returns the manufacturer of the device. For example, `motorola`.
+        Returns the manufacturer of the device, for example, `motorola`.
         Virtual devices return `unknown`.
     type: String
     permission: read-only
     platforms: [android, iphone, ipad]
+    since: "3.0.0"
 
   - name: model
     summary: Model of the device.
@@ -200,14 +201,6 @@ properties:
                   // Add Accelerometer event listener
                 }
                 
-  - name: manufacturer
-    summary: Manufacturer of the product/hardware
-    description: |
-        On Android, an identifier of the hardware manufacturer of the device. For example, `HTC`.
-    type: String
-    permission: read-only
-    platforms: [android]
-
   - name: name
     summary: |
         Name of the platform. Returns `android` for the Android platform, `iPhone OS` for the iOS

@@ -635,7 +635,7 @@ DEFINE_EXCEPTIONS
 	[self removeAllImagesFromContainer];
 	[self cancelPendingImageLoads];
 	
-	if (arg==nil || arg==imageview.image || [arg isEqual:@""])
+	if (arg==nil || arg==imageview.image || [arg isEqual:@""] || [arg isKindOfClass:[NSNull class]])
 	{
 		return;
 	}
@@ -704,16 +704,6 @@ DEFINE_EXCEPTIONS
 	{
 		[self start];
 	}
-}
-
-// we can't have dualing properties that do the same thing or we get into big
-// trouble in tableview repaints
--(void)setUrl_:(id)img
-{
-    DEPRECATED_REPLACED(@"UI.ImageView.url", @"1.5.0", @"Ti.UI.ImageView.image");
-	// setImage_ does the property replacement for us; no need to do it twice.
-	[self setImage_:img];
-	return;
 }
 
 

@@ -110,6 +110,15 @@ events:
             `true` and the detail button was clicked.
         type: Boolean
         
+      - name: globalPoint
+        summary: |
+            Coordinates `x` and `y` describing the location of the event in terms of screen 
+            coordinates.
+        type: Dictionary
+        deprecated:
+            since: "1.8.0"
+        platforms: [iphone, ipad]
+        
       - name: index
         summary: Row index.
         type: Number
@@ -144,6 +153,15 @@ events:
     summary: Fired when the device detects a double click against the view.
     platforms: [mobileweb]
     properties:
+      - name: globalPoint
+        summary: |
+            Coordinates `x` and `y` describing the location of the event in terms of screen 
+            coordinates.
+        type: Dictionary
+        deprecated:
+            since: "1.8.0"
+        platforms: [iphone, ipad]
+        
       - name: x
         summary: X coordinate of the event from the `source` view's coordinate system.
         type: Number
@@ -159,6 +177,15 @@ events:
       - name: detail
         summary: Indicates whether the delete button was clicked. Always `false` for this event.
         type: Boolean
+        
+      - name: globalPoint
+        summary: |
+            Coordinates `x` and `y` describing the location of the event in terms of screen 
+            coordinates.
+        type: Dictionary
+        deprecated:
+            since: "1.8.0"
+        platforms: [iphone, ipad]
         
       - name: index
         summary: Row index.
@@ -194,6 +221,15 @@ events:
     summary: Fired when the device detects a double tap against this view.
     platforms: [iphone, ipad, mobileweb]
     properties:
+      - name: globalPoint
+        summary: |
+            Coordinates `x` and `y` describing the location of the event in terms of screen 
+            coordinates.
+        type: Dictionary
+        deprecated:
+            since: "1.8.0"
+        platforms: [iphone, ipad]
+        
       - name: x
         summary: X coordinate of the event from the `source` view's coordinate system.
         type: Number
@@ -230,6 +266,15 @@ events:
       - name: detail
         summary: Boolean to indicate if the right area was clicked. Always `false` for this event.
         type: Boolean
+        
+      - name: globalPoint
+        summary: |
+            Coordinates `x` and `y` describing the location of the event in terms of screen 
+            coordinates.
+        type: Dictionary
+        deprecated:
+            since: "1.8.0"
+        platforms: [iphone, ipad]
         
       - name: index
         summary: Row index.
@@ -356,7 +401,7 @@ events:
         summary: Y coordinate of the event from the `source` view's coordinate system.
         type: Number
     deprecated:
-        since: "2.2.0"
+        since: "3.0.0"
 
   - name: scrollend
     summary: fired when the table view stops scrolling
@@ -374,15 +419,6 @@ events:
         type: Point
         platforms: [iphone, ipad, mobileweb]
         
-      - name: globalPoint
-        summary: |
-            Coordinates `x` and `y` describing the location of the event in terms of screen 
-            coordinates.
-        type: Dictionary
-        deprecated:
-            since: "1.8.0"
-        platforms: [iphone, ipad]
-        
       - name: size
         summary: |
             Dictionary with `width` and `height` properties containing the size of the visible 
@@ -396,7 +432,7 @@ events:
       - name: y
         summary: Y coordinate of the event from the `source` view's coordinate system.
         type: Number
-    since: '2.2.0'
+    since: '3.0.0'
         
   - name: singletap
     summary: Fired when the device detects a single tap against the view.
@@ -417,6 +453,15 @@ events:
       - name: direction
         summary: Direction of the swipe, either `left` or `right`.
         type: String
+        
+      - name: globalPoint
+        summary: |
+            Coordinates `x` and `y` describing the location of the event in terms of screen 
+            coordinates.
+        type: Dictionary
+        deprecated:
+            since: "1.8.0"
+        platforms: [iphone, ipad]
         
       - name: x
         summary: X coordinate of the event's endpoint from the `source` view's coordinate system.
@@ -441,6 +486,15 @@ events:
         will fire immediately following the scroll.
     platforms: [iphone, ipad, mobileweb]
     properties:
+      - name: globalPoint
+        summary: |
+            Coordinates `x` and `y` describing the location of the event in terms of screen 
+            coordinates.
+        type: Dictionary
+        deprecated:
+            since: "1.8.0"
+        platforms: [iphone, ipad]
+        
       - name: x
         summary: X coordinate of the event from the `source` view's coordinate system.
         type: Number
@@ -461,6 +515,15 @@ events:
         will fire immediately following the scroll.
     platforms: [iphone, ipad, mobileweb]
     properties:
+      - name: globalPoint
+        summary: |
+            Coordinates `x` and `y` describing the location of the event in terms of screen 
+            coordinates.
+        type: Dictionary
+        deprecated:
+            since: "1.8.0"
+        platforms: [iphone, ipad]
+        
       - name: x
         summary: X coordinate of the event from the `source` view's coordinate system.
         type: Number
@@ -475,6 +538,15 @@ events:
         Event coordinates are always relative to the view in which the initial touch occurred
     platforms: [mobileweb]
     properties:
+      - name: globalPoint
+        summary: |
+            Coordinates `x` and `y` describing the location of the event in terms of screen 
+            coordinates.
+        type: Dictionary
+        deprecated:
+            since: "1.8.0"
+        platforms: [iphone, ipad]
+        
       - name: x
         summary: X coordinate of the event from the `source` view's coordinate system.
         type: Number
@@ -495,6 +567,15 @@ events:
         will fire immediately following the scroll.
     platforms: [iphone, ipad, mobileweb]
     properties:
+      - name: globalPoint
+        summary: |
+            Coordinates `x` and `y` describing the location of the event in terms of screen 
+            coordinates.
+        type: Dictionary
+        deprecated:
+            since: "1.8.0"
+        platforms: [iphone, ipad]
+        
       - name: x
         summary: X coordinate of the event from the `source` view's coordinate system.
         type: Number
@@ -507,6 +588,15 @@ events:
     summary: Fired when the device detects a two-finger tap against the view.
     platforms: [iphone, ipad, mobileweb]
     properties:
+      - name: globalPoint
+        summary: |
+            Coordinates `x` and `y` describing the location of the event in terms of screen 
+            coordinates.
+        type: Dictionary
+        deprecated:
+            since: "1.8.0"
+        platforms: [iphone, ipad]
+        
       - name: x
         summary: X coordinate of the event from the `source` view's coordinate system.
         type: Number
@@ -524,7 +614,7 @@ events:
         the view, as opposed to it being the result of scrolling momentum.
     platforms: [iphone, ipad, mobileweb]
     deprecated:
-        since: "2.2.0"
+        since: "3.0.0"
 
   - name: dragEnd
     summary: Fired when the scrollable region stops being dragged.
@@ -541,7 +631,7 @@ events:
             been released by the touch. If `false`, scrolling will stop immediately.
         type: Boolean
     deprecated:
-        since: "2.2.0"
+        since: "3.0.0"
 
   - name: dragstart
     summary: Fired when the scrollable region starts being dragged.
@@ -549,7 +639,7 @@ events:
         A dragging gesture is when a touch remains in contact with the display to physically drag 
         the view, as opposed to it being the result of scrolling momentum.
     platforms: [iphone, ipad, mobileweb]
-    since: '2.2.0'
+    since: '3.0.0'
 
   - name: dragend
     summary: Fired when the scrollable region stops being dragged.
@@ -563,7 +653,7 @@ events:
             Indicates whether scrolling will continue but decelerate, now that the drag gesture has 
             been released by the touch. If `false`, scrolling will stop immediately.
         type: Boolean
-    since: '2.2.0'
+    since: '3.0.0'
 
 methods:
   - name: appendRow
@@ -605,8 +695,8 @@ methods:
         summary: Animation properties. (iOS only.)
         type: TableViewAnimationProperties
         optional: true
-    since: 2.2.0
-    platforms: [android, mobileweb]
+    since: 3.0.0
+    platforms: [android, mobileweb, iphone, ipad]
     
   - name: deleteRow
     summary: Deletes an existing row.
@@ -635,8 +725,8 @@ methods:
         summary: Animation properties. (iOS only.)
         type: TableViewAnimationProperties
         optional: true
-    since: 2.2.0
-    platforms: [android, mobileweb]
+    since: 3.0.0
+    platforms: [android, mobileweb, iphone, ipad]
     
   - name: deselectRow
     summary: Programmatically deselects a row.
@@ -689,8 +779,8 @@ methods:
         summary: Animation properties. (iOS only.)
         type: TableViewAnimationProperties
         optional: true
-    since: 2.2.0
-    platforms: [android, mobileweb]
+    since: 3.0.0
+    platforms: [android, mobileweb, iphone, ipad]
         
   - name: insertRowBefore
     summary: Inserts a row before another row.
@@ -735,8 +825,8 @@ methods:
         summary: Animation properties. (iOS only.)
         type: TableViewAnimationProperties
         optional: true
-    since: 2.2.0
-    platforms: [android, mobileweb]
+    since: 3.0.0
+    platforms: [android, mobileweb, iphone, ipad]
     
   - name: scrollToIndex
     summary: Scrolls the table view to ensure that the specified row is on screen.
@@ -819,7 +909,7 @@ methods:
         summary: Row index to select.
         type: Number
     platforms: [iphone, ipad, android]
-    since: {iphone: "1.8.2", ipad: "1.8.2", android: "2.2"}
+    since: {iphone: "1.8.2", ipad: "1.8.2", android: "3.0.0"}
     
   - name: setData
     summary: Sets the data in the table.
@@ -877,8 +967,8 @@ methods:
       - name: animation
         summary: Animation properties. (iOS only.)
         type: TableViewAnimationProperties
-    since: 2.2.0
-    platforms: [android, mobileweb]
+    since: 3.0.0
+    platforms: [android, mobileweb, iphone, ipad]
 
 properties:
   - name: allowsSelection
@@ -1097,13 +1187,13 @@ properties:
     summary: Number of sections in this table view.
     type: Number
     permission: read-only
-    since: 2.2.0
+    since: 3.0.0
     platforms: [android, iphone, ipad, mobileweb]
 
   - name: sections
     summary: Sections of this table.
     type: Array<Titanium.UI.TableViewSection>
-    since: 2.2.0
+    since: 3.0.0
     platforms: [android, iphone, ipad, mobileweb]
 
   - name: separatorColor

@@ -13,6 +13,9 @@ xcuserdata
 *.LOCAL.*
 *.REMOTE.*
 anvil/driver/config.js
+._*
+npm-debug.log
+support/node_modules/*
+!support/node_modules/titanium-sdk
 anvil/driver/titanium_mobile
 anvil/hub/config.js
-
