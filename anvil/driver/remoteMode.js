@@ -12,9 +12,12 @@
  * never be a reason to manually interact with a driver running in remote mode.
  */
 
+
 var fs = require("fs"),
+http = require("http"),
 net = require("net"),
 path = require("path"),
+wrench = require("wrench"),
 driverUtils = require(path.join(driverGlobal.driverDir, "driverUtils"));
 
 module.exports = new function() {
@@ -22,7 +25,8 @@ module.exports = new function() {
 	hubConnection = {
 		connection: null,
 		connected: false
-	};
+	},
+	mobileSdksBaseUrl = "builds.appcelerator.com.s3.amazonaws.com";
 
 	this.start = function() {
 		// check remote mode specific config values
@@ -32,31 +36,22 @@ module.exports = new function() {
 		driverUtils.checkConfigItem("driverDescription", driverGlobal.config.driverDescription, "string");
 
 		// hard code the location for remote mode since this should not change
-		driverGlobal.config.tiSdkDirs = "titanium_mobile/dist/mobilesdk/osx";
+		driverGlobal.config.tiSdkDirs = path.join(driverGlobal.config.tempDir, "sdk", "mobilesdk", "osx");
 
-		driverGlobal.platform.init(
-			// this function is the 
-			function() {
+		// setup the location where we will download the SDK to
+		driverUtils.createDir(path.join(driverGlobal.config.tempDir, "sdk"));
+
+		driverGlobal.platform.init(function() {
 				// command finished so exit
 				process.exit(0);
 			},
 			packageAndSendResults);
 
 		if (fs.existsSync(path.join(driverGlobal.logsDir, "json_results"))) {
-			driverUtils.runCommand("rm -r " + path.join(driverGlobal.logsDir, "json_results"), driverUtils.logNone, function(error) {
-				if (error != null) {
-					driverUtils.log("error encountered when deleting json results file: " + error);
-
-				} else {
-					driverUtils.log("json results file deleted");
-				}
-
-				connectToHub();
-			});
-
-		} else {
-			connectToHub();
+			wrench.rmdirSyncRecursive(path.join(driverGlobal.logsDir, "json_results"), failSilent);
 		}
+
+		connectToHub();
 	};
 
 	function connectToHub() {
@@ -72,7 +67,8 @@ module.exports = new function() {
 				var registration = JSON.stringify({
 					type: "registration",
 					id: driverGlobal.config.driverId,
-					description: driverGlobal.config.driverDescription
+					description: driverGlobal.config.driverDescription,
+					environment: driverGlobal.config.driverEnvironment
 				}),
 				sendBuffer = new Buffer(INT_SIZE + registration.length);
 
@@ -100,6 +96,7 @@ module.exports = new function() {
 
 				if ((payloadSize !== null) && (bytesReceived >= (INT_SIZE + payloadSize))) {
 					console.log("message received");
+
 					payload = recvBuffer.slice(INT_SIZE);
 
 					payloadObject = JSON.parse(payload);
@@ -113,7 +110,17 @@ module.exports = new function() {
 						return;
 					}
 
-					checkoutAndBuildGithash(payloadObject.gitHash, function() {
+					if ((typeof payloadObject.branch) === "undefined") {
+						console.log("no branch property on message, ignoring");
+						return;
+					}
+
+					if ((typeof payloadObject.sdkBaseFilename) === "undefined") {
+						console.log("no sdkBaseFilename property on message, ignoring");
+						return;
+					}
+
+					downloadAndUnpackSdk(payloadObject.branch, "mobilesdk-" + payloadObject.sdkBaseFilename + "-osx.zip", function() {
 						driverGlobal.platform.processCommand(payloadObject.command);
 					});
 				}
@@ -146,95 +153,60 @@ module.exports = new function() {
 		}
 	}
 
-	/*
-	make sure that you have cloned the repo as part of setup before this is called.
-	IE:  "git clone git@github.com:appcelerator/titanium_mobile.git"
-	*/
-	function checkoutAndBuildGithash(gitHash, callback) {	
-		function updateRepo() {
-			driverUtils.runProcess("git", ["fetch"], 0, 0, function(code) {
-				if (code !== 0) {
-					driverUtils.log("error encountered when fetching titanium_mobile branches: " + code);
-					process.exit(1);
+	function downloadAndUnpackSdk(branch, sdkFilename, callback) {
+		function downloadSdk() {
+			var file = fs.createWriteStream(sdkFilename),
+			options = {
+				host: mobileSdksBaseUrl,
+				port: 80,
+				path: "/mobile/" + branch + "/" + sdkFilename
+			};
 
-				} else {
-					driverUtils.log("titanium_mobile branches fetched");
-					checkoutCallback();
-				}
-			});
-		}
-
-		function checkoutCallback() {
-			driverUtils.runProcess("git", ["checkout", gitHash], 0, 0, function(code) {
-				if (code !== 0) {
-					driverUtils.log("error encountered when fetching titanium_mobile branches: " + code);
-					process.exit(1);
-
-				} else {
-					driverUtils.log("titanium_mobile branches fetched");
-					cleanCallback();
-				}
-			});
-		}
-
-		function cleanCallback() {
-			if (fs.existsSync("dist")) {
-				driverUtils.runCommand("rm -rf dist", driverUtils.logStderr, function(error, stdout, stderr) {
-					if (error !== null) {
-						driverUtils.log("error occurred when deleting previous dist dir");
-						process.exit(1);
-					}
-
-					buildCallback();
+			console.log("downloading Titanium SDK <" + mobileSdksBaseUrl + "/mobile/" + branch + "/" + sdkFilename + ">...");
+			http.get(options, function(response) {
+				response.on('data', function(data) {
+					file.write(data);
 				});
-
-			} else {
-				buildCallback();
-			}
-		}
-
-		function buildCallback() {
-			driverUtils.runProcess("scons", [], 0, 0, function(code) {
-				if (code !== 0) {
-					driverUtils.log("error encountered when building titanium_mobile: " + code);
-					process.exit(1);
-
-				} else {
-					driverUtils.log("titanium_mobile built");
-					unpackCallback();
-				}
+				response.on('end', function() {
+					file.end();
+					unpackSdk();
+				});
 			});
 		}
 
-		function unpackCallback() {
-			process.chdir("dist");
-
+		function unpackSdk() {
 			driverUtils.runCommand("tar -xvf *.zip", driverUtils.logStderr, function(error, stdout, stderr) {
-				if (error !== null) {
-					driverUtils.log("error <" + error + "> occurred when trying to unpack SDK: " + error);
+				var configSetsPath;
 
+				if (error !== null) {
+					driverUtils.log("error <" + error + "> occurred when trying to unpack SDK");
 					process.exit(1);
 				}
 
-				process.chdir("..");
-				finishedCallback();
+				process.chdir(driverGlobal.driverDir);
+				driverUtils.setCurrentTiSdk();
+
+				/*
+				Make sure we use the tests that are part of the downloaded SDK and not the local driver 
+				instance itself.  If the SDK does not have anvil tests (older version of the SDK) then keep
+				using the local tests
+				*/
+				configSetsPath = path.join(driverGlobal.config.currentTiSdkDir, "anvil", "configSet");
+				if (path.existsSync(configSetsPath)) {
+					driverGlobal.configSetDir = configSetsPath;
+				}
+
+				callback();
 			});
 		}
 
-		function finishedCallback() {
-			process.chdir("..");
-			driverUtils.setCurrentTiSdk();
-			callback();
-		};
+		process.chdir(path.join(driverGlobal.config.tempDir, "sdk"));
 
-		try {
-			process.chdir("titanium_mobile");
+		driverUtils.deleteFiles("zip");
+		wrench.rmdirSyncRecursive("mobilesdk", failSilent);
+		wrench.rmdirSyncRecursive("modules", failSilent);
 
-		} catch (err) {
-			console.log("error when changing dir:" + err);
-			process.exit(1);
-		}
-		updateRepo();
+		downloadSdk();
 	}
 
 	function packageAndSendResults(results, callback) {
