@@ -119,7 +119,7 @@
 		</div>
 
 <?php
-	if (!(isset($_GET["suite"])) && !(isset($_GET["all_suites"]))) {
+	if (isset($_GET["suite"]) && isset($_GET["all_suites"])) {
 		echo "\t\t<div id=\"all_suite_container\">\n";
 		echo "\t\t\t<a href=\"performance.php?branch=" . $_GET["branch"] . "&all_suites=true\">All Suites</a> (this can take a long time to load)\n";
 		echo "\t\t</div>\n";
@@ -130,13 +130,34 @@
 <?php loadJsDependencies(); ?>
 
 <?php
+	if (isset($_GET["all_suites"]) || isset($_GET["suite"])) {
+		echo "<a id=\"next_batch_link\" href=\"\">Next set</a>\n";
+	}
+?>
+
+<?php
 	// set time reporting for run history to PST since that is the main user base
 	date_default_timezone_set("America/Los_Angeles");
 
+	$numRuns = "10";
+	if (isset($_GET["suite"])) {
+		$numRuns = "20";
+	}
+
 	$runs = array();
-	$result=mysql_query("SELECT * FROM runs WHERE branch = \"" . $_GET["branch"] . "\" ORDER BY timestamp DESC");
+	$query = "SELECT * FROM runs WHERE branch = \"" . $_GET["branch"] . "\"";
+
+	if (isset($_GET["last_run_id"])) {
+		$query = $query . " AND id < " . $_GET["last_run_id"];
+	}
+
+	$query = $query . " ORDER BY timestamp DESC LIMIT " . $numRuns;
+	$result=mysql_query($query);
+
+	$last_run_id = 0;
 	while($row = mysql_fetch_array($result)) {
 		array_push($runs, $row);
+		$last_run_id = $row["id"];
 	}
 
 	if (isset($_GET["suite"])) {
@@ -161,10 +182,10 @@
 				$result3=mysql_query($query3);
 				while($row3 = mysql_fetch_array($result3)) {
 					if(isset($_GET["all_suites"])) {
-						echo "\t\t<div id=\"suite_contents\">\n";
-						echo "\t\t\t<div>Suite: " . $row3["name"] . "</div>\n\n";
+						#echo "\t\t<div id=\"suite_contents\">\n";
+						#echo "\t\t\t<div>Suite: " . $row3["name"] . "</div>\n\n";
 						print_suite_performance($_GET["branch"], $row["name"], $row2["name"], $row3["name"], $runs);
-						echo "\t\t</div>\n";
+						#echo "\t\t</div>\n";
 
 					} else {
 						echo "\t\t<div id=\"suite_link\">\n" .
@@ -182,6 +203,13 @@
 		}
 
 		echo "<!--  END GENERATED CHARTS -->\n";
+	}
+
+	if (isset($_GET["all_suites"]) || isset($_GET["suite"])) {
+		echo "<script>\n" .
+			"\tvar nextBatchLink = document.getElementById(\"next_batch_link\");\n" .
+			"\tnextBatchLink.href = \"performance.php?branch=" . $_GET["branch"] . "&config_set=" . $_GET["config_set"] . "&config=" . $_GET["config"] . "&suite=" . $_GET["suite"] . "&last_run_id=" . $last_run_id . "\";\n" .
+			"</script>\n";
 	}
 ?>
 
