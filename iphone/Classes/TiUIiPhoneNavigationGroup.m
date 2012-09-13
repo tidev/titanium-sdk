@@ -34,9 +34,6 @@
 -(void)dealloc
 {
 	RELEASE_TO_NIL(controller);
-    if ([closingProxyArray count] > 0) {
-        [closingProxyArray removeAllObjects];
-    }
     RELEASE_TO_NIL(closingProxyArray)
 	[self setVisibleProxy:nil];
 	//This is done this way so that proper methods are called as well.
@@ -104,9 +101,6 @@
 		RELEASE_TO_NIL(controller);
 		[visibleProxy autorelease];
 		visibleProxy = nil; // close/release handled by view removal
-        if ([closingProxyArray count] > 0) {
-            [closingProxyArray removeAllObjects];
-        }
         RELEASE_TO_NIL(closingProxyArray)
 	}
 	[self release];
