@@ -368,7 +368,8 @@ public class TiMapView extends TiUIView
 
 		this.mapWindow = mapWindow;
 		this.handler = new Handler(Looper.getMainLooper(), this);
-		this.annotations = annotations;
+		//filter out invalid annotations
+		this.annotations = filterAnnotations(annotations);
 		this.selectedAnnotations = selectedAnnotations;
 
 		TiApplication app = TiApplication.getInstance();
@@ -565,7 +566,7 @@ public class TiMapView extends TiUIView
 	public void addAnnotations(Object[] annotations) {
 		for(int i = 0; i < annotations.length; i++) {
 			AnnotationProxy ap = annotationProxyForObject(annotations[i]);
-			if (ap != null) {
+			if (ap != null && isAnnotationValid(ap)) {
 				this.annotations.add(ap);
 			}
 		}
@@ -808,6 +809,24 @@ public class TiMapView extends TiUIView
 				break;
 			}
 		}
+	}
+
+	protected boolean isAnnotationValid(AnnotationProxy annotation)
+	{
+		if (annotation.hasProperty(TiC.PROPERTY_LATITUDE) && annotation.hasProperty(TiC.PROPERTY_LONGITUDE)) {
+			return true;
+		}
+		return false;
+	}
+	
+	protected ArrayList<AnnotationProxy> filterAnnotations(ArrayList<AnnotationProxy> annotations)
+	{
+		for (int i = 0; i < annotations.size(); i++) {
+			if (!isAnnotationValid(annotations.get(i))) {
+				annotations.remove(i);
+			}
+		}
+		return annotations;
 	}
 
 	public void doSetAnnotations(ArrayList<AnnotationProxy> annotations)
