@@ -12,6 +12,7 @@
 var path = require("path"),
 http = require('http'),
 fs = require('fs'),
+os = require("os"),
 common = require(path.resolve(driverGlobal.driverDir, "common")),
 driverUtils = require(path.resolve(driverGlobal.driverDir, "driverUtils")),
 android = require(path.resolve(driverGlobal.driverDir, "platforms", "android"));
@@ -295,7 +296,7 @@ module.exports = new function() {
 	};
 
 	var runHarness = function(errorCallback) {
-		driverUtils.runCommand("adb shell am start -a android.intent.action.VIEW -d " + driverGlobal.httpHost + ":" + path.resolve("" + driverGlobal.config.httpPort, "index.html?" + Math.floor(Math.random() * 100000)), driverUtils.logStdout, function(error) {
+		driverUtils.runCommand("adb shell am start -a android.intent.action.VIEW -d " + driverGlobal.httpHost + ":" + driverGlobal.config.httpPort + "/index.html?" + Math.floor(Math.random() * 100000), driverUtils.logStdout, function(error) {
 			if (error !== null) {
 				driverUtils.log("error encountered when running harness: " + error);
 				if (errorCallback) {
