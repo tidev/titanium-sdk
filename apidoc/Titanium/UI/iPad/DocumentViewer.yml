@@ -1,10 +1,12 @@
 ---
 name: Titanium.UI.iPad.DocumentViewer
-summary: Use <Titanium.UI.iOS.DocumentViewer> instead.
-description: |
+deprecated:
+    since: 3.0.0
+    notes: Use <Titanium.UI.iOS.DocumentViewer> instead.
+summary: |
     A DocumentViewer provides in-app support for managing user interactions with files on the 
     local system.
-
+description: |
     The DocumentViewer is created by the method <Titanium.UI.iOS.createDocumentViewer>. 
     
     For example, an email program might use this class to allow the user to preview attachments and 
@@ -16,8 +18,6 @@ description: |
 extends: Titanium.UI.View
 platforms: [ipad]
 since: "1.8"
-deprecated:
-    since: 3.0.0
 
 methods:
   - name: show
