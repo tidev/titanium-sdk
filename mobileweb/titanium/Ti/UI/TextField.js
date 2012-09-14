@@ -23,7 +23,7 @@ define(["Ti/_/declare", "Ti/_/UI/TextBox", "Ti/_/css", "Ti/_/dom", "Ti/_/lang", 
 
 			this._disconnectFocusEvent = on(field, "focus", this, function() {
 				this._focused = 1;
-				this._setInternalText(this.clearOnEdit ? "" : this._getInternalText())
+				this._setInternalText(this.clearOnEdit ? "" : this._getInternalText());
 			});
 			this._disconnectBlurEvent = on(field, "blur", this, function() {
 				this._focused = 0;
