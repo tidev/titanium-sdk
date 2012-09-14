@@ -103,6 +103,7 @@ exports.validate = function (logger, config, cli) {
 		process.exit(1);
 	}
 	
+	// TODO: need to manually loop through sdks and compare using appc.version
 	if (!Object.keys(iosEnv.xcode).some(function (ver) { return iosEnv.xcode[ver].sdks.indexOf(cli.argv['ios-version']) != -1; })) {
 		logger.error(__('Unable to find iOS SDK %s', cli.argv['ios-version']) + '\n');
 		logger.log(__('Please download and install an iOS SDK (version %s or newer), then try again', version.format(minIosSdkVersion, 2)) + '\n');
@@ -333,12 +334,14 @@ function build(logger, config, cli, finished) {
 		}
 		this.logger.info(__('Minimum iOS version: %s', version.format(minVer, 3, 3).cyan));
 		
+		var validArchs = 'armv6 armv7 i386';
 		// no armv6 support above 4.3 or with 6.0+ SDK
-		if (version.lt('4.3', minVer) || version.lt('6.0', cli.argv['ios-version'])) {
+		if (version.gte(cli.argv['ios-version'], '6.0')) {
+			validArchs = 'armv7 armv7s i386';
+		} else if (version.gte(minVer, '4.3')) {
 			validArchs = 'armv7 i386';
-		} else {
-			validArchs = 'armv6 armv7 i386';
 		}
+		dump(validArchs);
 
 		//deployTarget = 'IPHONEOS_DEPLOYMENT_TARGET=' + minVer
 		//deviceTarget = 'TARGETED_DEVICE_FAMILY=1'

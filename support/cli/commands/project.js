@@ -5,9 +5,12 @@
  * See the LICENSE file for more information.
  */
 
+var ti = require('titanium-sdk');
+
 exports.config = function (logger, config, cli) {
 	return {
-		desc: __('get and set tiapp.xml settings')
+		desc: __('get and set tiapp.xml settings'),
+		options: ti.commonOptions(logger, config)
 	};
 };
 
@@ -15,4 +18,5 @@ exports.validate = function (logger, config, cli) {
 };
 
 exports.run = function (logger, config, cli) {
+	dump(cli.argv);
 };
