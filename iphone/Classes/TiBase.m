@@ -22,7 +22,7 @@ static bool ApplicationBeingDebugged(void)
 // Returns true if the current process is being debugged (either
 // running under the debugger or has a debugger attached post facto).
 {
-#ifdef TARGET_IPHONE_SIMULATOR
+#if TARGET_IPHONE_SIMULATOR
     return 1;
 #elif DEBUG
     int                 junk;
