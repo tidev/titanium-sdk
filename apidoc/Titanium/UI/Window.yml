@@ -12,6 +12,7 @@ methods:
         summary: Animation or display properties to use when closing the window.
         type: Dictionary<Titanium.UI.Animation>
         optional: true
+    platforms: [android, iphone, ipad, mobileweb]
     
   - name: hideTabBar
     summary: Hides the tab bar. Must be called before opening the window.
@@ -28,6 +29,7 @@ methods:
         summary: Animation or display properties to use when opening the window.
         type: openWindowParams
         optional: true
+    platforms: [android, iphone, ipad, mobileweb, blackberry]
 
 events:
   - name: android:back
@@ -273,6 +275,7 @@ properties:
         translucent or opaque.
     type: Boolean
     default: false
+    platforms: [android, iphone, ipad, mobileweb]
 
   - name: navBarHidden
     summary: For modal windows, hide the nav bar (`true`) or show the nav bar (`false`).
@@ -311,7 +314,10 @@ properties:
         if you do set the `opacity` property, be sure to also set a `backgroundImage` or
         `backgroundColor` property as well, unless you want the window to be completely
         transparent.
+
+        BlackBerry notes: The opacity property does not affect the window's title.
     type: Number
+    platforms: [android, iphone, ipad, mobileweb, blackberry]
 
   - name: orientationModes
     summary: |
@@ -425,6 +431,7 @@ properties:
   - name: title
     summary: Title of the window.
     type: String
+    platforms: [android, iphone, ipad, mobileweb, blackberry]
 
   - name: titleControl
     summary: View to show in the title area of the nav bar.
@@ -445,6 +452,7 @@ properties:
     summary: Key identifying a string from the locale file to use for the window title.
     description: Only one of `title` or `titleid` should be specified.
     type: String
+    platforms: [android, iphone, ipad, mobileweb]
 
   - name: titlepromptid
     summary: Key identifying a string from the locale file to use for the window title prompt.
@@ -473,6 +481,7 @@ properties:
         in the main description for [Window](Titanium.UI.Window).
     type: String
     availability: creation
+    platforms: [android, iphone, ipad, mobileweb]
 
   - name: windowSoftInputMode
     summary: |

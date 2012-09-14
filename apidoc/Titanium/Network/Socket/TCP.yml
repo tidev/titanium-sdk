@@ -27,7 +27,7 @@ description: |
     Use the <Titanium.Network.Socket.createTCP> method to create a TCP socket.
 extends: Titanium.IOStream
 since: "1.7"
-platforms: [android, iphone, ipad]
+platforms: [android, iphone, ipad, blackberry]
 examples:
   - title: Simple Socket IO using Stream.pump
     example: |
@@ -168,6 +168,7 @@ properties:
   - name: host
     type: String
     summary: The host to connect to or listen on. 
+    platforms: [android, iphone, ipad, blackberry]
     description: |
         Can only be modified when this socket is in the [INITIALIZED](Titanium.Network.Socket.INITIALIZED) state. 
         
@@ -175,6 +176,7 @@ properties:
   - name: port
     type: Number
     summary: The port to connect to or listen on. 
+    platforms: [android, iphone, ipad, blackberry]
     description: |
         Can only be modified when this socket is in the [INITIALIZED](Titanium.Network.Socket.INITIALIZED) state.
 
@@ -182,6 +184,7 @@ properties:
     type: Number
     summary: Max number of pending incoming connections to be allowed when the socket is
         in the [LISTENING](Titanium.Network.Socket.LISTENING) state.
+    platforms: [android, iphone, ipad, blackberry]
     description: |
         Any incoming connections received while the max number of pending connections has 
         been reached will be rejected.
@@ -189,12 +192,14 @@ properties:
   - name: timeout
     type: Number
     summary: Timeout, in milliseconds, for `connect` and all `write` operations. 
+    platforms: [android, iphone, ipad]
     description: |
         Can only be modified when this socket is in the [INITIALIZED](Titanium.Network.Socket.INITIALIZED) state. 
 
   - name: connected
     type: Callback<ConnectedCallbackArgs>
     summary: Callback to be fired when the socket enters the "connected" state. 
+    platforms: [android, iphone, ipad, blackberry]
     description: |
         Only invoked following a successful [connect](Titanium.Network.Socket.TCP.connect)
         call.
@@ -203,15 +208,18 @@ properties:
   - name: error
     type: Callback<ErrorCallbackArgs>
     summary: Callback to be fired when the socket enters the [ERROR](Titanium.Network.Socket.ERROR) state.
+    platforms: [android, iphone, ipad, blackberry]
 
   - name: accepted
     type: Callback<AcceptedCallbackArgs>
     summary: Callback to be fired when a listener accepts a connection.
+    platforms: [android, iphone, ipad, blackberry]
 
   - name: state
     type: Number
     permission: read-only
     summary: Current state of the socket.
+    platforms: [android, iphone, ipad, blackberry]
     description: |
         One of: [INITIALIZED](Titanium.Network.Socket.INITIALIZED), 
         [CONNECTED](Titanium.Network.Socket.CONNECTED), 
@@ -223,6 +231,7 @@ properties:
 methods:
   - name: connect
     summary: Attempts to connect the socket to its host/port. 
+    platforms: [android, iphone, ipad, blackberry]
     description: |
         Throws an exception if the socket is in a [CONNECTED](Titanium.Network.Socket.CONNECTED) 
         or [LISTENING](Titanium.Network.Socket.LISTENING) state. 
@@ -232,6 +241,7 @@ methods:
 
   - name: listen
     summary: Attempts to start listening on the socket's host/port. 
+    platforms: [android, iphone, ipad, blackberry]
     description: |
         The `listen` call will attempt to listen on the specified host and/or port 
         property for the socket if they are set.  
@@ -248,6 +258,7 @@ methods:
 
   - name: accept
     summary: Tells a [LISTENING](Titanium.Network.Socket.LISTENING) socket to accept a connection request at the top of a listener's request queue when one becomes available. 
+    platforms: [android, iphone, ipad, blackberry]
     description: |
         Nonblocking; if there are no connections in the queue, sets a flag so that 
         the socket accepts the next incoming connection immediately. 
@@ -275,6 +286,7 @@ methods:
 
   - name: close
     summary: Closes a socket. 
+    platforms: [android, iphone, ipad, blackberry]
     description: |
         Throws exception if the socket is not in a [CONNECTED](Titanium.Network.Socket.CONNECTED) 
         or [LISTENING](Titanium.Network.Socket.LISTENING) state. Blocking.
@@ -282,6 +294,7 @@ methods:
 ---
 name: ConnectedCallbackArgs
 summary: Argument object passed to the [connected](Titanium.Network.Socket.TCP.connected) callback when the socket connects.
+platforms: [android, iphone, ipad, blackberry]
 description: |
     Only invoked following a successful [connect](Titanium.Network.Socket.TCP.connect)
     call.
@@ -296,6 +309,7 @@ properties:
 name: ErrorCallbackArgs
 summary: Object passed to the error callback when the socket enters 
     the [ERROR](Titanium.Network.Socket.ERROR) state.
+platforms: [android, iphone, ipad, blackberry]
 since: "1.7"
 
 properties:
@@ -316,6 +330,7 @@ name: AcceptedCallbackArgs
 summary: |
     Argument object passed to the [accepted](Titanium.Network.Socket.TCP.accepted)
     callback when a listener accepts a connection.
+platforms: [android, iphone, ipad, blackberry]
 since: "1.7"
 
 properties:
@@ -333,6 +348,7 @@ properties:
 ---
 name: AcceptDict
 summary: Options object for the [accept](Titanium.Network.Socket.TCP.accept) method.
+platforms: [android, iphone, ipad]
 description: |
     Simple object that defines properties to be set on the next accepted socket.
 since: "1.7"

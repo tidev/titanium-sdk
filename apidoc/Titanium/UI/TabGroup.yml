@@ -15,7 +15,7 @@ description: |
     When using a tab group, note the following differences between platforms.
     
     The tab group controls are positioned at the top of the display on Android and at the bottom 
-    on iOS.
+    on iOS and BlackBerry.
     
     On Android, only one tab group may exist at one time. A tab group may be closed to allow a new 
     one to be opened later, but the root of the application must be a heavyweight window to prevent 

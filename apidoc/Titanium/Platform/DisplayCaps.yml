@@ -12,6 +12,9 @@ description: |
     Note that Xcode versions prior to 4.3.1 do not have the correct tools to detect the iPad 3 
     retina display. Apps must be built with Xcode 4.3.1 or later to detect iPad 3 retina display.
     
+    On BlackBerry devices, the `density` property is `high` and the `dpi` property is
+    approximately `356`.
+
     Note that the `displayCaps` property begins with a lowercase letter, which differentiates it 
     from the `DisplayCaps` object that it returns. Refer to the example to understand how it should 
     be called.
@@ -138,12 +141,12 @@ properties:
   - name: xdpi
     summary: Physical pixels per inch of the display in the X dimension.
     type: Number
-    platforms: [android]
+    platforms: [android, blackberry]
     
   - name: ydpi
     summary: Physical pixels per inch of the display in the Y dimension.
     type: Number
-    platforms: [android]
+    platforms: [android, blackberry]
     
 examples:
   - title: System Display Information

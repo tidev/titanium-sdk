@@ -18,7 +18,7 @@ description: |
 
 extends: Titanium.Module
 since: "1.7"
-platforms: [android, iphone, ipad]
+platforms: [android, iphone, ipad, blackberry]
 examples: 
   - title: Stream.pump Example
     example: |

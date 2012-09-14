@@ -13,6 +13,9 @@ description:  |
     The activity indicator is a view like any other view, and must be
     added to a window or other top-level view before it can be shown. Note that, unlike most views, 
     the activity indicator is hidden by default and must be shown explicitly.
+
+    * On BlackBerry the activity indicator has three fixed graphics sizes. The activity indicator will choose
+    the largest of its three graphics sizes that fits inside the avaliable space.
 extends: Titanium.Proxy
 since: "0.8"
 methods:

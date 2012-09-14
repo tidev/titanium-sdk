@@ -102,7 +102,9 @@ excludes: {
 events:
   - name: click
     summary: Fired when a table row is clicked by the user.
-    platforms: [android, iphone, ipad, mobileweb]
+    platforms: [android, iphone, ipad, mobileweb, blackberry]
+    description: |
+        For now, BlackBerry supports only 'index' property of this event
     properties:
       - name: detail
         summary: |

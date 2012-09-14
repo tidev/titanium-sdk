@@ -3,7 +3,7 @@ name: Titanium.Network.Socket
 summary: Socket module, used for creating sockets.
 extends: Titanium.Module
 since: "1.7"
-platforms: [android, iphone, ipad]
+platforms: [android, iphone, ipad, blackberry]
 
 properties:
   - name: INITIALIZED
