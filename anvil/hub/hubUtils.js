@@ -128,16 +128,8 @@ module.exports = new function() {
 
 				} else {
 					oldestLog = logsMap[logTimestamps[oldestLogIndex]];
-					self.runCommand("rm -r " + path.join(hubGlobal.logsDir, oldestLog), function(error) {
-						if (error !== null) {
-							self.log("error <" + error + "> encountered when deleting log <" + oldestLog + ">");
-
-						} else {
-							self.log("deleted log: " + oldestLog);
-						}
-
-						deleteLog(--oldestLogIndex);
-					});
+					wrench.rmdirSyncRecursive(path.join(hubGlobal.logsDir, oldestLog), failSilent);
+					deleteLog(--oldestLogIndex);
 				}
 			}
 

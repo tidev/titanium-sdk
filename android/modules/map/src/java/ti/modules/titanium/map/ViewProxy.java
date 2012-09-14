@@ -34,7 +34,8 @@ import android.view.Window;
 	TiC.PROPERTY_MAP_TYPE,
 	TiC.PROPERTY_REGION,
 	TiC.PROPERTY_REGION_FIT,
-	TiC.PROPERTY_USER_LOCATION
+	TiC.PROPERTY_USER_LOCATION,
+	TiC.PROPERTY_HIDE_ANNOTATION_WHEN_TOUCH_MAP
 })
 public class ViewProxy extends TiViewProxy implements OnLifecycleEvent
 {
