@@ -92,6 +92,9 @@ properties:
         For example, "16dp" specifies a size of 16 density-independent pixels. 
 
         iOS ingores any unit specifier after the size value.
+
+        On BlackBerry, fontSize use post script units. Valid ranges are >= 0. Sizes < 0 will be clamped to 0.
+        fontSize value is a Number.
     type: [ Number, String ]
     default: 15px
   - name: fontWeight
@@ -102,5 +105,5 @@ properties:
   - name: fontStyle
     summary: Font style. Valid values are "italic" or "normal". 
     type: String
-    platforms: [ iphone, ipad ]
+    platforms: [ iphone, ipad, blackberry ]
     default: normal

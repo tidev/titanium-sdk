@@ -63,7 +63,7 @@ methods:
     description: |
         Applicable to the <Titanium.UI.PICKER_TYPE_DATE> and <Titanium.UI.PICKER_TYPE_DATE_AND_TIME> 
         picker types.
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, blackberry]
     parameters:
       - name: date
         summary: A Javascript `Date` object.
@@ -110,6 +110,7 @@ methods:
 events:
   - name: change
     summary: Fired when the value of any column's row is changed.
+             For the BlackBerry only 'value' and 'type' properties are supporting.
     properties:
       - name: columnIndex
         summary: |

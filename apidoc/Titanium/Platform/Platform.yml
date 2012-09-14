@@ -40,6 +40,7 @@ methods:
         
   - name: createUUID
     summary: Creates a globally-unique identifier.
+    platforms: [android, iphone, ipad, mobileweb]
     returns:
         type: String
         
@@ -52,6 +53,7 @@ methods:
       - name: url
         summary: The url to open.
         type: String
+    platforms: [android, iphone, ipad, mobileweb]
         
   - name: is24HourTimeFormat
     summary: Returns whether the system settings are configured to show times in 24-hour format.
@@ -87,16 +89,19 @@ properties:
     summary: System's WIFI IP address. No other network types are supported.
     type: String
     permission: read-only
+    platforms: [android, iphone, ipad, mobileweb]
     
   - name: architecture
     summary: System's processor architecture.
     type: String
     permission: read-only
+    platforms: [android, iphone, ipad, mobileweb]
     
   - name: availableMemory
     summary: System's unused memory, measured in megabytes on iOS and bytes on Android.
     type: Number
     permission: read-only
+    platforms: [android, iphone, ipad, mobileweb]
     
   - name: batteryLevel
     summary: |
@@ -109,6 +114,7 @@ properties:
     summary: Determines whether battery monitoring is enabled.
     default: false
     type: Boolean
+    platforms: [android, iphone, ipad, mobileweb]
     
   - name: batteryState
     summary: Indicates the state of the battery. Accessible only when `batteryMonitoring` is enabled.
@@ -132,6 +138,7 @@ properties:
         from the `DisplayCaps` object that it returns.
     type: Titanium.Platform.DisplayCaps
     permission: read-only
+    platforms: [android, iphone, ipad, mobileweb, blackberry]
     
   - name: id
     summary: Applications's globally-unique ID (UUID).
@@ -145,6 +152,7 @@ properties:
         documentation.
     type: String
     permission: read-only
+    platforms: [android, iphone, ipad, mobileweb]
         
   - name: locale
     summary: System's default language.
@@ -156,6 +164,7 @@ properties:
         sections of wikipedia for reference.
     type: String
     permission: read-only
+    platforms: [android, iphone, ipad, mobileweb]
     
   - name: macaddress
     summary: System's network interface mac address, or app UUID.
@@ -165,11 +174,12 @@ properties:
         unique device identification, which they have prohibited.
     type: String
     permission: read-only
+    platforms: [android, iphone, ipad, mobileweb]
   
   - name: manufacturer
     summary: Manufacturer of the device.
     description: |
-        Returns the manufacturer of the device, for example, `motorola`.
+        Returns the manufacturer of the device. For example, `motorola`.
         Virtual devices return `unknown`.
     type: String
     permission: read-only
@@ -212,12 +222,13 @@ properties:
     summary: System's WIFI network mask. No other network types are supported.
     type: String
     permission: read-only
+    platforms: [android, iphone, ipad, mobileweb]
     
   - name: osname
     summary: |
         Short name of the system's Operating System. Returns `android` for the Android platfrom,
-        `iphone` for the iPhone or iPod Touch, `ipad` for the iPad, and `mobileweb` for the Mobile Web
-        platform.
+        `iphone` for the iPhone or iPod Touch, `ipad` for the iPad, `mobileweb` for the Mobile Web
+        platform and `blackberry` for BlackBerry.
     type: String
     permission: read-only
     
@@ -225,17 +236,19 @@ properties:
     summary: Operating System architecture. On Android, this is `32bit`.
     type: String
     permission: read-only
+    platforms: [android, iphone, ipad, mobileweb]
     
   - name: processorCount
     summary: Number of processing cores.
     type: Number
     permission: read-only
+    platforms: [android, iphone, ipad, mobileweb]
     
   - name: runtime
     summary: Short name of the JavaScript runtime in use.
     description: |
-      On iOS this is "javascriptcore", on Android either "v8" or "rhino" and on Mobile Web it is 
-      determined by the browser used.
+      On iOS this is "javascriptcore", on Android either "v8" or "rhino", on Mobile Web it is
+      determined by the browser used and on BlackBerry it is "v8".
     type: String
     permission: read-only
     
@@ -244,11 +257,13 @@ properties:
       System name, if set. On iOS, this can be found in Settings > General > About > Name.
     type: String
     permission: read-only
+    platforms: [android, iphone, ipad, mobileweb]
     
   - name: version
     summary: System's OS version.
     type: String
     permission: read-only
+    platforms: [android, iphone, ipad, mobileweb, blackberry]
 
 examples:
   - title: Battery Event Example

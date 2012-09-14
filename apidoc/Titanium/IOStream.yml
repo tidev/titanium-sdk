@@ -7,7 +7,7 @@ description: |
 since: "1.7"
 extends: Titanium.Proxy
 createable: false
-platforms: [android, iphone, ipad, mobileweb]
+platforms: [android, iphone, ipad, mobileweb, blackberry]
 
 methods:
 

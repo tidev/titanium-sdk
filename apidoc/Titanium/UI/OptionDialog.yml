@@ -38,6 +38,13 @@ description: |
     Note that on iPad, the cancel button is not displayed -- users can cancel the dialog
     by clicking outside of the dialog.
     
+    #### BlackBerry
+
+    On BlackBerry the control consists of a title bar and an expandable list of options.
+    The purpose is to give the app developer a simple way to let the user select one of many options.
+    The list expands/collapses when tapping on the title bar, and collapses when tapping on an option in the list.
+    It can be displayed anywhere in the screen.
+    
     #### Caveats
     
     Care should be taken not to define any properties that are not documented, as this may produce 
@@ -144,7 +151,7 @@ properties:
     
   - name: selectedIndex
     summary: Defines the default selected option.
-    platforms: [android]
+    platforms: [android, blackberry]
     type: Number
     availability: creation
     

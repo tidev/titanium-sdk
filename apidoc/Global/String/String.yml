@@ -21,6 +21,14 @@ methods:
             var number = 21;
             var message = String.format('Welcome, %s! You are visitor number %d', forename, number);
             Ti.API.info(message);
+
+        #### BlackBerry
+        `%a` and `%A` are treated as `%f` and `%F`.
+
+        Supported length modifiers are `ll` for integer specifiers and `L` for double specifiers.
+        `j`, `t` and `L` (for integer) are not supported, others have no effect.
+
+        '*' and '*m$' for width and precision are not supported.  If they are used the behaviour is undefined.
     returns:
         type: String
         summary: Formatted string.
@@ -34,7 +42,7 @@ methods:
         summary: |
             Values to substitute into the `formatString`.  The method expects a variable number
             of `value` arugments, one for each `%` conversion specification in the format
-            string. Optional on Android.
+            string. Optional on Android and BlackBerry.
         type: [ String, Number ]
         
   - name: formatCurrency
@@ -91,7 +99,9 @@ methods:
 
   - name: formatTime
     summary: Formats a date into the time format of the locale configured for the system.
-    description: On Android, this method returns the short format.
+    description: |
+        On Android, this method returns the short format.
+
     returns:
         type: String
         summary: Formatted, localized string.

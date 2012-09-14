@@ -121,8 +121,11 @@ properties:
         buttons may be created on Android, as the hardware `back` button may be used instead.
         
         A maximum of 3 buttons is supported on Android.
+
+        On BlackBerry, 'Cancel' and 'OK' buttons will be automatically created if none are explicitly
+        defined. Providing buttonNames will omit these buttons and use those provided instead.
     type: Array<String>
-    default: null (Android), ['OK'] (iOS)
+    default: null (Android), ['OK'] (iOS), undefined (BlackBerry)
     availability: creation
 
   - name: cancel
@@ -130,7 +133,7 @@ properties:
     description: |
         On iOS and Mobile Web, set to `-1` to disable the cancel option.
     type: Number
-    default: undefined (Android), -1 (iOS, Mobile Web)
+    default: undefined (Android, BlackBerry), -1 (iOS, Mobile Web)
     
   - name: message
     summary: Dialog message.
@@ -169,6 +172,7 @@ properties:
 
   - name: ok
     summary: Text for the `OK` button.
+    platforms: [android, iphone, ipad, mobileweb]
     description: |
         This property is useful when only one button is required, as it negates the need to define 
         the `buttonNames` property. If `buttonNames` is defined, this property is ignored.
