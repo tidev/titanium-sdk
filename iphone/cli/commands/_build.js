@@ -103,9 +103,15 @@ exports.validate = function (logger, config, cli) {
 		process.exit(1);
 	}
 	
-	// TODO: need to manually loop through sdks and compare using appc.version
-	if (!Object.keys(iosEnv.xcode).some(function (ver) { return iosEnv.xcode[ver].sdks.indexOf(cli.argv['ios-version']) != -1; })) {
-		logger.error(__('Unable to find iOS SDK %s', cli.argv['ios-version']) + '\n');
+	var sdks = {};
+	Object.keys(iosEnv.xcode).forEach(function (sdk) {
+		sdk != '__selected__' && iosEnv.xcode[sdk].sdks.forEach(function (ver) {
+			sdks[ver] = 1;
+		});
+	});
+	
+	if (!Object.keys(sdks).some(function (ver) { return version.eq(ver, cli.argv['ios-version']); })) {
+		logger.error(__('Unable to find iOS SDK %s', version.format(cli.argv['ios-version'], 2)) + '\n');
 		logger.log(__('Please download and install an iOS SDK (version %s or newer), then try again', version.format(minIosSdkVersion, 2)) + '\n');
 		process.exit(1);
 	}
