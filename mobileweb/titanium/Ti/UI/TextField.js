@@ -40,7 +40,12 @@ define(["Ti/_/declare", "Ti/_/UI/TextBox", "Ti/_/css", "Ti/_/dom", "Ti/_/lang", 
 		_showingHint: 1,
 
 		_setInternalText: function(value) {
-			TextBox.prototype._setInternalText.call(this, (this._showingHint = !this._focused && !value) ? this.hintText : value);
+			var showingHint = !this._focused && !value;
+			if (showingHint !== this._showingHint) {
+				this._showingHint = showingHint;
+				this._setKeyboardType();
+			}
+			TextBox.prototype._setInternalText.call(this, showingHint ? this.hintText : value);
 		},
 		
 		_getInternalText: function() {
@@ -64,7 +69,7 @@ define(["Ti/_/declare", "Ti/_/UI/TextBox", "Ti/_/css", "Ti/_/dom", "Ti/_/lang", 
 
 		_setKeyboardType: function() {
 			var type = "text";
-			if (this.passwordMask) {
+			if (this.passwordMask && !this._showingHint) {
 				type = "password";
 			} else {
 				switch (this.keyboardType) {
