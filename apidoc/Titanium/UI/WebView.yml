@@ -72,7 +72,7 @@ methods:
               
           setHtml('<html><body>Hello, <a href="/documentation">Titanium</a>!</body></html>',
                   {baseURL:'http://developer.appcelerator.com/'})
-    platforms: [iphone, ipad, mobileweb]
+    platforms: [android, iphone, ipad, mobileweb]
     parameters:
 
       - name: html
@@ -284,12 +284,6 @@ properties:
   - name: html
     summary: HTML content of this web view.
     description: |
-        On Android, This property is read-only. On other platforms, it is read-write and can 
-        be used to set the web view's content. 
-
-        On all platforms the web view's content can be set using the [data](Titanium.UI.WebView.data) or 
-        [url](Titanium.UI.WebView.url) properties.
-        
         For iOS, see [setHtml](Titanium.UI.WebView.setHtml) for additional parameters that can be
         specified when setting HTML content.
 
@@ -299,6 +293,8 @@ properties:
         stripped of, along with comments outside of the `<html>` tag. Some default attributes may be added
         as well. For example, a web page with the code `<html><head></head><body>hello</body></html>` returns
         `"<head></head><body marginwidth="0" marginheight="0">hello</body>"` in Safari.
+
+        See also: [data](Titanium.UI.WebView.data) and [url](Titanium.UI.WebView.url).
     type: String
 
   - name: loading
