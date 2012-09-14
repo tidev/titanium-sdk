@@ -78,6 +78,11 @@ public class TiExceptionHandler implements Handler.Callback, KrollExceptionHandl
 
 		printError(error.title, error.message, error.sourceName, error.line, error.lineSource, error.lineOffset);
 
+		TiApplication tiApplication = TiApplication.getInstance();
+		if (tiApplication.getDeployType().equals(TiApplication.DEPLOY_TYPE_PRODUCTION)) {
+			return;
+		}
+
 		if (!dialogShowing) {
 			dialogShowing = true;
 			final ExceptionMessage fError = error;
