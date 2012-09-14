@@ -6,8 +6,9 @@
  */
 package org.appcelerator.titanium;
 
-import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import android.util.SparseArray;
 
 /**
  * A registry for TiBaseActivity<->Window creation logic.
@@ -15,7 +16,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class TiActivityWindows
 {
 	protected static AtomicInteger windowIdGenerator = new AtomicInteger();
-	protected static HashMap<Integer, TiActivityWindow> windows = new HashMap<Integer, TiActivityWindow>();
+	protected static SparseArray<TiActivityWindow> windows = new SparseArray<TiActivityWindow>();
 
 	public static int addWindow(TiActivityWindow window)
 	{

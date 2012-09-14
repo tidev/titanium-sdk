@@ -23,7 +23,8 @@ module.exports = new function() {
 		{name: "horizontalNoWrapWithSIZEHeight"},
 		{name: "horizontalNoWrapTopPaddingSIZEHeight"},
 		{name: "horizontalWrapTopPaddingSIZEHeight"},
-		{name: "verticalWithTopBottomPadding"}
+		{name: "verticalWithTopBottomPadding"},
+		{name: "horizontalWrapWithSIZEWidth"}
 	];
 
 	this.horizontalTopBottomUndefinedHeight = function(testRun) {
@@ -320,6 +321,30 @@ module.exports = new function() {
 		container.add(view1);
 		container.add(view2);
 		win.add(container);
+		win.open();
+	};
+	
+	this.horizontalWrapWithSIZEWidth = function(testRun) {
+		var win = Ti.UI.createWindow({
+			navBarHidden : true,
+			backgroundColor : '#000'
+		});
+
+		var topView = Ti.UI.createView({
+			backgroundColor : 'white',
+			width : Ti.UI.SIZE,
+			layout : 'horizontal'
+		});
+
+		topView.add(Ti.UI.createView({width: 100, height: 100, backgroundColor:'blue'}));
+		topView.add(Ti.UI.createView({width: 50, height: 100, backgroundColor:'red'}));
+
+		win.addEventListener("postlayout", function(e){
+			valueOf(testRun, topView.rect.width).shouldBe(150);
+			finish(testRun);
+		});
+
+		win.add(topView);
 		win.open();
 	};
 };

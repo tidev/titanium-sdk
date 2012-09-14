@@ -1147,6 +1147,12 @@ def main(args):
 				print "[INFO] Minimum iOS version: %s" % min_ver
 				deploy_target = "IPHONEOS_DEPLOYMENT_TARGET=%s" % min_ver
 				device_target = 'TARGETED_DEVICE_FAMILY=1'  # this is non-sensical, but you can't pass empty string
+				
+				# No armv6 support above 4.3 or with 6.0+ SDK
+				if min_ver >= 4.3 or float(iphone_version) >= 6.0:
+					valid_archs = 'armv7 i386'
+				else:
+					valid_archs = 'armv6 armv7 i386'
 
 				# clean means we need to nuke the build 
 				if clean_build or force_destroy_build: 
@@ -1217,7 +1223,7 @@ def main(args):
 						# NOTE: this is very important to run on device -- i dunno why
 						# xcode warns that 3.2 needs only armv7, but if we don't pass in 
 						# armv6 we get crashes on device
-						extra_args = ["VALID_ARCHS=armv6 armv7 i386"]
+						extra_args = ["VALID_ARCHS="+valid_archs]
 					# Additionally, if we're universal, change the device family target
 					if devicefamily == 'universal':
 						device_target="TARGETED_DEVICE_FAMILY=1,2"
@@ -1410,7 +1416,7 @@ def main(args):
 					# set the DYLD_FRAMEWORK_PATH environment variable for the following Popen iphonesim command
 					# this allows the XCode developer folder to be arbitrarily named
 					xcodeselectpath = os.popen("/usr/bin/xcode-select -print-path").readline().rstrip('\n')
-					iphoneprivateframeworkspath = xcodeselectpath + '/Platforms/iPhoneSimulator.platform/Developer/Library/PrivateFrameworks'
+					iphoneprivateframeworkspath = xcodeselectpath + '/Platforms/iPhoneSimulator.platform/Developer/Library/PrivateFrameworks:' + xcodeselectpath + '/../OtherFrameworks'
 					os.putenv('DYLD_FRAMEWORK_PATH', iphoneprivateframeworkspath)
 
 					# launch the simulator

@@ -69,6 +69,7 @@ function loadConfigModule() {
 	checkConfigItem("driverListenPort", config.driverListenPort, "number");
 	checkConfigItem("dbHost", config.dbHost, "string");
 	checkConfigItem("dbUser", config.dbUser, "string");
+	checkConfigItem("sdkVersionReqs", config.sdkVersionReqs, "object");
 
 	hubGlobal.logsDir = "logs";
 	hubGlobal.workingDir = "working_dir";
