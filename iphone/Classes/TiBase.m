@@ -12,11 +12,15 @@
 #include <pthread.h>
 #include <sys/time.h>
 
+#if DEBUG
+
 #include <assert.h>
 #include <stdbool.h>
 #include <sys/types.h>
 #include <unistd.h>
 #include <sys/sysctl.h>
+
+#endif
 
 static bool ApplicationBeingDebugged(void)
 // Returns true if the current process is being debugged (either
