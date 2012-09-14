@@ -23,14 +23,6 @@ excludes: {
 events:
   - name: action
     summary: Fired when a banner action is performed.
-    properties:
-      - name: source
-        summary: Source object that fired the event.
-        type: Object
-
-      - name: type
-        summary: Name of the event fired.
-        type: String
         
   - name: error
     summary: Fired when a banner could not be loaded.
@@ -38,14 +30,6 @@ events:
       - name: message
         summary: Error message.
         type: String
-
-      - name: source
-        summary: Source object that fired the event.
-        type: Object
-
-      - name: type
-        summary: Name of the event fired.
-        type: String      
     
   - name: load
     summary: Fired when a banner is loaded and displayed.

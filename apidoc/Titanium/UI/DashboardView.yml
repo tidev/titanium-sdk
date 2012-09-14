@@ -49,26 +49,10 @@ events:
         summary: Coordinates x and y of the event from the parent view's coordinate system.
         type: Dictionary
 
-      - name: source
-        summary: Source object that fired the event.
-        type: Object
-
-      - name: type
-        summary: Name of the event fired.
-        type: String
-
   - name: commit
     summary: Fired when edit mode ends.
     description: |
         This event is invoked by the <Titanium.UI.DashboardView.stopEditing> method.
-    properties:
-      - name: source
-        summary: Source object that fired the event.
-        type: Object
-
-      - name: type
-        summary: Name of the event fired.
-        type: String
 
   - name: delete
     summary: Fired when an item is deleted in edit mode.
@@ -77,14 +61,6 @@ events:
         summary: Item that was deleted.
         type: Titanium.UI.DashboardItem
     
-      - name: source
-        summary: Source object that fired the event.
-        type: Object
-
-      - name: type
-        summary: Name of the event fired.
-        type: String
-        
   - name: dragEnd
     description: |
         This event has been deprecated and renamed dragend (lower case).
@@ -93,15 +69,6 @@ events:
       - name: item
         summary: Item that was dragged.
         type: Titanium.UI.DashboardItem
-      
-      - name: source
-        summary: Source object that fired the event.
-        type: Object
-
-      - name: type
-        summary: Name of the event fired.
-        type: String
-  
     deprecated:
         since: "3.0.0"
         
@@ -113,15 +80,6 @@ events:
       - name: item
         summary: Item that was dragged.
         type: Titanium.UI.DashboardItem
-
-      - name: source
-        summary: Source object that fired the event.
-        type: Object
-
-      - name: type
-        summary: Name of the event fired.
-        type: String
-        
     deprecated:
         since: "3.0.0"
         
@@ -131,15 +89,6 @@ events:
       - name: item
         summary: Item that was dragged.
         type: Titanium.UI.DashboardItem
-
-      - name: source
-        summary: Source object that fired the event.
-        type: Object
-
-      - name: type
-        summary: Name of the event fired.
-        type: String
-        
     since: '3.0.0'
         
   - name: dragstart
@@ -148,15 +97,6 @@ events:
       - name: item
         summary: Item that was dragged.
         type: Titanium.UI.DashboardItem
-
-      - name: source
-        summary: Source object that fired the event.
-        type: Object
-
-      - name: type
-        summary: Name of the event fired.
-        type: String
-        
     since: '3.0.0'
         
   - name: edit
@@ -164,14 +104,6 @@ events:
     description: |
         This event is invoked by a longpress of a <Titanium.UI.DashboardItem> item or the 
         <Titanium.UI.DashboardView.startEditing> method.
-    properties:
-      - name: source
-        summary: Source object that fired the event.
-        type: Object
-
-      - name: type
-        summary: Name of the event fired.
-        type: String
        
   - name: move
     summary: Fired when an item is moved in edit mode.
@@ -183,14 +115,6 @@ events:
       - name: items
         summary: List of items to be committed, possibly in new order, when edit mode ends.
         type: Array<Titanium.UI.DashboardItem>
-
-      - name: source
-        summary: Source object that fired the event.
-        type: Object
-
-      - name: type
-        summary: Name of the event fired.
-        type: String
 
 methods:
   - name: startEditing

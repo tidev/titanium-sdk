@@ -31,14 +31,6 @@ excludes: {
 events:
   - name: hide
     summary: Fired when the popover is hidden.
-    properties:
-      - name: source
-        summary: Source object that fired the event.
-        type: Object
-
-      - name: type
-        summary: Name of the event fired.
-        type: String
         
 methods:
   - name: setHeight
