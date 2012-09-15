@@ -41,7 +41,9 @@ import android.util.Log;
 import android.widget.DatePicker;
 import android.widget.TimePicker;
 
-@Kroll.proxy(creatableInModule=UIModule.class, propertyAccessors={"locale", "visibleItems"})
+@Kroll.proxy(creatableInModule=UIModule.class, propertyAccessors={
+	"locale", "visibleItems", "value"
+})
 public class PickerProxy extends TiViewProxy implements PickerColumnListener
 {
 	private int type = UIModule.PICKER_TYPE_PLAIN;
