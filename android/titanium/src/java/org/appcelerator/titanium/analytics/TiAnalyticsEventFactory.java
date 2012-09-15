@@ -120,7 +120,6 @@ public class TiAnalyticsEventFactory
 			json.put("os", TiPlatformHelper.getOS());
 			json.put("osver", TiPlatformHelper.getVersion());
 			json.put("version", application.getTiBuildVersion());
-			json.put("un", TiPlatformHelper.getUsername());
 			json.put("model", TiPlatformHelper.getModel());
 			json.put("app_version", application.getAppInfo().getVersion());
 			json.put("nettype", TiPlatformHelper.getNetworkTypeName());

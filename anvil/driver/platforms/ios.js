@@ -12,8 +12,8 @@
 var net = require("net");
 var path = require("path");
 
-var common = require(path.join(driverGlobal.driverDir, "common"));
-var driverUtils = require(path.join(driverGlobal.driverDir, "driverUtils"));
+var common = require(path.resolve(driverGlobal.driverDir, "common"));
+var driverUtils = require(path.resolve(driverGlobal.driverDir, "driverUtils"));
 
 module.exports = new function() {
 	var self = this;
@@ -31,6 +31,10 @@ module.exports = new function() {
 	this.name = "ios";
 
 	this.init = function(commandCallback, testPassCallback) {
+		// check ios specific config items
+		driverUtils.checkConfigItem("iosSocketPort", driverGlobal.config.iosSocketPort, "number");
+		driverUtils.checkConfigItem("defaultIosSimVersion", driverGlobal.config.defaultIosSimVersion, "string");
+
 		commandFinishedCallback = commandCallback;
 
 		testPassFinishedCallback = function(results) {
@@ -84,7 +88,7 @@ module.exports = new function() {
 
 		common.createHarness(
 			"ios",
-			"\"" + path.join(driverGlobal.config.currentTiSdkDir, "titanium.py") + "\" create --dir=" + path.join(driverGlobal.harnessDir, "ios") + " --platform=iphone --name=harness --type=project --id=com.appcelerator.harness",
+			"\"" + path.resolve(driverGlobal.config.currentTiSdkDir, "titanium.py") + "\" create --dir=" + path.resolve(driverGlobal.harnessDir, "ios") + " --platform=iphone --name=harness --type=project --id=com.appcelerator.harness",
 			successCallback,
 			errorCallback
 			);
@@ -125,8 +129,8 @@ module.exports = new function() {
 			TODO: investigate running simulator separately from the build script so we can get 
 			error reporting to work correctly when the simulator fails to launch
 			*/
-			var args = ["simulator", simVersion, path.join(driverGlobal.harnessDir, "ios", "harness"), "com.appcelerator.harness", "harness"];
-			driverUtils.runProcess(path.join(driverGlobal.config.currentTiSdkDir, "iphone", "builder.py"), args, stdoutCallback, 0, function(code) {
+			var args = ["simulator", simVersion, path.resolve(driverGlobal.harnessDir, "ios", "harness"), "com.appcelerator.harness", "harness"];
+			driverUtils.runProcess(path.resolve(driverGlobal.config.currentTiSdkDir, "iphone", "builder.py"), args, stdoutCallback, 0, function(code) {
 				if (code !== 0) {
 					driverUtils.log("error encountered when running harness: " + code);
 					errorCallback();
@@ -134,7 +138,7 @@ module.exports = new function() {
 			});
 		};
 
-		if (path.existsSync(path.join(driverGlobal.harnessDir, "ios", "harness", "tiapp.xml"))) {
+		if (path.existsSync(path.resolve(driverGlobal.harnessDir, "ios", "harness", "tiapp.xml"))) {
 			runCallback();
 
 		} else {
