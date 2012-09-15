@@ -670,11 +670,7 @@
     CGRect screenBounds = [[UIScreen mainScreen] bounds];
     CGPoint appCenter = CGPointMake(screenBounds.size.width/2.0f, screenBounds.size.height/2.0f);
     CGRect statusBarFrame = [[UIApplication sharedApplication] statusBarFrame];
-    if (CGRectIsEmpty(statusBarFrame)) {
-        [[self view] setBounds:screenBounds];
-        [[self view] setCenter:appCenter];
-    }
-    else {
+    if (!CGRectIsEmpty(statusBarFrame)) {
         CGRect appBounds = CGRectZero;
         switch ([[UIApplication sharedApplication] statusBarOrientation]) {
             case UIInterfaceOrientationPortrait:
