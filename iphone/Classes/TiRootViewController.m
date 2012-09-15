@@ -310,6 +310,20 @@
 	[[viewControllerStack lastObject] viewDidDisappear:animated];
 }
 
+
+- (BOOL)shouldAutorotate{
+    return YES;
+}
+
+- (NSUInteger)supportedInterfaceOrientations{
+    //IOS6. If forcing status bar orientation, this must return 0.
+    if (forcingStatusBarOrientation) {
+        return 0;
+    }
+    return [self orientationFlags];
+}
+
+
 #pragma mark Background image/color
 
 -(void)setBackgroundColor:(UIColor *)newColor
@@ -389,7 +403,9 @@
     {
         TiViewProxy<TiKeyboardFocusableView> *kfvProxy = [keyboardFocusedProxy retain];
         [kfvProxy blur:nil];
+        forcingStatusBarOrientation = YES;
         [ourApp setStatusBarOrientation:newOrientation animated:(duration > 0.0)];
+        forcingStatusBarOrientation = NO;
         [kfvProxy focus:nil];
         [kfvProxy release];
     }
@@ -642,7 +658,9 @@
         // If it's the case that the window orientation doesn't match the status bar orientation,
         // move the status bar into the right place.
         if (windowOrientation != [[UIApplication sharedApplication] statusBarOrientation]) {
+            forcingStatusBarOrientation = YES;
             [[UIApplication sharedApplication] setStatusBarOrientation:windowOrientation animated:NO];
+            forcingStatusBarOrientation = NO;
         }
                 
         if (TI_ORIENTATION_ALLOWED(allowedOrientations, orientationHistory[0]) && (isInsideModalWindow == NO)) {
