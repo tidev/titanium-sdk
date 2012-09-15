@@ -318,12 +318,14 @@ module.exports = new function() {
 							throw error;
 						}
 
+--------- TODO - use copy file since rename doesnt work correctly in the case of the SDK file for some reason
+
 						// copy the raw results file to a location where it can be served up
 						var rawResultsFilename = path.join(driverRunWorkingDir, activeRuns[driverId].gitHash + driverId + ".tgz");
 						fs.renameSync(rawResultsFilename, path.join("web", "results", rawResultsFilename));
 						hubUtils.log("results file moved to serving location");
 
-						wrench.rmdirSyncRecursive(driverRunWorkingDir, failSilent);
+						wrench.rmdirSyncRecursive(driverRunWorkingDir, false);
 						hubUtils.log("temp working directory cleaned up");
 
 						/*
@@ -394,7 +396,7 @@ module.exports = new function() {
 					var driverEnvironment,
 					isValid = true;
 
-					if (rows.length > 0) {
+					if (rows.length > 0 && typeof rows[0].environment !== "undefined") {
 						driverEnvironment = JSON.parse(rows[0].environment);
 
 						if (driverEnvironment.platform === "android") {
@@ -505,8 +507,11 @@ module.exports = new function() {
 				if (args.environment) {
 					queryArgs["environment"] = JSON.stringify(args.environment);
 
-				} else {
+				} else if (rows.length> 0) {
 					queryArgs["environment"] = rows[0].environment;
+
+				} else {
+					queryArgs["environment"] = JSON.stringify({});
 				}
 
 				dbConnection.query('REPLACE INTO driver_state SET ?', queryArgs, function(error, rows, fields) {
