@@ -56,6 +56,7 @@
 	CGFloat enterDuration;
 	UIViewAnimationCurve leaveCurve;
 	CGFloat leaveDuration;
+    BOOL forcingStatusBarOrientation;
 }
 
 /**
