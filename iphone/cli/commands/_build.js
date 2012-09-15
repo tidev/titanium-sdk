@@ -9,7 +9,6 @@ var ti = require('titanium-sdk'),
 	fs = require('fs'),
 	path = require('path'),
 	crypto = require('crypto'),
-	exec = require('child_process').exec,
 	Buffer = require('buffer').Buffer,
 	wrench = require('wrench'),
 	appc = require('node-appc'),
@@ -22,7 +21,12 @@ var ti = require('titanium-sdk'),
 	minIosSdkVersion = '4.0',
 	iosEnv,
 	targets = ['device', 'simulator', 'package'],
-	targetTypes = ['universal', 'iphone', 'ipad'];
+	targetTypes = ['universal', 'iphone', 'ipad'],
+	deviceFamilies = {
+		iphone: '1',
+		ipad: '2',
+		universal: '1,2'
+	};
 
 exports.config = function (logger, config, cli) {
 	return function (callback) {
@@ -110,9 +114,19 @@ exports.validate = function (logger, config, cli) {
 		});
 	});
 	
+	if (!Object.keys(sdks).length) {
+		logger.error(__('Unable to find any iOS SDKs') + '\n');
+		logger.log(__('Please download and install an iOS SDK (version %s or newer)', version.format(minIosSdkVersion, 2)) + '\n');
+		process.exit(1);
+	}
+	
 	if (!Object.keys(sdks).some(function (ver) { return version.eq(ver, cli.argv['ios-version']); })) {
 		logger.error(__('Unable to find iOS SDK %s', version.format(cli.argv['ios-version'], 2)) + '\n');
-		logger.log(__('Please download and install an iOS SDK (version %s or newer), then try again', version.format(minIosSdkVersion, 2)) + '\n');
+		logger.log(__('Available iOS SDK versions:'));
+		Object.keys(sdks).forEach(function (ver) {
+			logger.log('   ' + ver.cyan);
+		});
+		logger.log();
 		process.exit(1);
 	}
 	
@@ -134,7 +148,7 @@ exports.run = function (logger, config, cli, finished) {
 };
 
 function build(logger, config, cli, finished) {
-	logger.info(__('Compiling "%s" build', cli.argv['build-type']));
+	var iosSdkVersion = cli.argv['ios-version'];
 	
 	this.logger = logger;
 	this.cli = cli;
@@ -150,14 +164,38 @@ function build(logger, config, cli, finished) {
 	this.buildDir = path.join(this.projectDir, 'build', this.platformName);
 	this.buildVersionFile = path.join(this.buildDir, 'Resources', '.version');
 	
-	this.xcodeEnv = iosEnv.xcode.__selected__;
+	if (iosEnv.xcode.__selected__.sdks.some(function (ver) { return version.eq(ver, iosSdkVersion); })) {
+		this.xcodeEnv = iosEnv.xcode.__selected__;
+	} else {
+		// the ios sdk version is not in the selected xcode version, need to find the version that does have it
+		Object.keys(iosEnv.xcode).forEach(function (sdk) {
+			if (!this.xcodeEnv && sdk != '__selected__' && iosEnv.xcode[sdk].sdks.some(function (ver) { return version.eq(ver, iosSdkVersion); })) {
+				this.xcodeEnv = iosEnv.xcode[sdk];
+			}
+		}, this);
+	}
+	
 	this.xcodeTarget = cli.argv.target == 'simulator' ? 'Debug' : 'Release';
 	this.xcodeTargetOS = cli.argv.target == 'simulator' ? 'simulator' : 'os';
+	this.xcodeTargetType = cli.argv['target-type'];
 	this.xcodeBuildDir = path.join(this.buildDir, 'build', this.xcodeTarget + '-iphone' + this.xcodeTargetOS);
 	this.xcodeProjectConfigFile = path.join(this.buildDir, 'project.xcconfig');
-	this.xcodeAppDir = path.join(this.xcodeBuildDir, this.tiapp.name + '.app')
+	this.xcodeAppDir = path.join(this.xcodeBuildDir, this.tiapp.name + '.app');
 	
+	// validate the min-ios-ver from the tiapp.xml
+	var minVer = this.tiapp.ios && this.tiapp.ios['min-ios-ver'] || minIosSdkVersion;	
+	if (version.lt(minVer, minIosSdkVersion)) {
+		this.logger.info(__('The %s of the iOS section in the tiapp.xml is lower than minimum supported version: Using %s as minimum', 'min-ios-ver'.cyan, version.format(minIosSdkVersion, 2).cyan));
+		minVer = minIosSdkVersion;
+	} else if (version.gt(minVer, cli.argv['ios-version'])) {
+		this.logger.info(__('The %s of the iOS section in the tiapp.xml is greater than the specified %s: Using %s as minimum', 'min-ios-ver'.cyan, 'ios-version'.cyan, version.format(cli.argv['ios-version'], 2).cyan));
+		minVer = cli.argv['ios-version'];
+	}
+	
+	this.logger.info(__('Compiling "%s" build', cli.argv['build-type']));
 	this.logger.debug(__('Titanium iOS SDK directory: %s', this.titaniumIosSdkPath.cyan));
+	this.logger.debug(__('Building for iOS %s', version.format(iosSdkVersion, 2).cyan));
+	this.logger.debug(__('Building for device %s', this.xcodeTargetType.cyan));
 	this.logger.debug(__('Setting Xcode target to %s', this.xcodeTarget.cyan));
 	this.logger.debug(__('Setting Xcode build OS to %s', ('iphone' + this.xcodeTargetOS).cyan));
 	this.logger.debug(__('Xcode installation: %s', this.xcodeEnv.path.cyan));
@@ -166,11 +204,27 @@ function build(logger, config, cli, finished) {
 	this.logger.debug(__('iOS development certificates: %s', iosEnv.certs.dev ? iosEnv.certs.devNames.join(', ').cyan : __('not found').cyan));
 	this.logger.debug(__('iOS distribution certificates: %s', iosEnv.certs.dist ? iosEnv.certs.distNames.join(', ').cyan : __('not found').cyan));
 	this.logger.debug(__('iOS WWDR certificate: %s', iosEnv.certs.wwdr ? __('installed').cyan : __('not found').cyan));
+	this.logger.debug(__('Minimum iOS version: %s', version.format(minVer, 3, 3).cyan));
 	
 	if (cli.argv.xcode) {
 		this.logger.warn('Xcode pre-compile step not finished yet!');
 		process.exit(0);
 	}
+	
+	var architectures = 'armv6 armv7 i386';
+	// no armv6 support above 4.3 or with 6.0+ SDK
+	if (version.gte(cli.argv['ios-version'], '6.0')) {
+		architectures = 'armv7 armv7s i386';
+	} else if (version.gte(minVer, '4.3')) {
+		architectures = 'armv7 i386';
+	}
+	this.xcodeExtraArgs = 'VALID_ARCHS=' + architectures;
+	this.logger.debug(__('Building for the following architectures: %s', architectures.cyan));
+	
+	this.buildDeployTarget = 'IPHONEOS_DEPLOYMENT_TARGET=' + minVer;
+	this.buildDeviceTarget = 'TARGETED_DEVICE_FAMILY=' = deviceFamilies[this.xcodeTargetType];
+	
+process.exit(0);
 	
 	// create the build directory (<project dir>/build/[iphone|ios])
 	wrench.mkdirSyncRecursive(this.buildDir);
@@ -329,30 +383,13 @@ function build(logger, config, cli, finished) {
 			}));
 		}
 	], function () {
-		var minVer = this.tiapp.ios && this.tiapp.ios['min-ios-ver'] || minIosSdkVersion;
-		
-		if (version.lt(minVer, minIosSdkVersion)) {
-			this.logger.warn(__('The %s of the iOS section in the tiapp.xml is lower than minimum supported version: Using %s as minimum', 'min-ios-ver'.cyan, version.format(minIosSdkVersion, 2).cyan));
-			minVer = minIosSdkVersion;
-		} else if (version.gt(minVer, cli.argv['ios-version'])) {
-			this.logger.warn(__('The %s of the iOS section in the tiapp.xml is greater than the specified %s: Using %s as minimum', 'min-ios-ver'.cyan, 'ios-version'.cyan, version.format(cli.argv['ios-version'], 2).cyan));
-			minVer = cli.argv['ios-version'];
-		}
-		this.logger.info(__('Minimum iOS version: %s', version.format(minVer, 3, 3).cyan));
-		
-		var validArchs = 'armv6 armv7 i386';
-		// no armv6 support above 4.3 or with 6.0+ SDK
-		if (version.gte(cli.argv['ios-version'], '6.0')) {
-			validArchs = 'armv7 armv7s i386';
-		} else if (version.gte(minVer, '4.3')) {
-			validArchs = 'armv7 i386';
-		}
-		dump(validArchs);
-
-		//deployTarget = 'IPHONEOS_DEPLOYMENT_TARGET=' + minVer
-		//deviceTarget = 'TARGETED_DEVICE_FAMILY=1'
-		
 		dump(cli.argv);
+		
+		// TODO: do we really need to change dir?
+		// process.chdir(this.buildDir);
+		
+		// TODO: set the DEVELOPER_DIR environment variable to this.xcodeEnv.path
+		
 		finished && finished();
 	});
 }
