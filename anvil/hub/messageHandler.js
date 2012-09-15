@@ -318,11 +318,9 @@ module.exports = new function() {
 							throw error;
 						}
 
---------- TODO - use copy file since rename doesnt work correctly in the case of the SDK file for some reason
-
 						// copy the raw results file to a location where it can be served up
-						var rawResultsFilename = path.join(driverRunWorkingDir, activeRuns[driverId].gitHash + driverId + ".tgz");
-						fs.renameSync(rawResultsFilename, path.join("web", "results", rawResultsFilename));
+						var rawResultsFilename = activeRuns[driverId].gitHash + driverId + ".tgz";
+						fs.renameSync(path.resolve(driverRunWorkingDir, rawResultsFilename), path.join("web", "results", rawResultsFilename));
 						hubUtils.log("results file moved to serving location");
 
 						wrench.rmdirSyncRecursive(driverRunWorkingDir, false);
