@@ -1981,7 +1981,13 @@ return result;	\
 		}
 	}
 	UIColor * cellColor = [Webcolor webColorNamed:color];
-	cell.backgroundColor = (cellColor != nil)?cellColor:[UIColor whiteColor];
+	if (cellColor == nil) {
+		cellColor = [UIColor whiteColor];
+	}
+	cell.backgroundColor = cellColor;
+	if(CGColorGetAlpha([cellColor CGColor])<1.0) {
+		[[cell textLabel] setBackgroundColor:[UIColor clearColor]];
+	}
 }
 
 - (NSString *)tableView:(UITableView *)ourTableView titleForDeleteConfirmationButtonForRowAtIndexPath:(NSIndexPath *)indexPath
