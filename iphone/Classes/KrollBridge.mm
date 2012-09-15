@@ -717,7 +717,7 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 	return result;
 }
 
--(id)loadCommonJSModule:(NSString*)code withPath:(NSString*)path
+-(id)loadCommonJSModule:(NSString*)code withSourceURL:(NSURL *)sourceURL
 {
 	NSString *js = [[NSString alloc] initWithFormat:TitaniumModuleRequireFormat,code];
 
@@ -725,7 +725,7 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 	 * minimize impact until a in-depth reconsideration of KrollContext can be
 	 * done, we should have as little footprint 
 	 */
-	KrollEval *eval = [[KrollEval alloc] initWithCode:js];
+	KrollEval *eval = [[KrollEval alloc] initWithCode:js sourceURL:sourceURL startingLineNo:1];
 	TiValueRef exception = NULL;
 	TiValueRef resultRef = [eval jsInvokeInContext:context exception:&exception];
 	[js release];
@@ -832,7 +832,7 @@ CFMutableSetRef	krollBridgeRegistry = nil;
         }
         
 		NSString * dataContents = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-		wrapper = [self loadCommonJSModule:dataContents withPath:path];
+		wrapper = [self loadCommonJSModule:dataContents withSourceURL:url_];
         [dataContents release];
 		
         if ([[self host] debugMode] && ![module isJSModule]) {
