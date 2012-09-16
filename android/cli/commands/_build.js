@@ -12,7 +12,7 @@ exports.config = function (logger, config, cli) {
 	return {
 		options: {
 			'android-sdk': {
-				abbr: 'a',
+				abbr: 'A',
 				default: config.android && config.android.sdkPath,
 				desc: __('the path to the Android SDK'),
 				hint: __('path'),

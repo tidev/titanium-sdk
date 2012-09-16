@@ -20,12 +20,16 @@ var ti = require('titanium-sdk'),
 	series = appc.async.series,
 	minIosSdkVersion = '4.0',
 	iosEnv,
-	targets = ['device', 'simulator', 'package'],
-	targetTypes = ['universal', 'iphone', 'ipad'],
+	targets = ['device', 'simulator', 'dist-appstore', 'dist-adhoc'],
 	deviceFamilies = {
 		iphone: '1',
 		ipad: '2',
 		universal: '1,2'
+	},
+	xcodeTargetSuffixes = {
+		iphone: '',
+		ipad: '-iPad',
+		universal: '-universal'
 	};
 
 exports.config = function (logger, config, cli) {
@@ -34,9 +38,11 @@ exports.config = function (logger, config, cli) {
 			iosEnv = env || {};
 			
 			var sdks = {},
+				sims = {},
 				defaultSdk;
+			
 			Object.keys(iosEnv.xcode).forEach(function (key) {
-				iosEnv.xcode[key].sdks.sort().reverse().forEach(function (sdk, i) {
+				iosEnv.xcode[key].sdks.forEach(function (sdk, i) {
 					if (iosEnv.xcode[key].selected && i == 0) {
 						defaultSdk = sdk;
 					}
@@ -44,6 +50,13 @@ exports.config = function (logger, config, cli) {
 				});
 			});
 			sdks = Object.keys(sdks).sort().reverse();
+			
+			Object.keys(iosEnv.xcode).forEach(function (key) {
+				iosEnv.xcode[key].sims.forEach(function (sdk) {
+					sims[sdk] = 1;
+				});
+			});
+			sims = Object.keys(sims).sort().reverse();
 			
 			callback({
 				flags: {
@@ -59,26 +72,44 @@ exports.config = function (logger, config, cli) {
 					}
 				},
 				options: {
+					'debug-host': {
+						abbr: 'H',
+						desc: __('debug connection info; airkey required for device and dist-adhoc, ignored for dist-appstore'),
+						hint: 'host:port[:airkey]'
+					},
+					'device-family': {
+						abbr: 'D',
+						default: 'universal',
+						desc: __('the device family to build for'),
+						values: Object.keys(deviceFamilies)
+					},
 					'ios-version': {
-						abbr: 'i',
+						abbr: 'I',
 						default: defaultSdk || (sdks.length && sdks[0]),
 						desc: __('iOS SDK version to build for'),
 						values: sdks
 					},
+					'keychain': {
+						abbr: 'K',
+						desc: __('path to the distribution keychain; only used when target is device, dist-appstore, or dist-adhoc')
+					},
+					'pp-uuid': {
+						abbr: 'P',
+						desc: __('the provisioning profile uuid; required when target is device, dist-appstore, or dist-adhoc'),
+						hint: 'guid'
+					},
+					'sim-version': {
+						abbr: 'S',
+						default: defaultSdk || (sdks.length && sdks[0]),
+						desc: __('iOS Simulator version; only used when target=simulator'),
+						values: sims
+					},
 					target: {
-						abbr: 't',
-						default: 'device',
+						abbr: 'T',
+						default: 'simulator',
 						desc: __('the target to build for'),
 						required: true,
 						values: targets
-					},
-					'target-type': {
-						abbr: 'T',
-						default: 'universal',
-						desc: __('the target device family type'),
-						hint: __('type'),
-						required: true,
-						values: targetTypes
 					}
 				}
 			});
@@ -89,6 +120,9 @@ exports.config = function (logger, config, cli) {
 };
 
 exports.validate = function (logger, config, cli) {
+	var sdks = {},
+		sims = {};
+	
 	if (!Object.keys(iosEnv.xcode).length) {
 		logger.error(__('Unable to find Xcode') + '\n');
 		logger.log(__('Please download and install Xcode, then try again') + '\n');
@@ -107,10 +141,9 @@ exports.validate = function (logger, config, cli) {
 		process.exit(1);
 	}
 	
-	var sdks = {};
 	Object.keys(iosEnv.xcode).forEach(function (sdk) {
 		sdk != '__selected__' && iosEnv.xcode[sdk].sdks.forEach(function (ver) {
-			sdks[ver] = 1;
+			sdks[ver] = iosEnv.xcode[sdk].sims;
 		});
 	});
 	
@@ -120,8 +153,13 @@ exports.validate = function (logger, config, cli) {
 		process.exit(1);
 	}
 	
-	if (!Object.keys(sdks).some(function (ver) { return version.eq(ver, cli.argv['ios-version']); })) {
-		logger.error(__('Unable to find iOS SDK %s', version.format(cli.argv['ios-version'], 2)) + '\n');
+	if (!Object.keys(sdks).some(function (ver) {
+		if (version.eq(ver, cli.argv['ios-version'])) {
+			cli.argv['ios-version'] = ver;
+			return true;
+		}
+	})) {
+		logger.error(__('Unable to find iOS SDK %s', cli.argv['ios-version']) + '\n');
 		logger.log(__('Available iOS SDK versions:'));
 		Object.keys(sdks).forEach(function (ver) {
 			logger.log('   ' + ver.cyan);
@@ -136,10 +174,61 @@ exports.validate = function (logger, config, cli) {
 		process.exit(1);
 	}
 	
-	if (targetTypes.indexOf(cli.argv['target-type']) == -1) {
-		logger.error(__('Invalid target type "%s"', cli.argv['target-type']) + '\n');
-		appc.string.suggest(cli.argv['target-type'], targetTypes, logger.log, 3);
+	if (!deviceFamilies[cli.argv['device-family']]) {
+		logger.error(__('Invalid device family "%s"', cli.argv['device-family']) + '\n');
+		appc.string.suggest(cli.argv['device-family'], Object.keys(deviceFamilies), logger.log, 3);
 		process.exit(1);
+	}
+	
+	if (cli.argv.target == 'simulator') {
+		if (!sdks[cli.argv['ios-version']].some(function (ver) {
+			if (version.eq(ver, cli.argv['sim-version'])) {
+				cli.argv['sim-version'] = ver;
+				return true;
+			}
+		})) {
+			logger.error(__('Unable to find iOS Simulator %s', cli.argv['sim-version']) + '\n');
+			logger.log(__('Available iOS Simulator versions for iOS SDK %s:', cli.argv['ios-version']));
+			sdks[cli.argv['ios-version']].forEach(function (ver) {
+				logger.log('   ' + ver.cyan);
+			});
+			logger.log();
+			process.exit(1);
+		}
+	}
+	
+	if (cli.argv['debug-host'] && cli.argv.target != 'dist-appstore') {
+		var parts = cli.argv['debug-host'].split(':'),
+			port = parts.length > 1 && parseInt(parts[1]);
+		if ((cli.argv.target == 'simulator' && parts.length < 2) || (cli.argv.target != 'simulator' && parts.length < 3)) {
+			logger.error(__('Invalid debug host "%s"', cli.argv['debug-host']) + '\n');
+			if (cli.argv.target == 'simulator') {
+				logger.log(__('The debug host must be in the format "host:port".') + '\n');
+			} else {
+				logger.log(__('The debug host must be in the format "host:port:airkey".') + '\n');
+			}
+			process.exit(1);
+		}
+		if (isNaN(port) || port < 1 || port > 65535) {
+			logger.error(__('Invalid debug host "%s"', cli.argv['debug-host']) + '\n');
+			logger.log(__('The port must be a valid integer between 1 and 65535.') + '\n');
+			process.exit(1);
+		}
+		cli.argv['debug-host'] = parts.map(function (p) { return p.trim(); }).join(':');
+	}
+	
+	if (cli.argv.target != 'simulator') {
+		if (!cli.argv['pp-uuid']) {
+			logger.error(__('Missing required option "--pp-uuid"') + '\n');
+			process.exit(1);
+		}
+		
+		var ppFile = afs.resolvePath('~/Library/MobileDevice/Provisioning Profiles/' + cli.argv['pp-uuid'] + '.mobileprovision');
+		if (!afs.exists(ppFile)) {
+			logger.error(__('Invalid provisioning profile uuid "%s"', cli.argv['pp-uuid']) + '\n');
+			logger.log(__('Unable to find provisioning profile file %s', ppFile) + '\n');
+			process.exit(1);
+		}
 	}
 };
 
@@ -148,8 +237,6 @@ exports.run = function (logger, config, cli, finished) {
 };
 
 function build(logger, config, cli, finished) {
-	var iosSdkVersion = cli.argv['ios-version'];
-	
 	this.logger = logger;
 	this.cli = cli;
 	
@@ -160,71 +247,80 @@ function build(logger, config, cli, finished) {
 	
 	this.projectDir = afs.resolvePath(cli.argv.dir);
 	this.tiapp = new ti.tiappxml(path.join(this.projectDir, 'tiapp.xml'));
+	this.deployType = cli.argv['build-type'];
+	this.provisioningProfileUUID = cli.argv['pp-uuid'];
 	
 	this.buildDir = path.join(this.projectDir, 'build', this.platformName);
 	this.buildVersionFile = path.join(this.buildDir, 'Resources', '.version');
 	
-	if (iosEnv.xcode.__selected__.sdks.some(function (ver) { return version.eq(ver, iosSdkVersion); })) {
-		this.xcodeEnv = iosEnv.xcode.__selected__;
-	} else {
-		// the ios sdk version is not in the selected xcode version, need to find the version that does have it
-		Object.keys(iosEnv.xcode).forEach(function (sdk) {
-			if (!this.xcodeEnv && sdk != '__selected__' && iosEnv.xcode[sdk].sdks.some(function (ver) { return version.eq(ver, iosSdkVersion); })) {
-				this.xcodeEnv = iosEnv.xcode[sdk];
-			}
-		}, this);
-	}
+	this.debugHost = cli.argv['debug-host'];
+	this.keychain = cli.argv.keychain ? afs.resolvePath(cli.argv.keychain) : null;
 	
-	this.xcodeTarget = cli.argv.target == 'simulator' ? 'Debug' : 'Release';
-	this.xcodeTargetOS = cli.argv.target == 'simulator' ? 'simulator' : 'os';
-	this.xcodeTargetType = cli.argv['target-type'];
-	this.xcodeBuildDir = path.join(this.buildDir, 'build', this.xcodeTarget + '-iphone' + this.xcodeTargetOS);
+	this.target = cli.argv.target;
+	this.xcodeTarget = this.target == 'simulator' ? 'Debug' : 'Release';
+	this.iosSdkVersion = cli.argv['ios-version'];
+	this.iosSimVersion = cli.argv['sim-version'];
+	this.xcodeTargetOS = this.target == 'simulator' ? 'iphonesimulator-' + this.iosSimVersion : 'iphoneos-' + this.iosSdkVersion;
+	this.iosDeviceFamily = cli.argv['device-family'];
+	this.iosBuildDir = path.join(this.buildDir, 'build', this.xcodeTarget + '-' + (this.target == 'simulator' ? 'iphonesimulator' : 'iphoneos'));
 	this.xcodeProjectConfigFile = path.join(this.buildDir, 'project.xcconfig');
-	this.xcodeAppDir = path.join(this.xcodeBuildDir, this.tiapp.name + '.app');
+	this.xcodeAppDir = path.join(this.iosBuildDir, this.tiapp.name + '.app');
+	this.forceXcode = false;
+	
+	// the ios sdk version is not in the selected xcode version, need to find the version that does have it
+	Object.keys(iosEnv.xcode).forEach(function (sdk) {
+		if (sdk != '__selected__' && (!this.xcodeEnv || iosEnv.xcode[sdk].selected) && iosEnv.xcode[sdk].sdks.some(function (ver) { return version.eq(ver, this.iosSdkVersion); }, this)) {
+			this.xcodeEnv = iosEnv.xcode[sdk];
+		}
+	}, this);
 	
 	// validate the min-ios-ver from the tiapp.xml
-	var minVer = this.tiapp.ios && this.tiapp.ios['min-ios-ver'] || minIosSdkVersion;	
-	if (version.lt(minVer, minIosSdkVersion)) {
+	this.minIosVer = this.tiapp.ios && this.tiapp.ios['min-ios-ver'] || minIosSdkVersion;
+	if (version.lt(this.minIosVer, minIosSdkVersion)) {
 		this.logger.info(__('The %s of the iOS section in the tiapp.xml is lower than minimum supported version: Using %s as minimum', 'min-ios-ver'.cyan, version.format(minIosSdkVersion, 2).cyan));
-		minVer = minIosSdkVersion;
-	} else if (version.gt(minVer, cli.argv['ios-version'])) {
+		this.minIosVer = minIosSdkVersion;
+	} else if (version.gt(this.minIosVer, cli.argv['ios-version'])) {
 		this.logger.info(__('The %s of the iOS section in the tiapp.xml is greater than the specified %s: Using %s as minimum', 'min-ios-ver'.cyan, 'ios-version'.cyan, version.format(cli.argv['ios-version'], 2).cyan));
-		minVer = cli.argv['ios-version'];
+		this.minIosVer = cli.argv['ios-version'];
 	}
 	
-	this.logger.info(__('Compiling "%s" build', cli.argv['build-type']));
+	this.logger.info(__('Build type: %s', this.deployType));
 	this.logger.debug(__('Titanium iOS SDK directory: %s', this.titaniumIosSdkPath.cyan));
-	this.logger.debug(__('Building for iOS %s', version.format(iosSdkVersion, 2).cyan));
-	this.logger.debug(__('Building for device %s', this.xcodeTargetType.cyan));
+	this.logger.info(__('Building for target: %s', this.target.cyan));
+	this.logger.info(__('Building using iOS SDK: %s', version.format(this.iosSdkVersion, 2).cyan));
+	if (this.target == 'simulator') {
+		this.logger.info(__('Building for iOS Simulator: %s', this.iosSimVersion.cyan));
+	}
+	this.logger.info(__('Building for device family: %s', this.iosDeviceFamily.cyan));
 	this.logger.debug(__('Setting Xcode target to %s', this.xcodeTarget.cyan));
-	this.logger.debug(__('Setting Xcode build OS to %s', ('iphone' + this.xcodeTargetOS).cyan));
+	this.logger.debug(__('Setting Xcode build OS to %s', this.xcodeTargetOS.cyan));
 	this.logger.debug(__('Xcode installation: %s', this.xcodeEnv.path.cyan));
-	this.logger.debug(__('Installed iOS SDKs: %s', this.xcodeEnv.sdks.join(', ').cyan));
-	this.logger.debug(__('Installed iOS Simulators: %s', this.xcodeEnv.sims.join(', ').cyan));
 	this.logger.debug(__('iOS development certificates: %s', iosEnv.certs.dev ? iosEnv.certs.devNames.join(', ').cyan : __('not found').cyan));
 	this.logger.debug(__('iOS distribution certificates: %s', iosEnv.certs.dist ? iosEnv.certs.distNames.join(', ').cyan : __('not found').cyan));
 	this.logger.debug(__('iOS WWDR certificate: %s', iosEnv.certs.wwdr ? __('installed').cyan : __('not found').cyan));
-	this.logger.debug(__('Minimum iOS version: %s', version.format(minVer, 3, 3).cyan));
+	this.logger.debug(__('Minimum iOS version: %s', version.format(this.minIosVer, 3, 3).cyan));
+	if (this.keychain) {
+		this.logger.info(__('Using keychain: %s', this.keychain));
+	}
+	if (this.debugHost && this.target != 'dist-appstore') {
+		this.logger.info(__('Debugging enabled via debug host: %s', this.debugHost.cyan));
+	} else {
+		this.logger.info(__('Debugging disabled'));
+	}
 	
 	if (cli.argv.xcode) {
 		this.logger.warn('Xcode pre-compile step not finished yet!');
 		process.exit(0);
 	}
 	
-	var architectures = 'armv6 armv7 i386';
+	this.architectures = 'armv6 armv7 i386';
 	// no armv6 support above 4.3 or with 6.0+ SDK
 	if (version.gte(cli.argv['ios-version'], '6.0')) {
-		architectures = 'armv7 armv7s i386';
-	} else if (version.gte(minVer, '4.3')) {
-		architectures = 'armv7 i386';
+		this.architectures = 'armv7 armv7s i386';
+	} else if (version.gte(this.minIosVer, '4.3')) {
+		this.architectures = 'armv7 i386';
 	}
-	this.xcodeExtraArgs = 'VALID_ARCHS=' + architectures;
-	this.logger.debug(__('Building for the following architectures: %s', architectures.cyan));
-	
-	this.buildDeployTarget = 'IPHONEOS_DEPLOYMENT_TARGET=' + minVer;
-	this.buildDeviceTarget = 'TARGETED_DEVICE_FAMILY=' = deviceFamilies[this.xcodeTargetType];
-	
-process.exit(0);
+	this.logger.debug(__('Building for the following architectures: %s', this.architectures.cyan));
 	
 	// create the build directory (<project dir>/build/[iphone|ios])
 	wrench.mkdirSyncRecursive(this.buildDir);
@@ -234,11 +330,12 @@ process.exit(0);
 			this.createInfoPlist();
 			
 			// if we're not running in the simulator we want to clean out the build directory
-			if (cli.argv.target == 'simulator' && afs.exists(this.xcodeBuildDir)) {
-				wrench.rmdirSyncRecursive(this.xcodeBuildDir);
+			if (this.target == 'simulator' && afs.exists(this.iosBuildDir)) {
+				wrench.rmdirSyncRecursive(this.iosBuildDir);
 			}
+			
 			// TODO: do we need this? doesn't xcode make this for us?
-			// wrench.mkdirSyncRecursive(xcodeBuildDir);
+			// wrench.mkdirSyncRecursive(iosBuildDir);
 			
 			// determine the libTiCore hash
 			var libTiCoreHash;
@@ -280,6 +377,56 @@ process.exit(0);
 				].join(','));
 			}
 			
+			callback();
+		},
+		
+		function (callback) {
+			var parts = (this.debugHost || '').split(':'),
+				plist = fs.readFileSync(path.join(this.titaniumIosSdkPath, 'debugger.plist'))
+							.toString()
+							.replace(/__DEBUGGER_HOST__/g, parts.length > 0 ? parts[0] : '')
+							.replace(/__DEBUGGER_PORT__/g, parts.length > 1 ? parts[1] : '')
+							.replace(/__DEBUGGER_AIRKEY__/g, parts.length > 2 ? parts[2] : ''),
+				dest = path.join(this.buildDir, 'Resources', 'debugger.plist'),
+				changed = !afs.exists(dest) || fs.readFileSync(dest).toString() != plist;
+			
+			if (changed) {
+				this.forceXcode = true;
+				fs.writeFileSync(dest, plist);
+			}
+			
+			callback();
+		},
+		
+		function (callback) {
+			if (/device|dist\-appstore|dist\-adhoc/.test(this.target)) {
+				// allow the project to have its own custom entitlements
+				var entitlementsFile = path.join(this.projectDir, 'Entitlements.plist'),
+					contents = '';
+				if (afs.exists(entitlementsFile)) {
+					this.logger.info(__('Found custom entitlements: %s', entitlementsFile));
+					contents = fs.readFileSync(entitlementsFile).toString();
+				} else {
+					// attempt to customize it by reading provisioning profile
+					var ppFile = afs.resolvePath('~/Library/MobileDevice/Provisioning Profiles/' + this.provisioningProfileUUID + '.mobileprovision'),
+						ppContent = afs.exists(ppFile) ? fs.readFileSync(ppFile).toString() : '',
+						p = ppContent.indexOf('<?xml'),
+						q = ppContent.lastIndexOf('</plist>'),
+						pp = (p != -1 && q != -1 && new appc.plist().parse(ppContent.substring(p, q + 8))) || {},
+						getTaskAllow = pp.Entitlements && pp.Entitlements['get-task-allow'],
+						apsEnv = pp.Entitlements && pp.Entitlements['aps-environment'],
+						appPrefix = pp.ApplicationIdentifierPrefix,
+						plist = new appc.plist();
+					
+					plist['get-task-allow'] = getTaskAllow;
+					apsEnv && (plist['aps-environment'] = apsEnv);
+					this.target == 'dist-appstore' && (plist['application-identifier'] = plist['keychain-access-groups'] = appPrefix + '.' + this.tiapp.id);
+					
+					contents = plist.toString('xml');
+				}
+				fs.writeFileSync(path.join(this.buildDir, 'Resources', 'Entitlements.plist'), contents);
+				this.codeSignEntitlements = true;
+			}
 			callback();
 		},
 		
@@ -388,9 +535,70 @@ process.exit(0);
 		// TODO: do we really need to change dir?
 		// process.chdir(this.buildDir);
 		
-		// TODO: set the DEVELOPER_DIR environment variable to this.xcodeEnv.path
+		/*
+		// (build or sim) and (force_rebuild or force_xcode or not os.path.exists(binary))
+		execute_xcode("iphonesimulator%s" % link_version,,False)
 		
+		// device or dist-adhoc
+		execute_xcode("iphoneos%s" % iphone_version,args,False)
+		
+		// dist-appstore
+		execute_xcode("iphoneos%s" % iphone_version,args,False)
+		
+		def execute_xcode(sdk,extras,print_output=True):
+		*/
+		
+		
+		var xcodeCommand = [
+			'xcodebuild',
+			'-target ' + this.tiapp.name + xcodeTargetSuffixes[this.iosDeviceFamily],
+			'-configuration ' + this.xcodeTarget,
+			'-sdk ' + this.xcodeTargetOS,
+			'IPHONEOS_DEPLOYMENT_TARGET=' + this.minIosVer,
+			'TARGETED_DEVICE_FAMILY=' + deviceFamilies[this.iosDeviceFamily],
+			'VALID_ARCHS=' + this.architectures
+		];
+		
+		if (this.target == 'simulator') {
+			xcodeCommand.push('GCC_PREPROCESSOR_DEFINITIONS=__LOG__ID__=' + this.tiapp.guid);
+			xcodeCommand.push('DEPLOYTYPE=development');
+			xcodeCommand.push('TI_DEVELOPMENT=1');
+			xcodeCommand.push('DEBUG=1');
+			xcodeCommand.push('TI_VERSION=' + ti.manifest.version);
+		}
+		
+		if (/simulator|device|dist\-adhoc/.test(this.target)) {
+			this.tiapp.ios && this.tiapp.ios.enablecoverage && xcodeCommand.push('KROLL_COVERAGE=1');
+			this.debugHost && xcodeCommand.push('DEBUGGER_ENABLED=1');
+		}
+		
+		if (/device|dist\-appstore|dist\-adhoc/.test(this.target)) {
+			this.keychain && xcodeCommand.push('OTHER_CODE_SIGN_FLAGS=--keychain ' + this.keychain);
+			this.codeSignEntitlements && xcodeCommand.push('CODE_SIGN_ENTITLEMENTS=Resources/Entitlements.plist');
+		}
+		
+		dump(xcodeCommand);
 		finished && finished();
+		
+		/*
+		exec(xcodeCommand.join(' '), {
+			cwd: this.buildDir,
+			env: {
+				'DEVELOPER_DIR': this.xcodeEnv.path
+			}
+		}, function (err, stdout, stderr) {
+			if (err) {
+				logger.error('ERROR! ' + err);
+				logger.info(stdout);
+				logger.info(stderr);
+			} else {
+				logger.info('SUCCESS!');
+				logger.info(stdout);
+			}
+			
+			finished && finished();
+		});
+		*/
 	});
 }
 
@@ -480,8 +688,9 @@ build.prototype = {
 			});
 			
 			plist.CFBundleIdentifier = this.tiapp.id;
-			plist.CFBundleVersion = appc.version.format(this.tiapp.version || 1, 3);
-			plist.CFBundleShortVersionString = appc.version.format(this.tiapp.version || 1, 3, 3);
+			var appver = this.tiapp.version + (this.target != 'simulator' ? '.' + (new Date).getTime() : '');
+			plist.CFBundleVersion = appc.version.format(appver || 1, 3);
+			plist.CFBundleShortVersionString = appc.version.format(appver || 1, 3, 3);
 			
 			plist.CFBundleIconFiles = [];
 			['.png', '@2x.png', '-72.png', '-Small-50.png', '-72@2x.png', '-Small-50@2x.png', '-Small.png', '-Small@2x.png'].forEach(function (name) {
