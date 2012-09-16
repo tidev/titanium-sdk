@@ -67,6 +67,9 @@ exports.run = function (logger, config, cli) {
 		args = cli.argv._,
 		p,
 		maxlen,
+		sdkPath = cli.sdk.path,
+		templateDir,
+		projectDir = cli.argv.dir,
 		propsList = ['sdk-version', 'id', 'name', 'version', 'publisher', 'url', 'description', 'copyright', 'icon', 
 			'analytics', 'guid'],
 		deploymentTargets = tiapp['deployment-targets'];
@@ -155,9 +158,48 @@ exports.run = function (logger, config, cli) {
 			}
 			break;
 		case 2:
-			key = args[0].split('.');
+			key = args[0];
 			switch(key) {
 				case 'deployment-targets':
+
+					// Get list of platforms from ti manifest and set to false (default value)
+					result = {};
+					for(p = 0; p < ti.availablePlatforms.length; p++) {
+						result[ti.availablePlatforms[p]] = false;
+					}
+
+					// Validate the platforms and override the tiapp.xml setting to true
+					value = ti.validatePlatforms(logger, args[1].split(','));
+					for(p = 0; p < value.length; p++) {
+						result[value[p]] = true;
+					}
+
+					// Update the tiapp.xml
+					tiapp['deployment-targets'] = result;
+
+					// Non-destructively copy over files from <sdk>/templates/app/<template>/
+					templateDir = path.join(sdkPath, 'templates', 'app', cli.argv.template);
+					if (!appc.fs.exists(templateDir)) {
+						logger.error(__('Unknown project template ') + cli.argv.template);
+						process.exit(1);
+					}
+					appc.fs.nonDestructiveCopyDirSyncRecursive(templateDir, projectDir, { 
+						logger: logger.log
+					});
+
+					// Non-destructively copy over files from <sdk>/<each platform>/templates/app/<template>/
+					for(p in value) {
+						if (value[p]) {
+							templateDir = path.join(sdkPath, value[p], 'templates', 'app', cli.argv.template);
+							if (!appc.fs.exists(templateDir)) {
+								logger.error(__('Template ') + cli.argv.template + __(' is not supported by platform ') + value[p]);
+								process.exit(1);
+							}
+							appc.fs.nonDestructiveCopyDirSyncRecursive(templateDir, projectDir, { 
+								logger: logger.log
+							});
+						}
+					}
 					break;
 				case 'sdk-version':
 					break;
