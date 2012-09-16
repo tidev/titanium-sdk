@@ -200,33 +200,63 @@ exports.run = function (logger, config, cli) {
 							});
 						}
 					}
+					value = value.join(', ');
 					break;
 				case 'sdk-version':
+					value = args[1];
+					if (value === 'latest') {
+						value = Object.keys(cli.env.sdks).sort().reverse()[0];
+					}
+					if (!(value in cli.env.sdks)) {
+						logger.error(__('Unknown SDK ') + value + '\n');
+						process.exit(1);
+					}
+					tiapp['sdk-version'] = value;
 					break;
 				case 'id':
+					value = args[1];
+					if (!/^([a-z_]{1}[a-z0-9_]*(\.[a-z_]{1}[a-z0-9_]*)*)$/.test(value)) {
+						logger.error(__('Invalid project ID ') + value + '\n');
+						process.exit(1);
+					}
+					tiapp['id'] = value;
 					break;
 				case 'name':
+					tiapp['name'] = value = args[1];
 					break;
 				case 'version':
+					tiapp['version'] = value = args[1];
 					break;
 				case 'publisher':
+					tiapp['publisher'] = value = args[1];
 					break;
 				case 'url':
+					tiapp['url'] = value = args[1];
 					break;
 				case 'description':
+					tiapp['description'] = value = args[1];
 					break;
 				case 'copyright':
+					tiapp['copyright'] = value = args[1];
 					break;
 				case 'icon':
+					tiapp['icon'] = value = args[1];
 					break;
 				case 'analytics':
+					if (!~['true', 'false'].indexOf(args[1])) {
+						logger.error(__('Invalid value for analytics ') + args[1] + '\n');
+						process.exit(1);
+					}
+					tiapp['analytics'] = value = args[1];
 					break;
 				case 'guid':
+					tiapp['guid'] = value = args[1];
 					break;
 				default:
 					logger.error('Invalid tiapp.xml key "' + key + '"');
 					break;
 			}
+			logger.log(__(key).cyan + __(' was successfully set to ') + value.cyan + '\n');
 			tiapp.save(tiappPath);
 			break;
 	}
