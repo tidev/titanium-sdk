@@ -191,7 +191,7 @@ public class TiUIHelper
 					Activity ownerActivity = ((AlertDialog)dialog).getOwnerActivity();
 					//if activity is not finishing, remove dialog to free memory
 					if (ownerActivity != null && !ownerActivity.isFinishing()) {
-						((TiBaseActivity)ownerActivity).removeDialog(new Pair<Dialog, Boolean>((AlertDialog)dialog, true));
+						((TiBaseActivity)ownerActivity).removeDialog((AlertDialog)dialog);
 					}
 				}};
 		}
@@ -206,7 +206,7 @@ public class TiUIHelper
 							.setPositiveButton(android.R.string.ok, fListener)
 							.setCancelable(false).create();
 					if (activity instanceof TiBaseActivity) {
-						((TiBaseActivity)activity).addDialog(new Pair<Dialog, Boolean>(dialog, true));
+						((TiBaseActivity)activity).addDialog(dialog, true);
 						dialog.setOwnerActivity(activity);
 					}
 					dialog.show();

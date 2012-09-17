@@ -7,8 +7,10 @@
 package org.appcelerator.titanium;
 
 import java.lang.ref.WeakReference;
-import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.Map.Entry;
 import java.util.Stack;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollRuntime;
@@ -40,7 +42,6 @@ import android.os.Bundle;
 import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
-import android.util.Pair;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -76,7 +77,7 @@ public abstract class TiBaseActivity extends Activity
 	protected int msgId = -1;
 	protected static int previousOrientation = -1;
 	//Storing the activity's dialogs and their persistence 
-	private ArrayList<Pair<Dialog, Boolean>> dialogs = new ArrayList<Pair<Dialog, Boolean>>();
+	private ConcurrentHashMap<Dialog, Boolean> dialogs = new ConcurrentHashMap<Dialog, Boolean>();
 	private Stack<TiWindowProxy> windowStack = new Stack<TiWindowProxy>();
 
 	public TiWindowProxy lwWindow;
@@ -199,12 +200,12 @@ public abstract class TiBaseActivity extends Activity
 		return activityProxy;
 	}
 
-	public void addDialog(Pair<Dialog, Boolean> d) 
+	public void addDialog(Dialog d, boolean persistent) 
 	{
-		dialogs.add(d);
+		dialogs.put(d, persistent);
 	}
 	
-	public void removeDialog(Pair<Dialog, Boolean> d) 
+	public void removeDialog(Dialog d) 
 	{
 		dialogs.remove(d);
 	}
@@ -752,17 +753,18 @@ public abstract class TiBaseActivity extends Activity
 	private void releaseDialogs(boolean finish)
 	{
 		//clean up dialogs when activity is pausing or finishing
-		for (int i = 0; i < dialogs.size(); i++) {
-			Pair<Dialog, Boolean> pair = dialogs.get(i);
-			Dialog dialog = pair.first;
-			boolean persistent = pair.second;
+		Iterator<Entry<Dialog, Boolean>> iter = dialogs.entrySet().iterator();
+		while(iter.hasNext()) {
+			Entry<Dialog, Boolean> entry = (Entry<Dialog, Boolean>) iter.next();
+			Dialog dialog = entry.getKey();
+			boolean persistent = entry.getValue();
 			//if the activity is pausing but not finishing, clean up dialogs only if
 			//they are non-persistent
 			if (finish || !persistent) {
 				if (dialog.isShowing()) {
 					dialog.dismiss();
 				}
-				removeDialog(pair);
+				removeDialog(dialog);
 			}
 		}
 	}

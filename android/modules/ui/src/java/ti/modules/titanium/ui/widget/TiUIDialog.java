@@ -111,6 +111,8 @@ public class TiUIDialog extends TiUIView
 			}
 			
 			processOptions(optionText, selectedIndex);
+		} else if (d.containsKey(TiC.PROPERTY_PERSISTENT) && proxy instanceof AlertDialogProxy) {
+			isPersistent = d.getBoolean(TiC.PROPERTY_PERSISTENT);
 		}
 		if (buttonText != null) {
 			processButtons(buttonText);
@@ -231,6 +233,16 @@ public class TiUIDialog extends TiUIView
 			} else {
 				proxy.setProperty(TiC.PROPERTY_ANDROID_VIEW, null, false);
 			}
+		} else if (key.equals(TiC.PROPERTY_PERSISTENT) && proxy instanceof AlertDialogProxy) {
+
+			if (dialog != null && newValue != null) {
+				Activity dialogActivity = ownerActivity.get();
+				if (dialogActivity != null && !dialogActivity.isFinishing() && dialogActivity instanceof TiBaseActivity) {
+					//add dialog to its activity so we can clean it up later to prevent memory leak.
+					isPersistent = TiConvert.toBoolean(newValue);
+					((TiBaseActivity) dialogActivity).addDialog(dialog, isPersistent);
+				}
+			}
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}
@@ -257,7 +269,7 @@ public class TiUIDialog extends TiUIView
 			if (dialogActivity != null && !dialogActivity.isFinishing()) {
 				if (dialogActivity instanceof TiBaseActivity) {
 					//add dialog to its activity so we can clean it up later to prevent memory leak.
-					((TiBaseActivity) dialogActivity).addDialog(new Pair<Dialog, Boolean>(dialog, isPersistent));
+					((TiBaseActivity) dialogActivity).addDialog(dialog, isPersistent);
 					dialog.show();
 				}
 			} else {

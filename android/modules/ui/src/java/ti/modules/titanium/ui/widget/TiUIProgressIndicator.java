@@ -198,7 +198,7 @@ public class TiUIProgressIndicator extends TiUIView
 				}
 				progressDialog = new ProgressDialog(a);
 				if (a instanceof TiBaseActivity) {
-					((TiBaseActivity) a).addDialog(new Pair<Dialog, Boolean>(progressDialog, true));
+					((TiBaseActivity) a).addDialog(progressDialog, true);
 					progressDialog.setOwnerActivity(a);
 				}
 				progressDialog.setOnCancelListener(this);
@@ -240,7 +240,7 @@ public class TiUIProgressIndicator extends TiUIView
 		if (progressDialog != null) {
 			Activity ownerActivity = progressDialog.getOwnerActivity();
 			if (ownerActivity != null && !ownerActivity.isFinishing()) {
-				((TiBaseActivity)ownerActivity).removeDialog(new Pair<Dialog, Boolean>(progressDialog, true));
+				((TiBaseActivity)ownerActivity).removeDialog(progressDialog);
 				progressDialog.dismiss();
 			}
 			progressDialog = null;
