@@ -89,8 +89,7 @@ exports.config = function (logger, config, cli) {
 				},
 				required: !config.app.workspace
 			}
-		}, ti.commonOptions(logger, config)),
-		platforms: ti.platformOptions(logger, config, cli, module)
+		}, ti.commonOptions(logger, config))
 	};
 };
 
