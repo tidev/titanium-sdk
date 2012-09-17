@@ -35,7 +35,6 @@ public class TiWebViewBinding
 	// This is based on binding.min.js. If you have to change anything...
 	// - change binding.js
 	// - minify binding.js to create binding.min.js
-	protected final static String SCRIPT_INJECTION_ID = "__ti_injection";
 	protected final static String INJECTION_CODE;
 
 	// This is based on polling.min.js. If you have to change anything...
@@ -54,7 +53,6 @@ public class TiWebViewBinding
 		}
 
 		StringBuilder allCode = new StringBuilder();
-		allCode.append("\n<script id=\"" + SCRIPT_INJECTION_ID + "\">\n");
 		if (jsonCode == null) {
 			Log.w(TAG, "Unable to read JSON code for injection");
 		} else {
@@ -67,7 +65,6 @@ public class TiWebViewBinding
 			allCode.append("\n");
 			allCode.append(tiCode.toString());
 		}
-		allCode.append("\n</script>\n");
 		jsonCode = null;
 		tiCode = null;
 		INJECTION_CODE = allCode.toString();
@@ -77,14 +74,14 @@ public class TiWebViewBinding
 	private Stack<String> codeSnippets;
 	private boolean destroyed;
 
-	private KrollLogging apiBinding;
+	private ApiBinding apiBinding;
 	private AppBinding appBinding;
 
 	public TiWebViewBinding(WebView webView)
 	{
 		codeSnippets = new Stack<String>();
 
-		apiBinding = KrollLogging.getDefault();
+		apiBinding = new ApiBinding();
 		appBinding = new AppBinding();
 		webView.addJavascriptInterface(appBinding, "TiApp");
 		webView.addJavascriptInterface(apiBinding, "TiAPI");
@@ -254,6 +251,47 @@ public class TiWebViewBinding
 				code = codeSnippets.empty() ? "" : codeSnippets.pop();
 			}
 			return code;
+		}
+	}
+
+	@SuppressWarnings("unused")
+	private class ApiBinding
+	{
+		private KrollLogging logging;
+
+		public ApiBinding()
+		{
+			logging = KrollLogging.getDefault();
+		}
+
+		public void log(String level, String arg)
+		{
+			logging.log(level, arg);
+		}
+
+		public void info(String arg)
+		{
+			logging.info(arg);
+		}
+
+		public void debug(String arg)
+		{
+			logging.debug(arg);
+		}
+
+		public void error(String arg)
+		{
+			logging.error(arg);
+		}
+
+		public void trace(String arg)
+		{
+			logging.trace(arg);
+		}
+
+		public void warn(String arg)
+		{
+			logging.warn(arg);
 		}
 	}
 }

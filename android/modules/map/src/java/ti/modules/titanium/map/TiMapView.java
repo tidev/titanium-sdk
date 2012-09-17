@@ -30,6 +30,8 @@ import ti.modules.titanium.map.MapRoute.RouteOverlay;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Color;
+import android.graphics.Point;
+import android.graphics.Rect;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.ShapeDrawable;
@@ -52,6 +54,7 @@ import com.google.android.maps.Overlay;
 
 interface TitaniumOverlayListener {
 	public void onTap(int index);
+	public void onTap(GeoPoint p, MapView mapView);
 }
 
 public class TiMapView extends TiUIView
@@ -205,12 +208,14 @@ public class TiMapView extends TiUIView
 		ArrayList<AnnotationProxy> annotations;
 		TitaniumOverlayListener listener;
 		Drawable defaultMarker;
+		boolean isMultitouch;
 
 		public TitaniumOverlay(Drawable defaultDrawable, TitaniumOverlayListener listener)
 		{
 			super(defaultDrawable);
 			this.defaultMarker = defaultDrawable;
 			this.listener = listener;
+			this.isMultitouch = false;
 		}
 
 		public Drawable getDefaultMarker()
@@ -338,14 +343,43 @@ public class TiMapView extends TiUIView
 		protected boolean onTap(int index)
 		{
 			boolean handled = super.onTap(index);
-			if(!handled ) {
+
+			// If the "tap" is on an item, handle it here.
+			if (!handled) {
 				listener.onTap(index);
+				return true;
 			}
 
 			return handled;
 		}
+
+		@Override
+		public boolean onTap(GeoPoint p, MapView mapView)
+		{
+			// If the "tap" is on an item, handle it by onTap(int).
+			boolean handled = super.onTap(p, mapView);
+
+			// If the "tap" is not on an item, handle it here.
+			if (!handled && !isMultitouch) {
+				listener.onTap(p, mapView);
+				return true;
+			}
+
+			return false;
+		}
+
+		@Override
+		public boolean onTouchEvent(MotionEvent event, MapView mapView)
+		{
+			if (event.getPointerCount() > 1) {
+				isMultitouch = true;
+			} else if (event.getAction() == MotionEvent.ACTION_DOWN) {
+				isMultitouch = false;
+			}
+			return super.onTouchEvent(event, mapView);
+		}
 	}
-	
+
 	public static class SelectedAnnotation
 	{
 		AnnotationProxy selectedAnnotation;
@@ -368,7 +402,8 @@ public class TiMapView extends TiUIView
 
 		this.mapWindow = mapWindow;
 		this.handler = new Handler(Looper.getMainLooper(), this);
-		this.annotations = annotations;
+		//filter out invalid annotations
+		this.annotations = filterAnnotations(annotations);
 		this.selectedAnnotations = selectedAnnotations;
 
 		TiApplication app = TiApplication.getInstance();
@@ -565,7 +600,7 @@ public class TiMapView extends TiUIView
 	public void addAnnotations(Object[] annotations) {
 		for(int i = 0; i < annotations.length; i++) {
 			AnnotationProxy ap = annotationProxyForObject(annotations[i]);
-			if (ap != null) {
+			if (ap != null && isAnnotationValid(ap)) {
 				this.annotations.add(ap);
 			}
 		}
@@ -576,7 +611,7 @@ public class TiMapView extends TiUIView
 	{
 		handler.obtainMessage(MSG_UPDATE_ANNOTATIONS).sendToTarget();
 	}
-	
+
 	public void addRoute(MapRoute mr) 
 	{
 		//check if route exists - by name
@@ -645,17 +680,21 @@ public class TiMapView extends TiUIView
 	public void onTap(int index)
 	{
 		if (overlay != null) {
-			synchronized(overlay) {
+			synchronized (overlay) {
 				TiOverlayItem item = overlay.getItem(index);
 
 				// fire the click event event when the "pin" is clicked regardless of the popup
 				// being visible or not
 				this.itemView.fireClickEvent(index, "pin");
 
+				// If the property "hideAnnotationWhenTouchMap" is set to false and the annotation is shown, hide the
+				// annotation by clicking the annotation pin.
 				if (itemView != null && index == itemView.getLastIndex() && itemView.getVisibility() == View.VISIBLE) {
-					hideAnnotation();
-
-					return;
+					Object value = proxy.getProperty(TiC.PROPERTY_HIDE_ANNOTATION_WHEN_TOUCH_MAP);
+					if (value == null || !TiConvert.toBoolean(value)) {
+						hideAnnotation();
+						return;
+					}
 				}
 
 				if (item.hasData()) {
@@ -664,6 +703,40 @@ public class TiMapView extends TiUIView
 
 				} else {
 					Toast.makeText(proxy.getActivity(), "No information for location", Toast.LENGTH_SHORT).show();
+				}
+			}
+		}
+	}
+
+	public void onTap(GeoPoint p, MapView mapView)
+	{
+		// If the property "hideAnnotationWhenTouchMap" is set to true and the annotation is shown, hide the annotation
+		// by clicking in the map view outside of the annotation.
+		Object value = proxy.getProperty(TiC.PROPERTY_HIDE_ANNOTATION_WHEN_TOUCH_MAP);
+		if (value != null && TiConvert.toBoolean(value)) {
+			if (itemView != null && view.indexOfChild(itemView) != -1 && itemView.getVisibility() == View.VISIBLE) {
+				Point pointOnTap = new Point();
+				view.getProjection().toPixels(p, pointOnTap);
+				Rect rectItemView = new Rect();
+				itemView.getHitRect(rectItemView);
+
+				// If the "tap" is on the annotation itself, don't hide it.
+				if (rectItemView.contains(pointOnTap.x, pointOnTap.y)) {
+					return;
+				}
+
+				int lastShownItemIndex = itemView.getLastIndex();
+				if (lastShownItemIndex != -1) {
+					hideAnnotation();
+					TiOverlayItem item = overlay.getItem(lastShownItemIndex);
+					KrollDict d = new KrollDict();
+					d.put(TiC.EVENT_PROPERTY_CLICKSOURCE, "null");
+					d.put(TiC.PROPERTY_TITLE, item.getTitle());
+					d.put(TiC.PROPERTY_SUBTITLE, item.getSnippet());
+					d.put(TiC.PROPERTY_ANNOTATION, item.getProxy());
+					d.put(TiC.PROPERTY_LATITUDE, scaleFromGoogle(item.getPoint().getLatitudeE6()));
+					d.put(TiC.PROPERTY_LONGITUDE, scaleFromGoogle(item.getPoint().getLongitudeE6()));
+					proxy.fireEvent(TiC.EVENT_CLICK, d);
 				}
 			}
 		}
@@ -808,6 +881,24 @@ public class TiMapView extends TiUIView
 				break;
 			}
 		}
+	}
+
+	protected boolean isAnnotationValid(AnnotationProxy annotation)
+	{
+		if (annotation.hasProperty(TiC.PROPERTY_LATITUDE) && annotation.hasProperty(TiC.PROPERTY_LONGITUDE)) {
+			return true;
+		}
+		return false;
+	}
+	
+	protected ArrayList<AnnotationProxy> filterAnnotations(ArrayList<AnnotationProxy> annotations)
+	{
+		for (int i = 0; i < annotations.size(); i++) {
+			if (!isAnnotationValid(annotations.get(i))) {
+				annotations.remove(i);
+			}
+		}
+		return annotations;
 	}
 
 	public void doSetAnnotations(ArrayList<AnnotationProxy> annotations)

@@ -10,6 +10,7 @@
 var fs = require("fs"),
 path = require("path"),
 mysql = require("mysql"),
+wrench = require("wrench"),
 hubUtils = require(__dirname + "/hubUtils");
 
 module.exports = new function() {
@@ -65,6 +66,13 @@ module.exports = new function() {
 	this.processCiMessage = function(ciConnection, message) {
 		var queryArgs;
 
+		function printMessageContentsError(propertyName) {
+			console.log("received CI JSON object <" + JSON.stringify(message) + "> does not " + 
+				"contain a \"" + propertyName + "\" property, ignoring");
+
+			ciConnection.destroy();
+		}
+
 		try {
 			message = JSON.parse(message);
 
@@ -75,30 +83,30 @@ module.exports = new function() {
 		}
 
 		if(typeof message.gitHash === "undefined") {
-			console.log("received CI JSON object <" + JSON.stringify(message) + "> does not " +
-				"contain a \"gitHash\" property, ignoring");
-
+			printMessageContentsError("gitHash");
 			return;
 		}
 
 		if((typeof message.branch) === "undefined") {
-			console.log("received CI JSON object <" + JSON.stringify(message) + "> does not " +
-				"contain a \"branch\" property, ignoring");
-
+			printMessageContentsError("branch");
 			return;
 		}
 
 		if((typeof message.buildTime) === "undefined") {
-			console.log("received CI JSON object <" + JSON.stringify(message) + "> does not " +
-				"contain a \"buildTime\" property, ignoring");
+			printMessageContentsError("buildTime");
+			return;
+		}
 
+		if((typeof message.sdkBaseFilename) === "undefined") {
+			printMessageContentsError("sdkBaseFilename");
 			return;
 		}
 
 		queryArgs = {
 			git_hash: message.gitHash,
 			branch: message.branch,
-			timestamp: message.buildTime
+			timestamp: message.buildTime,
+			base_sdk_filename: message.sdkBaseFilename
 		};
 		dbConnection.query('INSERT INTO runs SET ?', queryArgs, function(error, rows, fields) {
 			var driverId;
@@ -130,10 +138,11 @@ module.exports = new function() {
 
 	this.processDriverResults = function(driverId, results, callback) {
 		var driverRunWorkingDir = path.join(hubGlobal.workingDir, activeRuns[driverId].gitHash + driverId), // create unique working dir
-		resultsFile = fs.openSync(path.join(driverRunWorkingDir, activeRuns[driverId].gitHash + driverId + ".tgz"), 'w'),
+		resultsFile,
 		command = "tar -xzvf " + path.join(driverRunWorkingDir, activeRuns[driverId].gitHash + driverId + ".tgz") + " -C " + driverRunWorkingDir;
 
 		fs.mkdirSync(driverRunWorkingDir);
+		resultsFile = fs.openSync(path.join(driverRunWorkingDir, activeRuns[driverId].gitHash + driverId + ".tgz"), 'w');
 
 		// create zip
 		fs.writeSync(resultsFile, results, 0, results.length, null);
@@ -310,16 +319,12 @@ module.exports = new function() {
 						}
 
 						// copy the raw results file to a location where it can be served up
-						var command = "mv " + path.join(driverRunWorkingDir, activeRuns[driverId].gitHash + 
-							driverId + ".tgz") + " web/results/";
+						var rawResultsFilename = path.join(driverRunWorkingDir, activeRuns[driverId].gitHash + driverId + ".tgz");
+						fs.renameSync(rawResultsFilename, path.join("web", "results", rawResultsFilename));
+						hubUtils.log("results file moved to serving location");
 
-						hubUtils.runCommand(command, function() {
-							hubUtils.log("results file moved to serving location");
-
-							hubUtils.runCommand("rm -rf " + driverRunWorkingDir, function() {
-								hubUtils.log("temp working directory cleaned up");
-							});
-						});
+						wrench.rmdirSyncRecursive(driverRunWorkingDir, failSilent);
+						hubUtils.log("temp working directory cleaned up");
 
 						/*
 						remove the run and close the driver dbConnection now that the results are 
@@ -341,7 +346,8 @@ module.exports = new function() {
 		dbConnection.query(query, function(error, rows, fields) {
 			var runId,
 			gitHash,
-			isIdle;
+			isIdle,
+			rowIndex;
 
 			if (error) {
 				throw error;
@@ -351,14 +357,86 @@ module.exports = new function() {
 			gitHash = null;
 			isIdle = true;
 
-			/*
-			here we are basically checking to see if there are any runs that the driver has not
-			processed yet.  If so we tell the driver to kick off the run, otherwise the driver 
-			will wait until a new run comes in
-			*/
-			if (rows.length > 0) {
-				runId = rows[0].id;
-				gitHash = rows[0].git_hash;
+			function checkRun() {
+				var sdkVersion = rows[rowIndex].base_sdk_filename.substring(0, rows[rowIndex].base_sdk_filename.indexOf(".v"));
+
+				runIsValidForDriver(sdkVersion, function(isValid) {
+					if (isValid === true) {
+						startDriverRun(finish);
+
+					} else {
+						rowIndex++;
+
+						if (isValid === false && rowIndex < rows.length) {
+							checkRun();
+
+						} else {
+							finish();
+						}
+					}
+				});
+			}
+
+			function runIsValidForDriver(sdkVersion, callback) {
+				var versionReqs = hubGlobal.config.sdkVersionReqs[new String(sdkVersion)];
+
+				/*
+				if the version is not listed in the hub config file, do not test against.  This is so 
+				that we can turn on testing at the driver level as we choose since we may need to bring new 
+				drivers online or change configuration first
+				*/
+				if (typeof versionReqs === "undefined") {
+					callback(false);
+					return;
+				}
+
+				dbConnection.query("SELECT * FROM driver_state WHERE id = \"" + driverId + "\"", function(error, rows, fields) {
+					var driverEnvironment,
+					isValid = true;
+
+					if (rows.length > 0) {
+						driverEnvironment = JSON.parse(rows[0].environment);
+
+						if (driverEnvironment.platform === "android") {
+							// placeholder
+
+						} else if (driverEnvironment.platform === "ios") {
+							versionReqs = versionReqs.ios;
+							if (typeof versionReqs === "undefined") {
+								callback(isValid);
+								return;
+							}
+
+							if (typeof versionReqs.minXcodeVersion !== "undefined") {
+								if (typeof driverEnvironment.xcodeVersion === "undefined" || 
+									(typeof driverEnvironment.xcodeVersion !== "undefined" && 
+									(versionReqs.minXcodeVersion > driverEnvironment.xcodeVersion))) {
+
+									isValid = false;
+								}
+							}
+
+							if (typeof versionReqs.maxXcodeVersion !== "undefined") {
+								if (typeof driverEnvironment.xcodeVersion === "undefined" || 
+									(typeof driverEnvironment.xcodeVersion !== "undefined" && 
+									(versionReqs.maxXcodeVersion < driverEnvironment.xcodeVersion))) {
+
+									isValid = false;
+								}
+							}
+
+						} else if (driverEnvironment.platform === "mobileweb") {
+							// placeholder
+						}
+					}
+
+					callback(isValid);
+				});
+			}
+
+			function startDriverRun(callback) {
+				runId = rows[rowIndex].id;
+				gitHash = rows[rowIndex].git_hash;
 				isIdle = false;
 
 				self.updateDriverState({
@@ -368,16 +446,30 @@ module.exports = new function() {
 					});
 
 				self.server.sendMessageToDriver(driverId, {
+					command: driverCommand,
 					gitHash: gitHash,
-					command: driverCommand
+					branch: rows[rowIndex].branch,
+					sdkBaseFilename: rows[rowIndex].base_sdk_filename
 					});
+
+				callback();
 			}
 
-			activeRuns[driverId] = {
-				runId: runId,
-				gitHash: gitHash,
-				idle: isIdle
-			};
+			function finish() {
+				activeRuns[driverId] = {
+					runId: runId,
+					gitHash: gitHash,
+					idle: isIdle
+				};
+			}
+
+			if (rows.length > 0) {
+				rowIndex = 0;
+				checkRun();
+
+			} else {
+				finish();
+			}
 		});
 	};
 
@@ -392,7 +484,8 @@ module.exports = new function() {
 				queryArgs = {
 					id: args.id,
 					state: args.state,
-					timestamp: timestamp
+					timestamp: timestamp,
+					environment: args.environment
 				};
 
 				if (args.description) {
@@ -407,6 +500,13 @@ module.exports = new function() {
 
 				} else {
 					queryArgs["git_hash"] = "";
+				}
+
+				if (args.environment) {
+					queryArgs["environment"] = JSON.stringify(args.environment);
+
+				} else {
+					queryArgs["environment"] = rows[0].environment;
 				}
 
 				dbConnection.query('REPLACE INTO driver_state SET ?', queryArgs, function(error, rows, fields) {
@@ -427,6 +527,6 @@ module.exports = new function() {
 				updatedCallback();
 			});
 		}
-	}
+	};
 };
 
