@@ -57,7 +57,7 @@ exports.validate = function (logger, config, cli) {
 };
 
 exports.run = function (logger, config, cli) {
-	debugger;
+
 	var tiappPath = path.join(cli.argv.dir, 'tiapp.xml'),
 		tiapp = new ti.tiappxml(tiappPath),
 		output = cli.argv.output,
@@ -102,7 +102,7 @@ exports.run = function (logger, config, cli) {
 				for(p in tiapp['deployment-targets']) {
 					logger.log('  %s = %s', appc.string.rpad(p, maxlen), (deploymentTargets[p] + '').cyan);
 				}
-				logger.log('');
+				logger.log();
 
 				// Print the other properties
 				logger.log(__('Project Properties:'));
@@ -112,7 +112,7 @@ exports.run = function (logger, config, cli) {
 				propsList.forEach(function (key) {
 					logger.log('  %s = %s', appc.string.rpad(key, maxlen), (tiapp[key] + '' || __('<not specified>')).cyan);
 				});
-				logger.log('');
+				logger.log();
 			}
 			break;
 		case 1:
@@ -141,7 +141,7 @@ exports.run = function (logger, config, cli) {
 					for(p in tiapp['deployment-targets']) {
 						logger.log('  %s = %s', appc.string.rpad(p, maxlen), (deploymentTargets[p] + '').cyan);
 					}
-					logger.log('');
+					logger.log();
 				}
 			} else if (!!~propsList.indexOf(key)) {
 				if (output === "json") {
@@ -151,10 +151,10 @@ exports.run = function (logger, config, cli) {
 				} else if (output === "text") {
 					logger.log(tiapp[key]);
 				} else {
-					logger.log(__('The value of ') + (key + '').cyan + __(' is ') + (tiapp[key] + '').cyan + '\n');
+					logger.log(__('The value of %s is %s', (key.cyan + ''), (tiapp[key] + '').cyan) + '\n');
 				}
 			} else {
-				logger.error(key + __(' is not a valid entry name') + '\n');
+				logger.error( __('%s is not a valid entry name', key) + '\n');
 			}
 			break;
 		case 2:
@@ -180,7 +180,7 @@ exports.run = function (logger, config, cli) {
 					// Non-destructively copy over files from <sdk>/templates/app/<template>/
 					templateDir = path.join(sdkPath, 'templates', 'app', cli.argv.template);
 					if (!appc.fs.exists(templateDir)) {
-						logger.error(__('Unknown project template ') + cli.argv.template);
+						logger.error(__('Unknown project template %s', cli.argv.template) + '\n');
 						process.exit(1);
 					}
 					appc.fs.nonDestructiveCopyDirSyncRecursive(templateDir, projectDir, { 
@@ -192,7 +192,7 @@ exports.run = function (logger, config, cli) {
 						if (value[p]) {
 							templateDir = path.join(sdkPath, value[p], 'templates', 'app', cli.argv.template);
 							if (!appc.fs.exists(templateDir)) {
-								logger.error(__('Template ') + cli.argv.template + __(' is not supported by platform ') + value[p]);
+								logger.error(__('Template %s is not supported by platform %s', cli.argv.template, value[p]) + '\n');
 								process.exit(1);
 							}
 							appc.fs.nonDestructiveCopyDirSyncRecursive(templateDir, projectDir, { 
@@ -208,7 +208,7 @@ exports.run = function (logger, config, cli) {
 						value = Object.keys(cli.env.sdks).sort().reverse()[0];
 					}
 					if (!(value in cli.env.sdks)) {
-						logger.error(__('Unknown SDK ') + value + '\n');
+						logger.error(__('Unknown SDK %s', value) + '\n');
 						process.exit(1);
 					}
 					tiapp['sdk-version'] = value;
@@ -216,7 +216,7 @@ exports.run = function (logger, config, cli) {
 				case 'id':
 					value = args[1];
 					if (!/^([a-z_]{1}[a-z0-9_]*(\.[a-z_]{1}[a-z0-9_]*)*)$/.test(value)) {
-						logger.error(__('Invalid project ID ') + value + '\n');
+						logger.error(__('Invalid project ID %s', value) + '\n');
 						process.exit(1);
 					}
 					tiapp['id'] = value;
@@ -244,7 +244,7 @@ exports.run = function (logger, config, cli) {
 					break;
 				case 'analytics':
 					if (!~['true', 'false'].indexOf(args[1])) {
-						logger.error(__('Invalid value for analytics ') + args[1] + '\n');
+						logger.error(__('Invalid value for analytics %s', args[1]) + '\n');
 						process.exit(1);
 					}
 					tiapp['analytics'] = value = args[1];
@@ -256,7 +256,7 @@ exports.run = function (logger, config, cli) {
 					logger.error('Invalid tiapp.xml key "' + key + '"');
 					break;
 			}
-			logger.log(__(key).cyan + __(' was successfully set to ') + value.cyan + '\n');
+			logger.log(__('%s was successfully set to %s', (key + '').cyan, (value + '').cyan) + '\n');
 			tiapp.save(tiappPath);
 			break;
 	}
