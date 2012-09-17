@@ -19,6 +19,21 @@ ifeq ($(TI_DEBUG),1)
 CFLAGS += -DTI_DEBUG=1 -g
 endif
 
+# Several places in generated code we set some jvalues to NULL and
+# since NDK r8b we'd get warnings about each one.
+CFLAGS += -Wno-conversion-null
+
+# cf https://groups.google.com/forum/?fromgroups=#!topic/android-ndk/Q8ajOD37LR0
+CFLAGS += -Wno-psabi
+
+CLEAN_GEN := rm -f $(GENERATED_DIR)/*
+CLEAN_OBJ := rm -rf $(OBJ_DIR)/*
+
+ifeq ($(OSNAME), Windows_NT)
+CLEAN_GEN := if exist $(GENERATED_DIR) (rd /s /q $(subst /,\\,$(GENERATED_DIR)) && mkdir $(subst /,\\,$(GENERATED_DIR)))
+CLEAN_OBJ := if exist $(OBJ_DIR) (rd /s /q $(subst /,\\,$(OBJ_DIR)) && mkdir $(subst /,\\,$(OBJ_DIR)))
+endif
+
 LDLIBS := -L$(SYSROOT)/usr/lib -ldl -llog -L$(TARGET_OUT)
 ABS_SRC_FILES := \
 	$(wildcard $(LOCAL_PATH)/*.cpp) \
@@ -39,5 +54,5 @@ $(LOCAL_PATH)/KrollBindings.cpp: $(GEN_SOURCES)
 clean: ti-clean
 
 ti-clean:
-	rm -f $(GENERATED_DIR)/*
-	rm -rf $(OBJ_DIR)/*
+	$(CLEAN_GEN)
+	$(CLEAN_OBJ)
