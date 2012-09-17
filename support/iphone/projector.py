@@ -218,7 +218,7 @@ def main(args):
 	sdk_root = os.path.expanduser(dequote(args[3]))
 	project_root = os.path.expanduser(dequote(args[4]))
 
-	p = Projector(name,version,sdk_root,project_root,"com.appcelerator.test")
+	p = Projector(name,version,sdk_root,project_root,"com.appcelerator.test", None)
 	p.create(sdk_root,project_root)
 	
 	sys.exit(0)
