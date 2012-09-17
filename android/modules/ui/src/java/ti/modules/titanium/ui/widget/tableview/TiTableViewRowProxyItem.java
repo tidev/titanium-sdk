@@ -74,10 +74,14 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 		return (TableViewRowProxy)item.proxy;
 	}
 
-	public void setRowData(Item item) {
+	public void setRowData(Item item, boolean isLayoutPass) {
 		this.item = item;
 		TableViewRowProxy rp = getRowProxy();
-		rp.setTableViewItem(this);
+		if (isLayoutPass)
+		{
+			// Only make this association during the actual layout pass
+			rp.setTableViewItem(this);
+		}
 		setRowData(rp);
 	}
 

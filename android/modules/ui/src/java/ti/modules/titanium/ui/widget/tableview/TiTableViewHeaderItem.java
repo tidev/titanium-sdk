@@ -52,7 +52,7 @@ public class TiTableViewHeaderItem extends TiBaseTableViewItem
 			TiUIHelper.setTextViewDIPPadding(textView, 4, 2);
 		}
 
-		public void setRowData(Item item) {
+		public void setRowData(Item item, boolean isLayoutPass) {
 			this.item = item;
 			if (item.headerText != null) {
 				textView.setText(item.headerText, TextView.BufferType.NORMAL);
@@ -89,9 +89,9 @@ public class TiTableViewHeaderItem extends TiBaseTableViewItem
 	{
 		this(activity);
 	}
-	public void setRowData(Item item) {
+	public void setRowData(Item item, boolean isLayoutPass) {
 		if (!isHeaderView) {
-			rowView.setRowData(item);
+			rowView.setRowData(item, isLayoutPass);
 		}
 	}
 

@@ -64,6 +64,8 @@ public class TiTableView extends FrameLayout
 	private TableViewProxy proxy;
 	private boolean filterCaseInsensitive = true;
 	private TiTableViewSelector selector;
+	
+	private boolean isLayoutPass = false;
 
 	public interface OnItemClickedListener {
 		public void onClick(KrollDict item);
@@ -210,7 +212,7 @@ public class TiTableView extends FrameLayout
 				v.setLayoutParams(new AbsListView.LayoutParams(
 					AbsListView.LayoutParams.FILL_PARENT, AbsListView.LayoutParams.FILL_PARENT));
 			}
-			v.setRowData(item);
+			v.setRowData(item, isLayoutPass);
 			return v;
 		}
 
@@ -518,9 +520,20 @@ public class TiTableView extends FrameLayout
 		viewModel = null;
 		itemClickListener = null;
 	}
+	
+	@Override
+	protected void onMeasure(int width, int height) {
+		isLayoutPass = false;
+		super.onMeasure(width, height);
+		return;
+	}
+	
 
 	@Override
 	protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
+		
+		isLayoutPass = true;
+		
 		// To prevent undesired "focus" and "blur" events during layout caused
 		// by ListView temporarily taking focus, we will disable focus events until
 		// layout has finished.
@@ -555,4 +568,5 @@ public class TiTableView extends FrameLayout
 			}
 		}
 	}
+	
 }
