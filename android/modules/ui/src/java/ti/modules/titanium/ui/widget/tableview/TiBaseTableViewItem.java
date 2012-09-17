@@ -75,7 +75,7 @@ public abstract class TiBaseTableViewItem extends ViewGroup implements Handler.C
 		this(activity);
 	}
 
-	public abstract void setRowData(Item item);
+	public abstract void setRowData(Item item, boolean isLayoutPass);
 	public abstract Item getRowData();
 	
 	public boolean handleMessage(Message msg) {
