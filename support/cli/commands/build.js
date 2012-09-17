@@ -19,15 +19,11 @@ exports.config = function (logger, config, cli) {
 				desc: __('builds a project'),
 				extendedDesc: 'Builds an existing app or module project.',
 				options: appc.util.mix({
-					'build-type': {
-						abbr: 'b',
-						default: 'development',
-						desc: __('the type of build to perform'),
-						hint: __('type'),
-						values: ['production', 'development']
-					},
 					platform: {
 						abbr: 'p',
+						callback: function (value) {
+							return ti.resolvePlatform(value);
+						},
 						desc: __('the target build platform'),
 						hint: __('platform'),
 						prompt: {
