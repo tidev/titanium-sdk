@@ -34,7 +34,7 @@ public class AppModule extends KrollModule
 	@Kroll.constant public static final String EVENT_ACCESSIBILITY_CHANGED = "accessibilitychanged";
 
 	private ITiAppInfo appInfo;
-	private AccessibilityStateChangeListenerCompat accessibilityStateChangeListener = null;;
+	private AccessibilityStateChangeListenerCompat accessibilityStateChangeListener = null;
 
 	public AppModule()
 	{
