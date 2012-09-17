@@ -18,13 +18,11 @@ import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.view.TiUIView;
 
 import android.app.Activity;
-import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
-import android.util.Pair;
 
 public class TiUIProgressIndicator extends TiUIView
 	implements Handler.Callback, DialogInterface.OnCancelListener

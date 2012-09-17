@@ -19,14 +19,11 @@ import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.view.TiUIView;
 
 import ti.modules.titanium.ui.AlertDialogProxy;
-
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
-import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnCancelListener;
-import android.util.Pair;
 
 public class TiUIDialog extends TiUIView
 {
@@ -57,13 +54,6 @@ public class TiUIDialog extends TiUIView
 		Log.d(TAG, "Creating a dialog", Log.DEBUG_MODE);
 		//Native dialogs are persistent by default.
 		isPersistent = true;
-
-		if (proxy instanceof AlertDialogProxy) {
-			Object persistent = proxy.getProperty(TiC.PROPERTY_PERSISTENT);
-			if (persistent != null) {
-				isPersistent = TiConvert.toBoolean(persistent);
-			}
-		}
 		createBuilder();
 	}
 

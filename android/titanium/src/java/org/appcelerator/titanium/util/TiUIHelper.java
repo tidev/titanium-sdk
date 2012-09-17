@@ -41,7 +41,6 @@ import org.appcelerator.titanium.view.TiUIView;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
@@ -71,7 +70,6 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Process;
 import android.text.util.Linkify;
-import android.util.Pair;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.View;
