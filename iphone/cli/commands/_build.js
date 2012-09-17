@@ -147,7 +147,7 @@ exports.config = function (logger, config, cli) {
 					},
 					'keychain': {
 						abbr: 'K',
-						desc: __('path to the distribution keychain; only used when target is %s, %s, or %s', 'device'.cyan, 'dist-appstore'.cyan, 'dist-adhoc'.cyan)
+						desc: __('path to the distribution keychain to use instead of the system default; only used when target is %s, %s, or %s', 'device'.cyan, 'dist-appstore'.cyan, 'dist-adhoc'.cyan)
 					},
 					'pp-uuid': {
 						abbr: 'P',
@@ -352,6 +352,18 @@ exports.validate = function (logger, config, cli) {
 			appc.string.suggest(cli.argv['pp-uuid'], Object.keys(profiles), logger.log);
 			process.exit(1);
 		}
+		
+		var keychain = cli.argv.keychain ? afs.resolvePath(cli.argv.keychain) : null;
+		if (keychain && !afs.exists(keychain)) {
+			logger.error(__('Unable to find keychain "%s"', keychain) + '\n');
+			logger.log(__('Available keychains:'));
+			iosEnv.keychains.forEach(function (kc) {
+				logger.log('    ' + kc.cyan);
+			});
+			logger.log();
+			appc.string.suggest(keychain, iosEnv.keychains, logger.log);
+			process.exit(1);
+		}
 	}
 	
 	if (!deviceFamilies[cli.argv['device-family']]) {
@@ -404,7 +416,7 @@ function build(logger, config, cli, finished) {
 	this.buildVersionFile = path.join(this.buildDir, 'Resources', '.version');
 	
 	this.debugHost = cli.argv['debug-host'];
-	this.keychain = cli.argv.keychain ? afs.resolvePath(cli.argv.keychain) : null;
+	this.keychain = cli.argv.keychain;
 	
 	this.xcodeTarget = /device|simulator/.test(this.target) ? 'Debug' : 'Release';
 	this.iosSdkVersion = cli.argv['ios-version'];
