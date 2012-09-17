@@ -1555,7 +1555,7 @@ class Builder(object):
 			'-keystore', self.keystore,
 			'-storepass', self.keystore_pass,
 			'-alias', self.keystore_alias
-		])
+		], protect_arg_positions=(6,))
 
 		# If the keytool encounters an error, that means some of the provided
 		# keychain info is invalid and we should bail anyway
@@ -1604,7 +1604,7 @@ class Builder(object):
 			'-keystore', self.keystore,
 			'-signedjar', app_apk,
 			unsigned_apk,
-			self.keystore_alias])
+			self.keystore_alias], protect_arg_positions=(6,))
 		run.check_output_for_error(output, r'RuntimeException: (.*)', True)
 		run.check_output_for_error(output, r'^jarsigner: (.*)', True)
 
