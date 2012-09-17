@@ -132,17 +132,14 @@ description: |
     * <Ti.UI.View.accessibilityHint>
     * <Ti.UI.View.accessibilityHidden>
 
-    These properties are designed to be analogs to the four similarly-named iOS native properties defined
-    in the [UIAccessibilityProtocol](http://developer.apple.com/library/ios/#documentation/uikit/reference/UIAccessibility_Protocol/Introduction/Introduction.html).
-
     The first three, `accessibilityLabel`, `accessibilityValue` and `accessibilityHint`, are for setting text
     that will be relayed to the user by the assistive service (such as TalkBack on Android or VoiceOver
-    on iOS).
-
-    Native Android View's have a single property, [contentDescription](http://developer.android.com/reference/android/view/View.html#setContentDescription%28java.lang.CharSequence%29), for setting accessibility text, so in Titanium
-    for Android we concatenate the values you set on the three properties mentioned above in the following
-    order: `accessibilityLabel`, `accessibilityValue`, `accessibilityHint`.  The concatenated string is then
-    passed to the native `View.setContentDescription(String)` method.
+    on iOS). On iOS, Titanium will then take these values and set the native properties
+    of the same name which are defined in the [UIAccessibilityProtocol](http://developer.apple.com/library/ios/#documentation/uikit/reference/UIAccessibility_Protocol/Introduction/Introduction.html).
+    On Android, Titanium takes the three values and concatenates them in the order `accessibilityLabel`,
+    `accessibilityValue`, and `accessibilityHint`, and then uses the result to set the native view's
+    [`contentDescription`](http://developer.android.com/reference/android/view/View.html#setContentDescription%28java.lang.CharSequence%29)
+    property.
 
     You are not required to set all three properties: feel free to set just one or two as needed and
     experiment with the results by turning on VoiceOver (iOS) or TalkBack (Android) on your test device.
