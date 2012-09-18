@@ -399,6 +399,11 @@
 	return tableview;
 }
 
+- (id)accessibilityElement
+{
+	return [self tableView];
+}
+
 -(NSInteger)indexForRow:(TiUITableViewRowProxy*)row
 {
 	return [(TiUITableViewProxy *)[self proxy] indexForRow:row];

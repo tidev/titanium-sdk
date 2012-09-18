@@ -48,6 +48,11 @@
 	return segmentedControl;
 }
 
+- (id)accessibilityElement
+{
+	return [self segmentedControl];
+}
+
 // For regression #1880.  Because there are essentially TWO kinds of 'width' going on with tabbed/button bars
 // (width of all elements, width of the proxy) we assume that if the user has set the width of the bar completely,
 // AND the width of the proxy is undefined, they want magic!

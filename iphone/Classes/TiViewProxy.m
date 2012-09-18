@@ -2648,4 +2648,21 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
     return TiDimensionAutoFill;
 }
 
+#pragma mark - Accessibility API
+
+- (void)setAccessibilityLabel:(NSString *)accessibilityLabel
+{
+	[[self view].accessibilityElement setAccessibilityLabel:accessibilityLabel];
+}
+
+- (void)setAccessibilityValue:(NSString *)accessibilityValue
+{
+	[[self view].accessibilityElement setAccessibilityValue:accessibilityValue];
+}
+
+- (void)setAccessibilityHint:(NSString *)accessibilityHint
+{
+	[[self view].accessibilityElement setAccessibilityHint:accessibilityHint];
+}
+
 @end

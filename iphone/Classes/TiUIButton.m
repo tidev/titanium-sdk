@@ -162,6 +162,11 @@
 	return button;
 }
 
+- (id)accessibilityElement
+{
+	return [self button];
+}
+
 -(UIView *) viewGroupWrapper
 {
 	if (viewGroupWrapper == nil) {

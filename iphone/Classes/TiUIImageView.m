@@ -283,6 +283,10 @@ DEFINE_EXCEPTIONS
 	return imageView;
 }
 
+- (id)accessibilityElement
+{
+	return [self imageView];
+}
 
 -(void)setURLImageOnUIThread:(UIImage*)image
 {

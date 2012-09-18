@@ -66,6 +66,11 @@ USE_PROXY_FOR_VERIFY_AUTORESIZING
 	return picker;
 }
 
+- (id)accessibilityElement
+{
+	return [self picker];
+}
+
 -(BOOL)isDatePicker
 {
 	return type != -1;
