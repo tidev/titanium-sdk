@@ -524,13 +524,16 @@ properties:
     platforms: [iphone, ipad]
 
   - name: frequency
+    deprecated:
+        since: "2.0.0"
+        notes: |
+            Android legacy mode operation is deprecated. For new development, use
+            either simple mode or manual mode. See "Configurating Location Updates on Android"
+            in the main description of this class for more information.
     summary: Requested frequency for location updates, in milliseconds.
     description: |
         Setting a frequency value enables legacy location mode on Android.
         Note that only a single provider can be active at one time in legacy mode.
-
-        Android legacy mode operation is deprecated. For new development, use
-        either simple mode or manual mode.
 
         Note that the frequency value is used as a guideline: there are no guarantees
         that the device will provide updates at the specified frequency.
@@ -579,6 +582,12 @@ properties:
     permission: read-only
 
   - name: preferredProvider
+    deprecated:
+        since: "2.0.0"
+        notes: |
+            Android legacy mode operation is deprecated. For new development, use
+            either simple mode or manual mode. See "Configurating Location Updates on Android"
+            in the main description of this class for more information.
     summary: |
         Determines the preferred location provider, either
         [PROVIDER_GPS](Titanium.Geolocation.PROVIDER_GPS),
@@ -588,9 +597,6 @@ properties:
         Setting a preferred provider enables legacy location mode on Android.
         Note that only a single provider can be active at one time in legacy mode.
 
-        Android legacy mode operation is deprecated. For new development, use
-        either simple mode or manual mode.
-
         The preferred provider affects power consumption. In general, `PROVIDER_GPS` 
         requires the most power, and `PROVIDER_PASSIVE` requires the least.
 
@@ -598,8 +604,6 @@ properties:
     type: String
     platforms: [android]
     default: <Titanium.Geolocation.PROVIDER_NETWORK>
-    deprecated:
-        since: "2.0.0"
 
   - name: purpose
     summary: |

@@ -1,15 +1,16 @@
 ---
 name: Titanium.UI.CoverFlowView
-summary: Use <Titanium.UI.iOS.CoverFlowView> instead.
+summary: |
+    The cover flow view is a container showing animated three-dimensional images in a style
+    consistent with the cover flow presentation used for iPod, iTunes, and file browsing.
 description: |
-    This iOS-specific API has been moved to <Titanium.UI.iOS.CoverFlowView>.
-
     Use the <Titanium.UI.createCoverFlowView> method to create a cover flow view.
 extends: Titanium.UI.View
 since: "0.8"
 deprecated:
     since: "1.8.0"
-    removed: "2.0.0"
+    notes: |
+        Use <Titanium.UI.iOS.CoverFlowView> instead.
 platforms: [iphone, ipad]
 excludes: {
    events: [ "dblclick", "doubletap", "longclick", "longpress", "pinch", "singletap", "swipe", "touchcancel", "touchend", "touchmove", "touchstart", "twofingertap" ]

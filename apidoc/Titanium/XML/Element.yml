@@ -220,13 +220,13 @@ properties:
     permission: read-only
 
   - name: text
-    summary: Use [textContent](Titanium.XML.Element.textContent) instead.
-    description: Content (value) of all text nodes within this node.
+    deprecated:
+        since: "2.0.0"
+        notes: Use [textContent](Titanium.XML.Element.textContent) instead.
+    summary: Content (value) of all text nodes within this node.
     type: String
     permission: read-only
     platforms: [android, iphone, ipad]
-    deprecated: 
-        since: "2.0.0"
 
   - name: textContent
     summary: Content (value) of all text nodes within this node.
