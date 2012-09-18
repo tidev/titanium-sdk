@@ -128,8 +128,8 @@ events:
 
       - name: rowData
         summary: |
-           Properties of the row.  Use this property rather than `row` to access any custom row 
-           properties.
+            Properties of the row.  Use this property rather than `row` to access any custom row 
+            properties.
         type: Dictionary<Titanium.UI.TableViewRow>
         
       - name: searchMode
