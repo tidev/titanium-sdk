@@ -80,6 +80,7 @@ exports.config = function (logger, config, cli) {
 			
 			callback(conf = {
 				flags: {
+					// TODO: build-only flag?
 					force: {
 						abbr: 'f',
 						default: false,
@@ -409,7 +410,7 @@ function build(logger, config, cli, finished) {
 	this.projectDir = afs.resolvePath(cli.argv.dir);
 	this.tiapp = new ti.tiappxml(path.join(this.projectDir, 'tiapp.xml'));
 	this.target = cli.argv.target;
-	this.deployType = deployTypes[this.target];
+	this.deployType = /simulator|device/.test(this.target) && cli.argv['deploy-type'] ? cli.argv['deploy-type'] : deployTypes[this.target];
 	this.provisioningProfileUUID = cli.argv['pp-uuid'];
 	
 	this.buildDir = path.join(this.projectDir, 'build', this.platformName);
@@ -598,7 +599,7 @@ function build(logger, config, cli, finished) {
 					process.exit(1);
 				}
 				
-				// dump(modules);
+				dump(modules);
 				/*
 				detector = ModuleDetector(this.projectDir)
 				missing_modules, modules = detector.find_app_modules(ti, 'iphone')
@@ -888,7 +889,7 @@ build.prototype = {
 					if (extRegExp.test(src) && src.indexOf('TiCore') == -1) {
 						logger && logger(__('Processing %s', src.cyan));
 						for (var i = 0, l = copyFileRegExps.length; i < l; i++) {
-							contents = contents.replace(copyFileRegExps[i][0], copyFileRegExps[i][1]);
+							contents = contents.toString().replace(copyFileRegExps[i][0], copyFileRegExps[i][1]);
 						}
 					}
 					return contents;
