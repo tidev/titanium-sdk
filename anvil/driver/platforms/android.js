@@ -9,11 +9,11 @@
  * Description: contains Android specific wrapper functions around common driver commands
  */
 
-var net = require("net");
-var path = require("path");
-
-var common = require(path.join(driverGlobal.driverDir, "common"));
-var driverUtils = require(path.join(driverGlobal.driverDir, "driverUtils"));
+var net = require("net"),
+path = require("path"),
+os = require("os"),
+common = require(path.resolve(driverGlobal.driverDir, "common")),
+driverUtils = require(path.resolve(driverGlobal.driverDir, "driverUtils"));
 
 module.exports = new function() {
 	var self = this;
@@ -25,6 +25,10 @@ module.exports = new function() {
 	this.name = "android";
 
 	this.init = function(commandCallback, testPassCallback) {
+		// check android specific config items
+		driverUtils.checkConfigItem("androidSdkDir", driverGlobal.config.androidSdkDir, "string");
+		driverUtils.checkConfigItem("androidSocketPort", driverGlobal.config.androidSocketPort, "number");
+
 		commandFinishedCallback = commandCallback;
 		testPassFinishedCallback = testPassCallback;
 	};
@@ -54,15 +58,22 @@ module.exports = new function() {
 	};
 
 	var createHarness = function(successCallback, errorCallback) {
+		var argString = "create --dir=" + path.resolve(driverGlobal.harnessDir, "android") + " --platform=android --name=harness --type=project --id=com.appcelerator.harness --android=" + path.resolve(driverGlobal.config.androidSdkDir);
+
 		/*
 		make sure the harness has access to what port number it should listen on for a connection 
 		from the driver
 		*/
 		common.customTiappXmlProperties["driver.socketPort"] = driverGlobal.config.androidSocketPort;
 
+		// due to python behavior on windows, we need to escape the slashes in the argument string
+		if (os.platform().substr(0 ,3) === "win") {
+			argString = argString.replace(/\\/g, "\\\\");
+		}
+
 		common.createHarness(
 			"android",
-			"\"" + path.join(driverGlobal.config.currentTiSdkDir, "titanium.py") + "\" create --dir=" + path.join(driverGlobal.harnessDir, "android") + " --platform=android --name=harness --type=project --id=com.appcelerator.harness",
+			"\"" + path.resolve(driverGlobal.config.currentTiSdkDir, "titanium.py") + "\" " + argString,
 			successCallback,
 			errorCallback
 			);
@@ -74,8 +85,17 @@ module.exports = new function() {
 
 	var buildHarness = function(successCallback, errorCallback) {
 		var buildCallback = function() {
-			var args = ["build", "harness", driverGlobal.config.androidSdkDir, path.join(driverGlobal.harnessDir, "android", "harness"), "com.appcelerator.harness", 8];
-			driverUtils.runProcess(path.join(driverGlobal.config.currentTiSdkDir, "android", "builder.py"), args, 0, 0, function(code) {
+			var args = [
+				path.resolve(driverGlobal.config.currentTiSdkDir, "android", "builder.py"),
+				"build",
+				"harness",
+				path.resolve(driverGlobal.config.androidSdkDir),
+				path.resolve(driverGlobal.harnessDir, "android", "harness"),
+				"com.appcelerator.harness",
+				8
+				];
+
+			driverUtils.runProcess("python", args, 0, 0, function(code) {
 				if (code !== 0) {
 					driverUtils.log("error encountered when building harness: " + code);
 					errorCallback();
@@ -87,7 +107,7 @@ module.exports = new function() {
 			});
 		};
 
-		if (path.existsSync(path.join(driverGlobal.harnessDir, "android", "harness", "tiapp.xml"))) {
+		if (path.existsSync(path.resolve(driverGlobal.harnessDir, "android", "harness", "tiapp.xml"))) {
 			buildCallback();
 
 		} else {
@@ -126,8 +146,8 @@ module.exports = new function() {
 
 	var installHarness = function(successCallback, errorCallback) {
 		var installCallback = function() {
-			if (path.existsSync(path.join(driverGlobal.harnessDir, "android", "harness", "build", "android", "bin", "app.apk"))) {
-				driverUtils.runCommand("adb install " + path.join(driverGlobal.harnessDir, "android/harness/build/android/bin/app.apk"), driverUtils.logStdout, function(error) {
+			if (path.existsSync(path.resolve(driverGlobal.harnessDir, "android", "harness", "build", "android", "bin", "app.apk"))) {
+				driverUtils.runCommand("adb install " + path.resolve(driverGlobal.harnessDir, "android/harness/build/android/bin/app.apk"), driverUtils.logStdout, function(error) {
 					if (error !== null) {
 						driverUtils.log("error encountered when installing harness: " + error);
 						if (errorCallback) {

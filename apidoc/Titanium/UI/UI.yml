@@ -195,6 +195,56 @@ properties:
     permission: read-only
     platforms: [iphone, ipad, mobileweb]
     
+  - name: AUTODETECT_ADDRESS
+    summary: Use <Titanium.UI.AUTOLINK_MAP_ADDRESSES> instead.
+    type: Number
+    deprecated:
+        since: "1.8.0"
+    osver: {ios: {min: "4.0"}}
+    permission: read-only
+    platforms: [iphone, ipad]
+    
+  - name: AUTODETECT_ALL
+    summary: Use <Titanium.UI.AUTOLINK_ALL> instead.
+    type: Number
+    deprecated:
+        since: "1.8.0"
+    permission: read-only
+    platforms: [iphone, ipad]
+    
+  - name: AUTODETECT_CALENDAR
+    summary: Use <Titanium.UI.AUTOLINK_CALENDAR> instead.
+    type: Number
+    deprecated:
+        since: "1.8.0"
+    osver: {ios: {min: "4.0"}}
+    permission: read-only
+    platforms: [iphone, ipad]
+    
+  - name: AUTODETECT_LINK
+    summary: Use <Titanium.UI.AUTOLINK_URLS> instead.
+    type: Number
+    deprecated:
+        since: "1.8.0"
+    permission: read-only
+    platforms: [iphone, ipad]
+    
+  - name: AUTODETECT_NONE
+    summary: Use <Titanium.UI.AUTOLINK_NONE> instead.
+    type: Number
+    deprecated:
+        since: "1.8.0"
+    permission: read-only
+    platforms: [iphone, ipad]
+    
+  - name: AUTODETECT_PHONE
+    summary: Use <Titanium.UI.AUTOLINK_PHONE_NUMBERS> instead.
+    type: Number
+    deprecated:
+        since: "1.8.0"
+    permission: read-only
+    platforms: [iphone, ipad]
+    
   - name: AUTOLINK_MAP_ADDRESSES
     summary: Convert strings formatted as addresses into clickable links.
     description: |
@@ -207,7 +257,7 @@ properties:
 
     type: Number
     osver: {ios: {min: "4.0"}}
-    since: "2.2.0"
+    since: "3.0.0"
     permission: read-only
     platforms: [android, iphone, ipad]
     
@@ -222,7 +272,7 @@ properties:
             Use with <Titanium.UI.TextArea.autoLink>, <Titanium.UI.TextField.autoLink>, and <Titanium.UI.Label.autoLink> properties.
 
     type: Number
-    since: "2.2.0"
+    since: "3.0.0"
     permission: read-only
     platforms: [android, iphone, ipad]
     
@@ -231,7 +281,7 @@ properties:
     description: Use with the <Titanium.UI.TextArea.autoLink> property. Two or more autolink constants can be combined using bitwise or.
     type: Number
     osver: {ios: {min: "4.0"}}
-    since: {ios: "2.2.0"}
+    since: {ios: "3.0.0"}
     permission: read-only
     platforms: [iphone, ipad]
     
@@ -247,7 +297,7 @@ properties:
             Use with <Titanium.UI.TextArea.autoLink>, <Titanium.UI.TextField.autoLink>, and <Titanium.UI.Label.autoLink> properties.
             
     type: Number
-    since: "2.2.0"
+    since: "3.0.0"
     permission: read-only
     platforms: [android, iphone, ipad]
     
@@ -263,7 +313,7 @@ properties:
 
     type: Number
     permission: read-only
-    since: "2.2.0"
+    since: "3.0.0"
     platforms: [android, iphone, ipad]
     
   - name: AUTOLINK_PHONE_NUMBERS
@@ -278,7 +328,7 @@ properties:
 
     type: Number
     permission: read-only
-    since: "2.2.0"
+    since: "3.0.0"
     platforms: [android, iphone, ipad]
     
   - name: AUTOLINK_EMAIL_ADDRESSES
@@ -294,9 +344,233 @@ properties:
 
     type: Number
     permission: read-only
-    since: "2.2.0"
+    since: "3.0.0"
     platforms: [android, iphone, ipad]
         
+  - name: BLEND_MODE_CLEAR
+    summary: Use the blend mode constants in <Titanium.UI.iOS> instead.
+    type: Number
+    deprecated:
+        since: "1.8.0"
+    permission: read-only
+    platforms: [iphone, ipad]
+    
+  - name: BLEND_MODE_COLOR
+    summary: Use the blend mode constants in <Titanium.UI.iOS> instead.
+    type: Number
+    deprecated:
+        since: "1.8.0"
+    permission: read-only
+    platforms: [iphone, ipad]
+    
+  - name: BLEND_MODE_COLOR_BURN
+    summary: Use the blend mode constants in <Titanium.UI.iOS> instead.
+    type: Number
+    deprecated:
+        since: "1.8.0"
+    permission: read-only
+    platforms: [iphone, ipad]
+    
+  - name: BLEND_MODE_COLOR_DODGE
+    summary: Use the blend mode constants in <Titanium.UI.iOS> instead.
+    type: Number
+    deprecated:
+        since: "1.8.0"
+    permission: read-only
+    platforms: [iphone, ipad]
+    
+  - name: BLEND_MODE_COPY
+    summary: Use the blend mode constants in <Titanium.UI.iOS> instead.
+    type: Number
+    deprecated:
+        since: "1.8.0"
+    permission: read-only
+    platforms: [iphone, ipad]
+    
+  - name: BLEND_MODE_DARKEN
+    summary: Use the blend mode constants in <Titanium.UI.iOS> instead.
+    type: Number
+    deprecated:
+        since: "1.8.0"
+    permission: read-only
+    platforms: [iphone, ipad]
+    
+  - name: BLEND_MODE_DESTINATION_ATOP
+    summary: Use the blend mode constants in <Titanium.UI.iOS> instead.
+    type: Number
+    deprecated:
+        since: "1.8.0"
+    permission: read-only
+    platforms: [iphone, ipad]
+    
+  - name: BLEND_MODE_DESTINATION_IN
+    summary: Use the blend mode constants in <Titanium.UI.iOS> instead.
+    type: Number
+    deprecated:
+        since: "1.8.0"
+    permission: read-only
+    platforms: [iphone, ipad]
+    
+  - name: BLEND_MODE_DESTINATION_OUT
+    summary: Use the blend mode constants in <Titanium.UI.iOS> instead.
+    type: Number
+    deprecated:
+        since: "1.8.0"
+    permission: read-only
+    platforms: [iphone, ipad]
+    
+  - name: BLEND_MODE_DESTINATION_OVER
+    summary: Use the blend mode constants in <Titanium.UI.iOS> instead.
+    type: Number
+    deprecated:
+        since: "1.8.0"
+    permission: read-only
+    platforms: [iphone, ipad]
+    
+  - name: BLEND_MODE_DIFFERENCE
+    summary: Use the blend mode constants in <Titanium.UI.iOS> instead.
+    type: Number
+    deprecated:
+        since: "1.8.0"
+    permission: read-only
+    platforms: [iphone, ipad]
+    
+  - name: BLEND_MODE_EXCLUSION
+    summary: Use the blend mode constants in <Titanium.UI.iOS> instead.
+    type: Number
+    deprecated:
+        since: "1.8.0"
+    permission: read-only
+    platforms: [iphone, ipad]
+    
+  - name: BLEND_MODE_HARD_LIGHT
+    summary: Use the blend mode constants in <Titanium.UI.iOS> instead.
+    type: Number
+    deprecated:
+        since: "1.8.0"
+    permission: read-only
+    platforms: [iphone, ipad]
+    
+  - name: BLEND_MODE_HUE
+    summary: Use the blend mode constants in <Titanium.UI.iOS> instead.
+    type: Number
+    deprecated:
+        since: "1.8.0"
+    permission: read-only
+    platforms: [iphone, ipad]
+    
+  - name: BLEND_MODE_LIGHTEN
+    summary: Use the blend mode constants in <Titanium.UI.iOS> instead.
+    type: Number
+    deprecated:
+        since: "1.8.0"
+    permission: read-only
+    platforms: [iphone, ipad]
+    
+  - name: BLEND_MODE_LUMINOSITY
+    summary: Use the blend mode constants in <Titanium.UI.iOS> instead.
+    type: Number
+    deprecated:
+        since: "1.8.0"
+    permission: read-only
+    platforms: [iphone, ipad]
+    
+  - name: BLEND_MODE_MULTIPLY
+    summary: Use the blend mode constants in <Titanium.UI.iOS> instead.
+    type: Number
+    deprecated:
+        since: "1.8.0"
+    permission: read-only
+    platforms: [iphone, ipad]
+    
+  - name: BLEND_MODE_NORMAL
+    summary: Use the blend mode constants in <Titanium.UI.iOS> instead.
+    type: Number
+    deprecated:
+        since: "1.8.0"
+    permission: read-only
+    platforms: [iphone, ipad]
+    
+  - name: BLEND_MODE_OVERLAY
+    summary: Use the blend mode constants in <Titanium.UI.iOS> instead.
+    type: Number
+    deprecated:
+        since: "1.8.0"
+    permission: read-only
+    platforms: [iphone, ipad]
+    
+  - name: BLEND_MODE_PLUS_DARKER
+    summary: Use the blend mode constants in <Titanium.UI.iOS> instead.
+    type: Number
+    deprecated:
+        since: "1.8.0"
+    permission: read-only
+    platforms: [iphone, ipad]
+    
+  - name: BLEND_MODE_PLUS_LIGHTER
+    summary: Use the blend mode constants in <Titanium.UI.iOS> instead.
+    type: Number
+    deprecated:
+        since: "1.8.0"
+    permission: read-only
+    platforms: [iphone, ipad]
+    
+  - name: BLEND_MODE_SATURATION
+    summary: Use the blend mode constants in <Titanium.UI.iOS> instead.
+    type: Number
+    deprecated:
+        since: "1.8.0"
+    permission: read-only
+    platforms: [iphone, ipad]
+    
+  - name: BLEND_MODE_SCREEN
+    summary: Use the blend mode constants in <Titanium.UI.iOS> instead.
+    type: Number
+    deprecated:
+        since: "1.8.0"
+    permission: read-only
+    platforms: [iphone, ipad]
+    
+  - name: BLEND_MODE_SOFT_LIGHT
+    summary: Use the blend mode constants in <Titanium.UI.iOS> instead.
+    type: Number
+    deprecated:
+        since: "1.8.0"
+    permission: read-only
+    platforms: [iphone, ipad]
+    
+  - name: BLEND_MODE_SOURCE_ATOP
+    summary: Use the blend mode constants in <Titanium.UI.iOS> instead.
+    type: Number
+    deprecated:
+        since: "1.8.0"
+    permission: read-only
+    platforms: [iphone, ipad]
+    
+  - name: BLEND_MODE_SOURCE_IN
+    summary: Use the blend mode constants in <Titanium.UI.iOS> instead.
+    type: Number
+    deprecated:
+        since: "1.8.0"
+    permission: read-only
+    platforms: [iphone, ipad]
+    
+  - name: BLEND_MODE_SOURCE_OUT
+    summary: Use the blend mode constants in <Titanium.UI.iOS> instead.
+    type: Number
+    deprecated:
+        since: "1.8.0"
+    permission: read-only
+    platforms: [iphone, ipad]
+    
+  - name: BLEND_MODE_XOR
+    summary: Use the blend mode constants in <Titanium.UI.iOS> instead.
+    type: Number
+    deprecated:
+        since: "1.8.0"
+    permission: read-only
+    platforms: [iphone, ipad]
+    
   - name: FACE_DOWN
     summary: Constant value for face-down orientation.
     description: |
@@ -859,77 +1133,77 @@ properties:
     summary: Authentication error code reported via <Titanium.UI.WebView.error>.
     type: Number
     platforms: [android, iphone, ipad]
-    since: "2.2.0"
+    since: "3.0.0"
     permission: read-only
     
   - name: URL_ERROR_BAD_URL
     summary: Bad url error code reported via <Titanium.UI.WebView.error>.
     type: Number
     platforms: [android, iphone, ipad]
-    since: "2.2.0"
+    since: "3.0.0"
     permission: read-only
 
   - name: URL_ERROR_CONNECT
     summary: Error code reported via <Titanium.UI.WebView.error> for a failure to connect to host.
     type: Number
     platforms: [android, iphone, ipad]
-    since: "2.2.0"
+    since: "3.0.0"
     permission: read-only
 
   - name: URL_ERROR_SSL_FAILED
     summary: Error code reported via <Titanium.UI.WebView.error> for an SSL failure.
     type: Number
     platforms: [android, iphone, ipad]
-    since: "2.2.0"
+    since: "3.0.0"
     permission: read-only
 
   - name: URL_ERROR_FILE
     summary: Error code reported via <Titanium.UI.WebView.error> for a failure to access a file resource on a host, except "file not found", which has its own constant.
     type: Number
     platforms: [android, iphone, ipad]
-    since: "2.2.0"
+    since: "3.0.0"
     permission: read-only
 
   - name: URL_ERROR_FILE_NOT_FOUND
     summary: Error code reported via <Titanium.UI.WebView.error> when a requested file does not exist on the host.
     type: Number
     platforms: [android, iphone, ipad]
-    since: "2.2.0"
+    since: "3.0.0"
     permission: read-only
 
   - name: URL_ERROR_HOST_LOOKUP
     summary: Error code reported via <Titanium.UI.WebView.error> when a host name cannot be resolved, such as via a DNS lookup error.
     type: Number
     platforms: [android, iphone, ipad]
-    since: "2.2.0"
+    since: "3.0.0"
     permission: read-only
 
   - name: URL_ERROR_REDIRECT_LOOP
     summary: Error code reported via <Titanium.UI.WebView.error> when a redirect loop is detected.
     type: Number
     platforms: [android, iphone, ipad]
-    since: "2.2.0"
+    since: "3.0.0"
     permission: read-only
 
   - name: URL_ERROR_TIMEOUT
     summary: Error code reported via <Titanium.UI.WebView.error> when a timeout occurs.
     type: Number
     platforms: [android, iphone, ipad]
-    since: "2.2.0"
+    since: "3.0.0"
     permission: read-only
 
   - name: URL_ERROR_UNKNOWN
     summary: Error code reported via <Titanium.UI.WebView.error> when an unknown error occurs.
     type: Number
     platforms: [android, iphone, ipad]
-    since: "2.2.0"
+    since: "3.0.0"
     permission: read-only
 
   - name: URL_ERROR_UNSUPPORTED_SCHEME
     summary: Error code reported via <Titanium.UI.WebView.error> when a url contains an unsupported scheme.
     type: Number
     platforms: [android, iphone, ipad]
-    since: "2.2.0"
+    since: "3.0.0"
     permission: read-only
 
   - name: backgroundColor

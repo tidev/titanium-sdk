@@ -12,7 +12,7 @@ exports.config = function (logger, config, cli) {
 	return {
 		options: {
 			'android-sdk': {
-				abbr: 'a',
+				abbr: 'A',
 				default: config.android && config.android.sdkPath,
 				desc: __('the path to the Android SDK'),
 				hint: __('path'),
@@ -39,16 +39,16 @@ exports.validate = function (logger, config, cli) {
 	//
 };
 
-exports.run = function (logger, config, cli, opts) {
-	new build(logger, config, cli, opts);
+exports.run = function (logger, config, cli, finished) {
+	new build(logger, config, cli, finished);
 };
 
-function build(logger, config, cli, opts) {
+function build(logger, config, cli, finished) {
 	logger.info(__('Compiling "%s" build', cli.argv['build-type']));
 	
 	dump(cli.argv);
 	
-	opts.finished && opts.finished();
+	finished && finished();
 }
 
 build.prototype = {

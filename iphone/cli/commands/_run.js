@@ -6,7 +6,9 @@
  */
 
 var appc = require('node-appc'),
-	afs = appc.fs;
+	afs = appc.fs,
+	parallel = appc.async.parallel,
+	exec = require('child_process').exec;
 
 exports.config = function (logger, config, cli) {
 	return {
@@ -14,17 +16,27 @@ exports.config = function (logger, config, cli) {
 	};
 };
 
-exports.run = function (opts) {
-	new build(opts);
+exports.run = function (logger, config, cli, finished) {
+	new run(logger, config, cli, finished);
 };
 
-function build(opts) {
-	dump(opts.cli.argv);
+function run(logger, config, cli, finished) {
+	dump(cli.argv);
 	
-	opts.finished();
+	parallel([
+		function (next) {
+			exec('/usr/bin/killall ios-sim', next);
+		},
+		
+		function (next) {
+			exec('/usr/bin/killall "iPhone Simulator"', next);
+		}
+	], function () {
+		finished && finished();
+	});
 }
 
-build.prototype = {
+run.prototype = {
 
 	//
 

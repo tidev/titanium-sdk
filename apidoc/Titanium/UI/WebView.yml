@@ -278,7 +278,7 @@ properties:
     summary: Hides activity indicator when loading remote URL.
     type: Boolean
     platforms: [iphone, ipad]
-    since: "2.2.0"
+    since: "3.0.0"
     default: false
 
   - name: html

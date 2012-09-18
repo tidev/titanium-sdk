@@ -1,0 +1,30 @@
+---
+name: Titanium.UI.iPhone.AlertDialogStyle
+summary: |
+    A set of constants for the style that can be used for the `style` property of 
+    <Titanium.UI.AlertDialog>.
+extends: Titanium.Proxy
+since: "3.0.0"
+platforms: [iphone, ipad]
+createable: false
+
+properties:
+  - name: DEFAULT
+    summary: A standard alert dialog. This is the default value.
+    type: Number
+    permission: read-only
+
+  - name: PLAIN_TEXT_INPUT
+    summary: An alert dialog that allows the user to enter text.
+    type: Number
+    permission: read-only
+
+  - name: SECURE_TEXT_INPUT
+    summary: An alert dialog that allows the user to enter text. The text field is obscured.
+    type: Number
+    permission: read-only
+
+  - name: LOGIN_AND_PASSWORD_INPUT
+    summary: An alert dialog that allows the user to enter login identifier and password.
+    type: Number
+    permission: read-only
