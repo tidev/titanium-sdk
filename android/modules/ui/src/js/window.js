@@ -392,6 +392,11 @@ exports.bootstrapWindow = function(Titanium) {
 	}
 
 	Window.prototype.add = function(view) {
+
+		if (view instanceof TiWindow) {
+			throw new Error("Cannot add window/tabGroup to another window/tabGroup.");	    
+		}
+
 		if (this.view) {
 		
 			// If the window is already opened, add the child to this.view directly
