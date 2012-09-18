@@ -172,81 +172,95 @@ methods:
 
 properties:
   - name: ANIMATION_CURVE_EASE_IN
-    summary: Use the animation curve constants in <Titanium.UI.iOS> instead.
+    summary: |
+        Use with [Animation.curve](Titanium.UI.Animation.curve) to specify an animation that starts
+        slowly and speeds up.
     type: Number
     permission: read-only
     platforms: [iphone, ipad, mobileweb]
     
   - name: ANIMATION_CURVE_EASE_IN_OUT
-    summary: Use the animation curve constants in <Titanium.UI.iOS> instead.
+    summary: |
+        Use with [Animation.curve](Titanium.UI.Animation.curve) to specify an animation that starts
+        slowly, and speeds up, then slows down at the end of the animation.
     type: Number
     permission: read-only
     platforms: [iphone, ipad, mobileweb]
     
   - name: ANIMATION_CURVE_EASE_OUT
-    summary: Use the animation curve constants in <Titanium.UI.iOS> instead.
+    summary: |
+        Use with [Animation.curve](Titanium.UI.Animation.curve) to specify an animation that starts
+        quickly, then slows down at the end of the animation.
     type: Number
     permission: read-only
     platforms: [iphone, ipad, mobileweb]
     
   - name: ANIMATION_CURVE_LINEAR
-    summary: Use the animation curve constants in <Titanium.UI.iOS> instead.
+    summary: |
+        Use with [Animation.curve](Titanium.UI.Animation.curve) to specify an animation that proceeds
+        at a constant rate.
     type: Number
     permission: read-only
     platforms: [iphone, ipad, mobileweb]
     
   - name: AUTODETECT_ADDRESS
-    summary: Use <Titanium.UI.AUTOLINK_MAP_ADDRESSES> instead.
-    type: Number
     deprecated:
         since: "1.8.0"
+        notes: Use <Titanium.UI.AUTOLINK_MAP_ADDRESSES> instead.
+    summary: Converts strings formatted as addresses into clickable links.
+    type: Number
     osver: {ios: {min: "4.0"}}
     permission: read-only
     platforms: [iphone, ipad]
     
   - name: AUTODETECT_ALL
-    summary: Use <Titanium.UI.AUTOLINK_ALL> instead.
-    type: Number
     deprecated:
         since: "1.8.0"
+        notes: Use <Titanium.UI.AUTOLINK_ALL> instead.
+    summary: Converts all detectable types of data into clickable links.
+    type: Number
     permission: read-only
     platforms: [iphone, ipad]
     
   - name: AUTODETECT_CALENDAR
-    summary: Use <Titanium.UI.AUTOLINK_CALENDAR> instead.
-    type: Number
     deprecated:
         since: "1.8.0"
+        notes: Use <Titanium.UI.AUTOLINK_CALENDAR> instead.
+    summary: Converts strings formatted as calendar events into clickable links.
+    type: Number
     osver: {ios: {min: "4.0"}}
     permission: read-only
     platforms: [iphone, ipad]
     
   - name: AUTODETECT_LINK
-    summary: Use <Titanium.UI.AUTOLINK_URLS> instead.
-    type: Number
     deprecated:
         since: "1.8.0"
+        notes: Use <Titanium.UI.AUTOLINK_URLS> instead.
+    summary: Converts strings formatted as URLs into clickable links.
+    type: Number
     permission: read-only
     platforms: [iphone, ipad]
     
   - name: AUTODETECT_NONE
-    summary: Use <Titanium.UI.AUTOLINK_NONE> instead.
-    type: Number
     deprecated:
         since: "1.8.0"
+        notes: Use <Titanium.UI.AUTOLINK_NONE> instead.
+    summary: Disables converting strings into clickable links.
+    type: Number
     permission: read-only
     platforms: [iphone, ipad]
     
   - name: AUTODETECT_PHONE
-    summary: Use <Titanium.UI.AUTOLINK_PHONE_NUMBERS> instead.
-    type: Number
     deprecated:
         since: "1.8.0"
+        notes: Use <Titanium.UI.AUTOLINK_PHONE_NUMBERS> instead.
+    summary: Converts strings formatted as phone numbers into clickable links.
+    type: Number
     permission: read-only
     platforms: [iphone, ipad]
     
   - name: AUTOLINK_MAP_ADDRESSES
-    summary: Convert strings formatted as addresses into clickable links.
+    summary: Converts strings formatted as addresses into clickable links.
     description: |
          Two or more autolink constants can be combined using bitwise or.
          On iOS:
@@ -262,7 +276,7 @@ properties:
     platforms: [android, iphone, ipad]
     
   - name: AUTOLINK_ALL
-    summary: Convert all detectable types of data into clickable links.
+    summary: Converts all detectable types of data into clickable links.
     description: |
          Two or more autolink constants can be combined using bitwise or.
          On iOS:
@@ -277,7 +291,7 @@ properties:
     platforms: [android, iphone, ipad]
     
   - name: AUTOLINK_CALENDAR
-    summary: Convert strings formatted as calendar events into clickable links.
+    summary: Converts strings formatted as calendar events into clickable links.
     description: Use with the <Titanium.UI.TextArea.autoLink> property. Two or more autolink constants can be combined using bitwise or.
     type: Number
     osver: {ios: {min: "4.0"}}
@@ -286,7 +300,7 @@ properties:
     platforms: [iphone, ipad]
     
   - name: AUTOLINK_URLS
-    summary: Convert strings formatted as URLs into clickable links.
+    summary: Converts strings formatted as URLs into clickable links.
     description: |
          Two or more autolink constants can be combined using bitwise or.
          On iOS:
@@ -302,7 +316,7 @@ properties:
     platforms: [android, iphone, ipad]
     
   - name: AUTOLINK_NONE
-    summary: Disable converting strings into clickable links.
+    summary: Disables converting strings into clickable links.
     description: |
          Two or more autolink constants can be combined using bitwise or.
          On iOS:
@@ -317,7 +331,7 @@ properties:
     platforms: [android, iphone, ipad]
     
   - name: AUTOLINK_PHONE_NUMBERS
-    summary: Convert strings formatted as phone numbers into clickable links.
+    summary: Converts strings formatted as phone numbers into clickable links.
     description: |
          Two or more autolink constants can be combined using bitwise or.
          On iOS:
@@ -332,7 +346,7 @@ properties:
     platforms: [android, iphone, ipad]
     
   - name: AUTOLINK_EMAIL_ADDRESSES
-    summary: Convert strings formatted as email addresses into clickable links.
+    summary: Converts strings formatted as email addresses into clickable links.
     description: |
          Two or more autolink constants can be combined using bitwise or.
          On iOS:
@@ -348,226 +362,282 @@ properties:
     platforms: [android, iphone, ipad]
         
   - name: BLEND_MODE_CLEAR
-    summary: Use the blend mode constants in <Titanium.UI.iOS> instead.
-    type: Number
     deprecated:
         since: "1.8.0"
+        notes: Use <Titanium.UI.iOS.BLEND_MODE_CLEAR> instead.
+    summary: |
+        Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
+    type: Number
     permission: read-only
     platforms: [iphone, ipad]
     
   - name: BLEND_MODE_COLOR
-    summary: Use the blend mode constants in <Titanium.UI.iOS> instead.
-    type: Number
     deprecated:
         since: "1.8.0"
+        notes: Use <Titanium.UI.iOS.BLEND_MODE_COLOR> instead.
+    summary: |
+        Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
+    type: Number
     permission: read-only
     platforms: [iphone, ipad]
     
   - name: BLEND_MODE_COLOR_BURN
-    summary: Use the blend mode constants in <Titanium.UI.iOS> instead.
-    type: Number
     deprecated:
         since: "1.8.0"
+        notes: Use <Titanium.UI.iOS.BLEND_MODE_COLOR_BURN> instead.
+    summary: |
+        Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
+    type: Number
     permission: read-only
     platforms: [iphone, ipad]
     
   - name: BLEND_MODE_COLOR_DODGE
-    summary: Use the blend mode constants in <Titanium.UI.iOS> instead.
-    type: Number
     deprecated:
         since: "1.8.0"
+        notes: Use <Titanium.UI.iOS.BLEND_MODE_COLOR_DODGE> instead.
+    summary: |
+        Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
+    type: Number
     permission: read-only
     platforms: [iphone, ipad]
     
   - name: BLEND_MODE_COPY
-    summary: Use the blend mode constants in <Titanium.UI.iOS> instead.
-    type: Number
     deprecated:
         since: "1.8.0"
+        notes: Use <Titanium.UI.iOS.BLEND_MODE_COPY> instead.
+    summary: |
+        Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
+    type: Number
     permission: read-only
     platforms: [iphone, ipad]
     
   - name: BLEND_MODE_DARKEN
-    summary: Use the blend mode constants in <Titanium.UI.iOS> instead.
-    type: Number
     deprecated:
         since: "1.8.0"
+        notes: Use <Titanium.UI.iOS.BLEND_MODE_DARKEN> instead.
+    summary: |
+        Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
+    type: Number
     permission: read-only
     platforms: [iphone, ipad]
     
   - name: BLEND_MODE_DESTINATION_ATOP
-    summary: Use the blend mode constants in <Titanium.UI.iOS> instead.
-    type: Number
     deprecated:
         since: "1.8.0"
+        notes: Use <Titanium.UI.iOS.BLEND_MODE_DESTINATION_ATOP> instead.
+    summary: |
+        Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
+    type: Number
     permission: read-only
     platforms: [iphone, ipad]
     
   - name: BLEND_MODE_DESTINATION_IN
-    summary: Use the blend mode constants in <Titanium.UI.iOS> instead.
-    type: Number
     deprecated:
         since: "1.8.0"
+        notes: Use <Titanium.UI.iOS.BLEND_MODE_DESTINATION_IN> instead.
+    summary: |
+        Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
+    type: Number
     permission: read-only
     platforms: [iphone, ipad]
     
   - name: BLEND_MODE_DESTINATION_OUT
-    summary: Use the blend mode constants in <Titanium.UI.iOS> instead.
-    type: Number
     deprecated:
         since: "1.8.0"
+        notes: Use <Titanium.UI.iOS.BLEND_MODE_DESTINATION_OUT> instead.
+    summary: |
+        Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
+    type: Number
     permission: read-only
     platforms: [iphone, ipad]
     
   - name: BLEND_MODE_DESTINATION_OVER
-    summary: Use the blend mode constants in <Titanium.UI.iOS> instead.
-    type: Number
     deprecated:
         since: "1.8.0"
+        notes: Use <Titanium.UI.iOS.BLEND_MODE_DESTINATION_OVER> instead.
+    summary: |
+        Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
+    type: Number
     permission: read-only
     platforms: [iphone, ipad]
     
   - name: BLEND_MODE_DIFFERENCE
-    summary: Use the blend mode constants in <Titanium.UI.iOS> instead.
-    type: Number
     deprecated:
         since: "1.8.0"
+        notes: Use <Titanium.UI.iOS.BLEND_MODE_DIFFERENCE> instead.
+    summary: |
+        Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
+    type: Number
     permission: read-only
     platforms: [iphone, ipad]
     
   - name: BLEND_MODE_EXCLUSION
-    summary: Use the blend mode constants in <Titanium.UI.iOS> instead.
-    type: Number
     deprecated:
         since: "1.8.0"
+        notes: Use <Titanium.UI.iOS.BLEND_MODE_EXCLUSION> instead.
+    summary: |
+        Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
+    type: Number
     permission: read-only
     platforms: [iphone, ipad]
     
   - name: BLEND_MODE_HARD_LIGHT
-    summary: Use the blend mode constants in <Titanium.UI.iOS> instead.
-    type: Number
     deprecated:
         since: "1.8.0"
+        notes: Use <Titanium.UI.iOS.BLEND_MODE_HARD_LIGHT> instead.
+    summary: |
+        Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
+    type: Number
     permission: read-only
     platforms: [iphone, ipad]
     
   - name: BLEND_MODE_HUE
-    summary: Use the blend mode constants in <Titanium.UI.iOS> instead.
-    type: Number
     deprecated:
         since: "1.8.0"
+        notes: Use <Titanium.UI.iOS.BLEND_MODE_HUE> instead.
+    summary: |
+        Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
+    type: Number
     permission: read-only
     platforms: [iphone, ipad]
     
   - name: BLEND_MODE_LIGHTEN
-    summary: Use the blend mode constants in <Titanium.UI.iOS> instead.
-    type: Number
     deprecated:
         since: "1.8.0"
+        notes: Use <Titanium.UI.iOS.BLEND_MODE_LIGHTEN> instead.
+    summary: |
+        Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
+    type: Number
     permission: read-only
     platforms: [iphone, ipad]
     
   - name: BLEND_MODE_LUMINOSITY
-    summary: Use the blend mode constants in <Titanium.UI.iOS> instead.
-    type: Number
     deprecated:
         since: "1.8.0"
+        notes: Use <Titanium.UI.iOS.BLEND_MODE_LUMINOSITY> instead.
+    summary: |
+        Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
+    type: Number
     permission: read-only
     platforms: [iphone, ipad]
     
   - name: BLEND_MODE_MULTIPLY
-    summary: Use the blend mode constants in <Titanium.UI.iOS> instead.
-    type: Number
     deprecated:
         since: "1.8.0"
+        notes: Use <Titanium.UI.iOS.BLEND_MODE_MULTIPLY> instead.
+    summary: |
+        Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
+    type: Number
     permission: read-only
     platforms: [iphone, ipad]
     
   - name: BLEND_MODE_NORMAL
-    summary: Use the blend mode constants in <Titanium.UI.iOS> instead.
-    type: Number
     deprecated:
         since: "1.8.0"
+        notes: Use <Titanium.UI.iOS.BLEND_MODE_NORMAL> instead.
+    summary: |
+        Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
+    type: Number
     permission: read-only
     platforms: [iphone, ipad]
     
   - name: BLEND_MODE_OVERLAY
-    summary: Use the blend mode constants in <Titanium.UI.iOS> instead.
-    type: Number
     deprecated:
         since: "1.8.0"
+        notes: Use <Titanium.UI.iOS.BLEND_MODE_OVERLAY> instead.
+    summary: |
+        Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
+    type: Number
     permission: read-only
     platforms: [iphone, ipad]
     
   - name: BLEND_MODE_PLUS_DARKER
-    summary: Use the blend mode constants in <Titanium.UI.iOS> instead.
-    type: Number
     deprecated:
         since: "1.8.0"
+        notes: Use <Titanium.UI.iOS.BLEND_MODE_PLUS_DARKER> instead.
+    summary: |
+        Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
+    type: Number
     permission: read-only
     platforms: [iphone, ipad]
     
   - name: BLEND_MODE_PLUS_LIGHTER
-    summary: Use the blend mode constants in <Titanium.UI.iOS> instead.
-    type: Number
     deprecated:
         since: "1.8.0"
+        notes: Use <Titanium.UI.iOS.BLEND_MODE_PLUS_LIGHTER> instead.
+    summary: |
+        Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
+    type: Number
     permission: read-only
     platforms: [iphone, ipad]
     
   - name: BLEND_MODE_SATURATION
-    summary: Use the blend mode constants in <Titanium.UI.iOS> instead.
-    type: Number
     deprecated:
         since: "1.8.0"
+        notes: Use <Titanium.UI.iOS.BLEND_MODE_SATURATION> instead.
+    summary: |
+        Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
+    type: Number
     permission: read-only
     platforms: [iphone, ipad]
     
   - name: BLEND_MODE_SCREEN
-    summary: Use the blend mode constants in <Titanium.UI.iOS> instead.
-    type: Number
     deprecated:
         since: "1.8.0"
+        notes: Use <Titanium.UI.iOS.BLEND_MODE_SCREEN> instead.
+    summary: |
+        Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
+    type: Number
     permission: read-only
     platforms: [iphone, ipad]
     
   - name: BLEND_MODE_SOFT_LIGHT
-    summary: Use the blend mode constants in <Titanium.UI.iOS> instead.
-    type: Number
     deprecated:
         since: "1.8.0"
+        notes: Use <Titanium.UI.iOS.BLEND_MODE_SOFT_LIGHT> instead.
+    summary: |
+        Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
+    type: Number
     permission: read-only
     platforms: [iphone, ipad]
     
   - name: BLEND_MODE_SOURCE_ATOP
-    summary: Use the blend mode constants in <Titanium.UI.iOS> instead.
-    type: Number
     deprecated:
         since: "1.8.0"
+        notes: Use <Titanium.UI.iOS.BLEND_MODE_SOURCE_ATOP> instead.
+    summary: |
+        Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
+    type: Number
     permission: read-only
     platforms: [iphone, ipad]
     
   - name: BLEND_MODE_SOURCE_IN
-    summary: Use the blend mode constants in <Titanium.UI.iOS> instead.
-    type: Number
     deprecated:
         since: "1.8.0"
+        notes: Use <Titanium.UI.iOS.BLEND_MODE_SOURCE_IN> instead.
+    summary: |
+        Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
+    type: Number
     permission: read-only
     platforms: [iphone, ipad]
     
   - name: BLEND_MODE_SOURCE_OUT
-    summary: Use the blend mode constants in <Titanium.UI.iOS> instead.
-    type: Number
     deprecated:
         since: "1.8.0"
+        notes: Use <Titanium.UI.iOS.BLEND_MODE_SOURCE_OUT> instead.
+    summary: |
+        Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
+    type: Number
     permission: read-only
     platforms: [iphone, ipad]
     
   - name: BLEND_MODE_XOR
-    summary: Use the blend mode constants in <Titanium.UI.iOS> instead.
-    type: Number
     deprecated:
         since: "1.8.0"
+        notes: Use <Titanium.UI.iOS.BLEND_MODE_XOR> instead.
+    summary: |
+        Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
+    type: Number
     permission: read-only
     platforms: [iphone, ipad]
     
@@ -1236,12 +1306,12 @@ properties:
     permission: read-only
     
   - name: orientation
-    summary: Use <Titanium.UI.Window.orientationModes> instead.
-    description:  |
-        When set, this will update the orientation of the current window to the specified 
-        orientation value.
+    summary: Updates the orientation of the current window to the specified orientation value.
+    deprecated:
+        since: "1.7.2"
+        removed: "3.0.0"
+        notes: Use <Titanium.UI.Window.orientationModes> instead.
     type: Number
-    deprecated: {since: "1.7.2", removed: "3.0.0"}
     platforms: [android, iphone, ipad]
 
 examples:

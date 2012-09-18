@@ -247,16 +247,17 @@ events:
         type: Number
 
   - name: durationAvailable
+    deprecated:
+        since: "3.0.0"
+        notes: |
+            Renamed to [durationavailable](Titanium.Media.VideoPlayer.durationavailable)
+            (all lowercase).
     summary: |
-        This event has been deprecated and renamed durationavailable (lower case).
-
         Fired when the video duration is available.
     properties:
       - name: duration
         summary: Video duration, in milliseconds.
         type: Number
-    deprecated:
-        since: "3.0.0"
 
   - name: durationavailable
     summary: Fired when the video duration is available.
@@ -306,35 +307,40 @@ events:
         type: Number
 
   - name: mediaTypesAvailable
+    deprecated:
+        since: "3.0.0"
+        notes: |
+            Renamed to [mediatypesavailable](Titanium.Media.VideoPlayer.mediatypesavailable)
+            (all lowercase).
     summary: |
-        This event has been deprecated and renamed mediatypesavailable (lower case).
-
         Fired when the media types in the current movie are determined.
     platforms: [iphone, ipad]
     properties:
       - name: mediaTypes
         summary: Current value of the [mediaTypes](Titanium.Media.VideoPlayer.mediaTypes) property.
         type: Number
-    deprecated:
-        since: "3.0.0"
 
   - name: naturalSizeAvailable
+    deprecated:
+        since: "3.0.0"
+        notes: |
+            Renamed to [naturalsizeavailable](Titanium.Media.VideoPlayer.naturalsizeavailable)
+            (all lowercase).
     summary: |
-        This event has been deprecated and renamed naturalsizeavailable (lower case).
-
         Fired when the natural size of the current movie is determined.
     platforms: [iphone, ipad]
     properties:
       - name: naturalSize
         summary: Current value of the [naturalSize](Titanium.Media.VideoPlayer.naturalSize) property.
         type: Number
-    deprecated:
-        since: "3.0.0"
 
   - name: playbackState
+    deprecated:
+        since: "3.0.0"
+        notes: |
+            Renamed to [playbackstate](Titanium.Media.VideoPlayer.playbackstate)
+            (all lowercase).
     summary: |
-        This event has been deprecated and renamed playbackstate (lower case).
-
         Fired when the [playbackState](Titanium.Media.VideoPlayer.playbackState) changes.
     properties:
       - name: playbackState
@@ -342,8 +348,6 @@ events:
             Current value of the [playbackState](Titanium.Media.VideoPlayer.playbackState) property, 
             such as <Titanium.Media.VIDEO_PLAYBACK_STATE_PLAYING>.
         type: Number
-    deprecated:
-        since: "3.0.0"
 
   - name: mediatypesavailable
     summary: Fired when the media types in the current movie are determined.
@@ -390,17 +394,18 @@ events:
     platforms: [iphone, ipad]
 
   - name: sourceChange
+    deprecated:
+        since: "3.0.0"
+        notes: |
+            Renamed to [sourcechange](Titanium.Media.VideoPlayer.sourcechange)
+            (all lowercase).
     summary: |
-        This event has been deprecated and renamed sourcechanged (lower case).
-
         Fired when the [sourceType](Titanium.Media.VideoPlayer.sourceType) property
         changes.
     platforms: [iphone, ipad]
     properties:
       - name: sourceType
         summary: New `sourceType` value.
-    deprecated:
-        since: "3.0.0"
 
   - name: sourcechange
     summary: |
@@ -503,9 +508,12 @@ properties:
     default: true
 
   - name: contentURL
-    summary: Use the [url](Titanium.Media.VideoPlayer.url) property instead.
+    summary: URL of the media to play.
+    deprecated:
+        since: "1.4.0"
+        removed: "3.0.0"
+        notes: Use the [url](Titanium.Media.VideoPlayer.url) property instead.
     type: String
-    deprecated: { since: "1.4.0", removed: "3.0.0" }
         
   - name: currentPlaybackTime
     summary: Current playback time of the current movie in milliseconds.
@@ -592,7 +600,10 @@ properties:
     type: Number
 
   - name: movieControlMode
-    summary: Use `mediaControlStyle` instead.
+    deprecated:
+        since: '1.8.0'
+        notes: Use [mediaControlStyle](Titanium.Media.VideoPlayer.mediaControlStyle) instead.
+    summary: Style of the media playback controls.
     description: |
         Provides the ability to set the control mode of the movie player. 
     platforms: [iphone, ipad]
@@ -601,7 +612,6 @@ properties:
     osver:
         ios:
             max: "3.1"
-    deprecated: {since: "1.8.0", removed: "2.0.0"}
 
   - name: naturalSize
     summary: Returns the natural size of the movie.

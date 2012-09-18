@@ -54,8 +54,10 @@ events:
         type: Number
         
   - name: dragEnd
-    description: |
-        This event has been deprecated and renamed dragend (lower case).
+    deprecated:
+        since: "3.0.0"
+        notes: |
+            Renamed to [dragend](Titanium.UI.DashboardView.dragend) (all lowercase).
     summary: Fired when an item finishes being dragged in edit mode.
     properties:
       - name: item
@@ -69,12 +71,12 @@ events:
       - name: y
         summary: Y coordinate of the event from the `source` view's coordinate system.
         type: Number
-    deprecated:
-        since: "3.0.0"
         
   - name: dragStart
-    description: |
-        This event has been deprecated and renamed dragstart (lower case).
+    deprecated:
+        since: "3.0.0"
+        notes: |
+            Renamed to [dragstart](Titanium.UI.DashboardView.dragstart) (all lowercase).
     summary: Fired when an item starts being dragged in edit mode.
     properties:
       - name: globalPoint
@@ -95,8 +97,6 @@ events:
       - name: y
         summary: Y coordinate of the event from the `source` view's coordinate system.
         type: Number
-    deprecated:
-        since: "3.0.0"
         
   - name: dragend
     summary: Fired when an item finishes being dragged in edit mode.

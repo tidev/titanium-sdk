@@ -305,9 +305,12 @@ events:
     since: "2.1.0"
 
   - name: regionChanged
+    deprecated:
+        since: "3.0.0"
+        notes: |
+            Renamed to [regionchanged](Titanium.Map.View.regionchanged)
+            (all lowercase).
     summary: |
-        This event has been deprecated and renamed regionchanged (lower case).
-        
         Fired when the mapping region changes.
     properties:
       - name: longitude
@@ -322,8 +325,6 @@ events:
       - name: latitude
         summary: Latitude value for the center point of the map, in decimal degrees.
         type: Number
-    deprecated:
-        since: "3.0.0"
 
   - name: regionchanged
     summary: |

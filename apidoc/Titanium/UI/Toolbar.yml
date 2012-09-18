@@ -1,9 +1,15 @@
 ---
 name: Titanium.UI.Toolbar
-summary: An iOS toolbar. See <Titanium.UI.iOS.Toolbar> instead.
+deprecated:
+    since: "1.8.0"
+    notes: |
+        Use <Titanium.UI.iOS.Toolbar> instead.
+summary: An iOS toolbar, which can contain buttons and other controls.
 description: |
-    This iOS-specific object has been moved to the `Titanium.UI.iOS` namespace. See
-    <Titanium.UI.iOS.Toolbar> for a full description and sample code.
+    The toolbar is created by the <Titanium.UI.createToolbar> method. 
+    
+    A toolbar can contain buttons, as well as certain other widgets, including text fields and 
+    labels. 
 extends: Titanium.UI.View
 excludes: { properties: [ backgroundColor, backgroundDisabledColor, backgroundDisabledImage,         
             backgroundFocusedColor, backgroundFocusedImage,
@@ -13,8 +19,6 @@ excludes: { properties: [ backgroundColor, backgroundDisabledColor, backgroundDi
             events: [ longclick, twofingertap ] }
 since: "0.8"
 platforms: [iphone, ipad]
-deprecated:
-    since: "1.8.0"
 
 properties:
   - name: barColor
