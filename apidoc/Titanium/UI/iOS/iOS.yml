@@ -379,3 +379,64 @@ properties:
     permission: read-only
     since: "2.1.0"
     osver: {iOS: {min: "5.0"}}
+
+  - name: WEBVIEW_NAVIGATIONTYPE_LINK_CLICKED
+    summary: User tapped a link.
+    description: |
+        Used with the [WebView.beforeload](Titanium.UI.WebView.beforeload) event.
+
+        Corresponds to iOS `UIWebView` `UIWebViewNavigationTypeLinkClicked`.
+    type: Number
+    permission: read-only
+    since: "2.1.0"
+
+  - name: WEBVIEW_NAVIGATIONTYPE_FORM_SUBMITTED
+    summary: User submitted a form.
+    description: |
+        Used with the [WebView.beforeload](Titanium.UI.WebView.beforeload) event.
+
+        Corresponds to iOS `UIWebView` `UIWebViewNavigationTypeFormSubmitted`.
+    type: Number
+    permission: read-only
+    since: "2.1.0"
+
+  - name: WEBVIEW_NAVIGATIONTYPE_BACK_FORWARD
+    summary: User tapped the back or forward button.
+    description: |
+        Used with the [WebView.beforeload](Titanium.UI.WebView.beforeload) event.
+
+        Corresponds to iOS `UIWebView` `UIWebViewNavigationTypeBackForward`.
+    type: Number
+    permission: read-only
+    since: "2.1.0"
+
+  - name: WEBVIEW_NAVIGATIONTYPE_RELOAD
+    summary: User tapped the reload button.
+    description: |
+        Used with the [WebView.beforeload](Titanium.UI.WebView.beforeload) event.
+
+        Corresponds to iOS `UIWebView` `UIWebViewNavigationTypeReload`.
+    type: Number
+    permission: read-only
+    since: "2.1.0"
+
+  - name: WEBVIEW_NAVIGATIONTYPE_FORM_RESUBMITTED
+    summary: User resubmitted a form.
+    description: |
+        Used with the [WebView.beforeload](Titanium.UI.WebView.beforeload) event.
+
+        Corresponds to iOS `UIWebView` `UIWebViewNavigationTypeFormResubmitted`.
+    type: Number
+    permission: read-only
+    since: "2.1.0"
+
+  - name: WEBVIEW_NAVIGATIONTYPE_OTHER
+    summary: Some other action occurred.
+    description: |
+        Used with the [WebView.beforeload](Titanium.UI.WebView.beforeload) event.
+
+        Corresponds to iOS `UIWebView` `UIWebViewNavigationTypeOther`.
+    type: Number
+    permission: read-only
+    since: "2.1.0"
+
