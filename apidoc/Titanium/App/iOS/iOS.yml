@@ -45,6 +45,19 @@ methods:
         summary: Parameters used to create a notification.
         type: Dictionary<NotificationParams>
         
+properties:
+  - name: EVENT_ACCESSIBILITY_LAYOUT_CHANGED
+    summary: Convenience constant for system event "accessibilitylayoutchanged".
+    type: String
+    permission: read-only
+    since: "3.0.0"
+
+  - name: EVENT_ACCESSIBILITY_SCREEN_CHANGED
+    summary: Convenience constant for system event "accessibilityscreenchanged".
+    type: String
+    permission: read-only
+    since: "3.0.0"
+
 events:
   - name: notification
     summary: Fired when a local notification is received by the application.
