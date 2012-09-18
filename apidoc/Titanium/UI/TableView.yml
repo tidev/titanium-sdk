@@ -95,7 +95,6 @@ description: |
 extends: Titanium.UI.View
 since: "0.8"
 excludes: {
-    events: [delete],
     properties: [backgroundSelectedColor, backgroundSelectedImage]
 }
 

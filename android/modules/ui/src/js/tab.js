@@ -10,7 +10,9 @@ exports.bootstrap = function(Titanium) {
 
 	function createTab(scopeVars, options) {
 		var tab = new Tab(options);
-		this._window = options.window;
+		if (options) {
+			this._window = options.window;
+		}
 		return tab;
   }
 

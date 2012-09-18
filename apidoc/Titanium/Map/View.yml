@@ -192,7 +192,9 @@ events:
         - The user deselects an annotation.
 
         On iOS, the user deselects an annotation by clicking in the map view outside of
-        the annotation. On Android, the user deselects an annotation by clicking on the 
+        the annotation. On Android, if [hideAnnotationWhenTouchMap](Titanium.Map.View.hideAnnotationWhenTouchMap)
+        is set to true, the user deselects an annotation by clicking in the map view outside of
+        the annotation. Otherwise, the user deselects an annotation by clicking on the
         annotation pin.
 
         The `click` event includes a value, `clicksource`, which describes the part of the 
@@ -204,13 +206,10 @@ events:
         `title`, or `subtitle`. If the user deselects the annotation by clicking elsewhere
         in the map view, `clicksource` is `null`.
 
-        On Android, the `clicksource` can be one of `pin`, `leftButton`,
-        `rightButton`, `leftPane`, or `rightPane`. Because the user deselects an
-        annotation by clicking on the pin, `clicksource` is `pin` for both 
-        selection and deselection.
-
-        On Android, no event is generated when the user clicks on the title, subtitle, or
-        the background of the annotation.
+        On Android, the `clicksource` can be one of `pin`, `title`,
+        `subtitle`, `leftPane`, or `rightPane`. If the user deselects an
+        annotation by clicking on the pin, `clicksource` is `pin`. If the user deselects the
+        annotation by clicking elsewhere in the map view, `clicksource` is `null`.
 
     properties:
 
@@ -364,6 +363,16 @@ properties:
         If the application depends on the annotations being in a set order, it should keep 
         references to all of the annotations in a separate array.
     type: Array<Titanium.Map.Annotation>
+
+  - name: hideAnnotationWhenTouchMap
+    summary: Hide the annotation when clicking in the map view outside of the annotation.
+    description: |
+        If 'false', the user deselects an annotation by clicking on the annotation pin.
+        If 'true', the user deselects an annotation by clicking in the map view outside of the annotation.
+    type: Boolean
+    default: false
+    platforms: [android]
+    since: {android: "3.0.0"}
 
   - name: mapType
     summary: |
