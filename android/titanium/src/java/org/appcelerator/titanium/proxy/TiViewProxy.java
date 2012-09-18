@@ -54,6 +54,10 @@ import android.view.View;
 	// layout / dimension (size/width/height have custom accessors)
 	"left", "top", "right", "bottom", "layout", "zIndex",
 
+	// accessibility
+	TiC.PROPERTY_ACCESSIBILITY_HINT, TiC.PROPERTY_ACCESSIBILITY_LABEL, TiC.PROPERTY_ACCESSIBILITY_VALUE,
+	TiC.PROPERTY_ACCESSIBILITY_HIDDEN,
+
 	// others
 	"focusable", "touchEnabled", "visible", "enabled", "opacity",
 	"softKeyboardOnFocus", "transform"

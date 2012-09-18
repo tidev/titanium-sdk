@@ -319,6 +319,8 @@ def load_file_markdown(file_specifier, obj):
 def anchor_for_object_or_member(obj_specifier, text=None, language="markdown", suppress_code_formatting=False):
 	fragment = ""
 	obj_specifier_base = obj_specifier
+	if obj_specifier_base.startswith("Ti."):
+		obj_specifier_base = "Titanium.%s" % obj_specifier_base[3:]
 	fragment_start = obj_specifier.rfind("#")
 	if fragment_start >= 0:
 		fragment = obj_specifier[fragment_start:]
