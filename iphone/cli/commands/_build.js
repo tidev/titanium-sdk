@@ -407,7 +407,7 @@ function build(logger, config, cli, finished) {
 	
 	this.platformName = path.basename(this.titaniumIosSdkPath); // the name of the actual platform directory which will some day be "ios"
 	
-	this.projectDir = afs.resolvePath(cli.argv.dir);
+	this.projectDir = afs.resolvePath(cli.argv['project-dir']);
 	this.tiapp = new ti.tiappxml(path.join(this.projectDir, 'tiapp.xml'));
 	this.target = cli.argv.target;
 	this.deployType = /simulator|device/.test(this.target) && cli.argv['deploy-type'] ? cli.argv['deploy-type'] : deployTypes[this.target];

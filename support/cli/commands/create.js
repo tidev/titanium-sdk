@@ -70,7 +70,7 @@ exports.config = function (logger, config, cli) {
 				},
 				required: true
 			},
-			dir: {
+			'workspace-dir': {
 				abbr: 'd',
 				default: config.app.workspace || '',
 				desc: __('the directory to place the project in'),
@@ -108,7 +108,7 @@ exports.validate = function (logger, config, cli) {
 		process.exit(1);
 	}
 	
-	var projectDir = afs.resolvePath(cli.argv.dir, cli.argv.name);
+	var projectDir = afs.resolvePath(cli.argv['workspace-dir'], cli.argv.name);
 	if (!cli.argv.force && afs.exists(projectDir)) {
 		logger.error(__('Project directory alread exists: %s', projectDir) + '\n');
 		logger.log(__("Run '%s' to overwrite existing project.", (cli.argv.$ + ' ' + process.argv.slice(2).join(' ') + ' --force').cyan) + '\n');
@@ -122,7 +122,7 @@ exports.run = function (logger, config, cli) {
 		id = cli.argv.id,
 		type = cli.argv.type,
 		sdk = cli.env.getSDK(cli.argv.sdk),
-		projectDir = afs.resolvePath(cli.argv.dir, projectName),
+		projectDir = afs.resolvePath(cli.argv['workspace-dir'], projectName),
 		templateDir = afs.resolvePath(sdk.path, 'templates', type, cli.argv.template),
 		uuid = require('node-uuid'),
 		projectConfig;

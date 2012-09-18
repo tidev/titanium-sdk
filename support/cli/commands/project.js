@@ -15,8 +15,8 @@ exports.config = function (logger, config, cli) {
 		desc: __('get and set tiapp.xml settings'),
 		skipBanner: true,
 		options: mix(ti.commonOptions(logger, config), {
-			dir: {
-				desc: __('the directory of the project to analyze.'),
+			'project-dir': {
+				desc: __('the directory of the project to analyze'),
 				default: '.'
 			},
 			output: {
@@ -44,7 +44,7 @@ exports.config = function (logger, config, cli) {
 };
 
 exports.validate = function (logger, config, cli) {
-	cli.argv.dir = ti.validateProjectDir(logger, cli.argv.dir);
+	cli.argv['project-dir'] = ti.validateProjectDir(logger, cli.argv['project-dir']);
 
 	// Validate the key, if it exists
 	if (cli.argv._.length > 0) {
@@ -58,7 +58,8 @@ exports.validate = function (logger, config, cli) {
 
 exports.run = function (logger, config, cli) {
 
-	var tiappPath = path.join(cli.argv.dir, 'tiapp.xml'),
+	var projectDir = cli.argv['project-dir'],
+		tiappPath = path.join(projectDir, 'tiapp.xml'),
 		tiapp = new ti.tiappxml(tiappPath),
 		output = cli.argv.output,
 		key,
@@ -69,9 +70,7 @@ exports.run = function (logger, config, cli) {
 		maxlen,
 		sdkPath = cli.sdk.path,
 		templateDir,
-		projectDir = cli.argv.dir,
-		propsList = ['sdk-version', 'id', 'name', 'version', 'publisher', 'url', 'description', 'copyright', 'icon', 
-			'analytics', 'guid'],
+		propsList = ['sdk-version', 'id', 'name', 'version', 'publisher', 'url', 'description', 'copyright', 'icon', 'analytics', 'guid'],
 		deploymentTargets = tiapp['deployment-targets'];
 
 	cli.argv.output === "report" && logger.banner();

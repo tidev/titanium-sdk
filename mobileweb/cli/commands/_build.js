@@ -61,7 +61,7 @@ function build(logger, config, cli, finished) {
 	this.buildType = cli.argv['deploy-type'];
 	this.os = cli.env.os;
 	
-	this.projectDir = afs.resolvePath(cli.argv.dir);
+	this.projectDir = afs.resolvePath(cli.argv['project-dir']);
 	this.projectResDir = this.projectDir + '/Resources';
 	this.buildDir = this.projectDir + '/build/mobileweb';
 	this.mobilewebSdkPath = afs.resolvePath(path.dirname(module.filename) + '/../..');
