@@ -462,6 +462,26 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_ACCESSIBILITY_HIDDEN = "accessibilityHidden";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_ACCESSIBILITY_HINT = "accessibilityHint";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_ACCESSIBILITY_LABEL = "accessibilityLabel";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_ACCESSIBILITY_VALUE = "accessibilityValue";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_ACTION = "action";
 
 	/**
