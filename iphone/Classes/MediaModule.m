@@ -98,6 +98,7 @@ static NSDictionary* TI_filterableItemProperties;
 -(void)destroyPicker
 {
 	RELEASE_TO_NIL(popover);
+	[self forgetProxy:cameraView];
     RELEASE_TO_NIL(cameraView);
 	RELEASE_TO_NIL(editor);
 	RELEASE_TO_NIL(editorSuccessCallback);
@@ -306,6 +307,7 @@ static NSDictionary* TI_filterableItemProperties;
 	}
     if (cameraView != nil) {
         [cameraView windowDidClose];
+		[self forgetProxy:cameraView];
         RELEASE_TO_NIL(cameraView);
     }
 }
@@ -894,7 +896,12 @@ MAKE_SYSTEM_PROP(VIDEO_FINISH_REASON_USER_EXITED,MPMovieFinishReasonUserExited);
 -(void)showCamera:(id)args
 {
 	ENSURE_SINGLE_ARG_OR_NIL(args,NSDictionary);
-	ENSURE_UI_THREAD(showCamera,args);
+	if (![NSThread isMainThread]) {
+		[self rememberProxy:[args objectForKey:@"overlay"]];
+		TiThreadPerformOnMainThread(^{[self showCamera:args];},NO);
+		return;
+	}
+
 	[self showPicker:args isCamera:YES];
 }
 
@@ -1107,6 +1114,7 @@ MAKE_SYSTEM_PROP(VIDEO_FINISH_REASON_USER_EXITED,MPMovieFinishReasonUserExited);
 		}
         if (cameraView != nil) {
             [cameraView windowDidClose];
+			[self forgetProxy:cameraView];
             RELEASE_TO_NIL(cameraView);
         }
 		[self destroyPicker];
