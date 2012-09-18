@@ -299,11 +299,16 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 			tg.addTab(tab);
 		}
 
+		TabProxy firstTab = null;
+		if (tabs.size() > 0) {
+			firstTab = tabs.get(0);
+		}
+
 		// The first tab will be selected by default if
 		// no other tab has been set as the active tab.
 		if (selectedTab == null) {
-			if (tabs.size() > 0) {
-				TabProxy firstTab = tabs.get(0);
+
+			if (firstTab != null) {
 				if (tg.getSelectedTab() == firstTab) {
 					// Some tab group implementations will automatically
 					// select the first tab when added. It is our
@@ -322,8 +327,14 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 			// to be the previously selected tab and gets blurred.
 			TabProxy tab = selectedTab;
 			selectedTab = null;
-
-			tg.selectTab(tab);
+		
+			// If user sets active tab to the first tab, we need to 
+			// invoke onTabSelected() so that focus event fires
+			if (firstTab != null && tg.getSelectedTab() == firstTab) {
+				onTabSelected(firstTab);
+			} else {
+				tg.selectTab(tab);
+			}
 		}
 
 		// Selected tab should have been focused by now.
