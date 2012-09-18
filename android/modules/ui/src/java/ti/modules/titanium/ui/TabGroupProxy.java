@@ -303,45 +303,19 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 
 		// Load any tabs added before the tab group opened.
 		TiUIAbstractTabGroup tg = (TiUIAbstractTabGroup) view;
-		for(TabProxy tab : tabs) {
+		for (TabProxy tab : tabs) {
 			tg.addTab(tab);
 		}
 
-		TabProxy firstTab = null;
-		if (tabs.size() > 0) {
-			firstTab = tabs.get(0);
-		}
-
-		// The first tab will be selected by default if
-		// no other tab has been set as the active tab.
-		if (selectedTab == null) {
-
-			if (firstTab != null) {
-				if (tg.getSelectedTab() == firstTab) {
-					// Some tab group implementations will automatically
-					// select the first tab when added. It is our
-					// responsibility to invoke onTabSelected() when this
-					// condition occurs for the first tab.
-					onTabSelected(firstTab);
-
-				} else {
-					tg.selectTab(firstTab);
-				}
-			}
-
-		} else {
-			// Move initially active tab into a local variable.
-			// We must clear selectedTab so it does not appear
-			// to be the previously selected tab and gets blurred.
-			TabProxy tab = selectedTab;
+		TabProxy activeTab = handleGetActiveTab();
+		if (activeTab != null) {
 			selectedTab = null;
-		
-			// If user sets active tab to the first tab, we need to 
-			// invoke onTabSelected() so that focus event fires
-			if (firstTab != null && tg.getSelectedTab() == firstTab) {
-				onTabSelected(firstTab);
+			// If tabHost's selected tab is same as the active tab, we need
+			// to invoke onTabSelected so focus/blur event fire appropriately
+			if (tg.getSelectedTab() == activeTab) {
+				onTabSelected(activeTab);
 			} else {
-				tg.selectTab(tab);
+				tg.selectTab(activeTab);
 			}
 		}
 
