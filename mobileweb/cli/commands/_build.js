@@ -36,6 +36,20 @@ var ti = require('titanium-sdk'),
 		'.jpeg': 'image/jpg'
 	};
 
+exports.config = function (logger, config, cli) {
+	return {
+		options: {
+			'build-type': {
+				abbr: 'B',
+				default: 'development',
+				desc: __('the type of build to perform'),
+				hint: __('type'),
+				values: ['production', 'development']
+			}
+		}		
+	};
+};
+
 exports.run = function (logger, config, cli, finished) {
 	new build(logger, config, cli, finished);
 };
