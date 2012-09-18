@@ -239,7 +239,6 @@ events:
             <Titanium.UI.iOS.WEBVIEW_NAVIGATIONTYPE_FORM_RESUBMITTED>, or
             <Titanium.UI.iOS.WEBVIEW_NAVIGATIONTYPE_OTHER>.
         type: Number
-        since: "2.1.0"
         platforms: [ipad, iphone]
 
   - name: error
