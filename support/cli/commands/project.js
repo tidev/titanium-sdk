@@ -185,7 +185,8 @@ exports.run = function (logger, config, cli) {
 						process.exit(1);
 					}
 					appc.fs.nonDestructiveCopyDirSyncRecursive(templateDir, projectDir, { 
-						logger: logger.log
+						logger: logger.log,
+						ignoreHiddenFiles: true
 					});
 
 					// Non-destructively copy over files from <sdk>/<each platform>/templates/app/<template>/
@@ -197,7 +198,8 @@ exports.run = function (logger, config, cli) {
 								process.exit(1);
 							}
 							appc.fs.nonDestructiveCopyDirSyncRecursive(templateDir, projectDir, {
-								logger: logger.log
+								logger: logger.log,
+								ignoreHiddenFiles: true
 							});
 						}
 					}
