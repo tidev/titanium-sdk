@@ -229,6 +229,18 @@ events:
       - name: url
         summary: URL of the web document being loaded.
 
+      - name: navigationType
+        summary: |
+            Constant indicating the user's action:
+            <Titanium.UI.iOS.WEBVIEW_NAVIGATIONTYPE_LINK_CLICKED>,
+            <Titanium.UI.iOS.WEBVIEW_NAVIGATIONTYPE_FORM_SUBMITTED>,
+            <Titanium.UI.iOS.WEBVIEW_NAVIGATIONTYPE_BACK_FORWARD>,
+            <Titanium.UI.iOS.WEBVIEW_NAVIGATIONTYPE_RELOAD>,
+            <Titanium.UI.iOS.WEBVIEW_NAVIGATIONTYPE_FORM_RESUBMITTED>, or
+            <Titanium.UI.iOS.WEBVIEW_NAVIGATIONTYPE_OTHER>.
+        type: Number
+        platforms: [ipad, iphone]
+
   - name: error
     summary: Fired when the web view cannot load the content. 
     description: |
