@@ -11,7 +11,6 @@ deprecated:
     since: "1.8.0"
     notes: |
         Use <Titanium.UI.iOS.CoverFlowView> instead.
-        This iOS-specific object moved to the `Titanium.UI.iOS` namespace.
 platforms: [iphone, ipad]
 excludes: {
    events: [ "dblclick", "doubletap", "longclick", "longpress", "pinch", "singletap", "swipe", "touchcancel", "touchend", "touchmove", "touchstart", "twofingertap" ]

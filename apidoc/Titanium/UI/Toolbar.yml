@@ -4,7 +4,6 @@ deprecated:
     since: "1.8.0"
     notes: |
         Use <Titanium.UI.iOS.Toolbar> instead.
-        This iOS-specific object moved to the `Titanium.UI.iOS` namespace.
 summary: An iOS toolbar, which can contain buttons and other controls.
 description: |
     The toolbar is created by the <Titanium.UI.createToolbar> method. 
