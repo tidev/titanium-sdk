@@ -147,7 +147,7 @@
 		style = [TiUtils intValue:[self.proxy valueForKey:@"style"] def:defaultType];
 		UIView *btn = [TiButtonUtil buttonWithType:style];
 		button = (UIButton*)[btn retain];
-		button.lineBreakMode = UILineBreakModeWordWrap; //default wordWrap to True
+		[button titleLabel].lineBreakMode = UILineBreakModeWordWrap; //default wordWrap to True
 		[self addSubview:button];
 		if (style==UIButtonTypeCustom)
 		{
