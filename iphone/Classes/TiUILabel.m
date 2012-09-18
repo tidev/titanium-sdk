@@ -40,6 +40,26 @@
 	return NO;
 }
 
+-(CGFloat) verifyWidth:(CGFloat)suggestedWidth
+{
+	int width = ceil(suggestedWidth);
+	if (width & 0x01)
+	{
+		width ++;
+	}
+	return width;
+}
+
+-(CGFloat) verifyHeight:(CGFloat)suggestedHeight
+{
+	int height = ceil(suggestedHeight);
+	if (height & 0x01)
+	{
+		height ++;
+	}
+	return height;
+}
+
 -(CGSize)sizeForFont:(CGFloat)suggestedWidth
 {
 	NSString *value = [label text];
@@ -64,12 +84,12 @@
 
 -(CGFloat)contentWidthForWidth:(CGFloat)suggestedWidth
 {
-	return [self sizeForFont:suggestedWidth].width;
+    return [self verifyWidth:([self sizeForFont:suggestedWidth].width + textPadding.origin.x + textPadding.size.width)];
 }
 
 -(CGFloat)contentHeightForWidth:(CGFloat)width
 {
-	return [self sizeForFont:width].height;
+    return [self verifyHeight:([self sizeForFont:width].height + textPadding.origin.y + textPadding.size.height)];
 }
 
 -(void)padLabel
