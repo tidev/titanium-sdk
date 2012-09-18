@@ -109,6 +109,8 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 
 @synthesize window, remoteNotificationDelegate, controller;
 @synthesize disableNetworkActivityIndicator;
+@synthesize remoteNotification;
+@synthesize localNotification;
 
 +(void)initialize
 {
@@ -273,6 +275,9 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 	{
 		DebugLog(@"[DEBUG] Application booted in %f ms", ([NSDate timeIntervalSinceReferenceDate]-started) * 1000);
 		fflush(stderr);
+		if (localNotification != nil) {
+			[[NSNotificationCenter defaultCenter] postNotificationName:kTiLocalNotification object:localNotification userInfo:nil];
+		}
 		TiThreadPerformOnMainThread(^{[self validator];}, YES);
 	}
 }
@@ -324,6 +329,9 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 	NSURL *urlOptions = [launchOptions objectForKey:UIApplicationLaunchOptionsURLKey];
 	NSString *sourceBundleId = [launchOptions objectForKey:UIApplicationLaunchOptionsSourceApplicationKey];
 	NSDictionary *notification = [launchOptions objectForKey:UIApplicationLaunchOptionsRemoteNotificationKey];
+	
+	localNotification = [[[self class] dictionaryWithLocalNotification:[launchOptions objectForKey:UIApplicationLaunchOptionsLocalNotificationKey]] retain];
+	[launchOptions removeObjectForKey:UIApplicationLaunchOptionsLocalNotificationKey];
 	
 	// reset these to be a little more common if we have them
 	if (urlOptions!=nil)
@@ -499,11 +507,6 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 	
 	[self endBackgrounding];
 
-}
-
--(id)remoteNotification
-{
-	return remoteNotification;
 }
 
 #pragma mark Push Notification Delegates
@@ -734,13 +737,8 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 - (void)application:(UIApplication *)application didReceiveLocalNotification:(UILocalNotification *)notification
 {
 	RELEASE_TO_NIL(localNotification);
-	localNotification = [notification retain];
-	[[NSNotificationCenter defaultCenter] postNotificationName:kTiLocalNotification object:notification userInfo:nil];
-}
-
--(UILocalNotification*)localNotification
-{
-	return localNotification;
+	localNotification = [[[self class] dictionaryWithLocalNotification:notification] retain];
+	[[NSNotificationCenter defaultCenter] postNotificationName:kTiLocalNotification object:localNotification userInfo:nil];
 }
 
 -(void)registerBackgroundService:(TiProxy*)proxy
@@ -784,5 +782,25 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 	[runningServices removeObject:proxy];
 	[self checkBackgroundServices];
 }
+
+#define NOTNULL(v) ((v==nil) ? (id)[NSNull null] : v)
+
++ (NSDictionary *)dictionaryWithLocalNotification:(UILocalNotification *)notification
+{
+	if (notification == nil) {
+		return nil;
+	}
+	NSMutableDictionary* event = [NSMutableDictionary dictionary];
+	[event setObject:NOTNULL([notification fireDate]) forKey:@"date"];
+	[event setObject:NOTNULL([[notification timeZone] name]) forKey:@"timezone"];
+	[event setObject:NOTNULL([notification alertBody]) forKey:@"alertBody"];
+	[event setObject:NOTNULL([notification alertAction]) forKey:@"alertAction"];
+	[event setObject:NOTNULL([notification alertLaunchImage]) forKey:@"alertLaunchImage"];
+	[event setObject:NOTNULL([notification soundName]) forKey:@"sound"];
+	[event setObject:NUMINT([notification applicationIconBadgeNumber]) forKey:@"badge"];
+	[event setObject:NOTNULL([notification userInfo]) forKey:@"userInfo"];
+	return [[event copy] autorelease];
+}
+
 
 @end
