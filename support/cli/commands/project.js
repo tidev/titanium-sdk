@@ -163,9 +163,10 @@ exports.run = function (logger, config, cli) {
 				case 'deployment-targets':
 
 					// Get list of platforms from ti manifest and set to false (default value)
-					result = {};
-					for(p = 0; p < ti.availablePlatforms.length; p++) {
-						result[ti.availablePlatforms[p]] = false;
+					result = {},
+					value = ti.availablePlatforms.concat(['ios', 'ipad']); // TODO: remove concat once ipad and iphone are removed
+					for(p = 0; p < value.length; p++) {
+						result[value[p]] = false;
 					}
 
 					// Validate the platforms and override the tiapp.xml setting to true
@@ -188,14 +189,14 @@ exports.run = function (logger, config, cli) {
 					});
 
 					// Non-destructively copy over files from <sdk>/<each platform>/templates/app/<template>/
-					for(p in value) {
+					for(p = 0; p < value.length; p++) {
 						if (value[p]) {
-							templateDir = path.join(sdkPath, value[p], 'templates', 'app', cli.argv.template);
+							templateDir = path.join(sdkPath, ti.validatePlatform(logger, value[p]), 'templates', 'app', cli.argv.template);
 							if (!appc.fs.exists(templateDir)) {
 								logger.error(__('Template %s is not supported by platform %s', cli.argv.template, value[p]) + '\n');
 								process.exit(1);
 							}
-							appc.fs.nonDestructiveCopyDirSyncRecursive(templateDir, projectDir, { 
+							appc.fs.nonDestructiveCopyDirSyncRecursive(templateDir, projectDir, {
 								logger: logger.log
 							});
 						}
