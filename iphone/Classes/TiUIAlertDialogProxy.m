@@ -128,7 +128,7 @@ static BOOL alertShowing = NO;
 		}
 		else
 		{
-			NSLog("@[WARN] Alert dialog `style` property is only supported in iOS 5 or above.");
+			NSLog(@"[WARN] Alert dialog `style` property is only supported in iOS 5 or above.");
 		}
 
 		[self retain];
