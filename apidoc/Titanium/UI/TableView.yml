@@ -133,6 +133,7 @@ events:
             use this property rather than `row` to access any custom row properties.
             
             Here's an example of creating a row implicitly, which is not the recommended way.
+
                 var data = [{title:'Row 1', hasChild:true, color:'red', selectedColor:'#fff', special:'special 1'},];
                 var table = Ti.UI.createTableView({data: data});
            
