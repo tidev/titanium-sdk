@@ -420,6 +420,7 @@ events:
         
   - name: twofingertap
     summary: Fired when the device detects a two-finger tap against the view.
+    since: { android: "3.0.0" }
     properties:
       - name: globalPoint
         summary: |
