@@ -1052,10 +1052,10 @@ public abstract class TiUIView
 					if (proxy.hierarchyHasListener(TiC.EVENT_PINCH)) {
 						float timeDelta = sgd.getTimeDelta() == 0 ? minTimeDelta : sgd.getTimeDelta();
 
-                        // Suppress scale events (and allow for possible two-finger tap events)
-                        // until we've moved at least a few pixels. Without this check, two-finger 
-                        // taps are very hard to register on some older devices.
-						if (! didScale) {
+						// Suppress scale events (and allow for possible two-finger tap events)
+						// until we've moved at least a few pixels. Without this check, two-finger 
+						// taps are very hard to register on some older devices.
+						if (!didScale) {
 							if (Math.abs(sgd.getCurrentSpan() - startSpan) > SCALE_THRESHOLD) {
 								didScale = true;
 							} 
