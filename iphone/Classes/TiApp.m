@@ -595,19 +595,6 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 
 -(void)showModalController:(UIViewController*)modalController animated:(BOOL)animated
 {
-//In the rare event that the iPad application started in landscape, has not been rotated,
-//And is presenting a modal for the first time, 
-		handledModal = YES;
-
-	if(!handledModal)
-	{
-		handledModal = YES;
-		UIView * rootView = [controller view];
-		UIView * windowView = [rootView superview];
-		[rootView removeFromSuperview];
-		[windowView addSubview:rootView];
-	}
-
 	/*
 	 *	In iPad (TIMOB 7839) there is a bug in iOS where a text field having
 	 *	focus during a modal presentation can lead to an edge case.
