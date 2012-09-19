@@ -25,6 +25,8 @@ description: |
     Web views are more expensive to create than other native views because of the requirement to
     load the HTML browser into memory.
     
+    #### iOS Platform Implementation Notes
+
     On the iOS platform, the native web view handles scrolling and other related touch
     events internally. If you add event listeners on the web view **or its parent views**
     for any of the standard touch events (`touchstart`, `click`, and so on), these events
