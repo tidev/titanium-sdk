@@ -381,7 +381,8 @@
 		tableview.delegate = self;
 		tableview.dataSource = self;
 		tableview.autoresizingMask = UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight;
-		
+    // WORKAROUND: for Apple iOS6 Bug not setting TableView BackgroundColor
+    tableview.backgroundView = nil;
 		
 		if (TiDimensionIsDip(rowHeight))
 		{
