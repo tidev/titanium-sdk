@@ -53,6 +53,7 @@ void ModifyScrollViewForKeyboardHeightAndContentHeightWithResponderRect(UIScroll
 	TiAnimation *animation;
 	
 	CALayer *gradientLayer;
+	CALayer *backgroundImageLayer;
 	
 	CGAffineTransform virtualParentTransform;
 	id transformMatrix;
