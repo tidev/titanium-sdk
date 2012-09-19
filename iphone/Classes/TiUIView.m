@@ -334,7 +334,12 @@ DEFINE_EXCEPTIONS
 	if(!CGSizeEqualToSize(oldSize, newBounds.size))
 	{
 		oldSize = newBounds.size;
+        [CATransaction begin];
+        [CATransaction setValue:(id)kCFBooleanTrue
+                         forKey:kCATransactionDisableActions];
 		[gradientLayer setFrame:newBounds];
+        [CATransaction commit];
+        
 		[self frameSizeChanged:[TiUtils viewPositionRect:self] bounds:newBounds];
 	}
 }
