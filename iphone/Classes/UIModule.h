@@ -163,6 +163,14 @@
 @property(nonatomic,readonly) NSNumber *URL_ERROR_UNKNOWN;
 @property(nonatomic,readonly) NSNumber *URL_ERROR_UNSUPPORTED_SCHEME;
 
+@property(nonatomic,readonly) NSNumber *LINEBREAK_WORDWRAP;
+@property(nonatomic,readonly) NSNumber *LINEBREAK_CHARWRAP;
+@property(nonatomic,readonly) NSNumber *LINEBREAK_CLIP;
+@property(nonatomic,readonly) NSNumber *LINEBREAK_HEADTRUNCATE;
+@property(nonatomic,readonly) NSNumber *LINEBREAK_TAILTRUNCATE;
+@property(nonatomic,readonly) NSNumber *LINEBREAK_MIDTRUNCATE;
+
+
 #ifdef USE_TI_UI2DMATRIX
 -(id)create2DMatrix:(id)args;
 #endif
