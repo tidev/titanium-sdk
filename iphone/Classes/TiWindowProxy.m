@@ -696,7 +696,7 @@ TiOrientationFlags TiOrientationFlagsFromObject(id args)
      A modal window is by definition presented and should never be a subview of anything.
      */
     if (![self _isChildOfTab]) {
-		if (!modalFlag) {
+        if (!modalFlag) {
             [rootView addSubview:view_];
         }
 
