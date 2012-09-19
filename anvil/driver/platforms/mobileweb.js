@@ -9,13 +9,13 @@
  * Description: contains Mobile Web specific wrapper functions around common driver commands
  */
 
-var path = require("path");
-var http = require('http');
-var fs = require('fs');
-
-var common = require(driverGlobal.driverDir + "/common");
-var util = require(driverGlobal.driverDir + "/util");
-var android = require(driverGlobal.driverDir + "/platforms/android");
+var path = require("path"),
+http = require('http'),
+fs = require('fs'),
+os = require("os"),
+common = require(path.resolve(driverGlobal.driverDir, "common")),
+driverUtils = require(path.resolve(driverGlobal.driverDir, "driverUtils")),
+android = require(path.resolve(driverGlobal.driverDir, "platforms", "android"));
 
 module.exports = new function() {
 	var self = this;
@@ -29,6 +29,9 @@ module.exports = new function() {
 	this.name = "mobileweb";
 
 	this.init = function(commandCallback, testPassCallback) {
+		// check mobile web specific config items
+		driverUtils.checkConfigItem("httpPort", driverGlobal.config.httpPort, "number");
+
 		commandFinishedCallback = commandCallback;
 		testPassFinishedCallback = testPassCallback;
 	};
@@ -37,7 +40,7 @@ module.exports = new function() {
 		var commandElements = command.split(" ");
 
 		if (commandElements[0] === "start") {
-			var browserOnlyArg = util.getArgument(commandElements, "--browser-only");
+			var browserOnlyArg = driverUtils.getArgument(commandElements, "--browser-only");
 			if (browserOnlyArg === "true") {
 				browserOnlyMode = browserOnlyArg;
 			}
@@ -48,7 +51,7 @@ module.exports = new function() {
 			process.exit(1);
 
 		} else {
-			util.log("invalid command\n\n"
+			driverUtils.log("invalid command\n\n"
 				+ "Commands:\n"
 				+ "    start - starts test run which includes starting over with clean harness project\n"
 				+ "        Arguments (optional):\n"
@@ -68,9 +71,16 @@ module.exports = new function() {
 	};
 
 	var createHarness = function(successCallback, errorCallback) {
+		var argString = "harness com.appcelerator.harness " + path.resolve(driverGlobal.harnessDir, "mobileweb mobileweb") + " " + driverGlobal.config.currentTiSdkDir;
+
+		// due to python behavior on windows, we need to escape the slashes in the argument string
+		if (os.platform().substr(0 ,3) === "win") {
+			argString = argString.replace(/\\/g, "\\\\");
+		}
+
 		common.createHarness(
 			"mobileweb",
-			driverGlobal.config.tiSdkDir + "/project.py harness com.appcelerator.harness " + driverGlobal.harnessDir + "/mobileweb mobileweb " + driverGlobal.config.tiSdkDir,
+			"\"" + path.resolve(driverGlobal.config.currentTiSdkDir, "project.py") + "\" " + argString,
 			successCallback,
 			errorCallback
 			);
@@ -82,24 +92,29 @@ module.exports = new function() {
 
 	var buildHarness = function(successCallback, errorCallback) {
 		var buildCallback = function() {
-			var args = [driverGlobal.harnessDir + "/mobileweb/harness", "development"];
-			util.runProcess(driverGlobal.config.tiSdkDir + "/mobileweb/builder.py", args, 0, 0, function(code) {
+			var args = [
+				path.resolve(driverGlobal.config.currentTiSdkDir, "mobileweb", "builder.py"),
+				path.resolve(driverGlobal.harnessDir, "mobileweb", "harness"),
+				"development"
+				];
+
+			driverUtils.runProcess("python", args, 0, 0, function(code) {
 				if (code !== 0) {
-					util.log("error encountered when building harness: " + code);
+					driverUtils.log("error encountered when building harness: " + code);
 					errorCallback();
 
 				} else {
-					util.log("harness built");
+					driverUtils.log("harness built");
 					successCallback();
 				}
 			});
 		};
 
-		if (path.existsSync(driverGlobal.harnessDir + "/mobileweb/harness/tiapp.xml")) {
+		if (path.existsSync(path.resolve(driverGlobal.harnessDir, "mobileweb", "harness", "tiapp.xml"))) {
 			buildCallback();
 
 		} else {
-			util.log("harness does not exist, creating");
+			driverUtils.log("harness does not exist, creating");
 			createHarness(buildCallback, errorCallback);
 		}
 	};
@@ -170,7 +185,7 @@ module.exports = new function() {
 				common.customTiappXmlProperties["driver.httpHost"] = driverGlobal.httpHost;
 
 			} else {
-				util.log("unable to get IP address", driverGlobal.logLevels.quiet);
+				driverUtils.log("unable to get IP address", driverGlobal.logLevels.quiet);
 				commandFinishedCallback();
 			}
 
@@ -183,7 +198,7 @@ module.exports = new function() {
 					common.startConfig(deleteCallback);
 
 				} else {
-					util.log("no attached device found, unable to start config", driverGlobal.logLevels.quiet);
+					driverUtils.log("no attached device found, unable to start config", driverGlobal.logLevels.quiet);
 					commandFinishedCallback();
 				}
 			});
@@ -192,8 +207,8 @@ module.exports = new function() {
 
 	var startServer = function(successCallback, errorCallback) {
 		server = http.createServer(function (request, response) {
-			var prefix = driverGlobal.harnessDir + "/mobileweb/harness/build/mobileweb"
-			var filePath = prefix + request.url;
+			var prefix = path.resolve(driverGlobal.harnessDir, "mobileweb", "harness", "build", "mobileweb");
+			var filePath = prefix + request.url.split("?")[0];
 			if (filePath === prefix + '/') {
 				filePath = prefix + '/index.html';
 			}
@@ -253,7 +268,7 @@ module.exports = new function() {
 
 		server.on('error', function (e) {
 			if ((e.code === 'EADDRINUSE') && (serverRunning === false)) {
-				util.log('Address in use, retrying...');
+				driverUtils.log('Address in use, retrying...');
 				setTimeout(function() {
 					if (serverListening === true) {
 						server.close();
@@ -269,7 +284,7 @@ module.exports = new function() {
 
 		server.on('listening', function (e) {
 			serverRunning = true;
-			util.log("Server running at " + driverGlobal.httpHost + ":" + driverGlobal.config.httpPort);
+			driverUtils.log("Server running at " + driverGlobal.httpHost + ":" + driverGlobal.config.httpPort);
 
 			if (successCallback !== null) {
 				successCallback();
@@ -281,9 +296,9 @@ module.exports = new function() {
 	};
 
 	var runHarness = function(errorCallback) {
-		util.runCommand("adb shell am start -a android.intent.action.VIEW -n com.android.browser/.BrowserActivity -d " + driverGlobal.httpHost + ":" + driverGlobal.config.httpPort + "/index.html", util.logStdout, function(error) {
+		driverUtils.runCommand("adb shell am start -a android.intent.action.VIEW -d " + driverGlobal.httpHost + ":" + driverGlobal.config.httpPort + "/index.html?" + Math.floor(Math.random() * 100000), driverUtils.logStdout, function(error) {
 			if (error !== null) {
-				util.log("error encountered when running harness: " + error);
+				driverUtils.log("error encountered when running harness: " + error);
 				if (errorCallback) {
 					errorCallback();
 				}

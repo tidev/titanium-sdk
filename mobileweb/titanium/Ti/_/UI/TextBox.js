@@ -9,7 +9,7 @@ define(
 
 		constructor: function(){
 			this._addEventModifier(["click", "singletap", "blur", "change", "focus", "return"], function(data) {
-				data.value = this.value;
+				data.value = this._getInternalText();
 			});
 		},
 
@@ -39,7 +39,7 @@ define(
 			});
 
 			on(field, "keypress", this, function() {
-				this._capitalize();
+				setTimeout(lang.hitch(this, function () { this._capitalize() }));
 			});
 
 			on(field, "focus", this, function(){
@@ -58,19 +58,37 @@ define(
 				clearInterval(updateInterval);
 				this.fireEvent("blur");
 			});
+			
+			// Set the autocorrect value via the setter
+			this.autocorrect = true;
 		},
 
-		_capitalize: function(ac, val) {
-			var f = this._field,
-				ac = "off";
-			switch (ac || this.autocapitalization) {
+		_setInternalText: function(value) {
+			if (this._field.value !== value) {
+				this._field.value = value;
+				this._capitalize();
+			}
+		},
+		
+		_getInternalText: function() {
+			return this._field.value;
+		},
+		
+		_updateInternalText: function() {
+			this._setInternalText(this._getInternalText());
+		},
+
+		_capitalize: function() {
+			var acval = "off",
+				field = this._field;
+			switch (this.autocapitalization) {
 				case UI.TEXT_AUTOCAPITALIZATION_ALL:
-					f.value = f.value.toUpperCase();
+					field.value = field.value.toUpperCase();
 					break;
 				case UI.TEXT_AUTOCAPITALIZATION_SENTENCES:
-					ac = "on";
+					acval = "on";
 			}
-			this._field.autocapitalize = ac;
+			this._field.autocapitalize = acval;
 		},
 
 		blur: function() {
@@ -88,17 +106,12 @@ define(
 		properties: {
 			autocapitalization: {
 				value: UI.TEXT_AUTOCAPITALIZATION_SENTENCES,
-				set: function(value, oldValue) {
-					value !== oldValue && this._capitalize(value);
-					return value;
-				}
+				post: "_capitalize"
 			},
 
 			autocorrect: {
-				value: false,
-				set: function(value) {
+				post: function(value) {
 					this._field.autocorrect = !!value ? "on" : "off";
-					return value;
 				}
 			},
 
@@ -119,19 +132,16 @@ define(
 			suppressReturn: true,
 
 			textAlign: {
-				set: function(value) {
+				post: function(value) {
 					setStyle(this._field, "textAlign", /(center|right)/.test(value) ? value : "left");
-					return value;
 				}
 			},
 
 			value: {
 				get: function() {
-					return this._showingHint ? "" : this._field.value;
+					return this._getInternalText();
 				},
-				set: function(value) {
-					return this._capitalize(this._field.value = value);
-				},
+				post: "_setInternalText",
 				value: ""
 			}
 		}

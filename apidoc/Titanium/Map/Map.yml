@@ -111,11 +111,13 @@ examples:
         This is a basic map example that places a custom annotation on the map, and 
         listens for click events on the annotation. 
 
-        In this example, a custom property (`myid`) is added to the annotation objct.
+        In this example, a custom property (`myid`) is added to the annotation object.
         While adding custom members to a Titanium object is not generally recommended,
         in this case it provides a mechanism for uniquely identifying an annotation. This
         can be useful, for example, if the annotations are dynamically generated 
         and it is not practical to identify them by title.
+
+            var win = Titanium.UI.createWindow();
         
             var mountainView = Titanium.Map.createAnnotation({
             	latitude:37.390749,
@@ -151,5 +153,5 @@ examples:
                     Ti.API.info("Annotation " + evt.title + ", left button clicked.");
                 }
             });
+            win.open();
 
-        

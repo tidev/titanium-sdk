@@ -9,11 +9,11 @@
  * Description: contains Android specific wrapper functions around common driver commands
  */
 
-var net = require("net");
-var path = require("path");
-
-var common = require(driverGlobal.driverDir + "/common");
-var util = require(driverGlobal.driverDir + "/util");
+var net = require("net"),
+path = require("path"),
+os = require("os"),
+common = require(path.resolve(driverGlobal.driverDir, "common")),
+driverUtils = require(path.resolve(driverGlobal.driverDir, "driverUtils"));
 
 module.exports = new function() {
 	var self = this;
@@ -25,6 +25,10 @@ module.exports = new function() {
 	this.name = "android";
 
 	this.init = function(commandCallback, testPassCallback) {
+		// check android specific config items
+		driverUtils.checkConfigItem("androidSdkDir", driverGlobal.config.androidSdkDir, "string");
+		driverUtils.checkConfigItem("androidSocketPort", driverGlobal.config.androidSocketPort, "number");
+
 		commandFinishedCallback = commandCallback;
 		testPassFinishedCallback = testPassCallback;
 	};
@@ -54,15 +58,22 @@ module.exports = new function() {
 	};
 
 	var createHarness = function(successCallback, errorCallback) {
+		var argString = "create --dir=" + path.resolve(driverGlobal.harnessDir, "android") + " --platform=android --name=harness --type=project --id=com.appcelerator.harness --android=" + path.resolve(driverGlobal.config.androidSdkDir);
+
 		/*
 		make sure the harness has access to what port number it should listen on for a connection 
 		from the driver
 		*/
 		common.customTiappXmlProperties["driver.socketPort"] = driverGlobal.config.androidSocketPort;
 
+		// due to python behavior on windows, we need to escape the slashes in the argument string
+		if (os.platform().substr(0 ,3) === "win") {
+			argString = argString.replace(/\\/g, "\\\\");
+		}
+
 		common.createHarness(
 			"android",
-			driverGlobal.config.tiSdkDir + "/titanium.py create --dir=" + driverGlobal.harnessDir + "/android --platform=android --name=harness --type=project --id=com.appcelerator.harness",
+			"\"" + path.resolve(driverGlobal.config.currentTiSdkDir, "titanium.py") + "\" " + argString,
 			successCallback,
 			errorCallback
 			);
@@ -74,24 +85,33 @@ module.exports = new function() {
 
 	var buildHarness = function(successCallback, errorCallback) {
 		var buildCallback = function() {
-			var args = ["build", "harness", driverGlobal.config.androidSdkDir, driverGlobal.harnessDir + "/android/harness", "com.appcelerator.harness", 8];
-			util.runProcess(driverGlobal.config.tiSdkDir + "/android/builder.py", args, 0, 0, function(code) {
+			var args = [
+				path.resolve(driverGlobal.config.currentTiSdkDir, "android", "builder.py"),
+				"build",
+				"harness",
+				path.resolve(driverGlobal.config.androidSdkDir),
+				path.resolve(driverGlobal.harnessDir, "android", "harness"),
+				"com.appcelerator.harness",
+				8
+				];
+
+			driverUtils.runProcess("python", args, 0, 0, function(code) {
 				if (code !== 0) {
-					util.log("error encountered when building harness: " + code);
+					driverUtils.log("error encountered when building harness: " + code);
 					errorCallback();
 
 				} else {
-					util.log("harness built");
+					driverUtils.log("harness built");
 					successCallback();
 				}
 			});
 		};
 
-		if (path.existsSync(driverGlobal.harnessDir + "/android/harness/tiapp.xml")) {
+		if (path.existsSync(path.resolve(driverGlobal.harnessDir, "android", "harness", "tiapp.xml"))) {
 			buildCallback();
 
 		} else {
-			util.log("harness does not exist, creating");
+			driverUtils.log("harness does not exist, creating");
 			createHarness(buildCallback, errorCallback);
 		}
 	};
@@ -118,7 +138,7 @@ module.exports = new function() {
 				common.startConfig(deleteCallback);
 
 			} else {
-				util.log("no attached device found, unable to start config", driverGlobal.logLevels.quiet);
+				driverUtils.log("no attached device found, unable to start config", driverGlobal.logLevels.quiet);
 				commandFinishedCallback();
 			}
 		});
@@ -126,16 +146,16 @@ module.exports = new function() {
 
 	var installHarness = function(successCallback, errorCallback) {
 		var installCallback = function() {
-			if (path.existsSync(driverGlobal.harnessDir + "/android/harness/build/android/bin/app.apk")) {
-				util.runCommand("adb install " + driverGlobal.harnessDir + "/android/harness/build/android/bin/app.apk", util.logStdout, function(error) {
+			if (path.existsSync(path.resolve(driverGlobal.harnessDir, "android", "harness", "build", "android", "bin", "app.apk"))) {
+				driverUtils.runCommand("adb install " + path.resolve(driverGlobal.harnessDir, "android/harness/build/android/bin/app.apk"), driverUtils.logStdout, function(error) {
 					if (error !== null) {
-						util.log("error encountered when installing harness: " + error);
+						driverUtils.log("error encountered when installing harness: " + error);
 						if (errorCallback) {
 							errorCallback();
 						}
 
 					} else {
-						util.log("harness installed");
+						driverUtils.log("harness installed");
 						if (successCallback) {
 							successCallback();
 						}
@@ -143,7 +163,7 @@ module.exports = new function() {
 				});
 
 			} else {
-				util.log("harness is not built, building");
+				driverUtils.log("harness is not built, building");
 				buildHarness(installCallback, errorCallback);
 			}
 		};
@@ -152,15 +172,15 @@ module.exports = new function() {
 	};
 
 	var uninstallHarness = function(successCallback, errorCallback) {
-		util.runCommand("adb uninstall com.appcelerator.harness", util.logStdout, function(error) {
+		driverUtils.runCommand("adb uninstall com.appcelerator.harness", driverUtils.logStdout, function(error) {
 			if (error !== null) {
-				util.log("error encountered when uninstalling harness: " + error);
+				driverUtils.log("error encountered when uninstalling harness: " + error);
 				if (errorCallback) {
 					errorCallback();
 				}
 
 			} else {
-				util.log("harness uninstalled");
+				driverUtils.log("harness uninstalled");
 				if (successCallback) {
 					successCallback();
 				}
@@ -169,15 +189,15 @@ module.exports = new function() {
 	};
 
 	var runHarness = function(successCallback, errorCallback) {
-		util.runCommand("adb shell am start -n com.appcelerator.harness/.HarnessActivity", util.logStdout, function(error) {
+		driverUtils.runCommand("adb shell am start -n com.appcelerator.harness/.HarnessActivity", driverUtils.logStdout, function(error) {
 			if (error !== null) {
-				util.log("error encountered when running harness: " + error);
+				driverUtils.log("error encountered when running harness: " + error);
 				if (errorCallback) {
 					errorCallback();
 				}
 
 			} else {
-				util.log("running harness");
+				driverUtils.log("running harness");
 				if (successCallback) {
 					successCallback();
 				}
@@ -206,7 +226,7 @@ module.exports = new function() {
 				}
 
 				if (retryCount < driverGlobal.config.maxSocketConnectAttempts) {
-					util.log("unable to connect, retry attempt " + (retryCount + 1) + "...");
+					driverUtils.log("unable to connect, retry attempt " + (retryCount + 1) + "...");
 					retryCount += 1;
 
 					setTimeout(function() {
@@ -214,7 +234,7 @@ module.exports = new function() {
 					}, 1000);
 
 				} else {
-					util.log("max number of retry attempts reached");
+					driverUtils.log("max number of retry attempts reached");
 					errorCallback();
 				}
 			});
@@ -226,13 +246,13 @@ module.exports = new function() {
 			});
 		};
 
-		util.runCommand("adb forward tcp:" + driverGlobal.config.androidSocketPort + " tcp:" + driverGlobal.config.androidSocketPort, util.logStdout, function(error) {
+		driverUtils.runCommand("adb forward tcp:" + driverGlobal.config.androidSocketPort + " tcp:" + driverGlobal.config.androidSocketPort, driverUtils.logStdout, function(error) {
 			if (error !== null) {
-				util.log("error encountered when setting up port forwarding for <" + driverGlobal.config.androidSocketPort + ">");
+				driverUtils.log("error encountered when setting up port forwarding for <" + driverGlobal.config.androidSocketPort + ">");
 				errorCallback();
 
 			} else {
-				util.log("port forwarding activated for <" + driverGlobal.config.androidSocketPort + ">");
+				driverUtils.log("port forwarding activated for <" + driverGlobal.config.androidSocketPort + ">");
 				connectCallback();
 			}
 		});
@@ -268,7 +288,7 @@ module.exports = new function() {
 	};
 
 	this.deviceIsConnected = function(callback) {
-		util.runCommand("adb devices", driverGlobal.logLevels.quiet, function(error, stdout, stderr) {
+		driverUtils.runCommand("adb devices", driverGlobal.logLevels.quiet, function(error, stdout, stderr) {
 			var searchString = "List of devices attached";
 			var deviceListString = "";
 

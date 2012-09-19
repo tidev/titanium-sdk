@@ -568,27 +568,48 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 
 -(id)initWithCode:(NSString*)code_
 {
-	if (self = [super init])
-	{
-		code = [code_ copy];
-	}
-	return self;
+	return [self initWithCode:code_ sourceURL:nil];
 }
+
+- (id)initWithCode:(NSString *)code_ sourceURL:(NSURL *)sourceURL_
+{
+	return [self initWithCode:code_ sourceURL:sourceURL_ startingLineNo:1];
+}
+
+- (id)initWithCode:(NSString *)code_ sourceURL:(NSURL *)sourceURL_ startingLineNo:(NSInteger)startingLineNo_
+{
+    self = [super init];
+    if (self) {
+		code = [code_ copy];
+		sourceURL = [sourceURL_ copy];
+		startingLineNo = startingLineNo_;
+    }
+    return self;
+}
+
 -(void)dealloc
 {
 	[code release];
+	[sourceURL release];
 	[super dealloc];
 }
 
 -(TiValueRef) jsInvokeInContext: (KrollContext*)context exception: (TiValueRef *)exceptionPointer
 {
     pthread_mutex_lock(&KrollEntryLock);
-	TiStringRef js = TiStringCreateWithCFString((CFStringRef) code);
+	TiStringRef jsCode = TiStringCreateWithCFString((CFStringRef) code);
+	TiStringRef jsURL = NULL;
+	if (sourceURL != nil) {
+		jsURL = TiStringCreateWithUTF8CString([[sourceURL absoluteString] UTF8String]);
+	}
 	TiObjectRef global = TiContextGetGlobalObject([context context]);
 	
-	TiValueRef result = TiEvalScript([context context], js, global, NULL, 1, exceptionPointer);
+	TiValueRef result = TiEvalScript([context context], jsCode, global, jsURL, startingLineNo, exceptionPointer);
 		
-	TiStringRelease(js);
+	TiStringRelease(jsCode);
+	if (jsURL != NULL) {
+		TiStringRelease(jsURL);
+	}
     pthread_mutex_unlock(&KrollEntryLock);
 	
 	return result;

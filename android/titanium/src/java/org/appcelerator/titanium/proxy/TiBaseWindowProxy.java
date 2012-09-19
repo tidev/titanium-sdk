@@ -1,7 +1,10 @@
 package org.appcelerator.titanium.proxy;
 
+import java.lang.ref.WeakReference;
+
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.annotations.Kroll;
+import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.view.TiUIView;
@@ -15,7 +18,8 @@ import android.app.Activity;
 public class TiBaseWindowProxy extends TiWindowProxy
 {
 	private static final String TAG = "TiBaseWindow";
-
+	
+	private WeakReference<TiBaseActivity> hostActivity;
 
 	/**
 	 * Called to associate a view with a JS window wrapper 
@@ -35,7 +39,9 @@ public class TiBaseWindowProxy extends TiWindowProxy
 		// adding window to stack
 		Activity topActivity = TiApplication.getAppCurrentActivity();
 		if (topActivity instanceof TiBaseActivity) {
-			((TiBaseActivity)topActivity).addWindowToStack(this);
+			TiBaseActivity baseActivity = (TiBaseActivity)topActivity;
+			hostActivity = new WeakReference<TiBaseActivity>(baseActivity);
+			baseActivity.addWindowToStack(this);
 		}
 	}
 	
@@ -43,9 +49,9 @@ public class TiBaseWindowProxy extends TiWindowProxy
 	public void removeSelfFromStack() 
 	{
 		// removing window from stack
-		Activity topActivity = TiApplication.getAppCurrentActivity();
-		if (topActivity instanceof TiBaseActivity) {
-			((TiBaseActivity)topActivity).removeWindowFromStack(this);
+		TiBaseActivity activity = (hostActivity != null) ? hostActivity.get() : null;
+		if (activity != null) {
+			activity.removeWindowFromStack(this);
 		}
 	}
 

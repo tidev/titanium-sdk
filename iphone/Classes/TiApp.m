@@ -95,7 +95,8 @@ BOOL applicationInMemoryPanic = NO;
 TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run on main thread, or else there is a risk of deadlock!
 
 @interface TiApp()
--(void)checkBackgroundServices;
+- (void)checkBackgroundServices;
+- (void)appBoot;
 @end
 
 @implementation TiApp
@@ -108,6 +109,8 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 
 @synthesize window, remoteNotificationDelegate, controller;
 @synthesize disableNetworkActivityIndicator;
+@synthesize remoteNotification;
+@synthesize localNotification;
 
 +(void)initialize
 {
@@ -227,15 +230,34 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
     if (filePath != nil) {
         NSMutableDictionary *params = [[NSMutableDictionary alloc] initWithContentsOfFile:filePath];
         NSString *host = [params objectForKey:@"host"];
-        NSString *port = [params objectForKey:@"port"];
-        if (host != nil && ![host isEqual:@""] && ![host isEqual:@"__DEBUGGER_HOST__"])
+        NSInteger port = [[params objectForKey:@"port"] integerValue];
+        NSString *airkey = [params objectForKey:@"airkey"];
+        if (([host length] > 0) && ![host isEqualToString:@"__DEBUGGER_HOST__"])
         {
             [self setDebugMode:YES];
-            TiDebuggerStart(host,[port intValue]);
+            TiDebuggerStart(host, port);
         }
-        [params release];
+#if !TARGET_IPHONE_SIMULATOR
+		else if (([airkey length] > 0) && ![airkey isEqualToString:@"__DEBUGGER_AIRKEY__"])
+		{
+			TiDebuggerDiscoveryStart(airkey, ^(NSString *host, NSInteger port) {
+				if (host != nil) {
+					[self setDebugMode:YES];
+					TiDebuggerStart(host, port);
+				}
+				[self appBoot];
+			});
+			[params release];
+			return;
+		}
+		[params release];
+#endif
     }
-	
+	[self appBoot];
+}
+
+- (void)appBoot
+{	
 	kjsBridge = [[KrollBridge alloc] initWithHost:self];
 	
 	[kjsBridge boot:self url:nil preload:nil];
@@ -253,6 +275,9 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 	{
 		DebugLog(@"[DEBUG] Application booted in %f ms", ([NSDate timeIntervalSinceReferenceDate]-started) * 1000);
 		fflush(stderr);
+		if (localNotification != nil) {
+			[[NSNotificationCenter defaultCenter] postNotificationName:kTiLocalNotification object:localNotification userInfo:nil];
+		}
 		TiThreadPerformOnMainThread(^{[self validator];}, YES);
 	}
 }
@@ -304,6 +329,9 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 	NSURL *urlOptions = [launchOptions objectForKey:UIApplicationLaunchOptionsURLKey];
 	NSString *sourceBundleId = [launchOptions objectForKey:UIApplicationLaunchOptionsSourceApplicationKey];
 	NSDictionary *notification = [launchOptions objectForKey:UIApplicationLaunchOptionsRemoteNotificationKey];
+	
+	localNotification = [[[self class] dictionaryWithLocalNotification:[launchOptions objectForKey:UIApplicationLaunchOptionsLocalNotificationKey]] retain];
+	[launchOptions removeObjectForKey:UIApplicationLaunchOptionsLocalNotificationKey];
 	
 	// reset these to be a little more common if we have them
 	if (urlOptions!=nil)
@@ -479,11 +507,6 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 	
 	[self endBackgrounding];
 
-}
-
--(id)remoteNotification
-{
-	return remoteNotification;
 }
 
 #pragma mark Push Notification Delegates
@@ -714,13 +737,8 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 - (void)application:(UIApplication *)application didReceiveLocalNotification:(UILocalNotification *)notification
 {
 	RELEASE_TO_NIL(localNotification);
-	localNotification = [notification retain];
-	[[NSNotificationCenter defaultCenter] postNotificationName:kTiLocalNotification object:notification userInfo:nil];
-}
-
--(UILocalNotification*)localNotification
-{
-	return localNotification;
+	localNotification = [[[self class] dictionaryWithLocalNotification:notification] retain];
+	[[NSNotificationCenter defaultCenter] postNotificationName:kTiLocalNotification object:localNotification userInfo:nil];
 }
 
 -(void)registerBackgroundService:(TiProxy*)proxy
@@ -764,5 +782,25 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 	[runningServices removeObject:proxy];
 	[self checkBackgroundServices];
 }
+
+#define NOTNULL(v) ((v==nil) ? (id)[NSNull null] : v)
+
++ (NSDictionary *)dictionaryWithLocalNotification:(UILocalNotification *)notification
+{
+	if (notification == nil) {
+		return nil;
+	}
+	NSMutableDictionary* event = [NSMutableDictionary dictionary];
+	[event setObject:NOTNULL([notification fireDate]) forKey:@"date"];
+	[event setObject:NOTNULL([[notification timeZone] name]) forKey:@"timezone"];
+	[event setObject:NOTNULL([notification alertBody]) forKey:@"alertBody"];
+	[event setObject:NOTNULL([notification alertAction]) forKey:@"alertAction"];
+	[event setObject:NOTNULL([notification alertLaunchImage]) forKey:@"alertLaunchImage"];
+	[event setObject:NOTNULL([notification soundName]) forKey:@"sound"];
+	[event setObject:NUMINT([notification applicationIconBadgeNumber]) forKey:@"badge"];
+	[event setObject:NOTNULL([notification userInfo]) forKey:@"userInfo"];
+	return [[event copy] autorelease];
+}
+
 
 @end

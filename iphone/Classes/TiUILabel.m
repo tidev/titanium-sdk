@@ -46,7 +46,7 @@
 	CGSize maxSize = CGSizeMake(suggestedWidth<=0 ? 480 : suggestedWidth, 10000);
 	CGSize shadowOffset = [label shadowOffset];
 	requiresLayout = YES;
-	if ((suggestedWidth > 0) && [value characterAtIndex:value.length-1] == ' ') {
+	if ((suggestedWidth > 0) && [value hasSuffix:@" "]) {
 		// (CGSize)sizeWithFont:(UIFont *)font constrainedToSize:(CGSize)size lineBreakMode:(UILineBreakMode)lineBreakMode method truncates
 		// the string having trailing spaces when given size parameter width is equal to the expected return width, so we adjust it here.
 		maxSize.width += 0.00001;
@@ -86,7 +86,7 @@
             default:
                 break;
         }
-        
+
         if (originX < 0) {
             originX = 0;
         }
@@ -107,7 +107,7 @@
                 }
                 break;
         }
-    
+
         [label setFrame:CGRectIntegral(labelRect)];
     }
     else {
@@ -115,7 +115,7 @@
     }
 
     if (repad &&
-        backgroundView != nil && 
+        backgroundView != nil &&
         !CGRectIsEmpty(initialLabelFrame))
     {
         [backgroundView setFrame:CGRectMake(initialLabelFrame.origin.x - padding.origin.x,
@@ -128,7 +128,7 @@
 }
 
 // FIXME: This isn't quite true.  But the brilliant soluton wasn't so brilliant, because it screwed with layout in unpredictable ways.
-//	Sadly, there was a brilliant solution for fixing the blurring here, but it turns out there's a 
+//	Sadly, there was a brilliant solution for fixing the blurring here, but it turns out there's a
 //	quicker fix: Make sure the label itself has an even height and width. Everything else is irrelevant.
 -(void)setCenter:(CGPoint)newCenter
 {
@@ -138,10 +138,10 @@
 -(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
 {
 	initialLabelFrame = bounds;
-    
+
     repad = YES;
     [self padLabel];
-    
+
     [super frameSizeChanged:frame bounds:bounds];
 }
 
@@ -230,7 +230,7 @@
         [[self label] setAdjustsFontSizeToFitWidth:YES];
         [[self label] setMinimumFontSize:newSize];
     }
-    
+
 }
 
 -(void)setBackgroundImage_:(id)url
@@ -247,7 +247,7 @@
         else {
             backgroundView.image = bgImage;
             [backgroundView setNeedsDisplay];
-            
+
             repad = YES;
             [self padLabel];
         }
@@ -258,7 +258,7 @@
             RELEASE_TO_NIL(backgroundView);
         }
     }
-    
+
     self.backgroundImage = url;
 }
 

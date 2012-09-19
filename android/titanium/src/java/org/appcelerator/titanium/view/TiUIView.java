@@ -38,6 +38,8 @@ import android.graphics.Point;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
+import android.support.v4.view.ViewCompat;
+import android.text.TextUtils;
 import android.util.Pair;
 import android.view.GestureDetector;
 import android.view.GestureDetector.SimpleOnGestureListener;
@@ -70,6 +72,10 @@ public abstract class TiUIView
 	private static final String TAG = "TiUIView";
 
 	private static AtomicInteger idGenerator;
+
+	// When distinguishing twofingertap and pinch events, minimum motion (in pixels) 
+	// to qualify as a scale event. 
+	private static final float SCALE_THRESHOLD = 6.0f;
 
 	public static final int SOFT_KEYBOARD_DEFAULT_ON_FOCUS = 0;
 	public static final int SOFT_KEYBOARD_HIDE_ON_FOCUS = 1;
@@ -107,6 +113,8 @@ public abstract class TiUIView
 
 	private boolean zIndexChanged = false;
 	private TiBorderWrapperView borderView;
+	// For twofingertap detection
+	private boolean didScale = false;
 
 	/**
 	 * Constructs a TiUIView object with the associated proxy.
@@ -236,6 +244,8 @@ public abstract class TiUIView
 		}
 		doSetClickable(nativeView, clickable);
 		nativeView.setOnFocusChangeListener(this);
+
+		applyAccessibilityProperties();
 	}
 
 	protected void setLayoutParams(LayoutParams layoutParams)
@@ -619,6 +629,13 @@ public abstract class TiUIView
 			if (nativeView != null) {
 				nativeView.setKeepScreenOn(TiConvert.toBoolean(newValue));
 			}
+
+		} else if (key.indexOf("accessibility") == 0 && !key.equals(TiC.PROPERTY_ACCESSIBILITY_HIDDEN)) {
+			composeContentDescription();
+
+		} else if (key.equals(TiC.PROPERTY_ACCESSIBILITY_HIDDEN)) {
+			applyAccessibilityHidden(newValue);
+
 		} else {
 			Log.d(TAG, "Unhandled property key: " + key, Log.DEBUG_MODE);
 		}
@@ -708,9 +725,14 @@ public abstract class TiUIView
 			nativeView.setKeepScreenOn(TiConvert.toBoolean(d, TiC.PROPERTY_KEEP_SCREEN_ON));
 			
 		}
+
+		if (d.containsKey(TiC.PROPERTY_ACCESSIBILITY_HINT) || d.containsKey(TiC.PROPERTY_ACCESSIBILITY_LABEL)
+				|| d.containsKey(TiC.PROPERTY_ACCESSIBILITY_VALUE) || d.containsKey(TiC.PROPERTY_ACCESSIBILITY_HIDDEN)) {
+			applyAccessibilityProperties();
+		}
 	}
 
-	// TODO @Override
+	// TODO dead code? @Override
 	public void propertiesChanged(List<KrollPropertyChange> changes, KrollProxy proxy)
 	{
 		for (KrollPropertyChange change : changes) {
@@ -1046,12 +1068,23 @@ public abstract class TiUIView
 					if (proxy.hierarchyHasListener(TiC.EVENT_PINCH)) {
 						float timeDelta = sgd.getTimeDelta() == 0 ? minTimeDelta : sgd.getTimeDelta();
 
-						KrollDict data = new KrollDict();
-						data.put(TiC.EVENT_PROPERTY_SCALE, sgd.getCurrentSpan() / startSpan);
-						data.put(TiC.EVENT_PROPERTY_VELOCITY, (sgd.getScaleFactor() - 1.0f) / timeDelta * 1000);
-						data.put(TiC.EVENT_PROPERTY_SOURCE, proxy);
+						// Suppress scale events (and allow for possible two-finger tap events)
+						// until we've moved at least a few pixels. Without this check, two-finger 
+						// taps are very hard to register on some older devices.
+						if (!didScale) {
+							if (Math.abs(sgd.getCurrentSpan() - startSpan) > SCALE_THRESHOLD) {
+								didScale = true;
+							} 
+						}
 
-						return proxy.fireEvent(TiC.EVENT_PINCH, data);
+						if (didScale) {
+							KrollDict data = new KrollDict();
+							data.put(TiC.EVENT_PROPERTY_SCALE, sgd.getCurrentSpan() / startSpan);
+							data.put(TiC.EVENT_PROPERTY_VELOCITY, (sgd.getScaleFactor() - 1.0f) / timeDelta * 1000);
+							data.put(TiC.EVENT_PROPERTY_SOURCE, proxy);
+	
+							return proxy.fireEvent(TiC.EVENT_PINCH, data);
+						}
 					}
 					return false;
 				}
@@ -1125,6 +1158,8 @@ public abstract class TiUIView
 		
 		touchable.setOnTouchListener(new OnTouchListener()
 		{
+			int pointersDown = 0;
+
 			public boolean onTouch(View view, MotionEvent event)
 			{
 				if (event.getAction() == MotionEvent.ACTION_UP) {
@@ -1134,13 +1169,32 @@ public abstract class TiUIView
 
 				scaleDetector.onTouchEvent(event);
 				if (scaleDetector.isInProgress()) {
+					pointersDown = 0;
 					return true;
 				}
 
 				boolean handled = detector.onTouchEvent(event);
 				if (handled) {
+					pointersDown = 0;
 					return true;
 				}
+
+				if (event.getActionMasked() == MotionEvent.ACTION_POINTER_UP) {
+					if (didScale) {
+						didScale = false;
+						pointersDown = 0;
+					} else {
+						pointersDown++;
+					}
+				} else if (event.getAction() == MotionEvent.ACTION_UP) {
+					if (pointersDown == 1) {
+						proxy.fireEvent(TiC.EVENT_TWOFINGERTAP, dictFromEvent(event));
+						pointersDown = 0;
+						return true;
+					}
+					pointersDown = 0;
+				}
+
 
 				String motionEvent = motionEvents.get(event.getAction());
 				if (motionEvent != null) {
@@ -1408,6 +1462,93 @@ public abstract class TiUIView
 		animatedRotationDegrees = 0f; // i.e., no rotation.
 		animatedScaleValues = Pair.create(Float.valueOf(1f), Float.valueOf(1f)); // 1 means no scaling
 		animatedAlpha = Float.MIN_VALUE; // we use min val to signal no val.
+	}
+
+	/**
+	 * Our view proxy supports three properties to match iOS regarding
+	 * the text that is read aloud (or otherwise communicated) by the
+	 * assistive technology: accessibilityLabel, accessibilityHint
+	 * and accessibilityValue.
+	 *
+	 * We combine these to create the single Android property contentDescription.
+	 * (e.g., View.setContentDescription(...));
+	 */
+	private void composeContentDescription()
+	{
+		if (nativeView == null || proxy == null) {
+			return;
+		}
+
+		final String punctuationPattern = "^.*\\p{Punct}\\s*$";
+		StringBuilder buffer = new StringBuilder();
+
+		KrollDict properties = proxy.getProperties();
+		String label, hint, value;
+		label = TiConvert.toString(properties.get(TiC.PROPERTY_ACCESSIBILITY_LABEL));
+		hint = TiConvert.toString(properties.get(TiC.PROPERTY_ACCESSIBILITY_HINT));
+		value = TiConvert.toString(properties.get(TiC.PROPERTY_ACCESSIBILITY_VALUE));
+
+		if (!TextUtils.isEmpty(label)) {
+			buffer.append(label);
+			if (!label.matches(punctuationPattern)) {
+				buffer.append(".");
+			}
+		}
+
+		if (!TextUtils.isEmpty(value)) {
+			if (buffer.length() > 0) {
+				buffer.append(" ");
+			}
+			buffer.append(value);
+			if (!value.matches(punctuationPattern)) {
+				buffer.append(".");
+			}
+		}
+
+		if (!TextUtils.isEmpty(hint)) {
+			if (buffer.length() > 0) {
+				buffer.append(" ");
+			}
+			buffer.append(hint);
+			if (!hint.matches(punctuationPattern)) {
+				buffer.append(".");
+			}
+		}
+
+		nativeView.setContentDescription(buffer.toString());
+	}
+
+	private void applyAccessibilityProperties()
+	{
+		if (nativeView != null) {
+			composeContentDescription();
+			applyAccessibilityHidden();
+		}
+
+	}
+
+	private void applyAccessibilityHidden()
+	{
+		if (nativeView == null || proxy == null) {
+			return;
+		}
+
+		applyAccessibilityHidden(proxy.getProperty(TiC.PROPERTY_ACCESSIBILITY_HIDDEN));
+	}
+
+	private void applyAccessibilityHidden(Object hiddenPropertyValue)
+	{
+		if (nativeView == null) {
+			return;
+		}
+
+		int importanceMode = ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_AUTO;
+
+		if (hiddenPropertyValue != null && TiConvert.toBoolean(hiddenPropertyValue)) {
+				importanceMode = ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_NO;
+		}
+
+		ViewCompat.setImportantForAccessibility(nativeView, importanceMode);
 	}
 
 }

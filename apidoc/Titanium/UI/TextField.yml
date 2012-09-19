@@ -40,8 +40,9 @@ methods:
     
   - name: setSelection
     summary: Selects the text in range (start, end).
-    platforms: [android]
-    since: 2.2.0
+    platforms: [android, iphone, ipad]
+    since: 3.0.0
+    osver: {ios: {min: "5.0"}}
     parameters:
       - name: start
         summary: Start index for selection. Value ranges from 0 to the text's length.
@@ -53,6 +54,8 @@ methods:
          Selects the text in range (start, end). If start equals end, no text will be selected, 
          and the cursor will move to the start position. End is not inclusive, meaning setSelection(0,0) 
          will not select the first character, but will move the cursor to the position before the first character.
+         
+         On iOS, soft keyboard would show when text is selected.
          
 properties:
   - name: appearance
@@ -92,7 +95,7 @@ properties:
         or [LINKIFY_WEB_URLS](Titanium.UI.Android.LINKIFY_WEB_URLS).
     type: Number
     default: undefined
-    since: 2.2.0
+    since: 3.0.0
     platforms: [android]
     
   - name: borderStyle
@@ -179,7 +182,7 @@ properties:
         Array of toolbar button objects or a [toolbar](Titanium.UI.iOS.Toolbar) to be used when the 
         keyboard is displayed.
     description: |
-        As of 1.9.0, because iOS disallows a view (including toolbar buttons) to be in two places at
+        As of Release 2.0, because iOS disallows a view (including toolbar buttons) to be in two places at
         once, developers desiring textAreas or [textFields](Titanium.UI.TextField) to share a toolbar
         can instead use a single [toolbar](Titanium.UI.iOS.Toolbar) instead of having arrays sharing
         toolbar buttons.
@@ -363,7 +366,7 @@ properties:
         indicates unlimited length.
     default: -1
     type: Number
-    since: {android: "2.2.0"}
+    since: {android: "3.0.0"}
     platforms: [android, iphone, mobileweb]
 
 events:
@@ -399,6 +402,7 @@ examples:
   - title: Basic Text Field with rounded border
     example: |
         Create a simple text field with a round border style.
+
             var win = Ti.UI.createWindow({
               backgroundColor: 'white'
             });

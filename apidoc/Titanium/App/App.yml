@@ -2,7 +2,7 @@
 name: Titanium.App
 summary: |
     The top level App module. The App module is mainly used for accessing information about the 
-    application at runtime.
+    application at runtime and for sending or listening for system events.
 description: |
     The `App` module exposes a number of properties set in the `tiapp.xml` file.  
     
@@ -12,6 +12,78 @@ description: |
     While most values may be changed by editing the `tiapp.xml` file after creating the project, 
     the GUID is automatically generated and should not be changed.
 
+    #### iOS Application Life Cycle
+
+    At any given moment, you applications can be in one of the following possible states:
+    
+    *   Not running: The app has not been launched or was running but was terminated by the system.
+    
+    *   Inactive: The app is running in the foreground but is currently not receiving events. 
+    An app usually stays in this state only briefly as it transitions to a different state. 
+    The `pause` event is fired during this state.
+    
+    *   Active: The app is running in the foreground and is receiving events. This is the normal 
+    mode for foreground apps. 
+    
+    *   Background: The app is in the background and executing code. Most apps enter this state 
+    briefly on their way to being suspended. 
+    
+    *   Suspended: The app is in the background but is not executing code. The system moves 
+    apps to this state automatically and does not notify them before doing so. While suspended, 
+    an app remains in memory but does not execute any code. The `paused` event is fired 
+    during this state. The system tries to keep as many apps in memory at the same time as it 
+    can, but when memory runs low it terminates suspended apps to reclaim that memory. Apps 
+    that consume large amounts of memory while in the background are the first apps to be terminated.
+    
+    **Responding To interruptions**
+    
+    ***System Alerts***
+    
+    When an **alert-based** interruption occurs, such as an incoming phone call, the app moves 
+    temporarily to the inactive state, and fires the `pause` event. The system then displays 
+    an alert to the user. The app remains in this state until the user dismisses the alert. 
+    At this point, the app either returns to the active state and fires the `resumed` event; 
+    or moves to the background state and fires the `paused` event. In iOS 5, notifications that 
+    display a banner do not deactivate your app in the way that alert-based notifications do.
+    However, if the user pulls down the banner to reveal the notification center, your app 
+    moves to the inactive state just as if an alert-based interruption had occurred.
+    
+    Alert-based interruptions result in temporary loss of control by your app and results in `pause` 
+    event being fired. Your app continues to run in the foreground, but it does not recieve 
+    touch events from the system. (It does continue to receive notifications and other types 
+    of events, such as accelerometer events.) When your app is moved back to the 
+    active state, the `resumed` event is fired. 
+    
+    The same set of events takes place when user **double taps on the home button**.
+    
+    ***Sleep/Wake Button***
+    
+    Pressing the **Sleep/Wake** button is another type of interruption that causes your app to 
+    move to an inactive state. When the app is in the foreground, if the **Sleep/Wake button** 
+    is pressed the following events take place:
+    
+    *   In iOS 4.X the system fires the `pause` event and becomes inactive and on waking up the app fires 
+    the `resumed` event.
+
+    *   In iOS 5.0 and greater the system fires the `pause` event followed by the `paused` event and 
+    becomes inactive. This is an intentionally behavioral change by Apple to conserve battery when 
+    the Sleep/Wake button is pressed. On waking up the app fires the `resume` event followed by the 
+    `resumed` event and returns the app to normal state. 
+
+    ***Home Button***
+    
+    Pressing the **home button** is another kind of interruption. The app fires `pause` and 
+    `paused`events before going into background. When app is reopened it fires the `resume` 
+    event followed by the `resumed` event, returning the app to the normal state.
+    
+    <table class="doc-table" summary="This table gives the order of events fired when the app is in normal state.">
+    <caption><b>Lifecycle events fired during different interruptions</b></caption>
+    <tr><th colspan="2">Type of Interruption<th colspan="2">Going into Background<th colspan="2">Coming into  Foreground</tr>
+    <tr><th colspan="2" align = "left">Alert-Based/Fast App Switching<td align="center">pause</td><td align="center"></td><td align="center"> </td><td align="center">resumed</td></tr>
+    <tr><th rowspan="2" align="left">Sleep/Wake Button</th><td> iOS 4.X</td><td align="center">pause</td><td  align="center"><td align="center"><td align="center"> resumed</tr >
+    <tr><td>iOS 5.0 +</td><td align="center">pause</td><td align="center">paused</td><td align="center">resume<td align="center">resumed</td></tr>
+    <tr><th colspan="2" align="left">Home Button (backgrounding)<td align="center">pause<td align="center">paused<td align="center"> resume<td align="center">resumed</tr></table>
+    
     #### Application Level Events
 
     Application-level events are custom events that are defined globally for your
@@ -38,10 +110,67 @@ description: |
     See also: [Event Handling](http://docs.appcelerator.com/titanium/2.0/index.html#!/guide/Event_Handling)
     in the Titanium Mobile Guides.
 
+    #### System Level Accessibility Events
+
+    System-level Accessibility events include:
+
+    * Events your application fires to alert the device's accessibility system of some condition
+    or to ask it to do something.
+    * Events fired by the device's accessibility system and listened for in your application.
+
+    Currently there are four system-level accessibility events. Three of them are available for
+    your application to fire, and one of them is for your application to listen for.
+
+    ##### Firing Accessibility Events.
+
+    The following accessibility events can be fired by your application to alert the accessibility
+    system of a particular condition or to ask it to perform an action.
+
+    These events are fired using <Ti.App.fireSystemEvent>, which is available in Titanium Mobile 3.0.0.
+
+    * <Ti.App.EVENT_ACCESSIBILITY_ANNOUNCEMENT>, available in iOS and Android, asks the device's
+    accessibility system to make an announcement. The announcement itself is a string passed as the second
+    argument to <Ti.App.fireSystemEvent>. *How* the device's accessibility actually makes that announcement
+    depends on what accessibility services are activated on the device. The most common are VoiceOver on
+    iOS and TalkBack on Android. Each of those would read the announcement aloud.
+
+            Ti.App.fireSystemEvent(Ti.App.EVENT_ACCESSIBILITY_ANNOUNCEMENT, "Welcome to my App");
+
+    * <Ti.App.iOS.EVENT_ACCESSIBILITY_LAYOUT_CHANGED>, available only on iOS, can be used to alert
+    the accessibility system that the layout of the screen has changed, such as when an element
+    appears or disappears. When your application fires this event, Titanium calls `UIAccessibilityLayoutChangedNotification`
+    in the iOS [UIAccessibility Protocol](http://developer.apple.com/library/ios/#documentation/uikit/reference/UIAccessibility_Protocol/Introduction/Introduction.html).  No second parameter is required when firing this event with <Ti.App.fireSystemEvent>.
+
+    * <Ti.App.iOS.EVENT_ACCESSIBILITY_SCREEN_CHANGED>, available only on iOS, can be used to alert
+    the accessibility system when a new view appears that comprises a major portion of the screen.
+    When your application fires this event, Titanium calls `UIAccessibilityScreenChangedNotification`
+    in the iOS [UIAccessibility Protocol](http://developer.apple.com/library/ios/#documentation/uikit/reference/UIAccessibility_Protocol/Introduction/Introduction.html).
+    No second parameter is required when firing this event with <Ti.App.fireSystemEvent>.
+
+    ##### Listening for Accessibility Events
+
+    Currently there is only one system accessibility event which your application can listen for using
+    <Ti.App.addEventListener>, namely <Ti.App.accessibilitychanged>.  This event, available on iOS and on Android
+    (for devices running Ice Cream Sandwich or greater), is fired when the device's accessibility service is turned
+    on or off. The object passed as a parameter to the listener function contains an `enabled` property which is
+    `true` if the accessibility service is now turned on, or `false` otherwise.
+
 extends: Titanium.Module
 since: "0.1"
 
 events:
+  - name: accessibilitychanged
+    summary: Fired by the system when the device's accessibility service is turned on or off.
+    platforms: [android, iphone, ipad]
+    since: "3.0.0"
+    osver:
+        android:
+            min: "4.0"
+    properties:
+      - name: enabled
+        summary: Whether accessibility is now enabled or disabled.
+        type: Boolean
+
   - name: pause
     summary: Fired when the application transitions from active to inactive state on a multitasked system.
     description: |
@@ -111,10 +240,13 @@ events:
     platforms: [iphone, ipad]
     
   - name: keyboardFrameChanged
+    deprecated:
+        since: "3.0.0"
+        notes: |
+            Renamed to [keyboardframechanged](Titanium.App.keyboardframechanged)
+            (all lowercase).
     summary: Fired when the soft keyboard is presented, on and off the screen.
     description: |
-        This event has been deprecated and renamed keyboardframechanged (lower case).
-
         This event fires when the application presents the soft keyboard on/off the screen . The 
         event returns the dictionary containing `keyboardFrame.x`, `keyboardFrame.y`, 
         `keyboardFrame.height` and `keyboardFrame.width` variables, corresponding to the frame of 
@@ -123,8 +255,6 @@ events:
         Note that the keyboard `height` and `width` properties will not be accurate when the keyboard 
         is being dissmissed.
     platforms: [iphone, ipad]
-    deprecated:
-        since: "2.2.0"
     since: '2.1.0'
 
   - name: keyboardframechanged
@@ -138,9 +268,22 @@ events:
         Note that the keyboard `height` and `width` properties will not be accurate when the keyboard 
         is being dissmissed.
     platforms: [iphone, ipad]
-    since: '2.2.0'
+    since: '3.0.0'
     
 methods:
+  - name: fireSystemEvent
+    summary: Fire a system-level event such as <Ti.App.EVENT_ACCESSIBILITY_ANNOUNCEMENT>.
+    platforms: [android, iphone, ipad]
+    since: "3.0.0"
+    parameters:
+      - name: eventName
+        summary: The name of the event to fire.
+        type: String
+      - name: param
+        summary: A parameter to be passed to the system event.
+        type: Object
+        optional: true
+
   - name: getArguments
     summary: Returns the arguments passed to the application on startup.
     platforms: [iphone, ipad]
@@ -148,6 +291,20 @@ methods:
         type: Dictionary
 
 properties:
+  - name: EVENT_ACCESSIBILITY_ANNOUNCEMENT
+    summary: Convenience constant for system event "accessibilityannouncement".
+    type: String
+    permission: read-only
+    platforms: [android, iphone, ipad]
+    since: "3.0.0"
+
+  - name: EVENT_ACCESSIBILITY_CHANGED
+    summary: Convenience constant for system event "accessibilitychanged".
+    type: String
+    permission: read-only
+    platforms: [android, iphone, ipad]
+    since: "3.0.0"
+
   - name: analytics
     summary: Indicates whether Analytics is enabled, determined by `tiapp.xml`.
     type: Boolean
@@ -237,7 +394,7 @@ properties:
     type: Boolean
     default: false
     platforms: [iphone, ipad]
-    since: '2.2.0'
+    since: '3.0.0'
     
   - name: publisher
     summary: Application publisher, from `tiapp.xml`.

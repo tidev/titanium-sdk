@@ -465,7 +465,7 @@ def copy_tiapp_properties(project_dir):
 def cleanup_app_logfiles(tiapp, log_id, iphone_version):
 	print "[DEBUG] finding old log files"
 	sys.stdout.flush()
-	simulator_dir = os.path.expanduser('~/Library/Application Support/iPhone Simulator/%s' % iphone_version)
+	simulator_dir = os.path.expanduser('~/Library/Application\ Support/iPhone\ Simulator/%s' % iphone_version)
 
 	# No need to clean if the directory doesn't exist
 	if not os.path.exists(simulator_dir):
@@ -508,7 +508,7 @@ def find_name_conflicts(project_dir, project_name):
 		for name in os.listdir(os.path.join(project_dir, dir)):
 			if name.lower() == project_name.lower():
 				print "[ERROR] Project name %s conflicts with resource named %s: Cannot build. Please change one." % (project_name, os.path.join(project_dir, dir, name))
-				exit(1)
+				sys.exit(1)
 	pass
 
 #
@@ -640,7 +640,21 @@ def main(args):
 		provisioning_profile = None
 		debughost = None
 		debugport = None
+		debugairkey = None
 		postbuild_modules = []
+		finalize_modules = []
+
+		def run_finalize():
+			try:
+				if finalize_modules:
+					for p in finalize_modules:
+						print "[INFO] Running finalize %s..." % p[0]
+						o.write("Running finalize %s" % p[0])
+						p[1].finalize()
+			except Exception,e:
+				print "[ERROR] Error in finalize: %s" % e
+				o.write("Error in finalize: %s" % e)
+
 		
 		# starting in 1.4, you don't need to actually keep the build/iphone directory
 		# if we don't find it, we'll just simply re-generate it
@@ -699,6 +713,19 @@ def main(args):
 				devicefamily = dequote(args[8].decode("utf-8"))
 			if argc > 9:
 				dist_keychain = dequote(args[9].decode("utf-8"))
+				if dist_keychain=='':
+					dist_keychain = None
+			
+			if argc > 10:
+				# this is host:port:airkey from the debugger
+				debughost = dequote(args[10].decode("utf-8"))
+				if debughost=='':
+					debughost = None
+					debugport = None
+					debugairkey = None
+				else:
+					debughost,debugport,debugairkey = debughost.split(":")
+			
 			if command == 'install':
 				target = 'Debug'
 				deploytype = 'test'
@@ -780,7 +807,7 @@ def main(args):
 				print '[ERROR] Could not find the following required iOS modules:'
 				for module in missing_modules:
 					print "[ERROR]\tid: %s\tversion: %s" % (module['id'], module['version'])
-				exit(1)
+				sys.exit(1)
 
 			# search for modules that the project is using
 			# and make sure we add them to the compile
@@ -1024,7 +1051,7 @@ def main(args):
 			debug_plist = os.path.join(iphone_dir,'Resources','debugger.plist')
 			
 			# Force an xcodebuild if the debugger.plist has changed
-			force_xcode = write_debugger_plist(debughost, debugport, template_dir, debug_plist)
+			force_xcode = write_debugger_plist(debughost, debugport, debugairkey, template_dir, debug_plist)
 
 			if command not in ['simulator', 'build']:
 				# compile plist into binary format so it's faster to load
@@ -1090,9 +1117,13 @@ def main(args):
 					p = imp.load_source(code_hash, code_path, fin)
 					module_functions = dict(inspect.getmembers(p, inspect.isfunction))
 					if module_functions.has_key('postbuild'):
-						print "[DBEUG] Plugin has postbuild"
+						print "[DEBUG] Plugin has postbuild"
 						o.write("+ Plugin has postbuild")
 						postbuild_modules.append((plugin['name'], p))
+					if module_functions.has_key('finalize'):
+						print "[DEBUG] Plugin has finalize"
+						o.write("+ Plugin has finalize")
+						finalize_modules.append((plugin['name'], p))
 					p.compile(compiler_config)
 					fin.close()
 					
@@ -1116,6 +1147,12 @@ def main(args):
 				print "[INFO] Minimum iOS version: %s" % min_ver
 				deploy_target = "IPHONEOS_DEPLOYMENT_TARGET=%s" % min_ver
 				device_target = 'TARGETED_DEVICE_FAMILY=1'  # this is non-sensical, but you can't pass empty string
+				
+				# No armv6 support above 4.3 or with 6.0+ SDK
+				if min_ver >= 4.3 or float(iphone_version) >= 6.0:
+					valid_archs = 'armv7 i386'
+				else:
+					valid_archs = 'armv6 armv7 i386'
 
 				# clean means we need to nuke the build 
 				if clean_build or force_destroy_build: 
@@ -1186,7 +1223,7 @@ def main(args):
 						# NOTE: this is very important to run on device -- i dunno why
 						# xcode warns that 3.2 needs only armv7, but if we don't pass in 
 						# armv6 we get crashes on device
-						extra_args = ["VALID_ARCHS=armv6 armv7 i386"]
+						extra_args = ["VALID_ARCHS="+valid_archs]
 					# Additionally, if we're universal, change the device family target
 					if devicefamily == 'universal':
 						device_target="TARGETED_DEVICE_FAMILY=1,2"
@@ -1288,7 +1325,6 @@ def main(args):
 						o.write("Error in post-build: %s" % e)
 						print "[ERROR] Error in post-build: %s" % e
 						
-
 				# build the final release distribution
 				args = []
 
@@ -1380,7 +1416,7 @@ def main(args):
 					# set the DYLD_FRAMEWORK_PATH environment variable for the following Popen iphonesim command
 					# this allows the XCode developer folder to be arbitrarily named
 					xcodeselectpath = os.popen("/usr/bin/xcode-select -print-path").readline().rstrip('\n')
-					iphoneprivateframeworkspath = xcodeselectpath + '/Platforms/iPhoneSimulator.platform/Developer/Library/PrivateFrameworks'
+					iphoneprivateframeworkspath = xcodeselectpath + '/Platforms/iPhoneSimulator.platform/Developer/Library/PrivateFrameworks:' + xcodeselectpath + '/../OtherFrameworks'
 					os.putenv('DYLD_FRAMEWORK_PATH', iphoneprivateframeworkspath)
 
 					# launch the simulator
@@ -1587,10 +1623,11 @@ def main(args):
 			if not script_ok:
 				o.write("\nException detected in script:\n")
 				traceback.print_exc(file=o)
-				o.close()
 				sys.exit(1)
-			else:
-				o.close()
+		finally:
+			if command not in ("xcode") and "run_finalize" in locals():
+				run_finalize()
+			o.close()
 
 if __name__ == "__main__":
 	main(sys.argv)

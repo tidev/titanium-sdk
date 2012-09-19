@@ -117,17 +117,21 @@ properties:
   
   - name: autorotate
     summary: |
-        Indicates whether the image should be rotated based on exif orientation data. This is false by default on android. 
-        iOS always has this behavior enabled, and currently can't be changed.  The auto rotate behavior is not supported on Mobile Web.
+        Indicates whether the image should be rotated based on exif orientation data. 
+        By default, this is false on android and true on iOS. 
+        The auto rotate behavior is not supported on Mobile Web.
     type: Boolean
-    default: false
+    default: false on android, true on iOS. 
     availability: creation
-    platforms: [android]
+    since: 3.0.0
+    platforms: [android, iphone, ipad]
     
   - name: canScale
     summary: |
-        Allow the user to scale the image (using pinch-zoom or the optional zoom controls).
-    description: See also [enableZoomControls](Titanium.UI.ImageView.enableZoomControls).
+        Allow the user to scale the image using the on-screen zoom controls.
+    description: |
+        Zoom controls must also be enabled: see 
+        [enableZoomControls](Titanium.UI.ImageView.enableZoomControls).
     type: Boolean
     default: false
     platforms: [android]
@@ -220,6 +224,14 @@ properties:
     summary: Run the animation in reverse.
     type: Boolean
     default: false
+
+  - name: url
+    summary: URL to the image to display.
+    deprecated:
+        since: "1.5.0"
+        removed: "3.0.0"
+        notes: Use [image](Titanium.UI.ImageView.image) instead.
+    type: String
 
 examples:
   - title: Basic Image View

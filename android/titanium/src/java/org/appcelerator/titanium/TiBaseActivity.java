@@ -17,7 +17,6 @@ import org.appcelerator.kroll.common.TiMessenger;
 import org.appcelerator.titanium.TiLifecycle.OnLifecycleEvent;
 import org.appcelerator.titanium.proxy.ActivityProxy;
 import org.appcelerator.titanium.proxy.IntentProxy;
-import org.appcelerator.titanium.proxy.TiBaseWindowProxy;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.proxy.TiWindowProxy;
 import org.appcelerator.titanium.util.TiActivityResultHandler;
@@ -44,6 +43,7 @@ import android.os.RemoteException;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 
@@ -62,7 +62,7 @@ public abstract class TiBaseActivity extends Activity
 	private int originalOrientationMode = -1;
 	private TiWeakList<OnLifecycleEvent> lifecycleListeners = new TiWeakList<OnLifecycleEvent>();
 
-	protected TiCompositeLayout layout;
+	protected View layout;
 	protected TiActivitySupportHelper supportHelper;
 	protected TiWindowProxy window;
 	protected TiViewProxy view;
@@ -75,12 +75,12 @@ public abstract class TiBaseActivity extends Activity
 	protected int msgId = -1;
 	protected static int previousOrientation = -1;
 	private ArrayList<Dialog> dialogs = new ArrayList<Dialog>();
-	private Stack<TiBaseWindowProxy> windowStack = new Stack<TiBaseWindowProxy>();
+	private Stack<TiWindowProxy> windowStack = new Stack<TiWindowProxy>();
 
 	public TiWindowProxy lwWindow;
 	public boolean isResumed = false;
 
-	public void addWindowToStack(TiBaseWindowProxy proxy)
+	public void addWindowToStack(TiWindowProxy proxy)
 	{
 		if (windowStack.contains(proxy)) {
 			Log.e(TAG, "Window already exists in stack", Log.DEBUG_MODE);
@@ -88,22 +88,35 @@ public abstract class TiBaseActivity extends Activity
 		}
 		boolean isEmpty = windowStack.empty();
 		if (!isEmpty) {
-			windowStack.peek().fireEvent(TiC.EVENT_BLUR, null);
+			windowStack.peek().onWindowFocusChange(false);
 		}
 		windowStack.add(proxy);
-		if (!isEmpty) { 
-			proxy.fireEvent(TiC.EVENT_FOCUS, null, false);
+		if (!isEmpty) {
+			proxy.onWindowFocusChange(true);
 		}
 	}
 
-	public void removeWindowFromStack(TiBaseWindowProxy proxy)
+	public void removeWindowFromStack(TiWindowProxy proxy)
 	{
-		proxy.fireEvent(TiC.EVENT_BLUR, null);
+		proxy.onWindowFocusChange(false);
+
+		boolean isTopWindow = ( (!windowStack.isEmpty()) && (windowStack.peek() == proxy) ) ? true : false;
 		windowStack.remove(proxy);
-		if (!windowStack.empty()) {
-			TiBaseWindowProxy nextWindow = windowStack.peek();
-			nextWindow.fireEvent(TiC.EVENT_FOCUS, null, false);
+
+		//Fire focus only if activity is not paused and the removed window was topWindow
+		if (!windowStack.empty() && isResumed && isTopWindow) {
+			TiWindowProxy nextWindow = windowStack.peek();
+			nextWindow.onWindowFocusChange(true);
 		}
+	}
+
+	/**
+	 * Returns the window at the top of the stack.
+	 * @return the top window or null if the stack is empty.
+	 */
+	public TiWindowProxy topWindowOnStack()
+	{
+		return (windowStack.isEmpty()) ? null : windowStack.peek();
 	}
 
 	// could use a normal ConfigurationChangedListener but since only orientation changes are
@@ -162,8 +175,8 @@ public abstract class TiBaseActivity extends Activity
 	 */
 	protected void setLayoutProxy(TiViewProxy proxy)
 	{
-		if (layout != null) {
-			layout.setProxy(proxy);
+		if (layout instanceof TiCompositeLayout) {
+			((TiCompositeLayout) layout).setProxy(proxy);
 		}
 	}
 
@@ -201,9 +214,14 @@ public abstract class TiBaseActivity extends Activity
 	/**
 	 * @return the activity's current layout.
 	 */
-	public TiCompositeLayout getLayout()
+	public View getLayout()
 	{
 		return layout;
+	}
+
+	public void setLayout(View layout)
+	{
+		this.layout = layout;
 	}
 
 	public void addConfigurationChangedListener(ConfigurationChangedListener listener)
@@ -291,7 +309,7 @@ public abstract class TiBaseActivity extends Activity
 	}
 
 	// Subclasses can override to provide a custom layout
-	protected TiCompositeLayout createLayout()
+	protected View createLayout()
 	{
 		LayoutArrangement arrangement = LayoutArrangement.DEFAULT;
 
@@ -390,9 +408,7 @@ public abstract class TiBaseActivity extends Activity
 			return;
 		}
 
-		if (!isTabActivity()) {
-			TiApplication.addToActivityStack(this);
-		}
+		TiApplication.addToActivityStack(this);
 
 		// create the activity proxy here so that it is accessible from the activity in all cases
 		activityProxy = new ActivityProxy(this);
@@ -416,7 +432,9 @@ public abstract class TiBaseActivity extends Activity
 		// Doing this on every create in case the activity is externally created.
 		TiPlatformHelper.intializeDisplayMetrics(this);
 
-		layout = createLayout();
+		if (layout == null) {
+			layout = createLayout();
+		}
 		if (intent != null && intent.hasExtra(TiC.PROPERTY_KEEP_SCREEN_ON)) {
 			layout.setKeepScreenOn(intent.getBooleanExtra(TiC.PROPERTY_KEEP_SCREEN_ON, layout.getKeepScreenOn()));
 		}
@@ -521,6 +539,22 @@ public abstract class TiBaseActivity extends Activity
 	}
 
 	@Override
+	public void onBackPressed()
+	{
+		TiWindowProxy topWindow = topWindowOnStack();
+
+		// Prevent default Android behavior for "back" press
+		// if the top window has a listener to handle the event.
+		if (topWindow != null && topWindow.hasListeners(TiC.EVENT_ANDROID_BACK)) {
+			topWindow.fireEvent(TiC.EVENT_ANDROID_BACK, null);
+
+		} else {
+			// If event is not handled by any listeners allow default behavior.
+			super.onBackPressed();
+		}
+	}
+
+	@Override
 	public boolean dispatchKeyEvent(KeyEvent event) 
 	{
 		boolean handled = false;
@@ -538,13 +572,7 @@ public abstract class TiBaseActivity extends Activity
 
 		switch(event.getKeyCode()) {
 			case KeyEvent.KEYCODE_BACK : {
-				if (window.hasListeners(TiC.EVENT_ANDROID_BACK)) {
-					if (event.getAction() == KeyEvent.ACTION_UP) {
-						window.fireEvent(TiC.EVENT_ANDROID_BACK, null);
-					}
-					handled = true;
-				}
-				// TODO: Deprecate old event
+				// Deprecated and replaced by "androidback" event.
 				if (window.hasListeners("android:back")) {
 					if (event.getAction() == KeyEvent.ACTION_UP) {
 						window.fireEvent("android:back", null);
@@ -754,7 +782,7 @@ public abstract class TiBaseActivity extends Activity
 		}
 
 		if (!windowStack.empty()) {
-			windowStack.peek().fireEvent(TiC.EVENT_BLUR, null);
+			windowStack.peek().onWindowFocusChange(false);
 		}
 	
 		TiApplication.updateActivityTransitionState(true);
@@ -804,7 +832,7 @@ public abstract class TiBaseActivity extends Activity
 		}
 
 		if (!windowStack.empty()) {
-			windowStack.peek().fireEvent(TiC.EVENT_FOCUS, null, false);
+			windowStack.peek().onWindowFocusChange(true);
 		} 
 		
 		tiApp.setCurrentActivity(this, this);
@@ -987,12 +1015,6 @@ public abstract class TiBaseActivity extends Activity
 			}
 		}
 
-		boolean isTab = isTabActivity();
-		//When we close a tabgroup, we don't remove its children from the stack, so here we remove the children if the parent is finishing.
-		if (!isTab || (isTab && this.getParent().isFinishing())) {
-			TiApplication.removeFromActivityStack(this);
-		}
-
 		super.onDestroy();
 
 		// Our Activities are currently unable to recover from Android-forced restarts,
@@ -1012,12 +1034,11 @@ public abstract class TiBaseActivity extends Activity
 
 		fireOnDestroy();
 
-		
-		if (layout != null) {
+		if (layout instanceof TiCompositeLayout) {
 			Log.e(TAG, "Layout cleanup.", Log.DEBUG_MODE);
-			layout.removeAllViews();
-			layout = null;
+			((TiCompositeLayout) layout).removeAllViews();
 		}
+		layout = null;
 
 		if (window != null) {
 			window.closeFromActivity();
@@ -1082,21 +1103,6 @@ public abstract class TiBaseActivity extends Activity
 		if (!animate) {
 			TiUIHelper.overridePendingTransition(this);
 		}
-	}
-
-	/**
-	 * @return true if this activity is a tab activity, false otherwise.
-	 */
-	protected boolean isTabActivity()
-	{
-		boolean isTab = false;
-		if (this instanceof TiActivity) {
-			if (((TiActivity)this).isTab()) {
-				isTab = true;
-			}
-		}
-
-		return isTab;
 	}
 
 	// These activityOnXxxx are all used by TiLaunchActivity when

@@ -13,7 +13,8 @@ description: |
     due to its familiar and intuitive API schema. 
     
     For a more detailed overview of ACS and how to configure an application to use it, refer to the 
-    [Integrating with Appcelerator Cloud Services](http://docs.appcelerator.com/titanium/2.0/#!/guide/Integrating_with_Appcelerator_Cloud_Services) 
+    [Integrating with Appcelerator Cloud
+    Services](http://docs.appcelerator.com/titanium/latest/#!/guide/Integrating_with_Appcelerator_Cloud_Services) 
     and [ACS Quickstart](http://cloud.appcelerator.com/docs/quickstart) guides. 
     
     #### Beta ACS APIs
@@ -25,21 +26,62 @@ description: |
     
     #### Using the Titanium.Cloud Module
     
-    This module is not included in the Titanium namespace, but it is bundled with the 
-    Titanium SDK as of version 2.0.0. To use it, it must be registered like this: 
+    This module is not included in the Titanium namespace, but it is bundled with the
+    Titanium SDK as an optional CommonJS module. To use it, import the module using
+    `require`: 
     
         var Cloud = require('ti.cloud');
     
+    #### Authentication
+
     Your app must prove that it is allowed to talk to ACS. This keeps your data secure by 
-    preventing anyone from making requests to ACS that impersonate your app. ACS provides secure 
-    authentication via 2-Legged OAuth. This is a process by which a key and secret are used to sign 
-    each request made by your app. When the ACS server receives your request, the secret is used 
-    along with the data sent in the request to calculate another signature. If sent signature and 
-    calculated signature match, the request will be processed. 
+    preventing anyone from making requests to ACS that impersonate your app. ACS provides 
+    several means of authentication:
+
+    *   3-Legged OAuth. With 3-legged OAuth, the user and application are authenticated
+        at the same time. User login (or signup) is done using a separate authentication
+        server, which returns a time-limited access token to the application. The
+        application uses the access token to authenticate all subsequent requests. 
+
+    *   2-Legged OAuth. This is a process by which a key and secret are used to sign
+        each request made by your app. When the ACS server receives your request,
+        the secret is used along with the data sent in the request to calculate another
+        signature. If sent signature and calculated signature match, the request will be processed.
+
+    *   API Key. In this method, the application passes a pre-provisioned API key with
+        each request.
+
+    When using 2-Legged OAuth or API key authentication, the application presents its 
+    own UI to prompt the user for username and password. Then the application calls 
+    [login](Titanium.Cloud.Users.login) or [create](Titanium.Cloud.Users.create) method
+    to authenticate the user, passing in the  username and password. 
+    Once logged in, the application can store the [sessionId](Titanium.Cloud.sessionId) returned 
+    by ACS in secure storage in order to persist the session when the application restarts. 
+
+    When using 3-Legged  OAuth, the module presents an authentication dialog to the
+    user when [secureLogin](Titanium.Cloud.Users.secureLogin) or
+    [secureCreate](Titanium.Cloud.Users.secureCreate) method is called. The user's
+    login and password are not available to the application. The application can store the
+    [accessToken](Titanium.Cloud.accessToken) returned by the authentication server in
+    secure storage so that it does not need to present the login dialog each time the application
+    restarts. Unlike session IDs, however, access tokens expire after a period of time.
+    The application owner can configure the expiration time through the ACS website.
+
+    The Ti.Cloud module does not provide a mechanism for securely storing a `sessionId` or
+    `accessToken`; the application must provide storage that matches its security
+    requirements.
+
+    By default, Ti.Cloud always uses SSL for communicating with the ACS servers, unless
+    the [useSecure](Titanium.Cloud.useSecure) flag is set to `false`.
+
+    3-Legged OAuth, using [secureLogin](Titanium.Cloud.Users.secureLogin) and
+    [secureCreate](Titanium.Cloud.Users.secureCreate) is the preferred authentication
+    method in most cases. However, if your application is using 3-Legged OAuth, all of its
+    clients must use 3-Legged OAuth, so there may be cases where another authentication
+    strategy is required.
     
-    An alternate method to authenticate API requests to ACS is to supply an app key with each 
-    request. 
-    
+    #### tiapp.xml Properties
+
     Titanium Studio will create a pair of keys (Development and Production) for each Titanium 
     application depending on the user preference specified during new project creation. This pair 
     of keys will be stored in `tiapp.xml` and one of the keys will be used during application build 
@@ -87,6 +129,7 @@ methods:
     summary: Checks if there is a stored user session.
     deprecated:
         since: "2.1.2"
+        notes: See [accessToken](Titanium.Cloud.accessToken) and [sessionId](Titanium.Cloud.sessionId) for details on persisting session data.
     description: |
         True is returned after successfully calling <Titanium.Cloud.Users.create> or 
         <Titanium.Cloud.Users.login>, and false after successfully calling 
@@ -98,6 +141,7 @@ methods:
     summary: Returns the stored user session identifier.
     deprecated:
         since: "2.1.2"
+        notes: See [accessToken](Titanium.Cloud.accessToken) and [sessionId](Titanium.Cloud.sessionId) for details on persisting session data.
     description: |
         A value is returned after successfully calling <Titanium.Cloud.Users.create> or 
         <Titanium.Cloud.Users.login>, and null after successfully calling 
@@ -150,6 +194,9 @@ properties:
         can persist the session identifier by saving the value in secure storage and restoring the value
         of this property in the next application session.
 
+        The `sessionId` is not used with 3-legged OAuth authentication; use 
+        [accessToken](Titanium.Cloud.accessToken) instead.
+
   - name: accessToken
     since: "2.1.2"
     summary: Identifies the current access token when using 3-Legged OAuth
@@ -161,9 +208,12 @@ properties:
         All calls made using the Cloud module automatically use this value and, thus, it only needs
         to be used when manually making calls to the ACS servers using <Titanium.Network.HTTPClient>.
 
-        The accessToken is not persisted across application sessions by the module. An application
+        The `accessToken` is not persisted across application sessions by the module. An application
         can persist the accessToken by saving the value in secure storage and restoring the value
         of this property in the next application session.
+
+        The `accessToken` is not used with 2-legged OAuth or API key 
+        authentication; use [sessionId](Titanium.Cloud.sessionId) instead.
 
   - name: expiresIn
     since: "2.1.2"

@@ -130,31 +130,43 @@ def markdown_to_html(s, obj=None):
 		s = process_markdown_links(s)
 	return markdown.markdown(s)
 
-def output_properties_for_obj(obj):
-	res = []
-	if obj.has_key("platforms"):
-		for platform in obj["platforms"]:
-			res.append("@platform %s" % (platform))
-	if obj.has_key("since"):
-		since = obj["since"]
-		# Quick fix ... Fix this later, after TIMOB-9823 is addressed
-		if isinstance(since, basestring):
-			sinceStr = since
+# Print two digit version if third digit is 0.
+def format_version(version_str):
+	digits = version_str.split(".")
+	if len(digits) <= 2:
+		return version_str
+	else:
+		if digits[2] == '0':
+			return ".".join(digits[0:2])
 		else:
-			sinceStr = ""
-			platformNames = { "android": "Android", "iphone": "iPhone", "ipad": "iPad", "mobileweb": "Mobile Web" }
-			for platform in ( "android", "iphone", "ipad", "mobileweb" ):
-				if since.has_key(platform):
-					if len(sinceStr) > 0:
-						sinceStr += ", "
-					sinceStr += "%s: %s" % ( platformNames[platform], since[platform] )
-		res.append("@since %s" % sinceStr)
+			return ".".join(digits)
+
+def output_properties_for_obj(annotated_obj):
+	obj = annotated_obj.api_obj
+	res = []
+	# Only output platforms if platforms or since versions are different from
+	# containing object.
+	if obj.has_key("platforms") or obj.has_key("since"):
+		for platform in annotated_obj.platforms:
+			res.append("@platform %s %s" % (platform["name"], format_version(platform["since"])))
+
 	if obj.has_key("availability") and obj['availability'] == 'creation':
 		res.append("@creationOnly")
 	if obj.has_key("availability") and obj['availability'] == 'not-creation':
 		res.append("@nonCreation")
 	if obj.has_key("extends"):
 		res.append("@extends %s" % (obj["extends"]))
+
+	if(len(res) == 0):
+		return ""
+
+	return "\t * " + "\n\t * ".join(res) + "\n"
+
+# @deprecated and @removed are multi-line tags, so this must be 
+# inserted after the summary and description, or the summary will get
+# included as part of the deprecation.
+def output_deprecation_for_obj(annotated_obj):
+	obj = annotated_obj.api_obj
 	if obj.has_key("deprecated"):
 		if obj["deprecated"].has_key("removed"):
 			str = "@removed  %s" % (obj["deprecated"]["removed"])
@@ -162,12 +174,11 @@ def output_properties_for_obj(obj):
 			str = "@deprecated %s" % (obj["deprecated"]["since"])
 		if obj["deprecated"].has_key("notes"):
 			str += " %s" % markdown_to_html(obj["deprecated"]["notes"])
-		res.append(str)
-
-	if(len(res) == 0):
+			str = str.replace("\n", "\n\t * ")
+		return "\t * %s\n" % str
+	else:
 		return ""
 
-	return "\t * " + "\n\t * ".join(res) + "\n"
 
 def output_example(desc, code, convert_empty_code):
 	if len(desc) == 0 and len(code) == 0:
@@ -352,10 +363,11 @@ def generate(raw_apis, annotated_apis, options):
 			
 			if not (has_ancestor(raw_apis[name], "Titanium.Proxy") or has_ancestor(raw_apis[name], "Global")):
 				output.write("\t * @pseudo\n")
-			output.write(output_properties_for_obj(annotated_obj.api_obj))
+			output.write(output_properties_for_obj(annotated_obj))
 			output.write(get_summary_and_description(annotated_obj.api_obj))
 			output.write(output_examples_for_obj(annotated_obj.api_obj))
-			output.write("*/\n\n")
+			output.write(output_deprecation_for_obj(annotated_obj))
+			output.write("\t */\n\n")
 
 			p = annotated_obj.properties
 			for k in p:
@@ -381,9 +393,10 @@ def generate(raw_apis, annotated_apis, options):
 					output.write("\t * @type %s\n" % (transform_type(obj["type"])))
 				if obj.has_key('permission') and obj["permission"] == "read-only":
 					output.write("\t * @readonly\n")
-				output.write(output_properties_for_obj(obj))
+				output.write(output_properties_for_obj(k))
 				output.write(get_summary_and_description(obj))
 				output.write(output_examples_for_obj(obj))
+				output.write(output_deprecation_for_obj(k))
 				output.write(" */\n\n")
 
 			p = annotated_obj.methods
@@ -395,6 +408,7 @@ def generate(raw_apis, annotated_apis, options):
 				output.write("/**\n\t * @method %s\n" % (k.name))
 				output.write(get_summary_and_description(obj))
 				output.write(output_examples_for_obj(obj))
+				output.write(output_deprecation_for_obj(k))
 
 				if obj.has_key("parameters"):
 					for param in obj["parameters"]:
@@ -437,7 +451,7 @@ def generate(raw_apis, annotated_apis, options):
 				else:
 					output.write("\t * @return void\n")
 
-				output.write(output_properties_for_obj(obj))
+				output.write(output_properties_for_obj(k))
 				output.write("\t*/\n\n")
 
 			p = annotated_obj.events
@@ -464,7 +478,7 @@ def generate(raw_apis, annotated_apis, options):
 						output.write(get_summary_and_description(param.api_obj))
 
 
-				output.write(output_properties_for_obj(obj))
+				output.write(output_properties_for_obj(k))
 				output.write("\t*/\n\n")
 
 			# handle excluded members
