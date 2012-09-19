@@ -512,7 +512,6 @@ DEFINE_EXCEPTIONS
 	{
 		backgroundImageLayer = [[CALayer alloc] init];
 		[backgroundImageLayer setFrame:[self bounds]];
-        backgroundImageLayer.backgroundColor = [UIColor blueColor].CGColor;
         backgroundImageLayer.masksToBounds = YES;
         backgroundImageLayer.cornerRadius = self.layer.cornerRadius;
 		[[[self BackgroundImageWrapperView] layer] insertSublayer:backgroundImageLayer atIndex:0];
