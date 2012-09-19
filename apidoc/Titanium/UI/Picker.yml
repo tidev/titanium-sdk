@@ -20,7 +20,7 @@ methods:
             A row, set of rows, a column of rows or a set of columns of rows. When this method is 
             used to add a row or set of rows, a single-column picker is created.
         type: [Array<Titanium.UI.PickerRow>, Titanium.UI.PickerRow, Array<Titanium.UI.PickerColumn>, Titanium.UI.PickerColumn]
-    platforms: [iphone, ipad]
+    platforms: [android, iphone, ipad]
 
   - name: getSelectedRow
     summary: Gets the selected row for a column, or `null` if none exists.
