@@ -128,8 +128,14 @@ events:
 
       - name: rowData
         summary: |
-            Properties of the row.  Use this property rather than `row` to access any custom row 
-            properties.
+            Properties of the row.  When the row is created implicitly using a JavaScript dictionary object,
+            use this property rather than `row` to access any custom row properties.
+            
+            Here's an example of creating a row implicitly, which is not the recommended way.
+
+                var data = [{title:'Row 1', hasChild:true, color:'red', selectedColor:'#fff', special:'special 1'},];
+                var table = Ti.UI.createTableView({data: data});
+           
         type: Dictionary<Titanium.UI.TableViewRow>
         
       - name: searchMode
@@ -369,9 +375,10 @@ events:
         platforms: [mobileweb]
         
   - name: scrollEnd
-    summary: fired when the table view stops scrolling
-    description: |
-        This event has been deprecated and renamed scrollend (lower case).
+    deprecated:
+        since: "3.0.0"
+        notes: Renamed to [scrollend](Titanium.UI.TableView.scrollend) (all lowercase).
+    summary: Fired when the table view stops scrolling
     platforms: [android, iphone, ipad, mobileweb]
     properties:
       - name: contentSize
@@ -399,8 +406,6 @@ events:
       - name: y
         summary: Y coordinate of the event from the `source` view's coordinate system.
         type: Number
-    deprecated:
-        since: "3.0.0"
 
   - name: scrollend
     summary: fired when the table view stops scrolling
@@ -605,21 +610,21 @@ events:
         type: Number
         
   - name: dragStart
+    deprecated:
+        since: "3.0.0"
+        notes: Renamed to [dragstart](Titanium.UI.TableView.dragstart) (all lowercase).
     summary: Fired when the scrollable region starts being dragged.
     description: |
-        This event has been deprecated and renamed dragstart (lower case).
-
         A dragging gesture is when a touch remains in contact with the display to physically drag 
         the view, as opposed to it being the result of scrolling momentum.
     platforms: [iphone, ipad, mobileweb]
-    deprecated:
-        since: "3.0.0"
 
   - name: dragEnd
+    deprecated:
+        since: "3.0.0"
+        notes: Renamed to [dragend](Titanium.UI.TableView.dragend) (all lowercase).
     summary: Fired when the scrollable region stops being dragged.
     description: |
-        This event has been deprecated and renamed dragend (lower case).
-
         A dragging gesture is when a touch remains in contact with the display to physically drag 
         the view, as opposed to it being the result of scrolling momentum.
     platforms: [iphone, ipad, mobileweb]
@@ -629,8 +634,6 @@ events:
             Indicates whether scrolling will continue but decelerate, now that the drag gesture has 
             been released by the touch. If `false`, scrolling will stop immediately.
         type: Boolean
-    deprecated:
-        since: "3.0.0"
 
   - name: dragstart
     summary: Fired when the scrollable region starts being dragged.

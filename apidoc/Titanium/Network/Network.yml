@@ -16,10 +16,12 @@ extends: Titanium.Module
 since: "0.1"
 methods:
   - name: addConnectivityListener
-    summary: Use the [change](Titanium.Network.change) event to monitor connectivity changes.
-    description: |
-        This legacy method adds a connectivity listener to listen for network changes.
-    deprecated: { since: "1.7.0", removed: "3.0.0" }
+    deprecated:
+        since: "1.7.0"
+        removed: "3.0.0"
+        notes: Use the [change](Titanium.Network.change) event to monitor connectivity changes.
+    summary: |
+        Legacy method to add a connectivity listener to listen for network changes.
     parameters:
       - name: callback
         summary: Callback function to invoke upon network connectivity changes.
@@ -68,15 +70,15 @@ methods:
         optional: true
         type: Dictionary<Titanium.Network.BonjourService>
   - name: createTCPSocket
-    summary: Use <Titanium.Network.Socket.createTCP> instead.
-    description: |
+    deprecated:
+        since: "1.7.0"
+        notes: Use <Titanium.Network.Socket.createTCP> instead.
+    summary: |
         Legacy method to create and return an instance of <Titanium.Network.TCPSocket>.
-
+    description: |
         Note that `TCPSocket` is still used with the Bonjour services. For other uses,
         see <Titanium.Network.Socket.TCP>.
     platforms: [iphone, ipad, mobileweb]
-    deprecated:
-        since: "1.7.0"
     returns:
         type: Titanium.Network.TCPSocket
     parameters:
@@ -128,10 +130,12 @@ methods:
         type: PushNotificationConfig
 
   - name: removeConnectivityListener
-    summary: Use the [change](Titanium.Network.change) event to monitor connectivity changes.
-    description: |
-        This legacy method removes a connectivity listener.
-    deprecated: { since: "1.7.0", removed: "3.0.0" }
+    deprecated:
+        since: "1.7.0"
+        removed: "3.0.0"
+        notes: Use the [change](Titanium.Network.change) event to monitor connectivity changes.
+    summary: |
+        Legacy method to remove a connectivity listener.
     parameters:
       - name: callback
         summary: Callback function to remove.
@@ -244,90 +248,101 @@ properties:
     permission: read-only
     platforms: [iphone, ipad]
   - name: READ_MODE
+    deprecated:
+        since: "1.7.0"
+        notes: |
+            Used with the deprecated <Titanium.Network.TCPSocket> only.
+
+            See <Titanium.Network.Socket> for constants used with
+            <Titanium.Network.Socket.TCP> sockets.
     summary: Constant value specifying read-only mode for sockets.
-    description: Used with the deprecated <Titanium.Network.TCPSocket> only.
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
-    deprecated: 
-        since: "1.7.0"
   - name: READ_WRITE_MODE
+    deprecated:
+        since: "1.7.0"
+        notes: |
+            Used with the deprecated <Titanium.Network.TCPSocket> only.
+
+            See <Titanium.Network.Socket> for constants used with
+            <Titanium.Network.Socket.TCP> sockets.
     summary: Constant value specifying read-write mode for sockets.
-    description: Used with the deprecated <Titanium.Network.TCPSocket> only.
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
-    deprecated: 
-        since: "1.7.0"
   - name: SOCKET_CLOSED
+    deprecated:
+        since: "1.7.0"
+        notes: |
+            Used with the deprecated <Titanium.Network.TCPSocket> only.
+
+            See <Titanium.Network.Socket> for constants used with
+            <Titanium.Network.Socket.TCP> sockets.
     summary: Constant value representing a socket in the CLOSED state.
-    description: |
-        Used with the deprecated <Titanium.Network.TCPSocket> only.
-
-        See <Titanium.Network.Socket> for constants used with
-        <Titanium.Network.Socket.TCP> sockets.
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
-    deprecated: 
-        since: "1.7.0"
   - name: SOCKET_CONNECTED
+    deprecated:
+        since: "1.7.0"
+        notes: |
+            Used with the deprecated <Titanium.Network.TCPSocket> only.
+
+            See <Titanium.Network.Socket> for constants used with
+            <Titanium.Network.Socket.TCP> sockets.
     summary: Constant value representing a socket in the CONNECTED state.
-    description: |
-        Used with the deprecated <Titanium.Network.TCPSocket> only.
-
-        See <Titanium.Network.Socket> for constants used with
-        <Titanium.Network.Socket.TCP> sockets.
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
-    deprecated: 
-        since: "1.7.0"
   - name: SOCKET_ERROR
+    deprecated:
+        since: "1.7.0"
+        notes: |
+            Used with the deprecated <Titanium.Network.TCPSocket> only.
+
+            See <Titanium.Network.Socket> for constants used with
+            <Titanium.Network.Socket.TCP> sockets.
     summary: Constant value representing a socket in the ERROR state.
-    description: |
-        Used with the deprecated <Titanium.Network.TCPSocket> only.
-
-        See <Titanium.Network.Socket> for constants used with
-        <Titanium.Network.Socket.TCP> sockets.
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
-    deprecated: 
-        since: "1.7.0"
   - name: SOCKET_INITIALIZED
+    deprecated:
+        since: "1.7.0"
+        notes: |
+            Used with the deprecated <Titanium.Network.TCPSocket> only.
+
+            See <Titanium.Network.Socket> for constants used with
+            <Titanium.Network.Socket.TCP> sockets.
     summary: Constant value representing a socket in the INITIALIZED state.
-    description: |
-        Used with the deprecated <Titanium.Network.TCPSocket> only.
-
-        See <Titanium.Network.Socket> for constants used with
-        <Titanium.Network.Socket.TCP> sockets.
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
-    deprecated: 
-        since: "1.7.0"
   - name: SOCKET_LISTENING
-    summary: Constant value representing a socket in the LISTENING state.
-    description: |
-        Used with the deprecated <Titanium.Network.TCPSocket> only.
+    deprecated:
+        since: "1.7.0"
+        notes: |
+            Used with the deprecated <Titanium.Network.TCPSocket> only.
 
-        See <Titanium.Network.Socket> for constants used with
-        <Titanium.Network.Socket.TCP> sockets.
+            See <Titanium.Network.Socket> for constants used with
+            <Titanium.Network.Socket.TCP> sockets.
+    summary: Constant value representing a socket in the LISTENING state.
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
-    deprecated: 
-        since: "1.7.0"
   - name: WRITE_MODE
+    deprecated:
+        since: "1.7.0"
+        notes: |
+            Used with the deprecated <Titanium.Network.TCPSocket> only.
+
+            See <Titanium.Network.Socket> for constants used with
+            <Titanium.Network.Socket.TCP> sockets.
     summary: Constant value specifying write-only mode for sockets.
-    description: |
-        Used with the deprecated <Titanium.Network.TCPSocket> only.
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
-    deprecated: 
-        since: "1.7.0"
   - name: TLS_VERSION_1_0
     summary: Constant value specifying TLS version 1.0 for SSL.
     type: Number

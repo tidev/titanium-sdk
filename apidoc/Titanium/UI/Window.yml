@@ -31,76 +31,76 @@ methods:
 
 events:
   - name: android:back
+    deprecated:
+        since: "3.0.0"
+        notes: |
+            Renamed to [androidback](Titanium.UI.Window.androidback) (without a colon).
     platforms: [android]
     summary: Fired when the Back button is released.
     description: |
-        This event has been deprecated and replaced by androidback (without colon).
-        
         Setting a listener disables the default key handling for the Back button.
         To restore default behavior, remove the listener. It is recommended that you only
         have one handler per heavyweight window.
-    deprecated:
-        since: "3.0.0"
 
   - name: android:camera
+    deprecated:
+        since: "3.0.0"
+        notes: |
+            Renamed to [androidcamera](Titanium.UI.Window.androidcamera) (without a colon).
     summary: Fired when the Camera button is released.
     description: |
-        This event has been deprecated and renamed androidcamera (without colon).
-        
         Setting a listener disables the default key handling for this button. To restore
         default behavior, remove the listener. It is recommended that you only have one
         handler per heavyweight window.
     platforms: [android]
-    deprecated:
-        since: "3.0.0"
 
   - name: android:focus
+    deprecated:
+        since: "3.0.0"
+        notes: |
+            Renamed to [androidfocus](Titanium.UI.Window.androidfocus) (without a colon).
     summary: Fired when the Camera button is half-pressed then released.
     description: |
-        This event has been deprecated and renamed androidfocus (without colon).
-        
         Setting a listener disables the default key handling for this button. To restore
         default behavior, remove the listener. It is recommended that you only have one
         handler per heavyweight window.
     platforms: [android]
-    deprecated:
-        since: "3.0.0"
 
   - name: android:search
+    deprecated:
+        since: "3.0.0"
+        notes: |
+            Renamed to [androidsearch](Titanium.UI.Window.androidsearch) (without a colon).
     summary: Fired when the Search button is released.
     description: |
-        This event has been deprecated and renamed androidsearch (without colon).
-        
         Setting a listener disables the default key handling for this button. To restore
         default behavior, remove the listener. It is recommended that you only have
         one handler per heavyweight window.
     platforms: [android]
-    deprecated:
-        since: "3.0.0"
 
   - name: android:voldown
+    deprecated:
+        since: "3.0.0"
+        notes: |
+            Renamed to [androidvoldown](Titanium.UI.Window.androidvoldown) (without a colon).
     summary: Fired when the volume down button is released.
     description: |
-        This event has been deprecated and renamed androidvoldown (without colon).
-        
         Setting a listener disables the default key handling for this button. To restore
         default behavior, remove the listener. It is recommended that you only have one
         handler per heavyweight window.
     platforms: [android]
-    deprecated:
-        since: "3.0.0"
 
   - name: android:volup
+    deprecated:
+        since: "3.0.0"
+        notes: |
+            Renamed to [androidvolup](Titanium.UI.Window.androidvolup) (without a colon).
     summary: Fired when the volume up button is released.
     description: |
-        This event has been deprecated and renamed androidvolup (without colon).
-        
         Setting a listener disables the default key handling for this button. To restore
         default behavior, remove the listener. It is recommended that you only have one
         handler per heavyweight window.
     platforms: [android]
-    deprecated:
-        since: "3.0.0"
 
   - name: androidback
     platforms: [android]

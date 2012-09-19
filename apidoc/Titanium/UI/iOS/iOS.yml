@@ -9,89 +9,99 @@ platforms: [iphone, ipad]
 properties:
 
   - name: ANIMATION_CURVE_EASE_IN
+    deprecated:
+        since: "2.1.0"
+        notes: Use <Titanium.UI.ANIMATION_CURVE_EASE_IN> instead.
     summary: |
         Use with [Animation.curve](Titanium.UI.Animation.curve) to specify an animation that starts 
         slowly and speeds up.
     type: Number
-    deprecated:
-        since: "2.1.0"
     permission: read-only
 
   - name: ANIMATION_CURVE_EASE_IN_OUT
+    deprecated:
+        since: "2.1.0"
+        notes: Use <Titanium.UI.ANIMATION_CURVE_EASE_IN_OUT> instead.
     summary: |
         Use with [Animation.curve](Titanium.UI.Animation.curve) to specify an animation that starts 
         slowly, and speeds up, then slows down at the end of the animation.
     type: Number
-    deprecated:
-        since: "2.1.0"
     permission: read-only
 
   - name: ANIMATION_CURVE_EASE_OUT
+    deprecated:
+        since: "2.1.0"
+        notes: Use <Titanium.UI.ANIMATION_CURVE_EASE_OUT> instead.
     summary: |
         Use with [Animation.curve](Titanium.UI.Animation.curve) to specify an animation that starts 
         quickly, then slows down at the end of the animation.
     type: Number
-    deprecated:
-        since: "2.1.0"
     permission: read-only
 
   - name: ANIMATION_CURVE_LINEAR
+    deprecated:
+        since: "2.1.0"
+        notes: Use <Titanium.UI.ANIMATION_CURVE_LINEAR> instead.
     summary: |
         Use with [Animation.curve](Titanium.UI.Animation.curve) to specify an animation that proceeds 
         at a constant rate.
     type: Number
-    deprecated:
-        since: "2.1.0"
     permission: read-only
 
   - name: AUTODETECT_ADDRESS
-    summary: Use <Titanium.UI.AUTOLINK_MAP_ADDRESSES> instead.
+    deprecated:
+        since: "3.0.0"
+        notes: Use <Titanium.UI.AUTOLINK_MAP_ADDRESSES> instead.
+    summary: Converts strings formatted as addresses into clickable links.
     type: Number
     osver: {ios: {min: "4.0"}}
     permission: read-only
-    deprecated:
-        since: "3.0.0"
     platforms: [iphone, ipad]
 
   - name: AUTODETECT_ALL
-    summary: Use <Titanium.UI.AUTOLINK_ALL> instead.
-    type: Number
-    permission: read-only
     deprecated:
         since: "3.0.0"
+        notes: Use <Titanium.UI.AUTOLINK_ALL> instead.
+    summary: Converts all detectable types of data into clickable links.
+    type: Number
+    permission: read-only
     platforms: [iphone, ipad]
 
   - name: AUTODETECT_CALENDAR
-    summary: Use <Titanium.UI.AUTOLINK_CALENDAR> instead.
+    deprecated:
+        since: "3.0.0"
+        notes: Use <Titanium.UI.AUTOLINK_CALENDAR> instead.
+    summary: Converts strings formatted as calendar events into clickable links.
     type: Number
     osver: {ios: {min: "4.0"}}
     permission: read-only
-    deprecated:
-        since: "3.0.0"
     platforms: [iphone, ipad]
 
   - name: AUTODETECT_LINK
-    summary: Use <Titanium.UI.AUTOLINK_URLS> instead.
-    type: Number
-    permission: read-only
     deprecated:
         since: "3.0.0"
+        notes: Use <Titanium.UI.AUTOLINK_URLS> instead.
+    summary: Converts strings formatted as URLs into clickable links.
+    type: Number
+    permission: read-only
     platforms: [iphone, ipad]
 
   - name: AUTODETECT_NONE
-    summary: Use <Titanium.UI.AUTOLINK_NONE> instead.
-    type: Number
-    permission: read-only
     deprecated:
         since: "3.0.0"
+        notes: Use <Titanium.UI.AUTOLINK_NONE> instead.
+    summary: Disables converting strings into clickable links.
+    type: Number
+    permission: read-only
     platforms: [iphone, ipad]
 
   - name: AUTODETECT_PHONE
-    summary: Use <Titanium.UI.AUTOLINK_PHONE_NUMBERS> instead.
-    type: Number
-    permission: read-only
     deprecated:
         since: "3.0.0"
+        notes: Use <Titanium.UI.AUTOLINK_PHONE_NUMBERS> instead.
+    summary: Converts strings formatted as phone numbers into clickable links.
+    type: Number
+    permission: read-only
     platforms: [iphone, ipad]
 
   - name: BLEND_MODE_CLEAR
@@ -111,7 +121,6 @@ properties:
     permission: read-only
 
   - name: BLEND_MODE_COLOR_BURN
-    summary: image mode constant
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     description: |
@@ -379,3 +388,64 @@ properties:
     permission: read-only
     since: "2.1.0"
     osver: {iOS: {min: "5.0"}}
+
+  - name: WEBVIEW_NAVIGATIONTYPE_LINK_CLICKED
+    summary: User tapped a link.
+    description: |
+        Used with the [WebView.beforeload](Titanium.UI.WebView.beforeload) event.
+
+        Corresponds to iOS `UIWebView` `UIWebViewNavigationTypeLinkClicked`.
+    type: Number
+    permission: read-only
+    since: "2.1.0"
+
+  - name: WEBVIEW_NAVIGATIONTYPE_FORM_SUBMITTED
+    summary: User submitted a form.
+    description: |
+        Used with the [WebView.beforeload](Titanium.UI.WebView.beforeload) event.
+
+        Corresponds to iOS `UIWebView` `UIWebViewNavigationTypeFormSubmitted`.
+    type: Number
+    permission: read-only
+    since: "2.1.0"
+
+  - name: WEBVIEW_NAVIGATIONTYPE_BACK_FORWARD
+    summary: User tapped the back or forward button.
+    description: |
+        Used with the [WebView.beforeload](Titanium.UI.WebView.beforeload) event.
+
+        Corresponds to iOS `UIWebView` `UIWebViewNavigationTypeBackForward`.
+    type: Number
+    permission: read-only
+    since: "2.1.0"
+
+  - name: WEBVIEW_NAVIGATIONTYPE_RELOAD
+    summary: User tapped the reload button.
+    description: |
+        Used with the [WebView.beforeload](Titanium.UI.WebView.beforeload) event.
+
+        Corresponds to iOS `UIWebView` `UIWebViewNavigationTypeReload`.
+    type: Number
+    permission: read-only
+    since: "2.1.0"
+
+  - name: WEBVIEW_NAVIGATIONTYPE_FORM_RESUBMITTED
+    summary: User resubmitted a form.
+    description: |
+        Used with the [WebView.beforeload](Titanium.UI.WebView.beforeload) event.
+
+        Corresponds to iOS `UIWebView` `UIWebViewNavigationTypeFormResubmitted`.
+    type: Number
+    permission: read-only
+    since: "2.1.0"
+
+  - name: WEBVIEW_NAVIGATIONTYPE_OTHER
+    summary: Some other action occurred.
+    description: |
+        Used with the [WebView.beforeload](Titanium.UI.WebView.beforeload) event.
+
+        Corresponds to iOS `UIWebView` `UIWebViewNavigationTypeOther`.
+    type: Number
+    permission: read-only
+    since: "2.1.0"
+

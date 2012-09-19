@@ -242,7 +242,15 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 	}
 
 	private TabProxy handleGetActiveTab() {
-		return selectedTab;
+		//selectedTab may not be set when user queries activeTab, so we return
+		//the first tab (default selected tab) if it exists.
+		if (selectedTab != null) {
+			return selectedTab;
+		} else if (tabs.size() > 0) {
+			return tabs.get(0);
+		} else {
+			return null;
+		}
 	}
 
 	@Override
