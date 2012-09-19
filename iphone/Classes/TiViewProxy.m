@@ -1294,6 +1294,7 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap,horizontalWrap,horizontalWrap,[self willCha
 	{
 		destroyLock = [[NSRecursiveLock alloc] init];
 		pthread_rwlock_init(&childrenLock, NULL);
+		bubbleParent = YES;
 	}
 	return self;
 }
@@ -1612,10 +1613,10 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap,horizontalWrap,horizontalWrap,[self willCha
 		// parent and if he has the same named listener, we fire
 		// an event and set the source of the event to ourself
 		
-		if (parent!=nil && propagate==YES)
-		{
-			[parent fireEvent:type withObject:obj withSource:source];
-		}
+//		if (parent!=nil && propagate==YES)
+//		{
+//			[parent fireEvent:type withObject:obj withSource:source];
+//		}
 	}
 }
 
@@ -1641,6 +1642,11 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap,horizontalWrap,horizontalWrap,[self willCha
 	{
 		[self.view listenerRemoved:type count:count];
 	}
+}
+
+-(TiProxy *)parentForBubbling
+{
+	return parent;
 }
 
 #pragma mark Layout events, internal and external

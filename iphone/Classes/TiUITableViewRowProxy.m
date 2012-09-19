@@ -662,6 +662,11 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 	}
 }
 
+-(TiProxy*)parentForBubbling
+{
+	return section;
+}
+
 -(UIView*)view
 {
 	return nil;
