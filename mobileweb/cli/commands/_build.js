@@ -42,7 +42,7 @@ exports.config = function (logger, config, cli) {
 			'deploy-type': {
 				abbr: 'B',
 				default: 'development',
-				desc: __('the type of deployment to build for'),
+				desc: __('the type of deployment; production performs optimizations'),
 				hint: __('type'),
 				values: ['production', 'development']
 			}

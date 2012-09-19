@@ -13,6 +13,22 @@ var path = require('path'),
 exports.config = function (logger, config, cli) {
 	return {
 		desc: __('get and set tiapp.xml settings'),
+		extendedDesc: __([
+			'Get and set tiapp.xml settings.',
+			'Run %s to see all available entries that can be changed.',
+			[	'When setting the %s entry, it will non-destructively copy each specified ',
+				"platform's default resources into your project's Resources folder. For ",
+				'example, if your app currently supports %s and you wish to add Android ',
+				'support, you must specify %s, otherwise only specifying %s will remove ',
+				'support for iPhone.'
+			].join('')
+		].join('\n\n'),
+			'titanium project --project-dir /path/to/project'.cyan,
+			'deployment-targets'.cyan,
+			'iphone'.cyan,
+			'iphone,android'.cyan,
+			'android'.cyan
+		),
 		skipBanner: true,
 		options: mix(ti.commonOptions(logger, config), {
 			'project-dir': {
