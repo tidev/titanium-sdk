@@ -907,6 +907,12 @@
     return [[windowProxies lastObject] isEqual:window];
 }
 
+-(TiWindowProxy*)topWindow
+{
+    return [windowProxies lastObject];
+}
+
+
 #pragma mark TiOrientationFlags management.
 - (void)openWindow:(TiWindowProxy *)window withObject:(id)args
 {
