@@ -46,6 +46,14 @@ description: |
     [Tab.open](Titanium.UI.Tab.open) can be closed using `Tab.close`.
 
     As on iOS, the root tab window cannot be closed.
+
+    #### BlackBerry Platform Implementation Notes
+
+    On Blackberry adding more tabs to the tab Group than can fit into the action bar
+    causes an overflow tab to appear at the leftmost tab position. The user can access the tabs
+    that do not fit into the action bar by pressing the overflow tab.
+    Pressing the overflow tab brings up the tab overflow menu, which lists all tabs for the tab group,
+    including the ones that are already displayed on the action bar.
 extends: Titanium.UI.View
 since: "0.8"
 methods:

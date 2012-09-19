@@ -125,6 +125,7 @@ properties:
   - name: clearOnEdit
     summary: Determines whether the value of this text field should be cleared when it is focused.
     type: Boolean
+    platforms: [android, iphone, ipad, mobileweb]
     default: false
     
   - name: color
@@ -132,11 +133,13 @@ properties:
     description: |
         For information about color values, see the "Colors" section of <Titanium.UI>. 
     type: String
+    platforms: [android, iphone, ipad, mobileweb, blackberry]
     
   - name: editable
     summary: Determines whether this field can be edited. 
     type: Boolean
     default: true
+    platforms: [android, iphone, ipad, mobileweb]
     
   - name: ellipsize
     summary: Determines whether an ellipsis (`...`) should be used to indicate truncated text.
@@ -148,6 +151,7 @@ properties:
     summary: Determines whether the field is enabled.
     type: Boolean
     default: true
+    platforms: [android, iphone, ipad, mobileweb, blackberry]
     
   - name: enableReturnKey
     summary: |
@@ -158,6 +162,7 @@ properties:
         automatically enabled as soon as the user types any text in the field.
     type: Boolean
     default: false
+    platforms: [android, iphone, ipad, mobileweb]
     
   - name: font
     summary: Font to use for text.
@@ -174,7 +179,10 @@ properties:
         Use unicode characters, such as those included in (but not limited to) the 
         [Unicode List of Useful Symbols](http://en.wikibooks.org/w/index.php?title=Unicode/List_of_useful_symbols) 
         section of wikipedia, to insert special characters and symbols.
+
+        On BlackBerry, the unicode characters are not supported.
     type: String
+    platforms: [android, iphone, ipad, mobileweb, blackberry]
     default: No hint text.
     
   - name: keyboardToolbar
@@ -220,6 +228,7 @@ properties:
         address, you should always specify the appropriate keyboard type.
     type: Number
     default: <Titanium.UI.KEYBOARD_DEFAULT>
+    platforms: [android, iphone, ipad, mobileweb]
     
   - name: leftButton
     summary: Left button view.
@@ -297,6 +306,7 @@ properties:
         Mobile Web on Android devices will only display "Go" regardless of this property's value.
     type: Number
     default: <Titanium.UI.RETURNKEY_DEFAULT>
+    platforms: [android, iphone, ipad, mobileweb]
     
   - name: rightButton
     summary: Right button view. 
@@ -336,6 +346,7 @@ properties:
         or [TEXT_ALIGNMENT_RIGHT](Titanium.UI.TEXT_ALIGNMENT_RIGHT).
     type: [String, Number]
     default: <Titanium.UI.TEXT_ALIGNMENT_LEFT>
+    platforms: [android, iphone, ipad, mobileweb, blackberry]
     
   - name: value
     summary: Value of this text field, which may be set programmatically and modified by the user.
@@ -346,7 +357,10 @@ properties:
         Use unicode characters, such as those included in (but not limited to) the 
         [Unicode List of Useful Symbols](http://en.wikibooks.org/w/index.php?title=Unicode/List_of_useful_symbols) 
         section of wikipedia, to insert special characters and symbols.
+
+        On BlackBerry, the '\n' and unicode characters are not supported.
     type: String
+    platforms: [android, iphone, ipad, mobileweb, blackberry]
     
   - name: verticalAlign
     summary: Vertical alignment within this text field.

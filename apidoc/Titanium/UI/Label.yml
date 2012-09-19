@@ -113,6 +113,8 @@ properties:
         Use unicode characters, such as those included in (but not limited to) the 
         [Unicode List of Useful Symbols](http://en.wikibooks.org/w/index.php?title=Unicode/List_of_useful_symbols) 
         section of wikipedia, to insert special characters and symbols.
+
+        On BlackBerry, the '\n' and unicode characters are not supported.
         
         See the example in [label](Titanium.UI.Label) for a demonstration.
     type: String

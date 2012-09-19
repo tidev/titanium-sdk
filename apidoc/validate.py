@@ -24,7 +24,7 @@ except:
 	sys.exit(1)
 
 
-VALID_PLATFORMS = ["android", "iphone", "ipad", "mobileweb"]
+VALID_PLATFORMS = ["android", "iphone", "ipad", "mobileweb", "blackberry"]
 VALID_KEYS = {
 		"type": ["name", "summary", "description", "createable", "platforms", "extends",
 			"excludes", "since", "deprecated", "osver", "examples", "methods", "properties",

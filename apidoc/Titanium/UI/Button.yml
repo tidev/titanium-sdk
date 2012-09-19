@@ -80,6 +80,17 @@ description: |
     used. The glow effect shows as a white circular glow or highlight at the center of the button
     when the button is pressed. 
 
+    #### BlackBerry Platform Notes
+
+    A clickable button with a fixed height and an optional image and text.
+
+    The visual appearance of the button is predefined and cannot be changed.
+    The button text has predefined font, font size, and color.
+    The aspect ratio of the button's image scales to fit inside the button.
+    A button with text but no image, or an image with no text,
+    will show the text or image centered on the button,
+    whereas a button with both text and image will be left-aligned, as can be seen in the examples below.
+
 extends: Titanium.UI.View
 since: "0.8"
 methods: 
@@ -110,6 +121,7 @@ properties:
         image will appear faded to indicate being disabled. Also on iOS, if backgroundSelectedImage
         is unset, the image will be darkened to indicate being selected.
     type: String
+    platforms: [android, iphone, ipad, mobileweb]
   - name: backgroundDisabledImage
     summary: |
         Background image for the button in its disabled state, specified as a local file path 
@@ -118,6 +130,7 @@ properties:
         Also sets the background image for the other button states (normal, focused, selected), 
         unless they've been specified explicitly, except for iOS, which requires a backgroundImage.
     type: String
+    platforms: [android, iphone, ipad, mobileweb]
   - name: backgroundFocusedImage
     summary: |
         Background image for the button in its focused state, specified as a local file path 
@@ -126,6 +139,7 @@ properties:
         Focusable must be true for normal views. Sets the background image for the focused 
         state only. For iOS, since there is not a trackball, this does nothing.
     type: String
+    platforms: [android, iphone, ipad, mobileweb]
   - name: backgroundSelectedImage
     summary: |
         Background image for the button in its selected state, specified as a local file 
@@ -134,11 +148,13 @@ properties:
         On Android, Focusable must be true in order to be selected. Sets the background image for the selected 
         state only.
     type: String
+    platforms: [android, iphone, ipad, mobileweb]
   - name: color
     summary: Default button text color, as a color name or hex triplet.
     description: |
         For information about color values, see the "Colors" section of <Titanium.UI>. 
     type: String
+    platforms: [android, iphone, ipad, mobileweb]
   - name: enabled
     summary: Set to `true` to enable the button, `false` to disable the button.
     type: Boolean
@@ -146,6 +162,7 @@ properties:
   - name: font
     summary: Font to use for the button text.
     type: Font
+    platforms: [android, iphone, ipad, mobileweb]
   - name: image
     summary: Image to display on the button, specified as a local
         path, URL or (on iOS only) a `Blob`.
@@ -153,6 +170,8 @@ properties:
         The image is displayed to the left of the title.
 
         Support for using <Titanium.Blob> for this property is only available on iOS.
+
+        On BlackBerry, the image is displayed to the left of the title.
     type: [String, Titanium.Blob]
   - name: selectedColor
     summary: Button text color used to indicate the selected state, as a color name or hex triplet.
@@ -174,6 +193,7 @@ properties:
         Text alignment, specified using one of the <Titanium.UI> text alignment constants: [TEXT_ALIGNMENT_LEFT](Titanium.UI.TEXT_ALIGNMENT_LEFT), [TEXT_ALIGNMENT_CENTER](Titanium.UI.TEXT_ALIGNMENT_CENTER), or [TEXT_ALIGNMENT_RIGHT](Titanium.UI.TEXT_ALIGNMENT_RIGHT).
     type: [String,Number]
     default: <Titanium.UI.TEXT_ALIGNMENT_CENTER>
+    platforms: [android, iphone, ipad, mobileweb]
   - name: title
     summary: Button title.
     type: String
@@ -182,6 +202,7 @@ properties:
     description: Only one of `title` or `titleid` should be specified.
     type: String
     since: "1.5"
+    platforms: [android, iphone, ipad, mobileweb]
   - name: verticalAlign
     summary: |
         Vertical alignment for the text field, specified using one of the 

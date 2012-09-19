@@ -122,6 +122,26 @@ description:  |
     
     Currently, Android does not support the color name `'brown'` and iOS does not support `'aqua'`, 
     `'fuchsia'`, `'lime'` or `'maroon'`.
+
+    BlackBerry supports the following color names.
+
+    `'aliceblue'`, `'antiquewhite'`, `'aqua'`, `'aquamarine'`, `'azure'`, `'beige'`, `'bisque'`, `'black'`, `'blanchedalmond'`,
+    `'blue'`, `'blueviolet'`, `'brown'`, `'burlywood'`, `'cadetblue'`, `'chartreuse'`, `'chocolate'`, `'coral'`, `'cornflowerblue'`,
+    `'cornsilk'`, `'crimson'`, `'cyan'`, `'darkblue'`, `'darkcyan'`, `'darkgoldenrod'`, `'darkgray, darkgreen'`, `'darkgrey'`,
+    `'darkkhaki'`, `'darkmagenta'`, `'darkolivegreen'`, `'darkorange'`, `'darkorchid'`, `'darkred'`, `'darksalmon'`, `'darkseagreen'`,
+    `'darkslateblue'`, `'darkslategray'`, `'darkslategrey'`, `'darkturquoise'`, `'darkviolet'`, `'deeppink'`, `'deepskyblue'`,
+    `'dimgray'`, `'dimgrey'`, `'dodgerblue'`, `'firebrick'`, `'floralwhite'`, `'forestgreen'`, `'fuchsia'`, `'gainsboro'`, `'ghostwhite'`,
+    `'gold'`, `'goldenrod'`, `'gray'`, `'green'`, `'greenyellow'`, `'grey'`, `'honeydew'`, `'hotpink'`, `'indianred'`, `'indigo'`, `'ivory'`,
+    `'khaki'`, `'lavender'`, `'lavenderblush'`, `'lawngreen'`, `'lemonchiffon'`, `'lightblue'`, `'lightcoral'`, `'lightcyan'`,
+    `'lightgoldenrodyellow'`, `'lightgray'`, `'lightgreen'`, `'lightgrey'`, `'lightpink'`, `'lightsalmon'`, `'lightseagreen'`,
+    `'lightskyblue'`, `'lightslategray'`, `'lightslategrey'`, `'lightsteelblue'`, `'lightyellow'`, `'lime'`, `'limegreen'`,
+    `'linen'`, `'magenta'`, `'maroon'`, `'mediumaquamarine'`, `'mediumblue'`, `'mediumorchid'`, `'mediumpurple'`, `'mediumseagreen'`,
+    `'mediumslateblue'`, `'mediumspringgreen'`, `'mediumturquoise'`, `'mediumvioletred'`, `'midnightblue'`, `'mintcream'`,
+    `'mistyrose'`, `'moccasin'`, `'navajowhite'`, `'navy'`, `'oldlace'`, `'olive'`, `'olivedrab'`, `'orange'`, `'orangered'`, `'orchid'`,
+    `'palegoldenrod'`, `'palegreen'`, `'paleturquoise'`, `'palevioletred'`, `'papayawhip'`, `'peachpuff'`, `'peru'`, `'pink'`, `'plum'`,
+    `'powderblue'`, `'purple'`, `'red'`, `'rosybrown'`, `'royalblue'`, `'saddlebrown'`, `'salmon'`, `'sandybrown'`, `'seagreen'`, `'seashell'`,
+    `'sienna'`, `'silver'`, `'skyblue'`, `'slateblue'`, `'slategray'`, `'slategrey'`, `'snow'`, `'springgreen'`, `'steelblue'`, `'tan'`, `'teal'`,
+    `'thistle'`, `'tomato'`, `'transparent'`, `'turquoise'`, `'violet'`, `'wheat'`, `'white'`, `'whitesmoke'`, `'yellow'`, `'yellowgreen'
     
     All color properties also accept a value of `'transparent'`.
     
@@ -151,6 +171,7 @@ methods:
         summary: Initial transformation of the matrix.
         type: MatrixCreationDict
         optional: true
+    platforms: [android, iphone, ipad, mobileweb]
         
   - name: convertUnits
     summary: Converts one type of unit to another using the metrics of the main display.
@@ -169,6 +190,7 @@ methods:
         summary: |
             Desired unit for the conversion result. Use one of the unit constants in <Titanium.UI>.
         type: String
+    platforms: [android, iphone, ipad, mobileweb]
 
 properties:
   - name: ANIMATION_CURVE_EASE_IN
@@ -584,6 +606,7 @@ properties:
         and <Titanium.UI.UNKNOWN>.
     type: Number
     permission: read-only
+    platforms: [android, iphone, ipad, mobileweb]
     
   - name: FACE_UP
     summary: Constant value for face-up orientation.
@@ -598,12 +621,14 @@ properties:
         and <Titanium.UI.UNKNOWN>.
     type: Number
     permission: read-only
+    platforms: [android, iphone, ipad, mobileweb]
     
   - name: FILL
     summary: FILL behavior for UI layout.
     description: The FILL behavior means the view will grow its size to fill its parent.
     type: String
     permission: read-only
+    platforms: [android, iphone, ipad, mobileweb]
     since: "2.0.0"
     
   - name: INHERIT
@@ -622,24 +647,28 @@ properties:
     description: Use with the <Titanium.UI.TextField.borderStyle> property.
     type: Number
     permission: read-only
+    platforms: [android, iphone, ipad, mobileweb]
     
   - name: INPUT_BORDERSTYLE_LINE
     summary: Use a simple line border on the input field.
     description: Use with the <Titanium.UI.TextField.borderStyle> property.
     type: Number
     permission: read-only
+    platforms: [android, iphone, ipad, mobileweb]
     
   - name: INPUT_BORDERSTYLE_NONE
     summary: Use no border on the input field.
     description: Use with the <Titanium.UI.TextField.borderStyle> property.
     type: Number
     permission: read-only
+    platforms: [android, iphone, ipad, mobileweb]
     
   - name: INPUT_BORDERSTYLE_ROUNDED
     summary: Use a rounded-rectangle border on the input field.
     description: Use with the <Titanium.UI.TextField.borderStyle> property.
     type: Number
     permission: read-only
+    platforms: [android, iphone, ipad, mobileweb]
     
   - name: INPUT_BUTTONMODE_ALWAYS
     summary: Always show buttons on the input field.
@@ -721,6 +750,7 @@ properties:
         properties.
     type: Number
     permission: read-only
+    platforms: [android, iphone, ipad, mobileweb]
     
   - name: KEYBOARD_EMAIL
     summary: Use a keyboard suitable for composing email, with the standard keyboard layout.
@@ -732,6 +762,7 @@ properties:
         overridden with `KEYBOARD_DEFAULT`.
     type: Number
     permission: read-only
+    platforms: [android, iphone, ipad, mobileweb]
     
   - name: KEYBOARD_NAMEPHONE_PAD
     summary: Use a keyboard suitable for entering names and phone numbers, with the pad keyboard layout.
@@ -761,6 +792,7 @@ properties:
         `KEYBOARD_DEFAULT`.
     type: Number
     permission: read-only
+    platforms: [android, iphone, ipad, mobileweb]
     
   - name: KEYBOARD_PHONE_PAD
     summary: Use a keyboard with a phone-style number pad, with the pad keyboard layout.
@@ -772,6 +804,7 @@ properties:
         `KEYBOARD_DEFAULT`.
     type: Number
     permission: read-only
+    platforms: [android, iphone, ipad, mobileweb]
     
   - name: KEYBOARD_URL
     summary: Use an keyboard optimized for entering URLs, with the standard keyboard layout.
@@ -783,6 +816,7 @@ properties:
         `KEYBOARD_DEFAULT`.
     type: Number
     permission: read-only
+    platforms: [android, iphone, ipad, mobileweb]
     
   - name: LANDSCAPE_LEFT
     summary: Standard landscape orientation (home button on left).
@@ -797,6 +831,7 @@ properties:
         and <Titanium.UI.UNKNOWN>.
     type: Number
     permission: read-only
+    platforms: [android, iphone, ipad, mobileweb]
     
   - name: LANDSCAPE_RIGHT
     summary: Reverse landscape orientation (home button on right).
@@ -838,22 +873,23 @@ properties:
     summary: Use a date picker.
     type: Number
     permission: read-only
-    
+
   - name: PICKER_TYPE_DATE_AND_TIME
     summary: Use a date and time picker.
     type: Number
     permission: read-only
-    
+
   - name: PICKER_TYPE_PLAIN
     summary: Use a plain picker (for values other than date or time).
     type: Number
     permission: read-only
+    platforms: [android, iphone, ipad, mobileweb]
     
   - name: PICKER_TYPE_TIME
     summary: Use a time picker.
     type: Number
     permission: read-only
-    
+
   - name: PORTRAIT
     summary: Orientation constant for portrait mode orientation.
     description: |
@@ -867,6 +903,7 @@ properties:
         and <Titanium.UI.UNKNOWN>.
     type: Number
     permission: read-only
+    platforms: [android, iphone, ipad, mobileweb]
     
   - name: RETURNKEY_DEFAULT
     summary: Use the default return key on the virtual keyboard.
@@ -880,6 +917,7 @@ properties:
         on iOS devices, the default label is "return".
     type: Number
     permission: read-only
+    platforms: [android, iphone, ipad, mobileweb]
     
   - name: RETURNKEY_DONE
     summary: Set the return key text to "Done".
@@ -906,6 +944,7 @@ properties:
         <Titanium.UI.TextArea.returnKeyType> properties.
     type: Number
     permission: read-only
+    platforms: [android, iphone, ipad, mobileweb]
     
   - name: RETURNKEY_GOOGLE
     summary: Set the return key text to "Google".
@@ -914,6 +953,7 @@ properties:
         <Titanium.UI.TextArea.returnKeyType> properties.
     type: Number
     permission: read-only
+    platforms: [android, iphone, ipad, mobileweb]
     
   - name: RETURNKEY_JOIN
     summary: Set the return key text to "Join".
@@ -949,6 +989,7 @@ properties:
         <Titanium.UI.TextArea.returnKeyType> properties.
     type: Number
     permission: read-only
+    platforms: [android, iphone, ipad, mobileweb]
     
   - name: RETURNKEY_SEND
     summary: Set the return key text to "Send".
@@ -966,12 +1007,14 @@ properties:
         <Titanium.UI.TextArea.returnKeyType> properties.
     type: Number
     permission: read-only
+    platforms: [android, iphone, ipad, mobileweb]
     
   - name: SIZE
     summary: SIZE behavior for UI layout.
     description: The SIZE behavior means the view will constrain its size fit its contents.
     type: String
     permission: read-only
+    platforms: [android, iphone, ipad, mobileweb]
     since: "2.0.0"
     
   - name: TEXT_ALIGNMENT_CENTER
@@ -980,7 +1023,7 @@ properties:
         Use with the <Titanium.UI.TextField.textAlign> and 
         <Titanium.UI.TextArea.textAlign> properties.
         
-        This constant is a string on android, and a number on iOS and mobileweb.
+        This constant is a string on android, and a number on iOS, mobileweb, and BlackBerry.
     type: [Number, String]
     permission: read-only
     
@@ -990,7 +1033,7 @@ properties:
         Use with the <Titanium.UI.TextField.textAlign> and 
         <Titanium.UI.TextArea.textAlign> properties.
         
-        This constant is a string on android, and a number on iOS and mobileweb.
+        This constant is a string on android, and a number on iOS, mobileweb and BlackBerry.
     type: [Number, String]
     permission: read-only
     
@@ -1000,7 +1043,7 @@ properties:
         Use with the <Titanium.UI.TextField.textAlign> and 
         <Titanium.UI.TextArea.textAlign> properties.
         
-        This constant is a string on android, and a number on iOS and mobileweb.
+        This constant is a string on android, and a number on iOS, mobileweb and BlackBerry.
     type: [Number, String]
     permission: read-only
     
@@ -1011,6 +1054,7 @@ properties:
         <Titanium.UI.TextArea.autocapitalization> properties.
     type: Number
     permission: read-only
+    platforms: [android, iphone, ipad, mobileweb]
     
   - name: TEXT_AUTOCAPITALIZATION_NONE
     summary: Do not auto-capitalize.
@@ -1019,6 +1063,7 @@ properties:
         <Titanium.UI.TextArea.autocapitalization> properties.
     type: Number
     permission: read-only
+    platforms: [android, iphone, ipad, mobileweb]
     
   - name: TEXT_AUTOCAPITALIZATION_SENTENCES
     summary: Use sentence-style auto-capitalization in the input field.
@@ -1027,6 +1072,7 @@ properties:
         <Titanium.UI.TextArea.autocapitalization> properties.
     type: Number
     permission: read-only
+    platforms: [android, iphone, ipad, mobileweb]
     
   - name: TEXT_AUTOCAPITALIZATION_WORDS
     summary: Auto-capitalize the first letter of each word in the input field.
@@ -1049,6 +1095,7 @@ properties:
         This constant is a string on android, and a number on iOS and mobileweb.
     type: [Number, String]
     permission: read-only
+    platforms: [android, iphone, ipad, mobileweb]
     
   - name: TEXT_VERTICAL_ALIGNMENT_CENTER
     summary: Vertically align text to the center of the view.
@@ -1059,6 +1106,7 @@ properties:
         This constant is a string on android, and a number on iOS and mobileweb.
     type: [Number, String]
     permission: read-only
+    platforms: [android, iphone, ipad, mobileweb]
     
   - name: TEXT_VERTICAL_ALIGNMENT_TOP
     summary: Align text to the top of the view.
@@ -1069,6 +1117,7 @@ properties:
         This constant is a string on android, and a number on iOS and mobileweb.
     type: [Number, String]
     permission: read-only
+    platforms: [android, iphone, ipad, mobileweb]
     
   - name: UNIT_CM
     summary: Unit constant representing units in centimeters.
