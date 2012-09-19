@@ -12,7 +12,8 @@
 
 var fs = require("fs"),
 child_process = require("child_process"),
-path = require("path");
+path = require("path"),
+wrench = require("wrench");
 
 module.exports = new function() {
 	var self = this,
@@ -31,6 +32,20 @@ module.exports = new function() {
 		} else if (configItemType !== expectedType) {
 			printFailureAndExit(configItemName + " property in the config module should be <" + expectedType +
 				"> but was <" + configItemType + ">");
+		}
+	};
+
+	this.createDir = function(dir) {
+		dir = path.resolve(dir);
+		if (path.existsSync(dir)) {
+			return;
+		}
+
+		try {
+			fs.mkdirSync(dir, 0777);
+
+		} catch(e) {
+			console.log("exception <" + e + "> occurred when creating " + dir);
 		}
 	};
 
@@ -59,7 +74,7 @@ module.exports = new function() {
 	};
 
 	this.runProcess = function(filename, args, stdoutCallback, stderrCallback, exitCallback) {
-		var newProcess = child_process.spawn(filename, args);
+		var newProcess = child_process.spawn(filename, args, {env: process.env});
 
 		if (stdoutCallback !== null) {
 			newProcess.stdout.on('data', function(data) {
@@ -137,7 +152,7 @@ module.exports = new function() {
 			"_" + (date.getHours() + 1) + "-" + date.getMinutes() + "-" + date.getSeconds() + "-" + 
 			date.getMilliseconds();
 
-		driverGlobal.currentLogDir = path.join(driverGlobal.logsDir, driverGlobal.platform.name, logFilename);
+		driverGlobal.currentLogDir = path.resolve(driverGlobal.logsDir, driverGlobal.platform.name, logFilename);
 
 		/*
 		a log directory needs to be created for the test run since you may end up with both a log 
@@ -150,9 +165,9 @@ module.exports = new function() {
 			console.log("exception <" + e + "> occurred when creating log directory <" + driverGlobal.currentLogDir + ">");
 		}
 
-		logFile = fs.openSync(path.join(driverGlobal.currentLogDir, "log.txt"), 'a+');
+		logFile = fs.openSync(path.resolve(driverGlobal.currentLogDir, "log.txt"), 'a+');
 
-		var dirs = fs.readdirSync(path.join(driverGlobal.logsDir, driverGlobal.platform.name));
+		var dirs = fs.readdirSync(path.resolve(driverGlobal.logsDir, driverGlobal.platform.name));
 		if (dirs.length >= driverGlobal.config.maxLogs) {
 			var oldestTime = 0,
 			oldestDirIndex,
@@ -161,7 +176,7 @@ module.exports = new function() {
 
 			var numDirs = dirs.length;
 			for (var i = 0; i < numDirs; i++) {
-				var stat = fs.statSync(path.join(driverGlobal.logsDir, driverGlobal.platform.name, dirs[i])),
+				var stat = fs.statSync(path.resolve(driverGlobal.logsDir, driverGlobal.platform.name, dirs[i])),
 				modifiedTime = stat.mtime.getTime();
 
 				dirTimestamps.push(modifiedTime);
@@ -177,17 +192,8 @@ module.exports = new function() {
 					callback();
 
 				} else {
-					var oldestDir = dirsMap[dirTimestamps[oldestDirIndex]];
-					self.runCommand("rm -r " + path.join(driverGlobal.logsDir, driverGlobal.platform.name, oldestDir), self.logNone, function(error) {
-						if (error !== null) {
-							self.log("error <" + error + "> encountered when deleting log directory <" + oldestDir + ">");
-
-						} else {
-							self.log("deleted log directory: " + oldestDir);
-						}
-
-						deleteLog(--oldestDirIndex);
-					});
+					wrench.rmdirSyncRecursive(path.resolve(driverGlobal.logsDir, driverGlobal.platform.name, dirsMap[dirTimestamps[oldestDirIndex]]), false);
+					deleteLog(--oldestDirIndex);
 				}
 			}
 
@@ -254,9 +260,9 @@ module.exports = new function() {
 		var latestTime = 0,
 		latestDir;
 
-		var files = fs.readdirSync(driverGlobal.config.tiSdkDirs);
+		var files = fs.readdirSync(path.resolve(driverGlobal.config.tiSdkDirs));
 		for (var i = 0; i < files.length; i++) {
-			var stat = fs.statSync(path.join(driverGlobal.config.tiSdkDirs, files[i])),
+			var stat = fs.statSync(path.resolve(driverGlobal.config.tiSdkDirs, files[i])),
 			modifiedTime = stat.mtime.getTime();
 
 			if (modifiedTime > latestTime) {
@@ -271,7 +277,47 @@ module.exports = new function() {
 
 		} else {
 			console.log("using Titanium SDK version <" + latestDir + ">");
-			driverGlobal.config.currentTiSdkDir = path.join(driverGlobal.config.tiSdkDirs, latestDir);
+			driverGlobal.config.currentTiSdkDir = path.resolve(driverGlobal.config.tiSdkDirs, latestDir);
 		}
+	};
+
+	this.deleteFiles = function(extension) {
+		var files,
+		i,
+		deleteAll = true;
+
+		if (typeof extension !== "undefined") {
+			deleteAll = false;
+			extension = "." + extension;
+		}
+
+		files = fs.readdirSync(__dirname);
+		for(i = 0; i < files.length; i++) {
+			if (deleteAll === false && files[i].substr(-extension.length) != extension) {
+				continue;
+			}
+
+			fs.unlinkSync(files[i]);
+		}
+	};
+
+	this.copyFile = function(sourceFilePath, destFilePath, callback) {
+		var sourceStream,
+		destStream;
+
+		sourceStream = fs.createReadStream(sourceFilePath);
+		sourceStream.on("end", function() {
+			callback(null);
+		});
+		sourceStream.on("error", function(exception) {
+			console.log("error occurred when reading from source stream");
+			callback(exception);
+		});
+
+		destStream = fs.createWriteStream(destFilePath);
+		destStream.on("error", function() {
+			console.log("error occurred when writing to source stream");
+		});
+		sourceStream.pipe(destStream);
 	};
 };

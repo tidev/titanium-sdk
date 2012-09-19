@@ -124,6 +124,26 @@
 	[self setValue:[NSNumber numberWithDouble:coordinate.longitude] forUndefinedKey:@"longitude"];
 }
 
+-(void)setLatitude:(id)latitude
+{
+    double curValue = [TiUtils doubleValue:[self valueForUndefinedKey:@"latitude"]];
+    double newValue = [TiUtils doubleValue:latitude];
+    [self replaceValue:latitude forKey:@"latitude" notification:NO];
+    if (newValue != curValue) {
+        [self setNeedsRefreshingWithSelection:YES];
+    }
+}
+
+-(void)setLongitude:(id)longitude
+{
+    double curValue = [TiUtils doubleValue:[self valueForUndefinedKey:@"longitude"]];
+    double newValue = [TiUtils doubleValue:longitude];
+    [self replaceValue:longitude forKey:@"longitude" notification:NO];
+    if (newValue != curValue) {
+        [self setNeedsRefreshingWithSelection:YES];
+    }
+}
+
 // Title and subtitle for use by selection UI.
 - (NSString *)title
 {

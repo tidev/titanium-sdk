@@ -8,6 +8,7 @@ CREATE TABLE IF NOT EXISTS driver_state (
 	state VARCHAR(20) NOT NULL,
 	git_hash VARCHAR(50) NOT NULL,
 	timestamp INT NOT NULL,
+	environment VARCHAR(255) NOT NULL,
 	PRIMARY KEY (id)
 );
 
@@ -16,6 +17,7 @@ CREATE TABLE IF NOT EXISTS runs (
 	git_hash VARCHAR(50) NOT NULL,
 	branch VARCHAR(20) NOT NULL,
 	timestamp INT NOT NULL,
+	base_sdk_filename VARCHAR(30) NOT NULL,
 	PRIMARY KEY (id)
 );
 

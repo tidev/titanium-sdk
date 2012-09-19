@@ -12,7 +12,7 @@ hubUtils = require(__dirname + "/hubUtils");
 
 module.exports = new function() {
 	var self = this,
-	32B_INT_SIZE = 4; // size in bytes of a 32 bit integer
+	INT_SIZE = 4; // size in bytes of a 32 bit integer
 
 	this.driverConnections = {};
 	this.messageHandler;
@@ -99,13 +99,13 @@ module.exports = new function() {
 					bytesReceived += data.length;
 					recvBuffer = Buffer.concat([recvBuffer, data]);
 
-					if ((payloadSize === null) && (bytesReceived >= 32B_INT_SIZE)) {
+					if ((payloadSize === null) && (bytesReceived >= INT_SIZE)) {
 						payloadSize = recvBuffer.readUInt32BE(0);
 					}
 
-					if ((payloadSize !== null) && (bytesReceived >= (32B_INT_SIZE + payloadSize))) {
+					if ((payloadSize !== null) && (bytesReceived >= (INT_SIZE + payloadSize))) {
 						if (registered === false) {
-							message = JSON.parse(recvBuffer.slice(32B_INT_SIZE));
+							message = JSON.parse(recvBuffer.slice(INT_SIZE));
 
 							bytesReceived = 0;
 							recvBuffer = new Buffer(0);
@@ -121,7 +121,8 @@ module.exports = new function() {
 								self.messageHandler.updateDriverState({
 									id: driverId, 
 									state: "connected",
-									description: message.description
+									description: message.description,
+									environment: message.environment
 									});
 
 								// is there a run the driver can go ahead and process?
@@ -134,7 +135,7 @@ module.exports = new function() {
 
 						} else {
 							hubUtils.log("results received from driver: " + bytesReceived);
-							self.messageHandler.processDriverResults(driverId, recvBuffer.slice(32B_INT_SIZE), function() {
+							self.messageHandler.processDriverResults(driverId, recvBuffer.slice(INT_SIZE), function() {
 								// close the driver connection once the results are processed
 								acceptedConnection.destroy();
 							});
@@ -188,9 +189,9 @@ module.exports = new function() {
 			message = JSON.stringify(message);
 		}
 
-		sendBuffer = new Buffer(32B_INT_SIZE + message.length);
+		sendBuffer = new Buffer(INT_SIZE + message.length);
 		sendBuffer.writeUInt32BE(message.length, 0);
-		sendBuffer.write(message, 32B_INT_SIZE);
+		sendBuffer.write(message, INT_SIZE);
 
 		driverConnection.write(sendBuffer, function() {
 			hubUtils.log("message sent to the driver");

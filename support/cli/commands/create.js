@@ -89,8 +89,7 @@ exports.config = function (logger, config, cli) {
 				},
 				required: !config.app.workspace
 			}
-		}, ti.commonOptions(logger, config)),
-		platforms: ti.platformOptions(logger, config, cli, module)
+		}, ti.commonOptions(logger, config))
 	};
 };
 
@@ -100,7 +99,7 @@ exports.validate = function (logger, config, cli) {
 	
 	if (platforms.bad.length) {
 		logger.error(__n('Invalid platform: %%s', 'Invalid platforms: %%s', platforms.bad.length, platforms.bad.join(', ')) + '\n');
-		logger.log(__('Available platforms for SDK version %s:', ti.sdkVersion) + '\n');
+		logger.log(__('Available platforms for SDK version %s:', ti.manifest.sdkVersion) + '\n');
 		ti.availablePlatforms.forEach(function (p) {
 			logger.log('    ' + p.cyan);
 		});

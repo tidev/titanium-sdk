@@ -62,8 +62,10 @@ events:
         type: Titanium.UI.DashboardItem
     
   - name: dragEnd
-    description: |
-        This event has been deprecated and renamed dragend (lower case).
+    deprecated:
+        since: "3.0.0"
+        notes: |
+            Renamed to [dragend](Titanium.UI.DashboardView.dragend) (all lowercase).
     summary: Fired when an item finishes being dragged in edit mode.
     properties:
       - name: item
@@ -73,8 +75,10 @@ events:
         since: "3.0.0"
         
   - name: dragStart
-    description: |
-        This event has been deprecated and renamed dragstart (lower case).
+    deprecated:
+        since: "3.0.0"
+        notes: |
+            Renamed to [dragstart](Titanium.UI.DashboardView.dragstart) (all lowercase).
     summary: Fired when an item starts being dragged in edit mode.
     properties:
       - name: item

@@ -148,11 +148,11 @@ properties:
     type: Font
   - name: image
     summary: Image to display on the button, specified as a local
-        path, URL or (on iOS only) a `Blob`.
+        path, URL or a `Blob`.
     description: |
         The image is displayed to the left of the title.
 
-        Support for using <Titanium.Blob> for this property is only available on iOS.
+        Support for using <Titanium.Blob> for this property is only available on Android and iOS.
     type: [String, Titanium.Blob]
   - name: selectedColor
     summary: Button text color used to indicate the selected state, as a color name or hex triplet.

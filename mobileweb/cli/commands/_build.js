@@ -36,6 +36,20 @@ var ti = require('titanium-sdk'),
 		'.jpeg': 'image/jpg'
 	};
 
+exports.config = function (logger, config, cli) {
+	return {
+		options: {
+			'build-type': {
+				abbr: 'B',
+				default: 'development',
+				desc: __('the type of build to perform'),
+				hint: __('type'),
+				values: ['production', 'development']
+			}
+		}		
+	};
+};
+
 exports.run = function (logger, config, cli, finished) {
 	new build(logger, config, cli, finished);
 };
@@ -187,10 +201,13 @@ build.prototype = {
 		afs.copyDirSyncRecursive(this.mobilewebThemeDir, this.buildDir + '/themes', { preserve: true, logger: this.logger.debug });
 		afs.copyDirSyncRecursive(this.mobilewebTitaniumDir, this.buildDir + '/titanium', { preserve: true, logger: this.logger.debug });
 		afs.copyDirSyncRecursive(this.projectResDir, this.buildDir, { preserve: true, logger: this.logger.debug }, ti.availablePlatforms.filter(function (p) { return p != 'mobileweb'; }));
-		afs.copyDirSyncRecursive(this.projectResDir + '/mobileweb', this.buildDir + '/mobileweb', { preserve: true, logger: this.logger.debug, rootIgnores: ['apple_startup_images', 'splash'] });
-		afs.copyFileSync(this.projectResDir + '/mobileweb/apple_startup_images/Default.jpg', this.buildDir + '/mobileweb/apple_startup_images', { logger: this.logger.debug });
-		afs.copyFileSync(this.projectResDir + '/mobileweb/apple_startup_images/Default-Portrait.jpg', this.buildDir + '/mobileweb/apple_startup_images', { logger: this.logger.debug });
-		afs.copyFileSync(this.projectResDir + '/mobileweb/apple_startup_images/Default-Landscape.jpg', this.buildDir + '/mobileweb/apple_startup_images', { logger: this.logger.debug });
+		if (afs.exists(this.projectResDir, 'mobileweb')) {
+			afs.copyDirSyncRecursive(this.projectResDir + '/mobileweb', this.buildDir + '/mobileweb', { preserve: true, logger: this.logger.debug, rootIgnores: ['apple_startup_images', 'splash'] });
+			['Default.jpg', 'Default-Portrait.jpg', 'Default-Landscape.jpg'].forEach(function (file) {
+				file = this.projectResDir + '/mobileweb/apple_startup_images/' + file;
+				afs.exists(file) && afs.copyFileSync(file, this.buildDir + '/mobileweb/apple_startup_images', { logger: this.logger.debug });
+			}, this);
+		}
 		callback();
 	},
 	
