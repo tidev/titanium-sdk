@@ -19,6 +19,9 @@ module.exports = new function() {
 	// Example: this.androidSdkDir = baseDir + "/installed/android-sdk-mac_x86"
 	this.androidSdkDir = ""; // location of the android SDK;
 
+	// Example: this.blackberryNdkDir = baseDir + "/installed/bbndk"
+	this.blackberryNdkDir = ""; // location of the BlackBerry NDK;
+
 	// Example: this.tiSdkDirs = "/Users/ocyrus/Library/Application Support/Titanium/mobilesdk/osx";
 	this.tiSdkDirs = ""; // location of titanium SDKs;
 
@@ -48,6 +51,7 @@ module.exports = new function() {
 	*/
 	this.androidSocketPort = 40404;
 	this.iosSocketPort = 40405;
+	this.blackberrySocketPort = 40406;
 
 	// max number of connection attempts (driver to harness) for socket based test runs
 	this.maxSocketConnectAttempts = 20;
@@ -69,6 +73,19 @@ module.exports = new function() {
 	specified with the --sim-version argument to the start command
 	*/
 	this.defaultIosSimVersion = "5.0";
+
+	/*
+	BlackBerry device info
+	Examples:
+	this.blackberryDeviceType = "device";
+	this.blackberryDeviceIp = "169.254.0.1";
+	this.blackberryDevicePassword = "1234";
+	this.blackberryDebugToken = "/keys/debugtoken.bar";
+	*/
+	this.blackberryDeviceType = "";
+	this.blackberryDeviceIp = "";
+	this.blackberryDevicePassword = "";
+	this.blackberryDebugToken = "";
 
 
 	// optional values

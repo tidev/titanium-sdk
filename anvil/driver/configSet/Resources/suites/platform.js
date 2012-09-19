@@ -52,6 +52,8 @@ module.exports = new function() {
     		valueOf(testRun, Ti.Platform.runtime === 'rhino' || Ti.Platform.runtime === 'v8').shouldBeTrue();
     	} else if (Ti.Platform.osname === 'iphone' || Ti.Platform.osname === 'ipad') {
         	valueOf(testRun, Ti.Platform.runtime).shouldBe("javascriptcore");
+    	} else if (Ti.Platform.osname === 'blackberry') {
+        	valueOf(testRun, Ti.Platform.runtime).shouldBe("v8");
     	} else {
         	valueOf(testRun, Ti.Platform.runtime.length).shouldBeGreaterThan(0);
     	}

@@ -10,6 +10,10 @@ var suites = [
 	{name: "xml/xml"}
 ];
 
+// TODO: remove this when TIMOB-8580 is implemented
+if (Ti.Platform.osname === 'blackberry') {
+	suites = [];
+}
 
 /*
 these lines must be present and should not be modified.  "suites" argument to setSuites is 
