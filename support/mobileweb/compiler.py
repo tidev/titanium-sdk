@@ -709,10 +709,10 @@ class Compiler(object):
 	
 	def locate_module(self, path):
 		module_dir = None
-		module['version'] = '0.0.0'
+		module_version = '0.0.0'
 		for dir in os.listdir(path):
-			if compare_versions(module['version'], dir) == -1:
-				module['version'] = dir
+			if compare_versions(module_version, dir) == -1:
+				module_version = dir
 				module_dir = os.path.join(path, dir)
 		return module_dir
 	

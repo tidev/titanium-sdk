@@ -2,7 +2,7 @@
 name: Titanium.App
 summary: |
     The top level App module. The App module is mainly used for accessing information about the 
-    application at runtime.
+    application at runtime and for sending or listening for system events.
 description: |
     The `App` module exposes a number of properties set in the `tiapp.xml` file.  
     
@@ -110,10 +110,67 @@ description: |
     See also: [Event Handling](http://docs.appcelerator.com/titanium/2.0/index.html#!/guide/Event_Handling)
     in the Titanium Mobile Guides.
 
+    #### System Level Accessibility Events
+
+    System-level Accessibility events include:
+
+    * Events your application fires to alert the device's accessibility system of some condition
+    or to ask it to do something.
+    * Events fired by the device's accessibility system and listened for in your application.
+
+    Currently there are four system-level accessibility events. Three of them are available for
+    your application to fire, and one of them is for your application to listen for.
+
+    ##### Firing Accessibility Events.
+
+    The following accessibility events can be fired by your application to alert the accessibility
+    system of a particular condition or to ask it to perform an action.
+
+    These events are fired using <Ti.App.fireSystemEvent>, which is available in Titanium Mobile 3.0.0.
+
+    * <Ti.App.EVENT_ACCESSIBILITY_ANNOUNCEMENT>, available in iOS and Android, asks the device's
+    accessibility system to make an announcement. The announcement itself is a string passed as the second
+    argument to <Ti.App.fireSystemEvent>. *How* the device's accessibility actually makes that announcement
+    depends on what accessibility services are activated on the device. The most common are VoiceOver on
+    iOS and TalkBack on Android. Each of those would read the announcement aloud.
+
+            Ti.App.fireSystemEvent(Ti.App.EVENT_ACCESSIBILITY_ANNOUNCEMENT, "Welcome to my App");
+
+    * <Ti.App.iOS.EVENT_ACCESSIBILITY_LAYOUT_CHANGED>, available only on iOS, can be used to alert
+    the accessibility system that the layout of the screen has changed, such as when an element
+    appears or disappears. When your application fires this event, Titanium calls `UIAccessibilityLayoutChangedNotification`
+    in the iOS [UIAccessibility Protocol](http://developer.apple.com/library/ios/#documentation/uikit/reference/UIAccessibility_Protocol/Introduction/Introduction.html).  No second parameter is required when firing this event with <Ti.App.fireSystemEvent>.
+
+    * <Ti.App.iOS.EVENT_ACCESSIBILITY_SCREEN_CHANGED>, available only on iOS, can be used to alert
+    the accessibility system when a new view appears that comprises a major portion of the screen.
+    When your application fires this event, Titanium calls `UIAccessibilityScreenChangedNotification`
+    in the iOS [UIAccessibility Protocol](http://developer.apple.com/library/ios/#documentation/uikit/reference/UIAccessibility_Protocol/Introduction/Introduction.html).
+    No second parameter is required when firing this event with <Ti.App.fireSystemEvent>.
+
+    ##### Listening for Accessibility Events
+
+    Currently there is only one system accessibility event which your application can listen for using
+    <Ti.App.addEventListener>, namely <Ti.App.accessibilitychanged>.  This event, available on iOS and on Android
+    (for devices running Ice Cream Sandwich or greater), is fired when the device's accessibility service is turned
+    on or off. The object passed as a parameter to the listener function contains an `enabled` property which is
+    `true` if the accessibility service is now turned on, or `false` otherwise.
+
 extends: Titanium.Module
 since: "0.1"
 
 events:
+  - name: accessibilitychanged
+    summary: Fired by the system when the device's accessibility service is turned on or off.
+    platforms: [android, iphone, ipad]
+    since: "3.0.0"
+    osver:
+        android:
+            min: "4.0"
+    properties:
+      - name: enabled
+        summary: Whether accessibility is now enabled or disabled.
+        type: Boolean
+
   - name: pause
     summary: Fired when the application transitions from active to inactive state on a multitasked system.
     description: |
@@ -183,10 +240,13 @@ events:
     platforms: [iphone, ipad]
     
   - name: keyboardFrameChanged
+    deprecated:
+        since: "3.0.0"
+        notes: |
+            Renamed to [keyboardframechanged](Titanium.App.keyboardframechanged)
+            (all lowercase).
     summary: Fired when the soft keyboard is presented, on and off the screen.
     description: |
-        This event has been deprecated and renamed keyboardframechanged (lower case).
-
         This event fires when the application presents the soft keyboard on/off the screen . The 
         event returns the dictionary containing `keyboardFrame.x`, `keyboardFrame.y`, 
         `keyboardFrame.height` and `keyboardFrame.width` variables, corresponding to the frame of 
@@ -195,8 +255,6 @@ events:
         Note that the keyboard `height` and `width` properties will not be accurate when the keyboard 
         is being dissmissed.
     platforms: [iphone, ipad]
-    deprecated:
-        since: "3.0.0"
     since: '2.1.0'
 
   - name: keyboardframechanged
@@ -213,6 +271,19 @@ events:
     since: '3.0.0'
     
 methods:
+  - name: fireSystemEvent
+    summary: Fire a system-level event such as <Ti.App.EVENT_ACCESSIBILITY_ANNOUNCEMENT>.
+    platforms: [android, iphone, ipad]
+    since: "3.0.0"
+    parameters:
+      - name: eventName
+        summary: The name of the event to fire.
+        type: String
+      - name: param
+        summary: A parameter to be passed to the system event.
+        type: Object
+        optional: true
+
   - name: getArguments
     summary: Returns the arguments passed to the application on startup.
     platforms: [iphone, ipad]
@@ -220,6 +291,20 @@ methods:
         type: Dictionary
 
 properties:
+  - name: EVENT_ACCESSIBILITY_ANNOUNCEMENT
+    summary: Convenience constant for system event "accessibilityannouncement".
+    type: String
+    permission: read-only
+    platforms: [android, iphone, ipad]
+    since: "3.0.0"
+
+  - name: EVENT_ACCESSIBILITY_CHANGED
+    summary: Convenience constant for system event "accessibilitychanged".
+    type: String
+    permission: read-only
+    platforms: [android, iphone, ipad]
+    since: "3.0.0"
+
   - name: analytics
     summary: Indicates whether Analytics is enabled, determined by `tiapp.xml`.
     type: Boolean

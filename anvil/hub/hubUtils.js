@@ -128,7 +128,7 @@ module.exports = new function() {
 
 				} else {
 					oldestLog = logsMap[logTimestamps[oldestLogIndex]];
-					wrench.rmdirSyncRecursive(path.join(hubGlobal.logsDir, oldestLog), failSilent);
+					fs.unlinkSync(path.resolve(hubGlobal.logsDir, oldestLog));
 					deleteLog(--oldestLogIndex);
 				}
 			}

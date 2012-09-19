@@ -121,6 +121,37 @@ description: |
     To determine whether the `size` and `rect` values are available, add an event listener
     for the [postlayout](Titanium.UI.View.postlayout) event, which is fired at the end of
     a layout cycle.
+
+    #### Accessibility
+
+    Four accessibility-related view properties became available in Titanium Mobile 3.0.0 for iOS
+    and Android:
+
+    * <Ti.UI.View.accessibilityLabel>
+    * <Ti.UI.View.accessibilityValue>
+    * <Ti.UI.View.accessibilityHint>
+    * <Ti.UI.View.accessibilityHidden>
+
+    The first three, `accessibilityLabel`, `accessibilityValue` and `accessibilityHint`, are for setting text
+    that will be relayed to the user by the assistive service (such as TalkBack on Android or VoiceOver
+    on iOS). On iOS, Titanium will then take these values and set the native properties
+    of the same name which are defined in the [UIAccessibilityProtocol](http://developer.apple.com/library/ios/#documentation/uikit/reference/UIAccessibility_Protocol/Introduction/Introduction.html).
+    On Android, Titanium takes the three values and concatenates them in the order `accessibilityLabel`,
+    `accessibilityValue`, and `accessibilityHint`, and then uses the result to set the native view's
+    [`contentDescription`](http://developer.android.com/reference/android/view/View.html#setContentDescription%28java.lang.CharSequence%29)
+    property.
+
+    You are not required to set all three properties: feel free to set just one or two as needed and
+    experiment with the results by turning on VoiceOver (iOS) or TalkBack (Android) on your test device.
+
+    The fourth property, `accessibilityHidden`, when set to `true`, indicates that the view can be ignored
+    by the assistive service. In iOS this sets the similarly-named [accessibilityElementsHidden](http://developer.apple.com/library/ios/documentation/uikit/reference/UIAccessibility_Protocol/Introduction/Introduction.html#//apple_ref/occ/instp/NSObject/accessibilityElementsHidden) native property,
+    and in Android it calls the native [View.setImportantForAccessibility(boolean)](http://developer.android.com/reference/android/view/View.html#setImportantForAccessibility%28int%29) method, passing `false` when
+    this property is set to `true` (i.e., "hidden" means it's not important.) However, the
+    native `setImportantForAccessibility` method is available only on devices running Jelly Bean (Android 4.1) or
+    higher. No error will occur on older devices if you set `accessibilityHidden`; the value will simply
+    be ignored.
+
 extends: Titanium.Proxy
 since: "0.9"
 
@@ -389,6 +420,7 @@ events:
         
   - name: twofingertap
     summary: Fired when the device detects a two-finger tap against the view.
+    since: { android: "3.0.0" }
     properties:
       - name: globalPoint
         summary: |
@@ -683,6 +715,55 @@ methods:
         type: Titanium.UI.View
 
 properties:
+  - name: accessibilityHidden
+    summary: Whether the view should be "hidden" from (i.e., ignored by) the accessibility service.
+    description: |
+        On iOS this is a direct analog of the `accessibilityElementsHidden` property defined in the
+        [UIAccessibility Protocol](http://developer.apple.com/library/ios/#documentation/uikit/reference/UIAccessibility_Protocol/Introduction/Introduction.html). On Android, it is useful only on Jelly Bean (Android 4.1) or higher because
+        it causes [View.setImportantForAccessibility](http://developer.android.com/reference/android/view/View.html#setImportantForAccessibility%28int%29) to be called, which is not available in previous versions.
+    since: "3.0.0"
+    platforms: [android, iphone, ipad]
+    type: Boolean
+    osver:
+        android:
+            min: "4.0"
+
+  - name: accessibilityHint
+    summary: Briefly describes what performing an action (such as a click) on the view will do.
+    description: |
+        On iOS this is a direct analog of the `accessibilityHint` property defined in the
+        [UIAccessibility Protocol](http://developer.apple.com/library/ios/#documentation/uikit/reference/UIAccessibility_Protocol/Introduction/Introduction.html). On Android, it is concatenated together with
+        <Ti.UI.View.accessibilityLabel> and <Ti.UI.View.accessibilityValue> in the order: `accessibilityLabel`,
+        `accessibilityValue`, `accessibilityHint`. The concatenated value is then passed as the
+        argument to the native [View.setContentDescription](http://developer.android.com/reference/android/view/View.html#setContentDescription%28java.lang.CharSequence%29) method.
+    type: String
+    since: "3.0.0"
+    platforms: [android, iphone, ipad]
+
+  - name: accessibilityLabel
+    summary: A succint label identifying the view for the device's accessibility service.
+    description: |
+        On iOS this is a direct analog of the `accessibilityLabel` property defined in the
+        [UIAccessibility Protocol](http://developer.apple.com/library/ios/#documentation/uikit/reference/UIAccessibility_Protocol/Introduction/Introduction.html). On Android, it is concatenated together with
+        <Ti.UI.View.accessibilityValue> and <Ti.UI.View.accessibilityHint> in the order: `accessibilityLabel`,
+        `accessibilityValue`, `accessibilityHint`. The concatenated value is then passed as the
+        argument to the native [View.setContentDescription](http://developer.android.com/reference/android/view/View.html#setContentDescription%28java.lang.CharSequence%29) method.
+    since: "3.0.0"
+    platforms: [android, iphone, ipad]
+    type: String
+
+  - name: accessibilityValue
+    summary: A string describing the value (if any) of the view for the device's accessibility service.
+    description: |
+        On iOS this is a direct analog of the `accessibilityValue` property defined in the
+        [UIAccessibility Protocol](http://developer.apple.com/library/ios/#documentation/uikit/reference/UIAccessibility_Protocol/Introduction/Introduction.html). On Android, it is concatenated together with
+        <Ti.UI.View.accessibilityLabel> and <Ti.UI.View.accessibilityHint> in the order: `accessibilityLabel`,
+        `accessibilityValue`, `accessibilityHint`. The concatenated value is then passed as the
+        argument to the native [View.setContentDescription](http://developer.android.com/reference/android/view/View.html#setContentDescription%28java.lang.CharSequence%29) method.
+    since: "3.0.0"
+    platforms: [android, iphone, ipad]
+    type: String
+
   - name: anchorPoint
     summary: Coordinate of the view about which to pivot an animation.
     description: |

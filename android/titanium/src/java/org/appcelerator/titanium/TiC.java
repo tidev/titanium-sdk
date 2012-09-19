@@ -431,6 +431,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String EVENT_TWOFINGERTAP = "twofingertap";
+
+	/**
+	 * @module.api
+	 */
 	public static final String EVENT_UNFOCUSED = "unfocused";
 	public static final String INTENT_PROPERTY_FINISH_ROOT = "finishRoot";
 	public static final String INTENT_PROPERTY_IS_TAB = "isTab";
@@ -458,6 +463,26 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_SCROLLING_ENABLED = "scrollingEnabled";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_ACCESSIBILITY_HIDDEN = "accessibilityHidden";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_ACCESSIBILITY_HINT = "accessibilityHint";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_ACCESSIBILITY_LABEL = "accessibilityLabel";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_ACCESSIBILITY_VALUE = "accessibilityValue";
 
 	/**
 	 * @module.api

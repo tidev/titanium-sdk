@@ -48,7 +48,7 @@ module.exports = new function() {
 			packageAndSendResults);
 
 		if (fs.existsSync(path.join(driverGlobal.logsDir, "json_results"))) {
-			wrench.rmdirSyncRecursive(path.join(driverGlobal.logsDir, "json_results"), failSilent);
+			wrench.rmdirSyncRecursive(path.join(driverGlobal.logsDir, "json_results"), false);
 		}
 
 		connectToHub();
@@ -203,8 +203,14 @@ module.exports = new function() {
 		process.chdir(path.join(driverGlobal.config.tempDir, "sdk"));
 
 		driverUtils.deleteFiles("zip");
-		wrench.rmdirSyncRecursive("mobilesdk", failSilent);
-		wrench.rmdirSyncRecursive("modules", failSilent);
+
+		if (fs.exists(path.resolve("mobilesdk"))) {
+			wrench.rmdirSyncRecursive("mobilesdk", false);
+		}
+
+		if (fs.exists(path.resolve("modules"))) {
+			wrench.rmdirSyncRecursive("modules", false);
+		}
 
 		downloadSdk();
 	}

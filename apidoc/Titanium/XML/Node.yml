@@ -146,14 +146,13 @@ properties:
     platforms: [iphone, ipad, mobileweb]
 
   - name: text
+    deprecated:
+        since: "2.0.0"
+        notes: Use [textContent](Titanium.XML.Node.textContent) instead.
     summary: |
-        Use [textContent](Titanium.XML.Node.textContent) instead.
-    description: |
         Content (value) of all text nodes within this node.
     type: String
     permission: read-only
-    deprecated:
-        since: "2.0.0"
     platforms: [iphone, ipad]
 
   - name: nodeType
