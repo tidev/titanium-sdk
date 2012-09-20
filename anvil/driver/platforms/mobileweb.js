@@ -135,7 +135,7 @@ module.exports = new function() {
 		};
 
 		// this is the same whether browser only mode is enabled or not
-		common.customTiappXmlProperties["driver.httpPort"] = driverGlobal.config.httpPort;
+		common.customTiappXmlProperties["driver.httpPort"] = {value: driverGlobal.config.httpPort, type: "int"};
 
 		/*
 		check for browser only mode.  When in browser only mode, we are gonna skip invoking the 
@@ -151,7 +151,7 @@ module.exports = new function() {
 			since we are running in browser only mode, the harness should use the loopback address
 			when making requests to the driver
 			*/
-			common.customTiappXmlProperties["driver.httpHost"] = "http://127.0.0.1";
+			common.customTiappXmlProperties["driver.httpHost"] = {value: "http://127.0.0.1", type: "string"};
 
 			// skip the normal logic of launching the browser on device
 			serverCallback = function() {
@@ -182,7 +182,7 @@ module.exports = new function() {
 				make sure that the harness has the correct wifi address to use when making requests to 
 				the driver
 				*/
-				common.customTiappXmlProperties["driver.httpHost"] = driverGlobal.httpHost;
+				common.customTiappXmlProperties["driver.httpHost"] = {value: driverGlobal.httpHost, type: "string"};
 
 			} else {
 				driverUtils.log("unable to get IP address", driverGlobal.logLevels.quiet);
