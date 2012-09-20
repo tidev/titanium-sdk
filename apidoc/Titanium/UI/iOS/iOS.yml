@@ -352,7 +352,8 @@ properties:
     summary: Returns the iOS system texture used to render the background on a group table view. 
     description: |
         Corresponds to iOS `UIColor` groupTableViewBackgroundColor`.
-
+        This constant has been deprecated in iOS6. Group style table view backgrounds can no longer be represented by a simple color.
+        Using this constant on a device running iOS6 or above will set the color to 'black'.
         Can be used anywhere a color value is required. See also "Colors" in <Titanium.UI>.
     type: String
     permission: read-only
