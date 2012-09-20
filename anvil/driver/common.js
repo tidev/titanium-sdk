@@ -392,7 +392,7 @@ module.exports = new function() {
 							make sure to only inject if the value doesn't already exist in the 
 							config tiapp.xml so we avoid duplicates
 							*/
-							newTiappXmlContents += "\t<property name=\"" + key + "\">" + self.customTiappXmlProperties[key] + "</property>\n";
+							newTiappXmlContents += "\t<property name=\"" + key + "\" type=\"" + self.customTiappXmlProperties[key].type + "\">" + self.customTiappXmlProperties[key].value + "</property>\n";
 						}
 					}
 				}

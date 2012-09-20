@@ -84,7 +84,7 @@ module.exports = new function() {
 		make sure the harness has access to what port number it should listen on for a connection 
 		from the driver
 		*/
-		common.customTiappXmlProperties["driver.socketPort"] = driverGlobal.config.iosSocketPort;
+		common.customTiappXmlProperties["driver.socketPort"] = {value: driverGlobal.config.iosSocketPort, type: "int"};
 
 		common.createHarness(
 			"ios",
