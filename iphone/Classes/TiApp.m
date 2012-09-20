@@ -643,6 +643,10 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 	}
 }
 
+- (NSUInteger)application:(UIApplication *)application supportedInterfaceOrientationsForWindow:(UIWindow *)window
+{
+    return [controller supportedInterfaceOrientations];
+}
 
 - (void)dealloc 
 {
