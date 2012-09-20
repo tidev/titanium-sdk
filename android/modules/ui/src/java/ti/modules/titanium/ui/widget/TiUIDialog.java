@@ -97,9 +97,12 @@ public class TiUIDialog extends TiUIView
 			}
 			
 			processOptions(optionText, selectedIndex);
-		} else if (d.containsKey(TiC.PROPERTY_PERSISTENT)) {
+		}
+		
+		if (d.containsKey(TiC.PROPERTY_PERSISTENT)) {
 			persistentDialog.setPersistent(d.getBoolean(TiC.PROPERTY_PERSISTENT));
 		}
+
 		if (buttonText != null) {
 			processButtons(buttonText);
 		}
