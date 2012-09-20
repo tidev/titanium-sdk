@@ -27,7 +27,7 @@
 	int callbackRequestCount;
 	
 	NSMutableDictionary* loadProperties; // Used to set properties when the player is created
-	BOOL sizeDetermined;
+	BOOL sizeSet;
 	
 	// OK, this is ridiculous.  Sometimes (always?) views which are made invisible and removed are relayed.
 	// This means their views are recreated.  For movie players, this means the movie is reloaded and plays.
