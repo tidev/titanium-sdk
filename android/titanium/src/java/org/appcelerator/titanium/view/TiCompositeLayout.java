@@ -283,7 +283,7 @@ public class TiCompositeLayout extends ViewGroup
 		int maxWidth = 0;
 		int maxHeight = 0;
 
-		// Used for horizontal layout with wrap only
+		// Used for horizontal layout only
 		int horizontalRowWidth = 0;
 		int horizontalRowHeight = 0;
 
@@ -312,16 +312,17 @@ public class TiCompositeLayout extends ViewGroup
 						horizontalRowWidth += childWidth;
 						maxWidth = Math.max(maxWidth, horizontalRowWidth);
 					}
-					horizontalRowHeight = Math.max(horizontalRowHeight, childHeight);
 
 				} else {
 					// For horizontal layout without wrap, just keep on adding the widths since it doesn't wrap
 					maxWidth += childWidth;
 				}
+				horizontalRowHeight = Math.max(horizontalRowHeight, childHeight);
+
 			} else {
 				maxWidth = Math.max(maxWidth, childWidth);
 
-				if(isVerticalArrangement()) {
+				if (isVerticalArrangement()) {
 					maxHeight += childHeight;
 				} else {
 					maxHeight = Math.max(maxHeight, childHeight);
@@ -330,7 +331,7 @@ public class TiCompositeLayout extends ViewGroup
 		}
 
 		// Add height for last row in horizontal layout
-		if (isHorizontalArrangement() && enableHorizontalWrap) {
+		if (isHorizontalArrangement()) {
 			maxHeight += horizontalRowHeight;
 		}
 
