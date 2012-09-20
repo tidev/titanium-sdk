@@ -682,7 +682,7 @@ public abstract class TiBaseActivity extends Activity
 	{
 		// If targetSdkVersion is set to 11+, Android will invoke this function 
 		// to initialize the menu (since it's part of the action bar). Due
-		// to the fix for bug 2373, activityProxy won't be initialized b/c the
+		// to the fix for Android bug 2373, activityProxy won't be initialized b/c the
 		// activity is expected to restart, so we will ignore it.
 		if (activityProxy == null) {
 			return false;
