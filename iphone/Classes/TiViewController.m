@@ -41,6 +41,11 @@
     return [[[TiApp app] controller] supportedInterfaceOrientations];
 }
 
+- (UIInterfaceOrientation)preferredInterfaceOrientationForPresentation
+{
+    return [ [[TiApp app] controller] preferredInterfaceOrientationForPresentation];
+}
+
 - (BOOL) shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation
 {
 	//Since the AppController will be the deciding factor, and it compensates for iPad, let it do the work.

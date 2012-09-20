@@ -310,6 +310,10 @@
 	[[viewControllerStack lastObject] viewDidDisappear:animated];
 }
 
+- (UIInterfaceOrientation)preferredInterfaceOrientationForPresentation
+{
+    return [self lastValidOrientation];
+}
 
 - (BOOL)shouldAutorotate{
     return YES;
@@ -973,15 +977,17 @@
 
 -(TiOrientationFlags) orientationFlags
 {
-	for (TiWindowProxy * thisWindow in [windowProxies reverseObjectEnumerator])
-	{
-        if ([thisWindow closing] == NO) {
-            TiOrientationFlags result = [thisWindow orientationFlags];
-            if (result != TiOrientationNone)
-            {
-                return result;
+    if ([[TiApp app] windowIsKeyWindow]) {
+        for (TiWindowProxy * thisWindow in [windowProxies reverseObjectEnumerator])
+        {
+            if ([thisWindow closing] == NO) {
+                TiOrientationFlags result = [thisWindow orientationFlags];
+                if (result != TiOrientationNone)
+                {
+                    return result;
+                }
             }
-       }
+        }
         
 	}
 	
