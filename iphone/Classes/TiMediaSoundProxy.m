@@ -174,7 +174,7 @@
 -(NSNumber*)time
 {
 	if (player != nil) {
-		return NUMDOUBLE([player currentTime]);
+		return NUMDOUBLE([player currentTime] * 1000.0);
 	}
 	return NUMDOUBLE(0);
 }
@@ -182,9 +182,9 @@
 -(void)setTime:(NSNumber*)value
 {
 	if (player != nil) {
-		[player setCurrentTime:[TiUtils doubleValue:value]];
+		[player setCurrentTime:([TiUtils doubleValue:(value)] / 1000.0)];
 	} else {
-		resumeTime = [TiUtils doubleValue:value];
+		resumeTime = [TiUtils doubleValue:value] / 1000.0;
 	}
 }
 
