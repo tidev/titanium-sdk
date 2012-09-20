@@ -77,7 +77,6 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 	public void setRowData(Item item) {
 		this.item = item;
 		TableViewRowProxy rp = getRowProxy();
-		rp.setTableViewItem(this);
 		setRowData(rp);
 	}
 
@@ -134,7 +133,7 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 				}
 			}
 
-			View v = view.getNativeView();
+			View v = view.getOuterView();
 			view.setProxy(proxy);
 			view.processProperties(proxy.getProperties());
 			applyChildProxies(proxy, view);
@@ -356,6 +355,10 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 	@Override
 	protected void onLayout(boolean changed, int left, int top, int right, int bottom)
 	{
+		// Make this association here to avoid doing it on measurement passes
+		TableViewRowProxy rp = getRowProxy();
+		rp.setTableViewItem(this);
+		
 		int contentLeft = left;
 		int contentRight = right;
 		bottom = bottom - top;
