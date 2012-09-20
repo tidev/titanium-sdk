@@ -117,6 +117,11 @@ bool Base64AllocAndEncodeData(const void *inInputData, size_t inInputDataSize, c
   return [UIAlertView instancesRespondToSelector:@selector(alertViewStyle)];
 }
 
++(BOOL)isIOS6OrGreater
+{
+    return [UIViewController instancesRespondToSelector:@selector(shouldAutomaticallyForwardRotationMethods)];
+}
+
 +(BOOL)isIPad
 {
 	return [[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPad;
