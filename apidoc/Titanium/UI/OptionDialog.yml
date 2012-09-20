@@ -142,6 +142,17 @@ properties:
     type: Array<String>
     availability: creation
     
+  - name: persistent
+    summary: Boolean value indicating if the option dialog should only be cancelled by user 
+        gesture or by hide method.
+    description: |
+        This property is useful to ensure that the option dialog will not be ignored 
+        by the user when the application is paused/suspended.
+    type: Boolean
+    default: true
+    since: "3.0.0"
+    platforms: [android]
+
   - name: selectedIndex
     summary: Defines the default selected option.
     platforms: [android]

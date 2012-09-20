@@ -8,9 +8,8 @@ package org.appcelerator.titanium;
 
 import java.lang.ref.WeakReference;
 import java.util.Iterator;
-import java.util.Map.Entry;
 import java.util.Stack;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollRuntime;
@@ -33,6 +32,7 @@ import org.appcelerator.titanium.view.TiCompositeLayout;
 import org.appcelerator.titanium.view.TiCompositeLayout.LayoutArrangement;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Intent;
 import android.content.res.Configuration;
@@ -77,11 +77,52 @@ public abstract class TiBaseActivity extends Activity
 	protected int msgId = -1;
 	protected static int previousOrientation = -1;
 	//Storing the activity's dialogs and their persistence 
-	private ConcurrentHashMap<Dialog, Boolean> dialogs = new ConcurrentHashMap<Dialog, Boolean>();
+	private CopyOnWriteArrayList<PersistentDialog> dialogs = new CopyOnWriteArrayList<PersistentDialog>();
 	private Stack<TiWindowProxy> windowStack = new Stack<TiWindowProxy>();
 
 	public TiWindowProxy lwWindow;
 	public boolean isResumed = false;
+
+	public class PersistentDialog {
+		boolean isPersistent;
+		AlertDialog dialog;
+		WeakReference<TiBaseActivity> dialogActivity;
+		
+		public PersistentDialog(AlertDialog d, boolean persistent, WeakReference<TiBaseActivity> activity) {
+			isPersistent = persistent;
+			dialog = d;
+			dialogActivity = activity;
+		}
+		
+		public TiBaseActivity getActivity()
+		{
+			return dialogActivity.get();
+		}
+		
+		public AlertDialog getDialog() {
+			return dialog;
+		}
+		
+		public void setDialog(AlertDialog d) {
+			dialog = d;
+		}
+		
+		public void release() 
+		{
+			dialog = null;
+			dialogActivity = null;
+		}
+
+		public boolean getPersistent()
+		{
+			return isPersistent;
+		}
+
+		public void setPersistent(boolean p) 
+		{
+			isPersistent = p;
+		}
+	}
 
 	public void addWindowToStack(TiWindowProxy proxy)
 	{
@@ -200,14 +241,21 @@ public abstract class TiBaseActivity extends Activity
 		return activityProxy;
 	}
 
-	public void addDialog(Dialog d, boolean persistent) 
+	public void addDialog(PersistentDialog d) 
 	{
-		dialogs.put(d, persistent);
+		dialogs.add(d);
 	}
 	
 	public void removeDialog(Dialog d) 
 	{
-		dialogs.remove(d);
+		for (int i = 0; i < dialogs.size(); i++) {
+			PersistentDialog p = dialogs.get(i);
+			if (p.getDialog().equals(d)) {
+				p.release();
+				dialogs.remove(i);
+				return;
+			}
+		}
 	}
 	public void setActivityProxy(ActivityProxy proxy)
 	{
@@ -753,18 +801,17 @@ public abstract class TiBaseActivity extends Activity
 	private void releaseDialogs(boolean finish)
 	{
 		//clean up dialogs when activity is pausing or finishing
-		Iterator<Entry<Dialog, Boolean>> iter = dialogs.entrySet().iterator();
-		while(iter.hasNext()) {
-			Entry<Dialog, Boolean> entry = (Entry<Dialog, Boolean>) iter.next();
-			Dialog dialog = entry.getKey();
-			boolean persistent = entry.getValue();
+		for (Iterator<PersistentDialog> iter = dialogs.iterator(); iter.hasNext(); ) {
+			PersistentDialog p = iter.next();
+			Dialog dialog = p.getDialog();
+			boolean persistent = p.getPersistent();
 			//if the activity is pausing but not finishing, clean up dialogs only if
 			//they are non-persistent
 			if (finish || !persistent) {
-				if (dialog.isShowing()) {
+				if (dialog != null && dialog.isShowing()) {
 					dialog.dismiss();
 				}
-				removeDialog(dialog);
+				dialogs.remove(p);
 			}
 		}
 	}

@@ -190,6 +190,7 @@ properties:
         by the user when the application is paused/suspended.
     type: Boolean
     default: false on iOS, true on Android
+    since: "3.0.0"
     platforms: [android, iphone, ipad]
 
 examples:
