@@ -17,12 +17,14 @@
 #import "KrollContext.h"
 #import "TiDebugger.h"
 #import "TiConsole.h"
+#import "TiExceptionHandler.h"
 
 #ifdef KROLL_COVERAGE
 # include "KrollCoverage.h"
 #endif
 
 extern BOOL const TI_APPLICATION_ANALYTICS;
+extern NSString * const TI_APPLICATION_DEPLOYTYPE;
 
 NSString * TitaniumModuleRequireFormat = @"(function(exports){"
 		"var __OXP=exports;var module={'exports':exports};%@;\n"
@@ -367,12 +369,6 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 	return [context evalJSAndWait:code];
 }
 
-- (void)scriptError:(NSString*)message
-{
-    evaluationError = YES;
-	[[TiApp app] showModalError:message];
-}
-
 -(BOOL)evaluationError
 {
     return evaluationError;
@@ -417,15 +413,15 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 	{
 		NSLog(@"[ERROR] Error loading path: %@, %@",path,error);
 		
+		evaluationError = YES;
+		TiScriptError *scriptError = nil;
 		// check for file not found a give a friendlier message
-		if ([error code]==260 && [error domain]==NSCocoaErrorDomain)
-		{
-			[self scriptError:[NSString stringWithFormat:@"Could not find the file %@",[path lastPathComponent]]];
+		if ([error code]==260 && [error domain]==NSCocoaErrorDomain) {
+			scriptError = [[TiScriptError alloc] initWithMessage:[NSString stringWithFormat:@"Could not find the file %@",[path lastPathComponent]] sourceURL:nil lineNo:0];
+		} else {
+			scriptError = [[TiScriptError alloc] initWithMessage:[NSString stringWithFormat:@"Error loading script %@. %@",[path lastPathComponent],[error description]] sourceURL:nil lineNo:0];
 		}
-		else 
-		{
-			[self scriptError:[NSString stringWithFormat:@"Error loading script %@. %@",[path lastPathComponent],[error description]]];
-		}
+		[[TiExceptionHandler defaultExceptionHandler] reportScriptError:scriptError];
 		return;
 	}
 	
@@ -435,17 +431,12 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 	TiStringRef jsURL = TiStringCreateWithUTF8CString(urlCString);
 	
 	// validate script
-	// TODO: we do not need to do this in production app
-	if (!TiCheckScriptSyntax(jsContext,jsCode,jsURL,1,&exception))
-	{
-		id excm = [KrollObject toID:context value:exception];
-		DebugLog(@"[ERROR] Syntax Error = %@",[TiUtils exceptionMessage:excm]);
-		[self scriptError:[TiUtils exceptionMessage:excm]];
+	if (![TI_APPLICATION_DEPLOYTYPE isEqualToString:@"production"]) {
+		TiCheckScriptSyntax(jsContext,jsCode,jsURL,1,&exception);
 	}
 	
 	// only continue if we don't have any exceptions from above
-	if (exception == NULL)
-	{
+	if (exception == NULL) {
         if ([[self host] debugMode]) {
             TiDebuggerBeginScript(context_,urlCString);
         }
@@ -455,16 +446,20 @@ CFMutableSetRef	krollBridgeRegistry = nil;
         if ([[self host] debugMode]) {
             TiDebuggerEndScript(context_);
         }
-
-		if (exception!=NULL)
-		{
-			id excm = [KrollObject toID:context value:exception];
-			DebugLog(@"[ERROR] Script Error = %@.",[TiUtils exceptionMessage:excm]);
-			[self scriptError:[TiUtils exceptionMessage:excm]];
-		}
-        else {
+		if (exception == NULL) {
             evaluationError = NO;
         }
+	}
+	if (exception != NULL) {
+		id excm = [KrollObject toID:context value:exception];
+		TiScriptError *scriptError = nil;
+		if ([excm isKindOfClass:[NSDictionary class]]) {
+			scriptError = [[TiScriptError alloc] initWithDictionary:excm];
+		} else {
+			scriptError = [[TiScriptError alloc] initWithMessage:[excm description] sourceURL:nil lineNo:0];
+		}
+		evaluationError = YES;
+		[[TiExceptionHandler defaultExceptionHandler] reportScriptError:scriptError];
 	}
 	
 	TiStringRelease(jsCode);
