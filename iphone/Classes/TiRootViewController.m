@@ -100,7 +100,14 @@
 	}
 	*imageOrientation = UIDeviceOrientationPortrait;
 	*imageIdiom = UIUserInterfaceIdiomPhone;
-	// Default 
+	// Default
+    image = nil;
+    if ([[UIScreen mainScreen] bounds].size.height == 568) {
+        image = [UIImage imageNamed:@"Default-568h@2x.png"];
+        if (image!=nil) {
+            return image;
+        }
+    }
 	return [UIImage imageNamed:@"Default.png"];
 }
 
