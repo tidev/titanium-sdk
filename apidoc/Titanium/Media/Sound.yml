@@ -141,6 +141,8 @@ properties:
     summary: Current playback position of the audio.
     description: |
         Time is reported in milliseconds.
+        
+        On iOS, prior to Release 3.0, playback time is reported in seconds.
     type: Number
 
   - name: url
