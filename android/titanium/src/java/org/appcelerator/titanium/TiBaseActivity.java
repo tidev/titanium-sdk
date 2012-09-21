@@ -77,18 +77,18 @@ public abstract class TiBaseActivity extends Activity
 	protected int msgId = -1;
 	protected static int previousOrientation = -1;
 	//Storing the activity's dialogs and their persistence 
-	private CopyOnWriteArrayList<PersistentDialog> dialogs = new CopyOnWriteArrayList<PersistentDialog>();
+	private CopyOnWriteArrayList<DialogWrapper> dialogs = new CopyOnWriteArrayList<DialogWrapper>();
 	private Stack<TiWindowProxy> windowStack = new Stack<TiWindowProxy>();
 
 	public TiWindowProxy lwWindow;
 	public boolean isResumed = false;
 
-	public class PersistentDialog {
+	public class DialogWrapper {
 		boolean isPersistent;
 		AlertDialog dialog;
 		WeakReference<TiBaseActivity> dialogActivity;
 		
-		public PersistentDialog(AlertDialog d, boolean persistent, WeakReference<TiBaseActivity> activity) {
+		public DialogWrapper(AlertDialog d, boolean persistent, WeakReference<TiBaseActivity> activity) {
 			isPersistent = persistent;
 			dialog = d;
 			dialogActivity = activity;
@@ -241,7 +241,7 @@ public abstract class TiBaseActivity extends Activity
 		return activityProxy;
 	}
 
-	public void addDialog(PersistentDialog d) 
+	public void addDialog(DialogWrapper d) 
 	{
 		dialogs.add(d);
 	}
@@ -249,7 +249,7 @@ public abstract class TiBaseActivity extends Activity
 	public void removeDialog(Dialog d) 
 	{
 		for (int i = 0; i < dialogs.size(); i++) {
-			PersistentDialog p = dialogs.get(i);
+			DialogWrapper p = dialogs.get(i);
 			if (p.getDialog().equals(d)) {
 				p.release();
 				dialogs.remove(i);
@@ -801,8 +801,8 @@ public abstract class TiBaseActivity extends Activity
 	private void releaseDialogs(boolean finish)
 	{
 		//clean up dialogs when activity is pausing or finishing
-		for (Iterator<PersistentDialog> iter = dialogs.iterator(); iter.hasNext(); ) {
-			PersistentDialog p = iter.next();
+		for (Iterator<DialogWrapper> iter = dialogs.iterator(); iter.hasNext(); ) {
+			DialogWrapper p = iter.next();
 			Dialog dialog = p.getDialog();
 			boolean persistent = p.getPersistent();
 			//if the activity is pausing but not finishing, clean up dialogs only if

@@ -206,7 +206,7 @@ public class TiUIHelper
 							.setCancelable(false).create();
 					if (activity instanceof TiBaseActivity) {
 						TiBaseActivity baseActivity = (TiBaseActivity) activity;
-						baseActivity.addDialog(baseActivity.new PersistentDialog(dialog, true, new WeakReference<TiBaseActivity>(baseActivity)));
+						baseActivity.addDialog(baseActivity.new DialogWrapper(dialog, true, new WeakReference<TiBaseActivity>(baseActivity)));
 						dialog.setOwnerActivity(activity);
 					}
 					dialog.show();
