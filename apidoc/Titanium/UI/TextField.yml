@@ -80,7 +80,13 @@ properties:
     default: <Titanium.UI.TEXT_AUTOCAPITALIZATION_NONE>
     
   - name: autocorrect
-    summary: Determines whether misspelled words input to this text field are automatically corrected.
+    summary: |
+        Determines whether to automatically correct text inputted into this text field.
+    description: |
+        Set to `true` to enable automatic spelling correction.
+
+        If this property is not explicitly defined, it will behave as though it were set to `true`,
+        despite the returned value.
     type: Boolean
     default: false
     
