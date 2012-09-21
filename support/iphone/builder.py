@@ -972,7 +972,7 @@ def main(args):
 				# In order to avoid dual-mangling, we need to make sure that if we're re-projecting,
 				# there is NOT an existing xcodeproj file.
 				if not os.path.exists(os.path.join(iphone_dir, "%s.xcodeproj" % name)):
-					project = Projector(name,sdk_version,template_dir,project_dir,appid)
+					project = Projector(name,sdk_version,template_dir,project_dir,appid, None)
 					project.create(template_dir,iphone_dir)
 				
 				force_xcode = True
