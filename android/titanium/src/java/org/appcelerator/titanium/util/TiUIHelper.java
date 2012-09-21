@@ -9,6 +9,7 @@ package org.appcelerator.titanium.util;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.ref.WeakReference;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -189,7 +190,7 @@ public class TiUIHelper
 					Activity ownerActivity = ((AlertDialog)dialog).getOwnerActivity();
 					//if activity is not finishing, remove dialog to free memory
 					if (ownerActivity != null && !ownerActivity.isFinishing()) {
-						((TiBaseActivity)ownerActivity).removeDialog((AlertDialog)dialog);
+						((TiBaseActivity)ownerActivity).removeDialog((AlertDialog) dialog);
 					}
 				}};
 		}
@@ -204,7 +205,8 @@ public class TiUIHelper
 							.setPositiveButton(android.R.string.ok, fListener)
 							.setCancelable(false).create();
 					if (activity instanceof TiBaseActivity) {
-						((TiBaseActivity)activity).addDialog(dialog);
+						TiBaseActivity baseActivity = (TiBaseActivity) activity;
+						baseActivity.addDialog(baseActivity.new DialogWrapper(dialog, true, new WeakReference<TiBaseActivity>(baseActivity)));
 						dialog.setOwnerActivity(activity);
 					}
 					dialog.show();

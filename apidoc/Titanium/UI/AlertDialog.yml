@@ -189,8 +189,9 @@ properties:
         This property is useful to ensure that the alert dialog will not be ignored 
         by the user when the application is paused/suspended.
     type: Boolean
-    default: false
-    platforms: [iphone, ipad]
+    default: false on iOS, true on Android
+    since: "3.0.0"
+    platforms: [android, iphone, ipad]
 
 examples:
   - title: Single-button Alert Dialog (using alias)
