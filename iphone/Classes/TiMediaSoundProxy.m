@@ -176,7 +176,7 @@
 	if (player != nil) {
 		return NUMDOUBLE([player currentTime] * 1000.0);
 	}
-	return NUMDOUBLE(resumeTime);
+	return NUMDOUBLE(resumeTime * 1000.0);
 }
 
 -(void)setTime:(NSNumber*)value
