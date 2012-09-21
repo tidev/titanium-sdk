@@ -12,6 +12,8 @@ import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
+import org.appcelerator.titanium.TiBaseActivity;
+import org.appcelerator.titanium.TiBaseActivity.DialogWrapper;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
@@ -29,9 +31,8 @@ public class TiUIDialog extends TiUIView
 	private static final int BUTTON_MASK = 0x10000000;
 
 	protected Builder builder;
-	protected AlertDialog dialog;
 	protected TiUIView view;
-	protected WeakReference<Activity> ownerActivity;
+	private DialogWrapper dialogWrapper;
 
 	protected class ClickHandler implements DialogInterface.OnClickListener
 	{
@@ -97,6 +98,11 @@ public class TiUIDialog extends TiUIView
 			
 			processOptions(optionText, selectedIndex);
 		}
+		
+		if (d.containsKey(TiC.PROPERTY_PERSISTENT)) {
+			dialogWrapper.setPersistent(d.getBoolean(TiC.PROPERTY_PERSISTENT));
+		}
+
 		if (buttonText != null) {
 			processButtons(buttonText);
 		}
@@ -163,6 +169,7 @@ public class TiUIDialog extends TiUIView
 	{
 		Log.d(TAG, "Property: " + key + " old: " + oldValue + " new: " + newValue, Log.DEBUG_MODE);
 
+		AlertDialog dialog = dialogWrapper.getDialog();
 		if (key.equals(TiC.PROPERTY_TITLE)) {
 			if (dialog != null) {
 				dialog.setTitle((String) newValue);
@@ -216,6 +223,8 @@ public class TiUIDialog extends TiUIView
 			} else {
 				proxy.setProperty(TiC.PROPERTY_ANDROID_VIEW, null, false);
 			}
+		} else if (key.equals(TiC.PROPERTY_PERSISTENT) && newValue != null) {
+			dialogWrapper.setPersistent(TiConvert.toBoolean(newValue));
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}
@@ -223,6 +232,7 @@ public class TiUIDialog extends TiUIView
 
 	public void show(KrollDict options)
 	{
+		AlertDialog dialog = dialogWrapper.getDialog();
 		if (dialog == null) {
 			processProperties(proxy.getProperties());
 			getBuilder().setOnCancelListener(new OnCancelListener() {
@@ -235,12 +245,17 @@ public class TiUIDialog extends TiUIView
 				}
 			});
 			dialog = getBuilder().create();
+			dialogWrapper.setDialog(dialog);
 			builder = null;
 		}
 		try {
-			Activity dialogActivity = ownerActivity.get();
+			Activity dialogActivity = dialogWrapper.getActivity();
 			if (dialogActivity != null && !dialogActivity.isFinishing()) {
-				dialog.show();
+				if (dialogActivity instanceof TiBaseActivity) {
+					//add dialog to its activity so we can clean it up later to prevent memory leak.
+					((TiBaseActivity) dialogActivity).addDialog(dialogWrapper);
+					dialog.show();
+				}
 			} else {
 				dialog = null;
 				Log.w(TAG, "Dialog activity is destroyed, unable to show dialog with message: " + TiConvert.toString(proxy.getProperty(TiC.PROPERTY_MESSAGE)));
@@ -252,10 +267,12 @@ public class TiUIDialog extends TiUIView
 
 	public void hide(KrollDict options)
 	{
+		AlertDialog dialog = dialogWrapper.getDialog();
 		if (dialog != null) {
 			dialog.dismiss();
-			dialog = null;
+			dialogWrapper.getActivity().removeDialog(dialog);
 		}
+
 		if (view != null) {
 			view.getProxy().releaseViews();
 			view = null;
@@ -265,9 +282,16 @@ public class TiUIDialog extends TiUIView
 	private void createBuilder()
 	{
 		Activity currentActivity = getCurrentActivity();
-		this.builder = new AlertDialog.Builder(currentActivity);
-		this.builder.setCancelable(true);
-		ownerActivity = new WeakReference<Activity>(currentActivity);
+		if (currentActivity != null) {
+			this.builder = new AlertDialog.Builder(currentActivity);
+			this.builder.setCancelable(true);
+			
+			//Native dialogs are persistent by default.
+			TiBaseActivity dialogActivity = (TiBaseActivity)currentActivity;
+			dialogWrapper = dialogActivity.new DialogWrapper(null, true, new WeakReference<TiBaseActivity>(dialogActivity));
+		} else {
+			Log.e (TAG, "Unable to find an activity for dialog.");
+		}
 	}
 
 	public void handleEvent(int id)
