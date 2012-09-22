@@ -58,7 +58,7 @@ module.exports = new function() {
 	this.logStdout = 2;
 
 	this.runCommand = function(command, logLevel, callback) {
-		child_process.exec(command, function(error, stdout, stderr) {
+		child_process.exec(command, {maxBuffer: 500*1024}, function(error, stdout, stderr) {
 			if ((logLevel > self.logStderr) && (stdout !== "")) {
 				self.log(stdout, 2);
 			}
@@ -291,7 +291,7 @@ module.exports = new function() {
 			extension = "." + extension;
 		}
 
-		files = fs.readdirSync(__dirname);
+		files = fs.readdirSync(process.cwd());
 		for(i = 0; i < files.length; i++) {
 			if (deleteAll === false && files[i].substr(-extension.length) != extension) {
 				continue;

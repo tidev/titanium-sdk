@@ -593,6 +593,8 @@
             //layout the titleControl children
             [titleControl layoutChildren:NO];
             
+            [self updateBarImage];
+            
             return;
         }
         [oldProxy removeBarButtonView];

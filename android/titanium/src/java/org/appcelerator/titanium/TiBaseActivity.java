@@ -7,8 +7,9 @@
 package org.appcelerator.titanium;
 
 import java.lang.ref.WeakReference;
-import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.Stack;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollRuntime;
@@ -31,6 +32,7 @@ import org.appcelerator.titanium.view.TiCompositeLayout;
 import org.appcelerator.titanium.view.TiCompositeLayout.LayoutArrangement;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Intent;
 import android.content.res.Configuration;
@@ -74,11 +76,53 @@ public abstract class TiBaseActivity extends Activity
 	protected int msgActivityCreatedId = -1;
 	protected int msgId = -1;
 	protected static int previousOrientation = -1;
-	private ArrayList<Dialog> dialogs = new ArrayList<Dialog>();
+	//Storing the activity's dialogs and their persistence 
+	private CopyOnWriteArrayList<DialogWrapper> dialogs = new CopyOnWriteArrayList<DialogWrapper>();
 	private Stack<TiWindowProxy> windowStack = new Stack<TiWindowProxy>();
 
 	public TiWindowProxy lwWindow;
 	public boolean isResumed = false;
+
+	public class DialogWrapper {
+		boolean isPersistent;
+		AlertDialog dialog;
+		WeakReference<TiBaseActivity> dialogActivity;
+		
+		public DialogWrapper(AlertDialog d, boolean persistent, WeakReference<TiBaseActivity> activity) {
+			isPersistent = persistent;
+			dialog = d;
+			dialogActivity = activity;
+		}
+		
+		public TiBaseActivity getActivity()
+		{
+			return dialogActivity.get();
+		}
+		
+		public AlertDialog getDialog() {
+			return dialog;
+		}
+		
+		public void setDialog(AlertDialog d) {
+			dialog = d;
+		}
+		
+		public void release() 
+		{
+			dialog = null;
+			dialogActivity = null;
+		}
+
+		public boolean getPersistent()
+		{
+			return isPersistent;
+		}
+
+		public void setPersistent(boolean p) 
+		{
+			isPersistent = p;
+		}
+	}
 
 	public void addWindowToStack(TiWindowProxy proxy)
 	{
@@ -197,14 +241,21 @@ public abstract class TiBaseActivity extends Activity
 		return activityProxy;
 	}
 
-	public void addDialog(Dialog d) 
+	public void addDialog(DialogWrapper d) 
 	{
 		dialogs.add(d);
 	}
 	
 	public void removeDialog(Dialog d) 
 	{
-		dialogs.remove(d);
+		for (int i = 0; i < dialogs.size(); i++) {
+			DialogWrapper p = dialogs.get(i);
+			if (p.getDialog().equals(d)) {
+				p.release();
+				dialogs.remove(i);
+				return;
+			}
+		}
 	}
 	public void setActivityProxy(ActivityProxy proxy)
 	{
@@ -747,15 +798,21 @@ public abstract class TiBaseActivity extends Activity
 		// TODO stub
 	}
 
-	private void releaseDialogs()
+	private void releaseDialogs(boolean finish)
 	{
-		//clean up dialogs when activity is finishing
-		while (dialogs.size() > 0) {
-			Dialog dialog = dialogs.get(0);
-			if (dialog.isShowing()) {
-				dialog.dismiss();
+		//clean up dialogs when activity is pausing or finishing
+		for (Iterator<DialogWrapper> iter = dialogs.iterator(); iter.hasNext(); ) {
+			DialogWrapper p = iter.next();
+			Dialog dialog = p.getDialog();
+			boolean persistent = p.getPersistent();
+			//if the activity is pausing but not finishing, clean up dialogs only if
+			//they are non-persistent
+			if (finish || !persistent) {
+				if (dialog != null && dialog.isShowing()) {
+					dialog.dismiss();
+				}
+				dialogs.remove(p);
 			}
-			removeDialog(dialog);
 		}
 	}
 
@@ -772,9 +829,8 @@ public abstract class TiBaseActivity extends Activity
 		Log.d(TAG, "Activity " + this + " onPause", Log.DEBUG_MODE);
 
 		TiApplication tiApp = getTiApp();
-
 		if (tiApp.isRestartPending()) {
-			releaseDialogs();
+			releaseDialogs(true);
 			if (!isFinishing()) {
 				finish();
 			}
@@ -790,7 +846,10 @@ public abstract class TiBaseActivity extends Activity
 		TiUIHelper.showSoftKeyboard(getWindow().getDecorView(), false);
 
 		if (this.isFinishing()) {
-			releaseDialogs();
+			releaseDialogs(true);
+		} else {
+			//release non-persistent dialogs when activity hides
+			releaseDialogs(false);
 		}
 
 		if (activityProxy != null) {
@@ -994,7 +1053,7 @@ public abstract class TiBaseActivity extends Activity
 
 		TiApplication tiApp = getTiApp();
 		//Clean up dialogs when activity is destroyed. 
-		releaseDialogs();
+		releaseDialogs(true);
 
 		if (tiApp.isRestartPending()) {
 			super.onDestroy();

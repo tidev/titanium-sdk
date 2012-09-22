@@ -125,7 +125,7 @@ exports.run = function (logger, config, cli) {
 					return Math.max(a, b.length);
 				}, 0);
 				propsList.forEach(function (key) {
-					logger.log('  %s = %s', appc.string.rpad(key, maxlen), (tiapp[key] + '' || __('<not specified>')).cyan);
+					logger.log('  %s = %s', appc.string.rpad(key, maxlen), (tiapp[key] + '' || __('not specified')).cyan);
 				});
 				logger.log();
 			}
