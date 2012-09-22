@@ -21,7 +21,7 @@ exports.config = function (logger, config, cli) {
 				desc: __('a platform to clean'),
 				values: ti.availablePlatforms
 			},
-			dir: {
+			'project-dir': {
 				abbr: 'd',
 				desc: __('the directory containing the project, otherwise the current working directory')
 			}
@@ -33,14 +33,14 @@ exports.validate = function (logger, config, cli) {
 	if (cli.argv.platform) {
 		cli.argv.platform = ti.validatePlatform(logger, cli.argv.platform);
 	}
-	cli.argv.dir = ti.validateProjectDir(logger, cli.argv.dir);
+	cli.argv['project-dir'] = ti.validateProjectDir(logger, cli.argv['project-dir']);
 };
 
 exports.run = function (logger, config, cli) {
-	var buildDir = path.join(cli.argv.dir, 'build');
+	var buildDir = path.join(cli.argv['project-dir'], 'build');
 	
 	logger.debug(__('Touching tiapp.xml'));
-	appc.fs.touch(path.join(cli.argv.dir, 'tiapp.xml'));
+	appc.fs.touch(path.join(cli.argv['project-dir'], 'tiapp.xml'));
 	
 	if (cli.argv.platform) {
 		var dir = path.join(buildDir, cli.argv.platform);

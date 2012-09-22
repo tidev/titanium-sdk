@@ -9,7 +9,8 @@ var ti = require('titanium-sdk'),
 	fs = require('fs'),
 	path = require('path'),
 	wrench = require('wrench'),
-	appc = require('node-appc');
+	appc = require('node-appc'),
+	afs = appc.fs;
 
 exports.config = function (logger, config, cli) {
 	return {
@@ -69,7 +70,7 @@ exports.config = function (logger, config, cli) {
 				},
 				required: true
 			},
-			dir: {
+			'workspace-dir': {
 				abbr: 'd',
 				default: config.app.workspace || '',
 				desc: __('the directory to place the project in'),
@@ -77,11 +78,11 @@ exports.config = function (logger, config, cli) {
 					label: __('Directory to place project'),
 					error: __('Invalid directory'),
 					validator: function (dir) {
-						dir = appc.fs.resolvePath(dir);
-						if (!appc.fs.exists(dir)) {
+						dir = afs.resolvePath(dir);
+						if (!afs.exists(dir)) {
 							throw new appc.exception(__('Specified directory does not exist'));
 						}
-						if (!appc.fs.isDirWritable(dir)) {
+						if (!afs.isDirWritable(dir)) {
 							throw new appc.exception(__('Specified directory not writable'));
 						}
 						return true;
@@ -107,8 +108,8 @@ exports.validate = function (logger, config, cli) {
 		process.exit(1);
 	}
 	
-	var projectDir = appc.fs.resolvePath(cli.argv.dir, cli.argv.name);
-	if (!cli.argv.force && appc.fs.exists(projectDir)) {
+	var projectDir = afs.resolvePath(cli.argv['workspace-dir'], cli.argv.name);
+	if (!cli.argv.force && afs.exists(projectDir)) {
 		logger.error(__('Project directory alread exists: %s', projectDir) + '\n');
 		logger.log(__("Run '%s' to overwrite existing project.", (cli.argv.$ + ' ' + process.argv.slice(2).join(' ') + ' --force').cyan) + '\n');
 		process.exit(1);
@@ -121,12 +122,12 @@ exports.run = function (logger, config, cli) {
 		id = cli.argv.id,
 		type = cli.argv.type,
 		sdk = cli.env.getSDK(cli.argv.sdk),
-		projectDir = appc.fs.resolvePath(cli.argv.dir, projectName),
-		templateDir = appc.fs.resolvePath(sdk.path, 'templates', type, cli.argv.template),
+		projectDir = afs.resolvePath(cli.argv['workspace-dir'], projectName),
+		templateDir = afs.resolvePath(sdk.path, 'templates', type, cli.argv.template),
 		uuid = require('node-uuid'),
 		projectConfig;
 	
-	appc.fs.exists(projectDir) || wrench.mkdirSyncRecursive(projectDir);
+	afs.exists(projectDir) || wrench.mkdirSyncRecursive(projectDir);
 	wrench.copyDirSyncRecursive(templateDir, projectDir);
 	
 	if (type == 'app') {
@@ -196,13 +197,10 @@ exports.run = function (logger, config, cli) {
 		].join('\n'));
 	}
 	
-	platforms.forEach(function (p) {
-		var templatePath = appc.fs.resolvePath(path.dirname(module.filename), '..', '..', p, 'templates', type, cli.argv.template);
-		if (appc.fs.exists(templatePath)) {
-			wrench.copyDirSyncRecursive(templatePath, projectDir, { preserve: true });
-		}
-		if (appc.fs.exists(appc.fs.resolvePath('..', '..', p, 'cli', 'commands', '_create.js'))) {
-			require('../../' + p + '/cli/commands/_create').run(logger, type, projectDir, projectConfig);
+	platforms.forEach(function (platform) {
+		var p = afs.resolvePath(path.dirname(module.filename), '..', '..', platform, 'cli', 'commands', '_create.js');
+		if (afs.exists(p)) {
+			require(p).run(logger, config, cli, projectConfig);
 		}
 	});
 	
