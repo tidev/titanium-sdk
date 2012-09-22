@@ -39,10 +39,10 @@ var ti = require('titanium-sdk'),
 exports.config = function (logger, config, cli) {
 	return {
 		options: {
-			'build-type': {
+			'deploy-type': {
 				abbr: 'B',
 				default: 'development',
-				desc: __('the type of build to perform'),
+				desc: __('the type of deployment; production performs optimizations'),
 				hint: __('type'),
 				values: ['production', 'development']
 			}
@@ -55,13 +55,13 @@ exports.run = function (logger, config, cli, finished) {
 };
 
 function build(logger, config, cli, finished) {
-	logger.info(__('Compiling "%s" build', cli.argv['build-type']));
+	logger.info(__('Compiling "%s" build', cli.argv['deploy-type']));
 	
 	this.logger = logger;
-	this.buildType = cli.argv['build-type'];
+	this.buildType = cli.argv['deploy-type'];
 	this.os = cli.env.os;
 	
-	this.projectDir = afs.resolvePath(cli.argv.dir);
+	this.projectDir = afs.resolvePath(cli.argv['project-dir']);
 	this.projectResDir = this.projectDir + '/Resources';
 	this.buildDir = this.projectDir + '/build/mobileweb';
 	this.mobilewebSdkPath = afs.resolvePath(path.dirname(module.filename) + '/../..');
