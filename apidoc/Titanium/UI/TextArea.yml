@@ -78,9 +78,15 @@ properties:
     platforms: [android, iphone, ipad]
     
   - name: autocorrect
-    summary: Determines whether misspelled words input to this text area are automatically corrected.
+    summary: Determines whether to automatically correct text entered into this text area.
+    description: |
+        Set to `true` to enable automatic spelling correction.
+
+        If this property is not explicitly defined, it behaves as though it were set to `true`.
+
+        On Android and iOS, the returned default value is undefined, and on Mobile Web, the returned
+        default value is `false`, but all behave as if the value is `true`.
     type: Boolean
-    default: false
     platforms: [android, iphone, ipad, mobileweb]
     
   - name: autoLink
