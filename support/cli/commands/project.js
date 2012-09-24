@@ -60,7 +60,7 @@ exports.config = function (logger, config, cli) {
 };
 
 exports.validate = function (logger, config, cli) {
-	cli.argv['project-dir'] = ti.validateProjectDir(logger, cli.argv['project-dir']);
+	ti.validateProjectDir(logger, cli.argv, 'project-dir');
 
 	// Validate the key, if it exists
 	if (cli.argv._.length > 0) {
