@@ -837,7 +837,7 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 -(void)fireEvent:(id)args
 {
 	NSString *type = nil;
-	id params = nil;
+	NSDictionary * params = nil;
 	if ([args isKindOfClass:[NSArray class]])
 	{
 		type = [args objectAtIndex:0];
@@ -850,7 +850,13 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 	{
 		type = (NSString*)args;
 	}
-	[self fireEvent:type withObject:params withSource:self propagate:YES];
+	id bubbleObject = [params objectForKey:@"bubbles"];
+	//TODO: Yes is the historical default. Is this the right thing to do, given the expense?
+	BOOL bubble = [TiUtils boolValue:bubbleObject def:YES];
+	if((bubbleObject != nil) && ([params count]==1)){
+		params = nil; //No need to propagate when we already have this information
+	}
+	[self fireEvent:type withObject:params withSource:self propagate:bubble];
 }
 
 -(void)fireEvent:(NSString*)type withObject:(id)obj
