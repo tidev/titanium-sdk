@@ -88,7 +88,7 @@ properties:
         If this property is not explicitly defined, it behaves as though it were set to `true`.
 
         On iOS and Mobile Web, the returned default value is `false`, and on Android, the returned
-        default value is undefined, but all behave as if the value was `true`.
+        default value is undefined, but all behave as if the value is `true`.
     type: Boolean
     
   - name: autoLink
