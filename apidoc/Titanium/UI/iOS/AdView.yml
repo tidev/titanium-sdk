@@ -5,37 +5,34 @@ description: The Ad view is created by the <Titanium.UI.iOS.createAdView> method
 extends: Titanium.UI.View
 since: "1.4"
 platforms: [iphone, ipad]
+excludes: {
+    events: [longclick],
+    methods: [getBackgroundDisabledColor, getBackgroundDisabledImage, getBackgroundFocusedColor,
+              getBackgroundFocusedImage, getBackgroundSelectedColor, getBackgroundSelectedImage,
+              getFocusable, getKeepScreenOn, getSoftKeyboardOnFocus,
+              setBackgroundDisabledColor, setBackgroundDisabledImage, setBackgroundFocusedColor,
+              setBackgroundFocusedImage, setBackgroundSelectedColor, setBackgroundSelectedImage,
+              setFocusable, setKeepScreenOn, setSoftKeyboardOnFocus,
+    ],
+    properties: [backgroundDisabledColor, backgroundDisabledImage, backgroundFocusedColor,
+                 backgroundFocusedImage, backgroundSelectedColor, backgroundSelectedImage,
+                 focusable, keepScreenOn, softKeyboardOnFocus
+    ]
+}
 
 events:
   - name: action
     summary: Fired when a banner action is performed.
-    properties:
-      - name: x
-        summary: X coordinate of the event from the `source` view's coordinate system.
-        
-      - name: y
-        summary: Y coordinate of the event from the `source` view's coordinate system.
         
   - name: error
     summary: Fired when a banner could not be loaded.
     properties:
       - name: message
         summary: Error message.
-        
-      - name: x
-        summary: Y coordinate of the event from the `source` view's coordinate system.
-        
-      - name: y
-        summary: Y coordinate of the event from the `source` view's coordinate system.
+        type: String
     
   - name: load
     summary: Fired when a banner is loaded and displayed.
-    properties:
-      - name: x
-        summary: X coordinate of the event from the `source` view's coordinate system.
-        
-      - name: y
-        summary: Y coordinate of the event from the `source` view's coordinate system.
 
 methods:
   - name: cancelAction
