@@ -1472,6 +1472,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_PERSISTENT = "persistent";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_PHONE = "phone";
 
 	/**

@@ -43,7 +43,7 @@ exports.config = function (logger, config, cli) {
 						required: true,
 						values: ti.availablePlatforms
 					},
-					dir: {
+					'project-dir': {
 						abbr: 'd',
 						desc: __('the directory containing the project, otherwise the current working directory')
 					}
@@ -55,14 +55,7 @@ exports.config = function (logger, config, cli) {
 };
 
 exports.validate = function (logger, config, cli) {
-	cli.argv.dir = ti.validateProjectDir(logger, cli.argv.dir);
-	
-	if (!ti.validateCorrectSDK(logger, config, cli, cli.argv.dir)) {
-		// we're running the build command for the wrong SDK version, gracefully return
-		return false;
-	}
-	
-	cli.argv.platform = ti.validatePlatform(logger, cli.argv.platform);
+	ti.validatePlatform(logger, cli.argv, 'platform');
 	ti.validatePlatformOptions(logger, config, cli, 'build');
 };
 

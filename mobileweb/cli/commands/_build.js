@@ -39,10 +39,10 @@ var ti = require('titanium-sdk'),
 exports.config = function (logger, config, cli) {
 	return {
 		options: {
-			'build-type': {
+			'deploy-type': {
 				abbr: 'B',
 				default: 'development',
-				desc: __('the type of build to perform'),
+				desc: __('the type of deployment; production performs optimizations'),
 				hint: __('type'),
 				values: ['production', 'development']
 			}
@@ -50,18 +50,26 @@ exports.config = function (logger, config, cli) {
 	};
 };
 
+exports.validate = function (logger, config, cli) {
+	ti.validateProjectDir(logger, cli.argv, 'project-dir');
+	if (!ti.validateCorrectSDK(logger, config, cli, cli.argv['project-dir'])) {
+		// we're running the build command for the wrong SDK version, gracefully return
+		return false;
+	}
+};
+
 exports.run = function (logger, config, cli, finished) {
 	new build(logger, config, cli, finished);
 };
 
 function build(logger, config, cli, finished) {
-	logger.info(__('Compiling "%s" build', cli.argv['build-type']));
+	logger.info(__('Compiling "%s" build', cli.argv['deploy-type']));
 	
 	this.logger = logger;
-	this.buildType = cli.argv['build-type'];
+	this.buildType = cli.argv['deploy-type'];
 	this.os = cli.env.os;
 	
-	this.projectDir = afs.resolvePath(cli.argv.dir);
+	this.projectDir = afs.resolvePath(cli.argv['project-dir']);
 	this.projectResDir = this.projectDir + '/Resources';
 	this.buildDir = this.projectDir + '/build/mobileweb';
 	this.mobilewebSdkPath = afs.resolvePath(path.dirname(module.filename) + '/../..');
@@ -470,7 +478,7 @@ build.prototype = {
 			
 			// TODO: need to combine ALL Ti module .css files into the titanium.css
 			
-			var dest = this.buildDir + '/modules/' + m.id;
+			var dest = path.join(this.buildDir, 'modules', m.id);
 			wrench.mkdirSyncRecursive(dest);
 			afs.copyDirSyncRecursive(moduleDir, dest, { preserve: true });
 		}, this);
@@ -492,21 +500,20 @@ build.prototype = {
 	findI18N: function (callback) {
 		var self = this,
 			precacheLocales = (this.tiapp.precache || {}).locales || {},
-			i18nDir = this.projectDir + '/i18n';
+			i18nDir = path.join(this.projectDir, 'i18n');
 		
 		if (afs.exists(i18nDir)) {
 			this.logger.info(__('Processing i18n strings'));
 			fs.readdirSync(i18nDir).forEach(function (lang) {
-				var stat = fs.lstatSync(i18nDir + "/" + lang);
-				if (stat.isDirectory()) {
-					self.loadI18N(i18nDir + '/' + lang + '/app.xml', function (data) {
+				if (fs.lstatSync(path.join(i18nDir, lang)).isDirectory()) {
+					self.loadI18N(path.join(i18nDir, lang, 'app.xml'), function (data) {
 						data.appname && (self.appNames[lang] = data.appname);
 					});
-					self.loadI18N(i18nDir + '/' + lang + '/strings.xml', function (data) {
+					self.loadI18N(path.join(i18nDir, lang, '/strings.xml'), function (data) {
 						self.locales.push(lang);
-						var dir = self.buildDir + '/titanium/Ti/Locale/' + lang;
+						var dir = path.join(self.buildDir, 'titanium', 'Ti', 'Locale', lang);
 						wrench.mkdirSyncRecursive(dir);
-						fs.writeFileSync(dir + '/i18n.js', 'define(' + JSON.stringify(data, null, '\t') + ')');
+						fs.writeFileSync(path.join(dir, 'i18n.js'), 'define(' + JSON.stringify(data, null, '\t') + ')');
 						precacheLocales[lang] && self.modulesToCache.push('Ti/Locale/' + lang + '/i18n');
 					});
 				}

@@ -100,7 +100,14 @@
 	}
 	*imageOrientation = UIDeviceOrientationPortrait;
 	*imageIdiom = UIUserInterfaceIdiomPhone;
-	// Default 
+	// Default
+    image = nil;
+    if ([[UIScreen mainScreen] bounds].size.height == 568) {
+        image = [UIImage imageNamed:@"Default-568h@2x.png"];
+        if (image!=nil) {
+            return image;
+        }
+    }
 	return [UIImage imageNamed:@"Default.png"];
 }
 
@@ -310,6 +317,10 @@
 	[[viewControllerStack lastObject] viewDidDisappear:animated];
 }
 
+- (UIInterfaceOrientation)preferredInterfaceOrientationForPresentation
+{
+    return [self lastValidOrientation];
+}
 
 - (BOOL)shouldAutorotate{
     return YES;
@@ -907,6 +918,12 @@
     return [[windowProxies lastObject] isEqual:window];
 }
 
+-(TiWindowProxy*)topWindow
+{
+    return [windowProxies lastObject];
+}
+
+
 #pragma mark TiOrientationFlags management.
 - (void)openWindow:(TiWindowProxy *)window withObject:(id)args
 {
@@ -973,15 +990,17 @@
 
 -(TiOrientationFlags) orientationFlags
 {
-	for (TiWindowProxy * thisWindow in [windowProxies reverseObjectEnumerator])
-	{
-        if ([thisWindow closing] == NO) {
-            TiOrientationFlags result = [thisWindow orientationFlags];
-            if (result != TiOrientationNone)
-            {
-                return result;
+    if ([[TiApp app] windowIsKeyWindow]) {
+        for (TiWindowProxy * thisWindow in [windowProxies reverseObjectEnumerator])
+        {
+            if ([thisWindow closing] == NO) {
+                TiOrientationFlags result = [thisWindow orientationFlags];
+                if (result != TiOrientationNone)
+                {
+                    return result;
+                }
             }
-       }
+        }
         
 	}
 	

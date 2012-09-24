@@ -5,7 +5,6 @@
  * Please see the LICENSE included with this distribution for details.
  */
 #include <stdio.h>
-#include <execinfo.h>
 
 #import "TiApp.h"
 #import "Webcolor.h"
@@ -18,6 +17,7 @@
 #import <AVFoundation/AVFoundation.h>
 #import "ApplicationDefaults.h"
 #import <libkern/OSAtomic.h>
+#import "TiExceptionHandler.h"
 
 #ifdef KROLL_COVERAGE
 # import "KrollCoverage.h"
@@ -37,58 +37,6 @@ extern void UIColorFlushCache();
 
 #define SHUTDOWN_TIMEOUT_IN_SEC	3
 #define TIV @"TiVerify"
-
-//
-// thanks to: http://www.restoroot.com/Blog/2008/10/18/crash-reporter-for-iphone-applications/
-//
-void MyUncaughtExceptionHandler(NSException *exception) 
-{
-	static BOOL insideException = NO;
-	
-	// prevent recursive exceptions
-	if (insideException==YES)
-	{
-		exit(1);
-		return;
-	}
-	
-	insideException = YES;
-    NSArray *callStackArray = [exception callStackReturnAddresses];
-    int frameCount = [callStackArray count];
-    void *backtraceFrames[frameCount];
-	
-    for (int i=0; i<frameCount; i++) 
-	{
-        backtraceFrames[i] = (void *)[[callStackArray objectAtIndex:i] unsignedIntegerValue];
-    }
-	
-	char **frameStrings = backtrace_symbols(&backtraceFrames[0], frameCount);
-	
-	NSMutableString *stack = [[NSMutableString alloc] init];
-	
-	[stack appendString:@"[ERROR] The application has crashed with an unhandled exception. Stack trace:\n\n"];
-	
-	if(frameStrings != NULL) 
-	{
-		for(int x = 0; x < frameCount; x++) 
-		{
-			if(frameStrings[x] == NULL) 
-			{ 
-				break; 
-			}
-			[stack appendFormat:@"%s\n",frameStrings[x]];
-		}
-		free(frameStrings);
-	}
-	[stack appendString:@"\n"];
-			 
-	NSLog(@"%@",stack);
-		
-	[stack release];
-	
-	//TODO - attempt to report the exception
-	insideException=NO;
-}
 
 BOOL applicationInMemoryPanic = NO;
 
@@ -284,7 +232,7 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 
 - (void)applicationDidFinishLaunching:(UIApplication *)application 
 {
-	NSSetUncaughtExceptionHandler(&MyUncaughtExceptionHandler);
+	[TiExceptionHandler defaultExceptionHandler];
 	[self initController];
 	[self loadUserDefaults];
 	[self boot];
@@ -310,7 +258,7 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions_
 {
 	started = [NSDate timeIntervalSinceReferenceDate];
-	NSSetUncaughtExceptionHandler(&MyUncaughtExceptionHandler);
+	[TiExceptionHandler defaultExceptionHandler];
 
 	// nibless window
 	window = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
@@ -595,19 +543,6 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 
 -(void)showModalController:(UIViewController*)modalController animated:(BOOL)animated
 {
-//In the rare event that the iPad application started in landscape, has not been rotated,
-//And is presenting a modal for the first time, 
-		handledModal = YES;
-
-	if(!handledModal)
-	{
-		handledModal = YES;
-		UIView * rootView = [controller view];
-		UIView * windowView = [rootView superview];
-		[rootView removeFromSuperview];
-		[windowView addSubview:rootView];
-	}
-
 	/*
 	 *	In iPad (TIMOB 7839) there is a bug in iOS where a text field having
 	 *	focus during a modal presentation can lead to an edge case.
@@ -656,6 +591,10 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 	}
 }
 
+- (NSUInteger)application:(UIApplication *)application supportedInterfaceOrientationsForWindow:(UIWindow *)window
+{
+    return [controller supportedInterfaceOrientations];
+}
 
 - (void)dealloc 
 {

@@ -475,21 +475,8 @@ TiOrientationFlags TiOrientationFlagsFromObject(id args)
 			BOOL animated = [TiUtils boolValue:@"animated" properties:dict def:YES];
 			[self setupWindowDecorations];
 
-			if (rootViewAttached==NO)
-			{
-				//TEMP hack until we can figure out split view issue
-				RELEASE_TO_NIL(tempController);
-				tempController = [[UIViewController alloc]init];
-				UIWindow *w = [self _window];
-				[w addSubview:tempController.view];
-				[tempController presentModalViewController:wc animated:YES];
-				attached = YES;
-			}
-			else
-			{
-				//showModalController will show the passed-in controller's navigation controller if it exists
-				[[TiApp app] showModalController:nc animated:animated];
-			}
+			//showModalController will show the passed-in controller's navigation controller if it exists
+			[[TiApp app] showModalController:nc animated:animated];
 		}
 		if (hasAnimation == NO)
 		{
@@ -682,37 +669,49 @@ TiOrientationFlags TiOrientationFlagsFromObject(id args)
 
 -(void)attachViewToTopLevelWindow
 {
-	if (attached)
-	{
-		return;
-	}
-	attached = YES;
+    if (attached) {
+        return;
+    }
+    attached = YES;
 	
-	UIView *rootView = [[TiApp app] controller].view;
+    /*
+     If opening a regular window on top of a modal window
+     it must be attached to the modal window superview and not 
+     the root controller view
+     */
+    UIView *rootView = nil;
+    TiWindowProxy* topWindow = [[TiApp controller] topWindow];
+    if ( topWindow != nil) {
+        //This will get the nav controller view for modal top windows
+        //and the rootView for regular top windows
+        rootView = [[topWindow view] superview];
+    }
+    if (rootView == nil) {
+        rootView = [[TiApp app] controller].view;
+    }
+
+    TiUIView *view_ = [self view];
 	
-	TiUIView *view_ = [self view];
-	
-	if (![self _isChildOfTab])
-	{
-		//TEMP hack for splitview until we can get things worked out
-		if (rootView.superview==nil && tempController==nil)
-		{
-			tempController = [[UIViewController alloc] init];
-			tempController.view = rootView;
-			[[self _window] addSubview:rootView];
-		}
-		[rootView addSubview:view_];
-		
-		[self controller];
+    /*
+     A modal window is by definition presented and should never be a subview of anything.
+     */
+    if (![self _isChildOfTab]) {
+        if (!modalFlag) {
+            [rootView addSubview:view_];
+        }
 
-		[(TiRootViewController *)[[TiApp app] controller] openWindow:self withObject:nil];
-		[[[TiApp app] controller] windowFocused:[self controller]];
-	}
+        [self controller];
 
-	[rootView bringSubviewToFront:view_];
+        [(TiRootViewController *)[[TiApp app] controller] openWindow:self withObject:nil];
+        [[[TiApp app] controller] windowFocused:[self controller]];
+    }
 
-	// make sure the splash is gone
-	[[TiApp controller] dismissDefaultImageView];
+    if (!modalFlag) {
+        [rootView bringSubviewToFront:view_];
+    }
+
+    // make sure the splash is gone
+    [[TiApp controller] dismissDefaultImageView];
 }
 
 -(NSNumber*)focused

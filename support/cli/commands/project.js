@@ -13,10 +13,26 @@ var path = require('path'),
 exports.config = function (logger, config, cli) {
 	return {
 		desc: __('get and set tiapp.xml settings'),
+		extendedDesc: __([
+			'Get and set tiapp.xml settings.',
+			'Run %s to see all available entries that can be changed.',
+			[	'When setting the %s entry, it will non-destructively copy each specified ',
+				"platform's default resources into your project's Resources folder. For ",
+				'example, if your app currently supports %s and you wish to add Android ',
+				'support, you must specify %s, otherwise only specifying %s will remove ',
+				'support for iPhone.'
+			].join('')
+		].join('\n\n'),
+			'titanium project --project-dir /path/to/project'.cyan,
+			'deployment-targets'.cyan,
+			'iphone'.cyan,
+			'iphone,android'.cyan,
+			'android'.cyan
+		),
 		skipBanner: true,
 		options: mix(ti.commonOptions(logger, config), {
-			dir: {
-				desc: __('the directory of the project to analyze.'),
+			'project-dir': {
+				desc: __('the directory of the project to analyze'),
 				default: '.'
 			},
 			output: {
@@ -44,7 +60,7 @@ exports.config = function (logger, config, cli) {
 };
 
 exports.validate = function (logger, config, cli) {
-	cli.argv.dir = ti.validateProjectDir(logger, cli.argv.dir);
+	ti.validateProjectDir(logger, cli.argv, 'project-dir');
 
 	// Validate the key, if it exists
 	if (cli.argv._.length > 0) {
@@ -58,7 +74,8 @@ exports.validate = function (logger, config, cli) {
 
 exports.run = function (logger, config, cli) {
 
-	var tiappPath = path.join(cli.argv.dir, 'tiapp.xml'),
+	var projectDir = cli.argv['project-dir'],
+		tiappPath = path.join(projectDir, 'tiapp.xml'),
 		tiapp = new ti.tiappxml(tiappPath),
 		output = cli.argv.output,
 		key,
@@ -69,9 +86,7 @@ exports.run = function (logger, config, cli) {
 		maxlen,
 		sdkPath = cli.sdk.path,
 		templateDir,
-		projectDir = cli.argv.dir,
-		propsList = ['sdk-version', 'id', 'name', 'version', 'publisher', 'url', 'description', 'copyright', 'icon', 
-			'analytics', 'guid'],
+		propsList = ['sdk-version', 'id', 'name', 'version', 'publisher', 'url', 'description', 'copyright', 'icon', 'analytics', 'guid'],
 		deploymentTargets = tiapp['deployment-targets'];
 
 	cli.argv.output === "report" && logger.banner();
@@ -110,7 +125,7 @@ exports.run = function (logger, config, cli) {
 					return Math.max(a, b.length);
 				}, 0);
 				propsList.forEach(function (key) {
-					logger.log('  %s = %s', appc.string.rpad(key, maxlen), (tiapp[key] + '' || __('<not specified>')).cyan);
+					logger.log('  %s = %s', appc.string.rpad(key, maxlen), (tiapp[key] + '' || __('not specified')).cyan);
 				});
 				logger.log();
 			}
