@@ -5,7 +5,8 @@
  * See the LICENSE file for more information.
  */
 
-var appc = require('node-appc'),
+var ti = require('titanium-sdk'),
+	appc = require('node-appc'),
 	afs = appc.fs,
 	targets = ['emulator', 'device', 'dist-appstore'];
 
@@ -74,7 +75,11 @@ exports.config = function (logger, config, cli) {
 };
 
 exports.validate = function (logger, config, cli) {
-	//
+	ti.validateProjectDir(logger, cli.argv, 'project-dir');
+	if (!ti.validateCorrectSDK(logger, config, cli, cli.argv['project-dir'])) {
+		// we're running the build command for the wrong SDK version, gracefully return
+		return false;
+	}
 };
 
 exports.run = function (logger, config, cli, finished) {

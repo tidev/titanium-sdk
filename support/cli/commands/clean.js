@@ -30,10 +30,8 @@ exports.config = function (logger, config, cli) {
 };
 
 exports.validate = function (logger, config, cli) {
-	if (cli.argv.platform) {
-		cli.argv.platform = ti.validatePlatform(logger, cli.argv.platform);
-	}
-	cli.argv['project-dir'] = ti.validateProjectDir(logger, cli.argv['project-dir']);
+	ti.validatePlatform(logger, cli.argv, 'platform');
+	ti.validateProjectDir(logger, cli.argv, 'project-dir');
 };
 
 exports.run = function (logger, config, cli) {
