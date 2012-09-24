@@ -81,14 +81,15 @@ properties:
     
   - name: autocorrect
     summary: |
-        Determines whether to automatically correct text inputted into this text field.
+        Determines whether to automatically correct text entered into this text field.
     description: |
         Set to `true` to enable automatic spelling correction.
 
-        If this property is not explicitly defined, it will behave as though it were set to `true`,
-        despite the returned value.
+        If this property is not explicitly defined, it behaves as though it were set to `true`.
+
+        On iOS and Mobile Web, the returned default value is `false`, and on Android, the returned
+        default value is undefined, but all behave as if the value was `true`.
     type: Boolean
-    default: false
     
   - name: autoLink
     summary: Automatically convert text to clickable links. 
