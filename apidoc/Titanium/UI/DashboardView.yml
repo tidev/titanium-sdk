@@ -23,36 +23,44 @@ description: |
 extends: Titanium.UI.View
 since: "1.2"
 platforms: [iphone, ipad]
+excludes: {
+    events: [longclick, touchcancel, touchend, touchmove, touchstart],
+    methods: [getBackgroundDisabledColor, getBackgroundDisabledImage, getBackgroundFocusedColor,
+              getBackgroundFocusedImage, getBackgroundSelectedColor, getBackgroundSelectedImage,
+              getFocusable, getKeepScreenOn, getSoftKeyboardOnFocus,
+              setBackgroundDisabledColor, setBackgroundDisabledImage, setBackgroundFocusedColor,
+              setBackgroundFocusedImage, setBackgroundSelectedColor, setBackgroundSelectedImage,
+              setFocusable, setKeepScreenOn, setSoftKeyboardOnFocus,
+    ],
+    properties: [backgroundDisabledColor, backgroundDisabledImage, backgroundFocusedColor,
+                 backgroundFocusedImage, backgroundSelectedColor, backgroundSelectedImage,
+                 focusable, keepScreenOn, softKeyboardOnFocus
+    ]
+}
 
 events:
+  - name: click
+    properties:
+      - name: item
+        summary: Item that was clicked.
+        type: Object
+
+      - name: location
+        summary: Coordinates x and y of the event from the parent view's coordinate system.
+        type: Dictionary
+
   - name: commit
     summary: Fired when edit mode ends.
     description: |
         This event is invoked by the <Titanium.UI.DashboardView.stopEditing> method.
-    properties:
-      - name: x
-        summary: X coordinate of the event from the `source` view's coordinate system.
-        type: Number
-        
-      - name: y
-        summary: Y coordinate of the event from the `source` view's coordinate system.
-        type: Number
-        
+
   - name: delete
     summary: Fired when an item is deleted in edit mode.
     properties:
       - name: item
         summary: Item that was deleted.
         type: Titanium.UI.DashboardItem
-        
-      - name: x
-        summary: X coordinate of the event from the `source` view's coordinate system.
-        type: Number
-        
-      - name: y
-        summary: Y coordinate of the event from the `source` view's coordinate system.
-        type: Number
-        
+    
   - name: dragEnd
     deprecated:
         since: "3.0.0"
@@ -63,14 +71,8 @@ events:
       - name: item
         summary: Item that was dragged.
         type: Titanium.UI.DashboardItem
-        
-      - name: x
-        summary: X coordinate of the event from the `source` view's coordinate system.
-        type: Number
-        
-      - name: y
-        summary: Y coordinate of the event from the `source` view's coordinate system.
-        type: Number
+    deprecated:
+        since: "3.0.0"
         
   - name: dragStart
     deprecated:
@@ -79,46 +81,18 @@ events:
             Renamed to [dragstart](Titanium.UI.DashboardView.dragstart) (all lowercase).
     summary: Fired when an item starts being dragged in edit mode.
     properties:
-      - name: globalPoint
-        summary: Coordinates `x` and `y` of the event from the `source` view's coordinate system.
-        type: Dictionary
-        platforms: [iphone, ipad]
-        deprecated:
-            since: "1.8.0"
-            
       - name: item
         summary: Item that was dragged.
         type: Titanium.UI.DashboardItem
-        
-      - name: x
-        summary: X coordinate of the event from the `source` view's coordinate system.
-        type: Number
-        
-      - name: y
-        summary: Y coordinate of the event from the `source` view's coordinate system.
-        type: Number
+    deprecated:
+        since: "3.0.0"
         
   - name: dragend
     summary: Fired when an item finishes being dragged in edit mode.
     properties:
-      - name: globalPoint
-        summary: Coordinates `x` and `y` of the event from the `source` view's coordinate system.
-        type: Dictionary
-        platforms: [iphone, ipad]
-        deprecated:
-            since: "1.8.0"
-            
       - name: item
         summary: Item that was dragged.
         type: Titanium.UI.DashboardItem
-        
-      - name: x
-        summary: X coordinate of the event from the `source` view's coordinate system.
-        type: Number
-        
-      - name: y
-        summary: Y coordinate of the event from the `source` view's coordinate system.
-        type: Number
     since: '3.0.0'
         
   - name: dragstart
@@ -127,14 +101,6 @@ events:
       - name: item
         summary: Item that was dragged.
         type: Titanium.UI.DashboardItem
-        
-      - name: x
-        summary: X coordinate of the event from the `source` view's coordinate system.
-        type: Number
-        
-      - name: y
-        summary: Y coordinate of the event from the `source` view's coordinate system.
-        type: Number
     since: '3.0.0'
         
   - name: edit
@@ -142,15 +108,7 @@ events:
     description: |
         This event is invoked by a longpress of a <Titanium.UI.DashboardItem> item or the 
         <Titanium.UI.DashboardView.startEditing> method.
-    properties:
-      - name: x
-        summary: X coordinate of the event from the `source` view's coordinate system.
-        type: Number
-        
-      - name: y
-        summary: Y coordinate of the event from the `source` view's coordinate system.
-        type: Number
-        
+       
   - name: move
     summary: Fired when an item is moved in edit mode.
     properties:
@@ -161,14 +119,6 @@ events:
       - name: items
         summary: List of items to be committed, possibly in new order, when edit mode ends.
         type: Array<Titanium.UI.DashboardItem>
-        
-      - name: x
-        summary: X coordinate of the event from the `source` view's coordinate system.
-        type: Number
-        
-      - name: y
-        summary: Y coordinate of the event from the `source` view's coordinate system.
-        type: Number
 
 methods:
   - name: startEditing
