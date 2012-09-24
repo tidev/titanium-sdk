@@ -522,10 +522,6 @@ function build(logger, config, cli, finished) {
 	 - Info.plist's appid != tiapp.xml's appid DONE!
 	 - debugger.plist changed (either didn't exist or debughost was toggled) DONE!
 	 - recompile = copy_tiapp_properties(projectDir) is true DONE!
-	
-	force_destroy_build
-	 - if not simulator
-	NUKE xcode_build_app_dir
 	*/
 	
 	this.architectures = 'armv6 armv7 i386';
@@ -584,10 +580,8 @@ function build(logger, config, cli, finished) {
 			this.forceXcode = true;
 			this.createXcodeProject();
 			this.compileJS(false);
-		} else {
-			// TODO
-			// if simulator:
-			//	softlink_for_simulator(projectDir, xcode_build_app_dir)
+		} else if (this.target == 'simulator') {
+			this.createSoftlinks();
 		}
 		
 		this.injectPropertiesIntoApplicationDefaults();
@@ -1266,6 +1260,65 @@ build.prototype = {
 			app_folder_name = '%s-iphoneos' % target
 			app_dir = os.path.abspath(os.path.join(self.iphone_dir,'build',app_folder_name,app_name))
 		*/
+	},
+	
+	createSoftlinks: function () {
+		var ignoreRegExp = /^\.gitignore|\.cvsignore|\.DS_Store|\.git|\.svn|_svn|CVS$/,
+			softlinkResources = function (src, dest, doIgnoreDirs) {
+				if (afs.exists(src)) {
+					this.logger.debug(__('Walking directory %s', src.cyan));
+					wrench.mkdirSyncRecursive(dest);
+					fs.readdirSync(src).forEach(function (file) {
+						if (!ignoreRegExp.test(file) && (!doIgnoreDirs || ti.filterPlatforms(this.platformName).indexOf(file) == -1)) {
+							var srcFile = path.join(src, file),
+								destFile = path.join(dest, file);
+							if (fs.lstatSync(srcFile).isDirectory()) {
+								softlinkResources(srcFile, destFile);
+							} else {
+								this.logger.debug(__('Symlinking %s => %s', srcFile.cyan, destFile.cyan));
+								afs.exists(destFile) && fs.unlinkSync(destFile);
+								fs.symlinkSync(srcFile, destFile);
+							}
+						}
+					}, this);
+				}
+			}.bind(this),
+			destModulesDir = path.join(this.xcodeAppDir, 'modules');
+		
+		this.logger.info(__('Creating symlinks for simulator build'));
+		
+		softlinkResources(path.join(this.projectDir, 'Resources'), this.xcodeAppDir, true);
+		softlinkResources(path.join(this.projectDir, 'platform', 'ios'), this.xcodeAppDir, false);
+		softlinkResources(path.join(this.projectDir, 'platform', 'iphone'), this.xcodeAppDir, false);
+		softlinkResources(path.join(this.projectDir, 'modules', 'ios'), destModulesDir, true);
+		softlinkResources(path.join(this.projectDir, 'modules', 'iphone'), destModulesDir, true);
+		
+		// reset the application routing
+		wrench.mkdirSyncRecursive(path.join(this.buildDir, 'iphone', 'Classes'));
+		fs.writeFileSync(path.join(this.buildDir, 'iphone', 'Classes', 'ApplicationRouting.m'), [
+			'/**',
+			' * Appcelerator Titanium Mobile',
+			' * Copyright (c) 2009-' + (new Date).getFullYear() + ' by Appcelerator, Inc. All Rights Reserved.',
+			' * Licensed under the terms of the Apache Public License',
+			' * Please see the LICENSE included with this distribution for details.',
+			' *',
+			' * WARNING: This is generated code. Do not modify. Your changes *will* be lost.',
+			' */',
+			'',
+			'#import <Foundation/Foundation.h>',
+			'#import "ApplicationRouting.h"',
+			'',
+			'extern NSData* filterDataInRange(NSData* thedata, NSRange range);',
+			'',
+			'@implementation ApplicationRouting',
+			'',
+			'+ (NSData*) resolveAppAsset:(NSString*)path;',
+			'{',
+			'	return nil;',
+			'}',
+			'',
+			'@end'
+		].join('\n'));
 	}
 
 };
