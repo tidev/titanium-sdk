@@ -356,7 +356,7 @@
         //If I am a modal window then send out orientationFlags property
         if ([topmostController isKindOfClass:[UINavigationController class]]) {
             UIViewController* topVC = [topmostController topViewController];
-            if ( topVC != nil && ([topVC respondsToSelector:@selector(orientationFlags)]) ) {
+            if ( topVC != nil && ([topVC isKindOfClass:[TiViewController class]]) ) {
                 return [self orientationFlags];
             }
         }
