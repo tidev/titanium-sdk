@@ -273,14 +273,8 @@ public class NetworkModule extends KrollModule {
 	}
 
 	@Override
-	public void onResume(Activity activity) {
-		super.onResume(activity);
-		connectivityManager = getConnectivityManager();
-		manageConnectivityListener(true);
-	}
-
-	@Override
-	public void onPause(Activity activity) {
+	public void onDestroy(Activity activity) {
+		super.onDestroy(activity);
 		manageConnectivityListener(false);
 		connectivityManager = null;
 	}
