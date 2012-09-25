@@ -79,6 +79,10 @@ DEFINE_EXCEPTIONS
 {
     // Do nothing if no tabs are being focused or blurred (or the window is opening)
     if ((focused == nil && newFocus == nil) || (focused == newFocus)) {
+        //TIMOB-10796. Ensure activeTab is set to focused on early return
+        if (focused != nil) {
+            [self.proxy replaceValue:focused forKey:@"activeTab" notification:NO];
+        }
         return;
     }
     
