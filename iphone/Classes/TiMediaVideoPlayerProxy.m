@@ -719,9 +719,6 @@ NSArray* moviePlayerKeys = nil;
 
 -(void)setFullscreen:(id)value
 {
-    if (sizeSet) {
-        return;
-    }
     if (movie != nil && loaded) {
         BOOL fs = [TiUtils boolValue:value];
         sizeSet = YES;
@@ -984,7 +981,9 @@ NSArray* moviePlayerKeys = nil;
 			TiMediaVideoPlayer *vp = (TiMediaVideoPlayer*)[self view];
 			loaded = YES;
 			[vp movieLoaded];
-			[self setFullscreen:[loadProperties valueForKey:@"fullscreen"]];
+			if (!sizeSet) {
+				[self setFullscreen:[loadProperties valueForKey:@"fullscreen"]];
+			}
 			if (player.loadState == MPMovieLoadStatePlayable) {
 				if ([self _hasListeners:@"load"]) {
 					[self fireEvent:@"load" withObject:nil];
