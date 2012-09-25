@@ -158,4 +158,10 @@
 -(TiWindowProxy*)topWindow;
 @property(nonatomic,readonly) TiViewProxy<TiKeyboardFocusableView> * keyboardFocusedProxy;
 
+#pragma mark Legacy support: UIViewController methods introduced in iOS 6.0
+- (BOOL)shouldAutorotate;
+- (NSUInteger)supportedInterfaceOrientations;
+// Returns interface orientation masks.
+- (UIInterfaceOrientation)preferredInterfaceOrientationForPresentation;
+
 @end
