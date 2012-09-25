@@ -11,7 +11,20 @@
 /**
  The class represent root controller in a view hierarchy.
  */
-@interface TiRootViewController : UIViewController<UIApplicationDelegate,TiRootController,TiOrientationController> {
+@protocol TiUIViewControllerIOS6Support <NSObject>
+/* Legacy support: UIViewController methods introduced in iOS 6.0
+ * For those still on 5.1, we have to declare these methods so the
+ * the compiler knows the right return datatypes.
+ */
+@optional
+- (BOOL)shouldAutorotate;
+- (NSUInteger)supportedInterfaceOrientations;
+// Returns interface orientation masks.
+- (UIInterfaceOrientation)preferredInterfaceOrientationForPresentation;
+
+@end
+
+@interface TiRootViewController : UIViewController<UIApplicationDelegate,TiRootController,TiOrientationController,TiUIViewControllerIOS6Support> {
 @private
 //Presentation: background image and color.
 	UIColor * backgroundColor;
