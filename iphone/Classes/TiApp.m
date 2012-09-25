@@ -188,7 +188,12 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 #if !TARGET_IPHONE_SIMULATOR
 		else if (([airkey length] > 0) && ![airkey isEqualToString:@"__DEBUGGER_AIRKEY__"])
 		{
-			TiDebuggerDiscoveryStart(airkey, ^(NSString *host, NSInteger port) {
+			NSArray *hosts = nil;
+			NSString *hostsString = [params objectForKey:@"hosts"];
+			if (![hosts isEqualToString:@"__DEBUGGER_HOSTS__"]) {
+				hosts = [hostsString componentsSeparatedByCharactersInSet:[NSCharacterSet characterSetWithCharactersInString:@","]];
+			}
+			TiDebuggerDiscoveryStart(airkey, hosts, ^(NSString *host, NSInteger port) {
 				if (host != nil) {
 					[self setDebugMode:YES];
 					TiDebuggerStart(host, port);
