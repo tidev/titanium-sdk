@@ -393,11 +393,16 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 	{
 		this.view = view;
 	}
+	
+	public TiUIView forceCreateView(boolean isLayoutPass)
+	{
+		view = null;
+		return getOrCreateView(isLayoutPass);
+	}
 
 	public TiUIView forceCreateView()
 	{
-		view = null;
-		return getOrCreateView();
+		return forceCreateView(true);
 	}
 
 	/**
@@ -405,20 +410,25 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 	 * @return a TiUIView instance.
 	 * @module.api
 	 */
-	public TiUIView getOrCreateView()
+	public TiUIView getOrCreateView(boolean isLayoutPass)
 	{
 		if (activity == null || view != null) {
 			return view;
 		}
 
 		if (TiApplication.isUIThread()) {
-			return handleGetView();
+			return handleGetView(isLayoutPass);
 		}
 
 		return (TiUIView) TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_GETVIEW), 0);
 	}
+	
+	public TiUIView getOrCreateView()
+	{
+		return getOrCreateView(true);
+	}
 
-	protected TiUIView handleGetView()
+	protected TiUIView handleGetView(boolean isLayoutPass)
 	{
 		if (view == null) {
 			Log.d(TAG, "getView: " + getClass().getSimpleName(), Log.DEBUG_MODE);
@@ -432,15 +442,23 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 					Log.w(TAG, "Activity is null", Log.DEBUG_MODE);
 				}
 			}
-			realizeViews(view);
+			realizeViews(view, isLayoutPass);
 			view.registerForTouch();
 		}
 		return view;
 	}
-
-	public void realizeViews(TiUIView view)
+	
+	protected TiUIView handleGetView()
 	{
-		setModelListener(view);
+		return handleGetView(true);
+	}
+
+	public void realizeViews(TiUIView view, boolean isLayoutPass)
+	{
+		if (isLayoutPass)
+		{
+			setModelListener(view);
+		}
 
 		// Use a copy so bundle can be modified as it passes up the inheritance
 		// tree. Allows defaults to be added and keys removed.
@@ -460,6 +478,11 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 				handlePendingAnimation(true);
 			}
 		}
+	}
+	
+	public void realizeViews(TiUIView view)
+	{
+		realizeViews(view, true);
 	}
 
 	public void releaseViews()

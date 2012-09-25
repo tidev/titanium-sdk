@@ -8,6 +8,7 @@ package ti.modules.titanium.ui.widget.tableview;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.common.Log;
@@ -124,7 +125,7 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 			if (view == null) {
 				// In some cases the TiUIView for this proxy has been reassigned to another proxy
 				// We don't want to actually release it though, just reassign by creating a new view
-				view = proxy.forceCreateView();
+				view = proxy.forceCreateView(false);
 				clearChildViews(proxy);
 				if (i >= views.size()) {
 					views.add(view);
@@ -134,7 +135,6 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 			}
 
 			View v = view.getOuterView();
-			view.setProxy(proxy);
 			view.processProperties(proxy.getProperties());
 			applyChildProxies(proxy, view);
 			if (v.getParent() == null) {
@@ -157,9 +157,6 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 		TiViewProxy childProxies[] = viewProxy.getChildren();
 		for (TiUIView childView : view.getChildren()) {
 			TiViewProxy childProxy = childProxies[i];
-			childView.setProxy(childProxy);
-			//Since we wipe out children's views earlier we need to reset them.
-			childProxy.setView(childView);
 			childView.processProperties(childProxy.getProperties());
 			applyChildProxies(childProxy, childView);
 			i++;
@@ -355,9 +352,10 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 	@Override
 	protected void onLayout(boolean changed, int left, int top, int right, int bottom)
 	{
-		// Make this association here to avoid doing it on measurement passes
+		// Make these associations here to avoid doing them on measurement passes
 		TableViewRowProxy rp = getRowProxy();
 		rp.setTableViewItem(this);
+		associateProxies(this.item.proxy.getChildren(), views);
 		
 		int contentLeft = left;
 		int contentRight = right;
@@ -460,4 +458,31 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 		}
 		
 	}
+	
+	protected void associateProxies(TiViewProxy[] proxies, ArrayList<TiUIView> views)
+	{
+		int i = 0;
+		for (TiUIView view : views) {
+			TiViewProxy proxy = proxies[i];
+			proxy.setView(view);
+			view.setProxy(proxy);
+			proxy.setModelListener(view);
+			associateChildProxies(proxy.getChildren(), view.getChildren());
+			i++;
+		}
+	}
+
+	protected void associateChildProxies(TiViewProxy[] proxies, List<TiUIView> views)
+	{
+		int i = 0;
+		for (TiUIView view : views) {
+			TiViewProxy proxy = proxies[i];
+			proxy.setView(view);
+			view.setProxy(proxy);
+			proxy.setModelListener(view);
+			associateChildProxies(proxy.getChildren(), view.getChildren());
+			i++;
+		}
+	}
+
 }
