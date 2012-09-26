@@ -10,7 +10,7 @@ description: |
 
     Currently, calendar permissions must be explicitly configured in `tiapp.xml` in order to access the
     calendar. See "Common Requirements" in
-    [tiapp.xml and timodule.xml Reference](http://docs.appcelerator.com/titanium/#!latest/guide/tiapp.xml_and_timodule.xml_Reference)
+    [tiapp.xml and timodule.xml Reference](http://docs.appcelerator.com/titanium/#!latest/guide/tiapp.xml_and_timodule.xml_Reference).
 extends: Titanium.Module
 platforms: [android]
 since: "1.5"
