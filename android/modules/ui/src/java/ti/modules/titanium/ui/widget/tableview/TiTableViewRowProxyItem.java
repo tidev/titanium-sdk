@@ -358,7 +358,7 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 		if (this.item.proxy.getChildren().length == 0) {
 			// old-style row
 			TiUIView childView = views.get(0);
-			childView.processProperties(rp.getProperties());
+			childView.processProperties(filterProperties(rp.getProperties()));
 			childView.setProxy(rp);
 		}
 		else {
