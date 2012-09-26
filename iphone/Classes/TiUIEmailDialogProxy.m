@@ -56,7 +56,8 @@
 - (void)open:(id)args
 {
 	[self rememberSelf];
-	ENSURE_TYPE_OR_NIL(args,NSDictionary);
+	NSObject* properties = [args objectAtIndex:0];
+	ENSURE_TYPE_OR_NIL(properties, NSDictionary);
 	Class arrayClass = [NSArray class];
 	NSArray * toArray = [self valueForUndefinedKey:@"toRecipients"];
 	ENSURE_CLASS_OR_NIL(toArray,arrayClass);
@@ -129,7 +130,7 @@
 		}
 	}
 	
-	BOOL animated = [TiUtils boolValue:@"animated" properties:args def:YES];
+	BOOL animated = [TiUtils boolValue:@"animated" properties:(NSDictionary*)properties def:YES];
 	[self retain];
 	[[TiApp app] showModalController:composer animated:animated];
 }
