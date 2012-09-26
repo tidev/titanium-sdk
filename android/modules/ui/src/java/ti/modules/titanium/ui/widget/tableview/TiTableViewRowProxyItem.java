@@ -355,7 +355,15 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 		// Make these associations here to avoid doing them on measurement passes
 		TableViewRowProxy rp = getRowProxy();
 		rp.setTableViewItem(this);
-		associateProxies(this.item.proxy.getChildren(), views);
+		if (this.item.proxy.getChildren().length == 0) {
+			// old-style row
+			TiUIView childView = views.get(0);
+			childView.processProperties(rp.getProperties());
+			childView.setProxy(rp);
+		}
+		else {
+			associateProxies(this.item.proxy.getChildren(), views);
+		}
 		
 		int contentLeft = left;
 		int contentRight = right;
@@ -463,6 +471,9 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 	{
 		int i = 0;
 		for (TiUIView view : views) {
+			if (proxies.length < (i+1)) {
+				break;
+			}
 			TiViewProxy proxy = proxies[i];
 			proxy.setView(view);
 			view.setProxy(proxy);
@@ -476,6 +487,9 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 	{
 		int i = 0;
 		for (TiUIView view : views) {
+			if (proxies.length < (i+1)) {
+				break;
+			}
 			TiViewProxy proxy = proxies[i];
 			proxy.setView(view);
 			view.setProxy(proxy);
