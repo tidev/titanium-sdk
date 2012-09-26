@@ -351,11 +351,11 @@
     }
     //IOS6. If we are presenting a modal view controller, get the supported
     //orientations from the modal view controller
-    id topmostController = [self topmostViewController];
+    id<TiUIViewControllerIOS6Support> topmostController = [self topmostViewController];
     if (topmostController != self) {
         //If I am a modal window then send out orientationFlags property
         if ([topmostController isKindOfClass:[UINavigationController class]]) {
-            UIViewController* topVC = [topmostController topViewController];
+            UIViewController* topVC = [(UINavigationController *)topmostController topViewController];
             if ( topVC != nil && ([topVC isKindOfClass:[TiViewController class]]) ) {
                 return [self orientationFlags];
             }
