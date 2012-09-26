@@ -797,6 +797,12 @@ description: |
           exitOnClose: true
         });
 
+    #### BlackBerry
+
+    On BlackBerry the windows always cover the whole screen.  For this reason setting dimensions 
+    on a window is discouraged as it likely won't give the expected result.  Also as a window
+    hides everything underneath it, the zIndex of windows is ignored.  The last opened window is
+    always shown.
 
 examples:
   - title: Full Screen Window example
