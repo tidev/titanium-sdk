@@ -127,10 +127,10 @@ description: |
     Four accessibility-related view properties became available in Titanium Mobile 3.0.0 for iOS
     and Android:
 
-    * <Ti.UI.View.accessibilityLabel>
-    * <Ti.UI.View.accessibilityValue>
-    * <Ti.UI.View.accessibilityHint>
-    * <Ti.UI.View.accessibilityHidden>
+    * <Titanium.UI.View.accessibilityLabel>
+    * <Titanium.UI.View.accessibilityValue>
+    * <Titanium.UI.View.accessibilityHint>
+    * <Titanium.UI.View.accessibilityHidden>
 
     The first three, `accessibilityLabel`, `accessibilityValue` and `accessibilityHint`, are for setting text
     that will be relayed to the user by the assistive service (such as TalkBack on Android or VoiceOver
@@ -724,6 +724,7 @@ properties:
     since: "3.0.0"
     platforms: [android, iphone, ipad]
     type: Boolean
+    default: false
     osver:
         android:
             min: "4.0"
@@ -733,36 +734,39 @@ properties:
     description: |
         On iOS this is a direct analog of the `accessibilityHint` property defined in the
         [UIAccessibility Protocol](http://developer.apple.com/library/ios/#documentation/uikit/reference/UIAccessibility_Protocol/Introduction/Introduction.html). On Android, it is concatenated together with
-        <Ti.UI.View.accessibilityLabel> and <Ti.UI.View.accessibilityValue> in the order: `accessibilityLabel`,
+        <Titanium.UI.View.accessibilityLabel> and <Titanium.UI.View.accessibilityValue> in the order: `accessibilityLabel`,
         `accessibilityValue`, `accessibilityHint`. The concatenated value is then passed as the
         argument to the native [View.setContentDescription](http://developer.android.com/reference/android/view/View.html#setContentDescription%28java.lang.CharSequence%29) method.
     type: String
     since: "3.0.0"
     platforms: [android, iphone, ipad]
+    default: null
 
   - name: accessibilityLabel
     summary: A succint label identifying the view for the device's accessibility service.
     description: |
         On iOS this is a direct analog of the `accessibilityLabel` property defined in the
         [UIAccessibility Protocol](http://developer.apple.com/library/ios/#documentation/uikit/reference/UIAccessibility_Protocol/Introduction/Introduction.html). On Android, it is concatenated together with
-        <Ti.UI.View.accessibilityValue> and <Ti.UI.View.accessibilityHint> in the order: `accessibilityLabel`,
+        <Titanium.UI.View.accessibilityValue> and <Titanium.UI.View.accessibilityHint> in the order: `accessibilityLabel`,
         `accessibilityValue`, `accessibilityHint`. The concatenated value is then passed as the
         argument to the native [View.setContentDescription](http://developer.android.com/reference/android/view/View.html#setContentDescription%28java.lang.CharSequence%29) method.
     since: "3.0.0"
     platforms: [android, iphone, ipad]
     type: String
+    default: Title or label of the control.
 
   - name: accessibilityValue
     summary: A string describing the value (if any) of the view for the device's accessibility service.
     description: |
         On iOS this is a direct analog of the `accessibilityValue` property defined in the
         [UIAccessibility Protocol](http://developer.apple.com/library/ios/#documentation/uikit/reference/UIAccessibility_Protocol/Introduction/Introduction.html). On Android, it is concatenated together with
-        <Ti.UI.View.accessibilityLabel> and <Ti.UI.View.accessibilityHint> in the order: `accessibilityLabel`,
+        <Titanium.UI.View.accessibilityLabel> and <Titanium.UI.View.accessibilityHint> in the order: `accessibilityLabel`,
         `accessibilityValue`, `accessibilityHint`. The concatenated value is then passed as the
         argument to the native [View.setContentDescription](http://developer.android.com/reference/android/view/View.html#setContentDescription%28java.lang.CharSequence%29) method.
     since: "3.0.0"
     platforms: [android, iphone, ipad]
     type: String
+    default: State or value of the control.
 
   - name: anchorPoint
     summary: Coordinate of the view about which to pivot an animation.
@@ -775,6 +779,7 @@ properties:
         
         See the "Using an anchorPoint" example in <Titanium.UI.Animation> for a demonstration.
     type: Point
+    default: Center of this view.
     platforms: [iphone, ipad]
     
   - name: animatedCenter
@@ -788,17 +793,20 @@ properties:
     description: |
         For information about color values, see the "Colors" section of <Titanium.UI>. 
     type: String
+    default: Background color of the parent.
     
   - name: backgroundDisabledColor
     summary: Disabled background color of the view, as a color name or hex triplet.
     description: |
         For information about color values, see the "Colors" section of <Titanium.UI>. 
     type: String
+    default: Background color of this view.
     platforms: [android]
     
   - name: backgroundDisabledImage
     summary: Disabled background image for the view, specified as a local file path or URL.
     type: String
+    default: undefined
     platforms: [android]
     
   - name: backgroundFocusedColor
@@ -808,17 +816,20 @@ properties:
         
         For normal views, the focused color is only used if `focusable` is `true`.
     type: String
+    default: Background color of this view.
     platforms: [android]
     
   - name: backgroundFocusedImage
     summary: Focused background image for the view, specified as a local file path or URL.
     description: For normal views, the focused background is only used if `focusable` is `true`.
     type: String
+    default: undefined
     platforms: [android]
     
   - name: backgroundGradient
     summary: A background gradient for the view.
     type: Gradient
+    default: undefined
     platforms: [iphone,ipad,mobileweb,android]
     description: |
         A gradient can be defined as either linear or radial. A linear gradient varies continuously 
@@ -890,6 +901,7 @@ properties:
   - name: backgroundImage
     summary: Background image for the view, specified as a local file path or URL.
     type: String
+    default: undefined
     
   - name: backgroundRepeat
     summary: Determines whether to tile a background across a view.
@@ -924,6 +936,7 @@ properties:
         and then subtracting that value from the width of the image
     type: Number
     platforms: [iphone, ipad]
+    default: 0
     
   - name: backgroundSelectedColor
     summary: Selected background color of the view, as a color name or hex triplet.
@@ -933,12 +946,14 @@ properties:
         `focusable` must be true for normal views.
     type: String
     platforms: [android, mobileweb]
+    default: Background color of this view.
     
   - name: backgroundSelectedImage
     summary: Selected background image url for the view, specified as a local file path or URL.
     description: For normal views, the selected background is only used if `focusable` is `true`.
     type: String
     platforms: [android, mobileweb]
+    default: undefined
     
   - name: backgroundTopCap
     summary: Size of the top end cap.
@@ -953,20 +968,25 @@ properties:
         middle portion together and then subtracting that value from the height of the image.
     type: Number
     platforms: [iphone, ipad]
+    default: 0
     
   - name: borderColor
     summary: Border color of the view, as a color name or hex triplet.
     description: |
         For information about color values, see the "Colors" section of <Titanium.UI>. 
+    default: Background color of this view (Android, Mobile Web), black (iOS).
     type: String
     
   - name: borderRadius
-    summary: Border radius of the view.
+    summary: Radius for the rounded corners of the view's border.
+    description: Each corner is rounded using an arc of a circle.
     type: Number
+    default: 0
     
   - name: borderWidth
     summary: Border width of the view.
     type: Number
+    default: 0
     
   - name: bottom
     summary: View's bottom position, in platform-specific units.
@@ -978,12 +998,14 @@ properties:
         This is an input property for specifying where the view should be positioned, and does not
         represent the view's calculated position.
     type: [Number,String]
+    default: undefined
     
   - name: center
     summary: View's center position, in the parent view's coordinates. 
     description: |
         This is an input property for specifying where the view should be positioned, and does not
         represent the view's calculated position.
+    default: View is centered in its parent.
     type: Point
     
   - name: children
@@ -1000,6 +1022,10 @@ properties:
   - name: height
     summary: View height, in platform-specific units.
     description: |
+        Defaults to: Either <Titanium.UI.FILL> or <Titanium.UI.SIZE> depending on the view.
+        See "View Types and Default Layout Behavior" in
+        [Transitioning to the New UI Layout System](http://docs.appcelerator.com/titanium/#!latest/guide/Transitioning_to_the_New_UI_Layout_System).
+
         Can be either a float value or a dimension string (for example, '50%' or '40dp'). 
         Can also be one of the following special values:
         
@@ -1026,6 +1052,7 @@ properties:
         This is an input property for specifying where the view should be positioned, and does not
         represent the view's calculated position.
     type: [Number,String]
+    default: undefined
     
   - name: layout
     type: String
@@ -1165,6 +1192,7 @@ properties:
         This is an input property for specifying where the view should be positioned, and does not
         represent the view's calculated position.
     type: [Number, String]
+    default: undefined
     
   - name: rect
     summary: |
@@ -1205,6 +1233,7 @@ properties:
         <Titanium.UI.Android.SOFT_KEYBOARD_HIDE_ON_FOCUS>, or 
         <Titanium.UI.Android.SOFT_KEYBOARD_SHOW_ON_FOCUS>.
     type: Number
+    default: <Titanium.UI.Android.SOFT_KEYBOARD_DEFAULT_ON_FOCUS>
     platforms: [android]
     
   - name: top
@@ -1228,6 +1257,7 @@ properties:
     summary: Transformation matrix to apply to the view.
     description: Android and Mobile Web only support 2DMatrix transforms.
     type: [ Titanium.UI.2DMatrix, Titanium.UI.3DMatrix ]
+    default: undefined
     
   - name: visible
     summary: Determines whether the view is visible.
@@ -1237,6 +1267,10 @@ properties:
   - name: width
     summary: View's width, in platform-specific units.
     description: |
+        Defaults to: Either <Titanium.UI.FILL> or <Titanium.UI.SIZE> depending on the view.
+        See "View Types and Default Layout Behavior" in
+        [Transitioning to the New UI Layout System](http://docs.appcelerator.com/titanium/#!latest/guide/Transitioning_to_the_New_UI_Layout_System).
+
         Can be either a float value or a dimension string (for example, '50%' or '40dp').
         Can also be one of the following special values: 
         
@@ -1269,6 +1303,7 @@ properties:
         When this property is explicitly set, regardless of its value, it causes the view to be 
         positioned in front of any sibling that has an undefined z-index.
     type: Number
+    default: undefined
     
   - name: keepScreenOn
     summary: Determines whether to keep the device screen on.
