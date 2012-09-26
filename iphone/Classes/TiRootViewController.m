@@ -104,7 +104,7 @@
 	// Default
     image = nil;
     if ([[UIScreen mainScreen] bounds].size.height == 568) {
-        image = [UIImage imageNamed:@"Default-568h@2x.png"];
+        image = [UIImage imageNamed:@"Default-568h.png"];
         if (image!=nil) {
             return image;
         }
