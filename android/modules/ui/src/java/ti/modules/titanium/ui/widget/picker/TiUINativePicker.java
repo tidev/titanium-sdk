@@ -52,8 +52,8 @@ public class TiUINativePicker extends TiUIPicker
 			public boolean onTouchEvent(MotionEvent event) {
 				if (event.getAction() == MotionEvent.ACTION_UP) {
 					KrollDict data = new KrollDict();
-					data.put(TiC.PROPERTY_X, event.getRawX());
-					data.put(TiC.PROPERTY_Y, event.getRawY());
+					data.put(TiC.PROPERTY_X, event.getX());
+					data.put(TiC.PROPERTY_Y, event.getY());
 					proxy.fireEvent(TiC.EVENT_CLICK, data);
 				}
 				return super.onTouchEvent(event);
