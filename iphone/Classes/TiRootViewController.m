@@ -13,6 +13,7 @@
 #import "TiTab.h"
 #import "TiApp.h"
 #import <MessageUI/MessageUI.h>
+#import <AddressBookUI/AddressBookUI.h>
 
 @interface TiRootView : UIView
 @end
@@ -103,7 +104,7 @@
 	// Default
     image = nil;
     if ([[UIScreen mainScreen] bounds].size.height == 568) {
-        image = [UIImage imageNamed:@"Default-568h@2x.png"];
+        image = [UIImage imageNamed:@"Default-568h.png"];
         if (image!=nil) {
             return image;
         }
@@ -326,10 +327,41 @@
     return YES;
 }
 
+-(id)topmostViewController
+{
+    id topmostController = self;
+    id presentedViewController = nil;
+    while ( topmostController != nil && [topmostController respondsToSelector:@selector(presentedViewController)] ) {
+        presentedViewController = [topmostController presentedViewController];
+        if (presentedViewController != nil) {
+            topmostController = presentedViewController;
+            presentedViewController = nil;
+        }
+        else {
+            break;
+        }
+    }
+    return topmostController;
+}
+
 - (NSUInteger)supportedInterfaceOrientations{
     //IOS6. If forcing status bar orientation, this must return 0.
     if (forcingStatusBarOrientation) {
         return 0;
+    }
+    //IOS6. If we are presenting a modal view controller, get the supported
+    //orientations from the modal view controller
+    id<TiUIViewControllerIOS6Support> topmostController = [self topmostViewController];
+    if (topmostController != self) {
+        //If I am a modal window then send out orientationFlags property
+        if ([topmostController isKindOfClass:[UINavigationController class]]) {
+            UIViewController* topVC = [(UINavigationController *)topmostController topViewController];
+            if ( topVC != nil && ([topVC isKindOfClass:[TiViewController class]]) ) {
+                return [self orientationFlags];
+            }
+        }
+        //Send out whatever the View Controller supports
+        return [topmostController supportedInterfaceOrientations];
     }
     return [self orientationFlags];
 }
@@ -605,7 +637,8 @@
     if(modalvc != nil){
         if ([modalvc isKindOfClass:[UINavigationController class]] && 
             ![modalvc isKindOfClass:[MFMailComposeViewController class]] &&
-            modalFlag == YES ) 
+            ![modalvc isKindOfClass:[ABPeoplePickerNavigationController class]] &&
+            modalFlag == YES )
         {
             //Since this is a window opened from inside a modalviewcontroller we need
             //to let this be oriented by ourselves.
