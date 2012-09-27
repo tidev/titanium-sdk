@@ -1138,20 +1138,30 @@ def main(args):
 				if 'min-ios-ver' in ti.ios:
 					min_ver = ti.ios['min-ios-ver']
 					if min_ver < 4.0:
-						print "[INFO] Minimum iOS version %s is lower than 4.0: Using 4.0 as minimum" % min_ver
-						min_ver = 4.0
+						if float(link_version) >= 6.0:
+							new_min_ver = 4.3
+						else:
+							new_min_ver = 4.0
+						print "[INFO] Minimum iOS version %s is lower than 4.0: Using %s as minimum" % (min_ver, new_min_ver)
+						min_ver = new_min_ver
 					elif min_ver > float(iphone_version):
 						print "[INFO] Minimum iOS version %s is greater than %s (iphone_version): Using %s as minimum" % (min_ver, iphone_version, iphone_version)
 						min_ver = float(iphone_version)
+					elif float(link_version) >= 6.0 and min_ver < 4.3:
+						print "[INFO] Minimum iOS version supported with %s (link_version) is 4.3. Ignoring %s and using 4.3 as minimum" %(link_version, min_ver)
+						min_ver = 4.3
 				else:
-					min_ver = 4.0
+					if float(link_version) >= 6.0:
+						min_ver = 4.3
+					else:
+						min_ver = 4.0
 
-				print "[INFO] Minimum iOS version: %s" % min_ver
+				print "[INFO] Minimum iOS version: %s Linked iOS Version %s" % (min_ver, link_version)
 				deploy_target = "IPHONEOS_DEPLOYMENT_TARGET=%s" % min_ver
 				device_target = 'TARGETED_DEVICE_FAMILY=1'  # this is non-sensical, but you can't pass empty string
 				
 				# No armv6 support above 4.3 or with 6.0+ SDK
-				if min_ver >= 4.3 or float(iphone_version) >= 6.0:
+				if min_ver >= 4.3 or float(link_version) >= 6.0:
 					valid_archs = 'armv7 i386'
 				else:
 					valid_archs = 'armv6 armv7 i386'
