@@ -181,7 +181,7 @@ exports.config = function (logger, config, cli) {
 									availableUUIDs.push('    ' + profiles[i].uuid.cyan + '  ' + profiles[i].appId + ' (' + profiles[i].name + ')');
 								}
 								
-								throw new appc.exception(__('Unable to find an Provisioning Profile UUID "%s"', uuid), availableUUIDs);
+								throw new appc.exception(__('Unable to find a Provisioning Profile UUID "%s"', uuid), availableUUIDs);
 							}
 						}
 					},
