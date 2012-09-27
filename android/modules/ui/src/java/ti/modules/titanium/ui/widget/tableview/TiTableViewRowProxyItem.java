@@ -98,6 +98,10 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 		return label;
 	}
 
+	//
+	// Create views for measurement or for layout.  For each view, apply the
+	// properties from the appropriate proxy to the view.
+	//
 	protected void createViews()
 	{
 		ArrayList<TiViewProxy> proxies = getRowProxy().getControls();
@@ -125,8 +129,13 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 			if (view == null) {
 				// In some cases the TiUIView for this proxy has been reassigned to another proxy
 				// We don't want to actually release it though, just reassign by creating a new view.
+				//
 				// Not setting modelListener from here because this could be a measurement pass or
-				// a layout pass through getView().
+				// a layout pass through getView(), which means that the view we have here may
+				// not be the one that gets displayed on the screen.  So we don't want to make
+				// any view-proxy association at this point.   We only want to make that association
+				// on a layout pass (i.e. when onLayout() gets called).
+				//
 				view = proxy.forceCreateView(false);  // false means don't set modelListener
 				clearChildViews(proxy);
 				if (i >= views.size()) {

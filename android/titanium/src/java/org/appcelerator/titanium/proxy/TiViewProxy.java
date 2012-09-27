@@ -405,30 +405,30 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 		return forceCreateView(true);
 	}
 
-	/**
-	 * Creates or retrieves the view associated with this proxy.
-	 * @return a TiUIView instance.
-	 * @module.api
-	 */
-	public TiUIView getOrCreateView(boolean isLayoutPass)
+	public TiUIView getOrCreateView(boolean setModelListener)
 	{
 		if (activity == null || view != null) {
 			return view;
 		}
 
 		if (TiApplication.isUIThread()) {
-			return handleGetView(isLayoutPass);
+			return handleGetView(setModelListener);
 		}
 
 		return (TiUIView) TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_GETVIEW), 0);
 	}
 	
+	/**
+	 * Creates or retrieves the view associated with this proxy.
+	 * @return a TiUIView instance.
+	 * @module.api
+	 */
 	public TiUIView getOrCreateView()
 	{
 		return getOrCreateView(true);
 	}
 
-	protected TiUIView handleGetView(boolean isLayoutPass)
+	protected TiUIView handleGetView(boolean setModelListener)
 	{
 		if (view == null) {
 			Log.d(TAG, "getView: " + getClass().getSimpleName(), Log.DEBUG_MODE);
@@ -442,7 +442,7 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 					Log.w(TAG, "Activity is null", Log.DEBUG_MODE);
 				}
 			}
-			realizeViews(view, isLayoutPass);
+			realizeViews(view, setModelListener);
 			view.registerForTouch();
 		}
 		return view;
