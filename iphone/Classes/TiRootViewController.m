@@ -320,6 +320,20 @@
 
 - (UIInterfaceOrientation)preferredInterfaceOrientationForPresentation
 {
+    //IOS6. If we are presenting a modal view controller, get the preferred
+    //presentation orientation from the modal view controller
+    id<TiUIViewControllerIOS6Support> topmostController = [self topmostViewController];
+    if (topmostController != self) {
+        //If I am a modal window then send out orientationFlags property
+        if ([topmostController isKindOfClass:[UINavigationController class]]) {
+            UIViewController* topVC = [(UINavigationController *)topmostController topViewController];
+            if ( topVC != nil && ([topVC isKindOfClass:[TiViewController class]]) ) {
+                return [self lastValidOrientation];
+            }
+        }
+        //Send out whatever the View Controller supports
+        return [topmostController preferredInterfaceOrientationForPresentation];
+    }
     return [self lastValidOrientation];
 }
 
