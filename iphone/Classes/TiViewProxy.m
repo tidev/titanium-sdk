@@ -159,9 +159,14 @@
 			[arg parentWillShow];
 		}
 		
-		// only call layout if the view is attached
-		// Maybe need to call layout children instead for non absolute layout
-		[self layoutChild:arg optimize:NO withMeasuredBounds:[[self size] rect]]; 
+		//If layout is non absolute push this into the layout queue
+		//else just layout the child with current bounds
+		if (!TiLayoutRuleIsAbsolute(layoutProperties.layoutStyle) ) {
+			[self contentsWillChange];
+		}
+		else {
+			[self layoutChild:arg optimize:NO withMeasuredBounds:[[self size] rect]];
+		}
 	}
 	else
 	{
