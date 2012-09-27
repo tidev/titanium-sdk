@@ -38,6 +38,10 @@ extern "C" {
 #define __IPHONE_5_1 50100
 #endif
     
+#ifndef __IPHONE_6_0
+#define __IPHONE_6_0 60000
+#endif
+    
 #ifdef DEBUG
 	// Kroll memory debugging
 	#define KROLLBRIDGE_MEMORY_DEBUG MEMORY_DEBUG
