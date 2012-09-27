@@ -98,7 +98,7 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 		return label;
 	}
 
-	protected void refreshControls()
+	protected void createViews()
 	{
 		ArrayList<TiViewProxy> proxies = getRowProxy().getControls();
 		int len = proxies.size();
@@ -124,8 +124,10 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 			}
 			if (view == null) {
 				// In some cases the TiUIView for this proxy has been reassigned to another proxy
-				// We don't want to actually release it though, just reassign by creating a new view
-				view = proxy.forceCreateView(false);
+				// We don't want to actually release it though, just reassign by creating a new view.
+				// Not setting modelListener from here because this could be a measurement pass or
+				// a layout pass through getView().
+				view = proxy.forceCreateView(false);  // false means don't set modelListener
 				clearChildViews(proxy);
 				if (i >= views.size()) {
 					views.add(view);
@@ -136,7 +138,7 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 
 			View v = view.getOuterView();
 			view.processProperties(proxy.getProperties());
-			applyChildProxies(proxy, view);
+			applyChildProperties(proxy, view);
 			if (v.getParent() == null) {
 				content.addView(v, view.getLayoutParams());
 			}
@@ -151,14 +153,14 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 		}
 	}
 
-	protected void applyChildProxies(TiViewProxy viewProxy, TiUIView view)
+	protected void applyChildProperties(TiViewProxy viewProxy, TiUIView view)
 	{
 		int i = 0;
 		TiViewProxy childProxies[] = viewProxy.getChildren();
 		for (TiUIView childView : view.getChildren()) {
 			TiViewProxy childProxy = childProxies[i];
 			childView.processProperties(childProxy.getProperties());
-			applyChildProxies(childProxy, childView);
+			applyChildProperties(childProxy, childView);
 			i++;
 		}
 	}
@@ -270,9 +272,11 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 			content.setLayoutArrangement(TiConvert.toString(props, TiC.PROPERTY_LAYOUT));
 		}
 
+		// hasControls() means that the proxy has children
 		if (rp.hasControls()) {
-			refreshControls();
+			createViews();
 		} else {
+			// no children means that this is an old-style row
 			refreshOldStyleRow();
 		}
 	}
@@ -467,7 +471,7 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 		
 	}
 	
-	protected void associateProxies(TiViewProxy[] proxies, ArrayList<TiUIView> views)
+	protected void associateProxies(TiViewProxy[] proxies, List<TiUIView> views)
 	{
 		int i = 0;
 		for (TiUIView view : views) {
@@ -478,23 +482,7 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 			proxy.setView(view);
 			view.setProxy(proxy);
 			proxy.setModelListener(view);
-			associateChildProxies(proxy.getChildren(), view.getChildren());
-			i++;
-		}
-	}
-
-	protected void associateChildProxies(TiViewProxy[] proxies, List<TiUIView> views)
-	{
-		int i = 0;
-		for (TiUIView view : views) {
-			if (proxies.length < (i+1)) {
-				break;
-			}
-			TiViewProxy proxy = proxies[i];
-			proxy.setView(view);
-			view.setProxy(proxy);
-			proxy.setModelListener(view);
-			associateChildProxies(proxy.getChildren(), view.getChildren());
+			associateProxies(proxy.getChildren(), view.getChildren());
 			i++;
 		}
 	}
