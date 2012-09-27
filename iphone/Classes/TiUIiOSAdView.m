@@ -81,11 +81,7 @@ extern NSString * const TI_APPLICATION_ANALYTICS;
 		WARN_IF_BACKGROUND_THREAD_OBJ;	//NSNotificationCenter is not threadsafe!
 		[[NSNotificationCenter defaultCenter] postNotificationName:kTiAnalyticsNotification object:nil userInfo:event]; 
 	}
-	if ([self.proxy _hasListeners:@"load"])
-	{
-		NSMutableDictionary *event = [NSMutableDictionary dictionary];
-		[self.proxy fireEvent:@"load" withObject:event];
-	}
+	[(TiUIiOSAdViewProxy*) self.proxy fireLoad:nil];
 }
 
 - (void)bannerViewActionDidFinish:(ADBannerView *)banner
