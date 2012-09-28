@@ -53,7 +53,7 @@ def normalize_version(version_str):
 	
 	return normalized_version;
 
-# only works for objects (proxies or modules)
+# only works for proxies or modules
 def find_supertype(annotated_obj):
 	supertype = None
 	extends = None
@@ -122,39 +122,67 @@ def full_type_name(annotated_obj):
 def has_list_attr(object, listattr):
 	return hasattr(object, listattr) and type(getattr(object, listattr)) == list
 
+def platforms_list_to_dict(platforms_list):
+	platform_dict = { }
+	for platform in platforms_list:
+		platform_dict[platform["name"]] = normalize_version(platform["since"])
+	return platform_dict
+
 def is_new_api(annotated_obj, this_version):
 	# Checking for none here lets us call is_new_api(find_supertype_member(foo)) without additional checking
 	if annotated_obj is None:
 		return None
+
 	obj = annotated_obj.api_obj
-	if "since" in obj and len(obj["since"]) > 0:
-		since = obj["since"]
+	platforms = [ "android", "iphone", "ipad", "mobileweb" ]
+	platform_names = { "android": "Android", "iphone": "iPhone", "ipad": "iPad", "mobileweb": "Mobile Web" }
+
+	if hasattr(annotated_obj, "platforms") and len(annotated_obj.platforms) > 0:
+		since = annotated_obj.platforms
 	else:
 		return None
 
-	if isinstance(since, basestring):
-		if (normalize_version(since) == this_version):
-			return { "new": True }
-		else:
-			return None
-	else:
-		support_str = ""
-		new_for_platform = []
-		platform_names = { "android": "Android", "iphone": "iPhone", "ipad": "iPad", "mobileweb": "Mobile Web" }
-		for platform in ( "android", "iphone", "ipad", "mobileweb" ):
-			if since.has_key(platform):
-				if (normalize_version(since[platform]) == this_version):
-					new_for_platform.append(platform_names[platform])
-		num_platforms = len(new_for_platform)
-		if (num_platforms >= 1):
+	support_str = ""
+	new_for_platform = []
+	since_for_platform = {}
+	existing_api = False
+
+	# if we have both a superclass and a parent object, we only consider the since versions
+	# for platforms shared by *both* parent object and superclass, i.e., a property defined 
+	# for all platforms in Ti.Proxy only needs to be supported on Android in a Ti.Android object.
+	# Our platforms list is already constrained by the parent object, so we iterate through
+	# it and check whether it's similarly defined in the supertype... Whew!
+	super_platforms = None
+	if not annotated_obj.typestr in [ "module", "proxy" ]:
+		super = find_supertype_member(annotated_obj)
+		if super is not None and super.platforms is not None:
+			super_platforms = platforms_list_to_dict(super.platforms)
+
+	for platform_since in since:
+		platform_name = platform_since["name"]
+		platform_version = normalize_version(platform_since["since"])
+		if platform_version == this_version:
+			if super_platforms is not None and platform_name in super_platforms and super_platforms[platform_name] == this_version:
+				existing_api = True
+			else:
+				new_for_platform.append(platform_names[platform_since["name"]])
+		elif platform_version < this_version:
+			existing_api = True
+
+	num_platforms = len(new_for_platform)
+	if (num_platforms >= 1):
+		if existing_api: 
 			support_str = "Added support for %s" % new_for_platform[0]
-			for i in range(1, num_platforms):
-				if (i == num_platforms-1):
-					support_str += " and %s" % new_for_platform[i]
-				else:
-					support_str += ", %s" % new_for_platform[i]
-		if support_str:
-			return { "new": True, "notes": support_str }
+		else: 
+			support_str = "New API, supported on %s" % new_for_platform[0]
+		for i in range(1, num_platforms):
+			if (i == num_platforms-1):
+				support_str += " and %s" % new_for_platform[i]
+			else:
+				support_str += ", %s" % new_for_platform[i]
+
+	if support_str:
+		return { "new": not existing_api, "notes": support_str }
 
 def is_removed_or_deprecated_api(annotated_obj, this_version):
 	if annotated_obj.deprecated != None:
@@ -237,7 +265,7 @@ def generate(raw_apis, annotated_apis, options):
 			
 			new_api = is_new_api(annotated_obj, version)
 			if new_api is not None:
-				notes = " (New API.)"
+				notes = ""
 				if new_api.has_key("notes"):
 					notes = " (%s.)" % new_api["notes"]
 				added.append({ "name": full_type_name(annotated_obj),
@@ -249,29 +277,26 @@ def generate(raw_apis, annotated_apis, options):
 						member_list = getattr(annotated_obj, list_name)
 						for m in member_list:
 							new_api = is_new_api(m, version)
-							parent_new = is_new_api(find_supertype_member(m), version)
-							if new_api is not None and (parent_new is None or new_api != parent_new):
-								notes = " (New API.)"
+							if new_api is not None:
+								notes = ""
 								if new_api.has_key("notes"):
 									notes = " (%s.)" % new_api["notes"]
 								added.append({ "name": full_type_name(m),
 												"type": m.typestr,
-												"summary":
-                                                markdown_to_html(m.api_obj["summary"] + notes) })
+												"summary": markdown_to_html(m.api_obj["summary"] + notes) })
 							elif list_name == "methods" or list_name == "events":
 								sublist_name = { "methods": "parameters", "events": "properties" }[list_name]
 								if has_list_attr(m, sublist_name):
 									sublist = getattr(m, sublist_name)
 									for p in sublist:
 										new_api = is_new_api(p, version)
-										parent_new = is_new_api(find_supertype_member(p), version)
-										if new_api is not None and (parent_new is None or new_api != parent_new):
-											notes = " (New API.)"
+										if new_api is not None:
+											notes = ""
 											if new_api.has_key("notes"):
 												notes = " (%s.)" % new_api["notes"]
 											added.append({ "name": full_type_name(p),
 															"type": { "methods": "parameter", "events": "event property" }[list_name],
-												            "summary": markdown_to_html(p.api_obj["summary"] + notes) })
+															"summary": markdown_to_html(p.api_obj["summary"] + notes) })
 
 
 			removed_or_deprecated = is_removed_or_deprecated_api(annotated_obj, version)
