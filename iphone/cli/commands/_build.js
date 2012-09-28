@@ -1233,19 +1233,20 @@ build.prototype = {
 				'__PROJECT_ID__': this.tiapp.id,
 				'__DEPLOYTYPE__': this.deployType,
 				'__APP_ID__': this.tiapp.id,
-				'__APP_ANALYTICS__': !!this.tiapp.analytics,
+				'__APP_ANALYTICS__': '' + !!this.tiapp.analytics,
 				'__APP_PUBLISHER__': this.tiapp.publisher,
 				'__APP_URL__': this.tiapp.url,
 				'__APP_NAME__': this.tiapp.name,
 				'__APP_VERSION__': this.tiapp.version,
-				'__APP_DESCRIPTION__': this.tiapp.description.replace(/\n/g, '\\n'),
+				'__APP_DESCRIPTION__': this.tiapp.description,
 				'__APP_COPYRIGHT__': this.tiapp.copyright,
 				'__APP_GUID__': this.tiapp.guid,
 				'__APP_RESOURCE_DIR__': ''
 			},
 			destMain = path.join(this.buildDir, 'main.m'),
 			newMainContents = fs.readFileSync(path.join(this.titaniumIosSdkPath, 'main.m')).toString().replace(/(__.+__)/g, function (match, key, format) {
-				return consts.hasOwnProperty(key) ? consts[key] : key;
+				var s = consts.hasOwnProperty(key) ? consts[key] : key;
+				return typeof s == 'string' ? s.replace(/"/g, '\\"') : s;
 			});
 		
 		if (!afs.exists(destMain) || fs.readFileSync(destMain).toString() != newMainContents) {
@@ -1307,10 +1308,10 @@ build.prototype = {
 		// write the ApplicationMods.m file
 		dest = path.join(this.buildDir, 'Classes', 'ApplicationMods.m');
 		if (!afs.exists(dest) || fs.readFileSync(dest).toString() != contents) {
-			this.logger.debug('Writing ' + dest);
+			this.logger.debug(__('Writing application modules file: %s', dest.cyan));
 			fs.writeFileSync(dest, contents);
 		} else {
-			this.logger(dest + ' does not need to be updated');
+			this.logger.debug(__('%s does not need to be updated', dest.cyan));
 		}
 		
 		// write the module.xcconfig file
@@ -1321,10 +1322,10 @@ build.prototype = {
 		
 		dest = path.join(this.buildDir, 'module.xcconfig');
 		if (!afs.exists(dest) || fs.readFileSync(dest).toString() != xcconfig) {
-			this.logger.debug('Writing ' + dest);
+			this.logger.debug(__('Writing module xcconfig file: %s', dest.cyan));
 			fs.writeFileSync(dest, xcconfig);
 		} else {
-			this.logger(dest + ' does not need to be updated');
+			this.logger.debug(__('%s does not need to be updated', dest.cyan));
 		}
 	},
 	
