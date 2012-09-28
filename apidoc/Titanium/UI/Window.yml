@@ -407,6 +407,7 @@ properties:
     platforms: [android, iphone, ipad]
     since: {iphone: "3.0.0", ipad: "3.0.0"}
     type: Number
+    permission: read-only
 
   - name: rightNavButton
     summary: View to show in the right nav bar area.
