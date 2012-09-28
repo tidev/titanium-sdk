@@ -268,7 +268,7 @@ examples:
                     } else {
                         addressBookDisallowed();
                     }
-                }
+                });
             } else {
                 addressBookDisallowed();
             }
