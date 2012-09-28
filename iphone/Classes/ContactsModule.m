@@ -16,17 +16,11 @@
 #pragma Backwards compatibility for pre-iOS 6.0
 
 #if __IPHONE_OS_VERSION_MAX_ALLOWED < __IPHONE_6_0
+//TODO: Should we warn that they need to update to the latest XCode is this is happening?
 #define kABAuthorizationStatusNotDetermined 0
 #define kABAuthorizationStatusRestricted 1
 #define kABAuthorizationStatusDenied 2
 #define kABAuthorizationStatusAuthorized 3
-
-extern signed long ABAddressBookGetAuthorizationStatus(void);
-extern ABAddressBookRef ABAddressBookCreateWithOptions(CFDictionaryRef options, CFErrorRef* error);
-
-typedef void(^ABAddressBookRequestAccessCompletionHandler)(bool granted, CFErrorRef error);
-extern void ABAddressBookRequestAccessWithCompletion(ABAddressBookRef addressBook,  ABAddressBookRequestAccessCompletionHandler completion);
-
 #endif
 
 @implementation ContactsModule
@@ -41,7 +35,9 @@ extern void ABAddressBookRequestAccessWithCompletion(ABAddressBookRef addressBoo
 	
 	if (addressBook == NULL) {
 		if (iOS6API) {
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_6_0
 			addressBook = ABAddressBookCreateWithOptions(NULL, NULL);
+#endif
 		} else {
 			addressBook = ABAddressBookCreate();
 		}
@@ -61,9 +57,11 @@ extern void ABAddressBookRequestAccessWithCompletion(ABAddressBookRef addressBoo
 {
 	[super startup];
 	addressBook = NULL;
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_6_0
     if (ABAddressBookGetAuthorizationStatus != NULL) {
 		iOS6API = YES;
 	}
+#endif
     // Force address book creation so that our properties are properly initialized - they aren't
     // defined until the address book is loaded, for some reason.
 	TiThreadPerformOnMainThread(^{[self addressBook];}, YES);
@@ -110,6 +108,7 @@ extern void ABAddressBookRequestAccessWithCompletion(ABAddressBookRef addressBoo
 	
 	if(!iOS6API){
 		success = YES;
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_6_0
 	} else {
 		long int permissions = ABAddressBookGetAuthorizationStatus();
 		switch (permissions) {
@@ -128,6 +127,7 @@ extern void ABAddressBookRequestAccessWithCompletion(ABAddressBookRef addressBoo
 			default:
 				break;
 		}
+#endif
 	}
 	if (!doPrompt) {
 		NSDictionary * propertiesDict = [[NSDictionary alloc] initWithObjectsAndKeys:
@@ -140,7 +140,7 @@ extern void ABAddressBookRequestAccessWithCompletion(ABAddressBookRef addressBoo
 		[propertiesDict release];
 		return;
 	}
-
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_6_0
 	TiThreadPerformOnMainThread(^(){
 		ABAddressBookRef ourAddressBook = [self addressBook];
 		ABAddressBookRequestAccessWithCompletion(ourAddressBook, ^(bool granted, CFErrorRef error) {
@@ -159,16 +159,19 @@ extern void ABAddressBookRequestAccessWithCompletion(ABAddressBookRef addressBoo
 			[propertiesDict release];
 		});
 	}, NO);
+#endif
 }
 
 
 
 -(NSNumber*) contactsAuthorization
 {
-	if (!iOS6API) { //5.1 and before: We always had permission.
-		return [self AUTHORIZATION_AUTHORIZED];
+	long int result = kABAuthorizationStatusAuthorized;
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_6_0
+	if (iOS6API) { //5.1 and before: We always had permission.
+		result = ABAddressBookGetAuthorizationStatus();
 	}
-	long int result = ABAddressBookGetAuthorizationStatus();
+#endif
 	return [NSNumber numberWithLong:result];
 }
 
