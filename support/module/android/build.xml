@@ -133,6 +133,10 @@ timodule.xml.
 	</path>
 
 	<target name="init">
+		<echo>Testing for Python</echo>
+		<exec failonerror="true" executable="python">
+			<arg line="--version"/>
+		</exec>
 		<mkdir dir="${classes}"/>
 		<mkdir dir="${gen}"/>
 		<mkdir dir="${dist}"/>
