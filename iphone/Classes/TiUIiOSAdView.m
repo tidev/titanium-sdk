@@ -74,6 +74,7 @@ extern NSString * const TI_APPLICATION_ANALYTICS;
 
 - (void)bannerViewDidLoadAd:(ADBannerView *)banner
 {
+    [self.proxy replaceValue:NUMBOOL(YES) forKey:@"visible" notification:YES];
 	if (TI_APPLICATION_ANALYTICS)
 	{
 		NSDictionary *data = [NSDictionary dictionaryWithObjectsAndKeys:[banner currentContentSizeIdentifier],@"size",nil];
