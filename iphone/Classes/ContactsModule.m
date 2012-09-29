@@ -62,9 +62,6 @@
 		iOS6API = YES;
 	}
 #endif
-    // Force address book creation so that our properties are properly initialized - they aren't
-    // defined until the address book is loaded, for some reason.
-	TiThreadPerformOnMainThread(^{[self addressBook];}, YES);
 }
 
 -(void)dealloc
@@ -178,10 +175,12 @@
 -(void)save:(id)unused
 {
 	ENSURE_UI_THREAD(save, unused)
-	// ABAddressBookHasUnsavedChanges is broken in pre-3.2
-	//if (ABAddressBookHasUnsavedChanges([self addressBook])) {
 	CFErrorRef error;
-	if (!ABAddressBookSave([self addressBook], &error)) {
+	ABAddressBookRef ourAddressBook = [self addressBook];
+	if (ourAddressBook == NULL) {
+		return;
+	}
+	if (!ABAddressBookSave(ourAddressBook, &error)) {
 		CFStringRef errorStr = CFErrorCopyDescription(error);
 		NSString* str = [NSString stringWithString:(NSString*)errorStr];
 		CFRelease(errorStr);
@@ -190,16 +189,16 @@
 				   subreason:nil
 					location:CODELOCATION];
 	}
-	//}
 }
 
 -(void)revert:(id)unused
 {
 	ENSURE_UI_THREAD(revert, unused)
-	// ABAddressBookHasUnsavedChanges is broken in pre-3.2
-	//if (ABAddressBookHasUnsavedChanges([self addressBook])) {
-	ABAddressBookRevert([self addressBook]);
-	//}
+	ABAddressBookRef ourAddressBook = [self addressBook];
+	if (ourAddressBook == NULL) {
+		return;
+	}
+	ABAddressBookRevert(ourAddressBook);
 }
 
 -(void)showContacts:(id)args
@@ -246,11 +245,12 @@
 	__block int idNum = [TiUtils intValue:arg];
 	__block BOOL validId = NO;	
 	dispatch_sync(dispatch_get_main_queue(),^{
-		if (addressBook == NULL) {
+		ABAddressBookRef ourAddressBook = [self addressBook];
+		if (ourAddressBook == NULL) {
 			return;
 		}
 		ABRecordRef record = NULL;
-		record = ABAddressBookGetPersonWithRecordID(addressBook, idNum);
+		record = ABAddressBookGetPersonWithRecordID(ourAddressBook, idNum);
 		if (record != NULL)
 		{
 			validId = YES;
@@ -269,11 +269,12 @@
 	__block int idNum = [TiUtils intValue:arg];
 	__block BOOL validId = NO;	
 	dispatch_sync(dispatch_get_main_queue(),^{
-		if (addressBook == NULL) {
+		ABAddressBookRef ourAddressBook = [self addressBook];
+		if (ourAddressBook == NULL) {
 			return;
 		}
 		ABRecordRef record = NULL;
-		record = ABAddressBookGetGroupWithRecordID(addressBook, idNum);
+		record = ABAddressBookGetGroupWithRecordID(ourAddressBook, idNum);
 		if (record != NULL) 
 		{
 			validId = YES;
