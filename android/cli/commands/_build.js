@@ -11,6 +11,7 @@ var ti = require('titanium-sdk'),
 	fs = require('fs'),
 	path = require('path'),
 	android = appc.android,
+	spawn = require('child_process').spawn,
 	minAndroidSdkVersion = '2.2',
 	minJavaSdkVersion = '1.6.0',
 	version = appc.version,
@@ -117,7 +118,8 @@ exports.config = function (logger, config, cli) {
 						abbr: 'D',
 						desc: __('the type of deployment; only used with target is %s or %s', 'emulator'.cyan, 'device'.cyan),
 						hint: __('type'),
-						values: deployTypes
+						values: deployTypes,
+						default: 'development'
 					},
 					'keystore': {
 						abbr: 'K',
@@ -218,7 +220,7 @@ exports.validate = function (logger, config, cli) {
 	}
 	
 	if (deployTypes.indexOf(cli.argv['deploy-type']) == -1) {
-		logger.error(__('Invalid deploy type "%s"', cli.argv.target) + '\n');
+		logger.error(__('Invalid deploy type "%s"', cli.argv['deploy-type']) + '\n');
 		appc.string.suggest(cli.argv.target, targets, logger.log, 3);
 		process.exit(1);
 	}
@@ -297,11 +299,26 @@ exports.run = function (logger, config, cli, finished) {
 };
 
 function build(logger, config, cli, finished) {
-	logger.info(__('Compiling "%s" build', cli.argv['build-type']));
+	var emulatorCmd = [],
+		cmd = [];
+
+	logger.info(__('Compiling "%s" build', cli.argv['deploy-type']));
 	
-	dump(cli.argv);
+
+	ti.legacy.constructLegacyCommand(logger, cli, tiapp,cli.argv.platform ,cmd, emulatorCmd);
 	
-	finished && finished();
+	console.log('Forking correct SDK command: ' + (cmd.join(' ')).cyan + '\n');
+	
+	if (emulatorCmd.length > 0) {
+		spawn('python', emulatorCmd,{});
+	}
+
+	spawn('python', cmd, {
+		stdio: 'inherit'
+	}).on('exit', function() {
+		finished && finished();
+	});
+	
 }
 
 build.prototype = {
