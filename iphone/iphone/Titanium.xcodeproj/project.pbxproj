@@ -197,7 +197,7 @@
 		24CA8C08111161FE0084E2DE /* AppModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8B56111161FE0084E2DE /* AppModule.m */; };
 		24CA8C09111161FE0084E2DE /* APIModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8B58111161FE0084E2DE /* APIModule.m */; };
 		24CA8C0E111161FE0084E2DE /* AccelerometerModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8B64111161FE0084E2DE /* AccelerometerModule.m */; };
-		24CA8C76111167B60084E2DE /* AddressBook.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 24CA8C75111167B60084E2DE /* AddressBook.framework */; };
+		24CA8C76111167B60084E2DE /* AddressBook.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 24CA8C75111167B60084E2DE /* AddressBook.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
 		24CA8C78111167B60084E2DE /* AddressBookUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 24CA8C77111167B60084E2DE /* AddressBookUI.framework */; };
 		24CA8C7C111167B60084E2DE /* CFNetwork.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 24CA8C7B111167B60084E2DE /* CFNetwork.framework */; };
 		24CA8C7E111167B60084E2DE /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 24CA8C7D111167B60084E2DE /* CoreLocation.framework */; };
