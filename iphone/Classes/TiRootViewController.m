@@ -364,9 +364,7 @@
         NSUInteger retVal = [topmostController supportedInterfaceOrientations];
         if ([topmostController respondsToSelector:@selector(isBeingDismissed)]) {
             if ([topmostController isBeingDismissed]) {
-                NSUInteger result = 0;
-                TI_ORIENTATION_SET(result, [self lastValidOrientation]);
-                retVal = retVal | result;
+                retVal = retVal | [self orientationFlags];
             }
         }
         return retVal;
