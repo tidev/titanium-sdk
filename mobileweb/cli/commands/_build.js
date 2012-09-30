@@ -358,7 +358,7 @@ build.prototype = {
 		}
 		
 		this.logger.info(__n('Searching for %s Titanium Module', 'Searching for %s Titanium Modules', this.tiapp.modules.length));
-		ti.module.find(this.tiapp.modules, 'mobileweb', this.deployType, this.projectDir, this.logger, function (modules) {
+		appc.timodule.find(this.tiapp.modules, 'mobileweb', this.deployType, this.projectDir, this.logger, function (modules) {
 			if (modules.missing.length) {
 				this.logger.error(__('Could not find all required Titanium Modules:'))
 				modules.missing.forEach(function (m) {
@@ -378,7 +378,7 @@ build.prototype = {
 			}
 			
 			modules.found.forEach(function (module) {
-				var moduleDir = module.info.modulePath,
+				var moduleDir = module.modulePath,
 					pkgJson,
 					pkgJsonFile = path.join(moduleDir, 'package.json');
 				if (!afs.exists(pkgJsonFile)) {
@@ -401,7 +401,7 @@ build.prototype = {
 					process.exit(1);
 				}
 				
-				this.logger.info(__('Bundling Titanium Mobile Module "%s"', module.id));
+				this.logger.info(__('Bundling Titanium Mobile Module %s', module.id.cyan));
 				
 				this.projectDependencies.push(pkgJson.main);
 				
@@ -446,49 +446,22 @@ build.prototype = {
 	},
 	
 	findI18N: function (callback) {
-		var self = this,
-			precacheLocales = (this.tiapp.precache || {}).locales || {},
-			i18nDir = path.join(this.projectDir, 'i18n');
+		var data = ti.i18n.load(this.projectDir, this.logger),
+			precacheLocales = (this.tiapp.precache || {}).locales || {};
 		
-		if (afs.exists(i18nDir)) {
-			this.logger.info(__('Processing i18n strings'));
-			fs.readdirSync(i18nDir).forEach(function (lang) {
-				if (fs.lstatSync(path.join(i18nDir, lang)).isDirectory()) {
-					self.loadI18N(path.join(i18nDir, lang, 'app.xml'), function (data) {
-						data.appname && (self.appNames[lang] = data.appname);
-					});
-					self.loadI18N(path.join(i18nDir, lang, '/strings.xml'), function (data) {
-						self.locales.push(lang);
-						var dir = path.join(self.buildDir, 'titanium', 'Ti', 'Locale', lang);
-						wrench.mkdirSyncRecursive(dir);
-						fs.writeFileSync(path.join(dir, 'i18n.js'), 'define(' + JSON.stringify(data, null, '\t') + ')');
-						precacheLocales[lang] && self.modulesToCache.push('Ti/Locale/' + lang + '/i18n');
-					});
-				}
-			});
-		}
+		Object.keys(data).forEach(function (lang) {
+			data[lang].app && data[lang].appname && (self.appNames[lang] = data[lang].appname);
+			if (data[lang].strings) {
+				dump(data[lang].strings);
+				var dir = path.join(this.buildDir, 'titanium', 'Ti', 'Locale', lang);
+				wrench.mkdirSyncRecursive(dir);
+				fs.writeFileSync(path.join(dir, 'i18n.js'), 'define(' + JSON.stringify(data[lang].strings, null, '\t') + ')');
+				this.locales.push(lang);
+				precacheLocales[lang] && this.modulesToCache.push('Ti/Locale/' + lang + '/i18n');
+			};
+		}, this);
 		
 		callback();
-	},
-	
-	loadI18N: function (xmlFile, callback) {
-		var data = {};
-		
-		if (afs.exists(xmlFile)) {
-			this.logger.debug(__('Loading i18n XML file: %s', xmlFile.cyan));
-			var dom = new DOMParser().parseFromString(fs.readFileSync(xmlFile).toString(), 'text/xml');
-			xml.forEachElement(dom.documentElement, function (elem) {
-				if (elem.nodeType == 1 && elem.tagName == 'string') {
-					var name = xml.getAttr(elem, 'name');
-					if (name) {
-						data[name] = xml.getValue(elem);
-					}
-				}
-			});
-		}
-		
-		callback && callback(data);
-		return data;
 	},
 	
 	assembleTitaniumJS: function (callback) {

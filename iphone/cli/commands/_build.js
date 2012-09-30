@@ -28,6 +28,11 @@ var ti = require('titanium-sdk'),
 		ipad: '2',
 		universal: '1,2'
 	},
+	deviceFamilyNames = {
+		iphone: ['ios', 'iphone'],
+		ipad: ['ios', 'ipad'],
+		universal: ['ios', 'iphone', 'ipad']
+	},
 	xcodeTargetSuffixes = {
 		iphone: '',
 		ipad: '-iPad',
@@ -112,7 +117,7 @@ exports.config = function (logger, config, cli) {
 					},
 					'developer-name': {
 						abbr: 'V',
-						default: config.ios && config.ios.developerName && devNames.indexOf(config.ios.developerName) != -1 ? config.ios.developerName : undefined,
+						default: process.env.CODE_SIGN_IDENTITY ? process.env.CODE_SIGN_IDENTITY.replace(/(iPhone Developer\: (.+) \(.+)/, '$2') : (config.ios && config.ios.developerName && devNames.indexOf(config.ios.developerName) != -1 ? config.ios.developerName : undefined),
 						desc: __('the iOS Developer Certificate to use; required when target is %s', 'device'.cyan),
 						hint: 'name',
 						prompt: {
@@ -164,6 +169,7 @@ exports.config = function (logger, config, cli) {
 					},
 					'pp-uuid': {
 						abbr: 'P',
+						default: process.env.PROVISIONING_PROFILE,
 						desc: __('the provisioning profile uuid; required when target is %s, %s, or %s', 'device'.cyan, 'dist-appstore'.cyan, 'dist-adhoc'.cyan),
 						hint: 'uuid',
 						prompt: {
@@ -225,9 +231,6 @@ exports.validate = function (logger, config, cli) {
 	var sdks = {},
 		sims = {};
 	
-	if (cli.argv.xcode && process.env.SOURCE_ROOT) {
-		cli.argv['project-dir'] = path.join(process.env.SOURCE_ROOT, '..', '..');
-	}
 	ti.validateProjectDir(logger, cli.argv, 'project-dir');
 	
 	if (!ti.validateCorrectSDK(logger, config, cli, cli.argv['project-dir'])) {
@@ -670,23 +673,25 @@ function build(logger, config, cli, finished) {
 				xcodeArgs.push('TI_PRODUCTION=1');
 			}
 			
-			dump(xcodeArgs);
-			
 			cli.fireHook('postbuild', function () {
 				var p = spawn('xcodebuild', xcodeArgs, {
 					cwd: this.buildDir,
 					env: {
-						'DEVELOPER_DIR': this.xcodeEnv.path
+						DEVELOPER_DIR: this.xcodeEnv.path,
+						HOME: process.env.HOME,
+						PATH: process.env.PATH
 					}
 				});
 				
 				p.stderr.on('data', function (data) {
-					this.logger.error(data.toString());
+					data.toString().split('\n').forEach(this.logger.error);
 					process.exit(1);
 				}.bind(this));
 				
 				p.stdout.on('data', function (data) {
-					this.logger.log(data.toString());
+					data.toString().split('\n').forEach(function (line) {
+						line.length && console.log(line);
+					}, this);
 				}.bind(this));
 				
 				p.on('exit', function () {
@@ -952,7 +957,7 @@ build.prototype = {
 			.replace(/Titanium_Prefix\.pch/g, this.tiapp.name + '_Prefix.pch')
 			.replace(/Titanium/g, namespace);
 		
-		proj = injectCompileShellScript(proj, 'Pre-Compile', '/bin/sh -c /usr/local/bin/node \\"' + this.cli.argv.$0.replace(/^node /, '') + '\\" build --platform ' + this.platformName + ' --sdk ' + this.titaniumSdkVersion + ' --xcode\\nexit $?')
+		proj = injectCompileShellScript(proj, 'Pre-Compile', 'node \\"' + this.cli.argv.$0.replace(/^node /, '') + '\\" build --platform ' + this.platformName + ' --sdk ' + this.titaniumSdkVersion + ' --xcode\\nexit $?')
 		proj = injectCompileShellScript(proj, 'Post-Compile', "echo 'post-compile'")
 		fs.writeFileSync(path.join(this.buildDir, this.tiapp.name + '.xcodeproj', 'project.pbxproj'), proj);
 		
@@ -1062,7 +1067,7 @@ build.prototype = {
 			return;
 		}
 		
-		ti.module.find(this.tiapp.modules, ['ios', 'iphone'], this.deployType, this.projectDir, this.logger, function (modules) {
+		appc.timodule.find(this.tiapp.modules, ['ios', 'iphone'], this.deployType, this.projectDir, this.logger, function (modules) {
 			if (modules.missing.length) {
 				this.logger.error(__('Could not find all required Titanium Modules:'))
 				modules.missing.forEach(function (m) {
@@ -1631,22 +1636,19 @@ build.prototype = {
 	},
 	
 	compileJSS: function (callback) {
-		/*
-		# compile JSS files
-		cssc = csscompiler.CSSCompiler(os.path.join(projectDir,'Resources'),devicefamily,appid)
-		var appStylesheet = os.path.join(buildDir,'Resources','stylesheet.plist')
-		asf = codecs.open(appStylesheet,'w','utf-8')
-		asf.write(cssc.code)
-		asf.close()
-		*/
-		
-		if (this.target != 'simulator') {
-			// compile plist into binary format so it's faster to load we can be slow on simulator
-			//exec('/usr/bin/plutil -convert binary1 "' + appStylesheet + '"', callback);
-			callback();
-		} else {
-			callback();
-		}
+		ti.jss.load(path.join(this.projectDir, 'Resources'), deviceFamilyNames[this.deviceFamily], this.logger, function (results) {
+			var appStylesheet = path.join(this.buildDir, 'Resources', 'stylesheet.plist'),
+				plist = new appc.plist();
+			appc.util.mix(plist, results);
+			fs.writeFile(appStylesheet, plist.toString('xml'), function () {
+				if (this.target != 'simulator') {
+					// compile plist into binary format so it's faster to load we can be slow on simulator
+					exec('/usr/bin/plutil -convert binary1 "' + appStylesheet + '"', callback);
+				} else {
+					callback();
+				}
+			}.bind(this));
+		}.bind(this));
 	},
 
 };
