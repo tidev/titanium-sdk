@@ -324,7 +324,7 @@
 }
 
 - (BOOL)shouldAutorotate{
-    return YES;
+    return [[TiApp app] windowIsKeyWindow];
 }
 
 -(id)topmostViewController
