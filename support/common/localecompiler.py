@@ -91,8 +91,8 @@ class LocaleCompiler(object):
 		else:
 
 			if '_' in locale : 
-				# Make IOS and Android compatiblae
-                                locale = locale.replace('_','-') 
+				# Make IOS and Android compatiblae 
+				locale = locale.replace('_','-') 
 			if len(locale) == 5 and locale[2] == '-':
 				# Android en-US -> en-rUS (need the r)
 				locale = locale[0:3] + 'r' + locale[-2:]
