@@ -419,7 +419,10 @@ public class MediaModule extends KrollModule
 					else {
 						c = activity.getContentResolver().query(Images.Media.EXTERNAL_CONTENT_URI, projection, null, null, Images.ImageColumns.DATE_TAKEN);
 					}
-					if (c != null) {
+					if (c == null) {
+						dataPath = "file://" + imageFile.getAbsolutePath();
+					}
+					else {
 						try {
 							boolean isCursorValid = false;
 							if (data.getData() != null) {
