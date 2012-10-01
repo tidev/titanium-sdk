@@ -262,8 +262,8 @@ class Android(object):
 							metadata = simplejson.loads(metadata)
 							if metadata.has_key("exports"):
 								exported_module_ids = metadata["exports"]
-								already_module_ids = [m["api_name"].lower() for m in self.app_modules]
-								need_to_add = [m for m in exported_module_ids if m not in already_module_ids]
+								already_included_module_ids = [m["api_name"].lower() for m in self.app_modules]
+								need_to_add = [m for m in exported_module_ids if m not in already_included_module_ids]
 								if need_to_add:
 									for to_add in need_to_add:
 										module_onAppCreate = None
