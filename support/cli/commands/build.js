@@ -55,15 +55,10 @@ exports.config = function (logger, config, cli) {
 };
 
 exports.validate = function (logger, config, cli) {
-	cli.argv['project-dir'] = ti.validateProjectDir(logger, cli.argv['project-dir']);
-	
-	if (!ti.validateCorrectSDK(logger, config, cli, cli.argv['project-dir'])) {
-		// we're running the build command for the wrong SDK version, gracefully return
+	ti.validatePlatform(logger, cli.argv, 'platform');
+	if (ti.validatePlatformOptions(logger, config, cli, 'build') === false) {
 		return false;
 	}
-	
-	cli.argv.platform = ti.validatePlatform(logger, cli.argv.platform);
-	ti.validatePlatformOptions(logger, config, cli, 'build');
 };
 
 exports.run = function (logger, config, cli) {
@@ -75,8 +70,12 @@ exports.run = function (logger, config, cli) {
 		logger.log(__("Your SDK installation may be corrupt. You can reinstall it by running '%s'.", (cli.argv.$ + ' sdk update --force --default').cyan) + '\n');
 		process.exit(1);
 	}
-	
-	require(buildModule).run(logger, config, cli, function () {
-		logger.info(__('Project built successfully in %s', appc.time.prettyDiff(cli.startTime, Date.now())) + '\n');
+
+	cli.fireHook('prebuild', function () {
+		require(buildModule).run(logger, config, cli, function () {
+			cli.fireHook('finalize', function () {
+				logger.info(__('Project built successfully in %s', appc.time.prettyDiff(cli.startTime, Date.now())) + '\n');
+			});
+		});
 	});
 };
