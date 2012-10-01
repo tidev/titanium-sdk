@@ -132,16 +132,25 @@ timodule.xml.
 		<pathelement path="${google.apis}/libs/maps.jar"/>
 	</path>
 
-	<target name="init">
+	<target name="python.set.exec">
+		<property name="python.bat" location="${titanium.platform}/../python.bat"/>
+		<condition property="python.exec" value="${python.bat}" else="python">
+			<os family="windows"/>
+		</condition>
+	</target>
+
+	<target name="python.check" depends="python.set.exec">
 		<echo>Testing for Python</echo>
-		<exec failonerror="true" executable="python">
+		<exec failonerror="true" executable="${python.exec}">
 			<arg line="--version"/>
 		</exec>
+	</target>
+
+	<target name="init" depends="python.check">
 		<mkdir dir="${classes}"/>
 		<mkdir dir="${gen}"/>
 		<mkdir dir="${dist}"/>
 	</target>
-
 
 	<target name="process.annotations" depends="init"
 		description="Processes @Kroll.proxy and @Kroll.module annotations">
@@ -493,11 +502,6 @@ timodule.xml.
 			</exec>
 		</sequential>
 	</macrodef>
-
-	<property name="python.bat" location="${titanium.platform}/../python.bat"/>
-	<condition property="python.exec" value="${python.bat}" else="python">
-		<os family="windows"/>
-	</condition>
 
 	<macrodef name="python">
 		<attribute name="file"/>
