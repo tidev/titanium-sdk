@@ -248,15 +248,17 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
     
     // track all location changes by default 
 	trackSignificantLocationChange = NO;
-    
+
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_6_0
     if ([TiUtils isIOS6OrGreater]) {
         // activity Type by default
         activityType = CLActivityTypeOther;
         
-        // pauseLocationupdateAutomatically by default YES
+        // pauseLocationupdateAutomatically by default NO
         pauseLocationUpdateAutomatically  = NO;
 
     }
+#endif
     
 	lock = [[NSRecursiveLock alloc] init];
 	
@@ -677,7 +679,7 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 }
 
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_6_0
-//Activity Type for CLlocationManager
+// Activity Type for CLlocationManager.
 -(NSNumber*)activityType
 {
 	return NUMINT(activityType);
@@ -685,7 +687,7 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 
 -(void)setActivityType:(NSNumber *)value
 {
-	if ([TiUtils isIOS6OrGreater]) {
+    if ([TiUtils isIOS6OrGreater]) {
         ENSURE_UI_THREAD(setActivityType,value);
         activityType = [TiUtils intValue:value];
         if (locationManager!=nil)
