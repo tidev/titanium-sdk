@@ -56,7 +56,9 @@ exports.config = function (logger, config, cli) {
 
 exports.validate = function (logger, config, cli) {
 	ti.validatePlatform(logger, cli.argv, 'platform');
-	ti.validatePlatformOptions(logger, config, cli, 'build');
+	if (ti.validatePlatformOptions(logger, config, cli, 'build') === false) {
+		return false;
+	}
 };
 
 exports.run = function (logger, config, cli) {
@@ -68,8 +70,12 @@ exports.run = function (logger, config, cli) {
 		logger.log(__("Your SDK installation may be corrupt. You can reinstall it by running '%s'.", (cli.argv.$ + ' sdk update --force --default').cyan) + '\n');
 		process.exit(1);
 	}
-	
-	require(buildModule).run(logger, config, cli, function () {
-		logger.info(__('Project built successfully in %s', appc.time.prettyDiff(cli.startTime, Date.now())) + '\n');
+
+	cli.fireHook('prebuild', function () {
+		require(buildModule).run(logger, config, cli, function () {
+			cli.fireHook('finalize', function () {
+				logger.info(__('Project built successfully in %s', appc.time.prettyDiff(cli.startTime, Date.now())) + '\n');
+			});
+		});
 	});
 };

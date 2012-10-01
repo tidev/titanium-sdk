@@ -30,7 +30,7 @@ exports.config = function (logger, config, cli) {
 };
 
 exports.validate = function (logger, config, cli) {
-	ti.validatePlatform(logger, cli.argv, 'platform');
+	cli.argv.platform && ti.validatePlatform(logger, cli.argv, 'platform');
 	ti.validateProjectDir(logger, cli.argv, 'project-dir');
 };
 

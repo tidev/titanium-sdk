@@ -88,7 +88,7 @@ exports.config = function (logger, config, cli) {
 						return true;
 					}
 				},
-				required: !config.app.workspace
+				required: !config.app.workspace || !afs.exists(config.app.workspace)
 			}
 		}, ti.commonOptions(logger, config))
 	};
