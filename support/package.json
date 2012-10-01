@@ -5,6 +5,7 @@
 	"dependencies": {
 		"adm-zip": "0.1.x",
 		"async": "0.1.x",
+		"clean-css": "0.6.0",
 		"colors": "0.6.x",
 		"css-parse": "1.0.X",
 		"less": "1.3.0",
