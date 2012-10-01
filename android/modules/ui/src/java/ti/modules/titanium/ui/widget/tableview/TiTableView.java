@@ -158,18 +158,18 @@ public class TiTableView extends FrameLayout
 			return rowTypes.get(item.className);
 		}
 
-		//
-		// IMPORTANT NOTE:
-		// getView() is called by the Android framework whenever it needs a view.
-		// The call to getView() could come on a measurement pass or on a layout 
-		// pass.  It's not possible to tell from the arguments whether the framework
-		// is calling getView() for a measurement pass or for a layout pass.  Therefore,
-		// it is important that getView() and all methods call by getView() only create
-		// the views and fill them in with the appropriate data.  What getView() and the
-		// methods call by getView MUST NOT do is to make any associations between 
-		// proxies and views.   Those associations must be made only for the views
-		// that are used for layout, and should be driven from the onLayout() callback.
-		//
+		/*
+		 * IMPORTANT NOTE:
+		 * getView() is called by the Android framework whenever it needs a view.
+		 * The call to getView() could come on a measurement pass or on a layout 
+		 * pass.  It's not possible to tell from the arguments whether the framework
+		 * is calling getView() for a measurement pass or for a layout pass.  Therefore,
+		 * it is important that getView() and all methods call by getView() only create
+		 * the views and fill them in with the appropriate data.  What getView() and the
+		 * methods call by getView MUST NOT do is to make any associations between 
+		 * proxies and views.   Those associations must be made only for the views
+		 *  that are used for layout, and should be driven from the onLayout() callback.
+		 */
 		public View getView(int position, View convertView, ViewGroup parent) {
 			Item item = (Item) getItem(position);
 			TiBaseTableViewItem v = null;

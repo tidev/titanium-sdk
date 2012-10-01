@@ -98,11 +98,11 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 		return label;
 	}
 
-	//
-	// Create views for measurement or for layout.  For each view, apply the
-	// properties from the appropriate proxy to the view.
-	//
-	protected void createViews()
+	/*
+	 * Create views for measurement or for layout.  For each view, apply the
+	 * properties from the appropriate proxy to the view.
+	 */
+	protected void createControls()
 	{
 		ArrayList<TiViewProxy> proxies = getRowProxy().getControls();
 		int len = proxies.size();
@@ -283,7 +283,7 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 
 		// hasControls() means that the proxy has children
 		if (rp.hasControls()) {
-			createViews();
+			createControls();
 		} else {
 			// no children means that this is an old-style row
 			refreshOldStyleRow();
