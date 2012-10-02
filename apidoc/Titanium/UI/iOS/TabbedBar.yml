@@ -65,6 +65,32 @@ examples:
             });
             win.add(bb1);
 
+  - title: Alloy XML Markup
+    example: |
+        Previous example as an Alloy view.
+
+            <Alloy>
+                <Window id="win">
+                    <TabbedBar id="bb1" platform="ios" backgroundColor="#369" top="50" height="25" width="200">
+
+                        <!-- The Labels tag sets the TabbedBar.labels property. -->
+                        <Labels>
+
+                            <!-- Specify text with node text or the title attribute. -->
+                            <!-- Can also specify the enabled, image and width attributes. -->
+
+                            <Label>One</Label>
+                            <Label>Two</Label>
+                            <Label>Three</Label>
+
+                        </Labels>
+
+                        <!-- Place additional views for the TabbedBar here. -->
+
+                    </TabbedBar>
+                </Window>
+            </Alloy>
+
 ---
 name: BarItemType
 summary: Object describing a button bar or tabbed bar item.

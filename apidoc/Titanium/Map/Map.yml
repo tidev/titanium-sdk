@@ -155,3 +155,26 @@ examples:
             });
             win.open();
 
+  - title: Alloy XML Markup
+    example: |
+        Previous example as an Alloy view.
+
+        Note to properly implement the example, the View and Annotation properties should be
+        defined in the TSS file and the doClick function should be implemented in the controller.
+
+            <Alloy>
+                <Window id="win">
+
+                    <!-- Note the ns attribute is used to change the default namespace. -->
+                    <View id="mapview" ns="Ti.Map" animate="true" regionFit="true" userLocation="true">
+
+                        <Annotation id="mountainView" latitude="37.390749" longitude="-122.081651"
+                            title="Appcelerator Headquarters" subtitle="Mountain View, CA"
+                            animate="true" leftButton="images/appcelerator_small.png" myid="1"
+                            onClick="doClick" />
+
+                        <!-- Place other child views here, such as an ImageView to add an overlay. -->
+
+                    </View>
+                </Window>
+            </Alloy>
