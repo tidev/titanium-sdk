@@ -10,24 +10,24 @@ import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.util.TiOrientationHelper;
-import org.appcelerator.titanium.view.TiCompositeLayout;
 import org.appcelerator.titanium.view.TiUIDecorView;
 import org.appcelerator.titanium.view.TiUIView;
 
 import android.app.Activity;
 import android.content.pm.ActivityInfo;
 import android.os.Build;
+import android.view.View;
 
 
 @Kroll.proxy
 public class DecorViewProxy extends TiViewProxy
 {
 	private static final String TAG = "DecorViewProxy";
-	protected TiCompositeLayout layout;
+	protected View layout;
 	protected int[] orientationModes = null;
 
 
-	public DecorViewProxy(TiCompositeLayout layout)
+	public DecorViewProxy(View layout)
 	{
 		super();
 		this.layout = layout;
@@ -42,7 +42,7 @@ public class DecorViewProxy extends TiViewProxy
 	}
 
 
-	public TiCompositeLayout getLayout()
+	public View getLayout()
 	{
 		return layout;
 	}

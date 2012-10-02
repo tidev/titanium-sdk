@@ -54,6 +54,10 @@ import android.view.View;
 	// layout / dimension (size/width/height have custom accessors)
 	"left", "top", "right", "bottom", "layout", "zIndex",
 
+	// accessibility
+	TiC.PROPERTY_ACCESSIBILITY_HINT, TiC.PROPERTY_ACCESSIBILITY_LABEL, TiC.PROPERTY_ACCESSIBILITY_VALUE,
+	TiC.PROPERTY_ACCESSIBILITY_HIDDEN,
+
 	// others
 	"focusable", "touchEnabled", "visible", "enabled", "opacity",
 	"softKeyboardOnFocus", "transform"
@@ -389,13 +393,31 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 	{
 		this.view = view;
 	}
+	
+	public TiUIView forceCreateView(boolean enableModelListener)
+	{
+		view = null;
+		return getOrCreateView(enableModelListener);
+	}
 
 	public TiUIView forceCreateView()
 	{
-		view = null;
-		return getOrCreateView();
+		return forceCreateView(true);
 	}
 
+	public TiUIView getOrCreateView(boolean enableModelListener)
+	{
+		if (activity == null || view != null) {
+			return view;
+		}
+
+		if (TiApplication.isUIThread()) {
+			return handleGetView(enableModelListener);
+		}
+
+		return (TiUIView) TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_GETVIEW), 0);
+	}
+	
 	/**
 	 * Creates or retrieves the view associated with this proxy.
 	 * @return a TiUIView instance.
@@ -403,18 +425,10 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 	 */
 	public TiUIView getOrCreateView()
 	{
-		if (activity == null || view != null) {
-			return view;
-		}
-
-		if (TiApplication.isUIThread()) {
-			return handleGetView();
-		}
-
-		return (TiUIView) TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_GETVIEW), 0);
+		return getOrCreateView(true);
 	}
 
-	protected TiUIView handleGetView()
+	protected TiUIView handleGetView(boolean enableModelListener)
 	{
 		if (view == null) {
 			Log.d(TAG, "getView: " + getClass().getSimpleName(), Log.DEBUG_MODE);
@@ -428,15 +442,23 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 					Log.w(TAG, "Activity is null", Log.DEBUG_MODE);
 				}
 			}
-			realizeViews(view);
+			realizeViews(view, enableModelListener);
 			view.registerForTouch();
 		}
 		return view;
 	}
-
-	public void realizeViews(TiUIView view)
+	
+	protected TiUIView handleGetView()
 	{
-		setModelListener(view);
+		return handleGetView(true);
+	}
+
+	public void realizeViews(TiUIView view, boolean enableModelListener)
+	{
+		if (enableModelListener)
+		{
+			setModelListener(view);
+		}
 
 		// Use a copy so bundle can be modified as it passes up the inheritance
 		// tree. Allows defaults to be added and keys removed.
@@ -456,6 +478,11 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 				handlePendingAnimation(true);
 			}
 		}
+	}
+	
+	public void realizeViews(TiUIView view)
+	{
+		realizeViews(view, true);
 	}
 
 	public void releaseViews()
@@ -620,12 +647,8 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 		synchronized (pendingAnimationLock) {
 			if (arg instanceof HashMap) {
 				HashMap options = (HashMap) arg;
-
 				pendingAnimation = new TiAnimationBuilder();
 				pendingAnimation.applyOptions(options);
-				if (callback != null) {
-					pendingAnimation.setCallback(callback);
-				}
 			} else if (arg instanceof TiAnimation) {
 				TiAnimation anim = (TiAnimation) arg;
 				pendingAnimation = new TiAnimationBuilder();
@@ -633,6 +656,11 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 			} else {
 				throw new IllegalArgumentException("Unhandled argument to animate: " + arg.getClass().getSimpleName());
 			}
+
+			if (callback != null) {
+				pendingAnimation.setCallback(callback);
+			}
+
 			handlePendingAnimation(false);
 		}
 	}
@@ -774,6 +802,11 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 
 	public void setParent(TiViewProxy parent)
 	{
+		if (parent == null) {
+			this.parent = null;
+			return;
+		}
+
 		this.parent = new WeakReference<TiViewProxy>(parent);
 	}
 

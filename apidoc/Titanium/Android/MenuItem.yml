@@ -18,12 +18,12 @@ methods:
 
   - name: collapseActionView
     summary: Collapse the action view associated with this menu item.
-    since: "2.2"
+    since: "3.0.0"
     osver: {android: {min: "14"}}
 
   - name: expandActionView
     summary: Expand the action view associated with this menu item.
-    since: "2.2"
+    since: "3.0.0"
     osver: {android: {min: "14"}}
 
   - name: isCheckable
@@ -82,12 +82,12 @@ events:
 
   - name: expand
     summary: Fired when the action view has been expanded.
-    since: "2.2"
+    since: "3.0.0"
     osver: {android: {min: "14"}}
 
   - name: collapse
     summary: Fired when the action view has been collapsed.
-    since: "2.2"
+    since: "3.0.0"
     osver: {android: {min: "14"}}
 
 properties:
@@ -95,13 +95,13 @@ properties:
   - name: actionView
     summary: A custom view that replaces the default menu item button.
     type: Titanium.UI.View
-    since: "2.2"
+    since: "3.0.0"
     osver: {android: {min: "11"}}
 
   - name: actionViewExpanded
     summary: True if this menu item's action view has been expanded.
     type: Boolean
-    since: "2.2"
+    since: "3.0.0"
     osver: {android: {min: "14"}}
 
   - name: checkable
@@ -199,7 +199,7 @@ properties:
         Starting in Android 14 (Ice Cream Sandwich) you may specify if your action view
         is collapsible. To enable this behavior set the [SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW](Titanium.Android.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW).
     type: Number
-    since: "2.2"
+    since: "3.0.0"
     osver: {android: {min: "11"}}
 
   - name: title

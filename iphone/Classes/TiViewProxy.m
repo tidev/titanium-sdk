@@ -162,9 +162,14 @@
 			[arg parentWillShow];
 		}
 		
-		// only call layout if the view is attached
-		// Maybe need to call layout children instead for non absolute layout
-		[self layoutChild:arg optimize:NO withMeasuredBounds:[[self size] rect]]; 
+		//If layout is non absolute push this into the layout queue
+		//else just layout the child with current bounds
+		if (!TiLayoutRuleIsAbsolute(layoutProperties.layoutStyle) ) {
+			[self contentsWillChange];
+		}
+		else {
+			[self layoutChild:arg optimize:NO withMeasuredBounds:[[self size] rect]];
+		}
 	}
 	else
 	{
@@ -2297,7 +2302,7 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
         else if (TiDimensionIsAutoFill(constraint))
         {
             //Fill up the remaining
-            bounds.size.height = boundingValue + offsetV;
+            bounds.size.height = boundingValue;
             verticalLayoutBoundary += bounds.size.height;
         }
         else if (TiDimensionIsAutoSize(constraint))
@@ -2326,7 +2331,7 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
                 verticalLayoutBoundary += bounds.size.height;
             }
             else if (!TiDimensionIsUndefined([child layoutProperties]->top) && !TiDimensionIsUndefined([child layoutProperties]->bottom) ) {
-                bounds.size.height = boundingValue + offsetV;
+                bounds.size.height = boundingValue;
                 verticalLayoutBoundary += bounds.size.height;
             }
             else if (!TiDimensionIsUndefined([child layoutProperties]->centerY) && !TiDimensionIsUndefined([child layoutProperties]->bottom) ) {

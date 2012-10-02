@@ -6,7 +6,7 @@
  */
 
 var appc = require('node-appc'),
-	lib = require('./lib/common'),
+	ti = require('titanium-sdk'),
 	fs = require('fs'),
 	path = require('path'),
 	wrench = require('wrench');
@@ -19,28 +19,26 @@ exports.config = function (logger, config, cli) {
 				// note: --platform is not required for the clean command
 				abbr: 'p',
 				desc: __('a platform to clean'),
-				values: lib.availablePlatforms
+				values: ti.availablePlatforms
 			},
-			dir: {
+			'project-dir': {
 				abbr: 'd',
 				desc: __('the directory containing the project, otherwise the current working directory')
 			}
-		}, lib.commonOptions(logger, config))
+		}, ti.commonOptions(logger, config))
 	};
 };
 
 exports.validate = function (logger, config, cli) {
-	if (cli.argv.platform) {
-		cli.argv.platform = lib.validatePlatform(logger, cli.argv.platform);
-	}
-	cli.argv.dir = lib.validateProjectDir(logger, cli.argv.dir);
+	cli.argv.platform && ti.validatePlatform(logger, cli.argv, 'platform');
+	ti.validateProjectDir(logger, cli.argv, 'project-dir');
 };
 
 exports.run = function (logger, config, cli) {
-	var buildDir = path.join(cli.argv.dir, 'build');
+	var buildDir = path.join(cli.argv['project-dir'], 'build');
 	
 	logger.debug(__('Touching tiapp.xml'));
-	appc.fs.touch(path.join(cli.argv.dir, 'tiapp.xml'));
+	appc.fs.touch(path.join(cli.argv['project-dir'], 'tiapp.xml'));
 	
 	if (cli.argv.platform) {
 		var dir = path.join(buildDir, cli.argv.platform);

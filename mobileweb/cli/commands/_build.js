@@ -5,7 +5,8 @@
  * See the LICENSE file for more information.
  */
 
-var appc = require('node-appc'),
+var ti = require('titanium-sdk'),
+	appc = require('node-appc'),
 	afs = appc.fs,
 	xml = appc.xml,
 	parallel = appc.async.parallel,
@@ -35,23 +36,40 @@ var appc = require('node-appc'),
 		'.jpeg': 'image/jpg'
 	};
 
-exports.run = function (logger, config, cli, opts) {
-	new build(logger, config, cli, opts);
+exports.config = function (logger, config, cli) {
+	return {
+		options: {
+			'deploy-type': {
+				abbr: 'B',
+				default: 'development',
+				desc: __('the type of deployment; production performs optimizations'),
+				hint: __('type'),
+				values: ['production', 'development']
+			}
+		}		
+	};
 };
 
-function build(logger, config, cli, opts) {
-	var sdkVersion = opts.sdkVersion,
-		lib = opts.lib;
-	
-	logger.info(__('Compiling "%s" build', cli.argv['build-type']));
+exports.validate = function (logger, config, cli) {
+	ti.validateProjectDir(logger, cli.argv, 'project-dir');
+	if (!ti.validateCorrectSDK(logger, config, cli, cli.argv['project-dir'])) {
+		// we're running the build command for the wrong SDK version, gracefully return
+		return false;
+	}
+};
+
+exports.run = function (logger, config, cli, finished) {
+	new build(logger, config, cli, finished);
+};
+
+function build(logger, config, cli, finished) {
+	logger.info(__('Compiling "%s" build', cli.argv['deploy-type']));
 	
 	this.logger = logger;
-	this.sdkVersion = sdkVersion;
-	this.lib = lib;
-	this.buildType = cli.argv['build-type'];
+	this.buildType = cli.argv['deploy-type'];
 	this.os = cli.env.os;
 	
-	this.projectDir = afs.resolvePath(cli.argv.dir);
+	this.projectDir = afs.resolvePath(cli.argv['project-dir']);
 	this.projectResDir = this.projectDir + '/Resources';
 	this.buildDir = this.projectDir + '/build/mobileweb';
 	this.mobilewebSdkPath = afs.resolvePath(path.dirname(module.filename) + '/../..');
@@ -143,7 +161,7 @@ function build(logger, config, cli, opts) {
 			this.minifyJavaScript();
 			this.createFilesystemRegistry();
 			this.createIndexHtml();
-			opts.finished && opts.finished();
+			finished && finished();
 		});
 	});
 };
@@ -168,7 +186,7 @@ build.prototype = {
 			this.logger.error(__('Unable to read tiapp.xml file in project directory') + '\n');
 			process.exit(1);
 		}
-		return new appc.tiappxml(tiappFile);
+		return new ti.tiappxml(tiappFile);
 	},
 	
 	validateTheme: function () {
@@ -190,11 +208,14 @@ build.prototype = {
 		wrench.mkdirSyncRecursive(this.buildDir);
 		afs.copyDirSyncRecursive(this.mobilewebThemeDir, this.buildDir + '/themes', { preserve: true, logger: this.logger.debug });
 		afs.copyDirSyncRecursive(this.mobilewebTitaniumDir, this.buildDir + '/titanium', { preserve: true, logger: this.logger.debug });
-		afs.copyDirSyncRecursive(this.projectResDir, this.buildDir, { preserve: true, logger: this.logger.debug }, this.lib.availablePlatforms.filter(function (p) { return p != 'mobileweb'; }));
-		afs.copyDirSyncRecursive(this.projectResDir + '/mobileweb', this.buildDir + '/mobileweb', { preserve: true, logger: this.logger.debug }, ['apple_startup_images', 'splash']);
-		afs.copyFileSync(this.projectResDir + '/mobileweb/apple_startup_images/Default.jpg', this.buildDir + '/mobileweb/apple_startup_images', { logger: this.logger.debug });
-		afs.copyFileSync(this.projectResDir + '/mobileweb/apple_startup_images/Default-Portrait.jpg', this.buildDir + '/mobileweb/apple_startup_images', { logger: this.logger.debug });
-		afs.copyFileSync(this.projectResDir + '/mobileweb/apple_startup_images/Default-Landscape.jpg', this.buildDir + '/mobileweb/apple_startup_images', { logger: this.logger.debug });
+		afs.copyDirSyncRecursive(this.projectResDir, this.buildDir, { preserve: true, logger: this.logger.debug }, ti.availablePlatforms.filter(function (p) { return p != 'mobileweb'; }));
+		if (afs.exists(this.projectResDir, 'mobileweb')) {
+			afs.copyDirSyncRecursive(this.projectResDir + '/mobileweb', this.buildDir + '/mobileweb', { preserve: true, logger: this.logger.debug, rootIgnores: ['apple_startup_images', 'splash'] });
+			['Default.jpg', 'Default-Portrait.jpg', 'Default-Landscape.jpg'].forEach(function (file) {
+				file = this.projectResDir + '/mobileweb/apple_startup_images/' + file;
+				afs.exists(file) && afs.copyFileSync(file, this.buildDir + '/mobileweb/apple_startup_images', { logger: this.logger.debug });
+			}, this);
+		}
 		callback();
 	},
 	
@@ -330,126 +351,85 @@ build.prototype = {
 	},
 	
 	findTiModules: function (callback) {
-		var modules = (this.tiapp.modules || []).filter(function (m) { return /^(|mobileweb|commonjs)$/.test(m.platform); });
-		if (!modules.length) {
+		if (!this.tiapp.modules || !this.tiapp.modules.length) {
+			this.logger.info(__('No Titanium Modules required, continuing'));
 			callback();
 			return;
 		}
 		
-		this.logger.info(__('Locating Titanium Mobile Modules'));
-		
-		var sdkVersion = this.sdkVersion.split('.').slice(0, 3).join('.'),
-			sdkPaths = this.os.sdkPaths,
-			searchPaths = [
-				this.projectDir + '/modules/__ID__/__VERSION__/mobileweb',
-				this.projectDir + '/modules/__ID__/__VERSION__/commonjs',
-				this.projectDir + '/modules/mobileweb/__ID__/__VERSION__',
-				this.projectDir + '/modules/commonjs/__ID__/__VERSION__'
-			];
-		
-		sdkPaths.forEach(function (p) {
-			searchPaths.push(afs.resolvePath(p, 'modules/__ID__/__VERSION__/mobileweb'));
-			searchPaths.push(afs.resolvePath(p, 'modules/__ID__/__VERSION__/commonjs'));
-			searchPaths.push(afs.resolvePath(p, 'modules/mobileweb/__ID__/__VERSION__'));
-			searchPaths.push(afs.resolvePath(p, 'modules/commonjs/__ID__/__VERSION__'));
-		});
-		
-		modules.forEach(function (m) {
-			var paths = searchPaths.map(function (p) {
-					return (m.version ? p.replace('__VERSION__', m.version) : p.replace('/__VERSION__', '')).replace(/__ID__/, m.id);
-				}),
-				i = 0,
-				l = paths.length,
-				moduleDir,
-				mainFile;
-			
-			for (; i < l; i++) {
-				if (afs.exists(paths[i])) {
-					moduleDir = paths[i];
-					this.logger.debug(__('Found module %s in %s', m.id.cyan, paths[i].cyan));
-					break;
-				}
+		this.logger.info(__n('Searching for %s Titanium Module', 'Searching for %s Titanium Modules', this.tiapp.modules.length));
+		appc.timodule.find(this.tiapp.modules, 'mobileweb', this.deployType, this.projectDir, this.logger, function (modules) {
+			if (modules.missing.length) {
+				this.logger.error(__('Could not find all required Titanium Modules:'))
+				modules.missing.forEach(function (m) {
+					this.logger.error('   id: ' + m.id + '\t version: ' + (m.version || 'latest') + '\t platform: ' + m.platform);
+				}, this);
+				this.logger.log();
+				process.exit(1);
 			}
 			
-			if (!moduleDir) {
-				if (m.version) {
-					this.logger.error(__('Unable to find Titanium Mobile Module "%s" version %s', m.id, m.version) + '\n');
+			if (modules.incompatible.length) {
+				this.logger.error(__('Found incompatible Titanium Modules:'));
+				modules.incompatible.forEach(function (m) {
+					this.logger.error('   id: ' + m.id + '\t version: ' + (m.version || 'latest') + '\t platform: ' + m.platform + '\t min sdk: ' + m.minsdk);
+				}, this);
+				this.logger.log();
+				process.exit(1);
+			}
+			
+			modules.found.forEach(function (module) {
+				var moduleDir = module.modulePath,
+					pkgJson,
+					pkgJsonFile = path.join(moduleDir, 'package.json');
+				if (!afs.exists(pkgJsonFile)) {
+					this.logger.error(__('Invalid Titanium Mobile Module "%s": missing package.json', module.id) + '\n');
+					process.exit(1);
+				}
+				
+				try {
+					pkgJson = JSON.parse(fs.readFileSync(pkgJsonFile));
+				} catch (e) {
+					this.logger.error(__('Invalid Titanium Mobile Module "%s": unable to parse package.json', module.id) + '\n');
+					process.exit(1);
+				}
+				
+				var libDir = ((pkgJson.directories && pkgJson.directories.lib) || '').replace(/^\//, '');
+				
+				var mainFilePath = path.join(moduleDir, libDir, (pkgJson.main || '').replace(jsExtRegExp, '') + '.js')
+				if (!afs.exists(mainFilePath)) {
+					this.logger.error(__('Invalid Titanium Mobile Module "%s": unable to find main file "%s"', module.id, pkgJson.main) + '\n');
+					process.exit(1);
+				}
+				
+				this.logger.info(__('Bundling Titanium Mobile Module %s', module.id.cyan));
+				
+				this.projectDependencies.push(pkgJson.main);
+				
+				var moduleName = module.id != pkgJson.main ? module.id + '/' + pkgJson.main : module.id;
+				
+				if (/\/commonjs/.test(moduleDir)) {
+					this.modulesToCache.push((/\/commonjs/.test(moduleDir) ? 'commonjs:' : '') + moduleName);
 				} else {
-					this.logger.error(__('Unable to find Titanium Mobile Module "%s"', m.id) + '\n');
+					this.modulesToCache.push(moduleName);
+					this.tiModulesToLoad.push(module.id);
 				}
-				process.exit(1);
-			}
-			
-			var manifestFile = moduleDir + '/manifest';
-			if (!afs.exists(manifestFile)) {
-				this.logger.error(__('Invalid Titanium Mobile Module "%s": missing manifest', m.id) + '\n');
-				process.exit(1);
-			}
-			
-			var manifest = {};
-			fs.readFileSync(manifestFile).toString().split('\n').forEach(function (line) {
-				line = line.trim();
-				if (!/^#/.test(line) && line.indexOf(':') != -1) {
-					line = line.split(':');
-					manifest[line[0].trim()] = line[1].trim();
-				}
-			});
-			
-			if (manifest.minsdk && semver.gt(manifest.minsdk, sdkVersion)) {
-				this.logger.error(__('Titanium Mobile Module "%s" requires a minimum SDK version of %s: current version %s',m.id, manifest.minsdk, sdkVersion));
-				process.exit(1)
-			}
-			
-			var pkgJsonFile = moduleDir + '/package.json';
-			if (!afs.exists(pkgJsonFile)) {
-				this.logger.error(__('Invalid Titanium Mobile Module "%s": missing package.json', m.id) + '\n');
-				process.exit(1);
-			}
-			
-			var pkgJson;
-			try {
-				pkgJson = JSON.parse(fs.readFileSync(pkgJsonFile));
-			} catch (e) {
-				this.logger.error(__('Invalid Titanium Mobile Module "%s": unable to parse package.json', m.id) + '\n');
-				process.exit(1);
-			}
-			
-			var libDir = ((pkgJson.directories && pkgJson.directories.lib) || '').replace(/^\//, '');
-			
-			var mainFilePath = path.join(moduleDir, libDir, (pkgJson.main || '').replace(jsExtRegExp, '') + '.js')
-			if (!afs.exists(mainFilePath)) {
-				this.logger.error(__('Invalid Titanium Mobile Module "%s": unable to find main file "%s"', m.id, pkgJson.main) + '\n');
-				process.exit(1);
-			}
-			
-			this.logger.info(__('Bundling Titanium Mobile Module "%s"', m.id));
-			
-			this.projectDependencies.push(pkgJson.main);
-			
-			var moduleName = m.id != pkgJson.main ? m.id + '/' + pkgJson.main : m.id;
-			
-			if (/\/commonjs/.test(moduleDir)) {
-				this.modulesToCache.push((/\/commonjs/.test(moduleDir) ? 'commonjs:' : '') + moduleName);
-			} else {
-				this.modulesToCache.push(moduleName);
-				this.tiModulesToLoad.push(m.id);
-			}
-			
-			this.packages.push({
-				'name': m.id,
-				'location': './' + this.collapsePath('modules/' + m.id + (libDir ? '/' + libDir : '')),
-				'main': pkgJson.main,
-				'root': 1
-			});
-			
-			// TODO: need to combine ALL Ti module .js files into the titanium.js, not just the main file
-			
-			// TODO: need to combine ALL Ti module .css files into the titanium.css
-			
-			var dest = this.buildDir + '/modules/' + m.id;
-			wrench.mkdirSyncRecursive(dest);
-			afs.copyDirSyncRecursive(moduleDir, dest, { preserve: true });
-		}, this);
+				
+				this.packages.push({
+					'name': module.id,
+					'location': './' + this.collapsePath('modules/' + module.id + (libDir ? '/' + libDir : '')),
+					'main': pkgJson.main,
+					'root': 1
+				});
+				
+				// TODO: need to combine ALL Ti module .js files into the titanium.js, not just the main file
+				
+				// TODO: need to combine ALL Ti module .css files into the titanium.css
+				
+				var dest = path.join(this.buildDir, 'modules', module.id);
+				wrench.mkdirSyncRecursive(dest);
+				afs.copyDirSyncRecursive(moduleDir, dest, { preserve: true });
+			}, this);
+		}.bind(this));
 		callback();
 	},
 	
@@ -466,50 +446,22 @@ build.prototype = {
 	},
 	
 	findI18N: function (callback) {
-		var self = this,
-			precacheLocales = (this.tiapp.precache || {}).locales || {},
-			i18nDir = this.projectDir + '/i18n';
+		var data = ti.i18n.load(this.projectDir, this.logger),
+			precacheLocales = (this.tiapp.precache || {}).locales || {};
 		
-		if (afs.exists(i18nDir)) {
-			this.logger.info(__('Processing i18n strings'));
-			fs.readdirSync(i18nDir).forEach(function (lang) {
-				var stat = fs.lstatSync(i18nDir + "/" + lang);
-				if (stat.isDirectory()) {
-					self.loadI18N(i18nDir + '/' + lang + '/app.xml', function (data) {
-						data.appname && (self.appNames[lang] = data.appname);
-					});
-					self.loadI18N(i18nDir + '/' + lang + '/strings.xml', function (data) {
-						self.locales.push(lang);
-						var dir = self.buildDir + '/titanium/Ti/Locale/' + lang;
-						wrench.mkdirSyncRecursive(dir);
-						fs.writeFileSync(dir + '/i18n.js', 'define(' + JSON.stringify(data, null, '\t') + ')');
-						precacheLocales[lang] && self.modulesToCache.push('Ti/Locale/' + lang + '/i18n');
-					});
-				}
-			});
-		}
+		Object.keys(data).forEach(function (lang) {
+			data[lang].app && data[lang].appname && (self.appNames[lang] = data[lang].appname);
+			if (data[lang].strings) {
+				dump(data[lang].strings);
+				var dir = path.join(this.buildDir, 'titanium', 'Ti', 'Locale', lang);
+				wrench.mkdirSyncRecursive(dir);
+				fs.writeFileSync(path.join(dir, 'i18n.js'), 'define(' + JSON.stringify(data[lang].strings, null, '\t') + ')');
+				this.locales.push(lang);
+				precacheLocales[lang] && this.modulesToCache.push('Ti/Locale/' + lang + '/i18n');
+			};
+		}, this);
 		
 		callback();
-	},
-	
-	loadI18N: function (xmlFile, callback) {
-		var data = {};
-		
-		if (afs.exists(xmlFile)) {
-			this.logger.debug(__('Loading i18n XML file: %s', xmlFile.cyan));
-			var dom = new DOMParser().parseFromString(fs.readFileSync(xmlFile).toString(), 'text/xml');
-			xml.forEachElement(dom.documentElement, function (elem) {
-				if (elem.nodeType == 1 && elem.tagName == 'string') {
-					var name = xml.getAttr(elem, 'name');
-					if (name) {
-						data[name] = xml.getValue(elem);
-					}
-				}
-			});
-		}
-		
-		callback && callback(data);
-		return data;
 	},
 	
 	assembleTitaniumJS: function (callback) {
@@ -538,9 +490,9 @@ build.prototype = {
 					project_name: tiapp.name,
 					ti_fs_registry: tiapp.mobileweb.filesystem.registry,
 					ti_theme: this.theme,
-					ti_githash: this.lib.manifest.githash,
-					ti_timestamp: this.lib.manifest.timestamp,
-					ti_version: this.sdkVersion,
+					ti_githash: ti.manifest.githash,
+					ti_timestamp: ti.manifest.timestamp,
+					ti_version: ti.manifest.version,
 					has_analytics_use_xhr: tiapp.mobileweb.analytics ? tiapp.mobileweb.analytics['use-xhr'] === true : false,
 					has_show_errors: this.buildType != 'production' && tiapp.mobileweb['disable-error-screen'] !== true,
 					has_instrumentation: !!tiapp.mobileweb.instrumentation
@@ -827,7 +779,7 @@ build.prototype = {
 			project_name: this.tiapp.name || '',
 			app_description: this.tiapp.description || '',
 			app_publisher: this.tiapp.publisher || '',
-			ti_generator: 'Appcelerator Titanium Mobile ' + this.sdkVersion,
+			ti_generator: 'Appcelerator Titanium Mobile ' + ti.manifest.version,
 			ti_statusbar_style: statusBarStyle,
 			ti_css: fs.readFileSync(this.buildDir + '/titanium.css').toString(),
 			splash_screen: this.splashHtml,

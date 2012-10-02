@@ -9,12 +9,13 @@ package org.appcelerator.titanium.view;
 import org.appcelerator.titanium.proxy.TiActivityWindowProxy;
 
 import ti.modules.titanium.android.TiJSActivity;
+import android.view.View;
 
 public class TiUIActivityWindow extends TiUIView 
 {
 	protected TiJSActivity activity;
 
-	public TiUIActivityWindow(TiActivityWindowProxy proxy, TiJSActivity activity, TiCompositeLayout layout) 
+	public TiUIActivityWindow(TiActivityWindowProxy proxy, TiJSActivity activity, View layout) 
 	{
 		super(proxy);
 		this.activity = activity;
