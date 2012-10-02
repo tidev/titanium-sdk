@@ -21,7 +21,7 @@
 - (NSUInteger)supportedInterfaceOrientations;
 // Returns interface orientation masks.
 - (UIInterfaceOrientation)preferredInterfaceOrientationForPresentation;
-
+- (BOOL)isBeingDismissed;
 @end
 
 @interface TiRootViewController : UIViewController<UIApplicationDelegate,TiRootController,TiOrientationController,TiUIViewControllerIOS6Support> {
