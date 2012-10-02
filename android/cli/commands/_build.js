@@ -15,6 +15,7 @@ var ti = require('titanium-sdk'),
 	minAndroidSdkVersion = '2.2',
 	minJavaSdkVersion = '1.6.0',
 	version = appc.version,
+	wrench = require('wrench'),
 	androidEnv,
 	tiapp,
 	deployTypes = ['production', 'test', 'development'],
@@ -271,10 +272,15 @@ exports.validate = function (logger, config, cli) {
 			logger.error(__('Invalid required option "--password"') + '\n');
 			process.exit(1);
 		}
-		if (!afs.exists(cli.argv['output-dir']) || !fs.statSync(cli.argv['output-dir']).isDirectory()) {
-			logger.error(__('Invalid required option "--output-dir"') + '\n');
+		if (!afs.exists(cli.argv['output-dir'])) {
+			wrench.mkdirSyncRecursive(cli.argv['output-dir']);
+		} else if (!fs.statSync(cli.argv['output-dir']).isDirectory()) {
+			logger.error(__('Invalid required option "--output-dir", option is not a directory.') + '\n');
 			process.exit(1);
 		}
+		// Resolve paths
+		cli.argv['output-dir'] = afs.resolvePath(cli.argv['output-dir']);
+		cli.argv['keystore'] = afs.resolvePath(cli.argv['keystore']);
 	}
 	
 	if (cli.argv['debug-host'] && cli.argv.target != 'dist-playstore') {
@@ -292,6 +298,10 @@ exports.validate = function (logger, config, cli) {
 		}
 		cli.argv['debug-host'] = parts.map(function (p) { return p.trim(); }).join(':');
 	}
+
+	// Resolve path for android-sdk
+	cli.argv['android-sdk'] = afs.resolvePath(cli.argv['android-sdk']);
+
 };
 
 exports.run = function (logger, config, cli, finished) {
@@ -300,25 +310,35 @@ exports.run = function (logger, config, cli, finished) {
 
 function build(logger, config, cli, finished) {
 	var emulatorCmd = [],
-		cmd = [];
+		cmd = [],
+		cmdSpawn,
+		err;
 
 	logger.info(__('Compiling "%s" build', cli.argv['deploy-type']));
-	
 
-	ti.legacy.constructLegacyCommand(logger, cli, tiapp,cli.argv.platform ,cmd, emulatorCmd);
-	
-	console.log('Forking correct SDK command: ' + (cmd.join(' ')).cyan + '\n');
-	
+	ti.legacy.constructLegacyCommand(logger, cli, tiapp, cli.argv.platform , cmd, emulatorCmd);
+
+	// console.log('Forking correct SDK command: ' + ('python ' + cmd.join(' ')).cyan + '\n');
+
 	if (emulatorCmd.length > 0) {
-		spawn('python', emulatorCmd,{});
+		spawn('python', emulatorCmd,{}).on('exit', function(code) {
+			if (code === 1) {
+				finished && finished("An error occurred while running the command: " + ('python ' + cmd.join(' ')).cyan + '\n');
+			}
+		});
 	}
 
-	spawn('python', cmd, {
+	cmdSpawn = spawn('python', cmd, {
 		stdio: 'inherit'
-	}).on('exit', function() {
-		finished && finished();
 	});
-	
+
+	cmdSpawn.on('exit', function(code) {
+		if (code === 1) {
+			err = "An error occurred while running the command: " + ('python ' + cmd.join(' ')).cyan + '\n';
+		}
+		finished && finished(err);
+	});
+
 }
 
 build.prototype = {
