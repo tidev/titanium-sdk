@@ -404,8 +404,10 @@ properties:
         See
         the discussion of the [orientationModes](Titanium.UI.Window.orientationModes)
         property for more information on how the screen orientation is determined.
-    platforms: [android]
+    platforms: [android, iphone, ipad]
+    since: {iphone: "3.0.0", ipad: "3.0.0"}
     type: Number
+    permission: read-only
 
   - name: rightNavButton
     summary: View to show in the right nav bar area.
