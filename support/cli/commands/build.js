@@ -72,9 +72,14 @@ exports.run = function (logger, config, cli) {
 	}
 
 	cli.fireHook('prebuild', function () {
-		require(buildModule).run(logger, config, cli, function () {
+		require(buildModule).run(logger, config, cli, function (err) {
 			cli.fireHook('finalize', function () {
-				logger.info(__('Project built successfully in %s', appc.time.prettyDiff(cli.startTime, Date.now())) + '\n');
+				var delta = appc.time.prettyDiff(cli.startTime, Date.now());
+				if (err) {
+					logger.error(__('Project failed to build after %s', delta) + '\n');
+				} else {
+					logger.info(__('Project built successfully in %s', delta) + '\n');
+				}
 			});
 		});
 	});
