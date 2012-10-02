@@ -143,6 +143,10 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String EVENT_KEY_PRESSED = "keypressed";
+	/**
+	 * @module.api
+	 */
 	public static final String EVENT_HEADING = "heading";
 
 	/**
@@ -249,6 +253,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String EVENT_PROPERTY_IS_USER_GESTURE = "isUserGesture";
+
+	/**
+	 * @module.api
+	 */
+	public static final String EVENT_PROPERTY_KEYCODE = "keyCode";
 
 	/**
 	 * @module.api
