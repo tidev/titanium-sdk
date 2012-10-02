@@ -324,7 +324,7 @@
 }
 
 - (BOOL)shouldAutorotate{
-    return [[TiApp app] windowIsKeyWindow];
+    return YES;
 }
 
 -(id)topmostViewController
@@ -1029,19 +1029,16 @@
 
 -(TiOrientationFlags) orientationFlags
 {
-    if ([[TiApp app] windowIsKeyWindow]) {
-        for (TiWindowProxy * thisWindow in [windowProxies reverseObjectEnumerator])
-        {
-            if ([thisWindow closing] == NO) {
-                TiOrientationFlags result = [thisWindow orientationFlags];
-                if (result != TiOrientationNone)
-                {
-                    return result;
-                }
+    for (TiWindowProxy * thisWindow in [windowProxies reverseObjectEnumerator])
+    {
+        if ([thisWindow closing] == NO) {
+            TiOrientationFlags result = [thisWindow orientationFlags];
+            if (result != TiOrientationNone)
+            {
+                return result;
             }
         }
-        
-	}
+    }
 	
 	return [self getDefaultOrientations];
 }

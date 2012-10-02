@@ -598,7 +598,12 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 
 - (NSUInteger)application:(UIApplication *)application supportedInterfaceOrientationsForWindow:(UIWindow *)window
 {
-    return [controller supportedInterfaceOrientations];
+    if ([self windowIsKeyWindow]) {
+        return [controller supportedInterfaceOrientations];
+    }
+    
+    //UIInterfaceOrientationMaskAll = 30;
+    return 30;
 }
 
 - (void)dealloc 
