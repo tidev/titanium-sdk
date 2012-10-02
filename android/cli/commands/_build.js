@@ -264,23 +264,32 @@ exports.validate = function (logger, config, cli) {
 			logger.error(__('Invalid required option "--alias"') + '\n');
 			process.exit(1);
 		}
-		if (!afs.exists(cli.argv['keystore']) || !fs.statSync(cli.argv['keystore']).isFile()) {
+		if (!cli.argv['keystore']) {
 			logger.error(__('Invalid required option "--keystore"') + '\n');
 			process.exit(1);
+		} else {
+			cli.argv['keystore'] = afs.resolvePath(cli.argv['keystore']);
+			if (!afs.exists(cli.argv['keystore']) || !fs.statSync(cli.argv['keystore']).isFile()) {
+				logger.error(__('Invalid required option "--keystore"') + '\n');
+				process.exit(1);
+			}
 		}
 		if(!cli.argv['password']) {
 			logger.error(__('Invalid required option "--password"') + '\n');
 			process.exit(1);
 		}
-		if (!afs.exists(cli.argv['output-dir'])) {
-			wrench.mkdirSyncRecursive(cli.argv['output-dir']);
-		} else if (!fs.statSync(cli.argv['output-dir']).isDirectory()) {
-			logger.error(__('Invalid required option "--output-dir", option is not a directory.') + '\n');
+		if (!cli.argv['output-dir']) {
+			logger.error(__('Invalid required option "--output-dir"') + '\n');
 			process.exit(1);
+		} else {
+			cli.argv['output-dir'] = afs.resolvePath(cli.argv['output-dir']);
+			if (!afs.exists(cli.argv['output-dir'])) {
+				wrench.mkdirSyncRecursive(cli.argv['output-dir']);
+			} else if (!fs.statSync(cli.argv['output-dir']).isDirectory()) {
+				logger.error(__('Invalid required option "--output-dir", option is not a directory.') + '\n');
+				process.exit(1);
+			}
 		}
-		// Resolve paths
-		cli.argv['output-dir'] = afs.resolvePath(cli.argv['output-dir']);
-		cli.argv['keystore'] = afs.resolvePath(cli.argv['keystore']);
 	}
 	
 	if (cli.argv['debug-host'] && cli.argv.target != 'dist-playstore') {
@@ -333,7 +342,7 @@ function build(logger, config, cli, finished) {
 	});
 
 	cmdSpawn.on('exit', function(code) {
-		if (code === 1) {
+		if (code) {
 			err = "An error occurred while running the command: " + ('python ' + cmd.join(' ')).cyan + '\n';
 		}
 		finished && finished(err);
