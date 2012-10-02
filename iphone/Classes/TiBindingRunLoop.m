@@ -7,8 +7,34 @@
 
 #import "TiBindingRunLoop.h"
 
+@interface TiBindingCallbackInvoke : NSObject
+-(id)initWithCallback:(TiBindingCallback)ourCallback payload:(void*)ourPayload;
+-(void)invoke:(TiBindingRunLoop)runLoop;
+@end
+
+@implementation TiBindingCallbackInvoke
+{
+	TiBindingCallback callback;
+	void * payload;
+}
+-(id)initWithCallback:(TiBindingCallback)ourCallback payload:(void*)ourPayload
+{
+	if((self=[super init])){
+		callback = ourCallback;
+		payload = ourPayload;
+	}
+}
+
+-(void)invoke:(TiBindingRunLoop)runLoop
+{
+	callback(runLoop,payload);
+}
+
+@end
+
 void TiBindingRunLoopEnqueue(TiBindingRunLoop runLoop, TiBindingCallback callback, void * payload)
 {
-	NSOperation * runCallback = [NSBlockOperation blockOperationWithBlock:^(){callback(runLoop,payload);}];
+	TiBindingCallbackInvoke * runCallback = [[TiBindingCallbackInvoke alloc] initWithCallback:callback payload:payload];
 	[runLoop enqueue:runCallback];
+	[runCallback release];
 }
