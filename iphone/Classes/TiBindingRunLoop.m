@@ -23,6 +23,7 @@
 		callback = ourCallback;
 		payload = ourPayload;
 	}
+	return self;
 }
 
 -(void)invoke:(TiBindingRunLoop)runLoop
