@@ -518,7 +518,6 @@ properties:
   - name: currentPlaybackTime
     summary: Current playback time of the current movie in milliseconds.
     type: Number
-    permission: read-only
 
   - name: duration
     summary: The duration of the current movie in milliseconds, or 0.0 if not known.
