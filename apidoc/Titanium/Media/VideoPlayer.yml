@@ -328,6 +328,8 @@ events:
             (all lowercase).
     summary: |
         Fired when the natural size of the current movie is determined.
+    description: |
+        On iOS 6.0, this event is not fired by the operating system.
     platforms: [iphone, ipad]
     properties:
       - name: naturalSize
@@ -360,6 +362,8 @@ events:
 
   - name: naturalsizeavailable
     summary: Fired when the natural size of the current movie is determined.
+    description: |
+        On iOS 6.0, this event is not fired by the operating system.
     platforms: [iphone, ipad]
     properties:
       - name: naturalSize
