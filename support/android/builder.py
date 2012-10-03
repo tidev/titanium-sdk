@@ -1948,7 +1948,7 @@ class Builder(object):
 			# We need to know this info in a few places, so the info is saved
 			# in self.missing_modules and self.modules
 			detector = ModuleDetector(self.top_dir)
-			self.missing_modules, self.modules = detector.find_app_modules(self.tiapp, 'android')
+			self.missing_modules, self.modules = detector.find_app_modules(self.tiapp, 'android', deploy_type)
 
 			self.copy_commonjs_modules()
 			self.copy_project_resources()

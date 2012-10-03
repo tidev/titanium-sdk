@@ -202,7 +202,7 @@ class Android(object):
 		
 		# discover app modules
 		detector = ModuleDetector(self.project_dir)
-		missing, detected_modules = detector.find_app_modules(self.tiapp, 'android')
+		missing, detected_modules = detector.find_app_modules(self.tiapp, 'android', self.deploy_type)
 		for missing_module in missing: print '[WARN] Couldn\'t find app module: %s' % missing_module['id']
 		
 		self.custom_modules = []
