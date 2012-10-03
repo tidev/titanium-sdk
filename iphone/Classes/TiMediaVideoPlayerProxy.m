@@ -587,7 +587,17 @@ NSArray* moviePlayerKeys = nil;
 		return NUMDOUBLE(1000.0f * [movie currentPlaybackTime]);
 	}
 	else {
-		return NUMINT(0);
+		RETURN_FROM_LOAD_PROPERTIES(@"currentPlaybackTime", NUMINT(0));
+	}
+}
+
+-(void)setCurrentPlaybackTime:(id)time
+{
+	if (movie != nil) {
+		movie.currentPlaybackTime = [TiUtils doubleValue:time] / 1000.0f;
+	} 
+	else {
+		[loadProperties setValue:time forKey:@"currentPlaybackTime"];
 	}
 }
 
