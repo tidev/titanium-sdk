@@ -10,7 +10,7 @@ define(["Ti/_/declare", "Ti/_/lang"], function(declare,lang) {
 		
 		getSourceNode: function(evt, node) {
 			var currentNode = evt.target,
-				sourceWidgetId = currentNode.getAttribute("data-widget-id"),
+				sourceWidgetId = currentNode && currentNode.getAttribute && currentNode.getAttribute("data-widget-id"),
 				nodeStack = [node],
 				i,
 				len,
@@ -19,7 +19,7 @@ define(["Ti/_/declare", "Ti/_/lang"], function(declare,lang) {
 			// Find the first fully fledged Ti component
 			while(!sourceWidgetId) {
 				currentNode = currentNode.parentNode;
-				if (!currentNode.getAttribute) {
+				if (!currentNode || !currentNode.getAttribute) {
 					return;
 				}
 				sourceWidgetId = currentNode.getAttribute("data-widget-id");
