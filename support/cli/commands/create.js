@@ -12,9 +12,10 @@ var ti = require('titanium-sdk'),
 	appc = require('node-appc'),
 	afs = appc.fs;
 
+exports.desc = __('creates a new mobile application or module');
+
 exports.config = function (logger, config, cli) {
 	return {
-		desc: __('creates a new mobile application or module'),
 		flags: {
 			force: {
 				abbr: 'f',

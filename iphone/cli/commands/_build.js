@@ -94,17 +94,17 @@ exports.config = function (logger, config, cli) {
 				flags: {
 					'build-only': {
 						abbr: 'b',
-						default: false,
 						desc: __('only perform the build; if true, does not install or run the app')
 					},
 					force: {
 						abbr: 'f',
-						default: false,
 						desc: __('force a full rebuild')
+					},
+					retina: {
+						desc: __('use the retina version of the iOS Simulator')
 					},
 					xcode: {
 						// secret flag to perform Xcode pre-compile build step
-						default: false,
 						hidden: true
 					}
 				},
@@ -629,7 +629,7 @@ function build(logger, config, cli, finished) {
 				'-configuration', this.xcodeTarget,
 				'-sdk', this.xcodeTargetOS,
 				'IPHONEOS_DEPLOYMENT_TARGET=' + this.minIosVer,
-				'TARGETED_DEVICE_FAMILY="' + deviceFamilies[this.deviceFamily] + '"',
+				'TARGETED_DEVICE_FAMILY=' + deviceFamilies[this.deviceFamily],
 				'VALID_ARCHS=' + this.architectures
 			];
 			
@@ -673,31 +673,38 @@ function build(logger, config, cli, finished) {
 				xcodeArgs.push('TI_PRODUCTION=1');
 			}
 			
-			cli.fireHook('postbuild', function () {
-				var p = spawn(this.xcodeEnv.xcodebuild, xcodeArgs, {
-						cwd: this.buildDir,
-						env: {
-							DEVELOPER_DIR: this.xcodeEnv.path,
-							HOME: process.env.HOME,
-							PATH: process.env.PATH
-						}
-					});
-				
-				p.stderr.on('data', function (data) {
-					data.toString().split('\n').forEach(function (line) {
-						line.length && this.logger.error(line);
-					}, this);
-					process.exit(1);
-				}.bind(this));
-				
-				p.stdout.on('data', function (data) {
-					data.toString().split('\n').forEach(function (line) {
-						line.length && this.logger.trace(line);
-					}, this);
-				}.bind(this));
-				
-				p.on('exit', function (code, signal) {
-					finished && finished(code);
+			var p = spawn(this.xcodeEnv.xcodebuild, xcodeArgs, {
+					cwd: this.buildDir,
+					env: {
+						DEVELOPER_DIR: this.xcodeEnv.path,
+						HOME: process.env.HOME,
+						PATH: process.env.PATH
+					}
+				});
+			
+			p.stderr.on('data', function (data) {
+				data.toString().split('\n').forEach(function (line) {
+					line.length && this.logger.error(line);
+				}, this);
+				process.exit(1);
+			}.bind(this));
+			
+			p.stdout.on('data', function (data) {
+				data.toString().split('\n').forEach(function (line) {
+					line.length && this.logger.trace(line);
+				}, this);
+			}.bind(this));
+			
+			p.on('exit', function (code, signal) {
+				this.logger.info(__('Finished building the application'));
+				cli.fireHook('postbuild', this, function (err) {
+					if (err && err.type == 'AppcException') {
+						this.logger.error(err.message);
+						err.details.forEach(function (line) {
+							line && this.logger.error(line);
+						}, this);
+					}
+					finished && finished(code || err);
 				}.bind(this));
 			}.bind(this));
 		});
@@ -776,10 +783,18 @@ build.prototype = {
 			
 			if (iphone) {
 				if (iphone.orientations) {
+					var orientationsMap = {
+						'PORTRAIT': 'UIInterfaceOrientationPortrait',
+						'UPSIDE_PORTRAIT': 'UIInterfaceOrientationPortraitUpsideDown',
+						'LANDSCAPE_LEFT': 'UIInterfaceOrientationLandscapeLeft',
+						'LANDSCAPE_RIGHT': 'UIInterfaceOrientationLandscapeRight'
+					};
+					
 					Object.keys(iphone.orientations).forEach(function (key) {
 						var arr = plist['UISupportedInterfaceOrientations' + (key == 'ipad' ? '~ipad' : '')] = [];
 						iphone.orientations[key].forEach(function (name) {
-							arr.push(name);
+							// name should be in the format Ti.UI.PORTRAIT, so pop the last part and see if it's in the map
+							arr.push(orientationsMap[name.split('.').pop().toUpperCase()] || name);
 						});
 					});
 				}
