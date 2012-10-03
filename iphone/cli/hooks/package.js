@@ -116,8 +116,19 @@ exports.init = function (logger, config, cli) {
 							return finished();
 						}
 						
-						var ipa = path.join(path.dirname(build.xcodeAppDir), build.tiapp.name + '.ipa');
-						logger.error(__('Packaging complete: %s', ipa.cyan));
+						var ipa = path.join(path.dirname(build.xcodeAppDir), build.tiapp.name + '.ipa'),
+							dest = ipa;
+						
+						if (cli.argv['output-dir']) {
+							dest = path.join(cli.argv['output-dir'], build.tiapp.name + '.ipa');
+							afs.exists(dest) && fs.unlink(dest);
+							afs.copyFileSync(ipa, dest, { logger: logger.debug });
+						}
+						
+						logger.info(__('Packaging complete'));
+						logger.info(__('Package location: %s', dest.cyan));
+						
+						finished();
 					});
 					break;
 			}

@@ -142,10 +142,13 @@ exports.config = function (logger, config, cli) {
 						desc: __('the output directory when using %s', 'dist-playstore'.cyan),
 						hint: 'dir',
 						prompt: {
+							default: function () {
+								return cli.argv['project-dir'] && path.join(cli.argv['project-dir'], 'dist');
+							},
 							label: __('Output directory'),
 							error: __('Invalid output directory'),
 							validator: function (dir) {
-								if (!afs.exists(dir) || !fs.statSync(dir).isDirectory()) {
+								if (!afs.resolvePath(dir)) {
 									throw new appc.exception(__('Invalid output directory'));
 								}
 								return true;
@@ -264,31 +267,34 @@ exports.validate = function (logger, config, cli) {
 			logger.error(__('Invalid required option "--alias"') + '\n');
 			process.exit(1);
 		}
+		
 		if (!cli.argv['keystore']) {
 			logger.error(__('Invalid required option "--keystore"') + '\n');
 			process.exit(1);
-		} else {
-			cli.argv['keystore'] = afs.resolvePath(cli.argv['keystore']);
-			if (!afs.exists(cli.argv['keystore']) || !fs.statSync(cli.argv['keystore']).isFile()) {
-				logger.error(__('Invalid required option "--keystore"') + '\n');
-				process.exit(1);
-			}
 		}
+		
+		cli.argv['keystore'] = afs.resolvePath(cli.argv['keystore']);
+		if (!afs.exists(cli.argv['keystore']) || !fs.statSync(cli.argv['keystore']).isFile()) {
+			logger.error(__('Invalid required option "--keystore"') + '\n');
+			process.exit(1);
+		}
+		
 		if(!cli.argv['password']) {
 			logger.error(__('Invalid required option "--password"') + '\n');
 			process.exit(1);
 		}
+		
 		if (!cli.argv['output-dir']) {
 			logger.error(__('Invalid required option "--output-dir"') + '\n');
 			process.exit(1);
-		} else {
-			cli.argv['output-dir'] = afs.resolvePath(cli.argv['output-dir']);
-			if (!afs.exists(cli.argv['output-dir'])) {
-				wrench.mkdirSyncRecursive(cli.argv['output-dir']);
-			} else if (!fs.statSync(cli.argv['output-dir']).isDirectory()) {
-				logger.error(__('Invalid required option "--output-dir", option is not a directory.') + '\n');
-				process.exit(1);
-			}
+		}
+		
+		cli.argv['output-dir'] = afs.resolvePath(cli.argv['output-dir']);
+		if (!afs.exists(cli.argv['output-dir'])) {
+			wrench.mkdirSyncRecursive(cli.argv['output-dir']);
+		} else if (!fs.statSync(cli.argv['output-dir']).isDirectory()) {
+			logger.error(__('Invalid required option "--output-dir", option is not a directory.') + '\n');
+			process.exit(1);
 		}
 	}
 	
@@ -320,8 +326,7 @@ exports.run = function (logger, config, cli, finished) {
 function build(logger, config, cli, finished) {
 	var emulatorCmd = [],
 		cmd = [],
-		cmdSpawn,
-		err;
+		cmdSpawn;
 
 	logger.info(__('Compiling "%s" build', cli.argv['deploy-type']));
 
@@ -342,6 +347,7 @@ function build(logger, config, cli, finished) {
 	});
 
 	cmdSpawn.on('exit', function(code) {
+		var err;
 		if (code) {
 			err = "An error occurred while running the command: " + ('python ' + cmd.join(' ')).cyan + '\n';
 		}

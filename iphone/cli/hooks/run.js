@@ -76,7 +76,7 @@ exports.init = function (logger, config, cli) {
 								console.log('ACT ERR! ' + stderr);
 							}
 						})
-					}, 5000)
+					}, 500)
 				
 				cli.argv.retina && cmd.push('--retina');
 				cmd = cmd.join(' ');
