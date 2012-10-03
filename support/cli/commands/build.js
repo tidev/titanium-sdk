@@ -83,7 +83,6 @@ exports.run = function (logger, config, cli) {
 			}), logger);
 		cli.codeProcessor = codeProcessor.getResults();
 	}
-	return;
 	
 	cli.fireHook('prebuild', function () {
 		require(buildModule).run(logger, config, cli, function (err) {
