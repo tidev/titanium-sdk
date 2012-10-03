@@ -91,6 +91,11 @@ public class TiWebViewClient extends WebViewClient
 			// go through the proxy to ensure we're on the UI thread
 			webView.getProxy().setPropertyAndFire(TiC.PROPERTY_URL, url);
 			return true;
+		} else if (URLUtil.isHttpUrl(url) || URLUtil.isHttpsUrl(url)) {
+			Intent i = new Intent(Intent.ACTION_VIEW);
+			i.setData(Uri.parse(url));
+			webView.getProxy().getActivity().startActivity(i);
+			return true;
 		} else if(url.startsWith(WebView.SCHEME_TEL)) {
 			Log.i(TAG, "Launching dialer for " + url, Log.DEBUG_MODE);
 			Intent dialer = Intent.createChooser(new Intent(Intent.ACTION_DIAL, Uri.parse(url)), "Choose Dialer");

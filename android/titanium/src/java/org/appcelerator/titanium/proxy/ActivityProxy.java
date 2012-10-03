@@ -74,7 +74,7 @@ public class ActivityProxy extends KrollProxy
 		if (savedDecorViewProxy == null) {
 			Activity activity = getActivity();
 			if (!(activity instanceof TiBaseActivity)) {
-				Log.e(TAG, "Unable to return decor view, activity is not TiBaseActivity", Log.DEBUG_MODE);
+				Log.e(TAG, "Unable to return decor view, activity is not TiBaseActivity",Log.DEBUG_MODE);
 
 				return null;
 			}
