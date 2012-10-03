@@ -11,9 +11,10 @@ var appc = require('node-appc'),
 	path = require('path'),
 	wrench = require('wrench');
 
+exports.desc = __('creates a new mobile application or module');
+
 exports.config = function (logger, config, cli) {
 	return {
-		desc: __('creates a new mobile application or module'),
 		options: appc.util.mix({
 			platform: {
 				// note: --platform is not required for the clean command
