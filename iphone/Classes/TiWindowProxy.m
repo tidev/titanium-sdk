@@ -436,8 +436,14 @@ TiOrientationFlags TiOrientationFlagsFromObject(id args)
 		}
 		if (fullscreenFlag)
 		{
-			restoreFullscreen = [UIApplication sharedApplication].statusBarHidden;
-			[[UIApplication sharedApplication] setStatusBarHidden:YES];
+			showStatusBar = [self argOrWindowProperty:@"statusBarHiddenInFullscreen" args:args];
+
+			if (!showStatusBar)
+			{
+				restoreFullscreen = [UIApplication sharedApplication].statusBarHidden;
+				[[UIApplication sharedApplication] setStatusBarHidden:YES];
+			}
+
 			[self view].frame = [[[TiApp app] controller] resizeView];
 		}
 		if (modalFlag)
@@ -647,7 +653,11 @@ TiOrientationFlags TiOrientationFlagsFromObject(id args)
 		  
 		if (fullscreenFlag)
 		{
-			[[UIApplication sharedApplication] setStatusBarHidden:restoreFullscreen];
+			if (!showStatusBar)
+			{
+				[[UIApplication sharedApplication] setStatusBarHidden:restoreFullscreen];
+			}
+
 			self.view.frame = [[[TiApp app] controller] resizeView];
 		} 
  

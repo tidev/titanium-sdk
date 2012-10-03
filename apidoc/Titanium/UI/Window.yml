@@ -241,6 +241,12 @@ properties:
     type: Boolean
     default: false
 
+  - name: statusBarHiddenInFullscreen
+    summary: Boolean to indicate if the status bar should be hidden in fullscreen.
+    platforms: [iphone, ipad]
+    type: Boolean
+    default: true
+
   - name: leftNavButton
     summary: View to show in the left nav bar area.
     platforms: [iphone, ipad, mobileweb]
