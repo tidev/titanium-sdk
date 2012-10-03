@@ -122,7 +122,7 @@ properties:
         
         A maximum of 3 buttons is supported on Android.
     type: Array<String>
-    default: null (Android), ['OK'] (iOS)
+    default: No buttons (Android), Single "OK" button (iOS, Mobile Web)
     availability: creation
 
   - name: cancel

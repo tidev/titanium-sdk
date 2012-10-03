@@ -31,6 +31,7 @@
 // these transform values will scale it when we have our own overlay
 
 #define CAMERA_TRANSFORM_Y 1.23
+#define CAMERA_TRANSFORM_Y_ALT 1.67
 #define CAMERA_TRANSFORM_X 1
 
 enum  
@@ -457,7 +458,12 @@ static NSDictionary* TI_filterableItemProperties;
 		else if (cameraView!=nil)
 		{
 			// we use our own fullscreen transform if the developer didn't supply one
-			picker.cameraViewTransform = CGAffineTransformScale(picker.cameraViewTransform, CAMERA_TRANSFORM_X, CAMERA_TRANSFORM_Y);
+            if ([[UIScreen mainScreen] bounds].size.height == 568) {
+                picker.cameraViewTransform = CGAffineTransformScale(picker.cameraViewTransform, CAMERA_TRANSFORM_X, CAMERA_TRANSFORM_Y_ALT);
+            }
+            else {
+                picker.cameraViewTransform = CGAffineTransformScale(picker.cameraViewTransform, CAMERA_TRANSFORM_X, CAMERA_TRANSFORM_Y);
+            }
 		}
 	}
 	
