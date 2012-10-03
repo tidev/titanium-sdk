@@ -7,7 +7,8 @@
 
 var appc = require('node-appc'),
 	ti = require('titanium-sdk'),
-	path = require('path');
+	path = require('path'),
+	codeProcessor = require('titanium-code-processor');
 
 // TODO: need to support building modules... how do we know if --dir is a module or app? where is the module _build.js located?
 
@@ -63,14 +64,27 @@ exports.validate = function (logger, config, cli) {
 
 exports.run = function (logger, config, cli) {
 	var sdk = cli.env.getSDK(cli.argv.sdk),
-		buildModule = path.join(path.dirname(module.filename), '..', '..', cli.argv.platform, 'cli', 'commands', '_build.js');
+		buildModule = path.join(path.dirname(module.filename), '..', '..', cli.argv.platform, 'cli', 'commands', '_build.js'),
+		tiapp = new ti.tiappxml(appc.fs.resolvePath(path.join(cli.argv['project-dir'], 'tiapp.xml')));
 	
 	if (!appc.fs.exists(buildModule)) {
 		logger.error(__('Unable to find platform specific build command') + '\n');
 		logger.log(__("Your SDK installation may be corrupt. You can reinstall it by running '%s'.", (cli.argv.$ + ' sdk update --force --default').cyan) + '\n');
 		process.exit(1);
 	}
-
+	
+	// Run the code processor, if it is enabled
+	if (tiapp['code-processor'] && tiapp['code-processor'].enabled) {
+		codeProcessor.process([appc.fs.resolvePath(path.join(cli.argv['project-dir'], 'Resources', 'app.js'))], 
+			tiapp['code-processor'].plugins,
+			appc.util.mix(tiapp['code-processor'].options, {
+				sdkPath: path.resolve(path.join(__dirname, '..', '..')),
+				platform: cli.argv.platform
+			}), logger);
+		cli.codeProcessor = codeProcessor.getResults();
+	}
+	return;
+	
 	cli.fireHook('prebuild', function () {
 		require(buildModule).run(logger, config, cli, function (err) {
 			cli.fireHook('finalize', function () {
