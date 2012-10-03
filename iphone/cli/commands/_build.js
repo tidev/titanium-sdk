@@ -94,25 +94,25 @@ exports.config = function (logger, config, cli) {
 				flags: {
 					'build-only': {
 						abbr: 'b',
-						default: false,
 						desc: __('only perform the build; if true, does not install or run the app')
 					},
 					force: {
 						abbr: 'f',
-						default: false,
 						desc: __('force a full rebuild')
+					},
+					retina: {
+						desc: __('use the retina version of the iOS Simulator')
 					},
 					xcode: {
 						// secret flag to perform Xcode pre-compile build step
-						default: false,
 						hidden: true
 					}
 				},
 				options: {
 					'debug-host': {
 						abbr: 'H',
-						desc: __('debug connection info; airkey required for %s and %s, ignored for %s', 'device'.cyan, 'dist-adhoc'.cyan, 'dist-appstore'.cyan),
-						hint: 'host:port[:airkey]'
+						desc: __('debug connection info; airkey and hosts required for %s and %s, ignored for %s', 'device'.cyan, 'dist-adhoc'.cyan, 'dist-appstore'.cyan),
+						hint: 'host:port[:airkey:hosts]'
 					},
 					'deploy-type': {
 						abbr: 'D',
@@ -172,6 +172,24 @@ exports.config = function (logger, config, cli) {
 						abbr: 'K',
 						desc: __('path to the distribution keychain to use instead of the system default; only used when target is %s, %s, or %s', 'device'.cyan, 'dist-appstore'.cyan, 'dist-adhoc'.cyan)
 					},
+					'output-dir': {
+						abbr: 'O',
+						desc: __('the output directory when using %s', 'dist-adhoc'.cyan),
+						hint: 'dir',
+						prompt: {
+							default: function () {
+								return cli.argv['project-dir'] && path.join(cli.argv['project-dir'], 'dist');
+							},
+							label: __('Output directory'),
+							error: __('Invalid output directory'),
+							validator: function (dir) {
+								if (!afs.resolvePath(dir)) {
+									throw new appc.exception(__('Invalid output directory'));
+								}
+								return true;
+							}
+						}
+					},
 					'pp-uuid': {
 						abbr: 'P',
 						default: process.env.PROVISIONING_PROFILE,
@@ -213,8 +231,10 @@ exports.config = function (logger, config, cli) {
 									conf.options['pp-uuid'].required = true;
 									break;
 								
-								case 'dist-appstore':
 								case 'dist-adhoc':
+									conf.options['output-dir'].required = true;
+									// purposely fall through!
+								case 'dist-appstore':
 									conf.options['distribution-name'].required = true;
 									conf.options['pp-uuid'].required = true;
 							}
@@ -401,6 +421,21 @@ exports.validate = function (logger, config, cli) {
 		}
 	}
 	
+	if (cli.argv.target == 'dist-adhoc') {
+		if (!cli.argv['output-dir']) {
+			logger.error(__('Invalid required option "--output-dir"') + '\n');
+			process.exit(1);
+		}
+		
+		cli.argv['output-dir'] = afs.resolvePath(cli.argv['output-dir']);
+		if (!afs.exists(cli.argv['output-dir'])) {
+			wrench.mkdirSyncRecursive(cli.argv['output-dir']);
+		} else if (!fs.statSync(cli.argv['output-dir']).isDirectory()) {
+			logger.error(__('Invalid required option "--output-dir", option is not a directory.') + '\n');
+			process.exit(1);
+		}
+	}
+	
 	var deviceFamily = cli.argv['device-family'];
 	if (!deviceFamily || !deviceFamilies[deviceFamily]) {
 		logger.error(__('Invalid device family "%s"', deviceFamily) + '\n');
@@ -449,7 +484,9 @@ function build(logger, config, cli, finished) {
 	this.provisioningProfileUUID = cli.argv['pp-uuid'];
 	
 	// make sure we have an icon
-	if (!this.tiapp.icon || !afs.exists(this.projectDir, this.tiapp.icon)) {
+	if (!this.tiapp.icon || !['Resources', 'Resources/iphone', 'Resources/ios'].some(function (p) {
+		return afs.exists(this.projectDir, p, this.tiapp.icon);
+	}, this)) {
 		this.tiapp.icon = 'appicon.png';
 	}
 	
@@ -629,7 +666,7 @@ function build(logger, config, cli, finished) {
 				'-configuration', this.xcodeTarget,
 				'-sdk', this.xcodeTargetOS,
 				'IPHONEOS_DEPLOYMENT_TARGET=' + this.minIosVer,
-				'TARGETED_DEVICE_FAMILY="' + deviceFamilies[this.deviceFamily] + '"',
+				'TARGETED_DEVICE_FAMILY=' + deviceFamilies[this.deviceFamily],
 				'VALID_ARCHS=' + this.architectures
 			];
 			
@@ -673,31 +710,38 @@ function build(logger, config, cli, finished) {
 				xcodeArgs.push('TI_PRODUCTION=1');
 			}
 			
-			cli.fireHook('postbuild', function () {
-				var p = spawn(this.xcodeEnv.xcodebuild, xcodeArgs, {
-						cwd: this.buildDir,
-						env: {
-							DEVELOPER_DIR: this.xcodeEnv.path,
-							HOME: process.env.HOME,
-							PATH: process.env.PATH
-						}
-					});
-				
-				p.stderr.on('data', function (data) {
-					data.toString().split('\n').forEach(function (line) {
-						line.length && this.logger.error(line);
-					}, this);
-					process.exit(1);
-				}.bind(this));
-				
-				p.stdout.on('data', function (data) {
-					data.toString().split('\n').forEach(function (line) {
-						line.length && this.logger.trace(line);
-					}, this);
-				}.bind(this));
-				
-				p.on('exit', function (code, signal) {
-					finished && finished(code);
+			var p = spawn(this.xcodeEnv.xcodebuild, xcodeArgs, {
+					cwd: this.buildDir,
+					env: {
+						DEVELOPER_DIR: this.xcodeEnv.path,
+						HOME: process.env.HOME,
+						PATH: process.env.PATH
+					}
+				});
+			
+			p.stderr.on('data', function (data) {
+				data.toString().split('\n').forEach(function (line) {
+					line.length && this.logger.error(line);
+				}, this);
+				process.exit(1);
+			}.bind(this));
+			
+			p.stdout.on('data', function (data) {
+				data.toString().split('\n').forEach(function (line) {
+					line.length && this.logger.trace(line);
+				}, this);
+			}.bind(this));
+			
+			p.on('exit', function (code, signal) {
+				this.logger.info(__('Finished building the application'));
+				cli.fireHook('postbuild', this, function (err) {
+					if (err && err.type == 'AppcException') {
+						this.logger.error(err.message);
+						err.details.forEach(function (line) {
+							line && this.logger.error(line);
+						}, this);
+					}
+					finished && finished(code || err);
 				}.bind(this));
 			}.bind(this));
 		});
@@ -746,7 +790,7 @@ build.prototype = {
 			var iphone = this.tiapp.iphone,
 				ios = this.tiapp.ios,
 				fbAppId = this.tiapp.properties && this.tiapp.properties['ti.facebook.appid'],
-				iconName = this.tiapp.icon.replace(/(.+)(\..*)$/, '$1'),
+				iconName = this.tiapp.icon.replace(/(.+)(\..*)$/, '$1'), // note: this is basically stripping the file extension
 				consts = {
 					'__APPICON__': iconName,
 					'__PROJECT_NAME__': this.tiapp.name,
@@ -776,10 +820,18 @@ build.prototype = {
 			
 			if (iphone) {
 				if (iphone.orientations) {
+					var orientationsMap = {
+						'PORTRAIT': 'UIInterfaceOrientationPortrait',
+						'UPSIDE_PORTRAIT': 'UIInterfaceOrientationPortraitUpsideDown',
+						'LANDSCAPE_LEFT': 'UIInterfaceOrientationLandscapeLeft',
+						'LANDSCAPE_RIGHT': 'UIInterfaceOrientationLandscapeRight'
+					};
+					
 					Object.keys(iphone.orientations).forEach(function (key) {
 						var arr = plist['UISupportedInterfaceOrientations' + (key == 'ipad' ? '~ipad' : '')] = [];
 						iphone.orientations[key].forEach(function (name) {
-							arr.push(name);
+							// name should be in the format Ti.UI.PORTRAIT, so pop the last part and see if it's in the map
+							arr.push(orientationsMap[name.split('.').pop().toUpperCase()] || name);
 						});
 					});
 				}
@@ -837,7 +889,8 @@ build.prototype = {
 						.toString()
 						.replace(/__DEBUGGER_HOST__/g, parts.length > 0 ? parts[0] : '')
 						.replace(/__DEBUGGER_PORT__/g, parts.length > 1 ? parts[1] : '')
-						.replace(/__DEBUGGER_AIRKEY__/g, parts.length > 2 ? parts[2] : ''),
+						.replace(/__DEBUGGER_AIRKEY__/g, parts.length > 2 ? parts[2] : '')
+						.replace(/__DEBUGGER_HOSTS__/g, parts.length > 3 ? parts[3] : ''),
 			dest = path.join(this.buildDir, 'Resources', 'debugger.plist');
 		
 		if (!afs.exists(dest) || fs.readFileSync(dest).toString() != plist) {
@@ -1465,7 +1518,7 @@ build.prototype = {
 				'__APP_PUBLISHER__': this.tiapp.publisher,
 				'__APP_URL__': this.tiapp.url,
 				'__APP_NAME__': this.tiapp.name,
-				'__APP_VERSION__': this.tiapp.version,
+				'__APP_VERSION__': version.format(this.tiapp.version, 2),
 				'__APP_DESCRIPTION__': this.tiapp.description,
 				'__APP_COPYRIGHT__': this.tiapp.copyright,
 				'__APP_GUID__': this.tiapp.guid,
@@ -1477,7 +1530,10 @@ build.prototype = {
 				var s = consts.hasOwnProperty(key) ? consts[key] : key;
 				return typeof s == 'string' ? s.replace(/"/g, '\\"') : s;
 			}),
-			xcconfigContents = [],
+			xcconfigContents = [
+				'// this is a generated file - DO NOT EDIT',
+				''
+			],
 			applicationModsContents = [
 				'#import "ApplicationMods.h"',
 				'',
