@@ -4,7 +4,7 @@
 var path = require('path'),
 	fs = require('fs'),
 	uglify = require('uglify-js'),
-	sourceDir = path.resolve(path.join('..','..','..','mobileweb','titanium')),
+	sourceDir = path.resolve(path.join(__dirname,'..','..','..','mobileweb','titanium')),
 	fileList = require('wrench').readdirSyncRecursive(sourceDir),
 	match,
 	dependencies,
@@ -38,6 +38,10 @@ for (i = 0, len = fileList.length; i < len; i++) {
 							temp = dependencies[j].split('!');
 							dependencies.splice(j, 1, temp[0], temp[1]);
 							j++;
+							dependencies[j - 1] = dependencies[j - 1].replace(/\.js$/, '');
+							dependencies[j] = dependencies[j].replace(/\.js$/, '');
+						} else {
+							dependencies[j] = dependencies[j].replace(/\.js$/, '');
 						}
 					}
 					dependencyMap[match[1]] = dependencies;

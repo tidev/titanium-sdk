@@ -654,7 +654,7 @@
 		"Ti/_/event",
 		"Ti/_/lang",
 		"Ti/_/text",
-		"Ti/_/UI/WebViewBridge.js",
+		"Ti/_/UI/WebViewBridge",
 		"Ti/App",
 		"Ti/API",
 		"Ti/UI"
