@@ -50,7 +50,7 @@ exports.init = function (logger, config, cli) {
 					afs.visitFiles(simulatorDir, function (filename, fullpath) {
 						if (filename == logFile) {
 							try {
-								logger.debug(__('Removing old log file: %s', fullpath));
+								logger.debug(__('Removing old log file: %s', fullpath.cyan));
 								fs.unlink(fullpath);
 							} catch (e) {}
 						}

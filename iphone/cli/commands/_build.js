@@ -587,7 +587,7 @@ function build(logger, config, cli, finished) {
 	
 	// read the build manifest from the last time we built, if exists
 	this.buildManifest = {};
-	this.buildManifestFile = path.join(this.buildDir, 'Resources', 'build-manifest.json');
+	this.buildManifestFile = path.join(this.buildDir, 'build-manifest.json');
 	if (afs.exists(this.buildManifestFile)) {
 		try {
 			this.buildManifest = JSON.parse(fs.readFileSync(this.buildManifestFile)) || {};
@@ -733,7 +733,11 @@ function build(logger, config, cli, finished) {
 			}.bind(this));
 			
 			p.on('exit', function (code, signal) {
-				this.logger.info(__('Finished building the application'));
+				if (!cli.argv['build-only']) {
+					var delta = appc.time.prettyDiff(cli.startTime, Date.now());
+					this.logger.info(__('Finished building the application in %s', delta));
+				}
+				
 				cli.fireHook('postbuild', this, function (err) {
 					if (err && err.type == 'AppcException') {
 						this.logger.error(err.message);
@@ -741,7 +745,7 @@ function build(logger, config, cli, finished) {
 							line && this.logger.error(line);
 						}, this);
 					}
-					finished && finished(code || err);
+					finished && finished(code);
 				}.bind(this));
 			}.bind(this));
 		});
@@ -1289,7 +1293,9 @@ build.prototype = {
 		this.logger.info(this.commonJsModules.length ? __('Copying CommonJS modules') : __('No CommonJS modules to copy'));
 		parallel(this, this.commonJsModules.map(function (m) {
 			return function (next) {
-				this.copyDirAsync(m.modulePath, this.xcodeAppDir, next);
+				var src = path.join(m.modulePath, m.id + '.js');
+				afs.exists(src) && afs.copyFileSync(src, this.xcodeAppDir, { logger: this.logger.debug });
+				next();
 			};
 		}), callback);
 	},
@@ -1668,8 +1674,8 @@ build.prototype = {
 		symlinkResources(path.join(this.projectDir, 'modules', 'iphone'), destModulesDir, true);
 		
 		// reset the application routing
-		wrench.mkdirSyncRecursive(path.join(this.buildDir, 'iphone', 'Classes'));
-		fs.writeFile(path.join(this.buildDir, 'iphone', 'Classes', 'ApplicationRouting.m'), [
+		wrench.mkdirSyncRecursive(path.join(this.buildDir, 'Classes'));
+		fs.writeFile(path.join(this.buildDir, 'Classes', 'ApplicationRouting.m'), [
 			'/**',
 			' * Appcelerator Titanium Mobile',
 			' * Copyright (c) 2009-' + (new Date).getFullYear() + ' by Appcelerator, Inc. All Rights Reserved.',
@@ -1715,15 +1721,18 @@ build.prototype = {
 		var jsFiles = [];
 		
 		if (afs.exists(src)) {
-			var compiledTargets = {};
+			var compiledTargets = {},
+				ignoreRegExp = /^\.gitignore|\.cvsignore|\.DS_Store|\.git|\.svn|_svn|CVS$/,
 				recursivelyCopy = function (from, to, rel) {
 					wrench.mkdirSyncRecursive(to);
 					fs.readdirSync(from).forEach(function (file) {
 						var f = path.join(from, file),
-							t = path.join(to, file),
+							t = f.replace(from, to),
 							fstat = fs.lstatSync(f),
 							p = rel ? rel + '/' + file : file;
-						if (fstat.isDirectory()) {
+						if (ignoreRegExp.test(file) || ti.filterPlatforms(this.platformName).indexOf(file) != -1) {
+							// ignore
+						} else if (fstat.isDirectory()) {
 							recursivelyCopy(f, t, p);
 						} else if (!/\.jss$/.test(file)) {
 							var m = file.match(/\.(html|css|js)$/)
@@ -1763,7 +1772,7 @@ build.prototype = {
 									src = path.join(path.dirname(target.from), m[1]);
 									for (j = 0; j < compiledTargets.js.length; j++) {
 										if (compiledTargets.js[j].from == src) {
-											this.logger.debug(__('Excluding %s from minification', src.cyan));
+											this.logger.debug(__('Minifying app:// JavaScript file: %s', src.cyan));
 											compiled.push(compiledTargets.js[j]);
 											compiledTargets.js.splice(j, 1);
 											break;
@@ -1794,8 +1803,12 @@ build.prototype = {
 			}
 			
 			compiledTargets.css && compiledTargets.css.forEach(function (file) {
-				this.logger.debug(__('Writing minified CSS file: %s', file.to.cyan));
-				fs.writeFileSync(file.to, cleanCSS.process(fs.readFileSync(file.from).toString()));
+				if (this.deployType == 'development') {
+					afs.copyFileSync(file.from, file.to, { logger: this.logger.debug });
+				} else {
+					this.logger.debug(__('Writing minified CSS file: %s', file.to.cyan));
+					fs.writeFileSync(file.to, cleanCSS.process(fs.readFileSync(file.from).toString()));
+				}
 			}, this);
 			
 			compiledTargets.js && compiledTargets.js.forEach(function (target) {
@@ -1821,10 +1834,10 @@ build.prototype = {
 		}
 		
 		var walk = function (n) {
-			if (n) {
+			if (n && Array.isArray(n)) {
 				for (var i = 0; i < n.length; i++) {
 					if (Array.isArray(n[i])) {
-						n[i].forEach(walk);
+						walk(n[i]);
 					} else if (n[i] == 'dot') {
 						var s = walkdot(n[++i]);
 						s && s.length > 3 && s != 'dot' && this.addSymbol(s.substring(3) + '.' + n[++i]);
@@ -1838,9 +1851,10 @@ build.prototype = {
 	
 	addSymbol: function (symbol) {
 		var tokens = symbol.split('.'),
-			current = '';
+			current = '',
+			s = tokens[0].toLowerCase();
 		
-		this.tiModules.push(tokens[0].toLowerCase());
+		this.tiModules.indexOf(s) == -1 && this.tiModules.push(s);
 		
 		tokens.forEach(function (t) {
 			current += t + '.';
@@ -1861,6 +1875,7 @@ build.prototype = {
 			);
 		}
 		
+		this.logger.debug(__('Finding Titanium symbols in file %s', file.cyan));
 		this.findSymbols(ast);
 		
 		id = path.join(this.buildDir, 'assets', id);
@@ -1879,11 +1894,8 @@ build.prototype = {
 		
 		parallel(this, [
 			function (next) {
-				if (this.deployType == 'development') {
-					// we copy resources here for dev only, test/prod builds are copied below
-					this.compileResources(path.join(this.projectDir, 'Resources', 'ios'), this.xcodeAppDir);
-					this.compileResources(path.join(this.projectDir, 'Resources', 'iphone'), this.xcodeAppDir);
-				}
+				this.compileResources(path.join(this.projectDir, 'Resources', 'ios'), this.xcodeAppDir);
+				this.compileResources(path.join(this.projectDir, 'Resources', 'iphone'), this.xcodeAppDir);
 				this.compileResources(path.join(this.projectDir, 'platform', 'ios'), this.xcodeAppDir);
 				this.compileResources(path.join(this.projectDir, 'platform', 'iphone'), this.xcodeAppDir);
 				next();
@@ -1919,6 +1931,13 @@ build.prototype = {
 		], function () {
 			parallel(this, [
 				function (next) {
+					if (this.deployType == 'development') {
+						return next();
+					}
+					
+					// copy, analyze, and minify resources
+					var jsFiles = this.compileResources(path.join(this.projectDir, 'Resources'), this.xcodeAppDir);
+					
 					// for each module, copying modules images, if any
 					if (this.tiModules.length) {
 						this.logger.info(__('Processing module images'));
@@ -1926,13 +1945,6 @@ build.prototype = {
 							this.compileResources(path.join(this.titaniumIosSdkPath, 'modules', name, 'images'), path.join(this.xcodeAppDir, 'modules', name, 'images'));
 						}, this);
 					}
-					next();
-				},
-				function (next) {
-					if (this.deployType == 'development') return next();
-					
-					// copy, analyze, and minify resources
-					var jsFiles = this.compileResources(path.join(this.projectDir, 'Resources'), this.xcodeAppDir);
 					
 					this.commonJsModules.forEach(function (m) {
 						var file = path.join(m.modulePath, m.id + '.js');
@@ -1943,7 +1955,9 @@ build.prototype = {
 						}
 					}, this);
 					
-					if (this.deployType != 'production' || !jsFiles.length) return next();
+					if (this.deployType != 'production' || !jsFiles.length) {
+						return next();
+					}
 					
 					// build the ApplicationRouting.h file for production only!
 					var args = [path.join(this.titaniumIosSdkPath, 'titanium_prep'), '"' + this.tiapp.id + '"', '"' + assetsDir + '"'],
@@ -2028,10 +2042,13 @@ build.prototype = {
 					}.bind(this));
 				}
 			], function () {
+				// if we're in development mode, do not optimize images or optimize the defines.h
+				if (this.deployType == 'development') {
+					return finished();
+				}
+				
 				parallel(this, [
 					function (next) {
-						if (this.deployType == 'development') return next();
-						
 						// optimizing images
 						var tool = path.join(this.xcodeEnv.path, 'Platforms', 'iPhoneOS.platform', 'Developer', 'usr', 'bin', 'iphoneos-optimize');
 						if (afs.exists(tool)) {
@@ -2059,7 +2076,7 @@ build.prototype = {
 								'#define TI_VERSION ' + this.titaniumSdkVersion
 							];
 						
-						contents = contents.concat(this.symbols.map(function (s) {
+						contents = contents.concat(this.symbols.sort().map(function (s) {
 							return '#define ' + s;
 						})).join('\n');
 						

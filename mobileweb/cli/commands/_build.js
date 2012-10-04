@@ -451,7 +451,6 @@ build.prototype = {
 		Object.keys(data).forEach(function (lang) {
 			data[lang].app && data[lang].appname && (self.appNames[lang] = data[lang].appname);
 			if (data[lang].strings) {
-				dump(data[lang].strings);
 				var dir = path.join(this.buildDir, 'titanium', 'Ti', 'Locale', lang);
 				wrench.mkdirSyncRecursive(dir);
 				fs.writeFileSync(path.join(dir, 'i18n.js'), 'define(' + JSON.stringify(data[lang].strings, null, '\t') + ')');
@@ -719,13 +718,13 @@ build.prototype = {
 			], function (err, stdout, stderr) {
 				if (err) {
 					this.logger.error(__('Failed to create icons'));
-					stderr.toString().split('\n').forEach(function (line) {
-						this.logger.error(line);
-					});
+					stderr && stderr.toString().split('\n').forEach(function (line) {
+						line && this.logger.error(line);
+					}, this);
 					process.exit(1);
 				}
 				callback();
-			});
+			}.bind(this));
 		} else {
 			callback();
 		}
