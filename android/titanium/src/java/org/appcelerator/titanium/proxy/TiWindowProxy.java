@@ -108,6 +108,16 @@ public abstract class TiWindowProxy extends TiViewProxy
 			}
 		}
 	}
+	
+	public boolean isOpen() 
+	{
+		return opened;
+	}
+	
+	public void setOpen(boolean o) 
+	{
+		opened = o;
+	}
 
 	@Kroll.method @SuppressWarnings("unchecked")
 	public void open(@Kroll.argument(optional = true) Object arg)
