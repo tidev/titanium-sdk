@@ -1208,6 +1208,7 @@ public abstract class TiUIView
 		});
 		
 	}
+
 	protected void registerForTouch(final View touchable)
 	{
 		if (touchable == null) {
@@ -1258,7 +1259,8 @@ public abstract class TiUIView
 
 		v.setFocusable(focusable);
 
-		// The OnKeyListener is only be called if the key is pressed while the view has focus.
+		// The listener for the "keypressed" event is only triggered when the view has focus. So we only register the
+		// "keypressed" event when the view is focusable.
 		if (focusable) {
 			registerForKeyPressEvents(v);
 		} else {
@@ -1267,10 +1269,9 @@ public abstract class TiUIView
 	}
 
 	/**
-	 * Register a callback to be invoked when a hardware key is pressed in this view.
+	 * Registers a callback to be invoked when a hardware key is pressed in this view.
 	 *
-	 * @param v
-	 *            The view to have the key listener to attach to.
+	 * @param v The view to have the key listener to attach to.
 	 */
 	protected void registerForKeyPressEvents(final View v)
 	{
