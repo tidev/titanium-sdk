@@ -82,6 +82,21 @@ exports.run = function (logger, config, cli) {
 				platform: cli.argv.platform
 			}), logger);
 		cli.codeProcessor = codeProcessor.getResults();
+		var errors = cli.codeProcessor.errors,
+			warnings = cli.codeProcessor.warnings,
+			data,
+			i, len;
+		for(i = 0, len = errors.length; i < len; i++) {
+			data = errors[i];
+			logger.error(data.name + ' (' + data.file + ':' + data.line + ':' + data.column + '): ' + data.description);
+		}
+		for(i = 0, len = warnings.length; i < len; i++) {
+			data = warnings[i];
+			logger.warn(data.name + ' (' + data.file + ':' + data.line + ':' + data.column + '): ' + data.description);
+		}
+		if (errors.length) {
+			process.exit(1);
+		}
 	}
 	
 	cli.fireHook('prebuild', function () {
