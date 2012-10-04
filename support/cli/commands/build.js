@@ -6,6 +6,7 @@
  */
 
 var appc = require('node-appc'),
+	afs = appc.fs,
 	ti = require('titanium-sdk'),
 	path = require('path');
 
@@ -22,8 +23,8 @@ exports.config = function (logger, config, cli) {
 				options: appc.util.mix({
 					platform: {
 						abbr: 'p',
-						callback: function (value) {
-							return ti.resolvePlatform(value);
+						callback: function (platform) {
+							return ti.resolvePlatform(platform);
 						},
 						desc: __('the target build platform'),
 						hint: __('platform'),
@@ -38,6 +39,20 @@ exports.config = function (logger, config, cli) {
 								if (ti.availablePlatforms.indexOf(platform) == -1) {
 									throw new appc.exception(__('Invalid platform: %s', platform));
 								}
+								
+								// it's possible that platform was not specified at the command line in which case the it would
+								// be prompted for. that means that validate() was unable to apply default values for platform-
+								// specific options and scan for platform-specific hooks, so we must do it here.
+								
+								var p = platformConf[platform];
+								p && p.options && Object.keys(p.options).forEach(function (name) {
+									if (p.options[name].default && cli.argv[name] === undefined) {
+										cli.argv[name] = p.options[name].default;
+									}
+								});
+								
+								cli.scanHooks(afs.resolvePath(path.dirname(module.filename), '..', '..', platform, 'cli', 'hooks'));
+								
 								return true;
 							}
 						},
