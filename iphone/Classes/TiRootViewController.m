@@ -451,11 +451,16 @@
     if (forceOrientation || ((newOrientation != oldOrientation) && isCurrentlyVisible))
     {
         TiViewProxy<TiKeyboardFocusableView> *kfvProxy = [keyboardFocusedProxy retain];
-        [kfvProxy blur:nil];
+        BOOL focusAfterBlur = [kfvProxy focused];
+        if (focusAfterBlur) {
+            [kfvProxy blur:nil];
+        }
         forcingStatusBarOrientation = YES;
         [ourApp setStatusBarOrientation:newOrientation animated:(duration > 0.0)];
         forcingStatusBarOrientation = NO;
-        [kfvProxy focus:nil];
+        if (focusAfterBlur) {
+            [kfvProxy focus:nil];
+        }
         [kfvProxy release];
     }
 
@@ -1029,19 +1034,16 @@
 
 -(TiOrientationFlags) orientationFlags
 {
-    if ([[TiApp app] windowIsKeyWindow]) {
-        for (TiWindowProxy * thisWindow in [windowProxies reverseObjectEnumerator])
-        {
-            if ([thisWindow closing] == NO) {
-                TiOrientationFlags result = [thisWindow orientationFlags];
-                if (result != TiOrientationNone)
-                {
-                    return result;
-                }
+    for (TiWindowProxy * thisWindow in [windowProxies reverseObjectEnumerator])
+    {
+        if ([thisWindow closing] == NO) {
+            TiOrientationFlags result = [thisWindow orientationFlags];
+            if (result != TiOrientationNone)
+            {
+                return result;
             }
         }
-        
-	}
+    }
 	
 	return [self getDefaultOrientations];
 }
