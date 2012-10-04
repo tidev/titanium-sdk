@@ -104,14 +104,16 @@ public class TiTableViewHeaderItem extends TiBaseTableViewItem
 	
 	private void setHeaderData(Item item)
 	{
-		if (headerView != null && headerView.getChildren() != null && item != null &&
-		  item.proxy != null && item.proxy.getChildren() != null) {
+		if (headerView != null && headerView.getChildren() != null && headerView.getChildren().size() > 0 &&
+				item != null && item.proxy != null && item.proxy.getChildren() != null && 
+				item.proxy.getChildren().length > 0) {
 			TiUIView labelView = headerView.getChildren().get(0);
 			TiViewProxy labelProxy = item.proxy.getChildren()[0];
 			if (labelView != null && labelProxy != null)
 			{
 				labelView.processProperties(labelProxy.getProperties());
 			}
+
 		}
 	}
 
