@@ -106,18 +106,52 @@
 {
     if (stretchableImage == nil || recapStretchableImage) {
         [stretchableImage release];
+        UIImage *theImage = [self fullImage];
+        CGFloat maxWidth = [theImage size].width;
+        CGFloat maxHeight = [theImage size].height;
         
-        CGSize imageSize = [[self fullImage] size];
-		
         NSInteger left = (TiDimensionIsAuto(leftCap) || TiDimensionIsUndefined(leftCap) || leftCap.value == 0) ?
-                                imageSize.width/2  : 
-                                TiDimensionCalculateValue(leftCap, imageSize.width);
+                                maxWidth/2  : 
+                                TiDimensionCalculateValue(leftCap, maxWidth);
         NSInteger top = (TiDimensionIsAuto(topCap) || TiDimensionIsUndefined(topCap) || topCap.value == 0) ? 
-                                imageSize.height/2  : 
-                                TiDimensionCalculateValue(topCap, imageSize.height);
+                                maxHeight/2  : 
+                                TiDimensionCalculateValue(topCap, maxHeight);
         
-        stretchableImage = [[[self fullImage] stretchableImageWithLeftCapWidth:left
-                                                           topCapHeight:top] retain];
+        if ([TiUtils isIOS5OrGreater]) {
+            
+            if (left >= maxWidth) {
+                left = maxWidth - 2;
+            }
+            if (top >= maxHeight) {
+                top = maxHeight - 2;
+            }
+            
+            NSInteger right = left;
+            NSInteger bottom = top;
+            
+            if ((left + right) >= maxWidth) {
+                right = maxWidth - (left + 1);
+            }
+            if ((top + bottom) >= maxHeight) {
+                bottom = maxHeight - (top + 1);
+            }
+            stretchableImage = [[theImage resizableImageWithCapInsets:UIEdgeInsetsMake(top, left, bottom, right)] retain];
+        }
+        else
+        {
+            if (left >= maxWidth) {
+                left = maxWidth - 2;
+            }
+            
+            if (top > maxHeight) {
+                top = maxHeight - 2;
+            }
+            
+            stretchableImage = [[theImage stretchableImageWithLeftCapWidth:left
+                                                              topCapHeight:top] retain];
+        }
+
+        
         recapStretchableImage = NO;
     }
 	return stretchableImage;
