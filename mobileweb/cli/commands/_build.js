@@ -33,7 +33,8 @@ var ti = require('titanium-sdk'),
 		'.gif': 'image/gif',
 		'.jpg': 'image/jpg',
 		'.jpeg': 'image/jpg'
-	};
+	},
+	dependenciesMap;
 
 exports.config = function (logger, config, cli) {
 	return {
@@ -88,6 +89,7 @@ function build(logger, config, cli, finished) {
 	this.locales = [];
 	this.appNames = {};
 	this.splashHtml = '';
+	this.codeProcessor = cli.codeProcessor;
 	
 	var pkgJson = this.readTiPackageJson();
 	this.packages = [{
@@ -95,6 +97,10 @@ function build(logger, config, cli, finished) {
 		location: './titanium',
 		main: pkgJson.main
 	}];
+	
+	if (!dependenciesMap) {
+		dependenciesMap = JSON.parse(fs.readFileSync(path.join(this.mobilewebTitaniumDir, 'dependencies.json')));
+	}
 	
 	// read the tiapp.xml and initialize some sensible defaults
 	this.tiapp = this.readTiappXml();
@@ -220,85 +226,19 @@ build.prototype = {
 	
 	findProjectDependencies: function (callback) {
 		this.logger.info(__('Finding all Titanium API dependencies'));
-		
-		// TODO: have the code processor begin scan of project for dependencies
-		// IMPORTANT! scan this.projectResDir, not the this.buildDir since it's not copied yet
-		
-		this.projectDependencies = [
-			'Ti',
-			'Ti/Accelerometer',
-			'Ti/Analytics',
-			'Ti/API',
-			'Ti/App',
-			'Ti/App/Properties',
-			'Ti/Blob',
-			'Ti/Buffer',
-			'Ti/Codec',
-			'Ti/Facebook',
-			'Ti/Facebook/LoginButton',
-			'Ti/Filesystem',
-			'Ti/Filesystem/File',
-			'Ti/Filesystem/FileStream',
-			'Ti/Gesture',
-			'Ti/_/Gestures/GestureRecognizer',
-			'Ti/_/Gestures/Dragging',
-			'Ti/_/Gestures/DoubleTap',
-			'Ti/_/Gestures/LongPress',
-			'Ti/_/Gestures/Pinch',
-			'Ti/_/Gestures/SingleTap',
-			'Ti/_/Gestures/Swipe',
-			'Ti/_/Gestures/TouchCancel',
-			'Ti/_/Gestures/TouchEnd',
-			'Ti/_/Gestures/TouchMove',
-			'Ti/_/Gestures/TouchStart',
-			'Ti/_/Gestures/TwoFingerTap',
-			'Ti/Geolocation',
-			'Ti/IOStream',
-			'Ti/Locale',
-			'Ti/Media',
-			'Ti/Media/VideoPlayer',
-			'Ti/Network',
-			'Ti/Network/HTTPClient',
-			'Ti/Platform',
-			'Ti/Platform/DisplayCaps',
-			'Ti/Map',
-			'Ti/Map/View',
-			'Ti/Map/Annotation',
-			'Ti/UI',
-			'Ti/UI/2DMatrix',
-			'Ti/UI/ActivityIndicator',
-			'Ti/UI/AlertDialog',
-			'Ti/UI/Animation',
-			'Ti/UI/Button',
-			'Ti/UI/Clipboard',
-			'Ti/UI/EmailDialog',
-			'Ti/UI/ImageView',
-			'Ti/UI/Label',
-			'Ti/UI/MobileWeb',
-			'Ti/UI/MobileWeb/NavigationGroup',
-			'Ti/UI/OptionDialog',
-			'Ti/UI/Picker',
-			'Ti/UI/PickerColumn',
-			'Ti/UI/PickerRow',
-			'Ti/UI/ProgressBar',
-			'Ti/UI/ScrollableView',
-			'Ti/UI/ScrollView',
-			'Ti/UI/Slider',
-			'Ti/UI/Switch',
-			'Ti/UI/Tab',
-			'Ti/UI/TabGroup',
-			'Ti/UI/TableView',
-			'Ti/UI/TableViewRow',
-			'Ti/UI/TableViewSection',
-			'Ti/UI/TextArea',
-			'Ti/UI/TextField',
-			'Ti/UI/View',
-			'Ti/UI/WebView',
-			'Ti/UI/Window',
-			'Ti/Utils',
-			'Ti/XML',
-			'Ti/Yahoo'
-		];
+		if (this.codeProcessor && this.codeProcessor.plugins['ti-api-usage-finder']) {
+			var usedAPIs = this.codeProcessor.plugins['ti-api-usage-finder'],
+				p;
+			this.projectDependencies = [];
+			for(p in usedAPIs) {
+				p = p.substring(0, p.lastIndexOf('.')).replace('Titanium', 'Ti').replace(/\./g,'/');
+				if (p in dependenciesMap && !~this.projectDependencies.indexOf(p)) {
+					this.projectDependencies.push(p);
+				}
+			}
+		} else {
+			this.projectDependencies = Object.keys(dependenciesMap);
+		}
 		callback();
 	},
 	
@@ -834,20 +774,6 @@ build.prototype = {
 		return [this.buildDir, mid];
 	},
 	
-	parseDeps: function (deps) {
-		var found = [],
-			len = deps.length;
-		if (len > 2) {
-			deps.substring(1, len - 1).split(',').forEach(function (dep) {
-				dep = dep.trim().split(' ')[0].trim();
-				if (/^['"]/.test(dep)) {
-					found.push(JSON.parse(dep));
-				}
-			});
-		}
-		return found;
-	},
-	
 	parseModule: function (mid, ref) {
 		if (this.requireCache[mid] || mid == 'require') {
 			return;
@@ -869,48 +795,13 @@ build.prototype = {
 		
 		parts.length > 1 && (this.requireCache['url:' + parts[1]] = 1);
 		
-		var filename = dep[1];
-		jsExtRegExp.test(filename) || (filename += '.js');
-		
-		var source = fs.readFileSync(dep[0] + '/' + filename).toString().substring(0, 1000), // define should be within the first 1000 bytes
-			match = source.match(/define\(\s*(['"][^'"]*['"]\s*)?,?\s*(\[[^\]]+\])\s*?,?\s*(function|\{)/);
-		
-		if (!match) {
-			this.moduleMap[mid] = [];
-			return;
-		}
-		
-		var deps = this.parseDeps(match[2]);
+		var deps = dependenciesMap[dep[1]];
 		for (var i = 0, l = deps.length; i < l; i++) {
 			dep = deps[i];
-			parts = dep.split('!');
 			ref = mid.split('/');
 			ref.pop();
 			ref = ref.join('/') + '/';
-			if (dep.charAt(0) == '.') {
-				deps[i] = this.collapsePath(ref + dep);
-			}
-			if (parts.length == 1) {
-				if (/^\.\//.test(dep)) {
-					parts = mid.split('/');
-					parts.pop();
-					parts.push(dep);
-					dep = this.collapsePath(parts.join('/'));
-				}
-				this.parseModule(dep, ref);
-			} else {
-				this.moduleMap[dep] = parts[0];
-				this.parseModule(parts[0], mid);
-				if (parts[0] == 'Ti/_/text') {
-					if (/^\.\//.test(dep)) {
-						parts = mid.split('/');
-						parts.pop();
-						parts.push(dep);
-						dep = this.collapsePath(parts.join('/'));
-					}
-					this.parseModule(dep, ref);
-				}
-			}
+			this.parseModule(dep, ref);
 		}
 		this.moduleMap[mid] = deps;
 	}
