@@ -1988,6 +1988,8 @@ build.prototype = {
 								' * WARNING: This is generated code. Do not modify. Your changes *will* be lost.',
 								' */',
 								'',
+								'#import <Foundation/Foundation.h>',
+								'',
 								'@interface ApplicationRouting : NSObject {',
 								'',
 								'}',

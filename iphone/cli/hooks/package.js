@@ -10,6 +10,7 @@ var appc = require('node-appc'),
 	fs = require('fs'),
 	path = require('path'),
 	async = require('async'),
+	wrench = require('wrench'),
 	exec = require('child_process').exec;
 
 exports.init = function (logger, config, cli) {
@@ -45,30 +46,36 @@ exports.init = function (logger, config, cli) {
 							exec('ditto "' + build.xcodeAppDir + '" "' + archiveApp + '"', next);
 						},
 						function (next) {
-							logger.info(__('Archiving debug symbols to %s', archiveApp.cyan));
+							logger.info(__('Archiving debug symbols to %s', archiveDsym.cyan));
 							exec('ditto "' + build.xcodeAppDir + '.dSYM" "' + archiveDsym + '"', next);
 						},
 						function (next) {
-							var origPlist = new appc.plist(path.join(build.xcodeAppDir, 'Info.plist')),
-								newPlist = new appc.plist(),
-								appBundle = 'Applications/' + name + '.app';
+							var tempPlist = path.join(archiveBundle, 'Info.xml.plist');
 							
-							appc.util.mix(newPlist, {
-								ApplicationProperties: {
-									ApplicationPath: appbundle,
-									CFBundleIdentifier: origPlist.CFBundleIdentifier,
-									CFBundleShortVersionString: appc.version.format(origPlist.CFBundleVersion, 3, 3),
-									IconPaths: [
-										appBundle + '/' + build.tiapp.icon
-									]
-								},
-								ArchiveVersion: newPlist.type('real', 1),
-								CreationDate: (new Date).toISOString(),
-								Name: name,
-								SchemeName: name
-							}).save(path.join(archiveBundle, 'Info.plist'));
-							
-							next();
+							exec('/usr/bin/plutil -convert xml1 -o "' + tempPlist + '" "' + path.join(build.xcodeAppDir, 'Info.plist') + '"', function (err, stdout, strderr) {
+								var origPlist = new appc.plist(tempPlist),
+									newPlist = new appc.plist(),
+									appBundle = 'Applications/' + name + '.app';
+								
+								fs.unlink(tempPlist);
+								
+								appc.util.mix(newPlist, {
+									ApplicationProperties: {
+										ApplicationPath: appBundle,
+										CFBundleIdentifier: origPlist.CFBundleIdentifier,
+										CFBundleShortVersionString: appc.version.format(origPlist.CFBundleVersion, 3, 3),
+										IconPaths: [
+											appBundle + '/' + build.tiapp.icon
+										]
+									},
+									ArchiveVersion: newPlist.type('real', 1),
+									CreationDate: (new Date).toISOString(),
+									Name: name,
+									SchemeName: name
+								}).save(path.join(archiveBundle, 'Info.plist'));
+								
+								next();
+							});
 						}
 					], function () {
 						// workaround for dumb Xcode4 bug that doesn't update the organizer unless files are touched in a very specific manner
@@ -77,7 +84,7 @@ exports.init = function (logger, config, cli) {
 						fs.renameSync(temp, archiveBundle);
 						
 						// open xcode + organizer after packaging
-						// have to force the right xcode open...
+						logger.info(__('Launching Xcode: %s', build.xcodeEnv.xcodeapp.cyan));
 						exec('open -a "' + build.xcodeEnv.xcodeapp + '"', function (err, stdout, stderr) {
 							exec('osascript "' + path.join(build.titaniumIosSdkPath, 'xcode_organizer.scpt') + '"', function (err, stdout, stderr) {
 								logger.info(__('Packaging complete'));
