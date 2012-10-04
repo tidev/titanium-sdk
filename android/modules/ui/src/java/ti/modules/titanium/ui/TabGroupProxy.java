@@ -328,6 +328,23 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 		onWindowActivityCreated();
 	}
 
+	/**
+	 * This method fires close event for the selectedTab and its window. 
+	 */
+	public void fireCloseForActiveTab() 
+	{
+		if (selectedTab == null) {
+			return;
+		}
+		
+		TiWindowProxy window = selectedTab.getWindow();
+		if (window != null) {
+			selectedTab.getWindow().fireEvent(TiC.EVENT_CLOSE, null, false);
+		}
+
+		selectedTab.fireEvent(TiC.EVENT_CLOSE, null, false);
+	}
+
 	@Override
 	protected void handleClose(KrollDict options)
 	{
