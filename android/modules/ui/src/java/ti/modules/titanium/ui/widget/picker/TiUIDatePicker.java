@@ -17,6 +17,8 @@ import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiUIView;
 
 import android.app.Activity;
+import android.content.DialogInterface;
+import android.content.DialogInterface.OnClickListener;
 import android.widget.DatePicker;
 import android.widget.DatePicker.OnDateChangedListener;
 
@@ -160,4 +162,5 @@ public class TiUIDatePicker extends TiUIView
 				.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH));
 		suppressChangeEvent = false;
 	}
+
 }

@@ -96,6 +96,11 @@ public class TiWebViewClient extends WebViewClient
 			Intent dialer = Intent.createChooser(new Intent(Intent.ACTION_DIAL, Uri.parse(url)), "Choose Dialer");
 			webView.getProxy().getActivity().startActivity(dialer);
 			return true;
+		} else if (URLUtil.isHttpUrl(url) || URLUtil.isHttpsUrl(url)) {
+ 			Intent i = new Intent(Intent.ACTION_VIEW);
+			i.setData(Uri.parse(url));
+			webView.getProxy().getActivity().startActivity(i);
+			return true;
 		} else if (url.startsWith(WebView.SCHEME_MAILTO)) {
 			Log.i(TAG, "Launching mailer for " + url, Log.DEBUG_MODE);
 			Intent mailer = Intent.createChooser(new Intent(Intent.ACTION_SENDTO, Uri.parse(url)), "Send Message");
