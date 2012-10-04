@@ -88,11 +88,11 @@ exports.run = function (logger, config, cli) {
 			i, len;
 		for(i = 0, len = errors.length; i < len; i++) {
 			data = errors[i];
-			logger.error(data.name + ' (' + data.file + ':' + data.line + ':' + data.column + '): ' + data.description);
+			logger.error(data.description + ' (' + data.file + ':' + data.line + ':' + data.column + ')');
 		}
 		for(i = 0, len = warnings.length; i < len; i++) {
 			data = warnings[i];
-			logger.warn(data.name + ' (' + data.file + ':' + data.line + ':' + data.column + '): ' + data.description);
+			logger.warn(data.description + ' (' + data.file + ':' + data.line + ':' + data.column + ')');
 		}
 		if (errors.length) {
 			process.exit(1);

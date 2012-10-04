@@ -231,7 +231,7 @@ build.prototype = {
 				p;
 			this.projectDependencies = [];
 			for(p in usedAPIs) {
-				p = p.substring(0, p.lastIndexOf('.')).replace('Titanium', 'Ti').replace(/\./g,'/');
+				p = p.replace('Titanium', 'Ti').replace(/\./g,'/');
 				if (p in dependenciesMap && !~this.projectDependencies.indexOf(p)) {
 					this.projectDependencies.push(p);
 				}
