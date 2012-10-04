@@ -328,7 +328,19 @@
 		"Ti/_/style",
 		"Ti/_/Evented",
 		"Ti/UI",
-		"Ti/UI/Animation"
+		"Ti/UI/Animation",
+		"Ti/_/Gestures/GestureRecognizer",
+		"Ti/_/Gestures/DoubleTap",
+		"Ti/_/Gestures/Dragging",
+		"Ti/_/Gestures/LongPress",
+		"Ti/_/Gestures/Pinch",
+		"Ti/_/Gestures/SingleTap",
+		"Ti/_/Gestures/Swipe",
+		"Ti/_/Gestures/TouchCancel",
+		"Ti/_/Gestures/TouchEnd",
+		"Ti/_/Gestures/TouchMove",
+		"Ti/_/Gestures/TouchStart",
+		"Ti/_/Gestures/TwoFingerTap"
 	],
 	"Ti/_/UI/FontWidget": [
 		"Ti/_/declare",
@@ -585,7 +597,9 @@
 		"Ti/_/dom",
 		"Ti/Locale",
 		"Ti/UI",
-		"Ti/UI/MobileWeb"
+		"Ti/UI/MobileWeb",
+		"Ti/UI/Label",
+		"Ti/UI/ImageView"
 	],
 	"Ti/UI/TabGroup": [
 		"Ti/_/declare",

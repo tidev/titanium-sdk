@@ -229,7 +229,7 @@ build.prototype = {
 		if (this.codeProcessor && this.codeProcessor.plugins['ti-api-usage-finder']) {
 			var usedAPIs = this.codeProcessor.plugins['ti-api-usage-finder'],
 				p;
-			this.projectDependencies = [];
+			this.projectDependencies = ['Ti'];
 			for(p in usedAPIs) {
 				p = p.replace('Titanium', 'Ti').replace(/\./g,'/');
 				if (p in dependenciesMap && !~this.projectDependencies.indexOf(p)) {
