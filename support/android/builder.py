@@ -73,6 +73,76 @@ MIN_API_LEVEL = 8
 HONEYCOMB_MR2_LEVEL = 13
 KNOWN_ABIS = ("armeabi", "armeabi-v7a", "x86")
 
+def launch_device_logcat():
+	device_id = None
+	android_sdk_location = None
+	adb_location = None
+	logcat_process = None
+
+	if len(sys.argv) < 3:
+		print >> sys.stderr, "Missing Android SDK location"
+		print >> sys.stderr, ""
+		print >> sys.stderr, "%s devicelog <sdk_dir> [device_id]" % os.path.basename(sys.argv[0])
+		sys.exit(1)
+	else:
+		android_sdk_location = os.path.abspath(os.path.expanduser(sys.argv[2]))
+
+	adb_location = AndroidSDK(android_sdk_location).get_adb()
+
+	if len(sys.argv) > 3:
+		device_id = sys.argv[3]
+
+	# For killing the logcat process if our process gets killed.
+	def signal_handler(signum, frame):
+		print "[DEBUG] Signal %s received. Terminating the logcat process." % signum
+		if logcat_process is not None:
+			if platform.system() == "Windows":
+				os.system("taskkill /F /T /PID %i" % logcat_process.pid)
+			else:
+				os.kill(logcat_process.pid, signal.SIGTERM)
+
+	# make sure adb is running on windows, else XP can lockup the python
+	# process when adb runs first time
+	if platform.system() == "Windows":
+		run.run([adb_location, "start-server"], True, ignore_output=True)
+
+	logcat_cmd = [adb_location]
+
+	if device_id:
+		logcat_cmd.extend(["-s", device_id])
+	else:
+		logcat_cmd.append("-d")
+
+	logcat_cmd.extend(["logcat", "-s", "*:d,*,TiAPI:V"])
+
+	logcat_process = subprocess.Popen(logcat_cmd)
+
+	if platform.system() != "Windows":
+		signal.signal(signal.SIGHUP, signal_handler)
+		signal.signal(signal.SIGQUIT, signal_handler)
+
+	signal.signal(signal.SIGINT, signal_handler)
+	signal.signal(signal.SIGABRT, signal_handler)
+	signal.signal(signal.SIGTERM, signal_handler)
+
+	# In case it's gonna exit early (like if the command line
+	# was wrong or something) give it a chance to do so before we start
+	# waiting on it.
+	time.sleep(1)
+	return_code = logcat_process.poll()
+	if return_code:
+		signal_handler(signal.SIGQUIT, None)
+		sys.exit(return_code)
+
+	# Now wait for it.
+	try:
+		return_code = logcat_process.wait()
+	except OSError:
+		signal_handler(signal.SIGQUIT, None)
+		sys.exit(return_code)
+
+	sys.exit(return_code)
+
 def render_template_with_tiapp(template_text, tiapp_obj):
 	t = Template(template_text)
 	return t.render(tiapp=tiapp_obj)
@@ -2179,6 +2249,10 @@ if __name__ == "__main__":
 		usage()
 
 	command = sys.argv[1]
+
+	if command == 'devicelog':
+		launch_device_logcat()
+
 	template_dir = os.path.abspath(os.path.dirname(sys._getframe(0).f_code.co_filename))
 	get_values_from_tiapp = False
 
