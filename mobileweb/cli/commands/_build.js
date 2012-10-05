@@ -33,8 +33,7 @@ var ti = require('titanium-sdk'),
 		'.gif': 'image/gif',
 		'.jpg': 'image/jpg',
 		'.jpeg': 'image/jpg'
-	},
-	dependenciesMap;
+	};
 
 exports.config = function (logger, config, cli) {
 	return {
@@ -98,8 +97,8 @@ function build(logger, config, cli, finished) {
 		main: pkgJson.main
 	}];
 	
-	if (!dependenciesMap) {
-		dependenciesMap = JSON.parse(fs.readFileSync(path.join(this.mobilewebTitaniumDir, 'dependencies.json')));
+	if (!this.dependenciesMap) {
+		this.dependenciesMap = JSON.parse(fs.readFileSync(path.join(this.mobilewebTitaniumDir, 'dependencies.json')));
 	}
 	
 	// read the tiapp.xml and initialize some sensible defaults
@@ -232,12 +231,12 @@ build.prototype = {
 			this.projectDependencies = ['Ti'];
 			for(p in usedAPIs) {
 				p = p.replace('Titanium', 'Ti').replace(/\./g,'/');
-				if (p in dependenciesMap && !~this.projectDependencies.indexOf(p)) {
+				if (p in this.dependenciesMap && !~this.projectDependencies.indexOf(p)) {
 					this.projectDependencies.push(p);
 				}
 			}
 		} else {
-			this.projectDependencies = Object.keys(dependenciesMap);
+			this.projectDependencies = Object.keys(this.dependenciesMap);
 		}
 		callback();
 	},
@@ -795,7 +794,7 @@ build.prototype = {
 		
 		parts.length > 1 && (this.requireCache['url:' + parts[1]] = 1);
 		
-		var deps = dependenciesMap[dep[1]];
+		var deps = this.dependenciesMap[dep[1]];
 		for (var i = 0, l = deps.length; i < l; i++) {
 			dep = deps[i];
 			ref = mid.split('/');
