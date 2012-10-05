@@ -1161,6 +1161,9 @@ public abstract class TiBaseActivity extends Activity
 			if (app != null) {
 				TiRootActivity rootActivity = app.getRootActivity();
 				if (rootActivity != null && !(rootActivity.equals(this))) {
+					//We need to remove this activity from the stack to prevent it from being called twice b/c 
+					//rootActivity.finish() will loop through all activities inside the stack and call finish() for each of them.
+					TiApplication.removeFromActivityStack(this);
 					rootActivity.finish();
 				}
 			}
