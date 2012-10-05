@@ -218,7 +218,6 @@ USE_VIEW_FOR_CONTENT_HEIGHT
 	if (hasFocus) {
 		[chosenField focus:nil];
 	}
-	//[chosenField focus:nil];
 	[chosenField setSuppressFocusEvents:oldSuppress];
 	[chosenField release];
 	[(TiUITableView *)[self view] refreshSearchControllerUsingReload:forceReload];

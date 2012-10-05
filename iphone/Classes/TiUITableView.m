@@ -799,7 +799,6 @@
 	if (hasFocus) {
 		[chosenField focus:nil];
 	}
-	//[chosenField focus:nil];
 	[chosenField setSuppressFocusEvents:oldSuppress];
 	[chosenField release];
 	[self refreshSearchControllerUsingReload:reloadSearch];
