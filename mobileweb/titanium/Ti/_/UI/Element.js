@@ -1,6 +1,9 @@
 define(
 	["Ti/_/css", "Ti/_/declare", "Ti/_/dom", "Ti/_/event", "Ti/_/lang",
-	"Ti/_/style", "Ti/_/Evented", "Ti/UI", "Ti/UI/Animation"],
+	"Ti/_/style", "Ti/_/Evented", "Ti/UI", "Ti/UI/Animation", 
+	"Ti/_/Gestures/GestureRecognizer", "Ti/_/Gestures/DoubleTap", "Ti/_/Gestures/Dragging", "Ti/_/Gestures/LongPress", 
+	"Ti/_/Gestures/Pinch", "Ti/_/Gestures/SingleTap", "Ti/_/Gestures/Swipe", "Ti/_/Gestures/TouchCancel",
+	"Ti/_/Gestures/TouchEnd", "Ti/_/Gestures/TouchMove", "Ti/_/Gestures/TouchStart", "Ti/_/Gestures/TwoFingerTap"],
 	function(css, declare, dom, event, lang, style, Evented, UI, Animation) {
 
 	var global = window,
