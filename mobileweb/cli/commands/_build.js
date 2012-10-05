@@ -7,6 +7,7 @@
 
 var ti = require('titanium-sdk'),
 	appc = require('node-appc'),
+	cleanCSS = require('clean-css'),
 	afs = appc.fs,
 	xml = appc.xml,
 	parallel = appc.async.parallel,
@@ -635,7 +636,7 @@ build.prototype = {
 		// TODO: minify the css
 		
 		// write the titanium.css
-		fs.writeFileSync(this.buildDir + '/titanium.css', tiCSS.join(''));
+		fs.writeFileSync(this.buildDir + '/titanium.css', cleanCSS.process(tiCSS.join('')));
 		
 		callback();
 	},
