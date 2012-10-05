@@ -73,24 +73,44 @@ MIN_API_LEVEL = 8
 HONEYCOMB_MR2_LEVEL = 13
 KNOWN_ABIS = ("armeabi", "armeabi-v7a", "x86")
 
-def launch_device_logcat():
+def launch_logcat():
+	valid_device_switches = ('-e', '-d', '-s')
 	device_id = None
 	android_sdk_location = None
 	adb_location = None
 	logcat_process = None
+	device_switch = None # e.g., -e or -d or -s
+
+	def show_usage():
+		print >> sys.stderr, ""
+		print >> sys.stderr, "%s devicelog <sdk_dir> <device_switch> [device_serial_number]" % os.path.basename(sys.argv[0])
+		print >> sys.stderr, ""
+		print >> sys.stderr, "The <device_switch> can be -e, -d -s. If -s, also pass serial number."
+		sys.exit(1)
 
 	if len(sys.argv) < 3:
-		print >> sys.stderr, "Missing Android SDK location"
-		print >> sys.stderr, ""
-		print >> sys.stderr, "%s devicelog <sdk_dir> [device_id]" % os.path.basename(sys.argv[0])
-		sys.exit(1)
+		print >> sys.stderr, "Missing Android SDK location."
+		show_usage()
 	else:
 		android_sdk_location = os.path.abspath(os.path.expanduser(sys.argv[2]))
 
 	adb_location = AndroidSDK(android_sdk_location).get_adb()
 
-	if len(sys.argv) > 3:
-		device_id = sys.argv[3]
+	if len(sys.argv) < 4:
+		print >> sys.stderr, "Missing device/emulator switch (e.g., -e, -d, -s)."
+		show_usage()
+
+	device_switch = sys.argv[3]
+	if device_switch not in valid_device_switches:
+		print >> sys.stderr, "Unknown device type switch: %s" % device_switch
+		show_usage()
+
+	if device_switch == "-s":
+		if len(sys.argv) < 5:
+			print >> sys.stderr, "Must specify serial number when using -s."
+			show_usage()
+		else:
+			device_id = sys.argv[4]
 
 	# For killing the logcat process if our process gets killed.
 	def signal_handler(signum, frame):
@@ -106,12 +126,10 @@ def launch_device_logcat():
 	if platform.system() == "Windows":
 		run.run([adb_location, "start-server"], True, ignore_output=True)
 
-	logcat_cmd = [adb_location]
+	logcat_cmd = [adb_location, device_switch]
 
 	if device_id:
-		logcat_cmd.extend(["-s", device_id])
-	else:
-		logcat_cmd.append("-d")
+		logcat_cmd.append(device_id)
 
 	logcat_cmd.extend(["logcat", "-s", "*:d,*,TiAPI:V"])
 
@@ -2250,8 +2268,8 @@ if __name__ == "__main__":
 
 	command = sys.argv[1]
 
-	if command == 'devicelog':
-		launch_device_logcat()
+	if command == 'logcat':
+		launch_logcat()
 
 	template_dir = os.path.abspath(os.path.dirname(sys._getframe(0).f_code.co_filename))
 	get_values_from_tiapp = False
