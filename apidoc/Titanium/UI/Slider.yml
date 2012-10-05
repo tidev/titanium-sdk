@@ -207,8 +207,8 @@ properties:
         
         On iOS 5 and above the endCaps are used to compute a rectangle which is tiled repeatedly in 
         the strechable portion. On earlier versions of iOS the strechable portion is assumed to be 
-        1 pixel wide. The right end cap is therefore computed by adding the size of the left end cap 
-        and the middle portion together and then subtracting that value from the width of the image
+        1 pixel wide. The bottom end cap is therefore computed by adding the size of the top end cap 
+        and the middle portion together and then subtracting that value from the height of the image
     type: Number
     default : 1.0
     since: 3.0.0
@@ -310,8 +310,8 @@ properties:
         
         On iOS 5 and above the endCaps are used to compute a rectangle which is tiled repeatedly in 
         the strechable portion. On earlier versions of iOS the strechable portion is assumed to be 
-        1 pixel wide. The right end cap is therefore computed by adding the size of the left end cap 
-        and the middle portion together and then subtracting that value from the width of the image
+        1 pixel wide. The bottom end cap is therefore computed by adding the size of the top end cap 
+        and the middle portion together and then subtracting that value from the height of the image
     type: Number
     default : 1.0
     since: 3.0.0
