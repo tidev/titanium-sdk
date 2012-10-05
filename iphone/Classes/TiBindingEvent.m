@@ -99,12 +99,10 @@ void TiBindingEventSetBubbles(TiBindingEvent event, bool bubbles)
 
 TiProxy * TiBindingEventNextBubbleTargetProxy(TiBindingEvent event, TiProxy * currentTarget, BOOL parentOnly)
 {
-	if (!(event->bubbles) || event->cancelBubble){
-		return nil;
-	}
 	while (![currentTarget _hasListeners:event->eventString] || parentOnly)
 	{
-		if (![currentTarget bubbleParent]) { //If currentTarget is nil, this triggers as well.
+		if (![currentTarget bubbleParent] || !event->bubbles || event->cancelBubble)
+		{ //If currentTarget is nil, this triggers as well.
 			return nil;
 		}
 		parentOnly = false;
