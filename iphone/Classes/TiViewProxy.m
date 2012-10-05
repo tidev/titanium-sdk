@@ -1613,15 +1613,6 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap,horizontalWrap,horizontalWrap,[self willCha
     // NOTE: We want to fire postlayout events on ANY view, even those which do not allow interactions.
 	if (proxyView == nil || [proxyView interactionEnabled] || [type isEqualToString:@"postlayout"]) {
 		[super fireEvent:type withObject:obj withSource:source propagate:propagate];
-		
-		// views support event propagation. we need to check our
-		// parent and if he has the same named listener, we fire
-		// an event and set the source of the event to ourself
-		
-//		if (parent!=nil && propagate==YES)
-//		{
-//			[parent fireEvent:type withObject:obj withSource:source];
-//		}
 	}
 }
 

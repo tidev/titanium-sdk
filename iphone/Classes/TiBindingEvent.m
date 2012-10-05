@@ -127,7 +127,9 @@ void TiBindingEventFire(TiBindingEvent event)
 	event->pendingEvents = runloopcount;
 	if (runloopcount == 1) { //Main case: One run loop.
 		TiBindingRunLoop ourRunLoop = [targetProxy primaryBindingRunLoop];
-		if (ourRunLoop != nil) { // It's possible that 
+		if (ourRunLoop != nil) { // It's possible that the one remaining runloop
+			//Was not the primaryBindingRunLoop. In which case, we flow to the
+			//multiple run loops as an edge case.
 			TiBindingRunLoopEnqueue(ourRunLoop, TiBindingEventProcess, event);
 			return;
 		}
@@ -218,7 +220,7 @@ void TiBindingEventProcess(TiBindingRunLoop runloop, void * payload)
 		return;
 	}
 	
-	//Extreme edge case. Proxy thinks it still has listeners, but no run loops?!
+	//Last one processing the event for this proxy, pass it on to the parent.
 	event->targetProxy = TiBindingEventNextBubbleTargetProxy(event, event->targetProxy, YES);
 	TiBindingEventFire(event);
 	//See who gets it next.
