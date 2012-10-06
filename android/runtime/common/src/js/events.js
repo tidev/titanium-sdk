@@ -49,7 +49,6 @@ Object.defineProperty(EventEmitter.prototype, "callHandler", {
 			if (handler.self && (event.source == handler.self.view)) {
 				event.source = handler.self;
 			}
-			kroll.log(TAG, "callHandler: source = " + event.source);
 
 			handler.listener.call(this, event);
 
