@@ -606,6 +606,9 @@ MAKE_SYSTEM_UINT(AUDIO_SESSION_MODE_PLAYBACK, kAudioSessionCategory_MediaPlaybac
 MAKE_SYSTEM_UINT(AUDIO_SESSION_MODE_RECORD, kAudioSessionCategory_RecordAudio);
 MAKE_SYSTEM_UINT(AUDIO_SESSION_MODE_PLAY_AND_RECORD, kAudioSessionCategory_PlayAndRecord);
 
+MAKE_SYSTEM_UINT(AUDIO_SESSION_OVERRIDE_ROUTE_NONE, kAudioSessionOverrideAudioRoute_None);
+MAKE_SYSTEM_UINT(AUDIO_SESSION_OVERRIDE_ROUTE_SPEAKER, kAudioSessionOverrideAudioRoute_Speaker);
+
 MAKE_SYSTEM_PROP(MUSIC_MEDIA_TYPE_MUSIC, MPMediaTypeMusic);
 MAKE_SYSTEM_PROP(MUSIC_MEDIA_TYPE_PODCAST, MPMediaTypePodcast);
 MAKE_SYSTEM_PROP(MUSIC_MEDIA_TYPE_AUDIOBOOK, MPMediaTypeAudioBook);
@@ -1280,6 +1283,11 @@ MAKE_SYSTEM_PROP(VIDEO_FINISH_REASON_USER_EXITED,MPMovieFinishReasonUserExited);
 -(void)setAudioSessionMode:(NSNumber*)mode
 {
     [[TiMediaAudioSession sharedSession] setSessionMode:[mode unsignedIntValue]];
+} 
+
+-(void)setOverrideAudioRoute:(NSNumber*)mode
+{
+    [[TiMediaAudioSession sharedSession] setRouteOverride:[mode unsignedIntValue]];
 } 
 
 -(NSNumber*)audioSessionMode

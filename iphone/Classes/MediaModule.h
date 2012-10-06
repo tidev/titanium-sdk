@@ -137,6 +137,9 @@
 @property(nonatomic,readonly) NSNumber* AUDIO_SESSION_MODE_RECORD;
 @property(nonatomic,readonly) NSNumber* AUDIO_SESSION_MODE_PLAY_AND_RECORD;
 
+@property(nonatomic,readonly) NSNumber* AUDIO_SESSION_OVERRIDE_ROUTE_NONE;
+@property(nonatomic,readonly) NSNumber* AUDIO_SESSION_OVERRIDE_ROUTE_SPEAKER;
+
 @property(nonatomic,readonly) NSNumber* MUSIC_MEDIA_TYPE_MUSIC;
 @property(nonatomic,readonly) NSNumber* MUSIC_MEDIA_TYPE_PODCAST;
 @property(nonatomic,readonly) NSNumber* MUSIC_MEDIA_TYPE_AUDIOBOOK;
