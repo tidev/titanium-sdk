@@ -6,33 +6,102 @@
  */
 
 var appc = require('node-appc'),
+	afs = appc.fs,
+	fs = require('fs'),
+	path = require('path'),
 	parallel = require('async').parallel,
-	exec = require('child_process').exec;
+	cp = require('child_process'),
+	exec = cp.exec;
 
 exports.init = function (logger, config, cli) {
 	
 	cli.addHook('postbuild', {
 		priority: 10000,
-		post: function (data, finished) {
+		post: function (build, finished) {
 			if (cli.argv.target != 'simulator') return finished();
 			
 			if (cli.argv['build-only']) {
-				logger.info('Performed build only, skipping running of the application');
-			} else {
-				logger.info('Running application in iOS Simulator');
-				
-				parallel([
-					function (next) {
-						exec('/usr/bin/killall ios-sim', next);
-					},
-					
-					function (next) {
-						exec('/usr/bin/killall "iPhone Simulator"', next);
-					}
-				], function () {
-					finished();
-				});
+				logger.info(__('Performed build only, skipping running of the application'));
+				return finished();
 			}
+			
+			logger.info(__('Running application in iOS Simulator'));
+			
+			parallel([
+				function (next) {
+					logger.debug(__('Terminating all iOS simulators'));
+					exec('/usr/bin/killall ios-sim', next);
+				},
+				
+				function (next) {
+					exec('/usr/bin/killall "iPhone Simulator"', next);
+				},
+				
+				function (next) {
+					var simulatorDir = afs.resolvePath('~/Library/Application Support/iPhone Simulator/' + build.iosSimVersion),
+						logFile = build.tiapp.guid + '.log';
+					
+					// sometimes the simulator doesn't remove old log files in which case we get
+					// our logging jacked - we need to remove them before running the simulator
+					if (!afs.exists(simulatorDir)) {
+						return next();
+					}
+					
+					afs.visitFiles(simulatorDir, function (filename, fullpath) {
+						if (filename == logFile) {
+							try {
+								logger.debug(__('Removing old log file: %s', fullpath));
+								fs.unlink(fullpath);
+							} catch (e) {}
+						}
+					}, next);
+				}
+			], function () {
+				var cmd = [
+						'"' + path.join(build.titaniumIosSdkPath, 'ios-sim') + '"',
+						'launch',
+						'"' + build.xcodeAppDir + '"',
+						'--sdk',
+						build.iosSimVersion,
+						'--family',
+						build.deviceFamily
+					],
+					timer = setTimeout(function () {
+						exec([
+							'osascript',
+							'"' + path.join(build.titaniumIosSdkPath, 'iphone_sim_activate.scpt') + '"',
+							'"' + path.join(build.xcodeEnv.path, 'Platforms', 'iPhoneSimulator.platform', 'Developer', 'Applications', 'iPhone Simulator.app') + '"'
+						].join(' '), function (err, stdout, stderr) {
+							if (err) {
+								console.log('ACT ERR! ' + stderr);
+							}
+						})
+					}, 500)
+				
+				cli.argv.retina && cmd.push('--retina');
+				cmd = cmd.join(' ');
+				
+				logger.info(__('Launching application in iOS Simulator'));
+				logger.debug(__('Simulator command: %s', cmd.cyan));
+				
+				exec('/bin/sh -c "' + cmd.replace(/"/g, '\\"') + '"', {
+					cwd: build.titaniumIosSdkPath,
+					env: {
+						DYLD_FRAMEWORK_PATH: path.join(build.xcodeEnv.path, 'Platforms', 'iPhoneSimulator.platform', 'Developer', 'Library', 'PrivateFrameworks') +
+							':' + afs.resolvePath(build.xcodeEnv.path, '..', 'OtherFrameworks')
+					}
+				}, function (err, stdout, stderr) {
+					if (err) {
+						clearTimeout(timer);
+						finished(new appc.exception(__('An error occurred running the iOS Simulator'), stderr.split('\n').map(function (line) {
+							return line.replace(/^[(?:TRACE|DEBUG|INFO|WARN|ERROR)] /, '');
+						})));
+					} else {
+						logger.info(__('Application has exited from iOS Simulator'));
+						finished();
+					}
+				});
+			});
 		}
 	});
 	

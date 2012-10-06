@@ -45,7 +45,7 @@ if ()==(%pythonPath%) goto NoPython
 goto Exit
 
 :NoPython
-echo Error: No python executable could found in your system
+echo Error: No python executable could be found on your system
 exit /b 1
 
 :Exit
