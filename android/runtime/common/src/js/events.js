@@ -73,8 +73,6 @@ Object.defineProperty(EventEmitter.prototype, "callHandler", {
 
 Object.defineProperty(EventEmitter.prototype, "emit", {
 	value: function(type) {
-		kroll.log(TAG, "emit: type = " + type);
-
 		// Copy any custom event data and set "bubbles" and "cancelBubble" if they are not set yet.
 		// Note: If the events are fired from Java side, the "bubbles" property may be already set
 		// in Java (eg. "click" event fired from the UI thread).
