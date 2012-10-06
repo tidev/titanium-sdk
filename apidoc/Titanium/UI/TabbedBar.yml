@@ -1,9 +1,11 @@
 ---
 name: Titanium.UI.TabbedBar
-summary: Use <Titanium.UI.iOS.TabbedBar> instead.
+deprecated:
+    since: "1.8.0"
+    notes: |
+        Use <Titanium.UI.iOS.TabbedBar> instead.
+summary: A button bar that maintains a selected state.
 description: |
-    This object has been deprecated and moved to <Titanium.UI.iOS.TabbedBar>.
-    
     A tabbed bar is a button bar that
     maintains a state (visually distinguished as a pressed or selected look).
     It is closely related to the `ButtonBar` control. See the description of 
@@ -14,8 +16,6 @@ description: |
 extends: Titanium.UI.View
 platforms: [iphone, ipad]
 since: "0.8"
-deprecated:
-        since: "1.8.0"
 extends: Titanium.UI.View
 excludes: { events: [ 'touchstart', 'touchmove', 'touchend', 'touchcancel', 'dblclick',
 'doubletap', 'longclick', 'singletap', 'swipe', 'twofingertap' ]

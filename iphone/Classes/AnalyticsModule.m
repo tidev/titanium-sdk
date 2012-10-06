@@ -511,7 +511,6 @@ NSString * const TI_DB_VERSION = @"1";
 						   TI_APPLICATION_DEPLOYTYPE,@"deploytype",
 						   @"iphone",@"os",
 						   version,@"version",
-						   VAL_OR_NSNULL(username),@"un",
 						   TI_APPLICATION_VERSION,@"app_version",
 						   os,@"osver",
 						   VAL_OR_NSNULL(nettype),@"nettype",

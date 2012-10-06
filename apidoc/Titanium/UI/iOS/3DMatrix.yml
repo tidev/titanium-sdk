@@ -1,9 +1,11 @@
 ---
 name: Titanium.UI.iOS.3DMatrix
-summary: Use <Titanium.UI.3DMatrix> instead.
-description: |
+deprecated:
+    since: 2.1.0
+    notes: Use <Titanium.UI.3DMatrix> instead.
+summary: |
     The 3D Matrix is an object for holding values for a 3D affine transform.
-
+description: |
     The 3DMatrix is created by <Titanium.UI.iOS.create3DMatrix>. A 3D transform is
     used to rotate, scale, translate, or skew the objects in three-dimensional
     space. A 3D transform  is represented by a 4 by 4 matrix. 
@@ -15,8 +17,6 @@ description: |
 extends: Titanium.Proxy
 since: "0.9"
 platforms: [iphone, ipad]
-deprecated: 
-    since: 2.1.0
     
 methods:
   - name: invert

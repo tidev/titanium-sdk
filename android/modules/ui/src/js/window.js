@@ -324,6 +324,11 @@ exports.bootstrapWindow = function(Titanium) {
 			return;
 		}
 
+		// we don't actually support relative pathing for windows
+		if (this.url.charAt(0) !== "/") {
+			this.url = "/" + this.url;
+		}
+
 		var resolvedUrl = url.resolve(this._sourceUrl, this.url);
 		if (!resolvedUrl.assetPath) {
 			kroll.log(TAG, "Window URL must be a resources file.");
@@ -392,6 +397,11 @@ exports.bootstrapWindow = function(Titanium) {
 	}
 
 	Window.prototype.add = function(view) {
+
+		if (view instanceof TiWindow) {
+			throw new Error("Cannot add window/tabGroup to another window/tabGroup.");	    
+		}
+
 		if (this.view) {
 		
 			// If the window is already opened, add the child to this.view directly

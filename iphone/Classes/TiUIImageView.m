@@ -223,6 +223,17 @@ DEFINE_EXCEPTIONS
     }
 }
 
+-(UIImage*)rotatedImage:(UIImage*)originalImage
+{
+    //If autorotate is set to false and the image orientation is not UIImageOrientationUp create new image
+    if (![TiUtils boolValue:[[self proxy] valueForUndefinedKey:@"autorotate"] def:YES] && (originalImage.imageOrientation != UIImageOrientationUp)) {
+        UIImage* theImage = [UIImage imageWithCGImage:[originalImage CGImage] scale:[originalImage scale] orientation:UIImageOrientationUp];
+        return theImage;
+    }
+    else {
+        return originalImage;
+    }
+}
 
 -(void)fireLoadEventWithState:(NSString *)stateString
 {
@@ -339,18 +350,20 @@ DEFINE_EXCEPTIONS
 		NSLog(@"[ERROR] couldn't load imageview image: %@ at position: %d",theurl,position);
 		return;
 	}
+
+    UIImage *imageToUse = [self rotatedImage:theimage];
     
-    if (autoWidth < theimage.size.width) {
-        autoWidth = theimage.size.width;
+    if (autoWidth < imageToUse.size.width) {
+        autoWidth = imageToUse.size.width;
     }
     
-    if (autoHeight < theimage.size.height) {
-        autoHeight = theimage.size.height;
+    if (autoHeight < imageToUse.size.height) {
+        autoHeight = imageToUse.size.height;
     }
     
 	TiThreadPerformOnMainThread(^{
 		UIView *view = [[container subviews] objectAtIndex:position];
-		UIImageView *newImageView = [[UIImageView alloc] initWithImage:theimage];
+		UIImageView *newImageView = [[UIImageView alloc] initWithImage:imageToUse];
 		newImageView.contentMode = [self contentModeForImageView];
 		
 		// remove the spinner now that we've loaded our image
@@ -437,10 +450,12 @@ DEFINE_EXCEPTIONS
     {
         UIImage *poster = [[ImageLoader sharedLoader] loadImmediateImage:defURL withSize:imageSize];
         
+        UIImage *imageToUse = [self rotatedImage:poster];
+        
         // TODO: Use the full image size here?  Auto width/height is going to be changed once the image is loaded.
-        autoWidth = poster.size.width;
-        autoHeight = poster.size.height;
-        [self imageView].image = poster;
+        autoWidth = imageToUse.size.width;
+        autoHeight = imageToUse.size.height;
+        [self imageView].image = imageToUse;
     }
 }
 
@@ -469,10 +484,10 @@ DEFINE_EXCEPTIONS
         if ([url_ isFileURL]) {
             UIImage* image = [UIImage imageWithContentsOfFile:[url_ path]];
             if (image != nil) {
-                CGSize fullSize = [image size];
-                autoWidth = fullSize.width;
-                autoHeight = fullSize.height;
-                [self imageView].image = image;
+                UIImage *imageToUse = [self rotatedImage:image];
+                autoWidth = imageToUse.size.width;
+                autoHeight = imageToUse.size.height;
+                [self imageView].image = imageToUse;
                 [self fireLoadEventWithState:@"image"];
             }
             else {
@@ -493,15 +508,16 @@ DEFINE_EXCEPTIONS
         
 		if (image!=nil)
 		{
-            [(TiUIImageViewProxy*)[self proxy] setImageURL:url_];
-			CGSize fullSize = [[ImageLoader sharedLoader] fullImageSize:img];
-			autoWidth = fullSize.width;
-			autoHeight = fullSize.height;
+			UIImage *imageToUse = [self rotatedImage:image];
+			[(TiUIImageViewProxy*)[self proxy] setImageURL:url_];
+            
+			autoWidth = imageToUse.size.width;
+			autoHeight = imageToUse.size.height;
 			if ([TiUtils boolValue:[[self proxy] valueForKey:@"hires"]]) {
 				autoWidth = autoWidth/2;
 				autoHeight = autoHeight/2;
 			}
-			[self imageView].image = image;
+			[self imageView].image = imageToUse;
 			[self fireLoadEventWithState:@"image"];
 		}
 	}
@@ -539,14 +555,16 @@ DEFINE_EXCEPTIONS
         image = (UIImage*)arg; 
     }
 	
-    if (image != nil) {
-        autoHeight = image.size.height;
-        autoWidth = image.size.width;
+    UIImage *imageToUse = [self rotatedImage:image];
+    
+    if (imageToUse != nil) {
+        autoHeight = imageToUse.size.height;
+        autoWidth = imageToUse.size.width;
     }
     else {
         autoHeight = autoWidth = 0;
     }
-    return image;
+    return imageToUse;
 }
 
 #pragma mark Public APIs
@@ -734,9 +752,11 @@ DEFINE_EXCEPTIONS
 -(void)imageLoadSuccess:(ImageLoaderRequest*)request image:(UIImage*)image
 {
     UIImage* theImage = [[ImageLoader sharedLoader] loadImmediateImage:[request url]];
+    
+    UIImage *imageToUse = [self rotatedImage:theImage];
 
-    autoWidth = image.size.width;
-    autoHeight = image.size.height;
+    autoWidth = imageToUse.size.width;
+    autoHeight = imageToUse.size.height;
     
     //Setting hires to true causes image to de displayed at 50%
     if ([TiUtils boolValue:[[self proxy] valueForKey:@"hires"]]) {
@@ -745,7 +765,7 @@ DEFINE_EXCEPTIONS
     }
         
     TiThreadPerformOnMainThread(^{
-        [self setURLImageOnUIThread:theImage];
+        [self setURLImageOnUIThread:imageToUse];
     }, NO);
 }
 

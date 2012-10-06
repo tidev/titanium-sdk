@@ -70,6 +70,7 @@ java_keywords = [
 
 
 MIN_API_LEVEL = 8
+HONEYCOMB_MR2_LEVEL = 13
 KNOWN_ABIS = ("armeabi", "armeabi-v7a", "x86")
 
 def render_template_with_tiapp(template_text, tiapp_obj):
@@ -229,10 +230,12 @@ class Builder(object):
 				error("Do not use java keywords for project app id, such as " + token)
 				sys.exit(1)
 
+		tool_api_level_explicit = False
 		temp_tiapp = TiAppXML(self.project_tiappxml)
 		if temp_tiapp and temp_tiapp.android:
 			if 'tool-api-level' in temp_tiapp.android:
 				self.tool_api_level = int(temp_tiapp.android['tool-api-level'])
+				tool_api_level_explicit = True
 
 			if 'abi' in temp_tiapp.android and temp_tiapp.android['abi'] != 'all':
 				tiapp_abis = [abi.strip() for abi in temp_tiapp.android['abi'].split(",")]
@@ -248,6 +251,13 @@ class Builder(object):
 					self.abis = list(KNOWN_ABIS)
 
 		self.sdk = AndroidSDK(sdk, self.tool_api_level)
+
+		# If the tool-api-level was not explicitly set in the tiapp.xml, but
+		# <uses-sdk android:targetSdkVersion> *is* set, try to match the target version.
+		if (not tool_api_level_explicit and temp_tiapp and temp_tiapp.android_manifest
+				and "manifest" in temp_tiapp.android_manifest):
+			self.check_target_api_version(temp_tiapp.android_manifest["manifest"])
+
 		self.tiappxml = temp_tiapp
 
 		json_contents = open(os.path.join(template_dir,'dependency.json')).read()
@@ -284,6 +294,18 @@ class Builder(object):
 			os.makedirs(self.home_dir)
 		self.sdcard = os.path.join(self.home_dir,'android2.sdcard')
 		self.classname = Android.strip_classname(self.name)
+
+	def check_target_api_version(self, manifest_elements):
+		pattern = r'android:targetSdkVersion=\"(\d+)\"'
+		for el in manifest_elements:
+			if el.nodeName == "uses-sdk":
+				xml = el.toxml()
+				matches = re.findall(pattern, xml)
+				if matches:
+					new_level = self.sdk.try_best_match_api_level(int(matches[0]))
+					if new_level != self.tool_api_level:
+						self.tool_api_level = new_level
+				break
 
 	def set_java_commands(self):
 		commands = java.find_java_commands()
@@ -415,7 +437,11 @@ class Builder(object):
 			info("Creating 64M SD card for use in Android emulator")
 			run.run([self.sdk.get_mksdcard(), '64M', self.sdcard])
 		if not os.path.exists(my_avd):
-			info("Creating new Android Virtual Device (%s %s)" % (avd_id,avd_skin))
+			if multiple_abis:
+				info("Creating new Android Virtual Device (%s %s %s)" % (avd_id,avd_skin,avd_abi))
+			else:
+				info("Creating new Android Virtual Device (%s %s)" % (avd_id,avd_skin))
+
 			inputgen = os.path.join(template_dir,'input.py')
 			abi_args = []
 			if multiple_abis:
@@ -477,9 +503,12 @@ class Builder(object):
 			'-partition-size',
 			'128' # in between nexusone and droid
 		]
-		emulator_cmd.extend([arg.strip() for arg in add_args if len(arg.strip()) > 0])
+
+		if add_args:
+			emulator_cmd.extend([arg.strip() for arg in add_args if len(arg.strip()) > 0])
+
 		debug(' '.join(emulator_cmd))
-		
+
 		p = subprocess.Popen(emulator_cmd)
 		
 		def handler(signum, frame):
@@ -1045,6 +1074,14 @@ class Builder(object):
 			info("Detected custom ApplicationManifest.xml -- no Titanium version migration supported")
 		
 		default_manifest_contents = self.android.render_android_manifest()
+
+		if self.sdk.api_level >= HONEYCOMB_MR2_LEVEL:
+			# Need to add "screenSize" in our default "configChanges" attribute on
+			# <activity> elements, else changes in orientation will cause the app
+			# to restart. cf. TIMOB-10863.
+			default_manifest_contents = default_manifest_contents.replace('|orientation"', '|orientation|screenSize"')
+			debug("Added 'screenSize' to <activity android:configChanges> because targeted api level %s is >= %s" % (self.sdk.api_level, HONEYCOMB_MR2_LEVEL))
+
 		custom_manifest_contents = None
 		if is_custom:
 			custom_manifest_contents = open(android_manifest_to_read,'r').read()
@@ -1525,7 +1562,7 @@ class Builder(object):
 			'-keystore', self.keystore,
 			'-storepass', self.keystore_pass,
 			'-alias', self.keystore_alias
-		])
+		], protect_arg_positions=(6,))
 
 		# If the keytool encounters an error, that means some of the provided
 		# keychain info is invalid and we should bail anyway
@@ -1574,7 +1611,7 @@ class Builder(object):
 			'-keystore', self.keystore,
 			'-signedjar', app_apk,
 			unsigned_apk,
-			self.keystore_alias])
+			self.keystore_alias], protect_arg_positions=(6,))
 		run.check_output_for_error(output, r'RuntimeException: (.*)', True)
 		run.check_output_for_error(output, r'^jarsigner: (.*)', True)
 
@@ -1918,7 +1955,7 @@ class Builder(object):
 			# We need to know this info in a few places, so the info is saved
 			# in self.missing_modules and self.modules
 			detector = ModuleDetector(self.top_dir)
-			self.missing_modules, self.modules = detector.find_app_modules(self.tiapp, 'android')
+			self.missing_modules, self.modules = detector.find_app_modules(self.tiapp, 'android', deploy_type)
 
 			self.copy_commonjs_modules()
 			self.copy_project_resources()
@@ -2124,7 +2161,7 @@ class Builder(object):
 
 if __name__ == "__main__":
 	def usage():
-		print "%s <command> <project_name> <sdk_dir> <project_dir> <app_id> [key] [password] [alias] [dir] [avdid] [avdsdk] [avdabi] [emulator options]" % os.path.basename(sys.argv[0])
+		print "%s <command> <project_name> <sdk_dir> <project_dir> <app_id> [key] [password] [alias] [dir] [avdid] [avdskin] [avdabi] [emulator options]" % os.path.basename(sys.argv[0])
 		print
 		print "available commands: "
 		print
@@ -2193,36 +2230,39 @@ if __name__ == "__main__":
 			builder.build_and_run(False, avd_id)
 		elif command == 'emulator':
 			avd_id = dequote(sys.argv[6])
+			add_args = None
+			avd_abi = None
+			avd_skin = None
+			avd_name = None
+
 			if avd_id.isdigit():
 				avd_name = None
 				avd_skin = dequote(sys.argv[7])
 				
-				# TODO: This is for studio compatibility only. We will
-				# need to rip it out once they support ABI selection.
-				# Note that this will ALSO possibly break existing external
-				# build scripts in a bad way.
-				
-				if len(sys.argv) > 9:
-					avd_abi = dequote(sys.argv[8])
-					add_args = sys.argv[9:]
-				else:
-					avd_abi = None
-					add_args = sys.argv[8:]
+				if argc > 8:
+					# The first of the remaining args
+					# could either be an abi or an additional argument for
+					# the emulator. Compare to known abis.
+					next_index = 8
+					test_arg = sys.argv[next_index]
+					if test_arg in KNOWN_ABIS:
+						avd_abi = test_arg
+						next_index += 1
+
+					# Whatever remains (if anything) is an additional
+					# argument to pass to the emulator.
+					if argc > next_index:
+						add_args = sys.argv[next_index:]
+
 			else:
 				avd_name = sys.argv[6]
+				# If the avd is known by name, then the skin and abi shouldn't be passed,
+				# because the avd already has the skin and abi "in it".
 				avd_id = None
 				avd_skin = None
-				
-				# TODO: This is for studio compatibility only. We will
-				# need to rip it out once they support ABI selection.
-				# Note that this will ALSO possibly break existing external
-				# build scripts in a bad way.
-				
-				if len(sys.argv) > 8:
-					avd_abi = dequote(sys.argv[7])
-					add_args = sys.argv[8:]
-				else:
-					avd_abi = None
+				avd_abi = None
+
+				if argc > 7:
 					add_args = sys.argv[7:]
 
 			builder.run_emulator(avd_id, avd_skin, avd_name, avd_abi, add_args)

@@ -294,7 +294,7 @@ class Compiler(object):
 			from module import ModuleDetector
 
 			detector = ModuleDetector(self.project_dir)
-			missing_modules, modules = detector.find_app_modules(ti, 'iphone')
+			missing_modules, modules = detector.find_app_modules(ti, 'iphone', self.deploytype)
 
 			# we have to copy these even in simulator given the path difference
 			if os.path.exists(app_dir):

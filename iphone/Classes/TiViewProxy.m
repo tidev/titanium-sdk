@@ -162,9 +162,14 @@
 			[arg parentWillShow];
 		}
 		
-		// only call layout if the view is attached
-		// Maybe need to call layout children instead for non absolute layout
-		[self layoutChild:arg optimize:NO withMeasuredBounds:[[self size] rect]]; 
+		//If layout is non absolute push this into the layout queue
+		//else just layout the child with current bounds
+		if (!TiLayoutRuleIsAbsolute(layoutProperties.layoutStyle) ) {
+			[self contentsWillChange];
+		}
+		else {
+			[self layoutChild:arg optimize:NO withMeasuredBounds:[[self size] rect]];
+		}
 	}
 	else
 	{
@@ -1294,6 +1299,7 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap,horizontalWrap,horizontalWrap,[self willCha
 	{
 		destroyLock = [[NSRecursiveLock alloc] init];
 		pthread_rwlock_init(&childrenLock, NULL);
+		bubbleParent = YES;
 	}
 	return self;
 }
@@ -1607,15 +1613,6 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap,horizontalWrap,horizontalWrap,[self willCha
     // NOTE: We want to fire postlayout events on ANY view, even those which do not allow interactions.
 	if (proxyView == nil || [proxyView interactionEnabled] || [type isEqualToString:@"postlayout"]) {
 		[super fireEvent:type withObject:obj withSource:source propagate:propagate];
-		
-		// views support event propagation. we need to check our
-		// parent and if he has the same named listener, we fire
-		// an event and set the source of the event to ourself
-		
-		if (parent!=nil && propagate==YES)
-		{
-			[parent fireEvent:type withObject:obj withSource:source];
-		}
 	}
 }
 
@@ -1641,6 +1638,11 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap,horizontalWrap,horizontalWrap,[self willCha
 	{
 		[self.view listenerRemoved:type count:count];
 	}
+}
+
+-(TiProxy *)parentForBubbling
+{
+	return parent;
 }
 
 #pragma mark Layout events, internal and external
@@ -2297,7 +2299,7 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
         else if (TiDimensionIsAutoFill(constraint))
         {
             //Fill up the remaining
-            bounds.size.height = boundingValue + offsetV;
+            bounds.size.height = boundingValue;
             verticalLayoutBoundary += bounds.size.height;
         }
         else if (TiDimensionIsAutoSize(constraint))
@@ -2326,7 +2328,7 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
                 verticalLayoutBoundary += bounds.size.height;
             }
             else if (!TiDimensionIsUndefined([child layoutProperties]->top) && !TiDimensionIsUndefined([child layoutProperties]->bottom) ) {
-                bounds.size.height = boundingValue + offsetV;
+                bounds.size.height = boundingValue;
                 verticalLayoutBoundary += bounds.size.height;
             }
             else if (!TiDimensionIsUndefined([child layoutProperties]->centerY) && !TiDimensionIsUndefined([child layoutProperties]->bottom) ) {
