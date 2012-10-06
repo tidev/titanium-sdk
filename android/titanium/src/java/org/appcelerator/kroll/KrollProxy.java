@@ -38,7 +38,7 @@ import android.util.Pair;
  * <a href="http://developer.appcelerator.com/apidoc/mobile/latest/Titanium.UI.createView-method.html">Titanium.UI.createView </a>, 
  * the view object is a proxy itself.
  */
-@Kroll.proxy(name = "KrollProxy", propertyAccessors = { KrollProxy.PROPERTY_HAS_JAVA_LISTENER })
+@Kroll.proxy(name = "KrollProxy", propertyAccessors = { KrollProxy.PROPERTY_HAS_JAVA_LISTENER, TiC.PROPERTY_BUBBLE_PARENT })
 public class KrollProxy implements Handler.Callback, KrollProxySupport
 {
 	private static final String TAG = "KrollProxy";
@@ -108,6 +108,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 		this.listenerIdGenerator = new AtomicInteger(0);
 		this.eventListeners = Collections.synchronizedMap(new HashMap<String, HashMap<Integer, KrollEventCallback>>());
 		this.langConversionTable = getLangConversionTable();
+		defaultValues.put(TiC.PROPERTY_BUBBLE_PARENT, true);
 	}
 
 	private void setupProxy(KrollObject object, Object[] creationArguments, TiUrl creationUrl)
@@ -620,6 +621,26 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 	}
 
 	/**
+	 * Send an event to the view who is next to receive the event.
+	 *
+	 * @param eventName event to send to the next view
+	 * @param data data to include in the event
+	 * @return true if the event was handled
+	 */
+	@Kroll.method
+	public boolean fireEventToParent(String eventName, Object data)
+	{
+		Object bubbleParent = getProperty(TiC.PROPERTY_BUBBLE_PARENT);
+		if (bubbleParent != null && TiConvert.toBoolean(bubbleParent)) {
+			KrollProxy parentProxy = getParentForBubbling();
+			if (parentProxy != null) {
+				return parentProxy.fireEvent(eventName, data);
+			}
+		}
+		return false;
+	}
+
+	/**
 	 * Fires an event synchronously via KrollRuntime thread, which can be intercepted on JS side.
 	 * @param event the event to be fired.
 	 * @param data  the data to be sent.
@@ -781,6 +802,18 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 			return ((TiBaseActivity) activity).getActivityProxy();
 		}
 
+		return null;
+	}
+
+	/**
+	 * Returns proxy that should receive the event next in a case of bubbling. Return null if the class does not
+	 * bubble or there is no parent. Optionally return null if the "bubbleParent" property is false -- i.e.,
+	 * bubbleParent must be checked as well.
+	 *
+	 * @return proxy which is next to receive events
+	 */
+	public KrollProxy getParentForBubbling()
+	{
 		return null;
 	}
 

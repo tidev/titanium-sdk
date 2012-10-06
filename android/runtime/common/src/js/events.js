@@ -32,90 +32,97 @@ var isArray = Array.isArray;
 Object.defineProperty(EventEmitter.prototype, "callHandler", {
 	value: function(handler, type, data) {
 		//kroll.log(TAG, "calling event handler: type:" + type + ", data: " + data + ", handler: " + handler);
+
+		var handled = false;
+		var cancelBubble = data.cancelBubble;
+
 		if (!handler.listener || !(handler.listener.call)) {
 			if (kroll.DBG) {
 				kroll.log(TAG, "handler for event '" + type + "' is " + (typeof handler.listener) + " and cannot be called.");
 			}
-			return;
-		}
 
-		// Create event object, copy any custom event data,
-		// and setting the "type" and "source" properties.
-		var event = { type: type, source: this };
-		if (Object.prototype.toString.call(data) === "[object Object]") {
+		} else {
+			// Create event object, copy any custom event data, and set the "type" and "source" properties.
+			var event = { type: type, source: this };
 			kroll.extend(event, data);
+
+			if (handler.self && (event.source == handler.self.view)) {
+				event.source = handler.self;
+			}
+			kroll.log(TAG, "callHandler: source = " + event.source);
+
+			handler.listener.call(this, event);
+
+			// The "cancelBubble" property may be reset in the handler.
+			if (event.cancelBubble !== cancelBubble) {
+				cancelBubble = event.cancelBubble;
+			}
+
+			handled = true;
 		}
 
-		if (handler.self && (event.source == handler.self.view)) {
-			event.source = handler.self;
+		// Bubble the events to the parent view if needed.
+		if (data.bubbles === true && cancelBubble !== true) {
+			handled = this.fireEventToParent(type, data) || handled;
 		}
-		handler.listener.call(this, event);
+
+		return handled;
 	},
 	enumerable: false
 });
 
 Object.defineProperty(EventEmitter.prototype, "emit", {
 	value: function(type) {
+		kroll.log(TAG, "emit: type = " + type);
 
-		// If there is no 'error' event listener then throw.
-		/*if (type === 'error') {
-			if (!this._events || !this._events.error ||
-					(isArray(this._events.error) && !this._events.error.length))
-			{
-				if (arguments[1] instanceof Error) {
-					throw arguments[1]; // Unhandled 'error' event
-				} else {
-					throw new Error("Uncaught, unspecified 'error' event.");
-				}
-				return false;
+		// Copy any custom event data and set "bubbles" and "cancelBubble" if they are not set yet.
+		// Note: If the events are fired from Java side, the "bubbles" property may be already set
+		// in Java (eg. "click" event fired from the UI thread).
+		var bubbles = false;
+		var data = arguments[1];
+		if (data !== null && typeof data == "object") {
+			if (data.bubbles === undefined || data.bubbles === null) {
+				kroll.extend(data, { bubbles: bubbles });
 			}
-		}*/
+			if (data.cancelBubble === undefined || data.cancelBubble === null) {
+				kroll.extend(data, { cancelBubble: false });
+			}
 
-		if (this._hasJavaListener) {
-			this._onEventFired( type,  arguments[1] || {});
+		} else {
+			data = { bubbles: bubbles, cancelBubble: false };
 		}
 
-		if (!this._events) {
-			//kroll.log(TAG, "no events for " + type + ", not emitting");
-			return false;
+		if (this._hasJavaListener) {
+			this._onEventFired( type,  data );
+		}
+
+		var handled = false;
+
+		if (!this._events || !this._events[type] || !this.callHandler) {
+			if (data.bubbles === true && data.cancelBubble !== true) {
+				handled = this.fireEventToParent(type, data);
+			}
+			return handled;
 		}
 
 		var handler = this._events[type];
-		if (!handler) {
-			//kroll.log(TAG, "no handler for " + type + ", not emitting");
-			return false;
-		}
-
-		if (!this.callHandler) {
-			if (kroll.DBG) {
-				kroll.log(TAG, "callHandler function not available for " + type);
-			}
-			return false;
-		}
-
 		if (typeof handler.listener == 'function') {
-			switch (arguments.length) {
-			case 1:
-				this.callHandler(handler, type);
-				break;
-			default:
-				this.callHandler(handler, type, arguments[1]);
-				break;
-			}
-			return true;
+			handled = this.callHandler(handler, type, data);
 
 		} else if (isArray(handler)) {
-			var args = Array.prototype.slice.call(arguments, 1);
 			var listeners = handler.slice();
 
 			for (var i = 0, l = listeners.length; i < l; i++) {
-				this.callHandler(listeners[i], type, args[0]);
+				handled = this.callHandler(listeners[i], type, data) || handled;
 			}
-			return true;
 
 		} else {
-			return false;
+			if (data.bubbles === true && data.cancelBubble !== true) {
+				handled = this.fireEventToParent(type, data);
+			}
 		}
+
+		return handled;
 	},
 	enumerable: false
 });
