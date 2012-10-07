@@ -51,7 +51,7 @@ exports.config = function (logger, config, cli) {
 };
 
 exports.validate = function (logger, config, cli) {
-	ti.validateProjectDir(logger, cli.argv, 'project-dir');
+	ti.validateProjectDir(logger, cli, cli.argv, 'project-dir');
 	if (!ti.validateCorrectSDK(logger, config, cli, cli.argv['project-dir'])) {
 		// we're running the build command for the wrong SDK version, gracefully return
 		return false;
@@ -59,7 +59,21 @@ exports.validate = function (logger, config, cli) {
 };
 
 exports.run = function (logger, config, cli, finished) {
-	new build(logger, config, cli, finished);
+	cli.fireHook('build.pre', function () {
+		var buildObj = new build(logger, config, cli, function (err) {
+			cli.fireHook('build.post', buildObj, function (e) {
+				if (e && e.type == 'AppcException') {
+					logger.error(e.message);
+					e.details.forEach(function (line) {
+						line && logger.error(line);
+					});
+				}
+				cli.fireHook('build.finalize', buildObj, function () {
+					finished(err);
+				});
+			});
+		});
+	});
 };
 
 function build(logger, config, cli, finished) {
@@ -233,6 +247,7 @@ build.prototype = {
 			for(p in usedAPIs) {
 				p = p.replace('Titanium', 'Ti').replace(/\./g,'/');
 				if (p in this.dependenciesMap && !~this.projectDependencies.indexOf(p)) {
+					// TODO: debug log!
 					this.projectDependencies.push(p);
 				}
 			}
@@ -391,7 +406,6 @@ build.prototype = {
 		Object.keys(data).forEach(function (lang) {
 			data[lang].app && data[lang].appname && (self.appNames[lang] = data[lang].appname);
 			if (data[lang].strings) {
-				dump(data[lang].strings);
 				var dir = path.join(this.buildDir, 'titanium', 'Ti', 'Locale', lang);
 				wrench.mkdirSyncRecursive(dir);
 				fs.writeFileSync(path.join(dir, 'i18n.js'), 'define(' + JSON.stringify(data[lang].strings, null, '\t') + ')');
@@ -659,13 +673,13 @@ build.prototype = {
 			], function (err, stdout, stderr) {
 				if (err) {
 					this.logger.error(__('Failed to create icons'));
-					stderr.toString().split('\n').forEach(function (line) {
-						this.logger.error(line);
-					});
+					stderr && stderr.toString().split('\n').forEach(function (line) {
+						line && this.logger.error(line);
+					}, this);
 					process.exit(1);
 				}
 				callback();
-			});
+			}.bind(this));
 		} else {
 			callback();
 		}

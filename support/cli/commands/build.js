@@ -6,12 +6,14 @@
  */
 
 var appc = require('node-appc'),
+	afs = appc.fs,
 	ti = require('titanium-sdk'),
 	path = require('path'),
 	codeProcessor = require('titanium-code-processor');
 
 // TODO: need to support building modules... how do we know if --dir is a module or app? where is the module _build.js located?
 
+exports.cliVersion = '>=3.X';
 exports.title = __('Build');
 exports.desc = __('builds a project');
 exports.extendedDesc = 'Builds an existing app or module project.';
@@ -20,11 +22,21 @@ exports.config = function (logger, config, cli) {
 	return function (finished) {
 		ti.platformOptions(logger, config, cli, 'build', function (platformConf) {
 			finished({
+				flags: {
+					'build-only': {
+						abbr: 'b',
+						desc: __('only perform the build; if true, does not install or run the app')
+					},
+					force: {
+						abbr: 'f',
+						desc: __('force a full rebuild')
+					}
+				},
 				options: appc.util.mix({
 					platform: {
 						abbr: 'p',
-						callback: function (value) {
-							return ti.resolvePlatform(value);
+						callback: function (platform) {
+							return ti.resolvePlatform(platform);
 						},
 						desc: __('the target build platform'),
 						hint: __('platform'),
@@ -39,6 +51,20 @@ exports.config = function (logger, config, cli) {
 								if (ti.availablePlatforms.indexOf(platform) == -1) {
 									throw new appc.exception(__('Invalid platform: %s', platform));
 								}
+								
+								// it's possible that platform was not specified at the command line in which case the it would
+								// be prompted for. that means that validate() was unable to apply default values for platform-
+								// specific options and scan for platform-specific hooks, so we must do it here.
+								
+								var p = platformConf[platform];
+								p && p.options && Object.keys(p.options).forEach(function (name) {
+									if (p.options[name].default && cli.argv[name] === undefined) {
+										cli.argv[name] = p.options[name].default;
+									}
+								});
+								
+								cli.scanHooks(afs.resolvePath(path.dirname(module.filename), '..', '..', platform, 'cli', 'hooks'));
+								
 								return true;
 							}
 						},
@@ -61,6 +87,7 @@ exports.validate = function (logger, config, cli) {
 	if (ti.validatePlatformOptions(logger, config, cli, 'build') === false) {
 		return false;
 	}
+	ti.loadPlugins(logger, cli, cli.argv['project-dir']);
 };
 
 exports.run = function (logger, config, cli) {
@@ -99,16 +126,12 @@ exports.run = function (logger, config, cli) {
 		}
 	}
 	
-	cli.fireHook('prebuild', function () {
-		require(buildModule).run(logger, config, cli, function (err) {
-			cli.fireHook('finalize', function () {
-				var delta = appc.time.prettyDiff(cli.startTime, Date.now());
-				if (err) {
-					logger.error(__('Project failed to build after %s', delta) + '\n');
-				} else {
-					logger.info(__('Project built successfully in %s', delta) + '\n');
-				}
-			});
-		});
+	require(buildModule).run(logger, config, cli, function (err) {
+		var delta = appc.time.prettyDiff(cli.startTime, Date.now());
+		if (err) {
+			logger.error(__('Project failed to build after %s', delta) + '\n');
+		} else {
+			logger.info(__('Project built successfully in %s', delta) + '\n');
+		}
 	});
 };
