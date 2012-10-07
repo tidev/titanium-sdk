@@ -183,6 +183,8 @@ exports.config = function (logger, config, cli) {
 
 exports.validate = function (logger, config, cli) {
 	var tokens,
+		parts,
+		port,
 		i;
 	
 	ti.validateProjectDir(logger, cli, cli.argv, 'project-dir');
@@ -287,8 +289,15 @@ exports.validate = function (logger, config, cli) {
 	}
 	
 	if (cli.argv['debug-host'] && cli.argv.target != 'dist-playstore') {
-		var parts = cli.argv['debug-host'].split(':'),
-			port = parts.length > 1 && parseInt(parts[1]);
+		if (typeof cli.argv['debug-host'] == 'number') {
+			logger.error(__('Invalid debug host "%s"', cli.argv['debug-host']) + '\n');
+			logger.log(__('The debug host must be in the format "host:port".') + '\n');
+			process.exit(1);
+		}
+
+		parts = cli.argv['debug-host'].split(':'),
+		port = parts.length > 1 && parseInt(parts[1]);
+
 		if (parts.length < 2) {
 			logger.error(__('Invalid debug host "%s"', cli.argv['debug-host']) + '\n');
 			logger.log(__('The debug host must be in the format "host:port".') + '\n');
@@ -308,6 +317,8 @@ exports.validate = function (logger, config, cli) {
 };
 
 exports.run = function (logger, config, cli, finished) {
+	// TODO Add analytics events later when we implement the full andorid build instead of wrapping.
+	sendAnalytics(cli);
 	cli.fireHook('build.pre', function () {
 		var buildObj = new build(logger, config, cli, function (err) {
 			cli.fireHook('build.post', buildObj, function (e) {
@@ -325,37 +336,77 @@ exports.run = function (logger, config, cli, finished) {
 	});
 };
 
+function sendAnalytics(cli) {
+	var eventName = 'android.' + cli.argv.target;
+
+	if (cli.argv.target == 'dist-playstore') {
+		eventName = "android.distribute.playstore";
+	} else if(cli.argv['debug-host']) {
+		eventName += '.debug';
+	} else {
+		eventName += '.run';
+	}
+
+	cli.addAnalyticsEvent(eventName, {
+		dir: cli.argv['project-dir'],
+		name: tiapp.name,
+		publisher: tiapp.publisher,
+		url: tiapp.url,
+		image: tiapp.image,
+		appid: tiapp.id,
+		description: tiapp.description,
+		type: cli.argv.type,
+		guid: tiapp.guid,
+		version: tiapp.version,
+		copyright: tiapp.copyright,
+		date: (new Date()).toDateString()
+	});
+}
+
 function build(logger, config, cli, finished) {
 	var emulatorCmd = [],
 		cmd = [],
-		cmdSpawn;
+		cmdSpawn,
+		err,
+		options = {
+			stdio: 'inherit'
+		};
 
 	logger.info(__('Compiling "%s" build', cli.argv['deploy-type']));
 
-	ti.legacy.constructLegacyCommand(logger, cli, tiapp, cli.argv.platform , cmd, emulatorCmd);
+	// ti.legacy.constructLegacyCommand(cli, tiapp, cli.argv.platform , cmd, emulatorCmd);
 
-	// console.log('Forking correct SDK command: ' + ('python ' + cmd.join(' ')).cyan + '\n');
+	console.log('Forking correct SDK command: ' + ('python ' + cmd.join(' ')).cyan + '\n');
 
 	if (emulatorCmd.length > 0) {
 		spawn('python', emulatorCmd,{}).on('exit', function(code) {
-			if (code === 1) {
-				finished && finished("An error occurred while running the command: " + ('python ' + cmd.join(' ')).cyan + '\n');
+			if (code) {
+				finished && finished('An error occurred while running the command: ' + ('python ' + cmd.join(' ')).cyan + '\n');
 			}
 		});
+
+		// TODO Remove this when we don't want to wrap the python scripts anymore.
+		// We have to send the analytics here because for the emulator command, we will never 'exit' properly, 
+		// as a result send won't get called on exit
+		cli.sendAnalytics();
 	}
 
-	cmdSpawn = spawn('python', cmd, {
-		stdio: 'inherit'
-	});
-
+	cmdSpawn = spawn('python', cmd, options);
+	
 	cmdSpawn.on('exit', function(code) {
-		var err;
 		if (code) {
-			err = "An error occurred while running the command: " + ('python ' + cmd.join(' ')).cyan + '\n';
+			err = 'An error occurred while running the command: ' + ('python ' + cmd.join(' ')).cyan + '\n';
+		} else if (cli.argv['target'] == 'emulator') {
+			// Call the logcat command in the old builder.py after the emulator, so we get logcat output
+			cmd = [];
+			cmd.push(path.join(path.resolve(cli.env.sdks[tiapp['sdk-version']].path), cli.argv.platform, 'builder.py'));
+			cmd.push('logcat');
+			cmd.push(cli.argv['android-sdk']);
+			cmd.push('-e');
+			spawn('python', cmd, options);
 		}
 		finished && finished(err);
 	});
-
 }
 
 build.prototype = {

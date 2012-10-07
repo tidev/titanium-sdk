@@ -60,18 +60,35 @@ exports.validate = function (logger, config, cli) {
 
 exports.run = function (logger, config, cli, finished) {
 	cli.fireHook('build.pre', function () {
-		var buildObj = new build(logger, config, cli, function (err) {
-			cli.fireHook('build.post', buildObj, function (e) {
-				if (e && e.type == 'AppcException') {
-					logger.error(e.message);
-					e.details.forEach(function (line) {
-						line && logger.error(line);
+		var tiapp,
+			buildObj = new build(logger, config, cli, function (err) {
+				cli.fireHook('build.post', buildObj, function (e) {
+					if (e && e.type == 'AppcException') {
+						logger.error(e.message);
+						e.details.forEach(function (line) {
+							line && logger.error(line);
+						});
+					}
+					tiapp = buildObj.tiapp;
+					cli.addAnalyticsEvent('mobileweb.build.' + cli.argv['deploy-type'], {
+						dir: cli.argv['project-dir'],
+						name: tiapp.name,
+						publisher: tiapp.publisher,
+						url: tiapp.url,
+						image: tiapp.image,
+						appid: tiapp.id,
+						description: tiapp.description,
+						type: cli.argv.type,
+						guid: tiapp.guid,
+						version: tiapp.version,
+						copyright: tiapp.copyright,
+						date: (new Date()).toDateString()
 					});
-				}
-				cli.fireHook('build.finalize', buildObj, function () {
-					finished(err);
+
+					cli.fireHook('build.finalize', buildObj, function () {
+						finished(err);
+					});
 				});
-			});
 		});
 	});
 };

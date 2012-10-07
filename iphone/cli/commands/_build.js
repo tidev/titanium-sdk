@@ -437,6 +437,12 @@ exports.validate = function (logger, config, cli) {
 	}
 	
 	if (cli.argv['debug-host'] && cli.argv.target != 'dist-appstore') {
+		if (typeof cli.argv['debug-host'] == 'number') {
+			logger.error(__('Invalid debug host "%s"', cli.argv['debug-host']) + '\n');
+			logger.log(__('The debug host must be in the format "host:port".') + '\n');
+			process.exit(1);
+		}
+
 		var parts = cli.argv['debug-host'].split(':'),
 			port = parts.length > 1 && parseInt(parts[1]);
 		if ((cli.argv.target == 'simulator' && parts.length < 2) || (cli.argv.target != 'simulator' && parts.length < 3)) {
@@ -458,9 +464,12 @@ exports.validate = function (logger, config, cli) {
 };
 
 exports.run = function (logger, config, cli, finished) {
+	var buildObj;
+
 	if (cli.argv.xcode) {
 		// basically, we bypass the pre, post, and finalize hooks for xcode builds
-		new build(logger, config, cli, finished);
+		buildObj = new build(logger, config, cli, finished);
+		sendAnalytics(cli, buildObj.tiapp);
 	} else {
 		cli.fireHook('build.pre', function () {
 			var buildObj = new build(logger, config, cli, function (err) {
@@ -471,6 +480,7 @@ exports.run = function (logger, config, cli, finished) {
 							line && logger.error(line);
 						});
 					}
+					sendAnalytics(cli, buildObj.tiapp);
 					cli.fireHook('build.finalize', buildObj, function () {
 						finished(err);
 					});
@@ -479,6 +489,33 @@ exports.run = function (logger, config, cli, finished) {
 		});
 	}
 };
+
+function sendAnalytics(cli, tiapp) {
+	var eventName = cli.argv['device-family'] + '.' + cli.argv.target;
+
+	if (cli.argv.target == 'dist-appstore' || cli.argv.target == 'dist-adhoc') {
+		eventName = cli.argv['device-family'] + '.distribute.' + cli.argv.target.replace('dist-', '');
+	} else if (cli.argv['debug-host']) {
+		eventName += '.debug';
+	} else {
+		eventName += '.run';
+	}
+
+	cli.addAnalyticsEvent(eventName, {
+		dir: cli.argv['project-dir'],
+		name: tiapp.name,
+		publisher: tiapp.publisher,
+		url: tiapp.url,
+		image: tiapp.image,
+		appid: tiapp.id,
+		description: tiapp.description,
+		type: cli.argv.type,
+		guid: tiapp.guid,
+		version: tiapp.version,
+		copyright: tiapp.copyright,
+		date: (new Date()).toDateString()
+	});
+}
 
 function build(logger, config, cli, finished) {
 	this.logger = logger;
