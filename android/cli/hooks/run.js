@@ -7,7 +7,7 @@
 
 exports.init = function (logger, config, cli) {
 	
-	cli.addHook('postbuild', {
+	cli.addHook('build.post', {
 		priority: 10000,
 		post: function (data, finished) {
 			finished();

@@ -50,7 +50,7 @@ exports.config = function (logger, config, cli) {
 };
 
 exports.validate = function (logger, config, cli) {
-	ti.validateProjectDir(logger, cli.argv, 'project-dir');
+	ti.validateProjectDir(logger, cli, cli.argv, 'project-dir');
 	if (!ti.validateCorrectSDK(logger, config, cli, cli.argv['project-dir'])) {
 		// we're running the build command for the wrong SDK version, gracefully return
 		return false;
@@ -232,6 +232,7 @@ build.prototype = {
 			for(p in usedAPIs) {
 				p = p.replace('Titanium', 'Ti').replace(/\./g,'/');
 				if (p in this.dependenciesMap && !~this.projectDependencies.indexOf(p)) {
+					// TODO: debug log!
 					this.projectDependencies.push(p);
 				}
 			}

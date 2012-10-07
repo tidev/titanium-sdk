@@ -61,7 +61,7 @@ exports.config = function (logger, config, cli) {
 };
 
 exports.validate = function (logger, config, cli) {
-	ti.validateProjectDir(logger, cli.argv, 'project-dir');
+	ti.validateProjectDir(logger, cli, cli.argv, 'project-dir');
 
 	// Validate the key, if it exists
 	if (cli.argv._.length > 0) {
@@ -71,6 +71,8 @@ exports.validate = function (logger, config, cli) {
 			process.exit(1);
 		}
 	}
+	
+	ti.loadPlugins(logger, cli, cli.argv['project-dir']);
 };
 
 exports.run = function (logger, config, cli) {

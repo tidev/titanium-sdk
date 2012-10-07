@@ -21,6 +21,12 @@ exports.config = function (logger, config, cli) {
 	return function (finished) {
 		ti.platformOptions(logger, config, cli, 'build', function (platformConf) {
 			finished({
+				flags: {
+					'build-only': {
+						abbr: 'b',
+						desc: __('only perform the build; if true, does not install or run the app')
+					}
+				},
 				options: appc.util.mix({
 					platform: {
 						abbr: 'p',
@@ -76,6 +82,7 @@ exports.validate = function (logger, config, cli) {
 	if (ti.validatePlatformOptions(logger, config, cli, 'build') === false) {
 		return false;
 	}
+	ti.loadPlugins(logger, cli, cli.argv['project-dir']);
 };
 
 exports.run = function (logger, config, cli) {
@@ -114,16 +121,12 @@ exports.run = function (logger, config, cli) {
 		}
 	}
 	
-	cli.fireHook('prebuild', function () {
-		require(buildModule).run(logger, config, cli, function (err) {
-			cli.fireHook('finalize', function () {
-				var delta = appc.time.prettyDiff(cli.startTime, Date.now());
-				if (err) {
-					logger.error(__('Project failed to build after %s', delta) + '\n');
-				} else {
-					logger.info(__('Project built successfully in %s', delta) + '\n');
-				}
-			});
-		});
+	require(buildModule).run(logger, config, cli, function (err) {
+		var delta = appc.time.prettyDiff(cli.startTime, Date.now());
+		if (err) {
+			logger.error(__('Project failed to build after %s', delta) + '\n');
+		} else {
+			logger.info(__('Project built successfully in %s', delta) + '\n');
+		}
 	});
 };

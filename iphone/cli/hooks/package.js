@@ -1,5 +1,5 @@
 /*
- * pacakge.js: Titanium iOS CLI package hook
+ * package.js: Titanium iOS CLI package hook
  *
  * Copyright (c) 2012, Appcelerator, Inc.  All Rights Reserved.
  * See the LICENSE file for more information.
@@ -15,7 +15,7 @@ var appc = require('node-appc'),
 
 exports.init = function (logger, config, cli) {
 	
-	cli.addHook('postbuild', {
+	cli.addHook('build.post', {
 		priority: 8000,
 		post: function (build, finished) {
 			if (!/dist-(appstore|adhoc)/.test(cli.argv.target)) return finished();
@@ -109,7 +109,7 @@ exports.init = function (logger, config, cli) {
 						if (cli.argv['output-dir']) {
 							dest = path.join(cli.argv['output-dir'], build.tiapp.name + '.ipa');
 							afs.exists(dest) && fs.unlink(dest);
-							afs.copyFileSync(ipa, dest, { logger: logger.debug });
+							afs.copyFileSync(ipa, cli.argv['output-dir'], { logger: logger.debug });
 						}
 						
 						logger.info(__('Packaging complete'));

@@ -42,11 +42,6 @@ exports.config = function (logger, config, cli) {
 			
 			callback(conf = {
 				flags: {
-					'build-only': {
-						abbr: 'b',
-						default: false,
-						desc: __('only perform the build; if true, does not install or run the app')
-					},
 					force: {
 						abbr: 'f',
 						default: false,
@@ -197,7 +192,7 @@ exports.validate = function (logger, config, cli) {
 	var tokens,
 		i;
 	
-	ti.validateProjectDir(logger, cli.argv, 'project-dir');
+	ti.validateProjectDir(logger, cli, cli.argv, 'project-dir');
 	if (!ti.validateCorrectSDK(logger, config, cli, cli.argv['project-dir'])) {
 		// we're running the build command for the wrong SDK version, gracefully return
 		return false;
