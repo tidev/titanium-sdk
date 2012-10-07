@@ -7,6 +7,7 @@
 package ti.modules.titanium.ui.widget.webview;
 
 import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiC;
 
@@ -14,8 +15,10 @@ import ti.modules.titanium.media.TiVideoActivity;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
+import android.net.http.SslError;
 import android.webkit.HttpAuthHandler;
 import android.webkit.MimeTypeMap;
+import android.webkit.SslErrorHandler;
 import android.webkit.URLUtil;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
@@ -149,5 +152,32 @@ public class TiWebViewClient extends WebViewClient
 	{
 		this.username = username;
 		this.password = password;
+	}
+
+	@Override
+	public void onReceivedSslError(WebView view, SslErrorHandler handler, SslError error)
+	{
+		/*
+		 * in theory this should be checked to make sure it's not null but if there is some failure 
+		 * in the association then usage of webViewProxy should trigger a NPE to make sure the issue 
+		 * is not ignored
+		 */
+		KrollProxy webViewProxy = this.webView.getProxy();
+
+		boolean ignoreSslError = false;
+		try {
+			ignoreSslError = webViewProxy.getProperties().optBoolean(TiC.PROPERTY_WEBVIEW_IGNORE_SSL_ERROR, false);
+
+		} catch(IllegalArgumentException e) {
+			Log.e(TAG, TiC.PROPERTY_WEBVIEW_IGNORE_SSL_ERROR + " property does not contain a boolean value, ignoring"); 
+		}
+
+		if (ignoreSslError == true) {
+			Log.w(TAG, "ran into SSL error but ignoring...");
+			handler.proceed();
+
+		} else {
+			Log.e(TAG, "SSL error occurred: " + error.toString());
+		}
 	}
 }

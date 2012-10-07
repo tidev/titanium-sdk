@@ -522,8 +522,22 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 	{
 		singleLocation = [[NSMutableArray alloc] initWithCapacity:1];
 	}
-	[singleLocation addObject:callback];
-	[self startStopLocationManagerIfNeeded]; 
+
+    // If the location updates are started, invoke the callback directly.
+    if (locationManager!=nil && trackingLocation==YES) {
+        CLLocation *currentLocation = locationManager.location;
+        NSDictionary *todict = [self locationDictionary:currentLocation];
+        NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:
+                               todict,@"coords",
+                               NUMBOOL(YES),@"success",
+                               nil];
+        [self _fireEventToListener:@"location" withObject:event listener:callback thisObject:nil];
+    }
+    // Otherwise, start the location manager.
+    else {
+        [singleLocation addObject:callback];
+        [self startStopLocationManagerIfNeeded];
+    }
 }
 
 -(NSNumber*)highAccuracy
