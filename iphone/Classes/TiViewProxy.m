@@ -2652,17 +2652,32 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
 
 - (void)setAccessibilityLabel:(NSString *)accessibilityLabel
 {
-	[[self view].accessibilityElement setAccessibilityLabel:accessibilityLabel];
+	id accessibilityElement = [self view].accessibilityElement;
+	if (accessibilityElement != nil) {
+		[accessibilityElement setAccessibilityLabel:accessibilityLabel];
+	} else {
+		[self setValue:accessibilityLabel forUndefinedKey:@"accessibilityLabel"];
+	}
 }
 
 - (void)setAccessibilityValue:(NSString *)accessibilityValue
 {
-	[[self view].accessibilityElement setAccessibilityValue:accessibilityValue];
+	id accessibilityElement = [self view].accessibilityElement;
+	if (accessibilityElement != nil) {
+		[accessibilityElement setAccessibilityValue:accessibilityValue];
+	} else {
+		[self setValue:accessibilityValue forUndefinedKey:@"accessibilityValue"];
+	}
 }
 
 - (void)setAccessibilityHint:(NSString *)accessibilityHint
 {
-	[[self view].accessibilityElement setAccessibilityHint:accessibilityHint];
+	id accessibilityElement = [self view].accessibilityElement;
+	if (accessibilityElement != nil) {
+		[accessibilityElement setAccessibilityHint:accessibilityHint];
+	} else {
+		[self setValue:accessibilityHint forUndefinedKey:@"accessibilityHint"];
+	}
 }
 
 @end

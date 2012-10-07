@@ -95,7 +95,7 @@ properties:
   - name: accessibilityLabel
     summary: A succint label associated with the bar item for the device's accessibility service.
     description: |
-        See <Ti.UI.View.accessibilityValue> description.
+        See <Ti.UI.View.accessibilityLabel> description.
     since: "3.0.0"
     platforms: [iphone, ipad]
     type: String
