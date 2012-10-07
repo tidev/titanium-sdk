@@ -13,6 +13,8 @@ var appc = require('node-appc'),
 	wrench = require('wrench'),
 	exec = require('child_process').exec;
 
+exports.cliVersion = '>=3.X';
+
 exports.init = function (logger, config, cli) {
 	
 	cli.addHook('build.post', {

@@ -11,6 +11,7 @@ var appc = require('node-appc'),
 	path = require('path'),
 	wrench = require('wrench');
 
+exports.cliVersion = '>=3.X';
 exports.desc = __('creates a new mobile application or module');
 
 exports.config = function (logger, config, cli) {

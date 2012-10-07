@@ -13,6 +13,7 @@ var appc = require('node-appc'),
 
 // TODO: need to support building modules... how do we know if --dir is a module or app? where is the module _build.js located?
 
+exports.cliVersion = '>=3.X';
 exports.title = __('Build');
 exports.desc = __('builds a project');
 exports.extendedDesc = 'Builds an existing app or module project.';
@@ -25,6 +26,10 @@ exports.config = function (logger, config, cli) {
 					'build-only': {
 						abbr: 'b',
 						desc: __('only perform the build; if true, does not install or run the app')
+					},
+					force: {
+						abbr: 'f',
+						desc: __('force a full rebuild')
 					}
 				},
 				options: appc.util.mix({

@@ -58,7 +58,21 @@ exports.validate = function (logger, config, cli) {
 };
 
 exports.run = function (logger, config, cli, finished) {
-	new build(logger, config, cli, finished);
+	cli.fireHook('build.pre', function () {
+		var buildObj = new build(logger, config, cli, function (err) {
+			cli.fireHook('build.post', buildObj, function (e) {
+				if (e && e.type == 'AppcException') {
+					logger.error(e.message);
+					e.details.forEach(function (line) {
+						line && logger.error(line);
+					});
+				}
+				cli.fireHook('build.finalize', buildObj, function () {
+					finished(err);
+				});
+			});
+		});
+	});
 };
 
 function build(logger, config, cli, finished) {

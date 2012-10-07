@@ -5,6 +5,8 @@
  * See the LICENSE file for more information.
  */
 
+exports.cliVersion = '>=3.X';
+
 exports.init = function (logger, config, cli) {
 	function fire(evtName, data, callback) {
 		// TODO: need to run all plugins via async series to fire the evtName

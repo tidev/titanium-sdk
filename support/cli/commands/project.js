@@ -10,6 +10,7 @@ var path = require('path'),
 	appc = require('node-appc'),
 	mix = appc.util.mix;
 
+exports.cliVersion = '>=3.X';
 exports.desc = __('get and set tiapp.xml settings'),
 exports.extendedDesc = __([
 	'Get and set tiapp.xml settings.',
