@@ -518,11 +518,8 @@ public abstract class TiUIView
 			} else {
 				setzIndexChanged(true);
 			}
-		} else if (key.equals(TiC.PROPERTY_FOCUSABLE)) {
-			if (newValue != null) {
-				boolean focusable = TiConvert.toBoolean(newValue);
-				registerForKeyPress(nativeView, focusable);
-			}
+		} else if (key.equals(TiC.PROPERTY_FOCUSABLE) && newValue != null) {
+			registerForKeyPress(nativeView, TiConvert.toBoolean(newValue));
 		} else if (key.equals(TiC.PROPERTY_TOUCH_ENABLED)) {
 			doSetClickable(TiConvert.toBoolean(newValue));
 		} else if (key.equals(TiC.PROPERTY_VISIBLE)) {
@@ -1028,6 +1025,9 @@ public abstract class TiUIView
 		return true;
 	}
 
+	/**
+	 * @module.api
+	 */
 	protected boolean allowRegisterForKeyPress()
 	{
 		return true;
@@ -1343,26 +1343,6 @@ public abstract class TiUIView
 		if (d != null) {
 			d.clearColorFilter();
 		}
-	}
-
-	protected void registerForKeyClick(View clickable) 
-	{
-		clickable.setOnKeyListener(new OnKeyListener() {
-			public boolean onKey(View view, int keyCode, KeyEvent event) 
-			{
-				if (event.getAction() == KeyEvent.ACTION_UP) {
-					switch(keyCode) {
-					case KeyEvent.KEYCODE_ENTER :
-					case KeyEvent.KEYCODE_DPAD_CENTER :
-						if (proxy.hasListeners(TiC.EVENT_CLICK)) {
-							proxy.fireEvent(TiC.EVENT_CLICK, null);
-							return true;
-						}
-					}
-				}
-				return false;
-			}
-		});
 	}
 
 	public KrollDict toImage()
