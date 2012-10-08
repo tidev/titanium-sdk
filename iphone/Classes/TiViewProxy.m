@@ -2652,32 +2652,32 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
 
 - (void)setAccessibilityLabel:(NSString *)accessibilityLabel
 {
+	ENSURE_UI_THREAD(setAccessibilityLabel, accessibilityLabel);
 	id accessibilityElement = [self view].accessibilityElement;
 	if (accessibilityElement != nil) {
 		[accessibilityElement setAccessibilityLabel:accessibilityLabel];
-	} else {
-		[self setValue:accessibilityLabel forUndefinedKey:@"accessibilityLabel"];
 	}
+	[self setValue:accessibilityLabel forUndefinedKey:@"accessibilityLabel"];
 }
 
 - (void)setAccessibilityValue:(NSString *)accessibilityValue
 {
+	ENSURE_UI_THREAD(setAccessibilityValue, accessibilityValue);
 	id accessibilityElement = [self view].accessibilityElement;
 	if (accessibilityElement != nil) {
 		[accessibilityElement setAccessibilityValue:accessibilityValue];
-	} else {
-		[self setValue:accessibilityValue forUndefinedKey:@"accessibilityValue"];
 	}
+	[self setValue:accessibilityValue forUndefinedKey:@"accessibilityValue"];
 }
 
 - (void)setAccessibilityHint:(NSString *)accessibilityHint
 {
+	ENSURE_UI_THREAD(setAccessibilityHint, accessibilityHint);
 	id accessibilityElement = [self view].accessibilityElement;
 	if (accessibilityElement != nil) {
 		[accessibilityElement setAccessibilityHint:accessibilityHint];
-	} else {
-		[self setValue:accessibilityHint forUndefinedKey:@"accessibilityHint"];
 	}
+	[self setValue:accessibilityHint forUndefinedKey:@"accessibilityHint"];
 }
 
 @end
