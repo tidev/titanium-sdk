@@ -229,12 +229,14 @@
 -(void)setContentWidth_:(id)value
 {
 	contentWidth = [TiUtils dimensionValue:value];
+    [self.proxy replaceValue:value forKey:@"contentWidth" notification:NO];
 	[self performSelector:@selector(setNeedsHandleContentSize) withObject:nil afterDelay:.1];
 }
 
 -(void)setContentHeight_:(id)value
 {
 	contentHeight = [TiUtils dimensionValue:value];
+    [self.proxy replaceValue:value forKey:@"contentHeight" notification:NO];
 	[self performSelector:@selector(setNeedsHandleContentSize) withObject:nil afterDelay:.1];
 }
 
