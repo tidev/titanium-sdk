@@ -83,6 +83,10 @@ exports.config = function (logger, config, cli) {
 };
 
 exports.validate = function (logger, config, cli) {
+	
+	// Set the type to 'app' for now
+	cli.argv['type'] = 'app';
+	
 	ti.validatePlatform(logger, cli.argv, 'platform');
 	if (ti.validatePlatformOptions(logger, config, cli, 'build') === false) {
 		return false;
@@ -134,4 +138,5 @@ exports.run = function (logger, config, cli) {
 			logger.info(__('Project built successfully in %s', delta) + '\n');
 		}
 	});
+
 };
