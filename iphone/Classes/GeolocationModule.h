@@ -64,7 +64,7 @@
 @property(nonatomic,readonly) NSNumber *ACCURACY_KILOMETER;
 @property(nonatomic,readonly) NSNumber *ACCURACY_LOW;
 @property(nonatomic,readonly) NSNumber *ACCURACY_THREE_KILOMETERS;
-@property(nonatomic,readonly) NSNumber *ACCURACY_BEST_FOR_NAVIGATION;//Since 2.1.3
+@property(nonatomic,readonly) NSNumber *ACCURACY_BEST_FOR_NAVIGATION;//Since 3.0
 
 // Authorization to use location, 4.2+ only
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_4_2

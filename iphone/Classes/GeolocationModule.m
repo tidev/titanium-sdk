@@ -541,8 +541,22 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 	{
 		singleLocation = [[NSMutableArray alloc] initWithCapacity:1];
 	}
-	[singleLocation addObject:callback];
-	[self startStopLocationManagerIfNeeded]; 
+
+    // If the location updates are started, invoke the callback directly.
+    if (locationManager!=nil && trackingLocation==YES) {
+        CLLocation *currentLocation = locationManager.location;
+        NSDictionary *todict = [self locationDictionary:currentLocation];
+        NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:
+                               todict,@"coords",
+                               NUMBOOL(YES),@"success",
+                               nil];
+        [self _fireEventToListener:@"location" withObject:event listener:callback thisObject:nil];
+    }
+    // Otherwise, start the location manager.
+    else {
+        [singleLocation addObject:callback];
+        [self startStopLocationManagerIfNeeded];
+    }
 }
 
 -(NSNumber*)highAccuracy
@@ -722,7 +736,7 @@ MAKE_SYSTEM_PROP_DBL(ACCURACY_HUNDRED_METERS,kCLLocationAccuracyHundredMeters);
 MAKE_SYSTEM_PROP_DBL(ACCURACY_KILOMETER,kCLLocationAccuracyKilometer);
 MAKE_SYSTEM_PROP_DBL(ACCURACY_THREE_KILOMETERS,kCLLocationAccuracyThreeKilometers);
 MAKE_SYSTEM_PROP_DBL(ACCURACY_LOW, kCLLocationAccuracyThreeKilometers);
-MAKE_SYSTEM_PROP(ACCURACY_BEST_FOR_NAVIGATION, kCLLocationAccuracyBestForNavigation);//Since 2.1.3
+MAKE_SYSTEM_PROP(ACCURACY_BEST_FOR_NAVIGATION, kCLLocationAccuracyBestForNavigation);//Since 3.0
 
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_4_2
 MAKE_SYSTEM_PROP(AUTHORIZATION_UNKNOWN, kCLAuthorizationStatusNotDetermined);
