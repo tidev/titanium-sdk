@@ -10,6 +10,9 @@ var ti = require('titanium-sdk'),
 	path = require('path'),
 	wrench = require('wrench'),
 	appc = require('node-appc'),
+	i18n = appc.i18n(__dirname),
+	__ = i18n.__,
+	__n = i18n.__n,
 	afs = appc.fs;
 
 exports.cliVersion = '>=3.X';
@@ -127,7 +130,8 @@ exports.run = function (logger, config, cli) {
 		projectDir = afs.resolvePath(cli.argv['workspace-dir'], projectName),
 		templateDir = afs.resolvePath(sdk.path, 'templates', type, cli.argv.template),
 		uuid = require('node-uuid'),
-		projectConfig;
+		projectConfig,
+		analyticsPayload;
 	
 	afs.exists(projectDir) || wrench.mkdirSyncRecursive(projectDir);
 	wrench.copyDirSyncRecursive(templateDir, projectDir);
@@ -160,6 +164,22 @@ exports.run = function (logger, config, cli) {
 			'#image: appicon.png',
 			'#desc: not specified'
 		].join('\n'));
+
+		analyticsPayload = {
+			dir: projectDir,
+			name: projectName,
+			publisher: projectConfig.publisher,
+			url: projectConfig.url,
+			image: projectConfig.image,
+			appid: id,
+			description: projectConfig.description,
+			type: type,
+			guid: projectConfig.guid,
+			version: projectConfig.version,
+			copyright: projectConfig.copyright,
+			runtime: '1.0',
+			date: (new Date()).toDateString()
+		};
 	} else if (type == 'module') {
 		logger.info(__('Creating Titanium Mobile module project'));
 		
@@ -194,9 +214,22 @@ exports.run = function (logger, config, cli) {
 			'name: ' + projectName,
 			'moduleid: ' + id,
 			'guid: ' + projectConfig.__GUID__,
-			'platforms: ' + platforms.sort().join(', '),
-			'minsdk: ' + sdk.name
+			'platforms: ' + platforms.sort().join(', ')
 		].join('\n'));
+
+		analyticsPayload = {
+			dir: projectDir,
+			name: projectName,
+			author: ((config.user && config.user.name) || 'Your Name'),
+			moduleid: id,
+			description: projectName,
+			guid: projectConfig.__GUID__,
+			version: '1.0',
+			copyright: 'copyright: Copyright (c) 2012 by ' + ((config.user && config.user.name) || 'Your Company'),
+			minsdk: sdk.name,
+			platforms: platforms.sort().join(', '),
+			date: (new Date()).toDateString()
+		};
 	}
 	
 	platforms.forEach(function (platform) {
@@ -207,4 +240,7 @@ exports.run = function (logger, config, cli) {
 	});
 	
 	logger.info(__("Project '%s' created successfully in %s", projectName.cyan, appc.time.prettyDiff(cli.startTime, Date.now())) + '\n');
+
+	// This will be something like 'project.create.app' ... do we want it to be something like 'project.create.mobile' like studio?
+	cli.addAnalyticsEvent('project.create.' + cli.argv.type, analyticsPayload);
 };

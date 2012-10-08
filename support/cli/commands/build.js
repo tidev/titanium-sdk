@@ -6,6 +6,9 @@
  */
 
 var appc = require('node-appc'),
+	i18n = appc.i18n(__dirname),
+	__ = i18n.__,
+	__n = i18n.__n,
 	afs = appc.fs,
 	ti = require('titanium-sdk'),
 	path = require('path'),
@@ -83,6 +86,10 @@ exports.config = function (logger, config, cli) {
 };
 
 exports.validate = function (logger, config, cli) {
+	
+	// Set the type to 'app' for now
+	cli.argv['type'] = 'app';
+	
 	ti.validatePlatform(logger, cli.argv, 'platform');
 	if (ti.validatePlatformOptions(logger, config, cli, 'build') === false) {
 		return false;
@@ -134,4 +141,5 @@ exports.run = function (logger, config, cli) {
 			logger.info(__('Project built successfully in %s', delta) + '\n');
 		}
 	});
+
 };
