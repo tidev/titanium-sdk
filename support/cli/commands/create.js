@@ -116,8 +116,6 @@ exports.validate = function (logger, config, cli) {
 		logger.log(__("Run '%s' to overwrite existing project.", (cli.argv.$ + ' ' + process.argv.slice(2).join(' ') + ' --force').cyan) + '\n');
 		process.exit(1);
 	}
-	
-	ti.loadPlugins(logger, cli, projectDir);
 };
 
 exports.run = function (logger, config, cli) {
