@@ -217,7 +217,7 @@ static NSDictionary* TI_filterableItemProperties;
 	else
 	{
 		RELEASE_TO_NIL(popover);
-		UIView *poView = [tiApp controller].view;
+		UIView *poView = [[[tiApp controller] topWindow] view];
 		CGRect poFrame;
 		TiViewProxy* popoverViewProxy = [args objectForKey:@"popoverView"];
 		UIPopoverArrowDirection arrow = [TiUtils intValue:@"arrowDirection" properties:args def:UIPopoverArrowDirectionAny];
@@ -234,6 +234,11 @@ static NSDictionary* TI_filterableItemProperties;
 			poFrame.size.height = 50;
 		}
 
+		if ([poView window] == nil) {
+			// No window, so we can't display the popover...
+			DebugLog(@"[WARN] Unable to display picker; view is not attached to the current window");
+			return;
+		}
 		//FROM APPLE DOCS
 		//If you presented the popover from a target rectangle in a view, the popover controller does not attempt to reposition the popover. 
 		//In thosecases, you must manually hide the popover or present it again from an appropriate new position.
@@ -284,10 +289,16 @@ static NSDictionary* TI_filterableItemProperties;
 	if (popover) {
 		//GO AHEAD AND RE-PRESENT THE POPOVER NOW 
 		CGRect popOverRect = [popoverView bounds];
-		if (popoverView == [[TiApp app] controller].view) {
+		if (popoverView == [[[[TiApp app] controller] topWindow] view]) {
 			popOverRect.size.height = 50;
 		}
-		[popover presentPopoverFromRect:popOverRect inView:popoverView permittedArrowDirections:arrowDirection animated:NO];
+        if ([popoverView window] == nil) {
+            // No window, so we can't display the popover...
+            DebugLog(@"[WARN] Unable to display picker; view is not attached to the current window");
+        }
+        else {
+            [popover presentPopoverFromRect:popOverRect inView:popoverView permittedArrowDirections:arrowDirection animated:NO];
+        }
 	}
 	isPresenting = NO;
 }
