@@ -18,6 +18,10 @@
 #ifdef DEBUG_IMAGE_CACHE
 #import <mach/mach.h>
 #endif
+@protocol TiResizableImageIOS6Support <NSObject>
+@optional
+- (UIImage *)resizableImageWithCapInsets:(UIEdgeInsets)capInsets resizingMode:(NSInteger)resizingMode;
+@end
 
 @interface ImageCacheEntry : NSObject
 {
@@ -135,7 +139,13 @@
             if ((top + bottom) >= maxHeight) {
                 bottom = maxHeight - (top + 1);
             }
-            stretchableImage = [[theImage resizableImageWithCapInsets:UIEdgeInsetsMake(top, left, bottom, right)] retain];
+            if ([theImage respondsToSelector:@selector(resizableImageWithCapInsets:resizingMode:)]) {
+                //1 = UIImageResizingModeStretch
+                stretchableImage = [[theImage resizableImageWithCapInsets:UIEdgeInsetsMake(top, left, bottom, right) resizingMode:1] retain];
+            }
+            else {
+                stretchableImage = [[theImage resizableImageWithCapInsets:UIEdgeInsetsMake(top, left, bottom, right)] retain];
+            }
         }
         else
         {
