@@ -31,15 +31,6 @@
 	return @"ADBannerContentSize480x32";
 }
 
--(TiDimension)defaultAutoWidthBehavior:(id)unused
-{
-    return TiDimensionAutoSize;
-}
--(TiDimension)defaultAutoHeightBehavior:(id)unused
-{
-    return TiDimensionAutoSize;
-}
-
 USE_VIEW_FOR_CONTENT_HEIGHT
 USE_VIEW_FOR_CONTENT_WIDTH
 
@@ -73,17 +64,6 @@ USE_VIEW_FOR_CONTENT_WIDTH
     
     // Need to ensure the size is set on the UI thread
     [self makeViewPerformSelector:@selector(setAdSize:) withObject:arg createIfNeeded:YES waitUntilDone:NO];
-}
-
--(void)fireLoad:(id)unused
-{
-    if ([self _hasListeners:@"load"])
-    {
-        NSMutableDictionary *event = [NSMutableDictionary dictionary];
-        [self fireEvent:@"load" withObject:event];
-    }
-
-    [self contentsWillChange];
 }
 
 @end

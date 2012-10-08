@@ -73,94 +73,6 @@ MIN_API_LEVEL = 8
 HONEYCOMB_MR2_LEVEL = 13
 KNOWN_ABIS = ("armeabi", "armeabi-v7a", "x86")
 
-def launch_logcat():
-	valid_device_switches = ('-e', '-d', '-s')
-	device_id = None
-	android_sdk_location = None
-	adb_location = None
-	logcat_process = None
-	device_switch = None # e.g., -e or -d or -s
-
-	def show_usage():
-		print >> sys.stderr, ""
-		print >> sys.stderr, "%s devicelog <sdk_dir> <device_switch> [device_serial_number]" % os.path.basename(sys.argv[0])
-		print >> sys.stderr, ""
-		print >> sys.stderr, "The <device_switch> can be -e, -d -s. If -s, also pass serial number."
-		sys.exit(1)
-
-	if len(sys.argv) < 3:
-		print >> sys.stderr, "Missing Android SDK location."
-		show_usage()
-	else:
-		android_sdk_location = os.path.abspath(os.path.expanduser(sys.argv[2]))
-
-	adb_location = AndroidSDK(android_sdk_location).get_adb()
-
-	if len(sys.argv) < 4:
-		print >> sys.stderr, "Missing device/emulator switch (e.g., -e, -d, -s)."
-		show_usage()
-
-	device_switch = sys.argv[3]
-	if device_switch not in valid_device_switches:
-		print >> sys.stderr, "Unknown device type switch: %s" % device_switch
-		show_usage()
-
-	if device_switch == "-s":
-		if len(sys.argv) < 5:
-			print >> sys.stderr, "Must specify serial number when using -s."
-			show_usage()
-		else:
-			device_id = sys.argv[4]
-
-	# For killing the logcat process if our process gets killed.
-	def signal_handler(signum, frame):
-		print "[DEBUG] Signal %s received. Terminating the logcat process." % signum
-		if logcat_process is not None:
-			if platform.system() == "Windows":
-				os.system("taskkill /F /T /PID %i" % logcat_process.pid)
-			else:
-				os.kill(logcat_process.pid, signal.SIGTERM)
-
-	# make sure adb is running on windows, else XP can lockup the python
-	# process when adb runs first time
-	if platform.system() == "Windows":
-		run.run([adb_location, "start-server"], True, ignore_output=True)
-
-	logcat_cmd = [adb_location, device_switch]
-
-	if device_id:
-		logcat_cmd.append(device_id)
-
-	logcat_cmd.extend(["logcat", "-s", "*:d,*,TiAPI:V"])
-
-	logcat_process = subprocess.Popen(logcat_cmd)
-
-	if platform.system() != "Windows":
-		signal.signal(signal.SIGHUP, signal_handler)
-		signal.signal(signal.SIGQUIT, signal_handler)
-
-	signal.signal(signal.SIGINT, signal_handler)
-	signal.signal(signal.SIGABRT, signal_handler)
-	signal.signal(signal.SIGTERM, signal_handler)
-
-	# In case it's gonna exit early (like if the command line
-	# was wrong or something) give it a chance to do so before we start
-	# waiting on it.
-	time.sleep(1)
-	return_code = logcat_process.poll()
-	if return_code:
-		signal_handler(signal.SIGQUIT, None)
-		sys.exit(return_code)
-
-	# Now wait for it.
-	try:
-		return_code = logcat_process.wait()
-	except OSError:
-		signal_handler(signal.SIGQUIT, None)
-		sys.exit(return_code)
-
-	sys.exit(return_code)
-
 def render_template_with_tiapp(template_text, tiapp_obj):
 	t = Template(template_text)
 	return t.render(tiapp=tiapp_obj)
@@ -525,11 +437,7 @@ class Builder(object):
 			info("Creating 64M SD card for use in Android emulator")
 			run.run([self.sdk.get_mksdcard(), '64M', self.sdcard])
 		if not os.path.exists(my_avd):
-			if multiple_abis:
-				info("Creating new Android Virtual Device (%s %s %s)" % (avd_id,avd_skin,avd_abi))
-			else:
-				info("Creating new Android Virtual Device (%s %s)" % (avd_id,avd_skin))
-
+			info("Creating new Android Virtual Device (%s %s)" % (avd_id,avd_skin))
 			inputgen = os.path.join(template_dir,'input.py')
 			abi_args = []
 			if multiple_abis:
@@ -591,12 +499,9 @@ class Builder(object):
 			'-partition-size',
 			'128' # in between nexusone and droid
 		]
-
-		if add_args:
-			emulator_cmd.extend([arg.strip() for arg in add_args if len(arg.strip()) > 0])
-
+		emulator_cmd.extend([arg.strip() for arg in add_args if len(arg.strip()) > 0])
 		debug(' '.join(emulator_cmd))
-
+		
 		p = subprocess.Popen(emulator_cmd)
 		
 		def handler(signum, frame):
@@ -2043,7 +1948,7 @@ class Builder(object):
 			# We need to know this info in a few places, so the info is saved
 			# in self.missing_modules and self.modules
 			detector = ModuleDetector(self.top_dir)
-			self.missing_modules, self.modules = detector.find_app_modules(self.tiapp, 'android', deploy_type)
+			self.missing_modules, self.modules = detector.find_app_modules(self.tiapp, 'android')
 
 			self.copy_commonjs_modules()
 			self.copy_project_resources()
@@ -2249,7 +2154,7 @@ class Builder(object):
 
 if __name__ == "__main__":
 	def usage():
-		print "%s <command> <project_name> <sdk_dir> <project_dir> <app_id> [key] [password] [alias] [dir] [avdid] [avdskin] [avdabi] [emulator options]" % os.path.basename(sys.argv[0])
+		print "%s <command> <project_name> <sdk_dir> <project_dir> <app_id> [key] [password] [alias] [dir] [avdid] [avdsdk] [avdabi] [emulator options]" % os.path.basename(sys.argv[0])
 		print
 		print "available commands: "
 		print
@@ -2267,10 +2172,6 @@ if __name__ == "__main__":
 		usage()
 
 	command = sys.argv[1]
-
-	if command == 'logcat':
-		launch_logcat()
-
 	template_dir = os.path.abspath(os.path.dirname(sys._getframe(0).f_code.co_filename))
 	get_values_from_tiapp = False
 
@@ -2322,39 +2223,36 @@ if __name__ == "__main__":
 			builder.build_and_run(False, avd_id)
 		elif command == 'emulator':
 			avd_id = dequote(sys.argv[6])
-			add_args = None
-			avd_abi = None
-			avd_skin = None
-			avd_name = None
-
 			if avd_id.isdigit():
 				avd_name = None
 				avd_skin = dequote(sys.argv[7])
 				
-				if argc > 8:
-					# The first of the remaining args
-					# could either be an abi or an additional argument for
-					# the emulator. Compare to known abis.
-					next_index = 8
-					test_arg = sys.argv[next_index]
-					if test_arg in KNOWN_ABIS:
-						avd_abi = test_arg
-						next_index += 1
-
-					# Whatever remains (if anything) is an additional
-					# argument to pass to the emulator.
-					if argc > next_index:
-						add_args = sys.argv[next_index:]
-
+				# TODO: This is for studio compatibility only. We will
+				# need to rip it out once they support ABI selection.
+				# Note that this will ALSO possibly break existing external
+				# build scripts in a bad way.
+				
+				if len(sys.argv) > 9:
+					avd_abi = dequote(sys.argv[8])
+					add_args = sys.argv[9:]
+				else:
+					avd_abi = None
+					add_args = sys.argv[8:]
 			else:
 				avd_name = sys.argv[6]
-				# If the avd is known by name, then the skin and abi shouldn't be passed,
-				# because the avd already has the skin and abi "in it".
 				avd_id = None
 				avd_skin = None
-				avd_abi = None
-
-				if argc > 7:
+				
+				# TODO: This is for studio compatibility only. We will
+				# need to rip it out once they support ABI selection.
+				# Note that this will ALSO possibly break existing external
+				# build scripts in a bad way.
+				
+				if len(sys.argv) > 8:
+					avd_abi = dequote(sys.argv[7])
+					add_args = sys.argv[8:]
+				else:
+					avd_abi = None
 					add_args = sys.argv[7:]
 
 			builder.run_emulator(avd_id, avd_skin, avd_name, avd_abi, add_args)

@@ -109,11 +109,7 @@ extern NSString * const TI_APPLICATION_DEPLOYTYPE;
 	{
 		readyState = NetworkClientStateUnsent;
 		autoRedirect = [[NSNumber alloc] initWithBool:YES];
-#if defined(DEBUG) || defined(DEVELOPER)
-			validatesSecureCertificate = [[NSNumber alloc] initWithBool:NO];
-#else
-			validatesSecureCertificate = [[NSNumber alloc] initWithBool:YES];
-#endif
+		validatesSecureCertificate = [[NSNumber alloc] initWithBool:NO];
 	}
 	return self;
 }

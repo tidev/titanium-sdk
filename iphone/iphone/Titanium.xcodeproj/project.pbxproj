@@ -7,12 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		1D0061C1160283820016BBEE /* TiBindingRunLoop.m in Sources */ = {isa = PBXBuildFile; fileRef = 1D0061C0160283820016BBEE /* TiBindingRunLoop.m */; };
-		1D0061C2160283820016BBEE /* TiBindingRunLoop.m in Sources */ = {isa = PBXBuildFile; fileRef = 1D0061C0160283820016BBEE /* TiBindingRunLoop.m */; };
-		1D0061C3160283820016BBEE /* TiBindingRunLoop.m in Sources */ = {isa = PBXBuildFile; fileRef = 1D0061C0160283820016BBEE /* TiBindingRunLoop.m */; };
-		1D1029A815F9769200372EC0 /* TiBindingEvent.m in Sources */ = {isa = PBXBuildFile; fileRef = 1D1029A715F9769100372EC0 /* TiBindingEvent.m */; };
-		1D1029A915F9769200372EC0 /* TiBindingEvent.m in Sources */ = {isa = PBXBuildFile; fileRef = 1D1029A715F9769100372EC0 /* TiBindingEvent.m */; };
-		1D1029AA15F9769200372EC0 /* TiBindingEvent.m in Sources */ = {isa = PBXBuildFile; fileRef = 1D1029A715F9769100372EC0 /* TiBindingEvent.m */; };
 		1D19459613FF3BC400E2B4D0 /* TIDOMDOMImplementationProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 1D19459513FF3BC400E2B4D0 /* TIDOMDOMImplementationProxy.m */; };
 		1D19459713FF3BC400E2B4D0 /* TIDOMDOMImplementationProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 1D19459513FF3BC400E2B4D0 /* TIDOMDOMImplementationProxy.m */; };
 		1D19459813FF3BC400E2B4D0 /* TIDOMDOMImplementationProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 1D19459513FF3BC400E2B4D0 /* TIDOMDOMImplementationProxy.m */; };
@@ -27,9 +21,6 @@
 		1DCC542F13FF0B0800DF3EE5 /* TIDOMCharacterDataProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 1DCC542E13FF0B0800DF3EE5 /* TIDOMCharacterDataProxy.m */; };
 		1DCC543013FF0B0800DF3EE5 /* TIDOMCharacterDataProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 1DCC542E13FF0B0800DF3EE5 /* TIDOMCharacterDataProxy.m */; };
 		1DCC543113FF0B0800DF3EE5 /* TIDOMCharacterDataProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 1DCC542E13FF0B0800DF3EE5 /* TIDOMCharacterDataProxy.m */; };
-		1DD9388C1609230900091777 /* TiBindingTiValue.m in Sources */ = {isa = PBXBuildFile; fileRef = 1DD9388B1609230900091777 /* TiBindingTiValue.m */; };
-		1DD9388D1609230900091777 /* TiBindingTiValue.m in Sources */ = {isa = PBXBuildFile; fileRef = 1DD9388B1609230900091777 /* TiBindingTiValue.m */; };
-		1DD9388E1609230900091777 /* TiBindingTiValue.m in Sources */ = {isa = PBXBuildFile; fileRef = 1DD9388B1609230900091777 /* TiBindingTiValue.m */; };
 		1DF5F4E00D08C38300B7A737 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1DF5F4DF0D08C38300B7A737 /* UIKit.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
 		2412F467115C296300454E5B /* TiMediaVideoPlayer.m in Sources */ = {isa = PBXBuildFile; fileRef = 2412F465115C296300454E5B /* TiMediaVideoPlayer.m */; };
 		242E8E3111BA39FD0046A0D0 /* libTiCore.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 242E8E3011BA39FD0046A0D0 /* libTiCore.a */; };
@@ -206,7 +197,7 @@
 		24CA8C08111161FE0084E2DE /* AppModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8B56111161FE0084E2DE /* AppModule.m */; };
 		24CA8C09111161FE0084E2DE /* APIModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8B58111161FE0084E2DE /* APIModule.m */; };
 		24CA8C0E111161FE0084E2DE /* AccelerometerModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8B64111161FE0084E2DE /* AccelerometerModule.m */; };
-		24CA8C76111167B60084E2DE /* AddressBook.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 24CA8C75111167B60084E2DE /* AddressBook.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
+		24CA8C76111167B60084E2DE /* AddressBook.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 24CA8C75111167B60084E2DE /* AddressBook.framework */; };
 		24CA8C78111167B60084E2DE /* AddressBookUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 24CA8C77111167B60084E2DE /* AddressBookUI.framework */; };
 		24CA8C7C111167B60084E2DE /* CFNetwork.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 24CA8C7B111167B60084E2DE /* CFNetwork.framework */; };
 		24CA8C7E111167B60084E2DE /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 24CA8C7D111167B60084E2DE /* CoreLocation.framework */; };
@@ -929,10 +920,6 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		1D0061BF160283820016BBEE /* TiBindingRunLoop.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiBindingRunLoop.h; sourceTree = "<group>"; };
-		1D0061C0160283820016BBEE /* TiBindingRunLoop.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiBindingRunLoop.m; sourceTree = "<group>"; };
-		1D1029A615F9769100372EC0 /* TiBindingEvent.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = TiBindingEvent.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
-		1D1029A715F9769100372EC0 /* TiBindingEvent.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = TiBindingEvent.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		1D19459413FF3BC400E2B4D0 /* TIDOMDOMImplementationProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TIDOMDOMImplementationProxy.h; sourceTree = "<group>"; };
 		1D19459513FF3BC400E2B4D0 /* TIDOMDOMImplementationProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TIDOMDOMImplementationProxy.m; sourceTree = "<group>"; };
 		1D19459913FF3BE500E2B4D0 /* TIDOMDocumentTypeProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TIDOMDocumentTypeProxy.h; sourceTree = "<group>"; };
@@ -943,8 +930,6 @@
 		1D8166DE15A79362007F20A0 /* FBFrictionlessRequestSettings.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FBFrictionlessRequestSettings.m; sourceTree = "<group>"; };
 		1DCC542D13FF0B0700DF3EE5 /* TIDOMCharacterDataProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TIDOMCharacterDataProxy.h; sourceTree = "<group>"; };
 		1DCC542E13FF0B0800DF3EE5 /* TIDOMCharacterDataProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TIDOMCharacterDataProxy.m; sourceTree = "<group>"; };
-		1DD9388A1609230900091777 /* TiBindingTiValue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiBindingTiValue.h; sourceTree = "<group>"; };
-		1DD9388B1609230900091777 /* TiBindingTiValue.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiBindingTiValue.m; sourceTree = "<group>"; };
 		1DF5F4DF0D08C38300B7A737 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		2412F464115C296300454E5B /* TiMediaVideoPlayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiMediaVideoPlayer.h; sourceTree = "<group>"; };
 		2412F465115C296300454E5B /* TiMediaVideoPlayer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiMediaVideoPlayer.m; sourceTree = "<group>"; };
@@ -1068,8 +1053,8 @@
 		24CA89AF1111615D0084E2DE /* KrollMethod.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = KrollMethod.m; path = ../Classes/KrollMethod.m; sourceTree = SOURCE_ROOT; };
 		24CA89B01111615D0084E2DE /* KrollMethodDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = KrollMethodDelegate.h; path = ../Classes/KrollMethodDelegate.h; sourceTree = SOURCE_ROOT; };
 		24CA89B11111615D0084E2DE /* KrollMethodDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = KrollMethodDelegate.m; path = ../Classes/KrollMethodDelegate.m; sourceTree = SOURCE_ROOT; };
-		24CA89B21111615D0084E2DE /* KrollObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; name = KrollObject.h; path = ../Classes/KrollObject.h; sourceTree = SOURCE_ROOT; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
-		24CA89B31111615D0084E2DE /* KrollObject.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; name = KrollObject.m; path = ../Classes/KrollObject.m; sourceTree = SOURCE_ROOT; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
+		24CA89B21111615D0084E2DE /* KrollObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = KrollObject.h; path = ../Classes/KrollObject.h; sourceTree = SOURCE_ROOT; };
+		24CA89B31111615D0084E2DE /* KrollObject.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = KrollObject.m; path = ../Classes/KrollObject.m; sourceTree = SOURCE_ROOT; };
 		24CA89B41111615D0084E2DE /* KrollPropertyDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = KrollPropertyDelegate.h; path = ../Classes/KrollPropertyDelegate.h; sourceTree = SOURCE_ROOT; };
 		24CA89B51111615D0084E2DE /* KrollPropertyDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = KrollPropertyDelegate.m; path = ../Classes/KrollPropertyDelegate.m; sourceTree = SOURCE_ROOT; };
 		24CA89B61111615D0084E2DE /* KrollTimer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = KrollTimer.h; path = ../Classes/KrollTimer.h; sourceTree = SOURCE_ROOT; };
@@ -2065,12 +2050,6 @@
 				DABF3EDB134D2E4300836137 /* TiStreamProxy.m */,
 				DAE541E113577BEC00A65123 /* TiDataStream.h */,
 				DAE541E213577BEC00A65123 /* TiDataStream.m */,
-				1DD9388A1609230900091777 /* TiBindingTiValue.h */,
-				1DD9388B1609230900091777 /* TiBindingTiValue.m */,
-				1D0061BF160283820016BBEE /* TiBindingRunLoop.h */,
-				1D0061C0160283820016BBEE /* TiBindingRunLoop.m */,
-				1D1029A615F9769100372EC0 /* TiBindingEvent.h */,
-				1D1029A715F9769100372EC0 /* TiBindingEvent.m */,
 				5081CEF615F8100E00C881D8 /* TiExceptionHandler.h */,
 				5081CEF715F8100E00C881D8 /* TiExceptionHandler.m */,
 			);
@@ -3474,9 +3453,6 @@
 				2B0B6E0C15951F9400F3170F /* TiUIiOSDocumentViewerProxy.m in Sources */,
 				1D8166DF15A79362007F20A0 /* FBFrictionlessRequestSettings.m in Sources */,
 				4688700715E39A9D008FA326 /* TiUIiPhoneAlertDialogStyleProxy.m in Sources */,
-				1D1029A815F9769200372EC0 /* TiBindingEvent.m in Sources */,
-				1D0061C1160283820016BBEE /* TiBindingRunLoop.m in Sources */,
-				1DD9388C1609230900091777 /* TiBindingTiValue.m in Sources */,
 				5081CEF815F8100E00C881D8 /* TiExceptionHandler.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -3760,9 +3736,6 @@
 				2B0B6E0D15951F9400F3170F /* TiUIiOSDocumentViewerProxy.m in Sources */,
 				1D8166E015A79362007F20A0 /* FBFrictionlessRequestSettings.m in Sources */,
 				4688700815E39A9D008FA326 /* TiUIiPhoneAlertDialogStyleProxy.m in Sources */,
-				1D1029A915F9769200372EC0 /* TiBindingEvent.m in Sources */,
-				1D0061C2160283820016BBEE /* TiBindingRunLoop.m in Sources */,
-				1DD9388D1609230900091777 /* TiBindingTiValue.m in Sources */,
 				5081CEF915F8100E00C881D8 /* TiExceptionHandler.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -4046,9 +4019,6 @@
 				2B0B6E0E15951F9400F3170F /* TiUIiOSDocumentViewerProxy.m in Sources */,
 				1D8166E115A79362007F20A0 /* FBFrictionlessRequestSettings.m in Sources */,
 				4688700915E39A9D008FA326 /* TiUIiPhoneAlertDialogStyleProxy.m in Sources */,
-				1D1029AA15F9769200372EC0 /* TiBindingEvent.m in Sources */,
-				1D0061C3160283820016BBEE /* TiBindingRunLoop.m in Sources */,
-				1DD9388E1609230900091777 /* TiBindingTiValue.m in Sources */,
 				5081CEFA15F8100E00C881D8 /* TiExceptionHandler.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

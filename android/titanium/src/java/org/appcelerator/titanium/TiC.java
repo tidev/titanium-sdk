@@ -1964,11 +1964,6 @@ public class TiC
 	/**
 	 * @module.api
 	 */
-	public static final String PROPERTY_WEBVIEW_IGNORE_SSL_ERROR = "ignoreSslError";
-
-	/**
-	 * @module.api
-	 */
 	public static final String PROPERTY_WHEN = "when";
 
 	/**

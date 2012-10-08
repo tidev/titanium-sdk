@@ -23,8 +23,6 @@ import org.appcelerator.titanium.view.TiUIView;
 
 import ti.modules.titanium.ui.TableViewProxy;
 import ti.modules.titanium.ui.TableViewRowProxy;
-import ti.modules.titanium.ui.widget.TiUILabel;
-import ti.modules.titanium.ui.widget.TiView;
 import ti.modules.titanium.ui.widget.searchbar.TiUISearchBar.OnSearchChangeListener;
 import ti.modules.titanium.ui.widget.tableview.TableViewModel.Item;
 import android.graphics.Color;
@@ -160,18 +158,6 @@ public class TiTableView extends FrameLayout
 			return rowTypes.get(item.className);
 		}
 
-		/*
-		 * IMPORTANT NOTE:
-		 * getView() is called by the Android framework whenever it needs a view.
-		 * The call to getView() could come on a measurement pass or on a layout 
-		 * pass.  It's not possible to tell from the arguments whether the framework
-		 * is calling getView() for a measurement pass or for a layout pass.  Therefore,
-		 * it is important that getView() and all methods call by getView() only create
-		 * the views and fill them in with the appropriate data.  What getView() and the
-		 * methods call by getView MUST NOT do is to make any associations between 
-		 * proxies and views.   Those associations must be made only for the views
-		 *  that are used for layout, and should be driven from the onLayout() callback.
-		 */
 		public View getView(int position, View convertView, ViewGroup parent) {
 			Item item = (Item) getItem(position);
 			TiBaseTableViewItem v = null;
@@ -204,9 +190,10 @@ public class TiTableView extends FrameLayout
 			if (v == null) {
 				if (item.className.equals(TableViewProxy.CLASSNAME_HEADERVIEW)) {
 					TiViewProxy vproxy = item.proxy;
-					TiUIView headerView = layoutHeaderOrFooter(vproxy);
+					View headerView = layoutHeaderOrFooter(vproxy);
 					v = new TiTableViewHeaderItem(proxy.getActivity(), headerView);
 					v.setClassName(TableViewProxy.CLASSNAME_HEADERVIEW);
+					return v;
 				} else if (item.className.equals(TableViewProxy.CLASSNAME_HEADER)) {
 					v = new TiTableViewHeaderItem(proxy.getActivity());
 					v.setClassName(TableViewProxy.CLASSNAME_HEADER);
@@ -332,11 +319,11 @@ public class TiTableView extends FrameLayout
 		adapter = new TTVListAdapter(viewModel);
 		if (proxy.hasProperty(TiC.PROPERTY_HEADER_VIEW)) {
 			TiViewProxy view = (TiViewProxy) proxy.getProperty(TiC.PROPERTY_HEADER_VIEW);
-			listView.addHeaderView(layoutHeaderOrFooter(view).getNativeView(), null, false);
+			listView.addHeaderView(layoutHeaderOrFooter(view), null, false);
 		}
 		if (proxy.hasProperty(TiC.PROPERTY_FOOTER_VIEW)) {
 			TiViewProxy view = (TiViewProxy) proxy.getProperty(TiC.PROPERTY_FOOTER_VIEW);
-			listView.addFooterView(layoutHeaderOrFooter(view).getNativeView(), null, false);
+			listView.addFooterView(layoutHeaderOrFooter(view), null, false);
 		}
 
 		listView.setAdapter(adapter);
@@ -442,7 +429,7 @@ public class TiTableView extends FrameLayout
 		}
 	}
 
-	private TiUIView layoutHeaderOrFooter(TiViewProxy viewProxy)
+	private View layoutHeaderOrFooter(TiViewProxy viewProxy)
 	{
 		TiUIView tiView = viewProxy.getOrCreateView();
 		View nativeView = tiView.getNativeView();
@@ -466,7 +453,7 @@ public class TiTableView extends FrameLayout
 		}
 		AbsListView.LayoutParams p = new AbsListView.LayoutParams(width, height);
 		nativeView.setLayoutParams(p);
-		return tiView;
+		return nativeView;
 	}
 
 	public void dataSetChanged() {

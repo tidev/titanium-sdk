@@ -324,11 +324,6 @@ exports.bootstrapWindow = function(Titanium) {
 			return;
 		}
 
-		// we don't actually support relative pathing for windows
-		if (this.url.charAt(0) !== "/") {
-			this.url = "/" + this.url;
-		}
-
 		var resolvedUrl = url.resolve(this._sourceUrl, this.url);
 		if (!resolvedUrl.assetPath) {
 			kroll.log(TAG, "Window URL must be a resources file.");

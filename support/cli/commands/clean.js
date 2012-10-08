@@ -6,19 +6,14 @@
  */
 
 var appc = require('node-appc'),
-	i18n = appc.i18n(__dirname),
-	__ = i18n.__,
-	__n = i18n.__n,
 	ti = require('titanium-sdk'),
 	fs = require('fs'),
 	path = require('path'),
 	wrench = require('wrench');
 
-exports.cliVersion = '>=3.X';
-exports.desc = __('creates a new mobile application or module');
-
 exports.config = function (logger, config, cli) {
 	return {
+		desc: __('creates a new mobile application or module'),
 		options: appc.util.mix({
 			platform: {
 				// note: --platform is not required for the clean command
@@ -35,9 +30,8 @@ exports.config = function (logger, config, cli) {
 };
 
 exports.validate = function (logger, config, cli) {
-	cli.argv.platform && ti.validatePlatform(logger, cli.argv, 'platform');
-	ti.validateProjectDir(logger, cli, cli.argv, 'project-dir');
-	ti.loadPlugins(logger, cli, cli.argv['project-dir']);
+	ti.validatePlatform(logger, cli.argv, 'platform');
+	ti.validateProjectDir(logger, cli.argv, 'project-dir');
 };
 
 exports.run = function (logger, config, cli) {
@@ -54,7 +48,7 @@ exports.run = function (logger, config, cli) {
 		} else {
 			logger.debug(__('Directory does not exist %s', dir.cyan));
 		}
-	} else if (appc.fs.exists(buildDir)) {
+	} else {
 		logger.debug(__('Deleting all platform build directories'));
 		fs.readdirSync(buildDir).forEach(function (dir) {
 			dir = path.join(buildDir, dir);
@@ -63,8 +57,6 @@ exports.run = function (logger, config, cli) {
 				wrench.rmdirSyncRecursive(dir);
 			}
 		});
-	} else {
-		logger.debug(__('Directory does not exist %s', buildDir.cyan));
 	}
 	
 	logger.info(__('Project cleaned successfully in %s', appc.time.prettyDiff(cli.startTime, Date.now())) + '\n');

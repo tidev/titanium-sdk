@@ -19,7 +19,6 @@
 	ABAddressBookRef addressBook;
 	ABPeoplePickerNavigationController* picker;
 	
-	BOOL iOS6API;
 	BOOL animated;
 	KrollCallback* cancelCallback;
 	KrollCallback* selectedPersonCallback;
@@ -37,21 +36,12 @@
 -(TiContactsPerson*)createPerson:(id)arg;
 -(void)removePerson:(id)arg;
 
-
-
-@property (nonatomic,readonly) NSNumber* contactsAuthorization;
--(void) requestAuthorization:(id)args;
-
 @property (nonatomic,readonly) NSNumber* CONTACTS_KIND_PERSON;
 @property (nonatomic,readonly) NSNumber* CONTACTS_KIND_ORGANIZATION;
 
 @property (nonatomic,readonly) NSNumber* CONTACTS_SORT_FIRST_NAME;
 @property (nonatomic,readonly) NSNumber* CONTACTS_SORT_LAST_NAME;
 
-@property(nonatomic,readonly) NSNumber* AUTHORIZATION_AUTHORIZED;
-@property(nonatomic,readonly) NSNumber* AUTHORIZATION_DENIED;
-@property(nonatomic,readonly) NSNumber* AUTHORIZATION_RESTRICTED;
-@property(nonatomic,readonly) NSNumber* AUTHORIZATION_UNKNOWN; // We still need the 'authorization unknown' constant, though.
 
 @end
 

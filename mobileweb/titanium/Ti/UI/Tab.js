@@ -1,4 +1,4 @@
-define(["Ti/_/declare", "Ti/UI/View", "Ti/_/dom", "Ti/Locale", "Ti/UI", "Ti/UI/MobileWeb", "Ti/UI/Label", "Ti/UI/ImageView"],
+define(["Ti/_/declare", "Ti/UI/View", "Ti/_/dom", "Ti/Locale", "Ti/UI", "Ti/UI/MobileWeb"],
 	function(declare, View, dom, Locale, UI, MobileWeb) {
 
 	var postTitle = {

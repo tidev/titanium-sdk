@@ -92,15 +92,12 @@ class TiAppXML(object):
 						if module.nodeType == 1:
 							version = module.getAttribute('version')
 							platform = module.getAttribute('platform')
-							deploy_type = module.getAttribute('deploy-type')
 							module_id = getText(module.childNodes)
 							self.properties['modules'].append({
 								'id': module_id,
 								'version': version,
-								'platform': platform,
-								'deploy-type': deploy_type
+								'platform': platform
 							})
-
 				# handle plugins
 				elif child.nodeName == 'plugins':
 					for plugin in child.childNodes:

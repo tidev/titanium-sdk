@@ -625,7 +625,6 @@
     BOOL reloadSearch = NO;
 
 	TiViewProxy<TiKeyboardFocusableView> * chosenField = [[[TiApp controller] keyboardFocusedProxy] retain];
-	BOOL hasFocus = [chosenField focused];
 	BOOL oldSuppress = [chosenField suppressFocusEvents];
 	[chosenField setSuppressFocusEvents:YES];
 	switch (action.type)
@@ -796,9 +795,7 @@
             break;
         }
 	}
-	if (hasFocus) {
-		[chosenField focus:nil];
-	}
+	[chosenField focus:nil];
 	[chosenField setSuppressFocusEvents:oldSuppress];
 	[chosenField release];
 	[self refreshSearchControllerUsingReload:reloadSearch];

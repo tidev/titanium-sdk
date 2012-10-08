@@ -18,8 +18,7 @@
 // must be class-available rather than instance-available
 +(NSString*)portraitSize;
 +(NSString*)landscapeSize;
-#pragma mark internal
--(void)fireLoad:(id)unused;
+
 @end
 
 #endif

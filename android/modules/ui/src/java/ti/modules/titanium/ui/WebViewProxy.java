@@ -26,8 +26,7 @@ import android.webkit.WebView;
 	TiC.PROPERTY_DATA,
 	TiC.PROPERTY_ON_CREATE_WINDOW,
 	TiC.PROPERTY_SCALES_PAGE_TO_FIT,
-	TiC.PROPERTY_URL,
-	TiC.PROPERTY_WEBVIEW_IGNORE_SSL_ERROR
+	TiC.PROPERTY_URL
 })
 public class WebViewProxy extends ViewProxy 
 	implements Handler.Callback, OnLifecycleEvent

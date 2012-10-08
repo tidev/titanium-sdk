@@ -211,13 +211,10 @@ USE_VIEW_FOR_CONTENT_HEIGHT
 		return;
 	}
 	TiViewProxy<TiKeyboardFocusableView> * chosenField = [[[TiApp controller] keyboardFocusedProxy] retain];
-	BOOL hasFocus = [chosenField focused];
 	BOOL oldSuppress = [chosenField suppressFocusEvents];
 	[chosenField setSuppressFocusEvents:YES];
 	tableAction();
-	if (hasFocus) {
-		[chosenField focus:nil];
-	}
+	[chosenField focus:nil];
 	[chosenField setSuppressFocusEvents:oldSuppress];
 	[chosenField release];
 	[(TiUITableView *)[self view] refreshSearchControllerUsingReload:forceReload];

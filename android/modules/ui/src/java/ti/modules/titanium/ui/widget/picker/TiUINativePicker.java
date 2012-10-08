@@ -9,9 +9,7 @@ package ti.modules.titanium.ui.widget.picker;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.common.Log;
-import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiUIView;
@@ -19,7 +17,6 @@ import org.appcelerator.titanium.view.TiUIView;
 import ti.modules.titanium.ui.PickerColumnProxy;
 import ti.modules.titanium.ui.PickerProxy;
 import android.app.Activity;
-import android.view.MotionEvent;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
@@ -47,22 +44,10 @@ public class TiUINativePicker extends TiUIPicker
 				super.onLayout(changed, left, top, right, bottom);
 				TiUIHelper.firePostLayoutEvent(proxy);
 			}
-			
-			@Override
-			public boolean onTouchEvent(MotionEvent event) {
-				if (event.getAction() == MotionEvent.ACTION_UP) {
-					KrollDict data = new KrollDict();
-					data.put(TiC.PROPERTY_X, event.getX());
-					data.put(TiC.PROPERTY_Y, event.getY());
-					proxy.fireEvent(TiC.EVENT_CLICK, data);
-				}
-				return super.onTouchEvent(event);
-			}
 		};
 		setNativeView(spinner);
 		refreshNativeView();
 		preselectRows();
-
 		spinner.setOnItemSelectedListener(this);
 	}
 	
