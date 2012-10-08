@@ -6,6 +6,9 @@
  */
 
 var appc = require('node-appc'),
+	i18n = appc.i18n(__dirname),
+	__ = i18n.__,
+	__n = i18n.__n,
 	ti = require('titanium-sdk'),
 	fs = require('fs'),
 	path = require('path'),

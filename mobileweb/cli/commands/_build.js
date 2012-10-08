@@ -7,6 +7,9 @@
 
 var ti = require('titanium-sdk'),
 	appc = require('node-appc'),
+	i18n = appc.i18n(__dirname),
+	__ = i18n.__,
+	__n = i18n.__n,
 	cleanCSS = require('clean-css'),
 	afs = appc.fs,
 	xml = appc.xml,

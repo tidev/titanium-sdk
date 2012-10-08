@@ -10,6 +10,9 @@ var ti = require('titanium-sdk'),
 	path = require('path'),
 	wrench = require('wrench'),
 	appc = require('node-appc'),
+	i18n = appc.i18n(__dirname),
+	__ = i18n.__,
+	__n = i18n.__n,
 	afs = appc.fs;
 
 exports.cliVersion = '>=3.X';
