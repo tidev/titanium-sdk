@@ -1747,11 +1747,9 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
 	pthread_rwlock_unlock(&childrenLock);
 }
 
--(void)contentsWillChange
+-(BOOL) widthIsAutoSize
 {
     BOOL isAutoSize = NO;
-    BOOL heightIsAutoSize = NO;
-    
     if (TiDimensionIsAutoSize(layoutProperties.width))
     {
         isAutoSize = YES;
@@ -1776,32 +1774,102 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
             isAutoSize = YES;
         }
     }
-    if (!isAutoSize) {
-        if (TiDimensionIsAutoSize(layoutProperties.height))
-        {
-            isAutoSize = YES;
+    return isAutoSize;
+}
+
+-(BOOL) heightIsAutoSize
+{
+    BOOL isAutoSize = NO;
+    if (TiDimensionIsAutoSize(layoutProperties.height))
+    {
+        isAutoSize = YES;
+    }
+    else if (TiDimensionIsAuto(layoutProperties.height) && TiDimensionIsAutoSize([self defaultAutoHeightBehavior:nil]) )
+    {
+        isAutoSize = YES;
+    }
+    else if (TiDimensionIsUndefined(layoutProperties.height) && TiDimensionIsAutoSize([self defaultAutoHeightBehavior:nil]))
+    {
+        int pinCount = 0;
+        if (!TiDimensionIsUndefined(layoutProperties.top) ) {
+            pinCount ++;
         }
-        else if (TiDimensionIsAuto(layoutProperties.height) && TiDimensionIsAutoSize([self defaultAutoHeightBehavior:nil]) )
-        {
-            isAutoSize = YES;
+        if (!TiDimensionIsUndefined(layoutProperties.centerY) ) {
+            pinCount ++;
         }
-        else if (TiDimensionIsUndefined(layoutProperties.height) && TiDimensionIsAutoSize([self defaultAutoHeightBehavior:nil]))
-        {
-            int pinCount = 0;
-            if (!TiDimensionIsUndefined(layoutProperties.top) ) {
-                pinCount ++;
-            }
-            if (!TiDimensionIsUndefined(layoutProperties.centerY) ) {
-                pinCount ++;
-            }
-            if (!TiDimensionIsUndefined(layoutProperties.bottom) ) {
-                pinCount ++;
-            }
-            if (pinCount < 2) {
-                isAutoSize = YES;
-            }
+        if (!TiDimensionIsUndefined(layoutProperties.bottom) ) {
+            pinCount ++;
+        }
+        if (pinCount < 2) {
+            isAutoSize = YES;
         }
     }
+    return isAutoSize;
+}
+
+-(BOOL) widthIsAutoFill
+{
+    BOOL isAutoFill = NO;
+    if (TiDimensionIsAutoFill(layoutProperties.width))
+    {
+        isAutoFill = YES;
+    }
+    else if (TiDimensionIsAuto(layoutProperties.width) && TiDimensionIsAutoFill([self defaultAutoWidthBehavior:nil]) )
+    {
+        isAutoFill = YES;
+    }
+    else if (TiDimensionIsUndefined(layoutProperties.width) && TiDimensionIsAutoFill([self defaultAutoWidthBehavior:nil]))
+    {
+        int pinCount = 0;
+        if (!TiDimensionIsUndefined(layoutProperties.left) ) {
+            pinCount ++;
+        }
+        if (!TiDimensionIsUndefined(layoutProperties.centerX) ) {
+            pinCount ++;
+        }
+        if (!TiDimensionIsUndefined(layoutProperties.right) ) {
+            pinCount ++;
+        }
+        if (pinCount < 2) {
+            isAutoFill = YES;
+        }
+    }
+    return isAutoFill;
+}
+
+-(BOOL) heightIsAutoFill
+{
+    BOOL isAutoFill = NO;
+    if (TiDimensionIsAutoFill(layoutProperties.height))
+    {
+        isAutoFill = YES;
+    }
+    else if (TiDimensionIsAuto(layoutProperties.height) && TiDimensionIsAutoFill([self defaultAutoHeightBehavior:nil]) )
+    {
+        isAutoFill = YES;
+    }
+    else if (TiDimensionIsUndefined(layoutProperties.height) && TiDimensionIsAutoFill([self defaultAutoHeightBehavior:nil]))
+    {
+        int pinCount = 0;
+        if (!TiDimensionIsUndefined(layoutProperties.top) ) {
+            pinCount ++;
+        }
+        if (!TiDimensionIsUndefined(layoutProperties.centerY) ) {
+            pinCount ++;
+        }
+        if (!TiDimensionIsUndefined(layoutProperties.bottom) ) {
+            pinCount ++;
+        }
+        if (pinCount < 2) {
+            isAutoFill = YES;
+        }
+    }
+    return isAutoFill;
+}
+
+-(void)contentsWillChange
+{
+    BOOL isAutoSize = [self widthIsAutoSize] || [self heightIsAutoSize];
     
 	if (isAutoSize)
 	{
