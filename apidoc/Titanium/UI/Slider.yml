@@ -184,7 +184,7 @@ properties:
         the middle of the image, in the region between the end caps. The end caps themselves keep 
         their original size and appearance. This property specifies the size of the left end cap. 
         
-        On iOS 5 and above the endCaps are used to compute a rectangle which is tiled repeatedly in 
+        On iOS 5 and above the endCaps are used to compute a rectangle which is streched in 
         the strechable portion. On earlier versions of iOS the strechable portion is assumed to be 
         1 pixel wide. The right end cap is therefore computed by adding the size of the left end cap 
         and the middle portion together and then subtracting that value from the width of the image
@@ -205,7 +205,7 @@ properties:
         the middle of the image, in the region between the end caps. The end caps themselves keep 
         their original size and appearance. This property specifies the size of the top end cap. 
         
-        On iOS 5 and above the endCaps are used to compute a rectangle which is tiled repeatedly in 
+        On iOS 5 and above the endCaps are used to compute a rectangle which is streched in 
         the strechable portion. On earlier versions of iOS the strechable portion is assumed to be 
         1 pixel wide. The bottom end cap is therefore computed by adding the size of the top end cap 
         and the middle portion together and then subtracting that value from the height of the image
@@ -287,7 +287,7 @@ properties:
         the middle of the image, in the region between the end caps. The end caps themselves keep 
         their original size and appearance. This property specifies the size of the left end cap. 
         
-        On iOS 5 and above the endCaps are used to compute a rectangle which is tiled repeatedly in 
+        On iOS 5 and above the endCaps are used to compute a rectangle which is streched in 
         the strechable portion. On earlier versions of iOS the strechable portion is assumed to be 
         1 pixel wide. The right end cap is therefore computed by adding the size of the left end cap 
         and the middle portion together and then subtracting that value from the width of the image
@@ -308,7 +308,7 @@ properties:
         the middle of the image, in the region between the end caps. The end caps themselves keep 
         their original size and appearance. This property specifies the size of the top end cap. 
         
-        On iOS 5 and above the endCaps are used to compute a rectangle which is tiled repeatedly in 
+        On iOS 5 and above the endCaps are used to compute a rectangle which is streched in 
         the strechable portion. On earlier versions of iOS the strechable portion is assumed to be 
         1 pixel wide. The bottom end cap is therefore computed by adding the size of the top end cap 
         and the middle portion together and then subtracting that value from the height of the image
