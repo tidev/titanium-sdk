@@ -238,7 +238,7 @@ static NSArray* scrollViewKeySequence;
     else {
         result = [super autoHeightForSize:contentSize];
     }
-    return MAX(result,contentSize.height);
+    return result;
 }
 
 -(CGRect)computeChildSandbox:(TiViewProxy*)child withBounds:(CGRect)bounds
@@ -268,12 +268,15 @@ static NSArray* scrollViewKeySequence;
         flexibleContentHeight = NO;
     }
     
-    if (!flexibleContentHeight) {
+    if (flexibleContentHeight) {
         contentSize.size.height = [self autoHeightForSize:bounds.size];
     }
-    if (!flexibleContentWidth) {
+    if (flexibleContentWidth) {
         contentSize.size.width = [self autoWidthForSize:bounds.size];
     }
+    
+    contentSize.size.width = MAX(contentSize.size.width,viewBounds.size.width);
+    contentSize.size.height = MAX(contentSize.size.height,viewBounds.size.height);
     
     if (TiLayoutRuleIsVertical(layoutProperties.layoutStyle)) {
         if ([child heightIsAutoFill] && flexibleContentHeight) {
@@ -309,7 +312,9 @@ static NSArray* scrollViewKeySequence;
                 return bounds;
             }
             else {
-                return [super computeChildSandbox:child withBounds:contentSize];
+                bounds = [super computeChildSandbox:child withBounds:contentSize];
+                bounds.size.height = contentSize.size.height;
+                return bounds;
             }
         }
         else {
