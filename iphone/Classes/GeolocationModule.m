@@ -810,7 +810,7 @@ MAKE_SYSTEM_PROP(ERROR_REGION_MONITORING_DELAYED, kCLErrorRegionMonitoringSetupD
 }
 
 #pragma mark Delegates
-
+#if __IPHONE_OS_VERSION_MAX_ALLOWED < __IPHONE_6_0
 //Using new delegate instead of the old deprecated method - (void)locationManager:didUpdateToLocation:fromLocation:
 
 -(void)locationManager:(CLLocationManager *)manager didUpdateLocations:(NSArray *)locations{
@@ -828,6 +828,14 @@ MAKE_SYSTEM_PROP(ERROR_REGION_MONITORING_DELAYED, kCLErrorRegionMonitoringSetupD
     [self fireApplicationAnalyticsIfNeeded:locations];
 	[self fireSingleShotLocationIfNeeded:event stopIfNeeded:YES];
 }
+#endif
+
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_6_0
+- (void)locationManager:(CLLocationManager *)manager didUpdateToLocation:(CLLocation *)newLocation fromLocation:(CLLocation *)oldLocation
+{
+    [self locationManager:manager didUpdateLocations:[[[NSArray alloc] initWithObjects:newLocation,nil] autorelease]];
+}
+#endif
 
 - (void)locationManager:(CLLocationManager *)manager didFailWithError:(NSError *)error
 {
