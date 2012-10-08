@@ -256,6 +256,11 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 
 @synthesize tableClass, table, section, row, callbackCell;
 
+-(NSString *)className
+{
+	return [self tableClass];
+}
+
 -(void)_destroy
 {
 	RELEASE_TO_NIL(tableClass);
@@ -660,6 +665,11 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 	{
 		[self redelegateViews:childProxy toView:touchDelegate];
 	}
+}
+
+-(TiProxy*)parentForBubbling
+{
+	return section;
 }
 
 -(UIView*)view

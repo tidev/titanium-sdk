@@ -1,4 +1,8 @@
-var getElementById = document.getElementById;
+// direct alias doesn't work in chrome so wrapping inside within function
+var getElementById = function(id) {
+        return document.getElementById(id);
+};
+
 var jqplotRef = $.jqplot;
 
 // assumes that the jqPlot dependencies have already been loaded

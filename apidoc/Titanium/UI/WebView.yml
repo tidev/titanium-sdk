@@ -25,18 +25,17 @@ description: |
     Web views are more expensive to create than other native views because of the requirement to
     load the HTML browser into memory.
     
-    The native web view handles scrolling and other related touch events internally.
-    If you add event listeners for any of the standard touch events (`touchstart`, 
-    `click`, and so on), these events do not reach the native web view, and the user
-    will not be able to scroll, zoom, click on links, and so on.
+    #### iOS Platform Implementation Notes
+
+    On the iOS platform, the native web view handles scrolling and other related touch
+    events internally. If you add event listeners on the web view **or its parent views**
+    for any of the standard touch events (`touchstart`, `click`, and so on), these events
+    do not reach the native web view, and the user will not be able to scroll, zoom, click
+    on links, and so on. To prevent this default behavior, set
+    [willHandleTouches](Titanium.UI.WebView.willHandleTouches) to `false`.
     
     In other words, you can have either Titanium-style events against the 
     web view instance, or internal JavaScript events in the DOM, but not both.
-
-    Note that on the iOS platform, any touch event listeners on the web view **or its
-    parent views** will prevent users from interacting with the native web view. To
-    prevent this default behavior, set [willHandleTouches](Titanium.UI.WebView.willHandleTouches)
-    to `false`.
 
     #### Android Platform Implementation Notes
 
@@ -229,6 +228,18 @@ events:
       - name: url
         summary: URL of the web document being loaded.
 
+      - name: navigationType
+        summary: |
+            Constant indicating the user's action:
+            <Titanium.UI.iOS.WEBVIEW_NAVIGATIONTYPE_LINK_CLICKED>,
+            <Titanium.UI.iOS.WEBVIEW_NAVIGATIONTYPE_FORM_SUBMITTED>,
+            <Titanium.UI.iOS.WEBVIEW_NAVIGATIONTYPE_BACK_FORWARD>,
+            <Titanium.UI.iOS.WEBVIEW_NAVIGATIONTYPE_RELOAD>,
+            <Titanium.UI.iOS.WEBVIEW_NAVIGATIONTYPE_FORM_RESUBMITTED>, or
+            <Titanium.UI.iOS.WEBVIEW_NAVIGATIONTYPE_OTHER>.
+        type: Number
+        platforms: [ipad, iphone]
+
   - name: error
     summary: Fired when the web view cannot load the content. 
     description: |
@@ -273,6 +284,15 @@ properties:
 
         See also: [url](Titanium.UI.WebView.url) and [html](Titanium.UI.WebView.html).
     type: [Titanium.Blob, Titanium.Filesystem.File]
+
+  - name: disableBounce
+    summary: |
+        Determines whether the view will bounce when scrolling to the edge of the scrollable region.
+    description: |
+        Set to `true` to disable the bounce effect.
+    type: Boolean
+    default: false
+    platforms: [iphone, ipad]
 
   - name: hideLoadIndicator
     summary: Hides activity indicator when loading remote URL.

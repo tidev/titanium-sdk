@@ -117,6 +117,11 @@ bool Base64AllocAndEncodeData(const void *inInputData, size_t inInputDataSize, c
   return [UIAlertView instancesRespondToSelector:@selector(alertViewStyle)];
 }
 
++(BOOL)isIOS6OrGreater
+{
+    return [UIViewController instancesRespondToSelector:@selector(shouldAutomaticallyForwardRotationMethods)];
+}
+
 +(BOOL)isIPad
 {
 	return [[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPad;
@@ -1073,27 +1078,6 @@ If the new path starts with / and the base url is app://..., we have to massage 
 		align = [alignment intValue];
 	}
 	return align;
-}
-
-+(NSString*)exceptionMessage:(id)arg
-{
-	if ([arg isKindOfClass:[NSDictionary class]])
-	{
-		// check to see if the object past is a JS Error object and if so attempt
-		// to construct a string that is more readable to the developer
-		id message = [arg objectForKey:@"message"];
-		if (message!=nil)
-		{
-			id source = [arg objectForKey:@"sourceURL"];
-			if (source!=nil)
-			{
-				id lineNumber = [arg objectForKey:@"line"];
-				return [NSString stringWithFormat:@"%@ at %@ (line %@)",message,[source lastPathComponent],lineNumber];
-			}
-            return [NSString stringWithFormat:@"%@ (unknown file)", message];
-		}
-	}
-	return arg;
 }
 
 #define RETURN_IF_ORIENTATION_STRING(str,orientation) \

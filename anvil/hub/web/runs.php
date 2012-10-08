@@ -32,7 +32,7 @@
 				margin-left: 20px;
 			}
 
-			#hub_state_container
+			#reports_container
 			{
 				float: left;
 				width: 50%;
@@ -118,11 +118,15 @@
 ?>
 
 			</div>
-			<div id="hub_state_container">
-				<div id="hub_state_title">
+			<div id="reports_container">
 <?php
+	if (isset($_GET["branch"])) {
+		echo "<a id=\"next_batch_link\" href=\"\">Next set</a>\n";
+	}
+
 	if (!(isset($_GET["branch"]))) {
 		echo "<!-- START GENERATED HUB STATE -->\n";
+		echo "<div id=\"hub_state_title\">\n";
 		echo "<b>";
 
 		exec("ps aux | grep -i hub.js | grep -v grep", $pids);
@@ -134,10 +138,10 @@
 		}
 
 		echo "</b>\n";
+		echo "</div>\n";
 		echo "<!-- END GENERATED HUB STATE -->\n";
 	}
 ?>
-				</div>
 
 <?php
 	if (!(isset($_GET["branch"]))) {
@@ -185,12 +189,16 @@
 	if (isset($_GET["branch"])) {
 		$query = $query . " WHERE branch = \"" . $_GET["branch"] . "\"";
 	}
+
+	if (isset($_GET["last_run_id"])) {
+		$query = $query . " AND id < " . $_GET["last_run_id"];
+	}
+
 	$query = $query . " ORDER BY timestamp DESC";
 	$result=mysql_query($query);
 
-	# just cause we found a record for a run doesn't mean there is valid data to display
-	$displayedRuns = 0;
-
+	$displayed_runs = 0;
+	$last_run_id = 0;
 	while($row = mysql_fetch_array($result)) {
 		# you would think that ordering by ASC makes sense here to keep A-Z display but because of 
 		# how the chart is rendered (bottom up) we actually want to reverse it and use DESC
@@ -200,11 +208,7 @@
 
 		if ($numDriverRuns > 0) {
 			echo "\n<!-- START GENERATED CHART -->\n";
-			echo "<div";
-			if ($displayedRuns > 0) {
-				echo " id=\"run_container\"";
-			}
-			echo ">\n";
+			echo "<div id=\"run_container\">\n";
 
 			echo "\t<div>\n" .
 				"\t\t<div id=\"run_summary_element\"><b>Date: </b></div>\n" .
@@ -245,18 +249,20 @@
 			echo "</script>\n";
 			echo "<!-- END GENERATED CHART -->\n";
 
-			$displayedRuns++;
-
-			# only limit the displayed runs if we are on the generic runs page since we want the 
-			# initial page to load quickly
-			if (!(isset($_GET["branch"]))) {
-				# TODO hard code the limit for max displayed runs for now - make this user 
-				# configurable in the future?
-				if ($displayedRuns >= 20) {
-					break;
-				}
-			}
+			$displayed_runs++;
 		}
+
+		$last_run_id = $row["id"];
+		if ($displayed_runs >= 20) {
+			break;
+		}
+	}
+
+	if (isset($_GET["branch"])) {
+		echo "<script>\n" .
+			"\tvar nextBatchLink = document.getElementById(\"next_batch_link\");\n" .
+			"\tnextBatchLink.href = \"runs.php?branch=" . $row["branch"] . "&last_run_id=" . $last_run_id . "\";\n" .
+			"</script>\n";
 	}
 ?>
 

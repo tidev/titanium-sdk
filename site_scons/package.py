@@ -33,7 +33,7 @@ gitCmd = "git"
 if platform.system() == "Windows":
 	gitCmd += ".cmd"
 
-p = subprocess.Popen([gitCmd,"show","--abbrev-commit"],stderr=subprocess.PIPE, stdout=subprocess.PIPE)
+p = subprocess.Popen([gitCmd,"show","--abbrev-commit","--no-color"],stderr=subprocess.PIPE, stdout=subprocess.PIPE)
 githash = p.communicate()[0][7:].split('\n')[0].strip()
 
 ignoreExtensions = ['.pbxuser','.perspectivev3','.pyc']

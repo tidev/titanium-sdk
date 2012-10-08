@@ -641,6 +641,7 @@ def main(args):
 		debughost = None
 		debugport = None
 		debugairkey = None
+		debughosts = None
 		postbuild_modules = []
 		finalize_modules = []
 
@@ -717,14 +718,15 @@ def main(args):
 					dist_keychain = None
 			
 			if argc > 10:
-				# this is host:port:airkey from the debugger
+				# this is host:port:airkey:hosts from the debugger
 				debughost = dequote(args[10].decode("utf-8"))
 				if debughost=='':
 					debughost = None
 					debugport = None
 					debugairkey = None
+					debughosts = None
 				else:
-					debughost,debugport,debugairkey = debughost.split(":")
+					debughost,debugport,debugairkey,debughosts = debughost.split(":",4)
 			
 			if command == 'install':
 				target = 'Debug'
@@ -799,7 +801,7 @@ def main(args):
 			force_destroy_build = command!='simulator'
 
 			detector = ModuleDetector(project_dir)
-			missing_modules, modules = detector.find_app_modules(ti, 'iphone')
+			missing_modules, modules = detector.find_app_modules(ti, 'iphone', deploytype)
 			module_lib_search_path, module_asset_dirs = locate_modules(modules, project_dir, app_dir, log)
 			common_js_modules = []
 			
@@ -972,7 +974,7 @@ def main(args):
 				# In order to avoid dual-mangling, we need to make sure that if we're re-projecting,
 				# there is NOT an existing xcodeproj file.
 				if not os.path.exists(os.path.join(iphone_dir, "%s.xcodeproj" % name)):
-					project = Projector(name,sdk_version,template_dir,project_dir,appid)
+					project = Projector(name,sdk_version,template_dir,project_dir,appid, None)
 					project.create(template_dir,iphone_dir)
 				
 				force_xcode = True
@@ -1051,7 +1053,7 @@ def main(args):
 			debug_plist = os.path.join(iphone_dir,'Resources','debugger.plist')
 			
 			# Force an xcodebuild if the debugger.plist has changed
-			force_xcode = write_debugger_plist(debughost, debugport, debugairkey, template_dir, debug_plist)
+			force_xcode = write_debugger_plist(debughost, debugport, debugairkey, debughosts, template_dir, debug_plist)
 
 			if command not in ['simulator', 'build']:
 				# compile plist into binary format so it's faster to load
@@ -1136,17 +1138,33 @@ def main(args):
 				if 'min-ios-ver' in ti.ios:
 					min_ver = ti.ios['min-ios-ver']
 					if min_ver < 4.0:
-						print "[INFO] Minimum iOS version %s is lower than 4.0: Using 4.0 as minimum" % min_ver
-						min_ver = 4.0
+						if float(link_version) >= 6.0:
+							new_min_ver = 4.3
+						else:
+							new_min_ver = 4.0
+						print "[INFO] Minimum iOS version %s is lower than 4.0: Using %s as minimum" % (min_ver, new_min_ver)
+						min_ver = new_min_ver
 					elif min_ver > float(iphone_version):
 						print "[INFO] Minimum iOS version %s is greater than %s (iphone_version): Using %s as minimum" % (min_ver, iphone_version, iphone_version)
 						min_ver = float(iphone_version)
+					elif float(link_version) >= 6.0 and min_ver < 4.3:
+						print "[INFO] Minimum iOS version supported with %s (link_version) is 4.3. Ignoring %s and using 4.3 as minimum" %(link_version, min_ver)
+						min_ver = 4.3
 				else:
-					min_ver = 4.0
+					if float(link_version) >= 6.0:
+						min_ver = 4.3
+					else:
+						min_ver = 4.0
 
-				print "[INFO] Minimum iOS version: %s" % min_ver
+				print "[INFO] Minimum iOS version: %s Linked iOS Version %s" % (min_ver, link_version)
 				deploy_target = "IPHONEOS_DEPLOYMENT_TARGET=%s" % min_ver
 				device_target = 'TARGETED_DEVICE_FAMILY=1'  # this is non-sensical, but you can't pass empty string
+				
+				# No armv6 support above 4.3 or with 6.0+ SDK
+				if min_ver >= 4.3 or float(link_version) >= 6.0:
+					valid_archs = 'armv7 i386'
+				else:
+					valid_archs = 'armv6 armv7 i386'
 
 				# clean means we need to nuke the build 
 				if clean_build or force_destroy_build: 
@@ -1217,7 +1235,7 @@ def main(args):
 						# NOTE: this is very important to run on device -- i dunno why
 						# xcode warns that 3.2 needs only armv7, but if we don't pass in 
 						# armv6 we get crashes on device
-						extra_args = ["VALID_ARCHS=armv6 armv7 i386"]
+						extra_args = ["VALID_ARCHS="+valid_archs]
 					# Additionally, if we're universal, change the device family target
 					if devicefamily == 'universal':
 						device_target="TARGETED_DEVICE_FAMILY=1,2"
@@ -1410,7 +1428,7 @@ def main(args):
 					# set the DYLD_FRAMEWORK_PATH environment variable for the following Popen iphonesim command
 					# this allows the XCode developer folder to be arbitrarily named
 					xcodeselectpath = os.popen("/usr/bin/xcode-select -print-path").readline().rstrip('\n')
-					iphoneprivateframeworkspath = xcodeselectpath + '/Platforms/iPhoneSimulator.platform/Developer/Library/PrivateFrameworks'
+					iphoneprivateframeworkspath = xcodeselectpath + '/Platforms/iPhoneSimulator.platform/Developer/Library/PrivateFrameworks:' + xcodeselectpath + '/../OtherFrameworks'
 					os.putenv('DYLD_FRAMEWORK_PATH', iphoneprivateframeworkspath)
 
 					# launch the simulator

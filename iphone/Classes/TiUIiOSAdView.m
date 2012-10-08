@@ -74,6 +74,7 @@ extern NSString * const TI_APPLICATION_ANALYTICS;
 
 - (void)bannerViewDidLoadAd:(ADBannerView *)banner
 {
+    [self.proxy replaceValue:NUMBOOL(YES) forKey:@"visible" notification:YES];
 	if (TI_APPLICATION_ANALYTICS)
 	{
 		NSDictionary *data = [NSDictionary dictionaryWithObjectsAndKeys:[banner currentContentSizeIdentifier],@"size",nil];
@@ -81,11 +82,7 @@ extern NSString * const TI_APPLICATION_ANALYTICS;
 		WARN_IF_BACKGROUND_THREAD_OBJ;	//NSNotificationCenter is not threadsafe!
 		[[NSNotificationCenter defaultCenter] postNotificationName:kTiAnalyticsNotification object:nil userInfo:event]; 
 	}
-	if ([self.proxy _hasListeners:@"load"])
-	{
-		NSMutableDictionary *event = [NSMutableDictionary dictionary];
-		[self.proxy fireEvent:@"load" withObject:event];
-	}
+	[(TiUIiOSAdViewProxy*) self.proxy fireLoad:nil];
 }
 
 - (void)bannerViewActionDidFinish:(ADBannerView *)banner

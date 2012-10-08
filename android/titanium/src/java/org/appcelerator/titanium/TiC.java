@@ -431,6 +431,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String EVENT_TWOFINGERTAP = "twofingertap";
+
+	/**
+	 * @module.api
+	 */
 	public static final String EVENT_UNFOCUSED = "unfocused";
 	public static final String INTENT_PROPERTY_FINISH_ROOT = "finishRoot";
 	public static final String INTENT_PROPERTY_IS_TAB = "isTab";
@@ -462,12 +467,37 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_ACCESSIBILITY_HIDDEN = "accessibilityHidden";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_ACCESSIBILITY_HINT = "accessibilityHint";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_ACCESSIBILITY_LABEL = "accessibilityLabel";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_ACCESSIBILITY_VALUE = "accessibilityValue";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_ACTION = "action";
 
 	/**
 	 * @module.api
 	 */
 	public static final String PROPERTY_ACTIVE_TAB = "activeTab";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_ACTIVE_TAB_BACKGROUND_COLOR = "activeTabBackgroundColor";
 
 	/**
 	 * @module.api
@@ -1066,6 +1096,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_HIDE_ANNOTATION_WHEN_TOUCH_MAP = "hideAnnotationWhenTouchMap";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_HIGHLIGHTED_COLOR = "highlightedColor";
 
 	/**
@@ -1433,6 +1468,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_PASSWORD_MASK = "passwordMask";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_PERSISTENT = "persistent";
 
 	/**
 	 * @module.api
@@ -1920,6 +1960,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_VOLUME = "volume";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_WEBVIEW_IGNORE_SSL_ERROR = "ignoreSslError";
 
 	/**
 	 * @module.api

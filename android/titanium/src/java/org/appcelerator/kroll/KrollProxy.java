@@ -736,9 +736,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 
 		Object oldValue = properties.get(propertyName);
 		properties.put(propertyName, newValue);
-		if (shouldFireChange(oldValue, newValue)) {
-			firePropertyChanged(propertyName, oldValue, newValue);
-		}
+		firePropertyChanged(propertyName, oldValue, newValue);
 	}
 
 	public void onPropertiesChanged(Object[][] changes)

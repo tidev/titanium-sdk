@@ -34,7 +34,7 @@
 -(void)dealloc
 {
 	RELEASE_TO_NIL(controller);
-	
+    RELEASE_TO_NIL(closingProxyArray)
 	[self setVisibleProxy:nil];
 	//This is done this way so that proper methods are called as well.
 	[super dealloc];
@@ -101,6 +101,7 @@
 		RELEASE_TO_NIL(controller);
 		[visibleProxy autorelease];
 		visibleProxy = nil; // close/release handled by view removal
+        RELEASE_TO_NIL(closingProxyArray)
 	}
 	[self release];
 }
@@ -114,16 +115,59 @@
 	[controller pushViewController:viewController animated:animated];
 }
 
+-(void)delayedClose:(id)unused
+{
+    if ([closingProxyArray count] > 0) {
+        if ( closingProxy == nil) {
+            NSArray* args = [closingProxyArray objectAtIndex:0];
+            [self removeWindowFromControllerStack:[args objectAtIndex:0] withObject:[args objectAtIndex:1]];
+            [closingProxyArray removeObjectAtIndex:0];
+        }
+        else {
+            [self performSelector:@selector(delayedClose:) withObject:nil afterDelay:UINavigationControllerHideShowBarDuration];
+        }
+    }
+}
+
 -(void)close:(TiWindowProxy*)window withObject:(NSDictionary*)properties
 {
-	UIViewController* windowController = [window controller];
-	NSMutableArray* newControllers = [NSMutableArray arrayWithArray:controller.viewControllers];
-	BOOL animated = [TiUtils boolValue:@"animated" properties:properties def:(windowController == [newControllers lastObject])];
-	[newControllers removeObject:windowController];
-	[closingProxy autorelease];
-	closingProxy = [window retain];
-	[controller setViewControllers:newControllers animated:animated];
-	
+    //TIMOB-10802. If a window is being popped off the stack wait until the 
+    //animation is complete before trying to pop another window
+    if ( (closingProxy != nil) || ([closingProxyArray count] >0) ) {
+        DebugLog(@"NavController is closing a proxy. Delaying this close call")
+        if (closingProxyArray == nil) {
+            closingProxyArray = [[NSMutableArray alloc] init];
+        }
+        [closingProxyArray addObject:[NSArray arrayWithObjects:window,properties,nil]];
+        [self performSelector:@selector(delayedClose:) withObject:nil afterDelay:UINavigationControllerHideShowBarDuration];
+    }
+    else {
+        [self removeWindowFromControllerStack:window withObject:properties];
+    }
+}
+
+-(void)removeWindowFromControllerStack:(TiWindowProxy*)window withObject:(NSDictionary*)properties
+{
+    UIViewController* windowController = [window controller];
+    NSMutableArray* newControllers = [NSMutableArray arrayWithArray:controller.viewControllers];
+    BOOL lastObject = (windowController == [newControllers lastObject]);
+    BOOL animated = [TiUtils boolValue:@"animated" properties:properties def:lastObject];
+    //Ignore animated if the view being popped is not the top view controller.
+    if (!lastObject) {
+        animated = NO;
+    }
+    [newControllers removeObject:windowController];
+    [closingProxy autorelease];
+    closingProxy = [window retain];
+    [controller setViewControllers:newControllers animated:animated];
+
+    //TIMOB-10802.If it is not the top view controller, delegate methods will 
+    //not be called. So call close on the proxy here.
+    if (!lastObject) {
+        [closingProxy close:nil];
+        [closingProxy release];
+        closingProxy = nil;
+    }
 }
 
 - (void)willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration
@@ -154,7 +198,7 @@
     BOOL visibleProxyDidChange = NO;
     if (newWindow!=visibleProxy)
     {
-        if (visibleProxy != nil && visibleProxy!=root && opening==NO)
+        if (visibleProxy != nil && visibleProxy!=root && opening==NO && visibleProxy != closingProxy)
         {
             //TODO: This is an expedient fix, but NavGroup needs rewriting anyways
             [(TiUIiPhoneNavigationGroupProxy*)[self proxy] close:[NSArray arrayWithObject:visibleProxy]];   

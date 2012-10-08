@@ -29,40 +29,45 @@ methods:
         
 properties:
   - name: LINKIFY_ALL
-    summary: Use <Titanium.UI.AUTOLINK_ALL> instead.
-    type: Number
-    permission: read-only
     deprecated:
         since: "3.0.0"
-    
+        notes: Use <Titanium.UI.AUTOLINK_ALL> instead.
+    summary: Converts all detectable types of data into clickable links.
+    type: Number
+    permission: read-only
+
   - name: LINKIFY_EMAIL_ADDRESSES
-    summary: Use <Titanium.UI.AUTOLINK_EMAIL_ADDRESSES> instead.
-    type: Number
-    permission: read-only
     deprecated:
         since: "3.0.0"
-    
+        notes: Use <Titanium.UI.AUTOLINK_EMAIL_ADDRESSES> instead.
+    summary: Converts strings formatted as email addresses into clickable links.
+    type: Number
+    permission: read-only
+
   - name: LINKIFY_MAP_ADDRESSES
-    summary: Use <Titanium.UI.AUTOLINK_MAP_ADDRESSES> instead.
-    type: Number
-    permission: read-only
     deprecated:
         since: "3.0.0"
-    
+        notes: Use <Titanium.UI.AUTOLINK_MAP_ADDRESSES> instead.
+    summary: Converts strings formatted as addresses into clickable links.
+    type: Number
+    permission: read-only
+
   - name: LINKIFY_PHONE_NUMBERS
-    summary: Use <Titanium.UI.AUTOLINK_PHONE_NUMBERS> instead.
-    type: Number
-    permission: read-only
     deprecated:
         since: "3.0.0"
-    
+        notes: Use <Titanium.UI.AUTOLINK_PHONE_NUMBERS> instead.
+    summary: Converts strings formatted as phone numbers into clickable links.
+    type: Number
+    permission: read-only
+
   - name: LINKIFY_WEB_URLS
-    summary: Use <Titanium.UI.AUTOLINK_URLS> instead.
-    type: Number
-    permission: read-only
     deprecated:
         since: "3.0.0"
-    
+        notes: Use <Titanium.UI.AUTOLINK_URLS> instead.
+    summary: Converts strings formatted as URLs into clickable links.
+    type: Number
+    permission: read-only
+
   - name: PIXEL_FORMAT_A_8
     summary: |
         Android A_8 pixel format for <Titanium.UI.Window>. Selecting the correct pixel format 

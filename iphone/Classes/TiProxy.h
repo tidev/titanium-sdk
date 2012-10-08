@@ -8,6 +8,7 @@
 #import "TiEvaluator.h"
 #import "KrollCallback.h"
 #import "KrollObject.h"
+#import "TiBindingRunLoop.h"
 #import <pthread.h>
 
 @class KrollBridge;
@@ -98,6 +99,9 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
  The base class for Titanium proxies.
  */
 @interface TiProxy : NSObject<KrollTargetable> {
+@public
+	BOOL bubbleParent;
+
 @private
 	NSMutableDictionary *listeners;
 	BOOL destroyed;
@@ -122,6 +126,10 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 
 @property(readonly,nonatomic)			id<TiEvaluator> pageContext;
 @property(readonly,nonatomic)			id<TiEvaluator> executionContext;
+
+@property(readonly,nonatomic)			int bindingRunLoopCount;
+@property(readonly,nonatomic)			TiBindingRunLoop primaryBindingRunLoop;
+@property(readonly,nonatomic)			NSArray * bindingRunLoopArray;
 
 /**
  Provides access to proxy delegate.
@@ -188,6 +196,37 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
  */
 -(BOOL)inReproxy;
 
+#pragma Subclassable
+
+/**
+ Returns proxy that should receive the event next in a case of bubbling.
+ Return nil if the class does not bubble or there is no parent. Optionally
+ return nil if bubbleParent is false -- i.e., bubbleParent must be checked
+ as well.
+ 
+ Override this method for views that do not follow the standard children/parent
+ model (e.g., table rows). Note that this is NOT for use by JS, because this is
+ intentionally an iOS-only solution.
+ */
+-(TiProxy *)parentForBubbling;
+
+/**
+ Returns an array of properties that must be set on the proxy object in a specific order, ordered from first to last.
+ Any properties which are not in this list are set after the listed properties, and are set in undefined order.
+ 
+ Override this method if the order in which properties are set is significant.
+ @return The array of property keys.
+ */
+-(NSArray *)keySequence;
+
+#pragma JS-facing
+/**
+ Indicates that this proxy should honor bubbling of user events, if the proxy
+ is the type that has a parent to bubble to (This is primairly views, but may
+ have some exceptions).
+ */
+@property(nonatomic,readwrite,assign) BOOL bubbleParent;
+
 #pragma mark Utility
 -(KrollObject *)krollObjectForContext:(KrollContext *)context;
 
@@ -237,15 +276,6 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
  @return The enumeration of property keys.
  */
 -(id<NSFastEnumeration>)allKeys;
-
-/**
- Returns an array of properties that must be set on the proxy object in a specific order, ordered from first to last.
- Any properties which are not in this list are set after the listed properties, and are set in undefined order.
- 
- Override this method if the order in which properties are set is significant.
- @return The array of property keys.
- */
--(NSArray *)keySequence;
 
 +(void)throwException:(NSString *) reason subreason:(NSString*)subreason location:(NSString *)location;
 -(void)throwException:(NSString *) reason subreason:(NSString*)subreason location:(NSString *)location;
