@@ -374,9 +374,9 @@ function build(logger, config, cli, finished) {
 
 	logger.info(__('Compiling "%s" build', cli.argv['deploy-type']));
 
-	// ti.legacy.constructLegacyCommand(cli, tiapp, cli.argv.platform , cmd, emulatorCmd);
+	ti.legacy.constructLegacyCommand(cli, tiapp, cli.argv.platform , cmd, emulatorCmd);
 
-	console.log('Forking correct SDK command: ' + ('python ' + cmd.join(' ')).cyan + '\n');
+	// console.log('Forking correct SDK command: ' + ('python ' + cmd.join(' ')).cyan + '\n');
 
 	if (emulatorCmd.length > 0) {
 		spawn('python', emulatorCmd,{}).on('exit', function(code) {
