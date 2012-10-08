@@ -271,6 +271,25 @@ events:
         summary: If `success` is false, a string describing the error.
         type: String
 
+  - name: locationupdatepaused
+    summary: Fired when a location update is paused by the OS. Available in iOS 6.0 and later.
+    description: |
+        This event is fired when [pauseLocationUpdateAutomatically](Titanium.Geolocation.pauseLocationUpdateAutomatically) 
+        is set to `true`and if the OS detects that the device’s location is not changing, 
+        causing it to pause the delivery of updates in order to shut down the appropriate 
+        hardware and save power.
+    platforms: [iphone, ipad]
+    since: "3.0"
+
+  - name: locationupdateresumed
+    summary: Fired when a location update has resumed by the OS. Available in iOS 6.0 and later.
+    description: |
+        When location updates are paused and need to be resumed (perhaps because the user 
+        is moving again), this event is fired to let the app know that it is about to 
+        begin the delivery of those updates again.
+    platforms: [iphone, ipad]
+    since: "3.0"
+
 properties:
 
   - name: ACCURACY_BEST
@@ -364,7 +383,7 @@ properties:
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
-    since: "2.1.3"
+    since: "3.0"
 
   - name: AUTHORIZATION_AUTHORIZED
     summary: |
@@ -510,7 +529,7 @@ properties:
     type: String
     permission: read-only
     platforms: [iphone,ipad]
-    since: "2.1.3"
+    since: "3.0"
     
   - name: ACTIVITYTYPE_AUTOMOTIVE_NAVIGATION
     summary: The location data is used for tracking location changes to the automobile specifically during vehicular navigation.
@@ -521,7 +540,7 @@ properties:
     type: String
     permission: read-only
     platforms: [iphone,ipad]
-    since: "2.1.3"
+    since: "3.0"
 
   - name: ACTIVITYTYPE_FITNESS
     summary: The location data is used for tracking any pedestrian-related activity.
@@ -532,7 +551,7 @@ properties:
     type: String
     permission: read-only
     platforms: [iphone,ipad]
-    since: "2.1.3"
+    since: "3.0"
 
   - name: ACTIVITYTYPE_OTHER_NAVIGATION
     summary: |
@@ -547,7 +566,7 @@ properties:
     type: String
     permission: read-only
     platforms: [iphone,ipad]
-    since: "2.1.3"
+    since: "3.0"
 
   - name: accuracy
     summary: Specifies the requested accuracy for location updates.
@@ -725,7 +744,7 @@ properties:
         until movement is detected again. 
     type: Number
     default: <Titanium.Geolocation.ACTIVITYTYPE_OTHER>
-    since: "2.1.3"
+    since: "3.0"
     platforms: [iphone,ipad]
 
   - name: pauseLocationUpdateAutomatically
@@ -741,7 +760,7 @@ properties:
     type: Boolean
     default: false
     platforms: [iphone,ipad]
-    since: "2.1.3"
+    since: "3.0"
 
 ---
 name: LocationResults
