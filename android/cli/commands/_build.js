@@ -41,18 +41,6 @@ exports.config = function (logger, config, cli) {
 			androidEnv = env;
 			
 			callback(conf = {
-				flags: {
-					'build-only': {
-						abbr: 'b',
-						default: false,
-						desc: __('only perform the build; if true, does not install or run the app')
-					},
-					force: {
-						abbr: 'f',
-						default: false,
-						desc: __('force a full rebuild')
-					}
-				},
 				options: {
 					'alias': {
 						abbr: 'L',
@@ -197,7 +185,7 @@ exports.validate = function (logger, config, cli) {
 	var tokens,
 		i;
 	
-	ti.validateProjectDir(logger, cli.argv, 'project-dir');
+	ti.validateProjectDir(logger, cli, cli.argv, 'project-dir');
 	if (!ti.validateCorrectSDK(logger, config, cli, cli.argv['project-dir'])) {
 		// we're running the build command for the wrong SDK version, gracefully return
 		return false;
@@ -320,7 +308,21 @@ exports.validate = function (logger, config, cli) {
 };
 
 exports.run = function (logger, config, cli, finished) {
-	new build(logger, config, cli, finished);
+	cli.fireHook('build.pre', function () {
+		var buildObj = new build(logger, config, cli, function (err) {
+			cli.fireHook('build.post', buildObj, function (e) {
+				if (e && e.type == 'AppcException') {
+					logger.error(e.message);
+					e.details.forEach(function (line) {
+						line && logger.error(line);
+					});
+				}
+				cli.fireHook('build.finalize', buildObj, function () {
+					finished(err);
+				});
+			});
+		});
+	});
 };
 
 function build(logger, config, cli, finished) {

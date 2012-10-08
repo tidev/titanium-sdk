@@ -12,6 +12,7 @@ var ti = require('titanium-sdk'),
 	appc = require('node-appc'),
 	afs = appc.fs;
 
+exports.cliVersion = '>=3.X';
 exports.desc = __('creates a new mobile application or module');
 
 exports.config = function (logger, config, cli) {
@@ -111,10 +112,12 @@ exports.validate = function (logger, config, cli) {
 	
 	var projectDir = afs.resolvePath(cli.argv['workspace-dir'], cli.argv.name);
 	if (!cli.argv.force && afs.exists(projectDir)) {
-		logger.error(__('Project directory alread exists: %s', projectDir) + '\n');
+		logger.error(__('Project directory already exists: %s', projectDir) + '\n');
 		logger.log(__("Run '%s' to overwrite existing project.", (cli.argv.$ + ' ' + process.argv.slice(2).join(' ') + ' --force').cyan) + '\n');
 		process.exit(1);
 	}
+	
+	ti.loadPlugins(logger, cli, projectDir);
 };
 
 exports.run = function (logger, config, cli) {

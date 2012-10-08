@@ -6,11 +6,14 @@
  */
 
 var appc = require('node-appc'),
+	afs = appc.fs,
 	ti = require('titanium-sdk'),
-	path = require('path');
+	path = require('path'),
+	codeProcessor = require('titanium-code-processor');
 
 // TODO: need to support building modules... how do we know if --dir is a module or app? where is the module _build.js located?
 
+exports.cliVersion = '>=3.X';
 exports.title = __('Build');
 exports.desc = __('builds a project');
 exports.extendedDesc = 'Builds an existing app or module project.';
@@ -19,11 +22,21 @@ exports.config = function (logger, config, cli) {
 	return function (finished) {
 		ti.platformOptions(logger, config, cli, 'build', function (platformConf) {
 			finished({
+				flags: {
+					'build-only': {
+						abbr: 'b',
+						desc: __('only perform the build; if true, does not install or run the app')
+					},
+					force: {
+						abbr: 'f',
+						desc: __('force a full rebuild')
+					}
+				},
 				options: appc.util.mix({
 					platform: {
 						abbr: 'p',
-						callback: function (value) {
-							return ti.resolvePlatform(value);
+						callback: function (platform) {
+							return ti.resolvePlatform(platform);
 						},
 						desc: __('the target build platform'),
 						hint: __('platform'),
@@ -38,6 +51,20 @@ exports.config = function (logger, config, cli) {
 								if (ti.availablePlatforms.indexOf(platform) == -1) {
 									throw new appc.exception(__('Invalid platform: %s', platform));
 								}
+								
+								// it's possible that platform was not specified at the command line in which case the it would
+								// be prompted for. that means that validate() was unable to apply default values for platform-
+								// specific options and scan for platform-specific hooks, so we must do it here.
+								
+								var p = platformConf[platform];
+								p && p.options && Object.keys(p.options).forEach(function (name) {
+									if (p.options[name].default && cli.argv[name] === undefined) {
+										cli.argv[name] = p.options[name].default;
+									}
+								});
+								
+								cli.scanHooks(afs.resolvePath(path.dirname(module.filename), '..', '..', platform, 'cli', 'hooks'));
+								
 								return true;
 							}
 						},
@@ -60,27 +87,51 @@ exports.validate = function (logger, config, cli) {
 	if (ti.validatePlatformOptions(logger, config, cli, 'build') === false) {
 		return false;
 	}
+	ti.loadPlugins(logger, cli, cli.argv['project-dir']);
 };
 
 exports.run = function (logger, config, cli) {
-	var buildModule = path.join(path.dirname(module.filename), '..', '..', cli.argv.platform, 'cli', 'commands', '_build.js');
+	var buildModule = path.join(path.dirname(module.filename), '..', '..', cli.argv.platform, 'cli', 'commands', '_build.js'),
+		tiapp = new ti.tiappxml(appc.fs.resolvePath(path.join(cli.argv['project-dir'], 'tiapp.xml')));
 	
 	if (!appc.fs.exists(buildModule)) {
 		logger.error(__('Unable to find platform specific build command') + '\n');
 		logger.log(__("Your SDK installation may be corrupt. You can reinstall it by running '%s'.", (cli.argv.$ + ' sdk update --force --default').cyan) + '\n');
 		process.exit(1);
 	}
-
-	cli.fireHook('prebuild', function () {
-		require(buildModule).run(logger, config, cli, function (err) {
-			cli.fireHook('finalize', function () {
-				var delta = appc.time.prettyDiff(cli.startTime, Date.now());
-				if (err) {
-					logger.error(__('Project failed to build after %s', delta) + '\n');
-				} else {
-					logger.info(__('Project built successfully in %s', delta) + '\n');
-				}
-			});
-		});
+	
+	// Run the code processor, if it is enabled
+	if (tiapp['code-processor'] && tiapp['code-processor'].enabled) {
+		codeProcessor.process([appc.fs.resolvePath(path.join(cli.argv['project-dir'], 'Resources', 'app.js'))], 
+			tiapp['code-processor'].plugins,
+			appc.util.mix(tiapp['code-processor'].options, {
+				sdkPath: path.resolve(path.join(__dirname, '..', '..')),
+				platform: cli.argv.platform
+			}), logger);
+		cli.codeProcessor = codeProcessor.getResults();
+		var errors = cli.codeProcessor.errors,
+			warnings = cli.codeProcessor.warnings,
+			data,
+			i, len;
+		for(i = 0, len = errors.length; i < len; i++) {
+			data = errors[i];
+			logger.error(data.description + ' (' + data.file + ':' + data.line + ':' + data.column + ')');
+		}
+		for(i = 0, len = warnings.length; i < len; i++) {
+			data = warnings[i];
+			logger.warn(data.description + ' (' + data.file + ':' + data.line + ':' + data.column + ')');
+		}
+		if (errors.length) {
+			process.exit(1);
+		}
+	}
+	
+	require(buildModule).run(logger, config, cli, function (err) {
+		var delta = appc.time.prettyDiff(cli.startTime, Date.now());
+		if (err) {
+			logger.error(__('Project failed to build after %s', delta) + '\n');
+		} else {
+			logger.info(__('Project built successfully in %s', delta) + '\n');
+		}
 	});
 };

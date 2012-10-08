@@ -25,18 +25,17 @@ description: |
     Web views are more expensive to create than other native views because of the requirement to
     load the HTML browser into memory.
     
-    The native web view handles scrolling and other related touch events internally.
-    If you add event listeners for any of the standard touch events (`touchstart`, 
-    `click`, and so on), these events do not reach the native web view, and the user
-    will not be able to scroll, zoom, click on links, and so on.
+    #### iOS Platform Implementation Notes
+
+    On the iOS platform, the native web view handles scrolling and other related touch
+    events internally. If you add event listeners on the web view **or its parent views**
+    for any of the standard touch events (`touchstart`, `click`, and so on), these events
+    do not reach the native web view, and the user will not be able to scroll, zoom, click
+    on links, and so on. To prevent this default behavior, set
+    [willHandleTouches](Titanium.UI.WebView.willHandleTouches) to `false`.
     
     In other words, you can have either Titanium-style events against the 
     web view instance, or internal JavaScript events in the DOM, but not both.
-
-    Note that on the iOS platform, any touch event listeners on the web view **or its
-    parent views** will prevent users from interacting with the native web view. To
-    prevent this default behavior, set [willHandleTouches](Titanium.UI.WebView.willHandleTouches)
-    to `false`.
 
     #### Android Platform Implementation Notes
 
