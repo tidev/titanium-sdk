@@ -1293,9 +1293,9 @@ public abstract class TiUIView
 						case KeyEvent.KEYCODE_DPAD_CENTER:
 							if (proxy.hasListeners(TiC.EVENT_CLICK)) {
 								proxy.fireEvent(TiC.EVENT_CLICK, null);
+								return true;
 							}
 					}
-					return true;
 				}
 				return false;
 			}
