@@ -70,7 +70,7 @@ exports.validate = function (logger, config, cli) {
 		}
 	}
 	
-	ti.loadPlugins(logger, cli, cli.argv['project-dir']);
+	ti.loadPlugins(logger, cli, config, cli.argv['project-dir']);
 };
 
 exports.run = function (logger, config, cli) {
@@ -276,8 +276,9 @@ exports.run = function (logger, config, cli) {
 					logger.error('Invalid tiapp.xml key "' + key + '"');
 					break;
 			}
-			logger.log(__('%s was successfully set to %s', (key + '').cyan, (value + '').cyan) + '\n');
-			tiapp.save(tiappPath);
+			logger.log('tiapp.xml saving is currently not supported');
+			//logger.log(__('%s was successfully set to %s', (key + '').cyan, (value + '').cyan) + '\n');
+			//tiapp.save(tiappPath);
 			break;
 	}
 };

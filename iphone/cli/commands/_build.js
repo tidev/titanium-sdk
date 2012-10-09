@@ -474,9 +474,9 @@ exports.run = function (logger, config, cli, finished) {
 		buildObj = new build(logger, config, cli, finished);
 		sendAnalytics(cli, buildObj.tiapp);
 	} else {
-		cli.fireHook('build.pre', function () {
+		cli.fireHook('build.pre.construct', function () {
 			var buildObj = new build(logger, config, cli, function (err) {
-				cli.fireHook('build.post', buildObj, function (e) {
+				cli.fireHook('build.post.compile', buildObj, function (e) {
 					if (e && e.type == 'AppcException') {
 						logger.error(e.message);
 						e.details.forEach(function (line) {
@@ -675,125 +675,127 @@ function build(logger, config, cli, finished) {
 		wrench.mkdirSyncRecursive(path.join(this.buildDir, 'build'));
 	}
 	
-	// let's start building some apps!
-	parallel(this, [
-		'createInfoPlist',
-		'createDebuggerPlist',
-		'createEntitlementsPlist',
-		'detectModules'
-	], function () {
-		if (this.forceRebuild) {
-			this.logger.info(__('Performing full rebuild'));
-			this.forceXcode = true;
-			this.createXcodeProject();
-			this.populateIosFiles();
-		}
-		
-		// create the actual .app dir if it doesn't exist
-		wrench.mkdirSyncRecursive(this.xcodeAppDir);
-		
+	cli.fireHook('build.pre.compile', this, function () {
+		// let's start building some apps!
 		parallel(this, [
-			function (next) {
-				if (this.target == 'simulator') {
-					this.createSymlinks(next);
-				} else {
-					next();
-				}
-			},
-			'injectModulesIntoXcodeProject',
-			'injectApplicationDefaults',
-			'compileJSS',
-			'compileI18N',
-			'copyTitaniumLibraries',
-			'copySimulatorSpecificFiles',
-			'copyModuleResources',
-			'copyCommonJSModules',
-			'copyItunesArtwork',
-			'copyGraphics',
-			'writeBuildManifest'
+			'createInfoPlist',
+			'createDebuggerPlist',
+			'createEntitlementsPlist',
+			'detectModules'
 		], function () {
-			var xcodeArgs = [
-				'-target', this.tiapp.name + xcodeTargetSuffixes[this.deviceFamily],
-				'-configuration', this.xcodeTarget,
-				'-sdk', this.xcodeTargetOS,
-				'IPHONEOS_DEPLOYMENT_TARGET=' + this.minIosVer,
-				'TARGETED_DEVICE_FAMILY=' + deviceFamilies[this.deviceFamily],
-				'VALID_ARCHS=' + this.architectures
-			];
-			
-			if (this.target == 'simulator') {
-				xcodeArgs.push('GCC_PREPROCESSOR_DEFINITIONS=__LOG__ID__=' + this.tiapp.guid);
-				xcodeArgs.push('DEPLOYTYPE=' + this.deployType);
-				xcodeArgs.push('TI_DEVELOPMENT=1');
-				xcodeArgs.push('DEBUG=1');
-				xcodeArgs.push('TI_VERSION=' + ti.manifest.version);
+			if (this.forceRebuild) {
+				this.logger.info(__('Performing full rebuild'));
+				this.forceXcode = true;
+				this.createXcodeProject();
+				this.populateIosFiles();
 			}
 			
-			if (/simulator|device|dist\-adhoc/.test(this.target)) {
-				this.tiapp.ios && this.tiapp.ios.enablecoverage && xcodeArgs.push('KROLL_COVERAGE=1');
-				this.debugHost && xcodeArgs.push('DEBUGGER_ENABLED=1');
-			}
+			// create the actual .app dir if it doesn't exist
+			wrench.mkdirSyncRecursive(this.xcodeAppDir);
 			
-			if (/device|dist\-appstore|dist\-adhoc/.test(this.target)) {
-				xcodeArgs.push('GCC_PREPROCESSOR_DEFINITIONS=DEPLOYTYPE=' + this.deployType);
-				xcodeArgs.push('PROVISIONING_PROFILE=' + this.provisioningProfileUUID);
-				xcodeArgs.push('DEPLOYMENT_POSTPROCESSING=YES');
-				if (this.keychain) {
-					xcodeArgs.push('OTHER_CODE_SIGN_FLAGS=--keychain');
-					xcodeArgs.push(this.keychain);
-				}
-				this.codeSignEntitlements && xcodeArgs.push('CODE_SIGN_ENTITLEMENTS=Resources/Entitlements.plist');
-			}
-			
-			if (/device|dist\-adhoc/.test(this.target)) {
-				xcodeArgs.push('TI_TEST=1');
-			}
-			
-			if (this.target == 'device') {
-				xcodeArgs.push('CODE_SIGN_IDENTITY=iPhone Developer: ' + cli.argv['developer-name']);
-			}
-			
-			if (/dist-appstore|dist\-adhoc/.test(this.target)) {
-				xcodeArgs.push('CODE_SIGN_IDENTITY=iPhone Distribution: ' + cli.argv['distribution-name']);
-			}
-			
-			if (this.target == 'dist-appstore') {
-				xcodeArgs.push('TI_PRODUCTION=1');
-			}
-			
-			var p = spawn(this.xcodeEnv.xcodebuild, xcodeArgs, {
-					cwd: this.buildDir,
-					env: {
-						DEVELOPER_DIR: this.xcodeEnv.path,
-						HOME: process.env.HOME,
-						PATH: process.env.PATH
+			parallel(this, [
+				function (next) {
+					if (this.target == 'simulator') {
+						this.createSymlinks(next);
+					} else {
+						next();
 					}
-				});
-			
-			p.stderr.on('data', function (data) {
-				data.toString().split('\n').forEach(function (line) {
-					line.length && this.logger.error(line);
-				}, this);
-				process.exit(1);
-			}.bind(this));
-			
-			p.stdout.on('data', function (data) {
-				data.toString().split('\n').forEach(function (line) {
-					line.length && this.logger.trace(line);
-				}, this);
-			}.bind(this));
-			
-			p.on('exit', function (code, signal) {
-				if (!cli.argv['build-only']) {
-					var delta = appc.time.prettyDiff(cli.startTime, Date.now());
-					this.logger.info(__('Finished building the application in %s', delta));
+				},
+				'injectModulesIntoXcodeProject',
+				'injectApplicationDefaults',
+				'compileJSS',
+				'compileI18N',
+				'copyTitaniumLibraries',
+				'copySimulatorSpecificFiles',
+				'copyModuleResources',
+				'copyCommonJSModules',
+				'copyItunesArtwork',
+				'copyGraphics',
+				'writeBuildManifest'
+			], function () {
+				var xcodeArgs = [
+					'-target', this.tiapp.name + xcodeTargetSuffixes[this.deviceFamily],
+					'-configuration', this.xcodeTarget,
+					'-sdk', this.xcodeTargetOS,
+					'IPHONEOS_DEPLOYMENT_TARGET=' + this.minIosVer,
+					'TARGETED_DEVICE_FAMILY=' + deviceFamilies[this.deviceFamily],
+					'VALID_ARCHS=' + this.architectures
+				];
+				
+				if (this.target == 'simulator') {
+					xcodeArgs.push('GCC_PREPROCESSOR_DEFINITIONS=__LOG__ID__=' + this.tiapp.guid);
+					xcodeArgs.push('DEPLOYTYPE=' + this.deployType);
+					xcodeArgs.push('TI_DEVELOPMENT=1');
+					xcodeArgs.push('DEBUG=1');
+					xcodeArgs.push('TI_VERSION=' + ti.manifest.version);
 				}
 				
-				// end of the line
-				finished(code);
-			}.bind(this));
+				if (/simulator|device|dist\-adhoc/.test(this.target)) {
+					this.tiapp.ios && this.tiapp.ios.enablecoverage && xcodeArgs.push('KROLL_COVERAGE=1');
+					this.debugHost && xcodeArgs.push('DEBUGGER_ENABLED=1');
+				}
+				
+				if (/device|dist\-appstore|dist\-adhoc/.test(this.target)) {
+					xcodeArgs.push('GCC_PREPROCESSOR_DEFINITIONS=DEPLOYTYPE=' + this.deployType);
+					xcodeArgs.push('PROVISIONING_PROFILE=' + this.provisioningProfileUUID);
+					xcodeArgs.push('DEPLOYMENT_POSTPROCESSING=YES');
+					if (this.keychain) {
+						xcodeArgs.push('OTHER_CODE_SIGN_FLAGS=--keychain');
+						xcodeArgs.push(this.keychain);
+					}
+					this.codeSignEntitlements && xcodeArgs.push('CODE_SIGN_ENTITLEMENTS=Resources/Entitlements.plist');
+				}
+				
+				if (/device|dist\-adhoc/.test(this.target)) {
+					xcodeArgs.push('TI_TEST=1');
+				}
+				
+				if (this.target == 'device') {
+					xcodeArgs.push('CODE_SIGN_IDENTITY=iPhone Developer: ' + cli.argv['developer-name']);
+				}
+				
+				if (/dist-appstore|dist\-adhoc/.test(this.target)) {
+					xcodeArgs.push('CODE_SIGN_IDENTITY=iPhone Distribution: ' + cli.argv['distribution-name']);
+				}
+				
+				if (this.target == 'dist-appstore') {
+					xcodeArgs.push('TI_PRODUCTION=1');
+				}
+				
+				var p = spawn(this.xcodeEnv.xcodebuild, xcodeArgs, {
+						cwd: this.buildDir,
+						env: {
+							DEVELOPER_DIR: this.xcodeEnv.path,
+							HOME: process.env.HOME,
+							PATH: process.env.PATH
+						}
+					});
+				
+				p.stderr.on('data', function (data) {
+					data.toString().split('\n').forEach(function (line) {
+						line.length && this.logger.error(line);
+					}, this);
+					process.exit(1);
+				}.bind(this));
+				
+				p.stdout.on('data', function (data) {
+					data.toString().split('\n').forEach(function (line) {
+						line.length && this.logger.trace(line);
+					}, this);
+				}.bind(this));
+				
+				p.on('exit', function (code, signal) {
+					if (!cli.argv['build-only']) {
+						var delta = appc.time.prettyDiff(cli.startTime, Date.now());
+						this.logger.info(__('Finished building the application in %s', delta));
+					}
+					
+					// end of the line
+					finished(code);
+				}.bind(this));
+			});
 		});
-	});
+	}.bind(this));
 }
 
 build.prototype = {
