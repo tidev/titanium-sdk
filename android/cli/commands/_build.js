@@ -322,9 +322,9 @@ exports.validate = function (logger, config, cli) {
 exports.run = function (logger, config, cli, finished) {
 	// TODO Add analytics events later when we implement the full andorid build instead of wrapping.
 	sendAnalytics(cli);
-	cli.fireHook('build.pre', function () {
+	cli.fireHook('build.pre.construct', function () {
 		var buildObj = new build(logger, config, cli, function (err) {
-			cli.fireHook('build.post', buildObj, function (e) {
+			cli.fireHook('build.post.compile', buildObj, function (e) {
 				if (e && e.type == 'AppcException') {
 					logger.error(e.message);
 					e.details.forEach(function (line) {
