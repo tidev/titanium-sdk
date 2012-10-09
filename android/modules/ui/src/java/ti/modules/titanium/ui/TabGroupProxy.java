@@ -340,9 +340,21 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 		opened = false;
 
 		Activity activity = tabGroupActivity.get();
-		if (activity != null) {
+		if (activity != null && !activity.isFinishing()) {
 			activity.finish();
 		}
+	}
+
+	@Override
+	public void closeFromActivity() {
+		// Allow each tab to close its window before the tab group closes.
+		for (TabProxy tab : tabs) {
+			tab.close();
+		}
+
+		// Call super to fire the close event on the tab group.
+		// This event must fire after each tab has been closed.
+		super.closeFromActivity();
 	}
 
 	@Override
