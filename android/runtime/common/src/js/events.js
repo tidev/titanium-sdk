@@ -78,16 +78,8 @@ Object.defineProperty(EventEmitter.prototype, "emit", {
 
 		// Set the "bubbles" and "cancelBubble" properties for event data.
 		if (data !== null && typeof data == "object") {
-			if (data.bubbles) {
-				data.bubbles = true;
-			} else {
-				data.bubbles = false;
-			}
-			if (data.cancelBubble) {
-				data.cancelBubble = true;
-			} else {
-				data.cancelBubble = false;
-			}
+			data.bubbles = !!data.bubbles;
+			data.cancelBubble = !!data.cancelBubble;
 
 		} else {
 			data = { bubbles: false, cancelBubble: false };
