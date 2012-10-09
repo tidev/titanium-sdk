@@ -21,7 +21,7 @@ except:
 	import simplejson as json
 
 ignoreFiles = ['.gitignore', '.cvsignore', '.DS_Store', '.git','.svn','_svn','CVS'];
-ignoreDirs = ['android','mobileweb'];
+ignoreDirs = ['iphone', 'android','mobileweb',];
 
 HEADER = """/**
  * Appcelerator Titanium Mobile
@@ -645,7 +645,7 @@ class Compiler(object):
 							compiled_targets[ext].append(entry)
 						else:
 							compiled_targets[ext]=[entry]
-					if not write_routing:
+					if not (write_routing and len(fp)>1 and ext in ['.html','.js','.css']):
 						# only copy if different filesize or doesn't exist
 						if not os.path.exists(to_) or os.path.getsize(from_)!=os.path.getsize(to_):
 							print "[DEBUG] copying: %s to %s" % (from_,to_)
