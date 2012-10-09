@@ -522,8 +522,8 @@ function build(logger, config, cli, finished) {
 	this.logger = logger;
 	this.cli = cli;
 	
-	this.titaniumSdkVersion = ti.manifest.version;
 	this.titaniumIosSdkPath = afs.resolvePath(path.dirname(module.filename), '..', '..');
+	this.titaniumSdkVersion = path.basename(path.join(this.titaniumIosSdkPath, '..'));
 	
 	this.platformName = path.basename(this.titaniumIosSdkPath); // the name of the actual platform directory which will some day be "ios"
 	
