@@ -271,16 +271,17 @@ exports.bootstrapWindow = function(Titanium) {
 		this.addChildren();
 
 		var self = this;
-		this.window.on("open", function () {
-			self.postOpen();
-			self.fireEvent("open");
+		this.on("open", function () {
+			self.postOpen(true);
 		});
 	}
 
-	Window.prototype.postOpen = function() {
+	Window.prototype.postOpen = function(isTab) {
 		// Set view and model listener after the window opens
 		this.setWindowView(this.view);
-		this.addSelfToStack();
+		if (!isTab) {
+			this.addSelfToStack();
+		}
 
 		if ("url" in this._properties) {
 			this.loadUrl();
