@@ -379,6 +379,14 @@ properties:
     description: Do not specify if using views as children of the row.
     type: String
 
+  - name: accessibilityLabel
+    summary: A succint label associated with the table row for the device's accessibility service.
+    description: |
+        See <Ti.UI.View.accessibilityLabel> description.
+    since: "3.0.0"
+    platforms: [iphone, ipad]
+    type: String
+
 examples:
   - title: Simple Table View Row example
     example: |

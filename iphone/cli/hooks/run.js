@@ -6,6 +6,9 @@
  */
 
 var appc = require('node-appc'),
+	i18n = appc.i18n(__dirname),
+	__ = i18n.__,
+	__n = i18n.__n,
 	afs = appc.fs,
 	fs = require('fs'),
 	path = require('path'),
@@ -13,9 +16,11 @@ var appc = require('node-appc'),
 	cp = require('child_process'),
 	exec = cp.exec;
 
+exports.cliVersion = '>=3.X';
+
 exports.init = function (logger, config, cli) {
 	
-	cli.addHook('postbuild', {
+	cli.addHook('build.post.compile', {
 		priority: 10000,
 		post: function (build, finished) {
 			if (cli.argv.target != 'simulator') return finished();
@@ -50,7 +55,7 @@ exports.init = function (logger, config, cli) {
 					afs.visitFiles(simulatorDir, function (filename, fullpath) {
 						if (filename == logFile) {
 							try {
-								logger.debug(__('Removing old log file: %s', fullpath));
+								logger.debug(__('Removing old log file: %s', fullpath.cyan));
 								fs.unlink(fullpath);
 							} catch (e) {}
 						}
