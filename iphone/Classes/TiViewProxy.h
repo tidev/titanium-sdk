@@ -579,6 +579,11 @@ enum
 
 -(BOOL)willBeRelaying;	//Todo: Replace
 
+-(BOOL) widthIsAutoFill;
+-(BOOL) widthIsAutoSize;
+-(BOOL) heightIsAutoFill;
+-(BOOL) heightIsAutoFill;
+
 /**
  Tells the view that its child view size will change.
  @param child The child view
