@@ -323,18 +323,18 @@ exports.run = function (logger, config, cli, finished) {
 	// TODO Add analytics events later when we implement the full andorid build instead of wrapping.
 	sendAnalytics(cli);
 	cli.fireHook('build.pre.construct', function () {
-		var buildObj = new build(logger, config, cli, function (err) {
-			cli.fireHook('build.post.compile', buildObj, function (e) {
+		new build(logger, config, cli, function (err) {
+			cli.fireHook('build.post.compile', this, function (e) {
 				if (e && e.type == 'AppcException') {
 					logger.error(e.message);
 					e.details.forEach(function (line) {
 						line && logger.error(line);
 					});
 				}
-				cli.fireHook('build.finalize', buildObj, function () {
+				cli.fireHook('build.finalize', this, function () {
 					finished(err);
 				});
-			});
+			}.bind(this));
 		});
 	});
 };
@@ -367,15 +367,14 @@ function sendAnalytics(cli) {
 }
 
 function build(logger, config, cli, finished) {
-	var emulatorCmd = [],
-		cmd = [],
-		cmdSpawn,
-		err,
-		options = {
-			stdio: 'inherit'
-		};
-
 	cli.fireHook('build.pre.compile', this, function (e) {
+		var emulatorCmd = [],
+			cmd = [],
+			cmdSpawn,
+			options = {
+				stdio: 'inherit'
+			};
+		
 		logger.info(__('Compiling "%s" build', cli.argv['deploy-type']));
 		
 		ti.legacy.constructLegacyCommand(cli, tiapp, cli.argv.platform , cmd, emulatorCmd);
@@ -398,19 +397,20 @@ function build(logger, config, cli, finished) {
 		cmdSpawn = spawn('python', cmd, options);
 		
 		cmdSpawn.on('exit', function(code) {
+			var err;
 			if (code) {
 				err = 'An error occurred while running the command: ' + ('python ' + cmd.join(' ')).cyan + '\n';
 			} else if (cli.argv['target'] == 'emulator') {
 				// Call the logcat command in the old builder.py after the emulator, so we get logcat output
-				cmd = [];
-				cmd.push(path.join(path.resolve(cli.env.sdks[tiapp['sdk-version']].path), cli.argv.platform, 'builder.py'));
-				cmd.push('logcat');
-				cmd.push(cli.argv['android-sdk']);
-				cmd.push('-e');
-				spawn('python', cmd, options);
+				spawn('python', [
+					path.join(path.resolve(cli.env.sdks[tiapp['sdk-version']].path), cli.argv.platform, 'builder.py'),
+					'logcat',
+					cli.argv['android-sdk'],
+					'-e'
+				], options);
 			}
-			finished && finished(err);
-		});
+			finished && finished.call(this, err);
+		}.bind(this));
 	}.bind(this));
 }
 
