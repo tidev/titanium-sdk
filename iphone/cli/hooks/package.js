@@ -93,6 +93,7 @@ exports.init = function (logger, config, cli) {
 						exec('open -a "' + build.xcodeEnv.xcodeapp + '"', function (err, stdout, stderr) {
 							exec('osascript "' + path.join(build.titaniumIosSdkPath, 'xcode_organizer.scpt') + '"', function (err, stdout, stderr) {
 								logger.info(__('Packaging complete'));
+								finished();
 							});
 						});
 					});
