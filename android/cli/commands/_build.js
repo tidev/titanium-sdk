@@ -375,41 +375,43 @@ function build(logger, config, cli, finished) {
 			stdio: 'inherit'
 		};
 
-	logger.info(__('Compiling "%s" build', cli.argv['deploy-type']));
-
-	ti.legacy.constructLegacyCommand(cli, tiapp, cli.argv.platform , cmd, emulatorCmd);
-
-	// console.log('Forking correct SDK command: ' + ('python ' + cmd.join(' ')).cyan + '\n');
-
-	if (emulatorCmd.length > 0) {
-		spawn('python', emulatorCmd,{}).on('exit', function(code) {
-			if (code) {
-				finished && finished('An error occurred while running the command: ' + ('python ' + cmd.join(' ')).cyan + '\n');
-			}
-		});
-
-		// TODO Remove this when we don't want to wrap the python scripts anymore.
-		// We have to send the analytics here because for the emulator command, we will never 'exit' properly, 
-		// as a result send won't get called on exit
-		cli.sendAnalytics();
-	}
-
-	cmdSpawn = spawn('python', cmd, options);
-	
-	cmdSpawn.on('exit', function(code) {
-		if (code) {
-			err = 'An error occurred while running the command: ' + ('python ' + cmd.join(' ')).cyan + '\n';
-		} else if (cli.argv['target'] == 'emulator') {
-			// Call the logcat command in the old builder.py after the emulator, so we get logcat output
-			cmd = [];
-			cmd.push(path.join(path.resolve(cli.env.sdks[tiapp['sdk-version']].path), cli.argv.platform, 'builder.py'));
-			cmd.push('logcat');
-			cmd.push(cli.argv['android-sdk']);
-			cmd.push('-e');
-			spawn('python', cmd, options);
+	cli.fireHook('build.pre.compile', this, function (e) {
+		logger.info(__('Compiling "%s" build', cli.argv['deploy-type']));
+		
+		ti.legacy.constructLegacyCommand(cli, tiapp, cli.argv.platform , cmd, emulatorCmd);
+		
+		// console.log('Forking correct SDK command: ' + ('python ' + cmd.join(' ')).cyan + '\n');
+		
+		if (emulatorCmd.length > 0) {
+			spawn('python', emulatorCmd,{}).on('exit', function(code) {
+				if (code) {
+					finished && finished('An error occurred while running the command: ' + ('python ' + cmd.join(' ')).cyan + '\n');
+				}
+			});
+			
+			// TODO Remove this when we don't want to wrap the python scripts anymore.
+			// We have to send the analytics here because for the emulator command, we will never 'exit' properly, 
+			// as a result send won't get called on exit
+			cli.sendAnalytics();
 		}
-		finished && finished(err);
-	});
+		
+		cmdSpawn = spawn('python', cmd, options);
+		
+		cmdSpawn.on('exit', function(code) {
+			if (code) {
+				err = 'An error occurred while running the command: ' + ('python ' + cmd.join(' ')).cyan + '\n';
+			} else if (cli.argv['target'] == 'emulator') {
+				// Call the logcat command in the old builder.py after the emulator, so we get logcat output
+				cmd = [];
+				cmd.push(path.join(path.resolve(cli.env.sdks[tiapp['sdk-version']].path), cli.argv.platform, 'builder.py'));
+				cmd.push('logcat');
+				cmd.push(cli.argv['android-sdk']);
+				cmd.push('-e');
+				spawn('python', cmd, options);
+			}
+			finished && finished(err);
+		});
+	}.bind(this));
 }
 
 build.prototype = {
