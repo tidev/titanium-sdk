@@ -156,8 +156,6 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 
 @implementation GeolocationModule
 
-BOOL analyticsSend = NO;
-
 #pragma mark Internal
 
 // TODO: Do we need to force this onto the main thread?
@@ -809,6 +807,7 @@ MAKE_SYSTEM_PROP(ERROR_REGION_MONITORING_DELAYED, kCLErrorRegionMonitoringSetupD
 #pragma mark Geolacation Analytics
 
 -(void)fireApplicationAnalyticsIfNeeded:(NSArray *)locations{
+    static BOOL analyticsSend = NO;
     if (TI_APPLICATION_ANALYTICS && !analyticsSend)
 	{
         analyticsSend = YES;
@@ -847,7 +846,7 @@ MAKE_SYSTEM_PROP(ERROR_REGION_MONITORING_DELAYED, kCLErrorRegionMonitoringSetupD
 
 - (void)locationManager:(CLLocationManager *)manager didUpdateToLocation:(CLLocation *)newLocation fromLocation:(CLLocation *)oldLocation
 {
-    [self locationManager:manager didUpdateLocations:[[[NSArray alloc] initWithObjects:oldLocation,newLocation,nil] autorelease]];
+    [self locationManager:manager didUpdateLocations:[NSArray arrayWithObjects:oldLocation,newLocation,nil]];
 }
 
 
