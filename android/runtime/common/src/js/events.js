@@ -33,8 +33,8 @@ Object.defineProperty(EventEmitter.prototype, "callHandler", {
 	value: function(handler, type, data) {
 		//kroll.log(TAG, "calling event handler: type:" + type + ", data: " + data + ", handler: " + handler);
 
-		var handled = false;
-		var cancelBubble = data.cancelBubble;
+		var handled = false,
+			cancelBubble = data.cancelBubble;
 
 		if (!handler.listener || !(handler.listener.call)) {
 			if (kroll.DBG) {
@@ -62,7 +62,7 @@ Object.defineProperty(EventEmitter.prototype, "callHandler", {
 
 		// Bubble the events to the parent view if needed.
 		if (data.bubbles === true && cancelBubble !== true) {
-			handled = this.fireEventToParent(type, data) || handled;
+			handled = this._fireEventToParent(type, data) || handled;
 		}
 
 		return handled;
@@ -72,16 +72,18 @@ Object.defineProperty(EventEmitter.prototype, "callHandler", {
 
 Object.defineProperty(EventEmitter.prototype, "emit", {
 	value: function(type) {
-		// Copy any custom event data and set "bubbles" and "cancelBubble" if they are not set yet.
+		var handled = false,
+			data = arguments[1],
+			bubbles = false;
+
+		// Copy any custom event data and set "bubbles" and "cancelBubble" if they are not set to a boolean value yet.
 		// Note: If the events are fired from Java side, the "bubbles" property may be already set
 		// in Java (eg. "click" event fired from the UI thread).
-		var bubbles = false;
-		var data = arguments[1];
 		if (data !== null && typeof data == "object") {
-			if (data.bubbles === undefined || data.bubbles === null) {
+			if (typeof data.bubbles != "boolean") {
 				kroll.extend(data, { bubbles: bubbles });
 			}
-			if (data.cancelBubble === undefined || data.cancelBubble === null) {
+			if (typeof data.cancelBubble != "boolean") {
 				kroll.extend(data, { cancelBubble: false });
 			}
 
@@ -93,11 +95,9 @@ Object.defineProperty(EventEmitter.prototype, "emit", {
 			this._onEventFired( type,  data );
 		}
 
-		var handled = false;
-
 		if (!this._events || !this._events[type] || !this.callHandler) {
 			if (data.bubbles === true && data.cancelBubble !== true) {
-				handled = this.fireEventToParent(type, data);
+				handled = this._fireEventToParent(type, data);
 			}
 			return handled;
 		}
@@ -115,7 +115,7 @@ Object.defineProperty(EventEmitter.prototype, "emit", {
 
 		} else {
 			if (data.bubbles === true && data.cancelBubble !== true) {
-				handled = this.fireEventToParent(type, data);
+				handled = this._fireEventToParent(type, data);
 			}
 		}
 
