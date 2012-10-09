@@ -62,10 +62,10 @@ exports.validate = function (logger, config, cli) {
 };
 
 exports.run = function (logger, config, cli, finished) {
-	cli.fireHook('build.pre', function () {
+	cli.fireHook('build.pre.construct', function () {
 		var tiapp,
 			buildObj = new build(logger, config, cli, function (err) {
-				cli.fireHook('build.post', buildObj, function (e) {
+				cli.fireHook('build.post.compile', buildObj, function (e) {
 					if (e && e.type == 'AppcException') {
 						logger.error(e.message);
 						e.details.forEach(function (line) {
@@ -166,41 +166,43 @@ function build(logger, config, cli, finished) {
 	var mwBuildSettings = this.tiapp.mobileweb.build[this.buildType];
 	this.minifyJS = mwBuildSettings && mwBuildSettings.js ? !!mwBuildSettings.js.minify : this.buildType == 'production';
 	
-	parallel(this, [
-		'copyFiles',
-		'findProjectDependencies'
-	], function () {
+	cli.fireHook('build.pre.compile', this, function (e) {
 		parallel(this, [
-			'createIcons',
-			function (callback) {
-				parallel(this, [
-					'findModulesToCache',
-					'findPrecacheModules',
-					'findPrecacheImages',
-					'findTiModules',
-					'findI18N'
-				], function () {
-					parallel(this, [
-						'findDistinctCachedModules',
-						'detectCircularDependencies'
-					], function () {
-						this.logger.info(
-							__n('Found %s dependency', 'Found %s dependencies', this.projectDependencies.length) + ', ' +
-							__n('%s package', '%s packages', this.packages.length) + ', ' +
-							__n('%s module', '%s modules', this.modulesToCache.length)
-						);
-						parallel(this, [
-							'assembleTitaniumJS',
-							'assembleTitaniumCSS'
-						], callback);
-					});
-				});
-			}
+			'copyFiles',
+			'findProjectDependencies'
 		], function () {
-			this.minifyJavaScript();
-			this.createFilesystemRegistry();
-			this.createIndexHtml();
-			finished && finished();
+			parallel(this, [
+				'createIcons',
+				function (callback) {
+					parallel(this, [
+						'findModulesToCache',
+						'findPrecacheModules',
+						'findPrecacheImages',
+						'findTiModules',
+						'findI18N'
+					], function () {
+						parallel(this, [
+							'findDistinctCachedModules',
+							'detectCircularDependencies'
+						], function () {
+							this.logger.info(
+								__n('Found %s dependency', 'Found %s dependencies', this.projectDependencies.length) + ', ' +
+								__n('%s package', '%s packages', this.packages.length) + ', ' +
+								__n('%s module', '%s modules', this.modulesToCache.length)
+							);
+							parallel(this, [
+								'assembleTitaniumJS',
+								'assembleTitaniumCSS'
+							], callback);
+						});
+					});
+				}
+			], function () {
+				this.minifyJavaScript();
+				this.createFilesystemRegistry();
+				this.createIndexHtml();
+				finished && finished();
+			});
 		});
 	});
 };
