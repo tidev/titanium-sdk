@@ -341,7 +341,7 @@ DEFINE_EXCEPTIONS
                          forKey:kCATransactionDisableActions];
         }
 		[gradientLayer setFrame:newBounds];
-		[backgroundImageLayer setFrame:newBounds];
+		[[self backgroundImageLayer] setFrame:newBounds];
         if (!animating)
         {
             [CATransaction commit];
