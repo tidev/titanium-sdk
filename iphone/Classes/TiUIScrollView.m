@@ -109,6 +109,11 @@
 	return scrollView;
 }
 
+- (id)accessibilityElement
+{
+	return [self scrollView];
+}
+
 -(void)setNeedsHandleContentSizeIfAutosizing
 {
 	if (TiDimensionIsAuto(contentWidth) || TiDimensionIsAuto(contentHeight) ||

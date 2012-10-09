@@ -91,3 +91,11 @@ properties:
     summary: Whether the button is enabled initially.
     type: Boolean
     default: true
+
+  - name: accessibilityLabel
+    summary: A succint label associated with the bar item for the device's accessibility service.
+    description: |
+        See <Ti.UI.View.accessibilityLabel> description.
+    since: "3.0.0"
+    platforms: [iphone, ipad]
+    type: String
