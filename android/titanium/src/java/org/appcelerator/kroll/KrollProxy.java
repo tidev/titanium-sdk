@@ -624,7 +624,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 	 * Send an event to the view who is next to receive the event.
 	 *
 	 * @param eventName event to send to the next view
-	 * @param data data to include in the event
+	 * @param data the data to include in the event
 	 * @return true if the event was handled
 	 */
 	@Kroll.method(name = "_fireEventToParent")

@@ -34,16 +34,12 @@ Object.defineProperty(EventEmitter.prototype, "callHandler", {
 		//kroll.log(TAG, "calling event handler: type:" + type + ", data: " + data + ", handler: " + handler);
 
 		var handled = false,
-			cancelBubble = data.cancelBubble;
+			cancelBubble = data.cancelBubble,
+			event;
 
-		if (!handler.listener || !(handler.listener.call)) {
-			if (kroll.DBG) {
-				kroll.log(TAG, "handler for event '" + type + "' is " + (typeof handler.listener) + " and cannot be called.");
-			}
-
-		} else {
+		if (handler.listener && handler.listener.call) {
 			// Create event object, copy any custom event data, and set the "type" and "source" properties.
-			var event = { type: type, source: this };
+			event = { type: type, source: this };
 			kroll.extend(event, data);
 
 			if (handler.self && (event.source == handler.self.view)) {
@@ -58,10 +54,13 @@ Object.defineProperty(EventEmitter.prototype, "callHandler", {
 			}
 
 			handled = true;
+
+		} else if (kroll.DBG) {
+			kroll.log(TAG, "handler for event '" + type + "' is " + (typeof handler.listener) + " and cannot be called.");
 		}
 
 		// Bubble the events to the parent view if needed.
-		if (data.bubbles === true && cancelBubble !== true) {
+		if (data.bubbles && !cancelBubble) {
 			handled = this._fireEventToParent(type, data) || handled;
 		}
 
@@ -73,16 +72,20 @@ Object.defineProperty(EventEmitter.prototype, "callHandler", {
 Object.defineProperty(EventEmitter.prototype, "emit", {
 	value: function(type) {
 		var handled = false,
-			data = arguments[1];
+			data = arguments[1],
+			handled,
+			listeners;
 
-		// Set "bubbles" and "cancelBubble" for custom event data if they are not set to boolean values yet.
-		// Note: If the events are fired from Java side, the "bubbles" property may be already set
-		// in Java (eg. "click" event fired from the UI thread).
+		// Set the "bubbles" and "cancelBubble" properties for event data.
 		if (data !== null && typeof data == "object") {
-			if (typeof data.bubbles != "boolean") {
+			if (data.bubbles) {
+				data.bubbles = true;
+			} else {
 				data.bubbles = false;
 			}
-			if (typeof data.cancelBubble != "boolean") {
+			if (data.cancelBubble) {
+				data.cancelBubble = true;
+			} else {
 				data.cancelBubble = false;
 			}
 
@@ -95,25 +98,24 @@ Object.defineProperty(EventEmitter.prototype, "emit", {
 		}
 
 		if (!this._events || !this._events[type] || !this.callHandler) {
-			if (data.bubbles === true && data.cancelBubble !== true) {
+			if (data.bubbles && !data.cancelBubble) {
 				handled = this._fireEventToParent(type, data);
 			}
 			return handled;
 		}
 
-		var handler = this._events[type];
+		handler = this._events[type];
 		if (typeof handler.listener == 'function') {
 			handled = this.callHandler(handler, type, data);
 
 		} else if (isArray(handler)) {
-			var listeners = handler.slice();
-
+			listeners = handler.slice();
 			for (var i = 0, l = listeners.length; i < l; i++) {
 				handled = this.callHandler(listeners[i], type, data) || handled;
 			}
 
 		} else {
-			if (data.bubbles === true && data.cancelBubble !== true) {
+			if (data.bubbles && !data.cancelBubble) {
 				handled = this._fireEventToParent(type, data);
 			}
 		}
