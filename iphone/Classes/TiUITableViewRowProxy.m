@@ -667,6 +667,11 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 	}
 }
 
+-(TiProxy*)parentForBubbling
+{
+	return section;
+}
+
 -(UIView*)view
 {
 	return nil;
@@ -749,6 +754,7 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 	[self configureBackground:cell];
 	[self configureIndentionLevel:cell];
 	[self configureChildren:cell];
+	cell.accessibilityLabel = [TiUtils stringValue:[self valueForUndefinedKey:@"accessibilityLabel"]];
 	modifyingRow = NO;
 }
 
@@ -919,7 +925,7 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 	if (TableViewRowProperties==nil)
 	{
 		TableViewRowProperties = [[NSSet alloc] initWithObjects:
-					@"title", @"backgroundImage",
+					@"title", @"accessibilityLabel", @"backgroundImage",
 					@"leftImage",@"hasDetail",@"hasCheck",@"hasChild",	
 					@"indentionLevel",@"selectionStyle",@"color",@"selectedColor",
 					@"height",@"width",@"backgroundColor",@"rightImage",

@@ -71,3 +71,18 @@ methods:
         summary: A dictionary of properties to apply.
         type: Dictionary
     since: "3.0.0"
+
+properties:
+
+  - name: bubbleParent
+    summary: Indicates if the proxy will bubble an event to its parent.
+    description: |
+        Some proxies (most commonly views) have a relationship to other proxies, often
+        established by the add() method. For example, for a button added to a window, a
+        click event on the button would bubble up to the window. Other common parents are
+        table sections to their rows, table views to their sections, and scrollable views
+        to their views. Set this property to false to disable the bubbling to the proxy's parent.
+    type: Boolean
+    default: true
+    platforms: [iphone, ipad, android]
+    since: "3.0.0"

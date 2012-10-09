@@ -1,0 +1,14 @@
+<a name="deprecated_apis"></a>
+
+<h2>Deprecated APIs</h2>
+
+The following APIs are deprecated in Release ${config["version"]}.
+
+<table>
+<tr><th>API</th><th>Type</th><th>Notes</th></tr>
+% for a in data:
+  <tr><td>${a["name"]}</td><td>${a["type"]}</td><td>${a["notes"]}</td></tr>
+% endfor
+<tr>
+</table>
+

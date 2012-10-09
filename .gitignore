@@ -19,3 +19,4 @@ support/node_modules/*
 !support/node_modules/titanium-sdk
 anvil/driver/titanium_mobile
 anvil/hub/config.js
+support/mobileweb/dependencyAnalyzer/node_modules/*
