@@ -1802,7 +1802,7 @@ build.prototype = {
 							}
 							// only copy the file for test/production and if it's not a js file, otherwise
 							// it will get compiled below
-							if ((this.deployType == 'development' || !m || m[1] != 'js') && (!afs.exists(t) || fstat.size != fs.lstatSync(t).size)) {
+							if ((this.deployType == 'development' || !m || !/css|js/.test(m[1])) && (!afs.exists(t) || fstat.size != fs.lstatSync(t).size)) {
 								afs.copyFileSync(f, t, { logger: this.logger.debug });
 							}
 						}

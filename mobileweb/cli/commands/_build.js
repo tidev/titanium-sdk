@@ -204,7 +204,7 @@ function build(logger, config, cli, finished) {
 				finished && finished();
 			});
 		});
-	});
+	}.bind(this));
 };
 
 build.prototype = {
