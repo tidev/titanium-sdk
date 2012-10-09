@@ -63,35 +63,35 @@ exports.validate = function (logger, config, cli) {
 
 exports.run = function (logger, config, cli, finished) {
 	cli.fireHook('build.pre.construct', function () {
-		var tiapp,
-			buildObj = new build(logger, config, cli, function (err) {
-				cli.fireHook('build.post.compile', buildObj, function (e) {
-					if (e && e.type == 'AppcException') {
-						logger.error(e.message);
-						e.details.forEach(function (line) {
-							line && logger.error(line);
-						});
-					}
-					tiapp = buildObj.tiapp;
-					cli.addAnalyticsEvent('mobileweb.build.' + cli.argv['deploy-type'], {
-						dir: cli.argv['project-dir'],
-						name: tiapp.name,
-						publisher: tiapp.publisher,
-						url: tiapp.url,
-						image: tiapp.image,
-						appid: tiapp.id,
-						description: tiapp.description,
-						type: cli.argv.type,
-						guid: tiapp.guid,
-						version: tiapp.version,
-						copyright: tiapp.copyright,
-						date: (new Date()).toDateString()
+		new build(logger, config, cli, function (err) {
+			cli.fireHook('build.post.compile', this, function (e) {
+				if (e && e.type == 'AppcException') {
+					logger.error(e.message);
+					e.details.forEach(function (line) {
+						line && logger.error(line);
 					});
-
-					cli.fireHook('build.finalize', buildObj, function () {
-						finished(err);
-					});
+				}
+				
+				var tiapp = this.tiapp;
+				cli.addAnalyticsEvent('mobileweb.build.' + cli.argv['deploy-type'], {
+					dir: cli.argv['project-dir'],
+					name: tiapp.name,
+					publisher: tiapp.publisher,
+					url: tiapp.url,
+					image: tiapp.image,
+					appid: tiapp.id,
+					description: tiapp.description,
+					type: cli.argv.type,
+					guid: tiapp.guid,
+					version: tiapp.version,
+					copyright: tiapp.copyright,
+					date: (new Date()).toDateString()
 				});
+
+				cli.fireHook('build.finalize', this, function () {
+					finished(err);
+				});
+			}.bind(this));
 		});
 	});
 };
@@ -103,6 +103,7 @@ function build(logger, config, cli, finished) {
 	this.buildType = cli.argv['deploy-type'];
 	this.os = cli.env.os;
 	
+	this.titaniumSdkVersion = ti.manifest.version;
 	this.projectDir = afs.resolvePath(cli.argv['project-dir']);
 	this.projectResDir = this.projectDir + '/Resources';
 	this.buildDir = this.projectDir + '/build/mobileweb';
@@ -201,7 +202,7 @@ function build(logger, config, cli, finished) {
 				this.minifyJavaScript();
 				this.createFilesystemRegistry();
 				this.createIndexHtml();
-				finished && finished();
+				finished && finished.call(this);
 			});
 		});
 	}.bind(this));
@@ -334,7 +335,7 @@ build.prototype = {
 		}
 		
 		this.logger.info(__n('Searching for %s Titanium Module', 'Searching for %s Titanium Modules', this.tiapp.modules.length));
-		appc.timodule.find(this.tiapp.modules, 'mobileweb', this.deployType, this.projectDir, this.logger, function (modules) {
+		appc.timodule.find(this.tiapp.modules, 'mobileweb', this.deployType, this.titaniumSdkVersion, this.projectDir, this.logger, function (modules) {
 			if (modules.missing.length) {
 				this.logger.error(__('Could not find all required Titanium Modules:'))
 				modules.missing.forEach(function (m) {
@@ -405,8 +406,9 @@ build.prototype = {
 				wrench.mkdirSyncRecursive(dest);
 				afs.copyDirSyncRecursive(moduleDir, dest, { preserve: true });
 			}, this);
+			
+			callback();
 		}.bind(this));
-		callback();
 	},
 	
 	detectCircularDependencies: function (callback) {
