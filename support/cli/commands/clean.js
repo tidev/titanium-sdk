@@ -15,7 +15,7 @@ var appc = require('node-appc'),
 	wrench = require('wrench');
 
 exports.cliVersion = '>=3.X';
-exports.desc = __('creates a new mobile application or module');
+exports.desc = __('removes previous build directories');
 
 exports.config = function (logger, config, cli) {
 	return {
