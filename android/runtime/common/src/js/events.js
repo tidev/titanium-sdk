@@ -73,22 +73,21 @@ Object.defineProperty(EventEmitter.prototype, "callHandler", {
 Object.defineProperty(EventEmitter.prototype, "emit", {
 	value: function(type) {
 		var handled = false,
-			data = arguments[1],
-			bubbles = false;
+			data = arguments[1];
 
-		// Copy any custom event data and set "bubbles" and "cancelBubble" if they are not set to a boolean value yet.
+		// Set "bubbles" and "cancelBubble" for custom event data if they are not set to boolean values yet.
 		// Note: If the events are fired from Java side, the "bubbles" property may be already set
 		// in Java (eg. "click" event fired from the UI thread).
 		if (data !== null && typeof data == "object") {
 			if (typeof data.bubbles != "boolean") {
-				kroll.extend(data, { bubbles: bubbles });
+				data.bubbles = false;
 			}
 			if (typeof data.cancelBubble != "boolean") {
-				kroll.extend(data, { cancelBubble: false });
+				data.cancelBubble = false;
 			}
 
 		} else {
-			data = { bubbles: bubbles, cancelBubble: false };
+			data = { bubbles: false, cancelBubble: false };
 		}
 
 		if (this._hasJavaListener) {
