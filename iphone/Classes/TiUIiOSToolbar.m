@@ -34,6 +34,11 @@
 	return toolBar;
 }
 
+- (id)accessibilityElement
+{
+	return [self toolBar];
+}
+
 -(void)layoutSubviews
 {
 	CGRect ourBounds = [self bounds];

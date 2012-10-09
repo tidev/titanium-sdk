@@ -54,6 +54,11 @@
 	return sliderView;
 }
 
+- (id)accessibilityElement
+{
+	return [self sliderView];
+}
+
 -(BOOL)hasTouchableListener
 {
 	// since this guy only works with touch events, we always want them
