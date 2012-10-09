@@ -764,7 +764,7 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 
 		// Set the "bubbles" property to indicate if the event needs to be bubbled.
 		if (data instanceof HashMap) {
-			((HashMap)data).put("bubbles", bubbles);
+			((HashMap)data).put(TiC.PROPERTY_BUBBLES, bubbles);
 		}
 
 		// Dispatch the event to JavaScript which takes care of the bubbling.
