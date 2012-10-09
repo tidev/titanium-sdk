@@ -18,7 +18,7 @@ exports.cliVersion = '>=3.X';
 
 exports.init = function (logger, config, cli) {
 	
-	cli.addHook('build.post', {
+	cli.addHook('build.post.compile', {
 		priority: 8000,
 		post: function (build, finished) {
 			if (cli.argv.target != 'device') return finished();

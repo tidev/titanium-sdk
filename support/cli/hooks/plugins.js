@@ -15,11 +15,11 @@ exports.init = function (logger, config, cli) {
 		callback();
 	}
 	
-	cli.addHook('build.pre', function (data, finished) {
+	cli.addHook('build.pre.compile', function (data, finished) {
 		fire('compile', data, finished);
 	});
 	
-	cli.addHook('build.post', function (data, finished) {
+	cli.addHook('build.post.compile', function (data, finished) {
 		fire('postbuild', data, finished);
 	});
 	

@@ -37,7 +37,7 @@ exports.config = function (logger, config, cli) {
 exports.validate = function (logger, config, cli) {
 	cli.argv.platform && ti.validatePlatform(logger, cli.argv, 'platform');
 	ti.validateProjectDir(logger, cli, cli.argv, 'project-dir');
-	ti.loadPlugins(logger, cli, cli.argv['project-dir']);
+	ti.loadPlugins(logger, cli, config, cli.argv['project-dir']);
 };
 
 exports.run = function (logger, config, cli) {
