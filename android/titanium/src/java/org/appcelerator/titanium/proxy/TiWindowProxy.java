@@ -108,6 +108,21 @@ public abstract class TiWindowProxy extends TiViewProxy
 			}
 		}
 	}
+	
+	public boolean isOpen() 
+	{
+		return opened;
+	}
+	
+	public void setOpen(boolean o) 
+	{
+		opened = o;
+	}
+	
+	public void fireCloseForActiveTab() 
+	{
+		//This method is overwritten in TabGroupProxy to fire close event on the active tab and its window.
+	}
 
 	@Kroll.method @SuppressWarnings("unchecked")
 	public void open(@Kroll.argument(optional = true) Object arg)

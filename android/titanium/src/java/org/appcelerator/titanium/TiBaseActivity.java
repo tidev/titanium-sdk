@@ -1152,6 +1152,7 @@ public abstract class TiBaseActivity extends Activity
 		if (window != null) {
 			KrollDict data = new KrollDict();
 			data.put(TiC.EVENT_PROPERTY_SOURCE, window);
+			window.fireCloseForActiveTab();
 			window.fireSyncEvent(TiC.EVENT_CLOSE, data);
 		}
 

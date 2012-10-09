@@ -53,6 +53,12 @@ public abstract class TiUIAbstractTab extends TiUIView {
 
 			// Allow the window to fill the content view with its children.
 			windowProxy.getKrollObject().setWindow(contentViewProxy);
+			
+			// Fire open if window is not open
+			if (!windowProxy.isOpen()) {
+				contentViewProxy.fireEvent(TiC.EVENT_OPEN, null, false);
+				windowProxy.setOpen(true);
+			}
 		}
 
 		return contentView.getNativeView();
