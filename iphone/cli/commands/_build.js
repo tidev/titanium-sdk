@@ -467,27 +467,25 @@ exports.validate = function (logger, config, cli) {
 };
 
 exports.run = function (logger, config, cli, finished) {
-	var buildObj;
-
 	if (cli.argv.xcode) {
 		// basically, we bypass the pre, post, and finalize hooks for xcode builds
-		buildObj = new build(logger, config, cli, finished);
+		var buildObj = new build(logger, config, cli, finished);
 		sendAnalytics(cli, buildObj.tiapp);
 	} else {
 		cli.fireHook('build.pre.construct', function () {
-			var buildObj = new build(logger, config, cli, function (err) {
-				cli.fireHook('build.post.compile', buildObj, function (e) {
+			new build(logger, config, cli, function (err) {
+				cli.fireHook('build.post.compile', this, function (e) {
 					if (e && e.type == 'AppcException') {
 						logger.error(e.message);
 						e.details.forEach(function (line) {
 							line && logger.error(line);
 						});
 					}
-					sendAnalytics(cli, buildObj.tiapp);
-					cli.fireHook('build.finalize', buildObj, function () {
+					sendAnalytics(cli, this.tiapp);
+					cli.fireHook('build.finalize', this, function () {
 						finished(err);
 					});
-				});
+				}.bind(this));
 			});
 		});
 	}
@@ -791,7 +789,7 @@ function build(logger, config, cli, finished) {
 					}
 					
 					// end of the line
-					finished(code);
+					finished.call(this, code);
 				}.bind(this));
 			});
 		});
@@ -2123,7 +2121,7 @@ build.prototype = {
 			], function () {
 				// if we're in development mode, do not optimize images or optimize the defines.h
 				if (this.deployType == 'development') {
-					return finished();
+					return finished.call(this);
 				}
 				
 				parallel(this, [
@@ -2168,7 +2166,7 @@ build.prototype = {
 						
 						next();
 					}
-				], finished);
+				], finished.bind(this));
 			});
 		});
 	}
