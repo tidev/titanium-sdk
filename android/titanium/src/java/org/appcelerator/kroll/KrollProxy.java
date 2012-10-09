@@ -627,7 +627,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 	 * @param data data to include in the event
 	 * @return true if the event was handled
 	 */
-	@Kroll.method
+	@Kroll.method(name = "_fireEventToParent")
 	public boolean fireEventToParent(String eventName, Object data)
 	{
 		Object bubbleParent = getProperty(TiC.PROPERTY_BUBBLE_PARENT);
