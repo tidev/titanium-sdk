@@ -35,6 +35,11 @@ DEFINE_EXCEPTIONS
 	return controller;
 }
 
+- (id)accessibilityElement
+{
+	return [self tabbar];
+}
+
 -(UITabBar*)tabbar
 {
 	return [self tabController].tabBar;

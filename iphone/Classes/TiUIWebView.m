@@ -140,6 +140,11 @@ static NSString * const kTitaniumJavascript = @"Ti.App={};Ti.API={};Ti.App._list
 	return webview;
 }
 
+- (id)accessibilityElement
+{
+	return [self webview];
+}
+
 -(void)loadURLRequest:(NSMutableURLRequest*)request
 {
 	if (basicCredentials!=nil)

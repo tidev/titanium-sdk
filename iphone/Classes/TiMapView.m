@@ -76,6 +76,11 @@
     return map;
 }
 
+- (id)accessibilityElement
+{
+	return [self map];
+}
+
 - (NSArray *)customAnnotations
 {
     NSMutableArray *annotations = [NSMutableArray arrayWithArray:self.map.annotations];

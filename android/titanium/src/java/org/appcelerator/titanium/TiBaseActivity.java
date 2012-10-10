@@ -463,6 +463,7 @@ public abstract class TiBaseActivity extends Activity
 
 		// create the activity proxy here so that it is accessible from the activity in all cases
 		activityProxy = new ActivityProxy(this);
+		
 
 		// Increment the reference count so we correctly clean up when all of our activities have been destroyed
 		KrollRuntime.incrementActivityRefCount();
@@ -730,6 +731,14 @@ public abstract class TiBaseActivity extends Activity
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu)
 	{
+		// If targetSdkVersion is set to 11+, Android will invoke this function 
+		// to initialize the menu (since it's part of the action bar). Due
+		// to the fix for Android bug 2373, activityProxy won't be initialized b/c the
+		// activity is expected to restart, so we will ignore it.
+		if (activityProxy == null) {
+			return false;
+		}
+		
 		if (menuHelper == null) {
 			menuHelper = new TiMenuSupport(activityProxy);
 		}
@@ -1138,14 +1147,9 @@ public abstract class TiBaseActivity extends Activity
 	@Override
 	public void finish()
 	{
-		if (window != null) {
-			KrollDict data = new KrollDict();
-			data.put(TiC.EVENT_PROPERTY_SOURCE, window);
-			window.fireSyncEvent(TiC.EVENT_CLOSE, data);
-		}
+		super.finish();
 
 		boolean animate = getIntentBoolean(TiC.PROPERTY_ANIMATE, true);
-
 		
 		if (shouldFinishRootActivity()) {
 			TiApplication app = getTiApp();
@@ -1156,8 +1160,6 @@ public abstract class TiBaseActivity extends Activity
 				}
 			}
 		}
-
-		super.finish();
 
 		if (!animate) {
 			TiUIHelper.overridePendingTransition(this);

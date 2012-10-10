@@ -180,9 +180,12 @@ public abstract class TiWindowProxy extends TiViewProxy
 		releaseViews();
 		opened = false;
 
-		// TODO ?
+		// Causes some clean up in our window.js.
 		fireEvent("closeFromActivity", null);
 		activity = null;
+
+		// Once the window's activity is destroyed we will fire the close event.
+		fireSyncEvent(TiC.EVENT_CLOSE, null);
 	}
 
 	@Kroll.method(name="setTab")

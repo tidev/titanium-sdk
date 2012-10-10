@@ -328,6 +328,8 @@ events:
             (all lowercase).
     summary: |
         Fired when the natural size of the current movie is determined.
+    description: |
+        On iOS 6.0, this event is not fired by the operating system.
     platforms: [iphone, ipad]
     properties:
       - name: naturalSize
@@ -360,6 +362,8 @@ events:
 
   - name: naturalsizeavailable
     summary: Fired when the natural size of the current movie is determined.
+    description: |
+        On iOS 6.0, this event is not fired by the operating system.
     platforms: [iphone, ipad]
     properties:
       - name: naturalSize
@@ -518,7 +522,6 @@ properties:
   - name: currentPlaybackTime
     summary: Current playback time of the current movie in milliseconds.
     type: Number
-    permission: read-only
 
   - name: duration
     summary: The duration of the current movie in milliseconds, or 0.0 if not known.

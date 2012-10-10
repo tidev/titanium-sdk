@@ -150,6 +150,22 @@ events:
             Array of selected values, one element per column in the picker. Applicable to 
             <Titanium.UI.PICKER_TYPE_PLAIN> picker types.
         type: Array<String>
+        
+  - name: click
+    summary: Fired when the device detects a click against the view.
+    platforms: [android]
+    since: "3.0.0"
+    description: |
+        This event is only available for non-spinner plain pickers. 
+    properties:
+      - name: x
+        type: Number
+        summary: X coordinate of the event from the `source` view's coordinate system.
+    
+      - name: y
+        summary: Y coordinate of the event from the `source` view's coordinate system.
+        type: Number
+        
 properties:
   - name: columns
     summary: Columns used for this picker, as an array of <Titanium.UI.PickerColumn> objects.

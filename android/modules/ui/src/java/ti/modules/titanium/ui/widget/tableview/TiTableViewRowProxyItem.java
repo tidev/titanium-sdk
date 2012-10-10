@@ -8,6 +8,7 @@ package ti.modules.titanium.ui.widget.tableview;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.common.Log;
@@ -97,7 +98,11 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 		return label;
 	}
 
-	protected void refreshControls()
+	/*
+	 * Create views for measurement or for layout.  For each view, apply the
+	 * properties from the appropriate proxy to the view.
+	 */
+	protected void createControls()
 	{
 		ArrayList<TiViewProxy> proxies = getRowProxy().getControls();
 		int len = proxies.size();
@@ -123,8 +128,15 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 			}
 			if (view == null) {
 				// In some cases the TiUIView for this proxy has been reassigned to another proxy
-				// We don't want to actually release it though, just reassign by creating a new view
-				view = proxy.forceCreateView();
+				// We don't want to actually release it though, just reassign by creating a new view.
+				//
+				// Not setting modelListener from here because this could be a measurement pass or
+				// a layout pass through getView(), which means that the view we have here may
+				// not be the one that gets displayed on the screen.  So we don't want to make
+				// any view-proxy association at this point.   We only want to make that association
+				// on a layout pass (i.e. when onLayout() gets called).
+				//
+				view = proxy.forceCreateView(false);  // false means don't set modelListener
 				clearChildViews(proxy);
 				if (i >= views.size()) {
 					views.add(view);
@@ -134,9 +146,8 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 			}
 
 			View v = view.getOuterView();
-			view.setProxy(proxy);
 			view.processProperties(proxy.getProperties());
-			applyChildProxies(proxy, view);
+			applyChildProperties(proxy, view);
 			if (v.getParent() == null) {
 				content.addView(v, view.getLayoutParams());
 			}
@@ -151,17 +162,14 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 		}
 	}
 
-	protected void applyChildProxies(TiViewProxy viewProxy, TiUIView view)
+	protected void applyChildProperties(TiViewProxy viewProxy, TiUIView view)
 	{
 		int i = 0;
 		TiViewProxy childProxies[] = viewProxy.getChildren();
 		for (TiUIView childView : view.getChildren()) {
 			TiViewProxy childProxy = childProxies[i];
-			childView.setProxy(childProxy);
-			//Since we wipe out children's views earlier we need to reset them.
-			childProxy.setView(childView);
 			childView.processProperties(childProxy.getProperties());
-			applyChildProxies(childProxy, childView);
+			applyChildProperties(childProxy, childView);
 			i++;
 		}
 	}
@@ -273,9 +281,11 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 			content.setLayoutArrangement(TiConvert.toString(props, TiC.PROPERTY_LAYOUT));
 		}
 
+		// hasControls() means that the proxy has children
 		if (rp.hasControls()) {
-			refreshControls();
+			createControls();
 		} else {
+			// no children means that this is an old-style row
 			refreshOldStyleRow();
 		}
 	}
@@ -355,9 +365,18 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 	@Override
 	protected void onLayout(boolean changed, int left, int top, int right, int bottom)
 	{
-		// Make this association here to avoid doing it on measurement passes
+		// Make these associations here to avoid doing them on measurement passes
 		TableViewRowProxy rp = getRowProxy();
 		rp.setTableViewItem(this);
+		if (this.item.proxy.getChildren().length == 0) {
+			// old-style row
+			TiUIView childView = views.get(0);
+			childView.processProperties(filterProperties(rp.getProperties()));
+			childView.setProxy(rp);
+		}
+		else {
+			associateProxies(this.item.proxy.getChildren(), views);
+		}
 		
 		int contentLeft = left;
 		int contentRight = right;
@@ -460,4 +479,21 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 		}
 		
 	}
+	
+	protected void associateProxies(TiViewProxy[] proxies, List<TiUIView> views)
+	{
+		int i = 0;
+		for (TiUIView view : views) {
+			if (proxies.length < (i+1)) {
+				break;
+			}
+			TiViewProxy proxy = proxies[i];
+			proxy.setView(view);
+			view.setProxy(proxy);
+			proxy.setModelListener(view);
+			associateProxies(proxy.getChildren(), view.getChildren());
+			i++;
+		}
+	}
+
 }

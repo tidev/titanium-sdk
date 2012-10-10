@@ -151,7 +151,7 @@ properties:
     type: Boolean
     default: true
     since: "3.0.0"
-    platforms: [android]
+    platforms: [android, iphone, ipad]
 
   - name: selectedIndex
     summary: Defines the default selected option.
