@@ -242,7 +242,15 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 	}
 
 	private TabProxy handleGetActiveTab() {
-		return selectedTab;
+		//selectedTab may not be set when user queries activeTab, so we return
+		//the first tab (default selected tab) if it exists.
+		if (selectedTab != null) {
+			return selectedTab;
+		} else if (tabs.size() > 0) {
+			return tabs.get(0);
+		} else {
+			return null;
+		}
 	}
 
 	@Override
@@ -295,35 +303,20 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 
 		// Load any tabs added before the tab group opened.
 		TiUIAbstractTabGroup tg = (TiUIAbstractTabGroup) view;
-		for(TabProxy tab : tabs) {
+		for (TabProxy tab : tabs) {
 			tg.addTab(tab);
 		}
 
-		// The first tab will be selected by default if
-		// no other tab has been set as the active tab.
-		if (selectedTab == null) {
-			if (tabs.size() > 0) {
-				TabProxy firstTab = tabs.get(0);
-				if (tg.getSelectedTab() == firstTab) {
-					// Some tab group implementations will automatically
-					// select the first tab when added. It is our
-					// responsibility to invoke onTabSelected() when this
-					// condition occurs for the first tab.
-					onTabSelected(firstTab);
-
-				} else {
-					tg.selectTab(firstTab);
-				}
-			}
-
-		} else {
-			// Move initially active tab into a local variable.
-			// We must clear selectedTab so it does not appear
-			// to be the previously selected tab and gets blurred.
-			TabProxy tab = selectedTab;
+		TabProxy activeTab = handleGetActiveTab();
+		if (activeTab != null) {
 			selectedTab = null;
-
-			tg.selectTab(tab);
+			// If tabHost's selected tab is same as the active tab, we need
+			// to invoke onTabSelected so focus/blur event fire appropriately
+			if (tg.getSelectedTab() == activeTab) {
+				onTabSelected(activeTab);
+			} else {
+				tg.selectTab(activeTab);
+			}
 		}
 
 		// Selected tab should have been focused by now.
@@ -347,9 +340,21 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 		opened = false;
 
 		Activity activity = tabGroupActivity.get();
-		if (activity != null) {
+		if (activity != null && !activity.isFinishing()) {
 			activity.finish();
 		}
+	}
+
+	@Override
+	public void closeFromActivity() {
+		// Allow each tab to close its window before the tab group closes.
+		for (TabProxy tab : tabs) {
+			tab.close();
+		}
+
+		// Call super to fire the close event on the tab group.
+		// This event must fire after each tab has been closed.
+		super.closeFromActivity();
 	}
 
 	@Override

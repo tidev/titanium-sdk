@@ -329,7 +329,6 @@ properties:
     
   - name: validatesSecureCertificate
     summary: Determines how SSL certification validation is performed on connection.  
-    description: Note that on iOS, this value is always `false` by default. This is a known issue.
     type: Boolean
     default: |
         False when running in the simulator or on device in testing mode, and true if built for 

@@ -73,6 +73,10 @@ public abstract class TiUIView
 
 	private static AtomicInteger idGenerator;
 
+	// When distinguishing twofingertap and pinch events, minimum motion (in pixels) 
+	// to qualify as a scale event. 
+	private static final float SCALE_THRESHOLD = 6.0f;
+
 	public static final int SOFT_KEYBOARD_DEFAULT_ON_FOCUS = 0;
 	public static final int SOFT_KEYBOARD_HIDE_ON_FOCUS = 1;
 	public static final int SOFT_KEYBOARD_SHOW_ON_FOCUS = 2;
@@ -109,6 +113,8 @@ public abstract class TiUIView
 
 	private boolean zIndexChanged = false;
 	private TiBorderWrapperView borderView;
+	// For twofingertap detection
+	private boolean didScale = false;
 
 	/**
 	 * Constructs a TiUIView object with the associated proxy.
@@ -832,6 +838,7 @@ public abstract class TiUIView
 				d = null;
 			}
 			nativeView = null;
+			borderView = null;
 			if (proxy != null) {
 				proxy.setModelListener(null);
 			}
@@ -843,6 +850,9 @@ public abstract class TiUIView
 	 */
 	public void show()
 	{
+		if (borderView != null) {
+			borderView.setVisibility(View.VISIBLE);
+		}
 		if (nativeView != null) {
 			nativeView.setVisibility(View.VISIBLE);
 		} else {
@@ -855,6 +865,9 @@ public abstract class TiUIView
 	 */
 	public void hide()
 	{
+		if (borderView != null) {
+			borderView.setVisibility(View.INVISIBLE);
+		}
 		if (nativeView != null) {
 			nativeView.setVisibility(View.INVISIBLE);
 		} else {
@@ -1062,12 +1075,23 @@ public abstract class TiUIView
 					if (proxy.hierarchyHasListener(TiC.EVENT_PINCH)) {
 						float timeDelta = sgd.getTimeDelta() == 0 ? minTimeDelta : sgd.getTimeDelta();
 
-						KrollDict data = new KrollDict();
-						data.put(TiC.EVENT_PROPERTY_SCALE, sgd.getCurrentSpan() / startSpan);
-						data.put(TiC.EVENT_PROPERTY_VELOCITY, (sgd.getScaleFactor() - 1.0f) / timeDelta * 1000);
-						data.put(TiC.EVENT_PROPERTY_SOURCE, proxy);
+						// Suppress scale events (and allow for possible two-finger tap events)
+						// until we've moved at least a few pixels. Without this check, two-finger 
+						// taps are very hard to register on some older devices.
+						if (!didScale) {
+							if (Math.abs(sgd.getCurrentSpan() - startSpan) > SCALE_THRESHOLD) {
+								didScale = true;
+							} 
+						}
 
-						return proxy.fireEvent(TiC.EVENT_PINCH, data);
+						if (didScale) {
+							KrollDict data = new KrollDict();
+							data.put(TiC.EVENT_PROPERTY_SCALE, sgd.getCurrentSpan() / startSpan);
+							data.put(TiC.EVENT_PROPERTY_VELOCITY, (sgd.getScaleFactor() - 1.0f) / timeDelta * 1000);
+							data.put(TiC.EVENT_PROPERTY_SOURCE, proxy);
+	
+							return proxy.fireEvent(TiC.EVENT_PINCH, data);
+						}
 					}
 					return false;
 				}
@@ -1141,6 +1165,8 @@ public abstract class TiUIView
 		
 		touchable.setOnTouchListener(new OnTouchListener()
 		{
+			int pointersDown = 0;
+
 			public boolean onTouch(View view, MotionEvent event)
 			{
 				if (event.getAction() == MotionEvent.ACTION_UP) {
@@ -1150,13 +1176,32 @@ public abstract class TiUIView
 
 				scaleDetector.onTouchEvent(event);
 				if (scaleDetector.isInProgress()) {
+					pointersDown = 0;
 					return true;
 				}
 
 				boolean handled = detector.onTouchEvent(event);
 				if (handled) {
+					pointersDown = 0;
 					return true;
 				}
+
+				if (event.getActionMasked() == MotionEvent.ACTION_POINTER_UP) {
+					if (didScale) {
+						didScale = false;
+						pointersDown = 0;
+					} else {
+						pointersDown++;
+					}
+				} else if (event.getAction() == MotionEvent.ACTION_UP) {
+					if (pointersDown == 1) {
+						proxy.fireEvent(TiC.EVENT_TWOFINGERTAP, dictFromEvent(event));
+						pointersDown = 0;
+						return true;
+					}
+					pointersDown = 0;
+				}
+
 
 				String motionEvent = motionEvents.get(event.getAction());
 				if (motionEvent != null) {

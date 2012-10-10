@@ -1,0 +1,372 @@
+# Titanium SDK 2.1.3 - 10/03/2012
+
+##### Contents
+
+*   [About This Release](#about)
+*   [Support for iOS 6 and iPhone 5](#ios_6)
+*   [iOS Platform Fixes and Enhancements](#ios)
+*   [Android Platform Fixes and Enhancements](#android)
+*   [Known Issues](#known_issues)
+
+<a name="about"></a>
+
+## About This Release
+
+Titanium SDK Release 2.1.3 is a service pack release of 
+the Titanium SDK, including bug fixes for high-priority issues occurring in Releases 2.1.0, 
+2.1.1, and 2.1.2. 
+
+In addition to fixes for the Android and iOS platforms, this release adds support for iOS 6 and the Xcode 4.5 releases.
+
+[Full list of Issues that were addressed in Release 2.1.3](
+https://jira.appcelerator.org/secure/IssueNavigator.jspa?mode=hide&requestId=13738)
+
+<a name="ios_6"></a>
+
+## Support for iOS 6 and iPhone 5
+
+This release includes support for iOS 6 and Xcode 4.5. It has been tested using Xcode 4.5 
+and using iOS 6 on the iPhone 5 as well as earlier devices.
+
+The following notes apply to iOS 6 and the iPhone 5.
+
+### ARMv6 Support and Min iOS Version
+
+The ARMv6 architecture is no longer supported in iOS 6. Starting in Release 2.1.3, ARMv6 is not targeted 
+when building for the iOS 6 SDK, or if the min iOS version is set to 4.3 or above.
+
+To set the min iOS version for an application, add the `min-ios-ver` element to the application's
+`tiapp.xml` file:
+
+    <ios>
+        <min-ios-ver>4.3</min-ios-ver>
+    </ios>
+
+<a name="contacts"></a>
+
+### iOS 6 Contacts Changes
+
+iOS 6 changed the way that applications access the device's contacts. As a result, Release
+2.1.3 introduces a new API to check or request authorization to access contacts.
+
+Use the new
+[Ti.Contacts.contactsAuthorization](http://docs.appcelerator.com/titanium/latest/#!/api/Titanium.Contacts-property-contactsAuthorization)
+property indicates whether the application is authorized to access contacts. It returns
+one of four values:
+
+*   `AUTHORIZATION_AUTHORIZED`. The application can access contacts. 
+*   `AUTHORIZATION_DENIED`. The application doesn't have permission to access contacts.
+*   `AUTHORIZATION_RESTRICTED`. The application doesn't have permission to access
+    contacts, and the user does not have permission to change the application's status.
+    The application should not attempt to reauthorize in this case.
+*   `AUTHORIZATION_UNKNOWN`. Current authorization state is unknown, and the application
+    should call the
+    [requestAuthorization](http://docs.appcelerator.com/titanium/latest/#!/api/Titanium.Contacts-method-requestAuthorization)
+    method to request authorization from the user. 
+
+On iOS prior to iOS 6, and on Android, `contactsAuthorization` always returns `AUTHORIZATION_AUTHORIZED`. 
+
+For more information and sample code using the new APIs, see the
+[Titanium.Contacts](http://docs.appcelerator.com/titanium/latest/#!/api/Titanium.Contacts)
+reference page.
+
+### iPhone 5 Assets and Splash Screens
+
+For best results, existing applications should be updated with assets to fit the new iPhone 5 screen 
+(1136 x 640 pixels) as needed. Assets specific to the new screen should be named with the suffix 
+`-568h@2x`. For example, the default splash screen image for the new screen is named
+`Resources/iphone/Default-568h@2x.png`.
+    
+### Grouped TableView Backgrounds
+
+On iOS 6, using Titanium.UI.iOS.COLOR_GROUP_TABLEVIEW_BACKGROUND or 'stripped' as a color value no longer 
+produces the standard group tableview background pattern. This is a change in iOS, and the corresponding 
+iOS constant can no longer be used to specify the background texture.
+
+Group style table views still default to using the standard iOS group table view background texture if 
+no background color is specified. However, specifying one of these values explicitly on iOS 6 and 
+above results in a black background color.
+
+### Modal Windows
+
+On iOS 6, a modal window cannot be displayed in the upside-down portrait orientation. Attempting
+to open a modal window with UPSIDE_PORTRAIT as the only allowed orientation causes the application
+to crash.
+
+### YouTube Videos
+
+As of iOS 6, embedded YouTube URLs in the form `http://www.youtube.com/watch?v=oHg5SJYRHA0` no longer work. 
+These URLs are for viewing the video on the YouTube site, not for embedding in web pages. 
+Instead, use the embedded URL format described here: [developers.google.com/youtube/player_parameters](https://developers.google.com/youtube/player_parameters).
+
+<a name="ios"></a>
+
+## iOS Fixes and Enhancements
+
+The following section lists all bug fixes and enhancements for the iOS platform.
+
+Bug Fixes:
+
+*   Build: Cannot build application for iOS with iOS SDK 5.1 on Xcode 4.4.1 
+    ([TIMOB-11076](https://jira.appcelerator.org/browse/TIMOB-11076)). This was a
+    regression introduced in a Release Candidate build of Release 2.1.3, and does
+    not occur in earlier 2.1._x_ releases.
+
+*   Build: Console log reports minimum iOS version incorrectly when building with iOS 6 
+    SDK using default `tiapp.xml` ([TIMOB-11026](https://jira.appcelerator.org/browse/TIMOB-11026)).
+    The builder correctly set the minimum iOS version to 4.3 when building with the iOS 6
+    SDK, but erroneously reported the minimum iOS version as 4.0.
+
+*   Build: Log output from iOS 6 device builds does not appear in the Xcode 4.5 console 
+    ([TIMOB-10831](https://jira.appcelerator.org/browse/TIMOB-10831)).
+
+*   Build: DYLD_ environment variables being ignored because main executable (/usr/bin/osascript) is 
+    code signed with entitlements. ([TIMOB-10243](https://jira.appcelerator.org/browse/TIMOB-10243)).
+
+*   ButtonBar/ TabbedBar. When set as a title control, the button bar or tabbed bar does not 
+    automatically size to fit into the navigation bar on iOS 6 
+    ([TIMOB-10929](https://jira.appcelerator.org/browse/TIMOB-10929)). 
+
+*   Color: Applying background color constant or "stripped" color to modal window results in the
+    modal window being black ([TIMOB-11030](https://jira.appcelerator.org/browse/TIMOB-11030)).
+
+*   CommonJS modules: Improve error logging on non-exported CommonJS code. With this fix, the file name 
+    of the file generating the error is displayed correctly. Since JavaScript code in modules is 
+    compressed, the line number in the log output is not correct 
+    ([TIMOB-10501](https://jira.appcelerator.org/browse/TIMOB-10501)).
+
+*   Contacts: Ti.Contacts module doesn't work in iOS 6. This issue was caused by an API
+    change in iOS 6 ([TIMOB-11174](https://jira.appcelerator.org/browse/TIMOB-11174),
+    [TIMOB-11199](https://jira.appcelerator.org/browse/TIMOB-11199)). The fix required the 
+    addition of new properties and a new method in the Ti.Contacts module. See 
+    [iOS 6 Contacts Changes](#contacts) for details. 
+
+*   iAds: Opening an iAD in landscape orientation & closing it crashes the application
+    ([TIMOB-11187](https://jira.appcelerator.org/browse/TIMOB-11187)). This issue only
+    occurred when building with the iOS 6 SDK and running on iOS 6.
+
+*   KitchenSink: No playback could be heard after recording audio. This was an issue in the sample 
+    code ([TIMOB-10229](https://jira.appcelerator.org/browse/TIMOB-10229)).
+
+*   Label: setting label text to empty string causes segmentation fault on iOS 6 
+    ([TIMOB-10810](https://jira.appcelerator.org/browse/TIMOB-10810)).
+
+*   Log messages not showing up in Xcode 4.5 console when running on iPhone 4S with iOS 6 beta
+    ([TIMOB-10831](https://jira.appcelerator.org/browse/TIMOB-10831)).
+
+*   Orientation - iOS 6 only: Forcing landscape on a window then opening an email
+    dialog in portrait will result in your original window allowed to rotate to portrait
+    ([TIMOB-11213](https://jira.appcelerator.org/browse/TIMOB-11213)).
+
+*   Packaging: App rejected for use of non-public API '_updateTitleView'. This regression was introduced 
+    in a previous release, and was caused by an internal method that shared the same name as a non-public 
+    iOS method ([TIMOB-10678](https://jira.appcelerator.org/browse/TIMOB-10678)).
+
+*   Map view. iOS 6 map view gives invalid region error under certain circumstances.
+    ([TIMOB-10892](https://jira.appcelerator.org/browse/TIMOB-10892)).
+
+*   Map view: Repeatedly opening a tab group containing a map view crashes the application 
+    ([TIMOB-10891](https://jira.appcelerator.org/browse/TIMOB-10891)). 
+
+*   Picker: picker fails to update orientation on device rotate 
+    ([TIMOB-11058](https://jira.appcelerator.org/browse/TIMOB-11058)). This was an issue with modal 
+    windows on iOS 6, which also affected other modal window types  besides pickers.
+
+*   Simulator: iOS Simulator always uses the default Xcode.app location, ignoring the location specified by 
+    xcode-select ([TIMOB-10854](https://jira.appcelerator.org/browse/TIMOB-10854)).
+
+*   Sound: Sound hanging on play from remote event 
+    ([TIMOB-11065](https://jira.appcelerator.org/browse/TIMOB-11065)).
+
+*   Splash screen: Default templates do not include iPhone 5 splash screen 
+    ([TIMOB-10945](https://jira.appcelerator.org/browse/TIMOB-10945)).
+
+*   Splash screen: On iPhone 5 simulator and potentially on iPhone 5, the correct splash screen is drawn 
+    then replaced by the @2x before app launch 
+    ([TIMOB-11045](https://jira.appcelerator.org/browse/TIMOB-11045)).
+
+*   Splash screen: On iPhone 5, the splash screen shows slight repositioning when
+    application is launched ([TIMOB-11150](https://jira.appcelerator.org/browse/TIMOB-11150)).
+
+*   Splash screen: Update Titanium Mobile default template with iPhone-5 compatible splash image 
+    ([TIMOB-10885](https://jira.appcelerator.org/browse/TIMOB-10885)).
+
+*   TabGroup: activeTab returns the tab index instead of the tab object after setting active tab 
+    using setActiveTab. This appears to be a regression introduced after Release 2.0.2 
+    ([TIMOB-10796](https://jira.appcelerator.org/browse/TIMOB-10796)).
+
+*   TableView - On a tableview using iOS TableViewStyle.GROUPED, the tableview's background color or 
+    image was not displayed ([TIMOB-10998](https://jira.appcelerator.org/browse/TIMOB-10998)).
+
+*   TableViewRow: className attribute returns TableViewRow object instead of the actual class name 
+    ([TIMOB-11044](https://jira.appcelerator.org/browse/TIMOB-11044)).
+
+*   TableViewRow: semi-opaque `backgroundColor` doesn't work correctly with `title` property 
+    ([TIMOB-10474](https://jira.appcelerator.org/browse/TIMOB-10474)).
+
+*   TextArea: Using Ti.UI.SIZE for a text area's height truncates the text included in the text area 
+    ([TIMOB-9904](https://jira.appcelerator.org/browse/TIMOB-9904)).
+
+*   TextField: Change event fired twice (once with wrong value)
+    ([TIMOB-9848](https://jira.appcelerator.org/browse/TIMOB-9848)).
+
+*   TextField: Text field in scroll view is not positioned correctly after keyboard closes
+    ([TIMOB-11023](https://jira.appcelerator.org/browse/TIMOB-11023),
+    [TIMOB-7998](https://jira.appcelerator.org/browse/TIMOB-7998)). This was a regression
+    introduced in the 2.1._x_ branch.
+
+*   Title control vanishes. If the root tab window has both a bar image and a title control set, 
+    and a window is closed, the root title control vanishes 
+    ([TIMOB-11010](https://jira.appcelerator.org/browse/TIMOB-11010)).
+
+*   VideoPlayer: When playing video in fullscreen mode then returning to non-fullscreen mode, the 
+    parent window is resized. ([TIMOB-10864](https://jira.appcelerator.org/browse/TIMOB-10864)). This 
+    was a regression introduced in Release 2.1.2.
+
+*   VideoPlayer: The video player is not displayed in fullscreen after setting
+    the `fullscreen` proporties to in `Ti.Ui.createVideoPlayer` on iOS
+    6 ([TIMOB-10928](https://jira.appcelerator.org/browse/TIMOB-10928)).
+
+*   View: Implicit height calculation in vertical layouts are incorrect 
+    ([TIMOB-10856](https://jira.appcelerator.org/browse/TIMOB-10856)).
+
+*   View: View on window with vertical layout first drawn on centre of screen and then is
+    re-drawn on top ([TIMOB-11194](https://jira.appcelerator.org/browse/TIMOB-11194)).
+    This was a regression introduced in a Release Candidate build of Release 2.1.3, and does
+    not occur in earlier 2.1._x_ releases.
+
+*   Window: Child window not opening if parent window has modal property set to true. Note that opening a 
+    window on top of a modal window is not recommended, but this issue has been fixed to ensure backwards 
+    compatibility with iOS 5 ([TIMOB-10973](https://jira.appcelerator.org/browse/TIMOB-10973)).
+
+*   Window: Orientation modes are neglected for second level child window 
+    ([TIMOB-10972](https://jira.appcelerator.org/browse/TIMOB-10972)).
+
+*   Xcode 4.5 preview: Building a project fails trying to target iOS 6 due to dropped ARMv6 support 
+    ([TIMOB-10819](https://jira.appcelerator.org/browse/TIMOB-10819)). The ARMv6 architecture is no longer 
+    supported in iOS 6. With this fix, ARMv6 is not targeted when building for the iOS 6 SDK, or if 
+    the min iOS version is set to 4.3 or above.
+
+    To set the min iOS version for an application, add the `min-ios-ver` element to the application's
+    `tiapp.xml` file:
+
+        <ios>
+            <min-ios-ver>4.3</min-ios-ver>
+        </ios>
+
+To browse this list in JIRA, see: 
+[Fixed iOS Issues in
+JIRA](https://jira.appcelerator.org/secure/IssueNavigator.jspa?mode=hide&requestId=13739).
+
+<a name="android"></a>
+
+## Android Fixes and Enhancements
+
+The following section lists all bug fixes and enhancements for the Android
+platform.
+
+Bug Fixes:
+
+
+*   Application restarts when orientation changes and targetSdkVersion is 13 or higher 
+    ([TIMOB-10863](https://jira.appcelerator.org/browse/TIMOB-10863)).
+
+*   Build: Support selecting what ABI to target when using V8 runtime. 
+    ([TIMOB-7474](https://jira.appcelerator.org/browse/TIMOB-7474)).
+
+*   Button: image property is not working for density specific images 
+    ([TIMOB-10806](https://jira.appcelerator.org/browse/TIMOB-10806)).
+
+*   DatePicker: getValue throws an error, custom picker returns undefined 
+    ([TIMOB-7313](https://jira.appcelerator.org/browse/TIMOB-7313)).
+
+*   ScrollView does not scroll when `layout` is 'horizontal
+    ([TIMOB-10860](https://jira.appcelerator.org/browse/TIMOB-10860)).
+    This issue was a regression in Release 2.1.2.
+
+*   Slider: value not being set on creation on OS 4.0+ 
+    ([TIMOB-10880](https://jira.appcelerator.org/browse/TIMOB-10880)).
+
+*   Soft keyboard: In the KitchenSink Hide Soft Keyboard example, pressing the home
+    button leaves the soft keyboard displayed 
+    ([TIMOB-5077](https://jira.appcelerator.org/browse/TIMOB-5077)).
+
+*   TableView: Border radius on TableView doesn't clip content 
+    ([TIMOB-10166](https://jira.appcelerator.org/browse/TIMOB-10166)).
+
+*   TableViewRow: Setting height to Ti.UI.SIZE on a TableViewRow causes the row to not
+    display ([TIMOB-8689](https://jira.appcelerator.org/browse/TIMOB-8689)).
+
+*   View does not clip children to border
+    ([TIMOB-9469](https://jira.appcelerator.org/browse/TIMOB-9469)).
+
+*   View: In 2.1.3 RC if borderWidth is used, show/hide on the border does not
+    work and all views added on top will be hidden behind the border 
+    ([TIMOB-11020](https://jira.appcelerator.org/browse/TIMOB-11020)).
+    This issue was a regression in a Release Candidate build of Release 2.1.3,
+    and does not occur in earlier releases.
+
+*   View: Ti.UI.SIZE on width does not work with horizontal layouts 
+    ([TIMOB-10812](https://jira.appcelerator.org/browse/TIMOB-10812)).
+
+*   Window: android:back listener reacts when using Back key to dismiss keyboard 
+    ([TIMOB-8648](https://jira.appcelerator.org/browse/TIMOB-8648)).
+
+*   Window: Background image is not set correctly after changing the size of the window
+    ([TIMOB-10125](https://jira.appcelerator.org/browse/TIMOB-10125)).
+
+*   Window: Lightweight window might not allow heavyweight window to focus 
+    ([TIMOB-10809](https://jira.appcelerator.org/browse/TIMOB-10809)).
+
+To browse this list in JIRA, see: 
+[Fixed Android Issues in
+JIRA](https://jira.appcelerator.org/secure/IssueNavigator.jspa?mode=hide&requestId=13740).
+
+
+<a name="known_issues"></a>
+
+## Known Issues
+
+During testing for this release, the following issues were discovered. 
+
+*   iOS: View on window with vertical layout first drawn at top left then at center
+    ([TIMOB-11203](https://jira.appcelerator.org/browse/TIMOB-11203)). This is a
+    regression in Release 2.1.3.
+
+*   iOS: App crashes on changing orientation while opening photogallery from modal
+    window ([TIMOB-11240](https://jira.appcelerator.org/browse/TIMOB-11240)).
+    This issue is caused by a code error in the application -- when you open a gallery 
+    popover on iPad, you must give it a view to anchor to. This is *not* a new issue in
+    Release 2.1.3.
+
+    Improved error checking and documentation will be added in a future release to 
+    avoid this issue.
+    
+*   iOS: Black bar starts appearing below navBar when orientation changed between opening
+    and closing of a window ([TIMOB-11219](https://jira.appcelerator.org/browse/TIMOB-11219)). 
+    This is *not* a new issue in Release 2.1.3.
+
+*   iOS: TableView: touchmove event is not fired ([TIMOB-11103](https://jira.appcelerator.org/browse/TIMOB-11103)).
+    This is *not* a new issue in Release 2.1.3.
+
+*   iOS: Repeatedly opening a tab group containing a map view crashes the application
+    on iOS 6 ([TIMOB-10891](https://jira.appcelerator.org/browse/TIMOB-10891)). This issue
+    is related to a change in the iOS native map view in iOS 6, which continues to render
+    even when the map view is offscreen. To avoid this crash, remove the map view 
+    (or its parent) from the view hierarchy when it is offscreen.
+
+
+The following issues reported in the Release 2.1.2 Release Notes are still open in Release 2.1.3:
+
+*   Windows 7: Packaging fails for Android modules
+    ([TIMOB-10726](https://jira.appcelerator.org/browse/TIMOB-10726)).
+
+    This issue has been reproduced with Titanium SDK 2.1.1 and 2.1.2. If you encounter
+    this issue, make sure you have Python 2.6 or later installed and that the Python
+    executable is in your search path.
+
+*   Xcode 4.4/4.5: Xcode does not function as expected when installed on a partition other than the boot
+    parition ([TIMOB-10360](https://jira.appcelerator.org/browse/TIMOB-10360)).
+
+<a name="new_apis"></a>
+

@@ -109,15 +109,23 @@ def main(args):
 		info("Migrating tiapp.xml...")
 		shutil.copy(tiappxml, build_dir)
 		
+		ti = TiAppXML(tiappxml)
+		# target the requested value if provided
+		if 'min-ios-ver' in ti.ios:
+			min_ver = float(ti.ios['min-ios-ver'])
+			if min_ver < 4.0:
+				print "[INFO] Minimum iOS version %s is lower than 4.0: Using 4.0 as minimum" % min_ver
+				min_ver = 4.0
+
 		# Generate project stuff from the template
 		info("Generating project from Titanium template...")
-		project = Projector(app_name,version,template_dir,project_dir,app_id)
+		project = Projector(app_name,version,template_dir,project_dir,app_id, min_ver)
 		project.create(template_dir,build_dir)			
 		
 		# Because the debugger.plist is built as part of the required
 		# resources, we need to autogen an empty one
 		debug_plist = os.path.join(resources_dir,'debugger.plist')
-		force_xcode = write_debugger_plist(None, None, template_dir, debug_plist)
+		force_xcode = write_debugger_plist(None, None, None, template_dir, debug_plist)
 		
 		# Populate Info.plist
 		applogo = None

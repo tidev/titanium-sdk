@@ -80,6 +80,7 @@
 {
 	ENSURE_SINGLE_ARG(proxy,TiUITableViewRowProxy);
 	[self rememberProxy:proxy];
+	[(TiUITableViewRowProxy *)proxy setSection:self];
 	if (rows==nil) 
 	{
 		rows = [[NSMutableArray array] retain];
@@ -91,6 +92,7 @@
 {
 	ENSURE_SINGLE_ARG(proxy,TiUITableViewRowProxy);
 	[self forgetProxy:proxy];
+	[(TiUITableViewRowProxy *)proxy setSection:nil];
 	if (rows!=nil)
 	{
 		[rows removeObject:proxy];

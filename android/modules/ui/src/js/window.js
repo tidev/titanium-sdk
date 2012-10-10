@@ -271,16 +271,17 @@ exports.bootstrapWindow = function(Titanium) {
 		this.addChildren();
 
 		var self = this;
-		this.window.on("open", function () {
-			self.postOpen();
-			self.fireEvent("open");
+		this.on("open", function () {
+			self.postOpen(true);
 		});
 	}
 
-	Window.prototype.postOpen = function() {
+	Window.prototype.postOpen = function(isTab) {
 		// Set view and model listener after the window opens
 		this.setWindowView(this.view);
-		this.addSelfToStack();
+		if (!isTab) {
+			this.addSelfToStack();
+		}
 
 		if ("url" in this._properties) {
 			this.loadUrl();
@@ -322,6 +323,11 @@ exports.bootstrapWindow = function(Titanium) {
 	Window.prototype.loadUrl = function() {
 		if (this.url == null) {
 			return;
+		}
+
+		// we don't actually support relative pathing for windows
+		if (this.url.charAt(0) !== "/") {
+			this.url = "/" + this.url;
 		}
 
 		var resolvedUrl = url.resolve(this._sourceUrl, this.url);
@@ -392,6 +398,11 @@ exports.bootstrapWindow = function(Titanium) {
 	}
 
 	Window.prototype.add = function(view) {
+
+		if (view instanceof TiWindow) {
+			throw new Error("Cannot add window/tabGroup to another window/tabGroup.");	    
+		}
+
 		if (this.view) {
 		
 			// If the window is already opened, add the child to this.view directly

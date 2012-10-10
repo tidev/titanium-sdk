@@ -65,7 +65,7 @@
 {
 	CGRect bounds = [self bounds];
 	[button setFrame:bounds];
-	if ((backgroundImageCache == nil) || CGSizeEqualToSize(bounds.size, CGSizeZero)) {
+	if ((backgroundImageCache == nil) || (bounds.size.width == 0) || (bounds.size.height == 0)) {
 		[button setBackgroundImage:nil forState:UIControlStateNormal];
 		return;
 	}
@@ -163,6 +163,11 @@
 	return button;
 }
 
+- (id)accessibilityElement
+{
+	return [self button];
+}
+
 -(UIView *) viewGroupWrapper
 {
 	if (viewGroupWrapper == nil) {
@@ -208,28 +213,7 @@
 	if (image!=nil)
 	{
 		[[self button] setImage:image forState:UIControlStateNormal];
-		
-		// if the layout is undefined or auto, we need to take the size of the image
-		//TODO: Refactor. This will cause problems if there's multiple setImages called,
-		//Since we change the values of the proxy.
-		LayoutConstraint *layoutProperties = [(TiViewProxy *)[self proxy] layoutProperties];
-		BOOL reposition = NO;
-		
-		if (TiDimensionIsUndefined(layoutProperties->width) || TiDimensionIsAuto(layoutProperties->width))
-		{
-			layoutProperties->width.value = image.size.width;
-			layoutProperties->width.type = TiDimensionTypeDip;
-			reposition = YES;
-		}
-		if (TiDimensionIsUndefined(layoutProperties->height) || TiDimensionIsAuto(layoutProperties->height))
-		{
-			layoutProperties->height.value = image.size.height;
-			layoutProperties->height.type = TiDimensionTypeDip;
-		}
-		if (reposition)
-		{
-			[(TiViewProxy *)[self proxy] contentsWillChange];			
-		}
+		[(TiViewProxy *)[self proxy] contentsWillChange];
 	}
 	else
 	{

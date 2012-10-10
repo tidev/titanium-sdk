@@ -431,6 +431,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String EVENT_TWOFINGERTAP = "twofingertap";
+
+	/**
+	 * @module.api
+	 */
 	public static final String EVENT_UNFOCUSED = "unfocused";
 	public static final String INTENT_PROPERTY_FINISH_ROOT = "finishRoot";
 	public static final String INTENT_PROPERTY_IS_TAB = "isTab";
@@ -1467,6 +1472,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_PERSISTENT = "persistent";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_PHONE = "phone";
 
 	/**
@@ -2000,6 +2010,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_VOLUME = "volume";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_WEBVIEW_IGNORE_SSL_ERROR = "ignoreSslError";
 
 	/**
 	 * @module.api

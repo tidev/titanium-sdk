@@ -24,15 +24,16 @@ methods:
     summary: Halt an ongoing search
 events:
   - name: updatedServices
+    deprecated:
+        since: "3.0.0"
+        notes: |
+            Renamed to [updatedservices](Titanium.Network.BonjourBrowser.updatedservices)
+            (all lowercase).
     summary: |
-        This event has been deprecated and renamed updatedservices (lower case).
-
         Fired when the discovered services list is updated
     properties:
       - name: services
         summary: An array of BonjourService objects corresponding to currently available services.  If you cache this value, including using it as table data, be aware that it could become out of date at any time due to the asynchronous nature of Bonjour service discovery.
-    deprecated:
-        since: "3.0.0"
 
   - name: updatedservices
     summary: Fired when the discovered services list is updated

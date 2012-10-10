@@ -64,7 +64,7 @@ module.exports = new function() {
 		make sure the harness has access to what port number it should listen on for a connection 
 		from the driver
 		*/
-		common.customTiappXmlProperties["driver.socketPort"] = driverGlobal.config.androidSocketPort;
+		common.customTiappXmlProperties["driver.socketPort"] = {value: driverGlobal.config.androidSocketPort, type: "int"};
 
 		// due to python behavior on windows, we need to escape the slashes in the argument string
 		if (os.platform().substr(0 ,3) === "win") {

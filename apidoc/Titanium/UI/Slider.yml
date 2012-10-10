@@ -172,6 +172,48 @@ properties:
     type: String
     platforms: [android, iphone, ipad]
 
+  - name: leftTrackLeftCap
+    summary: Size of the left end cap for the leftTrackImage, disabledLeftTrackImage, highlightedLeftTrackImage and selectedLeftTrackImage properties.
+    description: |
+        This property must be set before the track images are loaded. When specified at creation 
+        this property is loaded before loading any of the track images
+
+        End caps specify the portion of an image that should not be resized when an image is 
+        stretched. This technique is used to implement buttons and other resizable image-based 
+        interface elements. When an image with end caps is resized, the resizing occurs only in 
+        the middle of the image, in the region between the end caps. The end caps themselves keep 
+        their original size and appearance. This property specifies the size of the left end cap. 
+        
+        On iOS 5 and above the endCaps are used to compute a rectangle which is streched in 
+        the strechable portion. On earlier versions of iOS the strechable portion is assumed to be 
+        1 pixel wide. The right end cap is therefore computed by adding the size of the left end cap 
+        and the middle portion together and then subtracting that value from the width of the image
+    type: Number
+    default: 1.0
+    since: 3.0.0
+    platforms: [iphone, ipad]
+
+  - name: leftTrackTopCap
+    summary: Size of the top end cap for the leftTrackImage, disabledLeftTrackImage, highlightedLeftTrackImage and selectedLeftTrackImage properties.
+    description: |
+        This property must be set before the track images are loaded. When specified at creation 
+        this property is loaded before loading any of the track images
+
+        End caps specify the portion of an image that should not be resized when an image is 
+        stretched. This technique is used to implement buttons and other resizable image-based 
+        interface elements. When an image with end caps is resized, the resizing occurs only in 
+        the middle of the image, in the region between the end caps. The end caps themselves keep 
+        their original size and appearance. This property specifies the size of the top end cap. 
+        
+        On iOS 5 and above the endCaps are used to compute a rectangle which is streched in 
+        the strechable portion. On earlier versions of iOS the strechable portion is assumed to be 
+        1 pixel wide. The bottom end cap is therefore computed by adding the size of the top end cap 
+        and the middle portion together and then subtracting that value from the height of the image
+    type: Number
+    default : 1.0
+    since: 3.0.0
+    platforms: [iphone, ipad]
+
   - name: max
     summary: Maximum value of the slider.
     description: |
@@ -232,6 +274,48 @@ properties:
     summary: Image URL of the slider right track.
     type: String
     platforms: [android, iphone, ipad]
+
+  - name: rightTrackLeftCap
+    summary: Size of the left end cap for the rightTrackImage, disabledRightTrackImage, highlightedRightTrackImage and selectedRightTrackImage properties.
+    description: |
+        This property must be set before the track images are loaded. When specified at creation 
+        this property is loaded before loading any of the track images
+
+        End caps specify the portion of an image that should not be resized when an image is 
+        stretched. This technique is used to implement buttons and other resizable image-based 
+        interface elements. When an image with end caps is resized, the resizing occurs only in 
+        the middle of the image, in the region between the end caps. The end caps themselves keep 
+        their original size and appearance. This property specifies the size of the left end cap. 
+        
+        On iOS 5 and above the endCaps are used to compute a rectangle which is streched in 
+        the strechable portion. On earlier versions of iOS the strechable portion is assumed to be 
+        1 pixel wide. The right end cap is therefore computed by adding the size of the left end cap 
+        and the middle portion together and then subtracting that value from the width of the image
+    type: Number
+    default: 1.0
+    since: 3.0.0
+    platforms: [iphone, ipad]
+
+  - name: rightTrackTopCap
+    summary: Size of the top end cap for the rightTrackImage, disabledRightTrackImage, highlightedRightTrackImage and selectedRightTrackImage properties.
+    description: |
+        This property must be set before the track images are loaded. When specified at creation 
+        this property is loaded before loading any of the track images
+
+        End caps specify the portion of an image that should not be resized when an image is 
+        stretched. This technique is used to implement buttons and other resizable image-based 
+        interface elements. When an image with end caps is resized, the resizing occurs only in 
+        the middle of the image, in the region between the end caps. The end caps themselves keep 
+        their original size and appearance. This property specifies the size of the top end cap. 
+        
+        On iOS 5 and above the endCaps are used to compute a rectangle which is streched in 
+        the strechable portion. On earlier versions of iOS the strechable portion is assumed to be 
+        1 pixel wide. The bottom end cap is therefore computed by adding the size of the top end cap 
+        and the middle portion together and then subtracting that value from the height of the image
+    type: Number
+    default : 1.0
+    since: 3.0.0
+    platforms: [iphone, ipad]
 
   - name: selectedLeftTrackImage
     summary: Image URL of the slider left track when in the selected state.

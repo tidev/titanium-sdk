@@ -25,6 +25,7 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.StateListDrawable;
+import android.os.Build;
 import android.os.Handler;
 import android.os.Message;
 import android.util.DisplayMetrics;
@@ -49,21 +50,30 @@ public abstract class TiBaseTableViewItem extends ViewGroup implements Handler.C
 		if (TiBaseTableViewItem.childIndicatorBitmap == null || TiBaseTableViewItem.checkIndicatorBitmap == null) {
 			synchronized(TiBaseTableViewItem.class) {
 				// recheck to so we don't leak a bitmap.
-				
+				int density = TiPlatformHelper.applicationLogicalDensity;
 				if (childIndicatorBitmap == null) {
 					String path = "/org/appcelerator/titanium/res/drawable/btn_more.png"; // default medium
-					switch (TiPlatformHelper.applicationLogicalDensity) {
+					
+					switch (density) {
 						case DisplayMetrics.DENSITY_HIGH : path = "/org/appcelerator/titanium/res/drawable/btn_more_48.png"; break;
 						case DisplayMetrics.DENSITY_LOW : path = "/org/appcelerator/titanium/res/drawable/btn_more_18.png"; break;
+					}
+					
+					if (Build.VERSION.SDK_INT >= 9 && density == DisplayMetrics.DENSITY_XHIGH) {
+						path = "/org/appcelerator/titanium/res/drawable/btn_more_64.png";
 					}
 					childIndicatorBitmap = BitmapFactory.decodeStream(KrollDict.class.getResourceAsStream(path));
 				}
 				if (checkIndicatorBitmap == null) {
 					String path = "/org/appcelerator/titanium/res/drawable/btn_check_buttonless_on.png"; // default medium
-					switch (TiPlatformHelper.applicationLogicalDensity) {
+					switch (density) {
 						case DisplayMetrics.DENSITY_HIGH : path = "/org/appcelerator/titanium/res/drawable/btn_check_buttonless_on_48.png"; break;
 						case DisplayMetrics.DENSITY_LOW : path = "/org/appcelerator/titanium/res/drawable/btn_check_buttonless_on_1ow 8.png"; break;
 					}
+					
+					if (Build.VERSION.SDK_INT >= 9 && density == DisplayMetrics.DENSITY_XHIGH) {
+						path = "/org/appcelerator/titanium/res/drawable/btn_check_buttonless_on_64.png";
+					} 
 					checkIndicatorBitmap = BitmapFactory.decodeStream(KrollDict.class.getResourceAsStream(path));					
 				}
 			}

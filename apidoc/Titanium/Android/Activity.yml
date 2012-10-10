@@ -159,20 +159,20 @@ events:
         in the Android Developer Reference.
 
   - name: newIntent
+    deprecated:
+        since: "3.0.0"
+        notes: |
+            Renamed to [newintent](Titanium.Android.Activity.newintent)
+            (all lowercase).
     summary: Fired when the activity is already running and certain flags are set in its intent. 
     description: |
-        This event has been deprecated and renamed newintent (lower case).
-
         See also:
         [onNewIntent](http://developer.android.com/reference/android/app/Activity.html#onNewIntent(android.content.Intent))
         in the Android Developer Reference.
     properties:
-
       - name: intent
         summary: The `Intent` passed to the native `onNewIntent` method.
         type: Titanium.Android.Intent
-    deprecated:
-        since: "3.0.0"
 
   - name: newintent
     summary: Fired when the activity is already running and certain flags are set in its intent. 

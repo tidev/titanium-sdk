@@ -353,7 +353,7 @@
 	
 	// WORKAROUND FOR APPLE BUG: 4.2 and lower don't like setting background color for grouped table views on iPad.
 	// So, we check the table style and device, and if they match up wrong, we replace the background view with our own.
-	if ([table style] == UITableViewStyleGrouped && [TiUtils isIPad]) {
+	if ([table style] == UITableViewStyleGrouped && ([TiUtils isIPad] || [TiUtils isIOS6OrGreater])) {
 		UIView* bgView = [[[UIView alloc] initWithFrame:[table frame]] autorelease];
 		[table setBackgroundView:bgView];
 	}
@@ -397,6 +397,11 @@
 	}
 	
 	return tableview;
+}
+
+- (id)accessibilityElement
+{
+	return [self tableView];
 }
 
 -(NSInteger)indexForRow:(TiUITableViewRowProxy*)row
@@ -625,6 +630,7 @@
     BOOL reloadSearch = NO;
 
 	TiViewProxy<TiKeyboardFocusableView> * chosenField = [[[TiApp controller] keyboardFocusedProxy] retain];
+	BOOL hasFocus = [chosenField focused];
 	BOOL oldSuppress = [chosenField suppressFocusEvents];
 	[chosenField setSuppressFocusEvents:YES];
 	switch (action.type)
@@ -795,7 +801,9 @@
             break;
         }
 	}
-	[chosenField focus:nil];
+	if (hasFocus) {
+		[chosenField focus:nil];
+	}
 	[chosenField setSuppressFocusEvents:oldSuppress];
 	[chosenField release];
 	[self refreshSearchControllerUsingReload:reloadSearch];
