@@ -364,6 +364,22 @@ USE_VIEW_FOR_CONTENT_HEIGHT
 	return NUMINT(-1);
 }
 
+-(TiUITableViewRowProxy*)getRowByName:(id)args
+{
+	ENSURE_SINGLE_ARG(args,NSString);
+	for (TiUITableViewSectionProxy *section in sections)
+	{
+		for (TiUITableViewRowProxy *row in [section rows])
+		{
+			if ([args isEqualToString:[row valueForUndefinedKey:@"name"]])
+			{
+				return row;
+			}
+		}
+	}
+	return nil;
+}
+
 -(void)updateRow:(id)args
 {
     int index = 0;

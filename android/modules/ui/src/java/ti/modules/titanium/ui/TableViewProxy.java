@@ -367,6 +367,22 @@ public class TableViewProxy extends TiViewProxy
 	}
 
 	@Kroll.method
+	public TableViewRowProxy getRowByName(String name)
+	{
+		if (name != null) {
+			for (TableViewSectionProxy section : getSections()) {
+				for (TableViewRowProxy row : section.getRows()) {
+					String rname = TiConvert.toString(row.getProperty(TiC.PROPERTY_NAME));
+					if (rname != null && name.equals(rname)) {
+						return row;
+					}
+				}
+			}
+		}
+		return null;
+	}
+
+	@Kroll.method
 	public void insertRowBefore(int index, Object data, @Kroll.argument(optional = true) KrollDict options)
 	{
 		if (TiApplication.isUIThread()) {
