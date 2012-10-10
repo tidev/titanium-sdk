@@ -727,6 +727,9 @@ public abstract class TiBaseActivity extends Activity
 	protected void onResume()
 	{
 		super.onResume();
+		if (isFinishing()) {
+			return;
+		}
 
 		if (DBG) {
 			Log.d(TAG, "Activity " + this + " onResume");
@@ -770,6 +773,9 @@ public abstract class TiBaseActivity extends Activity
 	protected void onStart()
 	{
 		super.onStart();
+		if (isFinishing()) {
+			return;
+		}
 
 		if (DBG) {
 			Log.d(TAG, "Activity " + this + " onStart");
