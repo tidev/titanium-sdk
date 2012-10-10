@@ -79,6 +79,8 @@
 		// font from clipping
 		size.width += shadowOffset.width + 10;
 	}
+	size.width += textPadding.origin.x + textPadding.size.width;
+	size.height += textPadding.origin.y + textPadding.size.height;
 	return size;
 }
 
