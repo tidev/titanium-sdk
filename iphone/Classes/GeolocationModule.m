@@ -846,11 +846,15 @@ MAKE_SYSTEM_PROP(ERROR_REGION_MONITORING_DELAYED, kCLErrorRegionMonitoringSetupD
 
 - (void)locationManager:(CLLocationManager *)manager didUpdateToLocation:(CLLocation *)newLocation fromLocation:(CLLocation *)oldLocation
 {
-    if (oldLocation == NULL && newLocation != NULL) {
-        [self locationManager:manager didUpdateLocations:[NSArray arrayWithObject:newLocation]];
-        return;
+    if (newLocation != NULL) {
+        if (oldLocation == NULL) {
+            [self locationManager:manager didUpdateLocations:[NSArray arrayWithObject:newLocation]];
+        }
+        else{
+            [self locationManager:manager didUpdateLocations:[NSArray arrayWithObjects:oldLocation,newLocation,nil]];
+        }
     }
-    [self locationManager:manager didUpdateLocations:[NSArray arrayWithObjects:oldLocation,newLocation,nil]];
+    
 }
 
 
