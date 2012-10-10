@@ -1,4 +1,4 @@
-/**
+	/**
  * Appcelerator Titanium Mobile
  * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
@@ -494,14 +494,44 @@
 
 -(void)scrollToView:(id)args
 {
-	int pageNum = [self pageNumFromArg:args];
-	[[self scrollview] setContentOffset:CGPointMake([self bounds].size.width * pageNum, 0) animated:YES];
+    id data = nil;
+    NSNumber* anim = nil;
+    BOOL animated = YES;
+    ENSURE_ARG_AT_INDEX(data, args, 0, NSObject);
+    ENSURE_ARG_OR_NIL_AT_INDEX(anim, args, 1, NSNumber);
+	int pageNum = [self pageNumFromArg:data];
+	if (anim != nil)
+		animated = [anim boolValue];
+	[[self scrollview] setContentOffset:CGPointMake([self bounds].size.width * pageNum, 0) animated:animated];
     [pageControl setCurrentPage:pageNum];
 	currentPage = pageNum;
 	
     [self manageCache:pageNum];
 	
 	[self.proxy replaceValue:NUMINT(pageNum) forKey:@"currentPage" notification:NO];
+}
+
+-(void)moveNext:(id)args
+{
+	int page = [self currentPage];
+	int pageCount = [[self proxy] viewCount];
+
+	if (page < pageCount-1)
+	{
+		NSArray* scrollArgs = [NSArray arrayWithObjects:[NSNumber numberWithInt:(page+1)], args, nil];
+		[self scrollToView:scrollArgs];
+	}
+}
+
+-(void)movePrevious:(id)args
+{
+	int page = [self currentPage];
+
+	if (page > 0)
+	{
+		NSArray* scrollArgs = [NSArray arrayWithObjects:[NSNumber numberWithInt:(page-1)], args, nil];
+		[self scrollToView:scrollArgs];
+	}
 }
 
 -(void)addView:(id)viewproxy

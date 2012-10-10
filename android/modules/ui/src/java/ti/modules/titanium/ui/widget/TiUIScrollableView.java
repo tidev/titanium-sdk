@@ -323,6 +323,15 @@ public class TiUIScrollableView extends TiUIView
 		}
 	}
 
+	public void removeView(int viewIndex)
+	{
+		if (viewIndex >= 0 && viewIndex < mViews.size()) {
+			mViews.remove(viewIndex);
+			getProxy().setProperty(TiC.PROPERTY_VIEWS, mViews.toArray());
+			mAdapter.notifyDataSetChanged();
+		}
+	}
+
 	public void showPager()
 	{
 		View v = null;
@@ -345,33 +354,53 @@ public class TiUIScrollableView extends TiUIView
 		mPagingControl.setVisibility(View.INVISIBLE);
 	}
 
+	public void moveNext(boolean animated)
+	{
+		move(mCurIndex + 1, animated);
+	}
+
 	public void moveNext()
 	{
-		move(mCurIndex + 1);
+		moveNext(true);
+	}
+
+	public void movePrevious(boolean animated)
+	{
+		move(mCurIndex - 1, animated);
 	}
 
 	public void movePrevious()
 	{
-		move(mCurIndex - 1);
+		movePrevious(true);
 	}
 
-	private void move(int index)
+	private void move(int index, boolean animated)
 	{
 		if (index < 0 || index >= mViews.size()) {
 			Log.w(TAG, "Request to move to index " + index+ " ignored, as it is out-of-bounds.");
 			return;
 		}
 		mCurIndex = index;
-		mPager.setCurrentItem(index);
+		mPager.setCurrentItem(index, animated);
 	}
 
+	private void move(int index)
+	{
+		move(index, true);
+	}
+
+	public void scrollTo(Object view, boolean animated)
+	{
+		Log.i(TAG, "scrollTo " + animated);
+		if (view instanceof Number) {
+			move(((Number) view).intValue(), animated);
+		} else if (view instanceof TiViewProxy) {
+			move(mViews.indexOf(view), animated);
+		}
+	}
 	public void scrollTo(Object view)
 	{
-		if (view instanceof Number) {
-			move(((Number) view).intValue());
-		} else if (view instanceof TiViewProxy) {
-			move(mViews.indexOf(view));
-		}
+		scrollTo(view, true);
 	}
 
 	public int getCurrentPage()
@@ -381,7 +410,7 @@ public class TiUIScrollableView extends TiUIView
 
 	public void setCurrentPage(Object view)
 	{
-		scrollTo(view);
+		scrollTo(view, false);
 	}
 
 	public void setEnabled(Object value)
