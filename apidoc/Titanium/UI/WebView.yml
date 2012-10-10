@@ -75,7 +75,7 @@ methods:
       For example:
               
           setHtml('<html><body>Hello, <a href="/documentation">Titanium</a>!</body></html>',
-                  {baseURL:'http://developer.appcelerator.com/'})
+                  {baseURL:'http://developer.appcelerator.com/'});
     platforms: [android, iphone, ipad, mobileweb]
     parameters:
 
