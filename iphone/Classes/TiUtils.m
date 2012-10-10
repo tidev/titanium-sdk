@@ -1080,6 +1080,34 @@ If the new path starts with / and the base url is app://..., we have to massage 
 	return align;
 }
 
++(UIControlContentVerticalAlignment)contentVerticalAlignmentValue:(id)alignment
+{
+	UIControlContentVerticalAlignment align = UIControlContentVerticalAlignmentCenter;
+ 
+	if ([alignment isKindOfClass:[NSString class]])
+	{
+		if ([alignment isEqualToString:@"top"])
+		{
+			align = UIControlContentVerticalAlignmentTop;
+		}
+		else if ([alignment isEqualToString:@"center"])
+		{
+			align = UIControlContentVerticalAlignmentCenter;
+		}
+		else if ([alignment isEqualToString:@"bottom"])
+		{
+			align = UIControlContentVerticalAlignmentBottom;
+		}
+	}
+	else if ([alignment isKindOfClass:[NSNumber class]])
+	{
+		align = [alignment intValue];
+		if (align < UIControlContentVerticalAlignmentCenter || align > UIControlContentVerticalAlignmentBottom)
+			align = UIControlContentVerticalAlignmentCenter;
+	}
+	return align;
+}
+
 #define RETURN_IF_ORIENTATION_STRING(str,orientation) \
 if ([str isEqualToString:@#orientation]) return (UIDeviceOrientation)orientation;
 

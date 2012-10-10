@@ -21,6 +21,8 @@
 	int style;
 	
     BOOL touchStarted;
+
+	CGRect titlePadding;
 }
 
 -(UIButton*)button;

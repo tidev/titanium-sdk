@@ -19,6 +19,7 @@ import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiDrawableReference;
 import org.appcelerator.titanium.view.TiUIView;
 
+import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.view.Gravity;
 import android.view.View;
@@ -28,9 +29,17 @@ public class TiUIButton extends TiUIView
 {
 	private static final String TAG = "TiUIButton";
 
+	private int shadowColor;
+	private int shadowDx;
+	private int shadowDy;
+	private Rect titlePadding;
+
 	public TiUIButton(final TiViewProxy proxy)
 	{
 		super(proxy);
+		titlePadding = new Rect();
+		titlePadding.left = 8;
+		titlePadding.right = 8;
 		Log.d(TAG, "Creating a button", Log.DEBUG_MODE);
 		Button btn = new Button(proxy.getActivity())
 		{
@@ -41,7 +50,7 @@ public class TiUIButton extends TiUIView
 				TiUIHelper.firePostLayoutEvent(proxy);
 			}
 		};
-		btn.setPadding(8, 0, 8, 0);
+		btn.setPadding(titlePadding.left, titlePadding.top, titlePadding.right, titlePadding.bottom);
 		btn.setGravity(Gravity.CENTER);
 		setNativeView(btn);
 	}
@@ -86,6 +95,35 @@ public class TiUIButton extends TiUIView
 		if (d.containsKey(TiC.PROPERTY_OPACITY)) {
 			setOpacityForButton(TiConvert.toFloat(d, TiC.PROPERTY_OPACITY, 1f));
 		}
+		if (d.containsKey(TiC.PROPERTY_TITLE_PADDING_LEFT)) {
+			titlePadding.left = TiConvert.toInt(d, TiC.PROPERTY_TITLE_PADDING_LEFT);
+			btn.setPadding(titlePadding.left, titlePadding.top, titlePadding.right, titlePadding.bottom);
+		}
+		if (d.containsKey(TiC.PROPERTY_TITLE_PADDING_RIGHT)) {
+			titlePadding.right = TiConvert.toInt(d, TiC.PROPERTY_TITLE_PADDING_RIGHT);
+			btn.setPadding(titlePadding.left, titlePadding.top, titlePadding.right, titlePadding.bottom);
+		}
+		if (d.containsKey(TiC.PROPERTY_TITLE_PADDING_TOP)) {
+			titlePadding.top = TiConvert.toInt(d, TiC.PROPERTY_TITLE_PADDING_TOP);
+			btn.setPadding(titlePadding.left, titlePadding.top, titlePadding.right, titlePadding.bottom);
+		}
+		if (d.containsKey(TiC.PROPERTY_TITLE_PADDING_BOTTOM)) {
+			titlePadding.bottom = TiConvert.toInt(d, TiC.PROPERTY_TITLE_PADDING_BOTTOM);
+			btn.setPadding(titlePadding.left, titlePadding.top, titlePadding.right, titlePadding.bottom);
+		}
+		if (d.containsKey(TiC.PROPERTY_SHADOW_COLOR)) {
+			shadowColor = TiConvert.toColor(d, TiC.PROPERTY_SHADOW_COLOR);
+			btn.setShadowLayer(1, shadowDx, shadowDy, shadowColor);
+		}
+		if (d.containsKey(TiC.PROPERTY_SHADOW_OFFSET)) {
+			KrollDict value = d.getKrollDict(TiC.PROPERTY_SHADOW_OFFSET);
+			shadowDx = value.getInt(TiC.PROPERTY_X);
+			shadowDy = value.getInt(TiC.PROPERTY_Y);
+			btn.setShadowLayer(1, shadowDx, shadowDy, shadowColor);
+		}
+		if (d.containsKey(TiC.PROPERTY_WORD_WRAP)) {
+			btn.setSingleLine(!TiConvert.toBoolean(d, TiC.PROPERTY_WORD_WRAP));
+		}
 		btn.invalidate();
 	}
 
@@ -117,6 +155,32 @@ public class TiUIButton extends TiUIView
 				Drawable image = drawableRef.getDrawable();
 				btn.setCompoundDrawablesWithIntrinsicBounds(image, null, null, null);
 			}
+		} else if (key.equals(TiC.PROPERTY_TITLE_PADDING_LEFT)) {
+			titlePadding.left = TiConvert.toInt(newValue);
+			btn.setPadding(titlePadding.left, titlePadding.top, titlePadding.right, titlePadding.bottom);
+			btn.requestLayout();
+		} else if (key.equals(TiC.PROPERTY_TITLE_PADDING_RIGHT)) {
+			titlePadding.right = TiConvert.toInt(newValue);
+			btn.setPadding(titlePadding.left, titlePadding.top, titlePadding.right, titlePadding.bottom);
+			btn.requestLayout();
+		} else if (key.equals(TiC.PROPERTY_TITLE_PADDING_TOP)) {
+			titlePadding.top = TiConvert.toInt(newValue);
+			btn.setPadding(titlePadding.left, titlePadding.top, titlePadding.right, titlePadding.bottom);
+			btn.requestLayout();
+		} else if (key.equals(TiC.PROPERTY_TITLE_PADDING_BOTTOM)) {
+			titlePadding.bottom = TiConvert.toInt(newValue);
+			btn.setPadding(titlePadding.left, titlePadding.top, titlePadding.right, titlePadding.bottom);
+			btn.requestLayout();
+		} else if (key.equals(TiC.PROPERTY_SHADOW_COLOR)) {
+			shadowColor = TiConvert.toColor((String) newValue);
+			btn.setShadowLayer(1, shadowDx, shadowDy, shadowColor);
+		} else if (key.equals(TiC.PROPERTY_SHADOW_OFFSET)) {
+			shadowDx = TiConvert.toInt(((HashMap) newValue).get(TiC.PROPERTY_X));
+			shadowDy = TiConvert.toInt(((HashMap) newValue).get(TiC.PROPERTY_Y));
+			btn.setShadowLayer(1, shadowDx, shadowDy, shadowColor);
+			btn.requestLayout();
+		} else if (key.equals(TiC.PROPERTY_WORD_WRAP)) {
+			btn.setSingleLine(!TiConvert.toBoolean(newValue));
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}

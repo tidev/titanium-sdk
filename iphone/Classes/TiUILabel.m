@@ -19,6 +19,7 @@
 {
     if (self = [super init]) {
         padding = CGRectZero;
+        textPadding = CGRectZero;
         initialLabelFrame = CGRectZero;
         verticalAlign = -1;
     }
@@ -39,6 +40,26 @@
 	return NO;
 }
 
+-(CGFloat) verifyWidth:(CGFloat)suggestedWidth
+{
+	int width = ceil(suggestedWidth);
+	if (width & 0x01)
+	{
+		width ++;
+	}
+	return width;
+}
+
+-(CGFloat) verifyHeight:(CGFloat)suggestedHeight
+{
+	int height = ceil(suggestedHeight);
+	if (height & 0x01)
+	{
+		height ++;
+	}
+	return height;
+}
+
 -(CGSize)sizeForFont:(CGFloat)suggestedWidth
 {
 	NSString *value = [label text];
@@ -51,73 +72,74 @@
 		// the string having trailing spaces when given size parameter width is equal to the expected return width, so we adjust it here.
 		maxSize.width += 0.00001;
 	}
-	CGSize size = [value sizeWithFont:font constrainedToSize:maxSize lineBreakMode:UILineBreakModeTailTruncation];
+	CGSize size = [value sizeWithFont:font constrainedToSize:maxSize lineBreakMode:[[self label] lineBreakMode]];
 	if (shadowOffset.width > 0)
 	{
 		// if we have a shadow and auto, we need to adjust to prevent
 		// font from clipping
 		size.width += shadowOffset.width + 10;
 	}
+	size.width += textPadding.origin.x + textPadding.size.width;
+	size.height += textPadding.origin.y + textPadding.size.height;
 	return size;
 }
 
 -(CGFloat)contentWidthForWidth:(CGFloat)suggestedWidth
 {
-	return [self sizeForFont:suggestedWidth].width;
+    return [self verifyWidth:([self sizeForFont:suggestedWidth].width + textPadding.origin.x + textPadding.size.width)];
 }
 
 -(CGFloat)contentHeightForWidth:(CGFloat)width
 {
-	return [self sizeForFont:width].height;
+    return [self verifyHeight:([self sizeForFont:width].height + textPadding.origin.y + textPadding.size.height)];
 }
 
 -(void)padLabel
 {
+	CGRect	initFrame = CGRectMake(initialLabelFrame.origin.x + textPadding.origin.x
+									, initialLabelFrame.origin.y + textPadding.origin.y
+									, initialLabelFrame.size.width - textPadding.origin.x - textPadding.size.width
+									, initialLabelFrame.size.height - textPadding.origin.y - textPadding.size.height); 
     if (verticalAlign != -1) {
-        CGSize actualLabelSize = [self sizeForFont:initialLabelFrame.size.width];
-        CGFloat originX = 0;
+        
+        CGSize actualLabelSize = [self sizeForFont:initFrame.size.width];
+        CGFloat originX = initFrame.origin.x;
         switch (label.textAlignment) {
             case UITextAlignmentRight:
-                originX = (initialLabelFrame.size.width - actualLabelSize.width);
+                originX = (initFrame.size.width - actualLabelSize.width - textPadding.size.width);
                 break;
             case UITextAlignmentCenter:
-                originX = (initialLabelFrame.size.width - actualLabelSize.width)/2.0;
+                originX = (initFrame.size.width - actualLabelSize.width)/2.0;
                 break;
             default:
                 break;
         }
 
-        if (originX < 0) {
-            originX = 0;
-        }
-        CGRect labelRect = CGRectMake(originX, 0, actualLabelSize.width, actualLabelSize.height);
+        CGRect labelRect = CGRectMake(MAX(0,originX), MAX(0,textPadding.origin.y), actualLabelSize.width, MIN(actualLabelSize.height, initFrame.size.height));
         switch (verticalAlign) {
             case UIControlContentVerticalAlignmentBottom:
-                labelRect.origin.y = initialLabelFrame.size.height - actualLabelSize.height;
+                labelRect.origin.y = initFrame.size.height - actualLabelSize.height - textPadding.size.height;
                 break;
             case UIControlContentVerticalAlignmentCenter:
-                labelRect.origin.y = (initialLabelFrame.size.height - actualLabelSize.height)/2;
-                if (labelRect.origin.y < 0) {
-                    labelRect.size.height = (initialLabelFrame.size.height - labelRect.origin.y);
-                }
+                labelRect.origin.y = (initFrame.size.height - actualLabelSize.height)/2;
+
                 break;
             default:
-                if (initialLabelFrame.size.height < actualLabelSize.height) {
-                    labelRect.size.height = initialLabelFrame.size.height;
-                }
+                
                 break;
         }
-
+    
         [label setFrame:CGRectIntegral(labelRect)];
     }
     else {
-        [label setFrame:initialLabelFrame];
+        [label setFrame:initFrame];
     }
 
     if (repad &&
         backgroundView != nil &&
-        !CGRectIsEmpty(initialLabelFrame))
+        !CGRectIsEmpty(initFrame))
     {
+    	//backgroundView frame is based on the label real frame
         [backgroundView setFrame:CGRectMake(initialLabelFrame.origin.x - padding.origin.x,
                                             initialLabelFrame.origin.y - padding.origin.y,
                                             initialLabelFrame.size.width + padding.origin.x + padding.size.width,
@@ -152,6 +174,7 @@
         label = [[UILabel alloc] initWithFrame:CGRectZero];
         label.backgroundColor = [UIColor clearColor];
         label.numberOfLines = 0;
+        label.lineBreakMode = UILineBreakModeWordWrap; //default wordWrap to True
         [self addSubview:label];
         self.clipsToBounds = YES;
 	}
@@ -319,6 +342,45 @@
 	CGPoint p = [TiUtils pointValue:value];
 	CGSize size = {p.x,p.y};
 	[[self label] setShadowOffset:size];
+}
+
+-(void)setTextPaddingLeft_:(id)left
+{
+    textPadding.origin.x = [TiUtils floatValue:left];
+    [self padLabel];
+	[(TiViewProxy *)[self proxy] contentsWillChange];
+}
+
+-(void)setTextPaddingRight_:(id)right
+{
+    textPadding.size.width = [TiUtils floatValue:right];
+    [self padLabel];
+	[(TiViewProxy *)[self proxy] contentsWillChange];
+}
+
+-(void)setTextPaddingTop_:(id)top
+{
+    textPadding.origin.y = [TiUtils floatValue:top];
+    [self padLabel];
+	[(TiViewProxy *)[self proxy] contentsWillChange];
+}
+
+-(void)setTextPaddingBottom_:(id)bottom
+{
+    textPadding.size.height = [TiUtils floatValue:bottom];
+    [self padLabel];
+	[(TiViewProxy *)[self proxy] contentsWillChange];
+}
+
+-(void)setWordWrap_:(id)value
+{
+    BOOL shouldWordWrap = [TiUtils boolValue:value def:YES];
+    if (shouldWordWrap)
+        [[self label] setLineBreakMode:UILineBreakModeWordWrap];
+    else 
+        [[self label] setLineBreakMode:UILineBreakModeTailTruncation];
+    [self padLabel];
+	[(TiViewProxy *)[self proxy] contentsWillChange];
 }
 
 @end
