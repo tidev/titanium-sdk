@@ -2750,4 +2750,11 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
 	[self setValue:accessibilityHint forUndefinedKey:@"accessibilityHint"];
 }
 
+-(void)hideKeyboard:(id)arg
+{
+	ENSURE_UI_THREAD_1_ARG(arg);
+	if (view != nil)
+		[self.view endEditing:YES];
+}
+
 @end

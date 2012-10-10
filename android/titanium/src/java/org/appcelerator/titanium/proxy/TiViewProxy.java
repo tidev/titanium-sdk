@@ -29,6 +29,7 @@ import org.appcelerator.titanium.TiDimension;
 import org.appcelerator.titanium.util.TiAnimationBuilder;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiUrl;
+import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiAnimation;
 import org.appcelerator.titanium.view.TiUIView;
 
@@ -1085,5 +1086,17 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 	public boolean isLayoutStarted()
 	{
 		return layoutStarted.get();
+	}
+
+	@Kroll.method
+	public void hideKeyboard()
+	{
+		TiUIView v = peekView();
+		if (v != null) {
+			View nv = v.getNativeView();
+			if (nv != null) {
+				TiUIHelper.showSoftKeyboard(nv, false);
+			}
+		}
 	}
 }
