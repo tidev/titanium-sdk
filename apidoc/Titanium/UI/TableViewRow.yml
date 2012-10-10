@@ -276,9 +276,6 @@ properties:
     
   - name: font
     summary: Font to use for the row title.
-    description: |
-        If the table uses different fonts on different rows, the font properites may become 
-        associated with the wrong row as the table scrolls. This is a known issue.
     type: Font
     default: System default font.
     
