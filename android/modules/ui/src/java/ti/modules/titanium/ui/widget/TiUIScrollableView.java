@@ -149,7 +149,7 @@ public class TiUIScrollableView extends TiUIView
 				// we forgot to inform the Javascripters that the user just scrolled
 				// their thing.
 
-				if (!justFiredDragEnd && mCurIndex != -1) {
+				if (!justFiredDragEnd && mCurIndex != -1 && mCurIndex < mViews.size()) {
 					((ScrollableViewProxy)proxy).fireScrollEnd(mCurIndex, mViews.get(mCurIndex));
 
 					if (shouldShowPager()) {
