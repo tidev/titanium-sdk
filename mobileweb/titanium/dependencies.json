@@ -411,12 +411,6 @@
 		"Ti/_/Map/Google",
 		"Ti/App/Properties"
 	],
-	"Ti/Media/AudioPlayer": [
-		"Ti/_/Evented"
-	],
-	"Ti/Media/Sound": [
-		"Ti/_/Evented"
-	],
 	"Ti/Media/VideoPlayer": [
 		"Ti/_/declare",
 		"Ti/_/dom",
