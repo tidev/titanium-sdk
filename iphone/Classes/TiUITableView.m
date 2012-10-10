@@ -386,8 +386,17 @@
 		if (TiDimensionIsDip(rowHeight))
 		{
 			[tableview setRowHeight:rowHeight.value];
-		}		
-		[self setBackgroundColor:[TiUtils colorValue:[[self proxy] valueForKey:@"backgroundColor"]] onTable:tableview];
+		}
+		
+        BOOL initBackGround = YES;
+        id bgInitValue = [[self proxy] valueForKey:@"backgroundColor"];
+        if ([TiUtils isIOS6OrGreater] && (style == UITableViewStyleGrouped)) {
+            //If it is IOS 6 and style is grouped do not call this method unless a backgroundColor is specified
+            initBackGround = (bgInitValue != nil);
+        }
+        if (initBackGround) {
+            [self setBackgroundColor:[TiUtils colorValue:bgInitValue] onTable:tableview];
+        }
 		
 		[self updateSearchView];
 	}
