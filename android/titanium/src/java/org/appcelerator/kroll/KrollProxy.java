@@ -631,7 +631,9 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 	public boolean fireEventToParent(String eventName, Object data)
 	{
 		Object bubbleParent = getProperty(TiC.PROPERTY_BUBBLE_PARENT);
-		if (bubbleParent != null && TiConvert.toBoolean(bubbleParent)) {
+		//If bubbleParent is null, we treat it as true by default. This is true
+		//for view proxies created internally
+		if (bubbleParent == null || TiConvert.toBoolean(bubbleParent)) {
 			KrollProxy parentProxy = getParentForBubbling();
 			if (parentProxy != null) {
 				return parentProxy.fireEvent(eventName, data);
