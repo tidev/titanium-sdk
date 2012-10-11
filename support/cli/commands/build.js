@@ -72,6 +72,7 @@ exports.config = function (logger, config, cli) {
 							}
 						},
 						required: true,
+						skipValueCheck: true,
 						values: ti.availablePlatforms
 					},
 					'project-dir': {
