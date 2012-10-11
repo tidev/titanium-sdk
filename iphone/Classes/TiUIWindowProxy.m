@@ -243,10 +243,7 @@
     if (context!=nil) {
         NSMutableArray* childrenToRemove = [[NSMutableArray alloc] init];
         pthread_rwlock_rdlock(&childrenLock);
-        NSInteger childCount = [children count];
-        NSInteger childIndex = childCount - 1;
-        for (childIndex = childCount - 1; childIndex > -1; childIndex--) {
-            TiViewProxy* child = [children objectAtIndex:childIndex];
+        for (TiViewProxy* child in children) {
             if ([child belongsToContext:context]) {
                 [childrenToRemove addObject:child];
             }
