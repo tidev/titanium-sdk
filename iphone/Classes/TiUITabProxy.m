@@ -90,7 +90,6 @@
 		}
 		[(TiWindowProxy *)[thisController proxy] _associateTab:nil navBar:nil tab:nil];
 	}
-	RELEASE_TO_NIL(tabGroup);
 	tabGroup = proxy;
 }
 
