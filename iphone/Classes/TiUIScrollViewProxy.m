@@ -296,6 +296,7 @@ static NSArray* scrollViewKeySequence;
             bounds.origin.y = verticalLayoutBoundary;
             bounds.size.height = [child minimumParentHeightForSize:viewBounds.size];
             verticalLayoutBoundary += bounds.size.height;
+            return bounds;
         }
         else {
             return [super computeChildSandbox:child withBounds:contentSize];
