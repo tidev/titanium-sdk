@@ -32,7 +32,6 @@
 {
     RELEASE_TO_NIL(closingWindows);
     RELEASE_TO_NIL(controllerStack);
-	RELEASE_TO_NIL(tabGroup);
 	RELEASE_TO_NIL(rootController);
     RELEASE_TO_NIL(controller);
 	RELEASE_TO_NIL(current);
@@ -92,7 +91,7 @@
 		[(TiWindowProxy *)[thisController proxy] _associateTab:nil navBar:nil tab:nil];
 	}
 	RELEASE_TO_NIL(tabGroup);
-	tabGroup = [proxy retain];
+	tabGroup = proxy;
 }
 
 -(void)removeFromTabGroup
