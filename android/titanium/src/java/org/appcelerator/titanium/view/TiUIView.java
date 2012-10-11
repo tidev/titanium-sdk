@@ -1243,12 +1243,10 @@ public abstract class TiUIView
 			return;
 		}
 
-		boolean focusable = false;
-		Object prop = proxy.getProperty(TiC.PROPERTY_FOCUSABLE);
-		if (prop != null) {
-			focusable = TiConvert.toBoolean(prop);
+		Object focusable = proxy.getProperty(TiC.PROPERTY_FOCUSABLE);
+		if (focusable != null) {
+			registerForKeyPress(v, TiConvert.toBoolean(focusable));
 		}
-		registerForKeyPress(v, focusable);
 	}
 
 	protected void registerForKeyPress(final View v, boolean focusable)
