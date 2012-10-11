@@ -482,46 +482,6 @@
 
 
 
-- (void)viewWillAppear:(BOOL)animated;    // Called when the view is about to made visible. Default does nothing
-{
-	if ([self viewAttached])
-	{
-//		UITabBarController * tabController = [(TiUITabGroup *)[self view] tabController];
-//		[tabController viewWillAppear:animated];
-	}
-//	[super viewWillAppear:animated];
-}
-
-- (void)viewDidAppear:(BOOL)animated;     // Called when the view has been fully transitioned onto the screen. Default does nothing
-{
-	if ([self viewAttached])
-	{
-//		UITabBarController * tabController = [(TiUITabGroup *)[self view] tabController];
-//		[tabController viewDidAppear:animated];
-	}
-//	[super viewDidAppear:animated];
-}
-
-- (void)viewWillDisappear:(BOOL)animated; // Called when the view is dismissed, covered or otherwise hidden. Default does nothing
-{
-	if ([self viewAttached])
-	{
-//		UITabBarController * tabController = [(TiUITabGroup *)[self view] tabController];
-//		[tabController viewWillDisappear:animated];
-	}
-//	[super viewWillDisappear:animated];
-}
-
-- (void)viewDidDisappear:(BOOL)animated;  // Called after the view was dismissed, covered or otherwise hidden. Default does nothing
-{
-	if ([self viewAttached])
-	{
-//		UITabBarController * tabController = [(TiUITabGroup *)[self view] tabController];
-//		[tabController viewDidDisappear:animated];
-	}
-//	[super viewDidDisappear:animated];
-}
-
 -(void)willChangeSize
 {
 	[super willChangeSize];
