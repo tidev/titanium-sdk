@@ -208,12 +208,11 @@ public class TabProxy extends TiViewProxy
 		// The window is optional and will be skipped if it does not exist.		
 		String event = focused ? TiC.EVENT_FOCUS : TiC.EVENT_BLUR;
 		
-		if (window == null) {
-			fireEvent(event, eventData, true);
-		} else {
+		if (window != null) {
 			window.fireEvent(event, null, false);
-			fireEvent(event, eventData, true);
 		}
+		fireEvent(event, eventData, true);
+		
 	}
 
 	void close() {
