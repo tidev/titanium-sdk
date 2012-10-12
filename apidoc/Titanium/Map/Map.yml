@@ -159,8 +159,8 @@ examples:
     example: |
         Previous example as an Alloy view.
 
-        Note to properly implement the example, the View and Annotation properties should be
-        defined in the TSS file and the doClick function should be implemented in the controller.
+        Note to properly implement the example, the `view` and `annotation` properties should be
+        defined in the TSS file and the `doClick` function should be implemented in the controller.
 
             <Alloy>
                 <Window id="win">
