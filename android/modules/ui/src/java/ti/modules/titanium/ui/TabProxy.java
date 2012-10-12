@@ -204,10 +204,15 @@ public class TabProxy extends TiViewProxy
 
 		// The focus and blur events for tab changes propagate like so:
 		//    window -> tab -> tab group
-		//
-		// The window is optional and will be skipped if it does not exist.
-		TiViewProxy eventEmitter = (window != null) ? window : this;
-		eventEmitter.fireEvent((focused) ? TiC.EVENT_FOCUS : TiC.EVENT_BLUR, eventData, true);
+		//    
+		// The window is optional and will be skipped if it does not exist.		
+		String event = focused ? TiC.EVENT_FOCUS : TiC.EVENT_BLUR;
+		
+		if (window != null) {
+			window.fireEvent(event, null, false);
+		}
+		fireEvent(event, eventData, true);
+		
 	}
 
 	void close() {

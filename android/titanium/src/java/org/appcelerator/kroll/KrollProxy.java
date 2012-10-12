@@ -79,7 +79,6 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 	protected Handler runtimeHandler = null;
 
 	private KrollDict langConversionTable = null;
-	
 	private boolean bubbleParent = true;
 
 	public static final String PROXY_ID_PREFIX = "proxy$";
@@ -189,18 +188,6 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 			return null;
 		}
 		return activity.get();
-	}
-
-	@Kroll.method @Kroll.getProperty
-	public boolean getBubbleParent()
-	{
-		return bubbleParent;
-	}
-	
-	@Kroll.method @Kroll.setProperty
-	public void setBubbleParent(boolean bubble)
-	{
-		bubbleParent = bubble;
 	}
 
 	/**
@@ -617,6 +604,18 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 		getKrollObject().setProperty(name, value);
 	}
 
+	@Kroll.getProperty @Kroll.method
+	public boolean getBubbleParent()
+	{
+		return bubbleParent;
+	}
+
+	@Kroll.setProperty @Kroll.method
+	public void setBubbleParent(Object value)
+	{
+		bubbleParent = TiConvert.toBoolean(value);
+	}
+
 	/**
 	 * Fires an event asynchronously via KrollRuntime thread, which can be intercepted on JS side.
 	 * @param event the event to be fired.
@@ -630,7 +629,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 		message.getData().putString(PROPERTY_NAME, event);
 		message.sendToTarget();
 
-		return hasListeners(event);
+		return hierarchyHasListener(event);
 	}
 
 	/**
@@ -723,6 +722,25 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 	public boolean hasListeners(String event)
 	{
 		return getKrollObject().hasListeners(event);
+	}
+
+	/**
+	 * Returns true if any view in the hierarchy has the event listener.
+	 */
+	public boolean hierarchyHasListener(String event)
+	{
+		boolean hasListener = hasListeners(event);
+
+		// Checks whether the parent has the listener or not
+		if (!hasListener) {
+			KrollProxy parentProxy = getParentForBubbling();
+			if (parentProxy != null) {
+				boolean parentHasListener = parentProxy.hierarchyHasListener(event);
+				hasListener = hasListener || parentHasListener;
+			}
+		}
+
+		return hasListener;
 	}
 
 	public boolean shouldFireChange(Object oldValue, Object newValue)
