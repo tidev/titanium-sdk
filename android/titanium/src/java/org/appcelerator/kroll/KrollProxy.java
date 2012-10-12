@@ -642,7 +642,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 	@Kroll.method(name = "_fireEventToParent")
 	public boolean fireEventToParent(String eventName, Object data)
 	{
-		if (getBubbleParent()) {
+		if (bubbleParent) {
 			KrollProxy parentProxy = getParentForBubbling();
 			if (parentProxy != null) {
 				return parentProxy.fireEvent(eventName, data);
@@ -725,13 +725,13 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 	}
 
 	/**
-	 * Return true if any view in the hierarchy has the event listener.
+	 * Returns true if any view in the hierarchy has the event listener.
 	 */
 	public boolean hierarchyHasListener(String event)
 	{
 		boolean hasListener = hasListeners(event);
 
-		// Check whether the parent has the listener or not
+		// Checks whether the parent has the listener or not
 		if (!hasListener) {
 			KrollProxy parentProxy = getParentForBubbling();
 			if (parentProxy != null) {
