@@ -141,3 +141,14 @@ examples:
             var f = Ti.Filesystem.getFile('cricket.wav');
             emailDialog.addAttachment(f);
             emailDialog.open();
+
+  - title: Alloy XML Markup
+    example: |
+        Previous example as an Alloy view.
+
+        In the controller, call the `addAttachment` method and set the `toRecipients` property,
+        since the value is an array and not string.
+
+            <Alloy>
+                <EmailDialog id="emailDialog" subject="Hello from Titanium" messageBody="<b>Appcelerator Titanium Rocks!</b>" />
+            </Alloy>

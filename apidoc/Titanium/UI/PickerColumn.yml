@@ -107,3 +107,31 @@ examples:
                 pickerDefaults(picker);
               }, 1500);
             }
+
+  - title: Alloy XML Markup
+    example: |
+        Previous example as an Alloy view.
+
+        Call the `setSelectedRow` method in the controller.
+
+            <Alloy>
+                <Window id="win" backgroundColor="white" exitOnClose="true" fullscreen="false"
+                    title="Use picker to make selection">
+
+                    <Picker id="picker" top="50" selectionIndicator="true" useSpinner="true">
+                        <PickerColumn id="column1">
+                            <PickerRow title="Bananas"/>
+                            <PickerRow title="Grapes"/>
+                            <PickerRow title="Blueberries"/>
+                            <PickerRow title="Strawberries"/>
+                        </PickerColumn>
+                        <!-- Picker shorthand notation -->
+                        <Column id="column2">
+                            <Row title="blue"/>
+                            <Row title="red"/>
+                            <Row title="yellow"/>
+                            <Row title="white"/>
+                        </Column>
+                    </Picker>
+                </Window>
+            </Alloy>
