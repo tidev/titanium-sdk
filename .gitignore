@@ -20,3 +20,4 @@ support/node_modules/*
 anvil/driver/titanium_mobile
 anvil/hub/config.js
 support/mobileweb/dependencyAnalyzer/node_modules/*
+anvil/driver/node_modules/*
