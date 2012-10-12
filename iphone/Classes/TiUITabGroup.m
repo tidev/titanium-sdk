@@ -177,7 +177,7 @@ DEFINE_EXCEPTIONS
 		UIViewController * rootController = [moreViewControllerStack objectAtIndex:1];
 		if ([rootController respondsToSelector:@selector(tab)])
 		{
-			[(TiUITabProxy *)[(id)rootController tab] handleWillShowViewController:viewController];
+			[(TiUITabProxy *)[(id)rootController tab] handleWillShowViewController:viewController animated:animated];
 		}
 	}
 	else
@@ -223,7 +223,7 @@ DEFINE_EXCEPTIONS
 		}
 	}
 
-	[tabProxy handleDidShowViewController:viewController];
+	[tabProxy handleDidShowViewController:viewController animated:animated];
 }
 
 #pragma mark TabBarController Delegates

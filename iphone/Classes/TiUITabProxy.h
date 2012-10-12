@@ -56,8 +56,8 @@
 - (void)handleDidBlur:(NSDictionary *)event;
 - (void)handleWillFocus;
 - (void)handleDidFocus:(NSDictionary *)event;
-- (void)handleWillShowViewController:(UIViewController *)viewController;
-- (void)handleDidShowViewController:(UIViewController *)viewController;
+- (void)handleWillShowViewController:(UIViewController *)viewController animated:(BOOL)animated;
+- (void)handleDidShowViewController:(UIViewController *)viewController animated:(BOOL)animated;
 
 @end
 

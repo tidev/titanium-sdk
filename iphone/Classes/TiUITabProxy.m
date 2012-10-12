@@ -95,7 +95,18 @@
 
 -(void)removeFromTabGroup
 {
-    [self closeWindow:[current window] animated:YES removeTab:YES];
+    NSArray* theStack = [[[rootController navigationController] viewControllers] copy];
+    NSInteger stackCount = [theStack count];
+    NSInteger index = stackCount - 1;
+    for (index = stackCount-1; index>0; index--) {
+        TiUITabController * thisController = [theStack objectAtIndex:index];
+		if ([thisController isKindOfClass:[TiUITabController class]])
+		{
+			[self closeWindow:[thisController window] animated:NO removeTab:NO];
+		}
+    }
+    TiUITabController * baseController = [theStack objectAtIndex:0];
+    [self closeWindow:[baseController window] animated:NO removeTab:YES];
 }
 
 -(void)closeTab
@@ -103,11 +114,11 @@
 	if (current!=nil)
 	{
 		TiWindowProxy *currentWindow = [current window];
-		[self closeWindow:currentWindow animated:YES removeTab:NO];
+		//[self closeWindow:currentWindow animated:YES removeTab:NO];
 	}
 }
 
-- (void)handleWillShowViewController:(UIViewController *)viewController
+- (void)handleWillShowViewController:(UIViewController *)viewController animated:(BOOL)animated
 {
 	if (current!=nil)
 	{ 
@@ -163,12 +174,13 @@
 	opening = NO; 
 }
 
-- (void)handleDidShowViewController:(UIViewController *)viewController
+- (void)handleDidShowViewController:(UIViewController *)viewController animated:(BOOL)animated
 {
 	if (closingWindows!=nil)
 	{
         for (TiWindowProxy* closingWindow in closingWindows) {
-            [self close:[NSArray arrayWithObject:closingWindow]];
+            NSArray* args = [NSArray arrayWithObjects:closingWindow,[NSDictionary dictionaryWithObject:NUMBOOL(animated) forKey:@"animated"], nil];
+            [self close:args];
         }
 		RELEASE_TO_NIL(closingWindows);
 	}
@@ -186,7 +198,7 @@
 	{
 		return;
 	}
-	[self handleWillShowViewController:viewController];
+	[self handleWillShowViewController:viewController animated:animated];
 }
 
 - (void)navigationController:(UINavigationController *)navigationController didShowViewController:(UIViewController *)viewController animated:(BOOL)animated
@@ -197,7 +209,7 @@
         [self setActive:[NSNumber numberWithBool:YES]];
     }
 	transitionIsAnimating = NO;
-	[self handleDidShowViewController:viewController];
+	[self handleDidShowViewController:viewController animated:animated];
 }
 
 - (void)handleWillBlur
@@ -244,7 +256,6 @@
 {
 	TiWindowProxy *window = [args objectAtIndex:0];
 	ENSURE_TYPE(window,TiWindowProxy);
-	[window rememberSelf];
 	// since the didShow notification above happens on both a push and pop, i need to keep a flag
 	// to let me know which state i'm in so i only close the current window on a pop
 	opening = YES;
@@ -312,10 +323,12 @@
 	}
     UIViewController *windowController = [[window controller] retain];
     if (closingCurrentWindow) {
-        [self setTabGroup:nil];
         if ((windowController == nil) && (window == nil)) {
             // tab was never focused so its controller was never added to the stack
             windowController = [rootController retain];
+        }
+        if ([windowController isKindOfClass:[TiUITabController class]]) {
+            [(TiWindowProxy *)[(TiUITabController*)windowController proxy] _associateTab:nil navBar:nil tab:nil];
         }
     }
 
