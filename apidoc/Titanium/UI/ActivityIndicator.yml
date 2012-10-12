@@ -190,3 +190,19 @@ examples:
 
             win1.open();
             win2.open();
+
+  - title: Alloy XML Markup
+    example: |
+        Previous example as an Alloy view.
+
+        Note this example only shows `win2`.  `win1` should be defined in its own Alloy view
+        and should load `win2`.  Additionally, the `win2` controller code should implement
+        the `showIndicator` callback to show and hide the activity indicator.
+
+            <Alloy>
+                <Window id="win2" onOpen="showIndicator" fullscreen="true" backgroundColor="yellow">
+
+                    <!-- Define the styling properties in the TSS file -->
+                    <ActivityIndicator id="activityIndicator" message="Loading..."/>
+                </Window>
+            </Alloy>
