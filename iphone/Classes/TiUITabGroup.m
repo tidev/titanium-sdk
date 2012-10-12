@@ -413,7 +413,13 @@ DEFINE_EXCEPTIONS
 		[self tabController].viewControllers = controllers;
 		if (![tabs containsObject:focused])
 		{
-			[self setActiveTab_:thisTab];
+            if ([controllers containsObject:thisTab]) {
+                [self setActiveTab_:thisTab];
+            }
+            else {
+                DebugLog(@"[WARN] ActiveTab property points to tab not in list. Ignoring");
+                RELEASE_TO_NIL(focused);
+            }
 		}
 
 		[controllers release];
