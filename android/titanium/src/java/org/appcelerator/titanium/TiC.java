@@ -714,11 +714,6 @@ public class TiC
 	/**
 	 * @module.api
 	 */
-	public static final String PROPERTY_BUBBLE_PARENT = "bubbleParent";
-
-	/**
-	 * @module.api
-	 */
 	public static final String PROPERTY_BUTTON_NAMES = "buttonNames";
 
 	/**
