@@ -117,7 +117,9 @@
 
 -(void)closeTab
 {
-    [self cleanNavStack:NO];
+    if (current != nil) {
+        [self cleanNavStack:NO];
+    }
 }
 
 - (void)handleWillShowViewController:(UIViewController *)viewController animated:(BOOL)animated
@@ -133,8 +135,9 @@
 		// check to make sure that we're not actually push a window on the stack
 		if (opening==NO && [rootController window]!=currentWindow && [TiUtils boolValue:currentWindow.opened] && currentWindow.closing==NO && [controllerStack containsObject:viewController])
 		{
-			RELEASE_TO_NIL(closingWindows);
-            closingWindows = [[NSMutableArray alloc] init];
+			if (closingWindows == nil) {
+				closingWindows = [[NSMutableArray alloc] init];
+			}
             // Travel down the stack until the new viewController is reached; these are the windows
             // which must be closed.
             NSEnumerator* enumerator = [controllerStack reverseObjectEnumerator];
@@ -180,11 +183,12 @@
 {
 	if (closingWindows!=nil)
 	{
-        for (TiWindowProxy* closingWindow in closingWindows) {
+        NSMutableArray* closingCopy = [closingWindows copy];
+        for (TiWindowProxy* closingWindow in closingCopy) {
+            [closingWindows removeObject:closingWindow];
             NSArray* args = [NSArray arrayWithObjects:closingWindow,[NSDictionary dictionaryWithObject:NUMBOOL(animated) forKey:@"animated"], nil];
             [self close:args];
         }
-		RELEASE_TO_NIL(closingWindows);
 	}
     RELEASE_TO_NIL(controllerStack);
     controllerStack = [[[rootController navigationController] viewControllers] copy];
