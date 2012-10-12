@@ -1147,14 +1147,9 @@ public abstract class TiBaseActivity extends Activity
 	@Override
 	public void finish()
 	{
-		if (window != null) {
-			KrollDict data = new KrollDict();
-			data.put(TiC.EVENT_PROPERTY_SOURCE, window);
-			window.fireSyncEvent(TiC.EVENT_CLOSE, data);
-		}
+		super.finish();
 
 		boolean animate = getIntentBoolean(TiC.PROPERTY_ANIMATE, true);
-
 		
 		if (shouldFinishRootActivity()) {
 			TiApplication app = getTiApp();
@@ -1165,8 +1160,6 @@ public abstract class TiBaseActivity extends Activity
 				}
 			}
 		}
-
-		super.finish();
 
 		if (!animate) {
 			TiUIHelper.overridePendingTransition(this);

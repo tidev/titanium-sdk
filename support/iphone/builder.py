@@ -801,7 +801,7 @@ def main(args):
 			force_destroy_build = command!='simulator'
 
 			detector = ModuleDetector(project_dir)
-			missing_modules, modules = detector.find_app_modules(ti, 'iphone')
+			missing_modules, modules = detector.find_app_modules(ti, 'iphone', deploytype)
 			module_lib_search_path, module_asset_dirs = locate_modules(modules, project_dir, app_dir, log)
 			common_js_modules = []
 			

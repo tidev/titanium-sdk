@@ -45,6 +45,10 @@ except:
 	print ""
 	sys.exit(1)
 
+# write unicode strings safely
+def write_utf8(file, string):
+    file.write(string.encode('utf8', 'replace'))
+
 def convert_string_to_jsduck_link(obj_specifier):
 	global all_annotated_apis
 	if obj_specifier in all_annotated_apis:
@@ -310,14 +314,14 @@ def get_summary_and_description(api_obj):
 	if api_obj.has_key("description"):
 		desc = markdown_to_html(api_obj["description"])
 
-	res = ""
+	res = u""
 	if summary != None:
-		res = "\t * " + summary + "\n"
+		res = u"\t * " + summary + "\n"
 		if desc != None:
-			res += "\t * @description " + desc + "\n"
+			res += u"\t * @description " + desc + "\n"
 	elif desc != None:
 		# use description if there is no summary
-		res = "\t * " + desc
+		res = u"\t * " + desc
 	return res
 
 def generate(raw_apis, annotated_apis, options):
@@ -337,10 +341,10 @@ def generate(raw_apis, annotated_apis, options):
 		output = open(os.path.join(options.output, "titanium.js"), "w")
 		for name in annotated_apis:
 			annotated_obj = annotated_apis[name]
-			output.write("/**\n\t * @class %s\n" % (annotated_obj.name))
+			write_utf8(output, "/**\n\t * @class %s\n" % (annotated_obj.name))
 
 			if annotated_obj.typestr == "module" and annotated_obj.parent is None:
-				output.write('\t * @typestr Module\n')
+				write_utf8(output, '\t * @typestr Module\n')
 			else:
 				typestr = ''
 				if annotated_obj.typestr == "module":
@@ -357,17 +361,17 @@ def generate(raw_apis, annotated_apis, options):
 					typestr = "Parameter"
 
 				if len(typestr) > 0 and annotated_obj.parent is not None:
-					output.write('\t * @typestr %s of %s\n' % (typestr, annotated_obj.parent.name))
+					write_utf8(output, '\t * @typestr %s of %s\n' % (typestr, annotated_obj.parent.name))
 				else:
-					output.write('\t * @typestr %s\n' % (typestr))
+					write_utf8(output, '\t * @typestr %s\n' % (typestr))
 			
 			if not (has_ancestor(raw_apis[name], "Titanium.Proxy") or has_ancestor(raw_apis[name], "Global")):
-				output.write("\t * @pseudo\n")
-			output.write(output_properties_for_obj(annotated_obj))
-			output.write(get_summary_and_description(annotated_obj.api_obj))
-			output.write(output_examples_for_obj(annotated_obj.api_obj))
-			output.write(output_deprecation_for_obj(annotated_obj))
-			output.write("\t */\n\n")
+				write_utf8(output, "\t * @pseudo\n")
+			write_utf8(output, output_properties_for_obj(annotated_obj))
+			write_utf8(output, get_summary_and_description(annotated_obj.api_obj))
+			write_utf8(output, output_examples_for_obj(annotated_obj.api_obj))
+			write_utf8(output, output_deprecation_for_obj(annotated_obj))
+			write_utf8(output, "\t */\n\n")
 
 			p = annotated_obj.properties
 			for k in p:
@@ -385,19 +389,19 @@ def generate(raw_apis, annotated_apis, options):
 					getter_ok = setter_ok = False
 
 				if k.default is not None:
-					output.write('/**\n\t * @property [%s=%s]\n' % (k.name, k.default))
+					write_utf8(output, '/**\n\t * @property [%s=%s]\n' % (k.name, k.default))
 				else:
-					output.write("/**\n\t * @property %s\n" % (k.name))
+					write_utf8(output, "/**\n\t * @property %s\n" % (k.name))
 
 				if obj.has_key('type'):
-					output.write("\t * @type %s\n" % (transform_type(obj["type"])))
+					write_utf8(output, "\t * @type %s\n" % (transform_type(obj["type"])))
 				if obj.has_key('permission') and obj["permission"] == "read-only":
-					output.write("\t * @readonly\n")
-				output.write(output_properties_for_obj(k))
-				output.write(get_summary_and_description(obj))
-				output.write(output_examples_for_obj(obj))
-				output.write(output_deprecation_for_obj(k))
-				output.write(" */\n\n")
+					write_utf8(output, "\t * @readonly\n")
+				write_utf8(output, output_properties_for_obj(k))
+				write_utf8(output, get_summary_and_description(obj))
+				write_utf8(output, output_examples_for_obj(obj))
+				write_utf8(output, output_deprecation_for_obj(k))
+				write_utf8(output, " */\n\n")
 
 			p = annotated_obj.methods
 			for k in p:
@@ -405,10 +409,10 @@ def generate(raw_apis, annotated_apis, options):
 				if k.inherited_from:
 					continue
 				obj = k.api_obj
-				output.write("/**\n\t * @method %s\n" % (k.name))
-				output.write(get_summary_and_description(obj))
-				output.write(output_examples_for_obj(obj))
-				output.write(output_deprecation_for_obj(k))
+				write_utf8(output, "/**\n\t * @method %s\n" % (k.name))
+				write_utf8(output, get_summary_and_description(obj))
+				write_utf8(output, output_examples_for_obj(obj))
+				write_utf8(output, output_deprecation_for_obj(k))
 
 				if obj.has_key("parameters"):
 					for param in obj["parameters"]:
@@ -421,9 +425,9 @@ def generate(raw_apis, annotated_apis, options):
 						type = "{" + transform_type(param["type"]) + repeatable + "}" if param.has_key("type") else ""
 						optional = "(optional)" if param.has_key('optional') and param["optional"] == True else ""
 						if param.has_key('default'):
-							output.write("\t * @param %s [%s=%s] %s\n\t * %s\n" % (type, param['name'], param['default'], optional, markdown_to_html(summary)))
+							write_utf8(output, "\t * @param %s [%s=%s] %s\n\t * %s\n" % (type, param['name'], param['default'], optional, markdown_to_html(summary)))
 						else:
-							output.write("\t * @param %s %s %s\n\t * %s\n" % (type, param['name'], optional, markdown_to_html(summary)))
+							write_utf8(output, "\t * @param %s %s %s\n\t * %s\n" % (type, param['name'], optional, markdown_to_html(summary)))
 
 				if obj.has_key("returns"):
 					returntypes = obj["returns"]
@@ -447,12 +451,12 @@ def generate(raw_apis, annotated_apis, options):
 							type = type + "}"
 						else:
 							log.warn("returns for %s should be an array or a dict." % obj["name"]);
-					output.write("\t * @return %s %s\n" % (type, markdown_to_html(summary)))
+					write_utf8(output, "\t * @return %s %s\n" % (type, markdown_to_html(summary)))
 				else:
-					output.write("\t * @return void\n")
+					write_utf8(output, "\t * @return void\n")
 
-				output.write(output_properties_for_obj(k))
-				output.write("\t*/\n\n")
+				write_utf8(output, output_properties_for_obj(k))
+				write_utf8(output, "\t*/\n\n")
 
 			p = annotated_obj.events
 			for k in p:
@@ -460,9 +464,9 @@ def generate(raw_apis, annotated_apis, options):
 				if k.inherited_from:
 					continue
 				obj = k.api_obj
-				output.write("/**\n\t * @event %s\n" % (k.name))
-				output.write(get_summary_and_description(obj))
-				output.write(output_examples_for_obj(obj))
+				write_utf8(output, "/**\n\t * @event %s\n" % (k.name))
+				write_utf8(output, get_summary_and_description(obj))
+				write_utf8(output, output_examples_for_obj(obj))
 
 				if k.properties is not None:
 					for param in k.properties:
@@ -472,14 +476,14 @@ def generate(raw_apis, annotated_apis, options):
 							deprecated = ""
 						platforms = "("+" ".join(param.api_obj['platforms'])+")" if param.api_obj.has_key('platforms') and param.api_obj["platforms"] else ""
 						if param.api_obj.has_key('type'):
-							output.write("\t * @param {%s} %s %s %s\n" % (transform_type(param.api_obj['type']), deprecated, platforms, param.name))
+							write_utf8(output, "\t * @param {%s} %s %s %s\n" % (transform_type(param.api_obj['type']), deprecated, platforms, param.name))
 						else:
-							output.write("\t * @param %s %s %s\n" % (deprecated, platforms, param.name))
-						output.write(get_summary_and_description(param.api_obj))
+							write_utf8(output, "\t * @param %s %s %s\n" % (deprecated, platforms, param.name))
+						write_utf8(output, get_summary_and_description(param.api_obj))
 
 
-				output.write(output_properties_for_obj(k))
-				output.write("\t*/\n\n")
+				write_utf8(output, output_properties_for_obj(k))
+				write_utf8(output, "\t*/\n\n")
 
 			# handle excluded members
 			api_obj = annotated_obj.api_obj
@@ -490,6 +494,6 @@ def generate(raw_apis, annotated_apis, options):
 								"events":"@event" }[member_type]
 						excluded_members = api_obj["excludes"][member_type]
 						for one_member in excluded_members:
-							output.write("/**\n\t * %s %s \n\t * @hide\n*/\n" % (annotation_string, one_member))
+							write_utf8(output, "/**\n\t * %s %s \n\t * @hide\n*/\n" % (annotation_string, one_member))
 
 		output.close()

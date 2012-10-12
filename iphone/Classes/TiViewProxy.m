@@ -1299,6 +1299,7 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap,horizontalWrap,horizontalWrap,[self willCha
 	{
 		destroyLock = [[NSRecursiveLock alloc] init];
 		pthread_rwlock_init(&childrenLock, NULL);
+		bubbleParent = YES;
 	}
 	return self;
 }
@@ -1612,15 +1613,6 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap,horizontalWrap,horizontalWrap,[self willCha
     // NOTE: We want to fire postlayout events on ANY view, even those which do not allow interactions.
 	if (proxyView == nil || [proxyView interactionEnabled] || [type isEqualToString:@"postlayout"]) {
 		[super fireEvent:type withObject:obj withSource:source propagate:propagate];
-		
-		// views support event propagation. we need to check our
-		// parent and if he has the same named listener, we fire
-		// an event and set the source of the event to ourself
-		
-		if (parent!=nil && propagate==YES)
-		{
-			[parent fireEvent:type withObject:obj withSource:source];
-		}
 	}
 }
 
@@ -1646,6 +1638,11 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap,horizontalWrap,horizontalWrap,[self willCha
 	{
 		[self.view listenerRemoved:type count:count];
 	}
+}
+
+-(TiProxy *)parentForBubbling
+{
+	return parent;
 }
 
 #pragma mark Layout events, internal and external
@@ -1750,11 +1747,9 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
 	pthread_rwlock_unlock(&childrenLock);
 }
 
--(void)contentsWillChange
+-(BOOL) widthIsAutoSize
 {
     BOOL isAutoSize = NO;
-    BOOL heightIsAutoSize = NO;
-    
     if (TiDimensionIsAutoSize(layoutProperties.width))
     {
         isAutoSize = YES;
@@ -1779,32 +1774,106 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
             isAutoSize = YES;
         }
     }
-    if (!isAutoSize) {
-        if (TiDimensionIsAutoSize(layoutProperties.height))
-        {
-            isAutoSize = YES;
+    return isAutoSize;
+}
+
+-(BOOL) heightIsAutoSize
+{
+    BOOL isAutoSize = NO;
+    if (TiDimensionIsAutoSize(layoutProperties.height))
+    {
+        isAutoSize = YES;
+    }
+    else if (TiDimensionIsAuto(layoutProperties.height) && TiDimensionIsAutoSize([self defaultAutoHeightBehavior:nil]) )
+    {
+        isAutoSize = YES;
+    }
+    else if (TiDimensionIsUndefined(layoutProperties.height) && TiDimensionIsAutoSize([self defaultAutoHeightBehavior:nil]))
+    {
+        int pinCount = 0;
+        if (!TiDimensionIsUndefined(layoutProperties.top) ) {
+            pinCount ++;
         }
-        else if (TiDimensionIsAuto(layoutProperties.height) && TiDimensionIsAutoSize([self defaultAutoHeightBehavior:nil]) )
-        {
-            isAutoSize = YES;
+        if (!TiDimensionIsUndefined(layoutProperties.centerY) ) {
+            pinCount ++;
         }
-        else if (TiDimensionIsUndefined(layoutProperties.height) && TiDimensionIsAutoSize([self defaultAutoHeightBehavior:nil]))
-        {
-            int pinCount = 0;
-            if (!TiDimensionIsUndefined(layoutProperties.top) ) {
-                pinCount ++;
-            }
-            if (!TiDimensionIsUndefined(layoutProperties.centerY) ) {
-                pinCount ++;
-            }
-            if (!TiDimensionIsUndefined(layoutProperties.bottom) ) {
-                pinCount ++;
-            }
-            if (pinCount < 2) {
-                isAutoSize = YES;
-            }
+        if (!TiDimensionIsUndefined(layoutProperties.bottom) ) {
+            pinCount ++;
+        }
+        if (pinCount < 2) {
+            isAutoSize = YES;
         }
     }
+    return isAutoSize;
+}
+
+-(BOOL) widthIsAutoFill
+{
+    BOOL isAutoFill = NO;
+    if (TiDimensionIsAutoFill(layoutProperties.width))
+    {
+        isAutoFill = YES;
+    }
+    else if (TiDimensionIsAuto(layoutProperties.width) && TiDimensionIsAutoFill([self defaultAutoWidthBehavior:nil]) )
+    {
+        isAutoFill = YES;
+    }
+    else if (TiDimensionIsUndefined(layoutProperties.width) && TiDimensionIsAutoFill([self defaultAutoWidthBehavior:nil]))
+    {
+        BOOL centerDefined = NO;
+        int pinCount = 0;
+        if (!TiDimensionIsUndefined(layoutProperties.left) ) {
+            pinCount ++;
+        }
+        if (!TiDimensionIsUndefined(layoutProperties.centerX) ) {
+            centerDefined = YES;
+            pinCount ++;
+        }
+        if (!TiDimensionIsUndefined(layoutProperties.right) ) {
+            pinCount ++;
+        }
+        if ( (pinCount < 2) || (!centerDefined) ){
+            isAutoFill = YES;
+        }
+    }
+    return isAutoFill;
+}
+
+-(BOOL) heightIsAutoFill
+{
+    BOOL isAutoFill = NO;
+    if (TiDimensionIsAutoFill(layoutProperties.height))
+    {
+        isAutoFill = YES;
+    }
+    else if (TiDimensionIsAuto(layoutProperties.height) && TiDimensionIsAutoFill([self defaultAutoHeightBehavior:nil]) )
+    {
+        isAutoFill = YES;
+    }
+    else if (TiDimensionIsUndefined(layoutProperties.height) && TiDimensionIsAutoFill([self defaultAutoHeightBehavior:nil]))
+    {
+        BOOL centerDefined = NO;
+        int pinCount = 0;
+        if (!TiDimensionIsUndefined(layoutProperties.top) ) {
+            pinCount ++;
+        }
+        if (!TiDimensionIsUndefined(layoutProperties.centerY) ) {
+            centerDefined = YES;
+            pinCount ++;
+        }
+        if (!TiDimensionIsUndefined(layoutProperties.bottom) ) {
+            pinCount ++;
+        }
+        if ( (pinCount < 2) || (!centerDefined) ) {
+            isAutoFill = YES;
+        }
+    }
+    return isAutoFill;
+}
+
+-(void)contentsWillChange
+{
+    BOOL isAutoSize = [self widthIsAutoSize] || [self heightIsAutoSize];
     
 	if (isAutoSize)
 	{
@@ -2651,6 +2720,38 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
 -(TiDimension)defaultAutoHeightBehavior:(id)unused
 {
     return TiDimensionAutoFill;
+}
+
+#pragma mark - Accessibility API
+
+- (void)setAccessibilityLabel:(NSString *)accessibilityLabel
+{
+	ENSURE_UI_THREAD(setAccessibilityLabel, accessibilityLabel);
+	id accessibilityElement = [self view].accessibilityElement;
+	if (accessibilityElement != nil) {
+		[accessibilityElement setAccessibilityLabel:accessibilityLabel];
+	}
+	[self setValue:accessibilityLabel forUndefinedKey:@"accessibilityLabel"];
+}
+
+- (void)setAccessibilityValue:(NSString *)accessibilityValue
+{
+	ENSURE_UI_THREAD(setAccessibilityValue, accessibilityValue);
+	id accessibilityElement = [self view].accessibilityElement;
+	if (accessibilityElement != nil) {
+		[accessibilityElement setAccessibilityValue:accessibilityValue];
+	}
+	[self setValue:accessibilityValue forUndefinedKey:@"accessibilityValue"];
+}
+
+- (void)setAccessibilityHint:(NSString *)accessibilityHint
+{
+	ENSURE_UI_THREAD(setAccessibilityHint, accessibilityHint);
+	id accessibilityElement = [self view].accessibilityElement;
+	if (accessibilityElement != nil) {
+		[accessibilityElement setAccessibilityHint:accessibilityHint];
+	}
+	[self setValue:accessibilityHint forUndefinedKey:@"accessibilityHint"];
 }
 
 @end

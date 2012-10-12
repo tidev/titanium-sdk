@@ -41,6 +41,13 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 	[super dealloc];
 }
 
+- (void)_configure
+{
+	[super _configure];
+	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(accessibilityVoiceOverStatusChanged:)
+										name:UIAccessibilityVoiceOverStatusChanged object:nil];
+}
+
 -(void)addEventListener:(NSArray*)args
 {
 	NSString *type = [args objectAtIndex:0];
@@ -404,6 +411,42 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 	return [[TiHost resourcePath] stringByAppendingPathComponent:args];
 }
 
+- (void)fireSystemEvent:(id)args
+{
+	NSString *eventName;
+	id argument = nil;
+	UIAccessibilityNotifications notification;
+	
+	ENSURE_ARG_COUNT(args, 1);
+	ENSURE_ARG_AT_INDEX(eventName, args, 0, NSString);
+	
+	if ([eventName isEqualToString:self.EVENT_ACCESSIBILITY_ANNOUNCEMENT]) {
+		notification = UIAccessibilityAnnouncementNotification;
+		ENSURE_ARG_COUNT(args, 2);
+		ENSURE_ARG_AT_INDEX(argument, args, 1, NSString);
+	} else if ([eventName isEqualToString:self.EVENT_ACCESSIBILITY_LAYOUT_CHANGED]) {
+		notification = UIAccessibilityLayoutChangedNotification;
+	} else if ([eventName isEqualToString:self.EVENT_ACCESSIBILITY_SCREEN_CHANGED]) {
+		notification = UIAccessibilityScreenChangedNotification;
+	} else {
+		NSLog(@"[WARN] unknown system event: %@",eventName);
+		return;
+	}
+	UIAccessibilityPostNotification(notification, argument);
+}
+
+- (NSNumber *)accessibilityEnabled
+{
+	return NUMBOOL(UIAccessibilityIsVoiceOverRunning());
+}
+
+- (void)accessibilityVoiceOverStatusChanged:(NSNotification *)notification
+{
+	if ([self _hasListeners:@"accessibilitychanged"]) {
+		[self fireEvent:@"accessibilitychanged" withObject:nil];
+	}
+}
+
 -(id)arguments:(id)args
 {
 	return [[TiApp app] launchOptions];
@@ -501,6 +544,10 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 }
 #endif
 
+MAKE_SYSTEM_STR(EVENT_ACCESSIBILITY_ANNOUNCEMENT,@"accessibilityannouncement");
+MAKE_SYSTEM_STR(EVENT_ACCESSIBILITY_LAYOUT_CHANGED,@"accessibilitylayoutchanged");
+MAKE_SYSTEM_STR(EVENT_ACCESSIBILITY_SCREEN_CHANGED,@"accessibilityscreenchanged");
+MAKE_SYSTEM_STR(EVENT_ACCESSIBILITY_CHANGED,@"accessibilitychanged");
 
 @end
 

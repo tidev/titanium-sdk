@@ -349,9 +349,6 @@ NSString * const TI_DB_VERSION = @"1";
 	
 	NSString *sql = [NSString stringWithFormat:@"INSERT INTO pending_events VALUES (?)"];
 	NSError *error = nil;
-	PLSqlitePreparedStatement * statement = (PLSqlitePreparedStatement *) [database prepareStatement:sql error:&error];
-	[statement bindParameters:[NSArray arrayWithObjects:value,nil]];
-    
     // Don't lock until we need to
     [lock lock];
     if (database==nil)
@@ -360,6 +357,9 @@ NSString * const TI_DB_VERSION = @"1";
 		[lock unlock];
 		return;
 	}
+	PLSqlitePreparedStatement * statement = (PLSqlitePreparedStatement *) [database prepareStatement:sql error:&error];
+	[statement bindParameters:[NSArray arrayWithObjects:value,nil]];
+    
     
 	[database beginTransaction];
 	[statement executeUpdate];

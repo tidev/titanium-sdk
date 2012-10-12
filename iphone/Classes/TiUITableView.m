@@ -386,8 +386,17 @@
 		if (TiDimensionIsDip(rowHeight))
 		{
 			[tableview setRowHeight:rowHeight.value];
-		}		
-		[self setBackgroundColor:[TiUtils colorValue:[[self proxy] valueForKey:@"backgroundColor"]] onTable:tableview];
+		}
+		
+        BOOL initBackGround = YES;
+        id bgInitValue = [[self proxy] valueForKey:@"backgroundColor"];
+        if ([TiUtils isIOS6OrGreater] && (style == UITableViewStyleGrouped)) {
+            //If it is IOS 6 and style is grouped do not call this method unless a backgroundColor is specified
+            initBackGround = (bgInitValue != nil);
+        }
+        if (initBackGround) {
+            [self setBackgroundColor:[TiUtils colorValue:bgInitValue] onTable:tableview];
+        }
 		
 		[self updateSearchView];
 	}
@@ -397,6 +406,11 @@
 	}
 	
 	return tableview;
+}
+
+- (id)accessibilityElement
+{
+	return [self tableView];
 }
 
 -(NSInteger)indexForRow:(TiUITableViewRowProxy*)row
@@ -625,6 +639,7 @@
     BOOL reloadSearch = NO;
 
 	TiViewProxy<TiKeyboardFocusableView> * chosenField = [[[TiApp controller] keyboardFocusedProxy] retain];
+	BOOL hasFocus = [chosenField focused];
 	BOOL oldSuppress = [chosenField suppressFocusEvents];
 	[chosenField setSuppressFocusEvents:YES];
 	switch (action.type)
@@ -795,7 +810,9 @@
             break;
         }
 	}
-	[chosenField focus:nil];
+	if (hasFocus) {
+		[chosenField focus:nil];
+	}
 	[chosenField setSuppressFocusEvents:oldSuppress];
 	[chosenField release];
 	[self refreshSearchControllerUsingReload:reloadSearch];

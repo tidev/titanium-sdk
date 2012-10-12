@@ -202,7 +202,7 @@ class Android(object):
 		
 		# discover app modules
 		detector = ModuleDetector(self.project_dir)
-		missing, detected_modules = detector.find_app_modules(self.tiapp, 'android')
+		missing, detected_modules = detector.find_app_modules(self.tiapp, 'android', self.deploy_type)
 		for missing_module in missing: print '[WARN] Couldn\'t find app module: %s' % missing_module['id']
 		
 		self.custom_modules = []
@@ -237,6 +237,7 @@ class Android(object):
 						sys.exit(1)
  
 
+					is_native_js_module = (hasattr(module.manifest, 'commonjs') and module.manifest.commonjs)
 					print '[DEBUG] appending module: %s' % module_class
 					self.custom_modules.append({
 						'module_id': module_id,
@@ -245,10 +246,51 @@ class Android(object):
 						'class_name': module_class,
 						'manifest': module.manifest,
 						'on_app_create': module_onAppCreate,
-						'is_native_js_module': (hasattr(module.manifest, 'commonjs') and module.manifest.commonjs)
+						'is_native_js_module': is_native_js_module
 					})
+					if is_native_js_module:
+						# Need to look at the app modules used in this external js module
+						metadata_file = os.path.join(module.path, "metadata.json")
+						metadata = None
+						try:
+							f = open(metadata_file, "r")
+							metadata = f.read()
+						finally:
+							f.close()
 
-		
+						if metadata:
+							metadata = simplejson.loads(metadata)
+							if metadata.has_key("exports"):
+								exported_module_ids = metadata["exports"]
+								already_included_module_ids = [m["api_name"].lower() for m in self.app_modules]
+								need_to_add = [m for m in exported_module_ids if m not in already_included_module_ids]
+								if need_to_add:
+									for to_add in need_to_add:
+										module_onAppCreate = None
+										module_class = None
+										module_apiName = None
+										for m in modules.keys():
+											if modules[m]['fullAPIName'].lower() == to_add:
+												module_class = m
+												module_apiName = modules[m]['fullAPIName']
+												if 'onAppCreate' in modules[m]:
+													module_onAppCreate = modules[m]['onAppCreate']
+												break
+
+										if module_apiName == None: continue # module wasn't found
+										ext_modules = []
+										if module_class in external_child_modules:
+											for child_module in external_child_modules[module_class]:
+												if child_module['fullAPIName'].lower() in compiler.modules:
+													ext_modules.append(child_module)
+										self.app_modules.append({
+											'api_name': module_apiName,
+											'class_name': module_class,
+											'bindings': [],
+											'external_child_modules': ext_modules,
+											'on_app_create': module_onAppCreate
+										})
+
 	def create(self, dir, build_time=False, project_dir=None, include_all_ti_modules=False):
 		template_dir = os.path.dirname(sys._getframe(0).f_code.co_filename)
 		

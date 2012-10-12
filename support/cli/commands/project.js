@@ -8,25 +8,23 @@
 var path = require('path'),
 	ti = require('titanium-sdk'),
 	appc = require('node-appc'),
+	i18n = appc.i18n(__dirname),
+	__ = i18n.__,
+	__n = i18n.__n,
 	mix = appc.util.mix;
 
+exports.cliVersion = '>=3.X';
 exports.desc = __('get and set tiapp.xml settings'),
-exports.extendedDesc = __([
-	'Get and set tiapp.xml settings.',
-	'Run %s to see all available entries that can be changed.',
-	[	'When setting the %s entry, it will non-destructively copy each specified ',
-		"platform's default resources into your project's Resources folder. For ",
-		'example, if your app currently supports %s and you wish to add Android ',
-		'support, you must specify %s, otherwise only specifying %s will remove ',
-		'support for iPhone.'
+exports.extendedDesc = [
+	__('Get and set tiapp.xml settings.'),
+	__('Run %s to see all available entries that can be changed.', 'titanium project --project-dir /path/to/project'.cyan),
+	[	__('When setting the %s entry, it will non-destructively copy each specified ', 'deployment-targets'.cyan),
+		__("platform's default resources into your project's Resources folder. For "),
+		__('example, if your app currently supports %s and you wish to add Android ', 'iphone'.cyan),
+		__('support, you must specify %s, otherwise only specifying %s will remove ', 'iphone,android'.cyan),
+		__('support for iPhone.', 'android'.cyan)
 	].join('')
-].join('\n\n'),
-	'titanium project --project-dir /path/to/project'.cyan,
-	'deployment-targets'.cyan,
-	'iphone'.cyan,
-	'iphone,android'.cyan,
-	'android'.cyan
-);
+].join('\n\n');
 
 exports.config = function (logger, config, cli) {
 	return {
@@ -61,7 +59,7 @@ exports.config = function (logger, config, cli) {
 };
 
 exports.validate = function (logger, config, cli) {
-	ti.validateProjectDir(logger, cli.argv, 'project-dir');
+	ti.validateProjectDir(logger, cli, cli.argv, 'project-dir');
 
 	// Validate the key, if it exists
 	if (cli.argv._.length > 0) {
@@ -71,6 +69,8 @@ exports.validate = function (logger, config, cli) {
 			process.exit(1);
 		}
 	}
+	
+	ti.loadPlugins(logger, cli, config, cli.argv['project-dir']);
 };
 
 exports.run = function (logger, config, cli) {
@@ -276,8 +276,9 @@ exports.run = function (logger, config, cli) {
 					logger.error('Invalid tiapp.xml key "' + key + '"');
 					break;
 			}
-			logger.log(__('%s was successfully set to %s', (key + '').cyan, (value + '').cyan) + '\n');
-			tiapp.save(tiappPath);
+			logger.log('tiapp.xml saving is currently not supported');
+			//logger.log(__('%s was successfully set to %s', (key + '').cyan, (value + '').cyan) + '\n');
+			//tiapp.save(tiappPath);
 			break;
 	}
 };

@@ -92,6 +92,7 @@ timodule.xml.
 	<property file="${ti.module.root}/build.properties"/>
 	<property name="android.jar" location="${android.platform}/android.jar"/>
 	<property name="ti.module.support.dir" location="${titanium.platform}/../module"/>
+	<property name="titanium.py" location="${titanium.platform}/../titanium.py"/>
 
 	<!-- the manifest format seems to be compatible w/ the properties format -->
 	<property file="${ti.module.root}/manifest" prefix="manifest"/>
@@ -132,12 +133,25 @@ timodule.xml.
 		<pathelement path="${google.apis}/libs/maps.jar"/>
 	</path>
 
-	<target name="init">
+	<target name="python.set.exec">
+		<property name="python.bat" location="${titanium.platform}/../python.bat"/>
+		<condition property="python.exec" value="${python.bat}" else="python">
+			<os family="windows"/>
+		</condition>
+	</target>
+
+	<target name="python.check" depends="python.set.exec">
+		<echo>Testing for Python</echo>
+		<exec failonerror="true" executable="${python.exec}">
+			<arg line="--version"/>
+		</exec>
+	</target>
+
+	<target name="init" depends="python.check">
 		<mkdir dir="${classes}"/>
 		<mkdir dir="${gen}"/>
 		<mkdir dir="${dist}"/>
 	</target>
-
 
 	<target name="process.annotations" depends="init"
 		description="Processes @Kroll.proxy and @Kroll.module annotations">
@@ -471,35 +485,24 @@ timodule.xml.
 		</delete>
 	</target>
 	
-	<property name="titanium.py" location="${titanium.platform}/../titanium.py"/>
-	<property name="titanium.bat" location="${titanium.platform}/../titanium.bat"/>
 
 	<macrodef name="titanium">
 		<attribute name="command"/>
 		<element name="args" implicit="true" optional="true"/>
 		<sequential>
-			<!-- Python needs to be on the path in OSX / Linux -->
-			<condition property="titanium.exec" value="${titanium.bat}" else="${titanium.py}">
-				<os family="windows"/>
-			</condition>
-			<exec executable="${titanium.exec}" dir="${basedir}">
-				<env key="ANT_HOME" file="${ant.home}"/>
+			<python file="${titanium.py}">
 				<arg value="@{command}"/>
 				<args/>
-			</exec>
+			</python>
 		</sequential>
 	</macrodef>
-
-	<property name="python.bat" location="${titanium.platform}/../python.bat"/>
-	<condition property="python.exec" value="${python.bat}" else="python">
-		<os family="windows"/>
-	</condition>
 
 	<macrodef name="python">
 		<attribute name="file"/>
 		<element name="args" implicit="true" optional="true"/>
 		<sequential>
 			<exec executable="${python.exec}" dir="${basedir}">
+				<env key="ANT_HOME" file="${ant.home}"/>
 				<arg value="@{file}"/>
 				<args/>
 			</exec>
@@ -521,7 +524,7 @@ timodule.xml.
 	<target name="pre.docgen">
 	</target>
 
-	<target name="docgen" depends="pre.docgen" description="Generate HTML documentation from Markdown">
+	<target name="docgen" depends="init,pre.docgen" description="Generate HTML documentation from Markdown">
 		<titanium command="docgen"/>
 		<antcall target="post.docgen"/>
 	</target>

@@ -6,6 +6,9 @@
  */
 
 var appc = require('node-appc'),
+	i18n = appc.i18n(__dirname),
+	__ = i18n.__,
+	__n = i18n.__n,
 	afs = appc.fs,
 	path = require('path');
 
