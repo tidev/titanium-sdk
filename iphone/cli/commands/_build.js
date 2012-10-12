@@ -95,9 +95,10 @@ exports.config = function (logger, config, cli) {
 			
 			callback(conf = {
 				flags: {
+					/* commented out until the ios-sim tool support launching a retina iOS Simulator instance...
 					retina: {
 						desc: __('use the retina version of the iOS Simulator')
-					},
+					},*/
 					xcode: {
 						// secret flag to perform Xcode pre-compile build step
 						hidden: true
