@@ -28,7 +28,8 @@ exports.bootstrap = function(Titanium) {
 			options = {};
 		}
 
-		this.setWindow(window);
+		//When we open a window using tab.open(win), we treat it as
+		//opening a HW window on top of the tab.
 		options.tabOpen = true;
 
 		window.open(options);
