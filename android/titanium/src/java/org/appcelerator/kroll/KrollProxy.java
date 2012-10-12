@@ -38,7 +38,7 @@ import android.util.Pair;
  * <a href="http://developer.appcelerator.com/apidoc/mobile/latest/Titanium.UI.createView-method.html">Titanium.UI.createView </a>, 
  * the view object is a proxy itself.
  */
-@Kroll.proxy(name = "KrollProxy", propertyAccessors = { KrollProxy.PROPERTY_HAS_JAVA_LISTENER, TiC.PROPERTY_BUBBLE_PARENT })
+@Kroll.proxy(name = "KrollProxy", propertyAccessors = { KrollProxy.PROPERTY_HAS_JAVA_LISTENER })
 public class KrollProxy implements Handler.Callback, KrollProxySupport
 {
 	private static final String TAG = "KrollProxy";
@@ -79,6 +79,8 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 	protected Handler runtimeHandler = null;
 
 	private KrollDict langConversionTable = null;
+	
+	private boolean bubbleParent = true;
 
 	public static final String PROXY_ID_PREFIX = "proxy$";
 
@@ -108,7 +110,6 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 		this.listenerIdGenerator = new AtomicInteger(0);
 		this.eventListeners = Collections.synchronizedMap(new HashMap<String, HashMap<Integer, KrollEventCallback>>());
 		this.langConversionTable = getLangConversionTable();
-		defaultValues.put(TiC.PROPERTY_BUBBLE_PARENT, true);
 	}
 
 	private void setupProxy(KrollObject object, Object[] creationArguments, TiUrl creationUrl)
@@ -188,6 +189,18 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 			return null;
 		}
 		return activity.get();
+	}
+
+	@Kroll.method @Kroll.getProperty
+	public boolean getBubbleParent()
+	{
+		return bubbleParent;
+	}
+	
+	@Kroll.method @Kroll.setProperty
+	public void setBubbleParent(boolean bubble)
+	{
+		bubbleParent = bubble;
 	}
 
 	/**
@@ -630,10 +643,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 	@Kroll.method(name = "_fireEventToParent")
 	public boolean fireEventToParent(String eventName, Object data)
 	{
-		Object bubbleParent = getProperty(TiC.PROPERTY_BUBBLE_PARENT);
-		//If bubbleParent is null, we treat it as true by default. This is true
-		//for view proxies created internally
-		if (bubbleParent == null || TiConvert.toBoolean(bubbleParent)) {
+		if (bubbleParent) {
 			KrollProxy parentProxy = getParentForBubbling();
 			if (parentProxy != null) {
 				return parentProxy.fireEvent(eventName, data);
