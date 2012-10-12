@@ -95,9 +95,10 @@ exports.config = function (logger, config, cli) {
 			
 			callback(conf = {
 				flags: {
+					/* commented out until the ios-sim tool support launching a retina iOS Simulator instance...
 					retina: {
 						desc: __('use the retina version of the iOS Simulator')
-					},
+					},*/
 					xcode: {
 						// secret flag to perform Xcode pre-compile build step
 						hidden: true
@@ -522,8 +523,8 @@ function build(logger, config, cli, finished) {
 	this.logger = logger;
 	this.cli = cli;
 	
-	this.titaniumSdkVersion = ti.manifest.version;
 	this.titaniumIosSdkPath = afs.resolvePath(path.dirname(module.filename), '..', '..');
+	this.titaniumSdkVersion = path.basename(path.join(this.titaniumIosSdkPath, '..'));
 	
 	this.platformName = path.basename(this.titaniumIosSdkPath); // the name of the actual platform directory which will some day be "ios"
 	

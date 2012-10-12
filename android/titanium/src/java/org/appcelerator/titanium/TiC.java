@@ -141,6 +141,10 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String EVENT_KEY_PRESSED = "keypressed";
+	/**
+	 * @module.api
+	 */
 	public static final String EVENT_HEADING = "heading";
 
 	/**
@@ -247,6 +251,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String EVENT_PROPERTY_IS_USER_GESTURE = "isUserGesture";
+
+	/**
+	 * @module.api
+	 */
+	public static final String EVENT_PROPERTY_KEYCODE = "keyCode";
 
 	/**
 	 * @module.api
@@ -705,6 +714,16 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_BUTTON = "button";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_BUBBLES = "bubbles";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_BUBBLE_PARENT = "bubbleParent";
 
 	/**
 	 * @module.api

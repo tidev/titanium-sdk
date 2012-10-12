@@ -70,7 +70,7 @@ if clean and os.path.exists('iphone/iphone/build'):
 
 build_type = 'full'
 build_dirs = ['iphone', 'android', 'mobileweb']
-build_v3 = False
+build_v3 = True
 force_iphone = False
 
 if ARGUMENTS.get('iphone',0):
@@ -88,9 +88,6 @@ if ARGUMENTS.get('ipad',0):
 if ARGUMENTS.get('mobileweb',0):
 	build_type='mobileweb'
 	build_dirs=['mobileweb']
-
-if ARGUMENTS.get('v3', 0):
-	build_v3 = True
 
 if ARGUMENTS.get('force_iphone',0):
 	force_iphone = True
