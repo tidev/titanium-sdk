@@ -114,7 +114,7 @@ examples:
     example: |
         Previous example as an Alloy view.
 
-        Note that you will need to define the `style` and `systemButton` properies in the TSS file.
+        Define the `style` and `systemButton` properties in the TSS file.
 
             <Alloy>
                 <Window id="win">

@@ -225,7 +225,7 @@ examples:
     example: |
         Previous example as an Alloy view.
 
-        Note to show the option dialog call the `show` method in the controller.
+        Call the `show` method in the controller to show the options dialog.
 
             <Alloy>
                 <Window id="win" onClick="showOptions" title="Click window to test"

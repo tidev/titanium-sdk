@@ -439,7 +439,7 @@ examples:
     example: |
         Previous 'Multi-Column Picker' example as an Alloy view.
 
-        Note that you will need to call the `setSelectedRow` methods in the controller.
+        Call the `setSelectedRow` method in the controller.
 
             <Alloy>
                 <Window id="win" backgroundColor="white" layout="vertical" exitOnClose="true">
