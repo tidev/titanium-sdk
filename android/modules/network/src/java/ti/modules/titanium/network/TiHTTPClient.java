@@ -94,6 +94,7 @@ import org.appcelerator.titanium.util.TiUrl;
 import ti.modules.titanium.xml.DocumentProxy;
 import ti.modules.titanium.xml.XMLModule;
 import android.net.Uri;
+import android.webkit.CookieManager;
 
 public class TiHTTPClient
 {
@@ -702,6 +703,7 @@ public class TiHTTPClient
 	public void clearCookies(String url)
 	{
 		List<Cookie> cookies = new ArrayList<Cookie>(client.getCookieStore().getCookies());
+		CookieManager cookieManager = CookieManager.getInstance();
 		client.getCookieStore().clear();
 		String lower_url = url.toLowerCase();
 
@@ -710,6 +712,9 @@ public class TiHTTPClient
 				client.getCookieStore().addCookie(cookie);
 			}
 		} 
+		
+		cookieManager.setCookie(url, null);
+		cookieManager.removeAllCookie();
 	}
 	
 	public void setRequestHeader(String header, String value)
