@@ -737,9 +737,6 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 			if (parentProxy != null) {
 				boolean parentHasListener = parentProxy.hierarchyHasListener(event);
 				hasListener = hasListener || parentHasListener;
-				if (hasListener) {
-					return hasListener;
-				}
 			}
 		}
 
