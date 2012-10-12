@@ -93,7 +93,7 @@
 	tabGroup = proxy;
 }
 
--(void)removeFromTabGroup
+-(void) cleanNavStack:(BOOL)removeTab
 {
     NSArray* theStack = [[[rootController navigationController] viewControllers] copy];
     NSInteger stackCount = [theStack count];
@@ -106,16 +106,18 @@
 		}
     }
     TiUITabController * baseController = [theStack objectAtIndex:0];
-    [self closeWindow:[baseController window] animated:NO removeTab:YES];
+    [self closeWindow:[baseController window] animated:NO removeTab:removeTab];
+    
+}
+
+-(void)removeFromTabGroup
+{
+    [self cleanNavStack:YES];
 }
 
 -(void)closeTab
 {
-	if (current!=nil)
-	{
-		TiWindowProxy *currentWindow = [current window];
-		//[self closeWindow:currentWindow animated:YES removeTab:NO];
-	}
+    [self cleanNavStack:NO];
 }
 
 - (void)handleWillShowViewController:(UIViewController *)viewController animated:(BOOL)animated
