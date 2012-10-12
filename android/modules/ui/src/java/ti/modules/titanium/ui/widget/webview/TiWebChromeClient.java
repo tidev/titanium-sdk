@@ -34,6 +34,11 @@ public class TiWebChromeClient extends WebChromeClient
 		super();
 		this.tiWebView = webView;
 	}
+	
+	@Override
+	public void onGeolocationPermissionsShowPrompt(String origin, android.webkit.GeolocationPermissions.Callback callback) {
+	     callback.invoke(origin, true, false);
+	}
 
 	@Override
 	public boolean onConsoleMessage(ConsoleMessage message)
