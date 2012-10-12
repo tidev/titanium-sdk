@@ -74,4 +74,27 @@ examples:
             	title: 'Blue Window'
             });
             nav.open(win3, {animated:true});
-    
+
+  - title: Alloy XML Markup
+    example: |
+        Previous example as two Alloy views.
+
+        Note that you need to create two views: one view for the Navigation Group with the
+        Red Window and a second view with the Blue Window.  The controller needs to execute
+        the `addBlueWindow` method.
+
+        Navigation Group with 'Red Window':
+
+            <Alloy>
+                <Window>
+                    <NavigationGroup id="nav" platform="mobileweb">
+                        <Window id="win2" title="Red Window" backgroundColor="red" onOpen="addBlueWindow"/>
+                    </NavigationGroup>
+                </Window>
+            </Alloy>
+
+        'Blue Window':
+
+            <Alloy>
+                <Window title="Blue Window" backgroundColor="blue"/>
+            </Alloy>

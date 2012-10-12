@@ -286,3 +286,27 @@ examples:
               dialog.show();
             });
             win.open();
+
+  - title: Alloy XML Markup
+    example: |
+        Previous 'Three-button Alert Dialog' example as an Alloy view.
+
+        The controller will need to implement the `showDialog` callback to show the dialog
+        and the `doClick` callback to output the event information to the console.
+
+            <Alloy>
+                <Window id="win" onClick="showDialog" title="Click window to test" backgroundColor="white"
+                    exitOnClose="true" fullscreen="false" >
+
+                    <AlertDialog id="dialog" onClick="doClick" title="Delete"
+                        message="Would you like to delete the file?" cancel="1">
+
+                        <!-- The ButtonNames tag sets the buttonNames property. -->
+                        <ButtonNames>
+                            <ButtonName>Confirm</ButtonName>
+                            <ButtonName>Cancel</ButtonName>
+                            <ButtonName>Help</ButtonName>
+                        </ButtonNames>
+                    </AlertDialog>
+                </Window>
+            </Alloy>

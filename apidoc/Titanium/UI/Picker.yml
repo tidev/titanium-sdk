@@ -435,4 +435,28 @@ examples:
               }
             });
             
+  - title: Alloy XML Markup
+    example: |
+        Previous 'Multi-Column Picker' example as an Alloy view.
 
+        Note that you will need to call the `setSelectedRow` methods in the controller.
+
+            <Alloy>
+                <Window id="win" backgroundColor="white" layout="vertical" exitOnClose="true">
+                    <Picker id="picker" top="50" selectionIndicator="true">
+                        <PickerColumn id="column1">
+                            <PickerRow title="Bananas"/>
+                            <PickerRow title="Strawberries"/>
+                            <PickerRow title="Mangos"/>
+                            <PickerRow title="Grapes"/>
+                        </PickerColumn>
+                        <!-- Picker shorthand notation -->
+                        <Column id="column2">
+                            <Row title="red"/>
+                            <Row title="green"/>
+                            <Row title="blue"/>
+                            <Row title="orange"/>
+                        </Column>
+                    </Picker>
+                </Window>
+            </Alloy>
