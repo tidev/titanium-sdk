@@ -460,6 +460,14 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 		{
 			setModelListener(view);
 		}
+		else
+		{
+			// Just call processProperties() to set them on this view.
+			// Note that this is done in setModelListener() when it is
+			// called.
+			view.processProperties(getProperties());
+		}
+
 
 		// Use a copy so bundle can be modified as it passes up the inheritance
 		// tree. Allows defaults to be added and keys removed.

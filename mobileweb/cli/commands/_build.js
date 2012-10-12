@@ -250,12 +250,15 @@ build.prototype = {
 		wrench.mkdirSyncRecursive(this.buildDir);
 		afs.copyDirSyncRecursive(this.mobilewebThemeDir, this.buildDir + '/themes', { preserve: true, logger: this.logger.debug });
 		afs.copyDirSyncRecursive(this.mobilewebTitaniumDir, this.buildDir + '/titanium', { preserve: true, logger: this.logger.debug });
-		afs.copyDirSyncRecursive(this.projectResDir, this.buildDir, { preserve: true, logger: this.logger.debug }, ti.availablePlatforms.filter(function (p) { return p != 'mobileweb'; }));
+		afs.copyDirSyncRecursive(this.projectResDir, this.buildDir, { preserve: true, logger: this.logger.debug, rootIgnore: ti.filterPlatforms('mobileweb') });
 		if (afs.exists(this.projectResDir, 'mobileweb')) {
-			afs.copyDirSyncRecursive(this.projectResDir + '/mobileweb', this.buildDir + '/mobileweb', { preserve: true, logger: this.logger.debug, rootIgnores: ['apple_startup_images', 'splash'] });
+			afs.copyDirSyncRecursive(this.projectResDir + '/mobileweb', this.buildDir + '/mobileweb', { preserve: true, logger: this.logger.debug, rootIgnore: ['apple_startup_images', 'splash'] });
 			['Default.jpg', 'Default-Portrait.jpg', 'Default-Landscape.jpg'].forEach(function (file) {
 				file = this.projectResDir + '/mobileweb/apple_startup_images/' + file;
-				afs.exists(file) && afs.copyFileSync(file, this.buildDir + '/mobileweb/apple_startup_images', { logger: this.logger.debug });
+				if (afs.exists(file)) {
+					afs.copyFileSync(file, this.buildDir, { logger: this.logger.debug });
+					afs.copyFileSync(file, this.buildDir + '/mobileweb/apple_startup_images', { logger: this.logger.debug });
+				}
 			}, this);
 		}
 		callback();
@@ -682,14 +685,16 @@ build.prototype = {
 	createIcons: function (callback) {
 		this.logger.info(__('Creating favicon and Apple touch icons'));
 		
-		var file = this.projectResDir + '/' + this.tiapp.icon;
+		var file = path.join(this.projectResDir, this.tiapp.icon);
 		if (!/\.(png|jpg|gif)$/.test(file) || !afs.exists(file)) {
-			file = this.projectResDir + '/mobileweb/appicon.png';
+			file = path.join(this.projectResDir, 'mobileweb', 'appicon.png');
 		}
 		
 		if (afs.exists(file)) {
+			afs.copyFileSync(file, this.buildDir, { logger: this.logger.debug });
+			
 			appc.image.resize(file, [
-				{ file: this.buildDir + '/favicon.png', width: 16, height: 16 },
+				{ file: this.buildDir + '/favicon.ico', width: 16, height: 16 },
 				{ file: this.buildDir + '/apple-touch-icon-precomposed.png', width: 57, height: 57 },
 				{ file: this.buildDir + '/apple-touch-icon-57x57-precomposed.png', width: 57, height: 57 },
 				{ file: this.buildDir + '/apple-touch-icon-72x72-precomposed.png', width: 72, height: 72 },
