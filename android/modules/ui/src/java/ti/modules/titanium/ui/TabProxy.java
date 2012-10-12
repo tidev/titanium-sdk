@@ -205,8 +205,9 @@ public class TabProxy extends TiViewProxy
 		}
 		
 		//When tab loses focus, we hide the soft keyboard.
-		if (!focused) {
-			TiUIHelper.showSoftKeyboard(TiApplication.getAppCurrentActivity().getWindow().getDecorView(), false);
+		Activity currentActivity = TiApplication.getAppCurrentActivity();
+		if (!focused && currentActivity != null) {
+			TiUIHelper.showSoftKeyboard(currentActivity.getWindow().getDecorView(), false);
 		}
 
 		// The focus and blur events for tab changes propagate like so:
