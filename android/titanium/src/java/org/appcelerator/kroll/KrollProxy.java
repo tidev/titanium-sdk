@@ -38,7 +38,7 @@ import android.util.Pair;
  * <a href="http://developer.appcelerator.com/apidoc/mobile/latest/Titanium.UI.createView-method.html">Titanium.UI.createView </a>, 
  * the view object is a proxy itself.
  */
-@Kroll.proxy(name = "KrollProxy", propertyAccessors = { KrollProxy.PROPERTY_HAS_JAVA_LISTENER, TiC.PROPERTY_BUBBLE_PARENT })
+@Kroll.proxy(name = "KrollProxy", propertyAccessors = { KrollProxy.PROPERTY_HAS_JAVA_LISTENER })
 public class KrollProxy implements Handler.Callback, KrollProxySupport
 {
 	private static final String TAG = "KrollProxy";
@@ -79,6 +79,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 	protected Handler runtimeHandler = null;
 
 	private KrollDict langConversionTable = null;
+	private boolean bubbleParent = true;
 
 	public static final String PROXY_ID_PREFIX = "proxy$";
 
@@ -108,7 +109,6 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 		this.listenerIdGenerator = new AtomicInteger(0);
 		this.eventListeners = Collections.synchronizedMap(new HashMap<String, HashMap<Integer, KrollEventCallback>>());
 		this.langConversionTable = getLangConversionTable();
-		defaultValues.put(TiC.PROPERTY_BUBBLE_PARENT, true);
 	}
 
 	private void setupProxy(KrollObject object, Object[] creationArguments, TiUrl creationUrl)
@@ -604,6 +604,18 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 		getKrollObject().setProperty(name, value);
 	}
 
+	@Kroll.getProperty @Kroll.method
+	public boolean getBubbleParent()
+	{
+		return bubbleParent;
+	}
+
+	@Kroll.setProperty @Kroll.method
+	public void setBubbleParent(Object value)
+	{
+		bubbleParent = TiConvert.toBoolean(value);
+	}
+
 	/**
 	 * Fires an event asynchronously via KrollRuntime thread, which can be intercepted on JS side.
 	 * @param event the event to be fired.
@@ -617,7 +629,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 		message.getData().putString(PROPERTY_NAME, event);
 		message.sendToTarget();
 
-		return hasListeners(event);
+		return hierarchyHasListener(event);
 	}
 
 	/**
@@ -630,8 +642,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 	@Kroll.method(name = "_fireEventToParent")
 	public boolean fireEventToParent(String eventName, Object data)
 	{
-		Object bubbleParent = getProperty(TiC.PROPERTY_BUBBLE_PARENT);
-		if (bubbleParent != null && TiConvert.toBoolean(bubbleParent)) {
+		if (getBubbleParent()) {
 			KrollProxy parentProxy = getParentForBubbling();
 			if (parentProxy != null) {
 				return parentProxy.fireEvent(eventName, data);
@@ -711,6 +722,28 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 	public boolean hasListeners(String event)
 	{
 		return getKrollObject().hasListeners(event);
+	}
+
+	/**
+	 * Return true if any view in the hierarchy has the event listener.
+	 */
+	public boolean hierarchyHasListener(String event)
+	{
+		boolean hasListener = hasListeners(event);
+
+		// Check whether the parent has the listener or not
+		if (!hasListener) {
+			KrollProxy parentProxy = getParentForBubbling();
+			if (parentProxy != null) {
+				boolean parentHasListener = parentProxy.hierarchyHasListener(event);
+				hasListener = hasListener || parentHasListener;
+				if (hasListener) {
+					return hasListener;
+				}
+			}
+		}
+
+		return hasListener;
 	}
 
 	public boolean shouldFireChange(Object oldValue, Object newValue)
