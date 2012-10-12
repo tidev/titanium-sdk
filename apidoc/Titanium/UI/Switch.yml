@@ -218,3 +218,16 @@ examples:
             });
             
             win.open();
+
+  - title: Alloy XML Markup
+    example: |
+        Previous 'Simple Switch Example' as an Alloy view.
+
+        Implement the `outputState` callback in the controller
+        to output the value of the switch to the console.
+
+            <Alloy>
+                <Window id="win" backgroundColor="white">
+                    <Switch id="basicSwitch" value="true" onChange="outputState"/>
+                </Window>
+            </Alloy>

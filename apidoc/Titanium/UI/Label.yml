@@ -191,3 +191,20 @@ examples:
             win.add(label1);
             win.add(label2);
             win.open();
+
+  - title: Alloy XML Markup
+    example: |
+        Previous example as an Alloy view.
+
+        Most of the styling properties need to be defined in the TSS file.
+
+            <Alloy>
+                <Window id="win" backgroundColor="white" exitOnClose="true" fullscreen="false" layout="vertical" title="Label Demo">
+
+                    <!-- The text property can either be defined as an attribute or as node text. -->
+                    <Label id="label1" color="#900" top="30" text="A simple label" />
+                    <Label id="label2" color="blue" top="30">
+                        A long label with\na few line breaks\nand unicode (UTF8)\nsymbols such as\na white chess piece \u2655\nand the euro symbol \u20ac\nlooks like this!\n
+                    </Label>
+                </Window>
+            </Alloy>
