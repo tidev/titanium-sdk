@@ -712,7 +712,6 @@ public class TiHTTPClient
 				client.getCookieStore().addCookie(cookie);
 			}
 		} 
-		
 		cookieManager.setCookie(url, null);
 		cookieManager.removeAllCookie();
 	}
