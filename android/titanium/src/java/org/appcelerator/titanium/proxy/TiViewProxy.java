@@ -868,28 +868,6 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 		}
 	}
 
-	/**
-	 * Return true if any view in the hierarchy has the event listener.
-	 */
-	public boolean hierarchyHasListener(String eventName)
-	{
-		boolean hasListener = hasListeners(eventName);
-
-		// Check whether the parent has the listener or not
-		if (!hasListener) {
-			TiViewProxy parent = getParent();
-			if (parent != null) {
-				boolean parentHasListener = parent.hierarchyHasListener(eventName);
-				hasListener = hasListener || parentHasListener;
-				if (hasListener) {
-					return hasListener;
-				}
-			}
-		}
-
-		return hasListener;
-	}
-
 	public void setClickable(boolean clickable)
 	{
 		TiUIView v = peekView();
