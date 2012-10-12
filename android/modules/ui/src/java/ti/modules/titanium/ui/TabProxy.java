@@ -8,11 +8,13 @@ package ti.modules.titanium.ui;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.annotations.Kroll;
+import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.proxy.TiWindowProxy;
 import org.appcelerator.titanium.util.TiConvert;
+import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiUIView;
 
 import ti.modules.titanium.ui.widget.tabgroup.TiUIAbstractTab;
@@ -200,6 +202,11 @@ public class TabProxy extends TiViewProxy
 		if (window != null && !windowOpened) {
 			windowOpened = true;
 			window.fireEvent(TiC.EVENT_OPEN, null, false);
+		}
+		
+		//When tab loses focus, we hide the soft keyboard.
+		if (!focused) {
+			TiUIHelper.showSoftKeyboard(TiApplication.getAppCurrentActivity().getWindow().getDecorView(), false);
 		}
 
 		// The focus and blur events for tab changes propagate like so:
