@@ -49,6 +49,8 @@ public abstract class TiUIAbstractTab extends TiUIView {
 
 			ViewProxy contentViewProxy = new ViewProxy();
 			contentViewProxy.setActivity(windowProxy.getActivity());
+			//Assign parent so events bubble up correctly.
+			contentViewProxy.setParent(proxy);
 			contentView = contentViewProxy.getOrCreateView();
 
 			// Allow the window to fill the content view with its children.
