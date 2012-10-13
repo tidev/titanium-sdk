@@ -456,14 +456,11 @@ DEFINE_EXCEPTIONS
 
 -(void)close:(id)args
 {
-	[self.proxy setValue:nil forKey:@"activeTab"];
 	if (controller!=nil)
 	{
 		controller.viewControllers = nil;
 	}
 	RELEASE_TO_NIL(controller);
-    [focused replaceValue:NUMBOOL(NO) forKey:@"active" notification:NO];
-	RELEASE_TO_NIL(focused);
 }
 
 
