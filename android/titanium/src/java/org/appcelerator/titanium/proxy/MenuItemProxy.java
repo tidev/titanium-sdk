@@ -81,22 +81,22 @@ public class MenuItemProxy extends KrollProxy
 		return item.hasSubMenu();
 	}
 	
-	@Kroll.method
+	@Kroll.method @Kroll.getProperty
 	public boolean isChecked() {
 		return item.isChecked();
 	}
 	
-	@Kroll.method
+	@Kroll.method @Kroll.getProperty
 	public boolean isCheckable() {
 		return item.isCheckable();
 	}
 	
-	@Kroll.method
+	@Kroll.method @Kroll.getProperty
 	public boolean isEnabled() {
 		return item.isEnabled();
 	}
 	
-	@Kroll.method
+	@Kroll.method @Kroll.getProperty
 	public boolean isVisible() {
 		return item.isVisible();
 	}
@@ -161,7 +161,7 @@ public class MenuItemProxy extends KrollProxy
 		return this;
 	}
 
-	@Kroll.setProperty
+	@Kroll.method @Kroll.setProperty
 	public void setActionView(Object view)
 	{
 		if (view instanceof TiViewProxy) {
@@ -177,7 +177,7 @@ public class MenuItemProxy extends KrollProxy
 		}
 	}
 
-	@Kroll.setProperty
+	@Kroll.method @Kroll.setProperty
 	public void setShowAsAction(int flag) {
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
 			item.setShowAsAction(flag);
@@ -215,7 +215,7 @@ public class MenuItemProxy extends KrollProxy
 		}
 	}
 
-	@Kroll.getProperty
+	@Kroll.method @Kroll.getProperty
 	public boolean isActionViewExpanded() {
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
 			return item.isActionViewExpanded();
