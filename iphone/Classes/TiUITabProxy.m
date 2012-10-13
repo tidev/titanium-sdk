@@ -102,7 +102,7 @@
         [controller setViewControllers:[NSArray arrayWithObject:rootController]];
         if (current != nil) {
             RELEASE_TO_NIL(current);
-            current = rootController;
+            current = [rootController retain];
         }
         for (TiUITabController* doomedVc in doomedVcs) {
             [self closeWindow:(TiWindowProxy *)[doomedVc proxy] animated:NO];
