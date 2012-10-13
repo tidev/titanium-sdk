@@ -83,7 +83,7 @@ public class TiUILabel extends TiUIView
 		}
 		if (d.containsKey(TiC.PROPERTY_TEXT_ALIGN) || d.containsKey(TiC.PROPERTY_VERTICAL_ALIGN)) {
 			String textAlign = d.optString(TiC.PROPERTY_TEXT_ALIGN, "left");
-			String verticalAlign = d.optString(TiC.PROPERTY_VERTICAL_ALIGN, "center");
+			String verticalAlign = d.optString(TiC.PROPERTY_VERTICAL_ALIGN, "middle");
 			TiUIHelper.setAlignment(tv, textAlign, verticalAlign);
 		}
 		if (d.containsKey(TiC.PROPERTY_ELLIPSIZE)) {
