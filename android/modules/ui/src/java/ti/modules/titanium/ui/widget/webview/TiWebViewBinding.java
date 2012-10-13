@@ -35,7 +35,9 @@ public class TiWebViewBinding
 	// This is based on binding.min.js. If you have to change anything...
 	// - change binding.js
 	// - minify binding.js to create binding.min.js
+	protected final static String SCRIPT_INJECTION_ID = "__ti_injection";
 	protected final static String INJECTION_CODE;
+	protected final static String SCRIPT_TAG_INJECTION_CODE;
 
 	// This is based on polling.min.js. If you have to change anything...
 	// - change polling.js
@@ -52,23 +54,30 @@ public class TiWebViewBinding
 			POLLING_CODE = pollingCode.toString();
 		}
 
-		StringBuilder allCode = new StringBuilder();
+		StringBuilder scriptCode = new StringBuilder();
+		StringBuilder injectionCode = new StringBuilder();
+		scriptCode.append("\n<script id=\"" + SCRIPT_INJECTION_ID + "\">\n");
 		if (jsonCode == null) {
 			Log.w(TAG, "Unable to read JSON code for injection");
 		} else {
-			allCode.append(jsonCode);
+			scriptCode.append(jsonCode);
+			injectionCode.append(jsonCode);
 		}
 
 		if (tiCode == null) {
 			Log.w(TAG, "Unable to read Titanium binding code for injection");
 		} else {
-			allCode.append("\n");
-			allCode.append(tiCode.toString());
+			scriptCode.append("\n");
+			scriptCode.append(tiCode.toString());
+			injectionCode.append(tiCode.toString());
 		}
+		scriptCode.append("\n</script>\n");
 		jsonCode = null;
 		tiCode = null;
-		INJECTION_CODE = allCode.toString();
-		allCode = null;
+		SCRIPT_TAG_INJECTION_CODE = scriptCode.toString();
+		INJECTION_CODE = injectionCode.toString();
+		scriptCode = null;
+		injectionCode = null;
 	}
 
 	private Stack<String> codeSnippets;

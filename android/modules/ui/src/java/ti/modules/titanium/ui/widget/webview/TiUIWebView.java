@@ -46,7 +46,7 @@ public class TiUIWebView extends TiUIView
 	private static final String TAG = "TiUIWebView";
 	private TiWebViewClient client;
 	private boolean changingUrl = false;
-	private boolean injectBindingCode;
+	private boolean injectBindingCode = true;
 
 	private static Enum<?> enumPluginStateOff;
 	private static Enum<?> enumPluginStateOn;
@@ -283,7 +283,6 @@ public class TiUIWebView extends TiUIView
 		String finalUrl = url;
 		Uri uri = Uri.parse(finalUrl);
 		boolean originalUrlHasScheme = (uri.getScheme() != null);
-		injectBindingCode = false;
 
 		if (!originalUrlHasScheme) {
 			finalUrl = getProxy().resolveUrl(null, finalUrl);
@@ -300,7 +299,23 @@ public class TiUIWebView extends TiUIView
 					BufferedReader breader = new BufferedReader(reader);
 					String line = breader.readLine();
 					while (line != null) {
-						injectBindingCode = true;
+						if (injectBindingCode) {
+							int pos = line.indexOf("<html");
+							if (pos >= 0) {
+								int posEnd = line.indexOf(">", pos);
+								if (posEnd > pos) {
+									out.append(line.substring(pos, posEnd + 1));
+									out.append(TiWebViewBinding.SCRIPT_TAG_INJECTION_CODE);
+									if ((posEnd + 1) < line.length()) {
+										out.append(line.substring(posEnd + 1));
+									}
+									out.append("\n");
+									injectBindingCode = false;
+									line = breader.readLine();
+									continue;
+								}
+							}
+						}
 						out.append(line);
 						out.append("\n");
 						line = breader.readLine();
@@ -360,7 +375,7 @@ public class TiUIWebView extends TiUIView
 		}
 		return content;
 	}
-	
+
 	public void setHtml(String html)
 	{
 		setHtmlInternal(html, TiC.URL_ANDROID_ASSET_RESOURCES, "text/html");
@@ -406,13 +421,25 @@ public class TiUIWebView extends TiUIView
 			webView.getSettings().setLoadWithOverviewMode(false);
 		}
 
+		if (html.contains(TiWebViewBinding.SCRIPT_INJECTION_ID)) {
+			// Our injection code is in there already, go ahead and show.
+			webView.loadDataWithBaseURL(baseUrl, html, mimeType, "utf-8", baseUrl);
+			return;
+		}
+
 		int tagStart = html.indexOf("<html");
 		int tagEnd = -1;
 		if (tagStart >= 0) {
 			tagEnd = html.indexOf(">", tagStart + 1);
 
 			if (tagEnd > tagStart) {
-				injectBindingCode = true;
+				StringBuilder sb = new StringBuilder(html.length() + 2500);
+				sb.append(html.substring(0, tagEnd + 1));
+				sb.append(TiWebViewBinding.SCRIPT_TAG_INJECTION_CODE);
+				sb.append(html.substring(tagEnd + 1));
+				webView.loadDataWithBaseURL(baseUrl, sb.toString(), mimeType, "utf-8", baseUrl);
+				injectBindingCode = false;
+				return;
 			}
 		}
 
@@ -567,5 +594,10 @@ public class TiUIWebView extends TiUIView
 	public boolean shouldInjectBindingCode()
 	{
 		return injectBindingCode;
+	}
+
+	public void setInjectBindingCode(boolean shouldInject)
+	{
+		injectBindingCode = shouldInject;
 	}
 }
