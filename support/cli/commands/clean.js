@@ -43,9 +43,6 @@ exports.validate = function (logger, config, cli) {
 exports.run = function (logger, config, cli) {
 	var buildDir = path.join(cli.argv['project-dir'], 'build');
 	
-	logger.debug(__('Touching tiapp.xml'));
-	appc.fs.touch(path.join(cli.argv['project-dir'], 'tiapp.xml'));
-	
 	if (cli.argv.platform) {
 		var dir = path.join(buildDir, cli.argv.platform);
 		if (appc.fs.exists(dir)) {
