@@ -30,8 +30,8 @@ methods:
             [enabled](Titanium.Android.MenuItem.enabled),
             [icon](Titanium.Android.MenuItem.icon),
             [showAsAction](Titanium.Android.MenuItem.showAsAction),
-            [titleCondensed](Titanium.Android.MenuItem.titleCondensed),
-            [visible](Titanium.Android.MenuItem.visible),.
+            [titleCondensed](Titanium.Android.MenuItem.titleCondensed), and
+            [visible](Titanium.Android.MenuItem.visible).
         type: Object
 
   - name: clear
