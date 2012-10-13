@@ -170,7 +170,7 @@ public class MenuItemProxy extends KrollProxy
 				item.setActionView(v);
 
 			} else {
-				Log.i(TAG, "Action bar not available on this device. Ignoring actionView property.", Log.DEBUG_MODE);
+				Log.i(TAG, "Action bar is not available on this device. Ignoring actionView property.", Log.DEBUG_MODE);
 			}
 		} else {
 			Log.w(TAG, "Invalid type for actionView", Log.DEBUG_MODE);
