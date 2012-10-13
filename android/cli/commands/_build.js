@@ -106,13 +106,15 @@ exports.config = function (logger, config, cli) {
 						desc: __('debug connection info'),
 						hint: 'host:port'
 					},
+					/* not actually used, yet
 					'deploy-type': {
 						abbr: 'D',
-						desc: __('the type of deployment; only used with target is %s or %s', 'emulator'.cyan, 'device'.cyan),
+						desc: __('the type of deployment; only used with target is %s', 'emulator'.cyan),
 						hint: __('type'),
-						values: deployTypes,
+						values: ['test', 'development'],
 						default: 'development'
 					},
+					*/
 					'keystore': {
 						abbr: 'K',
 						desc: __('the location of the keystore'),
@@ -213,12 +215,6 @@ exports.validate = function (logger, config, cli) {
 	}
 	if (!afs.exists(cli.argv['android-sdk'], 'platform-tools', 'adb') && !afs.exists(cli.argv['android-sdk'], 'platform-tools', 'adb.exe')) {
 		logger.error(__('Invalid Android SDK installation: unable to find adb') + '\n');
-		process.exit(1);
-	}
-	
-	if (deployTypes.indexOf(cli.argv['deploy-type']) == -1) {
-		logger.error(__('Invalid deploy type "%s"', cli.argv['deploy-type']) + '\n');
-		appc.string.suggest(cli.argv.target, targets, logger.log, 3);
 		process.exit(1);
 	}
 	
@@ -375,7 +371,8 @@ function build(logger, config, cli, finished) {
 				stdio: 'inherit'
 			};
 		
-		logger.info(__('Compiling "%s" build', cli.argv['deploy-type']));
+		// not actually used, yet
+		// logger.info(__('Compiling "%s" build', cli.argv['deploy-type']));
 		
 		ti.legacy.constructLegacyCommand(cli, tiapp, cli.argv.platform , cmd, emulatorCmd);
 		
