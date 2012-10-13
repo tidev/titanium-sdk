@@ -95,31 +95,40 @@
 
 -(void) cleanNavStack:(BOOL)removeTab
 {
-    NSArray* theStack = [[[rootController navigationController] viewControllers] copy];
-    NSInteger stackCount = [theStack count];
-    NSInteger index = stackCount - 1;
-    for (index = stackCount-1; index>0; index--) {
-        TiUITabController * thisController = [theStack objectAtIndex:index];
-		if ([thisController isKindOfClass:[TiUITabController class]])
-		{
-			[self closeWindow:[thisController window] animated:NO removeTab:NO];
-		}
+    [controller setDelegate:nil];
+    if ([[controller viewControllers] count] > 1) {
+        NSMutableArray* doomedVcs = [[NSMutableArray arrayWithArray:[controller viewControllers]] retain];
+        [doomedVcs removeObject:rootController];
+        [controller setViewControllers:[NSArray arrayWithObject:rootController]];
+        if (current != nil) {
+            RELEASE_TO_NIL(current);
+            current = rootController;
+        }
+        for (TiUITabController* doomedVc in doomedVcs) {
+            [self closeWindow:(TiWindowProxy *)[doomedVc proxy] animated:NO];
+        }
+        RELEASE_TO_NIL(doomedVcs);
     }
-    TiUITabController * baseController = [theStack objectAtIndex:0];
-    [self closeWindow:[baseController window] animated:NO removeTab:removeTab];
-    
+    if (removeTab) {
+        [self closeWindow:[rootController window] animated:NO];
+        RELEASE_TO_NIL(rootController);
+        RELEASE_TO_NIL(controller);
+        RELEASE_TO_NIL(current);
+    }
+    else {
+       [controller setDelegate:self];
+    }
 }
 
 -(void)removeFromTabGroup
 {
+    [self setActive:NUMBOOL(NO)];
     [self cleanNavStack:YES];
 }
 
 -(void)closeTab
 {
-    if (current != nil) {
-        [self cleanNavStack:NO];
-    }
+    [self cleanNavStack:NO];
 }
 
 - (void)handleWillShowViewController:(UIViewController *)viewController animated:(BOOL)animated
@@ -135,9 +144,8 @@
 		// check to make sure that we're not actually push a window on the stack
 		if (opening==NO && [rootController window]!=currentWindow && [TiUtils boolValue:currentWindow.opened] && currentWindow.closing==NO && [controllerStack containsObject:viewController])
 		{
-			if (closingWindows == nil) {
-				closingWindows = [[NSMutableArray alloc] init];
-			}
+			RELEASE_TO_NIL(closingWindows);
+            closingWindows = [[NSMutableArray alloc] init];
             // Travel down the stack until the new viewController is reached; these are the windows
             // which must be closed.
             NSEnumerator* enumerator = [controllerStack reverseObjectEnumerator];
@@ -183,13 +191,12 @@
 {
 	if (closingWindows!=nil)
 	{
-        NSMutableArray* closingCopy = [closingWindows copy];
-        for (TiWindowProxy* closingWindow in closingCopy) {
-            [closingWindows removeObject:closingWindow];
+        for (TiWindowProxy* closingWindow in closingWindows) {
             NSArray* args = [NSArray arrayWithObjects:closingWindow,[NSDictionary dictionaryWithObject:NUMBOOL(animated) forKey:@"animated"], nil];
             [self close:args];
         }
 	}
+    RELEASE_TO_NIL(closingWindows);
     RELEASE_TO_NIL(controllerStack);
     controllerStack = [[[rootController navigationController] viewControllers] copy];
 }
@@ -313,29 +320,26 @@
 								([args count] > 1) && 
 								([[args objectAtIndex:1] isKindOfClass:[NSDictionary class]])) ? [args objectAtIndex:1] : nil;
 
-	BOOL animated = [TiUtils boolValue:@"animated" properties:properties def:YES];
-    [self closeWindow:window animated:animated removeTab:NO];
+	BOOL animated = [TiUtils boolValue:@"animated" properties:properties def:NO];
+    
+    if (window == [rootController window]) {
+        NSLog(@"[WARN] Can not close root window of a tab. Use TabGroup.removeTab instead");
+        return;
+    }
+    if (window == [current window]) {
+        [[rootController navigationController] popViewControllerAnimated:animated];
+        return;
+    }
+    [self closeWindow:window animated:animated];
 }
 
-- (void)closeWindow:(TiWindowProxy *)window animated:(BOOL)animated removeTab:(BOOL)removeTab
+- (void)closeWindow:(TiWindowProxy *)window animated:(BOOL)animated
 {
-    BOOL closingCurrentWindow = ([current window] == window);
-	if (closingCurrentWindow)
-	{
-        [[rootController navigationController] popViewControllerAnimated:animated];
-		if (!removeTab) {
-            return;
-        }
-	}
+    //This method should never be called for current window or root window
+    [window retain];
     UIViewController *windowController = [[window controller] retain];
-    if (closingCurrentWindow) {
-        if ((windowController == nil) && (window == nil)) {
-            // tab was never focused so its controller was never added to the stack
-            windowController = [rootController retain];
-        }
-        if ([windowController isKindOfClass:[TiUITabController class]]) {
-            [(TiWindowProxy *)[(TiUITabController*)windowController proxy] _associateTab:nil navBar:nil tab:nil];
-        }
+    if ([windowController isKindOfClass:[TiUITabController class]]) {
+        [(TiWindowProxy *)[(TiUITabController*)windowController proxy] _associateTab:nil navBar:nil tab:nil];
     }
 
 	// Manage the navigation controller stack
@@ -345,9 +349,6 @@
 	[navController setViewControllers:newControllerStack animated:animated];
     RELEASE_TO_NIL(controllerStack);
     controllerStack = [newControllerStack retain];
-    [windowController release];
-	
-	[window retain];
 	[window _tabBlur];
 	[window setParentOrientationController:nil];
 	
@@ -355,12 +356,8 @@
 	// and not let the window simply close by itself. this will ensure that we tell the 
 	// tab that we're doing that
 	[window close:[NSArray arrayWithObjects:[NSDictionary dictionaryWithObject:NUMBOOL(YES) forKey:@"closeByTab"],nil]];
-    if (closingCurrentWindow) {
-		RELEASE_TO_NIL(current);
-        // this TiUITabController is retaining a reference to self which leads to a cycle, so release to nil
-        RELEASE_TO_NIL(rootController);
-    }
-	[window autorelease];
+    RELEASE_TO_NIL_AUTORELEASE(window);
+    RELEASE_TO_NIL(windowController);
 }
 
 -(void)windowClosing:(TiWindowProxy*)window animated:(BOOL)animated
