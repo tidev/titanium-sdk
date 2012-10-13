@@ -162,13 +162,18 @@ public class MenuItemProxy extends KrollProxy
 	}
 
 	@Kroll.setProperty
-	public void setActionView(TiViewProxy view) {
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-			View v = view.getOrCreateView().getNativeView();
-			item.setActionView(v);
+	public void setActionView(Object view)
+	{
+		if (view instanceof TiViewProxy) {
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+				View v = ((TiViewProxy) view).getOrCreateView().getNativeView();
+				item.setActionView(v);
 
+			} else {
+				Log.i(TAG, "Action bar not available on this device. Ignoring actionView property.", Log.DEBUG_MODE);
+			}
 		} else {
-			Log.i(TAG, "Action bar not available on this device. Ignoring actionView property.", Log.DEBUG_MODE);
+			Log.w(TAG, "Invalid type for actionView", Log.DEBUG_MODE);
 		}
 	}
 

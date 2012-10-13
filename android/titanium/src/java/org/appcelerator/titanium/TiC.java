@@ -501,6 +501,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_ACTION_VIEW = "actionView";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_ACTIVE_TAB = "activeTab";
 
 	/**
@@ -759,7 +764,16 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_CHARSET = "charset";
-	
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_CHECKABLE = "checkable";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_CHECKED = "checked";
 	/**
 	 * @module.api
 	 */
@@ -1693,6 +1707,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_SHOW_AS_ACTION = "showAsAction";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_SHOW_HORIZONTAL_SCROLL_INDICATOR = "showHorizontalScrollIndicator";
 
 	/**
@@ -1860,6 +1879,10 @@ public class TiC
 	 */
 	public static final String PROPERTY_TITLE = "title";
 
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_TITLE_CONDENSED = "titleCondensed";
 	/**
 	 * @module.api
 	 */
