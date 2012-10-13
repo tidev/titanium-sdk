@@ -38,7 +38,6 @@
 -(UINavigationController*)controller;
 -(void)setTabGroup:(TiUITabGroupProxy*)proxy;
 -(void)removeFromTabGroup;
-- (void)closeTab;
 -(void)closeWindow:(TiWindowProxy *)window animated:(BOOL)animated;
 -(void)windowClosing:(TiWindowProxy*)window animated:(BOOL)animated;
 
