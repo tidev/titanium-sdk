@@ -126,10 +126,6 @@
     [self cleanNavStack:YES];
 }
 
--(void)closeTab
-{
-    [self cleanNavStack:NO];
-}
 
 - (void)handleWillShowViewController:(UIViewController *)viewController animated:(BOOL)animated
 {
