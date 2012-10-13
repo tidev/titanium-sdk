@@ -331,7 +331,6 @@
 
 - (void)closeWindow:(TiWindowProxy *)window animated:(BOOL)animated
 {
-    //This method should never be called for current window or root window
     [window retain];
     UIViewController *windowController = [[window controller] retain];
     if ([windowController isKindOfClass:[TiUITabController class]]) {
