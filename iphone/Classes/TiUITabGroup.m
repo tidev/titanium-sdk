@@ -458,13 +458,15 @@ DEFINE_EXCEPTIONS
 {
 	[self.proxy setValue:nil forKey:@"activeTab"];
 	if (controller!=nil)
-	{ 
+	{
+        /*
 		for (UIViewController *c in controller.viewControllers)
 		{
 			UINavigationController *navController = (UINavigationController*)c;
 			TiUITabProxy *tab = (TiUITabProxy*)navController.delegate;
 			[tab closeTab];
 		}
+         */
 		controller.viewControllers = nil;
 	}
 	RELEASE_TO_NIL(controller);
