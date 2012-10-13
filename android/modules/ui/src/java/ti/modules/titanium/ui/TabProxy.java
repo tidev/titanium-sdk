@@ -8,11 +8,13 @@ package ti.modules.titanium.ui;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.annotations.Kroll;
+import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.proxy.TiWindowProxy;
 import org.appcelerator.titanium.util.TiConvert;
+import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiUIView;
 
 import ti.modules.titanium.ui.widget.tabgroup.TiUIAbstractTab;
@@ -201,13 +203,24 @@ public class TabProxy extends TiViewProxy
 			windowOpened = true;
 			window.fireEvent(TiC.EVENT_OPEN, null, false);
 		}
+		
+		//When tab loses focus, we hide the soft keyboard.
+		Activity currentActivity = TiApplication.getAppCurrentActivity();
+		if (!focused && currentActivity != null) {
+			TiUIHelper.showSoftKeyboard(currentActivity.getWindow().getDecorView(), false);
+		}
 
 		// The focus and blur events for tab changes propagate like so:
 		//    window -> tab -> tab group
-		//
-		// The window is optional and will be skipped if it does not exist.
-		TiViewProxy eventEmitter = (window != null) ? window : this;
-		eventEmitter.fireEvent((focused) ? TiC.EVENT_FOCUS : TiC.EVENT_BLUR, eventData, true);
+		//    
+		// The window is optional and will be skipped if it does not exist.		
+		String event = focused ? TiC.EVENT_FOCUS : TiC.EVENT_BLUR;
+		
+		if (window != null) {
+			window.fireEvent(event, null, false);
+		}
+		fireEvent(event, eventData, true);
+		
 	}
 
 	void close() {

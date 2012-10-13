@@ -518,13 +518,9 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 {
 	ENSURE_SINGLE_ARG(callback,KrollCallback);
 	ENSURE_UI_THREAD(getCurrentPosition,callback);
-	if (singleLocation==nil)
-	{
-		singleLocation = [[NSMutableArray alloc] initWithCapacity:1];
-	}
-
+    
     // If the location updates are started, invoke the callback directly.
-    if (locationManager!=nil && trackingLocation==YES) {
+    if (locationManager != nil && locationManager.location != nil && trackingLocation == YES ) {
         CLLocation *currentLocation = locationManager.location;
         NSDictionary *todict = [self locationDictionary:currentLocation];
         NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:
@@ -535,6 +531,10 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
     }
     // Otherwise, start the location manager.
     else {
+        if (singleLocation==nil)
+        {
+            singleLocation = [[NSMutableArray alloc] initWithCapacity:1];
+        }        
         [singleLocation addObject:callback];
         [self startStopLocationManagerIfNeeded];
     }
@@ -846,7 +846,15 @@ MAKE_SYSTEM_PROP(ERROR_REGION_MONITORING_DELAYED, kCLErrorRegionMonitoringSetupD
 
 - (void)locationManager:(CLLocationManager *)manager didUpdateToLocation:(CLLocation *)newLocation fromLocation:(CLLocation *)oldLocation
 {
-    [self locationManager:manager didUpdateLocations:[NSArray arrayWithObjects:oldLocation,newLocation,nil]];
+    if (newLocation != nil) {
+        if (oldLocation == nil) {
+            [self locationManager:manager didUpdateLocations:[NSArray arrayWithObject:newLocation]];
+        }
+        else{
+            [self locationManager:manager didUpdateLocations:[NSArray arrayWithObjects:oldLocation,newLocation,nil]];
+        }
+    }
+    
 }
 
 

@@ -353,12 +353,13 @@ exports.bootstrapWindow = function(Titanium) {
 
 		var scriptPath = url.toAssetPath(resolvedUrl);
 		var scriptSource = assets.readAsset(scriptPath);
+		var filename = 'app:///'+scriptPath.replace("Resources/", "");
 
 		if (kroll.runtime == "v8") {
-			Script.runInContext(scriptSource, context, scriptPath, true);
+			Script.runInContext(scriptSource, context, filename, true);
 
 		} else {
-			Script.runInThisContext(scriptSource, scriptPath, true, context);
+			Script.runInThisContext(scriptSource, filename, true, context);
 		}
 	}
 
