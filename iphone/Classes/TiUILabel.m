@@ -249,9 +249,6 @@
 -(void)setBackgroundImage_:(id)url
 {
     [super setBackgroundImage_:url];
-    //setBackgroundimage puts masksToBounds to FALSE if bgdImage!=nil
-    //but it goes against the meaning of backgroundPadding
-    self.layer.masksToBounds = NO;
 }
 
 -(void)setBackgroundPaddingLeft_:(id)left
