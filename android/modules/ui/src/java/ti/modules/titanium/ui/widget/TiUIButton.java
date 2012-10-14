@@ -64,7 +64,7 @@ public class TiUIButton extends TiUIView
 							}
 						},BUTTON_PRESSED_DELAY);
 					}
-				} else if (event.getAction() == MotionEvent.ACTION_UP) {
+				} else if (event.getAction() == MotionEvent.ACTION_UP || event.getAction() == MotionEvent.ACTION_OUTSIDE) {
 					if(pressedTimer != null) {
 						pressedTimer.cancel();
 						pressedTimer.purge();
