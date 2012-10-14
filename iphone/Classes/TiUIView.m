@@ -660,7 +660,7 @@ DEFINE_EXCEPTIONS
 -(void)setAccessibilityHidden_:(id)hidden
 {
 	// self and NOT self.accessibilityElement
-    self.accessibilityElementsHidden = [TiUtils boolValue:hidden def:NO];
+    self.isAccessibilityElement = ![TiUtils boolValue:hidden def:NO];
 }
 
 #pragma mark Property Change Support
