@@ -625,6 +625,9 @@ public abstract class TiBaseActivity extends Activity
 		switch(event.getKeyCode()) {
 			case KeyEvent.KEYCODE_BACK : {
 				// Deprecated and replaced by "androidback" event.
+				if (activityProxy.fireSyncEvent("android:back", null)) {
+					return true;
+				}
 				if (window.hasListeners("android:back")) {
 					if (event.getAction() == KeyEvent.ACTION_UP) {
 						window.fireEvent("android:back", null);
