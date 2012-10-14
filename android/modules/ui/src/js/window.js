@@ -267,7 +267,9 @@ exports.bootstrapWindow = function(Titanium) {
 		this.window = existingWindow;
 		this.view = this.window;
 		this.setWindowView(this.view);
-
+        this.window._internalActivity.addEventListener('android:back', function(){
+            this.window.fireEvent('android:back', null);
+        });
 		this.addChildren();
 
 		var self = this;
