@@ -136,7 +136,7 @@
                         continue;
                     }
                     [closingWindows addObject:window];
-                    safeToTransition = safeToTransition & ![window restoreFullScreen];
+                    safeToTransition = safeToTransition && ![window restoreFullScreen];
 
                     [window windowWillClose];
                 }
