@@ -443,7 +443,8 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 - (void)accessibilityVoiceOverStatusChanged:(NSNotification *)notification
 {
 	if ([self _hasListeners:@"accessibilitychanged"]) {
-		[self fireEvent:@"accessibilitychanged" withObject:nil];
+		NSDictionary *event = [NSDictionary dictionaryWithObject:[self accessibilityEnabled] forKey:@"enabled"];
+		[self fireEvent:@"accessibilitychanged" withObject:event];
 	}
 }
 
