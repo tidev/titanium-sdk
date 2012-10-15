@@ -22,8 +22,16 @@ methods:
             Creation options. Supported options are
             [itemId](Titanium.Android.MenuItem.itemId),
             [groupId](Titanium.Android.MenuItem.groupId),
-            [title](Titanium.Android.MenuItem.title), and
-            [order](Titanium.Android.MenuItem.order).
+            [title](Titanium.Android.MenuItem.title),
+            [order](Titanium.Android.MenuItem.order),
+            [actionView](Titanium.Android.MenuItem.actionView),
+            [checkable](Titanium.Android.MenuItem.checkable),
+            [checked](Titanium.Android.MenuItem.checked),
+            [enabled](Titanium.Android.MenuItem.enabled),
+            [icon](Titanium.Android.MenuItem.icon),
+            [showAsAction](Titanium.Android.MenuItem.showAsAction),
+            [titleCondensed](Titanium.Android.MenuItem.titleCondensed), and
+            [visible](Titanium.Android.MenuItem.visible).
         type: Object
 
   - name: clear
