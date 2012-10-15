@@ -367,7 +367,9 @@ DEFINE_EXCEPTIONS
 	if (active == nil)  {
 		DebugLog(@"setActiveTab called but active view controller could not be determined");
 	}
-	[self tabController].selectedViewController = active;
+	else {
+		[self tabController].selectedViewController = active;
+	}
 	[self tabBarController:[self tabController] didSelectViewController:active];
 }
 
