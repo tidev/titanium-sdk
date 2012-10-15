@@ -56,6 +56,7 @@ public abstract class TiUIAbstractTab extends TiUIView {
 			Activity tabGroupActivity = ((TabProxy) proxy).getTabGroup().getActivity();
 			contentView.setActivity(tabGroupActivity);
 
+			contentView.getKrollObject().setProxySupport(contentView);
 			// Assign parent so events bubble up correctly.
 			contentView.setParent(proxy);
 

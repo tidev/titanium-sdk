@@ -11,6 +11,7 @@ import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
+import org.appcelerator.titanium.proxy.TiBaseWindowProxy;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.proxy.TiWindowProxy;
 import org.appcelerator.titanium.util.TiConvert;
@@ -221,6 +222,17 @@ public class TabProxy extends TiViewProxy
 		}
 		fireEvent(event, eventData, true);
 		
+	}
+	
+	protected TiViewProxy getViewProxy() 
+	{
+		if (window instanceof TiBaseWindowProxy) {
+			TiViewProxy view = ((TiBaseWindowProxy) window).getWrappedView();
+			if (view != null) {
+				return view;
+			}
+		}
+		return null;
 	}
 
 	void close() {

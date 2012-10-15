@@ -21,6 +21,8 @@ import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
+import org.appcelerator.titanium.proxy.TiBaseWindowProxy;
+import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.proxy.TiWindowProxy;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiUIHelper;
@@ -452,6 +454,17 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 				}
 			}
 		}
+	}
+
+	@Override
+	public boolean hasListeners(String event) {
+		if (event.equals("android:back") && selectedTab != null) {
+			TiViewProxy view = selectedTab.getViewProxy();
+			if (view != null && view.hasListeners(event)) {
+				return true;
+			}
+		}
+		return super.hasListeners(event);
 	}
 
 	@Override
