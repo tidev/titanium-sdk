@@ -71,16 +71,23 @@ def generate_jsca():
 	 finally:
 		 jsca_temp_file.close()
 
-def zip_dir(zf,dir,basepath,subs=None,cb=None, ignore_paths=None):
+def zip_dir(zf,dir,basepath,subs=None,cb=None, ignore_paths=None, ignore_files=None):
 	for root, dirs, files in os.walk(dir):
 		for name in ignoreDirs:
 			if name in dirs:
 				dirs.remove(name)	# don't visit ignored directories
 		for file in files:
-			if ignore_paths != None and os.path.join(root, file) in ignore_paths: continue
+			skip = False
+			if ignore_paths != None:
+				for p in ignore_paths:
+					if root.startswith(p):
+						skip = True
+						continue
+			from_ = os.path.join(root, file)
+			if skip or (ignore_files != None and from_ in ignore_files):
+				continue
 			e = os.path.splitext(file)
 			if len(e)==2 and e[1] in ignoreExtensions: continue
-			from_ = os.path.join(root, file)
 			to_ = from_.replace(dir, basepath, 1)
 			if subs!=None:
 				c = open(from_).read()
@@ -320,7 +327,7 @@ def zip_mobileweb(zf, basepath, version):
 			to_ = from_.replace(dir, os.path.join(basepath,'mobileweb'), 1)
 			zf.write(from_, to_)
 
-def resolve_npm_deps(dir, version, build_v3):
+def resolve_npm_deps(dir, version):
 	package_json_file = os.path.join(dir, 'package.json')
 	if os.path.exists(package_json_file):
 		# ensure fresh npm install for everything EXCEPT titanium-sdk
@@ -373,37 +380,38 @@ def resolve_npm_deps(dir, version, build_v3):
 		except:
 			pass
 		
-		if build_v3:
-			if not node_installed:
-				codecs.open(package_json_file, 'w', 'utf-8').write(package_json_original)
-				print '[ERROR] Unable to find node.js. Please download and install: http://nodejs.org/'
-				sys.exit(1)
-			elif node_too_old:
-				codecs.open(package_json_file, 'w', 'utf-8').write(package_json_original)
-				print '[ERROR] Your version of node.js %s is too old. Please download and install a newer version: http://nodejs.org/' % node_version
-				sys.exit(1)
-			elif not npm_installed:
-				codecs.open(package_json_file, 'w', 'utf-8').write(package_json_original)
-				print '[ERROR] Unable to find npm. Please download and install: http://nodejs.org/'
-				sys.exit(1)
-			
-			# need to npm install all node dependencies
-			print 'Calling npm from %s' % dir
-			p = subprocess.Popen('npm install', shell=True, cwd=dir, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-			stdout, stderr = p.communicate()
-			if p.returncode != 0:
-				codecs.open(package_json_file, 'w', 'utf-8').write(package_json_original)
-				print '[ERROR] Failed to npm install dependencies'
-				print stdout
+		if not node_installed:
+			codecs.open(package_json_file, 'w', 'utf-8').write(package_json_original)
+			print '[ERROR] Unable to find node.js. Please download and install: http://nodejs.org/'
+			sys.exit(1)
+		elif node_too_old:
+			codecs.open(package_json_file, 'w', 'utf-8').write(package_json_original)
+			print '[ERROR] Your version of node.js %s is too old. Please download and install a newer version: http://nodejs.org/' % node_version
+			sys.exit(1)
+		elif not npm_installed:
+			codecs.open(package_json_file, 'w', 'utf-8').write(package_json_original)
+			print '[ERROR] Unable to find npm. Please download and install: http://nodejs.org/'
+			sys.exit(1)
+		
+		# need to npm install all node dependencies
+		print 'Calling npm from %s' % dir
+		p = subprocess.Popen('npm install', shell=True, cwd=dir, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+		stdout, stderr = p.communicate()
+		if p.returncode != 0:
+			codecs.open(package_json_file, 'w', 'utf-8').write(package_json_original)
+			print '[ERROR] Failed to npm install dependencies'
+			if stderr.find('EACCES') > 0:
+				try:
+					print '[ERROR] npm failed because there are files in the %s/.npm directory that are not writeable' % os.environ['HOME']
+					print '[ERROR] Either run'
+					print '[ERROR]    chown -R %s %s/.npm' % (os.environ['USER'], os.environ['HOME'])
+					print '[ERROR] or'
+					print '[ERROR]    rm -rf %s/.npm/*' % os.environ['HOME']
+				except:
+					print stderr
+			else:
 				print stderr
-				sys.exit(1)
-		else:
-			if not node_installed:
-				print '[WARN] Unable to find node.js, which is required for version 3.0. Please download and install: http://nodejs.org/'
-			elif node_too_old:
-				print '[WARN] Your version of node.js %s is too old. Titanium 3.0 requires 0.%s or newer. Please download and install a newer version: http://nodejs.org/' % (node_version, node_minimum_minor_ver)
-			elif not npm_installed:
-				print '[WARN] Unable to find npm, which is required for version 3.0. Please download and install: http://nodejs.org/'
+			sys.exit(1)
 		
 	return lambda: None if not os.path.exists(package_json_file) else codecs.open(package_json_file, 'w', 'utf-8').write(package_json_original)
 
@@ -415,9 +423,9 @@ def create_platform_zip(platform,dist_dir,osname,version,version_tag):
 	zf = zipfile.ZipFile(sdkzip, 'w', zipfile.ZIP_DEFLATED)
 	return (zf, basepath, sdkzip)
 
-def zip_mobilesdk(dist_dir, osname, version, module_apiversion, android, iphone, ipad, mobileweb, version_tag, build_v3, build_jsca):
+def zip_mobilesdk(dist_dir, osname, version, module_apiversion, android, iphone, ipad, mobileweb, version_tag, build_jsca):
 	zf, basepath, filename = create_platform_zip('mobilesdk', dist_dir, osname, version, version_tag)
-
+	
 	version_txt = """version=%s
 module_apiversion=%s
 timestamp=%s
@@ -429,7 +437,7 @@ githash=%s
 	for dir in os.listdir(top_dir):
 		if dir != 'support' and os.path.isdir(os.path.join(top_dir, dir)) and os.path.isfile(os.path.join(top_dir, dir, 'package.json')):
 			# if new platforms are added, be sure to add them to the line below!
-			if (dir == 'android' and android) or (dir == 'iphone' and (iphone or ipad)) or (dir == 'mobileweb' and mobileweb):
+			if (dir == 'android' and android) or (osname == "osx" and dir == 'iphone' and (iphone or ipad)) or (dir == 'mobileweb' and mobileweb):
 				platforms.append(dir)
 	
 	manifest_json = '''{
@@ -440,9 +448,6 @@ githash=%s
 	"platforms": %s
 }''' % (version, module_apiversion, ts, githash, simplejson.dumps(platforms))
 	zf.writestr('%s/manifest.json' % basepath, manifest_json)
-	
-	# get all SDK level npm dependencies
-	resolve_npm_deps(template_dir, version, build_v3)()
 	
 	# check if we should build the content assist file
 	if build_jsca:
@@ -466,30 +471,41 @@ githash=%s
 
 		zf.writestr('%s/api.jsca' % basepath, jsca)
 	
+	ignore_paths = []
+	if osname == 'win32':
+		ignore_paths.append(os.path.join(template_dir, 'iphone'))
+		ignore_paths.append(os.path.join(template_dir, 'osx'))
+	if osname == 'linux':
+		ignore_paths.append(os.path.join(template_dir, 'iphone'))
+		ignore_paths.append(os.path.join(template_dir, 'osx'))
+		ignore_paths.append(os.path.join(template_dir, 'win32'))
+	if osname == 'osx':
+		ignore_paths.append(os.path.join(template_dir, 'win32'))
+	
 	zip_packaged_modules(zf, os.path.join(template_dir, "module", "packaged"))
 	zip_dir(zf, all_dir, basepath)
-	zip_dir(zf, template_dir, basepath, ignore_paths=[os.path.join(template_dir, 'package.json')]) # ignore the dependency package.json
+	zip_dir(zf, template_dir, basepath, ignore_paths=ignore_paths, ignore_files=[os.path.join(template_dir, 'package.json')])
 	if android: zip_android(zf, basepath, version)
 	if (iphone or ipad) and osname == "osx": zip_iphone_ipad(zf,basepath,'iphone',version,version_tag)
 	if mobileweb: zip_mobileweb(zf, basepath, version)
-	if osname == 'win32':
-		zip_dir(zf, win32_dir, basepath)
+	if osname == 'win32': zip_dir(zf, win32_dir, basepath)
 	
 	zf.close()
 				
-def zip_it(dist_dir, osname, version, module_apiversion, android,iphone, ipad, mobileweb, version_tag, build_v3, build_jsca):
-	zip_mobilesdk(dist_dir, osname, version, module_apiversion, android, iphone, ipad, mobileweb, version_tag, build_v3, build_jsca)
-
 class Packager(object):
 	def __init__(self, build_jsca=1):
 		self.build_jsca = build_jsca
 	 
-	def build(self, dist_dir, version, module_apiversion, android=True, iphone=True, ipad=True, mobileweb=True, version_tag=None, build_v3=False):
+	def build(self, dist_dir, version, module_apiversion, android=True, iphone=True, ipad=True, mobileweb=True, version_tag=None):
 		if version_tag == None:
 			version_tag = version
-		zip_it(dist_dir, os_names[platform.system()], version, module_apiversion, android, iphone, ipad, mobileweb, version_tag, build_v3, self.build_jsca)
+		
+		# get all SDK level npm dependencies
+		resolve_npm_deps(template_dir, version)()
+		
+		zip_mobilesdk(dist_dir, os_names[platform.system()], version, module_apiversion, android, iphone, ipad, mobileweb, version_tag, self.build_jsca)
 
-	def build_all_platforms(self, dist_dir, version, module_apiversion, android=True, iphone=True, ipad=True, mobileweb=True, version_tag=None, build_v3=False):
+	def build_all_platforms(self, dist_dir, version, module_apiversion, android=True, iphone=True, ipad=True, mobileweb=True, version_tag=None):
 		global packaging_all
 		packaging_all = True
 
@@ -497,9 +513,12 @@ class Packager(object):
 			version_tag = version
 
 		remove_existing_zips(dist_dir, version_tag)
-
+		
+		# get all SDK level npm dependencies
+		resolve_npm_deps(template_dir, version)()
+		
 		for os in os_names.values():
-			zip_it(dist_dir, os, version, module_apiversion, android, iphone, ipad, mobileweb, version_tag, build_v3, self.build_jsca)
+			zip_mobilesdk(dist_dir, os, version, module_apiversion, android, iphone, ipad, mobileweb, version_tag, self.build_jsca)
 		
 if __name__ == '__main__':
 	Packager().build(os.path.abspath('../dist'), "1.1.0")

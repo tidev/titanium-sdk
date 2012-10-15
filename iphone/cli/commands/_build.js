@@ -108,7 +108,8 @@ exports.config = function (logger, config, cli) {
 					'debug-host': {
 						abbr: 'H',
 						desc: __('debug connection info; airkey and hosts required for %s and %s, ignored for %s', 'device'.cyan, 'dist-adhoc'.cyan, 'dist-appstore'.cyan),
-						hint: 'host:port[:airkey:hosts]'
+						hint: 'host:port[:airkey:hosts]',
+						hidden: true
 					},
 					'deploy-type': {
 						abbr: 'D',
@@ -446,24 +447,27 @@ exports.validate = function (logger, config, cli) {
 			logger.log(__('The debug host must be in the format "host:port".') + '\n');
 			process.exit(1);
 		}
-
-		var parts = cli.argv['debug-host'].split(':'),
-			port = parts.length > 1 && parseInt(parts[1]);
-		if ((cli.argv.target == 'simulator' && parts.length < 2) || (cli.argv.target != 'simulator' && parts.length < 3)) {
+		
+		var parts = cli.argv['debug-host'].split(':');
+		
+		if ((cli.argv.target == 'simulator' && parts.length < 2) || (cli.argv.target != 'simulator' && parts.length < 4)) {
 			logger.error(__('Invalid debug host "%s"', cli.argv['debug-host']) + '\n');
 			if (cli.argv.target == 'simulator') {
 				logger.log(__('The debug host must be in the format "host:port".') + '\n');
 			} else {
-				logger.log(__('The debug host must be in the format "host:port:airkey".') + '\n');
+				logger.log(__('The debug host must be in the format "host:port:airkey:hosts".') + '\n');
 			}
 			process.exit(1);
 		}
-		if (isNaN(port) || port < 1 || port > 65535) {
-			logger.error(__('Invalid debug host "%s"', cli.argv['debug-host']) + '\n');
-			logger.log(__('The port must be a valid integer between 1 and 65535.') + '\n');
-			process.exit(1);
+		
+		if (parts.length > 1 && parts[1]) {
+			var port = parseInt(parts[1]);
+			if (isNaN(port) || port < 1 || port > 65535) {
+				logger.error(__('Invalid debug host "%s"', cli.argv['debug-host']) + '\n');
+				logger.log(__('The port must be a valid integer between 1 and 65535.') + '\n');
+				process.exit(1);
+			}
 		}
-		cli.argv['debug-host'] = parts.map(function (p) { return p.trim(); }).join(':');
 	}
 };
 
