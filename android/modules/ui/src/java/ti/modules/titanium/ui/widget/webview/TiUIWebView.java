@@ -436,7 +436,9 @@ public class TiUIWebView extends TiUIView
 				StringBuilder sb = new StringBuilder(html.length() + 2500);
 				sb.append(html.substring(0, tagEnd + 1));
 				sb.append(TiWebViewBinding.SCRIPT_TAG_INJECTION_CODE);
-				sb.append(html.substring(tagEnd + 1));
+				if ((tagEnd + 1) < html.length()) {
+					sb.append(html.substring(tagEnd + 1));
+				}
 				webView.loadDataWithBaseURL(baseUrl, sb.toString(), mimeType, "utf-8", baseUrl);
 				injectBindingCode = false;
 				return;
