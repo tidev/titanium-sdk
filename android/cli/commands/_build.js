@@ -406,10 +406,42 @@ function build(logger, config, cli, finished) {
 					cli.argv['android-sdk'],
 					'-e'
 				], options);
+			} else if (cli.argv['target'] == 'device') {
+				// Since installing on device does not run
+				// the application we must send the "intent" ourselves.
+				// We will launch the MAIN activity for the application.
+				logger.info(__('Launching appliation on device.'));
+				spawn('adb', [
+					'shell', 'am', 'start',
+					'-a', 'android.intent.action.MAIN',
+					'-c', 'android.intent.category.LAUNCHER',
+					'-n', tiapp.id + '/.' + appnameToClassname(tiapp.name) + 'Activity',
+					'-f', '0x10200000'
+				], options).on('exit', function (code) {
+					if (code) {
+						err = __('Failed to launch application.');
+					}
+					finished && finished.call(this, err);
+				});
+				return; // Do not finish until the app is running.
 			}
 			finished && finished.call(this, err);
 		}.bind(this));
 	}.bind(this));
+}
+
+// Converts an application name to a Java classname.
+function appnameToClassname(appname) {
+	var classname = appname.split(/[^A-Za-z0-9_]/).map(function(word) {
+		return appc.string.capitalize(word);
+	}).join('');
+
+	// Classnames cannot begin with a number.
+	if (classname.match(/^[0-9]/) !== null) {
+		classname = '_' + classname;
+	}
+
+	return classname;
 }
 
 build.prototype = {
