@@ -46,7 +46,8 @@ public class TiUIWebView extends TiUIView
 	private static final String TAG = "TiUIWebView";
 	private TiWebViewClient client;
 	private boolean changingUrl = false;
-	private boolean injectBindingCode = true;
+	private boolean bindingCodeInjected = true;
+	private boolean isLocalHTML = false;
 
 	private static Enum<?> enumPluginStateOff;
 	private static Enum<?> enumPluginStateOn;
@@ -299,7 +300,7 @@ public class TiUIWebView extends TiUIView
 					BufferedReader breader = new BufferedReader(reader);
 					String line = breader.readLine();
 					while (line != null) {
-						if (injectBindingCode) {
+						if (!bindingCodeInjected) {
 							int pos = line.indexOf("<html");
 							if (pos >= 0) {
 								int posEnd = line.indexOf(">", pos);
@@ -310,7 +311,7 @@ public class TiUIWebView extends TiUIView
 										out.append(line.substring(posEnd + 1));
 									}
 									out.append("\n");
-									injectBindingCode = false;
+									bindingCodeInjected = true;
 									line = breader.readLine();
 									continue;
 								}
@@ -346,6 +347,7 @@ public class TiUIWebView extends TiUIView
 		if (!proxy.hasProperty(TiC.PROPERTY_SCALES_PAGE_TO_FIT)) {
 			getWebView().getSettings().setLoadWithOverviewMode(true);
 		}
+		isLocalHTML = false;
 		getWebView().loadUrl(finalUrl);
 	}
 
@@ -421,6 +423,9 @@ public class TiUIWebView extends TiUIView
 			webView.getSettings().setLoadWithOverviewMode(false);
 		}
 
+		// Set flag to indicate that it's local html (used to determine whether we want to inject binding code)
+		isLocalHTML = true;
+
 		if (html.contains(TiWebViewBinding.SCRIPT_INJECTION_ID)) {
 			// Our injection code is in there already, go ahead and show.
 			webView.loadDataWithBaseURL(baseUrl, html, mimeType, "utf-8", baseUrl);
@@ -440,7 +445,7 @@ public class TiUIWebView extends TiUIView
 					sb.append(html.substring(tagEnd + 1));
 				}
 				webView.loadDataWithBaseURL(baseUrl, sb.toString(), mimeType, "utf-8", baseUrl);
-				injectBindingCode = false;
+				bindingCodeInjected = true;
 				return;
 			}
 		}
@@ -595,11 +600,11 @@ public class TiUIWebView extends TiUIView
 
 	public boolean shouldInjectBindingCode()
 	{
-		return injectBindingCode;
+		return isLocalHTML && !bindingCodeInjected;
 	}
 
-	public void setInjectBindingCode(boolean shouldInject)
+	public void setBindingCodeInjected(boolean injected)
 	{
-		injectBindingCode = shouldInject;
+		bindingCodeInjected = injected;
 	}
 }

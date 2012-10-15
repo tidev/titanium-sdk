@@ -56,7 +56,7 @@ public class TiWebViewClient extends WebViewClient
 			nativeWebView.loadUrl("javascript:" + TiWebViewBinding.POLLING_CODE);
 		}
 
-		webView.setInjectBindingCode(true);
+		webView.setBindingCodeInjected(false);
 	}
 
 	public TiWebViewBinding getBinding()
