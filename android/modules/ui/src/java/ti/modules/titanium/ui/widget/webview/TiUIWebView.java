@@ -46,7 +46,7 @@ public class TiUIWebView extends TiUIView
 	private static final String TAG = "TiUIWebView";
 	private TiWebViewClient client;
 	private boolean changingUrl = false;
-	private boolean bindingCodeInjected = true;
+	private boolean bindingCodeInjected = false;
 	private boolean isLocalHTML = false;
 
 	private static Enum<?> enumPluginStateOff;
