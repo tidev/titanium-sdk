@@ -26,6 +26,11 @@ extern NSString * const TI_APPLICATION_COPYRIGHT;
 extern NSString * const TI_APPLICATION_GUID;
 extern BOOL const TI_APPLICATION_ANALYTICS;
 
+@interface AppModule ()
+@property (nonatomic, readonly) NSString *EVENT_ACCESSIBILITY_ANNOUNCEMENT;
+@property (nonatomic, readonly) NSString *EVENT_ACCESSIBILITY_CHANGED;
+@end
+
 @implementation AppModule
 
 -(void)dealloc
