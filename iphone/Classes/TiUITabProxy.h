@@ -18,7 +18,7 @@
 @private
 	UINavigationController *controller;
 	TiUITabController *rootController;
-	
+	//This is an assign only property. TabGroup retains instances of tab.
 	TiUITabGroupProxy *tabGroup;
 	TiUITabController *current;
     
