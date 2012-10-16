@@ -372,6 +372,7 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 		if (selectedTab == null) {
 			// If no tab is selected fall back to the default behavior.
 			super.onWindowFocusChange(focused);
+			return;
 		}
 
 		// When the tab group gains focus we need to re-focus
