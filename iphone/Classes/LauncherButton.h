@@ -34,7 +34,7 @@
 
 @class LauncherItem;
 
-@interface LauncherButton : UIView {
+@interface LauncherButton : UIButton {
 	BOOL dragging;
 	BOOL editing;
 	LauncherItem *item;
