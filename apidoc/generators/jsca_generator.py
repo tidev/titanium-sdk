@@ -55,10 +55,29 @@ def clean_namespace(ns_in):
 			return part
 	return ".".join([clean_part(s) for s in ns_in.split(".") ])
 
-def to_jsca_description(summary):
+def build_deprecation_message(api):
+	# Returns the message in markdown format.
+	result = None
+	if api.deprecated:
+		result = "  **Deprecated"
+		if api.deprecated.has_key("since"):
+			result += " since %s." % api.deprecated["since"]
+		if api.deprecated.has_key("removed"):
+			result += " Removed in %s." % api.deprecated["removed"]
+		if api.deprecated.has_key("notes"):
+			result += " %s" % api.deprecated["notes"]
+		result += "**"
+	return result
+
+def to_jsca_description(summary, api=None):
 	if summary is None:
 		return ""
-	return markdown_to_html(summary)
+	new_summary = summary
+	if api is not None and api.deprecated is not None:
+		deprecation_message = build_deprecation_message(api)
+		if deprecation_message is not None:
+			new_summary += deprecation_message
+	return markdown_to_html(new_summary)
 
 def to_jsca_example(example):
 	return {
@@ -100,7 +119,8 @@ def to_jsca_type_name(type_info):
 def to_jsca_property(prop, for_event=False):
 	result = {
 			"name": prop.name,
-			"description": "" if "summary" not in prop.api_obj else to_jsca_description(prop.api_obj["summary"]),
+			"description": "" if "summary" not in prop.api_obj else to_jsca_description(prop.api_obj["summary"], prop),
+			"deprecated": prop.deprecated is not None and len(prop.deprecated) > 0,
 			"type": "" if "type" not in prop.api_obj else to_jsca_type_name(prop.api_obj["type"])
 			}
 	if not for_event:
@@ -144,7 +164,7 @@ def to_jsca_method_parameter(p):
 
 	result = {
 			"name": p.name,
-			"description": "" if "summary" not in p.api_obj else to_jsca_description(p.api_obj["summary"]),
+			"description": "" if "summary" not in p.api_obj else to_jsca_description(p.api_obj["summary"], p),
 			"type": data_type,
 			"usage": usage
 			}
@@ -154,7 +174,8 @@ def to_jsca_function(method):
 	log.trace("%s.%s" % (method.parent.name, method.name))
 	result = {
 			"name": method.name,
-			"description": "" if "summary" not in method.api_obj else to_jsca_description(method.api_obj["summary"])
+			"deprecated": method.deprecated is not None and len(method.deprecated) > 0,
+			"description": "" if "summary" not in method.api_obj else to_jsca_description(method.api_obj["summary"], method)
 			}
 	if dict_has_non_empty_member(method.api_obj, "returns") and method.api_obj["returns"] != "void":
 		result["returnTypes"] = to_jsca_return_types(method.api_obj["returns"])
@@ -178,7 +199,8 @@ def to_jsca_functions(methods):
 def to_jsca_event(event):
 	return to_ordered_dict({
 			"name": event.name,
-			"description": "" if "summary" not in event.api_obj else to_jsca_description(event.api_obj["summary"]),
+			"description": "" if "summary" not in event.api_obj else to_jsca_description(event.api_obj["summary"], event),
+			"deprecated": event.deprecated is not None and len(event.deprecated) > 0,
 			"properties": to_jsca_properties(event.properties, for_event=True)
 			}, ("name",))
 
@@ -207,7 +229,7 @@ def to_jsca_type(api):
 	result = {
 			"name": clean_namespace(api.name),
 			"isInternal": False,
-			"description": "" if "summary" not in api.api_obj else to_jsca_description(api.api_obj["summary"]),
+			"description": "" if "summary" not in api.api_obj else to_jsca_description(api.api_obj["summary"], api),
 			"deprecated": api.deprecated is not None and len(api.deprecated) > 0,
 			"examples": to_jsca_examples(api),
 			"properties": to_jsca_properties(api.properties),
