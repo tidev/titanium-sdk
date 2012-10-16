@@ -2727,43 +2727,49 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
 - (void)setAccessibilityLabel:(id)accessibilityLabel
 {
 	ENSURE_UI_THREAD(setAccessibilityLabel, accessibilityLabel);
-	id accessibilityElement = [self view].accessibilityElement;
-	if (accessibilityElement != nil) {
-		[accessibilityElement setIsAccessibilityElement:YES];
-		[accessibilityElement setAccessibilityLabel:[TiUtils stringValue:accessibilityLabel]];
+	if ([self viewAttached]) {
+		id accessibilityElement = [self view].accessibilityElement;
+		if (accessibilityElement != nil) {
+			[accessibilityElement setIsAccessibilityElement:YES];
+			[accessibilityElement setAccessibilityLabel:[TiUtils stringValue:accessibilityLabel]];
+		}
 	}
-	[self setValue:accessibilityLabel forUndefinedKey:@"accessibilityLabel"];
+	[self replaceValue:accessibilityLabel forKey:@"accessibilityLabel" notification:NO];
 }
 
 - (void)setAccessibilityValue:(id)accessibilityValue
 {
 	ENSURE_UI_THREAD(setAccessibilityValue, accessibilityValue);
-	id accessibilityElement = [self view].accessibilityElement;
-	if (accessibilityElement != nil) {
-		[accessibilityElement setIsAccessibilityElement:YES];
-		[accessibilityElement setAccessibilityValue:[TiUtils stringValue:accessibilityValue]];
+	if ([self viewAttached]) {
+		id accessibilityElement = [self view].accessibilityElement;
+		if (accessibilityElement != nil) {
+			[accessibilityElement setIsAccessibilityElement:YES];
+			[accessibilityElement setAccessibilityValue:[TiUtils stringValue:accessibilityValue]];
+		}
 	}
-	[self setValue:accessibilityValue forUndefinedKey:@"accessibilityValue"];
+	[self replaceValue:accessibilityValue forKey:@"accessibilityValue" notification:NO];
 }
 
 - (void)setAccessibilityHint:(id)accessibilityHint
 {
 	ENSURE_UI_THREAD(setAccessibilityHint, accessibilityHint);
-	id accessibilityElement = [self view].accessibilityElement;
-	if (accessibilityElement != nil) {
-		[accessibilityElement setIsAccessibilityElement:YES];
-		[accessibilityElement setAccessibilityHint:[TiUtils stringValue:accessibilityHint]];
+	if ([self viewAttached]) {
+		id accessibilityElement = [self view].accessibilityElement;
+		if (accessibilityElement != nil) {
+			[accessibilityElement setIsAccessibilityElement:YES];
+			[accessibilityElement setAccessibilityHint:[TiUtils stringValue:accessibilityHint]];
+		}		
 	}
-	[self setValue:accessibilityHint forUndefinedKey:@"accessibilityHint"];
+	[self replaceValue:accessibilityHint forKey:@"accessibilityHint" notification:NO];
 }
 
 - (void)setAccessibilityHidden:(id)accessibilityHidden
 {
 	ENSURE_UI_THREAD(setAccessibilityHidden, accessibilityHidden);
-	if ([TiUtils isIOS5OrGreater]) {
+	if ([self viewAttached] && [TiUtils isIOS5OrGreater]) {
 		[self view].accessibilityElementsHidden = [TiUtils boolValue:accessibilityHidden def:NO];
 	}
-	[self setValue:accessibilityHidden forUndefinedKey:@"accessibilityHidden"];
+	[self replaceValue:accessibilityHidden forKey:@"accessibilityHidden" notification:NO];
 }
 
 @end
