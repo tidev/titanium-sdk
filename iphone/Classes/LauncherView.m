@@ -116,6 +116,7 @@ static const NSTimeInterval kLauncherViewFastTransitionDuration = 0.2;
 	LauncherButton *theButton = [[LauncherButton alloc] initWithFrame:CGRectZero];
     UIButton* button = [theButton button];
 	[button setTitle:item.title forState:UIControlStateNormal];
+    [button addTarget:self action:@selector(buttonTouchedDown:withEvent:) forControlEvents:UIControlEventTouchDown];
 	[scrollView addSubview:theButton];
     theButton.item = item;
     theButton.launcherView = self;
@@ -682,14 +683,17 @@ static const NSTimeInterval kLauncherViewFastTransitionDuration = 0.2;
 }
 
 
-- (void)editHoldTimer:(NSTimer*)timer 
+- (void)editHoldTimer:(NSTimer*)timer
 {
     editHoldTimer = nil;
 
 	NSArray *data = timer.userInfo;
 	LauncherButton *button = [data objectAtIndex:0];
 	UIEvent *event = [data objectAtIndex:1];
-    if (button.item.userData == nil) {
+    if (![button isKindOfClass:[LauncherButton class]]) {
+        button = (LauncherButton*)[button superview];
+    }
+    if ( button.item.userData == nil) {
         return;
     }
 	
@@ -697,8 +701,7 @@ static const NSTimeInterval kLauncherViewFastTransitionDuration = 0.2;
 	
     [button setSelected:NO];
     [button setHighlighted:NO];
-	
-	[self startDraggingButton:button withEvent:event];
+    [self startDraggingButton:button withEvent:event];
 }
 
 
