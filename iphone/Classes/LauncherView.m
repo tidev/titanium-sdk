@@ -113,14 +113,13 @@ static const NSTimeInterval kLauncherViewFastTransitionDuration = 0.2;
 
 -(LauncherButton*)addButtonWithItem:(LauncherItem*)item
 {
-	LauncherButton *button = [[LauncherButton alloc] initWithFrame:CGRectZero];
+	LauncherButton *theButton = [[LauncherButton alloc] initWithFrame:CGRectZero];
+    UIButton* button = [theButton button];
 	[button setTitle:item.title forState:UIControlStateNormal];
-	[button addTarget:self action:@selector(buttonTouchedUpInside:) forControlEvents:UIControlEventTouchUpInside];
-	[button addTarget:self action:@selector(buttonTouchedUpOutside:) forControlEvents:UIControlEventTouchUpOutside];
-	[button addTarget:self action:@selector(buttonTouchedDown:withEvent:) forControlEvents:UIControlEventTouchDown];
-	[scrollView addSubview:button];
-	button.item = item;
-	return [button autorelease];
+	[scrollView addSubview:theButton];
+    theButton.item = item;
+    theButton.launcherView = self;
+	return [theButton autorelease];
 }
 
 -(NSInteger)rowHeight
@@ -357,8 +356,8 @@ static const NSTimeInterval kLauncherViewFastTransitionDuration = 0.2;
 	
 	if (dragButton) 
 	{
-		dragButton.selected = NO;
-		dragButton.highlighted = NO;
+		[dragButton setSelected:NO];
+		[dragButton setHighlighted:NO];
 		dragButton.dragging = NO;
 		[self layoutButtons];
 	}
@@ -555,7 +554,7 @@ static const NSTimeInterval kLauncherViewFastTransitionDuration = 0.2;
 	}
 }
 
-- (void)closeButtonTouchedUpInside:(LauncherButton*)closeButton 
+- (void)closeButtonTouchedUpInside:(UIButton*)closeButton
 {
 	for (NSArray* buttonPage in buttons) 
 	{
@@ -696,8 +695,8 @@ static const NSTimeInterval kLauncherViewFastTransitionDuration = 0.2;
 	
 	[self beginEditing];
 	
-	button.selected = NO;
-	button.highlighted = NO;
+    [button setSelected:NO];
+    [button setHighlighted:NO];
 	
 	[self startDraggingButton:button withEvent:event];
 }
