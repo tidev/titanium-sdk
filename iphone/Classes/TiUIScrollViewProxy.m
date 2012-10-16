@@ -274,13 +274,6 @@ static NSArray* scrollViewKeySequence;
         flexibleContentHeight = NO;
     }
     
-    if (flexibleContentHeight) {
-        contentSize.size.height = [self autoHeightForSize:bounds.size];
-    }
-    if (flexibleContentWidth) {
-        contentSize.size.width = [self autoWidthForSize:bounds.size];
-    }
-    
     contentSize.size.width = MAX(contentSize.size.width,viewBounds.size.width);
     contentSize.size.height = MAX(contentSize.size.height,viewBounds.size.height);
     

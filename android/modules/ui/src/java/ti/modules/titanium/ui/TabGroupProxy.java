@@ -271,6 +271,7 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 	public void windowCreated(TiBaseActivity activity) {
 		tabGroupActivity = new WeakReference<Activity>(activity);
 		activity.setWindowProxy(this);
+		setActivity(activity);
 
 		// Use the navigation tabs if this platform supports the action bar.
 		// Otherwise we will fall back to using the TabHost implementation.
