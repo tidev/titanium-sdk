@@ -62,6 +62,8 @@ def build_deprecation_message(api):
 		result = "  **Deprecated"
 		if api.deprecated.has_key("since"):
 			result += " since %s." % api.deprecated["since"]
+		if api.deprecated.has_key("removed"):
+			result += " Removed in %s." % api.deprecated["removed"]
 		if api.deprecated.has_key("notes"):
 			result += " %s" % api.deprecated["notes"]
 		result += "**"
