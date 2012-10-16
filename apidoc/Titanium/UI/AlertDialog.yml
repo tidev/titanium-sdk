@@ -289,10 +289,9 @@ examples:
 
   - title: Alloy XML Markup
     example: |
-        Previous 'Three-button Alert Dialog' example as an Alloy view.
+        Previous three-button alert dialog example as an Alloy view.
 
-        Implement the `showDialog` callback in the controller to show the dialog
-        and the `doClick` callback to output the event information to the console.
+        alertdialog.xml:
 
             <Alloy>
                 <Window id="win" onClick="showDialog" title="Click window to test" backgroundColor="white"
@@ -310,3 +309,13 @@ examples:
                     </AlertDialog>
                 </Window>
             </Alloy>
+
+        alertdialog.js:
+
+            function showDialog(){
+                $.dialog.show();
+            };
+
+            function doClick(e){
+                Ti.API.info('e.text: ' + e.text);
+            };

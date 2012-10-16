@@ -193,16 +193,39 @@ examples:
 
   - title: Alloy XML Markup
     example: |
-        Previous example as an Alloy view.
+        Previous example as two Alloy views.
 
-        Note this example only shows `win2`.  `win1` should be defined in its own Alloy view
-        and should load `win2`.  Additionally, the `win2` controller code should implement
-        the `showIndicator` callback to show and hide the activity indicator.
+        win1.xml:
 
             <Alloy>
-                <Window id="win2" onOpen="showIndicator" fullscreen="true" backgroundColor="yellow">
+                <Window onOpen="openWin2" backgroundColor="blue" />
+            </Alloy>
+
+        win1.js:
+
+            function openWin2 () {
+                var win2 = Alloy.createController('win2').getView();
+                win2.open();
+            }
+
+        win2.xml:
+
+            <Alloy>
+                <Window onOpen="showIndicator" fullscreen="true" backgroundColor="yellow">
 
                     <!-- Define the styling properties in the TSS file -->
                     <ActivityIndicator id="activityIndicator" message="Loading..."/>
                 </Window>
             </Alloy>
+
+        win2.js:
+
+            function showIndicator(e){
+                activityIndicator.show();
+                // do some work that takes 6 seconds
+                // ie. replace the following setTimeout block with your code
+                setTimeout(function(){
+                    e.source.close();
+                    activityIndicator.hide();
+                }, 6000);
+            }

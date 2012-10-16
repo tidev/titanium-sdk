@@ -461,7 +461,7 @@ examples:
 
   - title: Alloy XML Markup
     example: |
-        Previous 'Basic Text Field with rounded border' example as an Alloy view.
+        Previous basic text field with rounded border example as an Alloy view.
 
         Define the `borderStyle` property in the TSS file.
 

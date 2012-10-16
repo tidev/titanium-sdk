@@ -159,8 +159,9 @@ examples:
     example: |
         Previous example as an Alloy view.
 
-        Note to properly implement the example, the `view` and `annotation` properties should be
-        defined in the TSS file and the `doClick` function should be implemented in the controller.
+        Define the `View` and `Annotation` properties in the TSS file.
+
+        mapexample.xml:
 
             <Alloy>
                 <Window id="win">
@@ -168,13 +169,24 @@ examples:
                     <!-- Note the ns attribute is used to change the default namespace. -->
                     <View id="mapview" ns="Ti.Map" animate="true" regionFit="true" userLocation="true">
 
-                        <Annotation id="mountainView" latitude="37.390749" longitude="-122.081651"
-                            title="Appcelerator Headquarters" subtitle="Mountain View, CA"
-                            animate="true" leftButton="images/appcelerator_small.png" myid="1"
-                            onClick="doClick" />
+                        <Annotation id="mountainView" latitude="37.390749" longitude="-122.081651" onClick="doClick" />
 
                         <!-- Place other child views here, such as an ImageView to add an overlay. -->
 
                     </View>
                 </Window>
             </Alloy>
+
+        mapexample.js:
+
+            function doClick(evt){
+                Ti.API.info("Annotation " + evt.title + " clicked, id: " + evt.annotation.myid);
+
+                // Check for all of the possible names that clicksouce
+                // can report for the left button/view.
+                if (evt.clicksource == 'leftButton' || evt.clicksource == 'leftPane' ||
+                    evt.clicksource == 'leftView') {
+                    Ti.API.info("Annotation " + evt.title + ", left button clicked.");
+                }
+            };
+        

@@ -171,10 +171,10 @@ examples:
     example: |
         Previous example an an Alloy view.
 
-        <Alloy>
-            <TabGroup id="tabGroup">
-                <Tab id="tab">
-                    <Window id="mywin" title="Hello" icon="myicon.png"/>
-                </Tab>
-            </TabGroup>
-        </Alloy>
+            <Alloy>
+                <TabGroup id="tabGroup">
+                    <Tab id="tab">
+                        <Window id="mywin" title="Hello" icon="myicon.png"/>
+                    </Tab>
+                 </TabGroup>
+            </Alloy>

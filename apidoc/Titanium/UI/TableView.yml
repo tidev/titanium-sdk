@@ -1363,7 +1363,7 @@ examples:
 
   - title: Alloy XML Markup
     example: |
-        Previous 'Table View Sections' example as an Alloy view.
+        Previous table view sections example as an Alloy view.
 
             <Alloy>
                 <Window id="win" backgroundColor="white">
