@@ -200,7 +200,7 @@ Module.prototype.loadExternalModule = function(id, externalBinding, context) {
 	}
 
 	kroll.log(TAG, "Unable to load external module: " + id);
-	
+
 }
 
 // Require another module as a child of this module.
@@ -209,7 +209,6 @@ Module.prototype.loadExternalModule = function(id, externalBinding, context) {
 // of the child module.
 Module.prototype.require = function (request, context, useCache) {
 	useCache = useCache === undefined ? true : useCache;
-
 	var id;
 	var filename;
 	var cachedModule;
@@ -232,6 +231,11 @@ Module.prototype.require = function (request, context, useCache) {
 		}
 
 	} else {
+		// Already have this precise name wrapped and cached? If yes, quick exit.
+		var wrapper = this.wrapperCache[request];
+		if (wrapper) {
+			return wrapper;
+		}
 		// External module?
 		var pathResolve = resolveLookupPaths(request, this);
 		id = pathResolve[0];
@@ -253,7 +257,10 @@ Module.prototype.require = function (request, context, useCache) {
 			if (useCache) {
 				cachedModule = Module.cache[filename];
 				if (cachedModule) {
-					return cachedModule.exports;
+					wrapper = this.wrapperCache[filename];
+					if (wrapper) {
+						return wrapper;
+					}
 				}
 			}
 
