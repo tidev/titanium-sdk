@@ -62,6 +62,9 @@ exports.config = function (logger, config, cli) {
 					},
 					'android-sdk': {
 						abbr: 'A',
+						callback: function (value) {
+							return value.trim();
+						},
 						default: config.android && config.android.sdkPath,
 						desc: __('the path to the Android SDK'),
 						hint: __('path'),
@@ -69,6 +72,7 @@ exports.config = function (logger, config, cli) {
 							label: __('Android SDK path'),
 							error: __('Invalid Android SDK path'),
 							validator: function (dir) {
+								dir = dir.trim();
 								if (!afs.exists(dir, 'platform-tools')) {
 									throw new appc.exception(__('Invalid Android SDK path'));
 								}
@@ -80,16 +84,19 @@ exports.config = function (logger, config, cli) {
 						},
 						required: true
 					},
+					/*
 					'avd-abi': {
 						abbr: 'B',
 						desc: __('the abi for the avd')
 					},
+					*/
 					'avd-id': {
 						abbr: 'I',
 						desc: __('the id for the avd'),
 						hint: __('id'),
 						default: 7
 					},
+					/*
 					'avd-name': {
 						abbr: 'N',
 						desc: __('the name for the avd'),
@@ -101,6 +108,7 @@ exports.config = function (logger, config, cli) {
 						hint: __('skin'),
 						default: 'HVGA'
 					},
+					*/
 					'debug-host': {
 						abbr: 'H',
 						desc: __('debug connection info'),
@@ -243,12 +251,14 @@ exports.validate = function (logger, config, cli) {
 		if (isNaN(parseInt(cli.argv['avd-id']))) {
 			cli.argv['avd-id'] = 7;
 		}
+		/*
 		if (!cli.argv['avd-skin']) {
 			cli.argv['avd-skin'] = 'HVGA';
 		}
 		if (!cli.argv['avd-abi']) {
 			cli.argv['avd-abi'] = androidEnv.targets[cli.argv['avd-id']].abis[0] || androidEnv.targets['7'].abis[0] || 'armeabi';
 		}
+		*/
 	}
 	
 	// Validate arguments for dist-playstore
