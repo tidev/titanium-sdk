@@ -2724,40 +2724,40 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
 
 #pragma mark - Accessibility API
 
-- (void)setAccessibilityLabel:(NSString *)accessibilityLabel
+- (void)setAccessibilityLabel:(id)accessibilityLabel
 {
 	ENSURE_UI_THREAD(setAccessibilityLabel, accessibilityLabel);
 	id accessibilityElement = [self view].accessibilityElement;
 	if (accessibilityElement != nil) {
 		[accessibilityElement setIsAccessibilityElement:YES];
-		[accessibilityElement setAccessibilityLabel:accessibilityLabel];
+		[accessibilityElement setAccessibilityLabel:[TiUtils stringValue:accessibilityLabel]];
 	}
 	[self setValue:accessibilityLabel forUndefinedKey:@"accessibilityLabel"];
 }
 
-- (void)setAccessibilityValue:(NSString *)accessibilityValue
+- (void)setAccessibilityValue:(id)accessibilityValue
 {
 	ENSURE_UI_THREAD(setAccessibilityValue, accessibilityValue);
 	id accessibilityElement = [self view].accessibilityElement;
 	if (accessibilityElement != nil) {
 		[accessibilityElement setIsAccessibilityElement:YES];
-		[accessibilityElement setAccessibilityValue:accessibilityValue];
+		[accessibilityElement setAccessibilityValue:[TiUtils stringValue:accessibilityValue]];
 	}
 	[self setValue:accessibilityValue forUndefinedKey:@"accessibilityValue"];
 }
 
-- (void)setAccessibilityHint:(NSString *)accessibilityHint
+- (void)setAccessibilityHint:(id)accessibilityHint
 {
 	ENSURE_UI_THREAD(setAccessibilityHint, accessibilityHint);
 	id accessibilityElement = [self view].accessibilityElement;
 	if (accessibilityElement != nil) {
 		[accessibilityElement setIsAccessibilityElement:YES];
-		[accessibilityElement setAccessibilityHint:accessibilityHint];
+		[accessibilityElement setAccessibilityHint:[TiUtils stringValue:accessibilityHint]];
 	}
 	[self setValue:accessibilityHint forUndefinedKey:@"accessibilityHint"];
 }
 
-- (void)setAccessibilityHidden:(NSNumber *)accessibilityHidden
+- (void)setAccessibilityHidden:(id)accessibilityHidden
 {
 	ENSURE_UI_THREAD(setAccessibilityHidden, accessibilityHidden);
 	if ([TiUtils isIOS5OrGreater]) {
