@@ -728,6 +728,8 @@ properties:
     osver:
         android:
             min: "4.0"
+        ios:
+            min: "5.0"
 
   - name: accessibilityHint
     summary: Briefly describes what performing an action (such as a click) on the view will do.

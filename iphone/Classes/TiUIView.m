@@ -657,12 +657,6 @@ DEFINE_EXCEPTIONS
 	return animating;
 }
 
--(void)setAccessibilityHidden_:(id)hidden
-{
-	// self and NOT self.accessibilityElement
-    self.isAccessibilityElement = ![TiUtils boolValue:hidden def:NO];
-}
-
 #pragma mark Property Change Support
 
 -(SEL)selectorForProperty:(NSString*)key
