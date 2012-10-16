@@ -280,6 +280,9 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 		if (props.containsKey(TiC.PROPERTY_LAYOUT)) {
 			content.setLayoutArrangement(TiConvert.toString(props, TiC.PROPERTY_LAYOUT));
 		}
+		if (props.containsKey(TiC.PROPERTY_HORIZONTAL_WRAP)) {
+			content.setEnableHorizontalWrap(TiConvert.toBoolean(props, TiC.PROPERTY_HORIZONTAL_WRAP));
+		}
 
 		// hasControls() means that the proxy has children
 		if (rp.hasControls()) {
