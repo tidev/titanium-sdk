@@ -130,40 +130,47 @@
 - (void)touchesBegan:(NSSet*)touches withEvent:(UIEvent *)event 
 {
 	[super touchesBegan:touches withEvent:event];
-	[launcherView touchesBegan:touches withEvent:event];
+    if (editing) {
+        [launcherView touchesBegan:touches withEvent:event];
+    }
+    else {
+        [[self nextResponder]touchesBegan:touches withEvent:event];
+    }
 }
 
 - (void)touchesMoved:(NSSet*)touches withEvent:(UIEvent *)event 
 {
 	[super touchesMoved:touches withEvent:event];
-	[launcherView touchesMoved:touches withEvent:event];
+    if (editing) {
+        [launcherView touchesMoved:touches withEvent:event];
+    }
+    else {
+        [[self nextResponder]touchesMoved:touches withEvent:event];
+    }
 }
 
 - (void)touchesEnded:(NSSet*)touches withEvent:(UIEvent *)event 
 {
 	[super touchesEnded:touches withEvent:event];
-	[launcherView touchesEnded:touches withEvent:event];
-}
-
-
--(void)setSelected:(BOOL)yn
-{
-    [button setSelected:yn];
-}
-
--(void)setHightLighted:(BOOL)yn
-{
-    [button setHighlighted:yn];
+    if (dragging) {
+        [launcherView buttonTouchedUpInside:self];
+    }
+    if (editing) {
+        [launcherView touchesEnded:touches withEvent:event];
+    }
+    else {
+        [[self nextResponder]touchesEnded:touches withEvent:event];
+    }
 }
 
 - (BOOL)isHighlighted 
 {
-	return !dragging && [button isHighlighted];
+	return !dragging && [super isHighlighted];
 }
 
 - (BOOL)isSelected 
 {
-	return !dragging && [button isSelected];
+	return !dragging && [super isSelected];
 }
 
 - (UIButton*)button
@@ -212,7 +219,7 @@
 	if (editing != editing_) 
 	{
 		editing = editing_;
-		
+		[button setUserInteractionEnabled:!editing];
 		if (editing) 
 		{
 			if (badge!=nil)
