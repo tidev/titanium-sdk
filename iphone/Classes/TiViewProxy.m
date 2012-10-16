@@ -2754,4 +2754,13 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
 	[self setValue:accessibilityHint forUndefinedKey:@"accessibilityHint"];
 }
 
+- (void)setAccessibilityHidden:(NSNumber *)accessibilityHidden
+{
+	ENSURE_UI_THREAD(setAccessibilityHidden, accessibilityHidden);
+	if ([TiUtils isIOS5OrGreater]) {
+		[self view].accessibilityElementsHidden = [TiUtils boolValue:accessibilityHidden def:NO];
+	}
+	[self setValue:accessibilityHidden forUndefinedKey:@"accessibilityHidden"];
+}
+
 @end
