@@ -104,6 +104,8 @@ public abstract class TiUIView
 	private float animatedAlpha = Float.MIN_VALUE; // i.e., no animated alpha.
 
 	private KrollDict lastUpEvent = new KrollDict(2);
+	private KrollDict lastDownEvent = new KrollDict(2);
+
 	// In the case of heavy-weight windows, the "nativeView" is null,
 	// so this holds a reference to the view which is used for touching,
 	// i.e., the view passed to registerForTouch.
@@ -1164,13 +1166,18 @@ public abstract class TiUIView
 					lastUpEvent.put(TiC.EVENT_PROPERTY_Y, (double) event.getY());
 				}
 
+				if (event.getAction() == MotionEvent.ACTION_DOWN ) {
+					lastDownEvent.put(TiC.EVENT_PROPERTY_X, (double) event.getX());
+					lastDownEvent.put(TiC.EVENT_PROPERTY_Y, (double) event.getY());
+				}
+
 				scaleDetector.onTouchEvent(event);
 				if (scaleDetector.isInProgress()) {
 					pointersDown = 0;
 					return true;
 				}
 
-				boolean handled = detector.onTouchEvent(event);
+				boolean handled = gestureDetector.onTouchEvent(event);
 				if (handled) {
 					pointersDown = 0;
 					return true;
@@ -1413,7 +1420,7 @@ public abstract class TiUIView
 		{
 			public boolean onLongClick(View view)
 			{
-				return proxy.fireEvent(TiC.EVENT_LONGCLICK, null);
+				return proxy.fireEvent(TiC.EVENT_LONGCLICK, dictFromEvent(lastDownEvent));
 			}
 		});
 	}
