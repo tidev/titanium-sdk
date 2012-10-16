@@ -57,7 +57,9 @@
  * The Exception Handler class. Singleton instance accessed via <defaultExceptionHandler>
  */
 @interface TiExceptionHandler : NSObject < TiExceptionHandlerDelegate >
-
+{
+    BOOL dismissed;
+}
 /**
  * Delegate for error/exception handling
  * @see TiExceptionHandlerDelegate
@@ -77,6 +79,11 @@
 + (TiExceptionHandler *)defaultExceptionHandler;
 
 - (void)reportScriptError:(TiScriptError *)error;
+
+/**
+ * returns current stack trace as array
+ */
++ (NSArray *)backtrace;
 
 @end
 
