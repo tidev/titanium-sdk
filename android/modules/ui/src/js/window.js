@@ -355,6 +355,12 @@ exports.bootstrapWindow = function(Titanium) {
 		var scriptSource = assets.readAsset(scriptPath);
 		var filename = 'app:///'+scriptPath.replace("Resources/", "");
 
+		// Setup require for the new window context.
+		var module = new kroll.Module(filename, this._module || kroll.Module.main, context);
+		context.require = function(request, context) {
+			return module.require(request, context);
+		};
+
 		if (kroll.runtime == "v8") {
 			Script.runInContext(scriptSource, context, filename, true);
 

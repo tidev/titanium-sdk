@@ -11,14 +11,15 @@ import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.TiWindowProxy;
 import org.appcelerator.titanium.view.TiUIView;
 
+import ti.modules.titanium.ui.TabContentViewProxy;
 import ti.modules.titanium.ui.TabProxy;
-import ti.modules.titanium.ui.ViewProxy;
+import android.app.Activity;
 import android.graphics.Color;
 import android.view.View;
 
 
 public abstract class TiUIAbstractTab extends TiUIView {
-	private TiUIView contentView;
+	private TabContentViewProxy contentView;
 
 	public TiUIAbstractTab(TabProxy proxy) {
 		super(proxy);
@@ -47,17 +48,22 @@ public abstract class TiUIAbstractTab extends TiUIView {
 				return emptyContent;
 			}
 
-			ViewProxy contentViewProxy = new ViewProxy();
-			contentViewProxy.setActivity(windowProxy.getActivity());
-			//Assign parent so events bubble up correctly.
-			contentViewProxy.setParent(proxy);
-			contentView = contentViewProxy.getOrCreateView();
+			contentView = new TabContentViewProxy();
+
+			// A tab's window should be bound to the tab group's activity.
+			// In order for the 'activity' property to work correctly
+			// we need to set the content view's activity to that of the group.
+			Activity tabGroupActivity = ((TabProxy) proxy).getTabGroup().getActivity();
+			contentView.setActivity(tabGroupActivity);
+
+			// Assign parent so events bubble up correctly.
+			contentView.setParent(proxy);
 
 			// Allow the window to fill the content view with its children.
-			windowProxy.getKrollObject().setWindow(contentViewProxy);
+			windowProxy.getKrollObject().setWindow(contentView);
 		}
 
-		return contentView.getNativeView();
+		return contentView.getOrCreateView().getNativeView();
 	}
 
 	private TiWindowProxy getWindowProxy() {

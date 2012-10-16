@@ -26,6 +26,12 @@ methods:
     since: "3.0.0"
     osver: {android: {min: "14"}}
 
+  - name: isActionViewExpanded
+    summary: |
+        Returns the [actionViewExpanded](Titanium.Android.MenuItem.actionViewExpanded) state of the menu item.
+    returns:
+        type: Boolean
+
   - name: isCheckable
     summary: |
         Returns the [checkable](Titanium.Android.MenuItem.checkable) state of the menu item.
@@ -103,6 +109,9 @@ properties:
     type: Boolean
     since: "3.0.0"
     osver: {android: {min: "14"}}
+    permission: read-only
+    # this property uses non-standard accessors, listed in the "methods" section.
+    accessors: false
 
   - name: checkable
     summary: Determines if the item can be checked.
@@ -152,6 +161,7 @@ properties:
 
         Icons can be specified as a local image URI or an Android resource ID.
     type: [Number, String]
+    permission: write-only
 
   - name: itemId
     summary: Item ID for this item.
@@ -201,6 +211,7 @@ properties:
     type: Number
     since: "3.0.0"
     osver: {android: {min: "11"}}
+    permission: write-only
 
   - name: title
     summary: Title of the item.
