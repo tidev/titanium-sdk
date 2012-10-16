@@ -424,9 +424,9 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 		notification = UIAccessibilityAnnouncementNotification;
 		ENSURE_ARG_COUNT(args, 2);
 		ENSURE_ARG_AT_INDEX(argument, args, 1, NSString);
-	} else if ([eventName isEqualToString:self.EVENT_ACCESSIBILITY_LAYOUT_CHANGED]) {
+	} else if ([eventName isEqualToString:@"accessibilitylayoutchanged"]) {
 		notification = UIAccessibilityLayoutChangedNotification;
-	} else if ([eventName isEqualToString:self.EVENT_ACCESSIBILITY_SCREEN_CHANGED]) {
+	} else if ([eventName isEqualToString:@"accessibilityscreenchanged"]) {
 		notification = UIAccessibilityScreenChangedNotification;
 	} else {
 		NSLog(@"[WARN] unknown system event: %@",eventName);
@@ -443,7 +443,8 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 - (void)accessibilityVoiceOverStatusChanged:(NSNotification *)notification
 {
 	if ([self _hasListeners:@"accessibilitychanged"]) {
-		[self fireEvent:@"accessibilitychanged" withObject:nil];
+		NSDictionary *event = [NSDictionary dictionaryWithObject:[self accessibilityEnabled] forKey:@"enabled"];
+		[self fireEvent:@"accessibilitychanged" withObject:event];
 	}
 }
 
@@ -545,8 +546,6 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 #endif
 
 MAKE_SYSTEM_STR(EVENT_ACCESSIBILITY_ANNOUNCEMENT,@"accessibilityannouncement");
-MAKE_SYSTEM_STR(EVENT_ACCESSIBILITY_LAYOUT_CHANGED,@"accessibilitylayoutchanged");
-MAKE_SYSTEM_STR(EVENT_ACCESSIBILITY_SCREEN_CHANGED,@"accessibilityscreenchanged");
 MAKE_SYSTEM_STR(EVENT_ACCESSIBILITY_CHANGED,@"accessibilitychanged");
 
 @end

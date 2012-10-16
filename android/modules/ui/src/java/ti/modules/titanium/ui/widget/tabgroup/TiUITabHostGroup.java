@@ -85,6 +85,10 @@ public class TiUITabHostGroup extends TiUIAbstractTabGroup
 		container.addView(tabcontent, params);
 
 		tabHost.setup();
+
+		// For view properties (backgroundColor) and methods (animate())
+		// to work correctly we will use the TabHost as the "native" view.
+		setNativeView(tabHost);
 	}
 
 	@Override

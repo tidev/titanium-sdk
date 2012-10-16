@@ -117,14 +117,15 @@ exports.config = function (logger, config, cli) {
 					*/
 					'keystore': {
 						abbr: 'K',
-						desc: __('the location of the keystore'),
+						desc: __('the location of the keystore file'),
 						hint: 'path',
 						prompt: {
-							label: __('Keystore Location'),
-							error: __('Invalid keystore'),
+							label: __('Keystore File Location'),
+							error: __('Invalid keystore file'),
 							validator: function (keystorePath) {
-								if (!afs.exists(keystorePath) || !fs.statSync(keystorePath).isFile()) {
-									throw new appc.exception(__('Invalid keystore location'));
+								keystorePath = afs.resolvePath(keystorePath);
+								if (!afs.exists(keystorePath) || !fs.lstatSync(keystorePath).isFile()) {
+									throw new appc.exception(__('Invalid keystore file location'));
 								}
 								return true;
 							}
@@ -182,7 +183,7 @@ exports.config = function (logger, config, cli) {
 					}
 				}
 			});
-		});
+		}, config.android && config.android.sdkPath, config.android && config.android.ndkPath);
 	}
 };
 
@@ -197,7 +198,7 @@ exports.validate = function (logger, config, cli) {
 		// we're running the build command for the wrong SDK version, gracefully return
 		return false;
 	}
-	if (!Object.keys(androidEnv.targets).length) {
+	if (!androidEnv || !Object.keys(androidEnv.targets).length) {
 		logger.error(__('Unable to detect Android SDK targets.') + '\n');
 		logger.log(__('Please download SDK targets via Android SDK Manager and try again. (version %s or newer)', version.format(minAndroidSdkVersion, 2)) + '\n');
 		process.exit(1);
@@ -257,14 +258,14 @@ exports.validate = function (logger, config, cli) {
 			process.exit(1);
 		}
 		
-		if (!cli.argv['keystore']) {
-			logger.error(__('Invalid required option "--keystore"') + '\n');
+		if (!cli.argv.keystore) {
+			logger.error(__('Missing required keystore file path') + '\n');
 			process.exit(1);
 		}
 		
-		cli.argv['keystore'] = afs.resolvePath(cli.argv['keystore']);
-		if (!afs.exists(cli.argv['keystore']) || !fs.statSync(cli.argv['keystore']).isFile()) {
-			logger.error(__('Invalid required option "--keystore"') + '\n');
+		cli.argv.keystore = afs.resolvePath(cli.argv.keystore);
+		if (!afs.exists(cli.argv.keystore) || !fs.statSync(cli.argv.keystore).isFile()) {
+			logger.error(__('Invalid keystore file "%s"', cli.argv.keystore) + '\n');
 			process.exit(1);
 		}
 		
@@ -405,10 +406,42 @@ function build(logger, config, cli, finished) {
 					cli.argv['android-sdk'],
 					'-e'
 				], options);
+			} else if (cli.argv['target'] == 'device') {
+				// Since installing on device does not run
+				// the application we must send the "intent" ourselves.
+				// We will launch the MAIN activity for the application.
+				logger.info(__('Launching appliation on device.'));
+				spawn('adb', [
+					'shell', 'am', 'start',
+					'-a', 'android.intent.action.MAIN',
+					'-c', 'android.intent.category.LAUNCHER',
+					'-n', tiapp.id + '/.' + appnameToClassname(tiapp.name) + 'Activity',
+					'-f', '0x10200000'
+				], options).on('exit', function (code) {
+					if (code) {
+						err = __('Failed to launch application.');
+					}
+					finished && finished.call(this, err);
+				});
+				return; // Do not finish until the app is running.
 			}
 			finished && finished.call(this, err);
 		}.bind(this));
 	}.bind(this));
+}
+
+// Converts an application name to a Java classname.
+function appnameToClassname(appname) {
+	var classname = appname.split(/[^A-Za-z0-9_]/).map(function(word) {
+		return appc.string.capitalize(word);
+	}).join('');
+
+	// Classnames cannot begin with a number.
+	if (classname.match(/^[0-9]/) !== null) {
+		classname = '_' + classname;
+	}
+
+	return classname;
 }
 
 build.prototype = {
