@@ -226,8 +226,16 @@ examples:
         Implement the `outputState` callback in the controller
         to output the value of the switch to the console.
 
+        switchexample.xml:
+
             <Alloy>
                 <Window id="win" backgroundColor="white">
                     <Switch id="basicSwitch" value="true" onChange="outputState"/>
                 </Window>
             </Alloy>
+
+        switchexample.js:
+
+            function outputState(){
+                Ti.API.info('Switch value: ' + $.basicSwitch.value);
+            }

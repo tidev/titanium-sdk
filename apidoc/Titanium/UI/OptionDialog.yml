@@ -225,7 +225,7 @@ examples:
     example: |
         Previous example as an Alloy view.
 
-        Call the `show` method in the controller to show the options dialog.
+        optiondialog.xml:
 
             <Alloy>
                 <Window id="win" onClick="showOptions" title="Click window to test"
@@ -257,6 +257,12 @@ examples:
 
                 </Window>
             </Alloy>
+
+        optiondialog.js:
+
+            function showOptions(){
+                $.dialog.show();
+            }
 ---
 name: hideParams
 summary: Dictionary of options for the <Titanium.UI.OptionDialog.hide> method.

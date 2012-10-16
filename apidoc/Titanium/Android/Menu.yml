@@ -186,9 +186,9 @@ examples:
 
   - title: Alloy XML Markup
     example: |
-        Previous 'Simple Menu' example as an Alloy view.
+        Previous simple menu example as an Alloy view.
 
-        In the controller, `doClick` should execute the debug call.
+        simplemenuexample.xml:
 
             <Alloy>
                 <!-- Create a heavyweight window to use the Android menu. -->
@@ -204,3 +204,9 @@ examples:
                     <!-- Place additional views here -->
                 </Window>
             </Alloy>
+
+        simplemenuexample.js:
+
+            var doClick = function(e) {
+                Ti.API.info("Menu item clicked: " + e.source.title);
+            }

@@ -462,7 +462,7 @@ examples:
 
   - title: Alloy XML Markup
     example: |
-        Previous 'Simple Table View Row Example' as an Alloy view.
+        Previous simple table view row example as an Alloy view.
 
             <Alloy>
                 <TableViewRow id="row">
