@@ -679,6 +679,9 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
     
 - (void)prepareTableRowForReuse
 {
+	if (![self.tableClass isEqualToString:defaultRowTableClass]) {
+		return;
+	}
 	RELEASE_TO_NIL(rowContainerView);
 
     // ... But that's not enough. We need to detatch the views
@@ -727,19 +730,23 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 		[rowContainerView setBackgroundColor:[UIColor clearColor]];
 		[rowContainerView setAutoresizingMask:UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight];
 		
-        NSArray* subviews = [self children];
-		for (TiViewProxy *proxy in subviews)
-		{
+		NSArray *existingSubviews = [rowContainerView subviews];
+		[[self children] enumerateObjectsUsingBlock:^(TiViewProxy *proxy, NSUInteger idx, BOOL *stop) {
+			TiUIView *uiview = idx < [existingSubviews count] ? [existingSubviews objectAtIndex:idx] : nil;
 			if (!CGRectEqualToRect([proxy sandboxBounds], rect)) {
 				[proxy setSandboxBounds:rect];
 			}
 			[proxy windowWillOpen];
+			if (uiview != nil) {
+				[uiview transferProxy:proxy deep:YES];
+			}
 			[proxy setReproxying:YES];
-			TiUIView *uiview = [proxy view];
 			[self redelegateViews:proxy toView:contentView];
-			[rowContainerView addSubview:uiview];
+			if (uiview == nil) {
+				[rowContainerView addSubview:[proxy view]];
+			}
 			[proxy setReproxying:NO];
-		}
+		}];
 	}
 	configuredChildren = YES;
 }

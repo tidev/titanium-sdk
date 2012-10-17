@@ -704,7 +704,7 @@ DEFINE_EXCEPTIONS
 	}	
 }
 
--(void)transferProxy:(TiViewProxy*)newProxy
+-(void)transferProxy:(TiViewProxy*)newProxy deep:(BOOL)deep
 {
 	TiViewProxy * oldProxy = (TiViewProxy *)[self proxy];
 	
@@ -752,6 +752,13 @@ DEFINE_EXCEPTIONS
 			[self setKrollValue:newValue forKey:thisKey withObject:nil];
 		}
 		
+		if (deep) {
+			NSArray *subProxies = [newProxy children];
+			[[oldProxy children] enumerateObjectsUsingBlock:^(TiViewProxy *oldSubProxy, NSUInteger idx, BOOL *stop) {
+				TiViewProxy *newSubProxy = idx < [subProxies count] ? [subProxies objectAtIndex:idx] : nil;
+				[[oldSubProxy view] transferProxy:newSubProxy deep:YES];
+			}];
+		}
 		[oldProxy release];
 		
 		[newProxy setReproxying:NO];

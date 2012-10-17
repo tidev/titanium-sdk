@@ -175,8 +175,9 @@ void ModifyScrollViewForKeyboardHeightAndContentHeightWithResponderRect(UIScroll
 /*
  Tells the view to change its proxy to the new one provided.
  @param newProxy The new proxy to set on the view.
+ @param deep true for deep transfer
  */
--(void)transferProxy:(TiViewProxy*)newProxy;
+-(void)transferProxy:(TiViewProxy*)newProxy deep:(BOOL)deep;
 
 /**
  Tells the view to update its touch handling state.
