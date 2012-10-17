@@ -457,15 +457,14 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 		}
 	}
 
-	@Override
-	public boolean hasListeners(String event) {
-		if (event.equals("android:back") && selectedTab != null) {
+	public boolean tabGroupFireNativeEvent(String event, Object data) {
+		if (selectedTab != null) {
 			TiViewProxy view = selectedTab.getViewProxy();
-			if (view != null && view.hasListeners(event)) {
-				return true;
+			if (view != null) {
+				return view.fireEvent(event, data);
 			}
 		}
-		return super.hasListeners(event);
+		return false;
 	}
 
 	@Override
