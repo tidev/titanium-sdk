@@ -625,19 +625,18 @@ public abstract class TiBaseActivity extends Activity
 		switch(event.getKeyCode()) {
 			case KeyEvent.KEYCODE_BACK : {
 				String backEvent = "android:back";
+				if (event.getAction() == KeyEvent.ACTION_UP && activityProxy.fireSyncEvent(backEvent, null)) {
+					handled = true;
+					break;
+				}
+				
 				if (window.hasListeners(backEvent)) {
 					if (event.getAction() == KeyEvent.ACTION_UP) {
-						if (!window.tabGroupFireNativeEvent(backEvent, null)) {
-							window.fireEvent(backEvent, null);
-						}
+						window.fireEvent(backEvent, null);
+						
 					}
 					handled = true;
-				} else {
-					if (event.getAction() == KeyEvent.ACTION_UP) {
-						handled = window.tabGroupFireNativeEvent(backEvent, null);
-					}
 				}
-
 				break;
 			}
 			case KeyEvent.KEYCODE_CAMERA : {

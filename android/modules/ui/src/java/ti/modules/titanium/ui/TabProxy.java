@@ -223,17 +223,6 @@ public class TabProxy extends TiViewProxy
 		fireEvent(event, eventData, true);
 		
 	}
-	
-	protected TiViewProxy getViewProxy() 
-	{
-		if (window instanceof TiBaseWindowProxy) {
-			TiViewProxy view = ((TiBaseWindowProxy) window).getWrappedView();
-			if (view != null) {
-				return view;
-			}
-		}
-		return null;
-	}
 
 	void close() {
 		if (windowOpened && window != null) {
