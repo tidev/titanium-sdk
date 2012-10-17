@@ -30,6 +30,7 @@
 #ifdef USE_TI_UIDASHBOARDVIEW
 
 #import <Foundation/Foundation.h>
+#import "LauncherView.h"
 
 @class LauncherItem;
 
@@ -40,14 +41,16 @@
 	UIButton *button;
 	UIButton *closeButton;
 	UIButton *badge;
+    LauncherView* launcherView;
 }
 
 @property(nonatomic,readwrite,retain) LauncherItem *item;
 @property(nonatomic,readonly) UIButton *closeButton;
+@property(nonatomic,readonly) UIButton *button;
+@property(nonatomic,readwrite,assign) LauncherView* launcherView;
 
 @property(nonatomic) BOOL dragging;
 @property(nonatomic) BOOL editing;
-
 @end
 
 
