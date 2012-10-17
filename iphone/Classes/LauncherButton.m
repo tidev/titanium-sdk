@@ -248,22 +248,20 @@
     [button sizeToFit];
     CGRect viewBounds = [self bounds];
     CGRect buttonBounds = [button bounds];
-    BOOL forceBounds = NO;
     if (buttonBounds.size.width > viewBounds.size.width) {
         buttonBounds.size.width = viewBounds.size.width;
         buttonBounds.origin.x = 0;
-        forceBounds = YES;
+    }
+    else {
+        buttonBounds.origin.x = (viewBounds.size.width - buttonBounds.size.width)/2;
     }
     if (buttonBounds.size.height > viewBounds.size.height) {
         buttonBounds.size.height = viewBounds.size.height;
         buttonBounds.origin.y = 0;
-        forceBounds = YES;
     }
-    if (forceBounds) {
-        [button setFrame:buttonBounds];
+    else {
+        buttonBounds.origin.y = (viewBounds.size.height - buttonBounds.size.height)/2;
     }
-    buttonBounds.origin.x = (viewBounds.size.width - buttonBounds.size.width)/2;
-    buttonBounds.origin.y = (viewBounds.size.height - buttonBounds.size.height)/2;
     [button setFrame:buttonBounds];
     
 	if (item.badgeValue > 0)
