@@ -117,6 +117,7 @@
 		}
 		else
 		{
+			[button setTitle:item.title forState:UIControlStateNormal];
 			[button setImage:item.image forState:UIControlStateNormal];
 			if (item.selectedImage!=nil)
 			{
