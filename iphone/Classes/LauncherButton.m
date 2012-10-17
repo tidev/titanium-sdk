@@ -39,36 +39,19 @@
 
 @implementation LauncherButton
 
-@synthesize dragging, editing, item, launcherView;
+@synthesize dragging, editing, item;
 
 -(id)initWithFrame:(CGRect)frame
 {
-	if (self = [super initWithFrame:frame])
-	{
-		self.backgroundColor = [UIColor clearColor];
+    if (self = [super initWithFrame:frame])
+    {
+        self.backgroundColor = [UIColor clearColor];
         button = [[UIButton buttonWithType:UIButtonTypeCustom] retain];
         button.backgroundColor = [UIColor clearColor];
-        [button addTarget:self action:@selector(buttonTouchedUpInside:) forControlEvents:UIControlEventTouchUpInside];
-        [button addTarget:self action:@selector(buttonTouchedUpOutside:) forControlEvents:UIControlEventTouchUpOutside];
-        [button addTarget:self action:@selector(buttonTouchedDown:withEvent:) forControlEvents:UIControlEventTouchDown];
+        button.userInteractionEnabled = NO;
         [self addSubview:button];
-	}
-	return self;
-}
-
-- (void)buttonTouchedUpInside:(UIButton*)button
-{
-    [launcherView buttonTouchedUpInside:self];
-}
-
-- (void)buttonTouchedUpOutside:(UIButton*)button
-{
-    [launcherView buttonTouchedUpOutside:self];
-}
-
-- (void)buttonTouchedDown:(UIButton*)button withEvent:(UIEvent*)event
-{
-    [launcherView buttonTouchedDown:self withEvent:event];
+    }
+    return self;
 }
 
 -(void)dealloc
@@ -79,6 +62,27 @@
 	[item release];
 	item = nil;
 	[super dealloc];
+}
+
+-(UIView *) hitTest:(CGPoint)point withEvent:(UIEvent *)event {
+    UIView *superResult = [super hitTest:point withEvent:event];
+    if (!editing && (superResult == self)) {
+        //TIMOB-11275 Ignore all touches if not in button frame and not editing
+        CGRect buttonFrame = [button frame];
+        if (CGRectContainsPoint(buttonFrame, point)) {
+            return superResult;
+        }
+        if (badge != nil) {
+            buttonFrame = [badge frame];
+            if (CGRectContainsPoint(buttonFrame, point)) {
+                return superResult;
+            }
+        }
+        return nil;
+    }
+    else {
+        return superResult;
+    }
 }
 
 -(void)setFrame:(CGRect)frame
@@ -130,38 +134,30 @@
 
 - (void)touchesBegan:(NSSet*)touches withEvent:(UIEvent *)event 
 {
-	[super touchesBegan:touches withEvent:event];
-    if (editing) {
-        [launcherView touchesBegan:touches withEvent:event];
-    }
-    else {
-        [[self nextResponder]touchesBegan:touches withEvent:event];
-    }
+    [super touchesBegan:touches withEvent:event];
+    [[self nextResponder]touchesBegan:touches withEvent:event];
 }
 
 - (void)touchesMoved:(NSSet*)touches withEvent:(UIEvent *)event 
 {
-	[super touchesMoved:touches withEvent:event];
-    if (editing) {
-        [launcherView touchesMoved:touches withEvent:event];
-    }
-    else {
-        [[self nextResponder]touchesMoved:touches withEvent:event];
-    }
+    [super touchesMoved:touches withEvent:event];
+    [[self nextResponder]touchesMoved:touches withEvent:event];
 }
 
 - (void)touchesEnded:(NSSet*)touches withEvent:(UIEvent *)event 
 {
-	[super touchesEnded:touches withEvent:event];
-    if (dragging) {
-        [launcherView buttonTouchedUpInside:self];
-    }
-    if (editing) {
-        [launcherView touchesEnded:touches withEvent:event];
-    }
-    else {
-        [[self nextResponder]touchesEnded:touches withEvent:event];
-    }
+    [super touchesEnded:touches withEvent:event];
+    [[self nextResponder]touchesEnded:touches withEvent:event];
+}
+
+-(void) setSelected:(BOOL)yn {
+    [super setSelected:yn];
+    [button setSelected:yn];
+}
+
+-(void) setHighlighted:(BOOL)yn {
+    [super setHighlighted:yn];
+    [button setHighlighted:yn];
 }
 
 - (BOOL)isHighlighted 
@@ -174,10 +170,6 @@
 	return !dragging && [super isSelected];
 }
 
-- (UIButton*)button
-{
-    return button;
-}
 - (UIButton*)closeButton 
 {
 	if (!closeButton && item.canDelete) 
@@ -220,7 +212,6 @@
 	if (editing != editing_) 
 	{
 		editing = editing_;
-		[button setUserInteractionEnabled:!editing];
 		if (editing) 
 		{
 			if (badge!=nil)
@@ -263,7 +254,6 @@
         buttonBounds.origin.y = (viewBounds.size.height - buttonBounds.size.height)/2;
     }
     [button setFrame:buttonBounds];
-    
 	if (item.badgeValue > 0)
 	{
 		if (badge==nil)
@@ -277,10 +267,7 @@
 			cbutton.titleLabel.font = [UIFont boldSystemFontOfSize:12];
 			badge = [cbutton retain];
 			[self addSubview:badge];
-            [badge addTarget:self action:@selector(buttonTouchedUpInside:) forControlEvents:UIControlEventTouchUpInside];
-            [badge addTarget:self action:@selector(buttonTouchedUpOutside:) forControlEvents:UIControlEventTouchUpOutside];
-            [badge addTarget:self action:@selector(buttonTouchedDown:withEvent:) forControlEvents:UIControlEventTouchDown];
-			//badge.userInteractionEnabled = NO;
+			badge.userInteractionEnabled = NO;
 		}
 		
 		NSInteger value = item.badgeValue;
@@ -312,10 +299,9 @@
 	{
         if(self.bounds.size.width > 0 && self.bounds.size.height > 0)
         {
-            CGRect buttonFrame = [button frame];
             if (badge) 
             {
-                CGPoint point = CGPointMake((buttonFrame.origin.x + buttonFrame.size.width) - (badge.bounds.size.width/2),buttonFrame.origin.y-(4*badge.bounds.size.height/5));
+                CGPoint point = CGPointMake((buttonBounds.origin.x + buttonBounds.size.width) - (badge.bounds.size.width/2),buttonBounds.origin.y-(4*badge.bounds.size.height/5));
                 if ((point.x + badge.bounds.size.width) >  viewBounds.size.width ){
                     point.x = viewBounds.size.width - badge.bounds.size.width;
                 }
@@ -326,7 +312,7 @@
             }
             if (closeButton) 
             {
-                CGPoint point = CGPointMake(buttonFrame.origin.x-(closeButton.bounds.size.width/3),buttonFrame.origin.y-(closeButton.bounds.size.height/3));
+                CGPoint point = CGPointMake(buttonBounds.origin.x-(closeButton.bounds.size.width/3),buttonBounds.origin.y-(closeButton.bounds.size.height/3));
                 if (point.x < 0) {
                     point.x = 0;
                 }
