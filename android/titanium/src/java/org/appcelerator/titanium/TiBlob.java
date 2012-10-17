@@ -186,7 +186,7 @@ public class TiBlob extends KrollProxy
 		if (is != null) {
 			try {
 				mt = URLConnection.guessContentTypeFromStream(is);
-			} catch (IOException e) {
+			} catch (Exception e) {
 				Log.e(TAG, e.getMessage(), e, Log.DEBUG_MODE);
 			}
 		}
