@@ -31,7 +31,7 @@ exports.config = function (logger, config, cli) {
 				abbr: 'p',
 				desc: __('the target build platform'),
 				prompt: {
-					default: ti.availablePlatforms,
+					default: ti.availablePlatformsNames,
 					label: __('Target platforms'),
 					error: __('Invalid list of target platforms'),
 					validator: function (platforms) {
@@ -43,7 +43,7 @@ exports.config = function (logger, config, cli) {
 					},
 				},
 				required: true,
-				values: ti.availablePlatforms,
+				values: ti.availablePlatformsNames,
 				skipValueCheck: true // we do our own validation
 			},
 			type: {
@@ -146,8 +146,14 @@ exports.run = function (logger, config, cli) {
 		projectConfig.version = '1.0';
 		projectConfig.guid = uuid.v4();
 		projectConfig['deployment-targets'] = {};
-		ti.availablePlatforms.forEach(function (p) {
-			projectConfig['deployment-targets'][p] = platforms.indexOf(p) != -1;
+		if (platforms.indexOf('ios') != -1) {
+			platforms.indexOf('ipad') != -1 || platforms.push('ipad');
+			platforms.indexOf('iphone') != -1 || platforms.push('iphone');
+		}
+		ti.availablePlatformsNames.forEach(function (p) {
+			if (p != 'ios') {
+				projectConfig['deployment-targets'][p] = platforms.indexOf(p) != -1;
+			}
 		});
 		projectConfig['sdk-version'] = sdk.name;
 		projectConfig.save(projectDir + '/tiapp.xml');
@@ -180,6 +186,8 @@ exports.run = function (logger, config, cli) {
 			runtime: '1.0',
 			date: (new Date()).toDateString()
 		};
+		
+		cli.addAnalyticsEvent('project.create.mobile', analyticsPayload);
 	} else if (type == 'module') {
 		logger.info(__('Creating Titanium Mobile module project'));
 		
@@ -230,6 +238,8 @@ exports.run = function (logger, config, cli) {
 			platforms: platforms.sort().join(', '),
 			date: (new Date()).toDateString()
 		};
+		
+		cli.addAnalyticsEvent('project.create.module', analyticsPayload);
 	}
 	
 	platforms.forEach(function (platform) {
@@ -240,7 +250,4 @@ exports.run = function (logger, config, cli) {
 	});
 	
 	logger.info(__("Project '%s' created successfully in %s", projectName.cyan, appc.time.prettyDiff(cli.startTime, Date.now())) + '\n');
-
-	// This will be something like 'project.create.app' ... do we want it to be something like 'project.create.mobile' like studio?
-	cli.addAnalyticsEvent('project.create.' + cli.argv.type, analyticsPayload);
 };
