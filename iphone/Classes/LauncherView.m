@@ -113,14 +113,13 @@ static const NSTimeInterval kLauncherViewFastTransitionDuration = 0.2;
 
 -(LauncherButton*)addButtonWithItem:(LauncherItem*)item
 {
-	LauncherButton *theButton = [[LauncherButton alloc] initWithFrame:CGRectZero];
+    LauncherButton *theButton = [[LauncherButton alloc] initWithFrame:CGRectZero];
     UIButton* button = [theButton button];
-	[button setTitle:item.title forState:UIControlStateNormal];
     [theButton addTarget:self action:@selector(buttonTouchedDown:withEvent:) forControlEvents:UIControlEventTouchDown];
-	[scrollView addSubview:theButton];
+    [scrollView addSubview:theButton];
     theButton.item = item;
     theButton.launcherView = self;
-	return [theButton autorelease];
+    return [theButton autorelease];
 }
 
 -(NSInteger)rowHeight
