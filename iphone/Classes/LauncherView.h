@@ -75,9 +75,6 @@
 - (LauncherItem*)itemForIndex:(NSInteger)index;
 - (NSArray*)items;
 
-- (void)buttonTouchedUpInside:(LauncherButton*)button;
-- (void)buttonTouchedUpOutside:(LauncherButton*)button;
-- (void)buttonTouchedDown:(LauncherButton*)button withEvent:(UIEvent*)event;
 @end
 
 
