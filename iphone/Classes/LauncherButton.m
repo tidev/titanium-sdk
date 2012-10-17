@@ -64,6 +64,27 @@
 	[super dealloc];
 }
 
+-(UIView *) hitTest:(CGPoint)point withEvent:(UIEvent *)event {
+    UIView *superResult = [super hitTest:point withEvent:event];
+    if (!editing && (superResult == self)) {
+        //TIMOB-11275 Ignore all touches if not in button frame and not editing
+        CGRect buttonFrame = [button frame];
+        if (CGRectContainsPoint(buttonFrame, point)) {
+            return superResult;
+        }
+        if (badge != nil) {
+            buttonFrame = [badge frame];
+            if (CGRectContainsPoint(buttonFrame, point)) {
+                return superResult;
+            }
+        }
+        return nil;
+    }
+    else {
+        return superResult;
+    }
+}
+
 -(void)setFrame:(CGRect)frame
 {
 	[super setFrame:frame];
