@@ -264,12 +264,9 @@ exports.bootstrapWindow = function(Titanium) {
 		if (this.propertyCache) {
 			kroll.extend(this._properties, this.propertyCache);
 		}
-		var win = this.window = existingWindow;
+		this.window = existingWindow;
 		this.view = this.window;
 		this.setWindowView(this.view);
-		this.window._internalActivity.on('android:back', function(){
-			win.fireEvent('android:back');
-		});
 		this.addChildren();
 
 		var self = this;

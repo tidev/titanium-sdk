@@ -1099,5 +1099,12 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 		return new TiContext(getActivity(), proxyId);
 	}
 
+	/*
+	 * This should be implemented in TabGroupProxy - a patch to get android:back working for tabGroup
+	 * and should be removed when eventing is fixed.
+	 */
+	public boolean tabGroupFireNativeEvent(String event, Object data) {
+		return false;
+	}
 }
 
