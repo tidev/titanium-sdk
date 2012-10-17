@@ -2143,6 +2143,12 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
 		positionCache.y += sizeCache.origin.y + sandboxBounds.origin.y;
         
         BOOL layoutChanged = (!CGRectEqualToRect([view bounds], sizeCache) || !CGPointEqualToPoint([view center], positionCache));
+        if (!layoutChanged && [view isKindOfClass:[TiUIView class]]) {
+            //Views with flexible margins might have already resized when the parent resized.
+            //So we need to explicitly check for oldSize here which triggers frameSizeChanged
+            CGSize oldSize = [(TiUIView*) view oldSize];
+            layoutChanged = layoutChanged || !(CGSizeEqualToSize(oldSize,sizeCache.size));
+        }
         
 		[view setAutoresizingMask:autoresizeCache];
 		[view setCenter:positionCache];

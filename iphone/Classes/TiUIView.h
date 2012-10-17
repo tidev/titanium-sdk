@@ -120,6 +120,7 @@ void ModifyScrollViewForKeyboardHeightAndContentHeightWithResponderRect(UIScroll
  @see updateTouchHandling
  */
 @property(nonatomic,readonly) BOOL touchEnabled;
+@property(nonatomic,readonly) CGSize oldSize;
 
 @property(nonatomic,readonly)	UITapGestureRecognizer*			singleTapRecognizer;
 @property(nonatomic,readonly)	UITapGestureRecognizer*			doubleTapRecognizer;
