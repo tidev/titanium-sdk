@@ -196,6 +196,16 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String EVENT_PLAYBACK_STATE = "playbackstate";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String EVENT_PLAYING_STATE = "playing";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String EVENT_PROPERTY_PLAYING_STATE = EVENT_PLAYING_STATE;
 
 	/**
 	 * @module.api
