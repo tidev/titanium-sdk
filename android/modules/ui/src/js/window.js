@@ -22,7 +22,7 @@ exports.bootstrapWindow = function(Titanium) {
 	var windowEventListeners = ["open", "close", "focus", "blur", "androidback"];
 	
 	//activityProxy android:back listener
-	var backListener = function() {this.view.fireEvent('android:back', null);};
+	var backListener;
 
 	// Backward compatibility for lightweight windows
 	var UI = Titanium.UI;
@@ -508,7 +508,7 @@ exports.bootstrapWindow = function(Titanium) {
 
 		} else {
 			this.view.addEventListener(event, listener, this); 
-			if (event == 'android:back' && this.view._internalActivity) {
+			if (event == 'android:back' && this.view._internalActivity && backListener) {
 				this.view._internalActivity.addEventListener('android:back', backListener, this);  
 			}
 		}
@@ -520,8 +520,8 @@ exports.bootstrapWindow = function(Titanium) {
 
 		} else {
 			this.view.removeEventListener(event, listener);
-			if (event == 'android:back' && this.view._internalActivity) {
-				this.view._internalActivity.removeEventListener('android:back', backListener, this);  
+			if (event == 'android:back' && this.view._internalActivity && backListener) {
+				this.view._internalActivity.removeEventListener('android:back', backListener);  
 			}
 		}
 	}
