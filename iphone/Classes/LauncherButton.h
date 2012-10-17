@@ -51,8 +51,6 @@
 
 @property(nonatomic) BOOL dragging;
 @property(nonatomic) BOOL editing;
-@property(nonatomic,getter=isSelected) BOOL selected;
-@property(nonatomic,getter=isHighlighted) BOOL highlighted;   
 @end
 
 
