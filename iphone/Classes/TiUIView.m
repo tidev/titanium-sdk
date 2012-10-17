@@ -160,7 +160,7 @@ NSArray* listenerArray = nil;
 
 DEFINE_EXCEPTIONS
 
-@synthesize proxy,touchDelegate,backgroundImage;
+@synthesize proxy,touchDelegate,backgroundImage,oldSize;
 
 #pragma mark Internal Methods
 
