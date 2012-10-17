@@ -12,6 +12,7 @@ import java.util.List;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.common.Log;
+import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiDimension;
@@ -28,13 +29,19 @@ import ti.modules.titanium.ui.widget.tableview.TableViewModel.Item;
 import android.app.Activity;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.os.Handler;
+import android.support.v4.view.ViewCompat;
 import android.view.View;
 import android.widget.ImageView;
 
 public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 {
 	private static final String TAG = "TitaniumTableViewItem";
+
+	// Only check this once, since we potentially use this information
+	// every time we add a row. No sense checking it each time.
+	private static boolean ICS_OR_GREATER = (Build.VERSION.SDK_INT >= TiC.API_LEVEL_ICE_CREAM_SANDWICH);
 
 	private static final int LEFT_MARGIN = 5;
 	private static final int RIGHT_MARGIN = 7;
@@ -44,7 +51,6 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 	private ImageView rightImage;
 	private TiCompositeLayout content;
 	private ArrayList<TiUIView> views;
-//	private boolean hasControls;
 	private TiDimension height = null;
 	private Item item;
 	private Object selectorSource;
@@ -178,7 +184,13 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 	{
 		TableViewRowProxy rp = getRowProxy();
 		if (!rp.hasProperty(TiC.PROPERTY_TOUCH_ENABLED)) {
-			rp.setProperty(TiC.PROPERTY_TOUCH_ENABLED, false);
+			// We have traditionally always made the label untouchable, but since
+			// version 3.0.0 we support explore-by-touch on ICS and above, so for
+			// accessibility purposes we should not be disabling touch if
+			// accessibility is currently turned on.
+			if (!ICS_OR_GREATER || !TiApplication.getInstance().getAccessibilityManager().isEnabled()) {
+				rp.setProperty(TiC.PROPERTY_TOUCH_ENABLED, false);
+			}
 		}
 		if (views == null) {
 			views = new ArrayList<TiUIView>();
@@ -218,7 +230,7 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 		// Handle right image
 		boolean clearRightImage = true;
 		// It's one or the other, check or child.  If you set them both, child's gonna win.
-		HashMap props = rp.getProperties();
+		HashMap<String, Object> props = rp.getProperties();
 		if (props.containsKey(TiC.PROPERTY_HAS_CHECK)) {
 			if (TiConvert.toBoolean(props, TiC.PROPERTY_HAS_CHECK)) {
 				if (hasCheckDrawable == null) {
@@ -290,6 +302,18 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 		} else {
 			// no children means that this is an old-style row
 			refreshOldStyleRow();
+		}
+
+		if (ICS_OR_GREATER) {
+			Object accessibilityHiddenVal = rp.getProperty(TiC.PROPERTY_ACCESSIBILITY_HIDDEN);
+			if (accessibilityHiddenVal != null) {
+				boolean hidden = TiConvert.toBoolean(accessibilityHiddenVal);
+				if (hidden) {
+					ViewCompat.setImportantForAccessibility(this, ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_NO);
+				} else {
+					ViewCompat.setImportantForAccessibility(this, ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_AUTO);
+				}
+			}
 		}
 	}
 
@@ -436,7 +460,6 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 
 	@Override
 	public boolean hasSelector() {
-		KrollDict d = getRowProxy().getProperties();
 		TableViewRowProxy rowProxy = getRowProxy();
 		return rowProxy.hasProperty(TiC.PROPERTY_BACKGROUND_SELECTED_IMAGE)
 			|| rowProxy.hasProperty(TiC.PROPERTY_BACKGROUND_SELECTED_COLOR);

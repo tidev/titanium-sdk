@@ -74,7 +74,7 @@ public abstract class TiBaseTableViewItem extends ViewGroup implements Handler.C
 					if (Build.VERSION.SDK_INT >= 9 && density == DisplayMetrics.DENSITY_XHIGH) {
 						path = "/org/appcelerator/titanium/res/drawable/btn_check_buttonless_on_64.png";
 					} 
-					checkIndicatorBitmap = BitmapFactory.decodeStream(KrollDict.class.getResourceAsStream(path));					
+					checkIndicatorBitmap = BitmapFactory.decodeStream(KrollDict.class.getResourceAsStream(path));
 				}
 			}
 		}
