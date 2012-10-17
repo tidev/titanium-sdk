@@ -39,15 +39,36 @@
 
 @implementation LauncherButton
 
-@synthesize dragging, editing, item;
+@synthesize dragging, editing, item, launcherView;
 
 -(id)initWithFrame:(CGRect)frame
 {
 	if (self = [super initWithFrame:frame])
 	{
 		self.backgroundColor = [UIColor clearColor];
+        button = [[UIButton buttonWithType:UIButtonTypeCustom] retain];
+        button.backgroundColor = [UIColor clearColor];
+        [button addTarget:self action:@selector(buttonTouchedUpInside:) forControlEvents:UIControlEventTouchUpInside];
+        [button addTarget:self action:@selector(buttonTouchedUpOutside:) forControlEvents:UIControlEventTouchUpOutside];
+        [button addTarget:self action:@selector(buttonTouchedDown:withEvent:) forControlEvents:UIControlEventTouchDown];
+        [self addSubview:button];
 	}
 	return self;
+}
+
+- (void)buttonTouchedUpInside:(UIButton*)button
+{
+    [launcherView buttonTouchedUpInside:self];
+}
+
+- (void)buttonTouchedUpOutside:(UIButton*)button
+{
+    [launcherView buttonTouchedUpOutside:self];
+}
+
+- (void)buttonTouchedDown:(UIButton*)button withEvent:(UIEvent*)event
+{
+    [launcherView buttonTouchedDown:self withEvent:event];
 }
 
 -(void)dealloc
@@ -96,10 +117,11 @@
 		}
 		else
 		{
-			[self setImage:item.image forState:UIControlStateNormal];
+			[button setTitle:item.title forState:UIControlStateNormal];
+			[button setImage:item.image forState:UIControlStateNormal];
 			if (item.selectedImage!=nil)
 			{
-				[self setImage:item.selectedImage forState:UIControlStateHighlighted];
+				[button setImage:item.selectedImage forState:UIControlStateHighlighted];
 			}
 		}
 	}
@@ -109,19 +131,37 @@
 - (void)touchesBegan:(NSSet*)touches withEvent:(UIEvent *)event 
 {
 	[super touchesBegan:touches withEvent:event];
-	[[self nextResponder] touchesBegan:touches withEvent:event];
+    if (editing) {
+        [launcherView touchesBegan:touches withEvent:event];
+    }
+    else {
+        [[self nextResponder]touchesBegan:touches withEvent:event];
+    }
 }
 
 - (void)touchesMoved:(NSSet*)touches withEvent:(UIEvent *)event 
 {
 	[super touchesMoved:touches withEvent:event];
-	[[self nextResponder] touchesMoved:touches withEvent:event];
+    if (editing) {
+        [launcherView touchesMoved:touches withEvent:event];
+    }
+    else {
+        [[self nextResponder]touchesMoved:touches withEvent:event];
+    }
 }
 
 - (void)touchesEnded:(NSSet*)touches withEvent:(UIEvent *)event 
 {
 	[super touchesEnded:touches withEvent:event];
-	[[self nextResponder] touchesEnded:touches withEvent:event];
+    if (dragging) {
+        [launcherView buttonTouchedUpInside:self];
+    }
+    if (editing) {
+        [launcherView touchesEnded:touches withEvent:event];
+    }
+    else {
+        [[self nextResponder]touchesEnded:touches withEvent:event];
+    }
 }
 
 - (BOOL)isHighlighted 
@@ -134,6 +174,10 @@
 	return !dragging && [super isSelected];
 }
 
+- (UIButton*)button
+{
+    return button;
+}
 - (UIButton*)closeButton 
 {
 	if (!closeButton && item.canDelete) 
@@ -176,7 +220,7 @@
 	if (editing != editing_) 
 	{
 		editing = editing_;
-		
+		[button setUserInteractionEnabled:!editing];
 		if (editing) 
 		{
 			if (badge!=nil)
@@ -201,7 +245,25 @@
 - (void)layoutSubviews 
 {
 	[super layoutSubviews];
-	
+    [button sizeToFit];
+    CGRect viewBounds = [self bounds];
+    CGRect buttonBounds = [button bounds];
+    if (buttonBounds.size.width > viewBounds.size.width) {
+        buttonBounds.size.width = viewBounds.size.width;
+        buttonBounds.origin.x = 0;
+    }
+    else {
+        buttonBounds.origin.x = (viewBounds.size.width - buttonBounds.size.width)/2;
+    }
+    if (buttonBounds.size.height > viewBounds.size.height) {
+        buttonBounds.size.height = viewBounds.size.height;
+        buttonBounds.origin.y = 0;
+    }
+    else {
+        buttonBounds.origin.y = (viewBounds.size.height - buttonBounds.size.height)/2;
+    }
+    [button setFrame:buttonBounds];
+    
 	if (item.badgeValue > 0)
 	{
 		if (badge==nil)
@@ -215,7 +277,10 @@
 			cbutton.titleLabel.font = [UIFont boldSystemFontOfSize:12];
 			badge = [cbutton retain];
 			[self addSubview:badge];
-			badge.userInteractionEnabled = NO;
+            [badge addTarget:self action:@selector(buttonTouchedUpInside:) forControlEvents:UIControlEventTouchUpInside];
+            [badge addTarget:self action:@selector(buttonTouchedUpOutside:) forControlEvents:UIControlEventTouchUpOutside];
+            [badge addTarget:self action:@selector(buttonTouchedDown:withEvent:) forControlEvents:UIControlEventTouchDown];
+			//badge.userInteractionEnabled = NO;
 		}
 		
 		NSInteger value = item.badgeValue;
@@ -247,16 +312,28 @@
 	{
         if(self.bounds.size.width > 0 && self.bounds.size.height > 0)
         {
-            CGFloat itemimageX = (self.bounds.size.width/2) - (item.image.size.width/2);
-            CGFloat itemimageY = (self.bounds.size.height/2) - (item.image.size.height/2);
+            CGRect buttonFrame = [button frame];
             if (badge) 
             {
-                CGPoint point = CGPointMake((itemimageX + item.image.size.width) - (badge.bounds.size.width/2),itemimageY-(badge.bounds.size.height/5));
+                CGPoint point = CGPointMake((buttonFrame.origin.x + buttonFrame.size.width) - (badge.bounds.size.width/2),buttonFrame.origin.y-(4*badge.bounds.size.height/5));
+                if ((point.x + badge.bounds.size.width) >  viewBounds.size.width ){
+                    point.x = viewBounds.size.width - badge.bounds.size.width;
+                }
+                if (point.y < 0) {
+                    point.y = 0;
+                }
                 badge.frame = CGRectMake(point.x, point.y, badge.bounds.size.width, badge.bounds.size.height);
             }
             if (closeButton) 
             {
-                closeButton.frame = CGRectMake(itemimageX-(closeButton.bounds.size.width/3),itemimageY-(closeButton.bounds.size.height/3), closeButton.bounds.size.width, closeButton.bounds.size.height);
+                CGPoint point = CGPointMake(buttonFrame.origin.x-(closeButton.bounds.size.width/3),buttonFrame.origin.y-(closeButton.bounds.size.height/3));
+                if (point.x < 0) {
+                    point.x = 0;
+                }
+                if (point.y < 0) {
+                    point.y = 0;
+                }
+                closeButton.frame = CGRectMake(point.x,point.y, closeButton.bounds.size.width, closeButton.bounds.size.height);
             }
         }
     }
