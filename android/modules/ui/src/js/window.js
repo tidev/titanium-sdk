@@ -271,7 +271,7 @@ exports.bootstrapWindow = function(Titanium) {
 		this.view = this.window;
 		this.setWindowView(this.view);
 		this.addChildren();
-		backListener = function() {self.view.fireEvent('android:back', null);};
+		backListener = function() {self.view.fireEvent('android:back', {bubbles:true});};
 		var self = this;
 		this.on("open", function () {
 			self.postOpen(true);
