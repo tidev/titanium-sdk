@@ -115,7 +115,6 @@ static const NSTimeInterval kLauncherViewFastTransitionDuration = 0.2;
 {
     LauncherButton *theButton = [[LauncherButton alloc] initWithFrame:CGRectZero];
     UIButton* button = [theButton button];
-    [theButton addTarget:self action:@selector(buttonTouchedDown:withEvent:) forControlEvents:UIControlEventTouchDown];
     [scrollView addSubview:theButton];
     theButton.item = item;
     theButton.launcherView = self;
@@ -602,6 +601,7 @@ static const NSTimeInterval kLauncherViewFastTransitionDuration = 0.2;
 		{
 			button.editing = YES;
 			[button.closeButton addTarget:self action:@selector(closeButtonTouchedUpInside:) forControlEvents:UIControlEventTouchUpInside];
+			[button addTarget:self action:@selector(buttonTouchedDown:withEvent:) forControlEvents:UIControlEventTouchDown];
 		}
 	}
     
@@ -644,6 +644,7 @@ static const NSTimeInterval kLauncherViewFastTransitionDuration = 0.2;
 		{
 			button.transform = CGAffineTransformIdentity;
 			button.closeButton.alpha = 0;
+			[button removeTarget:self action:@selector(buttonTouchedDown:withEvent:) forControlEvents:UIControlEventTouchDown];
 		}
 	}
 	
