@@ -1267,7 +1267,7 @@ examples:
             sectionVeg.add(Ti.UI.createTableViewRow({ title: 'Potatoes' }));
             
             var table = Ti.UI.createTableView({
-              data: [sectionFruit, sectionVeg]
+              sections: [sectionFruit, sectionVeg]
             });
             
             win.add(table);
@@ -1277,7 +1277,7 @@ examples:
             sectionFish.add(Ti.UI.createTableViewRow({ title: 'Cod' }));
             sectionFish.add(Ti.UI.createTableViewRow({ title: 'Haddock' }));
             
-            table.setData([ sectionFish, sectionFruit, sectionVeg ]);
+            table.setSections([ sectionFish, sectionFruit, sectionVeg ]);
         
   - title: Table View with Composite Layout
     example: |
