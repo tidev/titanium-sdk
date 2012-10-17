@@ -66,29 +66,27 @@ methods:
   - name: setHtml
     summary: Sets the value of [html](Titanium.UI.WebView.html) property.
     description: |
-      In iOS, there are additional parameters `baseURL` and `mimeType` that can be used to configure
-      the WebView main content presentation. For example:
+      The `options` parameter can be used to specify two options that affect 
+      the WebView main content presentation:
+
+      *  `baseURL`. Sets the base URL for the content.
+      *  `mimeType`. Sets the MIME type for the content. Defaults to "text/html" if not specified.
+
+      For example:
               
           setHtml('<html><body>Hello, <a href="/documentation">Titanium</a>!</body></html>',
-                  {baseURL:'http://developer.appcelerator.com/'})
-    platforms: [iphone, ipad, mobileweb]
+                  {baseURL:'http://developer.appcelerator.com/'});
+    platforms: [android, iphone, ipad, mobileweb]
     parameters:
 
       - name: html
         summary: New HTML to display in the web view.
         type: Object
 
-      - name: baseURL
-        summary: The base URL for the content. Only used by iOS.
+      - name: options
+        summary: Optional parameters for the content. Only used by iOS and Android.
         optional: true
-        type: String
-
-      - name: mimeType
-        summary: The MIME type of the content. Only used by iOS.
-        optional: true
-        type: String
-        default: 'text/html'
-        
+        type: Dictionary
 
   - name: canGoBack
     summary: Returns `true` if the web view can go back in its history list.
@@ -304,21 +302,36 @@ properties:
   - name: html
     summary: HTML content of this web view.
     description: |
-        On Android, This property is read-only. On other platforms, it is read-write and can 
-        be used to set the web view's content. 
-
-        On all platforms the web view's content can be set using the [data](Titanium.UI.WebView.data) or 
-        [url](Titanium.UI.WebView.url) properties.
+        On Android, setting the `html` property directly does not work until after the `load`
+        event has been fired. Using [setHtml](Titanium.UI.WebView.setHtml) is recommended.
         
-        For iOS, see [setHtml](Titanium.UI.WebView.setHtml) for additional parameters that can be
+        See [setHtml](Titanium.UI.WebView.setHtml) for additional parameters that can be
         specified when setting HTML content.
 
-        For Mobile Web, setting new content will reset the `url` and the WebView's history. The WebView's
-        "onload" event will have already fired prior to the data being set inside the WebView. When 
-        querying this value, mobile web will pass in a formatted version of the html. The `<html>` tag is
-        stripped of, along with comments outside of the `<html>` tag. Some default attributes may be added
-        as well. For example, a web page with the code `<html><head></head><body>hello</body></html>` returns
-        `"<head></head><body marginwidth="0" marginheight="0">hello</body>"` in Safari.
+        The web view's content can also be set using the [data](Titanium.UI.WebView.data) or 
+        [url](Titanium.UI.WebView.url) properties.
+
+        #### Mobile Web Platform Notes
+
+        For Mobile Web, setting new content will reset the `url` and the WebView's
+        history. 
+        
+        Content added using the `html` property (or the `setHtml` method) will never
+        receive an "onload" DOM event. 
+
+        When querying this the `html` property, Mobile Web returns a modified version of the original html. 
+        The `<html>` tag is stripped off, along with any comments outside of the `<html>` tag. Some default 
+        attributes may be added as well. For example, a web page with the code:
+        
+            <html><head></head><body>hello</body></html> 
+            
+        returns:
+
+            <head></head><body marginwidth="0" marginheight="0">hello</body>
+
+        in Safari.
+
+        See also: [data](Titanium.UI.WebView.data) and [url](Titanium.UI.WebView.url).
     type: String
 
   - name: loading
