@@ -102,13 +102,13 @@ exports.config = function (logger, config, cli) {
 						desc: __('the name for the avd'),
 						hint: __('name')
 					},
+					*/
 					'avd-skin': {
 						abbr: 'S',
 						desc: __('the skin for the avd'),
 						hint: __('skin'),
 						default: 'HVGA'
 					},
-					*/
 					'debug-host': {
 						abbr: 'H',
 						desc: __('debug connection info'),
@@ -251,10 +251,10 @@ exports.validate = function (logger, config, cli) {
 		if (isNaN(parseInt(cli.argv['avd-id']))) {
 			cli.argv['avd-id'] = 7;
 		}
-		/*
 		if (!cli.argv['avd-skin']) {
 			cli.argv['avd-skin'] = 'HVGA';
 		}
+		/*
 		if (!cli.argv['avd-abi']) {
 			cli.argv['avd-abi'] = androidEnv.targets[cli.argv['avd-id']].abis[0] || androidEnv.targets['7'].abis[0] || 'armeabi';
 		}
@@ -390,7 +390,7 @@ function build(logger, config, cli, finished) {
 		// console.log('Forking correct SDK command: ' + ('python ' + cmd.join(' ')).cyan + '\n');
 		
 		if (emulatorCmd.length > 0) {
-			spawn('python', emulatorCmd,{}).on('exit', function(code) {
+			spawn('python', emulatorCmd, { detached: true }).on('exit', function(code) {
 				if (code) {
 					finished && finished('An error occurred while running the command: ' + ('python ' + cmd.join(' ')).cyan + '\n');
 				}
