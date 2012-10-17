@@ -247,6 +247,20 @@
     [button sizeToFit];
     CGRect viewBounds = [self bounds];
     CGRect buttonBounds = [button bounds];
+    BOOL forceBounds = NO;
+    if (buttonBounds.size.width > viewBounds.size.width) {
+        buttonBounds.size.width = viewBounds.size.width;
+        buttonBounds.origin.x = 0;
+        forceBounds = YES;
+    }
+    if (buttonBounds.size.height > viewBounds.size.height) {
+        buttonBounds.size.height = viewBounds.size.height;
+        buttonBounds.origin.y = 0;
+        forceBounds = YES;
+    }
+    if (forceBounds) {
+        [button setFrame:buttonBounds];
+    }
     buttonBounds.origin.x = (viewBounds.size.width - buttonBounds.size.width)/2;
     buttonBounds.origin.y = (viewBounds.size.height - buttonBounds.size.height)/2;
     [button setFrame:buttonBounds];
@@ -303,11 +317,24 @@
             if (badge) 
             {
                 CGPoint point = CGPointMake((buttonFrame.origin.x + buttonFrame.size.width) - (badge.bounds.size.width/2),buttonFrame.origin.y-(4*badge.bounds.size.height/5));
+                if ((point.x + badge.bounds.size.width) >  viewBounds.size.width ){
+                    point.x = viewBounds.size.width - badge.bounds.size.width;
+                }
+                if (point.y < 0) {
+                    point.y = 0;
+                }
                 badge.frame = CGRectMake(point.x, point.y, badge.bounds.size.width, badge.bounds.size.height);
             }
             if (closeButton) 
             {
-                closeButton.frame = CGRectMake(buttonFrame.origin.x-(closeButton.bounds.size.width/3),buttonFrame.origin.y-(closeButton.bounds.size.height/3), closeButton.bounds.size.width, closeButton.bounds.size.height);
+                CGPoint point = CGPointMake(buttonFrame.origin.x-(closeButton.bounds.size.width/3),buttonFrame.origin.y-(closeButton.bounds.size.height/3));
+                if (point.x < 0) {
+                    point.x = 0;
+                }
+                if (point.y < 0) {
+                    point.y = 0;
+                }
+                closeButton.frame = CGRectMake(point.x,point.y, closeButton.bounds.size.width, closeButton.bounds.size.height);
             }
         }
     }
