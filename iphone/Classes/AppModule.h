@@ -45,6 +45,8 @@
 @property(nonatomic,readonly) NSNumber* keyboardVisible;
 @property(nonatomic,readwrite,assign) NSNumber* disableNetworkActivityIndicator;
 
+@property (nonatomic, readonly) NSString *EVENT_ACCESSIBILITY_ANNOUNCEMENT;
+@property (nonatomic, readonly) NSString *EVENT_ACCESSIBILITY_CHANGED;
 
 #ifdef USE_TI_APPIOS
 @property(nonatomic,readonly)			TiProxy* iOS;
