@@ -150,6 +150,16 @@
     [[self nextResponder]touchesEnded:touches withEvent:event];
 }
 
+-(void) setSelected:(BOOL)yn {
+    [super setSelected:yn];
+    [button setSelected:yn];
+}
+
+-(void) setHighlighted:(BOOL)yn {
+    [super setHighlighted:yn];
+    [button setHighlighted:yn];
+}
+
 - (BOOL)isHighlighted 
 {
 	return !dragging && [super isHighlighted];
