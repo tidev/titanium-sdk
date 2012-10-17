@@ -13,6 +13,7 @@
 #import "TiBindingTiValue.h"
 #import "TiBindingRunLoop.h"
 #import "TiBase.h"
+#import "TiExceptionHandler.h"
 
 extern TiStringRef kTiStringLength;
 
@@ -210,7 +211,14 @@ void TiBindingEventProcess(TiBindingRunLoop runloop, void * payload)
 			TiObjectCallAsFunction(context, (TiObjectRef)currentCallback, (TiObjectRef)eventTargetRef, 1, (TiValueRef*)&eventObjectRef,&exception);
 			if (exception!=NULL)
 			{
-				DebugLog(@"[WARN] Exception in event callback. %@",TiBindingTiValueToNSObject(context, exception));
+				id excm = TiBindingTiValueToNSObject(context, exception);
+				TiScriptError *scriptError = nil;
+				if ([excm isKindOfClass:[NSDictionary class]]) {
+					scriptError = [[TiScriptError alloc] initWithDictionary:excm];
+				} else {
+					scriptError = [[TiScriptError alloc] initWithMessage:[excm description] sourceURL:nil lineNo:0];
+				}
+				[[TiExceptionHandler defaultExceptionHandler] reportScriptError:scriptError];
 			}
 			
 			// Note cancel bubble
