@@ -113,12 +113,13 @@ static const NSTimeInterval kLauncherViewFastTransitionDuration = 0.2;
 
 -(LauncherButton*)addButtonWithItem:(LauncherItem*)item
 {
-    LauncherButton *theButton = [[LauncherButton alloc] initWithFrame:CGRectZero];
-    UIButton* button = [theButton button];
-    [scrollView addSubview:theButton];
-    theButton.item = item;
-    theButton.launcherView = self;
-    return [theButton autorelease];
+    LauncherButton *button = [[LauncherButton alloc] initWithFrame:CGRectZero];
+    [button addTarget:self action:@selector(buttonTouchedUpInside:) forControlEvents:UIControlEventTouchUpInside];
+    [button addTarget:self action:@selector(buttonTouchedUpOutside:) forControlEvents:UIControlEventTouchUpOutside];
+    [button addTarget:self action:@selector(buttonTouchedDown:withEvent:) forControlEvents:UIControlEventTouchDown];
+    [scrollView addSubview:button];
+    button.item = item;
+    return [button autorelease];
 }
 
 -(NSInteger)rowHeight
@@ -544,7 +545,7 @@ static const NSTimeInterval kLauncherViewFastTransitionDuration = 0.2;
 	}
 }
 
-- (void)closeButtonTouchedUpInside:(UIButton*)closeButton
+- (void)closeButtonTouchedUpInside:(LauncherButton*)closeButton
 {
 	for (NSArray* buttonPage in buttons) 
 	{
@@ -601,7 +602,6 @@ static const NSTimeInterval kLauncherViewFastTransitionDuration = 0.2;
 		{
 			button.editing = YES;
 			[button.closeButton addTarget:self action:@selector(closeButtonTouchedUpInside:) forControlEvents:UIControlEventTouchUpInside];
-			[button addTarget:self action:@selector(buttonTouchedDown:withEvent:) forControlEvents:UIControlEventTouchDown];
 		}
 	}
     
@@ -644,7 +644,6 @@ static const NSTimeInterval kLauncherViewFastTransitionDuration = 0.2;
 		{
 			button.transform = CGAffineTransformIdentity;
 			button.closeButton.alpha = 0;
-			[button removeTarget:self action:@selector(buttonTouchedDown:withEvent:) forControlEvents:UIControlEventTouchDown];
 		}
 	}
 	
@@ -681,9 +680,6 @@ static const NSTimeInterval kLauncherViewFastTransitionDuration = 0.2;
 	NSArray *data = timer.userInfo;
 	LauncherButton *button = [data objectAtIndex:0];
 	UIEvent *event = [data objectAtIndex:1];
-    if (![button isKindOfClass:[LauncherButton class]]) {
-        button = (LauncherButton*)[button superview];
-    }
     if ( button.item.userData == nil) {
         return;
     }
@@ -692,7 +688,7 @@ static const NSTimeInterval kLauncherViewFastTransitionDuration = 0.2;
 	
     [button setSelected:NO];
     [button setHighlighted:NO];
-    //[self startDraggingButton:button withEvent:event];
+    [self startDraggingButton:button withEvent:event];
 }
 
 
