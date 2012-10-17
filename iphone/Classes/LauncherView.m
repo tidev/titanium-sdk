@@ -701,7 +701,7 @@ static const NSTimeInterval kLauncherViewFastTransitionDuration = 0.2;
 	
     [button setSelected:NO];
     [button setHighlighted:NO];
-    [self startDraggingButton:button withEvent:event];
+    //[self startDraggingButton:button withEvent:event];
 }
 
 
