@@ -99,7 +99,7 @@ exports.validate = function (logger, config, cli) {
 };
 
 exports.run = function (logger, config, cli) {
-	var buildModule = path.join(path.dirname(module.filename), '..', '..', cli.argv.platform, 'cli', 'commands', '_build.js'),
+	var buildModule = path.join(__dirname, '..', '..', cli.argv.platform, 'cli', 'commands', '_build.js'),
 		tiapp = new ti.tiappxml(appc.fs.resolvePath(path.join(cli.argv['project-dir'], 'tiapp.xml')));
 	
 	if (!appc.fs.exists(buildModule)) {
