@@ -43,7 +43,7 @@ exports.config = function (logger, config, cli) {
 	return {
 		options: {
 			'deploy-type': {
-				abbr: 'B',
+				abbr: 'D',
 				default: 'development',
 				desc: __('the type of deployment; production performs optimizations'),
 				hint: __('type'),
