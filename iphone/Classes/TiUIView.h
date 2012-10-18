@@ -229,6 +229,8 @@ void ModifyScrollViewForKeyboardHeightAndContentHeightWithResponderRect(UIScroll
 
 -(void)setVisible_:(id)visible;
 
+-(void)setBackgroundImage_:(id)value;
+
 -(UIView *)gradientWrapperView;
 -(void)checkBounds;
 
