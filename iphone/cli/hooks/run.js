@@ -43,6 +43,10 @@ exports.init = function (logger, config, cli) {
 				},
 				
 				function (next) {
+					setTimeout(next, 2000);
+				},
+				
+				function (next) {
 					var simulatorDir = afs.resolvePath('~/Library/Application Support/iPhone Simulator/' + build.iosSimVersion),
 						logFile = build.tiapp.guid + '.log';
 					
@@ -81,7 +85,7 @@ exports.init = function (logger, config, cli) {
 								console.log('ACT ERR! ' + stderr);
 							}
 						})
-					}, 500)
+					}, 500);
 				
 				cli.argv.retina && cmd.push('--retina');
 				cmd = cmd.join(' ');
