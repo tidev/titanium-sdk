@@ -14,6 +14,7 @@
 #import "TiUITabGroupProxy.h"
 #import "TiUtils.h"
 #import "ImageLoader.h"
+#import "TiApp.h"
 
 
 //NOTE: this proxy is a little different than normal Proxy/View pattern
@@ -279,7 +280,7 @@
 	[window setParentOrientationController:self];
 	// TODO: Slap patch.  Views, when opening/added, should check parent visibility (and parent/parent visibility, if possible)
 	[window parentWillShow];
-
+	[[[TiApp app] controller] dismissKeyboard];
 	TiThreadPerformOnMainThread(^{
 		[self openOnUIThread:args];
 	}, YES);
