@@ -106,9 +106,9 @@ exports.config = function (logger, config, cli) {
 				},
 				options: {
 					'debug-host': {
-						abbr: 'H',
-						desc: __('debug connection info; airkey and hosts required for %s and %s, ignored for %s', 'device'.cyan, 'dist-adhoc'.cyan, 'dist-appstore'.cyan),
-						hint: 'host:port[:airkey:hosts]',
+						//abbr: 'H',
+						//desc: __('debug connection info; airkey and hosts required for %s and %s, ignored for %s', 'device'.cyan, 'dist-adhoc'.cyan, 'dist-appstore'.cyan),
+						//hint: 'host:port[:airkey:hosts]',
 						hidden: true
 					},
 					'deploy-type': {
