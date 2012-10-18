@@ -1352,6 +1352,14 @@ examples:
             });
             window.add(view);
 
+  - title: Alloy XML Markup
+    example: |
+        Previous example as an Alloy view.
+
+            <Alloy>
+                <View id="view" borderRadius="10" backgroundColor="red" width="50" height="50" />
+            </Alloy>
+
 ---
 name: Point
 summary: A pair of coordinates used to describe the location of a <Titanium.UI.View>.

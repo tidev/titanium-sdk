@@ -52,32 +52,63 @@ methods:
 examples:
   - title: Simple Navigation Group
     example: |
-        Create two windows in a navigation group, with the first colored blue. When the back button 
-        is clicked a red window is shown.
+        Creates a navigation group with the first window colored red.
+        Press the button to open the blue window.
+        Use the back button to return to the red root window.
 
             var win1 = Titanium.UI.createWindow();
 
             var win2 = Titanium.UI.createWindow({
-            	backgroundColor : 'red',
-            	title : 'Red Window'
+                backgroundColor: 'red',
+                title: 'Red Window'
+            });
+
+            var win3 = Titanium.UI.createWindow({
+                backgroundColor: 'blue',
+                title: 'Blue Window'
+            });
+
+            var button = Titanium.UI.createButton({
+                title: 'Open Blue Window'
+            });
+            button.addEventListener('click', function(){
+                nav.open(win3, {animated:true});
             });
 
             var nav = Titanium.UI.iPhone.createNavigationGroup({
-            	window : win2
+               window: win2
             });
 
-            var addBlueWindow = function() {
-            	var win3 = Titanium.UI.createWindow({
-            		backgroundColor : 'blue',
-            		title : 'Blue Window'
-            	});
-            	nav.open(win3, {animated : true});
-            	// clean up the event handler 
-            	win2.removeEventListener('open', addBlueWindow);
-            } 
-            // To avoid a race condition, wait for the open event on the main window
-            // before opening a sub-window.
-            win2.addEventListener('open', addBlueWindow);
-
+            win2.add(button);
             win1.add(nav);
             win1.open();
+
+  - title: Alloy XML Markup
+    example: |
+        Previous example as two Alloy views.
+
+        navgroup.xml:
+
+            <Alloy>
+                <Window>
+                    <NavigationGroup id="nav" platform="ios">
+                        <Window id="win2" title="Red Window" backgroundColor="red">
+                            <Button title="Open Blue Window" onClick="openBlueWindow">
+                        </Window>
+                    </NavigationGroup>
+                </Window>
+            </Alloy>
+
+        navgroup.js:
+
+            function openBlueWindow(){
+                var win3 = Alloy.createController('bluewindow').getView();
+                $.nav.open(win3, {animated : true});
+            }
+
+        bluewindow.xml:
+
+            <Alloy>
+                <Window title="Blue Window" backgroundColor="blue" />
+            </Alloy>
+
