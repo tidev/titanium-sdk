@@ -292,7 +292,8 @@ exports.bootstrapWindow = function(Titanium) {
 		 		this.view.addEventListener(event, listeners[i].listener, this); 
 		 	} 
 		}
-
+		
+		var self = this;
 		this.view.addEventListener("closeFromActivity", function(e) {
 			self.window = null;
 			self.view = null;
