@@ -7,6 +7,7 @@
 #import "KrollCallback.h"
 #import "KrollBridge.h"
 #import "KrollObject.h"
+#import "TiExceptionHandler.h"
 
 static NSMutableArray * callbacks;
 static NSLock *callbackLock;
@@ -144,7 +145,14 @@ static NSLock *callbackLock;
 	TiValueRef retVal = TiObjectCallAsFunction(jsContext,function,tp,[args count],_args,&exception);
 	if (exception!=NULL)
 	{
-		DebugLog(@"[ERROR] Exception in event callback: %@",[KrollObject toID:context value:exception]);
+		id excm = [KrollObject toID:context value:exception];
+		TiScriptError *scriptError = nil;
+		if ([excm isKindOfClass:[NSDictionary class]]) {
+			scriptError = [[TiScriptError alloc] initWithDictionary:excm];
+		} else {
+			scriptError = [[TiScriptError alloc] initWithMessage:[excm description] sourceURL:nil lineNo:0];
+		}
+		[[TiExceptionHandler defaultExceptionHandler] reportScriptError:scriptError];
 	}
 	if (top!=NULL)
 	{

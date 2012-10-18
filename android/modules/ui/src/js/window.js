@@ -267,9 +267,7 @@ exports.bootstrapWindow = function(Titanium) {
 		this.window = existingWindow;
 		this.view = this.window;
 		this.setWindowView(this.view);
-
 		this.addChildren();
-
 		var self = this;
 		this.on("open", function () {
 			self.postOpen(true);
@@ -294,6 +292,7 @@ exports.bootstrapWindow = function(Titanium) {
 		 		this.view.addEventListener(event, listeners[i].listener, this); 
 		 	} 
 		}
+		
 		var self = this;
 		this.view.addEventListener("closeFromActivity", function(e) {
 			self.window = null;
@@ -352,20 +351,19 @@ exports.bootstrapWindow = function(Titanium) {
 		bootstrap.bootstrapGlobals(context, Titanium);
 
 		var scriptPath = url.toAssetPath(resolvedUrl);
+		var relScriptPath = scriptPath.replace("Resources/", "");
 		var scriptSource = assets.readAsset(scriptPath);
-		var filename = 'app:///'+scriptPath.replace("Resources/", "");
 
 		// Setup require for the new window context.
-		var module = new kroll.Module(filename, this._module || kroll.Module.main, context);
+		var module = new kroll.Module("app:///" + relScriptPath, this._module || kroll.Module.main, context);
 		context.require = function(request, context) {
 			return module.require(request, context);
 		};
 
 		if (kroll.runtime == "v8") {
-			Script.runInContext(scriptSource, context, scriptPath, true);
-
+			Script.runInContext(scriptSource, context, relScriptPath, true);
 		} else {
-			Script.runInThisContext(scriptSource, scriptPath, true, context);
+			Script.runInThisContext(scriptSource, relScriptPath, true, context);
 		}
 	}
 
@@ -506,6 +504,9 @@ exports.bootstrapWindow = function(Titanium) {
 
 		} else {
 			this.view.addEventListener(event, listener, this); 
+			if (event == 'android:back' && this.view._internalActivity) {
+				this.view._internalActivity.addEventListener(event, listener, this);  
+			}
 		}
 	}
 	
@@ -515,6 +516,9 @@ exports.bootstrapWindow = function(Titanium) {
 
 		} else {
 			this.view.removeEventListener(event, listener);
+			if (event == 'android:back' && this.view._internalActivity) {
+				this.view._internalActivity.removeEventListener(event, listener);  
+			}
 		}
 	}
 

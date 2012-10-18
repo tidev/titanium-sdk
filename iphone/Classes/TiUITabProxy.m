@@ -129,6 +129,7 @@
 
 - (void)handleWillShowViewController:(UIViewController *)viewController animated:(BOOL)animated
 {
+	BOOL safeToTransition = YES;
 	if (current!=nil)
 	{ 
 		TiWindowProxy *currentWindow = [current window];
@@ -153,6 +154,8 @@
                         continue;
                     }
                     [closingWindows addObject:window];
+                    safeToTransition = safeToTransition && ![window restoreFullScreen];
+
                     [window windowWillClose];
                 }
                 else {
@@ -178,7 +181,9 @@
 	
 	[newWindow _tabFocus];
 	WARN_IF_BACKGROUND_THREAD_OBJ;
-	[self childOrientationControllerChangedFlags:newWindow];
+	if (safeToTransition) {
+		[self childOrientationControllerChangedFlags:newWindow];
+	}
 
 	opening = NO; 
 }
@@ -195,6 +200,7 @@
     RELEASE_TO_NIL(closingWindows);
     RELEASE_TO_NIL(controllerStack);
     controllerStack = [[[rootController navigationController] viewControllers] copy];
+    [self childOrientationControllerChangedFlags:[current window]];
 }
 
 #pragma mark Delegates
