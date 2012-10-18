@@ -458,3 +458,15 @@ examples:
                 top : 10,
                 width : 300, height : 35
             });
+
+  - title: Alloy XML Markup
+    example: |
+        Previous basic text field with rounded border example as an Alloy view.
+
+        Define the `borderStyle` property in the TSS file.
+
+            <Alloy>
+                <Window id="win" backgroundColor="white">
+                    <TextField id="textField" color="#336699" top="10" left="10" width="250" height="60" />
+                </Window>
+            </Alloy>

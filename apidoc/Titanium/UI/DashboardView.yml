@@ -261,3 +261,69 @@ examples:
             
             win.open();
 
+  - title: Alloy XML Markup
+    example: |
+        Previous example as an Alloy view.
+
+        dashboard.xml:
+
+            <Alloy>
+                <Window id="win" backgroundColor="#13386c">
+                    <Toolbar id="toolbar" top="0">
+                        <Items>
+                            <Button id="button" onClick="changeMode">Edit</Button>
+                        </Items>
+                    </Toolbar>
+                    <Label id="label" color="white" top="55" height="40" width="300">
+                        Click an item to reset badge\nPress and hold an item to enable edit mode
+                    </Label>
+
+                    <!--
+                        Adding DashboardItems to a DashboardView would be easier programmatically,
+                        but the purpose of this example is to show how to do it in markup.
+                    -->
+                    <DashboardView id="dashboard" top="100" wobble="true"
+                        onClick="resetBadge" onEdit="handleEdit" onCommit="handleCommit">
+
+                        <DashboardItem image="account_off.png" selectedImage="account_on.png" badge="10" label="account"/>
+                        <DashboardItem image="calls_off.png" selectedImage="calls_on.png" badge="110" label="calls"/>
+                        <DashboardItem image="cases_off.png" selectedImage="cases_on.png" label="cases"/>
+                        <DashboardItem image="contacts_off.png" selectedImage="contacts_on.png" badge="23" label="contacts"/>
+                        <DashboardItem image="emps_off.png" selectedImage="emps_on.png" label="employees"/>
+                        <DashboardItem image="leads_off.png" selectedImage="leads_on.png" badge="1" label="leads"/>
+                        <DashboardItem image="meetings_off.png" selectedImage="meetings_on.png" badge="5" label="meetings"/>
+                        <DashboardItem image="opps_off.png" selectedImage="opps_on.png" label="opps"/>
+                        <DashboardItem image="tasks_off.png" selectedImage="tasks_on.png" label="tasks"/>
+
+                    </DashboardView>
+
+                </Window>
+            </Alloy>
+
+        dashboard.js:
+
+            var isEditable = false;
+
+            function changeMode(e){
+              if(isEditable){
+                $.dashboard.stopEditing();
+              } else {
+                $.dashboard.startEditing();
+              }
+            });
+
+            function handleEdit(e){
+              $.button.title = 'Done';
+              $.button.style = Ti.UI.iPhone.SystemButtonStyle.DONE;
+              isEditable = true;
+            });
+
+            function handleCommit(e){
+              $.button.title = 'Edit';
+              $.button.style = Ti.UI.iPhone.SystemButtonStyle.PLAIN;
+              isEditable = false;
+            });
+
+            function resetBadge(e){
+              e.item.badge = 0;
+            });

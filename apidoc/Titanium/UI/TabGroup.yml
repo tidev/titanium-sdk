@@ -391,3 +391,24 @@ properties:
     default: true
     platforms: [mobileweb]
     since: "2.0.0"
+
+examples:
+  - title: Alloy XML Markup
+    example: |
+        Default Titanium project as an Alloy view.
+
+                <Alloy>
+                    <TabGroup backgroundColor="white" >
+                        <Tab id="tab1" title="Tab 1" icon="KS_nav_views.png">
+                            <Window id="win1" title="Tab 1">
+                               <Label id="label1" color="#999">I am Window 1</Label>
+                            </Window>
+                        </Tab>
+                        <Tab id="tab2" title="Tab 2" icon="KS_nav_views.png">
+                            <Window id="win2" title="Tab 2">
+                                <Label id="label2" color="#999">I am Window 2</Label>
+                            </Window>
+                        </Tab>
+                        <!-- Use the Require tag to include external Ti.UI.Tab views -->
+                    </TabGroup>
+                </Alloy>
