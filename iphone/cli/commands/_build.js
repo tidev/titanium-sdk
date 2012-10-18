@@ -472,6 +472,8 @@ exports.validate = function (logger, config, cli) {
 };
 
 exports.run = function (logger, config, cli, finished) {
+	cli.argv.platform = 'ios';
+	
 	if (cli.argv.xcode) {
 		// basically, we bypass the pre, post, and finalize hooks for xcode builds
 		var buildObj = new build(logger, config, cli, finished);
