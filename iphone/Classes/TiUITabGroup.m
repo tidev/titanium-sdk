@@ -177,7 +177,7 @@ DEFINE_EXCEPTIONS
 		UIViewController * rootController = [moreViewControllerStack objectAtIndex:1];
 		if ([rootController respondsToSelector:@selector(tab)])
 		{
-			[(TiUITabProxy *)[(id)rootController tab] handleWillShowViewController:viewController];
+			[(TiUITabProxy *)[(id)rootController tab] handleWillShowViewController:viewController animated:animated];
 		}
 	}
 	else
@@ -223,7 +223,7 @@ DEFINE_EXCEPTIONS
 		}
 	}
 
-	[tabProxy handleDidShowViewController:viewController];
+	[tabProxy handleDidShowViewController:viewController animated:animated];
 }
 
 #pragma mark TabBarController Delegates
@@ -367,7 +367,9 @@ DEFINE_EXCEPTIONS
 	if (active == nil)  {
 		DebugLog(@"setActiveTab called but active view controller could not be determined");
 	}
-	[self tabController].selectedViewController = active;
+	else {
+		[self tabController].selectedViewController = active;
+	}
 	[self tabBarController:[self tabController] didSelectViewController:active];
 }
 
@@ -413,7 +415,13 @@ DEFINE_EXCEPTIONS
 		[self tabController].viewControllers = controllers;
 		if (![tabs containsObject:focused])
 		{
-			[self setActiveTab_:thisTab];
+            if ([controllers containsObject:thisTab]) {
+                [self setActiveTab_:thisTab];
+            }
+            else {
+                DebugLog(@"[WARN] ActiveTab property points to tab not in list. Ignoring");
+                RELEASE_TO_NIL(focused);
+            }
 		}
 
 		[controllers release];
@@ -450,20 +458,11 @@ DEFINE_EXCEPTIONS
 
 -(void)close:(id)args
 {
-	[self.proxy setValue:nil forKey:@"activeTab"];
 	if (controller!=nil)
-	{ 
-		for (UIViewController *c in controller.viewControllers)
-		{
-			UINavigationController *navController = (UINavigationController*)c;
-			TiUITabProxy *tab = (TiUITabProxy*)navController.delegate;
-			[tab closeTab];
-		}
+	{
 		controller.viewControllers = nil;
 	}
 	RELEASE_TO_NIL(controller);
-    [focused replaceValue:NUMBOOL(NO) forKey:@"active" notification:NO];
-	RELEASE_TO_NIL(focused);
 }
 
 
