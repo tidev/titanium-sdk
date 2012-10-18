@@ -397,6 +397,19 @@ examples:
                 width : 300, height : 120
             });
 
+  - title: Alloy XML Markup
+    example: |
+        Previous basic text area with customizations example as an Alloy view.
+
+            <Alloy>
+                <Window id="win" backgroundColor="white">
+                    <TextArea id="textArea"
+                        borderWidth="2" borderColor="#bbb" borderRadius="5"
+                        color="#888" textAlign="left" value="I am a textarea"
+                        top="60" width="300" height="70" />
+                </Window>
+            </Alloy>
+
 ---
 name: textAreaSelectedParams
 summary: |

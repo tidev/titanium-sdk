@@ -1361,6 +1361,29 @@ examples:
             win.add(tableView);
             win.open();
 
+  - title: Alloy XML Markup
+    example: |
+        Previous table view sections example as an Alloy view.
+
+            <Alloy>
+                <Window id="win" backgroundColor="white">
+                    <TableView id="table">
+                        <TableViewSection id="sectionFruit" headerTitle="Fruit">
+                            <TableViewRow title="Apple"/>
+                            <TableViewRow title="Bananas"/>
+                        </TableViewSection>
+                        <TableViewSection id="sectionVeg" headerTitle="Vegetables">
+                            <TableViewRow title="Carrots"/>
+                            <TableViewRow title="Potatoes"/>
+                        </TableViewSection>
+                        <TableViewSection id="sectionFish" headerTitle="Fish">
+                            <TableViewRow title="Cod"/>
+                            <TableViewRow title="Haddock"/>
+                        </TableViewSection>
+                    </TableView>
+                </Window>
+            </Alloy>
+
 ---
 name: TableViewAnimationProperties
 summary: A simple object for specifying the animation properties to use when inserting or deleting rows, or scrolling the table.
