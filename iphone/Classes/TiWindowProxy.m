@@ -575,6 +575,17 @@ TiOrientationFlags TiOrientationFlagsFromObject(id args)
     }, YES);
 }
 
+-(BOOL)restoreFullScreen
+{
+    if (fullscreenFlag && !restoreFullscreen)
+    {
+        [[UIApplication sharedApplication] setStatusBarHidden:restoreFullscreen withAnimation:UIStatusBarAnimationNone];
+        [[[TiApp app] controller] resizeViewForStatusBarHidden];
+        return YES;
+    } 
+    return NO;
+}
+
 -(void)closeOnUIThread:(id)args
 {
 	[self windowWillClose];
@@ -645,10 +656,10 @@ TiOrientationFlags TiOrientationFlagsFromObject(id args)
 			[closeAnimation animate:self];
 		}
 		  
-		if (fullscreenFlag)
+		if (fullscreenFlag && !restoreFullscreen)
 		{
-			[[UIApplication sharedApplication] setStatusBarHidden:restoreFullscreen];
-			self.view.frame = [[[TiApp app] controller] resizeView];
+			[[UIApplication sharedApplication] setStatusBarHidden:restoreFullscreen withAnimation:UIStatusBarAnimationNone];
+			self.view.frame = [[[TiApp app] controller] resizeViewForStatusBarHidden];
 		} 
  
 		if (closeAnimation!=nil)
