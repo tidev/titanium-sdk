@@ -267,9 +267,7 @@ exports.bootstrapWindow = function(Titanium) {
 		this.window = existingWindow;
 		this.view = this.window;
 		this.setWindowView(this.view);
-
 		this.addChildren();
-
 		var self = this;
 		this.on("open", function () {
 			self.postOpen(true);
@@ -294,6 +292,7 @@ exports.bootstrapWindow = function(Titanium) {
 		 		this.view.addEventListener(event, listeners[i].listener, this); 
 		 	} 
 		}
+		
 		var self = this;
 		this.view.addEventListener("closeFromActivity", function(e) {
 			self.window = null;
@@ -506,6 +505,9 @@ exports.bootstrapWindow = function(Titanium) {
 
 		} else {
 			this.view.addEventListener(event, listener, this); 
+			if (event == 'android:back' && this.view._internalActivity) {
+				this.view._internalActivity.addEventListener(event, listener, this);  
+			}
 		}
 	}
 	
@@ -515,6 +517,9 @@ exports.bootstrapWindow = function(Titanium) {
 
 		} else {
 			this.view.removeEventListener(event, listener);
+			if (event == 'android:back' && this.view._internalActivity) {
+				this.view._internalActivity.removeEventListener(event, listener);  
+			}
 		}
 	}
 
