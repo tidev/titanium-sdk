@@ -43,7 +43,29 @@ examples:
             slider.addEventListener('change', function(e) {
                 label.text = String.format("%3.1f", e.value);
             });
-            
+
+  - title: Alloy XML Markup
+    example: |
+        Previous example as an Alloy view.
+
+        Implement the `updateLabel` callback in the controller to update the label value
+        and set the initial `text` value for the label in the TSS file or controller.
+
+        sliderexample.xml:
+
+            <Alloy>
+                <Window id="win" backgroundColor="white">
+                    <Slider id="slider" top="50" min="0" max="100" width="100%" value="50" onChange="updateLabel"/>
+                    <Label id="label" width="100%" top="30" left="0" />
+                </Window>
+            </Alloy>
+
+        sliderexample.js:
+
+            $.slider.text = $.slider.value;
+            function updateLabel(e){
+                $.label.text = String.format("%3.1f", e.value);
+            }
 methods: 
     # main doc inherited from Ti.UI.View.add
   - name: add
