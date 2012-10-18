@@ -137,10 +137,10 @@ public class TableViewProxy extends TiViewProxy
 
 	@Override
 	public boolean fireEvent(String eventName, Object data) {
-		if (eventName.equals(TiC.EVENT_LONGPRESS)) {
+		if (eventName.equals(TiC.EVENT_LONGPRESS) && (data instanceof HashMap)) {
 			// The data object may already be in use by the runtime thread
 			// due to a child view's event fire. Create a copy to be thread safe.
-			KrollDict dataCopy = new KrollDict((KrollDict)data);
+			KrollDict dataCopy = new KrollDict((HashMap)data);
 			double x = dataCopy.getDouble(TiC.PROPERTY_X);
 			double y = dataCopy.getDouble(TiC.PROPERTY_Y);
 			int index = getTableView().getTableView().getIndexFromXY(x, y);
