@@ -449,9 +449,17 @@ examples:
     example: |
         Create a web view to a remote URL and open the window as modal.
         
-            	var webview = Titanium.UI.createWebView({url:'http://www.appcelerator.com'});
+              var webview = Titanium.UI.createWebView({url:'http://www.appcelerator.com'});
             	var window = Titanium.UI.createWindow();
             	window.add(webview);
             	window.open({modal:true});
-        
-        
+
+  - title: Alloy XML Markup
+    example: |
+        Previous example as an Alloy view.
+
+            <Alloy>
+                <Window id="win" modal="true">
+                    <WebView id="webview" url="http://www.appcelerator.com" />
+                </Window>
+            </Alloy>

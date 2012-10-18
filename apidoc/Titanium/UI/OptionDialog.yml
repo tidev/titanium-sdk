@@ -220,6 +220,49 @@ examples:
           var dialog = Ti.UI.createOptionDialog(opts).show();
         });
         win.open();
+
+  - title: Alloy XML Markup
+    example: |
+        Previous example as an Alloy view.
+
+        optiondialog.xml:
+
+            <Alloy>
+                <Window id="win" onClick="showOptions" title="Click window to test"
+                    fullscreen="false" onExit="true" backgroundColor="white">
+
+                    <!--
+                        The OptionDialog tag declares an option dialog,
+                        which will need to be opened by the controller.
+                    -->
+                    <OptionDialog id="dialog" title="Delete File?">
+
+                        <!-- The Options tag sets the options property. -->
+                        <Options>
+                            <Option>Confirm</Option>
+                            <Option platform="ios">Help</Option>
+                            <Option>Cancel</Option>
+                        </Options>
+
+                        <!-- The ButtonNames tag sets the Android-only buttonNames property. -->
+                        <ButtonNames>
+                            <ButtonName>Confirm</ButtonName>
+                        </ButtonNames>
+
+                        <!-- Add a View for the androidView property here. -->
+
+                    </OptionDialog>
+
+                    <!-- Add views here -->
+
+                </Window>
+            </Alloy>
+
+        optiondialog.js:
+
+            function showOptions(){
+                $.dialog.show();
+            }
 ---
 name: hideParams
 summary: Dictionary of options for the <Titanium.UI.OptionDialog.hide> method.

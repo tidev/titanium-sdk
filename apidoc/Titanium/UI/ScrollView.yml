@@ -403,6 +403,17 @@ examples:
             win.add(label);
             win.open();
 
+  - title: Alloy XML Markup
+    example: |
+       Previous simple scroll view example as an Alloy view.
+
+           <Alloy>
+               <Window id="win" backgroundColor="white" exitOnClose="true" fullscreen="false" title="ScrollView Demo">
+                   <ScrollView id="scrollView" showVerticalScrollIndicator="true" showHorizontalScrollIndicator="true" height="80%" width="80%">
+                       <View id="view" backgroundColor="#336699" borderRaduis="10" top="10" height="2000" width="1000" />
+                   </ScrollView>
+               </Window>
+           </Alloy>
 ---
 name: contentOffsetOption
 summary: Optional parameter for [setContentOffset](Titanium.UI.ScrollView.setContentOffset) method.

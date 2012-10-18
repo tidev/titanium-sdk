@@ -183,3 +183,30 @@ examples:
               menu.findItem(LOGOUT).setVisible(loggedIn);
             };
             win.open();
+
+  - title: Alloy XML Markup
+    example: |
+        Previous simple menu example as an Alloy view.
+
+        simplemenuexample.xml:
+
+            <Alloy>
+                <!-- Create a heavyweight window to use the Android menu. -->
+                <Window id="win" fullscreen="true">
+
+                    <!-- The Menu tag adds the Android menu. -->
+                    <Menu id="menu" platform="android">
+
+                        <!-- Cannot specify node text.  Use attributes only. -->
+                        <MenuItem id="menuItem" title="Item 1" icon="item1.png" onClick="doClick" />
+                    </Menu>
+
+                    <!-- Place additional views here -->
+                </Window>
+            </Alloy>
+
+        simplemenuexample.js:
+
+            var doClick = function(e) {
+                Ti.API.info("Menu item clicked: " + e.source.title);
+            }
