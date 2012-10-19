@@ -502,9 +502,23 @@ doReposition = YES;\
                     [(TiViewProxy *)[uiview proxy] setVzIndex:[zIndex intValue]];
                 }
                 
+//                if (doReposition)
+//                {
+//                    [(TiViewProxy *)[uiview proxy] reposition];
+//                }
                 if (doReposition)
                 {
+                    CABasicAnimation *theAnimation = [CABasicAnimation animationWithKeyPath:@"shadowPath"];
+                    theAnimation.fromValue = (id)[UIBezierPath bezierPathWithRoundedRect:[uiview bounds] cornerRadius:uiview.layer.cornerRadius].CGPath;
+                    theAnimation.duration = animationDuration;
+                    theAnimation.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseInEaseOut];
                     [(TiViewProxy *)[uiview proxy] reposition];
+                    theAnimation.toValue = (id)[UIBezierPath bezierPathWithRoundedRect:[uiview bounds] cornerRadius:uiview.layer.cornerRadius].CGPath;
+                    if (repeatCount > 0) {
+                        theAnimation.autoreverses = (reverseAnimation != nil);
+                        theAnimation.repeatCount = repeatCount;
+                    }
+                    [[uiview layer] addAnimation:theAnimation forKey:@"animateShadowPath"];
                 }
             }
             
@@ -514,6 +528,7 @@ doReposition = YES;\
                 TiColor *color_ = [TiUtils colorValue:backgroundColor];
                 [view_ setBackgroundColor:[color_ _color]];
             }
+            
             
             if (color!=nil && [view_ respondsToSelector:@selector(setColor_:)])
             {

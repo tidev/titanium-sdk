@@ -156,8 +156,11 @@
 		{
 			[children addObject:arg];
 		}
-        //Turn on clipping because I have children
-        [self view].clipsToBounds = YES;
+        //Turn on clipping depending on shadow
+        [self view].clipsToBounds = ([[self view] layer].shadowOpacity == 0);
+        
+        //update shadowPath so that it doesnt take children into account
+        [[self view] updateShadowPath];
         
 		pthread_rwlock_unlock(&childrenLock);
 		[arg setParent:self];

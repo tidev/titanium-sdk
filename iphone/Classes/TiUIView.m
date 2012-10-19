@@ -627,6 +627,7 @@ DEFINE_EXCEPTIONS
 	}
 	else if (gradientLayer == nil)
 	{
+        
 		gradientLayer = [[TiGradientLayer alloc] init];
 		[(TiGradientLayer *)gradientLayer setGradient:arg];
 		[gradientLayer setNeedsDisplayOnBoundsChange:YES];
@@ -664,8 +665,8 @@ DEFINE_EXCEPTIONS
 {
     if ([self shadowLayer].shadowOpacity > 0.0f)
     {
-        [self shadowLayer].shadowPath =[UIBezierPath bezierPathWithRoundedRect:[self bounds] cornerRadius:self.layer.cornerRadius].CGPath;//to speedup things
-
+        //to speedup things
+        [self shadowLayer].shadowPath =[UIBezierPath bezierPathWithRoundedRect:[self bounds] cornerRadius:self.layer.cornerRadius].CGPath;
     }
 }
 
@@ -682,6 +683,8 @@ DEFINE_EXCEPTIONS
 		color = [TiUtils colorValue:color];
         CGFloat alpha = CGColorGetAlpha([color _color].CGColor);
         
+        [[self shadowLayer] setShadowOpacity:alpha];
+		[[self shadowLayer] setShadowColor:[color _color].CGColor];
         if (alpha == 0.0f)
         {
             [self shadowLayer].masksToBounds = YES;
@@ -693,16 +696,15 @@ DEFINE_EXCEPTIONS
 //            [self shadowLayer].shadowPath = [UIBezierPath bezierPathWithRect:self.bounds].CGPath;
             [self updateShadowPath];
         }
-		[[self shadowLayer] setShadowOpacity:alpha];
-		[[self shadowLayer] setShadowColor:[color _color].CGColor];
+		
 	}
 }
 
 -(void)didAddSubview:(UIView*)view
 {
 	// So, it turns out that adding a subview places it beneath the gradient layer.
-	// Every time we add a new subview, we have to make sure the gradient stays where it belongs...
-	if (gradientLayer != nil) {
+	// Every time we add a new subview, we have to make sure the gradient stays where it belongs..
+    if (gradientLayer != nil) {
 		[[[self gradientWrapperView] layer] insertSublayer:gradientLayer atIndex:0];
 	}
     if ([self backgroundImageLayer] != nil) {
