@@ -639,7 +639,7 @@ function build(logger, config, cli, finished) {
 		this.logger.info(__('Setting non-production device build version to %s', this.tiapp.version));
 	}
 	
-	Array.isArray(this.tiapp.modules) || (this.tiapp.modules = []);
+	!Array.isArray(this.tiapp.modules) && (this.tiapp.modules = []);
 	
 	if (cli.argv.xcode) {
 		this.logger.info(__('Performing Xcode pre-compile phase'));
