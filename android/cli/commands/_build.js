@@ -20,7 +20,6 @@ var ti = require('titanium-sdk'),
 	version = appc.version,
 	wrench = require('wrench'),
 	androidEnv,
-	tiapp,
 	deployTypes = ['production', 'test', 'development'],
 	targets = ['emulator', 'device', 'dist-playstore'],
 	javaKeywords = [
@@ -203,7 +202,7 @@ exports.validate = function (logger, config, cli) {
 		i;
 	
 	ti.validateProjectDir(logger, cli, cli.argv, 'project-dir');
-	if (!ti.validateCorrectSDK(logger, config, cli, cli.argv['project-dir'])) {
+	if (!ti.validateCorrectSDK(logger, config, cli)) {
 		// we're running the build command for the wrong SDK version, gracefully return
 		return false;
 	}
@@ -238,8 +237,7 @@ exports.validate = function (logger, config, cli) {
 	}
 	
 	// Validate App ID
-	tiapp = new ti.tiappxml(path.join(cli.argv['project-dir'], 'tiapp.xml'));
-	tokens = tiapp.id.split('.');
+	tokens = cli.tiapp.id.split('.');
 	for ( i = 0; i < tokens.length; i++) {
 		if (javaKeywords.indexOf(tokens[i]) != -1) {
 			logger.error(__('Invalid java keyword used in project app id: %s', tokens[i]) + '\n');
@@ -360,16 +358,16 @@ function sendAnalytics(cli) {
 
 	cli.addAnalyticsEvent(eventName, {
 		dir: cli.argv['project-dir'],
-		name: tiapp.name,
-		publisher: tiapp.publisher,
-		url: tiapp.url,
-		image: tiapp.image,
-		appid: tiapp.id,
-		description: tiapp.description,
+		name: cli.tiapp.name,
+		publisher: cli.tiapp.publisher,
+		url: cli.tiapp.url,
+		image: cli.tiapp.image,
+		appid: cli.tiapp.id,
+		description: cli.tiapp.description,
 		type: cli.argv.type,
-		guid: tiapp.guid,
-		version: tiapp.version,
-		copyright: tiapp.copyright,
+		guid: cli.tiapp.guid,
+		version: cli.tiapp.version,
+		copyright: cli.tiapp.copyright,
 		date: (new Date()).toDateString()
 	});
 }
@@ -386,7 +384,7 @@ function build(logger, config, cli, finished) {
 		// not actually used, yet
 		// logger.info(__('Compiling "%s" build', cli.argv['deploy-type']));
 		
-		ti.legacy.constructLegacyCommand(cli, tiapp, cli.argv.platform , cmd, emulatorCmd);
+		ti.legacy.constructLegacyCommand(cli, cli.tiapp, cli.argv.platform , cmd, emulatorCmd);
 		
 		// console.log('Forking correct SDK command: ' + ('python ' + cmd.join(' ')).cyan + '\n');
 		
@@ -412,7 +410,7 @@ function build(logger, config, cli, finished) {
 			} else if (cli.argv['target'] == 'emulator') {
 				// Call the logcat command in the old builder.py after the emulator, so we get logcat output
 				spawn('python', [
-					path.join(path.resolve(cli.env.sdks[tiapp['sdk-version']].path), cli.argv.platform, 'builder.py'),
+					path.join(path.resolve(cli.env.sdks[cli.tiapp['sdk-version']].path), cli.argv.platform, 'builder.py'),
 					'logcat',
 					cli.argv['android-sdk'],
 					'-e'
@@ -426,7 +424,7 @@ function build(logger, config, cli, finished) {
 					'shell', 'am', 'start',
 					'-a', 'android.intent.action.MAIN',
 					'-c', 'android.intent.category.LAUNCHER',
-					'-n', tiapp.id + '/.' + appnameToClassname(tiapp.name) + 'Activity',
+					'-n', cli.tiapp.id + '/.' + appnameToClassname(cli.tiapp.name) + 'Activity',
 					'-f', '0x10200000'
 				], options).on('exit', function (code) {
 					if (code) {
