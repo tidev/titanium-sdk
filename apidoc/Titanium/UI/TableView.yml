@@ -988,10 +988,10 @@ properties:
     description: |
         For information about color values, see the "Colors" section of <Titanium.UI>. 
         
-        On iPhone and iPod Touch only, this property accepts a value of `'stripped'`, in addition to 
-        the standard color names described in the link above. This results in a pin-striped gray. 
-        Note that, due to a bug, `'stripped'` is misspelt, and so is likely to change in the near 
-        future to `'striped'`.
+        On iPhone and iPod Touch only, this property accepts a value of
+        <Titanium.UI.iOS.COLOR_GROUP_TABLEVIEW_BACKGROUND>, in addition to the standard color
+        names described in the link above. This results in a pinstripe gray background.
+        This constant has been deprecated in iOS 6.
     type: String
     
   - name: data
