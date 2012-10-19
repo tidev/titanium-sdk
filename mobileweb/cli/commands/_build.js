@@ -55,7 +55,7 @@ exports.config = function (logger, config, cli) {
 
 exports.validate = function (logger, config, cli) {
 	ti.validateProjectDir(logger, cli, cli.argv, 'project-dir');
-	if (!ti.validateCorrectSDK(logger, config, cli, cli.argv['project-dir'])) {
+	if (!ti.validateCorrectSDK(logger, config, cli)) {
 		// we're running the build command for the wrong SDK version, gracefully return
 		return false;
 	}
@@ -72,19 +72,18 @@ exports.run = function (logger, config, cli, finished) {
 					});
 				}
 				
-				var tiapp = this.tiapp;
 				cli.addAnalyticsEvent('mobileweb.build.' + cli.argv['deploy-type'], {
 					dir: cli.argv['project-dir'],
-					name: tiapp.name,
-					publisher: tiapp.publisher,
-					url: tiapp.url,
-					image: tiapp.image,
-					appid: tiapp.id,
-					description: tiapp.description,
+					name: cli.tiapp.name,
+					publisher: cli.tiapp.publisher,
+					url: cli.tiapp.url,
+					image: cli.tiapp.image,
+					appid: cli.tiapp.id,
+					description: cli.tiapp.description,
 					type: cli.argv.type,
-					guid: tiapp.guid,
-					version: tiapp.version,
-					copyright: tiapp.copyright,
+					guid: cli.tiapp.guid,
+					version: cli.tiapp.version,
+					copyright: cli.tiapp.copyright,
 					date: (new Date()).toDateString()
 				});
 
@@ -102,6 +101,7 @@ function build(logger, config, cli, finished) {
 	this.logger = logger;
 	this.buildType = cli.argv['deploy-type'];
 	this.os = cli.env.os;
+	this.tiapp = cli.tiapp;
 	
 	this.titaniumSdkVersion = ti.manifest.version;
 	this.projectDir = afs.resolvePath(cli.argv['project-dir']);
@@ -138,7 +138,6 @@ function build(logger, config, cli, finished) {
 	}
 	
 	// read the tiapp.xml and initialize some sensible defaults
-	this.tiapp = this.readTiappXml();
 	applyDefaults(this.tiapp, {
 		mobileweb: {
 			analytics: {
@@ -219,16 +218,6 @@ build.prototype = {
 		} catch (e) {
 			badInstall(__("Unable to parse Titanium Mobile Web's package.json file"));
 		}
-	},
-	
-	readTiappXml: function () {
-		this.logger.info(__('Reading tiapp.xml file'));
-		var tiappFile = this.projectDir + '/tiapp.xml';
-		if (!afs.exists(tiappFile)) {
-			this.logger.error(__('Unable to read tiapp.xml file in project directory') + '\n');
-			process.exit(1);
-		}
-		return new ti.tiappxml(tiappFile);
 	},
 	
 	validateTheme: function () {

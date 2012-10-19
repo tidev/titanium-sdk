@@ -106,9 +106,9 @@ exports.config = function (logger, config, cli) {
 				},
 				options: {
 					'debug-host': {
-						abbr: 'H',
-						desc: __('debug connection info; airkey and hosts required for %s and %s, ignored for %s', 'device'.cyan, 'dist-adhoc'.cyan, 'dist-appstore'.cyan),
-						hint: 'host:port[:airkey:hosts]',
+						//abbr: 'H',
+						//desc: __('debug connection info; airkey and hosts required for %s and %s, ignored for %s', 'device'.cyan, 'dist-adhoc'.cyan, 'dist-appstore'.cyan),
+						//hint: 'host:port[:airkey:hosts]',
 						hidden: true
 					},
 					'deploy-type': {
@@ -155,7 +155,6 @@ exports.config = function (logger, config, cli) {
 					},
 					'device-family': {
 						abbr: 'F',
-						default: process.env.TARGETED_DEVICE_FAMILY === '1' ? 'iphone' : process.env.TARGETED_DEVICE_FAMILY == '2' ? 'ipad' : 'universal',
 						desc: __('the device family to build for'),
 						values: Object.keys(deviceFamilies)
 					},
@@ -255,7 +254,7 @@ exports.validate = function (logger, config, cli) {
 	
 	ti.validateProjectDir(logger, cli, cli.argv, 'project-dir');
 	
-	if (!ti.validateCorrectSDK(logger, config, cli, cli.argv['project-dir'])) {
+	if (!ti.validateCorrectSDK(logger, config, cli)) {
 		// we're running the build command for the wrong SDK version, gracefully return
 		return false;
 	}
@@ -451,12 +450,31 @@ exports.validate = function (logger, config, cli) {
 		}
 	}
 	
-	var deviceFamily = cli.argv['device-family'];
+	var deviceFamily = cli.argv['device-family'],
+		deploymentTargets = cli.tiapp['deployment-targets'];
+	if (!deviceFamily && process.env.TARGETED_DEVICE_FAMILY) {
+		// device family was not specified at the command line, but we did get it via an environment variable!
+		deviceFamily = process.env.TARGETED_DEVICE_FAMILY === '1' ? 'iphone' : process.env.TARGETED_DEVICE_FAMILY == '2' ? 'ipad' : 'universal';
+	}
+	if (!deviceFamily && deploymentTargets) {
+		// device family was not an environment variable, construct via the tiapp.xml's deployment targets
+		if (deploymentTargets.iphone && deploymentTargets.ipad) {
+			deviceFamily = 'universal';
+		} else if (deploymentTargets.iphone) {
+			deviceFamily = 'iphone';
+		} else if (deploymentTargets.ipad) {
+			deviceFamily = 'ipad';
+		}
+	}
+	
 	if (!deviceFamily || !deviceFamilies[deviceFamily]) {
 		logger.error(__('Invalid device family "%s"', deviceFamily) + '\n');
 		appc.string.suggest(deviceFamily, Object.keys(deviceFamilies), logger.log, 3);
 		process.exit(1);
 	}
+	
+	// device family may have been modified, so set it back in the args
+	cli.argv['device-family'] = deviceFamily;
 	
 	if (cli.argv['debug-host'] && cli.argv.target != 'dist-appstore') {
 		if (typeof cli.argv['debug-host'] == 'number') {
@@ -494,7 +512,7 @@ exports.run = function (logger, config, cli, finished) {
 	if (cli.argv.xcode) {
 		// basically, we bypass the pre, post, and finalize hooks for xcode builds
 		var buildObj = new build(logger, config, cli, finished);
-		sendAnalytics(cli, buildObj.tiapp);
+		sendAnalytics(cli);
 	} else {
 		cli.fireHook('build.pre.construct', function () {
 			new build(logger, config, cli, function (err) {
@@ -505,7 +523,7 @@ exports.run = function (logger, config, cli, finished) {
 							line && logger.error(line);
 						});
 					}
-					sendAnalytics(cli, this.tiapp);
+					sendAnalytics(cli);
 					cli.fireHook('build.finalize', this, function () {
 						finished(err);
 					});
@@ -515,7 +533,7 @@ exports.run = function (logger, config, cli, finished) {
 	}
 };
 
-function sendAnalytics(cli, tiapp) {
+function sendAnalytics(cli) {
 	var eventName = cli.argv['device-family'] + '.' + cli.argv.target;
 
 	if (cli.argv.target == 'dist-appstore' || cli.argv.target == 'dist-adhoc') {
@@ -528,16 +546,16 @@ function sendAnalytics(cli, tiapp) {
 
 	cli.addAnalyticsEvent(eventName, {
 		dir: cli.argv['project-dir'],
-		name: tiapp.name,
-		publisher: tiapp.publisher,
-		url: tiapp.url,
-		image: tiapp.image,
-		appid: tiapp.id,
-		description: tiapp.description,
+		name: cli.tiapp.name,
+		publisher: cli.tiapp.publisher,
+		url: cli.tiapp.url,
+		image: cli.tiapp.image,
+		appid: cli.tiapp.id,
+		description: cli.tiapp.description,
 		type: cli.argv.type,
-		guid: tiapp.guid,
-		version: tiapp.version,
-		copyright: tiapp.copyright,
+		guid: cli.tiapp.guid,
+		version: cli.tiapp.version,
+		copyright: cli.tiapp.copyright,
 		date: (new Date()).toDateString()
 	});
 }
@@ -554,7 +572,7 @@ function build(logger, config, cli, finished) {
 	this.projectDir = cli.argv['project-dir'];
 	this.buildDir = path.join(this.projectDir, 'build', this.platformName);
 	this.assetsDir = path.join(this.buildDir, 'assets');
-	this.tiapp = new ti.tiappxml(path.join(this.projectDir, 'tiapp.xml'));
+	this.tiapp = cli.tiapp;
 	this.target = cli.argv.target;
 	this.provisioningProfileUUID = cli.argv['pp-uuid'];
 	
@@ -639,7 +657,7 @@ function build(logger, config, cli, finished) {
 		this.logger.info(__('Setting non-production device build version to %s', this.tiapp.version));
 	}
 	
-	Array.isArray(this.tiapp.modules) && (this.tiapp.modules = []);
+	Array.isArray(this.tiapp.modules) || (this.tiapp.modules = []);
 	
 	if (cli.argv.xcode) {
 		this.logger.info(__('Performing Xcode pre-compile phase'));
