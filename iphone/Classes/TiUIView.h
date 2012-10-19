@@ -121,6 +121,7 @@ void ModifyScrollViewForKeyboardHeightAndContentHeightWithResponderRect(UIScroll
  @see updateTouchHandling
  */
 @property(nonatomic,readonly) BOOL touchEnabled;
+@property(nonatomic,readonly) CGSize oldSize;
 
 @property(nonatomic,readonly)	UITapGestureRecognizer*			singleTapRecognizer;
 @property(nonatomic,readonly)	UITapGestureRecognizer*			doubleTapRecognizer;
@@ -229,8 +230,12 @@ void ModifyScrollViewForKeyboardHeightAndContentHeightWithResponderRect(UIScroll
 
 -(void)setVisible_:(id)visible;
 
+-(void)setBackgroundImage_:(id)value;
+
 -(UIView *)gradientWrapperView;
 -(void)checkBounds;
+
+@property (nonatomic, readonly) id accessibilityElement;
 
 /**
  Whether or not a view not normally picked up by the Titanium view hierarchy (such as wrapped iOS UIViews) was touched.

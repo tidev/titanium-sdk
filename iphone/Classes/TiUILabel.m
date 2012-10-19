@@ -18,6 +18,7 @@
 -(id)init
 {
     if (self = [super init]) {
+        bgdLayer = nil;
         padding = CGRectZero;
         initialLabelFrame = CGRectZero;
         verticalAlign = -1;
@@ -28,7 +29,7 @@
 -(void)dealloc
 {
     RELEASE_TO_NIL(label);
-    RELEASE_TO_NIL(backgroundView);
+    RELEASE_TO_NIL(bgdLayer);
     [super dealloc];
 }
 
@@ -114,15 +115,9 @@
         [label setFrame:initialLabelFrame];
     }
 
-    if (repad &&
-        backgroundView != nil &&
-        !CGRectIsEmpty(initialLabelFrame))
+    if (bgdLayer != nil && !CGRectIsEmpty(initialLabelFrame))
     {
-        [backgroundView setFrame:CGRectMake(initialLabelFrame.origin.x - padding.origin.x,
-                                            initialLabelFrame.origin.y - padding.origin.y,
-                                            initialLabelFrame.size.width + padding.origin.x + padding.size.width,
-                                            initialLabelFrame.size.height + padding.origin.y + padding.size.height)];
-        repad = NO;
+        [self updateBackgroundImageFrameWithPadding];
     }
 	return;
 }
@@ -138,8 +133,7 @@
 -(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
 {
 	initialLabelFrame = bounds;
-
-    repad = YES;
+    
     [self padLabel];
 
     [super frameSizeChanged:frame bounds:bounds];
@@ -153,9 +147,14 @@
         label.backgroundColor = [UIColor clearColor];
         label.numberOfLines = 0;
         [self addSubview:label];
-        self.clipsToBounds = YES;
+//        self.clipsToBounds = YES;
 	}
 	return label;
+}
+
+- (id)accessibilityElement
+{
+	return [self label];
 }
 
 -(void)setHighlighted:(BOOL)newValue
@@ -233,61 +232,52 @@
 
 }
 
+-(CALayer *)backgroundImageLayer
+{
+    if (bgdLayer == nil)
+    {
+        bgdLayer = [[CALayer alloc]init];
+        bgdLayer.frame = self.layer.bounds;
+        [self.layer insertSublayer:bgdLayer atIndex:0];
+    }
+	return bgdLayer;
+}
+-(void) updateBackgroundImageFrameWithPadding
+{
+    CGRect backgroundFrame = CGRectMake(self.bounds.origin.x - padding.origin.x,
+               self.bounds.origin.y - padding.origin.y,
+               self.bounds.size.width + padding.origin.x + padding.size.width,
+                                        self.bounds.size.height + padding.origin.y + padding.size.height);
+    [self backgroundImageLayer].frame = backgroundFrame;
+}
+
 -(void)setBackgroundImage_:(id)url
 {
-    if (url != nil) {
-        UIImage* bgImage = [self loadImage:url];
-        if (backgroundView == nil) {
-            backgroundView = [[UIImageView alloc] initWithImage:bgImage];
-            backgroundView.userInteractionEnabled = NO;
-            [self insertSubview:backgroundView atIndex:0];
-            repad = YES;
-            [self padLabel];
-        }
-        else {
-            backgroundView.image = bgImage;
-            [backgroundView setNeedsDisplay];
-
-            repad = YES;
-            [self padLabel];
-        }
-    }
-    else {
-        if (backgroundView) {
-            [backgroundView removeFromSuperview];
-            RELEASE_TO_NIL(backgroundView);
-        }
-    }
-
-    self.backgroundImage = url;
+    [super setBackgroundImage_:url];
 }
 
 -(void)setBackgroundPaddingLeft_:(id)left
 {
     padding.origin.x = [TiUtils floatValue:left];
-    repad = YES;
-    [self padLabel];
+    [self updateBackgroundImageFrameWithPadding];
 }
 
 -(void)setBackgroundPaddingRight_:(id)right
 {
     padding.size.width = [TiUtils floatValue:right];
-    repad = YES;
-    [self padLabel];
+    [self updateBackgroundImageFrameWithPadding];
 }
 
 -(void)setBackgroundPaddingTop_:(id)top
 {
     padding.origin.y = [TiUtils floatValue:top];
-    repad = YES;
-    [self padLabel];
+    [self updateBackgroundImageFrameWithPadding];
 }
 
 -(void)setBackgroundPaddingBottom_:(id)bottom
 {
     padding.size.height = [TiUtils floatValue:bottom];
-    repad = YES;
-    [self padLabel];
+    [self updateBackgroundImageFrameWithPadding];
 }
 
 -(void)setTextAlign_:(id)alignment

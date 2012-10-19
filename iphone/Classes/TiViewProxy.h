@@ -33,6 +33,10 @@
  @param args Unused.
  */
 - (void)blur:(id)args;
+/**
+ Tells if this proxy is currently focused
+ */
+- (BOOL)focused;
 
 #pragma mark Private internal APIs.
 
@@ -574,6 +578,12 @@ enum
 -(void)reposition;	//Todo: Replace
 
 -(BOOL)willBeRelaying;	//Todo: Replace
+
+-(BOOL) widthIsAutoFill;
+-(BOOL) widthIsAutoSize;
+-(BOOL) heightIsAutoFill;
+-(BOOL) heightIsAutoFill;
+-(BOOL) belongsToContext:(id<TiEvaluator>) context;
 
 /**
  Tells the view that its child view size will change.

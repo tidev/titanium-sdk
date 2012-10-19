@@ -8,11 +8,13 @@ package ti.modules.titanium.ui;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.annotations.Kroll;
+import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.proxy.TiWindowProxy;
 import org.appcelerator.titanium.util.TiConvert;
+import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiUIView;
 
 import ti.modules.titanium.ui.widget.tabgroup.TiUIAbstractTab;
@@ -29,8 +31,9 @@ public class TabProxy extends TiViewProxy
 	@SuppressWarnings("unused")
 	private static final String TAG = "TabProxy";
 
-	private TiWindowProxy win;
 	private TabGroupProxy tabGroupProxy;
+	private TiWindowProxy window;
+	private boolean windowOpened = false;
 	private int windowId;
 
 	public TabProxy()
@@ -86,7 +89,7 @@ public class TabProxy extends TiViewProxy
 	@Kroll.method
 	public void setWindow(TiWindowProxy window)
 	{
-		this.win = window;
+		this.window = window;
 
 		// don't call setProperty cause the property is already set on the JS
 		// object and thus we don't need to cross back over the bridge, we just
@@ -97,22 +100,22 @@ public class TabProxy extends TiViewProxy
 			return;
 		}
 
-		this.win.setTabProxy(this);
+		this.window.setTabProxy(this);
 
 		if (tabGroupProxy != null) {
 			// Set window's tab group if this tab has been added to a group.
-			this.win.setTabGroupProxy(tabGroupProxy);
+			this.window.setTabGroupProxy(tabGroupProxy);
 		}
 
 		//Send out a sync event to indicate window is added to tab
-		this.win.fireSyncEvent(TiC.EVENT_ADDED_TO_TAB, null);
+		this.window.fireSyncEvent(TiC.EVENT_ADDED_TO_TAB, null);
 		// TODO: Deprecate old event
-		this.win.fireSyncEvent("addedToTab", null);
+		this.window.fireSyncEvent("addedToTab", null);
 	}
 
 	public TiWindowProxy getWindow()
 	{
-		return this.win;
+		return this.window;
 	}
 
 	@Kroll.method @Kroll.getProperty
@@ -126,11 +129,11 @@ public class TabProxy extends TiViewProxy
 		setParent(tabGroupProxy);
 		this.tabGroupProxy = tabGroupProxy;
 
-		if (win != null) {
+		if (window != null) {
 			// If a window was set before the tab
 			// was added to a group we need to initialize
 			// the window's tab group reference.
-			win.setTabGroupProxy(tabGroupProxy);
+			window.setTabGroupProxy(tabGroupProxy);
 		}
 	}
 
@@ -148,10 +151,10 @@ public class TabProxy extends TiViewProxy
 	public void releaseViews()
 	{
 		super.releaseViews();
-		if (win != null) {
-			win.setTabProxy(null);
-			win.setTabGroupProxy(null);
-			win.releaseViews();
+		if (window != null) {
+			window.setTabProxy(null);
+			window.setTabGroupProxy(null);
+			window.releaseViews();
 		}
 	}
 
@@ -195,12 +198,36 @@ public class TabProxy extends TiViewProxy
 
 	void onFocusChanged(boolean focused, KrollDict eventData)
 	{
+		// Windows are lazily opened when the tab is first focused.
+		if (window != null && !windowOpened) {
+			windowOpened = true;
+			window.fireEvent(TiC.EVENT_OPEN, null, false);
+		}
+		
+		//When tab loses focus, we hide the soft keyboard.
+		Activity currentActivity = TiApplication.getAppCurrentActivity();
+		if (!focused && currentActivity != null) {
+			TiUIHelper.showSoftKeyboard(currentActivity.getWindow().getDecorView(), false);
+		}
+
 		// The focus and blur events for tab changes propagate like so:
 		//    window -> tab -> tab group
-		//
-		// The window is optional and will be skipped if it does not exist.
-		TiViewProxy eventEmitter = (win != null) ? win : this;
-		eventEmitter.fireEvent((focused) ? TiC.EVENT_FOCUS : TiC.EVENT_BLUR, eventData, true);
+		//    
+		// The window is optional and will be skipped if it does not exist.		
+		String event = focused ? TiC.EVENT_FOCUS : TiC.EVENT_BLUR;
+		
+		if (window != null) {
+			window.fireEvent(event, null, false);
+		}
+		fireEvent(event, eventData, true);
+		
+	}
+
+	void close() {
+		if (windowOpened && window != null) {
+			windowOpened = false;
+			window.fireSyncEvent(TiC.EVENT_CLOSE, null);
+		}
 	}
 
 	void onSelectionChanged(boolean selected)

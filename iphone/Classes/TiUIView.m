@@ -160,7 +160,7 @@ NSArray* listenerArray = nil;
 
 DEFINE_EXCEPTIONS
 
-@synthesize proxy,touchDelegate,backgroundImage;
+@synthesize proxy,touchDelegate,backgroundImage,oldSize;
 
 #pragma mark Internal Methods
 
@@ -301,6 +301,11 @@ DEFINE_EXCEPTIONS
 -(id)transformMatrix
 {
 	return transformMatrix;
+}
+
+- (id)accessibilityElement
+{
+	return self;
 }
 
 #pragma mark Layout 

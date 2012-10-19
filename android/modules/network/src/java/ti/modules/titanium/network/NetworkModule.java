@@ -246,14 +246,14 @@ public class NetworkModule extends KrollModule {
 					}
 					networkListener.attach(TiApplication.getInstance().getApplicationContext());
 					isListeningForConnectivity = true;
-					Log.d(TAG, "Resuming: adding connectivity listener", Log.DEBUG_MODE);
+					Log.d(TAG, "Adding connectivity listener", Log.DEBUG_MODE);
 				}
 			}
 		} else {
 			if (isListeningForConnectivity) {
 				networkListener.detach();
 				isListeningForConnectivity = false;
-				Log.d(TAG, "Pausing: removing connectivity listener.", Log.DEBUG_MODE);
+				Log.d(TAG, "Removing connectivity listener.", Log.DEBUG_MODE);
 			}
 		}
 	}
@@ -273,14 +273,8 @@ public class NetworkModule extends KrollModule {
 	}
 
 	@Override
-	public void onResume(Activity activity) {
-		super.onResume(activity);
-		connectivityManager = getConnectivityManager();
-		manageConnectivityListener(true);
-	}
-
-	@Override
-	public void onPause(Activity activity) {
+	public void onDestroy(Activity activity) {
+		super.onDestroy(activity);
 		manageConnectivityListener(false);
 		connectivityManager = null;
 	}

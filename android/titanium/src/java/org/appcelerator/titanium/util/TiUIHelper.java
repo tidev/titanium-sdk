@@ -9,6 +9,7 @@ package org.appcelerator.titanium.util;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.ref.WeakReference;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -189,7 +190,7 @@ public class TiUIHelper
 					Activity ownerActivity = ((AlertDialog)dialog).getOwnerActivity();
 					//if activity is not finishing, remove dialog to free memory
 					if (ownerActivity != null && !ownerActivity.isFinishing()) {
-						((TiBaseActivity)ownerActivity).removeDialog((AlertDialog)dialog);
+						((TiBaseActivity)ownerActivity).removeDialog((AlertDialog) dialog);
 					}
 				}};
 		}
@@ -204,7 +205,8 @@ public class TiUIHelper
 							.setPositiveButton(android.R.string.ok, fListener)
 							.setCancelable(false).create();
 					if (activity instanceof TiBaseActivity) {
-						((TiBaseActivity)activity).addDialog(dialog);
+						TiBaseActivity baseActivity = (TiBaseActivity) activity;
+						baseActivity.addDialog(baseActivity.new DialogWrapper(dialog, true, new WeakReference<TiBaseActivity>(baseActivity)));
 						dialog.setOwnerActivity(activity);
 					}
 					dialog.show();
@@ -226,34 +228,39 @@ public class TiUIHelper
 	}
 
 	public static int getSizeUnits(String size) {
-		//int units = TypedValue.COMPLEX_UNIT_SP;
 		int units = TypedValue.COMPLEX_UNIT_PX;
+		String unitString = null;
 
 		if (size != null) {
 			Matcher m = SIZED_VALUE.matcher(size.trim());
 			if (m.matches()) {
 				if (m.groupCount() == 2) {
-					String unit = m.group(2);
-					if (TiDimension.UNIT_PX.equals(unit)) {
-						units = TypedValue.COMPLEX_UNIT_PX;
-					} else if (TiDimension.UNIT_PT.equals(unit)) {
-						units = TypedValue.COMPLEX_UNIT_PT;
-					} else if (TiDimension.UNIT_DP.equals(unit) || TiDimension.UNIT_DIP.equals(unit)) {
-						units = TypedValue.COMPLEX_UNIT_DIP;
-					} else if (TiDimension.UNIT_SP.equals(unit) || TiDimension.UNIT_SIP.equals(unit)) {
-						units = TypedValue.COMPLEX_UNIT_SP;
-					} else if (TiDimension.UNIT_MM.equals(unit)) {
-						units = TypedValue.COMPLEX_UNIT_MM;
-					} else if (TiDimension.UNIT_CM.equals(unit)) {
-						units = TiDimension.COMPLEX_UNIT_CM;
-					} else if (TiDimension.UNIT_IN.equals(unit)) {
-						units = TypedValue.COMPLEX_UNIT_IN;
-					} else {
-						if (unit != null) {
-							Log.w(TAG, "Unknown unit: " + unit, Log.DEBUG_MODE);
-						}
-					}
+					unitString = m.group(2);
 				}
+			}
+		}
+
+		if (unitString == null) {
+			unitString = TiApplication.getInstance().getDefaultUnit();
+		}
+
+		if (TiDimension.UNIT_PX.equals(unitString) || TiDimension.UNIT_SYSTEM.equals(unitString)) {
+			units = TypedValue.COMPLEX_UNIT_PX;
+		} else if (TiDimension.UNIT_PT.equals(unitString)) {
+			units = TypedValue.COMPLEX_UNIT_PT;
+		} else if (TiDimension.UNIT_DP.equals(unitString) || TiDimension.UNIT_DIP.equals(unitString)) {
+			units = TypedValue.COMPLEX_UNIT_DIP;
+		} else if (TiDimension.UNIT_SP.equals(unitString) || TiDimension.UNIT_SIP.equals(unitString)) {
+			units = TypedValue.COMPLEX_UNIT_SP;
+		} else if (TiDimension.UNIT_MM.equals(unitString)) {
+			units = TypedValue.COMPLEX_UNIT_MM;
+		} else if (TiDimension.UNIT_CM.equals(unitString)) {
+			units = TiDimension.COMPLEX_UNIT_CM;
+		} else if (TiDimension.UNIT_IN.equals(unitString)) {
+			units = TypedValue.COMPLEX_UNIT_IN;
+		} else {
+			if (unitString != null) {
+				Log.w(TAG, "Unknown unit: " + unitString, Log.DEBUG_MODE);
 			}
 		}
 

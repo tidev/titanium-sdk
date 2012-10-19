@@ -472,3 +472,17 @@ examples:
                 views:[img1Wrapper, img2Wrapper]
             });
             win.add(photosView);
+
+  - title: Alloy XML Markup
+    example: |
+       First example as an Alloy view.
+
+           <Alloy>
+               <Window id="win">
+                   <ScrollableView id="scrollableView" showPagingControl="true">
+                       <View id="view1" backgroundColor="#123" />
+                       <View id="view2" backgroundColor="#246" />
+                       <View id="view3" backgroundColor="#48b" />
+                   </ScrollableView>
+               </Window>
+           </Alloy>

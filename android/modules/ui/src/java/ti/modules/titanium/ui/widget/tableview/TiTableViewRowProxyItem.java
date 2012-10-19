@@ -8,9 +8,11 @@ package ti.modules.titanium.ui.widget.tableview;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.common.Log;
+import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiDimension;
@@ -27,13 +29,19 @@ import ti.modules.titanium.ui.widget.tableview.TableViewModel.Item;
 import android.app.Activity;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.os.Handler;
+import android.support.v4.view.ViewCompat;
 import android.view.View;
 import android.widget.ImageView;
 
 public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 {
 	private static final String TAG = "TitaniumTableViewItem";
+
+	// Only check this once, since we potentially use this information
+	// every time we add a row. No sense checking it each time.
+	private static boolean ICS_OR_GREATER = (Build.VERSION.SDK_INT >= TiC.API_LEVEL_ICE_CREAM_SANDWICH);
 
 	private static final int LEFT_MARGIN = 5;
 	private static final int RIGHT_MARGIN = 7;
@@ -43,7 +51,6 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 	private ImageView rightImage;
 	private TiCompositeLayout content;
 	private ArrayList<TiUIView> views;
-//	private boolean hasControls;
 	private TiDimension height = null;
 	private Item item;
 	private Object selectorSource;
@@ -77,7 +84,6 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 	public void setRowData(Item item) {
 		this.item = item;
 		TableViewRowProxy rp = getRowProxy();
-		rp.setTableViewItem(this);
 		setRowData(rp);
 	}
 
@@ -98,7 +104,11 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 		return label;
 	}
 
-	protected void refreshControls()
+	/*
+	 * Create views for measurement or for layout.  For each view, apply the
+	 * properties from the appropriate proxy to the view.
+	 */
+	protected void createControls()
 	{
 		ArrayList<TiViewProxy> proxies = getRowProxy().getControls();
 		int len = proxies.size();
@@ -124,8 +134,15 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 			}
 			if (view == null) {
 				// In some cases the TiUIView for this proxy has been reassigned to another proxy
-				// We don't want to actually release it though, just reassign by creating a new view
-				view = proxy.forceCreateView();
+				// We don't want to actually release it though, just reassign by creating a new view.
+				//
+				// Not setting modelListener from here because this could be a measurement pass or
+				// a layout pass through getView(), which means that the view we have here may
+				// not be the one that gets displayed on the screen.  So we don't want to make
+				// any view-proxy association at this point.   We only want to make that association
+				// on a layout pass (i.e. when onLayout() gets called).
+				//
+				view = proxy.forceCreateView(false);  // false means don't set modelListener
 				clearChildViews(proxy);
 				if (i >= views.size()) {
 					views.add(view);
@@ -134,10 +151,9 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 				}
 			}
 
-			View v = view.getNativeView();
-			view.setProxy(proxy);
+			View v = view.getOuterView();
 			view.processProperties(proxy.getProperties());
-			applyChildProxies(proxy, view);
+			applyChildProperties(proxy, view);
 			if (v.getParent() == null) {
 				content.addView(v, view.getLayoutParams());
 			}
@@ -152,17 +168,14 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 		}
 	}
 
-	protected void applyChildProxies(TiViewProxy viewProxy, TiUIView view)
+	protected void applyChildProperties(TiViewProxy viewProxy, TiUIView view)
 	{
 		int i = 0;
 		TiViewProxy childProxies[] = viewProxy.getChildren();
 		for (TiUIView childView : view.getChildren()) {
 			TiViewProxy childProxy = childProxies[i];
-			childView.setProxy(childProxy);
-			//Since we wipe out children's views earlier we need to reset them.
-			childProxy.setView(childView);
 			childView.processProperties(childProxy.getProperties());
-			applyChildProxies(childProxy, childView);
+			applyChildProperties(childProxy, childView);
 			i++;
 		}
 	}
@@ -171,7 +184,13 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 	{
 		TableViewRowProxy rp = getRowProxy();
 		if (!rp.hasProperty(TiC.PROPERTY_TOUCH_ENABLED)) {
-			rp.setProperty(TiC.PROPERTY_TOUCH_ENABLED, false);
+			// We have traditionally always made the label untouchable, but since
+			// version 3.0.0 we support explore-by-touch on ICS and above, so for
+			// accessibility purposes we should not be disabling touch if
+			// accessibility is currently turned on.
+			if (!ICS_OR_GREATER || !TiApplication.getInstance().getAccessibilityManager().isEnabled()) {
+				rp.setProperty(TiC.PROPERTY_TOUCH_ENABLED, false);
+			}
 		}
 		if (views == null) {
 			views = new ArrayList<TiUIView>();
@@ -211,7 +230,7 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 		// Handle right image
 		boolean clearRightImage = true;
 		// It's one or the other, check or child.  If you set them both, child's gonna win.
-		HashMap props = rp.getProperties();
+		HashMap<String, Object> props = rp.getProperties();
 		if (props.containsKey(TiC.PROPERTY_HAS_CHECK)) {
 			if (TiConvert.toBoolean(props, TiC.PROPERTY_HAS_CHECK)) {
 				if (hasCheckDrawable == null) {
@@ -273,11 +292,28 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 		if (props.containsKey(TiC.PROPERTY_LAYOUT)) {
 			content.setLayoutArrangement(TiConvert.toString(props, TiC.PROPERTY_LAYOUT));
 		}
+		if (props.containsKey(TiC.PROPERTY_HORIZONTAL_WRAP)) {
+			content.setEnableHorizontalWrap(TiConvert.toBoolean(props, TiC.PROPERTY_HORIZONTAL_WRAP));
+		}
 
+		// hasControls() means that the proxy has children
 		if (rp.hasControls()) {
-			refreshControls();
+			createControls();
 		} else {
+			// no children means that this is an old-style row
 			refreshOldStyleRow();
+		}
+
+		if (ICS_OR_GREATER) {
+			Object accessibilityHiddenVal = rp.getProperty(TiC.PROPERTY_ACCESSIBILITY_HIDDEN);
+			if (accessibilityHiddenVal != null) {
+				boolean hidden = TiConvert.toBoolean(accessibilityHiddenVal);
+				if (hidden) {
+					ViewCompat.setImportantForAccessibility(this, ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_NO);
+				} else {
+					ViewCompat.setImportantForAccessibility(this, ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_AUTO);
+				}
+			}
 		}
 	}
 
@@ -356,6 +392,19 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 	@Override
 	protected void onLayout(boolean changed, int left, int top, int right, int bottom)
 	{
+		// Make these associations here to avoid doing them on measurement passes
+		TableViewRowProxy rp = getRowProxy();
+		rp.setTableViewItem(this);
+		if (this.item.proxy.getChildren().length == 0) {
+			// old-style row
+			TiUIView childView = views.get(0);
+			childView.processProperties(filterProperties(rp.getProperties()));
+			childView.setProxy(rp);
+		}
+		else {
+			associateProxies(this.item.proxy.getChildren(), views);
+		}
+		
 		int contentLeft = left;
 		int contentRight = right;
 		bottom = bottom - top;
@@ -411,7 +460,6 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 
 	@Override
 	public boolean hasSelector() {
-		KrollDict d = getRowProxy().getProperties();
 		TableViewRowProxy rowProxy = getRowProxy();
 		return rowProxy.hasProperty(TiC.PROPERTY_BACKGROUND_SELECTED_IMAGE)
 			|| rowProxy.hasProperty(TiC.PROPERTY_BACKGROUND_SELECTED_COLOR);
@@ -457,4 +505,21 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 		}
 		
 	}
+	
+	protected void associateProxies(TiViewProxy[] proxies, List<TiUIView> views)
+	{
+		int i = 0;
+		for (TiUIView view : views) {
+			if (proxies.length < (i+1)) {
+				break;
+			}
+			TiViewProxy proxy = proxies[i];
+			proxy.setView(view);
+			view.setProxy(proxy);
+			proxy.setModelListener(view);
+			associateProxies(proxy.getChildren(), view.getChildren());
+			i++;
+		}
+	}
+
 }

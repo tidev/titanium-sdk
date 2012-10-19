@@ -47,6 +47,11 @@ static const NSInteger kDashboardViewDefaultColumnCount = 3;
 	return launcher;
 }
 
+- (id)accessibilityElement
+{
+	return [self launcher];
+}
+
 -(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
 {
 	if (!CGRectIsEmpty(bounds))

@@ -353,7 +353,7 @@
 	
 	// WORKAROUND FOR APPLE BUG: 4.2 and lower don't like setting background color for grouped table views on iPad.
 	// So, we check the table style and device, and if they match up wrong, we replace the background view with our own.
-	if ([table style] == UITableViewStyleGrouped && [TiUtils isIPad]) {
+	if ([table style] == UITableViewStyleGrouped && ([TiUtils isIPad] || [TiUtils isIOS6OrGreater])) {
 		UIView* bgView = [[[UIView alloc] initWithFrame:[table frame]] autorelease];
 		[table setBackgroundView:bgView];
 	}
@@ -386,8 +386,17 @@
 		if (TiDimensionIsDip(rowHeight))
 		{
 			[tableview setRowHeight:rowHeight.value];
-		}		
-		[self setBackgroundColor:[TiUtils colorValue:[[self proxy] valueForKey:@"backgroundColor"]] onTable:tableview];
+		}
+		
+        BOOL initBackGround = YES;
+        id bgInitValue = [[self proxy] valueForKey:@"backgroundColor"];
+        if ([TiUtils isIOS6OrGreater] && (style == UITableViewStyleGrouped)) {
+            //If it is IOS 6 and style is grouped do not call this method unless a backgroundColor is specified
+            initBackGround = (bgInitValue != nil);
+        }
+        if (initBackGround) {
+            [self setBackgroundColor:[TiUtils colorValue:bgInitValue] onTable:tableview];
+        }
 		
 		[self updateSearchView];
 	}
@@ -397,6 +406,11 @@
 	}
 	
 	return tableview;
+}
+
+- (id)accessibilityElement
+{
+	return [self tableView];
 }
 
 -(NSInteger)indexForRow:(TiUITableViewRowProxy*)row
@@ -625,6 +639,7 @@
     BOOL reloadSearch = NO;
 
 	TiViewProxy<TiKeyboardFocusableView> * chosenField = [[[TiApp controller] keyboardFocusedProxy] retain];
+	BOOL hasFocus = [chosenField focused];
 	BOOL oldSuppress = [chosenField suppressFocusEvents];
 	[chosenField setSuppressFocusEvents:YES];
 	switch (action.type)
@@ -795,7 +810,9 @@
             break;
         }
 	}
-	[chosenField focus:nil];
+	if (hasFocus) {
+		[chosenField focus:nil];
+	}
 	[chosenField setSuppressFocusEvents:oldSuppress];
 	[chosenField release];
 	[self refreshSearchControllerUsingReload:reloadSearch];

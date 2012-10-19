@@ -9,11 +9,17 @@ var ti = require('titanium-sdk'),
 	fs = require('fs'),
 	path = require('path'),
 	wrench = require('wrench'),
-	appc = require('node-appc');
+	appc = require('node-appc'),
+	i18n = appc.i18n(__dirname),
+	__ = i18n.__,
+	__n = i18n.__n,
+	afs = appc.fs;
+
+exports.cliVersion = '>=3.X';
+exports.desc = __('creates a new mobile application or module');
 
 exports.config = function (logger, config, cli) {
 	return {
-		desc: __('creates a new mobile application or module'),
 		flags: {
 			force: {
 				abbr: 'f',
@@ -25,7 +31,7 @@ exports.config = function (logger, config, cli) {
 				abbr: 'p',
 				desc: __('the target build platform'),
 				prompt: {
-					default: ti.availablePlatforms,
+					default: ti.availablePlatformsNames,
 					label: __('Target platforms'),
 					error: __('Invalid list of target platforms'),
 					validator: function (platforms) {
@@ -37,7 +43,7 @@ exports.config = function (logger, config, cli) {
 					},
 				},
 				required: true,
-				values: ti.availablePlatforms,
+				values: ti.availablePlatformsNames,
 				skipValueCheck: true // we do our own validation
 			},
 			type: {
@@ -69,7 +75,7 @@ exports.config = function (logger, config, cli) {
 				},
 				required: true
 			},
-			dir: {
+			'workspace-dir': {
 				abbr: 'd',
 				default: config.app.workspace || '',
 				desc: __('the directory to place the project in'),
@@ -77,17 +83,17 @@ exports.config = function (logger, config, cli) {
 					label: __('Directory to place project'),
 					error: __('Invalid directory'),
 					validator: function (dir) {
-						dir = appc.fs.resolvePath(dir);
-						if (!appc.fs.exists(dir)) {
+						dir = afs.resolvePath(dir);
+						if (!afs.exists(dir)) {
 							throw new appc.exception(__('Specified directory does not exist'));
 						}
-						if (!appc.fs.isDirWritable(dir)) {
+						if (!afs.isDirWritable(dir)) {
 							throw new appc.exception(__('Specified directory not writable'));
 						}
 						return true;
 					}
 				},
-				required: !config.app.workspace
+				required: !config.app.workspace || !afs.exists(config.app.workspace)
 			}
 		}, ti.commonOptions(logger, config))
 	};
@@ -107,9 +113,9 @@ exports.validate = function (logger, config, cli) {
 		process.exit(1);
 	}
 	
-	var projectDir = appc.fs.resolvePath(cli.argv.dir, cli.argv.name);
-	if (!cli.argv.force && appc.fs.exists(projectDir)) {
-		logger.error(__('Project directory alread exists: %s', projectDir) + '\n');
+	var projectDir = afs.resolvePath(cli.argv['workspace-dir'], cli.argv.name);
+	if (!cli.argv.force && afs.exists(projectDir)) {
+		logger.error(__('Project directory already exists: %s', projectDir) + '\n');
 		logger.log(__("Run '%s' to overwrite existing project.", (cli.argv.$ + ' ' + process.argv.slice(2).join(' ') + ' --force').cyan) + '\n');
 		process.exit(1);
 	}
@@ -121,12 +127,13 @@ exports.run = function (logger, config, cli) {
 		id = cli.argv.id,
 		type = cli.argv.type,
 		sdk = cli.env.getSDK(cli.argv.sdk),
-		projectDir = appc.fs.resolvePath(cli.argv.dir, projectName),
-		templateDir = appc.fs.resolvePath(sdk.path, 'templates', type, cli.argv.template),
+		projectDir = afs.resolvePath(cli.argv['workspace-dir'], projectName),
+		templateDir = afs.resolvePath(sdk.path, 'templates', type, cli.argv.template),
 		uuid = require('node-uuid'),
-		projectConfig;
+		projectConfig,
+		analyticsPayload;
 	
-	appc.fs.exists(projectDir) || wrench.mkdirSyncRecursive(projectDir);
+	afs.exists(projectDir) || wrench.mkdirSyncRecursive(projectDir);
 	wrench.copyDirSyncRecursive(templateDir, projectDir);
 	
 	if (type == 'app') {
@@ -139,8 +146,14 @@ exports.run = function (logger, config, cli) {
 		projectConfig.version = '1.0';
 		projectConfig.guid = uuid.v4();
 		projectConfig['deployment-targets'] = {};
-		ti.availablePlatforms.forEach(function (p) {
-			projectConfig['deployment-targets'][p] = platforms.indexOf(p) != -1;
+		if (platforms.indexOf('ios') != -1) {
+			platforms.indexOf('ipad') != -1 || platforms.push('ipad');
+			platforms.indexOf('iphone') != -1 || platforms.push('iphone');
+		}
+		ti.availablePlatformsNames.forEach(function (p) {
+			if (p != 'ios') {
+				projectConfig['deployment-targets'][p] = platforms.indexOf(p) != -1;
+			}
 		});
 		projectConfig['sdk-version'] = sdk.name;
 		projectConfig.save(projectDir + '/tiapp.xml');
@@ -157,6 +170,24 @@ exports.run = function (logger, config, cli) {
 			'#image: appicon.png',
 			'#desc: not specified'
 		].join('\n'));
+
+		analyticsPayload = {
+			dir: projectDir,
+			name: projectName,
+			publisher: projectConfig.publisher,
+			url: projectConfig.url,
+			image: projectConfig.image,
+			appid: id,
+			description: projectConfig.description,
+			type: type,
+			guid: projectConfig.guid,
+			version: projectConfig.version,
+			copyright: projectConfig.copyright,
+			runtime: '1.0',
+			date: (new Date()).toDateString()
+		};
+		
+		cli.addAnalyticsEvent('project.create.mobile', analyticsPayload);
 	} else if (type == 'module') {
 		logger.info(__('Creating Titanium Mobile module project'));
 		
@@ -191,18 +222,30 @@ exports.run = function (logger, config, cli) {
 			'name: ' + projectName,
 			'moduleid: ' + id,
 			'guid: ' + projectConfig.__GUID__,
-			'platforms: ' + platforms.sort().join(', '),
-			'minsdk: ' + sdk.name
+			'platforms: ' + platforms.sort().join(', ')
 		].join('\n'));
+
+		analyticsPayload = {
+			dir: projectDir,
+			name: projectName,
+			author: ((config.user && config.user.name) || 'Your Name'),
+			moduleid: id,
+			description: projectName,
+			guid: projectConfig.__GUID__,
+			version: '1.0',
+			copyright: 'copyright: Copyright (c) 2012 by ' + ((config.user && config.user.name) || 'Your Company'),
+			minsdk: sdk.name,
+			platforms: platforms.sort().join(', '),
+			date: (new Date()).toDateString()
+		};
+		
+		cli.addAnalyticsEvent('project.create.module', analyticsPayload);
 	}
 	
-	platforms.forEach(function (p) {
-		var templatePath = appc.fs.resolvePath(path.dirname(module.filename), '..', '..', p, 'templates', type, cli.argv.template);
-		if (appc.fs.exists(templatePath)) {
-			wrench.copyDirSyncRecursive(templatePath, projectDir, { preserve: true });
-		}
-		if (appc.fs.exists(appc.fs.resolvePath('..', '..', p, 'cli', 'commands', '_create.js'))) {
-			require('../../' + p + '/cli/commands/_create').run(logger, type, projectDir, projectConfig);
+	platforms.forEach(function (platform) {
+		var p = afs.resolvePath(path.dirname(module.filename), '..', '..', platform, 'cli', 'commands', '_create.js');
+		if (afs.exists(p)) {
+			require(p).run(logger, config, cli, projectConfig);
 		}
 	});
 	

@@ -267,20 +267,19 @@ exports.bootstrapWindow = function(Titanium) {
 		this.window = existingWindow;
 		this.view = this.window;
 		this.setWindowView(this.view);
-
 		this.addChildren();
-
 		var self = this;
-		this.window.on("open", function () {
-			self.postOpen();
-			self.fireEvent("open");
+		this.on("open", function () {
+			self.postOpen(true);
 		});
 	}
 
-	Window.prototype.postOpen = function() {
+	Window.prototype.postOpen = function(isTab) {
 		// Set view and model listener after the window opens
 		this.setWindowView(this.view);
-		this.addSelfToStack();
+		if (!isTab) {
+			this.addSelfToStack();
+		}
 
 		if ("url" in this._properties) {
 			this.loadUrl();
@@ -293,6 +292,7 @@ exports.bootstrapWindow = function(Titanium) {
 		 		this.view.addEventListener(event, listeners[i].listener, this); 
 		 	} 
 		}
+		
 		var self = this;
 		this.view.addEventListener("closeFromActivity", function(e) {
 			self.window = null;
@@ -324,6 +324,11 @@ exports.bootstrapWindow = function(Titanium) {
 			return;
 		}
 
+		// we don't actually support relative pathing for windows
+		if (this.url.charAt(0) !== "/") {
+			this.url = "/" + this.url;
+		}
+
 		var resolvedUrl = url.resolve(this._sourceUrl, this.url);
 		if (!resolvedUrl.assetPath) {
 			kroll.log(TAG, "Window URL must be a resources file.");
@@ -346,13 +351,19 @@ exports.bootstrapWindow = function(Titanium) {
 		bootstrap.bootstrapGlobals(context, Titanium);
 
 		var scriptPath = url.toAssetPath(resolvedUrl);
+		var relScriptPath = scriptPath.replace("Resources/", "");
 		var scriptSource = assets.readAsset(scriptPath);
 
-		if (kroll.runtime == "v8") {
-			Script.runInContext(scriptSource, context, scriptPath, true);
+		// Setup require for the new window context.
+		var module = new kroll.Module("app:///" + relScriptPath, this._module || kroll.Module.main, context);
+		context.require = function(request, context) {
+			return module.require(request, context);
+		};
 
+		if (kroll.runtime == "v8") {
+			Script.runInContext(scriptSource, context, relScriptPath, true);
 		} else {
-			Script.runInThisContext(scriptSource, scriptPath, true, context);
+			Script.runInThisContext(scriptSource, relScriptPath, true, context);
 		}
 	}
 
@@ -392,6 +403,11 @@ exports.bootstrapWindow = function(Titanium) {
 	}
 
 	Window.prototype.add = function(view) {
+
+		if (view instanceof TiWindow) {
+			throw new Error("Cannot add window/tabGroup to another window/tabGroup.");	    
+		}
+
 		if (this.view) {
 		
 			// If the window is already opened, add the child to this.view directly
@@ -488,6 +504,9 @@ exports.bootstrapWindow = function(Titanium) {
 
 		} else {
 			this.view.addEventListener(event, listener, this); 
+			if (event == 'android:back' && this.view._internalActivity) {
+				this.view._internalActivity.addEventListener(event, listener, this);  
+			}
 		}
 	}
 	
@@ -497,6 +516,9 @@ exports.bootstrapWindow = function(Titanium) {
 
 		} else {
 			this.view.removeEventListener(event, listener);
+			if (event == 'android:back' && this.view._internalActivity) {
+				this.view._internalActivity.removeEventListener(event, listener);  
+			}
 		}
 	}
 

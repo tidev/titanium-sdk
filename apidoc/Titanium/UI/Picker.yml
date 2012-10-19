@@ -20,7 +20,7 @@ methods:
             A row, set of rows, a column of rows or a set of columns of rows. When this method is 
             used to add a row or set of rows, a single-column picker is created.
         type: [Array<Titanium.UI.PickerRow>, Titanium.UI.PickerRow, Array<Titanium.UI.PickerColumn>, Titanium.UI.PickerColumn]
-    platforms: [iphone, ipad]
+    platforms: [android, iphone, ipad]
 
   - name: getSelectedRow
     summary: Gets the selected row for a column, or `null` if none exists.
@@ -150,6 +150,22 @@ events:
             Array of selected values, one element per column in the picker. Applicable to 
             <Titanium.UI.PICKER_TYPE_PLAIN> picker types.
         type: Array<String>
+        
+  - name: click
+    summary: Fired when the device detects a click against the view.
+    platforms: [android]
+    since: "3.0.0"
+    description: |
+        This event is only available for non-spinner plain pickers. 
+    properties:
+      - name: x
+        type: Number
+        summary: X coordinate of the event from the `source` view's coordinate system.
+    
+      - name: y
+        summary: Y coordinate of the event from the `source` view's coordinate system.
+        type: Number
+        
 properties:
   - name: columns
     summary: Columns used for this picker, as an array of <Titanium.UI.PickerColumn> objects.
@@ -419,4 +435,33 @@ examples:
               }
             });
             
+  - title: Alloy XML Markup
+    example: |
+        Previous multi-column picker example as an Alloy view.
 
+        multicolumnpicker.xml
+
+            <Alloy>
+                <Window id="win" backgroundColor="white" layout="vertical" exitOnClose="true">
+                    <Picker id="picker" top="50" selectionIndicator="true">
+                        <PickerColumn id="column1">
+                            <PickerRow title="Bananas"/>
+                            <PickerRow title="Strawberries"/>
+                            <PickerRow title="Mangos"/>
+                            <PickerRow title="Grapes"/>
+                        </PickerColumn>
+                        <!-- Picker shorthand notation -->
+                        <Column id="column2">
+                            <Row title="red"/>
+                            <Row title="green"/>
+                            <Row title="blue"/>
+                            <Row title="orange"/>
+                        </Column>
+                    </Picker>
+                </Window>
+            </Alloy>
+
+        multicolumnpicker.js:
+
+            $.picker.setSelectedRow(0, 2, false);
+            $.picker.setSelectedRow(1, 3, false);

@@ -35,11 +35,12 @@ class Projector(object):
 			buf = 'k%s' % buf
 		return buf
 		
-	def __init__(self,name,sdk_version,sdk_root,project_root,appid):
+	def __init__(self,name,sdk_version,sdk_root,project_root,appid,deploy_target):
 		self.sdk_version = sdk_version
 		self.sdk_root = os.path.abspath(sdk_root)
 		self.project_root = os.path.abspath(project_root)
 		self.project_id = appid
+		self.deploy_target = deploy_target
 		self.name = name
 		self.namespace = self.make_self(name)
 		self.namespace_upper = self.namespace.upper()+'_'
@@ -145,6 +146,8 @@ class Projector(object):
 		content = content.replace('path = %s_Prefix.pch;'%self.namespace,'path = "%s_Prefix.pch";'%self.name)
 		content = content.replace('%s_Prefix.pch'%self.namespace,'%s_Prefix.pch'%self.name)
 		content = content.replace('GCC_PREFIX_HEADER = %s_Prefix.pch;'%self.name,'GCC_PREFIX_HEADER = "%s_Prefix.pch";'%self.name)
+		if self.deploy_target:
+			content = re.sub(r'IPHONEOS_DEPLOYMENT_TARGET = [0-9.]+;','IPHONEOS_DEPLOYMENT_TARGET = %s;'%self.deploy_target, content)
 		
 		builder_py = os.path.abspath(os.path.join(self.sdk_root,"builder.py"))
 		pre_compile_script = "\\\"%s\\\" xcode\\nexit $?" % (builder_py)
@@ -215,7 +218,7 @@ def main(args):
 	sdk_root = os.path.expanduser(dequote(args[3]))
 	project_root = os.path.expanduser(dequote(args[4]))
 
-	p = Projector(name,version,sdk_root,project_root,"com.appcelerator.test")
+	p = Projector(name,version,sdk_root,project_root,"com.appcelerator.test", None)
 	p.create(sdk_root,project_root)
 	
 	sys.exit(0)

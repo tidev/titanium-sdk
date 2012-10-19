@@ -78,9 +78,15 @@ properties:
     platforms: [android, iphone, ipad]
     
   - name: autocorrect
-    summary: Determines whether misspelled words input to this text area are automatically corrected.
+    summary: Determines whether to automatically correct text entered into this text area.
+    description: |
+        Set to `true` to enable automatic spelling correction.
+
+        If this property is not explicitly defined, it behaves as though it were set to `true`.
+
+        On Android and iOS, the returned default value is undefined, and on Mobile Web, the returned
+        default value is `false`, but all behave as if the value is `true`.
     type: Boolean
-    default: false
     platforms: [android, iphone, ipad, mobileweb]
     
   - name: autoLink
@@ -390,6 +396,19 @@ examples:
                 top : 10,
                 width : 300, height : 120
             });
+
+  - title: Alloy XML Markup
+    example: |
+        Previous basic text area with customizations example as an Alloy view.
+
+            <Alloy>
+                <Window id="win" backgroundColor="white">
+                    <TextArea id="textArea"
+                        borderWidth="2" borderColor="#bbb" borderRadius="5"
+                        color="#888" textAlign="left" value="I am a textarea"
+                        top="60" width="300" height="70" />
+                </Window>
+            </Alloy>
 
 ---
 name: textAreaSelectedParams

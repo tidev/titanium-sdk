@@ -229,7 +229,7 @@ class Compiler(object):
 						print '[ERROR] Ti+ module "%s" is invalid: missing main "%s"' % (module['id'], main_file_path)
 						sys.exit(1)
 					
-					print '[INFO] Bundling Ti+ module "%s"' % module['id']
+					print '[INFO] Bundling Ti+ module "%s" version %s' % (module['id'], manifest['version'])
 					
 					self.project_dependencies.append(main_file)
 					
@@ -710,10 +710,12 @@ class Compiler(object):
 	def locate_module(self, path):
 		module_dir = None
 		module_version = '0.0.0'
-		for dir in os.listdir(path):
-			if compare_versions(module_version, dir) == -1:
-				module_version = dir
-				module_dir = os.path.join(path, dir)
+		if os.path.exists(path):
+			for dir in os.listdir(path):
+				mdir = os.path.join(path, dir)
+				if os.path.isdir(mdir) and compare_versions(module_version, dir) == -1:
+					module_version = dir
+					module_dir = mdir
 		return module_dir
 	
 	def find_project_dependencies(self):
