@@ -110,9 +110,10 @@ exports.config = function (logger, config, cli) {
 						default: 'HVGA'
 					},
 					'debug-host': {
-						abbr: 'H',
-						desc: __('debug connection info'),
-						hint: 'host:port'
+						//abbr: 'H',
+						//desc: __('debug connection info'),
+						//hint: 'host:port',
+						hidden: true
 					},
 					/* not actually used, yet
 					'deploy-type': {
