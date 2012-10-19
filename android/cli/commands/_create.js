@@ -21,7 +21,7 @@ exports.config = function (logger, config, cli) {
 exports.run = function (logger, config, cli, projectConfig) {
 	var templatePath = afs.resolvePath(path.dirname(module.filename), '..', '..', 'templates', cli.argv.type, cli.argv.template),
 		ignoreExtRegExp = /\.(png','.gif','.jpg','.zip','.a','.o', '.jar)$/,
-		projectDir = afs.resolvePath(cli.argv['project-dir'], cli.argv.name);
+		projectDir = afs.resolvePath(cli.argv['workspace-dir'], cli.argv.name);
 	
 	if (afs.exists(templatePath)) {
 		if (cli.argv.type == 'app') {
