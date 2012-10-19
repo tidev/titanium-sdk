@@ -74,7 +74,6 @@ exports.validate = function (logger, config, cli) {
 };
 
 exports.run = function (logger, config, cli) {
-
 	var projectDir = cli.argv['project-dir'],
 		tiappPath = path.join(projectDir, 'tiapp.xml'),
 		tiapp = new ti.tiappxml(tiappPath),
