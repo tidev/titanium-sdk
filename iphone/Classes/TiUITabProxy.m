@@ -277,6 +277,8 @@
 	// since the didShow notification above happens on both a push and pop, i need to keep a flag
 	// to let me know which state i'm in so i only close the current window on a pop
 	opening = YES;
+	// Because the window may be going out of scope soon, and that rememberself is a bit, not a counter, we can safely protect here.
+	[window rememberSelf];
 	[window setParentOrientationController:self];
 	// TODO: Slap patch.  Views, when opening/added, should check parent visibility (and parent/parent visibility, if possible)
 	[window parentWillShow];
