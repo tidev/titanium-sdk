@@ -522,6 +522,9 @@ public abstract class TiUIView
 			doSetClickable(TiConvert.toBoolean(newValue));
 		} else if (key.equals(TiC.PROPERTY_VISIBLE)) {
 			nativeView.setVisibility(TiConvert.toBoolean(newValue) ? View.VISIBLE : View.INVISIBLE);
+			if (borderView != null) {
+				borderView.setVisibility(nativeView.getVisibility());
+			}
 		} else if (key.equals(TiC.PROPERTY_ENABLED)) {
 			nativeView.setEnabled(TiConvert.toBoolean(newValue));
 		} else if (key.startsWith(TiC.PROPERTY_BACKGROUND_PADDING)) {
@@ -683,6 +686,9 @@ public abstract class TiUIView
 
 		if (d.containsKey(TiC.PROPERTY_VISIBLE) && !nativeViewNull) {
 			nativeView.setVisibility(TiConvert.toBoolean(d, TiC.PROPERTY_VISIBLE) ? View.VISIBLE : View.INVISIBLE);
+			if (borderView != null) {
+				borderView.setVisibility(nativeView.getVisibility());
+			}
 			
 		}
 		if (d.containsKey(TiC.PROPERTY_ENABLED) && !nativeViewNull) {
@@ -937,13 +943,13 @@ public abstract class TiUIView
 						currentActivity = TiApplication.getAppCurrentActivity();
 					}
 					borderView = new TiBorderWrapperView(currentActivity);
-
 					// Create new layout params for the child view since we just want the
 					// wrapper to control the layout
 					LayoutParams params = new LayoutParams();
 					params.height = android.widget.FrameLayout.LayoutParams.MATCH_PARENT;
 					params.width = android.widget.FrameLayout.LayoutParams.MATCH_PARENT;
 					borderView.addView(nativeView, params);
+					borderView.setVisibility(nativeView.getVisibility());
 				}
 
 				if (d.containsKey(TiC.PROPERTY_BORDER_RADIUS)) {
