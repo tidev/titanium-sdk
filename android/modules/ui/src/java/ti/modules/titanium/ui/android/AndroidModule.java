@@ -13,6 +13,7 @@ import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiUIView;
+import org.appcelerator.titanium.util.TiRHelper;
 
 import ti.modules.titanium.ui.UIModule;
 import ti.modules.titanium.ui.widget.TiUIProgressIndicator;
@@ -22,6 +23,8 @@ import android.content.Intent;
 import android.graphics.PixelFormat;
 import android.text.util.Linkify;
 import android.view.WindowManager;
+import android.preference.PreferenceManager;
+import android.content.Context;
 
 @Kroll.module(parentModule=UIModule.class)
 @Kroll.dynamicApis(properties = {
@@ -81,12 +84,37 @@ public class AndroidModule extends KrollModule
 	public AndroidModule()
 	{
 		super();
+		loadDefaultPreferences(TiPreferencesActivity.DEFAULT_PREFS_RNAME);
 	}
 
 	public AndroidModule(TiContext tiContext) 
 	{
 		this();
 	}
+	private void loadDefaultPreferences(String prefsName)
+	{
+		Activity currentActivity = TiApplication.getAppCurrentActivity();
+		try {
+			int resid = TiRHelper.getResource("xml." + prefsName);
+			PreferenceManager.setDefaultValues(currentActivity, TiApplication.APPLICATION_PREFERENCES_NAME, Context.MODE_PRIVATE, resid, false);
+		} catch (TiRHelper.ResourceNotFoundException e) {
+			Log.e(TAG, "xml." + prefsName + " preferences not found.");
+			return ;
+		}
+	}
+
+	// TODO - grab the activity off the invocation?
+	@Kroll.method
+	public void loadPreferences(@Kroll.argument(optional=true) String prefsName)
+	{
+		Activity currentActivity = TiApplication.getAppCurrentActivity();
+		String prefsFileName = TiPreferencesActivity.DEFAULT_PREFS_RNAME;
+		if (prefsName != null) {
+			prefsFileName = prefsName;
+		}
+		loadDefaultPreferences(prefsFileName);
+	}
+
 
 	// TODO - grab the activity off the invocation?
 	@Kroll.method
