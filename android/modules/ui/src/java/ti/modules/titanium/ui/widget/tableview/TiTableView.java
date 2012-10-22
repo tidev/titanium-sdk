@@ -23,8 +23,6 @@ import org.appcelerator.titanium.view.TiUIView;
 
 import ti.modules.titanium.ui.TableViewProxy;
 import ti.modules.titanium.ui.TableViewRowProxy;
-import ti.modules.titanium.ui.widget.TiUILabel;
-import ti.modules.titanium.ui.widget.TiView;
 import ti.modules.titanium.ui.widget.searchbar.TiUISearchBar.OnSearchChangeListener;
 import ti.modules.titanium.ui.widget.tableview.TableViewModel.Item;
 import android.graphics.Color;
