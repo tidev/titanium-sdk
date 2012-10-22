@@ -147,12 +147,13 @@ public class KrollDict
 		return TiConvert.toStringArray((Object[])get(key));
 	}
 
+	@SuppressWarnings("unchecked")
 	public KrollDict getKrollDict(String key) {
 		Object value = get(key);
 		if (value instanceof KrollDict) {
 			return (KrollDict) value;
 		} else if (value instanceof HashMap) {
-			return new KrollDict((HashMap)value);
+			return new KrollDict((HashMap<String, Object>) value);
 		} else {
 			return null;
 		}
