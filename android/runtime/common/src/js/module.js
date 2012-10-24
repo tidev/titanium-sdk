@@ -442,6 +442,10 @@ function resolveFilename(request, parentModule) {
 	return null;
 }
 
+Module.prototype.resolveFilename = function (filename) {
+	return resolveFilename (filename, this);
+}
+
 var fileIndex;
 
 function filenameExists(filename) {
@@ -453,3 +457,6 @@ function filenameExists(filename) {
 	return filename in fileIndex;
 }
 
+Module.prototype.filenameExists = function (filename) {
+	return filenameExists (filename);
+}

@@ -324,11 +324,6 @@ exports.bootstrapWindow = function(Titanium) {
 			return;
 		}
 
-		// we don't actually support relative pathing for windows
-		if (this.url.charAt(0) !== "/") {
-			this.url = "/" + this.url;
-		}
-
 		var resolvedUrl = url.resolve(this._sourceUrl, this.url);
 		if (!resolvedUrl.assetPath) {
 			kroll.log(TAG, "Window URL must be a resources file.");
@@ -350,7 +345,12 @@ exports.bootstrapWindow = function(Titanium) {
 		context.Titanium = context.Ti = new Titanium.Wrapper(scopeVars);
 		bootstrap.bootstrapGlobals(context, Titanium);
 
-		var scriptPath = url.toAssetPath(resolvedUrl);
+		var scriptPath = this.resolveFilePathFromURL(resolvedUrl);
+		if (!scriptPath) {
+			kroll.log(TAG, "Window URL not found: " + this.url);
+			return;
+		}
+
 		var relScriptPath = scriptPath.replace("Resources/", "");
 		var scriptSource = assets.readAsset(scriptPath);
 
@@ -365,6 +365,31 @@ exports.bootstrapWindow = function(Titanium) {
 		} else {
 			Script.runInThisContext(scriptSource, relScriptPath, true, context);
 		}
+	}
+
+	// Determine the full path of the file which is defined by the "url" property.
+	Window.prototype.resolveFilePathFromURL = function(resolvedURL) {
+		var parentModule = this._module || kroll.Module.main,
+			resolved = url.toAssetPath(resolvedURL),
+			moduleId = this.url;
+
+		// Return "resolvedURL" if it is a valid path.
+		if (parentModule.filenameExists(resolved) || assets.fileExists(resolved)) {
+			return resolved;
+
+		// Otherwise, try each possible path where the module's source file could be located.
+		} else {
+			if (moduleId.indexOf(".js") == moduleId.length - 3) {
+				moduleId = moduleId.substring(0, moduleId.length -3);
+			}
+			resolved = parentModule.resolveFilename(moduleId);
+			// Return the file path if the file exists.
+			if (resolved) {
+				return resolved[1];
+			}
+		}
+
+		return null;
 	}
 
 	Window.prototype.close = function(options) {
