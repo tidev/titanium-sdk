@@ -13,6 +13,7 @@
 var fs = require("fs");
 var path = require("path");
 var readline = require("readline");
+var wrench = require('wrench');
 
 var driverUtils = require(path.join(driverGlobal.driverDir, "driverUtils"));
 
@@ -51,7 +52,7 @@ module.exports = new function() {
 			};
 
 			if (path.existsSync(path.join(driverGlobal.logsDir, "json_results"))) {
-				wrench.rmdirSyncRecursive(path.join(driverGlobal.logsDir, "json_results"), failSilent);
+				wrench.rmdirSyncRecursive(path.join(driverGlobal.logsDir, "json_results"), true);
 			}
 
 			startCallback();
