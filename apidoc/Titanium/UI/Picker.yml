@@ -4,10 +4,22 @@ summary: |
     A control used to select one or more fixed values.
 description: |
     Use the <Titanium.UI.createPicker> method to create a picker control.
-    
+
     On Android, the `useSpinner` property must be enabled to support multiple columns.
+    By default, the spinner is automatically sized to fit its content and can overflow
+    to additional spinner rows. The size of the picker can be adjusted with the `width`
+    and `height` properties, but may omit picker columns if the size is set too small.
+    The `visibleItems` property overrides the `height` property.
     
-    Adding views to picker rows is only supported on iOS.
+    On iOS, the size of the picker, including its background, is fixed at the same size as the
+    iPhone keyboard. The contents of the picker is sized to fit the picker, which may cut off text
+    in the picker rows. Adding views to picker rows is also supported on iOS.
+
+    On iPad, Apple recommends using a picker only in a popover and is not suitable for the main
+    screen, since its size cannot be adjusted.
+
+    On Mobile Web, the picker uses the entire screen but is adjustable using the
+    `width` and `height` properties.
 extends: Titanium.Proxy
 since: "0.8"
 platforms: [android, iphone, ipad, mobileweb]
@@ -300,7 +312,7 @@ properties:
     description: |
         The spinner-style Android picker shows 5 rows by default; one selected in the middle and 2 
         above and below. Set to an odd number to ensure the selected row is in the middle.
-        
+        This property overrides the `height` property.
     type: Number
     default: 5
     platforms: [android]
