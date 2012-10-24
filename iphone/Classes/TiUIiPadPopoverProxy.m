@@ -55,8 +55,20 @@ TiUIiPadPopoverProxy * currentlyDisplaying = nil;
 	UINavigationItem * ourItem = [viewController navigationItem];
 
 	[ourItem setTitle:[TiUtils stringValue:[self valueForKey:@"title"]]];
-	[ourItem setLeftBarButtonItem:[[self valueForKey:@"leftNavButton"] barButtonItem] animated:animated_];
-	[ourItem setRightBarButtonItem:[[self valueForKey:@"rightNavButton"] barButtonItem] animated:animated_];
+    id item = [self valueForKey:@"leftNavButton"];
+    if ( (item == nil) || (item == [NSNull null]) ) {
+        [ourItem setLeftBarButtonItem:nil animated:animated_];
+    }
+    else {
+        [ourItem setLeftBarButtonItem:[item barButtonItem] animated:animated_];
+    }
+    item = [self valueForKey:@"rightNavButton"];
+    if ( (item == nil) || (item == [NSNull null]) ) {
+        [ourItem setRightBarButtonItem:nil animated:animated_];
+    }
+    else {
+        [ourItem setRightBarButtonItem:[item barButtonItem] animated:animated_];
+    }
 	
 	[[self navigationController] setNavigationBarHidden:[TiUtils boolValue:[self valueForKey:@"navBarHidden"]] animated:animated_];
 
