@@ -8,6 +8,7 @@ var EventEmitter = require("events").EventEmitter,
 	assets = kroll.binding("assets"),
 	vm = require("vm"),
 	url = require("url"),
+	path = require('path'),
 	Script = kroll.binding('evals').Script,
 	bootstrap = require('bootstrap'),
 	PersistentHandle = require('ui').PersistentHandle;
@@ -342,6 +343,8 @@ exports.bootstrapWindow = function(Titanium) {
 		scopeVars = Titanium.initScopeVars(scopeVars, resolvedUrl);
 
 		var context = this._urlContext = Script.createContext(scopeVars);
+		// Set up the global object which is needed when calling the Ti.include function from the new window context.
+		scopeVars.global = context;
 		context.Titanium = context.Ti = new Titanium.Wrapper(scopeVars);
 		bootstrap.bootstrapGlobals(context, Titanium);
 
@@ -354,8 +357,10 @@ exports.bootstrapWindow = function(Titanium) {
 		var relScriptPath = scriptPath.replace("Resources/", "");
 		var scriptSource = assets.readAsset(scriptPath);
 
-		// Setup require for the new window context.
+		// Set up paths, filename and require for the new window context.
 		var module = new kroll.Module("app:///" + relScriptPath, this._module || kroll.Module.main, context);
+		module.paths = [path.dirname(scriptPath)];
+		module.filename = scriptPath;
 		context.require = function(request, context) {
 			return module.require(request, context);
 		};
