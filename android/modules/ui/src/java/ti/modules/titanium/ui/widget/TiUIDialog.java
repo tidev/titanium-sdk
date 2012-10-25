@@ -24,6 +24,8 @@ import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnCancelListener;
+import android.support.v4.view.ViewCompat;
+import android.widget.ListView;
 
 public class TiUIDialog extends TiUIView
 {
@@ -221,10 +223,25 @@ public class TiUIDialog extends TiUIView
 			if (newValue != null) {
 				processView((TiViewProxy) newValue);
 			} else {
-				proxy.setProperty(TiC.PROPERTY_ANDROID_VIEW, null, false);
+				proxy.setProperty(TiC.PROPERTY_ANDROID_VIEW, null);
 			}
 		} else if (key.equals(TiC.PROPERTY_PERSISTENT) && newValue != null) {
 			dialogWrapper.setPersistent(TiConvert.toBoolean(newValue));
+		} else if (key.indexOf("accessibility") == 0) {
+			if (dialog != null) {
+				ListView listView = dialog.getListView();
+				if (listView != null) {
+					if (key.equals(TiC.PROPERTY_ACCESSIBILITY_HIDDEN)) {
+						int importance = ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_AUTO;
+						if (newValue != null && TiConvert.toBoolean(newValue)) {
+							importance = ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_NO;
+						}
+						ViewCompat.setImportantForAccessibility(listView, importance);
+					} else {
+						listView.setContentDescription(composeContentDescription());
+					}
+				}
+			}
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}
@@ -245,9 +262,27 @@ public class TiUIDialog extends TiUIView
 				}
 			});
 			dialog = getBuilder().create();
+
+			// Initially apply accessibility properties here, the first time
+			// the dialog actually becomes available. After this, propertyChanged
+			// can also be used.
+			ListView listView = dialog.getListView();
+			if (listView != null) {
+				listView.setContentDescription(composeContentDescription());
+				int importance = ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_AUTO;
+				if (proxy != null) {
+					Object propertyValue = proxy.getProperty(TiC.PROPERTY_ACCESSIBILITY_HIDDEN);
+					if (propertyValue != null && TiConvert.toBoolean(propertyValue)) {
+						importance = ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_NO;
+					}
+				}
+				ViewCompat.setImportantForAccessibility(listView, importance);
+			}
+
 			dialogWrapper.setDialog(dialog);
 			builder = null;
 		}
+
 		try {
 			Activity dialogActivity = dialogWrapper.getActivity();
 			if (dialogActivity != null && !dialogActivity.isFinishing()) {
@@ -285,7 +320,7 @@ public class TiUIDialog extends TiUIView
 		if (currentActivity != null) {
 			this.builder = new AlertDialog.Builder(currentActivity);
 			this.builder.setCancelable(true);
-			
+
 			//Native dialogs are persistent by default.
 			TiBaseActivity dialogActivity = (TiBaseActivity)currentActivity;
 			dialogWrapper = dialogActivity.new DialogWrapper(null, true, new WeakReference<TiBaseActivity>(dialogActivity));
@@ -306,7 +341,7 @@ public class TiUIDialog extends TiUIView
 			data.put(TiC.PROPERTY_BUTTON, false);
 			// If an option was selected and the user accepted it, update the proxy.
 			if (proxy.hasProperty(TiC.PROPERTY_OPTIONS)) {
-				proxy.setProperty(TiC.PROPERTY_SELECTED_INDEX, id, false);
+				proxy.setProperty(TiC.PROPERTY_SELECTED_INDEX, id);
 			}
 		}
 		data.put(TiC.EVENT_PROPERTY_INDEX, id);
