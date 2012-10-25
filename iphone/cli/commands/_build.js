@@ -192,8 +192,8 @@ exports.config = function (logger, config, cli) {
 						desc: __('the provisioning profile uuid; required when target is %s, %s, or %s', 'device'.cyan, 'dist-appstore'.cyan, 'dist-adhoc'.cyan),
 						hint: 'uuid',
 						prompt: {
-							label: __('Provisioning profile UUID'),
-							error: __('Invalid provisioning profile UUID'),
+							label: __('Provisioning Profile UUID'),
+							error: __('Invalid Provisioning Profile UUID'),
 							validator: function (uuid) {
 								var i = 0,
 									j,
@@ -208,7 +208,11 @@ exports.config = function (logger, config, cli) {
 									availableUUIDs.push('    ' + profiles[i].uuid.cyan + '  ' + profiles[i].appId + ' (' + profiles[i].name + ')');
 								}
 								
-								throw new appc.exception(__('Unable to find a Provisioning Profile UUID "%s"', uuid), availableUUIDs);
+								if (uuid) {
+									throw new appc.exception(__('Unable to find a Provisioning Profile UUID "%s"', uuid), availableUUIDs);
+								} else {
+									throw new appc.exception(__('Please specify a Provisioning Profile UUID'), availableUUIDs);
+								}
 							}
 						}
 					},
@@ -2061,7 +2065,7 @@ build.prototype = {
 					this.commonJsModules.forEach(function (m) {
 						var file = path.join(m.modulePath, m.id + '.js');
 						if (afs.exists(file)) {
-							var id = 'modules/' + m.id.replace(/\./g, '_') + '_js';
+							var id = m.id.replace(/\./g, '_') + '_js';
 							this.compileJsFile(id, file);
 							this.jsFilesToPrepare.push(id);
 						}
@@ -2076,7 +2080,7 @@ build.prototype = {
 					
 					this.cli.fireHook('build.prerouting', this, function (err) {
 						var args = [path.join(this.titaniumIosSdkPath, 'titanium_prep'), this.tiapp.id, this.assetsDir],
-							out = '',
+							out = [],
 							child;
 						
 						this.logger.info(__('Running titanium_prep: %s', args.join(' ').cyan));
@@ -2088,10 +2092,10 @@ build.prototype = {
 						child.stdin.write(this.jsFilesToPrepare.join('\n'));
 						child.stdin.end();
 						child.stdout.on('data', function (data) {
-							out += data.toString();
+							out.push(data.toString());
 						});
 						child.stderr.on('data', function (data) {
-							out += data.toString();
+							out.push(data.toString());
 						});
 						child.on('exit', function (code) {
 							if (code) {
@@ -2147,7 +2151,7 @@ build.prototype = {
 								'',
 								'+ (NSData*) resolveAppAsset:(NSString*)path;',
 								'{',
-									out,
+									out.join(''),
 								'	NSNumber *index = [map objectForKey:path];',
 								'	if (index == nil) { return nil; }',
 								'	return filterDataInRange([NSData dataWithBytesNoCopy:data length:sizeof(data) freeWhenDone:NO], ranges[index.integerValue]);',
