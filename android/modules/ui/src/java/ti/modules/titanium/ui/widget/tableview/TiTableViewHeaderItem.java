@@ -6,10 +6,10 @@
  */
 package ti.modules.titanium.ui.widget.tableview;
 
-
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiUIHelper;
+import org.appcelerator.titanium.view.TiBorderWrapperView;
 import org.appcelerator.titanium.view.TiUIView;
 
 import ti.modules.titanium.ui.widget.tableview.TableViewModel.Item;
@@ -18,6 +18,7 @@ import android.content.Context;
 import android.graphics.Color;
 import android.os.Handler;
 import android.view.Gravity;
+import android.view.View;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -68,7 +69,6 @@ public class TiTableViewHeaderItem extends TiBaseTableViewItem
 		}
 	}
 
-
 	public TiTableViewHeaderItem(Activity activity) {
 		super(activity);
 		this.handler = new Handler(this);
@@ -81,7 +81,7 @@ public class TiTableViewHeaderItem extends TiBaseTableViewItem
 		super(activity);
 		
 		this.handler = new Handler(this);
-		this.addView(headerView.getNativeView(), headerView.getLayoutParams());
+		this.addView(headerView.getOuterView(), headerView.getLayoutParams());
 		this.setLayoutParams(headerView.getLayoutParams());
 		setMinimumHeight((int)TiUIHelper.getRawDIPSize(18, activity));
 		this.headerView = headerView;
@@ -92,16 +92,15 @@ public class TiTableViewHeaderItem extends TiBaseTableViewItem
 		this(activity);
 	}
 
-	public void setRowData(Item item) {
+	public void setRowData(Item item)
+	{
 		if (!isHeaderView) {
 			rowView.setRowData(item);
-		}
-		else
-		{
+		} else {
 			setHeaderData(item);
 		}
 	}
-	
+
 	private void setHeaderData(Item item)
 	{
 		if (headerView != null && headerView.getChildren() != null && headerView.getChildren().size() > 0 &&
@@ -109,8 +108,7 @@ public class TiTableViewHeaderItem extends TiBaseTableViewItem
 				item.proxy.getChildren().length > 0) {
 			TiUIView labelView = headerView.getChildren().get(0);
 			TiViewProxy labelProxy = item.proxy.getChildren()[0];
-			if (labelView != null && labelProxy != null)
-			{
+			if (labelView != null && labelProxy != null) {
 				labelView.processProperties(labelProxy.getProperties());
 			}
 
@@ -135,7 +133,12 @@ public class TiTableViewHeaderItem extends TiBaseTableViewItem
 		if (!isHeaderView) {
 			rowView.layout(left, 0, right, bottom - top);
 		} else {
-			headerView.getNativeView().layout(left, 0, right, bottom - top);
+			View view = headerView.getOuterView();
+			headerView.getOuterView().layout(left, 0, right, bottom - top);
+			// Also layout the inner native view when we have borders
+			if (view instanceof TiBorderWrapperView) {
+				headerView.getNativeView().layout(left, 0, right, bottom - top);
+			}
 		}
 	}
 }
