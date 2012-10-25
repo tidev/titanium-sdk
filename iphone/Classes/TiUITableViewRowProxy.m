@@ -723,6 +723,28 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 				break;
 			}
 		}
+		NSArray *rowChildren = [self children];
+		if (rowContainerView != nil) {
+			__block BOOL canReproxy = YES;
+			NSArray *existingSubviews = [rowContainerView subviews];
+			if ([rowChildren count] != [existingSubviews count]) {
+				canReproxy = NO;
+			} else {
+				[rowChildren enumerateObjectsUsingBlock:^(TiViewProxy *proxy, NSUInteger idx, BOOL *stop) {
+					TiUIView *uiview = [existingSubviews objectAtIndex:idx];
+					if (![uiview validateTransferToProxy:proxy deep:YES]) {
+						canReproxy = NO;
+						*stop = YES;
+					}
+				}];
+			}
+			if (!canReproxy) {
+				DebugLog(@"[ERROR] TableViewRow structures for className %@ does not match", self.tableClass);
+				[existingSubviews enumerateObjectsUsingBlock:^(TiUIView *child, NSUInteger idx, BOOL *stop) {
+					[(TiViewProxy *)child.proxy detachView];
+				}];
+			}
+		}
 		if (rowContainerView == nil) {
 			rowContainerView = [[TiUITableViewRowContainer alloc] initWithFrame:rect];
 			[contentView addSubview:rowContainerView];
@@ -731,7 +753,7 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 		[rowContainerView setAutoresizingMask:UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight];
 		
 		NSArray *existingSubviews = [rowContainerView subviews];
-		[[self children] enumerateObjectsUsingBlock:^(TiViewProxy *proxy, NSUInteger idx, BOOL *stop) {
+		[rowChildren enumerateObjectsUsingBlock:^(TiViewProxy *proxy, NSUInteger idx, BOOL *stop) {
 			TiUIView *uiview = idx < [existingSubviews count] ? [existingSubviews objectAtIndex:idx] : nil;
 			if (!CGRectEqualToRect([proxy sandboxBounds], rect)) {
 				[proxy setSandboxBounds:rect];
