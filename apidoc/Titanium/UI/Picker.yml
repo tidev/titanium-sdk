@@ -12,11 +12,11 @@ description: |
     The `visibleItems` property overrides the `height` property.
     
     On iOS, the size of the picker, including its background, is fixed at the same size as the
-    iPhone keyboard. The contents of the picker is sized to fit the picker, which may cut off text
+    iPhone keyboard. The contents of the picker are sized to fit the picker, which may cut off text
     in the picker rows. Adding views to picker rows is also supported on iOS.
 
-    On iPad, Apple recommends using a picker only in a popover and is not suitable for the main
-    screen, since its size cannot be adjusted.
+    On iPad, Apple recommends using a picker only in a popover.  Since the size of the picker
+    cannot be adjusted, it is not suitable for the main screen.
 
     On Mobile Web, the picker uses the entire screen but is adjustable using the
     `width` and `height` properties.
