@@ -782,7 +782,7 @@ DEFINE_EXCEPTIONS
 		NSArray *subProxies = [newProxy children];
 		NSArray *oldSubProxies = [oldProxy children];
 		if ([subProxies count] != [oldSubProxies count]) {
-			return YES;
+			return NO;
 		}
 		[oldSubProxies enumerateObjectsUsingBlock:^(TiViewProxy *oldSubProxy, NSUInteger idx, BOOL *stop) {
 			TiViewProxy *newSubProxy = [subProxies objectAtIndex:idx];
