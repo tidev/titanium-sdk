@@ -179,6 +179,13 @@ void ModifyScrollViewForKeyboardHeightAndContentHeightWithResponderRect(UIScroll
  */
 -(void)transferProxy:(TiViewProxy*)newProxy deep:(BOOL)deep;
 
+/*
+ Returns whether the view tree matches proxy tree for later transfer.
+ @param proxy The proxy to validate view tree with.
+ @param deep true for deep validation
+ */
+-(BOOL)validateTransferToProxy:(TiViewProxy*)proxy deep:(BOOL)deep;
+
 /**
  Tells the view to update its touch handling state.
  @see touchEnabled

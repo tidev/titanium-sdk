@@ -766,6 +766,34 @@ DEFINE_EXCEPTIONS
 	}
 }
 
+-(BOOL)validateTransferToProxy:(TiViewProxy*)newProxy deep:(BOOL)deep
+{
+	TiViewProxy * oldProxy = (TiViewProxy *)[self proxy];
+	
+	if (oldProxy == newProxy) {
+		return YES;
+	}
+	if (![newProxy isMemberOfClass:[oldProxy class]]) {
+		return NO;
+	}
+	
+	__block BOOL result = YES;
+	if (deep) {
+		NSArray *subProxies = [newProxy children];
+		NSArray *oldSubProxies = [oldProxy children];
+		if ([subProxies count] != [oldSubProxies count]) {
+			return YES;
+		}
+		[oldSubProxies enumerateObjectsUsingBlock:^(TiViewProxy *oldSubProxy, NSUInteger idx, BOOL *stop) {
+			TiViewProxy *newSubProxy = [subProxies objectAtIndex:idx];
+			result = [[oldSubProxy view] validateTransferToProxy:newSubProxy deep:YES];
+			if (!result) {
+				*stop = YES;
+			}
+		}];
+	}
+	return result;
+}
 
 -(id)proxyValueForKey:(NSString *)key
 {
