@@ -30,11 +30,12 @@
 	TiWindowProxy *window = [args objectAtIndex:0];
 	ENSURE_TYPE(window,TiWindowProxy);
 	[self rememberProxy:window];
-
-	ENSURE_UI_THREAD(open, args);
 	[[[TiApp app] controller] dismissKeyboard];
+
 	NSDictionary *properties = [args count] > 1 ? [args objectAtIndex:1] : [NSDictionary dictionary];
-	[[self view] performSelector:@selector(open:withObject:) withObject:window withObject:properties];
+	TiThreadPerformOnMainThread(^{
+		[(TiUIiPhoneNavigationGroup*)[self view] open:window withObject:properties];
+	}, YES);
 }
 
 -(void)close:(NSArray*)args
@@ -45,10 +46,10 @@
 		
 		TiWindowProxy *window = [args objectAtIndex:0];
 		ENSURE_TYPE(window,TiWindowProxy);
-		ENSURE_UI_THREAD(close,args);
-
 		NSDictionary *properties = [args count] > 1 ? [args objectAtIndex:1] : [NSDictionary dictionary];
-		[[self view] performSelector:@selector(close:withObject:) withObject:window withObject:properties];
+		TiThreadPerformOnMainThread(^{
+			[(TiUIiPhoneNavigationGroup*)[self view] close:window withObject:properties];
+		},YES);
 		[self forgetProxy:window];
 	}
 	else 
