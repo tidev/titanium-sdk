@@ -415,7 +415,13 @@ DEFINE_EXCEPTIONS
 		[self tabController].viewControllers = controllers;
 		if (![tabs containsObject:focused])
 		{
-            if ([controllers containsObject:thisTab]) {
+            if ( (thisTab != nil) && (![thisTab isKindOfClass:[TiUITabProxy class]]) ) {
+                int index = [TiUtils intValue:thisTab];
+                if (index < [tabs count]) {
+                    thisTab = [tabs objectAtIndex:index];
+                }
+            }
+            if ([tabs containsObject:thisTab]) {
                 [self setActiveTab_:thisTab];
             }
             else {
