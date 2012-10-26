@@ -11,6 +11,7 @@ import java.util.Arrays;
 
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.proxy.TiViewProxy;
+import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiUIView;
 
 import ti.modules.titanium.ui.PickerColumnProxy;
@@ -32,10 +33,18 @@ public class TiUINativePicker extends TiUIPicker
 	{
 		super(proxy);
 	}
-	public TiUINativePicker(TiViewProxy proxy, Activity activity)
+	public TiUINativePicker(final TiViewProxy proxy, Activity activity)
 	{
 		this(proxy);
-		Spinner spinner = new Spinner(activity);
+		Spinner spinner = new Spinner(activity)
+		{
+			@Override
+			protected void onLayout(boolean changed, int left, int top, int right, int bottom)
+			{
+				super.onLayout(changed, left, top, right, bottom);
+				TiUIHelper.firePostLayoutEvent(proxy);
+			}
+		};
 		setNativeView(spinner);
 		refreshNativeView();
 		preselectRows();

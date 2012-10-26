@@ -54,13 +54,13 @@ public class TiUISwitch extends TiUIView
 	}
 	
 	protected void updateButton(CompoundButton cb, KrollDict d) {
-		if (d.containsKey(TiC.PROPERTY_TITLE) && cb.getClass().equals(CheckBox.class)) {
+		if (d.containsKey(TiC.PROPERTY_TITLE) && cb instanceof CheckBox) {
 			cb.setText(TiConvert.toString(d, TiC.PROPERTY_TITLE));
 		}
-		if (d.containsKey(TiC.PROPERTY_TITLE_OFF) && cb.getClass().equals(ToggleButton.class)) {
+		if (d.containsKey(TiC.PROPERTY_TITLE_OFF) && cb instanceof ToggleButton) {
 			((ToggleButton) cb).setTextOff(TiConvert.toString(d, TiC.PROPERTY_TITLE_OFF));
 		}
-		if (d.containsKey(TiC.PROPERTY_TITLE_ON) && cb.getClass().equals(ToggleButton.class)) {
+		if (d.containsKey(TiC.PROPERTY_TITLE_ON) && cb instanceof ToggleButton) {
 			((ToggleButton) cb).setTextOn(TiConvert.toString(d, TiC.PROPERTY_TITLE_ON));
 		}
 		if (d.containsKey(TiC.PROPERTY_VALUE)) {
@@ -94,11 +94,11 @@ public class TiUISwitch extends TiUIView
 		CompoundButton cb = (CompoundButton) getNativeView();
 		if (key.equals(TiC.PROPERTY_STYLE) && newValue != null) {
 			setStyle(TiConvert.toInt(newValue));
-		} else if (key.equals(TiC.PROPERTY_TITLE) && cb.getClass().equals(CheckBox.class)) {
+		} else if (key.equals(TiC.PROPERTY_TITLE) && cb instanceof CheckBox) {
 			cb.setText((String) newValue);
-		} else if (key.equals(TiC.PROPERTY_TITLE_OFF) && cb.getClass().equals(ToggleButton.class)) {
+		} else if (key.equals(TiC.PROPERTY_TITLE_OFF) && cb instanceof ToggleButton) {
 			((ToggleButton) cb).setTextOff((String) newValue);
-		} else if (key.equals(TiC.PROPERTY_TITLE_ON) && cb.getClass().equals(ToggleButton.class)) {
+		} else if (key.equals(TiC.PROPERTY_TITLE_ON) && cb instanceof ToggleButton) {
 			((ToggleButton) cb).setTextOff((String) newValue);
 		} else if (key.equals(TiC.PROPERTY_VALUE)) {
 			cb.setChecked(TiConvert.toBoolean(newValue));
@@ -126,27 +126,44 @@ public class TiUISwitch extends TiUIView
 		proxy.fireEvent(TiC.EVENT_CHANGE, data);
 	}
 	
-	protected void setStyle(int style) {
+	protected void setStyle(int style)
+	{
 		CompoundButton currentButton = (CompoundButton) getNativeView();
 		CompoundButton button = null;
-		
-		switch (style) {
-		case AndroidModule.SWITCH_STYLE_CHECKBOX:
-			if (!(currentButton instanceof CheckBox)) {
-				button = new CheckBox(proxy.getActivity());
-			}
-			break;
-			
-		case AndroidModule.SWITCH_STYLE_TOGGLEBUTTON:
-			if (!(currentButton instanceof ToggleButton)) {
-				button = new ToggleButton(proxy.getActivity());
-			}
-			break;
 
-		default:
-			return;
+		switch (style) {
+			case AndroidModule.SWITCH_STYLE_CHECKBOX:
+				if (!(currentButton instanceof CheckBox)) {
+					button = new CheckBox(proxy.getActivity())
+					{
+						@Override
+						protected void onLayout(boolean changed, int left, int top, int right, int bottom)
+						{
+							super.onLayout(changed, left, top, right, bottom);
+							TiUIHelper.firePostLayoutEvent(proxy);
+						}
+					};
+				}
+				break;
+
+			case AndroidModule.SWITCH_STYLE_TOGGLEBUTTON:
+				if (!(currentButton instanceof ToggleButton)) {
+					button = new ToggleButton(proxy.getActivity())
+					{
+						@Override
+						protected void onLayout(boolean changed, int left, int top, int right, int bottom)
+						{
+							super.onLayout(changed, left, top, right, bottom);
+							TiUIHelper.firePostLayoutEvent(proxy);
+						}
+					};
+				}
+				break;
+
+			default:
+				return;
 		}
-		
+
 		if (button != null) {
 			setNativeView(button);
 			updateButton(button, proxy.getProperties());
