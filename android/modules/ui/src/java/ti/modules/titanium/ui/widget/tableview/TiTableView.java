@@ -203,8 +203,16 @@ public class TiTableView extends FrameLayout
 				if (item.className.equals(TableViewProxy.CLASSNAME_HEADERVIEW)) {
 					TiViewProxy vproxy = item.proxy;
 					TiUIView headerView = layoutHeaderOrFooter(vproxy);
+					ViewParent viewParent = headerView.getOuterView().getParent();
+					if (viewParent != null && viewParent instanceof ViewGroup) {
+						Log.d(TAG, "Header view has not been removed from parent. Detaching header view...",
+							Log.DEBUG_MODE);
+						((ViewGroup) viewParent).removeView(headerView.getOuterView());
+					}
 					v = new TiTableViewHeaderItem(proxy.getActivity(), headerView);
 					v.setClassName(TableViewProxy.CLASSNAME_HEADERVIEW);
+					v.setRowData(item);
+					return v;
 				} else if (item.className.equals(TableViewProxy.CLASSNAME_HEADER)) {
 					v = new TiTableViewHeaderItem(proxy.getActivity());
 					v.setClassName(TableViewProxy.CLASSNAME_HEADER);
