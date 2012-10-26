@@ -64,7 +64,7 @@ TiUIiPadPopoverProxy * currentlyDisplaying = nil;
 
 -(CGSize)contentSize
 {
-	return SizeConstraintViewWithSizeAddingResizing([self layoutProperties], self, CGSizeZero, NULL);
+	return SizeConstraintViewWithSizeAddingResizing([self layoutProperties], self, [[UIScreen mainScreen] bounds].size, NULL);
 }
 
 -(UINavigationController *)navigationController
