@@ -167,11 +167,9 @@
 
         //TIMOB-10802.If it is not the top view controller, delegate methods will
         //not be called. So call close on the proxy here.
-        if (!lastObject) {
-            [closingProxy close:nil];
-            [closingProxy release];
-            closingProxy = nil;
-        }
+        [closingProxy close:nil];
+        [closingProxy release];
+        closingProxy = nil;
     }
 }
 
