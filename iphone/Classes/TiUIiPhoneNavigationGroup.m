@@ -159,11 +159,14 @@
     [newControllers removeObject:windowController];
     [closingProxy autorelease];
     closingProxy = [window retain];
-    [controller setViewControllers:newControllers animated:animated];
+    if (lastObject) {
+        [controller popViewControllerAnimated:animated];
+    }
+    else {
+        [controller setViewControllers:newControllers animated:animated];
 
-    //TIMOB-10802.If it is not the top view controller, delegate methods will 
-    //not be called. So call close on the proxy here.
-    if (!lastObject) {
+        //TIMOB-10802.If it is not the top view controller, delegate methods will
+        //not be called. So call close on the proxy here.
         [closingProxy close:nil];
         [closingProxy release];
         closingProxy = nil;
@@ -181,9 +184,9 @@
 - (void)navigationController:(UINavigationController *)navigationController willShowViewController:(UIViewController *)viewController animated:(BOOL)animated
 {
     TiWindowProxy *newWindow = (TiWindowProxy *)[(TiViewController*)viewController proxy];
-	[newWindow setupWindowDecorations];
 	[newWindow windowWillOpen];
-    //TIMOB-8559.TIMOB-8628. PR 1819 caused a regression that exposed an IOS issue. In IOS 5 and later, the nav controller calls 
+	[newWindow setupWindowDecorations];
+    //TIMOB-8559.TIMOB-8628. PR 1819 caused a regression that exposed an IOS issue. In IOS 5 and later, the nav controller calls
     //UIViewControllerDelegate methods, but not in IOS 4.X. As a result the parentVisible flag is never flipped to true
     //and the window never lays out. Call them explicitly.
     if (![TiUtils isIOS5OrGreater]) {

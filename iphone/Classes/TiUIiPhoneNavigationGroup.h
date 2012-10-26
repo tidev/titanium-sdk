@@ -22,7 +22,8 @@
 - (void)willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration;
 - (UINavigationController*)controller;
 - (void)close;
-
+- (void)open:(TiWindowProxy*)window withObject:(NSDictionary*)properties;
+- (void)close:(TiWindowProxy*)window withObject:(NSDictionary*)properties;
 @end
 
 #endif
