@@ -146,7 +146,30 @@ properties:
     type: Number
 
   - name: sound
-    summary: A URL to the sound to play (supports both Android and Titanium URLs).
+    summary: A native Android URL to the sound to play.
+    description: |
+        Currently, the URL cannot refer to a file in the Resources directory. To play a file 
+        from the Resources directory, first copy it to removable storage. For example, you
+        can define the following function:
+
+            // Copy resource file to SD card, and return a native path
+            function getOrCopyAudioFile(resourceFilename) {
+                var outFile = Ti.Filesystem.getFile(Ti.Filesystem.externalStorageDirectory, 'sound', resourceFilename);
+                var outPath = outFile.nativePath;
+                if (! outFile.exists()) {
+                    var inFile = Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory, resourceFilename);
+                    inFile.copy(outPath);
+                    inFile = null;
+                }
+                outFile = null;
+                return outPath;
+            }
+
+        Then when creating a notification, specify the sound like this:
+            
+            sound: getOrCopyAudioFile('crickets.wav')
+
+
     type: String
 
   - name: tickerText
