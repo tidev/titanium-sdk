@@ -1523,6 +1523,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_PLAYBACK_STATE = "playbackState";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_PLUGIN_STATE = "pluginState";
 
 	/**
