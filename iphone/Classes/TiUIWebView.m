@@ -295,11 +295,8 @@ static NSString * const kTitaniumJavascript = @"Ti.App={};Ti.API={};Ti.App._list
 	if (reloadData != nil)
 	{
 		[self performSelector:reloadMethod withObject:reloadData withObject:reloadDataProperties];
-		//[timob-10846] On iOS 6 we have to reload the webview otherwise views seems to be misplaced.
-        if (![TiUtils isIOS6OrGreater]) {
-            return;
-        }
-	}
+		return;
+    }
 	[webview reload];
 }
 
