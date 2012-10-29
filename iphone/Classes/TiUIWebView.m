@@ -289,7 +289,7 @@ static NSString * const kTitaniumJavascript = @"Ti.App={};Ti.API={};Ti.App._list
 	{
 		[self performSelector:reloadMethod withObject:reloadData withObject:reloadDataProperties];
 		return;
-    }
+	}
 	[webview reload];
 }
 
