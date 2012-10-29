@@ -519,7 +519,7 @@ public class VideoPlayerProxy extends TiViewProxy implements TiLifecycle.OnLifec
 	{
 		playbackState = state;
 		KrollDict data = new KrollDict();
-		data.put(TiC.PROPERTY_PLAYBACK_STATE, state);
+		data.put(TiC.EVENT_PROPERTY_PLAYBACK_STATE, state);
 		fireEvent(TiC.EVENT_PLAYBACK_STATE, data);
 		// TODO: Deprecate old event
 		fireEvent("playbackState", data);
