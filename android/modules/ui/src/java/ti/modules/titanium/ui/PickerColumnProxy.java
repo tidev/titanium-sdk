@@ -124,8 +124,12 @@ public class PickerColumnProxy extends TiViewProxy implements PickerRowListener
 	{
 		for (Object oChild: o)
 		{
-			if (oChild instanceof TiViewProxy) {
-				handleAddRow((TiViewProxy) oChild);
+			if (oChild instanceof PickerRowProxy) {
+				handleAddRow((PickerRowProxy) oChild);
+			}
+			else
+			{
+				Log.w(TAG, "add() unsupported argument type: " + oChild.getClass().getSimpleName());
 			}
 		}
 	}
