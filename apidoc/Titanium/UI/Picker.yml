@@ -11,8 +11,11 @@ description: |
     and `height` properties, but may omit picker columns or cut off picker rows
     if the size is set too small.
     
-    On iOS, the size of the picker, including its background, is fixed at the same size as the
-    iPhone keyboard. The contents of the picker are sized to fit the picker, which may cut off text
+    On iOS, by default, the size of the picker, including its background, is fixed at the
+    same size as the iPhone keyboard to respect the
+    [iOS Human Interface Guidelines](https://developer.apple.com/library/ios/#documentation/UserExperience/Conceptual/MobileHIG/UIElementGuidelines/UIElementGuidelines.html#//apple_ref/doc/uid/TP40006556-CH13-SW23).
+    The size of the picker should not be modified.
+    The contents of the picker are sized to fit the picker, which may cut off text
     in the picker rows. Adding views to picker rows is also supported on iOS.
 
     On iPad, Apple recommends using a picker only in a popover.  Since the size of the picker
