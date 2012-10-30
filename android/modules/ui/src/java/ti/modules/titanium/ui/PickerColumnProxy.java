@@ -109,17 +109,6 @@ public class PickerColumnProxy extends TiViewProxy implements PickerRowListener
 		}
 	}
 	
-	public void addArray(Object[] o)
-	{
-		if (TiApplication.isUIThread()) {
-			handleAddRowArray(o);
-
-		} else {
-			TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_ADD_ARRAY), o);
-		}
-		
-	}
-	
 	private void handleAddRowArray(Object[] o)
 	{
 		for (Object oChild: o)
@@ -187,7 +176,12 @@ public class PickerColumnProxy extends TiViewProxy implements PickerRowListener
 
 	protected void addRows(Object[] rows) 
 	{
-		this.addArray(rows);
+		if (TiApplication.isUIThread()) {
+			handleAddRowArray(rows);
+
+		} else {
+			TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_ADD_ARRAY), rows);
+		}
 	}
 
 	@Kroll.method
