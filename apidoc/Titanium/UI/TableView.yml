@@ -1249,7 +1249,7 @@ examples:
   - title: Table View Sections
     example: |
         Create a table with three sections, each with two rows. Add two sections to the table 
-        before and one after it is rendered. This sample only works on Release 3.0rand later.
+        before and one after it is rendered. This sample only works on Release 3.0 and later.
         
             Ti.UI.backgroundColor = 'white';
             var win = Ti.UI.createWindow();
