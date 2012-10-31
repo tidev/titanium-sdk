@@ -511,7 +511,7 @@ public class TiHTTPClient
 
 	public String getDomain()
 	{
-		if (proxy.hasProperty("domin")) {
+		if (proxy.hasProperty("domain")) {
 			return TiConvert.toString(proxy.getProperty("domain"));
 		}
 		return null;
