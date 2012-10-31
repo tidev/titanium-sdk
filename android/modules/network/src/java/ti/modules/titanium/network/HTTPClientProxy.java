@@ -192,7 +192,7 @@ public class HTTPClientProxy extends KrollProxy
 		this.setProperty("username", value);
 	}
 
-	@Kroll.setProperty @Kroll.method
+	@Kroll.getProperty @Kroll.method
 	public String getUsername()
 	{
 		return client.getUsername();
@@ -204,7 +204,7 @@ public class HTTPClientProxy extends KrollProxy
 		this.setProperty("password", value);
 	}
 
-	@Kroll.setProperty @Kroll.method
+	@Kroll.getProperty @Kroll.method
 	public String getPassword()
 	{
 		return client.getPassword();
@@ -216,7 +216,7 @@ public class HTTPClientProxy extends KrollProxy
 		this.setProperty("domain", value);
 	}
 
-	@Kroll.setProperty @Kroll.method
+	@Kroll.getProperty @Kroll.method
 	public String getDomain()
 	{
 		return client.getDomain();
