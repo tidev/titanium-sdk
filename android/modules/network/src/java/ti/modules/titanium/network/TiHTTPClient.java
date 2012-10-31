@@ -46,6 +46,7 @@ import org.apache.http.ProtocolException;
 import org.apache.http.StatusLine;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.Credentials;
+import org.apache.http.auth.NTCredentials;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.HttpResponseException;
 import org.apache.http.client.ResponseHandler;
@@ -89,6 +90,7 @@ import org.appcelerator.titanium.io.TiFile;
 import org.appcelerator.titanium.io.TiResourceFile;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiMimeTypeHelper;
+import org.appcelerator.titanium.util.TiPlatformHelper;
 import org.appcelerator.titanium.util.TiUrl;
 
 import ti.modules.titanium.xml.DocumentProxy;
@@ -491,6 +493,30 @@ public class TiHTTPClient
 		return false;
 	}
 	
+	public String getUsername()
+	{
+		if (proxy.hasProperty("username")) {
+			return TiConvert.toString(proxy.getProperty("username"));
+		}
+		return null;
+	}
+	
+	public String getPassword()
+	{
+		if (proxy.hasProperty("password")) {
+			return TiConvert.toString(proxy.getProperty("password"));
+		}
+		return null;
+	}
+
+	public String getDomain()
+	{
+		if (proxy.hasProperty("domin")) {
+			return TiConvert.toString(proxy.getProperty("domain"));
+		}
+		return null;
+	}
+
 	public void setReadyState(int readyState)
 	{
 		Log.d(TAG, "Setting ready state to " + readyState, Log.DEBUG_MODE);
@@ -832,6 +858,21 @@ public class TiHTTPClient
 		if (uri.getUserInfo() != null) {
 			credentials = new UsernamePasswordCredentials(uri.getUserInfo());
 		}
+		if (credentials == null) {
+			String userName = getUsername();
+			String password = getPassword();
+			String domain = getDomain();
+			if (domain != null) {
+				password = (password == null)?"":password;
+				credentials = new NTCredentials(userName, password, TiPlatformHelper.getMobileId(), domain);
+			}
+			else {
+				if (userName != null) {
+					password = (password == null)?"":password;
+					credentials = new UsernamePasswordCredentials(userName, password);
+				}
+			}
+		}
 		setReadyState(READY_STATE_OPENED);
 		setRequestHeader("User-Agent", (String) proxy.getProperty("userAgent"));
 		// Causes Auth to Fail with twitter and other size apparently block X- as well
@@ -1104,7 +1145,6 @@ public class TiHTTPClient
 
 				// lazy get client each time in case the validatesSecureCertificate() changes
 				client = getClient(validatesSecureCertificate());
-
 				if (credentials != null) {
 					client.getCredentialsProvider().setCredentials (new AuthScope(uri.getHost(), -1), credentials);
 					credentials = null;

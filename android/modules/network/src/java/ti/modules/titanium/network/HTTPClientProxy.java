@@ -175,4 +175,39 @@ public class HTTPClientProxy extends KrollProxy
 		this.setProperty("validatesSecureCertificate", value);
 	}
 
+	@Kroll.setProperty @Kroll.method
+	public void setUsername(String value)
+	{
+		this.setProperty("username", value);
+	}
+
+	@Kroll.setProperty @Kroll.method
+	public String getUsername()
+	{
+		return client.getUsername();
+	}
+
+	@Kroll.setProperty @Kroll.method
+	public void setPassword(String value)
+	{
+		this.setProperty("password", value);
+	}
+
+	@Kroll.setProperty @Kroll.method
+	public String getPassword()
+	{
+		return client.getPassword();
+	}
+
+	@Kroll.setProperty @Kroll.method
+	public void setDomain(String value)
+	{
+		this.setProperty("domain", value);
+	}
+
+	@Kroll.setProperty @Kroll.method
+	public String getDomain()
+	{
+		return client.getDomain();
+	}
 }
