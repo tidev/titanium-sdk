@@ -1275,8 +1275,8 @@ examples:
             sectionFish.add(Ti.UI.createTableViewRow({ title: 'Cod' }));
             sectionFish.add(Ti.UI.createTableViewRow({ title: 'Haddock' }));
             
-            // Prior to Release 3.0, add and remove sections using the setData method:
-            // table.setData([ sectionFish, sectionFruit, sectionVeg ]);
+            // Prior to Release 3.0, you can only add and remove sections by setting the data property:
+            // table.data = [ sectionFish, sectionFruit, sectionVeg ];
             table.insertSectionBefore(0, sectionFish);
 
   - title: Table View with Composite Layout
