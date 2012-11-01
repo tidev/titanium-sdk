@@ -624,14 +624,13 @@ public abstract class TiBaseActivity extends Activity
 
 		switch(event.getKeyCode()) {
 			case KeyEvent.KEYCODE_BACK : {
-				// Deprecated and replaced by "androidback" event.
-				if (window.hasListeners("android:back")) {
+				if (activityProxy.hasListeners("android:back")) {
 					if (event.getAction() == KeyEvent.ACTION_UP) {
-						window.fireEvent("android:back", null);
+						activityProxy.fireEvent("android:back", null);
 					}
 					handled = true;
-				}
 
+				}
 				break;
 			}
 			case KeyEvent.KEYCODE_CAMERA : {
@@ -1149,14 +1148,7 @@ public abstract class TiBaseActivity extends Activity
 	{
 		super.finish();
 
-		if (window != null) {
-			KrollDict data = new KrollDict();
-			data.put(TiC.EVENT_PROPERTY_SOURCE, window);
-			window.fireSyncEvent(TiC.EVENT_CLOSE, data);
-		}
-
 		boolean animate = getIntentBoolean(TiC.PROPERTY_ANIMATE, true);
-
 		
 		if (shouldFinishRootActivity()) {
 			TiApplication app = getTiApp();

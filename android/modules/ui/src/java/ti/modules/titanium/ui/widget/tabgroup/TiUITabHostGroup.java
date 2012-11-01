@@ -21,6 +21,7 @@ import ti.modules.titanium.ui.TabProxy;
 import android.content.Context;
 import android.util.Log;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
@@ -84,10 +85,14 @@ public class TiUITabHostGroup extends TiUIAbstractTabGroup
 		container.addView(tabcontent, params);
 
 		tabHost.setup();
+
+		// For view properties (backgroundColor) and methods (animate())
+		// to work correctly we will use the TabHost as the "native" view.
+		setNativeView(tabHost);
 	}
 
 	@Override
-	public void addTab(TabProxy tab) {
+	public void addTab(final TabProxy tab) {
 		TabWidget tabWidget = tabHost.getTabWidget();
 
 		final int tabIndex = tabHost.getTabWidget().getTabCount();
@@ -109,6 +114,18 @@ public class TiUITabHostGroup extends TiUIAbstractTabGroup
 		if (tabIndex == 0) {
 			tabHost.setOnTabChangedListener(this);
 		}
+
+		tabHost.getTabWidget().getChildTabViewAt(tabIndex).setOnClickListener(new OnClickListener()
+		{
+			@Override
+			public void onClick(View v)
+			{
+				// The default click listener for tab views is responsible for changing the selected tabs.
+				tabHost.setCurrentTab(tabIndex);
+
+				tab.fireEvent(TiC.EVENT_CLICK, null);
+			}
+		});
 	}
 
 	@Override

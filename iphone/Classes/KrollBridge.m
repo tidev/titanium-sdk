@@ -456,7 +456,7 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 		if ([excm isKindOfClass:[NSDictionary class]]) {
 			scriptError = [[TiScriptError alloc] initWithDictionary:excm];
 		} else {
-			scriptError = [[TiScriptError alloc] initWithMessage:[excm description] sourceURL:nil lineNo:0];
+			scriptError = [[TiScriptError alloc] initWithMessage:[excm description] sourceURL:path lineNo:0];
 		}
 		evaluationError = YES;
 		[[TiExceptionHandler defaultExceptionHandler] reportScriptError:scriptError];
@@ -732,9 +732,14 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 	
 	if (exception != NULL) {
 		id excm = [KrollObject toID:context value:exception];
-		DebugLog(@"[ERROR] Script Error = %@",[TiUtils exceptionMessage:excm]);
-		fflush(stderr);
-		@throw excm;
+		TiScriptError *scriptError = nil;
+		if ([excm isKindOfClass:[NSDictionary class]]) {
+			scriptError = [[TiScriptError alloc] initWithDictionary:excm];
+		} else {
+			scriptError = [[TiScriptError alloc] initWithMessage:[excm description] sourceURL:[sourceURL absoluteString] lineNo:0];
+		}
+		[[TiExceptionHandler defaultExceptionHandler] reportScriptError:scriptError];
+		return nil;
 	}
 	/*
 	 *	In order to work around the underlying issue of TIMOB-2392, we must

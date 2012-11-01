@@ -11,9 +11,11 @@ package org.appcelerator.titanium;
  * These are sorted alphabetically.
  */
 public class TiC
+
 {
 	public static final int API_LEVEL_HONEYCOMB = 11;
 	public static final int API_LEVEL_ICE_CREAM_SANDWICH = 14;
+	public static final int API_LEVEL_JELLY_BEAN = 16;
 	public static final String ERROR_PROPERTY_CODE = "code";
 	public static final String ERROR_PROPERTY_ERRORCODE = "errorcode";
 	public static final String ERROR_PROPERTY_MESSAGE = "message";
@@ -141,6 +143,10 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String EVENT_KEY_PRESSED = "keypressed";
+	/**
+	 * @module.api
+	 */
 	public static final String EVENT_HEADING = "heading";
 
 	/**
@@ -247,6 +253,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String EVENT_PROPERTY_IS_USER_GESTURE = "isUserGesture";
+
+	/**
+	 * @module.api
+	 */
+	public static final String EVENT_PROPERTY_KEYCODE = "keyCode";
 
 	/**
 	 * @module.api
@@ -492,6 +503,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_ACTION_VIEW = "actionView";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_ACTIVE_TAB = "activeTab";
 
 	/**
@@ -709,6 +725,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_BUBBLES = "bubbles";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_BUTTON_NAMES = "buttonNames";
 
 	/**
@@ -745,7 +766,16 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_CHARSET = "charset";
-	
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_CHECKABLE = "checkable";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_CHECKED = "checked";
 	/**
 	 * @module.api
 	 */
@@ -1679,6 +1709,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_SHOW_AS_ACTION = "showAsAction";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_SHOW_HORIZONTAL_SCROLL_INDICATOR = "showHorizontalScrollIndicator";
 
 	/**
@@ -1835,6 +1870,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_TIME = "time";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_TIMEOUT = "timeout";
 
 	/**
 	 * @module.api
@@ -1846,6 +1886,10 @@ public class TiC
 	 */
 	public static final String PROPERTY_TITLE = "title";
 
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_TITLE_CONDENSED = "titleCondensed";
 	/**
 	 * @module.api
 	 */

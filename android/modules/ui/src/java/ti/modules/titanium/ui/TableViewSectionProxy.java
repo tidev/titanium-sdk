@@ -9,13 +9,17 @@ package ti.modules.titanium.ui;
 import java.util.ArrayList;
 
 import org.appcelerator.kroll.annotations.Kroll;
+import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.view.TiUIView;
 
 import android.app.Activity;
 
-@Kroll.proxy(creatableInModule=UIModule.class)
+@Kroll.proxy(creatableInModule=UIModule.class, propertyAccessors = { 
+	TiC.PROPERTY_HEADER_TITLE,
+	TiC.PROPERTY_FOOTER_TITLE
+})
 public class TableViewSectionProxy extends TiViewProxy
 {
 	protected ArrayList<TableViewRowProxy> rows = new ArrayList<TableViewRowProxy>();

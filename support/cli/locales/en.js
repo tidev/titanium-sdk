@@ -47,7 +47,6 @@
 	"Invalid list of target platforms": "Invalid list of target platforms",
 	"Target platforms": "Target platforms",
 	"force project creation even if path already exists": "force project creation even if path already exists",
-	"%s was successfully set to %s": "%s was successfully set to %s",
 	"Invalid value for analytics %s": "Invalid value for analytics %s",
 	"Invalid project ID %s": "Invalid project ID %s",
 	"Unknown SDK %s": "Unknown SDK %s",

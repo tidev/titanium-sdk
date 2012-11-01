@@ -20,7 +20,7 @@ exports.cliVersion = '>=3.X';
 
 exports.init = function (logger, config, cli) {
 	
-	cli.addHook('build.post', {
+	cli.addHook('build.post.compile', {
 		priority: 8000,
 		post: function (build, finished) {
 			if (!/dist-(appstore|adhoc)/.test(cli.argv.target)) return finished();
@@ -93,6 +93,7 @@ exports.init = function (logger, config, cli) {
 						exec('open -a "' + build.xcodeEnv.xcodeapp + '"', function (err, stdout, stderr) {
 							exec('osascript "' + path.join(build.titaniumIosSdkPath, 'xcode_organizer.scpt') + '"', function (err, stdout, stderr) {
 								logger.info(__('Packaging complete'));
+								finished();
 							});
 						});
 					});

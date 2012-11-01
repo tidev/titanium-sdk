@@ -306,6 +306,11 @@ properties:
     platforms: [android, iphone, ipad]
     since: "3.0.0"
 
+  - name: accessibilityEnabled
+    summary: Indicates whether Accessibility is enabled by the system.
+    type: Boolean
+    permission: read-only
+ 
   - name: analytics
     summary: Indicates whether Analytics is enabled, determined by `tiapp.xml`.
     type: Boolean

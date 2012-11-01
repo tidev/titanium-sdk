@@ -7,10 +7,13 @@
 package ti.modules.titanium.network;
 
 import org.apache.http.MethodNotSupportedException;
+import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiBlob;
+import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
+import org.appcelerator.titanium.util.TiConvert;
 
 import ti.modules.titanium.xml.DocumentProxy;
 
@@ -34,6 +37,14 @@ public class HTTPClientProxy extends KrollProxy
 	public HTTPClientProxy(TiContext tiContext)
 	{
 		this();
+	}
+	
+	public void handleCreationDict(KrollDict dict)
+	{
+		super.handleCreationDict(dict);
+		if (hasProperty(TiC.PROPERTY_TIMEOUT)) {
+			client.setTimeout(TiConvert.toInt(getProperty(TiC.PROPERTY_TIMEOUT)));
+		}
 	}
 
 	@Kroll.method

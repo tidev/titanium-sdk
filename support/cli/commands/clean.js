@@ -15,7 +15,7 @@ var appc = require('node-appc'),
 	wrench = require('wrench');
 
 exports.cliVersion = '>=3.X';
-exports.desc = __('creates a new mobile application or module');
+exports.desc = __('removes previous build directories');
 
 exports.config = function (logger, config, cli) {
 	return {
@@ -37,14 +37,11 @@ exports.config = function (logger, config, cli) {
 exports.validate = function (logger, config, cli) {
 	cli.argv.platform && ti.validatePlatform(logger, cli.argv, 'platform');
 	ti.validateProjectDir(logger, cli, cli.argv, 'project-dir');
-	ti.loadPlugins(logger, cli, cli.argv['project-dir']);
+	ti.loadPlugins(logger, cli, config, cli.argv['project-dir']);
 };
 
 exports.run = function (logger, config, cli) {
 	var buildDir = path.join(cli.argv['project-dir'], 'build');
-	
-	logger.debug(__('Touching tiapp.xml'));
-	appc.fs.touch(path.join(cli.argv['project-dir'], 'tiapp.xml'));
 	
 	if (cli.argv.platform) {
 		var dir = path.join(buildDir, cli.argv.platform);

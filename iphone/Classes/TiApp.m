@@ -283,6 +283,9 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 	NSString *sourceBundleId = [launchOptions objectForKey:UIApplicationLaunchOptionsSourceApplicationKey];
 	NSDictionary *notification = [launchOptions objectForKey:UIApplicationLaunchOptionsRemoteNotificationKey];
 	
+    [launchOptions setObject:NUMBOOL([[launchOptions objectForKey:UIApplicationLaunchOptionsLocationKey] boolValue]) forKey:@"launchOptionsLocationKey"];
+    [launchOptions removeObjectForKey:UIApplicationLaunchOptionsLocationKey];
+    
 	localNotification = [[[self class] dictionaryWithLocalNotification:[launchOptions objectForKey:UIApplicationLaunchOptionsLocalNotificationKey]] retain];
 	[launchOptions removeObjectForKey:UIApplicationLaunchOptionsLocalNotificationKey];
 	
@@ -301,6 +304,7 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 	{
 		[self generateNotification:notification];
 	}
+    
 	[self loadUserDefaults];
 	[self boot];
 	

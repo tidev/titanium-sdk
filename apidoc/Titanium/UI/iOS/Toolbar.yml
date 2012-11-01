@@ -109,3 +109,28 @@ examples:
         controls on either side of it. Available space in the toolbar is divided between all of the 
         flexible space buttons in the toolbar. Without the flexible spaces in this example, 
         the toolbar buttons would be grouped tightly together on the left side of the toolbar.
+
+  - title: Alloy XML Markup
+    example: |
+        Previous example as an Alloy view.
+
+        Define the `style` and `systemButton` properties in the TSS file.
+
+            <Alloy>
+                <Window id="win">
+                    <Toolbar platform="ios" bottom="0" borderTop="true" borderBottom="false">
+
+                        <!-- The Items tag sets the Toolbar.items property. -->
+                        <Items>
+                            <Button id="send" title="Send"/>
+                            <FlexSpace/>
+                            <Button id="camera"/>
+                            <FlexSpace/>
+                            <Button id="cancel"/>
+                        </Items>
+
+                        <!-- Place additional views for the Toolbar here. -->
+
+                    </Toolbar>
+                </Window>
+            </Alloy>

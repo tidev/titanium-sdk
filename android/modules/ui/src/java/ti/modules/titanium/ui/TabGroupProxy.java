@@ -271,6 +271,7 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 	public void windowCreated(TiBaseActivity activity) {
 		tabGroupActivity = new WeakReference<Activity>(activity);
 		activity.setWindowProxy(this);
+		setActivity(activity);
 
 		// Use the navigation tabs if this platform supports the action bar.
 		// Otherwise we will fall back to using the TabHost implementation.
@@ -340,9 +341,21 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 		opened = false;
 
 		Activity activity = tabGroupActivity.get();
-		if (activity != null) {
+		if (activity != null && !activity.isFinishing()) {
 			activity.finish();
 		}
+	}
+
+	@Override
+	public void closeFromActivity() {
+		// Allow each tab to close its window before the tab group closes.
+		for (TabProxy tab : tabs) {
+			tab.close();
+		}
+
+		// Call super to fire the close event on the tab group.
+		// This event must fire after each tab has been closed.
+		super.closeFromActivity();
 	}
 
 	@Override
@@ -359,6 +372,7 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 		if (selectedTab == null) {
 			// If no tab is selected fall back to the default behavior.
 			super.onWindowFocusChange(focused);
+			return;
 		}
 
 		// When the tab group gains focus we need to re-focus

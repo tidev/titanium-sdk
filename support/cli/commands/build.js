@@ -72,6 +72,7 @@ exports.config = function (logger, config, cli) {
 							}
 						},
 						required: true,
+						skipValueCheck: true,
 						values: ti.availablePlatforms
 					},
 					'project-dir': {
@@ -86,21 +87,18 @@ exports.config = function (logger, config, cli) {
 };
 
 exports.validate = function (logger, config, cli) {
-	
-	// Set the type to 'app' for now
+	// TODO: set the type to 'app' for now, but we'll need to determine if the project is an app or a module
 	cli.argv['type'] = 'app';
 	
 	ti.validatePlatform(logger, cli.argv, 'platform');
 	if (ti.validatePlatformOptions(logger, config, cli, 'build') === false) {
 		return false;
 	}
-	ti.loadPlugins(logger, cli, cli.argv['project-dir']);
+	ti.loadPlugins(logger, cli, config, cli.argv['project-dir']);
 };
 
 exports.run = function (logger, config, cli) {
-	var buildModule = path.join(path.dirname(module.filename), '..', '..', cli.argv.platform, 'cli', 'commands', '_build.js'),
-		tiapp = new ti.tiappxml(appc.fs.resolvePath(path.join(cli.argv['project-dir'], 'tiapp.xml')));
-	
+	var buildModule = path.join(__dirname, '..', '..', cli.argv.platform, 'cli', 'commands', '_build.js');
 	if (!appc.fs.exists(buildModule)) {
 		logger.error(__('Unable to find platform specific build command') + '\n');
 		logger.log(__("Your SDK installation may be corrupt. You can reinstall it by running '%s'.", (cli.argv.$ + ' sdk update --force --default').cyan) + '\n');
@@ -108,10 +106,10 @@ exports.run = function (logger, config, cli) {
 	}
 	
 	// Run the code processor, if it is enabled
-	if (tiapp['code-processor'] && tiapp['code-processor'].enabled) {
+	if (cli.tiapp['code-processor'] && cli.tiapp['code-processor'].enabled) {
 		codeProcessor.process([appc.fs.resolvePath(path.join(cli.argv['project-dir'], 'Resources', 'app.js'))], 
-			tiapp['code-processor'].plugins,
-			appc.util.mix(tiapp['code-processor'].options, {
+			cli.tiapp['code-processor'].plugins,
+			appc.util.mix(cli.tiapp['code-processor'].options, {
 				sdkPath: path.resolve(path.join(__dirname, '..', '..')),
 				platform: cli.argv.platform
 			}), logger);

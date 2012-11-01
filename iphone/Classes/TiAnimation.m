@@ -88,12 +88,12 @@ self.p = v;\
 }\
 		
 		SET_FLOAT_PROP(zIndex,properties);
-		SET_FLOAT_PROP(left,properties);
-		SET_FLOAT_PROP(right,properties);
-		SET_FLOAT_PROP(top,properties);
-		SET_FLOAT_PROP(bottom,properties);
-		SET_FLOAT_PROP(width,properties);
-		SET_FLOAT_PROP(height,properties);
+		SET_ID_PROP(left,properties);
+		SET_ID_PROP(right,properties);
+		SET_ID_PROP(top,properties);
+		SET_ID_PROP(bottom,properties);
+		SET_ID_PROP(width,properties);
+		SET_ID_PROP(height,properties);
 		SET_FLOAT_PROP(duration,properties);
 		SET_FLOAT_PROP(opacity,properties);
 		SET_FLOAT_PROP(delay,properties);

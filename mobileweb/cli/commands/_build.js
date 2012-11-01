@@ -43,7 +43,7 @@ exports.config = function (logger, config, cli) {
 	return {
 		options: {
 			'deploy-type': {
-				abbr: 'B',
+				abbr: 'D',
 				default: 'development',
 				desc: __('the type of deployment; production performs optimizations'),
 				hint: __('type'),
@@ -55,43 +55,42 @@ exports.config = function (logger, config, cli) {
 
 exports.validate = function (logger, config, cli) {
 	ti.validateProjectDir(logger, cli, cli.argv, 'project-dir');
-	if (!ti.validateCorrectSDK(logger, config, cli, cli.argv['project-dir'])) {
+	if (!ti.validateCorrectSDK(logger, config, cli)) {
 		// we're running the build command for the wrong SDK version, gracefully return
 		return false;
 	}
 };
 
 exports.run = function (logger, config, cli, finished) {
-	cli.fireHook('build.pre', function () {
-		var tiapp,
-			buildObj = new build(logger, config, cli, function (err) {
-				cli.fireHook('build.post', buildObj, function (e) {
-					if (e && e.type == 'AppcException') {
-						logger.error(e.message);
-						e.details.forEach(function (line) {
-							line && logger.error(line);
-						});
-					}
-					tiapp = buildObj.tiapp;
-					cli.addAnalyticsEvent('mobileweb.build.' + cli.argv['deploy-type'], {
-						dir: cli.argv['project-dir'],
-						name: tiapp.name,
-						publisher: tiapp.publisher,
-						url: tiapp.url,
-						image: tiapp.image,
-						appid: tiapp.id,
-						description: tiapp.description,
-						type: cli.argv.type,
-						guid: tiapp.guid,
-						version: tiapp.version,
-						copyright: tiapp.copyright,
-						date: (new Date()).toDateString()
+	cli.fireHook('build.pre.construct', function () {
+		new build(logger, config, cli, function (err) {
+			cli.fireHook('build.post.compile', this, function (e) {
+				if (e && e.type == 'AppcException') {
+					logger.error(e.message);
+					e.details.forEach(function (line) {
+						line && logger.error(line);
 					});
-
-					cli.fireHook('build.finalize', buildObj, function () {
-						finished(err);
-					});
+				}
+				
+				cli.addAnalyticsEvent('mobileweb.build.' + cli.argv['deploy-type'], {
+					dir: cli.argv['project-dir'],
+					name: cli.tiapp.name,
+					publisher: cli.tiapp.publisher,
+					url: cli.tiapp.url,
+					image: cli.tiapp.image,
+					appid: cli.tiapp.id,
+					description: cli.tiapp.description,
+					type: cli.argv.type,
+					guid: cli.tiapp.guid,
+					version: cli.tiapp.version,
+					copyright: cli.tiapp.copyright,
+					date: (new Date()).toDateString()
 				});
+
+				cli.fireHook('build.finalize', this, function () {
+					finished(err);
+				});
+			}.bind(this));
 		});
 	});
 };
@@ -102,7 +101,9 @@ function build(logger, config, cli, finished) {
 	this.logger = logger;
 	this.buildType = cli.argv['deploy-type'];
 	this.os = cli.env.os;
+	this.tiapp = cli.tiapp;
 	
+	this.titaniumSdkVersion = ti.manifest.version;
 	this.projectDir = afs.resolvePath(cli.argv['project-dir']);
 	this.projectResDir = this.projectDir + '/Resources';
 	this.buildDir = this.projectDir + '/build/mobileweb';
@@ -137,7 +138,6 @@ function build(logger, config, cli, finished) {
 	}
 	
 	// read the tiapp.xml and initialize some sensible defaults
-	this.tiapp = this.readTiappXml();
 	applyDefaults(this.tiapp, {
 		mobileweb: {
 			analytics: {
@@ -166,43 +166,45 @@ function build(logger, config, cli, finished) {
 	var mwBuildSettings = this.tiapp.mobileweb.build[this.buildType];
 	this.minifyJS = mwBuildSettings && mwBuildSettings.js ? !!mwBuildSettings.js.minify : this.buildType == 'production';
 	
-	parallel(this, [
-		'copyFiles',
-		'findProjectDependencies'
-	], function () {
+	cli.fireHook('build.pre.compile', this, function (e) {
 		parallel(this, [
-			'createIcons',
-			function (callback) {
-				parallel(this, [
-					'findModulesToCache',
-					'findPrecacheModules',
-					'findPrecacheImages',
-					'findTiModules',
-					'findI18N'
-				], function () {
-					parallel(this, [
-						'findDistinctCachedModules',
-						'detectCircularDependencies'
-					], function () {
-						this.logger.info(
-							__n('Found %s dependency', 'Found %s dependencies', this.projectDependencies.length) + ', ' +
-							__n('%s package', '%s packages', this.packages.length) + ', ' +
-							__n('%s module', '%s modules', this.modulesToCache.length)
-						);
-						parallel(this, [
-							'assembleTitaniumJS',
-							'assembleTitaniumCSS'
-						], callback);
-					});
-				});
-			}
+			'copyFiles',
+			'findProjectDependencies'
 		], function () {
-			this.minifyJavaScript();
-			this.createFilesystemRegistry();
-			this.createIndexHtml();
-			finished && finished();
+			parallel(this, [
+				'createIcons',
+				function (callback) {
+					parallel(this, [
+						'findModulesToCache',
+						'findPrecacheModules',
+						'findPrecacheImages',
+						'findTiModules',
+						'findI18N'
+					], function () {
+						parallel(this, [
+							'findDistinctCachedModules',
+							'detectCircularDependencies'
+						], function () {
+							this.logger.info(
+								__n('Found %s dependency', 'Found %s dependencies', this.projectDependencies.length) + ', ' +
+								__n('%s package', '%s packages', this.packages.length) + ', ' +
+								__n('%s module', '%s modules', this.modulesToCache.length)
+							);
+							parallel(this, [
+								'assembleTitaniumJS',
+								'assembleTitaniumCSS'
+							], callback);
+						});
+					});
+				}
+			], function () {
+				this.minifyJavaScript();
+				this.createFilesystemRegistry();
+				this.createIndexHtml();
+				finished && finished.call(this);
+			});
 		});
-	});
+	}.bind(this));
 };
 
 build.prototype = {
@@ -216,16 +218,6 @@ build.prototype = {
 		} catch (e) {
 			badInstall(__("Unable to parse Titanium Mobile Web's package.json file"));
 		}
-	},
-	
-	readTiappXml: function () {
-		this.logger.info(__('Reading tiapp.xml file'));
-		var tiappFile = this.projectDir + '/tiapp.xml';
-		if (!afs.exists(tiappFile)) {
-			this.logger.error(__('Unable to read tiapp.xml file in project directory') + '\n');
-			process.exit(1);
-		}
-		return new ti.tiappxml(tiappFile);
 	},
 	
 	validateTheme: function () {
@@ -247,12 +239,15 @@ build.prototype = {
 		wrench.mkdirSyncRecursive(this.buildDir);
 		afs.copyDirSyncRecursive(this.mobilewebThemeDir, this.buildDir + '/themes', { preserve: true, logger: this.logger.debug });
 		afs.copyDirSyncRecursive(this.mobilewebTitaniumDir, this.buildDir + '/titanium', { preserve: true, logger: this.logger.debug });
-		afs.copyDirSyncRecursive(this.projectResDir, this.buildDir, { preserve: true, logger: this.logger.debug }, ti.availablePlatforms.filter(function (p) { return p != 'mobileweb'; }));
+		afs.copyDirSyncRecursive(this.projectResDir, this.buildDir, { preserve: true, logger: this.logger.debug, rootIgnore: ti.filterPlatforms('mobileweb') });
 		if (afs.exists(this.projectResDir, 'mobileweb')) {
-			afs.copyDirSyncRecursive(this.projectResDir + '/mobileweb', this.buildDir + '/mobileweb', { preserve: true, logger: this.logger.debug, rootIgnores: ['apple_startup_images', 'splash'] });
+			afs.copyDirSyncRecursive(this.projectResDir + '/mobileweb', this.buildDir + '/mobileweb', { preserve: true, logger: this.logger.debug, rootIgnore: ['apple_startup_images', 'splash'] });
 			['Default.jpg', 'Default-Portrait.jpg', 'Default-Landscape.jpg'].forEach(function (file) {
 				file = this.projectResDir + '/mobileweb/apple_startup_images/' + file;
-				afs.exists(file) && afs.copyFileSync(file, this.buildDir + '/mobileweb/apple_startup_images', { logger: this.logger.debug });
+				if (afs.exists(file)) {
+					afs.copyFileSync(file, this.buildDir, { logger: this.logger.debug });
+					afs.copyFileSync(file, this.buildDir + '/mobileweb/apple_startup_images', { logger: this.logger.debug });
+				}
 			}, this);
 		}
 		callback();
@@ -332,7 +327,7 @@ build.prototype = {
 		}
 		
 		this.logger.info(__n('Searching for %s Titanium Module', 'Searching for %s Titanium Modules', this.tiapp.modules.length));
-		appc.timodule.find(this.tiapp.modules, 'mobileweb', this.deployType, this.projectDir, this.logger, function (modules) {
+		appc.timodule.find(this.tiapp.modules, 'mobileweb', this.deployType, this.titaniumSdkVersion, this.projectDir, this.logger, function (modules) {
 			if (modules.missing.length) {
 				this.logger.error(__('Could not find all required Titanium Modules:'))
 				modules.missing.forEach(function (m) {
@@ -403,8 +398,9 @@ build.prototype = {
 				wrench.mkdirSyncRecursive(dest);
 				afs.copyDirSyncRecursive(moduleDir, dest, { preserve: true });
 			}, this);
+			
+			callback();
 		}.bind(this));
-		callback();
 	},
 	
 	detectCircularDependencies: function (callback) {
@@ -678,14 +674,16 @@ build.prototype = {
 	createIcons: function (callback) {
 		this.logger.info(__('Creating favicon and Apple touch icons'));
 		
-		var file = this.projectResDir + '/' + this.tiapp.icon;
+		var file = path.join(this.projectResDir, this.tiapp.icon);
 		if (!/\.(png|jpg|gif)$/.test(file) || !afs.exists(file)) {
-			file = this.projectResDir + '/mobileweb/appicon.png';
+			file = path.join(this.projectResDir, 'mobileweb', 'appicon.png');
 		}
 		
 		if (afs.exists(file)) {
+			afs.copyFileSync(file, this.buildDir, { logger: this.logger.debug });
+			
 			appc.image.resize(file, [
-				{ file: this.buildDir + '/favicon.png', width: 16, height: 16 },
+				{ file: this.buildDir + '/favicon.ico', width: 16, height: 16 },
 				{ file: this.buildDir + '/apple-touch-icon-precomposed.png', width: 57, height: 57 },
 				{ file: this.buildDir + '/apple-touch-icon-57x57-precomposed.png', width: 57, height: 57 },
 				{ file: this.buildDir + '/apple-touch-icon-72x72-precomposed.png', width: 72, height: 72 },
