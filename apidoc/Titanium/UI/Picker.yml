@@ -361,6 +361,7 @@ examples:
 
             var picker = Ti.UI.createPicker({
               top:50
+              useSpinner: true
             });
             picker.selectionIndicator = true;
 
@@ -457,7 +458,7 @@ examples:
 
             <Alloy>
                 <Window id="win" backgroundColor="white" layout="vertical" exitOnClose="true">
-                    <Picker id="picker" top="50" selectionIndicator="true">
+                    <Picker id="picker" top="50" selectionIndicator="true" useSpinner="true">
                         <PickerColumn id="column1">
                             <PickerRow title="Bananas"/>
                             <PickerRow title="Strawberries"/>
