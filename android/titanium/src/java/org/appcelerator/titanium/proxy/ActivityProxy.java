@@ -20,10 +20,12 @@ import org.appcelerator.titanium.util.TiActivitySupportHelper;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.os.Build;
+import android.os.Message;
 
 @Kroll.proxy(propertyAccessors = {
-	"onCreateOptionsMenu",
-	"onPrepareOptionsMenu"
+	TiC.PROPERTY_ON_CREATE_OPTIONS_MENU,
+	TiC.PROPERTY_ON_PREPARE_OPTIONS_MENU
 })
 /**
  * This is a proxy representation of the Android Activity type.
@@ -34,6 +36,9 @@ public class ActivityProxy extends KrollProxy
 	implements TiActivityResultHandler
 {
 	private static final String TAG = "ActivityProxy";
+	private static final int MSG_FIRST_ID = KrollProxy.MSG_LAST_ID + 1;
+	private static final int MSG_INVALIDATE_OPTIONS_MENU = MSG_FIRST_ID + 100;
+	private static final int MSG_OPEN_OPTIONS_MENU = MSG_FIRST_ID + 101;
 
 	protected Activity wrappedActivity;
 	protected IntentProxy intentProxy;
@@ -217,15 +222,45 @@ public class ActivityProxy extends KrollProxy
 		TiBaseActivity tiActivity = (TiBaseActivity) activity;
 		return tiActivity.getWindowProxy();
 	}
-    
-    @Kroll.method
-    public void openOptionsMenu()
-    {
-        Activity activity = getWrappedActivity();
-        activity.openOptionsMenu();
-    }
 
-	
+	@Kroll.method
+	public void openOptionsMenu()
+	{
+		if (TiApplication.isUIThread()) {
+			handleOpenOptionsMenu();
+		} else {
+			getMainHandler().obtainMessage(MSG_OPEN_OPTIONS_MENU).sendToTarget();
+		}
+	}
+
+	@Kroll.method
+	public void invalidateOptionsMenu()
+	{
+		if (Build.VERSION.SDK_INT >= TiC.API_LEVEL_HONEYCOMB) {
+			if (TiApplication.isUIThread()) {
+				handleInvalidateOptionsMenu();
+			} else {
+				getMainHandler().obtainMessage(MSG_INVALIDATE_OPTIONS_MENU).sendToTarget();
+			}
+		}
+	}
+
+	private void handleOpenOptionsMenu()
+	{
+		Activity activity = getWrappedActivity();
+		if (activity != null) {
+			activity.openOptionsMenu();
+		}
+	}
+
+	private void handleInvalidateOptionsMenu()
+	{
+		Activity activity = getWrappedActivity();
+		if (activity != null) {
+			activity.invalidateOptionsMenu();
+		}
+	}
+
 	public void onResult(Activity activity, int requestCode, int resultCode, Intent data)
 	{
 		IntentProxy intent = null;
@@ -255,4 +290,21 @@ public class ActivityProxy extends KrollProxy
 		super.release();
 		wrappedActivity = null;
 	}
+
+	@Override
+	public boolean handleMessage(Message msg)
+	{
+		switch (msg.what) {
+			case MSG_INVALIDATE_OPTIONS_MENU: {
+				handleInvalidateOptionsMenu();
+				return true;
+			}
+			case MSG_OPEN_OPTIONS_MENU: {
+				handleOpenOptionsMenu();
+				return true;
+			}
+		}
+		return super.handleMessage(msg);
+	}
+
 }
