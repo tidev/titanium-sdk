@@ -272,7 +272,13 @@ static const NSTimeInterval kLauncherViewFastTransitionDuration = 0.2;
     
 	[self layoutButtons];
 	
-	[pager setCurrentPage:curIndex];
+    NSInteger oldPageNo = pager.currentPage;
+    [pager setCurrentPage:curIndex];
+    if (oldPageNo != curIndex) {
+        if ([delegate respondsToSelector:@selector(launcherView:didChangePage:)]) {
+            [delegate launcherView:self didChangePage:[NSNumber numberWithInteger:pager.currentPage]];
+        }
+    }
 }
 
 - (void)scrollToItem:(LauncherItem*)item animated:(BOOL)animated 
@@ -662,8 +668,13 @@ static const NSTimeInterval kLauncherViewFastTransitionDuration = 0.2;
 	}
 	
 	[self layoutButtons];
-	
+	NSInteger oldPageNo = pager.currentPage;
 	[pager setCurrentPage:curIndex];
+	if (oldPageNo != curIndex) {
+		if ([delegate respondsToSelector:@selector(launcherView:didChangePage:)]) {
+			[delegate launcherView:self didChangePage:[NSNumber numberWithInteger:pager.currentPage]];
+		}
+	}
 	
 	if ([delegate respondsToSelector:@selector(launcherViewDidEndEditing:)]) 
 	{
