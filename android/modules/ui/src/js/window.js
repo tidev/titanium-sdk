@@ -10,6 +10,7 @@ var EventEmitter = require("events").EventEmitter,
 	url = require("url"),
 	path = require('path'),
 	Script = kroll.binding('evals').Script,
+	NativeModule = require('native_module'),
 	bootstrap = require('bootstrap'),
 	PersistentHandle = require('ui').PersistentHandle;
 
@@ -346,6 +347,7 @@ exports.bootstrapWindow = function(Titanium) {
 		// Set up the global object which is needed when calling the Ti.include function from the new window context.
 		scopeVars.global = context;
 		context.Titanium = context.Ti = new Titanium.Wrapper(scopeVars);
+		context.console = NativeModule.require('console');
 		bootstrap.bootstrapGlobals(context, Titanium);
 
 		var scriptPath = this.resolveFilePathFromURL(resolvedUrl);
