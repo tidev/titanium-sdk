@@ -11,7 +11,6 @@
 @interface TiUILabel : TiUIView<LayoutAutosizing> {
 @private
 	UILabel *label;
-    CALayer* bgdLayer;
 	BOOL requiresLayout;
     CGRect padding;
     CGRect textPadding;

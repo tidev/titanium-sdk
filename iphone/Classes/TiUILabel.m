@@ -18,7 +18,6 @@
 -(id)init
 {
     if (self = [super init]) {
-        bgdLayer = nil;
         padding = CGRectZero;
         initialLabelFrame = CGRectZero;
         verticalAlign = -1;
@@ -29,7 +28,6 @@
 -(void)dealloc
 {
     RELEASE_TO_NIL(label);
-    RELEASE_TO_NIL(bgdLayer);
     [super dealloc];
 }
 
@@ -115,7 +113,7 @@
         [label setFrame:initialLabelFrame];
     }
 
-    if (bgdLayer != nil && !CGRectIsEmpty(initialLabelFrame))
+    if ([self backgroundImageLayer] != nil && !CGRectIsEmpty(initialLabelFrame))
     {
         [self updateBackgroundImageFrameWithPadding];
     }
@@ -232,28 +230,29 @@
 
 }
 
--(CALayer *)backgroundImageLayer
+-(void)setBackgroundImageLayerBounds:(CGRect)bounds
 {
-    if (bgdLayer == nil)
+    if ([self backgroundImageLayer] != nil)
     {
-        bgdLayer = [[CALayer alloc]init];
-        bgdLayer.frame = self.layer.bounds;
-        [self.layer insertSublayer:bgdLayer atIndex:0];
+        CGRect backgroundFrame = CGRectMake(bounds.origin.x - padding.origin.x,
+                                            bounds.origin.y - padding.origin.y,
+                                            bounds.size.width + padding.origin.x + padding.size.width,
+                                            bounds.size.height + padding.origin.y + padding.size.height);
+        [self backgroundImageLayer].frame = backgroundFrame;
     }
-	return bgdLayer;
 }
+
 -(void) updateBackgroundImageFrameWithPadding
 {
-    CGRect backgroundFrame = CGRectMake(self.bounds.origin.x - padding.origin.x,
-               self.bounds.origin.y - padding.origin.y,
-               self.bounds.size.width + padding.origin.x + padding.size.width,
-                                        self.bounds.size.height + padding.origin.y + padding.size.height);
-    [self backgroundImageLayer].frame = backgroundFrame;
+    [self setBackgroundImageLayerBounds:self.bounds];
 }
 
 -(void)setBackgroundImage_:(id)url
 {
     [super setBackgroundImage_:url];
+    //if using padding we must not mask to bounds.
+    [self backgroundImageLayer].masksToBounds = CGRectEqualToRect(padding, CGRectZero) ;
+    [self updateBackgroundImageFrameWithPadding];
 }
 
 -(void)setBackgroundPaddingLeft_:(id)left

@@ -333,6 +333,11 @@ DEFINE_EXCEPTIONS
 	}
 }
 
+-(void)setBackgroundImageLayerBounds:(CGRect)bounds
+{
+    [[self backgroundImageLayer] setFrame:bounds];
+}
+
 -(void)checkBounds
 {
 	CGRect newBounds = [self bounds];
@@ -340,6 +345,7 @@ DEFINE_EXCEPTIONS
 	{
 		oldSize = newBounds.size;
 		[gradientLayer setFrame:newBounds];
+		[self setBackgroundImageLayerBounds:newBounds];
 		[self frameSizeChanged:[TiUtils viewPositionRect:self] bounds:newBounds];
 	}
 }

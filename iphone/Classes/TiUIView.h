@@ -138,6 +138,8 @@ void ModifyScrollViewForKeyboardHeightAndContentHeightWithResponderRect(UIScroll
  */
 -(CALayer *)backgroundImageLayer;
 
+-(void)setBackgroundImageLayerBounds:(CGRect)bounds;
+
 /**
  Tells the view to start specified animation.
  @param newAnimation The animation to start.
