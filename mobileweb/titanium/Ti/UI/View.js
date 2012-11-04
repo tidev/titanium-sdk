@@ -33,7 +33,7 @@ define(["Ti/_/declare", "Ti/_/dom", "Ti/_/UI/Element", "Ti/_/lang", "Ti/_/string
 		_unpublish: function(view) {
 			var children = this.children,
 				viewIdx = children.indexOf(view);
-			!~viewIdx && children.splice(viewIdx,1);
+			~viewIdx && children.splice(viewIdx,1);
 		},
 
 		add: function(view) {

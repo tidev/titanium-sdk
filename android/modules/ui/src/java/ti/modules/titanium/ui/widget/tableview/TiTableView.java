@@ -23,8 +23,6 @@ import org.appcelerator.titanium.view.TiUIView;
 
 import ti.modules.titanium.ui.TableViewProxy;
 import ti.modules.titanium.ui.TableViewRowProxy;
-import ti.modules.titanium.ui.widget.TiUILabel;
-import ti.modules.titanium.ui.widget.TiView;
 import ti.modules.titanium.ui.widget.searchbar.TiUISearchBar.OnSearchChangeListener;
 import ti.modules.titanium.ui.widget.tableview.TableViewModel.Item;
 import android.graphics.Color;
@@ -205,8 +203,16 @@ public class TiTableView extends FrameLayout
 				if (item.className.equals(TableViewProxy.CLASSNAME_HEADERVIEW)) {
 					TiViewProxy vproxy = item.proxy;
 					TiUIView headerView = layoutHeaderOrFooter(vproxy);
+					ViewParent viewParent = headerView.getOuterView().getParent();
+					if (viewParent != null && viewParent instanceof ViewGroup) {
+						Log.d(TAG, "Header view has not been removed from parent. Detaching header view...",
+							Log.DEBUG_MODE);
+						((ViewGroup) viewParent).removeView(headerView.getOuterView());
+					}
 					v = new TiTableViewHeaderItem(proxy.getActivity(), headerView);
 					v.setClassName(TableViewProxy.CLASSNAME_HEADERVIEW);
+					v.setRowData(item);
+					return v;
 				} else if (item.className.equals(TableViewProxy.CLASSNAME_HEADER)) {
 					v = new TiTableViewHeaderItem(proxy.getActivity());
 					v.setClassName(TableViewProxy.CLASSNAME_HEADER);
@@ -332,11 +338,11 @@ public class TiTableView extends FrameLayout
 		adapter = new TTVListAdapter(viewModel);
 		if (proxy.hasProperty(TiC.PROPERTY_HEADER_VIEW)) {
 			TiViewProxy view = (TiViewProxy) proxy.getProperty(TiC.PROPERTY_HEADER_VIEW);
-			listView.addHeaderView(layoutHeaderOrFooter(view).getNativeView(), null, false);
+			listView.addHeaderView(layoutHeaderOrFooter(view).getOuterView(), null, false);
 		}
 		if (proxy.hasProperty(TiC.PROPERTY_FOOTER_VIEW)) {
 			TiViewProxy view = (TiViewProxy) proxy.getProperty(TiC.PROPERTY_FOOTER_VIEW);
-			listView.addFooterView(layoutHeaderOrFooter(view).getNativeView(), null, false);
+			listView.addFooterView(layoutHeaderOrFooter(view).getOuterView(), null, false);
 		}
 
 		listView.setAdapter(adapter);
@@ -445,7 +451,7 @@ public class TiTableView extends FrameLayout
 	private TiUIView layoutHeaderOrFooter(TiViewProxy viewProxy)
 	{
 		TiUIView tiView = viewProxy.getOrCreateView();
-		View nativeView = tiView.getNativeView();
+		View nativeView = tiView.getOuterView();
 		TiCompositeLayout.LayoutParams params = tiView.getLayoutParams();
 
 		int width = AbsListView.LayoutParams.WRAP_CONTENT;

@@ -93,7 +93,7 @@ exports.config = function (logger, config, cli) {
 						return true;
 					}
 				},
-				required: !config.app.workspace || !afs.exists(config.app.workspace)
+				required: !config.app.workspace || !afs.exists(afs.resolvePath(config.app.workspace))
 			}
 		}, ti.commonOptions(logger, config))
 	};
@@ -113,7 +113,9 @@ exports.validate = function (logger, config, cli) {
 		process.exit(1);
 	}
 	
-	var projectDir = afs.resolvePath(cli.argv['workspace-dir'], cli.argv.name);
+	cli.argv['workspace-dir'] = afs.resolvePath(cli.argv['workspace-dir'] || '.');
+	
+	var projectDir = path.join(cli.argv['workspace-dir'], cli.argv.name);
 	if (!cli.argv.force && afs.exists(projectDir)) {
 		logger.error(__('Project directory already exists: %s', projectDir) + '\n');
 		logger.log(__("Run '%s' to overwrite existing project.", (cli.argv.$ + ' ' + process.argv.slice(2).join(' ') + ' --force').cyan) + '\n');
@@ -179,7 +181,7 @@ exports.run = function (logger, config, cli) {
 			image: projectConfig.image,
 			appid: id,
 			description: projectConfig.description,
-			type: type,
+			type: 'mobile',
 			guid: projectConfig.guid,
 			version: projectConfig.version,
 			copyright: projectConfig.copyright,

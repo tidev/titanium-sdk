@@ -649,6 +649,7 @@
         if ([modalvc isKindOfClass:[UINavigationController class]] && 
             ![modalvc isKindOfClass:[MFMailComposeViewController class]] &&
             ![modalvc isKindOfClass:[ABPeoplePickerNavigationController class]] &&
+            ![modalvc isKindOfClass:[UIImagePickerController class]] &&
             modalFlag == YES )
         {
             //Since this is a window opened from inside a modalviewcontroller we need
@@ -1355,7 +1356,7 @@
 {
 	WARN_IF_BACKGROUND_THREAD_OBJ
 
-	if (visibleProxy == keyboardFocusedProxy)
+	if ( (visibleProxy == keyboardFocusedProxy) && (leavingAccessoryView == nil) )
 	{
 		DeveloperLog(@"[WARN] Focused for %@<%X>, despite it already being the focus.",keyboardFocusedProxy,keyboardFocusedProxy);
 		return;

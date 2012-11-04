@@ -155,7 +155,6 @@ exports.config = function (logger, config, cli) {
 					},
 					'device-family': {
 						abbr: 'F',
-						default: process.env.TARGETED_DEVICE_FAMILY === '1' ? 'iphone' : process.env.TARGETED_DEVICE_FAMILY == '2' ? 'ipad' : 'universal',
 						desc: __('the device family to build for'),
 						values: Object.keys(deviceFamilies)
 					},
@@ -193,8 +192,8 @@ exports.config = function (logger, config, cli) {
 						desc: __('the provisioning profile uuid; required when target is %s, %s, or %s', 'device'.cyan, 'dist-appstore'.cyan, 'dist-adhoc'.cyan),
 						hint: 'uuid',
 						prompt: {
-							label: __('Provisioning profile UUID'),
-							error: __('Invalid provisioning profile UUID'),
+							label: __('Provisioning Profile UUID'),
+							error: __('Invalid Provisioning Profile UUID'),
 							validator: function (uuid) {
 								var i = 0,
 									j,
@@ -209,7 +208,11 @@ exports.config = function (logger, config, cli) {
 									availableUUIDs.push('    ' + profiles[i].uuid.cyan + '  ' + profiles[i].appId + ' (' + profiles[i].name + ')');
 								}
 								
-								throw new appc.exception(__('Unable to find a Provisioning Profile UUID "%s"', uuid), availableUUIDs);
+								if (uuid) {
+									throw new appc.exception(__('Unable to find a Provisioning Profile UUID "%s"', uuid), availableUUIDs);
+								} else {
+									throw new appc.exception(__('Please specify a Provisioning Profile UUID'), availableUUIDs);
+								}
 							}
 						}
 					},
@@ -255,7 +258,7 @@ exports.validate = function (logger, config, cli) {
 	
 	ti.validateProjectDir(logger, cli, cli.argv, 'project-dir');
 	
-	if (!ti.validateCorrectSDK(logger, config, cli, cli.argv['project-dir'])) {
+	if (!ti.validateCorrectSDK(logger, config, cli)) {
 		// we're running the build command for the wrong SDK version, gracefully return
 		return false;
 	}
@@ -451,12 +454,31 @@ exports.validate = function (logger, config, cli) {
 		}
 	}
 	
-	var deviceFamily = cli.argv['device-family'];
+	var deviceFamily = cli.argv['device-family'],
+		deploymentTargets = cli.tiapp['deployment-targets'];
+	if (!deviceFamily && process.env.TARGETED_DEVICE_FAMILY) {
+		// device family was not specified at the command line, but we did get it via an environment variable!
+		deviceFamily = process.env.TARGETED_DEVICE_FAMILY === '1' ? 'iphone' : process.env.TARGETED_DEVICE_FAMILY == '2' ? 'ipad' : 'universal';
+	}
+	if (!deviceFamily && deploymentTargets) {
+		// device family was not an environment variable, construct via the tiapp.xml's deployment targets
+		if (deploymentTargets.iphone && deploymentTargets.ipad) {
+			deviceFamily = 'universal';
+		} else if (deploymentTargets.iphone) {
+			deviceFamily = 'iphone';
+		} else if (deploymentTargets.ipad) {
+			deviceFamily = 'ipad';
+		}
+	}
+	
 	if (!deviceFamily || !deviceFamilies[deviceFamily]) {
 		logger.error(__('Invalid device family "%s"', deviceFamily) + '\n');
 		appc.string.suggest(deviceFamily, Object.keys(deviceFamilies), logger.log, 3);
 		process.exit(1);
 	}
+	
+	// device family may have been modified, so set it back in the args
+	cli.argv['device-family'] = deviceFamily;
 	
 	if (cli.argv['debug-host'] && cli.argv.target != 'dist-appstore') {
 		if (typeof cli.argv['debug-host'] == 'number') {
@@ -494,7 +516,7 @@ exports.run = function (logger, config, cli, finished) {
 	if (cli.argv.xcode) {
 		// basically, we bypass the pre, post, and finalize hooks for xcode builds
 		var buildObj = new build(logger, config, cli, finished);
-		sendAnalytics(cli, buildObj.tiapp);
+		sendAnalytics(cli);
 	} else {
 		cli.fireHook('build.pre.construct', function () {
 			new build(logger, config, cli, function (err) {
@@ -505,7 +527,7 @@ exports.run = function (logger, config, cli, finished) {
 							line && logger.error(line);
 						});
 					}
-					sendAnalytics(cli, this.tiapp);
+					sendAnalytics(cli);
 					cli.fireHook('build.finalize', this, function () {
 						finished(err);
 					});
@@ -515,7 +537,7 @@ exports.run = function (logger, config, cli, finished) {
 	}
 };
 
-function sendAnalytics(cli, tiapp) {
+function sendAnalytics(cli) {
 	var eventName = cli.argv['device-family'] + '.' + cli.argv.target;
 
 	if (cli.argv.target == 'dist-appstore' || cli.argv.target == 'dist-adhoc') {
@@ -528,16 +550,16 @@ function sendAnalytics(cli, tiapp) {
 
 	cli.addAnalyticsEvent(eventName, {
 		dir: cli.argv['project-dir'],
-		name: tiapp.name,
-		publisher: tiapp.publisher,
-		url: tiapp.url,
-		image: tiapp.image,
-		appid: tiapp.id,
-		description: tiapp.description,
+		name: cli.tiapp.name,
+		publisher: cli.tiapp.publisher,
+		url: cli.tiapp.url,
+		image: cli.tiapp.image,
+		appid: cli.tiapp.id,
+		description: cli.tiapp.description,
 		type: cli.argv.type,
-		guid: tiapp.guid,
-		version: tiapp.version,
-		copyright: tiapp.copyright,
+		guid: cli.tiapp.guid,
+		version: cli.tiapp.version,
+		copyright: cli.tiapp.copyright,
 		date: (new Date()).toDateString()
 	});
 }
@@ -554,7 +576,7 @@ function build(logger, config, cli, finished) {
 	this.projectDir = cli.argv['project-dir'];
 	this.buildDir = path.join(this.projectDir, 'build', this.platformName);
 	this.assetsDir = path.join(this.buildDir, 'assets');
-	this.tiapp = new ti.tiappxml(path.join(this.projectDir, 'tiapp.xml'));
+	this.tiapp = cli.tiapp;
 	this.target = cli.argv.target;
 	this.provisioningProfileUUID = cli.argv['pp-uuid'];
 	
@@ -2043,7 +2065,7 @@ build.prototype = {
 					this.commonJsModules.forEach(function (m) {
 						var file = path.join(m.modulePath, m.id + '.js');
 						if (afs.exists(file)) {
-							var id = 'modules/' + m.id.replace(/\./g, '_') + '_js';
+							var id = m.id.replace(/\./g, '_') + '_js';
 							this.compileJsFile(id, file);
 							this.jsFilesToPrepare.push(id);
 						}
@@ -2058,7 +2080,7 @@ build.prototype = {
 					
 					this.cli.fireHook('build.prerouting', this, function (err) {
 						var args = [path.join(this.titaniumIosSdkPath, 'titanium_prep'), this.tiapp.id, this.assetsDir],
-							out = '',
+							out = [],
 							child;
 						
 						this.logger.info(__('Running titanium_prep: %s', args.join(' ').cyan));
@@ -2070,10 +2092,10 @@ build.prototype = {
 						child.stdin.write(this.jsFilesToPrepare.join('\n'));
 						child.stdin.end();
 						child.stdout.on('data', function (data) {
-							out += data.toString();
+							out.push(data.toString());
 						});
 						child.stderr.on('data', function (data) {
-							out += data.toString();
+							out.push(data.toString());
 						});
 						child.on('exit', function (code) {
 							if (code) {
@@ -2129,7 +2151,7 @@ build.prototype = {
 								'',
 								'+ (NSData*) resolveAppAsset:(NSString*)path;',
 								'{',
-									out,
+									out.join(''),
 								'	NSNumber *index = [map objectForKey:path];',
 								'	if (index == nil) { return nil; }',
 								'	return filterDataInRange([NSData dataWithBytesNoCopy:data length:sizeof(data) freeWhenDone:NO], ranges[index.integerValue]);',

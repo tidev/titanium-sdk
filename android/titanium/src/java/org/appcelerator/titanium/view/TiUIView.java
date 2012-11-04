@@ -41,6 +41,7 @@ import android.os.Build;
 import android.support.v4.view.ViewCompat;
 import android.text.TextUtils;
 import android.util.Pair;
+import android.util.SparseArray;
 import android.view.GestureDetector;
 import android.view.GestureDetector.SimpleOnGestureListener;
 import android.view.KeyEvent;
@@ -459,7 +460,8 @@ public abstract class TiUIView
 			layoutNativeView();
 		} else if (key.equals(TiC.PROPERTY_SIZE)) {
 			if (newValue instanceof HashMap) {
-				HashMap<String, Object> d = (HashMap) newValue;
+				@SuppressWarnings("unchecked")
+				HashMap<String, Object> d = (HashMap<String, Object>) newValue;
 				propertyChanged(TiC.PROPERTY_WIDTH, oldValue, d.get(TiC.PROPERTY_WIDTH), proxy);
 				propertyChanged(TiC.PROPERTY_HEIGHT, oldValue, d.get(TiC.PROPERTY_HEIGHT), proxy);
 			}else if (newValue != null){
@@ -627,7 +629,7 @@ public abstract class TiUIView
 			}
 
 		} else if (key.indexOf("accessibility") == 0 && !key.equals(TiC.PROPERTY_ACCESSIBILITY_HIDDEN)) {
-			composeContentDescription();
+			applyContentDescription();
 
 		} else if (key.equals(TiC.PROPERTY_ACCESSIBILITY_HIDDEN)) {
 			applyAccessibilityHidden(newValue);
@@ -990,7 +992,7 @@ public abstract class TiUIView
 		}
 	}
 
-	private static HashMap<Integer, String> motionEvents = new HashMap<Integer,String>();
+	private static SparseArray<String> motionEvents = new SparseArray<String>();
 	static
 	{
 		motionEvents.put(MotionEvent.ACTION_DOWN, TiC.EVENT_TOUCH_START);
@@ -1039,10 +1041,7 @@ public abstract class TiUIView
 
 	public View getOuterView()
 	{
-		if (borderView == null) {
-			return nativeView;
-		}
-		return borderView;
+		return borderView == null ? nativeView : borderView;
 	}
 
 	public void registerForTouch()
@@ -1520,6 +1519,17 @@ public abstract class TiUIView
 		animatedAlpha = Float.MIN_VALUE; // we use min val to signal no val.
 	}
 
+	private void applyContentDescription()
+	{
+		if (proxy == null || nativeView == null) {
+			return;
+		}
+		String contentDescription = composeContentDescription();
+		if (contentDescription != null) {
+			nativeView.setContentDescription(contentDescription);
+		}
+	}
+
 	/**
 	 * Our view proxy supports three properties to match iOS regarding
 	 * the text that is read aloud (or otherwise communicated) by the
@@ -1529,10 +1539,10 @@ public abstract class TiUIView
 	 * We combine these to create the single Android property contentDescription.
 	 * (e.g., View.setContentDescription(...));
 	 */
-	private void composeContentDescription()
+	protected String composeContentDescription()
 	{
-		if (nativeView == null || proxy == null) {
-			return;
+		if (proxy == null) {
+			return null;
 		}
 
 		final String punctuationPattern = "^.*\\p{Punct}\\s*$";
@@ -1571,13 +1581,13 @@ public abstract class TiUIView
 			}
 		}
 
-		nativeView.setContentDescription(buffer.toString());
+		return buffer.toString();
 	}
 
 	private void applyAccessibilityProperties()
 	{
 		if (nativeView != null) {
-			composeContentDescription();
+			applyContentDescription();
 			applyAccessibilityHidden();
 		}
 
