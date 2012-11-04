@@ -117,6 +117,10 @@ public abstract class TiUIView
 	// For twofingertap detection
 	private boolean didScale = false;
 
+	//to maintain sync visibility between borderview and view. Default is visible
+	private int visibility = View.VISIBLE;
+
+
 	/**
 	 * Constructs a TiUIView object with the associated proxy.
 	 * @param proxy the associated proxy.
@@ -296,7 +300,7 @@ public abstract class TiUIView
 		boolean invalidateParent = false;
 		ViewParent viewParent = nativeView.getParent();
 
-		if (nativeView.getVisibility() == View.VISIBLE && viewParent instanceof View) {
+		if (this.visibility == View.VISIBLE && viewParent instanceof View) {
 			int width = nativeView.getWidth();
 			int height = nativeView.getHeight();
 
@@ -523,10 +527,7 @@ public abstract class TiUIView
 		} else if (key.equals(TiC.PROPERTY_TOUCH_ENABLED)) {
 			doSetClickable(TiConvert.toBoolean(newValue));
 		} else if (key.equals(TiC.PROPERTY_VISIBLE)) {
-			nativeView.setVisibility(TiConvert.toBoolean(newValue) ? View.VISIBLE : View.INVISIBLE);
-			if (borderView != null) {
-				borderView.setVisibility(nativeView.getVisibility());
-			}
+			this.setVisibility(TiConvert.toBoolean(newValue) ? View.VISIBLE : View.INVISIBLE);
 		} else if (key.equals(TiC.PROPERTY_ENABLED)) {
 			nativeView.setEnabled(TiConvert.toBoolean(newValue));
 		} else if (key.startsWith(TiC.PROPERTY_BACKGROUND_PADDING)) {
@@ -687,11 +688,7 @@ public abstract class TiUIView
 		}
 
 		if (d.containsKey(TiC.PROPERTY_VISIBLE) && !nativeViewNull) {
-			nativeView.setVisibility(TiConvert.toBoolean(d, TiC.PROPERTY_VISIBLE) ? View.VISIBLE : View.INVISIBLE);
-			if (borderView != null) {
-				borderView.setVisibility(nativeView.getVisibility());
-			}
-			
+			this.setVisibility(TiConvert.toBoolean(d, TiC.PROPERTY_VISIBLE) ? View.VISIBLE : View.INVISIBLE);
 		}
 		if (d.containsKey(TiC.PROPERTY_ENABLED) && !nativeViewNull) {
 			nativeView.setEnabled(TiConvert.toBoolean(d, TiC.PROPERTY_ENABLED));
@@ -835,17 +832,24 @@ public abstract class TiUIView
 		}
 	}
 
+	private void setVisibility(int visibility)
+	{
+		this.visibility = visibility;
+		if (borderView != null) {
+			borderView.setVisibility(this.visibility);
+		}
+		if (nativeView != null) {
+			nativeView.setVisibility(this.visibility);
+		}
+	}
+
 	/**
 	 * Shows the view, changing the view's visibility to View.VISIBLE.
 	 */
 	public void show()
 	{
-		if (borderView != null) {
-			borderView.setVisibility(View.VISIBLE);
-		}
-		if (nativeView != null) {
-			nativeView.setVisibility(View.VISIBLE);
-		} else {
+		this.setVisibility(View.VISIBLE);
+		if (borderView == null && nativeView == null) {
 			Log.w(TAG, "Attempt to show null native control", Log.DEBUG_MODE);
 		}
 	}
@@ -855,12 +859,8 @@ public abstract class TiUIView
 	 */
 	public void hide()
 	{
-		if (borderView != null) {
-			borderView.setVisibility(View.INVISIBLE);
-		}
-		if (nativeView != null) {
-			nativeView.setVisibility(View.INVISIBLE);
-		} else {
+		this.setVisibility(View.INVISIBLE);
+		if (borderView == null && nativeView == null) {
 			Log.w(TAG, "Attempt to hide null native control", Log.DEBUG_MODE);
 		}
 	}
@@ -951,7 +951,7 @@ public abstract class TiUIView
 					params.height = android.widget.FrameLayout.LayoutParams.MATCH_PARENT;
 					params.width = android.widget.FrameLayout.LayoutParams.MATCH_PARENT;
 					borderView.addView(nativeView, params);
-					borderView.setVisibility(nativeView.getVisibility());
+					borderView.setVisibility(this.visibility);
 				}
 
 				if (d.containsKey(TiC.PROPERTY_BORDER_RADIUS)) {
