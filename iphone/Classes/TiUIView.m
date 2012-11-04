@@ -797,7 +797,7 @@ DEFINE_EXCEPTIONS
 	}	
 }
 
--(void)transferProxy:(TiViewProxy*)newProxy
+-(void)transferProxy:(TiViewProxy*)newProxy deep:(BOOL)deep
 {
 	TiViewProxy * oldProxy = (TiViewProxy *)[self proxy];
 	
@@ -845,6 +845,13 @@ DEFINE_EXCEPTIONS
 			[self setKrollValue:newValue forKey:thisKey withObject:nil];
 		}
 		
+		if (deep) {
+			NSArray *subProxies = [newProxy children];
+			[[oldProxy children] enumerateObjectsUsingBlock:^(TiViewProxy *oldSubProxy, NSUInteger idx, BOOL *stop) {
+				TiViewProxy *newSubProxy = idx < [subProxies count] ? [subProxies objectAtIndex:idx] : nil;
+				[[oldSubProxy view] transferProxy:newSubProxy deep:YES];
+			}];
+		}
 		[oldProxy release];
 		
 		[newProxy setReproxying:NO];
@@ -852,6 +859,34 @@ DEFINE_EXCEPTIONS
 	}
 }
 
+-(BOOL)validateTransferToProxy:(TiViewProxy*)newProxy deep:(BOOL)deep
+{
+	TiViewProxy * oldProxy = (TiViewProxy *)[self proxy];
+	
+	if (oldProxy == newProxy) {
+		return YES;
+	}
+	if (![newProxy isMemberOfClass:[oldProxy class]]) {
+		return NO;
+	}
+	
+	__block BOOL result = YES;
+	if (deep) {
+		NSArray *subProxies = [newProxy children];
+		NSArray *oldSubProxies = [oldProxy children];
+		if ([subProxies count] != [oldSubProxies count]) {
+			return NO;
+		}
+		[oldSubProxies enumerateObjectsUsingBlock:^(TiViewProxy *oldSubProxy, NSUInteger idx, BOOL *stop) {
+			TiViewProxy *newSubProxy = [subProxies objectAtIndex:idx];
+			result = [[oldSubProxy view] validateTransferToProxy:newSubProxy deep:YES];
+			if (!result) {
+				*stop = YES;
+			}
+		}];
+	}
+	return result;
+}
 
 -(id)proxyValueForKey:(NSString *)key
 {

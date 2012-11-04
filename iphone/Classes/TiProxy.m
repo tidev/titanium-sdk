@@ -845,6 +845,10 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 		{
 			params = [args objectAtIndex:1];
 		}
+		if ([params isKindOfClass:[NSNull class]]) {
+			DebugLog(@"[WARN]fireEvent of type %@ called with two parameters but second parameter is null. Ignoring. Check your code",type);
+			params = nil;
+		}
 	}
 	else if ([args isKindOfClass:[NSString class]])
 	{

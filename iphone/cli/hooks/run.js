@@ -14,7 +14,8 @@ var appc = require('node-appc'),
 	path = require('path'),
 	parallel = require('async').parallel,
 	cp = require('child_process'),
-	exec = cp.exec;
+	exec = cp.exec,
+	spawn = cp.spawn;
 
 exports.cliVersion = '>=3.X';
 
@@ -32,6 +33,9 @@ exports.init = function (logger, config, cli) {
 			
 			logger.info(__('Running application in iOS Simulator'));
 			
+			var simulatorDir = afs.resolvePath('~/Library/Application Support/iPhone Simulator/' + build.iosSimVersion + '/Applications'),
+				logFile = build.tiapp.guid + '.log';
+			
 			parallel([
 				function (next) {
 					logger.debug(__('Terminating all iOS simulators'));
@@ -47,23 +51,17 @@ exports.init = function (logger, config, cli) {
 				},
 				
 				function (next) {
-					var simulatorDir = afs.resolvePath('~/Library/Application Support/iPhone Simulator/' + build.iosSimVersion),
-						logFile = build.tiapp.guid + '.log';
-					
 					// sometimes the simulator doesn't remove old log files in which case we get
 					// our logging jacked - we need to remove them before running the simulator
-					if (!afs.exists(simulatorDir)) {
-						return next();
-					}
-					
-					afs.visitFiles(simulatorDir, function (filename, fullpath) {
-						if (filename == logFile) {
-							try {
-								logger.debug(__('Removing old log file: %s', fullpath.cyan));
-								fs.unlink(fullpath);
-							} catch (e) {}
+					afs.exists(simulatorDir) && fs.readdirSync(simulatorDir).forEach(function (guid) {
+						var file = path.join(simulatorDir, guid, 'Documents', logFile);
+						if (afs.exists(file)) {
+							logger.debug(__('Removing old log file: %s', file.cyan));
+							fs.unlinkSync(file);
 						}
-					}, next);
+					});
+					
+					next();
 				}
 			], function () {
 				var cmd = [
@@ -75,17 +73,24 @@ exports.init = function (logger, config, cli) {
 						'--family',
 						build.deviceFamily
 					],
-					timer = setTimeout(function () {
+					findLogTimer,
+					simActivateTimer = setTimeout(function () {
 						exec([
 							'osascript',
 							'"' + path.join(build.titaniumIosSdkPath, 'iphone_sim_activate.scpt') + '"',
 							'"' + path.join(build.xcodeEnv.path, 'Platforms', 'iPhoneSimulator.platform', 'Developer', 'Applications', 'iPhone Simulator.app') + '"'
 						].join(' '), function (err, stdout, stderr) {
 							if (err) {
-								console.log('ACT ERR! ' + stderr);
+								logger.error(__('Failed to activate the iPhone Simulator window'));
+								logger.error(stderr);
 							}
 						})
-					}, 500);
+					}, 500),
+					simProcess,
+					simErr = [],
+					stripLogLevelRE = new RegExp('[(?:' + logger.getLevels().join('|') + ')] '),
+					logLevelRE = new RegExp('(\u001b\\[\\d+m)?\\[?(' + logger.getLevels().join('|') + ')\\]?\s*(\u001b\\[\\d+m)?(.*)', 'i'),
+					logProcess;
 				
 				cli.argv.retina && cmd.push('--retina');
 				cmd = cmd.join(' ');
@@ -93,23 +98,68 @@ exports.init = function (logger, config, cli) {
 				logger.info(__('Launching application in iOS Simulator'));
 				logger.debug(__('Simulator command: %s', cmd.cyan));
 				
-				exec('/bin/sh -c "' + cmd.replace(/"/g, '\\"') + '"', {
+				simProcess = spawn('/bin/sh', ['-c', cmd], {
 					cwd: build.titaniumIosSdkPath,
 					env: {
 						DYLD_FRAMEWORK_PATH: path.join(build.xcodeEnv.path, 'Platforms', 'iPhoneSimulator.platform', 'Developer', 'Library', 'PrivateFrameworks') +
 							':' + afs.resolvePath(build.xcodeEnv.path, '..', 'OtherFrameworks')
 					}
-				}, function (err, stdout, stderr) {
-					if (err) {
-						clearTimeout(timer);
-						finished(new appc.exception(__('An error occurred running the iOS Simulator'), stderr.split('\n').map(function (line) {
-							return line.replace(/^[(?:TRACE|DEBUG|INFO|WARN|ERROR)] /, '');
-						})));
+				});
+				
+				simProcess.stderr.on('data', function (data) {
+					data.toString().split('\n').forEach(function (line) {
+						line.length && simErr.push(line.replace(stripLogLevelRE, ''));
+					}, this);
+				}.bind(this));
+				
+				simProcess.on('exit', function (code, signal) {
+					clearTimeout(simActivateTimer);
+					clearTimeout(findLogTimer);
+					logProcess && logProcess.kill();
+					
+					if (code) {
+						finished(new appc.exception(__('An error occurred running the iOS Simulator'), simErr));
 					} else {
 						logger.info(__('Application has exited from iOS Simulator'));
 						finished();
 					}
-				});
+				}.bind(this));
+				
+				function findLogFile() {
+					var files = fs.readdirSync(simulatorDir),
+						file,
+						i = 0,
+						l = files.length;
+					
+					for (; i < l; i++) {
+						file = path.join(simulatorDir, files[i], 'Documents', logFile);
+						if (afs.exists(file)) {
+							logger.debug(__('Found iPhone Simulator log file: %s', file.cyan));
+							logger.info(__('iPhone Simulator log:'));
+							
+							logProcess = spawn('/usr/bin/tail', ['-f', file]);
+							
+							logProcess.stdout.on('data', function (data) {
+								data.toString().split('\n').forEach(function (line) {
+									if (line) {
+										var m = line.match(logLevelRE);
+										if (m) {
+											logger[m[2].toLowerCase()](m[4].trim());
+										} else {
+											logger.debug(line);
+										}
+									}
+								});
+							});
+							
+							return;
+						}
+					}
+					
+					findLogTimer = setTimeout(findLogFile, 250);
+				}
+				
+				afs.exists(simulatorDir) && findLogFile();
 			});
 		}
 	});

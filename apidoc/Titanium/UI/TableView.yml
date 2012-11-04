@@ -659,10 +659,8 @@ events:
 
 methods:
   - name: appendRow
-    summary: Appends one or more rows to the table.
+    summary: Appends a single row or an array of rows to the end of the table.
     description: |
-        Appends a single row or an array of rows to the end of the table.
-        
         Each row can be passed as a [TableViewRow](Titanium.UI.TableViewRow) object, or as 
         dictionary specifying the properties for a table row, in which case this `TableView` will 
         create `TableViewRow` objects as needed. 
@@ -679,11 +677,9 @@ methods:
         optional: true
         
   - name: appendSection
-    summary: Appends one or more sections to the table.
+    summary: Appends a single section or an array of sections to the end of the table.
     description: |
-        Appends a single section or an array of sections to the end of the table.
-        
-        Each row can be passed as a [TableViewSection](Titanium.UI.TableViewSection) object, or as 
+        Each section can be passed as a [TableViewSection](Titanium.UI.TableViewSection) object, or as
         dictionary specifying the properties for a table section, in which case this `TableView` will 
         create `TableViewSection` objects as needed. 
         
@@ -1253,7 +1249,7 @@ examples:
   - title: Table View Sections
     example: |
         Create a table with three sections, each with two rows. Add two sections to the table 
-        before and one after it is rendered. 
+        before and one after it is rendered. This sample only works on Release 3.0 and later.
         
             Ti.UI.backgroundColor = 'white';
             var win = Ti.UI.createWindow();
@@ -1267,7 +1263,9 @@ examples:
             sectionVeg.add(Ti.UI.createTableViewRow({ title: 'Potatoes' }));
             
             var table = Ti.UI.createTableView({
-              data: [sectionFruit, sectionVeg]
+              // Prior to Release 3.0, add sections using the data property:
+              // data: [sectionFruit, sectionVeg]
+              sections: [sectionFruit, sectionVeg]
             });
             
             win.add(table);
@@ -1277,8 +1275,10 @@ examples:
             sectionFish.add(Ti.UI.createTableViewRow({ title: 'Cod' }));
             sectionFish.add(Ti.UI.createTableViewRow({ title: 'Haddock' }));
             
-            table.setData([ sectionFish, sectionFruit, sectionVeg ]);
-        
+            // Prior to Release 3.0, you can only add and remove sections by setting the data property:
+            // table.data = [ sectionFish, sectionFruit, sectionVeg ];
+            table.insertSectionBefore(0, sectionFish);
+
   - title: Table View with Composite Layout
     example: |
         Create a table of rows that contain a custom child-view layout.

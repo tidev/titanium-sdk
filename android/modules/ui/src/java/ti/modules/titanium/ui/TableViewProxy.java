@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -137,10 +137,11 @@ public class TableViewProxy extends TiViewProxy
 
 	@Override
 	public boolean fireEvent(String eventName, Object data) {
-		if (eventName.equals(TiC.EVENT_LONGPRESS)) {
+		if (eventName.equals(TiC.EVENT_LONGPRESS) && (data instanceof HashMap)) {
 			// The data object may already be in use by the runtime thread
 			// due to a child view's event fire. Create a copy to be thread safe.
-			KrollDict dataCopy = new KrollDict((KrollDict)data);
+			@SuppressWarnings("unchecked")
+			KrollDict dataCopy = new KrollDict((HashMap<String, Object>) data);
 			double x = dataCopy.getDouble(TiC.PROPERTY_X);
 			double y = dataCopy.getDouble(TiC.PROPERTY_Y);
 			int index = getTableView().getTableView().getIndexFromXY(x, y);
@@ -626,6 +627,7 @@ public class TableViewProxy extends TiViewProxy
 		return new Object[0];
 	}
 
+	@SuppressWarnings("unchecked")
 	private TableViewRowProxy rowProxyFor(Object row)
 	{
 		TableViewRowProxy rowProxy = null;
@@ -639,7 +641,7 @@ public class TableViewProxy extends TiViewProxy
 				rowDict = (KrollDict) row;
 
 			} else if (row instanceof HashMap) {
-				rowDict = new KrollDict((HashMap) row);
+				rowDict = new KrollDict((HashMap<String, Object>) row);
 			}
 
 			if (rowDict != null) {
@@ -663,6 +665,7 @@ public class TableViewProxy extends TiViewProxy
 		return rowProxy;
 	}
 
+	@SuppressWarnings("unchecked")
 	private TableViewSectionProxy sectionProxyFor(Object section)
 	{
 		TableViewSectionProxy sectionProxy = null;
@@ -674,7 +677,7 @@ public class TableViewProxy extends TiViewProxy
 			if (section instanceof KrollDict) {
 				sectionDict = (KrollDict) section;
 			} else if (section instanceof HashMap) {
-				sectionDict = new KrollDict((HashMap) section);
+				sectionDict = new KrollDict((HashMap<String, Object>) section);
 			}
 			if (sectionDict != null) {
 				sectionProxy = new TableViewSectionProxy();
