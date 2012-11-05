@@ -1423,6 +1423,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_ON_APP_ICON_ITEM_SELECTED = "onAppIconItemSelected";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_ON_CREATE_OPTIONS_MENU = "onCreateOptionsMenu";
 
 	/**
