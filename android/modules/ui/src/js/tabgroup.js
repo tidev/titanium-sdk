@@ -18,7 +18,12 @@ exports.bootstrap = function(Titanium) {
 
   function createTabGroup(scopeVars, options) {
     var tabGroup = new TabGroup(options);
-    tabGroup.tabs = options.tabs || [];
+
+    if (options) {
+	    tabGroup.tabs = options.tabs || [];
+	} else {
+		tabGroup.tabs = [];
+	}
 
     // Keeps track of the current tab group state
     tabGroup.currentState = tabGroup.state.closed;
