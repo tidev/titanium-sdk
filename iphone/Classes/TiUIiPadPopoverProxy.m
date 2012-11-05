@@ -64,7 +64,15 @@ TiUIiPadPopoverProxy * currentlyDisplaying = nil;
 
 -(CGSize)contentSize
 {
-	return SizeConstraintViewWithSizeAddingResizing([self layoutProperties], self, CGSizeZero, NULL);
+    CGSize screenSize = [[UIScreen mainScreen] bounds].size;
+    UIInterfaceOrientation orientation = [UIApplication sharedApplication].statusBarOrientation;
+    
+    if (orientation == UIInterfaceOrientationLandscapeRight || orientation ==  UIInterfaceOrientationLandscapeLeft ) {
+        CGSize tempSize = CGSizeMake(screenSize.height, screenSize.width);
+        screenSize = tempSize;
+    }
+    
+	return SizeConstraintViewWithSizeAddingResizing([self layoutProperties], self, screenSize , NULL);
 }
 
 -(UINavigationController *)navigationController

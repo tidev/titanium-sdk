@@ -61,7 +61,6 @@ public class WebViewProxy extends ViewProxy
 	{
 		((TiBaseActivity)activity).addOnLifecycleEventListener(this);
 		TiUIWebView webView = new TiUIWebView(this);
-		webView.focus();
 
 		if (postCreateMessage != null) {
 			sendPostCreateMessage(webView.getWebView(), postCreateMessage);
