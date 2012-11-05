@@ -243,7 +243,7 @@ void ModifyScrollViewForKeyboardHeightAndContentHeightWithResponderRect(UIScroll
 -(UIView *)gradientWrapperView;
 -(void)checkBounds;
 
--(void)updateShadowPath;
+-(void)updateViewShadowPath;
 
 @property (nonatomic, readonly) id accessibilityElement;
 

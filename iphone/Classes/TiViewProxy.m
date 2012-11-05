@@ -159,6 +159,9 @@
         //Turn on clipping depending on shadow
         [self view].clipsToBounds = ([[self view] layer].shadowOpacity == 0);
         
+        //Turn on clipping because I have children
+        [[self view] updateViewShadowPath];
+        
 		pthread_rwlock_unlock(&childrenLock);
 		[arg setParent:self];
 		[self contentsWillChange];
