@@ -1432,7 +1432,7 @@ public class TiC
 	/**
 	 * @module.api
 	 */
-	public static final String PROPERTY_ON_APP_ICON_ITEM_SELECTED = "onAppIconItemSelected";
+	public static final String PROPERTY_ON_HOME_ICON_ITEM_SELECTED = "onHomeIconItemSelected";
 
 	/**
 	 * @module.api

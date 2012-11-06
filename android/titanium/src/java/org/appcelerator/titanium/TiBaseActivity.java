@@ -756,7 +756,7 @@ public abstract class TiBaseActivity extends Activity
 					ActionBarProxy actionBarProxy = activityProxy.getActionBar();
 					if (actionBarProxy != null) {
 						KrollFunction onAppIconItemSelected = (KrollFunction) actionBarProxy
-							.getProperty(TiC.PROPERTY_ON_APP_ICON_ITEM_SELECTED);
+							.getProperty(TiC.PROPERTY_ON_HOME_ICON_ITEM_SELECTED);
 						KrollDict event = new KrollDict();
 						event.put(TiC.EVENT_PROPERTY_SOURCE, actionBarProxy);
 						if (onAppIconItemSelected != null) {
