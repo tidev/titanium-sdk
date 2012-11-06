@@ -16,6 +16,7 @@ import org.appcelerator.titanium.util.TiUrl;
 import android.app.ActionBar;
 import android.app.Activity;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.os.Message;
 
 @Kroll.proxy(propertyAccessors = {
@@ -102,12 +103,14 @@ public class ActionBarProxy extends KrollProxy
 	@Kroll.method @Kroll.setProperty
 	public void setLogo(String url)
 	{
-		if (TiApplication.isUIThread()) {
-			handleSetLogo(url);
-		} else {
-			Message message = getMainHandler().obtainMessage(MSG_SET_LOGO, url);
-			message.getData().putString(LOGO, url);
-			message.sendToTarget();
+		if (Build.VERSION.SDK_INT >= TiC.API_LEVEL_ICE_CREAM_SANDWICH) {
+			if (TiApplication.isUIThread()) {
+				handleSetLogo(url);
+			} else {
+				Message message = getMainHandler().obtainMessage(MSG_SET_LOGO, url);
+				message.getData().putString(LOGO, url);
+				message.sendToTarget();
+			}
 		}
 	}
 
