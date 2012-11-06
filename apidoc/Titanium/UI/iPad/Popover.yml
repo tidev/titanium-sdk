@@ -89,3 +89,15 @@ examples:
             	title: 'Yo Yo',
             	rightNavButton: button
             });
+
+  - title: Alloy XML Markup
+    example: |
+        Previous example as an Alloy view.
+
+        Set the `rightNavButton` property in the controller.
+        Also, the controller that is creating an instance of this view needs
+        to call the `show` method to make the popover appear.
+
+            <Alloy>
+                <Popover id="popover" ns="Ti.UI.iPad" width="250" height="100" title="Yo Yo" />
+            </Alloy>

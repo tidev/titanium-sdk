@@ -14,6 +14,7 @@
 #import "KrollContext.h"
 #import "KrollBridge.h"
 #import "TiBindingTiValue.h"
+#import "TiExceptionHandler.h"
 
 #ifdef KROLL_COVERAGE
 # import "KrollCoverage.h"
@@ -1355,7 +1356,14 @@ TI_INLINE TiStringRef TiStringCreateWithPointerValue(int value)
 		TiObjectCallAsFunction(jsContext, (TiObjectRef)currentCallback, [thisObject jsobject], 1, &jsEventData,&exception);
 		if (exception!=NULL)
 		{
-			DebugLog(@"[WARN] Exception in event callback. %@",[KrollObject toID:context value:exception]);
+			id excm = [KrollObject toID:context value:exception];
+			TiScriptError *scriptError = nil;
+			if ([excm isKindOfClass:[NSDictionary class]]) {
+				scriptError = [[TiScriptError alloc] initWithDictionary:excm];
+			} else {
+				scriptError = [[TiScriptError alloc] initWithMessage:[excm description] sourceURL:nil lineNo:0];
+			}
+			[[TiExceptionHandler defaultExceptionHandler] reportScriptError:scriptError];
 		}
 	}
 }

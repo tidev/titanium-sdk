@@ -286,3 +286,36 @@ examples:
               dialog.show();
             });
             win.open();
+
+  - title: Alloy XML Markup
+    example: |
+        Previous three-button alert dialog example as an Alloy view.
+
+        alertdialog.xml:
+
+            <Alloy>
+                <Window id="win" onClick="showDialog" title="Click window to test" backgroundColor="white"
+                    exitOnClose="true" fullscreen="false" >
+
+                    <AlertDialog id="dialog" onClick="doClick" title="Delete"
+                        message="Would you like to delete the file?" cancel="1">
+
+                        <!-- The ButtonNames tag sets the buttonNames property. -->
+                        <ButtonNames>
+                            <ButtonName>Confirm</ButtonName>
+                            <ButtonName>Cancel</ButtonName>
+                            <ButtonName>Help</ButtonName>
+                        </ButtonNames>
+                    </AlertDialog>
+                </Window>
+            </Alloy>
+
+        alertdialog.js:
+
+            function showDialog(){
+                $.dialog.show();
+            };
+
+            function doClick(e){
+                Ti.API.info('e.text: ' + e.text);
+            };

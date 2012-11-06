@@ -166,3 +166,15 @@ examples:
             	icon:'myicon.png'
             });
             tabGroup.addTab(tab);
+
+  - title: Alloy XML Markup
+    example: |
+        Previous example an an Alloy view.
+
+            <Alloy>
+                <TabGroup id="tabGroup">
+                    <Tab id="tab">
+                        <Window id="mywin" title="Hello" icon="myicon.png"/>
+                    </Tab>
+                 </TabGroup>
+            </Alloy>

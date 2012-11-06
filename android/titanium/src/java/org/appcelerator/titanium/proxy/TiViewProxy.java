@@ -460,6 +460,14 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 		{
 			setModelListener(view);
 		}
+		else
+		{
+			// Just call processProperties() to set them on this view.
+			// Note that this is done in setModelListener() when it is
+			// called.
+			view.processProperties(getProperties());
+		}
+
 
 		// Use a copy so bundle can be modified as it passes up the inheritance
 		// tree. Allows defaults to be added and keys removed.
@@ -583,6 +591,24 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 				if (child.parent != null && child.parent.get() == this) {
 					child.parent = null;
 				}
+			}
+		}
+	}
+
+	/**
+	 * Removes all children views.
+	 * @module.api
+	 */
+	@Kroll.method
+	public void removeAllChildren()
+	{
+		if (children != null) {
+			//children might be altered while we loop through it (threading)
+			//so we first copy children as it was when asked to remove all children
+			ArrayList<TiViewProxy> childViews = new ArrayList<TiViewProxy>();
+			childViews.addAll(children);
+			for (TiViewProxy child : childViews) {
+				remove(child);
 			}
 		}
 	}
@@ -858,28 +884,6 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 				setClickable(false);
 			}
 		}
-	}
-
-	/**
-	 * Return true if any view in the hierarchy has the event listener.
-	 */
-	public boolean hierarchyHasListener(String eventName)
-	{
-		boolean hasListener = hasListeners(eventName);
-
-		// Check whether the parent has the listener or not
-		if (!hasListener) {
-			TiViewProxy parent = getParent();
-			if (parent != null) {
-				boolean parentHasListener = parent.hierarchyHasListener(eventName);
-				hasListener = hasListener || parentHasListener;
-				if (hasListener) {
-					return hasListener;
-				}
-			}
-		}
-
-		return hasListener;
 	}
 
 	public void setClickable(boolean clickable)

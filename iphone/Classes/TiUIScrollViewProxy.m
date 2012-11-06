@@ -149,6 +149,9 @@ static NSArray* scrollViewKeySequence;
             else if (TiDimensionIsPercent(thisChildProxy->layoutProperties.width)){
                 result += [thisChildProxy minimumParentWidthForSize:size];
             }
+            else if (TiDimensionIsUndefined(thisChildProxy->layoutProperties.width)){
+                result += [thisChildProxy minimumParentWidthForSize:size];
+            }
             else {
                 result += [thisChildProxy minimumParentWidthForSize:contentSize];
             }
@@ -200,7 +203,10 @@ static NSArray* scrollViewKeySequence;
                 result += size.height;
             }
             else if (TiDimensionIsPercent(thisChildProxy->layoutProperties.height)){
-                result += [thisChildProxy minimumParentWidthForSize:size];
+                result += [thisChildProxy minimumParentHeightForSize:size];
+            }
+            else if (TiDimensionIsUndefined(thisChildProxy->layoutProperties.height)) {
+                result += [thisChildProxy minimumParentHeightForSize:size];
             }
             else {
                 result += [thisChildProxy minimumParentHeightForSize:contentSize];
@@ -268,13 +274,6 @@ static NSArray* scrollViewKeySequence;
         flexibleContentHeight = NO;
     }
     
-    if (flexibleContentHeight) {
-        contentSize.size.height = [self autoHeightForSize:bounds.size];
-    }
-    if (flexibleContentWidth) {
-        contentSize.size.width = [self autoWidthForSize:bounds.size];
-    }
-    
     contentSize.size.width = MAX(contentSize.size.width,viewBounds.size.width);
     contentSize.size.height = MAX(contentSize.size.height,viewBounds.size.height);
     
@@ -291,11 +290,12 @@ static NSArray* scrollViewKeySequence;
             verticalLayoutBoundary += bounds.size.height;
             return bounds;
         }
-        else if (TiDimensionIsUndefined(child->layoutProperties.height)){
+        else if (TiDimensionIsUndefined(child->layoutProperties.height) && flexibleContentHeight){
             //Undefined height with 2+pins. Need to use view bounds to match autoHeight behavior
             bounds.origin.y = verticalLayoutBoundary;
             bounds.size.height = [child minimumParentHeightForSize:viewBounds.size];
             verticalLayoutBoundary += bounds.size.height;
+            return bounds;
         }
         else {
             return [super computeChildSandbox:child withBounds:contentSize];

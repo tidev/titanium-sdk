@@ -28,8 +28,28 @@ properties:
   - name: autoLink
     summary: Automatically convert certain text items in the label to clickable links. 
     description: |
-        Specify which types of items are converted by setting `autoLink` to one of the 
-        <Titanium.UI.Android> `LINKIFY` constants.
+        Specify which types of items to convert by setting `autoLink` to one of the 
+        <Titanium.UI> `AUTOLINK` constants: 
+        [AUTOLINK_ALL](Titanium.UI.AUTOLINK_ALL),
+        [AUTOLINK_EMAIL_ADDRESSES](Titanium.UI.AUTOLINK_EMAIL_ADDRESSES),
+        [AUTOLINK_MAP_ADDRESSES](Titanium.UI.AUTOLINK_MAP_ADDRESSES),
+        [AUTOLINK_NONE](Titanium.UI.AUTOLINK_NONE),
+        [AUTOLINK_PHONE_NUMBERS](Titanium.UI.AUTOLINK_PHONE_NUMBERS),
+        or [AUTOLINK_URLS](Titanium.UI.AUTOLINK_URLS).
+
+        Multiple autolink values can be combined with a bitwise OR. For example:
+            
+            label.autoLink = AUTOLINK_MAP_ADDRESSES|AUTOLINK_PHONE_NUMBERS;
+            
+        Prior to Release 3.0, this field used platform-specific constants. These are now
+        deprecated in favor of the `AUTOLINK` constants listed above.
+        
+        The Android-specific legacy constants are defined in <Titanium.UI.Android>:
+        [LINKIFY_ALL](Titanium.UI.Android.LINKIFY_ALL),
+        [LINKIFY_EMAIL_ADDRESSES](Titanium.UI.Android.LINKIFY_EMAIL_ADDRESSES),
+        [LINKIFY_MAP_ADDRESSES](Titanium.UI.Android.LINKIFY_MAP_ADDRESSES),
+        [LINKIFY_PHONE_NUMBERS](Titanium.UI.Android.LINKIFY_PHONE_NUMBERS),
+        and [LINKIFY_WEB_URLS](Titanium.UI.Android.LINKIFY_WEB_URLS).
     type: Number
     platforms: [android]
     
@@ -191,3 +211,20 @@ examples:
             win.add(label1);
             win.add(label2);
             win.open();
+
+  - title: Alloy XML Markup
+    example: |
+        Previous example as an Alloy view.
+
+        Most of the styling properties need to be defined in the TSS file.
+
+            <Alloy>
+                <Window id="win" backgroundColor="white" exitOnClose="true" fullscreen="false" layout="vertical" title="Label Demo">
+
+                    <!-- The text property can either be defined as an attribute or as node text. -->
+                    <Label id="label1" color="#900" top="30" text="A simple label" />
+                    <Label id="label2" color="blue" top="30">
+                        A long label with\na few line breaks\nand unicode (UTF8)\nsymbols such as\na white chess piece \u2655\nand the euro symbol \u20ac\nlooks like this!\n
+                    </Label>
+                </Window>
+            </Alloy>

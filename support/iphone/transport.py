@@ -111,6 +111,7 @@ def main(args):
 		
 		ti = TiAppXML(tiappxml)
 		# target the requested value if provided
+		min_ver = 4.0
 		if 'min-ios-ver' in ti.ios:
 			min_ver = float(ti.ios['min-ios-ver'])
 			if min_ver < 4.0:

@@ -13,6 +13,7 @@
 #import "TiBindingTiValue.h"
 #import "TiBindingRunLoop.h"
 #import "TiBase.h"
+#import "TiExceptionHandler.h"
 
 extern TiStringRef kTiStringLength;
 
@@ -123,7 +124,10 @@ void TiBindingEventFire(TiBindingEvent event)
 	
 	int runloopcount = [targetProxy bindingRunLoopCount];
 
-	event->targetProxy = targetProxy;
+	if(event->targetProxy!=targetProxy){
+		[event->targetProxy release];
+		event->targetProxy = [targetProxy retain];
+	}
 	event->pendingEvents = runloopcount;
 	if (runloopcount == 1) { //Main case: One run loop.
 		TiBindingRunLoop ourRunLoop = [targetProxy primaryBindingRunLoop];
@@ -144,7 +148,11 @@ void TiBindingEventFire(TiBindingEvent event)
 	}
 	
 	//Extreme edge case. Proxy thinks it still has listeners, but no run loops?!
-	event->targetProxy = TiBindingEventNextBubbleTargetProxy(event, targetProxy, YES);
+	TiProxy * newTarget = TiBindingEventNextBubbleTargetProxy(event, targetProxy, YES);
+	if(event->targetProxy!=newTarget){
+		[event->targetProxy release];
+		event->targetProxy = [newTarget retain];
+	}
 	TiBindingEventFire(event);
 }
 
@@ -203,7 +211,14 @@ void TiBindingEventProcess(TiBindingRunLoop runloop, void * payload)
 			TiObjectCallAsFunction(context, (TiObjectRef)currentCallback, (TiObjectRef)eventTargetRef, 1, (TiValueRef*)&eventObjectRef,&exception);
 			if (exception!=NULL)
 			{
-				DebugLog(@"[WARN] Exception in event callback. %@",TiBindingTiValueToNSObject(context, exception));
+				id excm = TiBindingTiValueToNSObject(context, exception);
+				TiScriptError *scriptError = nil;
+				if ([excm isKindOfClass:[NSDictionary class]]) {
+					scriptError = [[TiScriptError alloc] initWithDictionary:excm];
+				} else {
+					scriptError = [[TiScriptError alloc] initWithMessage:[excm description] sourceURL:nil lineNo:0];
+				}
+				[[TiExceptionHandler defaultExceptionHandler] reportScriptError:scriptError];
 			}
 			
 			// Note cancel bubble
@@ -221,7 +236,11 @@ void TiBindingEventProcess(TiBindingRunLoop runloop, void * payload)
 	}
 	
 	//Last one processing the event for this proxy, pass it on to the parent.
-	event->targetProxy = TiBindingEventNextBubbleTargetProxy(event, event->targetProxy, YES);
+	TiProxy * newTarget = TiBindingEventNextBubbleTargetProxy(event, event->targetProxy, YES);
+	if(event->targetProxy!=newTarget){
+		[event->targetProxy release];
+		event->targetProxy = [newTarget retain];
+	}
 	TiBindingEventFire(event);
 	//See who gets it next.
 	

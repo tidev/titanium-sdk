@@ -41,6 +41,7 @@ import android.os.Build;
 import android.support.v4.view.ViewCompat;
 import android.text.TextUtils;
 import android.util.Pair;
+import android.util.SparseArray;
 import android.view.GestureDetector;
 import android.view.GestureDetector.SimpleOnGestureListener;
 import android.view.KeyEvent;
@@ -115,6 +116,10 @@ public abstract class TiUIView
 	private TiBorderWrapperView borderView;
 	// For twofingertap detection
 	private boolean didScale = false;
+
+	//to maintain sync visibility between borderview and view. Default is visible
+	private int visibility = View.VISIBLE;
+
 
 	/**
 	 * Constructs a TiUIView object with the associated proxy.
@@ -295,7 +300,7 @@ public abstract class TiUIView
 		boolean invalidateParent = false;
 		ViewParent viewParent = nativeView.getParent();
 
-		if (nativeView.getVisibility() == View.VISIBLE && viewParent instanceof View) {
+		if (this.visibility == View.VISIBLE && viewParent instanceof View) {
 			int width = nativeView.getWidth();
 			int height = nativeView.getHeight();
 
@@ -459,7 +464,8 @@ public abstract class TiUIView
 			layoutNativeView();
 		} else if (key.equals(TiC.PROPERTY_SIZE)) {
 			if (newValue instanceof HashMap) {
-				HashMap<String, Object> d = (HashMap) newValue;
+				@SuppressWarnings("unchecked")
+				HashMap<String, Object> d = (HashMap<String, Object>) newValue;
 				propertyChanged(TiC.PROPERTY_WIDTH, oldValue, d.get(TiC.PROPERTY_WIDTH), proxy);
 				propertyChanged(TiC.PROPERTY_HEIGHT, oldValue, d.get(TiC.PROPERTY_HEIGHT), proxy);
 			}else if (newValue != null){
@@ -521,7 +527,7 @@ public abstract class TiUIView
 		} else if (key.equals(TiC.PROPERTY_TOUCH_ENABLED)) {
 			doSetClickable(TiConvert.toBoolean(newValue));
 		} else if (key.equals(TiC.PROPERTY_VISIBLE)) {
-			nativeView.setVisibility(TiConvert.toBoolean(newValue) ? View.VISIBLE : View.INVISIBLE);
+			this.setVisibility(TiConvert.toBoolean(newValue) ? View.VISIBLE : View.INVISIBLE);
 		} else if (key.equals(TiC.PROPERTY_ENABLED)) {
 			nativeView.setEnabled(TiConvert.toBoolean(newValue));
 		} else if (key.startsWith(TiC.PROPERTY_BACKGROUND_PADDING)) {
@@ -624,7 +630,7 @@ public abstract class TiUIView
 			}
 
 		} else if (key.indexOf("accessibility") == 0 && !key.equals(TiC.PROPERTY_ACCESSIBILITY_HIDDEN)) {
-			composeContentDescription();
+			applyContentDescription();
 
 		} else if (key.equals(TiC.PROPERTY_ACCESSIBILITY_HIDDEN)) {
 			applyAccessibilityHidden(newValue);
@@ -682,8 +688,7 @@ public abstract class TiUIView
 		}
 
 		if (d.containsKey(TiC.PROPERTY_VISIBLE) && !nativeViewNull) {
-			nativeView.setVisibility(TiConvert.toBoolean(d, TiC.PROPERTY_VISIBLE) ? View.VISIBLE : View.INVISIBLE);
-			
+			this.setVisibility(TiConvert.toBoolean(d, TiC.PROPERTY_VISIBLE) ? View.VISIBLE : View.INVISIBLE);
 		}
 		if (d.containsKey(TiC.PROPERTY_ENABLED) && !nativeViewNull) {
 			nativeView.setEnabled(TiConvert.toBoolean(d, TiC.PROPERTY_ENABLED));
@@ -827,17 +832,24 @@ public abstract class TiUIView
 		}
 	}
 
+	private void setVisibility(int visibility)
+	{
+		this.visibility = visibility;
+		if (borderView != null) {
+			borderView.setVisibility(this.visibility);
+		}
+		if (nativeView != null) {
+			nativeView.setVisibility(this.visibility);
+		}
+	}
+
 	/**
 	 * Shows the view, changing the view's visibility to View.VISIBLE.
 	 */
 	public void show()
 	{
-		if (borderView != null) {
-			borderView.setVisibility(View.VISIBLE);
-		}
-		if (nativeView != null) {
-			nativeView.setVisibility(View.VISIBLE);
-		} else {
+		this.setVisibility(View.VISIBLE);
+		if (borderView == null && nativeView == null) {
 			Log.w(TAG, "Attempt to show null native control", Log.DEBUG_MODE);
 		}
 	}
@@ -847,12 +859,8 @@ public abstract class TiUIView
 	 */
 	public void hide()
 	{
-		if (borderView != null) {
-			borderView.setVisibility(View.INVISIBLE);
-		}
-		if (nativeView != null) {
-			nativeView.setVisibility(View.INVISIBLE);
-		} else {
+		this.setVisibility(View.INVISIBLE);
+		if (borderView == null && nativeView == null) {
 			Log.w(TAG, "Attempt to hide null native control", Log.DEBUG_MODE);
 		}
 	}
@@ -937,13 +945,13 @@ public abstract class TiUIView
 						currentActivity = TiApplication.getAppCurrentActivity();
 					}
 					borderView = new TiBorderWrapperView(currentActivity);
-
 					// Create new layout params for the child view since we just want the
 					// wrapper to control the layout
 					LayoutParams params = new LayoutParams();
 					params.height = android.widget.FrameLayout.LayoutParams.MATCH_PARENT;
 					params.width = android.widget.FrameLayout.LayoutParams.MATCH_PARENT;
 					borderView.addView(nativeView, params);
+					borderView.setVisibility(this.visibility);
 				}
 
 				if (d.containsKey(TiC.PROPERTY_BORDER_RADIUS)) {
@@ -984,7 +992,7 @@ public abstract class TiUIView
 		}
 	}
 
-	private static HashMap<Integer, String> motionEvents = new HashMap<Integer,String>();
+	private static SparseArray<String> motionEvents = new SparseArray<String>();
 	static
 	{
 		motionEvents.put(MotionEvent.ACTION_DOWN, TiC.EVENT_TOUCH_START);
@@ -1033,10 +1041,7 @@ public abstract class TiUIView
 
 	public View getOuterView()
 	{
-		if (borderView == null) {
-			return nativeView;
-		}
-		return borderView;
+		return borderView == null ? nativeView : borderView;
 	}
 
 	public void registerForTouch()
@@ -1243,12 +1248,10 @@ public abstract class TiUIView
 			return;
 		}
 
-		boolean focusable = false;
-		Object prop = proxy.getProperty(TiC.PROPERTY_FOCUSABLE);
-		if (prop != null) {
-			focusable = TiConvert.toBoolean(prop);
+		Object focusable = proxy.getProperty(TiC.PROPERTY_FOCUSABLE);
+		if (focusable != null) {
+			registerForKeyPress(v, TiConvert.toBoolean(focusable));
 		}
-		registerForKeyPress(v, focusable);
 	}
 
 	protected void registerForKeyPress(final View v, boolean focusable)
@@ -1516,6 +1519,17 @@ public abstract class TiUIView
 		animatedAlpha = Float.MIN_VALUE; // we use min val to signal no val.
 	}
 
+	private void applyContentDescription()
+	{
+		if (proxy == null || nativeView == null) {
+			return;
+		}
+		String contentDescription = composeContentDescription();
+		if (contentDescription != null) {
+			nativeView.setContentDescription(contentDescription);
+		}
+	}
+
 	/**
 	 * Our view proxy supports three properties to match iOS regarding
 	 * the text that is read aloud (or otherwise communicated) by the
@@ -1525,10 +1539,10 @@ public abstract class TiUIView
 	 * We combine these to create the single Android property contentDescription.
 	 * (e.g., View.setContentDescription(...));
 	 */
-	private void composeContentDescription()
+	protected String composeContentDescription()
 	{
-		if (nativeView == null || proxy == null) {
-			return;
+		if (proxy == null) {
+			return null;
 		}
 
 		final String punctuationPattern = "^.*\\p{Punct}\\s*$";
@@ -1567,13 +1581,13 @@ public abstract class TiUIView
 			}
 		}
 
-		nativeView.setContentDescription(buffer.toString());
+		return buffer.toString();
 	}
 
 	private void applyAccessibilityProperties()
 	{
 		if (nativeView != null) {
-			composeContentDescription();
+			applyContentDescription();
 			applyAccessibilityHidden();
 		}
 

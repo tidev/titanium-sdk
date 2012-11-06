@@ -740,6 +740,8 @@ properties:
     osver:
         android:
             min: "4.0"
+        ios:
+            min: "5.0"
 
   - name: accessibilityHint
     summary: Briefly describes what performing an action (such as a click) on the view will do.
@@ -1349,6 +1351,14 @@ examples:
                height:50
             });
             window.add(view);
+
+  - title: Alloy XML Markup
+    example: |
+        Previous example as an Alloy view.
+
+            <Alloy>
+                <View id="view" borderRadius="10" backgroundColor="red" width="50" height="50" />
+            </Alloy>
 
 ---
 name: Point

@@ -456,3 +456,13 @@ examples:
             
             win.add(table);
             win.open();
+
+  - title: Alloy XML Markup
+    example: |
+        Previous simple table view row example as an Alloy view.
+
+            <Alloy>
+                <TableViewRow id="row">
+                    <View id="view" backgroundColor="red" width="20" height="20"/>
+                </TableViewRow>
+            </Alloy>
