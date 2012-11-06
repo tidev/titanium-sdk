@@ -27,13 +27,17 @@ public class ActionBarProxy extends KrollProxy
 	private static final int MSG_DISPLAY_HOME_AS_UP = MSG_FIRST_ID + 100;
 	private static final int MSG_SET_BACKGROUND_IMAGE = MSG_FIRST_ID + 101;
 	private static final int MSG_SET_TITLE = MSG_FIRST_ID + 102;
+	private static final int MSG_SHOW = MSG_FIRST_ID + 103;
+	private static final int MSG_HIDE = MSG_FIRST_ID + 104;
+	private static final int MSG_SET_LOGO = MSG_FIRST_ID + 105;
 
 	private static final String SHOW_HOME_AS_UP = "showHomeAsUp";
 	private static final String BACKGROUND_IMAGE = "backgroundImage";
 	private static final String TITLE = "title";
+	private static final String LOGO = "logo";
 
 	private ActionBar actionBar;
-	
+
 	public ActionBarProxy(Activity activity)
 	{
 		actionBar = activity.getActionBar();
@@ -43,7 +47,7 @@ public class ActionBarProxy extends KrollProxy
 	public void setDisplayHomeAsUp(boolean showHomeAsUp)
 	{
 		if(TiApplication.isUIThread()) {
-			handleSetDisplayHomeAsUpEnabled(showHomeAsUp);
+			handlesetDisplayHomeAsUp(showHomeAsUp);
 		} else {
 			Message message = getMainHandler().obtainMessage(MSG_DISPLAY_HOME_AS_UP, showHomeAsUp);
 			message.getData().putBoolean(SHOW_HOME_AS_UP, showHomeAsUp);
@@ -75,9 +79,51 @@ public class ActionBarProxy extends KrollProxy
 		}
 	}
 
+	@Kroll.method
+	public void show()
+	{
+		if (TiApplication.isUIThread()) {
+			handleShow();
+		} else {
+			getMainHandler().obtainMessage(MSG_SHOW).sendToTarget();
+		}
+	}
+
+	@Kroll.method
+	public void hide()
+	{
+		if (TiApplication.isUIThread()) {
+			handleHide();
+		} else {
+			getMainHandler().obtainMessage(MSG_HIDE).sendToTarget();
+		}
+	}
+
+	@Kroll.method @Kroll.setProperty
+	public void setLogo(String url)
+	{
+		if (TiApplication.isUIThread()) {
+			handleSetLogo(url);
+		} else {
+			Message message = getMainHandler().obtainMessage(MSG_SET_LOGO, url);
+			message.getData().putString(LOGO, url);
+			message.sendToTarget();
+		}
+	}
+
 	private void handleSetTitle(String title)
 	{
 		actionBar.setTitle(title);
+	}
+
+	private void handleShow()
+	{
+		actionBar.show();
+	}
+
+	private void handleHide()
+	{
+		actionBar.hide();
 	}
 
 	private void handleSetBackgroundImage(String url)
@@ -88,9 +134,17 @@ public class ActionBarProxy extends KrollProxy
 		}
 	}
 
-	private void handleSetDisplayHomeAsUpEnabled(boolean showHomeAsUp)
+	private void handlesetDisplayHomeAsUp(boolean showHomeAsUp)
 	{
 		actionBar.setDisplayHomeAsUpEnabled(showHomeAsUp);
+	}
+
+	private void handleSetLogo(String url)
+	{
+		Drawable logo = getDrawableFromUrl(url);
+		if (logo != null) {
+			actionBar.setLogo(logo);
+		}
 	}
 
 	private Drawable getDrawableFromUrl(String url)
@@ -105,13 +159,22 @@ public class ActionBarProxy extends KrollProxy
 	{
 		switch (msg.what) {
 			case MSG_DISPLAY_HOME_AS_UP:
-				handleSetDisplayHomeAsUpEnabled(msg.getData().getBoolean(SHOW_HOME_AS_UP));
+				handlesetDisplayHomeAsUp(msg.getData().getBoolean(SHOW_HOME_AS_UP));
 				return true;
 			case MSG_SET_BACKGROUND_IMAGE:
 				handleSetBackgroundImage(msg.getData().getString(BACKGROUND_IMAGE));
 				return true;
 			case MSG_SET_TITLE:
 				handleSetTitle(msg.getData().getString(TITLE));
+				return true;
+			case MSG_SHOW:
+				handleShow();
+				return true;
+			case MSG_HIDE:
+				handleHide();
+				return true;
+			case MSG_SET_LOGO:
+				handleSetLogo(msg.getData().getString(LOGO));
 				return true;
 		}
 		return super.handleMessage(msg);
