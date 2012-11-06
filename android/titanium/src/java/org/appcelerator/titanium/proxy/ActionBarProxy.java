@@ -26,9 +26,11 @@ public class ActionBarProxy extends KrollProxy
 	private static final int MSG_FIRST_ID = KrollProxy.MSG_LAST_ID + 1;
 	private static final int MSG_DISPLAY_HOME_AS_UP = MSG_FIRST_ID + 100;
 	private static final int MSG_SET_BACKGROUND_IMAGE = MSG_FIRST_ID + 101;
+	private static final int MSG_SET_TITLE = MSG_FIRST_ID + 102;
 
 	private static final String SHOW_HOME_AS_UP = "showHomeAsUp";
 	private static final String BACKGROUND_IMAGE = "backgroundImage";
+	private static final String TITLE = "title";
 
 	private ActionBar actionBar;
 	
@@ -61,6 +63,23 @@ public class ActionBarProxy extends KrollProxy
 		}
 	}
 
+	@Kroll.method @Kroll.setProperty
+	public void setTitle(String title)
+	{
+		if (TiApplication.isUIThread()) {
+			handleSetTitle(title);
+		} else {
+			Message message = getMainHandler().obtainMessage(MSG_SET_TITLE, title);
+			message.getData().putString(TITLE, title);
+			message.sendToTarget();
+		}
+	}
+
+	private void handleSetTitle(String title)
+	{
+		actionBar.setTitle(title);
+	}
+
 	private void handleSetBackgroundImage(String url)
 	{
 		Drawable backgroundImage = getDrawableFromUrl(url);
@@ -90,6 +109,9 @@ public class ActionBarProxy extends KrollProxy
 				return true;
 			case MSG_SET_BACKGROUND_IMAGE:
 				handleSetBackgroundImage(msg.getData().getString(BACKGROUND_IMAGE));
+				return true;
+			case MSG_SET_TITLE:
+				handleSetTitle(msg.getData().getString(TITLE));
 				return true;
 		}
 		return super.handleMessage(msg);
