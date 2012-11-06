@@ -130,6 +130,16 @@ def markdown_to_html(s, obj=None):
 		s = process_markdown_links(s)
 	return markdown.markdown(s)
 
+# remove <p> and </p> if a string is enclosed with them
+def remove_p_tags(str):
+    if str is None or len(str) == 0:
+        return ""
+    if str.startswith("<p>"):
+        str = str[3:]
+    if str.endswith("</p>"):
+        str = str[:-4]
+    return str
+
 # Print two digit version if third digit is 0.
 def format_version(version_str):
 	digits = version_str.split(".")
@@ -385,7 +395,8 @@ def generate(raw_apis, annotated_apis, options):
 					getter_ok = setter_ok = False
 
 				if k.default is not None:
-					output.write('/**\n\t * @property [%s=%s]\n' % (k.name, k.default))
+                    default_val = remove_p_tags(markdown_to_html(str(k.default)))
+					output.write('/**\n\t * @property [%s=%s]\n' % (k.name, default_val))
 				else:
 					output.write("/**\n\t * @property %s\n" % (k.name))
 
@@ -421,7 +432,8 @@ def generate(raw_apis, annotated_apis, options):
 						type = "{" + transform_type(param["type"]) + repeatable + "}" if param.has_key("type") else ""
 						optional = "(optional)" if param.has_key('optional') and param["optional"] == True else ""
 						if param.has_key('default'):
-							output.write("\t * @param %s [%s=%s] %s\n\t * %s\n" % (type, param['name'], param['default'], optional, markdown_to_html(summary)))
+                            default_val = remove_p_tags(markdown_to_html(str(param['default'])))
+							output.write("\t * @param %s [%s=%s] %s\n\t * %s\n" % (type, param['name'], default_val, optional, markdown_to_html(summary)))
 						else:
 							output.write("\t * @param %s %s %s\n\t * %s\n" % (type, param['name'], optional, markdown_to_html(summary)))
 
