@@ -103,7 +103,6 @@
 {
     [TiUtils setView:[self map] positionRect:bounds];
     [super frameSizeChanged:frame bounds:bounds];
-    [self render];
 }
 
 -(TiMapAnnotationProxy*)annotationFromArg:(id)arg
