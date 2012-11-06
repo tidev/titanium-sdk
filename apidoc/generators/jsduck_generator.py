@@ -395,7 +395,7 @@ def generate(raw_apis, annotated_apis, options):
 					getter_ok = setter_ok = False
 
 				if k.default is not None:
-                    default_val = remove_p_tags(markdown_to_html(str(k.default)))
+					default_val = remove_p_tags(markdown_to_html(str(k.default)))
 					output.write('/**\n\t * @property [%s=%s]\n' % (k.name, default_val))
 				else:
 					output.write("/**\n\t * @property %s\n" % (k.name))
@@ -432,7 +432,7 @@ def generate(raw_apis, annotated_apis, options):
 						type = "{" + transform_type(param["type"]) + repeatable + "}" if param.has_key("type") else ""
 						optional = "(optional)" if param.has_key('optional') and param["optional"] == True else ""
 						if param.has_key('default'):
-                            default_val = remove_p_tags(markdown_to_html(str(param['default'])))
+							default_val = remove_p_tags(markdown_to_html(str(param['default'])))
 							output.write("\t * @param %s [%s=%s] %s\n\t * %s\n" % (type, param['name'], default_val, optional, markdown_to_html(summary)))
 						else:
 							output.write("\t * @param %s %s %s\n\t * %s\n" % (type, param['name'], optional, markdown_to_html(summary)))
