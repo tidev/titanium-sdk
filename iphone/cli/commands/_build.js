@@ -1637,7 +1637,7 @@ build.prototype = {
 			variables = {},
 			mainContents = fs.readFileSync(path.join(this.titaniumIosSdkPath, 'main.m')).toString().replace(/(__.+__)/g, function (match, key, format) {
 				var s = consts.hasOwnProperty(key) ? consts[key] : key;
-				return typeof s == 'string' ? s.replace(/"/g, '\\"') : s;
+				return typeof s == 'string' ? s.replace(/"/g, '\\"').replace(/\n/g, '\\n') : s;
 			}),
 			xcconfigContents = [
 				'// this is a generated file - DO NOT EDIT',
