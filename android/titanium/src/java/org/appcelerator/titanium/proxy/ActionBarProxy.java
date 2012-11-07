@@ -31,11 +31,13 @@ public class ActionBarProxy extends KrollProxy
 	private static final int MSG_SHOW = MSG_FIRST_ID + 103;
 	private static final int MSG_HIDE = MSG_FIRST_ID + 104;
 	private static final int MSG_SET_LOGO = MSG_FIRST_ID + 105;
+	private static final int MSG_SET_ICON = MSG_FIRST_ID + 106;
 
 	private static final String SHOW_HOME_AS_UP = "showHomeAsUp";
 	private static final String BACKGROUND_IMAGE = "backgroundImage";
 	private static final String TITLE = "title";
 	private static final String LOGO = "logo";
+	private static final String ICON = "icon";
 
 	private ActionBar actionBar;
 
@@ -120,6 +122,28 @@ public class ActionBarProxy extends KrollProxy
 		}
 	}
 
+	@Kroll.method @Kroll.setProperty
+	public void setIcon(String url)
+	{
+		if (Build.VERSION.SDK_INT >= TiC.API_LEVEL_ICE_CREAM_SANDWICH) {
+			if (TiApplication.isUIThread()) {
+				handleSetIcon(url);
+			} else {
+				Message message = getMainHandler().obtainMessage(MSG_SET_ICON, url);
+				message.getData().putString(ICON, url);
+				message.sendToTarget();
+			}
+		}
+	}
+
+	private void handleSetIcon(String url)
+	{
+		Drawable icon = getDrawableFromUrl(url);
+		if (icon != null) {
+			actionBar.setIcon(icon);
+		}
+	}
+
 	private void handleSetTitle(String title)
 	{
 		actionBar.setTitle(title);
@@ -184,6 +208,9 @@ public class ActionBarProxy extends KrollProxy
 				return true;
 			case MSG_SET_LOGO:
 				handleSetLogo(msg.getData().getString(LOGO));
+				return true;
+			case MSG_SET_ICON:
+				handleSetIcon(msg.getData().getString(ICON));
 				return true;
 		}
 		return super.handleMessage(msg);
