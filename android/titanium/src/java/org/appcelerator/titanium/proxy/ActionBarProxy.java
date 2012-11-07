@@ -44,7 +44,7 @@ public class ActionBarProxy extends KrollProxy
 		actionBar = activity.getActionBar();
 	}
 
-	@Kroll.method
+	@Kroll.method @Kroll.setProperty
 	public void setDisplayHomeAsUp(boolean showHomeAsUp)
 	{
 		if(TiApplication.isUIThread()) {
@@ -78,6 +78,12 @@ public class ActionBarProxy extends KrollProxy
 			message.getData().putString(TITLE, title);
 			message.sendToTarget();
 		}
+	}
+
+	@Kroll.method @Kroll.getProperty
+	public String getTitle()
+	{
+		return (String) actionBar.getTitle();
 	}
 
 	@Kroll.method
