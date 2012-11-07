@@ -700,10 +700,11 @@ methods:
     summary: Deletes an existing row.
     description: |
         On iOS, the row can be deleted with animation by specifying a `properties` parameter.
+        Starting in SDK 3.1.0, the row can be specified using <Titanium.UI.TableViewRow> on Android.
     parameters:
       - name: row
-        summary: Index of the row to delete.
-        type: Number
+        summary: Index of the row to delete, or the row object to delete.
+        type: [Number, Titanium.UI.TableViewRow]
         
       - name: animation
         summary: Animation properties. (iOS only.)
