@@ -293,13 +293,13 @@ exports.validate = function (logger, config, cli) {
 		process.exit(1);
 	}
 	
-	if (!Object.keys(sdks).some(function (ver) {
+	if (!cli.argv['ios-version'] || !Object.keys(sdks).some(function (ver) {
 		if (version.eq(ver, cli.argv['ios-version'])) {
 			cli.argv['ios-version'] = ver;
 			return true;
 		}
 	})) {
-		logger.error(__('Unable to find iOS SDK %s', cli.argv['ios-version']) + '\n');
+		logger.error(cli.argv['ios-version'] ? __('Unable to find iOS SDK %s', cli.argv['ios-version']) + '\n' : __('Missing iOS SDK') + '\n');
 		logger.log(__('Available iOS SDK versions:'));
 		Object.keys(sdks).forEach(function (ver) {
 			logger.log('    ' + ver.cyan);
@@ -463,7 +463,7 @@ exports.validate = function (logger, config, cli) {
 	if (!deviceFamily && deploymentTargets) {
 		// device family was not an environment variable, construct via the tiapp.xml's deployment targets
 		if (deploymentTargets.iphone && deploymentTargets.ipad) {
-			deviceFamily = 'universal';
+			deviceFamily = cli.argv.$originalPlatform == 'ipad' ? 'ipad' : 'universal';
 		} else if (deploymentTargets.iphone) {
 			deviceFamily = 'iphone';
 		} else if (deploymentTargets.ipad) {
