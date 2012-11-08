@@ -39,6 +39,7 @@ exports.config = function (logger, config, cli) {
 					platform: {
 						abbr: 'p',
 						callback: function (platform) {
+							cli.argv.$originalPlatform = platform;
 							return ti.resolvePlatform(platform);
 						},
 						desc: __('the target build platform'),
@@ -88,7 +89,7 @@ exports.config = function (logger, config, cli) {
 
 exports.validate = function (logger, config, cli) {
 	// TODO: set the type to 'app' for now, but we'll need to determine if the project is an app or a module
-	cli.argv['type'] = 'app';
+	cli.argv.type = 'app';
 	
 	ti.validatePlatform(logger, cli.argv, 'platform');
 	if (ti.validatePlatformOptions(logger, config, cli, 'build') === false) {
