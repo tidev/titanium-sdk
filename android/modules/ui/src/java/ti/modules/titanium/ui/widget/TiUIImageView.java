@@ -246,6 +246,7 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 	private static final int SET_IMAGE = 10001;
 	private static final int START = 10002;
 	private static final int STOP = 10003;
+	private static final int SET_IMAGE_DRAWABLE = 10004;
 
 
 	public boolean handleMessage(Message msg)
@@ -262,6 +263,11 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 			return true;
 		case STOP:
 			handleStop();
+			return true;
+		case SET_IMAGE_DRAWABLE:
+			AsyncResult result2 = (AsyncResult) msg.obj;
+			handleSetImageDrawable((Boolean) result2.getArg());
+			result2.setResult(null);
 			return true;
 			
 		default: return false;
@@ -288,6 +294,24 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 		// what the current bitmap should be.
 		imageViewProxy.onBitmapChanged(this, bitmap);
 	}
+	
+	private void setImageDrawable(final boolean recycle)
+	{
+		if (!TiApplication.isUIThread()) {
+			TiMessenger.sendBlockingMainMessage(handler.obtainMessage(SET_IMAGE_DRAWABLE), (Boolean) recycle);
+		} else {
+			handleSetImageDrawable(recycle);
+		}
+	}
+
+	private void handleSetImageDrawable(final boolean recycle)
+	{
+		TiImageView view = getView();
+		if (view != null) {
+			view.setImageDrawable(null, recycle);
+		}
+	}
+
 
 	private class BitmapWithIndex
 	{
@@ -721,6 +745,9 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 	
 	private void setImage(boolean recycle)
 	{
+		TiImageView view = getView();
+		view.setImageDrawable(null, false);
+
 		// TIMOB-11282:  Do the rest of image handling in an AsyncTask here
 		BackgroundImageTask task = new BackgroundImageTask();
         task.execute(recycle);
@@ -728,6 +755,7 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 
 	private void doSetImage(boolean recycle)
 	{
+		
 		if (imageSources == null || imageSources.size() == 0 || imageSources.get(0) == null || imageSources.get(0).isTypeNull()) {
 			if (defaultImageSource != null) {
 				setDefaultImage();
@@ -736,6 +764,7 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 			}
 			return;
 		}
+
 		if (imageSources.size() == 1) {
 			if (imageViewProxy.inTableView()) {
 				Bitmap currentBitmap = imageViewProxy.getBitmap();
@@ -754,10 +783,7 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 				if (defaultImageSource != null) {
 					setDefaultImage();
 				} else {
-					TiImageView view = getView();
-					if (view != null) {
-						view.setImageDrawable(null, recycle);
-					}
+					setImageDrawable(recycle);
 				}
 				boolean getAsync = true;
 				try {
