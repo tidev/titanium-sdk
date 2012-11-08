@@ -42,6 +42,7 @@ import android.app.Activity;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.os.AsyncTask;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
@@ -704,8 +705,28 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 			defaultImageSource = TiDrawableReference.fromObject(proxy.getActivity(), object);
 		}
 	}
+	
+	final class BackgroundImageTask extends AsyncTask<Boolean, Void, Void> {
 
+        @Override
+        protected Void doInBackground(Boolean... params) {
+                for (int i = 0; i < params.length; i++)
+                {
+                	doSetImage(params[i]);
+                }
+                return null;
+        }
+	}
+
+	
 	private void setImage(boolean recycle)
+	{
+		// TIMOB-11282:  Do the rest of image handling in an AsyncTask here
+		BackgroundImageTask task = new BackgroundImageTask();
+        task.execute(recycle);
+	}
+
+	private void doSetImage(boolean recycle)
 	{
 		if (imageSources == null || imageSources.size() == 0 || imageSources.get(0) == null || imageSources.get(0).isTypeNull()) {
 			if (defaultImageSource != null) {
