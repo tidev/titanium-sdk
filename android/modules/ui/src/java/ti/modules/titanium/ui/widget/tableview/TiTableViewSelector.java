@@ -73,24 +73,20 @@ public class TiTableViewSelector extends Drawable
 	@Override
 	public void draw(Canvas canvas)
 	{
+
 		Rect currentBounds = getBounds();
 		int currentPosition = listView.pointToPosition(currentBounds.centerX(), currentBounds.centerY());
 
 		getRowDrawable(listView.getChildAt(currentPosition - listView.getFirstVisiblePosition()));
-		if (selectedDrawable != null)
-		{
+		if (selectedDrawable != null) {
 			selectedDrawable.setVisible(isVisible(), true);
 
-			if (selectedRowProxy != null)
-			{
+			if (selectedRowProxy != null) {
 				Object opacity = selectedRowProxy.getProperty(TiC.PROPERTY_OPACITY);
-				if (opacity != null)
-				{
+				if (opacity != null) {
 					selectedDrawable.setAlpha(Math.round(TiConvert.toFloat(opacity) * 255));
 				}
-			}
-			else
-			{
+			} else {
 				selectedDrawable.setAlpha(alpha);
 			}
 
@@ -99,7 +95,8 @@ public class TiTableViewSelector extends Drawable
 			selectedDrawable.setState(getState());
 			selectedDrawable.setLevel(getLevel());
 			selectedDrawable.setBounds(currentBounds);
-			selectedDrawable.getCurrent().draw(canvas); // have to use getCurrent() otherwise image can "stick" when state changes
+			selectedDrawable.getCurrent().draw(canvas); // have to use getCurrent() otherwise image can "stick" when
+														// state changes
 		}
 	}
 
