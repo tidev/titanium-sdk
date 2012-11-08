@@ -1107,7 +1107,7 @@ build.prototype = {
 		proj = injectCompileShellScript(
 			proj,
 			'Pre-Compile',
-			'node \\"' + this.cli.argv.$0.replace(/^node /, '') + '\\" build --platform ' +
+			(process.execPath || 'node') + ' \\"' + this.cli.argv.$0.replace(/^node /, '') + '\\" build --platform ' +
 				this.platformName + ' --sdk ' + this.titaniumSdkVersion + ' --no-prompt --no-banner --xcode\\nexit $?'
 		);
 		proj = injectCompileShellScript(
