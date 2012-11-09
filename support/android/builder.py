@@ -10,7 +10,7 @@
 # and debugging Titanium Mobile applications on Android
 #
 import os, sys, subprocess, shutil, time, signal, string, platform, re, glob, hashlib, imp, inspect
-import run, avd, prereq, zipfile, tempfile, fnmatch, codecs, traceback
+import run, avd, prereq, zipfile, tempfile, fnmatch, codecs, traceback, sgmllib
 from os.path import splitext
 from compiler import Compiler
 from os.path import join, splitext, split, exists
@@ -72,6 +72,28 @@ java_keywords = [
 MIN_API_LEVEL = 8
 HONEYCOMB_MR2_LEVEL = 13
 KNOWN_ABIS = ("armeabi", "armeabi-v7a", "x86")
+
+# Used only to find <script> tags in HTML files
+# so we can be sure to package referenced JS files
+# even when compiling for production. (See
+# Builder.package_and_deploy later in this file.)
+class HTMLParser(sgmllib.SGMLParser):
+
+	def parse(self, html_source):
+		self.feed(html_source)
+		self.close()
+
+	def __init__(self, verbose=0):
+		sgmllib.SGMLParser.__init__(self, verbose)
+		self.referenced_js_files = []
+
+	def start_script(self, attributes):
+		for name, value in attributes:
+			if value and name.lower() == "src":
+				self.referenced_js_files.append(value.lower())
+
+	def get_referenced_js_files(self):
+		return self.referenced_js_files
 
 def launch_logcat():
 	valid_device_switches = ('-e', '-d', '-s')
@@ -1500,7 +1522,7 @@ class Builder(object):
 			sys.exit(1)
 		return True
 
-	def create_unsigned_apk(self, resources_zip_file):
+	def create_unsigned_apk(self, resources_zip_file, webview_js_files=None):
 		unsigned_apk = os.path.join(self.project_dir, 'bin', 'app-unsigned.apk')
 		self.apk_updated = False
 
@@ -1522,7 +1544,8 @@ class Builder(object):
 
 		def skip_js_file(path):
 			return self.compile_js is True and \
-				os.path.splitext(path)[1] == '.js'
+				os.path.splitext(path)[1] == '.js' and \
+				os.path.join(self.project_dir, "bin", path) not in webview_js_files
 
 		def compression_type(path):
 			ext = os.path.splitext(path)[1]
@@ -1665,6 +1688,40 @@ class Builder(object):
 		return "MD5withRSA"
 
 	def package_and_deploy(self):
+
+		# If in production mode and compiling JS, we do not package the JS
+		# files as assets (we protect them from prying eyes). But if a JS
+		# file is referenced in an html <script> tag, we DO need to package it.
+		def get_js_referenced_in_html():
+			js_files = []
+			for root, dirs, files in os.walk(self.assets_dir):
+				for one_file in files:
+					if one_file.lower().endswith(".html"):
+						full_path = os.path.join(root, one_file)
+						html_source = None
+						file_stream = None
+						try:
+							file_stream = open(full_path, "r")
+							html_source = file_stream.read()
+						except:
+							error("Unable to read html file '%s'" % full_path)
+						finally:
+							file_stream.close()
+
+						if html_source:
+							parser = HTMLParser()
+							parser.parse(html_source)
+							relative_js_files = parser.get_referenced_js_files()
+							if relative_js_files:
+								for one_rel_js_file in relative_js_files:
+									if one_rel_js_file.startswith("http:") or one_rel_js_file.startswith("https:"):
+										continue
+									if one_rel_js_file.startswith("app://"):
+										one_rel_js_file = one_rel_js_file[6:]
+									js_files.append(os.path.abspath(os.path.join(os.path.dirname(full_path), one_rel_js_file)))
+
+			return js_files
+
 		ap_ = os.path.join(self.project_dir, 'bin', 'app.ap_')
 
 		# This is only to check if this has been overridden in production
@@ -1672,20 +1729,35 @@ class Builder(object):
 		compile_js = not has_compile_js or (has_compile_js and \
 			self.tiappxml.to_bool(self.tiappxml.get_app_property('ti.android.compilejs')))
 
+		# JS files referenced in html files and thus likely needed for webviews.
+		webview_js_files = []
+
 		pkg_assets_dir = self.assets_dir
 		if self.deploy_type == "test":
 			compile_js = False
 		if self.deploy_type == "production" and compile_js:
+			webview_js_files = get_js_referenced_in_html()
 			non_js_assets = os.path.join(self.project_dir, 'bin', 'non-js-assets')
 			if not os.path.exists(non_js_assets):
 				os.mkdir(non_js_assets)
 			copy_all(self.assets_dir, non_js_assets, ignore_exts=['.js'])
+
+			# if we have any js files referenced in html, we *do* need
+			# to package them as if they are non-js assets.
+			if webview_js_files:
+				for one_js_file in webview_js_files:
+					if os.path.exists(one_js_file):
+						dest_file = one_js_file.replace(self.assets_dir, non_js_assets, 1)
+						if not os.path.exists(os.path.dirname(dest_file)):
+							os.makedirs(os.path.dirname(dest_file))
+						shutil.copyfile(one_js_file, dest_file)
+
 			pkg_assets_dir = non_js_assets
 
 		run.run([self.aapt, 'package', '-f', '-M', 'AndroidManifest.xml', '-A', pkg_assets_dir,
 			'-S', 'res', '-I', self.android_jar, '-I', self.titanium_jar, '-F', ap_], warning_regex=r'skipping')
 
-		unsigned_apk = self.create_unsigned_apk(ap_)
+		unsigned_apk = self.create_unsigned_apk(ap_, webview_js_files)
 
 		if self.dist_dir:
 			app_apk = os.path.join(self.dist_dir, self.name + '.apk')	
