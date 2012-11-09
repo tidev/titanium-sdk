@@ -812,22 +812,45 @@ function build(logger, config, cli, finished) {
 							HOME: process.env.HOME,
 							PATH: process.env.PATH
 						}
-					});
-				
-				p.stderr.on('data', function (data) {
-					data.toString().split('\n').forEach(function (line) {
-						line.length && this.logger.error(line);
-					}, this);
-					process.exit(1);
-				}.bind(this));
+					}),
+					out = [],
+					err = [];
 				
 				p.stdout.on('data', function (data) {
 					data.toString().split('\n').forEach(function (line) {
-						line.length && this.logger.trace(line);
+						if (line.length) {
+							out.push(line);
+							this.logger.trace(line);
+						}
+					}, this);
+				}.bind(this));
+				
+				p.stderr.on('data', function (data) {
+					data.toString().split('\n').forEach(function (line) {
+						if (line.length) {
+							err.push(line);
+							this.logger.error(line);
+						}
 					}, this);
 				}.bind(this));
 				
 				p.on('exit', function (code, signal) {
+					if (code) {
+						err = err.join('\n');
+						if (err.indexOf('Check dependencies') != -1) {
+							var len = out.length;
+							for (var i = len - 1; i >= 0; i--) {
+								if (out[i].indexOf('Check dependencies') != -1) {
+									for (var j = i + 1; j < len; j++) {
+										this.logger.error('Error details: ' + out[j]);
+									}
+									break;
+								}
+							}
+						}
+						process.exit(1);
+					}
+					
 					if (!cli.argv['build-only']) {
 						var delta = appc.time.prettyDiff(cli.startTime, Date.now());
 						this.logger.info(__('Finished building the application in %s', delta));
