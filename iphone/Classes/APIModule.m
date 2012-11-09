@@ -11,38 +11,46 @@
 #import "TiDebugger.h"
 #import "TiExceptionHandler.h"
 
+extern NSString * const TI_APPLICATION_DEPLOYTYPE;
+
 @implementation APIModule
 
 -(void)logMessage:(NSArray*)args severity:(NSString*)severity
 {
     NSMutableString* message = [NSMutableString string];
     
+    NSString* lcSeverity = [severity lowercaseString];
+    DebuggerLogLevel level = OUT;
+    if ([lcSeverity isEqualToString:@"warn"]) {
+        level = WARN;
+    }
+    else if ([lcSeverity isEqualToString:@"error"] ||
+             [lcSeverity isEqualToString:@"critical"] ||
+             [lcSeverity isEqualToString:@"fatal"]) {
+        level = ERR;
+    }
+    else if ([lcSeverity isEqualToString:@"trace"]) {
+        level = TRACE;
+    }
+    else if ([lcSeverity isEqualToString:@"debug"]) {
+        level = LOG_DEBUG;
+    }
+    
     if ([[TiApp app] debugMode]) {
-        NSString* lcSeverity = [severity lowercaseString];
-        DebuggerLogLevel level = OUT;
         NSMutableArray* messages = [NSMutableArray arrayWithArray:args];
         
-        if ([lcSeverity isEqualToString:@"warn"]) {
-            level = WARN;
-        }
-        else if ([lcSeverity isEqualToString:@"error"] ||
-                 [lcSeverity isEqualToString:@"critical"] ||
-                 [lcSeverity isEqualToString:@"fatal"]) {
-            level = ERR;
-        }
-        else if ([lcSeverity isEqualToString:@"trace"]) {
-            level = TRACE;
-        }
-        else if ([lcSeverity isEqualToString:@"debug"]) {
-            level = LOG_DEBUG;
-        }
-        else if (![lcSeverity isEqualToString:@"info"]) { // Custom severity, or just a badly-formed log; either way, debugger treats it as info
+        if (![lcSeverity isEqualToString:@"info"]) { // Custom severity, or just a badly-formed log; either way, debugger treats it as info
             [messages insertObject:[NSString stringWithFormat:@"[%@]", severity] atIndex:0];
         }
         
         TiDebuggerLogMessage(level, [messages componentsJoinedByString:@" "]);
     }
     else {
+        if ([TI_APPLICATION_DEPLOYTYPE isEqualToString:@"production"]) {
+            if (level != ERR) {
+                return;
+            }
+        }
         NSLog(@"[%@] %@", [severity uppercaseString], [args componentsJoinedByString:@" "]);
         fflush(stderr);
     }
