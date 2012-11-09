@@ -352,7 +352,7 @@ exports.validate = function (logger, config, cli) {
 		}
 	}
 	
-	if (cli.argv.target != 'simulator') {
+	if (!cli.argv.xcode && cli.argv.target != 'simulator') {
 		if (!iosEnv.certs.wwdr) {
 			logger.error(__('WWDR Intermediate Certificate not found') + '\n');
 			logger.log(__('Download and install the certificate from %s', 'https://developer.apple.com/ios/manage/certificates/team/index.action'.cyan) + '\n');
