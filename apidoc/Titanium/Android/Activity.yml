@@ -73,6 +73,14 @@ methods:
         summary: Optional format arguments for the String resource. May be repeated.
         type: Object
 
+  - name: invalidateOptionsMenu
+    summary: Declares that the option menu has changed and should be recreated.
+    description: |
+        This method needs to be used in Android 3.0 and above when changing menus at runtime.  See
+        [changingTheMenu](http://developer.android.com/guide/topics/ui/menus.html#ChangingTheMenu) in 
+        the Android API Reference for more details. 
+    since: "3.0.0"
+
   - name: setRequestedOrientation
     summary: Sets the requested Activity orientation. 
     description: |
@@ -142,6 +150,9 @@ methods:
         
   - name: openOptionsMenu
     summary: Programmatically opens the options menu.
+    description: |
+        See also: [onMenuOpened](http://developer.android.com/reference/android/app/Activity.html#onMenuOpened(int, android.view.Menu))
+        in the Android API Reference.
     since: "3.0.0"
 events:
 
