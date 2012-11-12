@@ -40,6 +40,7 @@ description: |
     [iOS UI Element Usage Guidelines ](https://developer.apple.com/library/ios/#documentation/UserExperience/Conceptual/MobileHIG/UIElementGuidelines/UIElementGuidelines.html#//apple_ref/doc/uid/TP40006556-CH13-SW52).
 extends: Titanium.UI.View
 since: "0.9"
+excludes: { methods:[removeAllChildren] }
 
 events:
   - name: blur

@@ -3,6 +3,7 @@ name: Titanium.UI.Window
 summary: The Window is an empty drawing surface or container.
 extends: Titanium.UI.View
 since: "0.9"
+excludes: { methods:[removeAllChildren] }
 
 methods:
   - name: close

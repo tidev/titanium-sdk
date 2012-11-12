@@ -48,6 +48,7 @@ description: |
     As on iOS, the root tab window cannot be closed.
 extends: Titanium.UI.View
 since: "0.8"
+excludes: { methods:[removeAllChildren] }
 methods:
   - name: open
     summary: Opens a new window.

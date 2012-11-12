@@ -606,6 +606,11 @@ methods:
         summary: View to remove from this view's hierarchy.
         type: Titanium.UI.View
     
+  - name: removeAllChildren
+    summary: Removes all child views from this view's hierarchy.
+    since: "3.1.0"
+    platforms: [android,iphone,ipad]
+
   - name: show
     summary: Makes this view visible.
     
