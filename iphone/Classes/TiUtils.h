@@ -5,8 +5,22 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
-#import "TiColor.h"
 #import "TiDimension.h"
+
+@class TiProxy;
+@class TiColor;
+@class TiFile;
+@class TiBuffer;
+@class WebFont;
+@class TiScriptError;
+
+/*	NOTE TO MODULE DEVELOPERS:
+ *	The following 4 imports will be going away as it's better to simply
+ *	forward-declare the classes in headers. If you've been relying on TiUtils
+ *	to do the including of TiProxy for you, please fix this. However, to
+ *	avoid breaking modules 
+ */
+#import "TiColor.h"
 #import "WebFont.h"
 #import "TiFile.h"
 #import "TiBuffer.h"
@@ -398,6 +412,8 @@ typedef enum {
 +(CGFloat)sizeValue:(id)value;
 
 +(WebFont*)fontValue:(id)value;
+
++(TiScriptError*) scriptErrorValue:(id)value;
 
 +(UITextAlignment)textAlignmentValue:(id)alignment;
 

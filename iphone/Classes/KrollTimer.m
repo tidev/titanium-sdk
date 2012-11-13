@@ -68,13 +68,7 @@
 	if (exception!=NULL)
 	{
 		id excm = [KrollObject toID:kroll value:exception];
-		TiScriptError *scriptError = nil;
-		if ([excm isKindOfClass:[NSDictionary class]]) {
-			scriptError = [[TiScriptError alloc] initWithDictionary:excm];
-		} else {
-			scriptError = [[TiScriptError alloc] initWithMessage:[excm description] sourceURL:nil lineNo:0];
-		}
-		[[TiExceptionHandler defaultExceptionHandler] reportScriptError:scriptError];
+		[[TiExceptionHandler defaultExceptionHandler] reportScriptError:[TiUtils scriptErrorValue:excm]];
 	}
 	[invokeCond unlockWithCondition:1];
 }
