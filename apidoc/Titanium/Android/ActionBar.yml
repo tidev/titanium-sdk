@@ -1,0 +1,65 @@
+---
+name: Titanium.Android.ActionBar
+summary: The Titanium binding of an Android Action Bar.
+description: |
+    According to the Android API Reference, an action bar is a window feature that identifies
+    the application and user location, and provides user actions and navigation modes.  This
+    feature is only available in Android 3.0 (API level 11) and above.
+
+    See: [Action Bar](http://developer.android.com/guide/topics/ui/actionbar.html)
+    in the Android API Reference.
+
+extends: Titanium.Proxy
+platforms: [android]
+createable: false
+since: "3.0"
+methods:
+  - name: hide
+    summary: Hides the action bar if it is currently showing.
+    description: |
+        See also:
+        [hide](http://developer.android.com/reference/android/app/ActionBar.html#hide())
+        in the Android API Reference.
+
+  - name: show
+    summary: Shows the action bar if it is currently hidden.
+    description: |
+        See also:
+        [show](http://developer.android.com/reference/android/app/ActionBar.html#show())
+        in the Android API Reference.
+
+properties:
+  - name: backgroundImage
+    summary: The background image for the action bar, specified as a local file path or URL.
+    type: String
+    permission: write-only
+
+  - name: displayHomeAsUp
+    summary: Displays an "up" affordance on the "home" area of the action bar.
+    description: |
+        See also: [setDisplayHomeAsUpEnabled](http://developer.android.com/reference/android/app/ActionBar.html#setDisplayHomeAsUpEnabled(boolean))
+        in the Android Developer Reference.
+    type: Boolean
+    permission: write-only
+
+  - name: icon
+    summary: Sets the application icon displayed in the "home" area of the action bar, specified as a local file path or URL.
+    description: |
+        This method is only available on Android 4.0 (API 14) and above. See also:
+        [setIcon](http://developer.android.com/reference/android/app/ActionBar.html#setIcon(android.graphics.drawable.Drawable))
+        in the Android Developer Reference.
+    type: String
+    permission: write-only
+
+  - name: logo
+    summary: Sets the application logo displayed in the "home" area of the action bar, specified as a local file path or URL.
+    description: |
+        This method is only available on Android 4.0 (API 14) and above. See also:
+        [setLogo](http://developer.android.com/reference/android/app/ActionBar.html#setLogo(android.graphics.drawable.Drawable))
+        in the Android Developer Reference.
+    type: String
+    permission: write-only
+
+  - name: title
+    summary: Sets the title of the action bar.
+    type: String
