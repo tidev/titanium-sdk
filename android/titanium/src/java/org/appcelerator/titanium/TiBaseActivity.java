@@ -12,10 +12,12 @@ import java.util.Stack;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.KrollFunction;
 import org.appcelerator.kroll.KrollRuntime;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.common.TiMessenger;
 import org.appcelerator.titanium.TiLifecycle.OnLifecycleEvent;
+import org.appcelerator.titanium.proxy.ActionBarProxy;
 import org.appcelerator.titanium.proxy.ActivityProxy;
 import org.appcelerator.titanium.proxy.IntentProxy;
 import org.appcelerator.titanium.proxy.TiViewProxy;
@@ -737,7 +739,7 @@ public abstract class TiBaseActivity extends Activity
 		if (activityProxy == null) {
 			return false;
 		}
-		
+
 		if (menuHelper == null) {
 			menuHelper = new TiMenuSupport(activityProxy);
 		}
@@ -748,7 +750,24 @@ public abstract class TiBaseActivity extends Activity
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item)
 	{
-		return menuHelper.onOptionsItemSelected(item);
+		switch (item.getItemId()) {
+			case android.R.id.home:
+				if (activityProxy != null) {
+					ActionBarProxy actionBarProxy = activityProxy.getActionBar();
+					if (actionBarProxy != null) {
+						KrollFunction onHomeIconItemSelected = (KrollFunction) actionBarProxy
+							.getProperty(TiC.PROPERTY_ON_HOME_ICON_ITEM_SELECTED);
+						KrollDict event = new KrollDict();
+						event.put(TiC.EVENT_PROPERTY_SOURCE, actionBarProxy);
+						if (onHomeIconItemSelected != null) {
+							onHomeIconItemSelected.call(activityProxy.getKrollObject(), new Object[] { event });
+						}
+					}
+				}
+				return true;
+			default:
+				return menuHelper.onOptionsItemSelected(item);
+		}
 	}
 
 	@Override
@@ -756,7 +775,7 @@ public abstract class TiBaseActivity extends Activity
 	{
 		return menuHelper.onPrepareOptionsMenu(super.onPrepareOptionsMenu(menu), menu);
 	}
-	
+
 	public static void callOrientationChangedListener(Configuration newConfig) 
 	{
 		if (orientationChangedListener != null && previousOrientation != newConfig.orientation) {
