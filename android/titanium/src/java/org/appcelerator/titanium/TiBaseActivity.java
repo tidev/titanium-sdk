@@ -755,12 +755,12 @@ public abstract class TiBaseActivity extends Activity
 				if (activityProxy != null) {
 					ActionBarProxy actionBarProxy = activityProxy.getActionBar();
 					if (actionBarProxy != null) {
-						KrollFunction onAppIconItemSelected = (KrollFunction) actionBarProxy
+						KrollFunction onHomeIconItemSelected = (KrollFunction) actionBarProxy
 							.getProperty(TiC.PROPERTY_ON_HOME_ICON_ITEM_SELECTED);
 						KrollDict event = new KrollDict();
 						event.put(TiC.EVENT_PROPERTY_SOURCE, actionBarProxy);
-						if (onAppIconItemSelected != null) {
-							onAppIconItemSelected.call(activityProxy.getKrollObject(), new Object[] { event });
+						if (onHomeIconItemSelected != null) {
+							onHomeIconItemSelected.call(activityProxy.getKrollObject(), new Object[] { event });
 						}
 					}
 				}
