@@ -875,7 +875,7 @@ function renderTemplate(template, props) {
 				} else if (cmd == 'trim') {
 					value = value.trim();
 				} else if (cmd == 'jsQuoteEscapeFilter') {
-					value = value.replace(/\\"/g,'\\\\\\"');
+					value = value.replace(/"/g, '\\"').replace(/\n/g, '\\n');
 				}
 			});
 		}

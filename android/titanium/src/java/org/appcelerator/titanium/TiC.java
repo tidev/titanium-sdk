@@ -1829,6 +1829,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_TABS = "tabs";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_TAB_OPEN = "tabOpen";
 	
 	/**

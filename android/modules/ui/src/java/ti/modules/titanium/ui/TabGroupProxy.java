@@ -47,6 +47,7 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 	private static final int MSG_REMOVE_TAB = MSG_FIRST_ID + 101;
 	private static final int MSG_SET_ACTIVE_TAB = MSG_FIRST_ID + 102;
 	private static final int MSG_GET_ACTIVE_TAB = MSG_FIRST_ID + 103;
+	private static final int MSG_SET_TABS = MSG_FIRST_ID + 104;
 
 	protected static final int MSG_LAST_ID = MSG_FIRST_ID + 999;
 
@@ -69,13 +70,13 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 	public boolean handleMessage(Message msg)
 	{
 		switch (msg.what) {
-			case MSG_ADD_TAB : {
+			case MSG_ADD_TAB: {
 				AsyncResult result = (AsyncResult) msg.obj;
 				handleAddTab((TabProxy) result.getArg());
 				result.setResult(null);
 				return true;
 			}
-			case MSG_REMOVE_TAB : {
+			case MSG_REMOVE_TAB: {
 				AsyncResult result = (AsyncResult) msg.obj;
 				handleRemoveTab((TabProxy) result.getArg());
 				result.setResult(null);
@@ -90,6 +91,12 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 			case MSG_GET_ACTIVE_TAB: {
 				AsyncResult result = (AsyncResult) msg.obj;
 				result.setResult(handleGetActiveTab());
+				return true;
+			}
+			case MSG_SET_TABS: {
+				AsyncResult result = (AsyncResult) msg.obj;
+				handleSetTabs(result.getArg());
+				result.setResult(null);
 				return true;
 			}
 			default : {
@@ -207,6 +214,30 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 		} else {
 			// Mark this tab to be selected when the tab group opens.
 			selectedTab = tab;
+		}
+	}
+
+	@Kroll.method
+	public void setTabs(Object obj)
+	{
+		if (TiApplication.isUIThread()) {
+			handleSetTabs(obj);
+			return;
+		}
+
+		TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_SET_TABS), obj);
+	}
+
+	private void handleSetTabs(Object obj)
+	{
+		tabs.clear();
+		if (obj instanceof Object[]) {
+			Object[] objArray = (Object[]) obj;
+			for (Object tabProxy : objArray) {
+				if (tabProxy instanceof TabProxy) {
+					handleAddTab((TabProxy) tabProxy);
+				}
+			}
 		}
 	}
 
