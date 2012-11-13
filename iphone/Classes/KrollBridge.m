@@ -453,15 +453,8 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 	}
 	if (exception != NULL) {
 		id excm = [KrollObject toID:context value:exception];
-		TiScriptError *scriptError = nil;
-		if ([excm isKindOfClass:[NSDictionary class]]) {
-			scriptError = [[TiScriptError alloc] initWithDictionary:excm];
-		} else {
-			scriptError = [[TiScriptError alloc] initWithMessage:[excm description] sourceURL:path lineNo:0];
-		}
 		evaluationError = YES;
-		[[TiExceptionHandler defaultExceptionHandler] reportScriptError:scriptError];
-		[scriptError release];
+		[[TiExceptionHandler defaultExceptionHandler] reportScriptError:[TiUtils scriptErrorValue:excm]];
 	}
 	
 	TiStringRelease(jsCode);
@@ -734,14 +727,7 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 	
 	if (exception != NULL) {
 		id excm = [KrollObject toID:context value:exception];
-		TiScriptError *scriptError = nil;
-		if ([excm isKindOfClass:[NSDictionary class]]) {
-			scriptError = [[TiScriptError alloc] initWithDictionary:excm];
-		} else {
-			scriptError = [[TiScriptError alloc] initWithMessage:[excm description] sourceURL:[sourceURL absoluteString] lineNo:0];
-		}
-		[[TiExceptionHandler defaultExceptionHandler] reportScriptError:scriptError];
-		[scriptError release];
+		[[TiExceptionHandler defaultExceptionHandler] reportScriptError:[TiUtils scriptErrorValue:excm]];
 		return nil;
 	}
 	/*
