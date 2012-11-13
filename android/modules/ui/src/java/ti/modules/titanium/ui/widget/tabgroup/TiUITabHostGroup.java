@@ -10,10 +10,12 @@ import java.util.HashMap;
 import java.util.Map.Entry;
 
 import org.appcelerator.kroll.KrollProxy;
+import org.appcelerator.kroll.common.TiMessenger;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.util.TiConvert;
+import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiCompositeLayout;
 
 import ti.modules.titanium.ui.TabGroupProxy;
@@ -178,6 +180,21 @@ public class TiUITabHostGroup extends TiUIAbstractTabGroup
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}
+	}
+
+	@Override
+	public void onFocusChange(final View v, boolean hasFocus)
+	{
+		if (hasFocus) {
+			TiMessenger.postOnMain(new Runnable()
+			{
+				public void run()
+				{
+					TiUIHelper.requestSoftInputChange(proxy, v);
+				}
+			});
+		}
+		// Don't fire focus/blur events here because the the events will be fired through event bubbling.
 	}
 
 }
