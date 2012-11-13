@@ -43,6 +43,7 @@ public class ActivityProxy extends KrollProxy
 	protected Activity wrappedActivity;
 	protected IntentProxy intentProxy;
 	protected DecorViewProxy savedDecorViewProxy;
+	protected ActionBarProxy actionBarProxy;
 
 	private KrollFunction resultCallback;
 	
@@ -221,6 +222,17 @@ public class ActivityProxy extends KrollProxy
 
 		TiBaseActivity tiActivity = (TiBaseActivity) activity;
 		return tiActivity.getWindowProxy();
+	}
+
+	@Kroll.method @Kroll.getProperty
+	public ActionBarProxy getActionBar()
+	{
+		Activity activity = getWrappedActivity();
+		if (actionBarProxy == null && activity != null && Build.VERSION.SDK_INT >= TiC.API_LEVEL_HONEYCOMB) {
+			actionBarProxy = new ActionBarProxy(activity);
+		}
+
+		return actionBarProxy;
 	}
 
 	@Kroll.method
