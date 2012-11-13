@@ -7,6 +7,7 @@
 package ti.modules.titanium.network;
 
 import org.apache.http.MethodNotSupportedException;
+import org.apache.http.auth.AuthSchemeFactory;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
@@ -220,5 +221,16 @@ public class HTTPClientProxy extends KrollProxy
 	public String getDomain()
 	{
 		return client.getDomain();
+	}
+	
+	@Kroll.method
+	public void addAuthFactory(String scheme, Object factory)
+	{
+		//Sanity Checks
+		if ( (scheme == null) || (scheme.length() == 0) || (factory == null) || (! (factory instanceof AuthSchemeFactory) )) {
+			return;
+		}
+		
+		client.addAuthFactory(scheme, (AuthSchemeFactory)factory);
 	}
 }
