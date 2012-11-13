@@ -293,13 +293,13 @@ exports.validate = function (logger, config, cli) {
 		process.exit(1);
 	}
 	
-	if (!Object.keys(sdks).some(function (ver) {
+	if (!cli.argv['ios-version'] || !Object.keys(sdks).some(function (ver) {
 		if (version.eq(ver, cli.argv['ios-version'])) {
 			cli.argv['ios-version'] = ver;
 			return true;
 		}
 	})) {
-		logger.error(__('Unable to find iOS SDK %s', cli.argv['ios-version']) + '\n');
+		logger.error(cli.argv['ios-version'] ? __('Unable to find iOS SDK %s', cli.argv['ios-version']) + '\n' : __('Missing iOS SDK') + '\n');
 		logger.log(__('Available iOS SDK versions:'));
 		Object.keys(sdks).forEach(function (ver) {
 			logger.log('    ' + ver.cyan);
@@ -352,7 +352,7 @@ exports.validate = function (logger, config, cli) {
 		}
 	}
 	
-	if (cli.argv.target != 'simulator') {
+	if (!cli.argv.xcode && cli.argv.target != 'simulator') {
 		if (!iosEnv.certs.wwdr) {
 			logger.error(__('WWDR Intermediate Certificate not found') + '\n');
 			logger.log(__('Download and install the certificate from %s', 'https://developer.apple.com/ios/manage/certificates/team/index.action'.cyan) + '\n');
@@ -463,7 +463,7 @@ exports.validate = function (logger, config, cli) {
 	if (!deviceFamily && deploymentTargets) {
 		// device family was not an environment variable, construct via the tiapp.xml's deployment targets
 		if (deploymentTargets.iphone && deploymentTargets.ipad) {
-			deviceFamily = 'universal';
+			deviceFamily = cli.argv.$originalPlatform == 'ipad' ? 'ipad' : 'universal';
 		} else if (deploymentTargets.iphone) {
 			deviceFamily = 'iphone';
 		} else if (deploymentTargets.ipad) {
@@ -515,8 +515,7 @@ exports.run = function (logger, config, cli, finished) {
 	
 	if (cli.argv.xcode) {
 		// basically, we bypass the pre, post, and finalize hooks for xcode builds
-		var buildObj = new build(logger, config, cli, finished);
-		sendAnalytics(cli);
+		new build(logger, config, cli, finished);
 	} else {
 		cli.fireHook('build.pre.construct', function () {
 			new build(logger, config, cli, function (err) {
@@ -813,22 +812,45 @@ function build(logger, config, cli, finished) {
 							HOME: process.env.HOME,
 							PATH: process.env.PATH
 						}
-					});
-				
-				p.stderr.on('data', function (data) {
-					data.toString().split('\n').forEach(function (line) {
-						line.length && this.logger.error(line);
-					}, this);
-					process.exit(1);
-				}.bind(this));
+					}),
+					out = [],
+					err = [];
 				
 				p.stdout.on('data', function (data) {
 					data.toString().split('\n').forEach(function (line) {
-						line.length && this.logger.trace(line);
+						if (line.length) {
+							out.push(line);
+							this.logger.trace(line);
+						}
+					}, this);
+				}.bind(this));
+				
+				p.stderr.on('data', function (data) {
+					data.toString().split('\n').forEach(function (line) {
+						if (line.length) {
+							err.push(line);
+							this.logger.error(line);
+						}
 					}, this);
 				}.bind(this));
 				
 				p.on('exit', function (code, signal) {
+					if (code) {
+						err = err.join('\n');
+						if (err.indexOf('Check dependencies') != -1) {
+							var len = out.length;
+							for (var i = len - 1; i >= 0; i--) {
+								if (out[i].indexOf('Check dependencies') != -1) {
+									for (var j = i + 1; j < len; j++) {
+										this.logger.error('Error details: ' + out[j]);
+									}
+									break;
+								}
+							}
+						}
+						process.exit(1);
+					}
+					
 					if (!cli.argv['build-only']) {
 						var delta = appc.time.prettyDiff(cli.startTime, Date.now());
 						this.logger.info(__('Finished building the application in %s', delta));
@@ -1108,7 +1130,7 @@ build.prototype = {
 		proj = injectCompileShellScript(
 			proj,
 			'Pre-Compile',
-			'node \\"' + this.cli.argv.$0.replace(/^node /, '') + '\\" build --platform ' +
+			(process.execPath || 'node') + ' \\"' + this.cli.argv.$0.replace(/^node /, '') + '\\" build --platform ' +
 				this.platformName + ' --sdk ' + this.titaniumSdkVersion + ' --no-prompt --no-banner --xcode\\nexit $?'
 		);
 		proj = injectCompileShellScript(
@@ -1638,7 +1660,7 @@ build.prototype = {
 			variables = {},
 			mainContents = fs.readFileSync(path.join(this.titaniumIosSdkPath, 'main.m')).toString().replace(/(__.+__)/g, function (match, key, format) {
 				var s = consts.hasOwnProperty(key) ? consts[key] : key;
-				return typeof s == 'string' ? s.replace(/"/g, '\\"') : s;
+				return typeof s == 'string' ? s.replace(/"/g, '\\"').replace(/\n/g, '\\n') : s;
 			}),
 			xcconfigContents = [
 				'// this is a generated file - DO NOT EDIT',
