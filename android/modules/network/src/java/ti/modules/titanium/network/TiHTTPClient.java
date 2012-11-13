@@ -24,7 +24,9 @@ import java.nio.charset.CharacterCodingException;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -44,6 +46,7 @@ import org.apache.http.NameValuePair;
 import org.apache.http.ParseException;
 import org.apache.http.ProtocolException;
 import org.apache.http.StatusLine;
+import org.apache.http.auth.AuthSchemeFactory;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.Credentials;
 import org.apache.http.auth.NTCredentials;
@@ -147,6 +150,8 @@ public class TiHTTPClient
 	private ArrayList<File> tmpFiles = new ArrayList<File>();
 
 	protected HashMap<String,String> headers = new HashMap<String,String>();
+	
+	private Hashtable<String, AuthSchemeFactory> customAuthenticators = new Hashtable<String, AuthSchemeFactory>(1);
 
 	public static final int READY_STATE_UNSENT = 0; // Unsent, open() has not yet been called
 	public static final int READY_STATE_OPENED = 1; // Opened, send() has not yet been called
@@ -515,6 +520,11 @@ public class TiHTTPClient
 			return TiConvert.toString(proxy.getProperty("domain"));
 		}
 		return null;
+	}
+	
+	public void addAuthFactory(String scheme, AuthSchemeFactory theFactory)
+	{
+		customAuthenticators.put(scheme, theFactory);
 	}
 
 	public void setReadyState(int readyState)
@@ -1143,6 +1153,13 @@ public class TiHTTPClient
 
 				handler = new LocalResponseHandler(TiHTTPClient.this);
 
+				//If there are any custom authentication factories registered with the client add them here
+				Enumeration<String> authSchemes = customAuthenticators.keys();
+				while (authSchemes.hasMoreElements()) {
+					String scheme = authSchemes.nextElement();
+					client.getAuthSchemes().register(scheme, customAuthenticators.get(scheme));
+				}
+				
 				// lazy get client each time in case the validatesSecureCertificate() changes
 				client = getClient(validatesSecureCertificate());
 				if (credentials != null) {
