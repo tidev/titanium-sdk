@@ -19,6 +19,7 @@
 #import "TiFile.h"
 #import "TiBlob.h"
 #import "Base64Transcoder.h"
+#import "TiExceptionHandler.h"
 
 // for checking version
 #import <sys/utsname.h>
@@ -1052,6 +1053,20 @@ If the new path starts with / and the base url is app://..., we have to massage 
 		result = [WebFont defaultFont];
 	}
 	return result;
+}
+
++(TiScriptError*) scriptErrorValue:(id)value;
+{
+	if ((value == nil) || (value == [NSNull null])){
+		return nil;
+	}
+	if ([value isKindOfClass:[TiScriptError class]]){
+		return value;
+	}
+	if ([value isKindOfClass:[NSDictionary class]]) {
+		return [[[TiScriptError alloc] initWithDictionary:value] autorelease];
+	}
+	return [[[TiScriptError alloc] initWithMessage:[value description] sourceURL:nil lineNo:0] autorelease];
 }
 
 +(UITextAlignment)textAlignmentValue:(id)alignment

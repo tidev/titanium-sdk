@@ -422,6 +422,7 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 			scriptError = [[TiScriptError alloc] initWithMessage:[NSString stringWithFormat:@"Error loading script %@. %@",[path lastPathComponent],[error description]] sourceURL:nil lineNo:0];
 		}
 		[[TiExceptionHandler defaultExceptionHandler] reportScriptError:scriptError];
+		[scriptError release];
 		return;
 	}
 	
@@ -460,6 +461,7 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 		}
 		evaluationError = YES;
 		[[TiExceptionHandler defaultExceptionHandler] reportScriptError:scriptError];
+		[scriptError release];
 	}
 	
 	TiStringRelease(jsCode);
@@ -739,6 +741,7 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 			scriptError = [[TiScriptError alloc] initWithMessage:[excm description] sourceURL:[sourceURL absoluteString] lineNo:0];
 		}
 		[[TiExceptionHandler defaultExceptionHandler] reportScriptError:scriptError];
+		[scriptError release];
 		return nil;
 	}
 	/*
