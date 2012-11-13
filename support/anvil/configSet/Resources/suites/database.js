@@ -208,15 +208,21 @@ module.exports = new function() {
 			
 			// Devices with Android API Levels before 8 don't support savepoints causing
 			// a false failure on those devices. Try and detect and only do
-			// this complex test if savepoints work 
+			// this complex test if savepoints work.
 			var savepointSupported = true;
 			try {
 				db.execute('SAVEPOINT test');
 				db.execute('RELEASE SAVEPOINT test');
+
+				// Android 4.1 introduced a bug with savepoint rollbacks:
+				// http://code.google.com/p/android/issues/detail?id=38706
+				if (Ti.Platform.osname == 'android' && Ti.Platform.Android.API_LEVEL >= 16) {
+					savepointSupported = false;
+				}
 			} catch (E) {
 				savepointSupported = false;
 			}
-			
+
 			if (savepointSupported) {
 				db.execute('BEGIN DEFERRED TRANSACTION');
 				db.execute('CREATE TABLE IF NOT EXISTS data (id INTEGER PRIMARY KEY, val TEXT)');
