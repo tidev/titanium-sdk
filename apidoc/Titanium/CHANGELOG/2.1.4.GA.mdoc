@@ -1,0 +1,51 @@
+# Titanium SDK 2.1.4 - 11/12/2012
+
+##### Contents
+
+*   [About This Release](#about)
+*   [Fixed iOS Issues](#ios)
+*   [Fixed Android Issues](#android)
+
+<a name="about"></a>
+
+## About This Release
+
+Titanium SDK 2.1.4 is a service pack release of the of Titanium SDK,
+addressing high-priority issues in previous releases.
+
+This release has been tested with the iPad Mini, iPad 4th Generation, iOS 6.0.1 and 
+Xcode 4.5.2.
+
+This release has been tested on computers running Windows 8.
+
+* [Full list of Issues that were addressed in Release 2.1.4](http://jira.appcelerator.org/secure/IssueNavigator.jspa?mode=hide&requestId=14177)
+
+<a name="ios"></a>
+
+## Fixed iOS Issues
+
+This section lists all iOS issues fixed in this release.
+
+*   [TIMOB-10330](https://jira.appcelerator.org/browse/TIMOB-10330) iOS: ScrollView: When 'layout' is 'horizontal', content height is not calculated correctly.
+*   [TIMOB-10865](https://jira.appcelerator.org/browse/TIMOB-10865) iOS: builder.py adhoc build does not copy resources into project. This fixes a regression in Release 2.1.3.
+*   [TIMOB-11198](https://jira.appcelerator.org/browse/TIMOB-11198) iOS: KitchenSink WebViews - An image disappears after reloading a page. This fixes a regression introduced by another web view fix in Release 2.1.3. The regression only occurred on iOS 6 devices.
+*   [TIMOB-11250](https://jira.appcelerator.org/browse/TIMOB-11250) iOS: blur() method fails to blur keyboard on textfields with custom toolbar. This fixes a regression in Release 2.1.3.
+*   [TIMOB-11275](https://jira.appcelerator.org/browse/TIMOB-11275) iOS: Click event is fired even when click is outside the icon of an item in the Titanium.UI.DashboardView.
+*   [TIMOB-11285](https://jira.appcelerator.org/browse/TIMOB-11285) iOS: TextField.blur is having a strange race condition when blurring a textfield and then opening a window. This fix ensures that the keyboard is always dismissed when opening a new window.
+*   [TIMOB-11306](https://jira.appcelerator.org/browse/TIMOB-11306) iOS: Subversion directories and files present in .IPA. Fixes a regression where extraneous files were included in the .ipa file.
+*   [TIMOB-11561](https://jira.appcelerator.org/browse/TIMOB-11561) iOS: KeyboardToolbar of textField not being displayed on textField.focus().  This fixes a regression in Release 2.1.3. It occured only in the unlikely event of calling focus from the blur event handler.
+
+<a name="android"></a>
+
+## Fixed Android Issues
+
+*   [TIMOB-9994](https://jira.appcelerator.org/browse/TIMOB-9994)  Android: postlayout
+    event not fired for labels.
+*   [TIMOB-11358](https://jira.appcelerator.org/browse/TIMOB-11358) Android: Many calls to
+    getFile causes local reference table overflow.
+*   [TIMOB-11508](https://jira.appcelerator.org/browse/TIMOB-11508) Android: Adding WebView to ScrollView 
+    causes ScrollView to be initialized scrolled-down.
+*   [TIMOB-11543](https://jira.appcelerator.org/browse/TIMOB-11543) Android:
+    Checkbox-style switch missing label.
+
+
