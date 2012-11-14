@@ -77,6 +77,8 @@ static NSUncaughtExceptionHandler *prevUncaughtExceptionHandler = NULL;
 @synthesize message = _message;
 @synthesize sourceURL = _sourceURL;
 @synthesize lineNo = _lineNo;
+@synthesize dictionaryValue = _dictionaryValue;
+@synthesize backTrace = _backTrace;
 
 - (id)initWithMessage:(NSString *)message sourceURL:(NSString *)sourceURL lineNo:(NSInteger)lineNo
 {
@@ -94,13 +96,21 @@ static NSUncaughtExceptionHandler *prevUncaughtExceptionHandler = NULL;
 	NSString *message = [[dictionary objectForKey:@"message"] description];
 	NSString *sourceURL = [[dictionary objectForKey:@"sourceURL"] description];
 	NSInteger lineNo = [[dictionary objectForKey:@"line"] integerValue];
-    return [self initWithMessage:message sourceURL:sourceURL lineNo:lineNo];
+
+	self = [self initWithMessage:message sourceURL:sourceURL lineNo:lineNo];
+	if (self) {
+		_backTrace = [[[dictionary objectForKey:@"sourceURL"] description] copy];
+		_dictionaryValue = [dictionary copy];
+	}
+	return self;
 }
 
 - (void)dealloc
 {
 	RELEASE_TO_NIL(_message);
 	RELEASE_TO_NIL(_sourceURL);
+	RELEASE_TO_NIL(_backTrace);
+	RELEASE_TO_NIL(_dictionaryValue);
     [super dealloc];
 }
 
