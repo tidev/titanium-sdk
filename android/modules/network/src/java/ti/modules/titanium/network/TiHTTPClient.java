@@ -496,7 +496,7 @@ public class TiHTTPClient
 		Log.d(TAG, "Setting ready state to " + readyState, Log.DEBUG_MODE);
 		this.readyState = readyState;
 
-		dispatchCallback("onreadystatechanged", null);
+		dispatchCallback("onreadystatechange", null);
 
 		if (readyState == READY_STATE_DONE) {
 			dispatchCallback("onload", null);
