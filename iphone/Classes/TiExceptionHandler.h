@@ -15,12 +15,12 @@
 @interface TiScriptError : NSObject
 
 /**
- * Returns source URL where error happenned.
+ * Returns source URL where error happened.
  */
 @property (nonatomic, readonly) NSString *sourceURL;
 
 /**
- * Returns line number where error happenned.
+ * Returns line number where error happened.
  */
 @property (nonatomic, readonly) NSInteger lineNo;
 
@@ -28,6 +28,16 @@
  * Returns error related message
  */
 @property (nonatomic, readonly) NSString *message;
+
+/**
+ * If created with a dictionary, returns the creating dictionary. Otherwise, may be nil.
+ */
+@property (nonatomic, readonly) NSDictionary *dictionaryValue;
+
+/**
+ * Returns the call stack as a static string. May or may not include the most recent function.
+ */
+@property (nonatomic, readonly)	NSString *backTrace;
 
 - (id)initWithMessage:(NSString *)message sourceURL:(NSString *)sourceURL lineNo:(NSInteger)lineNo;
 - (id)initWithDictionary:(NSDictionary *)dictionary;
