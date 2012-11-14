@@ -37,7 +37,7 @@
 /**
  * Returns the call stack as a static string. May or may not include the most recent function.
  */
-@property (nonatomic, readonly)	NSString *backTrace;
+@property (nonatomic, readonly)	NSString *backtrace;
 
 - (id)initWithMessage:(NSString *)message sourceURL:(NSString *)sourceURL lineNo:(NSInteger)lineNo;
 - (id)initWithDictionary:(NSDictionary *)dictionary;
