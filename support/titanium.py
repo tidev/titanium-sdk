@@ -51,6 +51,8 @@ def detect_platforms(dir):
 		platforms.append('android')
 	if os.path.exists(os.path.join(dir,'mobileweb')):
 		platforms.append('mobileweb')
+	if os.path.exists(os.path.join(dir,'blackberry')):
+		platforms.append('blackberry')
 	return platforms
 	
 def check_valid_project(dir,cwd):
@@ -139,7 +141,7 @@ def create_android_project(project_dir, osname, args):
 def create_android_module(project_dir, osname, args):
 	script = os.path.join(template_dir, 'module', 'module.py')
 	
-	name = get_required(args, 'name').lower()
+	name = get_required(args, 'name')
 	validate_project_name(name)
 	appid = get_required(args, 'id')
 	android_sdk = get_android_sdk(args)
@@ -178,6 +180,39 @@ def create_mobileweb_module(project_dir, osname, args):
 	else:
 		die("Aborting")
 
+# Stub method for blackberry project creation
+# TODO Mac:Configure for blackberry
+def create_blackberry_project(project_dir, osname, args):
+	script = os.path.join(template_dir, 'project.py')
+	name = get_required(args, 'name')
+	validate_project_name(name)
+	appid = get_required(args, 'id') # TODO Mac:Need to figure out how do we need it in project.py for blackberry. It is different from android id
+	blackberry_ndk = get_blackberry_ndk(args) 
+	args = [script, name, appid, project_dir, osname, blackberry_ndk]
+	retcode = fork(args, True)
+	if retcode == 0:
+		print "Created %s application project" % osname
+		return os.path.join(project_dir, name)
+	else:
+		die("Aborting")
+
+# Stub method for blackberry method creation
+# TODO Mac:Configure for blackberry
+def create_blackberry_module(project_dir, osname, args):
+	script = os.path.join(template_dir, 'module', 'module.py')
+	name = get_required(args, 'name')
+	validate_project_name(name)
+	appid = get_required(args, 'id') # TODO Mac:Need to figure out how do we need it in project.py for blackberry. It is different from android id
+	blackberry_ndk = get_blackberry_ndk(args) 
+	args = [script, '--name', name, '--id', appid, '--directory', project_dir, '--platform', osname, '--sdk', blackberry_ndk]
+	
+	retcode = fork(args, False)
+	if retcode == 0:
+		print "Created %s module project" % osname
+		return os.path.join(project_dir, name)
+	else:
+		die("Aborting")
+
 def create_mobile_project(osname, project_dir, args):
 	if is_ios(osname):
 		return create_iphone_project(project_dir, osname, args)
@@ -185,6 +220,8 @@ def create_mobile_project(osname, project_dir, args):
 		return create_android_project(project_dir, osname, args)
 	elif osname == 'mobileweb':
 		return create_mobileweb_project(project_dir, osname, args)
+	elif osname == 'blackberry':
+		return create_blackberry_project(project_dir, osname, args)
 	else:
 		die("Unknown platform: %s" % osname)
 
@@ -195,6 +232,8 @@ def create_module_project(osname, project_dir, args):
 		return create_android_module(project_dir, osname, args)
 	elif osname == 'mobileweb':
 		return create_mobileweb_module(project_dir, osname, args)
+	elif osname == 'blackberry':
+		return create_blackberry_module(project_dir, osname, args)
 	else:
 		die("Unknown platform: %s" % osname)
 
@@ -275,6 +314,9 @@ def run_project_args(args,script,project_dir,platform):
 	if platform == "android":
 		android_sdk = get_android_sdk(args)
 		return [script, "run", project_dir, android_sdk]
+	elif platform == "blackberry":
+		blackberry_ndk = get_blackberry_ndk(args)
+		return [script, "run", project_dir, blackberry_ndk]
 
 	return [script, "run", project_dir]
 
@@ -387,6 +429,8 @@ def package(args):
 def emulator_args(args, script, project_dir, platform):
 	if platform == 'android':
 		return [script, 'run-emulator', platform, project_dir]
+	elif platform == 'blackberry':
+		return [script, 'run-simulator', platform, project_dir]
 
 def emulator(args):
 	dyn_run(args, emulator_args, emulator_args)

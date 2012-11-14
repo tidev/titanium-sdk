@@ -6,10 +6,11 @@
 import os, sys, subprocess, shutil, codecs, optparse
 
 usage="""
-%s <name> <id> <directory> [iphone,android,mobileweb] [android_sdk] [--update-platforms]
+%s <name> <id> <directory> [iphone,android,mobileweb,blackberry] [android_sdk] [--blackberry_ndk BLACKBERRY_NDK] [--update-platforms]
 """ % os.path.basename(__file__)
 
 parser = optparse.OptionParser(usage=usage)
+parser.add_option('--blackberry_ndk', help='BlackBerry NDK home')
 parser.add_option('-u', '--update-platforms', dest='update_platforms',
 		help='Initialize project for any missing platforms. Use this to add a platform to the project without overwriting tiapp.xml and app.js.',
 		action='store_true', default=False)
@@ -34,6 +35,8 @@ def main(args, update_platforms=False):
 	android_sdk = None
 	sdk = None
 	mobileweb = False
+	blackberry = False
+	blackberry_ndk = None
 
 	if is_iphone(args[4]) or (argc > 5 and is_iphone(args[5])) or (argc > 6 and is_iphone(args[6])):
 		iphone = True
@@ -41,6 +44,8 @@ def main(args, update_platforms=False):
 		android = True
 	if args[4] == 'mobileweb' or (argc > 5 and args[5] == 'mobileweb') or (argc > 6 and args[6] == 'mobileweb'):
 		mobileweb = True
+	if args[4] == 'blackberry' or (argc > 5 and args[5] == 'blackberry') or (argc > 6 and args[6] == 'blackberry'):
+		blackberry = True
 
 	if android:
 		sys.path.append(os.path.join(os.path.dirname(args[0]), "android"))
@@ -48,6 +53,18 @@ def main(args, update_platforms=False):
 		android_sdk = args[argc-1].decode("utf-8")
 		try:
 			sdk = AndroidSDK(android_sdk)
+		except Exception, e:
+			print >>sys.stderr, e
+			sys.exit(1)
+
+	if blackberry:
+		sys.path.append(os.path.join(os.path.dirname(args[0]), "blackberry"))
+		from blackberryndk import BlackberryNDK
+		blackberry_ndk = options.blackberry_ndk and options.blackberry_ndk.decode("utf-8")
+		try:
+			bbndk = BlackberryNDK(blackberry_ndk)
+			if blackberry_ndk is None:
+				blackberry_ndk = bbndk.getBlackberryNdk()
 		except Exception, e:
 			print >>sys.stderr, e
 			sys.exit(1)
@@ -110,6 +127,12 @@ def main(args, update_platforms=False):
 			os.makedirs(mobileweb_resources)
 		mobileweb_gen = os.path.join(template_dir,'mobileweb','mobileweb.py')
 		run_args = [sys.executable, mobileweb_gen, name, appid, directory]
+		run(run_args)
+
+	blackberry_resources = os.path.join(resources_dir, 'blackberry')
+	if blackberry and (not update_platforms or not os.path.exists(blackberry_resources)):
+		blackberry_gen = os.path.join(template_dir,'blackberry','blackberry.py')
+		run_args = [sys.executable, blackberry_gen, '--name', name, '--id', appid, '--dir', directory, '--ndk', blackberry_ndk]
 		run(run_args)
 
 	if not update_platforms:
