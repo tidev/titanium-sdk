@@ -61,6 +61,8 @@ public class TiFileHelper
 	private SoftReference<Context> softContext;
 	private TiNinePatchHelper nph;
 	
+	private ArrayList<File> tempFiles = new ArrayList<File>();
+
 	private static HashSet<String> resourcePathCache;
 	private static HashSet<String> foundResourcePathCache;
 	private static HashSet<String> notFoundResourcePathCache;
@@ -585,6 +587,25 @@ public class TiFileHelper
 				Log.w(LCAT, "getTempFile: Directory '" + dir.getAbsolutePath() + "' does not exist. Call to File.createTempFile() will fail." );
 			}
 			result = File.createTempFile("tia", suffix, dir);
+		}
+		return result;
+	}
+
+	public File getTempFile(File dir, String suffix, boolean destroyOnExit)
+		throws IOException
+	{
+		File result = null;
+		Context context = softContext.get();
+		if (context != null) {
+			if (!dir.exists()) {
+				Log.w(LCAT, "getTempFile: Directory '" + dir.getAbsolutePath()
+					+ "' does not exist. Call to File.createTempFile() will fail.");
+			}
+			result = File.createTempFile("tia", suffix, dir);
+
+			if (destroyOnExit) {
+				tempFiles.add(result);
+			}
 		}
 		return result;
 	}
