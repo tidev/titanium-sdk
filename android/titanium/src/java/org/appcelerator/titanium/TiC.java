@@ -448,6 +448,8 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String EVENT_UNFOCUSED = "unfocused";
+	public static final String INTENT_PROPERTY_ENTER_ANIMATION = "enterAnimation";
+	public static final String INTENT_PROPERTY_EXIT_ANIMATION = "exitAnimation";
 	public static final String INTENT_PROPERTY_FINISH_ROOT = "finishRoot";
 	public static final String INTENT_PROPERTY_IS_TAB = "isTab";
 	public static final String INTENT_PROPERTY_LAYOUT = "layout";
@@ -519,6 +521,16 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_ACTIVITY = "activity";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_ACTIVITY_ENTER_ANIMATION = "activityEnterAnimation";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_ACTIVITY_EXIT_ANIMATION = "activityExitAnimation";
 
 	/**
 	 * @module.api

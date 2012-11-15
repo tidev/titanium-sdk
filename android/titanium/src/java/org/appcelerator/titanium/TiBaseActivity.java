@@ -472,6 +472,26 @@ public abstract class TiBaseActivity extends Activity
 
 		Intent intent = getIntent();
 		if (intent != null) {
+
+			// Activity transition
+			final int NO_VAL = -1;
+			int enterAnim = intent.getIntExtra(TiC.INTENT_PROPERTY_ENTER_ANIMATION, NO_VAL);
+			int exitAnim = intent.getIntExtra(TiC.INTENT_PROPERTY_EXIT_ANIMATION, NO_VAL);
+
+			if (enterAnim != NO_VAL || exitAnim != NO_VAL) {
+				// If one of them is set, set both of them since
+				// overridePendingTransition requires both.
+				if (enterAnim == NO_VAL) {
+					enterAnim = 0;
+				}
+
+				if (exitAnim == NO_VAL) {
+					exitAnim = 0;
+				}
+
+				this.overridePendingTransition(enterAnim, exitAnim);
+			}
+
 			if (intent.hasExtra(TiC.INTENT_PROPERTY_MESSENGER)) {
 				messenger = (Messenger) intent.getParcelableExtra(TiC.INTENT_PROPERTY_MESSENGER);
 				msgActivityCreatedId = intent.getIntExtra(TiC.INTENT_PROPERTY_MSG_ACTIVITY_CREATED_ID, -1);
@@ -1180,7 +1200,7 @@ public abstract class TiBaseActivity extends Activity
 		}
 
 		if (!animate) {
-			TiUIHelper.overridePendingTransition(this);
+			this.overridePendingTransition(0, 0); // Suppress default transition.
 		}
 	}
 
