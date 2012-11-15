@@ -192,7 +192,7 @@ properties:
         Before the window is opened, `activity` refers to a plain JS object,
         which can be used to set Titanium.Android.Activity properties.
         Once the window is opened, the Activity proxy is created,
-        then `activty` can use the Titanium.Android.Acritivy methods.
+        then `activity` can use the Titanium.Android.Activity methods.
     platforms: [android]
     type: Titanium.Android.Activity
 
