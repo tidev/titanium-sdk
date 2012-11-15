@@ -14,6 +14,13 @@ description: |
     new `Activity`. A *lightweight* window runs inside the same activity as the code that
     created it. 
 
+    When a window is created, the `activity` property refers to a plain JavaScript object.
+    You can use it, for example, to add an options menu by setting `onCreateOptionsMenu`.
+    After the window is opened, a real Activity proxy is created and the properties from
+    the JS object are copied over.  The `activity` property  now refers to this real activity proxy,
+    which you can use to call the various Activity methods. For example, to use the
+    `invalidateOptionsMenu` method, you need to get the activity proxy after the window is opened.
+
     See: [android.app.Activity](http://developer.android.com/reference/android/app/Activity.html)
     in the Android API Reference.
 
