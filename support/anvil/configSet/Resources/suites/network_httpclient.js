@@ -23,7 +23,9 @@ module.exports = new function() {
 		{name: "requestHeaderMethods", timeout: 30000},
 		{name: "clearCookiePositiveTest", timeout: 30000},
 		{name: "clearCookieUnaffectedCheck", timeout: 30000},
-		{name: "setCookieClearCookieWithMultipleHTTPClients", timeout: 30000}
+		{name: "setCookieClearCookieWithMultipleHTTPClients", timeout: 30000},
+		{name: "callbackTestForGETMethod", timeout: 30000},
+		{name: "callbackTestForPOSTMethod", timeout: 30000}
 	]
 
 	this.apiTest = function(testRun) {
@@ -259,5 +261,73 @@ module.exports = new function() {
 
 		xhr.open('GET', testServer + '?count=2&clear=false');
 		xhr.send();
+	}
+
+	// http://jira.appcelerator.org/browse/TIMOB-11751
+	this.callbackTestForGETMethod = function(testRun) {
+		var callback_error = function(e){
+			Ti.API.debug(e);
+			valueOf(testRun, true).shouldBeFalse();
+		};
+		var xhr = Ti.Network.createHTTPClient();
+		xhr.setTimeout(30000);
+		var dataStreamFinished = false;
+		xhr.onreadystatechange = function(e) {
+			if (this.readyState == this.DONE && dataStreamFinished) {
+				finish(testRun);
+			}
+		};
+		xhr.ondatastream = function(e) {
+			if (!e.progress) {
+				callback_error("Errors in ondatastream");
+			}
+			if (e.progress >= 0.99) {
+				dataStreamFinished = true;
+			}
+		};
+		xhr.onerror = function(e) {
+			callback_error(e);
+		};
+
+		xhr.open('GET','http://www.appcelerator.com/assets/The_iPad_App_Wave.pdf');
+		xhr.send();
+	}
+
+	this.callbackTestForPOSTMethod = function(testRun) {
+		var callback_error = function(e){
+			Ti.API.debug(e);
+			valueOf(testRun, true).shouldBeFalse();
+		};
+		var xhr = Ti.Network.createHTTPClient();
+		xhr.setTimeout(30000);
+		var sendStreamFinished = false;
+		xhr.onreadystatechange = function(e) {
+			if (this.readyState == this.DONE && sendStreamFinished) {
+				finish(testRun);
+			}
+		};
+		xhr.onsendstream = function(e) {
+			if (!e.progress) {
+				callback_error("Errors in onsendstream");
+			}
+			if (e.progress >= 0.99) {
+				sendStreamFinished = true;
+			}
+		};
+		xhr.onerror = function(e) {
+			callback_error(e);
+		};
+
+		var buffer = Ti.createBuffer({
+			length : 1024 * 10
+		}).toBlob();
+
+		xhr.open('POST', 'https://twitpic.com/api/uploadAndPost');
+		xhr.send({
+			data : buffer,
+			username : 'fgsandford1000',
+			password : 'sanford1000',
+			message : 'check me out'
+		});
 	}
 }
