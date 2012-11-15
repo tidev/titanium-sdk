@@ -282,7 +282,7 @@ public class TiC
 	/**
 	 * @module.api
 	 */
-	public static final String EVENT_PROPERTY_PLAYBACK_STATE = EVENT_PLAYBACK_STATE;
+	public static final String EVENT_PROPERTY_PLAYBACK_STATE = "playbackState";
 
 	/**
 	 * @module.api
@@ -1428,6 +1428,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_OKID = "okid";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_ON_HOME_ICON_ITEM_SELECTED = "onHomeIconItemSelected";
 
 	/**
 	 * @module.api

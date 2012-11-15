@@ -100,7 +100,7 @@ TiUIiPadPopoverProxy * currentlyDisplaying = nil;
 {
     CGSize newSize = [self contentSize];
     [[self viewController] setContentSizeForViewInPopover:newSize];
-	[self layoutChildren:NO];
+    [self reposition];
 }
 
 #pragma mark Accessors

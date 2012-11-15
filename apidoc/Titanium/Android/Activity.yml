@@ -225,6 +225,14 @@ events:
 
 properties:
 
+  - name: actionBar
+    summary: The action bar for this activity.
+    description: |
+        See also: [Action Bar](http://developer.android.com/guide/topics/ui/actionbar.html) in
+        the Android Developer Reference.
+    type: Titanium.Android.ActionBar
+    permission: read-only
+
   - name: intent
     summary: The `Intent` that was used to start this Activity.
     type: Titanium.Android.Intent
