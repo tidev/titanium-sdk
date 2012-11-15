@@ -52,8 +52,9 @@ import android.webkit.URLUtil;
 
 public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler.Callback
 {
+	private static final Object singleObject = new Object();
 	private static final String TAG = "TiUIImageView";
-	private final AtomicInteger imageTokenGenerator = new AtomicInteger(0); // static
+	private static final AtomicInteger imageTokenGenerator = new AtomicInteger(0);
 	private static final int FRAME_QUEUE_SIZE = 5;
 	public static final int INFINITE = 0;
 	public static final int MIN_DURATION = 30;
@@ -84,6 +85,7 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 	private TiDrawableReference defaultImageSource;
 	private int decodeRetries = 0;
 	private Object releasedLock = new Object();
+	private String currentUrl;
 	
 	final class ImageDownloadListener implements TiDownloadListener {
 		public int mToken;
@@ -93,6 +95,8 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 			mToken = token;
 			mImageArgs = imageArgs;
 		}
+		
+		public ImageDownloadListener() {}
 		
 		public int getToken() {
 			return mToken;
@@ -104,12 +108,24 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 				// The requested image did not make it into our TiResponseCache,
 				// possibly because it had a header forbidding that. Now get it
 				// via the "old way" (not relying on cache).
-				mImageArgs.mImageref.getBitmapAsync(new BgImageLoader(mImageArgs.mRequestedWidth, 
-							mImageArgs.mRequestedHeight, mToken));
+				synchronized (imageTokenGenerator) {
+					token = imageTokenGenerator.incrementAndGet();
+					if (uri.toString().equals(currentUrl))
+					{
+						makeImageSource(uri.toString()).getBitmapAsync(new BgImageLoader(requestedWidth, 
+									requestedHeight, token));
+					}
+				}
 			} else {
 				firedLoad = false;
-				BackgroundImageTask task = new BackgroundImageTask();
-				task.execute(mImageArgs);
+				if (uri.toString().equals(currentUrl)) {
+					ImageArgs imageArgs = new ImageArgs(makeImageSource(uri.toString()), getParentView(), requestedWidth, 
+							requestedHeight, 
+							true,  
+							false);
+					BackgroundImageTask task = new BackgroundImageTask();
+					task.execute(imageArgs);
+				}	
 			}
 		}
 
@@ -120,6 +136,8 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 			fireError();
 		}
 	};
+	
+	ImageDownloadListener imageDownloadListener = new ImageDownloadListener();
 
 	private class BgImageLoader extends TiBackgroundImageLoadTask
 	{
@@ -727,19 +745,17 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 		public TiDrawableReference mImageref;
 		public TiDimension mRequestedWidth;
 		public TiDimension mRequestedHeight;
-		public int mToken;
 		public boolean mNetworkURL;
 		
 		
 		public ImageArgs(TiDrawableReference imageref, View view, 
 				TiDimension requestedWidth, TiDimension requestedHeight, boolean recycle,
-				int token, boolean networkURL) {
+				boolean networkURL) {
 			mView = view;
 			mImageref = imageref;
 			mRequestedWidth = requestedWidth;
 			mRequestedHeight = requestedHeight;
 			mRecycle = recycle;
-			mToken = token;
 			mNetworkURL = networkURL;
 	
 			
@@ -748,7 +764,6 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 	
 	final class BackgroundImageTask extends AsyncTask<ImageArgs, Void, Bitmap> {
 		private boolean recycle;
-		private int mToken;
 		private boolean mNetworkURL;
 		private boolean mAsync = false;
 		
@@ -757,14 +772,14 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
  
                 final int i = 0;
                 recycle = params[i].mRecycle;
-                mToken = params[i].mToken;
                 mNetworkURL = params[i].mNetworkURL;
                 Bitmap bitmap = null;
 
                 if (mNetworkURL) {
-    				boolean getAsync = false;
+    				boolean getAsync = true;
     				try {
     					String imageUrl = TiUrl.getCleanUri(params[i].mImageref.getUrl()).toString();
+    					currentUrl = imageUrl;
     					
     					URI uri = new URI(imageUrl);
     					getAsync = !TiResponseCache.peek(uri);	// expensive, don't want to do in UI thread
@@ -783,18 +798,18 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
     					// of the AsyncTask threads it will throw an exception.
     					//
     					mAsync = true;
-    					proxy.getMainHandler().post(new Runnable()
+    					
+    					TiMessenger.getMainMessenger().post(new Runnable()
     					{
     						@Override
     						public void run()
     						{
-    	    					ImageDownloadListener listener = new ImageDownloadListener(token, params[i]);
-    	    					params[i].mImageref.getBitmapAsync(listener);
+    	    					params[i].mImageref.getBitmapAsync(imageDownloadListener);
+    				
     						}
     					});
 
     				} else {
-                	
     					bitmap = (params[i].mImageref).getBitmap(
                 			params[i].mView, 
                 			params[i].mRequestedWidth, 
@@ -813,14 +828,9 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
         
         @Override
         protected void onPostExecute(Bitmap result) {
-				if (result != null) {
-					
-					
-					synchronized (imageTokenGenerator) {
-						//if (this.mToken == imageTokenGenerator.get()) {
-							setImage(result);
-						//}
-					}
+
+				if (result != null) {		
+						setImage(result);
 	
 					if (!firedLoad) {
 						fireLoad(TiC.PROPERTY_IMAGE);
@@ -874,14 +884,14 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 					setImage(null);
 				}
 
-				ImageArgs imageArgs = new ImageArgs(imageref, getParentView(), requestedWidth, requestedHeight, recycle, myToken,
+				ImageArgs imageArgs = new ImageArgs(imageref, getParentView(), requestedWidth, requestedHeight, recycle,
 								true);
 					
 				BackgroundImageTask task = new BackgroundImageTask();
 				task.execute(imageArgs);
 
 			} else {
-				ImageArgs imageArgs = new ImageArgs(imageref, getParentView(), requestedWidth, requestedHeight, recycle, myToken,
+				ImageArgs imageArgs = new ImageArgs(imageref, getParentView(), requestedWidth, requestedHeight, recycle,
 						false);
 				
 				BackgroundImageTask task = new BackgroundImageTask();
