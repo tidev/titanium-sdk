@@ -52,7 +52,6 @@ import android.webkit.URLUtil;
 
 public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler.Callback
 {
-	private static final Object singleObject = new Object();
 	private static final String TAG = "TiUIImageView";
 	private static final AtomicInteger imageTokenGenerator = new AtomicInteger(0);
 	private static final int FRAME_QUEUE_SIZE = 5;
@@ -766,6 +765,7 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 		private boolean recycle;
 		private boolean mNetworkURL;
 		private boolean mAsync = false;
+		private String mUrl;
 		
         @Override
         protected Bitmap doInBackground(final ImageArgs... params) {
@@ -774,12 +774,13 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
                 recycle = params[i].mRecycle;
                 mNetworkURL = params[i].mNetworkURL;
                 Bitmap bitmap = null;
+                
+                mUrl = params[i].mImageref.getUrl();
 
                 if (mNetworkURL) {
     				boolean getAsync = true;
     				try {
     					String imageUrl = TiUrl.getCleanUri(params[i].mImageref.getUrl()).toString();
-    					currentUrl = imageUrl;
     					
     					URI uri = new URI(imageUrl);
     					getAsync = !TiResponseCache.peek(uri);	// expensive, don't want to do in UI thread
@@ -797,6 +798,7 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
     					// We've got to start the download back on the UI thread, if we do it on one
     					// of the AsyncTask threads it will throw an exception.
     					//
+    					
     					mAsync = true;
     					
     					TiMessenger.getMainMessenger().post(new Runnable()
@@ -828,8 +830,9 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
         
         @Override
         protected void onPostExecute(Bitmap result) {
-
-				if (result != null) {		
+        	if (currentUrl.equals(mUrl)) {
+				if (result != null) {	
+					
 						setImage(result);
 	
 					if (!firedLoad) {
@@ -841,6 +844,7 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 						retryDecode(recycle);
 					}
 				}
+        	}
         }
 	}
 	
@@ -883,6 +887,8 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 				} else {
 					setImage(null);
 				}
+				currentUrl = imageref.getUrl();
+				Log.i("com.example.kitcehsink",  "currentUrl = " + currentUrl);
 
 				ImageArgs imageArgs = new ImageArgs(imageref, getParentView(), requestedWidth, requestedHeight, recycle,
 								true);
@@ -891,6 +897,9 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 				task.execute(imageArgs);
 
 			} else {
+				currentUrl = imageref.getUrl();
+				Log.i("com.example.kitcehsink",  "currentUrl = " + currentUrl);
+				
 				ImageArgs imageArgs = new ImageArgs(imageref, getParentView(), requestedWidth, requestedHeight, recycle,
 						false);
 				
