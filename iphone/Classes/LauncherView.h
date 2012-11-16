@@ -101,6 +101,8 @@
 
 - (BOOL)launcherViewShouldWobble:(LauncherView*)launcher;
 
+- (void)launcherView:(LauncherView*)launcher didChangePage:(NSNumber*)pageNo;
+
 @end
 
 #endif

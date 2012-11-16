@@ -120,6 +120,15 @@ events:
         summary: List of items to be committed, possibly in new order, when edit mode ends.
         type: Array<Titanium.UI.DashboardItem>
 
+  - name: pagechanged
+    summary: Fired when the current page of the dashboard view changes.
+    properties:
+      - name: pageNo
+        summary: The current page number.
+        type: Number
+    since: '3.1.0'
+        
+
 methods:
   - name: startEditing
     summary: Enable edit mode.
