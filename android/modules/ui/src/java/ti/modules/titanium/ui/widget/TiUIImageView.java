@@ -733,11 +733,6 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 		}
 	}
 	
-	private void setImage(boolean recycle)
-	{
-		doSetImage(recycle);
-	}
-	
 	final class ImageArgs {
 		public View mView;
 		public boolean mRecycle;
@@ -848,7 +843,7 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
         }
 	}
 	
-	private void doSetImage(boolean recycle) {
+	private void setImage(boolean recycle) {
 		synchronized (imageTokenGenerator) {
 			token = imageTokenGenerator.incrementAndGet();
 		}
@@ -888,7 +883,6 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 					setImage(null);
 				}
 				currentUrl = imageref.getUrl();
-				Log.i("com.example.kitcehsink",  "currentUrl = " + currentUrl);
 
 				ImageArgs imageArgs = new ImageArgs(imageref, getParentView(), requestedWidth, requestedHeight, recycle,
 								true);
@@ -898,7 +892,6 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 
 			} else {
 				currentUrl = imageref.getUrl();
-				Log.i("com.example.kitcehsink",  "currentUrl = " + currentUrl);
 				
 				ImageArgs imageArgs = new ImageArgs(imageref, getParentView(), requestedWidth, requestedHeight, recycle,
 						false);
