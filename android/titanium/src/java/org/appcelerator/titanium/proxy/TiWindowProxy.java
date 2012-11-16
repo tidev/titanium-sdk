@@ -123,8 +123,8 @@ public abstract class TiWindowProxy extends TiViewProxy
 			if (arg instanceof KrollDict) {
 				options = (KrollDict) arg;
 
-			} else if (arg instanceof HashMap) {
-				options = new KrollDict((HashMap) arg);
+			} else if (arg instanceof HashMap<?, ?>) {
+				options = new KrollDict((HashMap<String, Object>) arg);
 
 			} else if (arg instanceof TiAnimation) {
 				options = new KrollDict();
@@ -146,6 +146,7 @@ public abstract class TiWindowProxy extends TiViewProxy
 		opening = false;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Kroll.method
 	public void close(@Kroll.argument(optional = true) Object arg)
 	{
@@ -154,8 +155,8 @@ public abstract class TiWindowProxy extends TiViewProxy
 		TiAnimation animation = null;
 
 		if (arg != null) {
-			if (arg instanceof HashMap) {
-				options = new KrollDict((HashMap) arg);
+			if (arg instanceof HashMap<?, ?>) {
+				options = new KrollDict((HashMap<String, Object>) arg);
 
 			} else if (arg instanceof TiAnimation) {
 				options = new KrollDict();
@@ -384,7 +385,7 @@ public abstract class TiWindowProxy extends TiViewProxy
 		return orientationModes;
 	}
 
-	
+
 	// Expose the method and property here, instead of in KrollProxy
 	@Kroll.method(name = "getActivity") @Kroll.getProperty(name = "_internalActivity")
 	public ActivityProxy getActivityProxy()
