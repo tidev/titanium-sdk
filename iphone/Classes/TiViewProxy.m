@@ -2189,8 +2189,17 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
 		}
 	}
 	pthread_rwlock_unlock(&childrenLock);
-
-	[ourView insertSubview:childView atIndex:result];
+    if (result == 0) {
+        [ourView insertSubview:childView atIndex:result];
+    }
+    else {
+        //Doing a blind insert at index messes up the underlying sublayer indices
+        //if there are layers which do not belong to subviews (backgroundGradient)
+        //So ensure the subview layer goes at the right index
+        //See TIMOB-11586 for fail case
+        UIView *sibling = [[ourView subviews] objectAtIndex:result-1];
+        [ourView insertSubview:childView aboveSubview:sibling];
+    }
 }
 
 
