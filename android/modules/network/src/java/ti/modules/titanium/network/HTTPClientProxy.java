@@ -189,6 +189,8 @@ public class HTTPClientProxy extends KrollProxy
 		this.setProperty("validatesSecureCertificate", value);
 	}
 
+	// TODO: Trust Manager and Key Manager hooks were created to support the certificate store module. We don't have
+	// formal documentation for this yet since we plan to merge this functionality back into platform at some point
 	@Kroll.method
 	public void addTrustManager(Object manager)
 	{
