@@ -32,6 +32,7 @@ public class ActionBarProxy extends KrollProxy
 	private static final int MSG_HIDE = MSG_FIRST_ID + 104;
 	private static final int MSG_SET_LOGO = MSG_FIRST_ID + 105;
 	private static final int MSG_SET_ICON = MSG_FIRST_ID + 106;
+	private static final int MSG_SET_HOME_BUTTON_ENABLED = MSG_FIRST_ID + 107;
 
 	private static final String SHOW_HOME_AS_UP = "showHomeAsUp";
 	private static final String BACKGROUND_IMAGE = "backgroundImage";
@@ -147,6 +148,7 @@ public class ActionBarProxy extends KrollProxy
 
 	private void handleSetTitle(String title)
 	{
+		actionBar.setDisplayShowTitleEnabled(true);
 		actionBar.setTitle(title);
 	}
 
@@ -213,6 +215,9 @@ public class ActionBarProxy extends KrollProxy
 			case MSG_SET_ICON:
 				handleSetIcon(msg.getData().getString(ICON));
 				return true;
+			case MSG_SET_HOME_BUTTON_ENABLED:
+				actionBar.setHomeButtonEnabled(true);
+				return true;
 		}
 		return super.handleMessage(msg);
 	}
@@ -224,7 +229,11 @@ public class ActionBarProxy extends KrollProxy
 			&& TiC.PROPERTY_ON_HOME_ICON_ITEM_SELECTED.equals(name)) {
 			// If we have a listener on the home icon item, then enable the home button (we need to do this for ICS and
 			// above)
-			actionBar.setHomeButtonEnabled(true);
+			if (TiApplication.isUIThread()) {
+				actionBar.setHomeButtonEnabled(true);
+			} else {
+				getMainHandler().obtainMessage(MSG_SET_HOME_BUTTON_ENABLED).sendToTarget();
+			}
 		}
 		super.onPropertyChanged(name, value);
 	}
