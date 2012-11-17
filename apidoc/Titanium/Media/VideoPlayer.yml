@@ -127,6 +127,18 @@ examples:
             win.add(openButton);
             win.open();
 
+  - title: Alloy XML Markup
+    example: |
+        Previous simple example as an Alloy view.
+
+        simplevideoplayer.xml:
+
+            <Alloy>
+                <Window id="vidWin" title="Video View Demo" backgroundColor="#fff">
+                    <VideoPlayer id="videoPlayer" ns="Ti.Media" top="2" url="/movie.mp4"
+                                 height="300" width="300" backgroundColor="blue" autoplay="true" />
+                </Window>
+            </Alloy>
 
 methods:
 

@@ -25,3 +25,22 @@ properties:
         Use [BUTTON_STYLE_NORMAL](Titanium.Facebook.BUTTON_STYLE_NORMAL) to show a
         narrower button that simply says, "Login" or "Connect".
     type: String
+
+examples:
+  - title: Alloy XML Markup
+    example: |
+        Example of using the Facebook Login Button in Alloy.
+
+        facebook.xml:
+
+            <Alloy>
+                <Window id="socialWin">
+                    <LoginButton ns="Ti.Facebook" />
+                </Window>
+            </Alloy>
+
+        facebook.js:
+
+            Ti.Facebook.appid = APP_ID;
+            Ti.Facebook.permissions = [APP_PERMISSIONS];
+            $.socialWin.open();
