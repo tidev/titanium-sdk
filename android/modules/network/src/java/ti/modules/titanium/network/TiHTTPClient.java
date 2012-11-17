@@ -146,8 +146,8 @@ public class TiHTTPClient
 	private Uri uri;
 	private String url;
 	private ArrayList<File> tmpFiles = new ArrayList<File>();
-	private X509TrustManager trustManager;
-	private X509KeyManager keyManager;
+	private ArrayList<X509TrustManager> trustManager;
+	private ArrayList<X509KeyManager> keyManager;
 
 	protected HashMap<String,String> headers = new HashMap<String,String>();
 
@@ -472,6 +472,8 @@ public class TiHTTPClient
 		this.parts = new HashMap<String,ContentBody>();
 		this.maxBufferSize = TiApplication.getInstance()
 				.getSystemProperties().getInt(PROPERTY_MAX_BUFFER_SIZE, DEFAULT_MAX_BUFFER_SIZE);
+		this.trustManager = new ArrayList<X509TrustManager>();
+		this.keyManager = new ArrayList<X509KeyManager>();
 	}
 
 	public int getReadyState()
@@ -980,6 +982,23 @@ public class TiHTTPClient
 
 	protected DefaultHttpClient getClient(boolean validating)
 	{
+		SSLSocketFactory sslSocketFactory = null;
+		X509KeyManager[] keyManagerArray = null;
+		X509TrustManager[] trustManagerArray = null;
+
+		if (trustManager != null || keyManager != null) {
+			try {
+				keyManagerArray = new X509KeyManager[keyManager.size()];
+				trustManagerArray = new X509TrustManager[trustManager.size()];
+				keyManagerArray = keyManager.toArray(keyManagerArray);
+				trustManagerArray = trustManager.toArray(trustManagerArray);
+				sslSocketFactory = new ValidatingSSLSocketFactory(trustManagerArray, keyManagerArray);
+			} catch (Exception e) {
+				Log.e(TAG, "Error creating SSLSocketFactory: " + e.getMessage());
+				abort();
+			}
+		}
+
 		if (validating) {
 			if (validatingClient != null) {
 				return validatingClient;
@@ -987,13 +1006,8 @@ public class TiHTTPClient
 
 			validatingClient = createClient();
 
-			SSLSocketFactory sslSocketFactory = SSLSocketFactory.getSocketFactory();
-			if (trustManager != null || keyManager != null) {
-				try {
-					sslSocketFactory = new ValidatingSSLSocketFactory(trustManager, keyManager);
-				} catch (Exception e) {
-					Log.e(TAG, "Error creating SSLSocketFactory: " + e.getMessage());
-				}
+			if (sslSocketFactory == null) {
+				sslSocketFactory = SSLSocketFactory.getSocketFactory();
 			}
 
 			validatingClient.getConnectionManager().getSchemeRegistry().register(new Scheme("https", sslSocketFactory, 443));
@@ -1005,7 +1019,8 @@ public class TiHTTPClient
 			}
 
 			nonValidatingClient = createClient();
-			nonValidatingClient.getConnectionManager().getSchemeRegistry().register(new Scheme("https", new NonValidatingSSLSocketFactory(), 443));
+			nonValidatingClient.getConnectionManager().getSchemeRegistry()
+				.register(new Scheme("https", new NonValidatingSSLSocketFactory(trustManagerArray, keyManagerArray), 443));
 			return nonValidatingClient;
 		}
 	}
@@ -1322,11 +1337,11 @@ public class TiHTTPClient
 
 	public void setTrustManager(X509TrustManager manager)
 	{
-		trustManager = manager;
+		trustManager.add(manager);
 	}
 
 	public void setKeyManager(X509KeyManager manager)
 	{
-		keyManager = manager;
+		keyManager.add(manager);
 	}
 }

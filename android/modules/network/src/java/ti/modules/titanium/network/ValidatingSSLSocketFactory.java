@@ -16,8 +16,6 @@ import java.security.UnrecoverableKeyException;
 import javax.net.ssl.KeyManager;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
-import javax.net.ssl.X509KeyManager;
-import javax.net.ssl.X509TrustManager;
 
 import org.apache.http.conn.ssl.SSLSocketFactory;
 
@@ -25,13 +23,11 @@ public class ValidatingSSLSocketFactory extends SSLSocketFactory
 {
 	private SSLContext sslContext = SSLContext.getInstance("TLS");
 
-	public ValidatingSSLSocketFactory(X509TrustManager trustManager, X509KeyManager keyManager)
-		throws NoSuchAlgorithmException, KeyManagementException, KeyStoreException, UnrecoverableKeyException
+	public ValidatingSSLSocketFactory(TrustManager[] trustManager, KeyManager[] keyManager) throws NoSuchAlgorithmException,
+		KeyManagementException, KeyStoreException, UnrecoverableKeyException
 	{
 		super(null, null, null, null, null, null);
-		KeyManager[] km = (keyManager == null) ? null : new KeyManager[] { keyManager };
-		TrustManager[] tm = (trustManager == null) ? null : new TrustManager[] { trustManager };
-		sslContext.init(km, tm, null);
+		sslContext.init(keyManager, trustManager, null);
 	}
 
 	@Override
