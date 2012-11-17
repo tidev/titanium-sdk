@@ -16,6 +16,7 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 import java.security.SecureRandom;
 
+import javax.net.ssl.KeyManager;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
@@ -27,26 +28,30 @@ import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 import org.appcelerator.kroll.common.Log;
 
-public class NonValidatingSSLSocketFactory implements LayeredSocketFactory {
+public class NonValidatingSSLSocketFactory implements LayeredSocketFactory
+{
 	private SSLSocketFactory sslFactory;
 	private static final String TAG = "NVSSLSocketFactory";
 
-	public NonValidatingSSLSocketFactory() {
+	public NonValidatingSSLSocketFactory(TrustManager[] trustManager, KeyManager[] keyManager)
+	{
 		try {
 			SSLContext context = SSLContext.getInstance("TLS");
-			TrustManager managers[] = new TrustManager[] { new NonValidatingTrustManager() };
-			context.init(null, managers, new SecureRandom());
+			if (trustManager == null) {
+				trustManager = new TrustManager[] { new NonValidatingTrustManager() };
+			}
+			context.init(keyManager, trustManager, new SecureRandom());
 			sslFactory = context.getSocketFactory();
 		} catch (Exception e) {
 			Log.e(TAG, e.getMessage(), e);
 		}
-		
+
 	}
 
 	@Override
-	public Socket connectSocket(Socket sock, String host, int port,
-			InetAddress localAddress, int localPort, HttpParams params) throws IOException,
-			UnknownHostException, ConnectTimeoutException {
+	public Socket connectSocket(Socket sock, String host, int port, InetAddress localAddress, int localPort,
+		HttpParams params) throws IOException, UnknownHostException, ConnectTimeoutException
+	{
 		if (host == null) {
 			throw new IllegalArgumentException("Target host may not be null.");
 		}
@@ -62,8 +67,7 @@ public class NonValidatingSSLSocketFactory implements LayeredSocketFactory {
 			if (localPort < 0)
 				localPort = 0; // indicates "any"
 
-			InetSocketAddress isa = new InetSocketAddress(localAddress,
-					localPort);
+			InetSocketAddress isa = new InetSocketAddress(localAddress, localPort);
 			sslsock.bind(isa);
 		}
 
@@ -78,18 +82,21 @@ public class NonValidatingSSLSocketFactory implements LayeredSocketFactory {
 	}
 
 	@Override
-	public Socket createSocket() throws IOException {
+	public Socket createSocket() throws IOException
+	{
 		return sslFactory.createSocket();
 	}
 
 	@Override
-	public boolean isSecure(Socket socket) throws IllegalArgumentException {
+	public boolean isSecure(Socket socket) throws IllegalArgumentException
+	{
 		return true;
 	}
 
 	@Override
-	public Socket createSocket(Socket socket, String host, int port, boolean autoClose)
-			throws IOException, UnknownHostException {
+	public Socket createSocket(Socket socket, String host, int port, boolean autoClose) throws IOException,
+		UnknownHostException
+	{
 		return sslFactory.createSocket(socket, host, port, autoClose);
 	}
 }

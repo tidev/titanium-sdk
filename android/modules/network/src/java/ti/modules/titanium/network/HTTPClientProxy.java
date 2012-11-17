@@ -6,6 +6,9 @@
  */
 package ti.modules.titanium.network;
 
+import javax.net.ssl.X509KeyManager;
+import javax.net.ssl.X509TrustManager;
+
 import org.apache.http.MethodNotSupportedException;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
@@ -186,4 +189,21 @@ public class HTTPClientProxy extends KrollProxy
 		this.setProperty("validatesSecureCertificate", value);
 	}
 
+	// TODO: Trust Manager and Key Manager hooks were created to support the certificate store module. We don't have
+	// formal documentation for this yet since we plan to merge this functionality back into platform at some point
+	@Kroll.method
+	public void addTrustManager(Object manager)
+	{
+		if (manager instanceof X509TrustManager) {
+			client.setTrustManager((X509TrustManager) manager);
+		}
+	}
+
+	@Kroll.method
+	public void addKeyManager(Object manager)
+	{
+		if (manager instanceof X509KeyManager) {
+			client.setKeyManager((X509KeyManager) manager);
+		}
+	}
 }

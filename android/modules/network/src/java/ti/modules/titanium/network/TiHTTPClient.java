@@ -32,6 +32,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.GZIPInputStream;
 
+import javax.net.ssl.X509KeyManager;
+import javax.net.ssl.X509TrustManager;
+
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpEntityEnclosingRequest;
@@ -109,8 +112,8 @@ public class TiHTTPClient
 	private static final String XML_DECLARATION_TAG_REGEX = "encoding=[\"\']([^\"\']*)[\"\']";
 
 	private static AtomicInteger httpClientThreadCounter;
-	private static DefaultHttpClient nonValidatingClient;
 	private static DefaultHttpClient validatingClient;
+	private static DefaultHttpClient nonValidatingClient;
 
 	private DefaultHttpClient client;
 	private KrollProxy proxy;
@@ -143,6 +146,8 @@ public class TiHTTPClient
 	private Uri uri;
 	private String url;
 	private ArrayList<File> tmpFiles = new ArrayList<File>();
+	private ArrayList<X509TrustManager> trustManager;
+	private ArrayList<X509KeyManager> keyManager;
 
 	protected HashMap<String,String> headers = new HashMap<String,String>();
 
@@ -467,6 +472,8 @@ public class TiHTTPClient
 		this.parts = new HashMap<String,ContentBody>();
 		this.maxBufferSize = TiApplication.getInstance()
 				.getSystemProperties().getInt(PROPERTY_MAX_BUFFER_SIZE, DEFAULT_MAX_BUFFER_SIZE);
+		this.trustManager = new ArrayList<X509TrustManager>();
+		this.keyManager = new ArrayList<X509KeyManager>();
 	}
 
 	public int getReadyState()
@@ -670,10 +677,10 @@ public class TiHTTPClient
 				client.getConnectionManager().shutdown();
 				client = null;
 			}
-			if (validatingClient != null)
-				validatingClient = null;
 			if (nonValidatingClient != null)
 				nonValidatingClient = null;
+			if (validatingClient != null)
+				validatingClient = null;
 		}
 	}
 
@@ -975,23 +982,46 @@ public class TiHTTPClient
 
 	protected DefaultHttpClient getClient(boolean validating)
 	{
-		if (validating) {
-			if (nonValidatingClient != null) {
-				return nonValidatingClient;
+		SSLSocketFactory sslSocketFactory = null;
+		X509KeyManager[] keyManagerArray = null;
+		X509TrustManager[] trustManagerArray = null;
+
+		if (trustManager != null || keyManager != null) {
+			try {
+				keyManagerArray = new X509KeyManager[keyManager.size()];
+				trustManagerArray = new X509TrustManager[trustManager.size()];
+				keyManagerArray = keyManager.toArray(keyManagerArray);
+				trustManagerArray = trustManager.toArray(trustManagerArray);
+				sslSocketFactory = new ValidatingSSLSocketFactory(trustManagerArray, keyManagerArray);
+			} catch (Exception e) {
+				Log.e(TAG, "Error creating SSLSocketFactory: " + e.getMessage());
+				abort();
 			}
+		}
 
-			nonValidatingClient = createClient();
-			nonValidatingClient.getConnectionManager().getSchemeRegistry().register(new Scheme("https", SSLSocketFactory.getSocketFactory(), 443));
-			return nonValidatingClient;
-
-		} else {
+		if (validating) {
 			if (validatingClient != null) {
 				return validatingClient;
 			}
 
 			validatingClient = createClient();
-			validatingClient.getConnectionManager().getSchemeRegistry().register(new Scheme("https", new NonValidatingSSLSocketFactory(), 443));
+
+			if (sslSocketFactory == null) {
+				sslSocketFactory = SSLSocketFactory.getSocketFactory();
+			}
+
+			validatingClient.getConnectionManager().getSchemeRegistry().register(new Scheme("https", sslSocketFactory, 443));
 			return validatingClient;
+
+		} else {
+			if (nonValidatingClient != null) {
+				return nonValidatingClient;
+			}
+
+			nonValidatingClient = createClient();
+			nonValidatingClient.getConnectionManager().getSchemeRegistry()
+				.register(new Scheme("https", new NonValidatingSSLSocketFactory(trustManagerArray, keyManagerArray), 443));
+			return nonValidatingClient;
 		}
 	}
 
@@ -1084,7 +1114,7 @@ public class TiHTTPClient
 
 		Log.d(TAG, "Leaving send()", Log.DEBUG_MODE);
 	}
-	
+
 	private class ClientRunnable implements Runnable
 	{
 		private final int totalLength;
@@ -1303,5 +1333,15 @@ public class TiHTTPClient
 	protected boolean getAutoRedirect()
 	{
 		return autoRedirect;
+	}
+
+	public void setTrustManager(X509TrustManager manager)
+	{
+		trustManager.add(manager);
+	}
+
+	public void setKeyManager(X509KeyManager manager)
+	{
+		keyManager.add(manager);
 	}
 }
