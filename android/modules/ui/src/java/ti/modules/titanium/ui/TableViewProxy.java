@@ -207,9 +207,11 @@ public class TableViewProxy extends TiViewProxy
 			ArrayList<TableViewSectionProxy> currentSections = getSectionsArray();
 			TableViewSectionProxy oldSection = currentSections.get(sectionIndex);
 			currentSections.set(sectionIndex, sectionProxy);
-			sectionProxy.setParent(this);
-			if (oldSection.getParent() == this) {
-				oldSection.setParent(null);
+			if (sectionProxy != oldSection) {
+				sectionProxy.setParent(this);
+				if (oldSection.getParent() == this) {
+					oldSection.setParent(null);
+				}
 			}
 			getTableView().setModelDirty();
 			updateView();
