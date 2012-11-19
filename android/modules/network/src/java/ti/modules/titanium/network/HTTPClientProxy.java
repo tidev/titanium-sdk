@@ -227,7 +227,7 @@ public class HTTPClientProxy extends KrollProxy
 	public void addAuthFactory(String scheme, Object factory)
 	{
 		//Sanity Checks
-		if ( (scheme == null) || (scheme.length() == 0) || (factory == null) || (! (factory instanceof AuthSchemeFactory) )) {
+		if ( (scheme == null) || (scheme.length() == 0) || (! (factory instanceof AuthSchemeFactory) )) {
 			return;
 		}
 		
