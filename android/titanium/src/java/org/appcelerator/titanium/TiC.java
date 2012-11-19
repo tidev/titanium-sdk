@@ -929,6 +929,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_DOMAIN = "domain";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_DOMESTIC_PARTNER = "domesticPartner";
 
 	/**
@@ -1502,6 +1507,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_PASSWORD = "password";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_PASSWORD_MASK = "passwordMask";
 
 	/**
@@ -1959,6 +1969,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_URL = "url";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_USERNAME = "username";
 
 	/**
 	 * @module.api
