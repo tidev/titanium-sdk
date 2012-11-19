@@ -582,7 +582,7 @@ enum
 -(BOOL) widthIsAutoFill;
 -(BOOL) widthIsAutoSize;
 -(BOOL) heightIsAutoFill;
--(BOOL) heightIsAutoFill;
+-(BOOL) heightIsAutoSize;
 -(BOOL) belongsToContext:(id<TiEvaluator>) context;
 
 /**

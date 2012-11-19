@@ -1883,15 +1883,17 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
 -(BOOL) widthIsAutoFill
 {
     BOOL isAutoFill = NO;
+    BOOL followsFillBehavior = TiDimensionIsAutoFill([self defaultAutoWidthBehavior:nil]);
+    
     if (TiDimensionIsAutoFill(layoutProperties.width))
     {
         isAutoFill = YES;
     }
-    else if (TiDimensionIsAuto(layoutProperties.width) && TiDimensionIsAutoFill([self defaultAutoWidthBehavior:nil]) )
+    else if (TiDimensionIsAuto(layoutProperties.width))
     {
-        isAutoFill = YES;
+        isAutoFill = followsFillBehavior;
     }
-    else if (TiDimensionIsUndefined(layoutProperties.width) && TiDimensionIsAutoFill([self defaultAutoWidthBehavior:nil]))
+    else if (TiDimensionIsUndefined(layoutProperties.width))
     {
         BOOL centerDefined = NO;
         int pinCount = 0;
@@ -1906,7 +1908,7 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
             pinCount ++;
         }
         if ( (pinCount < 2) || (!centerDefined) ){
-            isAutoFill = YES;
+            isAutoFill = followsFillBehavior;
         }
     }
     return isAutoFill;
@@ -1915,15 +1917,17 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
 -(BOOL) heightIsAutoFill
 {
     BOOL isAutoFill = NO;
+    BOOL followsFillBehavior = TiDimensionIsAutoFill([self defaultAutoHeightBehavior:nil]);
+    
     if (TiDimensionIsAutoFill(layoutProperties.height))
     {
         isAutoFill = YES;
     }
-    else if (TiDimensionIsAuto(layoutProperties.height) && TiDimensionIsAutoFill([self defaultAutoHeightBehavior:nil]) )
+    else if (TiDimensionIsAuto(layoutProperties.height))
     {
-        isAutoFill = YES;
+        isAutoFill = followsFillBehavior;
     }
-    else if (TiDimensionIsUndefined(layoutProperties.height) && TiDimensionIsAutoFill([self defaultAutoHeightBehavior:nil]))
+    else if (TiDimensionIsUndefined(layoutProperties.height))
     {
         BOOL centerDefined = NO;
         int pinCount = 0;
@@ -1938,7 +1942,7 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
             pinCount ++;
         }
         if ( (pinCount < 2) || (!centerDefined) ) {
-            isAutoFill = YES;
+            isAutoFill = followsFillBehavior;
         }
     }
     return isAutoFill;
@@ -2185,8 +2189,17 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
 		}
 	}
 	pthread_rwlock_unlock(&childrenLock);
-
-	[ourView insertSubview:childView atIndex:result];
+    if (result == 0) {
+        [ourView insertSubview:childView atIndex:result];
+    }
+    else {
+        //Doing a blind insert at index messes up the underlying sublayer indices
+        //if there are layers which do not belong to subviews (backgroundGradient)
+        //So ensure the subview layer goes at the right index
+        //See TIMOB-11586 for fail case
+        UIView *sibling = [[ourView subviews] objectAtIndex:result-1];
+        [ourView insertSubview:childView aboveSubview:sibling];
+    }
 }
 
 

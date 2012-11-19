@@ -25,7 +25,6 @@ import org.appcelerator.titanium.proxy.ActivityProxy;
 import org.appcelerator.titanium.proxy.TiWindowProxy;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiFileHelper;
-import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiCompositeLayout;
 import org.appcelerator.titanium.view.TiCompositeLayout.LayoutArrangement;
 import org.appcelerator.titanium.view.TiUIView;
@@ -106,12 +105,15 @@ public class TiUIActivityWindow extends TiUIView
 		handleBooted();
 	}
 
-	protected void createNewActivity(HashMap options)
+	protected void createNewActivity(HashMap<String, Object> options)
 	{
 		Activity activity = proxy.getActivity();
 		Intent intent = createIntent(activity);
 
 		Object animated = options.get(TiC.PROPERTY_ANIMATED);
+		Object enterAnim = options.get(TiC.PROPERTY_ACTIVITY_ENTER_ANIMATION);
+		Object exitAnim = options.get(TiC.PROPERTY_ACTIVITY_EXIT_ANIMATION);
+
 		if (animated != null) {
 			animate = TiConvert.toBoolean(animated);
 		}
@@ -120,9 +122,17 @@ public class TiUIActivityWindow extends TiUIView
 			intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
 			intent.putExtra(TiC.PROPERTY_ANIMATE, false);
 			activity.startActivity(intent);
-			TiUIHelper.overridePendingTransition(activity);
+			activity.overridePendingTransition(0, 0); // Suppress default transition.
 
 		} else {
+			if (enterAnim != null) {
+				intent.putExtra(TiC.INTENT_PROPERTY_ENTER_ANIMATION, TiConvert.toInt(enterAnim));
+			}
+
+			if (exitAnim != null) {
+				intent.putExtra(TiC.INTENT_PROPERTY_EXIT_ANIMATION, TiConvert.toInt(exitAnim));
+			}
+
 			activity.startActivity(intent);
 		}
 	}
@@ -226,7 +236,7 @@ public class TiUIActivityWindow extends TiUIView
 		if (windowActivity != null) {
 			if (!animateOnClose) {
 				windowActivity.finish();
-				TiUIHelper.overridePendingTransition(windowActivity);
+				windowActivity.overridePendingTransition(0, 0); // Suppress default transition.
 
 			} else {
 				windowActivity.finish();
@@ -430,8 +440,9 @@ public class TiUIActivityWindow extends TiUIView
 		if (d.containsKey(TiC.PROPERTY_ACTIVITY)) {
 			Object activityObject = d.get(TiC.PROPERTY_ACTIVITY);
 			ActivityProxy activityProxy = getProxy().getActivityProxy();
-			if (activityObject instanceof HashMap && activityProxy != null) {
-				KrollDict options = new KrollDict((HashMap) activityObject);
+			if (activityObject instanceof HashMap<?, ?> && activityProxy != null) {
+				@SuppressWarnings("unchecked")
+				KrollDict options = new KrollDict((HashMap<String, Object>) activityObject);
 				activityProxy.handleCreationDict(options);
 			}
 		}
