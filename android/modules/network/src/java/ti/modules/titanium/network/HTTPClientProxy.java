@@ -186,7 +186,10 @@ public class HTTPClientProxy extends KrollProxy
 	@Kroll.getProperty @Kroll.method
 	public String getUsername()
 	{
-		return client.getUsername();
+		if (this.hasProperty(TiC.PROPERTY_USERNAME)) {
+			return TiConvert.toString(this.getProperty(TiC.PROPERTY_USERNAME));
+		}
+		return null;
 	}
 
 	@Kroll.setProperty @Kroll.method
@@ -198,7 +201,10 @@ public class HTTPClientProxy extends KrollProxy
 	@Kroll.getProperty @Kroll.method
 	public String getPassword()
 	{
-		return client.getPassword();
+		if (this.hasProperty(TiC.PROPERTY_PASSWORD)) {
+			return TiConvert.toString(this.getProperty(TiC.PROPERTY_PASSWORD));
+		}
+		return null;
 	}
 
 	@Kroll.setProperty @Kroll.method
@@ -210,7 +216,10 @@ public class HTTPClientProxy extends KrollProxy
 	@Kroll.getProperty @Kroll.method
 	public String getDomain()
 	{
-		return client.getDomain();
+		if (this.hasProperty(TiC.PROPERTY_DOMAIN)) {
+			return TiConvert.toString(this.getProperty(TiC.PROPERTY_DOMAIN));
+		}
+		return null;
 	}
 	
 	@Kroll.method
