@@ -764,63 +764,61 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 		
         @Override
         protected Bitmap doInBackground(final ImageArgs... params) {
- 
-                final int i = 0;
-                recycle = params[i].mRecycle;
-                mNetworkURL = params[i].mNetworkURL;
-                Bitmap bitmap = null;
+        	final ImageArgs imageArgs = params[0];
+            
+            recycle = imageArgs.mRecycle;
+            mNetworkURL = imageArgs.mNetworkURL;
+            Bitmap bitmap = null;
                 
-                mUrl = params[i].mImageref.getUrl();
+            mUrl = imageArgs.mImageref.getUrl();
 
-                if (mNetworkURL) {
-    				boolean getAsync = true;
-    				try {
-    					String imageUrl = TiUrl.getCleanUri(params[i].mImageref.getUrl()).toString();
+            if (mNetworkURL) {
+            	boolean getAsync = true;
+    			try {
+    				String imageUrl = TiUrl.getCleanUri(imageArgs.mImageref.getUrl()).toString();
     					
-    					URI uri = new URI(imageUrl);
-    					getAsync = !TiResponseCache.peek(uri);	// expensive, don't want to do in UI thread
-    				} catch (URISyntaxException e) {
-    					Log.e(TAG, "URISyntaxException for url " + params[i].mImageref.getUrl(), e);
-    					getAsync = false;
-    				} catch (NullPointerException e) {
-    					Log.e(TAG, "NullPointerException for url " + params[i].mImageref.getUrl(), e);
-    					getAsync = false;
-    				} catch (Exception e) {
-    					Log.e(TAG,  "Caught exception for url" + params[i].mImageref.getUrl(), e);
-    				}
-    				if (getAsync) {
-    					//
-    					// We've got to start the download back on the UI thread, if we do it on one
-    					// of the AsyncTask threads it will throw an exception.
-    					//
-    					
-    					mAsync = true;
-    					
-    					TiMessenger.getMainMessenger().post(new Runnable()
+    				URI uri = new URI(imageUrl);
+    				getAsync = !TiResponseCache.peek(uri);	// expensive, don't want to do in UI thread
+    			} catch (URISyntaxException e) {
+    				Log.e(TAG, "URISyntaxException for url " + imageArgs.mImageref.getUrl(), e);
+    				getAsync = false;
+    			} catch (NullPointerException e) {
+    				Log.e(TAG, "NullPointerException for url " + imageArgs.mImageref.getUrl(), e);
+    				getAsync = false;
+    			} catch (Exception e) {
+    				Log.e(TAG,  "Caught exception for url" + imageArgs.mImageref.getUrl(), e);
+    			}
+    			if (getAsync) {
+    				//
+    				// We've got to start the download back on the UI thread, if we do it on one
+    				// of the AsyncTask threads it will throw an exception.
+    				//
+    				mAsync = true;
+ 
+    				TiMessenger.getMainMessenger().post(new Runnable()
+    				{
+    					@Override
+    					public void run()
     					{
-    						@Override
-    						public void run()
-    						{
-    	    					params[i].mImageref.getBitmapAsync(imageDownloadListener);
+    	    				imageArgs.mImageref.getBitmapAsync(imageDownloadListener);
     				
-    						}
-    					});
+    					}
+    				});
 
-    				} else {
-    					bitmap = (params[i].mImageref).getBitmap(
-                			params[i].mView, 
-                			params[i].mRequestedWidth, 
-                			params[i].mRequestedHeight);
-    				}
-                }
-                else {
-					bitmap = (params[i].mImageref).getBitmap(
-                			params[i].mView, 
-                			params[i].mRequestedWidth, 
-                			params[i].mRequestedHeight);
-                }
-              
-                return bitmap;
+    			} else {
+    				bitmap = (imageArgs.mImageref).getBitmap(
+                		imageArgs.mView, 
+                		imageArgs.mRequestedWidth, 
+                		imageArgs.mRequestedHeight);
+    			}
+            }
+            else {
+            	bitmap = (imageArgs.mImageref).getBitmap(
+            			imageArgs.mView, 
+                		imageArgs.mRequestedWidth, 
+                		imageArgs.mRequestedHeight);
+            }
+            return bitmap;
         }
         
         @Override
