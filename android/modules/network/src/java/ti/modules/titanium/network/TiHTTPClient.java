@@ -87,6 +87,7 @@ import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.util.TiTempFileHelper;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBlob;
+import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiFileProxy;
 import org.appcelerator.titanium.io.TiBaseFile;
 import org.appcelerator.titanium.io.TiFile;
@@ -500,24 +501,24 @@ public class TiHTTPClient
 	
 	public String getUsername()
 	{
-		if (proxy.hasProperty("username")) {
-			return TiConvert.toString(proxy.getProperty("username"));
+		if (proxy.hasProperty(TiC.PROPERTY_USERNAME)) {
+			return TiConvert.toString(proxy.getProperty(TiC.PROPERTY_USERNAME));
 		}
 		return null;
 	}
 	
 	public String getPassword()
 	{
-		if (proxy.hasProperty("password")) {
-			return TiConvert.toString(proxy.getProperty("password"));
+		if (proxy.hasProperty(TiC.PROPERTY_PASSWORD)) {
+			return TiConvert.toString(proxy.getProperty(TiC.PROPERTY_PASSWORD));
 		}
 		return null;
 	}
 
 	public String getDomain()
 	{
-		if (proxy.hasProperty("domain")) {
-			return TiConvert.toString(proxy.getProperty("domain"));
+		if (proxy.hasProperty(TiC.PROPERTY_DOMAIN)) {
+			return TiConvert.toString(proxy.getProperty(TiC.PROPERTY_DOMAIN));
 		}
 		return null;
 	}
