@@ -499,30 +499,6 @@ public class TiHTTPClient
 		return false;
 	}
 	
-	public String getUsername()
-	{
-		if (proxy.hasProperty(TiC.PROPERTY_USERNAME)) {
-			return TiConvert.toString(proxy.getProperty(TiC.PROPERTY_USERNAME));
-		}
-		return null;
-	}
-	
-	public String getPassword()
-	{
-		if (proxy.hasProperty(TiC.PROPERTY_PASSWORD)) {
-			return TiConvert.toString(proxy.getProperty(TiC.PROPERTY_PASSWORD));
-		}
-		return null;
-	}
-
-	public String getDomain()
-	{
-		if (proxy.hasProperty(TiC.PROPERTY_DOMAIN)) {
-			return TiConvert.toString(proxy.getProperty(TiC.PROPERTY_DOMAIN));
-		}
-		return null;
-	}
-	
 	public void addAuthFactory(String scheme, AuthSchemeFactory theFactory)
 	{
 		customAuthenticators.put(scheme, theFactory);
@@ -870,9 +846,9 @@ public class TiHTTPClient
 			credentials = new UsernamePasswordCredentials(uri.getUserInfo());
 		}
 		if (credentials == null) {
-			String userName = getUsername();
-			String password = getPassword();
-			String domain = getDomain();
+			String userName = ((HTTPClientProxy)proxy).getUsername();
+			String password = ((HTTPClientProxy)proxy).getPassword();
+			String domain = ((HTTPClientProxy)proxy).getDomain();
 			if (domain != null) {
 				password = (password == null)?"":password;
 				credentials = new NTCredentials(userName, password, TiPlatformHelper.getMobileId(), domain);
