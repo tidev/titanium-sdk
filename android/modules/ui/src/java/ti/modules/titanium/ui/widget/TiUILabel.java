@@ -31,12 +31,24 @@ public class TiUILabel extends TiUIView
 	private static final String LCAT = "TiUILabel";
 	private static final boolean DBG = TiConfig.LOGD;
 
-	public TiUILabel(TiViewProxy proxy) {
+	public TiUILabel(final TiViewProxy proxy)
+	{
 		super(proxy);
 		if (DBG) {
 			Log.d(LCAT, "Creating a text label");
 		}
-		TextView tv = new TextView(getProxy().getActivity());
+		TextView tv = new TextView(getProxy().getActivity())
+		{
+			@Override
+			protected void onLayout(boolean changed, int left, int top, int right, int bottom)
+			{
+				super.onLayout(changed, left, top, right, bottom);
+
+				if (proxy != null && proxy.hasListeners(TiC.EVENT_POST_LAYOUT)) {
+					proxy.fireEvent(TiC.EVENT_POST_LAYOUT, null, false);
+				}
+			}
+		};
 		tv.setGravity(Gravity.CENTER_VERTICAL | Gravity.LEFT);
 		tv.setPadding(0, 0, 0, 0);
 		tv.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_MULTI_LINE);
