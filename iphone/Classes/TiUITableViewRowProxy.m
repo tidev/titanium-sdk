@@ -758,7 +758,7 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 						}
 					}];
 				}
-				if (!canReproxy) {
+				if (!canReproxy && ([existingSubviews count] > 0)) {
 					DebugLog(@"[ERROR] TableViewRow structures for className %@ does not match", self.tableClass);
 					[existingSubviews enumerateObjectsUsingBlock:^(TiUIView *child, NSUInteger idx, BOOL *stop) {
 						[(TiViewProxy *)child.proxy detachView];
