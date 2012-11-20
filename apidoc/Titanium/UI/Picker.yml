@@ -4,10 +4,25 @@ summary: |
     A control used to select one or more fixed values.
 description: |
     Use the <Titanium.UI.createPicker> method to create a picker control.
-    
+
     On Android, the `useSpinner` property must be enabled to support multiple columns.
+    By default, the spinner is automatically sized to fit its content and can overflow
+    to additional spinner rows. The size of the picker can be adjusted with the `width`
+    and `height` properties, but may omit picker columns or cut off picker rows
+    if the size is set too small.
     
-    Adding views to picker rows is only supported on iOS.
+    On iOS, by default, the size of the picker, including its background, is fixed at the
+    same size as the iPhone keyboard to respect the
+    [iOS Human Interface Guidelines](https://developer.apple.com/library/ios/#documentation/UserExperience/Conceptual/MobileHIG/UIElementGuidelines/UIElementGuidelines.html#//apple_ref/doc/uid/TP40006556-CH13-SW23).
+    The size of the picker should not be modified.
+    The contents of the picker are sized to fit the picker, which may cut off text
+    in the picker rows. Adding views to picker rows is also supported on iOS.
+
+    On iPad, Apple recommends using a picker only in a popover.  Since the size of the picker
+    cannot be adjusted, it is not suitable for the main screen.
+
+    On Mobile Web, by default, the picker fills the entire view it is contained in
+    but is adjustable using the `width` and `height` properties.
 extends: Titanium.Proxy
 since: "0.8"
 platforms: [android, iphone, ipad, mobileweb]
@@ -300,7 +315,6 @@ properties:
     description: |
         The spinner-style Android picker shows 5 rows by default; one selected in the middle and 2 
         above and below. Set to an odd number to ensure the selected row is in the middle.
-        
     type: Number
     default: 5
     platforms: [android]
@@ -347,6 +361,7 @@ examples:
 
             var picker = Ti.UI.createPicker({
               top:50
+              useSpinner: true
             });
             picker.selectionIndicator = true;
 
@@ -443,7 +458,7 @@ examples:
 
             <Alloy>
                 <Window id="win" backgroundColor="white" layout="vertical" exitOnClose="true">
-                    <Picker id="picker" top="50" selectionIndicator="true">
+                    <Picker id="picker" top="50" selectionIndicator="true" useSpinner="true">
                         <PickerColumn id="column1">
                             <PickerRow title="Bananas"/>
                             <PickerRow title="Strawberries"/>
