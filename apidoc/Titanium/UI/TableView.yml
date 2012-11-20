@@ -988,10 +988,13 @@ properties:
     description: |
         For information about color values, see the "Colors" section of <Titanium.UI>. 
         
-        On iPhone and iPod Touch only, this property accepts a value of `'stripped'`, in addition to 
-        the standard color names described in the link above. This results in a pin-striped gray. 
-        Note that, due to a bug, `'stripped'` is misspelt, and so is likely to change in the near 
-        future to `'striped'`.
+        Prior to iOS 6, it was possible to explicitly specify a color value of
+        <Titanium.UI.iOS.COLOR_GROUP_TABLEVIEW_BACKGROUND> or 'stripped' (sic) to select the iOS group
+        tableview background texture. On iPhone and iPod Touch, this produces a pinstriped texture; on iPad,
+        it is transparent.
+
+        In iOS 6, there is no way to explicitly specify the group tableview background texture. The color
+        values <Titanium.UI.iOS.COLOR_GROUP_TABLEVIEW_BACKGROUND> or 'stripped' are interpreted as black.
     type: String
     
   - name: data
