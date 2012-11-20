@@ -842,15 +842,7 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 	}
 	
 	private void setImage(boolean recycle) {
-		synchronized (imageTokenGenerator) {
-			token = imageTokenGenerator.incrementAndGet();
-		}
-		doSetImage(recycle, token);
-	}
-
-	private void doSetImage(boolean recycle, int myToken)
-	{
-
+		
 		if (imageSources == null || imageSources.size() == 0 || imageSources.get(0) == null || imageSources.get(0).isTypeNull()) {
 			if (defaultImageSource != null) {
 				setDefaultImage();
