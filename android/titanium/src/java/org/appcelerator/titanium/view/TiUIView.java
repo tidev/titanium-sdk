@@ -518,15 +518,8 @@ public abstract class TiUIView
 			} else {
 				setzIndexChanged(true);
 			}
-		} else if (key.equals(TiC.PROPERTY_FOCUSABLE)) {
-			boolean focusable = TiConvert.toBoolean(proxy.getProperty(TiC.PROPERTY_FOCUSABLE));
-			nativeView.setFocusable(focusable);
-			if (focusable) {
-				registerForKeyClick(nativeView);
-			} else {
-				//nativeView.setOnClickListener(null); // ? mistake? I assume OnKeyListener was meant
-				nativeView.setOnKeyListener(null);
-			}
+		} else if (key.equals(TiC.PROPERTY_FOCUSABLE) && newValue != null) {
+			registerForKeyPress(nativeView, TiConvert.toBoolean(newValue));
 		} else if (key.equals(TiC.PROPERTY_TOUCH_ENABLED)) {
 			doSetClickable(TiConvert.toBoolean(newValue));
 		} else if (key.equals(TiC.PROPERTY_VISIBLE)) {
@@ -696,17 +689,6 @@ public abstract class TiUIView
 		}
 		if (d.containsKey(TiC.PROPERTY_ENABLED) && !nativeViewNull) {
 			nativeView.setEnabled(TiConvert.toBoolean(d, TiC.PROPERTY_ENABLED));
-		}
-
-		if (d.containsKey(TiC.PROPERTY_FOCUSABLE) && !nativeViewNull) {
-			boolean focusable = TiConvert.toBoolean(d, TiC.PROPERTY_FOCUSABLE);
-			nativeView.setFocusable(focusable);
-			if (focusable) {
-				registerForKeyClick(nativeView);
-			} else {
-				//nativeView.setOnClickListener(null); // ? mistake? I assume OnKeyListener was meant
-				nativeView.setOnKeyListener(null);
-			}
 		}
 
 		initializeBorder(d, bgColor);
@@ -1043,6 +1025,14 @@ public abstract class TiUIView
 		return true;
 	}
 
+	/**
+	 * @module.api
+	 */
+	protected boolean allowRegisterForKeyPress()
+	{
+		return true;
+	}
+
 	public View getOuterView()
 	{
 		if (borderView == null) {
@@ -1220,6 +1210,7 @@ public abstract class TiUIView
 		});
 		
 	}
+
 	protected void registerForTouch(final View touchable)
 	{
 		if (touchable == null) {
@@ -1239,6 +1230,78 @@ public abstract class TiUIView
 		// Note: AdapterView throws an exception if you try to put a click listener on it.
 		doSetClickable(touchable);
 	}
+
+
+	public void registerForKeyPress()
+	{
+		if (allowRegisterForKeyPress()) {
+			registerForKeyPress(getNativeView());
+		}
+	}
+
+	protected void registerForKeyPress(final View v)
+	{
+		if (v == null) {
+			return;
+		}
+
+		Object focusable = proxy.getProperty(TiC.PROPERTY_FOCUSABLE);
+		if (focusable != null) {
+			registerForKeyPress(v, TiConvert.toBoolean(focusable));
+		}
+	}
+
+	protected void registerForKeyPress(final View v, boolean focusable)
+	{
+		if (v == null) {
+			return;
+		}
+
+		v.setFocusable(focusable);
+
+		// The listener for the "keypressed" event is only triggered when the view has focus. So we only register the
+		// "keypressed" event when the view is focusable.
+		if (focusable) {
+			registerForKeyPressEvents(v);
+		} else {
+			v.setOnKeyListener(null);
+		}
+	}
+
+	/**
+	 * Registers a callback to be invoked when a hardware key is pressed in this view.
+	 *
+	 * @param v The view to have the key listener to attach to.
+	 */
+	protected void registerForKeyPressEvents(final View v)
+	{
+		if (v == null) {
+			return;
+		}
+
+		v.setOnKeyListener(new OnKeyListener()
+		{
+			public boolean onKey(View view, int keyCode, KeyEvent event)
+			{
+				if (event.getAction() == KeyEvent.ACTION_UP) {
+					KrollDict data = new KrollDict();
+					data.put(TiC.EVENT_PROPERTY_KEYCODE, keyCode);
+					proxy.fireEvent(TiC.EVENT_KEY_PRESSED, data);
+
+					switch (keyCode) {
+						case KeyEvent.KEYCODE_ENTER:
+						case KeyEvent.KEYCODE_DPAD_CENTER:
+							if (proxy.hasListeners(TiC.EVENT_CLICK)) {
+								proxy.fireEvent(TiC.EVENT_CLICK, null);
+								return true;
+							}
+					}
+				}
+				return false;
+			}
+		});
+	}
+
 
 	/**
 	 * Sets the nativeView's opacity.
@@ -1278,26 +1341,6 @@ public abstract class TiUIView
 		if (d != null) {
 			d.clearColorFilter();
 		}
-	}
-
-	protected void registerForKeyClick(View clickable) 
-	{
-		clickable.setOnKeyListener(new OnKeyListener() {
-			public boolean onKey(View view, int keyCode, KeyEvent event) 
-			{
-				if (event.getAction() == KeyEvent.ACTION_UP) {
-					switch(keyCode) {
-					case KeyEvent.KEYCODE_ENTER :
-					case KeyEvent.KEYCODE_DPAD_CENTER :
-						if (proxy.hasListeners(TiC.EVENT_CLICK)) {
-							proxy.fireEvent(TiC.EVENT_CLICK, null);
-							return true;
-						}
-					}
-				}
-				return false;
-			}
-		});
 	}
 
 	public KrollDict toImage()
