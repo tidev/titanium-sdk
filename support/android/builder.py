@@ -1846,6 +1846,15 @@ class Builder(object):
 		trace("Launch output: %s" % output)
 
 	def wait_for_sdcard(self):
+		# Quick check: the existence of /sdcard/Android,
+		# which really should be there on all phones and emulators.
+		output = self.run_adb('shell', 'cd /sdcard/Android && echo SDCARD READY')
+		if 'SDCARD READY' in output:
+			return True
+
+		# Our old way of checking in case the above
+		# didn't succeed:
+
 		mount_points_check = ['/sdcard', '/mnt/sdcard']
 		# Check the symlink that is typically in root.
 		# If you find it, add its target to the mount points to check.

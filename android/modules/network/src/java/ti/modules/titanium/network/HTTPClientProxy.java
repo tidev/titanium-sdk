@@ -7,6 +7,7 @@
 package ti.modules.titanium.network;
 
 import org.apache.http.MethodNotSupportedException;
+import org.apache.http.auth.AuthSchemeFactory;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
@@ -186,4 +187,59 @@ public class HTTPClientProxy extends KrollProxy
 		this.setProperty("validatesSecureCertificate", value);
 	}
 
+	@Kroll.setProperty @Kroll.method
+	public void setUsername(String value)
+	{
+		this.setProperty(TiC.PROPERTY_USERNAME, value);
+	}
+
+	@Kroll.getProperty @Kroll.method
+	public String getUsername()
+	{
+		if (this.hasProperty(TiC.PROPERTY_USERNAME)) {
+			return TiConvert.toString(this.getProperty(TiC.PROPERTY_USERNAME));
+		}
+		return null;
+	}
+
+	@Kroll.setProperty @Kroll.method
+	public void setPassword(String value)
+	{
+		this.setProperty(TiC.PROPERTY_PASSWORD, value);
+	}
+
+	@Kroll.getProperty @Kroll.method
+	public String getPassword()
+	{
+		if (this.hasProperty(TiC.PROPERTY_PASSWORD)) {
+			return TiConvert.toString(this.getProperty(TiC.PROPERTY_PASSWORD));
+		}
+		return null;
+	}
+
+	@Kroll.setProperty @Kroll.method
+	public void setDomain(String value)
+	{
+		this.setProperty(TiC.PROPERTY_DOMAIN, value);
+	}
+
+	@Kroll.getProperty @Kroll.method
+	public String getDomain()
+	{
+		if (this.hasProperty(TiC.PROPERTY_DOMAIN)) {
+			return TiConvert.toString(this.getProperty(TiC.PROPERTY_DOMAIN));
+		}
+		return null;
+	}
+	
+	@Kroll.method
+	public void addAuthFactory(String scheme, Object factory)
+	{
+		//Sanity Checks
+		if ( (scheme == null) || (scheme.length() == 0) || (! (factory instanceof AuthSchemeFactory) )) {
+			return;
+		}
+		
+		client.addAuthFactory(scheme, (AuthSchemeFactory)factory);
+	}
 }
