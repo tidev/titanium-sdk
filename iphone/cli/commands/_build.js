@@ -579,6 +579,11 @@ function build(logger, config, cli, finished) {
 	this.target = cli.argv.target;
 	this.provisioningProfileUUID = cli.argv['pp-uuid'];
 	
+	this.moduleSearchPaths = [ this.projectDir, afs.resolvePath(this.titaniumIosSdkPath, '..', '..', '..', '..') ];
+	if (config.paths && Array.isArray(config.paths.modules)) {
+		this.moduleSearchPaths = this.moduleSearchPaths.concat(config.paths.modules);
+	}
+	
 	this.debugHost = cli.argv['debug-host'];
 	this.keychain = cli.argv.keychain;
 	
@@ -1250,7 +1255,7 @@ build.prototype = {
 			return;
 		}
 		
-		appc.timodule.find(this.tiapp.modules, ['iphone', 'ios'], this.deployType, this.titaniumSdkVersion, this.projectDir, this.logger, function (modules) {
+		appc.timodule.find(this.tiapp.modules, ['iphone', 'ios'], this.deployType, this.titaniumSdkVersion, this.moduleSearchPaths, this.logger, function (modules) {
 			if (modules.missing.length) {
 				this.logger.error(__('Could not find all required Titanium Modules:'))
 				modules.missing.forEach(function (m) {
