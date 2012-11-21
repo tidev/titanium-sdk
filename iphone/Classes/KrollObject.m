@@ -707,6 +707,7 @@ bool KrollHasInstance(TiContextRef ctx, TiObjectRef constructor, TiValueRef poss
 					argcount:1 type:KrollMethodInvoke name:nil context:[self context]] autorelease];
 #endif
 			}
+			// Special handling for className due to conflict with NSObject private API
 			if ([key isEqualToString:@"className"]) {
 				return [target valueForUndefinedKey:key];
 			}
