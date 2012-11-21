@@ -720,7 +720,10 @@ DEFINE_EXCEPTIONS
 		for (NSString * thisKey in keySequence)
 		{
 			id newValue = [newProxy valueForKey:thisKey];
-			[self setKrollValue:newValue forKey:thisKey withObject:nil];
+			id oldValue = [oldProxy valueForKey:thisKey];
+			if ((oldValue != newValue) && ![oldValue isEqual:newValue]) {
+				[self setKrollValue:newValue forKey:thisKey withObject:nil];
+			}
 		}
 		
 		for (NSString * thisKey in oldProperties)
