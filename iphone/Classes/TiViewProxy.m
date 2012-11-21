@@ -127,6 +127,11 @@
     
 }
 
+-(BOOL) belongsToContext:(id<TiEvaluator>) context
+{
+    id<TiEvaluator> myContext = ([self executionContext]==nil)?[self pageContext]:[self executionContext];
+    return (context == myContext);
+}
 
 -(void)add:(id)arg
 {

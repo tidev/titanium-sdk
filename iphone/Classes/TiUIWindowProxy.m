@@ -239,13 +239,25 @@
     // on our created context, we CANNOT explicitly shut down here.  Instead we should memory-manage
     // contexts better so they stop when they're no longer in use.
 
-	// Sadly, today is not that day. Without shutdown, we leak all over the place.
-	if (context!=nil)
-	{
-		[context performSelector:@selector(shutdown:) withObject:nil afterDelay:1.0];
-		RELEASE_TO_NIL(context);
-	}
-	[super windowDidClose];
+    // Sadly, today is not that day. Without shutdown, we leak all over the place.
+    if (context!=nil) {
+        NSMutableArray* childrenToRemove = [[NSMutableArray alloc] init];
+        pthread_rwlock_rdlock(&childrenLock);
+        for (TiViewProxy* child in children) {
+            if ([child belongsToContext:context]) {
+                [childrenToRemove addObject:child];
+            }
+        }
+        pthread_rwlock_unlock(&childrenLock);
+        [context performSelector:@selector(shutdown:) withObject:nil afterDelay:1.0];
+        RELEASE_TO_NIL(context);
+        
+        for (TiViewProxy* child in childrenToRemove) {
+            [self remove:child];
+        }
+        [childrenToRemove release];
+    }
+    [super windowDidClose];
 }
 
 -(BOOL)_handleClose:(id)args
