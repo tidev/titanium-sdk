@@ -255,7 +255,7 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 @implementation TiUITableViewRowProxy
 
 @synthesize tableClass, table, section, row, callbackCell;
-@synthesize reusable;
+@synthesize reusable = reusable_;
 
 -(NSString *)className
 {
