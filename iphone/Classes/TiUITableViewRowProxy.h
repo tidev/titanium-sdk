@@ -43,7 +43,7 @@ typedef enum
 #pragma mark Public APIs
 
 @property(nonatomic,readonly)	NSString *tableClass;
-@property(nonatomic, readonly) BOOL reusable;
+@property(nonatomic, readonly) BOOL reusable; // Readonly until reproxy/reuse implemented properly
 
 #pragma mark Framework
 
