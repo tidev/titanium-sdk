@@ -94,7 +94,7 @@ define(["Ti/_/declare", "Ti/_/Evented", "Ti/_/style", "Ti/UI"], function(declare
 		}) : requestAnimationFrame(render);
 	}
 
-	function render(ts) {
+	function render() {
 		var wid,
 			anis,
 			ani,
@@ -104,6 +104,7 @@ define(["Ti/_/declare", "Ti/_/Evented", "Ti/_/style", "Ti/UI"], function(declare
 			len,
 			from,
 			to,
+			ts = now(),
 			pct,
 			progress,
 			val,
