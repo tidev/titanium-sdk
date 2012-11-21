@@ -707,6 +707,9 @@ bool KrollHasInstance(TiContextRef ctx, TiObjectRef constructor, TiValueRef poss
 					argcount:1 type:KrollMethodInvoke name:nil context:[self context]] autorelease];
 #endif
 			}
+			if ([key isEqualToString:@"className"]) {
+				return [target valueForUndefinedKey:key];
+			}
 			// attempt a function that has no args (basically a non-property property)
 			selector = NSSelectorFromString([NSString stringWithFormat:@"%@",key]);
 			if ([target respondsToSelector:selector])

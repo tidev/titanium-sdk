@@ -958,11 +958,6 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 		[self setValue:thisValue forKey:thisKey];
 	}
 }
-
-- (id)className
-{
-	return [self valueForUndefinedKey:NSStringFromSelector(_cmd)];
-}
  
 DEFINE_EXCEPTIONS
 
