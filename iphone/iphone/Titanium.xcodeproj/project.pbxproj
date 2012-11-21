@@ -4231,7 +4231,7 @@
 				GCC_WARN_UNUSED_VALUE = NO;
 				GCC_WARN_UNUSED_VARIABLE = NO;
 				HEADER_SEARCH_PATHS = (
-					"${SDKROOT}/usr/include/libxml2",
+					"${\"SDKROOT\"}/usr/include/libxml2",
 					../headers,
 				);
 				IPHONEOS_DEPLOYMENT_TARGET = 4.0;
@@ -4277,7 +4277,7 @@
 				GCC_WARN_UNUSED_VALUE = NO;
 				GCC_WARN_UNUSED_VARIABLE = NO;
 				HEADER_SEARCH_PATHS = (
-					"${SDKROOT}/usr/include/libxml2",
+					"${\"SDKROOT\"}/usr/include/libxml2",
 					../headers,
 				);
 				IPHONEOS_DEPLOYMENT_TARGET = 4.0;
@@ -4320,7 +4320,7 @@
 				GCC_WARN_UNUSED_VALUE = NO;
 				GCC_WARN_UNUSED_VARIABLE = NO;
 				HEADER_SEARCH_PATHS = (
-					"${SDKROOT}/usr/include/libxml2",
+					"${\"SDKROOT\"}/usr/include/libxml2",
 					../headers,
 				);
 				IPHONEOS_DEPLOYMENT_TARGET = 4.0;
