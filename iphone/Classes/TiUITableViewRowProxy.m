@@ -257,11 +257,6 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 @synthesize tableClass, table, section, row, callbackCell;
 @synthesize reusable = reusable_;
 
--(NSString *)className
-{
-	return [self tableClass];
-}
-
 -(void)_destroy
 {
 	RELEASE_TO_NIL(tableClass);
