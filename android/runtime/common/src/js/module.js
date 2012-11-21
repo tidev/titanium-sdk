@@ -350,6 +350,9 @@ Module.prototype._runScript = function (source, filename) {
 	};
 	contextGlobal.global = contextGlobal;
 
+	// Add support for console logging
+	contextGlobal.console = NativeModule.require('console');
+
 	var ti = new Titanium.Wrapper(context);
 	contextGlobal.Ti = contextGlobal.Titanium = ti;
 
