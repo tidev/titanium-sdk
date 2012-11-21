@@ -64,7 +64,7 @@ exports.config = function (logger, config, cli) {
 						callback: function (value) {
 							return value.trim();
 						},
-						default: config.android && config.android.sdkPath,
+						default: config.android && config.android.sdkPath && afs.resolvePath(config.android.sdkPath),
 						desc: __('the path to the Android SDK'),
 						hint: __('path'),
 						prompt: {
