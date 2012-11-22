@@ -314,22 +314,24 @@ public class TiUIScrollableView extends TiUIView
 		}
 	}
 
-	public void removeView(TiViewProxy proxy)
+	public void removeView(Object view)
 	{
-		if (mViews.contains(proxy)) {
-			mViews.remove(proxy);
-			getProxy().setProperty(TiC.PROPERTY_VIEWS, mViews.toArray());
-			mAdapter.notifyDataSetChanged();
+		if (view instanceof Number) {
+			int viewIndex = TiConvert.toInt(view);
+			if (viewIndex >= 0 && viewIndex < mViews.size()) {
+				mViews.remove(viewIndex);
+				getProxy().setProperty(TiC.PROPERTY_VIEWS, mViews.toArray());
+				mAdapter.notifyDataSetChanged();
+			}
+		} else if (view instanceof TiViewProxy) {
+			TiViewProxy proxy = (TiViewProxy)view;
+			if (mViews.contains(proxy)) {
+				mViews.remove(proxy);
+				getProxy().setProperty(TiC.PROPERTY_VIEWS, mViews.toArray());
+				mAdapter.notifyDataSetChanged();
+			}
 		}
-	}
-
-	public void removeView(int viewIndex)
-	{
-		if (viewIndex >= 0 && viewIndex < mViews.size()) {
-			mViews.remove(viewIndex);
-			getProxy().setProperty(TiC.PROPERTY_VIEWS, mViews.toArray());
-			mAdapter.notifyDataSetChanged();
-		}
+		
 	}
 
 	public void showPager()
