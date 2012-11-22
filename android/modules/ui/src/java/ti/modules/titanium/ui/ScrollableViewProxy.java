@@ -173,26 +173,42 @@ public class ScrollableViewProxy extends TiViewProxy
 	}
 
 	@Kroll.method
-	public void scrollToView(Object view, @Kroll.argument(optional = true) boolean animated)
+	public void scrollToView(Object view, @Kroll.argument(optional = true) Object obj)
 	{
 		if (inScroll.get()) return;
-		Log.i(TAG, "scrollToView " + animated);
+
+		Boolean animated = true;
+		if (obj != null) {
+			animated = TiConvert.toBoolean(obj);
+		}
+
 		getMainHandler().obtainMessage(MSG_SCROLL_TO, animated?1:0, 0, view).sendToTarget();
 	}
 
 	@Kroll.method
-	public void movePrevious(@Kroll.argument(optional = true) boolean animated)
+	public void movePrevious(@Kroll.argument(optional = true) Object obj)
 	{
 		if (inScroll.get()) return;
+
+
+		Boolean animated = true;
+		if (obj != null) {
+			animated = TiConvert.toBoolean(obj);
+		}
 
 		getMainHandler().removeMessages(MSG_MOVE_PREV);
 		getMainHandler().obtainMessage(MSG_MOVE_PREV, animated?1:0, 0, null).sendToTarget();
 	}
 
 	@Kroll.method
-	public void moveNext(@Kroll.argument(optional = true) boolean animated)
+	public void moveNext(@Kroll.argument(optional = true) Object obj)
 	{
 		if (inScroll.get()) return;
+
+		Boolean animated = true;
+		if (obj != null) {
+			animated = TiConvert.toBoolean(obj);
+		}
 
 		getMainHandler().removeMessages(MSG_MOVE_NEXT);
 		getMainHandler().obtainMessage(MSG_MOVE_NEXT, animated?1:0, 0, null).sendToTarget();
