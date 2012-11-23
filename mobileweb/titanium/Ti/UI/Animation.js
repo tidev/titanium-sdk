@@ -182,12 +182,8 @@ define(["Ti/_/declare", "Ti/_/Evented", "Ti/_/style", "Ti/UI"], function(declare
 						} else if (ani.repeat-- > 0) {
 							needsRender = ani.forward = 1;
 						} else {
-							// we need to remove this animation before resolving
-							anis.splice(i--, 1);
-							ani.promise.resolve();
-							if (!anis.length) {
-								delete animations[wid];
-							}
+							finishAnimation(wid, i)
+							i--
 						}
 					}
 				}
@@ -290,6 +286,19 @@ define(["Ti/_/declare", "Ti/_/Evented", "Ti/_/style", "Ti/UI"], function(declare
 		return [from, to];
 	}
 
+	//Animation callbacks are often perform actions with severe side effects and should 
+	//be removed only after their callbacks are called.
+	//Ex: ScrollableView.deleteView removes view when slide animation finish. If for any reason animation is
+	//cancelled then view still should be removed.
+	function finishAnimation(wid, i, keepEmpty) {
+		var anis = animations[wid]
+		anis[i].promise.resolve()
+		anis.splice(i, 1);
+		if (!keepEmpty && !anis.length) {
+			delete animations[wid];
+		}
+	}
+
 	api._play = function animationPlay(elem, anim) {
 		var promise = new require.Promise,
 			wid = elem.widgetId,
@@ -321,7 +330,8 @@ define(["Ti/_/declare", "Ti/_/Evented", "Ti/_/style", "Ti/UI"], function(declare
 					for (i = 0; i < anis.length; i++) {
 						delete anis[i].props[prop];
 						if (require.isEmpty(anis[i].props)) {
-							anis.splice(i--, 1);
+							finishAnimation(wid, i, true)
+							i--
 						}
 					}
 
@@ -467,11 +477,7 @@ define(["Ti/_/declare", "Ti/_/Evented", "Ti/_/style", "Ti/UI"], function(declare
 						}
 					}
 
-					anis.splice(i, 1);
-					if (!anis.length) {
-						delete animations[wid];
-					}
-
+					finishAnimation(wid, i)
 					result = true;
 
 					break;
