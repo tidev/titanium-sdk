@@ -347,7 +347,7 @@ define(["Ti/_/declare", "Ti/_/UI/KineticScrollView", "Ti/_/style", "Ti/_/lang", 
 						this._currentSection = void 0;
 						
 						// Convert any object literals to TableViewRow instances
-						for (var i in value) {
+						for (var i = 0; i < value.length; i++) {
 							if (!isDef(value[i].declaredClass) || (value[i].declaredClass != "Ti.UI.TableViewRow" && value[i].declaredClass != "Ti.UI.TableViewSection")) {
 								value[i] = UI.createTableViewRow(value[i]);
 							}

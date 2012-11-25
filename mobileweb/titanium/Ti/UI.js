@@ -187,7 +187,7 @@ define(
 							node = recursionStack.pop();
 							node._markedForLayout = true;
 							children = node._children;
-							for (j in children) {
+							for (var j = 0; j < children.length; j++) {
 								child = children[j];
 								if (node.layout !== "composite" || child._needsMeasuring || node._layout._isDependentOnParent(child)) {
 									recursionStack.push(child);
@@ -220,7 +220,7 @@ define(
 								while (recursionStack.length > 0) {
 									node = recursionStack.pop();
 									children = node._children;
-									for (j in children) {
+									for (var j = 0; j < children.length; j++) {
 										child = children[j];
 										if (child !== previousParent && (node.layout !== "composite" || child._needsMeasuring || node._layout._isDependentOnParent(child))) {
 											child._markedForLayout = true;
@@ -252,7 +252,7 @@ define(
 					});
 					container._layout._doLayout(container, width, height, false, false);
 				}
-				for (var i in rootNodesToLayout) {
+				for (var i = 0; i < rootNodesToLayout.length; i++) {
 					node = rootNodesToLayout[i];
 					node._layout._doLayout(node,
 						node._measuredWidth - node._borderLeftWidth - node._borderRightWidth,

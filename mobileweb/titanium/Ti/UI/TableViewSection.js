@@ -122,7 +122,7 @@ define(["Ti/_/declare", "Ti/_/lang", "Ti/_/UI/Widget", "Ti/_/style","Ti/UI/Mobil
 			}
 			
 			if (is(value,"Array")) {
-				for (var i in value) {
+				for (var i = 0; i < value.length; i++) {
 					this._insertHelper(value[i],index++);
 				}
 			} else {

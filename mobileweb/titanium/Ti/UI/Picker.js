@@ -130,7 +130,7 @@ define(["Ti/_/declare", "Ti/_/event", "Ti/UI/View", "Ti/_/UI/Widget", "Ti/UI", "
 				};
 				if (this.type === UI.PICKER_TYPE_PLAIN) {
 					var selectedValue = []
-					for(var i in this._columns) {
+					for(var i = 0; i < this._columns.length; i++) {
 						var selectedRow = this._columns[i].selectedRow;
 						selectedRow && selectedValue.push(selectedRow.title);
 					}
@@ -149,10 +149,10 @@ define(["Ti/_/declare", "Ti/_/event", "Ti/UI/View", "Ti/_/UI/Widget", "Ti/UI", "
 		_updateColumnHeights: function() {
 			var tallestColumnHeight = 0,
 				i;
-			for(i in this._columns) {
+			for(i = 0; i < this._columns.length; i++) {
 				tallestColumnHeight = Math.max(tallestColumnHeight, this._columns[i]._getTallestRowHeight());
 			}
-			for(i in this._columns) {
+			for(i = 0; i < this._columns.length; i++) {
 				this._columns[i]._setTallestRowHeight(tallestColumnHeight);
 			}
 		},
@@ -163,7 +163,7 @@ define(["Ti/_/declare", "Ti/_/event", "Ti/UI/View", "Ti/_/UI/Widget", "Ti/UI", "
 		
 		add: function(value) {
 			if (is(value,"Array")) {
-				for (var i in value) {
+				for (var i = 0; i < value.length; i++) {
 					this.add(value[i]);
 				}
 			} else if(lang.isDef(value.declaredClass)) {
@@ -199,7 +199,7 @@ define(["Ti/_/declare", "Ti/_/event", "Ti/UI/View", "Ti/_/UI/Widget", "Ti/UI", "
 				set: function(value) {
 					// Remove the existing columns
 					this._removeAllChildren();
-					for(var i in this._columns) {
+					for(var i = 0; i < this._columns.length; i++) {
 						var column = this._columns[i];
 						column.removeEventListener(column._pickerChangeEventListener);
 						column._parentPicker = void 0;
