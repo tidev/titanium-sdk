@@ -823,7 +823,7 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
         
         @Override
         protected void onPostExecute(Bitmap result) {
-        	if (currentUrl.equals(mUrl)) {
+        	if (!mNetworkURL || currentUrl.equals(mUrl)) {
 				if (result != null) {	
 					
 						setImage(result);
