@@ -12,7 +12,7 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI", "Ti/_/lang"], function(Bas
 				child,
 				i = 0,
 				layoutCoefficients, 
-				widthLayoutCoefficients, heightLayoutCoefficients, sandboxWidthLayoutCoefficients, sandboxHeightLayoutCoefficients, topLayoutCoefficients, leftLayoutCoefficients, 
+				widthLayoutCoefficients, heightLayoutCoefficients, sandboxWidthLayoutCoefficients, sandboxHeightLayoutCoefficients, topLayoutCoefficients, leftLayoutCoefficients,
 				minWidthLayoutCoefficients, minHeightLayoutCoefficients,
 				childSize,
 				measuredWidth, measuredHeight, measuredSandboxHeight, measuredSandboxWidth, measuredLeft, measuredTop,
@@ -89,15 +89,15 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI", "Ti/_/lang"], function(Bas
 						child._measuredSandboxWidth = measuredSandboxWidth = sandboxWidthLayoutCoefficients.x1 * height + sandboxWidthLayoutCoefficients.x2 + measuredWidth + (isNaN(measuredLeft) ? 0 : measuredLeft);
 						child._measuredSandboxHeight = measuredSandboxHeight = sandboxHeightLayoutCoefficients.x1 * height + sandboxHeightLayoutCoefficients.x2 + measuredHeight + (isNaN(measuredTop) ? 0 : measuredTop);
 					
-						// Update the size of the component
-						measuredSandboxWidth > computedSize.width && (computedSize.width = measuredSandboxWidth);
-						measuredSandboxHeight > computedSize.height && (computedSize.height = measuredSandboxHeight);
-						
 						child._measuredWidth = measuredWidth;
 						child._measuredHeight = measuredHeight;
 						child._measuredLeft = measuredLeft;
 						child._measuredTop = measuredTop;
 					}
+
+					// Update the size of the component
+					child._measuredSandboxWidth > computedSize.width && (computedSize.width = child._measuredSandboxWidth);
+					child._measuredSandboxHeight > computedSize.height && (computedSize.height = child._measuredSandboxHeight);
 				}
 			}
 			

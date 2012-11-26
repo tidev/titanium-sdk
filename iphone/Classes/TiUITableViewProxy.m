@@ -437,7 +437,7 @@ USE_VIEW_FOR_CONTENT_HEIGHT
 {
 	ENSURE_UI_THREAD(deleteRow,args);
 	
-	int index = [TiUtils intValue:[args objectAtIndex:0]];
+    id theArg = [args objectAtIndex:0];
 	NSDictionary *anim = [args count] > 1 ? [args objectAtIndex:1] : nil;
 	
 		
@@ -448,13 +448,31 @@ USE_VIEW_FOR_CONTENT_HEIGHT
 	}
 	
 	TiUITableViewRowProxy *row = nil;
-	TiUITableViewSectionProxy *section = [self sectionForIndex:index row:&row];
-	
-	if (section==nil || row == nil)
-	{
-		DebugLog(@"[WARN] No row found for index: %d",index);
-		return;
+    TiUITableViewSectionProxy *section = nil;
+
+    if ([theArg isKindOfClass:[TiUITableViewRowProxy class]]) {
+        row = (TiUITableViewRowProxy*) theArg;
+        section = row.section;
+
+        if (section == nil)
+        {
+            DebugLog(@"[WARN] No section found for row: %@",row);
+            return;
+        }
+    }
+    else if ([theArg isKindOfClass:[NSNumber class]]) {
+        int index = [TiUtils intValue:theArg];
+        section = [self sectionForIndex:index row:&row];
+        if (section == nil || row == nil)
+        {
+            DebugLog(@"[WARN] No row found for index: %d",index);
+            return;
+        }
 	}
+    else {
+        DebugLog(@"[WARN] Invalid type for row: %@",row);
+        return;
+    }
 	
 	if ([self viewInitialized])
 	{
@@ -648,6 +666,9 @@ USE_VIEW_FOR_CONTENT_HEIGHT
     TiUITableViewRowProxy *row = [self tableRowFromArg:data];
     
     TiUITableView *table = [self viewInitialized]?[self tableView]:nil;
+	
+	// Synchronize data with UI thread
+	[self data];
     
     if (sections == nil || [sections count]==0)
     {
@@ -658,11 +679,7 @@ USE_VIEW_FOR_CONTENT_HEIGHT
     {
         id header = [row valueForKey:@"header"];
         TiUITableViewActionType actionType = TiUITableViewActionAppendRow;
-        __block TiUITableViewSectionProxy* section = nil;
-        TiThreadPerformOnMainThread(^{
-            section = [sections lastObject];
-        }, YES);
-        
+        TiUITableViewSectionProxy* section = [sections lastObject];
         if (header != nil) {
             NSInteger newSectionIndex = section.section + 1;
             section = [self sectionWithHeader:header table:table];		

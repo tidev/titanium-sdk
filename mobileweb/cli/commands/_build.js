@@ -111,6 +111,11 @@ function build(logger, config, cli, finished) {
 	this.mobilewebThemeDir = this.mobilewebSdkPath + '/themes';
 	this.mobilewebTitaniumDir = this.mobilewebSdkPath + '/titanium';
 	
+	this.moduleSearchPaths = [ this.projectDir, afs.resolvePath(this.titaniumIosSdkPath, '..', '..', '..', '..') ];
+	if (config.paths && Array.isArray(config.paths.modules)) {
+		this.moduleSearchPaths = this.moduleSearchPaths.concat(config.paths.modules);
+	}
+	
 	this.projectDependencies = [];
 	this.modulesToLoad = [];
 	this.tiModulesToLoad = [];
@@ -327,7 +332,7 @@ build.prototype = {
 		}
 		
 		this.logger.info(__n('Searching for %s Titanium Module', 'Searching for %s Titanium Modules', this.tiapp.modules.length));
-		appc.timodule.find(this.tiapp.modules, 'mobileweb', this.deployType, this.titaniumSdkVersion, this.projectDir, this.logger, function (modules) {
+		appc.timodule.find(this.tiapp.modules, 'mobileweb', this.deployType, this.titaniumSdkVersion, this.moduleSearchPaths, this.logger, function (modules) {
 			if (modules.missing.length) {
 				this.logger.error(__('Could not find all required Titanium Modules:'))
 				modules.missing.forEach(function (m) {
