@@ -87,6 +87,9 @@ public class ActionBarProxy extends KrollProxy
 	@Kroll.method @Kroll.getProperty
 	public String getTitle()
 	{
+		if (actionBar == null) {
+			return null;
+		}
 		return (String) actionBar.getTitle();
 	}
 
