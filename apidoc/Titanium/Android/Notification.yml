@@ -146,7 +146,51 @@ properties:
     type: Number
 
   - name: sound
-    summary: A URL to the sound to play (supports both Android and Titanium URLs).
+    summary: A native Android URL to the sound to play.
+    description: |
+        Currently, the URL cannot refer to a file in the Resources directory. To play a file 
+        from the Resources directory, first copy it to removable storage. For example, you
+        can define the following function:
+
+            // Copy resource file to SD card, and return a native path.
+            // Return undefined if we can't copy the file.
+            function getOrCopyAudioFile(resourceFilename) {
+                var outFile = Ti.Filesystem.getFile(Ti.Filesystem.externalStorageDirectory, 'sound', 'cricket.wav');
+                var outPath = outFile.nativePath;
+                
+                if (! outFile.exists()) {
+                    var outDir = Ti.Filesystem.getFile(Ti.Filesystem.externalStorageDirectory, 'sound');
+                    if (! outDir.isDirectory()) {
+                        if (! outDir.createDirectory()) {
+                            Ti.API.debug("Failed to create directory.");
+                            outDir = null;
+                            return undefined;
+                        }
+                    }
+                    outDir = null;
+            
+                    var inFile = Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory, 'cricket.wav');
+                    try {
+                        inFile.copy(outPath);
+                    } catch (ex) {
+                        Ti.API.debug("Failed to copy file.");
+                        inFile = null;
+                        return undefined;
+                    }
+                    inFile = null;
+                }
+                outFile = null;
+                return outPath;
+            }
+
+
+        Then when creating a notification, specify the sound like this:
+            
+            var sound = getOrCopyAudioFile();
+            if (sound) {
+                notification.sound = sound;
+            }
+
     type: String
 
   - name: tickerText
