@@ -244,6 +244,11 @@ void ModifyScrollViewForKeyboardHeightAndContentHeightWithResponderRect(UIScroll
 
 @property (nonatomic, readonly) id accessibilityElement;
 
+- (void)setAccessibilityLabel_:(id)accessibilityLabel;
+- (void)setAccessibilityValue_:(id)accessibilityValue;
+- (void)setAccessibilityHint_:(id)accessibilityHint;
+- (void)setAccessibilityHidden_:(id)accessibilityHidden;
+
 /**
  Whether or not a view not normally picked up by the Titanium view hierarchy (such as wrapped iOS UIViews) was touched.
  @return _YES_ if the view contains specialized content (such as a system view) which should register as a touch for this view, _NO_ otherwise.
