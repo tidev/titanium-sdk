@@ -13,6 +13,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollFunction;
+import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.KrollRuntime;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.common.TiMessenger;
@@ -626,14 +627,39 @@ public abstract class TiBaseActivity extends Activity
 
 		switch(event.getKeyCode()) {
 			case KeyEvent.KEYCODE_BACK : {
-				if (activityProxy.hasListeners("android:back")) {
+				
+				if (event.getAction() == KeyEvent.ACTION_UP) {
+					String backEvent = "android:back";
+					KrollProxy proxy = null;
+					//android:back could be fired from a tabGroup window (activityProxy)
+					//or hw window (window).This event is added specifically to the activity
+					//proxy of a tab group in window.js
+					if (activityProxy.hasListeners(backEvent)) {
+						proxy = activityProxy;
+					} else if (window.hasListeners(backEvent)) {
+						proxy = window;
+					}
+					
+					if (proxy != null) {
+						proxy.fireEvent(backEvent, null);
+						handled = true;
+					}
+					
+				}
+				/*if (activityProxy.hasListeners("android:back")) {
 					if (event.getAction() == KeyEvent.ACTION_UP) {
 						activityProxy.fireEvent("android:back", null);
 					}
 					handled = true;
 
 				}
-				break;
+				if (window.hasListeners("android:back")) {
+					if (event.getAction() == KeyEvent.ACTION_UP) {
+						window.fireEvent("android:back", null);
+					}
+					handled = true;
+				}
+				break; */
 			}
 			case KeyEvent.KEYCODE_CAMERA : {
 				if (window.hasListeners(TiC.EVENT_ANDROID_CAMERA)) {
