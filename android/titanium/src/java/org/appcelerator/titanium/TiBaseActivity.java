@@ -666,20 +666,6 @@ public abstract class TiBaseActivity extends Activity
 					}
 					
 				}
-				/*if (activityProxy.hasListeners("android:back")) {
-					if (event.getAction() == KeyEvent.ACTION_UP) {
-						activityProxy.fireEvent("android:back", null);
-					}
-					handled = true;
-
-				}
-				if (window.hasListeners("android:back")) {
-					if (event.getAction() == KeyEvent.ACTION_UP) {
-						window.fireEvent("android:back", null);
-					}
-					handled = true;
-				}
-				break; */
 			}
 			case KeyEvent.KEYCODE_CAMERA : {
 				if (window.hasListeners(TiC.EVENT_ANDROID_CAMERA)) {
