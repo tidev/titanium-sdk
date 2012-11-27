@@ -34,6 +34,11 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.GZIPInputStream;
 
+import javax.net.ssl.KeyManager;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509KeyManager;
+import javax.net.ssl.X509TrustManager;
+
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpEntityEnclosingRequest;
@@ -149,6 +154,8 @@ public class TiHTTPClient
 	private Uri uri;
 	private String url;
 	private ArrayList<File> tmpFiles = new ArrayList<File>();
+	private ArrayList<X509TrustManager> trustManagers = new ArrayList<X509TrustManager>();
+	private ArrayList<X509KeyManager> keyManagers = new ArrayList<X509KeyManager>();
 
 	protected HashMap<String,String> headers = new HashMap<String,String>();
 	
@@ -1003,6 +1010,70 @@ public class TiHTTPClient
 
 	protected DefaultHttpClient getClient(boolean validating)
 	{
+		SSLSocketFactory sslSocketFactory = null;
+		if (trustManagers.size() > 0 || keyManagers.size() > 0) {
+			TrustManager[] trustManagerArray = null;
+			KeyManager[] keyManagerArray = null;
+			
+			if (trustManagers.size() > 0) {
+				trustManagerArray = new X509TrustManager[trustManagers.size()];
+				trustManagerArray = trustManagers.toArray(trustManagerArray);
+			}
+			
+			if (keyManagers.size() > 0) {
+				keyManagerArray = new X509KeyManager[keyManagers.size()];
+				keyManagerArray = keyManagers.toArray(keyManagerArray);
+			}
+			
+			try
+			{
+				sslSocketFactory = new TiSocketFactory(keyManagerArray, trustManagerArray);
+			}
+			catch(Exception e)
+			{
+				Log.e(TAG, "Error creating SSLSocketFactory: " + e.getMessage());
+				sslSocketFactory = null;
+			}
+		}
+		else if (!validating) {
+			TrustManager trustManagerArray[] = new TrustManager[] { new NonValidatingTrustManager() };
+			try
+			{
+				sslSocketFactory = new TiSocketFactory(null, trustManagerArray);
+			}
+			catch(Exception e)
+			{
+				Log.e(TAG, "Error creating SSLSocketFactory: " + e.getMessage());
+				sslSocketFactory = null;
+			}
+		}
+		
+		if (validating) {
+			if (validatingClient == null) {
+				validatingClient = createClient();
+			}
+			if (sslSocketFactory != null) {
+				validatingClient.getConnectionManager().getSchemeRegistry().register(new Scheme("https", sslSocketFactory, 443));
+			}
+			else {
+				validatingClient.getConnectionManager().getSchemeRegistry().register(new Scheme("https", SSLSocketFactory.getSocketFactory(), 443));
+			}
+			return validatingClient;
+		}
+		else {
+			if (nonValidatingClient == null) {
+				nonValidatingClient = createClient();
+			}
+			if (sslSocketFactory != null) {
+				nonValidatingClient.getConnectionManager().getSchemeRegistry().register(new Scheme("https", sslSocketFactory, 443));
+			}
+			else {
+				//This should not happen but keeping it in place something breaks
+				nonValidatingClient.getConnectionManager().getSchemeRegistry().register(new Scheme("https", new NonValidatingSSLSocketFactory(), 443));
+			}
+			return nonValidatingClient;
+		}
+		/*
 		if (validating) {
 			if (nonValidatingClient != null) {
 				return nonValidatingClient;
@@ -1021,6 +1092,7 @@ public class TiHTTPClient
 			validatingClient.getConnectionManager().getSchemeRegistry().register(new Scheme("https", new NonValidatingSSLSocketFactory(), 443));
 			return validatingClient;
 		}
+		*/
 	}
 
 	public void send(Object userData) throws MethodNotSupportedException
@@ -1337,5 +1409,15 @@ public class TiHTTPClient
 	protected boolean getAutoRedirect()
 	{
 		return autoRedirect;
+	}
+	
+	protected void addKeyManager(X509KeyManager manager)
+	{
+		keyManagers.add(manager);
+	}
+	
+	protected void addTrustManager(X509TrustManager manager)
+	{
+		trustManagers.add(manager);
 	}
 }
