@@ -646,6 +646,7 @@ public abstract class TiBaseActivity extends Activity
 					}
 					
 				}
+				break;
 			}
 			case KeyEvent.KEYCODE_CAMERA : {
 				if (window.hasListeners(TiC.EVENT_ANDROID_CAMERA)) {
