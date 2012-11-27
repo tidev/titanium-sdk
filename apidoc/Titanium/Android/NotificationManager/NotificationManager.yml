@@ -54,6 +54,8 @@ examples:
         `platforms/android/res/drawable/my_icon.png`.
         See <Titanium.App.Android.R> for more information.
 
+        This example doesn't include a custom alert sound. For information on adding a
+        custom alert sound, see [Notification.sound](Titanium.Android.Notification.sound).
                        
             // Intent object to launch the application 
             var intent = Ti.Android.createIntent({
