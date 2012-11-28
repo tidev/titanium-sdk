@@ -788,8 +788,7 @@ function build(logger, config, cli, finished) {
 					xcodeArgs.push('PROVISIONING_PROFILE=' + this.provisioningProfileUUID);
 					xcodeArgs.push('DEPLOYMENT_POSTPROCESSING=YES');
 					if (this.keychain) {
-						xcodeArgs.push('OTHER_CODE_SIGN_FLAGS=--keychain');
-						xcodeArgs.push(this.keychain);
+						xcodeArgs.push('OTHER_CODE_SIGN_FLAGS=--keychain ' + this.keychain);
 					}
 					this.codeSignEntitlements && xcodeArgs.push('CODE_SIGN_ENTITLEMENTS=Resources/Entitlements.plist');
 				}
