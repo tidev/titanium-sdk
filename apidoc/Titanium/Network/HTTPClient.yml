@@ -56,6 +56,19 @@ methods:
   - name: abort
     summary: Cancels a pending request.
     
+  - name: addAuthFactory
+    summary: Registers a new AuthSchemeFactory for a given scheme.
+    description: Use this method to add support for authorization schemes not natively supported by Android.
+    parameters:
+      - name: scheme
+        summary: The authentication scheme.
+        type: String
+      - name: factory
+        summary: The authentication factory. This factory must implement the [AuthSchemeFactory](http://developer.android.com/reference/org/apache/http/auth/AuthSchemeFactory.html) interface.
+        type: Object
+    platforms: [android]
+    since: {android: "3.0.0"}
+
   - name: clearCookies
     summary: Clears any cookies stored for the host.
     parameters:
@@ -203,6 +216,19 @@ properties:
     type: String
     permission: read-only
     
+  - name: domain
+    summary: Sets the domain parameter for authentication credentials.
+    description: |
+        Set this parameter when authentication against NTLM domains along with the [username](Titanium.Network.HTTPClient.username) 
+        and [password](Titanium.Network.HTTPClient.password) properties.
+        iOS supports NTLM authentication natively. 
+        Android can be extended using the [addAuthFactory](Titanium.Network.HTTPClient.addAuthFactory) method.
+        Must be set before calling [open](Titanium.Network.HTTPClient.open).
+    type: String
+    default: Undefined
+    platforms: [android,iphone, ipad]
+    since: 3.0.0
+
   - name: enableKeepAlive
     summary: Determines whether the client should attempt to keep a persistent connection.
     description: Set to `true` to maintain a persistent connection.
@@ -275,6 +301,14 @@ properties:
         the upload.
     type: Callback<Object>
     
+  - name: password
+    summary: Sets the password parameter for authentication credentials.
+    description: Must be set before calling [open](Titanium.Network.HTTPClient.open).
+    type: String
+    default: Undefined
+    platforms: [android,iphone, ipad]
+    since: 3.0.0
+
   - name: readyState
     summary: The current ready state of this HTTP request.
     description: |
@@ -327,6 +361,14 @@ properties:
         On Mobile Web, the timeout only works when making asynchronous requests.
     type: Number
     
+  - name: username
+    summary: Sets the username parameter for authentication credentials.
+    description: Must be set before calling [open](Titanium.Network.HTTPClient.open).
+    type: String
+    default: Undefined
+    platforms: [android,iphone, ipad]
+    since: 3.0.0
+
   - name: validatesSecureCertificate
     summary: Determines how SSL certification validation is performed on connection.  
     type: Boolean
