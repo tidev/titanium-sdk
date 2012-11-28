@@ -149,7 +149,7 @@
 			recorder->StopRecord();
 			[[TiMediaAudioSession sharedSession] stopAudioSession];
 		}
-		return [[TiFilesystemFileProxy alloc] initWithFile:[file path]];
+		return [[[TiFilesystemFileProxy alloc] initWithFile:[file path]] autorelease];
 	}
 	
 	return nil;
