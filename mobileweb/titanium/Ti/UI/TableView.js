@@ -194,8 +194,8 @@ define(["Ti/_/declare", "Ti/_/UI/KineticScrollView", "Ti/_/style", "Ti/_/lang", 
 		},
 		
 		_refreshSections: function() {
-		  var numChildren = this._sections._children.length;
-			for (var i = 0; i < numChildren; i += 2) {
+		  var numChildren = this._sections._children.length, i;
+			for (i = 0; i < numChildren; i += 2) {
 				this._sections._children[i]._refreshRows();
 			}
 			this._triggerLayout();
@@ -204,8 +204,9 @@ define(["Ti/_/declare", "Ti/_/UI/KineticScrollView", "Ti/_/style", "Ti/_/lang", 
 		_calculateLocation: function(index) {
 			var currentOffset = 0,
 				section,
-				numChildren = this._sections._children.length;
-			for(var i = 0; i < numChildren; i += 2) {
+				numChildren = this._sections._children.length,
+				i;
+			for(i = 0; i < numChildren; i += 2) {
 				section = this._sections._children[i];
 				currentOffset += section.rowCount;
 				if (index < currentOffset) {
