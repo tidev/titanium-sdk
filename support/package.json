@@ -11,7 +11,7 @@
 		"titanium-code-processor": ">=0.1.0",
 		"node-uuid": "1.3.x",
 		"titanium-sdk": ">=0.1.0",
-		"uglify-js": ">=1.3.3",
+		"uglify-js": "1.3.x",
 		"wrench": "1.3.x",
 		"xmldom": "0.1.11"
 	},
