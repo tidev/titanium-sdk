@@ -72,17 +72,20 @@ define(["Ti/_/declare", "Ti/_/lang", "Ti/_/UI/Widget", "Ti/_/style","Ti/UI/Mobil
 				// Update the row information
 				var rows = this._rows._children,
 					tableView = this._tableView,
-					rowsData = this.constants.rows = [];
-				for (var i = 1; i < rows.length; i += 2) {
-					var row = rows[i];
+					rowsData = this.constants.rows = [],
+					numRows = rows.length,
+					i,
+					row;
+				for (i = 1; i < numRows; i += 2) {
+					row = rows[i];
 					row._defaultHeight = tableView.rowHeight;
 					row._minHeight = tableView.minRowHeight;
 					row._maxHeight = tableView.maxRowHeight;
 					rowsData.push(row);
 				}
 				
-				for (var i = 0; i < rows.length; i += 2) {
-					var row = rows[i];
+				for (i = 0; i < numRows; i += 2) {
+					row = rows[i];
 					if (tableView.separatorStyle === TableViewSeparatorStyle.SINGLE_LINE) {
 						row.height = 1;
 						row.backgroundColor = tableView.separatorColor;

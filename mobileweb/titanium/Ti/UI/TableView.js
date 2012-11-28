@@ -82,8 +82,9 @@ define(["Ti/_/declare", "Ti/_/UI/KineticScrollView", "Ti/_/style", "Ti/_/lang", 
 				y = -this._currentTranslationY,
 				sections = this._sections,
 				sectionsList = sections._children,
-				len = sectionsList.length;
-			for(var i = 0; i < len; i+= 2) {
+				len = sectionsList.length,
+				i;
+			for(i = 0; i < len; i+= 2) {
 
 				// Check if the section is visible
 				var section = sectionsList[i],

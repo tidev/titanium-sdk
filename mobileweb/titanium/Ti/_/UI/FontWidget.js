@@ -70,7 +70,8 @@ define(["Ti/_/declare", "Ti/_/dom", "Ti/_/lang", "Ti/_/ready", "Ti/_/style", "Ti
 		properties: {
 			color: {
 				set: function(value) {
-					for (var i = 0; i < this._styleableDomNodes.length; i++) {
+				  var i, numNodes = this._styleableDomNodes.length;
+					for (i = 0; i < numNodes; i++) {
 						style.set(this._styleableDomNodes[i], "color", value);
 					}
 					return value;
@@ -78,7 +79,8 @@ define(["Ti/_/declare", "Ti/_/dom", "Ti/_/lang", "Ti/_/ready", "Ti/_/style", "Ti
 			},
 			font: {
 				set: function(value) {
-					for (var i = 0; i < this._styleableDomNodes.length; i++) {
+				  var i, numNodes = this._styleableDomNodes.length;
+					for (i = 0; i < numNodes; i++) {
 						this._setFont(value, this._styleableDomNodes[i]);
 					}
 					return value;
