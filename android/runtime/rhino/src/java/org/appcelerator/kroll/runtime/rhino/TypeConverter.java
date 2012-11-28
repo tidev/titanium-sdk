@@ -127,7 +127,21 @@ public class TypeConverter
 		return Context.getCurrentContext().newArray(scope, jsArray);
 	}
 
-	
+	public static Object[] javaObjectArrayToJsArguments(Object[] value, Scriptable scope)
+	{
+		Object[] jsArguments;
+		if (value == null) {
+			jsArguments = new Object[] {};
+		} else {
+			int javaArrayLength = value.length;
+			jsArguments = new Object[javaArrayLength];
+			for (int i = 0; i < javaArrayLength; i++) {
+				jsArguments[i] = javaObjectToJsObject(value[i], scope);
+			}
+		}
+		return jsArguments;
+	}
+
 	public static Scriptable javaStringArrayToJsArray(String[] value, Scriptable scope)
 	{
 		if (value == null) {
