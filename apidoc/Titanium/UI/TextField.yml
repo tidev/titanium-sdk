@@ -94,12 +94,28 @@ properties:
   - name: autoLink
     summary: Automatically convert text to clickable links. 
     description: |     
-        Use one of the <Titanium.UI.Android> linkify constants:
+        Specify which types of items to convert by setting `autoLink` to one of the 
+        <Titanium.UI> `AUTOLINK` constants: 
+        [AUTOLINK_ALL](Titanium.UI.AUTOLINK_ALL),
+        [AUTOLINK_EMAIL_ADDRESSES](Titanium.UI.AUTOLINK_EMAIL_ADDRESSES),
+        [AUTOLINK_MAP_ADDRESSES](Titanium.UI.AUTOLINK_MAP_ADDRESSES),
+        [AUTOLINK_NONE](Titanium.UI.AUTOLINK_NONE),
+        [AUTOLINK_PHONE_NUMBERS](Titanium.UI.AUTOLINK_PHONE_NUMBERS),
+        or [AUTOLINK_URLS](Titanium.UI.AUTOLINK_URLS).
+
+        Multiple autolink values can be combined with a bitwise OR. For example:
+            
+            textField.autoLink = AUTOLINK_MAP_ADDRESSES|AUTOLINK_PHONE_NUMBERS;
+
+        Prior to Release 3.0, this field used platform-specific constants. These are now
+        deprecated in favor of the `AUTOLINK` constants listed above.
+        
+        The Android-specific legacy constants are defined in <Titanium.UI.Android>:
         [LINKIFY_ALL](Titanium.UI.Android.LINKIFY_ALL),
         [LINKIFY_EMAIL_ADDRESSES](Titanium.UI.Android.LINKIFY_EMAIL_ADDRESSES),
         [LINKIFY_MAP_ADDRESSES](Titanium.UI.Android.LINKIFY_MAP_ADDRESSES),
         [LINKIFY_PHONE_NUMBERS](Titanium.UI.Android.LINKIFY_PHONE_NUMBERS),
-        or [LINKIFY_WEB_URLS](Titanium.UI.Android.LINKIFY_WEB_URLS).
+        and [LINKIFY_WEB_URLS](Titanium.UI.Android.LINKIFY_WEB_URLS).
     type: Number
     default: undefined
     since: 3.0.0
