@@ -112,7 +112,8 @@ define(["Ti/_/declare", "Ti/_/lang", "Ti/_/UI/Widget", "Ti/_/style","Ti/UI/Mobil
 		add: function(value, index) {
 			
 			var rows = this._rows._children,
-				rowCount = this.rowCount;
+				rowCount = this.rowCount,
+				i;
 			if (!lang.isDef(index)) {
 				index = rowCount;
 			}
@@ -125,7 +126,7 @@ define(["Ti/_/declare", "Ti/_/lang", "Ti/_/UI/Widget", "Ti/_/style","Ti/UI/Mobil
 			}
 			
 			if (is(value,"Array")) {
-				for (var i = 0; i < value.length; i++) {
+				for (i = 0; i < value.length; i++) {
 					this._insertHelper(value[i],index++);
 				}
 			} else {

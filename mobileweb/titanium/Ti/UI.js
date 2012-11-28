@@ -165,7 +165,6 @@ define(
 					parent,
 					previousParent,
 					children,
-					numChildren,
 					child,
 					recursionStack,
 					rootNodesToLayout = [],
@@ -189,8 +188,8 @@ define(
 							node = recursionStack.pop();
 							node._markedForLayout = true;
 							children = node._children;
-							numChildren = children.length;
-							for (j = 0; j < numChildren; j++) {
+							numNodes = children.length;
+							for (j = 0; j < numNodes; j++) {
 								child = children[j];
 								if (node.layout !== "composite" || child._needsMeasuring || node._layout._isDependentOnParent(child)) {
 									recursionStack.push(child);
@@ -223,8 +222,8 @@ define(
 								while (recursionStack.length > 0) {
 									node = recursionStack.pop();
 									children = node._children;
-									numChildren = children.length;
-									for (j = 0; j < numChildren; j++) {
+									numNodes = children.length;
+									for (j = 0; j < numNodes; j++) {
 										child = children[j];
 										if (child !== previousParent && (node.layout !== "composite" || child._needsMeasuring || node._layout._isDependentOnParent(child))) {
 											child._markedForLayout = true;
