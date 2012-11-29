@@ -145,12 +145,18 @@ description: |
     experiment with the results by turning on VoiceOver (iOS) or TalkBack (Android) on your test device.
 
     The fourth property, `accessibilityHidden`, when set to `true`, indicates that the view can be ignored
-    by the assistive service. In iOS this sets the similarly-named [accessibilityElementsHidden](http://developer.apple.com/library/ios/documentation/uikit/reference/UIAccessibility_Protocol/Introduction/Introduction.html#//apple_ref/occ/instp/NSObject/accessibilityElementsHidden) native property,
-    and in Android it calls the native [View.setImportantForAccessibility(boolean)](http://developer.android.com/reference/android/view/View.html#setImportantForAccessibility%28int%29) method, passing `false` when
-    this property is set to `true` (i.e., "hidden" means it's not important.) However, the
-    native `setImportantForAccessibility` method is available only on devices running Jelly Bean (Android 4.1) or
-    higher. No error will occur on older devices if you set `accessibilityHidden`; the value will simply
-    be ignored.
+    by the assistive service. In iOS this sets the similarly-named
+    [accessibilityElementsHidden](http://developer.apple.com/library/ios/documentation/uikit/reference/UIAccessibility_Protocol/Introduction/Introduction.html#//apple_ref/occ/instp/NSObject/accessibilityElementsHidden)
+    native property, which is only available in iOS 5.0 and later. On earlier versions of
+    iOS, this property is ignored.
+
+    In Android `accessibilityHidden` calls the native [View.setImportantForAccessibility(boolean)](http://developer.android.com/reference/android/view/View.html#setImportantForAccessibility%28int%29) method, passing `false` when
+    this property is set to `true` (i.e., "hidden" means it's not important). However, the
+    native `setImportantForAccessibility` method is available only on devices running
+    Android 4.1 (API level 16/Jelly Bean) or later. On earlier versions of Android, this
+    property is ignored.
+    
+    No error will occur on older devices if you set `accessibilityHidden`; the value will simply be ignored. 
 
 extends: Titanium.Proxy
 since: "0.9"
@@ -731,8 +737,16 @@ properties:
     summary: Whether the view should be "hidden" from (i.e., ignored by) the accessibility service.
     description: |
         On iOS this is a direct analog of the `accessibilityElementsHidden` property defined in the
-        [UIAccessibility Protocol](http://developer.apple.com/library/ios/#documentation/uikit/reference/UIAccessibility_Protocol/Introduction/Introduction.html). On Android, it is useful only on Jelly Bean (Android 4.1) or higher because
-        it causes [View.setImportantForAccessibility](http://developer.android.com/reference/android/view/View.html#setImportantForAccessibility%28int%29) to be called, which is not available in previous versions.
+        [UIAccessibility
+        Protocol](http://developer.apple.com/library/ios/#documentation/uikit/reference/UIAccessibility_Protocol/Introduction/Introduction.html).
+        The native property is only available in iOS 5.0 and later; if
+        `accessibilityHidden` is specified on earlier versions of iOS, it is ignored.
+        
+        On Android, setting `accessibilityHidden` calls the native
+        [View.setImportantForAccessibility](http://developer.android.com/reference/android/view/View.html#setImportantForAccessibility%28int%29)
+        method. The native method is only available in Android 4.1 (API level 16/Jelly Bean) and
+        later; if this property is specified on earlier versions of Android, it is ignored.
+        
     since: "3.0.0"
     platforms: [android, iphone, ipad]
     type: Boolean
