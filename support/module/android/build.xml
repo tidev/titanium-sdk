@@ -393,7 +393,12 @@ timodule.xml.
 	<target name="ndk.build.local" if="${jni.local}">
 		<check.ndk/>
 		<mkdir dir="${genjni.local}"/>
-		<copy todir="${genjni.local}">
+		<copy todir="${genjni.local}"
+			file="${module.generated.dir}/Application.mk">
+			<filterset refid="ndk.filter"/>
+		</copy>
+		<mkdir dir="${genjni.local}/jni"/>
+		<copy todir="${genjni.local}/jni">
 			<fileset dir="${ti.module.root}/jni">
 				<include name="**"/>
 			</fileset>
