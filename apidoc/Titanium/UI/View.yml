@@ -151,9 +151,10 @@ description: |
     iOS, this property is ignored.
 
     In Android `accessibilityHidden` calls the native [View.setImportantForAccessibility(boolean)](http://developer.android.com/reference/android/view/View.html#setImportantForAccessibility%28int%29) method, passing `false` when
-    this property is set to `true` (i.e., "hidden" means it's not important.) However, the
+    this property is set to `true` (i.e., "hidden" means it's not important). However, the
     native `setImportantForAccessibility` method is available only on devices running
-    Android 4.1 (API level 16/Jelly Bean) or later. 
+    Android 4.1 (API level 16/Jelly Bean) or later. On earlier versions of Android, this
+    property is ignored.
     
     No error will occur on older devices if you set `accessibilityHidden`; the value will simply be ignored. 
 
@@ -738,11 +739,14 @@ properties:
         On iOS this is a direct analog of the `accessibilityElementsHidden` property defined in the
         [UIAccessibility
         Protocol](http://developer.apple.com/library/ios/#documentation/uikit/reference/UIAccessibility_Protocol/Introduction/Introduction.html).
-        This property is only available in iOS 5.0 and later; if specified on earlier
-        versions of iOS, it is ignored.
+        The native property is only available in iOS 5.0 and later; if
+        `accessibilityHidden` is specified on earlier versions of iOS, it is ignored.
         
-        On Android, it is useful only on Android 4.1 (API level 16/Jelly Bean) or later because
-        it causes [View.setImportantForAccessibility](http://developer.android.com/reference/android/view/View.html#setImportantForAccessibility%28int%29) to be called, which is not available in previous versions.
+        On Android, setting `accessibilityHidden` calls the native
+        [View.setImportantForAccessibility](http://developer.android.com/reference/android/view/View.html#setImportantForAccessibility%28int%29)
+        method. The native method is only available in Android 4.1 (API level 16/Jelly Bean) and
+        later; if this property is specified on earlier versions of Android, it is ignored.
+        
     since: "3.0.0"
     platforms: [android, iphone, ipad]
     type: Boolean
