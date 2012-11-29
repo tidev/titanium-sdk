@@ -2377,11 +2377,22 @@ if __name__ == "__main__":
 		elif command == 'install':
 			avd_id = dequote(sys.argv[6])
 			device_args = ['-d']
-			if len(sys.argv) >= 8 and len(sys.argv[7]) > 0:
-				device_args = ['-s', sys.argv[7]]
+			# We have to be careful here because Windows can't handle an empty argument
+			# on the command line, so if a device serial number is not passed in, but
+			# a debugger_host (the argument after device serial number) _is_ passed in,
+			# to Windows it just looks like a serial number is passed in (the debugger_host
+			# argument shifts left to take over the empty argument.)
 			debugger_host = None
 			if len(sys.argv) >= 9 and len(sys.argv[8]) > 0:
 				debugger_host = dequote(sys.argv[8])
+				if len(sys.argv[7]) > 0:
+					device_args = ['-s', sys.argv[7]]
+			elif len(sys.argv) >= 8 and len(sys.argv[7]) > 0:
+				arg7 = dequote(sys.argv[7])
+				if 'adb:' in arg7:
+					debugger_host = arg7
+				else:
+					device_args = ['-s', arg7]
 			builder.build_and_run(True, avd_id, device_args=device_args, debugger_host=debugger_host)
 		elif command == 'distribute':
 			key = os.path.abspath(os.path.expanduser(dequote(sys.argv[6])))
