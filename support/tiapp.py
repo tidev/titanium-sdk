@@ -117,7 +117,7 @@ class TiAppXML(object):
 				elif child.nodeName == 'property':
 					name = child.getAttribute('name')
 					value = getText(child.childNodes)
-					print "[TRACE] app property, %s : %s" % (name, value)
+					# print "[TRACE] app property, %s : %s" % (name, value)
 					self.app_properties[name] = value
 					
 				# properties of the app
