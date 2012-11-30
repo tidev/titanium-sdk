@@ -129,9 +129,9 @@ define(["Ti/_/declare", "Ti/_/event", "Ti/UI/View", "Ti/_/UI/Widget", "Ti/UI", "
 					rowIndex: e.rowIndex
 				};
 				if (this.type === UI.PICKER_TYPE_PLAIN) {
-					var selectedValue = [];
-					var numColumns = this._columns.length;
-					var i;
+					var selectedValue = [],
+					  numColumns = this._columns.length,
+					  i;
 					for (i = 0; i < numColumns; i++) {
 						var selectedRow = this._columns[i].selectedRow;
 						selectedRow && selectedValue.push(selectedRow.title);
