@@ -11,7 +11,7 @@ exports.init = function (logger, config, cli) {
 	function fire(evtName, data, callback) {
 		// TODO: need to run all plugins via async series to fire the evtName
 		// for now, just call the callback
-		data.logger && data.logger.debug('Would be firing "' + evtName + '" legacy plugin hook if it was supported');
+		// data.logger && data.logger.debug('Would be firing "' + evtName + '" legacy plugin hook if it was supported');
 		callback();
 	}
 	
