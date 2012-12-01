@@ -61,6 +61,10 @@ public abstract class TiUIAbstractTab extends TiUIView {
 			// Assign parent so events bubble up correctly.
 			contentView.setParent(proxy);
 
+			// We need to create the view before allowing the window to fill view with its children
+			if (contentView.peekView() == null) {
+				contentView.getOrCreateView();
+			}
 			// Allow the window to fill the content view with its children.
 			windowProxy.getKrollObject().setWindow(contentView);
 		}
