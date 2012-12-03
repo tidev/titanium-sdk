@@ -102,7 +102,7 @@ exports.init = function (logger, config, cli) {
 				case 'dist-adhoc':
 					logger.info('Packaging for Ad Hoc distribution');
 					var pkgapp = path.join(build.xcodeEnv.path, 'Platforms', 'iPhoneOS.platform', 'Developer', 'usr', 'bin', 'PackageApplication');
-					exec(pkgapp + ' "' + build.xcodeAppDir + '"', function (err, stdout, stderr) {
+					exec('"' + pkgapp + '" "' + build.xcodeAppDir + '"', function (err, stdout, stderr) {
 						if (err) {
 							logger.error(__('Failed to package application'));
 							stderr.split('\n').forEach(logger.error);

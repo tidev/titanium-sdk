@@ -712,7 +712,7 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 	if ([[self children] count] > 0)
 	{
 		UIView *contentView = cell.contentView;
-		CGRect rect = [contentView frame];
+		CGRect rect = [contentView bounds];
         CGSize cellSize = [(TiUITableViewCell*)cell computeCellSize];
 		CGFloat rowWidth = cellSize.width;
 		CGFloat rowHeight = cellSize.height;
@@ -763,6 +763,8 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 			if (rowContainerView == nil) {
 				rowContainerView = [[TiUITableViewRowContainer alloc] initWithFrame:rect];
 				[contentView addSubview:rowContainerView];
+			} else {
+				[rowContainerView setFrame:rect];
 			}
 			[rowContainerView setBackgroundColor:[UIColor clearColor]];
 			[rowContainerView setAutoresizingMask:UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight];
@@ -783,6 +785,7 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 				[proxy setReproxying:NO];
 			}];
 		} else {
+			[rowContainerView setFrame:rect];
 			[contentView addSubview:rowContainerView];
 		}
 	}

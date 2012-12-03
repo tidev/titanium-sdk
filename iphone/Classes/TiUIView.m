@@ -307,6 +307,42 @@ DEFINE_EXCEPTIONS
 	return self;
 }
 
+#pragma mark - Accessibility API
+
+- (void)setAccessibilityLabel_:(id)accessibilityLabel
+{
+	id accessibilityElement = self.accessibilityElement;
+	if (accessibilityElement != nil) {
+		[accessibilityElement setIsAccessibilityElement:YES];
+		[accessibilityElement setAccessibilityLabel:[TiUtils stringValue:accessibilityLabel]];
+	}
+}
+
+- (void)setAccessibilityValue_:(id)accessibilityValue
+{
+	id accessibilityElement = self.accessibilityElement;
+	if (accessibilityElement != nil) {
+		[accessibilityElement setIsAccessibilityElement:YES];
+		[accessibilityElement setAccessibilityValue:[TiUtils stringValue:accessibilityValue]];
+	}
+}
+
+- (void)setAccessibilityHint_:(id)accessibilityHint
+{
+	id accessibilityElement = self.accessibilityElement;
+	if (accessibilityElement != nil) {
+		[accessibilityElement setIsAccessibilityElement:YES];
+		[accessibilityElement setAccessibilityHint:[TiUtils stringValue:accessibilityHint]];
+	}
+}
+
+- (void)setAccessibilityHidden_:(id)accessibilityHidden
+{
+	if ([TiUtils isIOS5OrGreater]) {
+		self.accessibilityElementsHidden = [TiUtils boolValue:accessibilityHidden def:NO];
+	}
+}
+
 #pragma mark Layout 
 
 -(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
@@ -480,6 +516,11 @@ DEFINE_EXCEPTIONS
     
     UIGraphicsBeginImageContextWithOptions(self.bounds.size, NO, bgImage.scale);
     CGContextRef background = UIGraphicsGetCurrentContext();
+    if (background == nil) {
+        //TIMOB-11564. Either width or height of the bounds is zero
+        UIGraphicsEndImageContext();
+        return;
+    }
     CGRect imageRect = CGRectMake(0, 0, bgImage.size.width, bgImage.size.height);
     CGContextDrawTiledImage(background, imageRect, [translatedImage CGImage]);
     UIImage* renderedBg = UIGraphicsGetImageFromCurrentImageContext();
