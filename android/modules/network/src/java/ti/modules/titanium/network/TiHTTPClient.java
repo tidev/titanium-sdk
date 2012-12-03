@@ -1025,24 +1025,18 @@ public class TiHTTPClient
 				keyManagerArray = keyManagers.toArray(keyManagerArray);
 			}
 			
-			try
-			{
+			try {
 				sslSocketFactory = new TiSocketFactory(keyManagerArray, trustManagerArray);
-			}
-			catch(Exception e)
-			{
+			} catch(Exception e) {
 				Log.e(TAG, "Error creating SSLSocketFactory: " + e.getMessage());
 				sslSocketFactory = null;
 			}
 		}
 		else if (!validating) {
 			TrustManager trustManagerArray[] = new TrustManager[] { new NonValidatingTrustManager() };
-			try
-			{
+			try {
 				sslSocketFactory = new TiSocketFactory(null, trustManagerArray);
-			}
-			catch(Exception e)
-			{
+			} catch(Exception e) {
 				Log.e(TAG, "Error creating SSLSocketFactory: " + e.getMessage());
 				sslSocketFactory = null;
 			}
@@ -1073,26 +1067,6 @@ public class TiHTTPClient
 			}
 			return nonValidatingClient;
 		}
-		/*
-		if (validating) {
-			if (nonValidatingClient != null) {
-				return nonValidatingClient;
-			}
-
-			nonValidatingClient = createClient();
-			nonValidatingClient.getConnectionManager().getSchemeRegistry().register(new Scheme("https", SSLSocketFactory.getSocketFactory(), 443));
-			return nonValidatingClient;
-
-		} else {
-			if (validatingClient != null) {
-				return validatingClient;
-			}
-
-			validatingClient = createClient();
-			validatingClient.getConnectionManager().getSchemeRegistry().register(new Scheme("https", new NonValidatingSSLSocketFactory(), 443));
-			return validatingClient;
-		}
-		*/
 	}
 
 	public void send(Object userData) throws MethodNotSupportedException

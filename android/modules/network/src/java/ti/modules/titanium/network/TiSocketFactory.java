@@ -1,3 +1,9 @@
+/**
+ * Appcelerator Titanium Mobile
+ * Copyright (c) 2010-2012 by Appcelerator, Inc. All Rights Reserved.
+ * Licensed under the terms of the Apache Public License
+ * Please see the LICENSE included with this distribution for details.
+ */
 package ti.modules.titanium.network;
 
 import java.io.IOException;
@@ -38,7 +44,8 @@ public class TiSocketFactory extends SSLSocketFactory {
 	}
 
 	@Override
-	public boolean isSecure(Socket socket) throws IllegalArgumentException {
+	public boolean isSecure(Socket socket) throws IllegalArgumentException 
+	{
 		return true;
 	}
 }
