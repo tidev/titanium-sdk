@@ -426,6 +426,22 @@ extern NSString * const TI_APPLICATION_DEPLOYTYPE;
 	//handled in send, as now optional
 	//[request setShouldRedirect:YES];
     
+    //TIMOB-11728. Expose setClientCertificates and setClientCertificateIdentity for HTTPClient
+    id clientCerts = [self valueForKey:@"clientCertificates"];
+    ENSURE_TYPE_OR_NIL(clientCerts, NSArray);
+    if (clientCerts != nil) {
+        [request setClientCertificates:clientCerts];
+    }
+    id certIdentity = [self valueForKey:@"clientCertificateIdentity"];
+    ENSURE_SINGLE_ARG_OR_NIL(certIdentity,NSObject);
+    if (certIdentity != nil) {
+        if ([certIdentity isKindOfClass:[NSArray class]]) {
+            [request setClientCertificateIdentity:(SecIdentityRef)[certIdentity objectAtIndex:0]];
+        }
+        else {
+            [request setClientCertificateIdentity:(SecIdentityRef)certIdentity];
+        }
+    }
 	//TIMOB-5435 NTLM support
 	[request setUsername:[TiUtils stringValue:[self valueForKey:@"username"]]];
 	[request setPassword:[TiUtils stringValue:[self valueForKey:@"password"]]];
