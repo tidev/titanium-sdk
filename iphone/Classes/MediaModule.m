@@ -1376,7 +1376,7 @@ MAKE_SYSTEM_PROP(VIDEO_FINISH_REASON_USER_EXITED,MPMovieFinishReasonUserExited);
 	}
 
 	NSMutableDictionary *dictionary = [NSMutableDictionary dictionaryWithObjectsAndKeys:
-			mediaType,@"mediaType",media,@"media",nil];
+			mediaType,@"mediaType",media,@"media",mediaURL,@"mediaURL",nil];
 
 	if (thumbnail!=nil)
 	{
