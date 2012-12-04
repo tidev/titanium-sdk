@@ -5,7 +5,7 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/css", "Ti/_/style", 
 		setStyle = style.set,
 		postDoBackground = {
 			post: function() {
-				if (this.backgroundColor || this.backgroundDisabledColor || this.backgroundDisabledImage || this.backgroundFocusedColor || 
+				if (this.backgroundColor || this.backgroundDisabledColor || this.backgroundDisabledImage || this.backgroundFocusedColor ||
 					this.backgroundFocusedImage || this.backgroundImage || this.backgroundSelectedColor || this.backgroundSelectedImage) {
 					this._clearDefaultLook();
 				} else {
@@ -45,13 +45,17 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/css", "Ti/_/style", 
 			this._setDefaultLook();
 
 			on(this, "touchstart", this, function() {
-				css.remove(node, "TiUIElementGradient");
-				css.add(node, "TiUIElementGradientActive");
+				if (!this.backgroundColor || !this.backgroundImage) {
+					css.remove(node, "TiUIElementGradient");
+					css.add(node, "TiUIElementGradientActive");
+				}
 				this.selectedColor && (this._buttonTitle.color = this.selectedColor);
 			});
 			on(this, "touchend", this, function() {
-				css.remove(node, "TiUIElementGradientActive");
-				css.add(node, "TiUIElementGradient");
+				if (!this.backgroundColor && !this.backgroundImage) {
+					css.remove(node, "TiUIElementGradientActive");
+					css.add(node, "TiUIElementGradient");
+				}
 				this.selectedColor && (this._buttonTitle.color = this.color || "#000");
 			});
 			on(node, "mouseout", this, function() {
@@ -62,7 +66,7 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/css", "Ti/_/style", 
 		_defaultWidth: UI.SIZE,
 
 		_defaultHeight: UI.SIZE,
-		
+
 		_setDefaultLook: function() {
 			if (!this._hasDefaultLook) {
 				this._hasDefaultLook = true;
@@ -74,7 +78,7 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/css", "Ti/_/style", 
 				this._getBorderFromCSS();
 			}
 		},
-		
+
 		_clearDefaultLook: function() {
 			if (this._hasDefaultLook) {
 				this._hasDefaultLook = false;
@@ -87,7 +91,7 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/css", "Ti/_/style", 
 		},
 
 		properties: {
-			
+
 			// Override the default background info so we can hook into it
 			backgroundColor: postDoBackground,
 
@@ -104,12 +108,12 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/css", "Ti/_/style", 
 			backgroundSelectedColor: postDoBackground,
 
 			backgroundSelectedImage: postDoBackground,
-			
+
 			enabled: {
 				set: function(value, oldValue) {
-					
+
 					if (value !== oldValue) {
-						if (this._hasDefaultLook) {	
+						if (this._hasDefaultLook) {
 							if (!value) {
 								css.remove(this.domNode,"TiUIElementGradient");
 								setStyle(this.domNode,"backgroundColor","#aaa");
@@ -124,7 +128,7 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/css", "Ti/_/style", 
 				},
 				value: true
 			},
-			
+
 			image: {
 				set: function(value) {
 					this._buttonImage.image = value;
