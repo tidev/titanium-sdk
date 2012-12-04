@@ -368,7 +368,7 @@ exports.validate = function (logger, config, cli) {
 				process.exit(1);
 			}
 			
-			var devNames = iosEnv.certs.devNames.map(function (name) {
+			var devNames = /\([0-9A-Za-z]*\)$/.test(cli.argv['developer-name']) ? iosEnv.certs.devNames : iosEnv.certs.devNames.map(function (name) {
 					var m = name.match(/^([^(]+?)*/);
 					return m && m[0].trim();
 				}),
