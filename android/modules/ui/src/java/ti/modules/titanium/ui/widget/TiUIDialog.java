@@ -161,6 +161,8 @@ public class TiUIDialog extends TiUIView
 	private void processView(TiViewProxy proxy)
 	{
 		if (proxy != null) {
+			//reset the child view context to parent context
+			proxy.setActivity(dialogWrapper.getActivity());
 			view = proxy.getOrCreateView();
 			getBuilder().setView(view.getNativeView());
 		}
