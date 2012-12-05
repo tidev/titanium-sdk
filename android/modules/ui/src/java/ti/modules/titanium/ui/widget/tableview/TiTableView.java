@@ -26,10 +26,12 @@ import ti.modules.titanium.ui.TableViewRowProxy;
 import ti.modules.titanium.ui.widget.searchbar.TiUISearchBar.OnSearchChangeListener;
 import ti.modules.titanium.ui.widget.tableview.TableViewModel.Item;
 import android.R;
+import android.content.Context;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.StateListDrawable;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
@@ -52,7 +54,29 @@ public class TiTableView extends FrameLayout
 	protected static final int MAX_CLASS_NAMES = 32;
 
 	private TableViewModel viewModel;
-	private ListView listView;
+	private class MyListView extends ListView {
+
+		public MyListView(Context context) {
+			super(context);
+			// TODO Auto-generated constructor stub
+		}
+		
+		@Override
+		public boolean onTouchEvent(MotionEvent ev) {
+			if (ev.getAction() == MotionEvent.ACTION_DOWN) {
+				xCoordDown = ev.getX();
+				yCoordDown = ev.getY();
+			}
+			else if (ev.getAction() == MotionEvent.ACTION_UP) {
+				xCoordUp = ev.getX();
+				xCoordUp = ev.getY();
+				
+			}
+			return super.onTouchEvent(ev);
+		}
+		
+	}
+	private MyListView listView;
 	private TTVListAdapter adapter;
 	private OnItemClickedListener itemClickListener;
 	private OnItemLongClickedListener itemLongClickListener;
@@ -66,6 +90,11 @@ public class TiTableView extends FrameLayout
 	private TableViewProxy proxy;
 	private boolean filterCaseInsensitive = true;
 	private StateListDrawable selector;
+	
+	private float xCoordUp;
+	private float yCoordUp;
+	private float xCoordDown;
+	private float yCoordDown;
 
 	public interface OnItemClickedListener {
 		public void onClick(KrollDict item);
@@ -278,7 +307,7 @@ public class TiTableView extends FrameLayout
 		rowTypes.put(TableViewProxy.CLASSNAME_DEFAULT, rowTypeCounter.incrementAndGet());
 
 		this.viewModel = new TableViewModel(proxy);
-		this.listView = new ListView(getContext());
+		this.listView = new MyListView(getContext());
 		listView.setId(TI_TABLE_VIEW_ID);
 
 		listView.setFocusable(true);
@@ -287,6 +316,7 @@ public class TiTableView extends FrameLayout
 		listView.setCacheColorHint(Color.TRANSPARENT);
 		final KrollProxy fProxy = proxy;
 		listView.setOnScrollListener(new OnScrollListener()
+		//OnScrollListener listener = new OnScrollListener()
 		{
 			private boolean scrollValid = false;
 			private int lastValidfirstItem = 0;
@@ -301,6 +331,10 @@ public class TiTableView extends FrameLayout
 					size.put("width", TiTableView.this.getWidth());
 					size.put("height", TiTableView.this.getHeight());
 					eventArgs.put("size", size);
+					KrollDict contentOffset = new KrollDict();
+					contentOffset.put("x",  xCoordUp);
+					contentOffset.put("y",  yCoordUp);
+					eventArgs.put("contentOffset",  contentOffset);
 					fProxy.fireEvent(TiC.EVENT_SCROLLEND, eventArgs);
 					// TODO: Deprecate old event
 					fProxy.fireEvent("scrollEnd", eventArgs);
@@ -313,6 +347,7 @@ public class TiTableView extends FrameLayout
 			@Override
 			public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount)
 			{
+
 				boolean fireScroll = scrollValid;
 				if (!fireScroll && visibleItemCount > 0) {
 					//Items in a list can be selected with a track ball in which case
@@ -329,6 +364,10 @@ public class TiTableView extends FrameLayout
 					size.put("width", TiTableView.this.getWidth());
 					size.put("height", TiTableView.this.getHeight());
 					eventArgs.put("size", size);
+					KrollDict contentOffset = new KrollDict();
+					contentOffset.put("x",  xCoordDown);
+					contentOffset.put("y",  yCoordDown);
+					eventArgs.put("contentOffset",  contentOffset);
 					fProxy.fireEvent(TiC.EVENT_SCROLL, eventArgs);
 				}
 			}
