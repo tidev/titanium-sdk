@@ -631,7 +631,6 @@ function build(logger, config, cli, finished) {
 	if (this.target == 'device') {
 		this.logger.info(__('iOS Development Certificate: %s', this.certDeveloperName.cyan));
 	} else if (/dist-appstore|dist\-adhoc/.test(this.target)) {
-		dump(cli.argv);
 		this.logger.info(__('iOS Distribution Certificate: %s', this.certDistributionName.cyan));
 	}
 	
