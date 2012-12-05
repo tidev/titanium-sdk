@@ -157,7 +157,6 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 			if (v.getParent() == null) {
 				content.addView(v, view.getLayoutParams());
 			}
-			view.getNativeView().invalidate();
 		}
 	}
 

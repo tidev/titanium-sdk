@@ -6,6 +6,9 @@
  */
 package ti.modules.titanium.network;
 
+import javax.net.ssl.X509KeyManager;
+import javax.net.ssl.X509TrustManager;
+
 import org.apache.http.MethodNotSupportedException;
 import org.apache.http.auth.AuthSchemeFactory;
 import org.appcelerator.kroll.KrollDict;
@@ -241,5 +244,21 @@ public class HTTPClientProxy extends KrollProxy
 		}
 		
 		client.addAuthFactory(scheme, (AuthSchemeFactory)factory);
+	}
+	
+	@Kroll.method
+	public void addTrustManager(Object manager)
+	{
+		if (manager instanceof X509TrustManager) {
+			client.addTrustManager((X509TrustManager)manager);
+		}
+	}
+	
+	@Kroll.method
+	public void addKeyManager(Object manager)
+	{
+		if (manager instanceof X509KeyManager) {
+			client.addKeyManager((X509KeyManager)manager);
+		}
 	}
 }
