@@ -56,6 +56,9 @@ exports.config = function (logger, config, cli) {
 									throw new appc.exception(__('Invalid platform: %s', platform));
 								}
 								
+								// now that we've passed the validation, transform and continue
+								platform = ti.resolvePlatform(platform);
+								
 								// it's possible that platform was not specified at the command line in which case the it would
 								// be prompted for. that means that validate() was unable to apply default values for platform-
 								// specific options and scan for platform-specific hooks, so we must do it here.

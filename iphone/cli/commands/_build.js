@@ -368,7 +368,7 @@ exports.validate = function (logger, config, cli) {
 				process.exit(1);
 			}
 			
-			var devNames = iosEnv.certs.devNames.map(function (name) {
+			var devNames = /\([0-9A-Za-z]*\)$/.test(cli.argv['developer-name']) ? iosEnv.certs.devNames : iosEnv.certs.devNames.map(function (name) {
 					var m = name.match(/^([^(]+?)*/);
 					return m && m[0].trim();
 				}),
@@ -631,7 +631,6 @@ function build(logger, config, cli, finished) {
 	if (this.target == 'device') {
 		this.logger.info(__('iOS Development Certificate: %s', this.certDeveloperName.cyan));
 	} else if (/dist-appstore|dist\-adhoc/.test(this.target)) {
-		dump(cli.argv);
 		this.logger.info(__('iOS Distribution Certificate: %s', this.certDistributionName.cyan));
 	}
 	
