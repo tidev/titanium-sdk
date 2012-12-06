@@ -72,8 +72,30 @@ exports.config = function (logger, config, cli) {
 				sims = {},
 				defaultSdk,
 				conf,
-				devNames = iosEnv.certs.devNames,
-				distNames = iosEnv.certs.distNames;
+				devName,
+				lowerCasedDevNames = iosEnv.certs.devNames.map(function (s) { return s.toLowerCase(); }),
+				lowerCasedDistNames = iosEnv.certs.distNames.map(function (s) { return s.toLowerCase(); });
+			
+			// attempt to resolve a default ios developer cert name (used for device builds)
+			if (process.env.CODE_SIGN_IDENTITY) {
+				devName = process.env.CODE_SIGN_IDENTITY.replace(/(iPhone Developer\: (.+) \(.+)/, '$2');
+			} else if (config.ios && config.ios.developerName) {
+				devName = config.ios.developerName.trim();
+				if (devNameIdRegExp.test(devName)) {
+					if (lowerCasedDevNames.indexOf(devName.toLowerCase()) == -1) {
+						devName = undefined;
+					}
+				} else {
+					lowerCasedDevNames = lowerCasedDevNames.map(function (name) {
+						var m = name.match(/^([^(]+?)*/);
+						return (m ? m[0] : name).trim().toLowerCase();
+					});
+					var p = lowerCasedDevNames.indexOf(devName.toLowerCase());
+					if (p == -1) {
+						devName = lowerCasedDevNames[p];
+					}
+				}
+			}
 			
 			Object.keys(iosEnv.xcode).forEach(function (key) {
 				iosEnv.xcode[key].sdks.forEach(function (sdk, i) {
@@ -118,37 +140,39 @@ exports.config = function (logger, config, cli) {
 					},
 					'developer-name': {
 						abbr: 'V',
-						default: process.env.CODE_SIGN_IDENTITY ? process.env.CODE_SIGN_IDENTITY.replace(/(iPhone Developer\: (.+) \(.+)/, '$2') : (config.ios && config.ios.developerName && devNames.indexOf(config.ios.developerName) != -1 ? config.ios.developerName : undefined),
+						default: devName,
 						desc: __('the iOS Developer Certificate to use; required when target is %s', 'device'.cyan),
 						hint: 'name',
 						prompt: {
 							label: __('Name of the iOS Developer Certificate to use'),
 							error: __('Invalid developer name'),
 							validator: function (name) {
-								var dn = devNameIdRegExp.test(name) ? devNames.map(function (name) {
+								name && (name = name.trim());
+								
+								var dn = devNameIdRegExp.test(name) ? lowerCasedDevNames.map(function (name) {
 										return name.trim().toLowerCase();
-									}) : devNames.map(function (name) {
+									}) : lowerCasedDevNames.map(function (name) {
 										var m = name.match(/^([^(]+?)*/);
-										return m && m[0].trim().toLowerCase();
+										return (m ? m[0] : name).trim().toLowerCase();
 									});
 								
 								if (!name || dn.indexOf(name.toLowerCase()) == -1) {
 									var width = 0,
 										i = 0,
-										l = devNames.length,
+										l = iosEnv.certs.devNames.length,
 										h = Math.ceil(l / 2),
 										output = [__('Available names:')];
 									
 									for (; i < h; i++) {
-										if (devNames[i].length > width) {
-											width = devNames[i].length;
+										if (iosEnv.certs.devNames[i].length > width) {
+											width = iosEnv.certs.devNames[i].length;
 										}
-										output.push('    ' + devNames[i]);
+										output.push('    ' + iosEnv.certs.devNames[i]);
 									}
 									
 									width += 12; // 4 spaces left padding, 8 spaces between columns
 									for (h = 1; i < l; h++, i++) {
-										output[h] = appc.string.rpad(output[h], width) + devNames[i];
+										output[h] = appc.string.rpad(output[h], width) + iosEnv.certs.devNames[i];
 									}
 									
 									throw new appc.exception(
@@ -162,16 +186,17 @@ exports.config = function (logger, config, cli) {
 					},
 					'distribution-name': {
 						abbr: 'R',
-						default: config.ios && config.ios.distributionName && distNames.indexOf(config.ios.distributionName) != -1 ? config.ios.distributionName : undefined,
+						default: config.ios && config.ios.distributionName && lowerCasedDistNames.indexOf(config.ios.distributionName) != -1 ? config.ios.distributionName : undefined,
 						desc: __('the iOS Distribution Certificate to use; required when target is %s or %s', 'dist-appstore'.cyan, 'dist-adhoc'.cyan),
 						hint: 'name',
 						prompt: {
 							label: __('Name of the iOS Distribution Certificate to use'),
 							error: __('Invalid distribution name'),
 							validator: function (name) {
-								if (!name || distNames.indexOf(name) == -1) {
+								name && (name = name.trim());
+								if (!name || lowerCasedDistNames.indexOf(name.toLowerCase()) == -1) {
 									var names = [__('Available names:')];
-									names = names.concat(distNames);
+									names = names.concat(iosEnv.certs.distNames);
 									throw new appc.exception(
 										name ? __('Unable to find an iOS Distribution Certificate for "%s"', name) : __('Select an iOS Distribution Certificate:'),
 										names.map(function (s, i) { return i ? '    ' + s.cyan : s; })
@@ -223,6 +248,8 @@ exports.config = function (logger, config, cli) {
 							label: __('Provisioning Profile UUID'),
 							error: __('Invalid Provisioning Profile UUID'),
 							validator: function (uuid) {
+								uuid = (uuid || '').trim();
+								
 								var availableUUIDs = [],
 									addUUIDs = function (section, uuids) {
 										availableUUIDs.push(section);
@@ -417,13 +444,15 @@ exports.validate = function (logger, config, cli) {
 				process.exit(1);
 			}
 			
+			cli.argv['developer-name'] = (cli.argv['developer-name'] || '').trim();
+			
 			var devNames = devNameIdRegExp.test(cli.argv['developer-name']) ? iosEnv.certs.devNames.map(function (name) {
 					return name.trim().toLowerCase();
 				}) : iosEnv.certs.devNames.map(function (name) {
 					var m = name.match(/^([^(]+?)*/);
-					return m && m[0].trim().toLowerCase();
+					return (m ? m[0] : name).trim().toLowerCase();
 				}),
-				p = devNames.indexOf(cli.argv['developer-name']);
+				p = devNames.indexOf(cli.argv['developer-name'].toLowerCase());
 			
 			if (p == -1) {
 				logger.error(__('Unable to find an iOS Developer Certificate for "%s"', cli.argv['developer-name']) + '\n');
@@ -432,7 +461,7 @@ exports.validate = function (logger, config, cli) {
 					logger.log('    ' + name.cyan);
 				});
 				logger.log();
-				appc.string.suggest(cli.argv['developer-name'], devNames, logger.log);
+				appc.string.suggest(cli.argv['developer-name'], iosEnv.certs.devNames, logger.log);
 				process.exit(1);
 			} else {
 				cli.argv['developer-name'] = iosEnv.certs.devNames[p];
@@ -445,18 +474,22 @@ exports.validate = function (logger, config, cli) {
 				process.exit(1);
 			}
 			
-			var distNames = iosEnv.certs.distNames.map(function (name) {
-				var m = name.match(/^([^(]+?)*/);
-				return m && m[0].trim();
-			});
-			if (distNames.indexOf(cli.argv['distribution-name']) == -1) {
+			cli.argv['distribution-name'] = (cli.argv['distribution-name'] || '').trim();
+			
+			var p = iosEnv.certs.distNames.map(function (name) {
+				return name.toLowerCase();
+			}).indexOf(cli.argv['distribution-name'].toLowerCase());
+			
+			if (p != -1) {
+				cli.argv['distribution-name'] = iosEnv.certs.distNames[p];
+			} else {
 				logger.error(__('Unable to find an iOS Distribution Certificate for name "%s"', cli.argv['distribution-name']) + '\n');
 				logger.log(__('Available distribution names:'));
-				distNames.forEach(function (name) {
+				iosEnv.certs.distNames.forEach(function (name) {
 					logger.log('    ' + name.cyan);
 				});
 				logger.log();
-				appc.string.suggest(cli.argv['distribution-name'], distNames, logger.log);
+				appc.string.suggest(cli.argv['distribution-name'], iosEnv.certs.distNames, logger.log);
 				process.exit(1);
 			}
 		}
@@ -467,30 +500,42 @@ exports.validate = function (logger, config, cli) {
 			process.exit(1);
 		}
 		
-		var profiles = iosEnv.provisioningProfilesByUUID = {},
-			addProfiles = function (target) {
-				iosEnv.provisioningProfiles[provisioningProfileMap[target]].forEach(function (profile) {
-					profiles[profile.uuid] = profile;
-				});
-			};
+		cli.argv['pp-uuid'] = cli.argv['pp-uuid'].trim();
 		
-		if (cli.argv.target == 'device') {
-			addProfiles('device');
-		} else {
-			addProfiles('dist-appstore');
-			addProfiles('dist-adhoc');
-		}
-		
-		if (!profiles[cli.argv['pp-uuid']]) {
+		(function (pp) {
+			iosEnv.provisioningProfilesByUUID = {};
+			
+			var availableUUIDs = [],
+				allUUIDs = [],
+				addUUIDs = function (section, uuids) {
+					var match = 0;
+					availableUUIDs.push(section);
+					for (var i = 0; i < uuids.length; i++) {
+						if (uuids[i].uuid == cli.argv['pp-uuid']) {
+							match = 1;
+						}
+						allUUIDs.push(uuids[i].uuid);
+						iosEnv.provisioningProfilesByUUID[uuids[i].uuid] = uuids[i];
+						availableUUIDs.push('    ' + uuids[i].uuid.cyan + '  ' + uuids[i].appId + ' (' + uuids[i].name + ')');
+					}
+					return match;
+				};
+			
+			if (cli.argv.target == 'device') {
+				if (addUUIDs(__('Available Development UUIDs:'), pp.development)) return;
+			} else {
+				if (addUUIDs(__('Available Distribution UUIDs:'), pp.distribution) + addUUIDs(__('Available Adhoc UUIDs:'), pp.adhoc)) return;
+				// TODO: display enterprise adhoc uuids
+			}
+			
 			logger.error(__('Invalid Provisioning Profile UUID "%s"', cli.argv['pp-uuid']) + '\n');
-			logger.log(__('Available Provisioning Profile UUIDs:'));
-			Object.keys(profiles).forEach(function (uuid) {
-				logger.log('    ' + (profiles[uuid].uuid + '  ' + profiles[uuid].appId + ' (' + profiles[uuid].name + ')').cyan);
+			availableUUIDs.forEach(function (line) {
+				logger.log(line);
 			});
 			logger.log();
-			appc.string.suggest(cli.argv['pp-uuid'], Object.keys(profiles), logger.log);
+			appc.string.suggest(cli.argv['pp-uuid'], allUUIDs, logger.log);
 			process.exit(1);
-		}
+		})(iosEnv.provisioningProfiles);
 		
 		// validate keychain
 		var keychain = cli.argv.keychain ? afs.resolvePath(cli.argv.keychain) : null;
