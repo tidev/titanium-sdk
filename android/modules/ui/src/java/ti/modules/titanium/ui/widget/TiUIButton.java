@@ -41,7 +41,6 @@ public class TiUIButton extends TiUIView
 				TiUIHelper.firePostLayoutEvent(proxy);
 			}
 		};
-		btn.setPadding(8, 0, 8, 0);
 		btn.setGravity(Gravity.CENTER);
 		setNativeView(btn);
 	}
@@ -65,6 +64,10 @@ public class TiUIButton extends TiUIView
 				Drawable image = drawableRef.getDrawable();
 				btn.setCompoundDrawablesWithIntrinsicBounds(image, null, null, null);
 			}
+		} else if (d.containsKey(TiC.PROPERTY_BACKGROUND_COLOR) || d.containsKey(TiC.PROPERTY_BACKGROUND_IMAGE)) {
+			// Reset the padding here if the background color/image is set. By default the padding will be calculated
+			// for the button, but if we set a background color, it will not look centered unless we reset the padding.
+			btn.setPadding(8, 0, 8, 0);
 		}
 		if (d.containsKey(TiC.PROPERTY_TITLE)) {
 			btn.setText(d.getString(TiC.PROPERTY_TITLE));
