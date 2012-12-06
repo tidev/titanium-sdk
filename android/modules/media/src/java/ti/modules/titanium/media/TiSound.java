@@ -19,6 +19,7 @@ import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.util.TiConvert;
+import org.appcelerator.titanium.util.TiRHelper;
 
 import android.content.Context;
 import android.content.res.AssetFileDescriptor;
@@ -82,12 +83,18 @@ public class TiSound
 		try {
 			mp = new MediaPlayer();
 			String url = TiConvert.toString(proxy.getProperty(TiC.PROPERTY_URL));
-			if (URLUtil.isAssetUrl(url)) {
+			boolean isAsset = URLUtil.isAssetUrl(url);
+			if (isAsset || url.startsWith("android.resource")) {
 				Context context = TiApplication.getInstance();
 				String path = url.substring(TiConvert.ASSET_URL.length());
 				AssetFileDescriptor afd = null;
 				try {
-					afd = context.getAssets().openFd(path);
+					if (isAsset) {
+						afd = context.getAssets().openFd(path);
+					} else {
+						Uri uri = Uri.parse(url);
+						afd = context.getResources().openRawResourceFd(TiRHelper.getResource("raw." + uri.getLastPathSegment()));
+					}
 					// Why mp.setDataSource(afd) doesn't work is a problem for another day.
 					// http://groups.google.com/group/android-developers/browse_thread/thread/225c4c150be92416
 					mp.setDataSource(afd.getFileDescriptor(), afd.getStartOffset(), afd.getLength());
