@@ -660,6 +660,7 @@ TiOrientationFlags TiOrientationFlagsFromObject(id args)
 		{
 			[[UIApplication sharedApplication] setStatusBarHidden:restoreFullscreen withAnimation:UIStatusBarAnimationNone];
 			self.view.frame = [[[TiApp app] controller] resizeViewForStatusBarHidden];
+			[[[TiApp app] controller] repositionSubviews];
 		} 
  
 		if (closeAnimation!=nil)
