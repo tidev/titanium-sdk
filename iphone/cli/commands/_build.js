@@ -30,6 +30,7 @@ var ti = require('titanium-sdk'),
 	series = appc.async.series,
 	minIosSdkVersion = '4.0',
 	iosEnv,
+	devNameIdRegExp = /\([0-9A-Za-z]*\)$/,
 	targets = ['simulator', 'device', 'dist-appstore', 'dist-adhoc'],
 	deviceFamilies = {
 		iphone: '1',
@@ -45,6 +46,10 @@ var ti = require('titanium-sdk'),
 		iphone: '',
 		ipad: '-iPad',
 		universal: '-universal'
+	},
+	simTypes = {
+		iphone: 'iPhone',
+		ipad: 'iPad'
 	},
 	provisioningProfileMap = {
 		device: 'development',
@@ -67,14 +72,8 @@ exports.config = function (logger, config, cli) {
 				sims = {},
 				defaultSdk,
 				conf,
-				devNames = iosEnv.certs.devNames.map(function (name) {
-					var m = name.match(/^([^(]+?)*/);
-					return m && m[0].trim();
-				}),
-				distNames = iosEnv.certs.distNames.map(function (name) {
-					var m = name.match(/^([^(]+?)*/);
-					return m && m[0].trim();
-				});
+				devNames = iosEnv.certs.devNames,
+				distNames = iosEnv.certs.distNames;
 			
 			Object.keys(iosEnv.xcode).forEach(function (key) {
 				iosEnv.xcode[key].sdks.forEach(function (sdk, i) {
@@ -126,10 +125,36 @@ exports.config = function (logger, config, cli) {
 							label: __('Name of the iOS Developer Certificate to use'),
 							error: __('Invalid developer name'),
 							validator: function (name) {
-								if (devNames.indexOf(name) == -1) {
-									throw new appc.exception(__('Unable to find an iOS Developer Certificate for "%s"', name), [
-										__('Available names: %s', '"' + devNames.join('", "') + '"')
-									]);
+								var dn = devNameIdRegExp.test(name) ? devNames.map(function (name) {
+										return name.trim().toLowerCase();
+									}) : devNames.map(function (name) {
+										var m = name.match(/^([^(]+?)*/);
+										return m && m[0].trim().toLowerCase();
+									});
+								
+								if (!name || dn.indexOf(name.toLowerCase()) == -1) {
+									var width = 0,
+										i = 0,
+										l = devNames.length,
+										h = Math.ceil(l / 2),
+										output = [__('Available names:')];
+									
+									for (; i < h; i++) {
+										if (devNames[i].length > width) {
+											width = devNames[i].length;
+										}
+										output.push('    ' + devNames[i]);
+									}
+									
+									width += 12; // 4 spaces left padding, 8 spaces between columns
+									for (h = 1; i < l; h++, i++) {
+										output[h] = appc.string.rpad(output[h], width) + devNames[i];
+									}
+									
+									throw new appc.exception(
+										name ? __('Unable to find an iOS Developer Certificate for "%s"', name) : __('Select an iOS Developer Certificate:'),
+										output.map(function (s, i) { return i ? s.cyan : s; })
+									);
 								}
 								return true;
 							}
@@ -144,10 +169,13 @@ exports.config = function (logger, config, cli) {
 							label: __('Name of the iOS Distribution Certificate to use'),
 							error: __('Invalid distribution name'),
 							validator: function (name) {
-								if (distNames.indexOf(name) == -1) {
-									throw new appc.exception(__('Unable to find an iOS Distribution Certificate for "%s"', name), [
-										__('Available names: %s', '"' + distNames.join('", "') + '"')
-									]);
+								if (!name || distNames.indexOf(name) == -1) {
+									var names = [__('Available names:')];
+									names = names.concat(distNames);
+									throw new appc.exception(
+										name ? __('Unable to find an iOS Distribution Certificate for "%s"', name) : __('Select an iOS Distribution Certificate:'),
+										names.map(function (s, i) { return i ? '    ' + s.cyan : s; })
+									);
 								}
 								return true;
 							}
@@ -195,17 +223,23 @@ exports.config = function (logger, config, cli) {
 							label: __('Provisioning Profile UUID'),
 							error: __('Invalid Provisioning Profile UUID'),
 							validator: function (uuid) {
-								var i = 0,
-									j,
-									availableUUIDs = [__('Available UUIDs:')],
-									type = cli.argv.target == 'device' ? 'development' : cli.argv.target == 'dist-appstore' ? 'distribution' : 'adhoc',
-									profiles = iosEnv.provisioningProfiles[type];
+								var availableUUIDs = [],
+									addUUIDs = function (section, uuids) {
+										availableUUIDs.push(section);
+										for (var i = 0; i < uuids.length; i++) {
+											if (uuids[i].uuid == uuid) {
+												return true;
+											}
+											availableUUIDs.push('    ' + uuids[i].uuid.cyan + '  ' + uuids[i].appId + ' (' + uuids[i].name + ')');
+										}
+									};
 								
-								for (; i < profiles.length; i++) {
-									if (profiles[i].uuid == uuid) {
-										return true;
-									}
-									availableUUIDs.push('    ' + profiles[i].uuid.cyan + '  ' + profiles[i].appId + ' (' + profiles[i].name + ')');
+								if (cli.argv.target == 'device') {
+									if (addUUIDs(__('Available Development UUIDs:'), iosEnv.provisioningProfiles.development)) return true;
+								} else {
+									if (addUUIDs(__('Available Distribution UUIDs:'), iosEnv.provisioningProfiles.distribution)) return true;
+									if (addUUIDs(__('Available Adhoc UUIDs:'), iosEnv.provisioningProfiles.adhoc)) return true;
+									// TODO: display enterprise adhoc uuids
 								}
 								
 								if (uuid) {
@@ -216,19 +250,40 @@ exports.config = function (logger, config, cli) {
 							}
 						}
 					},
+					'sim-type': {
+						abbr: 'Y',
+						desc: __('iOS Simulator type; only used when target is %s', 'simulator'.cyan),
+						hint: 'type',
+						values: Object.keys(simTypes)
+					},
 					'sim-version': {
 						abbr: 'S',
 						desc: __('iOS Simulator version; only used when target is %s', 'simulator'.cyan),
+						hint: 'version',
 						values: sims
 					},
 					target: {
 						abbr: 'T',
 						callback: function (value) {
+							var pp = iosEnv.provisioningProfiles;
+							
 							// as soon as we know the target, toggle required options for validation
 							switch (value) {
 								case 'device':
 									conf.options['developer-name'].required = true;
 									conf.options['pp-uuid'].required = true;
+									
+									if (!iosEnv.certs.devNames.length) {
+										logger.error(__('Unable to find any iOS Developer Certificates') + '\n');
+										logger.log(__('Download and install a certificate from %s', 'https://developer.apple.com/ios/manage/certificates/team/index.action'.cyan) + '\n');
+										process.exit(1);
+									}
+									
+									if (!pp.development.length) {
+										logger.error(__('No development provisioning profiles found') + '\n');
+										logger.log(__('Download and install a provisioning profile from %s', 'https://developer.apple.com/ios/manage/provisioningprofiles/index.action'.cyan) + '\n');
+										process.exit(1);
+									}
 									break;
 								
 								case 'dist-adhoc':
@@ -237,6 +292,18 @@ exports.config = function (logger, config, cli) {
 								case 'dist-appstore':
 									conf.options['distribution-name'].required = true;
 									conf.options['pp-uuid'].required = true;
+									
+									if (!iosEnv.certs.distNames.length) {
+										logger.error(__('Unable to find any iOS Distribution Certificates') + '\n');
+										logger.log(__('Download and install a certificate from %s', 'https://developer.apple.com/ios/manage/distribution/index.action'.cyan) + '\n');
+										process.exit(1);
+									}
+									
+									if (!pp.distribution.length && !pp.adhoc.length && !pp.enterprise.length) {
+										logger.error(__('No distribution or adhoc provisioning profiles found') + '\n');
+										logger.log(__('Download and install a provisioning profile from %s', 'https://developer.apple.com/ios/manage/provisioningprofiles/index.action'.cyan) + '\n');
+										process.exit(1);
+									}
 							}
 						},
 						default: 'simulator',
@@ -334,27 +401,8 @@ exports.validate = function (logger, config, cli) {
 		process.exit(1);
 	}
 	
-	if (cli.argv.target == 'simulator') {
-		if (!cli.argv['sim-version']) {
-			cli.argv['sim-version'] = cli.argv['ios-version'];
-		}
-		if (!sdks[cli.argv['ios-version']].some(function (ver) {
-			if (version.eq(ver, cli.argv['sim-version'])) {
-				cli.argv['sim-version'] = ver;
-				return true;
-			}
-		})) {
-			logger.error(__('Unable to find iOS Simulator %s', cli.argv['sim-version']) + '\n');
-			logger.log(__('Available iOS Simulator versions for iOS SDK %s:', cli.argv['ios-version']));
-			sdks[cli.argv['ios-version']].forEach(function (ver) {
-				logger.log('    ' + ver.cyan);
-			});
-			logger.log();
-			process.exit(1);
-		}
-	}
-	
 	if (!cli.argv.xcode && cli.argv.target != 'simulator') {
+		// make sure they have Apple's WWDR cert installed
 		if (!iosEnv.certs.wwdr) {
 			logger.error(__('WWDR Intermediate Certificate not found') + '\n');
 			logger.log(__('Download and install the certificate from %s', 'https://developer.apple.com/ios/manage/certificates/team/index.action'.cyan) + '\n');
@@ -362,21 +410,25 @@ exports.validate = function (logger, config, cli) {
 		}
 		
 		if (cli.argv.target == 'device') {
+			// validate developer cert
 			if (!iosEnv.certs.devNames.length) {
 				logger.error(__('Unable to find any iOS Developer Certificates') + '\n');
 				logger.log(__('Download and install a certificate from %s', 'https://developer.apple.com/ios/manage/certificates/team/index.action'.cyan) + '\n');
 				process.exit(1);
 			}
 			
-			var devNames = /\([0-9A-Za-z]*\)$/.test(cli.argv['developer-name']) ? iosEnv.certs.devNames : iosEnv.certs.devNames.map(function (name) {
+			var devNames = devNameIdRegExp.test(cli.argv['developer-name']) ? iosEnv.certs.devNames.map(function (name) {
+					return name.trim().toLowerCase();
+				}) : iosEnv.certs.devNames.map(function (name) {
 					var m = name.match(/^([^(]+?)*/);
-					return m && m[0].trim();
+					return m && m[0].trim().toLowerCase();
 				}),
 				p = devNames.indexOf(cli.argv['developer-name']);
+			
 			if (p == -1) {
 				logger.error(__('Unable to find an iOS Developer Certificate for "%s"', cli.argv['developer-name']) + '\n');
 				logger.log(__('Available developer names:'));
-				devNames.forEach(function (name) {
+				iosEnv.certs.devNames.forEach(function (name) {
 					logger.log('    ' + name.cyan);
 				});
 				logger.log();
@@ -386,6 +438,7 @@ exports.validate = function (logger, config, cli) {
 				cli.argv['developer-name'] = iosEnv.certs.devNames[p];
 			}
 		} else {
+			// validate distribution cert
 			if (!iosEnv.certs.distNames.length) {
 				logger.error(__('Unable to find any iOS Distribution Certificates') + '\n');
 				logger.log(__('Download and install a certificate from %s', 'https://developer.apple.com/ios/manage/distribution/index.action'.cyan) + '\n');
@@ -408,15 +461,26 @@ exports.validate = function (logger, config, cli) {
 			}
 		}
 		
+		// validate provisioning profile
 		if (!cli.argv['pp-uuid']) {
 			logger.error(__('Missing required option "--pp-uuid"') + '\n');
 			process.exit(1);
 		}
 		
-		var profiles = iosEnv.provisioningProfilesByUUID = {};
-		iosEnv.provisioningProfiles[provisioningProfileMap[cli.argv.target]].forEach(function (profile) {
-			profiles[profile.uuid] = profile;
-		});
+		var profiles = iosEnv.provisioningProfilesByUUID = {},
+			addProfiles = function (target) {
+				iosEnv.provisioningProfiles[provisioningProfileMap[target]].forEach(function (profile) {
+					profiles[profile.uuid] = profile;
+				});
+			};
+		
+		if (cli.argv.target == 'device') {
+			addProfiles('device');
+		} else {
+			addProfiles('dist-appstore');
+			addProfiles('dist-adhoc');
+		}
+		
 		if (!profiles[cli.argv['pp-uuid']]) {
 			logger.error(__('Invalid Provisioning Profile UUID "%s"', cli.argv['pp-uuid']) + '\n');
 			logger.log(__('Available Provisioning Profile UUIDs:'));
@@ -428,6 +492,7 @@ exports.validate = function (logger, config, cli) {
 			process.exit(1);
 		}
 		
+		// validate keychain
 		var keychain = cli.argv.keychain ? afs.resolvePath(cli.argv.keychain) : null;
 		if (keychain && !afs.exists(keychain)) {
 			logger.error(__('Unable to find keychain "%s"', keychain) + '\n');
@@ -481,6 +546,30 @@ exports.validate = function (logger, config, cli) {
 	
 	// device family may have been modified, so set it back in the args
 	cli.argv['device-family'] = deviceFamily;
+	
+	if (cli.argv.target == 'simulator') {
+		if (!cli.argv['sim-version']) {
+			cli.argv['sim-version'] = cli.argv['ios-version'];
+		}
+		if (!sdks[cli.argv['ios-version']].some(function (ver) {
+			if (version.eq(ver, cli.argv['sim-version'])) {
+				cli.argv['sim-version'] = ver;
+				return true;
+			}
+		})) {
+			logger.error(__('Unable to find iOS Simulator %s', cli.argv['sim-version']) + '\n');
+			logger.log(__('Available iOS Simulator versions for iOS SDK %s:', cli.argv['ios-version']));
+			sdks[cli.argv['ios-version']].forEach(function (ver) {
+				logger.log('    ' + ver.cyan);
+			});
+			logger.log();
+			process.exit(1);
+		}
+		
+		if (!cli.argv['sim-type']) {
+			cli.argv['sim-type'] = cli.argv['device-family'] == 'ipad' ? 'ipad' : 'iphone';
+		}
+	}
 	
 	if (cli.argv['debug-host'] && cli.argv.target != 'dist-appstore') {
 		if (typeof cli.argv['debug-host'] == 'number') {
@@ -597,8 +686,9 @@ function build(logger, config, cli, finished) {
 	this.xcodeTarget = process.env.CONFIGURATION || (/device|simulator/.test(this.target) ? 'Debug' : 'Release');
 	this.iosSdkVersion = cli.argv['ios-version'];
 	this.iosSimVersion = cli.argv['sim-version'];
+	this.iosSimType = cli.argv['sim-type'];
 	this.deviceFamily = cli.argv['device-family'];
-	this.xcodeTargetOS = this.target == 'simulator' ? 'iphonesimulator' + this.iosSimVersion : 'iphoneos' + this.iosSdkVersion;
+	this.xcodeTargetOS = this.target == 'simulator' ? 'iphonesimulator' + this.iosSdkVersion : 'iphoneos' + this.iosSdkVersion;
 	this.iosBuildDir = path.join(this.buildDir, 'build', this.xcodeTarget + '-' + (this.target == 'simulator' ? 'iphonesimulator' : 'iphoneos'));
 	this.xcodeAppDir = cli.argv.xcode ? path.join(process.env.TARGET_BUILD_DIR, process.env.CONTENTS_FOLDER_PATH) : path.join(this.iosBuildDir, this.tiapp.name + '.app');
 	this.xcodeProjectConfigFile = path.join(this.buildDir, 'project.xcconfig');
@@ -621,7 +711,7 @@ function build(logger, config, cli, finished) {
 	this.logger.info(__('Building for target: %s', this.target.cyan));
 	this.logger.info(__('Building using iOS SDK: %s', version.format(this.iosSdkVersion, 2).cyan));
 	if (this.target == 'simulator') {
-		this.logger.info(__('Building for iOS Simulator: %s', this.iosSimVersion.cyan));
+		this.logger.info(__('Building for iOS %s Simulator: %s', simTypes[this.iosSimType], this.iosSimVersion.cyan));
 	}
 	this.logger.info(__('Building for device family: %s', this.deviceFamily.cyan));
 	this.logger.debug(__('Setting Xcode target to %s', this.xcodeTarget.cyan));
@@ -1221,6 +1311,14 @@ build.prototype = {
 			return true;
 		}
 		
+		// check if the device family has changed (i.e. was universal, now iphone)
+		if (manifest.deviceFamily != this.deviceFamily) {
+			this.logger.debug(__('Forcing rebuild: device family changed since last build'));
+			this.logger.debug('  ' + __('Was: %s', manifest.deviceFamily));
+			this.logger.debug('  ' + __('Now: %s', this.deviceFamily));
+			return true;
+		}
+		
 		// check the git hashes are different
 		if (!manifest.gitHash || manifest.gitHash != ti.manifest.githash) {
 			this.logger.debug(__('Forcing rebuild: githash changed since last build'));
@@ -1482,6 +1580,7 @@ build.prototype = {
 		fs.writeFile(this.buildManifestFile, JSON.stringify(this.buildManifest = {
 			target: this.target,
 			deployType: this.deployType,
+			deviceFamily: this.deviceFamily,
 			developerName: this.certDeveloperName,
 			distributionName: this.certDistributionName,
 			iosSdkPath: this.titaniumIosSdkPath,
@@ -1516,7 +1615,7 @@ build.prototype = {
 							var dest = path.join(dir, filename);
 							fs.writeFileSync(dest, contents.concat(Object.keys(obj).map(function (name) {
 								return '"' + (map && map[name] || name).replace(/\\/g, '\\\\').replace(/"/g, '\\"') +
-									'" = "' + obj[name].replace(/%s/g, '%@').replace(/\\/g, '\\\\').replace(/"/g, '\\"') + '";';
+									'" = "' + (''+obj[name]).replace(/%s/g, '%@').replace(/\\/g, '\\\\').replace(/"/g, '\\"') + '";';
 							})).join('\n'));
 							if (this.deployType == 'development') {
 								next();
