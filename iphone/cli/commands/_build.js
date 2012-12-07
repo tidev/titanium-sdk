@@ -1831,11 +1831,6 @@ build.prototype = {
 				'+ (NSArray*) compiledMods',
 				'{',
 				'	NSMutableArray *modules = [NSMutableArray array];'
-			],
-			defines = [],
-			definesContents = [
-				'// Warning: this is generated file. Do not modify!',
-				''
 			];
 		
 		dest = path.join(this.buildDir, 'main.m');
@@ -2113,31 +2108,22 @@ build.prototype = {
 	},
 	
 	findSymbols: function (ast) {
-		function walkdot(n) {
-			if (n.length > 1) {
-				if (n[0] == 'dot') {
-					var x = walkdot(n[1]);
-					return x ? x + '.' + n[2] : null;
-				} else if (n[0] == 'name' && n[1] == 'Ti') {
-					return n[1];
-				}
+		function scan(node) {
+			if (node[0] == 'name') {
+				return node[1] == 'Ti' ? node[1] : '';
+			} else if (node[0] == 'dot') {
+				var s = scan(node[1]);
+				return s && node.length > 2 ? s + '.' + node[2] : '';
 			}
 		}
 		
-		var walk = function (n) {
-			if (n && Array.isArray(n)) {
-				for (var i = 0; i < n.length; i++) {
-					if (Array.isArray(n[i])) {
-						walk(n[i]);
-					} else if (n[i] == 'dot') {
-						var s = walkdot(n[++i]);
-						s && s.length > 3 && s != 'dot' && this.addSymbol(s.substring(3) + '.' + n[++i]);
-					}
-				}
-			}
-		}.bind(this);
-		
-		walk(ast);
+		appc.astwalker(ast, {
+			dot: function (node, next) {
+				var s = scan(node);
+				s && this.addSymbol(s.substring(3));
+				next();
+			}.bind(this)
+		});
 	},
 	
 	addSymbol: function (symbol) {
@@ -2150,7 +2136,10 @@ build.prototype = {
 		tokens.forEach(function (t) {
 			current += t + '.';
 			var s = 'USE_TI_' + current.replace(/\.create/g, '').replace(/\./g, '').replace(/\-/g, '_').toUpperCase();
-			this.symbols.indexOf(s) == -1 && this.symbols.push(s);
+			if (this.symbols.indexOf(s) == -1) {
+				this.logger.debug(__('Found symbol %s', s));
+				this.symbols.push(s);
+			}
 		}, this);
 	},
 	
