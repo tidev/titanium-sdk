@@ -80,7 +80,7 @@ exports.init = function (logger, config, cli) {
 										]
 									},
 									ArchiveVersion: newPlist.type('real', 1),
-									CreationDate: (new Date).toISOString(),
+									CreationDate: now,
 									Name: name,
 									SchemeName: name
 								}).save(path.join(archiveBundle, 'Info.plist'));
