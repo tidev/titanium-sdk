@@ -90,11 +90,7 @@ public class PersonProxy extends KrollProxy
 			long id = (Long) getProperty("id");
 			Bitmap photo = CommonContactsApi.getContactImage(id);
 			if (photo != null) {
-				//
-				// Using quality of 60 here because it's assumed that the contacts photo
-				// is a small image, and this number seems to provide both good quality and
-				// performance.
-				//
+				
 				this.image = TiBlob.blobFromImage(photo);
 			
 			}
