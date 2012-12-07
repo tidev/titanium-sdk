@@ -38,7 +38,7 @@ public class TiUIScrollView extends TiUIView
 	private boolean setInitialOffset = false;
 	private boolean mScrollingEnabled = true;
 
-	private class TiScrollViewLayout extends TiCompositeLayout
+	public class TiScrollViewLayout extends TiCompositeLayout
 	{
 		private static final int AUTO = Integer.MAX_VALUE;
 		private int parentWidth = 0;
