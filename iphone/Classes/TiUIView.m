@@ -371,13 +371,23 @@ DEFINE_EXCEPTIONS
 
 -(void)checkBounds
 {
-	CGRect newBounds = [self bounds];
-	if(!CGSizeEqualToSize(oldSize, newBounds.size))
-	{
-		oldSize = newBounds.size;
-		[gradientLayer setFrame:newBounds];
-		[self frameSizeChanged:[TiUtils viewPositionRect:self] bounds:newBounds];
-	}
+    CGRect newBounds = [self bounds];
+    if(!CGSizeEqualToSize(oldSize, newBounds.size)) {
+        oldSize = newBounds.size;
+        //TIMOB-11197, TC-1264
+        if (!animating) {
+            [CATransaction begin];
+            [CATransaction setValue:(id)kCFBooleanTrue forKey:kCATransactionDisableActions];
+        }
+        [gradientLayer setFrame:newBounds];
+        if ([self backgroundImageLayer] != self.layer) {
+            [[self backgroundImageLayer] setFrame:newBounds];
+        }
+        if (!animating) {
+            [CATransaction commit];
+        }
+        [self frameSizeChanged:[TiUtils viewPositionRect:self] bounds:newBounds];
+    }
 }
 
 -(void)setBounds:(CGRect)bounds
