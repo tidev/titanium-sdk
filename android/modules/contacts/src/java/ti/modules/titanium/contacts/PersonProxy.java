@@ -95,7 +95,7 @@ public class PersonProxy extends KrollProxy
 				// is a small image, and this number seems to provide both good quality and
 				// performance.
 				//
-				this.image = TiBlob.blobFromImage(photo, 60);
+				this.image = TiBlob.blobFromImage(photo);
 			
 			}
 			imageFetched = true;
