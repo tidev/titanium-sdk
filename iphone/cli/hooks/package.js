@@ -35,10 +35,16 @@ exports.init = function (logger, config, cli) {
 					logger.info('Packaging for App Store distribution');
 					
 					var name = build.tiapp.name,
-						d = new Date(),
+						now = new Date(),
+						month = now.getMonth() + 1,
+						day = now.getDate(),
+						hours = now.getHours(),
+						minutes = now.getMinutes(),
+						seconds = now.getSeconds(),
 						archiveBundle = afs.resolvePath('~/Library/Developer/Xcode/Archives',
-							d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate() + path.sep +
-							name + '_' + d.getHours() + '-' + d.getMinutes() + '-' + d.getSeconds() + '.xcarchive'),
+							now.getFullYear() + '-' + (month >= 10 ? month : '0' + month) + '-' + (day >= 10 ? day : '0' + day) + path.sep +
+							name + '_' + (hours >= 10 ? hours : '0' + hours) + '-' + (minutes >= 10 ? minutes : '0' + minutes) + '-' +
+							(seconds >= 10 ? seconds : '0' + seconds) + '.xcarchive'),
 						archiveApp = path.join(archiveBundle, 'Products', 'Applications', name + '.app'),
 						archiveDsym = path.join(archiveBundle, 'dSYM');
 					
