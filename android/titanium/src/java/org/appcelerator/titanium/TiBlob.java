@@ -124,6 +124,36 @@ public class TiBlob extends KrollProxy
 		blob.loadBitmapInfo();
 		return blob;
 	}
+	
+	/**
+	 * Creates a blob from a bitmap.
+	 * @param image the image used to create blob.
+	 * @param quality the quality (0-100) to pass to the Android compress method.
+	 * @return new instance of TiBlob.
+	 * @module.api
+	 */
+	public static TiBlob blobFromImage(Bitmap image, int quality)
+	{
+	
+		ByteArrayOutputStream bos = new ByteArrayOutputStream();
+		byte data[] = new byte[0];
+		if (image.hasAlpha()) {
+			if (image.compress(CompressFormat.PNG, 0, bos)) {
+				data = bos.toByteArray();
+			}
+		}
+		else {
+			if (image.compress(CompressFormat.JPEG, quality, bos)) {
+				data = bos.toByteArray();
+			}
+		}
+
+		TiBlob blob = new TiBlob(TYPE_IMAGE, data, "image/bitmap");
+		blob.image = image;
+		blob.width = image.getWidth();
+		blob.height = image.getHeight();
+		return blob;
+	}
 
 	/**
 	 * Creates a blob from a bitmap.
@@ -133,17 +163,10 @@ public class TiBlob extends KrollProxy
 	 */
 	public static TiBlob blobFromImage(Bitmap image)
 	{
-		ByteArrayOutputStream bos = new ByteArrayOutputStream();
-		byte data[] = new byte[0];
-		if (image.compress(CompressFormat.PNG, 100, bos)) {
-			data = bos.toByteArray();
-		}
-
-		TiBlob blob = new TiBlob(TYPE_IMAGE, data, "image/bitmap");
-		blob.image = image;
-		blob.width = image.getWidth();
-		blob.height = image.getHeight();
-		return blob;
+		//
+		// No quality specified here, use 100 percent.
+		//
+		return blobFromImage(image, 100);
 	}
 
 	/**
