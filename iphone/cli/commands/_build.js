@@ -1577,21 +1577,23 @@ build.prototype = {
 	},
 	
 	copyItunesArtwork: function (callback) {
+		// note: iTunesArtwork is a png image WITHOUT the file extension and the
+		// purpose of this function is to copy it from the root of the project.
+		// The preferred location of this file is <project-dir>/Resources/iphone
+		// or <project-dir>/platform/iphone.
 		if (/device|dist\-appstore|dist\-adhoc/.test(this.target)) {
 			this.logger.info(__('Copying iTunes artwork'));
-			parallel(this, ['iTunesArtwork', 'iTunesArtwork@2x'].map(function (dir) {
-				return function (next) {
-					dir = path.join(this.projectDir, dir);
-					if (afs.exists(dir)) {
-						this.copyDirAsync(dir, this.xcodeAppDir, next);
-					} else {
-						next();
-					}
-				};
-			}), callback);
-		} else {
-			callback();
+			fs.readdirSync(this.projectDir).forEach(function (file) {
+				var src = path.join(this.projectDir, file),
+					m = file.match(/^iTunesArtwork(@2x)?$/i);
+				if (m && fs.lstatSync(src).isFile()) {
+					afs.copyFileSync(src, path.join(this.xcodeAppDir, 'iTunesArtwork' + (m[1] ? m[1].toLowerCase() : '')), {
+						logger: this.logger.debug
+					});
+				}
+			}, this);
 		}
+		callback();
 	},
 	
 	copyGraphics: function (callback) {
