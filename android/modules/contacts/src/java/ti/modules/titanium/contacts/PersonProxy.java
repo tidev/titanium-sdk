@@ -90,9 +90,7 @@ public class PersonProxy extends KrollProxy
 			long id = (Long) getProperty("id");
 			Bitmap photo = CommonContactsApi.getContactImage(id);
 			if (photo != null) {
-				
 				this.image = TiBlob.blobFromImage(photo);
-			
 			}
 			imageFetched = true;
 		}
