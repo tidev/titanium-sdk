@@ -316,6 +316,7 @@ static NSDictionary* TI_filterableItemProperties;
 	else
 	{
 		[[TiApp app] hideModalController:picker_ animated:animatedPicker];
+		[[TiApp controller] repositionSubviews];
 	}
     if (cameraView != nil) {
         [cameraView windowDidClose];
@@ -1128,6 +1129,7 @@ MAKE_SYSTEM_PROP(VIDEO_FINISH_REASON_USER_EXITED,MPMovieFinishReasonUserExited);
 		}
 		else {
 			[[TiApp app] hideModalController:picker animated:animatedPicker];
+			[[TiApp controller] repositionSubviews];
 		}
         if (cameraView != nil) {
             [cameraView windowDidClose];
@@ -1213,6 +1215,7 @@ MAKE_SYSTEM_PROP(VIDEO_FINISH_REASON_USER_EXITED,MPMovieFinishReasonUserExited);
 	if (musicPicker != nil)
 	{
 		[[TiApp app] hideModalController:musicPicker animated:animatedPicker];
+		[[TiApp controller] repositionSubviews];
 		[self destroyPicker];
 	}
 }

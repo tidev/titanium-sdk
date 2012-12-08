@@ -71,7 +71,7 @@ exports.init = function (logger, config, cli) {
 						'--sdk',
 						build.iosSimVersion,
 						'--family',
-						build.deviceFamily
+						build.iosSimType
 					],
 					findLogTimer,
 					simActivateTimer = setTimeout(function () {
