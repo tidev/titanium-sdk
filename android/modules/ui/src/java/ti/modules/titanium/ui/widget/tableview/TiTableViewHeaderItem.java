@@ -6,6 +6,7 @@
  */
 package ti.modules.titanium.ui.widget.tableview;
 
+import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiUIHelper;
@@ -27,6 +28,7 @@ public class TiTableViewHeaderItem extends TiBaseTableViewItem
 	private RowView rowView;
 	private TiUIView headerView;
 	private boolean isHeaderView = false;
+	private Item item;
 
 	class RowView extends RelativeLayout
 	{
@@ -110,6 +112,7 @@ public class TiTableViewHeaderItem extends TiBaseTableViewItem
 
 	private void setHeaderData(Item item)
 	{
+		this.item = item;
 		if (headerView != null && headerView.getChildren() != null && headerView.getChildren().size() > 0 && item != null
 			&& item.proxy != null && item.proxy.getChildren() != null && item.proxy.getChildren().length > 0) {
 			TiUIView labelView = headerView.getChildren().get(0);
@@ -142,6 +145,15 @@ public class TiTableViewHeaderItem extends TiBaseTableViewItem
 		if (!isHeaderView) {
 			rowView.layout(left, 0, right, bottom - top);
 		} else {
+			//
+			// Do this association here, and NOT in getView().
+			//
+			TiViewProxy proxy = this.item.proxy;
+			proxy.setView(headerView);
+			headerView.setProxy(proxy);
+			proxy.setModelListener(headerView);
+			
+			
 			View view = headerView.getOuterView();
 			view.layout(left, 0, right, bottom - top);
 			// Also layout the inner native view when we have borders
