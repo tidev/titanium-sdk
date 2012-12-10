@@ -6,7 +6,6 @@
  */
 package ti.modules.titanium.ui.widget.tableview;
 
-import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiUIHelper;
