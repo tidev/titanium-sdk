@@ -45,13 +45,16 @@ exports.config = function (logger, config, cli) {
 						desc: __('the target build platform'),
 						hint: __('platform'),
 						prompt: {
-							label: __('Target platform [%s]', ti.availablePlatforms.join(',')),
+							label: __('Target platform [%s]', ti.targetPlatforms.join(',')),
 							error: __('Invalid platform'),
 							validator: function (platform) {
-								platform = platform.trim();
 								if (!platform) {
 									throw new appc.exception(__('Invalid platform'));
 								}
+								
+								platform = platform.trim();
+								
+								// temp: ti.availablePlatforms contains "iphone" and "ipad" which aren't going to be valid supported platforms
 								if (ti.availablePlatforms.indexOf(platform) == -1) {
 									throw new appc.exception(__('Invalid platform: %s', platform));
 								}
@@ -77,7 +80,7 @@ exports.config = function (logger, config, cli) {
 						},
 						required: true,
 						skipValueCheck: true,
-						values: ti.availablePlatforms
+						values: ti.availablePlatforms // temp: ti.availablePlatforms contains "iphone" and "ipad" which aren't going to be valid supported platforms
 					},
 					'project-dir': {
 						abbr: 'd',

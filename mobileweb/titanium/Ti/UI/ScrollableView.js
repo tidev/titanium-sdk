@@ -1,14 +1,11 @@
-define(["Ti/_/browser", "Ti/_/declare", "Ti/_/UI/KineticScrollView", "Ti/_/lang", "Ti/_/dom", "Ti/_/style", "Ti/UI", "Ti/_/event"],
-	function(browser, declare, KineticScrollView, lang, dom, style, UI, event) {
+define(['Ti/_/browser', 'Ti/_/declare', 'Ti/_/UI/KineticScrollView', 'Ti/_/lang', 'Ti/_/dom', 'Ti/_/style', 'Ti/UI'],
+	function(browser, declare, KineticScrollView, lang, dom, style, UI) {
 
 	var setStyle = style.set,
 		is = require.is,
 		isDef = lang.isDef,
 		unitize = dom.unitize,
 		once = require.on.once,
-
-		// The maximum angle, in radians, from the axis a swipe is allowed to travel before it is no longer considered a swipe
-		angleThreshold = Math.PI/6, // 30 degrees
 
 		// Velocity bounds, used to make sure that animations don't become super long or super short
 		minVelocity = 0.4,
@@ -23,42 +20,42 @@ define(["Ti/_/browser", "Ti/_/declare", "Ti/_/UI/KineticScrollView", "Ti/_/lang"
 		// This determines the minimum distance scale (i.e. width divided by this value) before a drag requests a page turn
 		minimumDragDistanceScaleFactor = 2;
 
-	return declare("Ti.UI.ScrollableView", KineticScrollView, {
+	return declare('Ti.UI.ScrollableView', KineticScrollView, {
 
-		constructor: function(args){
+		constructor: function(){
 
 			// Create the content container
 			this._initKineticScrollView(UI.createView({
 				left: 0,
 				top: 0,
 				width: UI.SIZE,
-				height: "100%",
-				layout: "constrainingHorizontal"
-			}), "horizontal");
+				height: '100%',
+				layout: 'constrainingHorizontal'
+			}), 'horizontal');
 
 			// Create the paging control container
 			this._add(this._pagingControlContainer = UI.createView({
-				width: "100%",
+				width: '100%',
 				height: 20,
 				bottom: 0,
-				backgroundColor: "black",
+				backgroundColor: 'black',
 				opacity: 0,
 				touchEnabled: false
 			}));
 
 			this._pagingControlContainer._add(this._pagingControlContentContainer = UI.createView({
 				width: UI.SIZE,
-				height: "100%",
+				height: '100%',
 				top: 0,
 				touchEnabled: false,
-				layout: "constrainingHorizontal"
+				layout: 'constrainingHorizontal'
 			}));
 
 			// State variables
 			this.properties.__values__.views = [];
 			this._viewToRemoveAfterScroll = -1;
 
-			require.on(this, "postlayout", this._updateTranslation);
+			require.on(this, 'postlayout', this._updateTranslation);
 		},
 
 		_handleDragStart: function() {
@@ -67,7 +64,8 @@ define(["Ti/_/browser", "Ti/_/declare", "Ti/_/UI/KineticScrollView", "Ti/_/lang"
 				this._showView(currentPage - 1);
 				this._showView(currentPage);
 				this._showView(currentPage + 1);
-				this.fireEvent("dragstart");
+				this.fireEvent('dragstart');
+				this._updatePagingControl(this.currentPage);
 			}
 		},
 
@@ -75,11 +73,12 @@ define(["Ti/_/browser", "Ti/_/declare", "Ti/_/UI/KineticScrollView", "Ti/_/lang"
 			var currentPage = this.currentPage,
 				currentView = this.views[currentPage];
 			if (currentView) {
-				this.fireEvent("scroll", {
+				this.fireEvent('scroll', {
 					currentPage: currentPage,
 					currentPageAsFloat: currentPage - e.distanceX / currentView._measuredWidth,
 					view: currentView
 				});
+				this._updatePagingControl(currentPage);
 			}
 		},
 
@@ -97,10 +96,9 @@ define(["Ti/_/browser", "Ti/_/declare", "Ti/_/UI/KineticScrollView", "Ti/_/lang"
 				velocityX = Math.max(minVelocity, Math.min(maxVelocity, velocityX));
 				var self = this,
 					views = self.views,
-					contentContainer = self._contentContainer,
 					currentPage = self.currentPage,
 					distance = e.distanceX,
-					normalizedWidth = views[currentPage]._measuredWidth / (Math.abs(velocityX) > velocityThreshold ? 
+					normalizedWidth = views[currentPage]._measuredWidth / (Math.abs(velocityX) > velocityThreshold ?
 						minimumFlickDistanceScaleFactor :
 						minimumDragDistanceScaleFactor),
 					destinationPosition,
@@ -118,16 +116,17 @@ define(["Ti/_/browser", "Ti/_/declare", "Ti/_/UI/KineticScrollView", "Ti/_/lang"
 					distance = self._currentTranslationX - (destination = views[destinationIndex])._measuredLeft;
 				}
 				destinationPosition = -destination._measuredLeft;
+				self._updatePagingControl(destinationIndex);
 
 				// Fire the drag end event
-				self.fireEvent("dragend", {
+				self.fireEvent('dragend', {
 					currentPage: destinationIndex,
 					view: destination
 				});
 
 				// Animate the view. Note: the 1.724 constance was calculated, not estimated. It is NOT for tweaking.
 				// If tweaking is needed, tweak the velocity algorithm in KineticScrollView.
-				self._animateToPosition(destinationPosition, 0, Math.abs(1.724 * 
+				self._animateToPosition(destinationPosition, 0, Math.abs(1.724 *
 						(destinationPosition - self._currentTranslationX) / velocityX), UI.ANIMATION_CURVE_EASE_OUT, function(){
 					destinationIndex !== currentPage - 1 && self._hideView(currentPage - 1);
 					destinationIndex !== currentPage && self._hideView(currentPage);
@@ -135,7 +134,7 @@ define(["Ti/_/browser", "Ti/_/declare", "Ti/_/UI/KineticScrollView", "Ti/_/lang"
 					self.properties.__values__.currentPage = destinationIndex;
 					self._showView(destinationIndex);
 					setTimeout(function(){
-						self.fireEvent("scrollend",{
+						self.fireEvent('scrollend',{
 							currentPage: destinationIndex,
 							view: destination
 						});
@@ -146,12 +145,12 @@ define(["Ti/_/browser", "Ti/_/declare", "Ti/_/UI/KineticScrollView", "Ti/_/lang"
 
 		_hideView: function(index) {
 			var views = this.views;
-			index >= 0 && index < views.length && setStyle(views[index].domNode, "display", "none");
+			index >= 0 && index < views.length && setStyle(views[index].domNode, 'display', 'none');
 		},
 
 		_showView: function(index) {
 			var views = this.views;
-			index >= 0 && index < views.length && setStyle(views[index].domNode, "display", "inherit");
+			index >= 0 && index < views.length && setStyle(views[index].domNode, 'display', 'inherit');
 		},
 
 		addView: function(view){
@@ -161,7 +160,7 @@ define(["Ti/_/browser", "Ti/_/declare", "Ti/_/UI/KineticScrollView", "Ti/_/lang"
 				if (this.views.length == 1) {
 					this.properties.__values__.currentPage = 0;
 				} else {
-					setStyle(view.domNode, "display", "none");
+					setStyle(view.domNode, 'display', 'none');
 				}
 			}
 		},
@@ -169,7 +168,7 @@ define(["Ti/_/browser", "Ti/_/declare", "Ti/_/UI/KineticScrollView", "Ti/_/lang"
 		removeView: function(view) {
 
 			// Get and validate the location of the view
-			var viewIndex = is(view,"Number") ? view : this.views.indexOf(view);
+			var viewIndex = is(view,'Number') ? view : this.views.indexOf(view);
 			if (viewIndex < 0 || viewIndex >= this.views.length) {
 				return;
 			}
@@ -196,7 +195,7 @@ define(["Ti/_/browser", "Ti/_/declare", "Ti/_/UI/KineticScrollView", "Ti/_/lang"
 			// Remove the view and update the paging control
 			contentContainer._remove(self.views.splice(viewIndex,1)[0]);
 			!self.views.length && (self.properties.__values__.currentPage = -1);
-			once(UI, "postlayout", function() {
+			once(UI, 'postlayout', function() {
 				setTimeout(function(){
 					self._updateTranslation();
 				}, 1);
@@ -209,7 +208,7 @@ define(["Ti/_/browser", "Ti/_/declare", "Ti/_/UI/KineticScrollView", "Ti/_/lang"
 		},
 
 		scrollToView: function(view) {
-			var viewIndex = is(view,"Number") ? view : this.views.indexOf(view),
+			var viewIndex = is(view,'Number') ? view : this.views.indexOf(view),
 				self = this;
 			
 			// Sanity check
@@ -223,7 +222,7 @@ define(["Ti/_/browser", "Ti/_/declare", "Ti/_/UI/KineticScrollView", "Ti/_/lang"
 				var contentContainer = self._contentContainer,
 					currentPage = self.currentPage,
 					destination = -self.views[viewIndex]._measuredLeft,
-					i;
+					i,
 
 					// Calculate a weighted duration so that larger views take longer to scroll.
 					duration = 400 + 0.3 * (Math.abs(viewIndex - self.currentPage) * contentContainer._measuredWidth);
@@ -257,7 +256,7 @@ define(["Ti/_/browser", "Ti/_/declare", "Ti/_/UI/KineticScrollView", "Ti/_/lang"
 						self._removeViewFromList(self._viewToRemoveAfterScroll);
 						self._viewToRemoveAfterScroll = -1;
 					}
-					self.fireEvent("scrollend",{
+					self.fireEvent('scrollend',{
 						currentPage: viewIndex,
 						view: self.views[viewIndex]
 					});
@@ -268,7 +267,7 @@ define(["Ti/_/browser", "Ti/_/declare", "Ti/_/UI/KineticScrollView", "Ti/_/lang"
 			if (self._contentContainer.domNode.offsetWidth) {
 				scroll();
 			} else {
-				once(self, "postlayout", scroll);
+				once(self, 'postlayout', scroll);
 			}
 		},
 
@@ -295,21 +294,27 @@ define(["Ti/_/browser", "Ti/_/declare", "Ti/_/UI/KineticScrollView", "Ti/_/lang"
 		},
 
 		_updatePagingControl: function(newIndex, hidePagingControl) {
-			if (this.showPagingControl) {
-				this._pagingControlContentContainer._removeAllChildren();
-				var diameter = this.pagingControlHeight / 2;
+			var contentContainer = this._pagingControlContentContainer,
+				numViews = this.views.length,
+				diameter = this.pagingControlHeight / 2;
+			if (this.showPagingControl && (!this._isPagingControlActive || newIndex !== contentContainer._currentIndex ||
+					numViews !== contentContainer._numViews || diameter !== contentContainer._diameter)) {
+				contentContainer._currentIndex = newIndex;
+				contentContainer._numViews = numViews;
+				contentContainer._diameter = diameter;
+				contentContainer._removeAllChildren();
 				for (var i = 0; i < this.views.length; i++) {
 					var indicator = UI.createView({
 						width: diameter,
 						height: diameter,
 						left: 5,
 						right: 5,
-						backgroundColor: i === newIndex ? "white" : "grey",
+						backgroundColor: i === newIndex ? 'white' : 'grey',
 						borderRadius: unitize(diameter / 2)
 					});
-					this._pagingControlContentContainer._add(indicator);
+					contentContainer._add(indicator);
 				}
-				!hidePagingControl && this._showPagingControl();
+				hidePagingControl || this._showPagingControl();
 			}
 		},
 
@@ -333,7 +338,7 @@ define(["Ti/_/browser", "Ti/_/declare", "Ti/_/UI/KineticScrollView", "Ti/_/lang"
 					this._pagingControlContainer.backgroundColor = value;
 					return value;
 				},
-				value: "black"
+				value: 'black'
 			},
 			pagingControlHeight: {
 				set: function(value) {
@@ -344,14 +349,14 @@ define(["Ti/_/browser", "Ti/_/declare", "Ti/_/UI/KineticScrollView", "Ti/_/lang"
 			},
 			pagingControlTimeout: {
 				set: function(value) {
-					this.pagingControlTimeout == 0 && this._updatePagingControl();
+					this.pagingControlTimeout === 0 && this._updatePagingControl();
 					return value;
 				},
 				value: 1250
 			},
 			showPagingControl: {
 				set: function(value) {
-					this.pagingControlTimeout == 0 && this._updatePagingControl();
+					this.pagingControlTimeout === 0 && this._updatePagingControl();
 					return value;
 				},
 				value: false
@@ -360,7 +365,7 @@ define(["Ti/_/browser", "Ti/_/declare", "Ti/_/UI/KineticScrollView", "Ti/_/lang"
 				set: function(value) {
 
 					// Value must be an array
-					if (!is(value,"Array")) {
+					if (!is(value,'Array')) {
 						return;
 					}
 
@@ -371,8 +376,8 @@ define(["Ti/_/browser", "Ti/_/declare", "Ti/_/UI/KineticScrollView", "Ti/_/lang"
 						view;
 					contentContainer._removeAllChildren();
 					for(; i < len; i++) {
-						(view = value[i]).width = "100%";
-						view.height = "100%";
+						(view = value[i]).width = '100%';
+						view.height = '100%';
 						contentContainer._add(view);
 					}
 					this.properties.__values__.currentPage = len ? 0 : -1;

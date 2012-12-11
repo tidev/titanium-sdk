@@ -696,13 +696,17 @@ build.prototype = {
 			], function (err, stdout, stderr) {
 				if (err) {
 					this.logger.error(__('Failed to create icons'));
-					stderr && stderr.toString().split('\n').forEach(function (line) {
-						line && this.logger.error(line);
+					stdout && stdout.toString().split('\n').forEach(function (line) {
+						line && this.logger.error(line.replace(/^\[ERROR\]/i, '').trim());
 					}, this);
+					stderr && stderr.toString().split('\n').forEach(function (line) {
+						line && this.logger.error(line.replace(/^\[ERROR\]/i, '').trim());
+					}, this);
+					this.logger.log('');
 					process.exit(1);
 				}
 				callback();
-			}.bind(this));
+			}.bind(this), this.logger);
 		} else {
 			callback();
 		}
