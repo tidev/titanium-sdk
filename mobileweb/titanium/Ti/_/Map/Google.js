@@ -49,15 +49,15 @@ define(['Ti/_/declare', 'Ti/_/dom', 'Ti/_/event', 'Ti/_/lang', 'Ti/App/Propertie
 					});
 
 				on(self, 'postlayout', function() {
-                    gevent.trigger(gmap, 'resize');
-                    setTimeout(function () {
-                        self._updateMap(region, 1);
-                        self._updateUserLocation(self.userLocation);
+					gevent.trigger(gmap, 'resize');
+					setTimeout(function () {
+						self._updateMap(region, 1);
+						self._updateUserLocation(self.userLocation);
 						self.annotations.forEach(self._createMarker, self);
 						self._annotationEvents = [];
-                        self._boundsEvt = gevent.addListener(gmap, 'bounds_changed', lang.hitch(self, '_fitRegion'));
-                    }, 1);
-                });
+						self._boundsEvt = gevent.addListener(gmap, 'bounds_changed', lang.hitch(self, '_fitRegion'));
+					}, 1);
+				});
 			},
 
 			destroy: function() {
