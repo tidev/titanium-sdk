@@ -56,7 +56,7 @@ define(['Ti/_/declare', 'Ti/_/dom', 'Ti/_/event', 'Ti/_/lang', 'Ti/App/Propertie
 						self.annotations.forEach(self._createMarker, self);
 						self._annotationEvents = [];
                         self._boundsEvt = gevent.addListener(gmap, 'bounds_changed', lang.hitch(self, '_fitRegion'));
-                    }, 1000);
+                    }, 1);
                 });
 			},
 
