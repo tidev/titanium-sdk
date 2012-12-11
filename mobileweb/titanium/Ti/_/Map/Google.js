@@ -52,6 +52,9 @@ define(["Ti/_/declare", "Ti/_/dom", "Ti/_/event", "Ti/_/lang", "Ti/App/Propertie
 				this._updateUserLocation(this.userLocation);
 				this.annotations.forEach(this._createMarker, this);
 				this._annotationEvents = [];
+				on(this, 'postlayout', function(){
+					gevent.trigger(gmap, 'resize');
+				});
 			},
 
 			destroy: function() {
