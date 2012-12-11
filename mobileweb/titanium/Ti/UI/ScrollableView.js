@@ -155,6 +155,8 @@ define(['Ti/_/browser', 'Ti/_/declare', 'Ti/_/UI/KineticScrollView', 'Ti/_/lang'
 
 		addView: function(view){
 			if (view) {
+				view.width = '100%';
+				view.height = '100%';
 				this.views.push(view);
 				this._contentContainer._add(view);
 				if (this.views.length == 1) {
