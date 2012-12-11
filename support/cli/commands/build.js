@@ -80,7 +80,7 @@ exports.config = function (logger, config, cli) {
 						},
 						required: true,
 						skipValueCheck: true,
-						values: ti.availablePlatforms // temp: ti.availablePlatforms contains "iphone" and "ipad" which aren't going to be valid supported platforms
+						values: ti.targetPlatforms
 					},
 					'project-dir': {
 						abbr: 'd',
