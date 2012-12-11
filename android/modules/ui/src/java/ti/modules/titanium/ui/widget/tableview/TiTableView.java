@@ -454,7 +454,7 @@ public class TiTableView extends FrameLayout
 
 	private TiUIView layoutHeaderOrFooter(TiViewProxy viewProxy)
 	{
-		TiUIView tiView = viewProxy.getOrCreateView();
+		TiUIView tiView = viewProxy.getOrCreateView(false);		// false means don't set model listener
 		View nativeView = tiView.getOuterView();
 		TiCompositeLayout.LayoutParams params = tiView.getLayoutParams();
 
