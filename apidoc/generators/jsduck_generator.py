@@ -320,15 +320,50 @@ def get_summary_and_description(api_obj):
 	if api_obj.has_key("description"):
 		desc = markdown_to_html(api_obj["description"])
 
-	res = ""
+	res = u""
 	if summary != None:
-		res = "\t * " + summary + "\n"
+		res = u"\t * " + summary + "\n"
 		if desc != None:
-			res += "\t * @description " + desc + "\n"
+			res += u"\t * @description " + desc + "\n"
 	elif desc != None:
 		# use description if there is no summary
-		res = "\t * " + desc
+		res = u"\t * " + desc
 	return res
+
+# Side effect of hiding properties is that the accessors do not get hidden
+# Explicitly hide accessors for JSDuck
+def hide_accessors(parent_name, property_name):
+	res = ""
+	parent_obj = all_annotated_apis[parent_name].api_obj
+	if "properties" in parent_obj:
+		parent_properties = parent_obj["properties"]
+		property_dict = dict((p["name"], p) for p in parent_properties)
+		if property_name in property_dict:
+			setter = True;
+			getter = True;
+			if "accessors" in property_dict[property_name] and not property_dict[property_name]["accessors"]:
+				return res
+			if "availability" in property_dict[property_name] and property_dict[property_name]["availability"] == "creation":
+				setter = False;
+			if "permission" in property_dict[property_name]:
+				if property_dict[property_name]["permission"] == "read-only":
+					setter = False;
+				elif property_dict[property_name]["permission"] == "write-only":
+					getter = False;
+
+			upperFirst = property_name[0].upper() + property_name[1:]
+			if getter:
+				getter = "get" + upperFirst
+				res +=  "/**\n\t * @method " + getter + " \n\t * @hide\n*/\n"
+			if setter:
+				setter = "set" + upperFirst
+				res += "/**\n\t * @method " + setter + " \n\t * @hide\n*/\n"
+
+	if "extends" in parent_obj:
+		parent_name = parent_obj["extends"]
+		return res + hide_accessors(parent_name, property_name)
+	else:
+		return res
 
 def generate(raw_apis, annotated_apis, options):
 	global all_annotated_apis, apis
@@ -503,5 +538,12 @@ def generate(raw_apis, annotated_apis, options):
 						excluded_members = api_obj["excludes"][member_type]
 						for one_member in excluded_members:
 							output.write("/**\n\t * %s %s \n\t * @hide\n*/\n" % (annotation_string, one_member))
+							# Explicitly hide accessors
+							if member_type == "properties" and "extends" in api_obj:
+								parent_name = api_obj["extends"]
+								hide_methods = hide_accessors(parent_name, one_member)
+								if hide_methods:
+									output.write("%s" % (hide_methods))
+
 
 		output.close()
