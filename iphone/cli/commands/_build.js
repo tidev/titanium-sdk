@@ -150,10 +150,10 @@ exports.config = function (logger, config, cli) {
 								name && (name = name.trim());
 								
 								var dn = devNameIdRegExp.test(name) ? lowerCasedDevNames.map(function (name) {
-										return name.trim().toLowerCase();
+										return name.trim();
 									}) : lowerCasedDevNames.map(function (name) {
 										var m = name.match(/^([^(]+?)*/);
-										return (m ? m[0] : name).trim().toLowerCase();
+										return (m ? m[0] : name).trim();
 									});
 								
 								if (!name || dn.indexOf(name.toLowerCase()) == -1) {
@@ -368,7 +368,7 @@ exports.validate = function (logger, config, cli) {
 		logger.log(__("Use 'xcode-select' to select one of the Xcode versions:"));
 		Object.keys(iosEnv.xcode).forEach(function (ver) {
 			if (ver != '__selected__') {
-				logger.log('\n' + ('    xcode-select --switch ' + iosEnv.xcode[ver].path).cyan);
+				logger.log('\n' + ('    xcode-select -switch ' + iosEnv.xcode[ver].path).cyan);
 			}
 		});
 		logger.log();
