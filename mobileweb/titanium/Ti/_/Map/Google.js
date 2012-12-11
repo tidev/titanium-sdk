@@ -38,23 +38,26 @@ define(['Ti/_/declare', 'Ti/_/dom', 'Ti/_/event', 'Ti/_/lang', 'Ti/App/Propertie
 			},
 
 			postscript: function() {
-				var region = this.region || defaultRegion,
-					gmap = this._gmap = new gmaps.Map(this.domNode, {
+				var self = this,
+					region = self.region || defaultRegion,
+					gmap = self._gmap = new gmaps.Map(self.domNode, {
 						disableDefaultUI: true,
 						zoom: 2,
 						zoomControl: true,
 						center: new gmaps.LatLng(region.latitude, region.longitude),
-						mapTypeId: mapType(this.mapType)
+						mapTypeId: mapType(self.mapType)
 					});
 
-				this._boundsEvt = gevent.addListener(gmap, 'bounds_changed', lang.hitch(this, '_fitRegion'));
-				this._updateMap(region, 1);
-				this._updateUserLocation(this.userLocation);
-				this.annotations.forEach(this._createMarker, this);
-				this._annotationEvents = [];
-				on(this, 'postlayout', function(){
-					gevent.trigger(gmap, 'resize');
-				});
+				on(self, 'postlayout', function() {
+                    gevent.trigger(gmap, 'resize');
+                    setTimeout(function () {
+                        self._updateMap(region, 1);
+                        self._updateUserLocation(self.userLocation);
+						self.annotations.forEach(self._createMarker, self);
+						self._annotationEvents = [];
+                        self._boundsEvt = gevent.addListener(gmap, 'bounds_changed', lang.hitch(self, '_fitRegion'));
+                    }, 1000);
+                });
 			},
 
 			destroy: function() {
