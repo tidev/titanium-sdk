@@ -114,7 +114,7 @@ public class TiUISpinnerColumn extends TiUIView implements WheelView.OnItemSelec
 		}
 		Integer typefaceWeight = null;
 		if (fontWeight != null) {
-			typefaceWeight = new Integer(TiUIHelper.toTypefaceStyle(fontWeight));
+			typefaceWeight = new Integer(TiUIHelper.toTypefaceStyle(fontWeight,null));
 		}
 		
 		boolean dirty = false;
