@@ -1661,8 +1661,8 @@ build.prototype = {
 						obj && tasks.push(function (next) {
 							var dest = path.join(dir, filename);
 							fs.writeFileSync(dest, contents.concat(Object.keys(obj).map(function (name) {
-								return '"' + (map && map[name] || name).replace(/\\/g, '\\\\').replace(/"/g, '\\"') +
-									'" = "' + (''+obj[name]).replace(/%s/g, '%@').replace(/\\/g, '\\\\').replace(/"/g, '\\"') + '";';
+								return '"' + (map && map[name] || name).replace(/\\"/g, '"').replace(/"/g, '\\"') +
+									'" = "' + (''+obj[name]).replace(/%s/g, '%@').replace(/\\"/g, '"').replace(/"/g, '\\"') + '";';
 							})).join('\n'));
 							if (this.deployType == 'development') {
 								next();
