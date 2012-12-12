@@ -86,10 +86,10 @@ public class TiSound
 			boolean isAsset = URLUtil.isAssetUrl(url);
 			if (isAsset || url.startsWith("android.resource")) {
 				Context context = TiApplication.getInstance();
-				String path = url.substring(TiConvert.ASSET_URL.length());
 				AssetFileDescriptor afd = null;
 				try {
 					if (isAsset) {
+						String path = url.substring(TiConvert.ASSET_URL.length());
 						afd = context.getAssets().openFd(path);
 					} else {
 						Uri uri = Uri.parse(url);
