@@ -50,6 +50,7 @@ define(['Ti/_/declare', 'Ti/_/dom', 'Ti/_/event', 'Ti/_/lang', 'Ti/App/Propertie
 
 				on(self, 'postlayout', function() {
 					gevent.trigger(gmap, 'resize');
+					self._updateMap(region, 1);
 					setTimeout(function () {
 						self._updateMap(region, 1);
 						self._updateUserLocation(self.userLocation);
