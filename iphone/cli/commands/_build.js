@@ -1029,116 +1029,137 @@ build.prototype = {
 	},
 	
 	createInfoPlist: function (callback) {
-		var src = this.projectDir + '/Info.plist';
+		var src = this.projectDir + '/Info.plist',
+			dest = this.buildDir + '/Info.plist',
+			plist = new appc.plist(),
+			iphone = this.tiapp.iphone,
+			ios = this.tiapp.ios,
+			fbAppId = this.tiapp.properties && this.tiapp.properties['ti.facebook.appid'],
+			iconName = this.tiapp.icon.replace(/(.+)(\..*)$/, '$1'), // note: this is basically stripping the file extension
+			consts = {
+				'__APPICON__': iconName,
+				'__PROJECT_NAME__': this.tiapp.name,
+				'__PROJECT_ID__': this.tiapp.id,
+				'__URL__': this.tiapp.id,
+				'__URLSCHEME__': this.tiapp.name.replace(/\./g, '_').replace(/ /g, '').toLowerCase(),
+				'__ADDITIONAL_URL_SCHEMES__': fbAppId ? '<string>fb' + fbAppId + '</string>' : ''
+			};
+		
+		
 		// if the user has a Info.plist in their project directory, consider that a custom override
 		if (afs.exists(src)) {
-			this.logger.info(__('Copying Info.plist'));
+			this.logger.info(__('Copying custom Info.plist from project directory'));
 			
-			var dest = this.buildDir + '/Info.plist',
-				contents = fs.readFileSync(src).toString(),
-				plist = new appc.plist().parse(contents);
+			plist.parse(fs.readFileSync(src).toString());
 			
 			if (plist.CFBundleIdentifier != this.tiapp.id) {
 				this.forceXcode = true;
 			}
-			this.logger.debug(__('Copying %s => %s', src.cyan, dest.cyan));
-			
-			fs.writeFileSync(dest, contents);
 		} else {
 			this.logger.info(__('Building Info.plist'));
-			
-			var iphone = this.tiapp.iphone,
-				ios = this.tiapp.ios,
-				fbAppId = this.tiapp.properties && this.tiapp.properties['ti.facebook.appid'],
-				iconName = this.tiapp.icon.replace(/(.+)(\..*)$/, '$1'), // note: this is basically stripping the file extension
-				consts = {
-					'__APPICON__': iconName,
-					'__PROJECT_NAME__': this.tiapp.name,
-					'__PROJECT_ID__': this.tiapp.id,
-					'__URL__': this.tiapp.id,
-					'__URLSCHEME__': this.tiapp.name.replace(/\./g, '_').replace(/ /g, '').toLowerCase(),
-					'__ADDITIONAL_URL_SCHEMES__': fbAppId ? '<string>fb' + fbAppId + '</string>' : ''
-				},
-				plist = new appc.plist();
 			
 			if (afs.exists(this.titaniumIosSdkPath, 'Info.plist')) {
 				plist.parse(fs.readFileSync(path.join(this.titaniumIosSdkPath, 'Info.plist')).toString().replace(/(__.+__)/g, function (match, key, format) {
 					return consts.hasOwnProperty(key) ? consts[key] : '<!-- ' + key + ' -->'; // if they key is not a match, just comment out the key
 				}));
 			}
-			
-			plist.UIRequiresPersistentWiFi = this.tiapp['persistent-wifi'];
-			plist.UIPrerenderedIcon = this.tiapp['prerendered-icon'];
-			plist.UIStatusBarHidden = this.tiapp['statusbar-hidden'];
-			
-			plist.UIStatusBarStyle = 'UIStatusBarStyleDefault';
-			if (/opaque_black|opaque|black/.test(this.tiapp['statusbar-style'])) {
-				plist.UIStatusBarStyle = 'UIStatusBarStyleBlackOpaque';
-			} else if (/translucent_black|transparent|translucent/.test(this.tiapp['statusbar-style'])) {
-				plist.UIStatusBarStyle = 'UIStatusBarStyleBlackTranslucent';
+		}
+		
+		plist.UIRequiresPersistentWiFi = this.tiapp['persistent-wifi'];
+		plist.UIPrerenderedIcon = this.tiapp['prerendered-icon'];
+		plist.UIStatusBarHidden = this.tiapp['statusbar-hidden'];
+		
+		plist.UIStatusBarStyle = 'UIStatusBarStyleDefault';
+		if (/opaque_black|opaque|black/.test(this.tiapp['statusbar-style'])) {
+			plist.UIStatusBarStyle = 'UIStatusBarStyleBlackOpaque';
+		} else if (/translucent_black|transparent|translucent/.test(this.tiapp['statusbar-style'])) {
+			plist.UIStatusBarStyle = 'UIStatusBarStyleBlackTranslucent';
+		}
+		
+		if (iphone) {
+			if (iphone.orientations) {
+				var orientationsMap = {
+					'PORTRAIT': 'UIInterfaceOrientationPortrait',
+					'UPSIDE_PORTRAIT': 'UIInterfaceOrientationPortraitUpsideDown',
+					'LANDSCAPE_LEFT': 'UIInterfaceOrientationLandscapeLeft',
+					'LANDSCAPE_RIGHT': 'UIInterfaceOrientationLandscapeRight'
+				};
+				
+				Object.keys(iphone.orientations).forEach(function (key) {
+					var entry = 'UISupportedInterfaceOrientations' + (key == 'ipad' ? '~ipad' : '');
+					
+					Array.isArray(plist[entry]) || (plist[entry] = []);
+					iphone.orientations[key].forEach(function (name) {
+						var value = orientationsMap[name.split('.').pop().toUpperCase()] || name;
+						// name should be in the format Ti.UI.PORTRAIT, so pop the last part and see if it's in the map
+						if (plist[entry].indexOf(value) == -1) {
+							plist[entry].push(value);
+						}
+					});
+				});
 			}
 			
-			if (iphone) {
-				if (iphone.orientations) {
-					var orientationsMap = {
-						'PORTRAIT': 'UIInterfaceOrientationPortrait',
-						'UPSIDE_PORTRAIT': 'UIInterfaceOrientationPortraitUpsideDown',
-						'LANDSCAPE_LEFT': 'UIInterfaceOrientationLandscapeLeft',
-						'LANDSCAPE_RIGHT': 'UIInterfaceOrientationLandscapeRight'
-					};
+			if (iphone.backgroundModes) {
+				plist.UIBackgroundModes = (plist.UIBackgroundModes || []).concat(iphone.backgroundModes);
+			}
+			
+			if (iphone.requires) {
+				plist.UIRequiredDeviceCapabilities = (plist.UIRequiredDeviceCapabilities || []).concat(iphone.requiredFeatures);
+			}
+			
+			if (iphone.types) {
+				Array.isArray(plist.CFBundleDocumentTypes) || (plist.CFBundleDocumentTypes = []);
+				iphone.types.forEach(function (type) {
+					var types = plist.CFBundleDocumentTypes,
+						match = false,
+						i = 0;
 					
-					Object.keys(iphone.orientations).forEach(function (key) {
-						var arr = plist['UISupportedInterfaceOrientations' + (key == 'ipad' ? '~ipad' : '')] = [];
-						iphone.orientations[key].forEach(function (name) {
-							// name should be in the format Ti.UI.PORTRAIT, so pop the last part and see if it's in the map
-							arr.push(orientationsMap[name.split('.').pop().toUpperCase()] || name);
-						});
-					});
-				}
-				
-				if (iphone.backgroundModes) {
-					plist.UIBackgroundModes = [].concat(iphone.backgroundModes);
-				}
-				
-				if (iphone.requires) {
-					plist.UIRequiredDeviceCapabilities = [].concat(iphone.requiredFeatures);
-				}
-				
-				if (iphone.types) {
-					var types = plist.CFBundleDocumentTypes = [];
-					iphone.types.forEach(function (type) {
+					for (; i < types.length; i++) {
+						if (types[i].CFBundleTypeName == type.name) {
+							types[i].CFBundleTypeIconFiles = type.icon;
+							types[i].LSItemContentTypes = type.uti;
+							types[i].LSHandlerRank = type.owner ? 'Owner' : 'Alternate';
+							match = true;
+							break;
+						}
+					}
+					
+					if (!match) {
 						types.push({
 							CFBundleTypeName: type.name,
 							CFBundleTypeIconFiles: type.icon,
 							LSItemContentTypes: type.uti,
 							LSHandlerRank: type.owner ? 'Owner' : 'Alternate'
 						});
-					});
-				}
+					}
+				});
 			}
-			
-			ios && ios.plist && Object.keys(ios.plist).forEach(function (prop) {
-				if (!/^\+/.test(prop)) {
-					plist[prop] = ios.plist[prop];
-				}
-			});
-			
-			plist.CFBundleIdentifier = this.tiapp.id;
-			plist.CFBundleVersion = appc.version.format(this.tiapp.version || 1, 2);
-			plist.CFBundleShortVersionString = appc.version.format(this.tiapp.version || 1, 2, 3);
-			
-			plist.CFBundleIconFiles = [];
-			['.png', '@2x.png', '-72.png', '-Small-50.png', '-72@2x.png', '-Small-50@2x.png', '-Small.png', '-Small@2x.png'].forEach(function (name) {
-				name = iconName + name;
-				if (afs.exists(this.projectDir, 'Resources', name) ||
-					afs.exists(this.projectDir, 'Resources', 'iphone', name) ||
-					afs.exists(this.projectDir, 'Resources', this.platformName, name)) {
+		}
+		
+		ios && ios.plist && Object.keys(ios.plist).forEach(function (prop) {
+			if (!/^\+/.test(prop)) {
+				plist[prop] = ios.plist[prop];
+			}
+		});
+		
+		plist.CFBundleIdentifier = this.tiapp.id;
+		plist.CFBundleVersion = appc.version.format(this.tiapp.version || 1, 2);
+		plist.CFBundleShortVersionString = appc.version.format(this.tiapp.version || 1, 2, 3);
+		
+		Array.isArray(plist.CFBundleIconFiles) || (plist.CFBundleIconFiles = []);
+		['.png', '@2x.png', '-72.png', '-Small-50.png', '-72@2x.png', '-Small-50@2x.png', '-Small.png', '-Small@2x.png'].forEach(function (name) {
+			name = iconName + name;
+			if (afs.exists(this.projectDir, 'Resources', name) ||
+				afs.exists(this.projectDir, 'Resources', 'iphone', name) ||
+				afs.exists(this.projectDir, 'Resources', this.platformName, name)) {
+				if (plist.CFBundleIconFiles.indexOf(name) == -1) {
 					plist.CFBundleIconFiles.push(name);
 				}
-			}, this);
-			
-			fs.writeFileSync(this.buildDir + '/Info.plist', plist.toString('xml'));
-		}
+			}
+		}, this);
+		
+		fs.writeFileSync(dest, plist.toString('xml'));
+		
 		callback();
 	},
 	
