@@ -48,7 +48,7 @@ define(["Ti/_/declare", "Ti/_/lang", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/style",
 					transformOrigin: "0px 0px",
 					transform: "scale(" + scale + ")"
 				}
-			}, indicatorDomNode)
+			}, indicatorDomNode);
 
 			// Add the new prongs
 			for (; i < 12; i++) {
@@ -65,19 +65,13 @@ define(["Ti/_/declare", "Ti/_/lang", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/style",
 		},
 
 		show: function() {
-			if (!this._visible) {
-				Widget.prototype.show.call(this);
-				this._timer = setInterval(lang.hitch(this, "_animate"), 100);
-				this._visible = 1;
-			}
+			Widget.prototype.show.call(this);
+			this._timer = setInterval(lang.hitch(this, "_animate"), 100);
 		},
 
 		hide: function() {
 			clearTimeout(this._timer);
-			if (this._visible) {
-				Widget.prototype.hide.call(this);
-				this._visible = 0;
-			}
+			Widget.prototype.hide.call(this);
 		},
 
 		_currentProng: 0,
