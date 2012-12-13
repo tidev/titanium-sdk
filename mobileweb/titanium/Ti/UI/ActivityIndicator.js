@@ -13,7 +13,8 @@ define(["Ti/_/declare", "Ti/_/lang", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/style",
 					height: UI.SIZE
 				});
 			this._add(contentContainer);
-			contentContainer.hide();
+
+			Widget.prototype.hide.call(this);
 
 			contentContainer._add(this._indicatorIndicator = UI.createView());
 			contentContainer._add(this._indicatorMessage = UI.createLabel());
@@ -34,12 +35,12 @@ define(["Ti/_/declare", "Ti/_/lang", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/style",
 
 			// Set the container size
 			indicator.width = indicator.height = diameter;
-			
+
 			// Remove any old children
 			while (indicatorDomNode.firstChild) {
 				indicatorDomNode.removeChild(indicatorDomNode.firstChild);
 			}
-			
+
 			// Add the prong container
 			prongContainer = dom.create("div", {
 				className: "TiUIActivityIndicatorProngContainer",
@@ -65,7 +66,7 @@ define(["Ti/_/declare", "Ti/_/lang", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/style",
 
 		show: function() {
 			if (!this._visible) {
-				this._contentContainer.show();
+				Widget.prototype.show.call(this);
 				this._timer = setInterval(lang.hitch(this, "_animate"), 100);
 				this._visible = 1;
 			}
@@ -74,7 +75,7 @@ define(["Ti/_/declare", "Ti/_/lang", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/style",
 		hide: function() {
 			clearTimeout(this._timer);
 			if (this._visible) {
-				this._contentContainer.hide();
+				Widget.prototype.hide.call(this);
 				this._visible = 0;
 			}
 		},
