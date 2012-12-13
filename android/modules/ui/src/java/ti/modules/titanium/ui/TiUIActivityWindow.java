@@ -457,7 +457,7 @@ public class TiUIActivityWindow extends TiUIView
 	public void propertyChanged(String key, Object oldValue, Object newValue, KrollProxy windowProxy)
 	{
 		//
-		// Special case where where the windowProxy arg here does not match our underlying proxy.
+		// Special case where the windowProxy arg here does not match our underlying proxy.
 		// (windowProxy is TiBaseWindowProxy, but underlying proxy is ActivityWindowProxy).
 		// If that's true, then windowProxy has the new value but our proxy member does not,
 		// so we set it here.  TIMOB-11269.
