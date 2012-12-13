@@ -280,11 +280,12 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 	private void handleSetImage(final Bitmap bitmap)
 	{
 		TiImageView view = getView();
-		if (view != null && bitmap != null) {
+		if (view != null) {
 			view.setImageBitmap(bitmap);
 		}
 		// Let this run even if view doesn't exist. It just tells the proxy
 		// what the current bitmap should be.
+
 		imageViewProxy.onBitmapChanged(this, bitmap);
 	}
 
