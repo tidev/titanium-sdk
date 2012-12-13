@@ -742,7 +742,7 @@ function build(logger, config, cli, finished) {
 	this.certDistributionName = cli.argv['distribution-name'];
 	
 	this.forceRebuild = false;
-	this.forceXcode = false;
+	this.forceXcode = false; // TODO: is this even necessary? it's not used anywhere and used to be for simulator builds
 	
 	// the ios sdk version is not in the selected xcode version, need to find the version that does have it
 	Object.keys(iosEnv.xcode).forEach(function (sdk) {
@@ -1045,24 +1045,35 @@ build.prototype = {
 				'__ADDITIONAL_URL_SCHEMES__': fbAppId ? '<string>fb' + fbAppId + '</string>' : ''
 			};
 		
+		function merge(src, dest) {
+			Object.keys(src).forEach(function (prop) {
+				if (!/^\+/.test(prop)) {
+					if (Object.prototype.toString.call(src[prop]) == '[object Object]') {
+						dest.hasOwnProperty(prop) || (dest = {});
+						merge(src[prop], dest[prop]);
+					} else {
+						dest[prop] = src[prop];
+					}
+				}
+			});
+		}
+		
+		if (afs.exists(this.titaniumIosSdkPath, 'Info.plist')) {
+			plist.parse(fs.readFileSync(path.join(this.titaniumIosSdkPath, 'Info.plist')).toString().replace(/(__.+__)/g, function (match, key, format) {
+				return consts.hasOwnProperty(key) ? consts[key] : '<!-- ' + key + ' -->'; // if they key is not a match, just comment out the key
+			}));
+		}
 		
 		// if the user has a Info.plist in their project directory, consider that a custom override
 		if (afs.exists(src)) {
 			this.logger.info(__('Copying custom Info.plist from project directory'));
 			
-			plist.parse(fs.readFileSync(src).toString());
-			
-			if (plist.CFBundleIdentifier != this.tiapp.id) {
+			var custom = new appc.plist().parse(fs.readFileSync(src).toString());
+			if (custom.CFBundleIdentifier != this.tiapp.id) {
 				this.forceXcode = true;
 			}
-		} else {
-			this.logger.info(__('Building Info.plist'));
 			
-			if (afs.exists(this.titaniumIosSdkPath, 'Info.plist')) {
-				plist.parse(fs.readFileSync(path.join(this.titaniumIosSdkPath, 'Info.plist')).toString().replace(/(__.+__)/g, function (match, key, format) {
-					return consts.hasOwnProperty(key) ? consts[key] : '<!-- ' + key + ' -->'; // if they key is not a match, just comment out the key
-				}));
-			}
+			merge(custom, plist);
 		}
 		
 		plist.UIRequiresPersistentWiFi = this.tiapp['persistent-wifi'];
@@ -1136,11 +1147,7 @@ build.prototype = {
 			}
 		}
 		
-		ios && ios.plist && Object.keys(ios.plist).forEach(function (prop) {
-			if (!/^\+/.test(prop)) {
-				plist[prop] = ios.plist[prop];
-			}
-		});
+		ios && ios.plist && merge(ios.plist, plist);
 		
 		plist.CFBundleIdentifier = this.tiapp.id;
 		plist.CFBundleVersion = appc.version.format(this.tiapp.version || 1, 2);
