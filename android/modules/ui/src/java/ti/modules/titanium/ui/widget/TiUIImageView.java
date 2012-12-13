@@ -311,7 +311,6 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 		}
 		// Let this run even if view doesn't exist. It just tells the proxy
 		// what the current bitmap should be.
-
 		imageViewProxy.onBitmapChanged(this, bitmap);
 	}
 	
