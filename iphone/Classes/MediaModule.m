@@ -470,7 +470,7 @@ static NSDictionary* TI_filterableItemProperties;
 		else if (cameraView!=nil)
 		{
 			// we use our own fullscreen transform if the developer didn't supply one
-            if ([[UIScreen mainScreen] bounds].size.height == 568) {
+            if ([TiUtils isRetinaFourInch]) {
                 picker.cameraViewTransform = CGAffineTransformScale(picker.cameraViewTransform, CAMERA_TRANSFORM_X, CAMERA_TRANSFORM_Y_ALT);
             }
             else {

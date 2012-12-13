@@ -78,6 +78,11 @@ bool Base64AllocAndEncodeData(const void *inInputData, size_t inInputDataSize, c
     }    
 }
 
++(BOOL)isRetinaFourInch
+{
+    return ([[UIScreen mainScreen] bounds].size.height == 568);
+}
+
 +(BOOL)isRetinaDisplay
 {
 	// since we call this alot, cache it
@@ -591,7 +596,7 @@ bool Base64AllocAndEncodeData(const void *inInputData, size_t inInputDataSize, c
 
 	NSString *ext = [path pathExtension];
 
-	if(![ext isEqualToString:@"png"] && ![ext isEqualToString:@"jpg"])
+	if(![ext isEqualToString:@"png"] && ![ext isEqualToString:@"jpg"] && ![ext isEqualToString:@"jpeg"])
 	{ //It's not an image.
 		return url;
 	}
@@ -604,6 +609,13 @@ bool Base64AllocAndEncodeData(const void *inInputData, size_t inInputDataSize, c
 	NSString *os = [TiUtils isIPad] ? @"~ipad" : @"~iphone";
 
 	if([TiUtils isRetinaDisplay]){
+		if ([TiUtils isRetinaFourInch]) {
+			// first try -568h@2x iphone5 specific
+			NSString *testpath = [NSString stringWithFormat:@"%@-568h@2x.%@",partial,ext];
+			if ([fm fileExistsAtPath:testpath]) {
+				return [NSURL fileURLWithPath:testpath];
+			}
+		}
 		// first try 2x device specific
 		NSString *testpath = [NSString stringWithFormat:@"%@@2x%@.%@",partial,os,ext];
 		if ([fm fileExistsAtPath:testpath])

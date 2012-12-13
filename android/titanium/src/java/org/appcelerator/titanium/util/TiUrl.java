@@ -10,6 +10,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 
 import org.appcelerator.kroll.common.Log;
+import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.io.TiBaseFile;
 import org.appcelerator.titanium.io.TiFileFactory;
@@ -197,6 +198,22 @@ public class TiUrl
 	{
 		if (!TiFileFactory.isLocalScheme(path)) {
 			return path;
+		}
+
+		if (path.startsWith("android.resource://" + TiApplication.getInstance().getPackageName() + "/raw/")) {
+			Uri upath = Uri.parse(path);
+			String fileName = upath.getLastPathSegment();
+
+			int lastPeriodPos = fileName.lastIndexOf('.');
+			String fileNameWithoutExt;
+			if (lastPeriodPos <= 0) {
+				fileNameWithoutExt = fileName;
+			} else {
+				fileNameWithoutExt = fileName.substring(0, lastPeriodPos);
+			}
+			String newPath = path.substring(0, path.length() - fileName.length()) + fileNameWithoutExt;
+			return newPath;
+
 		}
 
 		String result = null;
