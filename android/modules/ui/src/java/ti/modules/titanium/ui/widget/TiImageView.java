@@ -250,7 +250,13 @@ public class TiImageView extends ViewGroup
 	}
 
 	public void setImageBitmap(Bitmap bitmap) {
-		imageView.setImageBitmap(bitmap);
+		if (bitmap == null) {
+			imageView.setImageResource(0);
+		}
+		else
+		{
+			imageView.setImageBitmap(bitmap);
+		}
 	}
 
 	public void setOnClickListener(OnClickListener clickListener) {
