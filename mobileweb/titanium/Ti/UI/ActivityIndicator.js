@@ -1,10 +1,10 @@
-define(["Ti/_/declare", "Ti/_/lang", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/style", "Ti/Locale", "Ti/UI", "Ti/UI/ActivityIndicatorStyle"],
+define(['Ti/_/declare', 'Ti/_/lang', 'Ti/_/UI/Widget', 'Ti/_/dom', 'Ti/_/style', 'Ti/Locale', 'Ti/UI', 'Ti/UI/ActivityIndicatorStyle'],
 	function(declare, lang, Widget, dom, style, Locale, UI, ActivityIndicatorStyle) {
 
 	var opacity = 0.3,
 		setStyle = style.set;
 
-	return declare("Ti.UI.ActivityIndicator", Widget, {
+	return declare('Ti.UI.ActivityIndicator', Widget, {
 
 		constructor: function() {
 			var contentContainer = this._contentContainer = UI.createView({
@@ -42,21 +42,21 @@ define(["Ti/_/declare", "Ti/_/lang", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/style",
 			}
 
 			// Add the prong container
-			prongContainer = dom.create("div", {
-				className: "TiUIActivityIndicatorProngContainer",
+			prongContainer = dom.create('div', {
+				className: 'TiUIActivityIndicatorProngContainer',
 				style: {
-					transformOrigin: "0px 0px",
-					transform: "scale(" + scale + ")"
+					transformOrigin: '0px 0px',
+					transform: 'scale(' + scale + ')'
 				}
 			}, indicatorDomNode);
 
 			// Add the new prongs
 			for (; i < 12; i++) {
-				prongs.push(dom.create("div", {
-					className: "TiUIActivityIndicatorProng",
+				prongs.push(dom.create('div', {
+					className: 'TiUIActivityIndicatorProng',
 					style: {
-						transform: "translate(16px,0px) rotate(" + i * 30 + "deg)",
-						transformOrigin: "2px 18px",
+						transform: 'translate(16px,0px) rotate(' + i * 30 + 'deg)',
+						transformOrigin: '2px 18px',
 						opacity: opacity,
 						backgroundColor: backgroundColor
 					}
@@ -66,7 +66,7 @@ define(["Ti/_/declare", "Ti/_/lang", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/style",
 
 		show: function() {
 			Widget.prototype.show.call(this);
-			this._timer = setInterval(lang.hitch(this, "_animate"), 100);
+			this._timer = setInterval(lang.hitch(this, '_animate'), 100);
 		},
 
 		hide: function() {
@@ -79,13 +79,13 @@ define(["Ti/_/declare", "Ti/_/lang", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/style",
 		_animate: function() {
 			var prong = this._prongs[this._currentProng];
 			++this._currentProng == 12 && (this._currentProng = 0);
-			setStyle(prong, "transition", "");
+			setStyle(prong, 'transition', '');
 			setTimeout(function() {
-				setStyle(prong, "opacity", 1);
+				setStyle(prong, 'opacity', 1);
 				setTimeout(function() {
-					setStyle(prong, "transition", "opacity 500ms linear 0ms");
+					setStyle(prong, 'transition', 'opacity 500ms linear 0ms');
 					setTimeout(function() {
-						setStyle(prong, "opacity", opacity);
+						setStyle(prong, 'opacity', opacity);
 					}, 1);
 				}, 1);
 			}, 1);
@@ -109,11 +109,11 @@ define(["Ti/_/declare", "Ti/_/lang", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/style",
 				}
 			},
 			indicatorColor: {
-				post: "_createProngs",
-				value: "#fff"
+				post: '_createProngs',
+				value: '#fff'
 			},
 			indicatorDiameter: {
-				post: "_createProngs",
+				post: '_createProngs',
 				value: 36
 			},
 			message: {
@@ -133,9 +133,9 @@ define(["Ti/_/declare", "Ti/_/lang", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/style",
 			style: {
 				set: function(value) {
 					if (~[ActivityIndicatorStyle.DARK, ActivityIndicatorStyle.BIG_DARK].indexOf(value)) {
-						this.indicatorColor = "#444";
+						this.indicatorColor = '#444';
 					} else {
-						this.indicatorColor = "#fff";
+						this.indicatorColor = '#fff';
 					}
 					if (~[ActivityIndicatorStyle.BIG, ActivityIndicatorStyle.BIG_DARK].indexOf(value)) {
 						this.indicatorDiameter = 72;
@@ -147,5 +147,4 @@ define(["Ti/_/declare", "Ti/_/lang", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/style",
 		}
 
 	});
-
 });
