@@ -76,6 +76,12 @@ define(["Ti/_/declare", "Ti/_/lang", "Ti/UI/View", "Ti/_/dom", "Ti/_/css", "Ti/_
 			View.prototype._doBackground.apply(this,arguments);
 		},
 
+		_updatePadding: function() {
+			// Fake padding with a transparent border
+			this._contentContainer.borderWidth = this._titleLabel. borderWidth =
+				[this.leftImage ? 5 : 0, this.rightImage ? 5 : 0, 0, 0];
+		},
+
 		add: function(view) {
 			this._contentContainer._add(view);
 			this._publish(view);
@@ -131,10 +137,13 @@ define(["Ti/_/declare", "Ti/_/lang", "Ti/UI/View", "Ti/_/dom", "Ti/_/css", "Ti/_
 				}
 			},
 			leftImage: {
-				set: function(value) {
-					this._leftImageView.image = value;
+				set: function(value, oldValue) {
+					if (value !== oldValue) {
+						this._leftImageView.image = value;
+					}
 					return value;
-				}
+				},
+				post: '_updatePadding'
 			},
 			rightImage: {
 				set: function(value, oldValue) {
@@ -142,7 +151,8 @@ define(["Ti/_/declare", "Ti/_/lang", "Ti/UI/View", "Ti/_/dom", "Ti/_/css", "Ti/_
 						this._rightImageView.image = value;
 					}
 					return value;
-				}
+				},
+				post: '_updatePadding'
 			},
 			selectedColor: void 0,
 			title: {
