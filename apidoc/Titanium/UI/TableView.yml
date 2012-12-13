@@ -541,7 +541,7 @@ events:
     description: |
         Event coordinates are always relative to the view in which the initial touch occurred
     platforms: [mobileweb, iphone, ipad]
-    since: {iphone: "3.0.0", ipad: "3.0.0"}
+    since: {iphone: "3.1.0", ipad: "3.1.0"}
     properties:
       - name: globalPoint
         summary: |
