@@ -2582,7 +2582,7 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
                 bounds.origin.y = verticalLayoutBoundary;
                 if (!childIsFixedHeight)
                 {
-                    //TIMOB-11198. minimumParentHeightForSize:CGSizeMake will limit width anyways. Pass bounding width here
+                    //TIMOB-11998. minimumParentHeightForSize:CGSize will limit width anyways. Pass bounding width here
                     //desiredHeight = [child minimumParentHeightForSize:CGSizeMake(desiredWidth,boundingHeight)];
                     if (isPercent) {
                         desiredHeight = [child minimumParentHeightForSize:CGSizeMake(bounds.size.width,boundingHeight)];
@@ -2610,7 +2610,7 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
                     if (desiredWidth < boundingWidth) {
                         if (!childIsFixedHeight)
                         {
-                            //TIMOB-11198. minimumParentHeightForSize:CGSizeMake will limit width anyways. Pass bounding width here
+                            //TIMOB-11998. minimumParentHeightForSize:CGSize will limit width anyways. Pass bounding width here
                             //desiredHeight = [child minimumParentHeightForSize:CGSizeMake(desiredWidth,boundingHeight)];
                             if (isPercent) {
                                 desiredHeight = [child minimumParentHeightForSize:CGSizeMake(bounds.size.width,boundingHeight)];
@@ -2653,7 +2653,7 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
                     if (desiredWidth < boundingWidth) {
                         if (!childIsFixedHeight)
                         {
-                            //TIMOB-11198. minimumParentHeightForSize:CGSizeMake will limit width anyways. Pass bounding width here
+                            //TIMOB-11998. minimumParentHeightForSize:CGSize will limit width anyways. Pass bounding width here
                             //desiredHeight = [child minimumParentHeightForSize:CGSizeMake(desiredWidth,boundingHeight)];
                             if (isPercent) {
                                 desiredHeight = [child minimumParentHeightForSize:CGSizeMake(bounds.size.width,boundingHeight)];
@@ -2689,7 +2689,7 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
             //If it fits update the horizontal layout row height
             if (!childIsFixedHeight)
             {
-                //TIMOB-11198. minimumParentHeightForSize:CGSizeMake will limit width anyways. Pass bounding width here
+                //TIMOB-11998. minimumParentHeightForSize:CGSize will limit width anyways. Pass bounding width here
                 //desiredHeight = [child minimumParentHeightForSize:CGSizeMake(desiredWidth,boundingHeight)];
                 if (isPercent) {
                     desiredHeight = [child minimumParentHeightForSize:CGSizeMake(bounds.size.width,boundingHeight)];
