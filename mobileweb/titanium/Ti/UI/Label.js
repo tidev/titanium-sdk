@@ -16,7 +16,7 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/css", "Ti/_/styl
 				height: UI.SIZE,
 				center: {y: "50%"}
 			}));
-			
+
 			var self = this,
 				textContainerDomNode = this._textContainerDomNode = this._textContainer.domNode;
 			self._textContainer._getContentSize = function(width, height) {
@@ -27,7 +27,7 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/css", "Ti/_/styl
 					height: measuredSize.height
 				};
 			};
-			
+
 			this._addStyleableDomNode(textContainerDomNode);
 			this.wordWrap = true;
 		},
@@ -105,6 +105,13 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/css", "Ti/_/styl
 					this._hasSizeDimensions() && this._triggerLayout();
 					return value;
 				}
+			},
+			rtl: {
+				set: function(value) {
+					setStyle(this._textContainerDomNode, "direction", !!value ? 'rtl' : 'ltr');
+					return value;
+				},
+				value: true
 			},
 			shadowColor: {
 				post: function() {
