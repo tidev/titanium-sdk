@@ -14,7 +14,15 @@ define(['Ti/_/browser', 'Ti/_/declare', 'Ti/UI/View', 'Ti/_/lang', 'Ti/_/dom', '
 		maxFlickTime = 200,
 
 		// Minimum distance that must be traveled to register the flick
-		flickThreshold = 10;
+		flickThreshold = 10,
+
+		minAnimationTime = 25,
+
+		maxAnimationTime = 1000,
+
+		flickAnimationScaleFactor = 0.5,
+
+		dragAnimationScaleFactor = 2;
 
 	return declare('Ti.UI.ScrollableView', View, {
 
@@ -22,7 +30,9 @@ define(['Ti/_/browser', 'Ti/_/declare', 'Ti/UI/View', 'Ti/_/lang', 'Ti/_/dom', '
 
 			// Create the content container
 			var containerDomNode,
-				self = this;
+				self = this,
+				animating,
+				offsetX = 0;
 			self._add(self._contentContainer = UI.createView({
 				left: 0,
 				top: 0,
@@ -54,53 +64,133 @@ define(['Ti/_/browser', 'Ti/_/declare', 'Ti/UI/View', 'Ti/_/lang', 'Ti/_/dom', '
 			self.properties.__values__.views = [];
 			self._viewToRemoveAfterScroll = -1;
 
-			on(self, 'postlayout', self._updateTranslation);
+			on(self, 'postlayout', function() {
+				animating || self._setTranslation(self.currentPage * -self._measuredWidth);
+			});
 
 			on(containerDomNode, useTouch ? 'touchstart' : 'mousedown', function(e) {
 				var startX = e.touches ? e.touches[0].clientX : e.clientX,
-					startTime = Date.now(),
 					currentX,
+					startTime = Date.now(),
+					width = self._measuredWidth,
 					mouseMoveListener = function(e) {
-						var width = self._measuredWidth;
+						width = self._measuredWidth;
 						e.preventDefault();
 						currentX = e.touches ? e.touches[0].clientX : e.clientX;
-						setStyle(containerDomNode, 'transform', 'translatez(0) translatex(' + ((self.currentPage * -width) + currentX - startX) + 'px)');
+						self._setTranslation((self.currentPage * -width) + currentX - startX + offsetX);
 					},
 					mouseUpListener = function(e) {
 						var	now = Date.now(),
 							isFlick = now - startTime < maxFlickTime,
-							width = self._measuredWidth,
 							currentPage = self.currentPage,
 							thresholdMet = Math.abs(startX - currentX) > (isFlick ? flickThreshold : width / 2),
-							props = self.properties.__values__;
+							props = self.properties.__values__,
+							duration = Math.abs(currentX - startX);
 						global.removeEventListener(useTouch ? 'touchmove' : 'mousemove', mouseMoveListener);
 						global.removeEventListener(useTouch ? 'touchend' : 'mouseup', mouseUpListener);
+						width = self._measuredWidth,
+						animating = 1;
 						e.preventDefault();
 
 						if (thresholdMet) {
 							if (startX > currentX) {
-								currentPage !== props.views.length - 1 && props.currentPage++;
+								currentPage !== props.views.length - 1 && currentPage++;
 							} else {
-								currentPage !== 0 && props.currentPage--;
+								currentPage !== 0 && currentPage--;
 							}
+							duration = width - duration;
 						}
-						setStyle(containerDomNode, 'transform', 'translatez(0) translatex(' + (self.currentPage * -width) + 'px)');
+						self._showPagingControl(currentPage);
+						offsetX = currentX - startX + offsetX;
+						duration = Math.max(minAnimationTime, Math.min(maxAnimationTime,
+							(isFlick ? flickAnimationScaleFactor : dragAnimationScaleFactor) * duration));
+						setStyle(containerDomNode, 'transition', duration + 'ms ease-out');
+						setTimeout(function(){
+							once(containerDomNode, 'webkitTransitionEnd', function() {
+								setStyle(containerDomNode, 'transition', '');
+								animating = 0;
+								props.currentPage = currentPage;
+								self._updatePagingControl();
+							});
+							self._setTranslation(currentPage * -width);
+						}, 1);
 					};
+				self._showPagingControl(self.currentPage, 1);
 				e.preventDefault();
+				offsetX = animating ? offsetX || 0 : 0;
+				setStyle(containerDomNode, 'transition', '');
+				self._setTranslation((self.currentPage * -width) + offsetX);
+				animating = 0;
 				global.addEventListener(useTouch ? 'touchmove' : 'mousemove', mouseMoveListener);
 				global.addEventListener(useTouch ? 'touchend' : 'mouseup', mouseUpListener);
 			});
 		},
 
-		addView: function(view){
+		_setTranslation: function(offset) {
+			setStyle(this._contentContainer.domNode, 'transform', 'translatez(0) translatex(' + offset + 'px)');
+		},
+
+		_showPagingControl: function(newIndex, indefinite) {
+			var self = this;
+			if (!self.showPagingControl) {
+				self._pagingControlContainer.opacity = 0;
+				return;
+			}
+			self._pagingAnimation && self._pagingAnimation.cancel();
+			self._pagingAnimation = self._pagingControlContainer.animate({
+				duration: 250,
+				opacity: 0.75
+			});
+			clearInterval(self._pagingTimeout);
+			if (!indefinite && self.pagingControlTimeout > 0) {
+				self._pagingTimeout = setTimeout(function() {
+					self._pagingAnimation && self._pagingAnimation.cancel();
+					self._pagingAnimation = self._pagingControlContainer.animate({
+						duration: 750,
+						opacity: 0
+					}, function() {
+						self._pagingAnimation = void 0;
+					});
+				}, self.pagingControlTimeout);
+			}
+		},
+
+		_updatePagingControl: function() {
+			var contentContainer = this._pagingControlContentContainer,
+				numViews = this.views.length,
+				diameter = this.pagingControlHeight / 2;
+			if (numViews !== contentContainer._numViews || diameter !== contentContainer._diameter) {
+				contentContainer._numViews = numViews;
+				contentContainer._diameter = diameter;
+				contentContainer._removeAllChildren();
+				for (var i = 0; i < this.views.length; i++) {
+					contentContainer._add(UI.createView({
+						width: diameter,
+						height: diameter,
+						left: 5,
+						right: 5,
+						backgroundColor: '#aaa',
+						borderRadius: unitize(diameter / 2)
+					}));
+				}
+				contentContainer._highlightedPage = -1;
+			}
+			if (contentContainer._highlightedPage !== this.currentPage) {
+				contentContainer._highlightedPage < 0 ||
+					(contentContainer._children[contentContainer._highlightedPage].backgroundColor = '#aaa');
+				contentContainer._children[this.currentPage].backgroundColor = '#fff';
+				contentContainer._highlightedPage = this.currentPage;
+			}
+		},
+
+		addView: function(view) {
 			if (view) {
 				this.views.push(view);
 				this._contentContainer._add(view);
 				if (this.views.length == 1) {
 					this.properties.__values__.currentPage = 0;
-				} else {
-					setStyle(view.domNode, 'display', 'none');
 				}
+				this._updatePagingControl();
 			}
 		},
 
@@ -133,13 +223,12 @@ define(['Ti/_/browser', 'Ti/_/declare', 'Ti/UI/View', 'Ti/_/lang', 'Ti/_/dom', '
 
 			// Remove the view and update the paging control
 			contentContainer._remove(self.views.splice(viewIndex,1)[0]);
-			!self.views.length && (self.properties.__values__.currentPage = -1);
+			self.views.length || (self.properties.__values__.currentPage = -1);
 			once(UI, 'postlayout', function() {
 				setTimeout(function(){
-					self._updateTranslation();
+					self._setTranslation(self.currentPage * -self._measuredWidth);
 				}, 1);
 			});
-			self._updatePagingControl(self.currentPage);
 		},
 
 		scrollToView: function(view) {
@@ -174,7 +263,8 @@ define(['Ti/_/browser', 'Ti/_/declare', 'Ti/UI/View', 'Ti/_/lang', 'Ti/_/dom', '
 				}
 
 				// Animate the views
-				self._updatePagingControl(viewIndex);
+				self._updatePagingControl();
+				self._showPagingControl(viewIndex);
 				self._animateToPosition(destination, 0, duration, UI.ANIMATION_CURVE_EASE_IN_OUT, function(){
 					self.properties.__values__.currentPage = viewIndex;
 					if (currentPage < viewIndex) {
@@ -203,53 +293,6 @@ define(['Ti/_/browser', 'Ti/_/declare', 'Ti/UI/View', 'Ti/_/lang', 'Ti/_/dom', '
 				scroll();
 			} else {
 				once(self, 'postlayout', scroll);
-			}
-		},
-
-		_showPagingControl: function() {
-			if (!this.showPagingControl) {
-				this._pagingControlContainer.opacity = 0;
-				return;
-			}
-			if (this._isPagingControlActive) {
-				return;
-			}
-			this._isPagingControlActive = true;
-			this._pagingControlContainer.animate({
-				duration: 250,
-				opacity: 0.75
-			});
-			this.pagingControlTimeout > 0 && setTimeout(lang.hitch(this,function() {
-				this._pagingControlContainer.animate({
-					duration: 750,
-					opacity: 0
-				});
-				this._isPagingControlActive = false;
-			}),this.pagingControlTimeout);
-		},
-
-		_updatePagingControl: function(newIndex, hidePagingControl) {
-			var contentContainer = this._pagingControlContentContainer,
-				numViews = this.views.length,
-				diameter = this.pagingControlHeight / 2;
-			if (this.showPagingControl && (!this._isPagingControlActive || newIndex !== contentContainer._currentIndex ||
-					numViews !== contentContainer._numViews || diameter !== contentContainer._diameter)) {
-				contentContainer._currentIndex = newIndex;
-				contentContainer._numViews = numViews;
-				contentContainer._diameter = diameter;
-				contentContainer._removeAllChildren();
-				for (var i = 0; i < this.views.length; i++) {
-					var indicator = UI.createView({
-						width: diameter,
-						height: diameter,
-						left: 5,
-						right: 5,
-						backgroundColor: i === newIndex ? 'white' : 'grey',
-						borderRadius: unitize(diameter / 2)
-					});
-					contentContainer._add(indicator);
-				}
-				hidePagingControl || this._showPagingControl();
 			}
 		},
 
@@ -282,20 +325,8 @@ define(['Ti/_/browser', 'Ti/_/declare', 'Ti/UI/View', 'Ti/_/lang', 'Ti/_/dom', '
 				},
 				value: 20
 			},
-			pagingControlTimeout: {
-				set: function(value) {
-					this.pagingControlTimeout === 0 && this._updatePagingControl();
-					return value;
-				},
-				value: 1250
-			},
-			showPagingControl: {
-				set: function(value) {
-					this.pagingControlTimeout === 0 && this._updatePagingControl();
-					return value;
-				},
-				value: false
-			},
+			pagingControlTimeout: 3000,
+			showPagingControl: false,
 			views: {
 				set: function(value) {
 
@@ -319,9 +350,7 @@ define(['Ti/_/browser', 'Ti/_/declare', 'Ti/UI/View', 'Ti/_/lang', 'Ti/_/dom', '
 
 					return value;
 				},
-				post: function() {
-					this._updatePagingControl(this.currentPage,true);
-				}
+				post: '_updatePagingControl'
 			}
 		}
 
