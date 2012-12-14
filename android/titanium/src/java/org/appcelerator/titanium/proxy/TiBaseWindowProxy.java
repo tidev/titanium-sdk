@@ -10,6 +10,7 @@ import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.view.TiUIView;
 
 import android.app.Activity;
+import android.util.Pair;
 
 /**
  * This class exists to allow JS wrapping of the abstract methods
@@ -97,7 +98,20 @@ public class TiBaseWindowProxy extends TiWindowProxy
 		// first for things to work correctly.
 		//
 		if (mViewProxy != null) {
-			mViewProxy.onPropertyChanged(name, value);
+			
+			String propertyName = name;
+			Object newValue = value;
+
+			if (isLocaleProperty(name)) {
+				Log.i(TAG, "Updating locale: " + name, Log.DEBUG_MODE);
+				Pair<String, String> update = updateLocaleProperty(name, value.toString());
+				if (update != null) {
+					propertyName = update.first;
+					newValue = update.second;
+				}
+			}
+
+			mViewProxy.setProperty(propertyName, newValue);
 		}
 		super.onPropertyChanged(name, value);
 	}
