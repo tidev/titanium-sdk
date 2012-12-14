@@ -443,14 +443,14 @@ public class TiUIActivityWindow extends TiUIView
 	}
 
 	@Override
-	public void propertyChanged(String key, Object oldValue, Object newValue, KrollProxy windowProxy)
+	public void propertyChanged(String key, Object oldValue, Object newValue, KrollProxy proxy)
 	{	
 		if (key.equals(TiC.PROPERTY_BACKGROUND_IMAGE)) {
 			if (newValue != null) {
 				handleBackgroundImage(newValue, false);
 
 			} else {
-				handleBackgroundColor(windowProxy.getProperty(TiC.PROPERTY_BACKGROUND_COLOR), false);
+				handleBackgroundColor(proxy.getProperty(TiC.PROPERTY_BACKGROUND_COLOR), false);
 			}
 
 		} else if (key.equals(TiC.PROPERTY_BACKGROUND_COLOR)) {
@@ -491,7 +491,7 @@ public class TiUIActivityWindow extends TiUIView
 				windowActivity.setTitle(title);
 
 			} else {
-				windowProxy.getActivity().setTitle(title);
+				proxy.getActivity().setTitle(title);
 			}
 
 		} else if (key.equals(TiC.PROPERTY_LAYOUT)) {
@@ -514,7 +514,7 @@ public class TiUIActivityWindow extends TiUIView
 			handleWindowPixelFormat(TiConvert.toInt(newValue));
 
 		} else {
-			super.propertyChanged(key, oldValue, newValue, windowProxy);
+			super.propertyChanged(key, oldValue, newValue, proxy);
 		}
 	}
 
