@@ -186,7 +186,7 @@ exports.config = function (logger, config, cli) {
 					},
 					'distribution-name': {
 						abbr: 'R',
-						default: config.ios && config.ios.distributionName && lowerCasedDistNames.indexOf(config.ios.distributionName) != -1 ? config.ios.distributionName : undefined,
+						default: config.ios && config.ios.distributionName && lowerCasedDistNames.indexOf(config.ios.distributionName.toLowerCase()) != -1 ? config.ios.distributionName : undefined,
 						desc: __('the iOS Distribution Certificate to use; required when target is %s or %s', 'dist-appstore'.cyan, 'dist-adhoc'.cyan),
 						hint: 'name',
 						prompt: {
