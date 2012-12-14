@@ -444,7 +444,7 @@ public class TiUIActivityWindow extends TiUIView
 
 	@Override
 	public void propertyChanged(String key, Object oldValue, Object newValue, KrollProxy proxy)
-	{	
+	{
 		if (key.equals(TiC.PROPERTY_BACKGROUND_IMAGE)) {
 			if (newValue != null) {
 				handleBackgroundImage(newValue, false);
