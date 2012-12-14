@@ -1,40 +1,39 @@
-define(['Ti/_/browser', 'Ti/_/declare', 'Ti/_/UI/KineticScrollView', 'Ti/_/lang', 'Ti/_/dom', 'Ti/_/style', 'Ti/UI'],
-	function(browser, declare, KineticScrollView, lang, dom, style, UI) {
+define(['Ti/_/browser', 'Ti/_/declare', 'Ti/UI/View', 'Ti/_/lang', 'Ti/_/dom', 'Ti/_/style', 'Ti/UI'],
+	function(browser, declare, View, lang, dom, style, UI) {
 
 	var setStyle = style.set,
 		is = require.is,
-		isDef = lang.isDef,
 		unitize = dom.unitize,
-		once = require.on.once,
+		on = require.on,
+		once = on.once,
+		global = window,
 
-		// Velocity bounds, used to make sure that animations don't become super long or super short
-		minVelocity = 0.4,
-		maxVelocity = 3,
+		useTouch = 'ontouchstart' in global,
 
-		// This sets the minimum velocity that determines whether a swipe was a flick or a drag
-		velocityThreshold = 0.4,
+		// Maximum time that a gesture can be considered a flick
+		maxFlickTime = 200,
 
-		// This determines the minimum distance scale (i.e. width divided by this value) before a flick requests a page turn
-		minimumFlickDistanceScaleFactor = 200,
+		// Minimum distance that must be traveled to register the flick
+		flickThreshold = 10;
 
-		// This determines the minimum distance scale (i.e. width divided by this value) before a drag requests a page turn
-		minimumDragDistanceScaleFactor = 2;
-
-	return declare('Ti.UI.ScrollableView', KineticScrollView, {
+	return declare('Ti.UI.ScrollableView', View, {
 
 		constructor: function(){
 
 			// Create the content container
-			this._initKineticScrollView(UI.createView({
+			var containerDomNode,
+				self = this;
+			self._add(self._contentContainer = UI.createView({
 				left: 0,
 				top: 0,
 				width: UI.SIZE,
 				height: '100%',
 				layout: 'constrainingHorizontal'
 			}), 'horizontal');
+			containerDomNode = self._contentContainer.domNode;
 
 			// Create the paging control container
-			this._add(this._pagingControlContainer = UI.createView({
+			self._add(self._pagingControlContainer = UI.createView({
 				width: '100%',
 				height: 20,
 				bottom: 0,
@@ -43,7 +42,7 @@ define(['Ti/_/browser', 'Ti/_/declare', 'Ti/_/UI/KineticScrollView', 'Ti/_/lang'
 				touchEnabled: false
 			}));
 
-			this._pagingControlContainer._add(this._pagingControlContentContainer = UI.createView({
+			self._pagingControlContainer._add(self._pagingControlContentContainer = UI.createView({
 				width: UI.SIZE,
 				height: '100%',
 				top: 0,
@@ -52,105 +51,45 @@ define(['Ti/_/browser', 'Ti/_/declare', 'Ti/_/UI/KineticScrollView', 'Ti/_/lang'
 			}));
 
 			// State variables
-			this.properties.__values__.views = [];
-			this._viewToRemoveAfterScroll = -1;
+			self.properties.__values__.views = [];
+			self._viewToRemoveAfterScroll = -1;
 
-			require.on(this, 'postlayout', this._updateTranslation);
-		},
+			on(self, 'postlayout', self._updateTranslation);
 
-		_handleDragStart: function() {
-			var currentPage = this.currentPage;
-			if (~currentPage) {
-				this._showView(currentPage - 1);
-				this._showView(currentPage);
-				this._showView(currentPage + 1);
-				this.fireEvent('dragstart');
-				this._updatePagingControl(this.currentPage);
-			}
-		},
+			on(containerDomNode, useTouch ? 'touchstart' : 'mousedown', function(e) {
+				var startX = e.touches ? e.touches[0].clientX : e.clientX,
+					startTime = Date.now(),
+					currentX,
+					mouseMoveListener = function(e) {
+						var width = self._measuredWidth;
+						e.preventDefault();
+						currentX = e.touches ? e.touches[0].clientX : e.clientX;
+						setStyle(containerDomNode, 'transform', 'translatez(0) translatex(' + ((self.currentPage * -width) + currentX - startX) + 'px)');
+					},
+					mouseUpListener = function(e) {
+						var	now = Date.now(),
+							isFlick = now - startTime < maxFlickTime,
+							width = self._measuredWidth,
+							currentPage = self.currentPage,
+							thresholdMet = Math.abs(startX - currentX) > (isFlick ? flickThreshold : width / 2),
+							props = self.properties.__values__;
+						global.removeEventListener(useTouch ? 'touchmove' : 'mousemove', mouseMoveListener);
+						global.removeEventListener(useTouch ? 'touchend' : 'mouseup', mouseUpListener);
+						e.preventDefault();
 
-		_handleDrag: function(e) {
-			var currentPage = this.currentPage,
-				currentView = this.views[currentPage];
-			if (currentView) {
-				this.fireEvent('scroll', {
-					currentPage: currentPage,
-					currentPageAsFloat: currentPage - e.distanceX / currentView._measuredWidth,
-					view: currentView
-				});
-				this._updatePagingControl(currentPage);
-			}
-		},
-
-		_handleDragCancel: function() {
-			var currentPage = this.currentPage;
-			if (~currentPage) {
-				this._hideView(currentPage - 1);
-				this._showView(currentPage);
-				this._hideView(currentPage + 1);
-			}
-		},
-
-		_handleDragEnd: function(e, velocityX) {
-			if (~this.currentPage && isDef(velocityX)) {
-				velocityX = Math.max(minVelocity, Math.min(maxVelocity, velocityX));
-				var self = this,
-					views = self.views,
-					currentPage = self.currentPage,
-					distance = e.distanceX,
-					normalizedWidth = views[currentPage]._measuredWidth / (Math.abs(velocityX) > velocityThreshold ?
-						minimumFlickDistanceScaleFactor :
-						minimumDragDistanceScaleFactor),
-					destinationPosition,
-					destination = views[currentPage],
-					destinationIndex = currentPage;
-
-				// Determine the animation characteristics
-				if (distance > normalizedWidth && currentPage > 0) {
-					// Previous page
-					destinationIndex = currentPage - 1;
-					distance = (destination = views[destinationIndex])._measuredLeft - self._currentTranslationX;
-				} else if (distance < -normalizedWidth && currentPage < views.length - 1) {
-					// Next page
-					destinationIndex = currentPage + 1;
-					distance = self._currentTranslationX - (destination = views[destinationIndex])._measuredLeft;
-				}
-				destinationPosition = -destination._measuredLeft;
-				self._updatePagingControl(destinationIndex);
-
-				// Fire the drag end event
-				self.fireEvent('dragend', {
-					currentPage: destinationIndex,
-					view: destination
-				});
-
-				// Animate the view. Note: the 1.724 constance was calculated, not estimated. It is NOT for tweaking.
-				// If tweaking is needed, tweak the velocity algorithm in KineticScrollView.
-				self._animateToPosition(destinationPosition, 0, Math.abs(1.724 *
-						(destinationPosition - self._currentTranslationX) / velocityX), UI.ANIMATION_CURVE_EASE_OUT, function(){
-					destinationIndex !== currentPage - 1 && self._hideView(currentPage - 1);
-					destinationIndex !== currentPage && self._hideView(currentPage);
-					destinationIndex !== currentPage + 1 && self._hideView(currentPage + 1);
-					self.properties.__values__.currentPage = destinationIndex;
-					self._showView(destinationIndex);
-					setTimeout(function(){
-						self.fireEvent('scrollend',{
-							currentPage: destinationIndex,
-							view: destination
-						});
-					}, 1);
-				});
-			}
-		},
-
-		_hideView: function(index) {
-			var views = this.views;
-			index >= 0 && index < views.length && setStyle(views[index].domNode, 'display', 'none');
-		},
-
-		_showView: function(index) {
-			var views = this.views;
-			index >= 0 && index < views.length && setStyle(views[index].domNode, 'display', 'inherit');
+						if (thresholdMet) {
+							if (startX > currentX) {
+								currentPage !== props.views.length - 1 && props.currentPage++;
+							} else {
+								currentPage !== 0 && props.currentPage--;
+							}
+						}
+						setStyle(containerDomNode, 'transform', 'translatez(0) translatex(' + (self.currentPage * -width) + 'px)');
+					};
+				e.preventDefault();
+				global.addEventListener(useTouch ? 'touchmove' : 'mousemove', mouseMoveListener);
+				global.addEventListener(useTouch ? 'touchend' : 'mouseup', mouseUpListener);
+			});
 		},
 
 		addView: function(view){
@@ -201,10 +140,6 @@ define(['Ti/_/browser', 'Ti/_/declare', 'Ti/_/UI/KineticScrollView', 'Ti/_/lang'
 				}, 1);
 			});
 			self._updatePagingControl(self.currentPage);
-		},
-
-		_updateTranslation: function() {
-			~this.currentPage && this._setTranslation(-this.views[this.currentPage]._measuredLeft, 0);
 		},
 
 		scrollToView: function(view) {
