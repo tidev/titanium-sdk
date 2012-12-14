@@ -113,6 +113,17 @@ methods:
     returns:
         type: Titanium.UI.Tab
         
+  - name: getActivity
+    summary: Returns the activity for this tab group.
+    description: |
+        The activity is not available until the tab group is open.
+
+        Activity will be exposed as a property in a future release.
+    returns:
+        type: Titanium.Android.Activity
+    platforms: [android]
+    since: 3.0.0
+
   - name: open
     summary: Opens the tab group and makes it visible.
     
@@ -168,7 +179,7 @@ properties:
   - name: exitOnClose
     summary: |
         Boolean value indicating if the application should exit when closing the tab group, whether via Android
-        back button or the [close](Titanium.UI.TabGroup.close) method
+        back button or the [close](Titanium.UI.TabGroup.close) method.
     description:  |
         You can only set this as a createTabGroup({...}) option.  Setting it after
         tab group creation has no effect.
@@ -176,6 +187,17 @@ properties:
     default: True if tab group is opened on top of the root activity. False otherwise.
     type: Boolean
     availability: creation
+
+  - name: navBarHidden
+    summary: Hide the nav bar (`true`) or show the nav bar (`false`) for this tab group.
+    description: |
+        On other platforms, use [Window.navBarHidden](Titanium.UI.Window.navBarHidden) to
+        show and hide the nav bar for a tab group. On Android, the nav bar can only be
+        shown or hidden for the whole tab group.
+    platforms: [android]
+    default: false
+    type: Boolean
+    since: 3.0.0
 
   - name: tabs
     summary: |
