@@ -444,18 +444,7 @@ public class TiUIActivityWindow extends TiUIView
 
 	@Override
 	public void propertyChanged(String key, Object oldValue, Object newValue, KrollProxy windowProxy)
-	{
-		//
-		// Special case where the windowProxy arg here does not match our underlying proxy.
-		// (windowProxy is TiBaseWindowProxy, but underlying proxy is ActivityWindowProxy).
-		// If that's true, then windowProxy has the new value but our proxy member does not,
-		// so we set it here.  TIMOB-11269.
-		//
-		if (windowProxy != proxy)
-		{
-			proxy.setProperty(key,  newValue);
-		}
-		
+	{	
 		if (key.equals(TiC.PROPERTY_BACKGROUND_IMAGE)) {
 			if (newValue != null) {
 				handleBackgroundImage(newValue, false);

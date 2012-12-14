@@ -20,6 +20,8 @@ public class TiBaseWindowProxy extends TiWindowProxy
 	private static final String TAG = "TiBaseWindow";
 	
 	private WeakReference<TiBaseActivity> hostActivity;
+	
+	private TiViewProxy mViewProxy;
 
 	/**
 	 * Called to associate a view with a JS window wrapper 
@@ -31,6 +33,7 @@ public class TiBaseWindowProxy extends TiWindowProxy
 		TiUIView view = viewProxy.peekView();
 		setView(view);
 		setModelListener(view);
+		mViewProxy = viewProxy;
 	}
 	
 	@Kroll.method
@@ -85,6 +88,30 @@ public class TiBaseWindowProxy extends TiWindowProxy
 	protected Activity getWindowActivity()
 	{
 		return null;
+	}
+	
+	@Override
+	public void onPropertyChanged(String name, Object value) {
+		//
+		// Set on both proxies.  We must set on the viewProxy
+		// first for things to work correctly.
+		//
+		if (mViewProxy != null) {
+			mViewProxy.onPropertyChanged(name, value);
+		}
+		super.onPropertyChanged(name, value);
+	}
+	
+	@Override 
+	public void setProperty(String name, Object value) {
+		//
+		// Set on both proxies.  We must set on the viewProxy
+		// first for things to work correctly.
+		//
+		if (mViewProxy != null) {
+			mViewProxy.setProperty(name,  value);
+		}
+		super.setProperty(name, value);	
 	}
 
 }
