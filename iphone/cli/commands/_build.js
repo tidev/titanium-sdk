@@ -1049,7 +1049,7 @@ build.prototype = {
 			Object.keys(src).forEach(function (prop) {
 				if (!/^\+/.test(prop)) {
 					if (Object.prototype.toString.call(src[prop]) == '[object Object]') {
-						dest.hasOwnProperty(prop) || (dest = {});
+						dest.hasOwnProperty(prop) || (dest[prop] = {});
 						merge(src[prop], dest[prop]);
 					} else {
 						dest[prop] = src[prop];
