@@ -323,7 +323,9 @@ public class TiUIActivityWindow extends TiUIView
 			});
 
 		} else {
-			windowActivity.getWindow().setBackgroundDrawable(drawable);
+			if (windowActivity != null) {
+				windowActivity.getWindow().setBackgroundDrawable(drawable);
+			}
 		}
 	}
 
