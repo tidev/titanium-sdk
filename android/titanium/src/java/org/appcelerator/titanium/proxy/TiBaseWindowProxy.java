@@ -102,14 +102,7 @@ public class TiBaseWindowProxy extends TiWindowProxy
 			String propertyName = name;
 			Object newValue = value;
 
-			if (isLocaleProperty(name)) {
-				Log.i(TAG, "Updating locale: " + name, Log.DEBUG_MODE);
-				Pair<String, String> update = updateLocaleProperty(name, value.toString());
-				if (update != null) {
-					propertyName = update.first;
-					newValue = update.second;
-				}
-			}
+			updateLocalePropertyNameAndValue(propertyName, newValue);
 
 			mViewProxy.setProperty(propertyName, newValue);
 		}
