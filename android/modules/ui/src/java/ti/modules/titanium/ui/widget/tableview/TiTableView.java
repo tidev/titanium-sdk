@@ -54,9 +54,9 @@ public class TiTableView extends FrameLayout
 	protected static final int MAX_CLASS_NAMES = 32;
 
 	private TableViewModel viewModel;
-	private class MyListView extends ListView {
+	private class TiListView extends ListView {
 
-		public MyListView(Context context) {
+		public TiListView(Context context) {
 			super(context);
 			// TODO Auto-generated constructor stub
 		}
@@ -76,7 +76,7 @@ public class TiTableView extends FrameLayout
 		}
 		
 	}
-	private MyListView listView;
+	private TiListView listView;
 	private TTVListAdapter adapter;
 	private OnItemClickedListener itemClickListener;
 	private OnItemLongClickedListener itemLongClickListener;
@@ -307,7 +307,7 @@ public class TiTableView extends FrameLayout
 		rowTypes.put(TableViewProxy.CLASSNAME_DEFAULT, rowTypeCounter.incrementAndGet());
 
 		this.viewModel = new TableViewModel(proxy);
-		this.listView = new MyListView(getContext());
+		this.listView = new TiListView(getContext());
 		listView.setId(TI_TABLE_VIEW_ID);
 
 		listView.setFocusable(true);
@@ -316,7 +316,6 @@ public class TiTableView extends FrameLayout
 		listView.setCacheColorHint(Color.TRANSPARENT);
 		final KrollProxy fProxy = proxy;
 		listView.setOnScrollListener(new OnScrollListener()
-		//OnScrollListener listener = new OnScrollListener()
 		{
 			private boolean scrollValid = false;
 			private int lastValidfirstItem = 0;
@@ -332,9 +331,9 @@ public class TiTableView extends FrameLayout
 					size.put("height", TiTableView.this.getHeight());
 					eventArgs.put("size", size);
 					KrollDict contentOffset = new KrollDict();
-					contentOffset.put("x",  xCoordUp);
-					contentOffset.put("y",  yCoordUp);
-					eventArgs.put("contentOffset",  contentOffset);
+					contentOffset.put("x", xCoordUp);
+					contentOffset.put("y", yCoordUp);
+					eventArgs.put("contentOffset", contentOffset);
 					fProxy.fireEvent(TiC.EVENT_SCROLLEND, eventArgs);
 					// TODO: Deprecate old event
 					fProxy.fireEvent("scrollEnd", eventArgs);
@@ -365,9 +364,9 @@ public class TiTableView extends FrameLayout
 					size.put("height", TiTableView.this.getHeight());
 					eventArgs.put("size", size);
 					KrollDict contentOffset = new KrollDict();
-					contentOffset.put("x",  xCoordDown);
-					contentOffset.put("y",  yCoordDown);
-					eventArgs.put("contentOffset",  contentOffset);
+					contentOffset.put("x", xCoordDown);
+					contentOffset.put("y", yCoordDown);
+					eventArgs.put("contentOffset", contentOffset);
 					fProxy.fireEvent(TiC.EVENT_SCROLL, eventArgs);
 				}
 			}
