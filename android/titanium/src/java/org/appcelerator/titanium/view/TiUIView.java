@@ -23,6 +23,7 @@ import org.appcelerator.kroll.common.TiMessenger;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiDimension;
+import org.appcelerator.titanium.proxy.ActivityProxy;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiAnimationBuilder;
 import org.appcelerator.titanium.util.TiAnimationBuilder.TiMatrixAnimation;
@@ -687,6 +688,16 @@ public abstract class TiUIView
 			}
 		}
 
+		if (d.containsKey(TiC.PROPERTY_ACTIVITY)) {
+			Object activityObject = d.get(TiC.PROPERTY_ACTIVITY);
+			ActivityProxy activityProxy = getProxy().getActivityProxy();
+			if (activityObject instanceof HashMap<?, ?> && activityProxy != null) {
+				@SuppressWarnings("unchecked")
+				KrollDict options = new KrollDict((HashMap<String, Object>) activityObject);
+				activityProxy.handleCreationDict(options);
+			}
+		}
+		
 		if (d.containsKey(TiC.PROPERTY_VISIBLE) && !nativeViewNull) {
 			this.setVisibility(TiConvert.toBoolean(d, TiC.PROPERTY_VISIBLE) ? View.VISIBLE : View.INVISIBLE);
 		}
