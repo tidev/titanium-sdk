@@ -60,6 +60,7 @@ typedef enum
 -(id)createEventObject:(id)initialObject;
 -(void)triggerAttach;
 -(void)updateRow:(NSDictionary*)data withObject:(NSDictionary*)properties;
+-(UIView*) currentRowContainerView; //Private method :For internal use only.
 
 @end
 
