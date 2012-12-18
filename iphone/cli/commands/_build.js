@@ -2172,25 +2172,48 @@ build.prototype = {
 	},
 	
 	compileJsFile: function (id, file) {
-		var contents = fs.readFileSync(file).toString().replace(/Titanium\./g,'Ti.'),
-			ast = uglifyParser.parse(contents);
-		
-		if (this.deployType != 'development') {
-			contents = uglifyProcessor.gen_code(
-				uglifyProcessor.ast_squeeze(
-					uglifyProcessor.ast_mangle(ast)
-				)
-			);
+		var contents = fs.readFileSync(file).toString().replace(/Titanium\./g,'Ti.');
+		try {
+			var ast = uglifyParser.parse(contents);
+			
+			if (this.deployType != 'development') {
+				contents = uglifyProcessor.gen_code(
+					uglifyProcessor.ast_squeeze(
+						uglifyProcessor.ast_mangle(ast)
+					)
+				);
+			}
+			
+			this.logger.info(__('Finding Titanium symbols in file %s', file.cyan));
+			this.findSymbols(ast);
+			
+			id = path.join(this.assetsDir, id);
+			wrench.mkdirSyncRecursive(path.dirname(id));
+			
+			this.logger.debug(__('Writing JavaScript file: %s', id.cyan));
+			fs.writeFileSync(id, contents);
+		} catch (ex) {
+			this.logger.error(__('Failed to minify %s', file));
+			this.logger.error(__('%s [line %s, column %s]', ex.message, ex.line, ex.col));
+			try {
+				contents = contents.split('\n');
+				if (ex.line && ex.line <= contents.length) {
+					this.logger.error('');
+					this.logger.error('    ' + contents[ex.line-1]);
+					if (ex.col) {
+						var i = 0,
+							len = ex.col - 1;
+							buffer = '    ';
+						for (; i < len; i++) {
+							buffer += '-';
+						}
+						this.logger.error(buffer + '^');
+					}
+					this.logger.error('');
+				}
+			} catch (ex2) {}
+			process.exit(1);
 		}
-		
-		this.logger.info(__('Finding Titanium symbols in file %s', file.cyan));
-		this.findSymbols(ast);
-		
-		id = path.join(this.assetsDir, id);
-		wrench.mkdirSyncRecursive(path.dirname(id));
-		
-		this.logger.debug(__('Writing JavaScript file: %s', id.cyan));
-		fs.writeFileSync(id, contents);
 	},
 	
 	xcodePrecompilePhase: function (finished) {
