@@ -307,7 +307,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 	 * @param newLookupId the new lookup identifier
 	 * @return a pair containing the name of the target property which was updated and the new value set on it.
 	 */
-	protected Pair<String, String> updateLocaleProperty(String localeProperty, String newLookupId)
+	public Pair<String, String> updateLocaleProperty(String localeProperty, String newLookupId)
 	{
 		if (langConversionTable == null) {
 			return null;
@@ -338,7 +338,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 	 * @param propertyName name of the property to check (ex: titleid)
 	 * @return true if this property is a locale property
 	 */
-	protected boolean isLocaleProperty(String propertyName)
+	public boolean isLocaleProperty(String propertyName)
 	{
 		return propertyName.endsWith("id");
 	}
