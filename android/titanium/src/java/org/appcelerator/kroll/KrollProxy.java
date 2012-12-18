@@ -307,7 +307,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 	 * @param newLookupId the new lookup identifier
 	 * @return a pair containing the name of the target property which was updated and the new value set on it.
 	 */
-	private Pair<String, String> updateLocaleProperty(String localeProperty, String newLookupId)
+	protected Pair<String, String> updateLocaleProperty(String localeProperty, String newLookupId)
 	{
 		if (langConversionTable == null) {
 			return null;
@@ -338,7 +338,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 	 * @param propertyName name of the property to check (ex: titleid)
 	 * @return true if this property is a locale property
 	 */
-	private boolean isLocaleProperty(String propertyName)
+	protected boolean isLocaleProperty(String propertyName)
 	{
 		return propertyName.endsWith("id");
 	}
@@ -770,24 +770,20 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 			firePropertyChanged(name, current, value);
 		}
 	}
-	
-	public void updateLocalePropertyNameAndValue(String name, Object value) {
-		if (isLocaleProperty(name)) {
-			Log.i(TAG, "Updating locale: " + name, Log.DEBUG_MODE);
-			Pair<String, String> update = updateLocaleProperty(name, value.toString());
-			if (update != null) {
-				name = update.first;
-				value = update.second;
-			}
-		}
-	}
 
 	public void onPropertyChanged(String name, Object value)
 	{
 		String propertyName = name;
 		Object newValue = value;
 
-		updateLocalePropertyNameAndValue(propertyName, newValue);
+		if (isLocaleProperty(name)) {
+			Log.i(TAG, "Updating locale: " + name, Log.DEBUG_MODE);
+			Pair<String, String> update = updateLocaleProperty(name, value.toString());
+			if (update != null) {
+				propertyName = update.first;
+				newValue = update.second;
+			}
+		}
 
 		Object oldValue = properties.get(propertyName);
 		properties.put(propertyName, newValue);
