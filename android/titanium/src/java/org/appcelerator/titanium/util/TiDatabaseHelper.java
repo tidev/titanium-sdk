@@ -29,18 +29,25 @@ public class TiDatabaseHelper extends SQLiteOpenHelper
 	public void setPlatformParam (String key, String value)
 	{
 		String platformSQL = "insert into platform values (?,?)";
-		SQLiteDatabase db = getWritableDatabase();
+		SQLiteDatabase db = null;
 		try
 		{
+			db = getWritableDatabase();
 			SQLiteStatement platformInsertStatement = db.compileStatement(platformSQL);
 			platformInsertStatement.bindString(1,key);
 			platformInsertStatement.bindString(2,value);
 			platformInsertStatement.executeInsert();
 			platformInsertStatement.close();
 		}
+		catch (Exception e)
+		{
+			Log.e(TAG, "Problem saving data to platform: ", e);
+		}
 		finally
 		{
-			db.close();
+			if (db != null) {
+				db.close();
+			}
 		}
 	}
 	public void updatePlatformParam (String key, String value)
@@ -51,25 +58,33 @@ public class TiDatabaseHelper extends SQLiteOpenHelper
 	public void deletePlatformParam (String key)
 	{
 		String platformSQL = "delete from platform where name = ?";
-		SQLiteDatabase db = getWritableDatabase();
+		SQLiteDatabase db = null;
 		try
 		{
+			db = getWritableDatabase();
 			SQLiteStatement platformInsertStatement = db.compileStatement(platformSQL);
 			platformInsertStatement.bindString(1,key);
 			platformInsertStatement.executeInsert();
 			platformInsertStatement.close();
 		}
+		catch (Exception e)
+		{
+			Log.e(TAG, "Problem deleting data from platform: ", e);
+		}
 		finally
 		{
-			db.close();
+			if (db != null) {
+				db.close();
+			}
 		}
 	}
 	public String getPlatformParam (String key, String def)
 	{
 		String platformSQL = "select value from platform where name = ?";
-		SQLiteDatabase db = getReadableDatabase();
+		SQLiteDatabase db = null;
 		try
 		{
+			db = getReadableDatabase();
 			SQLiteStatement platformSelectStatement = db.compileStatement(platformSQL);
 			platformSelectStatement.bindString(1,key);
 			String result = platformSelectStatement.simpleQueryForString();
@@ -91,7 +106,9 @@ public class TiDatabaseHelper extends SQLiteOpenHelper
 		}
 		finally
 		{
-			db.close();
+			if (db != null) {
+				db.close();
+			}
 		}
 		return def;
 	}
