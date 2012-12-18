@@ -672,7 +672,13 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 {
 	return nil;
 }
-    
+
+//Private method : For internal use only
+-(UIView*) currentRowContainerView
+{
+    return rowContainerView;
+}
+
 - (void)prepareTableRowForReuse
 {
 	if (!self.reusable) {

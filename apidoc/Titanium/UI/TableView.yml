@@ -540,8 +540,7 @@ events:
     summary: Fired as soon as the device detects movement of a touch.
     description: |
         Event coordinates are always relative to the view in which the initial touch occurred
-    platforms: [mobileweb, iphone, ipad]
-    since: {iphone: "3.1.0", ipad: "3.1.0"}
+    platforms: [mobileweb]
     properties:
       - name: globalPoint
         summary: |
