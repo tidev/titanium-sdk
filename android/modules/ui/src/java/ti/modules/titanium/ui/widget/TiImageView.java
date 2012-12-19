@@ -253,8 +253,7 @@ public class TiImageView extends ViewGroup
 		if (bitmap == null) {
 			imageView.setImageResource(0);
 		}
-		else
-		{
+		else {
 			imageView.setImageBitmap(bitmap);
 		}
 	}
