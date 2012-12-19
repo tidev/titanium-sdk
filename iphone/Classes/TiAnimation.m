@@ -378,16 +378,6 @@ self.p = v;\
 		ApplyConstraintToViewWithBounds(contraints, view_, transitionView.bounds);
 		[ourProxy layoutChildren:NO];
 	}
-	else
-	{
-		CALayer * modelLayer = [view_ layer];
-		CALayer * transitionLayer = [modelLayer presentationLayer];
-		NSArray * animationKeys = [transitionLayer animationKeys];
-		for (NSString * thisKey in animationKeys)
-		{
-			[modelLayer setValue:[transitionLayer valueForKey:thisKey] forKey:thisKey];
-		}
-	}
 
 	animatedView = [theview retain];
     
