@@ -12,6 +12,7 @@ define(
 		on = require.on,
 		setStyle = style.set,
 		is = require.is,
+		isDef = lang.isDef,
 		postDoBackground = {
 			post: '_doBackground'
 		},
@@ -195,9 +196,20 @@ define(
 
 		fireEvent: function(name, eventData) {
 			eventData = eventData || {};
-			var bubbles = eventData.bubbles;
+			var bubbles = eventData.bubbles,
+				p;
 			Evented.fireEvent.apply(this, arguments);
-			bubbles && !eventData.cancelBubble && this.bubbleParent && this._parent && this._parent.fireEvent(name, eventData);
+			if (bubbles && !eventData.cancelBubble && this.bubbleParent && this._parent) {
+				if (isDef(eventData.x)) {
+					p = this.convertPointToView({
+						x: eventData.x,
+						y: eventData.y
+					}, this._parent);
+					eventData.x = p.x;
+					eventData.y = p.y;
+				}
+				this._parent.fireEvent(name, eventData);
+			}
 		},
 
 		_setParent: function(view) {
