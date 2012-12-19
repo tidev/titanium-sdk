@@ -7,6 +7,7 @@ import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBaseActivity;
+import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.view.TiUIView;
 
 import android.app.Activity;
@@ -104,7 +105,7 @@ public class TiBaseWindowProxy extends TiWindowProxy
 
 			if (mViewProxy.isLocaleProperty(name)) {
 				Log.i(TAG, "Updating locale: " + name, Log.DEBUG_MODE);
-				Pair<String, String> update = mViewProxy.updateLocaleProperty(name, value.toString());
+				Pair<String, String> update = mViewProxy.updateLocaleProperty(name, TiConvert.toString(value));
 				if (update != null) {
 					propertyName = update.first;
 					newValue = update.second;

@@ -778,7 +778,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 
 		if (isLocaleProperty(name)) {
 			Log.i(TAG, "Updating locale: " + name, Log.DEBUG_MODE);
-			Pair<String, String> update = updateLocaleProperty(name, value.toString());
+			Pair<String, String> update = updateLocaleProperty(name, TiConvert.toString(value));
 			if (update != null) {
 				propertyName = update.first;
 				newValue = update.second;
