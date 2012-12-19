@@ -261,6 +261,12 @@ self.p = v;\
         RELEASE_TO_NIL(animation.animatedView);
         
         animation = [animation reverseAnimation]; // Use the original animation for correct eventing
+        //Make sure we have the animatedViewProxy so we can correctly signal end of animation
+        if ([(id)animation.animatedView isKindOfClass:[TiUIView class]]) {
+            RELEASE_TO_NIL(animatedViewProxy);
+            TiUIView *v = (TiUIView*)animation.animatedView;
+            animatedViewProxy = [(TiViewProxy*)v.proxy retain];
+        }
     }
     
 	if (animation.delegate!=nil && [animation.delegate respondsToSelector:@selector(animationWillComplete:)])
