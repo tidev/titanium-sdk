@@ -53,7 +53,6 @@ define(
 				}));
 
 			self._children = [];
-			self._gestureEvents = [];
 
 			on(self, 'touchstart', self, '_doBackground');
 			on(self, 'touchend', self, '_doBackground');
@@ -133,17 +132,6 @@ define(
 				width: 0,
 				height: 0
 			};
-		},
-
-		addEventListener: function(name) {
-			~gestureEvents.indexOf(name) && this._gestureEvents.push(name);
-			Evented.addEventListener.apply(this, arguments);
-		},
-
-		removeEventListener: function(name) {
-			var i = gestureEvents.indexOf(name);
-			~i && this._gestureEvents.splice(i, 1);
-			Evented.removeEventListener.apply(this, arguments);
 		},
 
 		fireEvent: function(name, eventData) {
@@ -312,7 +300,7 @@ define(
 			return getAbsolutePosition(destinationView, getAbsolutePosition(this,point,true),false);
 		},
 
-		// This method returns the offset of the content relative to the parent's location. 
+		// This method returns the offset of the content relative to the parent's location.
 		// This is useful for controls like ScrollView that can move the children around relative to itself.
 		_getContentOffset: function() {
 			return {x: 0, y: 0};
