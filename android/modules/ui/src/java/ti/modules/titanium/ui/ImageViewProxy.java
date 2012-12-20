@@ -73,9 +73,9 @@ public class ImageViewProxy extends ViewProxy
 		onBitmapChanged(imageView, null);
 	}
 
-	public void onBitmapChanged(TiUIImageView imageView, Bitmap bitmap)
+	public void onBitmapChanged(TiUIImageView imageView, Bitmap b)
 	{
-		this.bitmap = bitmap;
+		bitmap = b;
 	}
 
 	public boolean inTableView()
@@ -143,7 +143,10 @@ public class ImageViewProxy extends ViewProxy
 	@Override
 	public void releaseViews()
 	{
-		bitmap = null;
+		if (bitmap != null) {
+			bitmap.recycle();
+			bitmap = null;
+		}
 		imageSources = null;
 		super.releaseViews();
 	}
