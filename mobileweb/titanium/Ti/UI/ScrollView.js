@@ -1,69 +1,27 @@
-define(["Ti/_/declare", "Ti/_/UI/KineticScrollView", "Ti/_/style", "Ti/_/lang", "Ti/UI"],
-	function(declare, KineticScrollView, style, lang, UI) {
+define(['Ti/_/declare', 'Ti/UI/View', 'Ti/_/style', 'Ti/_/lang', 'Ti/UI'],
+	function(declare, View, style, lang, UI) {
 
 	var isDef = lang.isDef,
+		setStyle = style.set;
 
-		// The amount of deceleration (in pixels/ms^2)
-		deceleration = 0.001;
+	return declare('Ti.UI.ScrollView', View, {
 
-	return declare("Ti.UI.ScrollView", KineticScrollView, {
-
-		constructor: function(args) {
-			var self = this,
-				contentContainer,
-				scrollbarTimeout;
-			this._initKineticScrollView(contentContainer = UI.createView({
+		constructor: function() {
+			setStyle(this.domNode, {
+				overflow: 'scroll',
+				overflowScrolling: 'touch'
+			});
+			this._add(this._contentContainer = UI.createView({
 				width: UI.SIZE,
 				height: UI.SIZE,
-				_minWidth: "100%",
-				_minHeight: "100%",
+				_minWidth: '100%',
+				_minHeight: '100%',
 				left: 0,
 				top: 0
-			}), "both", "both", 1);
-		},
-
-		_handleMouseWheel: function() {
-			this._isScrollBarActive && this.fireEvent("scroll",{
-				x: -this._currentTranslationX,
-				y: -this._currentTranslationY,
-				dragging: false,
-				decelerating: false
+			}));
+			require.on(this._contentContainer.domNode, 'touchmove', function(e) {
+				e.stopPropagation();
 			});
-		},
-
-		_handleDragStart: function() {
-			this.fireEvent("dragStart");
-		},
-
-		_handleDrag: function() {
-			this.fireEvent("scroll",{
-				x: -this._currentTranslationX,
-				y: -this._currentTranslationY,
-				dragging: true,
-				decelerating: false
-			});
-		},
-
-		_handleDragEnd: function(e, velocityX, velocityY) {
-			if (isDef(velocityX)) {
-				var self = this,
-					velocity = Math.sqrt(velocityX * velocityX + velocityY * velocityY),
-					distance = velocity * velocity / (1.724 * deceleration),
-					duration = velocity / deceleration,
-					theta = Math.atan(Math.abs(velocityY / velocityX)),
-					distanceX = distance * Math.cos(theta) * (velocityX < 0 ? -1 : 1),
-					distanceY = distance * Math.sin(theta) * (velocityY < 0 ? -1 : 1),
-					translationX = Math.min(0, Math.max(self._minTranslationX, self._currentTranslationX + distanceX)),
-					translationY = Math.min(0, Math.max(self._minTranslationY, self._currentTranslationY + distanceY));
-				self.fireEvent("dragEnd",{
-					decelerate: true
-				});
-				self._animateToPosition(translationX, translationY, duration, UI.ANIMATION_CURVE_EASE_OUT, function() {
-					self._setTranslation(translationX, translationY);
-					self._endScrollBars();
-					self.fireEvent("scrollEnd");
-				});
-			}
 		},
 
 		scrollTo: function(x, y) {
@@ -79,7 +37,7 @@ define(["Ti/_/declare", "Ti/_/UI/KineticScrollView", "Ti/_/style", "Ti/_/lang", 
 		},
 
 		_preLayout: function() {
-			var needsRecalculation = this._contentContainer.layout === this.layout
+			var needsRecalculation = this._contentContainer.layout === this.layout;
 			this._contentContainer.layout = this.layout;
 			return needsRecalculation;
 		},
@@ -96,7 +54,7 @@ define(["Ti/_/declare", "Ti/_/UI/KineticScrollView", "Ti/_/style", "Ti/_/lang", 
 
 		properties: {
 			contentHeight: {
-				get: function(value) {
+				get: function() {
 					return this._contentContainer.height;
 				},
 				set: function(value) {
@@ -106,7 +64,7 @@ define(["Ti/_/declare", "Ti/_/UI/KineticScrollView", "Ti/_/style", "Ti/_/lang", 
 			},
 
 			contentOffset: {
-				get: function(value) {
+				get: function() {
 					return {
 						x: -this._currentTranslationX,
 						y: -this._currentTranslationY
@@ -120,7 +78,7 @@ define(["Ti/_/declare", "Ti/_/UI/KineticScrollView", "Ti/_/style", "Ti/_/lang", 
 			},
 
 			contentWidth: {
-				get: function(value) {
+				get: function() {
 					return this._contentContainer.width;
 				},
 				set: function(value) {
