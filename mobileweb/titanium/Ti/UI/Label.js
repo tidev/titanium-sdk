@@ -77,7 +77,7 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/css", "Ti/_/styl
 
 		_setText: function() {
 			this._textContainerDomNode.innerHTML = this._getText();
-			this._hasSizeDimensions() && this._triggerLayout();
+			this._triggerLayout();
 		},
 
 		_setTextShadow: function() {
