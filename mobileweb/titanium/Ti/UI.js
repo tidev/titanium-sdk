@@ -100,7 +100,8 @@ define(
 				node = container.domNode,
 				coefficients = container._layoutCoefficients,
 				useTouch = 'ontouchstart' in global,
-				touching = 0;
+				touching = 0,
+				scrollBarMeasurer;
 
 			coefficients.width.x1 = 1;
 			coefficients.height.x1 = 1;
@@ -124,6 +125,19 @@ define(
 				}, 10);
 			});
 			hideAddressBar();
+
+			scrollBarMeasurer = dom.create('div', {
+				style: {
+					position: 'absolute',
+					top: 0,
+					left: 0,
+					height: '100px',
+					width: '100px',
+					overflow: 'scroll'
+				}
+			}, body);
+			Ti.UI._scrollbarWidth = scrollBarMeasurer.offsetWidth - scrollBarMeasurer.clientWidth;
+			dom.destroy(scrollBarMeasurer);
 
 			function processTouchEvent(eventType, evt) {
 				var i = 0, len = recognizers.length,
@@ -241,6 +255,8 @@ define(
 				}
 			}
 		},
+
+		_scrollbarWidth: 0,
 
 		_layoutSemaphore: 0,
 
@@ -376,7 +392,7 @@ define(
 				self._layoutInProgress = false;
 				self._layoutTimer = null;
 				self._nodesToLayout = [];
-				
+
 				self.fireEvent('postlayout');
 			}
 
@@ -488,7 +504,7 @@ define(
 			UNIT_CM: 'cm',
 			UNIT_IN: 'in',
 			UNIT_DIP: 'dp', // We don't have DIPs, so we treat them as pixels
-			
+
 			// Hidden constants
 			_LAYOUT_COMPOSITE: 'composite',
 			_LAYOUT_VERTICAL: 'vertical',

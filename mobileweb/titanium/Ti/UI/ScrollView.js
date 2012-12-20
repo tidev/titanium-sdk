@@ -19,9 +19,7 @@ define(['Ti/_/declare', 'Ti/UI/View', 'Ti/_/style', 'Ti/_/lang', 'Ti/UI'],
 				left: 0,
 				top: 0
 			}));
-			require.on(this._contentContainer.domNode, 'touchmove', function(e) {
-				e.stopPropagation();
-			});
+			this._innerMarginWidth = this._innerMarginHeight = UI._scrollbarWidth;
 		},
 
 		scrollTo: function(x, y) {
@@ -86,9 +84,9 @@ define(['Ti/_/declare', 'Ti/UI/View', 'Ti/_/style', 'Ti/_/lang', 'Ti/UI'],
 					return value;
 				}
 			},
-			
+
 			disableBounce: false,
-			
+
 			horizontalBounce: {
 				set: function(value) {
 					return this._horizontalElastic = value;
@@ -123,7 +121,7 @@ define(['Ti/_/declare', 'Ti/UI/View', 'Ti/_/style', 'Ti/_/lang', 'Ti/UI'],
 				},
 				value: true
 			},
-			
+
 			verticalBounce: {
 				set: function(value) {
 					return this._verticalElastic = value;
