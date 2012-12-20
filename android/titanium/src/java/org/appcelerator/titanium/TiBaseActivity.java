@@ -1159,6 +1159,12 @@ public abstract class TiBaseActivity extends Activity
 		}
 		layout = null;
 
+		//LW windows
+		if (window == null && view != null) {
+			view.releaseViews();
+			view = null;
+		}
+
 		if (window != null) {
 			window.closeFromActivity();
 			window = null;
