@@ -89,7 +89,7 @@ void TiLogMessage(NSString* str, ...);
 #define RELEASE_TO_NIL_AUTORELEASE(x) { if (x!=nil) { [x autorelease]; x = nil; } }
 #define RELEASE_AND_REPLACE(x,y) { [x release]; x = [y retain]; }
 
-#define CODELOCATION	[NSString stringWithFormat:@" in %s (%@:%d)",__FUNCTION__,[[NSString stringWithFormat:@"%s",__FILE__] lastPathComponent],__LINE__]
+#define CODELOCATION	[NSString stringWithFormat:@"%s (%@:%d)",__FUNCTION__,[[NSString stringWithFormat:@"%s",__FILE__] lastPathComponent],__LINE__]
 
 #define NULL_IF_NIL(x)	({ id xx = (x); (xx==nil)?[NSNull null]:xx; })
 
@@ -289,21 +289,19 @@ if ((__x<__minX) || (__x>__maxX)) \
 #define ENSURE_ARRAY(x) ENSURE_TYPE(x,NSArray)
 #define ENSURE_STRING(x) ENSURE_TYPE(x,NSString)
 
-void TiExceptionThrowWithNameAndReason(NSString * exceptionName, NSString * message);
+void TiExceptionThrowWithNameAndReason(NSString *exceptionName, NSString *reason, NSString *subreason, NSString *location);
 	
 #define DEFINE_EXCEPTIONS \
 - (void) throwException:(NSString *) reason subreason:(NSString*)subreason location:(NSString *)location\
 {\
 	NSString * exceptionName = [@"org.appcelerator." stringByAppendingString:NSStringFromClass([self class])];\
-	NSString * message = [NSString stringWithFormat:@"%@. %@ %@",reason,(subreason!=nil?subreason:@""),(location!=nil?location:@"")];\
-	TiExceptionThrowWithNameAndReason(exceptionName,message);\
+	TiExceptionThrowWithNameAndReason(exceptionName,reason,subreason,location);\
 }\
 \
 + (void) throwException:(NSString *) reason subreason:(NSString*)subreason location:(NSString *)location\
 {\
 	NSString * exceptionName = @"org.appcelerator";\
-	NSString * message = [NSString stringWithFormat:@"%@. %@ %@",reason,(subreason!=nil?subreason:@""),(location!=nil?location:@"")];\
-	TiExceptionThrowWithNameAndReason(exceptionName,message);\
+	TiExceptionThrowWithNameAndReason(exceptionName,reason,subreason,location);\
 }\
 
 
@@ -570,7 +568,9 @@ extern NSString* const kTiUnitDip;
 extern NSString* const kTiUnitDipAlternate;
 extern NSString* const kTiUnitSystem;
 extern NSString* const kTiUnitPercent;
-    
+
+extern NSString* const kTiExceptionSubreason;
+extern NSString* const kTiExceptionLocation;
 
 
 #ifndef ASI_AUTOUPDATE_NETWORK_INDICATOR

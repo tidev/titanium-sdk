@@ -158,16 +158,21 @@ NSString* const kTiUnitDipAlternate = @"dp";
 NSString* const kTiUnitSystem = @"system";
 NSString* const kTiUnitPercent = @"%";
 
+NSString* const kTiExceptionSubreason = @"TiExceptionSubreason";
+NSString* const kTiExceptionLocation = @"TiExceptionLocation";
 
 
 
 BOOL TiExceptionIsSafeOnMainThread = NO;
 
-void TiExceptionThrowWithNameAndReason(NSString * exceptionName, NSString * message)
+void TiExceptionThrowWithNameAndReason(NSString *exceptionName, NSString *reason, NSString *subreason, NSString *location)
 {
-	NSLog(@"[ERROR] %@",message);
 	if (TiExceptionIsSafeOnMainThread || ![NSThread isMainThread]) {
-		@throw [NSException exceptionWithName:exceptionName reason:message userInfo:nil];
+		NSDictionary *details = [NSDictionary dictionaryWithObjectsAndKeys:subreason, kTiExceptionSubreason, location, kTiExceptionLocation, nil];
+		@throw [NSException exceptionWithName:exceptionName reason:reason userInfo:details];
+	} else {
+		NSString * message = [NSString stringWithFormat:@"%@. %@ %@",reason,(subreason!=nil?subreason:@""),(location!=nil?location:@"")];
+		NSLog(@"[ERROR] %@", message);
 	}
 }
 
