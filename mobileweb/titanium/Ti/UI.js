@@ -1,4 +1,4 @@
-/*global Ti define window document navigator*/
+/*global Ti define window document navigator instrumentation*/
 define(
 	['Ti/_', 'Ti/_/Evented', 'Ti/_/has', 'Ti/_/lang', 'Ti/_/ready', 'Ti/_/style', 'Ti/_/dom', 'Ti/_/event',
 	'Ti/_/Gestures/DoubleTap', 'Ti/_/Gestures/LongPress', 'Ti/_/Gestures/Pinch', 'Ti/_/Gestures/SingleTap',
