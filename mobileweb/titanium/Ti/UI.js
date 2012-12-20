@@ -41,7 +41,9 @@ define(
 		];
 
 	on(body, 'touchmove', function(e) {
-		e.preventDefault();
+		if (!e._allowDefault) {
+			e.preventDefault();
+		}
 	});
 
 	modules.split(',').forEach(function(name) {

@@ -1,3 +1,4 @@
+/*global define*/
 define(['Ti/_/declare', 'Ti/UI/View', 'Ti/_/style', 'Ti/_/lang', 'Ti/UI'],
 	function(declare, View, style, lang, UI) {
 
@@ -20,6 +21,9 @@ define(['Ti/_/declare', 'Ti/UI/View', 'Ti/_/style', 'Ti/_/lang', 'Ti/UI'],
 				top: 0
 			}));
 			this._innerMarginWidth = this._innerMarginHeight = UI._scrollbarWidth;
+			require.on(this.domNode, 'touchmove', function(e) {
+				e._allowDefault = 1;
+			});
 		},
 
 		scrollTo: function(x, y) {
