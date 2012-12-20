@@ -50,6 +50,7 @@ public class TiView extends TiUIView
 	@Override
 	public void processProperties(KrollDict d)
 	{
+		//We need to expose activity property for windows in tabs
 		if (proxy instanceof TabContentViewProxy && d.containsKey(TiC.PROPERTY_ACTIVITY)) {
 			Object activityObject = d.get(TiC.PROPERTY_ACTIVITY);
 			ActivityProxy activityProxy = getProxy().getActivityProxy();
