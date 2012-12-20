@@ -1,9 +1,7 @@
+/*global Ti define window*/
 define(
 	['Ti/_/css', 'Ti/_/declare', 'Ti/_/dom', 'Ti/_/event', 'Ti/_/lang',
-	'Ti/_/style', 'Ti/_/Evented', 'Ti/UI', 'Ti/UI/Animation',
-	'Ti/_/Gestures/GestureRecognizer', 'Ti/_/Gestures/DoubleTap', 'Ti/_/Gestures/Dragging', 'Ti/_/Gestures/LongPress',
-	'Ti/_/Gestures/Pinch', 'Ti/_/Gestures/SingleTap', 'Ti/_/Gestures/Swipe', 'Ti/_/Gestures/TouchCancel',
-	'Ti/_/Gestures/TouchEnd', 'Ti/_/Gestures/TouchMove', 'Ti/_/Gestures/TouchStart', 'Ti/_/Gestures/TwoFingerTap'],
+	'Ti/_/style', 'Ti/_/Evented', 'Ti/UI', 'Ti/UI/Animation'],
 	function(css, declare, dom, event, lang, style, Evented, UI, Animation) {
 
 	var global = window,
@@ -25,21 +23,19 @@ define(
 			set: postLayoutPropFunction
 		},
 		pixelUnits = 'px',
-		gestureMapping = {
-			pinch: 'Pinch',
-			swipe: 'Swipe',
-			twofingertap: 'TwoFingerTap',
-			doubletap: 'DoubleTap',
-			longpress: 'LongPress',
-			singletap: 'SingleTap',
-			click: 'SingleTap',
-			dragging: 'Dragging',
-			doubleclick: 'DoubleTap',
-			touchstart: 'TouchStart',
-			touchend: 'TouchEnd',
-			touchmove: 'TouchMove',
-			touchcancel: 'TouchCancel'
-		};
+		useTouch = 'ontouchstart' in global,
+		gestureEvents = [
+			'touchstart',
+			'touchend',
+			'touchmove',
+			'touchcancel',
+			'singletap',
+			'doubletap',
+			'longpress',
+			'pinch',
+			'swipe',
+			'twofingertap'
+		];
 
 	return declare('Ti._.UI.Element', Evented, {
 
@@ -49,68 +45,40 @@ define(
 
 		constructor: function(args) {
 			var self = this,
-				touchMoveBlocked = 0,
+				touching = 0,
 
-				node = this.domNode = this._setFocusNode(dom.create(this.domType || 'div', {
-					className: 'TiUIElement ' + css.clean(this.declaredClass),
-					'data-widget-id': this.widgetId
-				})),
+				node = self.domNode = self._setFocusNode(dom.create(self.domType || 'div', {
+					className: 'TiUIElement ' + css.clean(self.declaredClass),
+					'data-widget-id': self.widgetId
+				}));
 
-				// Handle click/touch/gestures
-				recognizers = this._gestureRecognizers = {},
+			self._children = [];
+			self._gestureEvents = [];
 
-				useTouch = 'ontouchstart' in global;
+			on(self, 'touchstart', self, '_doBackground');
+			on(self, 'touchend', self, '_doBackground');
 
-			function processTouchEvent(eventType, evt) {
-				var i,
-					touches = evt.changedTouches;
-				useTouch || require.mix(evt, {
-					touches: evt.type === 'mouseup' ? [] : [evt],
-					targetTouches: [],
-					changedTouches: [evt]
-				});
-				for (i in recognizers) {
-					recognizers[i].recognizer['process' + eventType](evt, self);
-				}
-				for (i in recognizers) {
-					recognizers[i].recognizer['finalize' + eventType]();
-				}
-			}
-
-			this._touching = 0;
-
-			this._children = [];
-
-			this._disconnectTouchEvent = on(this.domNode, useTouch ? 'touchstart' : 'mousedown', function(evt){
+			on(self.domNode, useTouch ? 'touchstart' : 'mousedown', function(evt){
 				var handles = [
 					on(global, useTouch ? 'touchmove' : 'mousemove', function(evt){
-						if (!touchMoveBlocked) {
-							touchMoveBlocked = 1;
-							(useTouch || self._touching) && !evt._processed && (evt._processed = 1) && processTouchEvent('TouchMoveEvent', evt);
-							setTimeout(function(){
-								touchMoveBlocked = 0;
-							}, 30);
-						}
+						(useTouch || touching) && (evt._elements || (evt._elements = [])).push(self);
 					}),
 					on(global, useTouch ? 'touchend' : 'mouseup', function(evt){
-						self._touching = 0;
-						!evt._processed && (evt._processed = 1) && processTouchEvent('TouchEndEvent', evt);
+						touching = 0;
+						(evt._elements || (evt._elements = [])).push(self);
 						event.off(handles);
 					}),
 					useTouch && on(global, 'touchcancel', function(evt){
-						!evt._processed && (evt._processed = 1) && processTouchEvent('TouchCancelEvent', evt);
+						(evt._elements || (evt._elements = [])).push(self);
 						event.off(handles);
 					})
 				];
-				self._touching = 1;
-				!evt._processed && (evt._processed = 1) && processTouchEvent('TouchStartEvent', evt);
+				touching = 1;
+				(evt._elements || (evt._elements = [])).push(self);
 			});
 
-			on(this, 'touchstart', this, '_doBackground');
-			on(this, 'touchend', this, '_doBackground');
-
-			var values = this.constants.__values__;
-			this._layoutCoefficients = {
+			var values = self.constants.__values__;
+			self._layoutCoefficients = {
 				width: {
 					x1: 0,
 					x2: 0,
@@ -167,30 +135,14 @@ define(
 			};
 		},
 
-		addEventListener: function(name, handler) {
-			if (name in gestureMapping) {
-				var gestureRecognizers = this._gestureRecognizers,
-					gestureRecognizer;
-				
-				if (!(name in gestureRecognizers)) {
-					gestureRecognizers[name] = {
-						count: 0,
-						recognizer: new (require('Ti/_/Gestures/' + gestureMapping[name]))(name)
-					};
-				}
-				
-				gestureRecognizers[name].count++;
-			}
-			handler && Evented.addEventListener.apply(this, arguments);
+		addEventListener: function(name) {
+			~gestureEvents.indexOf(name) && this._gestureEvents.push(name);
+			Evented.addEventListener.apply(this, arguments);
 		},
 
 		removeEventListener: function(name) {
-			if (name in gestureMapping) {
-				var gestureRecognizers = this._gestureRecognizers;
-				if (name in gestureRecognizers && !(--gestureRecognizers[name].count)) {
-					delete gestureRecognizers[name];
-				}
-			}
+			var i = gestureEvents.indexOf(name);
+			~i && this._gestureEvents.splice(i, 1);
 			Evented.removeEventListener.apply(this, arguments);
 		},
 
@@ -264,7 +216,6 @@ define(
 		destroy: function() {
 			if (this._alive) {
 				var children = this._children;
-				this._disconnectTouchEvent();
 				while (children.length) {
 					children.splice(0, 1)[0].destroy();
 				}
@@ -521,39 +472,8 @@ define(
 			}, this);
 		},
 
-		_isGestureBlocked: function(gesture) {
-			var recognizer,
-				blockedGestures,
-				blockedGesture;
-			for (recognizer in this._gestureRecognizers) {
-				blockedGestures = this._gestureRecognizers[recognizer].blocking;
-				for (blockedGesture in blockedGestures) {
-					if (gesture === blockedGestures[blockedGesture]) {
-						return true;
-					}
-				}
-			}
-			return false;
-		},
-
-		_handleTouchEvent: function(type, e) {
-			if (this.enabled) {
-				// Normalize the location of the event.
-				var pt, x, y;
-				if (is(e.x, 'Number') && is(e.y, 'Number')) {
-					pt = UI._container.convertPointToView({
-						x: e.x,
-						y: e.y
-					}, e.source || this) || {};
-					x = pt.x;
-					y = pt.y;
-				}
-				e.x = x;
-				e.y = y;
-				e.bubbles = true;
-				e.cancelBubble = false; // We use true and false here instead of 0 and 1 because they are user facing
-				this.fireEvent(type, e);
-			}
+		_handleTouchEvent: function(type, e) { // Exists so it can be overridden
+			this.fireEvent(type, e);
 		},
 		
 		_defaultBackgroundColor: void 0,

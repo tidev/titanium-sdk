@@ -121,7 +121,17 @@
 		"Ti/_/lang",
 		"Ti/_/ready",
 		"Ti/_/style",
-		"Ti/_/dom"
+		"Ti/_/dom",
+		"Ti/_/Gestures/DoubleTap",
+		"Ti/_/Gestures/LongPress",
+		"Ti/_/Gestures/Pinch",
+		"Ti/_/Gestures/SingleTap",
+		"Ti/_/Gestures/Swipe",
+		"Ti/_/Gestures/TouchCancel",
+		"Ti/_/Gestures/TouchEnd",
+		"Ti/_/Gestures/TouchMove",
+		"Ti/_/Gestures/TouchStart",
+		"Ti/_/Gestures/TwoFingerTap"
 	],
 	"Ti/Utils": [
 		"Ti/_/encoding",
@@ -206,62 +216,43 @@
 	],
 	"Ti/_/Gestures/DoubleTap": [
 		"Ti/_/declare",
-		"Ti/_/lang",
-		"Ti/_/Gestures/GestureRecognizer"
-	],
-	"Ti/_/Gestures/Dragging": [
-		"Ti/_/declare",
-		"Ti/_/lang",
-		"Ti/_/Gestures/GestureRecognizer"
-	],
-	"Ti/_/Gestures/GestureRecognizer": [
-		"Ti/_/declare",
 		"Ti/_/lang"
 	],
 	"Ti/_/Gestures/LongPress": [
 		"Ti/_/declare",
-		"Ti/_/lang",
-		"Ti/_/Gestures/GestureRecognizer"
+		"Ti/_/lang"
 	],
 	"Ti/_/Gestures/Pinch": [
 		"Ti/_/declare",
-		"Ti/_/lang",
-		"Ti/_/Gestures/GestureRecognizer"
+		"Ti/_/lang"
 	],
 	"Ti/_/Gestures/SingleTap": [
 		"Ti/_/declare",
-		"Ti/_/lang",
-		"Ti/_/Gestures/GestureRecognizer"
+		"Ti/_/lang"
 	],
 	"Ti/_/Gestures/Swipe": [
 		"Ti/_/declare",
-		"Ti/_/lang",
-		"Ti/_/Gestures/GestureRecognizer"
+		"Ti/_/lang"
 	],
 	"Ti/_/Gestures/TouchCancel": [
 		"Ti/_/declare",
-		"Ti/_/lang",
-		"Ti/_/Gestures/GestureRecognizer"
+		"Ti/_/lang"
 	],
 	"Ti/_/Gestures/TouchEnd": [
 		"Ti/_/declare",
-		"Ti/_/lang",
-		"Ti/_/Gestures/GestureRecognizer"
+		"Ti/_/lang"
 	],
 	"Ti/_/Gestures/TouchMove": [
 		"Ti/_/declare",
-		"Ti/_/lang",
-		"Ti/_/Gestures/GestureRecognizer"
+		"Ti/_/lang"
 	],
 	"Ti/_/Gestures/TouchStart": [
 		"Ti/_/declare",
-		"Ti/_/lang",
-		"Ti/_/Gestures/GestureRecognizer"
+		"Ti/_/lang"
 	],
 	"Ti/_/Gestures/TwoFingerTap": [
 		"Ti/_/declare",
-		"Ti/_/lang",
-		"Ti/_/Gestures/GestureRecognizer"
+		"Ti/_/lang"
 	],
 	"Ti/_/Layouts/Base": [
 		"Ti/_/css",
@@ -328,19 +319,7 @@
 		"Ti/_/style",
 		"Ti/_/Evented",
 		"Ti/UI",
-		"Ti/UI/Animation",
-		"Ti/_/Gestures/GestureRecognizer",
-		"Ti/_/Gestures/DoubleTap",
-		"Ti/_/Gestures/Dragging",
-		"Ti/_/Gestures/LongPress",
-		"Ti/_/Gestures/Pinch",
-		"Ti/_/Gestures/SingleTap",
-		"Ti/_/Gestures/Swipe",
-		"Ti/_/Gestures/TouchCancel",
-		"Ti/_/Gestures/TouchEnd",
-		"Ti/_/Gestures/TouchMove",
-		"Ti/_/Gestures/TouchStart",
-		"Ti/_/Gestures/TwoFingerTap"
+		"Ti/UI/Animation"
 	],
 	"Ti/_/UI/FontWidget": [
 		"Ti/_/declare",
