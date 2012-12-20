@@ -200,7 +200,8 @@ define(["Ti/_/css", "Ti/_/declare", "Ti/UI/View", "Ti/UI", "Ti/_/lang"],
 		},
 
 		constants: {
-			window: void 0
+			window: void 0,
+			bubbleParent: false
 		},
 
 		properties: {
