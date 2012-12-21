@@ -3,12 +3,18 @@ define(['Ti/_/declare', 'Ti/UI/View', 'Ti/_/style', 'Ti/_/lang', 'Ti/UI'],
 	function(declare, View, style, lang, UI) {
 
 	var isDef = lang.isDef,
-		setStyle = style.set;
+		setStyle = style.set,
+		on = require.on;
 
 	return declare('Ti.UI.ScrollView', View, {
 
 		constructor: function() {
-			setStyle(this.domNode, {
+			var startedAtTop,
+				startedAtBottom,
+				startY,
+				innerNode,
+				outerNode = this.domNode;
+			setStyle(outerNode, {
 				overflow: 'scroll',
 				overflowScrolling: 'touch'
 			});
@@ -20,14 +26,23 @@ define(['Ti/_/declare', 'Ti/UI/View', 'Ti/_/style', 'Ti/_/lang', 'Ti/UI'],
 				left: 0,
 				top: 0
 			}));
+			innerNode = this._contentContainer.domNode;
 			this._innerMarginWidth = this._innerMarginHeight = UI._scrollbarWidth;
-			require.on(this.domNode, 'touchmove', function(e) {
-				e._allowDefault = 1;
+			on(outerNode, 'touchstart', function(e) {
+				startedAtTop = outerNode.scrollTop === 0;
+				startedAtBottom = outerNode.scrollTop === innerNode.clientHeight - outerNode.clientHeight;
+				startY = e.touches[0].clientY;
+			});
+			on(outerNode, 'touchmove', function(e) {
+				e._allowDefault = e.touches.length === 1 && (!startedAtTop || e.touches[0].clientY < startY - 1) &&
+					(!startedAtBottom || e.touches[0].clientY > startY + 1);
 			});
 		},
 
 		scrollTo: function(x, y) {
-			self._setTranslation(x !== null ? -x : this._currentTranslationX, y !== null ? -y : this._currentTranslationX);
+			var node = this.domNode;
+			node.scrollTop = x;
+			node.scrollLeft = y;
 		},
 
 		_defaultWidth: UI.FILL,
