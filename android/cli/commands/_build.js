@@ -202,6 +202,9 @@ exports.validate = function (logger, config, cli) {
 		i;
 	
 	ti.validateProjectDir(logger, cli, cli.argv, 'project-dir');
+	
+	ti.validateTiappXml(logger, cli.tiapp);
+	
 	if (!ti.validateCorrectSDK(logger, config, cli, 'build')) {
 		// we're running the build command for the wrong SDK version, gracefully return
 		return false;
