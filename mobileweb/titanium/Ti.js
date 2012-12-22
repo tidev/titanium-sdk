@@ -122,9 +122,12 @@ define(
 		};
 	}
 
-	if (!has("object-bind")) {
+	if (!has("function-bind")) {
+		function Empty(){}
+		
 		Function.prototype.bind = function bind(that) {
 			var target = this,
+				slice = Array.prototype.slice,
 				args = slice.call(arguments, 1),
 				bound = function () {
 					var a = args.concat(slice.call(arguments)),

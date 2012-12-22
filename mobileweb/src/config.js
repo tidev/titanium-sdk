@@ -23,7 +23,7 @@ var require = {
 		"native-localstorage": function(g) {
 			return "localStorage" in g && "setItem" in localStorage;
 		},
-		"object-bind": function () {
+		"function-bind": function () {
 			return !!Function.prototype.bind;
 		},
 		"object-defineproperty": function() {
