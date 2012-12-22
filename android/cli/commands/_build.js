@@ -361,7 +361,7 @@ function sendAnalytics(cli) {
 		name: cli.tiapp.name,
 		publisher: cli.tiapp.publisher,
 		url: cli.tiapp.url,
-		image: cli.tiapp.image,
+		image: cli.tiapp.icon,
 		appid: cli.tiapp.id,
 		description: cli.tiapp.description,
 		type: cli.argv.type,
