@@ -39,7 +39,7 @@ define(['Ti/_/browser', 'Ti/_/declare', 'Ti/UI/View', 'Ti/_/lang', 'Ti/_/dom', '
 				width: UI.SIZE,
 				height: '100%',
 				layout: 'constrainingHorizontal'
-			}), 'horizontal');
+			}));
 			containerDomNode = self._contentContainer.domNode;
 
 			// Create the paging control container
@@ -88,7 +88,7 @@ define(['Ti/_/browser', 'Ti/_/declare', 'Ti/UI/View', 'Ti/_/lang', 'Ti/_/dom', '
 							duration = Math.abs(currentX - startX);
 						global.removeEventListener(useTouch ? 'touchmove' : 'mousemove', mouseMoveListener);
 						global.removeEventListener(useTouch ? 'touchend' : 'mouseup', mouseUpListener);
-						width = self._measuredWidth,
+						width = self._measuredWidth;
 						animating = 1;
 						e.preventDefault();
 
@@ -106,7 +106,7 @@ define(['Ti/_/browser', 'Ti/_/declare', 'Ti/UI/View', 'Ti/_/lang', 'Ti/_/dom', '
 							(isFlick ? flickAnimationScaleFactor : dragAnimationScaleFactor) * duration));
 						setStyle(containerDomNode, 'transition', duration + 'ms ease-out');
 						setTimeout(function(){
-							once(containerDomNode, 'webkitTransitionEnd', function() {
+							once(containerDomNode, 'transitionEnd', function() {
 								setStyle(containerDomNode, 'transition', '');
 								animating = 0;
 								props.currentPage = currentPage;
@@ -234,7 +234,7 @@ define(['Ti/_/browser', 'Ti/_/declare', 'Ti/UI/View', 'Ti/_/lang', 'Ti/_/dom', '
 		scrollToView: function(view) {
 			var viewIndex = is(view,'Number') ? view : this.views.indexOf(view),
 				self = this;
-			
+
 			// Sanity check
 			if (viewIndex < 0 || viewIndex >= this.views.length || viewIndex == this.currentPage) {
 				return;
