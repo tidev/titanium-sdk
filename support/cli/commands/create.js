@@ -58,8 +58,11 @@ exports.config = function (logger, config, cli) {
 					label: __('App ID'),
 					error: __('Invalid App ID'),
 					validator: function (id) {
+						if (!id) {
+							throw new appc.exception(__('Invalid app id'));
+						}
 						if (!/^([a-z_]{1}[a-z0-9_]*(\.[a-z_]{1}[a-z0-9_]*)*)$/.test(id)) {
-							throw new appc.exception(__('Invalid app id "%s"', tiapp.id), [
+							throw new appc.exception(__('Invalid app id "%s"', id), [
 								__('The app id must consist of letters, numbers, and underscores.'),
 								__('The first character must be a letter or underscore.'),
 								__("Usually the app id is your company's reversed Internet domain name. (i.e. com.example.myapp)")
@@ -84,8 +87,8 @@ exports.config = function (logger, config, cli) {
 				desc: __('the name of the project'),
 				prompt: {
 					label: __('Project name'),
-					error: __('Invalid project name'),
-					pattern: /^[A-Za-z]+[A-Za-z0-9_-]*$/
+					error: __('Invalid project name')
+					// pattern: /^[A-Za-z]+[A-Za-z0-9_-]*$/
 				},
 				required: true
 			},
@@ -148,7 +151,7 @@ exports.validate = function (logger, config, cli) {
 	}
 	
 	cli.argv.name = (cli.argv.name || '').trim();
-	if (!/^[A-Za-z]+[A-Za-z0-9_-]*$/.test(cli.argv.name)) {
+	if (!cli.argv.name) { // !/^[A-Za-z]+[A-Za-z0-9_-]*$/.test(cli.argv.name)) {
 		logger.error(__('Invalid project name "%s"', cli.argv.name) + '\n');
 		logger.log(__('The project name must consist of letters, numbers, dashes, and underscores.'));
 		logger.log(__('The first character must be a letter.') + '\n');
