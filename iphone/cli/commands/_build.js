@@ -1913,7 +1913,7 @@ build.prototype = {
 				'__PROJECT_ID__': this.tiapp.id,
 				'__DEPLOYTYPE__': this.deployType,
 				'__APP_ID__': this.tiapp.id,
-				'__APP_ANALYTICS__': '' + !!this.tiapp.analytics,
+				'__APP_ANALYTICS__': '' + (this.tiapp.hasOwnProperty('analytics') ? !!this.tiapp.analytics : true),
 				'__APP_PUBLISHER__': this.tiapp.publisher,
 				'__APP_URL__': this.tiapp.url,
 				'__APP_NAME__': this.tiapp.name,
