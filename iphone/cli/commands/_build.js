@@ -354,6 +354,8 @@ exports.validate = function (logger, config, cli) {
 	
 	ti.validateProjectDir(logger, cli, cli.argv, 'project-dir');
 	
+	ti.validateTiappXml(logger, cli.tiapp);
+	
 	if (!ti.validateCorrectSDK(logger, config, cli, 'build')) {
 		// we're running the build command for the wrong SDK version, gracefully return
 		return false;
@@ -1911,7 +1913,7 @@ build.prototype = {
 				'__PROJECT_ID__': this.tiapp.id,
 				'__DEPLOYTYPE__': this.deployType,
 				'__APP_ID__': this.tiapp.id,
-				'__APP_ANALYTICS__': '' + !!this.tiapp.analytics,
+				'__APP_ANALYTICS__': '' + (this.tiapp.hasOwnProperty('analytics') ? !!this.tiapp.analytics : true),
 				'__APP_PUBLISHER__': this.tiapp.publisher,
 				'__APP_URL__': this.tiapp.url,
 				'__APP_NAME__': this.tiapp.name,
