@@ -19,6 +19,7 @@ import java.util.Stack;
 
 import org.appcelerator.kroll.KrollFunction;
 import org.appcelerator.kroll.KrollModule;
+import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.KrollRuntime;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
@@ -31,12 +32,15 @@ import org.appcelerator.titanium.util.TiUIHelper;
 import android.app.Activity;
 import android.os.Environment;
 import android.os.Handler;
+import android.os.Message;
 import android.util.SparseArray;
 
 @Kroll.module @Kroll.topLevel({"Ti", "Titanium"})
 public class TitaniumModule extends KrollModule
 {
 	private static final String TAG = "TitaniumModule";
+
+	private static final int MSG_ALERT = KrollProxy.MSG_LAST_ID + 100;
 
 	private Stack<String> basePath;
 	private Map<String, NumberFormat> numberFormats = java.util.Collections.synchronizedMap(
@@ -236,7 +240,11 @@ public class TitaniumModule extends KrollModule
 		}
 		*/
 
-		TiUIHelper.doOkDialog("Alert", msg, null);
+		if (TiApplication.isUIThread()) {
+			TiUIHelper.doOkDialog("Alert", msg, null);
+		} else {
+			getMainHandler().obtainMessage(MSG_ALERT, msg).sendToTarget();
+		}
 	}
 
 	@Kroll.method @Kroll.topLevel("String.format")
@@ -393,5 +401,20 @@ public class TitaniumModule extends KrollModule
 			Log.e(TAG, e.getMessage(), e);
 		}
 	}
+
+	@Override
+	public boolean handleMessage(Message msg)
+	{
+		switch (msg.what) {
+			case MSG_ALERT: {
+				TiUIHelper.doOkDialog("Alert", (String) msg.obj, null);
+
+				return true;
+			}
+		}
+
+		return super.handleMessage(msg);
+	}
+
 }
 
