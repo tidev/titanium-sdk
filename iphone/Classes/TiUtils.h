@@ -484,6 +484,12 @@ typedef enum {
  */
 +(BOOL)isRetinaDisplay;
 
+/**
+ Whether or not the current device has a 4 inch retina display (iPhone5).
+ @return _YES_ if the current device has a 4 inch retina display, _NO_ otherwise.
+ */
++(BOOL)isRetinaFourInch;
+
 +(int)dpi;
 
 +(NSStringEncoding)charsetToEncoding:(NSString*)charset;
