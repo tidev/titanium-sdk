@@ -111,6 +111,7 @@ static NSString * const kTitaniumJavascript = @"Ti.App={};Ti.API={};Ti.App._list
 		webview.opaque = NO;
 		webview.backgroundColor = [UIColor whiteColor];
 		webview.contentMode = UIViewContentModeRedraw;
+		webview.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
 		[self addSubview:webview];
 
 		BOOL hideLoadIndicator = [TiUtils boolValue:[self.proxy valueForKey:@"hideLoadIndicator"] def:NO];
@@ -159,7 +160,6 @@ static NSString * const kTitaniumJavascript = @"Ti.App={};Ti.API={};Ti.App._list
     [super frameSizeChanged:frame bounds:bounds];
 	if (webview!=nil)
 	{
-		[webview stringByEvaluatingJavaScriptFromString:[NSString stringWithFormat:@"document.body.style.minWidth='%fpx';document.body.style.minHeight='%fpx';",bounds.size.width-8,bounds.size.height-16]];
 		[TiUtils setView:webview positionRect:bounds];
 		
 		if (spinner!=nil)
@@ -612,27 +612,28 @@ static NSString * const kTitaniumJavascript = @"Ti.App={};Ti.API={};Ti.App._list
 	return [[self webview] stringByEvaluatingJavaScriptFromString:code];
 }
 
-// Webview appears to have an interesting quirk where the web content is always scaled/sized to just barely
-// not fit within the bounds of its specialized scroll box, UNLESS you are sizing the view to 320px (full width).
-// 'auto' width setting for web views is NOT RECOMMENDED as a result.  'auto' height is OK, and necessary
-// when placing webviews with other elements.
 -(CGFloat)contentHeightForWidth:(CGFloat)value
 {
-	CGRect oldBounds = [[self webview] bounds];
-	[webview setBounds:CGRectMake(0, 0, MAX(value,10), 1)];
-	CGFloat result = [[webview stringByEvaluatingJavaScriptFromString:@"document.height"] floatValue];
-	[webview setBounds:oldBounds];
-	return result;
+    CGRect oldBounds = [[self webview] bounds];
+    BOOL oldVal = webview.scalesPageToFit;
+    [webview setScalesPageToFit:NO];
+    [webview setBounds:CGRectMake(0, 0, 10, 1)];
+    CGFloat ret = [webview sizeThatFits:CGSizeMake(10, 1)].height;
+    [webview setBounds:oldBounds];
+    [webview setScalesPageToFit:oldVal];
+    return ret;
 }
 
 -(CGFloat)contentWidthForWidth:(CGFloat)value
 {
     CGRect oldBounds = [[self webview] bounds];
-    CGFloat currentHeight = [[webview stringByEvaluatingJavaScriptFromString:@"document.height"] floatValue];
-    [webview setBounds:CGRectMake(0, 0, 10, currentHeight)];
-    CGFloat realWidth = [[webview stringByEvaluatingJavaScriptFromString:@"document.width"] floatValue];
+    BOOL oldVal = webview.scalesPageToFit;
+    [webview setScalesPageToFit:NO];
+    [webview setBounds:CGRectMake(0, 0, 10, 1)];
+    CGFloat ret = [webview sizeThatFits:CGSizeMake(10, 1)].width;
     [webview setBounds:oldBounds];
-    return (value < realWidth) ? value : realWidth;
+    [webview setScalesPageToFit:oldVal];
+    return ret;
 }
 
 #pragma mark WebView Delegate
