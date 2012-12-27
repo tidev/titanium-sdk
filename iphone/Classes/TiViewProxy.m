@@ -1557,6 +1557,9 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap,horizontalWrap,horizontalWrap,[self willCha
 {
 	[self forgetProxy:animation];
 	[[self view] animationCompleted];
+	//Let us add ourselves to the queue to cleanup layout
+	OSAtomicTestAndClearBarrier(TiRefreshViewEnqueued, &dirtyflags);
+	[self willEnqueue];
 }
 
 -(void)makeViewPerformSelector:(SEL)selector withObject:(id)object createIfNeeded:(BOOL)create waitUntilDone:(BOOL)wait
@@ -2714,8 +2717,8 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
 	[child setSandboxBounds:bounds];
 	if ([[child view] animating])
 	{
-        // changing the layout while animating is bad, ignore for now
-        DebugLog(@"[WARN] New layout set while view %@ animating: Will relayout after animation.", child);
+		// changing the layout while animating is bad, ignore for now
+		DebugLog(@"[WARN] New layout set while view %@ animating: Will relayout after animation.", child);
 	}
 	else
 	{
