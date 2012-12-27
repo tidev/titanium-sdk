@@ -93,7 +93,7 @@ public class LocaleModule extends KrollModule
 	public String getString(String key, @Kroll.argument(optional=true) String defaultValue)
 	{
 		try {
-			int resid = TiRHelper.getResource("string." + key);
+			int resid = TiRHelper.getResource("string." + key.replace(".","_"));
 			if (resid != 0) {
 				return TiApplication.getInstance().getString(resid);
 			} else {
