@@ -83,7 +83,7 @@ define(["Ti/_/declare", "Ti/_/UI/KineticScrollView", "Ti/_/style", "Ti/_/lang", 
 				sections = this._sections,
 				sectionsList = sections._children,
 				len = sectionsList.length;
-			for(var i = 0; i < len; i+= 1) {
+			for(var i = 0; i < len; i+= 2) {
 
 				// Check if the section is visible
 				var section = sectionsList[i],
@@ -91,7 +91,7 @@ define(["Ti/_/declare", "Ti/_/UI/KineticScrollView", "Ti/_/style", "Ti/_/lang", 
 					sectionOffsetBottom = section._measuredHeight - sectionOffsetTop;
 				if (sectionOffsetTop > 0 && sectionOffsetBottom > 0) {
 					var rows = section._rows._children
-					for (var j = 1; j < rows.length; j += 1) {
+					for (var j = 1; j < rows.length; j += 2) {
 						var row = rows[j],
 							rowOffsetTop = sectionOffsetTop - row._measuredTop,
 							rowOffsetBottom = row._measuredHeight - rowOffsetTop;
@@ -146,11 +146,10 @@ define(["Ti/_/declare", "Ti/_/UI/KineticScrollView", "Ti/_/style", "Ti/_/lang", 
 			if (type === "click" || type === "singletap" || type === "longpress") {
 				if (row && section) {
 					
-					for (; i < sections.length; i += 1) {
+					for (; i < sections.length; i += 2) {
 						localIndex = sections[i]._rows._children.indexOf(row);
 						if (localIndex !== -1) {
-							//TODO write tests
-							index += localIndex ;
+							index += Math.floor(localIndex / 2);
 							break;
 						} else {
 							index += sections[i].rowCount;
@@ -194,43 +193,23 @@ define(["Ti/_/declare", "Ti/_/UI/KineticScrollView", "Ti/_/style", "Ti/_/lang", 
 		},
 		
 		_refreshSections: function() {
-			for (var i = 0; i < this._sections._children.length; i += 1) {
+			for (var i = 0; i < this._sections._children.length; i += 2) {
 				this._sections._children[i]._refreshRows();
 			}
 			this._triggerLayout();
 		},
-		// Total Row Count in the Table
-		rowCount:function(){
-			var currentOffset = 0;
-			for(var i = 0; i < this._sections._children.length; i++) {
-				section = this._sections._children[i];
-				currentOffset += section.rowCount;			
-			}		
-			return currentOffset;	
-		},
 		
-		_calculateLocation: function(index, insertAfter) {
+		_calculateLocation: function(index) {
 			var currentOffset = 0,
 				section;
-			
-			for(var i = 0; i < this._sections._children.length; i++) {
+			for(var i = 0; i < this._sections._children.length; i += 2) {
 				section = this._sections._children[i];
 				currentOffset += section.rowCount;
-				
-				if (insertAfter) {
-					if (index <= currentOffset) {
-						return {
-							section: section,
-							localIndex: section.rowCount - (currentOffset - index)
-						};
-					}
-				} else {
-					if (index < currentOffset) {
-						return {
-							section: section,
-							localIndex: section.rowCount - (currentOffset - index)
-						};
-					}
+				if (index < currentOffset) {
+					return {
+						section: section,
+						localIndex: section.rowCount - (currentOffset - index)
+					};
 				}
 			}
 			
@@ -243,11 +222,10 @@ define(["Ti/_/declare", "Ti/_/UI/KineticScrollView", "Ti/_/style", "Ti/_/lang", 
 			}
 		},
 		
-		_insertRow: function(value, index, insertAfter) {
-			var location = this._calculateLocation(index, insertAfter);
-			
+		_insertRow: function(value, index) {
+			var location = this._calculateLocation(index);
 			if (location) {
-				location.section.add(value, location.localIndex); // We call the normal .add() method to hook into the sections proper add mechanism
+				location.section.add(value,location.localIndex); // We call the normal .add() method to hook into the sections proper add mechanism
 			}
 			this._publish(value);
 			this._refreshSections();
@@ -256,7 +234,7 @@ define(["Ti/_/declare", "Ti/_/UI/KineticScrollView", "Ti/_/style", "Ti/_/lang", 
 		_removeRow: function(index) {
 			var location = this._calculateLocation(index);
 			if (location) {
-				this._unpublish(location.section._rows._children[location.localIndex]);
+				this._unpublish(location.section._rows._children[2 * location.localIndex + 1]);
 				location.section._removeAt(location.localIndex);
 			}
 		},
@@ -278,7 +256,7 @@ define(["Ti/_/declare", "Ti/_/UI/KineticScrollView", "Ti/_/style", "Ti/_/lang", 
 		},
 
 		insertRowAfter: function(index, value) {
-			this._insertRow(value, index + 1, true);
+			this._insertRow(value, index + 1);
 		},
 
 		insertRowBefore: function(index, value) {
@@ -293,7 +271,7 @@ define(["Ti/_/declare", "Ti/_/UI/KineticScrollView", "Ti/_/style", "Ti/_/lang", 
 		scrollToIndex: function(index) {
 			var location = this._calculateLocation(index);
 			location && this._setTranslation(0,-location.section._measuredTop -
-				location.section._rows._children[ location.localIndex + 1]._measuredTop);
+				location.section._rows._children[2 * location.localIndex + 1]._measuredTop);
 		},
 		
 		scrollToTop: function(top) {
@@ -347,26 +325,6 @@ define(["Ti/_/declare", "Ti/_/UI/KineticScrollView", "Ti/_/style", "Ti/_/lang", 
 			this._insertSection(section, index);
 		},
 		
-		getIndexByName: function(name) {
-			var index = 0;
-			
-			for (var i = 0; i < this._sections._children.length; i++) {
-				if (i > 0) {
-					index += this._sections._children[i - 1].rows.length;
-				}
-
-				for (var j = 0; j < this._sections._children[i].rows.length; j++) {					
-					if (this._sections._children[i].rows[j].name === name) {
-						index += j;
-						
-						return index;		
-					}
-				}
-			}
-			
-			return index;
-		},
-		
 		constants: {
 			sectionCount: {
 				get: function() {
@@ -376,95 +334,49 @@ define(["Ti/_/declare", "Ti/_/UI/KineticScrollView", "Ti/_/style", "Ti/_/lang", 
 			sections: void 0
 		},
 		
-		properties: {		
+		properties: {
 			data: {
 				set: function(value) {
 					if (is(value,'Array')) {
-						var retval = [];
-						var tableData = [];
 						
+						var retval = [];
+						
+						// Remove all of the previous sections
 						this._sections._removeAllChildren();
 						this.constants.__values__.sections = [];
 						this._currentSection = void 0;
-												
+						
+						// Convert any object literals to TableViewRow instances
 						for (var i in value) {
-							if (!isDef(value[i].declaredClass) 
-								|| (value[i].declaredClass != "Ti.UI.TableViewRow" && value[i].declaredClass != "Ti.UI.TableViewSection")
-							) {
+							if (!isDef(value[i].declaredClass) || (value[i].declaredClass != "Ti.UI.TableViewRow" && value[i].declaredClass != "Ti.UI.TableViewSection")) {
 								value[i] = UI.createTableViewRow(value[i]);
 							}
-
-							if (value[i].declaredClass === "Ti.UI.TableViewRow") {
-								if (i == 0) {
-									section = UI.createTableViewSection({_tableView: this});
-									
-									if (typeof(value[i].header) != 'undefined') {
-										section.headerTitle = value[i].header;
-									}
-									
-									tableData[i] = section;
-									section.add(value[i]);
-								} else {
-									if (typeof(value[i].header) != 'undefined') {
-										section = UI.createTableViewSection({_tableView: this});
-										section.headerTitle = value[i].header;
-										
-										tableData[tableData.length] = section;
-										section.add(value[i]);
-									} else {			
-										tableData[tableData.length - 1].add(value[i]);
-									}									
-								}
-							} else if (value[i].declaredClass === "Ti.UI.TableViewSection") {
-								tableData[tableData.length] = value[i];
-							}
-						}						
-					
-						for (var i = 0; i < tableData.length; i++) {
-							this.appendSection(this._currentSection = tableData[i]);
-							this._publish(tableData[i]);
-							
-							retval.push(this._currentSection);							
 						}
-						
+			
+						// Add each element
+						for (var i = 0; i < value.length; i++) {
+							if (value[i].declaredClass === "Ti.UI.TableViewRow") {
+								// Check if we need a default section
+								if (!this._currentSection) {
+									this.appendSection(this._currentSection = UI.createTableViewSection({_tableView: this}));
+									retval.push(this._currentSection);
+								}
+								this._currentSection.add(value[i]); // We call the normal .add() method to hook into the sections proper add mechanism
+							} else if (value[i].declaredClass === "Ti.UI.TableViewSection") {
+								value[i]._tableView = this;
+								this.appendSection(this._currentSection = value[i]);
+								retval.push(this._currentSection);
+							}
+							this._publish(value[i]);
+						}
 						this._refreshSections();
-												
+						
 						return retval;
-					} else {					
+					} else {
+						// Data must be an array
 						return;
 					}
 				}
-			},
-			search: {
-				set: function(searchBar) {
-
-					searchBar.setWidth(UI.INHERIT);
-					searchBar.setHeight(this.rowHeight);
-					searchBar.setTop(0);
-
-					var firstRow = this.getChildren()[0];
-					if (firstRow === searchBar) {
-						firstRow = this.getChildren()[1];
-					}
-					firstRow.setTop(this.rowHeight);
-
-					searchBar.addEventListener('change', function(e) {
-						for (var i = 0; i < this._sections._children.length; i++) {
-							for (var j = 0; j < this._sections._children[i].rows.length; j++) {
-								var child = this._sections._children[i].rows[j];
-								if (child !== searchBar) {
-									if (child.title && child.title.match(searchBar.value)) {
-										child.setHeight(this.rowHeight);
-									} else {
-										child.setHeight(0);
-									}
-								}
-							}
-						};
-					}.bind(this));
-					this.add(searchBar);
-				}
-
 			},
 			footerTitle: {
 				set: function(value, oldValue) {

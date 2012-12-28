@@ -44,6 +44,17 @@ define(["Ti/_/declare", "Ti/_/lang", "Ti/_/UI/Widget", "Ti/_/style","Ti/UI/Mobil
 		
 		_tableView: null,
 		
+		_createSeparator: function() {
+			var showSeparator = this._tableView && this._tableView.separatorStyle === TableViewSeparatorStyle.SINGLE_LINE,
+				separator = UI.createView({
+					height: showSeparator ? 1 : 0,
+					width: UI.INHERIT,
+					backgroundColor: showSeparator ? this._tableView.separatorColor : "transparent"
+				});
+			setStyle(separator.domNode,"minWidth","100%"); // Temporary hack until TIMOB-8124 is completed.
+			return separator;
+		},
+		
 		_createDecorationLabel: function(text) {
 			return UI.createLabel({
 				text: text, 
@@ -62,20 +73,24 @@ define(["Ti/_/declare", "Ti/_/lang", "Ti/_/UI/Widget", "Ti/_/style","Ti/UI/Mobil
 				var rows = this._rows._children,
 					tableView = this._tableView,
 					rowsData = this.constants.rows = [];
-				for (var i = 0; i < rows.length; i += 1) {
-								
+				for (var i = 1; i < rows.length; i += 2) {
 					var row = rows[i];
-					
 					row._defaultHeight = tableView.rowHeight;
 					row._minHeight = tableView.minRowHeight;
 					row._maxHeight = tableView.maxRowHeight;
-					if (tableView.separatorStyle === TableViewSeparatorStyle.SINGLE_LINE) {
-						setStyle(row.domNode,{borderBottom: "1px solid " + tableView.separatorColor});
-					}
-					
 					rowsData.push(row);
 				}
 				
+				for (var i = 0; i < rows.length; i += 2) {
+					var row = rows[i];
+					if (tableView.separatorStyle === TableViewSeparatorStyle.SINGLE_LINE) {
+						row.height = 1;
+						row.backgroundColor = tableView.separatorColor;
+					} else {
+						row.height = 0;
+						row.backgroundColor = "transparent";
+					}
+				}
 			}
 		},
 		
@@ -83,30 +98,28 @@ define(["Ti/_/declare", "Ti/_/lang", "Ti/_/UI/Widget", "Ti/_/style","Ti/UI/Mobil
 			if (!lang.isDef(value.declaredClass) || value.declaredClass != "Ti.UI.TableViewRow") {
 				value = UI.createTableViewRow(value);
 			}
-
-			this._rows._insertAt(value, index);
 			
+			this._rows._insertAt(value, 2 * index + 1);
+			this._rows._insertAt(this._createSeparator(), 2 * index + 2);
 			value._tableViewSection = this;
-
+			this.rowCount++;
 			this._refreshRows();
 		},
 		
 		add: function(value, index) {
-
+			
 			var rows = this._rows._children,
 				rowCount = this.rowCount;
-
 			if (!lang.isDef(index)) {
 				index = rowCount;
 			}
 			if (index < 0 || index > rowCount) {
 				return;
 			}
-
+			
 			if (rows.length === 0) {
-				this._insertHelper(value,0);
-				return;
-			}			
+				this._rows._add(this._createSeparator());
+			}
 			
 			if (is(value,"Array")) {
 				for (var i in value) {
@@ -115,16 +128,20 @@ define(["Ti/_/declare", "Ti/_/lang", "Ti/_/UI/Widget", "Ti/_/style","Ti/UI/Mobil
 			} else {
 				this._insertHelper(value,index);
 			}
-			
-
 		},
 		
 		_removeAt: function(index) {
 			if (index < 0 || index >= this.rowCount) {
 				return;
 			}
-			this._rows.remove(this._rows._children[index]); // Remove the row
+			this._rows._children[2 * index + 1]._tableViewSection = null;
+			this._rows.remove(this._rows._children[2 * index + 1]); // Remove the separator
+			this._rows.remove(this._rows._children[2 * index + 1]); // Remove the row
 			
+			// Remove the last separator, if there are no rows left
+			if (this._rows._children.length === 1) {
+				this._rows.remove(this._rows._children[0]);
+			}
 			this._refreshRows();
 		},
 		
@@ -147,6 +164,7 @@ define(["Ti/_/declare", "Ti/_/lang", "Ti/_/UI/Widget", "Ti/_/style","Ti/UI/Mobil
 					if (oldValue != value) {
 						this._footer._removeAllChildren();
 						this._footer._add(this._createDecorationLabel(value));
+						this._footer._add(this._createSeparator());
 					}
 					return value;
 				}
@@ -165,6 +183,7 @@ define(["Ti/_/declare", "Ti/_/lang", "Ti/_/UI/Widget", "Ti/_/style","Ti/UI/Mobil
 					if (oldValue != value) {
 						this._header._removeAllChildren();
 						this._header._add(this._createDecorationLabel(value));
+						this._header._add(this._createSeparator());
 					}
 					return value;
 				}
@@ -180,7 +199,7 @@ define(["Ti/_/declare", "Ti/_/lang", "Ti/_/UI/Widget", "Ti/_/style","Ti/UI/Mobil
 			},
 			
 			rowCount: function(value) {
-				return this._rows._children.length;
+				return Math.floor(this._rows._children.length / 2);
 			}
 		}
 
