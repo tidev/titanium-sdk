@@ -83,7 +83,7 @@ define(["Ti/_/declare", "Ti/_/UI/KineticScrollView", "Ti/_/style", "Ti/_/lang", 
 				sections = this._sections,
 				sectionsList = sections._children,
 				len = sectionsList.length;
-			for(var i = 0; i < len; i+= 2) {
+			for(var i = 0; i < len; i+= 1) {
 
 				// Check if the section is visible
 				var section = sectionsList[i],
@@ -146,10 +146,12 @@ define(["Ti/_/declare", "Ti/_/UI/KineticScrollView", "Ti/_/style", "Ti/_/lang", 
 			if (type === "click" || type === "singletap" || type === "longpress") {
 				if (row && section) {
 					
-					for (; i < sections.length; i += 2) {
+					for (; i < sections.length; i += 1) {
 						localIndex = sections[i]._rows._children.indexOf(row);
 						if (localIndex !== -1) {
-							index += Math.floor(localIndex / 2);
+							//TODO write tests
+							index += localIndex ;
+
 							break;
 						} else {
 							index += sections[i].rowCount;
@@ -193,12 +195,21 @@ define(["Ti/_/declare", "Ti/_/UI/KineticScrollView", "Ti/_/style", "Ti/_/lang", 
 		},
 		
 		_refreshSections: function() {
-			for (var i = 0; i < this._sections._children.length; i += 2) {
+			for (var i = 0; i < this._sections._children.length; i += 1) {
 				this._sections._children[i]._refreshRows();
 			}
 			this._triggerLayout();
 		},
-		
+		// Total Row Count in the Table
+		rowCount:function(){
+			var currentOffset = 0;
+			for(var i = 0; i < this._sections._children.length; i++) {
+				section = this._sections._children[i];
+				currentOffset += section.rowCount;			
+			}		
+			return currentOffset;	
+		},
+
 		_calculateLocation: function(index, insertAfter) {
 			var currentOffset = 0,
 				section;
@@ -246,7 +257,7 @@ define(["Ti/_/declare", "Ti/_/UI/KineticScrollView", "Ti/_/style", "Ti/_/lang", 
 		_removeRow: function(index) {
 			var location = this._calculateLocation(index);
 			if (location) {
-				this._unpublish(location.section._rows._children[2 * location.localIndex + 1]);
+				this._unpublish(location.section._rows._children[location.localIndex]);
 				location.section._removeAt(location.localIndex);
 			}
 		},
@@ -283,7 +294,7 @@ define(["Ti/_/declare", "Ti/_/UI/KineticScrollView", "Ti/_/style", "Ti/_/lang", 
 		scrollToIndex: function(index) {
 			var location = this._calculateLocation(index);
 			location && this._setTranslation(0,-location.section._measuredTop -
-				location.section._rows._children[2 * location.localIndex + 1]._measuredTop);
+				location.section._rows._children[ location.localIndex + 1]._measuredTop);
 		},
 		
 		scrollToTop: function(top) {
