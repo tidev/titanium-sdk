@@ -398,15 +398,8 @@ self.p = v;\
 	animatedView = [theview retain];
     
     if (!transitionAnimation) {
-        UIViewAnimationOptions options = (UIViewAnimationOptionAllowUserInteraction); // Backwards compatible
-        if ([view_ animating]) {
-            //TIMOB-10318
-            //Start from current state if animations are already running. Otherwise from initial value.
-            options = options | UIViewAnimationOptionBeginFromCurrentState;
-        }
-        else {
-            [view_ animationStarted];
-        }
+        UIViewAnimationOptions options = (UIViewAnimationOptionAllowUserInteraction | UIViewAnimationOptionBeginFromCurrentState); // Backwards compatible
+		[view_ animationStarted];
         NSTimeInterval animationDuration = [self animationDuration];
         
         options |= [curve intValue];
