@@ -91,7 +91,7 @@ define(["Ti/_/declare", "Ti/_/UI/KineticScrollView", "Ti/_/style", "Ti/_/lang", 
 					sectionOffsetBottom = section._measuredHeight - sectionOffsetTop;
 				if (sectionOffsetTop > 0 && sectionOffsetBottom > 0) {
 					var rows = section._rows._children
-					for (var j = 1; j < rows.length; j += 2) {
+					for (var j = 1; j < rows.length; j += 1) {
 						var row = rows[j],
 							rowOffsetTop = sectionOffsetTop - row._measuredTop,
 							rowOffsetBottom = row._measuredHeight - rowOffsetTop;
@@ -151,7 +151,6 @@ define(["Ti/_/declare", "Ti/_/UI/KineticScrollView", "Ti/_/style", "Ti/_/lang", 
 						if (localIndex !== -1) {
 							//TODO write tests
 							index += localIndex ;
-
 							break;
 						} else {
 							index += sections[i].rowCount;
@@ -209,7 +208,7 @@ define(["Ti/_/declare", "Ti/_/UI/KineticScrollView", "Ti/_/style", "Ti/_/lang", 
 			}		
 			return currentOffset;	
 		},
-
+		
 		_calculateLocation: function(index, insertAfter) {
 			var currentOffset = 0,
 				section;
@@ -367,7 +366,7 @@ define(["Ti/_/declare", "Ti/_/UI/KineticScrollView", "Ti/_/style", "Ti/_/lang", 
 			
 			return index;
 		},
-
+		
 		constants: {
 			sectionCount: {
 				get: function() {
@@ -377,7 +376,7 @@ define(["Ti/_/declare", "Ti/_/UI/KineticScrollView", "Ti/_/style", "Ti/_/lang", 
 			sections: void 0
 		},
 		
-		properties: {
+		properties: {		
 			data: {
 				set: function(value) {
 					if (is(value,'Array')) {
@@ -435,6 +434,37 @@ define(["Ti/_/declare", "Ti/_/UI/KineticScrollView", "Ti/_/style", "Ti/_/lang", 
 						return;
 					}
 				}
+			},
+			search: {
+				set: function(searchBar) {
+
+					searchBar.setWidth(UI.INHERIT);
+					searchBar.setHeight(this.rowHeight);
+					searchBar.setTop(0);
+
+					var firstRow = this.getChildren()[0];
+					if (firstRow === searchBar) {
+						firstRow = this.getChildren()[1];
+					}
+					firstRow.setTop(this.rowHeight);
+
+					searchBar.addEventListener('change', function(e) {
+						for (var i = 0; i < this._sections._children.length; i++) {
+							for (var j = 0; j < this._sections._children[i].rows.length; j++) {
+								var child = this._sections._children[i].rows[j];
+								if (child !== searchBar) {
+									if (child.title && child.title.match(searchBar.value)) {
+										child.setHeight(this.rowHeight);
+									} else {
+										child.setHeight(0);
+									}
+								}
+							}
+						};
+					}.bind(this));
+					this.add(searchBar);
+				}
+
 			},
 			footerTitle: {
 				set: function(value, oldValue) {
