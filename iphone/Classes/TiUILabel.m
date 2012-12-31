@@ -245,6 +245,13 @@ static inline CTTextAlignment UITextAlignmentToCTTextAlignment(UITextAlignment a
     [self setAttributedTextViewContent];
 }
 
+-(void)setAutoLink_:(id)value
+{
+    [[self label] setDataDetectorTypes:[TiUtils intValue:value]];
+    //we need to update the text
+    [self setAttributedTextViewContent];
+}
+
 -(void)setColor_:(id)color
 {
 	UIColor * newColor = [[TiUtils colorValue:color] _color];
@@ -415,14 +422,52 @@ static inline CTTextAlignment UITextAlignmentToCTTextAlignment(UITextAlignment a
 
 #pragma mark -
 #pragma mark DTAttributedTextContentViewDelegate
+
 - (void)attributedLabel:(TTTAttributedLabel *)label
    didSelectLinkWithURL:(NSURL *)url
 {
-    NSDictionary * dict = [NSDictionary dictionaryWithObjectsAndKeys:
-                           [url absoluteString], @"url",
-                           nil];
-    [self.proxy fireEvent:@"click" withObject:dict];
+    [[UIApplication sharedApplication] openURL:url];
 }
+
+- (void)attributedLabel:(TTTAttributedLabel *)label
+didSelectLinkWithAddress:(NSDictionary *)addressComponents
+{
+    NSMutableString* address = [NSMutableString string];
+    NSString* temp = nil;
+    if((temp = [addressComponents objectForKey:NSTextCheckingStreetKey]))
+        [address appendString:temp];
+    if((temp = [addressComponents objectForKey:NSTextCheckingCityKey]))
+        [address appendString:[NSString stringWithFormat:@"%@%@", ([address length] > 0) ? @", " : @"", temp]];
+    if((temp = [addressComponents objectForKey:NSTextCheckingStateKey]))
+        [address appendString:[NSString stringWithFormat:@"%@%@", ([address length] > 0) ? @", " : @"", temp]];
+    if((temp = [addressComponents objectForKey:NSTextCheckingZIPKey]))
+        [address appendString:[NSString stringWithFormat:@" %@", temp]];
+    if((temp = [addressComponents objectForKey:NSTextCheckingCountryKey]))
+        [address appendString:[NSString stringWithFormat:@"%@%@", ([address length] > 0) ? @", " : @"", temp]];
+    NSString* urlString = [NSString stringWithFormat:@"http://maps.google.com/maps?q=%@", [address stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
+    [[UIApplication sharedApplication] openURL:[NSURL URLWithString:urlString]];
+}
+
+- (void)attributedLabel:(TTTAttributedLabel *)label
+didSelectLinkWithPhoneNumber:(NSString *)phoneNumber
+{
+    NSURL* url = [NSURL URLWithString:[NSString stringWithFormat:@"tel://%@", phoneNumber]];
+    [[UIApplication sharedApplication] openURL:url];
+}
+
+//- (void)attributedLabel:(TTTAttributedLabel *)label
+//  didSelectLinkWithDate:(NSDate *)date
+//{
+//    [[UIApplication sharedApplication] openURL:url];
+//}
+//
+//- (void)attributedLabel:(TTTAttributedLabel *)label
+//  didSelectLinkWithDate:(NSDate *)date
+//               timeZone:(NSTimeZone *)timeZone
+//               duration:(NSTimeInterval)duration
+//{
+//    [[UIApplication sharedApplication] openURL:url];
+//}
 
 @end
 
