@@ -277,4 +277,16 @@
 #define PLSqliteDictionaryParameterStrategy __TI_NS_SYMBOL(PLSqliteDictionaryParameterStrategy)
 #endif
 
+// DTCoreText
+#import <CoreText/CoreText.h>
+#ifndef DTAttributedTextContentView
+#define DTAttributedTextContentView __TI_NS_SYMBOL(DTAttributedTextContentView)
+#endif
+#ifndef DTAttributedTextContentViewDelegate
+#define DTAttributedTextContentViewDelegate __TI_NS_SYMBOL(DTAttributedTextContentViewDelegate)
+#endif
+#ifndef DTLazyImageViewDelegate
+#define DTLazyImageViewDelegate __TI_NS_SYMBOL(DTLazyImageViewDelegate)
+#endif
+
 #endif

@@ -7,29 +7,15 @@
 #ifdef USE_TI_UILABEL
 
 #import "TiUIView.h"
-#import "TTTAttributedLabel.h"
 
-typedef enum {
-    kContentTypeText,
-    kContentTypeHTML
-} ContentType;
-
-@interface TiUILabel : TiUIView<LayoutAutosizing, TTTAttributedLabelDelegate> {
+@interface TiUILabelOld : TiUIView<LayoutAutosizing> {
 @private
-	TTTAttributedLabel *label;
+	UILabel *label;
 	BOOL requiresLayout;
     CGRect padding;
     CGRect textPadding;
+    UIControlContentVerticalAlignment verticalAlign;
     CGRect initialLabelFrame;
-    
-    ContentType contentType;
-    NSString * content;
-    
-    NSMutableDictionary * options;
-    
-    WebFont* webFont;
-    
-    BOOL configSet;
 }
 
 @property(nonatomic,getter=isHighlighted) BOOL     highlighted;          // default is NO
