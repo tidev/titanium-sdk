@@ -14,10 +14,6 @@
 
 #define kDefaultFontSize 12.0
 
-//@interface TiUILabel (PrivateMethods)
-//- (void)setAttributedTextViewContent;
-//@end
-
 static inline CTTextAlignment UITextAlignmentToCTTextAlignment(UITextAlignment alignment)
 {
     switch (alignment) {
@@ -32,23 +28,6 @@ static inline CTTextAlignment UITextAlignmentToCTTextAlignment(UITextAlignment a
             break;
     }
 }
-//
-//static inline CTTextAlignment UITextAlignmentToCTTextAlignment(UITextAlignment alignment)
-//{
-//    switch (alignment) {
-//        case UITextAlignmentLeft:
-//            return kCTLeftTextAlignment;
-//            break;
-//        case UITextAlignmentRight:
-//            return kCTRightTextAlignment;
-//            break;
-//        default:
-//            return kCTCenterTextAlignment;
-//            break;
-//    }
-//}
-
-
 
 @implementation TiUILabel
 
@@ -61,7 +40,8 @@ static inline CTTextAlignment UITextAlignmentToCTTextAlignment(UITextAlignment a
         padding = CGRectZero;
         textPadding = CGRectZero;
         initialLabelFrame = CGRectZero;
-        //        verticalAlign = -1;
+        webFont = [[WebFont defaultFont] retain];
+        webFont.size = 17; //to get the same default font size as UILabel
     }
     return self;
 }
