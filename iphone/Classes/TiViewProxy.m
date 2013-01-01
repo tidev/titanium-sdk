@@ -2352,6 +2352,9 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
     NSUInteger i, count = [childArray count];
 	int maxHeight = 0;
     
+    
+    CGFloat widthNonFill = 0;
+    int nbAutoFill = 0;
     //First measure the sandbox bounds
     for (id child in childArray) 
     {
@@ -2368,6 +2371,18 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
             {
                 bounds = [self computeChildSandbox:child withBounds:bounds];
             }
+            
+            TiDimension constraint = [child layoutProperties]->width;
+           if (TiDimensionIsAutoSize(constraint) ||
+                !TiDimensionIsAutoFill(constraint))
+            {
+                widthNonFill += bounds.size.width;
+            }
+            else{
+                nbAutoFill += 1;
+            }
+
+            
             childBounds.origin.x = bounds.origin.x;
             childBounds.origin.y = bounds.origin.y;
             childBounds.size.width = bounds.size.width;
@@ -2382,8 +2397,22 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
     //same height for the sandbox
 	if (horizontalNoWrap)
 	{
+        int currentLeft = 0;
 		for (i=0; i<count; i++) 
 		{
+            id child = [childArray objectAtIndex:i];
+            UIView * ourView = [self parentViewForChild:child];
+            if (ourView != nil)
+            {
+                if (TiDimensionIsAutoFill([child layoutProperties]->width))
+                {
+                    CGRect bounds = [ourView bounds];
+                    [(TiRect*)[measuredBounds objectAtIndex:i] setWidth:[NSNumber numberWithInt:(([ourView bounds].size.width - widthNonFill) / nbAutoFill)]];
+
+                }
+                [(TiRect*)[measuredBounds objectAtIndex:i] setX:[NSNumber numberWithInt:currentLeft]];
+                currentLeft += [[(TiRect*)[measuredBounds objectAtIndex:i] width] integerValue];
+            }
 			[(TiRect*)[measuredBounds objectAtIndex:i] setHeight:[NSNumber numberWithInt:maxHeight]];
 		}
 	}
