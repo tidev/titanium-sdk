@@ -2245,7 +2245,8 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
 
 		[parent insertSubview:view forProxy:self];
 
-
+		[self refreshSize];
+		[self refreshPosition];
 		repositioning = NO;
         
         if ([observer respondsToSelector:@selector(proxyDidRelayout:)]) {
