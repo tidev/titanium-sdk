@@ -6,6 +6,7 @@
  */
 
 #import "TiBase.h"
+#include <math.h>
 
 #define INCH_IN_CM 2.54
 #define INCH_IN_MM 25.4
@@ -186,7 +187,7 @@ TI_INLINE BOOL TiDimensionDidCalculateValue(TiDimension dimension,CGFloat boundi
 			*result = dimension.value;
 			return YES;
 		case TiDimensionTypePercent:
-			*result = dimension.value * boundingValue;
+			*result = roundf(dimension.value * boundingValue);
 			return YES;
 		default: {
 			break;
