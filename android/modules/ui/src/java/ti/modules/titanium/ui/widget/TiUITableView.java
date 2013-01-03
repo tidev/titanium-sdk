@@ -17,8 +17,10 @@ import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.view.TiUIView;
 
+import ti.modules.titanium.ui.SearchBarProxy;
 import ti.modules.titanium.ui.TableViewProxy;
 import ti.modules.titanium.ui.widget.searchbar.TiUISearchBar;
+import ti.modules.titanium.ui.widget.searchview.TiUISearchView;
 import ti.modules.titanium.ui.widget.tableview.TableViewModel;
 import ti.modules.titanium.ui.widget.tableview.TiTableView;
 import ti.modules.titanium.ui.widget.tableview.TiTableView.OnItemClickedListener;
@@ -113,11 +115,17 @@ public class TiUITableView extends TiUIView
 			RelativeLayout layout = new RelativeLayout(proxy.getActivity());
 			layout.setGravity(Gravity.NO_GRAVITY);
 			layout.setPadding(0, 0, 0, 0);
-
+			TiUIView search;
 			TiViewProxy searchView = (TiViewProxy) d.get(TiC.PROPERTY_SEARCH);
-			TiUISearchBar searchBar = (TiUISearchBar)searchView.getOrCreateView();
-			searchBar.setOnSearchChangeListener(tableView);
-			searchBar.getNativeView().setId(102);
+			if (searchView instanceof SearchBarProxy) {
+				search = searchView.getOrCreateView();
+				((TiUISearchBar)search).setOnSearchChangeListener(tableView);
+			} else {
+				search = searchView.getOrCreateView();
+				((TiUISearchView)search).setOnSearchChangeListener(tableView);
+			}
+
+			search.getNativeView().setId(102);
 
 			RelativeLayout.LayoutParams p = new RelativeLayout.LayoutParams(
 					RelativeLayout.LayoutParams.FILL_PARENT,
@@ -134,7 +142,7 @@ public class TiUITableView extends TiUIView
 			}
 			p.height = rawHeight.getAsPixels(layout);
 
-			layout.addView(searchBar.getNativeView(), p);
+			layout.addView(search.getNativeView(), p);
 
 			p = new RelativeLayout.LayoutParams(
 				RelativeLayout.LayoutParams.FILL_PARENT,

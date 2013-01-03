@@ -413,6 +413,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String EVENT_STOP = "stop";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String EVENT_SUBMIT = "submit";
 
 	/**
 	 * @module.api
@@ -1167,6 +1172,17 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_ICON_LEVEL = "iconLevel";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_ICONIFIED = "iconified";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_ICONIFIED_BY_DEFAULT = "iconifiedByDefault";
+
 
 	/**
 	 * @module.api
