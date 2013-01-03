@@ -122,7 +122,9 @@
 		"Ti/_/ready",
 		"Ti/_/style",
 		"Ti/_/dom",
+		"Ti/_/event",
 		"Ti/_/Gestures/DoubleTap",
+		"Ti/_/Gestures/Dragging",
 		"Ti/_/Gestures/LongPress",
 		"Ti/_/Gestures/Pinch",
 		"Ti/_/Gestures/SingleTap",
@@ -215,6 +217,10 @@
 		"Ti/Blob"
 	],
 	"Ti/_/Gestures/DoubleTap": [
+		"Ti/_/declare",
+		"Ti/_/lang"
+	],
+	"Ti/_/Gestures/Dragging": [
 		"Ti/_/declare",
 		"Ti/_/lang"
 	],
@@ -538,8 +544,7 @@
 		"Ti/_/lang",
 		"Ti/_/dom",
 		"Ti/_/style",
-		"Ti/UI",
-		"Ti/_/event"
+		"Ti/UI"
 	],
 	"Ti/UI/ScrollView": [
 		"Ti/_/declare",
