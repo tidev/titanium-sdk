@@ -1,11 +1,11 @@
 /*global Ti define window document navigator instrumentation*/
 define(
 	['Ti/_', 'Ti/_/Evented', 'Ti/_/has', 'Ti/_/lang', 'Ti/_/ready', 'Ti/_/style', 'Ti/_/dom', 'Ti/_/event',
-	'Ti/_/Gestures/DoubleTap', 'Ti/_/Gestures/LongPress', 'Ti/_/Gestures/Pinch', 'Ti/_/Gestures/SingleTap',
+	'Ti/_/Gestures/DoubleTap', 'Ti/_/Gestures/Dragging', 'Ti/_/Gestures/LongPress', 'Ti/_/Gestures/Pinch', 'Ti/_/Gestures/SingleTap',
 	'Ti/_/Gestures/Swipe', 'Ti/_/Gestures/TouchCancel', 'Ti/_/Gestures/TouchEnd', 'Ti/_/Gestures/TouchMove',
 	'Ti/_/Gestures/TouchStart', 'Ti/_/Gestures/TwoFingerTap'],
 	function(_, Evented, has, lang, ready, style, dom, event,
-		DoubleTap, LongPress, Pinch, SingleTap, Swipe, TouchCancel, TouchEnd, TouchMove, TouchStart, TwoFingerTap) {
+		DoubleTap, Dragging, LongPress, Pinch, SingleTap, Swipe, TouchCancel, TouchEnd, TouchMove, TouchStart, TwoFingerTap) {
 
 	var global = window,
 		doc = document,
@@ -32,6 +32,7 @@ define(
 			TouchEnd,
 			TouchMove,
 			TouchCancel,
+			Dragging,
 			SingleTap,
 			DoubleTap,
 			LongPress,
@@ -376,7 +377,7 @@ define(
 				self._layoutInProgress = false;
 				self._layoutTimer = null;
 				self._nodesToLayout = [];
-				
+
 				self.fireEvent('postlayout');
 			}
 
@@ -488,7 +489,7 @@ define(
 			UNIT_CM: 'cm',
 			UNIT_IN: 'in',
 			UNIT_DIP: 'dp', // We don't have DIPs, so we treat them as pixels
-			
+
 			// Hidden constants
 			_LAYOUT_COMPOSITE: 'composite',
 			_LAYOUT_VERTICAL: 'vertical',
