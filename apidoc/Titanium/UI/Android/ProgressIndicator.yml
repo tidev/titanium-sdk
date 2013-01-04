@@ -15,6 +15,11 @@ description:  |
     <Titanium.UI.Android.PROGRESS_INDICATOR_STATUS_BAR>.
 
     Calling `show` displays the indicator, and calling `hide` removes it.
+
+    To display a horizontal progress bar in the title of a heavyweight window,
+    wait for the window to open before creating the progress bar.
+    For example, in the sample code below, for it to work in the status bar,
+    create the progress bar inside the event listener, which waits for the open event.
 extends: Titanium.Proxy
 since: "3.0.0"
 platforms: [android]
