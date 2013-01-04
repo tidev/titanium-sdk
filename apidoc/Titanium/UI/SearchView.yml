@@ -1,0 +1,90 @@
+---
+name: Titanium.UI.SearchView
+summary: A specialized text field for entering search text.
+description: |
+    A widget that provides a user interface for the user to enter a search query and submit a request to a search provider.
+    
+    Search views are most commonly used for filtering the rows in a [TableView](Titanium.UI.TableView).
+    Similar to [SearchBar](Titanium.UI.SearchBar), you can add a search view to a table view by setting the table view's 
+    [search](Titanium.UI.TableView.search) property. 
+    
+    You can also add search view in an action bar as an action view.
+
+    A search view can be used without a table view.
+
+    Use the <Titanium.UI.createSearchView> method to create a search view.
+
+    
+extends: Titanium.UI.View
+excludes: { methods: [ add ] }
+since: "3.0.1"
+platforms: [android]
+methods:
+
+  - name: blur
+    summary: Causes the search view to lose focus.
+
+  - name: focus
+    summary: Causes the search view to gain focus.
+
+events:
+
+  - name: blur
+    summary: Fired when the search view loses focus.
+
+  - name: cancel
+    summary: Fired when the cancel button is pressed.
+
+  - name: change
+    summary: Fired when the value of the search view changes.
+
+  - name: focus
+    summary: Fired when the search view gains focus.
+    
+  - name: submit
+    summary: If the search query is not empty, fired when the search button is clicked on soft keyboard
+
+properties:
+
+  - name: hintText
+    summary: Text to show when the search view field is not focused.
+    type: String
+    default: no hint text
+
+  - name: value
+    summary: Value of the search view.
+    description: |
+       This value cannot be set until after the search view is created.
+    type: String
+    
+  - name: iconified
+    summary: Iconifies or expands the search view
+    description: see [Android Documentation](http://developer.android.com/reference/android/widget/SearchView.html#setIconified(boolean)) for more details.
+    type: Boolean
+    default: undefined
+  
+  - name: iconifiedByDefault
+    summary: Sets the default or resting state of the search view
+    description: see [Android Documentation](http://developer.android.com/reference/android/widget/SearchView.html#setIconifiedByDefault(boolean)) for more details.
+    type: Boolean
+    default: true
+         
+examples:
+
+  - title: Simple Search View
+    example: |
+        
+            var search = Titanium.UI.createSearchBar({
+            	barColor:'#000', 
+            	showCancel:true,
+            	height:43,
+            	top:0,
+            });
+
+  - title: Alloy XML Markup
+    example: |
+        Previous example as an Alloy view.
+
+            <Alloy>
+                <SearchBar id="search" barColor="#000" showCancel="true" height="43" top="0" />
+            </Alloy>

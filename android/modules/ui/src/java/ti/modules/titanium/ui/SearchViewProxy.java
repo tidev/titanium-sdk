@@ -24,6 +24,7 @@ public class SearchViewProxy extends TiViewProxy {
 
 	public SearchViewProxy() {
 		super();
+		defaultValues.put(TiC.PROPERTY_ICONIFIED_BY_DEFAULT, true);
 	}
 
 	@Override
