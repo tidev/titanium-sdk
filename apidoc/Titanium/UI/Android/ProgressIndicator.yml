@@ -132,3 +132,51 @@ examples:
 
             win1.open();
             win2.open();
+
+  - title: Alloy XML Markup
+    example: |
+        Previous example as two Alloy views.
+
+        win1.xml:
+
+            <Alloy>
+                <Window onOpen="openWin2" backgroundColor="blue" />
+            </Alloy>
+
+        win1.js:
+
+            function openWin2 () {
+                var win2 = Alloy.createController('win2').getView();
+                win2.open();
+            }
+
+        win2.xml:
+
+            <Alloy>
+                <Window onOpen="showIndicator" fullscreen="true" backgroundColor="yellow">
+
+                    <!-- Define the type property in the TSS file -->
+                    <ProgressIndicator ns="Ti.UI.Android" platform="platform" id="progressIndicator"
+                     message="Loading..." min="0" max="10" cancelable="true" />
+                </Window>
+            </Alloy>
+
+        win2.js:
+
+            function showIndicator(e) {
+                $.progressIndicator.show();
+                var value = 0;
+                setInterval(function(){
+                    if (value > 10) {
+                        return;
+                    }
+                    $.progressIndicator.value = value;
+                    value ++;
+                }, 200);
+                // do some work that takes 3 seconds
+                // ie. replace the following setTimeout block with your code
+                setTimeout(function(){
+                    e.source.close();
+                    $.progressIndicator.hide();
+                }, 3000);
+            }
