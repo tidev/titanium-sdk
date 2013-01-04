@@ -173,7 +173,7 @@
 			[self contentsWillChange];
 		}
 		else {
-			[self layoutChild:arg optimize:NO withMeasuredBounds:[[self size] rect]];
+			[self layoutChild:arg optimize:NO withMeasuredBounds:[[self view] bounds]];
 		}
 	}
 	else
@@ -1006,11 +1006,17 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap,horizontalWrap,horizontalWrap,[self willCha
 		[childrenArray release];
 		[self viewDidAttach];
 
-		// make sure we do a layout of ourselves
-		if(CGRectIsEmpty(sandboxBounds) && (view != nil)){
-			[self setSandboxBounds:view.bounds];
+		// If parent has a non absolute layout signal the parent that
+		//contents will change else just lay ourselves out
+		if (parent != nil && (!TiLayoutRuleIsAbsolute([parent layoutProperties]->layoutStyle))) {
+			[parent contentsWillChange];
 		}
-		[self relayout];
+		else {
+			if(CGRectIsEmpty(sandboxBounds) && (view != nil)){
+				[self setSandboxBounds:view.bounds];
+			}
+			[self relayout];
+		}
 		viewInitialized = YES;
 	}
 
