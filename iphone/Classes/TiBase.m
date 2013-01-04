@@ -176,6 +176,43 @@ void TiExceptionThrowWithNameAndReason(NSString *exceptionName, NSString *reason
 	}
 }
 
+static NSString * knownNativeClasses[] = {
+	@"NSString",
+	@"NSNumber",
+	@"NSArray",
+	@"NSDictionary",
+	@"KrollCallback",
+	@"KrollWrapper",
+};
+static NSString * knownJSClasses[] = {
+	@"String",
+	@"Number",
+	@"Array",
+	@"Object",
+	@"Function",
+	@"Function",
+};
+
+NSString *convertClassToJS(Class c)
+{
+	for (NSUInteger i = 0; i < sizeof(knownNativeClasses)/sizeof(*knownNativeClasses); ++i) {
+		if (c == NSClassFromString(knownNativeClasses[i])) {
+			return knownJSClasses[i];
+		}
+	}
+	return NSStringFromClass(c);
+}
+
+NSString *convertTypeToJS(id obj)
+{
+	for (NSUInteger i = 0; i < sizeof(knownNativeClasses)/sizeof(*knownNativeClasses); ++i) {
+		if ([obj isKindOfClass:NSClassFromString(knownNativeClasses[i])]) {
+			return knownJSClasses[i];
+		}
+	}
+	return NSStringFromClass([obj class]);
+}
+
 void TiThreadReleaseOnMainThread(id releasedObject,BOOL waitForFinish)
 {
 	if (releasedObject == nil) {

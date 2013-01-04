@@ -79,7 +79,13 @@ NSMutableDictionary* TiCreateNonRetainingDictionary();
 
 CGPoint midpointBetweenPoints(CGPoint a, CGPoint b);
 void TiLogMessage(NSString* str, ...);
-    
+
+NSString *convertClassToJS(Class c);
+NSString *convertTypeToJS(id obj);
+
+#define CLASS2JS(x)		convertClassToJS(x)
+#define OBJTYPE2JS(x)	convertTypeToJS(x)
+
 #define degreesToRadians(x) (M_PI * x / 180.0)
 #define radiansToDegrees(x) (x * (180.0 / M_PI))
 
@@ -116,7 +122,7 @@ x = (t*)[x objectAtIndex:0]; \
 } \
 if (![x isKindOfClass:[t class]]) \
 {\
-[self throwException:TiExceptionInvalidType subreason:[NSString stringWithFormat:@"expected: %@, was: %@",[t class],[x class]] location:CODELOCATION]; \
+[self throwException:TiExceptionInvalidType subreason:[NSString stringWithFormat:@"expected: %@, was: %@",CLASS2JS([t class]),OBJTYPE2JS(x)] location:CODELOCATION]; \
 }\
 
 #define ENSURE_SINGLE_ARG_OR_NIL(x,t) \
@@ -128,7 +134,7 @@ x = (t*)[x objectAtIndex:0]; \
 } \
 if (![x isKindOfClass:[t class]]) \
 {\
-[self throwException:TiExceptionInvalidType subreason:[NSString stringWithFormat:@"expected: %@, was: %@",[t class],[x class]] location:CODELOCATION]; \
+[self throwException:TiExceptionInvalidType subreason:[NSString stringWithFormat:@"expected: %@, was: %@",CLASS2JS([t class]),OBJTYPE2JS(x)] location:CODELOCATION]; \
 }\
 }\
 
@@ -139,7 +145,7 @@ out = (type*)[args objectAtIndex:index]; \
 } \
 if (![out isKindOfClass:[type class]]) \
 { \
-[self throwException:TiExceptionInvalidType subreason:[NSString stringWithFormat:@"expected: %@, was: %@",[type class],[out class]] location:CODELOCATION]; \
+[self throwException:TiExceptionInvalidType subreason:[NSString stringWithFormat:@"expected: %@, was: %@",CLASS2JS([type class]),OBJTYPE2JS(out)] location:CODELOCATION]; \
 } \
 
 
@@ -156,13 +162,13 @@ else { \
 out = nil; \
 } \
 if (out && ![out isKindOfClass:[type class]]) { \
-[self throwException:TiExceptionInvalidType subreason:[NSString stringWithFormat:@"expected: %@, was: %@",[type class],[out class]] location:CODELOCATION]; \
+[self throwException:TiExceptionInvalidType subreason:[NSString stringWithFormat:@"expected: %@, was: %@",CLASS2JS([type class]),OBJTYPE2JS(out)] location:CODELOCATION]; \
 } \
 } \
 
 #define COERCE_TO_INT(out,in) \
 if (![in respondsToSelector:@selector(intValue)]) {\
-[self throwException:TiExceptionInvalidType subreason:[NSString stringWithFormat:@"cannot coerce type %@ to int",[in class]] location:CODELOCATION]; \
+[self throwException:TiExceptionInvalidType subreason:[NSString stringWithFormat:@"cannot coerce type %@ to int",OBJTYPE2JS(in)] location:CODELOCATION]; \
 }\
 out = [in intValue]; \
 
@@ -221,7 +227,7 @@ COERCE_TO_INT(out,tmp);\
 #define ENSURE_CLASS(x,t) \
 if (![x isKindOfClass:t]) \
 { \
-[self throwException:TiExceptionInvalidType subreason:[NSString stringWithFormat:@"expected: %@, was: %@",t,[x class]] location:CODELOCATION]; \
+[self throwException:TiExceptionInvalidType subreason:[NSString stringWithFormat:@"expected: %@, was: %@",CLASS2JS(t),OBJTYPE2JS(x)] location:CODELOCATION]; \
 }\
 
 #define ENSURE_TYPE(x,t) ENSURE_CLASS(x,[t class])
@@ -230,7 +236,7 @@ if (![x isKindOfClass:t]) \
 #define ENSURE_METHOD(x,t) \
 if (![x respondsToSelector:@selector(t)]) \
 { \
-[self throwException:TiExceptionInvalidType subreason:[NSString stringWithFormat:@"%@ doesn't respond to method: %@",[x class],@#t] location:CODELOCATION]; \
+[self throwException:TiExceptionInvalidType subreason:[NSString stringWithFormat:@"%@ doesn't respond to method: %@",OBJTYPE2JS(x),@#t] location:CODELOCATION]; \
 }\
 
 #define IS_NULL_OR_NIL(x)	((x==nil) || ((id)x==[NSNull null]))
@@ -242,7 +248,7 @@ if (IS_NULL_OR_NIL(x))	\
 }	\
 else if (![x isKindOfClass:t])	\
 { \
-	[self throwException:TiExceptionInvalidType subreason:[NSString stringWithFormat:@"expected: %@ or nil, was: %@",t, [x class]] location:CODELOCATION]; \
+	[self throwException:TiExceptionInvalidType subreason:[NSString stringWithFormat:@"expected: %@ or nil, was: %@",CLASS2JS(t), OBJTYPE2JS(x)] location:CODELOCATION]; \
 }\
 
 #define ENSURE_TYPE_OR_NIL(x,t) ENSURE_CLASS_OR_NIL(x,[t class])
