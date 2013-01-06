@@ -9,7 +9,7 @@ define(["require", "Ti/_/lang", "Ti/_/Evented", "Ti/API"],
 		app = cfg.app;
 
 	// Add `dir` attribute to set text direction for language
-	document.body.dir = /^(ar|he)$/.test(str) ? 'RTL' : 'LTR';
+	document.body.dir = /^ar|he$/.test(language) ? 'RTL' : 'LTR';
 
 	document.title = app.name = app.names[language] || app.name;
 
