@@ -75,22 +75,22 @@
     switch(paragraphStyle.lineBreakMode)
 	{
 		case NSLineBreakByCharWrapping:
-			retStyle.alignment = kCTLineBreakByCharWrapping;
+			retStyle.linebreak = kCTLineBreakByCharWrapping;
 			break;
 		case NSLineBreakByClipping:
-			retStyle.alignment = kCTLineBreakByClipping;
+			retStyle.linebreak = kCTLineBreakByClipping;
 			break;
 		case NSLineBreakByTruncatingHead:
-			retStyle.alignment = kCTLineBreakByTruncatingHead;
+			retStyle.linebreak = kCTLineBreakByTruncatingHead;
 			break;
 		case NSLineBreakByTruncatingMiddle:
-			retStyle.alignment = kCTLineBreakByTruncatingMiddle;
+			retStyle.linebreak = kCTLineBreakByTruncatingMiddle;
 			break;
 		case NSLineBreakByTruncatingTail:
-			retStyle.alignment = kCTLineBreakByTruncatingTail;
+			retStyle.linebreak = kCTLineBreakByTruncatingTail;
 			break;
         case NSLineBreakByWordWrapping:
-			retStyle.alignment = kCTLineBreakByWordWrapping;
+			retStyle.linebreak = kCTLineBreakByWordWrapping;
 			break;
 	}
 	

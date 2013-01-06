@@ -27,6 +27,8 @@ typedef enum {
     
     NSMutableDictionary * options;
     
+    UILineBreakMode _multilineBreakMode;
+    
     WebFont* webFont;
     
     BOOL configSet;

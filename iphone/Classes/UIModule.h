@@ -75,6 +75,12 @@
 @property(nonatomic,readonly) NSNumber *TEXT_AUTOCAPITALIZATION_SENTENCES;
 @property(nonatomic,readonly) NSNumber *TEXT_AUTOCAPITALIZATION_ALL;
 
+@property(nonatomic,readonly) NSNumber *TEXT_ELLIPSIZE_NONE;
+@property(nonatomic,readonly) NSNumber *TEXT_ELLIPSIZE_HEAD;
+@property(nonatomic,readonly) NSNumber *TEXT_ELLIPSIZE_MIDDLE;
+@property(nonatomic,readonly) NSNumber *TEXT_ELLIPSIZE_TAIL;
+
+
 @property(nonatomic,readonly) NSNumber *INPUT_BUTTONMODE_NEVER;
 @property(nonatomic,readonly) NSNumber *INPUT_BUTTONMODE_ALWAYS;
 @property(nonatomic,readonly) NSNumber *INPUT_BUTTONMODE_ONFOCUS;

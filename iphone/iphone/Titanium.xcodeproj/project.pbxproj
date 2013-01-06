@@ -723,9 +723,6 @@
 		D5E45F6016919EBD00C0FAFF /* CGUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = D5E45F0216919EBC00C0FAFF /* CGUtils.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
 		D5E45F6116919EBD00C0FAFF /* CGUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = D5E45F0216919EBC00C0FAFF /* CGUtils.m */; };
 		D5E45F6216919EBD00C0FAFF /* CGUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = D5E45F0216919EBC00C0FAFF /* CGUtils.m */; };
-		D5E45F6316919EBD00C0FAFF /* default.css in Resources */ = {isa = PBXBuildFile; fileRef = D5E45F0316919EBC00C0FAFF /* default.css */; };
-		D5E45F6416919EBD00C0FAFF /* default.css in Resources */ = {isa = PBXBuildFile; fileRef = D5E45F0316919EBC00C0FAFF /* default.css */; };
-		D5E45F6516919EBD00C0FAFF /* default.css in Resources */ = {isa = PBXBuildFile; fileRef = D5E45F0316919EBC00C0FAFF /* default.css */; };
 		D5E45F6616919EBD00C0FAFF /* DTAttributedTextCell.m in Sources */ = {isa = PBXBuildFile; fileRef = D5E45F0516919EBC00C0FAFF /* DTAttributedTextCell.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
 		D5E45F6716919EBD00C0FAFF /* DTAttributedTextCell.m in Sources */ = {isa = PBXBuildFile; fileRef = D5E45F0516919EBC00C0FAFF /* DTAttributedTextCell.m */; };
 		D5E45F6816919EBD00C0FAFF /* DTAttributedTextCell.m in Sources */ = {isa = PBXBuildFile; fileRef = D5E45F0516919EBC00C0FAFF /* DTAttributedTextCell.m */; };
@@ -861,6 +858,8 @@
 		D5E45FEA16919EBD00C0FAFF /* UIFont+DTCoreText.m in Sources */ = {isa = PBXBuildFile; fileRef = D5E45F5F16919EBD00C0FAFF /* UIFont+DTCoreText.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
 		D5E45FEB16919EBD00C0FAFF /* UIFont+DTCoreText.m in Sources */ = {isa = PBXBuildFile; fileRef = D5E45F5F16919EBD00C0FAFF /* UIFont+DTCoreText.m */; };
 		D5E45FEC16919EBD00C0FAFF /* UIFont+DTCoreText.m in Sources */ = {isa = PBXBuildFile; fileRef = D5E45F5F16919EBD00C0FAFF /* UIFont+DTCoreText.m */; };
+		D5F017E216958B4A005597BD /* default.css in Sources */ = {isa = PBXBuildFile; fileRef = D5E45F0316919EBC00C0FAFF /* default.css */; };
+		D5F017E316958B50005597BD /* default.css in Sources */ = {isa = PBXBuildFile; fileRef = D5E45F0316919EBC00C0FAFF /* default.css */; };
 		D5FF95BA1600765D005C3D35 /* TiNetworkPersistentHTTPClientProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = D5FF95B91600765D005C3D35 /* TiNetworkPersistentHTTPClientProxy.m */; };
 		D5FF95BB1600765D005C3D35 /* TiNetworkPersistentHTTPClientProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = D5FF95B91600765D005C3D35 /* TiNetworkPersistentHTTPClientProxy.m */; };
 		D5FF95BC1600765D005C3D35 /* TiNetworkPersistentHTTPClientProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = D5FF95B91600765D005C3D35 /* TiNetworkPersistentHTTPClientProxy.m */; };
@@ -1228,6 +1227,28 @@
 
 /* Begin PBXBuildRule section */
 		D56915C5168F19E800C3F89F /* PBXBuildRule */ = {
+			isa = PBXBuildRule;
+			compilerSpec = com.apple.compilers.proxy.script;
+			filePatterns = "*.css";
+			fileType = pattern.proxy;
+			isEditable = 1;
+			outputFiles = (
+				"${INPUT_FILE_BASE}.css.c",
+			);
+			script = "cd \"$INPUT_FILE_DIR\"  # move into file dir, otherwise xxd takes the full path for the symbol\n/usr/bin/xxd -i \"$INPUT_FILE_NAME\" \"$DERIVED_SOURCES_DIR/$INPUT_FILE_BASE.css.c\" # builds a c file with a hex array";
+		};
+		D5F017E016958B17005597BD /* PBXBuildRule */ = {
+			isa = PBXBuildRule;
+			compilerSpec = com.apple.compilers.proxy.script;
+			filePatterns = "*.css";
+			fileType = pattern.proxy;
+			isEditable = 1;
+			outputFiles = (
+				"${INPUT_FILE_BASE}.css.c",
+			);
+			script = "cd \"$INPUT_FILE_DIR\"  # move into file dir, otherwise xxd takes the full path for the symbol\n/usr/bin/xxd -i \"$INPUT_FILE_NAME\" \"$DERIVED_SOURCES_DIR/$INPUT_FILE_BASE.css.c\" # builds a c file with a hex array";
+		};
+		D5F017E116958B1C005597BD /* PBXBuildRule */ = {
 			isa = PBXBuildRule;
 			compilerSpec = com.apple.compilers.proxy.script;
 			filePatterns = "*.css";
@@ -3765,6 +3786,7 @@
 				24D8E4AD119B9D8A00F8CAA6 /* Post-Compile */,
 			);
 			buildRules = (
+				D5F017E016958B17005597BD /* PBXBuildRule */,
 			);
 			dependencies = (
 			);
@@ -3784,6 +3806,7 @@
 				DABB37B812E8CB280026A6EA /* Post-Compile */,
 			);
 			buildRules = (
+				D5F017E116958B1C005597BD /* PBXBuildRule */,
 			);
 			dependencies = (
 			);
@@ -3829,7 +3852,6 @@
 				24CA9183111170820084E2DE /* Default.png in Resources */,
 				24F29E3812209E6F0099351D /* stylesheet.plist in Resources */,
 				DAC9D36E138DB67F004917F8 /* debugger.plist in Resources */,
-				D5E45F6316919EBD00C0FAFF /* default.css in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3840,7 +3862,6 @@
 				24D8E3B7119B9D8A00F8CAA6 /* Default.png in Resources */,
 				24F29E3712209E6F0099351D /* stylesheet.plist in Resources */,
 				DAC9D36D138DB678004917F8 /* debugger.plist in Resources */,
-				D5E45F6416919EBD00C0FAFF /* default.css in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3851,7 +3872,6 @@
 				DABB369C12E8CB280026A6EA /* Default.png in Resources */,
 				DABB369E12E8CB280026A6EA /* stylesheet.plist in Resources */,
 				DAC9D36C138DB65C004917F8 /* debugger.plist in Resources */,
-				D5E45F6516919EBD00C0FAFF /* default.css in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -4654,6 +4674,7 @@
 				D56915A3168F15C200C3F89F /* UIView+DTActionHandlers.m in Sources */,
 				D56915A6168F15C200C3F89F /* UIView+DTFoundation.m in Sources */,
 				D56915A9168F15C200C3F89F /* UIWebView+DTFoundation.m in Sources */,
+				D5F017E216958B4A005597BD /* default.css in Sources */,
 				D56915B7168F18C300C3F89F /* ioapi.c in Sources */,
 				D56915BA168F18C300C3F89F /* mztools.c in Sources */,
 				D56915BD168F18C300C3F89F /* unzip.c in Sources */,
@@ -5038,6 +5059,7 @@
 				D56915AA168F15C200C3F89F /* UIWebView+DTFoundation.m in Sources */,
 				D56915B8168F18C300C3F89F /* ioapi.c in Sources */,
 				D56915BB168F18C300C3F89F /* mztools.c in Sources */,
+				D5F017E316958B50005597BD /* default.css in Sources */,
 				D56915BE168F18C300C3F89F /* unzip.c in Sources */,
 				D56915C1168F18C300C3F89F /* zip.c in Sources */,
 				D56915CE168F2E7400C3F89F /* TiUILabel.m in Sources */,

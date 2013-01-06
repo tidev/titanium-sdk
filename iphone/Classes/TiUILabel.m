@@ -19,12 +19,30 @@ static inline CTTextAlignment UITextAlignmentToCTTextAlignment(UITextAlignment a
     switch (alignment) {
         case UITextAlignmentLeft:
             return kCTLeftTextAlignment;
-            break;
         case UITextAlignmentRight:
             return kCTRightTextAlignment;
-            break;
         default:
             return kCTCenterTextAlignment;
+            break;
+    }
+}
+
+static inline CTLineBreakMode UILineBreakModeToCTLineBreakMode(UILineBreakMode linebreak)
+{
+    switch (linebreak) {
+        case UILineBreakModeClip:
+            return kCTLineBreakByClipping;
+        case UILineBreakModeCharacterWrap:
+            return kCTLineBreakByCharWrapping;
+        case UILineBreakModeHeadTruncation:
+            return kCTLineBreakByTruncatingHead;
+        case UILineBreakModeTailTruncation:
+            return kCTLineBreakByTruncatingTail;
+        case UILineBreakModeMiddleTruncation:
+            return kCTLineBreakByTruncatingMiddle;
+        case UILineBreakModeWordWrap:
+        default:
+            return kCTLineBreakByWordWrapping;
             break;
     }
 }
@@ -126,10 +144,11 @@ static inline CTTextAlignment UITextAlignmentToCTTextAlignment(UITextAlignment a
 {
 	if (label==nil)
 	{
+        _multilineBreakMode = UILineBreakModeWordWrap;
         label = [[TTTAttributedLabel alloc] initWithFrame:CGRectZero];
         label.backgroundColor = [UIColor clearColor];
-        label.numberOfLines = 0;
-        label.lineBreakMode = UILineBreakModeWordWrap; //default wordWrap to True
+        label.numberOfLines = 0;//default wordWrap to True
+        label.lineBreakMode = UILineBreakModeWordWrap; //default ellipsis to none
         label.layer.shadowRadius = 0; //for backward compatibility
         label.layer.shadowOffset = CGSizeZero;
         label.delegate = self;
@@ -159,7 +178,8 @@ static inline CTTextAlignment UITextAlignmentToCTTextAlignment(UITextAlignment a
             [options setValue:self.label.textColor forKey:DTDefaultTextColor];
             [options setValue:self.label.textColor forKey:DTDefaultLinkColor];
             [options setValue:[NSNumber numberWithInt:UITextAlignmentToCTTextAlignment(self.label.textAlignment)] forKey:DTDefaultTextAlignment];
-            [options setValue:webFont.font.familyName forKey:DTDefaultFontFamily];
+
+            [options setValue:[NSNumber numberWithInt:UILineBreakModeToCTLineBreakMode(_multilineBreakMode)]  forKey:DTDefaultLineBreakMode];
             
             int traitsDefault = 0;
             if (webFont.isItalicStyle)
@@ -266,14 +286,12 @@ static inline CTTextAlignment UITextAlignmentToCTTextAlignment(UITextAlignment a
     if (newSize < 4) { // Beholden to 'most minimum' font size
         [[self label] setAdjustsFontSizeToFitWidth:NO];
         [[self label] setMinimumFontSize:0.0];
-        [[self label] setNumberOfLines:0];
     }
     else {
-        [[self label] setNumberOfLines:1];
         [[self label] setAdjustsFontSizeToFitWidth:YES];
         [[self label] setMinimumFontSize:newSize];
     }
-    
+    [self updateNumberLines];   
 }
 
 -(void)setBackgroundImageLayerBounds:(CGRect)bounds
@@ -381,22 +399,56 @@ static inline CTTextAlignment UITextAlignmentToCTTextAlignment(UITextAlignment a
     [self padLabel];
 }
 
+-(void) updateNumberLines
+{
+    if ([[self label] minimumFontSize] >= 4.0)
+    {
+        [[self label] setNumberOfLines:1];
+    }
+    else if ([[self proxy] valueForKey:@"maxLines"])
+        [[self label] setNumberOfLines:([[[self proxy] valueForKey:@"maxLines"] integerValue])];
+    else
+    {
+        BOOL shouldWordWrap = [TiUtils boolValue:[[self proxy] valueForKey:@"wordWrap"] def:YES];
+        if (shouldWordWrap)
+        {
+            [[self label] setNumberOfLines:0];
+        }
+        else
+        {
+            [[self label] setNumberOfLines:1];
+        }
+    }
+
+    [self setAttributedTextViewContent];
+}
+
 -(void)setWordWrap_:(id)value
 {
-    BOOL shouldWordWrap = [TiUtils boolValue:value def:YES];
-    if (shouldWordWrap) {
-        [[self label] setLineBreakMode:UILineBreakModeWordWrap];
-    }
-    else {
-        [[self label] setLineBreakMode:UILineBreakModeTailTruncation];
-    }
-	[(TiViewProxy *)[self proxy] contentsWillChange];
+    [self updateNumberLines];
 }
 
 -(void)setMaxLines_:(id)value
 {
-	[[self label] setNumberOfLines:[TiUtils intValue:value]];
-	[(TiViewProxy *)[self proxy] contentsWillChange];
+	[self updateNumberLines];
+}
+
+-(void)setEllipsize_:(id)value
+{
+    [[self label] setLineBreakMode:[TiUtils intValue:value]];
+    //we need to update the text
+    [self setAttributedTextViewContent];
+}
+
+
+-(void)setMultiLineEllipsize_:(id)value
+{
+    _multilineBreakMode = [TiUtils intValue:value];
+    if (_multilineBreakMode != UILineBreakModeWordWrap)
+        [[self label] setLineBreakMode:UILineBreakModeWordWrap];
+
+    //we need to update the text
+    [self setAttributedTextViewContent];
 }
 
 
