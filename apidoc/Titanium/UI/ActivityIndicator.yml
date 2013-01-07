@@ -13,8 +13,14 @@ description:  |
     added to a window or other top-level view before it can be shown. Note that, unlike most views, 
     the activity indicator is hidden by default and must be shown explicitly.
 
-    On Android, you can also use the <Titanium.UI.Android.ProgressIndicator> proxy to display
-    a progress indicator in a modal dialog or window title bar instead of inside a view.
+    #### Android Platform Notes
+
+    Prior to SDK 3.0, activity indicator on Android produced a modal dialog containing a spinner or
+    progress bar. In SDK 3.0, this legacy Android activity indicator was renamed to
+    <Titanium.UI.Android.ProgressIndicator>.
+
+    In SDK 3.0, use `ActivityIndicator` for a view that can be added as a child of another view.
+    Use `ProgressIndicator` to display a progress indicator in a modal dialog or window title bar.
 extends: Titanium.Proxy
 since: "0.8"
 methods:
