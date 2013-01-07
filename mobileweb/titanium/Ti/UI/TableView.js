@@ -280,13 +280,14 @@ define(["Ti/_/declare", "Ti/_/UI/KineticScrollView", "Ti/_/style", "Ti/_/lang", 
 		
 		_insertSection: function(sections, index) {
 			!is(sections,"Array") && (sections = [sections]);
-			var i = 0,
+			var i = 0, j = 0
 				len = sections.length;
-			for(; i < len; i++) {
+			for(; i < len; i++, j+=2) {
 				if (!isDef(sections[i].declaredClass) || sections[i].declaredClass != "Ti.UI.TableViewSection") {
 					sections[i] = UI.createTableViewSection(sections[i]);
 				}
-				this._sections._insertAt(sections[i], index + i);
+				this._sections._insertAt(sections[i], 2*index + j);
+				this._sections._insertAt(this._createSeparator(), 2*index + j + 1);
 				if (index === len) {
 					this.sections.push(sections[i]);
 				} else {
@@ -297,7 +298,10 @@ define(["Ti/_/declare", "Ti/_/UI/KineticScrollView", "Ti/_/style", "Ti/_/lang", 
 		},
 		
 		_removeSection: function(index) {
-			this._sections._remove(this.sections[index]);
+			var section = this._sections._children[index*2]
+			var separator = this._sections._children[index*2 + 1]
+			this._sections._remove(section);
+			this._sections._remove(separator);
 			this.sections.splice(index,1);
 		},
 		
@@ -307,8 +311,7 @@ define(["Ti/_/declare", "Ti/_/UI/KineticScrollView", "Ti/_/style", "Ti/_/lang", 
 		
 		deleteSection: function(section) {
 			if (section in this.sections) {
-				this._sections._remove(this.sections[section]);
-				this.sections.splice(section,1);
+				this._removeSection(section)
 			}
 		},
 		
