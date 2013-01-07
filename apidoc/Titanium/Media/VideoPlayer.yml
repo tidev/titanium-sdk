@@ -41,11 +41,11 @@ description: |
     * If a borderRadius is specified, the video content is not clipped to the rounded
       corners. ([TIMOB-7629](https://jira.appcelerator.org/browse/TIMOB-7629))
       
-    On Android, it is not recommended to use a video player inside a scroll view. When scrolling,
+    On Android, using a video player inside a scroll view is not recommended. When scrolling,
     black bars may appear over the video content.
 
     On Android, the video player is rendered on a special Android UI element called a SurfaceView.
-    Android renders the SurfaceView behind the main window and punches a whole in the window
+    Android renders the SurfaceView behind the main window and punches a hole in the window
     to reveal the video.  Because the content of the SurfaceView does not reside in the application
     window, the video content cannot be transformed (moved, scaled or rotated) with the window.
     This makes it difficult for the content to render properly inside a ScrollView.
