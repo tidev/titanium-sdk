@@ -34,7 +34,7 @@
 -(void) setBackgroundGradient_:(TiGradient *)newGradient;
 -(void) setSelectedBackgroundGradient_:(TiGradient *)newGradient;
 
--(void) updateGradientLayer:(BOOL)useSelected;
+-(void) updateGradientLayer:(BOOL)useSelected withAnimation:(BOOL)animated;
 -(CGSize)computeCellSize;
 
 @end
