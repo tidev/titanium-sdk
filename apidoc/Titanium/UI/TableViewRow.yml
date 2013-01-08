@@ -246,7 +246,7 @@ events:
         On Mobile Web, a scroll may occur in the middle of a touch, in which case a `touchend` 
         will fire immediately following the scroll.
     platforms: [iphone, ipad]
-    since: {iphone: "3.1.0", ipad: "3.1.0"}
+    since: {iphone: "3.0.1", ipad: "3.0.1"}
     properties:
       - name: x
         summary: X coordinate of the event from the `source` view's coordinate system.
