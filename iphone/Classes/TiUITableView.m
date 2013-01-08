@@ -463,14 +463,9 @@
     // way, meaning that we have to explicitly reload the whole visible table to get
     // the "right" behavior.
     if (animation == UITableViewRowAnimationNone) {
-        if (![NSThread isMainThread]) {
-            dispatch_async(dispatch_get_main_queue(), ^{
-                [table reloadData];
-            });
-        }
-        else {
-            [table reloadData];            
-        }
+		TiThreadPerformOnMainThread(^{
+			[table reloadData];
+		}, NO);
         return;
     }
     
@@ -1678,14 +1673,9 @@
 
     // Instead of calling back through our mechanism to reload specific sections, because the entire index of the table
     // has been regenerated, we can assume it's okay to just reload the whole dataset.
-    if ([NSThread isMainThread]) {
-        [[self tableView] reloadData];
-    }
-    else {
-        dispatch_async(dispatch_get_main_queue(), ^{
-            [[self tableView] reloadData];
-        });
-    }
+	TiThreadPerformOnMainThread(^{
+		[[self tableView] reloadData];
+	}, NO);
 }
 
 -(void)setFilterCaseInsensitive_:(id)caseBool
