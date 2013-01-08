@@ -109,7 +109,7 @@ static NSString *const MIMETYPE_JPEG = @"image/jpeg";
 	{
 		image = [image_ retain];
 		type = TiBlobTypeImage;
-		mimetype = [MIMETYPE_JPEG copy];
+		mimetype = [([UIImageAlpha hasAlpha:image_] ? MIMETYPE_PNG : MIMETYPE_JPEG) copy];
 	}
 	return self;
 }
@@ -220,7 +220,7 @@ static NSString *const MIMETYPE_JPEG = @"image/jpeg";
 {
 	RELEASE_TO_NIL(image);
 	image = [image_ retain];
-    [self setMimeType:MIMETYPE_JPEG type:TiBlobTypeImage];
+    [self setMimeType:([UIImageAlpha hasAlpha:image_] ? MIMETYPE_PNG : MIMETYPE_JPEG) type:TiBlobTypeImage];
 }
 
 -(NSString*)path
@@ -306,7 +306,6 @@ static NSString *const MIMETYPE_JPEG = @"image/jpeg";
 	if (image!=nil)
 	{
 		TiBlob *blob = [[TiBlob alloc] initWithImage:[UIImageAlpha imageWithAlpha:image]];
-		[blob setMimeType:MIMETYPE_PNG type:TiBlobTypeImage];
 		return [blob autorelease];
 	}
 	return nil;
@@ -320,7 +319,6 @@ static NSString *const MIMETYPE_JPEG = @"image/jpeg";
 		ENSURE_SINGLE_ARG(args,NSObject);
 		NSUInteger size = [TiUtils intValue:args];
 		TiBlob *blob = [[TiBlob alloc] initWithImage:[UIImageAlpha transparentBorderImage:size image:image]];
-		[blob setMimeType:MIMETYPE_PNG type:TiBlobTypeImage];
 		return [blob autorelease];
 	}
 	return nil;
@@ -334,7 +332,6 @@ static NSString *const MIMETYPE_JPEG = @"image/jpeg";
 		NSUInteger cornerSize = [TiUtils intValue:[args objectAtIndex:0]];
 		NSUInteger borderSize = [args count] > 1 ? [TiUtils intValue:[args objectAtIndex:1]] : 1;
 		TiBlob *blob =  [[TiBlob alloc] initWithImage:[UIImageRoundedCorner roundedCornerImage:cornerSize borderSize:borderSize image:image]];
-		[blob setMimeType:MIMETYPE_PNG type:TiBlobTypeImage];
 		return [blob autorelease];
 	}
 	return nil;
@@ -353,7 +350,6 @@ static NSString *const MIMETYPE_JPEG = @"image/jpeg";
 													   cornerRadius:cornerRadius
 											   interpolationQuality:kCGInterpolationHigh
 															  image:image]];
-		[blob setMimeType:MIMETYPE_PNG type:TiBlobTypeImage];
 		return [blob autorelease];		
 	}
 	return nil;
@@ -368,7 +364,6 @@ static NSString *const MIMETYPE_JPEG = @"image/jpeg";
 		NSUInteger width = [TiUtils intValue:[args objectAtIndex:0]];
 		NSUInteger height = [TiUtils intValue:[args objectAtIndex:1]];
 		TiBlob *blob =  [[TiBlob alloc] initWithImage:[UIImageResize resizedImage:CGSizeMake(width, height) interpolationQuality:kCGInterpolationHigh image:image hires:NO]];
-		[blob setMimeType:self.mimeType type:self.type];
 		return [blob autorelease];
 	}
 	return nil;
