@@ -540,6 +540,48 @@ jobject TypeConverter::jsValueToJavaObject(v8::Local<v8::Value> jsValue, bool *i
 	return NULL;
 }
 
+// converts js value to java error
+jobject TypeConverter::jsValueToJavaError(v8::Local<v8::Value> jsValue, bool* isNew)
+{
+	JNIEnv *env = JNIScope::getEnv();
+	if (env == NULL) {
+		return NULL;
+	}
+
+	if (jsValue->IsObject()) {
+		v8::Handle<v8::Object> jsObject = jsValue->ToObject();
+
+		// If it's a java object, we just return null for now.
+		if (!JavaObject::isJavaObject(jsObject)) {
+
+			Handle<String> stackString = String::New("stack"), messageString = String::New("message");
+			if (jsObject->HasOwnProperty(stackString) || jsObject->HasOwnProperty(messageString)) {
+				bool keyIsNew, valueIsNew;
+				*isNew = true;
+				v8::Local<v8::Value> jsObjectMessageProperty = jsObject->GetRealNamedProperty(messageString);
+				v8::Local<v8::Value> jsObjectStackProperty = jsObject->GetRealNamedProperty(stackString);
+
+				return env->NewObject(JNIUtil::krollExceptionClass, JNIUtil::krollExceptionInitMethod,
+							TypeConverter::jsValueToJavaString(jsObjectMessageProperty), TypeConverter::jsValueToJavaString(jsObjectStackProperty));
+			}
+		}
+
+	} else if (jsValue->IsString()) {
+		*isNew = true;
+		return env->NewObject(JNIUtil::krollExceptionClass, JNIUtil::krollExceptionInitMethod,
+			TypeConverter::jsValueToJavaString(jsValue), NULL);
+
+	} else if (jsValue->IsBoolean()) {
+		*isNew = true;
+		return env->NewObject(JNIUtil::krollExceptionClass, JNIUtil::krollExceptionInitMethod,
+			TypeConverter::jsBooleanToJavaBoolean(jsValue->ToBoolean()), NULL);
+	}
+
+	if (!jsValue->IsNull() && !jsValue->IsUndefined()) {
+		LOGW(TAG, "jsValueToJavaObject returning null.");
+	}
+	return NULL;
+}
 // converts java object to js value and recursively converts sub objects if this
 // object is a container type
 v8::Handle<v8::Value> TypeConverter::javaObjectToJsValue(jobject javaObject)

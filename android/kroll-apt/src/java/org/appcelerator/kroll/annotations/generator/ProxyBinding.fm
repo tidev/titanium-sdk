@@ -233,6 +233,23 @@
 		"typeValidation":true,
 		"defaultValue": "null"
 	},
+	"org.appcelerator.kroll.KrollException":{
+		"jsType":"Value",
+		"jsConvertType":"Value",
+		"jsToJavaConverter":"jsValueToJavaError",
+		"javaToJsConverter":"javaObjectToJsValue",
+		"jvalue":"l",
+		"javaCallMethodType":"Object",
+		"javaReturnType":"jobject",
+		"javaValidation":true,
+		"javaDeleteLocalRef":true,
+		"rhinoType":"Object",
+		"rhinoJsCast":false,
+		"rhinoToJavaConverter":"jsObjectToJavaObject",
+		"javaToRhinoConverter":"javaObjectToJsObject",
+		"typeValidation":false,
+		"defaultValue": "null"
+	},
 	"java.lang.String":{
 		"jsType":"Value",
 		"jsToJavaConverter":"jsValueToJavaString",
@@ -437,6 +454,10 @@
 
 	<#if type?ends_with("Proxy")>
 		<#return typeInfo["org.appcelerator.kroll.KrollProxy"]>
+	</#if>
+	
+	<#if type?ends_with("Exception")>
+		<#return typeInfo["org.appcelerator.kroll.KrollException"]>
 	</#if>
 
 	<#-- default type -->

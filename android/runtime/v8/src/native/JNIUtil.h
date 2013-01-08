@@ -69,6 +69,7 @@ public:
 	static jclass v8FunctionClass;
 	static jclass krollRuntimeClass;
 	static jclass krollInvocationClass;
+	static jclass krollExceptionClass;
 	static jclass krollObjectClass;
 	static jclass krollProxyClass;
 	static jclass krollAssetHelperClass;
@@ -111,6 +112,7 @@ public:
 
 	static jint krollRuntimeDontIntercept;
 	static jmethodID krollInvocationInitMethod;
+	static jmethodID krollExceptionInitMethod;
 	static jmethodID krollObjectSetHasListenersForEventTypeMethod;
 	static jmethodID krollObjectOnEventFiredMethod;
 	static jmethodID krollProxyCreateProxyMethod;
