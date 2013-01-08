@@ -255,7 +255,7 @@ define(['Ti/_/declare', 'Ti/UI/View', 'Ti/_/dom', 'Ti/_/style', 'Ti/UI', 'Ti/_/b
 			});
 		},
 
-		scrollToView: function(view) {
+		scrollToView: function(view, noAnimation) {
 			var viewIndex = is(view,'Number') ? view : this.views.indexOf(view),
 				self = this;
 
@@ -279,25 +279,30 @@ define(['Ti/_/declare', 'Ti/UI/View', 'Ti/_/dom', 'Ti/_/style', 'Ti/UI', 'Ti/_/b
 				self._updatePagingControl();
 				self._showPagingControl(viewIndex);
 
-				setStyle(containerDomNode, 'transition', duration + 'ms ease-out');
-				setTimeout(function(){
-					once(containerDomNode, transitionEnd, function() {
-						setStyle(containerDomNode, 'transition', '');
-						self._animating = 0;
-						self.properties.__values__.currentPage = viewIndex;
-						self._updatePagingControl();
-						if (self._viewToRemoveAfterScroll !== -1) {
-							destination += self.views[self._viewToRemoveAfterScroll]._measuredWidth;
-							self._removeViewFromList(self._viewToRemoveAfterScroll);
-							self._viewToRemoveAfterScroll = -1;
-						}
-						self.fireEvent('scrollend',{
-							currentPage: viewIndex,
-							view: self.views[viewIndex]
-						});
-					});
+				if (noAnimation) {
 					self._setTranslation(destination);
-				}, 1);
+					self.properties.__values__.currentPage = viewIndex;
+				} else {
+					setStyle(containerDomNode, 'transition', duration + 'ms ease-out');
+					setTimeout(function(){
+						once(containerDomNode, transitionEnd, function() {
+							setStyle(containerDomNode, 'transition', '');
+							self._animating = 0;
+							self.properties.__values__.currentPage = viewIndex;
+							self._updatePagingControl();
+							if (self._viewToRemoveAfterScroll !== -1) {
+								destination += self.views[self._viewToRemoveAfterScroll]._measuredWidth;
+								self._removeViewFromList(self._viewToRemoveAfterScroll);
+								self._viewToRemoveAfterScroll = -1;
+							}
+							self.fireEvent('scrollend',{
+								currentPage: viewIndex,
+								view: self.views[viewIndex]
+							});
+						});
+						self._setTranslation(destination);
+					}, 1);
+				}
 			}
 
 			// If the scrollableView hasn't been laid out yet, we must wait until it is
@@ -316,7 +321,7 @@ define(['Ti/_/declare', 'Ti/UI/View', 'Ti/_/dom', 'Ti/_/style', 'Ti/UI', 'Ti/_/b
 			currentPage: {
 				set: function(value, oldValue) {
 					if (value >= 0 && value < this.views.length) {
-						this.scrollToView(value);
+						this.scrollToView(value, 1);
 						return value;
 					}
 					return oldValue;
