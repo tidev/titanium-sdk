@@ -81,7 +81,8 @@ public:
 		bool isNew;
 		return jsValueToJavaObject(jsValue, &isNew);
 	}
-
+	
+	static jobject jsValueToJavaError(v8::Local<v8::Value> jsValue, bool *isNew);
 	static jobject jsValueToJavaObject(v8::Local<v8::Value> jsValue, bool *isNew);
 	static v8::Handle<v8::Value> javaObjectToJsValue(jobject javaObject);
 
