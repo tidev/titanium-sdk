@@ -1,6 +1,6 @@
 /*global define window*/
-define(['Ti/_/declare', 'Ti/UI/View', 'Ti/_/dom', 'Ti/_/style', 'Ti/UI'],
-	function(declare, View, dom, style, UI) {
+define(['Ti/_/declare', 'Ti/UI/View', 'Ti/_/dom', 'Ti/_/style', 'Ti/UI', 'Ti/_/browser'],
+	function(declare, View, dom, style, UI, browser) {
 
 	var setStyle = style.set,
 		is = require.is,
@@ -8,6 +8,14 @@ define(['Ti/_/declare', 'Ti/UI/View', 'Ti/_/dom', 'Ti/_/style', 'Ti/UI'],
 		on = require.on,
 		once = on.once,
 		global = window,
+
+		transitionEvents = {
+			webkit: 'webkitTransitionEnd',
+			trident: 'msTransitionEnd',
+			gecko: 'transitionend',
+			presto: 'oTransitionEnd'
+		},
+		transitionEnd = transitionEvents[browser.runtime] || 'transitionEnd',
 
 		useTouch = 'ontouchstart' in global,
 
@@ -32,7 +40,6 @@ define(['Ti/_/declare', 'Ti/UI/View', 'Ti/_/dom', 'Ti/_/style', 'Ti/UI'],
 			// Create the content container
 			var containerDomNode,
 				self = this,
-				animating,
 				offsetX = 0;
 			self._add(self._contentContainer = UI.createView({
 				left: 0,
@@ -66,19 +73,26 @@ define(['Ti/_/declare', 'Ti/UI/View', 'Ti/_/dom', 'Ti/_/style', 'Ti/UI'],
 			self._viewToRemoveAfterScroll = -1;
 
 			on(self, 'postlayout', function() {
-				animating || self._setTranslation(self.currentPage * -self._measuredWidth);
+				self._animating || self._setTranslation(self.currentPage * -self._measuredWidth);
 			});
 
 			on(containerDomNode, useTouch ? 'touchstart' : 'mousedown', function(e) {
 				var startX = e.touches ? e.touches[0].clientX : e.clientX,
-					currentX,
+					currentX = startX,
 					startTime = Date.now(),
 					width = self._measuredWidth,
 					mouseMoveListener = function(e) {
+						var currentPage = self.currentPage,
+							offset = currentX - startX + offsetX;
 						width = self._measuredWidth;
 						e.preventDefault();
 						currentX = e.touches ? e.touches[0].clientX : e.clientX;
-						self._setTranslation((self.currentPage * -width) + currentX - startX + offsetX);
+						self._setTranslation((currentPage * -width) + offset);
+						self.fireEvent('scroll', {
+							currentPage: currentPage,
+							currentPageAsFloat: currentPage - offset / width,
+							view: self.views[currentPage]
+						});
 					},
 					mouseUpListener = function(e) {
 						var	now = Date.now(),
@@ -90,7 +104,7 @@ define(['Ti/_/declare', 'Ti/UI/View', 'Ti/_/dom', 'Ti/_/style', 'Ti/UI'],
 						global.removeEventListener(useTouch ? 'touchmove' : 'mousemove', mouseMoveListener);
 						global.removeEventListener(useTouch ? 'touchend' : 'mouseup', mouseUpListener);
 						width = self._measuredWidth;
-						animating = 1;
+						self._animating = 1;
 						e.preventDefault();
 
 						if (thresholdMet) {
@@ -107,23 +121,32 @@ define(['Ti/_/declare', 'Ti/UI/View', 'Ti/_/dom', 'Ti/_/style', 'Ti/UI'],
 							(isFlick ? flickAnimationScaleFactor : dragAnimationScaleFactor) * duration));
 						setStyle(containerDomNode, 'transition', duration + 'ms ease-out');
 						setTimeout(function(){
-							once(containerDomNode, 'transitionEnd', function() {
+							once(containerDomNode, transitionEnd, function() {
 								setStyle(containerDomNode, 'transition', '');
-								animating = 0;
+								self._animating = 0;
 								props.currentPage = currentPage;
 								self._updatePagingControl();
+								self.fireEvent('scrollend',{
+									currentPage: currentPage,
+									view: self.views[currentPage]
+								});
 							});
 							self._setTranslation(currentPage * -width);
 						}, 1);
+						self.fireEvent('dragend', {
+							currentPage: currentPage,
+							view: self.views[currentPage]
+						});
 					};
 				self._showPagingControl(self.currentPage, 1);
 				e.preventDefault();
-				offsetX = animating ? offsetX || 0 : 0;
+				offsetX = self._animating ? offsetX || 0 : 0;
 				setStyle(containerDomNode, 'transition', '');
 				self._setTranslation((self.currentPage * -width) + offsetX);
-				animating = 0;
+				self._animating = 0;
 				global.addEventListener(useTouch ? 'touchmove' : 'mousemove', mouseMoveListener);
 				global.addEventListener(useTouch ? 'touchend' : 'mouseup', mouseUpListener);
+				self.fireEvent('dragstart');
 			});
 		},
 
@@ -245,48 +268,36 @@ define(['Ti/_/declare', 'Ti/UI/View', 'Ti/_/dom', 'Ti/_/style', 'Ti/UI'],
 
 				// Calculate the views to be scrolled
 				var contentContainer = self._contentContainer,
-					currentPage = self.currentPage,
+					containerDomNode = contentContainer.domNode,
 					destination = -self.views[viewIndex]._measuredLeft,
-					i,
 
 					// Calculate a weighted duration so that larger views take longer to scroll.
-					duration = 400 + 0.3 * (Math.abs(viewIndex - self.currentPage) * contentContainer._measuredWidth);
-
-				// Make the views that will be seen visible
-				if (currentPage < viewIndex) {
-					for(i = currentPage + 1; i <= viewIndex; i++) {
-						self._showView(i);
-					}
-				} else {
-					for(i = viewIndex; i < currentPage; i++) {
-						self._showView(i);
-					}
-				}
+					duration = Math.max(minAnimationTime, Math.min(maxAnimationTime,
+						dragAnimationScaleFactor * contentContainer._measuredWidth));
 
 				// Animate the views
 				self._updatePagingControl();
 				self._showPagingControl(viewIndex);
-				self._animateToPosition(destination, 0, duration, UI.ANIMATION_CURVE_EASE_IN_OUT, function(){
-					self.properties.__values__.currentPage = viewIndex;
-					if (currentPage < viewIndex) {
-						for(i = currentPage; i < viewIndex; i++) {
-							self._hideView(i);
+
+				setStyle(containerDomNode, 'transition', duration + 'ms ease-out');
+				setTimeout(function(){
+					once(containerDomNode, transitionEnd, function() {
+						setStyle(containerDomNode, 'transition', '');
+						self._animating = 0;
+						self.properties.__values__.currentPage = viewIndex;
+						self._updatePagingControl();
+						if (self._viewToRemoveAfterScroll !== -1) {
+							destination += self.views[self._viewToRemoveAfterScroll]._measuredWidth;
+							self._removeViewFromList(self._viewToRemoveAfterScroll);
+							self._viewToRemoveAfterScroll = -1;
 						}
-					} else {
-						for(i = viewIndex + 1; i <= currentPage; i++) {
-							self._hideView(i);
-						}
-					}
-					if (self._viewToRemoveAfterScroll !== -1) {
-						destination += self.views[self._viewToRemoveAfterScroll]._measuredWidth;
-						self._removeViewFromList(self._viewToRemoveAfterScroll);
-						self._viewToRemoveAfterScroll = -1;
-					}
-					self.fireEvent('scrollend',{
-						currentPage: viewIndex,
-						view: self.views[viewIndex]
+						self.fireEvent('scrollend',{
+							currentPage: viewIndex,
+							view: self.views[viewIndex]
+						});
 					});
-				});
+					self._setTranslation(destination);
+				}, 1);
 			}
 
 			// If the scrollableView hasn't been laid out yet, we must wait until it is
