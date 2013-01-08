@@ -382,7 +382,6 @@ static NSString *const MIMETYPE_JPEG = @"image/jpeg";
 		bounds.origin.x = [TiUtils floatValue:@"x" properties:args def:(imageSize.width - bounds.size.width) / 2.0];
 		bounds.origin.y = [TiUtils floatValue:@"y" properties:args def:(imageSize.height - bounds.size.height) / 2.0];
 		TiBlob *blob = [[TiBlob alloc] initWithImage:[UIImageResize croppedImage:bounds image:image]];
-		[blob setMimeType:self.mimeType type:self.type];
 		return [blob autorelease];
 	}
 	return nil;
