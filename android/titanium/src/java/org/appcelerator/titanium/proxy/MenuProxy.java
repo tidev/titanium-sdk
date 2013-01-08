@@ -153,7 +153,7 @@ public class MenuProxy extends KrollProxy
 					if (viewParent != null) {
 						Log.e(TAG, "View already has a parent. Can't add it as an action view");
 					} else {
-						mip.setActionView(d.get(TiC.PROPERTY_ACTION_VIEW));
+						mip.setActionView(viewProxy);
 					}
 				}
 			}
