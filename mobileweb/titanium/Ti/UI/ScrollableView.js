@@ -1,5 +1,6 @@
-define(['Ti/_/browser', 'Ti/_/declare', 'Ti/UI/View', 'Ti/_/lang', 'Ti/_/dom', 'Ti/_/style', 'Ti/UI'],
-	function(browser, declare, View, lang, dom, style, UI) {
+/*global define window*/
+define(['Ti/_/declare', 'Ti/UI/View', 'Ti/_/dom', 'Ti/_/style', 'Ti/UI'],
+	function(declare, View, dom, style, UI) {
 
 	var setStyle = style.set,
 		is = require.is,
