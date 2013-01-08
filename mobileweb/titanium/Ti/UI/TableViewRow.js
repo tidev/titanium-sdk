@@ -54,11 +54,11 @@ define(['Ti/_/declare', 'Ti/_/lang', 'Ti/UI/View', 'Ti/_/dom', 'Ti/_/css', 'Ti/_
 		_defaultWidth: UI.INHERIT,
 
 		_defaultHeight: UI.SIZE,
-		
+
 		_tableRowHeight: void 0,
-		
+
 		_tableViewSection: null,
-		
+
 		_handleTouchEvent: function(type) {
 			if (type === 'click' || type === 'singletap' || type === 'longpress') {
 				this._tableViewSection && this._tableViewSection._tableView && (this._tableViewSection._tableView._tableViewRowClicked = this);
@@ -77,7 +77,7 @@ define(['Ti/_/declare', 'Ti/_/lang', 'Ti/UI/View', 'Ti/_/dom', 'Ti/_/css', 'Ti/_
 
 		_updatePadding: function() {
 			// Fake padding with a transparent border
-			this._contentContainer.borderWidth = this._titleLabel. borderWidth =
+			this._contentContainer.borderWidth = this._titleLabel.borderWidth =
 				[this.leftImage ? 5 : 0, this.rightImage ? 5 : 0, 0, 0];
 		},
 
@@ -160,7 +160,7 @@ define(['Ti/_/declare', 'Ti/_/lang', 'Ti/UI/View', 'Ti/_/dom', 'Ti/_/css', 'Ti/_
 					return value;
 				}
 			},
-			
+
 			// Pass through to the label
 			font: {
 				set: function(value) {
