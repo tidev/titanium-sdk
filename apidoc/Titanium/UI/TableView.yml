@@ -1079,6 +1079,12 @@ properties:
     type: Titanium.UI.SearchBar
     platforms: [android, iphone, ipad]
     
+  - name: searchAsChild
+    summary: Determines whether the Titanium.UI.SearchBar is a standalone view.
+    type: boolean
+    default: true
+    platforms: [android]
+    
   - name: searchHidden
     summary: Determines whether the search field is visible.
     description: Set to `true` to hide the search field.

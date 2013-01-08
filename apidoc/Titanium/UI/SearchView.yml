@@ -74,17 +74,12 @@ examples:
   - title: Simple Search View
     example: |
         
-            var search = Titanium.UI.createSearchBar({
-            	barColor:'#000', 
-            	showCancel:true,
-            	height:43,
-            	top:0,
-            });
+            var search = Titanium.UI.createSearchView();
 
   - title: Alloy XML Markup
     example: |
         Previous example as an Alloy view.
 
             <Alloy>
-                <SearchBar id="search" barColor="#000" showCancel="true" height="43" top="0" />
+                <SearchView id="search" />
             </Alloy>

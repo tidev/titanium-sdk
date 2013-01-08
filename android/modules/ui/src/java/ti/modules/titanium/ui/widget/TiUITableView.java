@@ -112,9 +112,6 @@ public class TiUITableView extends TiUIView
 		tableView.setOnItemLongClickListener(this);
 
 		if (d.containsKey(TiC.PROPERTY_SEARCH)) {
-			RelativeLayout layout = new RelativeLayout(proxy.getActivity());
-			layout.setGravity(Gravity.NO_GRAVITY);
-			layout.setPadding(0, 0, 0, 0);
 			TiViewProxy searchView = (TiViewProxy) d.get(TiC.PROPERTY_SEARCH);
 			TiUIView search = searchView.getOrCreateView();
 			if (searchView instanceof SearchBarProxy) {
@@ -122,35 +119,44 @@ public class TiUITableView extends TiUIView
 			} else {
 				((TiUISearchView)search).setOnSearchChangeListener(tableView);
 			}
+			if (!(d.containsKey(TiC.PROPERTY_SEARCH_AS_CHILD) && !TiConvert.toBoolean(d.get(TiC.PROPERTY_SEARCH_AS_CHILD)))) {
 
-			search.getNativeView().setId(102);
 
-			RelativeLayout.LayoutParams p = new RelativeLayout.LayoutParams(
-					RelativeLayout.LayoutParams.FILL_PARENT,
-					RelativeLayout.LayoutParams.FILL_PARENT);
-			p.addRule(RelativeLayout.ALIGN_PARENT_TOP);
-			p.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
-			p.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
+				search.getNativeView().setId(102);
 
-			TiDimension rawHeight;
-			if (searchView.hasProperty("height")) {
-				rawHeight = TiConvert.toTiDimension(searchView.getProperty("height"), 0);
+				RelativeLayout layout = new RelativeLayout(proxy.getActivity());
+				layout.setGravity(Gravity.NO_GRAVITY);
+				layout.setPadding(0, 0, 0, 0);
+
+				RelativeLayout.LayoutParams p = new RelativeLayout.LayoutParams(
+						RelativeLayout.LayoutParams.FILL_PARENT,
+						RelativeLayout.LayoutParams.FILL_PARENT);
+				p.addRule(RelativeLayout.ALIGN_PARENT_TOP);
+				p.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
+				p.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
+
+				TiDimension rawHeight;
+				if (searchView.hasProperty("height")) {
+					rawHeight = TiConvert.toTiDimension(searchView.getProperty("height"), 0);
+				} else {
+					rawHeight = TiConvert.toTiDimension("52dp", 0);
+				}
+				p.height = rawHeight.getAsPixels(layout);
+
+				layout.addView(search.getNativeView(), p);
+
+				p = new RelativeLayout.LayoutParams(
+						RelativeLayout.LayoutParams.FILL_PARENT,
+						RelativeLayout.LayoutParams.FILL_PARENT);
+				p.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
+				p.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
+				p.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
+				p.addRule(RelativeLayout.BELOW, 102);
+				layout.addView(tableView, p);
+				setNativeView(layout);
 			} else {
-				rawHeight = TiConvert.toTiDimension("52dp", 0);
+				setNativeView(tableView);
 			}
-			p.height = rawHeight.getAsPixels(layout);
-
-			layout.addView(search.getNativeView(), p);
-
-			p = new RelativeLayout.LayoutParams(
-				RelativeLayout.LayoutParams.FILL_PARENT,
-				RelativeLayout.LayoutParams.FILL_PARENT);
-			p.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
-			p.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
-			p.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
-			p.addRule(RelativeLayout.BELOW, 102);
-			layout.addView(tableView, p);
-			setNativeView(layout);
 		} else {
 			setNativeView(tableView);
 		}

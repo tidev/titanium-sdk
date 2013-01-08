@@ -1718,6 +1718,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_SEARCH = "search";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_SEARCH_AS_CHILD = "searchAsChild";
 
 	/**
 	 * @module.api
