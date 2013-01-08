@@ -20,7 +20,7 @@ import android.app.Activity;
 	TiC.PROPERTY_ICONIFIED, TiC.PROPERTY_ICONIFIED_BY_DEFAULT, TiC.PROPERTY_HINT_TEXT, TiC.PROPERTY_VALUE })
 public class SearchViewProxy extends TiViewProxy {
 
-	private static final String LCAT = "SearchProxy";
+	private static final String TAG = "SearchProxy";
 
 	public SearchViewProxy() {
 		super();

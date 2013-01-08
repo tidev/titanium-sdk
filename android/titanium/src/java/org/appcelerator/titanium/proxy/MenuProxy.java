@@ -151,10 +151,11 @@ public class MenuProxy extends KrollProxy
 					View nativeView = view.getNativeView();
 					ViewGroup viewParent = (ViewGroup)nativeView.getParent();
 					if (viewParent != null) {
-						viewParent.removeView(nativeView);
+						Log.e(TAG, "View already has a parent. Can't add it as an action view");
+					} else {
+						mip.setActionView(d.get(TiC.PROPERTY_ACTION_VIEW));
 					}
 				}
-				mip.setActionView(d.get(TiC.PROPERTY_ACTION_VIEW));
 			}
 		}
 		if (d.containsKey(TiC.PROPERTY_CHECKABLE)) {

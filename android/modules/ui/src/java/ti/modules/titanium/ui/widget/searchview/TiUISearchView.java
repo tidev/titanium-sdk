@@ -17,19 +17,19 @@ import android.widget.SearchView;
 public class TiUISearchView extends TiUIView implements SearchView.OnQueryTextListener, SearchView.OnCloseListener {
 	private SearchView searchView;
 
-	public static final String LCAT = "SearchView";
+	public static final String TAG = "SearchView";
 
 	protected OnSearchChangeListener searchChangeListener;
 
 	public TiUISearchView(TiViewProxy proxy) {
 		super(proxy);
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+		if (Build.VERSION.SDK_INT >= TiC.API_LEVEL_HONEYCOMB) {
 			searchView = new SearchView(proxy.getActivity());
 			searchView.setOnQueryTextListener(this);
 			searchView.setOnCloseListener(this);
 			setNativeView(searchView);
 		} else {
-			Log.e(LCAT, "SearchView is only supported on target API 11+");
+			Log.e(TAG, "SearchView is only supported on target API 11+");
 		}
 	}
 
