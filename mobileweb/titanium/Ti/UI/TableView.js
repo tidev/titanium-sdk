@@ -7,7 +7,8 @@ define(['Ti/_/declare', 'Ti/_/UI/KineticScrollView', 'Ti/_/style', 'Ti/_/lang', 
 		isDef = lang.isDef,
 
 		// The amount of deceleration (in pixels/ms^2)
-		deceleration = 0.001;
+		deceleration = 0.001,
+		eventFilter = /(click|singletap|longpress)/;
 
 	return declare('Ti.UI.TableView', KineticScrollView, {
 
@@ -141,7 +142,7 @@ define(['Ti/_/declare', 'Ti/_/UI/KineticScrollView', 'Ti/_/style', 'Ti/_/lang', 
 				sections = this._sections._children,
 				row = this._tableViewRowClicked,
 				section = this._tableViewSectionClicked;
-			if (type === 'click' || type === 'singletap' || type === 'longpress') {
+			if (eventFilter.test(type)) {
 				if (row && section) {
 
 					for (; i < sections.length; i += 2) {
