@@ -298,7 +298,7 @@ MAKE_SYSTEM_PROP(TLS_VERSION_1_2, TLS_VERSION_1_2);
     id currentNotification = [[TiApp app] remoteNotification];
     if (currentNotification!=nil && pushNotificationCallback!=nil)
     {
-        id event = [NSDictionary dictionaryWithObjectsAndKeys:currentNotification, @"data", NUMBOOL(YES), @"firedFromRegister", nil];
+        id event = [NSDictionary dictionaryWithObjectsAndKeys:currentNotification, @"data", NUMBOOL(YES), @"inBackground", nil];
         [self _fireEventToListener:@"remote" withObject:event listener:pushNotificationCallback thisObject:nil];
     }
 }
@@ -331,8 +331,8 @@ MAKE_SYSTEM_PROP(TLS_VERSION_1_2, TLS_VERSION_1_2);
 	// called by TiApp
 	if (pushNotificationCallback!=nil)
 	{
-		BOOL firedFromRegister = (application.applicationState != UIApplicationStateActive);
-		id event = [NSDictionary dictionaryWithObjectsAndKeys:userInfo, @"data", NUMBOOL(firedFromRegister), @"firedFromRegister", nil];
+		BOOL inBackground = (application.applicationState == UIApplicationStateBackground);
+		id event = [NSDictionary dictionaryWithObjectsAndKeys:userInfo, @"data", NUMBOOL(inBackground), @"inBackground", nil];
 		[self _fireEventToListener:@"remote" withObject:event listener:pushNotificationCallback thisObject:nil];
 	}
 }
