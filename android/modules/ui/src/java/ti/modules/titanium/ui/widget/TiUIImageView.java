@@ -683,14 +683,10 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 		fireStop();
 	}
 
-	private void setImageSource(Object object)
+	private void setImageSource(Object object, boolean sameSource)
 	{
-		if (imageViewProxy.inTableView()) {
-			ArrayList<TiDrawableReference> currentSources = imageViewProxy.getImageSources();
-			if (currentSources != null) {
-				imageSources = currentSources;
-				return;
-			}
+		if (imageViewProxy.inTableView() && sameSource && imageSources != null) {
+			return;
 		}
 
 		imageSources = new ArrayList<TiDrawableReference>();
@@ -960,7 +956,7 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 		}
 
 		if (d.containsKey(TiC.PROPERTY_IMAGES)) {
-			setImageSource(d.get(TiC.PROPERTY_IMAGES));
+			setImageSource(d.get(TiC.PROPERTY_IMAGES), false);
 			setImages();
 		} 
 		if (d.containsKey(TiC.PROPERTY_CAN_SCALE)) {
@@ -1039,12 +1035,16 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 		} else if (key.equals(TiC.PROPERTY_ENABLE_ZOOM_CONTROLS)) {
 			view.setEnableZoomControls(TiConvert.toBoolean(newValue));
 		} else if (key.equals(TiC.PROPERTY_IMAGE)) {
-			setImageSource(newValue);
+			if (oldValue.equals(newValue)) {
+				setImageSource(newValue, true);
+			} else {
+				setImageSource(newValue, false);
+			}
 			firedLoad = false;
 			setImage(true);
 		} else if (key.equals(TiC.PROPERTY_IMAGES)) {
 			if (newValue instanceof Object[]) {
-				setImageSource(newValue);
+				setImageSource(newValue, false);
 				setImages();
 			}
 		} else {
