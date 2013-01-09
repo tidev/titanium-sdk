@@ -331,15 +331,9 @@ MAKE_SYSTEM_PROP(TLS_VERSION_1_2, TLS_VERSION_1_2);
 	// called by TiApp
 	if (pushNotificationCallback!=nil)
 	{
-		id event = nil;
-		if ( application.applicationState == UIApplicationStateActive )
-		{
-			event = [NSDictionary dictionaryWithObject:userInfo forKey:@"data"];
-		}
-		else
-		{
-        	event = [NSDictionary dictionaryWithObjectsAndKeys:userInfo, @"data", NUMBOOL(YES), @"firedFromRegister", nil];
-    	}
+		BOOL firedFromRegister = (application.applicationState != UIApplicationStateActive);
+		id event = [NSDictionary dictionaryWithObjectsAndKeys:userInfo, @"data", NUMBOOL(firedFromRegister), @"firedFromRegister", nil];
+		[self _fireEventToListener:@"remote" withObject:event listener:pushNotificationCallback thisObject:nil];
 	}
 }
 
