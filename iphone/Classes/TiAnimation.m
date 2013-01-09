@@ -261,6 +261,12 @@ self.p = v;\
         RELEASE_TO_NIL(animation.animatedView);
         
         animation = [animation reverseAnimation]; // Use the original animation for correct eventing
+        //Make sure we have the animatedViewProxy so we can correctly signal end of animation
+        if ([(id)animation.animatedView isKindOfClass:[TiUIView class]]) {
+            RELEASE_TO_NIL(animatedViewProxy);
+            TiUIView *v = (TiUIView*)animation.animatedView;
+            animatedViewProxy = [(TiViewProxy*)v.proxy retain];
+        }
     }
     
 	if (animation.delegate!=nil && [animation.delegate respondsToSelector:@selector(animationWillComplete:)])
@@ -392,15 +398,8 @@ self.p = v;\
 	animatedView = [theview retain];
     
     if (!transitionAnimation) {
-        UIViewAnimationOptions options = (UIViewAnimationOptionAllowUserInteraction); // Backwards compatible
-        if ([view_ animating]) {
-            //TIMOB-10318
-            //Start from current state if animations are already running. Otherwise from initial value.
-            options = options | UIViewAnimationOptionBeginFromCurrentState;
-        }
-        else {
-            [view_ animationStarted];
-        }
+        UIViewAnimationOptions options = (UIViewAnimationOptionAllowUserInteraction | UIViewAnimationOptionBeginFromCurrentState); // Backwards compatible
+		[view_ animationStarted];
         NSTimeInterval animationDuration = [self animationDuration];
         
         options |= [curve intValue];

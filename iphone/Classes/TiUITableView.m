@@ -175,7 +175,7 @@
 }
 
 
--(void) updateGradientLayer:(BOOL)useSelected
+-(void) updateGradientLayer:(BOOL)useSelected withAnimation:(BOOL)animated
 {
 	TiGradient * currentGradient = useSelected?selectedBackgroundGradient:backgroundGradient;
 
@@ -185,7 +185,7 @@
 		//Because there's the chance that the other state still has the gradient, let's keep it around.
 		return;
 	}
-	
+
 	CALayer * ourLayer = [self layer];
 	
 	if(gradientLayer == nil)
@@ -207,31 +207,38 @@
             [[self textLabel] setBackgroundColor:[UIColor clearColor]];
         }
 	}
+    if (animated) {
+        CABasicAnimation *flash = [CABasicAnimation animationWithKeyPath:@"opacity"];
+        flash.fromValue = [NSNumber numberWithFloat:0.0];
+        flash.toValue = [NSNumber numberWithFloat:1.0];
+        flash.duration = 1.0;
+        [gradientLayer addAnimation:flash forKey:@"flashAnimation"];
+    }
 	[gradientLayer setNeedsDisplay];
 }
 
 -(void)setSelected:(BOOL)yn animated:(BOOL)animated
 {
     [super setSelected:yn animated:animated];
-    [self updateGradientLayer:yn|[self isHighlighted]];
+    [self updateGradientLayer:yn|[self isHighlighted] withAnimation:animated];
 }
 
 -(void)setHighlighted:(BOOL)yn animated:(BOOL)animated
 {
     [super setHighlighted:yn animated:animated];
-    [self updateGradientLayer:yn|[self isSelected]];
+    [self updateGradientLayer:yn|[self isSelected] withAnimation:animated];
 }
 
 -(void)setHighlighted:(BOOL)yn
 {
     [super setHighlighted:yn];
-    [self updateGradientLayer:yn|[self isHighlighted]];
+    [self updateGradientLayer:yn|[self isSelected] withAnimation:NO];
 }
 
 -(void)setSelected:(BOOL)yn
 {
     [super setSelected:yn];
-    [self updateGradientLayer:yn|[self isHighlighted]];
+    [self updateGradientLayer:yn|[self isHighlighted] withAnimation:NO];
 }
 
 -(void) setBackgroundGradient_:(TiGradient *)newGradient
@@ -245,7 +252,7 @@
 	
 	if(![self selectedOrHighlighted])
 	{
-		[self updateGradientLayer:NO];
+		[self updateGradientLayer:NO withAnimation:NO];
 	}
 }
 
@@ -260,7 +267,7 @@
 	
 	if([self selectedOrHighlighted])
 	{
-		[self updateGradientLayer:YES];
+		[self updateGradientLayer:YES withAnimation:NO];
 	}
 }
 
