@@ -134,21 +134,21 @@ define(
 			};
 		},
 
-		fireEvent: function(name, eventData) {
-			eventData = eventData || {};
-			var bubbles = eventData.bubbles,
+		fireEvent: function(type, e) {
+			e = e || {};
+			var bubbles = e.bubbles,
 				p;
-			Evented.fireEvent.call(this, name, eventData);
-			if (bubbles && !eventData.cancelBubble && this.bubbleParent && this._parent) {
-				if (isDef(eventData.x)) {
+			Evented.fireEvent.call(this, type, e);
+			if (bubbles && !e.cancelBubble && this.bubbleParent && this._parent) {
+				if (isDef(e.x)) {
 					p = this.convertPointToView({
-						x: eventData.x,
-						y: eventData.y
+						x: e.x,
+						y: e.y
 					}, this._parent);
-					eventData.x = p ? p.x : eventData.x;
-					eventData.y = p ? p.y : eventData.y;
+					e.x = p ? p.x : e.x;
+					e.y = p ? p.y : e.y;
 				}
-				this._parent.fireEvent(name, eventData);
+				this._parent.fireEvent(type, e);
 			}
 		},
 

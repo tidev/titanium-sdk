@@ -57,11 +57,6 @@ define(['Ti/_/declare', 'Ti/_/UI/Widget', 'Ti/_/dom', 'Ti/_/css', 'Ti/_/style', 
 			setStyle(this._thumb, 'pointerEvents', cssVal);
 		},
 
-		fireEvent: function(type, e) {
-			e.value = this.value;
-			Widget.prototype.fireEvent.call(this, type, e);
-		},
-
 		_getContentSize: function() {
 			return {
 				width: 200,

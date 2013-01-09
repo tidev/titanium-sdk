@@ -3,7 +3,8 @@ define(['Ti/_/declare', 'Ti/_/lang', 'Ti/_/UI/Widget', 'Ti/_/style','Ti/UI/Mobil
 	function(declare, lang, Widget, style, TableViewSeparatorStyle, UI) {
 
 	var is = require.is,
-		setStyle = style.set;
+		setStyle = style.set,
+		eventFilter = /(click|singletap|longpress)/;
 
 	return declare('Ti.UI.TableViewSection', Widget, {
 
@@ -31,7 +32,7 @@ define(['Ti/_/declare', 'Ti/_/lang', 'Ti/_/UI/Widget', 'Ti/_/style','Ti/UI/Mobil
 		_defaultHeight: UI.SIZE,
 
 		fireEvent: function(type) {
-			if (type === 'click' || type === 'singletap' || type === 'longpress') {
+			if (eventFilter.test(type)) {
 				this._tableView && (this._tableView._tableViewSectionClicked = this);
 			}
 			Widget.prototype.fireEvent.apply(this,arguments);
