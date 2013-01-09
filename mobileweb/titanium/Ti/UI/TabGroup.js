@@ -201,6 +201,10 @@ define(["Ti/_/declare", "Ti/_/UI/SuperView", "Ti/UI/View", "Ti/UI", "Ti/_/lang"]
 
 		_defaultHeight: UI_FILL,
 
+		constants: {
+			bubbleParent: false
+		},
+
 		properties: {
 			activeTab: {
 				set: function(value) {
