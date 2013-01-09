@@ -239,9 +239,9 @@ static const NSTimeInterval kLauncherViewFastTransitionDuration = 0.2;
 - (void)recreateButtons 
 {
     if (![NSThread isMainThread]) {
-        dispatch_async(dispatch_get_main_queue(), ^{
+        TiThreadPerformOnMainThread( ^{
             [self recreateButtons];
-        });
+        }, NO);
         return;
     }
     

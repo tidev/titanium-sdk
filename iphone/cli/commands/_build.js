@@ -408,7 +408,7 @@ exports.validate = function (logger, config, cli) {
 	
 	if (cli.argv.xcode) {
 		// for xcode pre-compile builds only, read the manifest file and inject the cli args
-		var buildManifestFile = path.join(cli.argv['project-dir'], 'build', path.basename(afs.resolvePath(__dirname, '..', '..')), 'build-manifest.json');
+		var buildManifestFile = process.env.PROJECT_DIR ? path.join(process.env.PROJECT_DIR, 'build-manifest.json') : path.join(cli.argv['project-dir'], 'build', path.basename(afs.resolvePath(__dirname, '..', '..')), 'build-manifest.json');
 		if (!afs.exists(buildManifestFile)) {
 			logger.error(__('Build manifest does not exist: %s', buildManifestFile) + '\n');
 			logger.log(__('Clean your project, then rebuild it'));
@@ -719,7 +719,7 @@ function build(logger, config, cli, finished) {
 	this.platformName = path.basename(this.titaniumIosSdkPath); // the name of the actual platform directory which will some day be "ios"
 	
 	this.projectDir = cli.argv['project-dir'];
-	this.buildDir = path.join(this.projectDir, 'build', this.platformName);
+	this.buildDir = process.env.PROJECT_DIR ? process.env.PROJECT_DIR : path.join(this.projectDir, 'build', this.platformName);
 	this.assetsDir = path.join(this.buildDir, 'assets');
 	this.tiapp = cli.tiapp;
 	this.target = cli.argv.target;
