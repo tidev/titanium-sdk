@@ -1,4 +1,7 @@
+/*global define*/
 define(function() {
+
+	var mix = require.mix;
 
 	return {
 		destroy: function() {
@@ -34,11 +37,12 @@ define(function() {
 				modifiers = this._modifiers && this._modifiers[name],
 				listeners = this.listeners && this.listeners[name],
 				l = modifiers && modifiers.length;
-			require.mix(data, {
+			data = data || {};
+			mix(data, {
 				source: this,
 				type: name
 			});
-				
+
 			while (i < l) {
 				modifiers[i++].call(this, data);
 			}
@@ -55,7 +59,7 @@ define(function() {
 		},
 
 		applyProperties: function(props) {
-			require.mix(this, props);
+			mix(this, props);
 		},
 
 		_addEventModifier: function(name, handler) {
