@@ -331,7 +331,7 @@ MAKE_SYSTEM_PROP(TLS_VERSION_1_2, TLS_VERSION_1_2);
 	// called by TiApp
 	if (pushNotificationCallback!=nil)
 	{
-		BOOL inBackground = (application.applicationState == UIApplicationStateBackground);
+		BOOL inBackground = (application.applicationState != UIApplicationStateActive);
 		id event = [NSDictionary dictionaryWithObjectsAndKeys:userInfo, @"data", NUMBOOL(inBackground), @"inBackground", nil];
 		[self _fireEventToListener:@"remote" withObject:event listener:pushNotificationCallback thisObject:nil];
 	}
