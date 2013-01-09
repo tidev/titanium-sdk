@@ -186,7 +186,7 @@ exports.config = function (logger, config, cli) {
 					},
 					'distribution-name': {
 						abbr: 'R',
-						default: config.ios && config.ios.distributionName && lowerCasedDistNames.indexOf(config.ios.distributionName) != -1 ? config.ios.distributionName : undefined,
+						default: config.ios && config.ios.distributionName && lowerCasedDistNames.indexOf(config.ios.distributionName.toLowerCase()) != -1 ? config.ios.distributionName : undefined,
 						desc: __('the iOS Distribution Certificate to use; required when target is %s or %s', 'dist-appstore'.cyan, 'dist-adhoc'.cyan),
 						hint: 'name',
 						prompt: {
@@ -252,12 +252,14 @@ exports.config = function (logger, config, cli) {
 								
 								var availableUUIDs = [],
 									addUUIDs = function (section, uuids) {
-										availableUUIDs.push(section);
-										for (var i = 0; i < uuids.length; i++) {
-											if (uuids[i].uuid == uuid) {
-												return true;
+										if (uuids.length) {
+											availableUUIDs.push(section);
+											for (var i = 0; i < uuids.length; i++) {
+												if (uuids[i].uuid == uuid) {
+													return true;
+												}
+												availableUUIDs.push('    ' + uuids[i].uuid.cyan + '  ' + uuids[i].appId + ' (' + uuids[i].name + ')');
 											}
-											availableUUIDs.push('    ' + uuids[i].uuid.cyan + '  ' + uuids[i].appId + ' (' + uuids[i].name + ')');
 										}
 									};
 								
@@ -352,6 +354,8 @@ exports.validate = function (logger, config, cli) {
 	
 	ti.validateProjectDir(logger, cli, cli.argv, 'project-dir');
 	
+	ti.validateTiappXml(logger, cli.tiapp);
+	
 	if (!ti.validateCorrectSDK(logger, config, cli, 'build')) {
 		// we're running the build command for the wrong SDK version, gracefully return
 		return false;
@@ -404,7 +408,7 @@ exports.validate = function (logger, config, cli) {
 	
 	if (cli.argv.xcode) {
 		// for xcode pre-compile builds only, read the manifest file and inject the cli args
-		var buildManifestFile = path.join(cli.argv['project-dir'], 'build', path.basename(afs.resolvePath(__dirname, '..', '..')), 'build-manifest.json');
+		var buildManifestFile = process.env.PROJECT_DIR ? path.join(process.env.PROJECT_DIR, 'build-manifest.json') : path.join(cli.argv['project-dir'], 'build', path.basename(afs.resolvePath(__dirname, '..', '..')), 'build-manifest.json');
 		if (!afs.exists(buildManifestFile)) {
 			logger.error(__('Build manifest does not exist: %s', buildManifestFile) + '\n');
 			logger.log(__('Clean your project, then rebuild it'));
@@ -509,14 +513,16 @@ exports.validate = function (logger, config, cli) {
 				allUUIDs = [],
 				addUUIDs = function (section, uuids) {
 					var match = 0;
-					availableUUIDs.push(section);
-					for (var i = 0; i < uuids.length; i++) {
-						if (uuids[i].uuid == cli.argv['pp-uuid']) {
-							match = 1;
+					if (uuids.length) {
+						availableUUIDs.push(section);
+						for (var i = 0; i < uuids.length; i++) {
+							if (uuids[i].uuid == cli.argv['pp-uuid']) {
+								match = 1;
+							}
+							allUUIDs.push(uuids[i].uuid);
+							iosEnv.provisioningProfilesByUUID[uuids[i].uuid] = uuids[i];
+							availableUUIDs.push('    ' + uuids[i].uuid.cyan + '  ' + uuids[i].appId + ' (' + uuids[i].name + ')');
 						}
-						allUUIDs.push(uuids[i].uuid);
-						iosEnv.provisioningProfilesByUUID[uuids[i].uuid] = uuids[i];
-						availableUUIDs.push('    ' + uuids[i].uuid.cyan + '  ' + uuids[i].appId + ' (' + uuids[i].name + ')');
 					}
 					return match;
 				};
@@ -582,8 +588,12 @@ exports.validate = function (logger, config, cli) {
 			deviceFamily = 'ipad';
 		}
 	}
+	if (!deviceFamily) {
+		logger.info(__('No device family specified, defaulting to %s', 'universal'));
+		deviceFamily = 'universal';
+	}
 	
-	if (!deviceFamily || !deviceFamilies[deviceFamily]) {
+	if (!deviceFamilies[deviceFamily]) {
 		logger.error(__('Invalid device family "%s"', deviceFamily) + '\n');
 		appc.string.suggest(deviceFamily, Object.keys(deviceFamilies), logger.log, 3);
 		process.exit(1);
@@ -688,7 +698,7 @@ function sendAnalytics(cli) {
 		name: cli.tiapp.name,
 		publisher: cli.tiapp.publisher,
 		url: cli.tiapp.url,
-		image: cli.tiapp.image,
+		image: cli.tiapp.icon,
 		appid: cli.tiapp.id,
 		description: cli.tiapp.description,
 		type: cli.argv.type,
@@ -709,7 +719,7 @@ function build(logger, config, cli, finished) {
 	this.platformName = path.basename(this.titaniumIosSdkPath); // the name of the actual platform directory which will some day be "ios"
 	
 	this.projectDir = cli.argv['project-dir'];
-	this.buildDir = path.join(this.projectDir, 'build', this.platformName);
+	this.buildDir = process.env.PROJECT_DIR ? process.env.PROJECT_DIR : path.join(this.projectDir, 'build', this.platformName);
 	this.assetsDir = path.join(this.buildDir, 'assets');
 	this.tiapp = cli.tiapp;
 	this.target = cli.argv.target;
@@ -797,12 +807,6 @@ function build(logger, config, cli, finished) {
 		return afs.exists(this.projectDir, p, this.tiapp.icon);
 	}, this)) {
 		this.tiapp.icon = 'appicon.png';
-	}
-	
-	// if installing a non-production build on device, add a timestamp to the version
-	if (this.target != 'simulator' && this.deployType != 'production') {
-		this.tiapp.version = appc.version.format(this.tiapp.version || 1, 2, 3) + '.' + (new Date).getTime();
-		this.logger.info(__('Setting non-production device build version to %s', this.tiapp.version));
 	}
 	
 	Array.isArray(this.tiapp.modules) || (this.tiapp.modules = []);
@@ -902,29 +906,37 @@ function build(logger, config, cli, finished) {
 				'writeBuildManifest'
 			], function () {
 				var xcodeArgs = [
-					'-target', this.tiapp.name + xcodeTargetSuffixes[this.deviceFamily],
-					'-configuration', this.xcodeTarget,
-					'-sdk', this.xcodeTargetOS,
-					'IPHONEOS_DEPLOYMENT_TARGET=' + this.minIosVer,
-					'TARGETED_DEVICE_FAMILY=' + deviceFamilies[this.deviceFamily],
-					'VALID_ARCHS=' + this.architectures
-				];
+						'-target', this.tiapp.name + xcodeTargetSuffixes[this.deviceFamily],
+						'-configuration', this.xcodeTarget,
+						'-sdk', this.xcodeTargetOS,
+						'IPHONEOS_DEPLOYMENT_TARGET=' + appc.version.format(this.minIosVer, 2),
+						'TARGETED_DEVICE_FAMILY=' + deviceFamilies[this.deviceFamily],
+						'VALID_ARCHS=' + this.architectures
+					],
+					gccDefs = [ 'DEPLOYTYPE=' + this.deployType ];
+				
+				// Note: There is no evidence that TI_DEVELOPMENT, TI_TEST, TI_DEVELOPMENT, or
+				//       DEBUGGER_ENABLED are used anymore.
 				
 				if (this.target == 'simulator') {
-					xcodeArgs.push('GCC_PREPROCESSOR_DEFINITIONS=__LOG__ID__=' + this.tiapp.guid);
-					xcodeArgs.push('DEPLOYTYPE=' + this.deployType);
-					xcodeArgs.push('TI_DEVELOPMENT=1');
-					xcodeArgs.push('DEBUG=1');
-					xcodeArgs.push('TI_VERSION=' + ti.manifest.version);
+					gccDefs.push('__LOG__ID__=' + this.tiapp.guid);
+					gccDefs.push('TI_DEVELOPMENT=1');
+					gccDefs.push('DEBUG=1');
+					gccDefs.push('TI_VERSION=' + this.titaniumSdkVersion);
+				} else if (this.target == 'dist-appstore') {
+					gccDefs.push('TI_PRODUCTION=1');
+				} else if (this.target == 'dist-adhoc' || this.target == 'device') {
+					gccDefs.push('TI_TEST=1');
 				}
 				
 				if (/simulator|device|dist\-adhoc/.test(this.target)) {
-					this.tiapp.ios && this.tiapp.ios.enablecoverage && xcodeArgs.push('KROLL_COVERAGE=1');
-					this.debugHost && xcodeArgs.push('DEBUGGER_ENABLED=1');
+					this.tiapp.ios && this.tiapp.ios.enablecoverage && gccDefs.push('KROLL_COVERAGE=1');
+					this.debugHost && gccDefs.push('DEBUGGER_ENABLED=1');
 				}
 				
+				xcodeArgs.push('GCC_PREPROCESSOR_DEFINITIONS=' + gccDefs.join(' '));
+				
 				if (/device|dist\-appstore|dist\-adhoc/.test(this.target)) {
-					xcodeArgs.push('GCC_PREPROCESSOR_DEFINITIONS=DEPLOYTYPE=' + this.deployType);
 					xcodeArgs.push('PROVISIONING_PROFILE=' + this.provisioningProfileUUID);
 					xcodeArgs.push('DEPLOYMENT_POSTPROCESSING=YES');
 					if (this.keychain) {
@@ -933,20 +945,12 @@ function build(logger, config, cli, finished) {
 					this.codeSignEntitlements && xcodeArgs.push('CODE_SIGN_ENTITLEMENTS=Resources/Entitlements.plist');
 				}
 				
-				if (/device|dist\-adhoc/.test(this.target)) {
-					xcodeArgs.push('TI_TEST=1');
-				}
-				
 				if (this.target == 'device') {
 					xcodeArgs.push('CODE_SIGN_IDENTITY=iPhone Developer: ' + this.certDeveloperName);
 				}
 				
 				if (/dist-appstore|dist\-adhoc/.test(this.target)) {
 					xcodeArgs.push('CODE_SIGN_IDENTITY=iPhone Distribution: ' + this.certDistributionName);
-				}
-				
-				if (this.target == 'dist-appstore') {
-					xcodeArgs.push('TI_PRODUCTION=1');
 				}
 				
 				var p = spawn(this.xcodeEnv.xcodebuild, xcodeArgs, {
@@ -1076,9 +1080,9 @@ build.prototype = {
 			merge(custom, plist);
 		}
 		
-		plist.UIRequiresPersistentWiFi = this.tiapp['persistent-wifi'];
-		plist.UIPrerenderedIcon = this.tiapp['prerendered-icon'];
-		plist.UIStatusBarHidden = this.tiapp['statusbar-hidden'];
+		plist.UIRequiresPersistentWiFi = this.tiapp.hasOwnProperty('persistent-wifi') ? !!this.tiapp['persistent-wifi'] : false;
+		plist.UIPrerenderedIcon = this.tiapp.hasOwnProperty('prerendered-icon') ? !!this.tiapp['prerendered-icon'] : false;
+		plist.UIStatusBarHidden = this.tiapp.hasOwnProperty('statusbar-hidden') ? !!this.tiapp['statusbar-hidden'] : false;
 		
 		plist.UIStatusBarStyle = 'UIStatusBarStyleDefault';
 		if (/opaque_black|opaque|black/.test(this.tiapp['statusbar-style'])) {
@@ -1150,8 +1154,14 @@ build.prototype = {
 		ios && ios.plist && merge(ios.plist, plist);
 		
 		plist.CFBundleIdentifier = this.tiapp.id;
-		plist.CFBundleVersion = appc.version.format(this.tiapp.version || 1, 2);
-		plist.CFBundleShortVersionString = appc.version.format(this.tiapp.version || 1, 2, 3);
+		
+		// device builds require an additional token to ensure uniquiness so that iTunes will detect an updated app to sync
+		if (this.target == 'device') {
+			plist.CFBundleVersion = appc.version.format(this.tiapp.version, 3, 3) + '.' + (new Date).getTime();
+		} else {
+			plist.CFBundleVersion = appc.version.format(this.tiapp.version, 3, 3);
+		}
+		plist.CFBundleShortVersionString = plist.CFBundleVersion;
 		
 		Array.isArray(plist.CFBundleIconFiles) || (plist.CFBundleIconFiles = []);
 		['.png', '@2x.png', '-72.png', '-Small-50.png', '-72@2x.png', '-Small-50@2x.png', '-Small.png', '-Small@2x.png'].forEach(function (name) {
@@ -1416,6 +1426,69 @@ build.prototype = {
 			return true;
 		}
 		
+		// next we check if any tiapp.xml values changed so we know if we need to reconstruct the main.m
+		if (this.tiapp.name != manifest.name) {
+			this.logger.debug(__('Forcing rebuild: tiapp.xml project name changed since last build'));
+			this.logger.debug('  ' + __('Was: %s', manifest.name));
+			this.logger.debug('  ' + __('Now: %s', this.tiapp.name));
+			return true;
+		}
+		
+		if (this.tiapp.id != manifest.id) {
+			this.logger.debug(__('Forcing rebuild: tiapp.xml app id changed since last build'));
+			this.logger.debug('  ' + __('Was: %s', manifest.id));
+			this.logger.debug('  ' + __('Now: %s', this.tiapp.id));
+			return true;
+		}
+		
+		if (!this.tiapp.analytics != !manifest.analytics) {
+			this.logger.debug(__('Forcing rebuild: tiapp.xml analytics flag changed since last build'));
+			this.logger.debug('  ' + __('Was: %s', !!manifest.analytics));
+			this.logger.debug('  ' + __('Now: %s', !!this.tiapp.analytics));
+			return true;
+		}
+		if (this.tiapp.publisher != manifest.publisher) {
+			this.logger.debug(__('Forcing rebuild: tiapp.xml publisher changed since last build'));
+			this.logger.debug('  ' + __('Was: %s', manifest.publisher));
+			this.logger.debug('  ' + __('Now: %s', this.tiapp.publisher));
+			return true;
+		}
+		
+		if (this.tiapp.url != manifest.url) {
+			this.logger.debug(__('Forcing rebuild: tiapp.xml url changed since last build'));
+			this.logger.debug('  ' + __('Was: %s', manifest.url));
+			this.logger.debug('  ' + __('Now: %s', this.tiapp.url));
+			return true;
+		}
+		
+		if (this.tiapp.version != manifest.version) {
+			this.logger.debug(__('Forcing rebuild: tiapp.xml version changed since last build'));
+			this.logger.debug('  ' + __('Was: %s', manifest.version));
+			this.logger.debug('  ' + __('Now: %s', this.tiapp.version));
+			return true;
+		}
+		
+		if (this.tiapp.description != manifest.description) {
+			this.logger.debug(__('Forcing rebuild: tiapp.xml description changed since last build'));
+			this.logger.debug('  ' + __('Was: %s', manifest.description));
+			this.logger.debug('  ' + __('Now: %s', this.tiapp.description));
+			return true;
+		}
+		
+		if (this.tiapp.copyright != manifest.copyright) {
+			this.logger.debug(__('Forcing rebuild: tiapp.xml copyright changed since last build'));
+			this.logger.debug('  ' + __('Was: %s', manifest.copyright));
+			this.logger.debug('  ' + __('Now: %s', this.tiapp.copyright));
+			return true;
+		}
+		
+		if (this.tiapp.guid != manifest.guid) {
+			this.logger.debug(__('Forcing rebuild: tiapp.xml guid changed since last build'));
+			this.logger.debug('  ' + __('Was: %s', manifest.guid));
+			this.logger.debug('  ' + __('Now: %s', this.tiapp.guid));
+			return true;
+		}
+		
 		return false;
 	},
 	
@@ -1663,7 +1736,16 @@ build.prototype = {
 			tiCoreHash: this.libTiCoreHash,
 			modulesHash: this.modulesHash,
 			gitHash: ti.manifest.githash,
-			outputDir: this.cli.argv['output-dir']
+			outputDir: this.cli.argv['output-dir'],
+			name: this.tiapp.name,
+			id: this.tiapp.id,
+			analytics: this.tiapp.analytics,
+			publisher: this.tiapp.publisher,
+			url: this.tiapp.url,
+			version: this.tiapp.version,
+			description: this.tiapp.description,
+			copyright: this.tiapp.copyright,
+			guid: this.tiapp.guid
 		}, null, '\t'), callback);
 	},
 	
@@ -1831,11 +1913,11 @@ build.prototype = {
 				'__PROJECT_ID__': this.tiapp.id,
 				'__DEPLOYTYPE__': this.deployType,
 				'__APP_ID__': this.tiapp.id,
-				'__APP_ANALYTICS__': '' + !!this.tiapp.analytics,
+				'__APP_ANALYTICS__': '' + (this.tiapp.hasOwnProperty('analytics') ? !!this.tiapp.analytics : true),
 				'__APP_PUBLISHER__': this.tiapp.publisher,
 				'__APP_URL__': this.tiapp.url,
 				'__APP_NAME__': this.tiapp.name,
-				'__APP_VERSION__': version.format(this.tiapp.version, 2),
+				'__APP_VERSION__': this.tiapp.version,
 				'__APP_DESCRIPTION__': this.tiapp.description,
 				'__APP_COPYRIGHT__': this.tiapp.copyright,
 				'__APP_GUID__': this.tiapp.guid,
@@ -1867,46 +1949,49 @@ build.prototype = {
 			fs.writeFileSync(dest, mainContents);
 		}
 		
-		this.modules.forEach(function (m) {
-			var moduleId = m.manifest.moduleid.toLowerCase(),
-				moduleName = m.manifest.name.toLowerCase(),
-				prefix = m.manifest.moduleid.toUpperCase().replace(/\./g, '_');
-			
-			[	path.join(m.modulePath, 'module.xcconfig'),
-				path.join(this.projectDir, 'modules', 'iphone', moduleName + '.xcconfig')
-			].forEach(function (file) {
-				if (afs.exists(file)) {
-					var xc = new appc.xcconfig(file);
-					Object.keys(xc).forEach(function (key) {
-						var name = (prefix + '_' + key).replace(/[^\w]/g, '_');
-						variables[key] || (variables[key] = []);
-						variables[key].push(name);
-						xcconfigContents.push((name + '=' + xc[key]).replace(new RegExp('\$\(' + key + '\)', 'g'), '$(' + name + ')'));
-					});
-				}
+		if (this.modules.length) {
+			// if we have modules, write out a new ApplicationMods.m, otherwise use the default one
+			this.modules.forEach(function (m) {
+				var moduleId = m.manifest.moduleid.toLowerCase(),
+					moduleName = m.manifest.name.toLowerCase(),
+					prefix = m.manifest.moduleid.toUpperCase().replace(/\./g, '_');
+				
+				[	path.join(m.modulePath, 'module.xcconfig'),
+					path.join(this.projectDir, 'modules', 'iphone', moduleName + '.xcconfig')
+				].forEach(function (file) {
+					if (afs.exists(file)) {
+						var xc = new appc.xcconfig(file);
+						Object.keys(xc).forEach(function (key) {
+							var name = (prefix + '_' + key).replace(/[^\w]/g, '_');
+							variables[key] || (variables[key] = []);
+							variables[key].push(name);
+							xcconfigContents.push((name + '=' + xc[key]).replace(new RegExp('\$\(' + key + '\)', 'g'), '$(' + name + ')'));
+						});
+					}
+				});
+				
+				applicationModsContents.push('	[modules addObject:[NSDictionary dictionaryWithObjectsAndKeys:@\"' +
+					moduleName + '\",@\"name\",@\"' +
+					moduleId + '\",@\"moduleid\",@\"' +
+					(m.manifest.version || '') + '\",@\"version\",@\"' +
+					(m.manifest.guid || '') + '\",@\"guid\",@\"' +
+					(m.manifest.licensekey || '') + '\",@\"licensekey\",nil]];'
+				);
 			});
 			
-			applicationModsContents.push('	[modules addObject:[NSDictionary dictionaryWithObjectsAndKeys:@\"' +
-				moduleName + '\",@\"name\",@\"' +
-				moduleId + '\",@\"moduleid\",@\"' +
-				(m.manifest.version || '') + '\",@\"version\",@\"' +
-				(m.manifest.guid || '') + '\",@\"guid\",@\"' +
-				(m.manifest.licensekey || '') + '\",@\"licensekey\",nil]];'
-			);
-		});
-		
-		applicationModsContents.push('	return modules;');
-		applicationModsContents.push('}\n');
-		applicationModsContents.push('@end');
-		applicationModsContents = applicationModsContents.join('\n');
-		
-		// write the ApplicationMods.m file
-		dest = path.join(this.buildDir, 'Classes', 'ApplicationMods.m');
-		if (!afs.exists(dest) || fs.readFileSync(dest).toString() != applicationModsContents) {
-			this.logger.debug(__('Writing application modules source file: %s', dest.cyan));
-			fs.writeFileSync(dest, applicationModsContents);
-		} else {
-			this.logger.debug(__('Application modules source file already up-to-date: %s', dest.cyan));
+			applicationModsContents.push('	return modules;');
+			applicationModsContents.push('}\n');
+			applicationModsContents.push('@end');
+			applicationModsContents = applicationModsContents.join('\n');
+			
+			// write the ApplicationMods.m file
+			dest = path.join(this.buildDir, 'Classes', 'ApplicationMods.m');
+			if (!afs.exists(dest) || fs.readFileSync(dest).toString() != applicationModsContents) {
+				this.logger.debug(__('Writing application modules source file: %s', dest.cyan));
+				fs.writeFileSync(dest, applicationModsContents);
+			} else {
+				this.logger.debug(__('Application modules source file already up-to-date: %s', dest.cyan));
+			}
 		}
 		
 		// write the module.xcconfig file

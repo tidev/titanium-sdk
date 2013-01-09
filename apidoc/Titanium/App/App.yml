@@ -287,9 +287,12 @@ methods:
 
   - name: getArguments
     summary: Returns the arguments passed to the application on startup.
+    description : |
+        On Android, use the [intent](Titanium.Android.Activity.intent) property of the activity to
+        retrieve the parameters passed to launch the application activity.
     platforms: [iphone, ipad]
     returns:
-        type: Dictionary
+        type: launchOptions
 
 properties:
   - name: EVENT_ACCESSIBILITY_ANNOUNCEMENT
@@ -427,3 +430,28 @@ properties:
     type: Boolean
     permission: read-only
     platforms: [iphone, ipad]
+
+---
+name: launchOptions
+summary: |
+    Dictionary describing the arguments passed to the application on startup.
+    Use the [getArguments](Titanium.App.getArguments) method to retrieve the launch options.
+properties:
+  - name: url
+    summary: |
+        This key indicates that the application was launched in order to open
+        the specified URL.
+    type: String
+
+  - name: source
+    summary: |
+        This key indicates that the application was launched by another
+        application with the specified bundle ID.
+    type: String
+
+  - name: launchOptionsLocationKey
+    summary: |
+        If set to `true`, this key indicates that the application was launched in response to an
+        incoming location event.
+    type: Boolean
+    default: false
