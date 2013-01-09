@@ -238,7 +238,7 @@ define(
 					e.cancelBubble = false; // We use true and false here instead of 0 and 1 because they are user facing
 
 					// Fire the event
-					elements[0]._handleTouchEvent(i, e);
+					elements[0].fireEvent(i, e);
 				}
 			}
 		},
