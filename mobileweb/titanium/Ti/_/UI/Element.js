@@ -145,8 +145,8 @@ define(
 						x: eventData.x,
 						y: eventData.y
 					}, this._parent);
-					eventData.x = p.x;
-					eventData.y = p.y;
+					eventData.x = p ? p.x : eventData.x;
+					eventData.y = p ? p.y : eventData.y;
 				}
 				this._parent.fireEvent(name, eventData);
 			}
@@ -458,10 +458,6 @@ define(
 			require.config.vendorPrefixes.css.forEach(function(vendorPrefix) {
 				setStyle(this.domNode, 'backgroundImage', vendorPrefix + cssVal + ')');
 			}, this);
-		},
-
-		_handleTouchEvent: function(type, e) { // Exists so it can be overridden
-			this.fireEvent(type, e);
 		},
 
 		_defaultBackgroundColor: void 0,
