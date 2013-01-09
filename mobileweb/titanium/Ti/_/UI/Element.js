@@ -138,7 +138,7 @@ define(
 			eventData = eventData || {};
 			var bubbles = eventData.bubbles,
 				p;
-			Evented.fireEvent.apply(this, arguments);
+			Evented.fireEvent.call(this, name, eventData);
 			if (bubbles && !eventData.cancelBubble && this.bubbleParent && this._parent) {
 				if (isDef(eventData.x)) {
 					p = this.convertPointToView({
@@ -229,26 +229,26 @@ define(
 			}
 			return isAttachedToActiveWin;
 		},
-		
+
 		_needsMeasuring: true,
-		
+
 		_triggerLayout: function(force) {
 			this._needsMeasuring = true;
 			this._isAttachedToActiveWin() && (!this._batchUpdateInProgress || force) && UI._triggerLayout(this, force);
 		},
-		
+
 		_hasSizeDimensions: function() {
 			return this._hasSizeWidth() || this._hasSizeHeight();
 		},
-		
+
 		_hasSizeHeight: function() {
 			return isNaN(this._layoutCoefficients.height.x1);
 		},
-		
+
 		_hasSizeWidth: function() {
 			return isNaN(this._layoutCoefficients.width.x1);
 		},
-		
+
 		startLayout: function() {
 			this._batchUpdateInProgress = true;
 		},
@@ -286,13 +286,13 @@ define(
 				var x = point.x,
 					y = point.y,
 					multiplier = (additive ? 1 : -1);
-					
+
 				while(node) {
 					x += multiplier * node.domNode.offsetLeft;
 					y += multiplier * node.domNode.offsetTop;
 					node = node._parent;
 				}
-					
+
 				return {x: x, y: y};
 			}
 
@@ -311,20 +311,20 @@ define(
 				colors = backgroundGradient.colors,
 				type = backgroundGradient.type,
 				cssVal = type + '-gradient(';
-			
+
 			// Convert common units to absolute
 			var startPointX = computeSize(backgroundGradient.startPoint.x, this._measuredWidth),
 				startPointY = computeSize(backgroundGradient.startPoint.y, this._measuredHeight),
 				centerX = computeSize('50%', this._measuredWidth),
 				centerY = computeSize('50%', this._measuredHeight),
 				numColors = colors.length;
-			
+
 			if (type === 'linear') {
-				
+
 				// Convert linear specific values to absolute
 				var endPointX = computeSize(backgroundGradient.endPoint.x, this._measuredWidth),
 					endPointY = computeSize(backgroundGradient.endPoint.y, this._measuredHeight);
-					
+
 				var userGradientStart,
 					userGradientEnd;
 				if (Math.abs(startPointX - endPointX) < 0.01) {
@@ -350,7 +350,7 @@ define(
 						cssVal += '180deg';
 					}
 				}else {
-					
+
 					// Rearrange values so that start is to the left of end
 					var mirrorGradient = false;
 					if (startPointX > endPointX) {
@@ -362,7 +362,7 @@ define(
 						startPointY = endPointY;
 						endPointY = temp;
 					}
-					
+
 					// Compute the angle, start location, and end location of the gradient
 					var angle = Math.atan2(endPointY - startPointY, endPointX - startPointX)
 						tanAngle = Math.tan(angle),
@@ -389,12 +389,12 @@ define(
 						userGradientStart = Math.sqrt(Math.pow(startPointX - globalGradientStartOffsetX,2) + Math.pow(startPointY - globalGradientStartOffsetY,2));
 						userGradientEnd = Math.sqrt(Math.pow(endPointX - globalGradientStartOffsetX,2) + Math.pow(endPointY - globalGradientStartOffsetY,2));
 					}
-					
+
 					// Set the angle info for the gradient
 					angle = mirrorGradient ? angle + Math.PI : angle;
 					cssVal += Math.round((360 * (2 * Math.PI - angle) / (2 * Math.PI))) + 'deg';
 				}
-				
+
 				// Calculate the color stops
 				for (var i = 0; i < numColors; i++) {
 					var color = colors[i];
@@ -406,14 +406,14 @@ define(
 					}
 					cssVal += ',' + color.color + ' ' + Math.round(computeSize(100 * color.offset + '%', userGradientEnd - userGradientStart) + userGradientStart) + pixelUnits;
 				}
-				
+
 			} else if (type === 'radial') {
-				
+
 				// Convert radial specific values to absolute
 				var radiusTotalLength = Math.min(this._measuredWidth,this._measuredHeight),
 					startRadius = computeSize(backgroundGradient.startRadius, radiusTotalLength),
 					endRadius = computeSize(backgroundGradient.endRadius, radiusTotalLength);
-				
+
 				var colorList = [],
 					mirrorGradient = false;
 				if (startRadius > endRadius) {
@@ -421,7 +421,7 @@ define(
 					startRadius = endRadius;
 					endRadius = temp;
 					mirrorGradient = true;
-					
+
 					for (var i = 0; i <= (numColors - 2) / 2; i++) {
 						var mirroredPosition = numColors - i - 1;
 						colorList[i] = colors[mirroredPosition],
@@ -436,9 +436,9 @@ define(
 						colorList[i] = colors[i];
 					}
 				}
-				
+
 				cssVal += startPointX + pixelUnits + ' ' + startPointY + pixelUnits;
-				
+
 				// Calculate the color stops
 				for (var i = 0; i < numColors; i++) {
 					var color = colorList[i];
@@ -463,31 +463,31 @@ define(
 		_handleTouchEvent: function(type, e) { // Exists so it can be overridden
 			this.fireEvent(type, e);
 		},
-		
+
 		_defaultBackgroundColor: void 0,
-		
+
 		_defaultBackgroundImage: void 0,
-		
+
 		_defaultBackgroundDisabledColor: void 0,
-		
+
 		_defaultBackgroundDisabledImage: void 0,
-		
+
 		_defaultBackgroundFocusedColor: void 0,
-		
+
 		_defaultBackgroundFocusedImage: void 0,
-		
+
 		_defaultBackgroundSelectedColor: void 0,
-		
+
 		_defaultBackgroundSelectedImage: void 0,
-		
+
 		_borderLeftWidth: 0,
-		
+
 		_borderRightWidth: 0,
-		
+
 		_borderTopWidth: 0,
-		
+
 		_borderBottomWidth: 0,
-		
+
 		_getBorderFromCSS: function() {
 			setTimeout(lang.hitch(this, function () {
 				var computedStyle = global.getComputedStyle(this.domNode),
@@ -495,7 +495,7 @@ define(
 					right = parseInt(computedStyle['border-right-width']),
 					top = parseInt(computedStyle['border-top-width']),
 					bottom = parseInt(computedStyle['border-bottom-width']);
-				
+
 				if (!(isNaN(left) || isNaN(right) || isNaN(top) || isNaN(bottom))) {
 						if (left === right && left === top && left === bottom) {
 							this.borderWidth = left;
@@ -588,19 +588,19 @@ define(
 				child._setTouchEnabled(value && child.touchEnabled);
 			}
 		},
-		
+
 		_measuredLeft: 0,
-		
+
 		_measuredTop: 0,
-		
+
 		_measuredWidth: 0,
-		
+
 		_measuredHeight: 0,
-		
+
 		_measuredSandboxWidth: 0,
-		
+
 		_measuredSandboxHeight: 0,
-		
+
 		constants: {
 			size: {
 				get: function() {
@@ -640,12 +640,12 @@ define(
 
 			backgroundGradient: {
 				set: function(value, oldValue) {
-					
+
 					// Type and colors are required
 					if (!is(value.type,'String') || !is(value.colors,'Array') || value.colors.length < 2) {
 						return;
 					}
-					
+
 					// Vet the type and assign default values
 					var type = value.type,
 						startPoint = value.startPoint,
@@ -705,7 +705,7 @@ define(
 
 			borderWidth: {
 				set: function(value, oldValue) {
-					
+
 					if (is(value,'Array')) {
 						if (value.length !== 4) {
 							return oldValue;
