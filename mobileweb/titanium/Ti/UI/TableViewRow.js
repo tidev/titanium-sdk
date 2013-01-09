@@ -7,7 +7,8 @@ define(['Ti/_/declare', 'Ti/_/lang', 'Ti/UI/View', 'Ti/_/dom', 'Ti/_/css', 'Ti/_
 		imagePrefix = 'themes/' + require.config.ti.theme + '/UI/TableViewRow/',
 		checkImage = imagePrefix + 'check.png',
 		childImage = imagePrefix + 'child.png',
-		detailImage = imagePrefix + 'detail.png';
+		detailImage = imagePrefix + 'detail.png',
+		eventFilter = /(click|singletap|longpress)/;
 
 	return declare('Ti.UI.TableViewRow', View, {
 
@@ -56,7 +57,7 @@ define(['Ti/_/declare', 'Ti/_/lang', 'Ti/UI/View', 'Ti/_/dom', 'Ti/_/css', 'Ti/_
 		_tableViewSection: null,
 
 		fireEvent: function(type) {
-			if (type === 'click' || type === 'singletap' || type === 'longpress') {
+			if (eventFilter.test(type)) {
 				this._tableViewSection && this._tableViewSection._tableView && (this._tableViewSection._tableView._tableViewRowClicked = this);
 			}
 			View.prototype.fireEvent.apply(this, arguments);
