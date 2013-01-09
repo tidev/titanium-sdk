@@ -190,7 +190,7 @@
 }
 
 
--(void) updateGradientLayer:(BOOL)useSelected
+-(void) updateGradientLayer:(BOOL)useSelected withAnimation:(BOOL)animated
 {
 	TiGradient * currentGradient = useSelected?selectedBackgroundGradient:backgroundGradient;
 
@@ -200,7 +200,7 @@
 		//Because there's the chance that the other state still has the gradient, let's keep it around.
 		return;
 	}
-	
+
 	CALayer * ourLayer = [self layer];
 	
 	if(gradientLayer == nil)
@@ -222,31 +222,38 @@
             [[self textLabel] setBackgroundColor:[UIColor clearColor]];
         }
 	}
+    if (animated) {
+        CABasicAnimation *flash = [CABasicAnimation animationWithKeyPath:@"opacity"];
+        flash.fromValue = [NSNumber numberWithFloat:0.0];
+        flash.toValue = [NSNumber numberWithFloat:1.0];
+        flash.duration = 1.0;
+        [gradientLayer addAnimation:flash forKey:@"flashAnimation"];
+    }
 	[gradientLayer setNeedsDisplay];
 }
 
 -(void)setSelected:(BOOL)yn animated:(BOOL)animated
 {
     [super setSelected:yn animated:animated];
-    [self updateGradientLayer:yn|[self isHighlighted]];
+    [self updateGradientLayer:yn|[self isHighlighted] withAnimation:animated];
 }
 
 -(void)setHighlighted:(BOOL)yn animated:(BOOL)animated
 {
     [super setHighlighted:yn animated:animated];
-    [self updateGradientLayer:yn|[self isSelected]];
+    [self updateGradientLayer:yn|[self isSelected] withAnimation:animated];
 }
 
 -(void)setHighlighted:(BOOL)yn
 {
     [super setHighlighted:yn];
-    [self updateGradientLayer:yn|[self isHighlighted]];
+    [self updateGradientLayer:yn|[self isSelected] withAnimation:NO];
 }
 
 -(void)setSelected:(BOOL)yn
 {
     [super setSelected:yn];
-    [self updateGradientLayer:yn|[self isHighlighted]];
+    [self updateGradientLayer:yn|[self isHighlighted] withAnimation:NO];
 }
 
 -(void) setBackgroundGradient_:(TiGradient *)newGradient
@@ -260,7 +267,7 @@
 	
 	if(![self selectedOrHighlighted])
 	{
-		[self updateGradientLayer:NO];
+		[self updateGradientLayer:NO withAnimation:NO];
 	}
 }
 
@@ -275,7 +282,7 @@
 	
 	if([self selectedOrHighlighted])
 	{
-		[self updateGradientLayer:YES];
+		[self updateGradientLayer:YES withAnimation:NO];
 	}
 }
 
@@ -456,14 +463,9 @@
     // way, meaning that we have to explicitly reload the whole visible table to get
     // the "right" behavior.
     if (animation == UITableViewRowAnimationNone) {
-        if (![NSThread isMainThread]) {
-            dispatch_async(dispatch_get_main_queue(), ^{
-                [table reloadData];
-            });
-        }
-        else {
-            [table reloadData];            
-        }
+		TiThreadPerformOnMainThread(^{
+			[table reloadData];
+		}, NO);
         return;
     }
     
@@ -1671,14 +1673,9 @@
 
     // Instead of calling back through our mechanism to reload specific sections, because the entire index of the table
     // has been regenerated, we can assume it's okay to just reload the whole dataset.
-    if ([NSThread isMainThread]) {
-        [[self tableView] reloadData];
-    }
-    else {
-        dispatch_async(dispatch_get_main_queue(), ^{
-            [[self tableView] reloadData];
-        });
-    }
+	TiThreadPerformOnMainThread(^{
+		[[self tableView] reloadData];
+	}, NO);
 }
 
 -(void)setFilterCaseInsensitive_:(id)caseBool
