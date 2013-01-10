@@ -68,7 +68,12 @@ define(['Ti/_/css', 'Ti/_/declare', 'Ti/UI/View', 'Ti/UI', 'Ti/_/lang'],
 				rightContainer = _self._rightContainer,
 				leftView,
 				centerView,
-				rightView = activeWin.rightNavButton;
+				rightView;
+
+			if (!activeWin) {
+				return;
+			}
+			rightView = activeWin.rightNavButton;
 
 			if (activeWin.leftNavButton) {
 				leftView = activeWin.leftNavButton;
