@@ -5,7 +5,10 @@ define(["Ti/_", "Ti/_/declare", "Ti/_/has", "Ti/_/lang", "Ti/_/Evented", "Ti/Fil
 		on = require.on;
 
 	return declare("Ti.Network.HTTPClient", Evented, {
-
+		//This variable shows that responseType of XMLHttpRequest is 'arraybuffer'
+		//This type is valid only for async mode
+		_isArrayBuffer: void 0,
+		
 		constructor: function() {
 			var xhr = this._xhr = new XMLHttpRequest;
 
@@ -24,7 +27,9 @@ define(["Ti/_", "Ti/_/declare", "Ti/_/has", "Ti/_/lang", "Ti/_/Evented", "Ti/Fil
 
 			xhr.onreadystatechange = lang.hitch(this, function() {
 				var c = this.constants,
-					f,
+					file,
+					mimeType,
+					blobData = "",
 					onload = this.onload;
 
 				switch (xhr.readyState) {
@@ -36,23 +41,50 @@ define(["Ti/_", "Ti/_/declare", "Ti/_/has", "Ti/_/lang", "Ti/_/Evented", "Ti/Fil
 						clearTimeout(this._timeoutTimer);
 						this._completed = 1;
 						c.readyState = this.DONE;
-
+						
 						if (!this._aborted) {
-							if (f = this.file) {
-								f = Filesystem.getFile(f);
-								f.writable && f.write(xhr.responseText);
+							//create file by name
+							this.file && (file = Filesystem.getFile(Filesystem.applicationDataDirectory, this.file));
+							
+							mimeType =  xhr.getResponseHeader("Content-Type");
+							
+							if (this._isArrayBuffer) {
+								//parse arraybuffer`s response in async mode
+								c.responseXML  = c.responseText = "";
+								if (xhr.response) {
+									//prepare Base64-encoded string required by Blob
+									var uInt8Array = new Uint8Array(xhr.response),
+										i = uInt8Array.length,
+										binaryString = new Array(i);
+										
+									while (i--)	{
+										binaryString[i] = String.fromCharCode(uInt8Array[i]);
+									}
+									
+									c.responseText = c.responseXML = binaryString.join('');
+									blobData = _.isBinaryMimeType(mimeType) ? window.btoa(c.responseText) : c.responseText;
+								} 
+							} else {
+								//sync mode
+								c.responseXML = xhr.responseXML;
+								c.responseText = blobData = xhr.responseText;
+								//to do: encode binary data as in async mode!!!
+								//because responseType='arraybuffer' is not supported in sync mode (throws exception)
 							}
-
-							c.responseText = xhr.responseText;
+							
+							//responseData = Blob
 							c.responseData = new Blob({
-								data: xhr.responseText,
-								length: xhr.responseText.length,
-								mimeType: xhr.getResponseHeader("Content-Type") || "text/plain"
+								data: blobData,
+								length: blobData.length,
+								mimeType: mimeType || "text/plain",
+								file: file || null,
+								nativePath: (file && file.nativePath) || null,
 							});
-							c.responseXML = xhr.responseXML;
-
+								
+							//write Blob to file
+							file && file.writable && file.write(c.responseData);
+														
 							has("ti-instrumentation") && (instrumentation.stopTest(this._requestInstrumentationTest, this.location));
-
 							xhr.status >= 400 && (onload = this._onError);
 							is(onload, "Function") && onload.call(this);
 						}
@@ -88,11 +120,11 @@ define(["Ti/_", "Ti/_/declare", "Ti/_/has", "Ti/_/lang", "Ti/_/Evented", "Ti/Fil
 			this.constants.readyState = this.UNSENT;
 			this._fireStateChange();
 		},
-
+		
 		_fireStateChange: function() {
 			is(this.onreadystatechange, "Function") && this.onreadystatechange.call(this);
 		},
-
+		
 		getResponseHeader: function(name) {
 			return this._xhr.readyState > 1 ? this._xhr.getResponseHeader(name) : null;
 		},
@@ -105,8 +137,14 @@ define(["Ti/_", "Ti/_/declare", "Ti/_/has", "Ti/_/lang", "Ti/_/Evented", "Ti/Fil
 			this._xhr.open(
 				c.connectionType = method,
 				c.location = _.getAbsolutePath(httpURLFormatter ? httpURLFormatter(url) : url),
-				wc || async === void 0 ? true : !!async
+				this._isArrayBuffer = wc || async === void 0 ? true : !!async
 			);
+			
+			//in async mode we are using 'responseType=arraybuffer'
+			if (this._isArrayBuffer) {
+				this._xhr.responseType = 'arraybuffer';
+			}
+				
 			wc && (this._xhr.withCredentials = wc);
 		},
 
@@ -152,6 +190,10 @@ define(["Ti/_", "Ti/_/declare", "Ti/_/has", "Ti/_/lang", "Ti/_/Evented", "Ti/Fil
 			OPENED: 1,
 
 			UNSENT: 1,
+			
+			allResponseHeaders: function() {
+				return this._xhr.getAllResponseHeaders() || "";
+			},
 
 			connected: function() {
 				return this.readyState >= this.OPENED;
