@@ -1,3 +1,4 @@
+/*global define Ti*/
 define(['Ti/_/declare', 'Ti/_/dom', 'Ti/_/event', 'Ti/_/lang', 'Ti/App/Properties', 'Ti/Geolocation', 'Ti/Map', 'Ti/UI/View', 'Ti/Utils'],
 	function(declare, dom, event, lang, Properties, Geolocation, Map, View, Utils) {
 
@@ -14,7 +15,7 @@ define(['Ti/_/declare', 'Ti/_/dom', 'Ti/_/event', 'Ti/_/lang', 'Ti/App/Propertie
 	var isDef = lang.isDef,
 		mix = require.mix,
 		on = require.on,
-		handleTouchEvent = View.prototype._handleTouchEvent,
+		fireEvent = View.prototype.fireEvent,
 		defaultRegion = {
 			latitude: 39.828175,
 			longitude: -98.5795,
@@ -257,8 +258,8 @@ define(['Ti/_/declare', 'Ti/_/dom', 'Ti/_/event', 'Ti/_/lang', 'Ti/App/Propertie
 						title: annotation._getTitle()
 					};
 
-				handleTouchEvent.call(this, 'singletap', props);
-				handleTouchEvent.call(this, 'click', props);
+				fireEvent.call(this, 'singletap', props);
+				fireEvent.call(this, 'click', props);
 				annotation._onclick(this, idx, clicksource);
 			},
 
@@ -373,8 +374,8 @@ define(['Ti/_/declare', 'Ti/_/dom', 'Ti/_/event', 'Ti/_/lang', 'Ti/App/Propertie
 				}
 			},
 
-			_handleTouchEvent: function(type, e) {
-				/(click|singletap)/.test(type) || View.prototype._handleTouchEvent.apply(this,arguments);
+			fireEvent: function(type, e) {
+				/(click|singletap)/.test(type) || View.prototype.fireEvent.apply(this,arguments);
 			},
 
 			constants: {

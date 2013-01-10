@@ -1,19 +1,22 @@
-define(["Ti/_/declare", "Ti/_/lang","Ti/_/Gestures/GestureRecognizer"], function(declare,lang,GestureRecognizer) {
+/*global define*/
+define(['Ti/_/declare', 'Ti/_/lang'], function (declare, lang) {
 
-	return declare("Ti._.Gestures.TouchCancel", GestureRecognizer, {
+	return lang.setObject('Ti._.Gestures.TouchCancel', {
 		
-		name: "touchcancel",
-		
-		processTouchCancelEvent: function(e, element){
-			if (!element._isGestureBlocked(this.name)) {
-				for (var i = 0; i < e.changedTouches.length; i++) {
-					element,element._handleTouchEvent(this.name,{
-						x: e.changedTouches[i].clientX,
-						y: e.changedTouches[i].clientY,
-						source: this.getSourceNode(e,element)
-					});
-				}
+		processTouchCancelEvent: function (e) {
+			var changed = e.changedTouches,
+				i = 0,
+				l = changed.length,
+				events = {
+					'touchcancel': []
+				};
+			for (; i < l; i++) {
+				events.touchcancel.push({
+					x: changed[i].clientX,
+					y: changed[i].clientY
+				});
 			}
+			return events;
 		}
 
 	});

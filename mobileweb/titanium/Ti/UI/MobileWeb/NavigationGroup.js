@@ -181,11 +181,6 @@ define(['Ti/_/css', 'Ti/_/declare', 'Ti/UI/View', 'Ti/UI', 'Ti/_/lang'],
 				i = windows.length - 1,
 				l = i;
 
-			this._backButton.animate({opacity: 0, duration: 250}, function() {
-				this.opacity = 0;
-				this.enabled = false;
-			});
-
 			while (1) {
 				win = windows[i];
 				if (!i) {
@@ -203,7 +198,8 @@ define(['Ti/_/css', 'Ti/_/declare', 'Ti/UI/View', 'Ti/UI', 'Ti/_/lang'],
 		},
 
 		constants: {
-			window: void 0
+			window: void 0,
+			bubbleParent: false
 		},
 
 		properties: {
