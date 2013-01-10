@@ -553,14 +553,12 @@
 		"Ti/UI"
 	],
 	"Ti/UI/ScrollableView": [
-		"Ti/_/browser",
 		"Ti/_/declare",
-		"Ti/_/UI/KineticScrollView",
-		"Ti/_/lang",
+		"Ti/UI/View",
 		"Ti/_/dom",
 		"Ti/_/style",
 		"Ti/UI",
-		"Ti/_/event"
+		"Ti/_/browser"
 	],
 	"Ti/UI/ScrollView": [
 		"Ti/_/declare",
