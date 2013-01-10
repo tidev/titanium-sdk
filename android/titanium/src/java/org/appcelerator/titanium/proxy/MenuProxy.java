@@ -142,8 +142,7 @@ public class MenuProxy extends KrollProxy
 		}
 		
 		if (d.containsKey(TiC.PROPERTY_ACTION_VIEW)) {
-			//we must remove this view from its parent before adding it to the menu,
-			//if such a parent exists.
+			//check if view has a parent. If not, add it as action view. Otherwise, log error.
 			Object viewProxy = d.get(TiC.PROPERTY_ACTION_VIEW);
 			if (viewProxy instanceof TiViewProxy) {
 				TiUIView view = ((TiViewProxy)viewProxy).peekView();
