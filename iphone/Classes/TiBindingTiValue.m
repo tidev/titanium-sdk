@@ -238,16 +238,18 @@ TiValueRef TiBindingTiValueFromNSObject(TiContextRef jsContext, NSObject * obj)
 		TiStringRelease(jsString);
 		TiObjectRef excObject = TiObjectMakeError(jsContext, 1, &result, NULL);
 		NSDictionary *details = [(NSException *)obj userInfo];
-		if ([details objectForKey:kTiExceptionSubreason] != nil) {
+		NSString *subreason = [details objectForKey:kTiExceptionSubreason];
+		if (subreason != nil) {
 			TiStringRef propertyName = TiStringCreateWithUTF8CString("nativeReason");
-			TiStringRef valueString = TiStringCreateWithCFString((CFStringRef) [details objectForKey:kTiExceptionSubreason]);
+			TiStringRef valueString = TiStringCreateWithCFString((CFStringRef) subreason);
 			TiObjectSetProperty(jsContext, excObject, propertyName, TiValueMakeString(jsContext, valueString), kTiPropertyAttributeReadOnly, NULL);
 			TiStringRelease(propertyName);
 			TiStringRelease(valueString);
 		}
-		if ([details objectForKey:kTiExceptionLocation] != nil) {
+		NSString *location = [details objectForKey:kTiExceptionLocation];
+		if (location != nil) {
 			TiStringRef propertyName = TiStringCreateWithUTF8CString("nativeLocation");
-			TiStringRef valueString = TiStringCreateWithCFString((CFStringRef) [details objectForKey:kTiExceptionLocation]);
+			TiStringRef valueString = TiStringCreateWithCFString((CFStringRef) location);
 			TiObjectSetProperty(jsContext, excObject, propertyName, TiValueMakeString(jsContext, valueString), kTiPropertyAttributeReadOnly, NULL);
 			TiStringRelease(propertyName);
 			TiStringRelease(valueString);
