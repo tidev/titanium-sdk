@@ -176,29 +176,16 @@ void TiExceptionThrowWithNameAndReason(NSString *exceptionName, NSString *reason
 	}
 }
 
-static NSString * knownNativeClasses[] = {
-	@"NSString",
-	@"NSNumber",
-	@"NSArray",
-	@"NSDictionary",
-	@"KrollCallback",
-	@"KrollWrapper",
-};
-static NSString * knownJSClasses[] = {
-	@"String",
-	@"Number",
-	@"Array",
-	@"Object",
-	@"Function",
-	@"Function",
-};
-
-NSString *convertClassToJS(Class c)
+NSString *JavascriptNameForClass(Class c)
 {
-	for (NSUInteger i = 0; i < sizeof(knownNativeClasses)/sizeof(*knownNativeClasses); ++i) {
-		if ([c isSubclassOfClass:NSClassFromString(knownNativeClasses[i])]) {
-			return knownJSClasses[i];
-		}
+	if([c isSubclassOfClass:[NSString class]]) return @"String";
+	else if([c isSubclassOfClass:[NSNumber class]]) return @"Number";
+	else if([c isSubclassOfClass:[NSArray class]]) return @"Array";
+	else if([c isSubclassOfClass:[NSDictionary class]]) return @"Object";
+	else if([c isSubclassOfClass:[KrollCallback class]]) return @"Function";
+	else if([c isSubclassOfClass:[KrollWrapper class]]) return @"Function";
+	else if ([c conformsToProtocol:@protocol(JavascriptClass)]) {
+		return [(id<JavascriptClass>)c javascriptClassName];
 	}
 	return NSStringFromClass(c);
 }
