@@ -196,21 +196,11 @@ static NSString * knownJSClasses[] = {
 NSString *convertClassToJS(Class c)
 {
 	for (NSUInteger i = 0; i < sizeof(knownNativeClasses)/sizeof(*knownNativeClasses); ++i) {
-		if (c == NSClassFromString(knownNativeClasses[i])) {
+		if ([c isSubclassOfClass:NSClassFromString(knownNativeClasses[i])]) {
 			return knownJSClasses[i];
 		}
 	}
 	return NSStringFromClass(c);
-}
-
-NSString *convertTypeToJS(id obj)
-{
-	for (NSUInteger i = 0; i < sizeof(knownNativeClasses)/sizeof(*knownNativeClasses); ++i) {
-		if ([obj isKindOfClass:NSClassFromString(knownNativeClasses[i])]) {
-			return knownJSClasses[i];
-		}
-	}
-	return NSStringFromClass([obj class]);
 }
 
 void TiThreadReleaseOnMainThread(id releasedObject,BOOL waitForFinish)

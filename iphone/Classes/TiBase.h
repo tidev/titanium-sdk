@@ -81,10 +81,9 @@ CGPoint midpointBetweenPoints(CGPoint a, CGPoint b);
 void TiLogMessage(NSString* str, ...);
 
 NSString *convertClassToJS(Class c);
-NSString *convertTypeToJS(id obj);
 
 #define CLASS2JS(x)		convertClassToJS(x)
-#define OBJTYPE2JS(x)	convertTypeToJS(x)
+#define OBJTYPE2JS(x)	convertClassToJS([x class])
 
 #define degreesToRadians(x) (M_PI * x / 180.0)
 #define radiansToDegrees(x) (x * (180.0 / M_PI))
