@@ -1,4 +1,3 @@
-
 /*global define*/
 define(['Ti/_/declare', 'Ti/_/lang', 'Ti/UI/View', 'Ti/_/dom', 'Ti/_/css', 'Ti/_/style', 'Ti/UI', 'Ti/_/Layouts/ConstrainingHorizontal'],
 	function(declare, lang, View, dom, css, style, UI, ConstrainingHorizontal) {
