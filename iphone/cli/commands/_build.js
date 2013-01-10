@@ -423,8 +423,8 @@ exports.validate = function (logger, config, cli) {
 			cli.argv.target = process.env.CURRENT_ARCH === 'i386' ? 'simulator' : (buildManifest.target != 'simulator' ? buildManifest.target : 'device');
 			cli.argv['deploy-type'] = process.env.TITANIUM_CLI_XCODEBUILD ? buildManifest.deployType : (process.env.CURRENT_ARCH === 'i386' ? 'development' : 'test');
 			cli.argv['output-dir'] = buildManifest.outputDir;
-			cli.argv['developer-name'] = buildManifest.developerName;
-			cli.argv['distribution-name'] = buildManifest.distributionName;
+			cli.argv['developer-name'] = process.env.CODE_SIGN_IDENTITY ? process.env.CODE_SIGN_IDENTITY.replace(/^iPhone Developer\: /, '') : buildManifest.developerName;
+			cli.argv['distribution-name'] = process.env.CODE_SIGN_IDENTITY ? process.env.CODE_SIGN_IDENTITY.replace(/^iPhone Distribution\: /, '') : buildManifest.distributionName;
 			conf.options['output-dir'].required = false;
 		} catch (e) {}
 	}
