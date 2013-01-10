@@ -10,11 +10,34 @@ public class KrollException
 {
 	private String message;
 	private String stack;
+	private String lineNumber = "";
+	private String fileName = "";
 
 	public KrollException(String message, String stack)
 	{
 		this.message = message;
 		this.stack = stack;
+		parseInfo();
+	}
+	
+	private void parseInfo() 
+	{
+		if (stack == null) {
+			return;
+		}
+
+		String split[];
+		split = stack.split("\\n");
+		String secondLine = split[1];
+		secondLine = secondLine.replace("at", " ");
+		secondLine = secondLine.trim();
+		
+		String info[];
+		info = secondLine.split(":");
+		lineNumber = info[1];
+		fileName = info[0];
+		
+		
 	}
 
 	public String getStack()
@@ -25,6 +48,16 @@ public class KrollException
 	public String getMessage()
 	{
 		return message;
+	}
+	
+	public String getLineNumber()
+	{
+		return lineNumber;
+	}
+	
+	public String getFileName()
+	{
+		return fileName;
 	}
 
 }
