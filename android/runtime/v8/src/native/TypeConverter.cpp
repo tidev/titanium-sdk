@@ -566,16 +566,11 @@ jobject TypeConverter::jsValueToJavaError(v8::Local<v8::Value> jsValue, bool* is
 			}
 		}
 
-	} else if (jsValue->IsString()) {
+	} else  {
 		*isNew = true;
 		return env->NewObject(JNIUtil::krollExceptionClass, JNIUtil::krollExceptionInitMethod,
 			TypeConverter::jsValueToJavaString(jsValue), NULL);
-
-	} else if (jsValue->IsBoolean()) {
-		*isNew = true;
-		return env->NewObject(JNIUtil::krollExceptionClass, JNIUtil::krollExceptionInitMethod,
-			TypeConverter::jsBooleanToJavaBoolean(jsValue->ToBoolean()), NULL);
-	}
+	} 
 
 	if (!jsValue->IsNull() && !jsValue->IsUndefined()) {
 		LOGW(TAG, "jsValueToJavaObject returning null.");
