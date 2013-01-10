@@ -96,8 +96,8 @@ methods:
 
       - name: options
         summary: |
-            Dictionary of display and animation settings to use when closing the window. I
-            dentical to the `options` parameter to [Window.close](Titanium.UI.Window.close).
+            Dictionary of display and animation settings to use when closing the window. 
+            Identical to the `options` parameter to [Window.close](Titanium.UI.Window.close).
             iOS only supports the **animated** parameter.
         type: Object
         optional: true
