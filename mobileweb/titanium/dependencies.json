@@ -657,7 +657,13 @@
 		"Ti/_/UI/SuperView",
 		"Ti/UI"
 	],
-	"Ti/UI/MobileWeb/NavigationGroup": [],
+	"Ti/UI/MobileWeb/NavigationGroup": [
+		"Ti/_/css",
+		"Ti/_/declare",
+		"Ti/UI/View",
+		"Ti/UI",
+		"Ti/_/lang"
+	],
 	"Ti/UI/MobileWeb/TableViewSeparatorStyle": [
 		"Ti/_/lang"
 	]
