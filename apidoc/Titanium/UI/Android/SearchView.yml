@@ -1,5 +1,5 @@
 ---
-name: Titanium.UI.SearchView
+name: Titanium.UI.Android.SearchView
 summary: A specialized text field for entering search text.
 description: |
     A widget that provides a user interface for the user to enter a search query and submit a request to a search provider.
@@ -12,7 +12,7 @@ description: |
 
     A search view can be used without a table view.
 
-    Use the <Titanium.UI.createSearchView> method to create a search view.
+    Use the <Titanium.UI.Android.createSearchView> method to create a search view.
 
     
 extends: Titanium.UI.View
@@ -74,7 +74,7 @@ examples:
   - title: Simple Search View
     example: |
         
-            var search = Titanium.UI.createSearchView();
+            var search = Titanium.UI.Android.createSearchView();
 
   - title: Alloy XML Markup
     example: |

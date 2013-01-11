@@ -1084,6 +1084,7 @@ properties:
     description: Set to false if the search view will be displayed in the action bar.
     type: Boolean
     default: true
+    since: 3.0.2
     platforms: [android]
     
   - name: searchHidden
