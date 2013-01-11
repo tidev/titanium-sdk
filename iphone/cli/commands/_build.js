@@ -903,6 +903,7 @@ function build(logger, config, cli, finished) {
 				'copyCommonJSModules',
 				'copyItunesArtwork',
 				'copyGraphics',
+				'copyLocalizedSplashScreens',
 				'writeBuildManifest'
 			], function () {
 				var xcodeArgs = [
@@ -1792,6 +1793,47 @@ build.prototype = {
 			}, this),
 			callback
 		);
+	},
+	
+	copyLocalizedSplashScreens: function (callback) {
+		
+		var copyOpts = {
+				logger: this.logger.debug
+			};
+		ti.i18n.splashScreens(this.projectDir, this.logger).forEach(function (splashImage) {
+			var token = splashImage.split('/'),
+				lang = token[token.length-2],
+				lprojDir = path.join(this.xcodeAppDir, lang + '.lproj'),
+				file = token[token.length-1],
+				globalFile = path.join(this.xcodeAppDir, file),
+				resourcesDir = path.join(this.buildDir, 'Resources'),
+				projFile = path.join(resourcesDir, file);
+			
+			//This would never need to run. But just to be safe.
+			if (!afs.exists(lprojDir)) {
+				this.logger.debug(__('Creating lproj folder %s', lprojDir.cyan));
+				wrench.mkdirSyncRecursive(lprojDir);
+			}
+			
+			afs.copyFileSync(splashImage, lprojDir, copyOpts);
+			
+			this.logger.debug(__('Checking if %s exists in global space', file.cyan));
+			
+			// Check for it in the root of the xcode build folder.
+			if (afs.exists(globalFile)) {
+				this.logger.debug(__('Removing File %s, as it is being localized', globalFile.cyan));
+				fs.unlinkSync(globalFile);
+			}
+			
+			// Check in the Resources of Ti-build folder.
+			if (afs.exists(projFile)) {
+				this.logger.debug(__('Removing File %s, as it is being localized', projFile.cyan));
+				fs.unlinkSync(projFile);
+			}
+			
+		}, this);
+		
+		callback();
 	},
 	
 	injectModulesIntoXcodeProject: function (callback) {
