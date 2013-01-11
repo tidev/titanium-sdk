@@ -10,8 +10,8 @@ public class KrollException
 {
 	private String message;
 	private String stack;
-	private String lineNumber = "";
-	private String fileName = "";
+	private String lineNumber;
+	private String fileName;
 
 	public KrollException(String message, String stack)
 	{
@@ -28,14 +28,17 @@ public class KrollException
 
 		String split[];
 		split = stack.split("\\n");
-		String secondLine = split[1];
-		secondLine = secondLine.replace("at", " ");
-		secondLine = secondLine.trim();
-		
-		String info[];
-		info = secondLine.split(":");
-		lineNumber = info[1];
-		fileName = info[0];
+		if (split.length >= 2) {
+			String secondLine = split[1];
+			secondLine = secondLine.replace("at", " ").trim();
+
+			String info[];
+			info = secondLine.split(":");
+			if (info.length >=2) {
+				lineNumber = info[1];
+				fileName = info[0];
+			}
+		}
 		
 		
 	}
