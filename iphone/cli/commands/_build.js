@@ -120,8 +120,9 @@ exports.config = function (logger, config, cli) {
 					retina: {
 						desc: __('use the retina version of the iOS Simulator')
 					},*/
-					legacy: {
-						desc: __('build using the old Python-based builder.py')
+					'skip-js-minify': {
+						default: false,
+						desc: __('bypasses JavaScript minification; %s builds are never minified', 'simulator'.cyan)
 					},
 					xcode: {
 						// secret flag to perform Xcode pre-compile build step
@@ -425,6 +426,7 @@ exports.validate = function (logger, config, cli) {
 			cli.argv['output-dir'] = buildManifest.outputDir;
 			cli.argv['developer-name'] = process.env.CODE_SIGN_IDENTITY ? process.env.CODE_SIGN_IDENTITY.replace(/^iPhone Developer\: /, '') : buildManifest.developerName;
 			cli.argv['distribution-name'] = process.env.CODE_SIGN_IDENTITY ? process.env.CODE_SIGN_IDENTITY.replace(/^iPhone Distribution\: /, '') : buildManifest.distributionName;
+			cli.argv['skip-js-minify'] = buildManifest.skipJSMinification;
 			conf.options['output-dir'].required = false;
 		} catch (e) {}
 	}
@@ -1750,7 +1752,8 @@ build.prototype = {
 			version: this.tiapp.version,
 			description: this.tiapp.description,
 			copyright: this.tiapp.copyright,
-			guid: this.tiapp.guid
+			guid: this.tiapp.guid,
+			skipJSMinification: !!this.cli.argv['skip-js-minify']
 		}, null, '\t'), callback);
 	},
 	
@@ -2266,7 +2269,7 @@ build.prototype = {
 		try {
 			var ast = uglifyParser.parse(contents);
 			
-			if (this.deployType != 'development') {
+			if (!this.cli.argv['skip-js-minify'] && this.deployType != 'development') {
 				contents = uglifyProcessor.gen_code(
 					uglifyProcessor.ast_squeeze(
 						uglifyProcessor.ast_mangle(ast)
