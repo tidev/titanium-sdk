@@ -11,10 +11,11 @@ import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.view.TiUIView;
 
+import ti.modules.titanium.ui.android.AndroidModule;
 import ti.modules.titanium.ui.widget.searchview.TiUISearchView;
 import android.app.Activity;
 
-@Kroll.proxy(creatableInModule = UIModule.class, propertyAccessors = {
+@Kroll.proxy(creatableInModule = AndroidModule.class, propertyAccessors = {
 	TiC.PROPERTY_ICONIFIED, TiC.PROPERTY_ICONIFIED_BY_DEFAULT, TiC.PROPERTY_HINT_TEXT, TiC.PROPERTY_VALUE })
 public class SearchViewProxy extends TiViewProxy {
 
