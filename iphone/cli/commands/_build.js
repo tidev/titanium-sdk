@@ -120,6 +120,9 @@ exports.config = function (logger, config, cli) {
 					retina: {
 						desc: __('use the retina version of the iOS Simulator')
 					},*/
+					legacy: {
+						desc: __('build using the old Python-based builder.py')
+					},
 					xcode: {
 						// secret flag to perform Xcode pre-compile build step
 						hidden: true
@@ -417,11 +420,11 @@ exports.validate = function (logger, config, cli) {
 		
 		try {
 			var buildManifest = JSON.parse(fs.readFileSync(buildManifestFile)) || {};
-			cli.argv.target = buildManifest.target;
-			cli.argv['deploy-type'] = buildManifest.deployType;
+			cli.argv.target = process.env.CURRENT_ARCH === 'i386' ? 'simulator' : (buildManifest.target != 'simulator' ? buildManifest.target : 'device');
+			cli.argv['deploy-type'] = process.env.TITANIUM_CLI_XCODEBUILD ? buildManifest.deployType : (process.env.CURRENT_ARCH === 'i386' ? 'development' : 'test');
 			cli.argv['output-dir'] = buildManifest.outputDir;
-			cli.argv['developer-name'] = buildManifest.developerName;
-			cli.argv['distribution-name'] = buildManifest.distributionName;
+			cli.argv['developer-name'] = process.env.CODE_SIGN_IDENTITY ? process.env.CODE_SIGN_IDENTITY.replace(/^iPhone Developer\: /, '') : buildManifest.developerName;
+			cli.argv['distribution-name'] = process.env.CODE_SIGN_IDENTITY ? process.env.CODE_SIGN_IDENTITY.replace(/^iPhone Distribution\: /, '') : buildManifest.distributionName;
 			conf.options['output-dir'].required = false;
 		} catch (e) {}
 	}
@@ -734,7 +737,7 @@ function build(logger, config, cli, finished) {
 	this.keychain = cli.argv.keychain;
 	
 	if (cli.argv.xcode) {
-		this.deployType = process.env.CURRENT_ARCH === 'i386' ? 'development' : process.env.CONFIGURATION === 'Debug' ? (cli.argv['deploy-type'] || 'test') : 'production';
+		this.deployType = cli.argv['deploy-type'];
 	} else {
 		this.deployType = /device|simulator/.test(this.target) && cli.argv['deploy-type'] ? cli.argv['deploy-type'] : deployTypes[this.target];
 	}
@@ -959,7 +962,8 @@ function build(logger, config, cli, finished) {
 						env: {
 							DEVELOPER_DIR: this.xcodeEnv.path,
 							HOME: process.env.HOME,
-							PATH: process.env.PATH
+							PATH: process.env.PATH,
+							TITANIUM_CLI_XCODEBUILD: 'yeah baby'
 						}
 					}),
 					out = [],
@@ -1313,8 +1317,9 @@ build.prototype = {
 		proj = injectCompileShellScript(
 			proj,
 			'Pre-Compile',
+			'if [ \\"x$TITANIUM_CLI_XCODEBUILD\\" == \\"x\\" ]; then NO_COLORS=\\"--no-colors\\"; else NO_COLORS=\\"\\"; fi\\n' +
 			(process.execPath || 'node') + ' \\"' + this.cli.argv.$0.replace(/^node /, '') + '\\" build --platform ' +
-				this.platformName + ' --sdk ' + this.titaniumSdkVersion + ' --no-prompt --no-banner --xcode\\nexit $?'
+				this.platformName + ' --sdk ' + this.titaniumSdkVersion + ' --no-prompt --no-banner $NO_COLORS --xcode\\nexit $?'
 		);
 		proj = injectCompileShellScript(
 			proj,
