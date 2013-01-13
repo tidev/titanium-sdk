@@ -1,19 +1,19 @@
-define(["Ti/_/declare", "Ti/_/lang", "Ti/_/UI/Widget", "Ti/_/style","Ti/UI/MobileWeb/TableViewSeparatorStyle", "Ti/UI"], 
+/*global define*/
+define(['Ti/_/declare', 'Ti/_/lang', 'Ti/_/UI/Widget', 'Ti/_/style','Ti/UI/MobileWeb/TableViewSeparatorStyle', 'Ti/UI'],
 	function(declare, lang, Widget, style, TableViewSeparatorStyle, UI) {
-	
-	var on = require.on,
-		emptyfn = function(){},
-		is = require.is,
-		setStyle = style.set;
 
-	return declare("Ti.UI.TableViewSection", Widget, {
-		
-		constructor: function(args) {
+	var is = require.is,
+		setStyle = style.set,
+		eventFilter = /(click|singletap|longpress)/;
+
+	return declare('Ti.UI.TableViewSection', Widget, {
+
+		constructor: function() {
 			this._indexedContent = [];
 
 			var i = 0,
 				l = 3,
-				a = ["_header", "_rows", "_footer"];
+				a = ['_header', '_rows', '_footer'];
 
 			while (i < l) {
 				this._add(this[a[i++]] = UI.createView({
@@ -25,48 +25,44 @@ define(["Ti/_/declare", "Ti/_/lang", "Ti/_/UI/Widget", "Ti/_/style","Ti/UI/Mobil
 
 			// Create the parts out of Ti controls so we can make use of the layout system
 			this.layout = UI._LAYOUT_CONSTRAINING_VERTICAL;
-
-			// Force single tap and long press to be enabled.
-			on(this, "singletap", emptyfn);
-			on(this, "longpress", emptyfn);
 		},
 
 		_defaultWidth: UI.INHERIT,
 
 		_defaultHeight: UI.SIZE,
-		
-		_handleTouchEvent: function(type, e) {
-			if (type === "click" || type === "singletap" || type === "longpress") {
+
+		fireEvent: function(type) {
+			if (eventFilter.test(type)) {
 				this._tableView && (this._tableView._tableViewSectionClicked = this);
 			}
-			Widget.prototype._handleTouchEvent.apply(this,arguments);
+			Widget.prototype.fireEvent.apply(this,arguments);
 		},
-		
+
 		_tableView: null,
-		
+
 		_createSeparator: function() {
 			var showSeparator = this._tableView && this._tableView.separatorStyle === TableViewSeparatorStyle.SINGLE_LINE,
 				separator = UI.createView({
 					height: showSeparator ? 1 : 0,
 					width: UI.INHERIT,
-					backgroundColor: showSeparator ? this._tableView.separatorColor : "transparent"
+					backgroundColor: showSeparator ? this._tableView.separatorColor : 'transparent'
 				});
-			setStyle(separator.domNode,"minWidth","100%"); // Temporary hack until TIMOB-8124 is completed.
+			setStyle(separator.domNode,'minWidth','100%'); // Temporary hack until TIMOB-8124 is completed.
 			return separator;
 		},
-		
+
 		_createDecorationLabel: function(text) {
 			return UI.createLabel({
-				text: text, 
-				backgroundColor: "darkGrey",
-				color: "white",
+				text: text,
+				backgroundColor: 'darkGrey',
+				color: 'white',
 				width: UI.INHERIT,
 				height: UI.SIZE,
 				left: 0,
 				font: {fontSize: 18}
 			});
 		},
-		
+
 		_refreshRows: function() {
 			if (this._tableView) {
 				// Update the row information
@@ -91,26 +87,26 @@ define(["Ti/_/declare", "Ti/_/lang", "Ti/_/UI/Widget", "Ti/_/style","Ti/UI/Mobil
 						row.backgroundColor = tableView.separatorColor;
 					} else {
 						row.height = 0;
-						row.backgroundColor = "transparent";
+						row.backgroundColor = 'transparent';
 					}
 				}
 			}
 		},
-		
+
 		_insertHelper: function(value, index) {
-			if (!lang.isDef(value.declaredClass) || value.declaredClass != "Ti.UI.TableViewRow") {
+			if (!lang.isDef(value.declaredClass) || value.declaredClass != 'Ti.UI.TableViewRow') {
 				value = UI.createTableViewRow(value);
 			}
-			
+
 			this._rows._insertAt(value, 2 * index + 1);
 			this._rows._insertAt(this._createSeparator(), 2 * index + 2);
 			value._tableViewSection = this;
 			this.rowCount++;
 			this._refreshRows();
 		},
-		
+
 		add: function(value, index) {
-			
+
 			var rows = this._rows._children,
 				rowCount = this.rowCount,
 				i;
@@ -120,7 +116,7 @@ define(["Ti/_/declare", "Ti/_/lang", "Ti/_/UI/Widget", "Ti/_/style","Ti/UI/Mobil
 			if (index < 0 || index > rowCount) {
 				return;
 			}
-			
+
 			if (rows.length === 0) {
 				this._rows._add(this._createSeparator());
 			}
@@ -133,7 +129,7 @@ define(["Ti/_/declare", "Ti/_/lang", "Ti/_/UI/Widget", "Ti/_/style","Ti/UI/Mobil
 				this._insertHelper(value,index);
 			}
 		},
-		
+
 		_removeAt: function(index) {
 			if (index < 0 || index >= this.rowCount) {
 				return;
@@ -141,27 +137,27 @@ define(["Ti/_/declare", "Ti/_/lang", "Ti/_/UI/Widget", "Ti/_/style","Ti/UI/Mobil
 			this._rows._children[2 * index + 1]._tableViewSection = null;
 			this._rows.remove(this._rows._children[2 * index + 1]); // Remove the separator
 			this._rows.remove(this._rows._children[2 * index + 1]); // Remove the row
-			
+
 			// Remove the last separator, if there are no rows left
 			if (this._rows._children.length === 1) {
 				this._rows.remove(this._rows._children[0]);
 			}
 			this._refreshRows();
 		},
-		
+
 		remove: function(view) {
 			var index = this._rows._children.indexOf(view);
 			if (index === -1) {
 				return;
 			}
-			
+
 			this._removeAt(index);
 		},
-		
+
 		constants: {
 			rows: void 0
 		},
-					
+
 		properties: {
 			footerTitle: {
 				set: function(value, oldValue) {
@@ -201,8 +197,8 @@ define(["Ti/_/declare", "Ti/_/lang", "Ti/_/UI/Widget", "Ti/_/style","Ti/UI/Mobil
 					return value;
 				}
 			},
-			
-			rowCount: function(value) {
+
+			rowCount: function() {
 				return Math.floor(this._rows._children.length / 2);
 			}
 		}
