@@ -63,7 +63,7 @@ exports.config = function (logger, config, cli) {
 						}
 						if (!/^([a-z_]{1}[a-z0-9_]*(\.[a-z_]{1}[a-z0-9_]*)*)$/.test(id)) {
 							throw new appc.exception(__('Invalid app id "%s"', id), [
-								__('The app id must consist of letters, numbers, and underscores.'),
+								__('The app id must consist of lower case letters, numbers, and underscores.'),
 								__('The first character must be a letter or underscore.'),
 								__("Usually the app id is your company's reversed Internet domain name. (i.e. com.example.myapp)")
 							]);
@@ -138,7 +138,7 @@ exports.validate = function (logger, config, cli) {
 	cli.argv.id = (cli.argv.id || '').trim();
 	if (!/^([a-z_]{1}[a-z0-9_]*(\.[a-z_]{1}[a-z0-9_]*)*)$/.test(cli.argv.id)) {
 		logger.error(__('Invalid app id "%s"', cli.argv.id) + '\n');
-		logger.log(__('The app id must consist of letters, numbers, and underscores.'));
+		logger.log(__('The app id must consist of lower case letters, numbers, and underscores.'));
 		logger.log(__('The first character must be a letter or underscore.'));
 		logger.log(__("Usually the app id is your company's reversed Internet domain name. (i.e. com.example.myapp)") + '\n');
 		process.exit(1);
