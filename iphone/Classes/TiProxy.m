@@ -590,9 +590,7 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 		return pageKrollObject;
 	}
 
-	if (bridgeCount < 2) {
-		//By this time, the only valid response would have been pageKrollObject,
-		//and we know that isn't the case.
+	if (bridgeCount == 0) {
 		return nil;
 	}
 
@@ -611,6 +609,10 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 		return pageKrollObject;
 	}
 
+	if (bridgeCount == 0) {
+		return nil;
+	}
+    
 	KrollBridge * ourBridge = (KrollBridge *)[context delegate];
 	
 	if(![ourBridge usesProxy:self])
