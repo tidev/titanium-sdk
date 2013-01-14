@@ -322,6 +322,17 @@ self.p = v;\
     return animationDuration;
 }
 
+-(CAMediaTimingFunction*) timingFunction
+{
+    switch ([curve intValue]) {
+        case UIViewAnimationOptionCurveEaseInOut: return [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseInEaseOut];
+        case UIViewAnimationOptionCurveEaseIn: return [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseIn];
+        case UIViewAnimationOptionCurveEaseOut: return [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseOut];
+        case UIViewAnimationOptionCurveLinear: return [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionLinear];
+        default: return [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionDefault];
+    }
+}
+
 -(void)animate:(id)args
 {
 	ENSURE_UI_THREAD(animate,args);
@@ -493,7 +504,37 @@ doReposition = YES;\
                 
                 if (doReposition)
                 {
+                    CABasicAnimation *boundsAnimation = nil;
+                    CABasicAnimation *positionAnimation = nil;
+                    bool hasGradient = ([uiview gradientLayer] != nil);
+                    if (hasGradient) {
+                        boundsAnimation = [CABasicAnimation animationWithKeyPath:@"bounds"];
+                        boundsAnimation.fromValue = [NSValue valueWithCGRect:[uiview bounds]];
+                        boundsAnimation.duration = animationDuration;
+                        boundsAnimation.timingFunction = [self timingFunction];
+                    
+                        positionAnimation = [CABasicAnimation animationWithKeyPath:@"position"];
+                        positionAnimation.fromValue = [NSValue valueWithCGPoint:CGPointMake([uiview bounds].size.width / 2, [uiview bounds].size.height / 2)];
+                        positionAnimation.duration = animationDuration;
+                        positionAnimation.timingFunction = [self timingFunction];
+                    }
+                    
                     [(TiViewProxy *)[uiview proxy] reposition];
+                    
+                    if (hasGradient) {
+                        boundsAnimation.toValue = [NSValue valueWithCGRect:[uiview bounds]];
+                        positionAnimation.toValue = [NSValue valueWithCGPoint:CGPointMake([uiview bounds].size.width / 2, [uiview bounds].size.height / 2)];
+                        if (repeatCount > 0) {
+                            boundsAnimation.autoreverses = (reverseAnimation != nil);
+                            boundsAnimation.repeatCount = repeatCount;
+                            
+                            positionAnimation.autoreverses = (reverseAnimation != nil);
+                            positionAnimation.repeatCount = repeatCount;
+                        }
+                    
+                        [[uiview gradientLayer] addAnimation:boundsAnimation forKey:@"animateBounds"];
+                        [[uiview gradientLayer] addAnimation:positionAnimation forKey:@"animatePosition"];
+                    }
                 }
             }
             
