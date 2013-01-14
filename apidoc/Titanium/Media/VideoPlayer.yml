@@ -8,10 +8,10 @@ description: |
 
     Use the <Titanium.Media.createVideoPlayer> method to create a video player.
 
-    #### Platform Implementation Notes
-
     All platforms support specifying the video content as a URL, either to a local file or
     a remote stream. This is done by setting the [url](Titanium.Media.VideoPlayer.url) property.
+
+    #### iOS Implementation Notes
 
     On iOS, video content can also be specified as a [Blob](Titanium.Blob) or
     [File](Titanium.Filesystem.File) object using the
@@ -20,6 +20,8 @@ description: |
     On iOS, a video player can dynamically switch back and forth between fullscreen mode
     and standard mode. If the native video controls are displayed, the user can use them
     to switch between standard and fullscreen mode. 
+
+    #### Android Implementation Notes
 
     On Android, the video player cannot switch modes. To create a fullscreen player, you
     must specify `fullscreen: true` when you create the player. This fullscreen player
@@ -41,6 +43,15 @@ description: |
     * If a borderRadius is specified, the video content is not clipped to the rounded
       corners. ([TIMOB-7629](https://jira.appcelerator.org/browse/TIMOB-7629))
       
+    On Android, using a video player inside a scroll view is not recommended. When scrolling,
+    black bars may appear over the video content.
+
+    This is because the video player is rendered on a special Android UI element called a SurfaceView.
+    Android renders the SurfaceView behind the main window and punches a hole in the window
+    to reveal the video.  Because the content of the SurfaceView does not reside in the application
+    window, the video content cannot be transformed (moved, scaled or rotated) with the window.
+    This makes it difficult for the content to render properly inside a ScrollView.
+
 
 extends: Titanium.UI.View
 excludes: { events: ['pinch', 'longclick', 'twofingertap'] }
