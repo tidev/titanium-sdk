@@ -224,6 +224,27 @@ define(["Ti/_/declare", "Ti/_/event", "Ti/_/lang", "Ti/_/style", "Ti/_/UI/Widget
 				}
 			},
 
+			defaultImage: {
+				set: function(value) {
+					if (this._children.length == 0) {
+						this._images = void 0;						
+						this._add(this._createImage(
+							value, 
+							function() {
+								this.fireEvent("load", {
+									state: "image"
+								});
+							}, 
+							function(e) {
+								this.fireEvent("error", e);
+							}
+						));
+						
+						return value;
+					}
+				}
+			},
+
 			images: {
 				set: function(value) {
 					var imgs = void 0,
