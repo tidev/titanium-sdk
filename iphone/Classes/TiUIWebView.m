@@ -400,13 +400,11 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 	reloadMethod = @selector(setData_:);
 	RELEASE_TO_NIL(url);
 	ENSURE_SINGLE_ARG(args,NSObject);
+	
+	[self stopLoading];
+
 	if ([args isKindOfClass:[TiBlob class]])
 	{
-		if (scalingOverride==NO)
-		{
-			[[self webview] setScalesPageToFit:YES];
-		}
-		
 		TiBlob *blob = (TiBlob*)args;
 		TiBlobType type = [blob type];
 		switch (type)
@@ -414,12 +412,16 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 			case TiBlobTypeData:
 			{
 				[[self webview] loadData:[blob data] MIMEType:[blob mimeType] textEncodingName:@"utf-8" baseURL:nil];
+				if (scalingOverride==NO)
+				{
+					[[self webview] setScalesPageToFit:YES];
+				}
 				break;
 			}
 			case TiBlobTypeFile:
 			{
 				url = [[NSURL fileURLWithPath:[blob path]] retain];
-				[self loadURLRequest:[NSMutableURLRequest requestWithURL:url]];
+				[self loadLocalURL];
 				break;
 			}
 			default:
@@ -432,11 +434,7 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 	{
 		TiFile *file = (TiFile*)args;
 		url = [[NSURL fileURLWithPath:[file path]] retain];
-		if (scalingOverride==NO)
-		{
-			[[self webview] setScalesPageToFit:YES];
-		}
-		[self loadURLRequest:[NSMutableURLRequest requestWithURL:url]];
+		[self loadLocalURL];
 	}
 	else
 	{
