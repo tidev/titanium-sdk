@@ -120,6 +120,10 @@ exports.config = function (logger, config, cli) {
 					retina: {
 						desc: __('use the retina version of the iOS Simulator')
 					},*/
+					'skip-js-minify': {
+						default: false,
+						desc: __('bypasses JavaScript minification; %s builds are never minified', 'simulator'.cyan)
+					},
 					xcode: {
 						// secret flag to perform Xcode pre-compile build step
 						hidden: true
@@ -417,11 +421,12 @@ exports.validate = function (logger, config, cli) {
 		
 		try {
 			var buildManifest = JSON.parse(fs.readFileSync(buildManifestFile)) || {};
-			cli.argv.target = buildManifest.target;
-			cli.argv['deploy-type'] = buildManifest.deployType;
+			cli.argv.target = process.env.CURRENT_ARCH === 'i386' ? 'simulator' : (buildManifest.target != 'simulator' ? buildManifest.target : 'device');
+			cli.argv['deploy-type'] = process.env.TITANIUM_CLI_XCODEBUILD ? buildManifest.deployType : (process.env.CURRENT_ARCH === 'i386' ? 'development' : 'test');
 			cli.argv['output-dir'] = buildManifest.outputDir;
-			cli.argv['developer-name'] = buildManifest.developerName;
-			cli.argv['distribution-name'] = buildManifest.distributionName;
+			cli.argv['developer-name'] = process.env.CODE_SIGN_IDENTITY ? process.env.CODE_SIGN_IDENTITY.replace(/^iPhone Developer\: /, '') : buildManifest.developerName;
+			cli.argv['distribution-name'] = process.env.CODE_SIGN_IDENTITY ? process.env.CODE_SIGN_IDENTITY.replace(/^iPhone Distribution\: /, '') : buildManifest.distributionName;
+			cli.argv['skip-js-minify'] = buildManifest.skipJSMinification;
 			conf.options['output-dir'].required = false;
 		} catch (e) {}
 	}
@@ -734,7 +739,7 @@ function build(logger, config, cli, finished) {
 	this.keychain = cli.argv.keychain;
 	
 	if (cli.argv.xcode) {
-		this.deployType = process.env.CURRENT_ARCH === 'i386' ? 'development' : process.env.CONFIGURATION === 'Debug' ? (cli.argv['deploy-type'] || 'test') : 'production';
+		this.deployType = cli.argv['deploy-type'];
 	} else {
 		this.deployType = /device|simulator/.test(this.target) && cli.argv['deploy-type'] ? cli.argv['deploy-type'] : deployTypes[this.target];
 	}
@@ -903,6 +908,7 @@ function build(logger, config, cli, finished) {
 				'copyCommonJSModules',
 				'copyItunesArtwork',
 				'copyGraphics',
+				'copyLocalizedSplashScreens',
 				'writeBuildManifest'
 			], function () {
 				var xcodeArgs = [
@@ -958,7 +964,8 @@ function build(logger, config, cli, finished) {
 						env: {
 							DEVELOPER_DIR: this.xcodeEnv.path,
 							HOME: process.env.HOME,
-							PATH: process.env.PATH
+							PATH: process.env.PATH,
+							TITANIUM_CLI_XCODEBUILD: 'yeah baby'
 						}
 					}),
 					out = [],
@@ -1312,8 +1319,9 @@ build.prototype = {
 		proj = injectCompileShellScript(
 			proj,
 			'Pre-Compile',
+			'if [ \\"x$TITANIUM_CLI_XCODEBUILD\\" == \\"x\\" ]; then NO_COLORS=\\"--no-colors\\"; else NO_COLORS=\\"\\"; fi\\n' +
 			(process.execPath || 'node') + ' \\"' + this.cli.argv.$0.replace(/^node /, '') + '\\" build --platform ' +
-				this.platformName + ' --sdk ' + this.titaniumSdkVersion + ' --no-prompt --no-banner --xcode\\nexit $?'
+				this.platformName + ' --sdk ' + this.titaniumSdkVersion + ' --no-prompt --no-banner $NO_COLORS --xcode\\nexit $?'
 		);
 		proj = injectCompileShellScript(
 			proj,
@@ -1745,7 +1753,8 @@ build.prototype = {
 			version: this.tiapp.version,
 			description: this.tiapp.description,
 			copyright: this.tiapp.copyright,
-			guid: this.tiapp.guid
+			guid: this.tiapp.guid,
+			skipJSMinification: !!this.cli.argv['skip-js-minify']
 		}, null, '\t'), callback);
 	},
 	
@@ -1792,6 +1801,47 @@ build.prototype = {
 			}, this),
 			callback
 		);
+	},
+	
+	copyLocalizedSplashScreens: function (callback) {
+		
+		var copyOpts = {
+				logger: this.logger.debug
+			};
+		ti.i18n.splashScreens(this.projectDir, this.logger).forEach(function (splashImage) {
+			var token = splashImage.split('/'),
+				lang = token[token.length-2],
+				lprojDir = path.join(this.xcodeAppDir, lang + '.lproj'),
+				file = token[token.length-1],
+				globalFile = path.join(this.xcodeAppDir, file),
+				resourcesDir = path.join(this.buildDir, 'Resources'),
+				projFile = path.join(resourcesDir, file);
+			
+			//This would never need to run. But just to be safe.
+			if (!afs.exists(lprojDir)) {
+				this.logger.debug(__('Creating lproj folder %s', lprojDir.cyan));
+				wrench.mkdirSyncRecursive(lprojDir);
+			}
+			
+			afs.copyFileSync(splashImage, lprojDir, copyOpts);
+			
+			this.logger.debug(__('Checking if %s exists in global space', file.cyan));
+			
+			// Check for it in the root of the xcode build folder.
+			if (afs.exists(globalFile)) {
+				this.logger.debug(__('Removing File %s, as it is being localized', globalFile.cyan));
+				fs.unlinkSync(globalFile);
+			}
+			
+			// Check in the Resources of Ti-build folder.
+			if (afs.exists(projFile)) {
+				this.logger.debug(__('Removing File %s, as it is being localized', projFile.cyan));
+				fs.unlinkSync(projFile);
+			}
+			
+		}, this);
+		
+		callback();
 	},
 	
 	injectModulesIntoXcodeProject: function (callback) {
@@ -2261,7 +2311,7 @@ build.prototype = {
 		try {
 			var ast = uglifyParser.parse(contents);
 			
-			if (this.deployType != 'development') {
+			if (!this.cli.argv['skip-js-minify'] && this.deployType != 'development') {
 				contents = uglifyProcessor.gen_code(
 					uglifyProcessor.ast_squeeze(
 						uglifyProcessor.ast_mangle(ast)
