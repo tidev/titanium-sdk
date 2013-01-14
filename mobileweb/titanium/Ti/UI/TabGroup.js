@@ -9,7 +9,7 @@ define(["Ti/_/declare", "Ti/_/UI/SuperView", "Ti/UI/View", "Ti/UI", "Ti/_/lang"]
 
 	return declare("Ti.UI.TabGroup", SuperView, {
 
-		constructor: function(args){
+		constructor: function(args) {
 			var self = this,
 				tabsAtBottom = self.constants.tabsAtBottom = lang.val(args && args.tabsAtBottom, self.constants.tabsAtBottom),
 				TabBarContainer = declare(View, {
@@ -39,7 +39,7 @@ define(["Ti/_/declare", "Ti/_/UI/SuperView", "Ti/UI/View", "Ti/UI", "Ti/_/lang"]
 
 		addTab: function(tab) {
 			// Initialize the tabs, if necessary
-			var tabs = this.tabs = this.tabs || [];
+			var tabs = this.tabs;
 			tabs.push(tab);
 			tab._setTabGroup(this);
 
@@ -230,13 +230,13 @@ define(["Ti/_/declare", "Ti/_/UI/SuperView", "Ti/UI/View", "Ti/UI", "Ti/_/lang"]
 						tabBarContainer._removeAllChildren();
 
 						if (value.length) {
-							this._activateTab(value[0]);
-							for (i = 0; i < value.length - 1; i++) {
+							for (i = 0; i < value.length; i++) {
+								value[i]._setTabGroup(this);
+								i == 0 && this._activateTab(this.activeTab = value[i]);
 								this._publish(value[i]);
+								i && tabBarContainer._add(this._createTabDivider());
 								tabBarContainer._add(value[i]);
-								tabBarContainer._add(this._createTabDivider());
 							}
-							tabBarContainer._add(value[value.length - 1]); // No trailing divider
 						}
 
 						return value;
