@@ -28,10 +28,7 @@ public class SearchViewProxy extends TiViewProxy {
 
 	@Override
 	public TiUIView createView(Activity activity) {
-		TiUIView view = new TiUISearchView(this);
-		view.getLayoutParams().autoFillsHeight = false;
-		view.getLayoutParams().autoFillsWidth = false;
-		return view;
+		return new TiUISearchView(this);
 	}
 
 

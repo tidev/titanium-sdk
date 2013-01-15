@@ -23,7 +23,6 @@ import android.widget.SearchView;
 public class TiUISearchView extends TiUIView implements SearchView.OnQueryTextListener, SearchView.OnCloseListener {
 	private SearchView searchView;
 
-
 	public static final String TAG = "SearchView";
 
 	protected OnSearchChangeListener searchChangeListener;
@@ -75,6 +74,8 @@ public class TiUISearchView extends TiUIView implements SearchView.OnQueryTextLi
 			searchView.setIconified(TiConvert.toBoolean(newValue));
 		} else if (key.equals(TiC.PROPERTY_ICONIFIED_BY_DEFAULT)) {
 			searchView.setIconifiedByDefault(TiConvert.toBoolean(newValue));
+		} else if  (key.equals(TiC.PROPERTY_SUBMIT_ENABLED)) {
+			searchView.setSubmitButtonEnabled(TiConvert.toBoolean(newValue));			
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}
@@ -82,7 +83,7 @@ public class TiUISearchView extends TiUIView implements SearchView.OnQueryTextLi
 
 	@Override
 	public boolean onClose() {
-		proxy.fireEvent(TiC.EVENT_CLOSE, null);
+		proxy.fireEvent(TiC.EVENT_CANCEL, null);
 		return false;
 	}
 
