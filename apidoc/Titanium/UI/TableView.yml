@@ -1178,7 +1178,7 @@ properties:
     platforms: [android, iphone, ipad]
     
   - name: searchAsChild
-    summary: Determines whether the [SearchBar](Titanium.UI.SearchBar) or [SearchView](Titanium.UI.SearchView) appears as part of the TableView.
+    summary: Determines whether the [SearchBar](Titanium.UI.SearchBar) or [SearchView](Titanium.UI.Android.SearchView) appears as part of the TableView.
     description: Set to false if the search view will be displayed in the action bar.
     type: Boolean
     default: true

@@ -17,12 +17,12 @@ import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiUIView;
 
 import ti.modules.titanium.ui.widget.searchbar.TiUISearchBar.OnSearchChangeListener;
-
 import android.os.Build;
 import android.widget.SearchView;
 
 public class TiUISearchView extends TiUIView implements SearchView.OnQueryTextListener, SearchView.OnCloseListener {
 	private SearchView searchView;
+
 
 	public static final String TAG = "SearchView";
 
@@ -34,6 +34,8 @@ public class TiUISearchView extends TiUIView implements SearchView.OnQueryTextLi
 			searchView = new SearchView(proxy.getActivity());
 			searchView.setOnQueryTextListener(this);
 			searchView.setOnCloseListener(this);
+			searchView.setOnQueryTextFocusChangeListener(this);
+
 			setNativeView(searchView);
 		} else {
 			Log.e(TAG, "SearchView is only supported on target API 11+");
@@ -57,11 +59,14 @@ public class TiUISearchView extends TiUIView implements SearchView.OnQueryTextLi
 		if (props.containsKey(TiC.PROPERTY_ICONIFIED_BY_DEFAULT)) {
 			searchView.setIconifiedByDefault(props.getBoolean(TiC.PROPERTY_ICONIFIED_BY_DEFAULT));
 		}
+		if (props.containsKey(TiC.PROPERTY_SUBMIT_ENABLED)) {
+			searchView.setSubmitButtonEnabled((props.getBoolean(TiC.PROPERTY_SUBMIT_ENABLED)));			
+		} 
 	}
 
 	@Override
 	public void propertyChanged(String key, Object oldValue, Object newValue, KrollProxy proxy) {
-		
+
 		if (key.equals(TiC.PROPERTY_HINT_TEXT)) {
 			searchView.setQueryHint((String) newValue);
 		}  else if (key.equals(TiC.PROPERTY_VALUE)) {
@@ -77,7 +82,8 @@ public class TiUISearchView extends TiUIView implements SearchView.OnQueryTextLi
 
 	@Override
 	public boolean onClose() {
-		return proxy.fireEvent(TiC.EVENT_CANCEL, null);
+		proxy.fireEvent(TiC.EVENT_CLOSE, null);
+		return false;
 	}
 
 	@Override
@@ -86,17 +92,21 @@ public class TiUISearchView extends TiUIView implements SearchView.OnQueryTextLi
 		if (searchChangeListener != null) {
 			searchChangeListener.filterBy(query);
 		}
-		return proxy.fireEvent(TiC.EVENT_CHANGE, null);
+		proxy.fireEvent(TiC.EVENT_CHANGE, null);
+		return false;
 	}
 
 	@Override
 	public boolean onQueryTextSubmit(String query) {
 		TiUIHelper.showSoftKeyboard(nativeView, false);
-		return proxy.fireEvent(TiC.EVENT_SUBMIT, null);
+		proxy.fireEvent(TiC.EVENT_SUBMIT, null);
+		return false;
 	}
-	
+
 	public void setOnSearchChangeListener(OnSearchChangeListener listener) {
 		searchChangeListener = listener;
 	}
+
+
 
 }

@@ -17,7 +17,7 @@ description: |
     
 extends: Titanium.UI.View
 excludes: { methods: [ add ] }
-since: "3.0.1"
+since: "3.0.2"
 platforms: [android]
 methods:
 
@@ -68,6 +68,11 @@ properties:
     description: see [Android Documentation](http://developer.android.com/reference/android/widget/SearchView.html#setIconifiedByDefault(boolean)) for more details.
     type: Boolean
     default: true
+  
+  - name: submitEnabled
+    summary: Whether to display the submit button when necessary or never display.
+    type: Boolean
+    default: undefined
          
 examples:
 
