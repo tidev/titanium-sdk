@@ -1174,7 +1174,7 @@ properties:
 
   - name: search
     summary: Search field to use for the table view.
-    type: Titanium.UI.SearchBar
+    type: [Titanium.UI.SearchBar, Titanium.UI.Android.SearchView]
     platforms: [android, iphone, ipad]
     
   - name: searchAsChild
