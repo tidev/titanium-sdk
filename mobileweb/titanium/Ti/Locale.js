@@ -6,7 +6,9 @@ define(["require", "Ti/_/lang", "Ti/_/Evented", "Ti/API"],
 		language = languageParts[0],
 		strings = {},
 		cfg = require.config,
-		app = cfg.app;
+		app = cfg.app, 
+		// Lazily loaded object with functions to format phone numbers.
+		phoneFormatter = null;
 
 	// Add `dir` attribute to set text direction for language
 	document.body.dir = /^ar|he$/.test(language) ? 'RTL' : 'LTR';
@@ -22,6 +24,11 @@ define(["require", "Ti/_/lang", "Ti/_/Evented", "Ti/API"],
 	}
 
 	Object.defineProperty(window, "L", { value: getString, enumarable: true });
+
+	// Lazy initialization of Phone number formatter
+	function initPhoneFormatter(){
+		if (!phoneFormatter) phoneFormatter = require("Ti/_/Locale/PhoneFormatter");
+	}
 
 	// format a date into a locale specific date format. Optionally pass a second argument (string) as either "short" (default), "medium" or "long" for controlling the date format.
 	String.formatDate = function(dt, fmt) {
@@ -55,8 +62,10 @@ define(["require", "Ti/_/lang", "Ti/_/Evented", "Ti/API"],
 			currentLocale: locale
 		},
 
+		// Adds dashes to phone number. Result is unified with same function on Android 4.1.1
 		formatTelephoneNumber: function(s) {
-			return s;
+			initPhoneFormatter();
+			return (phoneFormatter && phoneFormatter.formatTelephoneNumber)?phoneFormatter.formatTelephoneNumber(s, locale): s;
 		},
 
 		getCurrencyCode: function(locale) {
