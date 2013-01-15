@@ -101,6 +101,14 @@ properties:
         Note that this behavior is rather disruptive to users, and is strongly discouraged.
     type: Boolean
     default: false
+  - name: singleCallback
+    summary: Trigger callbacks one by one or together when multiple push noticiations come and show in tray.
+    description: |
+        This property is added in Titanium.CloudPush 2.1.0.
+        Before that, callbacks for multiple push notifications will be triggered together if clicked one of them.
+        After setting this to true, callbacks can be handled one by one per click.
+    type: Boolean
+    default: false
 events:
   - name: trayClickLaunchedApp
     summary: Fired when a tray notification is shown and the application is not running.
