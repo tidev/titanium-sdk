@@ -483,6 +483,11 @@ DEFINE_EXCEPTIONS
 	return [self layer];
 }
 
+-(CALayer *)gradientLayer
+{
+    return gradientLayer;
+}
+
 // You might wonder why we don't just use the native feature of -[UIColor colorWithPatternImage:].
 // Here's why:
 // * It doesn't properly handle alpha channels
@@ -494,9 +499,9 @@ DEFINE_EXCEPTIONS
 -(void)renderRepeatedBackground:(id)image
 {
     if (![NSThread isMainThread]) {
-        dispatch_async(dispatch_get_main_queue(), ^{
+        TiThreadPerformOnMainThread(^{
             [self renderRepeatedBackground:image];
-        });
+        }, NO);
         return;
     }
     
@@ -963,17 +968,7 @@ DEFINE_EXCEPTIONS
 -(void)recognizedTap:(UITapGestureRecognizer*)recognizer
 {
 	CGPoint tapPoint = [recognizer locationInView:self];
-	NSMutableDictionary *event;
-
-#define GLOBALPOINT	//Remove this for 1.9, as global point is depricated.
-
-#ifdef GLOBALPOINT
-	event = [[TiUtils pointToDictionary:tapPoint] mutableCopy];
-	NSDictionary *globalPoint = [TiUtils pointToDictionary:[self convertPoint:tapPoint toView:nil]];
-	[event setValue: globalPoint forKey:@"globalPoint"];
-#else
-	event = [TiUtils pointToDictionary:tapPoint];
-#endif	//GLOBALPOINT
+	NSDictionary *event = [TiUtils pointToDictionary:tapPoint];
 	
 	if ([recognizer numberOfTouchesRequired] == 2) {
 		[proxy fireEvent:@"twofingertap" withObject:event];
@@ -992,11 +987,7 @@ DEFINE_EXCEPTIONS
 	else {
 		[proxy fireEvent:@"singletap" withObject:event];		
 	}
-
-#ifdef GLOBALPOINT
-	[event release];
-#endif	
-}	
+}
 
 -(void)recognizedPinch:(UIPinchGestureRecognizer*)recognizer 
 { 
@@ -1043,16 +1034,7 @@ DEFINE_EXCEPTIONS
 	CGPoint tapPoint = [recognizer locationInView:self];
 	NSMutableDictionary *event = [[TiUtils pointToDictionary:tapPoint] mutableCopy];
 	[event setValue:swipeString forKey:@"direction"];
-
-#define GLOBALPOINT	//Remove this for 1.9, as global point is depricated.
-	
-#ifdef GLOBALPOINT
-	NSDictionary *globalPoint = [TiUtils pointToDictionary:[self convertPoint:tapPoint toView:nil]];
-	[event setValue: globalPoint forKey:@"globalPoint"];
-#endif	//GLOBALPOINT
-	
 	[proxy fireEvent:@"swipe" withObject:event];
-	
 	[event release];
 
 }
@@ -1133,9 +1115,7 @@ DEFINE_EXCEPTIONS
 	
 	if (handlesTouches)
 	{
-		NSMutableDictionary *evt = [NSMutableDictionary dictionaryWithDictionary:[TiUtils pointToDictionary:[touch locationInView:self]]];
-		[evt setValue:[TiUtils pointToDictionary:[touch locationInView:nil]] forKey:@"globalPoint"];
-		
+		NSDictionary *evt = [TiUtils pointToDictionary:[touch locationInView:self]];
 		if ([proxy _hasListeners:@"touchstart"])
 		{
 			[proxy fireEvent:@"touchstart" withObject:evt propagate:YES];
@@ -1157,8 +1137,7 @@ DEFINE_EXCEPTIONS
 	UITouch *touch = [touches anyObject];
 	if (handlesTouches)
 	{
-		NSMutableDictionary *evt = [NSMutableDictionary dictionaryWithDictionary:[TiUtils pointToDictionary:[touch locationInView:self]]];
-		[evt setValue:[TiUtils pointToDictionary:[touch locationInView:nil]] forKey:@"globalPoint"];
+		NSDictionary *evt = [TiUtils pointToDictionary:[touch locationInView:self]];
 		if ([proxy _hasListeners:@"touchmove"])
 		{
 			[proxy fireEvent:@"touchmove" withObject:evt propagate:YES];
@@ -1179,8 +1158,7 @@ DEFINE_EXCEPTIONS
 	if (handlesTouches)
 	{
 		UITouch *touch = [touches anyObject];
-		NSMutableDictionary *evt = [NSMutableDictionary dictionaryWithDictionary:[TiUtils pointToDictionary:[touch locationInView:self]]];
-		[evt setValue:[TiUtils pointToDictionary:[touch locationInView:nil]] forKey:@"globalPoint"];
+		NSDictionary *evt = [TiUtils pointToDictionary:[touch locationInView:self]];
 		if ([proxy _hasListeners:@"touchend"])
 		{
 			[proxy fireEvent:@"touchend" withObject:evt propagate:YES];

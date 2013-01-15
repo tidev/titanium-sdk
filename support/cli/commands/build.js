@@ -33,6 +33,9 @@ exports.config = function (logger, config, cli) {
 					force: {
 						abbr: 'f',
 						desc: __('force a full rebuild')
+					},
+					legacy: {
+						desc: __('build using the old Python-based builder.py')
 					}
 				},
 				options: appc.util.mix({

@@ -7,9 +7,11 @@ import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBaseActivity;
+import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.view.TiUIView;
 
 import android.app.Activity;
+import android.util.Pair;
 
 /**
  * This class exists to allow JS wrapping of the abstract methods
@@ -20,6 +22,8 @@ public class TiBaseWindowProxy extends TiWindowProxy
 	private static final String TAG = "TiBaseWindow";
 	
 	private WeakReference<TiBaseActivity> hostActivity;
+	
+	private TiViewProxy mViewProxy;
 
 	/**
 	 * Called to associate a view with a JS window wrapper 
@@ -31,6 +35,7 @@ public class TiBaseWindowProxy extends TiWindowProxy
 		TiUIView view = viewProxy.peekView();
 		setView(view);
 		setModelListener(view);
+		mViewProxy = viewProxy;
 	}
 	
 	@Kroll.method
@@ -85,6 +90,43 @@ public class TiBaseWindowProxy extends TiWindowProxy
 	protected Activity getWindowActivity()
 	{
 		return null;
+	}
+	
+	@Override
+	public void onPropertyChanged(String name, Object value) {
+		//
+		// Set on both proxies.  We must set on the viewProxy
+		// first for things to work correctly.
+		//
+		if (mViewProxy != null) {
+			
+			String propertyName = name;
+			Object newValue = value;
+
+			if (mViewProxy.isLocaleProperty(name)) {
+				Log.i(TAG, "Updating locale: " + name, Log.DEBUG_MODE);
+				Pair<String, String> update = mViewProxy.updateLocaleProperty(name, TiConvert.toString(value));
+				if (update != null) {
+					propertyName = update.first;
+					newValue = update.second;
+				}
+			}
+
+			mViewProxy.setProperty(propertyName, newValue);
+		}
+		super.onPropertyChanged(name, value);
+	}
+	
+	@Override 
+	public void setProperty(String name, Object value) {
+		//
+		// Set on both proxies.  We must set on the viewProxy
+		// first for things to work correctly.
+		//
+		if (mViewProxy != null) {
+			mViewProxy.setProperty(name,  value);
+		}
+		super.setProperty(name, value);	
 	}
 
 }

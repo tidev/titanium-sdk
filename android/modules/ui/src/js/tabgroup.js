@@ -28,6 +28,9 @@ exports.bootstrap = function(Titanium) {
 		// Keeps track of the current tab group state
 		tabGroup.currentState = tabGroup.state.closed;
 
+		// Set the activity property here since we bind it to _internalActivity for window proxies by default
+		Object.defineProperty(TabGroup.prototype, "activity", { get: tabGroup.getActivity});
+
 		return tabGroup;
 	}
 
