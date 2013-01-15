@@ -134,9 +134,13 @@ void ModifyScrollViewForKeyboardHeightAndContentHeightWithResponderRect(UIScroll
 - (UIGestureRecognizer *)gestureRecognizerForEvent:(NSString *)event;
 
 /**
- Returns CA layer for the background of the view.
+ Returns CA layer for the background image of the view.
  */
 -(CALayer *)backgroundImageLayer;
+/**
+ Returns CA layer for the background gradient of the view.
+ */
+-(CALayer *)gradientLayer;
 
 /**
  Tells the view to start specified animation.

@@ -6,8 +6,49 @@ description: |
     the application and user location, and provides user actions and navigation modes.  This
     feature is only available in Android 3.0 (API level 11) and above.
 
+    To access the action bar, you must first open a heavyweight window or tab group that
+    uses one of the action bar themes (such as the Android Holo theme). You can then
+    access the action bar from the window or tab group's [activity](Titanium.Android.Activity). 
+
+    You can add action items to the action bar by defining an Android menu and setting the
+    menu items to display as action items. See [Menu](Titanium.Android.Menu) and
+    [MenuItem](Titanium.Android.MenuItem) for details.
+
     See: [Action Bar](http://developer.android.com/guide/topics/ui/actionbar.html)
     in the Android API Reference.
+
+examples:
+  - title: Action Bar Example
+    example: |
+        The following example sets several properties on a window's action bar.
+
+            var win = Ti.UI.createWindow({
+                title: "Old Title",
+                navBarHidden: false
+            });
+            var actionBar;
+    
+            win.addEventListener("open", function() {
+                if (Ti.Platform.osname === "android") {
+                    if (! win.activity) {
+                        Ti.API.error("Can't access action bar on a lightweight window.");
+                    } else {
+                        actionBar = win.activity.actionBar;
+                        if (actionBar) {
+                            actionBar.backgroundImage = "/bg.png";
+                            actionBar.title = "New Title";
+                            actionBar.onHomeIconItemSelected = function() {
+                                Ti.API.info("Home icon clicked!");
+                            };
+                        }
+                    }
+                }
+            });
+    
+            win.open();
+
+        Nearly identical code can be used for a tab group, but in Release 3.0, the tab group's
+        activity must be accessed using the [getActivity](Titanium.UI.TabGroup.getActivity) method.
 
 extends: Titanium.Proxy
 platforms: [android]
@@ -58,6 +99,11 @@ properties:
         [setLogo](http://developer.android.com/reference/android/app/ActionBar.html#setLogo(android.graphics.drawable.Drawable))
         in the Android Developer Reference.
     type: String
+    permission: write-only
+
+  - name: onHomeIconItemSelected
+    summary: Callback function called when the home icon is clicked.
+    type: Callback
     permission: write-only
 
   - name: title
