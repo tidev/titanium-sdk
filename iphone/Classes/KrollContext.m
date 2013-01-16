@@ -625,13 +625,7 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 	if (exception!=NULL)
 	{
 		id excm = [KrollObject toID:context value:exception];
-		TiScriptError *scriptError = nil;
-		if ([excm isKindOfClass:[NSDictionary class]]) {
-			scriptError = [[TiScriptError alloc] initWithDictionary:excm];
-		} else {
-			scriptError = [[TiScriptError alloc] initWithMessage:[excm description] sourceURL:[sourceURL absoluteString] lineNo:0];
-		}
-		[[TiExceptionHandler defaultExceptionHandler] reportScriptError:scriptError];
+		[[TiExceptionHandler defaultExceptionHandler] reportScriptError:[TiUtils scriptErrorValue:excm]];
         pthread_mutex_unlock(&KrollEntryLock);
 		@throw excm;
 	}
@@ -647,14 +641,7 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 	if (exception!=NULL)
 	{
 		id excm = [KrollObject toID:context value:exception];
-		TiScriptError *scriptError = nil;
-		if ([excm isKindOfClass:[NSDictionary class]]) {
-			scriptError = [[TiScriptError alloc] initWithDictionary:excm];
-		} else {
-			scriptError = [[TiScriptError alloc] initWithMessage:[excm description] sourceURL:[sourceURL absoluteString] lineNo:0];
-		}
-		[[TiExceptionHandler defaultExceptionHandler] reportScriptError:scriptError];
-        
+		[[TiExceptionHandler defaultExceptionHandler] reportScriptError:[TiUtils scriptErrorValue:excm]];
         pthread_mutex_unlock(&KrollEntryLock);
 		@throw excm;
 	}
