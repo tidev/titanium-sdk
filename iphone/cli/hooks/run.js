@@ -89,7 +89,6 @@ exports.init = function (logger, config, cli) {
 					simProcess,
 					simErr = [],
 					stripLogLevelRE = new RegExp('[(?:' + logger.getLevels().join('|') + ')] '),
-					logLevelRE = new RegExp('(\u001b\\[\\d+m)?\\[?(' + logger.getLevels().join('|') + ')\\]?\s*(\u001b\\[\\d+m)?(.*)', 'i'),
 					logProcess;
 				
 				cli.argv.retina && cmd.push('--retina');
@@ -129,7 +128,8 @@ exports.init = function (logger, config, cli) {
 					var files = fs.readdirSync(simulatorDir),
 						file,
 						i = 0,
-						l = files.length;
+						l = files.length,
+						logLevelRE = new RegExp('(\u001b\\[\\d+m)?\\[?(' + logger.getLevels().join('|') + ')\\]?\s*(\u001b\\[\\d+m)?(.*)', 'i');
 					
 					for (; i < l; i++) {
 						file = path.join(simulatorDir, files[i], 'Documents', logFile);
@@ -137,25 +137,78 @@ exports.init = function (logger, config, cli) {
 							logger.debug(__('Found iPhone Simulator log file: %s', file.cyan));
 							logger.info(__('iPhone Simulator log:'));
 							
-							logProcess = spawn('/usr/bin/tail', ['-f', file]);
+							var stat = fs.lstatSync(file),
+								prevSize = stat.size,
+								queue = [{
+									start: 0,
+									end: prevSize
+								}],
+								buffer = '';
 							
-							logProcess.stdout.on('data', function (data) {
-								data.toString().split('\n').forEach(function (line) {
-									if (line) {
-										var m = line.match(logLevelRE);
-										if (m) {
-											logger[m[2].toLowerCase()](m[4].trim());
-										} else {
-											logger.debug(line);
+							function pump(callback) {
+								if (queue.length >= 1) {
+									var block = queue[0];
+									if (block.end > block.start) {
+										var stream = fs.createReadStream(file, {
+											start: block.start,
+											end: block.end - 1,
+											encoding: 'utf-8',
+											bufferSize: 64
+										});
+										
+										stream.on('error', function(error) {
+											console.log('Tail error: ' + error);
+										});
+										
+										stream.on('end', function() {
+											queue.shift();
+											if (queue.length >= 1) {
+												pump();
+											} else {
+												callback && callback();
+											}
+										});
+										
+										stream.on('data', function (data) {
+											buffer += data;
+											var lines = buffer.split('\n');
+											buffer = lines.pop(); // keep the last line because it could be incomplete
+											lines.forEach(function (line) {
+												if (line) {
+													var m = line.match(logLevelRE);
+													if (m) {
+														logger[m[2].toLowerCase()](m[4].trim());
+													} else {
+														logger.debug(line);
+													}
+												}
+											});
+										});
+									}
+								}
+							}
+							
+							pump(function () {
+								fs.watch(file, { persistent: false }, function () {
+									var currentSize = fs.lstatSync(file).size;
+									if (currentSize > prevSize) {
+										queue.push({
+											start: prevSize,
+											end: currentSize
+										});
+										if (queue.length == 1) {
+											pump();
 										}
 									}
 								});
 							});
 							
+							// we found the log file, no need to keep searching for it
 							return;
 						}
 					}
 					
+					// didn't find any log files, try again in 250ms
 					findLogTimer = setTimeout(findLogFile, 250);
 				}
 				
