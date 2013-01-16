@@ -31,7 +31,12 @@ description: |
     the message.
     
     On iOS 4.0 and later, alert dialogs are automatically cancelled when the application is 
-    paused/suspended.
+    paused/suspended. This behavior can avoided by setting `persistent` property on alert dialog 
+    to be `true`.
+
+    On iOS 5.0 and later, `style` property can be used to allow the user to enter plain text, 
+    obscured text or login identifier and password. Entered values can be captured with listening
+    `cancel` event.
     
     #### Global Alias
     
@@ -73,6 +78,28 @@ events:
         summary: Index of the button that was clicked.
         type: Number
 
+      - name: login
+        summary: |
+            Value of login field if dialog `style` property is defined as 
+            <Titanium.UI.iPhone.AlertDialogStyle.LOGIN_AND_PASSWORD_INPUT>.
+        type: String
+        platforms: [iphone, ipad]
+
+      - name: password
+        summary: |
+            Value of password field if dialog `style` property is defined as 
+            <Titanium.UI.iPhone.AlertDialogStyle.LOGIN_AND_PASSWORD_INPUT>.
+        type: String
+        platforms: [iphone, ipad]
+
+      - name: text
+        summary: |
+            Value of text field if dialog `style` property is defined as
+            <Titanium.UI.iPhone.AlertDialogStyle.PLAIN_TEXT_INPUT> or 
+            <Titanium.UI.iPhone.AlertDialogStyle.SECURE_TEXT_INPUT>.
+        type: String
+        platforms: [iphone, ipad]
+
 methods:
   - name: show
     summary: Shows this dialog.
@@ -95,7 +122,7 @@ properties:
         
         A maximum of 3 buttons is supported on Android.
     type: Array<String>
-    default: null (Android), ['OK'] (iOS)
+    default: No buttons (Android), Single "OK" button (iOS, Mobile Web)
     availability: creation
 
   - name: cancel
@@ -114,6 +141,20 @@ properties:
     type: String
     accessors: false
     platforms: [android, iphone, ipad, mobileweb]
+
+  - name: style
+    summary: The style for the alert dialog.
+    description: |
+        Style of the alert dialog, specified using one of the constants from
+        <Titanium.UI.iPhone.AlertDialogStyle>. Using styles other than default one can break
+        your dialog layout if more than two buttons used. All styles can handle up to two
+        buttons comfortably, except for default style can handle up to six buttons when `title`
+        and `message` is empty or not given. Note that this property available on 
+        iOS SDK 5 or above. 
+    type: Number
+    default: <Titanium.UI.iPhone.AlertDialogStyle.DEFAULT>
+    since: 3.0.0
+    platforms: [iphone, ipad]
 
   - name: title
     summary: Title of the dialog.
@@ -140,6 +181,17 @@ properties:
     type: String
     accessors: false
     platforms: [iphone, ipad, mobileweb]
+    
+  - name: persistent
+    summary: Boolean value indicating if the alert dialog should only be cancelled by user 
+        gesture or by hide method.
+    description: |
+        This property is useful to ensure that the alert dialog will not be ignored 
+        by the user when the application is paused/suspended.
+    type: Boolean
+    default: false on iOS, true on Android
+    since: "3.0.0"
+    platforms: [android, iphone, ipad]
 
 examples:
   - title: Single-button Alert Dialog (using alias)
@@ -211,3 +263,59 @@ examples:
               dialog.show();
             });
             win.open();
+
+  - title: Alert Dialog with Plain Text Input (iOS 5 and later)
+    example: |
+        Create an alert dialog and allow the user enter plain text, which is invoked when the
+        app window is clicked.
+        Output entered text value to the log when the OK button is clicked.
+
+            Ti.UI.setBackgroundColor('white');
+            var win = Ti.UI.createWindow({
+              title: 'Click window to test'
+            });
+            win.addEventListener('click', function(e){
+              var dialog = Ti.UI.createAlertDialog({
+                title: 'Enter text',
+                style: Ti.UI.iPhone.AlertDialogStyle.PLAIN_TEXT_INPUT,
+                buttonNames: ['OK']
+              });
+              dialog.addEventListener('click', function(e){
+                Ti.API.info('e.text: ' + e.text);
+              });
+              dialog.show();
+            });
+            win.open();
+
+  - title: Alloy XML Markup
+    example: |
+        Previous three-button alert dialog example as an Alloy view.
+
+        alertdialog.xml:
+
+            <Alloy>
+                <Window id="win" onClick="showDialog" title="Click window to test" backgroundColor="white"
+                    exitOnClose="true" fullscreen="false" >
+
+                    <AlertDialog id="dialog" onClick="doClick" title="Delete"
+                        message="Would you like to delete the file?" cancel="1">
+
+                        <!-- The ButtonNames tag sets the buttonNames property. -->
+                        <ButtonNames>
+                            <ButtonName>Confirm</ButtonName>
+                            <ButtonName>Cancel</ButtonName>
+                            <ButtonName>Help</ButtonName>
+                        </ButtonNames>
+                    </AlertDialog>
+                </Window>
+            </Alloy>
+
+        alertdialog.js:
+
+            function showDialog(){
+                $.dialog.show();
+            };
+
+            function doClick(e){
+                Ti.API.info('e.text: ' + e.text);
+            };

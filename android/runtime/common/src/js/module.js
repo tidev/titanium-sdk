@@ -200,7 +200,7 @@ Module.prototype.loadExternalModule = function(id, externalBinding, context) {
 	}
 
 	kroll.log(TAG, "Unable to load external module: " + id);
-	
+
 }
 
 // Require another module as a child of this module.
@@ -209,14 +209,13 @@ Module.prototype.loadExternalModule = function(id, externalBinding, context) {
 // of the child module.
 Module.prototype.require = function (request, context, useCache) {
 	useCache = useCache === undefined ? true : useCache;
-
 	var id;
 	var filename;
 	var cachedModule;
 	var externalCommonJsContents;
 	var located = false;
 
-	var resolved = resolveFilename(request, this);
+	var resolved = this.resolveFilename(request);
 
 	if (resolved) {
 		// Found it as an asset packaged in the app. (Resources/...).
@@ -232,6 +231,11 @@ Module.prototype.require = function (request, context, useCache) {
 		}
 
 	} else {
+		// Already have this precise name wrapped and cached? If yes, quick exit.
+		var wrapper = this.wrapperCache[request];
+		if (wrapper) {
+			return wrapper;
+		}
 		// External module?
 		var pathResolve = resolveLookupPaths(request, this);
 		id = pathResolve[0];
@@ -253,7 +257,10 @@ Module.prototype.require = function (request, context, useCache) {
 			if (useCache) {
 				cachedModule = Module.cache[filename];
 				if (cachedModule) {
-					return cachedModule.exports;
+					wrapper = this.wrapperCache[filename];
+					if (wrapper) {
+						return wrapper;
+					}
 				}
 			}
 
@@ -343,6 +350,9 @@ Module.prototype._runScript = function (source, filename) {
 	};
 	contextGlobal.global = contextGlobal;
 
+	// Add support for console logging
+	contextGlobal.console = NativeModule.require('console');
+
 	var ti = new Titanium.Wrapper(context);
 	contextGlobal.Ti = contextGlobal.Titanium = ti;
 
@@ -417,9 +427,8 @@ function resolveLookupPaths(request, parentModule) {
 // Determine the filename that contains the request
 // module's source code. If no file is found an exception
 // will be thrown.
-function resolveFilename(request, parentModule) {
-
-	var resolvedModule = resolveLookupPaths(request, parentModule);
+Module.prototype.resolveFilename = function (request) {
+	var resolvedModule = resolveLookupPaths(request, this);
 	var id = resolvedModule[0];
 	var paths = resolvedModule[1];
 
@@ -427,7 +436,7 @@ function resolveFilename(request, parentModule) {
 	// could be located.
 	for (var i = 0, pathCount = paths.length; i < pathCount; ++i) {
 		var filename = path.resolve(paths[i], id) + '.js';
-		if (filenameExists(filename) || assets.fileExists(filename)) {
+		if (this.filenameExists(filename) || assets.fileExists(filename)) {
 			return [id, filename];
 		}
 	}
@@ -437,7 +446,7 @@ function resolveFilename(request, parentModule) {
 
 var fileIndex;
 
-function filenameExists(filename) {
+Module.prototype.filenameExists = function (filename) {
 	if (!fileIndex) {
 		var json = assets.readAsset("index.json");
 		fileIndex = JSON.parse(json);
@@ -445,4 +454,3 @@ function filenameExists(filename) {
 
 	return filename in fileIndex;
 }
-

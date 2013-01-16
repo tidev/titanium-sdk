@@ -80,5 +80,19 @@ examples:
             });
             win.add(pb);
             pb.show();
-        
-        
+
+  - title: Alloy XML Markup
+    example: |
+        Previous example as an Alloy view.
+
+        progressbarexample.xml:
+
+            <Alloy>
+                <Window id="win" backgroundColor="white">
+                    <ProgressBar id="pb" top="10" width="250" height="auto" min="0" max="10" value="0" color="#fff" message="Downloading 0 of 10" />
+                </Window>
+            </Alloy>
+
+        progressbarexample.js:
+
+            $.pb.show();

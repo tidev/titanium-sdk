@@ -518,12 +518,26 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 {
 	ENSURE_SINGLE_ARG(callback,KrollCallback);
 	ENSURE_UI_THREAD(getCurrentPosition,callback);
-	if (singleLocation==nil)
-	{
-		singleLocation = [[NSMutableArray alloc] initWithCapacity:1];
-	}
-	[singleLocation addObject:callback];
-	[self startStopLocationManagerIfNeeded]; 
+    
+    // If the location updates are started, invoke the callback directly.
+    if (locationManager != nil && locationManager.location != nil && trackingLocation == YES ) {
+        CLLocation *currentLocation = locationManager.location;
+        NSDictionary *todict = [self locationDictionary:currentLocation];
+        NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:
+                               todict,@"coords",
+                               NUMBOOL(YES),@"success",
+                               nil];
+        [self _fireEventToListener:@"location" withObject:event listener:callback thisObject:nil];
+    }
+    // Otherwise, start the location manager.
+    else {
+        if (singleLocation==nil)
+        {
+            singleLocation = [[NSMutableArray alloc] initWithCapacity:1];
+        }        
+        [singleLocation addObject:callback];
+        [self startStopLocationManagerIfNeeded];
+    }
 }
 
 -(NSNumber*)highAccuracy
@@ -790,32 +804,59 @@ MAKE_SYSTEM_PROP(ERROR_REGION_MONITORING_DELAYED, kCLErrorRegionMonitoringSetupD
 	
 }
 
+#pragma mark Geolacation Analytics
+
+-(void)fireApplicationAnalyticsIfNeeded:(NSArray *)locations{
+    static BOOL analyticsSend = NO;
+    if (TI_APPLICATION_ANALYTICS && !analyticsSend)
+	{
+        analyticsSend = YES;
+        NSDictionary *todict = [self locationDictionary:[locations lastObject]];
+        NSDictionary *fromdict = [self locationDictionary:[locations objectAtIndex:0]];//This location could be same as todict value.
+        
+        NSDictionary *data = [NSDictionary dictionaryWithObjectsAndKeys:todict,@"to",fromdict,@"from",nil];
+        NSDictionary *geo = [NSDictionary dictionaryWithObjectsAndKeys:data,@"data",@"ti.geo",@"name",@"ti.geo",@"type",nil];
+        
+        WARN_IF_BACKGROUND_THREAD;	//NSNotificationCenter is not threadsafe!
+        [[NSNotificationCenter defaultCenter] postNotificationName:kTiAnalyticsNotification object:nil userInfo:geo];
+    }
+}
+
 #pragma mark Delegates
 
-- (void)locationManager:(CLLocationManager *)manager didUpdateToLocation:(CLLocation *)newLocation fromLocation:(CLLocation *)oldLocation
-{
-	NSDictionary *todict = [self locationDictionary:newLocation];
-	
-	NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:
+//Using new delegate instead of the old deprecated method - (void)locationManager:didUpdateToLocation:fromLocation:
+
+-(void)locationManager:(CLLocationManager *)manager didUpdateLocations:(NSArray *)locations{
+    NSDictionary *todict = [self locationDictionary:[locations lastObject]];
+    
+    NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:
 						   todict,@"coords",
 						   NUMBOOL(YES),@"success",
 						   nil];
-	
-	if (TI_APPLICATION_ANALYTICS)
-	{
-		NSDictionary *data = [NSDictionary dictionaryWithObjectsAndKeys:todict,@"to",[self locationDictionary:oldLocation],@"from",nil];
-		NSDictionary *geo = [NSDictionary dictionaryWithObjectsAndKeys:data,@"data",@"ti.geo",@"name",@"ti.geo",@"type",nil];
-		WARN_IF_BACKGROUND_THREAD;	//NSNotificationCenter is not threadsafe!
-		[[NSNotificationCenter defaultCenter] postNotificationName:kTiAnalyticsNotification object:nil userInfo:geo]; 
-	}
-	
-	if ([self _hasListeners:@"location"])
+    if ([self _hasListeners:@"location"])
 	{
 		[self fireEvent:@"location" withObject:event];
 	}
 	
+    [self fireApplicationAnalyticsIfNeeded:locations];
 	[self fireSingleShotLocationIfNeeded:event stopIfNeeded:YES];
 }
+
+
+
+- (void)locationManager:(CLLocationManager *)manager didUpdateToLocation:(CLLocation *)newLocation fromLocation:(CLLocation *)oldLocation
+{
+    if (newLocation != nil) {
+        if (oldLocation == nil) {
+            [self locationManager:manager didUpdateLocations:[NSArray arrayWithObject:newLocation]];
+        }
+        else{
+            [self locationManager:manager didUpdateLocations:[NSArray arrayWithObjects:oldLocation,newLocation,nil]];
+        }
+    }
+    
+}
+
 
 - (void)locationManager:(CLLocationManager *)manager didFailWithError:(NSError *)error
 {

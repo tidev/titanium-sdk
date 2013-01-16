@@ -140,9 +140,9 @@ properties:
   - name: time
     summary: Current playback position of the audio.
     description: |
-        On iOS, playback time is reported in seconds.
-
-        On Android, time is reported in milliseconds.
+        Time is reported in milliseconds.
+        
+        On iOS, prior to Release 3.0, playback time is reported in seconds.
     type: Number
 
   - name: url

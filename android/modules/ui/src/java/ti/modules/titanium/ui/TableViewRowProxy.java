@@ -7,6 +7,7 @@
 package ti.modules.titanium.ui;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.annotations.Kroll;
@@ -175,7 +176,7 @@ public class TableViewRowProxy extends TiViewProxy
 		return super.handleMessage(msg);
 	}
 
-	public static void fillClickEvent(KrollDict data, TableViewModel model, Item item) {
+	public static void fillClickEvent(HashMap<String, Object> data, TableViewModel model, Item item) {
 		
 		//Don't include rowData if we click on a section
 		if (!(item.proxy instanceof TableViewSectionProxy)) {
@@ -194,10 +195,11 @@ public class TableViewRowProxy extends TiViewProxy
 			// Inject row click data for events coming from row children.
 			TableViewProxy table = getTable();
 			Item item = tableViewItem.getRowData();
-			if (table != null && item != null && data instanceof KrollDict) {
+			if (table != null && item != null && data instanceof HashMap) {
 				// The data object may already be in use by the runtime thread
 				// due to a child view's event fire. Create a copy to be thread safe.
-				KrollDict dataCopy = new KrollDict((KrollDict)data);
+				@SuppressWarnings("unchecked")
+				KrollDict dataCopy = new KrollDict((HashMap<String, Object>) data);
 				fillClickEvent(dataCopy, table.getTableView().getModel(), item);
 				data = dataCopy;
 			}

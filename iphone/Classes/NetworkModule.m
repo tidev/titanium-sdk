@@ -139,24 +139,6 @@ NSString* const INADDR_ANY_token = @"INADDR_ANY";
 	return [(NSString *)CFURLCreateStringByReplacingPercentEscapesUsingEncoding(NULL, (CFStringRef)encodedString, CFSTR(""), kCFStringEncodingUTF8) autorelease];
 }
 
--(void)addConnectivityListener:(id)args
-{
-    DEPRECATED_REPLACED(@"Network.addConnectivityListener", @"1.8", @"Ti.Network.addEventListener('change',...)");
-	id arg = [args objectAtIndex:0];
-	ENSURE_TYPE(arg,KrollCallback);
-	NSArray *newargs = [NSArray arrayWithObjects:@"change",arg,nil];
-	[self addEventListener:newargs];
-}
-
--(void)removeConnectivityListener:(id)args
-{
-    DEPRECATED_REPLACED(@"Network.removeConnectivityListener", @"1.8", @"Ti.Network.removeEventListener('change',...)");    
-	id arg = [args objectAtIndex:0];
-	ENSURE_TYPE(arg,KrollCallback);
-	NSArray *newargs = [NSArray arrayWithObjects:@"change",arg,nil];
-	[self removeEventListener:newargs];
-}
-
 // Socket submodule
 #ifdef USE_TI_NETWORKSOCKET
 -(TiProxy*)Socket

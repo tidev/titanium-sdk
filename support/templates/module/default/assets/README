@@ -1,0 +1,6 @@
+Place your assets like PNG files in this directory and they will be packaged with your module.
+
+If you create a file named __MODULE_ID__.js in this directory, it will be 
+compiled and used as your module.  This allows you to run pure Javascript
+modules that are pre-compiled.
+

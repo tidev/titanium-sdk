@@ -1,0 +1,117 @@
+# Titanium Mobile 2.0.2.GA  - 5/31/2012
+
+##### Contents
+
+*   [About This Release](#about)
+*   [New In This Release](#new)
+*   [Android Platform Fixes and Enhancements](#android)
+*   [iOS Platform Fixes](#ios)
+*   [Ti.Cloud and Ti.CloudPush Module Fixes](#cloud)
+*   [Documentation Updates](#docs)
+
+<a name="about"></a>
+
+## About This Release
+
+Titanium Mobile SDK Release 2.0.2 is a service pack release of the Titanium Mobile SDK, including
+bug fixes for high-priority issues occurring in Release 2.0.1. This includes fixes for
+Android and iOS, and fixes for the Ti.Cloud and Ti.CloudPush module. It does not include any changes for
+the Mobile Web platform.
+
+[Full list of Issues that were addressed in Release 2.0.2](https://jira.appcelerator.org/secure/IssueNavigator.jspa?mode=hide&requestId=12956)
+
+<a name="new"></a>
+
+## New in This Relase
+
+In this release, the Android platform is built using the Android NDK, Revision 8 (r8).
+
+Android module developers wishing to target Titanium Mobile 2.0.2 should upgrade
+to the latest NDK, available from the following link:
+
+*  <a href="http://developer.android.com/sdk/ndk/index.html">Download the Android NDK from developer.android.com</a>
+
+<a name="android"></a>
+
+## Android Fixes and Enhancements
+
+The following sections list new features and notable bug fixes for the Android
+platform.
+
+*New Feature*
+
+*   Support for compiled CommonJS modules.
+    ([TIMOB-4521](https://jira.appcelerator.org/browse/TIMOB-4521))
+
+
+*Bug Fixes*
+
+*   HTTPClient failed to retrieve non-ASCII data.
+    ([TIMOB-6922](https://jira.appcelerator.org/browse/TIMOB-6922))
+
+For a complete list of Android fixes in this release, see: 
+[Fixed Android Issues in JIRA](https://jira.appcelerator.org/secure/IssueNavigator.jspa?mode=hide&requestId=12958).
+
+<a name="ios"></a>
+
+## iOS Fixes and Enhancements
+
+The following section lists notable bug fixes for the iOS platform.
+
+*Bug Fixes*
+
+*   Compiled CommonJS modules fail to link. 
+    ([TIMOB-9072](https://jira.appcelerator.org/browse/TIMOB-9072))
+
+For a complete list of iOS fixes in this release, see: 
+[Fixed iOS Issues in JIRA](https://jira.appcelerator.org/secure/IssueNavigator.jspa?mode=hide&requestId=12957).
+
+<a name="cloud"></a>
+
+## Ti.Cloud and Ti.CloudPush Module Fixes
+
+This release includes new versions of the `ti.cloud` and `ti.cloudpush` modules. The new
+modules are both versioned 2.0.5. If you are using these modules and you specify a 
+version number in your `tiapp.xml` file, you must update to the version number to 2.0.5 or
+remove the version number. If you don't specify a version number for the module, the 
+latest version is used automatically.
+
+The updated modules provide fixes for the following issues:
+
+*   Ti.Cloud: Repeated sign-in dialogs displayed when attempting to chat with another
+    user. An issue with OAuth authentication caused the module to repeatedly prompt for authorization. 
+
+*   Ti.CloudPush: Added support for ACS push notifications to customize the title and vibrate
+    parameters.
+
+*   Ti.CloudPush: Added sound support for ACS push notifications. Sound files must be placed in the
+    `Resources/sound` folder of the application project, and specified in the push message
+    _with_ the filename extension. For example:
+
+        { "sound": "notify.wav" }
+
+*   Ti.CloudPush: Added support for custom icons with ACS push notifications. Icons must be placed
+    in the `platform/android/res/drawable` folder of the application project, and
+    specified in the push message _without_ the filename extension. For example:
+
+        { "icon": "logo" } 
+
+<a name="docs"></a>
+
+## Documentation Updates
+
+This release includes several fixes to the documentation site, including:
+
+*   Platform support and deprecation information was not displayed for event properties.
+
+*   Getter methods displayed a return type of "void."
+
+The following are known issues with the documentation site:
+
+*   Crashes and scrolling issues when viewing the documentation site on an iPad.
+
+*   Show/hide inherited members option gets out of sync or does not operate correctly. 
+
+This release includes a number of documentation fixes and updates. For a complete list, see:
+[Fixed Documentation Issues in JIRA](https://jira.appcelerator.org/secure/IssueNavigator.jspa?mode=hide&requestId=12959).
+

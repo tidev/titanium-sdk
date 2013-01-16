@@ -28,7 +28,9 @@ import org.appcelerator.titanium.TiContext;
 	TiC.PROPERTY_SUBTITLE,
 	TiC.PROPERTY_SUBTITLEID,
 	TiC.PROPERTY_TITLE,
-	TiC.PROPERTY_TITLEID
+	TiC.PROPERTY_TITLEID,
+	TiC.PROPERTY_LATITUDE,
+	TiC.PROPERTY_LONGITUDE
 })
 public class AnnotationProxy extends KrollProxy
 {

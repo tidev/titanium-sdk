@@ -52,7 +52,7 @@ events:
         Fired when an option of this dialog is clicked or, under certain circumstances, when this 
         dialog is dismissed.
     description: |
-        On iOS as of 1.9, when the dialog is dismissed without using an option, for example, using 
+        On iOS as of Release 2.0, when the dialog is dismissed without using an option, for example, using
         the [hide](Titanium.UI.OptionDialog.hide) method (iPhone, iPad) or a tap outside of the 
         dialog (iPad), this event is fired as though the cancel option was selected. In these 
         circumstances, the `index` property will be the cancel option index if defined or `-1` 
@@ -142,6 +142,17 @@ properties:
     type: Array<String>
     availability: creation
     
+  - name: persistent
+    summary: Boolean value indicating if the option dialog should only be cancelled by user 
+        gesture or by hide method.
+    description: |
+        This property is useful to ensure that the option dialog will not be ignored 
+        by the user when the application is paused/suspended.
+    type: Boolean
+    default: true
+    since: "3.0.0"
+    platforms: [android, iphone, ipad]
+
   - name: selectedIndex
     summary: Defines the default selected option.
     platforms: [android]
@@ -209,10 +220,53 @@ examples:
           var dialog = Ti.UI.createOptionDialog(opts).show();
         });
         win.open();
+
+  - title: Alloy XML Markup
+    example: |
+        Previous example as an Alloy view.
+
+        optiondialog.xml:
+
+            <Alloy>
+                <Window id="win" onClick="showOptions" title="Click window to test"
+                    fullscreen="false" onExit="true" backgroundColor="white">
+
+                    <!--
+                        The OptionDialog tag declares an option dialog,
+                        which will need to be opened by the controller.
+                    -->
+                    <OptionDialog id="dialog" title="Delete File?">
+
+                        <!-- The Options tag sets the options property. -->
+                        <Options>
+                            <Option>Confirm</Option>
+                            <Option platform="ios">Help</Option>
+                            <Option>Cancel</Option>
+                        </Options>
+
+                        <!-- The ButtonNames tag sets the Android-only buttonNames property. -->
+                        <ButtonNames>
+                            <ButtonName>Confirm</ButtonName>
+                        </ButtonNames>
+
+                        <!-- Add a View for the androidView property here. -->
+
+                    </OptionDialog>
+
+                    <!-- Add views here -->
+
+                </Window>
+            </Alloy>
+
+        optiondialog.js:
+
+            function showOptions(){
+                $.dialog.show();
+            }
 ---
 name: hideParams
 summary: Dictionary of options for the <Titanium.UI.OptionDialog.hide> method.
-since: 1.9.0
+since: 2.0.0
 platforms: [iphone, ipad]
 
 properties:

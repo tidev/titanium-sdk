@@ -79,6 +79,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 	protected Handler runtimeHandler = null;
 
 	private KrollDict langConversionTable = null;
+	private boolean bubbleParent = true;
 
 	public static final String PROXY_ID_PREFIX = "proxy$";
 
@@ -306,7 +307,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 	 * @param newLookupId the new lookup identifier
 	 * @return a pair containing the name of the target property which was updated and the new value set on it.
 	 */
-	private Pair<String, String> updateLocaleProperty(String localeProperty, String newLookupId)
+	public Pair<String, String> updateLocaleProperty(String localeProperty, String newLookupId)
 	{
 		if (langConversionTable == null) {
 			return null;
@@ -337,7 +338,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 	 * @param propertyName name of the property to check (ex: titleid)
 	 * @return true if this property is a locale property
 	 */
-	private boolean isLocaleProperty(String propertyName)
+	public boolean isLocaleProperty(String propertyName)
 	{
 		return propertyName.endsWith("id");
 	}
@@ -603,6 +604,18 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 		getKrollObject().setProperty(name, value);
 	}
 
+	@Kroll.getProperty @Kroll.method
+	public boolean getBubbleParent()
+	{
+		return bubbleParent;
+	}
+
+	@Kroll.setProperty @Kroll.method
+	public void setBubbleParent(Object value)
+	{
+		bubbleParent = TiConvert.toBoolean(value);
+	}
+
 	/**
 	 * Fires an event asynchronously via KrollRuntime thread, which can be intercepted on JS side.
 	 * @param event the event to be fired.
@@ -616,7 +629,26 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 		message.getData().putString(PROPERTY_NAME, event);
 		message.sendToTarget();
 
-		return hasListeners(event);
+		return hierarchyHasListener(event);
+	}
+
+	/**
+	 * Send an event to the view who is next to receive the event.
+	 *
+	 * @param eventName event to send to the next view
+	 * @param data the data to include in the event
+	 * @return true if the event was handled
+	 */
+	@Kroll.method(name = "_fireEventToParent")
+	public boolean fireEventToParent(String eventName, Object data)
+	{
+		if (bubbleParent) {
+			KrollProxy parentProxy = getParentForBubbling();
+			if (parentProxy != null) {
+				return parentProxy.fireEvent(eventName, data);
+			}
+		}
+		return false;
 	}
 
 	/**
@@ -692,6 +724,25 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 		return getKrollObject().hasListeners(event);
 	}
 
+	/**
+	 * Returns true if any view in the hierarchy has the event listener.
+	 */
+	public boolean hierarchyHasListener(String event)
+	{
+		boolean hasListener = hasListeners(event);
+
+		// Checks whether the parent has the listener or not
+		if (!hasListener) {
+			KrollProxy parentProxy = getParentForBubbling();
+			if (parentProxy != null) {
+				boolean parentHasListener = parentProxy.hierarchyHasListener(event);
+				hasListener = hasListener || parentHasListener;
+			}
+		}
+
+		return hasListener;
+	}
+
 	public boolean shouldFireChange(Object oldValue, Object newValue)
 	{
 		if (!(oldValue == null && newValue == null)) {
@@ -727,7 +778,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 
 		if (isLocaleProperty(name)) {
 			Log.i(TAG, "Updating locale: " + name, Log.DEBUG_MODE);
-			Pair<String, String> update = updateLocaleProperty(name, value.toString());
+			Pair<String, String> update = updateLocaleProperty(name, TiConvert.toString(value));
 			if (update != null) {
 				propertyName = update.first;
 				newValue = update.second;
@@ -736,9 +787,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 
 		Object oldValue = properties.get(propertyName);
 		properties.put(propertyName, newValue);
-		if (shouldFireChange(oldValue, newValue)) {
-			firePropertyChanged(propertyName, oldValue, newValue);
-		}
+		firePropertyChanged(propertyName, oldValue, newValue);
 	}
 
 	public void onPropertiesChanged(Object[][] changes)
@@ -781,6 +830,18 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 			return ((TiBaseActivity) activity).getActivityProxy();
 		}
 
+		return null;
+	}
+
+	/**
+	 * Returns proxy that should receive the event next in a case of bubbling. Return null if the class does not
+	 * bubble or there is no parent. Optionally return null if the "bubbleParent" property is false -- i.e.,
+	 * bubbleParent must be checked as well.
+	 *
+	 * @return proxy which is next to receive events
+	 */
+	public KrollProxy getParentForBubbling()
+	{
 		return null;
 	}
 
@@ -1038,39 +1099,5 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 		return new TiContext(getActivity(), proxyId);
 	}
 
-	// TODO RM_TICONTEXT
-	@Deprecated
-	public Object sendBlockingUiMessage(int what, Object asyncArg)
-	{
-		return sendBlockingUiMessage(getMainHandler().obtainMessage(what), new AsyncResult(asyncArg));
-	}
-
-	// TODO RM_TICONTEXT
-	@Deprecated
-	public Object sendBlockingUiMessage(int what, int arg1)
-	{
-		return sendBlockingUiMessage(getMainHandler().obtainMessage(what, arg1), new AsyncResult());
-	}
-
-	// TODO RM_TICONTEXT
-	@Deprecated
-	public Object sendBlockingUiMessage(int what, Object asyncArg, int arg1, int arg2)
-	{
-		return sendBlockingUiMessage(getMainHandler().obtainMessage(what, arg1, arg2), new AsyncResult(asyncArg));
-	}
-
-	// TODO RM_TICONTEXT
-	@Deprecated
-	public Object sendBlockingUiMessage(Message message, AsyncResult asyncResult)
-	{
-		// If current thread is the UI thread, dispatch message directly.
-		if (TiApplication.isUIThread()) {
-			handleMessage(message);
-
-			return asyncResult.getResultUnsafe();
-		}
-
-		return TiMessenger.sendBlockingMainMessage(message, asyncResult.getArg());
-	}
 }
 

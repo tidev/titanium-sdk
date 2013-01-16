@@ -152,6 +152,7 @@ public class GeolocationModule extends KrollModule
 
 	private TiCompass tiCompass;
 	private boolean compassListenersRegistered = false;
+	private boolean sentAnalytics = false;
 	private ArrayList<LocationRuleProxy> simpleLocationRules = new ArrayList<LocationRuleProxy>();
 	private LocationRuleProxy simpleLocationGpsRule;
 	private LocationRuleProxy simpleLocationNetworkRule;
@@ -218,6 +219,14 @@ public class GeolocationModule extends KrollModule
 		return super.handleMessage(message);
 	}
 
+	private void doAnalytics(Location location)
+	{
+		if (!sentAnalytics) {
+			tiLocation.doAnalytics(location);
+			sentAnalytics = true;
+		}
+	}
+
 	/**
 	 * Called by a registered location provider when a location update is received
 	 * 
@@ -230,7 +239,7 @@ public class GeolocationModule extends KrollModule
 		if (shouldUseUpdate(location)) {
 			fireEvent(TiC.EVENT_LOCATION, buildLocationEvent(location, tiLocation.locationManager.getProvider(location.getProvider())));
 			currentLocation = location;
-			tiLocation.doAnalytics(location);
+			doAnalytics(location);
 		}
 	}
 
@@ -516,6 +525,7 @@ public class GeolocationModule extends KrollModule
 				Location lastKnownLocation = tiLocation.getLastKnownLocation();
 				if (lastKnownLocation != null) {
 					fireEvent(TiC.EVENT_LOCATION, buildLocationEvent(lastKnownLocation, tiLocation.locationManager.getProvider(lastKnownLocation.getProvider())));
+					doAnalytics(lastKnownLocation);
 				}
 			}
 		}
@@ -702,8 +712,6 @@ public class GeolocationModule extends KrollModule
 				callback.call(this.getKrollObject(), new Object[] {
 					buildLocationEvent(latestKnownLocation, tiLocation.locationManager.getProvider(latestKnownLocation.getProvider()))
 				});
-
-				tiLocation.doAnalytics(latestKnownLocation);
 
 			} else {
 				Log.e(TAG, "Unable to get current position, location is null");

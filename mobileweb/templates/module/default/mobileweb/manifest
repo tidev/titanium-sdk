@@ -1,0 +1,18 @@
+#
+# this is your module manifest and used by Titanium
+# during compilation, packaging, distribution, etc.
+#
+version: 0.1
+apiversion: 2
+description: My module
+author: Your Name
+license: Specify your license
+copyright: Copyright (c) __YEAR__ by Your Company
+
+
+# these should not be edited
+name: ___PROJECTNAME___
+moduleid: __MODULE_ID__
+guid: __GUID__
+platform: __PLATFORM__
+minsdk: __VERSION__

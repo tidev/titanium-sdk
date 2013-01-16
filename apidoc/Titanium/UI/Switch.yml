@@ -218,3 +218,21 @@ examples:
             });
             
             win.open();
+
+  - title: Alloy XML Markup
+    example: |
+        Previous simple switch example as an Alloy view.
+
+        switchexample.xml:
+
+            <Alloy>
+                <Window id="win" backgroundColor="white">
+                    <Switch id="basicSwitch" value="true" onChange="outputState"/>
+                </Window>
+            </Alloy>
+
+        switchexample.js:
+
+            function outputState(){
+                Ti.API.info('Switch value: ' + $.basicSwitch.value);
+            }

@@ -38,7 +38,10 @@ import android.graphics.Point;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
+import android.support.v4.view.ViewCompat;
+import android.text.TextUtils;
 import android.util.Pair;
+import android.util.SparseArray;
 import android.view.GestureDetector;
 import android.view.GestureDetector.SimpleOnGestureListener;
 import android.view.KeyEvent;
@@ -70,6 +73,10 @@ public abstract class TiUIView
 	private static final String TAG = "TiUIView";
 
 	private static AtomicInteger idGenerator;
+
+	// When distinguishing twofingertap and pinch events, minimum motion (in pixels) 
+	// to qualify as a scale event. 
+	private static final float SCALE_THRESHOLD = 6.0f;
 
 	public static final int SOFT_KEYBOARD_DEFAULT_ON_FOCUS = 0;
 	public static final int SOFT_KEYBOARD_HIDE_ON_FOCUS = 1;
@@ -107,6 +114,12 @@ public abstract class TiUIView
 
 	private boolean zIndexChanged = false;
 	private TiBorderWrapperView borderView;
+	// For twofingertap detection
+	private boolean didScale = false;
+
+	//to maintain sync visibility between borderview and view. Default is visible
+	private int visibility = View.VISIBLE;
+
 
 	/**
 	 * Constructs a TiUIView object with the associated proxy.
@@ -236,6 +249,8 @@ public abstract class TiUIView
 		}
 		doSetClickable(nativeView, clickable);
 		nativeView.setOnFocusChangeListener(this);
+
+		applyAccessibilityProperties();
 	}
 
 	protected void setLayoutParams(LayoutParams layoutParams)
@@ -285,7 +300,7 @@ public abstract class TiUIView
 		boolean invalidateParent = false;
 		ViewParent viewParent = nativeView.getParent();
 
-		if (nativeView.getVisibility() == View.VISIBLE && viewParent instanceof View) {
+		if (this.visibility == View.VISIBLE && viewParent instanceof View) {
 			int width = nativeView.getWidth();
 			int height = nativeView.getHeight();
 
@@ -449,7 +464,8 @@ public abstract class TiUIView
 			layoutNativeView();
 		} else if (key.equals(TiC.PROPERTY_SIZE)) {
 			if (newValue instanceof HashMap) {
-				HashMap<String, Object> d = (HashMap) newValue;
+				@SuppressWarnings("unchecked")
+				HashMap<String, Object> d = (HashMap<String, Object>) newValue;
 				propertyChanged(TiC.PROPERTY_WIDTH, oldValue, d.get(TiC.PROPERTY_WIDTH), proxy);
 				propertyChanged(TiC.PROPERTY_HEIGHT, oldValue, d.get(TiC.PROPERTY_HEIGHT), proxy);
 			}else if (newValue != null){
@@ -506,19 +522,12 @@ public abstract class TiUIView
 			} else {
 				setzIndexChanged(true);
 			}
-		} else if (key.equals(TiC.PROPERTY_FOCUSABLE)) {
-			boolean focusable = TiConvert.toBoolean(proxy.getProperty(TiC.PROPERTY_FOCUSABLE));
-			nativeView.setFocusable(focusable);
-			if (focusable) {
-				registerForKeyClick(nativeView);
-			} else {
-				//nativeView.setOnClickListener(null); // ? mistake? I assume OnKeyListener was meant
-				nativeView.setOnKeyListener(null);
-			}
+		} else if (key.equals(TiC.PROPERTY_FOCUSABLE) && newValue != null) {
+			registerForKeyPress(nativeView, TiConvert.toBoolean(newValue));
 		} else if (key.equals(TiC.PROPERTY_TOUCH_ENABLED)) {
 			doSetClickable(TiConvert.toBoolean(newValue));
 		} else if (key.equals(TiC.PROPERTY_VISIBLE)) {
-			nativeView.setVisibility(TiConvert.toBoolean(newValue) ? View.VISIBLE : View.INVISIBLE);
+			this.setVisibility(TiConvert.toBoolean(newValue) ? View.VISIBLE : View.INVISIBLE);
 		} else if (key.equals(TiC.PROPERTY_ENABLED)) {
 			nativeView.setEnabled(TiConvert.toBoolean(newValue));
 		} else if (key.startsWith(TiC.PROPERTY_BACKGROUND_PADDING)) {
@@ -619,6 +628,13 @@ public abstract class TiUIView
 			if (nativeView != null) {
 				nativeView.setKeepScreenOn(TiConvert.toBoolean(newValue));
 			}
+
+		} else if (key.indexOf("accessibility") == 0 && !key.equals(TiC.PROPERTY_ACCESSIBILITY_HIDDEN)) {
+			applyContentDescription();
+
+		} else if (key.equals(TiC.PROPERTY_ACCESSIBILITY_HIDDEN)) {
+			applyAccessibilityHidden(newValue);
+
 		} else {
 			Log.d(TAG, "Unhandled property key: " + key, Log.DEBUG_MODE);
 		}
@@ -672,22 +688,10 @@ public abstract class TiUIView
 		}
 
 		if (d.containsKey(TiC.PROPERTY_VISIBLE) && !nativeViewNull) {
-			nativeView.setVisibility(TiConvert.toBoolean(d, TiC.PROPERTY_VISIBLE) ? View.VISIBLE : View.INVISIBLE);
-			
+			this.setVisibility(TiConvert.toBoolean(d, TiC.PROPERTY_VISIBLE) ? View.VISIBLE : View.INVISIBLE);
 		}
 		if (d.containsKey(TiC.PROPERTY_ENABLED) && !nativeViewNull) {
 			nativeView.setEnabled(TiConvert.toBoolean(d, TiC.PROPERTY_ENABLED));
-		}
-
-		if (d.containsKey(TiC.PROPERTY_FOCUSABLE) && !nativeViewNull) {
-			boolean focusable = TiConvert.toBoolean(d, TiC.PROPERTY_FOCUSABLE);
-			nativeView.setFocusable(focusable);
-			if (focusable) {
-				registerForKeyClick(nativeView);
-			} else {
-				//nativeView.setOnClickListener(null); // ? mistake? I assume OnKeyListener was meant
-				nativeView.setOnKeyListener(null);
-			}
 		}
 
 		initializeBorder(d, bgColor);
@@ -708,9 +712,14 @@ public abstract class TiUIView
 			nativeView.setKeepScreenOn(TiConvert.toBoolean(d, TiC.PROPERTY_KEEP_SCREEN_ON));
 			
 		}
+
+		if (d.containsKey(TiC.PROPERTY_ACCESSIBILITY_HINT) || d.containsKey(TiC.PROPERTY_ACCESSIBILITY_LABEL)
+				|| d.containsKey(TiC.PROPERTY_ACCESSIBILITY_VALUE) || d.containsKey(TiC.PROPERTY_ACCESSIBILITY_HIDDEN)) {
+			applyAccessibilityProperties();
+		}
 	}
 
-	// TODO @Override
+	// TODO dead code? @Override
 	public void propertiesChanged(List<KrollPropertyChange> changes, KrollProxy proxy)
 	{
 		for (KrollPropertyChange change : changes) {
@@ -757,6 +766,11 @@ public abstract class TiUIView
 			});
 			proxy.fireEvent(TiC.EVENT_FOCUS, getFocusEventObject(hasFocus));
 		} else {
+			TiMessenger.postOnMain(new Runnable() {
+				public void run() {
+					TiUIHelper.showSoftKeyboard(v, false);
+				}
+			});
 			proxy.fireEvent(TiC.EVENT_BLUR, getFocusEventObject(hasFocus));
 		}
 	}
@@ -789,7 +803,6 @@ public abstract class TiUIView
 	public void blur()
 	{
 		if (nativeView != null) {
-			TiUIHelper.showSoftKeyboard(nativeView, false);
 			nativeView.clearFocus();
 		}
 	}
@@ -816,9 +829,21 @@ public abstract class TiUIView
 				d = null;
 			}
 			nativeView = null;
+			borderView = null;
 			if (proxy != null) {
 				proxy.setModelListener(null);
 			}
+		}
+	}
+
+	private void setVisibility(int visibility)
+	{
+		this.visibility = visibility;
+		if (borderView != null) {
+			borderView.setVisibility(this.visibility);
+		}
+		if (nativeView != null) {
+			nativeView.setVisibility(this.visibility);
 		}
 	}
 
@@ -827,9 +852,8 @@ public abstract class TiUIView
 	 */
 	public void show()
 	{
-		if (nativeView != null) {
-			nativeView.setVisibility(View.VISIBLE);
-		} else {
+		this.setVisibility(View.VISIBLE);
+		if (borderView == null && nativeView == null) {
 			Log.w(TAG, "Attempt to show null native control", Log.DEBUG_MODE);
 		}
 	}
@@ -839,9 +863,8 @@ public abstract class TiUIView
 	 */
 	public void hide()
 	{
-		if (nativeView != null) {
-			nativeView.setVisibility(View.INVISIBLE);
-		} else {
+		this.setVisibility(View.INVISIBLE);
+		if (borderView == null && nativeView == null) {
 			Log.w(TAG, "Attempt to hide null native control", Log.DEBUG_MODE);
 		}
 	}
@@ -926,13 +949,13 @@ public abstract class TiUIView
 						currentActivity = TiApplication.getAppCurrentActivity();
 					}
 					borderView = new TiBorderWrapperView(currentActivity);
-
 					// Create new layout params for the child view since we just want the
 					// wrapper to control the layout
 					LayoutParams params = new LayoutParams();
 					params.height = android.widget.FrameLayout.LayoutParams.MATCH_PARENT;
 					params.width = android.widget.FrameLayout.LayoutParams.MATCH_PARENT;
 					borderView.addView(nativeView, params);
+					borderView.setVisibility(this.visibility);
 				}
 
 				if (d.containsKey(TiC.PROPERTY_BORDER_RADIUS)) {
@@ -973,7 +996,7 @@ public abstract class TiUIView
 		}
 	}
 
-	private static HashMap<Integer, String> motionEvents = new HashMap<Integer,String>();
+	private static SparseArray<String> motionEvents = new SparseArray<String>();
 	static
 	{
 		motionEvents.put(MotionEvent.ACTION_DOWN, TiC.EVENT_TOUCH_START);
@@ -1012,12 +1035,17 @@ public abstract class TiUIView
 		return true;
 	}
 
+	/**
+	 * @module.api
+	 */
+	protected boolean allowRegisterForKeyPress()
+	{
+		return true;
+	}
+
 	public View getOuterView()
 	{
-		if (borderView == null) {
-			return nativeView;
-		}
-		return borderView;
+		return borderView == null ? nativeView : borderView;
 	}
 
 	public void registerForTouch()
@@ -1046,12 +1074,23 @@ public abstract class TiUIView
 					if (proxy.hierarchyHasListener(TiC.EVENT_PINCH)) {
 						float timeDelta = sgd.getTimeDelta() == 0 ? minTimeDelta : sgd.getTimeDelta();
 
-						KrollDict data = new KrollDict();
-						data.put(TiC.EVENT_PROPERTY_SCALE, sgd.getCurrentSpan() / startSpan);
-						data.put(TiC.EVENT_PROPERTY_VELOCITY, (sgd.getScaleFactor() - 1.0f) / timeDelta * 1000);
-						data.put(TiC.EVENT_PROPERTY_SOURCE, proxy);
+						// Suppress scale events (and allow for possible two-finger tap events)
+						// until we've moved at least a few pixels. Without this check, two-finger 
+						// taps are very hard to register on some older devices.
+						if (!didScale) {
+							if (Math.abs(sgd.getCurrentSpan() - startSpan) > SCALE_THRESHOLD) {
+								didScale = true;
+							} 
+						}
 
-						return proxy.fireEvent(TiC.EVENT_PINCH, data);
+						if (didScale) {
+							KrollDict data = new KrollDict();
+							data.put(TiC.EVENT_PROPERTY_SCALE, sgd.getCurrentSpan() / startSpan);
+							data.put(TiC.EVENT_PROPERTY_VELOCITY, (sgd.getScaleFactor() - 1.0f) / timeDelta * 1000);
+							data.put(TiC.EVENT_PROPERTY_SOURCE, proxy);
+	
+							return proxy.fireEvent(TiC.EVENT_PINCH, data);
+						}
 					}
 					return false;
 				}
@@ -1125,6 +1164,8 @@ public abstract class TiUIView
 		
 		touchable.setOnTouchListener(new OnTouchListener()
 		{
+			int pointersDown = 0;
+
 			public boolean onTouch(View view, MotionEvent event)
 			{
 				if (event.getAction() == MotionEvent.ACTION_UP) {
@@ -1134,13 +1175,32 @@ public abstract class TiUIView
 
 				scaleDetector.onTouchEvent(event);
 				if (scaleDetector.isInProgress()) {
+					pointersDown = 0;
 					return true;
 				}
 
 				boolean handled = detector.onTouchEvent(event);
 				if (handled) {
+					pointersDown = 0;
 					return true;
 				}
+
+				if (event.getActionMasked() == MotionEvent.ACTION_POINTER_UP) {
+					if (didScale) {
+						didScale = false;
+						pointersDown = 0;
+					} else {
+						pointersDown++;
+					}
+				} else if (event.getAction() == MotionEvent.ACTION_UP) {
+					if (pointersDown == 1) {
+						proxy.fireEvent(TiC.EVENT_TWOFINGERTAP, dictFromEvent(event));
+						pointersDown = 0;
+						return true;
+					}
+					pointersDown = 0;
+				}
+
 
 				String motionEvent = motionEvents.get(event.getAction());
 				if (motionEvent != null) {
@@ -1157,6 +1217,7 @@ public abstract class TiUIView
 		});
 		
 	}
+
 	protected void registerForTouch(final View touchable)
 	{
 		if (touchable == null) {
@@ -1176,6 +1237,78 @@ public abstract class TiUIView
 		// Note: AdapterView throws an exception if you try to put a click listener on it.
 		doSetClickable(touchable);
 	}
+
+
+	public void registerForKeyPress()
+	{
+		if (allowRegisterForKeyPress()) {
+			registerForKeyPress(getNativeView());
+		}
+	}
+
+	protected void registerForKeyPress(final View v)
+	{
+		if (v == null) {
+			return;
+		}
+
+		Object focusable = proxy.getProperty(TiC.PROPERTY_FOCUSABLE);
+		if (focusable != null) {
+			registerForKeyPress(v, TiConvert.toBoolean(focusable));
+		}
+	}
+
+	protected void registerForKeyPress(final View v, boolean focusable)
+	{
+		if (v == null) {
+			return;
+		}
+
+		v.setFocusable(focusable);
+
+		// The listener for the "keypressed" event is only triggered when the view has focus. So we only register the
+		// "keypressed" event when the view is focusable.
+		if (focusable) {
+			registerForKeyPressEvents(v);
+		} else {
+			v.setOnKeyListener(null);
+		}
+	}
+
+	/**
+	 * Registers a callback to be invoked when a hardware key is pressed in this view.
+	 *
+	 * @param v The view to have the key listener to attach to.
+	 */
+	protected void registerForKeyPressEvents(final View v)
+	{
+		if (v == null) {
+			return;
+		}
+
+		v.setOnKeyListener(new OnKeyListener()
+		{
+			public boolean onKey(View view, int keyCode, KeyEvent event)
+			{
+				if (event.getAction() == KeyEvent.ACTION_UP) {
+					KrollDict data = new KrollDict();
+					data.put(TiC.EVENT_PROPERTY_KEYCODE, keyCode);
+					proxy.fireEvent(TiC.EVENT_KEY_PRESSED, data);
+
+					switch (keyCode) {
+						case KeyEvent.KEYCODE_ENTER:
+						case KeyEvent.KEYCODE_DPAD_CENTER:
+							if (proxy.hasListeners(TiC.EVENT_CLICK)) {
+								proxy.fireEvent(TiC.EVENT_CLICK, null);
+								return true;
+							}
+					}
+				}
+				return false;
+			}
+		});
+	}
+
 
 	/**
 	 * Sets the nativeView's opacity.
@@ -1215,26 +1348,6 @@ public abstract class TiUIView
 		if (d != null) {
 			d.clearColorFilter();
 		}
-	}
-
-	protected void registerForKeyClick(View clickable) 
-	{
-		clickable.setOnKeyListener(new OnKeyListener() {
-			public boolean onKey(View view, int keyCode, KeyEvent event) 
-			{
-				if (event.getAction() == KeyEvent.ACTION_UP) {
-					switch(keyCode) {
-					case KeyEvent.KEYCODE_ENTER :
-					case KeyEvent.KEYCODE_DPAD_CENTER :
-						if (proxy.hasListeners(TiC.EVENT_CLICK)) {
-							proxy.fireEvent(TiC.EVENT_CLICK, null);
-							return true;
-						}
-					}
-				}
-				return false;
-			}
-		});
 	}
 
 	public KrollDict toImage()
@@ -1408,6 +1521,104 @@ public abstract class TiUIView
 		animatedRotationDegrees = 0f; // i.e., no rotation.
 		animatedScaleValues = Pair.create(Float.valueOf(1f), Float.valueOf(1f)); // 1 means no scaling
 		animatedAlpha = Float.MIN_VALUE; // we use min val to signal no val.
+	}
+
+	private void applyContentDescription()
+	{
+		if (proxy == null || nativeView == null) {
+			return;
+		}
+		String contentDescription = composeContentDescription();
+		if (contentDescription != null) {
+			nativeView.setContentDescription(contentDescription);
+		}
+	}
+
+	/**
+	 * Our view proxy supports three properties to match iOS regarding
+	 * the text that is read aloud (or otherwise communicated) by the
+	 * assistive technology: accessibilityLabel, accessibilityHint
+	 * and accessibilityValue.
+	 *
+	 * We combine these to create the single Android property contentDescription.
+	 * (e.g., View.setContentDescription(...));
+	 */
+	protected String composeContentDescription()
+	{
+		if (proxy == null) {
+			return null;
+		}
+
+		final String punctuationPattern = "^.*\\p{Punct}\\s*$";
+		StringBuilder buffer = new StringBuilder();
+
+		KrollDict properties = proxy.getProperties();
+		String label, hint, value;
+		label = TiConvert.toString(properties.get(TiC.PROPERTY_ACCESSIBILITY_LABEL));
+		hint = TiConvert.toString(properties.get(TiC.PROPERTY_ACCESSIBILITY_HINT));
+		value = TiConvert.toString(properties.get(TiC.PROPERTY_ACCESSIBILITY_VALUE));
+
+		if (!TextUtils.isEmpty(label)) {
+			buffer.append(label);
+			if (!label.matches(punctuationPattern)) {
+				buffer.append(".");
+			}
+		}
+
+		if (!TextUtils.isEmpty(value)) {
+			if (buffer.length() > 0) {
+				buffer.append(" ");
+			}
+			buffer.append(value);
+			if (!value.matches(punctuationPattern)) {
+				buffer.append(".");
+			}
+		}
+
+		if (!TextUtils.isEmpty(hint)) {
+			if (buffer.length() > 0) {
+				buffer.append(" ");
+			}
+			buffer.append(hint);
+			if (!hint.matches(punctuationPattern)) {
+				buffer.append(".");
+			}
+		}
+
+		return buffer.toString();
+	}
+
+	private void applyAccessibilityProperties()
+	{
+		if (nativeView != null) {
+			applyContentDescription();
+			applyAccessibilityHidden();
+		}
+
+	}
+
+	private void applyAccessibilityHidden()
+	{
+		if (nativeView == null || proxy == null) {
+			return;
+		}
+
+		applyAccessibilityHidden(proxy.getProperty(TiC.PROPERTY_ACCESSIBILITY_HIDDEN));
+	}
+
+	private void applyAccessibilityHidden(Object hiddenPropertyValue)
+	{
+		if (nativeView == null) {
+			return;
+		}
+
+		int importanceMode = ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_AUTO;
+
+		if (hiddenPropertyValue != null && TiConvert.toBoolean(hiddenPropertyValue)) {
+				importanceMode = ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_NO;
+		}
+
+		ViewCompat.setImportantForAccessibility(nativeView, importanceMode);
 	}
 
 }

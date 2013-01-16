@@ -2,7 +2,7 @@
 name: Titanium.UI.ActivityIndicatorStyle
 summary: A set of constants for the styles available for <Titanium.UI.ActivityIndicator> objects.
 extends: Titanium.Module
-since: {android: "2.2.0", mobileweb: "2.1.0"}
+since: {android: "3.0.0", mobileweb: "2.1.0"}
 platforms: [android, mobileweb]
 createable: false
 

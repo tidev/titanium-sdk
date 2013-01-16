@@ -2,7 +2,7 @@
 name: Titanium.Geolocation.MobileWeb
 summary: The Mobile Web specific geolocation capabilities.
 extends: Titanium.Module
-since: "1.9"
+since: "2.0.0"
 platforms: [mobileweb]
 properties:
   - name: locationTimeout

@@ -23,6 +23,8 @@ log = TiLogger(None)
 all_annotated_apis = None
 apis = None
 
+# Avoid obliterating our four spaces pattern with a careless %s:/    /^I/
+FOUR_SPACES='  ' + '  '
 # compiling REs ahead of time, since we use them heavily.
 link_parts_re = re.compile(r"(?:\[([^\]]+?)\]\(([^\)\s]+?)\)|\<([^\>\s]+)\>)", re.MULTILINE)
 find_links_re = re.compile(r"(\[[^\]]+?\]\([^\)\s]+?\)|\<[^\>\s]+\>)", re.MULTILINE)
@@ -42,6 +44,10 @@ except:
 	print >> sys.stderr, ">  easy_install Pygments"
 	print ""
 	sys.exit(1)
+
+# write unicode strings safely
+def write_utf8(file, string):
+    file.write(string.encode('utf8', 'replace'))
 
 def convert_string_to_jsduck_link(obj_specifier):
 	global all_annotated_apis
@@ -128,41 +134,65 @@ def markdown_to_html(s, obj=None):
 		s = process_markdown_links(s)
 	return markdown.markdown(s)
 
-def output_properties_for_obj(obj):
-	res = []
-	if obj.has_key("platforms"):
-		for platform in obj["platforms"]:
-			res.append("@platform %s" % (platform))
-	if obj.has_key("since"):
-		since = obj["since"]
-		# Quick fix ... Fix this later, after TIMOB-9823 is addressed
-		if isinstance(since, basestring):
-			sinceStr = since
+# remove <p> and </p> if a string is enclosed with them
+def remove_p_tags(str):
+    if str is None or len(str) == 0:
+        return ""
+    if str.startswith("<p>"):
+        str = str[3:]
+    if str.endswith("</p>"):
+        str = str[:-4]
+    return str
+
+# Print two digit version if third digit is 0.
+def format_version(version_str):
+	digits = version_str.split(".")
+	if len(digits) <= 2:
+		return version_str
+	else:
+		if digits[2] == '0':
+			return ".".join(digits[0:2])
 		else:
-			sinceStr = ""
-			platformNames = { "android": "Android", "iphone": "iPhone", "ipad": "iPad", "mobileweb": "Mobile Web" }
-			for platform in ( "android", "iphone", "ipad", "mobileweb" ):
-				if since.has_key(platform):
-					if len(sinceStr) > 0:
-						sinceStr += ", "
-					sinceStr += "%s: %s" % ( platformNames[platform], since[platform] )
-		res.append("@since %s" % sinceStr)
+			return ".".join(digits)
+
+def output_properties_for_obj(annotated_obj):
+	obj = annotated_obj.api_obj
+	res = []
+	# Only output platforms if platforms or since versions are different from
+	# containing object.
+	if obj.has_key("platforms") or obj.has_key("since"):
+		for platform in annotated_obj.platforms:
+			res.append("@platform %s %s" % (platform["name"], format_version(platform["since"])))
+
 	if obj.has_key("availability") and obj['availability'] == 'creation':
 		res.append("@creationOnly")
 	if obj.has_key("availability") and obj['availability'] == 'not-creation':
 		res.append("@nonCreation")
 	if obj.has_key("extends"):
 		res.append("@extends %s" % (obj["extends"]))
-	if obj.has_key("deprecated"):
-		str = "@deprecated %s" % (obj["deprecated"]["since"])
-		if obj["deprecated"].has_key("removed"):
-			str += ". Removed at %s" % (obj["deprecated"]["removed"])
-		res.append(str)
 
 	if(len(res) == 0):
 		return ""
 
 	return "\t * " + "\n\t * ".join(res) + "\n"
+
+# @deprecated and @removed are multi-line tags, so this must be 
+# inserted after the summary and description, or the summary will get
+# included as part of the deprecation.
+def output_deprecation_for_obj(annotated_obj):
+	obj = annotated_obj.api_obj
+	if obj.has_key("deprecated"):
+		if obj["deprecated"].has_key("removed"):
+			str = "@removed  %s" % (obj["deprecated"]["removed"])
+		else:
+			str = "@deprecated %s" % (obj["deprecated"]["since"])
+		if obj["deprecated"].has_key("notes"):
+			str += " %s" % markdown_to_html(obj["deprecated"]["notes"])
+			str = str.replace("\n", "\n\t * ")
+		return "\t * %s\n" % str
+	else:
+		return ""
+
 
 def output_example(desc, code, convert_empty_code):
 	if len(desc) == 0 and len(code) == 0:
@@ -176,7 +206,7 @@ def output_example(desc, code, convert_empty_code):
 	# determine if we need t remove leading spaces from all code lines
 	need_strip = True
 	for line in code:
-		if len(line) > 0 and line[0:4] != '	':
+		if len(line) > 0 and line[0:4] != FOUR_SPACES:
 			need_strip = False
 			break
 
@@ -192,11 +222,11 @@ def output_example(desc, code, convert_empty_code):
 	desc = "\n".join(desc)
 
 	if len(desc) > 0 and len(code) > 0:
-		return "<p>%s</p><pre>%s</pre>" % (desc, code)
+		return "<p>%s</p><pre>%s</pre>" % (markdown_to_html(desc), code)
 	elif len(desc) == 0 and len(code) > 0:
 		return "<pre>%s</pre>" % (code)
 	elif len(desc) > 0 and len(code) == 0:
-		return "<p>%s</p>" % (desc)
+		return "<p>%s</p>" % markdown_to_html(desc)
 
 
 def output_examples_for_obj(obj):
@@ -219,11 +249,11 @@ def output_examples_for_obj(obj):
 				# parse description part until code starts
 				# skip empty string between desc and code
 				if not desc_finished:
-					if prev_line_empty == True and (line.find('	') == 0 or line.find('\t') == 0):
+					if prev_line_empty == True and (line.find(FOUR_SPACES) == 0 or line.find('\t') == 0):
 						desc_finished = True
 				else:
 					# parsing code until code finishes or another description starts
-					if line.find('	') != 0 and line.find('\t') != 0 and len(line) != 0:
+					if line.find(FOUR_SPACES) != 0 and line.find('\t') != 0 and len(line) != 0:
 						# code block finished - another description started - flush content
 						desc_finished = False
 						res.append(output_example(desc, code, first_code_block))
@@ -237,7 +267,7 @@ def output_examples_for_obj(obj):
 				else:
 					code.append(line)
 
-				prev_line_empty = len(line) == 0
+				prev_line_empty = len(line.strip()) == 0
 
 			res.append(output_example(desc, code, first_code_block))
 
@@ -294,15 +324,50 @@ def get_summary_and_description(api_obj):
 	if api_obj.has_key("description"):
 		desc = markdown_to_html(api_obj["description"])
 
-	res = ""
+	res = u""
 	if summary != None:
-		res = "\t * " + summary + "\n"
+		res = u"\t * " + summary + "\n"
 		if desc != None:
-			res += "\t * @description " + desc + "\n"
+			res += u"\t * @description " + desc + "\n"
 	elif desc != None:
 		# use description if there is no summary
-		res = "\t * " + desc
+		res = u"\t * " + desc
 	return res
+
+# Side effect of hiding properties is that the accessors do not get hidden
+# Explicitly hide accessors for JSDuck
+def hide_accessors(parent_name, property_name):
+	res = ""
+	parent_obj = all_annotated_apis[parent_name].api_obj
+	if "properties" in parent_obj:
+		parent_properties = parent_obj["properties"]
+		property_dict = dict((p["name"], p) for p in parent_properties)
+		if property_name in property_dict:
+			setter = True;
+			getter = True;
+			if "accessors" in property_dict[property_name] and not property_dict[property_name]["accessors"]:
+				return res
+			if "availability" in property_dict[property_name] and property_dict[property_name]["availability"] == "creation":
+				setter = False;
+			if "permission" in property_dict[property_name]:
+				if property_dict[property_name]["permission"] == "read-only":
+					setter = False;
+				elif property_dict[property_name]["permission"] == "write-only":
+					getter = False;
+
+			upperFirst = property_name[0].upper() + property_name[1:]
+			if getter:
+				getter = "get" + upperFirst
+				res +=  "/**\n\t * @method " + getter + " \n\t * @hide\n*/\n"
+			if setter:
+				setter = "set" + upperFirst
+				res += "/**\n\t * @method " + setter + " \n\t * @hide\n*/\n"
+
+	if "extends" in parent_obj:
+		parent_name = parent_obj["extends"]
+		return res + hide_accessors(parent_name, property_name)
+	else:
+		return res
 
 def generate(raw_apis, annotated_apis, options):
 	global all_annotated_apis, apis
@@ -321,10 +386,10 @@ def generate(raw_apis, annotated_apis, options):
 		output = open(os.path.join(options.output, "titanium.js"), "w")
 		for name in annotated_apis:
 			annotated_obj = annotated_apis[name]
-			output.write("/**\n\t * @class %s\n" % (annotated_obj.name))
+			write_utf8(output, "/**\n\t * @class %s\n" % (annotated_obj.name))
 
 			if annotated_obj.typestr == "module" and annotated_obj.parent is None:
-				output.write('\t * @typestr Module\n')
+				write_utf8(output, '\t * @typestr Module\n')
 			else:
 				typestr = ''
 				if annotated_obj.typestr == "module":
@@ -341,16 +406,17 @@ def generate(raw_apis, annotated_apis, options):
 					typestr = "Parameter"
 
 				if len(typestr) > 0 and annotated_obj.parent is not None:
-					output.write('\t * @typestr %s of %s\n' % (typestr, annotated_obj.parent.name))
+					write_utf8(output, '\t * @typestr %s of %s\n' % (typestr, annotated_obj.parent.name))
 				else:
-					output.write('\t * @typestr %s\n' % (typestr))
+					write_utf8(output, '\t * @typestr %s\n' % (typestr))
 			
 			if not (has_ancestor(raw_apis[name], "Titanium.Proxy") or has_ancestor(raw_apis[name], "Global")):
-				output.write("\t * @pseudo\n")
-			output.write(output_properties_for_obj(annotated_obj.api_obj))
-			output.write(get_summary_and_description(annotated_obj.api_obj))
-			output.write(output_examples_for_obj(annotated_obj.api_obj))
-			output.write("*/\n\n")
+				write_utf8(output, "\t * @pseudo\n")
+			write_utf8(output, output_properties_for_obj(annotated_obj))
+			write_utf8(output, get_summary_and_description(annotated_obj.api_obj))
+			write_utf8(output, output_examples_for_obj(annotated_obj.api_obj))
+			write_utf8(output, output_deprecation_for_obj(annotated_obj))
+			write_utf8(output, "\t */\n\n")
 
 			p = annotated_obj.properties
 			for k in p:
@@ -368,18 +434,20 @@ def generate(raw_apis, annotated_apis, options):
 					getter_ok = setter_ok = False
 
 				if k.default is not None:
-					output.write('/**\n\t * @property [%s=%s]\n' % (k.name, k.default))
+					default_val = remove_p_tags(markdown_to_html(str(k.default)))
+					write_utf8(output, '/**\n\t * @property [%s=%s]\n' % (k.name, default_val))
 				else:
-					output.write("/**\n\t * @property %s\n" % (k.name))
+					write_utf8(output, "/**\n\t * @property %s\n" % (k.name))
 
 				if obj.has_key('type'):
-					output.write("\t * @type %s\n" % (transform_type(obj["type"])))
+					write_utf8(output, "\t * @type %s\n" % (transform_type(obj["type"])))
 				if obj.has_key('permission') and obj["permission"] == "read-only":
-					output.write("\t * @readonly\n")
-				output.write(output_properties_for_obj(obj))
-				output.write(get_summary_and_description(obj))
-				output.write(output_examples_for_obj(obj))
-				output.write(" */\n\n")
+					write_utf8(output, "\t * @readonly\n")
+				write_utf8(output, output_properties_for_obj(k))
+				write_utf8(output, get_summary_and_description(obj))
+				write_utf8(output, output_examples_for_obj(obj))
+				write_utf8(output, output_deprecation_for_obj(k))
+				write_utf8(output, " */\n\n")
 
 			p = annotated_obj.methods
 			for k in p:
@@ -387,9 +455,10 @@ def generate(raw_apis, annotated_apis, options):
 				if k.inherited_from:
 					continue
 				obj = k.api_obj
-				output.write("/**\n\t * @method %s\n" % (k.name))
-				output.write(get_summary_and_description(obj))
-				output.write(output_examples_for_obj(obj))
+				write_utf8(output, "/**\n\t * @method %s\n" % (k.name))
+				write_utf8(output, get_summary_and_description(obj))
+				write_utf8(output, output_examples_for_obj(obj))
+				write_utf8(output, output_deprecation_for_obj(k))
 
 				if obj.has_key("parameters"):
 					for param in obj["parameters"]:
@@ -402,9 +471,10 @@ def generate(raw_apis, annotated_apis, options):
 						type = "{" + transform_type(param["type"]) + repeatable + "}" if param.has_key("type") else ""
 						optional = "(optional)" if param.has_key('optional') and param["optional"] == True else ""
 						if param.has_key('default'):
-							output.write("\t * @param %s [%s=%s] %s\n\t * %s\n" % (type, param['name'], param['default'], optional, markdown_to_html(summary)))
+							default_val = remove_p_tags(markdown_to_html(str(param['default'])))
+							write_utf8(output, "\t * @param %s [%s=%s] %s\n\t * %s\n" % (type, param['name'], default_val, optional, markdown_to_html(summary)))
 						else:
-							output.write("\t * @param %s %s %s\n\t * %s\n" % (type, param['name'], optional, markdown_to_html(summary)))
+							write_utf8(output, "\t * @param %s %s %s\n\t * %s\n" % (type, param['name'], optional, markdown_to_html(summary)))
 
 				if obj.has_key("returns"):
 					returntypes = obj["returns"]
@@ -428,12 +498,12 @@ def generate(raw_apis, annotated_apis, options):
 							type = type + "}"
 						else:
 							log.warn("returns for %s should be an array or a dict." % obj["name"]);
-					output.write("\t * @return %s %s\n" % (type, markdown_to_html(summary)))
+					write_utf8(output, "\t * @return %s %s\n" % (type, markdown_to_html(summary)))
 				else:
-					output.write("\t * @return void\n")
+					write_utf8(output, "\t * @return void\n")
 
-				output.write(output_properties_for_obj(obj))
-				output.write("\t*/\n\n")
+				write_utf8(output, output_properties_for_obj(k))
+				write_utf8(output, "\t*/\n\n")
 
 			p = annotated_obj.events
 			for k in p:
@@ -441,9 +511,9 @@ def generate(raw_apis, annotated_apis, options):
 				if k.inherited_from:
 					continue
 				obj = k.api_obj
-				output.write("/**\n\t * @event %s\n" % (k.name))
-				output.write(get_summary_and_description(obj))
-				output.write(output_examples_for_obj(obj))
+				write_utf8(output, "/**\n\t * @event %s\n" % (k.name))
+				write_utf8(output, get_summary_and_description(obj))
+				write_utf8(output, output_examples_for_obj(obj))
 
 				if k.properties is not None:
 					for param in k.properties:
@@ -453,14 +523,14 @@ def generate(raw_apis, annotated_apis, options):
 							deprecated = ""
 						platforms = "("+" ".join(param.api_obj['platforms'])+")" if param.api_obj.has_key('platforms') and param.api_obj["platforms"] else ""
 						if param.api_obj.has_key('type'):
-							output.write("\t * @param {%s} %s %s %s\n" % (transform_type(param.api_obj['type']), deprecated, platforms, param.name))
+							write_utf8(output, "\t * @param {%s} %s %s %s\n" % (transform_type(param.api_obj['type']), deprecated, platforms, param.name))
 						else:
-							output.write("\t * @param %s %s %s\n" % (deprecated, platforms, param.name))
-						output.write(get_summary_and_description(param.api_obj))
+							write_utf8(output, "\t * @param %s %s %s\n" % (deprecated, platforms, param.name))
+						write_utf8(output, get_summary_and_description(param.api_obj))
 
 
-				output.write(output_properties_for_obj(obj))
-				output.write("\t*/\n\n")
+				write_utf8(output, output_properties_for_obj(k))
+				write_utf8(output, "\t*/\n\n")
 
 			# handle excluded members
 			api_obj = annotated_obj.api_obj
@@ -471,6 +541,13 @@ def generate(raw_apis, annotated_apis, options):
 								"events":"@event" }[member_type]
 						excluded_members = api_obj["excludes"][member_type]
 						for one_member in excluded_members:
-							output.write("/**\n\t * %s %s \n\t * @hide\n*/\n" % (annotation_string, one_member))
+							write_utf8(output, "/**\n\t * %s %s \n\t * @hide\n*/\n" % (annotation_string, one_member))
+							# Explicitly hide accessors
+							if member_type == "properties" and "extends" in api_obj:
+								parent_name = api_obj["extends"]
+								hide_methods = hide_accessors(parent_name, one_member)
+								if hide_methods:
+									write_utf8(output, "%s" % (hide_methods))
+
 
 		output.close()

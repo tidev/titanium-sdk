@@ -141,3 +141,19 @@ examples:
             var f = Ti.Filesystem.getFile('cricket.wav');
             emailDialog.addAttachment(f);
             emailDialog.open();
+
+  - title: Alloy XML Markup
+    example: |
+        Previous example as an Alloy view.
+
+        emaildialog.xml:
+
+            <Alloy>
+                <EmailDialog id="emailDialog" subject="Hello from Titanium" messageBody="<b>Appcelerator Titanium Rocks!</b>" />
+            </Alloy>
+
+        emaildialog.js:
+
+            $.emailDialog.toRecipients = ['foo@yahoo.com'];
+            var f = Ti.Filesystem.getFile('cricket.wav');
+            $.emailDialog.addAttachment(f);

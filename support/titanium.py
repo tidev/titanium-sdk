@@ -428,7 +428,7 @@ def package(args):
 
 def emulator_args(args, script, project_dir, platform):
 	if platform == 'android':
-		return [script, 'run-emulator', platform, project_dir]
+		return [script, 'run-emulator', project_dir, get_android_sdk(args)]
 	elif platform == 'blackberry':
 		return [script, 'run-simulator', platform, project_dir]
 

@@ -29,40 +29,45 @@ methods:
         
 properties:
   - name: LINKIFY_ALL
-    summary: Use <Titanium.UI.AUTOLINK_ALL> instead.
+    deprecated:
+        since: "3.0.0"
+        notes: Use <Titanium.UI.AUTOLINK_ALL> instead.
+    summary: Converts all detectable types of data into clickable links.
     type: Number
     permission: read-only
-    deprecated:
-        since: "2.2.0"
-    
+
   - name: LINKIFY_EMAIL_ADDRESSES
-    summary: Use <Titanium.UI.AUTOLINK_EMAIL_ADDRESSES> instead.
+    deprecated:
+        since: "3.0.0"
+        notes: Use <Titanium.UI.AUTOLINK_EMAIL_ADDRESSES> instead.
+    summary: Converts strings formatted as email addresses into clickable links.
     type: Number
     permission: read-only
-    deprecated:
-        since: "2.2.0"
-    
+
   - name: LINKIFY_MAP_ADDRESSES
-    summary: Use <Titanium.UI.AUTOLINK_MAP_ADDRESSES> instead.
+    deprecated:
+        since: "3.0.0"
+        notes: Use <Titanium.UI.AUTOLINK_MAP_ADDRESSES> instead.
+    summary: Converts strings formatted as addresses into clickable links.
     type: Number
     permission: read-only
-    deprecated:
-        since: "2.2.0"
-    
+
   - name: LINKIFY_PHONE_NUMBERS
-    summary: Use <Titanium.UI.AUTOLINK_PHONE_NUMBERS> instead.
+    deprecated:
+        since: "3.0.0"
+        notes: Use <Titanium.UI.AUTOLINK_PHONE_NUMBERS> instead.
+    summary: Converts strings formatted as phone numbers into clickable links.
     type: Number
     permission: read-only
-    deprecated:
-        since: "2.2.0"
-    
+
   - name: LINKIFY_WEB_URLS
-    summary: Use <Titanium.UI.AUTOLINK_URLS> instead.
+    deprecated:
+        since: "3.0.0"
+        notes: Use <Titanium.UI.AUTOLINK_URLS> instead.
+    summary: Converts strings formatted as URLs into clickable links.
     type: Number
     permission: read-only
-    deprecated:
-        since: "2.2.0"
-    
+
   - name: PIXEL_FORMAT_A_8
     summary: |
         Android A_8 pixel format for <Titanium.UI.Window>. Selecting the correct pixel format 
@@ -236,7 +241,7 @@ properties:
     description: Used with the <Titanium.UI.Android.ProgressIndicator.location> property.
     type: Number
     permission: read-only
-    since: "2.2.0"
+    since: "3.0.0"
 
   - name: PROGRESS_INDICATOR_STATUS_BAR
     summary: |
@@ -245,7 +250,7 @@ properties:
     description: Used with the <Titanium.UI.Android.ProgressIndicator.location> property.
     type: Number
     permission: read-only
-    since: "2.2.0"
+    since: "3.0.0"
 
   - name: PROGRESS_INDICATOR_INDETERMINANT
     summary: |
@@ -253,7 +258,7 @@ properties:
        activity of indeterminate length. (default)
     type: Number
     permission: read-only
-    since: "2.2.0"
+    since: "3.0.0"
 
   - name: PROGRESS_INDICATOR_DETERMINANT
     summary: |
@@ -261,7 +266,7 @@ properties:
         activity of determinate length.
     type: Number
     permission: read-only
-    since: "2.2.0"
+    since: "3.0.0"
     
   - name: SOFT_INPUT_ADJUST_PAN
     summary: |

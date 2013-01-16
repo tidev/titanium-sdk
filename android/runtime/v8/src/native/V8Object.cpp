@@ -129,11 +129,17 @@ Java_org_appcelerator_kroll_runtime_v8_V8Object_nativeCallProperty
 		argv = TypeConverter::javaObjectArrayToJsArguments(args, &argc);
 	}
 
+	TryCatch tryCatch;
 	Local<Function> function = Local<Function>::Cast(property);
 	Local<Value> returnValue = function->Call(object, argc, argv);
 
 	if (argv) {
 		delete[] argv;
+	}
+
+	if (tryCatch.HasCaught()) {
+		V8Util::reportException(tryCatch);
+		return JNIUtil::undefinedObject;
 	}
 
 	bool isNew;

@@ -22,6 +22,19 @@ examples:
             });
             toast.show();
 
+  - title: Alloy XML Markup
+    example: |
+        Previous example as an Alloy view.
+
+        Set the `duration` property in the TSS file or controller.
+
+        Note that a separate controller will need to create an instance of this view
+        and call the `show` method to make the notification appear.
+
+            <Alloy>
+                <Notification id="toast" message="Please Stand By" platform="android"/>
+            </Alloy>
+
 methods:
 - name: show 
   summary: Show the notification.

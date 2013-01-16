@@ -16,6 +16,7 @@
 #import "ListenerEntry.h"
 #import "TiComplexValue.h"
 #import "TiViewProxy.h"
+#import "TiBindingEvent.h"
 
 #include <libkern/OSAtomic.h>
 
@@ -198,6 +199,7 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 {
 	if (self = [super init])
 	{
+		bubbleParent = YES;
 #if PROXY_MEMORY_TRACK == 1
 		NSLog(@"[DEBUG] INIT: %@ (%d)",self,[self hash]);
 #endif
@@ -543,6 +545,11 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 	// for subclasses
 }
 
+-(TiProxy *)parentForBubbling
+{
+	return nil;
+}
+
 // this method will allow a proxy to return a different object back
 // for itself when the proxy serialization occurs from native back
 // to the bridge layer - the default is to just return ourselves, however,
@@ -555,6 +562,8 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 }
 
 #pragma mark Public
+
+@synthesize bubbleParent;
 
 -(id<NSFastEnumeration>)allKeys
 {
@@ -580,7 +589,11 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 	{
 		return pageKrollObject;
 	}
-		
+
+	if (bridgeCount == 0) {
+		return nil;
+	}
+
 	if(![bridge usesProxy:self])
 	{
 		DeveloperLog(@"[DEBUG] Proxy %@ may be missing its javascript representation.", self);
@@ -596,6 +609,10 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 		return pageKrollObject;
 	}
 
+	if (bridgeCount == 0) {
+		return nil;
+	}
+    
 	KrollBridge * ourBridge = (KrollBridge *)[context delegate];
 	
 	if(![ourBridge usesProxy:self])
@@ -604,6 +621,22 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 	}
 
 	return [ourBridge krollObjectForProxy:self];
+}
+
+- (int) bindingRunLoopCount
+{
+	return bridgeCount;
+}
+- (TiBindingRunLoop) primaryBindingRunLoop
+{
+    if (pageKrollObject != nil) {
+        return [pageContext krollContext];
+    }
+    return nil;
+}
+- (NSArray *) bindingRunLoopArray
+{
+	return [[KrollBridge krollBridgesUsingProxy:self] valueForKeyPath:@"krollContext"];
 }
 
 -(BOOL)retainsJsObjectForKey:(NSString *)key
@@ -803,7 +836,7 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 -(void)fireEvent:(id)args
 {
 	NSString *type = nil;
-	id params = nil;
+	NSDictionary * params = nil;
 	if ([args isKindOfClass:[NSArray class]])
 	{
 		type = [args objectAtIndex:0];
@@ -811,12 +844,22 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 		{
 			params = [args objectAtIndex:1];
 		}
+		if ([params isKindOfClass:[NSNull class]]) {
+			DebugLog(@"[WARN]fireEvent of type %@ called with two parameters but second parameter is null. Ignoring. Check your code",type);
+			params = nil;
+		}
 	}
 	else if ([args isKindOfClass:[NSString class]])
 	{
 		type = (NSString*)args;
 	}
-	[self fireEvent:type withObject:params withSource:self propagate:YES];
+	id bubbleObject = [params objectForKey:@"bubbles"];
+	//TODO: Yes is the historical default. Is this the right thing to do, given the expense?
+	BOOL bubble = [TiUtils boolValue:bubbleObject def:YES];
+	if((bubbleObject != nil) && ([params count]==1)){
+		params = nil; //No need to propagate when we already have this information
+	}
+	[self fireEvent:type withObject:params withSource:self propagate:bubble];
 }
 
 -(void)fireEvent:(NSString*)type withObject:(id)obj
@@ -841,34 +884,11 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 		return;
 	}
 
-	//TODO: This can be optimized later on.
-	NSMutableDictionary* eventObject = nil;
-	if ([obj isKindOfClass:[NSDictionary class]])
-	{
-		eventObject = [NSMutableDictionary dictionaryWithDictionary:obj];
-		[eventObject setObject:type forKey:@"type"];
-		[eventObject setObject:source forKey:@"source"];
-	}
-	else 
-	{
-		eventObject = [NSMutableDictionary dictionaryWithObjectsAndKeys:type,@"type",source,@"source",nil];
-	}
-
-	//Since listeners are now at the object level, we have to wait in line.
-
-	if ((bridgeCount == 1) && (pageKrollObject != nil))
-	{
-		[(KrollBridge *)pageContext enqueueEvent:type forProxy:self withObject:eventObject];
-	}
-	else
-	{
-		NSArray * bridges = [KrollBridge krollBridgesUsingProxy:self];
-
-		for (KrollBridge * currentBridge in bridges)
-		{
-			[currentBridge enqueueEvent:type forProxy:self withObject:eventObject];
-		}
-	}
+	TiBindingEvent ourEvent;
+	
+	ourEvent = TiBindingEventCreateWithNSObjects(self, source, type, obj);
+	TiBindingEventSetBubbles(ourEvent, propagate);
+	TiBindingEventFire(ourEvent);
 }
 
 - (void)setValuesForKeysWithDictionary:(NSDictionary *)keyedValues

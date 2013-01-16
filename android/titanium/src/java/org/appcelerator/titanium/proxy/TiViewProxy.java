@@ -54,6 +54,10 @@ import android.view.View;
 	// layout / dimension (size/width/height have custom accessors)
 	"left", "top", "right", "bottom", "layout", "zIndex",
 
+	// accessibility
+	TiC.PROPERTY_ACCESSIBILITY_HINT, TiC.PROPERTY_ACCESSIBILITY_LABEL, TiC.PROPERTY_ACCESSIBILITY_VALUE,
+	TiC.PROPERTY_ACCESSIBILITY_HIDDEN,
+
 	// others
 	"focusable", "touchEnabled", "visible", "enabled", "opacity",
 	"softKeyboardOnFocus", "transform"
@@ -87,7 +91,9 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 	protected Object pendingAnimationLock;
 	protected TiAnimationBuilder pendingAnimation;
 	private boolean isDecorView = false;
-	private AtomicBoolean layoutStarted = new AtomicBoolean();
+
+	// TODO: Deprecated since Release 3.0.0
+	@Deprecated private AtomicBoolean layoutStarted = new AtomicBoolean();
 
 	/**
 	 * Constructs a new TiViewProxy instance.
@@ -266,7 +272,7 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 				KrollDict d = null;
 				d = new KrollDict();
 				if (view != null) {
-					View v = view.getNativeView();
+					View v = view.getOuterView();
 					if (v != null) {
 						TiDimension nativeWidth = new TiDimension(v.getWidth(), TiDimension.TYPE_WIDTH);
 						TiDimension nativeHeight = new TiDimension(v.getHeight(), TiDimension.TYPE_HEIGHT);
@@ -387,13 +393,31 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 	{
 		this.view = view;
 	}
+	
+	public TiUIView forceCreateView(boolean enableModelListener)
+	{
+		view = null;
+		return getOrCreateView(enableModelListener);
+	}
 
 	public TiUIView forceCreateView()
 	{
-		view = null;
-		return getOrCreateView();
+		return forceCreateView(true);
 	}
 
+	public TiUIView getOrCreateView(boolean enableModelListener)
+	{
+		if (activity == null || view != null) {
+			return view;
+		}
+
+		if (TiApplication.isUIThread()) {
+			return handleGetView(enableModelListener);
+		}
+
+		return (TiUIView) TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_GETVIEW), 0);
+	}
+	
 	/**
 	 * Creates or retrieves the view associated with this proxy.
 	 * @return a TiUIView instance.
@@ -401,18 +425,10 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 	 */
 	public TiUIView getOrCreateView()
 	{
-		if (activity == null || view != null) {
-			return view;
-		}
-
-		if (TiApplication.isUIThread()) {
-			return handleGetView();
-		}
-
-		return (TiUIView) TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_GETVIEW), 0);
+		return getOrCreateView(true);
 	}
 
-	protected TiUIView handleGetView()
+	protected TiUIView handleGetView(boolean enableModelListener)
 	{
 		if (view == null) {
 			Log.d(TAG, "getView: " + getClass().getSimpleName(), Log.DEBUG_MODE);
@@ -426,15 +442,32 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 					Log.w(TAG, "Activity is null", Log.DEBUG_MODE);
 				}
 			}
-			realizeViews(view);
+			realizeViews(view, enableModelListener);
 			view.registerForTouch();
+			view.registerForKeyPress();
 		}
 		return view;
 	}
-
-	public void realizeViews(TiUIView view)
+	
+	protected TiUIView handleGetView()
 	{
-		setModelListener(view);
+		return handleGetView(true);
+	}
+
+	public void realizeViews(TiUIView view, boolean enableModelListener)
+	{
+		if (enableModelListener)
+		{
+			setModelListener(view);
+		}
+		else
+		{
+			// Just call processProperties() to set them on this view.
+			// Note that this is done in setModelListener() when it is
+			// called.
+			view.processProperties(getProperties());
+		}
+
 
 		// Use a copy so bundle can be modified as it passes up the inheritance
 		// tree. Allows defaults to be added and keys removed.
@@ -454,6 +487,11 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 				handlePendingAnimation(true);
 			}
 		}
+	}
+	
+	public void realizeViews(TiUIView view)
+	{
+		realizeViews(view, true);
 	}
 
 	public void releaseViews()
@@ -557,6 +595,24 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 		}
 	}
 
+	/**
+	 * Removes all children views.
+	 * @module.api
+	 */
+	@Kroll.method
+	public void removeAllChildren()
+	{
+		if (children != null) {
+			//children might be altered while we loop through it (threading)
+			//so we first copy children as it was when asked to remove all children
+			ArrayList<TiViewProxy> childViews = new ArrayList<TiViewProxy>();
+			childViews.addAll(children);
+			for (TiViewProxy child : childViews) {
+				remove(child);
+			}
+		}
+	}
+
 	public void handleRemove(TiViewProxy child)
 	{
 		if (children != null) {
@@ -618,12 +674,8 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 		synchronized (pendingAnimationLock) {
 			if (arg instanceof HashMap) {
 				HashMap options = (HashMap) arg;
-
 				pendingAnimation = new TiAnimationBuilder();
 				pendingAnimation.applyOptions(options);
-				if (callback != null) {
-					pendingAnimation.setCallback(callback);
-				}
 			} else if (arg instanceof TiAnimation) {
 				TiAnimation anim = (TiAnimation) arg;
 				pendingAnimation = new TiAnimationBuilder();
@@ -631,6 +683,11 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 			} else {
 				throw new IllegalArgumentException("Unhandled argument to animate: " + arg.getClass().getSimpleName());
 			}
+
+			if (callback != null) {
+				pendingAnimation.setCallback(callback);
+			}
+
 			handlePendingAnimation(false);
 		}
 	}
@@ -717,8 +774,10 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 		return view.toImage();
 	}
 
+
 	/**
 	 * Fires an event that can optionally be "bubbled" to the parent view.
+	 *
 	 * @param eventName event to get dispatched to listeners
 	 * @param data data to include in the event
 	 * @param bubbles if true will send the event to the parent view after it has been dispatched to this view's listeners.
@@ -730,18 +789,13 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 			data = new KrollDict();
 		}
 
-		// Dispatch the event to JavaScript first before we "bubble" it to the parent view.
-		boolean handled = super.fireEvent(eventName, data);
-		if (!bubbles) {
-			return handled;
+		// Set the "bubbles" property to indicate if the event needs to be bubbled.
+		if (data instanceof HashMap) {
+			((HashMap)data).put(TiC.PROPERTY_BUBBLES, bubbles);
 		}
 
-		TiViewProxy parentView = getParent();
-		if (parentView != null) {
-			handled = parentView.fireEvent(eventName, data) || handled;
-		}
-
-		return handled;
+		// Dispatch the event to JavaScript which takes care of the bubbling.
+		return super.fireEvent(eventName, data);
 	}
 
 	/**
@@ -772,7 +826,18 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 
 	public void setParent(TiViewProxy parent)
 	{
+		if (parent == null) {
+			this.parent = null;
+			return;
+		}
+
 		this.parent = new WeakReference<TiViewProxy>(parent);
+	}
+
+	@Override
+	public KrollProxy getParentForBubbling()
+	{
+		return getParent();
 	}
 
 	@Override
@@ -819,28 +884,6 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 				setClickable(false);
 			}
 		}
-	}
-
-	/**
-	 * Return true if any view in the hierarchy has the event listener.
-	 */
-	public boolean hierarchyHasListener(String eventName)
-	{
-		boolean hasListener = hasListeners(eventName);
-
-		// Check whether the parent has the listener or not
-		if (!hasListener) {
-			TiViewProxy parent = getParent();
-			if (parent != null) {
-				boolean parentHasListener = parent.hierarchyHasListener(eventName);
-				hasListener = hasListener || parentHasListener;
-				if (hasListener) {
-					return hasListener;
-				}
-			}
-		}
-
-		return hasListener;
 	}
 
 	public void setClickable(boolean clickable)
@@ -975,15 +1018,21 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 		return destPoint;
 	}
 
-	@Kroll.method
+	// TODO: Deprecated since Release 3.0.0
+	@Kroll.method @Deprecated
 	public void startLayout()
 	{
+		Log.w(TAG, "startLayout() is deprecated.", Log.DEBUG_MODE);
+
 		layoutStarted.set(true);
 	}
 
-	@Kroll.method
+	// TODO: Deprecated since Release 3.0.0
+	@Kroll.method @Deprecated
 	public void finishLayout()
 	{
+		Log.w(TAG, "finishLayout() is deprecated.", Log.DEBUG_MODE);
+
 		// Don't force a layout if startLayout() was never called
 		if (!isLayoutStarted()) {
 			return;
@@ -996,9 +1045,12 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 		layoutStarted.set(false);
 	}
 
-	@Kroll.method
+	// TODO: Deprecated since Release 3.0.0
+	@Kroll.method @Deprecated
 	public void updateLayout(Object params)
 	{
+		Log.w(TAG, "updateLayout() is deprecated.", Log.DEBUG_MODE);
+
 		HashMap<String, Object> paramsMap;
 
 		if (!(params instanceof HashMap)) {
@@ -1034,8 +1086,10 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 		handleFinishLayout();
 	}
 
+	// TODO: Deprecated since Release 3.0.0
 	// This is used to check if the user has called startLayout(). We mainly use this to perform a check before running
 	// deprecated behavior. (i.e. performing layout when a property has changed, and the user didn't call startLayout)
+	@Deprecated
 	public boolean isLayoutStarted()
 	{
 		return layoutStarted.get();

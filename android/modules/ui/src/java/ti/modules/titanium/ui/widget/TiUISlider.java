@@ -122,8 +122,9 @@ public class TiUISlider extends TiUIView
 		}
 		length *= scaleFactor;
 		SeekBar seekBar = (SeekBar) getNativeView();
-		seekBar.setMax(length);
 		int curPos = (int)Math.floor(scaleFactor* (pos + offset));
+		//On Android 4.0+ this will result in a callback to the listener. So set length after calculating position
+		seekBar.setMax(length);
 		seekBar.setProgress(curPos);
 	}
 

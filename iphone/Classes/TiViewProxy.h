@@ -33,6 +33,10 @@
  @param args Unused.
  */
 - (void)blur:(id)args;
+/**
+ Tells if this proxy is currently focused
+ */
+- (BOOL)focused;
 
 #pragma mark Private internal APIs.
 
@@ -158,9 +162,9 @@ enum
  */
 @property(nonatomic,readonly) NSArray *children;
 
--(void)startLayout:(id)arg;
--(void)finishLayout:(id)arg;
--(void)updateLayout:(id)arg;
+-(void)startLayout:(id)arg;//Deprecated since 3.0.0
+-(void)finishLayout:(id)arg;//Deprecated since 3.0.0
+-(void)updateLayout:(id)arg;//Deprecated since 3.0.0
 -(void)setTempProperty:(id)propVal forKey:(id)propName;
 -(void)processTempProperties:(NSDictionary*)arg;
 
@@ -574,6 +578,12 @@ enum
 -(void)reposition;	//Todo: Replace
 
 -(BOOL)willBeRelaying;	//Todo: Replace
+
+-(BOOL) widthIsAutoFill;
+-(BOOL) widthIsAutoSize;
+-(BOOL) heightIsAutoFill;
+-(BOOL) heightIsAutoSize;
+-(BOOL) belongsToContext:(id<TiEvaluator>) context;
 
 /**
  Tells the view that its child view size will change.

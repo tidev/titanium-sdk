@@ -59,6 +59,10 @@ public class TiUILabel extends TiUIView
 		super.processProperties(d);
 
 		TextView tv = (TextView) getNativeView();
+		
+		// Clear any text style left over here if view is recycled
+		TiUIHelper.styleText(tv, null, null, null);
+		
 		// Only accept one, prefer text to title.
 		if (d.containsKey(TiC.PROPERTY_HTML)) {
 			tv.setText(Html.fromHtml(TiConvert.toString(d, TiC.PROPERTY_HTML)), TextView.BufferType.SPANNABLE);
@@ -79,7 +83,7 @@ public class TiUILabel extends TiUIView
 		}
 		if (d.containsKey(TiC.PROPERTY_TEXT_ALIGN) || d.containsKey(TiC.PROPERTY_VERTICAL_ALIGN)) {
 			String textAlign = d.optString(TiC.PROPERTY_TEXT_ALIGN, "left");
-			String verticalAlign = d.optString(TiC.PROPERTY_VERTICAL_ALIGN, "center");
+			String verticalAlign = d.optString(TiC.PROPERTY_VERTICAL_ALIGN, "middle");
 			TiUIHelper.setAlignment(tv, textAlign, verticalAlign);
 		}
 		if (d.containsKey(TiC.PROPERTY_ELLIPSIZE)) {

@@ -239,13 +239,25 @@
     // on our created context, we CANNOT explicitly shut down here.  Instead we should memory-manage
     // contexts better so they stop when they're no longer in use.
 
-	// Sadly, today is not that day. Without shutdown, we leak all over the place.
-	if (context!=nil)
-	{
-		[context performSelector:@selector(shutdown:) withObject:nil afterDelay:1.0];
-		RELEASE_TO_NIL(context);
-	}
-	[super windowDidClose];
+    // Sadly, today is not that day. Without shutdown, we leak all over the place.
+    if (context!=nil) {
+        NSMutableArray* childrenToRemove = [[NSMutableArray alloc] init];
+        pthread_rwlock_rdlock(&childrenLock);
+        for (TiViewProxy* child in children) {
+            if ([child belongsToContext:context]) {
+                [childrenToRemove addObject:child];
+            }
+        }
+        pthread_rwlock_unlock(&childrenLock);
+        [context performSelector:@selector(shutdown:) withObject:nil afterDelay:1.0];
+        RELEASE_TO_NIL(context);
+        
+        for (TiViewProxy* child in childrenToRemove) {
+            [self remove:child];
+        }
+        [childrenToRemove release];
+    }
+    [super windowDidClose];
 }
 
 -(BOOL)_handleClose:(id)args
@@ -311,7 +323,7 @@
 
 		UINavigationController * ourNC = [controller navigationController];
 		[TiUtils applyColor:newColor toNavigationController:ourNC];
-		[self performSelector:@selector(_refreshBackButton) withObject:nil afterDelay:0.0];
+		[self performSelector:@selector(refreshBackButton) withObject:nil afterDelay:0.0];
 	}
 }
 
@@ -480,7 +492,7 @@
 	[self setTabBarHidden:[NSNumber numberWithBool:NO]];
 }
 
--(void)_refreshBackButton
+-(void)refreshBackButton
 {
 	ENSURE_UI_THREAD_0_ARGS;
 	
@@ -527,7 +539,7 @@
 	[self replaceValue:proxy forKey:@"backButtonTitle" notification:NO];
 	if (controller!=nil)
 	{
-		[self _refreshBackButton];	//Because this is actually a property of a DIFFERENT view controller,
+		[self refreshBackButton];	//Because this is actually a property of a DIFFERENT view controller,
 		//we can't attach this until we're in the navbar stack.
 	}
 }
@@ -538,12 +550,12 @@
 	[self replaceValue:proxy forKey:@"backButtonTitleImage" notification:NO];
 	if (controller!=nil)
 	{
-		[self _refreshBackButton];	//Because this is actually a property of a DIFFERENT view controller, 
+		[self refreshBackButton];	//Because this is actually a property of a DIFFERENT view controller,
 		//we can't attach this until we're in the navbar stack.
 	}
 }
 
--(void)_updateTitleView
+-(void)updateNavBar
 {
     //Called from the view when the screen rotates. 
     //Resize titleControl and barImage based on navbar bounds
@@ -582,16 +594,18 @@
     if ([oldView isKindOfClass:[TiUIView class]]) {
         TiViewProxy * oldProxy = (TiViewProxy *)[(TiUIView *)oldView proxy];
         if (oldProxy == titleControl) {
-            //resize titleControl
+            //relayout titleControl
             CGRect barBounds;
             barBounds.origin = CGPointZero;
             barBounds.size = SizeConstraintViewWithSizeAddingResizing(titleControl.layoutProperties, titleControl, availableTitleSize, NULL);
             
-            [oldView setBounds:barBounds];
+            [TiUtils setView:oldView positionRect:[TiUtils centerRect:barBounds inRect:barFrame]];
             [oldView setAutoresizingMask:UIViewAutoresizingNone];
             
             //layout the titleControl children
             [titleControl layoutChildren:NO];
+            
+            [self updateBarImage];
             
             return;
         }
@@ -816,7 +830,7 @@ else{\
 	SETPROPOBJ(@"rightNavButton",setRightNavButton);
 	SETPROPOBJ(@"toolbar",setToolbar);
 	SETPROP(@"barImage",setBarImage);
-	[self _refreshBackButton];
+	[self refreshBackButton];
 	
 	id navBarHidden = [self valueForKey:@"navBarHidden"];
 	if (navBarHidden!=nil)

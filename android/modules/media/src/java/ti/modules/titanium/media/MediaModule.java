@@ -73,6 +73,9 @@ public class MediaModule extends KrollModule
 	protected static final int MSG_INVOKE_CALLBACK = KrollModule.MSG_LAST_ID + 100;
 	protected static final int MSG_LAST_ID = MSG_INVOKE_CALLBACK;
 
+	// The mode FOCUS_MODE_CONTINUOUS_PICTURE is added in API 14
+	public static final String FOCUS_MODE_CONTINUOUS_PICTURE = "continuous-picture";
+
 	@Kroll.constant public static final int UNKNOWN_ERROR = 0;
 	@Kroll.constant public static final int DEVICE_BUSY = 1;
 	@Kroll.constant public static final int NO_CAMERA = 2;

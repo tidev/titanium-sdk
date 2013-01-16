@@ -43,7 +43,7 @@ properties:
         
         * Keys: any of `home`, `work`, and/or `other`.
         * Values: arrays of dictionary types with seven keys, `CountryCode`, `Street`, `City`, 
-        `County`, 'State', `Country` and `ZIP`, each with a `string` type value.
+        `County`, `State`, `Country` and `ZIP`, each with a `string` type value.
 
         On Android:
 

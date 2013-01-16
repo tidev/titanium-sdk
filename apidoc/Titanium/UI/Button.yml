@@ -148,11 +148,11 @@ properties:
     type: Font
   - name: image
     summary: Image to display on the button, specified as a local
-        path, URL or (on iOS only) a `Blob`.
+        path, URL or a `Blob`.
     description: |
         The image is displayed to the left of the title.
 
-        Support for using <Titanium.Blob> for this property is only available on iOS.
+        Support for using <Titanium.Blob> for this property is only available on Android and iOS.
     type: [String, Titanium.Blob]
   - name: selectedColor
     summary: Button text color used to indicate the selected state, as a color name or hex triplet.
@@ -206,5 +206,23 @@ examples:
             {
                Titanium.API.info("You clicked the button");
             });
-        
-        
+
+  - title: Alloy XML Markup
+    example: |
+        Previous example as an Alloy view.
+
+        button.xml:
+
+            <Alloy>
+                <Window id="win" backgroundColor="white">
+                    <!-- The title property can also be defined as node text. -->
+                    <Button id="button" onClick="doClick" title="Hello"
+                        top="10" width="100" height="50" />
+                </Window>
+            </Alloy>
+
+        button.js:
+
+            function doClick(e){
+                Titanium.API.info("You clicked the button");
+            };

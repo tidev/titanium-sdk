@@ -71,6 +71,7 @@
 - (void)beginEditing;
 - (void)endEditing;
 - (void)recreateButtons;
+- (void)layoutButtons;
 
 - (LauncherItem*)itemForIndex:(NSInteger)index;
 - (NSArray*)items;
@@ -99,6 +100,8 @@
 - (void)launcherViewDidEndEditing:(LauncherView*)launcher;
 
 - (BOOL)launcherViewShouldWobble:(LauncherView*)launcher;
+
+- (void)launcherView:(LauncherView*)launcher didChangePage:(NSNumber*)pageNo;
 
 @end
 

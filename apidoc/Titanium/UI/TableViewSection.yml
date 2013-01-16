@@ -16,9 +16,22 @@ description: |
     
     In order for a section to be visible, either its `headerTitle` or `headerView` property must be 
     configured. 
-    
-    Be aware that adding or removing sections individually is not supported. Instead, use the 
-    `TableView` [setData](Titanium.UI.TableView.setData) method to refresh the whole table with a 
+
+    Starting in Release 3.0, you can directly manipulate the sections in a table using the
+    following `TableView` APIs:
+
+    * To set all sections in a table view at one time, use the `TableView`
+    [section](Titanium.UI.TableView.section) property.
+    * To add an individual section after a table view is rendered, use either the `TableView`
+    [insertSectionBefore](Titanium.UI.TableView.insertSectionBefore)
+    or [insertSectionAfter](Titanium.UI.TableView.insertSectionAfter) method.
+    * To add one or more sections to the end of a table view after it is rendered, use the `TableView`
+    [appendSection](Titanium.UI.TableView.appendSection) method.
+    * To remove an individual section after a table view is rendered, use the `TableView`
+    [deleteSection](Titanium.UI.TableView.deleteSection) method.
+
+    Prior to Release 3.0, adding or removing sections individually is not supported. Instead, use the
+    `TableView` [data](Titanium.UI.TableView.data) property to refresh the whole table with a
     new section layout. 
     
     See the description and examples sections of [TableView](Titanium.UI.TableView) for more details 

@@ -40,8 +40,9 @@ methods:
     
   - name: setSelection
     summary: Selects the text in range (start, end).
-    platforms: [android]
-    since: 2.2.0
+    platforms: [android, iphone, ipad]
+    since: 3.0.0
+    osver: {ios: {min: "5.0"}}
     parameters:
       - name: start
         summary: Start index for selection. Value ranges from 0 to the text's length.
@@ -53,6 +54,8 @@ methods:
          Selects the text in range (start, end). If start equals end, no text will be selected, 
          and the cursor will move to the start position. End is not inclusive, meaning setSelection(0,0) 
          will not select the first character, but will move the cursor to the position before the first character.
+         
+         On iOS, soft keyboard would show when text is selected.
          
 properties:
   - name: appearance
@@ -77,22 +80,45 @@ properties:
     default: <Titanium.UI.TEXT_AUTOCAPITALIZATION_NONE>
     
   - name: autocorrect
-    summary: Determines whether misspelled words input to this text field are automatically corrected.
+    summary: |
+        Determines whether to automatically correct text entered into this text field.
+    description: |
+        Set to `true` to enable automatic spelling correction.
+
+        If this property is not explicitly defined, it behaves as though it were set to `true`.
+
+        On iOS and Mobile Web, the returned default value is `false`, and on Android, the returned
+        default value is undefined, but all behave as if the value is `true`.
     type: Boolean
-    default: false
     
   - name: autoLink
     summary: Automatically convert text to clickable links. 
     description: |     
-        Use one of the <Titanium.UI.Android> linkify constants:
+        Specify which types of items to convert by setting `autoLink` to one of the 
+        <Titanium.UI> `AUTOLINK` constants: 
+        [AUTOLINK_ALL](Titanium.UI.AUTOLINK_ALL),
+        [AUTOLINK_EMAIL_ADDRESSES](Titanium.UI.AUTOLINK_EMAIL_ADDRESSES),
+        [AUTOLINK_MAP_ADDRESSES](Titanium.UI.AUTOLINK_MAP_ADDRESSES),
+        [AUTOLINK_NONE](Titanium.UI.AUTOLINK_NONE),
+        [AUTOLINK_PHONE_NUMBERS](Titanium.UI.AUTOLINK_PHONE_NUMBERS),
+        or [AUTOLINK_URLS](Titanium.UI.AUTOLINK_URLS).
+
+        Multiple autolink values can be combined with a bitwise OR. For example:
+            
+            textField.autoLink = AUTOLINK_MAP_ADDRESSES|AUTOLINK_PHONE_NUMBERS;
+
+        Prior to Release 3.0, this field used platform-specific constants. These are now
+        deprecated in favor of the `AUTOLINK` constants listed above.
+        
+        The Android-specific legacy constants are defined in <Titanium.UI.Android>:
         [LINKIFY_ALL](Titanium.UI.Android.LINKIFY_ALL),
         [LINKIFY_EMAIL_ADDRESSES](Titanium.UI.Android.LINKIFY_EMAIL_ADDRESSES),
         [LINKIFY_MAP_ADDRESSES](Titanium.UI.Android.LINKIFY_MAP_ADDRESSES),
         [LINKIFY_PHONE_NUMBERS](Titanium.UI.Android.LINKIFY_PHONE_NUMBERS),
-        or [LINKIFY_WEB_URLS](Titanium.UI.Android.LINKIFY_WEB_URLS).
+        and [LINKIFY_WEB_URLS](Titanium.UI.Android.LINKIFY_WEB_URLS).
     type: Number
     default: undefined
-    since: 2.2.0
+    since: 3.0.0
     platforms: [android]
     
   - name: borderStyle
@@ -179,7 +205,7 @@ properties:
         Array of toolbar button objects or a [toolbar](Titanium.UI.iOS.Toolbar) to be used when the 
         keyboard is displayed.
     description: |
-        As of 1.9.0, because iOS disallows a view (including toolbar buttons) to be in two places at
+        As of Release 2.0, because iOS disallows a view (including toolbar buttons) to be in two places at
         once, developers desiring textAreas or [textFields](Titanium.UI.TextField) to share a toolbar
         can instead use a single [toolbar](Titanium.UI.iOS.Toolbar) instead of having arrays sharing
         toolbar buttons.
@@ -363,7 +389,7 @@ properties:
         indicates unlimited length.
     default: -1
     type: Number
-    since: {android: "2.2.0"}
+    since: {android: "3.0.0"}
     platforms: [android, iphone, mobileweb]
 
 events:
@@ -399,6 +425,7 @@ examples:
   - title: Basic Text Field with rounded border
     example: |
         Create a simple text field with a round border style.
+
             var win = Ti.UI.createWindow({
               backgroundColor: 'white'
             });
@@ -447,3 +474,15 @@ examples:
                 top : 10,
                 width : 300, height : 35
             });
+
+  - title: Alloy XML Markup
+    example: |
+        Previous basic text field with rounded border example as an Alloy view.
+
+        Define the `borderStyle` property in the TSS file.
+
+            <Alloy>
+                <Window id="win" backgroundColor="white">
+                    <TextField id="textField" color="#336699" top="10" left="10" width="250" height="60" />
+                </Window>
+            </Alloy>

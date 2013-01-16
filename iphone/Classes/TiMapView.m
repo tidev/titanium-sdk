@@ -41,7 +41,12 @@
     if (![NSThread isMainThread]) {
         TiThreadPerformOnMainThread(^{[self render];}, NO);
         return;
-    }  	  
+    }
+    //TIMOB-10892 if any of below conditions is true , regionthatfits returns invalid.
+    if (map == nil || map.bounds.size.width == 0 || map.bounds.size.height == 0) {
+        return;
+    }
+
     if (region.center.latitude!=0 && region.center.longitude!=0)
     {
         if (regionFits) {
@@ -71,6 +76,11 @@
     return map;
 }
 
+- (id)accessibilityElement
+{
+	return [self map];
+}
+
 - (NSArray *)customAnnotations
 {
     NSMutableArray *annotations = [NSMutableArray arrayWithArray:self.map.annotations];
@@ -93,7 +103,6 @@
 {
     [TiUtils setView:[self map] positionRect:bounds];
     [super frameSizeChanged:frame bounds:bounds];
-    [self render];
 }
 
 -(TiMapAnnotationProxy*)annotationFromArg:(id)arg
@@ -314,6 +323,17 @@
 	return region_;
 }
 
+-(NSDictionary*)dictionaryFromRegion
+{
+    NSMutableDictionary* theDict = [NSMutableDictionary dictionary];
+    [theDict setObject:NUMFLOAT(region.center.latitude) forKey:@"latitude"];
+    [theDict setObject:NUMFLOAT(region.center.longitude) forKey:@"longitude"];
+    [theDict setObject:NUMFLOAT(region.span.latitudeDelta) forKey:@"latitudeDelta"];
+    [theDict setObject:NUMFLOAT(region.span.longitudeDelta) forKey:@"longitudeDelta"];
+    
+    return theDict;
+}
+
 -(CLLocationDegrees) longitudeDelta
 {
     if (loaded) {
@@ -492,9 +512,10 @@
 
 - (void)mapView:(MKMapView *)mapView regionDidChangeAnimated:(BOOL)animated
 {
+    region = [mapView region];
+    [self.proxy replaceValue:[self dictionaryFromRegion] forKey:@"region" notification:NO];
 	if ([self.proxy _hasListeners:@"regionChanged"])
 	{	//TODO: Deprecate old event
-		region = [mapView region];
 		NSDictionary * props = [NSDictionary dictionaryWithObjectsAndKeys:
 								@"regionChanged",@"type",
 								[NSNumber numberWithDouble:region.center.latitude],@"latitude",
@@ -505,7 +526,6 @@
 	}
 	if ([self.proxy _hasListeners:@"regionchanged"])
 	{
-		region = [mapView region];
 		NSDictionary * props = [NSDictionary dictionaryWithObjectsAndKeys:
 								@"regionchanged",@"type",
 								[NSNumber numberWithDouble:region.center.latitude],@"latitude",

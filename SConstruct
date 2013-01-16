@@ -71,6 +71,7 @@ if clean and os.path.exists('iphone/iphone/build'):
 build_type = 'full'
 build_dirs = ['iphone', 'android', 'mobileweb']
 force_iphone = False
+
 if ARGUMENTS.get('iphone',0):
 	build_type='iphone'
 	build_dirs=['iphone']

@@ -24,7 +24,8 @@ import android.app.Activity;
 		TiC.PROPERTY_CANCEL,
 		TiC.PROPERTY_MESSAGE,
 		TiC.PROPERTY_TITLE,
-		TiC.PROPERTY_OK
+		TiC.PROPERTY_OK,
+		TiC.PROPERTY_PERSISTENT
 	}
 )
 public class AlertDialogProxy extends TiViewProxy
@@ -81,4 +82,5 @@ public class AlertDialogProxy extends TiViewProxy
 		TiUIDialog d = (TiUIDialog) getOrCreateView();
 		d.hide(options);
 	}
+
 }

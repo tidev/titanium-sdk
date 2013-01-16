@@ -595,10 +595,11 @@ fails, a JS exception is returned.
 
 	<#if method.hasInvocation>
 	Handle<Object> scopeVars = args[0]->ToObject();
-	Handle<Value> sourceUrl = scopeVars->Get(Proxy::sourceUrlSymbol);
+	jstring sourceUrl = titanium::TypeConverter::jsValueToJavaString(
+		scopeVars->Get(Proxy::sourceUrlSymbol));
 	jArguments[0].l = env->NewObject(titanium::JNIUtil::krollInvocationClass,
-		titanium::JNIUtil::krollInvocationInitMethod,
-		titanium::TypeConverter::jsValueToJavaString(sourceUrl));
+		titanium::JNIUtil::krollInvocationInitMethod, sourceUrl);
+	env->DeleteLocalRef(sourceUrl);
 	</#if>
 
 	<@Proxy.listMethodArguments args=args ; index, info, type, isOptional>

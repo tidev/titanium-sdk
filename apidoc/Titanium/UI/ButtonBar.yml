@@ -77,5 +77,29 @@ examples:
             	width:200
             });
             win.add(bb1);
-        
-        
+
+  - title: Ally XML Markup
+    example: |
+        Previous example as an Alloy view.
+
+            <Alloy>
+                <Window id="win">
+                    <ButtonBar id="bb1" platform="ios" backgroundColor="#369" top="50" height="25" width="200">
+
+                        <!-- The Labels tag sets the ButtonBar.labels property -->
+                        <Labels>
+
+                            <!-- Specify text with node text or the title attribute. -->
+                            <!-- Can also specify the enabled, image and width attributes. -->
+
+                            <Label>One</Label>
+                            <Label>Two</Label>
+                            <Label>Three</Label>
+
+                        </Labels>
+
+                        <!-- Place additional views for the ButtonBar here. -->
+
+                    </ButtonBar>
+                </Window>
+            </Alloy>

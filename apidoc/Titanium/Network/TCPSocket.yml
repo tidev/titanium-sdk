@@ -1,33 +1,24 @@
 ---
 name: Titanium.Network.TCPSocket
-summary: |
-    DEPRECATED: USE <Titanium.Network.Socket.TCP> WHERE POSSIBLE.  The TCPSocket instance returned from <Titanium.Network.createTCPSocket>.  This object represents a socket which either listens locally on the device for connections, or connects to a remote machine.
 extends: Titanium.Proxy
 deprecated:
     since: "1.7.0"
-    removed: "2.0.0"
+    notes: |
+        USE <Titanium.Network.Socket.TCP> WHERE POSSIBLE.
+summary: |
+    The TCPSocket instance returned from <Titanium.Network.createTCPSocket>.  This object
+    represents a socket which either listens locally on the device for connections,
+    or connects to a remote machine.
 since: "1.2.0"
 platforms: [iphone, ipad]
 methods:
   - name: close
-    deprecated:
-        since: "1.7.0"
-        removed: "2.0.0"
     summary: close the socket
   - name: connect
-    deprecated:
-        since: "1.7.0"
-        removed: "2.0.0"
     summary: connect the scocket to a TCP server
   - name: listen
-    deprecated:
-        since: "1.7.0"
-        removed: "2.0.0"
     summary: set up the socket to receive connections
   - name: write
-    deprecated:
-        since: "1.7.0"
-        removed: "2.0.0"
     summary: write data to the socket, if the mode is WRITE_MODE or READ_WRITE_MODE
     parameters:
       - name: data
@@ -38,9 +29,6 @@ methods:
         type: Number
 events:
   - name: read
-    deprecated:
-        since: "1.7.0"
-        removed: "2.0.0"
     summary: new data was read off the socket
     properties:
       - name: from
@@ -48,9 +36,6 @@ events:
       - name: data
         summary: a blob representing the data read, can be interpreted via toString
   - name: readError
-    deprecated:
-        since: "1.7.0"
-        removed: "2.0.0"
     summary: an error occured when reading
     properties:
       - name: code
@@ -58,9 +43,6 @@ events:
       - name: error
         summary: a description of the error
   - name: writeError
-    deprecated:
-        since: "1.7.0"
-        removed: "2.0.0"
     summary: an error occured when writing
     properties:
       - name: code
@@ -71,31 +53,16 @@ properties:
   - name: hostName
     summary: the host name to connect to.  Must be <Titanium.Network.INADDR_ANY> or an identifier for the local device in order to listen
     type: String
-    deprecated:
-        since: "1.7.0"
-        removed: "2.0.0"
   - name: isValid
     summary: whether or not the socket is valid
     type: Boolean
-    deprecated:
-        since: "1.7.0"
-        removed: "2.0.0"
   - name: mode
     summary: the socket's mode
     type: Number
-    deprecated:
-        since: "1.7.0"
-        removed: "2.0.0"
   - name: port
     summary: the port to connect/listen on
     type: Number
-    deprecated:
-        since: "1.7.0"
-        removed: "2.0.0"
   - name: stripTerminator
     summary: strip terminating null character when sending string data; default is false
     type: Boolean
-    deprecated:
-        since: "1.7.0"
-        removed: "2.0.0"
 description: Sockets are nontrivial; it is recommended that anyone using them be familiar with the basics of BSD sockets.  All sockets use TCP connections, and are asynchronous for read operations, so your program should be ready to receive 'read' events at any point.  Socket references cannot be transferred to socket objects, and vice-versa - socket references are an internal mechanism which is used only to determine which sockets to send data to and read data from.  For listening sockets, it is highly recommended that you use the <Titanium.Network.INADDR_ANY> constant as the host name.  If a window containing a socket is closed, the socket MUST be closed also unless you intend to continue to receive data, otherwise the socket will consume resources (and potentially cause conflicts with opening the window again, if a listener) until the program is restarted.  Be aware of the differences between the listen() and connect() functions; attempting to use one when you mean the other may result in errors, unpredictable behavior, or both.

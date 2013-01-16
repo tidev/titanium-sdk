@@ -7,8 +7,10 @@
 package org.appcelerator.kroll;
 
 import java.lang.ref.WeakReference;
+import java.util.HashMap;
 import java.util.concurrent.CountDownLatch;
 
+import org.appcelerator.kroll.KrollExceptionHandler.ExceptionMessage;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.common.TiMessenger;
 import org.appcelerator.kroll.util.KrollAssetHelper;
@@ -50,6 +52,8 @@ public abstract class KrollRuntime implements Handler.Callback
 	private long threadId;
 	private CountDownLatch initLatch = new CountDownLatch(1);
 	private KrollEvaluator evaluator;
+	private KrollExceptionHandler primaryExceptionHandler;
+	private HashMap<String, KrollExceptionHandler> exceptionHandlers;
 
 	public enum State {
 		INITIALIZED, RELEASED, RELAUNCHED, DISPOSED
@@ -116,6 +120,7 @@ public abstract class KrollRuntime implements Handler.Callback
 			int stackSize = runtime.getThreadStackSize(context);
 			runtime.krollApplication = new WeakReference<KrollApplication>((KrollApplication) context);
 			runtime.thread = new KrollRuntimeThread(runtime, stackSize);
+			runtime.exceptionHandlers = new HashMap<String, KrollExceptionHandler>();
 
 			instance = runtime; // make sure this is set before the runtime thread is started
 			runtime.thread.start();
@@ -416,6 +421,70 @@ public abstract class KrollRuntime implements Handler.Callback
 	public State getRuntimeState()
 	{
 		return runtimeState;
+	}
+
+	/**
+	 * Sets the default exception handler for the runtime. There can only be one default exception handler set at a
+	 * time.
+	 * 
+	 * @param handler The exception handler to set
+	 * @module.api
+	 */
+	public static void setPrimaryExceptionHandler(KrollExceptionHandler handler)
+	{
+		if (instance != null) {
+			instance.primaryExceptionHandler = handler;
+		}
+	}
+
+	/**
+	 * Adds an exception handler to a list of handlers that will be called in addition to the default one. To replace the
+	 * default exception, use {@link #setPrimaryExceptionHandler(KrollExceptionHandler)}.
+	 * 
+	 * @param handler The exception handler to set
+	 * @param key The key for the exception handler
+	 * @module.api
+	 */
+	public static void addAdditionalExceptionHandler(KrollExceptionHandler handler, String key)
+	{
+		if (instance != null && key != null) {
+			instance.exceptionHandlers.put(key, handler);
+		}
+	}
+
+	/**
+	 * Removes the exception handler from the list of additional handlers. This will not affect the default handler.
+	 * @param key The key for the exception handler
+	 * @module.api
+	 */
+	public static void removeExceptionHandler(String key)
+	{
+		if (instance != null && key != null) {
+			instance.exceptionHandlers.remove(key);
+		}
+	}
+
+	public static void dispatchException(final String title, final String message, final String sourceName, final int line,
+		final String lineSource, final int lineOffset)
+	{
+		if (instance != null) {
+			HashMap<String, KrollExceptionHandler> handlers = instance.exceptionHandlers;
+			KrollExceptionHandler currentHandler;
+
+			if (!handlers.isEmpty()) {
+				for (String key : handlers.keySet()) {
+					currentHandler = handlers.get(key);
+					if (currentHandler != null) {
+						currentHandler.handleException(new ExceptionMessage(title, message, sourceName, line, lineSource,
+							lineOffset));
+					}
+				}
+			}
+
+			// Handle exception with defaultExceptionHandler
+			instance.primaryExceptionHandler.handleException(new ExceptionMessage(title, message, sourceName, line, lineSource,
+				lineOffset));
+		}
 	}
 
 	public abstract void doDispose();

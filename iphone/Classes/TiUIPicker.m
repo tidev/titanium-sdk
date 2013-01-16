@@ -66,6 +66,11 @@ USE_PROXY_FOR_VERIFY_AUTORESIZING
 	return picker;
 }
 
+- (id)accessibilityElement
+{
+	return [self picker];
+}
+
 -(BOOL)isDatePicker
 {
 	return type != -1;
@@ -341,11 +346,16 @@ USE_PROXY_FOR_VERIFY_AUTORESIZING
 	else 
 	{
 		UIView* returnView = [rowproxy view];
-		UIView* wrapperView = [[[UIView alloc] initWithFrame:frame]autorelease];
-		[wrapperView setAutoresizingMask:UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight];
-		[wrapperView setBackgroundColor:[UIColor clearColor]];
-		returnView.frame = wrapperView.bounds;
-		[wrapperView addSubview:returnView];
+		#define WRAPPER_TAG 101
+		UIView* wrapperView =[returnView superview];
+		if (wrapperView.tag != WRAPPER_TAG) {
+			wrapperView = [[[UIView alloc] initWithFrame:frame] autorelease];
+			wrapperView.tag = WRAPPER_TAG;
+			[wrapperView setAutoresizingMask:UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight];
+			[wrapperView setBackgroundColor:[UIColor clearColor]];
+			returnView.frame = wrapperView.bounds;
+			[wrapperView addSubview:returnView];
+		}
 		return wrapperView;
 	}
 }

@@ -2,8 +2,18 @@
 name: Titanium.Android.Menu
 summary: The Titanium binding of an Android Options Menu.
 description: |
-    Currently, `Menu` only supports menus displayed when the **Menu** button is pressed, 
-    not the newer Action Bar style menu display.
+    On Android devices prior to Android 3.0 (API level 11), the menu is always presented 
+    as an options menu, which is displayed when the **Menu** button is pressed.
+
+    On Android 3.0 and later, menu items can be displayed as _action items_ in the action
+    bar. To enable this, the application must be built with a theme that supports the
+    action bar, such as the Holo theme. (See
+    [Android Themes](http://docs.appcelerator.com/titanium/3.0/#!/guide/Android_Themes) in
+    the Titanium Guides for information on setting your application's theme.)
+
+    To determine how an action item is displayed, set
+    [showAsAction](Titanium.Android.MenuItem.showAsAction) and 
+    [actionView](Titanium.Android.MenuItem.showAsAction) when creating a menu item.
 
     See also: [Menu](http://developer.android.com/reference/android/view/Menu.html)
     in the Android Developer Reference.
@@ -22,8 +32,16 @@ methods:
             Creation options. Supported options are
             [itemId](Titanium.Android.MenuItem.itemId),
             [groupId](Titanium.Android.MenuItem.groupId),
-            [title](Titanium.Android.MenuItem.title), and
-            [order](Titanium.Android.MenuItem.order).
+            [title](Titanium.Android.MenuItem.title),
+            [order](Titanium.Android.MenuItem.order),
+            [actionView](Titanium.Android.MenuItem.actionView),
+            [checkable](Titanium.Android.MenuItem.checkable),
+            [checked](Titanium.Android.MenuItem.checked),
+            [enabled](Titanium.Android.MenuItem.enabled),
+            [icon](Titanium.Android.MenuItem.icon),
+            [showAsAction](Titanium.Android.MenuItem.showAsAction),
+            [titleCondensed](Titanium.Android.MenuItem.titleCondensed), and
+            [visible](Titanium.Android.MenuItem.visible).
         type: Object
 
   - name: clear
@@ -161,11 +179,15 @@ examples:
               login.setIcon("login.png");
               login.addEventListener("click", function(e) {
                 loggedIn = true;
+                // In Android 3.0 and above we need to call invalidateOptionsMenu() for menu changes at runtime
+                win.activity.invalidateOptionsMenu();
               });
               var logout = menu.add({ title: "Logout", itemId: LOGOUT });
               logout.setIcon("logout.png");
               logout.addEventListener("click", function(e) {
                 loggedIn = false;
+                // In Android 3.0 and above we need to call invalidateOptionsMenu() for menu changes at runtime
+                win.activity.invalidateOptionsMenu();
               });
             };
 
@@ -175,3 +197,31 @@ examples:
               menu.findItem(LOGOUT).setVisible(loggedIn);
             };
             win.open();
+
+  - title: Alloy XML Markup
+    example: |
+        Previous simple menu example as an Alloy view.
+
+        simplemenuexample.xml:
+
+            <Alloy>
+                <!-- Create a heavyweight window to use the Android menu. -->
+                <Window id="win" fullscreen="true">
+
+                    <!-- The Menu tag adds the Android menu. -->
+                    <Menu id="menu" platform="android">
+
+                        <!-- Cannot specify node text.  Use attributes only. -->
+                        <MenuItem id="menuItem" title="Item 1" icon="item1.png" onClick="doClick" />
+                    </Menu>
+
+                    <!-- Place additional views here -->
+                </Window>
+            </Alloy>
+
+        simplemenuexample.js:
+
+            var doClick = function(e) {
+                Ti.API.info("Menu item clicked: " + e.source.title);
+            }
+

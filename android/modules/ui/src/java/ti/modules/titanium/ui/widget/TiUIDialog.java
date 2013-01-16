@@ -12,6 +12,8 @@ import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
+import org.appcelerator.titanium.TiBaseActivity;
+import org.appcelerator.titanium.TiBaseActivity.DialogWrapper;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
@@ -22,6 +24,8 @@ import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnCancelListener;
+import android.support.v4.view.ViewCompat;
+import android.widget.ListView;
 
 public class TiUIDialog extends TiUIView
 {
@@ -29,9 +33,8 @@ public class TiUIDialog extends TiUIView
 	private static final int BUTTON_MASK = 0x10000000;
 
 	protected Builder builder;
-	protected AlertDialog dialog;
 	protected TiUIView view;
-	protected WeakReference<Activity> ownerActivity;
+	private DialogWrapper dialogWrapper;
 
 	protected class ClickHandler implements DialogInterface.OnClickListener
 	{
@@ -97,6 +100,11 @@ public class TiUIDialog extends TiUIView
 			
 			processOptions(optionText, selectedIndex);
 		}
+		
+		if (d.containsKey(TiC.PROPERTY_PERSISTENT)) {
+			dialogWrapper.setPersistent(d.getBoolean(TiC.PROPERTY_PERSISTENT));
+		}
+
 		if (buttonText != null) {
 			processButtons(buttonText);
 		}
@@ -153,6 +161,8 @@ public class TiUIDialog extends TiUIView
 	private void processView(TiViewProxy proxy)
 	{
 		if (proxy != null) {
+			//reset the child view context to parent context
+			proxy.setActivity(dialogWrapper.getActivity());
 			view = proxy.getOrCreateView();
 			getBuilder().setView(view.getNativeView());
 		}
@@ -163,6 +173,7 @@ public class TiUIDialog extends TiUIView
 	{
 		Log.d(TAG, "Property: " + key + " old: " + oldValue + " new: " + newValue, Log.DEBUG_MODE);
 
+		AlertDialog dialog = dialogWrapper.getDialog();
 		if (key.equals(TiC.PROPERTY_TITLE)) {
 			if (dialog != null) {
 				dialog.setTitle((String) newValue);
@@ -214,7 +225,24 @@ public class TiUIDialog extends TiUIView
 			if (newValue != null) {
 				processView((TiViewProxy) newValue);
 			} else {
-				proxy.setProperty(TiC.PROPERTY_ANDROID_VIEW, null, false);
+				proxy.setProperty(TiC.PROPERTY_ANDROID_VIEW, null);
+			}
+		} else if (key.equals(TiC.PROPERTY_PERSISTENT) && newValue != null) {
+			dialogWrapper.setPersistent(TiConvert.toBoolean(newValue));
+		} else if (key.indexOf("accessibility") == 0) {
+			if (dialog != null) {
+				ListView listView = dialog.getListView();
+				if (listView != null) {
+					if (key.equals(TiC.PROPERTY_ACCESSIBILITY_HIDDEN)) {
+						int importance = ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_AUTO;
+						if (newValue != null && TiConvert.toBoolean(newValue)) {
+							importance = ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_NO;
+						}
+						ViewCompat.setImportantForAccessibility(listView, importance);
+					} else {
+						listView.setContentDescription(composeContentDescription());
+					}
+				}
 			}
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
@@ -223,6 +251,7 @@ public class TiUIDialog extends TiUIView
 
 	public void show(KrollDict options)
 	{
+		AlertDialog dialog = dialogWrapper.getDialog();
 		if (dialog == null) {
 			processProperties(proxy.getProperties());
 			getBuilder().setOnCancelListener(new OnCancelListener() {
@@ -235,12 +264,35 @@ public class TiUIDialog extends TiUIView
 				}
 			});
 			dialog = getBuilder().create();
+
+			// Initially apply accessibility properties here, the first time
+			// the dialog actually becomes available. After this, propertyChanged
+			// can also be used.
+			ListView listView = dialog.getListView();
+			if (listView != null) {
+				listView.setContentDescription(composeContentDescription());
+				int importance = ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_AUTO;
+				if (proxy != null) {
+					Object propertyValue = proxy.getProperty(TiC.PROPERTY_ACCESSIBILITY_HIDDEN);
+					if (propertyValue != null && TiConvert.toBoolean(propertyValue)) {
+						importance = ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_NO;
+					}
+				}
+				ViewCompat.setImportantForAccessibility(listView, importance);
+			}
+
+			dialogWrapper.setDialog(dialog);
 			builder = null;
 		}
+
 		try {
-			Activity dialogActivity = ownerActivity.get();
+			Activity dialogActivity = dialogWrapper.getActivity();
 			if (dialogActivity != null && !dialogActivity.isFinishing()) {
-				dialog.show();
+				if (dialogActivity instanceof TiBaseActivity) {
+					//add dialog to its activity so we can clean it up later to prevent memory leak.
+					((TiBaseActivity) dialogActivity).addDialog(dialogWrapper);
+					dialog.show();
+				}
 			} else {
 				dialog = null;
 				Log.w(TAG, "Dialog activity is destroyed, unable to show dialog with message: " + TiConvert.toString(proxy.getProperty(TiC.PROPERTY_MESSAGE)));
@@ -252,10 +304,12 @@ public class TiUIDialog extends TiUIView
 
 	public void hide(KrollDict options)
 	{
+		AlertDialog dialog = dialogWrapper.getDialog();
 		if (dialog != null) {
 			dialog.dismiss();
-			dialog = null;
+			dialogWrapper.getActivity().removeDialog(dialog);
 		}
+
 		if (view != null) {
 			view.getProxy().releaseViews();
 			view = null;
@@ -265,9 +319,16 @@ public class TiUIDialog extends TiUIView
 	private void createBuilder()
 	{
 		Activity currentActivity = getCurrentActivity();
-		this.builder = new AlertDialog.Builder(currentActivity);
-		this.builder.setCancelable(true);
-		ownerActivity = new WeakReference<Activity>(currentActivity);
+		if (currentActivity != null) {
+			this.builder = new AlertDialog.Builder(currentActivity);
+			this.builder.setCancelable(true);
+
+			//Native dialogs are persistent by default.
+			TiBaseActivity dialogActivity = (TiBaseActivity)currentActivity;
+			dialogWrapper = dialogActivity.new DialogWrapper(null, true, new WeakReference<TiBaseActivity>(dialogActivity));
+		} else {
+			Log.e (TAG, "Unable to find an activity for dialog.");
+		}
 	}
 
 	public void handleEvent(int id)
@@ -282,7 +343,7 @@ public class TiUIDialog extends TiUIView
 			data.put(TiC.PROPERTY_BUTTON, false);
 			// If an option was selected and the user accepted it, update the proxy.
 			if (proxy.hasProperty(TiC.PROPERTY_OPTIONS)) {
-				proxy.setProperty(TiC.PROPERTY_SELECTED_INDEX, id, false);
+				proxy.setProperty(TiC.PROPERTY_SELECTED_INDEX, id);
 			}
 		}
 		data.put(TiC.EVENT_PROPERTY_INDEX, id);

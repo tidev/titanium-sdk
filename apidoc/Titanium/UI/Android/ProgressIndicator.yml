@@ -16,7 +16,7 @@ description:  |
 
     Calling `show` displays the indicator, and calling `hide` removes it.
 extends: Titanium.Proxy
-since: "2.2.0"
+since: "3.0.0"
 platforms: [android]
 
 methods:

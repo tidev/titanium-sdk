@@ -68,7 +68,7 @@ description: |
 extends: Titanium.UI.View
 since: "0.9"
 excludes:
-    events: [dblclick, doubletap, longpress, pinch, singletap, touchend, touchmove, twofingertap]
+    events: [dblclick, doubletap, longpress, pinch, singletap, touchmove, twofingertap]
     methods: [animate]
     properties: []
 
@@ -189,6 +189,28 @@ events:
       - name: y
         summary: Y coordinate of the event from the `source` view's coordinate system.
         type: Number
+        
+  - name: touchmove
+    summary: Fired as soon as the device detects movement of a touch..
+    description: |
+        On Android and iOS, be aware that a row or table touch event and a table 
+        [scroll](Titanium.UI.TableView.scroll) event cannot occur concurrently. If a table begins 
+        to scroll during a touch event, the appropriate row or table `touchcancel` event fire 
+        before the `scroll` event begins.
+        
+        On Mobile Web, a scroll may occur in the middle of a touch, in which case a `touchend` 
+        will fire immediately following the scroll.
+    platforms: [iphone, ipad]
+    since: {iphone: "3.0.1", ipad: "3.0.1"}
+    properties:
+      - name: x
+        summary: X coordinate of the event from the `source` view's coordinate system.
+        type: Number
+        
+      - name: y
+        summary: Y coordinate of the event from the `source` view's coordinate system.
+        type: Number
+        
 
 properties:
   - name: className
@@ -231,9 +253,6 @@ properties:
     
   - name: font
     summary: Font to use for the row title.
-    description: |
-        If the table uses different fonts on different rows, the font properites may become 
-        associated with the wrong row as the table scrolls. This is a known issue.
     type: Font
     default: System default font.
     
@@ -334,6 +353,14 @@ properties:
     description: Do not specify if using views as children of the row.
     type: String
 
+  - name: accessibilityLabel
+    summary: A succint label associated with the table row for the device's accessibility service.
+    description: |
+        See <Ti.UI.View.accessibilityLabel> description.
+    since: "3.0.0"
+    platforms: [iphone, ipad]
+    type: String
+
 examples:
   - title: Simple Table View Row example
     example: |
@@ -406,3 +433,13 @@ examples:
             
             win.add(table);
             win.open();
+
+  - title: Alloy XML Markup
+    example: |
+        Previous simple table view row example as an Alloy view.
+
+            <Alloy>
+                <TableViewRow id="row">
+                    <View id="view" backgroundColor="red" width="20" height="20"/>
+                </TableViewRow>
+            </Alloy>

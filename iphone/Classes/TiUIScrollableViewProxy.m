@@ -212,6 +212,32 @@
 	return nil;
 }
 
+-(CGFloat)autoWidthForSize:(CGSize)size
+{
+    CGFloat result = 0.0;
+    NSArray* theChildren = [self views];
+    for (TiViewProxy * thisChildProxy in theChildren) {
+        CGFloat thisWidth = [thisChildProxy minimumParentWidthForSize:size];
+        if (result < thisWidth) {
+            result = thisWidth;
+        }
+    }
+    return result;
+}
+
+-(CGFloat)autoHeightForSize:(CGSize)size
+{
+    CGFloat result = 0.0;
+    NSArray* theChildren = [self views];
+    for (TiViewProxy * thisChildProxy in theChildren) {
+        CGFloat thisHeight = [thisChildProxy minimumParentHeightForSize:size];
+        if (result < thisHeight) {
+            result = thisHeight;
+        }
+    }
+    return result;
+}
+
 - (void)willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration
 {
     if ([self viewAttached]) {

@@ -11,9 +11,11 @@ package org.appcelerator.titanium;
  * These are sorted alphabetically.
  */
 public class TiC
+
 {
 	public static final int API_LEVEL_HONEYCOMB = 11;
 	public static final int API_LEVEL_ICE_CREAM_SANDWICH = 14;
+	public static final int API_LEVEL_JELLY_BEAN = 16;
 	public static final String ERROR_PROPERTY_CODE = "code";
 	public static final String ERROR_PROPERTY_ERRORCODE = "errorcode";
 	public static final String ERROR_PROPERTY_MESSAGE = "message";
@@ -141,6 +143,10 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String EVENT_KEY_PRESSED = "keypressed";
+	/**
+	 * @module.api
+	 */
 	public static final String EVENT_HEADING = "heading";
 
 	/**
@@ -251,6 +257,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String EVENT_PROPERTY_KEYCODE = "keyCode";
+
+	/**
+	 * @module.api
+	 */
 	public static final String EVENT_PROPERTY_LAYOUT_NAME = "layoutName";
 
 	/**
@@ -271,7 +282,7 @@ public class TiC
 	/**
 	 * @module.api
 	 */
-	public static final String EVENT_PROPERTY_PLAYBACK_STATE = EVENT_PLAYBACK_STATE;
+	public static final String EVENT_PROPERTY_PLAYBACK_STATE = "playbackState";
 
 	/**
 	 * @module.api
@@ -431,7 +442,14 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String EVENT_TWOFINGERTAP = "twofingertap";
+
+	/**
+	 * @module.api
+	 */
 	public static final String EVENT_UNFOCUSED = "unfocused";
+	public static final String INTENT_PROPERTY_ENTER_ANIMATION = "enterAnimation";
+	public static final String INTENT_PROPERTY_EXIT_ANIMATION = "exitAnimation";
 	public static final String INTENT_PROPERTY_FINISH_ROOT = "finishRoot";
 	public static final String INTENT_PROPERTY_IS_TAB = "isTab";
 	public static final String INTENT_PROPERTY_LAYOUT = "layout";
@@ -462,7 +480,32 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_ACCESSIBILITY_HIDDEN = "accessibilityHidden";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_ACCESSIBILITY_HINT = "accessibilityHint";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_ACCESSIBILITY_LABEL = "accessibilityLabel";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_ACCESSIBILITY_VALUE = "accessibilityValue";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_ACTION = "action";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_ACTION_VIEW = "actionView";
 
 	/**
 	 * @module.api
@@ -472,7 +515,22 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_ACTIVE_TAB_BACKGROUND_COLOR = "activeTabBackgroundColor";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_ACTIVITY = "activity";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_ACTIVITY_ENTER_ANIMATION = "activityEnterAnimation";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_ACTIVITY_EXIT_ANIMATION = "activityExitAnimation";
 
 	/**
 	 * @module.api
@@ -679,6 +737,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_BUBBLES = "bubbles";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_BUTTON_NAMES = "buttonNames";
 
 	/**
@@ -715,7 +778,16 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_CHARSET = "charset";
-	
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_CHECKABLE = "checkable";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_CHECKED = "checked";
 	/**
 	 * @module.api
 	 */
@@ -866,6 +938,11 @@ public class TiC
 	 */
 	public static final String PROPERTY_DISPLAY_ADDRESS = "displayAddress";
 	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_DOMAIN = "domain";
+
 	/**
 	 * @module.api
 	 */
@@ -1062,6 +1139,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_HEIGHT = "height";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_HIDE_ANNOTATION_WHEN_TOUCH_MAP = "hideAnnotationWhenTouchMap";
 
 	/**
 	 * @module.api
@@ -1367,6 +1449,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_ON_HOME_ICON_ITEM_SELECTED = "onHomeIconItemSelected";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_ON_CREATE_OPTIONS_MENU = "onCreateOptionsMenu";
 
 	/**
@@ -1432,7 +1519,17 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_PASSWORD = "password";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_PASSWORD_MASK = "passwordMask";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_PERSISTENT = "persistent";
 
 	/**
 	 * @module.api
@@ -1639,6 +1736,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_SHOW_AS_ACTION = "showAsAction";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_SHOW_HORIZONTAL_SCROLL_INDICATOR = "showHorizontalScrollIndicator";
 
 	/**
@@ -1754,6 +1856,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_TABS = "tabs";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_TAB_OPEN = "tabOpen";
 	
 	/**
@@ -1795,6 +1902,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_TIME = "time";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_TIMEOUT = "timeout";
 
 	/**
 	 * @module.api
@@ -1806,6 +1918,10 @@ public class TiC
 	 */
 	public static final String PROPERTY_TITLE = "title";
 
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_TITLE_CONDENSED = "titleCondensed";
 	/**
 	 * @module.api
 	 */
@@ -1879,6 +1995,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_USERNAME = "username";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_USER_LOCATION = "userLocation";
 
 	/**
@@ -1920,6 +2041,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_VOLUME = "volume";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_WEBVIEW_IGNORE_SSL_ERROR = "ignoreSslError";
 
 	/**
 	 * @module.api

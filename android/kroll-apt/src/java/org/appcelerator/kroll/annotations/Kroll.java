@@ -43,8 +43,6 @@ public @interface Kroll
 	 * }
 	 * </pre>
 	 * @see argument#optional()
-	 * @see argument#converter() 
-	 * @see argument#defaultValueProvider()
 	 * @see argument#name()
 	 */
 	@Documented
@@ -68,16 +66,6 @@ public @interface Kroll
 		 * @module.api
 		 */
 		boolean optional() default false;
-		/**
-		 * This API is no longer supported
-		 * @deprecated
-		 */
-		Class<?> converter() default DEFAULT.class;
-		/**
-		 * This API is no longer supported
-		 * @deprecated
-		 */
-		Class<?> defaultValueProvider() default DEFAULT.class;
 	}
 
 	/**
@@ -144,7 +132,6 @@ public @interface Kroll
 	 * </pre>
 	 * 
 	 * @see method#name()
-	 * @see method#converter()
 	 * @see method#runOnUiThread()
 	 * @see argument @Kroll.argument
 	 */
@@ -159,11 +146,6 @@ public @interface Kroll
 		 * @module.api
 		 */
 		String name() default DEFAULT_NAME;
-		/**
-		 * This API is no longer supported
-		 * @deprecated
-		 */
-		Class<?> converter() default DEFAULT.class;
 		/**
 		 * <p>When set to true, this method will run on the UI thread, blocking the current thread until it finishes executing.
 		 * If the current thread is the UI thread, then this simply calls the method directly.
@@ -198,7 +180,6 @@ public @interface Kroll
 	 * </pre>
 	 * @see module#name()
 	 * @see module#parentModule()
-	 * @see module#contextSpecific()
 	 * @see proxy#creatableInModule()
 	 */
 	@Documented
@@ -233,12 +214,6 @@ public @interface Kroll
 		 * @module.api
 		 */
 		Class<?> parentModule() default DEFAULT.class;
-		
-		/**
-		 * This API is not supported
-		 * @deprecated
-		 */
-		boolean contextSpecific() default false;
 		/**
 		 * Declares a list of dynamic property accessors for this module.<br>
 		 * <b>Example</b>:<br>
@@ -286,16 +261,6 @@ public @interface Kroll
 		 * @default The property's name in java source
 		 */
 		String name() default DEFAULT_NAME;
-		/**
-		 * This API is no longer supported
-		 * @deprecated
-		 */
-		Class<?> nativeConverter() default DEFAULT.class;
-		/**
-		 * This API is no longer supported
-		 * @deprecated
-		 */
-		Class<?> javascriptConverter() default DEFAULT.class;
 	}
 
 	/**
@@ -320,16 +285,6 @@ public @interface Kroll
 		 * @module.api
 		 */
 		String name() default DEFAULT_NAME;
-		/**
-		 * This API is no longer supported
-		 * @deprecated
-		 */
-		Class<?> nativeConverter() default DEFAULT.class;
-		/**
-		 * This API is no longer supported
-		 * @deprecated
-		 */
-		Class<?> javascriptConverter() default DEFAULT.class;
 		/**
 		 * When set to true, this property getter will only be executed on the UI thread.<br>
 		 */
@@ -361,16 +316,6 @@ public @interface Kroll
 		 * @module.api
 		 */
 		String name() default DEFAULT_NAME;
-		/**
-		 * This API is no longer supported
-		 * @deprecated
-		 */
-		Class<?> nativeConverter() default DEFAULT.class;
-		/**
-		 * This API is no longer supported
-		 * @deprecated
-		 */
-		Class<?> javascriptConverter() default DEFAULT.class;
 		/**
 		 * When set to true, the value of this property is retained in the internal property map of this {@link proxy}
 		 */

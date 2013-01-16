@@ -425,6 +425,10 @@ class AnnotatedProxy(AnnotatedApi):
 		if "excludes" in self.api_obj and att_list_name in self.api_obj["excludes"]:
 			excluded_names = self.api_obj["excludes"][att_list_name]
 
+		class_platforms = []
+		if dict_has_non_empty_member(self.api_obj, "platforms"):
+			class_platforms = self.api_obj["platforms"]
+
 		while (super_type_name is not None and len(super_type_name) > 0
 				and super_type_name in apis):
 			super_type = apis[super_type_name]
@@ -432,6 +436,20 @@ class AnnotatedProxy(AnnotatedApi):
 				for new_item in super_type[att_list_name]:
 					if new_item["name"] in existing_names or new_item["name"] in excluded_names:
 						continue
+
+					# TIDOC-920. Crosscheck class with attributes to see if the platforms match
+					# If not, add them to the excludes list
+					if class_platforms and dict_has_non_empty_member(new_item, "platforms"):
+						attr_platforms = new_item["platforms"]
+						platform_match = False;
+						for attr_platform_name in attr_platforms:
+							if attr_platform_name in class_platforms:
+								platform_match = True;
+								break
+						if not platform_match:
+							excluded_names.append(new_item["name"])
+							continue
+
 					new_instance = class_type(new_item, self)
 					new_instance.inherited_from = super_type_name
 					att_list.append(new_instance)
@@ -441,6 +459,11 @@ class AnnotatedProxy(AnnotatedApi):
 				super_type_name = super_type["extends"]
 			else:
 				super_type_name = None
+
+		if excluded_names:
+			if "excludes" not in self.api_obj:
+				self.api_obj["excludes"] = {};
+			self.api_obj["excludes"][att_list_name] = excluded_names
 
 	def append_inherited_methods(self, methods):
 		self.append_inherited_attributes(methods, "methods")

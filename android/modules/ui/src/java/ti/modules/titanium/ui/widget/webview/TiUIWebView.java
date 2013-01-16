@@ -46,6 +46,8 @@ public class TiUIWebView extends TiUIView
 	private static final String TAG = "TiUIWebView";
 	private TiWebViewClient client;
 	private boolean changingUrl = false;
+	private boolean bindingCodeInjected = false;
+	private boolean isLocalHTML = false;
 
 	private static Enum<?> enumPluginStateOff;
 	private static Enum<?> enumPluginStateOn;
@@ -81,23 +83,28 @@ public class TiUIWebView extends TiUIView
 		@Override
 		public boolean onTouchEvent(MotionEvent ev)
 		{
+			
 			boolean handled = false;
 
 			// In Android WebView, all the click events are directly sent to WebKit. As a result, OnClickListener() is
 			// never called. Therefore, we have to manually call performClick() when a click event is detected.
+			//
+			// In native Android and in the Ti world, it's possible to to have a touchEvent click on a link in a webview and
+			// also to be detected as a click on the webview.  So we cannot let handling of the event one way block
+			// the handling the other way -- it must be passed to both in all cases for everything to work correctly.
+			//
 			if (ev.getAction() == MotionEvent.ACTION_UP) {
 				Rect r = new Rect(0, 0, getWidth(), getHeight());
 				if (r.contains((int) ev.getX(), (int) ev.getY())) {
 					handled = proxy.fireEvent(TiC.EVENT_CLICK, dictFromEvent(ev));
 				}
 			}
-
-			if (handled) {
-				return true;
-			}
-
-			// If performClick() can not handle the event, we pass it to WebKit.
-			return super.onTouchEvent(ev);
+			
+			// Don't return here -- must call super.onTouchEvent()
+			
+			boolean superHandled = super.onTouchEvent(ev);
+			
+			return (superHandled || handled);
 		}
 
 		@SuppressWarnings("deprecation")
@@ -291,21 +298,20 @@ public class TiUIWebView extends TiUIView
 					fis = tiFile.getInputStream();
 					InputStreamReader reader = new InputStreamReader(fis, "utf-8");
 					BufferedReader breader = new BufferedReader(reader);
-					boolean injected = false;
 					String line = breader.readLine();
 					while (line != null) {
-						if (!injected) {
+						if (!bindingCodeInjected) {
 							int pos = line.indexOf("<html");
 							if (pos >= 0) {
 								int posEnd = line.indexOf(">", pos);
 								if (posEnd > pos) {
 									out.append(line.substring(pos, posEnd + 1));
-									out.append(TiWebViewBinding.INJECTION_CODE);
+									out.append(TiWebViewBinding.SCRIPT_TAG_INJECTION_CODE);
 									if ((posEnd + 1) < line.length()) {
 										out.append(line.substring(posEnd + 1));
 									}
 									out.append("\n");
-									injected = true;
+									bindingCodeInjected = true;
 									line = breader.readLine();
 									continue;
 								}
@@ -341,6 +347,7 @@ public class TiUIWebView extends TiUIView
 		if (!proxy.hasProperty(TiC.PROPERTY_SCALES_PAGE_TO_FIT)) {
 			getWebView().getSettings().setLoadWithOverviewMode(true);
 		}
+		isLocalHTML = false;
 		getWebView().loadUrl(finalUrl);
 	}
 
@@ -370,7 +377,7 @@ public class TiUIWebView extends TiUIView
 		}
 		return content;
 	}
-	
+
 	public void setHtml(String html)
 	{
 		setHtmlInternal(html, TiC.URL_ANDROID_ASSET_RESOURCES, "text/html");
@@ -416,6 +423,9 @@ public class TiUIWebView extends TiUIView
 			webView.getSettings().setLoadWithOverviewMode(false);
 		}
 
+		// Set flag to indicate that it's local html (used to determine whether we want to inject binding code)
+		isLocalHTML = true;
+
 		if (html.contains(TiWebViewBinding.SCRIPT_INJECTION_ID)) {
 			// Our injection code is in there already, go ahead and show.
 			webView.loadDataWithBaseURL(baseUrl, html, mimeType, "utf-8", baseUrl);
@@ -430,9 +440,12 @@ public class TiUIWebView extends TiUIView
 			if (tagEnd > tagStart) {
 				StringBuilder sb = new StringBuilder(html.length() + 2500);
 				sb.append(html.substring(0, tagEnd + 1));
-				sb.append(TiWebViewBinding.INJECTION_CODE);
-				sb.append(html.substring(tagEnd + 1));
+				sb.append(TiWebViewBinding.SCRIPT_TAG_INJECTION_CODE);
+				if ((tagEnd + 1) < html.length()) {
+					sb.append(html.substring(tagEnd + 1));
+				}
 				webView.loadDataWithBaseURL(baseUrl, sb.toString(), mimeType, "utf-8", baseUrl);
+				bindingCodeInjected = true;
 				return;
 			}
 		}
@@ -583,5 +596,15 @@ public class TiUIWebView extends TiUIView
 	public void stopLoading()
 	{
 		getWebView().stopLoading();
+	}
+
+	public boolean shouldInjectBindingCode()
+	{
+		return isLocalHTML && !bindingCodeInjected;
+	}
+
+	public void setBindingCodeInjected(boolean injected)
+	{
+		bindingCodeInjected = injected;
 	}
 }

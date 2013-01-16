@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2011-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -51,7 +51,6 @@ jclass JNIUtil::krollObjectClass = NULL;
 jclass JNIUtil::krollProxyClass = NULL;
 jclass JNIUtil::krollAssetHelperClass = NULL;
 jclass JNIUtil::krollLoggingClass = NULL;
-jclass JNIUtil::tiJsErrorDialogClass = NULL;
 jclass JNIUtil::referenceTableClass = NULL;
 
 jmethodID JNIUtil::classGetNameMethod = NULL;
@@ -101,7 +100,7 @@ jmethodID JNIUtil::krollAssetHelperReadAssetMethod = NULL;
 jmethodID JNIUtil::krollAssetHelperFileExistsMethod = NULL;
 jmethodID JNIUtil::krollLoggingLogWithDefaultLoggerMethod = NULL;
 
-jmethodID JNIUtil::openErrorDialogMethod = NULL;
+jmethodID JNIUtil::krollRuntimeDispatchExceptionMethod = NULL;
 
 JNIEnv* JNIScope::current = NULL;
 
@@ -292,7 +291,6 @@ void JNIUtil::initCache()
 	krollProxyClass = findClass("org/appcelerator/kroll/KrollProxy");
 	krollAssetHelperClass = findClass("org/appcelerator/kroll/util/KrollAssetHelper");
 	krollLoggingClass = findClass("org/appcelerator/kroll/KrollLogging");
-	tiJsErrorDialogClass = findClass("org/appcelerator/kroll/common/TiJSErrorDialog");
 	referenceTableClass = findClass("org/appcelerator/kroll/runtime/v8/ReferenceTable");
 
 	classGetNameMethod = getMethodID(classClass, "getName", "()Ljava/lang/String;", false);
@@ -351,7 +349,7 @@ void JNIUtil::initCache()
 	krollProxyOnPropertiesChangedMethod = getMethodID(krollProxyClass, "onPropertiesChanged",
 		"([[Ljava/lang/Object;)V", false);
 
-	openErrorDialogMethod = getMethodID(tiJsErrorDialogClass, "openErrorDialog", "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;ILjava/lang/String;I)V",true);
+	krollRuntimeDispatchExceptionMethod = getMethodID(krollRuntimeClass, "dispatchException", "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;ILjava/lang/String;I)V",true);
 	krollAssetHelperReadAssetMethod = getMethodID(krollAssetHelperClass, "readAsset", "(Ljava/lang/String;)Ljava/lang/String;", true);
 	krollAssetHelperFileExistsMethod = getMethodID(krollAssetHelperClass, "fileExists", "(Ljava/lang/String;)Z", true);
 

@@ -24,13 +24,20 @@ import java.nio.charset.CharacterCodingException;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.GZIPInputStream;
+
+import javax.net.ssl.KeyManager;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509KeyManager;
+import javax.net.ssl.X509TrustManager;
 
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
@@ -44,8 +51,10 @@ import org.apache.http.NameValuePair;
 import org.apache.http.ParseException;
 import org.apache.http.ProtocolException;
 import org.apache.http.StatusLine;
+import org.apache.http.auth.AuthSchemeFactory;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.Credentials;
+import org.apache.http.auth.NTCredentials;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.HttpResponseException;
 import org.apache.http.client.ResponseHandler;
@@ -83,12 +92,14 @@ import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.util.TiTempFileHelper;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBlob;
+import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiFileProxy;
 import org.appcelerator.titanium.io.TiBaseFile;
 import org.appcelerator.titanium.io.TiFile;
 import org.appcelerator.titanium.io.TiResourceFile;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiMimeTypeHelper;
+import org.appcelerator.titanium.util.TiPlatformHelper;
 import org.appcelerator.titanium.util.TiUrl;
 
 import ti.modules.titanium.xml.DocumentProxy;
@@ -143,8 +154,12 @@ public class TiHTTPClient
 	private Uri uri;
 	private String url;
 	private ArrayList<File> tmpFiles = new ArrayList<File>();
+	private ArrayList<X509TrustManager> trustManagers = new ArrayList<X509TrustManager>();
+	private ArrayList<X509KeyManager> keyManagers = new ArrayList<X509KeyManager>();
 
 	protected HashMap<String,String> headers = new HashMap<String,String>();
+	
+	private Hashtable<String, AuthSchemeFactory> customAuthenticators = new Hashtable<String, AuthSchemeFactory>(1);
 
 	public static final int READY_STATE_UNSENT = 0; // Unsent, open() has not yet been called
 	public static final int READY_STATE_OPENED = 1; // Opened, send() has not yet been called
@@ -491,12 +506,17 @@ public class TiHTTPClient
 		return false;
 	}
 	
+	public void addAuthFactory(String scheme, AuthSchemeFactory theFactory)
+	{
+		customAuthenticators.put(scheme, theFactory);
+	}
+
 	public void setReadyState(int readyState)
 	{
 		Log.d(TAG, "Setting ready state to " + readyState, Log.DEBUG_MODE);
 		this.readyState = readyState;
 
-		dispatchCallback("onreadystatechanged", null);
+		dispatchCallback("onreadystatechange", null);
 
 		if (readyState == READY_STATE_DONE) {
 			dispatchCallback("onload", null);
@@ -832,6 +852,21 @@ public class TiHTTPClient
 		if (uri.getUserInfo() != null) {
 			credentials = new UsernamePasswordCredentials(uri.getUserInfo());
 		}
+		if (credentials == null) {
+			String userName = ((HTTPClientProxy)proxy).getUsername();
+			String password = ((HTTPClientProxy)proxy).getPassword();
+			String domain = ((HTTPClientProxy)proxy).getDomain();
+			if (domain != null) {
+				password = (password == null)?"":password;
+				credentials = new NTCredentials(userName, password, TiPlatformHelper.getMobileId(), domain);
+			}
+			else {
+				if (userName != null) {
+					password = (password == null)?"":password;
+					credentials = new UsernamePasswordCredentials(userName, password);
+				}
+			}
+		}
 		setReadyState(READY_STATE_OPENED);
 		setRequestHeader("User-Agent", (String) proxy.getProperty("userAgent"));
 		// Causes Auth to Fail with twitter and other size apparently block X- as well
@@ -975,23 +1010,62 @@ public class TiHTTPClient
 
 	protected DefaultHttpClient getClient(boolean validating)
 	{
+		SSLSocketFactory sslSocketFactory = null;
+		if (trustManagers.size() > 0 || keyManagers.size() > 0) {
+			TrustManager[] trustManagerArray = null;
+			KeyManager[] keyManagerArray = null;
+			
+			if (trustManagers.size() > 0) {
+				trustManagerArray = new X509TrustManager[trustManagers.size()];
+				trustManagerArray = trustManagers.toArray(trustManagerArray);
+			}
+			
+			if (keyManagers.size() > 0) {
+				keyManagerArray = new X509KeyManager[keyManagers.size()];
+				keyManagerArray = keyManagers.toArray(keyManagerArray);
+			}
+			
+			try {
+				sslSocketFactory = new TiSocketFactory(keyManagerArray, trustManagerArray);
+			} catch(Exception e) {
+				Log.e(TAG, "Error creating SSLSocketFactory: " + e.getMessage());
+				sslSocketFactory = null;
+			}
+		}
+		else if (!validating) {
+			TrustManager trustManagerArray[] = new TrustManager[] { new NonValidatingTrustManager() };
+			try {
+				sslSocketFactory = new TiSocketFactory(null, trustManagerArray);
+			} catch(Exception e) {
+				Log.e(TAG, "Error creating SSLSocketFactory: " + e.getMessage());
+				sslSocketFactory = null;
+			}
+		}
+		
 		if (validating) {
-			if (nonValidatingClient != null) {
-				return nonValidatingClient;
+			if (validatingClient == null) {
+				validatingClient = createClient();
 			}
-
-			nonValidatingClient = createClient();
-			nonValidatingClient.getConnectionManager().getSchemeRegistry().register(new Scheme("https", SSLSocketFactory.getSocketFactory(), 443));
-			return nonValidatingClient;
-
-		} else {
-			if (validatingClient != null) {
-				return validatingClient;
+			if (sslSocketFactory != null) {
+				validatingClient.getConnectionManager().getSchemeRegistry().register(new Scheme("https", sslSocketFactory, 443));
 			}
-
-			validatingClient = createClient();
-			validatingClient.getConnectionManager().getSchemeRegistry().register(new Scheme("https", new NonValidatingSSLSocketFactory(), 443));
+			else {
+				validatingClient.getConnectionManager().getSchemeRegistry().register(new Scheme("https", SSLSocketFactory.getSocketFactory(), 443));
+			}
 			return validatingClient;
+		}
+		else {
+			if (nonValidatingClient == null) {
+				nonValidatingClient = createClient();
+			}
+			if (sslSocketFactory != null) {
+				nonValidatingClient.getConnectionManager().getSchemeRegistry().register(new Scheme("https", sslSocketFactory, 443));
+			}
+			else {
+				//This should not happen but keeping it in place something breaks
+				nonValidatingClient.getConnectionManager().getSchemeRegistry().register(new Scheme("https", new NonValidatingSSLSocketFactory(), 443));
+			}
+			return nonValidatingClient;
 		}
 	}
 
@@ -1102,9 +1176,15 @@ public class TiHTTPClient
 
 				handler = new LocalResponseHandler(TiHTTPClient.this);
 
+				//If there are any custom authentication factories registered with the client add them here
+				Enumeration<String> authSchemes = customAuthenticators.keys();
+				while (authSchemes.hasMoreElements()) {
+					String scheme = authSchemes.nextElement();
+					client.getAuthSchemes().register(scheme, customAuthenticators.get(scheme));
+				}
+				
 				// lazy get client each time in case the validatesSecureCertificate() changes
 				client = getClient(validatesSecureCertificate());
-
 				if (credentials != null) {
 					client.getCredentialsProvider().setCredentials (new AuthScope(uri.getHost(), -1), credentials);
 					credentials = null;
@@ -1303,5 +1383,15 @@ public class TiHTTPClient
 	protected boolean getAutoRedirect()
 	{
 		return autoRedirect;
+	}
+	
+	protected void addKeyManager(X509KeyManager manager)
+	{
+		keyManagers.add(manager);
+	}
+	
+	protected void addTrustManager(X509TrustManager manager)
+	{
+		trustManagers.add(manager);
 	}
 }

@@ -13,8 +13,6 @@
 #import "TiAppiOSBackgroundServiceProxy.h"
 #import "TiAppiOSLocalNotificationProxy.h"
 
-#define NOTNULL(v) ((v==nil) ? (id)[NSNull null] : v)
-
 @implementation TiAppiOSProxy
 
 -(void)dealloc
@@ -186,21 +184,12 @@
 
 -(void)didReceiveLocalNotification:(NSNotification*)note
 {
-	UILocalNotification *notification = [note object];
-	NSMutableDictionary* event = [NSMutableDictionary dictionary];
-	if (notification!=nil)
-	{
-		[event setObject:NOTNULL([notification fireDate]) forKey:@"date"];
-		[event setObject:NOTNULL([[notification timeZone] name]) forKey:@"timezone"];
-		[event setObject:NOTNULL([notification alertBody]) forKey:@"alertBody"];
-		[event setObject:NOTNULL([notification alertAction]) forKey:@"alertAction"];
-		[event setObject:NOTNULL([notification alertLaunchImage]) forKey:@"alertLaunchImage"];
-		[event setObject:NOTNULL([notification soundName]) forKey:@"sound"];
-		[event setObject:NUMINT([notification applicationIconBadgeNumber]) forKey:@"badge"];
-		[event setObject:NOTNULL([notification userInfo]) forKey:@"userInfo"];
-	}
-	[self fireEvent:@"notification" withObject:event];
+	NSDictionary *notification = [note object];
+	[self fireEvent:@"notification" withObject:notification];
 }
+
+MAKE_SYSTEM_STR(EVENT_ACCESSIBILITY_LAYOUT_CHANGED,@"accessibilitylayoutchanged");
+MAKE_SYSTEM_STR(EVENT_ACCESSIBILITY_SCREEN_CHANGED,@"accessibilityscreenchanged");
 
 
 @end

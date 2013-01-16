@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2011-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -122,7 +122,7 @@ public:
 	static jmethodID krollProxyOnPropertyChangedMethod;
 	static jmethodID krollProxyOnPropertiesChangedMethod;
 	static jmethodID krollLoggingLogWithDefaultLoggerMethod;
-	static jmethodID openErrorDialogMethod;
+	static jmethodID krollRuntimeDispatchExceptionMethod;
 
 	static jmethodID krollAssetHelperReadAssetMethod;
 	static jmethodID krollAssetHelperFileExistsMethod;

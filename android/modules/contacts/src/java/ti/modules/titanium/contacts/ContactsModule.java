@@ -19,6 +19,7 @@ import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.ContextSpecific;
 import org.appcelerator.titanium.TiApplication;
+import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.util.TiActivityResultHandler;
 import org.appcelerator.titanium.util.TiActivitySupport;
@@ -36,6 +37,12 @@ public class ContactsModule extends KrollModule
 	@Kroll.constant public static final int CONTACTS_KIND_PERSON = 1;
 	@Kroll.constant public static final int CONTACTS_SORT_FIRST_NAME = 0;
 	@Kroll.constant public static final int CONTACTS_SORT_LAST_NAME = 1;
+
+	@Kroll.constant public static final int AUTHORIZATION_AUTHORIZED = 3;
+	@Kroll.constant public static final int AUTHORIZATION_DENIED = 2;
+	@Kroll.constant public static final int AUTHORIZATION_RESTRICTED = 1;
+	@Kroll.constant public static final int AUTHORIZATION_UNKNOWN = 0;
+
 	
 	private final AtomicInteger requestCodeGen = new AtomicInteger();
 	private final CommonContactsApi contactsApi;
@@ -50,6 +57,11 @@ public class ContactsModule extends KrollModule
 	public ContactsModule(TiContext tiContext)
 	{
 		this();
+	}
+
+	@Kroll.getProperty @Kroll.method
+	public int getContactsAuthorization() {
+		return AUTHORIZATION_AUTHORIZED;
 	}
 
 	@Kroll.method
@@ -103,6 +115,14 @@ public class ContactsModule extends KrollModule
 	public void removePerson(PersonProxy person)
 	{
 		contactsApi.removePerson(person);
+	}
+	
+	@Kroll.method
+	public void requestAuthorization(KrollFunction function) 
+	{
+		KrollDict dict = new KrollDict();
+		dict.put(TiC.PROPERTY_SUCCESS, true);
+		function.callAsync(getKrollObject(), dict);
 	}
 	
 	@Kroll.method

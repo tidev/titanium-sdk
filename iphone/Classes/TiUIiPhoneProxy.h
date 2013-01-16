@@ -49,6 +49,9 @@
 #ifdef USE_TI_UIIPHONETABLEVIEWCELLSELECTIONSTYLE
 	TiProxy *tableViewCellSelectionStyle;
 #endif
+#ifdef USE_TI_UIIPHONEALERTDIALOGSTYLE
+	TiProxy *alertDialogStyle;
+#endif
 }
 
 #ifdef USE_TI_UIIPHONEANIMATIONSTYLE
@@ -89,6 +92,9 @@
 #endif
 #ifdef USE_TI_UIIPHONETABLEVIEWCELLSELECTIONSTYLE
 @property(nonatomic,readonly) TiProxy* TableViewCellSelectionStyle;
+#endif
+#ifdef USE_TI_UIIPHONEALERTDIALOGSTYLE
+@property(nonatomic, readonly) TiProxy *AlertDialogStyle;
 #endif
 
 

@@ -166,8 +166,17 @@ class Compiler(object):
 				'-nosource', '-package', self.appid + '.js', '-encoding', 'utf8',
 				'-o', js_class_name, '-d', self.classes_dir, fullpath]
 		else:
-			jsc_args = [self.java, '-jar', os.path.join(self.template_dir, 'lib/closure-compiler.jar'),
-				'--js', fullpath, '--js_output_file', fullpath + '-compiled', '--jscomp_off=internetExplorerChecks']
+			jsc_args = [
+				self.java,
+				'-jar',
+				os.path.join(self.template_dir, 'lib/closure-compiler.jar'),
+				'--js',
+				fullpath,
+				'--js_output_file',
+				fullpath + '-compiled',
+				'--jscomp_off=internetExplorerChecks',
+				'--accept_const_keyword'
+				]
 
 		print "[INFO] Compiling javascript: %s" % resource_relative_path
 		sys.stdout.flush()

@@ -25,9 +25,11 @@ import ti.modules.titanium.ui.TableViewProxy;
 import ti.modules.titanium.ui.TableViewRowProxy;
 import ti.modules.titanium.ui.widget.searchbar.TiUISearchBar.OnSearchChangeListener;
 import ti.modules.titanium.ui.widget.tableview.TableViewModel.Item;
+import android.R;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.StateListDrawable;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
@@ -63,7 +65,7 @@ public class TiTableView extends FrameLayout
 
 	private TableViewProxy proxy;
 	private boolean filterCaseInsensitive = true;
-	private TiTableViewSelector selector;
+	private StateListDrawable selector;
 
 	public interface OnItemClickedListener {
 		public void onClick(KrollDict item);
@@ -158,6 +160,18 @@ public class TiTableView extends FrameLayout
 			return rowTypes.get(item.className);
 		}
 
+		/*
+		 * IMPORTANT NOTE:
+		 * getView() is called by the Android framework whenever it needs a view.
+		 * The call to getView() could come on a measurement pass or on a layout 
+		 * pass.  It's not possible to tell from the arguments whether the framework
+		 * is calling getView() for a measurement pass or for a layout pass.  Therefore,
+		 * it is important that getView() and all methods call by getView() only create
+		 * the views and fill them in with the appropriate data.  What getView() and the
+		 * methods call by getView MUST NOT do is to make any associations between 
+		 * proxies and views.   Those associations must be made only for the views
+		 *  that are used for layout, and should be driven from the onLayout() callback.
+		 */
 		public View getView(int position, View convertView, ViewGroup parent) {
 			Item item = (Item) getItem(position);
 			TiBaseTableViewItem v = null;
@@ -190,9 +204,16 @@ public class TiTableView extends FrameLayout
 			if (v == null) {
 				if (item.className.equals(TableViewProxy.CLASSNAME_HEADERVIEW)) {
 					TiViewProxy vproxy = item.proxy;
-					View headerView = layoutHeaderOrFooter(vproxy);
+					TiUIView headerView = layoutHeaderOrFooter(vproxy);
+					ViewParent viewParent = headerView.getOuterView().getParent();
+					if (viewParent != null && viewParent instanceof ViewGroup) {
+						Log.d(TAG, "Header view has not been removed from parent. Detaching header view...",
+							Log.DEBUG_MODE);
+						((ViewGroup) viewParent).removeView(headerView.getOuterView());
+					}
 					v = new TiTableViewHeaderItem(proxy.getActivity(), headerView);
 					v.setClassName(TableViewProxy.CLASSNAME_HEADERVIEW);
+					v.setRowData(item);
 					return v;
 				} else if (item.className.equals(TableViewProxy.CLASSNAME_HEADER)) {
 					v = new TiTableViewHeaderItem(proxy.getActivity());
@@ -319,11 +340,11 @@ public class TiTableView extends FrameLayout
 		adapter = new TTVListAdapter(viewModel);
 		if (proxy.hasProperty(TiC.PROPERTY_HEADER_VIEW)) {
 			TiViewProxy view = (TiViewProxy) proxy.getProperty(TiC.PROPERTY_HEADER_VIEW);
-			listView.addHeaderView(layoutHeaderOrFooter(view), null, false);
+			listView.addHeaderView(layoutHeaderOrFooter(view).getOuterView(), null, false);
 		}
 		if (proxy.hasProperty(TiC.PROPERTY_FOOTER_VIEW)) {
 			TiViewProxy view = (TiViewProxy) proxy.getProperty(TiC.PROPERTY_FOOTER_VIEW);
-			listView.addFooterView(layoutHeaderOrFooter(view), null, false);
+			listView.addFooterView(layoutHeaderOrFooter(view).getOuterView(), null, false);
 		}
 
 		listView.setAdapter(adapter);
@@ -383,7 +404,9 @@ public class TiTableView extends FrameLayout
 	public void enableCustomSelector() {
 		Drawable currentSelector = listView.getSelector();
 		if (currentSelector != selector) {
-			selector = new TiTableViewSelector (listView);
+			selector = new StateListDrawable();
+			TiTableViewSelector selectorDrawable = new TiTableViewSelector (listView);
+			selector.addState(new int[] {R.attr.state_pressed}, selectorDrawable);
 			listView.setSelector(selector);
 		}
 	}
@@ -417,22 +440,22 @@ public class TiTableView extends FrameLayout
 		if(item.proxy != null && item.proxy instanceof TableViewRowProxy) {
 			TableViewRowProxy rp = (TableViewRowProxy) item.proxy;
 			event.put(TiC.EVENT_PROPERTY_SOURCE, rp);
-			if (rp.hasListeners(eventName)) {
+			// The event will bubble up to the parent.
+			if (rp.hierarchyHasListener(eventName)) {
 				rp.fireEvent(eventName, event);
 			}
 		}
 		if (longClick) {
 			return itemLongClickListener.onLongClick(event);
 		} else {
-			itemClickListener.onClick(event);
 			return false; // standard (not-long) click handling has no return value.
 		}
 	}
 
-	private View layoutHeaderOrFooter(TiViewProxy viewProxy)
+	private TiUIView layoutHeaderOrFooter(TiViewProxy viewProxy)
 	{
-		TiUIView tiView = viewProxy.getOrCreateView();
-		View nativeView = tiView.getNativeView();
+		TiUIView tiView = viewProxy.getOrCreateView(false);		// false means don't set model listener
+		View nativeView = tiView.getOuterView();
 		TiCompositeLayout.LayoutParams params = tiView.getLayoutParams();
 
 		int width = AbsListView.LayoutParams.WRAP_CONTENT;
@@ -453,7 +476,7 @@ public class TiTableView extends FrameLayout
 		}
 		AbsListView.LayoutParams p = new AbsListView.LayoutParams(width, height);
 		nativeView.setLayoutParams(p);
-		return nativeView;
+		return tiView;
 	}
 
 	public void dataSetChanged() {

@@ -1,0 +1,21 @@
+<!doctype html>
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+        <title>test</title>
+    </head>
+    <body>
+      <script>
+        setTimeout(function() {
+            Ti.App.fireEvent('webViewEvent', {
+                object: {
+                    string: "string",
+                    number: 1,
+                    nullObject: null,
+                    array: [{}, "a", 1, null]
+                }
+            });
+        }, 250);
+      </script>
+    </body>
+</html>

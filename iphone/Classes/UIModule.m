@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -279,8 +279,10 @@ MAKE_SYSTEM_PROP(FACE_DOWN,UIDeviceOrientationFaceDown);
 	return NUMBOOL([UIApplication sharedApplication].statusBarOrientation==UIInterfaceOrientationPortrait);
 }
 
+//Deprecated since 1.7.2
 -(NSNumber*)orientation
 {
+    DebugLog(@"Ti.UI.orientation is deprecated since 1.7.2 .");
 	return NUMINT([UIApplication sharedApplication].statusBarOrientation);
 }
 

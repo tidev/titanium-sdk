@@ -1,0 +1,148 @@
+# Titanium Mobile 2.1.1.GA  - 7/31/2012
+
+##### Contents
+
+*   [About This Release](#about)
+*   [New in This Release](#new)
+*   [Note on OS X Mountain Lion (10.8)](#osx)
+*   [Android Platform Fixes and Enhancements](#android)
+*   [iOS Platform Fixes and Enhancements](#ios)
+*   [Mobile Web Platform Fixes and Enhancements](#mobileweb)
+*   [Ti.Cloud Module Fixes and Enhancements](#cloud)
+
+<a name="about"></a>
+
+## About This Release
+
+Titanium Mobile SDK Release 2.1.1 is a service pack release of the Titanium Mobile SDK, including
+bug fixes for high-priority issues occurring in Release 2.1.0. This includes fixes for
+the Android, iOS, and Mobile Web platforms, and an updated version of the Ti.Cloud module
+including support for new APIs.
+
+[Full list of Issues that were addressed in Release 2.1.1](https://jira.appcelerator.org/secure/IssueNavigator.jspa?mode=hide&requestId=13461)
+
+<a name="new"></a>
+
+## New in This Release
+
+In coordination with this release, a new, refactored version of the Kitchen Sink sample
+application is being made available. The new version uses a more modern application
+structure based on CommonJS.
+
+There is still a separate version of Kitchen Sink for the Nook, Kindle Fire, and other 
+Android devices that lack support for Google APIs. The Nook version of Kitchen Sink has
+not been refactored at this time.
+
+<a name="osx"></a>
+
+## Note on OS X Mountain Lion (10.8)
+
+The Titanium Mobile SDK has not been tested on OS X Mountain
+Lion (10.8). Until testing is complete, Appcelerator cannot officially support 
+using any version of the Titanium SDK with OS X Mountain Lion.
+
+After testing of the Titanium SDK on Mountain Lion is complete, Appcelerator will
+release an updated statement clarifying support for Mountain Lion.
+
+<a name="android"></a>
+
+## Android Fixes and Enhancements
+
+The following sections lists all bug fixes and enhancements for the Android
+platform.
+
+*   Android builder.py script fails with Ti 2.1 SDK. 
+    ([TIMOB-9504](https://jira.appcelerator.org/browse/TIMOB-9504))
+*   Animation: Position is incorrect when `ti.ui.defaultunit` is set to a non-default value in
+    `tiapp.xml`. ([TIMOB-9954](https://jira.appcelerator.org/browse/TIMOB-9954))
+*   Animation: Translate animations of invisible views may be delayed. 
+    ([TIMOB-9827](https://jira.appcelerator.org/browse/TIMOB-9827))
+*   Animation: An animated object, if clicked during animation, makes parent window transparent for the 
+    area of animation. ([TIMOB-9813](https://jira.appcelerator.org/browse/TIMOB-9813))
+*   Animation: A view moved by an animation no longer responds to touch events. (Touch events
+    are generated based on the original location, not the new location.) 
+    ([TIMOB-10042](https://jira.appcelerator.org/browse/TIMOB-10042))
+*   Anvil: Some WebView unit tests fail. ([TIMOB-9977](https://jira.appcelerator.org/browse/TIMOB-9977))
+*   Application couldn't be launched from the browser using a custom URL. 
+    ([TIMOB-9416](https://jira.appcelerator.org/browse/TIMOB-9416))
+*   Application crashes when a `Slider` object is inside a `TableViewRow` and has the
+    `value` property set.  ([TIMOB-9672](https://jira.appcelerator.org/browse/TIMOB-9672))
+*   Label: Setting both `text` and `textid` has unexpected effects if `textid` is set to
+    an undefined key. ([TIMOB-8774](https://jira.appcelerator.org/browse/TIMOB-8774))
+*   Label: Application crashes on setting `textid` of a label to an undefined key. This is
+    a regression introduced in 2.1.0. ([TIMOB-9912](https://jira.appcelerator.org/browse/TIMOB-9912))
+*   Label: Labels disappear if width or height is set to `Ti.UI.SIZE`. 
+    ([TIMOB-9923](https://jira.appcelerator.org/browse/TIMOB-9923))
+*   TabGroup: Tab bar does not animate on Android. 
+    ([TIMOB-10065](https://jira.appcelerator.org/browse/TIMOB-10065))
+*   WebView: `evalJS` causes form input fields to lose focus. 
+    ([TIMOB-5824](https://jira.appcelerator.org/browse/TIMOB-5824))
+*   Window: When trying to remove the contents of a window, the window doesn't have any children. 
+    ([TIMOB-9100](https://jira.appcelerator.org/browse/TIMOB-9100))
+*   Window: Child views remain on the screen briefly after window is closed. 
+    ([TIMOB-9846](https://jira.appcelerator.org/browse/TIMOB-9846))
+
+To browse this list in JIRA, see: 
+[Fixed Android Issues in JIRA](https://jira.appcelerator.org/secure/IssueNavigator.jspa?mode=hide&requestId=13462).
+
+<a name="ios"></a>
+
+## iOS Fixes and Enhancements
+
+The following section lists all bug fixes and enhancements for the iOS platform.
+
+*   Media: `openPhotoGallery` opens popover in wrong position when `popoverView` is set. 
+    ([TIMOB-6903](https://jira.appcelerator.org/browse/TIMOB-6903))
+*   TableView: when adding and deleting rows programmatically, the row count is not updated
+    immediately. ([TIMOB-9890](https://jira.appcelerator.org/browse/TIMOB-9890))
+*   XHR calls fail if the response data has invalid encoding. 
+    ([TIMOB-9558](https://jira.appcelerator.org/browse/TIMOB-9558))
+*   New feature to add ability to specify the keychain used to code sign an application 
+    when invoking `builder.py`. ([TIMOB-9505](https://jira.appcelerator.org/browse/TIMOB-9505))
+
+To browse this list in JIRA, see: 
+[Fixed iOS Issues in
+JIRA](https://jira.appcelerator.org/secure/IssueNavigator.jspa?mode=hide&requestId=13463).
+
+<a name="mobileweb"></a>
+
+## Mobile Web  Fixes and Enhancements
+
+The following section lists all bug fixes and enhancements for the Mobile Web platform.
+
+*   Analytics: Button clicks on android 2.X device do not show the buttons being clicked. 
+    ([TIMOB-9870](https://jira.appcelerator.org/browse/TIMOB-9870))
+*   Analytics: Need to set: Ti.Platform.id Ti.App.guid Ti.App.deployType Ti.App.sessionId. 
+    ([TIMOB-9928](https://jira.appcelerator.org/browse/TIMOB-9928))
+*   Analytics: Backslashes in the "data" portion of the analytics data. 
+    ([TIMOB-9927](https://jira.appcelerator.org/browse/TIMOB-9927))
+*   TabGroup crashes with repeated single taps on the same tab.
+    (This crash may also be reproducible in a NavigationGroup, but is
+    easiest to reproduce in a TabGroup.)
+    ([TIMOB-9965](https://jira.appcelerator.org/browse/TIMOB-9965))
+*   Can't scroll kinetic scroll views using mouse wheel. 
+    ([TIMOB-9925](https://jira.appcelerator.org/browse/TIMOB-9925))
+*   HTTPClient Docs don't correctly report support for async on MW. 
+    ([TIMOB-9952](https://jira.appcelerator.org/browse/TIMOB-9952))
+*   ScrollView: Does not scroll correctly when contentHeight is changed. 
+    ([TIMOB-9652](https://jira.appcelerator.org/browse/TIMOB-9652))
+*   Window: Add nav bar parity for Ti.UI.Window. 
+    ([TIMOB-8964](https://jira.appcelerator.org/browse/TIMOB-8964))
+
+To browse this list in JIRA, see: 
+[Fixed Mobile Web Issues in JIRA](https://jira.appcelerator.org/secure/IssueNavigator.jspa?mode=hide&requestId=13464)
+
+<a name="cloud"></a>
+
+## Ti.Cloud Module Fixes and Enhancements
+
+This release includes a new version of the `ti.cloud` module, version 2.2.0. New features
+and fixes in this release include:
+
+*   Added support for the Friends, Events, Files, and Messages APIs. 
+*   Fixed issue with empty dictionary items in data when using OAuth.
+*   Fixed display issue with custom objects in example application.
+*   Added check for valid numeric data for key-value increment call in example application.
+*   Fixed issue in example application with reserved name 'public'.
+*   Fixed check mark becoming disabled in chat example.
+

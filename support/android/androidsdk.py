@@ -46,9 +46,47 @@ class AndroidSDK:
 		self.android_sdk = self.find_sdk(android_sdk)
 		if self.android_sdk is None:
 			raise Exception('No Android SDK directory found')
-		self.api_level = api_level
+		self.set_api_level(api_level)
+
+	def set_api_level(self, level):
+		self.api_level = level
 		self.find_platform_dir()
 		self.find_google_apis_dir()
+
+	def try_best_match_api_level(self, level):
+		# Don't go backwards
+		if level <= self.api_level:
+			return
+
+		orig_level = self.api_level
+		orig_platform_dir = self.platform_dir
+		orig_google_apis_dir = self.google_apis_dir
+
+		check_level = level
+		while check_level > orig_level:
+			self.find_platform_dir(check_level, False)
+			if self.platform_dir:
+				self.api_level = check_level
+				print "[INFO] Targeting Android SDK version %s" % self.api_level
+				break
+			check_level -= 1
+
+		if not self.platform_dir:
+			# Couldn't match.  Set it back and return.
+			self.platform_dir = orig_platform_dir
+			return
+
+		# Now give the Google APIs a chance to match.
+		check_level = level
+		while check_level > orig_level:
+			self.find_google_apis_dir(check_level)
+			if self.google_apis_dir:
+				break
+			check_level -= 1
+
+		if not self.google_apis_dir:
+			# Couldn't match, so set it back to what it was.
+			self.google_apis_dir = orig_google_apis_dir
 
 	def find_sdk(self, supplied):
 		if platform.system() == 'Windows':
@@ -80,23 +118,29 @@ class AndroidSDK:
 			return dirs[0]
 		return None
 
-	def find_platform_dir(self):
-		platform_dir = self.find_dir(self.api_level, os.path.join('platforms', 'android-'))
+	def find_platform_dir(self, api_level=-1, raise_error=True):
+		if api_level == -1:
+			api_level = self.api_level
+
+		platform_dir = self.find_dir(api_level, os.path.join('platforms', 'android-'))
 		if platform_dir is None:
-			old_style_dir = os.path.join(self.android_sdk, 'platforms', android_api_levels[self.api_level])
+			old_style_dir = os.path.join(self.android_sdk, 'platforms', android_api_levels[api_level])
 			if os.path.exists(old_style_dir):
 				platform_dir = old_style_dir
-		if platform_dir is None:
-			raise Exception("No \"%s\" or \"%s\" in the Android SDK" % ('android-%s' % self.api_level, android_api_levels[self.api_level]))
+		if platform_dir is None and raise_error:
+			raise Exception("No \"%s\" or \"%s\" in the Android SDK" % ('android-%s' % api_level, android_api_levels[api_level]))
 		self.platform_dir = platform_dir
 
-	def find_google_apis_dir(self):
+	def find_google_apis_dir(self, api_level=-1):
+		if api_level == -1:
+			api_level = self.api_level
+
 		if 'GOOGLE_APIS' in os.environ:
 			self.google_apis_dir = os.environ['GOOGLE_APIS']
 			return self.google_apis_dir
-		self.google_apis_dir = self.find_dir(self.api_level, os.path.join('add-ons', 'google_apis-'))
+		self.google_apis_dir = self.find_dir(api_level, os.path.join('add-ons', 'google_apis-'))
 		if self.google_apis_dir is None:
-			self.google_apis_dir = self.find_dir(self.api_level, os.path.join('add-ons', 'addon?google?apis?google*'))
+			self.google_apis_dir = self.find_dir(api_level, os.path.join('add-ons', 'addon?google?apis?google*'))
 
 	def get_maps_jar(self):
 		if self.google_apis_dir is not None:

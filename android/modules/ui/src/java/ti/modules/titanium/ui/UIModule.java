@@ -141,8 +141,7 @@ public class UIModule extends KrollModule implements Handler.Callback
 
 	protected static final int MSG_SET_BACKGROUND_COLOR = KrollProxy.MSG_LAST_ID + 100;
 	protected static final int MSG_SET_BACKGROUND_IMAGE = KrollProxy.MSG_LAST_ID + 101;
-	protected static final int MSG_SET_ORIENTATION = KrollProxy.MSG_LAST_ID + 102;
-	protected static final int MSG_LAST_ID = MSG_SET_ORIENTATION;
+	protected static final int MSG_LAST_ID = MSG_SET_BACKGROUND_IMAGE;
 
 
 	public UIModule()
@@ -207,17 +206,6 @@ public class UIModule extends KrollModule implements Handler.Callback
 		}
 	}
 
-	@Kroll.setProperty(runOnUiThread=true) @Kroll.method(runOnUiThread=true)
-	public void setOrientation(int tiOrientationMode)
-	{
-		if (TiApplication.isUIThread()) {
-			doSetOrientation(tiOrientationMode);
-
-		} else {
-			Message message = getMainHandler().obtainMessage(MSG_SET_ORIENTATION, tiOrientationMode);
-			message.sendToTarget();
-		}
-	}
 
 	@Kroll.method
 	public double convertUnits(String convertFromValue, String convertToUnits)
@@ -293,11 +281,6 @@ public class UIModule extends KrollModule implements Handler.Callback
 			}
 			case MSG_SET_BACKGROUND_IMAGE: {
 				doSetBackgroundImage(message.obj);
-
-				return true;
-			}
-			case MSG_SET_ORIENTATION: {
-				doSetOrientation((Integer)message.obj);
 
 				return true;
 			}

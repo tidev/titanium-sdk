@@ -99,9 +99,10 @@ properties:
     platforms: [android, iphone, ipad]
 
   - name: pinImage
-    summary: Use <Titanium.Map.Annotation.image> property instead.
     deprecated:
         since: "1.4"
+        notes: Use <Titanium.Map.Annotation.image> property instead.
+    summary: Image for the pin instead of the default image.
     platforms: [android]
     type: String
 

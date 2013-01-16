@@ -73,7 +73,7 @@
 -(void)play:(id)args
 {
     [self rememberSelf];
-    dispatch_sync(dispatch_get_main_queue(), ^{
+    TiThreadPerformOnMainThread(^{
         // indicate we're going to start playback
         if (![[TiMediaAudioSession sharedSession] canPlayback]) {
             [self throwException:@"Improper audio session mode for playback"
@@ -86,12 +86,12 @@
         }
         [[self player] play];
         paused = NO;
-    });
+    }, NO);
 }
 
 -(void)stop:(id)args
 {
-    dispatch_async(dispatch_get_main_queue(), ^{
+    TiThreadPerformOnMainThread(^{
         if (player != nil) {
             if ([player isPlaying] || paused) {
                 [player stop];
@@ -101,24 +101,24 @@
         }
         resumeTime = 0;
         paused = NO;
-    });
+    }, NO);
 }
 
 -(void)pause:(id)args
 {
-    dispatch_async(dispatch_get_main_queue(), ^{
+    TiThreadPerformOnMainThread(^{
         if (player != nil) {
             if ([player isPlaying]) {
                 [player pause];
                 paused = YES;
             }
         }
-    });
+    }, NO);
 }
 
 -(void)reset:(id)args
 {
-    dispatch_async(dispatch_get_main_queue(), ^{
+    TiThreadPerformOnMainThread(^{
         if (player != nil) {
             if (!([player isPlaying] || paused)) {
                 [[TiMediaAudioSession sharedSession] startAudioSession];
@@ -130,7 +130,7 @@
         }
         resumeTime = 0;
         paused = NO;
-    });
+    }, NO);
 }
 
 -(void)release:(id)args
@@ -174,17 +174,17 @@
 -(NSNumber*)time
 {
 	if (player != nil) {
-		return NUMDOUBLE([player currentTime]);
+		return NUMDOUBLE([player currentTime] * 1000.0);
 	}
-	return NUMDOUBLE(0);
+	return NUMDOUBLE(resumeTime * 1000.0);
 }
 
 -(void)setTime:(NSNumber*)value
 {
 	if (player != nil) {
-		[player setCurrentTime:[TiUtils doubleValue:value]];
+		[player setCurrentTime:([TiUtils doubleValue:(value)] / 1000.0)];
 	} else {
-		resumeTime = [TiUtils doubleValue:value];
+		resumeTime = [TiUtils doubleValue:value] / 1000.0;
 	}
 }
 

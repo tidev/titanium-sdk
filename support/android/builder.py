@@ -10,7 +10,7 @@
 # and debugging Titanium Mobile applications on Android
 #
 import os, sys, subprocess, shutil, time, signal, string, platform, re, glob, hashlib, imp, inspect
-import run, avd, prereq, zipfile, tempfile, fnmatch, codecs, traceback
+import run, avd, prereq, zipfile, tempfile, fnmatch, codecs, traceback, sgmllib
 from os.path import splitext
 from compiler import Compiler
 from os.path import join, splitext, split, exists
@@ -70,6 +70,118 @@ java_keywords = [
 
 
 MIN_API_LEVEL = 8
+HONEYCOMB_MR2_LEVEL = 13
+KNOWN_ABIS = ("armeabi", "armeabi-v7a", "x86")
+
+# Used only to find <script> tags in HTML files
+# so we can be sure to package referenced JS files
+# even when compiling for production. (See
+# Builder.package_and_deploy later in this file.)
+class HTMLParser(sgmllib.SGMLParser):
+
+	def parse(self, html_source):
+		self.feed(html_source)
+		self.close()
+
+	def __init__(self, verbose=0):
+		sgmllib.SGMLParser.__init__(self, verbose)
+		self.referenced_js_files = []
+
+	def start_script(self, attributes):
+		for name, value in attributes:
+			if value and name.lower() == "src":
+				self.referenced_js_files.append(value.lower())
+
+	def get_referenced_js_files(self):
+		return self.referenced_js_files
+
+def launch_logcat():
+	valid_device_switches = ('-e', '-d', '-s')
+	device_id = None
+	android_sdk_location = None
+	adb_location = None
+	logcat_process = None
+	device_switch = None # e.g., -e or -d or -s
+
+	def show_usage():
+		print >> sys.stderr, ""
+		print >> sys.stderr, "%s devicelog <sdk_dir> <device_switch> [device_serial_number]" % os.path.basename(sys.argv[0])
+		print >> sys.stderr, ""
+		print >> sys.stderr, "The <device_switch> can be -e, -d -s. If -s, also pass serial number."
+		sys.exit(1)
+
+	if len(sys.argv) < 3:
+		print >> sys.stderr, "Missing Android SDK location."
+		show_usage()
+	else:
+		android_sdk_location = os.path.abspath(os.path.expanduser(sys.argv[2]))
+
+	adb_location = AndroidSDK(android_sdk_location).get_adb()
+
+	if len(sys.argv) < 4:
+		print >> sys.stderr, "Missing device/emulator switch (e.g., -e, -d, -s)."
+		show_usage()
+
+	device_switch = sys.argv[3]
+	if device_switch not in valid_device_switches:
+		print >> sys.stderr, "Unknown device type switch: %s" % device_switch
+		show_usage()
+
+	if device_switch == "-s":
+		if len(sys.argv) < 5:
+			print >> sys.stderr, "Must specify serial number when using -s."
+			show_usage()
+		else:
+			device_id = sys.argv[4]
+
+	# For killing the logcat process if our process gets killed.
+	def signal_handler(signum, frame):
+		print "[DEBUG] Signal %s received. Terminating the logcat process." % signum
+		if logcat_process is not None:
+			if platform.system() == "Windows":
+				os.system("taskkill /F /T /PID %i" % logcat_process.pid)
+			else:
+				os.kill(logcat_process.pid, signal.SIGTERM)
+
+	# make sure adb is running on windows, else XP can lockup the python
+	# process when adb runs first time
+	if platform.system() == "Windows":
+		run.run([adb_location, "start-server"], True, ignore_output=True)
+
+	logcat_cmd = [adb_location, device_switch]
+
+	if device_id:
+		logcat_cmd.append(device_id)
+
+	logcat_cmd.extend(["logcat", "-s", "*:d,*,TiAPI:V"])
+
+	logcat_process = subprocess.Popen(logcat_cmd)
+
+	if platform.system() != "Windows":
+		signal.signal(signal.SIGHUP, signal_handler)
+		signal.signal(signal.SIGQUIT, signal_handler)
+
+	signal.signal(signal.SIGINT, signal_handler)
+	signal.signal(signal.SIGABRT, signal_handler)
+	signal.signal(signal.SIGTERM, signal_handler)
+
+	# In case it's gonna exit early (like if the command line
+	# was wrong or something) give it a chance to do so before we start
+	# waiting on it.
+	time.sleep(1)
+	return_code = logcat_process.poll()
+	if return_code:
+		signal_handler(signal.SIGQUIT, None)
+		sys.exit(return_code)
+
+	# Now wait for it.
+	try:
+		return_code = logcat_process.wait()
+	except OSError:
+		signal_handler(signal.SIGQUIT, None)
+		sys.exit(return_code)
+
+	sys.exit(return_code)
 
 def render_template_with_tiapp(template_text, tiapp_obj):
 	t = Template(template_text)
@@ -218,6 +330,8 @@ class Builder(object):
 		self.fastdev_port = -1
 		self.fastdev = False
 		self.compile_js = False
+		self.tool_api_level = MIN_API_LEVEL
+		self.abis = list(KNOWN_ABIS)
 		
 		# don't build if a java keyword in the app id would cause the build to fail
 		tok = self.app_id.split('.')
@@ -226,12 +340,34 @@ class Builder(object):
 				error("Do not use java keywords for project app id, such as " + token)
 				sys.exit(1)
 
+		tool_api_level_explicit = False
 		temp_tiapp = TiAppXML(self.project_tiappxml)
-		if temp_tiapp and temp_tiapp.android and 'tool-api-level' in temp_tiapp.android:
-			self.tool_api_level = int(temp_tiapp.android['tool-api-level'])
-		else:
-			self.tool_api_level = MIN_API_LEVEL
+		if temp_tiapp and temp_tiapp.android:
+			if 'tool-api-level' in temp_tiapp.android:
+				self.tool_api_level = int(temp_tiapp.android['tool-api-level'])
+				tool_api_level_explicit = True
+
+			if 'abi' in temp_tiapp.android and temp_tiapp.android['abi'] != 'all':
+				tiapp_abis = [abi.strip() for abi in temp_tiapp.android['abi'].split(",")]
+				to_remove = [bad_abi for bad_abi in tiapp_abis if bad_abi not in KNOWN_ABIS]
+				if to_remove:
+					warn("The following ABIs listed in the Android <abi> section of tiapp.xml are unknown and will be ignored: %s." % ", ".join(to_remove))
+					tiapp_abis = [abi for abi in tiapp_abis if abi not in to_remove]
+
+				self.abis = tiapp_abis
+				if not self.abis:
+					warn("Android <abi> tiapp.xml section does not specify any valid ABIs. Defaulting to '%s'." %
+							",".join(KNOWN_ABIS))
+					self.abis = list(KNOWN_ABIS)
+
 		self.sdk = AndroidSDK(sdk, self.tool_api_level)
+
+		# If the tool-api-level was not explicitly set in the tiapp.xml, but
+		# <uses-sdk android:targetSdkVersion> *is* set, try to match the target version.
+		if (not tool_api_level_explicit and temp_tiapp and temp_tiapp.android_manifest
+				and "manifest" in temp_tiapp.android_manifest):
+			self.check_target_api_version(temp_tiapp.android_manifest["manifest"])
+
 		self.tiappxml = temp_tiapp
 
 		json_contents = open(os.path.join(template_dir,'dependency.json')).read()
@@ -268,7 +404,19 @@ class Builder(object):
 			os.makedirs(self.home_dir)
 		self.sdcard = os.path.join(self.home_dir,'android2.sdcard')
 		self.classname = Android.strip_classname(self.name)
-		
+
+	def check_target_api_version(self, manifest_elements):
+		pattern = r'android:targetSdkVersion=\"(\d+)\"'
+		for el in manifest_elements:
+			if el.nodeName == "uses-sdk":
+				xml = el.toxml()
+				matches = re.findall(pattern, xml)
+				if matches:
+					new_level = self.sdk.try_best_match_api_level(int(matches[0]))
+					if new_level != self.tool_api_level:
+						self.tool_api_level = new_level
+				break
+
 	def set_java_commands(self):
 		commands = java.find_java_commands()
 		to_check = ("java", "javac", "keytool", "jarsigner")
@@ -399,7 +547,11 @@ class Builder(object):
 			info("Creating 64M SD card for use in Android emulator")
 			run.run([self.sdk.get_mksdcard(), '64M', self.sdcard])
 		if not os.path.exists(my_avd):
-			info("Creating new Android Virtual Device (%s %s)" % (avd_id,avd_skin))
+			if multiple_abis:
+				info("Creating new Android Virtual Device (%s %s %s)" % (avd_id,avd_skin,avd_abi))
+			else:
+				info("Creating new Android Virtual Device (%s %s)" % (avd_id,avd_skin))
+
 			inputgen = os.path.join(template_dir,'input.py')
 			abi_args = []
 			if multiple_abis:
@@ -461,9 +613,12 @@ class Builder(object):
 			'-partition-size',
 			'128' # in between nexusone and droid
 		]
-		emulator_cmd.extend([arg.strip() for arg in add_args if len(arg.strip()) > 0])
+
+		if add_args:
+			emulator_cmd.extend([arg.strip() for arg in add_args if len(arg.strip()) > 0])
+
 		debug(' '.join(emulator_cmd))
-		
+
 		p = subprocess.Popen(emulator_cmd)
 		
 		def handler(signum, frame):
@@ -749,6 +904,7 @@ class Builder(object):
 		GEO_PERMISSION = [ 'ACCESS_COARSE_LOCATION', 'ACCESS_FINE_LOCATION']
 		CONTACTS_READ_PERMISSION = ['READ_CONTACTS']
 		CONTACTS_PERMISSION = ['READ_CONTACTS', 'WRITE_CONTACTS']
+		CALENDAR_READ_PERMISSION = ['READ_CALENDAR']
 		VIBRATE_PERMISSION = ['VIBRATE']
 		CAMERA_PERMISSION = ['CAMERA']
 		WALLPAPER_PERMISSION = ['SET_WALLPAPER']
@@ -782,6 +938,12 @@ class Builder(object):
 			'Contacts.getAllPeople' : CONTACTS_READ_PERMISSION,
 			'Contacts.getAllGroups' : CONTACTS_READ_PERMISSION,
 			'Contacts.getGroupByID' : CONTACTS_READ_PERMISSION,
+			
+			# CALENDAR
+			'Android.Calendar.getAllAlerts' : CALENDAR_READ_PERMISSION,
+			'Android.Calendar.getAllCalendars' : CALENDAR_READ_PERMISSION,
+			'Android.Calendar.getCalendarById' : CALENDAR_READ_PERMISSION,
+			'Android.Calendar.getSelectableCalendars' : CALENDAR_READ_PERMISSION,
 
 			# WALLPAPER
 			'Media.Android.setSystemWallpaper' : WALLPAPER_PERMISSION,
@@ -1029,6 +1191,14 @@ class Builder(object):
 			info("Detected custom ApplicationManifest.xml -- no Titanium version migration supported")
 		
 		default_manifest_contents = self.android.render_android_manifest()
+
+		if self.sdk.api_level >= HONEYCOMB_MR2_LEVEL:
+			# Need to add "screenSize" in our default "configChanges" attribute on
+			# <activity> elements, else changes in orientation will cause the app
+			# to restart. cf. TIMOB-10863.
+			default_manifest_contents = default_manifest_contents.replace('|orientation"', '|orientation|screenSize"')
+			debug("Added 'screenSize' to <activity android:configChanges> because targeted api level %s is >= %s" % (self.sdk.api_level, HONEYCOMB_MR2_LEVEL))
+
 		custom_manifest_contents = None
 		if is_custom:
 			custom_manifest_contents = open(android_manifest_to_read,'r').read()
@@ -1359,7 +1529,7 @@ class Builder(object):
 			sys.exit(1)
 		return True
 
-	def create_unsigned_apk(self, resources_zip_file):
+	def create_unsigned_apk(self, resources_zip_file, webview_js_files=None):
 		unsigned_apk = os.path.join(self.project_dir, 'bin', 'app-unsigned.apk')
 		self.apk_updated = False
 
@@ -1381,7 +1551,8 @@ class Builder(object):
 
 		def skip_js_file(path):
 			return self.compile_js is True and \
-				os.path.splitext(path)[1] == '.js'
+				os.path.splitext(path)[1] == '.js' and \
+				os.path.join(self.project_dir, "bin", path) not in webview_js_files
 
 		def compression_type(path):
 			ext = os.path.splitext(path)[1]
@@ -1447,6 +1618,8 @@ class Builder(object):
 		def add_native_libs(libs_dir, exclude=[]):
 			if os.path.exists(libs_dir):
 				for abi_dir in os.listdir(libs_dir):
+					if abi_dir not in self.abis:
+						continue
 					libs_abi_dir = os.path.join(libs_dir, abi_dir)
 					if not os.path.isdir(libs_abi_dir): continue
 					for file in os.listdir(libs_abi_dir):
@@ -1474,25 +1647,21 @@ class Builder(object):
 		# add sdk runtime native libraries
 		debug("installing native SDK libs")
 		sdk_native_libs = os.path.join(template_dir, 'native', 'libs')
-		apk_zip.write(os.path.join(sdk_native_libs, 'armeabi', 'libtiverify.so'), 'lib/armeabi/libtiverify.so')
-		apk_zip.write(os.path.join(sdk_native_libs, 'armeabi-v7a', 'libtiverify.so'), 'lib/armeabi-v7a/libtiverify.so')
-		# See below about x86 and production
-		x86_dir = os.path.join(sdk_native_libs, 'x86')
-		if self.deploy_type != 'production' and os.path.exists(x86_dir):
-			apk_zip.write(os.path.join(x86_dir, 'libtiverify.so'), 'lib/x86/libtiverify.so')
 
-		if self.runtime == 'v8':
-			apk_zip.write(os.path.join(sdk_native_libs, 'armeabi', 'libkroll-v8.so'), 'lib/armeabi/libkroll-v8.so')
-			apk_zip.write(os.path.join(sdk_native_libs, 'armeabi', 'libstlport_shared.so'), 'lib/armeabi/libstlport_shared.so')
-			apk_zip.write(os.path.join(sdk_native_libs, 'armeabi-v7a', 'libkroll-v8.so'), 'lib/armeabi-v7a/libkroll-v8.so')
-			apk_zip.write(os.path.join(sdk_native_libs, 'armeabi-v7a', 'libstlport_shared.so'), 'lib/armeabi-v7a/libstlport_shared.so')
-			# Only include x86 in non-production builds for now, since there are
-			# no x86 devices on the market
-			if self.deploy_type != 'production' and os.path.exists(x86_dir):
-				apk_zip.write(os.path.join(x86_dir, 'libkroll-v8.so'), 'lib/x86/libkroll-v8.so')
-				apk_zip.write(os.path.join(x86_dir, 'libstlport_shared.so'), 'lib/x86/libstlport_shared.so')
+		for abi in self.abis:
+			lib_source_dir = os.path.join(sdk_native_libs, abi)
+			lib_dest_dir = 'lib/%s/' % abi
+			if abi == 'x86' and ((not os.path.exists(lib_source_dir)) or self.deploy_type == 'production'):
+				# x86 only in non-production builds for now.
+				continue
 
-				
+			# libtiverify is always included, even if targeting rhino.
+			apk_zip.write(os.path.join(lib_source_dir, 'libtiverify.so'), lib_dest_dir + 'libtiverify.so')
+
+			if self.runtime == 'v8':
+				for fname in ('libkroll-v8.so', 'libstlport_shared.so'):
+					apk_zip.write(os.path.join(lib_source_dir, fname), lib_dest_dir + fname)
+
 		self.apk_updated = True
 
 		apk_zip.close()
@@ -1511,7 +1680,7 @@ class Builder(object):
 			'-keystore', self.keystore,
 			'-storepass', self.keystore_pass,
 			'-alias', self.keystore_alias
-		])
+		], protect_arg_positions=(6,))
 
 		# If the keytool encounters an error, that means some of the provided
 		# keychain info is invalid and we should bail anyway
@@ -1526,6 +1695,40 @@ class Builder(object):
 		return "MD5withRSA"
 
 	def package_and_deploy(self):
+
+		# If in production mode and compiling JS, we do not package the JS
+		# files as assets (we protect them from prying eyes). But if a JS
+		# file is referenced in an html <script> tag, we DO need to package it.
+		def get_js_referenced_in_html():
+			js_files = []
+			for root, dirs, files in os.walk(self.assets_dir):
+				for one_file in files:
+					if one_file.lower().endswith(".html"):
+						full_path = os.path.join(root, one_file)
+						html_source = None
+						file_stream = None
+						try:
+							file_stream = open(full_path, "r")
+							html_source = file_stream.read()
+						except:
+							error("Unable to read html file '%s'" % full_path)
+						finally:
+							file_stream.close()
+
+						if html_source:
+							parser = HTMLParser()
+							parser.parse(html_source)
+							relative_js_files = parser.get_referenced_js_files()
+							if relative_js_files:
+								for one_rel_js_file in relative_js_files:
+									if one_rel_js_file.startswith("http:") or one_rel_js_file.startswith("https:"):
+										continue
+									if one_rel_js_file.startswith("app://"):
+										one_rel_js_file = one_rel_js_file[6:]
+									js_files.append(os.path.abspath(os.path.join(os.path.dirname(full_path), one_rel_js_file)))
+
+			return js_files
+
 		ap_ = os.path.join(self.project_dir, 'bin', 'app.ap_')
 
 		# This is only to check if this has been overridden in production
@@ -1533,20 +1736,35 @@ class Builder(object):
 		compile_js = not has_compile_js or (has_compile_js and \
 			self.tiappxml.to_bool(self.tiappxml.get_app_property('ti.android.compilejs')))
 
+		# JS files referenced in html files and thus likely needed for webviews.
+		webview_js_files = []
+
 		pkg_assets_dir = self.assets_dir
 		if self.deploy_type == "test":
 			compile_js = False
 		if self.deploy_type == "production" and compile_js:
+			webview_js_files = get_js_referenced_in_html()
 			non_js_assets = os.path.join(self.project_dir, 'bin', 'non-js-assets')
 			if not os.path.exists(non_js_assets):
 				os.mkdir(non_js_assets)
 			copy_all(self.assets_dir, non_js_assets, ignore_exts=['.js'])
+
+			# if we have any js files referenced in html, we *do* need
+			# to package them as if they are non-js assets.
+			if webview_js_files:
+				for one_js_file in webview_js_files:
+					if os.path.exists(one_js_file):
+						dest_file = one_js_file.replace(self.assets_dir, non_js_assets, 1)
+						if not os.path.exists(os.path.dirname(dest_file)):
+							os.makedirs(os.path.dirname(dest_file))
+						shutil.copyfile(one_js_file, dest_file)
+
 			pkg_assets_dir = non_js_assets
 
 		run.run([self.aapt, 'package', '-f', '-M', 'AndroidManifest.xml', '-A', pkg_assets_dir,
 			'-S', 'res', '-I', self.android_jar, '-I', self.titanium_jar, '-F', ap_], warning_regex=r'skipping')
 
-		unsigned_apk = self.create_unsigned_apk(ap_)
+		unsigned_apk = self.create_unsigned_apk(ap_, webview_js_files)
 
 		if self.dist_dir:
 			app_apk = os.path.join(self.dist_dir, self.name + '.apk')	
@@ -1560,7 +1778,7 @@ class Builder(object):
 			'-keystore', self.keystore,
 			'-signedjar', app_apk,
 			unsigned_apk,
-			self.keystore_alias])
+			self.keystore_alias], protect_arg_positions=(6,))
 		run.check_output_for_error(output, r'RuntimeException: (.*)', True)
 		run.check_output_for_error(output, r'^jarsigner: (.*)', True)
 
@@ -1635,6 +1853,23 @@ class Builder(object):
 		trace("Launch output: %s" % output)
 
 	def wait_for_sdcard(self):
+		# Quick check: the existence of /sdcard/Android,
+		# which really should be there on all phones and emulators.
+		output = self.run_adb('shell', 'cd /sdcard/Android && echo SDCARD READY')
+		if 'SDCARD READY' in output:
+			return True
+
+		# Our old way of checking in case the above
+		# didn't succeed:
+
+		mount_points_check = ['/sdcard', '/mnt/sdcard']
+		# Check the symlink that is typically in root.
+		# If you find it, add its target to the mount points to check.
+		output = self.run_adb('shell', 'ls', '-l', '/sdcard')
+		if output:
+			target_pattern = r"\-\> (\S+)\s*$"
+			mount_points_check.extend(re.findall(target_pattern, output))
+
 		info("Waiting for SDCard to become available..")
 		waited = 0
 		max_wait = 60
@@ -1646,7 +1881,7 @@ class Builder(object):
 					tokens = mount_point.split()
 					if len(tokens) < 2: continue
 					mount_path = tokens[1]
-					if mount_path in ['/sdcard', '/mnt/sdcard']:
+					if mount_path in mount_points_check:
 						return True
 			else:
 				error("Error checking for SDCard using 'mount'")
@@ -1717,6 +1952,7 @@ class Builder(object):
 		self.build_only = build_only
 		self.device_args = device_args
 		self.postbuild_modules = []
+		self.finalize_modules = []
 		self.non_orphans = []
 		if install:
 			if self.device_args == None:
@@ -1751,7 +1987,7 @@ class Builder(object):
 				'template_dir':template_dir,
 				'project_name':self.name,
 				'command':self.command,
-				'build_dir':s.project_dir,
+				'build_dir':self.project_dir,
 				'app_name':self.name,
 				'android_builder':self,
 				'deploy_type':deploy_type,
@@ -1779,6 +2015,9 @@ class Builder(object):
 				if module_functions.has_key('postbuild'):
 					debug("plugin contains a postbuild function. Will execute after project is built and packaged")
 					self.postbuild_modules.append((plugin['name'], p))
+				if module_functions.has_key('finalize'):
+					debug("plugin contains a finalize function. Will execute before script exits")
+					self.finalize_modules.append((plugin['name'], p))
 				p.compile(compiler_config)
 				fin.close()
 			
@@ -1892,7 +2131,7 @@ class Builder(object):
 			# We need to know this info in a few places, so the info is saved
 			# in self.missing_modules and self.modules
 			detector = ModuleDetector(self.top_dir)
-			self.missing_modules, self.modules = detector.find_app_modules(self.tiapp, 'android')
+			self.missing_modules, self.modules = detector.find_app_modules(self.tiapp, 'android', deploy_type)
 
 			self.copy_commonjs_modules()
 			self.copy_project_resources()
@@ -2087,10 +2326,18 @@ class Builder(object):
 		except Exception,e:
 			error("Error performing post-build steps: %s" % e)
 
+	def finalize(self):
+		try:
+			if self.finalize_modules:
+				for p in self.finalize_modules:
+					info("Running finalize function in %s plugin" % p[0])
+					p[1].finalize()
+		except Exception,e:
+			error("Error performing finalize steps: %s" % e)
 
 if __name__ == "__main__":
 	def usage():
-		print "%s <command> <project_name> <sdk_dir> <project_dir> <app_id> [key] [password] [alias] [dir] [avdid] [avdsdk] [avdabi] [emulator options]" % os.path.basename(sys.argv[0])
+		print "%s <command> <project_name> <sdk_dir> <project_dir> <app_id> [key] [password] [alias] [dir] [avdid] [avdskin] [avdabi] [emulator options]" % os.path.basename(sys.argv[0])
 		print
 		print "available commands: "
 		print
@@ -2108,6 +2355,10 @@ if __name__ == "__main__":
 		usage()
 
 	command = sys.argv[1]
+
+	if command == 'logcat':
+		launch_logcat()
+
 	template_dir = os.path.abspath(os.path.dirname(sys._getframe(0).f_code.co_filename))
 	get_values_from_tiapp = False
 
@@ -2149,73 +2400,87 @@ if __name__ == "__main__":
 	log = TiLogger(os.path.join(os.path.abspath(os.path.expanduser(dequote(project_dir))), 'build.log'))
 	log.debug(" ".join(sys.argv))
 	
-	s = Builder(project_name,sdk_dir,project_dir,template_dir,app_id)
-	s.command = command
+	builder = Builder(project_name,sdk_dir,project_dir,template_dir,app_id)
+	builder.command = command
 
 	try:
 		if command == 'run-emulator':
-			s.run_emulator(avd_id, avd_skin, None, None, [])
+			builder.run_emulator(avd_id, avd_skin, None, None, [])
 		elif command == 'run':
-			s.build_and_run(False, avd_id)
+			builder.build_and_run(False, avd_id)
 		elif command == 'emulator':
 			avd_id = dequote(sys.argv[6])
+			add_args = None
+			avd_abi = None
+			avd_skin = None
+			avd_name = None
+
 			if avd_id.isdigit():
 				avd_name = None
 				avd_skin = dequote(sys.argv[7])
 				
-				# TODO: This is for studio compatibility only. We will
-				# need to rip it out once they support ABI selection.
-				# Note that this will ALSO possibly break existing external
-				# build scripts in a bad way.
-				
-				if len(sys.argv) > 9:
-					avd_abi = dequote(sys.argv[8])
-					add_args = sys.argv[9:]
-				else:
-					avd_abi = None
-					add_args = sys.argv[8:]
+				if argc > 8:
+					# The first of the remaining args
+					# could either be an abi or an additional argument for
+					# the emulator. Compare to known abis.
+					next_index = 8
+					test_arg = sys.argv[next_index]
+					if test_arg in KNOWN_ABIS:
+						avd_abi = test_arg
+						next_index += 1
+
+					# Whatever remains (if anything) is an additional
+					# argument to pass to the emulator.
+					if argc > next_index:
+						add_args = sys.argv[next_index:]
+
 			else:
 				avd_name = sys.argv[6]
+				# If the avd is known by name, then the skin and abi shouldn't be passed,
+				# because the avd already has the skin and abi "in it".
 				avd_id = None
 				avd_skin = None
-				
-				# TODO: This is for studio compatibility only. We will
-				# need to rip it out once they support ABI selection.
-				# Note that this will ALSO possibly break existing external
-				# build scripts in a bad way.
-				
-				if len(sys.argv) > 8:
-					avd_abi = dequote(sys.argv[7])
-					add_args = sys.argv[8:]
-				else:
-					avd_abi = None
+				avd_abi = None
+
+				if argc > 7:
 					add_args = sys.argv[7:]
 
-			s.run_emulator(avd_id, avd_skin, avd_name, avd_abi, add_args)
+			builder.run_emulator(avd_id, avd_skin, avd_name, avd_abi, add_args)
 		elif command == 'simulator':
 			info("Building %s for Android ... one moment" % project_name)
 			avd_id = dequote(sys.argv[6])
 			debugger_host = None
 			if len(sys.argv) > 8:
 				debugger_host = dequote(sys.argv[8])
-			s.build_and_run(False, avd_id, debugger_host=debugger_host)
+			builder.build_and_run(False, avd_id, debugger_host=debugger_host)
 		elif command == 'install':
 			avd_id = dequote(sys.argv[6])
 			device_args = ['-d']
-			if len(sys.argv) >= 8 and len(sys.argv[7]) > 0:
-				device_args = ['-s', sys.argv[7]]
+			# We have to be careful here because Windows can't handle an empty argument
+			# on the command line, so if a device serial number is not passed in, but
+			# a debugger_host (the argument after device serial number) _is_ passed in,
+			# to Windows it just looks like a serial number is passed in (the debugger_host
+			# argument shifts left to take over the empty argument.)
 			debugger_host = None
 			if len(sys.argv) >= 9 and len(sys.argv[8]) > 0:
 				debugger_host = dequote(sys.argv[8])
-			s.build_and_run(True, avd_id, device_args=device_args, debugger_host=debugger_host)
+				if len(sys.argv[7]) > 0:
+					device_args = ['-s', sys.argv[7]]
+			elif len(sys.argv) >= 8 and len(sys.argv[7]) > 0:
+				arg7 = dequote(sys.argv[7])
+				if 'adb:' in arg7:
+					debugger_host = arg7
+				else:
+					device_args = ['-s', arg7]
+			builder.build_and_run(True, avd_id, device_args=device_args, debugger_host=debugger_host)
 		elif command == 'distribute':
 			key = os.path.abspath(os.path.expanduser(dequote(sys.argv[6])))
 			password = dequote(sys.argv[7])
 			alias = dequote(sys.argv[8])
 			output_dir = dequote(sys.argv[9])
-			s.build_and_run(True, None, key, password, alias, output_dir)
+			builder.build_and_run(True, None, key, password, alias, output_dir)
 		elif command == 'build':
-			s.build_and_run(False, 1, build_only=True)
+			builder.build_and_run(False, 1, build_only=True)
 		else:
 			error("Unknown command: %s" % command)
 			usage()
@@ -2227,3 +2492,8 @@ if __name__ == "__main__":
 		for line in e.splitlines():
 			error(line)
 		sys.exit(1)
+	finally:
+		# Don't run plugin finalizer functions if all we were doing is
+		# starting up the emulator.
+		if builder and command not in ("emulator", "run-emulator"):
+			builder.finalize()
