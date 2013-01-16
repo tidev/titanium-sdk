@@ -339,9 +339,10 @@ class Android(object):
 		app_assets_dir = self.newdir(app_dir, 'assets')
 		app_package_dir = self.newdir(app_gen_dir, *self.id.split('.'))
 		app_bin_assets_dir = self.newdir(app_bin_dir, 'assets')
+		app_bin_assets_resources_dir = self.newdir(app_bin_assets_dir, 'Resources')
 		
 		self.build_app_info(project_dir)
-		self.build_modules_info(resource_dir, app_bin_dir, include_all_ti_modules=include_all_ti_modules)
+		self.build_modules_info(app_bin_assets_resources_dir, app_bin_dir, include_all_ti_modules=include_all_ti_modules)
 		
 		# Create android source
 		self.render(template_dir, 'AppInfo.java', app_package_dir, self.config['classname'] + 'AppInfo.java',

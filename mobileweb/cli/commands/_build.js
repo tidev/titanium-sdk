@@ -249,12 +249,12 @@ build.prototype = {
 		afs.copyDirSyncRecursive(this.mobilewebTitaniumDir, this.buildDir + '/titanium', { preserve: true, logger: this.logger.debug });
 		afs.copyDirSyncRecursive(this.projectResDir, this.buildDir, { preserve: true, logger: this.logger.debug, rootIgnore: ti.filterPlatforms('mobileweb') });
 		if (afs.exists(this.projectResDir, 'mobileweb')) {
-			afs.copyDirSyncRecursive(this.projectResDir + '/mobileweb', this.buildDir + '/mobileweb', { preserve: true, logger: this.logger.debug, rootIgnore: ['apple_startup_images', 'splash'] });
+			afs.copyDirSyncRecursive(this.projectResDir + '/mobileweb', this.buildDir, { preserve: true, logger: this.logger.debug, rootIgnore: ['apple_startup_images', 'splash'] });
 			['Default.jpg', 'Default-Portrait.jpg', 'Default-Landscape.jpg'].forEach(function (file) {
 				file = this.projectResDir + '/mobileweb/apple_startup_images/' + file;
 				if (afs.exists(file)) {
 					afs.copyFileSync(file, this.buildDir, { logger: this.logger.debug });
-					afs.copyFileSync(file, this.buildDir + '/mobileweb/apple_startup_images', { logger: this.logger.debug });
+					afs.copyFileSync(file, this.buildDir + '/apple_startup_images', { logger: this.logger.debug });
 				}
 			}, this);
 		}
