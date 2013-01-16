@@ -55,6 +55,9 @@ exports.config = function (logger, config, cli) {
 
 exports.validate = function (logger, config, cli) {
 	ti.validateProjectDir(logger, cli, cli.argv, 'project-dir');
+	
+	ti.validateTiappXml(logger, cli.tiapp);
+	
 	if (!ti.validateCorrectSDK(logger, config, cli, 'build')) {
 		// we're running the build command for the wrong SDK version, gracefully return
 		return false;
@@ -77,7 +80,7 @@ exports.run = function (logger, config, cli, finished) {
 					name: cli.tiapp.name,
 					publisher: cli.tiapp.publisher,
 					url: cli.tiapp.url,
-					image: cli.tiapp.image,
+					image: cli.tiapp.icon,
 					appid: cli.tiapp.id,
 					description: cli.tiapp.description,
 					type: cli.argv.type,

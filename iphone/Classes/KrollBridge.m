@@ -770,14 +770,9 @@ CFMutableSetRef	krollBridgeRegistry = nil;
     //
     // TODO: This violates commonjs 1.1 and there is some ongoing discussion about whether or not
     // it should make a path absolute.
-    NSRange separatorLocation = [path rangeOfString:@"/"];
     NSString* workingPath = [oldURL relativePath];
-    if (separatorLocation.location == 0) {
-        fullPath = [path substringFromIndex:1];
-    }
-    else {
-        fullPath = path;
-    }
+	fullPath = [path hasPrefix:@"/"]?[path substringFromIndex:1]:path;
+
     NSString* moduleID = nil;
     NSString* leadingComponent = [[fullPath pathComponents] objectAtIndex:0];
     BOOL isAbsolute = !([leadingComponent isEqualToString:@"."] || [leadingComponent isEqualToString:@".."]);
@@ -805,7 +800,7 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 		}
 	}
 
-    separatorLocation = [fullPath rangeOfString:@"/"];
+    NSRange separatorLocation = [fullPath rangeOfString:@"/"];
     NSString* moduleClassName = [self pathToModuleClassName:moduleID];
     Class moduleClass = NSClassFromString(moduleClassName);
 
@@ -853,7 +848,7 @@ loadNativeJS:
         if (data == nil && isAbsolute) {
             // We may have an absolute URL which tried to load from a module instead of a directory. Fix
             // the fullpath back to the right value, so we can try again.
-            fullPath = [path substringFromIndex:1];
+			fullPath = [path hasPrefix:@"/"]?[path substringFromIndex:1]:path;
         }
         else if (data != nil) {
             // Set the current URL; it should be the fullPath relative to the host's base URL.
