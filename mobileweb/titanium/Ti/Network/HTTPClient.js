@@ -3,11 +3,8 @@ define(["Ti/_", "Ti/_/declare", "Ti/_/has", "Ti/_/lang", "Ti/_/Evented", "Ti/Fil
 
 	var is = require.is,
 		on = require.on;
-
+	
 	return declare("Ti.Network.HTTPClient", Evented, {
-		//This variable shows that responseType of XMLHttpRequest is 'arraybuffer'
-		//This type is valid only for async mode
-		_isArrayBuffer: void 0,
 		
 		constructor: function() {
 			var xhr = this._xhr = new XMLHttpRequest;
@@ -43,34 +40,28 @@ define(["Ti/_", "Ti/_/declare", "Ti/_/has", "Ti/_/lang", "Ti/_/Evented", "Ti/Fil
 						c.readyState = this.DONE;
 						
 						if (!this._aborted) {
-							//create file by name
-							this.file && (file = Filesystem.getFile(Filesystem.applicationDataDirectory, this.file));
 							
-							mimeType =  xhr.getResponseHeader("Content-Type");
+							c.responseXML = xhr.responseXML;
+							c.responseText = xhr.responseText;
 							
-							if (this._isArrayBuffer) {
-								//parse arraybuffer`s response in async mode
-								c.responseXML  = c.responseText = "";
-								if (xhr.response) {
-									//prepare Base64-encoded string required by Blob
-									var uInt8Array = new Uint8Array(xhr.response),
-										i = uInt8Array.length,
-										binaryString = new Array(i);
-										
-									while (i--)	{
-										binaryString[i] = String.fromCharCode(uInt8Array[i]);
-									}
-									
-									c.responseText = c.responseXML = binaryString.join('');
-									blobData = _.isBinaryMimeType(mimeType) ? window.btoa(c.responseText) : c.responseText;
-								} 
-							} else {
-								//sync mode
-								c.responseXML = xhr.responseXML;
-								c.responseText = blobData = xhr.responseText;
-								//to do: encode binary data as in async mode!!!
-								//because responseType='arraybuffer' is not supported in sync mode (throws exception)
+							//prepare Base64-encoded string required by Blob
+							var i = c.responseText.length,
+								binaryString = new Array(i);
+								
+							while (i--)	{
+								// When the server is requested to return binary data using the "x-user-defined" 
+								// encoding of the "text/html" Mime type, it returns a Unicode text string, 
+								// where it encodes the binary data in the lower bytes of two-octet Unicode characters, 
+								// setting the higher bytes to 0xF7 (Unicode Private Area). Here we decode
+								// the server's response by discarding the higher bytes from the character codes.
+								binaryString[i] = String.fromCharCode(c.responseText.charCodeAt(i) & 0xFF);
 							}
+							
+							mimeType = xhr.getResponseHeader("Content-Type");
+							blobData = _.isBinaryMimeType(mimeType) ? btoa(binaryString.join('')) : c.responseText;
+							
+							//create file by name
+							this.file && (file = Filesystem.getFile(this.file));
 							
 							//responseData = Blob
 							c.responseData = new Blob({
@@ -137,13 +128,8 @@ define(["Ti/_", "Ti/_/declare", "Ti/_/has", "Ti/_/lang", "Ti/_/Evented", "Ti/Fil
 			this._xhr.open(
 				c.connectionType = method,
 				c.location = _.getAbsolutePath(httpURLFormatter ? httpURLFormatter(url) : url),
-				this._isArrayBuffer = wc || async === void 0 ? true : !!async
+				wc || async === void 0 ? true : !!async
 			);
-			
-			//in async mode we are using 'responseType=arraybuffer'
-			if (this._isArrayBuffer) {
-				this._xhr.responseType = 'arraybuffer';
-			}
 				
 			wc && (this._xhr.withCredentials = wc);
 		},
@@ -155,6 +141,10 @@ define(["Ti/_", "Ti/_/declare", "Ti/_/has", "Ti/_/lang", "Ti/_/Evented", "Ti/Fil
 				has("ti-instrumentation") && (this._requestInstrumentationTest = instrumentation.startTest("HTTP Request")),
 				args = is(args, "Object") ? lang.urlEncode(args) : args;
 				args && this._xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+				
+				// Ask the server to not process/covert binary bytes when responding.
+				this._xhr.overrideMimeType('text\/plain; charset=x-user-defined');
+				
 				this._xhr.send(args);
 				clearTimeout(this._timeoutTimer);
 				timeout && (this._timeoutTimer = setTimeout(lang.hitch(this, function() {
