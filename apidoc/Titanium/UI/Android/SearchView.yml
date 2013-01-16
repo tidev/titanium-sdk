@@ -78,8 +78,9 @@ examples:
 
   - title: Simple Search View
     example: |
-        
-            var search = Titanium.UI.Android.createSearchView();
+            if (Ti.Platform.Android.API_LEVEL >= 11) {
+                var search = Titanium.UI.Android.createSearchView();
+            }
 
   - title: Alloy XML Markup
     example: |

@@ -9,7 +9,6 @@ package ti.modules.titanium.ui.widget.searchview;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
-import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
@@ -17,7 +16,6 @@ import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiUIView;
 
 import ti.modules.titanium.ui.widget.searchbar.TiUISearchBar.OnSearchChangeListener;
-import android.os.Build;
 import android.widget.SearchView;
 
 public class TiUISearchView extends TiUIView implements SearchView.OnQueryTextListener, SearchView.OnCloseListener {
@@ -29,16 +27,14 @@ public class TiUISearchView extends TiUIView implements SearchView.OnQueryTextLi
 
 	public TiUISearchView(TiViewProxy proxy) {
 		super(proxy);
-		if (Build.VERSION.SDK_INT >= TiC.API_LEVEL_HONEYCOMB) {
-			searchView = new SearchView(proxy.getActivity());
-			searchView.setOnQueryTextListener(this);
-			searchView.setOnCloseListener(this);
-			searchView.setOnQueryTextFocusChangeListener(this);
 
-			setNativeView(searchView);
-		} else {
-			Log.e(TAG, "SearchView is only supported on target API 11+");
-		}
+		searchView = new SearchView(proxy.getActivity());
+		searchView.setOnQueryTextListener(this);
+		searchView.setOnCloseListener(this);
+		searchView.setOnQueryTextFocusChangeListener(this);
+
+		setNativeView(searchView);
+
 	}
 
 	@Override
