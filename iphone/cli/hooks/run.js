@@ -138,67 +138,58 @@ exports.init = function (logger, config, cli) {
 							logger.info(__('iPhone Simulator log:'));
 							
 							var stat = fs.lstatSync(file),
-								prevSize = stat.size,
-								queue = [{
-									start: 0,
-									end: prevSize
-								}],
+								bytesRead = 0,
+								queue = [ stat.size ],
 								buffer = '';
 							
 							function pump(callback) {
 								if (queue.length >= 1) {
-									var block = queue[0];
-									if (block.end > block.start) {
-										var stream = fs.createReadStream(file, {
-											start: block.start,
-											end: block.end - 1,
-											encoding: 'utf-8',
-											bufferSize: 64
-										});
-										
-										stream.on('error', function(error) {
-											console.log('Tail error: ' + error);
-										});
-										
-										stream.on('end', function() {
-											queue.shift();
-											if (queue.length >= 1) {
-												pump();
-											} else {
-												callback && callback();
+									var readTo = queue[0];
+									
+									var stream = fs.createReadStream(file, {
+										start: bytesRead,
+										end: readTo - 1,
+										encoding: 'utf-8',
+										bufferSize: 16
+									});
+									
+									stream.on('error', function(error) {
+										console.log('Tail error: ' + error);
+									});
+									
+									stream.on('end', function() {
+										bytesRead = readTo;
+										queue.shift();
+										if (queue.length >= 1) {
+											pump();
+										} else {
+											callback && callback();
+										}
+									});
+									
+									stream.on('data', function (data) {
+										buffer += data;
+										var lines = buffer.split('\n');
+										buffer = lines.pop(); // keep the last line because it could be incomplete
+										lines.forEach(function (line) {
+											if (line) {
+												var m = line.match(logLevelRE);
+												if (m) {
+													logger[m[2].toLowerCase()](m[4].trim());
+												} else {
+													logger.debug(line);
+												}
 											}
 										});
-										
-										stream.on('data', function (data) {
-											buffer += data;
-											var lines = buffer.split('\n');
-											buffer = lines.pop(); // keep the last line because it could be incomplete
-											lines.forEach(function (line) {
-												if (line) {
-													var m = line.match(logLevelRE);
-													if (m) {
-														logger[m[2].toLowerCase()](m[4].trim());
-													} else {
-														logger.debug(line);
-													}
-												}
-											});
-										});
-									}
+									});
 								}
 							}
 							
 							pump(function () {
 								fs.watch(file, { persistent: false }, function () {
-									var currentSize = fs.lstatSync(file).size;
-									if (currentSize > prevSize) {
-										queue.push({
-											start: prevSize,
-											end: currentSize
-										});
-										if (queue.length == 1) {
-											pump();
-										}
+									queue.push(fs.lstatSync(file).size);
+									if (queue.length == 1) {
+										pump();
 									}
 								});
 							});
