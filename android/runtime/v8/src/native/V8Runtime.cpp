@@ -164,7 +164,7 @@ JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nativeIn
 	V8Runtime::javaInstance = env->NewGlobalRef(self);
 	JNIUtil::initCache();
 
-	Persistent<Context> context = Persistent<Context>::New(Context::New());
+	Persistent<Context> context = Context::New();
 	context->Enter();
 
 	V8Runtime::globalContext = context;
