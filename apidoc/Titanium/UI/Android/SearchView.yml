@@ -12,7 +12,7 @@ description: |
 
     A search view can be used without a table view.
 
-    Use the <Titanium.UI.Android.createSearchView> method to create a search view.
+    Use the <Titanium.UI.Android.createSearchView> method to create a search view. This is only supported on API 11 and higher.
 
     
 extends: Titanium.UI.View
@@ -34,6 +34,9 @@ events:
 
   - name: cancel
     summary: Fired when the cancel button is pressed.
+    description: |
+         Due to the current [Android Issue](http://code.google.com/p/android/issues/detail?id=25758), this event does not work
+         with Android 4.0+. Alternatively, when using SearchView in the action bar, you can listen for the [MenuItem.collapse](Titanium.Android.MenuItem.collapse) event.
 
   - name: change
     summary: Fired when the value of the search view changes.
