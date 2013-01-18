@@ -142,7 +142,7 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 				// any view-proxy association at this point.   We only want to make that association
 				// on a layout pass (i.e. when onLayout() gets called).
 				//
-				clearChildViews(proxy);
+				TiBaseTableViewItem.clearChildViews(proxy);
 				view = proxy.forceCreateView(false);  // false means don't set modelListener
 				if (i >= views.size()) {
 					views.add(view);
@@ -157,14 +157,6 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 			if (v.getParent() == null) {
 				content.addView(v, view.getLayoutParams());
 			}
-		}
-	}
-
-	protected void clearChildViews(TiViewProxy parent)
-	{
-		for (TiViewProxy childProxy : parent.getChildren()) {
-			childProxy.setView(null);
-			clearChildViews(childProxy);
 		}
 	}
 
