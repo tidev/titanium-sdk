@@ -1076,8 +1076,16 @@ properties:
 
   - name: search
     summary: Search field to use for the table view.
-    type: Titanium.UI.SearchBar
+    type: [Titanium.UI.SearchBar, Titanium.UI.Android.SearchView]
     platforms: [android, iphone, ipad]
+    
+  - name: searchAsChild
+    summary: Determines whether the [SearchBar](Titanium.UI.SearchBar) or [SearchView](Titanium.UI.Android.SearchView) appears as part of the TableView.
+    description: Set to false if the search view will be displayed in the action bar.
+    type: Boolean
+    default: true
+    since: 3.0.2
+    platforms: [android]
     
   - name: searchHidden
     summary: Determines whether the search field is visible.
