@@ -686,7 +686,7 @@ public abstract class TiUIView
 				nativeView.setBackgroundColor(bgColor);
 			}
 		}
-
+		
 		if (d.containsKey(TiC.PROPERTY_VISIBLE) && !nativeViewNull) {
 			this.setVisibility(TiConvert.toBoolean(d, TiC.PROPERTY_VISIBLE) ? View.VISIBLE : View.INVISIBLE);
 		}
