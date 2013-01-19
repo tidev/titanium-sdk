@@ -948,7 +948,7 @@ function build(logger, config, cli, finished) {
 					if (this.keychain) {
 						xcodeArgs.push('OTHER_CODE_SIGN_FLAGS=--keychain ' + this.keychain);
 					}
-					this.codeSignEntitlements && xcodeArgs.push('CODE_SIGN_ENTITLEMENTS=Resources/Entitlements.plist');
+					this.codeSignEntitlements && xcodeArgs.push('CODE_SIGN_ENTITLEMENTS=Entitlements.plist');
 				}
 				
 				if (this.target == 'device') {
@@ -1195,7 +1195,7 @@ build.prototype = {
 						.replace(/__DEBUGGER_PORT__/g, parts.length > 1 ? parts[1] : '')
 						.replace(/__DEBUGGER_AIRKEY__/g, parts.length > 2 ? parts[2] : '')
 						.replace(/__DEBUGGER_HOSTS__/g, parts.length > 3 ? parts[3] : ''),
-			dest = path.join(this.buildDir, 'Resources', 'debugger.plist');
+			dest = path.join(this.xcodeAppDir, 'debugger.plist');
 		
 		if (!afs.exists(dest) || fs.readFileSync(dest).toString() != plist) {
 			this.forceXcode = true;
@@ -1224,7 +1224,7 @@ build.prototype = {
 				contents = plist.toString('xml');
 			}
 			this.codeSignEntitlements = true;
-			fs.writeFile(path.join(this.buildDir, 'Resources', 'Entitlements.plist'), contents, callback);
+			fs.writeFile(path.join(this.buildDir, 'Entitlements.plist'), contents, callback);
 		} else {
 			callback();
 		}
@@ -1267,7 +1267,7 @@ build.prototype = {
 			};
 		
 		this.logger.info(__('Copying Xcode iOS files'));
-		['Classes', 'headers', 'Resources'].forEach(function (dir) {
+		['Classes', 'headers'].forEach(function (dir) {
 			afs.copyDirSyncRecursive(
 				path.join(this.titaniumIosSdkPath, dir),
 				path.join(this.buildDir, dir),
@@ -1718,25 +1718,19 @@ build.prototype = {
 		var paths = [
 				path.join(this.projectDir, 'Resources', 'iphone'),
 				path.join(this.projectDir, 'Resources', 'ios'),
-				path.join(this.titaniumIosSdkPath, 'resources'),
+				path.join(this.titaniumIosSdkPath, 'resources')
 			],
-			i = 0,
-			src,
-			dest = path.join(this.buildDir, 'Resources'),
-			copyOpts = {
-				logger: this.logger.debug
-			};
+			len = paths.length,
+			i, src;
 		
-		for (; i < paths.length; i++) {
+		for (i = 0; i < len; i++) {
 			if (afs.exists(src = path.join(paths[i], this.tiapp.icon))) {
-				afs.copyFileSync(src, this.xcodeAppDir, copyOpts);
+				afs.copyFileSync(src, this.xcodeAppDir, {
+					logger: this.logger.debug
+				});
 				break;
 			}
 		}
-		
-		fs.readdirSync(src = path.join(this.titaniumIosSdkPath, 'resources'), function (file) {
-			afs.copyFileSync(path.join(src, file), dest, copyOpts);
-		});
 		
 		callback();
 	},
@@ -1813,41 +1807,28 @@ build.prototype = {
 	},
 	
 	copyLocalizedSplashScreens: function (callback) {
-		
-		var copyOpts = {
-				logger: this.logger.debug
-			};
 		ti.i18n.splashScreens(this.projectDir, this.logger).forEach(function (splashImage) {
 			var token = splashImage.split('/'),
-				lang = token[token.length-2],
+				file = token.pop(),
+				lang = token.pop(),
 				lprojDir = path.join(this.xcodeAppDir, lang + '.lproj'),
-				file = token[token.length-1],
-				globalFile = path.join(this.xcodeAppDir, file),
-				resourcesDir = path.join(this.buildDir, 'Resources'),
-				projFile = path.join(resourcesDir, file);
+				globalFile = path.join(this.xcodeAppDir, file);
 			
-			//This would never need to run. But just to be safe.
+			// this would never need to run. But just to be safe
 			if (!afs.exists(lprojDir)) {
 				this.logger.debug(__('Creating lproj folder %s', lprojDir.cyan));
 				wrench.mkdirSyncRecursive(lprojDir);
 			}
 			
-			afs.copyFileSync(splashImage, lprojDir, copyOpts);
-			
-			this.logger.debug(__('Checking if %s exists in global space', file.cyan));
-			
-			// Check for it in the root of the xcode build folder.
+			// check for it in the root of the xcode build folder
 			if (afs.exists(globalFile)) {
 				this.logger.debug(__('Removing File %s, as it is being localized', globalFile.cyan));
 				fs.unlinkSync(globalFile);
 			}
 			
-			// Check in the Resources of Ti-build folder.
-			if (afs.exists(projFile)) {
-				this.logger.debug(__('Removing File %s, as it is being localized', projFile.cyan));
-				fs.unlinkSync(projFile);
-			}
-			
+			afs.copyFileSync(splashImage, lprojDir, {
+				logger: this.logger.debug
+			});
 		}, this);
 		
 		callback();
@@ -2153,7 +2134,7 @@ build.prototype = {
 	
 	compileJSS: function (callback) {
 		ti.jss.load(path.join(this.projectDir, 'Resources'), deviceFamilyNames[this.deviceFamily], this.logger, function (results) {
-			var appStylesheet = path.join(this.buildDir, 'Resources', 'stylesheet.plist'),
+			var appStylesheet = path.join(this.xcodeAppDir, 'stylesheet.plist'),
 				plist = new appc.plist();
 			appc.util.mix(plist, results);
 			fs.writeFile(appStylesheet, plist.toString('xml'), function () {
