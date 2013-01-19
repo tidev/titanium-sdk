@@ -354,6 +354,15 @@ build.prototype = {
 				process.exit(1);
 			}
 			
+			if (modules.conflict.length) {
+				this.logger.error(__('Found conflicting Titanium modules:'));
+				modules.conflict.forEach(function (m) {
+					this.logger.error('   ' + __('Titanium module "%s" requested for both Mobile Web and CommonJS platforms, but only one may be used at a time.', m.id));
+				}, this);
+				this.logger.log();
+				process.exit(1);
+			}
+			
 			modules.found.forEach(function (module) {
 				var moduleDir = module.modulePath,
 					pkgJson,
