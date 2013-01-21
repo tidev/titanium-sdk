@@ -2273,28 +2273,27 @@ build.prototype = {
 	},
 	
 	findSymbols: function (ast) {
-		function scan(node) {
-			if (node.name) {
-				return node.name == 'Ti' ? 'Ti' : '';
-			} else if (node.property) {
-				var s = scan(node.expression);
-				return s && node.property ? s + '.' + node.property : '';
-			}
-		}
+		var walker = new UglifyJS.TreeWalker(function (node, descend) {
+				if (node instanceof UglifyJS.AST_SymbolRef && node.name == 'Ti') {
+					var p = walker.stack,
+						buffer = [],
+						i = p.length - 1; // we already know the top of the stack is Ti
+					
+					// loop until 2nd from bottom of stack since the bottom is the toplevel node which we don't care about
+					while (--i) {
+						if (p[i] instanceof UglifyJS.AST_Dot) {
+							buffer.push(p[i].property);
+						} else if (p[i] instanceof UglifyJS.AST_Symbol || p[i] instanceof UglifyJS.AST_SymbolRef) {
+							buffer.push(p[i].name);
+						} else {
+							break;
+						}
+					}
+					buffer.length && this.addSymbol(buffer.join('.'));
+				}
+			}.bind(this));
 		
-		var call_expression = null;
-		ast.walk(new UglifyJS.TreeWalker(function (node, descend) {
-			if (call_expression && node instanceof UglifyJS.AST_Dot) {
-				var s = scan(node);
-				s && this.addSymbol(s.substring(3));
-			} else if (node instanceof UglifyJS.AST_Call) {
-				var tmp = call_expression;
-				call_expression = node;
-				descend();
-				call_expression = tmp;
-				return true;
-			}
-		}.bind(this)));
+		ast.walk(walker);
 	},
 	
 	addSymbol: function (symbol) {
