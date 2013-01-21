@@ -170,6 +170,45 @@
     }
 }
 
+-(UIViewController*) getFirstViewControllerInResponderChain
+{
+    UIResponder* nextResponder = [self nextResponder];
+    BOOL isViewController = [nextResponder isKindOfClass:[UIViewController class]];
+    while (!isViewController && (nextResponder!= nil)) {
+        nextResponder = [nextResponder nextResponder];
+        isViewController = [nextResponder isKindOfClass:[UIViewController class]];
+    }
+    if (isViewController) {
+        return (UIViewController*)nextResponder;
+    }
+    return nil;
+}
+
+-(void)attachToFirstViewController
+{
+    if ([TiUtils isIOS5OrGreater]) {
+        UIWindow* newWindow = [self window];
+        if (newWindow != nil) {
+            UIViewController* parentController = [self getFirstViewControllerInResponderChain];
+            if (parentController != nil) {
+                [parentController addChildViewController:[self controller]];
+            }
+        }
+    }
+}
+
+-(void)didMoveToSuperview
+{
+    [self attachToFirstViewController];
+    [super didMoveToSuperview];
+}
+
+- (void)didMoveToWindow
+{
+    [self attachToFirstViewController];
+    [super didMoveToWindow];
+}
+
 - (void)willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration
 {
 	[controller willAnimateRotationToInterfaceOrientation:toInterfaceOrientation duration:duration];
