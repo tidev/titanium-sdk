@@ -484,9 +484,9 @@ DEFINE_EXCEPTIONS
 -(void)renderRepeatedBackground:(id)image
 {
     if (![NSThread isMainThread]) {
-        dispatch_async(dispatch_get_main_queue(), ^{
+        TiThreadPerformOnMainThread(^{
             [self renderRepeatedBackground:image];
-        });
+        }, NO);
         return;
     }
     

@@ -262,18 +262,18 @@
 
 -(void)show:(id)arg
 {
-    dispatch_async(dispatch_get_main_queue(), ^{
+	TiThreadPerformOnMainThread(^{
         [self setHidden:NO withArgs:arg];
         [self replaceValue:NUMBOOL(YES) forKey:@"visible" notification:YES];
-    });
+    }, NO);
 }
  
 -(void)hide:(id)arg
 {
-    dispatch_async(dispatch_get_main_queue(), ^{
+    TiThreadPerformOnMainThread(^{
         [self setHidden:YES withArgs:arg];
         [self replaceValue:NUMBOOL(NO) forKey:@"visible" notification:YES];
-    });
+    }, NO);
 }
 
 -(void)animate:(id)arg
