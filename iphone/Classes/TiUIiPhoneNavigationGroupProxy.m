@@ -118,55 +118,6 @@
 	[super windowDidClose];
 }
 
-/*
- if you add a UINavigationController as a subview of a UIViewController subclass, you must explicitly 
- call its viewWillAppear method from its container; otherwise, they won’t be called, and when moving 
- back and forth in the navigation tree, your UIViewControllers’ viewWillAppear: methods may not be called.
- 
- https://discussions.apple.com/thread/1529769?threadID=1529769&tstart=0
- 
- This whole scenario will disappear when the NavigationGroupProxy becomes a WindowProxy
- 
- See TIMOB-7773 for fail case
-*/
-
--(void)parentWillAppear:(id)args
-{
-    if ([self viewAttached]) {
-        TiUIiPhoneNavigationGroup * ourView = (id)[self view];
-        UINavigationController * ourNC = [ourView controller];
-        [ourNC viewWillAppear:[TiUtils boolValue:args def:NO]];
-        [super parentWillAppear:args];
-    }
-}
--(void)parentDidAppear:(id)args
-{
-    if ([self viewAttached]) {
-        TiUIiPhoneNavigationGroup * ourView = (id)[self view];
-        UINavigationController * ourNC = [ourView controller];
-        [ourNC viewDidAppear:[TiUtils boolValue:args def:NO]];
-        [super parentDidAppear:args];
-    }
-}
--(void)parentWillDisappear:(id)args
-{
-    if ([self viewAttached]) {
-        TiUIiPhoneNavigationGroup * ourView = (id)[self view];
-        UINavigationController * ourNC = [ourView controller];
-        [ourNC viewWillDisappear:[TiUtils boolValue:args def:NO]];
-        [super parentWillDisappear:args];
-    }
-}
--(void)parentDidDisappear:(id)args
-{
-    if ([self viewAttached]) {
-        TiUIiPhoneNavigationGroup * ourView = (id)[self view];
-        UINavigationController * ourNC = [ourView controller];
-        [ourNC viewDidDisappear:[TiUtils boolValue:args def:NO]];
-        [super parentDidDisappear:args];
-    }
-}
-
 @end
 
 #endif
