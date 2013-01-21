@@ -343,9 +343,9 @@ NSArray* moviePlayerKeys = nil;
 -(void)setMediaControlStyle:(NSNumber *)value
 {
 	if (movie != nil) {
-		dispatch_async(dispatch_get_main_queue(), ^{
+		TiThreadPerformOnMainThread(^{
 			[movie setControlStyle:[TiUtils intValue:value def:MPMovieControlStyleDefault]];
-		});
+		}, NO);
 	} else {
 		[loadProperties setValue:value forKey:@"mediaControlStyle"];
 	}
