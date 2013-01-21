@@ -1045,7 +1045,7 @@ build.prototype = {
 			plist = new appc.plist(),
 			iphone = this.tiapp.iphone,
 			ios = this.tiapp.ios,
-			fbAppId = this.tiapp.properties && this.tiapp.properties['ti.facebook.appid'],
+			fbAppId = this.tiapp.properties && this.tiapp.properties['ti.facebook.appid'] && this.tiapp.properties['ti.facebook.appid']['value'],
 			iconName = this.tiapp.icon.replace(/(.+)(\..*)$/, '$1'), // note: this is basically stripping the file extension
 			consts = {
 				'__APPICON__': iconName,
