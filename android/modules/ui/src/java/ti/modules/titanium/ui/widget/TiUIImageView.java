@@ -1038,7 +1038,7 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 			}
 		} else if (key.equals(TiC.PROPERTY_IMAGES)) {
 			if (newValue instanceof Object[]) {
-				if ((oldValue == null && newValue != null) || (oldValue != null && !oldValue.equals(newValue))) {
+				if (oldValue == null || !oldValue.equals(newValue)) {
 					setImageSource(newValue);
 					setImages();
 				}
