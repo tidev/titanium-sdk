@@ -14,9 +14,7 @@ var ti = require('titanium-sdk'),
 	Buffer = require('buffer').Buffer,
 	wrench = require('wrench'),
 	cleanCSS = require('clean-css'),
-	uglify = require('uglify-js'),
-	uglifyProcessor = uglify.uglify,
-	uglifyParser = uglify.parser,
+	UglifyJS = require('uglify-js'),
 	DOMParser = require('xmldom').DOMParser,
 	uuid = require('node-uuid'),
 	appc = require('node-appc'),
@@ -62,6 +60,9 @@ var ti = require('titanium-sdk'),
 		'dist-appstore': 'production',
 		'dist-adhoc': 'production'
 	};
+
+// silence uglify's default warn mechanism
+UglifyJS.AST_Node.warn_function = function () {};
 
 exports.config = function (logger, config, cli) {
 	return function (callback) {
@@ -1530,6 +1531,15 @@ build.prototype = {
 				process.exit(1);
 			}
 			
+			if (modules.conflict.length) {
+				this.logger.error(__('Found conflicting Titanium modules:'));
+				modules.conflict.forEach(function (m) {
+					this.logger.error('   ' + __('Titanium module "%s" requested for both iOS and CommonJS platforms, but only one may be used at a time.', m.id));
+				}, this);
+				this.logger.log();
+				process.exit(1);
+			}
+			
 			this.modules = modules.found;
 			
 			modules.found.forEach(function (module) {
@@ -2237,15 +2247,7 @@ build.prototype = {
 					this.logger.debug(__('Writing minifying JavaScript file: %s', c.to.cyan));
 					fs.writeFileSync(
 						c.to,
-						uglifyProcessor.gen_code(
-							uglifyProcessor.ast_squeeze(
-								uglifyProcessor.ast_mangle(
-									uglifyParser.parse(
-										fs.readFileSync(c.from).toString().replace(/Titanium\./g,'Ti.')
-									)
-								)
-							)
-						)
+						UglifyJS.minify(c.from).code.replace(/Titanium\./g,'Ti.')
 					);
 				}, this);
 			}
@@ -2271,22 +2273,27 @@ build.prototype = {
 	},
 	
 	findSymbols: function (ast) {
-		function scan(node) {
-			if (node[0] == 'name') {
-				return node[1] == 'Ti' ? node[1] : '';
-			} else if (node[0] == 'dot') {
-				var s = scan(node[1]);
-				return s && node.length > 2 ? s + '.' + node[2] : '';
-			}
-		}
+		var walker = new UglifyJS.TreeWalker(function (node, descend) {
+				if (node instanceof UglifyJS.AST_SymbolRef && node.name == 'Ti') {
+					var p = walker.stack,
+						buffer = [],
+						i = p.length - 1; // we already know the top of the stack is Ti
+					
+					// loop until 2nd from bottom of stack since the bottom is the toplevel node which we don't care about
+					while (--i) {
+						if (p[i] instanceof UglifyJS.AST_Dot) {
+							buffer.push(p[i].property);
+						} else if (p[i] instanceof UglifyJS.AST_Symbol || p[i] instanceof UglifyJS.AST_SymbolRef) {
+							buffer.push(p[i].name);
+						} else {
+							break;
+						}
+					}
+					buffer.length && this.addSymbol(buffer.join('.'));
+				}
+			}.bind(this));
 		
-		appc.astwalker(ast, {
-			dot: function (node, next) {
-				var s = scan(node);
-				s && this.addSymbol(s.substring(3));
-				next();
-			}.bind(this)
-		});
+		ast.walk(walker);
 	},
 	
 	addSymbol: function (symbol) {
@@ -2307,37 +2314,27 @@ build.prototype = {
 	},
 	
 	compileJsFile: function (id, file) {
-		var contents = fs.readFileSync(file).toString().replace(/Titanium\./g,'Ti.');
+		var original = fs.readFileSync(file).toString(),
+			contents = original.replace(/Titanium\./g,'Ti.'),
+			ast;
+		
 		try {
-			var ast = uglifyParser.parse(contents);
-			
-			if (!this.cli.argv['skip-js-minify'] && this.deployType != 'development') {
-				contents = uglifyProcessor.gen_code(
-					uglifyProcessor.ast_squeeze(
-						uglifyProcessor.ast_mangle(ast)
-					)
-				);
-			}
-			
-			this.logger.info(__('Finding Titanium symbols in file %s', file.cyan));
-			this.findSymbols(ast);
-			
-			id = path.join(this.assetsDir, id);
-			wrench.mkdirSyncRecursive(path.dirname(id));
-			
-			this.logger.debug(__('Writing JavaScript file: %s', id.cyan));
-			fs.writeFileSync(id, contents);
+			ast = UglifyJS.parse(contents, { filename: file })
 		} catch (ex) {
 			this.logger.error(__('Failed to minify %s', file));
-			this.logger.error(__('%s [line %s, column %s]', ex.message, ex.line, ex.col));
+			if (ex.line) {
+				this.logger.error(__('%s [line %s, column %s]', ex.message, ex.line, ex.col));
+			} else {
+				this.logger.error(__('%s', ex.message));
+			}
 			try {
-				contents = contents.split('\n');
-				if (ex.line && ex.line <= contents.length) {
+				original = original.split('\n');
+				if (ex.line && ex.line <= original.length) {
 					this.logger.error('');
-					this.logger.error('    ' + contents[ex.line-1]);
+					this.logger.error('    ' + original[ex.line-1]);
 					if (ex.col) {
 						var i = 0,
-							len = ex.col - 1;
+							len = ex.col;
 							buffer = '    ';
 						for (; i < len; i++) {
 							buffer += '-';
@@ -2349,6 +2346,26 @@ build.prototype = {
 			} catch (ex2) {}
 			process.exit(1);
 		}
+		
+		this.logger.info(__('Finding Titanium symbols in file %s', file.cyan));
+		this.findSymbols(ast);
+		
+		if (!this.cli.argv['skip-js-minify'] && this.deployType != 'development') {
+			ast.figure_out_scope();
+			ast = ast.transform(UglifyJS.Compressor());
+			ast.figure_out_scope();
+			ast.compute_char_frequency();
+			ast.mangle_names();
+			var stream = UglifyJS.OutputStream();
+			ast.print(stream);
+			contents = stream.toString();
+		}
+		
+		id = path.join(this.assetsDir, id);
+		wrench.mkdirSyncRecursive(path.dirname(id));
+		
+		this.logger.debug(__('Writing JavaScript file: %s', id.cyan));
+		fs.writeFileSync(id, contents);
 	},
 	
 	xcodePrecompilePhase: function (finished) {

@@ -14,7 +14,7 @@ var ti = require('titanium-sdk'),
 	afs = appc.fs,
 	xml = appc.xml,
 	parallel = appc.async.parallel,
-	uglify = require('uglify-js'),
+	UglifyJS = require('uglify-js'),
 	fs = require('fs'),
 	path = require('path'),
 	wrench = require('wrench'),
@@ -38,6 +38,9 @@ var ti = require('titanium-sdk'),
 		'.jpg': 'image/jpg',
 		'.jpeg': 'image/jpg'
 	};
+
+// silence uglify's default warn mechanism
+UglifyJS.AST_Node.warn_function = function () {};
 
 exports.config = function (logger, config, cli) {
 	return {
@@ -354,6 +357,15 @@ build.prototype = {
 				process.exit(1);
 			}
 			
+			if (modules.conflict.length) {
+				this.logger.error(__('Found conflicting Titanium modules:'));
+				modules.conflict.forEach(function (m) {
+					this.logger.error('   ' + __('Titanium module "%s" requested for both Mobile Web and CommonJS platforms, but only one may be used at a time.', m.id));
+				}, this);
+				this.logger.log();
+				process.exit(1);
+			}
+			
 			modules.found.forEach(function (module) {
 				var moduleDir = module.modulePath,
 					pkgJson,
@@ -515,12 +527,37 @@ build.prototype = {
 			
 			if (/^url\:/.test(moduleName)) {
 				if (this.minifyJS) {
-					var pro = uglify.uglify,
-						source = file + '.uncompressed.js';
-					
+					var source = file + '.uncompressed.js';
 					fs.renameSync(file, source);
 					this.logger.debug(__('Minifying include %s', file));
-					fs.writeFileSync(file, pro.gen_code(pro.ast_squeeze(pro.ast_mangle(uglify.parser.parse(fs.readFileSync(source).toString())))));
+					try {
+						fs.writeFileSync(file, UglifyJS.minify(source).code);
+					} catch (ex) {
+						this.logger.error(__('Failed to minify %s', source));
+						if (ex.line) {
+							this.logger.error(__('%s [line %s, column %s]', ex.message, ex.line, ex.col));
+						} else {
+							this.logger.error(__('%s', ex.message));
+						}
+						try {
+							var contents = fs.readFileSync(source).toString().split('\n');
+							if (ex.line && ex.line <= contents.length) {
+								this.logger.error('');
+								this.logger.error('    ' + contents[ex.line-1]);
+								if (ex.col) {
+									var i = 0,
+										len = ex.col;
+										buffer = '    ';
+									for (; i < len; i++) {
+										buffer += '-';
+									}
+									this.logger.error(buffer + '^');
+								}
+								this.logger.log();
+							}
+						} catch (ex2) {}
+						process.exit(1);
+					}
 				}
 				tiJS.push('"' + moduleName + '":"' + fs.readFileSync(file).toString().trim().replace(/\\/g, '\\\\').replace(/\n/g, '\\n\\\n').replace(/"/g, '\\"') + '"');
 			} else if (isCommonJS) {
@@ -580,8 +617,7 @@ build.prototype = {
 	minifyJavaScript: function () {
 		if (this.minifyJS) {
 			this.logger.info(__('Minifying JavaScript'));
-			var pro = uglify.uglify,
-				self = this;
+			var self = this;
 			(function walk(dir) {
 				fs.readdirSync(dir).sort().forEach(function (dest) {
 					var stat = fs.statSync(dir + '/' + dest);
@@ -592,10 +628,37 @@ build.prototype = {
 						var source = dest + '.uncompressed.js';
 						fs.renameSync(dest, source);
 						self.logger.debug(__('Minifying include %s', dest));
-						fs.writeFileSync(dest, pro.gen_code(pro.ast_squeeze(pro.ast_mangle(uglify.parser.parse(fs.readFileSync(source).toString())))));
+						try {
+							fs.writeFileSync(dest, UglifyJS.minify(source).code);
+						} catch (ex) {
+							self.logger.error(__('Failed to minify %s', dest));
+							if (ex.line) {
+								self.logger.error(__('%s [line %s, column %s]', ex.message, ex.line, ex.col));
+							} else {
+								self.logger.error(__('%s', ex.message));
+							}
+							try {
+								var contents = fs.readFileSync(source).toString().split('\n');
+								if (ex.line && ex.line <= contents.length) {
+									self.logger.error('');
+									self.logger.error('    ' + contents[ex.line-1]);
+									if (ex.col) {
+										var i = 0,
+											len = ex.col;
+											buffer = '    ';
+										for (; i < len; i++) {
+											buffer += '-';
+										}
+										self.logger.error(buffer + '^');
+									}
+									self.logger.log();
+								}
+							} catch (ex2) {}
+							process.exit(1);
+						}
 					}
 				});
-			}(this.buildDir))
+			}(this.buildDir));
 		}
 	},
 	
