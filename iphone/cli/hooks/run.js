@@ -139,7 +139,8 @@ exports.init = function (logger, config, cli) {
 							logger.info(__('iPhone Simulator log:'));
 
 							var bytesRead = 0,
-								buffer = '';
+								buffer = '',
+								stream;
 
 							(function pump() {
 								function processBuffer() {
@@ -164,7 +165,7 @@ exports.init = function (logger, config, cli) {
 									}
 								}
 
-								var stream = new Readable();
+								stream = new Readable();
 								stream.wrap(fs.createReadStream(file, {
 									start: bytesRead,
 									encoding: 'utf-8',
@@ -183,12 +184,14 @@ exports.init = function (logger, config, cli) {
 								stream.on('readable', function () {
 									processBuffer();
 								});
+							})();
 
-								simProcess.on('exit', function() {
+							simProcess.on('exit', function() {
+								if (stream) {
 									stream.removeAllListeners('end');
 									stream.removeAllListeners('readable');
-								});
-							})();
+								}
+							});
 
 							// we found the log file, no need to keep searching for it
 							return;
