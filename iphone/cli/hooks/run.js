@@ -173,11 +173,20 @@ exports.init = function (logger, config, cli) {
 								processBuffer();
 
 								stream.on('end', function() {
+									// Remove the event listeners to prevent possible memory leaks (readable-stream is still
+									// experimental, and I've seen memory leaks happen a few times)
+									stream.removeAllListeners('end');
+									stream.removeAllListeners('readable');
 									pump();
 								});
 
 								stream.on('readable', function () {
 									processBuffer();
+								});
+
+								simProcess.on('exit', function() {
+									stream.removeAllListeners('end');
+									stream.removeAllListeners('readable');
 								});
 							})();
 
