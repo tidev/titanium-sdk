@@ -904,6 +904,7 @@ class Builder(object):
 		GEO_PERMISSION = [ 'ACCESS_COARSE_LOCATION', 'ACCESS_FINE_LOCATION']
 		CONTACTS_READ_PERMISSION = ['READ_CONTACTS']
 		CONTACTS_PERMISSION = ['READ_CONTACTS', 'WRITE_CONTACTS']
+		CALENDAR_READ_PERMISSION = ['READ_CALENDAR']
 		VIBRATE_PERMISSION = ['VIBRATE']
 		CAMERA_PERMISSION = ['CAMERA']
 		WALLPAPER_PERMISSION = ['SET_WALLPAPER']
@@ -937,6 +938,12 @@ class Builder(object):
 			'Contacts.getAllPeople' : CONTACTS_READ_PERMISSION,
 			'Contacts.getAllGroups' : CONTACTS_READ_PERMISSION,
 			'Contacts.getGroupByID' : CONTACTS_READ_PERMISSION,
+			
+			# CALENDAR
+			'Android.Calendar.getAllAlerts' : CALENDAR_READ_PERMISSION,
+			'Android.Calendar.getAllCalendars' : CALENDAR_READ_PERMISSION,
+			'Android.Calendar.getCalendarById' : CALENDAR_READ_PERMISSION,
+			'Android.Calendar.getSelectableCalendars' : CALENDAR_READ_PERMISSION,
 
 			# WALLPAPER
 			'Media.Android.setSystemWallpaper' : WALLPAPER_PERMISSION,
@@ -2142,6 +2149,10 @@ class Builder(object):
 			elif self.tiapp.has_app_property('ti.deploytype'):
 				if self.tiapp.get_app_property('ti.deploytype') == 'production':
 					self.compile_js = True
+
+			if self.compile_js and os.environ.has_key('SKIP_JS_MINIFY'):
+				self.compile_js = False
+				info("Disabling JavaScript minification")
 
 			include_all_ti_modules = self.fastdev 
 			if (self.tiapp.has_app_property('ti.android.include_all_modules')):

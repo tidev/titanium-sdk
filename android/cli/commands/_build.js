@@ -21,20 +21,7 @@ var ti = require('titanium-sdk'),
 	wrench = require('wrench'),
 	androidEnv,
 	deployTypes = ['production', 'test', 'development'],
-	targets = ['emulator', 'device', 'dist-playstore'],
-	javaKeywords = [
-		"abstract",	"continue",	"for", "new", "switch",
-		"assert", "default", "goto", "package", "synchronized",
-		"boolean", "do", "if", "private", "this",
-		"break", "double", "implements", "protected", "throw",
-		"byte", "else", "import", "public", "throws",
-		"case", "enum", "instanceof", "return", "transient",
-		"catch", "extends", "int", "short", "try",
-		"char", "final", "interface", "static", "void",
-		"class", "finally", "long",	"strictfp", "volatile",
-		"const", "float", "native",	"super", "while",
-		"true", "false", "null"
-	];
+	targets = ['emulator', 'device', 'dist-playstore'];
 
 exports.config = function (logger, config, cli) {
 	return function (callback) {
@@ -196,13 +183,10 @@ exports.config = function (logger, config, cli) {
 };
 
 exports.validate = function (logger, config, cli) {
-	var tokens,
-		parts,
-		port,
-		i;
-	
 	ti.validateProjectDir(logger, cli, cli.argv, 'project-dir');
-	if (!ti.validateCorrectSDK(logger, config, cli)) {
+	ti.validateTiappXml(logger, cli.tiapp);
+	
+	if (!ti.validateCorrectSDK(logger, config, cli, 'build')) {
 		// we're running the build command for the wrong SDK version, gracefully return
 		return false;
 	}
@@ -236,13 +220,19 @@ exports.validate = function (logger, config, cli) {
 		process.exit(1);
 	}
 	
-	// Validate App ID
-	tokens = cli.tiapp.id.split('.');
-	for ( i = 0; i < tokens.length; i++) {
-		if (javaKeywords.indexOf(tokens[i]) != -1) {
-			logger.error(__('Invalid java keyword used in project app id: %s', tokens[i]) + '\n');
-			process.exit(1);
-		}
+	if (!/^([a-zA-Z_]{1}[a-zA-Z0-9_]*(\.[a-zA-Z_]{1}[a-zA-Z0-9_]*)*)$/.test(cli.tiapp.id)) {
+		logger.error(__('tiapp.xml contains an invalid app id "%s"', cli.tiapp.id) + '\n');
+		logger.log(__('The app id must consist of letters, numbers, and underscores.'));
+		logger.log(__('The first character must be a letter or underscore.'));
+		logger.log(__('The first character after a period must not be a number.'));
+		logger.log(__("Usually the app id is your company's reversed Internet domain name. (i.e. com.example.myapp)") + '\n');
+		process.exit(1);
+	}
+	
+	if (!ti.validAppId(cli.tiapp.id)) {
+		logger.error(__('Invalid app id "%s"', cli.tiapp.id) + '\n');
+		logger.log(__('The app id must not contain Java reserved words.') + '\n');
+		process.exit(1);
 	}
 	
 	// Set defaults for target Emulator
@@ -304,8 +294,8 @@ exports.validate = function (logger, config, cli) {
 			process.exit(1);
 		}
 
-		parts = cli.argv['debug-host'].split(':'),
-		port = parts.length > 1 && parseInt(parts[1]);
+		var parts = cli.argv['debug-host'].split(':'),
+			port = parts.length > 1 && parseInt(parts[1]);
 
 		if (parts.length < 2) {
 			logger.error(__('Invalid debug host "%s"', cli.argv['debug-host']) + '\n');
@@ -322,7 +312,6 @@ exports.validate = function (logger, config, cli) {
 
 	// Resolve path for android-sdk
 	cli.argv['android-sdk'] = afs.resolvePath(cli.argv['android-sdk']);
-
 };
 
 exports.run = function (logger, config, cli, finished) {
@@ -361,7 +350,7 @@ function sendAnalytics(cli) {
 		name: cli.tiapp.name,
 		publisher: cli.tiapp.publisher,
 		url: cli.tiapp.url,
-		image: cli.tiapp.image,
+		image: cli.tiapp.icon,
 		appid: cli.tiapp.id,
 		description: cli.tiapp.description,
 		type: cli.argv.type,
@@ -380,6 +369,12 @@ function build(logger, config, cli, finished) {
 			options = {
 				stdio: 'inherit'
 			};
+		
+		if (cli.argv['skip-js-minify']) {
+			options.env = {
+				SKIP_JS_MINIFY: 1
+			};
+		}
 		
 		// not actually used, yet
 		// logger.info(__('Compiling "%s" build', cli.argv['deploy-type']));
@@ -414,7 +409,7 @@ function build(logger, config, cli, finished) {
 					'logcat',
 					cli.argv['android-sdk'],
 					'-e'
-				], options);
+				], { stdio: 'inherit' });
 			} else if (cli.argv['target'] == 'device') {
 				// Since installing on device does not run
 				// the application we must send the "intent" ourselves.
@@ -426,7 +421,7 @@ function build(logger, config, cli, finished) {
 					'-c', 'android.intent.category.LAUNCHER',
 					'-n', cli.tiapp.id + '/.' + appnameToClassname(cli.tiapp.name) + 'Activity',
 					'-f', '0x10200000'
-				], options).on('exit', function (code) {
+				], { stdio: 'inherit' }).on('exit', function (code) {
 					if (code) {
 						err = __('Failed to launch application.');
 					}

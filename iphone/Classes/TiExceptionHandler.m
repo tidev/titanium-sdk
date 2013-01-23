@@ -45,7 +45,7 @@ static NSUncaughtExceptionHandler *prevUncaughtExceptionHandler = NULL;
 
 - (void)reportScriptError:(TiScriptError *)scriptError
 {
-	DebugLog(@"[ERROR] Script Error = %@.", scriptError);
+	DebugLog(@"[ERROR] Script Error %@", [scriptError detailedDescription]);
 	
 	id <TiExceptionHandlerDelegate> currentDelegate = _delegate;
 	if (currentDelegate == nil) {
@@ -121,6 +121,11 @@ static NSUncaughtExceptionHandler *prevUncaughtExceptionHandler = NULL;
 	} else {
 		return [NSString stringWithFormat:@"%@", self.message];
 	}
+}
+
+- (NSString *)detailedDescription
+{
+	return _dictionaryValue != nil ? [_dictionaryValue description] : [self description];
 }
 
 @end

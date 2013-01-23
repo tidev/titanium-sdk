@@ -34,7 +34,7 @@ exports.init = function (logger, config, cli) {
 				function (next) {
 					var pkgapp = path.join(build.xcodeEnv.path, 'Platforms', 'iPhoneOS.platform', 'Developer', 'usr', 'bin', 'PackageApplication');
 					if (afs.exists(pkgapp)) {
-						exec(pkgapp + ' "' + build.xcodeAppDir + '"', function (err, stdout, stderr) {
+						exec('"' + pkgapp + '" "' + build.xcodeAppDir + '"', function (err, stdout, stderr) {
 							if (err) {
 								logger.warn(__('An error occurred running the iOS Package Application tool'));
 								stderr.split('\n').forEach(logger.debug);

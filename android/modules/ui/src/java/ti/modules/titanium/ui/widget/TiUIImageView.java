@@ -685,14 +685,6 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 
 	private void setImageSource(Object object)
 	{
-		if (imageViewProxy.inTableView()) {
-			ArrayList<TiDrawableReference> currentSources = imageViewProxy.getImageSources();
-			if (currentSources != null) {
-				imageSources = currentSources;
-				return;
-			}
-		}
-
 		imageSources = new ArrayList<TiDrawableReference>();
 		if (object instanceof Object[]) {
 			for (Object o : (Object[]) object) {
@@ -1039,13 +1031,17 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 		} else if (key.equals(TiC.PROPERTY_ENABLE_ZOOM_CONTROLS)) {
 			view.setEnableZoomControls(TiConvert.toBoolean(newValue));
 		} else if (key.equals(TiC.PROPERTY_IMAGE)) {
-			setImageSource(newValue);
-			firedLoad = false;
-			setImage(true);
+			if ((oldValue == null && newValue != null) || (oldValue != null && !oldValue.equals(newValue))) {
+				setImageSource(newValue);
+				firedLoad = false;
+				setImage(true);
+			}
 		} else if (key.equals(TiC.PROPERTY_IMAGES)) {
 			if (newValue instanceof Object[]) {
-				setImageSource(newValue);
-				setImages();
+				if (oldValue == null || !oldValue.equals(newValue)) {
+					setImageSource(newValue);
+					setImages();
+				}
 			}
 		} else {
 			// Update requestedWidth / requestedHeight when width / height is changed.

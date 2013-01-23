@@ -471,19 +471,23 @@ public class TiUIText extends TiUIView
 				break;
 		}
 		if (passwordMask) {
-			tv.setTransformationMethod(PasswordTransformationMethod.getInstance());
 			textTypeAndClass |= InputType.TYPE_TEXT_VARIATION_PASSWORD;
+			// Sometimes password transformation does not work properly when the input type is set after the transformation method.
+			// This issue has been filed at http://code.google.com/p/android/issues/detail?id=7092
+			tv.setInputType(textTypeAndClass);
+			tv.setTransformationMethod(PasswordTransformationMethod.getInstance());
+
 			//turn off text UI in landscape mode b/c Android numeric passwords are not masked correctly in landscape mode.
 			if (type == KEYBOARD_NUMBERS_PUNCTUATION || type == KEYBOARD_DECIMAL_PAD || type == KEYBOARD_NUMBER_PAD) {
 				tv.setImeOptions(EditorInfo.IME_FLAG_NO_EXTRACT_UI);
 			}
 
 		} else {
+			tv.setInputType(textTypeAndClass);
 			if (tv.getTransformationMethod() instanceof PasswordTransformationMethod) {
 				tv.setTransformationMethod(null);
 			}
 		}
-		tv.setInputType(textTypeAndClass);
 		if (!editable) {
 			tv.setKeyListener(null);
 			tv.setCursorVisible(false);

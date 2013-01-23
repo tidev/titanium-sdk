@@ -42,6 +42,11 @@
 - (id)initWithMessage:(NSString *)message sourceURL:(NSString *)sourceURL lineNo:(NSInteger)lineNo;
 - (id)initWithDictionary:(NSDictionary *)dictionary;
 
+/**
+ * Returns detailed description.
+ */
+- (NSString *)detailedDescription;
+
 @end
 
 #pragma mark - TiExceptionHandlerDelegate

@@ -126,7 +126,7 @@ def main(args):
 		# Because the debugger.plist is built as part of the required
 		# resources, we need to autogen an empty one
 		debug_plist = os.path.join(resources_dir,'debugger.plist')
-		force_xcode = write_debugger_plist(None, None, None, template_dir, debug_plist)
+		force_xcode = write_debugger_plist(None, None, None, None, template_dir, debug_plist)
 		
 		# Populate Info.plist
 		applogo = None
@@ -153,7 +153,7 @@ def main(args):
 		
 		# Get Modules
 		detector = ModuleDetector(project_dir)
-		missing_modules, modules = detector.find_app_modules(tiapp, 'iphone')
+		missing_modules, modules = detector.find_app_modules(tiapp, 'iphone', 'development')
 		
 		if len(missing_modules) != 0:
 			for module in missing_modules:

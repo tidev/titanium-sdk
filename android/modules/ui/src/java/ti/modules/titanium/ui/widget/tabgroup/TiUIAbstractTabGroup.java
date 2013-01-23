@@ -6,7 +6,12 @@
  */
 package ti.modules.titanium.ui.widget.tabgroup;
 
+import java.util.HashMap;
+
+import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.titanium.TiBaseActivity;
+import org.appcelerator.titanium.TiC;
+import org.appcelerator.titanium.proxy.ActivityProxy;
 import org.appcelerator.titanium.view.TiUIView;
 
 import ti.modules.titanium.ui.TabGroupProxy;
@@ -45,5 +50,21 @@ public abstract class TiUIAbstractTabGroup extends TiUIView {
 	 * Returns the currently selected tab.
 	 */
 	public abstract TabProxy getSelectedTab();
+	
+	@Override
+	public void processProperties(KrollDict d)
+	{
+		if (d.containsKey(TiC.PROPERTY_ACTIVITY)) {
+			Object activityObject = d.get(TiC.PROPERTY_ACTIVITY);
+			ActivityProxy activityProxy = getProxy().getActivityProxy();
+			if (activityObject instanceof HashMap<?, ?> && activityProxy != null) {
+				@SuppressWarnings("unchecked")
+				KrollDict options = new KrollDict((HashMap<String, Object>) activityObject);
+				activityProxy.handleCreationDict(options);
+			}
+		}
+
+		super.processProperties(d);
+	}
 
 }

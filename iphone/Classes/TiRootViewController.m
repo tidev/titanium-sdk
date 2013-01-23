@@ -103,7 +103,7 @@
 	*imageIdiom = UIUserInterfaceIdiomPhone;
 	// Default
     image = nil;
-    if ([[UIScreen mainScreen] bounds].size.height == 568) {
+    if ([TiUtils isRetinaFourInch]) {
         image = [UIImage imageNamed:@"Default-568h.png"];
         if (image!=nil) {
             return image;

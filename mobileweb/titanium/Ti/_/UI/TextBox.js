@@ -13,8 +13,6 @@ define(
 			});
 		},
 
-		_preventDefaultTouchEvent: false,
-
 		_initTextBox: function(field) {
 			// wire up events
 			this._field = field;
