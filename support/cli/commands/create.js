@@ -61,17 +61,29 @@ exports.config = function (logger, config, cli) {
 						if (!id) {
 							throw new appc.exception(__('Invalid app id'));
 						}
-						if (!/^([a-zA-Z_]{1}[a-zA-Z0-9_]*(\.[a-zA-Z_]{1}[a-zA-Z0-9_]*)*)$/.test(id)) {
+						
+						// general app id validation
+						if (!/^([a-zA-Z_]{1}[a-zA-Z0-9_]*(\.[a-zA-Z0-9_]*)*)$/.test(id)) {
 							throw new appc.exception(__('Invalid app id "%s"', id), [
 								__('The app id must consist of letters, numbers, and underscores.'),
 								__('The first character must be a letter or underscore.'),
 								__("Usually the app id is your company's reversed Internet domain name. (i.e. com.example.myapp)")
 							]);
 						}
-						if (!ti.validAppId(id)) {
-							throw new appc.exception(__('Invalid app id "%s"', id), [
-								__('The app id parts must not contain reserved words.')
-							]);
+						
+						if (cli.argv.platforms && ti.scrubPlatforms(cli.argv.platforms).scrubbed.indexOf('android') != -1) {
+							// if android is in the list of platforms, we go down the lowest common denominator road
+							if (!/^([a-zA-Z_]{1}[a-zA-Z0-9_]*(\.[a-zA-Z_]{1}[a-zA-Z0-9_]*)*)$/.test(id)) {
+								throw new appc.exception(__('Invalid app id "%s"', id), [
+									__('For apps targeting %s, numbers are not allowed directly after periods.', 'Android'.cyan)
+								]);
+							}
+							
+							if (!ti.validAppId(id)) {
+								throw new appc.exception(__('Invalid app id "%s"', id), [
+									__('For apps targeting %s, the app id must not contain Java reserved words.', 'Android'.cyan)
+								]);
+							}
 						}
 						return true;
 					}
@@ -136,7 +148,9 @@ exports.validate = function (logger, config, cli) {
 	}
 	
 	cli.argv.id = (cli.argv.id || '').trim();
-	if (!/^([a-zA-Z_]{1}[a-zA-Z0-9_]*(\.[a-zA-Z_]{1}[a-zA-Z0-9_]*)*)$/.test(cli.argv.id)) {
+	
+	// general app id validation
+	if (!/^([a-zA-Z_]{1}[a-zA-Z0-9_]*(\.[a-zA-Z0-9_]*)*)$/.test(cli.argv.id)) {
 		logger.error(__('Invalid app id "%s"', cli.argv.id) + '\n');
 		logger.log(__('The app id must consist of letters, numbers, and underscores.'));
 		logger.log(__('The first character must be a letter or underscore.'));
@@ -144,14 +158,35 @@ exports.validate = function (logger, config, cli) {
 		process.exit(1);
 	}
 	
-	if (!ti.validAppId(cli.argv.id)) {
-		logger.error(__('Invalid app id "%s"', cli.argv.id) + '\n');
-		logger.log(__('The app id parts must not contain reserved words.') + '\n');
-		process.exit(1);
+	if (platforms.scrubbed.indexOf('android') != -1) {
+		// if android is in the list of platforms, we go down the lowest common denominator road
+		if (!/^([a-zA-Z_]{1}[a-zA-Z0-9_]*(\.[a-zA-Z_]{1}[a-zA-Z0-9_]*)*)$/.test(cli.argv.id)) {
+			logger.error(__('Invalid app id "%s"', cli.argv.id) + '\n');
+			logger.log(__('For apps targeting %s, numbers are not allowed directly after periods.', 'Android'.cyan) + '\n');
+			process.exit(1);
+		}
+		
+		if (!ti.validAppId(cli.argv.id)) {
+			logger.error(__('Invalid app id "%s"', cli.argv.id) + '\n');
+			logger.log(__('For apps targeting %s, the app id must not contain Java reserved words.', 'Android'.cyan) + '\n');
+			process.exit(1);
+		}
+	} else {
+		if (!/^([a-zA-Z_]{1}[a-zA-Z0-9_]*(\.[a-zA-Z_]{1}[a-zA-Z0-9_]*)*)$/.test(cli.argv.id)) {
+			logger.warn(__('The specified app id is not compatible with the Android platform.'));
+			logger.warn(__('Android does not allow numbers directly following periods on the app id.'));
+			logger.warn(__('If you wish to add Android support, you will need to fix the <id> in the tiapp.xml.'));
+		}
+		
+		if (!ti.validAppId(cli.argv.id)) {
+			logger.warn(__('The specified app id is not compatible with the Android platform.'));
+			logger.warn(__('Android does not allow Java reserved words in the app id.'));
+			logger.warn(__('If you wish to add Android support, you will need to fix the <id> in the tiapp.xml.'));
+		}
 	}
 	
 	cli.argv.name = (cli.argv.name || '').trim();
-	if (!cli.argv.name) { // !/^[A-Za-z]+[A-Za-z0-9_-]*$/.test(cli.argv.name)) {
+	if (!cli.argv.name) {
 		logger.error(__('Invalid project name "%s"', cli.argv.name) + '\n');
 		logger.log(__('The project name must consist of letters, numbers, dashes, and underscores.'));
 		logger.log(__('The first character must be a letter.') + '\n');
