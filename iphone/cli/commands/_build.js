@@ -1321,7 +1321,7 @@ build.prototype = {
 			proj,
 			'Pre-Compile',
 			'if [ \\"x$TITANIUM_CLI_XCODEBUILD\\" == \\"x\\" ]; then NO_COLORS=\\"--no-colors\\"; else NO_COLORS=\\"\\"; fi\\n' +
-			(process.execPath || 'node') + ' \\"' + this.cli.argv.$0.replace(/^node /, '') + '\\" build --platform ' +
+			(process.execPath || 'node') + ' \\"' + this.cli.argv.$0.replace(/^(.+\/)*node /, '') + '\\" build --platform ' +
 				this.platformName + ' --sdk ' + this.titaniumSdkVersion + ' --no-prompt --no-banner $NO_COLORS --xcode\\nexit $?'
 		);
 		proj = injectCompileShellScript(
