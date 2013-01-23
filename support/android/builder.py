@@ -2150,6 +2150,10 @@ class Builder(object):
 				if self.tiapp.get_app_property('ti.deploytype') == 'production':
 					self.compile_js = True
 
+			if self.compile_js and os.environ.has_key('SKIP_JS_MINIFY'):
+				self.compile_js = False
+				info("Disabling JavaScript minification")
+
 			include_all_ti_modules = self.fastdev 
 			if (self.tiapp.has_app_property('ti.android.include_all_modules')):
 				if self.tiapp.to_bool(self.tiapp.get_app_property('ti.android.include_all_modules')):
