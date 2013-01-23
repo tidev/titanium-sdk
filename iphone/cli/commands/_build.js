@@ -121,10 +121,6 @@ exports.config = function (logger, config, cli) {
 					retina: {
 						desc: __('use the retina version of the iOS Simulator')
 					},*/
-					'skip-js-minify': {
-						default: false,
-						desc: __('bypasses JavaScript minification; %s builds are never minified', 'simulator'.cyan)
-					},
 					xcode: {
 						// secret flag to perform Xcode pre-compile build step
 						hidden: true
