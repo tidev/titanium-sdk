@@ -271,6 +271,25 @@ events:
         summary: If `success` is false, a string describing the error.
         type: String
 
+  - name: locationupdatepaused
+    summary: Fired when a location update is paused by the OS. Available in iOS 6.0 and later.
+    description: |
+        This event is fired when [pauseLocationUpdateAutomatically](Titanium.Geolocation.pauseLocationUpdateAutomatically) 
+        is set to `true`and if the OS detects that the device’s location is not changing, 
+        causing it to pause the delivery of updates in order to shut down the appropriate 
+        hardware and save power.
+    platforms: [iphone, ipad]
+    since: "3.0"
+
+  - name: locationupdateresumed
+    summary: Fired when a location update has resumed by the OS. Available in iOS 6.0 and later.
+    description: |
+        When location updates are paused and need to be resumed (perhaps because the user 
+        is moving again), this event is fired to let the app know that it is about to 
+        begin the delivery of those updates again.
+    platforms: [iphone, ipad]
+    since: "3.0"
+
 properties:
 
   - name: ACCURACY_BEST
@@ -352,6 +371,19 @@ properties:
     permission: read-only
     platforms: [android, iphone, ipad, mobileweb]
     since: "2.0.0"
+
+  - name: ACCURACY_BEST_FOR_NAVIGATION
+    summary: |
+        Use with [accuracy](Titanium.Geolocation.accuracy) to request highest possible 
+        accuracy and combine it with additional sensor data.
+    description: |
+        Using this value is intended for use in navigation applications that require 
+        precise position information at all times and are intended to be used only while 
+        the device is plugged in.
+    type: Number
+    permission: read-only
+    platforms: [iphone, ipad]
+    since: "3.0"
 
   - name: AUTHORIZATION_AUTHORIZED
     summary: |
@@ -489,6 +521,52 @@ properties:
     type: String
     permission: read-only
     platforms: [android]
+
+  - name: ACTIVITYTYPE_OTHER
+    summary: The location data is being used for an unknown activity.
+    description: |
+        Used with [activityType](Titanium.Geolocation.activityType). Available in iOS 6.0 and later.
+    type: String
+    permission: read-only
+    platforms: [iphone,ipad]
+    since: "3.0"
+    
+  - name: ACTIVITYTYPE_AUTOMOTIVE_NAVIGATION
+    summary: The location data is used for tracking location changes to the automobile specifically during vehicular navigation.
+    description: |
+        Used with [activityType](Titanium.Geolocation.activityType). This activity might 
+        cause location updates to be paused only when the vehicle does not move for an 
+        extended period of time. Available in iOS 6.0 and later.
+    type: String
+    permission: read-only
+    platforms: [iphone,ipad]
+    since: "3.0"
+
+  - name: ACTIVITYTYPE_FITNESS
+    summary: The location data is used for tracking any pedestrian-related activity.
+    description: |
+        Used with [activityType](Titanium.Geolocation.activityType). This activity might 
+        cause location updates to be paused only when the user does not move a significant 
+        distance over a period of time.Available in iOS 6.0 and later.
+    type: String
+    permission: read-only
+    platforms: [iphone,ipad]
+    since: "3.0"
+
+  - name: ACTIVITYTYPE_OTHER_NAVIGATION
+    summary: |
+        The location data is used for tracking movements of other types of vehicular 
+        navigation that are not automobile related.
+    description: |
+        Used with [activityType](Titanium.Geolocation.activityType). You would use this 
+        to track navigation by boat, train, or plane. Do not use this type for pedestrian 
+        navigation tracking. This activity might cause location updates to be paused only 
+        when the vehicle does not move a significant distance over a period of time. 
+        Available in iOS 6.0 and later.
+    type: String
+    permission: read-only
+    platforms: [iphone,ipad]
+    since: "3.0"
 
   - name: accuracy
     summary: Specifies the requested accuracy for location updates.
@@ -641,6 +719,48 @@ properties:
     default: false
     platforms: [iphone, ipad]
     since: "2.1.2"
+
+  - name: activityType
+    summary: |
+        The type of user activity to be associated with the location updates. Available in iOS 6.0 and later.
+    description: |
+        Set the activiyType of location updates to either:
+
+        *   [ACTIVITYTYPE_OTHER](Titanium.Geolocation.ACTIVITYTYPE_OTHER) for an unknown activity
+        *   [ACTIVITYTYPE_AUTOMOTIVE_NAVIGATION](Titanium.Geolocation.ACTIVITYTYPE_AUTOMOTIVE_NAVIGATION) 
+            for tracking location changes to the automobile specifically during vehicular navigation.
+        *   [ACTIVITYTYPE_FITNESS](Titanium.Geolocation.ACTIVITYTYPE_FITNESS) for tracking 
+            any pedestrian-related activity.
+        *   [ACTIVITYTYPE_OTHER_NAVIGATION](Titanium.Geolocation.ACTIVITYTYPE_OTHER_NAVIGATION) 
+            for tracking movements of other types of vehicular navigation that are not 
+            automobile related.
+
+        The information in this property is used as a cue to determine when location 
+        updates may be automatically paused. Pausing updates gives the system the 
+        opportunity to save power in situations where the user's location is not likely 
+        to be changing. For example, if the activity type is 
+        [ACTIVITYTYPE_AUTOMOTIVE_NAVIGATION](Titanium.Geolocation.ACTIVITYTYPE_AUTOMOTIVE_NAVIGATION) 
+        and no location changes have occurred recently, the radios might be powered down 
+        until movement is detected again. 
+    type: Number
+    default: <Titanium.Geolocation.ACTIVITYTYPE_OTHER>
+    since: "3.0"
+    platforms: [iphone,ipad]
+
+  - name: pauseLocationUpdateAutomatically
+    summary: Indicates whether the location updates may be paused. Available in iOS 6.0 and later.
+    description: |
+        Allowing the location updates to be paused can improve battery life on the 
+        target device without sacrificing location data. When this property is set to YES, 
+        the location updates are paused (and powers down the appropriate hardware) at 
+        times when the location data is unlikely to change. For example, if the user stops 
+        for food while using a navigation app, the location manager might pause updates for 
+        a period of time. You can help the determination of when to pause location updates 
+        by assigning a value to the [activityType](Titanium.Geolocation.activityType) property.
+    type: Boolean
+    default: false
+    platforms: [iphone,ipad]
+    since: "3.0"
 
 ---
 name: LocationResults
