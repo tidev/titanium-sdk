@@ -21,10 +21,15 @@ exports.config = function (logger, config, cli) {
 	return {
 		options: appc.util.mix({
 			platform: {
-				// note: --platform is not required for the clean command
+				// this is for backwards compatibility and eventually should be dropped
+				hidden: true
+			},
+			platforms: {
+				// note: --platforms is not required for the clean command
 				abbr: 'p',
-				desc: __('a platform to clean'),
-				values: ti.availablePlatforms
+				desc: __('one or more platforms to clean'),
+				values: ti.targetPlatforms,
+				skipValueCheck: true // we do our own validation
 			},
 			'project-dir': {
 				abbr: 'd',
@@ -35,7 +40,25 @@ exports.config = function (logger, config, cli) {
 };
 
 exports.validate = function (logger, config, cli) {
-	cli.argv.platform && ti.validatePlatform(logger, cli.argv, 'platform');
+	var platforms = cli.argv.platforms || cli.argv.platform;
+	if (platforms) {
+		platforms = ti.scrubPlatforms(platforms);
+		
+		if (platforms.bad.length) {
+			logger.error(__n('Invalid platform: %%s', 'Invalid platforms: %%s', platforms.bad.length, platforms.bad.join(', ')) + '\n');
+			logger.log(__('Available platforms for SDK version %s:', ti.manifest.sdkVersion) + '\n');
+			ti.targetPlatforms.forEach(function (p) {
+				logger.log('    ' + p.cyan);
+			});
+			logger.log();
+			process.exit(1);
+		}
+		
+		cli.argv.platforms = platforms.scrubbed;
+	} else {
+		cli.argv.platforms = null;
+	}
+	
 	ti.validateProjectDir(logger, cli, cli.argv, 'project-dir');
 	ti.loadPlugins(logger, cli, config, cli.argv['project-dir']);
 };
@@ -43,14 +66,16 @@ exports.validate = function (logger, config, cli) {
 exports.run = function (logger, config, cli) {
 	var buildDir = path.join(cli.argv['project-dir'], 'build');
 	
-	if (cli.argv.platform) {
-		var dir = path.join(buildDir, cli.argv.platform);
-		if (appc.fs.exists(dir)) {
-			logger.debug(__('Deleting %s', dir.cyan));
-			wrench.rmdirSyncRecursive(dir);
-		} else {
-			logger.debug(__('Directory does not exist %s', dir.cyan));
-		}
+	if (cli.argv.platforms) {
+		cli.argv.platforms.forEach(function (platform) {
+			var dir = path.join(buildDir, platform);
+			if (appc.fs.exists(dir)) {
+				logger.debug(__('Deleting %s', dir.cyan));
+				wrench.rmdirSyncRecursive(dir);
+			} else {
+				logger.debug(__('Directory does not exist %s', dir.cyan));
+			}
+		});
 	} else if (appc.fs.exists(buildDir)) {
 		logger.debug(__('Deleting all platform build directories'));
 		fs.readdirSync(buildDir).forEach(function (dir) {
