@@ -135,12 +135,11 @@ exports.config = function (logger, config, cli) {
 
 exports.validate = function (logger, config, cli) {
 	var platforms = ti.scrubPlatforms(cli.argv.platforms);
-	cli.argv.platforms = platforms.scrubbed;
 	
 	if (platforms.bad.length) {
 		logger.error(__n('Invalid platform: %%s', 'Invalid platforms: %%s', platforms.bad.length, platforms.bad.join(', ')) + '\n');
 		logger.log(__('Available platforms for SDK version %s:', ti.manifest.sdkVersion) + '\n');
-		ti.availablePlatforms.forEach(function (p) {
+		ti.availablePlatformsNames.forEach(function (p) {
 			logger.log('    ' + p.cyan);
 		});
 		logger.log();
@@ -205,7 +204,7 @@ exports.validate = function (logger, config, cli) {
 
 exports.run = function (logger, config, cli) {
 	var projectName = cli.argv.name,
-		platforms = cli.argv.platforms,
+		platforms = ti.scrubPlatforms(cli.argv.platforms),
 		id = cli.argv.id,
 		type = cli.argv.type,
 		url = cli.argv.url || '',
@@ -217,10 +216,11 @@ exports.run = function (logger, config, cli) {
 		analyticsPayload;
 	
 	afs.exists(projectDir) || wrench.mkdirSyncRecursive(projectDir);
-	wrench.copyDirSyncRecursive(templateDir, projectDir);
 	
 	if (type == 'app') {
 		logger.info(__('Creating Titanium Mobile application project'));
+		
+		afs.copyDirSyncRecursive(templateDir, projectDir, { logger: logger.debug });
 		
 		// read and populate the tiapp.xml
 		projectConfig = new ti.tiappxml(projectDir + '/tiapp.xml');
@@ -230,13 +230,13 @@ exports.run = function (logger, config, cli) {
 		projectConfig.version = '1.0';
 		projectConfig.guid = uuid.v4();
 		projectConfig['deployment-targets'] = {};
-		if (platforms.indexOf('ios') != -1) {
-			platforms.indexOf('ipad') != -1 || platforms.push('ipad');
-			platforms.indexOf('iphone') != -1 || platforms.push('iphone');
+		if (platforms.original.indexOf('ios') != -1) {
+			platforms.original.indexOf('ipad') != -1 || platforms.original.push('ipad');
+			platforms.original.indexOf('iphone') != -1 || platforms.original.push('iphone');
 		}
 		ti.availablePlatformsNames.forEach(function (p) {
 			if (p != 'ios') {
-				projectConfig['deployment-targets'][p] = platforms.indexOf(p) != -1;
+				projectConfig['deployment-targets'][p] = platforms.original.indexOf(p) != -1;
 			}
 		});
 		projectConfig['sdk-version'] = sdk.name;
@@ -275,6 +275,8 @@ exports.run = function (logger, config, cli) {
 	} else if (type == 'module') {
 		logger.info(__('Creating Titanium Mobile module project'));
 		
+		afs.copyDirSyncRecursive(templateDir, projectDir, { logger: logger.debug });
+		
 		projectConfig = {
 			'___PROJECTNAMEASIDENTIFIER___': projectName.toLowerCase().split(/\./).map(function (s) { return appc.string.capitalize(s); }).join(''),
 			'___MODULE_NAME_CAMEL___': projectName.toLowerCase().split(/[\W_]/).map(function (s) { return appc.string.capitalize(s); }).join(''),
@@ -306,7 +308,7 @@ exports.run = function (logger, config, cli) {
 			'name: ' + projectName,
 			'moduleid: ' + id,
 			'guid: ' + projectConfig.__GUID__,
-			'platforms: ' + platforms.sort().join(', ')
+			'platforms: ' + platforms.original.join(', ')
 		].join('\n'));
 
 		analyticsPayload = {
@@ -319,16 +321,17 @@ exports.run = function (logger, config, cli) {
 			version: '1.0',
 			copyright: 'copyright: Copyright (c) 2012 by ' + ((config.user && config.user.name) || 'Your Company'),
 			minsdk: sdk.name,
-			platforms: platforms.sort().join(', '),
+			platforms: platforms.original.join(', '),
 			date: (new Date()).toDateString()
 		};
 		
 		cli.addAnalyticsEvent('project.create.module', analyticsPayload);
 	}
 	
-	platforms.forEach(function (platform) {
+	platforms.scrubbed.forEach(function (platform) {
 		var p = afs.resolvePath(path.dirname(module.filename), '..', '..', platform, 'cli', 'commands', '_create.js');
 		if (afs.exists(p)) {
+			logger.info(__('Copying "%s" platform resources', platform));
 			require(p).run(logger, config, cli, projectConfig);
 		}
 	});
