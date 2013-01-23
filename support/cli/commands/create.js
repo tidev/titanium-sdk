@@ -57,7 +57,24 @@ exports.config = function (logger, config, cli) {
 				prompt: {
 					label: __('App ID'),
 					error: __('Invalid App ID'),
-					pattern: /^([a-z_]{1}[a-z0-9_]*(\.[a-z_]{1}[a-z0-9_]*)*)$/
+					validator: function (id) {
+						if (!id) {
+							throw new appc.exception(__('Invalid app id'));
+						}
+						if (!/^([a-zA-Z_]{1}[a-zA-Z0-9_]*(\.[a-zA-Z_]{1}[a-zA-Z0-9_]*)*)$/.test(id)) {
+							throw new appc.exception(__('Invalid app id "%s"', id), [
+								__('The app id must consist of letters, numbers, and underscores.'),
+								__('The first character must be a letter or underscore.'),
+								__("Usually the app id is your company's reversed Internet domain name. (i.e. com.example.myapp)")
+							]);
+						}
+						if (!ti.validAppId(id)) {
+							throw new appc.exception(__('Invalid app id "%s"', id), [
+								__('The app id parts must not contain reserved words.')
+							]);
+						}
+						return true;
+					}
 				},
 				required: true
 			},
@@ -70,10 +87,15 @@ exports.config = function (logger, config, cli) {
 				desc: __('the name of the project'),
 				prompt: {
 					label: __('Project name'),
-					error: __('Invalid project name'),
-					pattern: /^[A-Za-z]+[A-Za-z0-9_-]*$/
+					error: __('Invalid project name')
+					// pattern: /^[A-Za-z]+[A-Za-z0-9_-]*$/
 				},
 				required: true
+			},
+			url: {
+				abbr: 'u',
+				default: config.app.url || '',
+				desc: __('your company/personal URL'),
 			},
 			'workspace-dir': {
 				abbr: 'd',
@@ -113,6 +135,29 @@ exports.validate = function (logger, config, cli) {
 		process.exit(1);
 	}
 	
+	cli.argv.id = (cli.argv.id || '').trim();
+	if (!/^([a-zA-Z_]{1}[a-zA-Z0-9_]*(\.[a-zA-Z_]{1}[a-zA-Z0-9_]*)*)$/.test(cli.argv.id)) {
+		logger.error(__('Invalid app id "%s"', cli.argv.id) + '\n');
+		logger.log(__('The app id must consist of letters, numbers, and underscores.'));
+		logger.log(__('The first character must be a letter or underscore.'));
+		logger.log(__("Usually the app id is your company's reversed Internet domain name. (i.e. com.example.myapp)") + '\n');
+		process.exit(1);
+	}
+	
+	if (!ti.validAppId(cli.argv.id)) {
+		logger.error(__('Invalid app id "%s"', cli.argv.id) + '\n');
+		logger.log(__('The app id parts must not contain reserved words.') + '\n');
+		process.exit(1);
+	}
+	
+	cli.argv.name = (cli.argv.name || '').trim();
+	if (!cli.argv.name) { // !/^[A-Za-z]+[A-Za-z0-9_-]*$/.test(cli.argv.name)) {
+		logger.error(__('Invalid project name "%s"', cli.argv.name) + '\n');
+		logger.log(__('The project name must consist of letters, numbers, dashes, and underscores.'));
+		logger.log(__('The first character must be a letter.') + '\n');
+		process.exit(1);
+	}
+	
 	cli.argv['workspace-dir'] = afs.resolvePath(cli.argv['workspace-dir'] || '.');
 	
 	var projectDir = path.join(cli.argv['workspace-dir'], cli.argv.name);
@@ -128,6 +173,7 @@ exports.run = function (logger, config, cli) {
 		platforms = cli.argv.platforms,
 		id = cli.argv.id,
 		type = cli.argv.type,
+		url = cli.argv.url || '',
 		sdk = cli.env.getSDK(cli.argv.sdk),
 		projectDir = afs.resolvePath(cli.argv['workspace-dir'], projectName),
 		templateDir = afs.resolvePath(sdk.path, 'templates', type, cli.argv.template),
@@ -145,6 +191,7 @@ exports.run = function (logger, config, cli) {
 		projectConfig = new ti.tiappxml(projectDir + '/tiapp.xml');
 		projectConfig.id = id;
 		projectConfig.name = projectName;
+		projectConfig.url = url;
 		projectConfig.version = '1.0';
 		projectConfig.guid = uuid.v4();
 		projectConfig['deployment-targets'] = {};

@@ -33,6 +33,9 @@ exports.config = function (logger, config, cli) {
 					force: {
 						abbr: 'f',
 						desc: __('force a full rebuild')
+					},
+					legacy: {
+						desc: __('build using the old Python-based builder.py')
 					}
 				},
 				options: appc.util.mix({
@@ -45,16 +48,22 @@ exports.config = function (logger, config, cli) {
 						desc: __('the target build platform'),
 						hint: __('platform'),
 						prompt: {
-							label: __('Target platform [%s]', ti.availablePlatforms.join(',')),
+							label: __('Target platform [%s]', ti.targetPlatforms.join(',')),
 							error: __('Invalid platform'),
 							validator: function (platform) {
-								platform = platform.trim();
 								if (!platform) {
 									throw new appc.exception(__('Invalid platform'));
 								}
+								
+								platform = platform.trim();
+								
+								// temp: ti.availablePlatforms contains "iphone" and "ipad" which aren't going to be valid supported platforms
 								if (ti.availablePlatforms.indexOf(platform) == -1) {
 									throw new appc.exception(__('Invalid platform: %s', platform));
 								}
+								
+								// now that we've passed the validation, transform and continue
+								platform = ti.resolvePlatform(platform);
 								
 								// it's possible that platform was not specified at the command line in which case the it would
 								// be prompted for. that means that validate() was unable to apply default values for platform-
@@ -74,7 +83,7 @@ exports.config = function (logger, config, cli) {
 						},
 						required: true,
 						skipValueCheck: true,
-						values: ti.availablePlatforms
+						values: ti.targetPlatforms
 					},
 					'project-dir': {
 						abbr: 'd',

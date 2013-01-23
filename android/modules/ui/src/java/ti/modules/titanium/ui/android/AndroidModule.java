@@ -108,13 +108,21 @@ public class AndroidModule extends KrollModule
 	@Kroll.method
 	public void hideSoftKeyboard()
 	{
-		Activity currentActivity = TiApplication.getAppCurrentActivity();
-		if (currentActivity != null) {
-			TiUIHelper.showSoftKeyboard(currentActivity.getWindow().getDecorView(), false);
-		} else if (activity != null) {
-			TiUIHelper.showSoftKeyboard(getActivity().getWindow().getDecorView(), false);
-		} else {
-			Log.w(TAG, "Unable to hide soft keyboard. Activity is null", Log.DEBUG_MODE);
-		}
+		getMainHandler().post(new Runnable() {
+
+			@Override
+			public void run() {
+				Activity currentActivity = TiApplication.getAppCurrentActivity();
+				if (currentActivity != null) {
+					TiUIHelper.showSoftKeyboard(currentActivity.getWindow().getDecorView(), false);
+				} else if (activity != null) {
+					TiUIHelper.showSoftKeyboard(getActivity().getWindow().getDecorView(), false);
+				} else {
+					Log.w(TAG, "Unable to hide soft keyboard. Activity is null", Log.DEBUG_MODE);
+				}
+				
+			}
+			
+		});
 	}
 }

@@ -316,7 +316,8 @@ timodule.xml.
 			
 			<property name="mobilesdk.dir" location="${titanium.platform}/.."/>
 			<property name="ndk.verbose" value="0"/>
-			<property name="tmpdir" value="${java.io.tmpdir}/${user.name}/${ant.project.name}-generated" />
+			<propertyregex property="user.name.nospaces" input="${user.name}" regexp=" " replace="_" global="true" defaultValue="${user.name}"/>
+			<property name="tmpdir" value="${java.io.tmpdir}/${user.name.nospaces}/${ant.project.name}-generated" />
 
 			<mkdir dir="${tmpdir}" />
 			<copy todir="${tmpdir}" preservelastmodified="true" overwrite="true" includeEmptyDirs="true">

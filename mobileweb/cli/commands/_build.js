@@ -14,7 +14,7 @@ var ti = require('titanium-sdk'),
 	afs = appc.fs,
 	xml = appc.xml,
 	parallel = appc.async.parallel,
-	uglify = require('uglify-js'),
+	UglifyJS = require('uglify-js'),
 	fs = require('fs'),
 	path = require('path'),
 	wrench = require('wrench'),
@@ -39,6 +39,9 @@ var ti = require('titanium-sdk'),
 		'.jpeg': 'image/jpg'
 	};
 
+// silence uglify's default warn mechanism
+UglifyJS.AST_Node.warn_function = function () {};
+
 exports.config = function (logger, config, cli) {
 	return {
 		options: {
@@ -55,7 +58,10 @@ exports.config = function (logger, config, cli) {
 
 exports.validate = function (logger, config, cli) {
 	ti.validateProjectDir(logger, cli, cli.argv, 'project-dir');
-	if (!ti.validateCorrectSDK(logger, config, cli)) {
+	
+	ti.validateTiappXml(logger, cli.tiapp);
+	
+	if (!ti.validateCorrectSDK(logger, config, cli, 'build')) {
 		// we're running the build command for the wrong SDK version, gracefully return
 		return false;
 	}
@@ -77,7 +83,7 @@ exports.run = function (logger, config, cli, finished) {
 					name: cli.tiapp.name,
 					publisher: cli.tiapp.publisher,
 					url: cli.tiapp.url,
-					image: cli.tiapp.image,
+					image: cli.tiapp.icon,
 					appid: cli.tiapp.id,
 					description: cli.tiapp.description,
 					type: cli.argv.type,
@@ -107,11 +113,11 @@ function build(logger, config, cli, finished) {
 	this.projectDir = afs.resolvePath(cli.argv['project-dir']);
 	this.projectResDir = this.projectDir + '/Resources';
 	this.buildDir = this.projectDir + '/build/mobileweb';
-	this.mobilewebSdkPath = afs.resolvePath(path.dirname(module.filename) + '/../..');
+	this.mobilewebSdkPath = afs.resolvePath(path.dirname(module.filename), '..', '..');
 	this.mobilewebThemeDir = this.mobilewebSdkPath + '/themes';
 	this.mobilewebTitaniumDir = this.mobilewebSdkPath + '/titanium';
 	
-	this.moduleSearchPaths = [ this.projectDir, afs.resolvePath(this.titaniumIosSdkPath, '..', '..', '..', '..') ];
+	this.moduleSearchPaths = [ this.projectDir, afs.resolvePath(this.mobilewebSdkPath, '..', '..', '..', '..') ];
 	if (config.paths && Array.isArray(config.paths.modules)) {
 		this.moduleSearchPaths = this.moduleSearchPaths.concat(config.paths.modules);
 	}
@@ -246,12 +252,12 @@ build.prototype = {
 		afs.copyDirSyncRecursive(this.mobilewebTitaniumDir, this.buildDir + '/titanium', { preserve: true, logger: this.logger.debug });
 		afs.copyDirSyncRecursive(this.projectResDir, this.buildDir, { preserve: true, logger: this.logger.debug, rootIgnore: ti.filterPlatforms('mobileweb') });
 		if (afs.exists(this.projectResDir, 'mobileweb')) {
-			afs.copyDirSyncRecursive(this.projectResDir + '/mobileweb', this.buildDir + '/mobileweb', { preserve: true, logger: this.logger.debug, rootIgnore: ['apple_startup_images', 'splash'] });
+			afs.copyDirSyncRecursive(this.projectResDir + '/mobileweb', this.buildDir, { preserve: true, logger: this.logger.debug, rootIgnore: ['apple_startup_images', 'splash'] });
 			['Default.jpg', 'Default-Portrait.jpg', 'Default-Landscape.jpg'].forEach(function (file) {
 				file = this.projectResDir + '/mobileweb/apple_startup_images/' + file;
 				if (afs.exists(file)) {
 					afs.copyFileSync(file, this.buildDir, { logger: this.logger.debug });
-					afs.copyFileSync(file, this.buildDir + '/mobileweb/apple_startup_images', { logger: this.logger.debug });
+					afs.copyFileSync(file, this.buildDir + '/apple_startup_images', { logger: this.logger.debug });
 				}
 			}, this);
 		}
@@ -346,6 +352,15 @@ build.prototype = {
 				this.logger.error(__('Found incompatible Titanium Modules:'));
 				modules.incompatible.forEach(function (m) {
 					this.logger.error('   id: ' + m.id + '\t version: ' + (m.version || 'latest') + '\t platform: ' + m.platform + '\t min sdk: ' + m.minsdk);
+				}, this);
+				this.logger.log();
+				process.exit(1);
+			}
+			
+			if (modules.conflict.length) {
+				this.logger.error(__('Found conflicting Titanium modules:'));
+				modules.conflict.forEach(function (m) {
+					this.logger.error('   ' + __('Titanium module "%s" requested for both Mobile Web and CommonJS platforms, but only one may be used at a time.', m.id));
 				}, this);
 				this.logger.log();
 				process.exit(1);
@@ -512,12 +527,37 @@ build.prototype = {
 			
 			if (/^url\:/.test(moduleName)) {
 				if (this.minifyJS) {
-					var pro = uglify.uglify,
-						source = file + '.uncompressed.js';
-					
+					var source = file + '.uncompressed.js';
 					fs.renameSync(file, source);
 					this.logger.debug(__('Minifying include %s', file));
-					fs.writeFileSync(file, pro.gen_code(pro.ast_squeeze(pro.ast_mangle(uglify.parser.parse(fs.readFileSync(source).toString())))));
+					try {
+						fs.writeFileSync(file, UglifyJS.minify(source).code);
+					} catch (ex) {
+						this.logger.error(__('Failed to minify %s', source));
+						if (ex.line) {
+							this.logger.error(__('%s [line %s, column %s]', ex.message, ex.line, ex.col));
+						} else {
+							this.logger.error(__('%s', ex.message));
+						}
+						try {
+							var contents = fs.readFileSync(source).toString().split('\n');
+							if (ex.line && ex.line <= contents.length) {
+								this.logger.error('');
+								this.logger.error('    ' + contents[ex.line-1]);
+								if (ex.col) {
+									var i = 0,
+										len = ex.col;
+										buffer = '    ';
+									for (; i < len; i++) {
+										buffer += '-';
+									}
+									this.logger.error(buffer + '^');
+								}
+								this.logger.log();
+							}
+						} catch (ex2) {}
+						process.exit(1);
+					}
 				}
 				tiJS.push('"' + moduleName + '":"' + fs.readFileSync(file).toString().trim().replace(/\\/g, '\\\\').replace(/\n/g, '\\n\\\n').replace(/"/g, '\\"') + '"');
 			} else if (isCommonJS) {
@@ -577,8 +617,7 @@ build.prototype = {
 	minifyJavaScript: function () {
 		if (this.minifyJS) {
 			this.logger.info(__('Minifying JavaScript'));
-			var pro = uglify.uglify,
-				self = this;
+			var self = this;
 			(function walk(dir) {
 				fs.readdirSync(dir).sort().forEach(function (dest) {
 					var stat = fs.statSync(dir + '/' + dest);
@@ -589,10 +628,37 @@ build.prototype = {
 						var source = dest + '.uncompressed.js';
 						fs.renameSync(dest, source);
 						self.logger.debug(__('Minifying include %s', dest));
-						fs.writeFileSync(dest, pro.gen_code(pro.ast_squeeze(pro.ast_mangle(uglify.parser.parse(fs.readFileSync(source).toString())))));
+						try {
+							fs.writeFileSync(dest, UglifyJS.minify(source).code);
+						} catch (ex) {
+							self.logger.error(__('Failed to minify %s', dest));
+							if (ex.line) {
+								self.logger.error(__('%s [line %s, column %s]', ex.message, ex.line, ex.col));
+							} else {
+								self.logger.error(__('%s', ex.message));
+							}
+							try {
+								var contents = fs.readFileSync(source).toString().split('\n');
+								if (ex.line && ex.line <= contents.length) {
+									self.logger.error('');
+									self.logger.error('    ' + contents[ex.line-1]);
+									if (ex.col) {
+										var i = 0,
+											len = ex.col;
+											buffer = '    ';
+										for (; i < len; i++) {
+											buffer += '-';
+										}
+										self.logger.error(buffer + '^');
+									}
+									self.logger.log();
+								}
+							} catch (ex2) {}
+							process.exit(1);
+						}
 					}
 				});
-			}(this.buildDir))
+			}(this.buildDir));
 		}
 	},
 	
@@ -696,13 +762,17 @@ build.prototype = {
 			], function (err, stdout, stderr) {
 				if (err) {
 					this.logger.error(__('Failed to create icons'));
-					stderr && stderr.toString().split('\n').forEach(function (line) {
-						line && this.logger.error(line);
+					stdout && stdout.toString().split('\n').forEach(function (line) {
+						line && this.logger.error(line.replace(/^\[ERROR\]/i, '').trim());
 					}, this);
+					stderr && stderr.toString().split('\n').forEach(function (line) {
+						line && this.logger.error(line.replace(/^\[ERROR\]/i, '').trim());
+					}, this);
+					this.logger.log('');
 					process.exit(1);
 				}
 				callback();
-			}.bind(this));
+			}.bind(this), this.logger);
 		} else {
 			callback();
 		}

@@ -1,175 +1,229 @@
-define(["Ti/_/browser", "Ti/_/declare", "Ti/_/UI/KineticScrollView", "Ti/_/lang", "Ti/_/dom", "Ti/_/style", "Ti/UI", "Ti/_/event"],
-	function(browser, declare, KineticScrollView, lang, dom, style, UI, event) {
+/*global define window*/
+define(['Ti/_/declare', 'Ti/UI/View', 'Ti/_/dom', 'Ti/_/style', 'Ti/UI', 'Ti/_/browser'],
+	function(declare, View, dom, style, UI, browser) {
 
 	var setStyle = style.set,
 		is = require.is,
-		isDef = lang.isDef,
 		unitize = dom.unitize,
-		once = require.on.once,
+		on = require.on,
+		once = on.once,
+		global = window,
 
-		// The maximum angle, in radians, from the axis a swipe is allowed to travel before it is no longer considered a swipe
-		angleThreshold = Math.PI/6, // 30 degrees
+		transitionEvents = {
+			webkit: 'webkitTransitionEnd',
+			trident: 'msTransitionEnd',
+			gecko: 'transitionend',
+			presto: 'oTransitionEnd'
+		},
+		transitionEnd = transitionEvents[browser.runtime] || 'transitionEnd',
 
-		// Velocity bounds, used to make sure that animations don't become super long or super short
-		minVelocity = 0.4,
-		maxVelocity = 3,
+		useTouch = 'ontouchstart' in global,
 
-		// This sets the minimum velocity that determines whether a swipe was a flick or a drag
-		velocityThreshold = 0.4,
+		// Maximum time that a gesture can be considered a flick
+		maxFlickTime = 200,
 
-		// This determines the minimum distance scale (i.e. width divided by this value) before a flick requests a page turn
-		minimumFlickDistanceScaleFactor = 200,
+		// Minimum distance that must be traveled to register the flick
+		flickThreshold = 10,
 
-		// This determines the minimum distance scale (i.e. width divided by this value) before a drag requests a page turn
-		minimumDragDistanceScaleFactor = 2;
+		minAnimationTime = 25,
 
-	return declare("Ti.UI.ScrollableView", KineticScrollView, {
+		maxAnimationTime = 1000,
 
-		constructor: function(args){
+		flickAnimationScaleFactor = 0.5,
+
+		dragAnimationScaleFactor = 2;
+
+	return declare('Ti.UI.ScrollableView', View, {
+
+		constructor: function(){
 
 			// Create the content container
-			this._initKineticScrollView(UI.createView({
+			var containerDomNode,
+				self = this,
+				offsetX = 0;
+			self._add(self._contentContainer = UI.createView({
 				left: 0,
 				top: 0,
 				width: UI.SIZE,
-				height: "100%",
-				layout: "constrainingHorizontal"
-			}), "horizontal");
+				height: '100%',
+				layout: 'constrainingHorizontal'
+			}));
+			containerDomNode = self._contentContainer.domNode;
 
 			// Create the paging control container
-			this._add(this._pagingControlContainer = UI.createView({
-				width: "100%",
+			self._add(self._pagingControlContainer = UI.createView({
+				width: '100%',
 				height: 20,
 				bottom: 0,
-				backgroundColor: "black",
+				backgroundColor: 'black',
 				opacity: 0,
 				touchEnabled: false
 			}));
 
-			this._pagingControlContainer._add(this._pagingControlContentContainer = UI.createView({
+			self._pagingControlContainer._add(self._pagingControlContentContainer = UI.createView({
 				width: UI.SIZE,
-				height: "100%",
+				height: '100%',
 				top: 0,
 				touchEnabled: false,
-				layout: "constrainingHorizontal"
+				layout: 'constrainingHorizontal'
 			}));
 
 			// State variables
-			this.properties.__values__.views = [];
-			this._viewToRemoveAfterScroll = -1;
+			self.properties.__values__.views = [];
+			self._viewToRemoveAfterScroll = -1;
 
-			require.on(this, "postlayout", this._updateTranslation);
-		},
+			on(self, 'postlayout', function() {
+				self._animating || self._setTranslation(self.currentPage * -self._measuredWidth);
+			});
 
-		_handleDragStart: function() {
-			var currentPage = this.currentPage;
-			if (~currentPage) {
-				this._showView(currentPage - 1);
-				this._showView(currentPage);
-				this._showView(currentPage + 1);
-				this.fireEvent("dragstart");
-			}
-		},
-
-		_handleDrag: function(e) {
-			var currentPage = this.currentPage,
-				currentView = this.views[currentPage];
-			if (currentView) {
-				this.fireEvent("scroll", {
-					currentPage: currentPage,
-					currentPageAsFloat: currentPage - e.distanceX / currentView._measuredWidth,
-					view: currentView
-				});
-			}
-		},
-
-		_handleDragCancel: function() {
-			var currentPage = this.currentPage;
-			if (~currentPage) {
-				this._hideView(currentPage - 1);
-				this._showView(currentPage);
-				this._hideView(currentPage + 1);
-			}
-		},
-
-		_handleDragEnd: function(e, velocityX) {
-			if (~this.currentPage && isDef(velocityX)) {
-				velocityX = Math.max(minVelocity, Math.min(maxVelocity, velocityX));
-				var self = this,
-					views = self.views,
-					contentContainer = self._contentContainer,
-					currentPage = self.currentPage,
-					distance = e.distanceX,
-					normalizedWidth = views[currentPage]._measuredWidth / (Math.abs(velocityX) > velocityThreshold ? 
-						minimumFlickDistanceScaleFactor :
-						minimumDragDistanceScaleFactor),
-					destinationPosition,
-					destination = views[currentPage],
-					destinationIndex = currentPage;
-
-				// Determine the animation characteristics
-				if (distance > normalizedWidth && currentPage > 0) {
-					// Previous page
-					destinationIndex = currentPage - 1;
-					distance = (destination = views[destinationIndex])._measuredLeft - self._currentTranslationX;
-				} else if (distance < -normalizedWidth && currentPage < views.length - 1) {
-					// Next page
-					destinationIndex = currentPage + 1;
-					distance = self._currentTranslationX - (destination = views[destinationIndex])._measuredLeft;
-				}
-				destinationPosition = -destination._measuredLeft;
-
-				// Fire the drag end event
-				self.fireEvent("dragend", {
-					currentPage: destinationIndex,
-					view: destination
-				});
-
-				// Animate the view. Note: the 1.724 constance was calculated, not estimated. It is NOT for tweaking.
-				// If tweaking is needed, tweak the velocity algorithm in KineticScrollView.
-				self._animateToPosition(destinationPosition, 0, Math.abs(1.724 * 
-						(destinationPosition - self._currentTranslationX) / velocityX), UI.ANIMATION_CURVE_EASE_OUT, function(){
-					destinationIndex !== currentPage - 1 && self._hideView(currentPage - 1);
-					destinationIndex !== currentPage && self._hideView(currentPage);
-					destinationIndex !== currentPage + 1 && self._hideView(currentPage + 1);
-					self.properties.__values__.currentPage = destinationIndex;
-					self._showView(destinationIndex);
-					setTimeout(function(){
-						self.fireEvent("scrollend",{
-							currentPage: destinationIndex,
-							view: destination
+			on(containerDomNode, useTouch ? 'touchstart' : 'mousedown', function(e) {
+				var startX = e.touches ? e.touches[0].clientX : e.clientX,
+					currentX = startX,
+					startTime = Date.now(),
+					width = self._measuredWidth,
+					mouseMoveListener = function(e) {
+						var currentPage = self.currentPage,
+							offset = currentX - startX + offsetX;
+						width = self._measuredWidth;
+						e.preventDefault();
+						currentX = e.touches ? e.touches[0].clientX : e.clientX;
+						self._setTranslation((currentPage * -width) + offset);
+						self.fireEvent('scroll', {
+							currentPage: currentPage,
+							currentPageAsFloat: currentPage - offset / width,
+							view: self.views[currentPage]
 						});
-					}, 1);
-				});
+					},
+					mouseUpListener = function(e) {
+						var	now = Date.now(),
+							isFlick = now - startTime < maxFlickTime,
+							currentPage = self.currentPage,
+							thresholdMet = Math.abs(startX - currentX) > (isFlick ? flickThreshold : width / 2),
+							props = self.properties.__values__,
+							duration = Math.abs(currentX - startX);
+						global.removeEventListener(useTouch ? 'touchmove' : 'mousemove', mouseMoveListener);
+						global.removeEventListener(useTouch ? 'touchend' : 'mouseup', mouseUpListener);
+						width = self._measuredWidth;
+						self._animating = 1;
+						e.preventDefault();
+
+						if (thresholdMet) {
+							if (startX > currentX) {
+								currentPage !== props.views.length - 1 && currentPage++;
+							} else {
+								currentPage !== 0 && currentPage--;
+							}
+							duration = width - duration;
+						}
+						self._showPagingControl(currentPage);
+						offsetX = currentX - startX + offsetX;
+						duration = Math.max(minAnimationTime, Math.min(maxAnimationTime,
+							(isFlick ? flickAnimationScaleFactor : dragAnimationScaleFactor) * duration));
+						setStyle(containerDomNode, 'transition', duration + 'ms ease-out');
+						setTimeout(function(){
+							once(containerDomNode, transitionEnd, function() {
+								setStyle(containerDomNode, 'transition', '');
+								self._animating = 0;
+								props.currentPage = currentPage;
+								self._updatePagingControl();
+								self.fireEvent('scrollend',{
+									currentPage: currentPage,
+									view: self.views[currentPage]
+								});
+							});
+							self._setTranslation(currentPage * -width);
+						}, 1);
+						self.fireEvent('dragend', {
+							currentPage: currentPage,
+							view: self.views[currentPage]
+						});
+					};
+				self._showPagingControl(self.currentPage, 1);
+				e.preventDefault();
+				offsetX = self._animating ? offsetX || 0 : 0;
+				setStyle(containerDomNode, 'transition', '');
+				self._setTranslation((self.currentPage * -width) + offsetX);
+				self._animating = 0;
+				global.addEventListener(useTouch ? 'touchmove' : 'mousemove', mouseMoveListener);
+				global.addEventListener(useTouch ? 'touchend' : 'mouseup', mouseUpListener);
+				self.fireEvent('dragstart');
+			});
+		},
+
+		_setTranslation: function(offset) {
+			setStyle(this._contentContainer.domNode, 'transform', 'translatez(0) translatex(' + offset + 'px)');
+		},
+
+		_showPagingControl: function(newIndex, indefinite) {
+			var self = this;
+			if (!self.showPagingControl) {
+				self._pagingControlContainer.opacity = 0;
+				return;
+			}
+			self._pagingAnimation && self._pagingAnimation.cancel();
+			self._pagingAnimation = self._pagingControlContainer.animate({
+				duration: 250,
+				opacity: 0.75
+			});
+			clearInterval(self._pagingTimeout);
+			if (!indefinite && self.pagingControlTimeout > 0) {
+				self._pagingTimeout = setTimeout(function() {
+					self._pagingAnimation && self._pagingAnimation.cancel();
+					self._pagingAnimation = self._pagingControlContainer.animate({
+						duration: 750,
+						opacity: 0
+					}, function() {
+						self._pagingAnimation = void 0;
+					});
+				}, self.pagingControlTimeout);
 			}
 		},
 
-		_hideView: function(index) {
-			var views = this.views;
-			index >= 0 && index < views.length && setStyle(views[index].domNode, "display", "none");
+		_updatePagingControl: function() {
+			var contentContainer = this._pagingControlContentContainer,
+				numViews = this.views.length,
+				diameter = this.pagingControlHeight / 2;
+			if (numViews !== contentContainer._numViews || diameter !== contentContainer._diameter) {
+				contentContainer._numViews = numViews;
+				contentContainer._diameter = diameter;
+				contentContainer._removeAllChildren();
+				for (var i = 0; i < this.views.length; i++) {
+					contentContainer._add(UI.createView({
+						width: diameter,
+						height: diameter,
+						left: 5,
+						right: 5,
+						backgroundColor: '#aaa',
+						borderRadius: unitize(diameter / 2)
+					}));
+				}
+				contentContainer._highlightedPage = -1;
+			}
+			if (contentContainer._highlightedPage !== this.currentPage) {
+				contentContainer._highlightedPage < 0 ||
+					(contentContainer._children[contentContainer._highlightedPage].backgroundColor = '#aaa');
+				contentContainer._children[this.currentPage].backgroundColor = '#fff';
+				contentContainer._highlightedPage = this.currentPage;
+			}
 		},
 
-		_showView: function(index) {
-			var views = this.views;
-			index >= 0 && index < views.length && setStyle(views[index].domNode, "display", "inherit");
-		},
-
-		addView: function(view){
+		addView: function(view) {
 			if (view) {
+				view.width = '100%';
+				view.height = '100%';
 				this.views.push(view);
 				this._contentContainer._add(view);
 				if (this.views.length == 1) {
 					this.properties.__values__.currentPage = 0;
-				} else {
-					setStyle(view.domNode, "display", "none");
 				}
+				this._updatePagingControl();
 			}
 		},
 
 		removeView: function(view) {
 
 			// Get and validate the location of the view
-			var viewIndex = is(view,"Number") ? view : this.views.indexOf(view);
+			var viewIndex = is(view,'Number') ? view : this.views.indexOf(view);
 			if (viewIndex < 0 || viewIndex >= this.views.length) {
 				return;
 			}
@@ -195,23 +249,18 @@ define(["Ti/_/browser", "Ti/_/declare", "Ti/_/UI/KineticScrollView", "Ti/_/lang"
 
 			// Remove the view and update the paging control
 			contentContainer._remove(self.views.splice(viewIndex,1)[0]);
-			!self.views.length && (self.properties.__values__.currentPage = -1);
-			once(UI, "postlayout", function() {
+			self.views.length || (self.properties.__values__.currentPage = -1);
+			once(UI, 'postlayout', function() {
 				setTimeout(function(){
-					self._updateTranslation();
+					self._setTranslation(self.currentPage * -self._measuredWidth);
 				}, 1);
 			});
-			self._updatePagingControl(self.currentPage);
 		},
 
-		_updateTranslation: function() {
-			~this.currentPage && this._setTranslation(-this.views[this.currentPage]._measuredLeft, 0);
-		},
-
-		scrollToView: function(view) {
-			var viewIndex = is(view,"Number") ? view : this.views.indexOf(view),
+		scrollToView: function(view, noAnimation) {
+			var viewIndex = is(view,'Number') ? view : this.views.indexOf(view),
 				self = this;
-			
+
 			// Sanity check
 			if (viewIndex < 0 || viewIndex >= this.views.length || viewIndex == this.currentPage) {
 				return;
@@ -221,95 +270,48 @@ define(["Ti/_/browser", "Ti/_/declare", "Ti/_/UI/KineticScrollView", "Ti/_/lang"
 
 				// Calculate the views to be scrolled
 				var contentContainer = self._contentContainer,
-					currentPage = self.currentPage,
+					containerDomNode = contentContainer.domNode,
 					destination = -self.views[viewIndex]._measuredLeft,
-					i;
 
 					// Calculate a weighted duration so that larger views take longer to scroll.
-					duration = 400 + 0.3 * (Math.abs(viewIndex - self.currentPage) * contentContainer._measuredWidth);
-
-				// Make the views that will be seen visible
-				if (currentPage < viewIndex) {
-					for(i = currentPage + 1; i <= viewIndex; i++) {
-						self._showView(i);
-					}
-				} else {
-					for(i = viewIndex; i < currentPage; i++) {
-						self._showView(i);
-					}
-				}
+					duration = Math.max(minAnimationTime, Math.min(maxAnimationTime,
+						dragAnimationScaleFactor * contentContainer._measuredWidth));
 
 				// Animate the views
-				self._updatePagingControl(viewIndex);
-				self._animateToPosition(destination, 0, duration, UI.ANIMATION_CURVE_EASE_IN_OUT, function(){
+				self._updatePagingControl();
+				self._showPagingControl(viewIndex);
+
+				if (noAnimation) {
+					self._setTranslation(destination);
 					self.properties.__values__.currentPage = viewIndex;
-					if (currentPage < viewIndex) {
-						for(i = currentPage; i < viewIndex; i++) {
-							self._hideView(i);
-						}
-					} else {
-						for(i = viewIndex + 1; i <= currentPage; i++) {
-							self._hideView(i);
-						}
-					}
-					if (self._viewToRemoveAfterScroll !== -1) {
-						destination += self.views[self._viewToRemoveAfterScroll]._measuredWidth;
-						self._removeViewFromList(self._viewToRemoveAfterScroll);
-						self._viewToRemoveAfterScroll = -1;
-					}
-					self.fireEvent("scrollend",{
-						currentPage: viewIndex,
-						view: self.views[viewIndex]
-					});
-				});
+				} else {
+					setStyle(containerDomNode, 'transition', duration + 'ms ease-out');
+					setTimeout(function(){
+						once(containerDomNode, transitionEnd, function() {
+							setStyle(containerDomNode, 'transition', '');
+							self._animating = 0;
+							self.properties.__values__.currentPage = viewIndex;
+							self._updatePagingControl();
+							if (self._viewToRemoveAfterScroll !== -1) {
+								destination += self.views[self._viewToRemoveAfterScroll]._measuredWidth;
+								self._removeViewFromList(self._viewToRemoveAfterScroll);
+								self._viewToRemoveAfterScroll = -1;
+							}
+							self.fireEvent('scrollend',{
+								currentPage: viewIndex,
+								view: self.views[viewIndex]
+							});
+						});
+						self._setTranslation(destination);
+					}, 1);
+				}
 			}
 
 			// If the scrollableView hasn't been laid out yet, we must wait until it is
 			if (self._contentContainer.domNode.offsetWidth) {
 				scroll();
 			} else {
-				once(self, "postlayout", scroll);
-			}
-		},
-
-		_showPagingControl: function() {
-			if (!this.showPagingControl) {
-				this._pagingControlContainer.opacity = 0;
-				return;
-			}
-			if (this._isPagingControlActive) {
-				return;
-			}
-			this._isPagingControlActive = true;
-			this._pagingControlContainer.animate({
-				duration: 250,
-				opacity: 0.75
-			});
-			this.pagingControlTimeout > 0 && setTimeout(lang.hitch(this,function() {
-				this._pagingControlContainer.animate({
-					duration: 750,
-					opacity: 0
-				});
-				this._isPagingControlActive = false;
-			}),this.pagingControlTimeout);
-		},
-
-		_updatePagingControl: function(newIndex, hidePagingControl) {
-			if (this.showPagingControl) {
-				this._pagingControlContentContainer._removeAllChildren();
-				var diameter = this.pagingControlHeight / 2;
-				for (var i = 0; i < this.views.length; i++) {
-					var indicator = UI.createView({
-						width: diameter,
-						height: diameter,
-						left: 5,
-						right: 5,
-						backgroundColor: i === newIndex ? "white" : "grey",
-						borderRadius: unitize(diameter / 2)
-					});
-					this._pagingControlContentContainer._add(indicator);
-				}
-				!hidePagingControl && this._showPagingControl();
+				once(self, 'postlayout', scroll);
 			}
 		},
 
@@ -321,7 +323,7 @@ define(["Ti/_/browser", "Ti/_/declare", "Ti/_/UI/KineticScrollView", "Ti/_/lang"
 			currentPage: {
 				set: function(value, oldValue) {
 					if (value >= 0 && value < this.views.length) {
-						this.scrollToView(value);
+						this.scrollToView(value, 1);
 						return value;
 					}
 					return oldValue;
@@ -333,7 +335,7 @@ define(["Ti/_/browser", "Ti/_/declare", "Ti/_/UI/KineticScrollView", "Ti/_/lang"
 					this._pagingControlContainer.backgroundColor = value;
 					return value;
 				},
-				value: "black"
+				value: 'black'
 			},
 			pagingControlHeight: {
 				set: function(value) {
@@ -342,25 +344,13 @@ define(["Ti/_/browser", "Ti/_/declare", "Ti/_/UI/KineticScrollView", "Ti/_/lang"
 				},
 				value: 20
 			},
-			pagingControlTimeout: {
-				set: function(value) {
-					this.pagingControlTimeout == 0 && this._updatePagingControl();
-					return value;
-				},
-				value: 1250
-			},
-			showPagingControl: {
-				set: function(value) {
-					this.pagingControlTimeout == 0 && this._updatePagingControl();
-					return value;
-				},
-				value: false
-			},
+			pagingControlTimeout: 3000,
+			showPagingControl: false,
 			views: {
 				set: function(value) {
 
 					// Value must be an array
-					if (!is(value,"Array")) {
+					if (!is(value,'Array')) {
 						return;
 					}
 
@@ -371,17 +361,15 @@ define(["Ti/_/browser", "Ti/_/declare", "Ti/_/UI/KineticScrollView", "Ti/_/lang"
 						view;
 					contentContainer._removeAllChildren();
 					for(; i < len; i++) {
-						(view = value[i]).width = "100%";
-						view.height = "100%";
+						(view = value[i]).width = '100%';
+						view.height = '100%';
 						contentContainer._add(view);
 					}
 					this.properties.__values__.currentPage = len ? 0 : -1;
 
 					return value;
 				},
-				post: function() {
-					this._updatePagingControl(this.currentPage,true);
-				}
+				post: '_updatePagingControl'
 			}
 		}
 

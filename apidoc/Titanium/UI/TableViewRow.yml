@@ -234,6 +234,28 @@ events:
       - name: y
         summary: Y coordinate of the event from the `source` view's coordinate system.
         type: Number
+        
+  - name: touchmove
+    summary: Fired as soon as the device detects movement of a touch..
+    description: |
+        On Android and iOS, be aware that a row or table touch event and a table 
+        [scroll](Titanium.UI.TableView.scroll) event cannot occur concurrently. If a table begins 
+        to scroll during a touch event, the appropriate row or table `touchcancel` event fire 
+        before the `scroll` event begins.
+        
+        On Mobile Web, a scroll may occur in the middle of a touch, in which case a `touchend` 
+        will fire immediately following the scroll.
+    platforms: [iphone, ipad]
+    since: {iphone: "3.0.1", ipad: "3.0.1"}
+    properties:
+      - name: x
+        summary: X coordinate of the event from the `source` view's coordinate system.
+        type: Number
+        
+      - name: y
+        summary: Y coordinate of the event from the `source` view's coordinate system.
+        type: Number
+        
 
 properties:
   - name: className
