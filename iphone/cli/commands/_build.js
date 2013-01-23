@@ -1813,7 +1813,8 @@ build.prototype = {
 				file = token.pop(),
 				lang = token.pop(),
 				lprojDir = path.join(this.xcodeAppDir, lang + '.lproj'),
-				globalFile = path.join(this.xcodeAppDir, file);
+				globalFile = path.join(this.xcodeAppDir, file),
+				resourcesFile = path.join(this.projectDir, 'Resources', 'iphone', file);
 			
 			// this would never need to run. But just to be safe
 			if (!afs.exists(lprojDir)) {
@@ -1825,6 +1826,12 @@ build.prototype = {
 			if (afs.exists(globalFile)) {
 				this.logger.debug(__('Removing File %s, as it is being localized', globalFile.cyan));
 				fs.unlinkSync(globalFile);
+			}
+			
+			// Remove the same file from resources/iphone folder, if their exists one.
+			if (afs.exists(resourcesFile)) {
+				this.logger.debug(__('Removing File %s from project folder as it is being localized', resourcesFile.cyan));
+				fs.unlinkSync(resourcesFile);
 			}
 			
 			afs.copyFileSync(splashImage, lprojDir, {
