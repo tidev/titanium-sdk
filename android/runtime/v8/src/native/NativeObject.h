@@ -107,7 +107,7 @@ private:
 		assert(value == obj->handle_);
 		assert(!obj->refs_);
 		assert(value.IsNearDeath());
-		delete obj;
+//		delete obj;
 	}
 
 	friend class ProxyFactory;
