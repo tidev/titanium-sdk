@@ -14,7 +14,6 @@ var appc = require('node-appc'),
 	path = require('path'),
 	parallel = require('async').parallel,
 	cp = require('child_process'),
-	Readable = require('readable-stream'),
 	exec = cp.exec,
 	spawn = cp.spawn;
 
@@ -85,11 +84,11 @@ exports.init = function (logger, config, cli) {
 								logger.error(__('Failed to activate the iPhone Simulator window'));
 								logger.error(stderr);
 							}
-						})
+						});
 					}, 500),
 					simProcess,
 					simErr = [],
-					stripLogLevelRE = new RegExp('[(?:' + logger.getLevels().join('|') + ')] '),
+					stripLogLevelRE = new RegExp('\\[(?:' + logger.getLevels().join('|') + ')\\] '),
 					logProcess;
 
 				cli.argv.retina && cmd.push('--retina');
@@ -138,59 +137,42 @@ exports.init = function (logger, config, cli) {
 							logger.debug(__('Found iPhone Simulator log file: %s', file.cyan));
 							logger.info(__('iPhone Simulator log:'));
 
-							var bytesRead = 0,
+							var position = 0,
+								buf = new Buffer(16),
 								buffer = '',
-								stream;
+								readChangesInterval;
 
-							(function pump() {
-								function processBuffer() {
-									var lines,
-										m,
-										newData = stream.read();
-									if (newData) {
-										buffer += newData;
-										bytesRead += newData.length;
-										lines = buffer.split('\n');
-										buffer = lines.pop(); // keep the last line because it could be incomplete
-										lines.forEach(function (line) {
-											if (line) {
-												m = line.match(logLevelRE);
-												if (m) {
-													logger[m[2].toLowerCase()](m[4].trim());
-												} else {
-													logger.debug(line);
-												}
-											}
-										});
+							function readChanges () {
+								var fd = fs.openSync(file, 'r'),
+									bytesRead,
+									lines,
+									m,
+									line,
+									i, len;
+								do {
+									bytesRead = fs.readSync(fd, buf, 0, 16, position);
+									position += bytesRead;
+									buffer += buf.toString('utf-8', 0, bytesRead);
+								} while (bytesRead === 16);
+								fs.closeSync(fd);
+								lines = buffer.split('\n');
+								buffer = lines.pop(); // keep the last line because it could be incomplete
+								for (i = 0, len = lines.length; i < len; i++) {
+									line = lines[i];
+									if (line) {
+										m = line.match(logLevelRE);
+										if (m) {
+											logger[m[2].toLowerCase()](m[4].trim());
+										} else {
+											logger.debug(line);
+										}
 									}
 								}
-
-								stream = new Readable();
-								stream.wrap(fs.createReadStream(file, {
-									start: bytesRead,
-									encoding: 'utf-8',
-									bufferSize: 16
-								}));
-								processBuffer();
-
-								stream.on('end', function() {
-									// Remove the event listeners to prevent possible memory leaks (readable-stream is still
-									// experimental, and I've seen memory leaks happen a few times)
-									stream.removeAllListeners('end');
-									stream.removeAllListeners('readable');
-									pump();
-								});
-
-								stream.on('readable', function () {
-									processBuffer();
-								});
-							})();
+							}
+							readChangesInterval = setInterval(readChanges, 30);
 
 							simProcess.on('exit', function() {
-								if (stream) {
-									stream.removeAllListeners('end');
-									stream.removeAllListeners('readable');
-								}
+								clearInterval(readChangesInterval);
 							});
 
 							// we found the log file, no need to keep searching for it
