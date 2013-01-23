@@ -384,6 +384,12 @@ function build(logger, config, cli, finished) {
 				stdio: 'inherit'
 			};
 		
+		if (cli.argv['skip-js-minify']) {
+			options.env = {
+				SKIP_JS_MINIFY: 1
+			};
+		}
+		
 		// not actually used, yet
 		// logger.info(__('Compiling "%s" build', cli.argv['deploy-type']));
 		
@@ -417,7 +423,7 @@ function build(logger, config, cli, finished) {
 					'logcat',
 					cli.argv['android-sdk'],
 					'-e'
-				], options);
+				], { stdio: 'inherit' });
 			} else if (cli.argv['target'] == 'device') {
 				// Since installing on device does not run
 				// the application we must send the "intent" ourselves.
@@ -429,7 +435,7 @@ function build(logger, config, cli, finished) {
 					'-c', 'android.intent.category.LAUNCHER',
 					'-n', cli.tiapp.id + '/.' + appnameToClassname(cli.tiapp.name) + 'Activity',
 					'-f', '0x10200000'
-				], options).on('exit', function (code) {
+				], { stdio: 'inherit' }).on('exit', function (code) {
 					if (code) {
 						err = __('Failed to launch application.');
 					}
