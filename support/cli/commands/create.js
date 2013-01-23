@@ -127,7 +127,7 @@ exports.validate = function (logger, config, cli) {
 	if (platforms.bad.length) {
 		logger.error(__n('Invalid platform: %%s', 'Invalid platforms: %%s', platforms.bad.length, platforms.bad.join(', ')) + '\n');
 		logger.log(__('Available platforms for SDK version %s:', ti.manifest.sdkVersion) + '\n');
-		ti.availablePlatforms.forEach(function (p) {
+		ti.availablePlatformsNames.forEach(function (p) {
 			logger.log('    ' + p.cyan);
 		});
 		logger.log();
