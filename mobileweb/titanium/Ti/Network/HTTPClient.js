@@ -3,9 +3,9 @@ define(["Ti/_", "Ti/_/declare", "Ti/_/has", "Ti/_/lang", "Ti/_/Evented", "Ti/Fil
 
 	var is = require.is,
 		on = require.on;
-
+	
 	return declare("Ti.Network.HTTPClient", Evented, {
-
+		
 		constructor: function() {
 			var xhr = this._xhr = new XMLHttpRequest;
 
@@ -24,7 +24,9 @@ define(["Ti/_", "Ti/_/declare", "Ti/_/has", "Ti/_/lang", "Ti/_/Evented", "Ti/Fil
 
 			xhr.onreadystatechange = lang.hitch(this, function() {
 				var c = this.constants,
-					f,
+					file,
+					mimeType,
+					blobData = "",
 					onload = this.onload;
 
 				switch (xhr.readyState) {
@@ -36,23 +38,44 @@ define(["Ti/_", "Ti/_/declare", "Ti/_/has", "Ti/_/lang", "Ti/_/Evented", "Ti/Fil
 						clearTimeout(this._timeoutTimer);
 						this._completed = 1;
 						c.readyState = this.DONE;
-
+						
 						if (!this._aborted) {
-							if (f = this.file) {
-								f = Filesystem.getFile(f);
-								f.writable && f.write(xhr.responseText);
-							}
-
-							c.responseText = xhr.responseText;
-							c.responseData = new Blob({
-								data: xhr.responseText,
-								length: xhr.responseText.length,
-								mimeType: xhr.getResponseHeader("Content-Type") || "text/plain"
-							});
+							
 							c.responseXML = xhr.responseXML;
-
+							c.responseText = xhr.responseText;
+							
+							//prepare Base64-encoded string required by Blob
+							var i = c.responseText.length,
+								binaryString = new Array(i);
+								
+							while (i--)	{
+								// When the server is requested to return binary data using the "x-user-defined" 
+								// encoding of the "text/html" Mime type, it returns a Unicode text string, 
+								// where it encodes the binary data in the lower bytes of two-octet Unicode characters, 
+								// setting the higher bytes to 0xF7 (Unicode Private Area). Here we decode
+								// the server's response by discarding the higher bytes from the character codes.
+								binaryString[i] = String.fromCharCode(c.responseText.charCodeAt(i) & 0xFF);
+							}
+							
+							mimeType = xhr.getResponseHeader("Content-Type");
+							blobData = _.isBinaryMimeType(mimeType) ? btoa(binaryString.join('')) : c.responseText;
+							
+							//create file by name
+							this.file && (file = Filesystem.getFile(this.file));
+							
+							//responseData = Blob
+							c.responseData = new Blob({
+								data: blobData,
+								length: blobData.length,
+								mimeType: mimeType || "text/plain",
+								file: file || null,
+								nativePath: (file && file.nativePath) || null,
+							});
+								
+							//write Blob to file
+							file && file.writable && file.write(c.responseData);
+														
 							has("ti-instrumentation") && (instrumentation.stopTest(this._requestInstrumentationTest, this.location));
-
 							xhr.status >= 400 && (onload = this._onError);
 							is(onload, "Function") && onload.call(this);
 						}
@@ -88,11 +111,11 @@ define(["Ti/_", "Ti/_/declare", "Ti/_/has", "Ti/_/lang", "Ti/_/Evented", "Ti/Fil
 			this.constants.readyState = this.UNSENT;
 			this._fireStateChange();
 		},
-
+		
 		_fireStateChange: function() {
 			is(this.onreadystatechange, "Function") && this.onreadystatechange.call(this);
 		},
-
+		
 		getResponseHeader: function(name) {
 			return this._xhr.readyState > 1 ? this._xhr.getResponseHeader(name) : null;
 		},
@@ -107,6 +130,7 @@ define(["Ti/_", "Ti/_/declare", "Ti/_/has", "Ti/_/lang", "Ti/_/Evented", "Ti/Fil
 				c.location = _.getAbsolutePath(httpURLFormatter ? httpURLFormatter(url) : url),
 				wc || async === void 0 ? true : !!async
 			);
+				
 			wc && (this._xhr.withCredentials = wc);
 		},
 
@@ -117,6 +141,10 @@ define(["Ti/_", "Ti/_/declare", "Ti/_/has", "Ti/_/lang", "Ti/_/Evented", "Ti/Fil
 				has("ti-instrumentation") && (this._requestInstrumentationTest = instrumentation.startTest("HTTP Request")),
 				args = is(args, "Object") ? lang.urlEncode(args) : args;
 				args && this._xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+				
+				// Ask the server to not process/covert binary bytes when responding.
+				this._xhr.overrideMimeType('text\/plain; charset=x-user-defined');
+				
 				this._xhr.send(args);
 				clearTimeout(this._timeoutTimer);
 				timeout && (this._timeoutTimer = setTimeout(lang.hitch(this, function() {
@@ -152,6 +180,10 @@ define(["Ti/_", "Ti/_/declare", "Ti/_/has", "Ti/_/lang", "Ti/_/Evented", "Ti/Fil
 			OPENED: 1,
 
 			UNSENT: 1,
+			
+			allResponseHeaders: function() {
+				return this._xhr.getAllResponseHeaders() || "";
+			},
 
 			connected: function() {
 				return this.readyState >= this.OPENED;
