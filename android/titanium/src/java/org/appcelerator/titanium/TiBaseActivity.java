@@ -13,6 +13,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollFunction;
+import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.KrollRuntime;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.common.TiMessenger;
@@ -472,6 +473,26 @@ public abstract class TiBaseActivity extends Activity
 
 		Intent intent = getIntent();
 		if (intent != null) {
+
+			// Activity transition
+			final int NO_VAL = -1;
+			int enterAnim = intent.getIntExtra(TiC.INTENT_PROPERTY_ENTER_ANIMATION, NO_VAL);
+			int exitAnim = intent.getIntExtra(TiC.INTENT_PROPERTY_EXIT_ANIMATION, NO_VAL);
+
+			if (enterAnim != NO_VAL || exitAnim != NO_VAL) {
+				// If one of them is set, set both of them since
+				// overridePendingTransition requires both.
+				if (enterAnim == NO_VAL) {
+					enterAnim = 0;
+				}
+
+				if (exitAnim == NO_VAL) {
+					exitAnim = 0;
+				}
+
+				this.overridePendingTransition(enterAnim, exitAnim);
+			}
+
 			if (intent.hasExtra(TiC.INTENT_PROPERTY_MESSENGER)) {
 				messenger = (Messenger) intent.getParcelableExtra(TiC.INTENT_PROPERTY_MESSENGER);
 				msgActivityCreatedId = intent.getIntExtra(TiC.INTENT_PROPERTY_MSG_ACTIVITY_CREATED_ID, -1);
@@ -626,12 +647,24 @@ public abstract class TiBaseActivity extends Activity
 
 		switch(event.getKeyCode()) {
 			case KeyEvent.KEYCODE_BACK : {
-				if (activityProxy.hasListeners("android:back")) {
-					if (event.getAction() == KeyEvent.ACTION_UP) {
-						activityProxy.fireEvent("android:back", null);
+				
+				if (event.getAction() == KeyEvent.ACTION_UP) {
+					String backEvent = "android:back";
+					KrollProxy proxy = null;
+					//android:back could be fired from a tabGroup window (activityProxy)
+					//or hw window (window).This event is added specifically to the activity
+					//proxy of a tab group in window.js
+					if (activityProxy.hasListeners(backEvent)) {
+						proxy = activityProxy;
+					} else if (window.hasListeners(backEvent)) {
+						proxy = window;
 					}
-					handled = true;
-
+					
+					if (proxy != null) {
+						proxy.fireEvent(backEvent, null);
+						handled = true;
+					}
+					
 				}
 				break;
 			}
@@ -1126,6 +1159,12 @@ public abstract class TiBaseActivity extends Activity
 		}
 		layout = null;
 
+		//LW windows
+		if (window == null && view != null) {
+			view.releaseViews();
+			view = null;
+		}
+
 		if (window != null) {
 			window.closeFromActivity();
 			window = null;
@@ -1180,7 +1219,7 @@ public abstract class TiBaseActivity extends Activity
 		}
 
 		if (!animate) {
-			TiUIHelper.overridePendingTransition(this);
+			this.overridePendingTransition(0, 0); // Suppress default transition.
 		}
 	}
 

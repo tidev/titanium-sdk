@@ -316,6 +316,7 @@ static NSDictionary* TI_filterableItemProperties;
 	else
 	{
 		[[TiApp app] hideModalController:picker_ animated:animatedPicker];
+		[[TiApp controller] repositionSubviews];
 	}
     if (cameraView != nil) {
         [cameraView windowDidClose];
@@ -469,7 +470,7 @@ static NSDictionary* TI_filterableItemProperties;
 		else if (cameraView!=nil)
 		{
 			// we use our own fullscreen transform if the developer didn't supply one
-            if ([[UIScreen mainScreen] bounds].size.height == 568) {
+            if ([TiUtils isRetinaFourInch]) {
                 picker.cameraViewTransform = CGAffineTransformScale(picker.cameraViewTransform, CAMERA_TRANSFORM_X, CAMERA_TRANSFORM_Y_ALT);
             }
             else {
@@ -1128,6 +1129,7 @@ MAKE_SYSTEM_PROP(VIDEO_FINISH_REASON_USER_EXITED,MPMovieFinishReasonUserExited);
 		}
 		else {
 			[[TiApp app] hideModalController:picker animated:animatedPicker];
+			[[TiApp controller] repositionSubviews];
 		}
         if (cameraView != nil) {
             [cameraView windowDidClose];
@@ -1213,6 +1215,7 @@ MAKE_SYSTEM_PROP(VIDEO_FINISH_REASON_USER_EXITED,MPMovieFinishReasonUserExited);
 	if (musicPicker != nil)
 	{
 		[[TiApp app] hideModalController:musicPicker animated:animatedPicker];
+		[[TiApp controller] repositionSubviews];
 		[self destroyPicker];
 	}
 }

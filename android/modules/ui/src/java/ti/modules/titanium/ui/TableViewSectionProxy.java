@@ -9,6 +9,7 @@ package ti.modules.titanium.ui;
 import java.util.ArrayList;
 
 import org.appcelerator.kroll.annotations.Kroll;
+import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.proxy.TiViewProxy;
@@ -22,6 +23,7 @@ import android.app.Activity;
 })
 public class TableViewSectionProxy extends TiViewProxy
 {
+	private static final String TAG = "TableViewSectionProxy";
 	protected ArrayList<TableViewRowProxy> rows = new ArrayList<TableViewRowProxy>();
 
 	public TableViewSectionProxy()
@@ -67,9 +69,7 @@ public class TableViewSectionProxy extends TiViewProxy
 	{
 		if (rowProxy != null) {
 			rows.add(rowProxy);
-			if (rowProxy.getParent() == null) {
-				rowProxy.setParent(this);
-			}
+			rowProxy.setParent(this);
 		}
 	}
 
@@ -95,19 +95,48 @@ public class TableViewSectionProxy extends TiViewProxy
 	}
 
 	@Kroll.method
-	public void insertRowAt(int index, TableViewRowProxy row) {
-		rows.add(index, row);
+	public void insertRowAt(int index, TableViewRowProxy row)
+	{
+		if (index > -1 && index <= rows.size()) {
+			rows.add(index, row);
+			row.setParent(this);
+		} else {
+			Log.e(TAG, "Index out of range. Unable to insert row at index " + index, Log.DEBUG_MODE);
+		}
 	}
 
 	@Kroll.method
-	public void removeRowAt(int index) {
-		rows.remove(index);
+	public void removeRowAt(int index)
+	{
+		if (index > -1 && index < rows.size()) {
+			TableViewRowProxy rowProxy = rows.get(index);
+			rows.remove(index);
+			if (rowProxy.getParent() == this) {
+				rowProxy.setParent(null);
+			}
+		} else {
+			Log.e(TAG, "Index out of range. Unable to remove row at index " + index, Log.DEBUG_MODE);
+		}
 	}
+
 	@Kroll.method
-	public void updateRowAt(int index, TableViewRowProxy row) {
-		rows.set(index, row);
+	public void updateRowAt(int index, TableViewRowProxy row)
+	{
+		TableViewRowProxy oldRow = rows.get(index);
+		if (row == oldRow) {
+			return;
+		}
+		if (index > -1 && index < rows.size()) {
+			rows.set(index, row);
+			row.setParent(this);
+			if (oldRow.getParent() == this) {
+				oldRow.setParent(null);
+			}
+		} else {
+			Log.e(TAG, "Index out of range. Unable to update row at index " + index, Log.DEBUG_MODE);
+		}
 	}
-	
+
 	@Override
 	public String toString() {
 		return "[object TableViewSectionProxy]";

@@ -100,6 +100,15 @@ static const NSInteger kDashboardViewDefaultColumnCount = 3;
 
 #pragma mark Delegates 
 
+- (void)launcherView:(LauncherView*)launcher didChangePage:(NSNumber*)pageNo;
+{
+    if ([self.proxy _hasListeners:@"pagechanged"]) {
+        NSMutableDictionary *event = [NSMutableDictionary dictionary];
+        [event setObject:pageNo forKey:@"pageNo"];
+        [self.proxy fireEvent:@"pagechanged" withObject:event propagate:NO];
+    }
+}
+
 - (void)launcherView:(LauncherView*)launcher didAddItem:(LauncherItem*)item
 {
 }

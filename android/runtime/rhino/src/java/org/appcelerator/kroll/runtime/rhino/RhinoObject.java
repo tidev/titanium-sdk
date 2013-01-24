@@ -37,11 +37,13 @@ public class RhinoObject extends KrollObject
 	}
 
 	@Override
-	public Object callProperty(String propertyName, Object[] args) {
+	public Object callProperty(String propertyName, Object[] args)
+	{
 		((RhinoRuntime) KrollRuntime.getInstance()).enterContext();
 
 		try {
-			Object returnValue = ScriptableObject.callMethod(proxy, propertyName, args);
+			Object returnValue = ScriptableObject.callMethod(proxy, propertyName,
+				TypeConverter.javaObjectArrayToJsArguments(args, proxy));
 			return TypeConverter.jsObjectToJavaObject(returnValue, proxy);
 
 		} catch (Exception e) {

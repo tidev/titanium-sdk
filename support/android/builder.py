@@ -904,6 +904,7 @@ class Builder(object):
 		GEO_PERMISSION = [ 'ACCESS_COARSE_LOCATION', 'ACCESS_FINE_LOCATION']
 		CONTACTS_READ_PERMISSION = ['READ_CONTACTS']
 		CONTACTS_PERMISSION = ['READ_CONTACTS', 'WRITE_CONTACTS']
+		CALENDAR_READ_PERMISSION = ['READ_CALENDAR']
 		VIBRATE_PERMISSION = ['VIBRATE']
 		CAMERA_PERMISSION = ['CAMERA']
 		WALLPAPER_PERMISSION = ['SET_WALLPAPER']
@@ -937,6 +938,12 @@ class Builder(object):
 			'Contacts.getAllPeople' : CONTACTS_READ_PERMISSION,
 			'Contacts.getAllGroups' : CONTACTS_READ_PERMISSION,
 			'Contacts.getGroupByID' : CONTACTS_READ_PERMISSION,
+			
+			# CALENDAR
+			'Android.Calendar.getAllAlerts' : CALENDAR_READ_PERMISSION,
+			'Android.Calendar.getAllCalendars' : CALENDAR_READ_PERMISSION,
+			'Android.Calendar.getCalendarById' : CALENDAR_READ_PERMISSION,
+			'Android.Calendar.getSelectableCalendars' : CALENDAR_READ_PERMISSION,
 
 			# WALLPAPER
 			'Media.Android.setSystemWallpaper' : WALLPAPER_PERMISSION,
@@ -1846,6 +1853,15 @@ class Builder(object):
 		trace("Launch output: %s" % output)
 
 	def wait_for_sdcard(self):
+		# Quick check: the existence of /sdcard/Android,
+		# which really should be there on all phones and emulators.
+		output = self.run_adb('shell', 'cd /sdcard/Android && echo SDCARD READY')
+		if 'SDCARD READY' in output:
+			return True
+
+		# Our old way of checking in case the above
+		# didn't succeed:
+
 		mount_points_check = ['/sdcard', '/mnt/sdcard']
 		# Check the symlink that is typically in root.
 		# If you find it, add its target to the mount points to check.
@@ -2133,6 +2149,10 @@ class Builder(object):
 			elif self.tiapp.has_app_property('ti.deploytype'):
 				if self.tiapp.get_app_property('ti.deploytype') == 'production':
 					self.compile_js = True
+
+			if self.compile_js and os.environ.has_key('SKIP_JS_MINIFY'):
+				self.compile_js = False
+				info("Disabling JavaScript minification")
 
 			include_all_ti_modules = self.fastdev 
 			if (self.tiapp.has_app_property('ti.android.include_all_modules')):
@@ -2440,11 +2460,22 @@ if __name__ == "__main__":
 		elif command == 'install':
 			avd_id = dequote(sys.argv[6])
 			device_args = ['-d']
-			if len(sys.argv) >= 8 and len(sys.argv[7]) > 0:
-				device_args = ['-s', sys.argv[7]]
+			# We have to be careful here because Windows can't handle an empty argument
+			# on the command line, so if a device serial number is not passed in, but
+			# a debugger_host (the argument after device serial number) _is_ passed in,
+			# to Windows it just looks like a serial number is passed in (the debugger_host
+			# argument shifts left to take over the empty argument.)
 			debugger_host = None
 			if len(sys.argv) >= 9 and len(sys.argv[8]) > 0:
 				debugger_host = dequote(sys.argv[8])
+				if len(sys.argv[7]) > 0:
+					device_args = ['-s', sys.argv[7]]
+			elif len(sys.argv) >= 8 and len(sys.argv[7]) > 0:
+				arg7 = dequote(sys.argv[7])
+				if 'adb:' in arg7:
+					debugger_host = arg7
+				else:
+					device_args = ['-s', arg7]
 			builder.build_and_run(True, avd_id, device_args=device_args, debugger_host=debugger_host)
 		elif command == 'distribute':
 			key = os.path.abspath(os.path.expanduser(dequote(sys.argv[6])))

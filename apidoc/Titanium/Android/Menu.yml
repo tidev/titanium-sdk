@@ -2,8 +2,18 @@
 name: Titanium.Android.Menu
 summary: The Titanium binding of an Android Options Menu.
 description: |
-    Currently, `Menu` only supports menus displayed when the **Menu** button is pressed, 
-    not the newer Action Bar style menu display.
+    On Android devices prior to Android 3.0 (API level 11), the menu is always presented 
+    as an options menu, which is displayed when the **Menu** button is pressed.
+
+    On Android 3.0 and later, menu items can be displayed as _action items_ in the action
+    bar. To enable this, the application must be built with a theme that supports the
+    action bar, such as the Holo theme. (See
+    [Android Themes](http://docs.appcelerator.com/titanium/3.0/#!/guide/Android_Themes) in
+    the Titanium Guides for information on setting your application's theme.)
+
+    To determine how an action item is displayed, set
+    [showAsAction](Titanium.Android.MenuItem.showAsAction) and 
+    [actionView](Titanium.Android.MenuItem.showAsAction) when creating a menu item.
 
     See also: [Menu](http://developer.android.com/reference/android/view/Menu.html)
     in the Android Developer Reference.
@@ -214,3 +224,4 @@ examples:
             var doClick = function(e) {
                 Ti.API.info("Menu item clicked: " + e.source.title);
             }
+

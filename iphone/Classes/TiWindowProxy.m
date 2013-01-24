@@ -185,6 +185,8 @@ TiOrientationFlags TiOrientationFlagsFromObject(id args)
         }
         RELEASE_TO_NIL(animatedOver);
     }
+	// Send notification to Accessibility subsystem that the screen has changed. This will refresh accessibility focus
+	UIAccessibilityPostNotification(UIAccessibilityScreenChangedNotification, nil);
 }
 
 -(void)windowReady
@@ -244,6 +246,14 @@ TiOrientationFlags TiOrientationFlagsFromObject(id args)
 	
 	[self windowDidClose];
 	[self forgetSelf];
+	
+	// Make previous window elements accessible again
+	UIView *rootView = [[TiApp app] controller].view;
+	if ([TiUtils isIOS5OrGreater]) {
+		[(UIView *)[[rootView subviews] lastObject] setAccessibilityElementsHidden:NO];
+	}
+	// Send notification to Accessibility subsystem that the screen has changed. This will refresh accessibility focus
+	UIAccessibilityPostNotification(UIAccessibilityScreenChangedNotification, nil);
 }
 
 -(void)windowWillClose
@@ -660,6 +670,7 @@ TiOrientationFlags TiOrientationFlagsFromObject(id args)
 		{
 			[[UIApplication sharedApplication] setStatusBarHidden:restoreFullscreen withAnimation:UIStatusBarAnimationNone];
 			self.view.frame = [[[TiApp app] controller] resizeViewForStatusBarHidden];
+			[[[TiApp app] controller] repositionSubviews];
 		} 
  
 		if (closeAnimation!=nil)
@@ -708,6 +719,10 @@ TiOrientationFlags TiOrientationFlagsFromObject(id args)
      */
     if (![self _isChildOfTab]) {
         if (!modalFlag) {
+			// Hide inactive window elements for accessibility
+			if ([TiUtils isIOS5OrGreater]) {
+				[(UIView *)[[rootView subviews] lastObject] setAccessibilityElementsHidden:YES];
+			}
             [rootView addSubview:view_];
         }
 
@@ -766,9 +781,6 @@ TiOrientationFlags TiOrientationFlagsFromObject(id args)
 	{
 		DeveloperLog(@"[DEBUG] Focused was already set while in viewDidAppear.");
 	}
-    
-    //Propagate this state to children
-    [self parentDidAppear:[NSNumber numberWithBool:animated]];
 }
 
 -(void)viewWillDisappear:(BOOL)animated
@@ -781,23 +793,17 @@ TiOrientationFlags TiOrientationFlagsFromObject(id args)
 	{
 		DeveloperLog(@"[DEBUG] Focused was already cleared while in viewWillDisappear.");
 	}
-    //Propagate this state to children
-    [self parentWillDisappear:[NSNumber numberWithBool:animated]];
 }
 
 -(void)viewWillAppear:(BOOL)animated
 {
 	[self parentWillShow];
 	TiThreadProcessPendingMainThreadBlocks(0.1, YES, nil);
-    //Propagate this state to children
-    [self parentWillAppear:[NSNumber numberWithBool:animated]];
 }
 
 - (void)viewDidDisappear:(BOOL)animated
 {
 	[self parentWillHide];
-    //Propagate this state to children
-    [self parentDidDisappear:[NSNumber numberWithBool:animated]];
 }
 
 #pragma mark Animation Delegates

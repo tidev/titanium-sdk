@@ -367,7 +367,9 @@ DEFINE_EXCEPTIONS
     
 	TiThreadPerformOnMainThread(^{
 		UIView *view = [[container subviews] objectAtIndex:position];
-		UIImageView *newImageView = [[UIImageView alloc] initWithImage:imageToUse];
+		UIImageView *newImageView = [[UIImageView alloc] initWithFrame:[view bounds]];
+		newImageView.image = imageToUse;
+		newImageView.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
 		newImageView.contentMode = [self contentModeForImageView];
 		
 		// remove the spinner now that we've loaded our image
@@ -377,6 +379,7 @@ DEFINE_EXCEPTIONS
 			[spinner removeFromSuperview];
 		}
 		[view addSubview:newImageView];
+		view.clipsToBounds = YES;
 		[newImageView release];
 		view.hidden = YES;
 		

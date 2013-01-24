@@ -90,6 +90,12 @@ public class FilesystemModule extends KrollModule
 	{
 		return "appdata-private://";
 	}
+	
+	@Kroll.getProperty @Kroll.method
+	public String getResRawDirectory()
+	{
+		return "android.resource://" + TiApplication.getInstance().getPackageName() + "/raw/";
+	}
 
 	@Kroll.getProperty @Kroll.method
 	public String getApplicationCacheDirectory()

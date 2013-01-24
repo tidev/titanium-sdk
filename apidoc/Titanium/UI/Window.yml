@@ -174,19 +174,27 @@ events:
   - name: focus
     summary: Fired when the window gains focus.
     description: |
-      The listener for this event must be defined before this window 
-      is opened.
+        The listener for this event must be defined before this window
+        is opened.
   - name: open
     summary: Fired when the window is opened.
     description: |
-      The listener for this event must be defined before this window 
-      is opened.
+        The listener for this event must be defined before this window
+        is opened.
 
 properties:
   - name: activity
     summary: |
-      For heavyweight windows, this property contains a reference to the
-      Android Activity object associated with this window.
+        For heavyweight windows, this property contains a reference to the
+        Android Activity object associated with this window.
+    description: |
+        An Activity object is not created until the window is opened.
+        Before the window is opened, `activity` refers to an empty JavaScript object.
+        You can be set properties on this object, but cannot invoke any Activity methods on it.
+        Once the window is opened, the actual Activity object is created,
+        using any properties set on the JavaScript object. At this point, you can call methods
+        on the activity and access any properties that are set when the activity is created,
+        for example, [actionBar](Titanium.Android.Activity.actionBar).
     platforms: [android]
     type: Titanium.Android.Activity
 
@@ -678,9 +686,9 @@ description: |
 
     #### Animations
 
-    Windows can be animated like any normal [View](Titanium.UI.View).  To transition between
-    2 windows, you can use the `transition` property on an animation.  For example, to flip
-    right-to-left between two windows, you could do the following:
+    Windows can be animated like any normal [View](Titanium.UI.View). To transition between
+    2 windows, you can use the `transition` property on an animation (not supported on Android).
+    For example, to flip right-to-left between two windows, you could do the following:
 
         var window2 = Titanium.UI.createWindow({url:'foo.js'});
         var t = Ti.UI.iPhone.AnimationStyle.FLIP_FROM_LEFT;
@@ -723,6 +731,10 @@ description: |
           var t2 = Titanium.UI.create2DMatrix();
           w.animate({transform:t2, duration:200});
         });
+
+    Note that to animate an Android heavyweight window while you open it, you need
+    to follow a specific procedure which is explained below in "Heavyweight
+    Window Transitions in Android".
 
     #### iPad Modal Windows
 
@@ -774,6 +786,44 @@ description: |
     A heavyweight window is always created when you open a new window from inside a 
     [TabGroup](Titanium.UI.TabGroup).
 
+    #### Heavyweight Window Transitions in Android
+
+    As explained above, heavyweight windows are their own Android Activity. The only way
+    to animate the opening of an Activity in Android is to apply an animation _resource_ to
+    it.  Passing a <Titanium.UI.Animation> object as a parameter to <Titanium.UI.Window.open>
+    will have no effect if the window being opened is heavyweight and thus opens its own Activity.
+
+    Instead, in the parameter dictionary you pass to <Titanium.UI.Window.open>, you should set the
+    [activityEnterAnimation](openWindowParams.activityEnterAnimation) and
+    [activityExitAnimation](openWindowParams.activityExitAnimation) keys to
+    animation resources. `activityEnterAnimation` should be set to the animation you want to run
+    on the new window (activity), while `activityExitAnimation` should be set to the animation you
+    want to run on the window (activity) that you are leaving as you open the new heavyweight window
+    above it.
+
+    Animation resources are available through the `R` object. Use either <Titanium.Android.R> for
+    built-in resources or <Titanium.App.Android.R> for resources that you package in your application.
+
+    As an example, you may wish for the window that you are opening to fade in while the window
+    you are leaving should fade out:
+
+        var win2 = Ti.UI.createWindow({
+            fullscreen: false // Makes it heavyweight
+        });
+
+        win2.open({
+            activityEnterAnimation: Ti.Android.R.anim.fade_in,
+            activityExitAnimation: Ti.Android.R.anim.fade_out
+        });
+
+    See the official Android [R.anim](http://developer.android.com/reference/android/R.anim.html) documentation
+    for information about built-in animations.
+
+    For information on creating your own animation resource XML files, see "[View Animation](http://developer.android.com/guide/topics/resources/animation-resource.html#View)"
+    in Android's Resources documentation. After creating an animation resource file, you can place it under
+    `platform/android/res/anim` in your Titanium project folder and it will be packaged in your app's APK
+    and then available via <Titanium.App.Android.R>.
+
     #### Android "root" Windows
 
     In Android, you may wish to specify that a window which you create (such as the first
@@ -823,7 +873,9 @@ properties:
     description: |
         On Android, this property supports animated transitions on heavyweight windows
         except for modal windows (`modal:true`).  See "Android Heavyweight and Lightweight
-        Windows" in the main description of Titanium.UI.Window for more information.
+        Windows" in the main description of Titanium.UI.Window for more information. The
+        transitions are on by default, but you can set this to `false` to stop them
+        if you wish.
 
         On iOS, only use this property to disable animated transitions on modal windows. 
         This property has unintended side effects on non-modal windows if it is defined. 
@@ -932,4 +984,32 @@ properties:
         See "Android Heavyweight and Lightweight Windows" in the main description 
         of Titanium.UI.Window for more information.
     type: [Number,String]
+
+  - name: activityEnterAnimation
+    summary: Animation resource to run on the activity (heavyweight window) being opened.
+    description: |
+      See "Heavyweight Window Transitions in Android" in the main description of Titanium.UI.Window
+      for more information.
+    type: Number
+    platforms: [android]
+    since: "3.1.0"
+    examples:
+      - title: Sliding in a new Window
+        example: |
+                var win2 = Ti.UI.createWindow({fullscreen:false});
+                win2.open({
+                    activityEnterAnimation: Ti.Android.R.anim.slide_in_left,
+                    activityExitAnimation: Ti.Android.R.anim.slide_out_right
+                });
+
+
+  - name: activityExitAnimation
+    summary: Animation resource to run on the activity that is being put in background
+        as a heavyweight window is being opened above it.
+    description: |
+      See "Heavyweight Window Transitions in Android" in the main description of Titanium.UI.Window
+      for more information.
+    type: Number
+    platforms: [android]
+    since: "3.1.0"
 

@@ -413,6 +413,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String EVENT_STOP = "stop";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String EVENT_SUBMIT = "submit";
 
 	/**
 	 * @module.api
@@ -448,6 +453,8 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String EVENT_UNFOCUSED = "unfocused";
+	public static final String INTENT_PROPERTY_ENTER_ANIMATION = "enterAnimation";
+	public static final String INTENT_PROPERTY_EXIT_ANIMATION = "exitAnimation";
 	public static final String INTENT_PROPERTY_FINISH_ROOT = "finishRoot";
 	public static final String INTENT_PROPERTY_IS_TAB = "isTab";
 	public static final String INTENT_PROPERTY_LAYOUT = "layout";
@@ -519,6 +526,16 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_ACTIVITY = "activity";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_ACTIVITY_ENTER_ANIMATION = "activityEnterAnimation";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_ACTIVITY_EXIT_ANIMATION = "activityExitAnimation";
 
 	/**
 	 * @module.api
@@ -929,6 +946,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_DOMAIN = "domain";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_DOMESTIC_PARTNER = "domesticPartner";
 
 	/**
@@ -1162,6 +1184,17 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_ICON_LEVEL = "iconLevel";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_ICONIFIED = "iconified";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_ICONIFIED_BY_DEFAULT = "iconifiedByDefault";
+
 
 	/**
 	 * @module.api
@@ -1502,6 +1535,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_PASSWORD = "password";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_PASSWORD_MASK = "passwordMask";
 
 	/**
@@ -1680,6 +1718,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_SEARCH = "search";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_SEARCH_AS_CHILD = "searchAsChild";
 
 	/**
 	 * @module.api
@@ -1816,6 +1859,11 @@ public class TiC
 	 */
 	public static final String PROPERTY_STYLE = "style";
 
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_SUBMIT_ENABLED = "submitEnabled";
+	
 	/**
 	 * @module.api
 	 */
@@ -1969,6 +2017,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_URL = "url";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_USERNAME = "username";
 
 	/**
 	 * @module.api

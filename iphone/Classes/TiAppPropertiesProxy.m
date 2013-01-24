@@ -91,8 +91,14 @@ if (![self propertyExists:key]) return defaultValue; \
 
 -(id)getObject:(id)args
 {
-	GETPROP
-	return [defaultsObject dictionaryForKey:key];
+    GETPROP
+    id theObject = [defaultsObject objectForKey:key];
+    if ([theObject isKindOfClass:[NSData class]]) {
+        return [NSKeyedUnarchiver unarchiveObjectWithData:theObject];
+    }
+    else {
+        return theObject;
+    }
 }
 
 #define SETPROP \
@@ -147,9 +153,10 @@ if ([self propertyExists:key] && [ [defaultsObject objectForKey:key] isEqual:val
 
 -(void)setObject:(id)args
 {
-	SETPROP
-	[defaultsObject setObject:value forKey:key];
-	[defaultsObject synchronize];
+    SETPROP
+    NSData* encoded = [NSKeyedArchiver archivedDataWithRootObject:value];
+    [defaultsObject setObject:encoded forKey:key];
+    [defaultsObject synchronize];
 }
 
 -(void)removeProperty:(id)args

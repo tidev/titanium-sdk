@@ -272,7 +272,7 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 				KrollDict d = null;
 				d = new KrollDict();
 				if (view != null) {
-					View v = view.getNativeView();
+					View v = view.getOuterView();
 					if (v != null) {
 						TiDimension nativeWidth = new TiDimension(v.getWidth(), TiDimension.TYPE_WIDTH);
 						TiDimension nativeHeight = new TiDimension(v.getHeight(), TiDimension.TYPE_HEIGHT);

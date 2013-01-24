@@ -14,6 +14,7 @@
 #import "TiBindingRunLoop.h"
 #import "TiBase.h"
 #import "TiExceptionHandler.h"
+#import "TiUtils.h"
 
 extern TiStringRef kTiStringLength;
 
@@ -108,6 +109,14 @@ TiProxy * TiBindingEventNextBubbleTargetProxy(TiBindingEvent event, TiProxy * cu
 		}
 		parentOnly = false;
 		currentTarget = [currentTarget parentForBubbling];
+        
+        //TIMOB-11691. Ensure that tableviewrowproxy modifies the event object before passing it along.
+        if ([currentTarget respondsToSelector:@selector(createEventObject:)]) {
+            NSDictionary *curPayload = event->payloadDictionary;
+            NSDictionary *modifiedPayload = [currentTarget createEventObject:curPayload];
+            [event->payloadDictionary release];
+            event->payloadDictionary = [modifiedPayload copy];
+        }
 	}
 	return currentTarget;
 }
@@ -212,13 +221,7 @@ void TiBindingEventProcess(TiBindingRunLoop runloop, void * payload)
 			if (exception!=NULL)
 			{
 				id excm = TiBindingTiValueToNSObject(context, exception);
-				TiScriptError *scriptError = nil;
-				if ([excm isKindOfClass:[NSDictionary class]]) {
-					scriptError = [[TiScriptError alloc] initWithDictionary:excm];
-				} else {
-					scriptError = [[TiScriptError alloc] initWithMessage:[excm description] sourceURL:nil lineNo:0];
-				}
-				[[TiExceptionHandler defaultExceptionHandler] reportScriptError:scriptError];
+				[[TiExceptionHandler defaultExceptionHandler] reportScriptError:[TiUtils scriptErrorValue:excm]];
 			}
 			
 			// Note cancel bubble
