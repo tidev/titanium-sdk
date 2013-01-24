@@ -1345,13 +1345,13 @@ build.prototype = {
 		var manifest = this.buildManifest;
 		
 		if (this.cli.argv.force) {
-			this.logger.debug(__('Forcing rebuild: %s flag was set', '--force'.cyan));
+			this.logger.info(__('Forcing rebuild: %s flag was set', '--force'.cyan));
 			return true;
 		}
 		
 		if (!afs.exists(this.buildManifestFile)) {
 			// if no .version file, rebuild!
-			this.logger.debug(__('Forcing rebuild: %s does not exist', this.buildManifestFile.cyan));
+			this.logger.info(__('Forcing rebuild: %s does not exist', this.buildManifestFile.cyan));
 			return true;
 		}
 		
@@ -1362,135 +1362,135 @@ build.prototype = {
 				idMatch = conf.match(/TI_APPID\=([^\n]*)/);
 			
 			if (versionMatch && !appc.version.eq(versionMatch[1], this.titaniumSdkVersion)) {
-				this.logger.debug(__("Forcing rebuild: last build was under Titanium SDK version %s and we're compiling for version %s", versionMatch[1].cyan, this.titaniumSdkVersion.cyan));
+				this.logger.info(__("Forcing rebuild: last build was under Titanium SDK version %s and we're compiling for version %s", versionMatch[1].cyan, this.titaniumSdkVersion.cyan));
 				return true;
 			}
 			
 			if (idMatch && idMatch[1] != this.tiapp.id) {
-				this.logger.debug(__("Forcing rebuild: app id changed from %s to %s", idMatch[1].cyan, this.tiapp.id.cyan));
+				this.logger.info(__("Forcing rebuild: app id changed from %s to %s", idMatch[1].cyan, this.tiapp.id.cyan));
 				return true;
 			}
 		}
 		
 		if (!afs.exists(this.xcodeAppDir)) {
-			this.logger.debug(__('Forcing rebuild: %s does not exist', this.xcodeAppDir.cyan));
+			this.logger.info(__('Forcing rebuild: %s does not exist', this.xcodeAppDir.cyan));
 			return true;
 		}
 		
 		// check that we have a libTiCore hash
 		if (!manifest.tiCoreHash) {
-			this.logger.debug(__('Forcing rebuild: incomplete version file %s', this.buildVersionFile.cyan));
+			this.logger.info(__('Forcing rebuild: incomplete version file %s', this.buildVersionFile.cyan));
 			return true;
 		}
 		
 		// check if the libTiCore hashes are different
 		if (this.libTiCoreHash != manifest.tiCoreHash) {
-			this.logger.debug(__('Forcing rebuild: libTiCore hash changed since last build'));
-			this.logger.debug('  ' + __('Was: %s', manifest.tiCoreHash));
-			this.logger.debug('  ' + __('Now: %s', this.libTiCoreHash));
+			this.logger.info(__('Forcing rebuild: libTiCore hash changed since last build'));
+			this.logger.info('  ' + __('Was: %s', manifest.tiCoreHash));
+			this.logger.info('  ' + __('Now: %s', this.libTiCoreHash));
 			return true;
 		}
 		
 		// check if the titanium sdk paths are different
 		if (manifest.iosSdkPath != this.titaniumIosSdkPath) {
-			this.logger.debug(__('Forcing rebuild: Titanium SDK path changed since last build'));
-			this.logger.debug('  ' + __('Was: %s', manifest.iosSdkPath));
-			this.logger.debug('  ' + __('Now: %s', this.titaniumIosSdkPath));
+			this.logger.info(__('Forcing rebuild: Titanium SDK path changed since last build'));
+			this.logger.info('  ' + __('Was: %s', manifest.iosSdkPath));
+			this.logger.info('  ' + __('Now: %s', this.titaniumIosSdkPath));
 			return true;
 		}
 		
 		// check if the device family has changed (i.e. was universal, now iphone)
 		if (manifest.deviceFamily != this.deviceFamily) {
-			this.logger.debug(__('Forcing rebuild: device family changed since last build'));
-			this.logger.debug('  ' + __('Was: %s', manifest.deviceFamily));
-			this.logger.debug('  ' + __('Now: %s', this.deviceFamily));
+			this.logger.info(__('Forcing rebuild: device family changed since last build'));
+			this.logger.info('  ' + __('Was: %s', manifest.deviceFamily));
+			this.logger.info('  ' + __('Now: %s', this.deviceFamily));
 			return true;
 		}
 		
 		// check the git hashes are different
 		if (!manifest.gitHash || manifest.gitHash != ti.manifest.githash) {
-			this.logger.debug(__('Forcing rebuild: githash changed since last build'));
-			this.logger.debug('  ' + __('Was: %s', manifest.gitHash));
-			this.logger.debug('  ' + __('Now: %s', ti.manifest.githash));
+			this.logger.info(__('Forcing rebuild: githash changed since last build'));
+			this.logger.info('  ' + __('Was: %s', manifest.gitHash));
+			this.logger.info('  ' + __('Now: %s', ti.manifest.githash));
 			return true;
 		}
 		
 		// check if the app guids are different
 		if (this.tiapp.guid != manifest.appGuid) {
-			this.logger.debug(__('Forcing rebuild: githash changed since last build'));
-			this.logger.debug('  ' + __('Was: %s', manifest.appGuid));
-			this.logger.debug('  ' + __('Now: %s', this.tiapp.guid));
+			this.logger.info(__('Forcing rebuild: githash changed since last build'));
+			this.logger.info('  ' + __('Was: %s', manifest.appGuid));
+			this.logger.info('  ' + __('Now: %s', this.tiapp.guid));
 			return true;
 		}
 		
 		// check if the modules hashes are different
 		if (this.modulesHash != manifest.modulesHash) {
-			this.logger.debug(__('Forcing rebuild: modules hash changed since last build'));
-			this.logger.debug('  ' + __('Was: %s', manifest.modulesHash));
-			this.logger.debug('  ' + __('Now: %s', this.modulesHash));
+			this.logger.info(__('Forcing rebuild: modules hash changed since last build'));
+			this.logger.info('  ' + __('Was: %s', manifest.modulesHash));
+			this.logger.info('  ' + __('Now: %s', this.modulesHash));
 			return true;
 		}
 		
 		// next we check if any tiapp.xml values changed so we know if we need to reconstruct the main.m
 		if (this.tiapp.name != manifest.name) {
-			this.logger.debug(__('Forcing rebuild: tiapp.xml project name changed since last build'));
-			this.logger.debug('  ' + __('Was: %s', manifest.name));
-			this.logger.debug('  ' + __('Now: %s', this.tiapp.name));
+			this.logger.info(__('Forcing rebuild: tiapp.xml project name changed since last build'));
+			this.logger.info('  ' + __('Was: %s', manifest.name));
+			this.logger.info('  ' + __('Now: %s', this.tiapp.name));
 			return true;
 		}
 		
 		if (this.tiapp.id != manifest.id) {
-			this.logger.debug(__('Forcing rebuild: tiapp.xml app id changed since last build'));
-			this.logger.debug('  ' + __('Was: %s', manifest.id));
-			this.logger.debug('  ' + __('Now: %s', this.tiapp.id));
+			this.logger.info(__('Forcing rebuild: tiapp.xml app id changed since last build'));
+			this.logger.info('  ' + __('Was: %s', manifest.id));
+			this.logger.info('  ' + __('Now: %s', this.tiapp.id));
 			return true;
 		}
 		
 		if (!this.tiapp.analytics != !manifest.analytics) {
-			this.logger.debug(__('Forcing rebuild: tiapp.xml analytics flag changed since last build'));
-			this.logger.debug('  ' + __('Was: %s', !!manifest.analytics));
-			this.logger.debug('  ' + __('Now: %s', !!this.tiapp.analytics));
+			this.logger.info(__('Forcing rebuild: tiapp.xml analytics flag changed since last build'));
+			this.logger.info('  ' + __('Was: %s', !!manifest.analytics));
+			this.logger.info('  ' + __('Now: %s', !!this.tiapp.analytics));
 			return true;
 		}
 		if (this.tiapp.publisher != manifest.publisher) {
-			this.logger.debug(__('Forcing rebuild: tiapp.xml publisher changed since last build'));
-			this.logger.debug('  ' + __('Was: %s', manifest.publisher));
-			this.logger.debug('  ' + __('Now: %s', this.tiapp.publisher));
+			this.logger.info(__('Forcing rebuild: tiapp.xml publisher changed since last build'));
+			this.logger.info('  ' + __('Was: %s', manifest.publisher));
+			this.logger.info('  ' + __('Now: %s', this.tiapp.publisher));
 			return true;
 		}
 		
 		if (this.tiapp.url != manifest.url) {
-			this.logger.debug(__('Forcing rebuild: tiapp.xml url changed since last build'));
-			this.logger.debug('  ' + __('Was: %s', manifest.url));
-			this.logger.debug('  ' + __('Now: %s', this.tiapp.url));
+			this.logger.info(__('Forcing rebuild: tiapp.xml url changed since last build'));
+			this.logger.info('  ' + __('Was: %s', manifest.url));
+			this.logger.info('  ' + __('Now: %s', this.tiapp.url));
 			return true;
 		}
 		
 		if (this.tiapp.version != manifest.version) {
-			this.logger.debug(__('Forcing rebuild: tiapp.xml version changed since last build'));
-			this.logger.debug('  ' + __('Was: %s', manifest.version));
-			this.logger.debug('  ' + __('Now: %s', this.tiapp.version));
+			this.logger.info(__('Forcing rebuild: tiapp.xml version changed since last build'));
+			this.logger.info('  ' + __('Was: %s', manifest.version));
+			this.logger.info('  ' + __('Now: %s', this.tiapp.version));
 			return true;
 		}
 		
 		if (this.tiapp.description != manifest.description) {
-			this.logger.debug(__('Forcing rebuild: tiapp.xml description changed since last build'));
-			this.logger.debug('  ' + __('Was: %s', manifest.description));
-			this.logger.debug('  ' + __('Now: %s', this.tiapp.description));
+			this.logger.info(__('Forcing rebuild: tiapp.xml description changed since last build'));
+			this.logger.info('  ' + __('Was: %s', manifest.description));
+			this.logger.info('  ' + __('Now: %s', this.tiapp.description));
 			return true;
 		}
 		
 		if (this.tiapp.copyright != manifest.copyright) {
-			this.logger.debug(__('Forcing rebuild: tiapp.xml copyright changed since last build'));
-			this.logger.debug('  ' + __('Was: %s', manifest.copyright));
-			this.logger.debug('  ' + __('Now: %s', this.tiapp.copyright));
+			this.logger.info(__('Forcing rebuild: tiapp.xml copyright changed since last build'));
+			this.logger.info('  ' + __('Was: %s', manifest.copyright));
+			this.logger.info('  ' + __('Now: %s', this.tiapp.copyright));
 			return true;
 		}
 		
 		if (this.tiapp.guid != manifest.guid) {
-			this.logger.debug(__('Forcing rebuild: tiapp.xml guid changed since last build'));
-			this.logger.debug('  ' + __('Was: %s', manifest.guid));
-			this.logger.debug('  ' + __('Now: %s', this.tiapp.guid));
+			this.logger.info(__('Forcing rebuild: tiapp.xml guid changed since last build'));
+			this.logger.info('  ' + __('Was: %s', manifest.guid));
+			this.logger.info('  ' + __('Now: %s', this.tiapp.guid));
 			return true;
 		}
 		
