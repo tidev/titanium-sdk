@@ -11,7 +11,9 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.Vector;
 import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -85,7 +87,11 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 	private int decodeRetries = 0;
 	private Object releasedLock = new Object();
 	private String currentUrl;
-	
+
+	// Keep track of the current background tasks so that only one loading task is alive for every image view.
+	// (TIMOB-11282)
+	private Vector<BackgroundImageTask> currentBackgroundTaskList = new Vector<BackgroundImageTask>();
+
 	final class ImageDownloadListener implements TiDownloadListener {
 		public int mToken;
 		public ImageArgs mImageArgs;
@@ -123,7 +129,12 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 							true,  
 							false);
 					BackgroundImageTask task = new BackgroundImageTask();
-					task.execute(imageArgs);
+					currentBackgroundTaskList.add(task);
+					try {
+						task.execute(imageArgs);
+					} catch (RejectedExecutionException e) {
+						Log.e(TAG, "Cannot load the image. Loading too many images at the same time.");
+					}
 				}	
 			}
 		}
@@ -748,17 +759,19 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 		}
 	}
 	
-	final class BackgroundImageTask extends AsyncTask<ImageArgs, Void, Bitmap> {
+	final class BackgroundImageTask extends AsyncTask<ImageArgs, Void, Bitmap>
+	{
 		private boolean recycle;
 		private boolean mNetworkURL;
 		private boolean mAsync = false;
 		private String mUrl;
-		
+
         @Override
-        protected Bitmap doInBackground(final ImageArgs... params) {
-        	final ImageArgs imageArgs = params[0];
-            
-            recycle = imageArgs.mRecycle;
+		protected Bitmap doInBackground(final ImageArgs... params)
+		{
+			final ImageArgs imageArgs = params[0];
+
+			recycle = imageArgs.mRecycle;
             mNetworkURL = imageArgs.mNetworkURL;
             Bitmap bitmap = null;
                 
@@ -813,13 +826,12 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
             return bitmap;
         }
         
-        @Override
-        protected void onPostExecute(Bitmap result) {
-        	if (!mNetworkURL || currentUrl.equals(mUrl)) {
-				if (result != null) {	
-					
-						setImage(result);
-	
+		@Override
+		protected void onPostExecute(Bitmap result)
+		{
+			if (!mNetworkURL || currentUrl.equals(mUrl)) {
+				if (result != null) {
+					setImage(result);
 					if (!firedLoad) {
 						fireLoad(TiC.PROPERTY_IMAGE);
 						firedLoad = true;
@@ -829,8 +841,9 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 						retryDecode(recycle);
 					}
 				}
-        	}
-        }
+			}
+			currentBackgroundTaskList.remove(this);
+		}
 	}
 	
 	private void setImage(boolean recycle) {
@@ -870,7 +883,12 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 								true);
 					
 				BackgroundImageTask task = new BackgroundImageTask();
-				task.execute(imageArgs);
+				currentBackgroundTaskList.add(task);
+				try {
+					task.execute(imageArgs);
+				} catch (RejectedExecutionException e) {
+					Log.e(TAG, "Cannot load the image. Loading too many images at the same time.");
+				}
 
 			} else {
 				currentUrl = imageref.getUrl();
@@ -879,7 +897,12 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 						false);
 				
 				BackgroundImageTask task = new BackgroundImageTask();
-				task.execute(imageArgs);
+				currentBackgroundTaskList.add(task);
+				try {
+					task.execute(imageArgs);
+				} catch (RejectedExecutionException e) {
+					Log.e(TAG, "Cannot load the image. Loading too many images at the same time.");
+				}
 			}
 		} else {
 			setImages();
@@ -1004,6 +1027,14 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 			if (changeImage) {
 				setImageSource(source);
 				firedLoad = false;
+
+				// Cancel all the current background tasks before submitting a new one.
+				for (BackgroundImageTask task : currentBackgroundTaskList) {
+					if (task.cancel(true)) {
+						currentBackgroundTaskList.remove(task);
+					}
+				}
+
 				setImage(false);
 			}
 
@@ -1169,5 +1200,10 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 			timer = null;
 		}
 		defaultImageSource = null;
+
+		for (BackgroundImageTask task : currentBackgroundTaskList) {
+			task.cancel(true);
+		}
+		currentBackgroundTaskList.clear();
 	}
 }
