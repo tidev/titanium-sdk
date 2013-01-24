@@ -6,6 +6,8 @@
  */
 package ti.modules.titanium.ui;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -33,6 +35,8 @@ import org.appcelerator.titanium.view.TiUIView;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.Shader;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.LayerDrawable;
 import android.os.Handler;
@@ -343,7 +347,7 @@ public class TiUIActivityWindow extends TiUIView
 		background.setAlpha(alpha);
 	}
 
-	private void handleActivityBackgroundDrawable(Object bgColor, Object bgImage, Object opacityValue, boolean post)
+	private void handleActivityBackgroundDrawable(Object bgColor, Object bgImage, Object opacityValue, boolean tile, boolean post)
 	{
 		//Maximum of 2 drawables, color and image
 		ArrayList<Drawable> layers = new ArrayList<Drawable>(2);
@@ -359,13 +363,34 @@ public class TiUIActivityWindow extends TiUIView
 		
 		if (bgImage != null) {
 			String path = proxy.resolveUrl(null, TiConvert.toString(bgImage));
-			TiFileHelper tfh = new TiFileHelper(TiApplication.getInstance());
-			Drawable bd = tfh.loadDrawable(path, false);
-			if (bd != null) {
-				layers.add(bd);
-			}
-			else {
-				Log.d(TAG, "Unable to create Drawable for property "+TiC.PROPERTY_BACKGROUND_IMAGE);
+			if (path != null) {
+				TiFileHelper tfh = new TiFileHelper(TiApplication.getInstance());
+				Drawable bd = null;
+				if (tile) {
+					InputStream inputStream;
+					try {
+						inputStream = tfh.openInputStream(path, false);
+						if (inputStream != null) {
+							BitmapDrawable tiledBackground = new BitmapDrawable(TiApplication.getInstance().getResources(), inputStream);
+							tiledBackground.setTileModeX(Shader.TileMode.REPEAT);
+							tiledBackground.setTileModeY(Shader.TileMode.REPEAT);
+							bd = tiledBackground;
+						}
+
+					} catch (IOException e) {
+						Log.e(TAG, "Exception occured when trying to open stream to specified background image: ", e);
+					}
+				}
+				else {
+					bd = tfh.loadDrawable(path, false);
+				}
+				
+				if (bd != null) {
+					layers.add(bd);
+				}
+				else {
+					Log.d(TAG, "Unable to create Drawable for property "+TiC.PROPERTY_BACKGROUND_IMAGE);
+				}
 			}
 		}
 		
@@ -380,7 +405,17 @@ public class TiUIActivityWindow extends TiUIView
 		// Prefer image to color.
 		
 		if (d.containsKey(TiC.PROPERTY_BACKGROUND_IMAGE) || d.containsKey(TiC.PROPERTY_BACKGROUND_COLOR) || d.containsKey(TiC.PROPERTY_OPACITY)) {
-			handleActivityBackgroundDrawable(d.get(TiC.PROPERTY_BACKGROUND_COLOR), d.get(TiC.PROPERTY_BACKGROUND_IMAGE), d.get(TiC.PROPERTY_OPACITY), true);
+			boolean tile = false;
+			if (d.containsKey(TiC.PROPERTY_BACKGROUND_REPEAT)) {
+				tile = TiConvert.toBoolean(d.get(TiC.PROPERTY_BACKGROUND_REPEAT));
+			}
+			handleActivityBackgroundDrawable(d.get(TiC.PROPERTY_BACKGROUND_COLOR), d.get(TiC.PROPERTY_BACKGROUND_IMAGE), d.get(TiC.PROPERTY_OPACITY), tile, true);
+
+			// Don't allow default processing.
+			d.remove(TiC.PROPERTY_BACKGROUND_IMAGE);
+			d.remove(TiC.PROPERTY_BACKGROUND_COLOR);
+			d.remove(TiC.PROPERTY_OPACITY);
+			d.remove(TiC.PROPERTY_BACKGROUND_REPEAT);
 		}
 		
 		if (d.containsKey(TiC.PROPERTY_TITLE)) {
@@ -425,9 +460,6 @@ public class TiUIActivityWindow extends TiUIView
 			}
 		}
 
-		// Don't allow default processing.
-		d.remove(TiC.PROPERTY_BACKGROUND_IMAGE);
-		d.remove(TiC.PROPERTY_BACKGROUND_COLOR);
 		super.processProperties(d);
 	}
 
@@ -435,9 +467,25 @@ public class TiUIActivityWindow extends TiUIView
 	public void propertyChanged(String key, Object oldValue, Object newValue, KrollProxy proxy)
 	{
 		if (key.equals(TiC.PROPERTY_BACKGROUND_IMAGE)) {
-			handleActivityBackgroundDrawable(proxy.getProperty(TiC.PROPERTY_BACKGROUND_COLOR), newValue, null, false);
+			boolean tile = false;
+			Object prop = proxy.getProperty(TiC.PROPERTY_BACKGROUND_REPEAT);
+			if (prop != null) {
+				tile = TiConvert.toBoolean(prop);
+			}
+			handleActivityBackgroundDrawable(proxy.getProperty(TiC.PROPERTY_BACKGROUND_COLOR), newValue, null, tile, false);
+			
 		} else if (key.equals(TiC.PROPERTY_BACKGROUND_COLOR)) {
-			handleActivityBackgroundDrawable(newValue, proxy.getProperty(TiC.PROPERTY_BACKGROUND_IMAGE), null, false);
+			boolean tile = false;
+			Object prop = proxy.getProperty(TiC.PROPERTY_BACKGROUND_REPEAT);
+			if (prop != null) {
+				tile = TiConvert.toBoolean(prop);
+			}
+			handleActivityBackgroundDrawable(newValue, proxy.getProperty(TiC.PROPERTY_BACKGROUND_IMAGE), null, tile, false);
+			
+		} else if (key.equals(TiC.PROPERTY_BACKGROUND_REPEAT)) {
+			boolean tile = TiConvert.toBoolean(newValue);
+			handleActivityBackgroundDrawable(proxy.getProperty(TiC.PROPERTY_BACKGROUND_COLOR), proxy.getProperty(TiC.PROPERTY_BACKGROUND_IMAGE), null, tile, false);
+			
 		} else if (key.equals(TiC.PROPERTY_WIDTH) || key.equals(TiC.PROPERTY_HEIGHT)) {
 			Window w = windowActivity.getWindow();
 			int width = lastWidth;
