@@ -121,10 +121,6 @@ exports.config = function (logger, config, cli) {
 					retina: {
 						desc: __('use the retina version of the iOS Simulator')
 					},*/
-					'skip-js-minify': {
-						default: false,
-						desc: __('bypasses JavaScript minification; %s builds are never minified', 'simulator'.cyan)
-					},
 					xcode: {
 						// secret flag to perform Xcode pre-compile build step
 						hidden: true
@@ -1046,7 +1042,7 @@ build.prototype = {
 			plist = new appc.plist(),
 			iphone = this.tiapp.iphone,
 			ios = this.tiapp.ios,
-			fbAppId = this.tiapp.properties && this.tiapp.properties['ti.facebook.appid'],
+			fbAppId = this.tiapp.properties && this.tiapp.properties['ti.facebook.appid'] && this.tiapp.properties['ti.facebook.appid']['value'],
 			iconName = this.tiapp.icon.replace(/(.+)(\..*)$/, '$1'), // note: this is basically stripping the file extension
 			consts = {
 				'__APPICON__': iconName,
@@ -1321,7 +1317,7 @@ build.prototype = {
 			proj,
 			'Pre-Compile',
 			'if [ \\"x$TITANIUM_CLI_XCODEBUILD\\" == \\"x\\" ]; then NO_COLORS=\\"--no-colors\\"; else NO_COLORS=\\"\\"; fi\\n' +
-			(process.execPath || 'node') + ' \\"' + this.cli.argv.$0.replace(/^node /, '') + '\\" build --platform ' +
+			(process.execPath || 'node') + ' \\"' + this.cli.argv.$0.replace(/^(.+\/)*node /, '') + '\\" build --platform ' +
 				this.platformName + ' --sdk ' + this.titaniumSdkVersion + ' --no-prompt --no-banner $NO_COLORS --xcode\\nexit $?'
 		);
 		proj = injectCompileShellScript(

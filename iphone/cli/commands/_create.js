@@ -7,8 +7,7 @@
 
 var appc = require('node-appc'),
 	afs = appc.fs,
-	path = require('path'),
-	wrench = require('wrench');
+	path = require('path');
 
 exports.config = function (logger, config, cli) {
 	return {
@@ -20,6 +19,6 @@ exports.run = function (logger, config, cli, projectConfig) {
 	var templatePath = afs.resolvePath(path.dirname(module.filename), '..', '..', 'templates', cli.argv.type, cli.argv.template),
 		projectDir = afs.resolvePath(cli.argv['workspace-dir'], cli.argv.name);
 	if (afs.exists(templatePath)) {
-		wrench.copyDirSyncRecursive(templatePath, projectDir, { preserve: true });
+		afs.copyDirSyncRecursive(templatePath, projectDir, { preserve: true, logger: logger.debug });
 	}
 };
