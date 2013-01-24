@@ -7,6 +7,7 @@
 package ti.modules.titanium.ui;
 
 import java.lang.ref.WeakReference;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -33,6 +34,7 @@ import org.appcelerator.titanium.view.TiUIView;
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.LayerDrawable;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
@@ -328,12 +330,6 @@ public class TiUIActivityWindow extends TiUIView
 		}
 	}
 
-	private void handleBackgroundColor(Object value, boolean post)
-	{
-		Object opacity = proxy.getProperty(TiC.PROPERTY_OPACITY);
-		handleBackgroundColor(value, opacity, post);
-	}
-
 	private void setActivityOpacity(Drawable background, float opacity, boolean firstTime)
 	{
 		int alpha = Math.round(opacity * 255);
@@ -347,54 +343,46 @@ public class TiUIActivityWindow extends TiUIView
 		background.setAlpha(alpha);
 	}
 
-	private void handleBackgroundColor(Object value, Object opacityValue, boolean post)
+	private void handleActivityBackgroundDrawable(Object bgColor, Object bgImage, Object opacityValue, boolean post)
 	{
-		if (value != null) {
-			Drawable cd = TiConvert.toColorDrawable(TiConvert.toString(value));
-			handleBackground(cd, opacityValue, post);
-
-		} else {
-			Log.w(TAG, "Unable to set opacity w/o a backgroundColor");
+		//Maximum of 2 drawables, color and image
+		ArrayList<Drawable> layers = new ArrayList<Drawable>(2);
+		if (bgColor != null) {
+			Drawable cd = TiConvert.toColorDrawable(TiConvert.toString(bgColor));
+			if (cd != null) {
+				layers.add(cd);
+			}
+			else {
+				Log.d(TAG, "Unable to create Drawable for property "+TiC.PROPERTY_BACKGROUND_COLOR);
+			}
 		}
-	}
-
-	private void handleBackgroundImage(Object value, boolean post)
-	{
-		Object opacity = proxy.getProperty(TiC.PROPERTY_OPACITY);
-		handleBackgroundImage(value, opacity, post);
-	}
-
-	private void handleBackgroundImage(Object value, Object opacityValue, boolean post)
-	{
-		if (value != null) {
-			String path = proxy.resolveUrl(null, TiConvert.toString(value));
+		
+		if (bgImage != null) {
+			String path = proxy.resolveUrl(null, TiConvert.toString(bgImage));
 			TiFileHelper tfh = new TiFileHelper(TiApplication.getInstance());
 			Drawable bd = tfh.loadDrawable(path, false);
-			handleBackground(bd, opacityValue, post);
+			if (bd != null) {
+				layers.add(bd);
+			}
+			else {
+				Log.d(TAG, "Unable to create Drawable for property "+TiC.PROPERTY_BACKGROUND_IMAGE);
+			}
 		}
+		
+		LayerDrawable ld = new LayerDrawable(layers.toArray(new Drawable[layers.size()]));
+		
+		handleBackground(ld,opacityValue,post);
 	}
-
+	
 	@Override
 	public void processProperties(KrollDict d)
 	{
 		// Prefer image to color.
-		if (d.containsKey(TiC.PROPERTY_BACKGROUND_IMAGE)) {
-			if (d.containsKey(TiC.PROPERTY_OPACITY)) {
-				handleBackgroundImage(d.get(TiC.PROPERTY_BACKGROUND_IMAGE), d.get(TiC.PROPERTY_OPACITY), true);
-
-			} else {
-				handleBackgroundImage(d.get(TiC.PROPERTY_BACKGROUND_IMAGE), true);
-			}
-
-		} else if (d.containsKey(TiC.PROPERTY_BACKGROUND_COLOR)) {
-			if (d.containsKey(TiC.PROPERTY_OPACITY)) {
-				handleBackgroundColor(d.get(TiC.PROPERTY_BACKGROUND_COLOR), d.get(TiC.PROPERTY_OPACITY), true);
-
-			} else {
-				handleBackgroundColor(d.get(TiC.PROPERTY_BACKGROUND_COLOR), true);
-			}
+		
+		if (d.containsKey(TiC.PROPERTY_BACKGROUND_IMAGE) || d.containsKey(TiC.PROPERTY_BACKGROUND_COLOR) || d.containsKey(TiC.PROPERTY_OPACITY)) {
+			handleActivityBackgroundDrawable(d.get(TiC.PROPERTY_BACKGROUND_COLOR), d.get(TiC.PROPERTY_BACKGROUND_IMAGE), d.get(TiC.PROPERTY_OPACITY), true);
 		}
-
+		
 		if (d.containsKey(TiC.PROPERTY_TITLE)) {
 			String title = TiConvert.toString(d, TiC.PROPERTY_TITLE);
 
@@ -447,16 +435,9 @@ public class TiUIActivityWindow extends TiUIView
 	public void propertyChanged(String key, Object oldValue, Object newValue, KrollProxy proxy)
 	{
 		if (key.equals(TiC.PROPERTY_BACKGROUND_IMAGE)) {
-			if (newValue != null) {
-				handleBackgroundImage(newValue, false);
-
-			} else {
-				handleBackgroundColor(proxy.getProperty(TiC.PROPERTY_BACKGROUND_COLOR), false);
-			}
-
+			handleActivityBackgroundDrawable(proxy.getProperty(TiC.PROPERTY_BACKGROUND_COLOR), newValue, null, false);
 		} else if (key.equals(TiC.PROPERTY_BACKGROUND_COLOR)) {
-			handleBackgroundColor(newValue, false);
-
+			handleActivityBackgroundDrawable(newValue, proxy.getProperty(TiC.PROPERTY_BACKGROUND_IMAGE), null, false);
 		} else if (key.equals(TiC.PROPERTY_WIDTH) || key.equals(TiC.PROPERTY_HEIGHT)) {
 			Window w = windowActivity.getWindow();
 			int width = lastWidth;
