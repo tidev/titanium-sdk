@@ -25,9 +25,11 @@ import ti.modules.titanium.ui.TableViewProxy;
 import ti.modules.titanium.ui.TableViewRowProxy;
 import ti.modules.titanium.ui.widget.searchbar.TiUISearchBar.OnSearchChangeListener;
 import ti.modules.titanium.ui.widget.tableview.TableViewModel.Item;
+import android.R;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.StateListDrawable;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
@@ -63,7 +65,7 @@ public class TiTableView extends FrameLayout
 
 	private TableViewProxy proxy;
 	private boolean filterCaseInsensitive = true;
-	private TiTableViewSelector selector;
+	private StateListDrawable selector;
 
 	public interface OnItemClickedListener {
 		public void onClick(KrollDict item);
@@ -402,7 +404,9 @@ public class TiTableView extends FrameLayout
 	public void enableCustomSelector() {
 		Drawable currentSelector = listView.getSelector();
 		if (currentSelector != selector) {
-			selector = new TiTableViewSelector (listView);
+			selector = new StateListDrawable();
+			TiTableViewSelector selectorDrawable = new TiTableViewSelector (listView);
+			selector.addState(new int[] {R.attr.state_pressed}, selectorDrawable);
 			listView.setSelector(selector);
 		}
 	}
