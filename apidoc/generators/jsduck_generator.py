@@ -320,14 +320,14 @@ def get_summary_and_description(api_obj):
 	if api_obj.has_key("description"):
 		desc = markdown_to_html(api_obj["description"])
 
-	res = u""
+	res = ""
 	if summary != None:
-		res = u"\t * " + summary + "\n"
+		res = "\t * " + summary + "\n"
 		if desc != None:
-			res += u"\t * @description " + desc + "\n"
+			res += "\t * @description " + desc + "\n"
 	elif desc != None:
 		# use description if there is no summary
-		res = u"\t * " + desc
+		res = "\t * " + desc
 	return res
 
 # Side effect of hiding properties is that the accessors do not get hidden
