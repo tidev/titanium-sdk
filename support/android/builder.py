@@ -882,7 +882,7 @@ class Builder(object):
 		GEO_PERMISSION = [ 'ACCESS_COARSE_LOCATION', 'ACCESS_FINE_LOCATION']
 		CONTACTS_READ_PERMISSION = ['READ_CONTACTS']
 		CONTACTS_PERMISSION = ['READ_CONTACTS', 'WRITE_CONTACTS']
-		CALENDAR_READ_PERMISSION = ['READ_CALENDAR']
+		CALENDAR_PERMISSION = ['READ_CALENDAR', 'WRITE_CALENDAR']
 		VIBRATE_PERMISSION = ['VIBRATE']
 		CAMERA_PERMISSION = ['CAMERA']
 		WALLPAPER_PERMISSION = ['SET_WALLPAPER']
@@ -918,10 +918,10 @@ class Builder(object):
 			'Contacts.getGroupByID' : CONTACTS_READ_PERMISSION,
 			
 			# CALENDAR
-			'Android.Calendar.getAllAlerts' : CALENDAR_READ_PERMISSION,
-			'Android.Calendar.getAllCalendars' : CALENDAR_READ_PERMISSION,
-			'Android.Calendar.getCalendarById' : CALENDAR_READ_PERMISSION,
-			'Android.Calendar.getSelectableCalendars' : CALENDAR_READ_PERMISSION,
+			'Android.Calendar.getAllAlerts' : CALENDAR_PERMISSION,
+			'Android.Calendar.getAllCalendars' : CALENDAR_PERMISSION,
+			'Android.Calendar.getCalendarById' : CALENDAR_PERMISSION,
+			'Android.Calendar.getSelectableCalendars' : CALENDAR_PERMISSION,
 
 			# WALLPAPER
 			'Media.Android.setSystemWallpaper' : WALLPAPER_PERMISSION,
