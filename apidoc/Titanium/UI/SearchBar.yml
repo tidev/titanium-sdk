@@ -44,7 +44,7 @@ description: |
             // standard click event handling here
     
 extends: Titanium.UI.View
-excludes: { methods: [ add ] }
+excludes: { methods: [ add, removeAllChildren ] }
 since: "0.8"
 platforms: [android, iphone, ipad]
 methods:
