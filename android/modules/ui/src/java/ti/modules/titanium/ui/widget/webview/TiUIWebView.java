@@ -390,7 +390,7 @@ public class TiUIWebView extends TiUIView
 			return;
 		}
 		
-		String baseUrl = TiC.URL_ANDROID_ASSET_RESOURCES;
+		String baseUrl = "data://";
 		String mimeType = "text/html";
 		if (d.containsKey(TiC.PROPERTY_BASE_URL_WEBVIEW)) {
 			baseUrl = TiConvert.toString(d.get(TiC.PROPERTY_BASE_URL_WEBVIEW));
