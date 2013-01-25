@@ -92,18 +92,17 @@ events:
 examples:
   - title: Simple Progress Indicator
     example: |
-        Open a yellow window immediately after a blue window. Show an progress indicator while
-        some code executes and hide it on completion. Then close the yellow window.
+        Click the button to show a progress indicator while
+        some code executes and hide it on completion.
 
             Ti.UI.backgroundColor = 'white';
 
-            var win1 = Ti.UI.createWindow({
+            var win = Ti.UI.createWindow({
               backgroundColor: 'blue'
             });
 
-            var win2 = Ti.UI.createWindow({
-              backgroundColor: 'yellow',
-              fullscreen: true
+            var button = Ti.UI.createButton({
+              title: 'Show Progress Dialog'
             });
 
             var progressIndicator = Ti.UI.Android.createProgressIndicator({
@@ -115,9 +114,7 @@ examples:
               max: 10
             });
 
-            // eventListeners must always be loaded before the event is likely to fire
-            // hence, the open() method must be positioned before the window is opened
-            win2.addEventListener('open', function (e) {
+            button.addEventListener('click', function (e) {
               progressIndicator.show();
               var value = 0;
               setInterval(function(){
@@ -130,43 +127,31 @@ examples:
               // do some work that takes 3 seconds
               // ie. replace the following setTimeout block with your code
               setTimeout(function(){
-                e.source.close();
                 progressIndicator.hide();
               }, 3000);
             });
 
-            win1.open();
-            win2.open();
+            win.add(button);
+            win.open();
 
   - title: Alloy XML Markup
     example: |
-        Previous example as two Alloy views.
+        Previous example as an Alloy view-controller.
 
-        win1.xml:
-
-            <Alloy>
-                <Window onOpen="openWin2" backgroundColor="blue" />
-            </Alloy>
-
-        win1.js:
-
-            function openWin2 () {
-                var win2 = Alloy.createController('win2').getView();
-                win2.open();
-            }
-
-        win2.xml:
+        index.xml:
 
             <Alloy>
-                <Window onOpen="showIndicator" fullscreen="true" backgroundColor="yellow">
+                <Window backgroundColor="blue">
+                    <Button id="button" onClick="showIndicator">Show Progress Dialog</Button>
 
-                    <!-- Define the type property in the TSS file -->
-                    <ProgressIndicator ns="Ti.UI.Android" platform="platform" id="progressIndicator"
-                     message="Loading..." min="0" max="10" cancelable="true" />
+                    <ProgressIndicator ns="Ti.UI.Android" platform="android" id="progressIndicator"
+                     message="Loading..." min="0" max="10" cancelable="true"
+                     location="Ti.UI.Android.PROGRESS_INDICATOR_DIALOG"
+                     type="Ti.UI.Android.PROGRESS_INDICATOR_DETERMINANT" />
                 </Window>
             </Alloy>
 
-        win2.js:
+        index.js:
 
             function showIndicator(e) {
                 $.progressIndicator.show();
@@ -181,7 +166,7 @@ examples:
                 // do some work that takes 3 seconds
                 // ie. replace the following setTimeout block with your code
                 setTimeout(function(){
-                    e.source.close();
                     $.progressIndicator.hide();
                 }, 3000);
             }
+            $.index.open();
