@@ -192,7 +192,7 @@ define(['Ti/_/declare', 'Ti/_/UI/KineticScrollView', 'Ti/_/style', 'Ti/_/lang', 
 		},
 
 		_refreshSections: function() {
-			for (var i = 0; i < this._sections._children.length; i += 2) {
+			for (var i = 0; i < this._sections._children.length; i += 1) {
 				this._sections._children[i]._refreshRows();
 			}
 			this._triggerLayout();
