@@ -380,7 +380,7 @@ public class TiUIWebView extends TiUIView
 
 	public void setHtml(String html)
 	{
-		setHtmlInternal(html, TiC.URL_ANDROID_ASSET_RESOURCES, "text/html");
+		setHtmlInternal(html, "data://", "text/html");
 	}
 
 	public void setHtml(String html, KrollDict d)
