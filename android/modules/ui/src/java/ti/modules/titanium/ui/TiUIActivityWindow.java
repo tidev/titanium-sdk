@@ -6,10 +6,7 @@
  */
 package ti.modules.titanium.ui;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.lang.ref.WeakReference;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -27,7 +24,6 @@ import org.appcelerator.titanium.TiTranslucentActivity;
 import org.appcelerator.titanium.proxy.ActivityProxy;
 import org.appcelerator.titanium.proxy.TiWindowProxy;
 import org.appcelerator.titanium.util.TiConvert;
-import org.appcelerator.titanium.util.TiFileHelper;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiCompositeLayout;
 import org.appcelerator.titanium.view.TiCompositeLayout.LayoutArrangement;
@@ -35,10 +31,7 @@ import org.appcelerator.titanium.view.TiUIView;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.graphics.Shader;
-import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
-import android.graphics.drawable.LayerDrawable;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
@@ -350,53 +343,18 @@ public class TiUIActivityWindow extends TiUIView
 	private void handleActivityBackgroundDrawable(Object bgColor, Object bgImage, Object opacityValue, boolean tile, boolean post)
 	{
 		//Maximum of 2 drawables, color and image
-		ArrayList<Drawable> layers = new ArrayList<Drawable>(2);
+		String colorString = null;
 		if (bgColor != null) {
-			Drawable cd = TiConvert.toColorDrawable(TiConvert.toString(bgColor));
-			if (cd != null) {
-				layers.add(cd);
-			}
-			else {
-				Log.d(TAG, "Unable to create Drawable for property "+TiC.PROPERTY_BACKGROUND_COLOR);
-			}
+			colorString = TiConvert.toString(bgColor);
 		}
 		
+		String path = null;
 		if (bgImage != null) {
-			String path = proxy.resolveUrl(null, TiConvert.toString(bgImage));
-			if (path != null) {
-				TiFileHelper tfh = new TiFileHelper(TiApplication.getInstance());
-				Drawable bd = null;
-				if (tile) {
-					InputStream inputStream;
-					try {
-						inputStream = tfh.openInputStream(path, false);
-						if (inputStream != null) {
-							BitmapDrawable tiledBackground = new BitmapDrawable(TiApplication.getInstance().getResources(), inputStream);
-							tiledBackground.setTileModeX(Shader.TileMode.REPEAT);
-							tiledBackground.setTileModeY(Shader.TileMode.REPEAT);
-							bd = tiledBackground;
-						}
-
-					} catch (IOException e) {
-						Log.e(TAG, "Exception occured when trying to open stream to specified background image: ", e);
-					}
-				}
-				else {
-					bd = tfh.loadDrawable(path, false);
-				}
-				
-				if (bd != null) {
-					layers.add(bd);
-				}
-				else {
-					Log.d(TAG, "Unable to create Drawable for property "+TiC.PROPERTY_BACKGROUND_IMAGE);
-				}
-			}
+			path = proxy.resolveUrl(null, TiConvert.toString(bgImage));
 		}
 		
-		LayerDrawable ld = new LayerDrawable(layers.toArray(new Drawable[layers.size()]));
-		
-		handleBackground(ld,opacityValue,post);
+		Drawable bd = TiUIHelper.buildBackgroundDrawable(colorString, path, tile, null);
+		handleBackground(bd,opacityValue,post);
 	}
 	
 	@Override
