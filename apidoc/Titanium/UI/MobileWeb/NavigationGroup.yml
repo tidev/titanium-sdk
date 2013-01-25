@@ -10,6 +10,7 @@ description: |
 platforms: [mobileweb]
 extends: Titanium.UI.View
 since: "2.0.0"
+excludes: { methods: [removeAllChildren] }
 
 properties:
   - name: window
