@@ -217,18 +217,19 @@ public class TiUIHelper
 		});
 	}
 
-	public static int toTypefaceStyle(String fontWeight, String fontStyle) {
+	public static int toTypefaceStyle(String fontWeight, String fontStyle)
+	{
 		int style = Typeface.NORMAL;
 
 		if (fontWeight != null) {
-			if(fontWeight.equals("bold")) {
-				if (fontStyle != null && fontStyle.equals("italic")){
+			if (fontWeight.equals("bold")) {
+				if (fontStyle != null && fontStyle.equals("italic")) {
 					style = Typeface.BOLD_ITALIC;
-				}else{
+				} else {
 					style = Typeface.BOLD;
 				}
-			}else if(fontWeight.equals("normal")) {
-				if (fontStyle != null && fontStyle.equals("italic")){
+			} else if (fontWeight.equals("normal")) {
+				if (fontStyle != null && fontStyle.equals("italic")) {
 					style = Typeface.ITALIC;
 				}
 			}
@@ -327,11 +328,13 @@ public class TiUIHelper
 		TiUIHelper.styleText(tv, fontFamily, fontSize, fontWeight, fontStyle);
 	}
 
-	public static void styleText(TextView tv, String fontFamily, String fontSize, String fontWeight) {
+	public static void styleText(TextView tv, String fontFamily, String fontSize, String fontWeight)
+	{
 		styleText(tv, fontFamily, fontSize, fontWeight, null);
 	}
 
-	public static void styleText(TextView tv, String fontFamily, String fontSize, String fontWeight, String fontStyle) {
+	public static void styleText(TextView tv, String fontFamily, String fontSize, String fontWeight, String fontStyle)
+	{
 		Typeface tf = tv.getTypeface();
 		tf = toTypeface(tv.getContext(), fontFamily);
 		tv.setTypeface(tf, toTypefaceStyle(fontWeight, fontStyle));
