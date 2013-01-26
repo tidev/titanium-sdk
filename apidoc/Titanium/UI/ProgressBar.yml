@@ -9,6 +9,18 @@ description: |
     show the progress bar.
 
     Use the <Titanium.UI.createProgressBar> method to create a progress bar.
+
+    #### Android Platform Notes
+
+    In SDK 3.0, use <Titanium.UI.Android.ProgressIndicator> to display a progress indicator 
+    in a modal dialog or window title bar. Use `ProgressBar` to display the progress bar inside
+    another view.
+
+    #### iOS Platform Notes
+
+    On iOS, to display the progress bar in the window title bar, assign the progress bar object
+    to the window's [titleControl](Titanium.UI.Window.titleControl) property.
+    Make sure the window is modal and not full screen, and that the navigation bar is not hidden.
 extends: Titanium.UI.View
 since: "0.8"
 platforms: [android, iphone, ipad, mobileweb]
