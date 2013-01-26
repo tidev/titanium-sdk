@@ -319,10 +319,17 @@ public class TiUIActivityWindow extends TiUIView
 	private void handleBackground(Drawable drawable, Object opacityValue, boolean post)
 	{
 		if (drawable != null) {
+			float opacity = 1f;
+			
 			if (opacityValue != null) { // lightweight opacity will get handled via super because nativeView won't be null.
-				setActivityOpacity(drawable, TiConvert.toFloat(opacityValue), true);
+				try {
+					opacity = TiConvert.toFloat(opacityValue);
+				} catch (NumberFormatException e) {
+					opacity = 1f;
+				}
 			}
 
+			setActivityOpacity(drawable, opacity, true);
 			setActivityBackground(drawable, post);
 		}
 	}
@@ -372,7 +379,6 @@ public class TiUIActivityWindow extends TiUIView
 			// Don't allow default processing.
 			d.remove(TiC.PROPERTY_BACKGROUND_IMAGE);
 			d.remove(TiC.PROPERTY_BACKGROUND_COLOR);
-			d.remove(TiC.PROPERTY_OPACITY);
 			d.remove(TiC.PROPERTY_BACKGROUND_REPEAT);
 		}
 		
@@ -430,7 +436,7 @@ public class TiUIActivityWindow extends TiUIView
 			if (prop != null) {
 				tile = TiConvert.toBoolean(prop);
 			}
-			handleActivityBackgroundDrawable(proxy.getProperty(TiC.PROPERTY_BACKGROUND_COLOR), newValue, null, tile, false);
+			handleActivityBackgroundDrawable(proxy.getProperty(TiC.PROPERTY_BACKGROUND_COLOR), newValue, proxy.getProperty(TiC.PROPERTY_OPACITY), tile, false);
 			
 		} else if (key.equals(TiC.PROPERTY_BACKGROUND_COLOR)) {
 			boolean tile = false;
@@ -438,11 +444,11 @@ public class TiUIActivityWindow extends TiUIView
 			if (prop != null) {
 				tile = TiConvert.toBoolean(prop);
 			}
-			handleActivityBackgroundDrawable(newValue, proxy.getProperty(TiC.PROPERTY_BACKGROUND_IMAGE), null, tile, false);
+			handleActivityBackgroundDrawable(newValue, proxy.getProperty(TiC.PROPERTY_BACKGROUND_IMAGE), proxy.getProperty(TiC.PROPERTY_OPACITY), tile, false);
 			
 		} else if (key.equals(TiC.PROPERTY_BACKGROUND_REPEAT)) {
 			boolean tile = TiConvert.toBoolean(newValue);
-			handleActivityBackgroundDrawable(proxy.getProperty(TiC.PROPERTY_BACKGROUND_COLOR), proxy.getProperty(TiC.PROPERTY_BACKGROUND_IMAGE), null, tile, false);
+			handleActivityBackgroundDrawable(proxy.getProperty(TiC.PROPERTY_BACKGROUND_COLOR), proxy.getProperty(TiC.PROPERTY_BACKGROUND_IMAGE), proxy.getProperty(TiC.PROPERTY_OPACITY), tile, false);
 			
 		} else if (key.equals(TiC.PROPERTY_WIDTH) || key.equals(TiC.PROPERTY_HEIGHT)) {
 			Window w = windowActivity.getWindow();
