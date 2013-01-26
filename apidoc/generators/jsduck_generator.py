@@ -130,6 +130,16 @@ def markdown_to_html(s, obj=None):
 		s = process_markdown_links(s)
 	return markdown.markdown(s)
 
+# remove <p> and </p> if a string is enclosed with them
+def remove_p_tags(str):
+    if str is None or len(str) == 0:
+        return ""
+    if str.startswith("<p>"):
+        str = str[3:]
+    if str.endswith("</p>"):
+        str = str[:-4]
+    return str
+
 # Print two digit version if third digit is 0.
 def format_version(version_str):
 	digits = version_str.split(".")
@@ -320,6 +330,41 @@ def get_summary_and_description(api_obj):
 		res = "\t * " + desc
 	return res
 
+# Side effect of hiding properties is that the accessors do not get hidden
+# Explicitly hide accessors for JSDuck
+def hide_accessors(parent_name, property_name):
+	res = ""
+	parent_obj = all_annotated_apis[parent_name].api_obj
+	if "properties" in parent_obj:
+		parent_properties = parent_obj["properties"]
+		property_dict = dict((p["name"], p) for p in parent_properties)
+		if property_name in property_dict:
+			setter = True;
+			getter = True;
+			if "accessors" in property_dict[property_name] and not property_dict[property_name]["accessors"]:
+				return res
+			if "availability" in property_dict[property_name] and property_dict[property_name]["availability"] == "creation":
+				setter = False;
+			if "permission" in property_dict[property_name]:
+				if property_dict[property_name]["permission"] == "read-only":
+					setter = False;
+				elif property_dict[property_name]["permission"] == "write-only":
+					getter = False;
+
+			upperFirst = property_name[0].upper() + property_name[1:]
+			if getter:
+				getter = "get" + upperFirst
+				res +=  "/**\n\t * @method " + getter + " \n\t * @hide\n*/\n"
+			if setter:
+				setter = "set" + upperFirst
+				res += "/**\n\t * @method " + setter + " \n\t * @hide\n*/\n"
+
+	if "extends" in parent_obj:
+		parent_name = parent_obj["extends"]
+		return res + hide_accessors(parent_name, property_name)
+	else:
+		return res
+
 def generate(raw_apis, annotated_apis, options):
 	global all_annotated_apis, apis
 	all_annotated_apis = annotated_apis
@@ -385,7 +430,8 @@ def generate(raw_apis, annotated_apis, options):
 					getter_ok = setter_ok = False
 
 				if k.default is not None:
-					output.write('/**\n\t * @property [%s=%s]\n' % (k.name, k.default))
+					default_val = remove_p_tags(markdown_to_html(str(k.default)))
+					output.write('/**\n\t * @property [%s=%s]\n' % (k.name, default_val))
 				else:
 					output.write("/**\n\t * @property %s\n" % (k.name))
 
@@ -421,7 +467,8 @@ def generate(raw_apis, annotated_apis, options):
 						type = "{" + transform_type(param["type"]) + repeatable + "}" if param.has_key("type") else ""
 						optional = "(optional)" if param.has_key('optional') and param["optional"] == True else ""
 						if param.has_key('default'):
-							output.write("\t * @param %s [%s=%s] %s\n\t * %s\n" % (type, param['name'], param['default'], optional, markdown_to_html(summary)))
+							default_val = remove_p_tags(markdown_to_html(str(param['default'])))
+							output.write("\t * @param %s [%s=%s] %s\n\t * %s\n" % (type, param['name'], default_val, optional, markdown_to_html(summary)))
 						else:
 							output.write("\t * @param %s %s %s\n\t * %s\n" % (type, param['name'], optional, markdown_to_html(summary)))
 
@@ -491,5 +538,12 @@ def generate(raw_apis, annotated_apis, options):
 						excluded_members = api_obj["excludes"][member_type]
 						for one_member in excluded_members:
 							output.write("/**\n\t * %s %s \n\t * @hide\n*/\n" % (annotation_string, one_member))
+							# Explicitly hide accessors
+							if member_type == "properties" and "extends" in api_obj:
+								parent_name = api_obj["extends"]
+								hide_methods = hide_accessors(parent_name, one_member)
+								if hide_methods:
+									output.write("%s" % (hide_methods))
+
 
 		output.close()

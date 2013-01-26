@@ -174,19 +174,27 @@ events:
   - name: focus
     summary: Fired when the window gains focus.
     description: |
-      The listener for this event must be defined before this window 
-      is opened.
+        The listener for this event must be defined before this window
+        is opened.
   - name: open
     summary: Fired when the window is opened.
     description: |
-      The listener for this event must be defined before this window 
-      is opened.
+        The listener for this event must be defined before this window
+        is opened.
 
 properties:
   - name: activity
     summary: |
-      For heavyweight windows, this property contains a reference to the
-      Android Activity object associated with this window.
+        For heavyweight windows, this property contains a reference to the
+        Android Activity object associated with this window.
+    description: |
+        An Activity object is not created until the window is opened.
+        Before the window is opened, `activity` refers to an empty JavaScript object.
+        You can be set properties on this object, but cannot invoke any Activity methods on it.
+        Once the window is opened, the actual Activity object is created,
+        using any properties set on the JavaScript object. At this point, you can call methods
+        on the activity and access any properties that are set when the activity is created,
+        for example, [actionBar](Titanium.Android.Activity.actionBar).
     platforms: [android]
     type: Titanium.Android.Activity
 

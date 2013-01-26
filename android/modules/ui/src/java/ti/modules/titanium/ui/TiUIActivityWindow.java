@@ -430,8 +430,9 @@ public class TiUIActivityWindow extends TiUIView
 		if (d.containsKey(TiC.PROPERTY_ACTIVITY)) {
 			Object activityObject = d.get(TiC.PROPERTY_ACTIVITY);
 			ActivityProxy activityProxy = getProxy().getActivityProxy();
-			if (activityObject instanceof HashMap && activityProxy != null) {
-				KrollDict options = new KrollDict((HashMap) activityObject);
+			if (activityObject instanceof HashMap<?, ?> && activityProxy != null) {
+				@SuppressWarnings("unchecked")
+				KrollDict options = new KrollDict((HashMap<String, Object>) activityObject);
 				activityProxy.handleCreationDict(options);
 			}
 		}

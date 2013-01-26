@@ -988,10 +988,13 @@ properties:
     description: |
         For information about color values, see the "Colors" section of <Titanium.UI>. 
         
-        On iPhone and iPod Touch only, this property accepts a value of `'stripped'`, in addition to 
-        the standard color names described in the link above. This results in a pin-striped gray. 
-        Note that, due to a bug, `'stripped'` is misspelt, and so is likely to change in the near 
-        future to `'striped'`.
+        Prior to iOS 6, it was possible to explicitly specify a color value of
+        <Titanium.UI.iOS.COLOR_GROUP_TABLEVIEW_BACKGROUND> or 'stripped' (sic) to select the iOS group
+        tableview background texture. On iPhone and iPod Touch, this produces a pinstriped texture; on iPad,
+        it is transparent.
+
+        In iOS 6, there is no way to explicitly specify the group tableview background texture. The color
+        values <Titanium.UI.iOS.COLOR_GROUP_TABLEVIEW_BACKGROUND> or 'stripped' are interpreted as black.
     type: String
     
   - name: data
@@ -1171,8 +1174,16 @@ properties:
 
   - name: search
     summary: Search field to use for the table view.
-    type: Titanium.UI.SearchBar
+    type: [Titanium.UI.SearchBar, Titanium.UI.Android.SearchView]
     platforms: [android, iphone, ipad]
+    
+  - name: searchAsChild
+    summary: Determines whether the [SearchBar](Titanium.UI.SearchBar) or [SearchView](Titanium.UI.Android.SearchView) appears as part of the TableView.
+    description: Set to false if the search view will be displayed in the action bar.
+    type: Boolean
+    default: true
+    since: 3.0.2
+    platforms: [android]
     
   - name: searchHidden
     summary: Determines whether the search field is visible.

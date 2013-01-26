@@ -43,6 +43,7 @@ typedef enum
 #pragma mark Public APIs
 
 @property(nonatomic,readonly)	NSString *tableClass;
+@property(nonatomic, readonly) BOOL reusable; // Readonly until reproxy/reuse implemented properly
 
 #pragma mark Framework
 
@@ -59,6 +60,7 @@ typedef enum
 -(id)createEventObject:(id)initialObject;
 -(void)triggerAttach;
 -(void)updateRow:(NSDictionary*)data withObject:(NSDictionary*)properties;
+-(UIView*) currentRowContainerView; //Private method :For internal use only.
 
 @end
 

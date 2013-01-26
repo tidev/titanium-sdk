@@ -444,6 +444,7 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 			}
 			realizeViews(view, enableModelListener);
 			view.registerForTouch();
+			view.registerForKeyPress();
 		}
 		return view;
 	}

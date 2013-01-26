@@ -255,11 +255,7 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 @implementation TiUITableViewRowProxy
 
 @synthesize tableClass, table, section, row, callbackCell;
-
--(NSString *)className
-{
-	return [self tableClass];
-}
+@synthesize reusable = reusable_;
 
 -(void)_destroy
 {
@@ -649,7 +645,7 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 
 -(BOOL)viewAttached
 {
-	return rowContainerView != nil;
+	return callbackCell != nil;
 }
 
 -(BOOL)canHaveControllerParent
@@ -676,9 +672,19 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 {
 	return nil;
 }
-    
+
+//Private method : For internal use only
+-(UIView*) currentRowContainerView
+{
+    return rowContainerView;
+}
+
 - (void)prepareTableRowForReuse
 {
+	if (!self.reusable) {
+		[rowContainerView removeFromSuperview];
+		return;
+	}
 	if (![self.tableClass isEqualToString:defaultRowTableClass]) {
 		return;
 	}
@@ -691,6 +697,18 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
     }
 }
 
+- (void)didReceiveMemoryWarning:(NSNotification *)notification
+{
+	if (self.viewAttached) {
+		return;
+	}
+	
+	RELEASE_TO_NIL(rowContainerView);
+    for (TiViewProxy* child in [self children]) {
+        [child detachView];
+    }	
+}
+
 -(void)configureChildren:(UITableViewCell*)cell
 {
 	// this method is called when the cell is initially created
@@ -700,7 +718,7 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 	if ([[self children] count] > 0)
 	{
 		UIView *contentView = cell.contentView;
-		CGRect rect = [contentView frame];
+		CGRect rect = [contentView bounds];
         CGSize cellSize = [(TiUITableViewCell*)cell computeCellSize];
 		CGFloat rowWidth = cellSize.width;
 		CGFloat rowHeight = cellSize.height;
@@ -716,59 +734,66 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
             [contentView setFrame:rect];
         }
 		rect.origin = CGPointZero;
-		RELEASE_TO_NIL(rowContainerView);
-		for (UIView* subview in [[cell contentView] subviews]) {
-			if ([subview isKindOfClass:[TiUITableViewRowContainer class]]) {
-				rowContainerView = [subview retain];
-				break;
-			}
-		}
-		NSArray *rowChildren = [self children];
-		if (rowContainerView != nil) {
-			__block BOOL canReproxy = YES;
-			NSArray *existingSubviews = [rowContainerView subviews];
-			if ([rowChildren count] != [existingSubviews count]) {
-				canReproxy = NO;
-			} else {
-				[rowChildren enumerateObjectsUsingBlock:^(TiViewProxy *proxy, NSUInteger idx, BOOL *stop) {
-					TiUIView *uiview = [existingSubviews objectAtIndex:idx];
-					if (![uiview validateTransferToProxy:proxy deep:YES]) {
-						canReproxy = NO;
-						*stop = YES;
+		if (self.reusable || (rowContainerView == nil)) {
+			if (self.reusable) {
+				RELEASE_TO_NIL(rowContainerView);
+				for (UIView* subview in [[cell contentView] subviews]) {
+					if ([subview isKindOfClass:[TiUITableViewRowContainer class]]) {
+						rowContainerView = [subview retain];
+						break;
 					}
-				}];
+				}
 			}
-			if (!canReproxy) {
-				DebugLog(@"[ERROR] TableViewRow structures for className %@ does not match", self.tableClass);
-				[existingSubviews enumerateObjectsUsingBlock:^(TiUIView *child, NSUInteger idx, BOOL *stop) {
-					[(TiViewProxy *)child.proxy detachView];
-				}];
+			NSArray *rowChildren = [self children];
+			if (self.reusable && (rowContainerView != nil)) {
+				__block BOOL canReproxy = YES;
+				NSArray *existingSubviews = [rowContainerView subviews];
+				if ([rowChildren count] != [existingSubviews count]) {
+					canReproxy = NO;
+				} else {
+					[rowChildren enumerateObjectsUsingBlock:^(TiViewProxy *proxy, NSUInteger idx, BOOL *stop) {
+						TiUIView *uiview = [existingSubviews objectAtIndex:idx];
+						if (![uiview validateTransferToProxy:proxy deep:YES]) {
+							canReproxy = NO;
+							*stop = YES;
+						}
+					}];
+				}
+				if (!canReproxy && ([existingSubviews count] > 0)) {
+					DebugLog(@"[ERROR] TableViewRow structures for className %@ does not match", self.tableClass);
+					[existingSubviews enumerateObjectsUsingBlock:^(TiUIView *child, NSUInteger idx, BOOL *stop) {
+						[(TiViewProxy *)child.proxy detachView];
+					}];
+				}
 			}
-		}
-		if (rowContainerView == nil) {
-			rowContainerView = [[TiUITableViewRowContainer alloc] initWithFrame:rect];
+			if (rowContainerView == nil) {
+				rowContainerView = [[TiUITableViewRowContainer alloc] initWithFrame:rect];
+				[contentView addSubview:rowContainerView];
+			} else {
+				[rowContainerView setFrame:rect];
+			}
+			[rowContainerView setBackgroundColor:[UIColor clearColor]];
+			[rowContainerView setAutoresizingMask:UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight];
+			
+			NSArray *existingSubviews = [rowContainerView subviews];
+			[rowChildren enumerateObjectsUsingBlock:^(TiViewProxy *proxy, NSUInteger idx, BOOL *stop) {
+				TiUIView *uiview = idx < [existingSubviews count] ? [existingSubviews objectAtIndex:idx] : nil;
+				if (!CGRectEqualToRect([proxy sandboxBounds], rect)) {
+					[proxy setSandboxBounds:rect];
+				}
+				[proxy windowWillOpen];
+				[uiview transferProxy:proxy deep:YES];
+				[proxy setReproxying:YES];
+				[self redelegateViews:proxy toView:contentView];
+				if (uiview == nil) {
+					[rowContainerView addSubview:[proxy view]];
+				}
+				[proxy setReproxying:NO];
+			}];
+		} else {
+			[rowContainerView setFrame:rect];
 			[contentView addSubview:rowContainerView];
 		}
-		[rowContainerView setBackgroundColor:[UIColor clearColor]];
-		[rowContainerView setAutoresizingMask:UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight];
-		
-		NSArray *existingSubviews = [rowContainerView subviews];
-		[rowChildren enumerateObjectsUsingBlock:^(TiViewProxy *proxy, NSUInteger idx, BOOL *stop) {
-			TiUIView *uiview = idx < [existingSubviews count] ? [existingSubviews objectAtIndex:idx] : nil;
-			if (!CGRectEqualToRect([proxy sandboxBounds], rect)) {
-				[proxy setSandboxBounds:rect];
-			}
-			[proxy windowWillOpen];
-			if (uiview != nil) {
-				[uiview transferProxy:proxy deep:YES];
-			}
-			[proxy setReproxying:YES];
-			[self redelegateViews:proxy toView:contentView];
-			if (uiview == nil) {
-				[rowContainerView addSubview:[proxy view]];
-			}
-			[proxy setReproxying:NO];
-		}];
 	}
 	configuredChildren = YES;
 }

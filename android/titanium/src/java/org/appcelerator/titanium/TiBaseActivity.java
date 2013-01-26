@@ -12,10 +12,13 @@ import java.util.Stack;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.KrollFunction;
+import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.KrollRuntime;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.common.TiMessenger;
 import org.appcelerator.titanium.TiLifecycle.OnLifecycleEvent;
+import org.appcelerator.titanium.proxy.ActionBarProxy;
 import org.appcelerator.titanium.proxy.ActivityProxy;
 import org.appcelerator.titanium.proxy.IntentProxy;
 import org.appcelerator.titanium.proxy.TiViewProxy;
@@ -42,6 +45,7 @@ import android.os.Bundle;
 import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
+import android.support.v4.app.FragmentActivity;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -53,7 +57,7 @@ import android.view.WindowManager;
  * The base class for all non tab Titanium activities. To learn more about Activities, see the
  * <a href="http://developer.android.com/reference/android/app/Activity.html">Android Activity documentation</a>.
  */
-public abstract class TiBaseActivity extends Activity 
+public abstract class TiBaseActivity extends FragmentActivity 
 	implements TiActivitySupport/*, ITiWindowHandler*/
 {
 	private static final String TAG = "TiBaseActivity";
@@ -624,12 +628,24 @@ public abstract class TiBaseActivity extends Activity
 
 		switch(event.getKeyCode()) {
 			case KeyEvent.KEYCODE_BACK : {
-				if (activityProxy.hasListeners("android:back")) {
-					if (event.getAction() == KeyEvent.ACTION_UP) {
-						activityProxy.fireEvent("android:back", null);
+				
+				if (event.getAction() == KeyEvent.ACTION_UP) {
+					String backEvent = "android:back";
+					KrollProxy proxy = null;
+					//android:back could be fired from a tabGroup window (activityProxy)
+					//or hw window (window).This event is added specifically to the activity
+					//proxy of a tab group in window.js
+					if (activityProxy.hasListeners(backEvent)) {
+						proxy = activityProxy;
+					} else if (window.hasListeners(backEvent)) {
+						proxy = window;
 					}
-					handled = true;
-
+					
+					if (proxy != null) {
+						proxy.fireEvent(backEvent, null);
+						handled = true;
+					}
+					
 				}
 				break;
 			}
@@ -737,7 +753,7 @@ public abstract class TiBaseActivity extends Activity
 		if (activityProxy == null) {
 			return false;
 		}
-		
+
 		if (menuHelper == null) {
 			menuHelper = new TiMenuSupport(activityProxy);
 		}
@@ -748,7 +764,24 @@ public abstract class TiBaseActivity extends Activity
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item)
 	{
-		return menuHelper.onOptionsItemSelected(item);
+		switch (item.getItemId()) {
+			case android.R.id.home:
+				if (activityProxy != null) {
+					ActionBarProxy actionBarProxy = activityProxy.getActionBar();
+					if (actionBarProxy != null) {
+						KrollFunction onHomeIconItemSelected = (KrollFunction) actionBarProxy
+							.getProperty(TiC.PROPERTY_ON_HOME_ICON_ITEM_SELECTED);
+						KrollDict event = new KrollDict();
+						event.put(TiC.EVENT_PROPERTY_SOURCE, actionBarProxy);
+						if (onHomeIconItemSelected != null) {
+							onHomeIconItemSelected.call(activityProxy.getKrollObject(), new Object[] { event });
+						}
+					}
+				}
+				return true;
+			default:
+				return menuHelper.onOptionsItemSelected(item);
+		}
 	}
 
 	@Override
@@ -756,7 +789,7 @@ public abstract class TiBaseActivity extends Activity
 	{
 		return menuHelper.onPrepareOptionsMenu(super.onPrepareOptionsMenu(menu), menu);
 	}
-	
+
 	public static void callOrientationChangedListener(Configuration newConfig) 
 	{
 		if (orientationChangedListener != null && previousOrientation != newConfig.orientation) {

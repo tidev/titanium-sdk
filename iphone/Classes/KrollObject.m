@@ -707,6 +707,10 @@ bool KrollHasInstance(TiContextRef ctx, TiObjectRef constructor, TiValueRef poss
 					argcount:1 type:KrollMethodInvoke name:nil context:[self context]] autorelease];
 #endif
 			}
+			// Special handling for className due to conflict with NSObject private API
+			if ([key isEqualToString:@"className"]) {
+				return [target valueForUndefinedKey:key];
+			}
 			// attempt a function that has no args (basically a non-property property)
 			selector = NSSelectorFromString([NSString stringWithFormat:@"%@",key]);
 			if ([target respondsToSelector:selector])
@@ -1357,13 +1361,7 @@ TI_INLINE TiStringRef TiStringCreateWithPointerValue(int value)
 		if (exception!=NULL)
 		{
 			id excm = [KrollObject toID:context value:exception];
-			TiScriptError *scriptError = nil;
-			if ([excm isKindOfClass:[NSDictionary class]]) {
-				scriptError = [[TiScriptError alloc] initWithDictionary:excm];
-			} else {
-				scriptError = [[TiScriptError alloc] initWithMessage:[excm description] sourceURL:nil lineNo:0];
-			}
-			[[TiExceptionHandler defaultExceptionHandler] reportScriptError:scriptError];
+			[[TiExceptionHandler defaultExceptionHandler] reportScriptError:[TiUtils scriptErrorValue:excm]];
 		}
 	}
 }

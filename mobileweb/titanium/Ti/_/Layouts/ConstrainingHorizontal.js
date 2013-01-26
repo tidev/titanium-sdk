@@ -133,10 +133,10 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI", "Ti/_/lang", "Ti/_/style"]
 						
 						measuredTop = child._measuredTop = topLayoutCoefficients.x1 * height + topLayoutCoefficients.x2 * measuredHeight + topLayoutCoefficients.x3;
 						measuredSandboxHeight = child._measuredSandboxHeight = sandboxHeightLayoutCoefficients.x1 * height + sandboxHeightLayoutCoefficients.x2 + measuredHeight + (isNaN(measuredTop) ? 0 : measuredTop);
-						measuredSandboxHeight > computedSize.height && (computedSize.height = measuredSandboxHeight);
 					}
 					measuredLeft = child._measuredLeft = leftLayoutCoefficients.x1 * width + leftLayoutCoefficients.x2 + runningWidth;
 				}
+				child._measuredSandboxHeight > computedSize.height && (computedSize.height = child._measuredSandboxHeight);
 				runningWidth += child._measuredSandboxWidth;
 			}
 			computedSize.width = runningWidth;

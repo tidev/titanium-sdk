@@ -386,7 +386,7 @@ def package(args):
 
 def emulator_args(args, script, project_dir, platform):
 	if platform == 'android':
-		return [script, 'run-emulator', platform, project_dir]
+		return [script, 'run-emulator', project_dir, get_android_sdk(args)]
 
 def emulator(args):
 	dyn_run(args, emulator_args, emulator_args)

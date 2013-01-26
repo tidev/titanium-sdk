@@ -92,20 +92,38 @@ properties:
   - name: autoLink
     summary: Automatically convert text to clickable links. 
     description: |
-        In iOS, use one of the <Titanium.UI.iOS> auto-detect constants: 
+        Specify which types of items to convert by setting `autoLink` to one of the 
+        <Titanium.UI> `AUTOLINK` constants: 
+        [AUTOLINK_ALL](Titanium.UI.AUTOLINK_ALL),
+        [AUTOLINK_EMAIL_ADDRESSES](Titanium.UI.AUTOLINK_EMAIL_ADDRESSES),
+        [AUTOLINK_MAP_ADDRESSES](Titanium.UI.AUTOLINK_MAP_ADDRESSES),
+        [AUTOLINK_NONE](Titanium.UI.AUTOLINK_NONE),
+        [AUTOLINK_PHONE_NUMBERS](Titanium.UI.AUTOLINK_PHONE_NUMBERS),
+        or [AUTOLINK_URLS](Titanium.UI.AUTOLINK_URLS).
+
+        iOS supports an additional autolink type, [AUTOLINK_CALENDAR](Titanium.UI.AUTOLINK_CALENDAR).
+        
+        Multiple autolink values can be combined with a bitwise OR. For example:
+            
+            textArea.autoLink = AUTOLINK_MAP_ADDRESSES|AUTOLINK_PHONE_NUMBERS;
+
+        Prior to Release 3.0, this field used platform-specific constants. These are now
+        deprecated in favor of the `AUTOLINK` constants listed above.
+        
+        On iOS, the legacy constants are defined in <Titanium.UI.iOS>: 
         [AUTODETECT_ADDRESS](Titanium.UI.iOS.AUTODETECT_ADDRESS), 
         [AUTODETECT_ALL](Titanium.UI.iOS.AUTODETECT_ALL), 
         [AUTODETECT_CALENDAR](Titanium.UI.iOS.AUTODETECT_CALENDAR), 
         [AUTODETECT_LINK](Titanium.UI.iOS.AUTODETECT_LINK), 
         [AUTODETECT_NONE](Titanium.UI.iOS.AUTODETECT_NONE), 
-        or [AUTODETECT_PHONE](Titanium.UI.iOS.AUTODETECT_PHONE).
+        and [AUTODETECT_PHONE](Titanium.UI.iOS.AUTODETECT_PHONE).
         
-        In Android, use one of the <Titanium.UI.Android> linkify constants:
+        On Android, the legacy constants are defined in <Titanium.UI.Android>:
         [LINKIFY_ALL](Titanium.UI.Android.LINKIFY_ALL),
         [LINKIFY_EMAIL_ADDRESSES](Titanium.UI.Android.LINKIFY_EMAIL_ADDRESSES),
         [LINKIFY_MAP_ADDRESSES](Titanium.UI.Android.LINKIFY_MAP_ADDRESSES),
         [LINKIFY_PHONE_NUMBERS](Titanium.UI.Android.LINKIFY_PHONE_NUMBERS),
-        or [LINKIFY_WEB_URLS](Titanium.UI.Android.LINKIFY_WEB_URLS).
+        and [LINKIFY_WEB_URLS](Titanium.UI.Android.LINKIFY_WEB_URLS).
     type: Number
     default: <Titanium.UI.iOS.AUTODETECT_NONE> in iOS, undefined in Android
     since: {android: "3.0.0"}

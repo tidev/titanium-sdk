@@ -143,6 +143,10 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String EVENT_KEY_PRESSED = "keypressed";
+	/**
+	 * @module.api
+	 */
 	public static final String EVENT_HEADING = "heading";
 
 	/**
@@ -253,6 +257,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String EVENT_PROPERTY_KEYCODE = "keyCode";
+
+	/**
+	 * @module.api
+	 */
 	public static final String EVENT_PROPERTY_LAYOUT_NAME = "layoutName";
 
 	/**
@@ -273,7 +282,7 @@ public class TiC
 	/**
 	 * @module.api
 	 */
-	public static final String EVENT_PROPERTY_PLAYBACK_STATE = EVENT_PLAYBACK_STATE;
+	public static final String EVENT_PROPERTY_PLAYBACK_STATE = "playbackState";
 
 	/**
 	 * @module.api
@@ -404,6 +413,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String EVENT_STOP = "stop";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String EVENT_SUBMIT = "submit";
 
 	/**
 	 * @module.api
@@ -920,6 +934,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_DOMAIN = "domain";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_DOMESTIC_PARTNER = "domesticPartner";
 
 	/**
@@ -1153,6 +1172,17 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_ICON_LEVEL = "iconLevel";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_ICONIFIED = "iconified";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_ICONIFIED_BY_DEFAULT = "iconifiedByDefault";
+
 
 	/**
 	 * @module.api
@@ -1423,6 +1453,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_ON_HOME_ICON_ITEM_SELECTED = "onHomeIconItemSelected";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_ON_CREATE_OPTIONS_MENU = "onCreateOptionsMenu";
 
 	/**
@@ -1484,6 +1519,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_PARTNER = "partner";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_PASSWORD = "password";
 
 	/**
 	 * @module.api
@@ -1666,6 +1706,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_SEARCH = "search";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_SEARCH_AS_CHILD = "searchAsChild";
 
 	/**
 	 * @module.api
@@ -1805,6 +1850,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_SUBMIT_ENABLED = "submitEnabled";
+	
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_SUBTITLE = "subtitle";
 
 	/**
@@ -1816,6 +1866,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_SUCCESS = "success";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_TABS = "tabs";
 
 	/**
 	 * @module.api
@@ -1945,6 +2000,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_URL = "url";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_USERNAME = "username";
 
 	/**
 	 * @module.api

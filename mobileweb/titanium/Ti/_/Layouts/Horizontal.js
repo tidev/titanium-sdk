@@ -90,8 +90,8 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/API", "Ti/UI", "Ti/_/lang", "Ti
 						child._measuredLeft = measuredLeft;
 						rows[rows.length - 1].push(child);
 						runningWidth += measuredSandboxWidth;
-						runningWidth > computedSize.width && (computedSize.width = runningWidth);
 					}
+					runningWidth > computedSize.width && (computedSize.width = runningWidth);
 				}
 			}
 			

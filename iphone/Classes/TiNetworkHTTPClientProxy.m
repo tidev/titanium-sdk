@@ -425,6 +425,12 @@ extern NSString * const TI_APPLICATION_DEPLOYTYPE;
 	[request setShouldAttemptPersistentConnection:keepAlive];
 	//handled in send, as now optional
 	//[request setShouldRedirect:YES];
+    
+	//TIMOB-5435 NTLM support
+	[request setUsername:[TiUtils stringValue:[self valueForKey:@"username"]]];
+	[request setPassword:[TiUtils stringValue:[self valueForKey:@"password"]]];
+	[request setDomain:[TiUtils stringValue:[self valueForKey:@"domain"]]];
+    
 	[self _fireReadyStateChange:NetworkClientStateOpened failed:NO];
 	[self _fireReadyStateChange:NetworkClientStateHeaders failed:NO];
 }

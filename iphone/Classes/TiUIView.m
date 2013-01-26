@@ -307,6 +307,42 @@ DEFINE_EXCEPTIONS
 	return self;
 }
 
+#pragma mark - Accessibility API
+
+- (void)setAccessibilityLabel_:(id)accessibilityLabel
+{
+	id accessibilityElement = self.accessibilityElement;
+	if (accessibilityElement != nil) {
+		[accessibilityElement setIsAccessibilityElement:YES];
+		[accessibilityElement setAccessibilityLabel:[TiUtils stringValue:accessibilityLabel]];
+	}
+}
+
+- (void)setAccessibilityValue_:(id)accessibilityValue
+{
+	id accessibilityElement = self.accessibilityElement;
+	if (accessibilityElement != nil) {
+		[accessibilityElement setIsAccessibilityElement:YES];
+		[accessibilityElement setAccessibilityValue:[TiUtils stringValue:accessibilityValue]];
+	}
+}
+
+- (void)setAccessibilityHint_:(id)accessibilityHint
+{
+	id accessibilityElement = self.accessibilityElement;
+	if (accessibilityElement != nil) {
+		[accessibilityElement setIsAccessibilityElement:YES];
+		[accessibilityElement setAccessibilityHint:[TiUtils stringValue:accessibilityHint]];
+	}
+}
+
+- (void)setAccessibilityHidden_:(id)accessibilityHidden
+{
+	if ([TiUtils isIOS5OrGreater]) {
+		self.accessibilityElementsHidden = [TiUtils boolValue:accessibilityHidden def:NO];
+	}
+}
+
 #pragma mark Layout 
 
 -(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
@@ -448,9 +484,9 @@ DEFINE_EXCEPTIONS
 -(void)renderRepeatedBackground:(id)image
 {
     if (![NSThread isMainThread]) {
-        dispatch_async(dispatch_get_main_queue(), ^{
+        TiThreadPerformOnMainThread(^{
             [self renderRepeatedBackground:image];
-        });
+        }, NO);
         return;
     }
     
@@ -720,7 +756,10 @@ DEFINE_EXCEPTIONS
 		for (NSString * thisKey in keySequence)
 		{
 			id newValue = [newProxy valueForKey:thisKey];
-			[self setKrollValue:newValue forKey:thisKey withObject:nil];
+			id oldValue = [oldProxy valueForKey:thisKey];
+			if ((oldValue != newValue) && ![oldValue isEqual:newValue]) {
+				[self setKrollValue:newValue forKey:thisKey withObject:nil];
+			}
 		}
 		
 		for (NSString * thisKey in oldProperties)
@@ -1087,19 +1126,6 @@ DEFINE_EXCEPTIONS
 			[proxy fireEvent:@"touchstart" withObject:evt propagate:YES];
 			[self handleControlEvents:UIControlEventTouchDown];
 		}
-        // Click handling is special; don't propagate if we have a delegate,
-        // but DO invoke the touch delegate.
-		// clicks should also be handled by any control the view is embedded in.
-		if ([touch tapCount] == 1 && [proxy _hasListeners:@"click"])
-		{
-			if (touchDelegate == nil) {
-				[proxy fireEvent:@"click" withObject:evt propagate:YES];
-				return;
-			} 
-		} else if ([touch tapCount] == 2 && [proxy _hasListeners:@"dblclick"]) {
-			[proxy fireEvent:@"dblclick" withObject:evt propagate:YES];
-			return;
-		}
 	}
 }
 
@@ -1144,6 +1170,20 @@ DEFINE_EXCEPTIONS
 		{
 			[proxy fireEvent:@"touchend" withObject:evt propagate:YES];
 			[self handleControlEvents:UIControlEventTouchCancel];
+		}
+        
+		// Click handling is special; don't propagate if we have a delegate,
+		// but DO invoke the touch delegate.
+		// clicks should also be handled by any control the view is embedded in.
+		if ([touch tapCount] == 1 && [proxy _hasListeners:@"click"])
+		{
+			if (touchDelegate == nil) {
+				[proxy fireEvent:@"click" withObject:evt propagate:YES];
+				return;
+			}
+		} else if ([touch tapCount] == 2 && [proxy _hasListeners:@"dblclick"]) {
+			[proxy fireEvent:@"dblclick" withObject:evt propagate:YES];
+			return;
 		}
 	}
 }

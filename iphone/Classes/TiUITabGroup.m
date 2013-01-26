@@ -394,52 +394,62 @@ DEFINE_EXCEPTIONS
 
 -(void)setTabs_:(id)tabs
 {
-	ENSURE_TYPE_OR_NIL(tabs,NSArray);
+    ENSURE_TYPE_OR_NIL(tabs,NSArray);
 
-	if (tabs!=nil && [tabs count] > 0)
-	{		
-		NSMutableArray *controllers = [[NSMutableArray alloc] init];
-		id thisTab = [[self proxy] valueForKey:@"activeTab"];
-		
-		for (TiUITabProxy *tabProxy in tabs)
-		{
-			[controllers addObject:[tabProxy controller]];
-			if ([TiUtils boolValue:[tabProxy valueForKey:@"active"]])
-			{
-                RELEASE_TO_NIL(focused);
-				focused = [tabProxy retain];
-			}
-		}
-
-		[self tabController].viewControllers = nil;
-		[self tabController].viewControllers = controllers;
-		if (![tabs containsObject:focused])
-		{
-            if ( (thisTab != nil) && (![thisTab isKindOfClass:[TiUITabProxy class]]) ) {
+    if (tabs!=nil && [tabs count] > 0) {
+        NSMutableArray *controllers = [[NSMutableArray alloc] init];
+        id thisTab = [[self proxy] valueForKey:@"activeTab"];
+        
+        TiUITabProxy *theActiveTab = nil;
+        
+        if (thisTab != nil && thisTab != [NSNull null]) {
+            if (![thisTab isKindOfClass:[TiUITabProxy class]]) {
                 int index = [TiUtils intValue:thisTab];
                 if (index < [tabs count]) {
-                    thisTab = [tabs objectAtIndex:index];
+                    theActiveTab = [tabs objectAtIndex:index];
                 }
             }
-            if ([tabs containsObject:thisTab]) {
-                [self setActiveTab_:thisTab];
+            else {
+                if ([tabs containsObject:thisTab]) {
+                    theActiveTab = thisTab;
+                }
+            }
+        }
+		
+        for (TiUITabProxy *tabProxy in tabs) {
+            [controllers addObject:[tabProxy controller]];
+            if ([TiUtils boolValue:[tabProxy valueForKey:@"active"]]) {
+                RELEASE_TO_NIL(focused);
+                focused = [tabProxy retain];
+            }
+        }
+        
+        if (theActiveTab != nil && focused != theActiveTab) {
+            RELEASE_TO_NIL(focused);
+            focused = [theActiveTab retain];
+        }
+
+        [self tabController].viewControllers = nil;
+        [self tabController].viewControllers = controllers;
+        if ( focused != nil && ![tabs containsObject:focused]) {
+            if (theActiveTab != nil) {
+                [self setActiveTab_:theActiveTab];
             }
             else {
                 DebugLog(@"[WARN] ActiveTab property points to tab not in list. Ignoring");
                 RELEASE_TO_NIL(focused);
             }
-		}
+        }
 
-		[controllers release];
-	}
-	else
-	{
-		RELEASE_TO_NIL(focused);
-		[self tabController].viewControllers = nil;
-	}
+        [controllers release];
+    }
+    else {
+        RELEASE_TO_NIL(focused);
+        [self tabController].viewControllers = nil;
+    }
 
-	[self.proxy	replaceValue:focused forKey:@"activeTab" notification:YES];
-	[self setAllowUserCustomization_:[NSNumber numberWithBool:allowConfiguration]];
+    [self.proxy	replaceValue:focused forKey:@"activeTab" notification:YES];
+    [self setAllowUserCustomization_:[NSNumber numberWithBool:allowConfiguration]];
 }
 
 -(void)open:(id)args

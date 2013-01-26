@@ -648,6 +648,9 @@ USE_VIEW_FOR_CONTENT_HEIGHT
     TiUITableViewRowProxy *row = [self tableRowFromArg:data];
     
     TiUITableView *table = [self viewInitialized]?[self tableView]:nil;
+	
+	// Synchronize data with UI thread
+	[self data];
     
     if (sections == nil || [sections count]==0)
     {
@@ -658,11 +661,7 @@ USE_VIEW_FOR_CONTENT_HEIGHT
     {
         id header = [row valueForKey:@"header"];
         TiUITableViewActionType actionType = TiUITableViewActionAppendRow;
-        __block TiUITableViewSectionProxy* section = nil;
-        TiThreadPerformOnMainThread(^{
-            section = [sections lastObject];
-        }, YES);
-        
+        TiUITableViewSectionProxy* section = [sections lastObject];
         if (header != nil) {
             NSInteger newSectionIndex = section.section + 1;
             section = [self sectionWithHeader:header table:table];		

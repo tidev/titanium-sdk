@@ -302,8 +302,6 @@ properties:
   - name: html
     summary: HTML content of this web view.
     description: |
-        On Android, setting the `html` property directly does not work until after the `load`
-        event has been fired. Using [setHtml](Titanium.UI.WebView.setHtml) is recommended.
         
         See [setHtml](Titanium.UI.WebView.setHtml) for additional parameters that can be
         specified when setting HTML content.

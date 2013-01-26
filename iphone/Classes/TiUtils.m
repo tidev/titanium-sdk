@@ -19,6 +19,7 @@
 #import "TiFile.h"
 #import "TiBlob.h"
 #import "Base64Transcoder.h"
+#import "TiExceptionHandler.h"
 
 // for checking version
 #import <sys/utsname.h>
@@ -75,6 +76,11 @@ bool Base64AllocAndEncodeData(const void *inInputData, size_t inInputDataSize, c
         }
         return 160;
     }    
+}
+
++(BOOL)isRetinaFourInch
+{
+    return ([[UIScreen mainScreen] bounds].size.height == 568);
 }
 
 +(BOOL)isRetinaDisplay
@@ -590,7 +596,7 @@ bool Base64AllocAndEncodeData(const void *inInputData, size_t inInputDataSize, c
 
 	NSString *ext = [path pathExtension];
 
-	if(![ext isEqualToString:@"png"] && ![ext isEqualToString:@"jpg"])
+	if(![ext isEqualToString:@"png"] && ![ext isEqualToString:@"jpg"] && ![ext isEqualToString:@"jpeg"])
 	{ //It's not an image.
 		return url;
 	}
@@ -603,6 +609,13 @@ bool Base64AllocAndEncodeData(const void *inInputData, size_t inInputDataSize, c
 	NSString *os = [TiUtils isIPad] ? @"~ipad" : @"~iphone";
 
 	if([TiUtils isRetinaDisplay]){
+		if ([TiUtils isRetinaFourInch]) {
+			// first try -568h@2x iphone5 specific
+			NSString *testpath = [NSString stringWithFormat:@"%@-568h@2x.%@",partial,ext];
+			if ([fm fileExistsAtPath:testpath]) {
+				return [NSURL fileURLWithPath:testpath];
+			}
+		}
 		// first try 2x device specific
 		NSString *testpath = [NSString stringWithFormat:@"%@@2x%@.%@",partial,os,ext];
 		if ([fm fileExistsAtPath:testpath])
@@ -1052,6 +1065,20 @@ If the new path starts with / and the base url is app://..., we have to massage 
 		result = [WebFont defaultFont];
 	}
 	return result;
+}
+
++(TiScriptError*) scriptErrorValue:(id)value;
+{
+	if ((value == nil) || (value == [NSNull null])){
+		return nil;
+	}
+	if ([value isKindOfClass:[TiScriptError class]]){
+		return value;
+	}
+	if ([value isKindOfClass:[NSDictionary class]]) {
+		return [[[TiScriptError alloc] initWithDictionary:value] autorelease];
+	}
+	return [[[TiScriptError alloc] initWithMessage:[value description] sourceURL:nil lineNo:0] autorelease];
 }
 
 +(UITextAlignment)textAlignmentValue:(id)alignment
