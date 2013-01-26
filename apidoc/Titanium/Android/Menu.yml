@@ -12,11 +12,37 @@ description: |
     the Titanium Guides for information on setting your application's theme.)
 
     To determine how an action item is displayed, set
-    [showAsAction](Titanium.Android.MenuItem.showAsAction) and 
+    [showAsAction](Titanium.Android.MenuItem.showAsAction) and optionally 
     [actionView](Titanium.Android.MenuItem.showAsAction) when creating a menu item.
 
-    See also: [Menu](http://developer.android.com/reference/android/view/Menu.html)
-    in the Android Developer Reference.
+    #### Creating Menu Items
+
+    To create menu items, assign a callback function to the activity's [onCreateOptionsMenu](Titanium.Android.Activity.onCreateOptionsMenu)
+    property. The activity's menu is passed in to the `onCreateOptionsMenu` function when
+    the menu is created.
+
+    For menu items displayed in the menu, the `onCreateOptionsMenu` function is called
+    once, and the [onPrepareOptionsMenu](Titanium.Android.Activity.onPrepareOptionsMenu) callback function is called each
+    time the menu is opened. The `onPrepareOptionsMenu` function can be used to switch menu items dynamically.
+
+    When the action bar is in use, the menu is considered to be always open and
+    `prepareOptionsMenu` is never called. To switch menu items dynamically, call
+    [invalidateOptionsMenu](Titanium.Android.Activity.invalidateOptionsMenu). This causes
+    the `createOptionsMenu` to be called again. 
+
+    #### Further Reading 
+
+    See also: 
+    
+    *   [Menus](http://developer.android.com/guide/topics/ui/menus.html) in the 
+        Android Developer Guides.
+
+    *   [Action Bar](http://developer.android.com/guide/topics/ui/actionbar.html) in 
+        the Android Developer Guides.
+
+    *   [Menu](http://developer.android.com/reference/android/view/Menu.html)
+        in the Android Developer Reference.
+
 extends: Titanium.Proxy
 platforms: [android]
 createable: false
