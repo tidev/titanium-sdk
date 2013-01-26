@@ -119,7 +119,7 @@ public class UtilsModule extends KrollModule
 			byte[] b = null;
 			if (obj instanceof TiBlob) {
 				b = ((TiBlob) obj).getBytes();
-			}else{
+			} else {
 				String data = convertToString(obj);
 				b = data.getBytes();
 			}
