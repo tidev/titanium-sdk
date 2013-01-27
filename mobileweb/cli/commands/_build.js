@@ -342,7 +342,7 @@ build.prototype = {
 			if (modules.missing.length) {
 				this.logger.error(__('Could not find all required Titanium Modules:'))
 				modules.missing.forEach(function (m) {
-					this.logger.error('   id: ' + m.id + '\t version: ' + (m.version || 'latest') + '\t platform: ' + m.platform);
+					this.logger.error('   id: ' + m.id + '\t version: ' + (m.version || 'latest') + '\t platform: ' + m.platform + '\t deploy-type: ' + m.deployType);
 				}, this);
 				this.logger.log();
 				process.exit(1);

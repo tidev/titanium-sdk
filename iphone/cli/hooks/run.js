@@ -89,19 +89,25 @@ exports.init = function (logger, config, cli) {
 					simProcess,
 					simErr = [],
 					stripLogLevelRE = new RegExp('\\[(?:' + logger.getLevels().join('|') + ')\\] '),
-					logProcess;
+					logProcess,
+					simStarted = false,
+					simEnv = path.join(build.xcodeEnv.path, 'Platforms', 'iPhoneSimulator.platform', 'Developer', 'Library', 'PrivateFrameworks') +
+							':' + afs.resolvePath(build.xcodeEnv.path, '..', 'OtherFrameworks');
 
-				cli.argv.retina && cmd.push('--retina');
+				if (cli.argv.retina) {
+					cmd.push('--retina');
+					cli.argv.tall && cmd.push('--tall');
+				}
 				cmd = cmd.join(' ');
 
 				logger.info(__('Launching application in iOS Simulator'));
+				logger.trace(__('Simulator environment: %s', ('DYLD_FRAMEWORK_PATH=' + simEnv).cyan));
 				logger.debug(__('Simulator command: %s', cmd.cyan));
 
 				simProcess = spawn('/bin/sh', ['-c', cmd], {
 					cwd: build.titaniumIosSdkPath,
 					env: {
-						DYLD_FRAMEWORK_PATH: path.join(build.xcodeEnv.path, 'Platforms', 'iPhoneSimulator.platform', 'Developer', 'Library', 'PrivateFrameworks') +
-							':' + afs.resolvePath(build.xcodeEnv.path, '..', 'OtherFrameworks')
+						DYLD_FRAMEWORK_PATH: simEnv
 					}
 				});
 
@@ -116,7 +122,12 @@ exports.init = function (logger, config, cli) {
 					clearTimeout(findLogTimer);
 					logProcess && logProcess.kill();
 
-					if (code) {
+					if (simStarted) {
+						var endLogTxt = __('End simulator log');
+						logger.log(('-- ' + endLogTxt + ' ' + (new Array(75 - endLogTxt.length)).join('-')).grey);
+					}
+
+					if (code || simErr.length) {
 						finished(new appc.exception(__('An error occurred running the iOS Simulator'), simErr));
 					} else {
 						logger.info(__('Application has exited from iOS Simulator'));
@@ -135,14 +146,18 @@ exports.init = function (logger, config, cli) {
 						file = path.join(simulatorDir, files[i], 'Documents', logFile);
 						if (afs.exists(file)) {
 							logger.debug(__('Found iPhone Simulator log file: %s', file.cyan));
-							logger.info(__('iPhone Simulator log:'));
+							
+							var startLogTxt = __('Start simulator log');
+							logger.log(('-- ' + startLogTxt + ' ' + (new Array(75 - startLogTxt.length)).join('-')).grey);
+							simStarted = true;
 
 							var position = 0,
 								buf = new Buffer(16),
 								buffer = '',
-								readChangesInterval;
+								readChangesTimer,
+								lastLogger = 'debug';
 
-							function readChanges () {
+							(function readChanges () {
 								var fd = fs.openSync(file, 'r'),
 									bytesRead,
 									lines,
@@ -162,17 +177,17 @@ exports.init = function (logger, config, cli) {
 									if (line) {
 										m = line.match(logLevelRE);
 										if (m) {
-											logger[m[2].toLowerCase()](m[4].trim());
+											logger[lastLogger = m[2].toLowerCase()](m[4].trim());
 										} else {
-											logger.debug(line);
+											logger[lastLogger](line);
 										}
 									}
 								}
-							}
-							readChangesInterval = setInterval(readChanges, 30);
+								readChangesTimer = setTimeout(readChanges, 30);
+							}());
 
 							simProcess.on('exit', function() {
-								clearInterval(readChangesInterval);
+								clearTimeout(readChangesTimer);
 							});
 
 							// we found the log file, no need to keep searching for it
