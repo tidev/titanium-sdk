@@ -411,12 +411,12 @@ exports.validate = function (logger, config, cli) {
 			if (isDir) {
 				logger.warn(__('Found graylisted directory in the Resources directory'));
 				logger.warn(__('The directory "%s" is potentially a reserved word.', filename));
-				logger.warn(__('There is a good chance your app will be rejected by the Apple.'));
+				logger.warn(__('There is a good chance your app will be rejected by Apple.'));
 				logger.warn(__('It is highly recommended you rename this directory to something else.'));
 			} else {
 				logger.warn(__('Found graylisted file in the Resources directory'));
 				logger.warn(__('The file "%s" is potentially a reserved word.', filename));
-				logger.warn(__('There is a good chance your app will be rejected by the Apple.'));
+				logger.warn(__('There is a good chance your app will be rejected by Apple.'));
 				logger.warn(__('It is highly recommended you rename this file to something else.'));
 			}
 		}
