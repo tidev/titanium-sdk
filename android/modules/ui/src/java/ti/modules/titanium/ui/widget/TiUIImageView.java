@@ -753,7 +753,7 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 			
 		}
 	}
-	
+
 	final class BackgroundImageTask extends AsyncTask<ImageArgs, Void, Bitmap>
 	{
 		private boolean recycle;
@@ -761,66 +761,61 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 		private boolean mAsync = false;
 		private String mUrl;
 
-        @Override
+		@Override
 		protected Bitmap doInBackground(final ImageArgs... params)
 		{
 			final ImageArgs imageArgs = params[0];
 
 			recycle = imageArgs.mRecycle;
-            mNetworkURL = imageArgs.mNetworkURL;
-            Bitmap bitmap = null;
-                
-            mUrl = imageArgs.mImageref.getUrl();
+			mNetworkURL = imageArgs.mNetworkURL;
+			Bitmap bitmap = null;
 
-            if (mNetworkURL) {
-            	boolean getAsync = true;
-    			try {
-    				String imageUrl = TiUrl.getCleanUri(imageArgs.mImageref.getUrl()).toString();
-    					
-    				URI uri = new URI(imageUrl);
-    				getAsync = !TiResponseCache.peek(uri);	// expensive, don't want to do in UI thread
-    			} catch (URISyntaxException e) {
-    				Log.e(TAG, "URISyntaxException for url " + imageArgs.mImageref.getUrl(), e);
-    				getAsync = false;
-    			} catch (NullPointerException e) {
-    				Log.e(TAG, "NullPointerException for url " + imageArgs.mImageref.getUrl(), e);
-    				getAsync = false;
-    			} catch (Exception e) {
-    				Log.e(TAG,  "Caught exception for url" + imageArgs.mImageref.getUrl(), e);
-    			}
-    			if (getAsync) {
-    				//
-    				// We've got to start the download back on the UI thread, if we do it on one
-    				// of the AsyncTask threads it will throw an exception.
-    				//
-    				mAsync = true;
- 
-    				TiMessenger.getMainMessenger().post(new Runnable()
-    				{
-    					@Override
-    					public void run()
-    					{
-    	    				imageArgs.mImageref.getBitmapAsync(imageDownloadListener);
-    				
-    					}
-    				});
+			mUrl = imageArgs.mImageref.getUrl();
 
-    			} else {
-    				bitmap = (imageArgs.mImageref).getBitmap(
-                		imageArgs.mView, 
-                		imageArgs.mRequestedWidth, 
-                		imageArgs.mRequestedHeight);
-    			}
-            }
-            else {
-            	bitmap = (imageArgs.mImageref).getBitmap(
-            			imageArgs.mView, 
-                		imageArgs.mRequestedWidth, 
-                		imageArgs.mRequestedHeight);
-            }
-            return bitmap;
-        }
-        
+			if (mNetworkURL) {
+				boolean getAsync = true;
+				try {
+					String imageUrl = TiUrl.getCleanUri(imageArgs.mImageref.getUrl()).toString();
+
+					URI uri = new URI(imageUrl);
+					getAsync = !TiResponseCache.peek(uri); // expensive, don't want to do in UI thread
+				} catch (URISyntaxException e) {
+					Log.e(TAG, "URISyntaxException for url " + imageArgs.mImageref.getUrl(), e);
+					getAsync = false;
+				} catch (NullPointerException e) {
+					Log.e(TAG, "NullPointerException for url " + imageArgs.mImageref.getUrl(), e);
+					getAsync = false;
+				} catch (Exception e) {
+					Log.e(TAG, "Caught exception for url" + imageArgs.mImageref.getUrl(), e);
+				}
+				if (getAsync) {
+					//
+					// We've got to start the download back on the UI thread, if we do it on one
+					// of the AsyncTask threads it will throw an exception.
+					//
+					mAsync = true;
+
+					TiMessenger.getMainMessenger().post(new Runnable()
+					{
+						@Override
+						public void run()
+						{
+							imageArgs.mImageref.getBitmapAsync(imageDownloadListener);
+
+						}
+					});
+
+				} else {
+					bitmap = (imageArgs.mImageref).getBitmap(imageArgs.mView, imageArgs.mRequestedWidth,
+						imageArgs.mRequestedHeight);
+				}
+			} else {
+				bitmap = (imageArgs.mImageref).getBitmap(imageArgs.mView, imageArgs.mRequestedWidth,
+					imageArgs.mRequestedHeight);
+			}
+			return bitmap;
+		}
+
 		@Override
 		protected void onPostExecute(Bitmap result)
 		{
@@ -839,7 +834,7 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 			}
 		}
 	}
-	
+
 	private void setImage(boolean recycle) {
 		
 		if (imageSources == null || imageSources.size() == 0 || imageSources.get(0) == null || imageSources.get(0).isTypeNull()) {
