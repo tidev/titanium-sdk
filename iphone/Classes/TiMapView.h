@@ -33,10 +33,6 @@
     CFMutableDictionaryRef mapLine2View;   // MKPolyline(route line) -> MKPolylineView(route view)
     CFMutableDictionaryRef mapName2Line;   // NSString(name) -> MKPolyline(route line)
     
-	// Click detection
-	id<MKAnnotation> hitAnnotation;
-	BOOL hitSelect;
-	BOOL manualSelect;
 }
 
 @property (nonatomic, readonly) CLLocationDegrees longitudeDelta;

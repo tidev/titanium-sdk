@@ -216,9 +216,6 @@
 
 -(void)setSelectedAnnotation:(id<MKAnnotation>)annotation
 {
-    hitAnnotation = annotation;
-    hitSelect = NO;
-    manualSelect = YES;
     [[self map] selectAnnotation:annotation animated:animate];
 }
 
@@ -229,9 +226,6 @@
 	
 	if (args == nil) {
 		for (id<MKAnnotation> annotation in [[self map] selectedAnnotations]) {
-			hitAnnotation = annotation;
-			hitSelect = NO;
-			manualSelect = YES;
 			[[self map] deselectAnnotation:annotation animated:animate];
 		}
 		return;
@@ -506,10 +500,6 @@
     return (MKOverlayView *)CFDictionaryGetValue(mapLine2View, overlay);
 }
 
-- (void)mapView:(MKMapView *)mapView regionWillChangeAnimated:(BOOL)animated
-{
-}
-
 - (void)mapView:(MKMapView *)mapView regionDidChangeAnimated:(BOOL)animated
 {
     region = [mapView region];
@@ -651,8 +641,6 @@
 		BOOL isSelected = [view isSelected];
 		MKAnnotationView<TiMapAnnotation> *ann = (MKAnnotationView<TiMapAnnotation> *)view;
 		[self fireClickEvent:view source:isSelected?@"pin":[ann lastHitName]];
-		manualSelect = NO;
-		hitSelect = NO;
 		return;
 	}
 }
@@ -662,8 +650,6 @@
 		BOOL isSelected = [view isSelected];
 		MKAnnotationView<TiMapAnnotation> *ann = (MKAnnotationView<TiMapAnnotation> *)view;
 		[self fireClickEvent:view source:isSelected?@"pin":[ann lastHitName]];
-		manualSelect = NO;
-		hitSelect = NO;
 		return;
 	}
 }
@@ -803,24 +789,6 @@
 			break;
 		}
 	}
-	return result;
-}
-
--(UIView*)hitTest:(CGPoint)point withEvent:(UIEvent *)event
-{
-	UIView* result = [super hitTest:point withEvent:event];
-	if (result != nil) {
-		// OK, we hit something - if the result is an annotation... (3.2+)
-		if ([result isKindOfClass:[MKAnnotationView class]]) {
-			hitAnnotation = [(MKAnnotationView*)result annotation];
-		} else {
-			hitAnnotation = nil;
-		}
-	} else {
-		hitAnnotation = nil;
-	}
-	hitSelect = YES;
-	manualSelect = NO;
 	return result;
 }
 
