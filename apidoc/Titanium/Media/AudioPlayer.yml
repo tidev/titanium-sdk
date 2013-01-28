@@ -13,7 +13,7 @@ description: |
     Use the <Titanium.Media.createAudioPlayer> method to create an audio player.
 extends: Titanium.Proxy
 since: "0.9"
-platforms: [android, iphone, ipad]
+platforms: [android, iphone, ipad, mobileweb]
 examples: 
   - title: Audio Streaming
     example: |
@@ -103,29 +103,29 @@ methods:
     summary: Returns the value of the [paused](Titanium.Media.AudioPlayer.paused) property.
     returns: 
         type: Boolean
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, mobileweb]
   - name: isPaused
     summary: Returns the value of the [paused](Titanium.Media.AudioPlayer.paused) property.
     returns: 
         type: Boolean
-    platforms: [android]
+    platforms: [android, mobileweb]
   - name: getPlaying
     summary: Returns the value of the [playing](Titanium.Media.AudioPlayer.playing) property.
     returns: 
         type: Boolean
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, mobileweb]
   - name: isPlaying
     summary: Returns the value of the [playing](Titanium.Media.AudioPlayer.playing) property.
     returns: 
         type: Boolean
-    platforms: [android]
+    platforms: [android, mobileweb]
   - name: pause
     summary: Pauses audio playback.
     description: |
         On iOS, the `pause` call operates as a toggle. If the stream is already paused,
         calling `pause` again resumes playing the stream.
 
-        On Android, the `pause` call does nothing if the stream is already paused.
+        On Android and MobileWeb, the `pause` call does nothing if the stream is already paused.
 
         On both platforms, calling [start](Titanium.Media.AudioPlayer.start) on a paused
         stream resumes play.
@@ -133,7 +133,7 @@ methods:
     summary: Starts or resumes audio playback.
     description: |
         This method is identical to [start](Titanium.Media.AudioPlayer.start).
-    platforms: [android]
+    platforms: [android, mobileweb]
   - name: setPaused
     summary: Sets the value of the [paused](Titanium.Media.AudioPlayer.paused) property.
     description: |
@@ -144,13 +144,13 @@ methods:
       - name: paused
         summary: Pass `true` to pause the current playback temporarily, `false` to unpause it.
         type: Boolean
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, mobileweb]
   - name: release
     summary: Stops buffering audio data and releases audio resources.
     description: |
         On Android, this method should be called when you are done streaming a given
         audio object, to release underlying resources, including buffered data.
-    platforms: [android]
+    platforms: [android, mobileweb]
   - name: start
     summary: Starts or resumes audio playback.
   - name: stateDescription
@@ -163,7 +163,7 @@ methods:
         type: Number
     returns:
         type: String
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, mobileweb]
   - name: stop
     summary: Stops audio playback.
 events:
@@ -243,7 +243,7 @@ properties:
         or waiting for data.
     type: Boolean
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, mobileweb]
   - name: paused
     summary: Boolean indicating if audio playback is paused.
     type: Boolean
@@ -259,12 +259,12 @@ properties:
         Returns zero if `bitRate` has not yet been detected.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, mobileweb]
   - name: state
     summary: Current state of playback, specified using one of the `STATE` constants defined on this object.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, mobileweb]
   - name: url
     summary: URL for the audio stream.
     type: String
