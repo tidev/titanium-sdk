@@ -172,6 +172,28 @@ properties:
         but it is not writable on device.
     type: String
     permission: read-only
+  - name: resRawDirectory
+    summary: Path to the application's raw resource directory.
+    description: |
+        On Android, the raw resources directory can be used for resources that need to be
+        accessed as individual files, not included in the Android resources bundle. For
+        example, sound files placed in the raw resources directory can be accessed by 
+        notifications, which cannot access sound files from the resource
+        directory.
+
+        To use raw resources, place files in the `platform/android/res/raw` folder, where 
+        `platform` is at the top level of the project, not inside the `Resources` folder. You
+        will need to create the `platform` folder and subfolders.
+
+        This directory is read-only. If you need to modify any files in this directory,
+        they must first be copied to another directory, such as  
+        [applicationDataDirectory](Titanium.Filesystem.applicationDataDirectory) or
+        [tempDirectory](Titanium.Filesystem.tempDirectory). 
+        
+    platforms: [android]
+    since: "3.0.2"
+    type: String
+    permission: read-only
   - name: separator
     summary: Platform-specific path separator constant.
     type: String

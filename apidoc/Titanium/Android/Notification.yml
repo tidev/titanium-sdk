@@ -146,11 +146,21 @@ properties:
     type: Number
 
   - name: sound
-    summary: A native Android URL to the sound to play.
+    summary: A URL to the sound to play.
     description: |
-        Currently, the URL cannot refer to a file in the Resources directory. To play a file 
-        from the Resources directory, first copy it to removable storage. For example, you
-        can define the following function:
+        The URL cannot refer to a file in the Resources directory, but it can refer to
+        a file in the raw resources directory
+        ([Filesystem.resRawDirectory](Titanium.Filesystem.resRawDirectory)) or the
+        external storage directory
+        ([Filesystem.externalStorageDirectory](Titanium.Filesystem.externalStorageDirectory)).
+
+        To create a raw resource, place the audio file in the `platform/android/res/raw` 
+        folder and reference it as:
+
+            notification.sound = Ti.Filesystem.getResRawDirectory() + audioFileName;
+
+        To play a file from the Resources directory, first copy it to external storage. For example, you
+        could define the following function:
 
             // Copy resource file to SD card, and return a native path.
             // Return undefined if we can't copy the file.
