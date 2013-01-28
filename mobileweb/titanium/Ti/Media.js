@@ -43,7 +43,9 @@ define(["Ti/_/Evented", "Ti/_/lang"], function(Evented, lang) {
 
 		//createAudioPlayer: function() {},
 
-		//createSound: function() {},
+		createSound: function(args) {
+			return new (require("Ti/Media/Sound"))(args);
+		},
 
 		createVideoPlayer: function(args) {
 			return new (require("Ti/Media/VideoPlayer"))(args);
