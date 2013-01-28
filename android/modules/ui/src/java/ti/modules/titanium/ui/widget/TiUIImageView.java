@@ -88,10 +88,6 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 	private Object releasedLock = new Object();
 	private String currentUrl;
 
-	// Keep track of the current background tasks so that only one loading task is alive for every image view.
-	// (TIMOB-11282)
-	private Vector<BackgroundImageTask> currentBackgroundTaskList = new Vector<BackgroundImageTask>();
-
 	final class ImageDownloadListener implements TiDownloadListener {
 		public int mToken;
 		public ImageArgs mImageArgs;
@@ -129,7 +125,6 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 							true,  
 							false);
 					BackgroundImageTask task = new BackgroundImageTask();
-					currentBackgroundTaskList.add(task);
 					try {
 						task.execute(imageArgs);
 					} catch (RejectedExecutionException e) {
@@ -842,7 +837,6 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 					}
 				}
 			}
-			currentBackgroundTaskList.remove(this);
 		}
 	}
 	
@@ -883,7 +877,6 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 								true);
 					
 				BackgroundImageTask task = new BackgroundImageTask();
-				currentBackgroundTaskList.add(task);
 				try {
 					task.execute(imageArgs);
 				} catch (RejectedExecutionException e) {
@@ -897,7 +890,6 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 						false);
 				
 				BackgroundImageTask task = new BackgroundImageTask();
-				currentBackgroundTaskList.add(task);
 				try {
 					task.execute(imageArgs);
 				} catch (RejectedExecutionException e) {
@@ -1027,14 +1019,6 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 			if (changeImage) {
 				setImageSource(source);
 				firedLoad = false;
-
-				// Cancel all the current background tasks before submitting a new one.
-				for (BackgroundImageTask task : currentBackgroundTaskList) {
-					if (task.cancel(true)) {
-						currentBackgroundTaskList.remove(task);
-					}
-				}
-
 				setImage(false);
 			}
 
@@ -1200,10 +1184,5 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 			timer = null;
 		}
 		defaultImageSource = null;
-
-		for (BackgroundImageTask task : currentBackgroundTaskList) {
-			task.cancel(true);
-		}
-		currentBackgroundTaskList.clear();
 	}
 }
