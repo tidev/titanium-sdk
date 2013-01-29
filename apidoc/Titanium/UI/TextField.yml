@@ -483,6 +483,6 @@ examples:
 
             <Alloy>
                 <Window id="win" backgroundColor="white">
-                    <TextField id="textField" color="#336699" top="10" left="10" width="250" height="60" />
+                    <TextField id="textField" borderStyle="Ti.UI.INPUT_BORDERSTYLE_ROUNDED" color="#336699" top="10" left="10" width="250" height="60" />
                 </Window>
             </Alloy>

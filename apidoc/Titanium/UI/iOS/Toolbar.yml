@@ -114,19 +114,17 @@ examples:
     example: |
         Previous example as an Alloy view.
 
-        Define the `style` and `systemButton` properties in the TSS file.
-
             <Alloy>
                 <Window id="win">
                     <Toolbar platform="ios" bottom="0" borderTop="true" borderBottom="false">
 
                         <!-- The Items tag sets the Toolbar.items property. -->
                         <Items>
-                            <Button id="send" title="Send"/>
+                            <Button id="send" title="Send" style="Ti.UI.iPhone.SystemButtonStyle.DONE" />
                             <FlexSpace/>
-                            <Button id="camera"/>
+                            <Button id="camera" systemButton="Ti.UI.iPhone.SystemButton.CAMERA" />
                             <FlexSpace/>
-                            <Button id="cancel"/>
+                            <Button id="cancel" systemButton="Ti.UI.iPhone.SystemButton.CANCEL" />
                         </Items>
 
                         <!-- Place additional views for the Toolbar here. -->
