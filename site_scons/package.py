@@ -327,7 +327,7 @@ def zip_mobileweb(zf, basepath, version):
 			to_ = from_.replace(dir, os.path.join(basepath,'mobileweb'), 1)
 			zf.write(from_, to_)
 
-def resolve_npm_deps(dir, version):
+def resolve_npm_deps(dir, version, node_appc_branch):
 	package_json_file = os.path.join(dir, 'package.json')
 	if os.path.exists(package_json_file):
 		# ensure fresh npm install for everything EXCEPT titanium-sdk
@@ -351,6 +351,12 @@ def resolve_npm_deps(dir, version):
 		}
 		for key in subs:
 			package_json_contents = package_json_contents.replace(key, subs[key])
+		
+		if node_appc_branch:
+			json = simplejson.loads(package_json_contents)
+			json['dependencies']['node-appc'] = 'git://github.com/appcelerator/node-appc.git#%s' % node_appc_branch
+			package_json_contents = simplejson.dumps(json, indent=True)
+		
 		codecs.open(package_json_file, 'w', 'utf-8').write(package_json_contents)
 		
 		node_installed = False
@@ -496,16 +502,16 @@ class Packager(object):
 	def __init__(self, build_jsca=1):
 		self.build_jsca = build_jsca
 	 
-	def build(self, dist_dir, version, module_apiversion, android=True, iphone=True, ipad=True, mobileweb=True, version_tag=None):
+	def build(self, dist_dir, version, module_apiversion, android=True, iphone=True, ipad=True, mobileweb=True, version_tag=None, node_appc_branch=False):
 		if version_tag == None:
 			version_tag = version
 		
 		# get all SDK level npm dependencies
-		resolve_npm_deps(template_dir, version)()
+		resolve_npm_deps(template_dir, version, node_appc_branch)()
 		
 		zip_mobilesdk(dist_dir, os_names[platform.system()], version, module_apiversion, android, iphone, ipad, mobileweb, version_tag, self.build_jsca)
 
-	def build_all_platforms(self, dist_dir, version, module_apiversion, android=True, iphone=True, ipad=True, mobileweb=True, version_tag=None):
+	def build_all_platforms(self, dist_dir, version, module_apiversion, android=True, iphone=True, ipad=True, mobileweb=True, version_tag=None, node_appc_branch=False):
 		global packaging_all
 		packaging_all = True
 
@@ -515,7 +521,7 @@ class Packager(object):
 		remove_existing_zips(dist_dir, version_tag)
 		
 		# get all SDK level npm dependencies
-		resolve_npm_deps(template_dir, version)()
+		resolve_npm_deps(template_dir, version, node_appc_branch)()
 		
 		for os in os_names.values():
 			zip_mobilesdk(dist_dir, os, version, module_apiversion, android, iphone, ipad, mobileweb, version_tag, self.build_jsca)
