@@ -281,23 +281,34 @@ public class IntentProxy extends KrollProxy
 	public TiBlob getBlobExtra(String name)
 	{
 		try {
-			Uri uri = (Uri) intent.getExtras().getParcelable(name);
-			InputStream is = TiApplication.getInstance().getContentResolver().openInputStream(uri);
-
-			ByteArrayOutputStream bos = new ByteArrayOutputStream();
-			int len;
-			int size = 4096;
-			byte[] buf = new byte[size];
-			while ((len = is.read(buf, 0, size)) != -1) {
-				bos.write(buf, 0, len);
+            
+			Object returnData = intent.getExtras().getParcelable(name);
+			if (returnData instanceof Uri) {
+                
+				Uri uri = (Uri) returnData;
+				InputStream is = TiApplication.getInstance().getContentResolver().openInputStream(uri);
+                
+				ByteArrayOutputStream bos = new ByteArrayOutputStream();
+				int len;
+				int size = 4096;
+				byte[] buf = new byte[size];
+				while ((len = is.read(buf, 0, size)) != -1) {
+					bos.write(buf, 0, len);
+				}
+				buf = bos.toByteArray();
+                
+				return TiBlob.blobFromData(buf);
+			} else if (returnData instanceof Bitmap) {
+                
+				Bitmap returnBitmapData = (Bitmap) returnData;
+				return TiBlob.blobFromImage(returnBitmapData);
 			}
-			buf = bos.toByteArray();
-
-			return TiBlob.blobFromData(buf);
+            
 		} catch (Exception e) {
 			Log.e(TAG, "Error getting blob extra: " + e.getMessage(), e);
 			return null;
 		}
+		return null;
 	}
 
 	@Kroll.method @Kroll.getProperty
