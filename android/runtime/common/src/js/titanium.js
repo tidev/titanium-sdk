@@ -209,13 +209,21 @@ function TiInclude(filename, baseUrl, scopeVars) {
 	} else {
 		var source = getUrlSource(filename, sourceUrl),
 			wrappedSource = "with(sandbox) { " + source + "\n }",
-			filePath = sourceUrl.href.replace("app://", "");
+			filePath = sourceUrl.href.replace("app://", ""),
+			contextGlobal = ti.global;
 
-		// Use the global V8 Context directly, since we don't create a
-		// new context for modules due to TIMOB-11752.
-		// Put sandbox on the global scope
-		sandbox = localSandbox;
-		return Script.runInThisContext(wrappedSource, filePath, true);
+		if (contextGlobal) {
+			// We're running inside another window, so we run against it's context
+			contextGlobal.sandbox = localSandbox;
+			return Script.runInContext(wrappedSource, contextGlobal, filePath, true);
+
+		} else {
+			// We're running inside modules. Since we don't create a new context for modules 
+			// due to TIMOB-11752, we use the global V8 Context directly.
+			// Put sandbox on the global scope
+			sandbox = localSandbox;
+			return Script.runInThisContext(wrappedSource, filePath, true);
+		}
 
 	}
 }
