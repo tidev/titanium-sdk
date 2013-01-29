@@ -93,7 +93,11 @@ if ARGUMENTS.get('force_iphone',0):
 
 if ARGUMENTS.get('COMPILER_FLAGS', 0):
 	flags = ARGUMENTS.get('COMPILER_FLAGS')
-	
+
+node_appc_branch = False
+if ARGUMENTS.get('node-appc-branch', 0):
+	node_appc_branch = ARGUMENTS.get('node-appc-branch')
+
 env = Environment()
 Export("env cwd version")
 if build_type in ['full', 'android'] and not only_package:
@@ -165,9 +169,9 @@ def package_sdk(target, source, env):
 	print "Packaging MobileSDK (%s)..." % version_tag
 	packager = package.Packager(build_jsca=build_jsca)
 	if package_all:
-		packager.build_all_platforms(os.path.abspath('dist'), version, module_apiversion, android, iphone, ipad, mobileweb, version_tag)
+		packager.build_all_platforms(os.path.abspath('dist'), version, module_apiversion, android, iphone, ipad, mobileweb, version_tag, node_appc_branch)
 	else:
-		packager.build(os.path.abspath('dist'), version, module_apiversion, android, iphone, ipad, mobileweb, version_tag)
+		packager.build(os.path.abspath('dist'), version, module_apiversion, android, iphone, ipad, mobileweb, version_tag, node_appc_branch)
 	if install and not clean:
 		install_mobilesdk(version_tag)
 
