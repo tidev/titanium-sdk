@@ -46,7 +46,7 @@ public class TiWebViewClient extends WebViewClient
 		webView.changeProxyUrl(url);
 		KrollDict data = new KrollDict();
 		data.put("url", url);
-		webView.getProxy().fireEvent("load", data);
+		webView.getProxy().fireEvent(TiC.EVENT_LOAD, data);
 		WebView nativeWebView = webView.getWebView();
 
 		if (nativeWebView != null) {
