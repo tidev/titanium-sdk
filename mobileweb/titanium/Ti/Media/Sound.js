@@ -1,5 +1,5 @@
-define(["Ti/_/declare", "Ti/_/dom", "Ti/_/event", "Ti/_/lang", "Ti/Media", "Ti/_/Evented"],
-	function(declare, dom, event, lang, Media, Evented) {
+define(["Ti/_/declare", "Ti/_/dom", "Ti/_/event", "Ti/_/lang", "Ti/_/Evented"],
+	function(declare, dom, event, lang, Evented) {
 	
 	// Ti.Media.Sound is based on tag <audio> of HTML5.
 	// Ti.Media.Sound wraps the interface of the <audio> tag, adds basic
