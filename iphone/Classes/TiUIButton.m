@@ -91,9 +91,9 @@
 	[button setBackgroundImage:backgroundImageUnstretchedCache forState:UIControlStateNormal];	
 }
 
--(void)layoutSubviews
+-(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
 {
-	[super layoutSubviews];
+	[super frameSizeChanged:frame bounds:bounds];
 	[self updateBackgroundImage];
 }
 
