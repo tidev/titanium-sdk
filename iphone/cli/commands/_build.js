@@ -1019,15 +1019,12 @@ build.prototype = {
 					},
 					'injectModulesIntoXcodeProject',
 					'injectApplicationDefaults', // if ApplicationDefaults.m was modified, forceRebuild will be set to true
-					'compileJSS',
-					'compileI18N',
 					'copyTitaniumLibraries',
 					'copySimulatorSpecificFiles',
 					'copyModuleResources',
 					'copyCommonJSModules',
 					'copyItunesArtwork',
 					'copyGraphics',
-					'copyLocalizedSplashScreens',
 					'writeBuildManifest'
 				], function () {
 					if (this.forceRebuild || !afs.exists(this.xcodeAppDir, this.tiapp.name)) {
@@ -1600,9 +1597,7 @@ build.prototype = {
 		if (this.target == 'simulator') {
 			// during simulator we need to copy in standard built-in module files
 			// since we might not run the compiler on subsequent launches
-			['facebook', 'ui'].forEach(function (name) {
-				this.copyDirSync(path.join(this.titaniumIosSdkPath, 'modules', name, 'images'), path.join(this.xcodeAppDir, 'modules', name, 'images'));
-			}, this);
+			this.copyDirSync(path.join(this.titaniumIosSdkPath, 'modules'), path.join(this.xcodeAppDir, 'modules'));
 			
 			// when in simulator since we point to the resources directory, we need
 			// to explicitly copy over any files
@@ -1846,7 +1841,7 @@ build.prototype = {
 		);
 	},
 	
-	copyLocalizedSplashScreens: function (callback) {
+	copyLocalizedSplashScreens: function () {
 		ti.i18n.splashScreens(this.projectDir, this.logger).forEach(function (splashImage) {
 			var token = splashImage.split('/'),
 				file = token.pop(),
@@ -1870,8 +1865,6 @@ build.prototype = {
 				logger: this.logger.debug
 			});
 		}, this);
-		
-		callback();
 	},
 	
 	injectModulesIntoXcodeProject: function (callback) {
@@ -2542,6 +2535,9 @@ build.prototype = {
 				next();
 			}
 		], function () {
+			// localize the splash screen after the resources files have been copied
+			this.copyLocalizedSplashScreens();
+			
 			parallel(this, [
 				function (next) {
 					// if development and the simulator, then we're symlinking files and there's no need to anything below
