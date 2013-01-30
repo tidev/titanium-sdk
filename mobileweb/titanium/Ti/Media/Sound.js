@@ -175,15 +175,13 @@ define(["Ti/_/declare", "Ti/_/dom", "Ti/_/event", "Ti/_/lang", "Ti/_/Evented"],
 		// was initialized. It will be executed when the tag becomes initialized.
 		
 		pause: function() {
-			var audio;
 			this._nextCmd = this.pause;
-			this._initialized && this._currentState === PLAYING && (audio = this._createAudio()) && audio.pause();
+			this._initialized && this._currentState === PLAYING && this._audio.pause();
 		},
 		
 		start: function() {
-			var audio;
 			this._nextCmd = this.start;
-			this._initialized && this._currentState !== PLAYING && (audio = this._createAudio()) && audio.play();
+			this._initialized && this._currentState !== PLAYING && this._audio.play();
 		},
 		
 		play: function() {
@@ -276,7 +274,7 @@ define(["Ti/_/declare", "Ti/_/dom", "Ti/_/event", "Ti/_/lang", "Ti/_/Evented"],
 				set: function(value) {
 					var props = this.properties.__values__;
 					props.volume = Math.max(0, Math.min(1, value));
-					this._initialized && this._audio && (this._audio.volume = props.volume);
+					this._initialized && (this._audio.volume = props.volume);
 					return value;
 				}
 			},
@@ -284,11 +282,11 @@ define(["Ti/_/declare", "Ti/_/dom", "Ti/_/event", "Ti/_/lang", "Ti/_/Evented"],
 			time: {
 				value: 0,
 				get: function() {
-					return this._initialized && this._audio ? Math.floor(this._audio.currentTime * 1000) : this.properties.__values__.time;
+					return this._initialized ? Math.floor(this._audio.currentTime * 1000) : this.properties.__values__.time;
 				},
 				set: function(value) {
 					this.properties.__values__.time = value;
-					this._initialized && this._audio && (this._audio.currentTime = value/1000);
+					this._initialized && (this._audio.currentTime = value/1000);
 					return value;
 				}
 			},
@@ -297,7 +295,7 @@ define(["Ti/_/declare", "Ti/_/dom", "Ti/_/event", "Ti/_/lang", "Ti/_/Evented"],
 				value: false,
 				set: function(value) {
 					this.properties.__values__.looping = value;
-					this._initialized && this._audio && (this._audio.loop = value);
+					this._initialized && (this._audio.loop = value);
 					return value;
 				}
 			}
