@@ -339,24 +339,25 @@ Module.prototype._runScript = function (source, filename) {
 	context.sourceUrl = url;
 	context.module = this;
 
-	// Create a "context global" that's specific to each module
-	var contextGlobal = context.global = {
-		exports: this.exports,
-		require: require,
-		module: this,
-		__filename: filename,
-		__dirname: path.dirname(filename),
-		kroll: kroll
-	};
-	contextGlobal.global = contextGlobal;
-
-	// Add support for console logging
-	contextGlobal.console = NativeModule.require('console');
-
 	var ti = new Titanium.Wrapper(context);
-	contextGlobal.Ti = contextGlobal.Titanium = ti;
 
 	if (kroll.runtime == "rhino") {
+		// Create a "context global" that's specific to each module
+		var contextGlobal = context.global = {
+			exports: this.exports,
+			require: require,
+			module: this,
+			__filename: filename,
+			__dirname: path.dirname(filename),
+			kroll: kroll
+		};
+		contextGlobal.global = contextGlobal;
+
+		// Add support for console logging
+		contextGlobal.console = NativeModule.require('console');
+
+		contextGlobal.Ti = contextGlobal.Titanium = ti;
+
 		// We initialize the context with the standard Javascript APIs and globals first before running the script
 		var newContext = context.global = ti.global = Script.createContext(contextGlobal);
 		bootstrap.bootstrapGlobals(newContext, Titanium);
