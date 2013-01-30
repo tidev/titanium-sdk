@@ -34,9 +34,11 @@ define(["Ti/_/declare", "Ti/_/dom", "Ti/_/event", "Ti/_/lang", "Ti/_/Evented"],
 		// Update the state information;
 		// fire external events according to changes of the internal state.
 		_changeState: function(newState, msg) {
+			var cons = this.constants.__values__;
+			
 			this._currentState = newState;
-			this.constants.__values__.playing 	= PLAYING === newState;
-			this.constants.__values__.paused 	= PAUSED === newState;
+			cons.playing = PLAYING === newState;
+			cons.paused  = PAUSED === newState;
 			var evt = {};
 			evt['src'] = this;
 			switch (this._currentState) {
