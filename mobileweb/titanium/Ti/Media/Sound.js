@@ -24,89 +24,12 @@ define(["Ti/_/declare", "Ti/_/dom", "Ti/_/event", "Ti/_/lang", "Ti/_/Evented"],
 		ERROR = 11;
 	
 	return declare("Ti.Media.Sound", Evented, {
-		_currentState: STOPPED,
-		
-		// The following 3 variables mirror (cache) the according properties of the <audio> tag:
-		// _volume, _looping, _time.
-		// Reason: if the <audio> tag is not initialized, direct referencing of the tag's properties
-		// leads to exception. To prevent this situation, we mirror the properties and use them
-		// if the tag's properties cannot be accessed at the moment.
-		_volume: 1.0,
-		_time: 0,
-		
-		// _nextCmd: this variable records the command that was requested before the <audio> tag 
-		// was initialized. It will be executed when the tag becomes initialized.
 		
 		constructor: function() {
 			this._handles = [];
 		},
 		
-		properties: {
-		
-			url: {
-				set: function(value) {
-					if (!value || value === this.properties.__values__.url) {
-						return;
-					}
-					
-					this.constants.__values__.playing = this.constants.__values__.paused  = false;
-					this._currentState = STOPPED;
-					this.properties.__values__.url = value;
-					this._createAudio(1/*Release*/);
-					this.time = this._nextCmd = this._initialized = 0;
-					return value;
-				}
-			},
-
-			// See comment for "_volume".
-			volume: {
-				get: function() {
-					return this._volume;
-				},
-				set: function(value) {
-					if (value > 1.0 ) {
-						value = 1.0;
-					} else if (value < 0) {
-						value = 0;
-					}
-					
-					this._volume = value;
-					this._initialized && this._audio && (this._audio.volume = value);
-					return value;
-				}
-			},
-
-			// See comment for "_time".
-			time: {
-				get: function() {
-					return this._initialized && this._audio ? Math.floor(this._audio.currentTime * 1000) : this._time;
-				},
-				set: function(value) {
-					this._time = value;
-					this._initialized && this._audio && (this._audio.currentTime = this._time/1000);
-					return this._time;
-				}
-			},
-			
-			// See comment for "_looping".
-			looping: {
-				get: function() {
-					return !!this._looping; 
-				},
-				set: function(value) {
-					this._looping = value;
-					this._initialized && this._audio && (this._audio.loop = value);
-					return value;
-				}
-			}
-		},
-		
-		//read-only properties
-		constants: {
-			paused: false,
-			playing: false,
-			duration: 0
-		},
+		_currentState: STOPPED,
 		
 		// Update the state information;
 		// fire external events according to changes of the internal state.
@@ -156,6 +79,7 @@ define(["Ti/_/declare", "Ti/_/dom", "Ti/_/event", "Ti/_/lang", "Ti/_/Evented"],
 			var self = this,
 				audio = self._audio,
 				url = self.url,
+				props = self.properties.__values__,
 				i, attr, match;
 			
 			if (!url) {
@@ -193,18 +117,17 @@ define(["Ti/_/declare", "Ti/_/dom", "Ti/_/event", "Ti/_/lang", "Ti/_/Evented"],
 					self._changeState(ABORT, "abort");
 				}),
 				on(audio, "timeupdate", self, function() {
-					self._time = self._audio.currentTime;
 					self._currentState === STOPPING && self.pause();
 				}),
 				on(audio, "error", self, "_error"),
 				on(audio, "canplay", self, function() {
 					self._initialized = 1;
 					
-					//Audio has just initilised
-					self.volume = self._volume;
-					self.looping = self._looping;
-					self.time = self._time;
-										
+					//Audio has just initialized
+					self._audio.volume = props.volume;
+					self._audio.loop = props.looping;
+					self._audio.currentTime = props.time/1000;
+									
 					self._changeState(INITIALIZED, "initialized");
 					
 					self._nextCmd && self._nextCmd();
@@ -228,6 +151,8 @@ define(["Ti/_/declare", "Ti/_/dom", "Ti/_/event", "Ti/_/lang", "Ti/_/Evented"],
 			return audio;
 		},
 		
+		// Methods
+		
 		// Remove the <audio> tag from the DOM tree
 		release: function() {
 			var audio = this._audio,
@@ -244,9 +169,9 @@ define(["Ti/_/declare", "Ti/_/dom", "Ti/_/event", "Ti/_/lang", "Ti/_/Evented"],
 			this._audio = 0;
 		},
 		
-		// All methods can be called before initialization <audio> tag
-		// It can be reason of crush tag <audio>.  
-		// In order to avoid it we add "delayed" functionality
+		// _nextCmd: this variable records the command that was requested before the <audio> tag 
+		// was initialized. It will be executed when the tag becomes initialized.
+		
 		pause: function() {
 			var audio;
 			this._nextCmd = this.pause;
@@ -265,6 +190,7 @@ define(["Ti/_/declare", "Ti/_/dom", "Ti/_/event", "Ti/_/lang", "Ti/_/Evented"],
 		
 		_stop: function() {
 			var a = this._audio;
+				
 			a.currentTime = 0;
 			this._changeState(STOPPED, "stopped");
 
@@ -273,8 +199,6 @@ define(["Ti/_/declare", "Ti/_/dom", "Ti/_/event", "Ti/_/lang", "Ti/_/Evented"],
 			// not reset. This is a work around.
 			if (a.currentTime !== 0) {
 				a.load();
-				this.volume = this._volume;
-				this.looping = this._looping;
 			}
 		},
 		
@@ -301,7 +225,7 @@ define(["Ti/_/declare", "Ti/_/dom", "Ti/_/event", "Ti/_/lang", "Ti/_/Evented"],
 		},
 		
 		isLooping: function() {
-				return !!this._looping;
+				return this.properties.__values__.looping;
 		},
 		
 		isPaused: function() {
@@ -310,8 +234,72 @@ define(["Ti/_/declare", "Ti/_/dom", "Ti/_/event", "Ti/_/lang", "Ti/_/Evented"],
 		
 		isPlaying: function() {
 				return this.constants.__values__.playing;
-		}
+		},
 		
+		constants: {
+			paused: false,
+			playing: false,
+			duration: 0
+		},
+		
+		properties: {
+		
+			url: {
+				set: function(value) {
+					var props = this.properties.__values__,
+						cons = this.constants.__values__;
+						
+					if (!value || value === props.url) {
+						return;
+					}
+					
+					cons.playing = cons.paused  = false;
+					this._currentState = STOPPED;
+					props.url = value;
+					this._createAudio(1/*Release*/);
+					this.time = this._nextCmd = this._initialized = 0;
+					return value;
+				}
+			},
+
+			// The following 3 properties mirror (cache) the according properties of the <audio> tag:
+			// volume, time, looping.
+			//
+			// Reason: if the <audio> tag is not initialized, direct referencing of the tag's properties
+			// leads to exception. To prevent this situation, we mirror the properties and use them
+			// if the tag's properties cannot be accessed at the moment.
+
+			volume: {
+				value: 1.0,
+				set: function(value) {
+					var props = this.properties.__values__;
+					props.volume = Math.max(0, Math.min(1, value));
+					this._initialized && this._audio && (this._audio.volume = props.volume);
+					return value;
+				}
+			},
+
+			time: {
+				value: 0,
+				get: function() {
+					return this._initialized && this._audio ? Math.floor(this._audio.currentTime * 1000) : this.properties.__values__.time;
+				},
+				set: function(value) {
+					this.properties.__values__.time = value;
+					this._initialized && this._audio && (this._audio.currentTime = value/1000);
+					return value;
+				}
+			},
+			
+			looping: {
+				value: false,
+				set: function(value) {
+					this.properties.__values__.looping = value;
+					this._initialized && this._audio && (this._audio.loop = value);
+					return value;
+				}
+			}
+		}
 	});
 
 });
