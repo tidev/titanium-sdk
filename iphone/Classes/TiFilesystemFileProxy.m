@@ -159,6 +159,18 @@ FILENOOP(setHidden:(id)x);
 	return NUMBOOL(result);
 }
 
+-(id)isFile:(id)unused
+{
+	BOOL isDirectory;
+	return NUMBOOL([fm fileExistsAtPath:path isDirectory:&isDirectory] && !isDirectory);		
+}
+
+-(id)isDirectory:(id)unused
+{
+	BOOL isDirectory;
+	return NUMBOOL([fm fileExistsAtPath:path isDirectory:&isDirectory] && isDirectory);
+}
+
 -(TiFilesystemFileStreamProxy *) open:(id) args {
 	NSNumber *mode;
 	ENSURE_ARG_AT_INDEX(mode, args, 0, NSNumber);
