@@ -155,12 +155,13 @@ if build_type in ['full', 'mobileweb'] and not only_package:
 
 if build_type in ['full', 'blackberry'] and not only_package:
 	d = os.getcwd()
-	os.chdir('blackberry')
-	try:
-		if clean: build_type = "clean"
-		# nothing to do... yet
-	finally:
-		os.chdir(d)
+	if os.path.exists('blackberry'):
+		os.chdir('blackberry')
+		try:
+			if clean: build_type = "clean"
+			# nothing to do... yet
+		finally:
+			os.chdir(d)
 
 def install_mobilesdk(version_tag):
 	if (platform.system() == "Darwin"):
