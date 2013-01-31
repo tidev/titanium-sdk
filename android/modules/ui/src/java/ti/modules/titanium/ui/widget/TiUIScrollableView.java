@@ -543,7 +543,7 @@ public class TiUIScrollableView extends TiUIView
 		public boolean dispatchTouchEvent(MotionEvent ev)
 		{
 			// If the parent is a scroll view, then we prevent the scroll view from intercepting touch events
-			if (this.getParent() instanceof TiScrollViewLayout) {
+			if (getParent() instanceof TiScrollViewLayout) {
 				int action = ev.getAction();
 				switch (action) {
 					case MotionEvent.ACTION_DOWN:
