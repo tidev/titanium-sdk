@@ -68,8 +68,6 @@ define(["Ti/_/declare", "Ti/_/dom", "Ti/_/event", "Ti/_/lang", "Ti/_/Evented"],
 			this._changeState(ERROR, 'error: ' + messageMap[this._audio.error.code] || 'Unknown error');
 		},
 		
-		// isRelease: if true, the <audio> tag will be destroyed and recreated.
-		// if false, and the tag has been already created, nothing will happen.
 		_createAudio: function(url) {
 			var self = this,
 				audio = self._audio = dom.create("audio"),
