@@ -198,11 +198,15 @@ public abstract class TiApplication extends Application implements Handler.Callb
 		Activity currentActivity;
 
 		for (int i = activityStack.size() - 1; i >= 0; i--) {
-			activityRef = activityStack.get(i);
-			if (activityRef != null) {
-				currentActivity = activityRef.get();
-				if (currentActivity != null && !currentActivity.isFinishing()) {
-					currentActivity.finish();
+			// We need to check the stack size here again. Since we call finish(), that could potentially
+			// change the activity stack while we are looping through them. TIMOB-12487
+			if (i < activityStack.size()) {
+				activityRef = activityStack.get(i);
+				if (activityRef != null) {
+					currentActivity = activityRef.get();
+					if (currentActivity != null && !currentActivity.isFinishing()) {
+						currentActivity.finish();
+					}
 				}
 			}
 		}
@@ -876,7 +880,7 @@ public abstract class TiApplication extends Application implements Handler.Callb
 			TiApplication.activityTransitionListeners.clear();
 		}
 		if (TiApplication.activityStack != null) {
-			TiApplication.activityTransitionListeners.clear();
+			TiApplication.activityStack.clear();
 		}
 	}
 
