@@ -2527,11 +2527,21 @@ build.prototype = {
 				}.bind(this));
 			},
 			function (next) {
-				var debuggerPlist = path.join(this.xcodeAppDir, 'debugger.plist');
-				if (this.deployType == 'production' && afs.exists(debuggerPlist)) {
-					this.logger.info(__('Removing %s from production build', 'debugger.plist'.cyan));
-					fs.unlinkSync(debuggerPlist);
+				var src = path.join(this.buildDir, 'debugger.plist'),
+					dest = path.join(this.xcodeAppDir, 'debugger.plist');
+				
+				// we only copy the debugger.plist dev/test when building from Studio (via the Ti CLI), otherwise make sure the file doesn't exist
+				if (this.deployType != 'production' && process.env.TITANIUM_CLI_XCODEBUILD) {
+					afs.copyFileSync(
+						src,
+						dest,
+						{ logger: this.logger.debug }
+					);
+				} else if (afs.exists(dest)) {
+					this.logger.info(__('Removing unwanted %s from build', 'debugger.plist'.cyan));
+					fs.unlinkSync(dest);
 				}
+				
 				next();
 			}
 		], function () {
