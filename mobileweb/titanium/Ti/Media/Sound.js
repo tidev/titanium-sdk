@@ -13,6 +13,7 @@ define(["Ti/_/declare", "Ti/_/dom", "Ti/_/event", "Ti/_/lang", "Ti/_/Evented"],
 			"ogg": "audio/ogg",
 			"wav": "audio/wav"
 		},
+		messageMap = [void 0, 'Aborted', 'Decode error', 'Network error', 'Unsupported format'],
 		INITIALIZED = 1,
 		PAUSED = 2,
 		PLAYING = 3,
@@ -34,12 +35,13 @@ define(["Ti/_/declare", "Ti/_/dom", "Ti/_/event", "Ti/_/lang", "Ti/_/Evented"],
 		// Update the state information;
 		// fire external events according to changes of the internal state.
 		_changeState: function(newState, msg) {
-			var cons = this.constants.__values__;
+			var cons = this.constants.__values__,
+				evt = {};
 			
 			this._currentState = newState;
 			cons.playing = PLAYING === newState;
 			cons.paused  = PAUSED === newState;
-			var evt = {};
+			
 			evt['src'] = this;
 			switch (this._currentState) {
 				case ENDED:
@@ -59,20 +61,11 @@ define(["Ti/_/declare", "Ti/_/dom", "Ti/_/event", "Ti/_/lang", "Ti/_/Evented"],
 		
 		_durationChange: function() {
 			var d = this._audio.duration*1000;
-			if (d !== Infinity) {
-				this.constants.__values__.duration = Math.floor(d);
-			}
+			d === Infinity || (this.constants.__values__.duration = Math.floor(d));
 		},
 		
 		_error: function() {
-			var msg = "Unknown error";
-			switch (this._audio.error.code) {
-				case 1: msg = "Aborted"; break;
-				case 2: msg = "Decode error"; break;
-				case 3: msg = "Network error"; break;
-				case 4: msg = "Unsupported format";break;
-			}
-			this._changeState(ERROR, "error: " + msg);
+			this._changeState(ERROR, 'error: ' + messageMap[this._audio.error.code] || 'Unknown error');
 		},
 		
 		// isRelease: if true, the <audio> tag will be destroyed and recreated.
@@ -81,7 +74,6 @@ define(["Ti/_/declare", "Ti/_/dom", "Ti/_/event", "Ti/_/lang", "Ti/_/Evented"],
 			var self = this,
 				audio = self._audio,
 				url = self.url,
-				props = self.properties.__values__,
 				i, attr, match;
 			
 			if (!url) {
@@ -106,11 +98,7 @@ define(["Ti/_/declare", "Ti/_/dom", "Ti/_/event", "Ti/_/lang", "Ti/_/Evented"],
 					self._changeState(STARTING, "starting");
 				}),
 				on(audio, "pause", self, function() {
-					if (self._currentState === STOPPING) {
-						self._stop();
-					} else {
-						self._changeState(PAUSED, "paused");	
-					}
+					self._currentState === STOPPING ? self._stop() : self._changeState(PAUSED, "paused");
 				}),
 				on(audio, "ended", self, function() {
 					self._changeState(ENDED, "ended");
@@ -126,9 +114,9 @@ define(["Ti/_/declare", "Ti/_/dom", "Ti/_/event", "Ti/_/lang", "Ti/_/Evented"],
 					self._initialized = 1;
 					
 					//Audio has just initialized
-					self._audio.volume = props.volume;
-					self._audio.loop = props.looping;
-					self._audio.currentTime = props.time/1000;
+					self._audio.volume = this.volume;
+					self._audio.loop = this.looping;
+					self._audio.currentTime = self.properties.__values__.time/1000;
 									
 					self._changeState(INITIALIZED, "initialized");
 					
@@ -197,9 +185,7 @@ define(["Ti/_/declare", "Ti/_/dom", "Ti/_/event", "Ti/_/lang", "Ti/_/Evented"],
 			// Some versions of Webkit has a bug: if <audio>'s current time is non-zero and we try to 
 			// stop it by setting time to 0 and pausing, it won't work: music is paused, but time is 
 			// not reset. This is a work around.
-			if (a.currentTime !== 0) {
-				a.load();
-			}
+			a.currentTime === 0 || a.load();
 		},
 		
 		stop: function() {
@@ -209,8 +195,9 @@ define(["Ti/_/declare", "Ti/_/dom", "Ti/_/event", "Ti/_/lang", "Ti/_/Evented"],
 			}
 				
 			var a = this._audio;
-			if (!a)
+			if (!a) {
 				return;
+			}
 				
 			if (this._currentState === PAUSED) {
 				this._stop();
@@ -225,15 +212,15 @@ define(["Ti/_/declare", "Ti/_/dom", "Ti/_/event", "Ti/_/lang", "Ti/_/Evented"],
 		},
 		
 		isLooping: function() {
-				return this.properties.__values__.looping;
+				return this.looping;
 		},
 		
 		isPaused: function() {
-				return this.constants.__values__.paused; 
+				return this.paused; 
 		},
 		
 		isPlaying: function() {
-				return this.constants.__values__.playing;
+				return this.playing;
 		},
 		
 		constants: {
@@ -272,9 +259,8 @@ define(["Ti/_/declare", "Ti/_/dom", "Ti/_/event", "Ti/_/lang", "Ti/_/Evented"],
 			volume: {
 				value: 1.0,
 				set: function(value) {
-					var props = this.properties.__values__;
-					props.volume = Math.max(0, Math.min(1, value));
-					this._initialized && (this._audio.volume = props.volume);
+					value = Math.max(0, Math.min(1, value));
+					this._initialized && (this._audio.volume = value);
 					return value;
 				}
 			},
@@ -285,7 +271,6 @@ define(["Ti/_/declare", "Ti/_/dom", "Ti/_/event", "Ti/_/lang", "Ti/_/Evented"],
 					return this._initialized ? Math.floor(this._audio.currentTime * 1000) : this.properties.__values__.time;
 				},
 				set: function(value) {
-					this.properties.__values__.time = value;
 					this._initialized && (this._audio.currentTime = value/1000);
 					return value;
 				}
@@ -294,7 +279,6 @@ define(["Ti/_/declare", "Ti/_/dom", "Ti/_/event", "Ti/_/lang", "Ti/_/Evented"],
 			looping: {
 				value: false,
 				set: function(value) {
-					this.properties.__values__.looping = value;
 					this._initialized && (this._audio.loop = value);
 					return value;
 				}
