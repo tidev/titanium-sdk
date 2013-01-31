@@ -105,7 +105,7 @@ function build(logger, config, cli, finished) {
 	logger.info(__('Compiling "%s" build', cli.argv['deploy-type']));
 	
 	this.logger = logger;
-	this.buildType = cli.argv['deploy-type'];
+	this.deployType = cli.argv['deploy-type'];
 	this.os = cli.env.os;
 	this.tiapp = cli.tiapp;
 	
@@ -174,8 +174,8 @@ function build(logger, config, cli, finished) {
 	
 	this.validateTheme();
 	
-	var mwBuildSettings = this.tiapp.mobileweb.build[this.buildType];
-	this.minifyJS = mwBuildSettings && mwBuildSettings.js ? !!mwBuildSettings.js.minify : this.buildType == 'production';
+	var mwBuildSettings = this.tiapp.mobileweb.build[this.deployType];
+	this.minifyJS = mwBuildSettings && mwBuildSettings.js ? !!mwBuildSettings.js.minify : this.deployType == 'production';
 	
 	cli.fireHook('build.pre.compile', this, function (e) {
 		parallel(this, [
@@ -472,7 +472,7 @@ build.prototype = {
 					app_publisher: tiapp.publisher,
 					app_url: tiapp.url,
 					app_version: tiapp.version,
-					deploy_type: this.buildType,
+					deploy_type: this.deployType,
 					locales: JSON.stringify(this.locales),
 					packages: JSON.stringify(this.packages),
 					project_id: tiapp.id,
@@ -483,7 +483,7 @@ build.prototype = {
 					ti_timestamp: ti.manifest.timestamp,
 					ti_version: ti.manifest.version,
 					has_analytics_use_xhr: tiapp.mobileweb.analytics ? tiapp.mobileweb.analytics['use-xhr'] === true : false,
-					has_show_errors: this.buildType != 'production' && tiapp.mobileweb['disable-error-screen'] !== true,
+					has_show_errors: this.deployType != 'production' && tiapp.mobileweb['disable-error-screen'] !== true,
 					has_instrumentation: !!tiapp.mobileweb.instrumentation
 				}),
 				
