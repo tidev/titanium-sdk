@@ -198,10 +198,9 @@ public abstract class TiApplication extends Application implements Handler.Callb
 		Activity currentActivity;
 
 		for (int i = activityStack.size() - 1; i >= 0; i--) {
-			// We need to check the stack size here again.  Since we call finish(), that could potentially
+			// We need to check the stack size here again. Since we call finish(), that could potentially
 			// change the activity stack while we are looping through them. TIMOB-12487
-			int stackSize = activityStack.size();
-			if ( stackSize != 0 && i < stackSize) {
+			if (i < activityStack.size()) {
 				activityRef = activityStack.get(i);
 				if (activityRef != null) {
 					currentActivity = activityRef.get();
