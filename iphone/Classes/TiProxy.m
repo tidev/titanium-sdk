@@ -859,17 +859,32 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 	if((bubbleObject != nil) && ([params count]==1)){
 		params = nil; //No need to propagate when we already have this information
 	}
+#ifdef DEBUG
+	//Check to see if fireEvent:(NSString*)type withObject:(id)obj withSource:(id)source has been overridden.
+#endif
 	[self fireEvent:type withObject:params withSource:self propagate:bubble];
 }
 
 -(void)fireEvent:(NSString*)type withObject:(id)obj
 {
+#ifdef DEBUG
+	//Check to see if fireEvent:(NSString*)type withObject:(id)obj withSource:(id)source has been overridden.
+#endif
 	[self fireEvent:type withObject:obj withSource:self propagate:YES];
 }
 
 -(void)fireEvent:(NSString*)type withObject:(id)obj withSource:(id)source
 {
+#ifdef DEBUG
+	//Warn that people are using this.
+#endif
 	[self fireEvent:type withObject:obj withSource:source propagate:YES];
+}
+
+-(void)fireEvent:(NSString*)type withObject:(id)obj withSource:(id)source propagate:(BOOL)propagate
+{
+	//Check to see if people are still using this.
+	[self fireEvent:type withObject:obj withSource:source propagate:propagate reportSuccess:NO errorCode:0 message:nil];
 }
 
 -(void)fireEvent:(NSString*)type withObject:(id)obj propagate:(BOOL)yn
@@ -877,7 +892,19 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 	[self fireEvent:type withObject:obj withSource:self propagate:yn];
 }
 
--(void)fireEvent:(NSString*)type withObject:(id)obj withSource:(id)source propagate:(BOOL)propagate
+-(void)fireEvent:(NSString*)type withObject:(id)obj errorCode:(int)code message:(NSString*)message;
+{
+	[self fireEvent:type withObject:obj propagate:YES reportSuccess:YES errorCode:code message:message];
+}
+
+//What classes should actually use. TODO: usurp -[fireEvent:withObject:withSource:propagate:reportError:errorCode:message:]
+-(void)fireEvent:(NSString*)type withObject:(id)obj propagate:(BOOL)propagate reportSuccess:(BOOL)report errorCode:(int)code message:(NSString*)message;
+{
+	[self fireEvent:type withObject:obj withSource:self propagate:propagate reportSuccess:report errorCode:code message:message];
+}
+
+//What classes should override until source is removed:
+-(void)fireEvent:(NSString*)type withObject:(id)obj withSource:(id)source propagate:(BOOL)propagate reportSuccess:(BOOL)report errorCode:(int)code message:(NSString*)message;
 {
 	if (![self _hasListeners:type])
 	{
@@ -887,6 +914,10 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 	TiBindingEvent ourEvent;
 	
 	ourEvent = TiBindingEventCreateWithNSObjects(self, source, type, obj);
+	if (report || (code != 0)) {
+		TiBindingEventSetErrorCode(ourEvent, code);
+		TiBindingEventSetErrorMessageWithNSString(ourEvent, message);
+	}
 	TiBindingEventSetBubbles(ourEvent, propagate);
 	TiBindingEventFire(ourEvent);
 }

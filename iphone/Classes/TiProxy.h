@@ -282,11 +282,28 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 -(void)addEventListener:(NSArray*)args;
 -(void)removeEventListener:(NSArray*)args;
 
+
+
 -(void)fireEvent:(id)args;
 -(void)fireEvent:(NSString*)type withObject:(id)obj;
+
+//For UI events:
+-(void)fireEvent:(NSString*)type withObject:(id)obj propagate:(BOOL)yn;
+
+//For events that report an error or success
+-(void)fireEvent:(NSString*)type withObject:(id)obj errorCode:(int)code message:(NSString*)message;
+
+//What classes should override until source is removed:
+-(void)fireEvent:(NSString*)type withObject:(id)obj withSource:(id)source propagate:(BOOL)propagate reportSuccess:(BOOL)report errorCode:(int)code message:(NSString*)message;
+
+//What classes should actually use:
+-(void)fireEvent:(NSString*)type withObject:(id)obj propagate:(BOOL)propagate reportSuccess:(BOOL)report errorCode:(int)code message:(NSString*)message;
+
+//** Depricated: bubbling is done at a lower point so source is always 'self' at this point.
 -(void)fireEvent:(NSString*)type withObject:(id)obj withSource:(id)source;
 -(void)fireEvent:(NSString*)type withObject:(id)obj withSource:(id)source propagate:(BOOL)yn;
--(void)fireEvent:(NSString*)type withObject:(id)obj propagate:(BOOL)yn;
+
+
 
 /**
  Returns a dictionary of all properties set on the proxy object.
