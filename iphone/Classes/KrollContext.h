@@ -153,7 +153,7 @@ TI_INLINE KrollContext* GetKrollContext(TiContextRef context)
 	TiObjectRef global = TiContextGetGlobalObject(globalContext); 
 	TiStringRef string = TiStringCreateWithUTF8CString(krollNS);
 	TiValueRef value = TiObjectGetProperty(globalContext, global, string, NULL);
-	KrollContext *ctx = (KrollContext*)TiObjectGetPrivate(TiValueToObject(globalContext, value, NULL));
+	KrollContext *ctx = (__bridge KrollContext*)TiObjectGetPrivate(TiValueToObject(globalContext, value, NULL));
 	TiStringRelease(string);
 	return ctx;
 }
