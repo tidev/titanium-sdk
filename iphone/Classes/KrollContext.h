@@ -146,6 +146,7 @@
 -(void)setExecutionContext:(id<KrollDelegate>)delegate;
 @end
 
+//Todo: Move out of being inline and refactor out constantly creating and removing the Kroll string. --BTH
 TI_INLINE KrollContext* GetKrollContext(TiContextRef context)
 {
 	static const char *krollNS = "Kroll";
@@ -153,6 +154,7 @@ TI_INLINE KrollContext* GetKrollContext(TiContextRef context)
 	TiObjectRef global = TiContextGetGlobalObject(globalContext); 
 	TiStringRef string = TiStringCreateWithUTF8CString(krollNS);
 	TiValueRef value = TiObjectGetProperty(globalContext, global, string, NULL);
+//Yes, the __bridge gives a warning when not in ARC. This is why this should not be inline anymore.
 	KrollContext *ctx = (__bridge KrollContext*)TiObjectGetPrivate(TiValueToObject(globalContext, value, NULL));
 	TiStringRelease(string);
 	return ctx;
