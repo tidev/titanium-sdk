@@ -40,7 +40,7 @@ define(['Ti/_/declare', 'Ti/_/dom', 'Ti/_/event', 'Ti/_/lang', 'Ti/_/Evented'],
 			
 			this._currentState = newState;
 			cons.playing = PLAYING === newState;
-			cons.paused  = PAUSED === newState;
+			cons.paused = PAUSED === newState;
 			
 			evt.src = this;
 			switch (this._currentState) {
