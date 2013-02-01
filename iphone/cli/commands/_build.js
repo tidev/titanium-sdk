@@ -109,8 +109,8 @@ exports.config = function (logger, config, cli) {
 			}
 			
 			Object.keys(iosEnv.xcode).forEach(function (key) {
-				iosEnv.xcode[key].sdks.forEach(function (sdk, i) {
-					if (iosEnv.xcode[key].selected && i == 0) {
+				iosEnv.xcode[key].sdks.forEach(function (sdk) {
+					if (iosEnv.xcode[key].selected && !defaultSdk || version.gt(sdk, defaultSdk)) {
 						defaultSdk = sdk;
 					}
 					sdks[sdk] = 1;
