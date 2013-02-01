@@ -1,4 +1,4 @@
-define(["Ti/_/Evented", "Ti/_/lang"], function(Evented, lang) {
+define(["Ti/_/Evented", "Ti/_/lang", "Ti/Media/AudioPlayer"], function(Evented, lang, AudioPlayer) {
 
 	return lang.setObject("Ti.Media", Evented, {
 
@@ -42,7 +42,7 @@ define(["Ti/_/Evented", "Ti/_/lang"], function(Evented, lang) {
 		//beep: function() {},
 
 		createAudioPlayer: function(args) {
-			return new (require("Ti/Media/AudioPlayer"))(args);
+			return new AudioPlayer(args);
 		},
 
 		//createSound: function() {},
