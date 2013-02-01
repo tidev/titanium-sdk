@@ -147,7 +147,7 @@ properties:
     summary: Indicates whether the current row is valid.
     type: Boolean
     permission: read-only
-    platforms: [iphone,ipad]
+    platforms: [iphone,ipad,android]
 
 examples:
   - title: Using ResultSet
