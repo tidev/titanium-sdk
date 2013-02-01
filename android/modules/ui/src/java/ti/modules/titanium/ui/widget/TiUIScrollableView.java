@@ -21,6 +21,7 @@ import org.appcelerator.titanium.view.TiCompositeLayout.LayoutParams;
 import org.appcelerator.titanium.view.TiUIView;
 
 import ti.modules.titanium.ui.ScrollableViewProxy;
+import ti.modules.titanium.ui.widget.TiUIScrollView.TiScrollViewLayout;
 import android.app.Activity;
 import android.content.Context;
 import android.os.Parcelable;
@@ -536,6 +537,27 @@ public class TiUIScrollableView extends TiUIView
 				showPager();
 			}
 			return super.onTrackballEvent(event);
+		}
+
+		@Override
+		public boolean dispatchTouchEvent(MotionEvent ev)
+		{
+			// If the parent is a scroll view, then we prevent the scroll view from intercepting touch events
+			if (getParent() instanceof TiScrollViewLayout) {
+				int action = ev.getAction();
+				switch (action) {
+					case MotionEvent.ACTION_DOWN:
+						requestDisallowInterceptTouchEvent(true);
+						break;
+
+					case MotionEvent.ACTION_UP:
+					case MotionEvent.ACTION_CANCEL:
+						requestDisallowInterceptTouchEvent(false);
+						break;
+
+				}
+			}
+			return super.dispatchTouchEvent(ev);
 		}
 
 		@Override
