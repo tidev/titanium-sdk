@@ -25,7 +25,7 @@
 // Public API
 -(NSNumber*)append:(id)args;
 -(NSNumber*)insert:(id)args;
--(NSNumber*)copy:(id)args;
+-(NSNumber*)copy:(id)args NS_RETURNS_NOT_RETAINED;
 -(TiBuffer*)clone:(id)args;
 -(void)fill:(id)args;
 
