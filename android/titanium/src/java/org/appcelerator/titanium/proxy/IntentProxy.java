@@ -20,6 +20,7 @@ import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.util.TiConvert;
 
+import android.graphics.Bitmap;
 import android.content.Intent;
 import android.net.Uri;
 import android.text.TextUtils;
