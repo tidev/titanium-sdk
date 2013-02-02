@@ -303,8 +303,7 @@
 - (void)audioPlayerDidFinishPlaying:(AVAudioPlayer *)player successfully:(BOOL)flag
 {
 	if ([self _hasListeners:@"complete"]) {
-		NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:NUMBOOL(flag),@"success",nil];
-		[self fireEvent:@"complete" withObject:event];
+		[self fireEvent:@"complete" withObject:nil errorCode:0 message:nil];
 	}
 	if (flag) {
 		[[TiMediaAudioSession sharedSession] stopAudioSession];

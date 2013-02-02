@@ -860,37 +860,77 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 		params = nil; //No need to propagate when we already have this information
 	}
 #ifdef DEBUG
-	//Check to see if fireEvent:(NSString*)type withObject:(id)obj withSource:(id)source has been overridden.
+	IMP proxySourceImp = [[TiProxy class] instanceMethodForSelector:@selector(fireEvent:withObject:withSource:propagate:)];
+	IMP subclassSourceImp = [self methodForSelector:@selector(fireEvent:withObject:withSource:propagate:)];
+	if (proxySourceImp != subclassSourceImp){
+		//TODO: Once the depricated methods are removed, we can use the following line without checking to see if we'd shortcut.
+		// For now, we're shortcutting to suppress false warnings.
+		[self fireEvent:type withObject:params propagate:bubble reportSuccess:NO errorCode:0 message:nil];
+		return;
+	}
+	NSLog(@"[WARN] The Objective-C class %@ has overridden -[fireEvent:withObject:withSource:propagate:].",[self class]);
 #endif
-	[self fireEvent:type withObject:params withSource:self propagate:bubble];
+	[self fireEvent:type withObject:params withSource:self propagate:bubble];	//In case of not debugging, we don't change behavior, just in case.
 }
 
 -(void)fireEvent:(NSString*)type withObject:(id)obj
 {
 #ifdef DEBUG
-	//Check to see if fireEvent:(NSString*)type withObject:(id)obj withSource:(id)source has been overridden.
+	IMP proxySourceImp = [[TiProxy class] instanceMethodForSelector:@selector(fireEvent:withObject:withSource:propagate:)];
+	IMP subclassSourceImp = [self methodForSelector:@selector(fireEvent:withObject:withSource:propagate:)];
+	if (proxySourceImp != subclassSourceImp){
+		//TODO: Once the depricated methods are removed, we can use the following line without checking to see if we'd shortcut.
+		// For now, we're shortcutting to suppress false warnings.
+		[self fireEvent:type withObject:obj propagate:YES reportSuccess:NO errorCode:0 message:nil];
+		return;
+	}
+	NSLog(@"[WARN] The Objective-C class %@ has overridden -[fireEvent:withObject:withSource:propagate:].",[self class]);
 #endif
-	[self fireEvent:type withObject:obj withSource:self propagate:YES];
+	[self fireEvent:type withObject:obj withSource:self propagate:YES];	//In case of not debugging, we don't change behavior, just in case.
 }
 
 -(void)fireEvent:(NSString*)type withObject:(id)obj withSource:(id)source
 {
-#ifdef DEBUG
-	//Warn that people are using this.
-#endif
+	//The warning for this is in the propagate version.
 	[self fireEvent:type withObject:obj withSource:source propagate:YES];
-}
-
--(void)fireEvent:(NSString*)type withObject:(id)obj withSource:(id)source propagate:(BOOL)propagate
-{
-	//Check to see if people are still using this.
-	[self fireEvent:type withObject:obj withSource:source propagate:propagate reportSuccess:NO errorCode:0 message:nil];
 }
 
 -(void)fireEvent:(NSString*)type withObject:(id)obj propagate:(BOOL)yn
 {
+#ifdef DEBUG
+	IMP proxySourceImp = [[TiProxy class] instanceMethodForSelector:@selector(fireEvent:withObject:withSource:propagate:)];
+	IMP subclassSourceImp = [self methodForSelector:@selector(fireEvent:withObject:withSource:propagate:)];
+	if (proxySourceImp != subclassSourceImp){
+		//TODO: Once the depricated methods are removed, we can use the following line without checking to see if we'd shortcut.
+		// For now, we're shortcutting to suppress false warnings.
+		[self fireEvent:type withObject:obj propagate:yn reportSuccess:NO errorCode:0 message:nil];
+		return;
+	}
+	NSLog(@"[WARN] The Objective-C class %@ has overridden -[fireEvent:withObject:withSource:propagate:].",[self class]);
+#endif
 	[self fireEvent:type withObject:obj withSource:self propagate:yn];
 }
+
+-(void)fireEvent:(NSString*)type withObject:(id)obj withSource:(id)source propagate:(BOOL)propagate
+{
+	NSLog(@"[WARN] The methods -[fireEvent:withObject:withSource:] and [fireEvent:withObject:withSource:propagate:] are depricated. Please use -[fireEvent:withObject:propagate:reportSuccess:errorCode:message:] instead.");
+	if (self != source) {
+		NSLog(@"[WARN] Source is not the same as self. (Perhaps this edge case is still valid?)");
+	}
+	
+	if (![self _hasListeners:type])
+	{
+		return;
+	}
+
+	TiBindingEvent ourEvent;
+	
+	ourEvent = TiBindingEventCreateWithNSObjects(self, source, type, obj);
+	TiBindingEventSetBubbles(ourEvent, propagate);
+	TiBindingEventFire(ourEvent);
+}
+
+
 
 -(void)fireEvent:(NSString*)type withObject:(id)obj errorCode:(int)code message:(NSString*)message;
 {
@@ -900,20 +940,14 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 //What classes should actually use. TODO: usurp -[fireEvent:withObject:withSource:propagate:reportError:errorCode:message:]
 -(void)fireEvent:(NSString*)type withObject:(id)obj propagate:(BOOL)propagate reportSuccess:(BOOL)report errorCode:(int)code message:(NSString*)message;
 {
-	[self fireEvent:type withObject:obj withSource:self propagate:propagate reportSuccess:report errorCode:code message:message];
-}
-
-//What classes should override until source is removed:
--(void)fireEvent:(NSString*)type withObject:(id)obj withSource:(id)source propagate:(BOOL)propagate reportSuccess:(BOOL)report errorCode:(int)code message:(NSString*)message;
-{
 	if (![self _hasListeners:type])
 	{
 		return;
 	}
-
+	
 	TiBindingEvent ourEvent;
 	
-	ourEvent = TiBindingEventCreateWithNSObjects(self, source, type, obj);
+	ourEvent = TiBindingEventCreateWithNSObjects(self, self, type, obj);
 	if (report || (code != 0)) {
 		TiBindingEventSetErrorCode(ourEvent, code);
 		TiBindingEventSetErrorMessageWithNSString(ourEvent, message);

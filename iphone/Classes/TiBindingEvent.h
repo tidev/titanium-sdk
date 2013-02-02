@@ -22,7 +22,7 @@ void TiBindingEventSetBubbles(TiBindingEvent event, bool bubbles);
  *	If an event can report errors, it will have the following properties:
  *
  *	success: Boolean. Is true if and only if code is 0.
- *	code: Integer. 0 for no error, system-specific code otherwise. -1 is the default for nofailure.
+ *	code: Integer. 0 for no error, system-specific code otherwise. -1 is the default for failure.
  *	error: Optional string.
  *
  *	Error reporting happens if and only if the error code is set. The error string

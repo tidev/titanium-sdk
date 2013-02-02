@@ -293,16 +293,12 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 //For events that report an error or success
 -(void)fireEvent:(NSString*)type withObject:(id)obj errorCode:(int)code message:(NSString*)message;
 
-//What classes should override until source is removed:
--(void)fireEvent:(NSString*)type withObject:(id)obj withSource:(id)source propagate:(BOOL)propagate reportSuccess:(BOOL)report errorCode:(int)code message:(NSString*)message;
-
-//What classes should actually use:
+//What classes should actually override:
 -(void)fireEvent:(NSString*)type withObject:(id)obj propagate:(BOOL)propagate reportSuccess:(BOOL)report errorCode:(int)code message:(NSString*)message;
 
 //** Depricated: bubbling is done at a lower point so source is always 'self' at this point.
 -(void)fireEvent:(NSString*)type withObject:(id)obj withSource:(id)source;
 -(void)fireEvent:(NSString*)type withObject:(id)obj withSource:(id)source propagate:(BOOL)yn;
-
 
 
 /**

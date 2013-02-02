@@ -143,7 +143,7 @@ static NSDictionary* TI_filterableItemProperties;
 	[self destroyPicker];
 	if (listener!=nil)
 	{
-		NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:NUMBOOL(false),@"success",NUMINT(code),@"code",nil];
+		NSDictionary *event = [TiUtils dictionaryWithCode:code message:nil];
 		[NSThread detachNewThreadSelector:@selector(dispatchCallback:) toTarget:self withObject:[NSArray arrayWithObjects:@"error",event,listener,nil]];
 	}
 }
