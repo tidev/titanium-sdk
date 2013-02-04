@@ -242,8 +242,8 @@ define(['Ti/_/declare', 'Ti/_/dom', 'Ti/_/event', 'Ti/_/lang', 'Ti/_/Evented'],
 
 			time: {
 				value: 0,
-				get: function() {
-					return this._initialized ? Math.floor(this._audio.currentTime * 1000) : this.properties.__values__.time;
+				get: function(value) {
+					return this._initialized ? Math.floor(this._audio.currentTime * 1000) : value;
 				},
 				set: function(value) {
 					this._initialized && (this._audio.currentTime = value / 1000);
