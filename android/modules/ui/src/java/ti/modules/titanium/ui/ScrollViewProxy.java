@@ -20,7 +20,6 @@ import ti.modules.titanium.ui.widget.TiUIScrollView;
 import android.app.Activity;
 import android.os.Handler;
 import android.os.Message;
-import android.view.View;
 
 @Kroll.proxy(creatableInModule=UIModule.class, propertyAccessors = {
 	TiC.PROPERTY_CONTENT_HEIGHT, TiC.PROPERTY_CONTENT_WIDTH,

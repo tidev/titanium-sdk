@@ -26,7 +26,6 @@ import ti.modules.titanium.ui.widget.TiUITableView;
 import ti.modules.titanium.ui.widget.tableview.TableViewModel.Item;
 import android.app.Activity;
 import android.os.Message;
-import android.view.View;
 
 @Kroll.proxy(creatableInModule = UIModule.class, propertyAccessors = { 
 	TiC.PROPERTY_FILTER_ATTRIBUTE,
