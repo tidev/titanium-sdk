@@ -55,7 +55,7 @@ public class ScrollableViewProxy extends TiViewProxy
 		super();
 		inScroll = new AtomicBoolean(false);
 		defaultValues.put(TiC.PROPERTY_SHOW_PAGING_CONTROL, false);
-		defaultValues.put(TiC.PROPERTY_OVER_SCROLL_MODE, View.OVER_SCROLL_ALWAYS);
+		defaultValues.put(TiC.PROPERTY_OVER_SCROLL_MODE, 0);
 	}
 
 	public ScrollableViewProxy(TiContext context)

@@ -43,7 +43,7 @@ public class ScrollViewProxy extends TiViewProxy
 	public ScrollViewProxy()
 	{
 		super();
-		defaultValues.put(TiC.PROPERTY_OVER_SCROLL_MODE, View.OVER_SCROLL_ALWAYS);
+		defaultValues.put(TiC.PROPERTY_OVER_SCROLL_MODE, 0);
 	}
 
 	public ScrollViewProxy(TiContext context)

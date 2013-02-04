@@ -51,7 +51,7 @@ public class WebViewProxy extends ViewProxy
 	public WebViewProxy()
 	{
 		super();
-		defaultValues.put(TiC.PROPERTY_OVER_SCROLL_MODE, View.OVER_SCROLL_ALWAYS);
+		defaultValues.put(TiC.PROPERTY_OVER_SCROLL_MODE, 0);
 	}
 
 	public WebViewProxy(TiContext context)

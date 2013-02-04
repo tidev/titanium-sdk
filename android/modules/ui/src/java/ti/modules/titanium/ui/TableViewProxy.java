@@ -78,7 +78,7 @@ public class TableViewProxy extends TiViewProxy
 	public TableViewProxy()
 	{
 		super();
-		defaultValues.put(TiC.PROPERTY_OVER_SCROLL_MODE, View.OVER_SCROLL_ALWAYS);
+		defaultValues.put(TiC.PROPERTY_OVER_SCROLL_MODE, 0);
 		// eventManager.addOnEventChangeListener(this);
 	}
 
