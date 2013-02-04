@@ -78,7 +78,7 @@ examples:
             });
             win.add(bb1);
 
-  - title: Ally XML Markup
+  - title: Alloy XML Markup
     example: |
         Previous example as an Alloy view.
 
