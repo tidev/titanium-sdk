@@ -20,6 +20,7 @@ import ti.modules.titanium.ui.widget.webview.TiUIWebView;
 import android.app.Activity;
 import android.os.Handler;
 import android.os.Message;
+import android.view.View;
 import android.webkit.WebView;
 
 @Kroll.proxy(creatableInModule=UIModule.class, propertyAccessors = {
@@ -27,7 +28,8 @@ import android.webkit.WebView;
 	TiC.PROPERTY_ON_CREATE_WINDOW,
 	TiC.PROPERTY_SCALES_PAGE_TO_FIT,
 	TiC.PROPERTY_URL,
-	TiC.PROPERTY_WEBVIEW_IGNORE_SSL_ERROR
+	TiC.PROPERTY_WEBVIEW_IGNORE_SSL_ERROR,
+	TiC.PROPERTY_OVER_SCROLL_MODE
 })
 public class WebViewProxy extends ViewProxy 
 	implements Handler.Callback, OnLifecycleEvent
@@ -49,6 +51,7 @@ public class WebViewProxy extends ViewProxy
 	public WebViewProxy()
 	{
 		super();
+		defaultValues.put(TiC.PROPERTY_OVER_SCROLL_MODE, View.OVER_SCROLL_ALWAYS);
 	}
 
 	public WebViewProxy(TiContext context)

@@ -26,6 +26,7 @@ import ti.modules.titanium.ui.widget.TiUITableView;
 import ti.modules.titanium.ui.widget.tableview.TableViewModel.Item;
 import android.app.Activity;
 import android.os.Message;
+import android.view.View;
 
 @Kroll.proxy(creatableInModule = UIModule.class, propertyAccessors = { 
 	TiC.PROPERTY_FILTER_ATTRIBUTE,
@@ -35,7 +36,8 @@ import android.os.Message;
 	TiC.PROPERTY_FOOTER_TITLE,
 	TiC.PROPERTY_FOOTER_VIEW,
 	TiC.PROPERTY_SEARCH,
-	TiC.PROPERTY_SEPARATOR_COLOR
+	TiC.PROPERTY_SEPARATOR_COLOR,
+	TiC.PROPERTY_OVER_SCROLL_MODE
 })
 public class TableViewProxy extends TiViewProxy
 {
@@ -76,7 +78,7 @@ public class TableViewProxy extends TiViewProxy
 	public TableViewProxy()
 	{
 		super();
-
+		defaultValues.put(TiC.PROPERTY_OVER_SCROLL_MODE, View.OVER_SCROLL_ALWAYS);
 		// eventManager.addOnEventChangeListener(this);
 	}
 

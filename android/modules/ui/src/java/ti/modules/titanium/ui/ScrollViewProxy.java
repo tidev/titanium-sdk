@@ -20,6 +20,7 @@ import ti.modules.titanium.ui.widget.TiUIScrollView;
 import android.app.Activity;
 import android.os.Handler;
 import android.os.Message;
+import android.view.View;
 
 @Kroll.proxy(creatableInModule=UIModule.class, propertyAccessors = {
 	TiC.PROPERTY_CONTENT_HEIGHT, TiC.PROPERTY_CONTENT_WIDTH,
@@ -27,7 +28,8 @@ import android.os.Message;
 	TiC.PROPERTY_SHOW_VERTICAL_SCROLL_INDICATOR,
 	TiC.PROPERTY_SCROLL_TYPE,
 	TiC.PROPERTY_CONTENT_OFFSET,
-	TiC.PROPERTY_CAN_CANCEL_EVENTS
+	TiC.PROPERTY_CAN_CANCEL_EVENTS,
+	TiC.PROPERTY_OVER_SCROLL_MODE
 })
 public class ScrollViewProxy extends TiViewProxy
 	implements Handler.Callback
@@ -41,7 +43,7 @@ public class ScrollViewProxy extends TiViewProxy
 	public ScrollViewProxy()
 	{
 		super();
-		
+		defaultValues.put(TiC.PROPERTY_OVER_SCROLL_MODE, View.OVER_SCROLL_ALWAYS);
 	}
 
 	public ScrollViewProxy(TiContext context)

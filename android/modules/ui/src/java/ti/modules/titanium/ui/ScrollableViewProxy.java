@@ -24,8 +24,12 @@ import org.appcelerator.titanium.view.TiUIView;
 import ti.modules.titanium.ui.widget.TiUIScrollableView;
 import android.app.Activity;
 import android.os.Message;
+import android.view.View;
 
-@Kroll.proxy(creatableInModule=UIModule.class, propertyAccessors={TiC.PROPERTY_SHOW_PAGING_CONTROL})
+@Kroll.proxy(creatableInModule=UIModule.class, propertyAccessors={
+	TiC.PROPERTY_SHOW_PAGING_CONTROL,
+	TiC.PROPERTY_OVER_SCROLL_MODE
+})
 public class ScrollableViewProxy extends TiViewProxy
 {
 	private static final String TAG = "TiScrollableView";
@@ -51,6 +55,7 @@ public class ScrollableViewProxy extends TiViewProxy
 		super();
 		inScroll = new AtomicBoolean(false);
 		defaultValues.put(TiC.PROPERTY_SHOW_PAGING_CONTROL, false);
+		defaultValues.put(TiC.PROPERTY_OVER_SCROLL_MODE, View.OVER_SCROLL_ALWAYS);
 	}
 
 	public ScrollableViewProxy(TiContext context)
