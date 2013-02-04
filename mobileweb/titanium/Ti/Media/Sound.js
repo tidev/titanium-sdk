@@ -58,12 +58,12 @@ define(['Ti/_/declare', 'Ti/_/dom', 'Ti/_/event', 'Ti/_/lang', 'Ti/_/Evented'],
 		},
 		
 		_durationChange: function() {
-			var d = this._audio.duration*1000;
+			var d = this._audio.duration * 1000;
 			d === Infinity || (this.constants.__values__.duration = Math.floor(d));
 		},
 		
 		_error: function() {
-			this._changeState(ERROR, 'error: ' + messageMap[this._audio.error.code] || 'Unknown error');
+			this._changeState(ERROR, 'error: ' + (messageMap[this._audio.error.code] || 'Unknown error'));
 		},
 		
 		_createAudio: function(url) {
@@ -94,13 +94,12 @@ define(['Ti/_/declare', 'Ti/_/dom', 'Ti/_/event', 'Ti/_/lang', 'Ti/_/Evented'],
 				}),
 				on(audio, 'error', self, '_error'),
 				on(audio, 'canplay', self, function() {
+					self._audio.volume = self.volume;
+					self._audio.loop = self.looping;
+					self._audio.currentTime = self.time / 1000;
 					self._initialized = 1;
 					
 					//Audio has just initialized
-					self._audio.volume = this.volume;
-					self._audio.loop = this.looping;
-					self._audio.currentTime = self.properties.__values__.time / 1000;
-					
 					self._changeState(INITIALIZED, 'initialized');
 					
 					// _nextCmd: this variable records the command that was requested before the <audio> tag 
