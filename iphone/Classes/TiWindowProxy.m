@@ -182,6 +182,7 @@ TiOrientationFlags TiOrientationFlagsFromObject(id args)
             TiUIView* tiview = (TiUIView*)animatedOver;
             LayoutConstraint* layoutProps = [(TiViewProxy*)[tiview proxy] layoutProperties];
             ApplyConstraintToViewWithBounds(layoutProps, tiview, rootView.bounds);
+            [(TiViewProxy*)[tiview proxy] layoutChildren:NO];
         }
         RELEASE_TO_NIL(animatedOver);
     }
