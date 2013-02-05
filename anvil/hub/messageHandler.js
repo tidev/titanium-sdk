@@ -317,48 +317,42 @@ module.exports = new function() {
 				}
 				dbConnection.query("SELECT * FROM results WHERE run_id = '" + runId + "' and driver_id = '" + driverId +
 							"' and name NOT IN (SELECT name FROM known_failures WHERE platform = '" 
-							+ platform + "')  AND result != 'success' GROUP BY name", function(error, rows, fields) {
+							+ platform + "')  AND result != 'success' GROUP BY name", function(error, results) {
 							
 							if (error) {
 								throw error;
 							}
-							if (rows.length > 0) {
-								for (var i in rows) {
-									results.push(rows[i]);
-								}
+							if (results.length > 0){
+								// Sending mail for regression.
+								var smtpTransport = mailer.createTransport("SMTP", {
+														service: "Gmail",
+														auth: {
+															user: "anvil.server@gmail.com",
+															pass: "appcel123"
+														}
+													});
+								var mailOptions = {
+														from: "Anvil Server <anvil.server@gmail.com>", 
+														to: "srahim@appcelerator.com", 
+														subject: "Possible Regression alert!",
+														text: "There were "+ results.length + "errors in the new build for runId : " +
+																runId + " on platform :" + platform + " on Driver: "+ driverId +" \n." + 
+																" Please review the following regressions and take appropriate action :: \n" +
+																results, 
+														html: "<b>Anvil Server is running</b>" 
+												  }
+								// send mail with defined transport object
+								smtpTransport.sendMail(mailOptions, function(error, response) {
+									if (error) {
+										console.log(error);
+									} 
+									else {
+										console.log("Message sent: " + response.message);
+									}
+									smtpTransport.close();
+								});	
 							}
 				});
-				
-				if (results.length > 0){
-					// Sending mail for regression.
-					var smtpTransport = mailer.createTransport("SMTP", {
-											service: "Gmail",
-											auth: {
-												user: "anvil.server@gmail.com",
-												pass: "appcel123"
-											}
-										});
-					var mailOptions = {
-											from: "Anvil Server <anvil.server@gmail.com>", 
-											to: "srahim@appcelerator.com", 
-											subject: "Possible Regression alert!",
-											text: "There were "+ results.length + "errors in the new build for runId : " +
-													runId + " on platform :" + platform + " on Driver: "+ driverId +" \n." + 
-													" Please review the following regressions and take appropriate action :: \n" +
-													results, 
-											html: "<b>Anvil Server is running</b>" 
-									  }
-					// send mail with defined transport object
-					smtpTransport.sendMail(mailOptions, function(error, response) {
-						if (error) {
-							console.log(error);
-						} 
-						else {
-							console.log("Message sent: " + response.message);
-						}
-						smtpTransport.close();
-					});	
-				}
 				callback();	
 			}
 			
