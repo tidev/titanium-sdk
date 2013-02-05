@@ -154,7 +154,8 @@ static NSDictionary* TI_filterableItemProperties;
 	[self destroyPicker];
 	if (listener!=nil)
 	{
-		[NSThread detachNewThreadSelector:@selector(dispatchCallback:) toTarget:self withObject:[NSArray arrayWithObjects:@"cancel",[NSDictionary dictionary],listener,nil]];
+		NSMutableDictionary * event = [TiUtils dictionaryWithCode:0 message:nil];
+		[NSThread detachNewThreadSelector:@selector(dispatchCallback:) toTarget:self withObject:[NSArray arrayWithObjects:@"cancel",event,listener,nil]];
 	}
 }
 
@@ -1041,8 +1042,8 @@ MAKE_SYSTEM_PROP(VIDEO_FINISH_REASON_USER_EXITED,MPMovieFinishReasonUserExited);
                     [blob writeTo:filePath error:&error];
                     
                     if (error != nil) {
-                        NSDictionary* event = [NSDictionary dictionaryWithObject:[NSString stringWithFormat:@"problem writing to temporary file %@: %@", filePath, [error localizedDescription]]
-                                                                          forKey:@"error"];
+						NSString * message = [NSString stringWithFormat:@"problem writing to temporary file %@: %@", filePath, [TiUtils messageFromError:error]];
+						NSMutableDictionary * event = [TiUtils dictionaryWithCode:[error code] message:message];
                         [self dispatchCallback:[NSArray arrayWithObjects:@"error",event,[saveCallbacks valueForKey:@"error"],nil]];
                         return;
                     }
@@ -1052,8 +1053,7 @@ MAKE_SYSTEM_PROP(VIDEO_FINISH_REASON_USER_EXITED,MPMovieFinishReasonUserExited);
                     break;
                 }
                 default: {
-                    NSDictionary* event = [NSDictionary dictionaryWithObject:@"invalid media format: MIME type was video/, but data is image"
-                                                                      forKey:@"error"];
+					NSMutableDictionary * event = [TiUtils dictionaryWithCode:-1 message:@"invalid media format: MIME type was video/, but data is image"];
                     [self dispatchCallback:[NSArray arrayWithObjects:@"error",event,[saveCallbacks valueForKey:@"error"],nil]];
                     return;
                 }
@@ -1080,12 +1080,11 @@ MAKE_SYSTEM_PROP(VIDEO_FINISH_REASON_USER_EXITED,MPMovieFinishReasonUserExited);
 	{
 		KrollCallback* errorCallback = [saveCallbacks valueForKey:@"error"];
 		if (errorCallback != nil) {
-			NSDictionary* event = [NSDictionary dictionaryWithObject:[NSString stringWithFormat:@"invalid media type: Exepcted either TiBlob or TiFile, was: %@",[image class]]
-															  forKey:@"error"];
+			NSMutableDictionary * event = [TiUtils dictionaryWithCode:-1 message:[NSString stringWithFormat:@"invalid media type: Exepcted either TiBlob or TiFile, was: %@",JavascriptNameForClass([image class])]];
 			[self dispatchCallback:[NSArray arrayWithObjects:@"error",event,errorCallback,nil]];
 		} else {
 			[self throwException:@"invalid media type" 
-					   subreason:[NSString stringWithFormat:@"expected either TiBlob or TiFile, was: %@",[image class]] 
+					   subreason:[NSString stringWithFormat:@"expected either TiBlob or TiFile, was: %@",JavascriptNameForClass([image class])]
 						location:CODELOCATION];
 		}
 	}
@@ -1407,8 +1406,9 @@ MAKE_SYSTEM_PROP(VIDEO_FINISH_REASON_USER_EXITED,MPMovieFinishReasonUserExited);
 							   nil];
 	}
 
-	NSMutableDictionary *dictionary = [NSMutableDictionary dictionaryWithObjectsAndKeys:
-			mediaType,@"mediaType",media,@"media",nil];
+	NSMutableDictionary *dictionary = [TiUtils dictionaryWithCode:0 message:nil];
+	[dictionary setObject:mediaType forKey:@"mediaType"];
+	[dictionary setObject:media forKey:@"media"];
 
 	if (thumbnail!=nil)
 	{
@@ -1444,7 +1444,10 @@ MAKE_SYSTEM_PROP(VIDEO_FINISH_REASON_USER_EXITED,MPMovieFinishReasonUserExited);
 		[items addObject:newItem];
 	}
 	
-	NSDictionary* picked = [NSDictionary dictionaryWithObjectsAndKeys:representative,@"representative",mediaTypes,@"types",items,@"items",nil];
+	NSMutableDictionary* picked = [TiUtils dictionaryWithCode:0 message:nil];
+	[picked setObject:representative forKey:@"representative"];
+	[picked setObject:mediaTypes forKey:@"types"];
+	[picked setObject:items forKey:@"items"];
 	
 	[self sendPickerSuccess:picked];
 }

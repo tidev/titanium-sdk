@@ -220,7 +220,7 @@ USE_VIEW_FOR_CONTENT_HEIGHT
 	{
 		if ([self _hasListeners:@"error"])
 		{
-			[self fireEvent:@"error" withObject:[NSDictionary dictionaryWithObjectsAndKeys:[request url], @"image", nil] errorCode:[error code] message:[TiUtils messageFromError:error]];
+			[self fireEvent:@"error" withObject:[NSDictionary dictionaryWithObject:[request url] forKey:@"image"] errorCode:[error code] message:[TiUtils messageFromError:error]];
 		}
 		RELEASE_TO_NIL(urlRequest);
 	}
