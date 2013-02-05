@@ -6,10 +6,13 @@
  */
 package org.appcelerator.titanium.view;
 
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.Map;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.common.Log;
+import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiDimension;
 import org.appcelerator.titanium.TiPoint;
 import org.appcelerator.titanium.util.TiConvert;
@@ -27,7 +30,15 @@ public class TiGradientDrawable extends ShapeDrawable {
 	}
 
 	private static final TiPoint DEFAULT_START_POINT = new TiPoint(0, 0);
-	private static final TiPoint DEFAULT_END_POINT = new TiPoint(0, 1);
+	@SuppressWarnings("serial")
+	private static final HashMap<String,String> DEFAULT_END_POINT_MAP = new HashMap<String, String>()
+	{
+		{
+			put(TiC.PROPERTY_X, "0");
+			put(TiC.PROPERTY_Y, "100%");
+		}
+	};
+	private static final TiPoint DEFAULT_END_POINT = new TiPoint(DEFAULT_END_POINT_MAP);
 	private static final TiDimension DEFAULT_RADIUS = new TiDimension(1.0, TiDimension.TYPE_UNDEFINED);
 	private static final String TAG = "TiGradientDrawable";
 
