@@ -306,12 +306,12 @@ module.exports = new function() {
 			function checkForRegression(driverId, runId) {
 				var platform = '',
 					results = [];
-				if(/^ios/.test(driverId))	{
+				if (/^ios/.test(driverId)) {
 					platform = 'ios';
 				}
-				else if(/^android/.test(driverId)
+				else if (/^android/.test(driverId)) {
 					platform = 'android';
-				)		
+				}
 				else{
 					return;
 				}
@@ -331,7 +331,7 @@ module.exports = new function() {
 				
 				if (results.length > 0){
 					// Sending mail for regression.
-					var smtpTransport = mailer.createTransport("SMTP",{
+					var smtpTransport = mailer.createTransport("SMTP", {
 											service: "Gmail",
 											auth: {
 												user: "anvil.server@gmail.com",
@@ -349,7 +349,7 @@ module.exports = new function() {
 											html: "<b>Anvil Server is running</b>" 
 									  }
 					// send mail with defined transport object
-					smtpTransport.sendMail(mailOptions, function(error, response){
+					smtpTransport.sendMail(mailOptions, function(error, response) {
 						if (error) {
 							console.log(error);
 						} 
@@ -357,7 +357,7 @@ module.exports = new function() {
 							console.log("Message sent: " + response.message);
 						}
 						smtpTransport.close();
-					}):	
+					});	
 				}	
 			}
 			
