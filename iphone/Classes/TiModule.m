@@ -89,6 +89,10 @@
 {
 }
 
+-(void)openurl:(id)sender
+{
+}
+
 -(void)registerForNotifications
 {
 	WARN_IF_BACKGROUND_THREAD_OBJ;	//NSNotificationCenter is not threadsafe!
@@ -97,6 +101,7 @@
 	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(paused:) name:kTiPausedNotification object:nil];
 	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(resume:) name:kTiResumeNotification object:nil];
 	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(resumed:) name:kTiResumedNotification object:nil];
+	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(openurl:) name:kTiOpenURLNotification object:nil];
 }
 
 -(void)startup

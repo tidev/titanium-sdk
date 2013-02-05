@@ -83,4 +83,10 @@
  */
 -(void)resumed:(id)sender;
 
+/**
+ Titanium Platform calls this method open url scheme.
+ @param sender The sender of the event.
+ */
+-(void)openurl:(id)sender;
+
 @end

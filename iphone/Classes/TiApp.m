@@ -315,6 +315,7 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 {
 	[launchOptions removeObjectForKey:UIApplicationLaunchOptionsURLKey];	
 	[launchOptions setObject:[url absoluteString] forKey:@"url"];
+    [[NSNotificationCenter defaultCenter] postNotificationName:kTiOpenURLNotification object:self];
     return YES;
 }
 
