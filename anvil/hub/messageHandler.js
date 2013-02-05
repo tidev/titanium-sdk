@@ -11,6 +11,7 @@ var fs = require("fs"),
 path = require("path"),
 mysql = require("mysql"),
 wrench = require("wrench"),
+mailer = require("nodemailer"),
 hubUtils = require(__dirname + "/hubUtils");
 
 module.exports = new function() {
@@ -301,7 +302,65 @@ module.exports = new function() {
 					callback();
 				}
 			}
-
+			
+			function checkForRegression(driverId, runId) {
+				var platform = '',
+					results = [];
+				if(/^ios/.test(driverId))	{
+					platform = 'ios';
+				}
+				else if(/^android/.test(driverId)
+					platform = 'android';
+				)		
+				else{
+					return;
+				}
+				dbConnection.query("SELECT * FROM results WHERE run_id =" + runId + "and driver_id = '" + driverId +
+							"' and name NOT IN (SELECT name FROM known_failures WHERE platform = '" 
+							+ platform + "')  AND result != 'success' GROUP BY name", function(error, rows, fields) {
+							
+							if (error) {
+								throw error;
+							}
+							if (rows.length > 0) {
+								for (var i in rows) {
+									results.push(rows[i]);
+								}
+							}
+				});
+				
+				if (results.length > 0){
+					// Sending mail for regression.
+					var smtpTransport = mailer.createTransport("SMTP",{
+											service: "Gmail",
+											auth: {
+												user: "anvil.server@gmail.com",
+												pass: "appcel123"
+											}
+										});
+					var mailOptions = {
+											from: "Anvil Server <anvil.server@gmail.com>", 
+											to: "srahim@appcelerator.com", 
+											subject: "Possible Regression alert!",
+											text: "There were "+ results.length + "errors in the new build for runId : " +
+													runId + " on platform :" + platform + " on Driver: "+ driverId +" \n." + 
+													" Please review the following regressions and take appropriate action :: \n" +
+													results, 
+											html: "<b>Anvil Server is running</b>" 
+									  }
+					// send mail with defined transport object
+					smtpTransport.sendMail(mailOptions, function(error, response){
+						if (error) {
+							console.log(error);
+						} 
+						else {
+							console.log("Message sent: " + response.message);
+						}
+						smtpTransport.close();
+					}):	
+				}	
+			}
+			
 			dbConnection.query("SELECT * FROM runs WHERE id = " + activeRuns[driverId].runId, function(error, rows, fields) {
 				var results = fs.readFileSync(path.join(driverRunWorkingDir, "json_results"), "utf-8");
 				results = JSON.parse(results);
@@ -326,6 +385,8 @@ module.exports = new function() {
 						wrench.rmdirSyncRecursive(driverRunWorkingDir, false);
 						hubUtils.log("temp working directory cleaned up");
 
+					    // Check for any possible regressions;
+						checkForRegressions(driverId , activeRuns[driverId]);
 						/*
 						remove the run and close the driver dbConnection now that the results are 
 						processed.  Failing to close the dbConnection will prevent the driver from 
@@ -336,12 +397,14 @@ module.exports = new function() {
 					});
 				});
 			});
+			
+			
 		});
 	};
 
 	this.getDriverRun = function(driverId) {
 		var query = "SELECT * FROM runs WHERE NOT EXISTS (SELECT * FROM driver_runs " + 
-			"WHERE run_id = runs.id AND driver_id = \"" + driverId + "\")";
+			"WHERE run_id = runs.id AND driver_id = \"" + driverId + "\") ORDER BY id DESC";
 
 		dbConnection.query(query, function(error, rows, fields) {
 			var runId,
