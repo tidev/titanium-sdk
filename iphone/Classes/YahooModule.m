@@ -52,8 +52,9 @@ const NSString *apiEndpoint = @"http://query.yahooapis.com/v1/public/yql?format=
 	if (error==nil)
 	{
 		NSDictionary* errorDict = [result objectForKey:@"error"];
+		int code = (errorDict != nil)?-1:0;
 		NSString * message = [errorDict objectForKey:@"description"];
-		event = [TiUtils dictionaryWithCode:(errorDict != nil) message:message];
+		event = [TiUtils dictionaryWithCode:code message:message];
 
 		if (errorDict==nil) {
 			[event setObject:message forKey:@"message"];
@@ -76,7 +77,7 @@ const NSString *apiEndpoint = @"http://query.yahooapis.com/v1/public/yql?format=
 	[[TiApp app] stopNetwork];
 	
 	NSError *error = [request error];
-	NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:NUMBOOL(NO),@"success",[error description],@"message",nil];
+	NSMutableDictionary * event = [TiUtils dictionaryWithCode:[error code] message:[TiUtils messageFromError:error]];
 	[module _fireEventToListener:@"yql" withObject:event listener:callback thisObject:nil];
 	[self autorelease];
 }

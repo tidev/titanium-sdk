@@ -83,7 +83,7 @@ void TiBindingInitialize()
 	jsEventBubblesStringRef = TiStringCreateWithUTF8CString("bubbles");
 	jsEventSuccessStringRef = TiStringCreateWithUTF8CString("success");
 	jsEventErrorCodeStringRef = TiStringCreateWithUTF8CString("code");
-	jsEventErrorMessageStringRef = TiStringCreateWithUTF8CString("message");
+	jsEventErrorMessageStringRef = TiStringCreateWithUTF8CString("error");
 }
 
 TiBindingEvent TiBindingEventCreateWithNSObjects(TiProxy * target, TiProxy * source, NSString * type, NSDictionary * payload)

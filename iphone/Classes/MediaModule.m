@@ -500,7 +500,8 @@ static NSDictionary* TI_filterableItemProperties;
 	if (error != nil) {
 		KrollCallback* errorCallback = [saveCallbacks objectForKey:@"error"];
 		if (errorCallback != nil) {
-			NSDictionary* event = [NSDictionary dictionaryWithObjectsAndKeys:[error localizedDescription],@"error",blob,@"image",nil];
+			NSMutableDictionary * event = [TiUtils dictionaryWithCode:[error code] message:[TiUtils messageFromError:error]];
+			[event setObject:blob forKey:@"image"];
 			[NSThread detachNewThreadSelector:@selector(dispatchCallback:) toTarget:self withObject:[NSArray arrayWithObjects:@"error",event,errorCallback,nil]];
 		}
 		return;
@@ -508,7 +509,8 @@ static NSDictionary* TI_filterableItemProperties;
 
 	KrollCallback* successCallback = [saveCallbacks objectForKey:@"success"];
 	if (successCallback != nil) {
-		NSDictionary* event = [NSDictionary dictionaryWithObject:blob forKey:@"image"];
+		NSMutableDictionary * event = [TiUtils dictionaryWithCode:0 message:nil];
+		[event setObject:blob forKey:@"image"];
 		[NSThread detachNewThreadSelector:@selector(dispatchCallback:) toTarget:self withObject:[NSArray arrayWithObjects:@"success",event,successCallback,nil]];
 	}
 }
@@ -519,7 +521,8 @@ static NSDictionary* TI_filterableItemProperties;
 	if (error != nil) {
 		KrollCallback* errorCallback = [saveCallbacks objectForKey:@"error"];
 		if (errorCallback != nil) {
-			NSDictionary* event = [NSDictionary dictionaryWithObjectsAndKeys:[error localizedDescription],@"error",path,@"path",nil];
+			NSMutableDictionary * event = [TiUtils dictionaryWithCode:[error code] message:[TiUtils messageFromError:error]];
+			[event setObject:path forKey:@"path"];
 			[NSThread detachNewThreadSelector:@selector(dispatchCallback:) toTarget:self withObject:[NSArray arrayWithObjects:@"error",event,errorCallback,nil]];			
 		}
 		return;
@@ -527,8 +530,9 @@ static NSDictionary* TI_filterableItemProperties;
 	
 	KrollCallback* successCallback = [saveCallbacks objectForKey:@"success"];
 	if (successCallback != nil) {
-		NSDictionary* event = [NSDictionary dictionaryWithObject:path forKey:@"path"];
-		[NSThread detachNewThreadSelector:@selector(dispatchCallback:) toTarget:self withObject:[NSArray arrayWithObjects:@"success",event,successCallback,nil]];					
+		NSMutableDictionary * event = [TiUtils dictionaryWithCode:0 message:nil];
+		[event setObject:path forKey:@"path"];
+		[NSThread detachNewThreadSelector:@selector(dispatchCallback:) toTarget:self withObject:[NSArray arrayWithObjects:@"success",event,successCallback,nil]];
 	}
     
     // This object was retained for use in this callback; release it.
@@ -1558,7 +1562,9 @@ MAKE_SYSTEM_PROP(VIDEO_FINISH_REASON_USER_EXITED,MPMovieFinishReasonUserExited);
 	{
 		TiBlob *media = [[[TiBlob alloc]initWithFile:editedVideoPath] autorelease];
 		[media setMimeType:@"video/mpeg" type:TiBlobTypeFile];
-		NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:NUMBOOL(true),@"success",media,@"media",NUMBOOL(false),@"cancel",nil];
+		NSMutableDictionary * event = [TiUtils dictionaryWithCode:0 message:nil];
+		[event setObject:NUMBOOL(NO) forKey:@"cancel"];
+		[event setObject:media forKey:@"media"];
 		[NSThread detachNewThreadSelector:@selector(dispatchCallback:) toTarget:self withObject:[NSArray arrayWithObjects:@"error",event,listener,nil]];
 	}
 }
@@ -1571,7 +1577,8 @@ MAKE_SYSTEM_PROP(VIDEO_FINISH_REASON_USER_EXITED,MPMovieFinishReasonUserExited);
 
 	if (listener!=nil) 
 	{
-		NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:NUMBOOL(false),@"success",NUMBOOL(true),@"cancel",nil];
+		NSMutableDictionary * event = [TiUtils dictionaryWithCode:-1 message:@"The user cancelled"];
+		[event setObject:NUMBOOL(YES) forKey:@"cancel"];
 		[NSThread detachNewThreadSelector:@selector(dispatchCallback:) toTarget:self withObject:[NSArray arrayWithObjects:@"error",event,listener,nil]];
 	}
 }
@@ -1584,7 +1591,8 @@ MAKE_SYSTEM_PROP(VIDEO_FINISH_REASON_USER_EXITED,MPMovieFinishReasonUserExited);
 
 	if (listener!=nil)
 	{
-		NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:NUMBOOL(false),@"success",NUMBOOL(false),@"cancel",[error description],@"error",nil];
+		NSMutableDictionary * event = [TiUtils dictionaryWithCode:[error code] message:[TiUtils messageFromError:error]];
+		[event setObject:NUMBOOL(NO) forKey:@"cancel"];
 		[NSThread detachNewThreadSelector:@selector(dispatchCallback:) toTarget:self withObject:[NSArray arrayWithObjects:@"error",event,listener,nil]];
 	}
 }
