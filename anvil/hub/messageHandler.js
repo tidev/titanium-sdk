@@ -303,7 +303,7 @@ module.exports = new function() {
 				}
 			}
 			
-			function checkForRegression(driverId, runId) {
+			function checkForRegressions(driverId, runId, callback) {
 				var platform = '',
 					results = [];
 				if (/^ios/.test(driverId)) {
@@ -313,9 +313,9 @@ module.exports = new function() {
 					platform = 'android';
 				}
 				else{
-					return;
+					callback();
 				}
-				dbConnection.query("SELECT * FROM results WHERE run_id =" + runId + "and driver_id = '" + driverId +
+				dbConnection.query("SELECT * FROM results WHERE run_id = '" + runId + "' and driver_id = '" + driverId +
 							"' and name NOT IN (SELECT name FROM known_failures WHERE platform = '" 
 							+ platform + "')  AND result != 'success' GROUP BY name", function(error, rows, fields) {
 							
@@ -358,7 +358,8 @@ module.exports = new function() {
 						}
 						smtpTransport.close();
 					});	
-				}	
+				}
+				callback();	
 			}
 			
 			dbConnection.query("SELECT * FROM runs WHERE id = " + activeRuns[driverId].runId, function(error, rows, fields) {
@@ -386,7 +387,9 @@ module.exports = new function() {
 						hubUtils.log("temp working directory cleaned up");
 
 					    // Check for any possible regressions;
-						checkForRegressions(driverId , activeRuns[driverId]);
+						checkForRegressions(driverId , activeRuns[driverId], function () {
+							console.log("Completed checking for regression ");
+						});
 						/*
 						remove the run and close the driver dbConnection now that the results are 
 						processed.  Failing to close the dbConnection will prevent the driver from 
