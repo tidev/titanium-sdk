@@ -182,9 +182,6 @@ void JavaObject::detach()
 
 	UPDATE_STATS(0, 1);
 
-	// Keep JavaScript object around until finalization.
-	//handle_.ClearWeak();
-
 	weakGlobalRef();
 }
 
