@@ -329,7 +329,9 @@
 - (void)audioPlayerDecodeErrorDidOccur:(AVAudioPlayer *)player error:(NSError *)error
 {
 	if ([self _hasListeners:@"error"]) {
-		[self fireEvent:@"error" withObject:nil errorCode:[error code] message:[TiUtils messageFromError:error]];
+		NSString * message = [TiUtils messageFromError:error];
+		NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:message,@"message",nil];
+		[self fireEvent:@"error" withObject:event errorCode:[error code] message:message];
 	}
     [self forgetSelf];
 }

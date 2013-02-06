@@ -56,7 +56,7 @@ const NSString *apiEndpoint = @"http://query.yahooapis.com/v1/public/yql?format=
 		NSString * message = [errorDict objectForKey:@"description"];
 		event = [TiUtils dictionaryWithCode:code message:message];
 
-		if (errorDict==nil) {
+		if (errorDict!=nil) {
 			[event setObject:message forKey:@"message"];
 		} else {
 			[event setObject:[[result objectForKey:@"query"] objectForKey:@"results"] forKey:@"data"];
