@@ -10,6 +10,42 @@
 #import "TiUILabelProxy.h"
 #import "TiUtils.h"
 #import "UIImage+Resize.h"
+#import "DTCoreText.h"
+
+#define kDefaultFontSize 12.0
+
+static inline CTTextAlignment UITextAlignmentToCTTextAlignment(UITextAlignment alignment)
+{
+    switch (alignment) {
+        case UITextAlignmentLeft:
+            return kCTLeftTextAlignment;
+        case UITextAlignmentRight:
+            return kCTRightTextAlignment;
+        default:
+            return kCTCenterTextAlignment;
+            break;
+    }
+}
+
+static inline CTLineBreakMode UILineBreakModeToCTLineBreakMode(UILineBreakMode linebreak)
+{
+    switch (linebreak) {
+        case UILineBreakModeClip:
+            return kCTLineBreakByClipping;
+        case UILineBreakModeCharacterWrap:
+            return kCTLineBreakByCharWrapping;
+        case UILineBreakModeHeadTruncation:
+            return kCTLineBreakByTruncatingHead;
+        case UILineBreakModeTailTruncation:
+            return kCTLineBreakByTruncatingTail;
+        case UILineBreakModeMiddleTruncation:
+            return kCTLineBreakByTruncatingMiddle;
+        case UILineBreakModeWordWrap:
+        default:
+            return kCTLineBreakByWordWrapping;
+            break;
+    }
+}
 
 @implementation TiUILabel
 
@@ -18,10 +54,12 @@
 -(id)init
 {
     if (self = [super init]) {
-        bgdLayer = nil;
+        options = [[NSMutableDictionary dictionary] retain];
         padding = CGRectZero;
+        textPadding = CGRectZero;
         initialLabelFrame = CGRectZero;
-        verticalAlign = -1;
+        webFont = [[WebFont defaultFont] retain];
+        webFont.size = 17; //to get the same default font size as UILabel
     }
     return self;
 }
@@ -29,7 +67,9 @@
 -(void)dealloc
 {
     RELEASE_TO_NIL(label);
-    RELEASE_TO_NIL(bgdLayer);
+    RELEASE_TO_NIL(options);
+    RELEASE_TO_NIL(content);
+    RELEASE_TO_NIL(webFont);
     [super dealloc];
 }
 
@@ -40,91 +80,45 @@
 	return NO;
 }
 
--(CGSize)sizeForFont:(CGFloat)suggestedWidth
+
+- (CGSize)suggestedFrameSizeToFitEntireStringConstraintedToWidth:(CGFloat)suggestedWidth
 {
-	NSString *value = [label text];
-	UIFont *font = [label font];
-	CGSize maxSize = CGSizeMake(suggestedWidth<=0 ? 480 : suggestedWidth, 10000);
-	CGSize shadowOffset = [label shadowOffset];
-	requiresLayout = YES;
-	if ((suggestedWidth > 0) && [value hasSuffix:@" "]) {
-		// (CGSize)sizeWithFont:(UIFont *)font constrainedToSize:(CGSize)size lineBreakMode:(UILineBreakMode)lineBreakMode method truncates
-		// the string having trailing spaces when given size parameter width is equal to the expected return width, so we adjust it here.
-		maxSize.width += 0.00001;
-	}
-	CGSize size = [value sizeWithFont:font constrainedToSize:maxSize lineBreakMode:UILineBreakModeTailTruncation];
-	if (shadowOffset.width > 0)
-	{
-		// if we have a shadow and auto, we need to adjust to prevent
-		// font from clipping
-		size.width += shadowOffset.width + 10;
-	}
-	return size;
+    CGSize maxSize = CGSizeMake(suggestedWidth<=0 ? 480 : suggestedWidth, 10000);
+    CGFloat textWidth = [[self label] sizeThatFits:maxSize].width;
+    textWidth = MIN(textWidth,  maxSize.width);
+    CGRect textRect = [[self label] textRectForBounds:CGRectMake(0,0,textWidth, maxSize.height) limitedToNumberOfLines:label.numberOfLines];
+    textRect.size.height -= textRect.origin.y;
+    textRect.size.width += textPadding.origin.x + textPadding.size.width;
+    textRect.size.height += textPadding.origin.y + textPadding.size.height;
+    return textRect.size;
 }
 
 -(CGFloat)contentWidthForWidth:(CGFloat)suggestedWidth
 {
-	return [self sizeForFont:suggestedWidth].width;
+    return [self suggestedFrameSizeToFitEntireStringConstraintedToWidth:suggestedWidth].width;
 }
 
 -(CGFloat)contentHeightForWidth:(CGFloat)width
 {
-	return [self sizeForFont:width].height;
+    return [self suggestedFrameSizeToFitEntireStringConstraintedToWidth:width].height;
 }
 
 -(void)padLabel
 {
-    if (verticalAlign != -1) {
-        CGSize actualLabelSize = [self sizeForFont:initialLabelFrame.size.width];
-        CGFloat originX = 0;
-        switch (label.textAlignment) {
-            case UITextAlignmentRight:
-                originX = (initialLabelFrame.size.width - actualLabelSize.width);
-                break;
-            case UITextAlignmentCenter:
-                originX = (initialLabelFrame.size.width - actualLabelSize.width)/2.0;
-                break;
-            default:
-                break;
-        }
-
-        if (originX < 0) {
-            originX = 0;
-        }
-        CGRect labelRect = CGRectMake(originX, 0, actualLabelSize.width, actualLabelSize.height);
-        switch (verticalAlign) {
-            case UIControlContentVerticalAlignmentBottom:
-                labelRect.origin.y = initialLabelFrame.size.height - actualLabelSize.height;
-                break;
-            case UIControlContentVerticalAlignmentCenter:
-                labelRect.origin.y = (initialLabelFrame.size.height - actualLabelSize.height)/2;
-                if (labelRect.origin.y < 0) {
-                    labelRect.size.height = (initialLabelFrame.size.height - labelRect.origin.y);
-                }
-                break;
-            default:
-                if (initialLabelFrame.size.height < actualLabelSize.height) {
-                    labelRect.size.height = initialLabelFrame.size.height;
-                }
-                break;
-        }
-
-        [label setFrame:CGRectIntegral(labelRect)];
-    }
-    else {
-        [label setFrame:initialLabelFrame];
-    }
-
-    if (bgdLayer != nil && !CGRectIsEmpty(initialLabelFrame))
+	CGRect	initFrame = CGRectMake(initialLabelFrame.origin.x + textPadding.origin.x
+                                   , initialLabelFrame.origin.y + textPadding.origin.y
+                                   , initialLabelFrame.size.width - textPadding.origin.x - textPadding.size.width
+                                   , initialLabelFrame.size.height - textPadding.origin.y - textPadding.size.height);
+    [label setFrame:initFrame];
+    
+    if ([self backgroundImageLayer] != nil && !CGRectIsEmpty(initialLabelFrame))
     {
         [self updateBackgroundImageFrameWithPadding];
     }
+	[(TiViewProxy *)[self proxy] contentsWillChange];
 	return;
 }
 
-// FIXME: This isn't quite true.  But the brilliant soluton wasn't so brilliant, because it screwed with layout in unpredictable ways.
-//	Sadly, there was a brilliant solution for fixing the blurring here, but it turns out there's a
-//	quicker fix: Make sure the label itself has an even height and width. Everything else is irrelevant.
 -(void)setCenter:(CGPoint)newCenter
 {
 	[super setCenter:CGPointMake(floorf(newCenter.x), floorf(newCenter.y))];
@@ -135,19 +129,30 @@
 	initialLabelFrame = bounds;
     
     [self padLabel];
-
+    
     [super frameSizeChanged:frame bounds:bounds];
 }
 
--(UILabel*)label
+
+- (void)configurationSet {
+    [super configurationSet];
+    configSet = YES;
+    [self setAttributedTextViewContent];
+}
+
+-(TTTAttributedLabel*)label
 {
 	if (label==nil)
 	{
-        label = [[UILabel alloc] initWithFrame:CGRectZero];
+        _multilineBreakMode = UILineBreakModeWordWrap;
+        label = [[TTTAttributedLabel alloc] initWithFrame:CGRectZero];
         label.backgroundColor = [UIColor clearColor];
-        label.numberOfLines = 0;
+        label.numberOfLines = 0;//default wordWrap to True
+        label.lineBreakMode = UILineBreakModeWordWrap; //default ellipsis to none
+        label.layer.shadowRadius = 0; //for backward compatibility
+        label.layer.shadowOffset = CGSizeZero;
+        label.delegate = self;
         [self addSubview:label];
-//        self.clipsToBounds = YES;
 	}
 	return label;
 }
@@ -157,63 +162,122 @@
 	return [self label];
 }
 
+- (void)setAttributedTextViewContent {
+    if (!configSet) return; // lazy init
+    
+    if (content == nil) {
+        [[self label] setText:nil];
+        [(TiViewProxy *)[self proxy] contentsWillChange];
+        return;
+    }
+    
+    switch (contentType) {
+        case kContentTypeHTML:
+        {
+            //we need to set default values
+            [options setValue:self.label.textColor forKey:DTDefaultTextColor];
+            [options setValue:self.label.textColor forKey:DTDefaultLinkColor];
+            [options setValue:[NSNumber numberWithInt:UITextAlignmentToCTTextAlignment(self.label.textAlignment)] forKey:DTDefaultTextAlignment];
+
+            [options setValue:[NSNumber numberWithInt:UILineBreakModeToCTLineBreakMode(_multilineBreakMode)]  forKey:DTDefaultLineBreakMode];
+            
+            int traitsDefault = 0;
+            if (webFont.isItalicStyle)
+                traitsDefault |= kCTFontItalicTrait;
+            if (webFont.isBoldWeight)
+                traitsDefault |= kCTFontBoldTrait;
+            [options setValue:[NSNumber numberWithInt:traitsDefault] forKey:DTDefaultFontStyle];
+
+            [options setValue:[NSNumber numberWithFloat:(webFont.size / kDefaultFontSize)] forKey:NSTextSizeMultiplierDocumentOption];
+            
+            NSAttributedString * astr = [[NSAttributedString alloc] initWithHTMLData:[content dataUsingEncoding:NSUTF8StringEncoding] options:options documentAttributes:nil];
+            [[self label] setText:astr];
+            break;
+        }
+        default:
+        {
+            [[self label] setText:content];
+            break;
+        }
+    }
+    [(TiViewProxy *)[self proxy] contentsWillChange];
+}
+
 -(void)setHighlighted:(BOOL)newValue
 {
-	[[self label] setHighlighted:newValue];
+    [[self label] setHighlighted:newValue];
 }
 
 - (void)didMoveToSuperview
 {
-	/*
-	 *	Because of how we re-use the same cells in both a tableview and its
-	 *	search table, there is the chance that the label is transported between
-	 *	the two views before a selected search row is deselected. In other
-	 *	words, make sure we're not highlighted when changing superviews.
-	 */
 	[self setHighlighted:NO];
 	[super didMoveToSuperview];
 }
 
 -(BOOL)isHighlighted
 {
-	return [[self label] isHighlighted];
+    return [[self label] isHighlighted];
 }
 
 #pragma mark Public APIs
 
 -(void)setVerticalAlign_:(id)value
 {
-    verticalAlign = [TiUtils intValue:value def:-1];
-    if (verticalAlign < UIControlContentVerticalAlignmentCenter || verticalAlign > UIControlContentVerticalAlignmentBottom) {
-        verticalAlign = -1;
-    }
-    if (label != nil) {
-        [self padLabel];
-    }
+    UIControlContentVerticalAlignment verticalAlign = [TiUtils contentVerticalAlignmentValue:value];
+    
+    [[self label] setVerticalAlignment:(TTTAttributedLabelVerticalAlignment)verticalAlign];
 }
 -(void)setText_:(id)text
 {
-	[[self label] setText:[TiUtils stringValue:text]];
-    [self padLabel];
-	[(TiViewProxy *)[self proxy] contentsWillChange];
+    ENSURE_STRING_OR_NIL(text)
+    RELEASE_TO_NIL(content)
+    contentType = kContentTypeText;
+    content = [text retain];
+    [self setAttributedTextViewContent];
+}
+
+
+- (void)setHtml_:(id)html {
+    ENSURE_STRING_OR_NIL(html)
+    RELEASE_TO_NIL(content)
+    contentType = kContentTypeHTML;
+    content = [html retain];
+    [self setAttributedTextViewContent];
+}
+
+-(void)setAutoLink_:(id)value
+{
+    [[self label] setDataDetectorTypes:[TiUtils intValue:value]];
+    //we need to update the text
+    [self setAttributedTextViewContent];
 }
 
 -(void)setColor_:(id)color
 {
 	UIColor * newColor = [[TiUtils colorValue:color] _color];
 	[[self label] setTextColor:(newColor != nil)?newColor:[UIColor darkTextColor]];
+    
+    //we need to reset the text to update default paragraph settings
+    [self setAttributedTextViewContent];
 }
 
 -(void)setHighlightedColor_:(id)color
 {
 	UIColor * newColor = [[TiUtils colorValue:color] _color];
 	[[self label] setHighlightedTextColor:(newColor != nil)?newColor:[UIColor lightTextColor]];
+    
+    //we need to reset the text to update default paragraph settings
+    [self setAttributedTextViewContent];
 }
 
 -(void)setFont_:(id)font
 {
-	[[self label] setFont:[[TiUtils fontValue:font] font]];
-	[(TiViewProxy *)[self proxy] contentsWillChange];
+    RELEASE_TO_NIL(content);
+    webFont =[[TiUtils fontValue:font] retain];
+	[[self label] setFont:[webFont font]];
+    
+    //we need to reset the text to update default paragraph settings
+    [self setAttributedTextViewContent];
 }
 
 -(void)setMinimumFontSize_:(id)size
@@ -222,38 +286,37 @@
     if (newSize < 4) { // Beholden to 'most minimum' font size
         [[self label] setAdjustsFontSizeToFitWidth:NO];
         [[self label] setMinimumFontSize:0.0];
-        [[self label] setNumberOfLines:0];
     }
     else {
-        [[self label] setNumberOfLines:1];
         [[self label] setAdjustsFontSizeToFitWidth:YES];
         [[self label] setMinimumFontSize:newSize];
     }
-
+    [self updateNumberLines];   
 }
 
--(CALayer *)backgroundImageLayer
+-(void)setBackgroundImageLayerBounds:(CGRect)bounds
 {
-    if (bgdLayer == nil)
+    if ([self backgroundImageLayer] != nil)
     {
-        bgdLayer = [[CALayer alloc]init];
-        bgdLayer.frame = self.layer.bounds;
-        [self.layer insertSublayer:bgdLayer atIndex:0];
+        CGRect backgroundFrame = CGRectMake(bounds.origin.x - padding.origin.x,
+                                            bounds.origin.y - padding.origin.y,
+                                            bounds.size.width + padding.origin.x + padding.size.width,
+                                            bounds.size.height + padding.origin.y + padding.size.height);
+        [self backgroundImageLayer].frame = backgroundFrame;
     }
-	return bgdLayer;
 }
+
 -(void) updateBackgroundImageFrameWithPadding
 {
-    CGRect backgroundFrame = CGRectMake(self.bounds.origin.x - padding.origin.x,
-               self.bounds.origin.y - padding.origin.y,
-               self.bounds.size.width + padding.origin.x + padding.size.width,
-                                        self.bounds.size.height + padding.origin.y + padding.size.height);
-    [self backgroundImageLayer].frame = backgroundFrame;
+    [self setBackgroundImageLayerBounds:self.bounds];
 }
 
 -(void)setBackgroundImage_:(id)url
 {
     [super setBackgroundImage_:url];
+    //if using padding we must not mask to bounds.
+    [self backgroundImageLayer].masksToBounds = CGRectEqualToRect(padding, CGRectZero) ;
+    [self updateBackgroundImageFrameWithPadding];
 }
 
 -(void)setBackgroundPaddingLeft_:(id)left
@@ -283,14 +346,16 @@
 -(void)setTextAlign_:(id)alignment
 {
 	[[self label] setTextAlignment:[TiUtils textAlignmentValue:alignment]];
-    [self padLabel];
+    
+    //we need to reset the text to update default paragraph settings
+    [self setAttributedTextViewContent];
 }
 
 -(void)setShadowColor_:(id)color
 {
 	if (color==nil)
 	{
-		[[self label] setShadowColor:nil];
+		[[[self label] layer]setShadowColor:nil];
 	}
 	else
 	{
@@ -299,12 +364,142 @@
 	}
 }
 
+-(void)setShadowRadius_:(id)arg
+{
+    [[self label] setShadowRadius:[TiUtils floatValue:arg]];
+}
 -(void)setShadowOffset_:(id)value
 {
 	CGPoint p = [TiUtils pointValue:value];
 	CGSize size = {p.x,p.y};
 	[[self label] setShadowOffset:size];
 }
+
+-(void)setTextPaddingLeft_:(id)left
+{
+    textPadding.origin.x = [TiUtils floatValue:left];
+    [self padLabel];
+}
+
+-(void)setTextPaddingRight_:(id)right
+{
+    textPadding.size.width = [TiUtils floatValue:right];
+    [self padLabel];
+}
+
+-(void)setTextPaddingTop_:(id)top
+{
+    textPadding.origin.y = [TiUtils floatValue:top];
+    [self padLabel];
+}
+
+-(void)setTextPaddingBottom_:(id)bottom
+{
+    textPadding.size.height = [TiUtils floatValue:bottom];
+    [self padLabel];
+}
+
+-(void) updateNumberLines
+{
+    if ([[self label] minimumFontSize] >= 4.0)
+    {
+        [[self label] setNumberOfLines:1];
+    }
+    else if ([[self proxy] valueForKey:@"maxLines"])
+        [[self label] setNumberOfLines:([[[self proxy] valueForKey:@"maxLines"] integerValue])];
+    else
+    {
+        BOOL shouldWordWrap = [TiUtils boolValue:[[self proxy] valueForKey:@"wordWrap"] def:YES];
+        if (shouldWordWrap)
+        {
+            [[self label] setNumberOfLines:0];
+        }
+        else
+        {
+            [[self label] setNumberOfLines:1];
+        }
+    }
+
+    [self setAttributedTextViewContent];
+}
+
+-(void)setWordWrap_:(id)value
+{
+    [self updateNumberLines];
+}
+
+-(void)setMaxLines_:(id)value
+{
+	[self updateNumberLines];
+}
+
+-(void)setEllipsize_:(id)value
+{
+    [[self label] setLineBreakMode:[TiUtils intValue:value]];
+    //we need to update the text
+    [self setAttributedTextViewContent];
+}
+
+
+-(void)setMultiLineEllipsize_:(id)value
+{
+    _multilineBreakMode = [TiUtils intValue:value];
+    if (_multilineBreakMode != UILineBreakModeWordWrap)
+        [[self label] setLineBreakMode:UILineBreakModeWordWrap];
+
+    //we need to update the text
+    [self setAttributedTextViewContent];
+}
+
+
+#pragma mark -
+#pragma mark DTAttributedTextContentViewDelegate
+
+- (void)attributedLabel:(TTTAttributedLabel *)label
+   didSelectLinkWithURL:(NSURL *)url
+{
+    [[UIApplication sharedApplication] openURL:url];
+}
+
+- (void)attributedLabel:(TTTAttributedLabel *)label
+didSelectLinkWithAddress:(NSDictionary *)addressComponents
+{
+    NSMutableString* address = [NSMutableString string];
+    NSString* temp = nil;
+    if((temp = [addressComponents objectForKey:NSTextCheckingStreetKey]))
+        [address appendString:temp];
+    if((temp = [addressComponents objectForKey:NSTextCheckingCityKey]))
+        [address appendString:[NSString stringWithFormat:@"%@%@", ([address length] > 0) ? @", " : @"", temp]];
+    if((temp = [addressComponents objectForKey:NSTextCheckingStateKey]))
+        [address appendString:[NSString stringWithFormat:@"%@%@", ([address length] > 0) ? @", " : @"", temp]];
+    if((temp = [addressComponents objectForKey:NSTextCheckingZIPKey]))
+        [address appendString:[NSString stringWithFormat:@" %@", temp]];
+    if((temp = [addressComponents objectForKey:NSTextCheckingCountryKey]))
+        [address appendString:[NSString stringWithFormat:@"%@%@", ([address length] > 0) ? @", " : @"", temp]];
+    NSString* urlString = [NSString stringWithFormat:@"http://maps.google.com/maps?q=%@", [address stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
+    [[UIApplication sharedApplication] openURL:[NSURL URLWithString:urlString]];
+}
+
+- (void)attributedLabel:(TTTAttributedLabel *)label
+didSelectLinkWithPhoneNumber:(NSString *)phoneNumber
+{
+    NSURL* url = [NSURL URLWithString:[NSString stringWithFormat:@"tel://%@", phoneNumber]];
+    [[UIApplication sharedApplication] openURL:url];
+}
+
+//- (void)attributedLabel:(TTTAttributedLabel *)label
+//  didSelectLinkWithDate:(NSDate *)date
+//{
+//    [[UIApplication sharedApplication] openURL:url];
+//}
+//
+//- (void)attributedLabel:(TTTAttributedLabel *)label
+//  didSelectLinkWithDate:(NSDate *)date
+//               timeZone:(NSTimeZone *)timeZone
+//               duration:(NSTimeInterval)duration
+//{
+//    [[UIApplication sharedApplication] openURL:url];
+//}
 
 @end
 

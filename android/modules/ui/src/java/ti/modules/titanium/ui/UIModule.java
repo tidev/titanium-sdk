@@ -95,6 +95,10 @@ public class UIModule extends KrollModule implements Handler.Callback
 	@Kroll.constant public static final String TEXT_VERTICAL_ALIGNMENT_BOTTOM = "bottom";
 	@Kroll.constant public static final String TEXT_VERTICAL_ALIGNMENT_CENTER = "middle";
 	@Kroll.constant public static final String TEXT_VERTICAL_ALIGNMENT_TOP = "top";
+	@Kroll.constant public static final String TEXT_ELLIPSIS_NONE = "none";
+	@Kroll.constant public static final String TEXT_ELLIPSIZE_HEAD = "START";
+	@Kroll.constant public static final String TEXT_ELLIPSIZE_MIDDLE = "MIDDLE";
+	@Kroll.constant public static final String TEXT_ELLIPSIZE_TAIL = "END";
 	
 	@Kroll.constant public static final int PORTRAIT = TiOrientationHelper.ORIENTATION_PORTRAIT;
 	@Kroll.constant public static final int UPSIDE_PORTRAIT = TiOrientationHelper.ORIENTATION_PORTRAIT_REVERSE;
