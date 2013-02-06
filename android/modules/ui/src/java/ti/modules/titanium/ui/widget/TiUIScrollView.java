@@ -21,6 +21,7 @@ import org.appcelerator.titanium.view.TiUIView;
 
 import android.content.Context;
 import android.graphics.Canvas;
+import android.os.Build;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -416,6 +417,11 @@ public class TiUIScrollView extends TiUIView
 		if (TiC.PROPERTY_SCROLLING_ENABLED.equals(key)) {
 			setScrollingEnabled(newValue);
 		}
+		if (TiC.PROPERTY_OVER_SCROLL_MODE.equals(key)) {
+			if (Build.VERSION.SDK_INT >= 9) {
+				getNativeView().setOverScrollMode(TiConvert.toInt(newValue, View.OVER_SCROLL_ALWAYS));
+			}
+		}
 		super.propertyChanged(key, oldValue, newValue, proxy);
 	}
 
@@ -513,6 +519,12 @@ public class TiUIScrollView extends TiUIView
 
 		if (d.containsKey(TiC.PROPERTY_HORIZONTAL_WRAP)) {
 			scrollViewLayout.setEnableHorizontalWrap(TiConvert.toBoolean(d, TiC.PROPERTY_HORIZONTAL_WRAP));
+		}
+		
+		if (d.containsKey(TiC.PROPERTY_OVER_SCROLL_MODE)) {
+			if (Build.VERSION.SDK_INT >= 9) {
+				view.setOverScrollMode(TiConvert.toInt(d.get(TiC.PROPERTY_OVER_SCROLL_MODE), View.OVER_SCROLL_ALWAYS));
+			}
 		}
 
 		setNativeView(view);
