@@ -170,7 +170,6 @@ examples:
                 // use a search bar
                 $.tableview.search = Alloy.createController("searchbar").getView();
             }
-            $.tableview.search = $.searchView;
             $.win.open();
 
         searchview.xml:
