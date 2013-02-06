@@ -68,6 +68,39 @@ properties:
     type: Number
     permission: read-only
 
+  - name: OVER_SCROLL_ALWAYS
+    summary: Always allow a user to over-scroll this view, provided it is a view that can scroll.
+    description: |
+        Use this with the following properties - <Titanium.UI.ScrollableView.overScrollMode>, <Titanium.UI.ScrollView.overScrollMode>, 
+        <Titanium.UI.TableView.overScrollMode> and <Titanium.UI.WebView.overScrollMode>. 
+
+        Only applicable when <Titanium.Platform.Android.API_LEVEL> is 9 or above.
+    type: Number
+    permission: read-only
+    since: "3.1.0"
+
+  - name: OVER_SCROLL_IF_CONTENT_SCROLLS
+    summary: Allow a user to over-scroll this view only if the content is large enough to meaningfully scroll, provided it is a view that can scroll.
+    description: |
+        Use this with the following properties - <Titanium.UI.ScrollableView.overScrollMode>, <Titanium.UI.ScrollView.overScrollMode>, 
+        <Titanium.UI.TableView.overScrollMode> and <Titanium.UI.WebView.overScrollMode>. 
+
+        Only applicable when <Titanium.Platform.Android.API_LEVEL> is 9 or above.
+    type: Number
+    permission: read-only
+    since: "3.1.0"
+
+  - name: OVER_SCROLL_NEVER
+    summary: Never allow a user to over-scroll this view.
+    description: |
+        Use this with the following properties - <Titanium.UI.ScrollableView.overScrollMode>, <Titanium.UI.ScrollView.overScrollMode>, 
+        <Titanium.UI.TableView.overScrollMode> and <Titanium.UI.WebView.overScrollMode>. 
+
+        Only applicable when <Titanium.Platform.Android.API_LEVEL> is 9 or above.
+    type: Number
+    permission: read-only
+    since: "3.1.0"
+
   - name: PIXEL_FORMAT_A_8
     summary: |
         Android A_8 pixel format for <Titanium.UI.Window>. Selecting the correct pixel format 

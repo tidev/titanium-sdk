@@ -25,6 +25,14 @@
 
 @implementation ContactsModule
 
+void CMExternalChangeCallback (ABAddressBookRef notifyAddressBook,CFDictionaryRef info,void *context)
+{
+    DebugLog(@"Got External Change Callback");
+    ContactsModule* theModule = (ContactsModule*) context;
+    theModule->reloadAddressBook = YES;
+    [theModule fireEvent:@"reload" withObject:nil];
+}
+
 // We'll force the address book to only be accessed on the main thread, for consistency.  Otherwise
 // we could run into cross-thread memory issues.
 -(ABAddressBookRef)addressBook
@@ -33,6 +41,12 @@
 		return NULL;
 	}
 	
+    if (reloadAddressBook && (addressBook != NULL) ) {
+        [self releaseAddressBook];
+        addressBook = NULL;
+    }
+    reloadAddressBook = NO;
+    
 	if (addressBook == NULL) {
 		if (iOS6API) {
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_6_0
@@ -43,6 +57,8 @@
 		}
 		if (addressBook == NULL) {
 			DebugLog(@"[WARN] Could not create an address book. Make sure you have gotten permission first.");
+		} else {
+			ABAddressBookRegisterExternalChangeCallback(addressBook, CMExternalChangeCallback, self);
 		}
 	}
 	return addressBook;
@@ -50,7 +66,10 @@
 
 -(void)releaseAddressBook
 {
-	TiThreadPerformOnMainThread(^{CFRelease(addressBook);}, YES);
+	TiThreadPerformOnMainThread(^{
+        ABAddressBookUnregisterExternalChangeCallback(addressBook, CMExternalChangeCallback, self);
+        CFRelease(addressBook);
+    }, YES);
 }
 
 -(void)startup

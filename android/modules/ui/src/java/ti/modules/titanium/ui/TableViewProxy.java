@@ -35,7 +35,8 @@ import android.os.Message;
 	TiC.PROPERTY_FOOTER_TITLE,
 	TiC.PROPERTY_FOOTER_VIEW,
 	TiC.PROPERTY_SEARCH,
-	TiC.PROPERTY_SEPARATOR_COLOR
+	TiC.PROPERTY_SEPARATOR_COLOR,
+	TiC.PROPERTY_OVER_SCROLL_MODE
 })
 public class TableViewProxy extends TiViewProxy
 {
@@ -76,7 +77,7 @@ public class TableViewProxy extends TiViewProxy
 	public TableViewProxy()
 	{
 		super();
-
+		defaultValues.put(TiC.PROPERTY_OVER_SCROLL_MODE, 0);
 		// eventManager.addOnEventChangeListener(this);
 	}
 
