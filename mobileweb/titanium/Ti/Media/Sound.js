@@ -47,7 +47,7 @@ define(['Ti/_/declare', 'Ti/_/dom', 'Ti/_/event', 'Ti/_/lang', 'Ti/_/Evented'],
 				case ENDED:
 					evt.type = 'complete';
 					evt.success = true;
-					!this.looping && this.fireEvent('complete', evt);  // external (interface) event
+					this.looping || this.fireEvent('complete', evt);  // external (interface) event
 					break;
 				case ERROR: 
 					evt.type = 'error';	
