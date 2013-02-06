@@ -95,7 +95,7 @@ define(['Ti/_/declare', 'Ti/_/dom', 'Ti/_/event', 'Ti/_/lang', 'Ti/_/Evented'],
 					// The error event is missing in Titanium API.
 					// So we will fire 'change' event with state='STOPPED' 
 					// and description about error
-					self._changeState(STOPPED, 'error: ' + messageMap[self._audio.error.code] || 'Unknown error');
+					self._changeState(STOPPED, 'error: ' + (messageMap[self._audio.error.code] || 'Unknown error'));
 				}),
 				on(audio, 'canplay', self, function() {
 					self._initialized = 1;
