@@ -114,9 +114,10 @@ public class WebViewProxy extends ViewProxy
 
 		// If the web view has not been created yet, don't set html here. It will be set in processProperties() when the
 		// view is created.
-		if (peekView() != null) {
+		TiUIView v = peekView();
+		if (v != null) {
 			if (TiApplication.isUIThread()) {
-				getWebView().setHtml(html, d);
+				((TiUIWebView) v).setHtml(html, d);
 			} else {
 				getMainHandler().sendEmptyMessage(MSG_SET_HTML);
 			}
