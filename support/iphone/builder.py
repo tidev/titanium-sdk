@@ -870,7 +870,7 @@ def main(args):
 				print "[INFO] iPhone simulated device: %s" % simtype
 				# during simulator we need to copy in standard built-in module files
 				# since we might not run the compiler on subsequent launches
-				for module_name in ('facebook','ui'):
+				for module_name in ('ui'):
 					img_dir = os.path.join(template_dir,'modules',module_name,'images')
 					dest_img_dir = os.path.join(app_dir,'modules',module_name,'images')
 					if not os.path.exists(dest_img_dir):

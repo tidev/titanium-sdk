@@ -16,7 +16,6 @@
 #define USE_TI_APP
 #define USE_TI_CONTACTS
 #define USE_TI_DATABASE
-#define USE_TI_FACEBOOK
 #define USE_TI_FILESYSTEM
 #define USE_TI_GEOLOCATION
 #define USE_TI_GESTURE
