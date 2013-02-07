@@ -6,9 +6,12 @@
  */
 package ti.modules.titanium.ui;
 
+import java.util.HashMap;
+
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
+import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
@@ -40,6 +43,7 @@ public class WebViewProxy extends ViewProxy
 	private static final int MSG_GO_FORWARD = MSG_FIRST_ID + 102;
 	private static final int MSG_RELOAD = MSG_FIRST_ID + 103;
 	private static final int MSG_STOP_LOADING = MSG_FIRST_ID + 104;
+	private static final int MSG_SET_HTML = MSG_FIRST_ID + 105;
 
 	protected static final int MSG_LAST_ID = MSG_FIRST_ID + 999;
 	private static String fusername;
@@ -47,6 +51,8 @@ public class WebViewProxy extends ViewProxy
 
 	private Message postCreateMessage;
 	
+	public static final String OPTIONS_IN_SETHTML = "optionsInSetHtml";
+
 	public WebViewProxy()
 	{
 		super();
@@ -101,12 +107,23 @@ public class WebViewProxy extends ViewProxy
 		}
 		return (String) getProperty(TiC.PROPERTY_HTML);
 	}
-	
+
 	@Kroll.method
-	public void setHtml(String html, @Kroll.argument(optional=true)KrollDict d)
+	public void setHtml(String html, @Kroll.argument(optional = true) KrollDict d)
 	{
 		setProperty(TiC.PROPERTY_HTML, html);
-		getWebView().setHtml(html, d);
+		setProperty(OPTIONS_IN_SETHTML, d);
+
+		// If the web view has not been created yet, don't set html here. It will be set in processProperties() when the
+		// view is created.
+		TiUIView v = peekView();
+		if (v != null) {
+			if (TiApplication.isUIThread()) {
+				((TiUIWebView) v).setHtml(html, d);
+			} else {
+				getMainHandler().sendEmptyMessage(MSG_SET_HTML);
+			}
+		}
 	}
 
 	@Override
@@ -125,6 +142,11 @@ public class WebViewProxy extends ViewProxy
 				return true;
 			case MSG_STOP_LOADING:
 				getWebView().stopLoading();
+				return true;
+			case MSG_SET_HTML:
+				String html = TiConvert.toString(getProperty(TiC.PROPERTY_HTML));
+				HashMap<String, Object> d = (HashMap<String, Object>) getProperty(OPTIONS_IN_SETHTML);
+				getWebView().setHtml(html, d);
 				return true;
 			}
 		}
