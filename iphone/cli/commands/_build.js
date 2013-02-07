@@ -391,36 +391,38 @@ exports.validate = function (logger, config, cli) {
 		process.exit(1);
 	}
 	
-	// make sure the app doesn't have any blacklisted directories in the Resources directory and warn about graylisted names
-	fs.readdirSync(resourcesDir).forEach(function (filename) {
-		var lcaseFilename = filename.toLowerCase(),
-			isDir = fs.lstatSync(path.join(resourcesDir, filename)).isDirectory();
-		
-		if (blacklistDirectories.indexOf(lcaseFilename) != -1) {
-			if (isDir) {
-				logger.error(__('Found blacklisted directory in the Resources directory') + '\n');
-				logger.log(__('The directory "%s" is a reserved word.', filename));
-				logger.log(__('You must rename this directory to something else.') + '\n');
-			} else {
-				logger.error(__('Found blacklisted file in the Resources directory') + '\n');
-				logger.log(__('The file "%s" is a reserved word.', filename));
-				logger.log(__('You must rename this file to something else.') + '\n');
+	if (!cli.argv.xcode || !process.env.TITANIUM_CLI_XCODEBUILD) {
+		// make sure the app doesn't have any blacklisted directories in the Resources directory and warn about graylisted names
+		fs.readdirSync(resourcesDir).forEach(function (filename) {
+			var lcaseFilename = filename.toLowerCase(),
+				isDir = fs.lstatSync(path.join(resourcesDir, filename)).isDirectory();
+			
+			if (blacklistDirectories.indexOf(lcaseFilename) != -1) {
+				if (isDir) {
+					logger.error(__('Found blacklisted directory in the Resources directory') + '\n');
+					logger.log(__('The directory "%s" is a reserved word.', filename));
+					logger.log(__('You must rename this directory to something else.') + '\n');
+				} else {
+					logger.error(__('Found blacklisted file in the Resources directory') + '\n');
+					logger.log(__('The file "%s" is a reserved word.', filename));
+					logger.log(__('You must rename this file to something else.') + '\n');
+				}
+				process.exit(1);
+			} else if (graylistDirectories.indexOf(lcaseFilename) != -1) {
+				if (isDir) {
+					logger.warn(__('Found graylisted directory in the Resources directory'));
+					logger.warn(__('The directory "%s" is potentially a reserved word.', filename));
+					logger.warn(__('There is a good chance your app will be rejected by Apple.'));
+					logger.warn(__('It is highly recommended you rename this directory to something else.'));
+				} else {
+					logger.warn(__('Found graylisted file in the Resources directory'));
+					logger.warn(__('The file "%s" is potentially a reserved word.', filename));
+					logger.warn(__('There is a good chance your app will be rejected by Apple.'));
+					logger.warn(__('It is highly recommended you rename this file to something else.'));
+				}
 			}
-			process.exit(1);
-		} else if (graylistDirectories.indexOf(lcaseFilename) != -1) {
-			if (isDir) {
-				logger.warn(__('Found graylisted directory in the Resources directory'));
-				logger.warn(__('The directory "%s" is potentially a reserved word.', filename));
-				logger.warn(__('There is a good chance your app will be rejected by Apple.'));
-				logger.warn(__('It is highly recommended you rename this directory to something else.'));
-			} else {
-				logger.warn(__('Found graylisted file in the Resources directory'));
-				logger.warn(__('The file "%s" is potentially a reserved word.', filename));
-				logger.warn(__('There is a good chance your app will be rejected by Apple.'));
-				logger.warn(__('It is highly recommended you rename this file to something else.'));
-			}
-		}
-	});
+		});
+	}
 	
 	ti.validateTiappXml(logger, cli.tiapp);
 	
@@ -836,6 +838,9 @@ function build(logger, config, cli, finished) {
 	this.certDeveloperName = cli.argv['developer-name'];
 	this.certDistributionName = cli.argv['distribution-name'];
 	
+	this.forceCopy = !!cli.argv['force-copy'];
+	this.forceCopyAll = !!cli.argv['force-copy-all'];
+	
 	this.forceRebuild = false;
 	
 	// the ios sdk version is not in the selected xcode version, need to find the version that does have it
@@ -1009,7 +1014,7 @@ build.prototype = {
 				parallel(this, [
 					function (next) {
 						if (this.target == 'simulator') {
-							if (this.cli.argv['force-copy']) {
+							if (this.forceCopy) {
 								this.logger.info(__('Forcing copying of files instead of creating symlinks'));
 							} else {
 								return this.createSymlinks(next);
@@ -1030,7 +1035,7 @@ build.prototype = {
 					'copyLocalizedSplashScreens',
 					'writeBuildManifest'
 				], function () {
-					if (this.forceRebuild || !afs.exists(this.xcodeAppDir, this.tiapp.name)) {
+					if (this.forceRebuild || this.target != 'simulator' || !afs.exists(this.xcodeAppDir, this.tiapp.name)) {
 						this.logger.info(__('Invoking xcodebuild'));
 						this.invokeXcodeBuild(finished);
 					} else {
@@ -1337,7 +1342,7 @@ build.prototype = {
 		proj = injectCompileShellScript(
 			proj,
 			'Post-Compile',
-			"echo 'post-compile'"
+			"echo 'Xcode Post-Compile Phase: Touching important files'\\ntouch -c Classes/ApplicationRouting.h Classes/ApplicationRouting.m Classes/ApplicationDefaults.m Classes/ApplicationMods.m Classes/defines.h"
 		);
 		fs.writeFileSync(path.join(this.buildDir, this.tiapp.name + '.xcodeproj', 'project.pbxproj'), proj);
 		
@@ -1513,6 +1518,20 @@ build.prototype = {
 			this.logger.info(__('Forcing rebuild: tiapp.xml guid changed since last build'));
 			this.logger.info('  ' + __('Was: %s', manifest.guid));
 			this.logger.info('  ' + __('Now: %s', this.tiapp.guid));
+			return true;
+		}
+		
+		if (this.forceCopy != manifest.forceCopy) {
+			this.logger.info(__('Forcing rebuild: force copy flag changed since last build'));
+			this.logger.info('  ' + __('Was: %s', manifest.forceCopy));
+			this.logger.info('  ' + __('Now: %s', this.forceCopy));
+			return true;
+		}
+		
+		if (this.forceCopyAll != manifest.forceCopyAll) {
+			this.logger.info(__('Forcing rebuild: force copy all flag changed since last build'));
+			this.logger.info('  ' + __('Was: %s', manifest.forceCopyAll));
+			this.logger.info('  ' + __('Now: %s', this.forceCopyAll));
 			return true;
 		}
 		
@@ -1796,8 +1815,8 @@ build.prototype = {
 			copyright: this.tiapp.copyright,
 			guid: this.tiapp.guid,
 			skipJSMinification: !!this.cli.argv['skip-js-minify'],
-			forceCopy: !!this.cli.argv['force-copy'],
-			forceCopyAll: this.cli.argv['force-copy-all']
+			forceCopy: !!this.forceCopy,
+			forceCopyAll: !!this.forceCopyAll
 		}, null, '\t'), callback);
 	},
 	
@@ -2555,7 +2574,7 @@ build.prototype = {
 			parallel(this, [
 				function (next) {
 					// if development and the simulator, then we're symlinking files and there's no need to anything below
-					if (this.deployType == 'development' && this.target == 'simulator' && !this.cli.argv['force-copy']) {
+					if (this.deployType == 'development' && this.target == 'simulator' && !this.forceCopy) {
 						return next();
 					}
 					
