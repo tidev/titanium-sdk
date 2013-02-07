@@ -92,6 +92,7 @@ examples:
             });
 
             var search;
+            var searchAsChild = false;
 
             if (Ti.Platform.name == 'android' && Ti.Platform.Android.API_LEVEL > 11) {
                 // Use action bar search view
@@ -112,8 +113,9 @@ examples:
             else {
                 // Use search bar
                 search = Ti.UI.createSearchBar({
-                    hintText: "TableSearch"
+                    hintText: "Table Search"
                 });
+                searchAsChild = true;
             }
 
             var data = [];
@@ -125,7 +127,7 @@ examples:
             var tableview = Titanium.UI.createTableView({
                 data:data,
                 search:search,
-                searchAsChild: false
+                searchAsChild:searchAsChild
             });
 
             win.add(tableview);
@@ -139,7 +141,7 @@ examples:
 
             <Alloy>
                 <Window id="win" backgroundColor="blue" fullscreen="false" layout="vertical">
-                    <TableView id="tableview" searchAsChild="false" top="10">
+                    <TableView id="tableview" top="10" searchAsChild="false">
                         <TableViewRow title="Apple" />
                         <TableViewRow title="Banana" />
                         <TableViewRow title="Orange" />
@@ -169,6 +171,7 @@ examples:
             } else {
                 // use a search bar
                 $.tableview.search = Alloy.createController("searchbar").getView();
+                $.tableview.searchAsChild = true;
             }
             $.win.open();
 

@@ -217,6 +217,8 @@ examples:
         Previous example as an Alloy view.
 
         The font and shadowOffset properties need to be defined in the TSS or controller file.
+        These property values are dictionaries, rather than single values,
+        so they cannot be included in markup.
 
             <Alloy>
                 <Window id="win" backgroundColor="white" exitOnClose="true" fullscreen="false" layout="vertical" title="Label Demo">
