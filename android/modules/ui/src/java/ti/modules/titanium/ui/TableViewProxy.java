@@ -639,6 +639,25 @@ public class TableViewProxy extends TiViewProxy
 		}
 	}
 
+	@Kroll.setProperty @Kroll.method
+	public void setSections(Object[] args)
+	{
+		Object[] data = args;
+		if (args != null && args.length > 0 && args[0] instanceof Object[]) {
+			data = (Object[]) args[0];
+		}
+        for (Object section : args) {
+            if (! (section instanceof TableViewSectionProxy)) {
+			    Log.e(TAG, "Unable to set sections. Invalid type for section: " + section);
+            }
+        }
+		if (TiApplication.isUIThread()) {
+			handleSetData(data);
+		} else {
+			TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_SET_DATA), data);
+		}
+	}
+
 	private void handleSetData(Object[] data)
 	{
 		if (data != null) {
