@@ -26,7 +26,9 @@ import ti.modules.titanium.ui.widget.tableview.TiTableView;
 import ti.modules.titanium.ui.widget.tableview.TiTableView.OnItemClickedListener;
 import ti.modules.titanium.ui.widget.tableview.TiTableView.OnItemLongClickedListener;
 import android.app.Activity;
+import android.os.Build;
 import android.view.Gravity;
+import android.view.View;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 
@@ -169,6 +171,11 @@ public class TiUITableView extends TiUIView
 			tableView.setFilterAttribute(TiC.PROPERTY_TITLE);
 		}
 
+		if (d.containsKey(TiC.PROPERTY_OVER_SCROLL_MODE)) {
+			if (Build.VERSION.SDK_INT >= 9) {
+				getListView().setOverScrollMode(TiConvert.toInt(d.get(TiC.PROPERTY_OVER_SCROLL_MODE), View.OVER_SCROLL_ALWAYS));
+			}
+		}
 		boolean filterCaseInsensitive = true;
 		if (d.containsKey(TiC.PROPERTY_FILTER_CASE_INSENSITIVE)) {
 			filterCaseInsensitive = TiConvert.toBoolean(d, TiC.PROPERTY_FILTER_CASE_INSENSITIVE);
@@ -216,6 +223,10 @@ public class TiUITableView extends TiUIView
 		Log.d(TAG, "Property: " + key + " old: " + oldValue + " new: " + newValue, Log.DEBUG_MODE);
 		if (key.equals(TiC.PROPERTY_SEPARATOR_COLOR)) {
 			tableView.setSeparatorColor(TiConvert.toString(newValue));
+		} else if (TiC.PROPERTY_OVER_SCROLL_MODE.equals(key)){
+			if (Build.VERSION.SDK_INT >= 9) {
+				getListView().setOverScrollMode(TiConvert.toInt(newValue, View.OVER_SCROLL_ALWAYS));
+			}
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}

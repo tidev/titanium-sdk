@@ -9,6 +9,18 @@ extends: Titanium.Module
 since: "0.8"
 platforms: [android, iphone, ipad]
 
+events:
+  - name: reload
+    summary: Fired when the database backing the contacts module is modified
+    description: |
+        This event signifies that the addressbook reference will be recreated. All existing 
+        [Person](Titanium.Contacts.Person) and [Group](Titanium.Contacts.Group) instances will 
+        still exist but changes to them that modify the addressbook will result in unpredictable
+        behavior.
+    platforms: [iphone, ipad]
+    since: "3.1.0"
+
+
 methods:
   - name: createGroup
     summary: Creates and returns an instance of <Titanium.Contacts.Group>.

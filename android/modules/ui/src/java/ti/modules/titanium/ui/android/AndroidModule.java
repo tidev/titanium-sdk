@@ -77,6 +77,10 @@ public class AndroidModule extends KrollModule
 	@Kroll.constant public static final int PROGRESS_INDICATOR_DIALOG = TiUIProgressIndicator.DIALOG;
 	@Kroll.constant public static final int PROGRESS_INDICATOR_INDETERMINANT = TiUIProgressIndicator.INDETERMINANT;
 	@Kroll.constant public static final int PROGRESS_INDICATOR_DETERMINANT = TiUIProgressIndicator.DETERMINANT;
+	
+	@Kroll.constant public static final int OVER_SCROLL_ALWAYS = 0 ;               //android.view.View.OVER_SCROLL_ALWAYS;
+	@Kroll.constant public static final int OVER_SCROLL_IF_CONTENT_SCROLLS = 1;    //android.view.View.OVER_SCROLL_IF_CONTENT_SCROLLS;
+	@Kroll.constant public static final int OVER_SCROLL_NEVER = 2;                 //android.view.View.OVER_SCROLL_NEVER;
 
 	public AndroidModule()
 	{
