@@ -97,6 +97,16 @@ public class TableViewProxy extends TiViewProxy
 				dict.remove(TiC.PROPERTY_DATA); // don't override our data accessor
 			}
 		}
+        // Treat sections in the creation dict just like data. Unlike the setter, we don't 
+        // check whether the items are sections first. This is consistent with the handling 
+        // of the data property--a bad object is dropped silently.
+		if (dict.containsKey(TiC.PROPERTY_SECTIONS)) {
+			Object o = dict.get(TiC.PROPERTY_SECTIONS);
+			if (o != null && o instanceof Object[]) {
+				data = (Object[]) o;
+				dict.remove(TiC.PROPERTY_SECTIONS); // don't override our data accessor
+			}
+		}
 		super.handleCreationDict(dict);
 		if (data != null) {
 			processData(data);
