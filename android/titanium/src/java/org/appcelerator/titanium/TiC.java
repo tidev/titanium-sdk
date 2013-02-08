@@ -773,6 +773,16 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_CANCELABLE = "cancelable";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_CELLSTYLE = "cellStyle";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_CELLSTYLES = "cellStyles";
 
 	/**
 	 * @module.api
@@ -1728,6 +1738,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_SECTION = "section";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_SECTIONS = "sections";
 
 	/**
 	 * @module.api
