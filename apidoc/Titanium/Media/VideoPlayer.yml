@@ -750,11 +750,8 @@ summary: |
 description: |
     The callback is invoked when a movie thumbnail is available.
 platforms: [iphone, ipad]
+extends: ErrorResponse
 properties:
-  - name: success
-    summary: Boolean to indicate success or failure.
-    type: Boolean
-
   - name: image
     summary: Thumbnail image, as a `Blob`.
     type: Titanium.Blob
@@ -762,11 +759,6 @@ properties:
   - name: time
     summary: Time offset for the thumbnail, in seconds.
     type: Number
-
-  - name: error
-    summary: If `success` is `false`, provides an error message.
-    type: String
-
 
 ---
 name: MovieSize

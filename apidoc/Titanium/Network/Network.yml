@@ -435,6 +435,7 @@ name: PushNotificationSuccessArg
 summary: |
     A simple object passed to the 
     [registerForPushNotifications](Titanium.Network.registerForPushNotifications) success callback.
+extends: SuccessResponse
 properties: 
   - name: type
     summary: The value of this string is always "remote".
@@ -448,12 +449,10 @@ name: PushNotificationErrorArg
 summary: |
     A simple object passed to the 
     [registerForPushNotifications](Titanium.Network.registerForPushNotifications) error callback.
+extends: FailureResponse
 properties: 
   - name: type
     summary: The value of this string is always "remote".
-    type: String
-  - name: error 
-    summary: Description of the error.
     type: String
 
 ---

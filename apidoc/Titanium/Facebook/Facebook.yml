@@ -620,15 +620,8 @@ name: FacebookGraphResponse
 summary: |
     Argument passed to the graph API callback, in response to a
     [requestWithGraphPath](Titanium.Facebook.requestWithGraphPath) call.
+extends: ErrorResponse
 properties:
-
-  - name: success
-    summary: Indicates if the request succeeded.
-    type: Boolean
-
-  - name: error
-    summary: Error message, if request failed.
-    type: String
 
   - name: path
     summary: Graph API path of the original request.
@@ -642,18 +635,7 @@ properties:
 ---
 name: FacebookReauthResponse
 summary: Argument passed to the reauthorize callback when the request is completed or canceled.
-description: |
-    The `success` and `cancelled` properties may not be reliable for dialogs. In the event
-    that the user canceled the dialog, the `result` field is `undefined`.
-properties:
-
-  - name: success
-    summary: Indicates if the request succeeded.
-    type: Boolean 
-
-  - name: error
-    summary: Error message, if request failed.
-    type: String
+extends: ErrorResponse
 
 ---
 name: FacebookDialogResponse
@@ -661,15 +643,8 @@ summary: Argument passed to the dialog callback when a dialog is completed or ca
 description: |
     The `success` and `cancelled` properties may not be reliable for dialogs. In the event
     that the user canceled the dialog, the `result` field is `undefined`.
+extends: ErrorResponse
 properties:
-
-  - name: success
-    summary: Indicates if the request succeeded.
-    type: Boolean 
-
-  - name: error
-    summary: Error message, if request failed.
-    type: String
 
   - name: cancelled
     summary: Indicates if the user canceled the dialog. 
@@ -687,15 +662,8 @@ name: FacebookRESTResponse
 summary: |
     Argument passed to the REST API callback when a request completes (successfully
     or unsuccessfully).
+extends: ErrorResponse
 properties:
-
-  - name: success
-    summary: Indicates if the request succeeded.
-    type: Boolean
-
-  - name: error
-    summary: Error message, if request failed.
-    type: String
 
   - name: method
     summary: REST method call you specified.

@@ -316,7 +316,7 @@ summary: |
     Argument passed to the read callback when an asynchronous [read](Titanium.Stream.read) operation
     finishes.
 since: "1.7"
-
+extends: ErrorResponse
 properties:
   - name: source
     summary: Stream being read.
@@ -332,10 +332,14 @@ properties:
         otherwise.
     type: Number
     platforms: [android]
+    deprecated:
+        since: "3.1.0"
 
   - name: errorDescription
     summary: Text description of the error.
     type: String
+    deprecated:
+        since: "3.1.0"
 
 
 ---
@@ -345,7 +349,7 @@ summary: |
     [write](Titanium.Stream.write) operation
     finishes.
 since: "1.7"
-
+extends: ErrorResponse
 properties:
   - name: source
     summary: Stream being written to.
@@ -361,10 +365,14 @@ properties:
         otherwise.
     type: Number
     platforms: [android]
+    deprecated:
+        since: "3.1.0"
 
   - name: errorDescription
     summary: Text description of the error.
     type: String
+    deprecated:
+        since: "3.1.0"
 
 ---
 name: WriteStreamCallbackArgs
@@ -373,7 +381,7 @@ summary: |
     [writeStream](Titanium.Stream.writeStream) operation finishes.
 
 since: "1.7"
-
+extends: ErrorResponse
 properties:
   - name: fromStream
     summary: Stream being read from.
@@ -393,10 +401,14 @@ properties:
         otherwise.
     type: Number
     platforms: [android]
+    deprecated:
+        since: "3.1.0"
 
   - name: errorDescription
     summary: Text description of the error.
     type: String
+    deprecated:
+        since: "3.1.0"
 
 ---
 name: PumpCallbackArgs
@@ -408,7 +420,7 @@ description: |
     pump operation, either because of an error or because the end of the
     stream has been reached.
 since: "1.7"
-
+extends: ErrorResponse
 properties:
   - name: source
     summary: Stream being read from.
@@ -436,8 +448,12 @@ properties:
         otherwise.
     type: Number
     platforms: [android]
+    deprecated:
+        since: "3.1.0"
 
   - name: errorDescription
     summary: Text description of the error.
     type: String
+    deprecated:
+        since: "3.1.0"
 

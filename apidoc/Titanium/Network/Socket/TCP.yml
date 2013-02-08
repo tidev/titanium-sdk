@@ -297,15 +297,12 @@ name: ErrorCallbackArgs
 summary: Object passed to the error callback when the socket enters 
     the [ERROR](Titanium.Network.Socket.ERROR) state.
 since: "1.7"
+extends: FailureResponse
 
 properties:
   - name: socket
     summary: Socket that experienced the error.
     type: Titanium.Network.Socket.TCP
-
-  - name: error
-    summary: A text description of the error.
-    type: String
 
   - name: errorCode
     summary: The error code of the error (potentially system-dependent).
