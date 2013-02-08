@@ -132,7 +132,8 @@ define(['Ti/_/declare', 'Ti/_/dom', 'Ti/_/event', 'Ti/_/lang', 'Ti/_/Evented'],
 				
 			this._currentState = STOPPED;
 			this.constants.__values__.playing = p.paused = false;
-			p.url = this.time = this._initialized = this._nextCmd = 0;
+			this._initialized && (this.time = 0);
+			p.url = this._initialized = this._nextCmd = 0;
 			if (parent) {
 				event.off(this._handles);
 				parent.removeChild(audio);
