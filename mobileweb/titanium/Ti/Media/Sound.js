@@ -35,12 +35,10 @@ define(['Ti/_/declare', 'Ti/_/dom', 'Ti/_/event', 'Ti/_/lang', 'Ti/_/Evented'],
 		// Update the state information;
 		// fire external events according to changes of the internal state.
 		_changeState: function(newState, msg) {
-			var cons = this.constants.__values__,
-				evt = {};
-			
+			var evt = {};
 			this._currentState = newState;
-			cons.playing = PLAYING === newState;
-			cons.paused = PAUSED === newState;
+			this.constants.__values__.playing = PLAYING === newState;
+			this.properties.__values__.paused = PAUSED === newState;
 			
 			evt.src = this;
 			switch (this._currentState) {
@@ -58,8 +56,7 @@ define(['Ti/_/declare', 'Ti/_/dom', 'Ti/_/event', 'Ti/_/lang', 'Ti/_/Evented'],
 		},
 		
 		_durationChange: function() {
-			var d = this._audio.duration * 1000;
-			d === Infinity || (this.constants.__values__.duration = Math.floor(d));
+			this.constants.__values__.duration = Math.floor(this._audio.duration);
 		},
 		
 		_error: function() {
@@ -131,11 +128,11 @@ define(['Ti/_/declare', 'Ti/_/dom', 'Ti/_/event', 'Ti/_/lang', 'Ti/_/Evented'],
 		release: function() {
 			var audio = this._audio,
 				parent = audio && audio.parentNode,
-				c = this.constants.__values__;
+				p = this.properties.__values__;
 				
 			this._currentState = STOPPED;
-			c.playing = c.paused = false;
-			this.time = this._initialized = this._nextCmd = 0;
+			this.constants.__values__.playing = p.paused = false;
+			p.url = this.time = this._initialized = this._nextCmd = 0;
 			if (parent) {
 				event.off(this._handles);
 				parent.removeChild(audio);
@@ -205,7 +202,6 @@ define(['Ti/_/declare', 'Ti/_/dom', 'Ti/_/event', 'Ti/_/lang', 'Ti/_/Evented'],
 		},
 		
 		constants: {
-			paused: false,
 			playing: false,
 			duration: 0
 		},
@@ -255,6 +251,17 @@ define(['Ti/_/declare', 'Ti/_/dom', 'Ti/_/event', 'Ti/_/lang', 'Ti/_/Evented'],
 				set: function(value) {
 					this._initialized && (this._audio.loop = value);
 					return value;
+				}
+			},
+			
+			paused: {
+				value: false,
+				set: function(value, oldValue) {
+					if (value === oldValue) {
+						return oldValue;
+					}
+					value ? this.pause() : this.start();
+					return oldValue;
 				}
 			}
 		}
