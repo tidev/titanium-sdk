@@ -833,6 +833,17 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 	[self _listenerRemoved:type count:ourCallbackCount];
 }
 
+#ifdef DEBUG
+-(BOOL)doesntOverrideFireEventWithSource
+{
+	IMP proxySourceImp = [[TiProxy class] instanceMethodForSelector:@selector(fireEvent:withObject:withSource:propagate:)];
+	IMP subclassSourceImp = [self methodForSelector:@selector(fireEvent:withObject:withSource:propagate:)];
+	return proxySourceImp != subclassSourceImp;
+}
+
+#endif
+
+
 -(void)fireEvent:(id)args
 {
 	NSString *type = nil;
@@ -860,9 +871,7 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 		params = nil; //No need to propagate when we already have this information
 	}
 #ifdef DEBUG
-	IMP proxySourceImp = [[TiProxy class] instanceMethodForSelector:@selector(fireEvent:withObject:withSource:propagate:)];
-	IMP subclassSourceImp = [self methodForSelector:@selector(fireEvent:withObject:withSource:propagate:)];
-	if (proxySourceImp != subclassSourceImp){
+	if ([self doesntOverrideFireEventWithSource]){
 		//TODO: Once the depricated methods are removed, we can use the following line without checking to see if we'd shortcut.
 		// For now, we're shortcutting to suppress false warnings.
 		[self fireEvent:type withObject:params propagate:bubble reportSuccess:NO errorCode:0 message:nil];
@@ -876,9 +885,7 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 -(void)fireEvent:(NSString*)type withObject:(id)obj
 {
 #ifdef DEBUG
-	IMP proxySourceImp = [[TiProxy class] instanceMethodForSelector:@selector(fireEvent:withObject:withSource:propagate:)];
-	IMP subclassSourceImp = [self methodForSelector:@selector(fireEvent:withObject:withSource:propagate:)];
-	if (proxySourceImp != subclassSourceImp){
+	if ([self doesntOverrideFireEventWithSource]){
 		//TODO: Once the depricated methods are removed, we can use the following line without checking to see if we'd shortcut.
 		// For now, we're shortcutting to suppress false warnings.
 		[self fireEvent:type withObject:obj propagate:YES reportSuccess:NO errorCode:0 message:nil];
@@ -898,9 +905,7 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 -(void)fireEvent:(NSString*)type withObject:(id)obj propagate:(BOOL)yn
 {
 #ifdef DEBUG
-	IMP proxySourceImp = [[TiProxy class] instanceMethodForSelector:@selector(fireEvent:withObject:withSource:propagate:)];
-	IMP subclassSourceImp = [self methodForSelector:@selector(fireEvent:withObject:withSource:propagate:)];
-	if (proxySourceImp != subclassSourceImp){
+	if ([self doesntOverrideFireEventWithSource]){
 		//TODO: Once the depricated methods are removed, we can use the following line without checking to see if we'd shortcut.
 		// For now, we're shortcutting to suppress false warnings.
 		[self fireEvent:type withObject:obj propagate:yn reportSuccess:NO errorCode:0 message:nil];
@@ -917,17 +922,7 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 	if (self != source) {
 		NSLog(@"[WARN] Source is not the same as self. (Perhaps this edge case is still valid?)");
 	}
-	
-	if (![self _hasListeners:type])
-	{
-		return;
-	}
-
-	TiBindingEvent ourEvent;
-	
-	ourEvent = TiBindingEventCreateWithNSObjects(self, source, type, obj);
-	TiBindingEventSetBubbles(ourEvent, propagate);
-	TiBindingEventFire(ourEvent);
+	[self fireEvent:type withObject:obj withSource:source propagate:propagate reportSuccess:NO errorCode:0 message:nil];
 }
 
 
@@ -937,7 +932,7 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 	[self fireEvent:type withObject:obj propagate:YES reportSuccess:YES errorCode:code message:message];
 }
 
-//What classes should actually use. TODO: usurp -[fireEvent:withObject:withSource:propagate:reportError:errorCode:message:]
+//What classes should actually use.
 -(void)fireEvent:(NSString*)type withObject:(id)obj propagate:(BOOL)propagate reportSuccess:(BOOL)report errorCode:(int)code message:(NSString*)message;
 {
 	if (![self _hasListeners:type])
@@ -955,6 +950,26 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 	TiBindingEventSetBubbles(ourEvent, propagate);
 	TiBindingEventFire(ourEvent);
 }
+
+//Temporary method until source is removed, for our subclasses.
+-(void)fireEvent:(NSString*)type withObject:(id)obj withSource:(id)source propagate:(BOOL)propagate reportSuccess:(BOOL)report errorCode:(int)code message:(NSString*)message;
+{
+	if (![self _hasListeners:type])
+	{
+		return;
+	}
+	
+	TiBindingEvent ourEvent;
+	
+	ourEvent = TiBindingEventCreateWithNSObjects(self, source, type, obj);
+	if (report || (code != 0)) {
+		TiBindingEventSetErrorCode(ourEvent, code);
+		TiBindingEventSetErrorMessageWithNSString(ourEvent, message);
+	}
+	TiBindingEventSetBubbles(ourEvent, propagate);
+	TiBindingEventFire(ourEvent);
+}
+
 
 - (void)setValuesForKeysWithDictionary:(NSDictionary *)keyedValues
 {

@@ -296,6 +296,9 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 //What classes should actually override:
 -(void)fireEvent:(NSString*)type withObject:(id)obj propagate:(BOOL)propagate reportSuccess:(BOOL)report errorCode:(int)code message:(NSString*)message;
 
+//Temporary override point during the transition. Both the one below AND the one above should be overridden if needed.
+-(void)fireEvent:(NSString*)type withObject:(id)obj withSource:(id)source propagate:(BOOL)propagate reportSuccess:(BOOL)report errorCode:(int)code message:(NSString*)message;
+
 //** Depricated: bubbling is done at a lower point so source is always 'self' at this point.
 -(void)fireEvent:(NSString*)type withObject:(id)obj withSource:(id)source;
 -(void)fireEvent:(NSString*)type withObject:(id)obj withSource:(id)source propagate:(BOOL)yn;

@@ -149,7 +149,10 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 		[self requestError:error];
 	}
 	else {
-		[context fireEvent:callback withObject:event remove:NO thisObject:nil];
+		BOOL success = [TiUtils boolValue:@"success" properties:event def:YES];
+		NSMutableDictionary * revisedEvent = [TiUtils dictionaryWithCode:success?0:-1 message:success?nil:@"error reverse geocoding"];
+		[revisedEvent setValuesForKeysWithDictionary:event];
+		[context fireEvent:callback withObject:revisedEvent remove:NO thisObject:nil];
 	}
 }
 
