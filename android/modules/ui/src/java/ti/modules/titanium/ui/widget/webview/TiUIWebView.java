@@ -7,6 +7,7 @@
 package ti.modules.titanium.ui.widget.webview;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -18,6 +19,7 @@ import java.util.HashMap;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.common.Log;
+import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.io.TiBaseFile;
@@ -132,6 +134,12 @@ public class TiUIWebView extends TiUIView
 		settings.setLoadsImagesAutomatically(true);
 		settings.setLightTouchEnabled(true);
 		settings.setDomStorageEnabled(true); // Required by some sites such as Twitter. This is in our iOS WebView too.
+		settings.setDatabaseEnabled(true);
+		File path = TiApplication.getInstance().getFilesDir();
+		if (path != null) {
+			settings.setDatabasePath(path.getAbsolutePath());
+		}
+		
 
 		// enable zoom controls by default
 		boolean enableZoom = true;
