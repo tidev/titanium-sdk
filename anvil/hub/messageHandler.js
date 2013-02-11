@@ -303,87 +303,115 @@ module.exports = new function() {
 				}
 			}
 			
-			function checkForRegressions(driverId, runId, callback) {
-				var platform = '',
-					results = [];
-				if (/^ios/.test(driverId)) {
+			function checkForRegressions(regression, callback) {
+				var platform = '';
+				if(/^ios/.test(regression['driver_id'])) {
 					platform = 'ios';
 				}
-				else if (/^android/.test(driverId)) {
+				else if(/^android/.test(regression['driver_id'])) {
 					platform = 'android';
 				}
 				else{
 					callback();
 				}
-				dbConnection.query("SELECT * FROM results WHERE run_id = '" + runId + "' and driver_id = '" + driverId +
-							"' and name NOT IN (SELECT name FROM known_failures WHERE platform = '" 
-							+ platform + "')  AND result != 'success' GROUP BY name", function(error, results) {
+                 
+				dbConnection.query("SELECT * FROM results WHERE run_id ='" + regression['run_id'] + 
+							"' and driver_id = '" + regression['driver_id'] +
+							"' and name NOT IN (SELECT name FROM known_failures WHERE platform = '" +
+							platform + "')  AND result != 'success' GROUP BY name", function(error, results) {
 							
 							if (error) {
 								throw error;
 							}
-							if (results.length > 0){
-								// Sending mail for regression.
-								var smtpTransport = mailer.createTransport("SMTP", {
-														service: "Gmail",
-														auth: {
-															user: "anvil.server@gmail.com",
-															pass: "appcel123"
-														}
-													});
-								var mailOptions = {
-														from: "Anvil Server <anvil.server@gmail.com>", 
-														to: "srahim@appcelerator.com", 
-														subject: "Possible Regression alert!",
-														text: "There were "+ results.length + "errors in the new build for runId : " +
-																runId + " on platform :" + platform + " on Driver: "+ driverId +" \n." + 
-																" Please review the following regressions and take appropriate action :: \n" +
-																results, 
-														html: "<b>Anvil Server is running</b>" 
-												  }
-								// send mail with defined transport object
-								smtpTransport.sendMail(mailOptions, function(error, response) {
-									if (error) {
-										console.log(error);
-									} 
-									else {
-										console.log("Message sent: " + response.message);
-									}
-									smtpTransport.close();
-								});	
-							}
-				});
-				callback();	
-			}
-			
-			dbConnection.query("SELECT * FROM runs WHERE id = " + activeRuns[driverId].runId, function(error, rows, fields) {
-				var results = fs.readFileSync(path.join(driverRunWorkingDir, "json_results"), "utf-8");
-				results = JSON.parse(results);
+							
+							var failures = JSON.stringify(results, null, '\t');
+                            if (results.length > 0) {
+                            
+                                   // Sending mail for regression.
+                                   var smtpTransport = mailer.createTransport("SMTP", {
+                                                                              service: "Gmail",
+                                                                              auth: {
+                                                                                        user: "anvil.server@gmail.com",
+                                                                                        pass: "appcel123"
+                                                                                    }
+                                                         });
 
-				// store the branch ID for later use
-				branch = rows[0].branch;
+                                   var errorMessage = "There was " + results.length + " new error(s) in the new build for " + platform +
+                                                         "\n\nDetails of the build :: \nBranch : " + regression['branch'] + "\nGit Hash :" +
+                                                         regression['githash'] + "\nBuild Timestamp : " + regression['timestamp'] + "\nC.I Build Name:" +
+                                                         regression['base_sdk_filename'] + "\n\nDriver Details :\n" + regression['driver_detail'] +
+                                                         "\n\nPlease review the following regression(s) :: \n\n" + failures;
 
+                                   var mailOptions = {
+                                                         from: "Anvil Server <anvil.server@gmail.com>",
+                                                         to: " Sabil Rahim <srahim@appcelerator.com>, Ingo Muschenetz <imuschenetz@appcelerator.com>, Vishal Duggal <vduggal@appcelerator.com>," +
+                                                             " Eric Merriman <emerriman@appcelerator.com>, Blain Hamon <bhamon@appcelerator.com>, Ping Wang <pwang@appcelerator.com>," +
+					   										 " Thomas Huelbert <thuelbert@appcelerator.com>, Dustin Hyde <dhyde@appcelerator.com>, Satyam Sekhri <satyam.sekhri@globallogic.com> ",
+                                                         subject: "Possible Regression on new build : " + regression['githash'],
+                                                         text: errorMessage
+                                                      }
+                                   // send mail with defined transport object
+                                   smtpTransport.sendMail(mailOptions, function(error, response) {
+                                        if (error) {
+                                            throw error;
+                                        }
+                                        else {
+                                            hubUtils.log("Message sent: " + response.message);
+                                        }
+                                        smtpTransport.close();
+                                   });
+                        }
+                 });
+                 callback();
+            }
+
+
+
+             dbConnection.query("SELECT * FROM runs WHERE id = " + activeRuns[driverId].runId, function(error, rows, fields) {
+                var results = fs.readFileSync(path.join(driverRunWorkingDir, "json_results"), "utf-8"),
+                	regression = new Array();
+                results = JSON.parse(results);
+                
+                // store the branch ID for later use
+                branch = rows[0].branch;
+								
+				// Caching run details for regression testing.  
+                regression['branch'] = rows[0].branch,
+                regression['githash'] = rows[0].git_hash,
+                regression['timestamp'] = rows[0].timestamp,
+                regression['base_sdk_filename'] = rows[0].base_sdk_filename;
+				regression['run_id'] = rows[0].id
+				regression['driver_id'] = driverId;
+				
+				var query = "SELECT * FROM driver_state WHERE id = '"+regression['driver_id'] +"'";	
+				dbConnection.query(query, function(error, results) {
+                        regression['driver_detail'] = JSON.stringify(results, null, '\t');
+                });
+								
 				insertDriverRun(results, function() {
 					dbConnection.query("UPDATE driver_runs SET passed_tests=" + numPassed +
 						", failed_tests=" + numFailed + " WHERE driver_id=\"" + driverId + "\"" +
 						" AND run_id=" + activeRuns[driverId].runId, function(error, rows, fields) {
+                                       
 
 						if (error) {
 							throw error;
 						}
+                                       
 
 						// copy the raw results file to a location where it can be served up
 						var rawResultsFilename = activeRuns[driverId].gitHash + driverId + ".tgz";
 						fs.renameSync(path.resolve(driverRunWorkingDir, rawResultsFilename), path.join("web", "results", rawResultsFilename));
 						hubUtils.log("results file moved to serving location");
+                                       
 
 						wrench.rmdirSyncRecursive(driverRunWorkingDir, false);
 						hubUtils.log("temp working directory cleaned up");
+														
+						checkForRegressions(regression , function(){
+                                            hubUtils.log("Done with checking for regressions.");
+                        });
 
-					    // Check for any possible regressions;
-						checkForRegressions(driverId , activeRuns[driverId], function () {
-							console.log("Completed checking for regression ");
-						});
 						/*
 						remove the run and close the driver dbConnection now that the results are 
 						processed.  Failing to close the dbConnection will prevent the driver from 
