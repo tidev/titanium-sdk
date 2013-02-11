@@ -325,92 +325,88 @@ module.exports = new function() {
 							}
 							
 							var failures = JSON.stringify(results, null, '\t');
-                            if (results.length > 0) {
-                            
-                                   // Sending mail for regression.
-                                   var smtpTransport = mailer.createTransport("SMTP", {
-                                                                              service: "Gmail",
-                                                                              auth: {
-                                                                                        user: "anvil.server@gmail.com",
-                                                                                        pass: "appcel123"
-                                                                                    }
-                                                         });
+							if (results.length > 0) {
+							
+								// Sending mail for regression.
+								var smtpTransport = mailer.createTransport("SMTP", {
+																			service: "Gmail",
+																			user: "anvil.server@gmail.com",
+																			pass: "appcel123"
+																			}
+													});
 
-                                   var errorMessage = "There was " + results.length + " new error(s) in the new build for " + platform +
-                                                         "\n\nDetails of the build :: \nBranch : " + regression['branch'] + "\nGit Hash :" +
-                                                         regression['githash'] + "\nBuild Timestamp : " + regression['timestamp'] + "\nC.I Build Name:" +
-                                                         regression['base_sdk_filename'] + "\n\nDriver Details :\n" + regression['driver_detail'] +
-                                                         "\n\nPlease review the following regression(s) :: \n\n" + failures;
+								var errorMessage = "There was " + results.length + " new error(s) in the new build for " + platform +
+													"\n\nDetails of the build :: \nBranch : " + regression['branch'] + "\nGit Hash :" +
+													regression['githash'] + "\nBuild Timestamp : " + regression['timestamp'] + "\nC.I Build Name:" +
+													regression['base_sdk_filename'] + "\n\nDriver Details :\n" + regression['driver_detail'] +
+													"\n\nPlease review the following regression(s) :: \n\n" + failures;
 
-                                   var mailOptions = {
-                                                         from: "Anvil Server <anvil.server@gmail.com>",
-                                                         to: " Sabil Rahim <srahim@appcelerator.com>, Ingo Muschenetz <imuschenetz@appcelerator.com>, Vishal Duggal <vduggal@appcelerator.com>," +
-                                                             " Eric Merriman <emerriman@appcelerator.com>, Blain Hamon <bhamon@appcelerator.com>, Ping Wang <pwang@appcelerator.com>," +
-					   										 " Thomas Huelbert <thuelbert@appcelerator.com>, Dustin Hyde <dhyde@appcelerator.com>, Satyam Sekhri <satyam.sekhri@globallogic.com> ",
-                                                         subject: "Possible Regression on new build : " + regression['githash'],
-                                                         text: errorMessage
-                                                      }
-                                   // send mail with defined transport object
-                                   smtpTransport.sendMail(mailOptions, function(error, response) {
-                                        if (error) {
-                                            throw error;
-                                        }
-                                        else {
-                                            hubUtils.log("Message sent: " + response.message);
-                                        }
-                                        smtpTransport.close();
-                                   });
-                        }
-                 });
-                 callback();
-            }
-
+								var mailOptions = {
+													from: "Anvil Server <anvil.server@gmail.com>",
+													to: " Sabil Rahim <srahim@appcelerator.com>, Ingo Muschenetz <imuschenetz@appcelerator.com>, Vishal Duggal <vduggal@appcelerator.com>," +
+														" Eric Merriman <emerriman@appcelerator.com>, Blain Hamon <bhamon@appcelerator.com>, Ping Wang <pwang@appcelerator.com>," +
+														" Thomas Huelbert <thuelbert@appcelerator.com>, Dustin Hyde <dhyde@appcelerator.com>, Satyam Sekhri <satyam.sekhri@globallogic.com> ",
+													subject: "Possible Regression on new build : " + regression['githash'],
+													text: errorMessage
+													}
+								// send mail with defined transport object
+								smtpTransport.sendMail(mailOptions, function(error, response) {
+									if (error) {
+										throw error;
+									}
+									else {
+										hubUtils.log("Message sent: " + response.message);
+									}
+									smtpTransport.close();
+								});
+							}
+				});
+				callback();
+			}
 
 
-             dbConnection.query("SELECT * FROM runs WHERE id = " + activeRuns[driverId].runId, function(error, rows, fields) {
-                var results = fs.readFileSync(path.join(driverRunWorkingDir, "json_results"), "utf-8"),
-                	regression = new Array();
-                results = JSON.parse(results);
-                
-                // store the branch ID for later use
-                branch = rows[0].branch;
+
+	dbConnection.query("SELECT * FROM runs WHERE id = " + activeRuns[driverId].runId, function(error, rows, fields) {
+				var results = fs.readFileSync(path.join(driverRunWorkingDir, "json_results"), "utf-8"),
+					regression = new Array();
+				results = JSON.parse(results);
+				
+				// store the branch ID for later use
+				branch = rows[0].branch;
 								
 				// Caching run details for regression testing.  
-                regression['branch'] = rows[0].branch,
-                regression['githash'] = rows[0].git_hash,
-                regression['timestamp'] = rows[0].timestamp,
-                regression['base_sdk_filename'] = rows[0].base_sdk_filename;
+				regression['branch'] = rows[0].branch,
+				regression['githash'] = rows[0].git_hash,
+				regression['timestamp'] = rows[0].timestamp,
+				regression['base_sdk_filename'] = rows[0].base_sdk_filename;
 				regression['run_id'] = rows[0].id
 				regression['driver_id'] = driverId;
 				
 				var query = "SELECT * FROM driver_state WHERE id = '"+regression['driver_id'] +"'";	
 				dbConnection.query(query, function(error, results) {
-                        regression['driver_detail'] = JSON.stringify(results, null, '\t');
-                });
-								
+					regression['driver_detail'] = JSON.stringify(results, null, '\t');
+				});
+				
 				insertDriverRun(results, function() {
 					dbConnection.query("UPDATE driver_runs SET passed_tests=" + numPassed +
 						", failed_tests=" + numFailed + " WHERE driver_id=\"" + driverId + "\"" +
 						" AND run_id=" + activeRuns[driverId].runId, function(error, rows, fields) {
-                                       
-
+						
 						if (error) {
 							throw error;
 						}
-                                       
 
 						// copy the raw results file to a location where it can be served up
 						var rawResultsFilename = activeRuns[driverId].gitHash + driverId + ".tgz";
 						fs.renameSync(path.resolve(driverRunWorkingDir, rawResultsFilename), path.join("web", "results", rawResultsFilename));
 						hubUtils.log("results file moved to serving location");
-                                       
 
 						wrench.rmdirSyncRecursive(driverRunWorkingDir, false);
 						hubUtils.log("temp working directory cleaned up");
-														
+
 						checkForRegressions(regression , function(){
-                                            hubUtils.log("Done with checking for regressions.");
-                        });
+							hubUtils.log("Done with checking for regressions.");
+						});
 
 						/*
 						remove the run and close the driver dbConnection now that the results are 
