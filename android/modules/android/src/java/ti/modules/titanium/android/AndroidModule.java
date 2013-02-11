@@ -364,8 +364,13 @@ public class AndroidModule extends KrollModule
 	public void unregisterBroadcastReceiver(BroadcastReceiverProxy receiverProxy)
 	{
 		if (receiverProxy != null) {
-			TiApplication.getInstance().getApplicationContext().unregisterReceiver(receiverProxy.getBroadcastReceiver());
-			KrollRuntime.decrementServiceReceiverRefCount();
+			try {
+				TiApplication.getInstance().getApplicationContext().unregisterReceiver(receiverProxy.getBroadcastReceiver());
+				KrollRuntime.decrementServiceReceiverRefCount();
+			} catch (Exception e) {
+				Log.e(TAG, "Unable to unregister broadcast receiver: " + e.getMessage());
+			}
+
 		}
 	}
 
