@@ -2139,9 +2139,9 @@ build.prototype = {
 						if (!ignoreRegExp.test(file) && (!doIgnoreDirs || ti.availablePlatformsNames.indexOf(file) == -1)) {
 							var srcFile = path.join(src, file);
 
-							if(process.env.NODE_ENV === 'liveti') {
-								if(file === 'app.js'){ file = '_app.js'; }
-								if(file === 'liveti.js') { file = 'app.js'; }
+							if (process.env.NODE_ENV === 'liveti') {
+								if (file === 'app.js'){ file = '_app.js'; }
+								if (file === 'liveti.js') { file = 'app.js'; }
 							}
 
 							var destFile = path.join(dest, file);
