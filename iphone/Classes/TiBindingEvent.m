@@ -143,7 +143,7 @@ void TiBindingEventSetErrorMessageWithNSString(TiBindingEvent event, NSString * 
 {
 	[event->errorMessageString autorelease];
 	event->errorMessageString = [message copy];
-	if (event->errorMessageStringRef)
+	if (event->errorMessageStringRef != NULL)
 	{
 		TiStringRelease(event->errorMessageStringRef);
 	}

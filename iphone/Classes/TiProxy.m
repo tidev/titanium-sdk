@@ -838,7 +838,7 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 {
 	IMP proxySourceImp = [[TiProxy class] instanceMethodForSelector:@selector(fireEvent:withObject:withSource:propagate:)];
 	IMP subclassSourceImp = [self methodForSelector:@selector(fireEvent:withObject:withSource:propagate:)];
-	return proxySourceImp != subclassSourceImp;
+	return proxySourceImp == subclassSourceImp;
 }
 
 #endif
@@ -918,7 +918,9 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 
 -(void)fireEvent:(NSString*)type withObject:(id)obj withSource:(id)source propagate:(BOOL)propagate
 {
+#ifdef DEBUG
 	NSLog(@"[WARN] The methods -[fireEvent:withObject:withSource:] and [fireEvent:withObject:withSource:propagate:] are depricated. Please use -[fireEvent:withObject:propagate:reportSuccess:errorCode:message:] instead.");
+#endif
 	if (self != source) {
 		NSLog(@"[WARN] Source is not the same as self. (Perhaps this edge case is still valid?)");
 	}
