@@ -68,7 +68,7 @@ description: |
         ([TIMOB-12620](https://jira.appcelerator.org/browse/TIMOB-12620))
 
     *   On Mobile Web, click events fail to fire after calling the `updateSection` method.
-        ([TIMOB-12620](https://jira.appcelerator.org/browse/TIMOB-12630))
+        ([TIMOB-12630](https://jira.appcelerator.org/browse/TIMOB-12630))
     
     #### Row Editing and Moving Modes (iOS only)
     

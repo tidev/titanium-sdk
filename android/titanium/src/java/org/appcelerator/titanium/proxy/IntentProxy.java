@@ -7,6 +7,7 @@
 package org.appcelerator.titanium.proxy;
 
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
 import java.util.List;
@@ -281,15 +282,18 @@ public class IntentProxy extends KrollProxy
 	@Kroll.method
 	public TiBlob getBlobExtra(String name)
 	{
+		InputStream is = null;
+		ByteArrayOutputStream bos = null;
 		try {
-            
+
 			Object returnData = intent.getExtras().getParcelable(name);
 			if (returnData instanceof Uri) {
-                
+
 				Uri uri = (Uri) returnData;
-				InputStream is = TiApplication.getInstance().getContentResolver().openInputStream(uri);
-                
-				ByteArrayOutputStream bos = new ByteArrayOutputStream();
+				is = TiApplication.getInstance().getContentResolver().openInputStream(uri);
+
+				bos = new ByteArrayOutputStream();
+
 				int len;
 				int size = 4096;
 				byte[] buf = new byte[size];
@@ -297,17 +301,32 @@ public class IntentProxy extends KrollProxy
 					bos.write(buf, 0, len);
 				}
 				buf = bos.toByteArray();
-                
+
 				return TiBlob.blobFromData(buf);
 			} else if (returnData instanceof Bitmap) {
-                
+
 				Bitmap returnBitmapData = (Bitmap) returnData;
 				return TiBlob.blobFromImage(returnBitmapData);
 			}
-            
+
 		} catch (Exception e) {
 			Log.e(TAG, "Error getting blob extra: " + e.getMessage(), e);
 			return null;
+		} finally {
+			if (is != null) {
+				try {
+					is.close();
+				} catch (IOException e) {
+					Log.e(TAG, e.getMessage(), Log.DEBUG_MODE);
+				}
+			}
+			if (bos != null) {
+				try {
+					bos.close();
+				} catch (IOException e) {
+					Log.e(TAG, e.getMessage(), Log.DEBUG_MODE);
+				}
+			}
 		}
 		return null;
 	}
