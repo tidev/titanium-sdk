@@ -1475,12 +1475,17 @@ public class TiC
 	/**
 	 * @module.api
 	 */
-	public static final String PROPERTY_ON_HOME_ICON_ITEM_SELECTED = "onHomeIconItemSelected";
+	public static final String PROPERTY_ON_CREATE_OPTIONS_MENU = "onCreateOptionsMenu";
 
 	/**
 	 * @module.api
 	 */
-	public static final String PROPERTY_ON_CREATE_OPTIONS_MENU = "onCreateOptionsMenu";
+	public static final String PROPERTY_ON_CREATE_WINDOW = "onCreateWindow";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_ON_HOME_ICON_ITEM_SELECTED = "onHomeIconItemSelected";
 
 	/**
 	 * @module.api
@@ -1490,7 +1495,7 @@ public class TiC
 	/**
 	 * @module.api
 	 */
-	public static final String PROPERTY_ON_CREATE_WINDOW = "onCreateWindow";
+	public static final String PROPERTY_ON_RECEIVED = "onReceived";
 
 	/**
 	 * @module.api
@@ -1521,6 +1526,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_OTHER = "other";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_OVER_SCROLL_MODE = "overScrollMode";
 
 	/**
 	 * @module.api
