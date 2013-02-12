@@ -195,13 +195,16 @@ public class TableViewRowProxy extends TiViewProxy
 			// Inject row click data for events coming from row children.
 			TableViewProxy table = getTable();
 			Item item = tableViewItem.getRowData();
-			if (table != null && item != null && data instanceof HashMap) {
-				// The data object may already be in use by the runtime thread
-				// due to a child view's event fire. Create a copy to be thread safe.
-				@SuppressWarnings("unchecked")
-				KrollDict dataCopy = new KrollDict((HashMap<String, Object>) data);
-				fillClickEvent(dataCopy, table.getTableView().getModel(), item);
-				data = dataCopy;
+			// Make sure that sectionArray still contains the item
+			if (item.sectionIndex < table.getSectionsArray().size()) {
+				if (table != null && item != null && data instanceof HashMap) {
+					// The data object may already be in use by the runtime thread
+					// due to a child view's event fire. Create a copy to be thread safe.
+					@SuppressWarnings("unchecked")
+					KrollDict dataCopy = new KrollDict((HashMap<String, Object>) data);
+					fillClickEvent(dataCopy, table.getTableView().getModel(), item);
+					data = dataCopy;
+				}
 			}
 		}
 		return super.fireEvent(eventName, data);
