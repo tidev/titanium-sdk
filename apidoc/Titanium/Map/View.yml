@@ -59,10 +59,9 @@ description: |
         	</map>
         </mobileweb>
 extends: Titanium.UI.View
-excludes: {
-    events: [ 'singletap', 'doubletap', 'dblclick', 'longclick', 'longpress', 'pinch',
-    'swipe', 'touchstart', 'touchend', 'touchcancel', 'touchmove', 'twofingertap' ]
-}
+excludes:
+    events: [ 'singletap', 'doubletap', 'dblclick', 'focus', 'longclick', 'longpress', 'pinch', 'swipe', 'touchstart', 'touchend', 'touchcancel', 'touchmove', 'twofingertap' ]
+    properties: ['enabled']
 since: "0.8"
 platforms: [android, iphone, ipad, mobileweb]
 methods:

@@ -94,9 +94,9 @@ description: |
     * Inherited `moveable` property is always `true`. Explicit `moveable` property may be set.
 extends: Titanium.UI.View
 since: "0.8"
-excludes: {
-    properties: [backgroundSelectedColor, backgroundSelectedImage]
-}
+excludes:
+    events: [focus]
+    properties: [backgroundSelectedColor, backgroundSelectedImage, enabled]
 
 events:
   - name: click
