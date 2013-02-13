@@ -469,5 +469,7 @@ properties:
         Reference](http://developer.apple.com/library/ios/#DOCUMENTATION/UIKit/Reference/UIApplicationDelegate_Protocol/Reference/Reference.html#//apple_ref/occ/intfm/UIApplicationDelegate/application:didReceiveRemoteNotification:)
     type: Dictionary
   - name: inBackground
-    summary: Boolean indicating if notification was received while app was in background.
+    summary: |
+        Boolean indicating if notification was received while app was in background. 
+        This property became available in Titanium Mobile 3.1.0 for iOS.
     type: Boolean
