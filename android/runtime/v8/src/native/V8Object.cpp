@@ -62,7 +62,7 @@ Java_org_appcelerator_kroll_runtime_v8_V8Object_nativeSetProperty
 
 JNIEXPORT jboolean JNICALL
 Java_org_appcelerator_kroll_runtime_v8_V8Object_nativeFireEvent
-	(JNIEnv *env, jobject jEmitter, jlong ptr, jstring event, jobject data)
+	(JNIEnv *env, jobject jEmitter, jlong ptr, jstring event, jobject data, jboolean bubble, jboolean reportSuccess, jint code, jstring errorMessage)
 {
 	ENTER_V8(V8Runtime::globalContext);
 	JNIScope jniScope(env);
@@ -88,7 +88,7 @@ Java_org_appcelerator_kroll_runtime_v8_V8Object_nativeFireEvent
 
 	Handle<Function> fireEvent = Handle<Function>::Cast(fireEventValue->ToObject());
 
-	Handle<Value> jsData = TypeConverter::javaObjectToJsValue(data);
+	Handle<Value> jsData = TypeConverter::javaHashMapToJsValue(env,data);
 	Handle<Value> result;
 
 	TryCatch tryCatch;

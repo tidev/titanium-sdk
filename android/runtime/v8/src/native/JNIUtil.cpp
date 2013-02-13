@@ -28,6 +28,7 @@ jclass JNIUtil::longClass = NULL;
 jclass JNIUtil::floatClass = NULL;
 jclass JNIUtil::doubleClass = NULL;
 jclass JNIUtil::booleanClass = NULL;
+jclass JNIUtil::stringArrayClass = NULL;
 jclass JNIUtil::objectArrayClass = NULL;
 jclass JNIUtil::shortArrayClass = NULL;
 jclass JNIUtil::intArrayClass = NULL;
@@ -276,6 +277,7 @@ void JNIUtil::initCache()
 	floatArrayClass = findClass("[F");
 	doubleArrayClass = findClass("[D");
 	booleanArrayClass = findClass("[Z");
+	stringArrayClass = findClass("[Ljava/lang/String;");
 	objectArrayClass = findClass("[Ljava/lang/Object;");
 	arrayListClass = findClass("java/util/ArrayList");
 	hashMapClass = findClass("java/util/HashMap");
