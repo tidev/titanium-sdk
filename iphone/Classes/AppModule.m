@@ -260,6 +260,12 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
     [self fireEvent:@"keyboardframechanged" withObject:event];     
 }
 
+- (void)timeChanged:(NSNotification*)notiication
+{
+    if ([self _hasListeners:@"significanttimechange"]) {
+        [self fireEvent:@"significanttimechange" withObject:nil];
+    }
+}
 
 #pragma mark Internal Memory Management
 
@@ -339,7 +345,7 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
     
     [nc addObserver:self selector:@selector(keyboardFrameChanged:) name:UIKeyboardDidShowNotification object:nil];
     [nc addObserver:self selector:@selector(keyboardFrameChanged:) name:UIKeyboardDidHideNotification object:nil];
-
+    [nc addObserver:self selector:@selector(timeChanged:) name:UIApplicationSignificantTimeChangeNotification object:nil];
 #endif	
     
     [super startup];

@@ -270,7 +270,17 @@ events:
         is being dissmissed.
     platforms: [iphone, ipad]
     since: '3.0.0'
-    
+
+  - name: significanttimechange
+    summary: Fired when there is a significant change in the time.
+    description: |
+        Examples of significant time changes include the arrival of midnight, an update to the time by a carrier, 
+        and the change to daylight savings time. If your application is currently in `paused` state, this message 
+        will be is queued until your application returns to the foreground, at which point it is delievered. If multiple 
+        changes occur, only the most recent one is delievered.
+    platforms: [iphone, ipad]
+    since: '3.1.0'
+
 methods:
   - name: fireSystemEvent
     summary: Fire a system-level event such as <Titanium.App.EVENT_ACCESSIBILITY_ANNOUNCEMENT>.
