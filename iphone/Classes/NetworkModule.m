@@ -295,12 +295,12 @@ MAKE_SYSTEM_PROP(TLS_VERSION_1_2, TLS_VERSION_1_2);
 	
 	// check to see upon registration if we were started with a push 
 	// notification and if so, go ahead and trigger our callback
-	id currentNotification = [[TiApp app] remoteNotification];
-	if (currentNotification!=nil && pushNotificationCallback!=nil)
-	{
-		id event = [NSDictionary dictionaryWithObject:currentNotification forKey:@"data"];
-		[self _fireEventToListener:@"remote" withObject:event listener:pushNotificationCallback thisObject:nil];
-	}
+    id currentNotification = [[TiApp app] remoteNotification];
+    if (currentNotification!=nil && pushNotificationCallback!=nil)
+    {
+        id event = [NSDictionary dictionaryWithObjectsAndKeys:currentNotification, @"data", NUMBOOL(YES), @"inBackground", nil];
+        [self _fireEventToListener:@"remote" withObject:event listener:pushNotificationCallback thisObject:nil];
+    }
 }
 
 -(void)unregisterForPushNotifications:(id)args
@@ -331,7 +331,8 @@ MAKE_SYSTEM_PROP(TLS_VERSION_1_2, TLS_VERSION_1_2);
 	// called by TiApp
 	if (pushNotificationCallback!=nil)
 	{
-		id event = [NSDictionary dictionaryWithObject:userInfo forKey:@"data"];
+		BOOL inBackground = (application.applicationState != UIApplicationStateActive);
+		id event = [NSDictionary dictionaryWithObjectsAndKeys:userInfo, @"data", NUMBOOL(inBackground), @"inBackground", nil];
 		[self _fireEventToListener:@"remote" withObject:event listener:pushNotificationCallback thisObject:nil];
 	}
 }

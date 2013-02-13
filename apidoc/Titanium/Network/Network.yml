@@ -468,3 +468,6 @@ properties:
         [application:didReceiveRemoteNotification in the UIApplicationDelegate Protocol
         Reference](http://developer.apple.com/library/ios/#DOCUMENTATION/UIKit/Reference/UIApplicationDelegate_Protocol/Reference/Reference.html#//apple_ref/occ/intfm/UIApplicationDelegate/application:didReceiveRemoteNotification:)
     type: Dictionary
+  - name: inBackground
+    summary: Boolean indicating if notification was received while app was in background.
+    type: Boolean
