@@ -1,19 +1,20 @@
 package ti.modules.titanium.ui.widget.listview;
 
 import java.util.ArrayList;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.TiViewProxy;
+import org.appcelerator.titanium.view.TiCompositeLayout;
 import org.appcelerator.titanium.view.TiUIView;
 
-import ti.modules.titanium.ui.widget.TiUILabel;
-
 import android.app.Activity;
+import android.util.Pair;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
-import android.widget.EditText;
 import android.widget.ListView;
 
 public class TiListView extends TiUIView {
@@ -22,6 +23,7 @@ public class TiListView extends TiUIView {
 	TiBaseAdapter adapter;
 	ArrayList<SectionProxy> sections;
 	boolean useDefaultStyle;
+	AtomicInteger itemTypeCount;
 	
 
 	public class TiBaseAdapter extends BaseAdapter {
@@ -50,17 +52,41 @@ public class TiListView extends TiUIView {
 		public long getItemId(int position) {
 			return position;
 		}
+		
+		public int getViewTypeCount() {
+			return itemTypeCount.get();
+			
+		}
+		@Override
+		public int getItemViewType(int position) {
+			Pair<SectionProxy, Integer> info = getSectionInfoByEntryIndex(position);
+			SectionProxy section = info.first;
+			int index = info.second;
+			return section.getTemplateByIndex(index).getType();
+			
+		}
 
 		@Override
 		public View getView(int position, View convertView, ViewGroup parent) {
-			//if (convertView == null) {
-				TiUILabel label = new TiUILabel(sections.get(0).getViewProxies().get(0));
-				KrollDict d = new KrollDict();
-				d.put("title", "hello");
-				label.processProperties(d);
-				return label.getNativeView();
-			//}
-			//return null;
+
+			Pair<SectionProxy, Integer> info = getSectionInfoByEntryIndex(position);
+			SectionProxy section = info.first;
+			int index = info.second;
+			if (convertView != null) {
+				TiBaseListViewItem view = (TiBaseListViewItem) convertView;
+				KrollDict data = section.getData(index);
+				TiTemplate template = section.getTemplateByIndex(index);
+				section.populateViews(data, view, template);
+				Log.w("GetView", "reusing View");
+				return view;
+			}
+			Log.w("GetView", "generating View");
+			TiCompositeLayout view = section.generateView(index);
+			return view;
+
+
+			
+			
 		}
 
 	}
@@ -71,13 +97,13 @@ public class TiListView extends TiUIView {
 		//initializing variables
 		sections = new ArrayList<SectionProxy>();
 		useDefaultStyle = false;
+
+		itemTypeCount = new AtomicInteger(0);
 		
 		//initializing listView and adapter
 		listView = new ListView(activity);
 		adapter = new TiBaseAdapter(activity);
-		
-		
-		listView.setAdapter(adapter);
+
 		setNativeView(listView);
 	}
 	
@@ -87,13 +113,17 @@ public class TiListView extends TiUIView {
 			processSections((Object[])d.get(TiC.PROPERTY_SECTIONS));
 		}
 		
-		if (d.containsKey(TiC.PROPERTY_CELLSTYLES)) {
+		if (d.containsKey(TiC.PROPERTY_TEMPLATES)) {
 			//process styles
 		} else {
 			//use default style
 			useDefaultStyle = true;
 		}
+
+		listView.setAdapter(adapter);
+
 		super.processProperties(d);
+		
 	}
 
 	protected void processSections(Object[] sections) {
@@ -101,9 +131,37 @@ public class TiListView extends TiUIView {
 		for (int i = 0; i < sections.length; i++) {
 			Object obj = sections[i];
 			if (obj instanceof SectionProxy) {
-				this.sections.add((SectionProxy) obj);	
+				SectionProxy section = (SectionProxy) obj;
+				this.sections.add(section);	
+				section.setAdapter(adapter);
+				section.setListView(this);
+				//Each template is an item type. When we process sections, we check to see
+				//if templates already have an item type set. If not, we set it
+				section.setTemplateType();
 			}
 		}
+	}
+	
+	protected Pair<SectionProxy, Integer> getSectionInfoByEntryIndex(int index) {
+		if (index < 0) {
+			return null;
+		}
+
+		for (int i = 0; i < sections.size(); i++) {
+			SectionProxy section = sections.get(i);
+			int sectionIndex = section.getItemCount() - 1;
+			if (index <= sectionIndex) {
+				return new Pair<SectionProxy, Integer>(section, index);
+			} else {
+				index -= sectionIndex;
+			}
+		}
+
+		return null;
+	}
+	
+	public int getItemType() {
+		return itemTypeCount.incrementAndGet();
 	}
 	
 }
