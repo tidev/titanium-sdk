@@ -56,7 +56,10 @@ define(['Ti/_/declare', 'Ti/_/dom', 'Ti/_/event', 'Ti/_/lang', 'Ti/_/Evented'],
 		},
 		
 		_durationChange: function() {
-			this.constants.__values__.duration = Math.floor(this._audio.duration);
+			var d = this._audio.duration;
+			// Blackberry OS 7 gives the initial duration as Infinity
+			// So we leave duration at zero until the duration of <audio> is finite.
+			d === Infinity || (this.constants.__values__.duration = Math.floor(d));
 		},
 		
 		_error: function() {
@@ -128,12 +131,12 @@ define(['Ti/_/declare', 'Ti/_/dom', 'Ti/_/event', 'Ti/_/lang', 'Ti/_/Evented'],
 		release: function() {
 			var audio = this._audio,
 				parent = audio && audio.parentNode,
-				p = this.properties.__values__;
+				p = this.properties.__values__,
+				c = this.constants.__values__;
 				
 			this._currentState = STOPPED;
-			this.constants.__values__.playing = p.paused = false;
-			this._initialized && (this.time = 0);
-			p.url = this._initialized = this._nextCmd = 0;
+			c.playing = p.paused = false;
+			c.duration = p.url = this._initialized = this._nextCmd = 0;
 			if (parent) {
 				event.off(this._handles);
 				parent.removeChild(audio);
