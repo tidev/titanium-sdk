@@ -134,10 +134,10 @@ public class TiUIWebView extends TiUIView
 		settings.setLoadsImagesAutomatically(true);
 		settings.setLightTouchEnabled(true);
 		settings.setDomStorageEnabled(true); // Required by some sites such as Twitter. This is in our iOS WebView too.
-		settings.setDatabaseEnabled(true);
 		File path = TiApplication.getInstance().getFilesDir();
 		if (path != null) {
 			settings.setDatabasePath(path.getAbsolutePath());
+			settings.setDatabaseEnabled(true);
 		}
 		
 
