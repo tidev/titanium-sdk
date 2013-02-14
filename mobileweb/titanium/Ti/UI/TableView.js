@@ -81,8 +81,9 @@ define(['Ti/_/declare', 'Ti/_/UI/KineticScrollView', 'Ti/_/style', 'Ti/_/lang', 
 				y = -this._currentTranslationY,
 				sections = this._sections,
 				sectionsList = sections._children,
-				len = sectionsList.length;
-			for(var i = 0; i < len; i+= 2) {
+				len = sectionsList.length,
+				i;
+			for(i = 0; i < len; i+= 2) {
 
 				// Check if the section is visible
 				var section = sectionsList[i],
@@ -192,7 +193,8 @@ define(['Ti/_/declare', 'Ti/_/UI/KineticScrollView', 'Ti/_/style', 'Ti/_/lang', 
 		},
 
 		_refreshSections: function() {
-			for (var i = 0; i < this._sections._children.length; i += 2) {
+		  var numChildren = this._sections._children.length, i;
+			for (i = 0; i < numChildren; i += 2) {
 				this._sections._children[i]._refreshRows();
 			}
 			this._triggerLayout();
@@ -200,8 +202,10 @@ define(['Ti/_/declare', 'Ti/_/UI/KineticScrollView', 'Ti/_/style', 'Ti/_/lang', 
 
 		_calculateLocation: function(index) {
 			var currentOffset = 0,
-				section;
-			for(var i = 0; i < this._sections._children.length; i += 2) {
+				section,
+				numChildren = this._sections._children.length,
+				i;
+			for(i = 0; i < numChildren; i += 2) {
 				section = this._sections._children[i];
 				currentOffset += section.rowCount;
 				if (index < currentOffset) {
@@ -337,25 +341,25 @@ define(['Ti/_/declare', 'Ti/_/UI/KineticScrollView', 'Ti/_/style', 'Ti/_/lang', 
 			data: {
 				set: function(value) {
 					if (is(value,'Array')) {
-
+						
 						var retval = [],
-							i;
-
+						  i, valueLen = value.length;
+						
 						// Remove all of the previous sections
 						this._sections._removeAllChildren();
 						this.constants.__values__.sections = [];
 						this._currentSection = void 0;
 
 						// Convert any object literals to TableViewRow instances
-						for (i in value) {
-							if (!isDef(value[i].declaredClass) || (value[i].declaredClass != 'Ti.UI.TableViewRow' && value[i].declaredClass != 'Ti.UI.TableViewSection')) {
+						for (i = 0; i < valueLen; i++) {
+							if (!isDef(value[i].declaredClass) || (value[i].declaredClass != "Ti.UI.TableViewRow" && value[i].declaredClass != "Ti.UI.TableViewSection")) {
 								value[i] = UI.createTableViewRow(value[i]);
 							}
 						}
 
 						// Add each element
-						for (i = 0; i < value.length; i++) {
-							if (value[i].declaredClass === 'Ti.UI.TableViewRow') {
+						for (i = 0; i < valueLen; i++) {
+							if (value[i].declaredClass === "Ti.UI.TableViewRow") {
 								// Check if we need a default section
 								if (!this._currentSection) {
 									this.appendSection(this._currentSection = UI.createTableViewSection({_tableView: this}));

@@ -69,17 +69,18 @@ define(['Ti/_/declare', 'Ti/_/lang', 'Ti/_/UI/Widget', 'Ti/_/style','Ti/UI/Mobil
 				var rows = this._rows._children,
 					tableView = this._tableView,
 					rowsData = this.constants.rows = [],
+					numRows = rows.length,
 					i,
 					row;
-				for (i = 1; i < rows.length; i += 2) {
+				for (i = 1; i < numRows; i += 2) {
 					row = rows[i];
 					row._defaultHeight = tableView.rowHeight;
 					row._minHeight = tableView.minRowHeight;
 					row._maxHeight = tableView.maxRowHeight;
 					rowsData.push(row);
 				}
-
-				for (i = 0; i < rows.length; i += 2) {
+				
+				for (i = 0; i < numRows; i += 2) {
 					row = rows[i];
 					if (tableView.separatorStyle === TableViewSeparatorStyle.SINGLE_LINE) {
 						row.height = 1;
@@ -107,7 +108,8 @@ define(['Ti/_/declare', 'Ti/_/lang', 'Ti/_/UI/Widget', 'Ti/_/style','Ti/UI/Mobil
 		add: function(value, index) {
 
 			var rows = this._rows._children,
-				rowCount = this.rowCount;
+				rowCount = this.rowCount,
+				i;
 			if (!lang.isDef(index)) {
 				index = rowCount;
 			}
@@ -118,9 +120,9 @@ define(['Ti/_/declare', 'Ti/_/lang', 'Ti/_/UI/Widget', 'Ti/_/style','Ti/UI/Mobil
 			if (rows.length === 0) {
 				this._rows._add(this._createSeparator());
 			}
-
-			if (is(value,'Array')) {
-				for (var i in value) {
+			
+			if (is(value,"Array")) {
+				for (i = 0; i < value.length; i++) {
 					this._insertHelper(value[i],index++);
 				}
 			} else {
