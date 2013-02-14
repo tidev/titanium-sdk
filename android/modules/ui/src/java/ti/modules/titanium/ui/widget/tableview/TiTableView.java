@@ -414,6 +414,16 @@ public class TiTableView extends FrameLayout
 	public Item getItemAtPosition(int position) {
 		return viewModel.getViewModel().get(adapter.index.get(position));
 	}
+	
+	public int getPositionForView(View view) {
+		int result = -1;
+		try {
+			result = listView.getPositionForView(view);
+		} catch(NullPointerException e){
+			
+		}
+		return result;
+	}
 
 	public int getIndexFromXY(double x, double y) {
 		int bound = listView.getLastVisiblePosition() - listView.getFirstVisiblePosition();
