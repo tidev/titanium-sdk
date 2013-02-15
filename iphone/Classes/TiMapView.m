@@ -129,6 +129,7 @@
 {
 	NSArray *selected = map.selectedAnnotations;
 	BOOL wasSelected = [selected containsObject:proxy]; //If selected == nil, this still returns FALSE.
+    ignoreClicks = YES;
 	if (yn==NO)
 	{
 		[map deselectAnnotation:proxy animated:NO];
@@ -143,6 +144,7 @@
 	{
 		[map selectAnnotation:proxy animated:NO];
 	}
+    ignoreClicks = NO;
 }
 
 #pragma mark Public APIs
