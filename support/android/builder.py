@@ -1682,6 +1682,11 @@ class Builder(object):
 		pkg_assets_dir = self.assets_dir
 		if self.deploy_type == "test":
 			compile_js = False
+		
+		if compile_js and os.environ.has_key('SKIP_JS_MINIFY'):
+			compile_js = False
+			info("Disabling JavaScript minification")
+		
 		if self.deploy_type == "production" and compile_js:
 			non_js_assets = os.path.join(self.project_dir, 'bin', 'non-js-assets')
 			if not os.path.exists(non_js_assets):
