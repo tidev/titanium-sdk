@@ -996,7 +996,8 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap,horizontalWrap,horizontalWrap,[self willCha
     [self windowWillOpen];
     [self setParentVisible:YES];
     [self layoutChildren:NO];
-
+    [self refreshSize];
+    [self refreshPosition];
 	return barButtonView;
 }
 
