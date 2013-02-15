@@ -16,6 +16,7 @@
 @private
     NSString * lastHitName;
     TiViewProxy* theProxy;
+    UIView* wrapperView;
 }
 
 - (id)initWithAnnotation:(id <MKAnnotation>)annotation reuseIdentifier:(NSString *)reuseIdentifier map:(TiMapView*)map;
