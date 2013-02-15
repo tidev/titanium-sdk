@@ -165,10 +165,6 @@ exports.run = function (logger, config, cli) {
 					processUnvisitedCode: true
 				}, cli.tiapp['code-processor'].options),
 				appc.util.mix({
-					'analysis-coverage': {
-						path: path.join(codeProcessorPluginDir, 'analysis-coverage'),
-						options: {}
-					},
 					'common-globals': {
 						path: path.join(codeProcessorPluginDir, 'common-globals'),
 						options: {}
