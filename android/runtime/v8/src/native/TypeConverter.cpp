@@ -579,7 +579,7 @@ jobject TypeConverter::jsValueToJavaError(v8::Local<v8::Value> jsValue, bool* is
 
 // converts java hashmap to js value and recursively converts sub objects if this
 // object is a container type. If javaObject is NULL, an empty object is created.
-v8::Handle<v8::Value> TypeConverter::javaHashMapToJsValue(JNIEnv *env, jobject javaObject)
+v8::Handle<v8::Object> TypeConverter::javaHashMapToJsValue(JNIEnv *env, jobject javaObject)
 {
 	v8::Handle<v8::Object> jsObject = v8::Object::New();
 	if (!javaObject || !env) {
@@ -591,7 +591,7 @@ v8::Handle<v8::Value> TypeConverter::javaHashMapToJsValue(JNIEnv *env, jobject j
 	env->DeleteLocalRef(hashMapSet);
 
 	int hashMapKeysLength = env->GetArrayLength(hashMapKeys);
-	bool isStringHashMap = env->IsInstanceOf(hashMapKeys, JNIUtil::objectArrayClass);
+	bool isStringHashMap = env->IsInstanceOf(hashMapKeys, JNIUtil::stringArrayClass);
 
 	for (int i = 0; i < hashMapKeysLength; i++) {
 		jobject javaPairKey = env->GetObjectArrayElement(hashMapKeys, i);

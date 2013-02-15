@@ -88,17 +88,17 @@ Java_org_appcelerator_kroll_runtime_v8_V8Object_nativeFireEvent
 
 	Handle<Function> fireEvent = Handle<Function>::Cast(fireEventValue->ToObject());
 
-	Handle<Value> jsData = TypeConverter::javaHashMapToJsValue(env,data);
-	Handle<Value> result;
-
-	TryCatch tryCatch;
-	if (jsData->IsNull()) {
-		Handle<Value> args[] = { jsEvent };
-		result = fireEvent->Call(emitter, 1, args);
-	} else {
-		Handle<Value> args[] = { jsEvent, jsData };
-		result = fireEvent->Call(emitter, 2, args);
+	Handle<Object> jsData = TypeConverter::javaHashMapToJsValue(env,data);
+	jsData->Set(String::NewSymbol("bubble"), TypeConverter::javaBooleanToJsBoolean(bubble));
+	if(reportSuccess || code!=0){
+		jsData->Set(String::NewSymbol("success"), TypeConverter::javaBooleanToJsBoolean(code == 0));
+		jsData->Set(String::NewSymbol("code"), TypeConverter::javaIntToJsNumber(code));
+		jsData->Set(String::NewSymbol("error"), TypeConverter::javaStringToJsString(errorMessage));
 	}
+	Handle<Value> result;
+	TryCatch tryCatch;
+	Handle<Value> args[] = { jsEvent, jsData };
+	result = fireEvent->Call(emitter, 2, args);
 
 	if (tryCatch.HasCaught()) {
 		V8Util::openJSErrorDialog(tryCatch);

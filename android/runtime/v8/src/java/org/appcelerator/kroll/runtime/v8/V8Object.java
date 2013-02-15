@@ -8,6 +8,7 @@ package org.appcelerator.kroll.runtime.v8;
 
 import org.appcelerator.kroll.KrollObject;
 import org.appcelerator.kroll.KrollRuntime;
+import java.util.HashMap;
 
 import android.util.Log;
 
@@ -48,6 +49,34 @@ public class V8Object extends KrollObject
 		nativeSetProperty(ptr, name, value);
 	}
 
+	private boolean toBoolean(Object value)
+	{
+		if (value instanceof Boolean) {
+			return (Boolean) value;
+		}
+		if (value instanceof String) {
+			return Boolean.parseBoolean(((String) value));
+		}
+		return false;
+	}
+	private int toInt(Object value)
+	{
+		if (value instanceof Integer) {
+			return ((Integer) value);
+		}
+		if (value instanceof Double) {
+			return ((Double) value).intValue();
+		}
+		if (value instanceof Long) {
+			return ((Long) value).intValue();
+		}
+		if (value instanceof String) {
+			return Integer.parseInt((String) value);
+		}
+		return 0;
+	}
+
+
 	@Override
 	public boolean fireEvent(String type, Object data)
 	{
@@ -55,7 +84,38 @@ public class V8Object extends KrollObject
 			Log.w(TAG, "Runtime disposed, cannot fire event '" + type + "'");
 			return false;
 		}
-		return nativeFireEvent(ptr, type, data,false,false,0,null);
+		boolean bubbles = false;
+		boolean reportSuccess = false;
+		int code = 0;
+		String message = null;
+		if (data instanceof HashMap) {
+			HashMap hashData = (HashMap)data;
+			Object hashValue = hashData.get("bubbles");
+			if (hashValue != null) {
+				bubbles = toBoolean(hashValue);
+				hashData.remove("bubbles");
+			}
+			hashValue = hashData.get("success");
+			if (hashValue != null) {
+				reportSuccess = true;
+				hashData.remove("success");
+			}
+			hashValue = hashData.get("code");
+			if (hashValue != null) {
+				reportSuccess = true;
+				code = toInt(hashValue);
+				hashData.remove("code");
+			}
+			hashValue = hashData.get("error");
+			if (hashValue != null) {
+				message = hashValue.toString();
+				hashData.remove("error");
+			}
+			if(hashData.size() == 0){
+				data = null;
+			}
+		}
+		return nativeFireEvent(ptr, type, data,bubbles,reportSuccess,code,message);
 	}
 
 	@Override

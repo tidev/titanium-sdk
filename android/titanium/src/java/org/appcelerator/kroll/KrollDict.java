@@ -44,7 +44,7 @@ public class KrollDict
 			put(key, json);
 		}
 	}
-	
+		
 	public static Object fromJSON(Object value) {
 		try {
 			if (value instanceof JSONObject) {
@@ -85,6 +85,12 @@ public class KrollDict
 	 */
 	public KrollDict(int size) {
 		super(size);
+	}
+
+	public void putCodeAndMessage(int code, String message){
+		this.put("success",new Boolean(code==0));
+		this.put("code",new Integer(code));
+		this.put("error",message);
 	}
 
 	public boolean containsKeyAndNotNull(String key) {
