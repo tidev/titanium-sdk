@@ -137,7 +137,7 @@ exports.run = function (logger, config, cli) {
 			parsedModules = {},
 			moduleSearchPaths;
 
-		moduleSearchPaths = [ cli.argv['project-dir'], afs.resolvePath(cli.sdk.path, '..', '..', '..') ];
+		moduleSearchPaths = [ cli.argv['project-dir'], afs.resolvePath(path.join(__dirname, '..', '..')) ];
 		if (config.paths && Array.isArray(config.paths.modules)) {
 			moduleSearchPaths = moduleSearchPaths.concat(config.paths.modules);
 		}
