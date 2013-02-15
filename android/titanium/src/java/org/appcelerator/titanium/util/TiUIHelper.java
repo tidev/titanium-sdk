@@ -308,6 +308,11 @@ public class TiUIHelper
 	}
 
 	public static void styleText(TextView tv, HashMap<String, Object> d) {
+	
+		if (d == null) {
+			TiUIHelper.styleText(tv, null, null, null);
+		}
+		
 		String fontSize = null;
 		String fontWeight = null;
 		String fontFamily = null;
