@@ -16,6 +16,9 @@
 {
     if (self = [super initWithAnnotation:annotation reuseIdentifier:reuseIdentifier]) {
         self.backgroundColor = [UIColor clearColor];
+        wrapperView = [[UIView alloc] initWithFrame:CGRectZero];
+        wrapperView.userInteractionEnabled = false;
+        [self addSubview:wrapperView];
     }
     return self;
 }
@@ -29,7 +32,7 @@
     }
     else {
         TiUIView* theView = [theProxy barButtonViewForSize:CGSizeZero];
-        self.frame = [theView bounds];
+        self.frame = wrapperView.frame = [theView bounds];
     }
 }
 
@@ -37,13 +40,13 @@
 {
     theProxy = [customView retain];
     TiUIView* theView = [theProxy barButtonViewForSize:CGSizeZero];
-    self.frame = [theView bounds];
-    [self addSubview:theView];
-    theView.userInteractionEnabled = false;
+    self.frame = wrapperView.frame = [theView bounds];
+    [wrapperView addSubview:theView];
 }
 
 -(void)dealloc
 {
+    RELEASE_TO_NIL(wrapperView);
     RELEASE_TO_NIL(lastHitName);
     RELEASE_TO_NIL(theProxy);
     [super dealloc];
