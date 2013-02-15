@@ -80,13 +80,13 @@ public class TiBaseService extends Service
 	public void onCreate()
 	{
 		super.onCreate();
-		KrollRuntime.incrementServiceRefCount();
+		KrollRuntime.incrementServiceReceiverRefCount();
 	}
 
 	@Override
 	public void onDestroy()
 	{
 		super.onDestroy();
-		KrollRuntime.decrementServiceRefCount();
+		KrollRuntime.decrementServiceReceiverRefCount();
 	}
 }
