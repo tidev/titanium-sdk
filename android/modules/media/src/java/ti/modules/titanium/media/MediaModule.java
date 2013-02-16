@@ -76,7 +76,8 @@ public class MediaModule extends KrollModule
 	// The mode FOCUS_MODE_CONTINUOUS_PICTURE is added in API 14
 	public static final String FOCUS_MODE_CONTINUOUS_PICTURE = "continuous-picture";
 
-	@Kroll.constant public static final int UNKNOWN_ERROR = 0;
+	@Kroll.constant public static final int UNKNOWN_ERROR = -1;
+	@Kroll.constant public static final int NO_ERROR = 0;
 	@Kroll.constant public static final int DEVICE_BUSY = 1;
 	@Kroll.constant public static final int NO_CAMERA = 2;
 	@Kroll.constant public static final int NO_VIDEO = 3;
@@ -649,6 +650,7 @@ public class MediaModule extends KrollModule
 
 	public static KrollDict createDictForImage(TiBlob imageData, String mimeType) {
 		KrollDict d = new KrollDict();
+		d.putCodeAndMessage(0,null);
 
 		int width = -1;
 		int height = -1;

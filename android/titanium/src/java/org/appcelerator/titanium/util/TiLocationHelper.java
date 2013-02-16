@@ -19,7 +19,7 @@ import android.location.LocationManager;
 
 public class TiLocationHelper
 {
-	public static final int ERR_UNKNOWN_ERROR = 0;
+	public static final int ERR_UNKNOWN_ERROR = -1;
 	public static final int ERR_PERMISSION_DENIED = 1;
 	public static final int ERR_POSITION_UNAVAILABLE = 2;
 	public static final int ERR_TIMEOUT = 3;

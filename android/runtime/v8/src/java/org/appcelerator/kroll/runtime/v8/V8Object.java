@@ -87,6 +87,7 @@ public class V8Object extends KrollObject
 		boolean bubbles = false;
 		boolean reportSuccess = false;
 		int code = 0;
+		Object source = null;
 		String message = null;
 		if (data instanceof HashMap) {
 			HashMap hashData = (HashMap)data;
@@ -111,11 +112,18 @@ public class V8Object extends KrollObject
 				message = hashValue.toString();
 				hashData.remove("error");
 			}
+
+			hashValue = hashData.get("source");
+			if (hashValue != null) {
+				source = hashValue;
+				hashData.remove("source");
+			}
+
 			if(hashData.size() == 0){
 				data = null;
 			}
 		}
-		return nativeFireEvent(ptr, type, data,bubbles,reportSuccess,code,message);
+		return nativeFireEvent(ptr, source, type, data,bubbles,reportSuccess,code,message);
 	}
 
 	@Override
@@ -158,7 +166,7 @@ public class V8Object extends KrollObject
 	private static native boolean nativeRelease(long ptr);
 
 	private native void nativeSetProperty(long ptr, String name, Object value);
-	private native boolean nativeFireEvent(long ptr, String event, Object data, boolean bubble, boolean reportSuccess, int code, String errorMessage);
+	private native boolean nativeFireEvent(long ptr, Object source, String event, Object data, boolean bubble, boolean reportSuccess, int code, String errorMessage);
 	private native void nativeSetWindow(long ptr, Object windowProxyObject);
 }
 

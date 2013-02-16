@@ -90,7 +90,9 @@ public class KrollDict
 	public void putCodeAndMessage(int code, String message){
 		this.put("success",new Boolean(code==0));
 		this.put("code",new Integer(code));
-		this.put("error",message);
+		if (message != null){
+			this.put("error",message);
+		}
 	}
 
 	public boolean containsKeyAndNotNull(String key) {
