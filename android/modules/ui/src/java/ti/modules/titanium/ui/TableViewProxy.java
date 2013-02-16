@@ -586,7 +586,7 @@ public class TableViewProxy extends TiViewProxy
 	public void processData(Object[] data)
 	{
 		ArrayList<TableViewSectionProxy> sections = getSectionsArray();
-		sections.clear();
+		cleanupSections();
 
 		TableViewSectionProxy currentSection = null;
 		if (hasProperty(TiC.PROPERTY_HEADER_TITLE)) {
@@ -622,6 +622,17 @@ public class TableViewProxy extends TiViewProxy
 				currentSection.setParent(this);
 			}
 		}
+	}
+	
+	private void cleanupSections()
+	{
+		ArrayList<TableViewSectionProxy> sections = getSectionsArray();
+		for (TableViewSectionProxy section : sections) {
+			for (TableViewRowProxy row : section.rows) {
+				section.remove(row);
+			}
+		}
+		sections.clear();
 	}
 
 	@Kroll.setProperty @Kroll.method
