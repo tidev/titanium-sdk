@@ -371,9 +371,8 @@ function build(logger, config, cli, finished) {
 			};
 		
 		if (cli.argv['skip-js-minify']) {
-			options.env = {
-				SKIP_JS_MINIFY: 1
-			};
+			options.env = process.env;
+			options.env.SKIP_JS_MINIFY = '1';
 		}
 		
 		// not actually used, yet
