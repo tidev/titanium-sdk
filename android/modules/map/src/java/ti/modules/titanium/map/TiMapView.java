@@ -126,13 +126,10 @@ public class TiMapView extends TiUIView
 		{
 			scrollEnabled = enable;
 		}
-
+		
 		@Override
-		public boolean dispatchTouchEvent(MotionEvent ev)
+		public boolean onTouchEvent(android.view.MotionEvent ev)
 		{
-			if (!scrollEnabled && ev.getAction() == MotionEvent.ACTION_MOVE) {
-				return true;
-			}
 			int actionType = ev.getAction();
 
 			if (actionType == MotionEvent.ACTION_DOWN) {
@@ -181,6 +178,17 @@ public class TiMapView extends TiUIView
 					}
 				}
 			}
+			
+			return super.onTouchEvent(ev);	
+		}
+
+		@Override
+		public boolean dispatchTouchEvent(MotionEvent ev)
+		{
+			if (!scrollEnabled && ev.getAction() == MotionEvent.ACTION_MOVE) {
+				return true;
+			}
+			
 
 			return super.dispatchTouchEvent(ev);
 		}
