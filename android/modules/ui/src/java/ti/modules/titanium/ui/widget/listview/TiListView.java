@@ -1,6 +1,7 @@
 package ti.modules.titanium.ui.widget.listview;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.appcelerator.kroll.KrollDict;
@@ -19,12 +20,11 @@ import android.widget.ListView;
 
 public class TiListView extends TiUIView {
 
-	ListView listView;
-	TiBaseAdapter adapter;
-	ArrayList<SectionProxy> sections;
-	boolean useDefaultStyle;
-	AtomicInteger itemTypeCount;
-	
+	private ListView listView;
+	private TiBaseAdapter adapter;
+	private ArrayList<SectionProxy> sections;
+	private AtomicInteger itemTypeCount;
+	private HashMap<String, TiTemplate> templatesByBinding;
 
 	public class TiBaseAdapter extends BaseAdapter {
 
@@ -74,7 +74,7 @@ public class TiListView extends TiUIView {
 			int index = info.second;
 			if (convertView != null) {
 				TiBaseListViewItem view = (TiBaseListViewItem) convertView;
-				KrollDict data = section.getData(index);
+				KrollDict data = section.getEntryProperties(index);
 				TiTemplate template = section.getTemplateByIndex(index);
 				section.populateViews(data, view, template);
 				Log.w("GetView", "reusing View");
@@ -96,9 +96,8 @@ public class TiListView extends TiUIView {
 		
 		//initializing variables
 		sections = new ArrayList<SectionProxy>();
-		useDefaultStyle = false;
-
 		itemTypeCount = new AtomicInteger(0);
+		templatesByBinding = new HashMap<String, TiTemplate>();
 		
 		//initializing listView and adapter
 		listView = new ListView(activity);
@@ -114,16 +113,25 @@ public class TiListView extends TiUIView {
 		}
 		
 		if (d.containsKey(TiC.PROPERTY_TEMPLATES)) {
-			//process styles
-		} else {
-			//use default style
-			useDefaultStyle = true;
-		}
+			Object templates = d.get(TiC.PROPERTY_TEMPLATES);
+			if (templates != null) {
+				processTemplates(new KrollDict((HashMap)templates));
+			}
+		} 
 
 		listView.setAdapter(adapter);
 
 		super.processProperties(d);
 		
+	}
+
+	protected void processTemplates(KrollDict templates) {
+		for (String key : templates.keySet()) {
+			//Here we bind each template with its key so later we can look up the
+			//template via bound key
+			KrollDict properties = new KrollDict((HashMap)templates.get(key));
+			templatesByBinding.put(key, new TiTemplate(key, properties));
+		}
 	}
 
 	protected void processSections(Object[] sections) {
@@ -162,6 +170,10 @@ public class TiListView extends TiUIView {
 	
 	public int getItemType() {
 		return itemTypeCount.incrementAndGet();
+	}
+	
+	public TiTemplate getTemplateByBinding(String binding) {
+		return templatesByBinding.get(binding);
 	}
 	
 }

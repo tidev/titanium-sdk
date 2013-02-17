@@ -244,7 +244,7 @@ public abstract class TiUIView
 		this.nativeView = view;
 		boolean clickable = true;
 
-		if (proxy.hasProperty(TiC.PROPERTY_TOUCH_ENABLED)) {
+		if (proxy != null && proxy.hasProperty(TiC.PROPERTY_TOUCH_ENABLED)) {
 			clickable = TiConvert.toBoolean(proxy.getProperty(TiC.PROPERTY_TOUCH_ENABLED));
 		}
 		doSetClickable(nativeView, clickable);

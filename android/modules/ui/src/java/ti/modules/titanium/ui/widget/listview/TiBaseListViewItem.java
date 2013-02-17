@@ -6,6 +6,8 @@ import org.appcelerator.titanium.view.TiCompositeLayout;
 import org.appcelerator.titanium.view.TiUIView;
 
 import android.content.Context;
+import android.view.View.MeasureSpec;
+import android.widget.AbsListView;
 
 public class TiBaseListViewItem extends TiCompositeLayout{
 
@@ -26,5 +28,14 @@ public class TiBaseListViewItem extends TiCompositeLayout{
 	
 	public TiUIView getViewFromBinding(String binding) {
 		return viewsMap.get(binding);
+	}
+
+	public void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+		//Mode will be MeasureSpec.AT_MOST since default is wrap content, so
+		//we change mode to MeasureSpec.EXACTLY to reflect fill behavior.
+		int w = MeasureSpec.getSize(widthMeasureSpec);
+		int newMode = MeasureSpec.makeMeasureSpec(w, MeasureSpec.EXACTLY);
+		super.onMeasure(newMode, heightMeasureSpec);
+
 	}
 }

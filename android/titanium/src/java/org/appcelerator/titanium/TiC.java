@@ -1606,6 +1606,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_PREFERRED_PROVIDER = "preferredProvider";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_PROPERTIES = "properties";
 
 	/**
 	 * @module.api
