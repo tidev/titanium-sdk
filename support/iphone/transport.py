@@ -63,7 +63,7 @@ def main(args):
 			sdk_dir = os.path.abspath(os.path.dirname(template_dir))
 			version = os.path.basename(sdk_dir)			
 		
-		if len(args) == 4:
+		if len(args) > 3:
 			buildMode = args[3]
 
 		tiappxml = os.path.join(project_dir, 'tiapp.xml')
