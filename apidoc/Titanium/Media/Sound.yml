@@ -8,7 +8,7 @@ description: |
     Use the <Titanium.Media.createSound> method to create a `Sound` object.
 extends: Titanium.Proxy
 since: "0.8"
-platforms: [android, iphone, ipad]
+platforms: [android, iphone, ipad, mobileweb]
 methods:
 
   - name: isLooping
@@ -72,7 +72,7 @@ events:
       - name: success
         summary: Indicates if the sound was played successfully.
         type: Boolean
-        platforms: [iphone, ipad]
+        platforms: [iphone, ipad, mobileweb]
 
   - name: error
     summary: Fired when an error occurs while playing the audio.
@@ -110,7 +110,7 @@ properties:
     description: |
         On iOS, playback time is reported in seconds.
 
-        On Android, time is reported in milliseconds.
+        On Android and MobileWeb, time is reported in milliseconds.
     type: Number
     permission: read-only
 
@@ -126,7 +126,7 @@ properties:
         On iOS, this property is read-write, and you can pause and resume playback by setting this 
         property to `true` or `false`.
         
-        On Android, this property is read-only. For portability, use [pause](Titanium.Media.Sound.pause)
+        On Android and MobileWeb, this property is read-only. For portability, use [pause](Titanium.Media.Sound.pause)
         to pause audio, and [play](Titanium.Media.Sound.play) to resume.
     type: Boolean
     accessors: false

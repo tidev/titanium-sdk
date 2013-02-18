@@ -316,6 +316,13 @@
 		"Ti/UI/View",
 		"Ti/Utils"
 	],
+	"Ti/_/Media/Player": [
+		"Ti/_/declare",
+		"Ti/_/dom",
+		"Ti/_/event",
+		"Ti/_/lang",
+		"Ti/_/Evented"
+	],
 	"Ti/_/UI/Element": [
 		"Ti/_/css",
 		"Ti/_/declare",
@@ -419,6 +426,10 @@
 		"Ti/_",
 		"Ti/_/Evented",
 		"Ti/_/lang"
+	],
+	"Ti/Media/Sound": [
+		"Ti/_/declare",
+		"Ti/_/Media/Player"
 	],
 	"Ti/UI/2DMatrix": [
 		"Ti/_/declare",
