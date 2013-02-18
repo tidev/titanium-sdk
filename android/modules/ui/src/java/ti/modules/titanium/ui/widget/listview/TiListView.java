@@ -72,21 +72,20 @@ public class TiListView extends TiUIView {
 			Pair<SectionProxy, Integer> info = getSectionInfoByEntryIndex(position);
 			SectionProxy section = info.first;
 			int index = info.second;
+			KrollDict data = section.getEntryProperties(index);
+			TiTemplate template = section.getTemplateByIndex(index);
+			TiBaseListViewItem content = null;
+			
 			if (convertView != null) {
-				TiBaseListViewItem view = (TiBaseListViewItem) convertView;
-				KrollDict data = section.getEntryProperties(index);
-				TiTemplate template = section.getTemplateByIndex(index);
-				section.populateViews(data, view, template);
-				Log.w("GetView", "reusing View");
-				return view;
+				content = (TiBaseListViewItem) convertView;
+				section.populateViews(data, content, template);
+				Log.d("GetView", "reusing View");
+			} else {
+				Log.d("GetView", "generating View");
+				content = section.generateCellContent(index, data, template);
 			}
-			Log.w("GetView", "generating View");
-			TiCompositeLayout view = section.generateView(index);
-			return view;
 
-
-			
-			
+			return content;
 		}
 
 	}
@@ -127,8 +126,7 @@ public class TiListView extends TiUIView {
 
 	protected void processTemplates(KrollDict templates) {
 		for (String key : templates.keySet()) {
-			//Here we bind each template with its key so later we can look up the
-			//template via bound key
+			//Here we bind each template with a key so we can use it to look up later
 			KrollDict properties = new KrollDict((HashMap)templates.get(key));
 			templatesByBinding.put(key, new TiTemplate(key, properties));
 		}

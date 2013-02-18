@@ -21,8 +21,6 @@ import ti.modules.titanium.ui.widget.TiUIImageView;
 import ti.modules.titanium.ui.widget.TiUILabel;
 import ti.modules.titanium.ui.widget.listview.TiListView.TiBaseAdapter;
 import android.util.SparseArray;
-import android.view.ViewGroup.LayoutParams;
-import android.widget.AbsListView;
 
 @Kroll.proxy(creatableInModule = UIModule.class, propertyAccessors = {
 	TiC.PROPERTY_HEADER_TITLE
@@ -48,12 +46,13 @@ public class SectionProxy extends ViewProxy{
 	public void setAdapter(TiBaseAdapter a) {
 		adapter = a;
 	}
+
 	@Kroll.method
 	public void setData(Object data) {
 		if (data instanceof Object[]) {
 			Object[] views = (Object[]) data;
 			int count = views.length;
-			itemCount = count;
+			itemCount += count;
 			for (int i = 0; i < count; i++) {
 				Object itemData = views[i];
 				if (itemData instanceof HashMap) {
@@ -62,6 +61,7 @@ public class SectionProxy extends ViewProxy{
 					entryProperties.add(d);
 				}
 			}
+			//Notify adapter that data has changed.
 			if (adapter != null) {
 				adapter.notifyDataSetChanged();
 			}
@@ -71,8 +71,8 @@ public class SectionProxy extends ViewProxy{
 	}
 	
 	private void processData(KrollDict itemData, int index) {
-		//if template is specified, we look it up and if one exists, we use it,
-		//otherwise we use default template.
+		//if template is specified in data, we look it up and if one exists, we use it.
+		//Otherwise we use default template.
 		if (itemData.containsKey(TiC.PROPERTY_TEMPLATE)) {
 			//retrieve template
 			String binding = TiConvert.toString(itemData.get(TiC.PROPERTY_TEMPLATE));
@@ -82,50 +82,64 @@ public class SectionProxy extends ViewProxy{
 			if (template != null) {
 				templatesByIndex.put(index, template);
 			}
+			//Once we bind template, remove property since we don't need it anymore
+			itemData.remove(TiC.PROPERTY_TEMPLATE);
 		} else {
+			//Create default template if needed, otherwise bind default template to index
 			if (defaultTemplate != null){
 				templatesByIndex.put(index, defaultTemplate);
 			} else {
-				//create template and generate default properties
+				//Create template and generate default properties
 				defaultTemplate = new TiTemplate(TiTemplate.DEFAULT_TEMPLATE, null);
 				defaultTemplate.generateDefaultProps(getActivity());
+				//Each template is treated as an item type, so we can reuse views efficiently.
+				//Section templates are given a type in TiListView.processSections(). Here we
+				//give default template a type if possible.
 				TiListView listView = getListView();
 				if (listView != null) {
 					defaultTemplate.setType(listView.getItemType());
 				}
 				templatesByIndex.put(index, defaultTemplate);
 			}
-		}
-		
-		
+			
+			//Here we merge and update default properties with entry data.
+			defaultTemplate.mergeAndUpdateDefaultProperties(TiTemplate.DEFAULT_IMAGE_BINDING, itemData);
+			defaultTemplate.mergeAndUpdateDefaultProperties(TiTemplate.DEFAULT_LABEL_BINDING, itemData);
+		}	
 		
 	}
-	public TiCompositeLayout generateView(int index) {
-		TiBaseListViewItem cell = new TiBaseListViewItem(getActivity());
-		//TiListCell cell = new TiListCell(viewGroup);
-		//KrollDict d = new KrollDict();
-		//d.put("backgroundColor", "blue");
-		//cell.processProperties(d);
-		KrollDict data = getEntryProperties(index);
-		TiTemplate template = getTemplateByIndex(index);
+
+	/**
+	 * This method creates a new cell and fill it with content. getView() calls this method
+	 * when a view needs to be created.
+	 * @param index Entry's index relative to its section
+	 * @return
+	 */
+	public TiBaseListViewItem generateCellContent(int index, KrollDict data, TiTemplate template) {
+		//Here we create a cell content and populate it with data
+		TiBaseListViewItem cellContent = new TiBaseListViewItem(getActivity());
 		if (data != null && template != null) {
-			populateViews(data, cell, template);
+			populateViews(data, cellContent, template);
 		}
-		return cell;
+		return cellContent;
 	}
 	
-	public void populateViews(KrollDict data, TiBaseListViewItem viewGroup, TiTemplate template) {
+	public void populateViews(KrollDict data, TiBaseListViewItem cellContent, TiTemplate template) {
 		
+		//Create or get the cell
+		TiListCell cell = template.getListCell();
+		if (cell != null) {
+			//If cell exists, replace content
+			cell.setNativeView(cellContent);
+		} else {
+			//Otherwise we create new cell and set it in template.
+			cell = new TiListCell(cellContent);
+			template.setListCell(cell);
+		}
+
 		for (String key : data.keySet()) {
 			KrollDict properties = new KrollDict((HashMap)data.get(key));
-			if (template.getTemplateID() == TiTemplate.DEFAULT_TEMPLATE) {
-				if (key.equals("title")) {
-					properties = template.mergeProperties(template.getDefaultLabelProperties(), properties);
-				} else if (key.equals("leftImage")) {
-					properties = template.mergeProperties(template.getDefaultImageProperties(), properties);
-				}
-			}
-			TiUIView view = viewGroup.getViewFromBinding(key);
+			TiUIView view = cellContent.getViewFromBinding(key);
 			if (view != null) {
 				view.processProperties(properties);
 				continue;
@@ -133,7 +147,7 @@ public class SectionProxy extends ViewProxy{
 			//check if key is bound
 			TiViewProxy proxy = template.getViewProxy(key);
 			if (proxy != null) {
-				createChildView(proxy, key, properties, viewGroup);
+				createChildView(proxy, key, properties, cellContent);
 			}
 		}
 	}
@@ -159,6 +173,9 @@ public class SectionProxy extends ViewProxy{
 		return templatesByIndex.get(index);
 	}
 	
+	/**
+	 * @return number of entries within section
+	 */
 	public int getItemCount() {
 		return itemCount;
 	}
@@ -174,6 +191,9 @@ public class SectionProxy extends ViewProxy{
 		return null;
 	}
 	
+	/**
+	 * Attempt to give each existing template a type, if possible
+	 */
 	public void setTemplateType() {
 		
 		for (int i = 0; i < templatesByIndex.size(); i++) {
