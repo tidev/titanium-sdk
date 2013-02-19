@@ -27,7 +27,7 @@ public class TiGradientDrawable extends ShapeDrawable {
 	}
 
 	private static final TiPoint DEFAULT_START_POINT = new TiPoint(0, 0);
-	private static final TiPoint DEFAULT_END_POINT = new TiPoint(0, 1);
+	private static final TiPoint DEFAULT_END_POINT = new TiPoint("0", "100%");
 	private static final TiDimension DEFAULT_RADIUS = new TiDimension(1.0, TiDimension.TYPE_UNDEFINED);
 	private static final String TAG = "TiGradientDrawable";
 

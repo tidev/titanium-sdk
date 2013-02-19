@@ -152,7 +152,6 @@ public class IntentProxy extends KrollProxy
 			}
 		}
 
-
 		if (type == null) {
 			if (action != null && action.equals(Intent.ACTION_SEND)) {
 				type = "text/plain";
@@ -174,8 +173,6 @@ public class IntentProxy extends KrollProxy
 		}
 	}
 
-
-
 	@Kroll.method
 	public void putExtra(String key, Object value)
 	{
@@ -195,7 +192,6 @@ public class IntentProxy extends KrollProxy
 			intent.putExtra(key, TiConvert.toString(value));
 		}
 	}
-
 
 	@Kroll.method
 	public void addFlags(int flags)
