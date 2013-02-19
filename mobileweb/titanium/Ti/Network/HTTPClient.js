@@ -1,5 +1,5 @@
-define(["Ti/_", "Ti/_/declare", "Ti/_/has", "Ti/_/lang", "Ti/_/Evented", "Ti/Filesystem", "Ti/Network", "Ti/Blob", "Ti/_/event"],
-	function(_, declare, has, lang, Evented, Filesystem, Network, Blob, event) {
+define(["Ti/_", "Ti/_/declare", "Ti/_/has", "Ti/_/lang", "Ti/_/Evented", "Ti/Filesystem", "Ti/Network", "Ti/Blob", "Ti/_/event", "Ti/Utils"],
+	function(_, declare, has, lang, Evented, Filesystem, Network, Blob, event, Utils) {
 
 	var is = require.is,
 		on = require.on;
@@ -101,6 +101,10 @@ define(["Ti/_", "Ti/_/declare", "Ti/_/has", "Ti/_/lang", "Ti/_/Evented", "Ti/Fil
 			var httpURLFormatter = Ti.Network.httpURLFormatter,
 				c = this.constants,
 				wc = this.withCredentials;
+			var _url = parseUrl(url);
+			this.domain = _url.domain;
+			this.username = _url.username;
+			this.password = _url.password;
 			this.abort();
 			this._xhr.open(
 				c.connectionType = method,
@@ -139,6 +143,9 @@ define(["Ti/_", "Ti/_/declare", "Ti/_/has", "Ti/_/lang", "Ti/_/Evented", "Ti/Fil
 			onreadystatechange: void 0,
 			onsendstream: void 0,
 			timeout: void 0,
+			username: null,
+			password: null,
+			domain: null,
 			withCredentials: false
 		},
 
