@@ -43,6 +43,59 @@ since: "0.9"
 excludes: { methods:[removeAllChildren] }
 
 events:
+  - name: androidback
+    platforms: [android]
+    summary: Fired when the back button is pressed by the user.
+    description: |
+        This event is fired when the current tab group's activity detects
+        a back button press by the user to navigate back.
+
+        By default this event would trigger the current activity to be finished
+        and removed from the task stack. Subscribing to this event with a listener
+        will prevent the default behavior. To finish the activity from your listener
+        just call the *close* method of the tab group.
+    since: '3.0.0'
+
+  - name: androidcamera
+    summary: Fired when the Camera button is released.
+    description: |
+        Setting a listener disables the default key handling for this button. To restore
+        default behavior, remove the listener.
+    platforms: [android]
+    since: '3.0.0'
+
+  - name: androidfocus
+    summary: Fired when the Camera button is half-pressed then released.
+    description: |
+        Setting a listener disables the default key handling for this button. To restore
+        default behavior, remove the listener.
+    platforms: [android]
+    since: '3.0.0'
+
+  - name: androidsearch
+    summary: Fired when the Search button is released.
+    description: |
+        Setting a listener disables the default key handling for this button. To restore
+        default behavior, remove the listener.
+    platforms: [android]
+    since: '3.0.0'
+
+  - name: androidvoldown
+    summary: Fired when the volume down button is released.
+    description: |
+        Setting a listener disables the default key handling for this button. To restore
+        default behavior, remove the listener.
+    platforms: [android]
+    since: '3.0.0'
+
+  - name: androidvolup
+    summary: Fired when the volume up button is released.
+    description: |
+        Setting a listener disables the default key handling for this button. To restore
+        default behavior, remove the listener.
+    platforms: [android]
+    since: '3.0.0'
+
   - name: blur
     summary: |
         Fired when this tab group loses focus. On Android, fired when a tab in this tab group 
