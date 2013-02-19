@@ -15,7 +15,7 @@ platforms: [android, iphone, ipad, mobileweb]
 methods:
   - name: formatTelephoneNumber
     summary: Formats a telephone number according to the current system locale.
-    platforms: [android]
+    platforms: [android, mobileweb]
     returns:
         type: String
     parameters:
@@ -30,7 +30,7 @@ methods:
         `getCurrencyCode('en-US')` returns `USD`. See the `xe.com` website 
         [Currency List](http://www.xe.com/iso4217.php#section2) section of the `www.xe.com` website for 
         reference.
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, mobileweb]
     returns:
         type: String
     parameters:
@@ -50,7 +50,7 @@ methods:
         `getCurrencySymbol('USD')` returns `$`. See the 
         [Currency Symbols](http://www.xe.com/symbols.php#section2) section of the 
         `www.xe.com` website for reference.
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, mobileweb]
     returns:
         type: String
     parameters:
@@ -68,7 +68,7 @@ methods:
         `getLocaleCurrencySymbol('en-US')` returns `$`. See the 
         [Currency Symbols](http://www.xe.com/symbols.php#section2) section of the 
         `www.xe.com` website for reference.
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, mobileweb]
     returns:
         type: String
     parameters:
