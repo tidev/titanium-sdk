@@ -17,7 +17,6 @@
     if (self = [super initWithAnnotation:annotation reuseIdentifier:reuseIdentifier]) {
         self.backgroundColor = [UIColor clearColor];
         wrapperView = [[UIView alloc] initWithFrame:CGRectZero];
-        wrapperView.userInteractionEnabled = false;
         [self addSubview:wrapperView];
     }
     return self;

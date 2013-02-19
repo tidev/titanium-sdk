@@ -57,8 +57,9 @@ properties:
   - name: customView
     summary: Defines a custom view to be used by the annotation.
     description: |
-        A custom View to display for the annotation. **User interaction is disabled on the view.**
-        No view interaction events (click, touchstart etc) will be fired.
+        A custom View to display for the annotation. **On the iOS platform, View events will not propagate to the Annotation.**
+        Separate handlers must be added for events related to this view. Annotation events fire independently of the events defined 
+        for this view.
     type: Titanium.UI.View
     platforms: [iphone, ipad]
     since: "3.1.0"
