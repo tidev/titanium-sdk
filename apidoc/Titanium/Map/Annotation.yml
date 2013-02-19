@@ -54,6 +54,16 @@ properties:
         Must be set before the annotation is added to the map view.
     type: Boolean
 
+  - name: customView
+    summary: Defines a custom view to be used by the annotation.
+    description: |
+        A custom View to display for the annotation. **On the iOS platform, View events will not propagate to the Annotation.**
+        Separate handlers must be added for events related to this view. Annotation events fire independently of the events defined 
+        for this view.
+    type: Titanium.UI.View
+    platforms: [iphone, ipad]
+    since: "3.1.0"
+
   - name: draggable
     summary: Determines whether the pin can be dragged by the user.
     description: |
@@ -66,7 +76,7 @@ properties:
   - name: image
     summary: Image to use for the the pin.
     description: |
-        The image can be specified using a local URL or an image `Blob`.
+        The image can be specified using a local URL or an image `Blob`. This is ignored if the customeView property is set.
     type: [String, Titanium.Blob]
     default: If not specified, a standard map pin image is used.
 
