@@ -19,10 +19,10 @@
  * <http://pajhome.org.uk/crypt/md5/sha256.html>
  */
 
- define(["Ti/_/encoding", "Ti/_/Evented", "Ti/_/lang", "Ti/Blob"], function(encoding, Evented, lang, Blob) {
+define(["Ti/_/encoding", "Ti/_/Evented", "Ti/_/lang", "Ti/Blob"], function(encoding, Evented, lang, Blob) {
 
 	function parseUrl(url){
-		var parts = /^(?:([^:\/?#]+):)?(?:\/\/((?:(([^:@]*)(?::([^:@]*))?)?@)?([^:\/?#]*)(?::(\d*))?))?((((?:[^?#\/]*\/)*)([^?#]*))(?:\?([^#]*))?(?:#(.*))?)/.exec(url);
+		var parts = /^(?:([^:\/?#]+):)?(?:\/\/((?:(([^:@]*)(?::([^:@]*))?)?@)?([^:\/?#]*)(?::(\d*))?))?((((?:[^?#\/]*\/)*)([^?#]*))(?:\?([^#]*))?(?:#(.*))?)/.exec(url) || [];
 		return {
 			source: parts[0],
 			protocol: parts[1],
