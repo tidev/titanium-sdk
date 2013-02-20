@@ -48,22 +48,25 @@ const NSString *apiEndpoint = @"http://query.yahooapis.com/v1/public/yql?format=
 	SBJSON *json = [[[SBJSON alloc] init] autorelease];
 	NSError *error = nil;
 	id result = [json objectWithString:responseString error:&error];
-	NSMutableDictionary *event = [NSMutableDictionary dictionary];
+	NSMutableDictionary *event;
 	if (error==nil)
 	{
 		NSDictionary* errorDict = [result objectForKey:@"error"];
-		if (errorDict) {
-			[event setObject:NUMBOOL(NO) forKey:@"success"];
-			[event setObject:[errorDict objectForKey:@"description"] forKey:@"message"];
+		int code = (errorDict != nil)?-1:0;
+		NSString * message = [errorDict objectForKey:@"description"];
+		event = [TiUtils dictionaryWithCode:code message:message];
+
+		if (errorDict!=nil) {
+			[event setObject:message forKey:@"message"];
 		} else {
-			[event setObject:NUMBOOL(YES) forKey:@"success"];
 			[event setObject:[[result objectForKey:@"query"] objectForKey:@"results"] forKey:@"data"];
 		}
 	}
 	else
 	{
-		[event setObject:NUMBOOL(NO) forKey:@"success"];
-		[event setObject:[error description] forKey:@"message"];
+		NSString * message = [TiUtils messageFromError:error];
+		event = [TiUtils dictionaryWithCode:[error code] message:message];
+		[event setObject:message forKey:@"message"];
 	}
 	[module _fireEventToListener:@"yql" withObject:event listener:callback thisObject:nil];
 	[self autorelease];
@@ -74,7 +77,7 @@ const NSString *apiEndpoint = @"http://query.yahooapis.com/v1/public/yql?format=
 	[[TiApp app] stopNetwork];
 	
 	NSError *error = [request error];
-	NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:NUMBOOL(NO),@"success",[error description],@"message",nil];
+	NSMutableDictionary * event = [TiUtils dictionaryWithCode:[error code] message:[TiUtils messageFromError:error]];
 	[module _fireEventToListener:@"yql" withObject:event listener:callback thisObject:nil];
 	[self autorelease];
 }

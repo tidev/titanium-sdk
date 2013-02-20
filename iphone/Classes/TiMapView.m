@@ -560,7 +560,7 @@
 	loaded = YES;
 	if ([self.proxy _hasListeners:@"complete"])
 	{
-		[self.proxy fireEvent:@"complete" withObject:nil];
+		[self.proxy fireEvent:@"complete" withObject:nil errorCode:0 message:nil];
 	}
 	ignoreClicks = NO;
 }
@@ -569,8 +569,9 @@
 {
 	if ([self.proxy _hasListeners:@"error"])
 	{
-		NSDictionary *event = [NSDictionary dictionaryWithObject:[error description] forKey:@"message"];
-		[self.proxy fireEvent:@"error" withObject:event];
+		NSString * message = [TiUtils messageFromError:error];
+		NSDictionary *event = [NSDictionary dictionaryWithObject:message forKey:@"message"];
+		[self.proxy fireEvent:@"error" withObject:event errorCode:[error code] message:message];
 	}
 }
 
