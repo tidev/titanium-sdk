@@ -12,5 +12,5 @@ public interface TiDownloadListener
 {
 	public void downloadFinished(URI uri);
 
-	public void downloadFailed();
+	public void downloadFailed(URI uri);
 }

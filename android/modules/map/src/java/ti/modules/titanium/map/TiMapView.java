@@ -151,7 +151,7 @@ public class TiMapView extends TiUIView
 				lastLatitudeSpan = getLatitudeSpan();
 				lastLongitudeSpan = getLongitudeSpan();
 
-				HashMap<String, Object> location = new HashMap<String, Object>();
+				KrollDict location = new KrollDict();
 				location.put(TiC.PROPERTY_LATITUDE, scaleFromGoogle(lastLatitude));
 				location.put(TiC.PROPERTY_LONGITUDE, scaleFromGoogle(lastLongitude));
 				location.put(TiC.PROPERTY_LATITUDE_DELTA, scaleFromGoogle(lastLatitudeSpan));

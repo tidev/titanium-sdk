@@ -519,7 +519,9 @@ public class TiHTTPClient
 		dispatchCallback("onreadystatechange", null);
 
 		if (readyState == READY_STATE_DONE) {
-			dispatchCallback("onload", null);
+			KrollDict data = new KrollDict();
+			data.putCodeAndMessage(0,null);
+			dispatchCallback("onload", data);
 		}
 	}
 

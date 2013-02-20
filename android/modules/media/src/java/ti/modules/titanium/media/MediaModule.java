@@ -388,7 +388,9 @@ public class MediaModule extends KrollModule
 					imageFile.delete();
 				}
 				if (cancelCallback != null) {
-					cancelCallback.callAsync(getKrollObject(), new Object[] {});
+					KrollDict response = new KrollDict();
+					response.putCodeAndMessage(NO_ERROR,null);
+					cancelCallback.callAsync(getKrollObject(), response);
 				}
 
 			} else {
@@ -611,7 +613,9 @@ public class MediaModule extends KrollModule
 					Log.e(TAG, "OnResult called: " + resultCode);
 					if (resultCode == Activity.RESULT_CANCELED) {
 						if (fCancelCallback != null) {
-							fCancelCallback.callAsync(getKrollObject(), new Object[0]);
+							KrollDict response = new KrollDict();
+							response.putCodeAndMessage(NO_ERROR,null);
+							fCancelCallback.callAsync(getKrollObject(), response);
 						}
 
 					} else {
@@ -761,7 +765,9 @@ public class MediaModule extends KrollModule
 				{
 					Log.e(TAG, "OnResult called: " + resultCode);
 					if (fSuccessCallback != null) {
-						fSuccessCallback.callAsync(getKrollObject(), new Object[0]);
+						KrollDict response = new KrollDict();
+						response.putCodeAndMessage(NO_ERROR,null);
+						fSuccessCallback.callAsync(getKrollObject(), response);
 					}
 				}
 
