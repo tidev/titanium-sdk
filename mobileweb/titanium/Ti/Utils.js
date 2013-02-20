@@ -21,26 +21,6 @@
 
 define(["Ti/_/encoding", "Ti/_/Evented", "Ti/_/lang", "Ti/Blob"], function(encoding, Evented, lang, Blob) {
 
-	function parseUrl(url){
-		var parts = /^(?:([^:\/?#]+):)?(?:\/\/((?:(([^:@]*)(?::([^:@]*))?)?@)?([^:\/?#]*)(?::(\d*))?))?((((?:[^?#\/]*\/)*)([^?#]*))(?:\?([^#]*))?(?:#(.*))?)/.exec(url) || [];
-		return {
-			source: parts[0],
-			protocol: parts[1],
-			domain: parts[2],
-			auth: parts[3],
-			username: parts[4],
-			password: parts[5],
-			host: parts[6],
-			port: parts[7],
-			relative: parts[8],
-			path: parts[9],
-			directory: parts[10],
-			file: parts[11],
-			query: parts[12],
-			anchor: parts[13]
-		};
-	}
-
 	function toWord(s, y) {
 		var wa = [],
 			i = 0,

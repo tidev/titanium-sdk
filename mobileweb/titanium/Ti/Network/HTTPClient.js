@@ -1,5 +1,5 @@
-define(["Ti/_", "Ti/_/declare", "Ti/_/has", "Ti/_/lang", "Ti/_/Evented", "Ti/Filesystem", "Ti/Network", "Ti/Blob", "Ti/_/event", "Ti/Utils"],
-	function(_, declare, has, lang, Evented, Filesystem, Network, Blob, event, Utils) {
+define(["Ti/_", "Ti/_/declare", "Ti/_/has", "Ti/_/lang", "Ti/_/Evented", "Ti/Filesystem", "Ti/Network", "Ti/Blob", "Ti/_/event"],
+	function(_, declare, has, lang, Evented, Filesystem, Network, Blob, event) {
 
 	var is = require.is,
 		on = require.on;
@@ -100,15 +100,18 @@ define(["Ti/_", "Ti/_/declare", "Ti/_/has", "Ti/_/lang", "Ti/_/Evented", "Ti/Fil
 		open: function(method, url, async) {
 			var httpURLFormatter = Ti.Network.httpURLFormatter,
 				c = this.constants,
-				wc = this.withCredentials;
-			var _url = parseUrl(url);
-			this.domain = _url.domain;
-			this.username = _url.username;
-			this.password = _url.password;
+				wc = this.withCredentials,
+				loc = _.getAbsolutePath(httpURLFormatter ? httpURLFormatter(url) : url),
+				parts = loc.match(/^((?:.+\:)?\/\/)?(?:.+@)?(.*)$/);
+
+			if (parts && this.username && this.password) {
+				loc = parts[1] + (this.domain ? this.domain + '\\' : '') + this.username + ':' + this.password + '@' + parts[2];
+			}
+
 			this.abort();
 			this._xhr.open(
 				c.connectionType = method,
-				c.location = _.getAbsolutePath(httpURLFormatter ? httpURLFormatter(url) : url),
+				c.location = loc,
 				wc || async === void 0 ? true : !!async
 			);
 			wc && (this._xhr.withCredentials = wc);
