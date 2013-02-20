@@ -197,7 +197,7 @@ examples:
               text: 'A simple label',
               textAlign: Ti.UI.TEXT_ALIGNMENT_CENTER,
               top: 30,
-              width: 'auto', height: 'auto'
+              width: Ti.UI.SIZE, height: Ti.UI.SIZE
             });
             
             var label2 = Ti.UI.createLabel({
@@ -216,14 +216,17 @@ examples:
     example: |
         Previous example as an Alloy view.
 
-        Most of the styling properties need to be defined in the TSS file.
+        The font and shadowOffset properties need to be defined in the TSS or controller file.
+        These property values are dictionaries, rather than single values,
+        so they cannot be included in markup.
 
             <Alloy>
                 <Window id="win" backgroundColor="white" exitOnClose="true" fullscreen="false" layout="vertical" title="Label Demo">
 
                     <!-- The text property can either be defined as an attribute or as node text. -->
-                    <Label id="label1" color="#900" top="30" text="A simple label" />
-                    <Label id="label2" color="blue" top="30">
+                    <Label id="label1" color="#900" shadowColor="#aaa" text="A simple label" textAlign="Ti.UI.TEXT_ALIGNMENT_CENTER"
+                        top="30" width="Ti.UI.SIZE" height="Ti.UI.SIZE" />
+                    <Label id="label2" color="blue" textAlign="Ti.UI.TEXT_ALIGNMENT_LEFT" top="30" width="300" height="200">
                         A long label with\na few line breaks\nand unicode (UTF8)\nsymbols such as\na white chess piece \u2655\nand the euro symbol \u20ac\nlooks like this!\n
                     </Label>
                 </Window>

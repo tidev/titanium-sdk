@@ -24,11 +24,9 @@ exports.init = function (logger, config, cli) {
 			if (cli.argv.target != 'device') return finished();
 			
 			if (cli.argv['build-only']) {
-				logger.info('Performed build only, skipping installing of the application');
+				logger.info(__('Performed build only, skipping installing of the application'));
 				return finished();
 			}
-			
-			logger.info('Installing application into iTunes');
 			
 			async.parallel([
 				function (next) {
@@ -50,7 +48,8 @@ exports.init = function (logger, config, cli) {
 				var ipa = path.join(path.dirname(build.xcodeAppDir), build.tiapp.name + '.ipa');
 				afs.exists(ipa) || (ipa = build.xcodeAppDir);
 				
-				logger.info(__('Launching iTunes'));
+				logger.info(__('Installing application into iTunes'));
+				
 				exec('open -b com.apple.itunes "' + ipa + '"', function (err, stdout, stderr) {
 					if (err) {
 						return finished(new appc.exception(__('Failed to launch iTunes')));
@@ -59,7 +58,7 @@ exports.init = function (logger, config, cli) {
 					logger.info(__('Initiating iTunes sync'));
 					exec('osascript "' + path.join(build.titaniumIosSdkPath, 'itunes_sync.scpt') + '"', function (err, stdout, stderr) {
 						if (err) {
-							finished(new appc.exception(__('Failed to initiate iTunes sync')));
+							finished(new appc.exception(__('Failed to initiate iTunes sync'), stderr.split('\n').filter(function (line) { return !!line.length; })));
 						} else {
 							finished();
 						}

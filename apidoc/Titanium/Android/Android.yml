@@ -118,6 +118,28 @@ methods:
             which specifies the service to check.
         type: Titanium.Android.Intent
 
+  - name: registerBroadcastReceiver
+    summary: Registers broadcast receiver for the given actions
+    parameters:
+      - name: broadcastReceiver
+        summary: |
+            The broadcast receiver to register and handle the broadcast
+        type: Titanium.Android.BroadcastReceiver
+      - name: actions
+        summary: |
+            The actions that the broadcast reciever will handle
+        type: Array<String>
+    since: "3.1.0"
+
+  - name: unregisterBroadcastReceiver
+    summary: Unregisters a broadcast receiver
+    parameters:
+      - name: broadcastReceiver
+        summary: |
+              The broadcast receiver to unregister.
+        type: Titanium.Android.BroadcastReceiver
+    since: "3.1.0"
+
   - name: startService
     summary: Starts a simple service.
     parameters:
