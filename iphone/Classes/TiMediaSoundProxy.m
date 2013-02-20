@@ -303,7 +303,8 @@
 - (void)audioPlayerDidFinishPlaying:(AVAudioPlayer *)player successfully:(BOOL)flag
 {
 	if ([self _hasListeners:@"complete"]) {
-		[self fireEvent:@"complete" withObject:nil errorCode:0 message:nil];
+		NSString * message = flag?nil:@"could not decode the audio data";
+		[self fireEvent:@"complete" withObject:nil errorCode:(flag?0:-1) message:message];
 	}
 	if (flag) {
 		[[TiMediaAudioSession sharedSession] stopAudioSession];

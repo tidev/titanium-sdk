@@ -1646,7 +1646,7 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap,horizontalWrap,horizontalWrap,[self willCha
 	return NO;
 }
 
-//TODO: Remove once we've properly depricated.
+//TODO: Remove once we've properly deprecated.
 -(void)fireEvent:(NSString*)type withObject:(id)obj withSource:(id)source propagate:(BOOL)propagate reportSuccess:(BOOL)report errorCode:(int)code message:(NSString*)message;
 {
 	// Note that some events (like movie 'complete') are fired after the view is removed/dealloc'd.

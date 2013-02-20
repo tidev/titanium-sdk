@@ -140,7 +140,7 @@
 	return toolbar!=nil;
 }
 
-//TODO: Remove when depricated
+//TODO: Remove when deprecated
 -(void)fireEvent:(NSString*)type withObject:(id)obj withSource:(id)source propagate:(BOOL)propagate reportSuccess:(BOOL)report errorCode:(int)code message:(NSString*)message;
 {
 	if (![TiUtils boolValue:[self valueForKey:@"enabled"] def:YES])

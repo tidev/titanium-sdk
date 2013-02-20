@@ -867,7 +867,7 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 		params = nil; //No need to propagate when we already have this information
 	}
 	if ([self doesntOverrideFireEventWithSource]){
-		//TODO: Once the depricated methods are removed, we can use the following line without checking to see if we'd shortcut.
+		//TODO: Once the deprecated methods are removed, we can use the following line without checking to see if we'd shortcut.
 		// For now, we're shortcutting to suppress false warnings.
 		[self fireEvent:type withObject:params propagate:bubble reportSuccess:NO errorCode:0 message:nil];
 		return;
@@ -879,7 +879,7 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 -(void)fireEvent:(NSString*)type withObject:(id)obj
 {
 	if ([self doesntOverrideFireEventWithSource]){
-		//TODO: Once the depricated methods are removed, we can use the following line without checking to see if we'd shortcut.
+		//TODO: Once the deprecated methods are removed, we can use the following line without checking to see if we'd shortcut.
 		// For now, we're shortcutting to suppress false warnings.
 		[self fireEvent:type withObject:obj propagate:YES reportSuccess:NO errorCode:0 message:nil];
 		return;
@@ -897,7 +897,7 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 -(void)fireEvent:(NSString*)type withObject:(id)obj propagate:(BOOL)yn
 {
 	if ([self doesntOverrideFireEventWithSource]){
-		//TODO: Once the depricated methods are removed, we can use the following line without checking to see if we'd shortcut.
+		//TODO: Once the deprecated methods are removed, we can use the following line without checking to see if we'd shortcut.
 		// For now, we're shortcutting to suppress false warnings.
 		[self fireEvent:type withObject:obj propagate:yn reportSuccess:NO errorCode:0 message:nil];
 		return;
@@ -908,7 +908,7 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 
 -(void)fireEvent:(NSString*)type withObject:(id)obj withSource:(id)source propagate:(BOOL)propagate
 {
-	DebugLog(@"[WARN] The methods -[fireEvent:withObject:withSource:] and [fireEvent:withObject:withSource:propagate:] are depricated. Please use -[fireEvent:withObject:propagate:reportSuccess:errorCode:message:] instead.");
+	DebugLog(@"[WARN] The methods -[fireEvent:withObject:withSource:] and [fireEvent:withObject:withSource:propagate:] are deprecated. Please use -[fireEvent:withObject:propagate:reportSuccess:errorCode:message:] instead.");
 	if (self != source) {
 		NSLog(@"[WARN] Source is not the same as self. (Perhaps this edge case is still valid?)");
 	}
