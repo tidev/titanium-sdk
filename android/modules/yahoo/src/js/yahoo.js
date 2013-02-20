@@ -54,7 +54,16 @@ exports.bootstrap = function(Titanium) {
 			var self = this;
 			xhr.onload = function() {
 				Titanium.API.info("YQL: " + this.responseText);
-				callback({ source: self, data: JSON.parse(this.responseText).query.results });
+				var result = JSON.parse(this.responseText);
+				var payload;
+				if(!result.error) {
+					payload = { source: self, data: result.query.results,
+						success:true, code:0};
+				} else {
+					payload = { source: self,
+						success:false, code:-1, error:result.error.description};				
+				}
+				callback(payload);
 			}
 	
 			xhr.onreadystatechange = function() {
