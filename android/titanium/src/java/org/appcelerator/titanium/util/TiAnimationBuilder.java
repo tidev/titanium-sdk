@@ -620,6 +620,15 @@ public class TiAnimationBuilder
 				view.setLayoutParams(params);
 				view.clearAnimation();
 				relayoutChild = false;
+				// TIMOB-11298 Propagate layout property changes to proxy
+				for (Object key : options.keySet()) {
+					if (TiC.PROPERTY_TOP.equals(key) || TiC.PROPERTY_BOTTOM.equals(key) || TiC.PROPERTY_LEFT.equals(key)
+						|| TiC.PROPERTY_RIGHT.equals(key) || TiC.PROPERTY_CENTER.equals(key)
+						|| TiC.PROPERTY_WIDTH.equals(key) || TiC.PROPERTY_HEIGHT.equals(key)
+						|| TiC.PROPERTY_BACKGROUND_COLOR.equals(key)) {
+						viewProxy.setProperty((String) key, options.get(key));
+					}
+				}
 			}
 
 			if (applyOpacity && (autoreverse == null || !autoreverse.booleanValue())) {
@@ -671,7 +680,7 @@ public class TiAnimationBuilder
 				}
 			}
 		}
-
+		
 		public void onAnimationRepeat(Animation a)
 		{
 		}

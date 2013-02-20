@@ -301,6 +301,7 @@ MAKE_SYSTEM_PROP(TLS_VERSION_1_2, TLS_VERSION_1_2);
 	{
 		NSMutableDictionary * event = [TiUtils dictionaryWithCode:0 message:nil];
 		[event setObject:currentNotification forKey:@"data"];
+		[event setObject:NUMBOOL(YES) forKey:@"inBackground"];
 		[self _fireEventToListener:@"remote" withObject:event listener:pushNotificationCallback thisObject:nil];
 	}
 }
@@ -336,6 +337,8 @@ MAKE_SYSTEM_PROP(TLS_VERSION_1_2, TLS_VERSION_1_2);
 	{
 		NSMutableDictionary * event = [TiUtils dictionaryWithCode:0 message:nil];
 		[event setObject:userInfo forKey:@"data"];
+		BOOL inBackground = (application.applicationState != UIApplicationStateActive);
+		[event setObject:NUMBOOL(inBackground) forKey:@"inBackground"];
 		[self _fireEventToListener:@"remote" withObject:event listener:pushNotificationCallback thisObject:nil];
 	}
 }
