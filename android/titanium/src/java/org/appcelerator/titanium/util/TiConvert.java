@@ -324,7 +324,7 @@ public class TiConvert
 	 * Attempts to convert a value into a boolean, if value is a Boolean or String. Otherwise,
 	 * default value is returned
 	 * @param value the value to convert.
-	 * @param default value
+	 * @param def  the default value.
 	 * @return a boolean value.
 	 * @module.api
 	 */
@@ -364,7 +364,7 @@ public class TiConvert
 	 * Takes a value out of a hash table then attempts to convert it using {@link #toBoolean(Object)}.
 	 * @param hashMap the hash map to search.
 	 * @param key the lookup key.
-	 * @param def the default boolean value to return
+	 * @param def the default value.
 	 * @return a boolean value.
 	 * @module.api
 	 */
