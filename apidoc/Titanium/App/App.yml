@@ -192,7 +192,7 @@ events:
   - name: paused
     summary: Fired when the application transitions to the background on a multitasked system.
     description: |
-        Available on iOS 4.0 and later.
+        Available on iOS 5.0 and later.
         
         This event fires when the user leaves the application.
         
