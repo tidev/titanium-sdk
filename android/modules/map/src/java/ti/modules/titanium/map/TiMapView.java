@@ -132,46 +132,47 @@ public class TiMapView extends TiUIView
 		{
 			int actionType = ev.getAction();
 
-			if (actionType == MotionEvent.ACTION_DOWN) {
-				// Save the values to use in ACTION_MOVE and ACTION_UP
-				longClickStartTime = ev.getEventTime();
-				longClickXCoordinate = ev.getX();
-				longClickYCoordinate = ev.getY();
-			} else if (actionType == MotionEvent.ACTION_MOVE) {
-				if (ev.getPointerCount() > 1) {
-					// Multitouch
-					longClickStartTime = 0;
-				} else {
-					float xmove = ev.getX();
-					float ymove = ev.getY();
-					// See if the movement is within the tolerance boundary
-					float xlow = longClickXCoordinate - X_TOLERANCE;
-					float xhigh = longClickXCoordinate + X_TOLERANCE;
-					float ylow = longClickYCoordinate - Y_TOLERANCE;
-					float yhigh = longClickYCoordinate + Y_TOLERANCE;
-					if ((xmove < xlow || xmove > xhigh) || (ymove < ylow || ymove > yhigh)) {
-						// Out of range
+			// Handle LongPress
+			if (proxy.hierarchyHasListener(TiC.EVENT_LONGPRESS)) {
+				if (actionType == MotionEvent.ACTION_DOWN) {
+					// Save the values to use in ACTION_MOVE and ACTION_UP
+					longClickStartTime = ev.getEventTime();
+					longClickXCoordinate = ev.getX();
+					longClickYCoordinate = ev.getY();
+				} else if (actionType == MotionEvent.ACTION_MOVE) {
+					if (ev.getPointerCount() > 1) {
+						// Multitouch
 						longClickStartTime = 0;
-					}
-				}
-
-			} else if (actionType == MotionEvent.ACTION_UP) {
-				// determine if this was a long click:
-				long eventTime = ev.getEventTime();
-				long downTime = ev.getDownTime();// This should match longClickStartTime unless we reset it earlier
-				if (longClickStartTime == downTime) {
-					// See if it is within the threshhold
-					if ((eventTime - longClickStartTime) > MIN_MILLISECONDS_FOR_LONG_CLICK) {
-						// Is it within the boundary
-						float xup = ev.getX();
-						float yup = ev.getY();
+					} else {
+						float xmove = ev.getX();
+						float ymove = ev.getY();
+						// See if the movement is within the tolerance boundary
 						float xlow = longClickXCoordinate - X_TOLERANCE;
 						float xhigh = longClickXCoordinate + X_TOLERANCE;
 						float ylow = longClickYCoordinate - Y_TOLERANCE;
 						float yhigh = longClickYCoordinate + Y_TOLERANCE;
-						if ((xup > xlow && xup < xhigh) && (yup > ylow && yup < yhigh)) {
-							// Treat it as a long press
-							if (proxy.hierarchyHasListener(TiC.EVENT_LONGPRESS)) {
+						if ((xmove < xlow || xmove > xhigh) || (ymove < ylow || ymove > yhigh)) {
+							// Out of range
+							longClickStartTime = 0;
+						}
+					}
+
+				} else if (actionType == MotionEvent.ACTION_UP) {
+					// determine if this was a long click:
+					long eventTime = ev.getEventTime();
+					long downTime = ev.getDownTime();// This should match longClickStartTime unless we reset it earlier
+					if (longClickStartTime == downTime) {
+						// See if it is within the threshhold
+						if ((eventTime - longClickStartTime) > MIN_MILLISECONDS_FOR_LONG_CLICK) {
+							// Is it within the boundary
+							float xup = ev.getX();
+							float yup = ev.getY();
+							float xlow = longClickXCoordinate - X_TOLERANCE;
+							float xhigh = longClickXCoordinate + X_TOLERANCE;
+							float ylow = longClickYCoordinate - Y_TOLERANCE;
+							float yhigh = longClickYCoordinate + Y_TOLERANCE;
+							if ((xup > xlow && xup < xhigh) && (yup > ylow && yup < yhigh)) {
+								// Treat it as a long press
 								proxy.fireEvent(TiC.EVENT_LONGPRESS, dictFromEvent(ev));
 							}
 						}
