@@ -23,6 +23,10 @@ description: |
     using these properties adds a border on all four sides of the control, which may be
     undesirable.
 
+    Due to an iOS limitation, the buttons in the toolbar only support the `click` event.
+    The buttons do not inherit from the UIButton class but from the UIBarButtonItem class,
+    which is not a native iOS view element, that is, it does not inherit from the UIView class.
+
     See also:
 
     *  [Toolbar in the iOS Human Interface Guidelines.](http://developer.apple.com/library/ios/#documentation/UserExperience/Conceptual/MobileHIG/UIElementGuidelines/UIElementGuidelines.html#//apple_ref/doc/uid/TP40006556-CH13-SW10)
