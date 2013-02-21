@@ -389,7 +389,7 @@ public class MediaModule extends KrollModule
 				}
 				if (cancelCallback != null) {
 					KrollDict response = new KrollDict();
-					response.putCodeAndMessage(NO_ERROR,null);
+					response.putCodeAndMessage(NO_ERROR, null);
 					cancelCallback.callAsync(getKrollObject(), response);
 				}
 
@@ -614,7 +614,7 @@ public class MediaModule extends KrollModule
 					if (resultCode == Activity.RESULT_CANCELED) {
 						if (fCancelCallback != null) {
 							KrollDict response = new KrollDict();
-							response.putCodeAndMessage(NO_ERROR,null);
+							response.putCodeAndMessage(NO_ERROR, null);
 							fCancelCallback.callAsync(getKrollObject(), response);
 						}
 
@@ -654,7 +654,7 @@ public class MediaModule extends KrollModule
 
 	public static KrollDict createDictForImage(TiBlob imageData, String mimeType) {
 		KrollDict d = new KrollDict();
-		d.putCodeAndMessage(0,null);
+		d.putCodeAndMessage(NO_ERROR, null);
 
 		int width = -1;
 		int height = -1;
@@ -766,7 +766,7 @@ public class MediaModule extends KrollModule
 					Log.e(TAG, "OnResult called: " + resultCode);
 					if (fSuccessCallback != null) {
 						KrollDict response = new KrollDict();
-						response.putCodeAndMessage(NO_ERROR,null);
+						response.putCodeAndMessage(NO_ERROR, null);
 						fSuccessCallback.callAsync(getKrollObject(), response);
 					}
 				}

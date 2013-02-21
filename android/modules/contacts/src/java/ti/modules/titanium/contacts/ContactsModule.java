@@ -121,7 +121,7 @@ public class ContactsModule extends KrollModule
 	public void requestAuthorization(KrollFunction function) 
 	{
 		KrollDict dict = new KrollDict();
-		dict.putCodeAndMessage(0,null);
+		dict.putCodeAndMessage(TiC.ERROR_CODE_NO_ERROR, null);
 		function.callAsync(getKrollObject(), dict);
 	}
 	

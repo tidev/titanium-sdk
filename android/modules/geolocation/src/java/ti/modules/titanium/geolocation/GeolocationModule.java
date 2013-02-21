@@ -843,7 +843,7 @@ public class GeolocationModule extends KrollModule
 		coordinates.put(TiC.PROPERTY_TIMESTAMP, location.getTime());
 
 		KrollDict event = new KrollDict();
-		event.putCodeAndMessage(0,null);
+		event.putCodeAndMessage(TiC.ERROR_CODE_NO_ERROR, null);
 		event.put(TiC.PROPERTY_COORDS, coordinates);
 
 		if (locationProvider != null) {
@@ -871,7 +871,7 @@ public class GeolocationModule extends KrollModule
 	private KrollDict buildLocationErrorEvent(int code, String msg)
 	{
 		KrollDict d = new KrollDict(3);
-		d.putCodeAndMessage(code,msg);
+		d.putCodeAndMessage(code, msg);
 		return d;
 	}
 

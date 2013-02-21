@@ -11,6 +11,7 @@ import java.util.Iterator;
 import java.util.Map;
 
 import org.appcelerator.titanium.util.TiConvert;
+import org.appcelerator.titanium.TiC;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -88,10 +89,10 @@ public class KrollDict
 	}
 
 	public void putCodeAndMessage(int code, String message){
-		this.put("success",new Boolean(code==0));
-		this.put("code",new Integer(code));
+		this.put(TiC.PROPERTY_SUCCESS,new Boolean(code==0));
+		this.put(TiC.PROPERTY_CODE,new Integer(code));
 		if (message != null){
-			this.put("error",message);
+			this.put(TiC.EVENT_PROPERTY_ERROR,message);
 		}
 	}
 

@@ -546,7 +546,7 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 	private void fireError(String message, String imageUrl)
 	{
 		KrollDict data = new KrollDict();
-		data.putCodeAndMessage(-1,message);
+		data.putCodeAndMessage(TiC.ERROR_CODE_UNKNOWN, message);
 		if (imageUrl != null) {
 			data.put("image",imageUrl);
 		}

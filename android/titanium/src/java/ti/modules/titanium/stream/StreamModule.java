@@ -533,7 +533,7 @@ public class StreamModule extends KrollModule
 		callbackArgs.put("bytesProcessed", bytesProcessed);
 		callbackArgs.put("errorState", errorState);
 		callbackArgs.put("errorDescription", errorDescription);
-		callbackArgs.putCodeAndMessage(errorState,errorDescription);
+		callbackArgs.putCodeAndMessage(errorState, errorDescription);
 
 		return callbackArgs;
 	}
@@ -546,7 +546,7 @@ public class StreamModule extends KrollModule
 		callbackArgs.put("bytesProcessed", bytesProcessed);
 		callbackArgs.put("errorState", errorState);
 		callbackArgs.put("errorDescription", errorDescription);
-		callbackArgs.putCodeAndMessage(errorState,errorDescription);
+		callbackArgs.putCodeAndMessage(errorState, errorDescription);
 
 		return callbackArgs;
 	}
@@ -560,7 +560,7 @@ public class StreamModule extends KrollModule
 		callbackArgs.put("totalBytesProcessed", totalBytesProcessed);
 		callbackArgs.put("errorState", errorState);
 		callbackArgs.put("errorDescription", errorDescription);
-		callbackArgs.putCodeAndMessage(errorState,errorDescription);
+		callbackArgs.putCodeAndMessage(errorState, errorDescription);
 
 		return callbackArgs;
 	}

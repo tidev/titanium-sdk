@@ -253,12 +253,12 @@ public class TiLocation implements Handler.Callback
 								} else {
 									event = buildReverseGeocodeResponse(jsonObject);
 								}
-								event.putCodeAndMessage(0,null);
+								event.putCodeAndMessage(TiC.ERROR_CODE_NO_ERROR, null);
 
 							} else {
 								event = new KrollDict();
 								String errorCode = "Unable to resolve message: Code (" + jsonObject.getString(TiC.ERROR_PROPERTY_ERRORCODE) + ")";
-								event.putCodeAndMessage(-1,errorCode);
+								event.putCodeAndMessage(TiC.ERROR_CODE_UNKNOWN, errorCode);
 							}
 
 						} catch (JSONException e) {
@@ -273,7 +273,7 @@ public class TiLocation implements Handler.Callback
 				if (geocodeResponseHandler != null) {
 					if (event == null) {
 						event = new KrollDict();
-						event.putCodeAndMessage(-1,"Error obtaining geolocation");
+						event.putCodeAndMessage(TiC.ERROR_CODE_UNKNOWN, "Error obtaining geolocation");
 					}
 					geocodeResponseHandler.handleGeocodeResponse(event);
 				}

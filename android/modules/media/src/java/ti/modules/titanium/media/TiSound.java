@@ -423,7 +423,7 @@ public class TiSound
 		}
 
 		KrollDict data = new KrollDict();
-		data.putCodeAndMessage(-1,msg);
+		data.putCodeAndMessage(TiC.ERROR_CODE_UNKNOWN, msg);
 		proxy.fireEvent(EVENT_ERROR, data);
 
 		return true;
@@ -443,7 +443,7 @@ public class TiSound
 		release();
 
 		KrollDict data = new KrollDict();
-		data.putCodeAndMessage(code,msg);
+		data.putCodeAndMessage(code, msg);
 		data.put(TiC.PROPERTY_MESSAGE, msg);
 		proxy.fireEvent(EVENT_ERROR, data);
 
