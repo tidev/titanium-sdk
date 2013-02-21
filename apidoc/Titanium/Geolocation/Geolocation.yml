@@ -160,7 +160,7 @@ description: |
     #### Geocoding Services
 
     The module provides two methods, [forwardGeocoder](Titanium.Geolocation.forwardGeocoder) and [reverseGeocoder](Titanium.Geolocation.reverseGeocoder)
-    to convert between geographic coordinates and addresses. These method calls internally map to MapQuest Open Nominatim Search Service.
+    to convert between geographic coordinates and addresses. These methods map to MapQuest Open Nominatim Search Service.
 
     While this API has the advantage that it has no daily usage limits, please note that the data backing this API is crowd sourced and might not return 
     proper values for valid addresses and geographic coordinates.
