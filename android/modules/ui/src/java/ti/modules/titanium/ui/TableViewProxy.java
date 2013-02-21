@@ -656,9 +656,10 @@ public class TableViewProxy extends TiViewProxy
 		if (args != null && args.length > 0 && args[0] instanceof Object[]) {
 			data = (Object[]) args[0];
 		}
-        for (Object section : args) {
+        for (Object section : data) {
             if (! (section instanceof TableViewSectionProxy)) {
 			    Log.e(TAG, "Unable to set sections. Invalid type for section: " + section);
+                return;
             }
         }
 		if (TiApplication.isUIThread()) {
