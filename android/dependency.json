@@ -9,7 +9,6 @@
 		"calendar":["android"],
 		"contacts":[],
 		"database":[],
-		"facebook":[],
 		"filesystem":[],
 		"gesture":["ui"],
 		"geolocation":[],

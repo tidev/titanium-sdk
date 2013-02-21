@@ -1651,4 +1651,30 @@ if ([str isEqualToString:@#orientation]) return (UIDeviceOrientation)orientation
     return resultImage;
 }
 
++ (NSString*)messageFromError:(NSError *)error
+{
+	if (error == nil) {
+		return nil;
+	}
+	NSString * result = [error localizedDescription];
+	NSString * userInfoMessage = [[error userInfo] objectForKey:@"message"];
+	if (result == nil)
+	{
+		result = userInfoMessage;
+	}
+	else if(userInfoMessage != nil)
+	{
+		result = [result stringByAppendingFormat:@" %@",userInfoMessage];
+	}
+	return result;
+}
+
++ (NSMutableDictionary *)dictionaryWithCode:(int)code message:(NSString *)message
+{
+	return [NSMutableDictionary dictionaryWithObjectsAndKeys:
+			NUMBOOL(code==0), @"success",
+			NUMINT(code), @"code",
+			message,@"error", nil];
+}
+
 @end
