@@ -24,7 +24,6 @@ description: |
 extends: Titanium.UI.Window
 platforms: [ipad]
 since: "1.2"
-excludes: { methods:[removeAllChildren] }
 
 events:
   - name: visible
