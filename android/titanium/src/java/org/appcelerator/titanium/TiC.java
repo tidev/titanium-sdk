@@ -793,10 +793,16 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_CHECKED = "checked";
+
 	/**
 	 * @module.api
 	 */
 	public static final String PROPERTY_CHILD = "child";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_CHILD_TEMPLATES = "childTemplates";
 
 	/**
 	 * @module.api

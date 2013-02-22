@@ -10,15 +10,10 @@ import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
-import org.appcelerator.titanium.view.TiCompositeLayout;
 import org.appcelerator.titanium.view.TiUIView;
 
-import ti.modules.titanium.ui.ImageViewProxy;
-import ti.modules.titanium.ui.LabelProxy;
 import ti.modules.titanium.ui.UIModule;
 import ti.modules.titanium.ui.ViewProxy;
-import ti.modules.titanium.ui.widget.TiUIImageView;
-import ti.modules.titanium.ui.widget.TiUILabel;
 import ti.modules.titanium.ui.widget.listview.TiListView.TiBaseAdapter;
 import android.util.SparseArray;
 
@@ -82,8 +77,13 @@ public class SectionProxy extends ViewProxy{
 			if (template != null) {
 				templatesByIndex.put(index, template);
 			}
+			
 			//Once we bind template, remove property since we don't need it anymore
 			itemData.remove(TiC.PROPERTY_TEMPLATE);
+			
+			//Here we merge and update default properties with entry data
+			template.mergeAndUpdateDefaultProperties(itemData);
+			
 		} else {
 			//Create default template if needed, otherwise bind default template to index
 			if (defaultTemplate != null){
@@ -103,8 +103,7 @@ public class SectionProxy extends ViewProxy{
 			}
 			
 			//Here we merge and update default properties with entry data.
-			defaultTemplate.mergeAndUpdateDefaultProperties(TiTemplate.DEFAULT_IMAGE_BINDING, itemData);
-			defaultTemplate.mergeAndUpdateDefaultProperties(TiTemplate.DEFAULT_LABEL_BINDING, itemData);
+			defaultTemplate.mergeAndUpdateDefaultProperties(itemData);
 		}	
 		
 	}
@@ -117,7 +116,13 @@ public class SectionProxy extends ViewProxy{
 	 */
 	public TiBaseListViewItem generateCellContent(int index, KrollDict data, TiTemplate template) {
 		//Here we create a cell content and populate it with data
+		//Get cell proxy
+		TiViewProxy cellProxy = template.getViewProxy(template.getCellID());
+		//Create new cellView
+		TiListCell cell = new TiListCell(cellProxy);		
 		TiBaseListViewItem cellContent = new TiBaseListViewItem(getActivity());
+		cell.setNativeView(cellContent);
+		cellContent.setTag(cell);
 		if (data != null && template != null) {
 			populateViews(data, cellContent, template);
 		}
@@ -125,18 +130,11 @@ public class SectionProxy extends ViewProxy{
 	}
 	
 	public void populateViews(KrollDict data, TiBaseListViewItem cellContent, TiTemplate template) {
-		
-		//Create or get the cell
-		TiListCell cell = template.getListCell();
-		if (cell != null) {
-			//If cell exists, replace content
-			cell.setNativeView(cellContent);
-		} else {
-			//Otherwise we create new cell and set it in template.
-			cell = new TiListCell(cellContent);
-			template.setListCell(cell);
+		Object cell = cellContent.getTag();
+		if (cell instanceof TiUIView) {
+			((TiUIView) cell).processProperties(template.getDefaultProperties(template.getCellID()));
 		}
-
+		
 		for (String key : data.keySet()) {
 			KrollDict properties = new KrollDict((HashMap)data.get(key));
 			TiUIView view = cellContent.getViewFromBinding(key);
@@ -154,13 +152,7 @@ public class SectionProxy extends ViewProxy{
 	
 	public void createChildView(TiViewProxy proxy, String binding, KrollDict properties, TiBaseListViewItem viewGroup) {
 
-		Class<? extends TiViewProxy> proxyClass = proxy.getClass();
-		TiUIView childView = null;
-		if (proxyClass.equals(LabelProxy.class)) {
-			childView = new TiUILabel(proxy);
-		} else if (proxyClass.equals(ImageViewProxy.class)) {
-			childView = new TiUIImageView(proxy);
-		}
+		TiUIView childView = proxy.createView(proxy.getActivity());
 		
 		if (childView != null) {
 			childView.processProperties(properties);

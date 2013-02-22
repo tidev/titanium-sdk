@@ -8,7 +8,6 @@ import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.TiViewProxy;
-import org.appcelerator.titanium.view.TiCompositeLayout;
 import org.appcelerator.titanium.view.TiUIView;
 
 import android.app.Activity;
@@ -101,6 +100,9 @@ public class TiListView extends TiUIView {
 		//initializing listView and adapter
 		listView = new ListView(activity);
 		adapter = new TiBaseAdapter(activity);
+		
+		getLayoutParams().autoFillsHeight = true;
+		getLayoutParams().autoFillsWidth = true;
 
 		setNativeView(listView);
 	}

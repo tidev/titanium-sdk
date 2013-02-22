@@ -68,6 +68,7 @@ import android.widget.AdapterView;
 public abstract class TiUIView
 	implements KrollProxyListener, OnFocusChangeListener
 {
+
 	private static final boolean HONEYCOMB_OR_GREATER = (Build.VERSION.SDK_INT >= 11);
 	private static final int LAYER_TYPE_SOFTWARE = 1;
 	private static final String TAG = "TiUIView";
@@ -91,6 +92,8 @@ public abstract class TiUIView
 	protected LayoutParams layoutParams;
 	protected TiAnimationBuilder animBuilder;
 	protected TiBackgroundDrawable background;
+	
+	protected Object interceptor;
 
 	// Since Android doesn't have a property to check to indicate
 	// the current animated x/y scale (from a scale animation), we track it here
@@ -174,6 +177,14 @@ public abstract class TiUIView
 				}
 			}
 		}
+	}
+	
+	protected void setInterceptor(Object intercept) {
+		interceptor = intercept;
+	}
+	
+	protected Object getInterceptor() {
+		return interceptor;
 	}
 
 	/**

@@ -33,9 +33,9 @@ public class TiBaseListViewItem extends TiCompositeLayout{
 	public void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
 		//Mode will be MeasureSpec.AT_MOST since default is wrap content, so
 		//we change mode to MeasureSpec.EXACTLY to reflect fill behavior.
-		int w = MeasureSpec.getSize(widthMeasureSpec);
-		int newMode = MeasureSpec.makeMeasureSpec(w, MeasureSpec.EXACTLY);
-		super.onMeasure(newMode, heightMeasureSpec);
+		//int w = MeasureSpec.getSize(widthMeasureSpec);
+		//int newMode = MeasureSpec.makeMeasureSpec(w, MeasureSpec.EXACTLY);
+		super.onMeasure(widthMeasureSpec, heightMeasureSpec);
 
 	}
 }

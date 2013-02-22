@@ -9,34 +9,71 @@ exports.bootstrap = function(Titanium) {
 	var ListView = Titanium.UI.ListView;
 
 	function createListView(scopeVars, options) {
+		
 		var templates = options.templates;
-		if (templates !== undefined) {
+		if (templates !== void 0) {
 			for (var template in templates) {
-				processProperties(templates[template]);
+				//process template
+				processTemplate(templates[template]);
+				//process child templates
+				processChildTemplates(templates[template]);
 			}
 		}
 		var listView = new ListView(options);
 		return listView;
 	}
+	
+	function processTemplate(properties) {
+	   	var cellProxy = Titanium.UI.createListCell();
+		properties.type = cellProxy;
+    	var events = properties.events;
+    	addEventListeners(events, cellProxy);
+	}
 
-	function processProperties(properties) {
+    //Recursive function to process childTemplates and change the value of 'type'
+    //property to the corresponding proxy. I.e: type: "Titanium.UI.Label" -> type: LabelProxy object
+	function processChildTemplates(properties) {
 		if (!properties.hasOwnProperty('childTemplates')) return;
 		
 		var childProperties = properties.childTemplates;
 		for (var i = 0; i < childProperties.length; i++) {
 			var child = childProperties[i];
-			if (child.hasOwnProperty('type')) {
-				var childProxy = lookup(child.type)();
+			var proxyType = child.type;
+			if (proxyType !== void 0) {
+				var creationProperties = child.properties;
+				var creationFunction = lookup(proxyType);
+				var childProxy;
+				//create the proxy
+				if (creationProperties !== void 0) {
+					childProxy = creationFunction(creationProperties);
+				} else {
+					childProxy = creationFunction();
+				}
+				//add event listeners
+				var events = child.events;
+				addEventListeners(events, childProxy);
+				//change value of 'type' to proxy
 				child.type = childProxy;
 			}
-			if (child.hasOwnProperty('childTemplates')) {
-				processProperties(child);
-			}
+
+			processChildTemplates(child);
+			
 		}
 		
 		
 	}
 	
+	//add event listeners
+	function addEventListeners(events, proxy) {
+		if (events !== void 0) {
+			for (var eventName in events) {
+				proxy.addEventListener(eventName, events[eventName]);
+			}
+		}
+	}
+	
+	//convert name of UI elements into a constructor function.
+	//I.e: lookup("Titanium.UI.Label") returns Titanium.UI.createLabel function
 	function lookup(name) {
 		var lastDotIndex = name.lastIndexOf('.');
 		var proxy = eval(name.substring(0, lastDotIndex));
