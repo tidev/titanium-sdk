@@ -1,4 +1,5 @@
-define(["Ti/_/declare", "Ti/_/UI/KineticScrollView", "Ti/_/style", "Ti/_/lang", "Ti/UI"],
+/*global define*/
+define(['Ti/_/declare', 'Ti/_/UI/KineticScrollView', 'Ti/_/style', 'Ti/_/lang', 'Ti/UI'],
 	function(declare, KineticScrollView, style, lang, UI) {
 
 	var isDef = lang.isDef,
@@ -6,24 +7,22 @@ define(["Ti/_/declare", "Ti/_/UI/KineticScrollView", "Ti/_/style", "Ti/_/lang", 
 		// The amount of deceleration (in pixels/ms^2)
 		deceleration = 0.001;
 
-	return declare("Ti.UI.ScrollView", KineticScrollView, {
+	return declare('Ti.UI.ScrollView', KineticScrollView, {
 
-		constructor: function(args) {
-			var self = this,
-				contentContainer,
-				scrollbarTimeout;
+		constructor: function() {
+			var contentContainer;
 			this._initKineticScrollView(contentContainer = UI.createView({
 				width: UI.SIZE,
 				height: UI.SIZE,
-				_minWidth: "100%",
-				_minHeight: "100%",
+				_minWidth: '100%',
+				_minHeight: '100%',
 				left: 0,
 				top: 0
-			}), "both", "both", 1);
+			}), 'both', 'both', 1);
 		},
 
 		_handleMouseWheel: function() {
-			this._isScrollBarActive && this.fireEvent("scroll",{
+			this._isScrollBarActive && this.fireEvent('scroll',{
 				x: -this._currentTranslationX,
 				y: -this._currentTranslationY,
 				dragging: false,
@@ -32,11 +31,11 @@ define(["Ti/_/declare", "Ti/_/UI/KineticScrollView", "Ti/_/style", "Ti/_/lang", 
 		},
 
 		_handleDragStart: function() {
-			this.fireEvent("dragStart");
+			this.fireEvent('dragStart');
 		},
 
 		_handleDrag: function() {
-			this.fireEvent("scroll",{
+			this.fireEvent('scroll',{
 				x: -this._currentTranslationX,
 				y: -this._currentTranslationY,
 				dragging: true,
@@ -55,13 +54,13 @@ define(["Ti/_/declare", "Ti/_/UI/KineticScrollView", "Ti/_/style", "Ti/_/lang", 
 					distanceY = distance * Math.sin(theta) * (velocityY < 0 ? -1 : 1),
 					translationX = Math.min(0, Math.max(self._minTranslationX, self._currentTranslationX + distanceX)),
 					translationY = Math.min(0, Math.max(self._minTranslationY, self._currentTranslationY + distanceY));
-				self.fireEvent("dragEnd",{
+				self.fireEvent('dragEnd',{
 					decelerate: true
 				});
 				self._animateToPosition(translationX, translationY, duration, UI.ANIMATION_CURVE_EASE_OUT, function() {
 					self._setTranslation(translationX, translationY);
 					self._endScrollBars();
-					self.fireEvent("scrollEnd");
+					self.fireEvent('scrollEnd');
 				});
 			}
 		},
@@ -79,7 +78,7 @@ define(["Ti/_/declare", "Ti/_/UI/KineticScrollView", "Ti/_/style", "Ti/_/lang", 
 		},
 
 		_preLayout: function() {
-			var needsRecalculation = this._contentContainer.layout === this.layout
+			var needsRecalculation = this._contentContainer.layout === this.layout;
 			this._contentContainer.layout = this.layout;
 			return needsRecalculation;
 		},
@@ -96,7 +95,7 @@ define(["Ti/_/declare", "Ti/_/UI/KineticScrollView", "Ti/_/style", "Ti/_/lang", 
 
 		properties: {
 			contentHeight: {
-				get: function(value) {
+				get: function() {
 					return this._contentContainer.height;
 				},
 				set: function(value) {
@@ -106,7 +105,7 @@ define(["Ti/_/declare", "Ti/_/UI/KineticScrollView", "Ti/_/style", "Ti/_/lang", 
 			},
 
 			contentOffset: {
-				get: function(value) {
+				get: function() {
 					return {
 						x: -this._currentTranslationX,
 						y: -this._currentTranslationY
@@ -120,7 +119,7 @@ define(["Ti/_/declare", "Ti/_/UI/KineticScrollView", "Ti/_/style", "Ti/_/lang", 
 			},
 
 			contentWidth: {
-				get: function(value) {
+				get: function() {
 					return this._contentContainer.width;
 				},
 				set: function(value) {
@@ -128,14 +127,20 @@ define(["Ti/_/declare", "Ti/_/UI/KineticScrollView", "Ti/_/style", "Ti/_/lang", 
 					return value;
 				}
 			},
-			
+
 			disableBounce: false,
-			
+
 			horizontalBounce: {
 				set: function(value) {
 					return this._horizontalElastic = value;
 				},
 				value: true
+			},
+
+			layout: {
+				set: function(value) {
+					return this._contentContainer.layout = value;
+				}
 			},
 
 			showHorizontalScrollIndicator: {
@@ -165,7 +170,7 @@ define(["Ti/_/declare", "Ti/_/UI/KineticScrollView", "Ti/_/style", "Ti/_/lang", 
 				},
 				value: true
 			},
-			
+
 			verticalBounce: {
 				set: function(value) {
 					return this._verticalElastic = value;

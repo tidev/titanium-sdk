@@ -289,7 +289,7 @@ timodule.xml.
 	<macrodef name="check.ndk">
 		<sequential>
 			<property environment="env"/>
-			<fail message="Neither the ANDROID_NDK environment variable, or the android.ndk property is not set to an existing Android NDK installation (check your module's build.properties)">
+			<fail message="Neither the ANDROID_NDK environment variable, or the android.ndk property is not set to an existing Android NDK installation (check your module's build.properties). ">
 				<condition>
 					<not>
 						<or>

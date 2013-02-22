@@ -336,6 +336,14 @@ properties:
     summary: Indicates if the webview is loading content.
     type: Boolean
 
+  - name: overScrollMode
+    summary: |
+      One of <Titanium.UI.Android.OVER_SCROLL_ALWAYS>, <Titanium.UI.Android.OVER_SCROLL_IF_CONTENT_SCROLLS>, or <Titanium.UI.Android.OVER_SCROLL_NEVER>. 
+    type: Number
+    default: Titanium.UI.Android.OVER_SCROLL_ALWAYS
+    platforms: [android]
+    since: "3.1.0"
+
   - name: pluginState
     summary: Determines how to treat content that requires plugins in this web view.
     description: |

@@ -174,10 +174,13 @@ void JavaObject::attach(jobject javaObject)
 
 void JavaObject::detach()
 {
-	UPDATE_STATS(0, 1);
+	handle_.MakeWeak(this, DetachCallback);
 
-	// Keep JavaScript object around until finalization.
-	handle_.ClearWeak();
+	if (isDetached()) {
+		return;
+	}
+
+	UPDATE_STATS(0, 1);
 
 	weakGlobalRef();
 }

@@ -954,7 +954,22 @@ public abstract class TiUIView
 					LayoutParams params = new LayoutParams();
 					params.height = android.widget.FrameLayout.LayoutParams.MATCH_PARENT;
 					params.width = android.widget.FrameLayout.LayoutParams.MATCH_PARENT;
+					// If the view already has a parent, we need to detach it from the parent
+					// and add the borderView to the parent as the child
+					ViewGroup savedParent = null;
+					android.view.ViewGroup.LayoutParams savedLayoutParams = null;
+					if (nativeView.getParent() != null) {
+						ViewParent nativeParent = nativeView.getParent();
+						if (nativeParent instanceof ViewGroup) {
+							savedParent = (ViewGroup) nativeParent;
+							savedLayoutParams = savedParent.getLayoutParams();
+							savedParent.removeView(nativeView);
+						}
+					}
 					borderView.addView(nativeView, params);
+					if (savedParent != null) {
+						savedParent.addView(getOuterView(), savedLayoutParams);
+					}
 					borderView.setVisibility(this.visibility);
 				}
 
@@ -1429,14 +1444,14 @@ public abstract class TiUIView
 
 	private void disableHWAcceleration()
 	{
-		if (nativeView == null) {
+		if (borderView == null) {
 			return;
 		}
-		Log.d(TAG, "Disabling hardware acceleration for instance of " + nativeView.getClass().getSimpleName(),
+		Log.d(TAG, "Disabling hardware acceleration for instance of " + borderView.getClass().getSimpleName(),
 			Log.DEBUG_MODE);
 		if (mSetLayerTypeMethod == null) {
 			try {
-				Class<? extends View> c = nativeView.getClass();
+				Class<? extends View> c = borderView.getClass();
 				mSetLayerTypeMethod = c.getMethod("setLayerType", int.class, Paint.class);
 			} catch (SecurityException e) {
 				Log.e(TAG, "SecurityException trying to get View.setLayerType to disable hardware acceleration.", e,
@@ -1451,7 +1466,7 @@ public abstract class TiUIView
 			return;
 		}
 		try {
-			mSetLayerTypeMethod.invoke(nativeView, LAYER_TYPE_SOFTWARE, null);
+			mSetLayerTypeMethod.invoke(borderView, LAYER_TYPE_SOFTWARE, null);
 		} catch (IllegalArgumentException e) {
 			Log.e(TAG, e.getMessage(), e);
 		} catch (IllegalAccessException e) {

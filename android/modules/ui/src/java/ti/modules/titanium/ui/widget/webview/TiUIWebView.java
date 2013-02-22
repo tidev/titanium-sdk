@@ -7,16 +7,19 @@
 package ti.modules.titanium.ui.widget.webview;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.HashMap;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.common.Log;
+import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.io.TiBaseFile;
@@ -131,6 +134,12 @@ public class TiUIWebView extends TiUIView
 		settings.setLoadsImagesAutomatically(true);
 		settings.setLightTouchEnabled(true);
 		settings.setDomStorageEnabled(true); // Required by some sites such as Twitter. This is in our iOS WebView too.
+		File path = TiApplication.getInstance().getFilesDir();
+		if (path != null) {
+			settings.setDatabasePath(path.getAbsolutePath());
+			settings.setDatabaseEnabled(true);
+		}
+		
 
 		// enable zoom controls by default
 		boolean enableZoom = true;
@@ -220,7 +229,7 @@ public class TiUIWebView extends TiUIView
 		if (d.containsKey(TiC.PROPERTY_URL) && !DEFAULT_PAGE_FINISH_URL.equals(TiConvert.toString(d, TiC.PROPERTY_URL))) {
 			setUrl(TiConvert.toString(d, TiC.PROPERTY_URL));
 		} else if (d.containsKey(TiC.PROPERTY_HTML)) {
-			setHtml(TiConvert.toString(d, TiC.PROPERTY_HTML));
+			setHtml(TiConvert.toString(d, TiC.PROPERTY_HTML), (HashMap<String, Object>) (d.get(WebViewProxy.OPTIONS_IN_SETHTML)));
 		} else if (d.containsKey(TiC.PROPERTY_DATA)) {
 			Object value = d.get(TiC.PROPERTY_DATA);
 			if (value instanceof TiBlob) {
@@ -238,6 +247,12 @@ public class TiUIWebView extends TiUIView
 		if (d.containsKey(TiC.PROPERTY_PLUGIN_STATE)) {
 			setPluginState(TiConvert.toInt(d, TiC.PROPERTY_PLUGIN_STATE));
 		}
+		
+		if (d.containsKey(TiC.PROPERTY_OVER_SCROLL_MODE)) {
+			if (Build.VERSION.SDK_INT >= 9) {
+				nativeView.setOverScrollMode(TiConvert.toInt(d.get(TiC.PROPERTY_OVER_SCROLL_MODE), View.OVER_SCROLL_ALWAYS));
+			}
+		}
 	}
 
 	@Override
@@ -254,6 +269,10 @@ public class TiUIWebView extends TiUIView
 		} else if (TiC.PROPERTY_SCALES_PAGE_TO_FIT.equals(key)) {
 			WebSettings settings = getWebView().getSettings();
 			settings.setLoadWithOverviewMode(TiConvert.toBoolean(newValue));
+		} else if (TiC.PROPERTY_OVER_SCROLL_MODE.equals(key)){
+			if (Build.VERSION.SDK_INT >= 9) {
+				nativeView.setOverScrollMode(TiConvert.toInt(newValue, View.OVER_SCROLL_ALWAYS));
+			}
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}
@@ -380,17 +399,17 @@ public class TiUIWebView extends TiUIView
 
 	public void setHtml(String html)
 	{
-		setHtmlInternal(html, TiC.URL_ANDROID_ASSET_RESOURCES, "text/html");
+		setHtmlInternal(html, "data://", "text/html");
 	}
 
-	public void setHtml(String html, KrollDict d)
+	public void setHtml(String html, HashMap<String, Object> d)
 	{
 		if (d == null) {
 			setHtml(html);
 			return;
 		}
 		
-		String baseUrl = TiC.URL_ANDROID_ASSET_RESOURCES;
+		String baseUrl = "data://";
 		String mimeType = "text/html";
 		if (d.containsKey(TiC.PROPERTY_BASE_URL_WEBVIEW)) {
 			baseUrl = TiConvert.toString(d.get(TiC.PROPERTY_BASE_URL_WEBVIEW));

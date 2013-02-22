@@ -207,22 +207,24 @@ function TiInclude(filename, baseUrl, scopeVars) {
 		return require("rhino").include(filename, baseUrl, localSandbox);
 
 	} else {
-		var source = getUrlSource(filename, sourceUrl);
-		var wrappedSource = "with(sandbox) { " + source + "\n }";
-		var contextGlobal = ti.global;
-		var filePath = sourceUrl.href.replace("app://", "");
+		var source = getUrlSource(filename, sourceUrl),
+			wrappedSource = "with(sandbox) { " + source + "\n }",
+			filePath = sourceUrl.href.replace("app://", ""),
+			contextGlobal = ti.global;
 
 		if (contextGlobal) {
-			// We're running inside another window or module, so we run against it's context
+			// We're running inside another window, so we run against it's context
 			contextGlobal.sandbox = localSandbox;
 			return Script.runInContext(wrappedSource, contextGlobal, filePath, true);
 
 		} else {
-			// We're running in the main module (app.js), so we use the global V8 Context directly.
+			// We're running inside modules. Since we don't create a new context for modules 
+			// due to TIMOB-11752, we use the global V8 Context directly.
 			// Put sandbox on the global scope
 			sandbox = localSandbox;
 			return Script.runInThisContext(wrappedSource, filePath, true);
 		}
+
 	}
 }
 TiInclude.prototype = global;

@@ -538,4 +538,21 @@ typedef enum {
 +(NSString*)getResponseHeader:(NSString*)header fromHeaders:(NSDictionary*)responseHeaders;
 
 +(UIImage*)loadBackgroundImage:(id)image forProxy:(TiProxy*)proxy;
+
+/**
+ Convenience method to extract a useful error message from NSError, or nil if none exist.
+ @param error The NSError
+ @return error's localizedDescription and userDescription concatenated
+ */
++ (NSString*)messageFromError:(NSError *)error;
+
+/**
+ Convenience method to create a mutable dictionary prepopulated with success, code, and error values.
+ This is for use with callbacks that are not events. While it is possible to use this in events,
+ the built-in event error reporting functionality is faster.
+ @param code The integer representing an error. Use 0 for a success, and -1 for an unknown error.
+ @param message The optional string describing the error.
+ */
++ (NSMutableDictionary *)dictionaryWithCode:(int)code message:(NSString *)message;
+
 @end

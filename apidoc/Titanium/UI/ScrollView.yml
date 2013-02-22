@@ -170,9 +170,13 @@ events:
 
 properties:
   - name: canCancelEvents
-    summary: |
-        Determines whether this scroll view can cancel subview touches in order to scroll instead.
-    description: Set to `false` to ensure that subview touches always take effect.
+    summary: Determines whether this scroll view can cancel subview touches in order to scroll instead.
+    description: |
+        On iOS, this property maps to the native `canCancelContentTouches` property which controls 
+        whether touches in the content view always lead to tracking. See [UIScrollView](http://developer.apple.com/library/ios/#documentation/uikit/reference/UIScrollView_Class/Reference/UIScrollView.html) for more details.
+
+        On Android, setting this property to false prevents the scroll view from intercepting 
+        any touch events from its subviews. Note that this behavior may be slightly different from iOS.
     type: Boolean
     default: true
     platforms: [android, iphone, ipad]
@@ -245,6 +249,14 @@ properties:
     type: Number
     default: 1.0
     platforms: [iphone, ipad]
+
+  - name: overScrollMode
+    summary: |
+      One of <Titanium.UI.Android.OVER_SCROLL_ALWAYS>, <Titanium.UI.Android.OVER_SCROLL_IF_CONTENT_SCROLLS>, or <Titanium.UI.Android.OVER_SCROLL_NEVER>. 
+    type: Number
+    default: Titanium.UI.Android.OVER_SCROLL_ALWAYS
+    platforms: [android]
+    since: "3.1.0"
 
   - name: scrollsToTop
     summary: Controls whether the scroll-to-top gesture is effective.
