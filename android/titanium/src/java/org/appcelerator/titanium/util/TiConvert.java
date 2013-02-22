@@ -330,16 +330,13 @@ public class TiConvert
 	 */
 	public static boolean toBoolean(Object value, boolean def)
 	{
-		if (value instanceof Boolean) {
-			return (Boolean) value;
-
-		} else if (value instanceof String) {
-			return Boolean.parseBoolean(((String) value));
-
-		} else {
+		try {
+			return toBoolean(value);
+		} catch (IllegalArgumentException e) {
 			return def;
 		}
 	}
+
 	/**
 	 * Attempts to convert a value into a boolean, if value is a Boolean or String. Otherwise,
 	 * an exception is thrown.
