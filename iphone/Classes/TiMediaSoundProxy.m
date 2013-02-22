@@ -303,8 +303,8 @@
 - (void)audioPlayerDidFinishPlaying:(AVAudioPlayer *)player successfully:(BOOL)flag
 {
 	if ([self _hasListeners:@"complete"]) {
-		NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:NUMBOOL(flag),@"success",nil];
-		[self fireEvent:@"complete" withObject:event];
+		NSString * message = flag?nil:@"could not decode the audio data";
+		[self fireEvent:@"complete" withObject:nil errorCode:(flag?0:-1) message:message];
 	}
 	if (flag) {
 		[[TiMediaAudioSession sharedSession] stopAudioSession];
@@ -330,8 +330,9 @@
 - (void)audioPlayerDecodeErrorDidOccur:(AVAudioPlayer *)player error:(NSError *)error
 {
 	if ([self _hasListeners:@"error"]) {
-		NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:[error description],@"message",nil];
-		[self fireEvent:@"error" withObject:event];
+		NSString * message = [TiUtils messageFromError:error];
+		NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:message,@"message",nil];
+		[self fireEvent:@"error" withObject:event errorCode:[error code] message:message];
 	}
     [self forgetSelf];
 }

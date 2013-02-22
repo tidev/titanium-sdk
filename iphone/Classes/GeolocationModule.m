@@ -70,9 +70,9 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 {
 }
 
--(void)requestError:(NSString*)error
+-(void)requestError:(NSError*)error
 {
-	NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:NUMBOOL(NO),@"success",error,@"error",nil];
+	NSDictionary *event = [TiUtils dictionaryWithCode:[error code] message:[TiUtils messageFromError:error]];
 	[context fireEvent:callback withObject:event remove:NO thisObject:nil];
 }
 
@@ -87,7 +87,7 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 	}
 	else 
 	{
-		[self requestError:[[request error] description]];
+		[self requestError:[request error]];
 	}
 	
 	[self autorelease];
@@ -96,7 +96,7 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 -(void)requestFailed:(ASIHTTPRequest *)request
 {
 	[[TiApp app] stopNetwork];
-	[self requestError:[[request error] description]];
+	[self requestError:[request error]];
 	[self autorelease];
 }
 
@@ -113,7 +113,7 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 
 -(void)requestSuccess:(NSString*)locationString
 {
-	NSDictionary *event = nil;
+	NSMutableDictionary *event = nil;
 	
 	NSArray *listItems = [locationString componentsSeparatedByString:@","];
 	if([listItems count] == 4 && [[listItems objectAtIndex:0] isEqualToString:@"200"]) 
@@ -121,13 +121,16 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 		id accuracy = [listItems objectAtIndex:1];
 		id latitude = [listItems objectAtIndex:2];
 		id longitude = [listItems objectAtIndex:3];
-		event = [NSDictionary dictionaryWithObjectsAndKeys:NUMBOOL(YES),@"success",accuracy,@"accuracy",latitude,@"latitude",longitude,@"longitude",nil];
+		event = [TiUtils dictionaryWithCode:0 message:nil];
+		[event setObject:accuracy forKey:@"accuracy"];
+		[event setObject:latitude forKey:@"latitude"];
+		[event setObject:longitude forKey:@"longitude"];
 	}
 	else 
 	{
 		//TODO: better error handling
-		event = [NSDictionary dictionaryWithObjectsAndKeys:NUMBOOL(NO),@"success",@"error obtaining geolocation",@"error",nil];
-	}	
+		event = [TiUtils dictionaryWithCode:-1 message:@"error obtaining geolocation"];
+	}
 	
 	[context fireEvent:callback withObject:event remove:NO thisObject:nil];
 }
@@ -143,10 +146,13 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 	id event = [json fragmentWithString:locationString error:&error];
 	[json release];
 	if (error != nil) {
-		[self requestError:[error localizedDescription]];
+		[self requestError:error];
 	}
 	else {
-		[context fireEvent:callback withObject:event remove:NO thisObject:nil];
+		BOOL success = [TiUtils boolValue:@"success" properties:event def:YES];
+		NSMutableDictionary * revisedEvent = [TiUtils dictionaryWithCode:success?0:-1 message:success?nil:@"error reverse geocoding"];
+		[revisedEvent setValuesForKeysWithDictionary:event];
+		[context fireEvent:callback withObject:revisedEvent remove:NO thisObject:nil];
 	}
 }
 
@@ -522,11 +528,8 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
     // If the location updates are started, invoke the callback directly.
     if (locationManager != nil && locationManager.location != nil && trackingLocation == YES ) {
         CLLocation *currentLocation = locationManager.location;
-        NSDictionary *todict = [self locationDictionary:currentLocation];
-        NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:
-                               todict,@"coords",
-                               NUMBOOL(YES),@"success",
-                               nil];
+        NSMutableDictionary *event = [TiUtils dictionaryWithCode:0 message:nil];
+		[event setObject:[self locationDictionary:currentLocation] forKey:@"coords"];
         [self _fireEventToListener:@"location" withObject:event listener:callback thisObject:nil];
     }
     // Otherwise, start the location manager.
@@ -829,10 +832,9 @@ MAKE_SYSTEM_PROP(ERROR_REGION_MONITORING_DELAYED, kCLErrorRegionMonitoringSetupD
 -(void)locationManager:(CLLocationManager *)manager didUpdateLocations:(NSArray *)locations{
     NSDictionary *todict = [self locationDictionary:[locations lastObject]];
     
-    NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:
-						   todict,@"coords",
-						   NUMBOOL(YES),@"success",
-						   nil];
+	//Must use dictionary because of singleshot.
+	NSMutableDictionary *event = [TiUtils dictionaryWithCode:0 message:nil];
+	[event setObject:todict forKey:@"coords"];
     if ([self _hasListeners:@"location"])
 	{
 		[self fireEvent:@"location" withObject:event];
@@ -860,15 +862,12 @@ MAKE_SYSTEM_PROP(ERROR_REGION_MONITORING_DELAYED, kCLErrorRegionMonitoringSetupD
 
 - (void)locationManager:(CLLocationManager *)manager didFailWithError:(NSError *)error
 {
-	NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:[error localizedDescription],@"error",
-						   NUMINT([error code]), @"code",
-						   NUMBOOL(NO),@"success",nil];
-	
 	if ([self _hasListeners:@"location"])
 	{
-		[self fireEvent:@"location" withObject:event];
+		[self fireEvent:@"location" withObject:nil errorCode:[error code] message:[TiUtils messageFromError:error]];
 	}
 	
+	NSMutableDictionary * event = [TiUtils dictionaryWithCode:[error code] message:[TiUtils messageFromError:error]];
 	BOOL recheck = [self fireSingleShotLocationIfNeeded:event stopIfNeeded:NO];
 	recheck = recheck || [self fireSingleShotHeadingIfNeeded:event stopIfNeeded:NO];
 
@@ -881,8 +880,9 @@ MAKE_SYSTEM_PROP(ERROR_REGION_MONITORING_DELAYED, kCLErrorRegionMonitoringSetupD
 
 - (void)locationManager:(CLLocationManager *)manager didUpdateHeading:(CLHeading *)newHeading
 {
-	NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:[self headingDictionary:newHeading],
-						   @"heading", NUMBOOL(YES), @"success", nil];
+	//Unfortunately, because of the single shot overloaded here, we can't use the faster eventing.
+	NSMutableDictionary * event = [TiUtils dictionaryWithCode:0 message:nil];
+	[event setObject:[self headingDictionary:newHeading] forKey:@"heading"];
 	
 	[self fireEvent:@"heading" withObject:event];
 	
