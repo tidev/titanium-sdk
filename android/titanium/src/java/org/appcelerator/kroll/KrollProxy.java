@@ -14,6 +14,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.AsyncResult;
 import org.appcelerator.kroll.common.Log;
@@ -31,6 +32,8 @@ import android.app.Activity;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Pair;
+
+import org.json.JSONObject;
 
 /**
  * This is the parent class of all proxies. A proxy is a dynamic object that can be created or 
@@ -674,24 +677,82 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public boolean doFireEvent(String event, Object data)
 	{
-		if (data == null) {
-			data = new KrollDict();
-		}
+		boolean bubbles = false;
+		boolean reportSuccess = false;
+		int code = 0;
+		KrollObject source = null;
+		String message = null;
 
-		if (data instanceof HashMap) {
+		KrollDict krollData = null;
+
+		/* TODO: Is eventListeners still used? */
+		if (!eventListeners.isEmpty()) {
 			HashMap<String, Object> dict = (HashMap) data;
-
-			Object source = dict.get(TiC.EVENT_PROPERTY_SOURCE);
-			if (source == null) {
+			if (dict == null) {
+				dict = new KrollDict();
 				dict.put(TiC.EVENT_PROPERTY_SOURCE, this);
 			}
+			else if (dict instanceof HashMap)
+			{
+				Object sourceProxy = dict.get(TiC.EVENT_PROPERTY_SOURCE);
+				if (sourceProxy == null) {
+					dict.put(TiC.EVENT_PROPERTY_SOURCE, this);
+				}
+			}
+			onEventFired(event, dict);
 		}
 
-		if (!eventListeners.isEmpty()) {
-			onEventFired(event, data);
+		if (data != null) {
+			if (data instanceof KrollDict) {
+				krollData = (KrollDict) data;
+			} else if (data instanceof HashMap) {
+				try {
+					krollData = new KrollDict((HashMap)data);
+				} catch(Exception e) {
+				}
+			} else if (data instanceof JSONObject) {
+				try {
+					krollData = new KrollDict((JSONObject)data);
+				} catch(Exception e) {
+				}
+			}
 		}
-
-		return getKrollObject().fireEvent(event, data);
+		
+		if (krollData != null) {
+			Object hashValue = krollData.get("bubbles");
+			if (hashValue != null) {
+				bubbles = TiConvert.toBoolean(hashValue);
+				krollData.remove("bubbles");
+			}
+			hashValue = krollData.get("success");
+			if (hashValue != null) {
+				reportSuccess = true;
+				krollData.remove("success");
+			}
+			hashValue = krollData.get("code");
+			if (hashValue != null) {
+				reportSuccess = true;
+				code = TiConvert.toInt(hashValue);
+				krollData.remove("code");
+			}
+			hashValue = krollData.get("error");
+			if (hashValue != null) {
+				message = hashValue.toString();
+				krollData.remove("error");
+			}
+			hashValue = krollData.get("source");
+			if (hashValue instanceof KrollProxy) {
+				if (hashValue != this) {
+					source = ((KrollProxy)hashValue).getKrollObject();
+				}
+				krollData.remove("source");
+			}
+			if (krollData.size() == 0){
+				krollData = null;
+			}
+		}
+		
+		return getKrollObject().fireEvent(source, event, data, bubbles, reportSuccess, code, message);
 	}
 
 	public void firePropertyChanged(String name, Object oldValue, Object newValue)

@@ -70,8 +70,13 @@ public class RhinoObject extends KrollObject
 		}
 	}
 
+	/**
+	 * NOTE: Rhino is to be removed next sprint, so the behavior loss of bubbling and
+	 * error reporting is allowed. The change here is only to not negatively impact
+	 * builds before Rhino is removed.
+	 */
 	@Override
-	protected boolean fireEvent(String type, Object data)
+	public boolean fireEvent(KrollObject source, String type, Object data, boolean bubbles, boolean reportSuccess, int code, String message)
 	{
 		Context context = ((RhinoRuntime) KrollRuntime.getInstance()).enterContext();
 

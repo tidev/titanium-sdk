@@ -137,7 +137,7 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 		public void downloadFailed(URI uri)
 		{
 			// If the download failed, fire an error event
-			fireError("Download Failed",uri.toString());
+			fireError("Download Failed", uri.toString());
 		}
 	};
 	
@@ -478,7 +478,7 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 	private void setImages()
 	{
 		if (imageSources == null || imageSources.size() == 0) {
-			fireError("Missing Images",null);
+			fireError("Missing Images", null);
 			return;
 		}
 
@@ -548,7 +548,7 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 		KrollDict data = new KrollDict();
 		data.putCodeAndMessage(TiC.ERROR_CODE_UNKNOWN, message);
 		if (imageUrl != null) {
-			data.put("image",imageUrl);
+			data.put(TiC.PROPERTY_IMAGE, imageUrl);
 		}
 		proxy.fireEvent(TiC.EVENT_ERROR, data);
 	}
@@ -933,7 +933,7 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 			}
 			// Fire an error event when we've reached max retries
 			String message = "Max retries reached, giving up decoding image source: " + url;
-			fireError(message,url);
+			fireError(message, url);
 			Log.e(TAG, message);
 		}
 	}

@@ -88,7 +88,7 @@ public class KrollDict
 		super(size);
 	}
 
-	public void putCodeAndMessage(int code, String message){
+	public void putCodeAndMessage(int code, String message) {
 		this.put(TiC.PROPERTY_SUCCESS,new Boolean(code==0));
 		this.put(TiC.PROPERTY_CODE,new Integer(code));
 		if (message != null){

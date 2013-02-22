@@ -58,10 +58,10 @@ exports.bootstrap = function(Titanium) {
 				var payload;
 				if(!result.error) {
 					payload = { source: self, data: result.query.results,
-						success:true, code:0};
+						success: true, code: 0 };
 				} else {
 					payload = { source: self,
-						success:false, code:-1, error:result.error.description};				
+						success: false, code: -1, error: result.error.description };				
 				}
 				callback(payload);
 			}

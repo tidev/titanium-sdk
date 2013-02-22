@@ -62,7 +62,7 @@ Java_org_appcelerator_kroll_runtime_v8_V8Object_nativeSetProperty
 
 JNIEXPORT jboolean JNICALL
 Java_org_appcelerator_kroll_runtime_v8_V8Object_nativeFireEvent
-	(JNIEnv *env, jobject jEmitter, jlong ptr, jobject jsource, jstring event, jobject data, jboolean bubble, jboolean reportSuccess, jint code, jstring errorMessage)
+	(JNIEnv *env, jobject jEmitter, jlong ptr, jobject jsource, jlong sourcePtr, jstring event, jobject data, jboolean bubble, jboolean reportSuccess, jint code, jstring errorMessage)
 {
 	ENTER_V8(V8Runtime::globalContext);
 	JNIScope jniScope(env);
@@ -89,6 +89,8 @@ Java_org_appcelerator_kroll_runtime_v8_V8Object_nativeFireEvent
 	Handle<Object> source;
 	if ((jsource == NULL) || (jsource == jEmitter)) {
 		source = emitter;
+	} else if (sourcePtr != 0) {
+		source = Persistent<Object>((Object *) sourcePtr);
 	} else {
 		source = TypeConverter::javaObjectToJsValue(jsource)->ToObject();
 	}
@@ -101,7 +103,7 @@ Java_org_appcelerator_kroll_runtime_v8_V8Object_nativeFireEvent
 
 	jsData->Set(String::NewSymbol("source"), source);
 
-	if(reportSuccess || code!=0){
+	if(reportSuccess || code != 0) {
 		jsData->Set(String::NewSymbol("success"), TypeConverter::javaBooleanToJsBoolean(code == 0));
 		jsData->Set(String::NewSymbol("code"), TypeConverter::javaIntToJsNumber(code));
 		jsData->Set(String::NewSymbol("error"), TypeConverter::javaStringToJsString(errorMessage));
