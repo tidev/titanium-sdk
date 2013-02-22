@@ -23,7 +23,7 @@
     return self;
 }
 
-- (void)setProxy:(TiViewProxy*)customView;
+- (void)setProxy:(TiViewProxy*)customView
 {
     if (theProxy != customView) {
         [[theProxy view] removeFromSuperview];
