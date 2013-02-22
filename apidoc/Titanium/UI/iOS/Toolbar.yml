@@ -24,8 +24,8 @@ description: |
     undesirable.
 
     Due to an iOS limitation, the buttons in the toolbar only support the `click` event.
-    The buttons do not inherit from the UIButton class but from the UIBarButtonItem class,
-    which is not a native iOS view element, that is, it does not inherit from the UIView class.
+    The native object underlying a toolbar button does not generate standard view events,
+    such as`touchstart` and `touchend`.
 
     See also:
 
