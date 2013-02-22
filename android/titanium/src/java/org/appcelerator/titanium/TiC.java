@@ -1606,6 +1606,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_PREFERRED_PROVIDER = "preferredProvider";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_PROPERTIES = "properties";
 
 	/**
 	 * @module.api
@@ -1738,6 +1743,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_SECTION = "section";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_SECTIONS = "sections";
 
 	/**
 	 * @module.api
@@ -1913,6 +1923,16 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_TAG = "tag";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_TEMPLATE = "template";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_TEMPLATES = "templates";
 
 	/**
 	 * @module.api
