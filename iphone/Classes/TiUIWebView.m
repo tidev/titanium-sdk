@@ -727,7 +727,8 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 
 	if ([self.proxy _hasListeners:@"error"])
 	{
-		NSMutableDictionary *event = [NSMutableDictionary dictionaryWithObject:[error description] forKey:@"message"];
+		NSString * message = [TiUtils messageFromError:error];
+		NSMutableDictionary *event = [NSMutableDictionary dictionaryWithObject:message forKey:@"message"];
 
 		// We combine some error codes into a single one which we share with Android.
 		NSInteger rawErrorCode = [error code];
@@ -748,7 +749,7 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 
 		[event setObject:[NSNumber numberWithInteger:returnErrorCode] forKey:@"errorCode"];
 		[event setObject:offendingUrl forKey:@"url"];
-		[self.proxy fireEvent:@"error" withObject:event];
+		[self.proxy fireEvent:@"error" withObject:event errorCode:returnErrorCode message:message];
 	}
 }
 

@@ -137,7 +137,7 @@ NSObject * TiBindingTiValueToNSObject(TiContextRef jsContext, TiValueRef objRef)
 
 //
 // function for converting a TiValue to an NSObject* (as ID)
-//
+// Note that if obj is nil, this returns an empty object. This is intentional.
 TiObjectRef TiBindingTiValueFromNSDictionary(TiContextRef jsContext,NSDictionary *obj)
 {
 	TiObjectRef objRef = TiObjectMake(jsContext, NULL, NULL);

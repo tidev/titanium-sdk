@@ -344,11 +344,15 @@ extern NSString * const TI_APPLICATION_DEPLOYTYPE;
 		int responseCode = [request responseStatusCode];
 		if (hasOnerror && (responseCode >= 400) && (responseCode <= 599))
 		{
-			[self fireCallback:@"onerror" withArg:[NSDictionary dictionaryWithObject:@"error" forKey:@"type"] withSource:thisPointer];
+			NSMutableDictionary * event = [TiUtils dictionaryWithCode:responseCode message:@"HTTP error"];
+			[event setObject:@"error" forKey:@"type"];
+			[self fireCallback:@"onerror" withArg:event withSource:thisPointer];
 		}
 		else if(hasOnload)
 		{
-			[self fireCallback:@"onload" withArg:[NSDictionary dictionaryWithObject:@"load" forKey:@"type"] withSource:thisPointer];
+			NSMutableDictionary * event = [TiUtils dictionaryWithCode:0 message:nil];
+			[event setObject:@"load" forKey:@"type"];
+			[self fireCallback:@"onload" withArg:event withSource:thisPointer];
 		}		
 	}
 }
@@ -675,7 +679,8 @@ extern NSString * const TI_APPLICATION_DEPLOYTYPE;
 	if (hasOnerror)
 	{
 		TiNetworkHTTPClientResultProxy *thisPointer = [[[TiNetworkHTTPClientResultProxy alloc] initWithDelegate:self] autorelease];
-		NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:[error description],@"error",@"error",@"type",nil];
+		NSMutableDictionary * event = [TiUtils dictionaryWithCode:[error code] message:[TiUtils messageFromError:error]];
+		[event setObject:@"error" forKey:@"type"];
 		[self fireCallback:@"onerror" withArg:event withSource:thisPointer];
 	}
 	[self forgetSelf];
