@@ -14,6 +14,7 @@
 #define USE_TI_ACCELEROMETER
 #define USE_TI_API
 #define USE_TI_APP
+#define USE_TI_CALENDAR
 #define USE_TI_CONTACTS
 #define USE_TI_DATABASE
 #define USE_TI_FILESYSTEM

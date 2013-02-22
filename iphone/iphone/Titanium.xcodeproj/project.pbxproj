@@ -562,6 +562,27 @@
 		B4F97B73111A41C800E2F72C /* TiUIScrollView.m in Sources */ = {isa = PBXBuildFile; fileRef = B4F97B72111A41C800E2F72C /* TiUIScrollView.m */; };
 		D4AB36F5123DE20200DED4A0 /* TiUIClipboardProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = D4AB36F4123DE20200DED4A0 /* TiUIClipboardProxy.m */; };
 		D4AB36F6123DE20200DED4A0 /* TiUIClipboardProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = D4AB36F4123DE20200DED4A0 /* TiUIClipboardProxy.m */; };
+		D93DAA5016CBF8CB00AD64C9 /* CalendarModule.m in Sources */ = {isa = PBXBuildFile; fileRef = D93DAA4F16CBF8CB00AD64C9 /* CalendarModule.m */; };
+		D93DAA5116CBF8CB00AD64C9 /* CalendarModule.m in Sources */ = {isa = PBXBuildFile; fileRef = D93DAA4F16CBF8CB00AD64C9 /* CalendarModule.m */; };
+		D93DAA5216CBF8CB00AD64C9 /* CalendarModule.m in Sources */ = {isa = PBXBuildFile; fileRef = D93DAA4F16CBF8CB00AD64C9 /* CalendarModule.m */; };
+		D93DAA5516CBF8E500AD64C9 /* TiCalendarCalendar.m in Sources */ = {isa = PBXBuildFile; fileRef = D93DAA5416CBF8E500AD64C9 /* TiCalendarCalendar.m */; };
+		D93DAA5616CBF8E500AD64C9 /* TiCalendarCalendar.m in Sources */ = {isa = PBXBuildFile; fileRef = D93DAA5416CBF8E500AD64C9 /* TiCalendarCalendar.m */; };
+		D93DAA5716CBF8E500AD64C9 /* TiCalendarCalendar.m in Sources */ = {isa = PBXBuildFile; fileRef = D93DAA5416CBF8E500AD64C9 /* TiCalendarCalendar.m */; };
+		D93DAA5A16CBF8FB00AD64C9 /* TiCalendarAlert.m in Sources */ = {isa = PBXBuildFile; fileRef = D93DAA5916CBF8FB00AD64C9 /* TiCalendarAlert.m */; };
+		D93DAA5B16CBF8FB00AD64C9 /* TiCalendarAlert.m in Sources */ = {isa = PBXBuildFile; fileRef = D93DAA5916CBF8FB00AD64C9 /* TiCalendarAlert.m */; };
+		D93DAA5C16CBF8FB00AD64C9 /* TiCalendarAlert.m in Sources */ = {isa = PBXBuildFile; fileRef = D93DAA5916CBF8FB00AD64C9 /* TiCalendarAlert.m */; };
+		D93DAA5F16CBF91100AD64C9 /* TiCalendarEvent.m in Sources */ = {isa = PBXBuildFile; fileRef = D93DAA5E16CBF91100AD64C9 /* TiCalendarEvent.m */; };
+		D93DAA6016CBF91100AD64C9 /* TiCalendarEvent.m in Sources */ = {isa = PBXBuildFile; fileRef = D93DAA5E16CBF91100AD64C9 /* TiCalendarEvent.m */; };
+		D93DAA6116CBF91100AD64C9 /* TiCalendarEvent.m in Sources */ = {isa = PBXBuildFile; fileRef = D93DAA5E16CBF91100AD64C9 /* TiCalendarEvent.m */; };
+		D93DAA6416CBFC7C00AD64C9 /* TiCalendarReminder.m in Sources */ = {isa = PBXBuildFile; fileRef = D93DAA6316CBFC7C00AD64C9 /* TiCalendarReminder.m */; };
+		D93DAA6516CBFC7C00AD64C9 /* TiCalendarReminder.m in Sources */ = {isa = PBXBuildFile; fileRef = D93DAA6316CBFC7C00AD64C9 /* TiCalendarReminder.m */; };
+		D93DAA6616CBFC7C00AD64C9 /* TiCalendarReminder.m in Sources */ = {isa = PBXBuildFile; fileRef = D93DAA6316CBFC7C00AD64C9 /* TiCalendarReminder.m */; };
+		D93DAA6916CBFD5600AD64C9 /* EventKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D93DAA6716CBFD5600AD64C9 /* EventKit.framework */; };
+		D93DAA6A16CBFD5600AD64C9 /* EventKitUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D93DAA6816CBFD5600AD64C9 /* EventKitUI.framework */; };
+		D93DAA6B16CBFD6400AD64C9 /* EventKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D93DAA6716CBFD5600AD64C9 /* EventKit.framework */; };
+		D93DAA6C16CBFD6400AD64C9 /* EventKitUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D93DAA6816CBFD5600AD64C9 /* EventKitUI.framework */; };
+		D93DAA6D16CBFD7100AD64C9 /* EventKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D93DAA6716CBFD5600AD64C9 /* EventKit.framework */; };
+		D93DAA6E16CBFD7100AD64C9 /* EventKitUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D93DAA6816CBFD5600AD64C9 /* EventKitUI.framework */; };
 		DA2556441353D2FC005D459C /* TiNetworkSocketProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = DA2556431353D2FC005D459C /* TiNetworkSocketProxy.m */; };
 		DA2556451353D2FC005D459C /* TiNetworkSocketProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = DA2556431353D2FC005D459C /* TiNetworkSocketProxy.m */; };
 		DA2556461353D2FC005D459C /* TiNetworkSocketProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = DA2556431353D2FC005D459C /* TiNetworkSocketProxy.m */; };
@@ -1417,6 +1438,18 @@
 		B4F97C57111BAD4700E2F72C /* TiUIiPhoneScrollIndicatorStyleProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUIiPhoneScrollIndicatorStyleProxy.m; sourceTree = "<group>"; };
 		D4AB36F3123DE20200DED4A0 /* TiUIClipboardProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUIClipboardProxy.h; sourceTree = "<group>"; };
 		D4AB36F4123DE20200DED4A0 /* TiUIClipboardProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUIClipboardProxy.m; sourceTree = "<group>"; };
+		D93DAA4E16CBF8CB00AD64C9 /* CalendarModule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CalendarModule.h; sourceTree = "<group>"; };
+		D93DAA4F16CBF8CB00AD64C9 /* CalendarModule.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CalendarModule.m; sourceTree = "<group>"; };
+		D93DAA5316CBF8E500AD64C9 /* TiCalendarCalendar.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiCalendarCalendar.h; sourceTree = "<group>"; };
+		D93DAA5416CBF8E500AD64C9 /* TiCalendarCalendar.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiCalendarCalendar.m; sourceTree = "<group>"; };
+		D93DAA5816CBF8FB00AD64C9 /* TiCalendarAlert.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiCalendarAlert.h; sourceTree = "<group>"; };
+		D93DAA5916CBF8FB00AD64C9 /* TiCalendarAlert.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiCalendarAlert.m; sourceTree = "<group>"; };
+		D93DAA5D16CBF91100AD64C9 /* TiCalendarEvent.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiCalendarEvent.h; sourceTree = "<group>"; };
+		D93DAA5E16CBF91100AD64C9 /* TiCalendarEvent.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiCalendarEvent.m; sourceTree = "<group>"; };
+		D93DAA6216CBFC7C00AD64C9 /* TiCalendarReminder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiCalendarReminder.h; sourceTree = "<group>"; };
+		D93DAA6316CBFC7C00AD64C9 /* TiCalendarReminder.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiCalendarReminder.m; sourceTree = "<group>"; };
+		D93DAA6716CBFD5600AD64C9 /* EventKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = EventKit.framework; path = System/Library/Frameworks/EventKit.framework; sourceTree = SDKROOT; };
+		D93DAA6816CBFD5600AD64C9 /* EventKitUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = EventKitUI.framework; path = System/Library/Frameworks/EventKitUI.framework; sourceTree = SDKROOT; };
 		DA2556421353D2FC005D459C /* TiNetworkSocketProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiNetworkSocketProxy.h; sourceTree = "<group>"; };
 		DA2556431353D2FC005D459C /* TiNetworkSocketProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiNetworkSocketProxy.m; sourceTree = "<group>"; };
 		DA285CA411BDBE0A00D20833 /* TiRootController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiRootController.h; sourceTree = "<group>"; };
@@ -1466,6 +1499,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D93DAA6D16CBFD7100AD64C9 /* EventKit.framework in Frameworks */,
+				D93DAA6E16CBFD7100AD64C9 /* EventKitUI.framework in Frameworks */,
 				84BBA58816570F90006B8C22 /* Security.framework in Frameworks */,
 				DADE76D413D65C590079FC75 /* libicucore.dylib in Frameworks */,
 				1D60589F0D05DD5A006BFB54 /* Foundation.framework in Frameworks */,
@@ -1499,6 +1534,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D93DAA6B16CBFD6400AD64C9 /* EventKit.framework in Frameworks */,
+				D93DAA6C16CBFD6400AD64C9 /* EventKitUI.framework in Frameworks */,
 				84BBA58A16570FA0006B8C22 /* Security.framework in Frameworks */,
 				24D8E498119B9D8A00F8CAA6 /* Foundation.framework in Frameworks */,
 				24D8E499119B9D8A00F8CAA6 /* UIKit.framework in Frameworks */,
@@ -1531,6 +1568,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D93DAA6916CBFD5600AD64C9 /* EventKit.framework in Frameworks */,
+				D93DAA6A16CBFD5600AD64C9 /* EventKitUI.framework in Frameworks */,
 				84BBA58B16570FAF006B8C22 /* Security.framework in Frameworks */,
 				DABB37A212E8CB280026A6EA /* Foundation.framework in Frameworks */,
 				DABB37A312E8CB280026A6EA /* UIKit.framework in Frameworks */,
@@ -1819,6 +1858,7 @@
 		24CA8A09111161D60084E2DE /* Modules */ = {
 			isa = PBXGroup;
 			children = (
+				D93DAA4C16CBF8A000AD64C9 /* Calendar */,
 				24F6204D1199F1F400EEAD3C /* TopTiModule.h */,
 				24F6204E1199F1F400EEAD3C /* TopTiModule.m */,
 				DABF3ED3134D2A6400836137 /* Stream */,
@@ -2682,6 +2722,8 @@
 		29B97323FDCFA39411CA2CEA /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				D93DAA6716CBFD5600AD64C9 /* EventKit.framework */,
+				D93DAA6816CBFD5600AD64C9 /* EventKitUI.framework */,
 				DAA4B2AD134E3DBD00AB6011 /* libti_ios_debugger.a */,
 				24D5C75811E6364F00F097E2 /* libtiverify.a */,
 				242E8E3011BA39FD0046A0D0 /* libTiCore.a */,
@@ -2798,6 +2840,23 @@
 				B4F97B72111A41C800E2F72C /* TiUIScrollView.m */,
 			);
 			name = "Scroll View";
+			sourceTree = "<group>";
+		};
+		D93DAA4C16CBF8A000AD64C9 /* Calendar */ = {
+			isa = PBXGroup;
+			children = (
+				D93DAA4E16CBF8CB00AD64C9 /* CalendarModule.h */,
+				D93DAA4F16CBF8CB00AD64C9 /* CalendarModule.m */,
+				D93DAA5316CBF8E500AD64C9 /* TiCalendarCalendar.h */,
+				D93DAA5416CBF8E500AD64C9 /* TiCalendarCalendar.m */,
+				D93DAA5816CBF8FB00AD64C9 /* TiCalendarAlert.h */,
+				D93DAA5916CBF8FB00AD64C9 /* TiCalendarAlert.m */,
+				D93DAA5D16CBF91100AD64C9 /* TiCalendarEvent.h */,
+				D93DAA5E16CBF91100AD64C9 /* TiCalendarEvent.m */,
+				D93DAA6216CBFC7C00AD64C9 /* TiCalendarReminder.h */,
+				D93DAA6316CBFC7C00AD64C9 /* TiCalendarReminder.m */,
+			);
+			name = Calendar;
 			sourceTree = "<group>";
 		};
 		DA2556411353D24C005D459C /* Sockets */ = {
@@ -3294,6 +3353,11 @@
 				1D0061C1160283820016BBEE /* TiBindingRunLoop.m in Sources */,
 				1DD9388C1609230900091777 /* TiBindingTiValue.m in Sources */,
 				5081CEF815F8100E00C881D8 /* TiExceptionHandler.m in Sources */,
+				D93DAA5016CBF8CB00AD64C9 /* CalendarModule.m in Sources */,
+				D93DAA5516CBF8E500AD64C9 /* TiCalendarCalendar.m in Sources */,
+				D93DAA5A16CBF8FB00AD64C9 /* TiCalendarAlert.m in Sources */,
+				D93DAA5F16CBF91100AD64C9 /* TiCalendarEvent.m in Sources */,
+				D93DAA6416CBFC7C00AD64C9 /* TiCalendarReminder.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3563,6 +3627,11 @@
 				1D0061C2160283820016BBEE /* TiBindingRunLoop.m in Sources */,
 				1DD9388D1609230900091777 /* TiBindingTiValue.m in Sources */,
 				5081CEF915F8100E00C881D8 /* TiExceptionHandler.m in Sources */,
+				D93DAA5116CBF8CB00AD64C9 /* CalendarModule.m in Sources */,
+				D93DAA5616CBF8E500AD64C9 /* TiCalendarCalendar.m in Sources */,
+				D93DAA5B16CBF8FB00AD64C9 /* TiCalendarAlert.m in Sources */,
+				D93DAA6016CBF91100AD64C9 /* TiCalendarEvent.m in Sources */,
+				D93DAA6516CBFC7C00AD64C9 /* TiCalendarReminder.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3832,6 +3901,11 @@
 				1D0061C3160283820016BBEE /* TiBindingRunLoop.m in Sources */,
 				1DD9388E1609230900091777 /* TiBindingTiValue.m in Sources */,
 				5081CEFA15F8100E00C881D8 /* TiExceptionHandler.m in Sources */,
+				D93DAA5216CBF8CB00AD64C9 /* CalendarModule.m in Sources */,
+				D93DAA5716CBF8E500AD64C9 /* TiCalendarCalendar.m in Sources */,
+				D93DAA5C16CBF8FB00AD64C9 /* TiCalendarAlert.m in Sources */,
+				D93DAA6116CBF91100AD64C9 /* TiCalendarEvent.m in Sources */,
+				D93DAA6616CBFC7C00AD64C9 /* TiCalendarReminder.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3986,12 +4060,8 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 241EAEC5118E2BA90081A5BE /* project.xcconfig */;
 			buildSettings = {
-				ARCHS = (
-					armv7,
-				);
-				"ARCHS[sdk=iphoneos*]" = (
-					armv7,
-				);
+				ARCHS = armv7;
+				"ARCHS[sdk=iphoneos*]" = armv7;
 				"ARCHS[sdk=iphonesimulator*]" = i386;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
@@ -4030,12 +4100,8 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 241EAEC5118E2BA90081A5BE /* project.xcconfig */;
 			buildSettings = {
-				ARCHS = (
-					armv7,
-				);
-				"ARCHS[sdk=iphoneos*]" = (
-					armv7,
-				);
+				ARCHS = armv7;
+				"ARCHS[sdk=iphoneos*]" = armv7;
 				"ARCHS[sdk=iphonesimulator*]" = i386;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
@@ -4071,12 +4137,8 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 241EAEC5118E2BA90081A5BE /* project.xcconfig */;
 			buildSettings = {
-				ARCHS = (
-					armv7,
-				);
-				"ARCHS[sdk=iphoneos*]" = (
-					armv7,
-				);
+				ARCHS = armv7;
+				"ARCHS[sdk=iphoneos*]" = armv7;
 				"ARCHS[sdk=iphonesimulator*]" = i386;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
