@@ -192,7 +192,10 @@ events:
   - name: paused
     summary: Fired when the application transitions to the background on a multitasked system.
     description: |
-        Available on iOS 5.0 and later.
+        On iOS 4.0 and later, this event only fires when putting the application in the background
+        using the home button.
+
+        On iOS 5.0 and later, this event also fires when using the sleep/wake or power button.
         
         This event fires when the user leaves the application.
         
@@ -219,7 +222,10 @@ events:
   - name: resume
     summary: Fired when the application returns to the foreground on a multitasked system.
     description: |
-        Available on iOS 4.0 and later.
+        On iOS 4.0 and later, this event only fires when putting the application in the background
+        using the home button.
+
+        On iOS 5.0 and later, this event also fires when using the sleep/wake or power button.
         
         Note that this event does not fire for pauses resulting from notifications or incoming phone 
         calls.
