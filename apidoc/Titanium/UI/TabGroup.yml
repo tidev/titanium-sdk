@@ -53,7 +53,7 @@ events:
         By default this event would trigger the current activity to be finished
         and removed from the task stack. Subscribing to this event with a listener
         will prevent the default behavior. To finish the activity from your listener
-        just call the *close* method of the tab group.
+        just call the `close` method of the tab group.
     since: '3.0.0'
 
   - name: androidcamera
