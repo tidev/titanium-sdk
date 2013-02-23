@@ -40,7 +40,7 @@ public class TiUISwitch extends TiUIView
 		super.processProperties(d);
 
 		if (d.containsKey(TiC.PROPERTY_STYLE)) {
-			setStyle(TiConvert.toInt(d, TiC.PROPERTY_STYLE));
+			setStyle(TiConvert.toInt(d.get(TiC.PROPERTY_STYLE), AndroidModule.SWITCH_STYLE_TOGGLEBUTTON));
 		}
 
 		View nativeView = getNativeView();

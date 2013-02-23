@@ -32,7 +32,7 @@ public class TiColorHelper
 	 * @return the RGB/RGBA representation (int) of the color.
 	 */
 	public static int parseColor(String value) {
-		int color = Color.YELLOW; // Something noticeable
+		int color = Color.TRANSPARENT;
 		if (value != null) {
 			String lowval = value.trim().toLowerCase();
 

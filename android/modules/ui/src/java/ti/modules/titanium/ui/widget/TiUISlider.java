@@ -72,21 +72,21 @@ public class TiUISlider extends TiUIView
 		SeekBar seekBar = (SeekBar) getNativeView();
 		
 		if (d.containsKey(TiC.PROPERTY_VALUE)) {
-			pos = TiConvert.toFloat(d, TiC.PROPERTY_VALUE);
+			pos = TiConvert.toFloat(d, TiC.PROPERTY_VALUE, 0);
 		}
-		if (d.containsKey("min")) {
-			min = TiConvert.toInt(d, "min");
+		if (d.containsKey(TiC.PROPERTY_MIN)) {
+			min = TiConvert.toInt(d.get(TiC.PROPERTY_MIN), 0);
 		}
-		if (d.containsKey("max")) {
-			max = TiConvert.toInt(d, "max");;
+		if (d.containsKey(TiC.PROPERTY_MAX)) {
+			max = TiConvert.toInt(d.get(TiC.PROPERTY_MAX), 0);;
 		}
 		if (d.containsKey("minRange")) {
-			minRange = TiConvert.toInt(d, "minRange");
+			minRange = TiConvert.toInt(d.get("minRange"), 0);
 		} else {
 			minRange = min;
 		}
 		if (d.containsKey("maxRange")) {
-			maxRange = TiConvert.toInt(d, "maxRange");
+			maxRange = TiConvert.toInt(d.get("maxRange"), 0);
 		} else {
 			maxRange = max;
 		}
