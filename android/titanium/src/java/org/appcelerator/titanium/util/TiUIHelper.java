@@ -311,6 +311,7 @@ public class TiUIHelper
 	
 		if (d == null) {
 			TiUIHelper.styleText(tv, null, null, null);
+			return;
 		}
 		
 		String fontSize = null;
