@@ -21,9 +21,8 @@ module.exports = new function() {
 
 	// https://appcelerator.lighthouseapp.com/projects/32238-titanium-mobile/tickets/3163
 	this.packagedResources = function(testRun) {
-		Ti.Facebook.appid=1;//forces inclusion of facebook module.
 		valueOf(testRun,  function() {
-			var resid=Ti.App.Android.R.drawable.facebook_login;
+			var resid=Ti.App.Android.R.string.app_name;
 			valueOf(testRun, resid).shouldBeGreaterThan(0);
 		}).shouldNotThrowException();
 
