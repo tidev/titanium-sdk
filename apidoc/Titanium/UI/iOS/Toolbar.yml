@@ -25,7 +25,7 @@ description: |
 
     Due to an iOS limitation, the buttons in the toolbar only support the `click` event.
     The native object underlying a toolbar button does not generate standard view events,
-    such as`touchstart` and `touchend`.
+    such as `touchstart` and `touchend`.
 
     See also:
 
