@@ -32,12 +32,21 @@ description: |
     See the [TableView](Titanium.UI.TableView) description and examples section for more information 
     about creating table rows.
     
-    #### Improved Table Performance (Android and iOS)
+    #### Improved Table Performance (Android)
     
-    When rows contain child views, improved performance may be obtained by giving rows with the same 
-    layout a [className](Titanium.UI.TableViewRow) of the same value. The content of the rows may 
-    be different without the need for a new class name, though. For example, if the text is the only 
-    difference between two rows, both row instances should have identical class names.
+    If you are experiencing performance issues on Android when using custom rows, you can
+    try setting the [className](Titanium.UI.TableViewRow.className) property. The class name serves as a 
+    cue for reusing the underlying views used to display the rows.
+
+    A given `className` value indicates a row with a particular set of child views.
+    All rows that share a class name must have the same set of children -- for example, the class 
+    name "myCustomRow" could identify a row containing two labels and an image view. 
+    
+    The properties of the child controls may be different. For example, each instance of 
+    "myCustomRow" could have a different image and different text on the labels.
+
+    Note that `className` is no longer used on iOS, and was never used on Mobile Web; on
+    these platforms, `className` is ignored.
     
     #### Platform Implementation Notes
     
@@ -225,8 +234,9 @@ properties:
         For example, if some rows include images and some rows do not, you would have two class
         names, one for image rows and one for plain rows.
         
-        This property exists on Mobile Web, but is ignored.
+        This property exists on iOS and Mobile Web, but is ignored.
     type: String
+    platforms: [android]
     
   - name: color
     summary: Default text color of the row when not selected, as a color name or hex triplet.
