@@ -21,7 +21,6 @@
 
 -(id)_initWithPageContext:(id<TiEvaluator>)context
                     alert:(EKAlarm*)alert_
-                  eventId:(NSString*)eventId_
                    module:(CalendarModule*)module_;
 
 -(EKAlarm*)alert;

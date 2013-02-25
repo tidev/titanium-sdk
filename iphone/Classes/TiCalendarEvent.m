@@ -9,15 +9,15 @@
 #import "CalendarModule.h"
 #import "TiCalendarEvent.h"
 #import "TiCalendarAlert.h"
+#import "TiCalendarRecurrenceRule.h"
 
 @implementation TiCalendarEvent
 
--(id)_initWithPageContext:(id<TiEvaluator>)context eventID:(NSString*)eventid_ module:(CalendarModule*)module_
+-(id)_initWithPageContext:(id<TiEvaluator>)context event:(EKEvent*)event_ module:(CalendarModule*)module_
 {
     if (self = [super _initWithPageContext:context]) {
         module= module_;
-        eventId = eventId;
-        event = NULL;
+        event = event_;
     }
 }
 
@@ -25,17 +25,6 @@
 
 -(EKEvent*)event
 {
-    // Force us to be on the main thread
-	if (![NSThread isMainThread]) {
-		return NULL;
-	}
-    
-    if (event == NULL) {
-        EKEventStore* store = [module store];
-        if (store != NULL) {
-            event = [[module store] eventWithIdentifier:eventId];
-        }
-    }
     return event;
 }
 
@@ -45,7 +34,7 @@
     NSMutableArray* events = [NSMutableArray arrayWithCapacity:[events_ count]];
     for (EKEvent* event_ in events) {
         TiCalendarEvent* event = [[[TiCalendarEvent alloc] _initWithPageContext:context_
-                                                                       eventID:[event_ eventIdentifier]
+                                                                       event:event_
                                                                         module:module_] autorelease];
         [events addObject:event];
     }
@@ -120,8 +109,15 @@
     else if ([key isEqualToString:@"isDetached"]) {
         return NUMBOOL(currEvent.isDetached);
     }
-    else if ([key isEqualToString:@"reminders"]) {
-        //return reminders
+    else if ([key isEqualToString:@"recurranceRules"])
+    {
+        NSArray* rules_ = currEvent.recurrenceRules;
+        NSMutableArray *rules = [NSMutableArray arrayWithCapacity:[rules_ count]];
+        for (EKRecurrenceRule* rule_ in rules_) {
+            TiCalendarRecurrenceRule* rule = [[TiCalendarRecurrenceRule alloc] _initWithPageContext:[self executionContext] rule:rule_];
+            [rules addObject:rule];
+        }
+        return rules;
     }
     // Something else
 	else {
@@ -149,8 +145,7 @@
     }
     else if ([key isEqualToString:@"description"]) {
         currEvent.notes = [TiUtils stringValue:value];
-		return;
-    }
+	}
     else if ([key isEqualToString:@"begin"]) {
         currEvent.startDate = [TiUtils dateForUTCDate:value];
     }
@@ -163,14 +158,18 @@
     else if ([key isEqualToString:@"title"]) {
         currEvent.title = [TiUtils stringValue:value];
     }
-    else if ([key isEqualToString:@"description"]) {
-        currEvent.notes = [TiUtils stringValue:value];
-    }
     else if ([key isEqualToString:@"location"]) {
         currEvent.location = [TiUtils stringValue:value];
     }
-    else if ([key isEqualToString:@"recurranceRule"]) {
-       // currEvent.recurrenceRules
+    else if ([key isEqualToString:@"recurranceRules"]) {
+        ENSURE_TYPE_OR_NIL(value,NSArray);
+        NSMutableArray* rules = [NSMutableArray arrayWithCapacity:[value count]];
+        for (TiCalendarRecurrenceRule* rule_ in value) {
+            EKRecurrenceRule *rule = [rule_ rule];
+            [rules addObject:rule];
+        }
+        currEvent.recurrenceRules = rules;
+        
     }
     // Array of TiCalendarAlerts
     else if ([key isEqualToString:@"alerts"]) {
@@ -213,21 +212,21 @@
     }
     TiCalendarAlert *newalert = [[[TiCalendarAlert alloc] _initWithPageContext:[self executionContext]
                                                                          alert:alarm
-                                                                       eventId:eventId
                                                                         module:module] autorelease];
     return newalert;
 }
 
--(void)saveEvent:(id)arg
+-(void)saveEvent:(id)arg 
 {
-    EKSpan span = EKSpanFutureEvents;
+    EKSpan span = EKSpanThisEvent;
     if (arg != nil) {
-        span = [TiUtils intValue:arg def:EKSpanFutureEvents];
+        span = [TiUtils intValue:arg def:EKSpanThisEvent];
     }
     EKEventStore* ourStore = [module store];
-    NSError * error = nil;
-    BOOL result;
-    result = [ourStore saveEvent:event span:span error:&error];
+    __block NSError * error = nil;
+    __block BOOL result;
+    TiThreadPerformOnMainThread(^{
+        result = [ourStore saveEvent:event span:span error:&error];}, YES);
     if (result == NO || error != nil) {
         DebugLog(@"Unable to save event to the eventStore.");
         NSDictionary *errorEvent = [NSDictionary dictionaryWithObject:NUMINT(result) forKey:@"result"];
@@ -235,9 +234,23 @@
     }
 }
 
--(void)remove:(id)unused
+-(void)remove:(id)arg
 {
-
+    EKSpan span = EKSpanThisEvent;
+    if (arg != nil) {
+        span = [TiUtils intValue:arg def:EKSpanThisEvent];
+    }
+    EKEventStore* ourStore = [module store];
+    __block NSError * error = nil;
+    __block BOOL result;
+    TiThreadPerformOnMainThread(^{
+        result = [ourStore removeEvent:event span:span error:&error];
+    }, YES);
+    if (result == NO || error != nil) {
+        DebugLog(@"Unable to save event to the eventStore.");
+        NSDictionary *errorEvent = [NSDictionary dictionaryWithObject:NUMINT(result) forKey:@"result"];
+        [self fireEvent:@"complete" withObject:errorEvent errorCode:[error code] message:[TiUtils messageFromError:error]];
+    }
 }
 
 @end

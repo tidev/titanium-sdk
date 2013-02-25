@@ -203,7 +203,7 @@
             return nil;
         }
         TiCalendarEvent* event = [[[TiCalendarEvent alloc] _initWithPageContext:[self executionContext]
-                                                                        eventID:[newEvent eventIdentifier]
+                                                                        event:newEvent
                                                                          module:module] autorelease];
         
         [event setValuesForKeysWithDictionary:args];
@@ -307,22 +307,23 @@
     ENSURE_SINGLE_ARG(arg, NSString);
     __block NSString* eventId = [TiUtils stringValue:arg];
 	__block BOOL validId = NO;
+    __block id result = NULL;
 	dispatch_sync(dispatch_get_main_queue(),^{
         EKEventStore* ourStore = [self ourStore];
         if (ourStore == nil) {
             return ;
         }
-        if ([ourStore eventWithIdentifier:[TiUtils stringValue:arg]]){
+        result = [ourStore eventWithIdentifier:[TiUtils stringValue:arg]];
+        if (result != NULL){
             validId = YES;
         }
         
     });
     if (validId == YES) {
         TiCalendarEvent* event = [[[TiCalendarEvent alloc] _initWithPageContext:[self executionContext]
-                                                                        eventID:eventId
+                                                                        event:(EKEvent*)result
                                                                          module:module] autorelease];
         return event;
-
     }
     return NULL;
 }

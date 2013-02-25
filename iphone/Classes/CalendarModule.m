@@ -114,6 +114,27 @@
     return calendar;
 }
 
+-(TiCalendarCalendar*)defaultCalendar:(id)unused
+{
+    if (![NSThread isMainThread]) {
+		__block id result = nil;
+		TiThreadPerformOnMainThread(^{result = [[self defaultCalendar:nil] retain];}, YES);
+		return [result autorelease];
+	}
+    
+    EKEventStore* ourStore = [self store];
+    if (ourStore  == NULL) {
+        DebugLog(@"Could not instantiate an event of the event store.");
+        return nil;
+        
+    }
+    EKCalendar* calendar_ = [ourStore defaultCalendarForNewEvents];
+    if (calendar_ == NULL) {
+        return nil;
+    }
+    TiCalendarCalendar* calendar = [[[TiCalendarCalendar alloc] _initWithPageContext:[self executionContext] calendarId:arg module:self] autorelease];
+    return calendar;
+}
 
 
 #pragma mark - Properties
