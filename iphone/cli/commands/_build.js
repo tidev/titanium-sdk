@@ -1585,12 +1585,13 @@ build.prototype = {
 				} else {
 					module.libName = 'lib' + module.id.toLowerCase() + '.a',
 					module.libFile = path.join(module.modulePath, module.libName);
-					hashes.push(module.hash = this.hashFile(module.libFile));
 					
 					if (!afs.exists(module.libFile)) {
-						this.logger.error(__('Module %s version %s is missing library file: %s', module.id.cyan, (module.manifest.version || 'latest').cyan, libFile.cyan));
+						this.logger.error(__('Module %s version %s is missing library file: %s', module.id.cyan, (module.manifest.version || 'latest').cyan, module.libFile.cyan) + '\n');
 						process.exit(1);
 					}
+					
+					hashes.push(module.hash = this.hashFile(module.libFile));
 					
 					this.logger.info(__('Detected third-party native iOS module: %s version %s', module.id.cyan, (module.manifest.version || 'latest').cyan));
 					this.nativeLibModules.push(module);
