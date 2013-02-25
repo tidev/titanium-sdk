@@ -171,6 +171,7 @@ properties:
     summary: Determines whether the field is enabled.
     type: Boolean
     default: true
+    platforms: [android, ipad, iphone, mobileweb]
     
   - name: enableReturnKey
     summary: |

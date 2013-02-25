@@ -59,10 +59,9 @@ description: |
         	</map>
         </mobileweb>
 extends: Titanium.UI.View
-excludes: {
-    events: [ 'singletap', 'doubletap', 'dblclick', 'longclick', 'longpress', 'pinch',
-    'swipe', 'touchstart', 'touchend', 'touchcancel', 'touchmove', 'twofingertap' ]
-}
+excludes:
+    events: [ 'singletap', 'doubletap', 'dblclick', 'focus', 'longclick', 'pinch', 'swipe', 'touchstart', 'touchend', 'touchcancel', 'touchmove', 'twofingertap' ]
+    properties: ['enabled']
 since: "0.8"
 platforms: [android, iphone, ipad, mobileweb]
 methods:
@@ -261,7 +260,10 @@ events:
   - name: loading
     summary: Fired when the map begins loading.
     platforms: [iphone, ipad, mobileweb]
-
+  
+  - name: longpress
+    since: { android: 3.1.0 }
+  
   - name: pinchangedragstate
     summary: Fired when the user interacts with a draggable annotation.
     properties:

@@ -17,6 +17,34 @@ TiBindingEvent TiBindingEventCreateWithNSObjects(TiProxy * target, TiProxy * sou
 
 void TiBindingEventSetBubbles(TiBindingEvent event, bool bubbles);
 
+#pragma mark Error reporting
+/*	As of 3.1.0, events can have the common error reporting done at a low level for consistency and speed.
+ *	If an event can report errors, it will have the following properties:
+ *
+ *	success: Boolean. Is true if and only if code is 0.
+ *	code: Integer. 0 for no error, system-specific code otherwise. -1 is the default for failure.
+ *	error: Optional string.
+ *
+ *	Error reporting happens if and only if the error code is set. The error string
+ *	set and clear does not check the error code, nor does setting the error code
+ *	to success clear the message string.
+ *
+ *	To undo setting the error code, and thus not report, use TiBindingEventClearError
+ */
+
+enum {
+	kTiErrorCodeSuccess = 0,
+	kTiErrorUnknownFailure = -1,
+};
+void TiBindingEventSetErrorCode(TiBindingEvent event, int code);
+#if TARGET_OS_IPHONE
+void TiBindingEventSetErrorMessageWithNSString(TiBindingEvent event, NSString * message);
+#endif
+void TiBindingEventClearError(TiBindingEvent event);
+
+
+#pragma mark Processing and disposal
+
 void TiBindingEventFire(TiBindingEvent event);
 
 void TiBindingEventDispose(TiBindingEvent event);

@@ -9,6 +9,8 @@ description: |
 platforms: [android, iphone, ipad, mobileweb]
 extends: Titanium.UI.View
 since: "0.9"
+excludes:
+    properties: [enabled]
 
 methods:
   - name: add

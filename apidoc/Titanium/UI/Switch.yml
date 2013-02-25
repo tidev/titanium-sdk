@@ -49,6 +49,7 @@ properties:
          Set to `true` to enable or `false` to disable the switch.
     type: Boolean
     default: undefined (equivalent to enabled)
+    platforms: [android, ipad, iphone, mobileweb]
     
   - name: font
     summary: Font to use for the switch text.

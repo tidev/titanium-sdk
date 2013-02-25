@@ -318,8 +318,6 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 		// what the current bitmap should be.
 		imageViewProxy.onBitmapChanged(this, bitmap);
 	}
-	
-
 
 	private class BitmapWithIndex
 	{
@@ -965,10 +963,10 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 			setImages();
 		} 
 		if (d.containsKey(TiC.PROPERTY_CAN_SCALE)) {
-			view.setCanScaleImage(TiConvert.toBoolean(d, TiC.PROPERTY_CAN_SCALE));
+			view.setCanScaleImage(TiConvert.toBoolean(d, TiC.PROPERTY_CAN_SCALE, false));
 		}
 		if (d.containsKey(TiC.PROPERTY_ENABLE_ZOOM_CONTROLS)) {
-			view.setEnableZoomControls(TiConvert.toBoolean(d, TiC.PROPERTY_ENABLE_ZOOM_CONTROLS));
+			view.setEnableZoomControls(TiConvert.toBoolean(d, TiC.PROPERTY_ENABLE_ZOOM_CONTROLS, true));
 		}
 		if (d.containsKey(TiC.PROPERTY_DEFAULT_IMAGE)) {
 			Object defaultImage = d.get(TiC.PROPERTY_DEFAULT_IMAGE);

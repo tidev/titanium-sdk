@@ -247,7 +247,7 @@ def trace(msg):
 def error(msg):
 	log.error(msg)
 
-def copy_all(source_folder, dest_folder, ignore_dirs=[], ignore_files=[], ignore_exts=[], one_time_msg=""):
+def copy_all(source_folder, dest_folder, mergeXMLResources=False, ignore_dirs=[], ignore_files=[], ignore_exts=[], one_time_msg=""):
 	msg_shown = False
 	for root, dirs, files in os.walk(source_folder, True, None, True):
 		for d in dirs:
@@ -267,7 +267,27 @@ def copy_all(source_folder, dest_folder, ignore_dirs=[], ignore_files=[], ignore
 			to_directory = os.path.split(to_)[0]
 			if not os.path.exists(to_directory):
 				os.makedirs(to_directory)
-			shutil.copyfile(from_, to_)
+				shutil.copyfile(from_, to_)
+			#
+			# Merge the xml resource files in res/values/ if there are multiple files with the same name.
+			# (TIMOB-12663)
+			#
+			elif mergeXMLResources and os.path.isfile(to_) and f in ['strings.xml', 'attrs.xml', 'styles.xml', 
+				'bools.xml', 'colors.xml', 'dimens.xml', 'ids.xml', 'integers.xml', 'arrays.xml']:
+				sfile = open(from_, 'r')
+				dfile = open(to_, 'r')
+				scontent = sfile.read()
+				dcontent = dfile.read()
+				sfile.close()
+				dfile.close()
+				sindex = scontent.find('</resources>')
+				dindex = dcontent.find('<resources>') + 11
+				content_to_write = scontent[:sindex] + dcontent[dindex:]
+				wfile = open(to_, 'w')
+				wfile.write(content_to_write)
+				wfile.close()
+			else:
+				shutil.copyfile(from_, to_)
 
 def remove_orphaned_files(source_folder, target_folder, ignore=[]):
 	is_res = source_folder.endswith('Resources') or source_folder.endswith('Resources' + os.sep)
@@ -691,7 +711,7 @@ class Builder(object):
 		for module in self.modules:
 			platform_folder = os.path.join(module.path, 'platform', 'android')
 			if os.path.exists(platform_folder):
-				copy_all(platform_folder, self.project_dir, one_time_msg="Copying platform-specific files for '%s' module" % module.manifest.name)
+				copy_all(platform_folder, self.project_dir, True, one_time_msg="Copying platform-specific files for '%s' module" % module.manifest.name)
 
 	def copy_commonjs_modules(self):
 		info('Copying CommonJS modules...')
@@ -705,7 +725,7 @@ class Builder(object):
 	def copy_project_platform_folder(self, ignore_dirs=[], ignore_files=[]):
 		if not os.path.exists(self.platform_dir):
 			return
-		copy_all(self.platform_dir, self.project_dir, ignore_dirs, ignore_files, one_time_msg="Copying platform-specific files ...")
+		copy_all(self.platform_dir, self.project_dir, True, ignore_dirs, ignore_files, one_time_msg="Copying platform-specific files ...")
 
 	def copy_resource_drawables(self):
 		debug('Processing Android resource drawables')
@@ -963,11 +983,6 @@ class Builder(object):
     	/>
 	<uses-library android:name="com.google.android.maps" />"""
 
-		FACEBOOK_ACTIVITY = """<activity 
-		android:name="ti.modules.titanium.facebook.FBActivity"
-		android:theme="@android:style/Theme.Translucent.NoTitleBar"
-    />"""
-
 		CAMERA_ACTIVITY = """<activity 
 		android:name="ti.modules.titanium.media.TiCameraActivity"
 		android:configChanges="keyboardHidden|orientation"
@@ -982,11 +997,6 @@ class Builder(object):
 			
 			# MAPS
 			'Map.createView' : MAP_ACTIVITY,
-	    	
-			# FACEBOOK
-			'Facebook.setup' : FACEBOOK_ACTIVITY,
-			'Facebook.login' : FACEBOOK_ACTIVITY,
-			'Facebook.createLoginButton' : FACEBOOK_ACTIVITY,
 		}
 		
 		# this is a map of our APIs to ones that require Google APIs to be available on the device
@@ -1411,12 +1421,14 @@ class Builder(object):
 		# compile localization files
 		localecompiler.LocaleCompiler(self.name,self.top_dir,'android',sys.argv[1]).compile()
 		# fix un-escaped single-quotes and full-quotes
+		# remove duplicate strings since we merge strings.xml from /i18n/ and /platform/android/res/values (TIMOB-12663)
 		offending_pattern = '[^\\\\][\'"]'
 		for root, dirs, files in os.walk(self.res_dir):
 			remove_ignored_dirs(dirs)
 			for filename in files:
 				if filename in ignoreFiles or not filename.endswith('.xml'):
 					continue
+				string_name_list = [] #keeps track of the string names
 				full_path = os.path.join(root, filename)
 				f = codecs.open(full_path, 'r', 'utf-8')
 				contents = f.read()
@@ -1425,10 +1437,20 @@ class Builder(object):
 					continue
 				doc = parseString(contents.encode("utf-8"))
 				string_nodes = doc.getElementsByTagName('string')
+				resources_node = doc.getElementsByTagName('resources')[0]
 				if len(string_nodes) == 0:
 					continue
 				made_change = False
 				for string_node in string_nodes:
+					name = string_node.getAttribute('name')
+					# Remove the string node with the duplicate names
+					if name in string_name_list:
+						resources_node.removeChild(string_node)
+						made_change = True
+						debug('Removed duplicate string [%s] from %s' %(name, full_path))
+					else:
+						string_name_list.append(name)
+
 					if not string_node.hasChildNodes():
 						continue
 					string_child = string_node.firstChild
@@ -1742,6 +1764,11 @@ class Builder(object):
 		pkg_assets_dir = self.assets_dir
 		if self.deploy_type == "test":
 			compile_js = False
+		
+		if compile_js and os.environ.has_key('SKIP_JS_MINIFY'):
+			compile_js = False
+			info("Disabling JavaScript minification")
+		
 		if self.deploy_type == "production" and compile_js:
 			webview_js_files = get_js_referenced_in_html()
 			non_js_assets = os.path.join(self.project_dir, 'bin', 'non-js-assets')
