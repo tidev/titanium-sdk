@@ -105,7 +105,7 @@ define(["Ti/_", "Ti/_/declare", "Ti/_/has", "Ti/_/lang", "Ti/_/Evented", "Ti/Fil
 				parts = loc.match(/^((?:.+\:)?\/\/)?(?:.+@)?(.*)$/);
 
 			if (parts && this.username && this.password) {
-				loc = parts[1] + (this.domain ? this.domain + '\\' : '') + this.username + ':' + this.password + '@' + parts[2];
+				loc = (parts[1] || '') + (this.domain ? this.domain + '\\' : '') + this.username + ':' + this.password + '@' + parts[2];
 			}
 
 			this.abort();
