@@ -13,7 +13,7 @@
 
 @class TiMapViewProxy;
 
-@interface TiMapAnnotationProxy : TiViewProxy<MKAnnotation> {
+@interface TiMapAnnotationProxy : TiViewProxy<MKAnnotation, TiProxyObserver> {
 @private
 	int tag;
 	TiMapViewProxy *delegate;
