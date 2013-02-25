@@ -23,6 +23,10 @@ description: |
     using these properties adds a border on all four sides of the control, which may be
     undesirable.
 
+    Due to an iOS limitation, the buttons in the toolbar only support the `click` event.
+    The native object underlying a toolbar button does not generate standard view events,
+    such as `touchstart` and `touchend`.
+
     See also:
 
     *  [Toolbar in the iOS Human Interface Guidelines.](http://developer.apple.com/library/ios/#documentation/UserExperience/Conceptual/MobileHIG/UIElementGuidelines/UIElementGuidelines.html#//apple_ref/doc/uid/TP40006556-CH13-SW10)
