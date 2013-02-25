@@ -35,7 +35,7 @@ description: |
     #### Improved Table Performance (Android)
     
     If you are experiencing performance issues on Android when using custom rows, you can
-    try setting the [className](Titanium.UI.TableViewRow) property. The class name serves as a 
+    try setting the [className](Titanium.UI.TableViewRow.className) property. The class name serves as a 
     cue for reusing the underlying views used to display the rows.
 
     A given `className` value indicates a row with a particular set of child views.
