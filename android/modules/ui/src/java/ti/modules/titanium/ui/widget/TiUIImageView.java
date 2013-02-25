@@ -318,8 +318,6 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 		// what the current bitmap should be.
 		imageViewProxy.onBitmapChanged(this, bitmap);
 	}
-	
-
 
 	private class BitmapWithIndex
 	{
