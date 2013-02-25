@@ -272,7 +272,7 @@ examples:
 
             <Alloy>
                 <!-- Create a heavyweight window to use the Android menu. -->
-                <Window id="win" fullscreen="false" onOpen="doOpen">
+                <Window id="win" fullscreen="true" onOpen="doOpen">
 
                     <!-- The Menu tag adds the Android menu. -->
                     <Menu id="menu" platform="android">
