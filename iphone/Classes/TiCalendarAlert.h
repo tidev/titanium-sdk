@@ -24,7 +24,7 @@
                   eventId:(NSString*)eventId_
                    module:(CalendarModule*)module_;
 
-
+-(EKAlarm*)alert;
 @end
     
 #endif

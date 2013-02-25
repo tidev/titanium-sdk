@@ -562,6 +562,9 @@
 		B4F97B73111A41C800E2F72C /* TiUIScrollView.m in Sources */ = {isa = PBXBuildFile; fileRef = B4F97B72111A41C800E2F72C /* TiUIScrollView.m */; };
 		D4AB36F5123DE20200DED4A0 /* TiUIClipboardProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = D4AB36F4123DE20200DED4A0 /* TiUIClipboardProxy.m */; };
 		D4AB36F6123DE20200DED4A0 /* TiUIClipboardProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = D4AB36F4123DE20200DED4A0 /* TiUIClipboardProxy.m */; };
+		D930111E16DA9D63002E25C2 /* TiCalendarRecurrenceRule.m in Sources */ = {isa = PBXBuildFile; fileRef = D930111D16DA9D62002E25C2 /* TiCalendarRecurrenceRule.m */; };
+		D930111F16DA9D63002E25C2 /* TiCalendarRecurrenceRule.m in Sources */ = {isa = PBXBuildFile; fileRef = D930111D16DA9D62002E25C2 /* TiCalendarRecurrenceRule.m */; };
+		D930112016DA9D63002E25C2 /* TiCalendarRecurrenceRule.m in Sources */ = {isa = PBXBuildFile; fileRef = D930111D16DA9D62002E25C2 /* TiCalendarRecurrenceRule.m */; };
 		D93DAA5016CBF8CB00AD64C9 /* CalendarModule.m in Sources */ = {isa = PBXBuildFile; fileRef = D93DAA4F16CBF8CB00AD64C9 /* CalendarModule.m */; };
 		D93DAA5116CBF8CB00AD64C9 /* CalendarModule.m in Sources */ = {isa = PBXBuildFile; fileRef = D93DAA4F16CBF8CB00AD64C9 /* CalendarModule.m */; };
 		D93DAA5216CBF8CB00AD64C9 /* CalendarModule.m in Sources */ = {isa = PBXBuildFile; fileRef = D93DAA4F16CBF8CB00AD64C9 /* CalendarModule.m */; };
@@ -1438,6 +1441,8 @@
 		B4F97C57111BAD4700E2F72C /* TiUIiPhoneScrollIndicatorStyleProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUIiPhoneScrollIndicatorStyleProxy.m; sourceTree = "<group>"; };
 		D4AB36F3123DE20200DED4A0 /* TiUIClipboardProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUIClipboardProxy.h; sourceTree = "<group>"; };
 		D4AB36F4123DE20200DED4A0 /* TiUIClipboardProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUIClipboardProxy.m; sourceTree = "<group>"; };
+		D930111C16DA9D61002E25C2 /* TiCalendarRecurrenceRule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiCalendarRecurrenceRule.h; sourceTree = "<group>"; };
+		D930111D16DA9D62002E25C2 /* TiCalendarRecurrenceRule.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiCalendarRecurrenceRule.m; sourceTree = "<group>"; };
 		D93DAA4E16CBF8CB00AD64C9 /* CalendarModule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CalendarModule.h; sourceTree = "<group>"; };
 		D93DAA4F16CBF8CB00AD64C9 /* CalendarModule.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CalendarModule.m; sourceTree = "<group>"; };
 		D93DAA5316CBF8E500AD64C9 /* TiCalendarCalendar.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiCalendarCalendar.h; sourceTree = "<group>"; };
@@ -2855,6 +2860,8 @@
 				D93DAA5E16CBF91100AD64C9 /* TiCalendarEvent.m */,
 				D93DAA6216CBFC7C00AD64C9 /* TiCalendarReminder.h */,
 				D93DAA6316CBFC7C00AD64C9 /* TiCalendarReminder.m */,
+				D930111C16DA9D61002E25C2 /* TiCalendarRecurrenceRule.h */,
+				D930111D16DA9D62002E25C2 /* TiCalendarRecurrenceRule.m */,
 			);
 			name = Calendar;
 			sourceTree = "<group>";
@@ -3358,6 +3365,7 @@
 				D93DAA5A16CBF8FB00AD64C9 /* TiCalendarAlert.m in Sources */,
 				D93DAA5F16CBF91100AD64C9 /* TiCalendarEvent.m in Sources */,
 				D93DAA6416CBFC7C00AD64C9 /* TiCalendarReminder.m in Sources */,
+				D930111E16DA9D63002E25C2 /* TiCalendarRecurrenceRule.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3632,6 +3640,7 @@
 				D93DAA5B16CBF8FB00AD64C9 /* TiCalendarAlert.m in Sources */,
 				D93DAA6016CBF91100AD64C9 /* TiCalendarEvent.m in Sources */,
 				D93DAA6516CBFC7C00AD64C9 /* TiCalendarReminder.m in Sources */,
+				D930111F16DA9D63002E25C2 /* TiCalendarRecurrenceRule.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3906,6 +3915,7 @@
 				D93DAA5C16CBF8FB00AD64C9 /* TiCalendarAlert.m in Sources */,
 				D93DAA6116CBF91100AD64C9 /* TiCalendarEvent.m in Sources */,
 				D93DAA6616CBFC7C00AD64C9 /* TiCalendarReminder.m in Sources */,
+				D930112016DA9D63002E25C2 /* TiCalendarRecurrenceRule.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

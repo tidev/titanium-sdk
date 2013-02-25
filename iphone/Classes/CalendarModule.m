@@ -12,7 +12,7 @@
 
 @implementation CalendarModule
 
-#pragma mark internal methods
+#pragma mark - internal methods
 
 -(EKEventStore*)store {
     if (store == NULL) {
@@ -36,7 +36,7 @@
     return [ourStore calendars];
 }
 
-#pragma mark Internal Memory Management
+#pragma mark - Internal Memory Management
 
 -(void)dealloc
 {
@@ -49,7 +49,7 @@
 	[super didReceiveMemoryWarning:notification];
 }
 
-#pragma mark public API's
+#pragma mark - Public API's
 
 -(NSArray*)allCalendars
 {
@@ -116,7 +116,7 @@
 
 
 
-#pragma mark Properties
+#pragma mark - Properties
 
 MAKE_SYSTEM_PROP(STATUS_NONE,EKEventStatusNone);
 MAKE_SYSTEM_PROP(STATUS_CONFIRMED,EKEventStatusConfirmed);
@@ -128,6 +128,14 @@ MAKE_SYSTEM_PROP(AVAILABILITY_BUSY, EKEventAvailabilityBusy);
 MAKE_SYSTEM_PROP(AVAILABILITY_FREE, EKEventAvailabilityFree);
 MAKE_SYSTEM_PROP(AVAILABILITY_TENTATIVE, EKEventAvailabilityTentative);
 MAKE_SYSTEM_PROP(AVAILABILITY_UNAVAILABLE, EKEventAvailabilityUnavailable);
+
+MAKE_SYSTEM_PROP(SPAN_THISEVENT, EKSpanThisEvent);
+MAKE_SYSTEM_PROP(SPAN_FUTUREEVENTS, EKSpanFutureEvents);
+
+MAKE_SYSTEM_PROP(RECURRENCEFREQUENCY_DAILY, EKRecurrenceFrequencyDaily);
+MAKE_SYSTEM_PROP(RECURRENCEFREQUENCY_WEEKLY, EKRecurrenceFrequencyWeekly);
+MAKE_SYSTEM_PROP(RECURRENCEFREQUENCY_MONTHLY, EKRecurrenceFrequencyMonthly);
+MAKE_SYSTEM_PROP(RECURRENCEFREQUENCY_YEARLY, EKRecurrenceFrequencyYearly);
 
 @end
 

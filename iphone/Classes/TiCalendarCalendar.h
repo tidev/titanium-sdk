@@ -16,6 +16,8 @@
 @private
     EKCalendar* calendar;
     NSString* calendarId;
+    BOOL iOS6API;
+    BOOL eventAuthorization;
     
     CalendarModule* module;
 }

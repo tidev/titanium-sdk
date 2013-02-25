@@ -17,9 +17,15 @@
                   eventId:(NSString*)eventId_
                    module:(CalendarModule*)module_
 {
-    module = module_;
-    eventId = eventId_;
-    alert = alert_;
+    if (self = [super _initWithPageContext:context]) {
+        module = module_;
+        eventId = eventId_;
+        alert = alert_;
+    }
+}
+-(EKAlarm*)alert
+{
+    return alert;
 }
 
 -(NSString*)absoluteDate
