@@ -44,6 +44,7 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.media.ExifInterface;
 import android.util.DisplayMetrics;
+import android.view.Display;
 import android.view.View;
 import android.webkit.URLUtil;
 
@@ -432,6 +433,13 @@ public class TiDrawableReference
 		if (parent != null) {
 			parentWidth = parent.getWidth();
 			parentHeight = parent.getHeight();
+		}
+
+		// If both height and width are zero, then use the display values
+		if (parentWidth == 0 && parentHeight == 0) {
+			Display display = TiApplication.getAppRootOrCurrentActivity().getWindowManager().getDefaultDisplay();
+			parentHeight = display.getHeight();
+			parentWidth = display.getWidth();
 		}
 
 		// Width to fit into
