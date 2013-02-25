@@ -921,19 +921,22 @@ public abstract class TiUIView
 				applyCustomBackground(false);
 			}
 
-			Drawable bgDrawable = TiUIHelper.buildBackgroundDrawable(
-					bg,
-					d.getBoolean(TiC.PROPERTY_BACKGROUND_REPEAT),
-					bgColor,
-					bgSelected,
-					bgSelectedColor,
-					bgDisabled,
-					bgDisabledColor,
-					bgFocused,
-					bgFocusedColor,
-					gradientDrawable);
-
-			background.setBackgroundDrawable(bgDrawable);
+			if (background != null)
+			{
+				Drawable bgDrawable = TiUIHelper.buildBackgroundDrawable(
+						bg,
+						d.getBoolean(TiC.PROPERTY_BACKGROUND_REPEAT),
+						bgColor,
+						bgSelected,
+						bgSelectedColor,
+						bgDisabled,
+						bgDisabledColor,
+						bgFocused,
+						bgFocusedColor,
+						gradientDrawable);
+	
+				background.setBackgroundDrawable(bgDrawable);
+			}
 		}
 	}
 
