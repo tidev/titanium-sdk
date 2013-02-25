@@ -68,9 +68,9 @@ description: |
 extends: Titanium.UI.View
 since: "0.9"
 excludes:
-    events: [dblclick, doubletap, longpress, pinch, singletap, touchmove, twofingertap]
+    events: [dblclick, doubletap, focus, longpress, pinch, singletap, touchmove, twofingertap]
     methods: [animate]
-    properties: []
+    properties: [enabled]
 
 events:
   - name: click

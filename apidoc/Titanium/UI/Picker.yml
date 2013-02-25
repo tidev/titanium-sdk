@@ -360,7 +360,7 @@ examples:
             });
 
             var picker = Ti.UI.createPicker({
-              top:50
+              top:50,
               useSpinner: true
             });
             picker.selectionIndicator = true;
