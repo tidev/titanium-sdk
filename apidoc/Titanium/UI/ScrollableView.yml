@@ -19,9 +19,9 @@ description: |
     removed for performance and parity reasons. As they still remain in <Titanium.UI.ScrollView>, 
     the equivalent functionality may be obtained by adding a `ScrollView` to `ScrollableView`. See 
     the "Simple Scrollable View with 2 Zoomable Images" example for a demonstration.
-excludes: { 
+excludes:
     events: [ 'click', 'longclick', 'pinch', 'swipe', 'touchend', 'touchmove' ]
-}
+    properties: [ 'enabled' ]
 extends: Titanium.UI.View
 platforms: [android, iphone, ipad, mobileweb]
 since: "0.8"

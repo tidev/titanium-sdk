@@ -11,6 +11,8 @@ description: |
 extends: Titanium.UI.View
 since: "0.9"
 platforms: [android, iphone, ipad, mobileweb]
+excludes:
+    properties: [enabled]
 
 methods:
   - name: addRow
