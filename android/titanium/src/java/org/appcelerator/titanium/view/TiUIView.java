@@ -255,13 +255,8 @@ public abstract class TiUIView
 		this.nativeView = view;
 		boolean clickable = true;
 
-<<<<<<< HEAD
-		if (proxy != null && proxy.hasProperty(TiC.PROPERTY_TOUCH_ENABLED)) {
-			clickable = TiConvert.toBoolean(proxy.getProperty(TiC.PROPERTY_TOUCH_ENABLED));
-=======
 		if (proxy.hasProperty(TiC.PROPERTY_TOUCH_ENABLED)) {
 			clickable = TiConvert.toBoolean(proxy.getProperty(TiC.PROPERTY_TOUCH_ENABLED), true);
->>>>>>> ce8d22499dd3bf82316212662ae925707a33489a
 		}
 		doSetClickable(nativeView, clickable);
 		nativeView.setOnFocusChangeListener(this);
