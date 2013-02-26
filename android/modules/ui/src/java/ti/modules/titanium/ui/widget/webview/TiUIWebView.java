@@ -489,12 +489,22 @@ public class TiUIWebView extends TiUIView
 		reloadMethod = reloadTypes.DATA;
 		reloadData = blob;
 		String mimeType = "text/html";
+		
 		// iOS parity: for whatever reason, in setData, the iOS implementation
 		// explicitly sets the native webview's setScalesPageToFit to YES if the
 		// Ti scalesPageToFit property has _not_ been set.
 		if (!proxy.hasProperty(TiC.PROPERTY_SCALES_PAGE_TO_FIT)) {
 			getWebView().getSettings().setLoadWithOverviewMode(true);
 		}
+		
+		if (blob.getType() == TiBlob.TYPE_FILE) {
+			String fullPath = blob.getNativePath();
+			if (fullPath != null) {
+				getWebView().loadUrl(fullPath);
+				return;
+			}
+		}
+		
 		if (blob.getMimeType() != null) {
 			mimeType = blob.getMimeType();
 		}
