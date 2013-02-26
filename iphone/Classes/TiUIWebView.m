@@ -89,6 +89,7 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 	RELEASE_TO_NIL(basicCredentials);
 	RELEASE_TO_NIL(reloadData);
 	RELEASE_TO_NIL(reloadDataProperties);
+	RELEASE_TO_NIL(lastValidLoad);
 	[super dealloc];
 }
 
@@ -165,6 +166,7 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 			[spinner sizeToFit];
 			[spinner startAnimating];
 		}
+		lastValidLoad = nil;
 	}
 	return webview;
 }
@@ -683,28 +685,31 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 
 - (void)webViewDidFinishLoad:(UIWebView *)webView
 {
-	if (spinner!=nil)
-	{
-		[UIView beginAnimations:@"webspiny" context:nil];
-		[UIView setAnimationDuration:0.3];
-		[spinner removeFromSuperview];
-		[UIView commitAnimations];
-		[spinner autorelease];
-		spinner = nil;
-	}
+    if (spinner!=nil) {
+        [UIView beginAnimations:@"webspiny" context:nil];
+        [UIView setAnimationDuration:0.3];
+        [spinner removeFromSuperview];
+        [UIView commitAnimations];
+        [spinner autorelease];
+        spinner = nil;
+    }
     [url release];
     url = [[[webview request] URL] retain];
-	[[self proxy] replaceValue:[url absoluteString] forKey:@"url" notification:NO];
+    NSString* urlAbs = [url absoluteString];
+    [[self proxy] replaceValue:urlAbs forKey:@"url" notification:NO];
 	
-	if ([self.proxy _hasListeners:@"load"])
-	{
-		NSDictionary *event = url == nil ? nil : [NSDictionary dictionaryWithObject:[self url] forKey:@"url"];
-		[self.proxy fireEvent:@"load" withObject:event];
-	}
-	[webView setNeedsDisplay];
-	ignoreNextRequest = NO;
-	TiViewProxy * ourProxy = (TiViewProxy *)[self proxy];
-	[ourProxy contentsWillChange];
+    if ([self.proxy _hasListeners:@"load"]) {
+        if (![urlAbs isEqualToString:lastValidLoad]) {
+            NSDictionary *event = url == nil ? nil : [NSDictionary dictionaryWithObject:[self url] forKey:@"url"];
+            [self.proxy fireEvent:@"load" withObject:event];
+            RELEASE_TO_NIL(lastValidLoad);
+            lastValidLoad = [urlAbs retain];
+        }
+    }
+    [webView setNeedsDisplay];
+    ignoreNextRequest = NO;
+    TiViewProxy * ourProxy = (TiViewProxy *)[self proxy];
+    [ourProxy contentsWillChange];
 }
 
 - (void)webView:(UIWebView *)webView didFailLoadWithError:(NSError *)error
