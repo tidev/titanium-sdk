@@ -44,7 +44,7 @@ public class TiDatabaseHelper extends SQLiteOpenHelper
 		}
 		catch (Exception e)
 		{
-			Log.e(TAG, "Problem saving data to platform: ", e);
+			Log.e(LCAT, "Problem saving data to platform: ", e);
 		}
 		finally
 		{
@@ -72,7 +72,7 @@ public class TiDatabaseHelper extends SQLiteOpenHelper
 		}
 		catch (Exception e)
 		{
-			Log.e(TAG, "Problem deleting data from platform: ", e);
+			Log.e(LCAT, "Problem deleting data from platform: ", e);
 		}
 		finally
 		{
