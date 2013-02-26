@@ -48,7 +48,6 @@ public class TiUIWebView extends TiUIView
 
 	private static final String TAG = "TiUIWebView";
 	private TiWebViewClient client;
-	private boolean changingUrl = false;
 	private boolean bindingCodeInjected = false;
 	private boolean isLocalHTML = false;
 
@@ -63,8 +62,13 @@ public class TiUIWebView extends TiUIView
 	public static final int PLUGIN_STATE_ON = 1;
 	public static final int PLUGIN_STATE_ON_DEMAND = 2;
 
-	private static final String DEFAULT_PAGE_FINISH_URL = "file:///android_asset/Resources/";
-
+	private static enum reloadTypes {
+		DEFAULT, DATA, HTML, URL
+	}
+	
+	private reloadTypes reloadMethod = reloadTypes.DEFAULT;
+	private Object reloadData = null;
+	
 	private class TiWebView extends WebView
 	{
 		public TiWebViewClient client;
@@ -226,7 +230,7 @@ public class TiUIWebView extends TiUIView
 			settings.setLoadWithOverviewMode(TiConvert.toBoolean(d, TiC.PROPERTY_SCALES_PAGE_TO_FIT));
 		}
 
-		if (d.containsKey(TiC.PROPERTY_URL) && !DEFAULT_PAGE_FINISH_URL.equals(TiConvert.toString(d, TiC.PROPERTY_URL))) {
+		if (d.containsKey(TiC.PROPERTY_URL) && !TiC.URL_ANDROID_ASSET_RESOURCES.equals(TiConvert.toString(d, TiC.PROPERTY_URL))) {
 			setUrl(TiConvert.toString(d, TiC.PROPERTY_URL));
 		} else if (d.containsKey(TiC.PROPERTY_HTML)) {
 			setHtml(TiConvert.toString(d, TiC.PROPERTY_HTML), (HashMap<String, Object>) (d.get(WebViewProxy.OPTIONS_IN_SETHTML)));
@@ -258,7 +262,7 @@ public class TiUIWebView extends TiUIView
 	@Override
 	public void propertyChanged(String key, Object oldValue, Object newValue, KrollProxy proxy)
 	{
-		if (TiC.PROPERTY_URL.equals(key) && !changingUrl && !DEFAULT_PAGE_FINISH_URL.equals(TiConvert.toString(newValue))) {
+		if (TiC.PROPERTY_URL.equals(key)) {
 			setUrl(TiConvert.toString(newValue));
 		} else if (TiC.PROPERTY_HTML.equals(key)) {
 			setHtml(TiConvert.toString(newValue));
@@ -300,6 +304,8 @@ public class TiUIWebView extends TiUIView
 
 	public void setUrl(String url)
 	{
+		reloadMethod = reloadTypes.URL;
+		reloadData = url;
 		String finalUrl = url;
 		Uri uri = Uri.parse(finalUrl);
 		boolean originalUrlHasScheme = (uri.getScheme() != null);
@@ -372,9 +378,11 @@ public class TiUIWebView extends TiUIView
 
 	public void changeProxyUrl(String url)
 	{
-		changingUrl = true;
-		getProxy().setProperty("url", url, true);
-		changingUrl = false;
+		getProxy().setProperty("url", url);
+		if(!TiC.URL_ANDROID_ASSET_RESOURCES.equals(url)) {
+			reloadMethod = reloadTypes.URL;
+			reloadData = url;
+		}
 	}
 
 	public String getUrl()
@@ -399,7 +407,9 @@ public class TiUIWebView extends TiUIView
 
 	public void setHtml(String html)
 	{
-		setHtmlInternal(html, "data://", "text/html");
+		reloadMethod = reloadTypes.HTML;
+		reloadData = null;
+		setHtmlInternal(html, TiC.URL_ANDROID_ASSET_RESOURCES, "text/html");
 	}
 
 	public void setHtml(String html, HashMap<String, Object> d)
@@ -409,7 +419,9 @@ public class TiUIWebView extends TiUIView
 			return;
 		}
 		
-		String baseUrl = "data://";
+		reloadMethod = reloadTypes.HTML;
+		reloadData = d;
+		String baseUrl = "TiC.URL_ANDROID_ASSET_RESOURCES";
 		String mimeType = "text/html";
 		if (d.containsKey(TiC.PROPERTY_BASE_URL_WEBVIEW)) {
 			baseUrl = TiConvert.toString(d.get(TiC.PROPERTY_BASE_URL_WEBVIEW));
@@ -474,6 +486,8 @@ public class TiUIWebView extends TiUIView
 
 	public void setData(TiBlob blob)
 	{
+		reloadMethod = reloadTypes.DATA;
+		reloadData = blob;
 		String mimeType = "text/html";
 		// iOS parity: for whatever reason, in setData, the iOS implementation
 		// explicitly sets the native webview's setScalesPageToFit to YES if the
@@ -609,7 +623,37 @@ public class TiUIWebView extends TiUIView
 
 	public void reload()
 	{
-		getWebView().reload();
+		switch (reloadMethod) {
+		case DATA:
+			if (reloadData != null && reloadData instanceof TiBlob) {
+				setData((TiBlob) reloadData);
+			} else {
+				Log.d(TAG, "reloadMethod points to data but reloadData is null or of wrong type. Calling default", Log.DEBUG_MODE);
+				getWebView().reload();
+			}
+			break;
+			
+		case HTML:
+			if (reloadData == null || (reloadData instanceof HashMap<?,?>) ) {
+				setHtml(TiConvert.toString(getProxy().getProperty(TiC.PROPERTY_HTML)), (HashMap<String,Object>)reloadData);
+			} else {
+				Log.d(TAG, "reloadMethod points to html but reloadData is of wrong type. Calling default", Log.DEBUG_MODE);
+				getWebView().reload();
+			}
+			break;
+		
+		case URL:
+			if (reloadData != null && reloadData instanceof String) {
+				setUrl((String) reloadData);
+			} else {
+				Log.d(TAG, "reloadMethod points to url but reloadData is null or of wrong type. Calling default", Log.DEBUG_MODE);
+				getWebView().reload();
+			}
+			break;
+			
+		default:
+			getWebView().reload();
+		}
 	}
 
 	public void stopLoading()
