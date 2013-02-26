@@ -991,8 +991,9 @@ public abstract class TiUIView
 					if (d.containsKey(TiC.PROPERTY_BORDER_WIDTH)) {
 						TiDimension width = TiConvert
 							.toTiDimension(d.get(TiC.PROPERTY_BORDER_WIDTH), TiDimension.TYPE_WIDTH);
-						View view = TiApplication.getAppCurrentActivity().getWindow().getDecorView();
-						borderView.setBorderWidth(width.getAsPixels(view));
+						if (width != null) {
+							borderView.setBorderWidth(width.getAsPixels(getNativeView()));
+						}
 					}
 				}
 			}
