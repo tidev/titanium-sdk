@@ -83,6 +83,7 @@ exports.bootstrap = function(Titanium) {
 		return proxy['create' + proxyName];
 	}
 
+	//overwrite list view constructor function with our own.
 	Titanium.UI.createListView = createListView;
 
 }

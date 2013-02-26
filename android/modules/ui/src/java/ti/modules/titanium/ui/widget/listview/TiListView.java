@@ -21,7 +21,7 @@ public class TiListView extends TiUIView {
 
 	private ListView listView;
 	private TiBaseAdapter adapter;
-	private ArrayList<SectionProxy> sections;
+	private ArrayList<ListSectionProxy> sections;
 	private AtomicInteger itemTypeCount;
 	private HashMap<String, TiTemplate> templatesByBinding;
 
@@ -36,7 +36,7 @@ public class TiListView extends TiUIView {
 		public int getCount() {
 			int count = 0;
 			for (int i = 0; i < sections.size(); i++) {
-				SectionProxy section = sections.get(i);
+				ListSectionProxy section = sections.get(i);
 				count += section.getItemCount();
 			}
 			return count;
@@ -53,13 +53,13 @@ public class TiListView extends TiUIView {
 		}
 		
 		public int getViewTypeCount() {
-			return itemTypeCount.get();
+			return 10;
 			
 		}
 		@Override
 		public int getItemViewType(int position) {
-			Pair<SectionProxy, Integer> info = getSectionInfoByEntryIndex(position);
-			SectionProxy section = info.first;
+			Pair<ListSectionProxy, Integer> info = getSectionInfoByEntryIndex(position);
+			ListSectionProxy section = info.first;
 			int index = info.second;
 			return section.getTemplateByIndex(index).getType();
 			
@@ -68,8 +68,8 @@ public class TiListView extends TiUIView {
 		@Override
 		public View getView(int position, View convertView, ViewGroup parent) {
 
-			Pair<SectionProxy, Integer> info = getSectionInfoByEntryIndex(position);
-			SectionProxy section = info.first;
+			Pair<ListSectionProxy, Integer> info = getSectionInfoByEntryIndex(position);
+			ListSectionProxy section = info.first;
 			int index = info.second;
 			KrollDict data = section.getEntryProperties(index);
 			TiTemplate template = section.getTemplateByIndex(index);
@@ -93,7 +93,7 @@ public class TiListView extends TiUIView {
 		super(proxy);
 		
 		//initializing variables
-		sections = new ArrayList<SectionProxy>();
+		sections = new ArrayList<ListSectionProxy>();
 		itemTypeCount = new AtomicInteger(0);
 		templatesByBinding = new HashMap<String, TiTemplate>();
 		
@@ -138,8 +138,8 @@ public class TiListView extends TiUIView {
 		
 		for (int i = 0; i < sections.length; i++) {
 			Object obj = sections[i];
-			if (obj instanceof SectionProxy) {
-				SectionProxy section = (SectionProxy) obj;
+			if (obj instanceof ListSectionProxy) {
+				ListSectionProxy section = (ListSectionProxy) obj;
 				this.sections.add(section);	
 				section.setAdapter(adapter);
 				section.setListView(this);
@@ -150,16 +150,16 @@ public class TiListView extends TiUIView {
 		}
 	}
 	
-	protected Pair<SectionProxy, Integer> getSectionInfoByEntryIndex(int index) {
+	protected Pair<ListSectionProxy, Integer> getSectionInfoByEntryIndex(int index) {
 		if (index < 0) {
 			return null;
 		}
 
 		for (int i = 0; i < sections.size(); i++) {
-			SectionProxy section = sections.get(i);
+			ListSectionProxy section = sections.get(i);
 			int sectionIndex = section.getItemCount() - 1;
 			if (index <= sectionIndex) {
-				return new Pair<SectionProxy, Integer>(section, index);
+				return new Pair<ListSectionProxy, Integer>(section, index);
 			} else {
 				index -= sectionIndex;
 			}

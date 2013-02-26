@@ -6,7 +6,9 @@ import java.util.HashMap;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.annotations.Kroll;
+import org.appcelerator.kroll.common.AsyncResult;
 import org.appcelerator.kroll.common.Log;
+import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
@@ -15,12 +17,14 @@ import org.appcelerator.titanium.view.TiUIView;
 import ti.modules.titanium.ui.UIModule;
 import ti.modules.titanium.ui.ViewProxy;
 import ti.modules.titanium.ui.widget.listview.TiListView.TiBaseAdapter;
+import android.os.Handler;
+import android.os.Message;
 import android.util.SparseArray;
 
 @Kroll.proxy(creatableInModule = UIModule.class, propertyAccessors = {
 	TiC.PROPERTY_HEADER_TITLE
 })
-public class SectionProxy extends ViewProxy{
+public class ListSectionProxy extends ViewProxy{
 
 	private static final String TAG = "SectionProxy";
 	private ArrayList<KrollDict> entryProperties;
@@ -31,7 +35,11 @@ public class SectionProxy extends ViewProxy{
 	
 	private WeakReference<TiListView> listView;
 	
-	public SectionProxy () {
+	private static final int MSG_FIRST_ID = TiViewProxy.MSG_LAST_ID + 1;
+
+	private static final int MSG_SET_ITEM = MSG_FIRST_ID + 700;
+	
+	public ListSectionProxy () {
 		//initialize variables
 		entryProperties = new ArrayList<KrollDict>();
 		templatesByIndex = new SparseArray<TiTemplate>();
@@ -42,8 +50,37 @@ public class SectionProxy extends ViewProxy{
 		adapter = a;
 	}
 
+	@Override
+	public boolean handleMessage(Message msg) 
+	{
+		
+		switch (msg.what) {
+
+		case MSG_SET_ITEM: {
+			handleSetItem(msg.obj);
+		}
+
+		default : {
+			return super.handleMessage(msg);
+		}
+
+		}
+
+	}
+	
 	@Kroll.method
-	public void setData(Object data) {
+	public void setItem(Object data) {
+		if (TiApplication.isUIThread()) {
+			handleSetItem(data);
+		} else {
+			Handler handler = getMainHandler();
+			handler.sendMessage(handler.obtainMessage(MSG_SET_ITEM, data));
+		}
+		
+	}
+	
+	private void handleSetItem(Object data) {
+
 		if (data instanceof Object[]) {
 			Object[] views = (Object[]) data;
 			int count = views.length;
