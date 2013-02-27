@@ -719,33 +719,33 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 		}
 		
 		if (krollData != null) {
-			Object hashValue = krollData.get("bubbles");
+			Object hashValue = krollData.get(TiC.PROPERTY_BUBBLES);
 			if (hashValue != null) {
 				bubbles = TiConvert.toBoolean(hashValue);
-				krollData.remove("bubbles");
+				krollData.remove(TiC.PROPERTY_BUBBLES);
 			}
-			hashValue = krollData.get("success");
+			hashValue = krollData.get(TiC.PROPERTY_SUCCESS);
 			if (hashValue != null) {
 				reportSuccess = true;
-				krollData.remove("success");
+				krollData.remove(TiC.PROPERTY_SUCCESS);
 			}
-			hashValue = krollData.get("code");
+			hashValue = krollData.get(TiC.PROPERTY_CODE);
 			if (hashValue != null) {
 				reportSuccess = true;
 				code = TiConvert.toInt(hashValue);
-				krollData.remove("code");
+				krollData.remove(TiC.PROPERTY_CODE);
 			}
-			hashValue = krollData.get("error");
+			hashValue = krollData.get(TiC.EVENT_PROPERTY_ERROR);
 			if (hashValue != null) {
 				message = hashValue.toString();
-				krollData.remove("error");
+				krollData.remove(TiC.EVENT_PROPERTY_ERROR);
 			}
-			hashValue = krollData.get("source");
+			hashValue = krollData.get(TiC.EVENT_PROPERTY_SOURCE);
 			if (hashValue instanceof KrollProxy) {
 				if (hashValue != this) {
 					source = ((KrollProxy)hashValue).getKrollObject();
 				}
-				krollData.remove("source");
+				krollData.remove(TiC.EVENT_PROPERTY_SOURCE);
 			}
 			if (krollData.size() == 0){
 				krollData = null;
