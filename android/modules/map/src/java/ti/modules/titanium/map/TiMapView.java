@@ -553,7 +553,7 @@ public class TiMapView extends TiUIView
 
 		final TiViewProxy fproxy = proxy;
 
-		itemView = new TiOverlayItemView(proxy.getActivity());
+		itemView = new TiOverlayItemView(TiApplication.getInstance().getApplicationContext());
 		itemView.setOnOverlayClickedListener(new TiOverlayItemView.OnOverlayClicked(){
 			public void onClick(int lastIndex, String clickedItem) {
 				TiOverlayItem item = overlay.getItem(lastIndex);
@@ -1059,7 +1059,7 @@ public class TiMapView extends TiUIView
 		if (view != null) {
 			if (userLocation) {
 				if (myLocation == null) {
-					myLocation = new MyLocationOverlay(proxy.getActivity(), view);
+					myLocation = new MyLocationOverlay(TiApplication.getInstance().getApplicationContext(), view);
 				}
 
 				List<Overlay> overlays = view.getOverlays();
