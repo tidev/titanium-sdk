@@ -421,7 +421,7 @@ public class TiUIWebView extends TiUIView
 		
 		reloadMethod = reloadTypes.HTML;
 		reloadData = d;
-		String baseUrl = "TiC.URL_ANDROID_ASSET_RESOURCES";
+		String baseUrl = TiC.URL_ANDROID_ASSET_RESOURCES;
 		String mimeType = "text/html";
 		if (d.containsKey(TiC.PROPERTY_BASE_URL_WEBVIEW)) {
 			baseUrl = TiConvert.toString(d.get(TiC.PROPERTY_BASE_URL_WEBVIEW));
@@ -500,7 +500,7 @@ public class TiUIWebView extends TiUIView
 		if (blob.getType() == TiBlob.TYPE_FILE) {
 			String fullPath = blob.getNativePath();
 			if (fullPath != null) {
-				getWebView().loadUrl(fullPath);
+				setUrl(fullPath);
 				return;
 			}
 		}
