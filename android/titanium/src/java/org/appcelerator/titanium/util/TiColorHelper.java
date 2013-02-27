@@ -81,7 +81,7 @@ public class TiColorHelper
 
 	private static void buildColorTable() {
 		synchronized(TiColorHelper.class) {
-			colorTable = new HashMap<String, Integer>(16);
+			colorTable = new HashMap<String, Integer>(20);
 
 			colorTable.put("black", Color.BLACK);
 			colorTable.put("red", Color.RED);
@@ -102,6 +102,7 @@ public class TiColorHelper
 			colorTable.put("silver", Color.rgb(0xc0, 0xc0, 0xc0));
 			colorTable.put("olive", Color.rgb(0x80, 0x80, 0));
 			colorTable.put("teal", Color.rgb(0x0, 0x80, 0x80));
+			colorTable.put("brown", Color.rgb(0xa5, 0x2a, 0x2a));
 		}
 	}
 }
