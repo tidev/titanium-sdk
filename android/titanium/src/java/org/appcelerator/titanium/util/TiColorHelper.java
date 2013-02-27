@@ -102,7 +102,7 @@ public class TiColorHelper
 			colorTable.put("silver", Color.rgb(0xc0, 0xc0, 0xc0));
 			colorTable.put("olive", Color.rgb(0x80, 0x80, 0));
 			colorTable.put("teal", Color.rgb(0x0, 0x80, 0x80));
-			colorTable.put("brown", Color.rgb(0xa5, 0x2a, 0x2a));
+			colorTable.put("brown", Color.rgb(0x99, 0x66, 0x33));
 		}
 	}
 }
