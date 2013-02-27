@@ -393,6 +393,7 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 	[self setReloadData:content];
 	[self setReloadDataProperties:property];
 	reloadMethod = @selector(setHtml_:withObject:);
+	RELEASE_TO_NIL(lastValidLoad);
 	[self loadHTML:content encoding:NSUTF8StringEncoding textEncodingName:@"utf-8" mimeType:mimeType baseURL:baseURL];
 }
 
@@ -403,6 +404,7 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 	[self setReloadDataProperties:nil];
 	reloadMethod = @selector(setData_:);
 	RELEASE_TO_NIL(url);
+	RELEASE_TO_NIL(lastValidLoad);
 	ENSURE_SINGLE_ARG(args,NSObject);
 	
 	[self stopLoading];
@@ -474,6 +476,7 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 	reloadMethod = @selector(setUrl_:);
 
 	RELEASE_TO_NIL(url);
+	RELEASE_TO_NIL(lastValidLoad);
 	ENSURE_SINGLE_ARG(args,NSString);
 	
 	url = [[TiUtils toURL:args proxy:(TiProxy*)self.proxy] retain];
