@@ -8,6 +8,7 @@ import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.TiViewProxy;
+import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.view.TiUIView;
 
 import android.app.Activity;
@@ -23,6 +24,7 @@ public class TiListView extends TiUIView {
 	private TiBaseAdapter adapter;
 	private ArrayList<ListSectionProxy> sections;
 	private AtomicInteger itemTypeCount;
+	private String defaultTemplateBinding;
 	private HashMap<String, TiTemplate> templatesByBinding;
 
 	public class TiBaseAdapter extends BaseAdapter {
@@ -119,6 +121,10 @@ public class TiListView extends TiUIView {
 				processTemplates(new KrollDict((HashMap)templates));
 			}
 		} 
+		
+		if (d.containsKey(TiC.PROPERTY_DEFAULT_ITEM_TEMPLATE)) {
+			defaultTemplateBinding = TiConvert.toString(d, TiC.PROPERTY_DEFAULT_ITEM_TEMPLATE);
+		}
 
 		listView.setAdapter(adapter);
 
@@ -130,7 +136,10 @@ public class TiListView extends TiUIView {
 		for (String key : templates.keySet()) {
 			//Here we bind each template with a key so we can use it to look up later
 			KrollDict properties = new KrollDict((HashMap)templates.get(key));
-			templatesByBinding.put(key, new TiTemplate(key, properties));
+			TiTemplate template = new TiTemplate(key, properties);
+			//Set type to template, for recycling purposes.
+			template.setType(getItemType());
+			templatesByBinding.put(key, template);
 		}
 	}
 
@@ -143,8 +152,7 @@ public class TiListView extends TiUIView {
 				this.sections.add(section);	
 				section.setAdapter(adapter);
 				section.setListView(this);
-				//Each template is an item type. When we process sections, we check to see
-				//if templates already have an item type set. If not, we set it
+				//Attempts to set type for existing templates.
 				section.setTemplateType();
 			}
 		}
@@ -174,6 +182,10 @@ public class TiListView extends TiUIView {
 	
 	public TiTemplate getTemplateByBinding(String binding) {
 		return templatesByBinding.get(binding);
+	}
+	
+	public String getDefaultTemplateBinding() {
+		return defaultTemplateBinding;
 	}
 	
 }

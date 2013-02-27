@@ -913,6 +913,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_DEFAULT_IMAGE = "defaultImage";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_DEFAULT_ITEM_TEMPLATE = "defaultItemTemplate";
 
 	/**
 	 * @module.api

@@ -1,5 +1,6 @@
 package ti.modules.titanium.ui.widget.listview;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Set;
 
@@ -9,36 +10,82 @@ import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
 
-import ti.modules.titanium.ui.ImageViewProxy;
-import ti.modules.titanium.ui.LabelProxy;
-import android.app.Activity;
-
 public class TiTemplate {
 	
 	private static final String TAG = "TiTemplate";
 
-	private HashMap<String, TiViewProxy> viewProxies;
-	private HashMap<String, KrollDict> defaultProperties;
+	protected HashMap<String, DataItem> dataItems;
 	
 	public static final String DEFAULT_TEMPLATE = "defaultTemplate";
-	public static final String DEFAULT_LABEL_BINDING = "title";
-	public static final String DEFAULT_IMAGE_BINDING = "leftImage";
-	public static final String DEFAULT_CELL_ID = "cellID";
+	
+	public static final String GENERATED_BINDING = "@#$_+_#$#^%^~:";
 
 	//Identifier for template, specified in ListView creation dict
 	private String templateID;
 	//Internal identifier for template, each template has a unique type
 	private int templateType;
 	
-	private String cellID;
+	protected DataItem rootItem;
+	
+	protected String itemID;
 	//Properties of the template. 
 	private KrollDict properties;
 	
+	public class DataItem {
+		//proxy for the item
+		TiViewProxy vProxy;
+		//binding id
+		String bindId;
+		DataItem parent;
+		ArrayList<DataItem> children;
+		KrollDict defaultProperties;
+
+		public DataItem(TiViewProxy proxy, String id, DataItem parent) {
+			vProxy = proxy;
+			bindId = id;
+			this.parent = parent;
+			children = new ArrayList<DataItem>();
+			defaultProperties = new KrollDict();
+		}
+		
+		public TiViewProxy getViewProxy() {
+			return vProxy;
+		}
+		
+		public String getBindingId() {
+			return bindId;
+		}
+		public void setDefaultProperties(KrollDict d) {
+			defaultProperties = d;
+		}
+		
+		public KrollDict getDefaultProperties() {
+			return defaultProperties;
+		}
+
+		public DataItem getParent() {
+			return parent;
+		}
+		
+		public ArrayList<DataItem> getChildren() {
+			return children;
+		}
+		
+		public void addChild(DataItem child) {
+			children.add(child);
+		}
+	}
+
+	public TiTemplate() {
+		
+	}
+
 	public TiTemplate(String id, KrollDict properties) {
 		//Init our binding hashmaps
-		viewProxies = new HashMap<String, TiViewProxy>();
-		defaultProperties = new HashMap<String, KrollDict>();
+		dataItems = new HashMap<String, DataItem>();
 
+		//Set item id. Item binding is always "properties"
+		itemID = TiC.PROPERTY_PROPERTIES;
 		//Init vars.
 		templateID = id;
 		templateType = -1;
@@ -51,54 +98,68 @@ public class TiTemplate {
 	
 	}
 
-	private void bindProxiesAndProperties(KrollDict properties, boolean isRootTemplate) {
+	private DataItem bindProxiesAndProperties(KrollDict properties, boolean isRootTemplate, DataItem parent) {
 		Object proxy = null;
 		String id = null;
 		Object props = null;
+		DataItem item = null;
 		if (properties.containsKey(TiC.PROPERTY_TYPE)) {
 			proxy = properties.get(TiC.PROPERTY_TYPE);
 		}
 
-		if (properties.containsKey("ID")) {
+		//Get/generate random bind id
+		if (isRootTemplate) {
+			id = itemID;	
+		} else if (!isRootTemplate && properties.containsKey("ID")) {
 			id = TiConvert.toString(properties, "ID");
-			if (isRootTemplate) {
-				cellID = id;
-			}
+		} else {
+			id = GENERATED_BINDING + Math.random();
 		}
+		
 
-		if (id != null && proxy instanceof TiViewProxy) {
-			viewProxies.put(id, (TiViewProxy) proxy);
+		if (proxy instanceof TiViewProxy) {
+			TiViewProxy viewProxy = (TiViewProxy) proxy;
+			if (isRootTemplate) {
+				rootItem = item = new DataItem(viewProxy, TiC.PROPERTY_PROPERTIES, null);
+			} else {
+				item = new DataItem(viewProxy, id, parent);
+				parent.addChild(item);
+			}
+			dataItems.put(id, item);
 		}
 
 		if (properties.containsKey(TiC.PROPERTY_PROPERTIES)) {
 			props = properties.get(TiC.PROPERTY_PROPERTIES);
 		}
 		
-		if (id != null && props instanceof HashMap) {
-			defaultProperties.put(id, new KrollDict((HashMap)props));
-		} else if (props == null) {
-			defaultProperties.put(id, new KrollDict());
+		if (props instanceof HashMap) {
+			item.setDefaultProperties(new KrollDict((HashMap)props));
 		}
+
+		return item;
 	}
 
 	private void processProperties(KrollDict properties) {
-		bindProxiesAndProperties(properties, true);
+		bindProxiesAndProperties(properties, true, null);
 		if (properties.containsKey(TiC.PROPERTY_CHILD_TEMPLATES)) {
-			processChildProperties(properties.get(TiC.PROPERTY_CHILD_TEMPLATES));
+			processChildProperties(properties.get(TiC.PROPERTY_CHILD_TEMPLATES), rootItem);
 		}
 
 	}
 	
-	private void processChildProperties(Object childProperties) {
+	private void processChildProperties(Object childProperties, DataItem parent) {
 		if (childProperties instanceof Object[]) {
 			Object[] propertiesArray = (Object[])childProperties;
 			for (int i = 0; i < propertiesArray.length; i++) {
 				HashMap<String, Object> properties = (HashMap<String, Object>) propertiesArray[i];
 				//bind proxies and default properties
-				bindProxiesAndProperties(new KrollDict(properties), false);
+				DataItem item = bindProxiesAndProperties(new KrollDict(properties), false, parent);
 				//Recursively calls for all childTemplates
 				if (properties.containsKey(TiC.PROPERTY_CHILD_TEMPLATES)) {
-					processChildProperties(properties.get(TiC.PROPERTY_CHILD_TEMPLATES));
+					if(item == null) {
+						Log.e(TAG, "ITEM SHOULDN'NT BE NULL");
+					}
+					processChildProperties(properties.get(TiC.PROPERTY_CHILD_TEMPLATES), item);
 				}
 			}
 		}
@@ -116,81 +177,58 @@ public class TiTemplate {
 		return templateType;
 	}
 	
-	public String getCellID() {
-		return cellID;
+	public String getItemID() {
+		return itemID;
 	}
 	
 	/**
 	 * Returns the bound view proxy if exists.
 	 */
-	public TiViewProxy getViewProxy(String binding) {
-		return viewProxies.get(binding);	
+	public DataItem getDataItem(String binding) {
+		return dataItems.get(binding);	
 	}
-	
-	/**
-	 * Returns the bound default properties if exists.
-	 */
-	public KrollDict getDefaultProperties(String binding) {
-		return defaultProperties.get(binding);
-	}
-	
-	public void generateDefaultProps(Activity activity) {
-		//Init default properties for our proxies
-		KrollDict defaultLabelProperties = new KrollDict();
-		KrollDict defaultImageProperties = new KrollDict();
 
-		//Generate label proxy
-		LabelProxy labelProxy = new LabelProxy();
-		labelProxy.setActivity(activity);
-		//Generate properties
-		defaultLabelProperties.put("left", "30%");
-		defaultLabelProperties.put("text", "label");
-		//bind the proxy and default properties
-		viewProxies.put(DEFAULT_LABEL_BINDING, labelProxy);
-		defaultProperties.put(DEFAULT_LABEL_BINDING, defaultLabelProperties);
-		
-		//Generate image proxy
-		ImageViewProxy imageProxy = new ImageViewProxy();
-		imageProxy.setActivity(activity);
-		//Generate properties
-		defaultImageProperties.put("left", "0");
-		defaultImageProperties.put("height", "100");
-		defaultImageProperties.put("width", "100");
-		//bind the proxy and default properties
-		viewProxies.put(DEFAULT_IMAGE_BINDING, imageProxy);
-		defaultProperties.put(DEFAULT_IMAGE_BINDING, defaultImageProperties);
-		
-		cellID = DEFAULT_CELL_ID;
-		//Generate cell proxy
-		ListCellProxy proxy = new ListCellProxy();
-		proxy.setActivity(activity);
-		viewProxies.put(cellID, proxy);
-		defaultProperties.put(cellID, new KrollDict());
-
+	public DataItem getRootItem() {
+		return rootItem;
 	}
-	
+
 	/**
 	 * 
 	 * @param data
 	 */
-	public void mergeAndUpdateDefaultProperties(KrollDict data) {
+	public void updateDefaultProperties(KrollDict data) {
 		
 		for (String binding: data.keySet()) {
-			KrollDict defaultProps = defaultProperties.get(binding);
+			DataItem dataItem = dataItems.get(binding);
+			if (dataItem == null) continue;
+			
+			KrollDict defaultProps = dataItem.getDefaultProperties();
 			KrollDict props = new KrollDict((HashMap)data.get(binding));
 			if (defaultProps != null) {
 				//update default properties
-				updateDefaultProperties(defaultProps, props);
+				modifyDefaultProperties(defaultProps, props);
+			}
+		}
+		
+	}
+	
+	public void mergeWithDefaultProperties(KrollDict data) {
+		for (String binding: data.keySet()) {
+			DataItem dataItem = dataItems.get(binding);
+			if (dataItem == null) continue;
+
+			KrollDict defaultProps = dataItem.getDefaultProperties();
+			KrollDict props = new KrollDict((HashMap)data.get(binding));
+			if (defaultProps != null) {
 				//merge default properties with new properties and update data
 				HashMap<String, Object> newData = ((HashMap<String, Object>)defaultProps.clone());
 				newData.putAll(props);
 				data.put(binding, newData);
 			}
 		}
-		
 	}
 	
-	public void updateDefaultProperties(KrollDict existingProperties, KrollDict newProperties) {
+	public void modifyDefaultProperties(KrollDict existingProperties, KrollDict newProperties) {
 		Set<String> existingKeys = existingProperties.keySet();
 		for (String key:  newProperties.keySet()) {
 			if (!existingKeys.contains(key)) {

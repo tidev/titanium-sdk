@@ -6,8 +6,6 @@ import org.appcelerator.titanium.view.TiCompositeLayout;
 import org.appcelerator.titanium.view.TiUIView;
 
 import android.content.Context;
-import android.view.View.MeasureSpec;
-import android.widget.AbsListView;
 
 public class TiBaseListViewItem extends TiCompositeLayout{
 

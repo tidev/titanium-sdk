@@ -6,17 +6,16 @@ import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.view.TiUIView;
 
 import ti.modules.titanium.ui.UIModule;
-
 import android.app.Activity;
 
 @Kroll.proxy(creatableInModule = UIModule.class, propertyAccessors = {
 	TiC.PROPERTY_TITLE
 })
-public class ListCellProxy extends TiViewProxy {
+public class ListItemProxy extends TiViewProxy {
 
 	
 	public TiUIView createView(Activity activity) {
-		return new TiListCell(this);
+		return new TiListItem(this);
 	}
 
 }

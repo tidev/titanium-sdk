@@ -24,7 +24,7 @@ exports.bootstrap = function(Titanium) {
 	}
 	
 	function processTemplate(properties) {
-	   	var cellProxy = Titanium.UI.createListCell();
+	   	var cellProxy = Titanium.UI.createListItem();
 		properties.type = cellProxy;
     	var events = properties.events;
     	addEventListeners(events, cellProxy);

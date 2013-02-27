@@ -5,9 +5,10 @@ import org.appcelerator.titanium.view.TiUIView;
 
 import android.view.View;
 
-public class TiListCell extends TiUIView {
+public class TiListItem extends TiUIView {
 
-	public TiListCell(TiViewProxy proxy) {
+
+	public TiListItem(TiViewProxy proxy) {
 		super(proxy);
 	}
 
