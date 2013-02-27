@@ -324,6 +324,7 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 
 - (void)reload
 {
+    RELEASE_TO_NIL(lastValidLoad);
 	if (webview == nil)
 	{
 		return;
