@@ -628,9 +628,7 @@ public class TableViewProxy extends TiViewProxy
 	{
 		ArrayList<TableViewSectionProxy> sections = getSectionsArray();
 		for (TableViewSectionProxy section : sections) {
-			for (TableViewRowProxy row : section.rows) {
-				section.remove(row);
-			}
+			section.setParent(null);
 		}
 		sections.clear();
 	}
