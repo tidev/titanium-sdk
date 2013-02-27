@@ -166,7 +166,6 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 			[spinner sizeToFit];
 			[spinner startAnimating];
 		}
-		lastValidLoad = nil;
 	}
 	return webview;
 }
@@ -706,7 +705,7 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
         if (![urlAbs isEqualToString:lastValidLoad]) {
             NSDictionary *event = url == nil ? nil : [NSDictionary dictionaryWithObject:[self url] forKey:@"url"];
             [self.proxy fireEvent:@"load" withObject:event];
-            RELEASE_TO_NIL(lastValidLoad);
+            [lastValidLoad release];
             lastValidLoad = [urlAbs retain];
         }
     }
