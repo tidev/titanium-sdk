@@ -758,9 +758,7 @@ DEFINE_EXCEPTIONS
 
 -(void)imageLoadSuccess:(ImageLoaderRequest*)request image:(UIImage*)image
 {
-    UIImage* theImage = [[ImageLoader sharedLoader] loadImmediateImage:[request url]];
-    
-    UIImage *imageToUse = [self rotatedImage:theImage];
+    UIImage *imageToUse = [self rotatedImage:image];
 
     autoWidth = imageToUse.size.width;
     autoHeight = imageToUse.size.height;
