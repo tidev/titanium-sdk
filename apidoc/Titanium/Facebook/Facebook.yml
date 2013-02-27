@@ -141,7 +141,7 @@ methods:
 
       - name: callback
         summary: Callback to invoke  when the user completes or cancels the dialog.
-        type: Callback<FacebookDialogResponse>
+        type: Callback<FacebookDialogResponsev1>
 
   - name: logout
     summary: Clears the OAuth `accessToken` and logs out the user.
@@ -165,7 +165,7 @@ methods:
 
       - name: callback
         summary: Callback to invoke  when the request completes.
-        type: Callback<FacebookRESTResponse>
+        type: Callback<FacebookRESTResponsev1>
 
   - name: requestWithGraphPath
     summary: Makes a Facebook Graph API request.
@@ -197,7 +197,7 @@ methods:
 
       - name: callback
         summary: Callback to invoke  when the request completes.
-        type: Callback<FacebookGraphResponse>
+        type: Callback<FacebookGraphResponsev1>
 
 events:
 
@@ -553,7 +553,7 @@ examples:
 
         * [Facebook Dialog Reference](http://developers.facebook.com/docs/reference/dialogs/) 
 ---
-name: FacebookGraphResponse
+name: FacebookGraphResponsev1
 summary: |
     Argument passed to the graph API callback, in response to a
     [requestWithGraphPath](Titanium.Facebook.requestWithGraphPath) call.
@@ -577,7 +577,7 @@ properties:
 
 
 ---
-name: FacebookDialogResponse
+name: FacebookDialogResponsev1
 summary: Argument passed to the dialog callback when a dialog is completed or canceled.
 description: |
     The `success` and `cancelled` properties may not be reliable for dialogs. In the event
@@ -604,7 +604,7 @@ properties:
 
 
 ---
-name: FacebookRESTResponse
+name: FacebookRESTResponsev1
 summary: |
     Argument passed to the REST API callback when a request completes (successfully
     or unsuccessfully).
