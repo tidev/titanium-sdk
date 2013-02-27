@@ -1531,6 +1531,7 @@ class Builder(object):
 		classpath = os.pathsep.join([classpath, os.path.join(self.support_dir, 'lib', 'titanium-verify.jar')])
 		if self.deploy_type != 'production':
 			classpath = os.pathsep.join([classpath, os.path.join(self.support_dir, 'lib', 'titanium-debug.jar')])
+			classpath = os.pathsep.join([classpath, os.path.join(self.support_dir, 'lib', 'titanium-profiler.jar')])
 
 		debug("Building Java Sources: " + " ".join(src_list))
 		javac_command = [self.javac, '-encoding', 'utf8',
@@ -1679,6 +1680,8 @@ class Builder(object):
 
 			# libtiverify is always included, even if targeting rhino.
 			apk_zip.write(os.path.join(lib_source_dir, 'libtiverify.so'), lib_dest_dir + 'libtiverify.so')
+			# profiler
+			apk_zip.write(os.path.join(lib_source_dir, 'libtiprofiler.so'), lib_dest_dir + 'libtiprofiler.so')
 
 			if self.runtime == 'v8':
 				for fname in ('libkroll-v8.so', 'libstlport_shared.so'):
@@ -2277,6 +2280,7 @@ class Builder(object):
 				dex_args.append(os.path.join(self.support_dir, 'lib', 'titanium-verify.jar'))
 				if self.deploy_type != 'production':
 					dex_args.append(os.path.join(self.support_dir, 'lib', 'titanium-debug.jar'))
+					dex_args.append(os.path.join(self.support_dir, 'lib', 'titanium-profiler.jar'))
 					# the verifier depends on Ti.Network classes, so we may need to inject it
 					has_network_jar = False
 					for jar in self.android_jars:
