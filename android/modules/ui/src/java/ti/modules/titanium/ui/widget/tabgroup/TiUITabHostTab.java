@@ -81,7 +81,7 @@ public class TiUITabHostTab extends TiUIAbstractTab {
 	public void propertyChanged(String key, Object oldValue, Object newValue, KrollProxy proxy) {
 		if (key.equals(TiC.PROPERTY_TITLE)) {
 			View titleView = indicatorView.findViewById(android.R.id.title);
-			if (titleView != null && titleView instanceof TextView) {
+			if (titleView instanceof TextView) {
 				if (newValue != null) {
 					((TextView)titleView).setText(TiConvert.toString(newValue));
 				} else {
@@ -93,25 +93,15 @@ public class TiUITabHostTab extends TiUIAbstractTab {
 		}
 		if (key.equals(TiC.PROPERTY_ICON)) {
 			View iconView = indicatorView.findViewById(android.R.id.icon);
-			if (iconView != null && iconView instanceof ImageView) {
+			if (iconView instanceof ImageView) {
 				Drawable icon = null;
 				if (newValue != null){
-					icon = getDrawableFromUrl(newValue);
+					icon = TiUIHelper.getResourceDrawable(newValue);
 				}
 				((ImageView)iconView).setImageDrawable(icon);
 			} else {
 				Log.d(TAG, "Did not find a image View inside indicatorView to update ", Log.DEBUG_MODE);
 			}
-		}
-	}
-	
-	private Drawable getDrawableFromUrl(Object url)
-	{
-		try {
-			return TiUIHelper.getResourceDrawable(url);
-		} catch (Exception e) {
-			Log.w(TAG, "Could not load drawable "+e.getMessage(), Log.DEBUG_MODE);
-			return null;
 		}
 	}
 
