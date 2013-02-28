@@ -22,7 +22,6 @@ import android.os.Message;
 import android.util.SparseArray;
 
 @Kroll.proxy(creatableInModule = UIModule.class, propertyAccessors = {
-	TiC.PROPERTY_HEADER_TITLE
 })
 public class ListSectionProxy extends ViewProxy{
 
@@ -32,6 +31,9 @@ public class ListSectionProxy extends ViewProxy{
 	private int itemCount;
 	private DefaultTemplate builtInTemplate;
 	private TiBaseAdapter adapter;
+	
+	private String headerTitle;
+	private String footerTitle;
 	
 	private WeakReference<TiListView> listView;
 	
@@ -46,8 +48,52 @@ public class ListSectionProxy extends ViewProxy{
 		itemCount = 0;
 	}
 	
+	public void handleCreationDict(KrollDict dict) {
+		//getting header/footer titles from creation dictionary
+		if (dict.containsKey(TiC.PROPERTY_HEADER_TITLE)) {
+			headerTitle = TiConvert.toString(dict, TiC.PROPERTY_HEADER_TITLE);
+		}
+		if (dict.containsKey(TiC.PROPERTY_FOOTER_TITLE)) {
+			footerTitle = TiConvert.toString(dict, TiC.PROPERTY_FOOTER_TITLE);
+		}
+	}
+	
 	public void setAdapter(TiBaseAdapter a) {
 		adapter = a;
+	}
+
+	@Kroll.method @Kroll.setProperty
+	public void setHeaderTitle(String headerTitle) {
+		this.headerTitle = headerTitle;
+		if (adapter != null) {
+			adapter.notifyDataSetChanged();
+		}
+	}
+	
+	@Kroll.method @Kroll.getProperty
+	public String getHeaderTitle() {
+		return headerTitle;
+	}
+	
+	@Kroll.method @Kroll.setProperty
+	public void setFooterTitle(String headerTitle) {
+		this.footerTitle = headerTitle;
+		if (adapter != null) {
+			adapter.notifyDataSetChanged();
+		}
+	}
+	
+	@Kroll.method @Kroll.getProperty
+	public String getFooterTitle() {
+		return footerTitle;
+	}
+	
+	public String getHeaderOrFooterTitle(int index) {
+		if (isHeaderView(index)) {
+			return headerTitle;
+		} else if (isFooterView(index)) {
+			return footerTitle;
+		} else return "";
 	}
 
 	@Override
@@ -84,7 +130,7 @@ public class ListSectionProxy extends ViewProxy{
 		if (data instanceof Object[]) {
 			Object[] views = (Object[]) data;
 			int count = views.length;
-			itemCount += count;
+			itemCount = count;
 
 			//First pass through data, we process template and update
 			//default properties based data given
@@ -130,6 +176,11 @@ public class ListSectionProxy extends ViewProxy{
 		if (itemData.containsKey(TiC.PROPERTY_TEMPLATE)) {
 			//retrieve template
 			String binding = TiConvert.toString(itemData.get(TiC.PROPERTY_TEMPLATE));
+			//check if template is default
+			if (binding != null && binding.equals(UIModule.LIST_ITEM_TEMPLATE_DEFAULT)) {
+				return processDefaultTemplate(itemData, index);
+			}
+
 			TiTemplate template = listView.getTemplateByBinding(binding);
 			//if template is successfully retrieved, bind it to the index. This is b/c
 			//each row can have a different template.
@@ -149,24 +200,30 @@ public class ListSectionProxy extends ViewProxy{
 					templatesByIndex.put(index, defTemplate);
 					return defTemplate;
 				}
-			} else if (builtInTemplate != null){
-				templatesByIndex.put(index, builtInTemplate);
-			} else {
-				//Create template and generate default properties
-				builtInTemplate = new DefaultTemplate(UIModule.LIST_ITEM_TEMPLATE_DEFAULT, null);
-				builtInTemplate.generateDefaultProps(getActivity());
-				//Each template is treated as an item type, so we can reuse views efficiently.
-				//Section templates are given a type in TiListView.processSections(). Here we
-				//give default template a type if possible.
-				if (listView != null) {
-					builtInTemplate.setType(listView.getItemType());
-				}
-				templatesByIndex.put(index, builtInTemplate);
 			}
-			
-			return builtInTemplate;
+			return processDefaultTemplate(itemData, index);
 		}	
 		
+	}
+	
+	private TiTemplate processDefaultTemplate(KrollDict data, int index) {
+		if (builtInTemplate != null){
+			templatesByIndex.put(index, builtInTemplate);
+		} else {
+			//Create template and generate default properties
+			builtInTemplate = new DefaultTemplate(UIModule.LIST_ITEM_TEMPLATE_DEFAULT, null);
+			builtInTemplate.generateDefaultProps(getActivity());
+			//Each template is treated as an item type, so we can reuse views efficiently.
+			//Section templates are given a type in TiListView.processSections(). Here we
+			//give default template a type if possible.
+			TiListView listView = getListView();
+			if (listView != null) {
+				builtInTemplate.setType(listView.getItemType());
+			}
+			templatesByIndex.put(index, builtInTemplate);
+		}
+
+		return builtInTemplate;
 	}
 
 	/**
@@ -269,6 +326,9 @@ public class ListSectionProxy extends ViewProxy{
 	}
 	
 	public TiTemplate getTemplateByIndex(int index) {
+		if (headerTitle != null) {
+			index -= 1;
+		}
 		return templatesByIndex.get(index);
 	}
 	
@@ -276,7 +336,26 @@ public class ListSectionProxy extends ViewProxy{
 	 * @return number of entries within section
 	 */
 	public int getItemCount() {
-		return itemCount;
+		int totalCount = itemCount;
+		if (headerTitle != null) {
+			totalCount += 1;
+		}
+		if (footerTitle != null) {
+			totalCount +=1;
+		}
+		return totalCount;
+	}
+	
+	public boolean isHeaderView(int pos) {
+		if (headerTitle != null && pos == 0) 
+			return true;
+		return false;
+	}
+	
+	public boolean isFooterView(int pos) {
+		if (footerTitle != null && pos == getItemCount() - 1) 
+			return true;
+		return false;
 	}
 	
 	public void setListView(TiListView l) {
@@ -304,6 +383,10 @@ public class ListSectionProxy extends ViewProxy{
 	}
 	
 	public KrollDict getEntryProperties(int position) {
+		if (headerTitle != null) {
+			position -= 1;
+		}
+
 		if (position < entryProperties.size()) {
 			return entryProperties.get(position);
 		} 

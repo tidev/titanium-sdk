@@ -934,7 +934,7 @@ public abstract class TiUIView
 
 			Drawable bgDrawable = TiUIHelper.buildBackgroundDrawable(
 					bg,
-					d.getBoolean(TiC.PROPERTY_BACKGROUND_REPEAT),
+					TiConvert.toBoolean(d, TiC.PROPERTY_BACKGROUND_REPEAT, false),
 					bgColor,
 					bgSelected,
 					bgSelectedColor,
