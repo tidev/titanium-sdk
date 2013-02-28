@@ -19,7 +19,7 @@ description: |
     
     #### Android Platform Notes
 
-    On Android, this module requires a Google Maps API v1 key. Since March 3, 2013,
+    On Android, this module requires a Google Maps API v1 key. As of March 3, 2013,
     Google is no longer issuing Maps API v1 keys.  If you want to add native maps support
     to your Android application, you need to use the [Google Maps v2 module](Modules.Map).
 
