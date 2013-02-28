@@ -228,17 +228,14 @@ events:
     properties:
       - name: code
         summary: If `success` is false, the error code if available.
-	    since: {android: "3.1.0"}
 
       - name: success
         summary: Indicate if the heading event was successfully received.
         type: Boolean
-	    since: {android: "3.1.0"}
 
       - name: error
         summary: If `success` is false, a string describing the error.
         type: String
-	    since: {android: "3.1.0"}
 
       - name: heading
         summary: Dictionary object containing the heading data.
