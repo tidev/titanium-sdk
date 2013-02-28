@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width= "fill_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal" >
+    
+    <ti.modules.titanium.ui.widget.listview.TiBaseListViewItem 
+        android:id="@+id/listItem"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content" />    
+    <ImageView
+        android:id="@+id/accessoryType"
+        android:contentDescription="@string/accessoryType"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+    
+        
+
+</LinearLayout>
