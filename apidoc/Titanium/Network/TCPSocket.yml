@@ -41,6 +41,7 @@ events:
       - name: success
         summary: Indicates a successful operation. Returns `false`.
         type: Boolean
+        since: "3.1.0"
 
       - name: error
         summary: Error message, if any returned. May be undefined.
@@ -58,6 +59,7 @@ events:
       - name: success
         summary: Indicates a successful operation. Returns `false`.
         type: Boolean
+        since: "3.1.0"
 
       - name: error
         summary: Error message, if any returned. May be undefined.

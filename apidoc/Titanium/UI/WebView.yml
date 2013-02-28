@@ -250,10 +250,12 @@ events:
       - name: success
         summary: Indicates a successful operation. Returns `false`.
         type: Boolean
+        since: "3.1.0"
 
       - name: error
         summary: Error message, if any returned. May be undefined.
         type: String
+        since: "3.1.0"
     
       - name: code
         summary: |
@@ -262,6 +264,8 @@ events:
             is used. This may also be a A <Titanium.UI> URL_ERROR_* constant.
             Otherwise, this value will be -1.
         type: Number
+        since: "3.1.0"
+
       - name: url
         summary: URL of the web document.
         type: String
