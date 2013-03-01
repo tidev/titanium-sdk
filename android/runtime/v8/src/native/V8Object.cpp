@@ -99,7 +99,7 @@ Java_org_appcelerator_kroll_runtime_v8_V8Object_nativeFireEvent
 
 	Handle<Object> jsData = TypeConverter::javaHashMapToJsValue(env,data);
 
-	jsData->Set(String::NewSymbol("bubble"), TypeConverter::javaBooleanToJsBoolean(bubble));
+	jsData->Set(String::NewSymbol("bubbles"), TypeConverter::javaBooleanToJsBoolean(bubble));
 
 	jsData->Set(String::NewSymbol("source"), source);
 
