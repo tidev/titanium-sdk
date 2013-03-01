@@ -7,22 +7,30 @@
 package ti.modules.titanium.ui.widget.tabgroup;
 
 import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.KrollProxy;
+import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiC;
+import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiUIHelper;
 
 import ti.modules.titanium.ui.TabProxy;
 import android.graphics.drawable.Drawable;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.TabHost.TabSpec;
+import android.widget.TextView;
 
 public class TiUITabHostTab extends TiUIAbstractTab {
 	final String id = Integer.toHexString(hashCode());
 
 	private View indicatorView;
 	private Drawable defaultTabBackground;
+	
+	private static final String TAG = "TiUITabHostTab";
 
 	public TiUITabHostTab(TabProxy proxy) {
 		super(proxy);
+		proxy.setModelListener(this);
 	}
 
 	public void setBackgroundColor(int color) {
@@ -66,6 +74,34 @@ public class TiUITabHostTab extends TiUIAbstractTab {
 
 		if (backgroundColor != 0) {
 			setBackgroundColor(backgroundColor);
+		}
+	}
+	
+	@Override
+	public void propertyChanged(String key, Object oldValue, Object newValue, KrollProxy proxy) {
+		if (key.equals(TiC.PROPERTY_TITLE)) {
+			View titleView = indicatorView.findViewById(android.R.id.title);
+			if (titleView instanceof TextView) {
+				if (newValue != null) {
+					((TextView)titleView).setText(TiConvert.toString(newValue));
+				} else {
+					((TextView)titleView).setText("");
+				}
+			} else {
+				Log.d(TAG, "Did not find a title View inside indicatorView to update ", Log.DEBUG_MODE);
+			}
+		}
+		if (key.equals(TiC.PROPERTY_ICON)) {
+			View iconView = indicatorView.findViewById(android.R.id.icon);
+			if (iconView instanceof ImageView) {
+				Drawable icon = null;
+				if (newValue != null){
+					icon = TiUIHelper.getResourceDrawable(newValue);
+				}
+				((ImageView)iconView).setImageDrawable(icon);
+			} else {
+				Log.d(TAG, "Did not find a image View inside indicatorView to update ", Log.DEBUG_MODE);
+			}
 		}
 	}
 
