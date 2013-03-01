@@ -702,6 +702,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_BIND_ID = "bindId";
+	
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_BIRTHDAY = "birthday";
 
 	/**
@@ -1241,6 +1246,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_ITEM_ID = "itemId";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_ITEM_INDEX = "itemIndex";
 
 	/**
 	 * @module.api
@@ -1754,6 +1764,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_SECTION = "section";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_SECTION_INDEX = "sectionIndex";
 	
 	/**
 	 * @module.api

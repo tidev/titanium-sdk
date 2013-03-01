@@ -44,8 +44,18 @@ public class TiTemplate {
 			vProxy = proxy;
 			bindId = id;
 			this.parent = parent;
+			setProxyParent();
 			children = new ArrayList<DataItem>();
 			defaultProperties = new KrollDict();
+		}
+		
+		private void setProxyParent() {
+			if (vProxy != null && parent != null) {
+				TiViewProxy parentProxy = parent.getViewProxy();
+				if (parentProxy != null) {
+					vProxy.setParent(parentProxy);
+				}
+			}
 		}
 		
 		public TiViewProxy getViewProxy() {
@@ -110,8 +120,8 @@ public class TiTemplate {
 		//Get/generate random bind id
 		if (isRootTemplate) {
 			id = itemID;	
-		} else if (!isRootTemplate && properties.containsKey("ID")) {
-			id = TiConvert.toString(properties, "ID");
+		} else if (!isRootTemplate && properties.containsKey(TiC.PROPERTY_BIND_ID)) {
+			id = TiConvert.toString(properties, TiC.PROPERTY_BIND_ID);
 		} else {
 			id = GENERATED_BINDING + Math.random();
 		}

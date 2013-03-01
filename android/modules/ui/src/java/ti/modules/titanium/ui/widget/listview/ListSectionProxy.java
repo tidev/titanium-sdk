@@ -115,7 +115,7 @@ public class ListSectionProxy extends ViewProxy{
 	}
 	
 	@Kroll.method
-	public void setItem(Object data) {
+	public void setItems(Object data) {
 		if (TiApplication.isUIThread()) {
 			handleSetItem(data);
 		} else {
@@ -157,7 +157,7 @@ public class ListSectionProxy extends ViewProxy{
 			}
 			//Notify adapter that data has changed.
 			if (adapter != null) {
-				//adapter.notifyDataSetChanged();
+				adapter.notifyDataSetChanged();
 			}
 		} else {
 			Log.e(TAG, "Invalid argument type to setData");
@@ -232,15 +232,12 @@ public class ListSectionProxy extends ViewProxy{
 	 * @param index Entry's index relative to its section
 	 * @return
 	 */
-	public TiBaseListViewItem generateCellContent(int index, KrollDict data, TiTemplate template) {
+	public void generateCellContent(int index, KrollDict data, TiTemplate template, TiBaseListViewItem itemContent, int itemPosition) {
 		//Here we create an item content and populate it with data
 		//Get item proxy
 		TiViewProxy itemProxy = template.getRootItem().getViewProxy();
 		//Create corresponding TiUIView for item proxy
 		TiListItem item = new TiListItem(itemProxy);	
-		
-		//Create native view for for TiUIView and set it
-		TiBaseListViewItem itemContent = new TiBaseListViewItem(getActivity());
 		item.setNativeView(itemContent);
 		
 		//Connect native view with TiUIView so we can get it from recycled view.
@@ -248,9 +245,8 @@ public class ListSectionProxy extends ViewProxy{
 	
 		if (data != null && template != null) {
 			generateChildContentViews(template.getRootItem(), null, itemContent, true);
-			populateViews(data, itemContent, template);
+			populateViews(data, itemContent, template, itemPosition, index);
 		}
-		return itemContent;
 	}
 	
 	
@@ -275,7 +271,19 @@ public class ListSectionProxy extends ViewProxy{
 		}
 	}
 	
-	public void populateViews(KrollDict data, TiBaseListViewItem cellContent, TiTemplate template) {
+	public void appendExtraEventData(TiUIView view, int itemPosition, int sectionIndex, String bindId) {
+		KrollDict existingData = view.getAdditionalEventData();
+		if (existingData == null) {
+			existingData = new KrollDict();
+			view.setAddtionalEventData(existingData);
+		}
+		existingData.put(TiC.PROPERTY_SECTION, this);
+		existingData.put(TiC.PROPERTY_SECTION_INDEX, sectionIndex);
+		existingData.put(TiC.PROPERTY_BIND_ID, bindId);
+		existingData.put(TiC.PROPERTY_ITEM_INDEX, itemPosition);
+	}
+	
+	public void populateViews(KrollDict data, TiBaseListViewItem cellContent, TiTemplate template, int itemPosition, int sectionIndex) {
 		Object cell = cellContent.getTag();
 		if (cell instanceof TiUIView) {
 			((TiUIView) cell).processProperties(template.getRootItem().getDefaultProperties());
@@ -283,6 +291,12 @@ public class ListSectionProxy extends ViewProxy{
 		HashMap<String, TiUIView> views = cellContent.getViewsMap();
 		//Loop through all our views and apply default properties
 		for (String binding: views.keySet()) {
+			
+			DataItem dataItem = template.getDataItem(binding);
+			TiUIView view = views.get(binding);
+			if (view != null) {
+				appendExtraEventData(view, itemPosition, sectionIndex, binding);
+			}
 			//if view doesn't have binding, we don't need to re-apply properties since
 			//we know users can't change any properties. If data contains view, we don't
 			//need to apply default properties b/c data properties is merged with default
@@ -290,9 +304,7 @@ public class ListSectionProxy extends ViewProxy{
 			if (binding.startsWith(TiTemplate.GENERATED_BINDING) ||
 				data.containsKey(binding)) continue;
 			
-			DataItem dataItem = template.getDataItem(binding);
-			TiUIView view = views.get(binding);
-			if (dataItem != null && dataItem != null) {
+			if (dataItem != null && view != null) {
 				view.processProperties(dataItem.getDefaultProperties());
 			}
 			

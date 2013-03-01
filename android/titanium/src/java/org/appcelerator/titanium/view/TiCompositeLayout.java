@@ -9,6 +9,7 @@ package org.appcelerator.titanium.view;
 import java.lang.ref.WeakReference;
 import java.lang.reflect.Method;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.TreeSet;
 
 import org.appcelerator.kroll.common.Log;
@@ -28,6 +29,7 @@ import android.os.Build;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewGroup.OnHierarchyChangeListener;
+import android.util.AttributeSet;
 
 /**
  * Base layout class for all Titanium views. 
@@ -99,6 +101,7 @@ public class TiCompositeLayout extends ViewGroup
 	{
 		this(context, LayoutArrangement.DEFAULT, null);
 	}
+	
 
 	/**
 	 * Constructs a new TiCompositeLayout object.

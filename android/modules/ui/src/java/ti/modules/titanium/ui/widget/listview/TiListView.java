@@ -10,9 +10,10 @@ import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
+import org.appcelerator.titanium.util.TiRHelper;
+import org.appcelerator.titanium.util.TiRHelper.ResourceNotFoundException;
 import org.appcelerator.titanium.view.TiUIView;
 
-import ti.modules.titanium.ui.R;
 import android.app.Activity;
 import android.content.Context;
 import android.util.Pair;
@@ -31,8 +32,15 @@ public class TiListView extends TiUIView {
 	private AtomicInteger itemTypeCount;
 	private String defaultTemplateBinding;
 	private HashMap<String, TiTemplate> templatesByBinding;
+	private int listItemId;
+	public static int listContentId;
+	private int headerFooterId;
+	private int titleId;
 	private View headerView;
 	private View footerView;
+	private KrollDict eventData;
+	
+	private static final String TAG = "TiListView";
 	
 	public static final int HEADER_FOOTER_ITEM_TYPE = 2;
 
@@ -92,9 +100,9 @@ public class TiListView extends TiUIView {
 			//Handling section header/footer titles
 			if (section.isHeaderView(index) || section.isFooterView(index)) {
 				if (content == null) {
-					content = inflater.inflate(R.layout.list_header_or_footer, null);
+					content = inflater.inflate(headerFooterId, null);
 				}
-				TextView title = (TextView)content.findViewById(R.id.title);
+				TextView title = (TextView)content.findViewById(titleId);
 				title.setText(section.getHeaderOrFooterTitle(index));
 				return content;
 			}
@@ -102,14 +110,15 @@ public class TiListView extends TiUIView {
 			//Handling templates
 			KrollDict data = section.getEntryProperties(index);
 			TiTemplate template = section.getTemplateByIndex(index);
-			
 			if (content != null) {
-				content = (TiBaseListViewItem) convertView;
-				section.populateViews(data, (TiBaseListViewItem) content, template);
+				TiBaseListViewItem itemContent = (TiBaseListViewItem) content.findViewById(listContentId);
+				section.populateViews(data, itemContent, template, position, index);
 				Log.d("GetView", "reusing View");
 			} else {
 				Log.d("GetView", "generating View");
-				content = section.generateCellContent(index, data, template);
+				content = inflater.inflate(listItemId, null, true);
+				TiBaseListViewItem itemContent = (TiBaseListViewItem) content.findViewById(listContentId);
+				section.generateCellContent(index, data, template, itemContent, position);
 			}
 
 			return content;
@@ -132,12 +141,21 @@ public class TiListView extends TiUIView {
 		getLayoutParams().autoFillsHeight = true;
 		getLayoutParams().autoFillsWidth = true;
 
+		try {
+			headerFooterId = TiRHelper.getResource("layout.list_header_or_footer");
+			listItemId = TiRHelper.getResource("layout.list_item");
+			titleId = TiRHelper.getResource("id.title");
+			listContentId = TiRHelper.getResource("id.listItem");
+		} catch (ResourceNotFoundException e) {
+			Log.e(TAG, "XML resources could not be found!!!!");
+		}
+		
 		
 		setNativeView(listView);
 	}
 	
 	public void setHeaderTitle(String title) {
-		TextView textView = (TextView) headerView.findViewById(R.id.title);
+		TextView textView = (TextView) headerView.findViewById(titleId);
 		textView.setText(title);
 		if (textView.getVisibility() == View.GONE) {
 			textView.setVisibility(View.VISIBLE);
@@ -145,7 +163,7 @@ public class TiListView extends TiUIView {
 	}
 	
 	public void setFooterTitle(String title) {
-		TextView textView = (TextView) footerView.findViewById(R.id.title);
+		TextView textView = (TextView) footerView.findViewById(titleId);
 		textView.setText(title);
 		if (textView.getVisibility() == View.GONE) {
 			textView.setVisibility(View.VISIBLE);
@@ -165,29 +183,33 @@ public class TiListView extends TiUIView {
 			}
 		} 
 		
+		if (d.containsKey(TiC.PROPERTY_SHOW_VERTICAL_SCROLL_INDICATOR)) {
+			listView.setVerticalScrollBarEnabled(TiConvert.toBoolean(d, TiC.PROPERTY_SHOW_VERTICAL_SCROLL_INDICATOR, true));
+		}
+
 		if (d.containsKey(TiC.PROPERTY_DEFAULT_ITEM_TEMPLATE)) {
 			defaultTemplateBinding = TiConvert.toString(d, TiC.PROPERTY_DEFAULT_ITEM_TEMPLATE);
 		}
 		
 		if (d.containsKey(TiC.PROPERTY_HEADER_TITLE)) {
-			headerView = adapter.inflater.inflate(R.layout.list_header_or_footer, null);
+			headerView = adapter.inflater.inflate(headerFooterId, null);
 			setHeaderTitle(TiConvert.toString(d, TiC.PROPERTY_HEADER_TITLE));
 		}
 		
 		if (d.containsKey(TiC.PROPERTY_FOOTER_TITLE)) {
-			footerView = adapter.inflater.inflate(R.layout.list_header_or_footer, null);
+			footerView = adapter.inflater.inflate(headerFooterId, null);
 			setFooterTitle(TiConvert.toString(d, TiC.PROPERTY_FOOTER_TITLE));
 		}
 
 		//Check to see if headerTitle and footerTitle are specified. If not, we hide the views
 		if (headerView == null) {
-			headerView = adapter.inflater.inflate(R.layout.list_header_or_footer, null);
-			headerView.findViewById(R.id.title).setVisibility(View.GONE);
+			headerView = adapter.inflater.inflate(headerFooterId, null);
+			headerView.findViewById(titleId).setVisibility(View.GONE);
 		}
 		
 		if (footerView == null) {
-			footerView = adapter.inflater.inflate(R.layout.list_header_or_footer, null);
-			footerView.findViewById(R.id.title).setVisibility(View.GONE);
+			footerView = adapter.inflater.inflate(headerFooterId, null);
+			footerView.findViewById(titleId).setVisibility(View.GONE);
 		}
 
 		//Have to add header and footer before setting adapter
@@ -265,6 +287,10 @@ public class TiListView extends TiUIView {
 	
 	public String getDefaultTemplateBinding() {
 		return defaultTemplateBinding;
+	}
+	
+	public int getSectionCount() {
+		return sections.size();
 	}
 	
 }

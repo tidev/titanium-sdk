@@ -23,6 +23,7 @@ exports.bootstrap = function(Titanium) {
 		return listView;
 	}
 	
+	//Create ListItemProxy, add events, then store it in 'type' property
 	function processTemplate(properties) {
 	   	var cellProxy = Titanium.UI.createListItem();
 		properties.type = cellProxy;

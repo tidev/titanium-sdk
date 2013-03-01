@@ -11,12 +11,23 @@ import android.app.Activity;
 @Kroll.proxy(creatableInModule = UIModule.class, propertyAccessors = {
 	TiC.PROPERTY_HEADER_TITLE,
 	TiC.PROPERTY_FOOTER_TITLE,
-	TiC.PROPERTY_DEFAULT_ITEM_TEMPLATE
+	TiC.PROPERTY_DEFAULT_ITEM_TEMPLATE,
+	TiC.PROPERTY_SHOW_VERTICAL_SCROLL_INDICATOR
 })
 public class ListViewProxy extends TiViewProxy {
 
 	public TiUIView createView(Activity activity) {
 		return new TiListView(this, activity);
+	}
+	
+	
+	@Kroll.method @Kroll.getProperty
+	public int getSectionCount() {
+		TiUIView listView = peekView();
+		if (listView != null) {
+			((TiListView) listView).getSectionCount();
+		}
+		return 0;
 	}
 
 }

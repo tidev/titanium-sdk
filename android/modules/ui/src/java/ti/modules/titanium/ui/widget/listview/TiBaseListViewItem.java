@@ -6,6 +6,8 @@ import org.appcelerator.titanium.view.TiCompositeLayout;
 import org.appcelerator.titanium.view.TiUIView;
 
 import android.content.Context;
+import android.util.AttributeSet;
+import android.widget.AbsListView;
 
 public class TiBaseListViewItem extends TiCompositeLayout{
 
@@ -13,6 +15,12 @@ public class TiBaseListViewItem extends TiCompositeLayout{
 
 	public TiBaseListViewItem(Context context) {
 		super(context);
+		viewsMap = new HashMap<String, TiUIView>();
+	}
+	
+	public TiBaseListViewItem(Context context, AttributeSet set) {
+		super(context);
+		setId(TiListView.listContentId);
 		viewsMap = new HashMap<String, TiUIView>();
 	}
 	

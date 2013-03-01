@@ -93,7 +93,7 @@ public abstract class TiUIView
 	protected TiAnimationBuilder animBuilder;
 	protected TiBackgroundDrawable background;
 	
-	protected Object interceptor;
+	protected KrollDict addtionalEventData;
 
 	// Since Android doesn't have a property to check to indicate
 	// the current animated x/y scale (from a scale animation), we track it here
@@ -179,12 +179,12 @@ public abstract class TiUIView
 		}
 	}
 	
-	protected void setInterceptor(Object intercept) {
-		interceptor = intercept;
+	public void setAddtionalEventData(KrollDict dict) {
+		addtionalEventData = dict;
 	}
 	
-	protected Object getInterceptor() {
-		return interceptor;
+	public KrollDict getAdditionalEventData() {
+		return addtionalEventData;
 	}
 
 	/**
@@ -1433,13 +1433,22 @@ public abstract class TiUIView
 	 */
 	protected void setOnClickListener(View view)
 	{
+		
 		view.setOnClickListener(new OnClickListener()
 		{
 			public void onClick(View view)
 			{
-				proxy.fireEvent(TiC.EVENT_CLICK, dictFromEvent(lastUpEvent));
+				TiUIView uiView = TiUIView.this;
+				uiView.fireEvent(TiC.EVENT_CLICK, dictFromEvent(lastUpEvent));
 			}
 		});
+	}
+	
+	public boolean fireEvent(String eventName, KrollDict data) {
+		if (addtionalEventData != null) {
+			data.putAll(addtionalEventData);
+		}
+		return proxy.fireEvent(TiC.EVENT_CLICK, data);
 	}
 
 	protected void setOnLongClickListener(View view)
