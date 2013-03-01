@@ -101,6 +101,13 @@ events:
     summary: |
         Fired when this tab group loses focus. On Android, fired when a tab in this tab group 
         loses focus.
+    description: |
+        On Android, this event also fires before putting the activity in the background
+        (before the activity enters the pause state).
+
+        On iOS, this event does not fire before putting the application in the background.
+        The application needs to monitor the <Titanium.App.pause> event.
+        See <Titanium.App> for more information on the iOS application lifecycle.
     properties:
       - name: index
         summary: |
@@ -132,6 +139,14 @@ events:
     summary: |
         Fired when this tab group gains focus. On Android, fired when a tab in this tab group 
         gains focus.
+    description: |
+        On Android, this event also fires when the activity enters the foreground
+        (after the activity enters the resume state).
+
+        On iOS, this event does not fire after the application returns to the foreground
+        if it was previously backgrounded.
+        The application needs to monitor the <Titanium.App.resumed> event.
+        See <Titanium.App> for more information on the iOS application lifecycle.
     properties:
       - name: index
         summary: Index of the current active tab.
