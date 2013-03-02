@@ -49,13 +49,13 @@ Java_org_appcelerator_kroll_runtime_v8_V8Object_nativeSetProperty
 	if (ptr != 0) {
 		jsObject = Persistent<Object>((Object *) ptr);
 	} else {
-		jsObject = TypeConverter::javaObjectToJsValue(object)->ToObject();
+		jsObject = TypeConverter::javaObjectToJsValue(env, object)->ToObject();
 	}
 
 	Handle<Object> properties = jsObject->Get(Proxy::propertiesSymbol)->ToObject();
-	Handle<Value> jsName = TypeConverter::javaStringToJsString(name);
+	Handle<Value> jsName = TypeConverter::javaStringToJsString(env, name);
 
-	Handle<Value> jsValue = TypeConverter::javaObjectToJsValue(value);
+	Handle<Value> jsValue = TypeConverter::javaObjectToJsValue(env, value);
 	properties->Set(jsName, jsValue);
 }
 
@@ -67,7 +67,7 @@ Java_org_appcelerator_kroll_runtime_v8_V8Object_nativeFireEvent
 	ENTER_V8(V8Runtime::globalContext);
 	JNIScope jniScope(env);
 
-	Handle<Value> jsEvent = TypeConverter::javaStringToJsString(event);
+	Handle<Value> jsEvent = TypeConverter::javaStringToJsString(env, event);
 
 #ifdef TI_DEBUG
 	String::Utf8Value eventName(jsEvent);
@@ -78,7 +78,7 @@ Java_org_appcelerator_kroll_runtime_v8_V8Object_nativeFireEvent
 	if (ptr != 0) {
 		emitter = Persistent<Object>((Object *) ptr);
 	} else {
-		emitter = TypeConverter::javaObjectToJsValue(jEmitter)->ToObject();
+		emitter = TypeConverter::javaObjectToJsValue(env, jEmitter)->ToObject();
 	}
 
 	Handle<Value> fireEventValue = emitter->Get(EventEmitter::emitSymbol);
@@ -92,12 +92,12 @@ Java_org_appcelerator_kroll_runtime_v8_V8Object_nativeFireEvent
 	} else if (sourcePtr != 0) {
 		source = Persistent<Object>((Object *) sourcePtr);
 	} else {
-		source = TypeConverter::javaObjectToJsValue(jsource)->ToObject();
+		source = TypeConverter::javaObjectToJsValue(env, jsource)->ToObject();
 	}
 
 	Handle<Function> fireEvent = Handle<Function>::Cast(fireEventValue->ToObject());
 
-	Handle<Object> jsData = TypeConverter::javaHashMapToJsValue(env,data);
+	Handle<Object> jsData = TypeConverter::javaHashMapToJsValue(env, data);
 
 	jsData->Set(String::NewSymbol("bubbles"), TypeConverter::javaBooleanToJsBoolean(bubble));
 
@@ -106,7 +106,7 @@ Java_org_appcelerator_kroll_runtime_v8_V8Object_nativeFireEvent
 	if(reportSuccess || code != 0) {
 		jsData->Set(String::NewSymbol("success"), TypeConverter::javaBooleanToJsBoolean(code == 0));
 		jsData->Set(String::NewSymbol("code"), TypeConverter::javaIntToJsNumber(code));
-		jsData->Set(String::NewSymbol("error"), TypeConverter::javaStringToJsString(errorMessage));
+		jsData->Set(String::NewSymbol("error"), TypeConverter::javaStringToJsString(env, errorMessage));
 	}
 	Handle<Value> result;
 	TryCatch tryCatch;
@@ -129,7 +129,7 @@ Java_org_appcelerator_kroll_runtime_v8_V8Object_nativeCallProperty
 	ENTER_V8(V8Runtime::globalContext);
 	JNIScope jniScope(env);
 
-	Handle<Value> jsPropertyName = TypeConverter::javaStringToJsString(propertyName);
+	Handle<Value> jsPropertyName = TypeConverter::javaStringToJsString(env, propertyName);
 	Persistent<Object> object = Persistent<Object>((Object*) ptr);
 	Local<Value> property = object->Get(jsPropertyName);
 	if (!property->IsFunction()) {
@@ -156,7 +156,7 @@ Java_org_appcelerator_kroll_runtime_v8_V8Object_nativeCallProperty
 	}
 
 	bool isNew;
-	return TypeConverter::jsValueToJavaObject(returnValue, &isNew);
+	return TypeConverter::jsValueToJavaObject(env, returnValue, &isNew);
 }
 
 JNIEXPORT jboolean JNICALL
@@ -189,7 +189,7 @@ Java_org_appcelerator_kroll_runtime_v8_V8Object_nativeSetWindow
 	if (ptr != 0) {
 		jsKrollWindow = Persistent<Object>((Object *) ptr);
 	} else {
-		jsKrollWindow = TypeConverter::javaObjectToJsValue(javaKrollWindow)->ToObject();
+		jsKrollWindow = TypeConverter::javaObjectToJsValue(env, javaKrollWindow)->ToObject();
 	}
 
 	Handle<Value> setWindowValue = jsKrollWindow->Get(String::New("setWindow"));
@@ -199,7 +199,7 @@ Java_org_appcelerator_kroll_runtime_v8_V8Object_nativeSetWindow
 
 	Handle<Function> setWindow = Handle<Function>::Cast(setWindowValue->ToObject());
 
-	Handle<Value> jsWindow = TypeConverter::javaObjectToJsValue(javaWindow);
+	Handle<Value> jsWindow = TypeConverter::javaObjectToJsValue(env, javaWindow);
 
 	TryCatch tryCatch;
 	if (!jsWindow->IsNull()) {
