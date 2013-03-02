@@ -38,7 +38,6 @@ public class TiListView extends TiUIView {
 	private int titleId;
 	private View headerView;
 	private View footerView;
-	private KrollDict eventData;
 	
 	private static final String TAG = "TiListView";
 	
@@ -108,14 +107,14 @@ public class TiListView extends TiUIView {
 			}
 			
 			//Handling templates
-			KrollDict data = section.getEntryProperties(index);
+			KrollDict data = section.getListItemData(index);
 			TiTemplate template = section.getTemplateByIndex(index);
 			if (content != null) {
 				TiBaseListViewItem itemContent = (TiBaseListViewItem) content.findViewById(listContentId);
 				section.populateViews(data, itemContent, template, position, index);
-				Log.d("GetView", "reusing View");
+				//Log.d("GetView", "reusing View");
 			} else {
-				Log.d("GetView", "generating View");
+				//Log.d("GetView", "generating View");
 				content = inflater.inflate(listItemId, null, true);
 				TiBaseListViewItem itemContent = (TiBaseListViewItem) content.findViewById(listContentId);
 				section.generateCellContent(index, data, template, itemContent, position);
@@ -171,10 +170,6 @@ public class TiListView extends TiUIView {
 	}
 	
 	public void processProperties(KrollDict d) {
-
-		if (d.containsKey(TiC.PROPERTY_SECTIONS)) {
-			processSections((Object[])d.get(TiC.PROPERTY_SECTIONS));
-		}
 		
 		if (d.containsKey(TiC.PROPERTY_TEMPLATES)) {
 			Object templates = d.get(TiC.PROPERTY_TEMPLATES);
@@ -189,6 +184,10 @@ public class TiListView extends TiUIView {
 
 		if (d.containsKey(TiC.PROPERTY_DEFAULT_ITEM_TEMPLATE)) {
 			defaultTemplateBinding = TiConvert.toString(d, TiC.PROPERTY_DEFAULT_ITEM_TEMPLATE);
+		}
+		
+		if (d.containsKey(TiC.PROPERTY_SECTIONS)) {
+			processSections((Object[])d.get(TiC.PROPERTY_SECTIONS));
 		}
 		
 		if (d.containsKey(TiC.PROPERTY_HEADER_TITLE)) {
@@ -255,6 +254,8 @@ public class TiListView extends TiUIView {
 				section.setListView(this);
 				//Attempts to set type for existing templates.
 				section.setTemplateType();
+				//Process preload data if any
+				section.processPreloadData();
 			}
 		}
 	}

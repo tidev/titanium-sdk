@@ -7,7 +7,7 @@
 
 exports.bootstrap = function(Titanium) {
 	var ListView = Titanium.UI.ListView;
-
+	var Ti = Titanium;
 	function createListView(scopeVars, options) {
 		
 		var templates = options.templates;

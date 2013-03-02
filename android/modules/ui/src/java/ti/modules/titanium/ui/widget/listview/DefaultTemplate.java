@@ -8,6 +8,7 @@ import org.appcelerator.titanium.util.TiConvert;
 
 import ti.modules.titanium.ui.ImageViewProxy;
 import ti.modules.titanium.ui.LabelProxy;
+import ti.modules.titanium.ui.widget.listview.TiTemplate.DataItem;
 import android.app.Activity;
 
 public class DefaultTemplate extends TiTemplate {
@@ -25,7 +26,7 @@ public class DefaultTemplate extends TiTemplate {
 		ListItemProxy proxy = new ListItemProxy();
 		proxy.setActivity(activity);
 		rootItem = new DataItem(proxy, TiC.PROPERTY_PROPERTIES, null);
-		dataItems.put(itemID, new DataItem(proxy, itemID, null));
+		dataItems.put(itemID, rootItem);
 
 		//Init default properties for our proxies
 		KrollDict defaultLabelProperties = new KrollDict();
@@ -62,32 +63,38 @@ public class DefaultTemplate extends TiTemplate {
 		
 
 	}
-	
-	public void updateDefaultProperties(KrollDict data) {
-		//don't need to update.
-	}
-	
-	public void mergeWithDefaultProperties(KrollDict data) {
-		if (data.containsKey(TiC.PROPERTY_PROPERTIES)) {
-			HashMap<String, Object> properties = (HashMap) data.get(TiC.PROPERTY_PROPERTIES);
-			if (properties.containsKey(TiC.PROPERTY_TITLE)) {
-				KrollDict text = new KrollDict();
-				text.put(TiC.PROPERTY_TEXT, TiConvert.toString(properties, TiC.PROPERTY_TITLE));
-				data.put(TiC.PROPERTY_TITLE, text);
-				properties.remove(TiC.PROPERTY_TITLE);
-			}
-			
-			if (properties.containsKey(TiC.PROPERTY_IMAGE)) {
-				KrollDict image = new KrollDict();
-				image.put(TiC.PROPERTY_IMAGE, TiConvert.toString(properties, TiC.PROPERTY_IMAGE));
-				data.put(TiC.PROPERTY_IMAGE, image);
-				properties.remove(TiC.PROPERTY_IMAGE);
-			}
-			
-		} else {
+	private void parseDefaultData(KrollDict data) {
+		if (!data.containsKey(TiC.PROPERTY_PROPERTIES)) {
 			return;
 		}
 		
+		KrollDict properties = data.getKrollDict(TiC.PROPERTY_PROPERTIES);
+		KrollDict clone_properties = new KrollDict((HashMap)properties.clone());
+		if (clone_properties.containsKey(TiC.PROPERTY_TITLE)) {
+			KrollDict text = new KrollDict();
+			text.put(TiC.PROPERTY_TEXT, TiConvert.toString(clone_properties, TiC.PROPERTY_TITLE));
+			data.put(TiC.PROPERTY_TITLE, text);
+			clone_properties.remove(TiC.PROPERTY_TITLE);
+		}
+		
+		if (clone_properties.containsKey(TiC.PROPERTY_IMAGE)) {
+			KrollDict image = new KrollDict();
+			image.put(TiC.PROPERTY_IMAGE, TiConvert.toString(clone_properties, TiC.PROPERTY_IMAGE));
+			data.put(TiC.PROPERTY_IMAGE, image);
+			clone_properties.remove(TiC.PROPERTY_IMAGE);
+		}
+		
+		data.put(TiC.PROPERTY_PROPERTIES, clone_properties);
+	}
+	
+	public void updateDefaultProperties(KrollDict data) {
+
+		parseDefaultData(data);
+		super.updateDefaultProperties(data);
+	}
+
+	public void mergeWithDefaultProperties(KrollDict data) {
+		parseDefaultData(data);
 		super.mergeWithDefaultProperties(data);
 	}
 }
