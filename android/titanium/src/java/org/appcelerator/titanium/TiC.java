@@ -208,6 +208,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String EVENT_POST_LAYOUT = "postlayout";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String EVENT_PLAYING = "playing";
 
 	/**
 	 * @module.api
@@ -448,6 +453,12 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String EVENT_TWOFINGERTAP = "twofingertap";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String EVENT_PROPERTY_URL = "url";
+	
 
 	/**
 	 * @module.api
