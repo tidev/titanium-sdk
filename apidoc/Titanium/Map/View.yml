@@ -19,16 +19,15 @@ description: |
     
     #### Android Platform Notes
 
+    On Android, this module requires a Google Maps API v1 key. As of March 3, 2013,
+    Google is no longer issuing Maps API v1 keys.  If you want to add native maps support
+    to your Android application, you need to use the [Google Maps v2 module](Modules.Map).
+
     Android supports only a **single** map view per application. This limitation is
     imposed by Android, not by Titanium. Attempting to add a second map view results in
     an exception being thrown.
-    
-    For Android, you must obtain an Android Maps API key from Google before using maps in a production
-    application. You can sign up for the Maps API key on the Google Code web site:
-    
-    * <a href="http://code.google.com/android/maps-api-signup.html">code.google.com/android/maps-api-signup.html</a> 
-    
-    When you get a Maps API key, edit your `tiapp.xml` file and add your new key as the
+
+    If you have a Maps API v1 key, edit your `tiapp.xml` file and add your new key as the
     value for the  `ti.android.google.map.api.key.production` property.
     
     A development API key is included in the default `tiapp.xml` file. You can use this
