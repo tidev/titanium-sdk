@@ -382,17 +382,9 @@ exports.validate = function (logger, config, cli) {
 	
 	ti.validateProjectDir(logger, cli, cli.argv, 'project-dir');
 	
-	var resourcesDir = path.join(cli.argv['project-dir'], 'Resources');
-	
-	// make sure we have an app.js
-	if (!afs.exists(resourcesDir, 'app.js')) {
-		logger.error(__('No app.js found') + '\n');
-		logger.log(__("Ensure the app.js file exists in your project's \"Resources\" directory.") + '\n');
-		process.exit(1);
-	}
-	
 	if (!cli.argv.xcode || !process.env.TITANIUM_CLI_XCODEBUILD) {
 		// make sure the app doesn't have any blacklisted directories in the Resources directory and warn about graylisted names
+		var resourcesDir = path.join(cli.argv['project-dir'], 'Resources');
 		fs.readdirSync(resourcesDir).forEach(function (filename) {
 			var lcaseFilename = filename.toLowerCase(),
 				isDir = fs.lstatSync(path.join(resourcesDir, filename)).isDirectory();
@@ -988,6 +980,11 @@ build.prototype = {
 		this.forceRebuild = this.checkIfShouldForceRebuild();
 		
 		this.cli.fireHook('build.pre.compile', this, function () {
+			// Make sure we have an app.js. This used to be validated in validate(), but since plugins like
+			// Alloy generate an app.js, it may not have existed during validate(), but should exist now
+			// that build.pre.compile was fired.
+			ti.validateAppJsExists(this.projectDir, this.logger);
+			
 			// let's start building some apps!
 			parallel(this, [
 				'createInfoPlist',
