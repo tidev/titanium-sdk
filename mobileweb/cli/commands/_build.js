@@ -724,20 +724,20 @@ build.prototype = {
 		// detect any fonts and add font face rules to the css file
 		var fonts = {};
 		wrench.readdirSyncRecursive(this.projectResDir).forEach(function (file) {
-			var match = file.match(/^(.+)(\.otf|\.woff)$/);
-			if (match) {
-				fonts[match[0]] || (fonts[match[0]] = []);
-				fonts[match[0]].push(file);
+			var match = file.match(/^(.+)\.(otf|woff|ttf)$/),
+				name = match && match[1].split('/').pop();
+			if (name) {
+				fonts[name] || (fonts[name] = []);
+				fonts[name].push(file);
 			}
 		});
 		Object.keys(fonts).forEach(function (name) {
-			tiCSS.push('@font-face{font-family:' + name + ';src:url(' + fonts[name] + ');\n');
-		});
-		
-		// TODO: minify the css
+			this.logger.debug(__('Found font: %s', name.cyan));
+			tiCSS.push('@font-face{font-family:"' + name + '";src:url("' + fonts[name] + '");}\n');
+		}, this);
 		
 		// write the titanium.css
-		fs.writeFileSync(this.buildDir + '/titanium.css', cleanCSS.process(tiCSS.join('')));
+		fs.writeFileSync(this.buildDir + '/titanium.css', this.deployType == 'production' ? cleanCSS.process(tiCSS.join('')) : tiCSS.join(''));
 		
 		callback();
 	},
