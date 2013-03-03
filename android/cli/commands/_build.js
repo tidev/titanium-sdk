@@ -221,17 +221,17 @@ exports.validate = function (logger, config, cli) {
 	}
 	
 	if (!/^([a-zA-Z_]{1}[a-zA-Z0-9_]*(\.[a-zA-Z_]{1}[a-zA-Z0-9_]*)*)$/.test(cli.tiapp.id)) {
-		logger.error(__('tiapp.xml contains an invalid app id "%s"', cli.tiapp.id) + '\n');
-		logger.log(__('The app id must consist of letters, numbers, and underscores.'));
-		logger.log(__('The first character must be a letter or underscore.'));
-		logger.log(__('The first character after a period must not be a number.'));
-		logger.log(__("Usually the app id is your company's reversed Internet domain name. (i.e. com.example.myapp)") + '\n');
+		logger.error(__('tiapp.xml contains an invalid app id "%s"', cli.tiapp.id));
+		logger.error(__('The app id must consist of letters, numbers, and underscores.'));
+		logger.error(__('The first character must be a letter or underscore.'));
+		logger.error(__('The first character after a period must not be a number.'));
+		logger.error(__("Usually the app id is your company's reversed Internet domain name. (i.e. com.example.myapp)") + '\n');
 		process.exit(1);
 	}
 	
 	if (!ti.validAppId(cli.tiapp.id)) {
-		logger.error(__('Invalid app id "%s"', cli.tiapp.id) + '\n');
-		logger.log(__('The app id must not contain Java reserved words.') + '\n');
+		logger.error(__('Invalid app id "%s"', cli.tiapp.id));
+		logger.error(__('The app id must not contain Java reserved words.') + '\n');
 		process.exit(1);
 	}
 	
