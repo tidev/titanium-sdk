@@ -1207,12 +1207,17 @@ build.prototype = {
 			plistExists = afs.exists(dest);
 		
 		if (!plistExists || fs.readFileSync(dest).toString() != plist) {
-			if (!plistExists) {
-				this.logger.info(__('Forcing rebuild: debugger.plist does not exist'));
+			if (this.target != 'simulator') {
+				if (!plistExists) {
+					this.logger.info(__('Forcing rebuild: debugger.plist does not exist'));
+				} else {
+					this.logger.info(__('Forcing rebuild: debugger settings changed since last build'));
+				}
+				this.forceRebuild = true;
 			} else {
-				this.logger.info(__('Forcing rebuild: debugger settings changed since last build'));
+				// write the debugger.plist to the app dir now since we're skipping Xcode and the pre-compile phase
+				fs.writeFileSync(path.join(this.xcodeAppDir, 'debugger.plist'), plist);
 			}
-			this.forceRebuild = true;
 			fs.writeFile(dest, plist, callback());
 		} else {
 			callback();
