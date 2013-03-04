@@ -43,7 +43,7 @@ public class TiListView extends TiUIView implements OnItemClickListener {
 	
 	private static final String TAG = "TiListView";
 	
-	public static final int HEADER_FOOTER_ITEM_TYPE = 2;
+	public static final int HEADER_FOOTER_ITEM_TYPE = 0;
 
 	public class TiBaseAdapter extends BaseAdapter {
 
@@ -76,8 +76,9 @@ public class TiListView extends TiUIView implements OnItemClickListener {
 			return position;
 		}
 		
+		//One type for header/footer, One type for built-in template, and one type per custom template.
 		public int getViewTypeCount() {
-			return 10;
+			return 2 + templatesByBinding.size();
 			
 		}
 		@Override
@@ -134,7 +135,7 @@ public class TiListView extends TiUIView implements OnItemClickListener {
 		
 		//initializing variables
 		sections = new ArrayList<ListSectionProxy>();
-		itemTypeCount = new AtomicInteger(3);
+		itemTypeCount = new AtomicInteger(1);
 		templatesByBinding = new HashMap<String, TiTemplate>();
 		
 		//initializing listView and adapter
