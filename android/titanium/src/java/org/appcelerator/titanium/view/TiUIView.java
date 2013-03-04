@@ -734,17 +734,17 @@ public abstract class TiUIView
 
 	private void applyCustomBackground(boolean reuseCurrentDrawable)
 	{
-		if (nativeView != null) {
+		if (getNativeView() != null) {
 			if (background == null) {
 				background = new TiBackgroundDrawable();
 	
-				Drawable currentDrawable = nativeView.getBackground();
+				Drawable currentDrawable = getNativeView().getBackground();
 				if (currentDrawable != null) {
 					if (reuseCurrentDrawable) {
 						background.setBackgroundDrawable(currentDrawable);
 						
 					} else {
-						nativeView.setBackgroundDrawable(null);
+						getNativeView().setBackgroundDrawable(null);
 						currentDrawable.setCallback(null);
 						if (currentDrawable instanceof TiBackgroundDrawable) {
 							((TiBackgroundDrawable) currentDrawable).releaseDelegate();
@@ -752,7 +752,7 @@ public abstract class TiUIView
 					}
 				}
 			}
-			nativeView.setBackgroundDrawable(background);
+			getNativeView().setBackgroundDrawable(background);
 		}
 	}
 
@@ -902,7 +902,7 @@ public abstract class TiUIView
 		KrollDict gradientProperties = d.getKrollDict(TiC.PROPERTY_BACKGROUND_GRADIENT);
 		if (gradientProperties != null) {
 			try {
-				gradientDrawable = new TiGradientDrawable(nativeView, gradientProperties);
+				gradientDrawable = new TiGradientDrawable(getNativeView(), gradientProperties);
 				if (gradientDrawable.getGradientType() == GradientType.RADIAL_GRADIENT) {
 					// TODO: Remove this once we support radial gradients.
 					Log.w(TAG, "Android does not support radial gradients.");
