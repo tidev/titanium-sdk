@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -17,7 +17,6 @@ import android.graphics.Matrix;
 import android.graphics.Rect;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
-import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
@@ -30,13 +29,11 @@ import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
 import android.widget.ZoomControls;
 
-public class TiImageView extends ViewGroup
-	implements Handler.Callback, OnClickListener
+public class TiImageView extends ViewGroup implements Handler.Callback, OnClickListener
 {
 	private static final String TAG = "TiImageView";
 
 	private static final int CONTROL_TIMEOUT = 4000;
-
 	private static final int MSG_HIDE_CONTROLS = 500;
 
 	private Handler handler;
@@ -58,8 +55,13 @@ public class TiImageView extends ViewGroup
 
 	private Matrix baseMatrix;
 	private Matrix changeMatrix;
-	
-	public interface OnSizeChangeListener {
+
+	// Flags to help determine whether width/height is defined, so we can scale appropriately
+	private boolean viewWidthDefined;
+	private boolean viewHeightDefined;
+
+	public interface OnSizeChangeListener
+	{
 		public void sizeChanged(int w, int h, int oldWidth, int oldHeight);
 	};
 
@@ -69,13 +71,15 @@ public class TiImageView extends ViewGroup
 		public boolean allowLayoutRequest;
 		public SoftReference<OnSizeChangeListener> listener;
 
-		public NoLayoutImageView(Context context) {
+		public NoLayoutImageView(Context context)
+		{
 			super(context);
 			allowLayoutRequest = true;
 		}
 
 		@Override
-		public void requestLayout() {
+		public void requestLayout()
+		{
 			if (allowLayoutRequest) {
 				super.requestLayout();
 				allowLayoutRequest = false;
@@ -83,7 +87,7 @@ public class TiImageView extends ViewGroup
 		}
 
 		@Override
-		protected void onSizeChanged(int w, int h, int oldw, int oldh) 
+		protected void onSizeChanged(int w, int h, int oldw, int oldh)
 		{
 			super.onSizeChanged(w, h, oldw, oldh);
 			Log.d(TAG, "ImageView size change: w: " + w + " h: " + h + " oldw: " + oldw + " oldh: " + oldh, Log.DEBUG_MODE);
@@ -94,16 +98,18 @@ public class TiImageView extends ViewGroup
 				}
 			}
 		}
-		
-		public void setOnSizeChangeListener(OnSizeChangeListener listener) {
+
+		public void setOnSizeChangeListener(OnSizeChangeListener listener)
+		{
 			if (listener != null) {
 				this.listener = new SoftReference<OnSizeChangeListener>(listener);
 			} else {
 				listener = null;
 			}
 		}
-		
-		public OnSizeChangeListener getOnSizeChangeListener() {
+
+		public OnSizeChangeListener getOnSizeChangeListener()
+		{
 			if (listener != null) {
 				return listener.get();
 			}
@@ -111,7 +117,8 @@ public class TiImageView extends ViewGroup
 		}
 	}
 
-	public TiImageView(Context context) {
+	public TiImageView(Context context)
+	{
 		super(context);
 
 		final TiImageView me = this;
@@ -130,67 +137,71 @@ public class TiImageView extends ViewGroup
 		changeMatrix = new Matrix();
 
 		imageView = new NoLayoutImageView(context);
+		imageView.setAdjustViewBounds(true);
 		addView(imageView);
 		setCanScaleImage(false);
 
-		gestureDetector = new GestureDetector(getContext(),
-				new GestureDetector.SimpleOnGestureListener()
-				{
-					@Override
-					public boolean onDown(MotionEvent e) {
-						if (zoomControls.getVisibility() == View.VISIBLE) {
-							super.onDown(e);
-							return true;
-						} else {
-							onClick(me);
-							return false;
-						}
-					}
-
-					@Override
-					public boolean onScroll(MotionEvent e1, MotionEvent e2, float dx, float dy)
-					{
-						if (zoomControls.getVisibility() == View.VISIBLE) {
-							changeMatrix.postTranslate(-dx,-dy);
-							imageView.setImageMatrix(getViewMatrix());
-							requestLayout();
-							scheduleControlTimeout();
-							return true;
-						} else {
-							return false;
-						}
-					}
-
-					@Override
-					public boolean onSingleTapConfirmed(MotionEvent e) {
-						onClick(me);
-						return super.onSingleTapConfirmed(e);
-					}
-				}
-			);
-			gestureDetector.setIsLongpressEnabled(false);
-
-			zoomControls = new ZoomControls(context);
-			addView(zoomControls);
-			zoomControls.setVisibility(View.GONE);
-			zoomControls.setZoomSpeed(75);
-			zoomControls.setOnZoomInClickListener(new OnClickListener()
+		gestureDetector = new GestureDetector(getContext(), new GestureDetector.SimpleOnGestureListener()
+		{
+			@Override
+			public boolean onDown(MotionEvent e)
 			{
-				public void onClick(View v) {
-					handleScaleUp();
+				if (zoomControls.getVisibility() == View.VISIBLE) {
+					super.onDown(e);
+					return true;
+				} else {
+					onClick(me);
+					return false;
 				}
-			});
-			zoomControls.setOnZoomOutClickListener(new OnClickListener()
-			{
-				public void onClick(View v) {
-					handleScaleDown();
-				}
-			});
+			}
 
-			super.setOnClickListener(this);
+			@Override
+			public boolean onScroll(MotionEvent e1, MotionEvent e2, float dx, float dy)
+			{
+				if (zoomControls.getVisibility() == View.VISIBLE) {
+					changeMatrix.postTranslate(-dx, -dy);
+					imageView.setImageMatrix(getViewMatrix());
+					requestLayout();
+					scheduleControlTimeout();
+					return true;
+				} else {
+					return false;
+				}
+			}
+
+			@Override
+			public boolean onSingleTapConfirmed(MotionEvent e)
+			{
+				onClick(me);
+				return super.onSingleTapConfirmed(e);
+			}
+		});
+		gestureDetector.setIsLongpressEnabled(false);
+
+		zoomControls = new ZoomControls(context);
+		addView(zoomControls);
+		zoomControls.setVisibility(View.GONE);
+		zoomControls.setZoomSpeed(75);
+		zoomControls.setOnZoomInClickListener(new OnClickListener()
+		{
+			public void onClick(View v)
+			{
+				handleScaleUp();
+			}
+		});
+		zoomControls.setOnZoomOutClickListener(new OnClickListener()
+		{
+			public void onClick(View v)
+			{
+				handleScaleDown();
+			}
+		});
+
+		super.setOnClickListener(this);
 	}
-	
-	public void setOnSizeChangeListener(OnSizeChangeListener listener) {
+
+	public void setOnSizeChangeListener(OnSizeChangeListener listener)
+	{
 		if (imageView != null) {
 			((NoLayoutImageView) imageView).setOnSizeChangeListener(listener);
 		}
@@ -200,29 +211,22 @@ public class TiImageView extends ViewGroup
 	{
 		this.canScaleImage = canScaleImage;
 
-		if (canScaleImage) {
-			imageView.setAdjustViewBounds(true);
-			if (Integer.parseInt(Build.VERSION.SDK) > 3) {
-				imageView.setScaleType(ScaleType.MATRIX);
-			} else {
-				imageView.setScaleType(ScaleType.FIT_CENTER);
-			}
-		} else {
-			imageView.setScaleType(ScaleType.FIT_CENTER); // Android default and our iOS implementation
-		}
+		updateScaleType();
 		((NoLayoutImageView) imageView).allowLayoutRequest = true;
-		requestLayout();
 	}
 
-	public void setEnableZoomControls(boolean enableZoomControls) {
+	public void setEnableZoomControls(boolean enableZoomControls)
+	{
 		this.enableZoomControls = enableZoomControls;
 	}
 
-	public void setImageDrawable(Drawable d) {
+	public void setImageDrawable(Drawable d)
+	{
 		setImageDrawable(d, true);
 	}
 
-	public void setImageDrawable(Drawable d, boolean recycle) {
+	public void setImageDrawable(Drawable d, boolean recycle)
+	{
 		Drawable od = imageView.getDrawable();
 		if (od == d) {
 			// If setting the same image drawable just return here.
@@ -233,7 +237,8 @@ public class TiImageView extends ViewGroup
 			od.setCallback(null);
 			if (od instanceof BitmapDrawable && recycle) {
 				Bitmap bitmap = ((BitmapDrawable) od).getBitmap();
-				//check if bitmap exists before recycling (it may not if the user creates an imageView without passing in an image or defaultImage)
+				// check if bitmap exists before recycling (it may not if the user creates an imageView without passing
+				// in an image or defaultImage)
 				if (bitmap != null) {
 					bitmap.recycle();
 				}
@@ -245,26 +250,29 @@ public class TiImageView extends ViewGroup
 		setCanScaleImage(canScaleImage); // Apply scale
 	}
 
-	public Drawable getImageDrawable() {
+	public Drawable getImageDrawable()
+	{
 		return imageView.getDrawable();
 	}
 
-	public void setImageBitmap(Bitmap bitmap) {
+	public void setImageBitmap(Bitmap bitmap)
+	{
 		if (bitmap == null) {
 			imageView.setImageResource(0);
-		}
-		else {
+		} else {
 			imageView.setImageBitmap(bitmap);
 		}
 	}
 
-	public void setOnClickListener(OnClickListener clickListener) {
+	public void setOnClickListener(OnClickListener clickListener)
+	{
 		this.clickListener = clickListener;
 	}
 
-	public boolean handleMessage(Message msg) {
-		switch(msg.what) {
-			case MSG_HIDE_CONTROLS : {
+	public boolean handleMessage(Message msg)
+	{
+		switch (msg.what) {
+			case MSG_HIDE_CONTROLS: {
 				handleHideControls();
 				return true;
 			}
@@ -307,7 +315,8 @@ public class TiImageView extends ViewGroup
 		zoomControls.setVisibility(View.GONE);
 	}
 
-	private void manageControls() {
+	private void manageControls()
+	{
 		if (scaleFactor == scaleMax) {
 			zoomControls.setIsZoomInEnabled(false);
 		} else {
@@ -321,7 +330,8 @@ public class TiImageView extends ViewGroup
 		}
 	}
 
-	private void onViewChanged(float dscale) {
+	private void onViewChanged(float dscale)
+	{
 		updateChangeMatrix(dscale);
 		manageControls();
 		requestLayout();
@@ -347,7 +357,7 @@ public class TiImageView extends ViewGroup
 			float vwidth = getWidth() - getPaddingLeft() - getPaddingRight();
 			float vheight = getHeight() - getPaddingTop() - getPaddingBottom();
 
-			float widthScale = Math.min(vwidth/dwidth, 1.0f);
+			float widthScale = Math.min(vwidth / dwidth, 1.0f);
 			float heightScale = Math.min(vheight / dheight, 1.0f);
 			float scale = Math.min(widthScale, heightScale);
 
@@ -367,25 +377,28 @@ public class TiImageView extends ViewGroup
 		scaleFactor += dscale;
 		scaleFactor = Math.max(scaleFactor, scaleMin);
 		scaleFactor = Math.min(scaleFactor, scaleMax);
-		changeMatrix.postScale(scaleFactor, scaleFactor, getWidth()/2, getHeight()/2);
+		changeMatrix.postScale(scaleFactor, scaleFactor, getWidth() / 2, getHeight() / 2);
 	}
 
-	private Matrix getViewMatrix() {
+	private Matrix getViewMatrix()
+	{
 		Matrix m = new Matrix(baseMatrix);
 		m.postConcat(changeMatrix);
 		return m;
 	}
 
-	private void scheduleControlTimeout() {
+	private void scheduleControlTimeout()
+	{
 		handler.removeMessages(MSG_HIDE_CONTROLS);
 		handler.sendEmptyMessageDelayed(MSG_HIDE_CONTROLS, CONTROL_TIMEOUT);
 	}
 
 	@Override
-	public boolean onTouchEvent(MotionEvent ev) {
+	public boolean onTouchEvent(MotionEvent ev)
+	{
 		boolean handled = false;
 		if (canScaleImage) {
-			if(zoomControls.getVisibility() == View.VISIBLE) {
+			if (zoomControls.getVisibility() == View.VISIBLE) {
 				zoomControls.onTouchEvent(ev);
 			}
 			handled = gestureDetector.onTouchEvent(ev);
@@ -397,7 +410,8 @@ public class TiImageView extends ViewGroup
 	}
 
 	@Override
-	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec)
+	{
 		super.onMeasure(widthMeasureSpec, heightMeasureSpec);
 
 		int maxWidth = 0;
@@ -426,8 +440,7 @@ public class TiImageView extends ViewGroup
 			maxHeight = Math.max(maxHeight, zoomControls.getMeasuredHeight());
 		}
 
-		setMeasuredDimension(resolveSize(maxWidth, widthMeasureSpec),
-				resolveSize(maxHeight, heightMeasureSpec));
+		setMeasuredDimension(resolveSize(maxWidth, widthMeasureSpec), resolveSize(maxHeight, heightMeasureSpec));
 	}
 
 	@Override
@@ -446,13 +459,40 @@ public class TiImageView extends ViewGroup
 		if (canScaleImage && zoomControls.getVisibility() == View.VISIBLE) {
 			int zoomWidth = zoomControls.getMeasuredWidth();
 			int zoomHeight = zoomControls.getMeasuredHeight();
-			zoomControls.layout(parentRight - zoomWidth,
-					parentBottom - zoomHeight,
-					parentRight, parentBottom);
+			zoomControls.layout(parentRight - zoomWidth, parentBottom - zoomHeight, parentRight, parentBottom);
 		}
 	}
-	
-	public void setColorFilter(ColorFilter filter) {
+
+	public void setColorFilter(ColorFilter filter)
+	{
 		imageView.setColorFilter(filter);
+	}
+
+	private void updateScaleType()
+	{
+		if (canScaleImage) {
+			imageView.setScaleType(ScaleType.MATRIX);
+		} else {
+			if (viewWidthDefined && viewHeightDefined) {
+				imageView.setScaleType(ScaleType.FIT_XY);
+			} else if (viewHeightDefined || viewWidthDefined) {
+				imageView.setScaleType(ScaleType.FIT_CENTER);
+			} else {
+				imageView.setScaleType(ScaleType.CENTER);
+			}
+		}
+		requestLayout();
+	}
+
+	public void setWidthDefined(boolean defined)
+	{
+		viewWidthDefined = defined;
+		updateScaleType();
+	}
+
+	public void setHeightDefined(boolean defined)
+	{
+		viewHeightDefined = defined;
+		updateScaleType();
 	}
 }
