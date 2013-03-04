@@ -292,7 +292,7 @@ public class ActivityProxy extends KrollProxy
 	{
 		KrollDict event = new KrollDict();
 		event.put(TiC.EVENT_PROPERTY_REQUEST_CODE, requestCode);
-		event.put(TiC.EVENT_PROPERTY_ERROR, e.getMessage());
+		event.putCodeAndMessage(TiC.ERROR_CODE_UNKNOWN, e.getMessage());
 		event.put(TiC.EVENT_PROPERTY_SOURCE, this);
 		this.resultCallback.callAsync(krollObject, event);
 	}
