@@ -215,6 +215,7 @@ public class TiWebViewBinding
 		{
 			module = TiApplication.getInstance().getModuleByName("App");
 		}
+		
 		@JavascriptInterface
 		public void fireEvent(String event, String json)
 		{
@@ -228,6 +229,7 @@ public class TiWebViewBinding
 				Log.e(TAG, "Error parsing event JSON", e);
 			}
 		}
+		
 		@JavascriptInterface
 		public int addEventListener(String event, int id)
 		{
@@ -238,11 +240,13 @@ public class TiWebViewBinding
 
 			return result;
 		}
+		
 		@JavascriptInterface
 		public void removeEventListener(String event, int id)
 		{
 			module.removeEventListener(event, id);
 		}
+		
 		@JavascriptInterface
 		public void clearEventListeners()
 		{
@@ -250,6 +254,7 @@ public class TiWebViewBinding
 				removeEventListener(event, appListeners.get(event));
 			}
 		}
+		
 		@JavascriptInterface
 		public String getJSCode()
 		{
@@ -258,6 +263,7 @@ public class TiWebViewBinding
 			}
 			return code;
 		}
+		
 		@JavascriptInterface
 		public int hasResult()
 		{
