@@ -173,27 +173,28 @@ def generate_output(options):
 		generator = getattr(generators, "%s_generator" % output_type)
 		generator.generate(apis, annotated_apis, options)
 
-def process_yaml():
+def process_yaml(source_dirs):
 	global apis
 	log.info("Parsing YAML files")
-	for root, dirs, files in os.walk(this_dir):
-		for name in ignore_dirs:
-			if name in dirs:
-				dirs.remove(name) # don't visit ignored directoriess
-		for filename in files:
-			if os.path.splitext(filename)[-1] != ".yml" or filename in ignore_files:
-				continue
-			filepath = os.path.join(root, filename)
-			log.trace("Processing: %s" % filepath)
-			types = None
-			types = load_one_yaml(filepath)
-			if types is None:
-				log.trace("%s skipped" % filepath)
-			else:
-				for one_type in types:
-					if one_type["name"] in apis:
-						log.warn("%s has a duplicate" % one_type["name"])
-					apis[one_type["name"]] = one_type
+	for source_dir in source_dirs:
+		for root, dirs, files in os.walk(source_dir):
+			for name in ignore_dirs:
+				if name in dirs:
+					dirs.remove(name) # don't visit ignored directoriess
+			for filename in files:
+				if os.path.splitext(filename)[-1] != ".yml" or filename in ignore_files:
+					continue
+				filepath = os.path.join(root, filename)
+				log.trace("Processing: %s" % filepath)
+				types = None
+				types = load_one_yaml(filepath)
+				if types is None:
+					log.trace("%s skipped" % filepath)
+				else:
+					for one_type in types:
+						if one_type["name"] in apis:
+							log.warn("%s has a duplicate" % one_type["name"])
+						apis[one_type["name"]] = one_type
 
 # If documentation for a method/event/property only "partially overrides"
 # the documentation for the super type, this will fill in the rest of
@@ -636,7 +637,8 @@ def main():
 		log.trace("Setting output folder to %s because html files will be generated and now --output folder was specified" % dist_apidoc_dir)
 		options.output = dist_apidoc_dir
 
-	process_yaml()
+	source_dirs = [ this_dir ] + args
+	process_yaml(source_dirs)
 	finish_partial_overrides()
 	generate_output(options)
 
