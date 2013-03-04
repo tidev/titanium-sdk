@@ -7,6 +7,7 @@ import org.appcelerator.titanium.view.TiUIView;
 
 import android.content.Context;
 import android.util.AttributeSet;
+import android.view.ViewGroup;
 
 public class TiBaseListViewItem extends TiCompositeLayout{
 
@@ -18,7 +19,7 @@ public class TiBaseListViewItem extends TiCompositeLayout{
 	}
 	
 	public TiBaseListViewItem(Context context, AttributeSet set) {
-		super(context);
+		super(context, set);
 		setId(TiListView.listContentId);
 		viewsMap = new HashMap<String, TiUIView>();
 	}
@@ -35,12 +36,4 @@ public class TiBaseListViewItem extends TiCompositeLayout{
 		return viewsMap.get(binding);
 	}
 
-	public void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-		//Mode will be MeasureSpec.AT_MOST since default is wrap content, so
-		//we change mode to MeasureSpec.EXACTLY to reflect fill behavior.
-		//int w = MeasureSpec.getSize(widthMeasureSpec);
-		//int newMode = MeasureSpec.makeMeasureSpec(w, MeasureSpec.EXACTLY);
-		super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-
-	}
 }

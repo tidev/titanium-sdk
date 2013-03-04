@@ -20,11 +20,13 @@ import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.BaseAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
-public class TiListView extends TiUIView {
+public class TiListView extends TiUIView implements OnItemClickListener {
 
 	private ListView listView;
 	private TiBaseAdapter adapter;
@@ -64,11 +66,13 @@ public class TiListView extends TiUIView {
 
 		@Override
 		public Object getItem(int arg0) {
+			//not using this method
 			return arg0;
 		}
 
 		@Override
 		public long getItemId(int position) {
+			//not using this method
 			return position;
 		}
 		
@@ -137,6 +141,12 @@ public class TiListView extends TiUIView {
 		listView = new ListView(activity);
 		adapter = new TiBaseAdapter(activity);
 		
+		listView.setOnItemClickListener(this);
+		listView.setItemsCanFocus(false);
+
+		listView.setFocusable(true);
+		listView.setFocusableInTouchMode(true);
+		
 		getLayoutParams().autoFillsHeight = true;
 		getLayoutParams().autoFillsWidth = true;
 
@@ -146,7 +156,7 @@ public class TiListView extends TiUIView {
 			titleId = TiRHelper.getResource("id.title");
 			listContentId = TiRHelper.getResource("id.listItem");
 		} catch (ResourceNotFoundException e) {
-			Log.e(TAG, "XML resources could not be found!!!!");
+			Log.e(TAG, "XML resources could not be found!!!");
 		}
 		
 		
@@ -292,6 +302,13 @@ public class TiListView extends TiUIView {
 	
 	public int getSectionCount() {
 		return sections.size();
+	}
+
+	@Override
+	public void onItemClick(AdapterView<?> parent, View view, int position,
+			long id) {
+		fireEvent(TiC.PROPERTY_ITEM_CLICK, null);
+		
 	}
 	
 }

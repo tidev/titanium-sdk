@@ -2,24 +2,26 @@ package ti.modules.titanium.ui.widget.listview;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.annotations.Kroll;
+import org.appcelerator.kroll.common.AsyncResult;
 import org.appcelerator.kroll.common.Log;
+import org.appcelerator.kroll.common.TiMessenger;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
+import org.appcelerator.titanium.view.TiCompositeLayout;
 import org.appcelerator.titanium.view.TiUIView;
 
 import ti.modules.titanium.ui.UIModule;
 import ti.modules.titanium.ui.ViewProxy;
 import ti.modules.titanium.ui.widget.listview.TiListView.TiBaseAdapter;
 import ti.modules.titanium.ui.widget.listview.TiTemplate.DataItem;
-import android.os.Handler;
 import android.os.Message;
-import android.util.SparseArray;
 
 @Kroll.proxy(creatableInModule = UIModule.class, propertyAccessors = {
 })
@@ -30,7 +32,7 @@ public class ListSectionProxy extends ViewProxy{
 	private int itemCount;
 	private DefaultTemplate builtInTemplate;
 	private TiBaseAdapter adapter;
-	private Object[] itemProperties;
+	private ArrayList<Object> itemProperties;
 	private boolean preload;
 	
 	private String headerTitle;
@@ -43,6 +45,9 @@ public class ListSectionProxy extends ViewProxy{
 	private static final int MSG_SET_ITEMS = MSG_FIRST_ID + 700;
 	private static final int MSG_APPEND_ITEMS = MSG_FIRST_ID + 701;
 	private static final int MSG_INSERT_ITEMS_AT = MSG_FIRST_ID + 702;
+	private static final int MSG_DELETE_ITEMS_AT = MSG_FIRST_ID + 703;
+	private static final int MSG_GET_ITEM_AT = MSG_FIRST_ID + 704;
+	private static final int MSG_REPLACE_ITEMS_AT = MSG_FIRST_ID + 705;
 
 	
 	public class ListItemData {
@@ -123,19 +128,52 @@ public class ListSectionProxy extends ViewProxy{
 		switch (msg.what) {
 
 		case MSG_SET_ITEMS: {
-			handleSetItems(msg.obj);
+			AsyncResult result = (AsyncResult) msg.obj;
+			handleSetItems(result.getArg());
+			result.setResult(null);
 			return true;
 		}
 		
 		case MSG_APPEND_ITEMS: {
-			handleAppendItems(msg.obj);
+			AsyncResult result = (AsyncResult) msg.obj;
+			handleAppendItems(result.getArg());
+			result.setResult(null);
 			return true;
 		}
 		
 		case MSG_INSERT_ITEMS_AT: {
-			KrollDict data = (KrollDict) msg.obj;
+			AsyncResult result = (AsyncResult) msg.obj;
+			KrollDict data = (KrollDict) result.getArg();
 			int index = data.getInt("index");
 			handleInsertItemsAt(index, data.get("data"));
+			result.setResult(null);
+			return true;
+		}
+		
+		case MSG_DELETE_ITEMS_AT: {
+			AsyncResult result = (AsyncResult) msg.obj;
+			KrollDict data = (KrollDict) result.getArg();
+			int index = data.getInt("index");
+			int count = data.getInt("count");
+			handleInsertItemsAt(index, count);
+			result.setResult(null);
+			return true;
+		}
+		
+		case MSG_REPLACE_ITEMS_AT: {
+			AsyncResult result = (AsyncResult) msg.obj;
+			KrollDict data = (KrollDict) result.getArg();
+			int index = data.getInt("index");
+			int count = data.getInt("count");
+			handleReplaceItemsAt(index, count, data.get("data"));
+			result.setResult(null);
+			return true;
+		}
+		
+		case MSG_GET_ITEM_AT: {
+			AsyncResult result = (AsyncResult) msg.obj;
+			KrollDict item = handleGetItemAt(TiConvert.toInt(result.getArg()));
+			result.setResult(item);
 			return true;
 		}
 
@@ -147,12 +185,27 @@ public class ListSectionProxy extends ViewProxy{
 	}
 	
 	@Kroll.method
+	public KrollDict getItemAt(int index) {
+		if (TiApplication.isUIThread()) {
+			return handleGetItemAt(index);
+		} else {
+			return (KrollDict) TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_GET_ITEM_AT), index);
+		}
+	}
+	
+	private KrollDict handleGetItemAt(int index) {
+		if (itemProperties != null & index >= 0 && index < itemProperties.size()) {
+			return new KrollDict((HashMap)itemProperties.get(index));
+		}
+		return null;
+	}
+
+	@Kroll.method
 	public void setItems(Object data) {
 		if (TiApplication.isUIThread()) {
 			handleSetItems(data);
 		} else {
-			Handler handler = getMainHandler();
-			handler.sendMessage(handler.obtainMessage(MSG_SET_ITEMS, data));
+			TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_SET_ITEMS), data);
 		}
 		
 	}
@@ -162,8 +215,7 @@ public class ListSectionProxy extends ViewProxy{
 		if (TiApplication.isUIThread()) {
 			handleAppendItems(data);
 		} else {
-			Handler handler = getMainHandler();
-			handler.sendMessage(handler.obtainMessage(MSG_APPEND_ITEMS, data));
+			TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_APPEND_ITEMS), data);
 		}
 	}
 	
@@ -175,14 +227,38 @@ public class ListSectionProxy extends ViewProxy{
 			KrollDict d = new KrollDict();
 			d.put("data", data);
 			d.put("index", index);
-			Handler handler = getMainHandler();
-			handler.sendMessage(handler.obtainMessage(MSG_INSERT_ITEMS_AT, d));
+			TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_INSERT_ITEMS_AT), d);
+		}
+	}
+	
+	@Kroll.method
+	public void deleteItemsAt(int index, int count) {
+		if (TiApplication.isUIThread()) {
+			handleDeleteItemsAt(index, count);
+		} else {
+			KrollDict d = new KrollDict();
+			d.put("index", index);
+			d.put("count", count);
+			TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_DELETE_ITEMS_AT), d);
+		}
+	}
+	
+	@Kroll.method
+	public void replaceItemsAt(int index, int count, Object data) {
+		if (TiApplication.isUIThread()) {
+			handleReplaceItemsAt(index, count, data);
+		} else {
+			KrollDict d = new KrollDict();
+			d.put("index", index);
+			d.put("count", count);
+			d.put("data", data);
+			TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_REPLACE_ITEMS_AT), d);
 		}
 	}
 	
 	public void processPreloadData() {
 		if (itemProperties != null && preload) {
-			handleSetItems(itemProperties);
+			handleSetItems(itemProperties.toArray());
 		}
 	}
 
@@ -222,7 +298,7 @@ public class ListSectionProxy extends ViewProxy{
 
 		if (data instanceof Object[]) {
 			Object[] views = (Object[]) data;
-			itemProperties = views;
+			itemProperties =  new ArrayList<Object>(Arrays.asList(views));
 			//only process items when listview's properties is processed.
 			if (getListView() == null) {
 				preload = true;
@@ -239,14 +315,12 @@ public class ListSectionProxy extends ViewProxy{
 	private void handleAppendItems(Object data) {
 		if (data instanceof Object[]) {
 			Object[] views = (Object[]) data;
-
 			if (itemProperties == null) {
-				itemProperties = views;
+				itemProperties = new ArrayList<Object>(Arrays.asList(views));
 			} else {
-				Object[] append = new Object[itemProperties.length + views.length];
-				System.arraycopy(itemProperties, 0, append, 0, itemProperties.length);
-				System.arraycopy(views, 0, append, itemProperties.length, views.length);
-				itemProperties = append;
+				for (Object view: views) {
+					itemProperties.add(view);
+				}
 			}
 			
 			//only process items when listview's properties is processed.
@@ -267,26 +341,49 @@ public class ListSectionProxy extends ViewProxy{
 			Object[] views = (Object[]) data;
 			
 			if (itemProperties == null) {
-				itemProperties = views;
+				itemProperties = new ArrayList<Object>(Arrays.asList(views));
 			} else {
-				Object[] append = new Object[itemProperties.length + views.length];
-				System.arraycopy(itemProperties, 0, append, 0, index);
-				System.arraycopy(views, 0, append, index, views.length);
-				System.arraycopy(itemProperties, index, append, index + views.length, itemProperties.length - index);
-				itemProperties = append;
+				int counter = index;
+				for (Object view: views) {
+					itemProperties.add(counter, view);
+					counter++;
+				}
 			}
-			
 			//only process items when listview's properties is processed.
 			if (getListView() == null) {
 				preload = true;
 				return;
 			}
 			processData(views, index);
-			itemCount += views.length;
-			
+			itemCount += views.length;		
 		} else {
-			Log.e(TAG, "Invalid argument type to setData");
+			Log.e(TAG, "Invalid argument type to insertItemsAt");
 		}
+	}
+	
+	private void deleteItems(int index, int count) {
+		while (count > 0) {
+			if (index < itemProperties.size()) {
+				itemProperties.remove(index);
+				itemCount--;
+			}
+			if (index < listItemData.size()) {
+				listItemData.remove(index);
+			}
+			count--;
+		}
+	}
+	
+	private void handleDeleteItemsAt(int index, int count) {
+		deleteItems(index, count);
+		if (adapter != null) {
+			adapter.notifyDataSetChanged();
+		}
+	}
+	
+	private void handleReplaceItemsAt(int index, int count, Object data) {
+		deleteItems(index, count);
+		handleInsertItemsAt(index, data);
 	}
 	
 	private TiTemplate processTemplate(KrollDict itemData, int index) {
@@ -357,7 +454,7 @@ public class ListSectionProxy extends ViewProxy{
 		//Get item proxy
 		TiViewProxy itemProxy = template.getRootItem().getViewProxy();
 		//Create corresponding TiUIView for item proxy
-		TiListItem item = new TiListItem(itemProxy);	
+		TiListItem item = new TiListItem(itemProxy, (TiCompositeLayout.LayoutParams)itemContent.getLayoutParams());	
 		item.setNativeView(itemContent);
 		
 		//Connect native view with TiUIView so we can get it from recycled view.
@@ -395,7 +492,7 @@ public class ListSectionProxy extends ViewProxy{
 		KrollDict existingData = view.getAdditionalEventData();
 		if (existingData == null) {
 			existingData = new KrollDict();
-			view.setAddtionalEventData(existingData);
+			view.setAdditionalEventData(existingData);
 		}
 		existingData.put(TiC.PROPERTY_SECTION, this);
 		existingData.put(TiC.PROPERTY_SECTION_INDEX, sectionIndex);

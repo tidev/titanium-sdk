@@ -1241,6 +1241,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_INTENT = "intent";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_ITEM_CLICK = "itemclick";
 
 	/**
 	 * @module.api

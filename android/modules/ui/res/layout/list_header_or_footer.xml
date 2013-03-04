@@ -13,6 +13,8 @@
         android:layout_height="wrap_content"
         android:textColor="#FFFFFF"
         android:clickable="false"
+        android:focusable="false"
+        android:focusableInTouchMode="false"
         android:typeface="sans"
         android:textSize="14sp"/>
 
