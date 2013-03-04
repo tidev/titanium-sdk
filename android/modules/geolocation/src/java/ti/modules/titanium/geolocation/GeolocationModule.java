@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 
+import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollFunction;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.KrollProxy;
@@ -765,7 +766,7 @@ public class GeolocationModule extends KrollModule
 
 		return new GeocodeResponseHandler() {
 			@Override
-			public void handleGeocodeResponse(HashMap<String, Object> geocodeResponse)
+			public void handleGeocodeResponse(KrollDict geocodeResponse)
 			{
 				geocodeResponse.put(TiC.EVENT_PROPERTY_SOURCE, geolocationModule);
 				callback.call(getKrollObject(), new Object[] { geocodeResponse });
@@ -829,9 +830,9 @@ public class GeolocationModule extends KrollModule
 	 * @return						map of property names and values that contain information 
 	 * 								pulled from the specified location
 	 */
-	private HashMap<String, Object> buildLocationEvent(Location location, LocationProvider locationProvider)
+	private KrollDict buildLocationEvent(Location location, LocationProvider locationProvider)
 	{
-		HashMap<String, Object> coordinates = new HashMap<String, Object>();
+		KrollDict coordinates = new KrollDict();
 		coordinates.put(TiC.PROPERTY_LATITUDE, location.getLatitude());
 		coordinates.put(TiC.PROPERTY_LONGITUDE, location.getLongitude());
 		coordinates.put(TiC.PROPERTY_ALTITUDE, location.getAltitude());
@@ -841,12 +842,12 @@ public class GeolocationModule extends KrollModule
 		coordinates.put(TiC.PROPERTY_SPEED, location.getSpeed());
 		coordinates.put(TiC.PROPERTY_TIMESTAMP, location.getTime());
 
-		HashMap<String, Object> event = new HashMap<String, Object>();
-		event.put(TiC.PROPERTY_SUCCESS, true);
+		KrollDict event = new KrollDict();
+		event.putCodeAndMessage(TiC.ERROR_CODE_NO_ERROR, null);
 		event.put(TiC.PROPERTY_COORDS, coordinates);
 
 		if (locationProvider != null) {
-			HashMap<String, Object> provider = new HashMap<String, Object>();
+			KrollDict provider = new KrollDict();
 			provider.put(TiC.PROPERTY_NAME, locationProvider.getName());
 			provider.put(TiC.PROPERTY_ACCURACY, locationProvider.getAccuracy());
 			provider.put(TiC.PROPERTY_POWER, locationProvider.getPowerRequirement());
@@ -867,13 +868,10 @@ public class GeolocationModule extends KrollModule
 	 * @return						map of property names and values that contain information 
 	 * 								regarding the error
 	 */
-	private HashMap<String, Object> buildLocationErrorEvent(int code, String msg)
+	private KrollDict buildLocationErrorEvent(int code, String msg)
 	{
-		HashMap<String, Object> d = new HashMap<String, Object>(3);
-		d.put(TiC.ERROR_PROPERTY_CODE, code);
-		d.put(TiC.EVENT_PROPERTY_ERROR, msg);
-		d.put(TiC.PROPERTY_SUCCESS, false);
-
+		KrollDict d = new KrollDict(3);
+		d.putCodeAndMessage(code, msg);
 		return d;
 	}
 
