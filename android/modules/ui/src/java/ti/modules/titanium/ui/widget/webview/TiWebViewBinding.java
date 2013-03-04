@@ -26,6 +26,7 @@ import org.appcelerator.titanium.util.TiConvert;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.webkit.JavascriptInterface;
 import android.webkit.WebView;
 
 public class TiWebViewBinding
@@ -47,13 +48,13 @@ public class TiWebViewBinding
 		StringBuilder jsonCode = readResourceFile("json2.js");
 		StringBuilder tiCode = readResourceFile("binding.min.js");
 		StringBuilder pollingCode = readResourceFile("polling.min.js");
-
+		
 		if (pollingCode == null) {
 			Log.w(TAG, "Unable to read polling code");
 		} else {
 			POLLING_CODE = pollingCode.toString();
 		}
-
+		
 		StringBuilder scriptCode = new StringBuilder();
 		StringBuilder injectionCode = new StringBuilder();
 		scriptCode.append("\n<script id=\"" + SCRIPT_INJECTION_ID + "\">\n");
@@ -208,12 +209,13 @@ public class TiWebViewBinding
 	{
 		private KrollModule module;
 		private HashMap<String, Integer> appListeners = new HashMap<String, Integer>();
-
+		private int counter = 0;
+		private String code = null;
 		public AppBinding()
 		{
 			module = TiApplication.getInstance().getModuleByName("App");
 		}
-
+		@JavascriptInterface
 		public void fireEvent(String event, String json)
 		{
 			try {
@@ -226,7 +228,7 @@ public class TiWebViewBinding
 				Log.e(TAG, "Error parsing event JSON", e);
 			}
 		}
-
+		@JavascriptInterface
 		public int addEventListener(String event, int id)
 		{
 			WebViewCallback callback = new WebViewCallback(id);
@@ -236,30 +238,43 @@ public class TiWebViewBinding
 
 			return result;
 		}
-
+		@JavascriptInterface
 		public void removeEventListener(String event, int id)
 		{
 			module.removeEventListener(event, id);
 		}
-
+		@JavascriptInterface
 		public void clearEventListeners()
 		{
 			for (String event : appListeners.keySet()) {
 				removeEventListener(event, appListeners.get(event));
 			}
 		}
-
+		@JavascriptInterface
 		public String getJSCode()
 		{
 			if (destroyed) {
 				return null;
 			}
-
-			String code;
-			synchronized (codeSnippets) {
-				code = codeSnippets.empty() ? "" : codeSnippets.pop();
-			}
 			return code;
+		}
+		@JavascriptInterface
+		public int hasResult()
+		{
+			if (destroyed) {
+				return -1;
+			}
+			int result = 0;
+			synchronized (codeSnippets) {
+				if(codeSnippets.empty()) {
+					code = "";
+				} else {
+					result = 1;
+					code = codeSnippets.pop().toString();
+				}
+			}
+			return result;
+			
 		}
 	}
 
@@ -272,32 +287,38 @@ public class TiWebViewBinding
 		{
 			logging = KrollLogging.getDefault();
 		}
-
+		
+		@JavascriptInterface
 		public void log(String level, String arg)
 		{
 			logging.log(level, arg);
 		}
-
+		
+		@JavascriptInterface
 		public void info(String arg)
 		{
 			logging.info(arg);
 		}
-
+		
+		@JavascriptInterface
 		public void debug(String arg)
 		{
 			logging.debug(arg);
 		}
-
+		
+		@JavascriptInterface
 		public void error(String arg)
 		{
 			logging.error(arg);
 		}
-
+		
+		@JavascriptInterface
 		public void trace(String arg)
 		{
 			logging.trace(arg);
 		}
 
+		@JavascriptInterface
 		public void warn(String arg)
 		{
 			logging.warn(arg);
