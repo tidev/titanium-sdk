@@ -501,6 +501,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_ACCESSIBILITY_VALUE = "accessibilityValue";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_ACCESSORY_TYPE = "accessoryType";
 
 	/**
 	 * @module.api

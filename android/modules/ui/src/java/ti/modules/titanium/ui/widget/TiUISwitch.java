@@ -117,7 +117,7 @@ public class TiUISwitch extends TiUIView
 		data.put(TiC.PROPERTY_VALUE, value);
 
 		proxy.setProperty(TiC.PROPERTY_VALUE, value);
-		proxy.fireEvent(TiC.EVENT_CHANGE, data);
+		fireEvent(TiC.EVENT_CHANGE, data);
 	}
 	
 	protected void setStyle(int style)

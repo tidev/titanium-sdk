@@ -8,9 +8,7 @@ import org.appcelerator.titanium.view.TiUIView;
 import ti.modules.titanium.ui.UIModule;
 import android.app.Activity;
 
-@Kroll.proxy(creatableInModule = UIModule.class, propertyAccessors = {
-	TiC.PROPERTY_TITLE
-})
+@Kroll.proxy(creatableInModule = UIModule.class)
 public class ListItemProxy extends TiViewProxy {
 
 	

@@ -287,7 +287,7 @@ public class TiUIText extends TiUIView
 			data.put("value", newValue);
 
 			proxy.setProperty(TiC.PROPERTY_VALUE, newValue);
-			proxy.fireEvent(TiC.EVENT_CHANGE, data);
+			fireEvent(TiC.EVENT_CHANGE, data);
 		}
 	}
 	
@@ -348,7 +348,7 @@ public class TiUIText extends TiUIView
 		if ((actionId == EditorInfo.IME_NULL && keyEvent != null) || 
 				actionId == EditorInfo.IME_ACTION_NEXT || 
 				actionId == EditorInfo.IME_ACTION_DONE ) {
-			proxy.fireEvent("return", data);
+			fireEvent("return", data);
 		}
 
 		Boolean enableReturnKey = (Boolean) proxy.getProperty(TiC.PROPERTY_ENABLE_RETURN_KEY);

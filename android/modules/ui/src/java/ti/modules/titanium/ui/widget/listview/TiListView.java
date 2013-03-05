@@ -36,7 +36,11 @@ public class TiListView extends TiUIView implements OnItemClickListener {
 	private HashMap<String, TiTemplate> templatesByBinding;
 	private int listItemId;
 	public static int listContentId;
+	public static int isCheck;
+	public static int hasChild;
+	public static int accessory;
 	private int headerFooterId;
+	public static LayoutInflater inflater;
 	private int titleId;
 	private View headerView;
 	private View footerView;
@@ -48,10 +52,9 @@ public class TiListView extends TiUIView implements OnItemClickListener {
 	public class TiBaseAdapter extends BaseAdapter {
 
 		Activity context;
-		public LayoutInflater inflater;
+		
 		public TiBaseAdapter(Activity activity) {
 			context = activity;
-			inflater = (LayoutInflater)activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		}
 
 		@Override
@@ -116,13 +119,13 @@ public class TiListView extends TiUIView implements OnItemClickListener {
 			TiTemplate template = section.getTemplateByIndex(index);
 			if (content != null) {
 				TiBaseListViewItem itemContent = (TiBaseListViewItem) content.findViewById(listContentId);
-				section.populateViews(data, itemContent, template, position, index);
+				section.populateViews(data, itemContent, template, position, index, content);
 				//Log.d("GetView", "reusing View");
 			} else {
 				//Log.d("GetView", "generating View");
 				content = inflater.inflate(listItemId, null, true);
 				TiBaseListViewItem itemContent = (TiBaseListViewItem) content.findViewById(listContentId);
-				section.generateCellContent(index, data, template, itemContent, position);
+				section.generateCellContent(index, data, template, itemContent, position, content);
 			}
 
 			return content;
@@ -142,6 +145,10 @@ public class TiListView extends TiUIView implements OnItemClickListener {
 		listView = new ListView(activity);
 		adapter = new TiBaseAdapter(activity);
 		
+		//init inflater
+		if (inflater == null) {
+			inflater = (LayoutInflater)activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+		}
 		listView.setOnItemClickListener(this);
 		listView.setItemsCanFocus(false);
 
@@ -156,6 +163,9 @@ public class TiListView extends TiUIView implements OnItemClickListener {
 			listItemId = TiRHelper.getResource("layout.list_item");
 			titleId = TiRHelper.getResource("id.title");
 			listContentId = TiRHelper.getResource("id.listItem");
+			isCheck = TiRHelper.getResource("drawable.btn_check_buttonless_on_64");
+			hasChild = TiRHelper.getResource("drawable.btn_more_64");
+			accessory = TiRHelper.getResource("id.accessoryType");
 		} catch (ResourceNotFoundException e) {
 			Log.e(TAG, "XML resources could not be found!!!");
 		}
@@ -202,23 +212,23 @@ public class TiListView extends TiUIView implements OnItemClickListener {
 		}
 		
 		if (d.containsKey(TiC.PROPERTY_HEADER_TITLE)) {
-			headerView = adapter.inflater.inflate(headerFooterId, null);
+			headerView = inflater.inflate(headerFooterId, null);
 			setHeaderTitle(TiConvert.toString(d, TiC.PROPERTY_HEADER_TITLE));
 		}
 		
 		if (d.containsKey(TiC.PROPERTY_FOOTER_TITLE)) {
-			footerView = adapter.inflater.inflate(headerFooterId, null);
+			footerView = inflater.inflate(headerFooterId, null);
 			setFooterTitle(TiConvert.toString(d, TiC.PROPERTY_FOOTER_TITLE));
 		}
 
 		//Check to see if headerTitle and footerTitle are specified. If not, we hide the views
 		if (headerView == null) {
-			headerView = adapter.inflater.inflate(headerFooterId, null);
+			headerView = inflater.inflate(headerFooterId, null);
 			headerView.findViewById(titleId).setVisibility(View.GONE);
 		}
 		
 		if (footerView == null) {
-			footerView = adapter.inflater.inflate(headerFooterId, null);
+			footerView = inflater.inflate(headerFooterId, null);
 			footerView.findViewById(titleId).setVisibility(View.GONE);
 		}
 
@@ -236,10 +246,13 @@ public class TiListView extends TiUIView implements OnItemClickListener {
 
 		if (key.equals(TiC.PROPERTY_HEADER_TITLE)) {
 			setHeaderTitle(TiConvert.toString(newValue));
-		}
-		
-		if (key.equals(TiC.PROPERTY_FOOTER_TITLE)) {
+		} else if (key.equals(TiC.PROPERTY_FOOTER_TITLE)) {
 			setFooterTitle(TiConvert.toString(newValue));
+		} else if (key.equals(TiC.PROPERTY_SECTIONS) && newValue instanceof Object[] ) {
+			processSections((Object[])newValue);
+			if (adapter != null) {
+				adapter.notifyDataSetChanged();
+			}
 		}
 	}
 
@@ -256,18 +269,29 @@ public class TiListView extends TiUIView implements OnItemClickListener {
 
 	protected void processSections(Object[] sections) {
 		
+		this.sections.clear();
 		for (int i = 0; i < sections.length; i++) {
-			Object obj = sections[i];
-			if (obj instanceof ListSectionProxy) {
-				ListSectionProxy section = (ListSectionProxy) obj;
-				this.sections.add(section);	
-				section.setAdapter(adapter);
-				section.setListView(this);
-				//Attempts to set type for existing templates.
-				section.setTemplateType();
-				//Process preload data if any
-				section.processPreloadData();
+			processSection(sections[i], -1);
+		}
+	}
+	
+	protected void processSection(Object sec, int index) {
+		if (sec instanceof ListSectionProxy) {
+			ListSectionProxy section = (ListSectionProxy) sec;
+			if (this.sections.contains(section)) {
+				return;
 			}
+			if (index == -1 || index >= sections.size()) {
+				this.sections.add(section);	
+			} else {
+				this.sections.add(index, section);
+			}
+			section.setAdapter(adapter);
+			section.setListView(this);
+			//Attempts to set type for existing templates.
+			section.setTemplateType();
+			//Process preload data if any
+			section.processPreloadData();
 		}
 	}
 	
@@ -303,6 +327,64 @@ public class TiListView extends TiUIView implements OnItemClickListener {
 	
 	public int getSectionCount() {
 		return sections.size();
+	}
+	
+	public void appendSection(Object section) {
+		if (section instanceof Object[]) {
+			Object[] secs = (Object[]) section;
+			for (int i = 0; i < secs.length; i++) {
+				processSection(secs[i], -1);
+			}
+		} else {
+			processSection(section, -1);
+		}
+		adapter.notifyDataSetChanged();
+	}
+	
+	public void deleteSectionAt(int index) {
+		if (index < sections.size()) {
+			sections.remove(index);
+			adapter.notifyDataSetChanged();
+		}
+	}
+	
+	public void insertSectionAt(int index, Object section) {
+		if (section instanceof Object[]) {
+			Object[] secs = (Object[]) section;
+			for (int i = 0; i < secs.length; i++) {
+				processSection(secs[i], index);
+				index++;
+			}
+		} else {
+			processSection(section, index);
+		}
+		adapter.notifyDataSetChanged();
+	}
+	
+	public void replaceSectionAt(int index, Object section) {
+		deleteSectionAt(index);
+		insertSectionAt(index, section);
+	}
+	
+	public void scrollToItem(int sectionIndex, int itemIndex) {
+		int position = 1;
+		for (int i = 0; i < sections.size(); i++) {
+			ListSectionProxy section = sections.get(i);
+			if (i == sectionIndex) {
+				if (itemIndex >= section.getContentCount()) {
+					Log.e(TAG, "Invalid item index");
+					return;
+				}
+				position += itemIndex;
+				if (section.getHeaderTitle() != null) {
+					position += 1;			
+				}
+				break;
+			} else {
+				position += section.getItemCount();
+			}
+		}
+		listView.smoothScrollToPosition(position);
 	}
 
 	@Override

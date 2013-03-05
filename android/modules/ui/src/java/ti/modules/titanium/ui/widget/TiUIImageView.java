@@ -519,32 +519,32 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 	{
 		KrollDict data = new KrollDict();
 		data.put(TiC.EVENT_PROPERTY_STATE, state);
-		proxy.fireEvent(TiC.EVENT_LOAD, data);
+		fireEvent(TiC.EVENT_LOAD, data);
 	}
 
 	private void fireStart()
 	{
 		KrollDict data = new KrollDict();
-		proxy.fireEvent(TiC.EVENT_START, data);
+		fireEvent(TiC.EVENT_START, data);
 	}
 
 	private void fireChange(int index)
 	{
 		KrollDict data = new KrollDict();
 		data.put(TiC.EVENT_PROPERTY_INDEX, index);
-		proxy.fireEvent(TiC.EVENT_CHANGE, data);
+		fireEvent(TiC.EVENT_CHANGE, data);
 	}
 
 	private void fireStop()
 	{
 		KrollDict data = new KrollDict();
-		proxy.fireEvent(TiC.EVENT_STOP, data);
+		fireEvent(TiC.EVENT_STOP, data);
 	}
 
 	private void fireError()
 	{
 		KrollDict data = new KrollDict();
-		proxy.fireEvent(TiC.EVENT_ERROR, data);
+		fireEvent(TiC.EVENT_ERROR, data);
 	}
 
 	private class Animator extends TimerTask
@@ -563,7 +563,7 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 				if (paused) {
 					synchronized (this) {
 						KrollDict data = new KrollDict();
-						proxy.fireEvent(TiC.EVENT_PAUSE, data);
+						fireEvent(TiC.EVENT_PAUSE, data);
 						waitOnResume = true;
 						wait();
 					}

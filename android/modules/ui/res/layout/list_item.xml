@@ -5,8 +5,9 @@
     android:orientation="horizontal" >
 
     <ti.modules.titanium.ui.widget.listview.ListItemLayout
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content" > 
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"> 
         
    		<ti.modules.titanium.ui.widget.listview.TiBaseListViewItem 
         	android:id="@+id/listItem"
@@ -19,7 +20,11 @@
         android:id="@+id/accessoryType"
         android:contentDescription="@string/accessoryType"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height= "wrap_content"
+        android:adjustViewBounds="true"
+        android:scaleType="fitXY"
+        android:maxWidth="35dp"
+        android:maxHeight="35dp"
         android:focusable="false"
         android:focusableInTouchMode="false" />
     

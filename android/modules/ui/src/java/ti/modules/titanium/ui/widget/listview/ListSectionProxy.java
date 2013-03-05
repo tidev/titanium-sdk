@@ -22,6 +22,7 @@ import ti.modules.titanium.ui.ViewProxy;
 import ti.modules.titanium.ui.widget.listview.TiListView.TiBaseAdapter;
 import ti.modules.titanium.ui.widget.listview.TiTemplate.DataItem;
 import android.os.Message;
+import android.view.View;
 
 @Kroll.proxy(creatableInModule = UIModule.class, propertyAccessors = {
 })
@@ -30,7 +31,7 @@ public class ListSectionProxy extends ViewProxy{
 	private static final String TAG = "SectionProxy";
 	private ArrayList<ListItemData> listItemData;
 	private int itemCount;
-	private DefaultTemplate builtInTemplate;
+	private static DefaultTemplate builtInTemplate;
 	private TiBaseAdapter adapter;
 	private ArrayList<Object> itemProperties;
 	private boolean preload;
@@ -259,6 +260,7 @@ public class ListSectionProxy extends ViewProxy{
 	public void processPreloadData() {
 		if (itemProperties != null && preload) {
 			handleSetItems(itemProperties.toArray());
+			preload = false;
 		}
 	}
 
@@ -449,20 +451,18 @@ public class ListSectionProxy extends ViewProxy{
 	 * @param index Entry's index relative to its section
 	 * @return
 	 */
-	public void generateCellContent(int index, KrollDict data, TiTemplate template, TiBaseListViewItem itemContent, int itemPosition) {
+	public void generateCellContent(int index, KrollDict data, TiTemplate template, TiBaseListViewItem itemContent, int itemPosition, View item_layout) {
 		//Here we create an item content and populate it with data
 		//Get item proxy
 		TiViewProxy itemProxy = template.getRootItem().getViewProxy();
 		//Create corresponding TiUIView for item proxy
-		TiListItem item = new TiListItem(itemProxy, (TiCompositeLayout.LayoutParams)itemContent.getLayoutParams());	
-		item.setNativeView(itemContent);
-		
+		TiListItem item = new TiListItem(itemProxy, (TiCompositeLayout.LayoutParams)itemContent.getLayoutParams(), itemContent, item_layout);		
 		//Connect native view with TiUIView so we can get it from recycled view.
 		itemContent.setTag(item);
 	
 		if (data != null && template != null) {
 			generateChildContentViews(template.getRootItem(), null, itemContent, true);
-			populateViews(data, itemContent, template, itemPosition, index);
+			populateViews(data, itemContent, template, itemPosition, index, item_layout);
 		}
 	}
 	
@@ -500,10 +500,10 @@ public class ListSectionProxy extends ViewProxy{
 		existingData.put(TiC.PROPERTY_ITEM_INDEX, itemPosition);
 	}
 	
-	public void populateViews(KrollDict data, TiBaseListViewItem cellContent, TiTemplate template, int itemPosition, int sectionIndex) {
+	public void populateViews(KrollDict data, TiBaseListViewItem cellContent, TiTemplate template, int itemPosition, int sectionIndex, View item_layout) {
 		Object cell = cellContent.getTag();
-		if (cell instanceof TiUIView) {
-			((TiUIView) cell).processProperties(template.getRootItem().getDefaultProperties());
+		if (cell instanceof TiListItem) {
+			((TiListItem) cell).processProperties(template.getRootItem().getDefaultProperties());
 		}
 		HashMap<String, TiUIView> views = cellContent.getViewsMap();
 		//Loop through all our views and apply default properties
@@ -531,8 +531,8 @@ public class ListSectionProxy extends ViewProxy{
 		for (String key : data.keySet()) {
 			KrollDict properties = new KrollDict((HashMap)data.get(key));
 			
-			if (key.equals(template.getItemID()) && cell instanceof TiUIView) {
-				((TiUIView) cell).processProperties(properties);
+			if (key.equals(template.getItemID()) && cell instanceof TiListItem) {
+				((TiListItem) cell).processProperties(properties);
 				continue;
 			}
 
@@ -560,7 +560,10 @@ public class ListSectionProxy extends ViewProxy{
 		}
 		return listItemData.get(index).getTemplate();
 	}
-	
+
+	public int getContentCount() {
+		return itemCount;
+	}
 	/**
 	 * @return number of entries within section
 	 */

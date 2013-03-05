@@ -74,6 +74,14 @@ public class DefaultTemplate extends TiTemplate {
 			KrollDict text = new KrollDict();
 			text.put(TiC.PROPERTY_TEXT, TiConvert.toString(clone_properties, TiC.PROPERTY_TITLE));
 			data.put(TiC.PROPERTY_TITLE, text);
+			if (clone_properties.containsKey(TiC.PROPERTY_FONT)) {
+				text.put(TiC.PROPERTY_FONT, clone_properties.getKrollDict(TiC.PROPERTY_FONT).clone());
+				clone_properties.remove(TiC.PROPERTY_FONT);
+			}
+			if (clone_properties.containsKey(TiC.PROPERTY_COLOR)) {
+				text.put(TiC.PROPERTY_COLOR, clone_properties.get(TiC.PROPERTY_COLOR));
+				clone_properties.remove(TiC.PROPERTY_COLOR);
+			}
 			clone_properties.remove(TiC.PROPERTY_TITLE);
 		}
 		
