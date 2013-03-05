@@ -38,6 +38,7 @@ import org.appcelerator.titanium.view.TiUIView;
 
 import ti.modules.titanium.filesystem.FileProxy;
 import ti.modules.titanium.ui.ImageViewProxy;
+import ti.modules.titanium.ui.ScrollViewProxy;
 import ti.modules.titanium.ui.widget.TiImageView.OnSizeChangeListener;
 import android.app.Activity;
 import android.graphics.Bitmap;
@@ -939,6 +940,11 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 			return;
 		}
 
+		// Disable scaling for scrollview since the an image can extend beyond the screensize
+		if (proxy.getParent() instanceof ScrollViewProxy) {
+			view.setCanScaleImage(false);
+		}
+
 		if (d.containsKey(TiC.PROPERTY_WIDTH)) {
 			String widthProperty = d.getString(TiC.PROPERTY_WIDTH);
 			if (TiC.LAYOUT_FILL.equals(widthProperty) && parentView != null) {
@@ -963,9 +969,6 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 		if (d.containsKey(TiC.PROPERTY_IMAGES)) {
 			setImageSource(d.get(TiC.PROPERTY_IMAGES));
 			setImages();
-		}
-		if (d.containsKey(TiC.PROPERTY_CAN_SCALE)) {
-			view.setCanScaleImage(TiConvert.toBoolean(d, TiC.PROPERTY_CAN_SCALE, false));
 		}
 		if (d.containsKey(TiC.PROPERTY_ENABLE_ZOOM_CONTROLS)) {
 			view.setEnableZoomControls(TiConvert.toBoolean(d, TiC.PROPERTY_ENABLE_ZOOM_CONTROLS, true));
@@ -1035,9 +1038,8 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 		if (view == null) {
 			return;
 		}
-		if (key.equals(TiC.PROPERTY_CAN_SCALE)) {
-			view.setCanScaleImage(TiConvert.toBoolean(newValue));
-		} else if (key.equals(TiC.PROPERTY_ENABLE_ZOOM_CONTROLS)) {
+
+		if (key.equals(TiC.PROPERTY_ENABLE_ZOOM_CONTROLS)) {
 			view.setEnableZoomControls(TiConvert.toBoolean(newValue));
 		} else if (key.equals(TiC.PROPERTY_IMAGE)) {
 			if ((oldValue == null && newValue != null) || (oldValue != null && !oldValue.equals(newValue))) {

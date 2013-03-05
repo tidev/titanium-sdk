@@ -125,8 +125,7 @@ public class TiImageView extends ViewGroup implements Handler.Callback, OnClickL
 
 		handler = new Handler(Looper.getMainLooper(), this);
 
-		canScaleImage = false;
-		enableZoomControls = true; // to mimic original behavior.
+		enableZoomControls = false;
 		scaleFactor = 1.0f;
 		originalScaleFactor = scaleFactor;
 		scaleIncrement = 0.1f;
@@ -137,9 +136,8 @@ public class TiImageView extends ViewGroup implements Handler.Callback, OnClickL
 		changeMatrix = new Matrix();
 
 		imageView = new NoLayoutImageView(context);
-		imageView.setAdjustViewBounds(true);
 		addView(imageView);
-		setCanScaleImage(false);
+		setCanScaleImage(true);
 
 		gestureDetector = new GestureDetector(getContext(), new GestureDetector.SimpleOnGestureListener()
 		{
@@ -210,7 +208,6 @@ public class TiImageView extends ViewGroup implements Handler.Callback, OnClickL
 	public void setCanScaleImage(boolean canScaleImage)
 	{
 		this.canScaleImage = canScaleImage;
-
 		updateScaleType();
 		((NoLayoutImageView) imageView).allowLayoutRequest = true;
 	}
@@ -218,6 +215,7 @@ public class TiImageView extends ViewGroup implements Handler.Callback, OnClickL
 	public void setEnableZoomControls(boolean enableZoomControls)
 	{
 		this.enableZoomControls = enableZoomControls;
+		updateScaleType();
 	}
 
 	public void setImageDrawable(Drawable d)
@@ -247,7 +245,6 @@ public class TiImageView extends ViewGroup implements Handler.Callback, OnClickL
 		imageView.setImageDrawable(d);
 		scaleFactor = originalScaleFactor;
 		updateChangeMatrix(0);
-		setCanScaleImage(canScaleImage); // Apply scale
 	}
 
 	public Drawable getImageDrawable()
@@ -283,7 +280,7 @@ public class TiImageView extends ViewGroup implements Handler.Callback, OnClickL
 	public void onClick(View view)
 	{
 		boolean sendClick = true;
-		if (canScaleImage && enableZoomControls) {
+		if (enableZoomControls) {
 			if (zoomControls.getVisibility() != View.VISIBLE) {
 				sendClick = false;
 				manageControls();
@@ -397,7 +394,7 @@ public class TiImageView extends ViewGroup implements Handler.Callback, OnClickL
 	public boolean onTouchEvent(MotionEvent ev)
 	{
 		boolean handled = false;
-		if (canScaleImage) {
+		if (enableZoomControls) {
 			if (zoomControls.getVisibility() == View.VISIBLE) {
 				zoomControls.onTouchEvent(ev);
 			}
@@ -433,8 +430,8 @@ public class TiImageView extends ViewGroup implements Handler.Callback, OnClickL
 		maxWidth = Math.max(maxWidth, imageView.getMeasuredWidth());
 		maxHeight = Math.max(maxHeight, imageView.getMeasuredHeight());
 
-		// If we can scale, allow for zoom controls.
-		if (canScaleImage) {
+		// Allow for zoom controls.
+		if (enableZoomControls) {
 			measureChild(zoomControls, widthMeasureSpec, heightMeasureSpec);
 			maxWidth = Math.max(maxWidth, zoomControls.getMeasuredWidth());
 			maxHeight = Math.max(maxHeight, zoomControls.getMeasuredHeight());
@@ -456,7 +453,7 @@ public class TiImageView extends ViewGroup implements Handler.Callback, OnClickL
 
 		// imageView.layout(parentLeft, parentTop, imageView.getMeasuredWidth(), imageView.getMeasuredHeight());
 		imageView.layout(parentLeft, parentTop, parentRight, parentBottom);
-		if (canScaleImage && zoomControls.getVisibility() == View.VISIBLE) {
+		if (enableZoomControls && zoomControls.getVisibility() == View.VISIBLE) {
 			int zoomWidth = zoomControls.getMeasuredWidth();
 			int zoomHeight = zoomControls.getMeasuredHeight();
 			zoomControls.layout(parentRight - zoomWidth, parentBottom - zoomHeight, parentRight, parentBottom);
@@ -470,15 +467,19 @@ public class TiImageView extends ViewGroup implements Handler.Callback, OnClickL
 
 	private void updateScaleType()
 	{
-		if (canScaleImage) {
+		if (enableZoomControls) {
+			imageView.setAdjustViewBounds(true);
 			imageView.setScaleType(ScaleType.MATRIX);
 		} else {
 			if (viewWidthDefined && viewHeightDefined) {
+				imageView.setAdjustViewBounds(false);
 				imageView.setScaleType(ScaleType.FIT_XY);
-			} else if (viewHeightDefined || viewWidthDefined) {
-				imageView.setScaleType(ScaleType.FIT_CENTER);
-			} else {
+			} else if (!canScaleImage) {
+				imageView.setAdjustViewBounds(false);
 				imageView.setScaleType(ScaleType.CENTER);
+			} else {
+				imageView.setAdjustViewBounds(true);
+				imageView.setScaleType(ScaleType.FIT_CENTER);
 			}
 		}
 		requestLayout();
