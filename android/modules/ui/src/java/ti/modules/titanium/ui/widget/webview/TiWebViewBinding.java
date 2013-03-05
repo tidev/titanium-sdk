@@ -276,7 +276,7 @@ public class TiWebViewBinding
 					code = "";
 				} else {
 					result = 1;
-					code = codeSnippets.pop().toString();
+					code = codeSnippets.pop();
 				}
 			}
 			return result;
