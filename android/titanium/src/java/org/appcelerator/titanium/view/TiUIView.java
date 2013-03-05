@@ -1000,7 +1000,11 @@ public abstract class TiUIView
 						}
 					}
 					if (d.containsKey(TiC.PROPERTY_BORDER_WIDTH)) {
-						borderView.setBorderWidth(TiConvert.toFloat(d, TiC.PROPERTY_BORDER_WIDTH, 0f));
+						TiDimension width = TiConvert
+							.toTiDimension(d.get(TiC.PROPERTY_BORDER_WIDTH), TiDimension.TYPE_WIDTH);
+						if (width != null) {
+							borderView.setBorderWidth(width.getAsPixels(getNativeView()));
+						}
 					}
 				}
 			}

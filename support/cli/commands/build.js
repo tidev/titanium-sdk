@@ -58,30 +58,30 @@ exports.config = function (logger, config, cli) {
 								if (!platform) {
 									throw new appc.exception(__('Invalid platform'));
 								}
-								
+
 								platform = platform.trim();
-								
+
 								// temp: ti.availablePlatforms contains "iphone" and "ipad" which aren't going to be valid supported platforms
 								if (ti.availablePlatforms.indexOf(platform) == -1) {
 									throw new appc.exception(__('Invalid platform: %s', platform));
 								}
-								
+
 								// now that we've passed the validation, transform and continue
 								platform = ti.resolvePlatform(platform);
-								
+
 								// it's possible that platform was not specified at the command line in which case the it would
 								// be prompted for. that means that validate() was unable to apply default values for platform-
 								// specific options and scan for platform-specific hooks, so we must do it here.
-								
+
 								var p = platformConf[platform];
 								p && p.options && Object.keys(p.options).forEach(function (name) {
 									if (p.options[name].default && cli.argv[name] === undefined) {
 										cli.argv[name] = p.options[name].default;
 									}
 								});
-								
+
 								cli.scanHooks(afs.resolvePath(path.dirname(module.filename), '..', '..', platform, 'cli', 'hooks'));
-								
+
 								return true;
 							}
 						},
@@ -103,7 +103,7 @@ exports.config = function (logger, config, cli) {
 exports.validate = function (logger, config, cli) {
 	// TODO: set the type to 'app' for now, but we'll need to determine if the project is an app or a module
 	cli.argv.type = 'app';
-	
+
 	ti.validatePlatform(logger, cli.argv, 'platform');
 	if (ti.validatePlatformOptions(logger, config, cli, 'build') === false) {
 		return false;
@@ -112,46 +112,108 @@ exports.validate = function (logger, config, cli) {
 };
 
 exports.run = function (logger, config, cli) {
-	var buildModule = path.join(__dirname, '..', '..', cli.argv.platform, 'cli', 'commands', '_build.js');
+	var platform = cli.argv.platform,
+		buildModule = path.join(__dirname, '..', '..', platform, 'cli', 'commands', '_build.js');
 	if (!appc.fs.exists(buildModule)) {
 		logger.error(__('Unable to find platform specific build command') + '\n');
 		logger.log(__("Your SDK installation may be corrupt. You can reinstall it by running '%s'.", (cli.argv.$ + ' sdk update --force --default').cyan) + '\n');
 		process.exit(1);
 	}
-	
+
+	function buildModuleRun() {
+		require(buildModule).run(logger, config, cli, function (err) {
+			var delta = appc.time.prettyDiff(cli.startTime, Date.now());
+			if (err) {
+				logger.error(__('Project failed to build after %s', delta) + '\n');
+			} else {
+				logger.info(__('Project built successfully in %s', delta) + '\n');
+			}
+		});
+	}
+
 	// Run the code processor, if it is enabled
 	if (cli.tiapp['code-processor'] && cli.tiapp['code-processor'].enabled) {
-		codeProcessor.process([appc.fs.resolvePath(path.join(cli.argv['project-dir'], 'Resources', 'app.js'))], 
-			cli.tiapp['code-processor'].plugins,
-			appc.util.mix(cli.tiapp['code-processor'].options, {
-				sdkPath: path.resolve(path.join(__dirname, '..', '..')),
-				platform: cli.argv.platform
-			}), logger);
-		cli.codeProcessor = codeProcessor.getResults();
-		var errors = cli.codeProcessor.errors,
-			warnings = cli.codeProcessor.warnings,
-			data,
-			i, len;
-		for(i = 0, len = errors.length; i < len; i++) {
-			data = errors[i];
-			logger.error(data.description + ' (' + data.file + ':' + data.line + ':' + data.column + ')');
-		}
-		for(i = 0, len = warnings.length; i < len; i++) {
-			data = warnings[i];
-			logger.warn(data.description + ' (' + data.file + ':' + data.line + ':' + data.column + ')');
-		}
-		if (errors.length) {
-			process.exit(1);
-		}
-	}
-	
-	require(buildModule).run(logger, config, cli, function (err) {
-		var delta = appc.time.prettyDiff(cli.startTime, Date.now());
-		if (err) {
-			logger.error(__('Project failed to build after %s', delta) + '\n');
-		} else {
-			logger.info(__('Project built successfully in %s', delta) + '\n');
-		}
-	});
+		var codeProcessorPluginDir = path.resolve(path.join(global.titaniumCodeProcessorLibDir, '..', 'plugins')),
+			parsedModules = {},
+			moduleSearchPaths;
 
+		moduleSearchPaths = [ cli.argv['project-dir'], afs.resolvePath(path.join(__dirname, '..', '..')) ];
+		if (config.paths && Array.isArray(config.paths.modules)) {
+			moduleSearchPaths = moduleSearchPaths.concat(config.paths.modules);
+		}
+
+		// Get the list of modules
+		parsedModules.commonjs = {};
+		parsedModules[platform] = {};
+		appc.timodule.find(cli.tiapp.modules, cli.argv.$originalPlatform !== platform ?
+				[ cli.argv.$originalPlatform, platform ] : platform,
+				cli.argv['deploy-type'] || 'development', cli.tiapp['sdk-version'], moduleSearchPaths, logger, function (modules) {
+			modules.found.forEach(function (module) {
+				if (module.platform.indexOf(platform) !== -1) {
+					parsedModules[platform][module.id] = null;
+				} else if (module.platform.indexOf('commonjs') !== -1) {
+					parsedModules.commonjs[module.id] = module.modulePath;
+				}
+			});
+
+			// Run the code processor
+			codeProcessor.run(
+				appc.fs.resolvePath(path.join(cli.argv['project-dir'], 'Resources', 'app.js')),
+				appc.util.mix({
+					invokeMethods: false,
+					evaluateLoops: false,
+					processUnvisitedCode: true
+				}, cli.tiapp['code-processor'].options),
+				appc.util.mix({
+					'common-globals': {
+						path: path.join(codeProcessorPluginDir, 'common-globals'),
+						options: {}
+					},
+					'require-provider': {
+						path: path.join(codeProcessorPluginDir, 'require-provider'),
+						options: {
+							platform: cli.argv.platform,
+							modules: parsedModules
+						}
+					},
+					'ti-api-processor': {
+						path: path.join(codeProcessorPluginDir, 'ti-api-processor'),
+						options: {
+							platform: cli.argv.platform,
+							sdkPath: path.resolve(path.join(__dirname, '..', '..'))
+						}
+					},
+					'ti-api-usage-finder': {
+						path: path.join(codeProcessorPluginDir, 'ti-api-usage-finder'),
+						options: {}
+					}
+				}, cli.tiapp['code-processor'].plugins),
+				logger);
+
+			// Parse the results
+			var codeProcessorResults = codeProcessor.getResults(),
+				errors = codeProcessorResults.errors,
+				warnings = codeProcessorResults.warnings,
+				data,
+				i, len;
+			for(i = 0, len = errors.length; i < len; i++) {
+				data = errors[i];
+				logger.error('Titanium Code Processor error: ' + data.description + ' (' + data.file + ':' + data.line + ':' + data.column + ')');
+			}
+			for(i = 0, len = warnings.length; i < len; i++) {
+				data = warnings[i];
+				logger.warn('Titanium Code Processor warning: ' + data.description + ' (' + data.file + ':' + data.line + ':' + data.column + ')');
+			}
+			if (errors.length) {
+				logger.warn('The Titanium Code Processor detected errors in the project, results will be discarded');
+			} else {
+				cli.codeProcessor = codeProcessorResults;
+			}
+
+			// Build the project
+			buildModuleRun();
+		});
+	} else {
+		buildModuleRun();
+	}
 };

@@ -48,6 +48,7 @@ public:
 	static jclass floatClass;
 	static jclass doubleClass;
 	static jclass booleanClass;
+	static jclass stringArrayClass;
 	static jclass objectArrayClass;
 	static jclass shortArrayClass;
 	static jclass intArrayClass;
