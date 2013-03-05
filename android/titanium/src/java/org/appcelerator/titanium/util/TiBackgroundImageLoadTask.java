@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -10,34 +10,28 @@ import java.lang.ref.SoftReference;
 import java.util.concurrent.RejectedExecutionException;
 
 import org.appcelerator.kroll.common.Log;
-import org.appcelerator.titanium.TiDimension;
 import org.appcelerator.titanium.view.TiDrawableReference;
 
 import android.app.Activity;
 import android.graphics.Bitmap;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.view.View;
 
 public abstract class TiBackgroundImageLoadTask
-	extends AsyncTask<String, Long, Drawable>
+	extends AsyncTask<String, Long, Bitmap>
 {
 	private static final String TAG = "TiBackgroundImageLoadTask";
 
 	protected SoftReference<View> parent;
-	protected TiDimension imageHeight;
-	protected TiDimension imageWidth;
+	protected String url;
 
-	public TiBackgroundImageLoadTask(View parent, TiDimension imageWidth, TiDimension imageHeight)
+	public TiBackgroundImageLoadTask(View parent)
 	{
 		this.parent = new SoftReference<View>(parent);
-		this.imageWidth = imageWidth;
-		this.imageHeight = imageHeight;
 	}
 
 	@Override
-	protected Drawable doInBackground(String... arg) {
+	protected Bitmap doInBackground(String... arg) {
 
 		if (arg.length == 0) {
 			Log.w(TAG, "url argument is missing.  Returning null drawable");
@@ -45,7 +39,7 @@ public abstract class TiBackgroundImageLoadTask
 		}
 
 		String url = arg[0];
-		Drawable d = null;
+		Bitmap b = null;
 		if (parent.get() == null) {
 			Log.d(TAG, "doInBackground exiting early because context already gc'd", Log.DEBUG_MODE);
 			return null;
@@ -60,10 +54,8 @@ public abstract class TiBackgroundImageLoadTask
 		while(retry) {
 			retry = false;
 
-			Bitmap b = ref.getBitmap(parent.get(), imageWidth, imageHeight);
-			if (b != null) {
-				d = new BitmapDrawable(b);
-			} else if (ref.outOfMemoryOccurred()) {
+			b = ref.getBitmap();
+			if (ref.outOfMemoryOccurred()) {
 				Log.e(TAG, "Not enough memory left to load image: " + url);
 				retryCount -= 1;
 				if (retryCount > 0) {
@@ -84,10 +76,11 @@ public abstract class TiBackgroundImageLoadTask
 			}
 		}
 
-		return d;
+		return b;
 	}
 
 	public void load(String url) {
+		this.url = url;
 		try {
 			execute(url);
 		} catch (RejectedExecutionException e) {

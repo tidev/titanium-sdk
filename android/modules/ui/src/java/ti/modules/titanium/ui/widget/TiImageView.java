@@ -1,21 +1,16 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
 package ti.modules.titanium.ui.widget;
-
-import java.lang.ref.SoftReference;
-
-import org.appcelerator.kroll.common.Log;
 
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.ColorFilter;
 import android.graphics.Matrix;
 import android.graphics.Rect;
-import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Handler;
@@ -51,65 +46,12 @@ public class TiImageView extends ViewGroup
 	private ZoomControls zoomControls;
 
 	private float scaleFactor;
-	private float originalScaleFactor;
 	private float scaleIncrement;
 	private float scaleMin;
 	private float scaleMax;
 
 	private Matrix baseMatrix;
 	private Matrix changeMatrix;
-	
-	public interface OnSizeChangeListener {
-		public void sizeChanged(int w, int h, int oldWidth, int oldHeight);
-	};
-
-	public class NoLayoutImageView extends ImageView
-	{
-
-		public boolean allowLayoutRequest;
-		public SoftReference<OnSizeChangeListener> listener;
-
-		public NoLayoutImageView(Context context) {
-			super(context);
-			allowLayoutRequest = true;
-		}
-
-		@Override
-		public void requestLayout() {
-			if (allowLayoutRequest) {
-				super.requestLayout();
-				allowLayoutRequest = false;
-			}
-		}
-
-		@Override
-		protected void onSizeChanged(int w, int h, int oldw, int oldh) 
-		{
-			super.onSizeChanged(w, h, oldw, oldh);
-			Log.d(TAG, "ImageView size change: w: " + w + " h: " + h + " oldw: " + oldw + " oldh: " + oldh, Log.DEBUG_MODE);
-			if (listener != null) {
-				OnSizeChangeListener l = listener.get();
-				if (l != null) {
-					l.sizeChanged(w, h, oldw, oldh);
-				}
-			}
-		}
-		
-		public void setOnSizeChangeListener(OnSizeChangeListener listener) {
-			if (listener != null) {
-				this.listener = new SoftReference<OnSizeChangeListener>(listener);
-			} else {
-				listener = null;
-			}
-		}
-		
-		public OnSizeChangeListener getOnSizeChangeListener() {
-			if (listener != null) {
-				return listener.get();
-			}
-			return null;
-		}
-	}
 
 	public TiImageView(Context context) {
 		super(context);
@@ -121,7 +63,6 @@ public class TiImageView extends ViewGroup
 		canScaleImage = false;
 		enableZoomControls = true; // to mimic original behavior.
 		scaleFactor = 1.0f;
-		originalScaleFactor = scaleFactor;
 		scaleIncrement = 0.1f;
 		scaleMin = 1.0f;
 		scaleMax = 5.0f;
@@ -129,7 +70,7 @@ public class TiImageView extends ViewGroup
 		baseMatrix = new Matrix();
 		changeMatrix = new Matrix();
 
-		imageView = new NoLayoutImageView(context);
+		imageView = new ImageView(context);
 		addView(imageView);
 		setCanScaleImage(false);
 
@@ -189,12 +130,6 @@ public class TiImageView extends ViewGroup
 
 			super.setOnClickListener(this);
 	}
-	
-	public void setOnSizeChangeListener(OnSizeChangeListener listener) {
-		if (imageView != null) {
-			((NoLayoutImageView) imageView).setOnSizeChangeListener(listener);
-		}
-	}
 
 	public void setCanScaleImage(boolean canScaleImage)
 	{
@@ -210,7 +145,6 @@ public class TiImageView extends ViewGroup
 		} else {
 			imageView.setScaleType(ScaleType.FIT_CENTER); // Android default and our iOS implementation
 		}
-		((NoLayoutImageView) imageView).allowLayoutRequest = true;
 		requestLayout();
 	}
 
@@ -218,44 +152,16 @@ public class TiImageView extends ViewGroup
 		this.enableZoomControls = enableZoomControls;
 	}
 
-	public void setImageDrawable(Drawable d) {
-		setImageDrawable(d, true);
-	}
-
-	public void setImageDrawable(Drawable d, boolean recycle) {
-		Drawable od = imageView.getDrawable();
-		if (od == d) {
-			// If setting the same image drawable just return here.
-			return;
-		}
-
-		if (od != null) {
-			od.setCallback(null);
-			if (od instanceof BitmapDrawable && recycle) {
-				Bitmap bitmap = ((BitmapDrawable) od).getBitmap();
-				//check if bitmap exists before recycling (it may not if the user creates an imageView without passing in an image or defaultImage)
-				if (bitmap != null) {
-					bitmap.recycle();
-				}
-			}
-		}
-		imageView.setImageDrawable(d);
-		scaleFactor = originalScaleFactor;
-		updateChangeMatrix(0);
-		setCanScaleImage(canScaleImage); // Apply scale
-	}
-
 	public Drawable getImageDrawable() {
 		return imageView.getDrawable();
 	}
 
+	/**
+	 * Sets a Bitmap as the content of imageView
+	 * @param bitmap The bitmap to set. If it is null, it will clear the previous image and show it as blank.
+	 */
 	public void setImageBitmap(Bitmap bitmap) {
-		if (bitmap == null) {
-			imageView.setImageResource(0);
-		}
-		else {
-			imageView.setImageBitmap(bitmap);
-		}
+		imageView.setImageBitmap(bitmap);
 	}
 
 	public void setOnClickListener(OnClickListener clickListener) {
