@@ -56,6 +56,13 @@ public class TiNinePatchHelper
 	}
 
 	private boolean isNinePatch(Bitmap b) {
+		// NinePatch image has to have a one-pixel transparent border added around the normal image
+		// and one-pixel black lines at the top, left, bottom and right to show the stretch area
+		// and the content area.
+		if (!b.hasAlpha()) {
+			return false;
+		}
+
 		boolean result = true;
 
 		int width = b.getWidth();
@@ -66,14 +73,25 @@ public class TiNinePatchHelper
 		int rightSum = 0;
 		int bottomSum = 0;
 
-		if (width >= 3 && height >= 3) {
+		if (width >= 5 && height >= 5) {
 			for (int i = 0; i < width; i++) {
+				if (b.getPixel(i, 1) != 0) { // The second top pixels have to be transparent.
+					result = false;
+					break;
+				}
+
 				int c = b.getPixel(i, 0);
 				topSum += (c == 0 ? 0 : 1);
 				if (!isValidColor(c)) {
 					result = false;
 					break;
 				}
+
+				if (b.getPixel(i, height-2) != 0) { // The second bottom pixels have to be transparent.
+					result = false;
+					break;
+				}
+
 				c = b.getPixel(i, height-1);
 				bottomSum += (c == 0 ? 0 : 1);
 				if (!isValidColor(c)) {
@@ -84,12 +102,23 @@ public class TiNinePatchHelper
 
 			if (result) {
 				for (int i = 0; i < height; i++) {
+					if (b.getPixel(1, i) != 0) { // The second left pixels have to be transparent.
+						result = false;
+						break;
+					}
+
 					int c = b.getPixel(0, i);
 					leftSum += (c == 0 ? 0 : 1);
 					if (!isValidColor(c)) {
 						result = false;
 						break;
 					}
+
+					if (b.getPixel(width-2, i) != 0) { // The second right pixels have to be transparent.
+						result = false;
+						break;
+					}
+
 					c = b.getPixel(width-1, i);
 					rightSum += (c == 0 ? 0 : 1);
 					if (!isValidColor(c)) {
