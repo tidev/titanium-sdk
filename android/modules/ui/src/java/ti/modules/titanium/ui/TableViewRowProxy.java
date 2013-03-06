@@ -203,6 +203,7 @@ public class TableViewRowProxy extends TiViewProxy
 				fillClickEvent(dataCopy, table.getTableView().getModel(), item);
 				data = dataCopy;
 			}
+
 		}
 		return super.fireEvent(eventName, data);
 	}
