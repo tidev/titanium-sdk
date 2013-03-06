@@ -953,7 +953,7 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 			} else {
 				requestedWidth = TiConvert.toTiDimension(d, TiC.PROPERTY_WIDTH, TiDimension.TYPE_WIDTH);
 			}
-			view.setWidthDefined(!(TiC.LAYOUT_SIZE.equals(widthProperty) || TiC.LAYOUT_FILL.equals(widthProperty)));
+			view.setWidthDefined(true);
 		}
 		if (d.containsKey(TiC.PROPERTY_HEIGHT)) {
 			// Use the parent's height when it's fill
@@ -963,7 +963,7 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 			} else {
 				requestedHeight = TiConvert.toTiDimension(d, TiC.PROPERTY_HEIGHT, TiDimension.TYPE_HEIGHT);
 			}
-			view.setHeightDefined(!(TiC.LAYOUT_SIZE.equals(heightProperty) || TiC.LAYOUT_FILL.equals(heightProperty)));
+			view.setHeightDefined(true);
 		}
 
 		if (d.containsKey(TiC.PROPERTY_IMAGES)) {
