@@ -1750,6 +1750,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_SECTIONS = "sections";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_SELECTED_BACKGROUND_COLOR = "selectedBackgroundColor";
 
 	/**
