@@ -431,14 +431,14 @@ public class ListSectionProxy extends ViewProxy{
 		if (builtInTemplate == null){
 		
 			//Create template and generate default properties
-			builtInTemplate = new DefaultTemplate(UIModule.LIST_ITEM_TEMPLATE_DEFAULT, null);
-			builtInTemplate.generateDefaultProps(getActivity());
+			builtInTemplate = new DefaultTemplate(UIModule.LIST_ITEM_TEMPLATE_DEFAULT, null, getActivity());
 			//Each template is treated as an item type, so we can reuse views efficiently.
 			//Section templates are given a type in TiListView.processSections(). Here we
 			//give default template a type if possible.
 			TiListView listView = getListView();
 			if (listView != null) {
 				builtInTemplate.setType(listView.getItemType());
+				builtInTemplate.setRootParent(listView.getProxy());
 			}
 		}
 
@@ -503,7 +503,9 @@ public class ListSectionProxy extends ViewProxy{
 	public void populateViews(KrollDict data, TiBaseListViewItem cellContent, TiTemplate template, int itemPosition, int sectionIndex, View item_layout) {
 		Object cell = cellContent.getTag();
 		if (cell instanceof TiListItem) {
-			((TiListItem) cell).processProperties(template.getRootItem().getDefaultProperties());
+			TiListItem listItem = (TiListItem) cell;
+			listItem.processProperties(template.getRootItem().getDefaultProperties());
+			appendExtraEventData(listItem, itemPosition, sectionIndex, TiC.PROPERTY_PROPERTIES);
 		}
 		HashMap<String, TiUIView> views = cellContent.getViewsMap();
 		//Loop through all our views and apply default properties
@@ -608,8 +610,9 @@ public class ListSectionProxy extends ViewProxy{
 		
 		for (int i = 0; i < listItemData.size(); i++) {
 			TiTemplate temp = listItemData.get(i).getTemplate();
+			TiListView listView = getListView();
 			if (temp.getType() == -1) {
-				temp.setType(getListView().getItemType());
+				temp.setType(listView.getItemType());
 			}
 		}
 	}
@@ -618,7 +621,6 @@ public class ListSectionProxy extends ViewProxy{
 		if (headerTitle != null) {
 			position -= 1;
 		}
-
 		if (position >= 0 && position < listItemData.size()) {
 			return listItemData.get(position).getProperties();
 		} 

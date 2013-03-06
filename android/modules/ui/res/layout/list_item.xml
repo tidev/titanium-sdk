@@ -20,11 +20,10 @@
         android:id="@+id/accessoryType"
         android:contentDescription="@string/accessoryType"
         android:layout_width="wrap_content"
-        android:layout_height= "wrap_content"
+        android:layout_height= "fill_parent"
         android:adjustViewBounds="true"
-        android:scaleType="fitXY"
+        android:scaleType="centerInside"
         android:maxWidth="35dp"
-        android:maxHeight="35dp"
         android:focusable="false"
         android:focusableInTouchMode="false" />
     

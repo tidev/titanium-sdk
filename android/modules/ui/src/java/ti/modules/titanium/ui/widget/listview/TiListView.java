@@ -20,13 +20,11 @@ import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
 import android.widget.BaseAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
-public class TiListView extends TiUIView implements OnItemClickListener {
+public class TiListView extends TiUIView{
 
 	private ListView listView;
 	private TiBaseAdapter adapter;
@@ -91,9 +89,7 @@ public class TiListView extends TiUIView implements OnItemClickListener {
 			int index = info.second;
 			if (section.isHeaderView(index) || section.isFooterView(index))
 				return HEADER_FOOTER_ITEM_TYPE;
-			return section.getTemplateByIndex(index).getType();
-			
-			
+			return section.getTemplateByIndex(index).getType();			
 		}
 
 		@Override
@@ -120,15 +116,13 @@ public class TiListView extends TiUIView implements OnItemClickListener {
 			if (content != null) {
 				TiBaseListViewItem itemContent = (TiBaseListViewItem) content.findViewById(listContentId);
 				section.populateViews(data, itemContent, template, position, index, content);
-				//Log.d("GetView", "reusing View");
 			} else {
-				//Log.d("GetView", "generating View");
-				content = inflater.inflate(listItemId, null, true);
+				content = inflater.inflate(listItemId, null);
 				TiBaseListViewItem itemContent = (TiBaseListViewItem) content.findViewById(listContentId);
 				section.generateCellContent(index, data, template, itemContent, position, content);
 			}
-
 			return content;
+
 		}
 
 	}
@@ -149,11 +143,6 @@ public class TiListView extends TiUIView implements OnItemClickListener {
 		if (inflater == null) {
 			inflater = (LayoutInflater)activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		}
-		listView.setOnItemClickListener(this);
-		listView.setItemsCanFocus(false);
-
-		listView.setFocusable(true);
-		listView.setFocusableInTouchMode(true);
 		
 		getLayoutParams().autoFillsHeight = true;
 		getLayoutParams().autoFillsWidth = true;
@@ -264,6 +253,8 @@ public class TiListView extends TiUIView implements OnItemClickListener {
 			//Set type to template, for recycling purposes.
 			template.setType(getItemType());
 			templatesByBinding.put(key, template);
+			//set parent of root item
+			template.setRootParent(proxy);
 		}
 	}
 
@@ -385,13 +376,6 @@ public class TiListView extends TiUIView implements OnItemClickListener {
 			}
 		}
 		listView.smoothScrollToPosition(position);
-	}
-
-	@Override
-	public void onItemClick(AdapterView<?> parent, View view, int position,
-			long id) {
-		fireEvent(TiC.PROPERTY_ITEM_CLICK, null);
-		
 	}
 	
 }

@@ -50,6 +50,7 @@ public class TiTemplate {
 		}
 		
 		private void setProxyParent() {
+			
 			if (vProxy != null && parent != null) {
 				TiViewProxy parentProxy = parent.getViewProxy();
 				if (parentProxy != null) {
@@ -189,6 +190,13 @@ public class TiTemplate {
 	
 	public String getItemID() {
 		return itemID;
+	}
+	
+	public void setRootParent(TiViewProxy parent) {
+		TiViewProxy rootProxy = rootItem.getViewProxy();
+		if (rootProxy != null && rootProxy.getParent() == null) {
+			rootProxy.setParent(parent);
+		}
 	}
 	
 	/**

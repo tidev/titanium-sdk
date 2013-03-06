@@ -107,7 +107,7 @@ public abstract class TiUIView
 	private float animatedRotationDegrees = 0f; // i.e., no rotation.
 	private float animatedAlpha = Float.MIN_VALUE; // i.e., no animated alpha.
 
-	private KrollDict lastUpEvent = new KrollDict(2);
+	protected KrollDict lastUpEvent = new KrollDict(2);
 	// In the case of heavy-weight windows, the "nativeView" is null,
 	// so this holds a reference to the view which is used for touching,
 	// i.e., the view passed to registerForTouch.
@@ -775,14 +775,14 @@ public abstract class TiUIView
 					TiUIHelper.requestSoftInputChange(proxy, v);
 				}
 			});
-			TiUIView.this.fireEvent(TiC.EVENT_FOCUS, getFocusEventObject(hasFocus));
+			fireEvent(TiC.EVENT_FOCUS, getFocusEventObject(hasFocus));
 		} else {
 			TiMessenger.postOnMain(new Runnable() {
 				public void run() {
 					TiUIHelper.showSoftKeyboard(v, false);
 				}
 			});
-			TiUIView.this.fireEvent(TiC.EVENT_BLUR, getFocusEventObject(hasFocus));
+			fireEvent(TiC.EVENT_BLUR, getFocusEventObject(hasFocus));
 		}
 	}
 
@@ -1044,7 +1044,7 @@ public abstract class TiUIView
 		return data;
 	}
 
-	private KrollDict dictFromEvent(KrollDict dictToCopy){
+	protected KrollDict dictFromEvent(KrollDict dictToCopy){
 		KrollDict data = new KrollDict();
 		if (dictToCopy.containsKey(TiC.EVENT_PROPERTY_X)){
 			data.put(TiC.EVENT_PROPERTY_X, dictToCopy.get(TiC.EVENT_PROPERTY_X));
@@ -1119,7 +1119,7 @@ public abstract class TiUIView
 							data.put(TiC.EVENT_PROPERTY_VELOCITY, (sgd.getScaleFactor() - 1.0f) / timeDelta * 1000);
 							data.put(TiC.EVENT_PROPERTY_SOURCE, proxy);
 	
-							return TiUIView.this.fireEvent(TiC.EVENT_PINCH, data);
+							return fireEvent(TiC.EVENT_PINCH, data);
 						}
 					}
 					return false;
@@ -1139,8 +1139,8 @@ public abstract class TiUIView
 			public boolean onDoubleTap(MotionEvent e)
 			{
 				if (proxy.hierarchyHasListener(TiC.EVENT_DOUBLE_TAP) || proxy.hierarchyHasListener(TiC.EVENT_DOUBLE_CLICK)) {
-					boolean handledTap = TiUIView.this.fireEvent(TiC.EVENT_DOUBLE_TAP, dictFromEvent(e));
-					boolean handledClick = TiUIView.this.fireEvent(TiC.EVENT_DOUBLE_CLICK, dictFromEvent(e));
+					boolean handledTap = fireEvent(TiC.EVENT_DOUBLE_TAP, dictFromEvent(e));
+					boolean handledClick = fireEvent(TiC.EVENT_DOUBLE_CLICK, dictFromEvent(e));
 					return handledTap || handledClick;
 				}
 				return false;
@@ -1151,7 +1151,7 @@ public abstract class TiUIView
 			{
 				Log.d(TAG, "TAP, TAP, TAP on " + proxy, Log.DEBUG_MODE);
 				if (proxy.hierarchyHasListener(TiC.EVENT_SINGLE_TAP)) {
-					return TiUIView.this.fireEvent(TiC.EVENT_SINGLE_TAP, dictFromEvent(e));
+					return fireEvent(TiC.EVENT_SINGLE_TAP, dictFromEvent(e));
 					// Moved click handling to the onTouch listener, because a single tap is not the
 					// same as a click. A single tap is a quick tap only, whereas clicks can be held
 					// before lifting.
@@ -1176,7 +1176,7 @@ public abstract class TiUIView
 					} else {
 						data.put(TiC.EVENT_PROPERTY_DIRECTION, velocityY > 0 ? "down" : "up");
 					}
-					return TiUIView.this.fireEvent(TiC.EVENT_SWIPE, data);
+					return fireEvent(TiC.EVENT_SWIPE, data);
 				}
 				return false;
 			}
@@ -1187,7 +1187,7 @@ public abstract class TiUIView
 				Log.d(TAG, "LONGPRESS on " + proxy, Log.DEBUG_MODE);
 
 				if (proxy.hierarchyHasListener(TiC.EVENT_LONGPRESS)) {
-					TiUIView.this.fireEvent(TiC.EVENT_LONGPRESS, dictFromEvent(e));
+					fireEvent(TiC.EVENT_LONGPRESS, dictFromEvent(e));
 				}
 			}
 		});
@@ -1224,7 +1224,7 @@ public abstract class TiUIView
 					}
 				} else if (event.getAction() == MotionEvent.ACTION_UP) {
 					if (pointersDown == 1) {
-						TiUIView.this.fireEvent(TiC.EVENT_TWOFINGERTAP, dictFromEvent(event));
+						fireEvent(TiC.EVENT_TWOFINGERTAP, dictFromEvent(event));
 						pointersDown = 0;
 						return true;
 					}
@@ -1235,7 +1235,7 @@ public abstract class TiUIView
 				String motionEvent = motionEvents.get(event.getAction());
 				if (motionEvent != null) {
 					if (proxy.hierarchyHasListener(motionEvent)) {
-						TiUIView.this.fireEvent(motionEvent, dictFromEvent(event));
+						fireEvent(motionEvent, dictFromEvent(event));
 					}
 				}
 
@@ -1323,13 +1323,13 @@ public abstract class TiUIView
 				if (event.getAction() == KeyEvent.ACTION_UP) {
 					KrollDict data = new KrollDict();
 					data.put(TiC.EVENT_PROPERTY_KEYCODE, keyCode);
-					TiUIView.this.fireEvent(TiC.EVENT_KEY_PRESSED, data);
+					fireEvent(TiC.EVENT_KEY_PRESSED, data);
 
 					switch (keyCode) {
 						case KeyEvent.KEYCODE_ENTER:
 						case KeyEvent.KEYCODE_DPAD_CENTER:
 							if (proxy.hasListeners(TiC.EVENT_CLICK)) {
-								TiUIView.this.fireEvent(TiC.EVENT_CLICK, null);
+								fireEvent(TiC.EVENT_CLICK, null);
 								return true;
 							}
 					}
@@ -1442,18 +1442,18 @@ public abstract class TiUIView
 		{
 			public void onClick(View view)
 			{
-				TiUIView.this.fireEvent(TiC.EVENT_CLICK, dictFromEvent(lastUpEvent));
+				fireEvent(TiC.EVENT_CLICK, dictFromEvent(lastUpEvent));
 			}
 		});
 	}
 	
 	public boolean fireEvent(String eventName, KrollDict data) {
-		if (data == null) {
-			data = additionalEventData;
+		if (data == null && additionalEventData != null) {
+			data = new KrollDict((HashMap)additionalEventData.clone());
 		} else if (additionalEventData != null) {
 			data.putAll(additionalEventData);
 		}
-		return proxy.fireEvent(TiC.EVENT_CLICK, data);
+		return proxy.fireEvent(eventName, data);
 	}
 
 	protected void setOnLongClickListener(View view)
@@ -1462,7 +1462,7 @@ public abstract class TiUIView
 		{
 			public boolean onLongClick(View view)
 			{
-				return TiUIView.this.fireEvent(TiC.EVENT_LONGCLICK, null);
+				return fireEvent(TiC.EVENT_LONGCLICK, null);
 			}
 		});
 	}

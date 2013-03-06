@@ -1,5 +1,7 @@
 package ti.modules.titanium.ui.widget.listview;
 
+import java.util.HashMap;
+
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.TiViewProxy;
@@ -8,8 +10,8 @@ import org.appcelerator.titanium.view.TiCompositeLayout.LayoutParams;
 import org.appcelerator.titanium.view.TiUIView;
 
 import ti.modules.titanium.ui.UIModule;
-
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.widget.ImageView;
 
 public class TiListItem extends TiUIView {
@@ -36,15 +38,22 @@ public class TiListItem extends TiUIView {
 		} 
 		
 		if (d.containsKey(TiC.PROPERTY_ACCESSORY_TYPE)) {
+			int color = -1;
 			int accessory = TiConvert.toInt(d.get(TiC.PROPERTY_ACCESSORY_TYPE), -1);
-			handleAccessory(accessory);
+			if (d.containsKey(TiC.PROPERTY_BACKGROUND_COLOR)) {
+				color = TiConvert.toColor(d, TiC.PROPERTY_BACKGROUND_COLOR);
+			}
+			handleAccessory(accessory, color);
 		} 
 		
 		super.processProperties(d);
 	}
 
-	private void handleAccessory(int accessory) {
+	private void handleAccessory(int accessory, int color) {
 		ImageView accessoryImage = (ImageView) listItemLayout.findViewById(TiListView.accessory);
+		if (color != -1) {
+			accessoryImage.setBackgroundColor(color);
+		}
 		switch(accessory) {
 		
 		case UIModule.LIST_ACCESSORY_TYPE_CHECKMARK:
@@ -56,6 +65,35 @@ public class TiListItem extends TiUIView {
 		
 	    default:
 	    	accessoryImage.setImageResource(0);
+		}
+	}
+	
+	protected void setOnClickListener(View view)
+	{
+		view.setOnClickListener(new OnClickListener()
+		{
+			public void onClick(View view)
+			{
+				KrollDict data = dictFromEvent(lastUpEvent);
+				TiViewProxy listViewProxy = proxy.getParent();
+				if (listViewProxy != null) {
+					TiUIView listView = listViewProxy.peekView();
+					if (listView != null) {
+						updateEventData(listView);
+						listView.fireEvent(TiC.EVENT_ITEM_CLICK, data);
+					}
+				}
+				fireEvent(TiC.EVENT_CLICK, data);
+			}
+		});
+	}
+	
+	private void updateEventData(TiUIView listView) {
+		KrollDict d = listView.getAdditionalEventData();
+		if (d == null) {
+			listView.setAdditionalEventData(new KrollDict((HashMap) additionalEventData.clone()));
+		} else {
+			d.putAll(additionalEventData);
 		}
 	}
 	

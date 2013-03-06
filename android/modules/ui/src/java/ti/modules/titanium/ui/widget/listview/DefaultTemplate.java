@@ -16,8 +16,9 @@ public class DefaultTemplate extends TiTemplate {
 	public static final String DEFAULT_LABEL_BINDING = "title";
 	public static final String DEFAULT_IMAGE_BINDING = "image";
 
-	public DefaultTemplate(String id, KrollDict properties) {
+	public DefaultTemplate(String id, KrollDict properties, Activity activity) {
 		super(id, properties);
+		generateDefaultProps(activity);
 	}
 	
 	public void generateDefaultProps(Activity activity) {

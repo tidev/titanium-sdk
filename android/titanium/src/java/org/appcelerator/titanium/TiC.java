@@ -156,6 +156,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String EVENT_HEADING = "heading";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String EVENT_ITEM_CLICK = "itemclick";
 
 	/**
 	 * @module.api
@@ -1254,11 +1259,6 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_INTENT = "intent";
-	
-	/**
-	 * @module.api
-	 */
-	public static final String PROPERTY_ITEM_CLICK = "itemclick";
 
 	/**
 	 * @module.api
