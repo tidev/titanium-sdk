@@ -17,7 +17,6 @@ import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiUIView;
 
-import android.graphics.Color;
 import android.text.Html;
 import android.text.InputType;
 import android.text.TextUtils.TruncateAt;
@@ -31,6 +30,7 @@ public class TiUILabel extends TiUIView
 	private static final String TAG = "TiUILabel";
 	
 	private int defaultColor;
+	private boolean wordWrap;
 
 	public TiUILabel(final TiViewProxy proxy)
 	{
@@ -38,6 +38,19 @@ public class TiUILabel extends TiUIView
 		Log.d(TAG, "Creating a text label", Log.DEBUG_MODE);
 		TextView tv = new TextView(getProxy().getActivity())
 		{
+			@Override
+			protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec)
+			{
+				if (!wordWrap) {
+					widthMeasureSpec = MeasureSpec.makeMeasureSpec(MeasureSpec.getSize(widthMeasureSpec),
+						MeasureSpec.UNSPECIFIED);
+					heightMeasureSpec = MeasureSpec.makeMeasureSpec(MeasureSpec.getSize(heightMeasureSpec),
+						MeasureSpec.UNSPECIFIED);
+				}
+
+				super.onMeasure(widthMeasureSpec, widthMeasureSpec);
+			}
+
 			@Override
 			protected void onLayout(boolean changed, int left, int top, int right, int bottom)
 			{
@@ -55,7 +68,7 @@ public class TiUILabel extends TiUIView
 		tv.setFocusable(false);
 		defaultColor = tv.getCurrentTextColor();
 		setNativeView(tv);
-		
+
 	}
 
 	@Override
@@ -105,7 +118,8 @@ public class TiUILabel extends TiUIView
 			}
 		}
 		if (d.containsKey(TiC.PROPERTY_WORD_WRAP)) {
-			tv.setSingleLine(!TiConvert.toBoolean(d, TiC.PROPERTY_WORD_WRAP, true));
+			wordWrap = TiConvert.toBoolean(d, TiC.PROPERTY_WORD_WRAP, true);
+			tv.setSingleLine(!wordWrap);
 		}
 		// This needs to be the last operation.
 		TiUIHelper.linkifyIfEnabled(tv, d.get(TiC.PROPERTY_AUTO_LINK));

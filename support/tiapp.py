@@ -72,6 +72,7 @@ class TiAppXML(object):
 		self.app_properties = {}
 		self.android = {}
 		self.android_manifest = {}
+		self.blackberry = {}
 		self.iphone = {}
 		self.ios = {};
 		
@@ -110,6 +111,8 @@ class TiAppXML(object):
 							self.properties['plugins'].append({'name':name,'version':ver})
 				elif child.nodeName == 'android':
 					self.parse_android(child)
+				elif child.nodeName == 'blackberry':
+					self.parse_blackberry(child)
 				elif child.nodeName == 'iphone':
 					self.parse_iphone(child)
 				elif child.nodeName == 'ios':
@@ -250,6 +253,10 @@ class TiAppXML(object):
 		for child in node.childNodes:
 			if child.nodeName in parse_tags:
 				local_objects['parse_'+child.nodeName.replace('-', '_')](child)
+
+	def parse_blackberry(self, node):
+		for child in node.childNodes:
+			self.blackberry[child.nodeName] = getText(child.childNodes)
 
 	def parse_iphone(self, node):
 		def translate_orientation(orientation):
