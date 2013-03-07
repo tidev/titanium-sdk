@@ -1014,6 +1014,13 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
     [self enqueue:blockOp];
 }
 
++ (void)invokeBlock:(void (^)())block
+{
+	pthread_mutex_lock(&KrollEntryLock);
+	block();
+	pthread_mutex_unlock(&KrollEntryLock);
+}
+
 - (void)bindCallback:(NSString*)name callback:(TiObjectCallAsFunctionCallback)fn
 {
 	// create the invoker bridge
