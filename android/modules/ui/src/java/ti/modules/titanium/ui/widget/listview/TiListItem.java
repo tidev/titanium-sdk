@@ -40,7 +40,7 @@ public class TiListItem extends TiUIView {
 		if (d.containsKey(TiC.PROPERTY_ACCESSORY_TYPE)) {
 			int color = -1;
 			int accessory = TiConvert.toInt(d.get(TiC.PROPERTY_ACCESSORY_TYPE), -1);
-			if (d.containsKey(TiC.PROPERTY_BACKGROUND_COLOR)) {
+			if (d.containsKey(TiC.PROPERTY_BACKGROUND_COLOR) && accessory != UIModule.LIST_ACCESSORY_TYPE_NONE) {
 				color = TiConvert.toColor(d, TiC.PROPERTY_BACKGROUND_COLOR);
 			}
 			handleAccessory(accessory, color);

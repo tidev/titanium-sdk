@@ -2,6 +2,7 @@ package ti.modules.titanium.ui.widget.listview;
 
 import java.util.HashMap;
 
+import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.titanium.view.TiCompositeLayout;
 import org.appcelerator.titanium.view.TiUIView;
 
@@ -10,29 +11,34 @@ import android.util.AttributeSet;
 
 public class TiBaseListViewItem extends TiCompositeLayout{
 
-	private HashMap<String, TiUIView> viewsMap;
-
+	private HashMap<String, ViewItem> viewsMap;
+	private ViewItem viewItem;
 	public TiBaseListViewItem(Context context) {
 		super(context);
-		viewsMap = new HashMap<String, TiUIView>();
+		viewsMap = new HashMap<String, ViewItem>();
 	}
 	
 	public TiBaseListViewItem(Context context, AttributeSet set) {
 		super(context, set);
 		setId(TiListView.listContentId);
-		viewsMap = new HashMap<String, TiUIView>();
+		viewsMap = new HashMap<String, ViewItem>();
+		viewItem = new ViewItem(null, new KrollDict());
 	}
 	
-	public HashMap<String, TiUIView> getViewsMap() {
+	public HashMap<String, ViewItem> getViewsMap() {
 		return viewsMap;
 	}
 	
-	public void bindView(String binding, TiUIView view) {
+	public ViewItem getViewItem() {
+		return viewItem;
+	}
+	
+	public void bindView(String binding, ViewItem view) {
 		viewsMap.put(binding, view);
 	}
 	
 	public TiUIView getViewFromBinding(String binding) {
-		return viewsMap.get(binding);
+		return viewsMap.get(binding).getView();
 	}
 	
 

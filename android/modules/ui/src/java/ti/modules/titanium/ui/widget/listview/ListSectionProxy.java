@@ -473,18 +473,20 @@ public class ListSectionProxy extends ViewProxy{
 		for (int i = 0; i < childrenItem.size(); i++) {
 			DataItem child = childrenItem.get(i);
 			TiViewProxy proxy = child.getViewProxy();
+			KrollDict childProps = child.getDefaultProperties();
 			TiUIView view = proxy.createView(proxy.getActivity());
 			generateChildContentViews(child, view, rootItem, false);
 			//Bind view to root.
-			rootItem.bindView(child.getBindingId(), view);
-			//Process default properties
-			view.processProperties(child.getDefaultProperties());
+			ViewItem viewItem = new ViewItem(view, new KrollDict());
+			rootItem.bindView(child.getBindingId(), viewItem);
 			//Add it to view hierarchy
 			if (root) {
 				rootItem.addView(view.getNativeView(), view.getLayoutParams());
 			} else {
 				parentContent.add(view);
 			}
+			//Process default properties
+			//view.processProperties(childProps);
 		}
 	}
 	
@@ -502,17 +504,14 @@ public class ListSectionProxy extends ViewProxy{
 	
 	public void populateViews(KrollDict data, TiBaseListViewItem cellContent, TiTemplate template, int itemPosition, int sectionIndex, View item_layout) {
 		Object cell = cellContent.getTag();
-		if (cell instanceof TiListItem) {
-			TiListItem listItem = (TiListItem) cell;
-			listItem.processProperties(template.getRootItem().getDefaultProperties());
-			appendExtraEventData(listItem, itemPosition, sectionIndex, TiC.PROPERTY_PROPERTIES);
-		}
-		HashMap<String, TiUIView> views = cellContent.getViewsMap();
+		
+		HashMap<String, ViewItem> views = (HashMap<String, ViewItem>) cellContent.getViewsMap();
 		//Loop through all our views and apply default properties
 		for (String binding: views.keySet()) {
 			
 			DataItem dataItem = template.getDataItem(binding);
-			TiUIView view = views.get(binding);
+			ViewItem viewItem = views.get(binding);
+			TiUIView view = viewItem.getView();
 			if (view != null) {
 				appendExtraEventData(view, itemPosition, sectionIndex, binding);
 			}
@@ -524,35 +523,46 @@ public class ListSectionProxy extends ViewProxy{
 				data.containsKey(binding)) continue;
 			
 			if (dataItem != null && view != null) {
-				view.processProperties(dataItem.getDefaultProperties());
+				KrollDict diffProperties = viewItem.generateDiffProperties(dataItem.getDefaultProperties());
+				if (!diffProperties.isEmpty()) {
+					view.processProperties(diffProperties);
+				}
 			}
 			
 			
 		}
-
+		//Loop through views that have different properties than the default properties on template
+		boolean isListItemProcess = false;
 		for (String key : data.keySet()) {
 			KrollDict properties = new KrollDict((HashMap)data.get(key));
-			
+			ViewItem viewItem = views.get(key);
 			if (key.equals(template.getItemID()) && cell instanceof TiListItem) {
-				((TiListItem) cell).processProperties(properties);
+				TiListItem listItem = (TiListItem) cell;
+				KrollDict diffProperties = cellContent.getViewItem().generateDiffProperties(properties);
+				if (!diffProperties.isEmpty()) {
+					listItem.processProperties(properties);
+				}
+				appendExtraEventData(listItem, itemPosition, sectionIndex, TiC.PROPERTY_PROPERTIES);
+				isListItemProcess = true;
 				continue;
 			}
 
 			TiUIView view = cellContent.getViewFromBinding(key);
 			if (view != null) {
-				view.processProperties(properties);
+				KrollDict diffProperties = viewItem.generateDiffProperties(properties);
+				if (!diffProperties.isEmpty()) {
+					view.processProperties(diffProperties);
+				}
 			}
 		}
-	}
-	
-	public void createChildView(TiViewProxy proxy, String binding, KrollDict properties, TiBaseListViewItem viewGroup) {
-
-		TiUIView childView = proxy.createView(proxy.getActivity());
 		
-		if (childView != null) {
-			childView.processProperties(properties);
-			viewGroup.addView(childView.getNativeView(), childView.getLayoutParams());
-			viewGroup.bindView(binding, childView);
+		if (!isListItemProcess && cell instanceof TiListItem) {
+			TiListItem listItem = (TiListItem) cell;
+			KrollDict diffProperties = cellContent.getViewItem().generateDiffProperties(template.getRootItem().getDefaultProperties());
+			if (!diffProperties.isEmpty()) {
+				listItem.processProperties(diffProperties);
+			}
+			appendExtraEventData(listItem, itemPosition, sectionIndex, TiC.PROPERTY_PROPERTIES);
 		}
 	}
 	
