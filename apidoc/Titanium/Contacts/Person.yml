@@ -233,8 +233,10 @@ properties:
     platforms: [android, iphone, ipad]
     
   - name: suffix
-    summary: Suffix for the person. Single value. Read-only on Android.
+    summary: Suffix for the person. Single value.
     type: String
+    permission: read-only
+    platforms: [iphone, ipad]
 
   - name: url
     summary: URLs of webpages associated with the person. Multi-value.
