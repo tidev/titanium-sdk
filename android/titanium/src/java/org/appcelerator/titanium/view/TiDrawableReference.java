@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -537,8 +537,7 @@ public class TiDrawableReference
 		}
 
 		if (destWidth <= 0 || destHeight <= 0) {
-			// calcDestSize() should actually prevent this from happening, but just in case...
-			Log.w(TAG, "Bitmap final bounds could not be determined.  If bitmap is loaded, it won't be scaled.");
+			// If we can't determine the size, then return null instead of an unscaled bitmap
 			return getBitmap();
 		}
 
@@ -815,7 +814,7 @@ public class TiDrawableReference
 		return oomOccurred;
 	}
 
-	private Bitmap getRotatedBitmap (Bitmap src, int orientation) {
+	private Bitmap getRotatedBitmap(Bitmap src, int orientation) {
 		Matrix m = new Matrix();
 		m.postRotate(orientation);
 		return Bitmap.createBitmap(src, 0, 0, src.getWidth(), src.getHeight(), m, false);

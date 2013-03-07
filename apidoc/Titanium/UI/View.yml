@@ -205,6 +205,11 @@ events:
       - name: y
         summary: Y coordinate of the event from the `source` view's coordinate system.
         type: Number
+
+  - name: focus
+    summary: Fired when the view element gains focus.
+    description: This event only fires when using the trackball to navigate.
+    platforms: [android]
         
   - name: keypressed
     summary: Fired when a hardware key is pressed in the view.
@@ -976,6 +981,13 @@ properties:
     summary: Array of this view's child views.
     type: Array<Titanium.UI.View>
     permission: read-only
+
+  - name: enabled
+    summary: Determines if the view is enabled or disabled.
+    description: Set to `true` to enable or `false` to disable the view.
+    default: Enabled by default. (Property value may be undefined.)
+    type: Boolean
+    platforms: [android]
     
   - name: focusable
     summary: Whether view should be focusable while navigating with the trackball.

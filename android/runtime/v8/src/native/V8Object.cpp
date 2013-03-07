@@ -62,7 +62,7 @@ Java_org_appcelerator_kroll_runtime_v8_V8Object_nativeSetProperty
 
 JNIEXPORT jboolean JNICALL
 Java_org_appcelerator_kroll_runtime_v8_V8Object_nativeFireEvent
-	(JNIEnv *env, jobject jEmitter, jlong ptr, jstring event, jobject data)
+	(JNIEnv *env, jobject jEmitter, jlong ptr, jobject jsource, jlong sourcePtr, jstring event, jobject data, jboolean bubble, jboolean reportSuccess, jint code, jstring errorMessage)
 {
 	ENTER_V8(V8Runtime::globalContext);
 	JNIScope jniScope(env);
@@ -86,19 +86,32 @@ Java_org_appcelerator_kroll_runtime_v8_V8Object_nativeFireEvent
 		return JNI_FALSE;
 	}
 
+	Handle<Object> source;
+	if ((jsource == NULL) || (jsource == jEmitter)) {
+		source = emitter;
+	} else if (sourcePtr != 0) {
+		source = Persistent<Object>((Object *) sourcePtr);
+	} else {
+		source = TypeConverter::javaObjectToJsValue(jsource)->ToObject();
+	}
+
 	Handle<Function> fireEvent = Handle<Function>::Cast(fireEventValue->ToObject());
 
-	Handle<Value> jsData = TypeConverter::javaObjectToJsValue(data);
-	Handle<Value> result;
+	Handle<Object> jsData = TypeConverter::javaHashMapToJsValue(env,data);
 
-	TryCatch tryCatch;
-	if (jsData->IsNull()) {
-		Handle<Value> args[] = { jsEvent };
-		result = fireEvent->Call(emitter, 1, args);
-	} else {
-		Handle<Value> args[] = { jsEvent, jsData };
-		result = fireEvent->Call(emitter, 2, args);
+	jsData->Set(String::NewSymbol("bubbles"), TypeConverter::javaBooleanToJsBoolean(bubble));
+
+	jsData->Set(String::NewSymbol("source"), source);
+
+	if(reportSuccess || code != 0) {
+		jsData->Set(String::NewSymbol("success"), TypeConverter::javaBooleanToJsBoolean(code == 0));
+		jsData->Set(String::NewSymbol("code"), TypeConverter::javaIntToJsNumber(code));
+		jsData->Set(String::NewSymbol("error"), TypeConverter::javaStringToJsString(errorMessage));
 	}
+	Handle<Value> result;
+	TryCatch tryCatch;
+	Handle<Value> args[] = { jsEvent, jsData };
+	result = fireEvent->Call(emitter, 2, args);
 
 	if (tryCatch.HasCaught()) {
 		V8Util::openJSErrorDialog(tryCatch);

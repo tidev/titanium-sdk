@@ -36,6 +36,7 @@ import org.appcelerator.titanium.view.TiUIView;
 
 import ti.modules.titanium.filesystem.FileProxy;
 import ti.modules.titanium.ui.ImageViewProxy;
+import ti.modules.titanium.ui.ScrollViewProxy;
 import android.app.Activity;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
@@ -152,10 +153,10 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 			}
 
 			@Override
-			public void downloadFailed()
+			public void downloadFailed(URI uri)
 			{
 				// If the download failed, fire an error event
-				fireError();
+				fireError("Download Failed", uri.toString());
 			}
 
 			// Handle decoding and caching in the background thread so it won't block UI.
@@ -425,7 +426,7 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 	private void setImages()
 	{
 		if (imageSources == null || imageSources.size() == 0) {
-			fireError();
+			fireError("Missing Images", null);
 			return;
 		}
 
@@ -490,9 +491,13 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 		proxy.fireEvent(TiC.EVENT_STOP, data);
 	}
 
-	private void fireError()
+	private void fireError(String message, String imageUrl)
 	{
 		KrollDict data = new KrollDict();
+		data.putCodeAndMessage(TiC.ERROR_CODE_UNKNOWN, message);
+		if (imageUrl != null) {
+			data.put(TiC.PROPERTY_IMAGE, imageUrl);
+		}
 		proxy.fireEvent(TiC.EVENT_ERROR, data);
 	}
 
@@ -578,7 +583,7 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 	{
 		paused = true;
 	}
-	
+
 	public void resume()
 	{
 		paused = false;
@@ -771,8 +776,9 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 				url = imageSources.get(0).getUrl();
 			}
 			// Fire an error event when we've reached max retries
-			fireError();
-			Log.e(TAG, "Max retries reached, giving up decoding image source: " + url);
+			String message = "Max retries reached, giving up decoding image source: " + url;
+			fireError(message, url);
+			Log.e(TAG, message);
 		}
 	}
 
@@ -786,15 +792,17 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 			return;
 		}
 
+		// Disable scaling for scrollview since the an image can extend beyond the screensize
+		if (proxy.getParent() instanceof ScrollViewProxy) {
+			view.setCanScaleImage(false);
+		}
+
 		if (d.containsKey(TiC.PROPERTY_IMAGES)) {
 			setImageSource(d.get(TiC.PROPERTY_IMAGES));
 			setImages();
-		} 
-		if (d.containsKey(TiC.PROPERTY_CAN_SCALE)) {
-			view.setCanScaleImage(TiConvert.toBoolean(d, TiC.PROPERTY_CAN_SCALE));
 		}
 		if (d.containsKey(TiC.PROPERTY_ENABLE_ZOOM_CONTROLS)) {
-			view.setEnableZoomControls(TiConvert.toBoolean(d, TiC.PROPERTY_ENABLE_ZOOM_CONTROLS));
+			view.setEnableZoomControls(TiConvert.toBoolean(d, TiC.PROPERTY_ENABLE_ZOOM_CONTROLS, true));
 		}
 		if (d.containsKey(TiC.PROPERTY_DEFAULT_IMAGE)) {
 			Object defaultImage = d.get(TiC.PROPERTY_DEFAULT_IMAGE);
@@ -862,9 +870,8 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 		if (view == null) {
 			return;
 		}
-		if (key.equals(TiC.PROPERTY_CAN_SCALE)) {
-			view.setCanScaleImage(TiConvert.toBoolean(newValue));
-		} else if (key.equals(TiC.PROPERTY_ENABLE_ZOOM_CONTROLS)) {
+
+		if (key.equals(TiC.PROPERTY_ENABLE_ZOOM_CONTROLS)) {
 			view.setEnableZoomControls(TiConvert.toBoolean(newValue));
 		} else if (key.equals(TiC.PROPERTY_IMAGE)) {
 			if ((oldValue == null && newValue != null) || (oldValue != null && !oldValue.equals(newValue))) {

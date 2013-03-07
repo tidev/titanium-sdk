@@ -47,7 +47,7 @@ public abstract class TiBackgroundImageLoadTask
 
 		// TODO - check the parent?  can View.get().getContext() ever not be an activity?
 		TiDrawableReference ref = TiDrawableReference.fromUrl(((Activity)parent.get().getContext()), url);
-		
+
 		boolean retry = true;
 		int retryCount = 3;
 

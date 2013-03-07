@@ -295,7 +295,7 @@ public class TCPProxy extends KrollProxy implements TiStream
 	{
 		KrollDict callbackArgs = new KrollDict();
 		callbackArgs.put("socket", this);
-		callbackArgs.put("error", error);
+		callbackArgs.putCodeAndMessage(errorCode, error);
 		callbackArgs.put("errorCode", errorCode);
 
 		return callbackArgs;

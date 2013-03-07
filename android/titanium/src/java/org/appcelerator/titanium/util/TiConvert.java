@@ -177,8 +177,10 @@ public class TiConvert
 
 		if (hashMap.containsKey(TiC.PROPERTY_SIZE)) {
 			HashMap<String, Object> size = (HashMap<String, Object>) hashMap.get(TiC.PROPERTY_SIZE);
-			width = size.get(TiC.PROPERTY_WIDTH);
-			height = size.get(TiC.PROPERTY_HEIGHT);
+			if (size != null) {
+				width = size.get(TiC.PROPERTY_WIDTH);
+				height = size.get(TiC.PROPERTY_HEIGHT);
+			}
 		}
 
 		if (hashMap.containsKey(TiC.PROPERTY_LEFT)) {
@@ -320,6 +322,23 @@ public class TiConvert
 
 	/**
 	 * Attempts to convert a value into a boolean, if value is a Boolean or String. Otherwise,
+	 * default value is returned
+	 * @param value the value to convert.
+	 * @param def  the default value.
+	 * @return a boolean value.
+	 * @module.api
+	 */
+	public static boolean toBoolean(Object value, boolean def)
+	{
+		try {
+			return toBoolean(value);
+		} catch (IllegalArgumentException e) {
+			return def;
+		}
+	}
+
+	/**
+	 * Attempts to convert a value into a boolean, if value is a Boolean or String. Otherwise,
 	 * an exception is thrown.
 	 * @param value the value to convert.
 	 * @return a boolean value.
@@ -336,6 +355,19 @@ public class TiConvert
 		} else {
 			throw new IllegalArgumentException("Unable to convert " + (value == null ? "null" : value.getClass().getName()) + " to boolean.");
 		}
+	}
+
+	/**
+	 * Takes a value out of a hash table then attempts to convert it using {@link #toBoolean(Object)}.
+	 * @param hashMap the hash map to search.
+	 * @param key the lookup key.
+	 * @param def the default value.
+	 * @return a boolean value.
+	 * @module.api
+	 */
+	public static boolean toBoolean(HashMap<String, Object> hashMap, String key, boolean def)
+	{
+		return toBoolean(hashMap.get(key), def);
 	}
 
 	/**

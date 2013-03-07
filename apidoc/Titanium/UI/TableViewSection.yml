@@ -21,7 +21,7 @@ description: |
     following `TableView` APIs:
 
     * To set all sections in a table view at one time, use the `TableView`
-    [section](Titanium.UI.TableView.section) property.
+    [sections](Titanium.UI.TableView.sections) property.
     * To add an individual section after a table view is rendered, use either the `TableView`
     [insertSectionBefore](Titanium.UI.TableView.insertSectionBefore)
     or [insertSectionAfter](Titanium.UI.TableView.insertSectionAfter) method.

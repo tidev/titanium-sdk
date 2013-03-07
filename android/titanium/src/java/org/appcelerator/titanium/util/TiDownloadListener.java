@@ -12,7 +12,7 @@ public interface TiDownloadListener
 {
 	public void downloadFinished(URI uri);
 
-	public void downloadFailed();
+	public void downloadFailed(URI uri);
 
 	// This method will be called in the background thread immediately after the download is finished.
 	public void additionalBackgroundTask(URI uri);
