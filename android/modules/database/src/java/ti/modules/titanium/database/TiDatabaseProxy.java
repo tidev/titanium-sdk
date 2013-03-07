@@ -114,7 +114,8 @@ public class TiDatabaseProxy extends KrollProxy
 			// if you don't. Just expecting them on select or pragma may be enough, but
 			// it may need additional tuning. The better solution would be to expose
 			// both types of queries through the Titanium API.
-			if (lcSql.startsWith("select") || lcSql.startsWith("pragma")) {
+			if (lcSql.startsWith("select") || (lcSql.startsWith("pragma") && !lcSql.contains("="))) {
+			     Log.checkpoint(TAG, "db.rawQuery " + sql);
 				c = db.rawQuery(sql, newArgs);
 	 			if (c != null) {
 					// Most non-SELECT statements won't actually return data, but some such as
@@ -137,6 +138,7 @@ public class TiDatabaseProxy extends KrollProxy
 					rs = new TiResultSetProxy(null); // because iPhone does it this way.
 				}
 			} else {
+			     Log.checkpoint(TAG, "db.execSQL " + sql);
 				db.execSQL(sql, newArgs);
 			}
 		} catch (SQLException e) {
