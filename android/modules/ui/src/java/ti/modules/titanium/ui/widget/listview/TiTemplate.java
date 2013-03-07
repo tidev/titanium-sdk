@@ -85,6 +85,12 @@ public class TiTemplate {
 		public void addChild(DataItem child) {
 			children.add(child);
 		}
+		
+		public void release() {
+			vProxy = null;
+			children.clear();
+			parent = null;
+		}
 	}
 
 	public TiTemplate() {
@@ -254,5 +260,19 @@ public class TiTemplate {
 			}
 		}
 
+	}
+	
+	public void release () {
+		for (int i = 0; i < dataItems.size(); i++) {
+			DataItem item = dataItems.get(i);
+			if (item != null) {
+				item.release();
+			}
+		}
+		dataItems.clear();
+		if (rootItem != null) {
+			rootItem.release();
+			rootItem = null;
+		}
 	}
 }

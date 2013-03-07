@@ -378,4 +378,26 @@ public class TiListView extends TiUIView{
 		listView.smoothScrollToPosition(position);
 	}
 	
+	public void release() {
+		for (int i = 0; i < sections.size(); i++) {
+			sections.get(i).release();
+		}
+		for (String binding : templatesByBinding.keySet()) {
+			templatesByBinding.get(binding).release();
+		}
+		templatesByBinding.clear();
+		sections.clear();
+		if (listView != null) {
+			listView.setAdapter(null);
+			listView = null;
+		}
+		if (headerView != null) {
+			headerView = null;
+		}
+		if (footerView != null) {
+			footerView = null;
+		}
+		super.release();
+	}
+	
 }

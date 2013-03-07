@@ -627,4 +627,13 @@ public class ListSectionProxy extends ViewProxy{
 		return null;
 	}
 	
+	public void release() {
+		listItemData.clear();
+		itemProperties.clear();
+		if (builtInTemplate != null) {
+			builtInTemplate.release();
+			builtInTemplate = null;
+		}
+	}
+	
 }

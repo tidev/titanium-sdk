@@ -97,4 +97,11 @@ public class TiListItem extends TiUIView {
 		}
 	}
 	
+	public void release() {
+		if (listItemLayout != null) {
+			listItemLayout = null;
+		}
+		super.release();
+	}
+	
 }
