@@ -176,7 +176,8 @@ properties:
     summary: Volume level for the music player from 0.0 (muted) to 1.0 (loudest).
     description: |
         This adjusts the volume of the application's session.
-        The iOS simulator ignores this volume setting, and is a known issue
+
+        The iOS simulator ignores this volume setting. This is a known issue
         with Apple's simulator.
     type: Number
 
