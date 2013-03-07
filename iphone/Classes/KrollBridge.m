@@ -975,6 +975,23 @@ loadNativeJS:
 	return results;
 }
 
++ (NSArray *)krollContexts
+{
+	OSSpinLockLock(&krollBridgeRegistryLock);
+	int bridgeCount = CFSetGetCount(krollBridgeRegistry);
+	KrollBridge * registryObjects[bridgeCount];
+	CFSetGetValues(krollBridgeRegistry, (const void **)registryObjects);
+
+	NSMutableArray *results = [[NSMutableArray alloc] initWithCapacity:0];
+	for (NSUInteger currentBridgeIndex = 0; currentBridgeIndex < bridgeCount; ++currentBridgeIndex) {
+		KrollBridge *bridge = registryObjects[currentBridgeIndex];
+		[results addObject:bridge.krollContext];
+	}
+	
+	OSSpinLockUnlock(&krollBridgeRegistryLock);
+	return [results autorelease];
+}
+
 + (BOOL)krollBridgeExists:(KrollBridge *)bridge
 {
 	if(bridge == nil)
