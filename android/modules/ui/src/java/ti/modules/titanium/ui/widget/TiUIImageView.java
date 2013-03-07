@@ -953,7 +953,7 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 			} else {
 				requestedWidth = TiConvert.toTiDimension(d, TiC.PROPERTY_WIDTH, TiDimension.TYPE_WIDTH);
 			}
-			view.setWidthDefined(true);
+			view.setWidthDefined(!TiC.LAYOUT_SIZE.equals(widthProperty) && !TiC.SIZE_AUTO.equals(widthProperty));
 		}
 		if (d.containsKey(TiC.PROPERTY_HEIGHT)) {
 			// Use the parent's height when it's fill
@@ -963,7 +963,7 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 			} else {
 				requestedHeight = TiConvert.toTiDimension(d, TiC.PROPERTY_HEIGHT, TiDimension.TYPE_HEIGHT);
 			}
-			view.setHeightDefined(true);
+			view.setHeightDefined(!TiC.LAYOUT_SIZE.equals(heightProperty) && !TiC.SIZE_AUTO.equals(heightProperty));
 		}
 
 		if (d.containsKey(TiC.PROPERTY_IMAGES)) {
@@ -1065,7 +1065,7 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 				} else {
 					requestedWidth = TiConvert.toTiDimension(newValue, TiDimension.TYPE_WIDTH);
 				}
-				view.setWidthDefined(!(TiC.LAYOUT_SIZE.equals(widthProperty) || TiC.LAYOUT_FILL.equals(widthProperty)));
+				view.setWidthDefined(!TiC.LAYOUT_SIZE.equals(widthProperty) && !TiC.SIZE_AUTO.equals(widthProperty));
 			} else if (key.equals(TiC.PROPERTY_HEIGHT)) {
 				View parentView = getParentView();
 				String heightProperty = TiConvert.toString(newValue);
@@ -1075,7 +1075,7 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 				} else {
 					requestedHeight = TiConvert.toTiDimension(newValue, TiDimension.TYPE_HEIGHT);
 				}
-				view.setHeightDefined(!(TiC.LAYOUT_SIZE.equals(heightProperty) || TiC.LAYOUT_FILL.equals(heightProperty)));
+				view.setHeightDefined(!TiC.LAYOUT_SIZE.equals(heightProperty) && !TiC.SIZE_AUTO.equals(heightProperty));
 			}
 
 			super.propertyChanged(key, oldValue, newValue, proxy);
