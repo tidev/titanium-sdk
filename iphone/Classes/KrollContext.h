@@ -17,6 +17,7 @@
 @required
 -(id)require:(KrollContext*)kroll path:(NSString*)path;
 -(BOOL)shouldDebugContext;
+-(BOOL)shouldProfileContext;
 @optional
 
 -(void)willStartNewContext:(KrollContext*)kroll;

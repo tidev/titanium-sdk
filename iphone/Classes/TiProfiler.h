@@ -16,3 +16,4 @@
 EXTERN_FUNC void  TiProfilerStart(NSString*, NSInteger);
 EXTERN_FUNC void  TiProfilerStop();
 EXTERN_FUNC void  TiProfilerDiscoveryStart(NSString*, NSArray*, void(^)(NSString *, NSInteger));
+EXTERN_FUNC void  TiProfilerEnable(TiObjectRef);

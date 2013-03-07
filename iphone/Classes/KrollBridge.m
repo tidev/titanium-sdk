@@ -1059,4 +1059,9 @@ loadNativeJS:
     return [[self host] debugMode];
 }
 
+- (BOOL)shouldProfileContext
+{
+    return [[self host] profileMode];
+}
+
 @end
