@@ -148,7 +148,8 @@ public class KrollWith extends NativeWith
 		}
 
 
-		public Object getDefaultValue(Class<?> hint)
+		@Override
+		public Object getDefaultValue(Class hint)
 		{
 			return parent.getDefaultValue(hint);
 		}

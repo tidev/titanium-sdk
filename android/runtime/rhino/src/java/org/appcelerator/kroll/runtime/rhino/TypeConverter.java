@@ -84,8 +84,7 @@ public class TypeConverter
 			return JS_CLASS_OBJECT;
 		}
 
-		@Override
-		public Object getDefaultValue(Class<?> typeHint)
+		public Object getDefaultValue(Class typeHint)
 		{
 			if (typeHint == null || typeHint.equals(ScriptRuntime.StringClass)) {
 				return "[object Object]";
