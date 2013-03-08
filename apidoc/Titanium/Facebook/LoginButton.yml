@@ -1,5 +1,11 @@
 ---
 name: Titanium.Facebook.LoginButton
+deprecated:
+    since: "3.1.0"
+    notes: |
+        On Android and iOS, use <Modules.Facebook.LoginButton> instead.
+
+        On Mobile Web, continue to use `Titanium.Facebook.LoginButton`.
 summary: A Facebook login button.
 description: |
     The Login Button created by <Titanium.Facebook.createLoginButton>.  This is a 
@@ -11,8 +17,8 @@ description: |
 
     See the examples in the <Titanium.Facebook> documentation.
 extends: Titanium.UI.View
-since: "0.8"
-platforms: [android, iphone, ipad]
+since: { android: "0.8", iphone: "0.8", ipad: "0.8", mobileweb: "2.0" }
+platforms: [android, ipad, iphone, mobileweb]
 properties:
   - name: style
     summary: Sets the login button style.
