@@ -469,7 +469,7 @@ def loadTypesFromDocgen():
 	global typesFromDocgen
 	import docgen
 	docgen.log.level = 2 # INFO
-	docgen.process_yaml()
+	docgen.process_yaml([apiDocDir])
 	docgen.finish_partial_overrides()
 	typesFromDocgen = docgen.apis
 
