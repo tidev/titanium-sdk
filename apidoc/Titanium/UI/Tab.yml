@@ -121,7 +121,18 @@ properties:
     platforms: [iphone,ipad]
   - name: icon
     summary: Icon URL for this tab.
+    description: |
+         On iOS, if the OS is less than 5.0 or activeIcon is unset, the OS will provide a
+         grey wash effect when inactive and a blue reflection when active.
     type: String
+  - name: activeIcon
+    summary: Icon URL for this tab when active.
+    description: |
+         On iOS, if the OS is less than 5.0, this property will remain undefined.
+    type: String
+    platforms: [iphone, ipad]
+    since: "3.1.0"
+    osver: {iOS: {min: "5.0"}}
   - name: title
     summary: Title for this tab.
     type: String

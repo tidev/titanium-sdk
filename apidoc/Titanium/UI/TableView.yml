@@ -138,8 +138,9 @@ events:
         type: Titanium.UI.TableViewRow
 
       - name: rowData
-        summary: Properties of the row.  
-        description: |
+        summary: |
+            Properties of the row.
+            
             When the row is created implicitly using a JavaScript dictionary object,
             use this property rather than `row` to access any custom row properties.
             

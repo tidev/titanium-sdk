@@ -304,17 +304,54 @@ DEFINE_EXCEPTIONS
 
 -(void)setTabsBackgroundColor_:(id)value
 {
-    if ([TiUtils isIOS5OrGreater]) {
-        TiColor* color = [TiUtils colorValue:value];
-        if (color != nil) {
-            controller.tabBar.tintColor = color.color;
-        }
+	if (![TiUtils isIOS5OrGreater])
+	{
+		NSLog(@"[WARN] tabsBackgroundColor is only supported in iOS 5 or above.");
+		return;
+	}
+	TiColor* color = [TiUtils colorValue:value];
+	//A nil tintColor is fine, too.
+	controller.tabBar.tintColor = color.color;
+}
 
-    } else {
-        NSLog(@"[WARN] tabsBackgroundColor is only supported in iOS 5 or above.");
-    }
+-(void)setTabsBackgroundImage_:(id)value
+{
+    if (![TiUtils isIOS5OrGreater]) {
+		NSLog(@"[WARN] tabsBackgroundImage is only supported in iOS 5 or above.");
+		return;
+	}
+	controller.tabBar.backgroundImage = [self loadImage:value];
+}
 
+-(void)setActiveTabBackgroundImage_:(id)value
+{
+    if (![TiUtils isIOS5OrGreater]) {
+		NSLog(@"[WARN] activeTabBackgroundImage is only supported in iOS 5 or above.");
+		return;
+	}
+	controller.tabBar.selectionIndicatorImage = [self loadImage:value];
+}
 
+-(void)setShadowImage_:(id)value
+{
+    if (![TiUtils isIOS6OrGreater]) {
+		NSLog(@"[WARN] activeTabBackgroundImage is only supported in iOS 6 or above.");
+		return;
+	}
+	//Because we still support XCode 4.3, we cannot use the shadowImage property
+	[controller.tabBar setShadowImage:[self loadImage:value]];
+}
+
+-(void) setActiveTabIconTint_:(id)value
+{
+	if (![TiUtils isIOS5OrGreater])
+	{
+		NSLog(@"[WARN] activeTabIconTint is only supported in iOS 5 or above.");
+		return;
+	}
+	TiColor* color = [TiUtils colorValue:value];
+	//A nil tintColor is fine, too.
+	controller.tabBar.selectedImageTintColor = color.color;
 }
 
 #pragma mark Public APIs

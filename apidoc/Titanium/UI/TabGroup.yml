@@ -305,10 +305,27 @@ properties:
   - name: tabsBackgroundImage
     summary: Default background image for tabs.
     description: |
-        A tab's [backgroundImage](Titanium.UI.Tab.backgroundImage) property takes precedence if set.
+        On MobileWeb, a tab's [backgroundImage](Titanium.UI.Tab.backgroundImage) property takes precedence if set.
     type: String
-    platforms: [mobileweb]
-    since: "2.0.0"
+    platforms: [mobileweb,iphone,ipad]
+    since: { mobileweb: "2.0.0", iphone: "3.1.0", ipad: "3.1.0" }
+    osver: {iOS: {min: "5.0"}}
+
+  - name: shadowImage
+    summary: Image of the shadow placed between the tab bar and the content area.
+    type: String
+    platforms: [iphone,ipad]
+    since: { iphone: "3.1.0", ipad: "3.1.0" }
+    osver: {iOS: {min: "6.0"}}
+
+  - name: activeTabIconTint
+    summary: Color applied to active tabs icons, as a color name or hex triplet, where the tab's activeIcon was not defined.
+    description: |
+        For information about color values, see the "Colors" section of <Titanium.UI>.
+    type: String
+    since: {iphone: "3.1.0"}
+    osver: {ios: {min: "5.0"}}
+    platforms: [iphone, ipad]
     
   - name: tabsBackgroundDisabledColor
     summary: Default background disabled color for tabs, as a color name or hex triplet.
@@ -383,10 +400,11 @@ properties:
   - name: activeTabBackgroundImage
     summary: Default background image for the active tab.
     description: |
-        A tab's [backgroundImage](Titanium.UI.Tab.backgroundImage) property takes precedence if set.
+        On MobileWeb, a tab's [backgroundImage](Titanium.UI.Tab.backgroundImage) property takes precedence if set.
     type: String
-    platforms: [mobileweb]
-    since: "2.0.0"
+    platforms: [mobileweb,iphone,ipad]
+    since: { mobileweb: "2.0.0", iphone: "3.1.0", ipad: "3.1.0" }
+    osver: {iOS: {min: "5.0"}}
     
   - name: activeTabBackgroundDisabledColor
     summary: Default background disabled color for the active tab, as a color name or hex triplet.
@@ -483,6 +501,8 @@ properties:
     default: true
     platforms: [mobileweb]
     since: "2.0.0"
+
+
 
 examples:
   - title: Alloy XML Markup
