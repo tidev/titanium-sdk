@@ -24,6 +24,7 @@ import org.appcelerator.titanium.io.TiFileFactory;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiUIHelper;
+import org.appcelerator.titanium.view.TiDrawableReference;
 import org.appcelerator.titanium.view.TiUIView;
 
 import ti.modules.titanium.map.MapRoute.RouteOverlay;
@@ -1114,15 +1115,11 @@ public class TiMapView extends TiUIView
 	private Drawable makeMarker(String pinImage)
 	{
 		if (pinImage != null) {
-			String url = proxy.resolveUrl(null, pinImage);
-			TiBaseFile file = TiFileFactory.createTitaniumFile(new String[] { url }, false);
-			try {
-				Drawable d = new BitmapDrawable(mapWindow.getContext().getResources(), TiUIHelper.createBitmap(file
-					.getInputStream()));
+			TiDrawableReference drawableRef = TiDrawableReference.fromUrl(proxy, pinImage);
+			if (drawableRef != null) {
+				Drawable d = drawableRef.getDrawable();
 				d.setBounds(0, 0, d.getIntrinsicWidth(), d.getIntrinsicHeight());
 				return d;
-			} catch (IOException e) {
-				Log.e(TAG, "Error creating drawable from path: " + pinImage.toString(), e);
 			}
 		}
 		return null;
