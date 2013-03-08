@@ -2,10 +2,17 @@
 name: Titanium.Facebook
 deprecated:
     since: "3.1.0"
-    notes: Use <Modules.Facebook> instead.
+    notes: |
+        On Android and iOS, use <Modules.Facebook> instead.
+
+        On Mobile Web, use `Titanium.Facebook`.
 summary: |
     The top level Facebook module.  
 description: |
+    **Note:** In Titanium 3.1, the `Titianium.Facebook` module on Android and iOS is replaced by the
+    <Modules.Facebook> add-on module that uses more recent versions of the native Facebook SDKs for
+    Android and iOS. For Mobile Web, continue to use `Titanium.Facebook`.
+
     The Facebook module is used for connecting your application with 
     Facebook. This module supports the following features:
 
@@ -106,8 +113,8 @@ description: |
     Nor is the code shown in the examples here backwards-compatible with pre-1.6.0 Titanium 
     Mobile SDK.
 extends: Titanium.Module
-since: "0.8"
-platforms: [android, iphone, ipad]
+since: { android: "0.8", iphone: "0.8", ipad: "0.8", mobileweb: "2.0" }
+platforms: [android, ipad, iphone, mobileweb]
 methods:
 
   - name: authorize
