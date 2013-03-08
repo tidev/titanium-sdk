@@ -173,10 +173,12 @@ properties:
     type: Number
 
   - name: volume
-    summary: Volume level for the music player, from 0.0 (muted) to 1.0 (loudest).
+    summary: Volume level for the music player from 0.0 (muted) to 1.0 (loudest).
     description: |
-        This setting controls the volume of the music player relative to the overall volume
-        setting for the device.
+        This adjusts the volume of the application's session.
+
+        The iOS simulator ignores this volume setting. This is a known issue
+        with Apple's simulator.
     type: Number
 
 ---
