@@ -305,17 +305,6 @@ public class TiDrawableReference
 			}
 		}
 
-		// Orient the image when orientation is set.
-		if (autoRotate) {
-			// Only set the orientation if it is uninitialized
-			if (orientation < 0) {
-				orientation = getOrientation();
-			}
-			if (orientation > 0) {
-				b = getRotatedBitmap(b, orientation);
-			}
-		}
-
 		return b;
 	}
 
@@ -820,7 +809,7 @@ public class TiDrawableReference
 		return Bitmap.createBitmap(src, 0, 0, src.getWidth(), src.getHeight(), m, false);
 	}
 
-	private int getOrientation()
+	public int getOrientation()
 	{
 		String path = null;
 		int orientation = 0;

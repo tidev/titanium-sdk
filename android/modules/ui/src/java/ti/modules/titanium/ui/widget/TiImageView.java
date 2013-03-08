@@ -6,11 +6,14 @@
  */
 package ti.modules.titanium.ui.widget;
 
+import org.appcelerator.kroll.common.Log;
+
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.ColorFilter;
 import android.graphics.Matrix;
 import android.graphics.Rect;
+import android.graphics.RectF;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
 import android.os.Looper;
@@ -35,7 +38,7 @@ public class TiImageView extends ViewGroup implements Handler.Callback, OnClickL
 
 	private OnClickListener clickListener;
 
-	private boolean canScaleImage;
+	private boolean enableScale;
 	private boolean enableZoomControls;
 
 	private GestureDetector gestureDetector;
@@ -54,6 +57,8 @@ public class TiImageView extends ViewGroup implements Handler.Callback, OnClickL
 	private boolean viewWidthDefined;
 	private boolean viewHeightDefined;
 
+	private int orientation;
+
 	public TiImageView(Context context) {
 		super(context);
 
@@ -66,13 +71,14 @@ public class TiImageView extends ViewGroup implements Handler.Callback, OnClickL
 		scaleIncrement = 0.1f;
 		scaleMin = 1.0f;
 		scaleMax = 5.0f;
+		orientation = 0;
 
 		baseMatrix = new Matrix();
 		changeMatrix = new Matrix();
 
 		imageView = new ImageView(context);
 		addView(imageView);
-		setCanScaleImage(true);
+		setEnableScale(true);
 
 		gestureDetector = new GestureDetector(getContext(), new GestureDetector.SimpleOnGestureListener()
 		{
@@ -133,9 +139,9 @@ public class TiImageView extends ViewGroup implements Handler.Callback, OnClickL
 		super.setOnClickListener(this);
 	}
 
-	public void setCanScaleImage(boolean canScaleImage)
+	public void setEnableScale(boolean enableScale)
 	{
-		this.canScaleImage = canScaleImage;
+		this.enableScale = enableScale;
 		updateScaleType();
 	}
 
@@ -151,7 +157,7 @@ public class TiImageView extends ViewGroup implements Handler.Callback, OnClickL
 
 	/**
 	 * Sets a Bitmap as the content of imageView
-	 * @param bitmap The bitmap to set. If it is null, it will clear the previous image and show it as blank.
+	 * @param bitmap The bitmap to set. If it is null, it will clear the previous image.
 	 */
 	public void setImageBitmap(Bitmap bitmap) {
 		imageView.setImageBitmap(bitmap);
@@ -237,30 +243,52 @@ public class TiImageView extends ViewGroup implements Handler.Callback, OnClickL
 		baseMatrix.reset();
 
 		if (d != null) {
-			// The base matrix is the matrix that displays the entire image bitmap
-			// if the bitmap is smaller than the display, then it simply centers
-			// the image on the display. Otherwise, it computes an aspect ratio
-			// preserving matrix that will fit the image to the view.
-
+			// The base matrix is the matrix that displays the entire image bitmap.
+			// It orients the image when orientation is set and scales in X and Y independently, 
+			// so that src matches dst exactly.
+			// This may change the aspect ratio of the src.
 			Rect r = new Rect();
 			getDrawingRect(r);
-			int dwidth = d.getIntrinsicWidth();
-			int dheight = d.getIntrinsicHeight();
+			int intrinsicWidth = d.getIntrinsicWidth();
+			int intrinsicHeight = d.getIntrinsicHeight();
+			int dwidth = intrinsicWidth;
+			int dheight = intrinsicHeight;
+
+			if (orientation > 0) {
+				baseMatrix.postRotate(orientation);
+				if (orientation == 90 || orientation == 270) {
+					dwidth = intrinsicHeight;
+					dheight = intrinsicWidth;
+				}
+			}
 
 			float vwidth = getWidth() - getPaddingLeft() - getPaddingRight();
 			float vheight = getHeight() - getPaddingTop() - getPaddingBottom();
 
-			float widthScale = Math.min(vwidth / dwidth, 1.0f);
-			float heightScale = Math.min(vheight / dheight, 1.0f);
-			float scale = Math.min(widthScale, heightScale);
+			RectF dRectF = null;
+			RectF vRectF = new RectF(0, 0, vwidth, vheight);
+			if (orientation == 0) {
+				dRectF = new RectF(0, 0, dwidth, dheight);
+			} else if (orientation == 90) {
+				dRectF = new RectF(-dwidth, 0, 0, dheight);
+			} else if (orientation == 180) {
+				dRectF = new RectF(-dwidth, -dheight, 0, 0);
+			} else if (orientation == 270) {
+				dRectF = new RectF(0, -dheight, dwidth, 0);
+			} else {
+				Log.e(TAG, "Invalid value for orientation. Cannot compute the base matrix for the image.");
+				return;
+			}
 
-			baseMatrix.setScale(scale, scale);
-
-			float dx = (vwidth - dwidth * scale) * 0.5f;
-			float dy = (vheight - dheight * scale) * 0.5f;
-
-			baseMatrix.postTranslate(dx, dy);
-
+			Matrix m = new Matrix();
+			Matrix.ScaleToFit scaleType;
+			if (viewWidthDefined && viewHeightDefined) {
+				scaleType = Matrix.ScaleToFit.FILL;
+			} else {
+				scaleType = Matrix.ScaleToFit.CENTER;
+			}
+			m.setRectToRect(dRectF, vRectF, scaleType);
+			baseMatrix.postConcat(m);
 		}
 	}
 
@@ -341,6 +369,7 @@ public class TiImageView extends ViewGroup implements Handler.Callback, OnClickL
 	{
 		computeBaseMatrix();
 		imageView.setImageMatrix(getViewMatrix());
+		ImageView.ScaleType s = imageView.getScaleType();
 
 		int parentLeft = 0;
 		int parentRight = right - left;
@@ -363,14 +392,18 @@ public class TiImageView extends ViewGroup implements Handler.Callback, OnClickL
 
 	private void updateScaleType()
 	{
-		if (enableZoomControls) {
-			imageView.setAdjustViewBounds(true);
+		if (orientation > 0 || enableZoomControls) {
 			imageView.setScaleType(ScaleType.MATRIX);
+			if (viewWidthDefined && viewHeightDefined) {
+				imageView.setAdjustViewBounds(false);
+			} else {
+				imageView.setAdjustViewBounds(true);
+			}
 		} else {
 			if (viewWidthDefined && viewHeightDefined) {
 				imageView.setAdjustViewBounds(false);
 				imageView.setScaleType(ScaleType.FIT_XY);
-			} else if (!canScaleImage) {
+			} else if (!enableScale) {
 				imageView.setAdjustViewBounds(false);
 				imageView.setScaleType(ScaleType.CENTER);
 			} else {
@@ -390,6 +423,12 @@ public class TiImageView extends ViewGroup implements Handler.Callback, OnClickL
 	public void setHeightDefined(boolean defined)
 	{
 		viewHeightDefined = defined;
+		updateScaleType();
+	}
+
+	public void setOrientation(int orientation)
+	{
+		this.orientation = orientation;
 		updateScaleType();
 	}
 }

@@ -711,10 +711,10 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 					isCachedInDisk = true;
 				}
 				
-				if (!isCachedInDisk) {
+				if (!isCachedInDisk) { // Check if the image is cached in disc
 					imageref.getBitmapAsync(downloadListener);
 				} else {
-					// First check if the image is cached in memory
+					// Check if the image is cached in memory
 					int hash = imageref.hashCode();
 					Bitmap bitmap = mMemoryCache.get(hash);
 					if (bitmap != null) {
@@ -725,9 +725,8 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 								firedLoad = true;
 							}
 							return;
-						} else {
+						} else { // If the cached image has been recycled, remove it from the cache.
 							mMemoryCache.remove(hash);
-							Log.d(TAG, "***************** setImageInternal(): mMemoryCache.size() = " + mMemoryCache.size());
 						}
 					}
 					// If the image is not cached in memory yet, cache it and update the UI.
@@ -786,7 +785,6 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 	public void processProperties(KrollDict d)
 	{
 		TiImageView view = getView();
-		View parentView = getParentView();
 
 		if (view == null) {
 			return;
@@ -794,7 +792,16 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 
 		// Disable scaling for scrollview since the an image can extend beyond the screensize
 		if (proxy.getParent() instanceof ScrollViewProxy) {
-			view.setCanScaleImage(false);
+			view.setEnableScale(false);
+		}
+
+		if (d.containsKey(TiC.PROPERTY_WIDTH)) {
+			String widthProperty = d.getString(TiC.PROPERTY_WIDTH);
+			view.setWidthDefined(!TiC.LAYOUT_SIZE.equals(widthProperty) && !TiC.SIZE_AUTO.equals(widthProperty));
+		}
+		if (d.containsKey(TiC.PROPERTY_HEIGHT)) {
+			String heightProperty = d.getString(TiC.PROPERTY_HEIGHT);
+			view.setHeightDefined(!TiC.LAYOUT_SIZE.equals(heightProperty) && !TiC.SIZE_AUTO.equals(heightProperty));
 		}
 
 		if (d.containsKey(TiC.PROPERTY_IMAGES)) {
@@ -805,52 +812,27 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 			view.setEnableZoomControls(TiConvert.toBoolean(d, TiC.PROPERTY_ENABLE_ZOOM_CONTROLS, true));
 		}
 		if (d.containsKey(TiC.PROPERTY_DEFAULT_IMAGE)) {
-			Object defaultImage = d.get(TiC.PROPERTY_DEFAULT_IMAGE);
-			try {
-				Object image = d.get(TiC.PROPERTY_IMAGE);
-
-				if (image instanceof String) {
-					String imageUrl = TiUrl.getCleanUri((String)image).toString();
-					URI imageUri = new URI(imageUrl);
-					if (URLUtil.isNetworkUrl(imageUrl) && !TiResponseCache.peek(imageUri)) {
-						setDefaultImageSource(defaultImage);
-					}
-
-				} else if (image == null) {
-					setDefaultImageSource(defaultImage);
-				}
-
-			} catch (URISyntaxException e) {
-				setDefaultImageSource(defaultImage);
-			} catch (NullPointerException e) {
-				setDefaultImageSource(defaultImage);
-			}
+			setDefaultImageSource(d.get(TiC.PROPERTY_DEFAULT_IMAGE));
 		}
 		if (d.containsKey(TiC.PROPERTY_IMAGE)) {
 			// processProperties is also called from TableView, we need check if we changed before re-creating the
 			// bitmap
-			Object newImage = d.get(TiC.PROPERTY_IMAGE);
-			Object autoRotate = d.get(TiC.PROPERTY_AUTOROTATE);
 			boolean changeImage = true;
-			TiDrawableReference source = makeImageSource(newImage);
-
-			// Check for orientation only if they specified an image
-			if (autoRotate != null) {
-				source.setAutoRotate(TiConvert.toBoolean(autoRotate));
-			}
-
+			TiDrawableReference source = makeImageSource(d.get(TiC.PROPERTY_IMAGE));
 			if (imageSources != null && imageSources.size() == 1) {
 				if (imageSources.get(0).equals(source)) {
 					changeImage = false;
 				}
 			}
-
 			if (changeImage) {
+				// Check for orientation only if they specified an image
+				if (d.containsKey(TiC.PROPERTY_AUTOROTATE)) {
+					view.setOrientation(source.getOrientation());
+				}
 				setImageSource(source);
 				firedLoad = false;
 				setImageInternal();
 			}
-
 		} else {
 			if (!d.containsKey(TiC.PROPERTY_IMAGES)) {
 				getProxy().setProperty(TiC.PROPERTY_IMAGE, null);
@@ -866,28 +848,32 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 	@Override
 	public void propertyChanged(String key, Object oldValue, Object newValue, KrollProxy proxy)
 	{
-		TiImageView view = getView();
-		if (view == null) {
-			return;
-		}
+		if ((oldValue == null && newValue != null) || (oldValue != null && !oldValue.equals(newValue))) {
+			TiImageView view = getView();
+			if (view == null) {
+				return;
+			}
 
-		if (key.equals(TiC.PROPERTY_ENABLE_ZOOM_CONTROLS)) {
-			view.setEnableZoomControls(TiConvert.toBoolean(newValue));
-		} else if (key.equals(TiC.PROPERTY_IMAGE)) {
-			if ((oldValue == null && newValue != null) || (oldValue != null && !oldValue.equals(newValue))) {
+			if (key.equals(TiC.PROPERTY_ENABLE_ZOOM_CONTROLS)) {
+				view.setEnableZoomControls(TiConvert.toBoolean(newValue));
+			} else if (key.equals(TiC.PROPERTY_IMAGE)) {
 				setImageSource(newValue);
 				firedLoad = false;
 				setImageInternal();
-			}
-		} else if (key.equals(TiC.PROPERTY_IMAGES)) {
-			if (newValue instanceof Object[]) {
-				if (oldValue == null || !oldValue.equals(newValue)) {
+			} else if (key.equals(TiC.PROPERTY_IMAGES)) {
+				if (newValue instanceof Object[]) {
 					setImageSource(newValue);
 					setImages();
 				}
+			} else if (key.equals(TiC.PROPERTY_WIDTH)) {
+				String widthProperty = TiConvert.toString(newValue);
+				view.setWidthDefined(!TiC.LAYOUT_SIZE.equals(widthProperty) && !TiC.SIZE_AUTO.equals(widthProperty));
+			} else if (key.equals(TiC.PROPERTY_HEIGHT)) {
+				String heightProperty = TiConvert.toString(newValue);
+				view.setHeightDefined(!TiC.LAYOUT_SIZE.equals(heightProperty) && !TiC.SIZE_AUTO.equals(heightProperty));
+			} else {
+				super.propertyChanged(key, oldValue, newValue, proxy);
 			}
-		} else {
-			super.propertyChanged(key, oldValue, newValue, proxy);
 		}
 	}
 
