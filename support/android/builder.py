@@ -347,6 +347,8 @@ class Builder(object):
 		self.force_rebuild = False
 		self.debugger_host = None
 		self.debugger_port = -1
+		self.profiler_host = None
+		self.profiler_port = -1
 		self.fastdev_port = -1
 		self.fastdev = False
 		self.compile_js = False
@@ -1531,6 +1533,7 @@ class Builder(object):
 		classpath = os.pathsep.join([classpath, os.path.join(self.support_dir, 'lib', 'titanium-verify.jar')])
 		if self.deploy_type != 'production':
 			classpath = os.pathsep.join([classpath, os.path.join(self.support_dir, 'lib', 'titanium-debug.jar')])
+			classpath = os.pathsep.join([classpath, os.path.join(self.support_dir, 'lib', 'titanium-profiler.jar')])
 
 		debug("Building Java Sources: " + " ".join(src_list))
 		javac_command = [self.javac, '-encoding', 'utf8',
@@ -1679,6 +1682,8 @@ class Builder(object):
 
 			# libtiverify is always included, even if targeting rhino.
 			apk_zip.write(os.path.join(lib_source_dir, 'libtiverify.so'), lib_dest_dir + 'libtiverify.so')
+			# profiler
+			apk_zip.write(os.path.join(lib_source_dir, 'libtiprofiler.so'), lib_dest_dir + 'libtiprofiler.so')
 
 			if self.runtime == 'v8':
 				for fname in ('libkroll-v8.so', 'libstlport_shared.so'):
@@ -1924,6 +1929,8 @@ class Builder(object):
 		deploy_data = {
 			"debuggerEnabled": self.debugger_host != None,
 			"debuggerPort": self.debugger_port,
+			"profilerEnabled": self.profiler_host != None,
+			"profilerPort": self.profiler_port,
 			"fastdevPort": self.fastdev_port
 		}
 		deploy_json = os.path.join(self.project_dir, 'bin', 'deploy.json')
@@ -1974,7 +1981,7 @@ class Builder(object):
 			finally:
 				res_zip_file.close()
 
-	def build_and_run(self, install, avd_id, keystore=None, keystore_pass='tirocks', keystore_alias='tidev', dist_dir=None, build_only=False, device_args=None, debugger_host=None):
+	def build_and_run(self, install, avd_id, keystore=None, keystore_pass='tirocks', keystore_alias='tidev', dist_dir=None, build_only=False, device_args=None, debugger_host=None, profiler_host=None):
 		deploy_type = 'development'
 		self.build_only = build_only
 		self.device_args = device_args
@@ -2154,6 +2161,12 @@ class Builder(object):
 				self.debugger_port = int(hostport[1])
 			debugger_enabled = self.debugger_host != None and len(self.debugger_host) > 0
 
+			if (not profiler_host is None) and len(profiler_host) > 0:
+				hostport = profiler_host.split(":")
+				self.profiler_host = hostport[0]
+				self.profiler_port = int(hostport[1])
+			profiler_enabled = self.profiler_host != None and len(self.profiler_host) > 0
+
 			# Detect which modules are being used.
 			# We need to know this info in a few places, so the info is saved
 			# in self.missing_modules and self.modules
@@ -2277,6 +2290,7 @@ class Builder(object):
 				dex_args.append(os.path.join(self.support_dir, 'lib', 'titanium-verify.jar'))
 				if self.deploy_type != 'production':
 					dex_args.append(os.path.join(self.support_dir, 'lib', 'titanium-debug.jar'))
+					dex_args.append(os.path.join(self.support_dir, 'lib', 'titanium-profiler.jar'))
 					# the verifier depends on Ti.Network classes, so we may need to inject it
 					has_network_jar = False
 					for jar in self.android_jars:
@@ -2337,6 +2351,12 @@ class Builder(object):
 			if debugger_enabled and self.runtime == 'v8':
 				info('Forwarding host port %s to device for debugging.' % self.debugger_port)
 				forwardPort = 'tcp:%s' % self.debugger_port
+				self.sdk.run_adb(['forward', forwardPort, forwardPort])
+
+			# Enable port forwarding for profiler
+			if profiler_enabled and self.runtime == 'v8':
+				info('Forwarding host port %s to device for profiling.' % self.profiler_port)
+				forwardPort = 'tcp:%s' % self.profiler_port
 				self.sdk.run_adb(['forward', forwardPort, forwardPort])
 
 			#intermediary code for on-device debugging (later)
@@ -2481,9 +2501,12 @@ if __name__ == "__main__":
 			info("Building %s for Android ... one moment" % project_name)
 			avd_id = dequote(sys.argv[6])
 			debugger_host = None
-			if len(sys.argv) > 8:
+			profiler_host = None
+			if len(sys.argv) > 9 and sys.argv[9] == 'profiler':
+				profiler_host = dequote(sys.argv[8])
+			elif len(sys.argv) > 8:
 				debugger_host = dequote(sys.argv[8])
-			builder.build_and_run(False, avd_id, debugger_host=debugger_host)
+			builder.build_and_run(False, avd_id, debugger_host=debugger_host, profiler_host=profiler_host)
 		elif command == 'install':
 			avd_id = dequote(sys.argv[6])
 			device_args = ['-d']
@@ -2493,7 +2516,12 @@ if __name__ == "__main__":
 			# to Windows it just looks like a serial number is passed in (the debugger_host
 			# argument shifts left to take over the empty argument.)
 			debugger_host = None
-			if len(sys.argv) >= 9 and len(sys.argv[8]) > 0:
+			profiler_host = None
+			if len(sys.argv) >= 10 and sys.argv[9] == 'profiler':
+				profiler_host = dequote(sys.argv[8])
+				if len(sys.argv[7]) > 0:
+					device_args = ['-s', sys.argv[7]]
+			elif len(sys.argv) >= 9 and len(sys.argv[8]) > 0:
 				debugger_host = dequote(sys.argv[8])
 				if len(sys.argv[7]) > 0:
 					device_args = ['-s', sys.argv[7]]
@@ -2503,7 +2531,7 @@ if __name__ == "__main__":
 					debugger_host = arg7
 				else:
 					device_args = ['-s', arg7]
-			builder.build_and_run(True, avd_id, device_args=device_args, debugger_host=debugger_host)
+			builder.build_and_run(True, avd_id, device_args=device_args, debugger_host=debugger_host, profiler_host=profiler_host)
 		elif command == 'distribute':
 			key = os.path.abspath(os.path.expanduser(dequote(sys.argv[6])))
 			password = dequote(sys.argv[7])
