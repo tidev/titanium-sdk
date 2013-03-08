@@ -12,7 +12,7 @@ import org.appcelerator.titanium.util.TiConvert;
 
 public class TiTemplate {
 	
-	private static final String TAG = "TiTemplate";
+	protected static final String TAG = "TiTemplate";
 
 	protected HashMap<String, DataItem> dataItems;
 	

@@ -1,14 +1,15 @@
 package ti.modules.titanium.ui.widget.listview;
 
 import java.util.HashMap;
+import java.util.Iterator;
 
 import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.util.TiConvert;
 
 import ti.modules.titanium.ui.ImageViewProxy;
 import ti.modules.titanium.ui.LabelProxy;
-import ti.modules.titanium.ui.widget.listview.TiTemplate.DataItem;
 import android.app.Activity;
 
 public class DefaultTemplate extends TiTemplate {
@@ -65,10 +66,16 @@ public class DefaultTemplate extends TiTemplate {
 
 	}
 	private void parseDefaultData(KrollDict data) {
-		if (!data.containsKey(TiC.PROPERTY_PROPERTIES)) {
-			return;
+		//for built-in template, we only process 'properties' key
+		Iterator<String> bindings = data.keySet().iterator();
+		while (bindings.hasNext()) {
+			String binding = bindings.next();
+			if (!binding.equals(TiC.PROPERTY_PROPERTIES)) {
+				Log.e(TAG, "Please only use 'properties' key for built-in tempalte");
+				bindings.remove();
+			}
 		}
-		
+
 		KrollDict properties = data.getKrollDict(TiC.PROPERTY_PROPERTIES);
 		KrollDict clone_properties = new KrollDict((HashMap)properties.clone());
 		if (clone_properties.containsKey(TiC.PROPERTY_TITLE)) {
@@ -97,12 +104,23 @@ public class DefaultTemplate extends TiTemplate {
 	}
 	
 	public void updateDefaultProperties(KrollDict data) {
+		if (!data.containsKey(TiC.PROPERTY_PROPERTIES)) {
+			Log.e(TAG, "Please use 'properties' binding for builtInTemplate");
+			return;
+		}
 
 		parseDefaultData(data);
 		super.updateDefaultProperties(data);
 	}
 
 	public void mergeWithDefaultProperties(KrollDict data) {
+		if (!data.containsKey(TiC.PROPERTY_PROPERTIES)) {
+			Log.e(TAG, "Please use 'properties' binding for builtInTemplate");
+			//apply default behavior
+			data.clear();
+			return;
+		}
+		
 		parseDefaultData(data);
 		super.mergeWithDefaultProperties(data);
 	}

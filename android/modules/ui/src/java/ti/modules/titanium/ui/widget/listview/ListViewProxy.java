@@ -26,6 +26,7 @@ public class ListViewProxy extends TiViewProxy {
 
 	private static final int MSG_FIRST_ID = TiViewProxy.MSG_LAST_ID + 1;
 
+	private static final int MSG_SECTION_COUNT = MSG_FIRST_ID + 399;
 	private static final int MSG_SCROLL_TO_ITEM = MSG_FIRST_ID + 400;
 	private static final int MSG_APPEND_SECTION = MSG_FIRST_ID + 401;
 	private static final int MSG_INSERT_SECTION_AT = MSG_FIRST_ID + 402;
@@ -42,9 +43,17 @@ public class ListViewProxy extends TiViewProxy {
 	
 	@Kroll.method @Kroll.getProperty
 	public int getSectionCount() {
+		if (TiApplication.isUIThread()) {
+			return handleSectionCount();
+		} else {
+			return (Integer) TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_SECTION_COUNT));
+		}
+	}
+	
+	public int handleSectionCount () {
 		TiUIView listView = peekView();
 		if (listView != null) {
-			((TiListView) listView).getSectionCount();
+			return ((TiListView) listView).getSectionCount();
 		}
 		return 0;
 	}
@@ -67,6 +76,12 @@ public class ListViewProxy extends TiViewProxy {
 		
 		switch (msg.what) {
 		
+		case MSG_SECTION_COUNT: {
+			AsyncResult result = (AsyncResult)msg.obj;
+			result.setResult(handleSectionCount());
+			return true;
+		}
+
 		case MSG_SCROLL_TO_ITEM: {
 			AsyncResult result = (AsyncResult)msg.obj;
 			KrollDict data = (KrollDict) result.getArg();

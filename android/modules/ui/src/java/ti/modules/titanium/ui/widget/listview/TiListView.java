@@ -46,8 +46,18 @@ public class TiListView extends TiUIView{
 	
 	private static final String TAG = "TiListView";
 	
+	public static DefaultTemplate builtInTemplate;
 	public static final int HEADER_FOOTER_ITEM_TYPE = 0;
-
+	public static final int BUILT_IN_TEMPLATE_ITEM_TYPE = 1;
+	
+	public class SectionInfo {
+		public int sectionIndex;
+		public int itemIndex;
+		public SectionInfo (int sectionIndex, int itemIndex) {
+			this.sectionIndex = sectionIndex;
+			this.itemIndex = itemIndex;
+		}	
+	}
 	public class TiBaseAdapter extends BaseAdapter {
 
 		Activity context;
@@ -85,9 +95,9 @@ public class TiListView extends TiUIView{
 		}
 		@Override
 		public int getItemViewType(int position) {
-			Pair<ListSectionProxy, Integer> info = getSectionInfoByEntryIndex(position);
+			Pair<ListSectionProxy, SectionInfo> info = getSectionInfoByEntryIndex(position);
 			ListSectionProxy section = info.first;
-			int index = info.second;
+			int index = info.second.sectionIndex;
 			if (section.isHeaderView(index) || section.isFooterView(index))
 				return HEADER_FOOTER_ITEM_TYPE;
 			return section.getTemplateByIndex(index).getType();			
@@ -96,9 +106,10 @@ public class TiListView extends TiUIView{
 		@Override
 		public View getView(int position, View convertView, ViewGroup parent) {
 			//Get section info from index
-			Pair<ListSectionProxy, Integer> info = getSectionInfoByEntryIndex(position);
+			Pair<ListSectionProxy, SectionInfo> info = getSectionInfoByEntryIndex(position);
 			ListSectionProxy section = info.first;
-			int index = info.second;
+			SectionInfo sectionInfo = info.second;
+			int index = sectionInfo.sectionIndex;
 			View content = convertView;
 
 			//Handling section header/footer titles
@@ -116,11 +127,11 @@ public class TiListView extends TiUIView{
 			TiTemplate template = section.getTemplateByIndex(index);
 			if (content != null) {
 				TiBaseListViewItem itemContent = (TiBaseListViewItem) content.findViewById(listContentId);
-				section.populateViews(data, itemContent, template, position, index, content);
+				section.populateViews(data, itemContent, template, sectionInfo.itemIndex, index, content);
 			} else {
 				content = inflater.inflate(listItemId, null);
 				TiBaseListViewItem itemContent = (TiBaseListViewItem) content.findViewById(listContentId);
-				section.generateCellContent(index, data, template, itemContent, position, content);
+				section.generateCellContent(index, data, template, itemContent, sectionInfo.itemIndex, content);
 			}
 			return content;
 
@@ -133,7 +144,7 @@ public class TiListView extends TiUIView{
 		
 		//initializing variables
 		sections = new ArrayList<ListSectionProxy>();
-		itemTypeCount = new AtomicInteger(1);
+		itemTypeCount = new AtomicInteger(2);
 		templatesByBinding = new HashMap<String, TiTemplate>();
 		
 		//initializing listView and adapter
@@ -288,18 +299,21 @@ public class TiListView extends TiUIView{
 		}
 	}
 	
-	protected Pair<ListSectionProxy, Integer> getSectionInfoByEntryIndex(int index) {
+	protected Pair<ListSectionProxy, SectionInfo> getSectionInfoByEntryIndex(int index) {
 		if (index < 0) {
 			return null;
 		}
-
+		int position = 0;
 		for (int i = 0; i < sections.size(); i++) {
 			ListSectionProxy section = sections.get(i);
 			int sectionItemCount = section.getItemCount();
 			if (index <= sectionItemCount - 1) {
-				return new Pair<ListSectionProxy, Integer>(section, index);
+				SectionInfo info = new SectionInfo(index, position + index);
+				return new Pair<ListSectionProxy, SectionInfo>(section, info);
 			} else {
+				int sectionContentCount = section.getContentCount();
 				index -= sectionItemCount;
+				position += sectionContentCount;
 			}
 		}
 
@@ -359,16 +373,16 @@ public class TiListView extends TiUIView{
 		insertSectionAt(index, section);
 	}
 	
-	public void scrollToItem(int sectionIndex, int itemIndex) {
-		int position = 1;
+	private int findItemPosition(int sectionIndex, int sectionItemIndex) {
+		int position = 0;
 		for (int i = 0; i < sections.size(); i++) {
 			ListSectionProxy section = sections.get(i);
 			if (i == sectionIndex) {
-				if (itemIndex >= section.getContentCount()) {
+				if (sectionItemIndex >= section.getContentCount()) {
 					Log.e(TAG, "Invalid item index");
-					return;
+					return -1;
 				}
-				position += itemIndex;
+				position += sectionItemIndex;
 				if (section.getHeaderTitle() != null) {
 					position += 1;			
 				}
@@ -377,7 +391,14 @@ public class TiListView extends TiUIView{
 				position += section.getItemCount();
 			}
 		}
-		listView.smoothScrollToPosition(position);
+		return position;
+	}
+	
+	public void scrollToItem(int sectionIndex, int sectionItemIndex) {
+		int position = findItemPosition(sectionIndex, sectionItemIndex);
+		if (position > -1) {
+			listView.smoothScrollToPosition(position + 1);
+		}
 	}
 	
 	public void release() {
@@ -399,6 +420,11 @@ public class TiListView extends TiUIView{
 		if (footerView != null) {
 			footerView = null;
 		}
+		if (builtInTemplate != null) {
+			builtInTemplate.release();
+			builtInTemplate = null;
+		}
+
 		super.release();
 	}
 	

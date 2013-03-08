@@ -38,7 +38,11 @@ public class TiBaseListViewItem extends TiCompositeLayout{
 	}
 	
 	public TiUIView getViewFromBinding(String binding) {
-		return viewsMap.get(binding).getView();
+		ViewItem viewItem = viewsMap.get(binding);
+		if (viewItem != null) {
+			return viewItem.getView();
+		}
+		return null;
 	}
 	
 

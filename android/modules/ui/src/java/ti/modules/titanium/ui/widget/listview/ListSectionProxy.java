@@ -31,7 +31,6 @@ public class ListSectionProxy extends ViewProxy{
 	private static final String TAG = "SectionProxy";
 	private ArrayList<ListItemData> listItemData;
 	private int itemCount;
-	private static DefaultTemplate builtInTemplate;
 	private TiBaseAdapter adapter;
 	private ArrayList<Object> itemProperties;
 	private boolean preload;
@@ -428,21 +427,22 @@ public class ListSectionProxy extends ViewProxy{
 	}
 	
 	private TiTemplate processDefaultTemplate(KrollDict data, int index) {
-		if (builtInTemplate == null){
+
+		if (TiListView.builtInTemplate == null){
 		
 			//Create template and generate default properties
-			builtInTemplate = new DefaultTemplate(UIModule.LIST_ITEM_TEMPLATE_DEFAULT, null, getActivity());
+			TiListView.builtInTemplate = new DefaultTemplate(UIModule.LIST_ITEM_TEMPLATE_DEFAULT, null, getActivity());
 			//Each template is treated as an item type, so we can reuse views efficiently.
 			//Section templates are given a type in TiListView.processSections(). Here we
 			//give default template a type if possible.
 			TiListView listView = getListView();
 			if (listView != null) {
-				builtInTemplate.setType(listView.getItemType());
-				builtInTemplate.setRootParent(listView.getProxy());
+				TiListView.builtInTemplate.setType(TiListView.BUILT_IN_TEMPLATE_ITEM_TYPE);
+				TiListView.builtInTemplate.setRootParent(listView.getProxy());
 			}
 		}
 
-		return builtInTemplate;
+		return TiListView.builtInTemplate;
 	}
 
 	/**
@@ -496,6 +496,12 @@ public class ListSectionProxy extends ViewProxy{
 			existingData = new KrollDict();
 			view.setAdditionalEventData(existingData);
 		}
+
+		if (headerTitle != null) {
+			itemPosition -= 1;
+			sectionIndex -= 1;
+		}
+		
 		existingData.put(TiC.PROPERTY_SECTION, this);
 		existingData.put(TiC.PROPERTY_SECTION_INDEX, sectionIndex);
 		existingData.put(TiC.PROPERTY_BIND_ID, bindId);
@@ -553,6 +559,8 @@ public class ListSectionProxy extends ViewProxy{
 				if (!diffProperties.isEmpty()) {
 					view.processProperties(diffProperties);
 				}
+			} else {
+				Log.w(TAG, "Sorry, " + key + " isn't a valid binding. Perhaps you made a typo?");
 			}
 		}
 		
@@ -640,10 +648,6 @@ public class ListSectionProxy extends ViewProxy{
 	public void release() {
 		listItemData.clear();
 		itemProperties.clear();
-		if (builtInTemplate != null) {
-			builtInTemplate.release();
-			builtInTemplate = null;
-		}
 	}
 	
 }

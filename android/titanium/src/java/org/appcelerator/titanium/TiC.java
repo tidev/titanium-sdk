@@ -1787,11 +1787,6 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_SECTION_INDEX = "sectionIndex";
-	
-	/**
-	 * @module.api
-	 */
-	public static final String PROPERTY_SECTIONS = "sections";
 
 	/**
 	 * @module.api
