@@ -38,6 +38,7 @@ import org.appcelerator.titanium.analytics.TiAnalyticsEventFactory;
 import org.appcelerator.titanium.analytics.TiAnalyticsModel;
 import org.appcelerator.titanium.analytics.TiAnalyticsService;
 import org.appcelerator.titanium.util.TiFileHelper;
+import org.appcelerator.titanium.util.TiImageLruCache;
 import org.appcelerator.titanium.util.TiPlatformHelper;
 import org.appcelerator.titanium.util.TiResponseCache;
 import org.appcelerator.titanium.util.TiUIHelper;
@@ -50,6 +51,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
@@ -368,6 +370,24 @@ public abstract class TiApplication extends Application implements Handler.Callb
 		stopExternalStorageMonitor();
 		accessibilityManager = null;
 		super.onTerminate();
+	}
+
+	@Override
+	public void onLowMemory ()
+	{
+		// Release all the cached images
+		TiImageLruCache.getInstance().evictAll();
+		super.onLowMemory();
+	}
+
+	@Override
+	public void onTrimMemory(int level)
+	{
+		if (Build.VERSION.SDK_INT >= TiC.API_LEVEL_ICE_CREAM_SANDWICH && level >= Application.TRIM_MEMORY_COMPLETE) {
+			// Release all the cached images
+			TiImageLruCache.getInstance().evictAll();
+		}
+		super.onTrimMemory(level);
 	}
 
 	public void postAppInfo()

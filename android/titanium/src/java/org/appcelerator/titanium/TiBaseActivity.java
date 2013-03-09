@@ -27,7 +27,6 @@ import org.appcelerator.titanium.util.TiActivityResultHandler;
 import org.appcelerator.titanium.util.TiActivitySupport;
 import org.appcelerator.titanium.util.TiActivitySupportHelper;
 import org.appcelerator.titanium.util.TiConvert;
-import org.appcelerator.titanium.util.TiImageLruCache;
 import org.appcelerator.titanium.util.TiMenuSupport;
 import org.appcelerator.titanium.util.TiPlatformHelper;
 import org.appcelerator.titanium.util.TiUIHelper;
@@ -1160,9 +1159,6 @@ public abstract class TiBaseActivity extends FragmentActivity
 			((TiCompositeLayout) layout).removeAllViews();
 		}
 		layout = null;
-
-		// Release all the cached images
-		TiImageLruCache.getInstance().evictAll();
 
 		//LW windows
 		if (window == null && view != null) {

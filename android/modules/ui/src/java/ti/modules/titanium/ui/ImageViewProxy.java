@@ -16,7 +16,7 @@ import ti.modules.titanium.ui.widget.TiUIImageView;
 import android.app.Activity;
 
 @Kroll.proxy(creatableInModule=UIModule.class, propertyAccessors = {
-	"decodeRetries",
+	TiC.PROPERTY_DECODE_RETRIES,
 	TiC.PROPERTY_AUTOROTATE,
 	TiC.PROPERTY_DEFAULT_IMAGE,
 	TiC.PROPERTY_DURATION,

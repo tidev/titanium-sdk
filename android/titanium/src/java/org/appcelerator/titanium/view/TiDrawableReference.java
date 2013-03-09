@@ -26,11 +26,11 @@ import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiDimension;
 import org.appcelerator.titanium.io.TiBaseFile;
 import org.appcelerator.titanium.io.TiFileFactory;
-import org.appcelerator.titanium.util.TiBackgroundImageLoadTask;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiDownloadListener;
 import org.appcelerator.titanium.util.TiDownloadManager;
 import org.appcelerator.titanium.util.TiFileHelper;
+import org.appcelerator.titanium.util.TiImageLruCache;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.util.TiUrl;
 
@@ -84,6 +84,10 @@ public class TiDrawableReference
 	private boolean autoRotate;
 	private int orientation = -1;
 
+	// TIMOB-3599: A bug in Gingerbread forces us to retry decoding bitmaps when they initially fail
+	public static final int DEFAULT_DECODE_RETRIES = 5;
+	private int decodeRetries;
+
 	private SoftReference<Activity> softActivity = null;
 
 	public TiDrawableReference(Activity activity, DrawableReferenceType type)
@@ -98,6 +102,7 @@ public class TiDrawableReference
 			appInfo = TiApplication.getInstance().getApplicationInfo();
 		}
 		anyDensityFalse = (appInfo.flags & ApplicationInfo.FLAG_SUPPORTS_SCREEN_DENSITIES) == 0;
+		decodeRetries = DEFAULT_DECODE_RETRIES;
 	}
 
 	/**
@@ -271,6 +276,9 @@ public class TiDrawableReference
 
 	/**
 	 * Gets the bitmap from the resource without respect to sampling/scaling.
+	 * If decode fails because of out of memory, clear the memory and call GC and retry loading a smaller image.
+	 * If decode fails because of the odd Android 2.3/Gingerbread behavior (TIMOB-3599), retry loading the original image.
+	 * This method should be called from a background thread because it may block the thread if it needs to retry several times.
 	 * @return Bitmap, or null if errors occurred while trying to load or fetch it.
 	 * @module.api
 	 */
@@ -288,13 +296,38 @@ public class TiDrawableReference
 			BitmapFactory.Options opts = new BitmapFactory.Options();
 			opts.inInputShareable = true;
 			opts.inPurgeable = true;
+			opts.inPreferredConfig = Bitmap.Config.RGB_565;
 
-			try {
-				oomOccurred = false;
-				b = BitmapFactory.decodeStream(is, null, opts);
-			} catch (OutOfMemoryError e) {
-				oomOccurred = true;
-				Log.e(TAG, "Unable to load bitmap. Not enough memory: " + e.getMessage(), e);
+			for (int i = 0; i < decodeRetries; i++) {
+				try {
+					oomOccurred = false;
+					b = BitmapFactory.decodeStream(is, null, opts);
+					if (b != null) {
+						break;
+					}
+					// Decode fails because of TIMOB-3599.
+					// Really odd Android 2.3/Gingerbread behavior -- BitmapFactory.decode* Skia functions
+					// fail randomly and seemingly without a cause. Retry 5 times by default w/ 250ms between each try.
+					// Usually the 2nd or 3rd try succeeds, but the "decodeRetries" property in ImageView
+					// will allow users to tweak this if needed
+					try {
+						Thread.sleep(250);
+					} catch (InterruptedException ie) {
+						// Ignore
+					}
+				} catch (OutOfMemoryError e) { // Decode fails because of out of memory
+					oomOccurred = true;
+					Log.e(TAG, "Unable to load bitmap. Not enough memory: " + e.getMessage(), e);
+					Log.i(TAG, "Clear memory cache and signal a GC. Will retry load.", Log.DEBUG_MODE);
+					TiImageLruCache.getInstance().evictAll();
+					System.gc(); // See if we can force a compaction
+					try {
+						Thread.sleep(1000);
+					} catch (InterruptedException ie) {
+						// Ignore
+					}
+					opts.inSampleSize = (int) Math.pow(2, i);
+				}
 			}
 		
 		} finally {
@@ -660,18 +693,6 @@ public class TiDrawableReference
 	}
 
 	/**
-	 * Just runs .load(url) on the passed TiBackgroundImageLoadTask.
-	 * @param asyncTask
-	 */
-	public void getBitmapAsync(TiBackgroundImageLoadTask asyncTask)
-	{
-		if (!isNetworkUrl()) {
-			Log.w(TAG, "getBitmapAsync called on non-network url.  Will attempt load.", Log.DEBUG_MODE);
-		}
-		asyncTask.load(url);
-	}
-
-	/**
 	 * Uses BitmapFactory.Options' 'inJustDecodeBounds' to peak at the bitmap's bounds
 	 * (height & width) so we can do some sampling and scaling.
 	 * @return Bounds object with width and height.
@@ -862,6 +883,11 @@ public class TiDrawableReference
 	public void setAutoRotate(boolean autoRotate)
 	{
 		this.autoRotate = autoRotate;
+	}
+
+	public void setDecodeRetries(int decodeRetries)
+	{
+		this.decodeRetries = decodeRetries;
 	}
 
 	public String getUrl()
