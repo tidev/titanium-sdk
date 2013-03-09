@@ -90,16 +90,16 @@ public class TiBorderWrapperView extends FrameLayout
 			if (radius - padding > 0) {
 				float innerRadii[] = new float[8];
 				Arrays.fill(innerRadii, radius - padding);
-				borderPath.addRoundRect(innerRect, innerRadii, Direction.CW);
+				borderPath.addRoundRect(innerRect, innerRadii, Direction.CCW);
 				innerPath.addRoundRect(innerRect, innerRadii, Direction.CW);
 			} else {
-				borderPath.addRect(innerRect, Direction.CW);
+				borderPath.addRect(innerRect, Direction.CCW);
 				innerPath.addRect(innerRect, Direction.CW);
 			}
 		} else {
 			borderPath = new Path();
 			borderPath.addRect(outerRect, Direction.CW);
-			borderPath.addRect(innerRect, Direction.CW);
+			borderPath.addRect(innerRect, Direction.CCW);
 			borderPath.setFillType(FillType.EVEN_ODD);
 		}
 	}
