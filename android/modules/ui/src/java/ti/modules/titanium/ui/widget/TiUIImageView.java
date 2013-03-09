@@ -1145,13 +1145,13 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 	}
 
 	@Override
-	public void setOpacity(float opacity)
+	protected void setOpacity(View view, float opacity)
 	{
-		TiImageView view = getView();
-		if (view != null) {
-			view.setColorFilter(TiUIHelper.createColorFilterForOpacity(opacity));
-			super.setOpacity(opacity);
+		TiImageView iview = getView();
+		if (iview != null) {
+			iview.setColorFilter(TiUIHelper.createColorFilterForOpacity(opacity));
 		}
+		super.setOpacity(view, opacity);
 	}
 
 	@Override

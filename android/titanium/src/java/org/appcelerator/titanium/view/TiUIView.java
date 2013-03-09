@@ -1343,7 +1343,7 @@ public abstract class TiUIView
 			borderView.setBorderAlpha(Math.round(opacity * 255));
 		}
 		if (nativeView != null) {
-			if (android.os.Build.VERSION.SDK_INT >= 11) {
+			if (android.os.Build.VERSION.SDK_INT > 10) {
 				nativeView.setAlpha(opacity);
 			} else {
 				setOpacity(nativeView, opacity);
