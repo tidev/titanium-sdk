@@ -155,7 +155,7 @@ public class ListSectionProxy extends ViewProxy{
 			KrollDict data = (KrollDict) result.getArg();
 			int index = data.getInt("index");
 			int count = data.getInt("count");
-			handleInsertItemsAt(index, count);
+			handleDeleteItemsAt(index, count);
 			result.setResult(null);
 			return true;
 		}
@@ -366,10 +366,10 @@ public class ListSectionProxy extends ViewProxy{
 		while (count > 0) {
 			if (index < itemProperties.size()) {
 				itemProperties.remove(index);
-				itemCount--;
 			}
 			if (index < listItemData.size()) {
 				listItemData.remove(index);
+				itemCount--;
 			}
 			count--;
 		}
