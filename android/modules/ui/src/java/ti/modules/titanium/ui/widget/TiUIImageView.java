@@ -725,7 +725,9 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 			setImage(null);
 			return;
 		}
-		setImage(defaultImageSource.getBitmap());
+		// Have to set default image in the UI thread to make sure it shows before the image
+		// is ready. Don't need to retry decode because we don't want to block UI.
+		setImage(defaultImageSource.getBitmap(false));
 	}
 
 	@Override

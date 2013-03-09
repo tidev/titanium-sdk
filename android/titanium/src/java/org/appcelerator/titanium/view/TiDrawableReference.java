@@ -276,13 +276,26 @@ public class TiDrawableReference
 
 	/**
 	 * Gets the bitmap from the resource without respect to sampling/scaling.
-	 * If decode fails because of out of memory, clear the memory and call GC and retry loading a smaller image.
-	 * If decode fails because of the odd Android 2.3/Gingerbread behavior (TIMOB-3599), retry loading the original image.
-	 * This method should be called from a background thread because it may block the thread if it needs to retry several times.
+	 * This method should be called from a background thread because it may block
+	 * the thread if it needs to retry several times.
 	 * @return Bitmap, or null if errors occurred while trying to load or fetch it.
 	 * @module.api
 	 */
 	public Bitmap getBitmap()
+	{
+		return getBitmap(true);
+	}
+
+	/**
+	 * Gets the bitmap from the resource without respect to sampling/scaling.
+	 * When needRetry is set to true, it will retry loading when decode fails.
+	 * If decode fails because of out of memory, clear the memory and call GC and retry loading a smaller image.
+	 * If decode fails because of the odd Android 2.3/Gingerbread behavior (TIMOB-3599), retry loading the original image.
+	 * @param needRetry If true, it will retry loading when decode fails.
+	 * @return Bitmap, or null if errors occurred while trying to load or fetch it.
+	 * @module.api
+	 */
+	public Bitmap getBitmap(boolean needRetry)
 	{
 		InputStream is = getInputStream();
 		if (is == null) {
@@ -298,38 +311,47 @@ public class TiDrawableReference
 			opts.inPurgeable = true;
 			opts.inPreferredConfig = Bitmap.Config.RGB_565;
 
-			for (int i = 0; i < decodeRetries; i++) {
+			if (needRetry) {
+				for (int i = 0; i < decodeRetries; i++) {
+					try {
+						oomOccurred = false;
+						b = BitmapFactory.decodeStream(is, null, opts);
+						if (b != null) {
+							break;
+						}
+						// Decode fails because of TIMOB-3599.
+						// Really odd Android 2.3/Gingerbread behavior -- BitmapFactory.decode* Skia functions
+						// fail randomly and seemingly without a cause. Retry 5 times by default w/ 250ms between each try.
+						// Usually the 2nd or 3rd try succeeds, but the "decodeRetries" property in ImageView
+						// will allow users to tweak this if needed
+						try {
+							Thread.sleep(250);
+						} catch (InterruptedException ie) {
+							// Ignore
+						}
+					} catch (OutOfMemoryError e) { // Decode fails because of out of memory
+						oomOccurred = true;
+						Log.e(TAG, "Unable to load bitmap. Not enough memory: " + e.getMessage(), e);
+						Log.i(TAG, "Clear memory cache and signal a GC. Will retry load.", Log.DEBUG_MODE);
+						TiImageLruCache.getInstance().evictAll();
+						System.gc(); // See if we can force a compaction
+						try {
+							Thread.sleep(1000);
+						} catch (InterruptedException ie) {
+							// Ignore
+						}
+						opts.inSampleSize = (int) Math.pow(2, i);
+					}
+				}
+			} else {
 				try {
 					oomOccurred = false;
 					b = BitmapFactory.decodeStream(is, null, opts);
-					if (b != null) {
-						break;
-					}
-					// Decode fails because of TIMOB-3599.
-					// Really odd Android 2.3/Gingerbread behavior -- BitmapFactory.decode* Skia functions
-					// fail randomly and seemingly without a cause. Retry 5 times by default w/ 250ms between each try.
-					// Usually the 2nd or 3rd try succeeds, but the "decodeRetries" property in ImageView
-					// will allow users to tweak this if needed
-					try {
-						Thread.sleep(250);
-					} catch (InterruptedException ie) {
-						// Ignore
-					}
-				} catch (OutOfMemoryError e) { // Decode fails because of out of memory
+				} catch (OutOfMemoryError e) {
 					oomOccurred = true;
 					Log.e(TAG, "Unable to load bitmap. Not enough memory: " + e.getMessage(), e);
-					Log.i(TAG, "Clear memory cache and signal a GC. Will retry load.", Log.DEBUG_MODE);
-					TiImageLruCache.getInstance().evictAll();
-					System.gc(); // See if we can force a compaction
-					try {
-						Thread.sleep(1000);
-					} catch (InterruptedException ie) {
-						// Ignore
-					}
-					opts.inSampleSize = (int) Math.pow(2, i);
 				}
 			}
-		
 		} finally {
 			try {
 				is.close();
