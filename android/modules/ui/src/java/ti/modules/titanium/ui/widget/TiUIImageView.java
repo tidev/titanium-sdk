@@ -216,7 +216,7 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 		// Don't update UI if the current image source has been changed.
 		if (imageSources != null && imageSources.size() == 1 && imageref.equals(imageSources.get(0))) {
 			int hash = imageref.hashCode();
-			Bitmap bitmap = imageref.getBitmap();
+			Bitmap bitmap = imageref.getBitmap(true);
 			if (bitmap != null) {
 				if (mMemoryCache.get(hash) == null) {
 					mMemoryCache.put(hash, bitmap);
@@ -365,7 +365,7 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 						if (imageSources == null || j >= imageSources.size()) {
 							break topLoop;
 						}
-						Bitmap b = imageSources.get(j).getBitmap();
+						Bitmap b = imageSources.get(j).getBitmap(true);
 						BitmapWithIndex bIndex = new BitmapWithIndex(b,j);
 						while (waitTime < getDuration() * imageSources.size()) {
 							try {

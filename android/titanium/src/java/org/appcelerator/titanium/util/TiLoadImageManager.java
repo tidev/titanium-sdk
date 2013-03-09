@@ -25,7 +25,7 @@ import android.util.SparseArray;
  */
 public class TiLoadImageManager implements Handler.Callback
 {
-	private static final String TAG = "TiBackgroundTaskManager";
+	private static final String TAG = "TiLoadImageManager";
 	private static final int MSG_FIRE_LOAD_FINISHED = 1000;
 	private static final int MSG_FIRE_LOAD_FAILED = 1001;
 	protected static TiLoadImageManager _instance;
@@ -111,7 +111,7 @@ public class TiLoadImageManager implements Handler.Callback
 		public void run()
 		{
 			try {
-				Bitmap b = imageref.getBitmap();
+				Bitmap b = imageref.getBitmap(true);
 				synchronized (loadingImageRefs) {
 					loadingImageRefs.remove((Integer)imageref.hashCode());
 				}

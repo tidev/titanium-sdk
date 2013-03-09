@@ -276,14 +276,12 @@ public class TiDrawableReference
 
 	/**
 	 * Gets the bitmap from the resource without respect to sampling/scaling.
-	 * This method should be called from a background thread because it may block
-	 * the thread if it needs to retry several times.
 	 * @return Bitmap, or null if errors occurred while trying to load or fetch it.
 	 * @module.api
 	 */
 	public Bitmap getBitmap()
 	{
-		return getBitmap(true);
+		return getBitmap(false);
 	}
 
 	/**
@@ -291,6 +289,8 @@ public class TiDrawableReference
 	 * When needRetry is set to true, it will retry loading when decode fails.
 	 * If decode fails because of out of memory, clear the memory and call GC and retry loading a smaller image.
 	 * If decode fails because of the odd Android 2.3/Gingerbread behavior (TIMOB-3599), retry loading the original image.
+	 * This method should be called from a background thread when needRetry is set to true because it may block
+	 * the thread if it needs to retry several times.
 	 * @param needRetry If true, it will retry loading when decode fails.
 	 * @return Bitmap, or null if errors occurred while trying to load or fetch it.
 	 * @module.api
