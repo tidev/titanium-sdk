@@ -122,13 +122,36 @@ properties:
   - name: icon
     summary: Icon URL for this tab.
     description: |
-         On iOS, if the OS is less than 5.0 or activeIcon is unset, the OS will provide a
-         grey wash effect when inactive and a blue reflection when active.
+        #### iOS Tab Icons
+
+        On iOS, tab icons are usually white with a transparent background. The system uses
+        a transparent tint color to indicate whether the tab is active or inactive. In the
+        inactive state, the tint color is based on the tab bar's color
+        [tabsBackgroundColor](Titanium.UI.TabGroup.tabsBackgroundColor), which defaults
+        to black. In the active state, the tint color is usually blue. Prior to Titanium
+        3.1, there was no way to override the default active icon tint.
+        
+        Titanium 3.1 introduced some new ways to customize tab icons, which are supported
+        in iOS 5.0 and above:
+
+        *   You can specify the active tab's tint color as
+        [activeTabIconTint](Titanium.UI.TabGroup.activeTabIconTint).
+
+        *   You can set separate icon images for the active and inactive states. If
+        [activeIcon](Titanium.UI.Tab.activeIcon) is set, then `icon` is used in the
+        inactive state, and `activeIcon` is used in the active state. **No default tint
+        is applied to either icon.**
     type: String
   - name: activeIcon
     summary: Icon URL for this tab when active.
     description: |
-         On iOS, if the OS is less than 5.0, this property will remain undefined.
+         iOS 5.0 and later only.
+
+         If unspecified, iOS uses a tint color to indicate the active tab. See
+         [icon](Titanium.UI.Tab.icon) for more information.
+
+         On iOS prior to 5.0, the default tint color is always used and
+         this property remains unset.
     type: String
     platforms: [iphone, ipad]
     since: "3.1.0"
