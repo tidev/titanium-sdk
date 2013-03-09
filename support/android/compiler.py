@@ -52,14 +52,11 @@ class Compiler(object):
 		json_contents = open(os.path.join(self.template_dir,'dependency.json')).read()
 		self.depends_map = simplejson.loads(json_contents)
 
-		runtime = self.depends_map["runtimes"]["defaultRuntime"]
 		if self.tiapp:
 			self.appid = self.tiapp.properties['id']
 			self.appname = self.tiapp.properties['name']
-			runtime = self.tiapp.app_properties.get('ti.android.runtime',
-					runtime)
 
-		for runtime_jar in self.depends_map['runtimes'][runtime]:
+		for runtime_jar in self.depends_map['runtimes']['v8']:
 			self.jar_libraries.add(os.path.join(template_dir, runtime_jar))
 
 		# go ahead and slurp in any required modules

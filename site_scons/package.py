@@ -132,7 +132,7 @@ def zip_packaged_modules(zf, source_dir):
 def zip_android(zf, basepath, version):
 	android_dist_dir = os.path.join(top_dir, 'dist', 'android')
 
-	for jar in ['titanium.jar', 'kroll-apt.jar', 'kroll-common.jar', 'kroll-v8.jar', 'kroll-rhino.jar']:
+	for jar in ['titanium.jar', 'kroll-apt.jar', 'kroll-common.jar', 'kroll-v8.jar']:
 		jar_path = os.path.join(android_dist_dir, jar)
 		zf.write(jar_path, '%s/android/%s' % (basepath, jar))
 
@@ -149,7 +149,6 @@ def zip_android(zf, basepath, version):
 
 	android_runtime_dir = os.path.join(top_dir, 'android', 'runtime')
 	android_runtime_v8_dir = os.path.join(android_runtime_dir, 'v8')
-	android_runtime_rhino_dir = os.path.join(android_runtime_dir, 'rhino')
 
 	v8_src_native_dir = os.path.join(android_runtime_v8_dir, 'src', 'native')
 	add_headers(v8_src_native_dir)
@@ -170,9 +169,6 @@ def zip_android(zf, basepath, version):
 	jsmin_py = os.path.join(android_runtime_v8_dir, 'tools', 'jsmin.py')
 	zf.write(js2c_py, '%s/module/android/js2c.py' % basepath)
 	zf.write(jsmin_py, '%s/module/android/jsmin.py' % basepath)
-
-	js_jar = os.path.join(android_runtime_rhino_dir, 'lib', 'js.jar')
-	zf.write(js_jar, '%s/android/%s' % (basepath, 'js.jar'))
 
 	# include all native shared libraries
 	libs_dir = os.path.join(android_dist_dir, 'libs')
