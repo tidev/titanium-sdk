@@ -349,13 +349,19 @@ public class TiListView extends TiUIView{
 	}
 	
 	public void deleteSectionAt(int index) {
-		if (index < sections.size()) {
+		if (index >= 0 && index < sections.size()) {
 			sections.remove(index);
 			adapter.notifyDataSetChanged();
+		} else {
+			Log.e(TAG, "Invalid index to delete section");
 		}
 	}
 	
 	public void insertSectionAt(int index, Object section) {
+		if (index > sections.size()) {
+			Log.e(TAG, "Invalid index to insert/replace section");
+			return;
+		}
 		if (section instanceof Object[]) {
 			Object[] secs = (Object[]) section;
 			for (int i = 0; i < secs.length; i++) {

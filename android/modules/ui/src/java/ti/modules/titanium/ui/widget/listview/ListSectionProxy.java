@@ -300,6 +300,7 @@ public class ListSectionProxy extends ViewProxy{
 		if (data instanceof Object[]) {
 			Object[] views = (Object[]) data;
 			itemProperties =  new ArrayList<Object>(Arrays.asList(views));
+			listItemData.clear();
 			//only process items when listview's properties is processed.
 			if (getListView() == null) {
 				preload = true;
@@ -344,6 +345,10 @@ public class ListSectionProxy extends ViewProxy{
 			if (itemProperties == null) {
 				itemProperties = new ArrayList<Object>(Arrays.asList(views));
 			} else {
+				if (index < 0 || index > itemProperties.size()) {
+					Log.e(TAG, "Invalid index to handleInsertItem");
+					return;
+				}
 				int counter = index;
 				for (Object view: views) {
 					itemProperties.add(counter, view);
@@ -366,10 +371,10 @@ public class ListSectionProxy extends ViewProxy{
 		while (count > 0) {
 			if (index < itemProperties.size()) {
 				itemProperties.remove(index);
+				itemCount--;
 			}
 			if (index < listItemData.size()) {
 				listItemData.remove(index);
-				itemCount--;
 			}
 			count--;
 		}
