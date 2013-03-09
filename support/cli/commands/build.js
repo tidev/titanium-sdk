@@ -135,7 +135,8 @@ exports.run = function (logger, config, cli) {
 	if (cli.tiapp['code-processor'] && cli.tiapp['code-processor'].enabled) {
 		var codeProcessorPluginDir = path.resolve(path.join(global.titaniumCodeProcessorLibDir, '..', 'plugins')),
 			parsedModules = {},
-			moduleSearchPaths;
+			moduleSearchPaths,
+			plugins = [];
 
 		moduleSearchPaths = [ cli.argv['project-dir'], afs.resolvePath(path.join(__dirname, '..', '..')) ];
 		if (config.paths && Array.isArray(config.paths.modules)) {
@@ -160,58 +161,70 @@ exports.run = function (logger, config, cli) {
 			codeProcessor.run(
 				appc.fs.resolvePath(path.join(cli.argv['project-dir'], 'Resources', 'app.js')),
 				appc.util.mix({
-					invokeMethods: false,
-					evaluateLoops: false,
-					processUnvisitedCode: true
+					invokeMethods: true,
+					evaluateLoops: true,
+					processUnvisitedCode: true,
+					suppressResults: true,
+					logConsoleCalls: false,
 				}, cli.tiapp['code-processor'].options),
-				appc.util.mix({
-					'common-globals': {
+				[
+					{
 						path: path.join(codeProcessorPluginDir, 'common-globals'),
 						options: {}
 					},
-					'require-provider': {
+					{
 						path: path.join(codeProcessorPluginDir, 'require-provider'),
 						options: {
 							platform: cli.argv.platform,
 							modules: parsedModules
 						}
 					},
-					'ti-api-processor': {
-						path: path.join(codeProcessorPluginDir, 'ti-api-processor'),
+					{
+						path: path.join(codeProcessorPluginDir, 'ti-api-provider'),
 						options: {
 							platform: cli.argv.platform,
 							sdkPath: path.resolve(path.join(__dirname, '..', '..'))
 						}
 					},
-					'ti-api-usage-finder': {
+					{
 						path: path.join(codeProcessorPluginDir, 'ti-api-usage-finder'),
 						options: {}
+					},
+					{
+						path: path.join(codeProcessorPluginDir, 'ti-api-platform-validator'),
+						options: {
+							platform: cli.argv.platform
+						}
+					},
+					{
+						path: path.join(codeProcessorPluginDir, 'ti-api-deprecation-finder'),
+						options: {}
 					}
-				}, cli.tiapp['code-processor'].plugins),
-				logger);
+				],
+				logger, function() {
+					// Parse the results
+					var codeProcessorResults = codeProcessor.getResults(),
+						errors = codeProcessorResults.errors,
+						warnings = codeProcessorResults.warnings,
+						data,
+						i, len;
+					for(i = 0, len = errors.length; i < len; i++) {
+						data = errors[i];
+						logger.error('Titanium Code Processor error: ' + data.description + ' (' + data.file + ':' + data.line + ':' + data.column + ')');
+					}
+					for(i = 0, len = warnings.length; i < len; i++) {
+						data = warnings[i];
+						logger.warn('Titanium Code Processor warning: ' + data.description + ' (' + data.file + ':' + data.line + ':' + data.column + ')');
+					}
+					if (errors.length) {
+						logger.warn('The Titanium Code Processor detected errors in the project, results will be discarded');
+					} else {
+						cli.codeProcessor = codeProcessorResults;
+					}
 
-			// Parse the results
-			var codeProcessorResults = codeProcessor.getResults(),
-				errors = codeProcessorResults.errors,
-				warnings = codeProcessorResults.warnings,
-				data,
-				i, len;
-			for(i = 0, len = errors.length; i < len; i++) {
-				data = errors[i];
-				logger.error('Titanium Code Processor error: ' + data.description + ' (' + data.file + ':' + data.line + ':' + data.column + ')');
-			}
-			for(i = 0, len = warnings.length; i < len; i++) {
-				data = warnings[i];
-				logger.warn('Titanium Code Processor warning: ' + data.description + ' (' + data.file + ':' + data.line + ':' + data.column + ')');
-			}
-			if (errors.length) {
-				logger.warn('The Titanium Code Processor detected errors in the project, results will be discarded');
-			} else {
-				cli.codeProcessor = codeProcessorResults;
-			}
-
-			// Build the project
-			buildModuleRun();
+					// Build the project
+					buildModuleRun();
+				});
 		});
 	} else {
 		buildModuleRun();
