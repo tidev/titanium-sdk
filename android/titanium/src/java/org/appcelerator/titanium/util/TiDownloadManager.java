@@ -141,9 +141,11 @@ public class TiDownloadManager implements Handler.Callback
 
 				// If there is additional background task, run it here.
 				String hash = DigestUtils.shaHex(uri.toString());
-				for (SoftReference<TiDownloadListener> listener : listeners.get(hash)) {
-					if (listener.get() != null) {
-						listener.get().additionalBackgroundTask(uri);
+				synchronized (listeners) {
+					for (SoftReference<TiDownloadListener> listener : listeners.get(hash)) {
+						if (listener.get() != null) {
+							listener.get().postDownload(uri);
+						}
 					}
 				}
 

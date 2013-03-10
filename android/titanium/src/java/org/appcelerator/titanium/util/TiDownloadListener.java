@@ -14,6 +14,7 @@ public interface TiDownloadListener
 
 	public void downloadFailed(URI uri);
 
-	// This method will be called in the background thread immediately after the download is finished.
-	public void additionalBackgroundTask(URI uri);
+	// This method will be called called after the download is finished in the
+	// same background thread, but BEFORE downloadFinished is called.
+	public void postDownload(URI uri);
 }

@@ -77,7 +77,6 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 	private Object releasedLock = new Object();
 	
 	private Handler mainHandler = new Handler(Looper.getMainLooper(), this);
-	//private Handler runtimeHandler = new Handler(TiMessenger.getRuntimeMessenger().getLooper(), this);
 	private static final int SET_IMAGE = 10001;
 	private static final int START = 10002;
 	private static final int STOP = 10003;
@@ -116,7 +115,7 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 
 			// Handle decoding and caching in the background thread so it won't block UI.
 			@Override
-			public void additionalBackgroundTask(URI uri)
+			public void postDownload(URI uri)
 			{
 				if (TiResponseCache.peek(uri)) {
 					handleCacheAndSetImage(TiDrawableReference.fromUrl(imageViewProxy, uri.toString()));
@@ -684,13 +683,12 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 					isCachedInDisk = TiResponseCache.peek(uri);
 				} catch (URISyntaxException e) {
 					Log.e(TAG, "URISyntaxException for url " + imageref.getUrl(), e);
-					isCachedInDisk = true;
 				} catch (NullPointerException e) {
 					Log.e(TAG, "NullPointerException for url " + imageref.getUrl(), e);
-					isCachedInDisk = true;
 				}
-				
-				if (!isCachedInDisk) { // Check if the image is cached in disc
+
+				// Check if the image is cached in disc and if the uri is valid.
+				if (!isCachedInDisk && uri != null) {
 					TiDownloadManager.getInstance().download(uri, downloadListener);
 				} else {
 					// Check if the image is cached in memory
@@ -800,32 +798,34 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 	@Override
 	public void propertyChanged(String key, Object oldValue, Object newValue, KrollProxy proxy)
 	{
-		if ((oldValue == null && newValue != null) || (oldValue != null && !oldValue.equals(newValue))) {
-			TiImageView view = getView();
-			if (view == null) {
-				return;
-			}
+		TiImageView view = getView();
+		if (view == null) {
+			return;
+		}
 
-			if (key.equals(TiC.PROPERTY_ENABLE_ZOOM_CONTROLS)) {
-				view.setEnableZoomControls(TiConvert.toBoolean(newValue));
-			} else if (key.equals(TiC.PROPERTY_IMAGE)) {
+		if (key.equals(TiC.PROPERTY_ENABLE_ZOOM_CONTROLS)) {
+			view.setEnableZoomControls(TiConvert.toBoolean(newValue));
+		} else if (key.equals(TiC.PROPERTY_IMAGE)) {
+			if ((oldValue == null && newValue != null) || (oldValue != null && !oldValue.equals(newValue))) {
 				setImageSource(newValue);
 				firedLoad = false;
 				setImageInternal();
-			} else if (key.equals(TiC.PROPERTY_IMAGES)) {
-				if (newValue instanceof Object[]) {
+			}
+		} else if (key.equals(TiC.PROPERTY_IMAGES)) {
+			if (newValue instanceof Object[]) {
+				if (oldValue == null || !oldValue.equals(newValue)) {
 					setImageSource(newValue);
 					setImages();
 				}
-			} else if (key.equals(TiC.PROPERTY_WIDTH)) {
-				String widthProperty = TiConvert.toString(newValue);
-				view.setWidthDefined(!TiC.LAYOUT_SIZE.equals(widthProperty) && !TiC.SIZE_AUTO.equals(widthProperty));
-			} else if (key.equals(TiC.PROPERTY_HEIGHT)) {
-				String heightProperty = TiConvert.toString(newValue);
-				view.setHeightDefined(!TiC.LAYOUT_SIZE.equals(heightProperty) && !TiC.SIZE_AUTO.equals(heightProperty));
-			} else {
-				super.propertyChanged(key, oldValue, newValue, proxy);
 			}
+		} else if (key.equals(TiC.PROPERTY_WIDTH)) {
+			String widthProperty = TiConvert.toString(newValue);
+			view.setWidthDefined(!TiC.LAYOUT_SIZE.equals(widthProperty) && !TiC.SIZE_AUTO.equals(widthProperty));
+		} else if (key.equals(TiC.PROPERTY_HEIGHT)) {
+			String heightProperty = TiConvert.toString(newValue);
+			view.setHeightDefined(!TiC.LAYOUT_SIZE.equals(heightProperty) && !TiC.SIZE_AUTO.equals(heightProperty));
+		} else {
+			super.propertyChanged(key, oldValue, newValue, proxy);
 		}
 	}
 

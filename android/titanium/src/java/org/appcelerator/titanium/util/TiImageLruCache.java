@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2013 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -13,8 +13,6 @@ import android.support.v4.util.LruCache;
 
 public class TiImageLruCache extends LruCache<Integer, Bitmap>
 {
-	private static final String TAG = "TiImageLruCache";
-
 	// Get max available VM memory, exceeding this amount will throw an
 	// OutOfMemory exception. Stored in kilobytes as LruCache takes an
 	// int in its constructor.
