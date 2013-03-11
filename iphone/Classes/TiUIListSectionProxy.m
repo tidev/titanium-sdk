@@ -134,6 +134,10 @@
 	UITableViewRowAnimation animation = [TiUIListView animationStyleForProperties:properties];
 
 	[self.dispatcher dispatchUpdateAction:^(UITableView *tableView) {
+		if ([_items count] < insertIndex) {
+			DebugLog(@"[WARN] ListView: Insert item index is out of range");
+			return;
+		}
 		[_items replaceObjectsInRange:NSMakeRange(insertIndex, 0) withObjectsFromArray:items];
 		NSUInteger count = [items count];
 		NSMutableArray *indexPaths = [[NSMutableArray alloc] initWithCapacity:count];
@@ -156,6 +160,10 @@
 	UITableViewRowAnimation animation = [TiUIListView animationStyleForProperties:properties];
 	
 	[self.dispatcher dispatchUpdateAction:^(UITableView *tableView) {
+		if ([_items count] < insertIndex + replaceCount) {
+			DebugLog(@"[WARN] ListView: Replace item index is out of range");
+			return;
+		}
 		[_items replaceObjectsInRange:NSMakeRange(insertIndex, replaceCount) withObjectsFromArray:items];
 		NSUInteger count = [items count];
 		NSMutableArray *indexPaths = [[NSMutableArray alloc] initWithCapacity:MAX(count, replaceCount)];
@@ -188,7 +196,7 @@
 	UITableViewRowAnimation animation = [TiUIListView animationStyleForProperties:properties];
 	
 	[self.dispatcher dispatchUpdateAction:^(UITableView *tableView) {
-		if ([_items count] - deleteIndex <= 0) {
+		if ([_items count] <= deleteIndex) {
 			DebugLog(@"[WARN] ListView: Delete item index is out of range");
 			return;
 		}
@@ -198,6 +206,23 @@
 			[indexPaths addObject:[NSIndexPath indexPathForRow:deleteIndex+i inSection:_sectionIndex]];
 		}
 		[tableView deleteRowsAtIndexPaths:indexPaths withRowAnimation:animation];
+		[indexPaths release];
+	}];
+}
+
+- (void)updateItemAt:(id)args
+{
+	ENSURE_ARG_COUNT(args, 2);
+	NSUInteger itemIndex = [TiUtils intValue:[args objectAtIndex:0]];
+	NSDictionary *item = [args objectAtIndex:1];
+	ENSURE_TYPE_OR_NIL(item,NSDictionary);
+	NSDictionary *properties = [args count] > 2 ? [args objectAtIndex:2] : nil;
+	UITableViewRowAnimation animation = [TiUIListView animationStyleForProperties:properties];
+	
+	[self.dispatcher dispatchUpdateAction:^(UITableView *tableView) {
+		[_items replaceObjectAtIndex:itemIndex withObject:item];
+		NSArray *indexPaths = [[NSArray alloc] initWithObjects:[NSIndexPath indexPathForRow:itemIndex inSection:_sectionIndex], nil];
+		[tableView reloadRowsAtIndexPaths:indexPaths withRowAnimation:animation];
 		[indexPaths release];
 	}];
 }
