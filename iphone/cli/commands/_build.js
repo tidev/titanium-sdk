@@ -150,7 +150,6 @@ exports.config = function (logger, config, cli) {
 				},
 				options: {
 					'debug-host': {
-						//abbr: 'H',
 						//desc: __('debug connection info; airkey and hosts required for %s and %s, ignored for %s', 'device'.cyan, 'dist-adhoc'.cyan, 'dist-appstore'.cyan),
 						//hint: 'host:port[:airkey:hosts]',
 						hidden: true
@@ -301,6 +300,11 @@ exports.config = function (logger, config, cli) {
 								}
 							}
 						}
+					},
+					'profiler-host': {
+						//desc: __('debug connection info; airkey and hosts required for %s and %s, ignored for %s', 'device'.cyan, 'dist-adhoc'.cyan, 'dist-appstore'.cyan),
+						//hint: 'host:port[:airkey:hosts]',
+						hidden: true
 					},
 					'sim-type': {
 						abbr: 'Y',
@@ -713,34 +717,36 @@ exports.validate = function (logger, config, cli) {
 		}
 	}
 	
-	if (cli.argv['debug-host'] && cli.argv.target != 'dist-appstore') {
-		if (typeof cli.argv['debug-host'] == 'number') {
-			logger.error(__('Invalid debug host "%s"', cli.argv['debug-host']) + '\n');
-			logger.log(__('The debug host must be in the format "host:port".') + '\n');
-			process.exit(1);
-		}
-		
-		var parts = cli.argv['debug-host'].split(':');
-		
-		if ((cli.argv.target == 'simulator' && parts.length < 2) || (cli.argv.target != 'simulator' && parts.length < 4)) {
-			logger.error(__('Invalid debug host "%s"', cli.argv['debug-host']) + '\n');
-			if (cli.argv.target == 'simulator') {
-				logger.log(__('The debug host must be in the format "host:port".') + '\n');
-			} else {
-				logger.log(__('The debug host must be in the format "host:port:airkey:hosts".') + '\n');
-			}
-			process.exit(1);
-		}
-		
-		if (parts.length > 1 && parts[1]) {
-			var port = parseInt(parts[1]);
-			if (isNaN(port) || port < 1 || port > 65535) {
-				logger.error(__('Invalid debug host "%s"', cli.argv['debug-host']) + '\n');
-				logger.log(__('The port must be a valid integer between 1 and 65535.') + '\n');
+	['debug', 'profiler'].forEach(function (type) {
+		if (cli.argv[type + '-host'] && cli.argv.target != 'dist-appstore') {
+			if (typeof cli.argv[type + '-host'] == 'number') {
+				logger.error(__('Invalid ' + type + ' host "%s"', cli.argv[type + '-host']) + '\n');
+				logger.log(__('The ' + type + ' host must be in the format "host:port".') + '\n');
 				process.exit(1);
 			}
+			
+			var parts = cli.argv[type + '-host'].split(':');
+			
+			if ((cli.argv.target == 'simulator' && parts.length < 2) || (cli.argv.target != 'simulator' && parts.length < 4)) {
+				logger.error(__('Invalid ' + type + ' host "%s"', cli.argv[type + '-host']) + '\n');
+				if (cli.argv.target == 'simulator') {
+					logger.log(__('The ' + type + ' host must be in the format "host:port".') + '\n');
+				} else {
+					logger.log(__('The ' + type + ' host must be in the format "host:port:airkey:hosts".') + '\n');
+				}
+				process.exit(1);
+			}
+			
+			if (parts.length > 1 && parts[1]) {
+				var port = parseInt(parts[1]);
+				if (isNaN(port) || port < 1 || port > 65535) {
+					logger.error(__('Invalid ' + type + ' host "%s"', cli.argv[type + '-host']) + '\n');
+					logger.log(__('The port must be a valid integer between 1 and 65535.') + '\n');
+					process.exit(1);
+				}
+			}
 		}
-	}
+	});
 };
 
 exports.run = function (logger, config, cli, finished) {
@@ -777,6 +783,8 @@ function sendAnalytics(cli) {
 		eventName = cli.argv['device-family'] + '.distribute.' + cli.argv.target.replace('dist-', '');
 	} else if (cli.argv['debug-host']) {
 		eventName += '.debug';
+	} else if (cli.argv['profiler-host']) {
+		eventName += '.profile';
 	} else {
 		eventName += '.run';
 	}
@@ -819,6 +827,7 @@ function build(logger, config, cli, finished) {
 	}
 	
 	this.debugHost = cli.argv['debug-host'];
+	this.profilerHost = cli.argv['profiler-host'];
 	this.keychain = cli.argv.keychain;
 	
 	if (cli.argv.xcode) {
@@ -895,6 +904,12 @@ function build(logger, config, cli, finished) {
 		this.logger.info(__('Debugging enabled via debug host: %s', this.debugHost.cyan));
 	} else {
 		this.logger.info(__('Debugging disabled'));
+	}
+	
+	if (this.profilerHost && this.target != 'dist-appstore') {
+		this.logger.info(__('Profiler enabled via profiler host: %s', this.profilerHost.cyan));
+	} else {
+		this.logger.info(__('Profiler disabled'));
 	}
 	
 	// make sure we have an icon
@@ -1028,6 +1043,7 @@ build.prototype = {
 						next();
 					},
 					'createDebuggerPlist',
+					'createProfilerPlist',
 					'injectModulesIntoXcodeProject',
 					'injectApplicationDefaults', // if ApplicationDefaults.m was modified, forceRebuild will be set to true
 					'copyTitaniumLibraries',
@@ -1224,6 +1240,30 @@ build.prototype = {
 				// write the debugger.plist to the app dir now since we're skipping Xcode and the pre-compile phase
 				fs.writeFileSync(path.join(this.xcodeAppDir, 'debugger.plist'), plist);
 			}
+			fs.writeFile(dest, plist, callback());
+		} else {
+			callback();
+		}
+	},
+	
+	createProfilerPlist: function (callback) {
+		var parts = (this.profilerHost || '').split(':'),
+			plist = fs.readFileSync(path.join(this.titaniumIosSdkPath, 'profiler.plist'))
+						.toString()
+						.replace(/__PROFILER_HOST__/g, parts.length > 0 ? parts[0] : '')
+						.replace(/__PROFILER_PORT__/g, parts.length > 1 ? parts[1] : '')
+						.replace(/__PROFILER_AIRKEY__/g, parts.length > 2 ? parts[2] : '')
+						.replace(/__PROFILER_HOSTS__/g, parts.length > 3 ? parts[3] : ''),
+			dest = path.join(this.buildDir, 'profiler.plist'),
+			plistExists = afs.exists(dest);
+		
+		if (!plistExists || fs.readFileSync(dest).toString() != plist) {
+			if (!plistExists) {
+				this.logger.info(__('Forcing rebuild: profiler.plist does not exist'));
+			} else {
+				this.logger.info(__('Forcing rebuild: profiler settings changed since last build'));
+			}
+			this.forceRebuild = true;
 			fs.writeFile(dest, plist, callback());
 		} else {
 			callback();
@@ -2138,6 +2178,9 @@ build.prototype = {
 		dest = path.join(dir, 'libti_ios_debugger.a');
 		afs.exists(dest) || afs.copyFileSync(path.join(this.titaniumIosSdkPath, 'libti_ios_debugger.a'), dest, { logger: this.logger.debug });
 		
+		dest = path.join(dir, 'libti_ios_profiler.a');
+		afs.exists(dest) || afs.copyFileSync(path.join(this.titaniumIosSdkPath, 'libti_ios_profiler.a'), dest, { logger: this.logger.debug });
+		
 		callback();
 	},
 	
@@ -2244,6 +2287,7 @@ build.prototype = {
 		if (/simulator|device|dist\-adhoc/.test(this.target)) {
 			this.tiapp.ios && this.tiapp.ios.enablecoverage && gccDefs.push('KROLL_COVERAGE=1');
 			this.debugHost && gccDefs.push('DEBUGGER_ENABLED=1');
+			this.profilerHost && gccDefs.push('PROFILER_ENABLED=1');
 		}
 		
 		xcodeArgs.push('GCC_PREPROCESSOR_DEFINITIONS=' + gccDefs.join(' '));
@@ -2572,6 +2616,21 @@ build.prototype = {
 					this.logger.info(__('Removing unwanted %s from build', 'debugger.plist'.cyan));
 					fs.unlinkSync(dest);
 				}
+				var src = path.join(this.buildDir, 'profiler.plist'),
+					dest = path.join(this.xcodeAppDir, 'profiler.plist');
+				
+				// we only copy the debugger.plist dev/test when building from Studio (via the Ti CLI), otherwise make sure the file doesn't exist
+				if (this.deployType != 'production' && process.env.TITANIUM_CLI_XCODEBUILD) {
+					afs.copyFileSync(
+						src,
+						dest,
+						{ logger: this.logger.debug }
+					);
+				} else if (afs.exists(dest)) {
+					this.logger.info(__('Removing unwanted %s from build', 'profiler.plist'.cyan));
+					fs.unlinkSync(dest);
+				}
+
 				
 				next();
 			}
