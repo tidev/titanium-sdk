@@ -382,17 +382,9 @@ exports.validate = function (logger, config, cli) {
 	
 	ti.validateProjectDir(logger, cli, cli.argv, 'project-dir');
 	
-	var resourcesDir = path.join(cli.argv['project-dir'], 'Resources');
-	
-	// make sure we have an app.js
-	if (!afs.exists(resourcesDir, 'app.js')) {
-		logger.error(__('No app.js found') + '\n');
-		logger.log(__("Ensure the app.js file exists in your project's \"Resources\" directory.") + '\n');
-		process.exit(1);
-	}
-	
 	if (!cli.argv.xcode || !process.env.TITANIUM_CLI_XCODEBUILD) {
 		// make sure the app doesn't have any blacklisted directories in the Resources directory and warn about graylisted names
+		var resourcesDir = path.join(cli.argv['project-dir'], 'Resources');
 		fs.readdirSync(resourcesDir).forEach(function (filename) {
 			var lcaseFilename = filename.toLowerCase(),
 				isDir = fs.lstatSync(path.join(resourcesDir, filename)).isDirectory();
@@ -400,12 +392,12 @@ exports.validate = function (logger, config, cli) {
 			if (blacklistDirectories.indexOf(lcaseFilename) != -1) {
 				if (isDir) {
 					logger.error(__('Found blacklisted directory in the Resources directory') + '\n');
-					logger.log(__('The directory "%s" is a reserved word.', filename));
-					logger.log(__('You must rename this directory to something else.') + '\n');
+					logger.error(__('The directory "%s" is a reserved word.', filename));
+					logger.error(__('You must rename this directory to something else.') + '\n');
 				} else {
 					logger.error(__('Found blacklisted file in the Resources directory') + '\n');
-					logger.log(__('The file "%s" is a reserved word.', filename));
-					logger.log(__('You must rename this file to something else.') + '\n');
+					logger.error(__('The file "%s" is a reserved word.', filename));
+					logger.error(__('You must rename this file to something else.') + '\n');
 				}
 				process.exit(1);
 			} else if (graylistDirectories.indexOf(lcaseFilename) != -1) {
@@ -426,6 +418,15 @@ exports.validate = function (logger, config, cli) {
 	
 	ti.validateTiappXml(logger, cli.tiapp);
 	
+	// at this point we've validated everything except underscores in the app id
+	if (cli.tiapp.id.indexOf('_') != -1) {
+		logger.error(__('tiapp.xml contains an invalid app id "%s"', cli.tiapp.id));
+		logger.error(__('The app id must consist of letters, numbers, and dashes.'));
+		logger.error(__('The first character must be a letter.'));
+		logger.error(__("Usually the app id is your company's reversed Internet domain name. (i.e. com.example.myapp)") + '\n');
+		process.exit(1);
+	}
+	
 	if (!ti.validateCorrectSDK(logger, config, cli, 'build')) {
 		// we're running the build command for the wrong SDK version, gracefully return
 		return false;
@@ -433,13 +434,13 @@ exports.validate = function (logger, config, cli) {
 	
 	if (!Object.keys(iosEnv.xcode).length) {
 		logger.error(__('Unable to find Xcode') + '\n');
-		logger.log(__('Please download and install Xcode, then try again') + '\n');
+		logger.error(__('Please download and install Xcode, then try again') + '\n');
 		process.exit(1);
 	}
 	
 	if (!iosEnv.xcode.__selected__) {
 		logger.error(__('No Xcode version is currently selected') + '\n');
-		logger.log(__("Use 'xcode-select' to select one of the Xcode versions:"));
+		logger.error(__("Use 'xcode-select' to select one of the Xcode versions:"));
 		Object.keys(iosEnv.xcode).forEach(function (ver) {
 			if (ver != '__selected__') {
 				logger.log('\n' + ('    xcode-select -switch ' + iosEnv.xcode[ver].path).cyan);
@@ -457,7 +458,7 @@ exports.validate = function (logger, config, cli) {
 	
 	if (!Object.keys(sdks).length) {
 		logger.error(__('Unable to find any iOS SDKs') + '\n');
-		logger.log(__('Please download and install an iOS SDK (version %s or newer)', version.format(minIosSdkVersion, 2)) + '\n');
+		logger.error(__('Please download and install an iOS SDK (version %s or newer)', version.format(minIosSdkVersion, 2)) + '\n');
 		process.exit(1);
 	}
 	
@@ -988,6 +989,11 @@ build.prototype = {
 		this.forceRebuild = this.checkIfShouldForceRebuild();
 		
 		this.cli.fireHook('build.pre.compile', this, function () {
+			// Make sure we have an app.js. This used to be validated in validate(), but since plugins like
+			// Alloy generate an app.js, it may not have existed during validate(), but should exist now
+			// that build.pre.compile was fired.
+			ti.validateAppJsExists(this.projectDir, this.logger);
+			
 			// let's start building some apps!
 			parallel(this, [
 				'createInfoPlist',
@@ -1207,12 +1213,17 @@ build.prototype = {
 			plistExists = afs.exists(dest);
 		
 		if (!plistExists || fs.readFileSync(dest).toString() != plist) {
-			if (!plistExists) {
-				this.logger.info(__('Forcing rebuild: debugger.plist does not exist'));
+			if (this.target != 'simulator') {
+				if (!plistExists) {
+					this.logger.info(__('Forcing rebuild: debugger.plist does not exist'));
+				} else {
+					this.logger.info(__('Forcing rebuild: debugger settings changed since last build'));
+				}
+				this.forceRebuild = true;
 			} else {
-				this.logger.info(__('Forcing rebuild: debugger settings changed since last build'));
+				// write the debugger.plist to the app dir now since we're skipping Xcode and the pre-compile phase
+				fs.writeFileSync(path.join(this.xcodeAppDir, 'debugger.plist'), plist);
 			}
-			this.forceRebuild = true;
 			fs.writeFile(dest, plist, callback());
 		} else {
 			callback();
@@ -1585,12 +1596,13 @@ build.prototype = {
 				} else {
 					module.libName = 'lib' + module.id.toLowerCase() + '.a',
 					module.libFile = path.join(module.modulePath, module.libName);
-					hashes.push(module.hash = this.hashFile(module.libFile));
 					
 					if (!afs.exists(module.libFile)) {
-						this.logger.error(__('Module %s version %s is missing library file: %s', module.id.cyan, (module.manifest.version || 'latest').cyan, libFile.cyan));
+						this.logger.error(__('Module %s version %s is missing library file: %s', module.id.cyan, (module.manifest.version || 'latest').cyan, module.libFile.cyan) + '\n');
 						process.exit(1);
 					}
+					
+					hashes.push(module.hash = this.hashFile(module.libFile));
 					
 					this.logger.info(__('Detected third-party native iOS module: %s version %s', module.id.cyan, (module.manifest.version || 'latest').cyan));
 					this.nativeLibModules.push(module);

@@ -55,20 +55,10 @@ public class TiDownloadManager implements Handler.Callback
 	public void download(URI uri, TiDownloadListener listener)
 	{
 		if (TiResponseCache.peek(uri)) {
-			fireDownloadFinished(uri);
+			sendMessage(uri, MSG_FIRE_DOWNLOAD_FINISHED);
 		} else {
 			startDownload(uri, listener);
 		}
-	}
-
-	protected void fireDownloadFinished(URI uri)
-	{
-		sendMessage(uri, MSG_FIRE_DOWNLOAD_FINISHED);
-	}
-
-	protected void fireDownloadFailed(URI uri)
-	{
-		sendMessage(uri, MSG_FIRE_DOWNLOAD_FAILED);
 	}
 
 	private void sendMessage(URI uri, int what)
@@ -111,11 +101,12 @@ public class TiDownloadManager implements Handler.Callback
 		synchronized (listeners) {
 			String hash = DigestUtils.shaHex(uri.toString());
 			for (SoftReference<TiDownloadListener> listener : listeners.get(hash)) {
-				if (listener.get() != null) {
+				TiDownloadListener downloadListener = listener.get();
+				if (downloadListener != null) {
 					if (what == MSG_FIRE_DOWNLOAD_FINISHED) {
-						fireDownloadFinished(uri, listener.get());
-					} else if (what == MSG_FIRE_DOWNLOAD_FAILED) {
-						fireDownloadFailed(listener.get());
+						downloadListener.downloadFinished(uri);
+					} else {
+						downloadListener.downloadFailed(uri);
 					}
 					toRemove.add(listener);
 				}
@@ -123,20 +114,6 @@ public class TiDownloadManager implements Handler.Callback
 			for (SoftReference<TiDownloadListener> listener : toRemove) {
 				listeners.get(hash).remove(listener);
 			}
-		}
-	}
-
-	protected void fireDownloadFinished(URI uri, TiDownloadListener listener)
-	{
-		if (listener != null) {
-			listener.downloadFinished(uri);
-		}
-	}
-
-	protected void fireDownloadFailed(TiDownloadListener listener)
-	{
-		if (listener != null) {
-			listener.downloadFailed();
 		}
 	}
 
@@ -161,11 +138,10 @@ public class TiDownloadManager implements Handler.Callback
 				synchronized (downloadingURIs) {
 					downloadingURIs.remove(DigestUtils.shaHex(uri.toString()));
 				}
-
-				fireDownloadFinished(uri);
+				sendMessage(uri, MSG_FIRE_DOWNLOAD_FINISHED);
 			} catch (Exception e) {
 				// fire a download fail event if we are unable to download
-				fireDownloadFailed(uri);
+				sendMessage(uri, MSG_FIRE_DOWNLOAD_FAILED);
 				Log.e(TAG, "Exception downloading " + uri, e);
 			}
 		}
@@ -175,10 +151,8 @@ public class TiDownloadManager implements Handler.Callback
 	{
 		switch (msg.what) {
 			case MSG_FIRE_DOWNLOAD_FINISHED:
-				handleFireDownloadMessage((URI) msg.obj, MSG_FIRE_DOWNLOAD_FINISHED);
-				return true;
 			case MSG_FIRE_DOWNLOAD_FAILED:
-				handleFireDownloadMessage((URI) msg.obj, MSG_FIRE_DOWNLOAD_FAILED);
+				handleFireDownloadMessage((URI) msg.obj, msg.what);
 				return true;
 		}
 		return false;
