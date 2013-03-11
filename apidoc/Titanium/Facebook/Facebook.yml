@@ -3,7 +3,7 @@ name: Titanium.Facebook
 deprecated:
     since: "3.1.0"
     notes: |
-        On Mobile Web, use continue to use this module.
+        On Mobile Web, continue to use this module.
 
         On Android and iOS, use <Modules.Facebook> instead.
 summary: |
