@@ -105,7 +105,7 @@ properties:
     description: |
         A [event availability](Titanium.Calendar.Event.availability) value.
         
-        One of the group of reminder method constants, 
+        One of the group of event method constants, 
         [AVAILABILITY_NOTSUPPORTED](Titanium.Calendar.AVAILABILITY_NOTSUPPORTED), 
         [AVAILABILITY_BUSY](Titanium.Calendar.AVAILABILITY_BUSY), 
         [AVAILABILITY_FREE](Titanium.Calendar.AVAILABILITY_FREE), 
@@ -120,7 +120,7 @@ properties:
     description: |
         A [event availability](Titanium.Calendar.Event.availability) value.
         
-        One of the group of reminder method constants, 
+        One of the group of event method constants, 
         [AVAILABILITY_NOTSUPPORTED](Titanium.Calendar.AVAILABILITY_NOTSUPPORTED), 
         [AVAILABILITY_BUSY](Titanium.Calendar.AVAILABILITY_BUSY), 
         [AVAILABILITY_FREE](Titanium.Calendar.AVAILABILITY_FREE), 
@@ -135,7 +135,7 @@ properties:
     description: |
         A [event availability](Titanium.Calendar.Event.availability) value.
         
-        One of the group of reminder method constants, 
+        One of the group of event method constants, 
         [AVAILABILITY_NOTSUPPORTED](Titanium.Calendar.AVAILABILITY_NOTSUPPORTED), 
         [AVAILABILITY_BUSY](Titanium.Calendar.AVAILABILITY_BUSY), 
         [AVAILABILITY_FREE](Titanium.Calendar.AVAILABILITY_FREE), 
@@ -150,7 +150,7 @@ properties:
     description: |
         A [event availability](Titanium.Calendar.Event.availability) value.
         
-        One of the group of reminder method constants, 
+        One of the group of event method constants, 
         [AVAILABILITY_NOTSUPPORTED](Titanium.Calendar.AVAILABILITY_NOTSUPPORTED), 
         [AVAILABILITY_BUSY](Titanium.Calendar.AVAILABILITY_BUSY), 
         [AVAILABILITY_FREE](Titanium.Calendar.AVAILABILITY_FREE), 
@@ -165,7 +165,7 @@ properties:
     description: |
         A [event availability](Titanium.Calendar.Event.availability) value.
         
-        One of the group of reminder method constants, 
+        One of the group of event method constants, 
         [AVAILABILITY_NOTSUPPORTED](Titanium.Calendar.AVAILABILITY_NOTSUPPORTED), 
         [AVAILABILITY_BUSY](Titanium.Calendar.AVAILABILITY_BUSY), 
         [AVAILABILITY_FREE](Titanium.Calendar.AVAILABILITY_FREE), 
@@ -231,7 +231,7 @@ properties:
     description:  |
         Used with the <Titanium.Calendar.RecurrenceRule.frequency> property.
         
-        One of the group of contact "frequency" constants 
+        One of the group of event "frequency" constants 
         [RECURRENCEFREQUENCY_DAILY](Titanium.Calendar.RECURRENCEFREQUENCY_DAILY), 
         [RECURRENCEFREQUENCY_WEEKLY](Titanium.Calendar.RECURRENCEFREQUENCY_WEEKLY), 
         [RECURRENCEFREQUENCY_MONTHLY](Titanium.Calendar.RECURRENCEFREQUENCY_MONTHLY), 
@@ -244,7 +244,7 @@ properties:
     description:  |
         Used with the <Titanium.Calendar.RecurrenceRule.frequency> property.
         
-        One of the group of contact "frequency" constants 
+        One of the group of event "frequency" constants 
         [RECURRENCEFREQUENCY_DAILY](Titanium.Calendar.RECURRENCEFREQUENCY_DAILY), 
         [RECURRENCEFREQUENCY_WEEKLY](Titanium.Calendar.RECURRENCEFREQUENCY_WEEKLY), 
         [RECURRENCEFREQUENCY_MONTHLY](Titanium.Calendar.RECURRENCEFREQUENCY_MONTHLY), 
@@ -257,7 +257,7 @@ properties:
     description:  |
         Used with the <Titanium.Calendar.RecurrenceRule.frequency> property.
         
-        One of the group of contact "frequency" constants 
+        One of the group of event "frequency" constants 
         [RECURRENCEFREQUENCY_DAILY](Titanium.Calendar.RECURRENCEFREQUENCY_DAILY), 
         [RECURRENCEFREQUENCY_WEEKLY](Titanium.Calendar.RECURRENCEFREQUENCY_WEEKLY), 
         [RECURRENCEFREQUENCY_MONTHLY](Titanium.Calendar.RECURRENCEFREQUENCY_MONTHLY), 
@@ -270,7 +270,7 @@ properties:
     description:  |
         Used with the <Titanium.Calendar.RecurrenceRule.frequency> property.
         
-        One of the group of contact "frequency" constants 
+        One of the group of event "frequency" constants 
         [RECURRENCEFREQUENCY_DAILY](Titanium.Calendar.RECURRENCEFREQUENCY_DAILY), 
         [RECURRENCEFREQUENCY_WEEKLY](Titanium.Calendar.RECURRENCEFREQUENCY_WEEKLY), 
         [RECURRENCEFREQUENCY_MONTHLY](Titanium.Calendar.RECURRENCEFREQUENCY_MONTHLY), 
@@ -282,9 +282,6 @@ properties:
     summary: Returns an authorization constant indicating if the application has access to the events in the EventKit.
     description: |
          Always returns `AUTHORIZATION_AUTHORIZED` on iOS pre-6.0.
-         
-         If `contactsAuthorization` is `AUTHORIZATION_RESTRICTED`, you should not
-         attempt to re-authorize: this will lead to issues.
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
