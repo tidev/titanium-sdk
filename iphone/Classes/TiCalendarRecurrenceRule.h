@@ -19,7 +19,7 @@
 
 
 -(id)_initWithPageContext:(id<TiEvaluator>)context rule:(EKRecurrenceRule*)rule_ ;
--(EKRecurrenceRule*)rule;
+-(EKRecurrenceRule*)ruleForRecurrence;
 @end
 
 #endif

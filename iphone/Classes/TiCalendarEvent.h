@@ -17,9 +17,9 @@
     CalendarModule* module;
     EKEvent* event;
 }
--(id)_initWithPageContext:(id<TiEvaluator>)context event:(EKEvent*)event_ module:(CalendarModule*)module_;
+-(id)_initWithPageContext:(id<TiEvaluator>)context event:(EKEvent*)event_ calendar:(EKCalendar*)calendar_ module:(CalendarModule*)module_;
 -(EKEvent*)event;
-+(NSArray*) convertEvents:(NSArray*)events_ withContext:(id<TiEvaluator>)context_  module:(CalendarModule*)module_;
++(NSArray*) convertEvents:(NSArray*)events_ withContext:(id<TiEvaluator>)context_  calendar:(EKCalendar*)calendar_ module:(CalendarModule*)module_;
 
 
 @end

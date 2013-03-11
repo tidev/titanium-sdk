@@ -16,17 +16,13 @@
 @private
     EKCalendar* calendar;
     NSString* calendarId;
-    BOOL iOS6API;
-    BOOL eventAuthorization;
     
     CalendarModule* module;
 }
 
 
 @property(readonly, nonatomic) EKCalendar* calendar;
-
--(id)_initWithPageContext:(id<TiEvaluator>)context calendarId:(NSString*)id_ module:(CalendarModule*)module_;
-
+-(id)_initWithPageContext:(id<TiEvaluator>)context calendar:(EKCalendar*)calendar_ module:(CalendarModule*)module_;
 
 @end
 

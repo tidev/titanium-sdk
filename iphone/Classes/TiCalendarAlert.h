@@ -16,7 +16,6 @@
 @private
     CalendarModule* module;
     EKAlarm* alert;
-    NSString* eventId;
 }
 
 -(id)_initWithPageContext:(id<TiEvaluator>)context

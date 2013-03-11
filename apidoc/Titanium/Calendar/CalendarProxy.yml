@@ -1,0 +1,97 @@
+---
+name: Titanium.Calendar.Calendar
+summary: An object that represents a single calendar.
+extends: Titanium.Proxy
+platforms: [iphone, ipad]
+since: "3.1.0"
+createable: false
+
+methods:
+  - name: createEvent
+    summary: Creates an event in this calendar.
+    returns:
+        type: Titanium.Calendar.Event
+    parameters:
+      - name: properties
+        summary: Properties of the event
+        type: Dictionary<Titanium.Calendar.Event>
+        
+  - name: getEventById
+    summary: Gets the event with the specified identifier.
+    returns:
+        type: Titanium.Calendar.Event
+    parameters:
+      - name: id
+        summary: Identifier of the event.
+        type: Number
+        
+  - name: getEventsBetweenDates
+    summary: Gets events that occur between two dates.
+    returns:
+        type: Array<Titanium.Calendar.Event>
+    parameters:
+      - name: date1
+        summary: Start date.
+        type: Date
+        
+      - name: date2
+        summary: End date.
+        type: Date
+        
+  - name: getEventsInDate
+    summary: Gets events that occur on a specified date.
+    returns:
+        type: Array<Titanium.Calendar.Event>
+    parameters:
+      - name: year
+        summary: Year of the events.
+        type: Number
+        
+      - name: month
+        summary: Month of the events, as a zero-based integer with January at 0 and December at 11.
+        type: Number
+        
+      - name: day
+        summary: Day of the month of the events.
+        type: Number
+        
+  - name: getEventsInMonth
+    summary: Gets events that occur during a specified month.
+    returns:
+        type: Array<Titanium.Calendar.Event>
+    parameters:
+      - name: year
+        summary: Year of the events.
+        type: Number
+        
+      - name: month
+        summary: Month of the events, as a zero-based integer with January at 0 and December at 11.
+        type: Number
+        
+  - name: getEventsInYear
+    summary: Gets all events that occur during a specified year.
+    returns:
+        type: Array<Titanium.Calendar.Event>
+    parameters:
+      - name: year
+        summary: Year of the events.
+        type: Number
+        
+properties:
+  - name: hidden
+    summary: Indicates whether this calendar can be edited or deleted.
+    description: This property is `true` when this calendar is editable.
+    type: Boolean
+    permission: read-only
+    
+  - name: id
+    summary: Identifier of this calendar. Available only in iOS 5.0 and above.
+    type: String
+    permission: read-only
+    osver: {iOS: {min: "5.0"}}
+    
+  - name: name
+    summary: Display name of this calendar.
+    type: String
+    permission: read-only
+    

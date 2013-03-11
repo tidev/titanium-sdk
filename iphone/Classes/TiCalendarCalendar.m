@@ -14,41 +14,34 @@
 #import "TiUtils.h"
 #import "TiBlob.h"
 
-#pragma mark - Backwards compatibility for pre-iOS 6.0
-
-#if __IPHONE_OS_VERSION_MAX_ALLOWED < __IPHONE_6_0
-//TODO: Should we warn that they need to update to the latest XCode if this is happening?
-#define EKAuthorizationStatusNotDetermined 0
-#define EKAuthorizationStatusRestricted 1
-#define EKAuthorizationStatusDenied 2
-#define EKAuthorizationStatusAuthorized 3
-#endif
-
 #pragma mark -
 @implementation TiCalendarCalendar
 
 #pragma mark - Internals
 
--(id)_initWithPageContext:(id<TiEvaluator>)context calendarId:(NSString*)id_ module:(CalendarModule*)module_
+-(id)_initWithPageContext:(id<TiEvaluator>)context calendar:(EKCalendar*)calendar_ module:(CalendarModule*)module_
 {
     if (self = [super _initWithPageContext:context]) {
-        module= module_;
-        calendarId = id_;
-        calendar = NULL;
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_6_0
-        if ([EKEventStore respondsToSelector:@selector(authorizationStatusForEntityType:)]) {
-            iOS6API = YES;
+        module= [module_ retain] ;
+        calendar = [calendar_ retain];
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_5_0
+        if ([TiUtils isIOS5OrGreater]) {
+            calendarId = [calendar calendarIdentifier];
         }
 #endif
     }
+        
+    return self;
+
 }
 
--(void)dealloc
+-(void)_destroy
 {
-	[super dealloc];
-    [calendar release];
-    [module release];
+	RELEASE_TO_NIL(module);
+	RELEASE_TO_NIL(calendar);
+    [super _destroy];
 }
+
 
 -(EKCalendar*)calendar
 {
@@ -100,87 +93,7 @@
     return NULL;
 }
 
--(void) requestAuthorization:(id)args forEntityType:(EKEntityType)entityType {
-    ENSURE_SINGLE_ARG(args, KrollCallback);
-	KrollCallback * callback = args;
-	NSString * errorStr = nil;
-	int code = 0;
-	bool doPrompt = NO;
-    
-    
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_6_0
-    if (iOS6API) {
-        
-        long int permissions = [EKEventStore authorizationStatusForEntityType:entityType];
-		switch (permissions) {
-			case EKAuthorizationStatusNotDetermined:
-				doPrompt = YES;
-				break;
-			case EKAuthorizationStatusAuthorized:
-				break;
-			case EKAuthorizationStatusDenied:
-				code = EKAuthorizationStatusDenied;
-				errorStr = @"The user has denied access to events in Calendar.";
-			case EKAuthorizationStatusRestricted:
-				code = EKAuthorizationStatusRestricted;
-				errorStr = @"The user is unable to allow access to events in Calendar.";
-			default:
-				break;
-		}
-	}
-#endif
-    
-	if (!doPrompt) {
-		NSDictionary * propertiesDict = [TiUtils dictionaryWithCode:code message:errorStr];
-		NSArray * invocationArray = [[NSArray alloc] initWithObjects:&propertiesDict count:1];
-        
-		[callback call:invocationArray thisObject:self];
-		[invocationArray release];
-		return;
-	}
-    
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_6_0
-	TiThreadPerformOnMainThread(^(){
-		
-        EKEventStore* ourstore = [module store];
-        [ourstore requestAccessToEntityType:EKEntityTypeEvent
-                                 completion:^(BOOL granted, NSError *error){
-                                     NSDictionary *propertiesDict = [TiUtils dictionaryWithCode:[error code]
-                                                                                        message:[TiUtils messageFromError:error]];
-                                     KrollEvent * invocationEvent = [[KrollEvent alloc] initWithCallback:callback eventObject:propertiesDict thisObject:self];
-                                     [[callback context] enqueue:invocationEvent];
-                                     
-                                     
-                                 }];
-	}, NO);
-#endif
-}
-
-
-#pragma mark - Public API
-
--(void) requestEventsAuthorization:(id)args
-{
-    ENSURE_SINGLE_ARG(args, KrollCallback);
-    [self requestAuthorization:args forEntityType:EKEntityTypeEvent];
-}
-
--(void) requestRemindersAuthorization:(id)args
-{
-    ENSURE_SINGLE_ARG(args, KrollCallback);
-    [self requestAuthorization:args forEntityType:EKEntityTypeReminder];
-}
-
--(NSNumber*) eventsAuthorization
-{
-    long int result = EKAuthorizationStatusAuthorized;
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_6_0
-    if (iOS6API) { //in iOS 5.1 and below: no need to check for authorization.
-        result = [EKEventStore authorizationStatusForEntityType:EKEntityTypeEvent];
-    }
-#endif
-    return [NSNumber numberWithLong:result];
-}
+#pragma mark - Public API's
 
 -(TiCalendarEvent*)createEvent:(id)args
 {
@@ -204,103 +117,15 @@
         }
         TiCalendarEvent* event = [[[TiCalendarEvent alloc] _initWithPageContext:[self executionContext]
                                                                         event:newEvent
+                                                                       calendar:[self calendar]
                                                                          module:module] autorelease];
         
         [event setValuesForKeysWithDictionary:args];
-        if (args != nil) {
-            //[self save:nil];
-        }
+
         return event;
     }
     return NULL;
 }
-
--(TiCalendarRecurrenceRule*)createReccurenceRule:(id)args
-{
-    ENSURE_DICT(args);
-    EKRecurrenceFrequency frequency = EKRecurrenceFrequencyDaily;
-    NSInteger interval = 0;
-    NSArray *days, *monthDays, *daysOfTheWeek, *daysOfTheMonth, *monthsOfTheYear, *weeksOfTheYear, *daysOfTheYear, *setPositions;
-    EKRecurrenceEnd* end = nil;
-    for (NSString* key in args) {
-        id value = [args objectForKey:key];
-        
-        if ([key isEqualToString:@"frequency"] ) {
-            frequency = [TiUtils intValue:value];
-        }
-        else if ([key isEqualToString:@"interval"]) {
-            interval = [TiUtils intValue:value];
-        }
-        else if ([key isEqualToString:@"days"]) {
-            ENSURE_TYPE_OR_NIL(value,NSArray);
-            days = value;
-        }
-        else if ([key isEqualToString:@"monthDays"]) {
-            ENSURE_TYPE_OR_NIL(value,NSArray);
-            monthDays = value;
-        }
-        else if ([key isEqualToString:@"daysOfTheWeek"]) {
-            ENSURE_TYPE_OR_NIL(value,NSArray);
-            daysOfTheWeek = value;
-        }
-        else if ([key isEqualToString:@"daysOfTheMonth"]) {
-            ENSURE_TYPE_OR_NIL(value,NSArray);
-            daysOfTheMonth = value;
-        }
-        else if ([key isEqualToString:@"monthsOfTheYear"]) {
-            ENSURE_TYPE_OR_NIL(value,NSArray);
-            monthsOfTheYear = value;
-        }
-        else if ([key isEqualToString:@"weeksOfTheYear"]) {
-            ENSURE_TYPE_OR_NIL(value,NSArray);
-            weeksOfTheYear = value;
-        }
-        else if ([key isEqualToString:@"daysOfTheYear"]) {
-            ENSURE_TYPE_OR_NIL(value,NSArray);
-            daysOfTheYear = value;
-        }
-        else if ([key isEqualToString:@"setPositions"]) {
-            ENSURE_TYPE_OR_NIL(value,NSArray);
-            setPositions = value;
-        }
-        else if ([key isEqualToString:@"end"]) {
-            ENSURE_TYPE_OR_NIL(value, NSDictionary);
-            if ([value objectForKey:@"endDate"]) {
-                end = [EKRecurrenceEnd recurrenceEndWithEndDate:[TiUtils dateForUTCDate:[value objectForKey:@"endDate"]]];
-            }
-            else if ([value objectForKey:@"occurrenceCount"]) {
-                end = [EKRecurrenceEnd recurrenceEndWithOccurrenceCount:[TiUtils intValue:[value objectForKey:@"occurrenceCount"]]];
-            }
-            else {
-                DebugLog(@"Key type not supported. Expected key types are `endDate` or `occurrenceCount`. Check documentation for more details");
-            }
-        }
-        else {
-            DebugLog(@"Key type:%s is not supported. Please check documentation for supported key types.", key);
-        }
-        
-        EKRecurrenceRule* rule = [[[EKRecurrenceRule alloc] initRecurrenceWithFrequency:frequency
-                                                                               interval:interval
-                                                                          daysOfTheWeek:daysOfTheWeek
-                                                                         daysOfTheMonth:daysOfTheMonth
-                                                                        monthsOfTheYear:monthsOfTheYear
-                                                                         weeksOfTheYear:weeksOfTheYear
-                                                                          daysOfTheYear:daysOfTheYear
-                                                                           setPositions:setPositions
-                                                                                    end:end] autorelease];
-        if (rule == NULL) {
-            [self throwException:@"Error while trying to create recurrance rule."
-                       subreason:nil
-                        location:CODELOCATION];
-            
-            return NULL;
-        }
-        TiCalendarRecurrenceRule* recurranceRule = [[[TiCalendarRecurrenceRule alloc] _initWithPageContext:[self executionContext]
-                                                                                                      rule:rule] autorelease];
-        return recurranceRule;
-    }
-}
-
 
 -(TiCalendarEvent*)getEventById:(id)arg
 {
@@ -320,8 +145,10 @@
         
     });
     if (validId == YES) {
+        EKEvent* event_ = [[self ourStore] eventWithIdentifier:[TiUtils stringValue:arg]];
         TiCalendarEvent* event = [[[TiCalendarEvent alloc] _initWithPageContext:[self executionContext]
-                                                                        event:(EKEvent*)result
+                                                                        event:event_
+                                                                        calendar:event_.calendar
                                                                          module:module] autorelease];
         return event;
     }
@@ -338,7 +165,7 @@
 
     NSArray* events = [self _fetchAllEventsbetweenDate:[TiUtils dateForUTCDate:start]
                                               andDate:[TiUtils dateForUTCDate:end]];
-    return [TiCalendarEvent convertEvents:events withContext:[self executionContext] module:module];
+    return [TiCalendarEvent convertEvents:events withContext:[self executionContext]  calendar:[self calendar]  module:module];
 }
 
 -(NSArray*)getEventsInDate:(id)arg
@@ -362,9 +189,10 @@
     date2 = [date1 dateByAddingTimeInterval:secondsPerDay];
 
     [comps release];
+    [cal release];
     
     NSArray* events = [self _fetchAllEventsbetweenDate:date1 andDate:date2];
-    return [TiCalendarEvent convertEvents:events withContext:[self executionContext] module:module];
+    return [TiCalendarEvent convertEvents:events withContext:[self executionContext] calendar:[self calendar] module:module];
 }
 
 -(NSArray*)getEventsInMonth:(id)args
@@ -394,9 +222,10 @@
     date2 = [date1 dateByAddingTimeInterval:(secondsPerDay * days.length)];
     
     [comps release];
+    [cal release];
     
     NSArray* events = [self _fetchAllEventsbetweenDate:date1 andDate:date2];
-    return [TiCalendarEvent convertEvents:events withContext:[self executionContext] module:module];
+    return [TiCalendarEvent convertEvents:events withContext:[self executionContext] calendar:[self calendar] module:module];
 }
 
 -(NSArray*)getEventsInYear:(id)args
@@ -404,11 +233,11 @@
     ENSURE_ARG_COUNT(args, 1);
     
     NSDateComponents *comps = [[NSDateComponents alloc] init];
-    
+    int year = [TiUtils intValue:[args objectAtIndex:0]];
     
     [comps setDay:1];
     [comps setMonth:1];
-    [comps setYear:[TiUtils intValue:[args objectAtIndex:0]]];
+    [comps setYear:year];
     [comps setHour:0];
     [comps setMinute:0];
     [comps setSecond:0];
@@ -420,16 +249,27 @@
     
     NSTimeInterval secondsPerDay = 24 * 60 * 60;
     NSRange days = [cal rangeOfUnit:NSDayCalendarUnit
-                             inUnit:NSYearCalendarUnit
+                             inUnit:NSMonthCalendarUnit
                             forDate:date1];
-    
-    date2 = [date1 dateByAddingTimeInterval:(secondsPerDay * days.length)];
+    [comps setYear:year+1];
+    date2 = [cal dateFromComponents:comps];;//[date1 dateByAddingTimeInterval:(secondsPerDay * days.length)];
     
     [comps release];
+    [cal release];
     
     NSArray* events = [self _fetchAllEventsbetweenDate:date1 andDate:date2];
-    return [TiCalendarEvent convertEvents:events withContext:[self executionContext] module:module];
+    return [TiCalendarEvent convertEvents:events withContext:[self executionContext] calendar:[self calendar] module:module];
 
+}
+
+-(id)valueForUndefinedKey:(NSString *)key
+{
+    if ([key isEqualToString:@"id"]) {
+        return calendarId;
+    }
+    else {
+        [super valueForUndefinedKey:key];
+    }
 }
 
 -(NSNumber*)hidden
@@ -442,11 +282,6 @@
     
     return NUMBOOL([[self calendar] isImmutable]);
     
-}
-
--(NSString*)calendarid
-{
-    return calendarId;
 }
 
 -(NSString*)name

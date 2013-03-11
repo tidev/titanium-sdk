@@ -39,6 +39,19 @@
 @property (nonatomic, readonly)NSNumber* AVAILABILITY_TENTATIVE;
 @property (nonatomic, readonly)NSNumber* AVAILABILITY_UNAVAILABLE;
 
+@property (nonatomic, readonly)NSNumber* SPAN_THISEVENT;
+@property (nonatomic, readonly)NSNumber* SPAN_FUTUREEVENTS;
+
+@property (nonatomic, readonly)NSNumber* RECURRENCEFREQUENCY_DAILY;
+@property (nonatomic, readonly)NSNumber* RECURRENCEFREQUENCY_WEEKLY;
+@property (nonatomic, readonly)NSNumber* RECURRENCEFREQUENCY_MONTHLY;
+@property (nonatomic, readonly)NSNumber* RECURRENCEFREQUENCY_YEARLY;
+
+@property (nonatomic, readonly)NSNumber* AUTHORIZATION_UNKNOWN;
+@property (nonatomic, readonly)NSNumber* AUTHORIZATION_RESTRICTED;
+@property (nonatomic, readonly)NSNumber* AUTHORIZATION_DENIED;
+@property (nonatomic, readonly)NSNumber* AUTHORIZATION_AUTHORIZED;
+
 @end
 
 #endif

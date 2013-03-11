@@ -16,58 +16,77 @@
 
 @implementation TiCalendarRecurrenceRule
 
--(id)_initWithPageContext:(id<TiEvaluator>)context rule:(EKRecurrenceRule*)rule_ {
+#pragma mark - Internals
+
+-(id)_initWithPageContext:(id<TiEvaluator>)context rule:(EKRecurrenceRule*)rule_
+{
     if (self= [super _initWithPageContext:context]) {
-       rule = rule_;
+       rule = [rule_ retain];
     }
+    return self;
 }
 
--(EKRecurrenceRule*)rule
+-(void)_destroy
+{
+	RELEASE_TO_NIL(rule);
+    [super _destroy];
+}
+
+-(EKRecurrenceRule*)ruleForRecurrence
 {
     return rule;
 }
 
+#pragma mark - Public API's
 
 -(id)valueForUndefinedKey:(NSString *)key
 {
-    if (rule == NULL) {
+    EKRecurrenceRule * currRule = [self ruleForRecurrence];
+    if (currRule == NULL) {
         return NULL;
     }
     if ([key isEqualToString:@"calendarId"]) {
-        return rule.calendarIdentifier;
+        return currRule.calendarIdentifier;
     }
-    else if ([key isEqualToString:@"recurrenceEnd"]) {
-        EKRecurrenceEnd  *end = rule.recurrenceEnd;
+    else if ([key isEqualToString:@"end"]) {
+        EKRecurrenceEnd  *end = currRule.recurrenceEnd;
         NSDictionary *recurranceEnd = [NSDictionary dictionaryWithObjectsAndKeys:[TiUtils UTCDateForDate:end.endDate], @"endDate",
                                        NUMINT(end.occurrenceCount), @"occuranceCount", nil];
         return recurranceEnd;
     }
     else if ([key isEqualToString:@"frequency"]) {
-        return NUMINT(rule.frequency);
+        return NUMINT(currRule.frequency);
     }
     else if ([key isEqualToString:@"interval"]) {
-        return NUMINT(rule.interval);
+        return NUMINT(currRule.interval);
     }
     else if ([key isEqualToString:@"firstDayOfTheWeek"]) {
-        return NUMINT(rule.firstDayOfTheWeek);
+        return NUMINT(currRule.firstDayOfTheWeek);
     }
     else if ([key isEqualToString:@"daysOfTheWeek"]) {
-        return rule.daysOfTheWeek;
+        NSArray* value = currRule.daysOfTheWeek;
+        NSMutableArray * result = [NSMutableArray arrayWithCapacity:[value count]];
+        for (EKRecurrenceDayOfWeek* dayofWeek in value) {
+            NSDictionary* props = [NSDictionary dictionaryWithObjectsAndKeys:NUMINT(dayofWeek.dayOfTheWeek),@"dayOfWeek",
+                                                                             NUMINT(dayofWeek.weekNumber),@"week", nil];
+            [result addObject:props];
+        }
+        return result;
     }
     else if ([key isEqualToString:@"daysOfTheMonth"]) {
-        return rule.daysOfTheMonth;
+        return [NSArray arrayWithArray:currRule.daysOfTheMonth];
     }
     else if ([key isEqualToString:@"daysOfTheYear"]) {
-        return rule.daysOfTheYear;
+        return [NSArray arrayWithArray:currRule.daysOfTheYear];
     }
     else if ([key isEqualToString:@"weeksOfTheYear"]) {
-        return rule.weeksOfTheYear;
+        return [NSArray arrayWithArray:currRule.weeksOfTheYear];
     }
     else if ([key isEqualToString:@"monthsOfTheYear"]) {
-        return rule.monthsOfTheYear;
+        return [NSArray arrayWithArray:currRule.monthsOfTheYear];
     }
     else if ([key isEqualToString:@"setPositions"]) {
-        return rule.setPositions;
+        return [NSArray arrayWithArray:currRule.setPositions];
     }
     else {
         return [super valueForUndefinedKey:key];
@@ -75,14 +94,6 @@
     
     
 }
-
--(void)dealloc
-{
-	[super dealloc];
-    [rule release];
-}
-
-
 
 @end
 

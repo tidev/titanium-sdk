@@ -17,10 +17,19 @@
                    module:(CalendarModule*)module_
 {
     if (self = [super _initWithPageContext:context]) {
-        module = module_;
-        alert = alert_;
+        module = [module_ retain];
+        alert = [alert_ retain];
     }
+    return self;
 }
+
+-(void)_destroy
+{
+	RELEASE_TO_NIL(module);
+	RELEASE_TO_NIL(alert);
+    [super _destroy];
+}
+
 -(EKAlarm*)alert
 {
     return alert;
@@ -36,10 +45,6 @@
     return NUMINT(alert.relativeOffset);
 }
 
--(NSString*)eventId
-{
-    return eventId;
-}
 
 -(void)setAbsoluteDate:(id)arg
 {
