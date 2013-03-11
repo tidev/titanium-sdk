@@ -574,17 +574,77 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 			message.sendToTarget();
 		}
 	}
-
+	
+	public class KrollPropertyChangeSet extends KrollPropertyChange {
+		public int entryCount;
+		public String[] keys;
+		public Object[] oldValues;
+		public Object[] newValues;
+		
+		public KrollPropertyChangeSet(int capacity) {
+			super(null,null,null);
+			entryCount = 0;
+			keys = new String[capacity];
+			oldValues = new Object[capacity];
+			newValues = new Object[capacity];
+		}
+		
+		public void addChange(String key, Object oldValue, Object newValue){
+			keys[entryCount] = key;
+			oldValues[entryCount] = oldValue;
+			newValues[entryCount] = newValue;
+			entryCount ++;
+		}
+		
+		public void fireEvent(KrollProxy proxy, KrollProxyListener listener) {
+			if (listener == null) {
+				return;
+			}
+			for (int i = 0; i < entryCount; i++) {
+				listener.propertyChanged(keys[i], oldValues[i], newValues[i], proxy);
+			}
+		}
+	}
+	
 	@Kroll.method
 	public void applyProperties(Object arg)
 	{
-		if (arg instanceof HashMap) {
-			HashMap props = (HashMap) arg;
-			for (Object name : props.keySet()) {
-				setPropertyAndFire(TiConvert.toString(name), props.get(name));
-			}
-		} else {
+		if (!(arg instanceof HashMap)) {
 			Log.w(TAG, "Cannot apply properties: invalid type for properties", Log.DEBUG_MODE);
+			return;
+		}
+		HashMap props = (HashMap) arg;
+		if (modelListener == null) {
+			for (Object name : props.keySet()) {
+				setProperty(TiConvert.toString(name), props.get(name));
+			}
+			return;
+		}
+		if (TiApplication.isUIThread()) {
+			for (Object key : props.keySet()) {
+				String name = TiConvert.toString(key);
+				Object value = props.get(key);
+				Object current = getProperty(name);
+				setProperty(name, value);
+				if (shouldFireChange(current, value)) {
+					modelListener.propertyChanged(name, current, value, this);
+				}
+			}
+			return;		
+		}
+		
+		KrollPropertyChangeSet changes = new KrollPropertyChangeSet(props.size());
+		for (Object key : props.keySet()) {
+			String name = TiConvert.toString(key);
+			Object value = props.get(key);
+			Object current = getProperty(name);
+			setProperty(name, value);
+			if (shouldFireChange(current, value)) {
+				changes.addChange(name, current, value);
+			}
+		}
+		if (changes.entryCount > 0) {
+			getMainHandler().obtainMessage(MSG_MODEL_PROPERTY_CHANGE, changes).sendToTarget();
 		}
 	}
 
