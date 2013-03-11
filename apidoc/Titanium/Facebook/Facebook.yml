@@ -3,9 +3,9 @@ name: Titanium.Facebook
 deprecated:
     since: "3.1.0"
     notes: |
-        On Android and iOS, use <Modules.Facebook> instead.
+        On Mobile Web, use continue to use this module.
 
-        On Mobile Web, use `Titanium.Facebook`.
+        On Android and iOS, use <Modules.Facebook> instead.
 summary: |
     The top level Facebook module.  
 description: |

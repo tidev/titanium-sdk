@@ -3,9 +3,9 @@ name: Titanium.Facebook.LoginButton
 deprecated:
     since: "3.1.0"
     notes: |
-        On Android and iOS, use <Modules.Facebook.LoginButton> instead.
+        On Mobile Web, continue to use this module.
 
-        On Mobile Web, continue to use `Titanium.Facebook.LoginButton`.
+        On Android and iOS, use <Modules.Facebook.LoginButton> instead.
 summary: A Facebook login button.
 description: |
     The Login Button created by <Titanium.Facebook.createLoginButton>.  This is a 
