@@ -39,7 +39,7 @@ define(function() {
 				l = modifiers && modifiers.length;
 			data = data || {};
 			mix(data, {
-				source: this,
+				source: data.source || this,
 				type: name
 			});
 
