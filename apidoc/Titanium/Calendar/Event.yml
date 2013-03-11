@@ -171,11 +171,11 @@ properties:
   - name: recurenceRule
     summary: Recurrence rule associated with the event. (Available in iOS 4.0 through iOS 5.1.)
     type: Titanium.Calendar.RecurrenceRule
-
+    osver: {ios: {max: "5.0"}}
   - name: recurenceRules
     summary: The recurrence rules for the calendar item. (Available in iOS 5.1 and above.)
     type: Array<Titanium.Calendar.RecurrenceRule>
-    osver: {iOS: {min: "5.0"}}
+    osver: {ios: {min: "5.0"}}
 
   - name: alerts
     summary: Alarms associated with the calendar item, as an array of <Titanium.Calendar.Alert> objects.

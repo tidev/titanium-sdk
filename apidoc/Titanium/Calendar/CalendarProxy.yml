@@ -88,7 +88,7 @@ properties:
     summary: Identifier of this calendar. Available only in iOS 5.0 and above.
     type: String
     permission: read-only
-    osver: {iOS: {min: "5.0"}}
+    osver: {ios: {min: "5.0"}}
     
   - name: name
     summary: Display name of this calendar.
