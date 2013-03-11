@@ -235,6 +235,7 @@ examples:
                     var user = e.users[0];
                     alert('Success:\\n' +
                         'id: ' + user.id + '\\n' +
+                        'sessionId: ' + Cloud.sessionId + '\\n' +
                         'first name: ' + user.first_name + '\\n' +
                         'last name: ' + user.last_name);
                 } else {
@@ -255,6 +256,7 @@ examples:
                     var user = e.users[0];
                     alert('Success:\\n' +
                         'id: ' + user.id + '\\n' +
+                        'sessionId: ' + Cloud.sessionId + '\\n' +
                         'first name: ' + user.first_name + '\\n' +
                         'last name: ' + user.last_name);
                 } else {
@@ -424,8 +426,8 @@ examples:
             }, function (e) {
                 if (e.success) {
                     alert('Success:\\n' +
-                        'accessToken: ' + e.accessToken + '\\n' +
-                        'expiresIn: ' + e.expiresIn);
+                        'accessToken: ' + Cloud.accessToken + '\\n' +
+                        'expiresIn: ' + Cloud.expiresIn);
                 } else {
                     alert('Error:\\n' +
                         ((e.error && e.message) || JSON.stringify(e)));
@@ -441,8 +443,8 @@ examples:
             }, function (e) {
                 if (e.success) {
                     alert('Success:\\n' +
-                        'accessToken: ' + e.accessToken + '\\n' +
-                        'expiresIn: ' + e.expiresIn);
+                        'accessToken: ' + Cloud.accessToken + '\\n' +
+                        'expiresIn: ' + Cloud.expiresIn);
                 } else {
                     alert('Error:\\n' +
                         ((e.error && e.message) || JSON.stringify(e)));
