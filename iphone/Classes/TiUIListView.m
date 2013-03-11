@@ -169,6 +169,12 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 	[self.tableView setShowsVerticalScrollIndicator:[TiUtils boolValue:value]];
 }
 
+-(void)setAllowsSelection_:(id)value
+{
+	[self.proxy replaceValue:value forKey:@"allowsSelection" notification:NO];
+    [[self tableView] setAllowsSelection:[TiUtils boolValue:value]];
+}
+
 #pragma mark - UITableViewDataSource
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
@@ -254,15 +260,6 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 		return height.value;
 	}
 	return 44;
-}
-
-- (NSIndexPath *)tableView:(UITableView *)tableView willSelectRowAtIndexPath:(NSIndexPath *)indexPath
-{
-	NSDictionary *item = [[self.listViewProxy sectionForIndex:indexPath.section] itemAtIndex:indexPath.row];
-	id propertiesValue = [item objectForKey:@"properties"];
-	NSDictionary *properties = ([propertiesValue isKindOfClass:[NSDictionary class]]) ? propertiesValue : nil;
-	BOOL allowsSelection = [TiUtils boolValue:[properties objectForKey:@"allowsSelection"] def:YES];
-	return allowsSelection ? indexPath : nil;
 }
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
