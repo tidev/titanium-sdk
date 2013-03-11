@@ -344,7 +344,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 
 + (UIView*)titleViewForText:(NSString*)text inTable:(UITableView *)tableView footer:(BOOL)footer
 {
-	CGSize maxSize = CGSizeMake(320, 1000);
+	CGSize maxSize = CGSizeMake(tableView.bounds.size.width, 1000);
 	UIFont *font = [[WebFont defaultBoldFont] font];
 	CGSize size = [text sizeWithFont:font constrainedToSize:maxSize lineBreakMode:UILineBreakModeTailTruncation];
 	
@@ -353,6 +353,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 	int y2 = (footer) ? 0 : 10;
 	UIView *containerView = [[[UIView alloc] initWithFrame:CGRectMake(0, y, size.width, size.height+10)] autorelease];
     UILabel *headerLabel = [[[UILabel alloc] initWithFrame:CGRectMake(x, y2, size.width, size.height)] autorelease];
+	containerView.autoresizingMask = headerLabel.autoresizingMask = UIViewAutoresizingFlexibleWidth| UIViewAutoresizingFlexibleRightMargin| UIViewAutoresizingFlexibleHeight| UIViewAutoresizingFlexibleBottomMargin;
 	
     headerLabel.text = text;
     headerLabel.textColor = [UIColor blackColor];

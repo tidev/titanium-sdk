@@ -95,14 +95,16 @@
 			// pass through
 		case UITableViewCellStyleDefault:
 			self.textLabel.text = [[properties objectForKey:@"title"] description];
-			id imageValue = [properties objectForKey:@"image"];
-			if ([self shouldUpdateValue:imageValue forKeyPath:@"image"]) {
-				NSURL *imageUrl = [TiUtils toURL:imageValue proxy:_proxy];
-				UIImage *image = [[ImageLoader sharedLoader] loadImmediateImage:imageUrl];
-				if (image != nil) {
-					[self recordChangeValue:imageValue forKeyPath:@"imageView.image" withBlock:^{
-						self.imageView.image = image;
-					}];
+			if (_templateStyle != UITableViewCellStyleValue2) {
+				id imageValue = [properties objectForKey:@"image"];
+				if ([self shouldUpdateValue:imageValue forKeyPath:@"image"]) {
+					NSURL *imageUrl = [TiUtils toURL:imageValue proxy:_proxy];
+					UIImage *image = [[ImageLoader sharedLoader] loadImmediateImage:imageUrl];
+					if (image != nil) {
+						[self recordChangeValue:imageValue forKeyPath:@"imageView.image" withBlock:^{
+							self.imageView.image = image;
+						}];
+					}
 				}
 			}
 
