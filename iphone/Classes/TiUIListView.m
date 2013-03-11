@@ -226,6 +226,36 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 
 #pragma mark - UITableViewDelegate
 
+- (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
+{
+	NSDictionary *item = [[self.listViewProxy sectionForIndex:indexPath.section] itemAtIndex:indexPath.row];
+	id propertiesValue = [item objectForKey:@"properties"];
+	NSDictionary *properties = ([propertiesValue isKindOfClass:[NSDictionary class]]) ? propertiesValue : nil;
+	id heightValue = [properties objectForKey:@"height"];
+	if (heightValue == nil) {
+		id templateId = [item objectForKey:@"template"];
+		if (templateId == nil) {
+			templateId = _defaultItemTemplate;
+		}
+		if (![templateId isKindOfClass:[NSNumber class]]) {
+			id template = [_templates objectForKey:templateId];
+			if ([template isKindOfClass:[NSDictionary class]]) {
+				propertiesValue = [template objectForKey:@"properties"];
+				properties = ([propertiesValue isKindOfClass:[NSDictionary class]]) ? propertiesValue : nil;
+				heightValue = [properties objectForKey:@"height"];
+			}
+		}
+	}
+	TiDimension height = _rowHeight;
+	if (heightValue != nil) {
+		height = [TiUtils dimensionValue:heightValue];
+	}
+	if (TiDimensionIsDip(height)) {
+		return height.value;
+	}
+	return 44;
+}
+
 - (NSIndexPath *)tableView:(UITableView *)tableView willSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
 	NSDictionary *item = [[self.listViewProxy sectionForIndex:indexPath.section] itemAtIndex:indexPath.row];
