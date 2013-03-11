@@ -12,6 +12,20 @@ platforms: [iphone, ipad]
 since: "3.1.0"
 createable: false
 
+events:
+  - name: change
+    summary: Fired when the database backing the EventKit module is modified.
+    description: |
+        This eventis fired when changes are made to the Calendar database, including adding, 
+        removing, and changing events or reminders. Individual changes are not described. 
+        When you receive this notification, you should refetch all Event objects you have 
+        accessed, as they are considered stale. If you are actively editing an event and 
+        do not wish to refetch it unless it is absolutely necessary to do so, you can call 
+        the [refresh](Titanium.Calendar.Event.refresh) method on it. If the method returns 
+        YES, you do not need to refetch the event.
+    platforms: [iphone, ipad]
+    since: "3.1.0"
+
 methods:
   - name: getCalendarById
     summary: Gets the calendar with the specified identifier.

@@ -73,10 +73,28 @@ methods:
   - name: refresh
     summary: Updates the event's data with the current information in the Calendar database.
     description: |
-        This method should beonly on events that your application is editing, and only 
-        when your application receives the EKEventStoreChangedNotification notification. 
+        This method should be only used on events that your application is editing, and only 
+        when your application receives the [change](Titanium.Calendar.change) notification. 
         If this method returns NO, the event has been deleted or otherwise invalidated, 
         and you should not continue to use it. 
+    returns:
+        type: Boolean
+
+  - name: addRecurrenceRule
+    summary: Adds a recurrence rule to the recurrence rule array.
+    parameters:
+      - name: rule
+        summary: The recurrence rule to be added.
+        type: Titanium.Calendar.RecurrenceRule
+    osver: {ios: {min: "5.0"}}
+
+  - name: removeRecurenceRule
+    summary: Removes a recurrence rule to the recurrence rule array.
+    parameters:
+      - name: rule
+        summary: The recurrence rule to be removed.
+        type: Titanium.Calendar.RecurrenceRule
+    osver: {ios: {min: "5.0"}}
 
 properties:
   - name: alerts
