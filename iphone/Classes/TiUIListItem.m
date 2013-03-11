@@ -17,11 +17,12 @@
 	NSMutableDictionary *_initialValues;
 	NSMutableDictionary *_currentValues;
 	NSMutableSet *_resetKeys;
-	NSDictionary *_item;
+	NSDictionary *_dataItem;
 	NSDictionary *_bindings;
 }
 
 @synthesize templateStyle = _templateStyle;
+@synthesize dataItem = _dataItem;
 
 - (id)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier proxy:(TiUIListItemProxy *)proxy
 {
@@ -57,7 +58,7 @@
 	[_initialValues release];
 	[_currentValues release];
 	[_resetKeys release];
-	[_item release];
+	[_dataItem release];
 	[_proxy release];
 	[_bindings release];
 	[super dealloc];
@@ -76,15 +77,15 @@
 
 - (void)prepareForReuse
 {
-	RELEASE_TO_NIL(_item);
+	RELEASE_TO_NIL(_dataItem);
 	[super prepareForReuse];
 }
 
-- (void)applyDataItem:(NSDictionary *)item
+- (void)setDataItem:(NSDictionary *)dataItem
 {
-	_item = [item retain];
+	_dataItem = [dataItem retain];
 	[_resetKeys addObjectsFromArray:[_currentValues allKeys]];
-	id propertiesValue = [item objectForKey:@"properties"];
+	id propertiesValue = [dataItem objectForKey:@"properties"];
 	NSDictionary *properties = ([propertiesValue isKindOfClass:[NSDictionary class]]) ? propertiesValue : nil;
 	switch (_templateStyle) {
 		case UITableViewCellStyleSubtitle:
@@ -127,7 +128,7 @@
 			break;
 			
 		default:
-			[item enumerateKeysAndObjectsUsingBlock:^(NSString *bindId, id dict, BOOL *stop) {
+			[dataItem enumerateKeysAndObjectsUsingBlock:^(NSString *bindId, id dict, BOOL *stop) {
 				if (![dict isKindOfClass:[NSDictionary class]] || [bindId isEqualToString:@"properties"]) {
 					return;
 				}

@@ -17,11 +17,10 @@ enum {
 @interface TiUIListItem : UITableViewCell
 
 @property (nonatomic, readonly) NSInteger templateStyle;
+@property (nonatomic, readwrite, retain) NSDictionary *dataItem;
 
 - (id)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier proxy:(TiUIListItemProxy *)proxy;
 - (id)initWithProxy:(TiUIListItemProxy *)proxy reuseIdentifier:(NSString *)reuseIdentifier;
-
-- (void)applyDataItem:(NSDictionary *)item;
 
 @end
 
