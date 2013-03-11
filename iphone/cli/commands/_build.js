@@ -997,7 +997,6 @@ build.prototype = {
 			// let's start building some apps!
 			parallel(this, [
 				'createInfoPlist',
-				'createDebuggerPlist',
 				'createEntitlementsPlist',
 				'detectModules'
 			], function () {
@@ -1028,6 +1027,7 @@ build.prototype = {
 						}
 						next();
 					},
+					'createDebuggerPlist',
 					'injectModulesIntoXcodeProject',
 					'injectApplicationDefaults', // if ApplicationDefaults.m was modified, forceRebuild will be set to true
 					'copyTitaniumLibraries',
