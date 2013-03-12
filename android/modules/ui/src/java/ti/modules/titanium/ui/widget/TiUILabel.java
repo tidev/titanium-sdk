@@ -48,7 +48,7 @@ public class TiUILabel extends TiUIView
 						MeasureSpec.UNSPECIFIED);
 				}
 
-				super.onMeasure(widthMeasureSpec, widthMeasureSpec);
+				super.onMeasure(widthMeasureSpec, heightMeasureSpec);
 			}
 
 			@Override

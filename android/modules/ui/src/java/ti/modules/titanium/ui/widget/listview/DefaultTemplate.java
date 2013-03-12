@@ -1,3 +1,9 @@
+/**
+ * Appcelerator Titanium Mobile
+ * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Licensed under the terms of the Apache Public License
+ * Please see the LICENSE included with this distribution for details.
+ */
 package ti.modules.titanium.ui.widget.listview;
 
 import java.util.HashMap;
@@ -103,25 +109,18 @@ public class DefaultTemplate extends TiTemplate {
 		data.put(TiC.PROPERTY_PROPERTIES, clone_properties);
 	}
 	
-	public void updateDefaultProperties(KrollDict data) {
+	public void updateOrMergeWithDefaultProperties(KrollDict data, boolean update) {
+
 		if (!data.containsKey(TiC.PROPERTY_PROPERTIES)) {
 			Log.e(TAG, "Please use 'properties' binding for builtInTemplate");
+			if (!update) {
+				//apply default behavior
+				data.clear();
+			}
 			return;
 		}
-
 		parseDefaultData(data);
-		super.updateDefaultProperties(data);
+		super.updateOrMergeWithDefaultProperties(data, update);
 	}
-
-	public void mergeWithDefaultProperties(KrollDict data) {
-		if (!data.containsKey(TiC.PROPERTY_PROPERTIES)) {
-			Log.e(TAG, "Please use 'properties' binding for builtInTemplate");
-			//apply default behavior
-			data.clear();
-			return;
-		}
-		
-		parseDefaultData(data);
-		super.mergeWithDefaultProperties(data);
-	}
+	
 }

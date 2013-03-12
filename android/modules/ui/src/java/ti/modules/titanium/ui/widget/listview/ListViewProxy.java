@@ -1,8 +1,20 @@
+/**
+ * Appcelerator Titanium Mobile
+ * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Licensed under the terms of the Apache Public License
+ * Please see the LICENSE included with this distribution for details.
+ */
+
 package ti.modules.titanium.ui.widget.listview;
 
+
+import java.util.ArrayList;
+
 import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.AsyncResult;
+import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.common.TiMessenger;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
@@ -24,6 +36,8 @@ import android.os.Message;
 })
 public class ListViewProxy extends TiViewProxy {
 
+	private static final String TAG = "ListViewProxy";
+	
 	private static final int MSG_FIRST_ID = TiViewProxy.MSG_LAST_ID + 1;
 
 	private static final int MSG_SECTION_COUNT = MSG_FIRST_ID + 399;
@@ -34,12 +48,66 @@ public class ListViewProxy extends TiViewProxy {
 	private static final int MSG_REPLACE_SECTION_AT = MSG_FIRST_ID + 404;
 
 
-	private boolean preload = true;
+	//indicate if user attempts to add/modify/delete sections before TiListView is created 
+	private boolean preload = false;
+	private ArrayList<ListSectionProxy> preloadSections;
 	
 	public TiUIView createView(Activity activity) {
 		return new TiListView(this, activity);
 	}
 	
+	public void handleCreationArgs(KrollModule createdInModule, Object[] args) {
+		preloadSections = new ArrayList<ListSectionProxy>();
+		super.handleCreationArgs(createdInModule, args);
+		
+	}
+	public void handleCreationDict(KrollDict options) {
+		super.handleCreationDict(options);
+		//Adding sections to preload sections, so we can handle appendSections/insertSection
+		//accordingly if user call these before TiListView is instantiated.
+		if (options.containsKey(TiC.PROPERTY_SECTIONS)) {
+			Object obj = options.get(TiC.PROPERTY_SECTIONS);
+			if (obj instanceof Object[]) {
+				addPreloadSections((Object[]) obj, -1, true);
+			}
+		}
+	}
+	
+	public void clearPreloadSections() {
+		if (preloadSections != null) {
+			preloadSections.clear();
+		}
+	}
+	
+	public ArrayList<ListSectionProxy> getPreloadSections() {
+		return preloadSections;
+	}
+	
+	public boolean isPreload() {
+		return preload;
+	}
+	
+	private void addPreloadSections(Object secs, int index, boolean arrayOnly) {
+		if (secs instanceof Object[]) {
+			Object[] sections = (Object[]) secs;
+			for (int i = 0; i < sections.length; i++) {
+				Object section = sections[i];
+				addPreloadSection(section, -1);
+			}
+		} else if (!arrayOnly) {
+			addPreloadSection(secs, -1);
+		}
+	}
+	
+	private void addPreloadSection(Object section, int index) {
+		if (section instanceof ListSectionProxy) {
+			if (index == -1) {
+				preloadSections.add((ListSectionProxy) section);
+			} else {
+				preloadSections.add(index, (ListSectionProxy) section);
+			}
+		}
+	}
 	
 	@Kroll.method @Kroll.getProperty
 	public int getSectionCount() {
@@ -137,13 +205,10 @@ public class ListViewProxy extends TiViewProxy {
 	private void handleAppendSection(Object section) {
 		TiUIView listView = peekView();
 		if (listView != null) {
-			preload = false;
 			((TiListView) listView).appendSection(section);
-		} else if (preload) {
-			//if listView is added into a HW window, we need to skip a cycle to wait for processProperties
-			//before handling section methods.
-			Handler handler = getMainHandler();
-			handler.sendMessage(handler.obtainMessage(MSG_APPEND_SECTION, section));
+		} else {
+			preload = true;
+			addPreloadSections(section, -1, false);
 		}
 	}
 	
@@ -160,11 +225,14 @@ public class ListViewProxy extends TiViewProxy {
 	private void handleDeleteSectionAt(int index) {
 		TiUIView listView = peekView();
 		if (listView != null) {
-			preload = false;
 			((TiListView) listView).deleteSectionAt(index);
-		} else if (preload) {
-			Handler handler = getMainHandler();
-			handler.sendMessage(handler.obtainMessage(MSG_DELETE_SECTION_AT, index));
+		} else {
+			if (index < 0 || index >= preloadSections.size()) {
+				Log.e(TAG, "Invalid index to delete section");
+				return;
+			}
+			preload = true;
+			preloadSections.remove(index);
 		}
 	}
 	
@@ -188,10 +256,14 @@ public class ListViewProxy extends TiViewProxy {
 	private void handleInsertSectionAt(int index, Object section) {
 		TiUIView listView = peekView();
 		if (listView != null) {
-			preload = false;
 			((TiListView) listView).insertSectionAt(index, section);
-		} else if (preload) {
-			sendInsertSectionMessage(index, section);	
+		} else {
+			if (index < 0 || index > preloadSections.size()) {
+				Log.e(TAG, "Invalid index to insertSection");
+				return;
+			}
+			preload = true;
+			addPreloadSections(section, index, false);
 		}
 	}
 	
@@ -215,10 +287,11 @@ public class ListViewProxy extends TiViewProxy {
 	private void handleReplaceSectionAt(int index, Object section) {
 		TiUIView listView = peekView();
 		if (listView != null) {
-			preload = false;
 			((TiListView) listView).replaceSectionAt(index, section);
-		} else if (preload) {
-			sendReplaceSectionMessage(index, section);	
+		} else {
+			handleDeleteSectionAt(index);
+			handleInsertSectionAt(index,  section);
+			
 		}
 	}
 }

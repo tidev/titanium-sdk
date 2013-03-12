@@ -1,3 +1,10 @@
+/**
+ * Appcelerator Titanium Mobile
+ * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Licensed under the terms of the Apache Public License
+ * Please see the LICENSE included with this distribution for details.
+ */
+
 package ti.modules.titanium.ui.widget.listview;
 
 import java.lang.ref.WeakReference;
@@ -194,7 +201,7 @@ public class ListSectionProxy extends ViewProxy{
 	}
 	
 	private KrollDict handleGetItemAt(int index) {
-		if (itemProperties != null & index >= 0 && index < itemProperties.size()) {
+		if (itemProperties != null && index >= 0 && index < itemProperties.size()) {
 			return new KrollDict((HashMap)itemProperties.get(index));
 		}
 		return null;
@@ -273,7 +280,7 @@ public class ListSectionProxy extends ViewProxy{
 			if (itemData instanceof HashMap) {
 				KrollDict d = new KrollDict((HashMap)itemData);
 				TiTemplate template = processTemplate(d, i + offset);
-				template.updateDefaultProperties(d);
+				template.updateOrMergeWithDefaultProperties(d, true);
 				temps[i] = template;
 			}
 		}
@@ -284,7 +291,7 @@ public class ListSectionProxy extends ViewProxy{
 				KrollDict d = new KrollDict((HashMap)itemData);
 				TiTemplate template = temps[i];
 				if (template != null) {
-					template.mergeWithDefaultProperties(d);
+					template.updateOrMergeWithDefaultProperties(d, false);
 				}
 				ListItemData itemD = new ListItemData(d, template);
 				d.remove(TiC.PROPERTY_TEMPLATE);
@@ -324,7 +331,6 @@ public class ListSectionProxy extends ViewProxy{
 					itemProperties.add(view);
 				}
 			}
-			
 			//only process items when listview's properties is processed.
 			if (getListView() == null) {
 				preload = true;
@@ -490,8 +496,7 @@ public class ListSectionProxy extends ViewProxy{
 			} else {
 				parentContent.add(view);
 			}
-			//Process default properties
-			//view.processProperties(childProps);
+
 		}
 	}
 	
@@ -518,64 +523,53 @@ public class ListSectionProxy extends ViewProxy{
 		
 		HashMap<String, ViewItem> views = (HashMap<String, ViewItem>) cellContent.getViewsMap();
 		//Loop through all our views and apply default properties
+		boolean isListItemProcess = false;
 		for (String binding: views.keySet()) {
-			
 			DataItem dataItem = template.getDataItem(binding);
 			ViewItem viewItem = views.get(binding);
 			TiUIView view = viewItem.getView();
 			if (view != null) {
 				appendExtraEventData(view, itemPosition, sectionIndex, binding);
 			}
-			//if view doesn't have binding, we don't need to re-apply properties since
-			//we know users can't change any properties. If data contains view, we don't
-			//need to apply default properties b/c data properties is merged with default
-			//properties and we handle it when we loop through data.
-			if (binding.startsWith(TiTemplate.GENERATED_BINDING) ||
-				data.containsKey(binding)) continue;
-			
-			if (dataItem != null && view != null) {
-				KrollDict diffProperties = viewItem.generateDiffProperties(dataItem.getDefaultProperties());
-				if (!diffProperties.isEmpty()) {
-					view.processProperties(diffProperties);
-				}
-			}
-			
-			
-		}
-		//Loop through views that have different properties than the default properties on template
-		boolean isListItemProcess = false;
-		for (String key : data.keySet()) {
-			KrollDict properties = new KrollDict((HashMap)data.get(key));
-			ViewItem viewItem = views.get(key);
-			if (key.equals(template.getItemID()) && cell instanceof TiListItem) {
-				TiListItem listItem = (TiListItem) cell;
-				KrollDict diffProperties = cellContent.getViewItem().generateDiffProperties(properties);
-				if (!diffProperties.isEmpty()) {
-					listItem.processProperties(properties);
-				}
-				appendExtraEventData(listItem, itemPosition, sectionIndex, TiC.PROPERTY_PROPERTIES);
-				isListItemProcess = true;
-				continue;
-			}
-
-			TiUIView view = cellContent.getViewFromBinding(key);
-			if (view != null) {
+			//if binding is contain in data given to us, process that data, otherwise
+			//apply default properties.
+			if (data.containsKey(binding) && view != null) {
+				KrollDict properties = new KrollDict((HashMap)data.get(binding));
 				KrollDict diffProperties = viewItem.generateDiffProperties(properties);
 				if (!diffProperties.isEmpty()) {
 					view.processProperties(diffProperties);
 				}
+
+			} else if (dataItem != null && view != null) {
+				KrollDict diffProperties = viewItem.generateDiffProperties(dataItem.getDefaultProperties());
+				if (!diffProperties.isEmpty()) {
+					view.processProperties(diffProperties);
+				}
 			} else {
-				Log.w(TAG, "Sorry, " + key + " isn't a valid binding. Perhaps you made a typo?");
+				Log.w(TAG, "Sorry, " + binding + " isn't a valid binding. Perhaps you made a typo?");
 			}
+			
 		}
 		
-		if (!isListItemProcess && cell instanceof TiListItem) {
-			TiListItem listItem = (TiListItem) cell;
+		//Handling root item, since that is not in the views map.
+		if (!(cell instanceof TiListItem)) {
+			Log.e(TAG, "Cell is not TiListItem. Something is wrong..");
+			return;
+		}
+
+		TiListItem listItem = (TiListItem) cell;
+		appendExtraEventData(listItem, itemPosition, sectionIndex, TiC.PROPERTY_PROPERTIES);
+		if (data.containsKey(TiC.PROPERTY_PROPERTIES)) {
+			KrollDict properties = new KrollDict((HashMap)data.get(TiC.PROPERTY_PROPERTIES));
+			KrollDict diffProperties = cellContent.getViewItem().generateDiffProperties(properties);
+			if (!diffProperties.isEmpty()) {
+				listItem.processProperties(properties);
+			}
+		} else {
 			KrollDict diffProperties = cellContent.getViewItem().generateDiffProperties(template.getRootItem().getDefaultProperties());
 			if (!diffProperties.isEmpty()) {
 				listItem.processProperties(diffProperties);
 			}
-			appendExtraEventData(listItem, itemPosition, sectionIndex, TiC.PROPERTY_PROPERTIES);
 		}
 	}
 	

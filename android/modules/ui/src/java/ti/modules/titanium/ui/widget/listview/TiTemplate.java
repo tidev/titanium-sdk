@@ -1,3 +1,10 @@
+/**
+ * Appcelerator Titanium Mobile
+ * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Licensed under the terms of the Apache Public License
+ * Please see the LICENSE included with this distribution for details.
+ */
+
 package ti.modules.titanium.ui.widget.listview;
 
 import java.util.ArrayList;
@@ -18,7 +25,7 @@ public class TiTemplate {
 	
 	public static final String DEFAULT_TEMPLATE = "defaultTemplate";
 	
-	public static final String GENERATED_BINDING = "@#$_+_#$#^%^~:";
+	public static final String GENERATED_BINDING = "generatedBinding:";
 
 	//Identifier for template, specified in ListView creation dict
 	private String templateID;
@@ -120,8 +127,8 @@ public class TiTemplate {
 		String id = null;
 		Object props = null;
 		DataItem item = null;
-		if (properties.containsKey(TiC.PROPERTY_TYPE)) {
-			proxy = properties.get(TiC.PROPERTY_TYPE);
+		if (properties.containsKey(TiC.PROPERTY_TI_PROXY)) {
+			proxy = properties.get(TiC.PROPERTY_TI_PROXY);
 		}
 
 		//Get/generate random bind id
@@ -216,27 +223,7 @@ public class TiTemplate {
 		return rootItem;
 	}
 
-	/**
-	 * 
-	 * @param data
-	 */
-	public void updateDefaultProperties(KrollDict data) {
-		
-		for (String binding: data.keySet()) {
-			DataItem dataItem = dataItems.get(binding);
-			if (dataItem == null) continue;
-			
-			KrollDict defaultProps = dataItem.getDefaultProperties();
-			KrollDict props = new KrollDict((HashMap)data.get(binding));
-			if (defaultProps != null) {
-				//update default properties
-				modifyDefaultProperties(defaultProps, props);
-			}
-		}
-		
-	}
-	
-	public void mergeWithDefaultProperties(KrollDict data) {
+	public void updateOrMergeWithDefaultProperties(KrollDict data, boolean update) {
 		for (String binding: data.keySet()) {
 			DataItem dataItem = dataItems.get(binding);
 			if (dataItem == null) continue;
@@ -244,19 +231,20 @@ public class TiTemplate {
 			KrollDict defaultProps = dataItem.getDefaultProperties();
 			KrollDict props = new KrollDict((HashMap)data.get(binding));
 			if (defaultProps != null) {
-				//merge default properties with new properties and update data
-				HashMap<String, Object> newData = ((HashMap<String, Object>)defaultProps.clone());
-				newData.putAll(props);
-				data.put(binding, newData);
-			}
-		}
-	}
-	
-	public void modifyDefaultProperties(KrollDict existingProperties, KrollDict newProperties) {
-		Set<String> existingKeys = existingProperties.keySet();
-		for (String key:  newProperties.keySet()) {
-			if (!existingKeys.contains(key)) {
-				existingProperties.put(key, null);
+				if (update) {
+					//update default properties
+					Set<String> existingKeys = defaultProps.keySet();
+					for (String key:  props.keySet()) {
+						if (!existingKeys.contains(key)) {
+							defaultProps.put(key, null);
+						}
+					}
+				} else {
+					//merge default properties with new properties and update data
+					HashMap<String, Object> newData = ((HashMap<String, Object>)defaultProps.clone());
+					newData.putAll(props);
+					data.put(binding, newData);
+				}
 			}
 		}
 

@@ -1987,6 +1987,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_TEXT_ALIGN = "textAlign";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_TI_PROXY = "tiProxy";
 
 	/**
 	 * @module.api

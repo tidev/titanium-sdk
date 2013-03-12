@@ -9,17 +9,18 @@ exports.bootstrap = function(Titanium) {
 	var ListView = Titanium.UI.ListView;
 	var Ti = Titanium;
 	function createListView(scopeVars, options) {
-		var templates = options.templates;
-		if (templates !== void 0) {
-			templates = templateClone(templates);
-			for (var template in templates) {
-				//process template
-				processTemplate(templates[template]);
-				//process child templates
-				processChildTemplates(templates[template]);
+		if (options !== void 0) {
+			var templates = options.templates;
+			if (templates !== void 0) {
+				for (var binding in templates) {
+					var currentTemplate = templates[binding];
+					//process template
+					processTemplate(currentTemplate);
+					//process child templates
+					processChildTemplates(currentTemplate);
+				}
 			}
 		}
-		options.templates = templates;
 		var listView = new ListView(options);
 		
 		return listView;
@@ -28,7 +29,7 @@ exports.bootstrap = function(Titanium) {
 	//Create ListItemProxy, add events, then store it in 'type' property
 	function processTemplate(properties) {
 	   	var cellProxy = Titanium.UI.createListItem();
-		properties.type = cellProxy;
+		properties.tiProxy = cellProxy;
     	var events = properties.events;
     	addEventListeners(events, cellProxy);
 	}
@@ -55,8 +56,8 @@ exports.bootstrap = function(Titanium) {
 				//add event listeners
 				var events = child.events;
 				addEventListeners(events, childProxy);
-				//change value of 'type' to proxy
-				child.type = childProxy;
+				//append proxy to tiProxy property
+				child.tiProxy = childProxy;
 			}
 
 			processChildTemplates(child);
@@ -84,36 +85,6 @@ exports.bootstrap = function(Titanium) {
 
 		var proxyName = name.slice(lastDotIndex + 1);
 		return proxy['create' + proxyName];
-	}
-	
-
-	function templateClone(templates) {
-		var cloneTemplate = {};
-		for (var template in templates) {
-			var temp = templates[template];
-			var clone = cloneTemplate[template] = {};
-			templateCloneHelper(temp, clone);
-		}
-		return cloneTemplate;
-	}
-	
-	function templateCloneHelper(template, cloneTemplate) {
-		var keys = Object.keys(template);
-		var keyLength = keys.length;
-		for (var i = 0; i < keyLength; i++) {
-			var key = keys[i];
-			if (key != 'childTemplates') {
-				cloneTemplate[key] = template[key];
-			} else {
-				var cloneChild = cloneTemplate.childTemplates = [];
-				var childTemplate = template.childTemplates;
-				var childLength = childTemplate.length
-				for (var j = 0; j < childLength; j++) {
-					cloneChild[j] = {};
-					templateCloneHelper(childTemplate[j], cloneChild[j]);
-				}
-			}
-		}
 	}
 
 	//overwrite list view constructor function with our own.

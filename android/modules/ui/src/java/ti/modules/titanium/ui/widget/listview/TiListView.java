@@ -1,3 +1,10 @@
+/**
+ * Appcelerator Titanium Mobile
+ * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Licensed under the terms of the Apache Public License
+ * Please see the LICENSE included with this distribution for details.
+ */
+
 package ti.modules.titanium.ui.widget.listview;
 
 import java.util.ArrayList;
@@ -209,9 +216,23 @@ public class TiListView extends TiUIView{
 			defaultTemplateBinding = TiConvert.toString(d, TiC.PROPERTY_DEFAULT_ITEM_TEMPLATE);
 		}
 		
+		ListViewProxy listProxy = (ListViewProxy) proxy;
 		if (d.containsKey(TiC.PROPERTY_SECTIONS)) {
-			processSections((Object[])d.get(TiC.PROPERTY_SECTIONS));
+			//if user didn't append/modify/delete sections before this is called, we process sections
+			//as usual. Otherwise, we process the preloadSections, which should also contain the section(s)
+			//from this dictionary as well as other sections that user append/insert/deleted prior to this.
+			if (!listProxy.isPreload()) {
+				processSections((Object[])d.get(TiC.PROPERTY_SECTIONS));
+			} else {
+				processSections(listProxy.getPreloadSections().toArray());
+			}
+		} else if (listProxy.isPreload()) {
+			//if user didn't specify 'sections' property upon creation of listview but append/insert it afterwards
+			//we process them instead.
+			processSections(listProxy.getPreloadSections().toArray());
 		}
+
+		listProxy.clearPreloadSections();
 		
 		if (d.containsKey(TiC.PROPERTY_HEADER_TITLE)) {
 			headerView = inflater.inflate(headerFooterId, null);
