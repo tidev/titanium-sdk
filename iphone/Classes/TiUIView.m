@@ -291,7 +291,7 @@ DEFINE_EXCEPTIONS
 	NSURL *url = [TiUtils toURL:image proxy:proxy];
 	if (url==nil)
 	{
-		NSLog(@"[WARN] could not find image: %@",[url absoluteString]);
+		NSLog(@"[WARN] could not find image: %@",image);
 		return nil;
 	}
 	return [[ImageLoader sharedLoader] loadImmediateStretchableImage:url withLeftCap:leftCap topCap:topCap];
