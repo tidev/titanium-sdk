@@ -571,6 +571,10 @@ enum
  */
 -(void)childWillResize:(TiViewProxy *)child;	//Todo: Replace
 
+- (void)unarchiveFromTemplate:(NSDictionary *)viewTemplate;
+
++ (TiViewProxy *)unarchiveFromTemplate:(NSDictionary *)viewTemplate inContext:(id<TiEvaluator>)context;
+
 @end
 
 
