@@ -203,6 +203,12 @@ TiValueRef KrollCallAsNamedFunction(TiContextRef jsContext, TiObjectRef func, Ti
 	[super dealloc];
 }
 
+-(void)setSelector:(SEL)selector_
+{
+    selector = selector_;
+    _methodSignature = [target methodSignatureForSelector:selector];
+}
+
 -(void)updateJSObjectWithValue:(id)value forKey:(NSString *)key
 {
 	if (!updatesProperty)
@@ -251,7 +257,7 @@ TiValueRef KrollCallAsNamedFunction(TiContextRef jsContext, TiObjectRef func, Ti
 	{
 		//TODO: This likely could be further optimized later
 		//
-		bool useResult = [self.methodSignature methodReturnLength] == sizeof(id);
+		bool useResult = [_methodSignature methodReturnLength] == sizeof(id);
 		id result = nil;
 		id delegate = context.delegate;
 		IMP methodFunction = [target methodForSelector:selector];
@@ -267,7 +273,7 @@ TiValueRef KrollCallAsNamedFunction(TiContextRef jsContext, TiObjectRef func, Ti
 	
 	
 	// create proxy method invocation
-	if (self.methodSignature==nil)
+	if (_methodSignature==nil)
 	{
 		@throw [NSException exceptionWithName:@"org.appcelerator.kroll" reason:[NSString stringWithFormat:@"invalid method '%@'",NSStringFromSelector(selector)] userInfo:nil];
 	}
@@ -280,7 +286,7 @@ TiValueRef KrollCallAsNamedFunction(TiContextRef jsContext, TiObjectRef func, Ti
 		[target setExecutionContext:context.delegate];
 	}
 	
-	int methodArgCount = [self.methodSignature numberOfArguments];
+	int methodArgCount = [_methodSignature numberOfArguments];
 	
 	if (methodArgCount > 0 && argcount > 0)
 	{
@@ -312,14 +318,14 @@ TiValueRef KrollCallAsNamedFunction(TiContextRef jsContext, TiObjectRef func, Ti
 		}
 	}
 	
-	if ([self.methodSignature methodReturnLength] == sizeof(id)) 
+	if ([_methodSignature methodReturnLength] == sizeof(id))
 	{
 		id result;
 		result = methodFunction(target,selector,arg1,arg2);
 		return result;
 	}
 
-	const char * retType = [self.methodSignature methodReturnType];
+	const char * retType = [_methodSignature methodReturnType];
 	char t = retType[0];
 	switch(t)
 	{
