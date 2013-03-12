@@ -132,8 +132,13 @@ TiValueRef KrollCallAsNamedFunction(TiContextRef jsContext, TiObjectRef func, Ti
 	return TiValueMakeUndefined(jsContext);
 }
 
+@interface KrollMethod ()
+@property(nonatomic,readonly) NSMethodSignature *methodSignature;
+@end
+
 @implementation KrollMethod
 @synthesize propertyKey, selector,argcount,type,name,updatesProperty;
+@synthesize methodSignature = _methodSignature;
 
 -(id)init
 {
@@ -184,6 +189,7 @@ TiValueRef KrollCallAsNamedFunction(TiContextRef jsContext, TiObjectRef func, Ti
 		argcount = argcount_;
 		type = type_;
 		name = [name_ retain];
+		_methodSignature = [target methodSignatureForSelector:selector];
 	}
 	return self;
 }
@@ -245,8 +251,7 @@ TiValueRef KrollCallAsNamedFunction(TiContextRef jsContext, TiObjectRef func, Ti
 	{
 		//TODO: This likely could be further optimized later
 		//
-		NSMethodSignature *methodSignature = [target methodSignatureForSelector:selector];
-		bool useResult = [methodSignature methodReturnLength] == sizeof(id);
+		bool useResult = [self.methodSignature methodReturnLength] == sizeof(id);
 		id result = nil;
 		id delegate = context.delegate;
 		IMP methodFunction = [target methodForSelector:selector];
@@ -262,8 +267,7 @@ TiValueRef KrollCallAsNamedFunction(TiContextRef jsContext, TiObjectRef func, Ti
 	
 	
 	// create proxy method invocation
-	NSMethodSignature *methodSignature = [target methodSignatureForSelector:selector];
-	if (methodSignature==nil)
+	if (self.methodSignature==nil)
 	{
 		@throw [NSException exceptionWithName:@"org.appcelerator.kroll" reason:[NSString stringWithFormat:@"invalid method '%@'",NSStringFromSelector(selector)] userInfo:nil];
 	}
@@ -276,7 +280,7 @@ TiValueRef KrollCallAsNamedFunction(TiContextRef jsContext, TiObjectRef func, Ti
 		[target setExecutionContext:context.delegate];
 	}
 	
-	int methodArgCount = [methodSignature numberOfArguments];
+	int methodArgCount = [self.methodSignature numberOfArguments];
 	
 	if (methodArgCount > 0 && argcount > 0)
 	{
@@ -308,14 +312,14 @@ TiValueRef KrollCallAsNamedFunction(TiContextRef jsContext, TiObjectRef func, Ti
 		}
 	}
 	
-	if ([methodSignature methodReturnLength] == sizeof(id)) 
+	if ([self.methodSignature methodReturnLength] == sizeof(id)) 
 	{
 		id result;
 		result = methodFunction(target,selector,arg1,arg2);
 		return result;
 	}
 
-	const char * retType = [methodSignature methodReturnType];
+	const char * retType = [self.methodSignature methodReturnType];
 	char t = retType[0];
 	switch(t)
 	{
