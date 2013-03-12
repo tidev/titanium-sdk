@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -44,7 +44,6 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.media.ExifInterface;
 import android.util.DisplayMetrics;
-import android.view.Display;
 import android.view.View;
 import android.webkit.URLUtil;
 
@@ -435,13 +434,6 @@ public class TiDrawableReference
 			parentHeight = parent.getHeight();
 		}
 
-		// If both height and width are zero, then use the display values
-		if (parentWidth == 0 && parentHeight == 0) {
-			Display display = TiApplication.getAppRootOrCurrentActivity().getWindowManager().getDefaultDisplay();
-			parentHeight = display.getHeight();
-			parentWidth = display.getWidth();
-		}
-
 		// Width to fit into
 		if (destWidthDimension != null) {
 			if (destWidthDimension.isUnitAuto()) {
@@ -545,8 +537,7 @@ public class TiDrawableReference
 		}
 
 		if (destWidth <= 0 || destHeight <= 0) {
-			// calcDestSize() should actually prevent this from happening, but just in case...
-			Log.w(TAG, "Bitmap final bounds could not be determined.  If bitmap is loaded, it won't be scaled.");
+			// If we can't determine the size, then return null instead of an unscaled bitmap
 			return getBitmap();
 		}
 
@@ -823,7 +814,7 @@ public class TiDrawableReference
 		return oomOccurred;
 	}
 
-	private Bitmap getRotatedBitmap (Bitmap src, int orientation) {
+	private Bitmap getRotatedBitmap(Bitmap src, int orientation) {
 		Matrix m = new Matrix();
 		m.postRotate(orientation);
 		return Bitmap.createBitmap(src, 0, 0, src.getWidth(), src.getHeight(), m, false);

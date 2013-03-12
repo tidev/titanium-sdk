@@ -1041,6 +1041,8 @@ def main(args):
 
 			if not os.path.exists(os.path.join(iphone_dir,'lib','libti_ios_debugger.a')):
 				shutil.copy(os.path.join(template_dir,'libti_ios_debugger.a'),os.path.join(iphone_dir,'lib','libti_ios_debugger.a'))
+			if not os.path.exists(os.path.join(iphone_dir,'lib','libti_ios_profiler.a')):
+				shutil.copy(os.path.join(template_dir,'libti_ios_profiler.a'),os.path.join(iphone_dir,'lib','libti_ios_profiler.a'))
 
 			# compile JSS files
 			cssc = csscompiler.CSSCompiler(os.path.join(project_dir,'Resources'),devicefamily,appid)

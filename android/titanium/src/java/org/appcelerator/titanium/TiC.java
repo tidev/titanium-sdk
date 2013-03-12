@@ -21,6 +21,14 @@ public class TiC
 	public static final String ERROR_PROPERTY_MESSAGE = "message";
 
 	/**
+	 * ERROR_CODE constants are for values of the code property in
+	 * events and callback objects. When you can use a nonzero OS-provided
+	 * error code, use that instead.
+	 */
+	public static final int ERROR_CODE_UNKNOWN = -1;
+	public static final int ERROR_CODE_NO_ERROR = 0;
+
+	/**
 	 * @module.api
 	 */
 	public static final String EVENT_ADDED_TO_TAB = "addedtotab";
@@ -753,11 +761,6 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_BYTE_ORDER = "byteOrder";
-
-	/**
-	 * @module.api
-	 */
-	public static final String PROPERTY_CAN_SCALE = "canScale";
 
 	/**
 	 * @module.api
@@ -1738,6 +1741,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_SECTION = "section";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_SECTIONS = "sections";
 
 	/**
 	 * @module.api

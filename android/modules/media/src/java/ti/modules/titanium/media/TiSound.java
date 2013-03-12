@@ -423,8 +423,7 @@ public class TiSound
 		}
 
 		KrollDict data = new KrollDict();
-		data.put(TiC.PROPERTY_CODE, 0);
-		data.put(TiC.PROPERTY_MESSAGE, msg);
+		data.putCodeAndMessage(TiC.ERROR_CODE_UNKNOWN, msg);
 		proxy.fireEvent(EVENT_ERROR, data);
 
 		return true;
@@ -433,7 +432,10 @@ public class TiSound
 	@Override
 	public boolean onError(MediaPlayer mp, int what, int extra)
 	{
-		int code = 0;
+		int code = what;
+		if(what == 0) {
+			code = -1;
+		}
 		String msg = "Unknown media error.";
 		if (what == MediaPlayer.MEDIA_ERROR_SERVER_DIED) {
 			msg = "Media server died";
@@ -441,7 +443,7 @@ public class TiSound
 		release();
 
 		KrollDict data = new KrollDict();
-		data.put(TiC.PROPERTY_CODE, code);
+		data.putCodeAndMessage(code, msg);
 		data.put(TiC.PROPERTY_MESSAGE, msg);
 		proxy.fireEvent(EVENT_ERROR, data);
 

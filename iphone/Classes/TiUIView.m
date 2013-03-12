@@ -556,6 +556,8 @@ DEFINE_EXCEPTIONS
         if (bgImage != nil) {
             [self backgroundImageLayer].contentsScale = [bgImage scale];
             [self backgroundImageLayer].contentsCenter = TiDimensionLayerContentCenter(topCap, leftCap, topCap, leftCap, [bgImage size]);
+            [self backgroundImageLayer].magnificationFilter = @"nearest";
+            [self backgroundImageLayer].minificationFilter = @"nearest";
         }
     }
     

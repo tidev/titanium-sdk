@@ -62,7 +62,7 @@ public class TiUIActionBarTab extends TiUIAbstractTab {
 		}
 		Object url = proxy.getProperty(TiC.PROPERTY_ICON);
 		if (url != null) {
-			Drawable icon = getDrawableFromUrl(url);
+			Drawable icon = TiUIHelper.getResourceDrawable(url);
 			tab.setIcon(icon);
 		}
 		
@@ -76,19 +76,9 @@ public class TiUIActionBarTab extends TiUIAbstractTab {
 		if (key.equals(TiC.PROPERTY_ICON)) {
 			Drawable icon = null;
 			if (newValue != null){
-				icon = getDrawableFromUrl(newValue);
+				icon = TiUIHelper.getResourceDrawable(newValue);
 			}
 			tab.setIcon(icon);
-		}
-	}
-
-	private Drawable getDrawableFromUrl(Object url)
-	{
-		try {
-			return TiUIHelper.getResourceDrawable(url);
-		} catch (Exception e) {
-			Log.w(TAG, "Could not load drawable "+e.getMessage(), Log.DEBUG_MODE);
-			return null;
 		}
 	}
 	
