@@ -63,26 +63,43 @@ exports.config = function (logger, config, cli) {
 						}
 						
 						// general app id validation
-						if (!/^([a-zA-Z_]{1}[a-zA-Z0-9_]*(\.[a-zA-Z0-9_]*)*)$/.test(id)) {
+						if (!/^([a-zA-Z_]{1}[a-zA-Z0-9_-]*(\.[a-zA-Z0-9_-]*)*)$/.test(id)) {
 							throw new appc.exception(__('Invalid app id "%s"', id), [
-								__('The app id must consist of letters, numbers, and underscores.'),
+								__('The app id must consist of letters, numbers, dashes, and underscores.'),
+								__('Note: Android does not allow dashes and iOS does not allow underscores.'),
 								__('The first character must be a letter or underscore.'),
 								__("Usually the app id is your company's reversed Internet domain name. (i.e. com.example.myapp)")
 							]);
 						}
 						
-						if (cli.argv.platforms && ti.scrubPlatforms(cli.argv.platforms).scrubbed.indexOf('android') != -1) {
-							// if android is in the list of platforms, we go down the lowest common denominator road
-							if (!/^([a-zA-Z_]{1}[a-zA-Z0-9_]*(\.[a-zA-Z_]{1}[a-zA-Z0-9_]*)*)$/.test(id)) {
-								throw new appc.exception(__('Invalid app id "%s"', id), [
-									__('For apps targeting %s, numbers are not allowed directly after periods.', 'Android'.cyan)
-								]);
+						if (cli.argv.platforms) {
+							var scrubbed = ti.scrubPlatforms(cli.argv.platforms).scrubbed;
+							if (scrubbed.indexOf('android') != -1) {
+								if (id.indexOf('-') != -1) {
+									throw new appc.exception(__('Invalid app id "%s"', id), [
+										__('For apps targeting %s, the app id must not contain dashes.', 'Android'.cyan)
+									]);
+								}
+								
+								if (!/^([a-zA-Z_]{1}[a-zA-Z0-9_]*(\.[a-zA-Z_]{1}[a-zA-Z0-9_]*)*)$/.test(id)) {
+									throw new appc.exception(__('Invalid app id "%s"', id), [
+										__('For apps targeting %s, numbers are not allowed directly after periods.', 'Android'.cyan)
+									]);
+								}
+								
+								if (!ti.validAppId(id)) {
+									throw new appc.exception(__('Invalid app id "%s"', id), [
+										__('For apps targeting %s, the app id must not contain Java reserved words.', 'Android'.cyan)
+									]);
+								}
 							}
 							
-							if (!ti.validAppId(id)) {
-								throw new appc.exception(__('Invalid app id "%s"', id), [
-									__('For apps targeting %s, the app id must not contain Java reserved words.', 'Android'.cyan)
-								]);
+							if (scrubbed.indexOf('ios') != -1 || scrubbed.indexOf('iphone') != -1) {
+								if (id.indexOf('_') != -1) {
+									throw new appc.exception(__('Invalid app id "%s"', id), [
+										__('For apps targeting %s, the app id must not contain underscores.', 'iOS'.cyan)
+									]);
+								}
 							}
 						}
 						return true;
@@ -100,7 +117,6 @@ exports.config = function (logger, config, cli) {
 				prompt: {
 					label: __('Project name'),
 					error: __('Invalid project name')
-					// pattern: /^[A-Za-z]+[A-Za-z0-9_-]*$/
 				},
 				required: true
 			},
@@ -148,10 +164,11 @@ exports.validate = function (logger, config, cli) {
 	
 	cli.argv.id = (cli.argv.id || '').trim();
 	
-	// general app id validation
-	if (!/^([a-zA-Z_]{1}[a-zA-Z0-9_]*(\.[a-zA-Z0-9_]*)*)$/.test(cli.argv.id)) {
+	// general app id validation (we'll make sure there are no dashes for Android and no underscores for iOS later)
+	if (!/^([a-zA-Z_]{1}[a-zA-Z0-9_-]*(\.[a-zA-Z0-9_-]*)*)$/.test(cli.argv.id)) {
 		logger.error(__('Invalid app id "%s"', cli.argv.id) + '\n');
-		logger.log(__('The app id must consist of letters, numbers, and underscores.'));
+		logger.log(__('The app id must consist of letters, numbers, dashes, and underscores.'));
+		logger.log(__('Note: Android does not allow dashes and iOS does not allow underscores.'));
 		logger.log(__('The first character must be a letter or underscore.'));
 		logger.log(__("Usually the app id is your company's reversed Internet domain name. (i.e. com.example.myapp)") + '\n');
 		process.exit(1);
@@ -159,6 +176,12 @@ exports.validate = function (logger, config, cli) {
 	
 	if (platforms.scrubbed.indexOf('android') != -1) {
 		// if android is in the list of platforms, we go down the lowest common denominator road
+		if (cli.argv.id.indexOf('-') != -1) {
+			logger.error(__('Invalid app id "%s"', cli.argv.id) + '\n');
+			logger.log(__('For apps targeting %s, the app id must not contain dashes.', 'Android'.cyan) + '\n');
+			process.exit(1);
+		}
+		
 		if (!/^([a-zA-Z_]{1}[a-zA-Z0-9_]*(\.[a-zA-Z_]{1}[a-zA-Z0-9_]*)*)$/.test(cli.argv.id)) {
 			logger.error(__('Invalid app id "%s"', cli.argv.id) + '\n');
 			logger.log(__('For apps targeting %s, numbers are not allowed directly after periods.', 'Android'.cyan) + '\n');
@@ -171,16 +194,44 @@ exports.validate = function (logger, config, cli) {
 			process.exit(1);
 		}
 	} else {
-		if (!/^([a-zA-Z_]{1}[a-zA-Z0-9_]*(\.[a-zA-Z_]{1}[a-zA-Z0-9_]*)*)$/.test(cli.argv.id)) {
+		// android is not in the list of platforms
+		var counter = 0;
+		
+		if (cli.argv.id.indexOf('-') != -1) {
 			logger.warn(__('The specified app id is not compatible with the Android platform.'));
-			logger.warn(__('Android does not allow numbers directly following periods on the app id.'));
-			logger.warn(__('If you wish to add Android support, you will need to fix the <id> in the tiapp.xml.'));
+			logger.warn(__('Android does not allow dashes in the app id.'));
+			counter++;
+		}
+		
+		if (!/^([a-zA-Z_]{1}[a-zA-Z0-9_]*(\.[a-zA-Z_]{1}[a-zA-Z0-9_]*)*)$/.test(cli.argv.id)) {
+			counter || logger.warn(__('The specified app id is not compatible with the Android platform.'));
+			logger.warn(__('Android does not allow numbers directly following periods in the app id.'));
+			counter++;
 		}
 		
 		if (!ti.validAppId(cli.argv.id)) {
-			logger.warn(__('The specified app id is not compatible with the Android platform.'));
+			counter || logger.warn(__('The specified app id is not compatible with the Android platform.'));
 			logger.warn(__('Android does not allow Java reserved words in the app id.'));
+			counter++;
+		}
+		
+		if (counter) {
 			logger.warn(__('If you wish to add Android support, you will need to fix the <id> in the tiapp.xml.'));
+			logger.log();
+		}
+	}
+	
+	// next we check if iOS contains any underscores
+	if (cli.argv.id.indexOf('_') != -1) {
+		if (platforms.scrubbed.indexOf('ios') != -1 || platforms.scrubbed.indexOf('iphone') != -1) {
+			logger.error(__('Invalid app id "%s"', cli.argv.id) + '\n');
+			logger.log(__('For apps targeting %s, the app id must not contain underscores.', 'iOS'.cyan) + '\n');
+			process.exit(1);
+		} else {
+			logger.warn(__('The specified app id is not compatible with the iOS platform.'));
+			logger.warn(__('iOS does not allow underscores in the app id.'));
+			logger.warn(__('If you wish to add iOS support, you will need to fix the <id> in the tiapp.xml.'));
+			logger.log();
 		}
 	}
 	

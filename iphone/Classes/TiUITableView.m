@@ -94,11 +94,11 @@
 
 -(void)prepareForReuse
 {
+	[super prepareForReuse];
 	if (proxy.callbackCell == self) {
 		[proxy prepareTableRowForReuse];
 	}
 	[self setProxy:nil];
-	[super prepareForReuse];
 	
 	// TODO: HACK: In the case of abnormally large table view cells, we have to reset the size.
 	// This is because the view drawing subsystem takes the cell frame to be the sandbox bounds when drawing views,

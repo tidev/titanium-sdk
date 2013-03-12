@@ -301,6 +301,7 @@ def zip_iphone_ipad(zf,basepath,platform,version,version_tag):
 	zf.write(os.path.join(ticore_lib,'libTiCore.a'),'%s/%s/libTiCore.a'%(basepath,platform))
 	zf.write(os.path.join(ticore_lib,'libtiverify.a'),'%s/%s/libtiverify.a'%(basepath,platform))
 	zf.write(os.path.join(ticore_lib,'libti_ios_debugger.a'),'%s/%s/libti_ios_debugger.a'%(basepath,platform))
+	zf.write(os.path.join(ticore_lib,'libti_ios_profiler.a'),'%s/%s/libti_ios_profiler.a'%(basepath,platform))
 
 	zf.writestr('%s/%s/package.json' % (basepath, platform), codecs.open(os.path.join(top_dir, 'iphone', 'package.json'), 'r', 'utf-8').read().replace('__VERSION__', version))
 

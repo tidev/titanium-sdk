@@ -80,7 +80,9 @@ exports.init = function (logger, config, cli) {
 
 				if (cli.argv.retina) {
 					cmd.push('--retina');
-					cli.argv.tall && cmd.push('--tall');
+					if (appc.version.gte(build.iosSimVersion, '6.0.0') && build.iosSimType == 'iphone' && cli.argv.tall) {
+						cmd.push('--tall');	
+					}
 				}
 				cmd = cmd.join(' ');
 
