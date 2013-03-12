@@ -818,13 +818,14 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 					setImages();
 				}
 			}
-		} else if (key.equals(TiC.PROPERTY_WIDTH)) {
-			String widthProperty = TiConvert.toString(newValue);
-			view.setWidthDefined(!TiC.LAYOUT_SIZE.equals(widthProperty) && !TiC.SIZE_AUTO.equals(widthProperty));
-		} else if (key.equals(TiC.PROPERTY_HEIGHT)) {
-			String heightProperty = TiConvert.toString(newValue);
-			view.setHeightDefined(!TiC.LAYOUT_SIZE.equals(heightProperty) && !TiC.SIZE_AUTO.equals(heightProperty));
 		} else {
+			if (key.equals(TiC.PROPERTY_WIDTH)) {
+				String widthProperty = TiConvert.toString(newValue);
+				view.setWidthDefined(!TiC.LAYOUT_SIZE.equals(widthProperty) && !TiC.SIZE_AUTO.equals(widthProperty));
+			} else if (key.equals(TiC.PROPERTY_HEIGHT)) {
+				String heightProperty = TiConvert.toString(newValue);
+				view.setHeightDefined(!TiC.LAYOUT_SIZE.equals(heightProperty) && !TiC.SIZE_AUTO.equals(heightProperty));
+			}
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}
 	}
