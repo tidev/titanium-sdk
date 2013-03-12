@@ -24,11 +24,9 @@
     if (self = [super _initWithPageContext:context]) {
         module= [module_ retain] ;
         calendar = [calendar_ retain];
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_5_0
         if ([TiUtils isIOS5OrGreater]) {
             calendarId = [calendar calendarIdentifier];
         }
-#endif
     }
         
     return self;

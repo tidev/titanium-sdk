@@ -74,11 +74,12 @@
     if ([key isEqualToString:@"title"]) {
         return currEvent.title;
     }
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_5_0
     else if ([key isEqualToString:@"notes"] && [TiUtils isIOS5OrGreater]) {
-        return [TiUtils stringValue:currEvent.notes];
+        if ([TiUtils isIOS5OrGreater]) {
+            return [TiUtils stringValue:currEvent.notes];
+        }
+        return nil;
     }
-#endif
     else if ([key isEqualToString:@"begin"]) {
         return [TiUtils UTCDateForDate:currEvent.startDate];
     }
@@ -106,7 +107,6 @@
     else if ([key isEqualToString:@"isDetached"]) {
         return NUMBOOL(currEvent.isDetached);
     }
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_5_0
     else if ([key isEqualToString:@"recurrenceRules"])
     {
         if ([TiUtils isIOS5OrGreater]) {
@@ -123,19 +123,19 @@
             return nil;
         }
      }
-#elif __IPHONE_OS_VERSION_MAX_ALLOWED < __IPHONE_5_0
     else if ([key isEqualToString:@"recurrenceRule"])
     {
         if (![TiUtils isIOS5OrGreater]) {
+#if __IPHONE_OS_VERSION_MAX_ALLOWED < __IPHONE_5_0 // REQUIRED OTHERWISE XCODE WON'T LET US COMPILE
             TiCalendarRecurrenceRule* rule = [[TiCalendarRecurrenceRule alloc] _initWithPageContext:[self executionContext] rule:currEvent.reccurrenceRule];
             return rule;
+#endif
         } else {
             DebugLog(@"Ti.Calendar.recurrenceRule is available below ios 5.0");
             return nil;
         }
 
     }
-#endif
     else if ([key isEqualToString:@"alerts"]) {
         if (currEvent.hasAlarms) {
             NSArray* alarms_ = currEvent.alarms;
@@ -200,7 +200,7 @@
     }
     else if ([key isEqualToString:@"recurrenceRule"]) {
         if (![TiUtils isIOS5OrGreater]) {
-#if __IPHONE_OS_VERSION_MAX_ALLOWED < __IPHONE_5_0
+#if __IPHONE_OS_VERSION_MAX_ALLOWED < __IPHONE_5_0 //REQUIRED 
             ENSURE_TYPE_OR_NIL(value,TiCalendarRecurrenceRule);
             EKRecurrenceRule *rule = [value rule];
             currEvent.recurrenceRule = rule;
@@ -214,7 +214,6 @@
     else if ([key isEqualToString:@"recurrenceRules"]) {
         if ([TiUtils isIOS5OrGreater])
         {
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_5_0
             ENSURE_TYPE_OR_NIL(value,NSArray);
             NSMutableArray * rules = [NSMutableArray arrayWithCapacity:[value count]];
             for (TiCalendarRecurrenceRule *recurranceRule_ in value) {
@@ -223,7 +222,6 @@
             }
             currEvent.recurrenceRules = rules;
             return;
-#endif
         } else {
             DebugLog(@"Ti.Calendar.recurrenceRules is only available in iOS 5.0 and above.")
             return;
@@ -472,7 +470,6 @@
 -(void) removeRecurenceRule:(id)arg
 {
     if ([TiUtils isIOS5OrGreater]) {
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_5_0
         TiCalendarRecurrenceRule* ruleProxy = nil;
         ENSURE_ARG_AT_INDEX(ruleProxy, arg, 0, TiCalendarRecurrenceRule);
         
@@ -490,7 +487,6 @@
         
         EKRecurrenceRule *rule = [ruleProxy ruleForRecurrence];
         [currEvent  removeRecurrenceRule:rule];
-#endif        
     } else {
         DebugLog(@"Ti.Event.removeRecurenceRule() is available in iOS 5.0 or greater");
     }
@@ -518,7 +514,7 @@
         result = [ourStore saveEvent:currEvent span:span error:&error];
     }, YES);
     if (result == NO || error != nil) {
-        [self throwException:[NSString stringWithFormat:@"Failed to save event : %@",[error description]]
+        [self throwException:[NSString stringWithFormat:@"Failed to save event : %@",[TiUtils messageFromError:error]]
 				   subreason:nil
 					location:CODELOCATION];
     }
@@ -538,7 +534,7 @@
         result = [ourStore removeEvent:[self event] span:span error:&error];
     }, YES);
     if (result == NO || error != nil) {
-        [self throwException:[NSString stringWithFormat:@"Failed to remove event : %@",[error description]]
+        [self throwException:[NSString stringWithFormat:@"Failed to remove event : %@",[TiUtils messageFromError:error]]
 				   subreason:nil
 					location:CODELOCATION];
     }

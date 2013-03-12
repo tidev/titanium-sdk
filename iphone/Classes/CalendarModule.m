@@ -131,7 +131,6 @@
 
 -(TiCalendarCalendar*)getCalendarById:(id)arg
 {
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_5_0
     if ([TiUtils isIOS5OrGreater]) {
         ENSURE_SINGLE_ARG(arg, NSString);
         
@@ -154,13 +153,11 @@
         TiCalendarCalendar* calendar = [[[TiCalendarCalendar alloc] _initWithPageContext:[self executionContext] calendar:calendar_ module:self] autorelease];
         return calendar;
     }
-#else
     else {
         DebugLog(@"Ti.Calendar.getCalendarById is only supported in iOS 5.0 and above.");
         return nil;
     }
-#endif
-    
+
 }
 
 
