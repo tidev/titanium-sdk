@@ -600,7 +600,7 @@ build.prototype = {
 
 				tiJS.push('"url:' + url + '":"data:' + type + ';base64,' + fs.readFileSync(img).toString('base64') + '"');
 			}
-		});
+		}, this);
 
 		requireCacheWritten && tiJS.push('});\n');
 
