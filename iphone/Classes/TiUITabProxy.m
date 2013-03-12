@@ -421,6 +421,7 @@
 	NSString * title = [TiUtils stringValue:[self valueForKey:@"title"]];
 
 	UIImage *image;
+	UIImage *activeImage = nil;
 	if (icon == nil)
 	{
 		image = nil;
@@ -440,6 +441,11 @@
 			currentWindow = self;
 		}
 		image = [[ImageLoader sharedLoader] loadImmediateImage:[TiUtils toURL:icon proxy:currentWindow]];
+
+		id activeIcon = [self valueForKey:@"activeIcon"];
+		if ([activeIcon isKindOfClass:[NSString class]]) {
+			activeImage = [[ImageLoader sharedLoader] loadImmediateImage:[TiUtils toURL:activeIcon proxy:currentWindow]];
+		}
 	}
 
 	[rootController setTitle:title];
@@ -452,13 +458,18 @@
 		[ourItem setImage:image];
 	}
 
-	if(ourItem == nil)
+	if (ourItem == nil)
 	{
 		systemTab = NO;
 		ourItem = [[[UITabBarItem alloc] initWithTitle:title image:image tag:0] autorelease];
 		[rootController setTabBarItem:ourItem];
 	}
 
+	if (activeImage != nil)
+	{
+		[ourItem setFinishedSelectedImage:activeImage withFinishedUnselectedImage:image];
+	}
+	
 	[ourItem setBadgeValue:badgeValue];
 }
 
@@ -491,6 +502,39 @@
 
 	[self replaceValue:icon forKey:@"icon" notification:NO];
 
+	[self updateTabBarItem];
+}
+
+-(void)setActiveIcon:(id)icon
+{
+	if (![UITabBarItem instancesRespondToSelector:
+		  @selector(setFinishedSelectedImage:withFinishedUnselectedImage:)])
+	{
+		NSLog(@"[WARN] activeIcon is only supported in iOS 5 or above.");
+		return;
+	}
+	
+	if([icon isKindOfClass:[NSString class]])
+	{
+		// we might be inside a different context than our tab group and if so, he takes precendence in
+		// url resolution
+		TiProxy* currentWindow = [self.executionContext preloadForKey:@"currentWindow" name:@"UI"];
+		if (currentWindow==nil)
+		{
+			// check our current window's context that we are owned by
+			currentWindow = [self.pageContext preloadForKey:@"currentWindow" name:@"UI"];
+		}
+		if (currentWindow==nil)
+		{
+			currentWindow = self;
+		}
+		
+		icon = [[TiUtils toURL:icon proxy:currentWindow] absoluteString];
+	}
+	
+	
+	[self replaceValue:icon forKey:@"activeIcon" notification:NO];
+	
 	[self updateTabBarItem];
 }
 
