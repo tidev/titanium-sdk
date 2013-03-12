@@ -2126,7 +2126,7 @@ build.prototype = {
 					(m.manifest.guid || '') + '\",@\"guid\",@\"' +
 					(m.manifest.licensekey || '') + '\",@\"licensekey\",nil]];'
 				);
-			});
+			}, this);
 			
 			applicationModsContents.push('	return modules;');
 			applicationModsContents.push('}\n');
