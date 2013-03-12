@@ -1,0 +1,25 @@
+---
+name: Titanium.Calendar.Alert
+summary: An object that represents a single alert for an event in an calendar.
+extends: Titanium.Proxy
+since: "3.1.0"
+platforms: [iphone, ipad]
+createable: false
+
+properties:
+  - name: absoluteDate
+    summary: The absolute date for the alarm.
+    description: |
+        If you set this property for a relative offset alarm, it loses 
+        the relative offset and becomes an absolute alarm.
+    type: Date
+    platforms: [iphone, ipad]
+    
+  - name: relativeOffset
+    summary: The offset from the start of an event, at which the alarm fires.
+    description: |
+        If you set this value for an absolute alarm, it loses its absolute date and 
+        becomes a relative offset alarm.
+    type: Number
+    platforms: [iphone, ipad]
+
