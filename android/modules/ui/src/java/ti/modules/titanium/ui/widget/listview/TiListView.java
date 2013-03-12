@@ -21,6 +21,8 @@ import org.appcelerator.titanium.util.TiRHelper;
 import org.appcelerator.titanium.util.TiRHelper.ResourceNotFoundException;
 import org.appcelerator.titanium.view.TiUIView;
 
+import ti.modules.titanium.ui.UIModule;
+
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Color;
@@ -53,7 +55,6 @@ public class TiListView extends TiUIView{
 	
 	private static final String TAG = "TiListView";
 	
-	public static DefaultTemplate builtInTemplate;
 	public static final int HEADER_FOOTER_ITEM_TYPE = 0;
 	public static final int BUILT_IN_TEMPLATE_ITEM_TYPE = 1;
 	
@@ -132,6 +133,7 @@ public class TiListView extends TiUIView{
 			//Handling templates
 			KrollDict data = section.getListItemData(index);
 			TiTemplate template = section.getTemplateByIndex(index);
+
 			if (content != null) {
 				TiBaseListViewItem itemContent = (TiBaseListViewItem) content.findViewById(listContentId);
 				section.populateViews(data, itemContent, template, sectionInfo.itemIndex, index, content);
@@ -153,6 +155,7 @@ public class TiListView extends TiUIView{
 		sections = new ArrayList<ListSectionProxy>();
 		itemTypeCount = new AtomicInteger(2);
 		templatesByBinding = new HashMap<String, TiTemplate>();
+		defaultTemplateBinding = UIModule.LIST_ITEM_TEMPLATE_DEFAULT;
 		
 		//initializing listView and adapter
 		listView = new ListView(activity);
@@ -446,10 +449,6 @@ public class TiListView extends TiUIView{
 		}
 		if (footerView != null) {
 			footerView = null;
-		}
-		if (builtInTemplate != null) {
-			builtInTemplate.release();
-			builtInTemplate = null;
 		}
 
 		super.release();
