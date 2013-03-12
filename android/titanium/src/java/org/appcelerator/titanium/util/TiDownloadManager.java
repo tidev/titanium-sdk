@@ -104,9 +104,9 @@ public class TiDownloadManager implements Handler.Callback
 				TiDownloadListener downloadListener = listener.get();
 				if (downloadListener != null) {
 					if (what == MSG_FIRE_DOWNLOAD_FINISHED) {
-						downloadListener.downloadFinished(uri);
+						downloadListener.downloadTaskFinished(uri);
 					} else {
-						downloadListener.downloadFailed(uri);
+						downloadListener.downloadTaskFailed(uri);
 					}
 					toRemove.add(listener);
 				}

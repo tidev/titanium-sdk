@@ -96,7 +96,7 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 		downloadListener = new TiDownloadListener()
 		{
 			@Override
-			public void downloadFinished(URI uri)
+			public void downloadTaskFinished(URI uri)
 			{
 				if (!TiResponseCache.peek(uri)) {
 					// The requested image did not make it into our TiResponseCache,
@@ -107,7 +107,7 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 			}
 
 			@Override
-			public void downloadFailed(URI uri)
+			public void downloadTaskFailed(URI uri)
 			{
 				// If the download failed, fire an error event
 				fireError("Download Failed", uri.toString());
