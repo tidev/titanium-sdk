@@ -26,7 +26,7 @@
 
 -(EKEventStore*)store
 {
-    if (store == NULL) {
+    if (store == nil) {
         store = [[EKEventStore alloc] init];
     }
   if (store == NULL) {
@@ -128,33 +128,41 @@
     return editableCalendars;
 }
 
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_5_0
 
 -(TiCalendarCalendar*)getCalendarById:(id)arg
 {
-    ENSURE_SINGLE_ARG(arg, NSString);
-    
-    if (![NSThread isMainThread]) {
-		__block id result = nil;
-		TiThreadPerformOnMainThread(^{result = [[self getCalendarById:arg] retain];}, YES);
-		return [result autorelease];
-	}
-    
-    EKEventStore* ourStore = [self store];
-    if (ourStore  == NULL) {
-        DebugLog(@"Could not instantiate an event of the event store.");
-        return nil;
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_5_0
+    if ([TiUtils isIOS5OrGreater]) {
+        ENSURE_SINGLE_ARG(arg, NSString);
         
+        if (![NSThread isMainThread]) {
+            __block id result = nil;
+            TiThreadPerformOnMainThread(^{result = [[self getCalendarById:arg] retain];}, YES);
+            return [result autorelease];
+        }
+        
+        EKEventStore* ourStore = [self store];
+        if (ourStore  == NULL) {
+            DebugLog(@"Could not instantiate an event of the event store.");
+            return nil;
+            
+        }
+        EKCalendar* calendar_ = [ourStore calendarWithIdentifier:arg];
+        if (calendar_ == NULL) {
+            return NULL;
+        }
+        TiCalendarCalendar* calendar = [[[TiCalendarCalendar alloc] _initWithPageContext:[self executionContext] calendar:calendar_ module:self] autorelease];
+        return calendar;
     }
-    EKCalendar* calendar_ = [ourStore calendarWithIdentifier:arg];
-    if (calendar_ == NULL) {
-        return NULL;
+#else
+    else {
+        DebugLog(@"Ti.Calendar.getCalendarById is only supported in iOS 5.0 and above.");
+        return nil;
     }
-    TiCalendarCalendar* calendar = [[[TiCalendarCalendar alloc] _initWithPageContext:[self executionContext] calendar:calendar_ module:self] autorelease];
-    return calendar;
+#endif
+    
 }
 
-#endif
 
 -(TiCalendarCalendar*)defaultCalendar
 {

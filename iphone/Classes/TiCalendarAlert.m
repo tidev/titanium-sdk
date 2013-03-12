@@ -35,14 +35,14 @@
     return alert;
 }
 
--(NSString*)absoluteDate
+-(NSDate*)absoluteDate
 {
-    return [TiUtils UTCDateForDate:alert.absoluteDate];
+    return [self alert].absoluteDate;
 }
 
 -(NSNumber*)relativeOffset
 {
-    return NUMINT(alert.relativeOffset);
+    return NUMINT([self alert].relativeOffset * 1000) ;
 }
 
 
@@ -55,8 +55,7 @@
 
 -(void)setRelavtiveOffset:(id)arg
 {
-    ENSURE_TYPE(arg, NSNumber);
-    alert.relativeOffset = [arg doubleValue];
+    alert.relativeOffset = [TiUtils doubleValue:arg] / 1000;
 }
 
 

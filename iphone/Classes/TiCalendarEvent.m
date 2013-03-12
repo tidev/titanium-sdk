@@ -64,8 +64,11 @@
     EKEvent* currEvent = [self event];
     
     if (currEvent == NULL) {
-        DebugLog(@"Cannot access event from the eventStore.");
-		return;
+        [self throwException:@"Cannot access event from the eventStore."
+                   subreason:nil
+                    location:CODELOCATION];
+
+		return nil;
     }
     
     if ([key isEqualToString:@"title"]) {
@@ -106,20 +109,31 @@
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_5_0
     else if ([key isEqualToString:@"recurrenceRules"])
     {
-        NSArray* rules_ = currEvent.recurrenceRules;
-        NSMutableArray *rules = [NSMutableArray arrayWithCapacity:[rules_ count]];
-        for (EKRecurrenceRule* rule_ in rules_) {
-            TiCalendarRecurrenceRule* rule = [[TiCalendarRecurrenceRule alloc] _initWithPageContext:[self executionContext] rule:rule_];
-            [rules addObject:rule];
+        if ([TiUtils isIOS5OrGreater]) {
+            NSArray* rules_ = currEvent.recurrenceRules;
+            NSMutableArray *rules = [NSMutableArray arrayWithCapacity:[rules_ count]];
+            for (EKRecurrenceRule* rule_ in rules_) {
+                TiCalendarRecurrenceRule* rule = [[TiCalendarRecurrenceRule alloc] _initWithPageContext:[self executionContext] rule:rule_];
+                [rules addObject:rule];
+            }
+            return rules;
+
+        } else {
+            DebugLog(@"Ti.Calendar.recurrenceRules is available in iOS 5.0 and above");
+            return nil;
         }
-        return rules;
-    }
+     }
 #elif __IPHONE_OS_VERSION_MAX_ALLOWED < __IPHONE_5_0
-    else if ([key isEqualToString:@","])
+    else if ([key isEqualToString:@"recurrenceRule"])
     {
-        
-        TiCalendarRecurrenceRule* rule = [[TiCalendarRecurrenceRule alloc] _initWithPageContext:[self executionContext] rule:currEvent.reccurrenceRule];
-        return rule;
+        if (![TiUtils isIOS5OrGreater]) {
+            TiCalendarRecurrenceRule* rule = [[TiCalendarRecurrenceRule alloc] _initWithPageContext:[self executionContext] rule:currEvent.reccurrenceRule];
+            return rule;
+        } else {
+            DebugLog(@"Ti.Calendar.recurrenceRule is available below ios 5.0");
+            return nil;
+        }
+
     }
 #endif
     else if ([key isEqualToString:@"alerts"]) {
@@ -158,43 +172,63 @@
     
     if ([key isEqualToString:@"allDay"]) {
         currEvent.allDay = [TiUtils boolValue:value def:NO];
+        return;
     }
     else if ([key isEqualToString:@"notes"]) {
         currEvent.notes = [TiUtils stringValue:value];
+        return;
 	}
     else if ([key isEqualToString:@"begin"]) {
         currEvent.startDate = value;
+        return;
     }
     else if ([key isEqualToString:@"end"]) {
         currEvent.endDate = value;
+        return;
     }
     else if ([key isEqualToString:@"availability"]) {
         currEvent.availability = [TiUtils intValue:value];
+        return;
     }
     else if ([key isEqualToString:@"title"]) {
         currEvent.title = [TiUtils stringValue:value];
+        return;
     }
     else if ([key isEqualToString:@"location"]) {
         currEvent.location = [TiUtils stringValue:value];
+        return;
     }
-#if __IPHONE_OS_VERSION_MAX_ALLOWED < __IPHONE_5_0 
     else if ([key isEqualToString:@"recurrenceRule"]) {
-        ENSURE_TYPE_OR_NIL(value,TiCalendarRecurrenceRule);
-        EKRecurrenceRule *rule = [value rule];
-        currEvent.recurrenceRule = rule;
-    }
-#elif __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_5_0
-    else if ([key isEqualToString:@"recurrenceRules"]) {
-        ENSURE_TYPE_OR_NIL(value,NSArray);
-        NSMutableArray * rules = [NSMutableArray arrayWithCapacity:[value count]];
-        for (TiCalendarRecurrenceRule *recurranceRule_ in value) {
-            EKRecurrenceRule * ruleToBeAdded = [recurranceRule_ ruleForRecurrence];
-            [rules addObject:ruleToBeAdded];
-        }
-        currEvent.recurrenceRules = rules;
-    }
+        if (![TiUtils isIOS5OrGreater]) {
+#if __IPHONE_OS_VERSION_MAX_ALLOWED < __IPHONE_5_0
+            ENSURE_TYPE_OR_NIL(value,TiCalendarRecurrenceRule);
+            EKRecurrenceRule *rule = [value rule];
+            currEvent.recurrenceRule = rule;
+            return;
 #endif
-
+        } else {
+            DebugLog(@"Ti.Calendar.recurrenceRule is only available from iOS 4.0 to 5.0.")
+            return;
+        }
+    }
+    else if ([key isEqualToString:@"recurrenceRules"]) {
+        if ([TiUtils isIOS5OrGreater])
+        {
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_5_0
+            ENSURE_TYPE_OR_NIL(value,NSArray);
+            NSMutableArray * rules = [NSMutableArray arrayWithCapacity:[value count]];
+            for (TiCalendarRecurrenceRule *recurranceRule_ in value) {
+                EKRecurrenceRule * ruleToBeAdded = [recurranceRule_ ruleForRecurrence];
+                [rules addObject:ruleToBeAdded];
+            }
+            currEvent.recurrenceRules = rules;
+            return;
+#endif
+        } else {
+            DebugLog(@"Ti.Calendar.recurrenceRules is only available in iOS 5.0 and above.")
+            return;
+        }
+    }
     // Array of TiCalendarAlerts
     else if ([key isEqualToString:@"alerts"]) {
         if ([value isKindOfClass:[NSArray class]]) {
@@ -204,6 +238,7 @@
             }
             currEvent.alarms = alerts;
         }
+        return;
     }
     // Something else
 	else {
@@ -222,23 +257,29 @@
     ENSURE_ARRAY(args);
     NSDictionary *props = [args objectAtIndex:0];
     
-    NSString *key = [props objectForKey:@"absoluteDate"] == nil ? @"relativeOffset" : @"absoluteDate";
-    id value = [props objectForKey:key];
-    EKAlarm* alarm = NULL;
-    if ([key isEqualToString:@"absoluteDate"]) {
-        alarm = [EKAlarm alarmWithAbsoluteDate:value];//[TiUtils dateForUTCDate:value]];
+    NSArray* keys = [props allKeys];
+    if ([keys count] > 0) {
+        NSString *key = [keys objectAtIndex:0];
+        id value = [props objectForKey:key];
+        
+        EKAlarm* alarm = NULL;
+        if ([key isEqualToString:@"absoluteDate"]) {
+            alarm = [EKAlarm alarmWithAbsoluteDate:value];
+        }
+        else if ([key isEqualToString:@"relativeOffset"]) {
+            alarm = [EKAlarm alarmWithRelativeOffset:([TiUtils doubleValue:value] / 1000)];
+        }
+        else {
+            DebugLog(@"Invalid arg passed during creation of alert. Valid args type are `absoluteDate` or `relativeOffset`.");
+            return NULL;
+        }
+        TiCalendarAlert *newalert = [[[TiCalendarAlert alloc] _initWithPageContext:[self pageContext]
+                                                                             alert:alarm
+                                                                            module:module] autorelease];
+        return newalert;
+
     }
-    else if ([key isEqualToString:@"relativeOffset"]) {
-        alarm = [EKAlarm alarmWithRelativeOffset:[value doubleValue]];
-    }
-    else {
-        DebugLog(@"Invalid arg passed during creation of alert. Valid args type are `absoluteDate` or `relativeOffset`.");
-        return NULL;
-    }
-    TiCalendarAlert *newalert = [[[TiCalendarAlert alloc] _initWithPageContext:[self pageContext]
-                                                                         alert:alarm
-                                                                        module:module] autorelease];
-    return newalert;
+    return NULL;
 }
 
 -(TiCalendarRecurrenceRule*) createRecurenceRule:(id)arg
@@ -248,12 +289,12 @@
     EKRecurrenceFrequency frequency = EKRecurrenceFrequencyDaily;
     NSInteger interval = 0;
     NSMutableArray *daysOfTheWeek = [[[NSMutableArray alloc] init] autorelease],
-    *daysOfTheMonth = [[[NSMutableArray alloc] init] autorelease],
-    *monthsOfTheYear = [[[NSMutableArray alloc] init] autorelease],
-    *weeksOfTheYear = [[[NSMutableArray alloc] init] autorelease],
-    *daysOfTheYear = [[[NSMutableArray alloc] init] autorelease],
-    *setPositions = [[[NSMutableArray alloc] init] autorelease];
-    EKRecurrenceEnd* end = nil;
+                    *daysOfTheMonth = [[[NSMutableArray alloc] init] autorelease],
+                    *monthsOfTheYear = [[[NSMutableArray alloc] init] autorelease],
+                    *weeksOfTheYear = [[[NSMutableArray alloc] init] autorelease],
+                    *daysOfTheYear = [[[NSMutableArray alloc] init] autorelease],
+                    *setPositions = [[[NSMutableArray alloc] init] autorelease];
+                    EKRecurrenceEnd* end = nil;
     
     if ([args objectForKey:@"frequency"]) {
         frequency = [TiUtils intValue:[args objectForKey:@"frequency"]];
@@ -395,17 +436,14 @@
         }
         TiCalendarRecurrenceRule* recurranceRule = [[[TiCalendarRecurrenceRule alloc] _initWithPageContext:[self executionContext]
                                                                                                       rule:rule] autorelease];
-        
         return recurranceRule;
-        
     }
 }
 
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_5_0
 -(void) addRecurrenceRule:(id)arg
 {
-    
     if ([TiUtils isIOS5OrGreater]) {
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_5_0
         TiCalendarRecurrenceRule* ruleProxy = nil;
         ENSURE_ARG_AT_INDEX(ruleProxy, arg, 0, TiCalendarRecurrenceRule);
         
@@ -424,12 +462,17 @@
         EKRecurrenceRule *rule = [ruleProxy ruleForRecurrence];
         
         [currEvent addRecurrenceRule:rule];
+#endif
+    } else {
+        DebugLog(@"Ti.Event.addRecurrenceRule() is available in iOS 5.0 or greater");
     }
+    
 }
 
 -(void) removeRecurenceRule:(id)arg
 {
     if ([TiUtils isIOS5OrGreater]) {
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_5_0
         TiCalendarRecurrenceRule* ruleProxy = nil;
         ENSURE_ARG_AT_INDEX(ruleProxy, arg, 0, TiCalendarRecurrenceRule);
         
@@ -447,10 +490,11 @@
         
         EKRecurrenceRule *rule = [ruleProxy ruleForRecurrence];
         [currEvent  removeRecurrenceRule:rule];
-        
+#endif        
+    } else {
+        DebugLog(@"Ti.Event.removeRecurenceRule() is available in iOS 5.0 or greater");
     }
 }
-#endif
 
 -(NSNumber*) save:(id)arg
 {
@@ -461,12 +505,12 @@
     EKEventStore* ourStore = [module store];
     if (ourStore == NULL) {
         DebugLog(@"Could not save event, missing Event Store");
-        return;
+        return NUMBOOL(NO);
     }
     EKEvent* currEvent = [self event];
     if (currEvent == NULL) {
         DebugLog(@"event is missing");
-        return;
+        return NUMBOOL(NO);
     }
     __block NSError * error = nil;
     __block BOOL result;
@@ -474,11 +518,11 @@
         result = [ourStore saveEvent:currEvent span:span error:&error];
     }, YES);
     if (result == NO || error != nil) {
-        DebugLog(@"Unable to save event to eventStore.");
-        [self throwException:[NSString stringWithFormat:@"Unable to save event: %i",[error code]] subreason:[error localizedDescription] location:CODELOCATION];
+        [self throwException:[NSString stringWithFormat:@"Failed to save event : %@",[error description]]
+				   subreason:nil
+					location:CODELOCATION];
     }
     return NUMBOOL(result);
-    
 }
 
 -(NSNumber*) remove:(id)arg
@@ -494,9 +538,9 @@
         result = [ourStore removeEvent:[self event] span:span error:&error];
     }, YES);
     if (result == NO || error != nil) {
-        DebugLog(@"Unable to remove event from eventStore.");
-        NSDictionary *errorEvent = [NSDictionary dictionaryWithObject:NUMINT(result) forKey:@"result"];
-        [self fireEvent:@"complete" withObject:errorEvent errorCode:[error code] message:[TiUtils messageFromError:error]];
+        [self throwException:[NSString stringWithFormat:@"Failed to remove event : %@",[error description]]
+				   subreason:nil
+					location:CODELOCATION];
     }
     return NUMBOOL(result);
 }

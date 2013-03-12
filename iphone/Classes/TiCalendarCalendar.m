@@ -67,9 +67,7 @@
 	}
     EKEventStore* store = [module store];
     if (store  == NULL) {
-        [self throwException:@"Cannot access the Event Store"
-                   subreason:nil
-                    location:CODELOCATION];
+        DebugLog(@"Cannot access the Event Store");
         return nil;
     }
     return store;
@@ -131,7 +129,6 @@
 {
     ENSURE_SINGLE_ARG(arg, NSString);
     __block NSString* eventId = [TiUtils stringValue:arg];
-	__block BOOL validId = NO;
     __block id result = NULL;
 	dispatch_sync(dispatch_get_main_queue(),^{
         EKEventStore* ourStore = [self ourStore];
@@ -139,12 +136,9 @@
             return ;
         }
         result = [ourStore eventWithIdentifier:[TiUtils stringValue:arg]];
-        if (result != NULL){
-            validId = YES;
-        }
         
     });
-    if (validId == YES) {
+    if (result != NULL) {
         EKEvent* event_ = [[self ourStore] eventWithIdentifier:[TiUtils stringValue:arg]];
         TiCalendarEvent* event = [[[TiCalendarEvent alloc] _initWithPageContext:[self executionContext]
                                                                         event:event_
@@ -252,7 +246,7 @@
                              inUnit:NSMonthCalendarUnit
                             forDate:date1];
     [comps setYear:year+1];
-    date2 = [cal dateFromComponents:comps];;//[date1 dateByAddingTimeInterval:(secondsPerDay * days.length)];
+    date2 = [cal dateFromComponents:comps];
     
     [comps release];
     [cal release];
