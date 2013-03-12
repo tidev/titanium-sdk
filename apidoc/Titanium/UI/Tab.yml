@@ -141,6 +141,11 @@ properties:
         [activeIcon](Titanium.UI.Tab.activeIcon) is set, then `icon` is used in the
         inactive state, and `activeIcon` is used in the active state. **No default tint
         is applied to either icon.**
+
+         If the icon provided is larger than [30 pixels (60 pixels in the retina variant)]
+         (https://developer.apple.com/library/ios/#documentation/UserExperience/Conceptual/MobileHIG/IconsImages/IconsImages.html),
+         this image will be scaled to fit if used with activeIcon, and cropped at the bottom
+         otherwise.
     type: String
   - name: activeIcon
     summary: Icon URL for this tab when active.
@@ -149,13 +154,17 @@ properties:
 
          If unspecified, iOS uses a tint color to indicate the active tab. See
          [icon](Titanium.UI.Tab.icon) for more information.
+         
+         If the icon provided is larger than [30 pixels (60 pixels in the retina variant)]
+         (https://developer.apple.com/library/ios/#documentation/UserExperience/Conceptual/MobileHIG/IconsImages/IconsImages.html),
+         this image will be scaled to fit.
 
-         On iOS prior to 5.0, the default tint color is always used and
-         this property remains unset.
+         On iOS prior to 5.0, the default tint color is always used and this property
+         remains unset.
     type: String
     platforms: [iphone, ipad]
     since: "3.1.0"
-    osver: {iOS: {min: "5.0"}}
+    osver: {ios: {min: "5.0"}}
   - name: title
     summary: Title for this tab.
     type: String

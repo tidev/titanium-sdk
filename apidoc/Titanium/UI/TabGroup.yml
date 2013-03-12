@@ -297,7 +297,8 @@ properties:
         A tab's [backgroundColor](Titanium.UI.Tab.backgroundColor) property takes precedence if set.
 
         On iOS 5.0 or later, this property applies to all states and tabs, not just inactive
-        tabs; property is ignored on earlier versions of iOS.
+        tabs. Furthermore, the inactive tab icons without activeIcon will be tinted this color;
+        property is ignored on earlier versions of iOS.
     type: String
     since: {android: "3.0.0", iphone: "3.0.0", ipad: "3.0.0", mobileweb: "2.0.0"}
     osver: {ios: {min: "5.0"}}
@@ -317,7 +318,8 @@ properties:
   - name: shadowImage
     summary: Image of the shadow placed between the tab bar and the content area.
     description: |
-        On iOS, requires iOS 6.0 or later; ignored on earlier versions.
+        On iOS, requires iOS 6.0 or later; ignored on earlier versions. TabsBackgroundImage
+        must also be set in order for this to take effect.
     type: String
     platforms: [iphone,ipad]
     since: { iphone: "3.1.0", ipad: "3.1.0" }
@@ -329,7 +331,7 @@ properties:
         For information about color values, see the "Colors" section of <Titanium.UI>.
         On iOS, requires iOS 5.0 or later; ignored on earlier versions.
     type: String
-    since: {iphone: "3.1.0"}
+    since: {iphone: "3.1.0", ipad: "3.1.0" }
     osver: {ios: {min: "5.0"}}
     platforms: [iphone, ipad]
     
