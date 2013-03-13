@@ -369,7 +369,6 @@ public class TiImageView extends ViewGroup implements Handler.Callback, OnClickL
 	{
 		computeBaseMatrix();
 		imageView.setImageMatrix(getViewMatrix());
-		ImageView.ScaleType s = imageView.getScaleType();
 
 		int parentLeft = 0;
 		int parentRight = right - left;
@@ -394,11 +393,7 @@ public class TiImageView extends ViewGroup implements Handler.Callback, OnClickL
 	{
 		if (orientation > 0 || enableZoomControls) {
 			imageView.setScaleType(ScaleType.MATRIX);
-			if (viewWidthDefined && viewHeightDefined) {
-				imageView.setAdjustViewBounds(false);
-			} else {
-				imageView.setAdjustViewBounds(true);
-			}
+			imageView.setAdjustViewBounds(false);
 		} else {
 			if (viewWidthDefined && viewHeightDefined) {
 				imageView.setAdjustViewBounds(false);
