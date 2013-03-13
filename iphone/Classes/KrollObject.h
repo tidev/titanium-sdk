@@ -80,7 +80,7 @@ bool KrollDeleteProperty(TiContextRef ctx, TiObjectRef object, TiStringRef prope
 -(void)invokeCallbackForKey:(NSString *)key withObject:(NSDictionary *)eventData thisObject:(KrollObject *)thisObject;
 
 -(TiObjectRef)callbacksForEvent:(TiStringRef)jsEventTypeString;
--(void)storeListener:(KrollCallback *)eventCallback forEvent:(NSString *)eventName;
+-(void)storeListener:(id)eventCallbackOrWrapper forEvent:(NSString *)eventName;
 -(void)removeListener:(KrollCallback *)eventCallback forEvent:(NSString *)eventName;
 -(void)triggerEvent:(NSString *)eventName withObject:(NSDictionary *)eventData thisObject:(KrollObject *)thisObject;
 
