@@ -375,10 +375,8 @@ public class ListSectionProxy extends ViewProxy{
 				return;
 			}
 			
-			int count = itemCount;
 			itemCount += views.length;
-			
-			processData(views, count);
+			processData(views, index);
 		} else {
 			Log.e(TAG, "Invalid argument type to insertItemsAt");
 		}
