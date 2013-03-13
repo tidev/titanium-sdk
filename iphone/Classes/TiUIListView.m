@@ -198,11 +198,11 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 	NSString *cellIdentifier = [templateId description];
 	TiUIListItem *cell = [tableView dequeueReusableCellWithIdentifier:cellIdentifier];
 	if (cell == nil) {
-		id context = self.listViewProxy.executionContext;
+		id<TiEvaluator> context = self.listViewProxy.executionContext;
 		if (context == nil) {
 			context = self.listViewProxy.pageContext;
 		}
-		TiUIListItemProxy *cellProxy = [[TiUIListItemProxy alloc] _initWithPageContext:context];
+		TiUIListItemProxy *cellProxy = [[TiUIListItemProxy alloc] initWithListViewProxy:self.listViewProxy inContext:context];
 		if ([templateId isKindOfClass:[NSNumber class]]) {
 			UITableViewCellStyle cellStyle = [templateId unsignedIntegerValue];
 			cell = [[TiUIListItem alloc] initWithStyle:cellStyle reuseIdentifier:cellIdentifier proxy:cellProxy];
@@ -217,6 +217,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 		[cell autorelease];
 	}
 	cell.dataItem = item;
+	cell.proxy.indexPath = indexPath;
 	return cell;
 }
 

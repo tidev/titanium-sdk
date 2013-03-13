@@ -9,10 +9,14 @@
 #import "TiViewProxy.h"
 
 @class TiUIListItem;
+@class TiUIListViewProxy;
 
 @interface TiUIListItemProxy : TiViewProxy
 
 @property (nonatomic, readwrite, assign) TiUIListItem *listItem;
+@property (nonatomic, readwrite, retain) NSIndexPath *indexPath;
+
+- (id)initWithListViewProxy:(TiUIListViewProxy *)listViewProxy inContext:(id<TiEvaluator>)context;
 
 @end
 

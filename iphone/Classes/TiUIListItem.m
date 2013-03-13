@@ -22,6 +22,7 @@
 }
 
 @synthesize templateStyle = _templateStyle;
+@synthesize proxy = _proxy;
 @synthesize dataItem = _dataItem;
 
 - (id)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier proxy:(TiUIListItemProxy *)proxy
