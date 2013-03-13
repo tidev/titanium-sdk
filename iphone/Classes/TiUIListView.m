@@ -342,18 +342,17 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 
 + (UIView*)titleViewForText:(NSString*)text inTable:(UITableView *)tableView footer:(BOOL)footer
 {
-	CGSize maxSize = CGSizeMake(tableView.bounds.size.width, 1000);
-	UIFont *font = [[WebFont defaultBoldFont] font];
+	CGSize maxSize = CGSizeMake(320, 1000);
+	UIFont *font = [UIFont boldSystemFontOfSize:17];
 	CGSize size = [text sizeWithFont:font constrainedToSize:maxSize lineBreakMode:UILineBreakModeTailTruncation];
+	size.height += 20;
 	
 	int x = (tableView.style==UITableViewStyleGrouped) ? 15 : 10;
-	int y = 10;
-	int y2 = (footer) ? 0 : 10;
-	UIView *containerView = [[[UIView alloc] initWithFrame:CGRectMake(0, y, size.width, size.height+10)] autorelease];
-    UILabel *headerLabel = [[[UILabel alloc] initWithFrame:CGRectMake(x, y2, size.width, size.height)] autorelease];
-	containerView.autoresizingMask = headerLabel.autoresizingMask = UIViewAutoresizingFlexibleWidth| UIViewAutoresizingFlexibleRightMargin| UIViewAutoresizingFlexibleHeight| UIViewAutoresizingFlexibleBottomMargin;
+	UIView *containerView = [[[UIView alloc] initWithFrame:CGRectMake(0, 0, size.width, size.height)] autorelease];
+    UILabel *headerLabel = [[[UILabel alloc] initWithFrame:CGRectMake(x, 0, size.width, size.height)] autorelease];
 	
     headerLabel.text = text;
+	headerLabel.baselineAdjustment = UIBaselineAdjustmentAlignCenters;
     headerLabel.textColor = [UIColor blackColor];
     headerLabel.shadowColor = [UIColor whiteColor];
     headerLabel.shadowOffset = CGSizeMake(0, 1);
