@@ -100,7 +100,8 @@ public class TiDownloadManager implements Handler.Callback
 		ArrayList<SoftReference<TiDownloadListener>> toRemove = new ArrayList<SoftReference<TiDownloadListener>>();
 		synchronized (listeners) {
 			String hash = DigestUtils.shaHex(uri.toString());
-			for (SoftReference<TiDownloadListener> listener : listeners.get(hash)) {
+			ArrayList<SoftReference<TiDownloadListener>> listenerList = listeners.get(hash);
+			for (SoftReference<TiDownloadListener> listener : listenerList) {
 				TiDownloadListener downloadListener = listener.get();
 				if (downloadListener != null) {
 					if (what == MSG_FIRE_DOWNLOAD_FINISHED) {
@@ -112,7 +113,7 @@ public class TiDownloadManager implements Handler.Callback
 				}
 			}
 			for (SoftReference<TiDownloadListener> listener : toRemove) {
-				listeners.get(hash).remove(listener);
+				listenerList.remove(listener);
 			}
 		}
 	}

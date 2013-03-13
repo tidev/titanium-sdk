@@ -126,7 +126,7 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 		loadImageListener = new TiLoadImageListener()
 		{
 			@Override
-			public void LoadImageFinished(int hash, Bitmap bitmap)
+			public void loadImageFinished(int hash, Bitmap bitmap)
 			{
 				// Cache the image
 				if (bitmap != null) {
@@ -145,7 +145,7 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 			}
 
 			@Override
-			public void LoadImageFailed()
+			public void loadImageFailed()
 			{
 				Log.w(TAG, "Unable to load image", Log.DEBUG_MODE);
 			}

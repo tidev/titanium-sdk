@@ -31,7 +31,7 @@ public class TiLoadImageManager implements Handler.Callback
 	protected static TiLoadImageManager _instance;
 	public static final int THREAD_POOL_SIZE = 2;
 
-	protected SparseArray<SoftReference<TiLoadImageListener>> listeners = new SparseArray<SoftReference<TiLoadImageListener>>();
+	protected SparseArray<ArrayList<SoftReference<TiLoadImageListener>>> listeners = new SparseArray<ArrayList<SoftReference<TiLoadImageListener>>>();
 	protected ArrayList<Integer> loadingImageRefs = new ArrayList<Integer>();
 	protected ExecutorService threadPool;
 	protected Handler handler;
@@ -53,11 +53,21 @@ public class TiLoadImageManager implements Handler.Callback
 	public void load(TiDrawableReference imageref, TiLoadImageListener listener)
 	{
 		int hash = imageref.hashCode();
-		
+		ArrayList<SoftReference<TiLoadImageListener>> listenerList = null;
 		synchronized (listeners) {
 			if (listeners.get(hash) == null) {
-				listeners.put(hash, new SoftReference<TiLoadImageListener>(listener));
+				listenerList = new ArrayList<SoftReference<TiLoadImageListener>>();
+				listeners.put(hash, listenerList);
+			} else {
+				listenerList = listeners.get(hash);
 			}
+			// We don't allow duplicate listeners for the same image.
+			for (SoftReference<TiLoadImageListener> l : listenerList) {
+				if (l.get() == listener) {
+					return;
+				}
+			}
+			listenerList.add(new SoftReference<TiLoadImageListener>(listener));
 		}
 		
 		synchronized (loadingImageRefs) {
@@ -68,21 +78,25 @@ public class TiLoadImageManager implements Handler.Callback
 		}
 	}
 
-	protected void handleLoadFinished(int hash, Bitmap bitmap)
+	protected void handleLoadImageMessage(int what, int hash, Bitmap bitmap)
 	{
+		ArrayList<SoftReference<TiLoadImageListener>> toRemove = new ArrayList<SoftReference<TiLoadImageListener>>();
 		synchronized (listeners) {
-			TiLoadImageListener l = listeners.get(hash).get();
-			l.LoadImageFinished(hash, bitmap);
-			listeners.delete(hash);
-		}
-	}
-
-	protected void handleLoadFailed(int hash)
-	{
-		synchronized (listeners) {
-			TiLoadImageListener l = listeners.get(hash).get();
-			l.LoadImageFailed();
-			listeners.delete(hash);
+			ArrayList<SoftReference<TiLoadImageListener>> listenerList = listeners.get(hash);
+			for (SoftReference<TiLoadImageListener> listener : listenerList) {
+				TiLoadImageListener l = listener.get();
+				if (l != null) {
+					if (what == MSG_FIRE_LOAD_FINISHED) {
+						l.loadImageFinished(hash, bitmap);
+					} else {
+						l.loadImageFailed();
+					}
+					toRemove.add(listener);
+				}
+			}
+			for (SoftReference<TiLoadImageListener> listener : toRemove) {
+				listenerList.remove(listener);
+			}
 		}
 	}
 
@@ -90,10 +104,10 @@ public class TiLoadImageManager implements Handler.Callback
 	{
 		switch (msg.what) {
 			case MSG_FIRE_LOAD_FINISHED:
-				handleLoadFinished((Integer)msg.arg1, (Bitmap)msg.obj);
+				handleLoadImageMessage(MSG_FIRE_LOAD_FINISHED, (Integer)msg.arg1, (Bitmap)msg.obj);
 				return true;
 			case MSG_FIRE_LOAD_FAILED:
-				handleLoadFailed((Integer)msg.arg1);
+				handleLoadImageMessage(MSG_FIRE_LOAD_FAILED, (Integer)msg.arg1, null);
 				return true;
 		}
 		return false;

@@ -10,7 +10,7 @@ import android.graphics.Bitmap;
 
 public interface TiLoadImageListener
 {
-	public void LoadImageFinished(int hash, Bitmap bitmap);
+	public void loadImageFinished(int hash, Bitmap bitmap);
 
-	public void LoadImageFailed();
+	public void loadImageFailed();
 }
