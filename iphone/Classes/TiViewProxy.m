@@ -2891,36 +2891,52 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
 
 #pragma mark - View Templates
 
-- (void)unarchiveFromTemplate:(NSDictionary *)viewTemplate
+- (void)unarchiveFromTemplate:(id)viewTemplate_
 {
-	id context = self.executionContext;
+	TiViewTemplate *viewTemplate = [TiViewTemplate templateFromViewTemplate:viewTemplate_];
+	if (viewTemplate == nil) {
+		return;
+	}
+	
+	id<TiEvaluator> context = self.executionContext;
 	if (context == nil) {
 		context = self.pageContext;
 	}
-	// NB: should we remove all existing keys ?
-	id properties = [viewTemplate objectForKey:@"properties"];
-	if ([properties isKindOfClass:[NSDictionary class]]) {
-		[self _initWithProperties:properties];
+	
+	[self _initWithProperties:viewTemplate.properties];
+	if ([viewTemplate.events count] > 0) {
+		[context.krollContext invokeBlockOnThread:^{
+			[viewTemplate.events enumerateKeysAndObjectsUsingBlock:^(NSString *eventName, NSArray *listeners, BOOL *stop) {
+				[listeners enumerateObjectsUsingBlock:^(KrollWrapper *wrapper, NSUInteger idx, BOOL *stop) {
+					[self addEventListener:[NSArray arrayWithObjects:eventName, wrapper, nil]];
+				}];
+			}];
+		}];		
 	}
-	[self setValue:[viewTemplate objectForKey:@"bindId"] forKey:@"bindId"];
-	id childTemplates = [viewTemplate objectForKey:@"childTemplates"];
-	if ([childTemplates isKindOfClass:[NSArray class]]) {
-		[(NSArray *)childTemplates enumerateObjectsUsingBlock:^(id childTemplate, NSUInteger idx, BOOL *stop) {
-			if ([childTemplate isKindOfClass:[NSDictionary class]]) {
-				TiViewProxy *child = [[self class] unarchiveFromTemplate:childTemplate inContext:context];
-				if (child != nil) {
-					[self add:child];
-				}
-			}
-		}];
-	}
+	
+	[viewTemplate.childTemplates enumerateObjectsUsingBlock:^(TiViewTemplate *childTemplate, NSUInteger idx, BOOL *stop) {
+		TiViewProxy *child = [[self class] unarchiveFromTemplate:childTemplate inContext:context];
+		if (child != nil) {
+			[context.krollContext invokeBlockOnThread:^{
+				[self rememberProxy:child];
+			}];
+			[self add:child];
+		}
+	}];
 }
 
-+ (TiViewProxy *)unarchiveFromTemplate:(NSDictionary *)viewTemplate inContext:(id<TiEvaluator>)context
++ (TiViewProxy *)unarchiveFromTemplate:(id)viewTemplate_ inContext:(id<TiEvaluator>)context
 {
-	NSString *type = [viewTemplate objectForKey:@"type"];
-	if (type != nil) {
-		TiViewProxy *proxy = [[self class] createProxy:type withProperties:nil inContext:context];
+	TiViewTemplate *viewTemplate = [TiViewTemplate templateFromViewTemplate:viewTemplate_];
+	if (viewTemplate == nil) {
+		return;
+	}
+	
+	if (viewTemplate.type != nil) {
+		TiViewProxy *proxy = [[self class] createProxy:viewTemplate.type withProperties:nil inContext:context];
+		[context.krollContext invokeBlockOnThread:^{
+			[context registerProxy:proxy];
+		}];
 		[proxy unarchiveFromTemplate:viewTemplate];
 		return proxy;
 	}

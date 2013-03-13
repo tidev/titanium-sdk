@@ -209,7 +209,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 		} else {
 			cell = [[TiUIListItem alloc] initWithProxy:cellProxy reuseIdentifier:cellIdentifier];
 			id template = [_templates objectForKey:templateId];
-			if ([template isKindOfClass:[NSDictionary class]]) {
+			if (template != nil) {
 				[cellProxy unarchiveFromTemplate:template];
 			}
 		}

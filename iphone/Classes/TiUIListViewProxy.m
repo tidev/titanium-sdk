@@ -9,6 +9,7 @@
 #import "TiUIListViewProxy.h"
 #import "TiUIListView.h"
 #import "TiUtils.h"
+#import "TiViewTemplate.h"
 
 @interface TiUIListViewProxy ()
 @property (nonatomic, readwrite) TiUIListView *listView;
@@ -140,6 +141,22 @@
 }
 
 #pragma mark - Public API
+
+- (void)setTemplates:(id)args
+{
+	ENSURE_TYPE_OR_NIL(args,NSDictionary);
+	NSMutableDictionary *templates = [[NSMutableDictionary alloc] initWithCapacity:[args count]];
+	[(NSDictionary *)args enumerateKeysAndObjectsUsingBlock:^(NSString *key, id obj, BOOL *stop) {
+		TiViewTemplate *template = [TiViewTemplate templateFromViewTemplate:obj];
+		if (template != nil) {
+			[templates setObject:template forKey:key];
+		}
+	}];
+	TiThreadPerformOnMainThread(^{
+		[self.listView setTemplates_:templates];
+	}, NO);
+	[templates release];
+}
 
 - (NSArray *)sections
 {

@@ -7,6 +7,7 @@
 #import "TiProxy.h"
 #import "TiUIView.h"
 #import "TiRect.h"
+#import "TiViewTemplate.h"
 #import <pthread.h>
 
 /**
@@ -571,9 +572,8 @@ enum
  */
 -(void)childWillResize:(TiViewProxy *)child;	//Todo: Replace
 
-- (void)unarchiveFromTemplate:(NSDictionary *)viewTemplate;
-
-+ (TiViewProxy *)unarchiveFromTemplate:(NSDictionary *)viewTemplate inContext:(id<TiEvaluator>)context;
+- (void)unarchiveFromTemplate:(id)viewTemplate;
++ (TiViewProxy *)unarchiveFromTemplate:(id)viewTemplate inContext:(id<TiEvaluator>)context;
 
 @end
 
