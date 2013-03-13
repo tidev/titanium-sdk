@@ -245,12 +245,8 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 			templateId = _defaultItemTemplate;
 		}
 		if (![templateId isKindOfClass:[NSNumber class]]) {
-			id template = [_templates objectForKey:templateId];
-			if ([template isKindOfClass:[NSDictionary class]]) {
-				propertiesValue = [template objectForKey:@"properties"];
-				properties = ([propertiesValue isKindOfClass:[NSDictionary class]]) ? propertiesValue : nil;
-				heightValue = [properties objectForKey:@"height"];
-			}
+			TiViewTemplate *template = [_templates objectForKey:templateId];
+			heightValue = [template.properties objectForKey:@"height"];
 		}
 	}
 	TiDimension height = _rowHeight;
