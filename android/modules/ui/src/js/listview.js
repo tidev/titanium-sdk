@@ -40,6 +40,8 @@ exports.bootstrap = function(Titanium) {
 		if (!properties.hasOwnProperty('childTemplates')) return;
 		
 		var childProperties = properties.childTemplates;
+		if (childProperties === void 0 || childProperties === null) return;
+		
 		for (var i = 0; i < childProperties.length; i++) {
 			var child = childProperties[i];
 			var proxyType = child.type;

@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -141,48 +141,48 @@ public class ListViewProxy extends TiViewProxy {
 
 	@Override
 	public boolean handleMessage(final Message msg) 	{
-		
-		switch (msg.what) {
-		
-		case MSG_SECTION_COUNT: {
-			AsyncResult result = (AsyncResult)msg.obj;
-			result.setResult(handleSectionCount());
-			return true;
-		}
 
-		case MSG_SCROLL_TO_ITEM: {
-			AsyncResult result = (AsyncResult)msg.obj;
-			KrollDict data = (KrollDict) result.getArg();
-			int sectionIndex = data.getInt("sectionIndex");
-			int itemIndex = data.getInt("itemIndex");
-			handleScrollToItem(sectionIndex, itemIndex);
-			result.setResult(null);
-			return true;
-		}
-		case MSG_APPEND_SECTION: {
-			handleAppendSection(msg.obj);
-			return true;
-		}
-		case MSG_DELETE_SECTION_AT: {
-			handleDeleteSectionAt(TiConvert.toInt(msg.obj));
-			return true;
-		}
-		case MSG_INSERT_SECTION_AT: {
-			KrollDict data = (KrollDict) msg.obj;
-			int index = data.getInt("index");
-			Object section = data.get("section");
-			handleInsertSectionAt(index, section);
-			return true;
-		}
-		case MSG_REPLACE_SECTION_AT: {
-			KrollDict data = (KrollDict) msg.obj;
-			int index = data.getInt("index");
-			Object section = data.get("section");
-			handleReplaceSectionAt(index, section);
-			return true;
-		}
-		default:
-			return super.handleMessage(msg);
+		switch (msg.what) {
+
+			case MSG_SECTION_COUNT: {
+				AsyncResult result = (AsyncResult)msg.obj;
+				result.setResult(handleSectionCount());
+				return true;
+			}
+
+			case MSG_SCROLL_TO_ITEM: {
+				AsyncResult result = (AsyncResult)msg.obj;
+				KrollDict data = (KrollDict) result.getArg();
+				int sectionIndex = data.getInt("sectionIndex");
+				int itemIndex = data.getInt("itemIndex");
+				handleScrollToItem(sectionIndex, itemIndex);
+				result.setResult(null);
+				return true;
+			}
+			case MSG_APPEND_SECTION: {
+				handleAppendSection(msg.obj);
+				return true;
+			}
+			case MSG_DELETE_SECTION_AT: {
+				handleDeleteSectionAt(TiConvert.toInt(msg.obj));
+				return true;
+			}
+			case MSG_INSERT_SECTION_AT: {
+				KrollDict data = (KrollDict) msg.obj;
+				int index = data.getInt("index");
+				Object section = data.get("section");
+				handleInsertSectionAt(index, section);
+				return true;
+			}
+			case MSG_REPLACE_SECTION_AT: {
+				KrollDict data = (KrollDict) msg.obj;
+				int index = data.getInt("index");
+				Object section = data.get("section");
+				handleReplaceSectionAt(index, section);
+				return true;
+			}
+			default:
+				return super.handleMessage(msg);
 		}
 	}
 	private void handleScrollToItem(int sectionIndex, int itemIndex) {

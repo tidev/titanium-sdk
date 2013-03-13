@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -17,7 +17,7 @@ import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
 
-public class TiTemplate {
+public class TiListViewTemplate {
 	
 	protected static final String TAG = "TiTemplate";
 
@@ -100,11 +100,7 @@ public class TiTemplate {
 		}
 	}
 
-	public TiTemplate() {
-		
-	}
-
-	public TiTemplate(String id, KrollDict properties) {
+	public TiListViewTemplate(String id, KrollDict properties) {
 		//Init our binding hashmaps
 		dataItems = new HashMap<String, DataItem>();
 
@@ -134,7 +130,7 @@ public class TiTemplate {
 		//Get/generate random bind id
 		if (isRootTemplate) {
 			id = itemID;	
-		} else if (!isRootTemplate && properties.containsKey(TiC.PROPERTY_BIND_ID)) {
+		} else if (properties.containsKey(TiC.PROPERTY_BIND_ID)) {
 			id = TiConvert.toString(properties, TiC.PROPERTY_BIND_ID);
 		} else {
 			id = GENERATED_BINDING + Math.random();
@@ -181,7 +177,7 @@ public class TiTemplate {
 				//Recursively calls for all childTemplates
 				if (properties.containsKey(TiC.PROPERTY_CHILD_TEMPLATES)) {
 					if(item == null) {
-						Log.e(TAG, "ITEM SHOULDN'NT BE NULL");
+						Log.e(TAG, "Unable to generate valid data from child view", Log.DEBUG_MODE);
 					}
 					processChildProperties(properties.get(TiC.PROPERTY_CHILD_TEMPLATES), item);
 				}

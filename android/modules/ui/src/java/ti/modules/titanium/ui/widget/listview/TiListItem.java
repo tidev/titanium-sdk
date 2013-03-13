@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -62,16 +62,16 @@ public class TiListItem extends TiUIView {
 			accessoryImage.setBackgroundColor(color);
 		}
 		switch(accessory) {
-		
-		case UIModule.LIST_ACCESSORY_TYPE_CHECKMARK:
-			accessoryImage.setImageResource(TiListView.isCheck);
-			break;
-		case UIModule.LIST_ACCESSORY_TYPE_DETAIL:
-			accessoryImage.setImageResource(TiListView.hasChild);
-			break;
-		
-	    default:
-	    	accessoryImage.setImageResource(0);
+
+			case UIModule.LIST_ACCESSORY_TYPE_CHECKMARK:
+				accessoryImage.setImageResource(TiListView.isCheck);
+				break;
+			case UIModule.LIST_ACCESSORY_TYPE_DETAIL:
+				accessoryImage.setImageResource(TiListView.hasChild);
+				break;
+
+			default:
+				accessoryImage.setImageResource(0);
 		}
 	}
 	
@@ -98,7 +98,7 @@ public class TiListItem extends TiUIView {
 	private void updateEventData(TiUIView listView) {
 		KrollDict d = listView.getAdditionalEventData();
 		if (d == null) {
-			listView.setAdditionalEventData(new KrollDict((HashMap) additionalEventData.clone()));
+			listView.setAdditionalEventData(new KrollDict((HashMap) additionalEventData));
 		} else {
 			d.putAll(additionalEventData);
 		}

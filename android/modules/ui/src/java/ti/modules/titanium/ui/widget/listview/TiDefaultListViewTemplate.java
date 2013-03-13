@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -18,12 +18,9 @@ import ti.modules.titanium.ui.ImageViewProxy;
 import ti.modules.titanium.ui.LabelProxy;
 import android.app.Activity;
 
-public class DefaultTemplate extends TiTemplate {
+public class TiDefaultListViewTemplate extends TiListViewTemplate {
 
-	public static final String DEFAULT_LABEL_BINDING = "title";
-	public static final String DEFAULT_IMAGE_BINDING = "image";
-
-	public DefaultTemplate(String id, KrollDict properties, Activity activity) {
+	public TiDefaultListViewTemplate(String id, KrollDict properties, Activity activity) {
 		super(id, properties);
 		generateDefaultProps(activity);
 	}
@@ -44,11 +41,12 @@ public class DefaultTemplate extends TiTemplate {
 		LabelProxy labelProxy = new LabelProxy();
 		labelProxy.setActivity(activity);
 		//Generate properties
-		defaultLabelProperties.put("left", "10%");
-		defaultLabelProperties.put("text", "label");
-		//bind the proxy and default properties
-		DataItem labelItem = new DataItem(labelProxy, DEFAULT_LABEL_BINDING, rootItem);
-		dataItems.put(DEFAULT_LABEL_BINDING, labelItem);
+		defaultLabelProperties.put(TiC.PROPERTY_LEFT, "2%");
+		defaultLabelProperties.put(TiC.PROPERTY_TEXT, "label");
+		defaultLabelProperties.put(TiC.PROPERTY_WORD_WRAP, true);
+		//bind the proxy and default propertiess
+		DataItem labelItem = new DataItem(labelProxy, TiC.PROPERTY_TITLE, rootItem);
+		dataItems.put(TiC.PROPERTY_TITLE, labelItem);
 		//set default properties
 		labelItem.setDefaultProperties(defaultLabelProperties);
 		//add child
@@ -58,12 +56,12 @@ public class DefaultTemplate extends TiTemplate {
 		ImageViewProxy imageProxy = new ImageViewProxy();
 		imageProxy.setActivity(activity);
 		//Generate properties
-		defaultImageProperties.put("right", "0");
-		defaultImageProperties.put("height", "100");
-		defaultImageProperties.put("width", "100");
+		defaultImageProperties.put(TiC.PROPERTY_RIGHT, "0");
+		defaultImageProperties.put(TiC.PROPERTY_HEIGHT, "100sp");
+		defaultImageProperties.put(TiC.PROPERTY_WIDTH, "100sp");
 		//bind the proxy and default properties
-		DataItem imageItem = new DataItem (imageProxy, DEFAULT_IMAGE_BINDING, rootItem);
-		dataItems.put(DEFAULT_IMAGE_BINDING, imageItem);
+		DataItem imageItem = new DataItem (imageProxy, TiC.PROPERTY_IMAGE, rootItem);
+		dataItems.put(TiC.PROPERTY_IMAGE, imageItem);
 		//set default properties
 		imageItem.setDefaultProperties(defaultImageProperties);
 		//add child
@@ -77,13 +75,13 @@ public class DefaultTemplate extends TiTemplate {
 		while (bindings.hasNext()) {
 			String binding = bindings.next();
 			if (!binding.equals(TiC.PROPERTY_PROPERTIES)) {
-				Log.e(TAG, "Please only use 'properties' key for built-in tempalte");
+				Log.e(TAG, "Please only use 'properties' key for built-in template", Log.DEBUG_MODE);
 				bindings.remove();
 			}
 		}
 
 		KrollDict properties = data.getKrollDict(TiC.PROPERTY_PROPERTIES);
-		KrollDict clone_properties = new KrollDict((HashMap)properties.clone());
+		KrollDict clone_properties = new KrollDict((HashMap)properties);
 		if (clone_properties.containsKey(TiC.PROPERTY_TITLE)) {
 			KrollDict text = new KrollDict();
 			text.put(TiC.PROPERTY_TEXT, TiConvert.toString(clone_properties, TiC.PROPERTY_TITLE));

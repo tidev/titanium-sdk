@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -41,7 +41,7 @@ public class TiListView extends TiUIView{
 	private ArrayList<ListSectionProxy> sections;
 	private AtomicInteger itemTypeCount;
 	private String defaultTemplateBinding;
-	private HashMap<String, TiTemplate> templatesByBinding;
+	private HashMap<String, TiListViewTemplate> templatesByBinding;
 	private int listItemId;
 	public static int listContentId;
 	public static int isCheck;
@@ -97,6 +97,7 @@ public class TiListView extends TiUIView{
 		}
 		
 		//One type for header/footer, One type for built-in template, and one type per custom template.
+		@Override
 		public int getViewTypeCount() {
 			return 2 + templatesByBinding.size();
 			
@@ -132,7 +133,7 @@ public class TiListView extends TiUIView{
 			
 			//Handling templates
 			KrollDict data = section.getListItemData(index);
-			TiTemplate template = section.getTemplateByIndex(index);
+			TiListViewTemplate template = section.getTemplateByIndex(index);
 
 			if (content != null) {
 				TiBaseListViewItem itemContent = (TiBaseListViewItem) content.findViewById(listContentId);
@@ -154,7 +155,7 @@ public class TiListView extends TiUIView{
 		//initializing variables
 		sections = new ArrayList<ListSectionProxy>();
 		itemTypeCount = new AtomicInteger(2);
-		templatesByBinding = new HashMap<String, TiTemplate>();
+		templatesByBinding = new HashMap<String, TiListViewTemplate>();
 		defaultTemplateBinding = UIModule.LIST_ITEM_TEMPLATE_DEFAULT;
 		
 		//initializing listView and adapter
@@ -179,7 +180,7 @@ public class TiListView extends TiUIView{
 			hasChild = TiRHelper.getResource("drawable.btn_more_64");
 			accessory = TiRHelper.getResource("id.accessoryType");
 		} catch (ResourceNotFoundException e) {
-			Log.e(TAG, "XML resources could not be found!!!");
+			Log.e(TAG, "XML resources could not be found!!!", Log.DEBUG_MODE);
 		}
 		
 		
@@ -286,7 +287,7 @@ public class TiListView extends TiUIView{
 		for (String key : templates.keySet()) {
 			//Here we bind each template with a key so we can use it to look up later
 			KrollDict properties = new KrollDict((HashMap)templates.get(key));
-			TiTemplate template = new TiTemplate(key, properties);
+			TiListViewTemplate template = new TiListViewTemplate(key, properties);
 			//Set type to template, for recycling purposes.
 			template.setType(getItemType());
 			templatesByBinding.put(key, template);
@@ -335,9 +336,8 @@ public class TiListView extends TiUIView{
 				SectionInfo info = new SectionInfo(index, position + index);
 				return new Pair<ListSectionProxy, SectionInfo>(section, info);
 			} else {
-				int sectionContentCount = section.getContentCount();
 				index -= sectionItemCount;
-				position += sectionContentCount;
+				position += section.getContentCount();;
 			}
 		}
 
@@ -348,7 +348,7 @@ public class TiListView extends TiUIView{
 		return itemTypeCount.getAndIncrement();
 	}
 	
-	public TiTemplate getTemplateByBinding(String binding) {
+	public TiListViewTemplate getTemplateByBinding(String binding) {
 		return templatesByBinding.get(binding);
 	}
 	
