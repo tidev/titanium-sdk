@@ -24,6 +24,8 @@
 
 @implementation TiViewProxy
 
+@synthesize eventOverrideDelegate = eventOverrideDelegate;
+
 #pragma mark public API
 
 @synthesize vzIndex, parentVisible;
@@ -1680,6 +1682,9 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap,horizontalWrap,horizontalWrap,[self willCha
 	// with table rows.  Automagically assume any nil view we're firing an event for is A-OK.
     // NOTE: We want to fire postlayout events on ANY view, even those which do not allow interactions.
 	if (proxyView == nil || [proxyView interactionEnabled] || [type isEqualToString:@"postlayout"]) {
+		if (eventOverrideDelegate != nil) {
+			obj = [eventOverrideDelegate overrideEventObject:obj forEvent:type fromViewProxy:self];
+		}
 		[super fireEvent:type withObject:obj propagate:propagate reportSuccess:report errorCode:code message:message];
 	}
 }

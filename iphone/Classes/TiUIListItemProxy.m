@@ -11,6 +11,8 @@
 #import "TiUIListItem.h"
 #import "TiUIListViewProxy.h"
 
+static void SetEventOverrideDelegateRecursive(NSArray *children, id<TiViewEventOverrideDelegate> eventOverrideDelegate);
+
 @implementation TiUIListItemProxy {
 	TiUIListViewProxy *_listViewProxy; // weak
 }
@@ -66,8 +68,41 @@
 	[super _destroy];
 }
 
+- (void)unarchiveFromTemplate:(id)viewTemplate
+{
+	[super unarchiveFromTemplate:viewTemplate];
+	SetEventOverrideDelegateRecursive(self.children, self);
+}
+
+#pragma mark - TiViewEventOverrideDelegate
+
+- (NSDictionary *)overrideEventObject:(NSDictionary *)eventObject forEvent:(NSString *)eventType fromViewProxy:(TiViewProxy *)viewProxy
+{
+	NSMutableDictionary *updatedEventObject = [eventObject mutableCopy];
+	[updatedEventObject setObject:NUMINT(_indexPath.section) forKey:@"sectionIndex"];
+	[updatedEventObject setObject:NUMINT(_indexPath.row) forKey:@"itemIndex"];
+	[updatedEventObject setObject:[_listViewProxy sectionForIndex:_indexPath.section] forKey:@"section"];
+	id propertiesValue = [_listItem.dataItem objectForKey:@"properties"];
+	NSDictionary *properties = ([propertiesValue isKindOfClass:[NSDictionary class]]) ? propertiesValue : nil;
+	id itemId = [properties objectForKey:@"itemId"];
+	if (itemId != nil) {
+		[updatedEventObject setObject:itemId forKey:@"itemId"];
+	}
+	id bindId = [viewProxy valueForKey:@"bindId"];
+	if (bindId != nil) {
+		[updatedEventObject setObject:bindId forKey:@"bindId"];
+	}
+	return [updatedEventObject autorelease];
 }
 
 @end
+
+static void SetEventOverrideDelegateRecursive(NSArray *children, id<TiViewEventOverrideDelegate> eventOverrideDelegate)
+{
+	[children enumerateObjectsUsingBlock:^(TiViewProxy *child, NSUInteger idx, BOOL *stop) {
+		child.eventOverrideDelegate = eventOverrideDelegate;
+		SetEventOverrideDelegateRecursive(child.children, eventOverrideDelegate);
+	}];
+}
 
 #endif
