@@ -57,6 +57,7 @@ public class ListSectionProxy extends ViewProxy{
 	private static final int MSG_GET_ITEM_AT = MSG_FIRST_ID + 704;
 	private static final int MSG_REPLACE_ITEMS_AT = MSG_FIRST_ID + 705;
 
+
 	
 	public class ListItemData {
 		private KrollDict properties;
@@ -272,6 +273,9 @@ public class ListSectionProxy extends ViewProxy{
 	}
 
 	private void processData(Object[] views, int offset) {
+		if (listItemData == null) {
+			return;
+		}
 		
 		TiTemplate[] temps = new TiTemplate[views.length];
 		//First pass through data, we process template and update
@@ -337,8 +341,11 @@ public class ListSectionProxy extends ViewProxy{
 				preload = true;
 				return;
 			}
-			processData(views, itemCount);
+			//we must update the itemCount before notify data change. If we don't, it will crash
+			int count = itemCount;
 			itemCount += views.length;
+
+			processData(views, count);
 			
 		} else {
 			Log.e(TAG, "Invalid argument type to setData");
@@ -367,8 +374,11 @@ public class ListSectionProxy extends ViewProxy{
 				preload = true;
 				return;
 			}
-			processData(views, index);
-			itemCount += views.length;		
+			
+			int count = itemCount;
+			itemCount += views.length;
+			
+			processData(views, count);
 		} else {
 			Log.e(TAG, "Invalid argument type to insertItemsAt");
 		}
@@ -645,10 +655,12 @@ public class ListSectionProxy extends ViewProxy{
 	public void release() {
 		if (listItemData != null) {
 			listItemData.clear();
+			listItemData = null;
 		}
 		
 		if (itemProperties != null) {
 			itemProperties.clear();
+			itemProperties = null;
 		}
 		
 		if (builtInTemplate != null) {
