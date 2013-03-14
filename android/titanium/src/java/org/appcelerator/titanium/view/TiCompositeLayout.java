@@ -7,7 +7,6 @@
 package org.appcelerator.titanium.view;
 
 import java.lang.ref.WeakReference;
-import java.lang.reflect.Method;
 import java.util.Comparator;
 import java.util.TreeSet;
 
@@ -24,6 +23,7 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Rect;
 import android.graphics.RectF;
+import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewGroup.OnHierarchyChangeListener;
@@ -94,6 +94,11 @@ public class TiCompositeLayout extends ViewGroup
 	 * @module.api
 	 */
 	public TiCompositeLayout(Context context, LayoutArrangement arrangement)
+	{
+		this(context, LayoutArrangement.DEFAULT, null);
+	}
+	
+	public TiCompositeLayout(Context context, AttributeSet set) 
 	{
 		this(context, LayoutArrangement.DEFAULT, null);
 	}

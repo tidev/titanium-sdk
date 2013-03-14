@@ -150,7 +150,6 @@ exports.config = function (logger, config, cli) {
 				},
 				options: {
 					'debug-host': {
-						//abbr: 'H',
 						//desc: __('debug connection info; airkey and hosts required for %s and %s, ignored for %s', 'device'.cyan, 'dist-adhoc'.cyan, 'dist-appstore'.cyan),
 						//hint: 'host:port[:airkey:hosts]',
 						hidden: true
@@ -302,6 +301,11 @@ exports.config = function (logger, config, cli) {
 							}
 						}
 					},
+					'profiler-host': {
+						//desc: __('debug connection info; airkey and hosts required for %s and %s, ignored for %s', 'device'.cyan, 'dist-adhoc'.cyan, 'dist-appstore'.cyan),
+						//hint: 'host:port[:airkey:hosts]',
+						hidden: true
+					},
 					'sim-type': {
 						abbr: 'Y',
 						desc: __('iOS Simulator type; only used when target is %s', 'simulator'.cyan),
@@ -382,17 +386,9 @@ exports.validate = function (logger, config, cli) {
 	
 	ti.validateProjectDir(logger, cli, cli.argv, 'project-dir');
 	
-	var resourcesDir = path.join(cli.argv['project-dir'], 'Resources');
-	
-	// make sure we have an app.js
-	if (!afs.exists(resourcesDir, 'app.js')) {
-		logger.error(__('No app.js found') + '\n');
-		logger.log(__("Ensure the app.js file exists in your project's \"Resources\" directory.") + '\n');
-		process.exit(1);
-	}
-	
 	if (!cli.argv.xcode || !process.env.TITANIUM_CLI_XCODEBUILD) {
 		// make sure the app doesn't have any blacklisted directories in the Resources directory and warn about graylisted names
+		var resourcesDir = path.join(cli.argv['project-dir'], 'Resources');
 		fs.readdirSync(resourcesDir).forEach(function (filename) {
 			var lcaseFilename = filename.toLowerCase(),
 				isDir = fs.lstatSync(path.join(resourcesDir, filename)).isDirectory();
@@ -400,12 +396,12 @@ exports.validate = function (logger, config, cli) {
 			if (blacklistDirectories.indexOf(lcaseFilename) != -1) {
 				if (isDir) {
 					logger.error(__('Found blacklisted directory in the Resources directory') + '\n');
-					logger.log(__('The directory "%s" is a reserved word.', filename));
-					logger.log(__('You must rename this directory to something else.') + '\n');
+					logger.error(__('The directory "%s" is a reserved word.', filename));
+					logger.error(__('You must rename this directory to something else.') + '\n');
 				} else {
 					logger.error(__('Found blacklisted file in the Resources directory') + '\n');
-					logger.log(__('The file "%s" is a reserved word.', filename));
-					logger.log(__('You must rename this file to something else.') + '\n');
+					logger.error(__('The file "%s" is a reserved word.', filename));
+					logger.error(__('You must rename this file to something else.') + '\n');
 				}
 				process.exit(1);
 			} else if (graylistDirectories.indexOf(lcaseFilename) != -1) {
@@ -426,6 +422,15 @@ exports.validate = function (logger, config, cli) {
 	
 	ti.validateTiappXml(logger, cli.tiapp);
 	
+	// at this point we've validated everything except underscores in the app id
+	if (cli.tiapp.id.indexOf('_') != -1) {
+		logger.error(__('tiapp.xml contains an invalid app id "%s"', cli.tiapp.id));
+		logger.error(__('The app id must consist of letters, numbers, and dashes.'));
+		logger.error(__('The first character must be a letter.'));
+		logger.error(__("Usually the app id is your company's reversed Internet domain name. (i.e. com.example.myapp)") + '\n');
+		process.exit(1);
+	}
+	
 	if (!ti.validateCorrectSDK(logger, config, cli, 'build')) {
 		// we're running the build command for the wrong SDK version, gracefully return
 		return false;
@@ -433,13 +438,13 @@ exports.validate = function (logger, config, cli) {
 	
 	if (!Object.keys(iosEnv.xcode).length) {
 		logger.error(__('Unable to find Xcode') + '\n');
-		logger.log(__('Please download and install Xcode, then try again') + '\n');
+		logger.error(__('Please download and install Xcode, then try again') + '\n');
 		process.exit(1);
 	}
 	
 	if (!iosEnv.xcode.__selected__) {
 		logger.error(__('No Xcode version is currently selected') + '\n');
-		logger.log(__("Use 'xcode-select' to select one of the Xcode versions:"));
+		logger.error(__("Use 'xcode-select' to select one of the Xcode versions:"));
 		Object.keys(iosEnv.xcode).forEach(function (ver) {
 			if (ver != '__selected__') {
 				logger.log('\n' + ('    xcode-select -switch ' + iosEnv.xcode[ver].path).cyan);
@@ -457,7 +462,7 @@ exports.validate = function (logger, config, cli) {
 	
 	if (!Object.keys(sdks).length) {
 		logger.error(__('Unable to find any iOS SDKs') + '\n');
-		logger.log(__('Please download and install an iOS SDK (version %s or newer)', version.format(minIosSdkVersion, 2)) + '\n');
+		logger.error(__('Please download and install an iOS SDK (version %s or newer)', version.format(minIosSdkVersion, 2)) + '\n');
 		process.exit(1);
 	}
 	
@@ -712,34 +717,36 @@ exports.validate = function (logger, config, cli) {
 		}
 	}
 	
-	if (cli.argv['debug-host'] && cli.argv.target != 'dist-appstore') {
-		if (typeof cli.argv['debug-host'] == 'number') {
-			logger.error(__('Invalid debug host "%s"', cli.argv['debug-host']) + '\n');
-			logger.log(__('The debug host must be in the format "host:port".') + '\n');
-			process.exit(1);
-		}
-		
-		var parts = cli.argv['debug-host'].split(':');
-		
-		if ((cli.argv.target == 'simulator' && parts.length < 2) || (cli.argv.target != 'simulator' && parts.length < 4)) {
-			logger.error(__('Invalid debug host "%s"', cli.argv['debug-host']) + '\n');
-			if (cli.argv.target == 'simulator') {
-				logger.log(__('The debug host must be in the format "host:port".') + '\n');
-			} else {
-				logger.log(__('The debug host must be in the format "host:port:airkey:hosts".') + '\n');
-			}
-			process.exit(1);
-		}
-		
-		if (parts.length > 1 && parts[1]) {
-			var port = parseInt(parts[1]);
-			if (isNaN(port) || port < 1 || port > 65535) {
-				logger.error(__('Invalid debug host "%s"', cli.argv['debug-host']) + '\n');
-				logger.log(__('The port must be a valid integer between 1 and 65535.') + '\n');
+	['debug', 'profiler'].forEach(function (type) {
+		if (cli.argv[type + '-host'] && cli.argv.target != 'dist-appstore') {
+			if (typeof cli.argv[type + '-host'] == 'number') {
+				logger.error(__('Invalid ' + type + ' host "%s"', cli.argv[type + '-host']) + '\n');
+				logger.log(__('The ' + type + ' host must be in the format "host:port".') + '\n');
 				process.exit(1);
 			}
+			
+			var parts = cli.argv[type + '-host'].split(':');
+			
+			if ((cli.argv.target == 'simulator' && parts.length < 2) || (cli.argv.target != 'simulator' && parts.length < 4)) {
+				logger.error(__('Invalid ' + type + ' host "%s"', cli.argv[type + '-host']) + '\n');
+				if (cli.argv.target == 'simulator') {
+					logger.log(__('The ' + type + ' host must be in the format "host:port".') + '\n');
+				} else {
+					logger.log(__('The ' + type + ' host must be in the format "host:port:airkey:hosts".') + '\n');
+				}
+				process.exit(1);
+			}
+			
+			if (parts.length > 1 && parts[1]) {
+				var port = parseInt(parts[1]);
+				if (isNaN(port) || port < 1 || port > 65535) {
+					logger.error(__('Invalid ' + type + ' host "%s"', cli.argv[type + '-host']) + '\n');
+					logger.log(__('The port must be a valid integer between 1 and 65535.') + '\n');
+					process.exit(1);
+				}
+			}
 		}
-	}
+	});
 };
 
 exports.run = function (logger, config, cli, finished) {
@@ -776,6 +783,8 @@ function sendAnalytics(cli) {
 		eventName = cli.argv['device-family'] + '.distribute.' + cli.argv.target.replace('dist-', '');
 	} else if (cli.argv['debug-host']) {
 		eventName += '.debug';
+	} else if (cli.argv['profiler-host']) {
+		eventName += '.profile';
 	} else {
 		eventName += '.run';
 	}
@@ -818,6 +827,7 @@ function build(logger, config, cli, finished) {
 	}
 	
 	this.debugHost = cli.argv['debug-host'];
+	this.profilerHost = cli.argv['profiler-host'];
 	this.keychain = cli.argv.keychain;
 	
 	if (cli.argv.xcode) {
@@ -894,6 +904,12 @@ function build(logger, config, cli, finished) {
 		this.logger.info(__('Debugging enabled via debug host: %s', this.debugHost.cyan));
 	} else {
 		this.logger.info(__('Debugging disabled'));
+	}
+	
+	if (this.profilerHost && this.target != 'dist-appstore') {
+		this.logger.info(__('Profiler enabled via profiler host: %s', this.profilerHost.cyan));
+	} else {
+		this.logger.info(__('Profiler disabled'));
 	}
 	
 	// make sure we have an icon
@@ -988,10 +1004,14 @@ build.prototype = {
 		this.forceRebuild = this.checkIfShouldForceRebuild();
 		
 		this.cli.fireHook('build.pre.compile', this, function () {
+			// Make sure we have an app.js. This used to be validated in validate(), but since plugins like
+			// Alloy generate an app.js, it may not have existed during validate(), but should exist now
+			// that build.pre.compile was fired.
+			ti.validateAppJsExists(this.projectDir, this.logger);
+			
 			// let's start building some apps!
 			parallel(this, [
 				'createInfoPlist',
-				'createDebuggerPlist',
 				'createEntitlementsPlist',
 				'detectModules'
 			], function () {
@@ -1022,6 +1042,8 @@ build.prototype = {
 						}
 						next();
 					},
+					'createDebuggerPlist',
+					'createProfilerPlist',
 					'injectModulesIntoXcodeProject',
 					'injectApplicationDefaults', // if ApplicationDefaults.m was modified, forceRebuild will be set to true
 					'copyTitaniumLibraries',
@@ -1207,12 +1229,46 @@ build.prototype = {
 			plistExists = afs.exists(dest);
 		
 		if (!plistExists || fs.readFileSync(dest).toString() != plist) {
-			if (!plistExists) {
-				this.logger.info(__('Forcing rebuild: debugger.plist does not exist'));
+			if (this.target != 'simulator') {
+				if (!plistExists) {
+					this.logger.info(__('Forcing rebuild: debugger.plist does not exist'));
+				} else {
+					this.logger.info(__('Forcing rebuild: debugger settings changed since last build'));
+				}
+				this.forceRebuild = true;
 			} else {
-				this.logger.info(__('Forcing rebuild: debugger settings changed since last build'));
+				// write the debugger.plist to the app dir now since we're skipping Xcode and the pre-compile phase
+				fs.writeFileSync(path.join(this.xcodeAppDir, 'debugger.plist'), plist);
 			}
-			this.forceRebuild = true;
+			fs.writeFile(dest, plist, callback());
+		} else {
+			callback();
+		}
+	},
+	
+	createProfilerPlist: function (callback) {
+		var parts = (this.profilerHost || '').split(':'),
+			plist = fs.readFileSync(path.join(this.titaniumIosSdkPath, 'profiler.plist'))
+						.toString()
+						.replace(/__PROFILER_HOST__/g, parts.length > 0 ? parts[0] : '')
+						.replace(/__PROFILER_PORT__/g, parts.length > 1 ? parts[1] : '')
+						.replace(/__PROFILER_AIRKEY__/g, parts.length > 2 ? parts[2] : '')
+						.replace(/__PROFILER_HOSTS__/g, parts.length > 3 ? parts[3] : ''),
+			dest = path.join(this.buildDir, 'profiler.plist'),
+			plistExists = afs.exists(dest);
+		
+		if (!plistExists || fs.readFileSync(dest).toString() != plist) {
+			if (this.target != 'simulator') {
+				if (!plistExists) {
+					this.logger.info(__('Forcing rebuild: profiler.plist does not exist'));
+				} else {
+					this.logger.info(__('Forcing rebuild: profiler settings changed since last build'));
+				}
+				this.forceRebuild = true;
+			} else {
+				// write the profiler.plist to the app dir now since we're skipping Xcode and the pre-compile phase
+				fs.writeFileSync(path.join(this.xcodeAppDir, 'profiler.plist'), plist);
+			}
 			fs.writeFile(dest, plist, callback());
 		} else {
 			callback();
@@ -2070,7 +2126,7 @@ build.prototype = {
 					(m.manifest.guid || '') + '\",@\"guid\",@\"' +
 					(m.manifest.licensekey || '') + '\",@\"licensekey\",nil]];'
 				);
-			});
+			}, this);
 			
 			applicationModsContents.push('	return modules;');
 			applicationModsContents.push('}\n');
@@ -2126,6 +2182,9 @@ build.prototype = {
 		
 		dest = path.join(dir, 'libti_ios_debugger.a');
 		afs.exists(dest) || afs.copyFileSync(path.join(this.titaniumIosSdkPath, 'libti_ios_debugger.a'), dest, { logger: this.logger.debug });
+		
+		dest = path.join(dir, 'libti_ios_profiler.a');
+		afs.exists(dest) || afs.copyFileSync(path.join(this.titaniumIosSdkPath, 'libti_ios_profiler.a'), dest, { logger: this.logger.debug });
 		
 		callback();
 	},
@@ -2233,6 +2292,7 @@ build.prototype = {
 		if (/simulator|device|dist\-adhoc/.test(this.target)) {
 			this.tiapp.ios && this.tiapp.ios.enablecoverage && gccDefs.push('KROLL_COVERAGE=1');
 			this.debugHost && gccDefs.push('DEBUGGER_ENABLED=1');
+			this.profilerHost && gccDefs.push('PROFILER_ENABLED=1');
 		}
 		
 		xcodeArgs.push('GCC_PREPROCESSOR_DEFINITIONS=' + gccDefs.join(' '));
@@ -2561,6 +2621,21 @@ build.prototype = {
 					this.logger.info(__('Removing unwanted %s from build', 'debugger.plist'.cyan));
 					fs.unlinkSync(dest);
 				}
+				var src = path.join(this.buildDir, 'profiler.plist'),
+					dest = path.join(this.xcodeAppDir, 'profiler.plist');
+				
+				// we only copy the debugger.plist dev/test when building from Studio (via the Ti CLI), otherwise make sure the file doesn't exist
+				if (this.deployType != 'production' && process.env.TITANIUM_CLI_XCODEBUILD) {
+					afs.copyFileSync(
+						src,
+						dest,
+						{ logger: this.logger.debug }
+					);
+				} else if (afs.exists(dest)) {
+					this.logger.info(__('Removing unwanted %s from build', 'profiler.plist'.cyan));
+					fs.unlinkSync(dest);
+				}
+
 				
 				next();
 			}

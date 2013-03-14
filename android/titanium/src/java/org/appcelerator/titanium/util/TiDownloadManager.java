@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -100,19 +100,20 @@ public class TiDownloadManager implements Handler.Callback
 		ArrayList<SoftReference<TiDownloadListener>> toRemove = new ArrayList<SoftReference<TiDownloadListener>>();
 		synchronized (listeners) {
 			String hash = DigestUtils.shaHex(uri.toString());
-			for (SoftReference<TiDownloadListener> listener : listeners.get(hash)) {
+			ArrayList<SoftReference<TiDownloadListener>> listenerList = listeners.get(hash);
+			for (SoftReference<TiDownloadListener> listener : listenerList) {
 				TiDownloadListener downloadListener = listener.get();
 				if (downloadListener != null) {
 					if (what == MSG_FIRE_DOWNLOAD_FINISHED) {
-						downloadListener.downloadFinished(uri);
+						downloadListener.downloadTaskFinished(uri);
 					} else {
-						downloadListener.downloadFailed(uri);
+						downloadListener.downloadTaskFailed(uri);
 					}
 					toRemove.add(listener);
 				}
 			}
 			for (SoftReference<TiDownloadListener> listener : toRemove) {
-				listeners.get(hash).remove(listener);
+				listenerList.remove(listener);
 			}
 		}
 	}
@@ -138,6 +139,19 @@ public class TiDownloadManager implements Handler.Callback
 				synchronized (downloadingURIs) {
 					downloadingURIs.remove(DigestUtils.shaHex(uri.toString()));
 				}
+
+				// If there is additional background task, run it here.
+				String hash = DigestUtils.shaHex(uri.toString());
+				ArrayList<SoftReference<TiDownloadListener>> listenerList;
+				synchronized (listeners) {
+					listenerList = listeners.get(hash);
+				}
+				for (SoftReference<TiDownloadListener> listener : listenerList) {
+					if (listener.get() != null) {
+						listener.get().postDownload(uri);
+					}
+				}
+
 				sendMessage(uri, MSG_FIRE_DOWNLOAD_FINISHED);
 			} catch (Exception e) {
 				// fire a download fail event if we are unable to download

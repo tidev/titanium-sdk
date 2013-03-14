@@ -1238,4 +1238,33 @@ DEFINE_EXCEPTIONS
 	return [NSNull null];
 }
 
++ (id)createProxy:(NSString*)qualifiedName withProperties:(NSDictionary*)properties inContext:(id<TiEvaluator>)context
+{
+	static dispatch_once_t onceToken;
+	static CFMutableDictionaryRef classNameLookup;
+	dispatch_once(&onceToken, ^{
+		classNameLookup = CFDictionaryCreateMutable(kCFAllocatorDefault, 1, &kCFTypeDictionaryKeyCallBacks, NULL);
+	});
+	Class proxyClass = (Class)CFDictionaryGetValue(classNameLookup, qualifiedName);
+	if (proxyClass == nil) {
+		NSString *titanium = [NSString stringWithFormat:@"%@%s",@"Ti","tanium."];
+		if ([qualifiedName hasPrefix:titanium]) {
+			qualifiedName = [qualifiedName stringByReplacingCharactersInRange:NSMakeRange(2, 6) withString:@""];
+		}
+		NSString *className = [[qualifiedName stringByReplacingOccurrencesOfString:@"." withString:@""] stringByAppendingString:@"Proxy"];
+		proxyClass = NSClassFromString(className);
+		if (proxyClass==nil) {
+			DebugLog(@"[WARN] Attempted to load %@: Could not find class definition.", className);
+			@throw [NSException exceptionWithName:@"org.appcelerator.module"
+										reason:[NSString stringWithFormat:@"Class not found: %@", qualifiedName]
+										userInfo:nil];
+		}
+		CFDictionarySetValue(classNameLookup, qualifiedName, proxyClass);
+	}
+	NSArray *args = properties != nil ? [NSArray arrayWithObject:properties] : nil;
+	return [[[proxyClass alloc] _initWithPageContext:context args:args
+			 ] autorelease];
+}
+
+
 @end
