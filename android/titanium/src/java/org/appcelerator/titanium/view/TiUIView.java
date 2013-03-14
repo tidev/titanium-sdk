@@ -1024,6 +1024,7 @@ public abstract class TiUIView
 		} else if (TiC.PROPERTY_BORDER_WIDTH.equals(property)) {
 			borderView.setBorderWidth(TiConvert.toFloat(value, 0f));
 		}
+		borderView.postInvalidate();
 	}
 
 	private static SparseArray<String> motionEvents = new SparseArray<String>();
@@ -1352,8 +1353,16 @@ public abstract class TiUIView
 		}
 		if (borderView != null) {
 			borderView.setBorderAlpha(Math.round(opacity * 255));
+			borderView.postInvalidate();
 		}
-		setOpacity(nativeView, opacity);
+		if (nativeView != null) {
+			if (HONEYCOMB_OR_GREATER) {
+				nativeView.setAlpha(opacity);
+			} else {
+				setOpacity(nativeView, opacity);
+			}
+			nativeView.postInvalidate();
+		}
 	}
 
 	/**
@@ -1368,7 +1377,6 @@ public abstract class TiUIView
 			if (opacity == 1) {
 				clearOpacity(view);
 			}
-			view.invalidate();
 		}
 	}
 
