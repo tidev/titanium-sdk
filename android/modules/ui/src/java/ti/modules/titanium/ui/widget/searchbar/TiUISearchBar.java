@@ -55,7 +55,7 @@ public class TiUISearchBar extends TiUIText
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}*/
-				proxy.fireEvent("cancel", null);
+				fireEvent("cancel", null);
 			}
 		});
 
