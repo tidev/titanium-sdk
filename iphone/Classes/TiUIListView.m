@@ -180,7 +180,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
 {
 	NSUInteger sectionCount = [self.listViewProxy.sectionCount unsignedIntegerValue];
-	return MAX(1, sectionCount);
+	return sectionCount;
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section

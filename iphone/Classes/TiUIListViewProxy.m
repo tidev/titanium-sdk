@@ -63,13 +63,17 @@
 	}
 }
 
-- (void)dispatchBlock:(void(^)(void))block
+- (void)dispatchBlock:(void(^)(UITableView *tableView))block
 {
+	if (view == nil) {
+		block(nil);
+		return;
+	}
 	if ([NSThread isMainThread]) {
-		return block();
+		return block(self.listView.tableView);
 	}
 	TiThreadPerformOnMainThread(^{
-		block();
+		block(self.listView.tableView);
 	}, YES);
 }
 
@@ -180,7 +184,7 @@
 		ENSURE_TYPE(section, TiUIListSectionProxy);
 		[self rememberProxy:section];
 	}];
-	[self dispatchUpdateAction:^(UITableView *tableView) {
+	[self dispatchBlock:^(UITableView *tableView) {
 		[_sections enumerateObjectsUsingBlock:^(TiUIListSectionProxy *section, NSUInteger idx, BOOL *stop) {
 			section.delegate = nil;
 			if (![insertedSections containsObject:section]) {
@@ -225,7 +229,9 @@
 				DebugLog(@"[WARN] ListView: Attempt to append exising section");
 			}
 		}];
-		[tableView insertSections:indexSet withRowAnimation:animation];
+		if ([indexSet count] > 0) {
+			[tableView insertSections:indexSet withRowAnimation:animation];
+		}
 		[indexSet release];
 	}];
 }
