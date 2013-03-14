@@ -1454,9 +1454,10 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap,horizontalWrap,horizontalWrap,[self willCha
 {
 	[self willFirePropertyChanges];
 	
-	id<NSFastEnumeration> values = [self allKeys];
-	
-	[view readProxyValuesWithKeys:values];
+	if ([view respondsToSelector:@selector(readProxyValuesWithKeys:)]) {
+		id<NSFastEnumeration> values = [self allKeys];
+		[view readProxyValuesWithKeys:values];
+	}
 
 	[self didFirePropertyChanges];
 }
@@ -1698,7 +1699,9 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap,horizontalWrap,horizontalWrap,[self willCha
 	}
 	else if(view!=nil) // don't create the view if not already realized
 	{
-		[self.view listenerAdded:type count:count];
+		if ([self.view respondsToSelector:@selector(listenerAdded:count:)]) {
+			[self.view listenerAdded:type count:count];
+		}
 	}
 }
 
@@ -1710,7 +1713,9 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap,horizontalWrap,horizontalWrap,[self willCha
 	}
 	else if(view!=nil) // don't create the view if not already realized
 	{
-		[self.view listenerRemoved:type count:count];
+		if ([self.view respondsToSelector:@selector(listenerRemoved:count:)]) {
+			[self.view listenerRemoved:type count:count];
+		}
 	}
 }
 
