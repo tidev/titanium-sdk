@@ -158,7 +158,7 @@ properties:
   - name: enableZoomControls
     summary: Show zoom controls when the user touches the image view.
     type: Boolean
-    default: true
+    default: false
     platforms: [android]
     since: "1.3.0"
     
