@@ -71,6 +71,9 @@
 #ifdef USE_TI_UIIPHONELISTVIEWSCROLLPOSITION
 	#import "TiUIiPhoneTableViewScrollPositionProxy.h"
 #endif
+#ifdef USE_TI_UIIPHONELISTVIEWCELLSELECTIONSTYLE
+#import "TiUIiPhoneTableViewCellSelectionStyleProxy.h"
+#endif
 
 @implementation TiUIiPhoneProxy
 
@@ -129,6 +132,9 @@ RELEASE_TO_NIL(x); \
 #endif
 #ifdef USE_TI_UIIPHONELISTVIEWSCROLLPOSITION
 	FORGET_AND_RELEASE(listViewScrollPosition);
+#endif
+#ifdef USE_TI_UIIPHONELISTVIEWCELLSELECTIONSTYLE
+	FORGET_AND_RELEASE(listViewCellSelectionStyle);
 #endif
 	[super dealloc];
 }
@@ -202,6 +208,9 @@ DEFINE_SUBPROXY_AS(ListViewStyle,TableViewStyle, listViewStyle);
 #endif
 #ifdef USE_TI_UIIPHONELISTVIEWSCROLLPOSITION
 DEFINE_SUBPROXY_AS(ListViewScrollPosition, TableViewScrollPosition,listViewScrollPosition);
+#endif
+#ifdef USE_TI_UIIPHONELISTVIEWCELLSELECTIONSTYLE
+DEFINE_SUBPROXY_AS(ListViewCellSelectionStyle, TableViewCellSelectionStyle,tableViewCellSelectionStyle);
 #endif
 
 #define RESPONDS_TO_3_2_STATUSBAR_SELECTOR \
@@ -390,6 +399,9 @@ MAKE_SYSTEM_PROP(MODAL_PRESENTATION_CURRENT_CONTEXT,UIModalPresentationCurrentCo
 #endif
 #ifdef USE_TI_UIIPHONELISTVIEWSCROLLPOSITION
 	FORGET_AND_RELEASE(listViewScrollPosition);
+#endif
+#ifdef USE_TI_UIIPHONELISTVIEWCELLSELECTIONSTYLE
+	FORGET_AND_RELEASE(listViewCellSelectionStyle);
 #endif
 	[super didReceiveMemoryWarning:notification];
 }

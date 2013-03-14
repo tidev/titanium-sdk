@@ -166,6 +166,15 @@
 			}];
 		}
 	}
+	id selectionStyleValue = [properties objectForKey:@"selectionStyle"];
+	if ([self shouldUpdateValue:selectionStyleValue forKeyPath:@"selectionStyle"]) {
+		if ([selectionStyleValue isKindOfClass:[NSNumber class]]) {
+			UITableViewCellSelectionStyle selectionStyle = [selectionStyleValue unsignedIntegerValue];
+			[self recordChangeValue:selectionStyleValue forKeyPath:@"selectionStyle" withBlock:^{
+				self.selectionStyle = selectionStyle;
+			}];
+		}
+	}
 	
 	[_resetKeys enumerateObjectsUsingBlock:^(NSString *keyPath, BOOL *stop) {
 		id value = [_initialValues objectForKey:keyPath];
