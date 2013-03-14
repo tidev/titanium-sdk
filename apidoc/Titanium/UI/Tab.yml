@@ -48,7 +48,10 @@ description: |
     As on iOS, the root tab window cannot be closed.
 extends: Titanium.UI.View
 since: "0.8"
-excludes: { methods:[removeAllChildren] }
+excludes:
+    methods: [removeAllChildren]
+    properties: [enabled]
+
 methods:
   - name: open
     summary: Opens a new window.
@@ -118,7 +121,50 @@ properties:
     platforms: [iphone,ipad]
   - name: icon
     summary: Icon URL for this tab.
+    description: |
+        #### iOS Tab Icons
+
+        On iOS, tab icons are usually white with a transparent background. The system uses
+        a transparent tint color to indicate whether the tab is active or inactive. In the
+        inactive state, the tint color is based on the tab bar's color
+        [tabsBackgroundColor](Titanium.UI.TabGroup.tabsBackgroundColor), which defaults
+        to black. In the active state, the tint color is usually blue. Prior to Titanium
+        3.1, there was no way to override the default active icon tint.
+        
+        Titanium 3.1 introduced some new ways to customize tab icons, which are supported
+        in iOS 5.0 and above:
+
+        *   You can specify the active tab's tint color as
+        [activeTabIconTint](Titanium.UI.TabGroup.activeTabIconTint).
+
+        *   You can set separate icon images for the active and inactive states. If
+        [activeIcon](Titanium.UI.Tab.activeIcon) is set, then `icon` is used in the
+        inactive state, and `activeIcon` is used in the active state. **No default tint
+        is applied to either icon.**
+
+         If the icon provided is larger than [30 pixels (60 pixels in the retina variant)]
+         (https://developer.apple.com/library/ios/#documentation/UserExperience/Conceptual/MobileHIG/IconsImages/IconsImages.html),
+         this image will be scaled to fit if used with activeIcon, and cropped at the bottom
+         otherwise.
     type: String
+  - name: activeIcon
+    summary: Icon URL for this tab when active.
+    description: |
+         iOS 5.0 and later only.
+
+         If unspecified, iOS uses a tint color to indicate the active tab. See
+         [icon](Titanium.UI.Tab.icon) for more information.
+         
+         If the icon provided is larger than [30 pixels (60 pixels in the retina variant)]
+         (https://developer.apple.com/library/ios/#documentation/UserExperience/Conceptual/MobileHIG/IconsImages/IconsImages.html),
+         this image will be scaled to fit.
+
+         On iOS prior to 5.0, the default tint color is always used and this property
+         remains unset.
+    type: String
+    platforms: [iphone, ipad]
+    since: "3.1.0"
+    osver: {ios: {min: "5.0"}}
   - name: title
     summary: Title for this tab.
     type: String

@@ -203,7 +203,6 @@ TiValueRef KrollGetProperty(TiContextRef jsContext, TiObjectRef object, TiString
 		[name autorelease];		
 
 		id result = [o valueForKey:name];
-		TiObjectRef cachedObject = [o objectForTiString:prop context:jsContext];
 
 		if ([result isKindOfClass:[KrollWrapper class]])
 		{
@@ -215,6 +214,7 @@ TiValueRef KrollGetProperty(TiContextRef jsContext, TiObjectRef object, TiString
 			}
 			else
 			{
+				TiObjectRef cachedObject = [o objectForTiString:prop context:jsContext];
 				TiObjectRef remoteFunction = [(KrollWrapper *)result jsobject];
 				if ((cachedObject != NULL) && (cachedObject != remoteFunction))
 				{

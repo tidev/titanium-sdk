@@ -247,7 +247,7 @@ def trace(msg):
 def error(msg):
 	log.error(msg)
 
-def copy_all(source_folder, dest_folder, ignore_dirs=[], ignore_files=[], ignore_exts=[], one_time_msg=""):
+def copy_all(source_folder, dest_folder, mergeXMLResources=False, ignore_dirs=[], ignore_files=[], ignore_exts=[], one_time_msg=""):
 	msg_shown = False
 	for root, dirs, files in os.walk(source_folder, True, None, True):
 		for d in dirs:
@@ -267,7 +267,27 @@ def copy_all(source_folder, dest_folder, ignore_dirs=[], ignore_files=[], ignore
 			to_directory = os.path.split(to_)[0]
 			if not os.path.exists(to_directory):
 				os.makedirs(to_directory)
-			shutil.copyfile(from_, to_)
+				shutil.copyfile(from_, to_)
+			#
+			# Merge the xml resource files in res/values/ if there are multiple files with the same name.
+			# (TIMOB-12663)
+			#
+			elif mergeXMLResources and os.path.isfile(to_) and f in ['strings.xml', 'attrs.xml', 'styles.xml', 
+				'bools.xml', 'colors.xml', 'dimens.xml', 'ids.xml', 'integers.xml', 'arrays.xml']:
+				sfile = open(from_, 'r')
+				dfile = open(to_, 'r')
+				scontent = sfile.read()
+				dcontent = dfile.read()
+				sfile.close()
+				dfile.close()
+				sindex = scontent.find('</resources>')
+				dindex = dcontent.find('<resources>') + 11
+				content_to_write = scontent[:sindex] + dcontent[dindex:]
+				wfile = open(to_, 'w')
+				wfile.write(content_to_write)
+				wfile.close()
+			else:
+				shutil.copyfile(from_, to_)
 
 def remove_orphaned_files(source_folder, target_folder, ignore=[]):
 	is_res = source_folder.endswith('Resources') or source_folder.endswith('Resources' + os.sep)
@@ -327,6 +347,8 @@ class Builder(object):
 		self.force_rebuild = False
 		self.debugger_host = None
 		self.debugger_port = -1
+		self.profiler_host = None
+		self.profiler_port = -1
 		self.fastdev_port = -1
 		self.fastdev = False
 		self.compile_js = False
@@ -691,7 +713,7 @@ class Builder(object):
 		for module in self.modules:
 			platform_folder = os.path.join(module.path, 'platform', 'android')
 			if os.path.exists(platform_folder):
-				copy_all(platform_folder, self.project_dir, one_time_msg="Copying platform-specific files for '%s' module" % module.manifest.name)
+				copy_all(platform_folder, self.project_dir, True, one_time_msg="Copying platform-specific files for '%s' module" % module.manifest.name)
 
 	def copy_commonjs_modules(self):
 		info('Copying CommonJS modules...')
@@ -705,7 +727,7 @@ class Builder(object):
 	def copy_project_platform_folder(self, ignore_dirs=[], ignore_files=[]):
 		if not os.path.exists(self.platform_dir):
 			return
-		copy_all(self.platform_dir, self.project_dir, ignore_dirs, ignore_files, one_time_msg="Copying platform-specific files ...")
+		copy_all(self.platform_dir, self.project_dir, True, ignore_dirs, ignore_files, one_time_msg="Copying platform-specific files ...")
 
 	def copy_resource_drawables(self):
 		debug('Processing Android resource drawables')
@@ -963,11 +985,6 @@ class Builder(object):
     	/>
 	<uses-library android:name="com.google.android.maps" />"""
 
-		FACEBOOK_ACTIVITY = """<activity 
-		android:name="ti.modules.titanium.facebook.FBActivity"
-		android:theme="@android:style/Theme.Translucent.NoTitleBar"
-    />"""
-
 		CAMERA_ACTIVITY = """<activity 
 		android:name="ti.modules.titanium.media.TiCameraActivity"
 		android:configChanges="keyboardHidden|orientation"
@@ -982,11 +999,6 @@ class Builder(object):
 			
 			# MAPS
 			'Map.createView' : MAP_ACTIVITY,
-	    	
-			# FACEBOOK
-			'Facebook.setup' : FACEBOOK_ACTIVITY,
-			'Facebook.login' : FACEBOOK_ACTIVITY,
-			'Facebook.createLoginButton' : FACEBOOK_ACTIVITY,
 		}
 		
 		# this is a map of our APIs to ones that require Google APIs to be available on the device
@@ -1411,12 +1423,14 @@ class Builder(object):
 		# compile localization files
 		localecompiler.LocaleCompiler(self.name,self.top_dir,'android',sys.argv[1]).compile()
 		# fix un-escaped single-quotes and full-quotes
+		# remove duplicate strings since we merge strings.xml from /i18n/ and /platform/android/res/values (TIMOB-12663)
 		offending_pattern = '[^\\\\][\'"]'
 		for root, dirs, files in os.walk(self.res_dir):
 			remove_ignored_dirs(dirs)
 			for filename in files:
 				if filename in ignoreFiles or not filename.endswith('.xml'):
 					continue
+				string_name_list = [] #keeps track of the string names
 				full_path = os.path.join(root, filename)
 				f = codecs.open(full_path, 'r', 'utf-8')
 				contents = f.read()
@@ -1425,10 +1439,20 @@ class Builder(object):
 					continue
 				doc = parseString(contents.encode("utf-8"))
 				string_nodes = doc.getElementsByTagName('string')
+				resources_node = doc.getElementsByTagName('resources')[0]
 				if len(string_nodes) == 0:
 					continue
 				made_change = False
 				for string_node in string_nodes:
+					name = string_node.getAttribute('name')
+					# Remove the string node with the duplicate names
+					if name in string_name_list:
+						resources_node.removeChild(string_node)
+						made_change = True
+						debug('Removed duplicate string [%s] from %s' %(name, full_path))
+					else:
+						string_name_list.append(name)
+
 					if not string_node.hasChildNodes():
 						continue
 					string_child = string_node.firstChild
@@ -1509,6 +1533,7 @@ class Builder(object):
 		classpath = os.pathsep.join([classpath, os.path.join(self.support_dir, 'lib', 'titanium-verify.jar')])
 		if self.deploy_type != 'production':
 			classpath = os.pathsep.join([classpath, os.path.join(self.support_dir, 'lib', 'titanium-debug.jar')])
+			classpath = os.pathsep.join([classpath, os.path.join(self.support_dir, 'lib', 'titanium-profiler.jar')])
 
 		debug("Building Java Sources: " + " ".join(src_list))
 		javac_command = [self.javac, '-encoding', 'utf8',
@@ -1657,6 +1682,8 @@ class Builder(object):
 
 			# libtiverify is always included, even if targeting rhino.
 			apk_zip.write(os.path.join(lib_source_dir, 'libtiverify.so'), lib_dest_dir + 'libtiverify.so')
+			# profiler
+			apk_zip.write(os.path.join(lib_source_dir, 'libtiprofiler.so'), lib_dest_dir + 'libtiprofiler.so')
 
 			if self.runtime == 'v8':
 				for fname in ('libkroll-v8.so', 'libstlport_shared.so'):
@@ -1902,6 +1929,8 @@ class Builder(object):
 		deploy_data = {
 			"debuggerEnabled": self.debugger_host != None,
 			"debuggerPort": self.debugger_port,
+			"profilerEnabled": self.profiler_host != None,
+			"profilerPort": self.profiler_port,
 			"fastdevPort": self.fastdev_port
 		}
 		deploy_json = os.path.join(self.project_dir, 'bin', 'deploy.json')
@@ -1952,7 +1981,7 @@ class Builder(object):
 			finally:
 				res_zip_file.close()
 
-	def build_and_run(self, install, avd_id, keystore=None, keystore_pass='tirocks', keystore_alias='tidev', dist_dir=None, build_only=False, device_args=None, debugger_host=None):
+	def build_and_run(self, install, avd_id, keystore=None, keystore_pass='tirocks', keystore_alias='tidev', dist_dir=None, build_only=False, device_args=None, debugger_host=None, profiler_host=None):
 		deploy_type = 'development'
 		self.build_only = build_only
 		self.device_args = device_args
@@ -2132,6 +2161,12 @@ class Builder(object):
 				self.debugger_port = int(hostport[1])
 			debugger_enabled = self.debugger_host != None and len(self.debugger_host) > 0
 
+			if (not profiler_host is None) and len(profiler_host) > 0:
+				hostport = profiler_host.split(":")
+				self.profiler_host = hostport[0]
+				self.profiler_port = int(hostport[1])
+			profiler_enabled = self.profiler_host != None and len(self.profiler_host) > 0
+
 			# Detect which modules are being used.
 			# We need to know this info in a few places, so the info is saved
 			# in self.missing_modules and self.modules
@@ -2255,6 +2290,7 @@ class Builder(object):
 				dex_args.append(os.path.join(self.support_dir, 'lib', 'titanium-verify.jar'))
 				if self.deploy_type != 'production':
 					dex_args.append(os.path.join(self.support_dir, 'lib', 'titanium-debug.jar'))
+					dex_args.append(os.path.join(self.support_dir, 'lib', 'titanium-profiler.jar'))
 					# the verifier depends on Ti.Network classes, so we may need to inject it
 					has_network_jar = False
 					for jar in self.android_jars:
@@ -2315,6 +2351,12 @@ class Builder(object):
 			if debugger_enabled and self.runtime == 'v8':
 				info('Forwarding host port %s to device for debugging.' % self.debugger_port)
 				forwardPort = 'tcp:%s' % self.debugger_port
+				self.sdk.run_adb(['forward', forwardPort, forwardPort])
+
+			# Enable port forwarding for profiler
+			if profiler_enabled and self.runtime == 'v8':
+				info('Forwarding host port %s to device for profiling.' % self.profiler_port)
+				forwardPort = 'tcp:%s' % self.profiler_port
 				self.sdk.run_adb(['forward', forwardPort, forwardPort])
 
 			#intermediary code for on-device debugging (later)
@@ -2459,9 +2501,12 @@ if __name__ == "__main__":
 			info("Building %s for Android ... one moment" % project_name)
 			avd_id = dequote(sys.argv[6])
 			debugger_host = None
-			if len(sys.argv) > 8:
+			profiler_host = None
+			if len(sys.argv) > 9 and sys.argv[9] == 'profiler':
+				profiler_host = dequote(sys.argv[8])
+			elif len(sys.argv) > 8:
 				debugger_host = dequote(sys.argv[8])
-			builder.build_and_run(False, avd_id, debugger_host=debugger_host)
+			builder.build_and_run(False, avd_id, debugger_host=debugger_host, profiler_host=profiler_host)
 		elif command == 'install':
 			avd_id = dequote(sys.argv[6])
 			device_args = ['-d']
@@ -2471,7 +2516,12 @@ if __name__ == "__main__":
 			# to Windows it just looks like a serial number is passed in (the debugger_host
 			# argument shifts left to take over the empty argument.)
 			debugger_host = None
-			if len(sys.argv) >= 9 and len(sys.argv[8]) > 0:
+			profiler_host = None
+			if len(sys.argv) >= 10 and sys.argv[9] == 'profiler':
+				profiler_host = dequote(sys.argv[8])
+				if len(sys.argv[7]) > 0:
+					device_args = ['-s', sys.argv[7]]
+			elif len(sys.argv) >= 9 and len(sys.argv[8]) > 0:
 				debugger_host = dequote(sys.argv[8])
 				if len(sys.argv[7]) > 0:
 					device_args = ['-s', sys.argv[7]]
@@ -2481,7 +2531,7 @@ if __name__ == "__main__":
 					debugger_host = arg7
 				else:
 					device_args = ['-s', arg7]
-			builder.build_and_run(True, avd_id, device_args=device_args, debugger_host=debugger_host)
+			builder.build_and_run(True, avd_id, device_args=device_args, debugger_host=debugger_host, profiler_host=profiler_host)
 		elif command == 'distribute':
 			key = os.path.abspath(os.path.expanduser(dequote(sys.argv[6])))
 			password = dequote(sys.argv[7])

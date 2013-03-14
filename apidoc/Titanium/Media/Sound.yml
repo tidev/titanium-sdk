@@ -5,6 +5,9 @@ description: |
     The `Sound` object loads the entire media resource in memory before playing.  If you need to 
     support streaming, use the [AudioPlayer](Titanium.Media.AudioPlayer) API.
 
+    You can control how the sound interacts with other system sounds
+    by setting <Titanium.Media.audioSessionMode>.
+
     Use the <Titanium.Media.createSound> method to create a `Sound` object.
 extends: Titanium.Proxy
 since: "0.8"
@@ -180,9 +183,16 @@ properties:
     type: String
 
   - name: volume
-    summary: Volume of the audio, from 0.0 (muted) to 1.0 (loudest).
+    summary: Volume of the audio from 0.0 (muted) to 1.0 (loudest).
     description: |
-        This volume setting only affects this media, it does not set the device's overall volume level.
+        This setting controls the volume of the sound relative to the overall
+        volume setting for the device.
+
+        On iOS, to adjust the volume of the device, set the `volume` property of
+        <Titanium.Media.appMusicPlayer> and set the <Titanium.Media.audioSessionMode> property
+        to either <Titanium.Media.AUDIO_SESSION_MODE_AMBIENT>,
+        <Titanium.Media.AUDIO_SESSION_MODE_SOLO_AMBIENT>,
+        or <Titanium.Media.AUDIO_SESSION_MODE_PLAYBACK>.
     type: Number
 
 examples:

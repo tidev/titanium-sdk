@@ -49,7 +49,7 @@ def build(script='build.xml', targets=None, properties={}, basedir=None):
 	ant_cmd.extend(['-buildfile', script])
 	if targets != None:
 		ant_cmd.extend(targets)
-	
+
 	print " ".join(ant_cmd)
 
 	ret = subprocess.Popen(ant_cmd, shell=False, cwd=basedir).wait()

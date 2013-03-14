@@ -157,6 +157,16 @@ description: |
     Finally, note that neither the Android emulator nor the iOS simulator provide
     compass support. Compass code must be tested on physical devices.
 
+    #### Geocoding Services
+
+    The module provides two methods, [forwardGeocoder](Titanium.Geolocation.forwardGeocoder) and [reverseGeocoder](Titanium.Geolocation.reverseGeocoder)
+    to convert between geographic coordinates and addresses. These methods map to MapQuest Open Nominatim Search Service.
+
+    While this API has the advantage that it has no daily usage limits, please note that the data backing this API is crowd sourced and might not return 
+    proper values for valid addresses and geographic coordinates.
+
+    If geocoding services are essential component of the application, developers are encouraged to use commercial geocoding providers.
+
 extends: Titanium.Module
 since: "0.1"
 platforms: [android, iphone, ipad, mobileweb]

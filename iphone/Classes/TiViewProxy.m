@@ -996,7 +996,8 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap,horizontalWrap,horizontalWrap,[self willCha
     [self windowWillOpen];
     [self setParentVisible:YES];
     [self layoutChildren:NO];
-
+    [self refreshSize];
+    [self refreshPosition];
 	return barButtonView;
 }
 
@@ -1646,7 +1647,8 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap,horizontalWrap,horizontalWrap,[self willCha
 	return NO;
 }
 
--(void)fireEvent:(NSString*)type withObject:(id)obj withSource:(id)source propagate:(BOOL)propagate
+//TODO: Remove once we've properly deprecated.
+-(void)fireEvent:(NSString*)type withObject:(id)obj withSource:(id)source propagate:(BOOL)propagate reportSuccess:(BOOL)report errorCode:(int)code message:(NSString*)message;
 {
 	// Note that some events (like movie 'complete') are fired after the view is removed/dealloc'd.
 	// Because of the handling below, we can safely set the view to 'nil' in this case.
@@ -1660,9 +1662,28 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap,horizontalWrap,horizontalWrap,[self willCha
 	// with table rows.  Automagically assume any nil view we're firing an event for is A-OK.
     // NOTE: We want to fire postlayout events on ANY view, even those which do not allow interactions.
 	if (proxyView == nil || [proxyView interactionEnabled] || [type isEqualToString:@"postlayout"]) {
-		[super fireEvent:type withObject:obj withSource:source propagate:propagate];
+		[super fireEvent:type withObject:obj withSource:source propagate:propagate reportSuccess:report errorCode:code message:message];
 	}
 }
+
+-(void)fireEvent:(NSString*)type withObject:(id)obj propagate:(BOOL)propagate reportSuccess:(BOOL)report errorCode:(int)code message:(NSString*)message;
+{
+	// Note that some events (like movie 'complete') are fired after the view is removed/dealloc'd.
+	// Because of the handling below, we can safely set the view to 'nil' in this case.
+	TiUIView* proxyView = [self viewAttached] ? view : nil;
+	//TODO: We have to do view instead of [self view] because of a freaky race condition that can
+	//happen in the background (See bug 2809). This assumes that view == [self view], which may
+	//not always be the case in the future. Then again, we shouldn't be dealing with view in the BG...
+	
+	
+	// Have to handle the situation in which the proxy's view might be nil... like, for example,
+	// with table rows.  Automagically assume any nil view we're firing an event for is A-OK.
+    // NOTE: We want to fire postlayout events on ANY view, even those which do not allow interactions.
+	if (proxyView == nil || [proxyView interactionEnabled] || [type isEqualToString:@"postlayout"]) {
+		[super fireEvent:type withObject:obj propagate:propagate reportSuccess:report errorCode:code message:message];
+	}
+}
+
 
 -(void)_listenerAdded:(NSString*)type count:(int)count
 {
@@ -2226,7 +2247,7 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
         }
 
         if (layoutChanged && [self _hasListeners:@"postlayout"]) {
-            [self fireEvent:@"postlayout" withObject:nil withSource:self propagate:NO];
+            [self fireEvent:@"postlayout" withObject:nil propagate:NO];
         }
 	}
 #ifdef VERBOSE
@@ -2866,6 +2887,44 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
 		[[self view] setAccessibilityHidden_:accessibilityHidden];
 	}
 	[self replaceValue:accessibilityHidden forKey:@"accessibilityHidden" notification:NO];
+}
+
+#pragma mark - View Templates
+
+- (void)unarchiveFromTemplate:(NSDictionary *)viewTemplate
+{
+	id context = self.executionContext;
+	if (context == nil) {
+		context = self.pageContext;
+	}
+	// NB: should we remove all existing keys ?
+	id properties = [viewTemplate objectForKey:@"properties"];
+	if ([properties isKindOfClass:[NSDictionary class]]) {
+		[self _initWithProperties:properties];
+	}
+	[self setValue:[viewTemplate objectForKey:@"bindId"] forKey:@"bindId"];
+	id childTemplates = [viewTemplate objectForKey:@"childTemplates"];
+	if ([childTemplates isKindOfClass:[NSArray class]]) {
+		[(NSArray *)childTemplates enumerateObjectsUsingBlock:^(id childTemplate, NSUInteger idx, BOOL *stop) {
+			if ([childTemplate isKindOfClass:[NSDictionary class]]) {
+				TiViewProxy *child = [[self class] unarchiveFromTemplate:childTemplate inContext:context];
+				if (child != nil) {
+					[self add:child];
+				}
+			}
+		}];
+	}
+}
+
++ (TiViewProxy *)unarchiveFromTemplate:(NSDictionary *)viewTemplate inContext:(id<TiEvaluator>)context
+{
+	NSString *type = [viewTemplate objectForKey:@"type"];
+	if (type != nil) {
+		TiViewProxy *proxy = [[self class] createProxy:type withProperties:nil inContext:context];
+		[proxy unarchiveFromTemplate:viewTemplate];
+		return proxy;
+	}
+	return nil;
 }
 
 @end

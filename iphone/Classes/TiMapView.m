@@ -13,6 +13,7 @@
 #import "TiMapAnnotationProxy.h"
 #import "TiMapPinAnnotationView.h"
 #import "TiMapImageAnnotationView.h"
+#import "TiMapCustomAnnotationView.h"
 
 @implementation TiMapView
 
@@ -128,6 +129,7 @@
 {
 	NSArray *selected = map.selectedAnnotations;
 	BOOL wasSelected = [selected containsObject:proxy]; //If selected == nil, this still returns FALSE.
+    ignoreClicks = YES;
 	if (yn==NO)
 	{
 		[map deselectAnnotation:proxy animated:NO];
@@ -142,6 +144,7 @@
 	{
 		[map selectAnnotation:proxy animated:NO];
 	}
+    ignoreClicks = NO;
 }
 
 #pragma mark Public APIs
@@ -560,7 +563,7 @@
 	loaded = YES;
 	if ([self.proxy _hasListeners:@"complete"])
 	{
-		[self.proxy fireEvent:@"complete" withObject:nil];
+		[self.proxy fireEvent:@"complete" withObject:nil errorCode:0 message:nil];
 	}
 	ignoreClicks = NO;
 }
@@ -569,8 +572,9 @@
 {
 	if ([self.proxy _hasListeners:@"error"])
 	{
-		NSDictionary *event = [NSDictionary dictionaryWithObject:[error description] forKey:@"message"];
-		[self.proxy fireEvent:@"error" withObject:event];
+		NSString * message = [TiUtils messageFromError:error];
+		NSDictionary *event = [NSDictionary dictionaryWithObject:message forKey:@"message"];
+		[self.proxy fireEvent:@"error" withObject:event errorCode:[error code] message:message];
 	}
 }
 
@@ -678,60 +682,69 @@
 // For MapKit provided annotations (eg. MKUserLocation) return nil to use the MapKit provided annotation view.
 - (MKAnnotationView *)mapView:(MKMapView *)mapView viewForAnnotation:(id <MKAnnotation>)annotation
 {
-	if ([annotation isKindOfClass:[TiMapAnnotationProxy class]])
-	{
-		TiMapAnnotationProxy *ann = (TiMapAnnotationProxy*)annotation;
-        id imagePath = [ann valueForUndefinedKey:@"image"];
-        UIImage *image = [TiUtils image:imagePath proxy:ann];
-        NSString *identifier = (image!=nil) ? @"timap-image":@"timap-pin";
-		MKAnnotationView *annView = nil;
+    if ([annotation isKindOfClass:[TiMapAnnotationProxy class]]) {
+        TiMapAnnotationProxy *ann = (TiMapAnnotationProxy*)annotation;
+        id customView = [ann valueForUndefinedKey:@"customView"];
+        if ( (customView == nil) || (customView == [NSNull null]) || (![customView isKindOfClass:[TiViewProxy class]]) ){
+            customView = nil;
+        }
+        NSString *identifier = nil;
+        UIImage* image = nil;
+        if (customView == nil) {
+            id imagePath = [ann valueForUndefinedKey:@"image"];
+            image = [TiUtils image:imagePath proxy:ann];
+            identifier = (image!=nil) ? @"timap-image":@"timap-pin";
+        }
+        else {
+            identifier = @"timap-customView";
+        }
+        MKAnnotationView *annView = nil;
 		
-		annView = (MKAnnotationView*) [mapView dequeueReusableAnnotationViewWithIdentifier:identifier];
+        annView = (MKAnnotationView*) [mapView dequeueReusableAnnotationViewWithIdentifier:identifier];
 		
-        if (annView==nil)
-        {
-            if ([identifier isEqualToString:@"timap-image"])
-            {
+        if (annView==nil) {
+            if ([identifier isEqualToString:@"timap-customView"]) {
+                annView = [[[TiMapCustomAnnotationView alloc] initWithAnnotation:ann reuseIdentifier:identifier map:self] autorelease];
+            }
+            else if ([identifier isEqualToString:@"timap-image"]) {
                 annView=[[[TiMapImageAnnotationView alloc] initWithAnnotation:ann reuseIdentifier:identifier map:self image:image] autorelease];
             }
-            else
-            {
+            else {
                 annView=[[[TiMapPinAnnotationView alloc] initWithAnnotation:ann reuseIdentifier:identifier map:self] autorelease];
             }
         }
-        if ([identifier isEqualToString:@"timap-image"])
-        {
+        if ([identifier isEqualToString:@"timap-customView"]) {
+            [((TiMapCustomAnnotationView*)annView) setProxy:customView];
+        }
+        else if ([identifier isEqualToString:@"timap-image"]) {
             annView.image = image;
         }
-        else
-		{
-			MKPinAnnotationView *pinview = (MKPinAnnotationView*)annView;
-			pinview.pinColor = [ann pinColor];
-			pinview.animatesDrop = [ann animatesDrop] && ![(TiMapAnnotationProxy *)annotation placed];
-			annView.calloutOffset = CGPointMake(-8, 0);
-		}
-		annView.canShowCallout = YES;
-		annView.enabled = YES;
-		UIView *left = [ann leftViewAccessory];
-		UIView *right = [ann rightViewAccessory];
-		if (left!=nil)
-		{
-			annView.leftCalloutAccessoryView = left;
-		}
-		if (right!=nil)
-		{
-			annView.rightCalloutAccessoryView = right;
-		}
+        else {
+            MKPinAnnotationView *pinview = (MKPinAnnotationView*)annView;
+            pinview.pinColor = [ann pinColor];
+            pinview.animatesDrop = [ann animatesDrop] && ![(TiMapAnnotationProxy *)annotation placed];
+            annView.calloutOffset = CGPointMake(-8, 0);
+        }
+        annView.canShowCallout = YES;
+        annView.enabled = YES;
+        UIView *left = [ann leftViewAccessory];
+        UIView *right = [ann rightViewAccessory];
+        if (left!=nil) {
+            annView.leftCalloutAccessoryView = left;
+        }
+        if (right!=nil) {
+            annView.rightCalloutAccessoryView = right;
+        }
 
-		BOOL draggable = [TiUtils boolValue: [ann valueForUndefinedKey:@"draggable"]];
-		if (draggable && [[MKAnnotationView class] instancesRespondToSelector:NSSelectorFromString(@"isDraggable")])
-			[annView performSelector:NSSelectorFromString(@"setDraggable:") withObject:[NSNumber numberWithBool:YES]];
+        BOOL draggable = [TiUtils boolValue: [ann valueForUndefinedKey:@"draggable"]];
+        if (draggable && [[MKAnnotationView class] instancesRespondToSelector:NSSelectorFromString(@"isDraggable")])
+            [annView performSelector:NSSelectorFromString(@"setDraggable:") withObject:[NSNumber numberWithBool:YES]];
 
-		annView.userInteractionEnabled = YES;
-		annView.tag = [ann tag];
-		return annView;
-	}
-	return nil;
+        annView.userInteractionEnabled = YES;
+        annView.tag = [ann tag];
+        return annView;
+    }
+    return nil;
 }
 
 
@@ -749,7 +762,7 @@
         /*Image Annotation don't have any animation of its own. 
          *So in this case we do a custom animation, to place the 
          *image annotation on top of the mapview.*/
-        if([thisView isKindOfClass:[TiMapImageAnnotationView class]])
+        if([thisView isKindOfClass:[TiMapImageAnnotationView class]] || [thisView isKindOfClass:[TiMapCustomAnnotationView class]])
         {
             TiMapAnnotationProxy *anntProxy = [self proxyForAnnotation:thisView];
             if([anntProxy animatesDrop] && ![anntProxy placed])

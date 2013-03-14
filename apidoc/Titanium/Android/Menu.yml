@@ -12,11 +12,67 @@ description: |
     the Titanium Guides for information on setting your application's theme.)
 
     To determine how an action item is displayed, set
-    [showAsAction](Titanium.Android.MenuItem.showAsAction) and 
-    [actionView](Titanium.Android.MenuItem.showAsAction) when creating a menu item.
+    [showAsAction](Titanium.Android.MenuItem.showAsAction) and optionally 
+    [actionView](Titanium.Android.MenuItem.actionView) when creating a menu item.
 
-    See also: [Menu](http://developer.android.com/reference/android/view/Menu.html)
-    in the Android Developer Reference.
+    #### Creating Menu Items
+
+    To create menu items, assign a callback function to the activity's [onCreateOptionsMenu](Titanium.Android.Activity.onCreateOptionsMenu)
+    property. The activity's menu object is passed in to the `onCreateOptionsMenu` function when
+    the menu is created.
+
+    For menu items displayed in the menu, the `onCreateOptionsMenu` function is called
+    once, and the [onPrepareOptionsMenu](Titanium.Android.Activity.onPrepareOptionsMenu) callback function is called each
+    time the menu is opened. The `onPrepareOptionsMenu` function can be used to switch menu items dynamically.
+
+    When the action bar is in use, the menu is considered to be always open and
+    `prepareOptionsMenu` is **never** called. To switch menu items dynamically, call
+    [invalidateOptionsMenu](Titanium.Android.Activity.invalidateOptionsMenu). This causes
+    the `createOptionsMenu` to be called again. 
+
+    #### Menus on Tab Groups
+    
+    Prior to Titanium 3.0, menu items could be added to the individual windows of a tab
+    group. 
+
+    Starting in Titanium 3.0, menus must be added to tab groups using the tab group's
+    activity. These changes were required to support the Android 3.0 action bar.
+
+    The TabGroup activity is available using [TabGroup.getActivity](Titanium.UI.TabGroup.getActivity).
+    However, unlike a window's activity it is not currently possible to set properties on
+    the tab group's activity before the tab group is opened. To add a menu to a tab group, 
+    set the `onCreateOptionsMenu` property to the tab group's `open` event listener, and 
+    then call `invalidateOptionsMenu` to force the changes to take effect.
+
+        tabGroup.addEventListener("open", function(e) {
+            var activity = globals.tabs.getActivity();
+            activity.onCreateOptionsMenu = function(e) {
+                var menuItem = e.menu.add({
+                    title : "Add Task",
+                    showAsAction : Ti.Android.SHOW_AS_ACTION_ALWAYS,
+                    icon : "add_icon.png"
+                });
+                menuItem.addEventListener("click", function(e) {
+                    // 
+                });
+            }
+            activity.invalidateOptionsMenu();
+        });
+
+
+    #### Further Reading 
+
+    See also: 
+    
+    *   [Menus](http://developer.android.com/guide/topics/ui/menus.html) in the 
+        Android Developer Guides.
+
+    *   [Action Bar](http://developer.android.com/guide/topics/ui/actionbar.html) in 
+        the Android Developer Guides.
+
+    *   [Menu](http://developer.android.com/reference/android/view/Menu.html)
+        in the Android Developer Reference.
+
 extends: Titanium.Proxy
 platforms: [android]
 createable: false
@@ -141,6 +197,8 @@ examples:
     example: |
         This sample creates an Android menu that displays a menu item named "Item 1", 
         which logs a debug message when clicked.
+
+        If the action bar is in use, the menu item will be displayed as an action item if there is room in the action bar.
         
             var win = Ti.UI.createWindow({
               fullscreen: true
@@ -150,8 +208,11 @@ examples:
 
             activity.onCreateOptionsMenu = function(e){
               var menu = e.menu;
-              var menuItem = menu.add({ title: "Item 1" });
-              menuItem.icon = "item1.png";
+              var menuItem = menu.add({ 
+                title: "Item 1", 
+                icon:  "item1.png",
+                showAsAction: Ti.Android.SHOW_AS_ACTION_IF_ROOM
+              });
               menuItem.addEventListener("click", function(e) {
                 Ti.API.debug("I was clicked");
               });
@@ -202,26 +263,36 @@ examples:
     example: |
         Previous simple menu example as an Alloy view.
 
-        simplemenuexample.xml:
+        Due to the way menus are created in Alloy, menus created using Alloy markup are not
+        displayed until the options menu is invalidated. To force menus (or action items)
+        to be displayed, call `invalidateOptionsMenu` from the `open` event listener of the window or tab group
+        where the menu is defined.
+
+        index.xml:
 
             <Alloy>
                 <!-- Create a heavyweight window to use the Android menu. -->
-                <Window id="win" fullscreen="true">
+                <Window id="win" fullscreen="true" onOpen="doOpen">
 
                     <!-- The Menu tag adds the Android menu. -->
                     <Menu id="menu" platform="android">
 
                         <!-- Cannot specify node text.  Use attributes only. -->
-                        <MenuItem id="menuItem" title="Item 1" icon="item1.png" onClick="doClick" />
+                        <MenuItem id="menuItem" title="Item 1" icon="item1.png" onClick="doClick" showAsAction="Ti.Android.SHOW_AS_ACTION_IF_ROOM" />
                     </Menu>
 
                     <!-- Place additional views here -->
                 </Window>
             </Alloy>
 
-        simplemenuexample.js:
+        index.js:
 
-            var doClick = function(e) {
+            function doClick(e) {
                 Ti.API.info("Menu item clicked: " + e.source.title);
+            }
+
+            // Ensure menu is displayed
+            function doOpen(e) {
+                $.win.invalidateOptionsMenu();
             }
 

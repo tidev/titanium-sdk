@@ -23,6 +23,9 @@ log = TiLogger(None)
 all_annotated_apis = None
 apis = None
 
+# These top-level namespaces are added for documentation purposes
+special_toplevel_types = [ "Global", "Modules" ]
+
 # Avoid obliterating our four spaces pattern with a careless %s:/    /^I/
 FOUR_SPACES='  ' + '  '
 # compiling REs ahead of time, since we use them heavily.
@@ -47,7 +50,7 @@ except:
 
 # write unicode strings safely
 def write_utf8(file, string):
-    file.write(string.encode('utf8', 'replace'))
+	file.write(string.encode('utf8', 'replace'))
 
 def convert_string_to_jsduck_link(obj_specifier):
 	global all_annotated_apis
@@ -136,13 +139,13 @@ def markdown_to_html(s, obj=None):
 
 # remove <p> and </p> if a string is enclosed with them
 def remove_p_tags(str):
-    if str is None or len(str) == 0:
-        return ""
-    if str.startswith("<p>"):
-        str = str[3:]
-    if str.endswith("</p>"):
-        str = str[:-4]
-    return str
+	if str is None or len(str) == 0:
+		return ""
+	if str.startswith("<p>"):
+		str = str[3:]
+	if str.endswith("</p>"):
+		str = str[:-4]
+	return str
 
 # Print two digit version if third digit is 0.
 def format_version(version_str):
@@ -301,9 +304,9 @@ def has_ancestor(one_type, ancestor_name):
 	if "extends" in one_type and one_type["extends"] == ancestor_name:
 		return True
 	elif "extends" not in one_type:
-		if ancestor_name == 'Global':
-			# special case for "Global" types - they do not have @extends statement
-			return one_type["name"].find('Global') == 0
+		if ancestor_name in special_toplevel_types:
+			# special case for "Global" and "Modules" types - they do not have @extends statement
+			return one_type["name"].find(ancestor_name) == 0
 		return False
 	else:
 		parent_type_name = one_type["extends"]
@@ -315,6 +318,12 @@ def has_ancestor(one_type, ancestor_name):
 																		  parent_type_name, parent_type_name))
 			return False
 		return has_ancestor(apis[parent_type_name], ancestor_name)
+
+def is_special_toplevel_type(one_type):
+	for special_type in special_toplevel_types:
+		if one_type["name"].find(special_type) == 0:
+			return True
+	return False
 
 def get_summary_and_description(api_obj):
 	summary = None
@@ -410,7 +419,7 @@ def generate(raw_apis, annotated_apis, options):
 				else:
 					write_utf8(output, '\t * @typestr %s\n' % (typestr))
 			
-			if not (has_ancestor(raw_apis[name], "Titanium.Proxy") or has_ancestor(raw_apis[name], "Global")):
+			if not (has_ancestor(raw_apis[name], "Titanium.Proxy") or is_special_toplevel_type(raw_apis[name])):
 				write_utf8(output, "\t * @pseudo\n")
 			write_utf8(output, output_properties_for_obj(annotated_obj))
 			write_utf8(output, get_summary_and_description(annotated_obj.api_obj))

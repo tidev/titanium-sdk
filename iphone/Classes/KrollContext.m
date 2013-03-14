@@ -15,6 +15,7 @@
 #include <pthread.h>
 #import "TiDebugger.h"
 #import "TiExceptionHandler.h"
+#import "TiProfiler.h"
 
 #import "TiUIAlertDialogProxy.h"
 
@@ -1014,6 +1015,13 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
     [self enqueue:blockOp];
 }
 
++ (void)invokeBlock:(void (^)())block
+{
+	pthread_mutex_lock(&KrollEntryLock);
+	block();
+	pthread_mutex_unlock(&KrollEntryLock);
+}
+
 - (void)bindCallback:(NSString*)name callback:(TiObjectCallAsFunctionCallback)fn
 {
 	// create the invoker bridge
@@ -1076,7 +1084,9 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
     // 'debugMode' property or something... and start/stop the debugger as necessary.
     if ([[self delegate] shouldDebugContext]) {
         debugger = TiDebuggerCreate(self,globalRef);
-    }
+    } else if ([[self delegate] shouldProfileContext]) {
+		TiProfilerEnable(globalRef);
+	}
 	
 	// we register an empty kroll string that allows us to pluck out this instance
 	KrollObject *kroll = [[KrollObject alloc] initWithTarget:nil context:self];

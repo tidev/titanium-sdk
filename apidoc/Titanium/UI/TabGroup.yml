@@ -40,13 +40,74 @@ description: |
     [iOS UI Element Usage Guidelines ](https://developer.apple.com/library/ios/#documentation/UserExperience/Conceptual/MobileHIG/UIElementGuidelines/UIElementGuidelines.html#//apple_ref/doc/uid/TP40006556-CH13-SW52).
 extends: Titanium.UI.View
 since: "0.9"
-excludes: { methods:[removeAllChildren] }
-
+excludes:
+    methods: [removeAllChildren]
+    properties: [enabled]
 events:
+  - name: androidback
+    platforms: [android]
+    summary: Fired when the back button is pressed by the user.
+    description: |
+        This event is fired when the current tab group's activity detects
+        a back button press by the user to navigate back.
+
+        By default this event would trigger the current activity to be finished
+        and removed from the task stack. Subscribing to this event with a listener
+        will prevent the default behavior. To finish the activity from your listener
+        just call the `close` method of the tab group.
+    since: '3.0.0'
+
+  - name: androidcamera
+    summary: Fired when the Camera button is released.
+    description: |
+        Setting a listener disables the default key handling for this button. To restore
+        default behavior, remove the listener.
+    platforms: [android]
+    since: '3.0.0'
+
+  - name: androidfocus
+    summary: Fired when the Camera button is half-pressed then released.
+    description: |
+        Setting a listener disables the default key handling for this button. To restore
+        default behavior, remove the listener.
+    platforms: [android]
+    since: '3.0.0'
+
+  - name: androidsearch
+    summary: Fired when the Search button is released.
+    description: |
+        Setting a listener disables the default key handling for this button. To restore
+        default behavior, remove the listener.
+    platforms: [android]
+    since: '3.0.0'
+
+  - name: androidvoldown
+    summary: Fired when the volume down button is released.
+    description: |
+        Setting a listener disables the default key handling for this button. To restore
+        default behavior, remove the listener.
+    platforms: [android]
+    since: '3.0.0'
+
+  - name: androidvolup
+    summary: Fired when the volume up button is released.
+    description: |
+        Setting a listener disables the default key handling for this button. To restore
+        default behavior, remove the listener.
+    platforms: [android]
+    since: '3.0.0'
+
   - name: blur
     summary: |
         Fired when this tab group loses focus. On Android, fired when a tab in this tab group 
         loses focus.
+    description: |
+        On Android, this event also fires before putting the activity in the background
+        (before the activity enters the pause state).
+
+        On iOS, this event does not fire before putting the application in the background.
+        The application needs to monitor the <Titanium.App.pause> event.
+        See <Titanium.App> for more information on the iOS application lifecycle.
     properties:
       - name: index
         summary: |
@@ -78,6 +139,14 @@ events:
     summary: |
         Fired when this tab group gains focus. On Android, fired when a tab in this tab group 
         gains focus.
+    description: |
+        On Android, this event also fires when the activity enters the foreground
+        (after the activity enters the resume state).
+
+        On iOS, this event does not fire after the application returns to the foreground
+        if it was previously backgrounded.
+        The application needs to monitor the <Titanium.App.resumed> event.
+        See <Titanium.App> for more information on the iOS application lifecycle.
     properties:
       - name: index
         summary: Index of the current active tab.
@@ -227,7 +296,9 @@ properties:
         
         A tab's [backgroundColor](Titanium.UI.Tab.backgroundColor) property takes precedence if set.
 
-        On iOS, this property applies to all states and tabs, not just inactive tabs.
+        On iOS 5.0 or later, this property applies to all states and tabs, not just inactive
+        tabs. Furthermore, the inactive tab icons without activeIcon will be tinted this color;
+        property is ignored on earlier versions of iOS.
     type: String
     since: {android: "3.0.0", iphone: "3.0.0", ipad: "3.0.0", mobileweb: "2.0.0"}
     osver: {ios: {min: "5.0"}}
@@ -236,10 +307,33 @@ properties:
   - name: tabsBackgroundImage
     summary: Default background image for tabs.
     description: |
-        A tab's [backgroundImage](Titanium.UI.Tab.backgroundImage) property takes precedence if set.
+        On MobileWeb, a tab's [backgroundImage](Titanium.UI.Tab.backgroundImage) property takes precedence if set.
+        
+        On iOS, requires iOS 5.0 or later; ignored on earlier versions.
     type: String
-    platforms: [mobileweb]
-    since: "2.0.0"
+    platforms: [mobileweb,iphone,ipad]
+    since: { mobileweb: "2.0.0", iphone: "3.1.0", ipad: "3.1.0" }
+    osver: {iOS: {min: "5.0"}}
+
+  - name: shadowImage
+    summary: Image of the shadow placed between the tab bar and the content area.
+    description: |
+        On iOS, requires iOS 6.0 or later; ignored on earlier versions. TabsBackgroundImage
+        must also be set in order for this to take effect.
+    type: String
+    platforms: [iphone,ipad]
+    since: { iphone: "3.1.0", ipad: "3.1.0" }
+    osver: {iOS: {min: "6.0"}}
+
+  - name: activeTabIconTint
+    summary: Color applied to active tabs icons, as a color name or hex triplet, where the tab's activeIcon was not defined.
+    description: |
+        For information about color values, see the "Colors" section of <Titanium.UI>.
+        On iOS, requires iOS 5.0 or later; ignored on earlier versions.
+    type: String
+    since: {iphone: "3.1.0", ipad: "3.1.0" }
+    osver: {ios: {min: "5.0"}}
+    platforms: [iphone, ipad]
     
   - name: tabsBackgroundDisabledColor
     summary: Default background disabled color for tabs, as a color name or hex triplet.
@@ -314,10 +408,11 @@ properties:
   - name: activeTabBackgroundImage
     summary: Default background image for the active tab.
     description: |
-        A tab's [backgroundImage](Titanium.UI.Tab.backgroundImage) property takes precedence if set.
+        On MobileWeb, a tab's [backgroundImage](Titanium.UI.Tab.backgroundImage) property takes precedence if set.
     type: String
-    platforms: [mobileweb]
-    since: "2.0.0"
+    platforms: [mobileweb,iphone,ipad]
+    since: { mobileweb: "2.0.0", iphone: "3.1.0", ipad: "3.1.0" }
+    osver: {iOS: {min: "5.0"}}
     
   - name: activeTabBackgroundDisabledColor
     summary: Default background disabled color for the active tab, as a color name or hex triplet.
@@ -414,6 +509,8 @@ properties:
     default: true
     platforms: [mobileweb]
     since: "2.0.0"
+
+
 
 examples:
   - title: Alloy XML Markup
