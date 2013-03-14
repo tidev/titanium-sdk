@@ -930,6 +930,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_DECODE_RETRIES = "decodeRetries";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_DEFAULT_IMAGE = "defaultImage";
 	
 	/**
