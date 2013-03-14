@@ -24,159 +24,163 @@ var ti = require('titanium-sdk'),
 	targets = ['emulator', 'device', 'dist-playstore'];
 
 exports.config = function (logger, config, cli) {
-	return function (callback) {
+	return function (finished) {
 		android.detect(function (env) {
 			var conf;
 			androidEnv = env;
-			
-			callback(conf = {
-				options: {
-					'alias': {
-						abbr: 'L',
-						desc: __('the alias for the keystore'),
-						hint: 'alias',
-						prompt: {
-							label: __('Keystore alias'),
-							error: __('Invalid keystore alias'),
-							validator: function (alias) {
-								if (!alias) {
-									throw new appc.exception(__('Invalid keystore alias'));
+
+			cli.createHook('build.config.android', function (callback) {
+				callback({
+					options: {
+						'alias': {
+							abbr: 'L',
+							desc: __('the alias for the keystore'),
+							hint: 'alias',
+							prompt: {
+								label: __('Keystore alias'),
+								error: __('Invalid keystore alias'),
+								validator: function (alias) {
+									if (!alias) {
+										throw new appc.exception(__('Invalid keystore alias'));
+									}
+									return true;
 								}
-								return true;
-							}
-						}
-					},
-					'android-sdk': {
-						abbr: 'A',
-						callback: function (value) {
-							return value.trim();
-						},
-						default: config.android && config.android.sdkPath && afs.resolvePath(config.android.sdkPath),
-						desc: __('the path to the Android SDK'),
-						hint: __('path'),
-						prompt: {
-							label: __('Android SDK path'),
-							error: __('Invalid Android SDK path'),
-							validator: function (dir) {
-								dir = dir.trim();
-								if (!afs.exists(dir, 'platform-tools')) {
-									throw new appc.exception(__('Invalid Android SDK path'));
-								}
-								if (!afs.exists(dir, 'platform-tools', 'adb') && !afs.exists(dir, 'platform-tools', 'adb.exe')) {
-									throw new appc.exception(__('Invalid Android SDK installation: unable to find adb'));
-								}
-								return true;
 							}
 						},
-						required: true
-					},
-					/*
-					'avd-abi': {
-						abbr: 'B',
-						desc: __('the abi for the avd')
-					},
-					*/
-					'avd-id': {
-						abbr: 'I',
-						desc: __('the id for the avd'),
-						hint: __('id'),
-						default: 7
-					},
-					/*
-					'avd-name': {
-						abbr: 'N',
-						desc: __('the name for the avd'),
-						hint: __('name')
-					},
-					*/
-					'avd-skin': {
-						abbr: 'S',
-						desc: __('the skin for the avd'),
-						hint: __('skin'),
-						default: 'HVGA'
-					},
-					'debug-host': {
-						//abbr: 'H',
-						//desc: __('debug connection info'),
-						//hint: 'host:port',
-						hidden: true
-					},
-					/* not actually used, yet
-					'deploy-type': {
-						abbr: 'D',
-						desc: __('the type of deployment; only used with target is %s', 'emulator'.cyan),
-						hint: __('type'),
-						values: ['test', 'development'],
-						default: 'development'
-					},
-					*/
-					'keystore': {
-						abbr: 'K',
-						desc: __('the location of the keystore file'),
-						hint: 'path',
-						prompt: {
-							label: __('Keystore File Location'),
-							error: __('Invalid keystore file'),
-							validator: function (keystorePath) {
-								keystorePath = afs.resolvePath(keystorePath);
-								if (!afs.exists(keystorePath) || !fs.lstatSync(keystorePath).isFile()) {
-									throw new appc.exception(__('Invalid keystore file location'));
-								}
-								return true;
-							}
-						}
-					},
-					'output-dir': {
-						abbr: 'O',
-						desc: __('the output directory when using %s', 'dist-playstore'.cyan),
-						hint: 'dir',
-						prompt: {
-							default: function () {
-								return cli.argv['project-dir'] && path.join(cli.argv['project-dir'], 'dist');
+						'android-sdk': {
+							abbr: 'A',
+							callback: function (value) {
+								return value.trim();
 							},
-							label: __('Output directory'),
-							error: __('Invalid output directory'),
-							validator: function (dir) {
-								if (!afs.resolvePath(dir)) {
-									throw new appc.exception(__('Invalid output directory'));
+							default: config.android && config.android.sdkPath && afs.resolvePath(config.android.sdkPath),
+							desc: __('the path to the Android SDK'),
+							hint: __('path'),
+							prompt: {
+								label: __('Android SDK path'),
+								error: __('Invalid Android SDK path'),
+								validator: function (dir) {
+									dir = dir.trim();
+									if (!afs.exists(dir, 'platform-tools')) {
+										throw new appc.exception(__('Invalid Android SDK path'));
+									}
+									if (!afs.exists(dir, 'platform-tools', 'adb') && !afs.exists(dir, 'platform-tools', 'adb.exe')) {
+										throw new appc.exception(__('Invalid Android SDK installation: unable to find adb'));
+									}
+									return true;
 								}
-								return true;
-							}
-						}
-					},
-					'password': {
-						abbr: 'P',
-						desc: __('the password for the keystore'),
-						hint: 'alias',
-						password: true,
-						prompt: {
-							label: __('Keystore password'),
-							error: __('Invalid keystore password'),
-							validator: function (password) {
-								if (!password) {
-									throw new appc.exception(__('Invalid keystore password'));
+							},
+							required: true
+						},
+						/*
+						'avd-abi': {
+							abbr: 'B',
+							desc: __('the abi for the avd')
+						},
+						*/
+						'avd-id': {
+							abbr: 'I',
+							desc: __('the id for the avd'),
+							hint: __('id'),
+							default: 7
+						},
+						/*
+						'avd-name': {
+							abbr: 'N',
+							desc: __('the name for the avd'),
+							hint: __('name')
+						},
+						*/
+						'avd-skin': {
+							abbr: 'S',
+							desc: __('the skin for the avd'),
+							hint: __('skin'),
+							default: 'HVGA'
+						},
+						'debug-host': {
+							//abbr: 'H',
+							//desc: __('debug connection info'),
+							//hint: 'host:port',
+							hidden: true
+						},
+						/* not actually used, yet
+						'deploy-type': {
+							abbr: 'D',
+							desc: __('the type of deployment; only used with target is %s', 'emulator'.cyan),
+							hint: __('type'),
+							values: ['test', 'development'],
+							default: 'development'
+						},
+						*/
+						'keystore': {
+							abbr: 'K',
+							desc: __('the location of the keystore file'),
+							hint: 'path',
+							prompt: {
+								label: __('Keystore File Location'),
+								error: __('Invalid keystore file'),
+								validator: function (keystorePath) {
+									keystorePath = afs.resolvePath(keystorePath);
+									if (!afs.exists(keystorePath) || !fs.lstatSync(keystorePath).isFile()) {
+										throw new appc.exception(__('Invalid keystore file location'));
+									}
+									return true;
 								}
-								return true;
-							}
-						}
-					},
-					target: {
-						abbr: 'T',
-						callback: function (value) {
-							// as soon as we know the target, toggle required options for validation
-							if (value === 'dist-playstore') {
-								conf.options['keystore'].required = true;
-								conf.options['password'].required = true;
-								conf.options['alias'].required = true;
-								conf.options['output-dir'].required = true;
 							}
 						},
-						default: 'emulator',
-						desc: __('the target to build for'),
-						required: true,
-						values: targets
+						'output-dir': {
+							abbr: 'O',
+							desc: __('the output directory when using %s', 'dist-playstore'.cyan),
+							hint: 'dir',
+							prompt: {
+								default: function () {
+									return cli.argv['project-dir'] && path.join(cli.argv['project-dir'], 'dist');
+								},
+								label: __('Output directory'),
+								error: __('Invalid output directory'),
+								validator: function (dir) {
+									if (!afs.resolvePath(dir)) {
+										throw new appc.exception(__('Invalid output directory'));
+									}
+									return true;
+								}
+							}
+						},
+						'password': {
+							abbr: 'P',
+							desc: __('the password for the keystore'),
+							hint: 'alias',
+							password: true,
+							prompt: {
+								label: __('Keystore password'),
+								error: __('Invalid keystore password'),
+								validator: function (password) {
+									if (!password) {
+										throw new appc.exception(__('Invalid keystore password'));
+									}
+									return true;
+								}
+							}
+						},
+						target: {
+							abbr: 'T',
+							callback: function (value) {
+								// as soon as we know the target, toggle required options for validation
+								if (value === 'dist-playstore') {
+									conf.options['keystore'].required = true;
+									conf.options['password'].required = true;
+									conf.options['alias'].required = true;
+									conf.options['output-dir'].required = true;
+								}
+							},
+							default: 'emulator',
+							desc: __('the target to build for'),
+							required: true,
+							values: targets
+						}
 					}
-				}
+				});
+			})(function (err, results, result) {
+				finished(conf = result);
 			});
 		}, config.android && config.android.sdkPath, config.android && config.android.ndkPath);
 	}
@@ -366,76 +370,79 @@ function build(logger, config, cli, finished) {
 		var emulatorCmd = [],
 			cmd = [],
 			cmdSpawn,
+			env = process.env,
 			options = {
-				stdio: 'inherit'
+				stdio: 'inherit',
+				env: env
 			};
-		
+
 		if (cli.argv['skip-js-minify']) {
-			options.env = process.env;
-			options.env.SKIP_JS_MINIFY = '1';
+			env.SKIP_JS_MINIFY = '1';
 		}
-		
-		// Make sure we have an app.js. This used to be validated in validate(), but since plugins like
-		// Alloy generate an app.js, it may not have existed during validate(), but should exist now
-		// that build.pre.compile was fired.
-		ti.validateAppJsExists(cli.argv['project-dir'], logger);
-		
-		// not actually used, yet
-		// logger.info(__('Compiling "%s" build', cli.argv['deploy-type']));
-		
-		ti.legacy.constructLegacyCommand(cli, cli.tiapp, cli.argv.platform , cmd, emulatorCmd);
-		
-		// console.log('Forking correct SDK command: ' + ('python ' + cmd.join(' ')).cyan + '\n');
-		
-		if (emulatorCmd.length > 0) {
-			spawn('python', emulatorCmd, { detached: true }).on('exit', function(code) {
-				if (code) {
-					finished && finished('An error occurred while running the command: ' + ('python ' + cmd.join(' ')).cyan + '\n');
-				}
-			});
-			
-			// TODO Remove this when we don't want to wrap the python scripts anymore.
-			// We have to send the analytics here because for the emulator command, we will never 'exit' properly, 
-			// as a result send won't get called on exit
-			cli.sendAnalytics();
-		}
-		
-		cmdSpawn = spawn('python', cmd, options);
-		
-		cmdSpawn.on('exit', function(code) {
-			var err;
-			if (code) {
-				err = 'An error occurred while running the command: ' + ('python ' + cmd.join(' ')).cyan + '\n';
-			} else if (cli.argv['target'] == 'emulator') {
-				// Call the logcat command in the old builder.py after the emulator, so we get logcat output
-				spawn('python', [
-					path.join(path.resolve(cli.env.sdks[cli.tiapp['sdk-version']].path), cli.argv.platform, 'builder.py'),
-					'logcat',
-					cli.argv['android-sdk'],
-					'-e'
-				], { stdio: 'inherit' });
-			} else if (cli.argv['target'] == 'device') {
-				// Since installing on device does not run
-				// the application we must send the "intent" ourselves.
-				// We will launch the MAIN activity for the application.
-				logger.info(__('Launching appliation on device.'));
-				spawn('adb', [
-					'shell', 'am', 'start',
-					'-a', 'android.intent.action.MAIN',
-					'-c', 'android.intent.category.LAUNCHER',
-					'-n', cli.tiapp.id + '/.' + appnameToClassname(cli.tiapp.name) + 'Activity',
-					'-f', '0x10200000'
-				], { stdio: 'inherit' }).on('exit', function (code) {
+
+		cli.createHook('build.android.setBuilderPyEnv', this)(env, function () {
+			// Make sure we have an app.js. This used to be validated in validate(), but since plugins like
+			// Alloy generate an app.js, it may not have existed during validate(), but should exist now
+			// that build.pre.compile was fired.
+			ti.validateAppJsExists(cli.argv['project-dir'], logger);
+
+			// not actually used, yet
+			// logger.info(__('Compiling "%s" build', cli.argv['deploy-type']));
+
+			ti.legacy.constructLegacyCommand(cli, cli.tiapp, cli.argv.platform , cmd, emulatorCmd);
+
+			// console.log('Forking correct SDK command: ' + ('python ' + cmd.join(' ')).cyan + '\n');
+
+			if (emulatorCmd.length > 0) {
+				spawn('python', emulatorCmd, { detached: true }).on('exit', function(code) {
 					if (code) {
-						err = __('Failed to launch application.');
+						finished && finished('An error occurred while running the command: ' + ('python ' + cmd.join(' ')).cyan + '\n');
 					}
-					finished && finished.call(this, err);
 				});
-				return; // Do not finish until the app is running.
+
+				// TODO Remove this when we don't want to wrap the python scripts anymore.
+				// We have to send the analytics here because for the emulator command, we will never 'exit' properly, 
+				// as a result send won't get called on exit
+				cli.sendAnalytics();
 			}
-			finished && finished.call(this, err);
-		}.bind(this));
-	}.bind(this));
+
+			cmdSpawn = spawn('python', cmd, options);
+
+			cmdSpawn.on('exit', function(code) {
+				var err;
+				if (code) {
+					err = 'An error occurred while running the command: ' + ('python ' + cmd.join(' ')).cyan + '\n';
+				} else if (cli.argv['target'] == 'emulator') {
+					// Call the logcat command in the old builder.py after the emulator, so we get logcat output
+					spawn('python', [
+						path.join(path.resolve(cli.env.sdks[cli.tiapp['sdk-version']].path), cli.argv.platform, 'builder.py'),
+						'logcat',
+						cli.argv['android-sdk'],
+						'-e'
+					], { stdio: 'inherit' });
+				} else if (cli.argv['target'] == 'device') {
+					// Since installing on device does not run
+					// the application we must send the "intent" ourselves.
+					// We will launch the MAIN activity for the application.
+					logger.info(__('Launching appliation on device.'));
+					spawn('adb', [
+						'shell', 'am', 'start',
+						'-a', 'android.intent.action.MAIN',
+						'-c', 'android.intent.category.LAUNCHER',
+						'-n', cli.tiapp.id + '/.' + appnameToClassname(cli.tiapp.name) + 'Activity',
+						'-f', '0x10200000'
+					], { stdio: 'inherit' }).on('exit', function (code) {
+						if (code) {
+							err = __('Failed to launch application.');
+						}
+						finished && finished.call(this, err);
+					});
+					return; // Do not finish until the app is running.
+				}
+				finished && finished.call(this, err);
+			}.bind(this));
+		});
+	});
 }
 
 // Converts an application name to a Java classname.
