@@ -2929,12 +2929,14 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
 		if (child != nil) {
 			[context.krollContext invokeBlockOnThread:^{
 				[self rememberProxy:child];
+				[child forgetSelf];
 			}];
 			[self add:child];
 		}
 	}];
 }
 
+// Returns protected proxy, caller should do forgetSelf.
 + (TiViewProxy *)unarchiveFromTemplate:(id)viewTemplate_ inContext:(id<TiEvaluator>)context
 {
 	TiViewTemplate *viewTemplate = [TiViewTemplate templateFromViewTemplate:viewTemplate_];
@@ -2946,6 +2948,7 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
 		TiViewProxy *proxy = [[self class] createProxy:viewTemplate.type withProperties:nil inContext:context];
 		[context.krollContext invokeBlockOnThread:^{
 			[context registerProxy:proxy];
+			[proxy rememberSelf];
 		}];
 		[proxy unarchiveFromTemplate:viewTemplate];
 		return proxy;
