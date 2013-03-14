@@ -298,21 +298,27 @@ public class TiDrawableReference
 	public Bitmap getBitmap(boolean needRetry)
 	{
 		InputStream is = getInputStream();
-		if (is == null) {
-			Log.w(TAG, "Could not open stream to get bitmap");
-			return null;
-		}
-
 		Bitmap b = null;
+		BitmapFactory.Options opts = new BitmapFactory.Options();
+		opts.inInputShareable = true;
+		opts.inPurgeable = true;
+		opts.inPreferredConfig = Bitmap.Config.RGB_565;
 
 		try {
-			BitmapFactory.Options opts = new BitmapFactory.Options();
-			opts.inInputShareable = true;
-			opts.inPurgeable = true;
-			opts.inPreferredConfig = Bitmap.Config.RGB_565;
-
 			if (needRetry) {
 				for (int i = 0; i < decodeRetries; i++) {
+					// getInputStream() fails sometimes but after retry it will get
+					// input stream successfully.
+					if (is == null) {
+						Log.i(TAG, "Unable to get input stream for bitmap. Will retry.", Log.DEBUG_MODE);
+						try {
+							Thread.sleep(100);
+						} catch (InterruptedException ie) {
+							// Ignore
+						}
+						is = getInputStream();
+						continue;
+					}
 					try {
 						oomOccurred = false;
 						b = BitmapFactory.decodeStream(is, null, opts);
@@ -324,6 +330,7 @@ public class TiDrawableReference
 						// fail randomly and seemingly without a cause. Retry 5 times by default w/ 250ms between each try.
 						// Usually the 2nd or 3rd try succeeds, but the "decodeRetries" property in ImageView
 						// will allow users to tweak this if needed
+						Log.i(TAG, "Unable to decode bitmap. Will retry.", Log.DEBUG_MODE);
 						try {
 							Thread.sleep(250);
 						} catch (InterruptedException ie) {
@@ -344,6 +351,10 @@ public class TiDrawableReference
 					}
 				}
 			} else {
+				if (is == null) {
+					Log.w(TAG, "Could not open stream to get bitmap");
+					return null;
+				}
 				try {
 					oomOccurred = false;
 					b = BitmapFactory.decodeStream(is, null, opts);
@@ -353,6 +364,10 @@ public class TiDrawableReference
 				}
 			}
 		} finally {
+			if (is == null) {
+				Log.w(TAG, "Could not open stream to get bitmap");
+				return null;
+			}
 			try {
 				is.close();
 			} catch (IOException e) {
