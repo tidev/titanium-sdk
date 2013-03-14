@@ -1,7 +1,7 @@
 /**
  * Appcelerator Titanium Mobile
 
- * Copyright (c) 2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2011-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -120,11 +120,6 @@ AndroidWrapper.prototype = Titanium.Android;
 function createSandbox(ti, sourceUrl) {
 	var newSandbox = { Ti: ti, Titanium: ti };
 
-	if (kroll.runtime == "rhino") {
-		newSandbox = kroll.createSandbox(newSandbox, ti.global);
-	}
-
-
 	// The require function we want to wrap for this context
 	var contextRequire = global.require;
 	if (ti.global) {
@@ -151,10 +146,6 @@ function createSandbox(ti, sourceUrl) {
 // passed in sourceURL (resolved from url.resolve)
 function initScopeVars(scopeVars, sourceUrl) {
 	var contextUrl = sourceUrl.href;
-
-	if (kroll.runtime == "rhino") {
-		contextUrl = require("rhino").getSourceUrl(sourceUrl);
-	}
 
 	scopeVars = scopeVars || {};
 	scopeVars.sourceUrl = contextUrl;
@@ -202,29 +193,22 @@ function TiInclude(filename, baseUrl, scopeVars) {
 	// This is called "localSandbox" so we don't overshadow the "sandbox" on global scope
 	var localSandbox = createSandbox(ti, scopeVars.sourceUrl);
 
-	if (kroll.runtime == 'rhino') {
-		// In Rhino we use a different code path to support pre-compiled JS
-		return require("rhino").include(filename, baseUrl, localSandbox);
+	var source = getUrlSource(filename, sourceUrl),
+		wrappedSource = "with(sandbox) { " + source + "\n }",
+		filePath = sourceUrl.href.replace("app://", ""),
+		contextGlobal = ti.global;
+
+	if (contextGlobal) {
+		// We're running inside another window, so we run against it's context
+		contextGlobal.sandbox = localSandbox;
+		return Script.runInContext(wrappedSource, contextGlobal, filePath, true);
 
 	} else {
-		var source = getUrlSource(filename, sourceUrl),
-			wrappedSource = "with(sandbox) { " + source + "\n }",
-			filePath = sourceUrl.href.replace("app://", ""),
-			contextGlobal = ti.global;
-
-		if (contextGlobal) {
-			// We're running inside another window, so we run against it's context
-			contextGlobal.sandbox = localSandbox;
-			return Script.runInContext(wrappedSource, contextGlobal, filePath, true);
-
-		} else {
-			// We're running inside modules. Since we don't create a new context for modules 
-			// due to TIMOB-11752, we use the global V8 Context directly.
-			// Put sandbox on the global scope
-			sandbox = localSandbox;
-			return Script.runInThisContext(wrappedSource, filePath, true);
-		}
-
+		// We're running inside modules. Since we don't create a new context for modules 
+		// due to TIMOB-11752, we use the global V8 Context directly.
+		// Put sandbox on the global scope
+		sandbox = localSandbox;
+		return Script.runInThisContext(wrappedSource, filePath, true);
 	}
 }
 TiInclude.prototype = global;
