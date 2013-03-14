@@ -11,7 +11,7 @@
 @class TiUIListItem;
 @class TiUIListViewProxy;
 
-@interface TiUIListItemProxy : TiViewProxy < TiViewEventOverrideDelegate >
+@interface TiUIListItemProxy : TiViewProxy < TiViewEventOverrideDelegate, TiProxyDelegate >
 
 @property (nonatomic, readwrite, assign) TiUIListItem *listItem;
 @property (nonatomic, readwrite, retain) NSIndexPath *indexPath;

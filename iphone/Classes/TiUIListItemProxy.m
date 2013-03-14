@@ -29,6 +29,7 @@ static void SetEventOverrideDelegateRecursive(NSArray *children, id<TiViewEventO
 			[context registerProxy:self];
 			[listViewProxy rememberProxy:self];
 		}];
+		self.modelDelegate = self;
     }
     return self;
 }
@@ -66,6 +67,17 @@ static void SetEventOverrideDelegateRecursive(NSArray *children, id<TiViewEventO
 {
 	view = nil;
 	[super _destroy];
+}
+
+-(void)propertyChanged:(NSString*)key oldValue:(id)oldValue newValue:(id)newValue proxy:(TiProxy*)proxy_
+{
+	if ([key isEqualToString:@"accessoryType"]) {
+		TiThreadPerformOnMainThread(^{
+			_listItem.accessoryType = [TiUtils intValue:newValue def:UITableViewCellAccessoryNone];
+		}, NO);		
+	} else if ([key isEqualToString:@"backgroundColor"]) {
+		_listItem.contentView.backgroundColor = [[TiUtils colorValue:newValue] _color];
+	}
 }
 
 - (void)unarchiveFromTemplate:(id)viewTemplate
