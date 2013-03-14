@@ -57,8 +57,8 @@ public class TiDefaultListViewTemplate extends TiListViewTemplate {
 		imageProxy.setActivity(activity);
 		//Generate properties
 		defaultImageProperties.put(TiC.PROPERTY_RIGHT, "0");
-		defaultImageProperties.put(TiC.PROPERTY_HEIGHT, "100sp");
-		defaultImageProperties.put(TiC.PROPERTY_WIDTH, "100sp");
+		defaultImageProperties.put(TiC.PROPERTY_HEIGHT, "60sp");
+		defaultImageProperties.put(TiC.PROPERTY_WIDTH, "60sp");
 		//bind the proxy and default properties
 		DataItem imageItem = new DataItem (imageProxy, TiC.PROPERTY_IMAGE, rootItem);
 		dataItems.put(TiC.PROPERTY_IMAGE, imageItem);
