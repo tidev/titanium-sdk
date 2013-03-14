@@ -11,11 +11,14 @@ platforms: [android, iphone, ipad]
 
 events:
   - name: reload
-    summary: Fired when the database backing the contacts module is modified
+    summary: Fired when the database backing the contacts module is modified externally.
     description: |
-        This event signifies that the addressbook reference will be recreated. All existing 
-        [Person](Titanium.Contacts.Person) and [Group](Titanium.Contacts.Group) instances will 
-        still exist but changes to them that modify the addressbook will result in unpredictable
+        Since the address book database was changed externally,
+        the application needs to recreate its contacts and group data
+        to ensure its references are current.
+
+        Using previous instances of [Person](Titanium.Contacts.Person) and
+        [Group](Titanium.Contacts.Group) will result in unpredictable
         behavior.
     platforms: [iphone, ipad]
     since: "3.1.0"
@@ -397,6 +400,43 @@ examples:
               }
             });
             Ti.API.info('Contact saved');
+
+  - title: Repopulate contact data if it was modified externally
+    example: |
+        Listen for the `reload` event to repopulate the contact data
+        if it was modified externally, for example, in the iOS Contacts app.
+
+            var win = Ti.UI.createWindow();
+            var table = Ti.UI.createTableView();
+
+            // Repopulate contact data
+            function reloadContacts() {
+                var contacts = Ti.Contacts.getAllPeople();
+                var data = [];
+                for (var i = 0; i < contacts.length; i++) {
+                    var title = contacts[i].fullName;
+                    if (!title || title.length === 0) {
+                        title = "(no name)";
+                    }
+                    var row = Ti.UI.createTableViewRow({
+                        title: title
+                    });
+                    data.push(row);
+                }
+                table.data = data;
+            }
+
+            Ti.Contacts.addEventListener('reload', function(e){
+                alert('Reloading contacts. Your contacts were changed externally!');
+                reloadContacts();
+            });
+
+            // initial call to populate contact data
+            reloadContacts();
+
+            win.add(table);
+            win.open();
+
 
 ---
 name: showContactsParams
