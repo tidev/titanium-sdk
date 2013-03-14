@@ -171,7 +171,7 @@ public abstract class KrollRuntime implements Handler.Callback
 
 	protected void doInit()
 	{
-		// initializer for the specific runtime implementation (V8, Rhino, etc)
+		// initializer for the specific runtime implementation (V8)
 		initRuntime();
 
 		// Notify the main thread that the runtime has been initialized
@@ -415,7 +415,7 @@ public abstract class KrollRuntime implements Handler.Callback
 
 	public void setGCFlag()
 	{
-		// No-op in Rhino, V8 should override.
+		// No-op V8 should override.
 	}
 
 	public State getRuntimeState()

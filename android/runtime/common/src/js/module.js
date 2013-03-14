@@ -152,51 +152,38 @@ Module.prototype.loadExternalModule = function(id, externalBinding, context) {
 	var externalModule;
 	var returnObj;
 
-	if (kroll.runtime === "rhino") {
-		// TODO -- add support for context specific invokers in Rhino
-		var bindingKey = Object.keys(externalBinding)[0];
-		if (bindingKey) {
-			externalModule = externalBinding[bindingKey];
-		}
+	externalModule = Module.cache[id];
 
-		extendModuleWithCommonJs(externalModule, id, this, context);
+	if (!externalModule) {
+		// Get the compiled bootstrap JS
+		var source = externalBinding.bootstrap;
 
-		return externalModule;
+		// Load the native module's bootstrap JS
+		var module = new Module(id, this, context);
+		module.load(id + "/bootstrap.js", source);
 
-	} else {
-		externalModule = Module.cache[id];
+		// Bootstrap and load the module using the native bindings
+		var result = module.exports.bootstrap(externalBinding);
 
-		if (!externalModule) {
-			// Get the compiled bootstrap JS
-			var source = externalBinding.bootstrap;
+		// Cache the external module instance
+		externalModule = Module.cache[id] = result;
+	}
 
-			// Load the native module's bootstrap JS
-			var module = new Module(id, this, context);
-			module.load(id + "/bootstrap.js", source);
-
-			// Bootstrap and load the module using the native bindings
-			var result = module.exports.bootstrap(externalBinding);
-
-			// Cache the external module instance
-			externalModule = Module.cache[id] = result;
-		}
-
-		if (externalModule) {
-			// We cache each context-specific module wrapper
-			// on the parent module, rather than in the Module.cache
-			var wrapper = this.wrapperCache[id];
-			if (wrapper) {
-				return wrapper;
-			}
-	
-			wrapper = this.createModuleWrapper(externalModule, sourceUrl);
-
-			extendModuleWithCommonJs(wrapper, id, this, context);
-
-			this.wrapperCache[id] = wrapper;
-	
+	if (externalModule) {
+		// We cache each context-specific module wrapper
+		// on the parent module, rather than in the Module.cache
+		var wrapper = this.wrapperCache[id];
+		if (wrapper) {
 			return wrapper;
 		}
+
+		wrapper = this.createModuleWrapper(externalModule, sourceUrl);
+
+		extendModuleWithCommonJs(wrapper, id, this, context);
+
+		this.wrapperCache[id] = wrapper;
+
+		return wrapper;
 	}
 
 	kroll.log(TAG, "Unable to load external module: " + id);
@@ -341,42 +328,14 @@ Module.prototype._runScript = function (source, filename) {
 
 	var ti = new Titanium.Wrapper(context);
 
-	if (kroll.runtime == "rhino") {
-		// Create a "context global" that's specific to each module
-		var contextGlobal = context.global = {
-			exports: this.exports,
-			require: require,
-			module: this,
-			__filename: filename,
-			__dirname: path.dirname(filename),
-			kroll: kroll
-		};
-		contextGlobal.global = contextGlobal;
+	// In V8, we treat external modules the same as native modules.  First, we wrap the
+	// module code and then run it in the current context.  This will allow external modules to
+	// access globals as mentioned in TIMOB-11752. This will also help resolve startup slowness that
+	// occurs as a result of creating a new context during startup in TIMOB-12286.
+	source = Module.wrap(source);
 
-		// Add support for console logging
-		contextGlobal.console = NativeModule.require('console');
-
-		contextGlobal.Ti = contextGlobal.Titanium = ti;
-
-		// We initialize the context with the standard Javascript APIs and globals first before running the script
-		var newContext = context.global = ti.global = Script.createContext(contextGlobal);
-		bootstrap.bootstrapGlobals(newContext, Titanium);
-
-		// The Rhino version of this API takes a custom global object but uses the same Rhino "Context".
-		// It's not possible to create more than 1 Context per thread in Rhino, so contextGlobal
-		// is essentially a detached global object that mimics a new context.
-		return runInThisContext(source, filename, true, newContext);
-
-	} else {
-		// In V8, we treat external modules the same as native modules.  First, we wrap the
-		// module code and then run it in the current context.  This will allow external modules to
-		// access globals as mentioned in TIMOB-11752. This will also help resolve startup slowness that
-		// occurs as a result of creating a new context during startup in TIMOB-12286.
-		source = Module.wrap(source);
-
-		var f = Script.runInThisContext(source, filename, true);
-		return f(this.exports, require, this, filename, path.dirname(filename), ti, ti, global, kroll);
-	}
+	var f = Script.runInThisContext(source, filename, true);
+	return f(this.exports, require, this, filename, path.dirname(filename), ti, ti, global, kroll);
 }
 
 // Determine the paths where the requested module could live.
