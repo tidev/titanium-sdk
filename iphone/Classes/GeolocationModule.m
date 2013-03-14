@@ -691,12 +691,8 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 -(void)setActivityType:(NSNumber *)value
 {
     if ([TiUtils isIOS6OrGreater]) {
-        ENSURE_UI_THREAD(setActivityType,value);
         activityType = [TiUtils intValue:value];
-        if (locationManager!=nil)
-        {
-            [locationManager setActivityType:accuracy];
-        }
+        TiThreadPerformOnMainThread(^{[locationManager setActivityType:accuracy];}, NO);
     }
     
 }
@@ -711,12 +707,8 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 -(void)setPauseLocationUpdateAutomatically:(id)value
 {
 	if ([TiUtils isIOS6OrGreater]) {
-        ENSURE_UI_THREAD(setPauseLocationUpdateAutomatically,value);
         pauseLocationUpdateAutomatically = [TiUtils boolValue:value];
-        if (locationManager!=nil)
-        {
-            [locationManager setPausesLocationUpdatesAutomatically:pauseLocationUpdateAutomatically];
-        }
+        TiThreadPerformOnMainThread(^{[locationManager setPausesLocationUpdatesAutomatically:pauseLocationUpdateAutomatically];}, NO);
     }
 }
 #endif
