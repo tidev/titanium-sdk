@@ -565,6 +565,20 @@ static const NSTimeInterval kLauncherViewFastTransitionDuration = 0.2;
 	}
 }
 
+- (NSArray*)launcheritems_
+{
+    NSMutableArray *items = [NSMutableArray array];
+	for (NSArray* buttonPage in buttons)
+	{
+		for (LauncherButton* button in buttonPage)
+		{
+			[items addObject:button.item];
+		}
+	}
+	return items;
+
+}
+
 - (NSArray*)items
 {
 	NSMutableArray *items = [NSMutableArray array];
