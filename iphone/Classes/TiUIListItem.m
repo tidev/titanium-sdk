@@ -82,6 +82,14 @@
 	[super prepareForReuse];
 }
 
+- (void)layoutSubviews
+{
+	[super layoutSubviews];
+	if (_templateStyle == TiUIListItemTemplateStyleCustom) {
+		[_proxy layoutChildren:NO];
+	}
+}
+
 - (void)setDataItem:(NSDictionary *)dataItem
 {
 	_dataItem = [dataItem retain];
