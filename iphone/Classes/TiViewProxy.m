@@ -1633,18 +1633,7 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap,horizontalWrap,horizontalWrap,[self willCha
 
 -(BOOL)_hasListeners:(NSString *)type
 {
-	if ([super _hasListeners:type])
-	{
-		return YES;
-	}
-	// check our parent since we optimize the fire with
-	// the check
-	if (parent!=nil)
-	{
-		// walk up the chain
-		return [parent _hasListeners:type];
-	}
-	return NO;
+	return [super _hasListeners:type] || [[self parentForBubbling] _hasListeners:type];
 }
 
 //TODO: Remove once we've properly deprecated.
