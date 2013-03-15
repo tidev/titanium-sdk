@@ -74,9 +74,15 @@ static void SetEventOverrideDelegateRecursive(NSArray *children, id<TiViewEventO
 	if ([key isEqualToString:@"accessoryType"]) {
 		TiThreadPerformOnMainThread(^{
 			_listItem.accessoryType = [TiUtils intValue:newValue def:UITableViewCellAccessoryNone];
-		}, NO);		
+		}, YES);
 	} else if ([key isEqualToString:@"backgroundColor"]) {
-		_listItem.contentView.backgroundColor = [[TiUtils colorValue:newValue] _color];
+		TiThreadPerformOnMainThread(^{
+			_listItem.contentView.backgroundColor = [[TiUtils colorValue:newValue] _color];
+		}, YES);
+	} else if ([key isEqualToString:@"selectionStyle"]) {
+		TiThreadPerformOnMainThread(^{
+			_listItem.selectionStyle = [TiUtils intValue:newValue def:UITableViewCellSelectionStyleBlue];
+		}, YES);
 	}
 }
 
