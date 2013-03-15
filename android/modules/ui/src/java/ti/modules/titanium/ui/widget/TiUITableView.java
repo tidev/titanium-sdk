@@ -159,6 +159,12 @@ public class TiUITableView extends TiUIView
 			} else {
 				setNativeView(tableView);
 			}
+			if (d.containsKey(TiC.PROPERTY_SEARCH_HIDDEN)) {
+				boolean searchHidden = TiConvert.toBoolean(d, TiC.PROPERTY_SEARCH_HIDDEN);
+				if (searchHidden) {
+					search.getNativeView().setVisibility(View.GONE);
+				}
+			}
 		} else {
 			setNativeView(tableView);
 		}
@@ -226,6 +232,17 @@ public class TiUITableView extends TiUIView
 		} else if (TiC.PROPERTY_OVER_SCROLL_MODE.equals(key)){
 			if (Build.VERSION.SDK_INT >= 9) {
 				getListView().setOverScrollMode(TiConvert.toInt(newValue, View.OVER_SCROLL_ALWAYS));
+			}
+		} else if (TiC.PROPERTY_SEARCH_HIDDEN.equals(key)) {
+			boolean searchHidden = TiConvert.toBoolean(newValue);
+			TiViewProxy searchView = (TiViewProxy) (proxy.getProperty(TiC.PROPERTY_SEARCH));
+			TiUIView search = searchView.peekView();
+			if (search != null) {
+				if (searchHidden) {
+					search.getNativeView().setVisibility(View.GONE);
+				} else {
+					search.getNativeView().setVisibility(View.VISIBLE);
+				}
 			}
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
