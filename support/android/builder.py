@@ -2347,7 +2347,7 @@ class Builder(object):
 				self.sdk.run_adb(['forward', forwardPort, forwardPort])
 
 			# Enable port forwarding for profiler
-			if profiler_enabled and self.runtime == 'v8':
+			if profiler_enabled:
 				info('Forwarding host port %s to device for profiling.' % self.profiler_port)
 				forwardPort = 'tcp:%s' % self.profiler_port
 				self.sdk.run_adb(['forward', forwardPort, forwardPort])
