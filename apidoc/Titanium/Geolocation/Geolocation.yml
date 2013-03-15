@@ -283,11 +283,11 @@ events:
         summary: If `success` is false, a string describing the error.
         type: String
 
- - name: locationupdatepaused
+  - name: locationupdatepaused
     summary: Fired when location updates are paused by the OS. Available in iOS 6.0 and later.
     description: |
         This event is fired when [pauseLocationUpdateAutomatically](Titanium.Geolocation.pauseLocationUpdateAutomatically) 
-        is set to `true` and if the OS detects that the device’s location is not changing, 
+        is set to `true` and if the OS detects that the device's location is not changing, 
         causing it to pause the delivery of updates in order to shut down the appropriate 
         hardware and save power.
     platforms: [iphone, ipad]
