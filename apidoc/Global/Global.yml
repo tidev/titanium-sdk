@@ -155,7 +155,18 @@ methods:
         
         For more information, see the Official CommonJS website about 
         [CommonJS Modules/1.1 Specification](http://wiki.commonjs.org/wiki/Modules/1.1).
-        
+
+        #### Alloy
+
+            For Alloy, place the CommonJS modules in the `app/lib` directory of your Alloy project,
+            then load the module with `require` method without the `app/lib` path and `.js`
+            extension.
+
+            For example, a module file `app/lib/myModule/module.js` may be loaded by
+            `app/controllers/index.js` using:
+
+                require('myModule/module');
+
         #### Android
         
             Additionally, on Android, an absolute path to a module may be specified using a path 
@@ -164,8 +175,12 @@ methods:
             For example, a module file `Resources/myModule/module.js` may be required by 
             `Resources/example/example.js` using either of the following:
             
-                require('../myModule/module.js')
-                require ('/myModule/module.js')
+                require('../myModule/module')
+                require ('/myModule/module')
+
+        ### Global scope
+
+
     returns:
         summary: Exported `exports` object of the required module.
         type: Object
