@@ -22,6 +22,7 @@
 }
 
 @synthesize templateStyle = _templateStyle;
+@synthesize proxy = _proxy;
 @synthesize dataItem = _dataItem;
 
 - (id)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier proxy:(TiUIListItemProxy *)proxy
@@ -79,6 +80,14 @@
 {
 	RELEASE_TO_NIL(_dataItem);
 	[super prepareForReuse];
+}
+
+- (void)layoutSubviews
+{
+	[super layoutSubviews];
+	if (_templateStyle == TiUIListItemTemplateStyleCustom) {
+		[_proxy layoutChildren:NO];
+	}
 }
 
 - (void)setDataItem:(NSDictionary *)dataItem
@@ -154,6 +163,24 @@
 			UITableViewCellAccessoryType accessoryType = [accessoryTypeValue unsignedIntegerValue];
 			[self recordChangeValue:accessoryTypeValue forKeyPath:@"accessoryType" withBlock:^{
 				self.accessoryType = accessoryType;
+			}];
+		}
+	}
+	id selectionStyleValue = [properties objectForKey:@"selectionStyle"];
+	if ([self shouldUpdateValue:selectionStyleValue forKeyPath:@"selectionStyle"]) {
+		if ([selectionStyleValue isKindOfClass:[NSNumber class]]) {
+			UITableViewCellSelectionStyle selectionStyle = [selectionStyleValue unsignedIntegerValue];
+			[self recordChangeValue:selectionStyleValue forKeyPath:@"selectionStyle" withBlock:^{
+				self.selectionStyle = selectionStyle;
+			}];
+		}
+	}
+	id backgroundColorValue = [properties objectForKey:@"backgroundColor"];
+	if ([self shouldUpdateValue:backgroundColorValue forKeyPath:@"contentView.backgroundColor"]) {
+		UIColor *backgroundColor = backgroundColorValue != nil ? [[TiUtils colorValue:backgroundColorValue] _color] : nil;
+		if (backgroundColor != nil) {
+			[self recordChangeValue:backgroundColorValue forKeyPath:@"contentView.backgroundColor" withBlock:^{
+				self.contentView.backgroundColor = backgroundColor;
 			}];
 		}
 	}
