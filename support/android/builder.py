@@ -886,6 +886,7 @@ class Builder(object):
 				parent = os.path.dirname(dest)
 				if not os.path.exists(parent):
 					os.makedirs(parent)
+				
 				trace("COPYING %s FILE: %s => %s" % (delta.get_status_str(), path, dest))
 				shutil.copy(path, dest)
 				if (path.startswith(resources_dir) or path.startswith(android_resources_dir)) and path.endswith(".js"):
@@ -898,7 +899,28 @@ class Builder(object):
 						relative_path = make_relative(delta.get_path(), resources_dir)
 					relative_path = relative_path.replace("\\", "/")
 					self.run_adb('push', delta.get_path(), "%s/%s" % (self.sdcard_resources, relative_path))
-
+		
+		if os.environ.has_key('LIVEVIEW'):
+			debug("LiveView enabled")
+			appjs = os.path.join(self.assets_resources_dir, 'app.js')
+			_appjs = os.path.join(self.assets_resources_dir, '_app.js')
+ 			liveviewjs = os.path.join(self.assets_resources_dir, 'liveview.js')
+			self.non_orphans.append('_app.js')
+			
+			if not os.path.exists(appjs):
+				debug('app.js not found: %s' % appjs)
+			
+			if not os.path.exists(liveviewjs):
+				debug('liveviewjs.js not found: %s' % liveviewjs)
+			
+ 			if os.path.exists(appjs) and os.path.exists(liveviewjs):
+ 				trace("COPYING %s => %s" % (appjs, _appjs))
+	 			shutil.copy(appjs, _appjs)
+				trace("COPYING %s => %s" % (liveviewjs, appjs))
+				shutil.copy(liveviewjs, appjs)
+		else:
+			debug('LiveView not enabled')
+		
 		index_json_path = os.path.join(self.assets_dir, "index.json")
 		if len(self.project_deltas) > 0 or not os.path.exists(index_json_path):
 			requireIndex.generateJSON(self.assets_dir, index_json_path)
