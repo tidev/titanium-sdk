@@ -56,6 +56,11 @@ public class ListSectionProxy extends ViewProxy{
 	private static final int MSG_DELETE_ITEMS_AT = MSG_FIRST_ID + 703;
 	private static final int MSG_GET_ITEM_AT = MSG_FIRST_ID + 704;
 	private static final int MSG_REPLACE_ITEMS_AT = MSG_FIRST_ID + 705;
+	private static final int MSG_UPDATE_ITEM_AT = MSG_FIRST_ID + 706;
+	private static final int MSG_GET_ITEMS = MSG_FIRST_ID + 707;
+
+
+	
 
 
 	
@@ -90,6 +95,9 @@ public class ListSectionProxy extends ViewProxy{
 		}
 		if (dict.containsKey(TiC.PROPERTY_FOOTER_TITLE)) {
 			footerTitle = TiConvert.toString(dict, TiC.PROPERTY_FOOTER_TITLE);
+		}
+		if (dict.containsKey(TiC.PROPERTY_ITEMS)) {
+			handleSetItems(dict.get(TiC.PROPERTY_ITEMS));
 		}
 	}
 	
@@ -143,6 +151,12 @@ public class ListSectionProxy extends ViewProxy{
 				result.setResult(null);
 				return true;
 			}
+			
+			case MSG_GET_ITEMS: {
+				AsyncResult result = (AsyncResult) msg.obj;
+				result.setResult(itemProperties.toArray());
+				return true;
+			}
 
 			case MSG_APPEND_ITEMS: {
 				AsyncResult result = (AsyncResult) msg.obj;
@@ -186,6 +200,15 @@ public class ListSectionProxy extends ViewProxy{
 				result.setResult(item);
 				return true;
 			}
+			
+			case MSG_UPDATE_ITEM_AT: {
+				AsyncResult result = (AsyncResult) msg.obj;
+				KrollDict data = (KrollDict) result.getArg();
+				int index = data.getInt("index");
+				handleUpdateItemAt(index, data.get("data"));
+				result.setResult(null);
+				return true;
+			}
 
 			default : {
 				return super.handleMessage(msg);
@@ -193,7 +216,7 @@ public class ListSectionProxy extends ViewProxy{
 
 		}
 	}
-	
+
 	@Kroll.method
 	public KrollDict getItemAt(int index) {
 		if (TiApplication.isUIThread()) {
@@ -210,14 +233,22 @@ public class ListSectionProxy extends ViewProxy{
 		return null;
 	}
 
-	@Kroll.method
+	@Kroll.method @Kroll.setProperty
 	public void setItems(Object data) {
 		if (TiApplication.isUIThread()) {
 			handleSetItems(data);
 		} else {
 			TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_SET_ITEMS), data);
 		}
-		
+	}
+	
+	@Kroll.method @Kroll.getProperty
+	public Object[] getItems() {
+		if (TiApplication.isUIThread()) {
+			return itemProperties.toArray();
+		} else {
+			return (Object[]) TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_GET_ITEMS));
+		}
 	}
 	
 	@Kroll.method
@@ -282,11 +313,32 @@ public class ListSectionProxy extends ViewProxy{
 		}
 	}
 	
+	@Kroll.method
+	public void updateItemAt(int index, Object data) {
+		if (!isIndexValid(index) || !(data instanceof HashMap)) {
+			return;
+		}
+
+		if (TiApplication.isUIThread()) {
+			handleUpdateItemAt(index,  new Object[]{data});
+		} else {
+			KrollDict d = new KrollDict();
+			d.put("index", index);
+			d.put("data", new Object[]{data});
+			TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_UPDATE_ITEM_AT), d);
+		}
+	}
+
+	
 	public void processPreloadData() {
 		if (itemProperties != null && preload) {
 			handleSetItems(itemProperties.toArray());
 			preload = false;
 		}
+	}
+	
+	public void refreshItems() {
+		handleSetItems(itemProperties.toArray());
 	}
 
 	private void processData(Object[] items, int offset) {
@@ -399,17 +451,20 @@ public class ListSectionProxy extends ViewProxy{
 		}
 	}
 	
-	private void deleteItems(int index, int count) {
+	private boolean deleteItems(int index, int count) {
+		boolean delete = false;
 		while (count > 0) {
 			if (index < itemProperties.size()) {
 				itemProperties.remove(index);
 				itemCount--;
+				delete = true;
 			}
 			if (index < listItemData.size()) {
 				listItemData.remove(index);
 			}
 			count--;
 		}
+		return delete;
 	}
 	
 	private void handleDeleteItemsAt(int index, int count) {
@@ -420,8 +475,14 @@ public class ListSectionProxy extends ViewProxy{
 	}
 	
 	private void handleReplaceItemsAt(int index, int count, Object data) {
-		deleteItems(index, count);
-		handleInsertItemsAt(index, data);
+		if (deleteItems(index, count)) {
+			handleInsertItemsAt(index, data);
+		}
+	}
+	
+	private void handleUpdateItemAt(int index, Object data) {
+		handleReplaceItemsAt(index, 1, data);
+		setProperty(TiC.PROPERTY_ITEMS, itemProperties.toArray());
 	}
 	
 	private TiListViewTemplate processTemplate(KrollDict itemData, int index) {
@@ -487,7 +548,7 @@ public class ListSectionProxy extends ViewProxy{
 	 * @param index Entry's index relative to its section
 	 * @return
 	 */
-	public void generateCellContent(int index, KrollDict data, TiListViewTemplate template, TiBaseListViewItem itemContent, int itemPosition, View item_layout) {
+	public void generateCellContent(int sectionIndex, KrollDict data, TiListViewTemplate template, TiBaseListViewItem itemContent, int itemPosition, View item_layout) {
 		//Here we create an item content and populate it with data
 		//Get item proxy
 		TiViewProxy itemProxy = template.getRootItem().getViewProxy();
@@ -498,7 +559,7 @@ public class ListSectionProxy extends ViewProxy{
 	
 		if (data != null && template != null) {
 			generateChildContentViews(template.getRootItem(), null, itemContent, true);
-			populateViews(data, itemContent, template, itemPosition, index, item_layout);
+			populateViews(data, itemContent, template, itemPosition, sectionIndex, item_layout);
 		}
 	}
 	
@@ -524,7 +585,7 @@ public class ListSectionProxy extends ViewProxy{
 		}
 	}
 	
-	public void appendExtraEventData(TiUIView view, int itemPosition, int sectionIndex, String bindId) {
+	public void appendExtraEventData(TiUIView view, int itemIndex, int sectionIndex, String bindId) {
 		KrollDict existingData = view.getAdditionalEventData();
 		if (existingData == null) {
 			existingData = new KrollDict();
@@ -532,17 +593,16 @@ public class ListSectionProxy extends ViewProxy{
 		}
 
 		if (headerTitle != null) {
-			itemPosition -= 1;
-			sectionIndex -= 1;
+			itemIndex -= 1;
 		}
 		
 		existingData.put(TiC.PROPERTY_SECTION, this);
 		existingData.put(TiC.PROPERTY_SECTION_INDEX, sectionIndex);
 		existingData.put(TiC.PROPERTY_BIND_ID, bindId);
-		existingData.put(TiC.PROPERTY_ITEM_INDEX, itemPosition);
+		existingData.put(TiC.PROPERTY_ITEM_INDEX, itemIndex);
 	}
 	
-	public void populateViews(KrollDict data, TiBaseListViewItem cellContent, TiListViewTemplate template, int itemPosition, int sectionIndex, View item_layout) {
+	public void populateViews(KrollDict data, TiBaseListViewItem cellContent, TiListViewTemplate template, int itemIndex, int sectionIndex, View item_layout) {
 		Object cell = cellContent.getTag();
 		
 		HashMap<String, ViewItem> views = (HashMap<String, ViewItem>) cellContent.getViewsMap();
@@ -552,7 +612,7 @@ public class ListSectionProxy extends ViewProxy{
 			ViewItem viewItem = views.get(binding);
 			TiUIView view = viewItem.getView();
 			if (view != null) {
-				appendExtraEventData(view, itemPosition, sectionIndex, binding);
+				appendExtraEventData(view, itemIndex, sectionIndex, binding);
 			}
 			//if binding is contain in data given to us, process that data, otherwise
 			//apply default properties.
@@ -581,7 +641,7 @@ public class ListSectionProxy extends ViewProxy{
 		}
 
 		TiListItem listItem = (TiListItem) cell;
-		appendExtraEventData(listItem, itemPosition, sectionIndex, TiC.PROPERTY_PROPERTIES);
+		appendExtraEventData(listItem, itemIndex, sectionIndex, TiC.PROPERTY_PROPERTIES);
 		if (data.containsKey(TiC.PROPERTY_PROPERTIES)) {
 			KrollDict properties = new KrollDict((HashMap)data.get(TiC.PROPERTY_PROPERTIES));
 			KrollDict diffProperties = cellContent.getViewItem().generateDiffProperties(properties);

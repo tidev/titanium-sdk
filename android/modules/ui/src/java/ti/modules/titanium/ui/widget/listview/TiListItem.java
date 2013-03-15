@@ -82,7 +82,7 @@ public class TiListItem extends TiUIView {
 			public void onClick(View view)
 			{
 				KrollDict data = dictFromEvent(lastUpEvent);
-				TiViewProxy listViewProxy = proxy.getParent();
+				TiViewProxy listViewProxy = ((ListItemProxy)proxy).getListProxy();
 				if (listViewProxy != null) {
 					TiUIView listView = listViewProxy.peekView();
 					if (listView != null) {
