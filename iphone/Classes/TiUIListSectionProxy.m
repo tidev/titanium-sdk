@@ -160,17 +160,18 @@
 	UITableViewRowAnimation animation = [TiUIListView animationStyleForProperties:properties];
 	
 	[self.dispatcher dispatchUpdateAction:^(UITableView *tableView) {
-		if ([_items count] < insertIndex + replaceCount) {
+		if ([_items count] < insertIndex) {
 			DebugLog(@"[WARN] ListView: Replace item index is out of range");
 			return;
 		}
+		NSUInteger actualReplaceCount = MIN(replaceCount, [_items count]-insertIndex);
 		[_items replaceObjectsInRange:NSMakeRange(insertIndex, replaceCount) withObjectsFromArray:items];
 		NSUInteger count = [items count];
-		NSMutableArray *indexPaths = [[NSMutableArray alloc] initWithCapacity:MAX(count, replaceCount)];
-		for (NSUInteger i = 0; i < replaceCount; ++i) {
+		NSMutableArray *indexPaths = [[NSMutableArray alloc] initWithCapacity:MAX(count, actualReplaceCount)];
+		for (NSUInteger i = 0; i < actualReplaceCount; ++i) {
 			[indexPaths addObject:[NSIndexPath indexPathForRow:insertIndex+i inSection:_sectionIndex]];
 		}
-		if (replaceCount > 0) {
+		if (actualReplaceCount > 0) {
 			[tableView deleteRowsAtIndexPaths:indexPaths withRowAnimation:animation];
 		}
 		[indexPaths removeAllObjects];
@@ -200,9 +201,13 @@
 			DebugLog(@"[WARN] ListView: Delete item index is out of range");
 			return;
 		}
-		[_items removeObjectsInRange:NSMakeRange(deleteIndex, deleteCount)];
-		NSMutableArray *indexPaths = [[NSMutableArray alloc] initWithCapacity:deleteCount];
-		for (NSUInteger i = 0; i < deleteCount; ++i) {
+		NSUInteger actualDeleteCount = MIN(deleteCount, [_items count]-deleteIndex);
+		if (actualDeleteCount == 0) {
+			return;
+		}
+		[_items removeObjectsInRange:NSMakeRange(deleteIndex, actualDeleteCount)];
+		NSMutableArray *indexPaths = [[NSMutableArray alloc] initWithCapacity:actualDeleteCount];
+		for (NSUInteger i = 0; i < actualDeleteCount; ++i) {
 			[indexPaths addObject:[NSIndexPath indexPathForRow:deleteIndex+i inSection:_sectionIndex]];
 		}
 		[tableView deleteRowsAtIndexPaths:indexPaths withRowAnimation:animation];
@@ -220,6 +225,10 @@
 	UITableViewRowAnimation animation = [TiUIListView animationStyleForProperties:properties];
 	
 	[self.dispatcher dispatchUpdateAction:^(UITableView *tableView) {
+		if ([_items count] <= itemIndex) {
+			DebugLog(@"[WARN] ListView: Update item index is out of range");
+			return;
+		}
 		[_items replaceObjectAtIndex:itemIndex withObject:item];
 		NSArray *indexPaths = [[NSArray alloc] initWithObjects:[NSIndexPath indexPathForRow:itemIndex inSection:_sectionIndex], nil];
 		[tableView reloadRowsAtIndexPaths:indexPaths withRowAnimation:animation];

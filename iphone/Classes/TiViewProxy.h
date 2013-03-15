@@ -7,6 +7,7 @@
 #import "TiProxy.h"
 #import "TiUIView.h"
 #import "TiRect.h"
+#import "TiViewTemplate.h"
 #import <pthread.h>
 
 /**
@@ -62,6 +63,11 @@
 
 @end
 
+@protocol TiViewEventOverrideDelegate <NSObject>
+@required
+- (NSDictionary *)overrideEventObject:(NSDictionary *)eventObject forEvent:(NSString *)eventType fromViewProxy:(TiViewProxy *)viewProxy;
+
+@end
 
 #pragma mark dirtyflags used by TiViewProxy
 #define NEEDS_LAYOUT_CHILDREN	1
@@ -142,6 +148,7 @@ enum
     NSMutableDictionary *layoutPropDictionary;
     
     id observer;
+	id<TiViewEventOverrideDelegate> eventOverrideDelegate;
 }
 
 #pragma mark public API
@@ -249,6 +256,8 @@ enum
 
 //NOTE: DO NOT SET VIEW UNLESS IN A TABLE VIEW, AND EVEN THEN.
 @property(nonatomic,readwrite,retain)TiUIView * view;
+
+@property (nonatomic,readwrite,assign) id<TiViewEventOverrideDelegate> eventOverrideDelegate;
 
 /**
  Returns language conversion table.
@@ -571,9 +580,8 @@ enum
  */
 -(void)childWillResize:(TiViewProxy *)child;	//Todo: Replace
 
-- (void)unarchiveFromTemplate:(NSDictionary *)viewTemplate;
-
-+ (TiViewProxy *)unarchiveFromTemplate:(NSDictionary *)viewTemplate inContext:(id<TiEvaluator>)context;
+- (void)unarchiveFromTemplate:(id)viewTemplate;
++ (TiViewProxy *)unarchiveFromTemplate:(id)viewTemplate inContext:(id<TiEvaluator>)context;
 
 @end
 
