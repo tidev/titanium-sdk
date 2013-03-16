@@ -6,7 +6,6 @@
  */
 package ti.modules.titanium.map;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -19,8 +18,6 @@ import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiLifecycle.OnLifecycleEvent;
 import org.appcelerator.titanium.TiProperties;
-import org.appcelerator.titanium.io.TiBaseFile;
-import org.appcelerator.titanium.io.TiFileFactory;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiUIHelper;
@@ -1116,10 +1113,12 @@ public class TiMapView extends TiUIView
 	{
 		if (pinImage != null) {
 			TiDrawableReference drawableRef = TiDrawableReference.fromUrl(proxy, pinImage);
-			if (drawableRef != null) {
-				Drawable d = drawableRef.getDrawable();
+			Drawable d = drawableRef.getDrawable();
+			if (d != null) {
 				d.setBounds(0, 0, d.getIntrinsicWidth(), d.getIntrinsicHeight());
 				return d;
+			} else {
+				Log.e(TAG, "Unable to create Drawable from path:" + pinImage);
 			}
 		}
 		return null;
