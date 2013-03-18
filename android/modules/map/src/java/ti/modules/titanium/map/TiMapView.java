@@ -6,7 +6,6 @@
  */
 package ti.modules.titanium.map;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -19,11 +18,10 @@ import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiLifecycle.OnLifecycleEvent;
 import org.appcelerator.titanium.TiProperties;
-import org.appcelerator.titanium.io.TiBaseFile;
-import org.appcelerator.titanium.io.TiFileFactory;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiUIHelper;
+import org.appcelerator.titanium.view.TiDrawableReference;
 import org.appcelerator.titanium.view.TiUIView;
 
 import ti.modules.titanium.map.MapRoute.RouteOverlay;
@@ -1114,15 +1112,13 @@ public class TiMapView extends TiUIView
 	private Drawable makeMarker(String pinImage)
 	{
 		if (pinImage != null) {
-			String url = proxy.resolveUrl(null, pinImage);
-			TiBaseFile file = TiFileFactory.createTitaniumFile(new String[] { url }, false);
-			try {
-				Drawable d = new BitmapDrawable(mapWindow.getContext().getResources(), TiUIHelper.createBitmap(file
-					.getInputStream()));
+			TiDrawableReference drawableRef = TiDrawableReference.fromUrl(proxy, pinImage);
+			Drawable d = drawableRef.getDrawable();
+			if (d != null) {
 				d.setBounds(0, 0, d.getIntrinsicWidth(), d.getIntrinsicHeight());
 				return d;
-			} catch (IOException e) {
-				Log.e(TAG, "Error creating drawable from path: " + pinImage.toString(), e);
+			} else {
+				Log.e(TAG, "Unable to create Drawable from path:" + pinImage);
 			}
 		}
 		return null;
