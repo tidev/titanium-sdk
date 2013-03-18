@@ -168,8 +168,8 @@ public class ListSectionProxy extends ViewProxy{
 			case MSG_INSERT_ITEMS_AT: {
 				AsyncResult result = (AsyncResult) msg.obj;
 				KrollDict data = (KrollDict) result.getArg();
-				int index = data.getInt("index");
-				handleInsertItemsAt(index, data.get("data"));
+				int index = data.getInt(TiC.EVENT_PROPERTY_INDEX);
+				handleInsertItemsAt(index, data.get(TiC.PROPERTY_DATA));
 				result.setResult(null);
 				return true;
 			}
@@ -177,8 +177,8 @@ public class ListSectionProxy extends ViewProxy{
 			case MSG_DELETE_ITEMS_AT: {
 				AsyncResult result = (AsyncResult) msg.obj;
 				KrollDict data = (KrollDict) result.getArg();
-				int index = data.getInt("index");
-				int count = data.getInt("count");
+				int index = data.getInt(TiC.EVENT_PROPERTY_INDEX);
+				int count = data.getInt(TiC.PROPERTY_COUNT);
 				handleDeleteItemsAt(index, count);
 				result.setResult(null);
 				return true;
@@ -187,9 +187,9 @@ public class ListSectionProxy extends ViewProxy{
 			case MSG_REPLACE_ITEMS_AT: {
 				AsyncResult result = (AsyncResult) msg.obj;
 				KrollDict data = (KrollDict) result.getArg();
-				int index = data.getInt("index");
-				int count = data.getInt("count");
-				handleReplaceItemsAt(index, count, data.get("data"));
+				int index = data.getInt(TiC.EVENT_PROPERTY_INDEX);
+				int count = data.getInt(TiC.PROPERTY_COUNT);
+				handleReplaceItemsAt(index, count, data.get(TiC.PROPERTY_DATA));
 				result.setResult(null);
 				return true;
 			}
@@ -204,8 +204,8 @@ public class ListSectionProxy extends ViewProxy{
 			case MSG_UPDATE_ITEM_AT: {
 				AsyncResult result = (AsyncResult) msg.obj;
 				KrollDict data = (KrollDict) result.getArg();
-				int index = data.getInt("index");
-				handleUpdateItemAt(index, data.get("data"));
+				int index = data.getInt(TiC.EVENT_PROPERTY_INDEX);
+				handleUpdateItemAt(index, data.get(TiC.PROPERTY_DATA));
 				result.setResult(null);
 				return true;
 			}
@@ -274,8 +274,8 @@ public class ListSectionProxy extends ViewProxy{
 			handleInsertItemsAt(index, data);
 		} else {
 			KrollDict d = new KrollDict();
-			d.put("data", data);
-			d.put("index", index);
+			d.put(TiC.PROPERTY_DATA, data);
+			d.put(TiC.EVENT_PROPERTY_INDEX, index);
 			TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_INSERT_ITEMS_AT), d);
 		}
 	}
@@ -290,8 +290,8 @@ public class ListSectionProxy extends ViewProxy{
 			handleDeleteItemsAt(index, count);
 		} else {
 			KrollDict d = new KrollDict();
-			d.put("index", index);
-			d.put("count", count);
+			d.put(TiC.EVENT_PROPERTY_INDEX, index);
+			d.put(TiC.PROPERTY_COUNT, count);
 			TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_DELETE_ITEMS_AT), d);
 		}
 	}
@@ -306,9 +306,9 @@ public class ListSectionProxy extends ViewProxy{
 			handleReplaceItemsAt(index, count, data);
 		} else {
 			KrollDict d = new KrollDict();
-			d.put("index", index);
-			d.put("count", count);
-			d.put("data", data);
+			d.put(TiC.EVENT_PROPERTY_INDEX, index);
+			d.put(TiC.PROPERTY_COUNT, count);
+			d.put(TiC.PROPERTY_DATA, data);
 			TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_REPLACE_ITEMS_AT), d);
 		}
 	}
@@ -323,8 +323,8 @@ public class ListSectionProxy extends ViewProxy{
 			handleUpdateItemAt(index,  new Object[]{data});
 		} else {
 			KrollDict d = new KrollDict();
-			d.put("index", index);
-			d.put("data", new Object[]{data});
+			d.put(TiC.EVENT_PROPERTY_INDEX, index);
+			d.put(TiC.PROPERTY_DATA, new Object[]{data});
 			TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_UPDATE_ITEM_AT), d);
 		}
 	}
