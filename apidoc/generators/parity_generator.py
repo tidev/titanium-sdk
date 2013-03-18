@@ -14,6 +14,36 @@ log = TiLogger(None)
 all_annotated_apis = None
 apis = None
 
+# These top-level namespaces are added for documentation purposes
+special_toplevel_types = [ "Global", "Modules" ]
+
+def is_special_toplevel_type(one_type):
+	for special_type in special_toplevel_types:
+		if one_type["name"].find(special_type) == 0:
+			return True
+	return False
+
+def has_ancestor(one_type, ancestor_name):
+	if one_type["name"] == ancestor_name:
+		return True
+	if "extends" in one_type and one_type["extends"] == ancestor_name:
+		return True
+	elif "extends" not in one_type:
+		if ancestor_name in special_toplevel_types:
+			# special case for "Global" and "Modules" types - they do not have @extends statement
+			return one_type["name"].find(ancestor_name) == 0
+		return False
+	else:
+		parent_type_name = one_type["extends"]
+		if (parent_type_name is None or not isinstance(parent_type_name, basestring) or
+			parent_type_name.lower() == "object"):
+			return False
+		if not parent_type_name in apis:
+			log.warn("%s extends %s but %s type information not found" % (one_type["name"],
+																		  parent_type_name, parent_type_name))
+			return False
+		return has_ancestor(apis[parent_type_name], ancestor_name)
+
 def get_platforms_available(platforms):
 	res = ""
 	for platform in ( "android", "iphone", "ipad", "mobileweb" ):
@@ -47,7 +77,7 @@ def generate(raw_apis, annotated_apis, options):
 		output = open(os.path.join(options.output, outfile), "w")
 		
 		output.write("<style>\n")
-		output.write("html, body, div, span, applet, object, iframe, h1, h2, h3, h4, h5, h6, p, blockquote, pre, a, abbr, acronym, address, big, cite, code, del, dfn, em, font, img, ins, kbd, q, s, samp, small, strike, strong, sub, sup, tt, var, b, u, i, center, dl, dt, dd, ol, ul, li, fieldset, form, label, legend, table, caption, tbody, tfoot, thead, tr, th, td { background: transparent; border: 0; font-size: 100%; margin: 0; outline: 0; padding: 0; vertical-align: baseline; } body { line-height: 1; font-family: Helvetica, Arial, sans-serif; margin: 20px; font-size: 12px; } ol, ul { list-style: none; } blockquote, q { quotes: none; } :focus { outline: 0; } ins { text-decoration: none; } del { text-decoration: line-through; } table { border-collapse: collapse; border-spacing: 0; } a { text-decoration: none; } a:hover { text-decoration: underline; } th { padding: 5px 10px; background: #CCC; } td { border: 1px solid #CCC; padding: 5px; } .yes { background-color:#007700; color: #FFF; text-align: center; font-weight: bold; } .no { background-color:#770000; color:#FFF; text-align: center; font-weight: bold; }\n")
+		output.write("html, body, div, span, applet, object, iframe, h1, h2, h3, h4, h5, h6, p, blockquote, pre, a, abbr, acronym, address, big, cite, code, del, dfn, em, font, img, ins, kbd, q, s, samp, small, strike, strong, sub, sup, tt, var, b, u, i, center, dl, dt, dd, ol, ul, li, fieldset, form, label, legend, table, caption, tbody, tfoot, thead, tr, th, td { background: transparent; border: 0; font-size: 100%; margin: 0; outline: 0; padding: 0; vertical-align: baseline; } body { line-height: 1; font-family: Helvetica, Arial, sans-serif; margin: 20px; font-size: 12px; } ol, ul { list-style: none; } blockquote, q { quotes: none; } :focus { outline: 0; } ins { text-decoration: none; } del { text-decoration: line-through; } table { border-collapse: collapse; border-spacing: 0; } a { text-decoration: none; } a:hover { text-decoration: underline; } th { padding: 5px 10px; background: #CCC; } td { border: 1px solid #CCC; padding: 5px; } .yes { background-color:#007700; color: #FFF; text-align: center; font-weight: bold; } .no { background-color:#770000; color:#FFF; text-align: center; font-weight: bold; } .module_parent { font-weight: bold } .module_child { padding-left: 20px }\n")
 		output.write("</style>\n")
 		
 		
@@ -60,11 +90,19 @@ def generate(raw_apis, annotated_apis, options):
 			output.write("\t<th>%s</th>\n" % platform_names[platform])	
 		output.write("</tr>\n")
 
-		for name in annotated_apis:
+		api_names = annotated_apis.keys()
+		api_names.sort()
+		for name in api_names:
 			annotated_obj = annotated_apis[name]
 			
+			pseudo_text = ""
+			class_type = "normal_type"
+			if not (has_ancestor(raw_apis[name], "Titanium.Proxy") or is_special_toplevel_type(raw_apis[name])):
+				pseudo_text = "(<i>pseudotype</i>)"
+				class_type = "pseudo_type"
+			
 			output.write("<tr>\n")
-			output.write("\t<td>%s</td>\n" % (annotated_obj.name)) 
+			output.write("\t<td class=\"module_parent\" class=\"%s\">%s %s</td>\n" % (class_type, annotated_obj.name, pseudo_text)) 
 			output.write( get_platforms_available(annotated_obj.platforms) )
 			output.write("</tr>\n")
 			
@@ -73,7 +111,7 @@ def generate(raw_apis, annotated_apis, options):
 				p = getattr(annotated_obj, attr)
 				for k in p:
 					output.write("<tr>\n")
-					output.write("\t<td>%s.%s (<i>%s</i>)</td>\n" % (k.parent.name, k.name, attribute_names[attr]))
+					output.write("\t<td class=\"module_child\">%s.%s (<i>%s</i>)</td>\n" % (k.parent.name, k.name, attribute_names[attr]))
 					output.write( get_platforms_available(annotated_obj.platforms) )
 					output.write("</tr>\n")
 
