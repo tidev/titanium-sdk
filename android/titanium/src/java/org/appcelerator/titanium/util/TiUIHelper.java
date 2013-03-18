@@ -586,18 +586,18 @@ public class TiUIHelper
 	public static KrollDict createDictForImage(int width, int height, byte[] data)
 	{
 		KrollDict d = new KrollDict();
-		d.put("x", 0);
-		d.put("y", 0);
-		d.put("width", width);
-		d.put("height", height);
+		d.put(TiC.PROPERTY_X, 0);
+		d.put(TiC.PROPERTY_Y, 0);
+		d.put(TiC.PROPERTY_WIDTH, width);
+		d.put(TiC.PROPERTY_HEIGHT, height);
 
 		KrollDict cropRect = new KrollDict();
-		cropRect.put("x", 0);
-		cropRect.put("y", 0);
-		cropRect.put("width", width);
-		cropRect.put("height", height);
-		d.put("cropRect", cropRect);
-		d.put("media", TiBlob.blobFromData(data, "image/png"));
+		cropRect.put(TiC.PROPERTY_X, 0);
+		cropRect.put(TiC.PROPERTY_X, 0);
+		cropRect.put(TiC.PROPERTY_WIDTH, width);
+		cropRect.put(TiC.PROPERTY_HEIGHT, height);
+		d.put(TiC.PROPERTY_CROP_RECT, cropRect);
+		d.put(TiC.PROPERTY_MEDIA, TiBlob.blobFromData(data, "image/png"));
 
 		return d;
 	}
@@ -605,8 +605,8 @@ public class TiUIHelper
 	public static TiBlob getImageFromDict(KrollDict dict)
 	{
 		if (dict != null) {
-			if (dict.containsKey("media")) {
-				Object media = dict.get("media");
+			if (dict.containsKey(TiC.PROPERTY_MEDIA)) {
+				Object media = dict.get(TiC.PROPERTY_MEDIA);
 				if (media instanceof TiBlob) {
 					return (TiBlob) media;
 				}

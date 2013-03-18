@@ -914,6 +914,11 @@ public class TiC
 
 	/**
 	 * @module.api
+	 */
+	public static final String PROPERTY_CROP_RECT = "cropRect";
+
+	/**
+	 * @module.api
 	 */ // TIMOB-4478
 	public static final String PROPERTY_CURRENT_PAGE = "currentPage";
 
@@ -1392,6 +1397,10 @@ public class TiC
 	 */
 	public static final String PROPERTY_MAX_LENGTH = "maxLength";
 
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_MEDIA = "media";
 
 	/**
 	 * @module.api
