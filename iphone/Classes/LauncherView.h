@@ -74,6 +74,7 @@
 - (void)layoutButtons;
 
 - (LauncherItem*)itemForIndex:(NSInteger)index;
+- (NSArray*)launcheritems_;
 - (NSArray*)items;
 
 @end
