@@ -624,40 +624,46 @@ public class TiUIHelper
 			int height = view.getHeight();
 
 			// maybe move this out to a separate method once other refactor regarding "getWidth", etc is done
-			if(view.getWidth() == 0) {
-				if(proxyDict != null) {
-					if(proxyDict.containsKey(TiC.PROPERTY_WIDTH)) {
-						TiDimension widthDimension = new TiDimension(proxyDict.getString(TiC.PROPERTY_WIDTH), TiDimension.TYPE_WIDTH);
+			if (view.getWidth() == 0) {
+				if (proxyDict != null) {
+					if (proxyDict.containsKey(TiC.PROPERTY_WIDTH)) {
+						TiDimension widthDimension = new TiDimension(proxyDict.getString(TiC.PROPERTY_WIDTH),
+							TiDimension.TYPE_WIDTH);
 						width = widthDimension.getAsPixels(view);
 					}
 				}
 			}
-			if(view.getHeight() == 0) {
-				if(proxyDict != null) {
-					if(proxyDict.containsKey(TiC.PROPERTY_HEIGHT)) {
-						TiDimension heightDimension = new TiDimension(proxyDict.getString(TiC.PROPERTY_HEIGHT), TiDimension.TYPE_HEIGHT);
+			if (view.getHeight() == 0) {
+				if (proxyDict != null) {
+					if (proxyDict.containsKey(TiC.PROPERTY_HEIGHT)) {
+						TiDimension heightDimension = new TiDimension(proxyDict.getString(TiC.PROPERTY_HEIGHT),
+							TiDimension.TYPE_HEIGHT);
 						height = heightDimension.getAsPixels(view);
 					}
 				}
 			}
-			view.measure(MeasureSpec.makeMeasureSpec(width, MeasureSpec.EXACTLY), MeasureSpec.makeMeasureSpec(height, MeasureSpec.EXACTLY));
-			if (view.getParent() == null) {
-				Log.i(TAG, "View does not have parent, calling layout", Log.DEBUG_MODE);
-				view.layout(0, 0, width, height);
-			}
 
-			// now that we have forced the view to layout itself, grab dimensions
+			int wmode = width == 0 ? MeasureSpec.UNSPECIFIED : MeasureSpec.EXACTLY;
+			int hmode = height == 0 ? MeasureSpec.UNSPECIFIED : MeasureSpec.EXACTLY;
+			view.measure(MeasureSpec.makeMeasureSpec(width, wmode), MeasureSpec.makeMeasureSpec(height, hmode));
+
+			// Will force the view to layout itself, grab dimensions
 			width = view.getMeasuredWidth();
 			height = view.getMeasuredHeight();
 
 			// set a default BS value if the dimension is still 0 and log a warning
-			if(width == 0) {
+			if (width == 0) {
 				width = 100;
 				Log.e(TAG, "Width property is 0 for view, display view before calling toImage()", Log.DEBUG_MODE);
 			}
-			if(height == 0) {
+			if (height == 0) {
 				height = 100;
 				Log.e(TAG, "Height property is 0 for view, display view before calling toImage()", Log.DEBUG_MODE);
+			}
+
+			if (view.getParent() == null) {
+				Log.i(TAG, "View does not have parent, calling layout", Log.DEBUG_MODE);
+				view.layout(0, 0, width, height);
 			}
 
 			// opacity should support transparency by default
@@ -666,11 +672,11 @@ public class TiUIHelper
 			Drawable viewBackground = view.getBackground();
 			if (viewBackground != null) {
 				/*
-				 * If the background is opaque then we should be able to safely use a space saving format that 
-				 * does not support the alpha channel.  Basically, if a view has a background color set then the 
-				 * the pixel format will be opaque.  If a background image supports an alpha channel, the pixel 
-				 * format will report transparency (even if the image doesn't actually look transparent).  In 
-				 * short, most of the time the Config.ARGB_8888 format will be used when viewToImage is used 
+				 * If the background is opaque then we should be able to safely use a space saving format that
+				 * does not support the alpha channel. Basically, if a view has a background color set then the
+				 * the pixel format will be opaque. If a background image supports an alpha channel, the pixel
+				 * format will report transparency (even if the image doesn't actually look transparent). In
+				 * short, most of the time the Config.ARGB_8888 format will be used when viewToImage is used
 				 * but in the cases where the background is opaque, the lower memory approach will be used.
 				 */
 				if (viewBackground.getOpacity() == PixelFormat.OPAQUE) {
