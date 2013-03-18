@@ -165,7 +165,7 @@
 			return;
 		}
 		NSUInteger actualReplaceCount = MIN(replaceCount, [_items count]-insertIndex);
-		[_items replaceObjectsInRange:NSMakeRange(insertIndex, replaceCount) withObjectsFromArray:items];
+		[_items replaceObjectsInRange:NSMakeRange(insertIndex, actualReplaceCount) withObjectsFromArray:items];
 		NSUInteger count = [items count];
 		NSMutableArray *indexPaths = [[NSMutableArray alloc] initWithCapacity:MAX(count, actualReplaceCount)];
 		for (NSUInteger i = 0; i < actualReplaceCount; ++i) {
