@@ -23,7 +23,7 @@ TiOrientationFlags TiOrientationFlagsFromObject(id args)
 	for (id mode in args)
 	{
 		UIInterfaceOrientation orientation = (UIInterfaceOrientation)[TiUtils orientationValue:mode def:-1];
-		switch (orientation)
+		switch ((int)orientation)
 		{
 			case UIDeviceOrientationPortrait:
 			case UIDeviceOrientationPortraitUpsideDown:

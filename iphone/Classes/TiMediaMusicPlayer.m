@@ -73,7 +73,7 @@
 		}
 	}
 	else if ([arg isKindOfClass:[TiMediaItem class]]) {
-		[items addObject:[arg item]];
+		[items addObject:[(TiMediaItem*)arg item]];
 	}
 	else {
 		[self throwException:[NSString stringWithFormat:@"Invalid object type %@ for player queue",[arg class]]
