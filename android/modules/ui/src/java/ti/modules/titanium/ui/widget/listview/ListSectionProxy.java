@@ -585,7 +585,7 @@ public class ListSectionProxy extends ViewProxy{
 		}
 	}
 	
-	public void appendExtraEventData(TiUIView view, int itemIndex, int sectionIndex, String bindId) {
+	public void appendExtraEventData(TiUIView view, int itemIndex, int sectionIndex, String bindId, String itemId) {
 		KrollDict existingData = view.getAdditionalEventData();
 		if (existingData == null) {
 			existingData = new KrollDict();
@@ -600,10 +600,38 @@ public class ListSectionProxy extends ViewProxy{
 		existingData.put(TiC.PROPERTY_SECTION_INDEX, sectionIndex);
 		existingData.put(TiC.PROPERTY_BIND_ID, bindId);
 		existingData.put(TiC.PROPERTY_ITEM_INDEX, itemIndex);
+		if (itemId != null) {
+			existingData.put(TiC.PROPERTY_ITEM_ID, itemId);
+		} else {
+			existingData.remove(TiC.PROPERTY_ITEM_ID);
+		}
 	}
 	
 	public void populateViews(KrollDict data, TiBaseListViewItem cellContent, TiListViewTemplate template, int itemIndex, int sectionIndex, View item_layout) {
 		Object cell = cellContent.getTag();
+		//Handling root item, since that is not in the views map.
+		if (!(cell instanceof TiListItem)) {
+			Log.e(TAG, "Cell is not TiListItem. Something is wrong..", Log.DEBUG_MODE);
+			return;
+		}
+		
+		TiListItem listItem = (TiListItem) cell;
+		KrollDict listItemProperties;
+		String itemId = null;
+
+		if (data.containsKey(TiC.PROPERTY_PROPERTIES)) {
+			listItemProperties = new KrollDict((HashMap)data.get(TiC.PROPERTY_PROPERTIES));
+		} else {
+			listItemProperties = template.getRootItem().getDefaultProperties(); 
+		}
+		
+		//find out if we need to update itemId
+		if (listItemProperties.containsKey(TiC.PROPERTY_ITEM_ID)) {
+			itemId = TiConvert.toString(listItemProperties.get(TiC.PROPERTY_ITEM_ID));
+		}
+		
+		//update extra event data for list item
+		appendExtraEventData(listItem, itemIndex, sectionIndex, TiC.PROPERTY_PROPERTIES, itemId);
 		
 		HashMap<String, ViewItem> views = (HashMap<String, ViewItem>) cellContent.getViewsMap();
 		//Loop through all our views and apply default properties
@@ -611,8 +639,9 @@ public class ListSectionProxy extends ViewProxy{
 			DataItem dataItem = template.getDataItem(binding);
 			ViewItem viewItem = views.get(binding);
 			TiUIView view = viewItem.getView();
+			//update extra event data for views
 			if (view != null) {
-				appendExtraEventData(view, itemIndex, sectionIndex, binding);
+				appendExtraEventData(view, itemIndex, sectionIndex, binding, itemId);
 			}
 			//if binding is contain in data given to us, process that data, otherwise
 			//apply default properties.
@@ -634,26 +663,12 @@ public class ListSectionProxy extends ViewProxy{
 			
 		}
 		
-		//Handling root item, since that is not in the views map.
-		if (!(cell instanceof TiListItem)) {
-			Log.e(TAG, "Cell is not TiListItem. Something is wrong..", Log.DEBUG_MODE);
-			return;
+		//process listItem properties
+		KrollDict listItemDiff = cellContent.getViewItem().generateDiffProperties(listItemProperties);
+		if (!listItemDiff.isEmpty()) {
+			listItem.processProperties(listItemDiff);
 		}
 
-		TiListItem listItem = (TiListItem) cell;
-		appendExtraEventData(listItem, itemIndex, sectionIndex, TiC.PROPERTY_PROPERTIES);
-		if (data.containsKey(TiC.PROPERTY_PROPERTIES)) {
-			KrollDict properties = new KrollDict((HashMap)data.get(TiC.PROPERTY_PROPERTIES));
-			KrollDict diffProperties = cellContent.getViewItem().generateDiffProperties(properties);
-			if (!diffProperties.isEmpty()) {
-				listItem.processProperties(properties);
-			}
-		} else {
-			KrollDict diffProperties = cellContent.getViewItem().generateDiffProperties(template.getRootItem().getDefaultProperties());
-			if (!diffProperties.isEmpty()) {
-				listItem.processProperties(diffProperties);
-			}
-		}
 	}
 	
 	public TiListViewTemplate getTemplateByIndex(int index) {

@@ -8,10 +8,13 @@
 package ti.modules.titanium.ui.widget.listview;
 
 import java.lang.ref.WeakReference;
+import java.util.HashMap;
 
+import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.TiViewProxy;
+import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.view.TiUIView;
 
 import ti.modules.titanium.ui.UIModule;
@@ -34,6 +37,31 @@ public class ListItemProxy extends TiViewProxy {
 			return listProxy.get();
 		}
 		return null;
+	}
+	
+	public boolean fireEvent(final String event, final Object data)
+	{
+		getMainHandler().post(new Runnable() {
+			@Override
+			public void run()
+			{
+				fireItemClick(event, data);
+			}
+		});
+		return super.fireEvent(event, data);
+	}
+	
+	private void fireItemClick(String event, Object data) {
+		if (event.equals(TiC.EVENT_CLICK) && data instanceof HashMap) {
+			KrollDict eventData = new KrollDict((HashMap) data);
+			String source = TiConvert.toString(eventData.get(TiC.EVENT_PROPERTY_SOURCE));
+			if (source != null && !source.equals(this) && listProxy != null) {
+				TiViewProxy listViewProxy = listProxy.get();
+				if (listViewProxy != null) {
+					listViewProxy.fireEvent(TiC.EVENT_ITEM_CLICK, eventData);
+				}
+			}
+		}
 	}
 
 	public void release() {
