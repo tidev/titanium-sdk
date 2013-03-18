@@ -310,14 +310,20 @@ module.exports = new function() {
 			callback(null);
 		});
 		sourceStream.on("error", function(exception) {
-			console.log("error occurred when reading from source stream");
+			console.log("error occurred when reading from source stream for file " + sourceFilePath);
 			callback(exception);
 		});
 
 		destStream = fs.createWriteStream(destFilePath);
 		destStream.on("error", function() {
-			console.log("error occurred when writing to source stream");
+			console.log("error occurred when writing to destination stream for file " + destFilePath);
 		});
 		sourceStream.pipe(destStream);
+	};
+
+	this.copyFileSync = function(sourceFilePath, destFilePath) {
+		// It's the caller's responsibility to ensure that the containing
+		// directory of destFilePath exists.
+		fs.writeFileSync(destFilePath, fs.readFileSync(sourceFilePath));
 	};
 };
