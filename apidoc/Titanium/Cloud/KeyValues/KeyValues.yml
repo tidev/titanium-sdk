@@ -104,7 +104,7 @@ examples:
                 if (e.success) {
                     alert('Success');
                 } else {
-                    alert('Error:\\n' +
+                    alert('Error:\n' +
                         ((e.error && e.message) || JSON.stringify(e)));
                 }
             });
@@ -118,11 +118,11 @@ examples:
             }, function (e) {
                 if (e.success) {
                     var keyvalue = e.keyvalues[0];
-                    alert('Success:\\n' +
-                        'name: ' + keyvalue.name + '\\n' +
+                    alert('Success:\n' +
+                        'name: ' + keyvalue.name + '\n' +
                         'value: ' + keyvalue.value);
                 } else {
-                    alert('Error:\\n' +
+                    alert('Error:\n' +
                         ((e.error && e.message) || JSON.stringify(e)));
                 }
             });
@@ -137,11 +137,11 @@ examples:
             }, function (e) {
                  if (e.success) {
                      var keyvalue = e.keyvalues[0];
-                     alert('Success:\\n' +
-                         'name: ' + keyvalue.name + '\\n' +
+                     alert('Success:\n' +
+                         'name: ' + keyvalue.name + '\n' +
                          'value: ' + keyvalue.value);
                  } else {
-                     alert('Error:\\n' +
+                     alert('Error:\n' +
                          ((e.error && e.message) || JSON.stringify(e)));
                  }
 
@@ -157,11 +157,11 @@ examples:
             }, function (e) {
                  if (e.success) {
                      var keyvalue = e.keyvalues[0];
-                     alert('Success:\\n' +
-                         'name: ' + keyvalue.name + '\\n' +
+                     alert('Success:\n' +
+                         'name: ' + keyvalue.name + '\n' +
                          'value: ' + keyvalue.value);
                  } else {
-                     alert('Error:\\n' +
+                     alert('Error:\n' +
                          ((e.error && e.message) || JSON.stringify(e)));
                  }
 
@@ -177,7 +177,7 @@ examples:
                  if (e.success) {
                      alert('Success');
                  } else {
-                     alert('Error:\\n' +
+                     alert('Error:\n' +
                          ((e.error && e.message) || JSON.stringify(e)));
                  }
 
