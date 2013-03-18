@@ -184,14 +184,14 @@ module.exports = new function() {
 				}
 
 				process.chdir(driverGlobal.driverDir);
-				driverUtils.setCurrentTiSdk();
+				driverUtils.setTargetTiSdk();
 
 				/*
 				Make sure we use the tests that are part of the downloaded SDK and not the local driver 
 				instance itself.  If the SDK does not have anvil tests (older version of the SDK) then keep
 				using the local tests
 				*/
-				configSetsPath = path.join(driverGlobal.config.currentTiSdkDir, "anvil", "configSet");
+				configSetsPath = path.join(driverGlobal.config.targetTiSdkDir, "anvil", "configSet");
 				if (path.existsSync(configSetsPath)) {
 					driverGlobal.configSetDir = configSetsPath;
 				}
@@ -216,7 +216,7 @@ module.exports = new function() {
 	}
 
 	function packageAndSendResults(results, callback) {
-		var versionContents = fs.readFileSync(path.join(driverGlobal.config.currentTiSdkDir, "version.txt"), "utf-8"),
+		var versionContents = fs.readFileSync(path.join(driverGlobal.config.targetTiSdkDir, "version.txt"), "utf-8"),
 		version = "",
 		splitPos = versionContents.indexOf("="),
 		resultsFile = fs.openSync(path.join(driverGlobal.currentLogDir, "json_results"), 'w'),

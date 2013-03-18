@@ -71,7 +71,7 @@ module.exports = new function() {
 	};
 
 	var createHarness = function(successCallback, errorCallback) {
-		var argString = "harness com.appcelerator.harness " + path.resolve(driverGlobal.harnessDir, "mobileweb mobileweb") + " " + driverGlobal.config.currentTiSdkDir;
+		var argString = "harness com.appcelerator.harness " + path.resolve(driverGlobal.harnessDir, "mobileweb mobileweb") + " " + driverGlobal.config.targetTiSdkDir;
 
 		// due to python behavior on windows, we need to escape the slashes in the argument string
 		if (os.platform().substr(0 ,3) === "win") {
@@ -80,7 +80,7 @@ module.exports = new function() {
 
 		common.createHarness(
 			"mobileweb",
-			"\"" + path.resolve(driverGlobal.config.currentTiSdkDir, "project.py") + "\" " + argString,
+			"\"" + path.resolve(driverGlobal.config.targetTiSdkDir, "project.py") + "\" " + argString,
 			successCallback,
 			errorCallback
 			);
@@ -93,7 +93,7 @@ module.exports = new function() {
 	var buildHarness = function(successCallback, errorCallback) {
 		var buildCallback = function() {
 			var args = [
-				path.resolve(driverGlobal.config.currentTiSdkDir, "mobileweb", "builder.py"),
+				path.resolve(driverGlobal.config.targetTiSdkDir, "mobileweb", "builder.py"),
 				path.resolve(driverGlobal.harnessDir, "mobileweb", "harness"),
 				"development"
 				];
