@@ -145,10 +145,8 @@ function createSandbox(ti, sourceUrl) {
 // Initializes a ScopeVars object with a
 // passed in sourceURL (resolved from url.resolve)
 function initScopeVars(scopeVars, sourceUrl) {
-	var contextUrl = sourceUrl.href;
-
 	scopeVars = scopeVars || {};
-	scopeVars.sourceUrl = contextUrl;
+	scopeVars.sourceUrl = sourceUrl;
 	return scopeVars;
 }
 Titanium.initScopeVars = initScopeVars;
@@ -185,7 +183,7 @@ Titanium.getUrlSource = getUrlSource;
 // - We use TitaniumWrapper as the base for all context / scope-specific APIs
 function TiInclude(filename, baseUrl, scopeVars) {
 	var sourceUrl = url.resolve(baseUrl, filename);
-	scopeVars = initScopeVars(scopeVars, sourceUrl);
+	scopeVars = initScopeVars(scopeVars, sourceUrl.href);
 
 	// Create a context-bound Titanium module.
 	var ti = new TitaniumWrapper(scopeVars);
