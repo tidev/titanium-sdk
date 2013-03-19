@@ -167,6 +167,11 @@
 				}
 				id bindObject = [self valueForUndefinedKey:bindId];
 				if (bindObject != nil) {
+					BOOL reproxying = NO;
+					if ([bindObject isKindOfClass:[TiProxy class]]) {
+						[bindObject setReproxying:YES];
+						reproxying = YES;
+					}
 					[(NSDictionary *)dict enumerateKeysAndObjectsUsingBlock:^(NSString *key, id value, BOOL *stop) {
 						NSString *keyPath = [NSString stringWithFormat:@"%@.%@", bindId, key];
 						if ([self shouldUpdateValue:value forKeyPath:keyPath]) {
@@ -175,6 +180,9 @@
 							}];
 						}
 					}];
+					if (reproxying) {
+						[bindObject setReproxying:NO];
+					}
 				}
 			}];
 			break;
