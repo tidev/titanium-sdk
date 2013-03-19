@@ -179,5 +179,5 @@ properties:
 
   - name: alerts
     summary: Alarms associated with the calendar item, as an array of <Titanium.Calendar.Alert> objects.
-    type: Array<Titaniu.Calendar.Alert>
+    type: Array<Titanium.Calendar.Alert>
     

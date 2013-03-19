@@ -1456,12 +1456,16 @@ public abstract class TiUIView
 	}
 	
 	public boolean fireEvent(String eventName, KrollDict data) {
+		return fireEvent(eventName, data, true);
+	}
+
+	public boolean fireEvent(String eventName, KrollDict data, boolean bubbles) {
 		if (data == null && additionalEventData != null) {
 			data = new KrollDict((HashMap)additionalEventData.clone());
 		} else if (additionalEventData != null) {
 			data.putAll(additionalEventData);
 		}
-		return proxy.fireEvent(eventName, data);
+		return proxy.fireEvent(eventName, data, bubbles);
 	}
 
 	protected void setOnLongClickListener(View view)
