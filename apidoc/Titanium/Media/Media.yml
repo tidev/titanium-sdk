@@ -864,7 +864,7 @@ properties:
     type: Callback<FailureResponse>
   - name: cancel
     summary: Function to call if the user presses the cancel button.
-    type: Callback<SuccessResponse>
+    type: Callback<FailureResponse>
   - name: autohide
     summary: Specifies that the library should be hidden automatically after media selection is completed.
     type: Boolean
@@ -981,7 +981,7 @@ properties:
     type: Callback<FailureResponse>
   - name: cancel 
     summary: Function to call if the user presses the cancel button.
-    type: Callback<SuccessResponse>
+    type: Callback<FailureResponse>
   - name: autohide 
     summary: Specifies if the camera should be hidden automatically after the media capture is completed.
     type: Boolean
@@ -1074,7 +1074,7 @@ properties:
     type: Callback<FailureResponse>
   - name: cancel 
     summary: Function to call if the user presses the cancel button.
-    type: Callback<SuccessResponse>
+    type: Callback<FailureResponse>
   - name: autohide 
     summary: Specifies if the photo gallery should be hidden automatically after the media
         selection is completed.
