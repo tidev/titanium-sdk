@@ -274,11 +274,15 @@ USE_PROXY_FOR_VERIFY_AUTORESIZING
 
 -(IBAction)sliderBegin:(id)sender
 {
-	NSNumber * newValue = [NSNumber numberWithFloat:[(UISlider*)sender value]];
-	if ([[self proxy] _hasListeners:@"touchstart"])
-	{
-		[[self proxy] fireEvent:@"touchstart" withObject:[NSDictionary dictionaryWithObject:newValue forKey:@"value"]];
-	 }
+    NSNumber * newValue = [NSNumber numberWithFloat:[(UISlider*)sender value]];
+    if ([[self proxy] _hasListeners:@"touchstart"])
+    {
+        [[self proxy] fireEvent:@"touchstart" withObject:[NSDictionary dictionaryWithObject:newValue forKey:@"value"]];
+    }
+    if ([[self proxy] _hasListeners:@"start"])
+    {
+        [[self proxy] fireEvent:@"start" withObject:[NSDictionary dictionaryWithObject:newValue forKey:@"value"] propagate:NO reportSuccess:NO errorCode:0 message:nil];
+    }
 }
 
 -(IBAction)sliderEnd:(id)sender
@@ -287,18 +291,22 @@ USE_PROXY_FOR_VERIFY_AUTORESIZING
 	// ALWAYS indicated by a sub-0.1s difference between the clicks, and results in an additional fire of the event.
 	// We have to track the PREVIOUS (not current) inverval and prevent these ugly misfires!
 	
-	NSDate* now = [[NSDate alloc] init];
-	NSTimeInterval currentTimeInterval = [now timeIntervalSinceDate:lastTouchUp];
-	if (!(lastTimeInterval < 0.1 && currentTimeInterval < 0.1)) {
-		NSNumber * newValue = [NSNumber numberWithFloat:[(UISlider*)sender value]];
-		if ([[self proxy] _hasListeners:@"touchend"])
-		{
-			[[self proxy] fireEvent:@"touchend" withObject:[NSDictionary dictionaryWithObject:newValue forKey:@"value"]];
-		}	
-	}
-	lastTimeInterval = currentTimeInterval;
-	RELEASE_TO_NIL(lastTouchUp);
-	lastTouchUp = now;
+    NSDate* now = [[NSDate alloc] init];
+    NSTimeInterval currentTimeInterval = [now timeIntervalSinceDate:lastTouchUp];
+    if (!(lastTimeInterval < 0.1 && currentTimeInterval < 0.1)) {
+        NSNumber * newValue = [NSNumber numberWithFloat:[(UISlider*)sender value]];
+        if ([[self proxy] _hasListeners:@"touchend"])
+        {
+            [[self proxy] fireEvent:@"touchend" withObject:[NSDictionary dictionaryWithObject:newValue forKey:@"value"]];
+        }
+        if ([[self proxy] _hasListeners:@"stop"])
+        {
+            [[self proxy] fireEvent:@"stop" withObject:[NSDictionary dictionaryWithObject:newValue forKey:@"value"] propagate:NO reportSuccess:NO errorCode:0 message:nil];
+        }
+    }
+    lastTimeInterval = currentTimeInterval;
+    RELEASE_TO_NIL(lastTouchUp);
+    lastTouchUp = now;
 
 }
 
