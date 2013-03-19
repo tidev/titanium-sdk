@@ -291,18 +291,21 @@ public class TiUISlider extends TiUIView
 		data.put(TiC.PROPERTY_VALUE, scaledValue);
 		data.put(TiC.EVENT_PROPERTY_THUMB_OFFSET, offset);
 		data.put(TiC.EVENT_PROPERTY_THUMB_SIZE, size);
-		proxy.setProperty(TiC.PROPERTY_VALUE, scaledValue, false);
+		proxy.setProperty(TiC.PROPERTY_VALUE, scaledValue);
 
-		proxy.fireEvent(TiC.EVENT_CHANGE, data);
+		fireEvent(TiC.EVENT_CHANGE, data);
 	}
 
 	public void onStartTrackingTouch(SeekBar seekBar) {
+		KrollDict data = new KrollDict();
+		data.put(TiC.PROPERTY_VALUE, scaledValue());
+		fireEvent(TiC.EVENT_START, data, false);
 	}
 
 	public void onStopTrackingTouch(SeekBar seekBar) {
 		KrollDict data = new KrollDict();
 		data.put(TiC.PROPERTY_VALUE, scaledValue());
-		proxy.fireEvent(TiC.EVENT_STOP, data);
+		fireEvent(TiC.EVENT_STOP, data, false);
 	}
 
 	private float scaledValue() {

@@ -48,7 +48,7 @@ public class TiUILabel extends TiUIView
 						MeasureSpec.UNSPECIFIED);
 				}
 
-				super.onMeasure(widthMeasureSpec, widthMeasureSpec);
+				super.onMeasure(widthMeasureSpec, heightMeasureSpec);
 			}
 
 			@Override
@@ -77,9 +77,6 @@ public class TiUILabel extends TiUIView
 		super.processProperties(d);
 
 		TextView tv = (TextView) getNativeView();
-		
-		// Clear any text style left over here if view is recycled
-		TiUIHelper.styleText(tv, null, null, null);
 		
 		// Only accept one, prefer text to title.
 		if (d.containsKey(TiC.PROPERTY_HTML)) {

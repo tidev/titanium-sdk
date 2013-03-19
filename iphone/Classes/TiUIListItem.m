@@ -22,6 +22,7 @@
 }
 
 @synthesize templateStyle = _templateStyle;
+@synthesize proxy = _proxy;
 @synthesize dataItem = _dataItem;
 
 - (id)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier proxy:(TiUIListItemProxy *)proxy
@@ -81,6 +82,14 @@
 	[super prepareForReuse];
 }
 
+- (void)layoutSubviews
+{
+	[super layoutSubviews];
+	if (_templateStyle == TiUIListItemTemplateStyleCustom) {
+		[_proxy layoutChildren:NO];
+	}
+}
+
 - (void)setDataItem:(NSDictionary *)dataItem
 {
 	_dataItem = [dataItem retain];
@@ -92,12 +101,23 @@
 		case UITableViewCellStyleValue1:
 		case UITableViewCellStyleValue2:
 			self.detailTextLabel.text = [[properties objectForKey:@"subtitle"] description];
+
+			id backgroundColorValue = [properties objectForKey:@"backgroundColor"];
+			if ([self shouldUpdateValue:backgroundColorValue forKeyPath:@"detailTextLabel.backgroundColor"]) {
+				UIColor *backgroundColor = backgroundColorValue != nil ? [[TiUtils colorValue:backgroundColorValue] _color] : nil;
+				if (backgroundColor != nil) {
+					[self recordChangeValue:backgroundColorValue forKeyPath:@"detailTextLabel.backgroundColor" withBlock:^{
+						[self.detailTextLabel setBackgroundColor:backgroundColor];
+					}];
+				}
+			}
+
 			// pass through
 		case UITableViewCellStyleDefault:
 			self.textLabel.text = [[properties objectForKey:@"title"] description];
 			if (_templateStyle != UITableViewCellStyleValue2) {
 				id imageValue = [properties objectForKey:@"image"];
-				if ([self shouldUpdateValue:imageValue forKeyPath:@"image"]) {
+				if ([self shouldUpdateValue:imageValue forKeyPath:@"imageView.image"]) {
 					NSURL *imageUrl = [TiUtils toURL:imageValue proxy:_proxy];
 					UIImage *image = [[ImageLoader sharedLoader] loadImmediateImage:imageUrl];
 					if (image != nil) {
@@ -109,7 +129,7 @@
 			}
 
 			id fontValue = [properties objectForKey:@"font"];
-			if ([self shouldUpdateValue:fontValue forKeyPath:@"font"]) {
+			if ([self shouldUpdateValue:fontValue forKeyPath:@"textLabel.font"]) {
 				UIFont *font = (fontValue != nil) ? [[TiUtils fontValue:fontValue] font] : nil;
 				if (font != nil) {
 					[self recordChangeValue:fontValue forKeyPath:@"textLabel.font" withBlock:^{
@@ -119,7 +139,7 @@
 			}
 
 			id colorValue = [properties objectForKey:@"color"];
-			if ([self shouldUpdateValue:colorValue forKeyPath:@"color"]) {
+			if ([self shouldUpdateValue:colorValue forKeyPath:@"textLabel.color"]) {
 				UIColor *color = colorValue != nil ? [[TiUtils colorValue:colorValue] _color] : nil;
 				if (color != nil) {
 					[self recordChangeValue:colorValue forKeyPath:@"textLabel.color" withBlock:^{
@@ -127,6 +147,17 @@
 					}];
 				}
 			}
+
+			backgroundColorValue = [properties objectForKey:@"backgroundColor"];
+			if ([self shouldUpdateValue:backgroundColorValue forKeyPath:@"textLabel.backgroundColor"]) {
+				UIColor *backgroundColor = backgroundColorValue != nil ? [[TiUtils colorValue:backgroundColorValue] _color] : nil;
+				if (backgroundColor != nil) {
+					[self recordChangeValue:backgroundColorValue forKeyPath:@"textLabel.backgroundColor" withBlock:^{
+						[self.textLabel setBackgroundColor:backgroundColor];
+					}];
+				}
+			}
+
 			break;
 			
 		default:
@@ -154,6 +185,24 @@
 			UITableViewCellAccessoryType accessoryType = [accessoryTypeValue unsignedIntegerValue];
 			[self recordChangeValue:accessoryTypeValue forKeyPath:@"accessoryType" withBlock:^{
 				self.accessoryType = accessoryType;
+			}];
+		}
+	}
+	id selectionStyleValue = [properties objectForKey:@"selectionStyle"];
+	if ([self shouldUpdateValue:selectionStyleValue forKeyPath:@"selectionStyle"]) {
+		if ([selectionStyleValue isKindOfClass:[NSNumber class]]) {
+			UITableViewCellSelectionStyle selectionStyle = [selectionStyleValue unsignedIntegerValue];
+			[self recordChangeValue:selectionStyleValue forKeyPath:@"selectionStyle" withBlock:^{
+				self.selectionStyle = selectionStyle;
+			}];
+		}
+	}
+	id backgroundColorValue = [properties objectForKey:@"backgroundColor"];
+	if ([self shouldUpdateValue:backgroundColorValue forKeyPath:@"contentView.backgroundColor"]) {
+		UIColor *backgroundColor = backgroundColorValue != nil ? [[TiUtils colorValue:backgroundColorValue] _color] : nil;
+		if (backgroundColor != nil) {
+			[self recordChangeValue:backgroundColorValue forKeyPath:@"contentView.backgroundColor" withBlock:^{
+				self.contentView.backgroundColor = backgroundColor;
 			}];
 		}
 	}

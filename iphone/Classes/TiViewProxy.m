@@ -24,6 +24,8 @@
 
 @implementation TiViewProxy
 
+@synthesize eventOverrideDelegate = eventOverrideDelegate;
+
 #pragma mark public API
 
 @synthesize vzIndex, parentVisible;
@@ -1452,9 +1454,10 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap,horizontalWrap,horizontalWrap,[self willCha
 {
 	[self willFirePropertyChanges];
 	
-	id<NSFastEnumeration> values = [self allKeys];
-	
-	[view readProxyValuesWithKeys:values];
+	if ([view respondsToSelector:@selector(readProxyValuesWithKeys:)]) {
+		id<NSFastEnumeration> values = [self allKeys];
+		[view readProxyValuesWithKeys:values];
+	}
 
 	[self didFirePropertyChanges];
 }
@@ -1633,18 +1636,7 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap,horizontalWrap,horizontalWrap,[self willCha
 
 -(BOOL)_hasListeners:(NSString *)type
 {
-	if ([super _hasListeners:type])
-	{
-		return YES;
-	}
-	// check our parent since we optimize the fire with
-	// the check
-	if (parent!=nil)
-	{
-		// walk up the chain
-		return [parent _hasListeners:type];
-	}
-	return NO;
+	return [super _hasListeners:type] || [[self parentForBubbling] _hasListeners:type];
 }
 
 //TODO: Remove once we've properly deprecated.
@@ -1680,6 +1672,9 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap,horizontalWrap,horizontalWrap,[self willCha
 	// with table rows.  Automagically assume any nil view we're firing an event for is A-OK.
     // NOTE: We want to fire postlayout events on ANY view, even those which do not allow interactions.
 	if (proxyView == nil || [proxyView interactionEnabled] || [type isEqualToString:@"postlayout"]) {
+		if (eventOverrideDelegate != nil) {
+			obj = [eventOverrideDelegate overrideEventObject:obj forEvent:type fromViewProxy:self];
+		}
 		[super fireEvent:type withObject:obj propagate:propagate reportSuccess:report errorCode:code message:message];
 	}
 }
@@ -1693,7 +1688,9 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap,horizontalWrap,horizontalWrap,[self willCha
 	}
 	else if(view!=nil) // don't create the view if not already realized
 	{
-		[self.view listenerAdded:type count:count];
+		if ([self.view respondsToSelector:@selector(listenerAdded:count:)]) {
+			[self.view listenerAdded:type count:count];
+		}
 	}
 }
 
@@ -1705,7 +1702,9 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap,horizontalWrap,horizontalWrap,[self willCha
 	}
 	else if(view!=nil) // don't create the view if not already realized
 	{
-		[self.view listenerRemoved:type count:count];
+		if ([self.view respondsToSelector:@selector(listenerRemoved:count:)]) {
+			[self.view listenerRemoved:type count:count];
+		}
 	}
 }
 
@@ -2891,36 +2890,55 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
 
 #pragma mark - View Templates
 
-- (void)unarchiveFromTemplate:(NSDictionary *)viewTemplate
+- (void)unarchiveFromTemplate:(id)viewTemplate_
 {
-	id context = self.executionContext;
+	TiViewTemplate *viewTemplate = [TiViewTemplate templateFromViewTemplate:viewTemplate_];
+	if (viewTemplate == nil) {
+		return;
+	}
+	
+	id<TiEvaluator> context = self.executionContext;
 	if (context == nil) {
 		context = self.pageContext;
 	}
-	// NB: should we remove all existing keys ?
-	id properties = [viewTemplate objectForKey:@"properties"];
-	if ([properties isKindOfClass:[NSDictionary class]]) {
-		[self _initWithProperties:properties];
+	
+	[self _initWithProperties:viewTemplate.properties];
+	if ([viewTemplate.events count] > 0) {
+		[context.krollContext invokeBlockOnThread:^{
+			[viewTemplate.events enumerateKeysAndObjectsUsingBlock:^(NSString *eventName, NSArray *listeners, BOOL *stop) {
+				[listeners enumerateObjectsUsingBlock:^(KrollWrapper *wrapper, NSUInteger idx, BOOL *stop) {
+					[self addEventListener:[NSArray arrayWithObjects:eventName, wrapper, nil]];
+				}];
+			}];
+		}];		
 	}
-	[self setValue:[viewTemplate objectForKey:@"bindId"] forKey:@"bindId"];
-	id childTemplates = [viewTemplate objectForKey:@"childTemplates"];
-	if ([childTemplates isKindOfClass:[NSArray class]]) {
-		[(NSArray *)childTemplates enumerateObjectsUsingBlock:^(id childTemplate, NSUInteger idx, BOOL *stop) {
-			if ([childTemplate isKindOfClass:[NSDictionary class]]) {
-				TiViewProxy *child = [[self class] unarchiveFromTemplate:childTemplate inContext:context];
-				if (child != nil) {
-					[self add:child];
-				}
-			}
-		}];
-	}
+	
+	[viewTemplate.childTemplates enumerateObjectsUsingBlock:^(TiViewTemplate *childTemplate, NSUInteger idx, BOOL *stop) {
+		TiViewProxy *child = [[self class] unarchiveFromTemplate:childTemplate inContext:context];
+		if (child != nil) {
+			[context.krollContext invokeBlockOnThread:^{
+				[self rememberProxy:child];
+				[child forgetSelf];
+			}];
+			[self add:child];
+		}
+	}];
 }
 
-+ (TiViewProxy *)unarchiveFromTemplate:(NSDictionary *)viewTemplate inContext:(id<TiEvaluator>)context
+// Returns protected proxy, caller should do forgetSelf.
++ (TiViewProxy *)unarchiveFromTemplate:(id)viewTemplate_ inContext:(id<TiEvaluator>)context
 {
-	NSString *type = [viewTemplate objectForKey:@"type"];
-	if (type != nil) {
-		TiViewProxy *proxy = [[self class] createProxy:type withProperties:nil inContext:context];
+	TiViewTemplate *viewTemplate = [TiViewTemplate templateFromViewTemplate:viewTemplate_];
+	if (viewTemplate == nil) {
+		return;
+	}
+	
+	if (viewTemplate.type != nil) {
+		TiViewProxy *proxy = [[self class] createProxy:viewTemplate.type withProperties:nil inContext:context];
+		[context.krollContext invokeBlockOnThread:^{
+			[context registerProxy:proxy];
+			[proxy rememberSelf];
+		}];
 		[proxy unarchiveFromTemplate:viewTemplate];
 		return proxy;
 	}

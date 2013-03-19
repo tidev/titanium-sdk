@@ -133,6 +133,7 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 					if (mMemoryCache.get(hash) == null) {
 						mMemoryCache.put(hash, bitmap);
 					}
+
 					// Update UI if the current image source has not been changed.
 					if (imageSources != null && imageSources.size() == 1 && imageSources.get(0).hashCode() == hash) {
 						setImage(bitmap);
@@ -446,36 +447,37 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 	{
 		KrollDict data = new KrollDict();
 		data.put(TiC.EVENT_PROPERTY_STATE, state);
-		proxy.fireEvent(TiC.EVENT_LOAD, data);
+		fireEvent(TiC.EVENT_LOAD, data);
 	}
 
 	private void fireStart()
 	{
 		KrollDict data = new KrollDict();
-		proxy.fireEvent(TiC.EVENT_START, data);
+		fireEvent(TiC.EVENT_START, data);
 	}
 
 	private void fireChange(int index)
 	{
 		KrollDict data = new KrollDict();
 		data.put(TiC.EVENT_PROPERTY_INDEX, index);
-		proxy.fireEvent(TiC.EVENT_CHANGE, data);
+		fireEvent(TiC.EVENT_CHANGE, data);
 	}
 
 	private void fireStop()
 	{
 		KrollDict data = new KrollDict();
-		proxy.fireEvent(TiC.EVENT_STOP, data);
+		fireEvent(TiC.EVENT_STOP, data);
 	}
 
 	private void fireError(String message, String imageUrl)
 	{
 		KrollDict data = new KrollDict();
+
 		data.putCodeAndMessage(TiC.ERROR_CODE_UNKNOWN, message);
 		if (imageUrl != null) {
 			data.put(TiC.PROPERTY_IMAGE, imageUrl);
 		}
-		proxy.fireEvent(TiC.EVENT_ERROR, data);
+		fireEvent(TiC.EVENT_ERROR, data);
 	}
 
 	private class Animator extends TimerTask
@@ -494,7 +496,7 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 				if (paused) {
 					synchronized (this) {
 						KrollDict data = new KrollDict();
-						proxy.fireEvent(TiC.EVENT_PAUSE, data);
+						fireEvent(TiC.EVENT_PAUSE, data);
 						waitOnResume = true;
 						wait();
 					}
@@ -658,23 +660,38 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 	}
 	
 	private void setImageInternal() {
-		if (imageSources == null || imageSources.size() == 0 || imageSources.get(0) == null || imageSources.get(0).isTypeNull()) {
-			if (defaultImageSource != null) {
-				setDefaultImage();
-			} else {
-				setImage(null);
-			}
+		// Set default image or clear previous image first.
+		if (defaultImageSource != null) {
+			setDefaultImage();
+		} else {
+			setImage(null);
+		}
+
+		if (imageSources == null || imageSources.size() == 0 || imageSources.get(0) == null
+			|| imageSources.get(0).isTypeNull()) {
 			return;
 		}
 
 		if (imageSources.size() == 1) {
 			TiDrawableReference imageref = imageSources.get(0);
-			if (imageref.isNetworkUrl()) {
-				if (defaultImageSource != null) {
-					setDefaultImage();
-				} else {
-					setImage(null);
+
+			// Check if the image is cached in memory
+			int hash = imageref.hashCode();
+			Bitmap bitmap = mMemoryCache.get(hash);
+			if (bitmap != null) {
+				if (!bitmap.isRecycled()) {
+					setImage(bitmap);
+					if (!firedLoad) {
+						fireLoad(TiC.PROPERTY_IMAGE);
+						firedLoad = true;
+					}
+					return;
+				} else { // If the cached image has been recycled, remove it from the cache.
+					mMemoryCache.remove(hash);
 				}
+			}
+
+			if (imageref.isNetworkUrl()) {
 				boolean isCachedInDisk = false;
 				URI uri = null;
 				try {
@@ -687,26 +704,12 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 					Log.e(TAG, "NullPointerException for url " + imageref.getUrl(), e);
 				}
 
-				// Check if the image is cached in disc and if the uri is valid.
+				// Check if the image is not cached in disc and the uri is valid.
 				if (!isCachedInDisk && uri != null) {
 					TiDownloadManager.getInstance().download(uri, downloadListener);
 				} else {
-					// Check if the image is cached in memory
-					int hash = imageref.hashCode();
-					Bitmap bitmap = mMemoryCache.get(hash);
-					if (bitmap != null) {
-						if (!bitmap.isRecycled()) {
-							setImage(bitmap);
-							if (!firedLoad) {
-								fireLoad(TiC.PROPERTY_IMAGE);
-								firedLoad = true;
-							}
-							return;
-						} else { // If the cached image has been recycled, remove it from the cache.
-							mMemoryCache.remove(hash);
-						}
-					}
-					// If the image is not cached in memory yet, cache it and update the UI.
+					// If the image has been cached in disk or the uri is not valid,
+					// fetch and cache it and update the UI.
 					TiLoadImageManager.getInstance().load(imageref, loadImageListener);
 				}
 			} else {
@@ -888,13 +891,13 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 	}
 
 	@Override
-	public void setOpacity(float opacity)
+	protected void setOpacity(View view, float opacity)
 	{
-		TiImageView view = getView();
-		if (view != null) {
-			view.setColorFilter(TiUIHelper.createColorFilterForOpacity(opacity));
-			super.setOpacity(opacity);
+		TiImageView iview = getView();
+		if (iview != null) {
+			iview.setColorFilter(TiUIHelper.createColorFilterForOpacity(opacity));
 		}
+		super.setOpacity(view, opacity);
 	}
 
 	@Override

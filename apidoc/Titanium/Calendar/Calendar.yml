@@ -301,7 +301,7 @@ properties:
   - name: defaultCalendar
     summary: |
         Calendar that events are added to by default, as specified by user settings.
-    type: Titanium.Calendar.Calendar>
+    type: Titanium.Calendar.Calendar
     permission: read-only
 
 examples:

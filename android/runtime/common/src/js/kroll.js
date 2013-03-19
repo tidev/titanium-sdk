@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2011-2012 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2011-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -121,20 +121,15 @@
 		'\n});' ];
 
 	NativeModule.prototype.compile = function() {
-		if (kroll.runtime == "rhino") {
-			// We need to call back into compiled JS Scripts in Rhino
-			kroll.requireNative(this.id, this.exports, NativeModule.require, this, this.filename, null, global.Ti, global.Ti, global, kroll);
 
-		} else {
-			var source = NativeModule.getSource(this.id);
-			source = NativeModule.wrap(source);
+		var source = NativeModule.getSource(this.id);
+		source = NativeModule.wrap(source);
 
-			// All native modules have their filename prefixed with ti:/
-			var filename = 'ti:/' + this.filename;
+		// All native modules have their filename prefixed with ti:/
+		var filename = 'ti:/' + this.filename;
 
-			var fn = runInThisContext(source, filename, true);
-			fn(this.exports, NativeModule.require, this, this.filename, null, global.Ti, global.Ti, global, kroll);
-		}
+		var fn = runInThisContext(source, filename, true);
+		fn(this.exports, NativeModule.require, this, this.filename, null, global.Ti, global.Ti, global, kroll);
 
 		this.loaded = true;
 	};

@@ -394,7 +394,6 @@ class Builder(object):
 
 		json_contents = open(os.path.join(template_dir,'dependency.json')).read()
 		self.depends_map = simplejson.loads(json_contents)
-		self.runtime = self.tiappxml.app_properties.get('ti.android.runtime', self.depends_map['runtimes']['defaultRuntime'])
 
 		self.set_java_commands()
 		# start in 1.4, you no longer need the build/android directory
@@ -1659,11 +1658,6 @@ class Builder(object):
 		# add module native libraries
 		for module in self.modules:
 			exclude_libs = []
-			if self.runtime != 'v8':
-				# Don't need the v8 version of the module itself.
-				# (But of course we do want any other native libraries
-				# that the module developer may have packaged.)
-				exclude_libs.append('lib%s.so' % module.manifest.moduleid)
 			add_native_libs(module.get_resource('libs'), exclude_libs)
 
 		# add any native libraries : libs/**/*.so -> lib/**/*.so
@@ -1680,14 +1674,13 @@ class Builder(object):
 				# x86 only in non-production builds for now.
 				continue
 
-			# libtiverify is always included, even if targeting rhino.
+			# libtiverify is always included
 			apk_zip.write(os.path.join(lib_source_dir, 'libtiverify.so'), lib_dest_dir + 'libtiverify.so')
 			# profiler
 			apk_zip.write(os.path.join(lib_source_dir, 'libtiprofiler.so'), lib_dest_dir + 'libtiprofiler.so')
 
-			if self.runtime == 'v8':
-				for fname in ('libkroll-v8.so', 'libstlport_shared.so'):
-					apk_zip.write(os.path.join(lib_source_dir, fname), lib_dest_dir + fname)
+			for fname in ('libkroll-v8.so', 'libstlport_shared.so'):
+				apk_zip.write(os.path.join(lib_source_dir, fname), lib_dest_dir + fname)
 
 		self.apk_updated = True
 
@@ -2347,14 +2340,14 @@ class Builder(object):
 			self.post_build()
 
 			# Enable port forwarding for debugger if application
-			# acts as the server. Currently only V8 runtime uses this mode.
-			if debugger_enabled and self.runtime == 'v8':
+			# acts as the server.
+			if debugger_enabled:
 				info('Forwarding host port %s to device for debugging.' % self.debugger_port)
 				forwardPort = 'tcp:%s' % self.debugger_port
 				self.sdk.run_adb(['forward', forwardPort, forwardPort])
 
 			# Enable port forwarding for profiler
-			if profiler_enabled and self.runtime == 'v8':
+			if profiler_enabled:
 				info('Forwarding host port %s to device for profiling.' % self.profiler_port)
 				forwardPort = 'tcp:%s' % self.profiler_port
 				self.sdk.run_adb(['forward', forwardPort, forwardPort])

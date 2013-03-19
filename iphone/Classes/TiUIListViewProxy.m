@@ -9,6 +9,7 @@
 #import "TiUIListViewProxy.h"
 #import "TiUIListView.h"
 #import "TiUtils.h"
+#import "TiViewTemplate.h"
 
 @interface TiUIListViewProxy ()
 @property (nonatomic, readwrite) TiUIListView *listView;
@@ -62,13 +63,17 @@
 	}
 }
 
-- (void)dispatchBlock:(void(^)(void))block
+- (void)dispatchBlock:(void(^)(UITableView *tableView))block
 {
+	if (view == nil) {
+		block(nil);
+		return;
+	}
 	if ([NSThread isMainThread]) {
-		return block();
+		return block(self.listView.tableView);
 	}
 	TiThreadPerformOnMainThread(^{
-		block();
+		block(self.listView.tableView);
 	}, YES);
 }
 
@@ -141,6 +146,22 @@
 
 #pragma mark - Public API
 
+- (void)setTemplates:(id)args
+{
+	ENSURE_TYPE_OR_NIL(args,NSDictionary);
+	NSMutableDictionary *templates = [[NSMutableDictionary alloc] initWithCapacity:[args count]];
+	[(NSDictionary *)args enumerateKeysAndObjectsUsingBlock:^(NSString *key, id obj, BOOL *stop) {
+		TiViewTemplate *template = [TiViewTemplate templateFromViewTemplate:obj];
+		if (template != nil) {
+			[templates setObject:template forKey:key];
+		}
+	}];
+	TiThreadPerformOnMainThread(^{
+		[self.listView setTemplates_:templates];
+	}, NO);
+	[templates release];
+}
+
 - (NSArray *)sections
 {
 	return [self dispatchBlockWithResult:^() {
@@ -163,7 +184,7 @@
 		ENSURE_TYPE(section, TiUIListSectionProxy);
 		[self rememberProxy:section];
 	}];
-	[self dispatchUpdateAction:^(UITableView *tableView) {
+	[self dispatchBlock:^(UITableView *tableView) {
 		[_sections enumerateObjectsUsingBlock:^(TiUIListSectionProxy *section, NSUInteger idx, BOOL *stop) {
 			section.delegate = nil;
 			if (![insertedSections containsObject:section]) {
@@ -208,7 +229,9 @@
 				DebugLog(@"[WARN] ListView: Attempt to append exising section");
 			}
 		}];
-		[tableView insertSections:indexSet withRowAnimation:animation];
+		if ([indexSet count] > 0) {
+			[tableView insertSections:indexSet withRowAnimation:animation];
+		}
 		[indexSet release];
 	}];
 }

@@ -791,10 +791,13 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 -(void)addEventListener:(NSArray*)args
 {
 	NSString *type = [args objectAtIndex:0];
-	KrollCallback* listener = [args objectAtIndex:1];
-	ENSURE_TYPE(listener,KrollCallback);
+	id listener = [args objectAtIndex:1];
+	if (![listener isKindOfClass:[KrollWrapper class]] &&
+		![listener isKindOfClass:[KrollCallback class]]) {
+		ENSURE_TYPE(listener,KrollCallback);
+	}
 
-	KrollObject * ourObject = [self krollObjectForContext:[listener context]];
+	KrollObject * ourObject = [self krollObjectForContext:([listener isKindOfClass:[KrollCallback class]] ? [(KrollCallback *)listener context] : [(KrollWrapper *)listener bridge].krollContext)];
 	[ourObject storeListener:listener forEvent:type];
 
 	//TODO: You know, we can probably nip this in the bud and do this at a lower level,
