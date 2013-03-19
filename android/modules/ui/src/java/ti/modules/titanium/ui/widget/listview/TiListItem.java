@@ -63,6 +63,10 @@ public class TiListItem extends TiUIView {
 				accessoryImage.setImageResource(TiListView.hasChild);
 				break;
 
+			case UIModule.LIST_ACCESSORY_TYPE_DISCLOSURE:
+				accessoryImage.setImageResource(TiListView.disclosure);
+				break;
+	
 			default:
 				accessoryImage.setImageResource(0);
 		}

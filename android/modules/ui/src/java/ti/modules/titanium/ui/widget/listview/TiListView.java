@@ -46,6 +46,7 @@ public class TiListView extends TiUIView{
 	public static int listContentId;
 	public static int isCheck;
 	public static int hasChild;
+	public static int disclosure;
 	public static int accessory;
 	private int headerFooterId;
 	public static LayoutInflater inflater;
@@ -170,6 +171,7 @@ public class TiListView extends TiUIView{
 			listContentId = TiRHelper.getResource("id.listItem");
 			isCheck = TiRHelper.getResource("drawable.btn_check_buttonless_on_64");
 			hasChild = TiRHelper.getResource("drawable.btn_more_64");
+			disclosure = TiRHelper.getResource("drawable.disclosure");
 			accessory = TiRHelper.getResource("id.accessoryType");
 		} catch (ResourceNotFoundException e) {
 			Log.e(TAG, "XML resources could not be found!!!", Log.DEBUG_MODE);

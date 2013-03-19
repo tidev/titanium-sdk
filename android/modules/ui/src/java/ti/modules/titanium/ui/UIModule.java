@@ -83,9 +83,8 @@ public class UIModule extends KrollModule implements Handler.Callback
 	@Kroll.constant public static final String LIST_ITEM_TEMPLATE_DEFAULT = "listDefaultTemplate";
 	@Kroll.constant public static final int LIST_ACCESSORY_TYPE_NONE = 0;
 	@Kroll.constant public static final int LIST_ACCESSORY_TYPE_CHECKMARK = 1;
-	//map this to checkmark for now, will change when asset is available
-	@Kroll.constant public static final int LIST_ACCESSORY_TYPE_DISCLOSURE = 1;
 	@Kroll.constant public static final int LIST_ACCESSORY_TYPE_DETAIL = 2;
+	@Kroll.constant public static final int LIST_ACCESSORY_TYPE_DISCLOSURE = 3;
 
 
 	@Kroll.constant public static final int MAP_VIEW_STANDARD = 1;
