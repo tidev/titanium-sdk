@@ -154,7 +154,7 @@ static NSDictionary* TI_filterableItemProperties;
 	[self destroyPicker];
 	if (listener!=nil)
 	{
-		NSMutableDictionary * event = [TiUtils dictionaryWithCode:0 message:nil];
+		NSMutableDictionary * event = [TiUtils dictionaryWithCode:-1 message:@"The user cancelled the picker"];
 		[NSThread detachNewThreadSelector:@selector(dispatchCallback:) toTarget:self withObject:[NSArray arrayWithObjects:@"cancel",event,listener,nil]];
 	}
 }
