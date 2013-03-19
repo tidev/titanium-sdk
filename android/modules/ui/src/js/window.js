@@ -341,7 +341,10 @@ exports.bootstrapWindow = function(Titanium) {
 			currentTab: this.tab,
 			currentTabGroup: this.tabGroup
 		};
-		scopeVars = Titanium.initScopeVars(scopeVars, resolvedUrl);
+		var scriptPath = this.resolveFilePathFromURL(resolvedUrl);
+
+		// Use scriptPath as the base URL since that's where we found the window URL.
+		scopeVars = Titanium.initScopeVars(scopeVars, scriptPath.replace("Resources/", "app://"));
 
 		var context = this._urlContext = Script.createContext(scopeVars);
 		// Set up the global object which is needed when calling the Ti.include function from the new window context.
@@ -350,7 +353,6 @@ exports.bootstrapWindow = function(Titanium) {
 		context.console = NativeModule.require('console');
 		bootstrap.bootstrapGlobals(context, Titanium);
 
-		var scriptPath = this.resolveFilePathFromURL(resolvedUrl);
 		if (!scriptPath) {
 			kroll.log(TAG, "Window URL not found: " + this.url);
 			return;
@@ -367,11 +369,7 @@ exports.bootstrapWindow = function(Titanium) {
 			return module.require(request, context);
 		};
 
-		if (kroll.runtime == "v8") {
-			Script.runInContext(scriptSource, context, relScriptPath, true);
-		} else {
-			Script.runInThisContext(scriptSource, relScriptPath, true, context);
-		}
+		Script.runInContext(scriptSource, context, relScriptPath, true);
 	}
 
 	// Determine the full path of the file which is defined by the "url" property.
