@@ -22,7 +22,6 @@ import org.appcelerator.titanium.util.TiRHelper.ResourceNotFoundException;
 import org.appcelerator.titanium.view.TiUIView;
 
 import ti.modules.titanium.ui.UIModule;
-
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Color;
@@ -34,7 +33,7 @@ import android.widget.BaseAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
-public class TiListView extends TiUIView{
+public class TiListView extends TiUIView {
 
 	private ListView listView;
 	private TiBaseAdapter adapter;
@@ -163,6 +162,8 @@ public class TiListView extends TiUIView{
 		listView.setCacheColorHint(Color.TRANSPARENT);
 		getLayoutParams().autoFillsHeight = true;
 		getLayoutParams().autoFillsWidth = true;
+		listView.setFocusable(true);
+		listView.setFocusableInTouchMode(true);
 
 		try {
 			headerFooterId = TiRHelper.getResource("layout.list_header_or_footer");

@@ -571,8 +571,10 @@ public class ListSectionProxy extends ViewProxy{
 			DataItem child = childrenItem.get(i);
 			TiViewProxy proxy = child.getViewProxy();
 			TiUIView view = proxy.createView(proxy.getActivity());
+			view.registerForTouch();
 			generateChildContentViews(child, view, rootItem, false);
 			//Bind view to root.
+			
 			ViewItem viewItem = new ViewItem(view, new KrollDict());
 			rootItem.bindView(child.getBindingId(), viewItem);
 			//Add it to view hierarchy
