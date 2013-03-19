@@ -3,8 +3,20 @@ name: Titanium.Contacts
 summary: |
     The top-level Contacts module, used for accessing and modifying the system contacts address book.
 description: |
- 
     See examples for more information.
+
+    #### iOS Platform Notes
+
+    On iOS, the contacts database may be modified by an external application, causing any `Person` or
+    `Group` objects you've retrieved to be out of sync with the database. The IDs of these objects are
+    not guaranteed to remain the same, so updating an object when it is out of sync may have
+    unpredictable results.
+
+    To avoid this, listen for the [reload](Titanium.Contacts.reload) event. When you receive a
+    `reload` event, you should assume that any existing `Person` or `Group` objects are invalid and
+    reload them from the `Contacts` module before modifying them.
+
+    See the examples for sample use of the `reload` event.
 extends: Titanium.Module
 since: "0.8"
 platforms: [android, iphone, ipad]
@@ -13,13 +25,9 @@ events:
   - name: reload
     summary: Fired when the database backing the contacts module is modified externally.
     description: |
-        Since the address book database was changed externally,
-        the application needs to recreate its contacts and group data
-        to ensure its references are current.
-
-        Using previous instances of [Person](Titanium.Contacts.Person) and
-        [Group](Titanium.Contacts.Group) will result in unpredictable
-        behavior.
+        If you have an existing reference to a `Person` or `Group` object, you should obtain
+        a new reference from the `Contacts` module. Using the existing object may result
+        in unpredictable behavior, such as updating the wrong contact.
     platforms: [iphone, ipad]
     since: "3.1.0"
 
