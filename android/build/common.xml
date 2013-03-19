@@ -1,7 +1,7 @@
 <!-- 
 Appcelerator Titanium Mobile
 
-Copyright (c) 2010-2012 by Appcelerator, Inc. All Rights Reserved.
+Copyright (c) 2010-2013 by Appcelerator, Inc. All Rights Reserved.
 Licensed under the terms of the Apache Public License
 Please see the LICENSE included with this distribution for details.
 
@@ -35,7 +35,6 @@ Common ant tasks and macros for building Android-based Titanium modules and proj
 	<property name="kroll.apt.project.dir" location="${ti.android.root}/kroll-apt"/>
 	<property name="kroll.common.project.dir" location="${ti.android.root}/runtime/common"/>
 	<property name="kroll.v8.project.dir" location="${ti.android.root}/runtime/v8"/>
-	<property name="kroll.rhino.project.dir" location="${ti.android.root}/runtime/rhino"/>
 	<property name="kroll.runtime" value="all"/>
 
 	<condition property="ndk.build" value="${kroll.v8.project.dir}/ndk-build.cmd" else="${kroll.v8.project.dir}/ndk-build.sh">
@@ -139,10 +138,6 @@ Common ant tasks and macros for building Android-based Titanium modules and proj
 
 	<path id="kroll.v8.path">
 		<pathelement path="${dist.classes.dir}/kroll-v8"/>
-	</path>
-
-	<path id="kroll.rhino.path">
-		<pathelement path="${dist.classes.dir}/kroll-rhino"/>
 	</path>
 
 	<path id="titanium.path">
@@ -358,32 +353,24 @@ Common ant tasks and macros for building Android-based Titanium modules and proj
 	</macrodef>
 
 	<macrodef name="generate.bindings">
-		<attribute name="runtime"/>
 		<attribute name="dest"/>
 		<sequential>
 			<apply executable="java" parallel="true" failonerror="true">
 				<arg value="-classpath"/>
 				<arg value="${toString:kroll.apt.path}"/>
 				<arg value="org.appcelerator.kroll.annotations.generator.KrollBindingGenerator"/>
-				<arg value="@{runtime}"/>
 				<arg file="@{dest}"/>
 				<!-- isModule -->
 				<arg value="false"/>
 				<!-- moduleId (Titanium for platform) -->
 				<arg value="titanium"/>
-				<!-- bindingsClassName (empty for platform) -->
-				<arg value=" "/>
 				<fileset dir="${dist.json.dir}" includes="**/*.json"/>
 			</apply>
 		</sequential>
 	</macrodef>
 
 	<target name="generate.kroll.v8.bindings" depends="build.kroll.apt">
-		<generate.bindings runtime="v8" dest="${kroll.v8.project.dir}/generated"/>
-	</target>
-
-	<target name="generate.kroll.rhino.bindings" depends="build.kroll.apt">
-		<generate.bindings runtime="rhino" dest="${kroll.rhino.project.dir}/generated"/>
+		<generate.bindings dest="${kroll.v8.project.dir}/generated"/>
 	</target>
 
 	<target name="build.kroll.v8.so" depends="generate.kroll.v8.bindings">
@@ -415,77 +402,6 @@ Common ant tasks and macros for building Android-based Titanium modules and proj
 		<jar destfile="${kroll.common.dest}" basedir="${kroll.common.classes.dir}"/>
 	</target>
 
-	<import file="${kroll.rhino.project.dir}/build.xml"/>
-	<macrodef name="compile.kroll.rhino.bindings">
-		<sequential>
-			<javac destdir="${kroll.rhino.gen.classes.dir}"
-				debug="true" target="1.6" source="1.6"
-				includeantruntime="false">
-				<classpath refid="android"/>
-				<classpath refid="rhino"/>
-				<classpath>
-					<fileset file="${dist.dir}/kroll-common.jar"/>
-					<dirset dir="${kroll.rhino.classes.dir}"/>
-					<fileset dir="${dist.dir}" includes="titanium-*.jar"/>
-				</classpath>
-				<classpath refid="titanium.path"/>
-				<classpath refid="kroll.apt.path"/>
-
-				<src path="${kroll.rhino.project.dir}/generated"/>
-			</javac>
-		</sequential>
-	</macrodef>
-
-	<target name="build.kroll.rhino.jar" depends="build.kroll.common.jar,generate.kroll.rhino.bindings,compile.kroll.rhino.js,generate.kroll.rhino.idswitch">
-		<property name="kroll.rhino.classes.dir" location="${dist.classes.dir}/kroll-rhino"/>
-		<property name="kroll.rhino.gen.classes.dir" location="${dist.classes.dir}/kroll-rhino-gen"/>
-		<property name="kroll.rhino.dest" value="${dist.dir}/kroll-rhino.jar"/>
-		<property name="kroll.rhino.bindings.dest" value="${dist.dir}/kroll-rhino-bindings.jar"/>
-
-		<mkdir dir="${kroll.rhino.classes.dir}"/>
-		<mkdir dir="${kroll.rhino.gen.classes.dir}"/>
-
-		<javac destdir="${kroll.rhino.classes.dir}" debug="true"
-			target="1.6" source="1.6" includeantruntime="false">
-			<classpath refid="android"/>
-			<classpath refid="rhino"/>
-			<classpath>
-				<fileset file="${dist.dir}/kroll-common.jar"/>
-			</classpath>
-			<classpath refid="kroll.rhino.js"/>
-			<classpath refid="titanium.path"/>
-			<classpath refid="kroll.apt.path"/>
-			<classpath>
-				<fileset dir="${dist.dir}" includes="titanium-*.jar"/>
-				<fileset file="${kroll.rhino.bindings.dest}"/>
-			</classpath>
-
-			<src path="${kroll.rhino.project.dir}/src/java"/>
-			<src path="${kroll.rhino.project.dir}/src/bindings"/>
-		</javac>
-
-		<!-- use the actual generated bindings -->
-		<delete>
-			<fileset dir="${kroll.rhino.classes.dir}" includes="**/KrollGeneratedBindings.class"/>
-		</delete>
-
-
-		<compile.kroll.rhino.bindings/>
-
-		<antcall target="generate.kroll.rhino.serials"/>
-		<compile.kroll.rhino.bindings/>
-
-		<jar destfile="${kroll.rhino.bindings.dest}" basedir="${kroll.rhino.gen.classes.dir}"/>
-
-		<jar destfile="${kroll.rhino.dest}">
-			<fileset dir="${kroll.rhino.classes.dir}" includes="**/*"/>
-			<fileset dir="${kroll.rhino.gen.classes.dir}" includes="**/*"/>
-			<fileset dir="${kroll.rhino.project.dir}/jsbin" includes="**/*"/>
-		</jar>
-	</target>
-
-	<target name="build.kroll.runtime.rhino" depends="build.kroll.rhino.jar"/>
-
 	<target name="build.kroll.v8.jar" depends="build.kroll.common.jar">
 		<property name="kroll.v8.classes.dir" location="${dist.classes.dir}/kroll-v8"/>
 		<mkdir dir="${kroll.v8.classes.dir}"/>
@@ -504,7 +420,7 @@ Common ant tasks and macros for building Android-based Titanium modules and proj
 	<target name="build.kroll.runtime.v8" depends="build.kroll.v8.jar,build.kroll.v8.so"/>
 
 	<target name="build.kroll.runtime.all"
-		depends="build.kroll.runtime.rhino,build.kroll.runtime.v8"/>
+		depends="build.kroll.runtime.v8"/>
 
 	<target name="build.titanium" depends="build.kroll.common.jar">
 		<property name="build.dir" value="${dist.classes.dir}/titanium"/>
@@ -685,11 +601,6 @@ Common ant tasks and macros for building Android-based Titanium modules and proj
 	<target name="clean.all">
 		<delete includeemptydirs="true" failonerror="false">
 			<fileset dir="${dist.dir}" includes="**/*" excludes="libv8/**/*" defaultexcludes="false"/>
-		</delete>
-
-		<!-- Clean up the generated rhino files -->
-		<delete includeemptydirs="true" failonerror="false">
-			<fileset dir="${kroll.rhino.project.dir}/generated" includes="**/*" defaultexcludes="false"/>
 		</delete>
 
 		<!-- V8 clean target requires we have libv8 for now -->

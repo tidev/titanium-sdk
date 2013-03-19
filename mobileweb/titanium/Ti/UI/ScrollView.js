@@ -140,7 +140,8 @@ define(['Ti/_/declare', 'Ti/_/UI/KineticScrollView', 'Ti/_/style', 'Ti/_/lang', 
 			layout: {
 				set: function(value) {
 					return this._contentContainer.layout = value;
-				}
+				},
+				value: 'composite'
 			},
 
 			showHorizontalScrollIndicator: {

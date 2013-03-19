@@ -176,6 +176,8 @@ define(['Ti/_/declare', 'Ti/UI/View', 'Ti/_/dom', 'Ti/_/style', 'Ti/UI', 'Ti/_/b
 						self._pagingAnimation = void 0;
 					});
 				}, self.pagingControlTimeout);
+			} else {
+				self._pagingAnimation = void 0;
 			}
 		},
 
@@ -344,7 +346,12 @@ define(['Ti/_/declare', 'Ti/UI/View', 'Ti/_/dom', 'Ti/_/style', 'Ti/UI', 'Ti/_/b
 				},
 				value: 20
 			},
-			pagingControlTimeout: 3000,
+			pagingControlTimeout: {
+				post: function(value) {
+					value || (this._pagingControlContainer.opacity = 0.75);
+				},
+				value: 3000
+			},
 			showPagingControl: false,
 			views: {
 				set: function(value) {

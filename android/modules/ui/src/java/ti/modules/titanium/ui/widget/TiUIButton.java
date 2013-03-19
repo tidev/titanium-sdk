@@ -94,9 +94,6 @@ public class TiUIButton extends TiUIView
 			String verticalAlign = d.getString(TiC.PROPERTY_VERTICAL_ALIGN);
 			TiUIHelper.setAlignment(btn, null, verticalAlign);
 		}
-		if (d.containsKey(TiC.PROPERTY_OPACITY)) {
-			setOpacityForButton(TiConvert.toFloat(d, TiC.PROPERTY_OPACITY, 1f));
-		}
 		btn.invalidate();
 	}
 
@@ -169,16 +166,16 @@ public class TiUIButton extends TiUIView
 	}
 
 	@Override
-	public void setOpacity(float opacity)
+	protected void setOpacity(View view, float opacity)
 	{
 		setOpacityForButton(opacity);
-		super.setOpacity(opacity);
+		super.setOpacity(view, opacity);
 	}
 
 	@Override
 	public void clearOpacity(View view)
 	{
-		super.clearOpacity(view);
 		clearOpacityForButton();
+		super.clearOpacity(view);
 	}
 }
