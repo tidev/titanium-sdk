@@ -791,6 +791,9 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 				[proxy setReproxying:NO];
 			}];
 		} else {
+			[[self children] enumerateObjectsUsingBlock:^(TiViewProxy *proxy, NSUInteger idx, BOOL *stop) {
+				[self redelegateViews:proxy toView:contentView];
+			}];
 			[rowContainerView setFrame:rect];
 			[contentView addSubview:rowContainerView];
 		}
