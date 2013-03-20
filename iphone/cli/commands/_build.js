@@ -73,10 +73,10 @@ var ti = require('titanium-sdk'),
 UglifyJS.AST_Node.warn_function = function () {};
 
 exports.config = function (logger, config, cli) {
-	return function (callback) {
+	return function (done) {
 		ios.detect(function (env) {
 			iosEnv = env || {};
-			
+
 			var sdks = {},
 				sims = {},
 				defaultSdk,
@@ -86,7 +86,7 @@ exports.config = function (logger, config, cli) {
 				lowerCasedDistNames = iosEnv.certs.distNames.map(function (s) { return s.toLowerCase(); }),
 				humanize = require('humanize'),
 				libTiCoreSize = humanize.filesize(fs.lstatSync(afs.resolvePath(__dirname, '..', '..', 'libTiCore.a')).size, 1024, 1).toUpperCase();
-			
+
 			// attempt to resolve a default ios developer cert name (used for device builds)
 			if (process.env.CODE_SIGN_IDENTITY) {
 				devName = process.env.CODE_SIGN_IDENTITY.replace(/(iPhone Developer\: (.+) \(.+)/, '$2');
@@ -107,7 +107,7 @@ exports.config = function (logger, config, cli) {
 					}
 				}
 			}
-			
+
 			Object.keys(iosEnv.xcode).forEach(function (key) {
 				iosEnv.xcode[key].sdks.forEach(function (sdk) {
 					if (iosEnv.xcode[key].selected && !defaultSdk || version.gt(sdk, defaultSdk)) {
@@ -117,257 +117,262 @@ exports.config = function (logger, config, cli) {
 				});
 			});
 			sdks = Object.keys(sdks).sort().reverse();
-			
+
 			Object.keys(iosEnv.xcode).forEach(function (key) {
 				iosEnv.xcode[key].sims.forEach(function (sdk) {
 					sims[sdk] = 1;
 				});
 			});
 			sims = Object.keys(sims).sort().reverse();
-			
-			callback(conf = {
-				flags: {
-					retina: {
-						desc: __('use the retina version of the iOS Simulator'),
-						hidden: version.lte(ti.manifest.version, '3.0.2')
-					},
-					tall: {
-						desc: __('in combination with %s flag, start the tall version of the retina device', '--retina'),
-						hidden: version.lte(ti.manifest.version, '3.0.2')
-					},
-					'force-copy': {
-						default: false,
-						desc: __('forces files to be copied instead of symlinked for %s builds only', 'simulator'.cyan)
-					},
-					'force-copy-all': {
-						default: false,
-						desc: __('identical to the %s flag, except this will also copy the %s libTiCore.a file', '--force-copy', libTiCoreSize.cyan)
-					},
-					xcode: {
-						// secret flag to perform Xcode pre-compile build step
-						hidden: true
-					}
-				},
-				options: {
-					'debug-host': {
-						//desc: __('debug connection info; airkey and hosts required for %s and %s, ignored for %s', 'device'.cyan, 'dist-adhoc'.cyan, 'dist-appstore'.cyan),
-						//hint: 'host:port[:airkey:hosts]',
-						hidden: true
-					},
-					'deploy-type': {
-						abbr: 'D',
-						desc: __('the type of deployment; only used when target is %s or %s', 'simulator'.cyan, 'device'.cyan),
-						hint: __('type'),
-						values: ['test', 'development']
-					},
-					'developer-name': {
-						abbr: 'V',
-						default: devName,
-						desc: __('the iOS Developer Certificate to use; required when target is %s', 'device'.cyan),
-						hint: 'name',
-						prompt: {
-							label: __('Name of the iOS Developer Certificate to use'),
-							error: __('Invalid developer name'),
-							validator: function (name) {
-								name && (name = name.trim());
-								
-								var dn = devNameIdRegExp.test(name) ? lowerCasedDevNames.map(function (name) {
-										return name.trim();
-									}) : lowerCasedDevNames.map(function (name) {
-										var m = name.match(/^([^(]+?)*/);
-										return (m ? m[0] : name).trim();
-									});
-								
-								if (!name || dn.indexOf(name.toLowerCase()) == -1) {
-									var width = 0,
-										i = 0,
-										l = iosEnv.certs.devNames.length,
-										h = Math.ceil(l / 2),
-										output = [__('Available names:')];
-									
-									for (; i < h; i++) {
-										if (iosEnv.certs.devNames[i].length > width) {
-											width = iosEnv.certs.devNames[i].length;
-										}
-										output.push('    ' + iosEnv.certs.devNames[i]);
-									}
-									
-									width += 12; // 4 spaces left padding, 8 spaces between columns
-									for (h = 1; i < l; h++, i++) {
-										output[h] = appc.string.rpad(output[h], width) + iosEnv.certs.devNames[i];
-									}
-									
-									throw new appc.exception(
-										name ? __('Unable to find an iOS Developer Certificate for "%s"', name) : __('Select an iOS Developer Certificate:'),
-										output.map(function (s, i) { return i ? s.cyan : s; })
-									);
-								}
-								return true;
-							}
+
+			cli.createHook('build.ios.config', function (callback) {
+				callback({
+					flags: {
+						retina: {
+							desc: __('use the retina version of the iOS Simulator'),
+							hidden: version.lte(ti.manifest.version, '3.0.2')
+						},
+						tall: {
+							desc: __('in combination with %s flag, start the tall version of the retina device', '--retina'),
+							hidden: version.lte(ti.manifest.version, '3.0.2')
+						},
+						'force-copy': {
+							default: false,
+							desc: __('forces files to be copied instead of symlinked for %s builds only', 'simulator'.cyan)
+						},
+						'force-copy-all': {
+							default: false,
+							desc: __('identical to the %s flag, except this will also copy the %s libTiCore.a file', '--force-copy', libTiCoreSize.cyan)
+						},
+						xcode: {
+							// secret flag to perform Xcode pre-compile build step
+							hidden: true
 						}
 					},
-					'distribution-name': {
-						abbr: 'R',
-						default: config.ios && config.ios.distributionName && lowerCasedDistNames.indexOf(config.ios.distributionName.toLowerCase()) != -1 ? config.ios.distributionName : undefined,
-						desc: __('the iOS Distribution Certificate to use; required when target is %s or %s', 'dist-appstore'.cyan, 'dist-adhoc'.cyan),
-						hint: 'name',
-						prompt: {
-							label: __('Name of the iOS Distribution Certificate to use'),
-							error: __('Invalid distribution name'),
-							validator: function (name) {
-								name && (name = name.trim());
-								if (!name || lowerCasedDistNames.indexOf(name.toLowerCase()) == -1) {
-									var names = [__('Available names:')];
-									names = names.concat(iosEnv.certs.distNames);
-									throw new appc.exception(
-										name ? __('Unable to find an iOS Distribution Certificate for "%s"', name) : __('Select an iOS Distribution Certificate:'),
-										names.map(function (s, i) { return i ? '    ' + s.cyan : s; })
-									);
-								}
-								return true;
-							}
-						}
-					},
-					'device-family': {
-						abbr: 'F',
-						desc: __('the device family to build for'),
-						values: Object.keys(deviceFamilies)
-					},
-					'ios-version': {
-						abbr: 'I',
-						default: process.env.SDK_NAME ? process.env.SDK_NAME.replace(/iphonesimulator|iphoneos/, '') : defaultSdk || (sdks.length && sdks[0]),
-						desc: __('iOS SDK version to build for'),
-						values: sdks
-					},
-					'keychain': {
-						abbr: 'K',
-						desc: __('path to the distribution keychain to use instead of the system default; only used when target is %s, %s, or %s', 'device'.cyan, 'dist-appstore'.cyan, 'dist-adhoc'.cyan)
-					},
-					'output-dir': {
-						abbr: 'O',
-						desc: __('the output directory when using %s', 'dist-adhoc'.cyan),
-						hint: 'dir',
-						prompt: {
-							default: function () {
-								return cli.argv['project-dir'] && path.join(cli.argv['project-dir'], 'dist');
-							},
-							label: __('Output directory'),
-							error: __('Invalid output directory'),
-							validator: function (dir) {
-								if (!afs.resolvePath(dir)) {
-									throw new appc.exception(__('Invalid output directory'));
-								}
-								return true;
-							}
-						}
-					},
-					'pp-uuid': {
-						abbr: 'P',
-						default: process.env.PROVISIONING_PROFILE,
-						desc: __('the provisioning profile uuid; required when target is %s, %s, or %s', 'device'.cyan, 'dist-appstore'.cyan, 'dist-adhoc'.cyan),
-						hint: 'uuid',
-						prompt: {
-							label: __('Provisioning Profile UUID'),
-							error: __('Invalid Provisioning Profile UUID'),
-							validator: function (uuid) {
-								uuid = (uuid || '').trim();
-								
-								var availableUUIDs = [],
-									addUUIDs = function (section, uuids) {
-										if (uuids.length) {
-											availableUUIDs.push(section);
-											for (var i = 0; i < uuids.length; i++) {
-												if (uuids[i].uuid == uuid) {
-													return true;
-												}
-												availableUUIDs.push('    ' + uuids[i].uuid.cyan + '  ' + uuids[i].appId + ' (' + uuids[i].name + ')');
+					options: {
+						'debug-host': {
+							//desc: __('debug connection info; airkey and hosts required for %s and %s, ignored for %s', 'device'.cyan, 'dist-adhoc'.cyan, 'dist-appstore'.cyan),
+							//hint: 'host:port[:airkey:hosts]',
+							hidden: true
+						},
+						'deploy-type': {
+							abbr: 'D',
+							desc: __('the type of deployment; only used when target is %s or %s', 'simulator'.cyan, 'device'.cyan),
+							hint: __('type'),
+							values: ['test', 'development']
+						},
+						'developer-name': {
+							abbr: 'V',
+							default: devName,
+							desc: __('the iOS Developer Certificate to use; required when target is %s', 'device'.cyan),
+							hint: 'name',
+							prompt: {
+								label: __('Name of the iOS Developer Certificate to use'),
+								error: __('Invalid developer name'),
+								validator: function (name) {
+									name && (name = name.trim());
+	
+									var dn = devNameIdRegExp.test(name) ? lowerCasedDevNames.map(function (name) {
+											return name.trim();
+										}) : lowerCasedDevNames.map(function (name) {
+											var m = name.match(/^([^(]+?)*/);
+											return (m ? m[0] : name).trim();
+										});
+	
+									if (!name || dn.indexOf(name.toLowerCase()) == -1) {
+										var width = 0,
+											i = 0,
+											l = iosEnv.certs.devNames.length,
+											h = Math.ceil(l / 2),
+											output = [__('Available names:')];
+	
+										for (; i < h; i++) {
+											if (iosEnv.certs.devNames[i].length > width) {
+												width = iosEnv.certs.devNames[i].length;
 											}
+											output.push('    ' + iosEnv.certs.devNames[i]);
 										}
-									};
-								
-								if (cli.argv.target == 'device') {
-									if (addUUIDs(__('Available Development UUIDs:'), iosEnv.provisioningProfiles.development)) return true;
-								} else {
-									if (addUUIDs(__('Available Distribution UUIDs:'), iosEnv.provisioningProfiles.distribution)) return true;
-									if (addUUIDs(__('Available Adhoc UUIDs:'), iosEnv.provisioningProfiles.adhoc)) return true;
-									// TODO: display enterprise adhoc uuids
+	
+										width += 12; // 4 spaces left padding, 8 spaces between columns
+										for (h = 1; i < l; h++, i++) {
+											output[h] = appc.string.rpad(output[h], width) + iosEnv.certs.devNames[i];
+										}
+	
+										throw new appc.exception(
+											name ? __('Unable to find an iOS Developer Certificate for "%s"', name) : __('Select an iOS Developer Certificate:'),
+											output.map(function (s, i) { return i ? s.cyan : s; })
+										);
+									}
+									return true;
 								}
-								
-								if (uuid) {
-									throw new appc.exception(__('Unable to find a Provisioning Profile UUID "%s"', uuid), availableUUIDs);
-								} else {
-									throw new appc.exception(__('Please specify a Provisioning Profile UUID'), availableUUIDs);
-								}
-							}
-						}
-					},
-					'profiler-host': {
-						//desc: __('debug connection info; airkey and hosts required for %s and %s, ignored for %s', 'device'.cyan, 'dist-adhoc'.cyan, 'dist-appstore'.cyan),
-						//hint: 'host:port[:airkey:hosts]',
-						hidden: true
-					},
-					'sim-type': {
-						abbr: 'Y',
-						desc: __('iOS Simulator type; only used when target is %s', 'simulator'.cyan),
-						hint: 'type',
-						values: Object.keys(simTypes)
-					},
-					'sim-version': {
-						abbr: 'S',
-						desc: __('iOS Simulator version; only used when target is %s', 'simulator'.cyan),
-						hint: 'version',
-						values: sims
-					},
-					target: {
-						abbr: 'T',
-						callback: function (value) {
-							var pp = iosEnv.provisioningProfiles;
-							
-							// as soon as we know the target, toggle required options for validation
-							switch (value) {
-								case 'device':
-									conf.options['developer-name'].required = true;
-									conf.options['pp-uuid'].required = true;
-									
-									if (!iosEnv.certs.devNames.length) {
-										logger.error(__('Unable to find any iOS Developer Certificates') + '\n');
-										logger.log(__('Download and install a certificate from %s', 'https://developer.apple.com/ios/manage/certificates/team/index.action'.cyan) + '\n');
-										process.exit(1);
-									}
-									
-									if (!pp.development.length) {
-										logger.error(__('No development provisioning profiles found') + '\n');
-										logger.log(__('Download and install a provisioning profile from %s', 'https://developer.apple.com/ios/manage/provisioningprofiles/index.action'.cyan) + '\n');
-										process.exit(1);
-									}
-									break;
-								
-								case 'dist-adhoc':
-									conf.options['output-dir'].required = true;
-									// purposely fall through!
-								case 'dist-appstore':
-									conf.options['distribution-name'].required = true;
-									conf.options['pp-uuid'].required = true;
-									
-									if (!iosEnv.certs.distNames.length) {
-										logger.error(__('Unable to find any iOS Distribution Certificates') + '\n');
-										logger.log(__('Download and install a certificate from %s', 'https://developer.apple.com/ios/manage/distribution/index.action'.cyan) + '\n');
-										process.exit(1);
-									}
-									
-									if (!pp.distribution.length && !pp.adhoc.length && !pp.enterprise.length) {
-										logger.error(__('No distribution or adhoc provisioning profiles found') + '\n');
-										logger.log(__('Download and install a provisioning profile from %s', 'https://developer.apple.com/ios/manage/provisioningprofiles/index.action'.cyan) + '\n');
-										process.exit(1);
-									}
 							}
 						},
-						default: 'simulator',
-						desc: __('the target to build for'),
-						required: true,
-						values: targets
+						'distribution-name': {
+							abbr: 'R',
+							default: config.ios && config.ios.distributionName && lowerCasedDistNames.indexOf(config.ios.distributionName.toLowerCase()) != -1 ? config.ios.distributionName : undefined,
+							desc: __('the iOS Distribution Certificate to use; required when target is %s or %s', 'dist-appstore'.cyan, 'dist-adhoc'.cyan),
+							hint: 'name',
+							prompt: {
+								label: __('Name of the iOS Distribution Certificate to use'),
+								error: __('Invalid distribution name'),
+								validator: function (name) {
+									name && (name = name.trim());
+									if (!name || lowerCasedDistNames.indexOf(name.toLowerCase()) == -1) {
+										var names = [__('Available names:')];
+										names = names.concat(iosEnv.certs.distNames);
+										throw new appc.exception(
+											name ? __('Unable to find an iOS Distribution Certificate for "%s"', name) : __('Select an iOS Distribution Certificate:'),
+											names.map(function (s, i) { return i ? '    ' + s.cyan : s; })
+										);
+									}
+									return true;
+								}
+							}
+						},
+						'device-family': {
+							abbr: 'F',
+							desc: __('the device family to build for'),
+							values: Object.keys(deviceFamilies)
+						},
+						'ios-version': {
+							abbr: 'I',
+							default: process.env.SDK_NAME ? process.env.SDK_NAME.replace(/iphonesimulator|iphoneos/, '') : defaultSdk || (sdks.length && sdks[0]),
+							desc: __('iOS SDK version to build for'),
+							values: sdks
+						},
+						'keychain': {
+							abbr: 'K',
+							desc: __('path to the distribution keychain to use instead of the system default; only used when target is %s, %s, or %s', 'device'.cyan, 'dist-appstore'.cyan, 'dist-adhoc'.cyan)
+						},
+						'output-dir': {
+							abbr: 'O',
+							desc: __('the output directory when using %s', 'dist-adhoc'.cyan),
+							hint: 'dir',
+							prompt: {
+								default: function () {
+									return cli.argv['project-dir'] && path.join(cli.argv['project-dir'], 'dist');
+								},
+								label: __('Output directory'),
+								error: __('Invalid output directory'),
+								validator: function (dir) {
+									if (!afs.resolvePath(dir)) {
+										throw new appc.exception(__('Invalid output directory'));
+									}
+									return true;
+								}
+							}
+						},
+						'pp-uuid': {
+							abbr: 'P',
+							default: process.env.PROVISIONING_PROFILE,
+							desc: __('the provisioning profile uuid; required when target is %s, %s, or %s', 'device'.cyan, 'dist-appstore'.cyan, 'dist-adhoc'.cyan),
+							hint: 'uuid',
+							prompt: {
+								label: __('Provisioning Profile UUID'),
+								error: __('Invalid Provisioning Profile UUID'),
+								validator: function (uuid) {
+									uuid = (uuid || '').trim();
+	
+									var availableUUIDs = [],
+										addUUIDs = function (section, uuids) {
+											if (uuids.length) {
+												availableUUIDs.push(section);
+												for (var i = 0; i < uuids.length; i++) {
+													if (uuids[i].uuid == uuid) {
+														return true;
+													}
+													availableUUIDs.push('    ' + uuids[i].uuid.cyan + '  ' + uuids[i].appId + ' (' + uuids[i].name + ')');
+												}
+											}
+										};
+									
+									if (cli.argv.target == 'device') {
+										if (addUUIDs(__('Available Development UUIDs:'), iosEnv.provisioningProfiles.development)) return true;
+									} else {
+										if (addUUIDs(__('Available Distribution UUIDs:'), iosEnv.provisioningProfiles.distribution)) return true;
+										if (addUUIDs(__('Available Adhoc UUIDs:'), iosEnv.provisioningProfiles.adhoc)) return true;
+										// TODO: display enterprise adhoc uuids
+									}
+	
+									if (uuid) {
+										throw new appc.exception(__('Unable to find a Provisioning Profile UUID "%s"', uuid), availableUUIDs);
+									} else {
+										throw new appc.exception(__('Please specify a Provisioning Profile UUID'), availableUUIDs);
+									}
+								}
+							}
+						},
+						'profiler-host': {
+							//desc: __('debug connection info; airkey and hosts required for %s and %s, ignored for %s', 'device'.cyan, 'dist-adhoc'.cyan, 'dist-appstore'.cyan),
+							//hint: 'host:port[:airkey:hosts]',
+							hidden: true
+						},
+						'sim-type': {
+							abbr: 'Y',
+							desc: __('iOS Simulator type; only used when target is %s', 'simulator'.cyan),
+							hint: 'type',
+							values: Object.keys(simTypes)
+						},
+						'sim-version': {
+							abbr: 'S',
+							desc: __('iOS Simulator version; only used when target is %s', 'simulator'.cyan),
+							hint: 'version',
+							values: sims
+						},
+						target: {
+							abbr: 'T',
+							callback: function (value) {
+								var pp = iosEnv.provisioningProfiles;
+								
+								// as soon as we know the target, toggle required options for validation
+								switch (value) {
+									case 'device':
+										conf.options['developer-name'].required = true;
+										conf.options['pp-uuid'].required = true;
+	
+										if (!iosEnv.certs.devNames.length) {
+											logger.error(__('Unable to find any iOS Developer Certificates') + '\n');
+											logger.log(__('Download and install a certificate from %s', 'https://developer.apple.com/ios/manage/certificates/team/index.action'.cyan) + '\n');
+											process.exit(1);
+										}
+	
+										if (!pp.development.length) {
+											logger.error(__('No development provisioning profiles found') + '\n');
+											logger.log(__('Download and install a provisioning profile from %s', 'https://developer.apple.com/ios/manage/provisioningprofiles/index.action'.cyan) + '\n');
+											process.exit(1);
+										}
+										break;
+	
+									case 'dist-adhoc':
+										conf.options['output-dir'].required = true;
+										// purposely fall through!
+	
+									case 'dist-appstore':
+										conf.options['distribution-name'].required = true;
+										conf.options['pp-uuid'].required = true;
+	
+										if (!iosEnv.certs.distNames.length) {
+											logger.error(__('Unable to find any iOS Distribution Certificates') + '\n');
+											logger.log(__('Download and install a certificate from %s', 'https://developer.apple.com/ios/manage/distribution/index.action'.cyan) + '\n');
+											process.exit(1);
+										}
+	
+										if (!pp.distribution.length && !pp.adhoc.length && !pp.enterprise.length) {
+											logger.error(__('No distribution or adhoc provisioning profiles found') + '\n');
+											logger.log(__('Download and install a provisioning profile from %s', 'https://developer.apple.com/ios/manage/provisioningprofiles/index.action'.cyan) + '\n');
+											process.exit(1);
+										}
+								}
+							},
+							default: 'simulator',
+							desc: __('the target to build for'),
+							required: true,
+							values: targets
+						}
 					}
-				}
+				});
+			})(function (err, results, result) {
+				done(conf = result);
 			});
 		}, {
 			minsdk: minIosSdkVersion
@@ -488,6 +493,9 @@ exports.validate = function (logger, config, cli) {
 			var buildManifestFile = path.join(cli.argv['project-dir'], 'build', path.basename(afs.resolvePath(__dirname, '..', '..')), 'build-manifest.json');
 			try {
 				var buildManifest = JSON.parse(fs.readFileSync(buildManifestFile));
+				// first mix everything in
+				appc.util.mix(cli.argv, buildManifest);
+				// next translate specific keys that may differ
 				cli.argv.target = process.env.CURRENT_ARCH === 'i386' ? 'simulator' : (buildManifest.target != 'simulator' ? buildManifest.target : 'device');
 				cli.argv['deploy-type']			= buildManifest.deployType;
 				cli.argv['output-dir']			= buildManifest.outputDir;
@@ -1844,7 +1852,11 @@ build.prototype = {
 	},
 	
 	writeBuildManifest: function (callback) {
-		fs.writeFile(this.buildManifestFile, JSON.stringify(this.buildManifest = {
+		this.cli.createHook('build.ios.writeBuildManifest', this, function (manifest, cb) {
+			fs.writeFile(this.buildManifestFile, JSON.stringify(this.buildManifest = manifest, null, '\t'), function () {
+				cb();
+			});
+		})({
 			target: this.target,
 			deployType: this.deployType,
 			deviceFamily: this.deviceFamily,
@@ -1869,7 +1881,9 @@ build.prototype = {
 			skipJSMinification: !!this.cli.argv['skip-js-minify'],
 			forceCopy: !!this.forceCopy,
 			forceCopyAll: !!this.forceCopyAll
-		}, null, '\t'), callback);
+		}, function (err, results, result) {
+			callback();
+		});
 	},
 	
 	compileI18N: function (callback) {
@@ -2188,64 +2202,87 @@ build.prototype = {
 		
 		callback();
 	},
-	
+
 	createSymlinks: function (callback) {
 		var ignoreRegExp = /^\.gitignore|\.cvsignore|\.DS_Store|\.git|\.svn|_svn|CVS$/,
-			symlinkResources = function (src, dest, doIgnoreDirs) {
+			symlinkHook = this.cli.createHook('build.ios.copyResource', this, function (srcFile, destFile, cb) {
+				this.logger.debug(__('Symlinking %s => %s', srcFile.cyan, destFile.cyan));
+				afs.exists(destFile) && fs.unlinkSync(destFile);
+				fs.symlinkSync(srcFile, destFile);
+				cb();
+			}),
+			symlinkResources = function (src, dest, doIgnoreDirs, cb) {
 				if (afs.exists(src)) {
 					this.logger.debug(__('Walking directory %s', src.cyan));
 					wrench.mkdirSyncRecursive(dest);
-					fs.readdirSync(src).forEach(function (file) {
-						if (!ignoreRegExp.test(file) && (!doIgnoreDirs || ti.availablePlatformsNames.indexOf(file) == -1)) {
-							var srcFile = path.join(src, file),
-								destFile = path.join(dest, file);
-							if (fs.lstatSync(srcFile).isDirectory()) {
-								symlinkResources(srcFile, destFile);
+
+					series(this, fs.readdirSync(src).map(function (file) {
+						return function (next) {
+							if (!ignoreRegExp.test(file) && (!doIgnoreDirs || ti.availablePlatformsNames.indexOf(file) == -1)) {
+								var srcFile = path.join(src, file),
+									destFile = path.join(dest, file);
+								if (fs.lstatSync(srcFile).isDirectory()) {
+									symlinkResources(srcFile, destFile, false, next);
+								} else {
+									symlinkHook(srcFile, destFile, next);
+								}
 							} else {
-								this.logger.debug(__('Symlinking %s => %s', srcFile.cyan, destFile.cyan));
-								afs.exists(destFile) && fs.unlinkSync(destFile);
-								fs.symlinkSync(srcFile, destFile);
+								next();
 							}
-						}
-					}, this);
+						};
+					}), cb);
+				} else if (cb) {
+					cb();
 				}
 			}.bind(this),
 			destModulesDir = path.join(this.xcodeAppDir, 'modules');
-		
+
 		this.logger.info(__('Creating symlinks for simulator build'));
-		
-		symlinkResources(path.join(this.projectDir, 'Resources'), this.xcodeAppDir, true);
-		symlinkResources(path.join(this.projectDir, 'platform', 'ios'), this.xcodeAppDir, false);
-		symlinkResources(path.join(this.projectDir, 'platform', 'iphone'), this.xcodeAppDir, false);
-		symlinkResources(path.join(this.projectDir, 'modules', 'ios'), destModulesDir, true);
-		symlinkResources(path.join(this.projectDir, 'modules', 'iphone'), destModulesDir, true);
-		
-		// reset the application routing
-		wrench.mkdirSyncRecursive(path.join(this.buildDir, 'Classes'));
-		fs.writeFile(path.join(this.buildDir, 'Classes', 'ApplicationRouting.m'), [
-			'/**',
-			' * Appcelerator Titanium Mobile',
-			' * Copyright (c) 2009-' + (new Date).getFullYear() + ' by Appcelerator, Inc. All Rights Reserved.',
-			' * Licensed under the terms of the Apache Public License',
-			' * Please see the LICENSE included with this distribution for details.',
-			' *',
-			' * WARNING: This is generated code. Do not modify. Your changes *will* be lost.',
-			' */',
-			'',
-			'#import <Foundation/Foundation.h>',
-			'#import "ApplicationRouting.h"',
-			'',
-			'extern NSData* filterDataInRange(NSData* thedata, NSRange range);',
-			'',
-			'@implementation ApplicationRouting',
-			'',
-			'+ (NSData*) resolveAppAsset:(NSString*)path;',
-			'{',
-			'	return nil;',
-			'}',
-			'',
-			'@end'
-		].join('\n'), callback);
+
+		series(this, [
+			function (next) {
+				symlinkResources(path.join(this.projectDir, 'Resources'), this.xcodeAppDir, true, next);
+			},
+			function (next) {
+				symlinkResources(path.join(this.projectDir, 'platform', 'ios'), this.xcodeAppDir, false, next);
+			},
+			function (next) {
+				symlinkResources(path.join(this.projectDir, 'platform', 'iphone'), this.xcodeAppDir, false, next);
+			},
+			function (next) {
+				symlinkResources(path.join(this.projectDir, 'modules', 'ios'), destModulesDir, true, next);
+			},
+			function (next) {
+				symlinkResources(path.join(this.projectDir, 'modules', 'iphone'), destModulesDir, true, next);
+			}
+		], function () {
+			// reset the application routing
+			wrench.mkdirSyncRecursive(path.join(this.buildDir, 'Classes'));
+			fs.writeFile(path.join(this.buildDir, 'Classes', 'ApplicationRouting.m'), [
+				'/**',
+				' * Appcelerator Titanium Mobile',
+				' * Copyright (c) 2009-' + (new Date).getFullYear() + ' by Appcelerator, Inc. All Rights Reserved.',
+				' * Licensed under the terms of the Apache Public License',
+				' * Please see the LICENSE included with this distribution for details.',
+				' *',
+				' * WARNING: This is generated code. Do not modify. Your changes *will* be lost.',
+				' */',
+				'',
+				'#import <Foundation/Foundation.h>',
+				'#import "ApplicationRouting.h"',
+				'',
+				'extern NSData* filterDataInRange(NSData* thedata, NSRange range);',
+				'',
+				'@implementation ApplicationRouting',
+				'',
+				'+ (NSData*) resolveAppAsset:(NSString*)path;',
+				'{',
+				'	return nil;',
+				'}',
+				'',
+				'@end'
+			].join('\n'), callback);
+		});
 	},
 	
 	compileJSS: function (callback) {
@@ -2371,7 +2408,7 @@ build.prototype = {
 		}.bind(this));
 	},
 	
-	compileResources: function (src, dest) {
+	compileResources: function (src, dest, callback) {
 		if (afs.exists(src)) {
 			var compiledTargets = {},
 				ignoreRegExp = /^\.gitignore|\.cvsignore|\.DS_Store|\.git|\.svn|_svn|CVS$/,
@@ -2399,6 +2436,7 @@ build.prototype = {
 							// only copy the file for test/production and if it's not a js file, otherwise
 							// it will get compiled below
 							if ((this.deployType == 'development' || !m || !/css|js/.test(m[1])) && (!afs.exists(t) || fstat.size != fs.lstatSync(t).size)) {
+								// TODO: add build.ios.copyResource hook!
 								afs.copyFileSync(f, t, { logger: this.logger.debug });
 							}
 						}
@@ -2458,6 +2496,7 @@ build.prototype = {
 			
 			// minify css files
 			compiledTargets.css && compiledTargets.css.forEach(function (file) {
+				// TODO: add hook!
 				if (this.deployType == 'development') {
 					afs.copyFileSync(file.from, file.to, { logger: this.logger.debug });
 				} else {
@@ -2467,11 +2506,26 @@ build.prototype = {
 			}, this);
 			
 			// minify js files
-			compiledTargets.js && compiledTargets.js.forEach(function (target) {
-				var id = target.path.replace(/\./g, '_');
-				this.compileJsFile(id, target.from);
-				this.jsFilesToPrepare.push(id);
-			}, this);
+			if (compiledTargets.js) {
+				series(this, compiledTargets.js.map(function (compileTarget) {
+					return function (cb) {
+						this.cli.createHook('build.ios.compileJsFile', this, function (target, cb2) {
+							var id = target.path.replace(/\./g, '_');
+							this.compileJsFile(id, target.from);
+							this.jsFilesToPrepare.push(id);
+							cb2();
+						})(compileTarget, function () {
+							cb();
+						});
+					};
+				}), function () {
+					callback();
+				});
+			} else {
+				callback();
+			}
+		} else {
+			callback();
 		}
 	},
 	
@@ -2518,7 +2572,7 @@ build.prototype = {
 	
 	compileJsFile: function (id, file) {
 		var original = fs.readFileSync(file).toString(),
-			contents = original.replace(/Titanium\./g,'Ti.'),
+			contents = original.replace(/Titanium\./g, 'Ti.'),
 			ast;
 		
 		try {
@@ -2580,87 +2634,90 @@ build.prototype = {
 			'compileJSS',
 			'compileI18N',
 			function (next) {
-				this.compileResources(path.join(this.projectDir, 'Resources', 'ios'), this.xcodeAppDir);
-				this.compileResources(path.join(this.projectDir, 'Resources', 'iphone'), this.xcodeAppDir);
-				this.compileResources(path.join(this.projectDir, 'platform', 'ios'), this.xcodeAppDir);
-				this.compileResources(path.join(this.projectDir, 'platform', 'iphone'), this.xcodeAppDir);
-				next();
+				this.compileResources(path.join(this.projectDir, 'Resources', 'ios'), this.xcodeAppDir, next);
+			},
+			function (next) {
+				this.compileResources(path.join(this.projectDir, 'Resources', 'iphone'), this.xcodeAppDir, next);
+			},
+			function (next) {
+				this.compileResources(path.join(this.projectDir, 'platform', 'ios'), this.xcodeAppDir, next);
+			},
+			function (next) {
+				this.compileResources(path.join(this.projectDir, 'platform', 'iphone'), this.xcodeAppDir, next);
 			},
 			function (next) {
 				this.detectModules(function () {
 					// copy module assets and find all Titanium symbols used by modules
-					this.modules.forEach(function (m) {
-						var assets = path.join(m.modulePath, 'assets');
-						if (afs.exists(assets)) {
-							this.compileResources(assets, path.join(this.xcodeAppDir, 'modules', m.id.toLowerCase()));
+					series(this, this.modules.map(function (m) {
+						return function (cb) {
+							var file = path.join(m.modulePath, 'metadata.json');
+							if (afs.exists(file)) {
+								try {
+									var metadata = JSON.parse(fs.readFileSync(file));
+									metadata && Array.isArray(metadata.exports) && metadata.exports.forEach(this.addSymbol, this);
+								} catch (e) {}
+							}
+
+							var assets = path.join(m.modulePath, 'assets');
+							if (afs.exists(assets)) {
+								this.compileResources(assets, path.join(this.xcodeAppDir, 'modules', m.id.toLowerCase()), cb);
+							} else {
+								cb();
+							}
 						}
-						
-						var file = path.join(m.modulePath, 'metadata.json');
-						if (afs.exists(file)) {
-							try {
-								var metadata = JSON.parse(fs.readFileSync(file));
-								metadata && Array.isArray(metadata.exports) && metadata.exports.forEach(this.addSymbol, this);
-							} catch (e) {}
-						}
-					}, this);
-					next();
+					}), function () {
+						next();
+					});
 				}.bind(this));
 			},
 			function (next) {
-				var src = path.join(this.buildDir, 'debugger.plist'),
-					dest = path.join(this.xcodeAppDir, 'debugger.plist');
-				
-				// we only copy the debugger.plist dev/test when building from Studio (via the Ti CLI), otherwise make sure the file doesn't exist
-				if (this.deployType != 'production' && process.env.TITANIUM_CLI_XCODEBUILD) {
-					afs.copyFileSync(
-						src,
-						dest,
-						{ logger: this.logger.debug }
-					);
-				} else if (afs.exists(dest)) {
-					this.logger.info(__('Removing unwanted %s from build', 'debugger.plist'.cyan));
-					fs.unlinkSync(dest);
-				}
-				var src = path.join(this.buildDir, 'profiler.plist'),
-					dest = path.join(this.xcodeAppDir, 'profiler.plist');
-				
-				// we only copy the debugger.plist dev/test when building from Studio (via the Ti CLI), otherwise make sure the file doesn't exist
-				if (this.deployType != 'production' && process.env.TITANIUM_CLI_XCODEBUILD) {
-					afs.copyFileSync(
-						src,
-						dest,
-						{ logger: this.logger.debug }
-					);
-				} else if (afs.exists(dest)) {
-					this.logger.info(__('Removing unwanted %s from build', 'profiler.plist'.cyan));
-					fs.unlinkSync(dest);
-				}
+				['debugger.plist', 'profiler.plist'].forEach(function (filename) {
+					var src = path.join(this.buildDir, filename),
+						dest = path.join(this.xcodeAppDir, filename);
 
-				
+					// we only copy the plist file for dev/test when building from Studio (via the Ti CLI), otherwise make sure the file doesn't exist
+					if (this.deployType != 'production' && process.env.TITANIUM_CLI_XCODEBUILD) {
+						afs.copyFileSync(
+							src,
+							dest,
+							{ logger: this.logger.debug }
+						);
+					} else if (afs.exists(dest)) {
+						this.logger.info(__('Removing unwanted %s from build', filename.cyan));
+						fs.unlinkSync(dest);
+					}
+				}, this);
+
 				next();
 			}
 		], function () {
 			// localize the splash screen after the resources files have been copied
 			this.copyLocalizedSplashScreens();
-			
-			parallel(this, [
+
+			// if development and the simulator, then we're symlinking files and there's no need to anything below
+			if (this.deployType == 'development' && this.target == 'simulator' && !this.forceCopy) {
+				return finished.call(this);
+			}
+
+			series(this, [
 				function (next) {
-					// if development and the simulator, then we're symlinking files and there's no need to anything below
-					if (this.deployType == 'development' && this.target == 'simulator' && !this.forceCopy) {
-						return next();
-					}
-					
 					// copy, analyze, and minify resources
-					this.compileResources(path.join(this.projectDir, 'Resources'), this.xcodeAppDir);
-					
+					this.compileResources(path.join(this.projectDir, 'Resources'), this.xcodeAppDir, next);
+				},
+				function (next) {
 					// for each module, copying modules images, if any
 					if (this.tiModules.length) {
 						this.logger.info(__('Processing module images'));
-						this.tiModules.forEach(function (name) {
-							this.compileResources(path.join(this.titaniumIosSdkPath, 'modules', name, 'images'), path.join(this.xcodeAppDir, 'modules', name, 'images'));
-						}, this);
+						series(this, this.tiModules.map(function (name) {
+							return function (cb) {
+								this.compileResources(path.join(this.titaniumIosSdkPath, 'modules', name, 'images'), path.join(this.xcodeAppDir, 'modules', name, 'images'), cb);
+							};
+						}), next);
+					} else {
+						next();
 					}
-					
+				},
+				function (next) {
 					// if development, then we stop here
 					if (this.deployType == 'development') {
 						return next();
@@ -2682,7 +2739,7 @@ build.prototype = {
 						}
 					}, this);
 					
-					this.cli.fireHook('build.prerouting', this, function (err) {
+					this.cli.fireHook('build.ios.prerouting', this, function (err) {
 						var args = [path.join(this.titaniumIosSdkPath, 'titanium_prep'), this.tiapp.id, this.assetsDir],
 							out = [],
 							child;
