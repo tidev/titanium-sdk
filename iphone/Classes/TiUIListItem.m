@@ -90,6 +90,24 @@
 	}
 }
 
+- (BOOL)canApplyDataItem:(NSDictionary *)otherItem;
+{
+	id template = [_dataItem objectForKey:@"template"];
+	id otherTemplate = [otherItem objectForKey:@"template"];
+	BOOL same = (template == otherTemplate) || [template isEqual:otherTemplate];
+	if (same) {
+		id propertiesValue = [_dataItem objectForKey:@"properties"];
+		NSDictionary *properties = ([propertiesValue isKindOfClass:[NSDictionary class]]) ? propertiesValue : nil;
+		id heightValue = [properties objectForKey:@"height"];
+		
+		propertiesValue = [otherItem objectForKey:@"properties"];
+		properties = ([propertiesValue isKindOfClass:[NSDictionary class]]) ? propertiesValue : nil;
+		id otherHeightValue = [properties objectForKey:@"height"];
+		same = (heightValue == otherHeightValue) || [heightValue isEqual:otherHeightValue];
+	}
+	return same;
+}
+
 - (void)setDataItem:(NSDictionary *)dataItem
 {
 	_dataItem = [dataItem retain];
@@ -167,6 +185,11 @@
 				}
 				id bindObject = [self valueForUndefinedKey:bindId];
 				if (bindObject != nil) {
+					BOOL reproxying = NO;
+					if ([bindObject isKindOfClass:[TiProxy class]]) {
+						[bindObject setReproxying:YES];
+						reproxying = YES;
+					}
 					[(NSDictionary *)dict enumerateKeysAndObjectsUsingBlock:^(NSString *key, id value, BOOL *stop) {
 						NSString *keyPath = [NSString stringWithFormat:@"%@.%@", bindId, key];
 						if ([self shouldUpdateValue:value forKeyPath:keyPath]) {
@@ -175,6 +198,9 @@
 							}];
 						}
 					}];
+					if (reproxying) {
+						[bindObject setReproxying:NO];
+					}
 				}
 			}];
 			break;

@@ -23,6 +23,8 @@ enum {
 - (id)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier proxy:(TiUIListItemProxy *)proxy;
 - (id)initWithProxy:(TiUIListItemProxy *)proxy reuseIdentifier:(NSString *)reuseIdentifier;
 
+- (BOOL)canApplyDataItem:(NSDictionary *)otherItem;
+
 @end
 
 #endif
