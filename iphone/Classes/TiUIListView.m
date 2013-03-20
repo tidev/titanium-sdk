@@ -195,7 +195,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 	if (templateId == nil) {
 		templateId = _defaultItemTemplate;
 	}
-	NSString *cellIdentifier = [templateId description];
+	NSString *cellIdentifier = [templateId isKindOfClass:[NSNumber class]] ? [NSString stringWithFormat:@"TiUIListView__internal%@", templateId]: [templateId description];
 	TiUIListItem *cell = [tableView dequeueReusableCellWithIdentifier:cellIdentifier];
 	if (cell == nil) {
 		id<TiEvaluator> context = self.listViewProxy.executionContext;
@@ -268,6 +268,33 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 {
 	[self fireClickForItemAtIndexPath:indexPath tableView:tableView accessoryButtonTapped:YES];
 }
+
+#pragma mark - TiScrolling
+
+-(void)keyboardDidShowAtHeight:(CGFloat)keyboardTop
+{
+	int lastSectionIndex = [self.listViewProxy.sectionCount unsignedIntegerValue] - 1;
+	ENSURE_CONSISTENCY(lastSectionIndex>=0);
+	CGRect minimumContentRect = [_tableView rectForSection:lastSectionIndex];
+	InsetScrollViewForKeyboard(_tableView,keyboardTop,minimumContentRect.size.height + minimumContentRect.origin.y);
+}
+
+-(void)scrollToShowView:(TiUIView *)firstResponderView withKeyboardHeight:(CGFloat)keyboardTop
+{
+    if ([_tableView isScrollEnabled]) {
+        int lastSectionIndex = [self.listViewProxy.sectionCount unsignedIntegerValue] - 1;
+        ENSURE_CONSISTENCY(lastSectionIndex>=0);
+        CGRect minimumContentRect = [_tableView rectForSection:lastSectionIndex];
+        
+        CGRect responderRect = [self convertRect:[firstResponderView bounds] fromView:firstResponderView];
+        CGPoint offsetPoint = [_tableView contentOffset];
+        responderRect.origin.x += offsetPoint.x;
+        responderRect.origin.y += offsetPoint.y;
+        
+        OffsetScrollViewForRect(_tableView,keyboardTop,minimumContentRect.size.height + minimumContentRect.origin.y,responderRect);
+    }
+}
+
 
 #pragma mark - Internal Methods
 
