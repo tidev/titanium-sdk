@@ -149,11 +149,15 @@ public class TiWebViewBinding
 			String code = "_TiReturn.setValue((function(){try{return " + expression
 				+ "+\"\";}catch(ti_eval_err){return '';}})());";
 			Log.d(TAG, "getJSValue:" + code, Log.DEBUG_MODE);
+			returnSemaphore.drainPermits();
 			synchronized (codeSnippets) {
 				codeSnippets.push(code);
 			}
 			try {
 				if (!returnSemaphore.tryAcquire(3500, TimeUnit.MILLISECONDS)) {
+					synchronized (codeSnippets) {
+						codeSnippets.removeElement(code);
+					}
 					Log.w(TAG, "Timeout waiting to evaluate JS");
 				}
 				return returnValue;
