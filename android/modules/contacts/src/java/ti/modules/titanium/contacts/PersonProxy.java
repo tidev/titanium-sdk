@@ -22,9 +22,21 @@ import android.graphics.Bitmap;
 import android.util.Log;
 
 @Kroll.proxy(parentModule=ContactsModule.class, propertyAccessors={
-	"lastName", "firstName", "middleName", "firstPhonetic", "lastPhonetic", "middlePhonetic", "department",
-	"jobTitle", "nickname", "note", "organization", "prefix", "suffix", "birthday", "created", "modified", "kind", "email", 
-	"phone", "address", TiC.PROPERTY_URL, TiC.PROPERTY_INSTANTMSG, TiC.PROPERTY_RELATED_NAMES, TiC.PROPERTY_DATE
+	TiC.PROPERTY_LASTNAME,
+	TiC.PROPERTY_FIRSTNAME,
+	TiC.PROPERTY_MIDDLENAME,
+	TiC.PROPERTY_NICKNAME,
+	TiC.PROPERTY_NOTE,
+	TiC.PROPERTY_ORGANIZATION,
+	TiC.PROPERTY_BIRTHDAY,
+	TiC.PROPERTY_EMAIL,
+	TiC.PROPERTY_PHONE,
+	TiC.PROPERTY_ADDRESS,
+	TiC.PROPERTY_URL,
+	TiC.PROPERTY_INSTANTMSG,
+	TiC.PROPERTY_RELATED_NAMES,
+	TiC.PROPERTY_DATE,
+	TiC.PROPERTY_KIND
 })
 public class PersonProxy extends KrollProxy
 {
@@ -49,7 +61,7 @@ public class PersonProxy extends KrollProxy
 
 	private boolean isPhotoFetchable()
 	{
-		long id = (Long) getProperty("id");
+		long id = (Long) getProperty(TiC.PROPERTY_ID);
 		return (id > 0 && hasImage );
 	}
 	
@@ -87,7 +99,7 @@ public class PersonProxy extends KrollProxy
 		if (this.image != null) {
 			return this.image;
 		} else if (!imageFetched && isPhotoFetchable()) {
-			long id = (Long) getProperty("id");
+			long id = (Long) getProperty(TiC.PROPERTY_ID);
 			Bitmap photo = CommonContactsApi.getContactImage(id);
 			if (photo != null) {
 				this.image = TiBlob.blobFromImage(photo);
@@ -118,12 +130,12 @@ public class PersonProxy extends KrollProxy
 
 	protected void setEmailFromMap(Map<String, ArrayList<String>> map)
 	{
-		setProperty("email", contactMethodMapToDict(map));
+		setProperty(TiC.PROPERTY_EMAIL, contactMethodMapToDict(map));
 	}
 	
 	protected void setPhoneFromMap(Map<String, ArrayList<String>> map)
 	{
-		setProperty("phone", contactMethodMapToDict(map));
+		setProperty(TiC.PROPERTY_PHONE, contactMethodMapToDict(map));
 	}
 	
 	protected void setAddressFromMap(Map<String, ArrayList<String>> map)
@@ -142,7 +154,7 @@ public class PersonProxy extends KrollProxy
 			address.put(key, dictValues);
 		}
 
-		setProperty("address", address);
+		setProperty(TiC.PROPERTY_ADDRESS, address);
 	}
 	
 	public void onPropertyChanged(String name, Object value)
