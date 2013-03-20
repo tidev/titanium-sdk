@@ -168,6 +168,24 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 	[appDefaults release];
 }
 
+- (void) launchToMobileSafari
+{
+    NSDictionary *launchDefaults = [ApplicationDefaults launchUrl];
+    if (launchDefaults != nil) {
+        NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+        id launched = [defaults objectForKey:@"application-launched"];
+        if (launched != nil) {
+            if (launched == NO) {
+                [[UIApplication sharedApplication] openURL:[NSURL URLWithString:[launchDefaults objectForKey:@"application-launch-url"]]];
+                [defaults setObject:NUMBOOL(YES) forKey:@"application-launched"];
+            }
+            return;
+        }
+        [[UIApplication sharedApplication] openURL:[NSURL URLWithString:[launchDefaults objectForKey:@"application-launch-url"]]];
+        [defaults registerDefaults:[NSDictionary dictionaryWithObject:NUMBOOL(YES) forKey:@"application-launched"]];
+    }
+}
+
 - (void)boot
 {
 	DebugLog(@"[INFO] %@/%@ (%s.__GITHASH__)",TI_APPLICATION_NAME,TI_APPLICATION_VERSION,TI_VERSION_STR);
@@ -273,6 +291,7 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 	[TiExceptionHandler defaultExceptionHandler];
 	[self initController];
 	[self loadUserDefaults];
+    [self launchToMobileSafari];
 	[self boot];
 }
 
@@ -337,7 +356,7 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 	{
 		[self generateNotification:notification];
 	}
-    
+    [self launchToMobileSafari];
 	[self loadUserDefaults];
 	[self boot];
 	
@@ -377,6 +396,12 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 
 	//This will send out the 'close' message.
 	[theNotificationCenter postNotificationName:kTiWillShutdownNotification object:self];
+	
+    NSDictionary *launchDefaults = [ApplicationDefaults launchUrl];
+    if (launchDefaults != nil) {
+        [[NSUserDefaults standardUserDefaults] setObject:NUMBOOL(NO) forKey:@"application-launched"];
+    }
+    
 	NSCondition *condition = [[NSCondition alloc] init];
 
 #ifdef USE_TI_UIWEBVIEW

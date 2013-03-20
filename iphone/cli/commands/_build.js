@@ -154,6 +154,11 @@ exports.config = function (logger, config, cli) {
 						//hint: 'host:port[:airkey:hosts]',
 						hidden: true
 					},
+					'launch-url': {
+						//desc: __('url for the application to launch in mobileSafari , as soon as the app boots up.'),
+						//hint: 'http://www.appcelerator.com/',
+						hidden: true
+					},
 					'deploy-type': {
 						abbr: 'D',
 						desc: __('the type of deployment; only used when target is %s or %s', 'simulator'.cyan, 'device'.cyan),
@@ -828,6 +833,7 @@ function build(logger, config, cli, finished) {
 	
 	this.debugHost = cli.argv['debug-host'];
 	this.profilerHost = cli.argv['profiler-host'];
+	this.launchUrl = cli.argv['launch-url'];
 	this.keychain = cli.argv.keychain;
 	
 	if (cli.argv.xcode) {
@@ -1752,6 +1758,16 @@ build.prototype = {
 		
 		contents.push('}');
 		contents.push('');
+
+		contents.push('+ (NSDictionary*) launchUrl {');
+		if (this.deployType != 'production' && this.launchUrl) {
+			contents.push('    return [NSDictionary dictionaryWithObjectsAndKeys:[TiUtils stringValue:@"' + this.launchUrl + '"], @"application-launch-url", nil];');
+		} else {
+			contents.push('    return nil;');
+		}	
+		contents.push('}');
+		contents.push(' ');
+
 		contents.push('@end');
 		contents = contents.join('\n');
 		
@@ -2579,6 +2595,13 @@ build.prototype = {
 		parallel(this, [
 			'compileJSS',
 			'compileI18N',
+			function (next) {
+				if (this.deployType != 'production' && !process.env.TITANIUM_CLI_XCODEBUILD) {
+					var appDefaultsFile = path.join(this.buildDir, 'Classes', 'ApplicationDefaults.m');
+					fs.writeFileSync(appDefaultsFile, fs.readFileSync(appDefaultsFile).toString().replace(/return \[NSDictionary dictionaryWithObjectsAndKeys\:\[TiUtils stringValue\:@".+"\], @"application-launch-url", nil];/, 'return nil;'));
+				}
+				next();
+			},
 			function (next) {
 				this.compileResources(path.join(this.projectDir, 'Resources', 'ios'), this.xcodeAppDir);
 				this.compileResources(path.join(this.projectDir, 'Resources', 'iphone'), this.xcodeAppDir);
