@@ -233,7 +233,7 @@
 		[_items replaceObjectAtIndex:itemIndex withObject:item];
 		NSArray *indexPaths = [[NSArray alloc] initWithObjects:[NSIndexPath indexPathForRow:itemIndex inSection:_sectionIndex], nil];
 		TiUIListItem *cell = (TiUIListItem *)[tableView cellForRowAtIndexPath:[indexPaths objectAtIndex:0]];
-		if (cell != nil) {
+		if ((cell != nil) && ([cell hasSameTemplate:item])) {
 			cell.dataItem = item;
 		} else {
 			[tableView reloadRowsAtIndexPaths:indexPaths withRowAnimation:animation];

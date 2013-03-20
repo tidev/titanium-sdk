@@ -90,6 +90,13 @@
 	}
 }
 
+- (BOOL)hasSameTemplate:(NSDictionary *)otherItem
+{
+	id template = [_dataItem objectForKey:@"template"];
+	id otherTemplate = [otherItem objectForKey:@"template"];
+	return (template == otherTemplate) || [template isEqual:otherTemplate];
+}
+
 - (void)setDataItem:(NSDictionary *)dataItem
 {
 	_dataItem = [dataItem retain];

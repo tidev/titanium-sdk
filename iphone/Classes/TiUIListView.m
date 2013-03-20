@@ -195,7 +195,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 	if (templateId == nil) {
 		templateId = _defaultItemTemplate;
 	}
-	NSString *cellIdentifier = [templateId description];
+	NSString *cellIdentifier = [templateId isKindOfClass:[NSNumber class]] ? [NSString stringWithFormat:@"TiUIListView__internal%@", templateId]: [templateId description];
 	TiUIListItem *cell = [tableView dequeueReusableCellWithIdentifier:cellIdentifier];
 	if (cell == nil) {
 		id<TiEvaluator> context = self.listViewProxy.executionContext;
