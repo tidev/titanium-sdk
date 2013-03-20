@@ -184,8 +184,7 @@ public class ContactsApiLevel5 extends CommonContactsApi
 
 		LinkedHashMap<Long, CommonContactsApi.LightPerson> persons = new LinkedHashMap<Long, LightPerson>();
 
-		String condition = "mimetype IN " + INConditionForKinds +
-				" AND in_visible_group=1";
+		String condition = "mimetype IN " + INConditionForKinds;
 
 		if (additionalCondition != null) {
 			condition += " AND " + additionalCondition;
