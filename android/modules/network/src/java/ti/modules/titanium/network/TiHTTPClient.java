@@ -736,7 +736,7 @@ public class TiHTTPClient
 	
 	public void setRequestHeader(String header, String value)
 	{
-		if (readyState == READY_STATE_OPENED) {
+		if (readyState <= READY_STATE_OPENED) {
 			headers.put(header, value);
 
 		} else {
