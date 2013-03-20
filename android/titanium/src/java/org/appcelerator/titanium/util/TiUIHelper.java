@@ -228,11 +228,11 @@ public class TiUIHelper
 				} else {
 					style = Typeface.BOLD;
 				}
-			} else if (fontWeight.equals("normal")) {
-				if (fontStyle != null && fontStyle.equals("italic")) {
-					style = Typeface.ITALIC;
-				}
+			} else if (fontStyle != null && fontStyle.equals("italic")) {
+				style = Typeface.ITALIC;
 			}
+		} else if (fontStyle != null && fontStyle.equals("italic")) {
+			style = Typeface.ITALIC;
 		}
 		return style;
 	}
