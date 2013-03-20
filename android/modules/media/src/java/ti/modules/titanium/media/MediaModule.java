@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -395,39 +395,8 @@ public class MediaModule extends KrollModule
 
 			} else {
 				if (data == null) {
-					ContentValues values = new ContentValues(7);
-					values.put(Images.Media.TITLE, imageFile.getName());
-					values.put(Images.Media.DISPLAY_NAME, imageFile.getName());
-					values.put(Images.Media.DATE_TAKEN, new Date().getTime());
-					values.put(Images.Media.MIME_TYPE, "image/jpeg");
-					if (saveToPhotoGallery) {
-						values.put(Images.ImageColumns.BUCKET_ID, PHOTO_DCIM_CAMERA.toLowerCase().hashCode());
-						values.put(Images.ImageColumns.BUCKET_DISPLAY_NAME, "Camera");
-
-					} else {
-						values.put(Images.ImageColumns.BUCKET_ID, imageFile.getPath().toLowerCase().hashCode());
-						values.put(Images.ImageColumns.BUCKET_DISPLAY_NAME, imageFile.getName());
-					}
-					values.put("_data", imageFile.getAbsolutePath());
-
-					activity.getContentResolver().insert(Images.Media.EXTERNAL_CONTENT_URI, values);
-
-					// puts newly captured photo into the gallery
-					MediaScannerClient mediaScanner = new MediaScannerClient(activity, new String[] {imageUrl}, null, null);
-					mediaScanner.scan();
-
-					try {
-						if (successCallback != null) {
-							invokeCallback((TiBaseActivity) activity, successCallback, getKrollObject(), createDictForImage(imageFile.getAbsolutePath(), "image/jpeg"));
-						}
-
-					} catch (OutOfMemoryError e) {
-						String msg = "Not enough memory to get image: " + e.getMessage();
-						Log.e(TAG, msg);
-						if (errorCallback != null) {
-							invokeCallback((TiBaseActivity) activity, errorCallback, getKrollObject(), createErrorResponse(UNKNOWN_ERROR, msg));
-						}
-					}
+					processImage(activity);
+					invokeSuccessCallback(activity, imageFile.getAbsolutePath());
 
 				} else {
 					// Get the content information about the saved image
@@ -452,6 +421,12 @@ public class MediaModule extends KrollModule
 					Cursor c;
 					if (data.getData() != null) {
 						c = activity.getContentResolver().query(data.getData(), projection, null, null, null);
+						// If we can't get query the image, process it from the imageFile
+						if (c == null) {
+							processImage(activity);
+							invokeSuccessCallback(activity, imageFile.getAbsolutePath());
+							return;
+						}
 					}
 					else {
 						c = activity.getContentResolver().query(Images.Media.EXTERNAL_CONTENT_URI, projection, null, null, Images.ImageColumns.DATE_TAKEN);
@@ -484,11 +459,11 @@ public class MediaModule extends KrollModule
 							}
 						}
 					}
-					
+
 					String localImageUrl = dataPath;
-					
+
 					if (!saveToPhotoGallery) {
-						
+
 						// We need to move the image from dataPath to imageUrl
 						try {
 							URL url = new URL(imageUrl);
@@ -542,19 +517,48 @@ public class MediaModule extends KrollModule
 							Log.e(TAG, "Unable to move file: " + e.getMessage(), e);
 						}
 					}
-					
-					try {
-						if (successCallback != null) {
-							invokeCallback((TiBaseActivity) activity, successCallback, getKrollObject(), createDictForImage(localImageUrl, "image/jpeg"));
-						}
 
-					} catch (OutOfMemoryError e) {
-						String msg = "Not enough memory to get image: " + e.getMessage();
-						Log.e(TAG, msg);
-						if (errorCallback != null) {
-							invokeCallback((TiBaseActivity) activity, errorCallback, getKrollObject(), createErrorResponse(UNKNOWN_ERROR, msg));
-						}
-					}
+					invokeSuccessCallback(activity, localImageUrl);
+				}
+			}
+		}
+
+		private void processImage(Activity activity)
+		{
+			ContentValues values = new ContentValues(7);
+			values.put(Images.Media.TITLE, imageFile.getName());
+			values.put(Images.Media.DISPLAY_NAME, imageFile.getName());
+			values.put(Images.Media.DATE_TAKEN, new Date().getTime());
+			values.put(Images.Media.MIME_TYPE, "image/jpeg");
+			if (saveToPhotoGallery) {
+				values.put(Images.ImageColumns.BUCKET_ID, PHOTO_DCIM_CAMERA.toLowerCase().hashCode());
+				values.put(Images.ImageColumns.BUCKET_DISPLAY_NAME, "Camera");
+
+			} else {
+				values.put(Images.ImageColumns.BUCKET_ID, imageFile.getPath().toLowerCase().hashCode());
+				values.put(Images.ImageColumns.BUCKET_DISPLAY_NAME, imageFile.getName());
+			}
+			values.put("_data", imageFile.getAbsolutePath());
+
+			activity.getContentResolver().insert(Images.Media.EXTERNAL_CONTENT_URI, values);
+
+			// puts newly captured photo into the gallery
+			MediaScannerClient mediaScanner = new MediaScannerClient(activity, new String[] {imageUrl}, null, null);
+			mediaScanner.scan();
+		}
+
+		private void invokeSuccessCallback(Activity activity, String localImageUrl)
+		{
+			try {
+				if (successCallback != null) {
+					invokeCallback((TiBaseActivity) activity, successCallback, getKrollObject(), createDictForImage(localImageUrl, "image/jpeg"));
+				}
+
+			} catch (OutOfMemoryError e) {
+				String msg = "Not enough memory to get image: " + e.getMessage();
+				Log.e(TAG, msg);
+				if (errorCallback != null) {
+					invokeCallback((TiBaseActivity) activity, errorCallback, getKrollObject(), createErrorResponse(UNKNOWN_ERROR, msg));
 				}
 			}
 		}
