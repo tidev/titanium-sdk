@@ -604,7 +604,7 @@ public class ListSectionProxy extends ViewProxy{
 		existingData.put(TiC.PROPERTY_ITEM_INDEX, itemIndex);
 		if (itemId != null) {
 			existingData.put(TiC.PROPERTY_ITEM_ID, itemId);
-		} else {
+		} else if (existingData.containsKey(TiC.PROPERTY_ITEM_ID)){
 			existingData.remove(TiC.PROPERTY_ITEM_ID);
 		}
 	}

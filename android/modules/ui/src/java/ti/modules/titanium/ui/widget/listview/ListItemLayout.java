@@ -26,9 +26,5 @@ public class ListItemLayout extends TiCompositeLayout{
 		params.autoFillsWidth = true;
 		return params;
 	}
-	
-	public boolean onTouchEvent(MotionEvent event) {
-		super.onTouchEvent(event);
-		return false;
-	}
+
 }

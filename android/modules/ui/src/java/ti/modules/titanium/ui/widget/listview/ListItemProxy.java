@@ -41,13 +41,7 @@ public class ListItemProxy extends TiViewProxy {
 	
 	public boolean fireEvent(final String event, final Object data)
 	{
-		getMainHandler().post(new Runnable() {
-			@Override
-			public void run()
-			{
-				fireItemClick(event, data);
-			}
-		});
+		fireItemClick(event, data);
 		return super.fireEvent(event, data);
 	}
 	

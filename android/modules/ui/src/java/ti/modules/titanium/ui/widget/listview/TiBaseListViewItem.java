@@ -53,10 +53,4 @@ public class TiBaseListViewItem extends TiCompositeLayout{
 		return null;
 	}
 	
-	public boolean onTouchEvent(MotionEvent event) {
-		super.onTouchEvent(event);
-		return false;
-	}
-	
-
 }
