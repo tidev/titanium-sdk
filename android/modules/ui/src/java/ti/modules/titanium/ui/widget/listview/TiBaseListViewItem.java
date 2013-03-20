@@ -15,6 +15,7 @@ import org.appcelerator.titanium.view.TiUIView;
 
 import android.content.Context;
 import android.util.AttributeSet;
+import android.view.MotionEvent;
 
 public class TiBaseListViewItem extends TiCompositeLayout{
 
@@ -52,5 +53,4 @@ public class TiBaseListViewItem extends TiCompositeLayout{
 		return null;
 	}
 	
-
 }

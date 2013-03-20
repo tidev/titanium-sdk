@@ -22,7 +22,6 @@ import org.appcelerator.titanium.util.TiRHelper.ResourceNotFoundException;
 import org.appcelerator.titanium.view.TiUIView;
 
 import ti.modules.titanium.ui.UIModule;
-
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Color;
@@ -34,7 +33,7 @@ import android.widget.BaseAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
-public class TiListView extends TiUIView{
+public class TiListView extends TiUIView {
 
 	private ListView listView;
 	private TiBaseAdapter adapter;
@@ -46,6 +45,7 @@ public class TiListView extends TiUIView{
 	public static int listContentId;
 	public static int isCheck;
 	public static int hasChild;
+	public static int disclosure;
 	public static int accessory;
 	private int headerFooterId;
 	public static LayoutInflater inflater;
@@ -58,14 +58,6 @@ public class TiListView extends TiUIView{
 	public static final int HEADER_FOOTER_ITEM_TYPE = 0;
 	public static final int BUILT_IN_TEMPLATE_ITEM_TYPE = 1;
 	
-	public class SectionInfo {
-		public int sectionIndex;
-		public int itemIndex;
-		public SectionInfo (int sectionIndex, int itemIndex) {
-			this.sectionIndex = sectionIndex;
-			this.itemIndex = itemIndex;
-		}	
-	}
 	public class TiBaseAdapter extends BaseAdapter {
 
 		Activity context;
@@ -104,44 +96,44 @@ public class TiListView extends TiUIView{
 		}
 		@Override
 		public int getItemViewType(int position) {
-			Pair<ListSectionProxy, SectionInfo> info = getSectionInfoByEntryIndex(position);
+			Pair<ListSectionProxy, Integer> info = getSectionInfoByEntryIndex(position);
 			ListSectionProxy section = info.first;
-			int index = info.second.sectionIndex;
-			if (section.isHeaderView(index) || section.isFooterView(index))
+			int sectionItemIndex = info.second;
+			if (section.isHeaderView(sectionItemIndex) || section.isFooterView(sectionItemIndex))
 				return HEADER_FOOTER_ITEM_TYPE;
-			return section.getTemplateByIndex(index).getType();			
+			return section.getTemplateByIndex(sectionItemIndex).getType();			
 		}
 
 		@Override
 		public View getView(int position, View convertView, ViewGroup parent) {
 			//Get section info from index
-			Pair<ListSectionProxy, SectionInfo> info = getSectionInfoByEntryIndex(position);
+			Pair<ListSectionProxy, Integer> info = getSectionInfoByEntryIndex(position);
 			ListSectionProxy section = info.first;
-			SectionInfo sectionInfo = info.second;
-			int index = sectionInfo.sectionIndex;
+			int sectionItemIndex = info.second;
 			View content = convertView;
 
 			//Handling section header/footer titles
-			if (section.isHeaderView(index) || section.isFooterView(index)) {
+			if (section.isHeaderView(sectionItemIndex) || section.isFooterView(sectionItemIndex)) {
 				if (content == null) {
 					content = inflater.inflate(headerFooterId, null);
 				}
 				TextView title = (TextView)content.findViewById(titleId);
-				title.setText(section.getHeaderOrFooterTitle(index));
+				title.setText(section.getHeaderOrFooterTitle(sectionItemIndex));
 				return content;
 			}
 			
 			//Handling templates
-			KrollDict data = section.getListItemData(index);
-			TiListViewTemplate template = section.getTemplateByIndex(index);
+			KrollDict data = section.getListItemData(sectionItemIndex);
+			TiListViewTemplate template = section.getTemplateByIndex(sectionItemIndex);
+			int sectionIndex = sections.indexOf(section);
 
 			if (content != null) {
 				TiBaseListViewItem itemContent = (TiBaseListViewItem) content.findViewById(listContentId);
-				section.populateViews(data, itemContent, template, sectionInfo.itemIndex, index, content);
+				section.populateViews(data, itemContent, template, sectionItemIndex, sectionIndex, content);
 			} else {
 				content = inflater.inflate(listItemId, null);
 				TiBaseListViewItem itemContent = (TiBaseListViewItem) content.findViewById(listContentId);
-				section.generateCellContent(index, data, template, itemContent, sectionInfo.itemIndex, content);
+				section.generateCellContent(sectionIndex, data, template, itemContent, sectionItemIndex, content);
 			}
 			return content;
 
@@ -170,6 +162,8 @@ public class TiListView extends TiUIView{
 		listView.setCacheColorHint(Color.TRANSPARENT);
 		getLayoutParams().autoFillsHeight = true;
 		getLayoutParams().autoFillsWidth = true;
+		listView.setFocusable(true);
+		listView.setFocusableInTouchMode(true);
 
 		try {
 			headerFooterId = TiRHelper.getResource("layout.list_header_or_footer");
@@ -178,6 +172,7 @@ public class TiListView extends TiUIView{
 			listContentId = TiRHelper.getResource("id.listItem");
 			isCheck = TiRHelper.getResource("drawable.btn_check_buttonless_on_64");
 			hasChild = TiRHelper.getResource("drawable.btn_more_64");
+			disclosure = TiRHelper.getResource("drawable.disclosure");
 			accessory = TiRHelper.getResource("id.accessoryType");
 		} catch (ResourceNotFoundException e) {
 			Log.e(TAG, "XML resources could not be found!!!", Log.DEBUG_MODE);
@@ -280,6 +275,18 @@ public class TiListView extends TiUIView{
 			if (adapter != null) {
 				adapter.notifyDataSetChanged();
 			}
+		} else if (key.equals(TiC.PROPERTY_SHOW_VERTICAL_SCROLL_INDICATOR) && newValue != null) {
+			listView.setVerticalScrollBarEnabled(TiConvert.toBoolean(newValue));
+		} else if (key.equals(TiC.PROPERTY_DEFAULT_ITEM_TEMPLATE) && newValue != null) {
+			defaultTemplateBinding = TiConvert.toString(newValue);
+			refreshItems();
+		}
+	}
+
+	private void refreshItems() {
+		for (int i = 0; i < sections.size(); i++) {
+			ListSectionProxy section = sections.get(i);
+			section.refreshItems();
 		}
 	}
 
@@ -324,20 +331,17 @@ public class TiListView extends TiUIView{
 		}
 	}
 	
-	protected Pair<ListSectionProxy, SectionInfo> getSectionInfoByEntryIndex(int index) {
+	protected Pair<ListSectionProxy, Integer> getSectionInfoByEntryIndex(int index) {
 		if (index < 0) {
 			return null;
 		}
-		int position = 0;
 		for (int i = 0; i < sections.size(); i++) {
 			ListSectionProxy section = sections.get(i);
 			int sectionItemCount = section.getItemCount();
 			if (index <= sectionItemCount - 1) {
-				SectionInfo info = new SectionInfo(index, position + index);
-				return new Pair<ListSectionProxy, SectionInfo>(section, info);
+				return new Pair<ListSectionProxy, Integer>(section, index);
 			} else {
 				index -= sectionItemCount;
-				position += section.getContentCount();;
 			}
 		}
 
