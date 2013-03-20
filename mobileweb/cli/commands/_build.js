@@ -43,16 +43,22 @@ var ti = require('titanium-sdk'),
 UglifyJS.AST_Node.warn_function = function () {};
 
 exports.config = function (logger, config, cli) {
-	return {
-		options: {
-			'deploy-type': {
-				abbr: 'D',
-				default: 'development',
-				desc: __('the type of deployment; production performs optimizations'),
-				hint: __('type'),
-				values: ['production', 'development']
-			}
-		}
+	return function (finished) {
+		cli.createHook('build.mobileweb.config', function (callback) {
+			callback({
+				options: {
+					'deploy-type': {
+						abbr: 'D',
+						default: 'development',
+						desc: __('the type of deployment; production performs optimizations'),
+						hint: __('type'),
+						values: ['production', 'development']
+					}
+				}
+			});
+		})(function (err, results, result) {
+			finished(result);
+		});
 	};
 };
 
