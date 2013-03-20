@@ -58,6 +58,7 @@ public class ListViewProxy extends TiViewProxy {
 	
 	public void handleCreationArgs(KrollModule createdInModule, Object[] args) {
 		preloadSections = new ArrayList<ListSectionProxy>();
+		defaultValues.put(TiC.PROPERTY_DEFAULT_ITEM_TEMPLATE, UIModule.LIST_ITEM_TEMPLATE_DEFAULT);
 		super.handleCreationArgs(createdInModule, args);
 		
 	}

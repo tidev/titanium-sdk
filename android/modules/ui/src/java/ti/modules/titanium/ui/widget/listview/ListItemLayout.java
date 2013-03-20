@@ -11,6 +11,7 @@ import org.appcelerator.titanium.view.TiCompositeLayout;
 
 import android.content.Context;
 import android.util.AttributeSet;
+import android.view.MotionEvent;
 import android.view.ViewGroup;
 
 public class ListItemLayout extends TiCompositeLayout{
@@ -25,4 +26,5 @@ public class ListItemLayout extends TiCompositeLayout{
 		params.autoFillsWidth = true;
 		return params;
 	}
+
 }
