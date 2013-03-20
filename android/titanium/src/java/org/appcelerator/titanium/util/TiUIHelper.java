@@ -624,23 +624,14 @@ public class TiUIHelper
 			int height = view.getHeight();
 
 			// maybe move this out to a separate method once other refactor regarding "getWidth", etc is done
-			if (view.getWidth() == 0) {
-				if (proxyDict != null) {
-					if (proxyDict.containsKey(TiC.PROPERTY_WIDTH)) {
-						TiDimension widthDimension = new TiDimension(proxyDict.getString(TiC.PROPERTY_WIDTH),
-							TiDimension.TYPE_WIDTH);
-						width = widthDimension.getAsPixels(view);
-					}
-				}
+			if (view.getWidth() == 0 && proxyDict != null && proxyDict.containsKey(TiC.PROPERTY_WIDTH)) {
+				TiDimension widthDimension = new TiDimension(proxyDict.getString(TiC.PROPERTY_WIDTH), TiDimension.TYPE_WIDTH);
+				width = widthDimension.getAsPixels(view);
 			}
-			if (view.getHeight() == 0) {
-				if (proxyDict != null) {
-					if (proxyDict.containsKey(TiC.PROPERTY_HEIGHT)) {
-						TiDimension heightDimension = new TiDimension(proxyDict.getString(TiC.PROPERTY_HEIGHT),
-							TiDimension.TYPE_HEIGHT);
-						height = heightDimension.getAsPixels(view);
-					}
-				}
+			if (view.getHeight() == 0 && proxyDict != null && proxyDict.containsKey(TiC.PROPERTY_HEIGHT)) {
+				TiDimension heightDimension = new TiDimension(proxyDict.getString(TiC.PROPERTY_HEIGHT),
+					TiDimension.TYPE_HEIGHT);
+				height = heightDimension.getAsPixels(view);
 			}
 
 			int wmode = width == 0 ? MeasureSpec.UNSPECIFIED : MeasureSpec.EXACTLY;
