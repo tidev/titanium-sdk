@@ -125,7 +125,7 @@ exports.config = function (logger, config, cli) {
 			});
 			sims = Object.keys(sims).sort().reverse();
 
-			cli.createHook('build.config.ios', function (callback) {
+			cli.createHook('build.ios.config', function (callback) {
 				callback({
 					flags: {
 						retina: {

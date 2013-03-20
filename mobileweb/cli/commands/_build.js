@@ -44,7 +44,7 @@ UglifyJS.AST_Node.warn_function = function () {};
 
 exports.config = function (logger, config, cli) {
 	return function (finished) {
-		cli.createHook('build.config.mobileweb', function (callback) {
+		cli.createHook('build.mobileweb.config', function (callback) {
 			callback({
 				options: {
 					'deploy-type': {

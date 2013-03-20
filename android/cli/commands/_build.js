@@ -29,7 +29,7 @@ exports.config = function (logger, config, cli) {
 			var conf;
 			androidEnv = env;
 
-			cli.createHook('build.config.android', function (callback) {
+			cli.createHook('build.android.config', function (callback) {
 				callback({
 					options: {
 						'alias': {
