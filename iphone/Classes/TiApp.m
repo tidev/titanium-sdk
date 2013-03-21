@@ -168,21 +168,18 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 	[appDefaults release];
 }
 
-- (void) launchToMobileSafari
+- (void) launchToUrl
 {
     NSDictionary *launchDefaults = [ApplicationDefaults launchUrl];
     if (launchDefaults != nil) {
-        NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
-        id launched = [defaults objectForKey:@"application-launched"];
-        if (launched != nil) {
-            if (launched == NO) {
-                [[UIApplication sharedApplication] openURL:[NSURL URLWithString:[launchDefaults objectForKey:@"application-launch-url"]]];
-                [defaults setObject:NUMBOOL(YES) forKey:@"application-launched"];
-            }
-            return;
+        UIApplication* app = [UIApplication sharedApplication];
+        NSURL *url = [NSURL URLWithString:[launchDefaults objectForKey:@"application-launch-url"]];
+        if ([app canOpenURL:url]) {
+            [app openURL:url];
         }
-        [[UIApplication sharedApplication] openURL:[NSURL URLWithString:[launchDefaults objectForKey:@"application-launch-url"]]];
-        [defaults registerDefaults:[NSDictionary dictionaryWithObject:NUMBOOL(YES) forKey:@"application-launched"]];
+        else {
+            DebugLog(@"[WARN] The launch-url provided : %@ is invalid.", [launchDefaults objectForKey:@"application-launch-url"]);
+        }
     }
 }
 
@@ -291,7 +288,7 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 	[TiExceptionHandler defaultExceptionHandler];
 	[self initController];
 	[self loadUserDefaults];
-    [self launchToMobileSafari];
+    [self launchToUrl];
 	[self boot];
 }
 
@@ -356,7 +353,7 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 	{
 		[self generateNotification:notification];
 	}
-    [self launchToMobileSafari];
+    [self launchToUrl];
 	[self loadUserDefaults];
 	[self boot];
 	
@@ -396,12 +393,6 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 
 	//This will send out the 'close' message.
 	[theNotificationCenter postNotificationName:kTiWillShutdownNotification object:self];
-	
-    NSDictionary *launchDefaults = [ApplicationDefaults launchUrl];
-    if (launchDefaults != nil) {
-        [[NSUserDefaults standardUserDefaults] setObject:NUMBOOL(NO) forKey:@"application-launched"];
-    }
-    
 	NSCondition *condition = [[NSCondition alloc] init];
 
 #ifdef USE_TI_UIWEBVIEW

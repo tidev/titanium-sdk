@@ -1760,11 +1760,16 @@ build.prototype = {
 		contents.push('');
 
 		contents.push('+ (NSDictionary*) launchUrl {');
+		contents.push('    static BOOL launched = NO;');
+		contents.push('    static dispatch_once_t initOnce;');
+		contents.push('    if (!launched) {');
+		contents.push('        dispatch_once(&initOnce, ^{ launched = YES;});');
 		if (this.deployType != 'production' && this.launchUrl) {
-			contents.push('    return [NSDictionary dictionaryWithObjectsAndKeys:[TiUtils stringValue:@"' + this.launchUrl + '"], @"application-launch-url", nil];');
+			contents.push('        return [NSDictionary dictionaryWithObjectsAndKeys:[TiUtils stringValue:@"' + this.launchUrl + '"], @"application-launch-url", nil];');
 		} else {
-			contents.push('    return nil;');
-		}	
+			contents.push('        return nil;');
+		}
+		contents.push('    } else { return nil;}');
 		contents.push('}');
 		contents.push(' ');
 
