@@ -12,28 +12,30 @@ description: |
     The list data items contain the data you want to display in the list.
 
     By default, only the `title`, `image` and `accessoryType` keys of the list data item's
-    `properties` property are displayed if an item template is not defined.  See 'Default List Item'
+    `properties` dictionary are displayed if an item template is not defined.  See "Default List Item"
     for an example of using the default template.
+
+    #### Item Templates
 
     To customize the style of a list item, use an item template to create your view structure.
 
-    Add key-value pairs of view properties and their values to the `properties` property of the
+    Add key-value pairs of view properties and their values to the `properties` dictionary of the
     item template to set view properties of the list item.
 
     Add key-value pairs of event names and their callback functions (or array of callback functions
-    for multiple callback bindings) to the `events` property of the  item template to bind callbacks
-    to events.
+    for multiple callback bindings) to the `events` dictionary of the  item template to bind callbacks
+    to events, which are bubbled from the subcomponents of the item.
 
     Add additional views, such as labels or image views, to the `childTemplates` array of the item
-    template. The child templates are item templates with two extra properties.
+    template. The child templates are item templates with two extra properties:
 
     - Set the `type` property to a Titanium view class, such as `Ti.UI.Label` or `Ti.UI.ImageView`,
       to use that view in your template.
     - Set the `bindId` to bind the template to a custom property in the list data item. The custom
       properties in the list data item contain key-value pairs of view properties and their values.
 
-    For example, suppose you have a list data item defined as `{title:{text: 'foo'}}` and an item
-    template defined as `{childTemplates: [{type: 'Ti.UI.Label', bindId: 'title'}]}`.  The `title`
+    For example, suppose you have a list data item defined as `{foo:{text: 'foobar'}}` and an item
+    template defined as `{childTemplates: [{type: 'Ti.UI.Label', bindId: 'foo'}]}`.  The `foo`
     property in the list data item binds to the label in the template, which sets the `text`
     property of the label in the template to the `text` property in the list data item.
 
@@ -42,81 +44,111 @@ description: |
     <Titanium.UI.ListView.defaultItemTemplate> property to globally set the style for all items or set the
     `template` property of the list data item to override or individually set the style.
 
-    On iOS, you can specify one of the template constants for the <ListDataItem.template> property:
-    <Titanium.UI.LIST_ITEM_TEMPLATE_CONTACTS>, <Titanium.UI.LIST_ITEM_TEMPLATE_DEFAULT>,
+    On iOS, you can specify one of the template constants for the <ListDataItem.template> property
+    or <Titanium.UI.ListView.defaultItemTemplate> property: <Titanium.UI.LIST_ITEM_TEMPLATE_CONTACTS>,
     <Titanium.UI.LIST_ITEM_TEMPLATE_SETTINGS> or <Titanium.UI.LIST_ITEM_TEMPLATE_SUBTITLE>.
 
     #### Eventing
 
-    Use the ListView's [itemclick](Titanium.UI.ListView.itemclick) event to monitor click events on
-    items in the list view. See 'Default List Item' for an example of using the `itemclick` event.
-
-    To monitor other events, including the `click` event, on select items, bind them to the item
-    by using the `events` property of the item template or the child view templates.
-    See 'List Items with an Item Template' for an example of binding a `click` event to an item
-    using an item template.
-
-    Unlike other views, you cannot use the `addEventListener` to bind callbacks to events for a
+    Unlike other views, you cannot use the `addEventListener` method to bind callbacks to events for a
     ListItem.
+
+    Use the ListView's [itemclick](Titanium.UI.ListView.itemclick) event to monitor click events on
+    items in the list view. Do not rely on the `source` property to determine which item fired the
+    event.  Either use the `sectionIndex` and `itemIndex`, or the `itemId` to determine the list item
+    that generated the event, and use the `bindId` to check which child control fired the event.
+    See "Default List Item" for an example of using the `itemclick` event.
+
+    To monitor events that bubble to the ListItem or to monitor events of the view subcomponents,
+    bind them to the item by using the `events` dictionary of the item template or the child view
+    templates, respectively. Add the bindings as key-value pairs, where the key is the event name
+    and the value is the callback (or array of callbacks for multiple bindings). See "List Items
+    with an Item Template" for an example of binding a `click` event to an item using an item template.
 
 platforms: [android, ipad, iphone]
 since: '3.1.0'
-extends: Titanium.UI.View
+extends: Titanium.Proxy
 createable: false
 excludes:
-    events: [dblclick, doubletap, focus, longpress, pinch, singletap, touchmove, twofingertap]
-    methods: [add,addEventListener,animate,applyProperties,convertPointToView,fireEvent,hide,
-              remove,removeAllChildren,removeEventListener,show,toImage]
-    properties: [enabled,selectedBackgroundColor,selectedBackgroundImage,selectedColor]
+    methods: [addEventListener, applyProperties, fireEvent, removeEventListener]
+    properties: [bubbleParent]
 properties:
- 
+
   - name: itemId
     summary: A user defined string that gets passed from events.
     type: String
- 
+
   - name: accessoryType
     summary: Sets an accessory on the right side of an item.
     description: |
         Specify one of the following:
         <Titanium.UI.LIST_ACCESSORY_TYPE_CHECKMARK>,
         <Titanium.UI.LIST_ACCESSORY_TYPE_DETAIL>,
-        <Titanium.UI.LIST_ACCESSORY_TYPE_DISCLOSURE> (iOS only),
+        <Titanium.UI.LIST_ACCESSORY_TYPE_DISCLOSURE>,
         or <Titanium.UI.LIST_ACCESSORY_TYPE_NONE>.
     type: Number
     default: Titanium.UI.LIST_ACCESSORY_TYPE_NONE
- 
+
   - name: allowsSelection
     summary: Determines whether this item can be selected.
     description: Set to `false` to prevent the item from being selected.
     type: Boolean
     default: true
     platforms: [iphone, ipad]
- 
+
+  - name: backgroundColor
+    summary: Background color of the view, as a color name or hex triplet.
+    description: |
+        For information about color values, see the "Colors" section of <Titanium.UI>.
+    type: String
+    default: Transparent
+
   - name: color
     summary: Default text color of the item when not selected, as a color name or hex triplet.
     description: |
         For information about color values, see the "Colors" section of <Titanium.UI>.
-        
+
         On Android, `selectedColor` is not supported, so the text is always displayed in this color.
-        
+
         Only applies to the default template.
     type: String
- 
+
   - name: font
     summary: Font to use for the item title.
     description: |
         Only applies to the default template.
     type: Font
     default: System default font.
- 
+
+  - name: height
+    summary: Row height in platform-specific units.
+    description: |
+        Can be either a float value or a dimension string, for example, '40dp'.
+        Can also be <Titanium.UI.SIZE> where the row should size itself to fit its contents.
+    default: Titanium.UI.SIZE
+    type: [Number,String]
+
   - name: image
     summary: Image to render in the image area of the item, specified as a local path or URL.
     description: |
         On iOS, the image is on the left, and on Android, the image is on the right.
+
+        On Android, this image only appears on the default template.
+
+        On iOS, this image only appears if the ListDataItem `template` property or ListView
+        `defaultItemTemplate` property is either: <Titanium.UI.LIST_ITEM_TEMPLATE_DEFAULT>,
+        <Titanium.UI.LIST_ITEM_TEMPLATE_SETTINGS> or <Titanium.UI.LIST_ITEM_TEMPLATE_SUBTITLE>.
     type: String
- 
+
   - name: title
     summary: Title to set in the text area of the item.
+    description: |
+        On Android, this title only appears for the default template.
+
+        This title only appears if the ListDataItem `template` property or ListView
+        `defaultItemTemplate` property is set to either: <Titanium.UI.LIST_ITEM_TEMPLATE_CONTACTS>,
+        <Titanium.UI.LIST_ITEM_TEMPLATE_DEFAULT>,
+        <Titanium.UI.LIST_ITEM_TEMPLATE_SETTINGS> or <Titanium.UI.LIST_ITEM_TEMPLATE_SUBTITLE>.
     type: String
 
   - name: selectionStyle
@@ -126,6 +158,14 @@ properties:
     type: Number
     platforms: [iphone,ipad]
 
+  - name: subtitle
+    summary: Subtitle to set in the text area of the item.
+    description: |
+        This subtitle only appears if the ListDataItem `template` property or ListView
+        `defaultItemTemplate` property is set to either: <Titanium.UI.LIST_ITEM_TEMPLATE_CONTACTS>,
+        <Titanium.UI.LIST_ITEM_TEMPLATE_SETTINGS> or <Titanium.UI.LIST_ITEM_TEMPLATE_SUBTITLE>.
+    type: String
+    platforms: [iphone,ipad]
 
 examples:
   - title: Default List Items
@@ -210,8 +250,9 @@ examples:
                             left: '60dp', top: '25dp',
                         }
                     }
-                ]
-                events: {click: toggleCheck } // Binds a callback to the click event
+                ],
+                // Binds a callback to the click event, which catches events bubbled by the view subcomponents.
+                events: {click: toggleCheck }
             };
 
             // Copy the plainTemplate
@@ -274,7 +315,7 @@ examples:
                 }
                 section.replaceItemsAt(e.itemIndex, 1, [item]);
             } 
- 
+
             win.add(listView);
             win.open();
 
@@ -291,13 +332,15 @@ properties:
         If there are properties set in the <ListDataItem>, the properties set in the template are
         overridden by the ones set in the list data item.
     type: Dictionary<Titanium.UI.ListItem>
- 
+
   - name: events
     summary: Contains key-value pairs of view events and their listeners that are applied to the ListItem.
     description: |
         Array values are considered as multiple event listeners for that event.
+
+        Event listeners added here respond to bubbled events fired from the view subcomponents.
     type: Dictionary
- 
+
   - name: childTemplates
     summary: |
         Contains an array of subview templates to be added (in order) as children to this view.
@@ -315,27 +358,28 @@ properties:
     summary: View's class name, for example, `Ti.UI.View`.
     type: String
     optional: false
- 
+
   - name: bindId
     summary: View's ID (or set of IDs) used for data binding. This value must be unique.
     type: String
- 
+
   - name: properties
     summary: |
         Contains key-value pairs of view properties and their values that are applied to this view component.
     type: Dictionary
- 
+
   - name: events
     summary: |
         Contains key-value pairs of view events and their listeners that are applied to this view component.
     description: |
         Array values are considered as multiple event listeners for that event.
     type: Dictionary
- 
+
   - name: childTemplates
     summary: |
         Contains an array of subview templates to be added (in order) as children to this view.
     type: Array<ViewTemplate>
+
 
 ---
 name: ListDataItem
@@ -350,12 +394,13 @@ platforms: [android, ipad, iphone]
 since: '3.1.0' 
 properties:
   - name: template
-    type: String
+    type: [String, Number]
     summary: |
-        Template ID configured with the <Titanium.UI.ListView.templates> property.
-
+        Template ID configured with the <Titanium.UI.ListView.templates> property or
+        <Titanium.UI.LIST_ITEM_TEMPLATE_DEFAULT>.
+    description: |
         On iOS, you can specify one of the following pre-defined templates:
-        <Titanium.UI.LIST_ITEM_TEMPLATE_CONTACTS>, <Titanium.UI.LIST_ITEM_TEMPLATE_DEFAULT>,
+        <Titanium.UI.LIST_ITEM_TEMPLATE_CONTACTS>,
         <Titanium.UI.LIST_ITEM_TEMPLATE_SETTINGS> or <Titanium.UI.LIST_ITEM_TEMPLATE_SUBTITLE>.
     default: |
         If the ListView's `defaultItemTemplate` property is not set,

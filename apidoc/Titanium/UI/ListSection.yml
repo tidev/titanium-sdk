@@ -13,6 +13,7 @@ since: '3.1.0'
 extends: Titanium.Proxy
 excludes:
     methods: [addEventListener, fireEvent, removeEventListener]
+    properties: [bubbleParent]
 properties:
  
   - name: footerTitle

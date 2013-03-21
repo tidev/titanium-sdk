@@ -9,8 +9,9 @@ description: |
     A `ListView` object is a container for [ListSection](Titanium.UI.ListSection) 
     objects that are, in turn, containers for [ListItem](Titanium.UI.ListItem) objects. 
 
-    **Note:** this is the first version of list view. Not all features are implemented in this version.
-    Version 2 will have a more complete list of features on par with TableView.
+    **Note:** this is the first version of list view. Not all features from the specification
+    are implemented in this version.  A complete list of implemented features is schedule for
+    the next list version, which is planned for Release 3.2.0.
 
     #### Creating a List
 
@@ -19,51 +20,69 @@ description: |
     element as a row to a single [ListSection](Titanium.UI.ListSection). Use the ListView's
     [sections](Titanium.UI.ListView.sections) property to add the section(s) to the list view.
 
+    If a template is not specifed, only the `image`, `title` and `accessoryType` properties set
+    in the `properties` dictionary of a list data item appear in list. Refer to the next section
+    for using an item template.
+
     See the "List View Sections" example.
 
-    #### Customizing the View
+    #### Customizing the List Items
 
-    By default, only the `image`, `title` and `accessoryType` appear for each list item.
     To create a custom list view, you need to define an <ItemTemplate> and define each view
-    component you want to add. Use the `bindId` property of the template to map a property
-    in the item data to a view component.
+    component you want to add. Use the `bindId` property of the child template to bind a dictionary
+    property in the item data to a child view component.
 
     Map the template to a style name using the <Titanium.UI.ListView.templates> property, then use
     the style name to  set the <Titanium.UI.ListView.defaultItemTemplate> property to globally change 
     all item styles or set the <ListDataItem.template> property when passing in your list data
     to apply the template to that one list item or to override the globally defined template.
 
-    On iOS, you can specify one of the template constants for the <ListDataItem.template> property: 
-    <Titanium.UI.LIST_ITEM_TEMPLATE_CONTACTS>, <Titanium.UI.LIST_ITEM_TEMPLATE_DEFAULT>,
-    <Titanium.UI.LIST_ITEM_TEMPLATE_SETTINGS> or <Titanium.UI.LIST_ITEM_TEMPLATE_SUBTITLE>.
+    On iOS, you can specify one of the template constants for the <ListDataItem.template> property
+    or <Titanium.UI.ListView.defaultItemTemplate>:
+    <Titanium.UI.LIST_ITEM_TEMPLATE_CONTACTS>, <Titanium.UI.LIST_ITEM_TEMPLATE_SETTINGS>
+    or <Titanium.UI.LIST_ITEM_TEMPLATE_SUBTITLE>.
 
-    See <Titanium.UI.ListItem> for a detailed description of creating list items with a customer
-    item template and see the "List View with Custom Item Template" example for a sample
-    implementation.
+    See <Titanium.UI.ListItem> for a detailed description of creating list items with a custom
+    item template and see the "List View with Custom Item Template" example for a sample.
 
     #### List and Table Views
 
-    This section lists the differences between the new list view and the old table view.
+    This section describes the differences between the new list view and the old table view.
+
+    `ListView` is analogous to `TableView`, `ListSection` is analogous to `TableViewSection`, and
+    `ListItem` is analogous to `TableViewRow`.
+
+    Both list view and table view present data to user as a vertically scrolling list of rows.
+    However, list view uses a data-oriented approach versus table view's view-oriented approach.
+
+    Because of list view's approach, list view's performance is faster but limits access to items
+    in the list, that is, you cannot directly manipulate the views, set view properties and bind event
+    callbacks the same way as you can with table view rows. The next subsection describes how to
+    use list items.
+
+    ##### ListItem versus TableViewRow
+
+    You need to explicitly create a `ListSection` in order to add a `ListItem` to a `ListView`.
+    You cannot directly add a `ListItem` to a `ListView`.
+    In a `TableView`, a `TableViewRow` can be directly added to a `TableView` because a
+    `TableViewSection` is implictly created and added to the `TableView`.
+
+    A `ListItem` object is not created in the same method as a `TableViewRow`.
+    A `ListItem` is create by passing an array of `ListDataItem` objects to the `ListSection`.
+    A `createListItem` method does not exist to create `ListItem` objects.
+
+    You cannot add views to a `ListItem` using the `add` method, which could be done with a
+    `TableViewRow`. To add views to a `ListItem`, you need to define an <ItemTemplate>,
+    which is bound to a list data item using the `template` property.
+
+    You cannot explicitly set properties or bind events for a `ListItem`.  You have to set them using the
+    `properties` dictionary of a <ListDataItem> or <ItemTemplate> and the `events` dictionary of the
+    <ItemTemplate> or <ViewTemplate>, respectively.
+
+    ##### API Differences
 
     **Note:** This is the first version of list view and some features have not been implemented.
     The differences listed are for the final planned list view and the current table view in Release 3.0.
-
-    - You need to explicitly create a `ListSection` in order to add a `ListItem` to a `ListView`.
-      You cannot directly add a `ListItem` to a `ListView`.
-      In a `TableView`, a `TableViewRow` can be directly added to a `TableView` because a
-      `TableViewSection` is implictly created and added to the `TableView`.  
-
-    - A `ListItem` object is not created in the same method as a `TableViewRow`.
-      A `ListItem` is create by passing a `ListDataItem` object to the `ListSection`.
-      There is not a `Ti.UI.createListItem` method to create `ListItem` objects.
-
-    - You cannot add views to a `ListItem` using the `add` method, which could be done with a
-      `TableViewRow`. To add views to a `ListItem`, you need to define an <ItemTemplate>,
-      which is bound to a list data item using the `template` property.
-
-    - You cannot explicitly set properties or bind events for a `ListItem`.  You have to set them using the
-      `properties` property of a <ListDataItem> or <ItemTemplate> and the `events` property of the
-      <ItemTemplate> or <ViewTemplate>, respectively.
 
     - **Missing TableViewRow properties**: The following properties and their accessors are not
       avaialable for ListItem: `accessibilityLabel`, `className`, `editable`, `hasCheck`,
@@ -72,7 +91,7 @@ description: |
         - For `hasCheck`, `hasChild`, and `hasDetail`, use the `accessoryType` property.
         - For `leftImage` and `rightImage`, use the `image` property or create a custom item template.
 
-    - **Missing TableViewRow method**: ListItem does not support any methods. Adding views and binding
+    - **Missing TableViewRow methods**: ListItem does not support any methods. Adding views and binding
       event callbacks are supported through the item template.
 
     - **Missing TableViewSection properties**: The following properties and their accessors are not
@@ -175,7 +194,13 @@ properties:
 
   - name: defaultItemTemplate
     summary: Sets the default template for list data items that do not specify the `template` property.
-    type: String
+    description: |
+        Can also be <Titanium.UI.LIST_ITEM_TEMPLATE_DEFAULT>.
+
+        On iOS, you can specify one of the template constants:
+        <Titanium.UI.LIST_ITEM_TEMPLATE_CONTACTS>, <Titanium.UI.LIST_ITEM_TEMPLATE_SETTINGS>
+        or <Titanium.UI.LIST_ITEM_TEMPLATE_SUBTITLE>.
+    type: [String, Number]
 
   - name: footerTitle
     summary: List view footer title.
