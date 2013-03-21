@@ -600,8 +600,14 @@ public class ListSectionProxy extends ViewProxy{
 		
 		existingData.put(TiC.PROPERTY_SECTION, this);
 		existingData.put(TiC.PROPERTY_SECTION_INDEX, sectionIndex);
-		existingData.put(TiC.PROPERTY_BIND_ID, bindId);
 		existingData.put(TiC.PROPERTY_ITEM_INDEX, itemIndex);
+		
+		if (!bindId.startsWith(TiListViewTemplate.GENERATED_BINDING)) {
+			existingData.put(TiC.PROPERTY_BIND_ID, bindId);
+		} else if (existingData.containsKey(TiC.PROPERTY_BIND_ID)){
+			existingData.remove(TiC.PROPERTY_BIND_ID);
+		}
+
 		if (itemId != null) {
 			existingData.put(TiC.PROPERTY_ITEM_ID, itemId);
 		} else if (existingData.containsKey(TiC.PROPERTY_ITEM_ID)){

@@ -15,13 +15,13 @@
         android:focusableInTouchMode="false" >
 
         <ti.modules.titanium.ui.widget.listview.TiBaseListViewItem
-            android:id="@+id/listItem"
+            android:id="@+id/titanium_ui_list_item_content"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
     </ti.modules.titanium.ui.widget.listview.ListItemLayout>
 
     <ImageView
-        android:id="@+id/accessoryType"
+        android:id="@+id/titanium_ui_list_item_accessoryType"
         android:layout_width="wrap_content"
         android:layout_height="fill_parent"
         android:adjustViewBounds="true"
