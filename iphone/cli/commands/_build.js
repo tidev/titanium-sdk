@@ -1047,7 +1047,7 @@ build.prototype = {
 
 				parallel(this, [
 					function (next) {
-						if (this.target == 'simulator') {
+						if (this.target == 'simulator' && this.deployType == 'development') {
 							if (this.forceCopy) {
 								this.logger.info(__('Forcing copying of files instead of creating symlinks'));
 							} else {
@@ -1441,6 +1441,20 @@ build.prototype = {
 			return true;
 		}
 
+		// check if the deploy type is not development
+		if (this.deployType != 'development') {
+			this.logger.info(__('Forcing rebuild: deploy type is %s, so need to recompile ApplicationRouting.m', this.deployType));
+			return true;
+		}
+
+		// check if the target changed
+		if (this.target != manifest.target) {
+			this.logger.info(__('Forcing rebuild: target changed since last build'));
+			this.logger.info('  ' + __('Was: %s', this.buildManifest.target));
+			this.logger.info('  ' + __('Now: %s', this.target));
+			return true;
+		}
+
 		if (afs.exists(this.xcodeProjectConfigFile)) {
 			// we have a previous build, see if the Titanium SDK changed
 			var conf = fs.readFileSync(this.xcodeProjectConfigFile).toString(),
@@ -1466,14 +1480,6 @@ build.prototype = {
 		// check that we have a libTiCore hash
 		if (!manifest.tiCoreHash) {
 			this.logger.info(__('Forcing rebuild: incomplete version file %s', this.buildVersionFile.cyan));
-			return true;
-		}
-
-		// check if the target changed
-		if (this.libTiCoreHash != manifest.tiCoreHash) {
-			this.logger.info(__('Forcing rebuild: libTiCore hash changed since last build'));
-			this.logger.info('  ' + __('Was: %s', this.buildManifest.target));
-			this.logger.info('  ' + __('Now: %s', this.target));
 			return true;
 		}
 
@@ -2639,7 +2645,7 @@ build.prototype = {
 		}
 
 		id = path.join(this.assetsDir, id);
-		wrench.mkdirSyncRecursive(path.dirname(id));
+		wrench.mkdirSyncRecursive(this.assetsDir);
 
 		this.logger.debug(__('Writing JavaScript file: %s', id.cyan));
 		fs.writeFileSync(id, contents);
