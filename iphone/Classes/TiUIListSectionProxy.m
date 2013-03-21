@@ -9,6 +9,7 @@
 #import "TiUIListSectionProxy.h"
 #import "TiUIListViewProxy.h"
 #import "TiUIListView.h"
+#import "TiUIListItem.h"
 
 @interface TiUIListSectionProxy ()
 @property (nonatomic, readonly) id<TiUIListViewDelegate> dispatcher;
@@ -231,7 +232,18 @@
 		}
 		[_items replaceObjectAtIndex:itemIndex withObject:item];
 		NSArray *indexPaths = [[NSArray alloc] initWithObjects:[NSIndexPath indexPathForRow:itemIndex inSection:_sectionIndex], nil];
-		[tableView reloadRowsAtIndexPaths:indexPaths withRowAnimation:animation];
+		BOOL forceReload = (animation != UITableViewRowAnimationNone);
+		if (!forceReload) {
+			TiUIListItem *cell = (TiUIListItem *)[tableView cellForRowAtIndexPath:[indexPaths objectAtIndex:0]];
+			if ((cell != nil) && ([cell canApplyDataItem:item])) {
+				cell.dataItem = item;
+			} else {
+				forceReload = YES;
+			}
+		}
+		if (forceReload) {
+			[tableView reloadRowsAtIndexPaths:indexPaths withRowAnimation:animation];
+		}
 		[indexPaths release];
 	}];
 }

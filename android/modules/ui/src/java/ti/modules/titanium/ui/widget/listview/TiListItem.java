@@ -33,17 +33,11 @@ public class TiListItem extends TiUIView {
 		layoutParams = p;
 		listItemLayout = item_layout;
 		setNativeView(v);	
+		v.setFocusable(false);
 	}
 	
 	public void processProperties(KrollDict d) {
-		
-		if (d.containsKey(TiC.PROPERTY_ITEM_ID)) {
-			String itemId = TiConvert.toString(d, TiC.PROPERTY_ITEM_ID);
-			if (itemId != null && additionalEventData != null) {
-				additionalEventData.put(TiC.PROPERTY_ITEM_ID, itemId);
-			}
-		} 
-		
+
 		if (d.containsKey(TiC.PROPERTY_ACCESSORY_TYPE)) {
 			int color = -1;
 			int accessory = TiConvert.toInt(d.get(TiC.PROPERTY_ACCESSORY_TYPE), -1);
@@ -70,6 +64,10 @@ public class TiListItem extends TiUIView {
 				accessoryImage.setImageResource(TiListView.hasChild);
 				break;
 
+			case UIModule.LIST_ACCESSORY_TYPE_DISCLOSURE:
+				accessoryImage.setImageResource(TiListView.disclosure);
+				break;
+	
 			default:
 				accessoryImage.setImageResource(0);
 		}
@@ -82,25 +80,26 @@ public class TiListItem extends TiUIView {
 			public void onClick(View view)
 			{
 				KrollDict data = dictFromEvent(lastUpEvent);
-				TiViewProxy listViewProxy = proxy.getParent();
-				if (listViewProxy != null) {
-					TiUIView listView = listViewProxy.peekView();
-					if (listView != null) {
-						updateEventData(listView);
-						listView.fireEvent(TiC.EVENT_ITEM_CLICK, data);
-					}
-				}
+				handleFireItemClick(data);
 				fireEvent(TiC.EVENT_CLICK, data);
 			}
 		});
 	}
 	
-	private void updateEventData(TiUIView listView) {
-		KrollDict d = listView.getAdditionalEventData();
-		if (d == null) {
-			listView.setAdditionalEventData(new KrollDict((HashMap) additionalEventData));
-		} else {
-			d.putAll(additionalEventData);
+	protected void handleFireItemClick (KrollDict data) {
+		TiViewProxy listViewProxy = ((ListItemProxy)proxy).getListProxy();
+		if (listViewProxy != null) {
+			TiUIView listView = listViewProxy.peekView();
+			if (listView != null) {
+				KrollDict d = listView.getAdditionalEventData();
+				if (d == null) {
+					listView.setAdditionalEventData(new KrollDict((HashMap) additionalEventData));
+				} else {
+					d.clear();
+					d.putAll(additionalEventData);
+				}
+				listView.fireEvent(TiC.EVENT_ITEM_CLICK, data);
+			}
 		}
 	}
 	

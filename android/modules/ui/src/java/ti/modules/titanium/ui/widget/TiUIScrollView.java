@@ -544,6 +544,20 @@ public class TiUIScrollView extends TiUIView
 			return ((TiHorizontalScrollView) nativeView).layout;
 		}
 	}
+	
+	@Override
+	protected void setOnClickListener(View view)
+	{
+		View targetView = view;
+		// Get the layout and attach the listeners to it
+		if (view instanceof TiVerticalScrollView) {
+			targetView = ((TiVerticalScrollView) nativeView).layout;
+		}
+		if (view instanceof TiHorizontalScrollView) {
+			targetView = ((TiHorizontalScrollView) nativeView).layout;
+		}
+		super.setOnClickListener(targetView);
+	}
 
 	public void setScrollingEnabled(Object value)
 	{

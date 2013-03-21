@@ -75,7 +75,7 @@ properties:
   - name: image
     summary: Image to use for the the pin.
     description: |
-        The image can be specified using a local URL or an image `Blob`. This is ignored if the customeView property is set.
+        The image can be specified using a local URL or an image `Blob`. This is ignored if the customView property is set.
     type: [String, Titanium.Blob]
     default: If not specified, a standard map pin image is used.
 

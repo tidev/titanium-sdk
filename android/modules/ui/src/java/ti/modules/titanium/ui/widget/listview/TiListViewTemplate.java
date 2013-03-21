@@ -94,7 +94,10 @@ public class TiListViewTemplate {
 		}
 		
 		public void release() {
-			vProxy = null;
+			if (vProxy != null) {
+				vProxy.release();
+				vProxy = null;
+			}
 			children.clear();
 			parent = null;
 		}
@@ -201,10 +204,10 @@ public class TiListViewTemplate {
 		return itemID;
 	}
 	
-	public void setRootParent(TiViewProxy parent) {
-		TiViewProxy rootProxy = rootItem.getViewProxy();
-		if (rootProxy != null && rootProxy.getParent() == null) {
-			rootProxy.setParent(parent);
+	public void setRootParent(TiViewProxy listView) {
+		ListItemProxy rootProxy = (ListItemProxy) rootItem.getViewProxy();
+		if (rootProxy != null && rootProxy.getListProxy() == null) {
+			rootProxy.setListProxy(listView);
 		}
 	}
 	
