@@ -425,7 +425,7 @@ function build(logger, config, cli, finished) {
 					// the application we must send the "intent" ourselves.
 					// We will launch the MAIN activity for the application.
 					logger.info(__('Launching appliation on device.'));
-					spawn('adb', [
+					spawn(path.join(config.android.sdkPath, 'platform-tools', 'adb'), [
 						'shell', 'am', 'start',
 						'-a', 'android.intent.action.MAIN',
 						'-c', 'android.intent.category.LAUNCHER',
@@ -448,7 +448,7 @@ function build(logger, config, cli, finished) {
 // Converts an application name to a Java classname.
 function appnameToClassname(appname) {
 	var classname = appname.split(/[^A-Za-z0-9_]/).map(function(word) {
-		return appc.string.capitalize(word);
+		return appc.string.capitalize(word.toLowerCase());
 	}).join('');
 
 	// Classnames cannot begin with a number.
