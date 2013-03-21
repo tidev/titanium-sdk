@@ -322,7 +322,8 @@ module.exports = new function() {
 
 	/*
 	 * makes sure that the newly created harness contains the correct tiapp.xml and resources
-	 * based on the harness template
+	 * based on the harness template, as well as any other files/directories placed in the config
+	 * directory.
 	 */
 	var updateHarness = function(platform, successCallback, errorCallback) {
 		var config = configs[configSetIndex].setConfigs[configIndex];
@@ -333,7 +334,7 @@ module.exports = new function() {
 			try {
 				wrench.copyDirSyncRecursive(path.resolve(configs[configSetIndex].setDir, "Resources"), path.resolve(harnessPlatformDir, "harness", "Resources"), {preserve: true});
 				driverUtils.log("harness suites updated");
-				updateTiappCallback();
+				copyConfigFilesCallback();
 
 			} catch(exception) {
 				driverUtils.log("unable to update the harness suites: " + exception);
@@ -341,6 +342,41 @@ module.exports = new function() {
 					errorCallback();
 				}
 			}
+		};
+
+		/*
+		 * Copy all files/directories from config directory to harness, so as to allow
+		 * (for example) testing i18n, external modules or assets placed under the special
+		 * platform/ directory.
+		 * Ignore tiapp.xml and app.js, however, since they are handled separately in
+		 * functions that are called after this.
+		 */
+		var copyConfigFilesCallback = function() {
+			var harnessDir = path.resolve(harnessPlatformDir, "harness"),
+				sourceDirContents = fs.readdirSync(configDir),
+				length = sourceDirContents.length,
+				i=0,
+				fileName,
+				fileFullPath,
+				destFullPath,
+				fileStat;
+
+			for (; i < length; i++) {
+				fileName = sourceDirContents[i];
+				if (fileName === "app.js" || fileName === "tiapp.xml") {
+					continue; // they're handled separately
+				}
+				fileFullPath = path.resolve(configDir, fileName);
+				destFullPath = path.resolve(harnessDir, fileName);
+				fileStat = fs.statSync(fileFullPath);
+				if (fileStat.isDirectory()) {
+					wrench.copyDirSyncRecursive(fileFullPath, destFullPath);
+				} else {
+					driverUtils.copyFileSync(fileFullPath, destFullPath);
+				}
+			}
+
+			updateTiappCallback();
 		};
 
 		var updateTiappCallback = function() {
