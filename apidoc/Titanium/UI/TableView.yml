@@ -1138,7 +1138,7 @@ properties:
     description: Set to `true` to hide the search field.
     type: Boolean
     default: false (search field visible)
-    platforms: [iphone, ipad]
+    platforms: [android, iphone, ipad]
     
   - name: sectionCount
     summary: Number of sections in this table view.
