@@ -2662,6 +2662,9 @@ build.prototype = {
 				next();
 			},
 			function (next) {
+				 this.compileResources(path.join(this.projectDir, 'Resources', 'ios'), this.xcodeAppDir, next);
+			},
+			function (next) {
 				this.compileResources(path.join(this.projectDir, 'Resources', 'iphone'), this.xcodeAppDir, next);
 			},
 			function (next) {
