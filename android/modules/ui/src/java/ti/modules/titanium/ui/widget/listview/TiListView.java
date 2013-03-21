@@ -8,7 +8,9 @@
 package ti.modules.titanium.ui.widget.listview;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.appcelerator.kroll.KrollDict;
@@ -54,6 +56,15 @@ public class TiListView extends TiUIView {
 	private View footerView;
 	
 	private static final String TAG = "TiListView";
+	
+	/* We cache properties that already applied to the recycled list tiem in ViewItem.java
+	 * However, since Android randomly selects a cached view to recycle, our cached properties
+	 * will not be in sync with the native view's properties when user changes those values via
+	 * User Interaction - i.e click. For this reason, we create a list that contains the properties 
+	 * that must be reset every time a view is recycled, to ensure synchronization. Currently, only
+	 * "value" is in this list to correctly update the value of Ti.UI.Switch.
+	 */
+	public static List<String> MUST_SET_PROPERTIES = Arrays.asList(TiC.PROPERTY_VALUE);
 	
 	public static final int HEADER_FOOTER_ITEM_TYPE = 0;
 	public static final int BUILT_IN_TEMPLATE_ITEM_TYPE = 1;
@@ -166,14 +177,14 @@ public class TiListView extends TiUIView {
 		listView.setFocusableInTouchMode(true);
 
 		try {
-			headerFooterId = TiRHelper.getResource("layout.list_header_or_footer");
-			listItemId = TiRHelper.getResource("layout.list_item");
-			titleId = TiRHelper.getResource("id.title");
-			listContentId = TiRHelper.getResource("id.listItem");
+			headerFooterId = TiRHelper.getResource("layout.titanium_ui_list_header_or_footer");
+			listItemId = TiRHelper.getResource("layout.titanium_ui_list_item");
+			titleId = TiRHelper.getResource("id.titanium_ui_list_header_or_footer_title");
+			listContentId = TiRHelper.getResource("id.titanium_ui_list_item_content");
 			isCheck = TiRHelper.getResource("drawable.btn_check_buttonless_on_64");
 			hasChild = TiRHelper.getResource("drawable.btn_more_64");
-			disclosure = TiRHelper.getResource("drawable.disclosure");
-			accessory = TiRHelper.getResource("id.accessoryType");
+			disclosure = TiRHelper.getResource("drawable.disclosure_64");
+			accessory = TiRHelper.getResource("id.titanium_ui_list_item_accessoryType");
 		} catch (ResourceNotFoundException e) {
 			Log.e(TAG, "XML resources could not be found!!!", Log.DEBUG_MODE);
 		}

@@ -31,6 +31,12 @@ public class ViewItem {
 		diffProperties.clear();
 		for (String property : properties.keySet()) {
 			Object value = properties.get(property);
+			if (TiListView.MUST_SET_PROPERTIES.contains(property)) {
+				diffProperties.put(property, value);
+				this.properties.put(property, value);
+				continue;
+			}
+
 			boolean isContain = this.properties.containsKey(property);
 			Object existingVal = this.properties.get(property);
 			if (!isContain || (isContain && existingVal == null) || (isContain && !existingVal.equals(value))) {
