@@ -114,6 +114,10 @@ def stage(platform, project_dir, manifest, callback):
 
 		# patch in our tiapp.xml
 		tiapp = os.path.join(gen_project_dir, 'tiapp.xml')
+		example_dir = os.path.join(project_dir, 'example')
+		example_tiapp = os.path.join(example_dir, 'tiapp.xml')
+		if os.path.exists(example_tiapp):
+		  shutil.copyfile(example_tiapp,tiapp)
 		xml = open(tiapp).read()
 		tiappf = open(tiapp,'w')
 		xml = xml.replace('<guid/>', '<guid></guid>')
