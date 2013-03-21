@@ -67,6 +67,24 @@
     }		
 	[super touchesCancelled:touches withEvent:event];
 }
+
+- (void)setContentOffsetForRealAnimated;
+{
+	pending = false;
+	[super setContentOffset:pendingContentOffset animated:pendingAnimated];
+}
+
+- (void)setContentOffset:(CGPoint)contentOffset animated:(BOOL)animated;
+{
+	pendingContentOffset = contentOffset;
+	pendingAnimated = animated;
+	if (pending){
+		return;
+	}
+	[self performSelector:@selector(setContentOffsetForRealAnimated) withObject:nil afterDelay:0.01];
+	pending = true;
+}
+
 @end
 
 @implementation TiUIScrollView
