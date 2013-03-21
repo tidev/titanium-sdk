@@ -2893,10 +2893,22 @@ build.prototype = {
 								'',
 								'#define TI_VERSION ' + this.titaniumSdkVersion
 							];
-						this.logger.info('Assembling defines');
+
 						contents = contents.concat(this.symbols.sort().map(function (s) {
 							return '#define ' + s;
-						})).join('\n');
+						}));
+						contents.push('#ifdef USE_TI_UILISTVIEW',
+							'#define USE_TI_UILABEL',
+							'#define USE_TI_UIBUTTON',
+							'#define USE_TI_UIIMAGEVIEW',
+							'#define USE_TI_UIPROGRESSBAR',
+							'#define USE_TI_UIACTIVITYINDICATOR',
+							'#define USE_TI_UISWITCH',
+							'#define USE_TI_UISLIDER',
+							'#define USE_TI_UITEXTFIELD',
+							'#define USE_TI_UITEXTAREA',
+							'#endif');
+						contents = contents.join('\n');
 
 						if (!afs.exists(dest) || fs.readFileSync(dest).toString() != contents) {
 							this.logger.debug(__('Writing Titanium symbol file: %s', dest.cyan));
