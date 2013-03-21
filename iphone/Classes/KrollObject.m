@@ -1125,6 +1125,11 @@ TI_INLINE TiStringRef TiStringCreateWithPointerValue(int value)
 
 	TiValueRef jsEventData = ConvertIdTiValue(context, eventData);
 	TiObjectCallAsFunction(jsContext, jsCallback, [thisObject jsobject], 1, &jsEventData,&exception);
+	if (exception!=NULL)
+	{
+		id excm = [KrollObject toID:context value:exception];
+		[[TiExceptionHandler defaultExceptionHandler] reportScriptError:[TiUtils scriptErrorValue:excm]];
+	}
 }
 
 -(void)noteKrollObject:(KrollObject *)value forKey:(NSString *)key
