@@ -269,6 +269,7 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 	}
 	content = [[self class] content:content withInjection:[self titaniumInjection]];
 	
+	[self ensureLocalProtocolHandler];
 	[[self webview] loadData:[content dataUsingEncoding:encoding] MIMEType:mimeType textEncodingName:textEncodingName baseURL:baseURL];
 	if (scalingOverride==NO) {
 		[[self webview] setScalesPageToFit:NO];
@@ -416,6 +417,7 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 		{
 			case TiBlobTypeData:
 			{
+				[self ensureLocalProtocolHandler];
 				[[self webview] loadData:[blob data] MIMEType:[blob mimeType] textEncodingName:@"utf-8" baseURL:nil];
 				if (scalingOverride==NO)
 				{
@@ -493,13 +495,17 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 	}
 }
 
-- (void)loadLocalURL
+- (void)ensureLocalProtocolHandler
 {
 	static dispatch_once_t onceToken;
 	dispatch_once(&onceToken, ^{
 		[NSURLProtocol registerClass:[LocalProtocolHandler class]];
 	});
+}
 
+- (void)loadLocalURL
+{
+	[self ensureLocalProtocolHandler];
 	NSStringEncoding encoding = NSUTF8StringEncoding;
 	NSString *mimeType = [Mimetypes mimeTypeForExtension:[url path]];
 	NSString *textEncodingName = @"utf-8";
