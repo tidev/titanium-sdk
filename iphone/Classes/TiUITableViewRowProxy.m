@@ -782,8 +782,8 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 					[proxy setSandboxBounds:rect];
 				}
 				[proxy windowWillOpen];
-				[uiview transferProxy:proxy deep:YES];
 				[proxy setReproxying:YES];
+				[uiview transferProxy:proxy deep:YES];
 				[self redelegateViews:proxy toView:contentView];
 				if (uiview == nil) {
 					[rowContainerView addSubview:[proxy view]];
@@ -791,6 +791,9 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 				[proxy setReproxying:NO];
 			}];
 		} else {
+			[[self children] enumerateObjectsUsingBlock:^(TiViewProxy *proxy, NSUInteger idx, BOOL *stop) {
+				[self redelegateViews:proxy toView:contentView];
+			}];
 			[rowContainerView setFrame:rect];
 			[contentView addSubview:rowContainerView];
 		}
