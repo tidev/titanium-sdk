@@ -236,12 +236,14 @@ public class TiUITableView extends TiUIView
 		} else if (TiC.PROPERTY_SEARCH_HIDDEN.equals(key)) {
 			boolean searchHidden = TiConvert.toBoolean(newValue);
 			TiViewProxy searchView = (TiViewProxy) (proxy.getProperty(TiC.PROPERTY_SEARCH));
-			TiUIView search = searchView.peekView();
-			if (search != null) {
-				if (searchHidden) {
-					search.getNativeView().setVisibility(View.GONE);
-				} else {
-					search.getNativeView().setVisibility(View.VISIBLE);
+			if (searchView != null) {
+				TiUIView search = searchView.peekView();
+				if (search != null) {
+					if (searchHidden) {
+						search.getNativeView().setVisibility(View.GONE);
+					} else {
+						search.getNativeView().setVisibility(View.VISIBLE);
+					}
 				}
 			}
 		} else {
