@@ -168,6 +168,21 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 	[appDefaults release];
 }
 
+- (void) launchToUrl
+{
+    NSDictionary *launchDefaults = [ApplicationDefaults launchUrl];
+    if (launchDefaults != nil) {
+        UIApplication* app = [UIApplication sharedApplication];
+        NSURL *url = [NSURL URLWithString:[launchDefaults objectForKey:@"application-launch-url"]];
+        if ([app canOpenURL:url]) {
+            [app openURL:url];
+        }
+        else {
+            DebugLog(@"[WARN] The launch-url provided : %@ is invalid.", [launchDefaults objectForKey:@"application-launch-url"]);
+        }
+    }
+}
+
 - (void)boot
 {
 	DebugLog(@"[INFO] %@/%@ (%s.__GITHASH__)",TI_APPLICATION_NAME,TI_APPLICATION_VERSION,TI_VERSION_STR);
@@ -273,6 +288,7 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 	[TiExceptionHandler defaultExceptionHandler];
 	[self initController];
 	[self loadUserDefaults];
+    [self launchToUrl];
 	[self boot];
 }
 
@@ -337,7 +353,7 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 	{
 		[self generateNotification:notification];
 	}
-    
+    [self launchToUrl];
 	[self loadUserDefaults];
 	[self boot];
 	

@@ -15,4 +15,8 @@
     return nil;
 }
 
++(NSDictionary*)launchUrl {
+    return nil;
+}
+
 @end
