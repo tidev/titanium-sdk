@@ -1169,7 +1169,7 @@ TI_INLINE TiStringRef TiStringCreateWithPointerValue(int value)
 	TiStringRelease(nameRef);
 }
 
--(void)noteObject:(TiObjectRef)storedJSObject forTiString:(TiStringRef) keyString context:(TiContextRef) jsContext
+-(void)noteObject:(TiObjectRef)storedJSObject forTiString:(TiStringRef) keyString context:(TiContextRef) jsContextRef
 {
 	if ((propsObject == NULL) || (storedJSObject == NULL) || finalized)
 	{
@@ -1177,20 +1177,20 @@ TI_INLINE TiStringRef TiStringCreateWithPointerValue(int value)
 	}
 	TiValueRef exception=NULL;
 
-	TiObjectRef jsProxyHash = (TiObjectRef)TiObjectGetProperty(jsContext, propsObject, kTiStringPropertyKey, &exception);
+	TiObjectRef jsProxyHash = (TiObjectRef)TiObjectGetProperty(jsContextRef, propsObject, kTiStringPropertyKey, &exception);
 
-	if ((jsProxyHash == NULL) || (TiValueGetType(jsContext,jsProxyHash) != kTITypeObject))
+	if ((jsProxyHash == NULL) || (TiValueGetType(jsContextRef,jsProxyHash) != kTITypeObject))
 	{
-		jsProxyHash = TiObjectMake(jsContext, NULL, &exception);
-		TiObjectSetProperty(jsContext, propsObject, kTiStringPropertyKey, jsProxyHash,
+		jsProxyHash = TiObjectMake(jsContextRef, NULL, &exception);
+		TiObjectSetProperty(jsContextRef, propsObject, kTiStringPropertyKey, jsProxyHash,
 				kTiPropertyAttributeDontEnum , &exception);
 	}
 
-	TiObjectSetProperty(jsContext, jsProxyHash, keyString, storedJSObject,
+	TiObjectSetProperty(jsContextRef, jsProxyHash, keyString, storedJSObject,
 			kTiPropertyAttributeDontEnum , &exception);
 }
 
--(void)forgetObjectForTiString:(TiStringRef) keyString context:(TiContextRef) jsContext
+-(void)forgetObjectForTiString:(TiStringRef) keyString context:(TiContextRef) jsContextRef
 {
 	if ((propsObject == NULL) || finalized)
 	{
@@ -1198,17 +1198,17 @@ TI_INLINE TiStringRef TiStringCreateWithPointerValue(int value)
 	}
 	TiValueRef exception=NULL;
 
-	TiObjectRef jsProxyHash = (TiObjectRef)TiObjectGetProperty(jsContext, propsObject, kTiStringPropertyKey, &exception);
+	TiObjectRef jsProxyHash = (TiObjectRef)TiObjectGetProperty(jsContextRef, propsObject, kTiStringPropertyKey, &exception);
 
-	if ((jsProxyHash == NULL) || (TiValueGetType(jsContext,jsProxyHash) != kTITypeObject))
+	if ((jsProxyHash == NULL) || (TiValueGetType(jsContextRef,jsProxyHash) != kTITypeObject))
 	{
 		return;
 	}
 
-	TiObjectDeleteProperty(jsContext, jsProxyHash, keyString, &exception);
+	TiObjectDeleteProperty(jsContextRef, jsProxyHash, keyString, &exception);
 }
 
--(TiObjectRef)objectForTiString:(TiStringRef) keyString context:(TiContextRef) jsContext
+-(TiObjectRef)objectForTiString:(TiStringRef) keyString context:(TiContextRef) jsContextRef
 {
 	if(finalized){
 		return NULL;
@@ -1216,15 +1216,15 @@ TI_INLINE TiStringRef TiStringCreateWithPointerValue(int value)
 
 	TiValueRef exception=NULL;
 
-	TiObjectRef jsProxyHash = (TiObjectRef)TiObjectGetProperty(jsContext, propsObject, kTiStringPropertyKey, &exception);
+	TiObjectRef jsProxyHash = (TiObjectRef)TiObjectGetProperty(jsContextRef, propsObject, kTiStringPropertyKey, &exception);
 
-	if ((jsProxyHash == NULL) || (TiValueGetType(jsContext,jsProxyHash) != kTITypeObject))
+	if ((jsProxyHash == NULL) || (TiValueGetType(jsContextRef,jsProxyHash) != kTITypeObject))
 	{
 		return NULL;
 	}
 	
-	TiObjectRef result = (TiObjectRef)TiObjectGetProperty(jsContext, jsProxyHash, keyString, NULL);
-	if ((result == NULL) || (TiValueGetType(jsContext,result) != kTITypeObject))
+	TiObjectRef result = (TiObjectRef)TiObjectGetProperty(jsContextRef, jsProxyHash, keyString, NULL);
+	if ((result == NULL) || (TiValueGetType(jsContextRef,result) != kTITypeObject))
 	{
 		return NULL;
 	}
