@@ -421,12 +421,6 @@ public class MediaModule extends KrollModule
 					Cursor c;
 					if (data.getData() != null) {
 						c = activity.getContentResolver().query(data.getData(), projection, null, null, null);
-						// If we can't get query the image, process it from the imageFile
-						if (c == null) {
-							processImage(activity);
-							invokeSuccessCallback(activity, imageFile.getAbsolutePath());
-							return;
-						}
 					}
 					else {
 						c = activity.getContentResolver().query(Images.Media.EXTERNAL_CONTENT_URI, projection, null, null, Images.ImageColumns.DATE_TAKEN);
@@ -458,6 +452,11 @@ public class MediaModule extends KrollModule
 								c = null;
 							}
 						}
+					} else {
+						// If we can't get query the image, process it from the imageFile
+						processImage(activity);
+						invokeSuccessCallback(activity, imageFile.getAbsolutePath());
+						return;
 					}
 
 					String localImageUrl = dataPath;
