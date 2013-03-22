@@ -124,6 +124,26 @@ static pthread_mutex_t KrollEntryLock;
 
 @end
 
+TiContextRef appJsContextRef = NULL;
+KrollContext* appJsKrollContext = nil;
+
+KrollContext* GetKrollContext(TiContextRef context)
+{
+	if (context == appJsContextRef)
+	{
+		return appJsKrollContext;
+	}
+	static const char *krollNS = "Kroll";
+	TiGlobalContextRef globalContext = TiContextGetGlobalContext(context);
+	TiObjectRef global = TiContextGetGlobalObject(globalContext);
+	TiStringRef string = TiStringCreateWithUTF8CString(krollNS);
+	TiValueRef value = TiObjectGetProperty(globalContext, global, string, NULL);
+	KrollContext *ctx = (KrollContext*)TiObjectGetPrivate(TiValueToObject(globalContext, value, NULL));
+	TiStringRelease(string);
+	return ctx;
+}
+
+
 TiValueRef ThrowException (TiContextRef ctx, NSString *message, TiValueRef *exception)
 {
 	TiStringRef jsString = TiStringCreateWithCFString((CFStringRef)message);
@@ -1080,6 +1100,11 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 	
     incrementKrollCounter();
 
+	if (appJsKrollContext == nil) {
+		appJsKrollContext = self;
+		appJsContextRef = context;
+	}
+	
     // TODO: We might want to be smarter than this, and do some KVO on the delegate's
     // 'debugMode' property or something... and start/stop the debugger as necessary.
     if ([[self delegate] shouldDebugContext]) {
@@ -1394,6 +1419,11 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 	
     decrementKrollCounter();
     
+	if (appJsKrollContext == self) {
+		appJsContextRef = NULL;
+		appJsKrollContext = nil;
+	}
+
 	[kroll autorelease];
 	[pool release];
 }

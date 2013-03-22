@@ -37,6 +37,7 @@
 #import "LauncherView.h"
 #import "LauncherItem.h"
 #import "LauncherButton.h"
+#import "TiBase.h"
 
 static const CGFloat kLauncherViewMargin = 0;
 static const CGFloat kLauncherViewPadding = 0;
