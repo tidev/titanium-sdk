@@ -1068,6 +1068,13 @@ build.prototype = {
 					'copyGraphics',
 					'writeBuildManifest'
 				], function () {
+					// this is a hack... for non-deployment builds we need to force xcode so that the pre-compile phase
+					// is run and the ApplicationRouting.m gets updated
+					if (!this.forceRebuild && this.deployType != 'development') {
+						this.logger.info(__('Forcing rebuild: deploy type is %s, so need to recompile ApplicationRouting.m', this.deployType));
+						this.forceRebuild = true;
+					}
+
 					if (this.forceRebuild || this.target != 'simulator' || !afs.exists(this.xcodeAppDir, this.tiapp.name)) {
 						this.logger.info(__('Invoking xcodebuild'));
 						this.invokeXcodeBuild(finished);
@@ -2639,7 +2646,7 @@ build.prototype = {
 		}
 
 		id = path.join(this.assetsDir, id);
-		wrench.mkdirSyncRecursive(this.assetsDir);
+		wrench.mkdirSyncRecursive(path.dirname(id));
 
 		this.logger.debug(__('Writing JavaScript file: %s', id.cyan));
 		fs.writeFileSync(id, contents);
