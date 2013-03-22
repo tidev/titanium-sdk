@@ -18,26 +18,68 @@ public:
 	// short convert methods
 	static jshort jsNumberToJavaShort(v8::Handle<v8::Number> jsNumber);
 	static v8::Handle<v8::Number> javaShortToJsNumber(jshort javaShort);
+	
+	static inline jshort jsNumberToJavaShort(JNIEnv *env, v8::Handle<v8::Number> jsNumber) {
+		return jsNumberToJavaShort(jsNumber);
+	}
+	static inline v8::Handle<v8::Number> javaShortToJsNumber(JNIEnv *env, jshort javaShort) {
+		return javaShortToJsNumber(javaShort);
+	}
 
 	// int convert methods
 	static jint jsNumberToJavaInt(v8::Handle<v8::Number> jsNumber);
 	static v8::Handle<v8::Number> javaIntToJsNumber(jint javaInt);
 
+	static inline jint jsNumberToJavaInt(JNIEnv *env, v8::Handle<v8::Number> jsNumber) {
+		return jsNumberToJavaInt(jsNumber);
+	}
+	static inline v8::Handle<v8::Number> javaIntToJsNumber(JNIEnv *env, jshort javaInt) {
+		return javaIntToJsNumber(javaInt);
+	}
+
 	// long convert methods
 	static jlong jsNumberToJavaLong(v8::Handle<v8::Number> jsNumber);
 	static v8::Handle<v8::Number> javaLongToJsNumber(jlong javaLong);
+
+	static inline jlong jsNumberToJavaLong(JNIEnv *env, v8::Handle<v8::Number> jsNumber) {
+		return jsNumberToJavaLong(jsNumber);
+	}
+	static inline v8::Handle<v8::Number> javaLongToJsNumber(JNIEnv *env, jlong javaLong) {
+		return javaLongToJsNumber(javaLong);
+	}
 
 	// float convert methods
 	static jfloat jsNumberToJavaFloat(v8::Handle<v8::Number> jsNumber);
 	static v8::Handle<v8::Number> javaFloatToJsNumber(jfloat javaFloat);
 
+	static inline jfloat jsNumberToJavaFloat(JNIEnv *env, v8::Handle<v8::Number> jsNumber) {
+		return jsNumberToJavaFloat(jsNumber);
+	}
+	static inline v8::Handle<v8::Number> javaFloatToJsNumber(JNIEnv *env, jfloat javaFloat) {
+		return javaFloatToJsNumber(javaFloat);
+	}
+
 	// double convert methods
 	static jdouble jsNumberToJavaDouble(v8::Handle<v8::Number> jsNumber);
 	static v8::Handle<v8::Number> javaDoubleToJsNumber(jdouble javaDouble);
 
+	static inline jdouble jsNumberToJavaDouble(JNIEnv *env, v8::Handle<v8::Number> jsNumber) {
+		return jsNumberToJavaFloat(jsNumber);
+	}
+	static inline v8::Handle<v8::Number> javaDoubleToJsNumber(JNIEnv *env, jdouble javaDouble) {
+		return javaDoubleToJsNumber(javaDouble);
+	}
+
 	// boolean convert methods
 	static jboolean jsBooleanToJavaBoolean(v8::Handle<v8::Boolean> jsBoolean);
 	static v8::Handle<v8::Boolean> javaBooleanToJsBoolean(jboolean javaBoolean);
+
+	static inline jboolean jsBooleanToJavaBoolean(JNIEnv *env, v8::Handle<v8::Boolean> jsBoolean) {
+		return jsBooleanToJavaBoolean(jsBoolean);
+	}
+	static inline v8::Handle<v8::Boolean> javaBooleanToJsBoolean(JNIEnv *env, jboolean javaBoolean) {
+		return javaBooleanToJsBoolean(javaBoolean);
+	}
 
 	// string convert methods
 	static jstring jsStringToJavaString(v8::Handle<v8::String> jsString);
@@ -56,6 +98,12 @@ public:
 
 	static jobject jsDateToJavaDate(JNIEnv *env, v8::Handle<v8::Date> jsDate);
 	static v8::Handle<v8::Date> javaDateToJsDate(JNIEnv *env, jobject);
+	static inline jlong jsDateToJavaLong(JNIEnv *env, v8::Handle<v8::Date> jsDate) {
+		return jsDateToJavaLong(jsDate);
+	}
+	static inline v8::Handle<v8::Date> javaLongToJsDate(JNIEnv *env, jlong javaLong) {
+		return javaLongToJsDate(javaLong);
+	}
 
 	// function convert methods
 	static jobject jsObjectToJavaFunction(v8::Handle<v8::Object> jsObject);
