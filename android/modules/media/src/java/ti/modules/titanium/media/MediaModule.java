@@ -394,6 +394,8 @@ public class MediaModule extends KrollModule
 				}
 
 			} else {
+				// If data is null, the image is not automatically saved to the gallery, so we need to process it with
+				// the one we created
 				if (data == null) {
 					processImage(activity);
 
@@ -417,17 +419,20 @@ public class MediaModule extends KrollModule
 					String dataPath = null;
 					String dateTaken = null;
 
-					Cursor c;
+					Cursor c = null;
+					boolean isDataValid = true;
 					if (data.getData() != null) {
 						c = activity.getContentResolver().query(data.getData(), projection, null, null, null);
 					}
-					else {
-						c = activity.getContentResolver().query(Images.Media.EXTERNAL_CONTENT_URI, projection, null, null, Images.ImageColumns.DATE_TAKEN);
+					if (c == null) {
+						c = activity.getContentResolver().query(Images.Media.EXTERNAL_CONTENT_URI, projection, null, null,
+							Images.ImageColumns.DATE_TAKEN);
+						isDataValid = false;
 					}
 					if (c != null) {
 						try {
 							boolean isCursorValid = false;
-							if (data.getData() != null) {
+							if (data.getData() != null && isDataValid) {
 								isCursorValid = c.moveToNext();
 							} else {
 								isCursorValid = c.moveToLast();
@@ -459,12 +464,12 @@ public class MediaModule extends KrollModule
 
 					String localImageUrl = dataPath;
 
-					if (!saveToPhotoGallery) {
+					// We need to move the image from dataPath to imageUrl
+					URL url;
+					try {
+						url = new URL(imageUrl);
+						if (!saveToPhotoGallery) {
 
-						// We need to move the image from dataPath to imageUrl
-						URL url;
-						try {
-							url = new URL(imageUrl);
 							moveImage(dataPath, url.getPath());
 
 							// Update Content
@@ -473,7 +478,7 @@ public class MediaModule extends KrollModule
 							values.put(Images.ImageColumns.BUCKET_DISPLAY_NAME, imageFile.getName());
 							values.put("_data", imageFile.getAbsolutePath());
 
-							if (data.getData() != null) {
+							if (data.getData() != null && isDataValid) {
 								activity.getContentResolver().update(data.getData(), values, null, null);
 							} else {
 								activity.getContentResolver().update(Images.Media.EXTERNAL_CONTENT_URI, values,
@@ -481,13 +486,15 @@ public class MediaModule extends KrollModule
 							}
 
 							localImageUrl = imageUrl; // make sure it's a good URL before setting it to pass back.
-						} catch (MalformedURLException e) {
-							Log.e(TAG, "Invalid URL not moving image: " + e.getMessage());
-
+						} else {
+							// Delete the temp file since we want to use the one from the photo gallery
+							File source = new File(url.getPath());
+							source.delete();
 						}
+					} catch (MalformedURLException e) {
+						Log.e(TAG, "Invalid URL not moving image: " + e.getMessage());
 
 					}
-
 					invokeSuccessCallback(activity, localImageUrl);
 				}
 			}
