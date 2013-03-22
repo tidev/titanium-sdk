@@ -90,7 +90,9 @@ public class TiUISwitch extends TiUIView
 	@Override
 	public void propertyChanged(String key, Object oldValue, Object newValue, KrollProxy proxy)
 	{
-		Log.d(TAG, "Property: " + key + " old: " + oldValue + " new: " + newValue, Log.DEBUG_MODE);
+		if (Log.isDebugModeEnabled()) {
+			Log.d(TAG, "Property: " + key + " old: " + oldValue + " new: " + newValue, Log.DEBUG_MODE);
+		}
 		
 		CompoundButton cb = (CompoundButton) getNativeView();
 		if (key.equals(TiC.PROPERTY_STYLE) && newValue != null) {

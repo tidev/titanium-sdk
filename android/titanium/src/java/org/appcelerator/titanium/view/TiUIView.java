@@ -325,7 +325,9 @@ public abstract class TiUIView
 			}
 		}
 
-		Log.d(TAG, "starting animation: " + as, Log.DEBUG_MODE);
+		if (Log.isDebugModeEnabled()) {
+			Log.d(TAG, "starting animation: " + as, Log.DEBUG_MODE);
+		}
 		nativeView.startAnimation(as);
 
 		if (invalidateParent) {
@@ -646,7 +648,7 @@ public abstract class TiUIView
 		} else if (key.equals(TiC.PROPERTY_ACCESSIBILITY_HIDDEN)) {
 			applyAccessibilityHidden(newValue);
 
-		} else {
+		} else if (Log.isDebugModeEnabled()) {
 			Log.d(TAG, "Unhandled property key: " + key, Log.DEBUG_MODE);
 		}
 	}
@@ -820,12 +822,16 @@ public abstract class TiUIView
 
 	public void release()
 	{
-		Log.d(TAG, "Releasing: " + this, Log.DEBUG_MODE);
+		if (Log.isDebugModeEnabled()) {
+			Log.d(TAG, "Releasing: " + this, Log.DEBUG_MODE);
+		}
 		View nv = getNativeView();
 		if (nv != null) {
 			if (nv instanceof ViewGroup) {
 				ViewGroup vg = (ViewGroup) nv;
-				Log.d(TAG, "Group has: " + vg.getChildCount(), Log.DEBUG_MODE);
+				if (Log.isDebugModeEnabled()) {
+					Log.d(TAG, "Group has: " + vg.getChildCount(), Log.DEBUG_MODE);
+				}
 				if (!(vg instanceof AdapterView<?>)) {
 					vg.removeAllViews();
 				}
