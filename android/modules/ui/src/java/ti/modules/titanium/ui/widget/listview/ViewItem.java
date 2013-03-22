@@ -27,25 +27,40 @@ public class ViewItem {
 		return view;
 	}
 	
+	/**
+	 * This method compares applied properties of a view and our data model to
+	 * generate a new set of properties we need to set. It is crucial for scrolling performance. 
+	 * @param properties The properties from our data model
+	 * @return The difference set of properties to set
+	 */
 	public KrollDict generateDiffProperties(KrollDict properties) {
 		diffProperties.clear();
+
+		for (String appliedProp : this.properties.keySet()) {
+			if (!properties.containsKey(appliedProp)) {
+				diffProperties.put(appliedProp, null);
+			}
+		}
+		
 		for (String property : properties.keySet()) {
 			Object value = properties.get(property);
 			if (TiListView.MUST_SET_PROPERTIES.contains(property)) {
-				diffProperties.put(property, value);
-				this.properties.put(property, value);
+				applyProperty(property, value);
 				continue;
 			}
 
-			boolean isContain = this.properties.containsKey(property);
-			Object existingVal = this.properties.get(property);
-			if (!isContain || (isContain && existingVal == null) || (isContain && !existingVal.equals(value))) {
-				diffProperties.put(property, value);
-				this.properties.put(property, value);
+			Object existingVal = this.properties.get(property);			
+			if (existingVal == null || value == null || !existingVal.equals(value)) {
+				applyProperty(property, value);
 			}
 		}
 		return diffProperties;
 		
+	}
+	
+	private void applyProperty(String key, Object value) {
+		diffProperties.put(key, value);
+		properties.put(key, value);
 	}
 	
 	
