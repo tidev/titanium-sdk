@@ -1,6 +1,17 @@
 ---
 name: Titanium.Map
 summary: The top level Map module.  The Map module is used for creating in-application native maps.
+description: |
+    #### Android Platform Notes
+
+    This module provides native map support using Google Maps API v1. As of March 3, 2013,
+    Google is no longer issuing Google Maps API v1 keys and this module can no longer be used to
+    support native maps on Android unless you have these keys.
+
+    For new Android applications, use the [Google Maps v2 add-on module](Modules.Map)
+    to add native maps support for your application. If you have an application that still uses the old keys,
+    you can either transition to the new module or continue using the built-in Titanium.Maps module.
+
 extends: Titanium.Module
 since: "0.8"
 platforms: [android, iphone, ipad, mobileweb]

@@ -59,7 +59,7 @@
 
 -(CGFloat) verifyWidth:(CGFloat)suggestedWidth
 {
-	switch(styleCache)
+	switch((int)styleCache)
 	{
 		case UITitaniumNativeItemInfoLight:
 		case UITitaniumNativeItemInfoDark:
@@ -75,7 +75,7 @@
 
 -(CGFloat) verifyHeight:(CGFloat)suggestedHeight
 {
-	switch(styleCache)
+	switch((int)styleCache)
 	{
 		case UITitaniumNativeItemInfoLight:
 		case UITitaniumNativeItemInfoDark:
@@ -92,7 +92,7 @@
 
 -(UIViewAutoresizing) verifyAutoresizing:(UIViewAutoresizing)suggestedResizing
 {
-	switch (styleCache)
+	switch ((int)styleCache)
 	{
 		case UITitaniumNativeItemInfoLight:
 		case UITitaniumNativeItemInfoDark:

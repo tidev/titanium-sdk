@@ -52,6 +52,15 @@
 #ifdef USE_TI_UIIPHONEALERTDIALOGSTYLE
 	TiProxy *alertDialogStyle;
 #endif
+#ifdef USE_TI_UIIPHONELISTVIEWSTYLE
+	TiProxy *listViewStyle;
+#endif
+#ifdef USE_TI_UIIPHONELISTVIEWSCROLLPOSITION
+	TiProxy *listViewScrollPosition;
+#endif
+#ifdef USE_TI_UIIPHONELISTVIEWCELLSELECTIONSTYLE
+	TiProxy *listViewCellSelectionStyle;
+#endif
 }
 
 #ifdef USE_TI_UIIPHONEANIMATIONSTYLE
@@ -95,6 +104,15 @@
 #endif
 #ifdef USE_TI_UIIPHONEALERTDIALOGSTYLE
 @property(nonatomic, readonly) TiProxy *AlertDialogStyle;
+#endif
+#ifdef USE_TI_UIIPHONELISTVIEWSTYLE
+@property(nonatomic,readonly) TiProxy* ListViewStyle;
+#endif
+#ifdef USE_TI_UIIPHONELISTVIEWSCROLLPOSITION
+@property(nonatomic,readonly) TiProxy* ListViewScrollPosition;
+#endif
+#ifdef USE_TI_UIIPHONELISTVIEWCELLSELECTIONSTYLE
+@property(nonatomic,readonly) TiProxy* ListViewCellSelectionStyle;
 #endif
 
 

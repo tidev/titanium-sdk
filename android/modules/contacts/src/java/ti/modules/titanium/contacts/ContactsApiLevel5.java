@@ -33,7 +33,6 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.RemoteException;
-import android.provider.Contacts.Phones;
 import android.provider.ContactsContract;
 import android.provider.ContactsContract.CommonDataKinds.Email;
 import android.provider.ContactsContract.CommonDataKinds.Event;
@@ -53,7 +52,6 @@ import android.provider.ContactsContract.RawContacts;
 public class ContactsApiLevel5 extends CommonContactsApi
 {
 	protected boolean loadedOk;
-	//private WeakReference<TiContext> weakContext ;
 	private static final String TAG = "TiContacts5";
 	private Method openContactPhotoInputStream;
 	private static Class<?> Contacts;
@@ -93,6 +91,9 @@ public class ContactsApiLevel5 extends CommonContactsApi
 
 	protected static int DATA_COLUMN_NOTE = DATA_COLUMN_DATA1;
 
+	protected static int DATA_COLUMN_EVENT_DATE = DATA_COLUMN_DATA1;
+	protected static int DATA_COLUMN_EVENT_TYPE = DATA_COLUMN_DATA2;
+
 	protected static int DATA_COLUMN_EMAIL_ADDR = DATA_COLUMN_DATA1;
 	protected static int DATA_COLUMN_EMAIL_TYPE = DATA_COLUMN_DATA2;
 
@@ -117,6 +118,7 @@ public class ContactsApiLevel5 extends CommonContactsApi
 
 	protected static String KIND_NAME = "vnd.android.cursor.item/name";
 	protected static String KIND_EMAIL = "vnd.android.cursor.item/email_v2";
+	protected static String KIND_EVENT = "vnd.android.cursor.item/contact_event";
 	protected static String KIND_NOTE = "vnd.android.cursor.item/note";
 	protected static String KIND_PHONE = "vnd.android.cursor.item/phone_v2";
 	protected static String KIND_ADDRESS = "vnd.android.cursor.item/postal-address_v2";
@@ -136,7 +138,7 @@ public class ContactsApiLevel5 extends CommonContactsApi
 	protected static int PEOPLE_COL_PHOTO_ID = 2;
 
 	private static String INConditionForKinds =
-			"('" + KIND_ADDRESS + "','" + KIND_EMAIL + "','" +
+			"('" + KIND_ADDRESS + "','" + KIND_EMAIL + "','" + KIND_EVENT + "','" +
 					KIND_NAME + "','" + KIND_NOTE + "','" + KIND_PHONE + "')";
 
 	protected ContactsApiLevel5()
@@ -169,12 +171,6 @@ public class ContactsApiLevel5 extends CommonContactsApi
 
 	private PersonProxy[] getPeople(int limit, String additionalCondition, String[] additionalSelectionArgs)
 	{
-		//TiContext tiContext = weakContext.get();
-		/*if (tiContext == null) {
-			Log.d(LCAT , "Could not getPeople, context is GC'd");
-			return null;
-		}*/
-
 		if (TiApplication.getInstance() == null) {
 			Log.e(TAG, "Failed to call getPeople(), application is null", Log.DEBUG_MODE);
 			return null;
@@ -436,7 +432,7 @@ public class ContactsApiLevel5 extends CommonContactsApi
 		} 
 		
 		if (phoneHashMap.containsKey(TiC.PROPERTY_OTHER)) {
-			processPhone(phoneHashMap, TiC.PROPERTY_OTHER, ops, Phones.TYPE_OTHER, rawContactId);
+			processPhone(phoneHashMap, TiC.PROPERTY_OTHER, ops, ContactsContract.CommonDataKinds.Phone.TYPE_OTHER, rawContactId);
 		} 
 	}
 

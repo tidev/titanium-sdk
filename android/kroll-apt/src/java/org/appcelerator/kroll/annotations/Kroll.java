@@ -1,7 +1,7 @@
 package org.appcelerator.kroll.annotations;
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2010-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2010-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -328,7 +328,7 @@ public @interface Kroll
 
 	/**
 	 * Declares a Kroll proxy.<br>
-	 * <p>Proxies are the API interface between Javascript (Rhino) and Java.
+	 * <p>Proxies are the API interface between Javascript and Java.
 	 * Proxy classes must use this or {@link module the module annotation} to expose methods and properties,
 	 * and must follow a few specific source patterns:
 	 * <ul>

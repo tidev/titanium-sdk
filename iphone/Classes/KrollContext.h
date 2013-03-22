@@ -17,6 +17,7 @@
 @required
 -(id)require:(KrollContext*)kroll path:(NSString*)path;
 -(BOOL)shouldDebugContext;
+-(BOOL)shouldProfileContext;
 @optional
 
 -(void)willStartNewContext:(KrollContext*)kroll;
@@ -68,6 +69,7 @@
 -(void)invokeOnThread:(id)callback_ method:(SEL)method_ withObject:(id)obj condition:(NSCondition*)condition_;
 -(void)invokeOnThread:(id)callback_ method:(SEL)method_ withObject:(id)obj callback:(id)callback selector:(SEL)selector_;
 -(void)invokeBlockOnThread:(void(^)())block;
++(void)invokeBlock:(void (^)())block;
 
 -(void)evalJS:(NSString*)code;
 -(id)evalJSAndWait:(NSString*)code;
@@ -146,19 +148,7 @@
 -(void)setExecutionContext:(id<KrollDelegate>)delegate;
 @end
 
-//Todo: Move out of being inline and refactor out constantly creating and removing the Kroll string. --BTH
-TI_INLINE KrollContext* GetKrollContext(TiContextRef context)
-{
-	static const char *krollNS = "Kroll";
-	TiGlobalContextRef globalContext = TiContextGetGlobalContext(context);
-	TiObjectRef global = TiContextGetGlobalObject(globalContext); 
-	TiStringRef string = TiStringCreateWithUTF8CString(krollNS);
-	TiValueRef value = TiObjectGetProperty(globalContext, global, string, NULL);
-//Yes, the __bridge gives a warning when not in ARC. This is why this should not be inline anymore.
-	KrollContext *ctx = (__bridge KrollContext*)TiObjectGetPrivate(TiValueToObject(globalContext, value, NULL));
-	TiStringRelease(string);
-	return ctx;
-}
+KrollContext* GetKrollContext(TiContextRef context);
 
 //TODO: After 1.7, move to individual file and convert KrollInvocation and Callbacks to ExpandedInvocationOperation.
 @interface ExpandedInvocationOperation : NSOperation {

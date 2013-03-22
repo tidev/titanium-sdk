@@ -348,6 +348,6 @@ public class TiUIDialog extends TiUIView
 		}
 		data.put(TiC.EVENT_PROPERTY_INDEX, id);
 		data.put(TiC.PROPERTY_CANCEL, id == cancelIndex);
-		proxy.fireEvent(TiC.EVENT_CLICK, data);
+		fireEvent(TiC.EVENT_CLICK, data);
 	}
 }

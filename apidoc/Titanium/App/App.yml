@@ -35,7 +35,7 @@ description: |
     can, but when memory runs low it terminates suspended apps to reclaim that memory. Apps 
     that consume large amounts of memory while in the background are the first apps to be terminated.
     
-    **Responding To interruptions**
+    **Responding To Interruptions**
     
     ***System Alerts***
     
@@ -83,6 +83,14 @@ description: |
     <tr><th rowspan="2" align="left">Sleep/Wake Button</th><td> iOS 4.X</td><td align="center">pause</td><td  align="center"><td align="center"><td align="center"> resumed</tr >
     <tr><td>iOS 5.0 +</td><td align="center">pause</td><td align="center">paused</td><td align="center">resume<td align="center">resumed</td></tr>
     <tr><th colspan="2" align="left">Home Button (backgrounding)<td align="center">pause<td align="center">paused<td align="center"> resume<td align="center">resumed</tr></table>
+
+    ***Blur and Focus Events***
+
+    When using the iOS pause/resume feature, the `blur` and `focus` events do not fire
+    before the application enters the background or after it returns to the foreground,
+    respectively.  Instead, the application needs to monitor the `pause` and `resumed` events,
+    which relies on the underlying iOS events to determine the application state rather than the
+    UI events.
     
     #### Application Level Events
 
@@ -192,7 +200,10 @@ events:
   - name: paused
     summary: Fired when the application transitions to the background on a multitasked system.
     description: |
-        Available on iOS 4.0 and later.
+        On iOS 4.0 and later, this event only fires when putting the application in the background
+        using the home button.
+
+        On iOS 5.0 and later, this event also fires when using the sleep/wake or power button.
         
         This event fires when the user leaves the application.
         
@@ -219,7 +230,10 @@ events:
   - name: resume
     summary: Fired when the application returns to the foreground on a multitasked system.
     description: |
-        Available on iOS 4.0 and later.
+        On iOS 4.0 and later, this event only fires when putting the application in the background
+        using the home button.
+
+        On iOS 5.0 and later, this event also fires when using the sleep/wake or power button.
         
         Note that this event does not fire for pauses resulting from notifications or incoming phone 
         calls.

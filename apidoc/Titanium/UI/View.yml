@@ -205,6 +205,11 @@ events:
       - name: y
         summary: Y coordinate of the event from the `source` view's coordinate system.
         type: Number
+
+  - name: focus
+    summary: Fired when the view element gains focus.
+    description: This event only fires when using the trackball to navigate.
+    platforms: [android]
         
   - name: keypressed
     summary: Fired when a hardware key is pressed in the view.
@@ -468,8 +473,8 @@ methods:
         container, but they are not added using the `add` method.
         
         Note that although a `NavigationGroup`
-        manages windows, it is not itself top-level container.  It must be added to a 
-        `Window` in order to be displayed. 
+        manages windows, it is not itself a top-level container.  It must be added to a
+        `Window` or `Popover` in order to be displayed.
         
         `Tab` is another kind of special container: it is not itself a top-level container, 
         but can only be used within a `TabGroup`. You cannot `add` a `Tab` to an arbitrary
@@ -976,6 +981,13 @@ properties:
     summary: Array of this view's child views.
     type: Array<Titanium.UI.View>
     permission: read-only
+
+  - name: enabled
+    summary: Determines if the view is enabled or disabled.
+    description: Set to `true` to enable or `false` to disable the view.
+    default: Enabled by default. (Property value may be undefined.)
+    type: Boolean
+    platforms: [android]
     
   - name: focusable
     summary: Whether view should be focusable while navigating with the trackball.

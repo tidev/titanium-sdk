@@ -791,10 +791,13 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 -(void)addEventListener:(NSArray*)args
 {
 	NSString *type = [args objectAtIndex:0];
-	KrollCallback* listener = [args objectAtIndex:1];
-	ENSURE_TYPE(listener,KrollCallback);
+	id listener = [args objectAtIndex:1];
+	if (![listener isKindOfClass:[KrollWrapper class]] &&
+		![listener isKindOfClass:[KrollCallback class]]) {
+		ENSURE_TYPE(listener,KrollCallback);
+	}
 
-	KrollObject * ourObject = [self krollObjectForContext:[listener context]];
+	KrollObject * ourObject = [self krollObjectForContext:([listener isKindOfClass:[KrollCallback class]] ? [(KrollCallback *)listener context] : [(KrollWrapper *)listener bridge].krollContext)];
 	[ourObject storeListener:listener forEvent:type];
 
 	//TODO: You know, we can probably nip this in the bud and do this at a lower level,
@@ -1237,5 +1240,34 @@ DEFINE_EXCEPTIONS
 	// since you can't serialize a proxy as JSON, just return null
 	return [NSNull null];
 }
+
++ (id)createProxy:(NSString*)qualifiedName withProperties:(NSDictionary*)properties inContext:(id<TiEvaluator>)context
+{
+	static dispatch_once_t onceToken;
+	static CFMutableDictionaryRef classNameLookup;
+	dispatch_once(&onceToken, ^{
+		classNameLookup = CFDictionaryCreateMutable(kCFAllocatorDefault, 1, &kCFTypeDictionaryKeyCallBacks, NULL);
+	});
+	Class proxyClass = (Class)CFDictionaryGetValue(classNameLookup, qualifiedName);
+	if (proxyClass == nil) {
+		NSString *titanium = [NSString stringWithFormat:@"%@%s",@"Ti","tanium."];
+		if ([qualifiedName hasPrefix:titanium]) {
+			qualifiedName = [qualifiedName stringByReplacingCharactersInRange:NSMakeRange(2, 6) withString:@""];
+		}
+		NSString *className = [[qualifiedName stringByReplacingOccurrencesOfString:@"." withString:@""] stringByAppendingString:@"Proxy"];
+		proxyClass = NSClassFromString(className);
+		if (proxyClass==nil) {
+			DebugLog(@"[WARN] Attempted to load %@: Could not find class definition.", className);
+			@throw [NSException exceptionWithName:@"org.appcelerator.module"
+										reason:[NSString stringWithFormat:@"Class not found: %@", qualifiedName]
+										userInfo:nil];
+		}
+		CFDictionarySetValue(classNameLookup, qualifiedName, proxyClass);
+	}
+	NSArray *args = properties != nil ? [NSArray arrayWithObject:properties] : nil;
+	return [[[proxyClass alloc] _initWithPageContext:context args:args
+			 ] autorelease];
+}
+
 
 @end

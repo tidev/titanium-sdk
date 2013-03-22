@@ -140,7 +140,7 @@ public class TiUIDatePicker extends TiUIView
 		if (!suppressChangeEvent) {
 			KrollDict data = new KrollDict();
 			data.put("value", targetCalendar.getTime());
-			proxy.fireEvent("change", data);
+			fireEvent("change", data);
 		}
 		proxy.setProperty("value", targetCalendar.getTime());
 	}

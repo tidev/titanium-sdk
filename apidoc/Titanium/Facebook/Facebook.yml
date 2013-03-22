@@ -1,8 +1,18 @@
 ---
 name: Titanium.Facebook
+deprecated:
+    since: "3.1.0"
+    notes: |
+        On Mobile Web, continue to use this module.
+
+        On Android and iOS, use <Modules.Facebook> instead.
 summary: |
     The top level Facebook module.  
 description: |
+    **Note:** In Titanium 3.1, the `Titianium.Facebook` module on Android and iOS is replaced by the
+    <Modules.Facebook> add-on module that uses more recent versions of the native Facebook SDKs for
+    Android and iOS. For Mobile Web, continue to use `Titanium.Facebook`.
+
     The Facebook module is used for connecting your application with 
     Facebook. This module supports the following features:
 
@@ -96,46 +106,6 @@ description: |
     This property is used only for configuring your app to interface with the facebook 
     login process.
     
-    Since 3.1.0, This module must also be added to the modules section in your tiapp.xml.
-    This can be done using the Modules list in the Titanium Studio TiApp Editor, or by
-    editing the XML directly and adding the following line to the modules element:
-    
-        <module platform="iphone">facebook</module>
-
-    For backwards compatibility, you can still access this module through the Titanium
-    namespace (e.g., Ti.Facebook.authorize is aliased to require('ti.facebook').authorize)
-
-    #### iOS 6 Support Notes
-
-    To use iOS 6's built-in Facebook login, some changes may be required of your application.
-    iOS 6 does not support having required [permissions](Titanium.Facebook.permissions) of
-    offline_access nor of any write access. Furthermore, Facebook's native SDK makes the
-    old login auth and using iOS 6's login mutually exclusive options. In other words,
-    the following must happen to use iOS 6's built-in facebook login:
-    
-    * The device must be running iOS 6.
-    
-    * [forceDialogAuth](Titanium.Facebook.forceDialogAuth) MUST be false.
-    
-    * Required [permissions](Titanium.Facebook.permissions) MUST NOT contain any of the
-        following: offline_access, publish_actions, publish_stream, publish_checkins,
-        ads_management, create_event, rsvp_event, manage_friendlists, manage_notifications,
-        or manage_pages
-    
-    In the event that these requirements aren't met, the facebook module will gracefully
-    degrade to legacy login support, using the dialog authorization, single sign-on with
-    the facebook app, or authentication via Safari as previously done.
-    
-    For security reasons, authorization through iOS 6 also requires your facebook
-    application ID to be associated with your Titanium application's bundle identifier
-    specified in your tiapp.xml. This is the same bundle identifier mentioned in step 4
-    of Facebook's [getting started guide](http://developers.facebook.com/docs/getting-started/facebook-sdk-for-ios/3.1/).
-    
-    Since iOS 6 does not allow for required permissions to contain write actions, write
-    actions are now done via the [reauthorize](Titanium.Facebook.reauthorize) method. This
-    method will work even without iOS 6 support. For more details about iOS 6, see the
-    [official Facebook iOS 6 documentation](http://developers.facebook.com/docs/howtos/ios-6/).
-
     #### Previous Versions
     Titanium Mobile SDK 1.6.0 marked a significant change for this module.  Older versions of 
     the module were not compatible with the new Graph API.  Applications written for the 
@@ -143,8 +113,8 @@ description: |
     Nor is the code shown in the examples here backwards-compatible with pre-1.6.0 Titanium 
     Mobile SDK.
 extends: Titanium.Module
-since: "0.8"
-platforms: [android, iphone, ipad]
+since: { android: "0.8", iphone: "0.8", ipad: "0.8", mobileweb: "2.0" }
+platforms: [android, ipad, iphone, mobileweb]
 methods:
 
   - name: authorize
@@ -178,7 +148,7 @@ methods:
 
       - name: callback
         summary: Callback to invoke  when the user completes or cancels the dialog.
-        type: Callback<FacebookDialogResponse>
+        type: Callback<FacebookDialogResponsev1>
 
   - name: logout
     summary: Clears the OAuth `accessToken` and logs out the user.
@@ -202,7 +172,7 @@ methods:
 
       - name: callback
         summary: Callback to invoke  when the request completes.
-        type: Callback<FacebookRESTResponse>
+        type: Callback<FacebookRESTResponsev1>
 
   - name: requestWithGraphPath
     summary: Makes a Facebook Graph API request.
@@ -234,33 +204,7 @@ methods:
 
       - name: callback
         summary: Callback to invoke  when the request completes.
-        type: Callback<FacebookGraphResponse>
-
-  - name: reauthorize
-    summary: Makes a request to Facebook for additional permissions.
-    description: |
-        iOS 6's facebook login forbids minimum authorization to include write permissions.
-        In order to make any write actions, the app must reauthorize asking for the additional
-        permissions. If the application already has these permissions, there will be no user
-        interaction.
-    platforms: [iphone, ipad]
-    since: "3.1.0"
-    parameters:
-
-      - name: permissions
-        summary: |
-            Array of additional permissions to request. For a complete list of permissions, see the 
-            [official Facebook Permissions Reference](http://developers.facebook.com/docs/reference/api/permissions/)
-        type: Array<String>
-
-      - name: audience
-        summary: |
-            The extent of the visibility write permissions will have. The value of audience should be one of "me", "friends", or "everyone"
-        type: String
-        
-      - name: callback
-        summary: Callback to invoke when the request completes.
-        type: Callback<FacebookReauthResponse>
+        type: Callback<FacebookGraphResponsev1>
 
 events:
 
@@ -616,7 +560,7 @@ examples:
 
         * [Facebook Dialog Reference](http://developers.facebook.com/docs/reference/dialogs/) 
 ---
-name: FacebookGraphResponse
+name: FacebookGraphResponsev1
 summary: |
     Argument passed to the graph API callback, in response to a
     [requestWithGraphPath](Titanium.Facebook.requestWithGraphPath) call.
@@ -640,23 +584,7 @@ properties:
 
 
 ---
-name: FacebookReauthResponse
-summary: Argument passed to the reauthorize callback when the request is completed or canceled.
-description: |
-    The `success` and `cancelled` properties may not be reliable for dialogs. In the event
-    that the user canceled the dialog, the `result` field is `undefined`.
-properties:
-
-  - name: success
-    summary: Indicates if the request succeeded.
-    type: Boolean 
-
-  - name: error
-    summary: Error message, if request failed.
-    type: String
-
----
-name: FacebookDialogResponse
+name: FacebookDialogResponsev1
 summary: Argument passed to the dialog callback when a dialog is completed or canceled.
 description: |
     The `success` and `cancelled` properties may not be reliable for dialogs. In the event
@@ -683,7 +611,7 @@ properties:
 
 
 ---
-name: FacebookRESTResponse
+name: FacebookRESTResponsev1
 summary: |
     Argument passed to the REST API callback when a request completes (successfully
     or unsuccessfully).

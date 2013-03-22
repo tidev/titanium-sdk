@@ -150,6 +150,10 @@ using namespace titanium;
  */
 JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nativeInit(JNIEnv *env, jobject self, jboolean useGlobalRefs, jint debuggerPort, jboolean DBG)
 {
+	char* argv[] = { "", "--expose-gc" };
+	int argc = sizeof(argv)/sizeof(*argv);
+	V8::SetFlagsFromCommandLine(&argc, argv, false);
+	
 	HandleScope scope;
 	titanium::JNIScope jniScope(env);
 

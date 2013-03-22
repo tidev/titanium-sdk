@@ -89,6 +89,7 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 	RELEASE_TO_NIL(basicCredentials);
 	RELEASE_TO_NIL(reloadData);
 	RELEASE_TO_NIL(reloadDataProperties);
+	RELEASE_TO_NIL(lastValidLoad);
 	[super dealloc];
 }
 
@@ -268,6 +269,7 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 	}
 	content = [[self class] content:content withInjection:[self titaniumInjection]];
 	
+	[self ensureLocalProtocolHandler];
 	[[self webview] loadData:[content dataUsingEncoding:encoding] MIMEType:mimeType textEncodingName:textEncodingName baseURL:baseURL];
 	if (scalingOverride==NO) {
 		[[self webview] setScalesPageToFit:NO];
@@ -322,6 +324,7 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 
 - (void)reload
 {
+    RELEASE_TO_NIL(lastValidLoad);
 	if (webview == nil)
 	{
 		return;
@@ -390,6 +393,7 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 	[self setReloadData:content];
 	[self setReloadDataProperties:property];
 	reloadMethod = @selector(setHtml_:withObject:);
+	RELEASE_TO_NIL(lastValidLoad);
 	[self loadHTML:content encoding:NSUTF8StringEncoding textEncodingName:@"utf-8" mimeType:mimeType baseURL:baseURL];
 }
 
@@ -400,6 +404,7 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 	[self setReloadDataProperties:nil];
 	reloadMethod = @selector(setData_:);
 	RELEASE_TO_NIL(url);
+	RELEASE_TO_NIL(lastValidLoad);
 	ENSURE_SINGLE_ARG(args,NSObject);
 	
 	[self stopLoading];
@@ -412,6 +417,7 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 		{
 			case TiBlobTypeData:
 			{
+				[self ensureLocalProtocolHandler];
 				[[self webview] loadData:[blob data] MIMEType:[blob mimeType] textEncodingName:@"utf-8" baseURL:nil];
 				if (scalingOverride==NO)
 				{
@@ -471,6 +477,7 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 	reloadMethod = @selector(setUrl_:);
 
 	RELEASE_TO_NIL(url);
+	RELEASE_TO_NIL(lastValidLoad);
 	ENSURE_SINGLE_ARG(args,NSString);
 	
 	url = [[TiUtils toURL:args proxy:(TiProxy*)self.proxy] retain];
@@ -488,13 +495,17 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 	}
 }
 
-- (void)loadLocalURL
+- (void)ensureLocalProtocolHandler
 {
 	static dispatch_once_t onceToken;
 	dispatch_once(&onceToken, ^{
 		[NSURLProtocol registerClass:[LocalProtocolHandler class]];
 	});
+}
 
+- (void)loadLocalURL
+{
+	[self ensureLocalProtocolHandler];
 	NSStringEncoding encoding = NSUTF8StringEncoding;
 	NSString *mimeType = [Mimetypes mimeTypeForExtension:[url path]];
 	NSString *textEncodingName = @"utf-8";
@@ -683,28 +694,31 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 
 - (void)webViewDidFinishLoad:(UIWebView *)webView
 {
-	if (spinner!=nil)
-	{
-		[UIView beginAnimations:@"webspiny" context:nil];
-		[UIView setAnimationDuration:0.3];
-		[spinner removeFromSuperview];
-		[UIView commitAnimations];
-		[spinner autorelease];
-		spinner = nil;
-	}
+    if (spinner!=nil) {
+        [UIView beginAnimations:@"webspiny" context:nil];
+        [UIView setAnimationDuration:0.3];
+        [spinner removeFromSuperview];
+        [UIView commitAnimations];
+        [spinner autorelease];
+        spinner = nil;
+    }
     [url release];
     url = [[[webview request] URL] retain];
-	[[self proxy] replaceValue:[url absoluteString] forKey:@"url" notification:NO];
+    NSString* urlAbs = [url absoluteString];
+    [[self proxy] replaceValue:urlAbs forKey:@"url" notification:NO];
 	
-	if ([self.proxy _hasListeners:@"load"])
-	{
-		NSDictionary *event = url == nil ? nil : [NSDictionary dictionaryWithObject:[self url] forKey:@"url"];
-		[self.proxy fireEvent:@"load" withObject:event];
-	}
-	[webView setNeedsDisplay];
-	ignoreNextRequest = NO;
-	TiViewProxy * ourProxy = (TiViewProxy *)[self proxy];
-	[ourProxy contentsWillChange];
+    if ([self.proxy _hasListeners:@"load"]) {
+        if (![urlAbs isEqualToString:lastValidLoad]) {
+            NSDictionary *event = url == nil ? nil : [NSDictionary dictionaryWithObject:[self url] forKey:@"url"];
+            [self.proxy fireEvent:@"load" withObject:event];
+            [lastValidLoad release];
+            lastValidLoad = [urlAbs retain];
+        }
+    }
+    [webView setNeedsDisplay];
+    ignoreNextRequest = NO;
+    TiViewProxy * ourProxy = (TiViewProxy *)[self proxy];
+    [ourProxy contentsWillChange];
 }
 
 - (void)webView:(UIWebView *)webView didFailLoadWithError:(NSError *)error

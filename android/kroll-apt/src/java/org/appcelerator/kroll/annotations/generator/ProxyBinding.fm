@@ -226,10 +226,6 @@
 		"javaReturnType":"jobject",
 		"javaValidation":true,
 		"javaDeleteLocalRef":true,
-		"rhinoType":"Proxy",
-		"rhinoJsCast":false,
-		"rhinoToJavaConverter":"jsObjectToJavaObject",
-		"javaToRhinoConverter":"javaObjectToJsObject",
 		"typeValidation":true,
 		"defaultValue": "null"
 	},
@@ -243,10 +239,6 @@
 		"javaReturnType":"jobject",
 		"javaValidation":true,
 		"javaDeleteLocalRef":true,
-		"rhinoType":"Object",
-		"rhinoJsCast":false,
-		"rhinoToJavaConverter":"jsObjectToJavaObject",
-		"javaToRhinoConverter":"javaObjectToJsObject",
 		"typeValidation":false,
 		"defaultValue": "null"
 	},
@@ -259,9 +251,6 @@
 		"javaReturnType":"jstring",
 		"javaValidation":true,
 		"javaDeleteLocalRef":true,
-		"rhinoType":"String",
-		"rhinoJsCast":false,
-		"rhinoToJavaConverter":"jsObjectToJavaString",
 		"typeValidation":false,
 		"defaultValue": "null"
 	},
@@ -275,10 +264,6 @@
 		"javaReturnType":"jobjectArray",
 		"javaValidation": true,
 		"javaDeleteLocalRef":true,
-		"rhinoType":"Scriptable",
-		"rhinoJsCast":true,
-		"rhinoToJavaConverter":"jsArrayToJavaStringArray",
-		"javaToRhinoConverter":"javaStringArrayToJsArray",
 		"defaultValue": "null"
 	},
 	"java.lang.Object":{
@@ -291,10 +276,6 @@
 		"javaReturnType":"jobject",
 		"javaValidation":true,
 		"javaDeleteLocalRef":true,
-		"rhinoType":"Object",
-		"rhinoJsCast":false,
-		"rhinoToJavaConverter":"jsObjectToJavaObject",
-		"javaToRhinoConverter":"javaObjectToJsObject",
 		"typeValidation":false,
 		"defaultValue": "null"
 	},
@@ -308,10 +289,6 @@
 		"javaReturnType":"jobjectArray",
 		"javaValidation": true,
 		"javaDeleteLocalRef":true,
-		"rhinoType":"Scriptable",
-		"rhinoJsCast":true,
-		"rhinoToJavaConverter":"jsArrayToJavaObjectArray",
-		"javaToRhinoConverter":"javaObjectArrayToJsArray",
 		"defaultValue": "null"
 	},
 	"int[]":{
@@ -324,10 +301,6 @@
 		"javaReturnType":"jintArray",
 		"javaValidation":true,
 		"javaDeleteLocalRef":true,
-		"rhinoType":"Scriptable",
-		"rhinoJsCast":true,
-		"rhinoToJavaConverter":"jsArrayToJavaIntArray",
-		"javaToRhinoConverter":"javaIntArrayToJsArray",
 		"defaultValue": "null"
 	},
 	"int":{
@@ -337,9 +310,6 @@
 		"jvalue":"i", "signature":"I",
 		"javaCallMethodType":"Int",
 		"javaReturnType":"jint",
-		"rhinoType":"Number",
-		"rhinoJsCast":false,
-		"rhinoToJavaConverter":"jsObjectToJavaInt",
 		"typeValidation":false,
 		"defaultValue": "-1"
 	},
@@ -350,9 +320,6 @@
 		"jvalue":"s", "signature":"S",
 		"javaCallMethodType":"Short",
 		"javaReturnType":"jshort",
-		"rhinoType":"Number",
-		"rhinoJsCast":false,
-		"rhinoToJavaConverter":"jsObjectToJavaShort",
 		"typeValidation":false,
 		"defaultValue": "-1"
 	},
@@ -366,10 +333,6 @@
 		"javaReturnType":"jlongArray",
 		"javaValidation":true,
 		"javaDeleteLocalRef":true,
-		"rhinoType":"Scriptable",
-		"rhinoJsCast":true,
-		"rhinoToJavaConverter":"jsArrayToJavaLongArray",
-		"javaToRhinoConverter":"javaLongArrayToJsArray",
 		"defaultValue": "null"
 	},
 	"float[]":{
@@ -382,10 +345,6 @@
 		"javaReturnType":"jfloatArray",
 		"javaValidation":true,
 		"javaDeleteLocalRef":true,
-		"rhinoType":"Scriptable",
-		"rhinoJsCast":true,
-		"rhinoToJavaConverter":"jsArrayToJavaFloatArray",
-		"javaToRhinoConverter":"javaFloatArrayToJsArray",
 		"defaultValue": "null"
 	},
 	"long":{
@@ -395,9 +354,6 @@
 		"jvalue":"j", "signature":"J",
 		"javaCallMethodType":"Long",
 		"javaReturnType":"jlong",
-		"rhinoType":"Number",
-		"rhinoJsCast":false,
-		"rhinoToJavaConverter":"jsObjectToJavaLong",
 		"typeValidation":false,
 		"defaultValue": "-1"
 	},
@@ -408,9 +364,6 @@
 		"jvalue":"f", "signature":"F",
 		"javaCallMethodType":"Float",
 		"javaReturnType":"jfloat",
-		"rhinoType":"Number",
-		"rhinoJsCast":false,
-		"rhinoToJavaConverter":"jsObjectToJavaFloat",
 		"typeValidation":false,
 		"defaultValue": "-1f"
 	},
@@ -421,9 +374,6 @@
 		"jvalue":"d", "signature":"D",
 		"javaCallMethodType":"Double",
 		"javaReturnType":"jdouble",
-		"rhinoType":"Number",
-		"rhinoJsCast":false,
-		"rhinoToJavaConverter":"jsObjectToJavaDouble",
 		"typeValidation":false,
 		"defaultValue": "-1d"
 	},
@@ -434,16 +384,12 @@
 		"jvalue":"z", "signature":"Z",
 		"javaCallMethodType":"Boolean",
 		"javaReturnType":"jboolean",
-		"rhinoType":"Boolean",
-		"rhinoJsCast":false,
-		"rhinoToJavaConverter":"jsObjectToJavaBoolean",
 		"defaultValue": "false"
 	},
 	"void":{
 		"signature":"V",
 		"javaCallMethodType":"Void",
-		"javaReturnType":"void",
-		"rhinoType":"void"
+		"javaReturnType":"void"
 	}
 }>
 
@@ -635,100 +581,6 @@ fails, a JS exception is returned.
 	</@Proxy.listMethodArguments>
 </#macro>
 
-<#macro verifyAndConvertJavaArgument expr index info type logOnly isOptional>
-	<#if (info.typeValidation!true) && !isOptional>
-		if (!(${expr} instanceof ${info.rhinoType})<#if info.javaCallMethodType == "Object"> && ${expr} != null</#if>) {
-			String error = "Invalid value, expected type ${info.rhinoType}, got: " + ${expr};
-			Log.e(TAG, error);
-			<#if !(logOnly!false)>
-			throw new IllegalArgumentException(error);
-			</#if>
-		}
-	</#if>
-<#t>
-	<#local wrapStart = "">
-	<#local wrapEnd = "">
-	<#if info.rhinoType != type>
-		<#local wrapStart = "(" + type + ")">
-		<#if type == "org.appcelerator.kroll.KrollDict">
-			<#local wrapStart = "new KrollDict((HashMap) ">
-			<#local wrapEnd = ")">
-		</#if>
-	</#if>
-<#t>
-		${type} arg${index};
-	<#if isOptional>
-		if (args.length <= ${index}) {
-			arg${index} = ${info.defaultValue};
-		} else {
-	</#if>
-		<#if info.rhinoJsCast>
-			<#local rhinoExpr = "(" + info.rhinoType + ") " + expr>
-		<#else>
-			<#local rhinoExpr = expr>
-		</#if>
-		<#if type == "org.appcelerator.kroll.KrollDict">
-		if (${expr} == null) {
-			arg${index} = null;
-		} else {
-		</#if>
-		arg${index} = ${wrapStart} TypeConverter.${info.rhinoToJavaConverter}(${rhinoExpr}, thisObj) ${wrapEnd};
-		<#if type == "org.appcelerator.kroll.KrollDict">
-		}
-		</#if>
-	<#if isOptional>
-		}
-	</#if>
-</#macro>
-
-<#macro convertToJavaVarArgs args start>
-	int length = args.length - ${start};
-	if (length < 0) {
-		length = 0;
-	}
-
-	Object[] arg${start} = new Object[length];
-	for (int i = 0; i < length; i++) {
-		arg${start}[i] = TypeConverter.jsObjectToJavaObject(args[i+${start}], this);
-	}
-</#macro>
-
-<#macro verifyAndConvertJavaArguments args method>
-	<#-- Verify the correct argument count was provided. -->
-	<@Proxy.getRequiredArgumentCount args=args ; requiredCount>
-	<#if requiredCount &gt; 0>
-		if (args.length < ${requiredCount}) {
-			throw new IllegalArgumentException("${method.apiName}: Invalid number of arguments. Expected ${requiredCount} but got " + args.length);
-		}
-	</#if>
-	</@Proxy.getRequiredArgumentCount>
-<#t>
-	<#-- Generate argument validation and conversion code -->
-	<#local varArgsIndex = -1>
-	<#list args as arg>
-		<#if arg.type == "java.lang.Object[]" && arg_index = args?size - 1>
-			<#local varArgsIndex = arg_index>
-		</#if>
-	</#list>
-<#t>
-	<#if method.hasInvocation>
-		Scriptable scopeVars = (Scriptable) args[0];
-		String sourceUrl = (String) ScriptableObject.getProperty(scopeVars, "sourceUrl");
-		KrollInvocation arg0 = new KrollInvocation(sourceUrl);
-	</#if>
-<#t>
-	<@Proxy.listMethodArguments args=args ; index, info, type, isOptional>
-	<#if type != "org.appcelerator.kroll.KrollInvocation">
-		<#if index = varArgsIndex>
-			<@Proxy.convertToJavaVarArgs args=args start=index/>
-		<#else>
-			<@Proxy.verifyAndConvertJavaArgument expr="args[" + index + "]" index=index info=info type=type logOnly=false isOptional=isOptional/>
-		</#if>
-	</#if>
-	</@Proxy.listMethodArguments>
-<#t>
-</#macro>
-
 <#macro cleanupMethodArguments args hasInvocation>
 	<#if hasInvocation>
 	env->DeleteLocalRef(jArguments[0].l);
@@ -811,37 +663,6 @@ beprovided to handle the result.
 	</#if>
 
 	<#nested hasResult "v8Result">
-</#macro>
-
-<#macro callJavaMethod methodArgs methodName hasInvocation returnType proxyVar>
-	<#local hasResult = returnType != "void">
-	<#local info = getTypeInfo(returnType)>
-	<#local resultExpr = "">
-<#t>
-	<#if hasResult>
-	<#local resultExpr = returnType + " javaResult = ">
-	</#if>
-<#t>
-	<#local args>
-		<#t><#list methodArgs as arg>
-			<#t>arg${arg_index}
-			<#t><#if arg_has_next>, </#if>
-		<#t></#list>
-	</#local>
-		${resultExpr}${proxyVar}.${methodName}(${args});
-<#t>
-	<#if hasResult>
-		<#local result>
-			<#t><#if info.rhinoType == "java.lang.Object">javaResult<#t>
-			<#t><#elseif !(info.javaToRhinoConverter??)>(${info.rhinoType}) javaResult<#t>
-			<#t><#else>(${info.rhinoType}) TypeConverter.${info.javaToRhinoConverter}(javaResult, this)<#t>
-			<#t></#if>
-		</#local>
-
-		${info.rhinoType} rhinoResult = ${result};
-	</#if>
-<#t>
-	<#nested hasResult, "rhinoResult">
 </#macro>
 
 <#macro initJNIEnv>

@@ -228,11 +228,11 @@ public class TiUIHelper
 				} else {
 					style = Typeface.BOLD;
 				}
-			} else if (fontWeight.equals("normal")) {
-				if (fontStyle != null && fontStyle.equals("italic")) {
-					style = Typeface.ITALIC;
-				}
+			} else if (fontStyle != null && fontStyle.equals("italic")) {
+				style = Typeface.ITALIC;
 			}
+		} else if (fontStyle != null && fontStyle.equals("italic")) {
+			style = Typeface.ITALIC;
 		}
 		return style;
 	}
@@ -308,6 +308,12 @@ public class TiUIHelper
 	}
 
 	public static void styleText(TextView tv, HashMap<String, Object> d) {
+	
+		if (d == null) {
+			TiUIHelper.styleText(tv, null, null, null);
+			return;
+		}
+		
 		String fontSize = null;
 		String fontWeight = null;
 		String fontFamily = null;
@@ -580,18 +586,18 @@ public class TiUIHelper
 	public static KrollDict createDictForImage(int width, int height, byte[] data)
 	{
 		KrollDict d = new KrollDict();
-		d.put("x", 0);
-		d.put("y", 0);
-		d.put("width", width);
-		d.put("height", height);
+		d.put(TiC.PROPERTY_X, 0);
+		d.put(TiC.PROPERTY_Y, 0);
+		d.put(TiC.PROPERTY_WIDTH, width);
+		d.put(TiC.PROPERTY_HEIGHT, height);
 
 		KrollDict cropRect = new KrollDict();
-		cropRect.put("x", 0);
-		cropRect.put("y", 0);
-		cropRect.put("width", width);
-		cropRect.put("height", height);
-		d.put("cropRect", cropRect);
-		d.put("media", TiBlob.blobFromData(data, "image/png"));
+		cropRect.put(TiC.PROPERTY_X, 0);
+		cropRect.put(TiC.PROPERTY_X, 0);
+		cropRect.put(TiC.PROPERTY_WIDTH, width);
+		cropRect.put(TiC.PROPERTY_HEIGHT, height);
+		d.put(TiC.PROPERTY_CROP_RECT, cropRect);
+		d.put(TiC.PROPERTY_MEDIA, TiBlob.blobFromData(data, "image/png"));
 
 		return d;
 	}
@@ -599,8 +605,8 @@ public class TiUIHelper
 	public static TiBlob getImageFromDict(KrollDict dict)
 	{
 		if (dict != null) {
-			if (dict.containsKey("media")) {
-				Object media = dict.get("media");
+			if (dict.containsKey(TiC.PROPERTY_MEDIA)) {
+				Object media = dict.get(TiC.PROPERTY_MEDIA);
 				if (media instanceof TiBlob) {
 					return (TiBlob) media;
 				}
@@ -618,40 +624,37 @@ public class TiUIHelper
 			int height = view.getHeight();
 
 			// maybe move this out to a separate method once other refactor regarding "getWidth", etc is done
-			if(view.getWidth() == 0) {
-				if(proxyDict != null) {
-					if(proxyDict.containsKey(TiC.PROPERTY_WIDTH)) {
-						TiDimension widthDimension = new TiDimension(proxyDict.getString(TiC.PROPERTY_WIDTH), TiDimension.TYPE_WIDTH);
-						width = widthDimension.getAsPixels(view);
-					}
-				}
+			if (view.getWidth() == 0 && proxyDict != null && proxyDict.containsKey(TiC.PROPERTY_WIDTH)) {
+				TiDimension widthDimension = new TiDimension(proxyDict.getString(TiC.PROPERTY_WIDTH), TiDimension.TYPE_WIDTH);
+				width = widthDimension.getAsPixels(view);
 			}
-			if(view.getHeight() == 0) {
-				if(proxyDict != null) {
-					if(proxyDict.containsKey(TiC.PROPERTY_HEIGHT)) {
-						TiDimension heightDimension = new TiDimension(proxyDict.getString(TiC.PROPERTY_HEIGHT), TiDimension.TYPE_HEIGHT);
-						height = heightDimension.getAsPixels(view);
-					}
-				}
-			}
-			view.measure(MeasureSpec.makeMeasureSpec(width, MeasureSpec.EXACTLY), MeasureSpec.makeMeasureSpec(height, MeasureSpec.EXACTLY));
-			if (view.getParent() == null) {
-				Log.i(TAG, "View does not have parent, calling layout", Log.DEBUG_MODE);
-				view.layout(0, 0, width, height);
+			if (view.getHeight() == 0 && proxyDict != null && proxyDict.containsKey(TiC.PROPERTY_HEIGHT)) {
+				TiDimension heightDimension = new TiDimension(proxyDict.getString(TiC.PROPERTY_HEIGHT),
+					TiDimension.TYPE_HEIGHT);
+				height = heightDimension.getAsPixels(view);
 			}
 
-			// now that we have forced the view to layout itself, grab dimensions
+			int wmode = width == 0 ? MeasureSpec.UNSPECIFIED : MeasureSpec.EXACTLY;
+			int hmode = height == 0 ? MeasureSpec.UNSPECIFIED : MeasureSpec.EXACTLY;
+			view.measure(MeasureSpec.makeMeasureSpec(width, wmode), MeasureSpec.makeMeasureSpec(height, hmode));
+
+			// Will force the view to layout itself, grab dimensions
 			width = view.getMeasuredWidth();
 			height = view.getMeasuredHeight();
 
 			// set a default BS value if the dimension is still 0 and log a warning
-			if(width == 0) {
+			if (width == 0) {
 				width = 100;
 				Log.e(TAG, "Width property is 0 for view, display view before calling toImage()", Log.DEBUG_MODE);
 			}
-			if(height == 0) {
+			if (height == 0) {
 				height = 100;
 				Log.e(TAG, "Height property is 0 for view, display view before calling toImage()", Log.DEBUG_MODE);
+			}
+
+			if (view.getParent() == null) {
+				Log.i(TAG, "View does not have parent, calling layout", Log.DEBUG_MODE);
+				view.layout(0, 0, width, height);
 			}
 
 			// opacity should support transparency by default
@@ -660,11 +663,11 @@ public class TiUIHelper
 			Drawable viewBackground = view.getBackground();
 			if (viewBackground != null) {
 				/*
-				 * If the background is opaque then we should be able to safely use a space saving format that 
-				 * does not support the alpha channel.  Basically, if a view has a background color set then the 
-				 * the pixel format will be opaque.  If a background image supports an alpha channel, the pixel 
-				 * format will report transparency (even if the image doesn't actually look transparent).  In 
-				 * short, most of the time the Config.ARGB_8888 format will be used when viewToImage is used 
+				 * If the background is opaque then we should be able to safely use a space saving format that
+				 * does not support the alpha channel. Basically, if a view has a background color set then the
+				 * the pixel format will be opaque. If a background image supports an alpha channel, the pixel
+				 * format will report transparency (even if the image doesn't actually look transparent). In
+				 * short, most of the time the Config.ARGB_8888 format will be used when viewToImage is used
 				 * but in the cases where the background is opaque, the lower memory approach will be used.
 				 */
 				if (viewBackground.getOpacity() == PixelFormat.OPAQUE) {
@@ -844,16 +847,21 @@ public class TiUIHelper
 
 	public static Drawable getResourceDrawable(Object path)
 	{
-		Drawable d;
-
-		if (path instanceof String) {
-			TiUrl imageUrl = new TiUrl((String) path);
-			TiFileHelper tfh = new TiFileHelper(TiApplication.getInstance());
-			d = tfh.loadDrawable(imageUrl.resolve(), false);
-		} else {
-			d = TiDrawableReference.fromObject(TiApplication.getInstance().getCurrentActivity(), path).getDrawable();
+		Drawable d = null;
+		
+		try {
+	
+			if (path instanceof String) {
+				TiUrl imageUrl = new TiUrl((String) path);
+				TiFileHelper tfh = new TiFileHelper(TiApplication.getInstance());
+				d = tfh.loadDrawable(imageUrl.resolve(), false);
+			} else {
+				d = TiDrawableReference.fromObject(TiApplication.getInstance().getCurrentActivity(), path).getDrawable();
+			}
+		} catch (Exception e) {
+			Log.w(TAG, "Could not load drawable "+e.getMessage(), Log.DEBUG_MODE);
+			d = null;
 		}
-
 		return d;
 	}
 

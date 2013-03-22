@@ -125,6 +125,14 @@ self.p = v;\
 	return self;
 }
 
+-(void)setCallBack:(KrollCallback*)callback_ context:(id<TiEvaluator>)context_
+{
+    RELEASE_TO_NIL(callback);
+    if (context_ != nil) {
+        callback = [[ListenerEntry alloc] initWithListener:callback_ context:context_ proxy:self];
+    }
+}
+
 -(void)dealloc
 {
 	RELEASE_TO_NIL(zIndex);
@@ -169,6 +177,11 @@ self.p = v;\
 		arg = [args objectAtIndex:0];
 		if ([arg isKindOfClass:[TiAnimation class]])
 		{
+            if ([args count] > 1) {
+                KrollCallback *cb = [args objectAtIndex:1];
+                ENSURE_TYPE(cb, KrollCallback);
+                [(TiAnimation*)arg setCallBack:cb context:context];
+            }
 			return (TiAnimation*)arg;
 		}
 	}

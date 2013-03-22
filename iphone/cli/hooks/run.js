@@ -39,15 +39,11 @@ exports.init = function (logger, config, cli) {
 			parallel([
 				function (next) {
 					logger.debug(__('Terminating all iOS simulators'));
-					exec('/usr/bin/killall ios-sim', next);
+					exec('/usr/bin/killall ios-sim', setTimeout(next, 250));
 				},
 
 				function (next) {
-					exec('/usr/bin/killall "iPhone Simulator"', next);
-				},
-
-				function (next) {
-					setTimeout(next, 2000);
+					exec('/usr/bin/killall "iPhone Simulator"', setTimeout(next, 250));
 				},
 
 				function (next) {
@@ -61,7 +57,7 @@ exports.init = function (logger, config, cli) {
 						}
 					});
 
-					next();
+					setTimeout(next, 250);
 				}
 			], function () {
 				var cmd = [
@@ -74,18 +70,6 @@ exports.init = function (logger, config, cli) {
 						build.iosSimType
 					],
 					findLogTimer,
-					simActivateTimer = setTimeout(function () {
-						exec([
-							'osascript',
-							'"' + path.join(build.titaniumIosSdkPath, 'iphone_sim_activate.scpt') + '"',
-							'"' + path.join(build.xcodeEnv.path, 'Platforms', 'iPhoneSimulator.platform', 'Developer', 'Applications', 'iPhone Simulator.app') + '"'
-						].join(' '), function (err, stdout, stderr) {
-							if (err) {
-								logger.error(__('Failed to activate the iPhone Simulator window'));
-								logger.error(stderr);
-							}
-						});
-					}, 500),
 					simProcess,
 					simErr = [],
 					stripLogLevelRE = new RegExp('\\[(?:' + logger.getLevels().join('|') + ')\\] '),
@@ -96,7 +80,9 @@ exports.init = function (logger, config, cli) {
 
 				if (cli.argv.retina) {
 					cmd.push('--retina');
-					cli.argv.tall && cmd.push('--tall');
+					if (appc.version.gte(build.iosSimVersion, '6.0.0') && build.iosSimType == 'iphone' && cli.argv.tall) {
+						cmd.push('--tall');	
+					}
 				}
 				cmd = cmd.join(' ');
 
@@ -118,7 +104,6 @@ exports.init = function (logger, config, cli) {
 				}.bind(this));
 
 				simProcess.on('exit', function (code, signal) {
-					clearTimeout(simActivateTimer);
 					clearTimeout(findLogTimer);
 					logProcess && logProcess.kill();
 
@@ -135,21 +120,37 @@ exports.init = function (logger, config, cli) {
 					}
 				}.bind(this));
 
+				// focus the simulator
+				logger.info(__('Focusing the iOS Simulator'));
+				exec([
+					'osascript',
+					'"' + path.join(build.titaniumIosSdkPath, 'iphone_sim_activate.scpt') + '"',
+					'"' + path.join(build.xcodeEnv.path, 'Platforms', 'iPhoneSimulator.platform', 'Developer', 'Applications', 'iPhone Simulator.app') + '"'
+				].join(' '), function (err, stdout, stderr) {
+					if (err) {
+						logger.error(__('Failed to focus the iPhone Simulator window'));
+						logger.error(stderr);
+					}
+				});
+				
 				function findLogFile() {
 					var files = fs.readdirSync(simulatorDir),
 						file,
 						i = 0,
 						l = files.length,
-						logLevelRE = new RegExp('(\u001b\\[\\d+m)?\\[?(' + logger.getLevels().join('|') + ')\\]?\s*(\u001b\\[\\d+m)?(.*)', 'i');
+						logLevelRE = new RegExp('^(\u001b\\[\\d+m)?\\[?(' + logger.getLevels().join('|') + ')\\]?\s*(\u001b\\[\\d+m)?(.*)', 'i');
 
 					for (; i < l; i++) {
 						file = path.join(simulatorDir, files[i], 'Documents', logFile);
 						if (afs.exists(file)) {
+							// if we found the log file, then the simulator must be running
+							simStarted = true;
+							
+							// pipe the log file
 							logger.debug(__('Found iPhone Simulator log file: %s', file.cyan));
 							
 							var startLogTxt = __('Start simulator log');
 							logger.log(('-- ' + startLogTxt + ' ' + (new Array(75 - startLogTxt.length)).join('-')).grey);
-							simStarted = true;
 
 							var position = 0,
 								buf = new Buffer(16),
@@ -158,28 +159,34 @@ exports.init = function (logger, config, cli) {
 								lastLogger = 'debug';
 
 							(function readChanges () {
-								var fd = fs.openSync(file, 'r'),
+								var stats = fs.statSync(file),
+									fd,
 									bytesRead,
 									lines,
 									m,
 									line,
 									i, len;
-								do {
-									bytesRead = fs.readSync(fd, buf, 0, 16, position);
-									position += bytesRead;
-									buffer += buf.toString('utf-8', 0, bytesRead);
-								} while (bytesRead === 16);
-								fs.closeSync(fd);
-								lines = buffer.split('\n');
-								buffer = lines.pop(); // keep the last line because it could be incomplete
-								for (i = 0, len = lines.length; i < len; i++) {
-									line = lines[i];
-									if (line) {
-										m = line.match(logLevelRE);
-										if (m) {
-											logger[lastLogger = m[2].toLowerCase()](m[4].trim());
-										} else {
-											logger[lastLogger](line);
+								
+								if (position < stats.size) {
+									fd = fs.openSync(file, 'r');
+									do {
+										bytesRead = fs.readSync(fd, buf, 0, 16, position);
+										position += bytesRead;
+										buffer += buf.toString('utf-8', 0, bytesRead);
+									} while (bytesRead === 16);
+									fs.closeSync(fd);
+									
+									lines = buffer.split('\n');
+									buffer = lines.pop(); // keep the last line because it could be incomplete
+									for (i = 0, len = lines.length; i < len; i++) {
+										line = lines[i];
+										if (line) {
+											m = line.match(logLevelRE);
+											if (m) {
+												logger[lastLogger = m[2].toLowerCase()](m[4].trim());
+											} else {
+												logger[lastLogger](line);
+											}
 										}
 									}
 								}

@@ -26,6 +26,8 @@
 	BOOL animate;
 	BOOL loaded;
 	BOOL ignoreClicks;
+	BOOL ignoreRegionChanged;
+	BOOL forceRender;
 	MKCoordinateRegion region;
 	
     // routes
