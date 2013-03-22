@@ -475,7 +475,9 @@ public class ListSectionProxy extends ViewProxy{
 	}
 	
 	private void handleReplaceItemsAt(int index, int count, Object data) {
-		if (deleteItems(index, count)) {
+		if (count == 0) {
+			handleInsertItemsAt(index, data);
+		} else if (deleteItems(index, count)) {
 			handleInsertItemsAt(index, data);
 		}
 	}

@@ -26,7 +26,7 @@ exports.bootstrap = function(Titanium) {
 		return listView;
 	}
 	
-	//Create ListItemProxy, add events, then store it in 'type' property
+	//Create ListItemProxy, add events, then store it in 'tiProxy' property
 	function processTemplate(properties) {
 	   	var cellProxy = Titanium.UI.createListItem();
 		properties.tiProxy = cellProxy;
@@ -34,8 +34,8 @@ exports.bootstrap = function(Titanium) {
     	addEventListeners(events, cellProxy);
 	}
 
-    //Recursive function to process childTemplates and change the value of 'type'
-    //property to the corresponding proxy. I.e: type: "Titanium.UI.Label" -> type: LabelProxy object
+    //Recursive function that process childTemplates and append corresponding proxies to
+    //property 'tiProxy'. I.e: type: "Titanium.UI.Label" -> tiProxy: LabelProxy object
 	function processChildTemplates(properties) {
 		if (!properties.hasOwnProperty('childTemplates')) return;
 		
