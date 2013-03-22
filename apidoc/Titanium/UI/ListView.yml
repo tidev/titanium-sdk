@@ -20,9 +20,8 @@ description: |
     element as a row to a single [ListSection](Titanium.UI.ListSection). Use the ListView's
     [sections](Titanium.UI.ListView.sections) property to add the section(s) to the list view.
 
-    If a template is not specifed, only the `image`, `title` and `accessoryType` properties set
-    in the `properties` dictionary of a list data item appear in list. Refer to the next section
-    for using an item template.
+    By default, only the `image`, `title` and `accessoryType` of a list data item
+    are displayed in the list. Refer to the next section for using an item template.
 
     See the "List View Sections" example.
 
@@ -82,7 +81,7 @@ description: |
     ##### API Differences
 
     **Note:** This is the first version of list view and some features have not been implemented.
-    The differences listed are for the final planned list view and the current table view in Release 3.0.
+    The differences listed are for the final planned list view and the current table view in Release 3.1.0.
 
     - **Missing TableViewRow properties**: The following properties and their accessors are not
       avaialable for ListItem: `accessibilityLabel`, `className`, `editable`, `hasCheck`,
@@ -97,7 +96,7 @@ description: |
     - **Missing TableViewSection properties**: The following properties and their accessors are not
       supported by ListSection: `rows` and `rowCount`.
 
-        - For `rows`, set the ListItems using the `setItems` method.
+        - For `rows`, use the `items` property.
         - For `rowCount`, use the `itemCount` property. (Not yet implemented.)
 
     - **Missing TableViewSection methods**: The following methods are not supported by ListSection:
@@ -116,7 +115,7 @@ description: |
       `updateRow`, `scrollToIndex` and `selectRow`.
 
         - For `scrollToIndex`, use the `scrollToItem` method.
-        - For `selectRow`, use the `selectItem` method. (Not yet implemented.)
+        - For `selectRow`, use the `selectItem` method. (Currently implemented only for iOS.)
         - For all other row methods, you cannot manipulate ListItems with a ListView.
           You have to manipulate them with the ListSection they are contained in.
 
@@ -186,7 +185,10 @@ properties:
 
   - name: templates
     summary: Contain key-value pairs mapping a style name (key) to an <ItemTemplate> (value).
+    description: |
+        This property cannot be changed once a window has been opened.
     type: Dictionary
+    availability: creation
 
   - name: sections
     summary: Sections of this list.
@@ -195,12 +197,11 @@ properties:
   - name: defaultItemTemplate
     summary: Sets the default template for list data items that do not specify the `template` property.
     description: |
-        Can also be <Titanium.UI.LIST_ITEM_TEMPLATE_DEFAULT>.
+        Can be set to any of the built-in templates or those defined in the `templates` property.
 
-        On iOS, you can specify one of the template constants:
-        <Titanium.UI.LIST_ITEM_TEMPLATE_CONTACTS>, <Titanium.UI.LIST_ITEM_TEMPLATE_SETTINGS>
-        or <Titanium.UI.LIST_ITEM_TEMPLATE_SUBTITLE>.
+        Can be changed dynamically.
     type: [String, Number]
+    default: Titanium.UI.LIST_ITEM_TEMPLATE_DEFAULT
 
   - name: footerTitle
     summary: List view footer title.
@@ -247,11 +248,9 @@ properties:
         <Titanium.UI.iPhone.ListViewStyle>.
     description: Style should always be set before setting the sections on list view.
     type: Number
+    default: Titanium.UI.iPhone.ListViewStyle.PLAIN
     platforms: [iphone, ipad]
-
-  - name: rowHeight
-    summary: Default row height for list view rows.
-    type: Number
+    availability: creation
 
 
 methods:
@@ -337,6 +336,18 @@ methods:
       - name: animation
         summary: Animation properties. (iOS only.)
         type: ListViewAnimationProperties
+
+  - name: selectItem
+    summary: Selects an item in the list using the specified item and section indices.
+    parameters:
+      - name: sectionIndex
+        summary: Index of the section the item is in.
+        type: Number
+
+      - name: itemIndex
+        summary: Index of the item to select.
+        type: Number
+    platforms: [ipad,iphone]
 
 
 examples:
@@ -464,9 +475,9 @@ summary: |
 description: |
     These properties are only used on iOS. Not all properties apply to all methods.
 
-    `animationStyle` does not apply to the `scrollToTop` or `scrollToIndex` methods.
+    `animationStyle` does not apply to the `scrollToItem` method.
 
-    `positon` only applies to the `scrollToIndex` method.
+    `positon` only applies to the `scrollToItem` method.
 platforms: [iphone, ipad]
 since: '3.1.0'
 properties:

@@ -2,7 +2,7 @@
 name: Titanium.UI.iPhone.ListViewScrollPosition
 summary: |
     A set of constants for the position value that can be used for the `position` property of 
-    <ListViewAnimationProperties> when invoking the ListView's `scrollToIndex`, `appendSection`,
+    <ListViewAnimationProperties> when invoking the ListView's `scrollToItem`, `appendSection`,
     `deleteSectionAt`, `insertSectionAt` and `replaceSectionAt` methods.
 extends: Titanium.Proxy
 since: '3.1.0'

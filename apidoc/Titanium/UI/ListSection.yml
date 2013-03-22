@@ -32,6 +32,10 @@ properties:
         **Note:** the `headerView` property has not been implemented in this version of ListSection.
     type: String
 
+  - name: items
+    summary: Items of this list section.
+    type: Array<ListDataItem>
+
 methods:
 
   - name: setItems
@@ -130,4 +134,23 @@ methods:
         type: Number
     returns:
       - type: ListDataItem
+
+  - name: updateItemAt
+    summary: |
+        Updates an item at the specified index.
+    description: |
+        On iOS, the list item can be updated with an animation by specifying the `animation` parameter.
+    parameters:
+      - name: index
+        summary: Index of where to update the item.
+        type: Number
+
+      - name: dataItem
+        summary: List item to update.
+        type: ListDataItem
+
+      - name: animation
+        summary: Animation properties. (iOS only.)
+        type: Titanium.UI.iPhone.RowAnimationStyle
+        optional: true
 

@@ -75,7 +75,7 @@ excludes:
 properties:
 
   - name: itemId
-    summary: A user defined string that gets passed from events.
+    summary: A user defined string that gets passed to events.
     type: String
 
   - name: accessoryType
@@ -91,7 +91,12 @@ properties:
 
   - name: allowsSelection
     summary: Determines whether this item can be selected.
-    description: Set to `false` to prevent the item from being selected.
+    description: |
+        Set to `false` to prevent the item from being selected.
+
+        On iOS, even if this property is set to `false`, you can interact with the detail disclosure
+        accessory (`accessoryType` set to <Titanium.UI.LIST_ACCESSORY_TYPE_DETAIL>) and any child
+        templates that are controls, such as a button, slider, etc.
     type: Boolean
     default: true
     platforms: [iphone, ipad]
@@ -110,22 +115,22 @@ properties:
 
         On Android, `selectedColor` is not supported, so the text is always displayed in this color.
 
-        Only applies to the default template.
+        Only applies to the built-in templates.
     type: String
 
   - name: font
     summary: Font to use for the item title.
     description: |
-        Only applies to the default template.
+        Only applies to the built-in templates.
     type: Font
     default: System default font.
 
   - name: height
     summary: Row height in platform-specific units.
     description: |
-        Can be either a float value or a dimension string, for example, '40dp'.
-        Can also be <Titanium.UI.SIZE> where the row should size itself to fit its contents.
-    default: Titanium.UI.SIZE
+        On Android, the value can be either a float value or a dimension string, for example, '40dp'.
+
+        On iOS, the value can only be an absolute value.
     type: [Number,String]
 
   - name: image
@@ -135,6 +140,8 @@ properties:
 
         On Android, this image only appears on the default template.
 
+        On iOS, only local images are supported.
+
         On iOS, this image only appears if the ListDataItem `template` property or ListView
         `defaultItemTemplate` property is either: <Titanium.UI.LIST_ITEM_TEMPLATE_DEFAULT>,
         <Titanium.UI.LIST_ITEM_TEMPLATE_SETTINGS> or <Titanium.UI.LIST_ITEM_TEMPLATE_SUBTITLE>.
@@ -143,12 +150,7 @@ properties:
   - name: title
     summary: Title to set in the text area of the item.
     description: |
-        On Android, this title only appears for the default template.
-
-        This title only appears if the ListDataItem `template` property or ListView
-        `defaultItemTemplate` property is set to either: <Titanium.UI.LIST_ITEM_TEMPLATE_CONTACTS>,
-        <Titanium.UI.LIST_ITEM_TEMPLATE_DEFAULT>,
-        <Titanium.UI.LIST_ITEM_TEMPLATE_SETTINGS> or <Titanium.UI.LIST_ITEM_TEMPLATE_SUBTITLE>.
+        This title only appears for the built-in templates.
     type: String
 
   - name: selectionStyle
@@ -208,7 +210,7 @@ examples:
                     item.properties.accessoryType = Ti.UI.LIST_ACCESSORY_TYPE_NONE;
                     item.properties.color = 'black';
                 }
-                section.replaceItemsAt(e.itemIndex, 1, [item]);
+                section.updateItemAt(e.itemIndex, item);
             });
             win.add(listView);
             win.open();
@@ -255,6 +257,7 @@ examples:
                 events: {click: toggleCheck }
             };
 
+            // The following API calls are equivalent to using jQuery.extend(true, {}, oldObject)
             // Copy the plainTemplate
             var redTemplate = JSON.parse(JSON.stringify(plainTemplate));
             // Change the text color to red
@@ -313,7 +316,7 @@ examples:
                     item.properties.accessoryType = Ti.UI.LIST_ACCESSORY_TYPE_NONE;
                     item.template = 'uncheck';
                 }
-                section.replaceItemsAt(e.itemIndex, 1, [item]);
+                section.updateItemAt(e.itemIndex, item);
             } 
 
             win.add(listView);
@@ -388,6 +391,7 @@ description: |
     In addition to the properties defined below, you can define custom key-value pairs, which bind to
     the child templates of an <ItemTemplate>.  The key for these pairs match the `bindId` of
     the child view templates and the values are a dictionary of view properties applied to the view components.
+    Any other properties that are not identified by a `bindId` are permitted but are ignored by the item template.
 
     See <Titanium.UI.ListItem> for examples of using a list data item.
 platforms: [android, ipad, iphone]
