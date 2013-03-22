@@ -137,7 +137,6 @@ def is_view_proxy(api):
 		while superclass_name is not None:
 			if superclass_name == "Titanium.UI.View":
 				return True
-            print superclass_name + " is not Ti.UI.View"
 			superclass = all_annotated_apis[superclass_name]
 			superclass_name = superclass.api_obj.get("extends")
 	return False
