@@ -506,6 +506,8 @@ doReposition = YES;\
 
                     layoutProperties->centerX = [center xDimension];
                     layoutProperties->centerY = [center yDimension];
+					layoutProperties->left = TiDimensionUndefined;
+					layoutProperties->top = TiDimensionUndefined;
                     doReposition = YES;
                 }
                 
