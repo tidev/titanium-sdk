@@ -4,11 +4,6 @@
  * Please see the LICENSE included with this distribution for details. */
 
 // unfinished due to failure of base_no_pix
-
-var isTizen = Ti.Platform.osname === 'tizen',
-	isMobileWeb = Ti.Platform.osname === 'mobileweb';
-
-(isTizen || isMobileWeb) && Ti.include('countPixels.js');
  
 module.exports = new function() {
 	var finish,
@@ -17,25 +12,17 @@ module.exports = new function() {
 		GREEN_RGB_ARRAY = [0, 255, 0],
 		BLUE_RGB_ARRAY = [0, 0, 255],
 		GREEN_RGB = '#00ff00',
-		BLUE_RGB = '#0000ff',
-		cp;
+		BLUE_RGB = '#0000ff';
 
 	this.init = function(testUtils) {
 		finish = testUtils.finish;
 		valueOf = testUtils.valueOf;
-		(isTizen || isMobileWeb) && (cp = new CountPixels());
 	}
 
 	this.name = "scroll_view";
-	this.tests = (function() {
-		var arr = [
-			{name: "base"}
-		];
-
-		(isTizen || isMobileWeb) && arr.push({name: "base_no_pix", timeout: 1000});
-
-		return arr;
-	}());
+	this.tests = [
+		{name: "base_no_pix", timeout: 1000}
+	];
 	
 	// Helper function create Main window createScrollView and View
 	function TestObjects() {
@@ -72,21 +59,6 @@ module.exports = new function() {
 		
 		this.mainWindow = win;
 		this.scrollView = scrollView;
-	}
-
-	// Test check in appearance of createScrollView on the screen(with pixel calculation)
-	this.base = function(testRun) {
-		var testObject = new TestObjects();
-
-		testObject.mainWindow.open();
-
-		testObject.mainWindow.addEventListener('postlayout',  function () {
-			cp.countPixelsPercentage(BLUE_RGB_ARRAY, document.body, function(count) {
-				valueOf(testRun, count).shouldBeGreaterThan(MIN_SCROLL_VIEW_EXISTING);
-				finish(testRun);
-				testObject.mainWindow.close();
-			});
-		});
 	}
 
 	// Test base functionality with NO pixels calculation

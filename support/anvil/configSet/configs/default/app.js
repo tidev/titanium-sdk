@@ -30,26 +30,12 @@ var suites = [
 	{name: "properties"},
 	{name: "stream"},
 	{name: "titanium"},
-	{name: "ui/activity_indicator"},
 	{name: "ui/alert_dialog"},
 	{name: "ui/button"},
-	{name: "ui/controls_slider"},
-	{name: "ui/image_view"},
-	{name: "ui/label"},
-	{name: "ui/mobile-NavigationGroup"},
-	{name: "ui/option_dialog"},
-	{name: "ui/picker"},
 	{name: "ui/progress_bar"},
-	{name: "ui/switch"},
-	{name: "ui/tab"},
-	{name: "ui/tab_group"},
-	{name: "ui/table_view"},
-	{name: "ui/table_view_row"},
-	{name: "ui/table_view_section"},
 	{name: "ui/text_area"},
 	{name: "ui/text_field"},
 	{name: "ui/ui"},
-	{name: "ui/window"},
 	{name: "ui_2dMatrix"},
 	{name: "ui_clipboard"},
 	{name: "ui_controls"},
@@ -77,11 +63,20 @@ if (Ti.Platform.osname === 'android') {
 		{name: "iphone/iphone_ui"},
 		{name: "iphone/iphone_UI_3DMatrix"}
 	]);
-} else if((Ti.Platform.osname === 'tizen') || (Ti.Platform.osname === 'mobileweb')) {
+} else if (Ti.Platform.osname === 'tizen') {
 	suites = suites.concat([
-		{name: "ui/animation"},
-		{name: "ui/scrollable_view"},
+		{name: "ui/activity_indicator"},
+		{name: "ui/controls_slider"},
+		{name: "ui/label"},
+		{name: "ui/mobile_navigation_group"},
+		{name: "ui/option_dialog"},
+		{name: "ui/picker"},
 		{name: "ui/scroll_view"},
+		{name: "ui/switch"},
+		{name: "ui/tab"},
+		{name: "ui/tab_group"},
+		{name: "ui/table_view_row"},
+		{name: "ui/table_view_section"}
 	]);
 }
 

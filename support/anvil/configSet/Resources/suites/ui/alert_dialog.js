@@ -3,11 +3,6 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details. */
 
-var isTizen = Ti.Platform.osname === 'tizen',
-	isMobileWeb = Ti.Platform.osname === 'mobileweb';
-
-(isTizen || isMobileWeb) && Ti.include('countPixels.js');
-
 module.exports = new function() {
 	var finish,
 		valueOf;
@@ -18,78 +13,13 @@ module.exports = new function() {
 	}
 
 	this.name = "alert_dialog";
-	this.tests = (function() {
-		var arr = [
-			{name: "testButtons"},
-			{name: "testCancel"},
-			{name: "testOk"},
-			{name: "testMessage"},
-			{name: "testTitle"}
-		];
-
-		(isTizen || isMobileWeb) && arr.push({name: "showHide"});
-
-		return arr;
-	}());
-
-	this.showHide = function(testRun) {
-		// Show a red full-screen window that will be a test background for the
-		// alert dialog. Then show the alert dialog, and verify the number of
-		// background-colored pixels has decreased, as the alert dialog covered them.
-		// (There is no direct way of setting colours for the alert dialog.)
-		// Afterwards, hide and show dialog again, checking the colours again.		
-		var wind = Ti.UI.createWindow({
-				backgroundColor: '#ff0000'
-			}),
-			dialog = Ti.UI.createAlertDialog({
-			    cancel: 1,
-			    buttonNames: ['Confirm', 'Cancel', 'Help'],
-			    message: 'Would you like to delete the file?',
-			    title: 'Delete'
-			});
-		
-		wind.addEventListener('open', showDialog);
-		wind.addEventListener('close', function() {
-			finish(testRun);
-		});
-
-		wind.open();
-		
-		function showDialog() {
-			var cp = new CountPixels();
-
-			cp.countPixelsPercentage([255, 0, 0], document.body, callback1);
-
-			function callback1(count) {
-				Ti.API.info(count);
-				
-				valueOf(testRun, function() {
-					dialog.show();
-				}).shouldNotThrowException();
-				
-				setTimeout(function() {
-					cp.countPixelsPercentage([255, 0, 0], document.body, callback2);
-				}, 500)	
-			}
-
-			function callback2(count) {
-				Ti.API.info(count);
-				valueOf(testRun, count).shouldBe(0);
-				valueOf(testRun, function() {	
-					dialog.hide();
-				}).shouldNotThrowException();
-				setTimeout(function() {
-					cp.countPixelsPercentage([255, 0, 0], document.body, callback3);
-				}, 500);
-			}	
-
-			function callback3(count) {
-				Ti.API.info(count);
-				valueOf(testRun, count).shouldBe(100);
-				wind.close();
-			}
-		}
-	}
+	this.tests = [
+		{name: "testButtons"},
+		{name: "testCancel"},
+		{name: "testOk"},
+		{name: "testMessage"},
+		{name: "testTitle"}
+	];
 
 	this.testButtons = function(testRun) {
 		var dialog = Ti.UI.createAlertDialog({

@@ -5,11 +5,6 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
-var isTizen = Ti.Platform.osname === 'tizen',
-	isMobileWeb = Ti.Platform.osname === 'mobileweb';
-
-(isTizen || isMobileWeb) && Ti.include('countPixels.js');
-
 module.exports = new function() {
 	var finish,
 		valueOf;
@@ -20,24 +15,14 @@ module.exports = new function() {
 	}
 
 	this.name = "label";
-	this.tests = (function() {
-		var arr = [
-			{name: "testProperties"},
-			{name: "testTextId"},
-			{name: "testElipsize"},
-			{name: "testWordWrap"},
-			{name: "testVerticalAlign"}
-		]
-
-		if (isTizen || isMobileWeb) {
-			arr.push({name: "testShow"});
-			arr.push({name: "testHtmlPx"});
-
-			isTizen && arr.push({name: "testAutolink"});
-		}
-
-		return arr;
-	}());
+	this.tests = [
+		{name: "testProperties"},
+		{name: "testTextId"},
+		{name: "testElipsize"},
+		{name: "testWordWrap"},
+		{name: "testVerticalAlign"},
+		{name: "testAutolink"}
+	];
 
 	this.testProperties = function(testRun) {
 		var win = Ti.UI.createWindow({
@@ -75,45 +60,6 @@ module.exports = new function() {
 		});
 
 		win.open();
-	}
-
-	this.testShow = function(testRun) {
-		// Create a label and verify its appearance (background, foreground color)
-		// by verifying the presence of pixels of these colours on the screen.
-		var win = Ti.UI.createWindow({
-				backgroundColor: '00ffff'
-			}),
-			cp = new CountPixels(),
-			label = Ti.UI.createLabel({
-				color: '#ff0000',
-				font: { fontSize:48 },
-				shadowColor: '#aaaaaa',
-				shadowOffset: {x:5, y:5},
-				text: 'A simple label',
-				textAlign: Ti.UI.TEXT_ALIGNMENT_CENTER,
-				top: 30,
-				width: 'auto', 
-				height: 'auto',
-				backgroundColor: '#00ff00'
-			});
-
-		label.addEventListener('postlayout', function() {
-			cp.countPixels([255, 0, 0], win, checkFontColor);
-		});
-
-		win.add(label);
-		win.open();
-
-		function checkFontColor(count) {
-			valueOf(testRun, count).shouldBeGreaterThan(1000);
-			cp.countPixels([0, 255, 0], win, checkBackColor);
-		}
-
-		function checkBackColor(count) {
-			valueOf(testRun, count).shouldBeGreaterThan(5000);
-			win.close();
-			finish(testRun);
-		}
 	}
 
 	this.testAutolink = function(testRun) {
@@ -164,52 +110,6 @@ module.exports = new function() {
 				valueOf(testRun, urlAnchor.href).shouldBe("http://bit.ly/");
 			}
 
-			win.close();
-			finish(testRun);
-		}
-	}
-
-	this.testHtmlPx = function(testRun){
-		// Create a label and checks html property is functioning
-		var cp = new CountPixels(),
-			backgroundPixelsCount = 0,
-			win = Ti.UI.createWindow({backgroundColor: 'black'}),
-			label = Ti.UI.createLabel({
-				html:'',
-				color:'white',
-				backgroundColor: 'black',
-				height:66,
-				width:200
-			});
-
-		label.addEventListener('postlayout', function() {
-			cp.countPixels([0, 0, 0], win, noTextOnLabelCheck);
-		});
-
-		win.add(label);
-		win.open();
-
-		// Counting background's pixels count if no visible html value is set
-		function noTextOnLabelCheck (count) {
-			valueOf(testRun, count).shouldBeGreaterThan(0);
-			backgroundPixelsCount = count;
-			label.html = "|||||||||||||||||||||";
-			//allow it to be fully repainted ever it is slow
-			setTimeout(function(){cp.countPixels([0, 0, 0], win, applyHtmlTagSmallText);},50);
-		}
-
-		// Counting background's pixels count  to be sure some text is displayed
-		function applyHtmlTagSmallText (count) {
-			valueOf(testRun, count).shouldBeLessThan(backgroundPixelsCount);
-			backgroundPixelsCount = count;
-			label.html = "<sup>|||||||||||||||||||||</sup>";
-			//allow it to be fully repainted ever it is slow
-			setTimeout(function(){cp.countPixels([0, 0, 0], win, onHtmlTextIsSmaller);},50);
-		}
-
-		// Counting background's pixels with <sup> text - now we should have more background pixel and less text.
-		function onHtmlTextIsSmaller(count) {
-			valueOf(testRun, count).shouldBeGreaterThan(backgroundPixelsCount);
 			win.close();
 			finish(testRun);
 		}

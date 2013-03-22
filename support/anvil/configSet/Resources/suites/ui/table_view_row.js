@@ -3,21 +3,10 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details. */
 
-if (Ti.Platform.osname === 'tizen' || Ti.Platform.osname === 'mobileweb') {
-   Ti.include('countPixels.js');
-}
-
 module.exports = new function() {
 	var finish,
 		valueOf,
-		GREEN_RGB_ARRAY = [0, 255, 0 ],
-		YELLOW_RGB_ARRAY = [255, 255, 0 ],
-		GREEN_RGB_ARRAY= [0, 255, 0 ],
-		RED_RGB_ARRAY = [255, 0, 0 ],
-		RED_RGB = '#ff0000',
-		GREEN_RGB = '#00ff00',
-		YELLOW_RGB = '#ffff00',
-		cp = new CountPixels();
+		RED_RGB = '#ff0000';
 	
 	this.init = function(testUtils) {
 		finish = testUtils.finish;
@@ -26,10 +15,7 @@ module.exports = new function() {
 
 	this.name = "table_view_row";
 	this.tests = [
-		{name: "baseNoPix"},
-		{name: "color"},
-		{name: "child"},
-		{name: "images"}
+		{name: "baseNoPix"}
 	];
 
 	// Helper function for creating testing environment
@@ -89,106 +75,5 @@ module.exports = new function() {
 		valueOf(testRun, testEnv.firstRow.hasChild).shouldBeBoolean();
 
 		finish(testRun);
-	}
-
-	// Test checking colors TableViewRows
-	this.color = function(testRun) {
-		//This function will be setted on the WINDOW postlayout event
-		var postLayotCallback = function() {
-				cp.countPixels(GREEN_RGB_ARRAY, document.body, function(count) {
-					// Check for NOT existing green color on the screen
-					valueOf(testRun, count).shouldBeEqual(0);
-					
-					// Check for NOT existing yellow color on the screen
-					cp.countPixels(YELLOW_RGB_ARRAY, document.body, function(count) {
-						valueOf(testRun, count).shouldBeEqual(0);
-						testEnv.firstRow.backgroundColor = GREEN_RGB;	
-						testEnv.firstRow.color = YELLOW_RGB;	
-					});
-				});
-			},
-			testEnv = new createTestEnv(postLayotCallback);
-		
-		// Use setTimeout because 
-		// row.addEventListener("postlayout", doesn't wokr correclty		
-		setTimeout(function() {
-			cp.countPixels(GREEN_RGB_ARRAY, document.body, function(count) {
-				//Check for existing green color on the screen
-				valueOf(testRun, count).shouldBeGreaterThan(0);
-				
-				cp.countPixels(YELLOW_RGB_ARRAY, document.body, function(count) { 
-					valueOf(testRun, count).shouldBeGreaterThan(0);
-					//Close window
-					testEnv.win.close();
-					finish(testRun);
-				});	
-			});
-		}, 1000);
-	}
-
-	// Test checking child TableViewRows
-	this.child = function(testRun) {
-		var countPixelsBeforChild = 0,		
-			// Create test env
-			testEnv = new createTestEnv(function() {
-				//This function will be setted on the WINDOW postlayout event	
-				cp.countPixels(RED_RGB_ARRAY, document.body, function(count) {
-					//Save number of Red pixels into variable
-					countPixelsBeforChild = count;
-					//Add child button into the tableViewRow
-					testEnv.firstRow.hasChild = true;
-					testEnv.secondRow.hasChild = true;
-				});			
-			});
-		
-		// Use setTimeout because 
-		// row.addEventListener("postlayout", doesn't wokr correclty
-		setTimeout(function() {
-			cp.countPixels(RED_RGB_ARRAY, document.body, function(count) { 
-				//Number of Red pixels should decrease
-				//Because grey child button appeare on the screen
-				valueOf(testRun, count).shouldBeLessThan(countPixelsBeforChild);
-
-				testEnv.win.close();
-				finish(testRun);
-			});
-		},2000);
-	}
-	
-	this.images = function(testRun) {
-		var countPixelsBeforChild = 0,
-			//This function will be setted on the WINDOW postlayout event
-			postLayotCallback = function(){
-				//Check NO existting Yellow and green color on the screen
-				cp.countPixels(YELLOW_RGB_ARRAY, document.body, function(count) {
-					valueOf(testRun, count).shouldBeEqual(0);
-
-					cp.countPixels(GREEN_RGB_ARRAY, document.body, function(count) {
-						valueOf(testRun, count).shouldBeEqual(0);
-						// Add right and left image into the row
-						// Images has yellow and green colors inside 
-						testEnv.firstRow.rightImage = "/suites/ui/image_view/yellow_blue.png";
-						testEnv.firstRow.leftImage = "/suites/ui/image_view/image2.png";
-					});				
-				});			
-			},
-
-			testEnv = new createTestEnv(postLayotCallback);
-		
-		// Use setTimeout because 
-		// row.addEventListener("postlayout", doesn't wokr correclty		
-		setTimeout(function() {
-			cp.countPixels(YELLOW_RGB_ARRAY, document.body,function(count) {
-				//Check appearence yellow and green colors on the screen
-				valueOf(testRun, count).shouldBeGreaterThan(0);
-
-				cp.countPixels(GREEN_RGB_ARRAY, document.body,function(count) {
-					valueOf(testRun, count).shouldBeGreaterThan(0);
-
-					testEnv.win.close();
-					finish(testRun);
-				});
-			});
-		}, 2000);
 	}
 }

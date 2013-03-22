@@ -19,7 +19,7 @@ module.exports = new function() {
 		{name: "sliderBasic"},
 		{name: "sliderEvents"},
 		{name: "sliderMinMaxRange"}
-	]
+	];
 
 	function createTestSlider() {
 		var win = Ti.UI.createWindow(),

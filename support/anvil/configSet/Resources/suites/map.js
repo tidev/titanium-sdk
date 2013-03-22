@@ -3,13 +3,6 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details. */
 
-var isTizen = Ti.Platform.osname === 'tizen',
-	isMobileWeb = Ti.Platform.osname === 'mobileweb';
-
-if (isTizen || isMobileWeb) {
-	Ti.include('countPixels.js');
-}
-
 module.exports = new function() {
 	var finish,
 		valueOf;
@@ -22,7 +15,6 @@ module.exports = new function() {
 	this.name = "map";
 	this.tests = [
 		{name: "constants"},
-		{name: "mapView", timeout: 20000},
 		{name: "add_annotation"},
 		{name: "map_properties"},
 		{name: "simple_map_methods"},
@@ -43,63 +35,6 @@ module.exports = new function() {
 				
 		finish(testRun);
 	}
-
-	this.mapView = function(testRun) {
-		// Verify the map really appears on the screen: it should cover the
-		// red background window. This is checked by counting pixels of the
-		// background color.
-		var cp,
-			map,
-			win = Titanium.UI.createWindow({
-				backgroundColor: '#FF0000'
-			});
-		
-		if (isTizen || isMobileWeb) {
-			cp = new CountPixels();
-		}
-		
-		var onMapComplete = function(count) {
-			// Check that the map covered its background
-			valueOf(testRun, count).shouldBeLessThan(100);
-			win.close();
-
-			finish(testRun);
-		};
-
-		var onTestStarted = function(count) {
-			// Check if the map's red background window is OK
-			valueOf(testRun, count).shouldBeEqual(100);
-		};
-
-		// Try to create map view
-		valueOf(testRun, function() {
-			map =  Titanium.Map.createView({
-				mapType: Titanium.Map.STANDARD_TYPE,
-				region: {latitude: 33.74511, longitude: -84.38993, latitudeDelta: 0.5, longitudeDelta: 0.5},
-				animate: true,
-				regionFit: true,
-				userLocation: false,
-				animated: true
-			});
-		}).shouldNotThrowException();
-
-		if (isTizen || isMobileWeb) {
-			cp.countPixelsPercentage([255, 0, 0], win, onTestStarted);
-		}
-
-		map.addEventListener('complete', function() {
-			if (isTizen || isMobileWeb) {
-				cp.countPixelsPercentage([255, 0, 0], win, onMapComplete);
-			} else {
-				win.close();
-				finish(testRun);
-			}
-		});
-
-		win.add(map);
-		win.open();
-	};
-
 
 	this.add_annotation = function(testRun) {
 		var annotationList,

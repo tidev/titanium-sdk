@@ -14,11 +14,11 @@ module.exports = new function() {
 		valueOf = testUtils.valueOf;
 	}
 
-	this.name = "mobile-NavigationGroup";
+	this.name = "mobile_navigation_group";
 	this.tests = [
 		{name: "base"},
 		{name: "topBottom"}
-	]
+	];
 
 	this.base = function(testRun) {	
 		// Open main window

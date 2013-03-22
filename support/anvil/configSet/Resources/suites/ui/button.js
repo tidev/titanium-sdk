@@ -3,11 +3,6 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details. */
 
-var isTizen = Ti.Platform.osname === 'tizen',
-	isMobileWeb = Ti.Platform.osname === 'mobileweb';
-
-(isTizen || isMobileWeb) && Ti.include('countPixels.js');
-
 module.exports = new function() {
 	var finish,
 		valueOf,
@@ -16,8 +11,7 @@ module.exports = new function() {
 	this.name = "button";
 	this.tests = [
 		{name: "basic_test"},
-		{name: "test_events"},
-		{name: "pixel_test"}
+		{name: "test_events"}
 	];
 
 	this.init = function(testUtils) {
@@ -75,7 +69,6 @@ module.exports = new function() {
         win.add(button);
         win.open();
 	}
-
 
 	// Test button events (all events are inherited)
 	this.test_events = function(testRun) {
@@ -164,80 +157,5 @@ module.exports = new function() {
 			win.close();
 			finish(testRun);
 		}, 2000);
-	}
-
-	// Check view color on the screen
-	this.pixel_test = function(testRun) {
-		Ti.API.info("Start test pixel_test.");
-
-		var buttonTitle = "&#9607;&#9607;&#9607",
-			win = Ti.UI.createWindow({
-				backgroundColor: "#FF0000",
-				width: 300,
-				height: 200
-			}),
-			button,
-			countPixel;
-
-		valueOf(testRun, function() {
-			button = Ti.UI.createButton({
-				title: buttonTitle,
-				backgroundColor: '#00FF00',
-				color: "#0000FF",
-				top: 10,
-				width: 100,
-				height: 50
-			});
-		}).shouldNotThrowException();
-		valueOf(testRun, button).shouldNotBeNull();
-		valueOf(testRun, button).shouldBeObject();
-
-        if (isTizen || isMobileWeb) {
-        	Ti.API.info("Get CountPixels object.");
-
-            valueOf(testRun, function() { countPixel = new CountPixels(); }).shouldNotThrowException();
-            valueOf(testRun, countPixel).shouldBeObject();
-        }
-
-        win.addEventListener("postlayout", function() {
-            if (isTizen || isMobileWeb) {
-            	var onCompleteWithButton = function(count) {
-   					valueOf(testRun, count).shouldBeGreaterThan(1000);
-
-					setTimeout(function() {
-						var onCompleteTextColor = function(newCount) {
-							valueOf(testRun, newCount).shouldBeGreaterThan(0);
-		            	};
-
-		            	valueOf(testRun, function() { countPixel.countPixels([0, 0, 255], win, onCompleteTextColor); }).shouldNotThrowException();
-	            	}, 1000);
-
-					setTimeout(function() {
-						var onCompleteWithoutButton = function(count) {
-							valueOf(testRun, count).shouldBeEqual(0);
-
-							Ti.API.info("Test pixel_test end.");
-							
-							win.close();
-			    			finish(testRun);
-		            	};
-
-		            	valueOf(testRun, function() { win.remove(button); }).shouldNotThrowException();
-		            	valueOf(testRun, function() { countPixel.countPixels([0, 255, 0], win, onCompleteWithoutButton); }).shouldNotThrowException();
-	            	}, 3000);
-            	};
-
-            	valueOf(testRun, countPixel.countPixels).shouldBeFunction();
-            	valueOf(testRun, function() { countPixel.countPixels([0, 255, 0], win, onCompleteWithButton); }).shouldNotThrowException();
-            } else {
-				Ti.API.info("Test pixel_test end.");
-
-                win.close();
-			    finish(testRun);
-            }
-        });
-
-        win.add(button);
-        win.open();
 	}
 }
