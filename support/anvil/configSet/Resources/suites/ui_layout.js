@@ -5,51 +5,81 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
+// To simplify platform checks we are adding this variables
+var isTizen = Ti.Platform.osname === 'tizen',
+	isMobileWeb = Ti.Platform.osname === 'mobileweb',
+	isAndroid = Ti.Platform.osname === 'android';
+
+if (isTizen || isMobileWeb) {
+	Ti.include('countPixels.js');
+}
+
 module.exports = new function() {
-	var finish;
-	var valueOf;
+	var finish,
+		valueOf,
+		// For Tizen and mobileWeb all valued based on rendering results are avalible only on "postlayout" event.
+		openEvent = isTizen || isMobileWeb ? "postlayout" : "open";
+
 	this.init = function(testUtils) {
 		finish = testUtils.finish;
 		valueOf = testUtils.valueOf;
 	};
 
 	this.name = "ui_layout";
-	this.tests = [
-		{name: "viewSizeAndRectPx"},
-		{name: "viewLeft"},
-		{name: "viewTop"},
-		{name: "viewCenter"},
-		{name: "viewWidth"},
-		{name: "viewError"},
-		{name: "undefinedWidth"},
-		{name: "undefinedLeft"},
-		{name: "undefinedCenter"},
-		{name: "undefinedRight"},
-		{name: "undefinedHeight"},
-		{name: "undefinedTop"},
-		{name: "undefinedBottom"},
-		{name: "widthPrecedence"},
-		{name: "leftPrecedence"},
-		{name: "centerXPrecedence"},
-		{name: "heightPrecedence"},
-		{name: "topPrecedence"},
-		{name: "centerYPrecedence"},
-		{name: "scrollViewSize"},
-		{name: "zIndexMultiple"},
-		{name: "fillInVerticalLayout"},
-		{name: "sizeFillConflict"},
-		{name: "systemMeasurement"},
-		{name: "unitMeasurements"},
-		{name: "scrollViewAutoContentHeight"},
-		{name: "scrollViewLargeContentHeight"},
-		{name: "scrollViewMinimumContentHeight"},
-		{name: "horizontalScrollViewMinimumContentHeight"},
-		{name: "horizontalScrollViewLargeContentHeight"},
-		{name: "scrollViewWithSIZE"},
-		{name: "scrollViewWithLargeVerticalLayoutChild"},
-		{name: "convertUnits"},
-		{name: "fourPins"}
-	];
+	this.tests = (function() {
+		var arr = [
+			{name: "viewSizeAndRectPx"},
+			{name: "viewLeft"},
+			{name: "viewTop"},
+			{name: "viewCenter"},
+			{name: "viewWidth"},
+			{name: "viewError"},
+			{name: "undefinedWidth"},
+			{name: "undefinedLeft"},
+			{name: "undefinedCenter"},
+			{name: "undefinedRight"},
+			{name: "undefinedHeight"},
+			{name: "undefinedTop"},
+			{name: "undefinedBottom"},
+			{name: "widthPrecedence"},
+			{name: "leftPrecedence"},
+			{name: "centerXPrecedence"},
+			{name: "heightPrecedence"},
+			{name: "topPrecedence"},
+			{name: "centerYPrecedence"},
+			{name: "scrollViewSize"},
+			{name: "zIndexMultiple"},
+			{name: "fillInVerticalLayout"},
+			{name: "sizeFillConflict"},
+			{name: "systemMeasurement"},
+			{name: "unitMeasurements"},
+			{name: "scrollViewAutoContentHeight"},
+			{name: "scrollViewLargeContentHeight"},
+			{name: "scrollViewMinimumContentHeight"},
+			{name: "horizontalScrollViewMinimumContentHeight"},
+			{name: "horizontalScrollViewLargeContentHeight"},
+			{name: "scrollViewWithSIZE"},
+			{name: "scrollViewWithLargeVerticalLayoutChild"},
+			{name: "convertUnits"},
+			{name: "fourPins"}
+		];
+
+		if (isTizen || isMobileWeb) {
+			arr = arr.concat([
+				{name: "viewPixelTest"}, 
+				{name: "viewBorderPixelTest"},
+				{name: "viewOpacityPixelTest"},
+				{name: "viewImagePixelTest"},
+				{name: "viewAddRemovePixelTest"},
+				{name: "viewZindex"},
+				{name: "viewVisible"},
+				{name: "viewLayoutPixelTest"},
+				{name: "viewTransformPixelTest"}
+			]);
+		}
+
+		return arr;
+	}());
 
 	// functional test cases #1010, #1011, #1025, #1025a
 	//rect and size properties should not be undefined
@@ -65,7 +95,7 @@ module.exports = new function() {
 		});
 		win.add(view);
 		win.add(label);
-		win.addEventListener("open", function(e) {
+		win.addEventListener(openEvent, function(e) {
 			valueOf(testRun, view.size).shouldNotBeUndefined();
 			valueOf(testRun, view.size.width).shouldNotBeUndefined();
 			valueOf(testRun, view.size.height).shouldNotBeUndefined();
@@ -124,7 +154,7 @@ module.exports = new function() {
 		});
 		win.add(view);
 		win.add(view2);
-		win.addEventListener("open", function(e) {
+		win.addEventListener(openEvent, function(e) {
 			valueOf(testRun, view.left).shouldBe(10);
 			valueOf(testRun, view.rect.x).shouldBe(10);
 			valueOf(testRun, view.rect.width).shouldBe(10);
@@ -152,7 +182,7 @@ module.exports = new function() {
 		});
 		win.add(view);
 		win.add(view2);
-		win.addEventListener("open", function(e) {
+		win.addEventListener(openEvent, function(e) {
 			valueOf(testRun, view.top).shouldBe(10);
 			valueOf(testRun, view.rect.y).shouldBe(10);
 			valueOf(testRun, view.rect.height).shouldBe(10);
@@ -178,14 +208,18 @@ module.exports = new function() {
 			height: 40, width: 40
 		});
 		win.add(view);
-		win.addEventListener("open", function(e) {
-			valueOf(testRun, view.center.x).shouldBe(50);
-			valueOf(testRun, view.center.y).shouldBe(50);
+
+		// This test runs on "open" event for Android\iOS and on "postlayout" on tizen and mobileweb
+		win.addEventListener(openEvent, function(e) {
 			valueOf(testRun, view.rect.x).shouldBe(30);
 			valueOf(testRun, view.rect.y).shouldBe(30);
 
+			valueOf(testRun, view.center.x).shouldBe(50);
+			valueOf(testRun, view.center.y).shouldBe(50);
+
 			finish(testRun);
 		});
+
 		win.open();
 	};
 
@@ -197,7 +231,7 @@ module.exports = new function() {
 			width: 10, height: 10
 		});
 		win.add(view);
-		win.addEventListener("open", function(e) {
+		win.addEventListener(openEvent, function(e) {
 			valueOf(testRun, view.width).shouldBe(10);
 			valueOf(testRun, view.size.width).shouldBe(10);
 			valueOf(testRun, view.height).shouldBe(10);
@@ -208,8 +242,8 @@ module.exports = new function() {
 			valueOf(testRun, view.top).shouldBeUndefined();
 			valueOf(testRun, view.bottom).shouldBeUndefined();
 			//Centered View with width and height defined
-			valueOf(testRun, view.rect.x).shouldBe(Math.floor((win.size.width - view.size.width) / 2));
-			valueOf(testRun, view.rect.y).shouldBe(Math.floor((win.size.height - view.size.height) / 2));
+			valueOf(testRun, Math.floor(view.rect.x)).shouldBe(Math.floor((win.size.width - view.size.width) / 2));
+			valueOf(testRun, Math.floor(view.rect.y)).shouldBe(Math.floor((win.size.height - view.size.height) / 2));
 
 			finish(testRun);
 		});
@@ -237,10 +271,13 @@ module.exports = new function() {
 			valueOf(testRun, view.right).shouldBe("rightString");
 			valueOf(testRun, view.top).shouldBe("topString");
 			valueOf(testRun, view.bottom).shouldBe("bottomString");
-			valueOf(testRun, view.center.y).shouldBe("centerYString");
-			valueOf(testRun, view.center.x).shouldBe("centerXString");
 			valueOf(testRun, view.width).shouldBe("widthString");
 			valueOf(testRun, view.height).shouldBe("heightString");
+
+			if (!(isTizen || isMobileWeb)) {
+				valueOf(testRun, view.center.y).shouldBe("centerYString");
+				valueOf(testRun, view.center.x).shouldBe("centerXString");
+			};
 
 			finish(testRun);
 		});
@@ -270,7 +307,7 @@ module.exports = new function() {
 			right: 10
 		});
 
-		win.addEventListener('open', function(e){
+		win.addEventListener(openEvent, function(e){
 			valueOf(testRun, view1.width).shouldBeUndefined();
 			valueOf(testRun, view2.width).shouldBeUndefined();
 			valueOf(testRun, view3.width).shouldBeUndefined();
@@ -306,7 +343,7 @@ module.exports = new function() {
 			width: 120
 		});
 
-		win.addEventListener('open', function(e){
+		win.addEventListener(openEvent, function(e){
 			valueOf(testRun, view1.left).shouldBeUndefined();
 			valueOf(testRun, view2.left).shouldBeUndefined();
 			valueOf(testRun, view3.left).shouldBeUndefined();
@@ -361,7 +398,7 @@ module.exports = new function() {
 			left:10
 		});
 
-		win.addEventListener('open', function(e){
+		win.addEventListener(openEvent, function(e){
 			valueOf(testRun, view.right).shouldBeUndefined();
 			valueOf(testRun, view.rect.width).shouldBe(80);
 			valueOf(testRun, view.rect.x).shouldBe(10);
@@ -395,7 +432,7 @@ module.exports = new function() {
 			bottom: 10
 		});
 
-		win.addEventListener('open', function(e){
+		win.addEventListener(openEvent, function(e){
 			valueOf(testRun, view1.height).shouldBeUndefined();
 			valueOf(testRun, view2.height).shouldBeUndefined();
 			valueOf(testRun, view3.height).shouldBeUndefined();
@@ -431,7 +468,7 @@ module.exports = new function() {
 			height: 100
 		});
 
-		win.addEventListener('open', function(e){
+		win.addEventListener(openEvent, function(e){
 			//Static Tops
 			valueOf(testRun, view1.top).shouldBeUndefined();
 			valueOf(testRun, view2.top).shouldBeUndefined();
@@ -494,7 +531,7 @@ module.exports = new function() {
 			width: 10
 		});
 
-		win.addEventListener('open', function(e){
+		win.addEventListener(openEvent, function(e){
 			valueOf(testRun, view.size.width).shouldBe(10);
 
 			finish(testRun);
@@ -515,7 +552,7 @@ module.exports = new function() {
 			center: {x:30}
 		});
 
-		win.addEventListener('open', function(e){
+		win.addEventListener(openEvent, function(e){
 			valueOf(testRun, view.size.width).shouldBe(40);
 
 			finish(testRun);
@@ -540,7 +577,7 @@ module.exports = new function() {
 			right: 50
 		});
 
-		win.addEventListener('open', function(e){
+		win.addEventListener(openEvent, function(e){
 			valueOf(testRun, viewChild.size.width).shouldBe(100);
 
 			finish(testRun);
@@ -562,7 +599,7 @@ module.exports = new function() {
 			height: 10
 		});
 
-		win.addEventListener('open', function(e){
+		win.addEventListener(openEvent, function(e){
 			valueOf(testRun, view.size.height).shouldBe(10);
 
 			finish(testRun);
@@ -583,7 +620,7 @@ module.exports = new function() {
 			center: {y: 30}
 		});
 
-		win.addEventListener('open', function(e){
+		win.addEventListener(openEvent, function(e){
 			valueOf(testRun, view.size.height).shouldBe(40);
 
 			finish(testRun);
@@ -608,7 +645,7 @@ module.exports = new function() {
 			bottom: 50
 		});
 
-		win.addEventListener('open', function(e){
+		win.addEventListener(openEvent, function(e){
 			valueOf(testRun, viewChild.size.height).shouldBe(100);
 
 			finish(testRun);
@@ -666,9 +703,11 @@ module.exports = new function() {
 			showHorizontalScrollIndicator : true
 		});
 
-		win.addEventListener('open', function(e){
+		//We need to keep how many events we have handled as we need to subscribe on the two different events but have only one finalizer.
+		var evnentsHanlded = 0;
 
-			var isAndroid = (Ti.Platform.osname === 'android');
+		// this test runs on "open" event 
+		win.addEventListener('open', function(e){
 			//LABEL HAS SIZE AUTO BEHAVIOR. 
 			//SCROLLVIEW HAS FILL BEHAVIOR
 			//LABEL will have 0 size (no text)
@@ -686,25 +725,30 @@ module.exports = new function() {
 				valueOf(testRun, scrollView.size.width).shouldBe(0);
 				valueOf(testRun, scrollView.size.height).shouldBe(0);
 
-				valueOf(testRun, label2.size.height).shouldNotBe(0);
-				valueOf(testRun, label2.size.width).shouldNotBe(0);
-
-				valueOf(testRun, scrollView2.size.height).shouldNotBe(0);
-				valueOf(testRun, scrollView2.size.width).shouldNotBe(0);
-
 				valueOf(testRun, label2.size.width).shouldBe(scrollView2.size.width);
 				valueOf(testRun, label2.size.height).shouldBe(scrollView2.size.height);
 			}
 
 			// This is not working yet due to TIMOB-5303
-
 			// valueOf(testRun, scrollView3.size.height).shouldNotBe(0);
 			// valueOf(testRun, scrollView3.size.width).shouldNotBe(0);
-			// 
 			// valueOf(testRun, view.size.width).shouldBe(scrollView3.size.width);
 			// valueOf(testRun, view.size.height).shouldBe(scrollView3.size.height);
 
-			finish(testRun);
+			//if we had finised another event hanling before we got here - finish this test run
+			if ((++evnentsHanlded) == 2){finish(testRun);};
+		});
+
+		// this test runs on "open" event for Android\iOS and on "postlayout" on tizen and mobileweb
+		win.addEventListener(openEvent, function(e) {
+			valueOf(testRun, label2.size.height).shouldNotBe(0);
+			valueOf(testRun, label2.size.width).shouldNotBe(0);
+
+			valueOf(testRun, scrollView2.size.height).shouldNotBe(0);
+			valueOf(testRun, scrollView2.size.width).shouldNotBe(0);
+
+			//if we had finised another event hanling before we got here - finish this test run			
+			if ((++evnentsHanlded) == 2){finish(testRun);};
 		});
 
 		view.add(scrollView);
@@ -754,7 +798,8 @@ module.exports = new function() {
 		});
 		parent.add(child);
 		win.add(parent);
-		win.addEventListener("open", function(e) {
+		// this test runs on "open" event for Android\iOS and on "postlayout" on tizen and mobileweb
+		win.addEventListener(openEvent, function(e) {
 			valueOf(testRun, parent.size.width).shouldBe(40);
 			valueOf(testRun, parent.size.height).shouldBe(50);
 			valueOf(testRun, child.size.width).shouldBe(40);
@@ -790,7 +835,8 @@ module.exports = new function() {
 		parent.add(child1);
 		grandParent.add(parent);
 		win.add(grandParent);
-		win.addEventListener("open", function(e) {
+		// this test runs on "open" event for Android\iOS and on "postlayout" on tizen and mobileweb
+		win.addEventListener(openEvent, function(e) {
 			valueOf(testRun, grandParent.size.width).shouldBe(200);
 			valueOf(testRun, grandParent.size.height).shouldBe(300);
 
@@ -825,7 +871,7 @@ module.exports = new function() {
 		parent.add(child);
 		win.add(parent);
 		win.addEventListener("open", function(e) {
-			if (Ti.Platform.osname === 'android') {
+			if (isAndroid) {
 				valueOf(testRun, parent.size.width).shouldBe(40);
 			} else if (Ti.Platform.osname === 'iphone' || Ti.Platform.osname === 'ipad' ) {
 				valueOf(testRun, parent.size.height).shouldBe(50);
@@ -861,7 +907,7 @@ module.exports = new function() {
 		win.add(child);
 		win.add(child1);
 		win.add(child2);
-		win.addEventListener("open", function(e) {
+		win.addEventListener(openEvent, function(e) {
 			valueOf(testRun, child.size.width).shouldNotBe(0);
 			valueOf(testRun, child.size.height).shouldNotBe(0);
 			
@@ -914,7 +960,7 @@ module.exports = new function() {
 		var view2 = Ti.UI.createView({
 		});
 		scrollView.add(view2);
-		win.addEventListener("open", function(e) {
+		win.addEventListener(openEvent, function(e) {
 			valueOf(testRun, view2.size.width).shouldBe(scrollView.size.width);
 			valueOf(testRun, view2.size.height).shouldBe(2000);
 
@@ -1020,7 +1066,7 @@ module.exports = new function() {
 		scrollView.add(button);
 		win.add(NavBarView);
 		win.add(scrollView);
-		win.addEventListener("open", function(e) {
+		win.addEventListener(openEvent, function(e) {
 			valueOf(testRun, scrollView.size.height).shouldBe(50);
 			valueOf(testRun, scrollView.size.width).shouldBe(100);
 
@@ -1055,7 +1101,7 @@ module.exports = new function() {
 		        top: 20
 		    }));
 		}
-		win.addEventListener("open", function(e) {
+		win.addEventListener(openEvent, function(e) {
 			valueOf(testRun, innerView.size.height).shouldBe(1200);
 			valueOf(testRun, innerView.size.width).shouldBe(scrollView.size.width);
 
@@ -1069,7 +1115,7 @@ module.exports = new function() {
 		// android
 		var dpi = Ti.Platform.displayCaps.dpi;
 
-		if (Ti.Platform.osname === 'android') {
+		if (isAndroid) {
 			// 1087 
 			valueOf(testRun, Ti.UI.convertUnits('1in', Ti.UI.UNIT_PX)).shouldBe(dpi);
 			valueOf(testRun, Ti.UI.convertUnits('100', Ti.UI.UNIT_PX)).shouldBe(100);
@@ -1096,12 +1142,14 @@ module.exports = new function() {
 		valueOf(testRun, Math.round(Ti.UI.convertUnits(dpi.toString(), Ti.UI.UNIT_IN))).shouldBe(1);
 		
 		// 1093
-		valueOf(testRun, Ti.UI.convertUnits('100cm', Ti.UI.UNIT_MM)).shouldBe(1000);
+		// result of Ti.UI.convertUnits is float it is NOT equals to INT and its normal. So we round it!
+		valueOf(testRun, Math.round(Ti.UI.convertUnits('100cm', Ti.UI.UNIT_MM))).shouldBe(1000);
 		// 1094
-		valueOf(testRun, Ti.UI.convertUnits('100in', Ti.UI.UNIT_CM)).shouldBe(254);
+		// result of Ti.UI.convertUnits is float it is NOT equals to INT and its normal. So we round it!
+		valueOf(testRun, Math.round(Ti.UI.convertUnits('100in', Ti.UI.UNIT_CM))).shouldBe(254);
 		
 		// 1097
-		valueOf(testRun, Ti.UI.convertUnits('abc', Ti.UI.UNIT_PX)).shouldBe(0);
+		valueOf(testRun, Math.round(Ti.UI.convertUnits('abc', Ti.UI.UNIT_PX))).shouldBe(0);
 
 		finish(testRun);
 	};
@@ -1115,7 +1163,7 @@ module.exports = new function() {
 			top: 10, bottom: 10
 		});
 		win.add(label);
-		win.addEventListener("open", function(e) {
+		win.addEventListener(openEvent, function(e) {
 			valueOf(testRun, label.size.width).shouldBe(80);
 			valueOf(testRun, label.size.height).shouldBe(80);
 			valueOf(testRun, label.left).shouldBe(10);
@@ -1130,5 +1178,881 @@ module.exports = new function() {
 			finish(testRun);
 		});
 		win.open();
+	}
+
+	this.viewPixelTest = function(testRun) {
+		var cp = new CountPixels(),
+			// Create white window which will be used as background
+			win = Ti.UI.createWindow({
+				backgroundColor: '#ffffff',
+				width: 320,
+				height: 510
+			}),
+			// Ccreate black view wich will be checked later
+			view = Ti.UI.createView({
+				top: 20,
+				left: 30,
+				height: 100,
+				width: 200,
+				backgroundColor: '#000000'
+			}),
+			// This is the expected number of black pixels of view
+			expected = 20000;
+
+		win.add(view);
+		view.addEventListener('postlayout', checkViewColor);
+		win.addEventListener('close', function() {
+			finish(testRun);
+		});
+		win.open();
+
+		// This is the final function wich will be called after colors are checked
+		var fin = (function() {
+			var repeat = true;
+			return function() {
+				// On the first call, it will change the view size and repeat the test again
+				if (repeat) {
+					expected = 45000;
+					repeat = false;
+
+					view.applyProperties({
+						top : 30,
+						left : 45,
+						width : 150,
+						height : 300
+					})
+				} else {
+					// On the second call, it finish will finish the test
+					win.close();
+				} 
+			}
+		}());
+
+		// Check black bixel count in the rectangle where the view is placed
+		function checkViewColor() {
+			cp.countPixels([0, 0, 0], 
+				win, 
+				function(count){
+					valueOf(testRun, count).shouldBe(expected);
+					checkWindowWhite();	
+				},
+				// This is position object
+				{
+					top: view.top,
+					left: view.left,
+					height: view.height,
+					width: view.width
+				}
+			);
+
+			// Check all white pixels on window
+			// The number should be equal to the expected number of white pixels on window
+			function checkWindowWhite() {
+				cp.countPixels([255, 255, 255], 
+					win, 
+					function(count){
+						valueOf(testRun, count).shouldBe(win.width * win.height - expected);
+						checkWindowBlack();	
+					}
+				);
+			}
+
+			// Check all black pixels on window
+			// The number should be equal to the number of view's pixels
+			// It will mean that the view appers in the specified place with thes specified size
+			function checkWindowBlack() {
+				cp.countPixels([0, 0, 0], 
+					win, 
+					function(count) {
+						valueOf(testRun, count).shouldBe(expected);
+						fin();	
+					}
+				);
+			}
+		}
+	}
+
+	this.viewBorderPixelTest = function(testRun) {
+		var cp = new CountPixels(),
+			// Create white window which be used as background
+			win = Ti.UI.createWindow({
+				backgroundColor : '#ffffff',
+				width: 320,
+				height: 510
+			}),
+			// Create black view with red border wich will be checked later
+			view = Ti.UI.createView({
+				top: 20,
+				left: 30,
+				height: 100,
+				width: 200,
+				backgroundColor: '#000000',
+				borderColor: '#ff0000', 
+				borderWidth: 10,
+			}),
+			// This is the expected number of colored pixels in the view
+			expectedBlack = 14400,
+			expectedRed = 5600,
+			expectedWhite = win.width * win.height - expectedRed - expectedBlack;
+
+		win.add(view);
+		view.addEventListener('postlayout', checkViewColor);
+		win.addEventListener('close', function() {
+			finish(testRun);
+		});
+		win.open();
+
+		function fin() { 				
+			win.close();
+		}
+
+		// Check black bixel count in the rectangle where the view should be placed
+		// If all of the follow functions succeed, then it is guaranteed that the border has the right location and the right width 
+		function checkViewColor() {
+			cp.countPixels([0, 0, 0], 
+				win, 
+				function(count) {
+					valueOf(testRun, count).shouldBe(expectedBlack);
+					checkWindowWhite();	
+				},
+				// This is position object
+				{
+					top: view.top + view.borderWidth,
+					left: view.left + view.borderWidth,
+					height: view.height - 2 * view.borderWidth,
+					width: view.width - 2 * view.borderWidth
+				}
+			);
+
+			// Check red pixels of the view
+			// Their number should be equal to the expected number of red pixels in the window
+			function checkViewRed() {
+				cp.countPixels([255, 0, 0], 
+					win, 
+					function(count) {
+						valueOf(testRun, count).shouldBe(expectedRed);
+						checkWindowBlack();	
+					},
+					{
+						top: view.top,
+						left: view.left,
+						height: view.height,
+						width: view.width
+					}
+				);
+			}
+
+			// Ccheck all white pixels in the window
+			// Their number should be equal to the number of view's pixels
+			function checkWindowWhite() {
+				cp.countPixels([255, 255, 255], 
+					win, 
+					function(count) {
+						valueOf(testRun, count).shouldBe(expectedWhite);
+						fin();	
+					}
+				);
+			}
+
+		}
+	}
+
+	this.viewOpacityPixelTest = function(testRun) {
+		var cp = new CountPixels(),
+			// Create white window which  will be used as background
+			win = Ti.UI.createWindow({
+				backgroundColor: '#ffffff',
+				width: 320,
+				height: 510
+			}),
+			// Create black view wich will be checked later
+			view = Ti.UI.createView({
+				top: 20,
+				left: 30,
+				height: 100,
+				width: 200,
+				backgroundColor: '#000000',
+				opacity: 0.5
+			}),
+			// This is the expected number of colored pixels in the view
+			expected = 20000;
+
+		win.add(view);
+		view.addEventListener('postlayout', checkViewColor);
+		win.addEventListener('close', function() {
+			finish(testRun);
+		});
+		win.open();
+
+		function fin() {
+			win.close();
+		}
+
+		// Check grey pixel count where the view should be located
+		function checkViewColor() {
+			cp.countPixels([127, 127, 127], 
+				win, 
+				function(count) {
+					valueOf(testRun, count).shouldBe(expected);
+					fin();	
+				}
+			);
+		}
+	}
+
+	// Test Ti.UI.View's backgroundImage and backgroundRepeat properties
+	this.viewImagePixelTest = function(testRun) {
+		var cp = new CountPixels(),
+			// Create white window which  will be used as background
+			win = Ti.UI.createWindow({
+				backgroundColor : '#ffffff',
+				width: 320,
+				height: 510
+			}),
+			// Create black view wich will be checked later
+			// As background image in this view, we use image which consists of two equal horizontal rectangles of green and red colors
+			view = Ti.UI.createView({
+				top: 10,
+				left: 10,
+				height: 200,
+				width: 200,
+				backgroundColor: '#000000',
+				backgroundImage: "suites/ui/image_view/image2.png",
+				backgroundSelectedImage: 'suites/ui/image_view/image.png',
+				focusable: true
+				
+			}),
+			// This is the expected numbers of colored pixels in the view
+			expectedRed = 20000,
+			expectedGreen = 20000;
+
+		win.add(view);
+		view.addEventListener('postlayout', checkRedColor);
+		win.addEventListener('close', function(){
+			finish(testRun);
+		});
+
+		win.open();
+
+		var fin = (function() {
+			var repeat = true;
+			return function() {
+				// On the first call, it will change the view size,
+				// Set bakgroundRepeat property to true and repeat the test again
+				if (repeat) {
+					expectedRed = 20000;
+					// The image fills view in a way, that number of green pixel increasing twice	
+					expectedGreen = 40000;
+					repeat = false;
+
+					view.applyProperties({
+						height : 300,
+						backgroundRepeat : true
+					})
+				} else {
+					// On the second call, it will finish the test
+					win.close();
+				} 
+			}
+		}());
+
+		// Check red pixel count where the view should be located
+		function checkRedColor() {
+			cp.countPixels([255, 0, 0], 
+				win, 
+				function(count){
+					valueOf(testRun, count).shouldBe(expectedRed);
+					checkGreenColor();	
+				}
+			);
+		}
+
+		// Check red pixel count where the view should be located
+		function checkGreenColor() {
+			cp.countPixels([0, 255, 0], 
+				win, 
+				function(count) {
+					valueOf(testRun, count).shouldBe(expectedGreen);
+					fin();
+				}
+			);
+		}
+	}
+
+	this.viewAddRemovePixelTest = function(testRun) {
+		/* 1. Create a green parent view. Verify there is the right count of green pixels on the screen
+				(parent window area) and red pixels (0) .
+			2. Create a red child view. Verify there is the right count of green pixels on the screen
+				(parent window area minus child window area) and red pixels
+				(child window area).
+			Remove the red child view. Verify there is the right count of red and green pixels, as in
+				item 1. */
+
+		var cp = new CountPixels(),
+			win = Ti.UI.createWindow(),
+			// Create green view which  will be used as container for other view
+			parentView = Ti.UI.createView({
+				backgroundColor : '#00ff00',
+			}),
+			// Create red view wich will be used as child view later
+			childView = Ti.UI.createView({
+				top: 10,
+				left: 10,
+				height: 200,
+				width: 200,
+				backgroundColor: '#ff0000'
+			}),
+			// This is the expected numbers of red pixels in the window
+			expectedRed = 0;
+
+		// First veiw will been rendered without child view
+		parentView.addEventListener('postlayout', function(){
+			checkRedColor(addChild);
+		});
+
+		childView.addEventListener('postlayout', function(){
+			checkRedColor(removeChild);
+		});
+
+		win.add(parentView)
+		win.addEventListener('close', function() {
+			finish(testRun);
+		});
+		win.open();
+
+		function addChild() {
+			expectedRed = 40000;
+			parentView.add(childView);
+		}
+
+		function removeChild() {
+			parentView.removeEventListener('postlayout');
+			childView.removeEventListener('postlayout');
+			parentView.addEventListener('postlayout', function() {
+				checkRedColor(fin);
+			});
+			expectedRed = 0;
+			parentView.remove(childView);
+		}
+
+		function fin() {
+			// Then finish test
+			win.close()
+		}
+
+		// Check red pixel count where the view should be located
+		function checkRedColor(callback) {
+			cp.countPixels([255, 0, 0], 
+				win, 
+				function(count){
+					valueOf(testRun, count).shouldBe(expectedRed);
+					checkGreenColor(callback);	
+				},
+				{
+					top: 10,
+					left: 10,
+					height: childView.height,
+					width: childView.width
+				}
+			);
+		}
+
+		// Check red pixel count where the view should be located
+		function checkGreenColor(callback) {
+			cp.countPixels([0, 255, 0], 
+				win, 
+				function(count){
+					valueOf(testRun, count).shouldBe(parentView.rect.width*parentView.rect.height - expectedRed);
+					callback();	
+				}
+			);
+		}
+	}
+		
+	this.viewZindex = function(testRun) {
+		// Verify if second view's green pixels is presents
+		// Change the zIndex for first view
+		// Verify if first view's red pixels is presents
+		var cp = new CountPixels(),
+			win = Ti.UI.createWindow({
+				backgroundColor : '#ffffff'
+			}),
+			view1 = Ti.UI.createView({
+				backgroundColor : '#ff0000'
+			}),
+			view2 = Ti.UI.createView({
+				backgroundColor : '#00ff00'
+			});
+		
+		var onChangedZindex = function(count) {
+			var zi;
+			valueOf(testRun, count).shouldBeEqual(100);
+			
+			valueOf(testRun, function() {
+				zi = view1.getZIndex();
+			}).shouldNotThrowException();
+			
+			valueOf(testRun, view1.zIndex).shouldBeEqual(5);
+			valueOf(testRun, zi).shouldBeEqual(5);
+			
+			win.close();
+			finish(testRun);
+		}
+		
+		var onStartTest = function(count) {
+			valueOf(testRun, count).shouldBeEqual(100);
+			
+			valueOf(testRun, function() {
+				view1.setZIndex(5);
+			}).shouldNotThrowException();
+			
+			setTimeout(function() {
+				cp.countPixelsPercentage([255, 0, 0], win, onChangedZindex);
+			}, 1000);
+		}
+		
+		win.addEventListener('postlayout', function() {
+			var zi;
+			
+			valueOf(testRun, function() {
+				zi = view1.getZIndex();
+			}).shouldNotThrowException();
+			
+			valueOf(testRun, view1.zIndex).shouldBeUndefined();
+			valueOf(testRun, zi).shouldBeUndefined();
+			
+			cp.countPixelsPercentage([0, 255, 0], win, onStartTest);
+		});
+
+		win.add(view1);
+		win.add(view2);
+		win.open();
+	}
+
+	this.viewVisible = function(testRun) {
+		// Verify if view's green pixels is presents
+		// Change the visible for view to false
+		// Verify if green view's red pixels is not presents
+		// Change the visible for view to true
+		// Verify if green view's red pixels is presents		
+		var cp = new CountPixels(),
+			win = Ti.UI.createWindow({
+				backgroundColor : '#ff0000'
+			}),
+			view1 = Ti.UI.createView({
+				backgroundColor : '#00ff00'
+			});
+		
+		var onShow = function(count) {
+			valueOf(testRun, count).shouldBeEqual(100);
+			win.close();
+			finish(testRun);
+		}
+		
+		var onHide = function(count) {
+			 valueOf(testRun, count).shouldBeEqual(0);
+			 
+			 valueOf(testRun, function() {
+				view1.show();
+			}).shouldNotThrowException();
+			
+			setTimeout(function() {
+				cp.countPixelsPercentage([0, 255, 0], win, onShow);
+			}, 1000);
+		}
+		
+		var onChangedVisibleToTrue = function(count) {
+			var zi;
+
+			valueOf(testRun, count).shouldBeEqual(100);
+			valueOf(testRun, function(){
+				zi = view1.getVisible();
+			}).shouldNotThrowException();
+			
+			valueOf(testRun, view1.visible).shouldBeTrue();
+			valueOf(testRun, zi).shouldBeTrue();
+			
+			valueOf(testRun, function(){
+				view1.hide();
+			}).shouldNotThrowException();
+			
+			setTimeout(function(){
+				cp.countPixelsPercentage([0, 255, 0], win, onHide);
+			}, 1000);
+		}
+		
+		var onChangedVisibleToFalse = function(count) {
+			var zi;
+
+			valueOf(testRun, count).shouldBeEqual(100);
+			valueOf(testRun, function() {
+				zi = view1.getVisible();
+			}).shouldNotThrowException();
+			
+			valueOf(testRun, view1.visible).shouldBeFalse();
+			valueOf(testRun, zi).shouldBeFalse();
+			
+			valueOf(testRun, function() {
+				view1.setVisible(true);
+			}).shouldNotThrowException();
+			
+			setTimeout(function() {
+				cp.countPixelsPercentage([0, 255, 0], win, onChangedVisibleToTrue);
+			}, 1000);
+		}
+		
+		var onStartTest = function(count) {
+			valueOf(testRun, count).shouldBeEqual(100);
+			
+			valueOf(testRun, function() {
+				view1.setVisible(false);
+			}).shouldNotThrowException();
+			
+			setTimeout(function() {
+				cp.countPixelsPercentage([255, 0, 0], win, onChangedVisibleToFalse);
+			}, 1000);
+		}
+		
+		win.addEventListener('postlayout', function() {
+			var zi;
+			
+			valueOf(testRun, function() {
+				zi = view1.getVisible();
+			}).shouldNotThrowException();
+			
+			valueOf(testRun, view1.visible).shouldBeUndefined();
+			valueOf(testRun, zi).shouldBeUndefined();
+			
+			cp.countPixelsPercentage([0, 255, 0], win, onStartTest);
+		});
+
+		win.add(view1);
+		win.open();
+	}
+
+	this.viewLayoutPixelTest = function(testRun) {
+		var cp = new CountPixels(),
+			// Create window
+			win = Ti.UI.createWindow(),
+			// Create veiw with composite layout
+			// In this view child views, which have the same coordinates and size, will overlap
+			parentViewComposite = Ti.UI.createView({
+				backgroundColor : '#ffffff',
+				layout: 'composite'
+			}),
+			// Create veiw with composite layout
+			// In this view child views, which have the same coordinates and size, are placed one under the other
+			parentViewVertical = Ti.UI.createView({
+				backgroundColor : '#ffffff',
+				layout: 'vertical'
+			}),
+			// Create veiw with composite layout
+			// In this view child views, which have the same coordinates and size placed next to one another
+			parentViewHorizontal = Ti.UI.createView({
+				backgroundColor : '#ffffff',
+				layout: 'horizontal'
+			}),
+			// These options will be used for creating the red views
+			childViewRedOptions = {
+				top: 10,
+				left: 10,
+				height: 100,
+				width: 100,
+				backgroundColor: '#ff0000'
+			},
+			// These options will be used for creating the green views
+			childViewGreenOptions = {
+				top: 10,
+				left: 10,
+				height: 100,
+				width: 100,
+				backgroundColor: '#00ff00'
+			},
+			positionRed, positionGreen, expectedRed, expectedGreen;
+
+		parentViewComposite.add(Ti.UI.createView(childViewGreenOptions));
+		parentViewComposite.add(Ti.UI.createView(childViewRedOptions));
+
+		parentViewVertical.add(Ti.UI.createView(childViewGreenOptions));
+		parentViewVertical.add(Ti.UI.createView(childViewRedOptions));
+
+		parentViewHorizontal.add(Ti.UI.createView(childViewGreenOptions));
+		parentViewHorizontal.add(Ti.UI.createView(childViewRedOptions));
+
+		parentViewComposite.addEventListener('postlayout', prepareComposite);
+		parentViewVertical.addEventListener('postlayout' , prepareVertical);
+		parentViewHorizontal.addEventListener('postlayout' , prepareHorizontal);
+
+		win.add(parentViewComposite);
+		win.addEventListener('close', function() {
+			finish(testRun);
+		});
+		// PrepareComposite() will begin executing
+		win.open();
+
+		function prepareComposite() {
+			// In composite layout, the red will completely cover the green
+			expectedRed = 10000,
+			expectedGreen = 0,
+			positionRed = {
+				top: 10,
+				left: 10,
+				width: 100,
+				heigth: 100,
+			};
+			positionGreen = {};
+
+			// Initiate the sequence of callbacks that will perform the following checks:
+			// - check that there are 10000 red pixels in the rectangle "positionred" (function checkRedColor)
+			// - check that there are 0 green pixels in the rectangle "positionGreen" (function checkGreenColor)
+			// - check that there are {windows_area - expectedGreen - expectedRed} white pixels (function CheckWhiteColor)
+			// - proceed to vertical layout test (function addVerticalWindow)
+			checkRedColor(addVerticalWindow);	
+		}
+
+		function prepareVertical() {
+			// In vertical layout, child views with same coordinates and sizes are placed one under the other
+			console.log('prepareVertical')
+			expectedRed = 10000,
+			expectedGreen = 10000,
+			positionRed = {
+				top: 120,
+				left: 10,
+				width: 100,
+				heigth: 100,
+			};
+			positionGreen = {
+				top: 10,
+				left: 10,
+				width: 100,
+				heigth: 100,
+			};
+
+			// Initiate the sequence of callbacks that will perform the following checks:
+			// - check that there are 10000 red pixels in the rectangle "positionred" (function checkRedColor)
+			// - check that there are 10000 green pixels in the rectangle "positionGreen" (function checkGreenColor)
+			// - check that there are {windows_area - expectedGreen - expectedRed} white pixels (function CheckWhiteColor)
+			// - proceed to horizontal layout test (function addHorizontalWindow)			
+			checkRedColor(addHorizontalWindow);	
+		}
+
+		function prepareHorizontal() {
+			// In horizontal layout, child views with same coordinates and sizes are placed one beside the other
+			expectedRed = 10000,
+			expectedGreen = 10000,
+			positionRed = {
+				top: 10,
+				left: 120,
+				width: 100,
+				heigth: 100,
+			};
+			positionGreen = {
+				top: 10,
+				left: 10,
+				width: 100,
+				heigth: 100,
+			};
+
+			// Initiate the sequence of callbacks that will perform the following checks:
+			// - check that there are 10000 red pixels in the rectangle "positionred" (function checkRedColor)
+			// - check that there are 10000 green pixels in the rectangle "positionGreen" (function checkGreenColor)
+			// - check that there are {windows_area - expectedGreen - expectedRed} white pixels (function CheckWhiteColor)
+			// - finish the test (function fin)			
+			checkRedColor(fin);	
+		}
+
+		function addVerticalWindow() {
+			win.removeEventListener('postlayout');
+			win.addEventListener('postlayout', function() {
+				setTimeout(function() {
+					win.add(parentViewVertical);    // prepareVertical will execute
+				}, 0);
+			});
+
+			win.remove(parentViewComposite);
+		}
+
+		function addHorizontalWindow() {
+			win.removeEventListener('postlayout');
+			win.addEventListener('postlayout', function() {
+				setTimeout(function() {
+					win.add(parentViewHorizontal);		// prepareHorizontal will execute
+				}, 0);
+			});
+
+			win.remove(parentViewVertical);
+		}
+
+		function fin() {
+			// Then finish test
+			win.close()
+		}
+
+		function checkRedColor(callback) {
+			cp.countPixels([255, 0, 0], 
+				win, 
+				function(count){
+					valueOf(testRun, count).shouldBe(expectedRed);
+					checkGreenColor(callback);	
+				},
+				positionRed
+			);
+		}
+
+		function checkGreenColor(callback) {
+			cp.countPixels([0, 255, 0], 
+				win, 
+				function(count) {
+					valueOf(testRun, count).shouldBe(expectedGreen);
+					checkWhiteColor(callback);	
+				},
+				positionGreen
+			);
+		}
+
+		function checkWhiteColor(callback) {
+			cp.countPixels([255, 255, 255], 
+				win, 
+				function(count) {
+					valueOf(testRun, count).shouldBe( win.rect.width*win.rect.height - expectedRed - expectedGreen);
+					callback();	
+				}
+			);
+		}
+	}
+
+	this.viewTransformPixelTest = function(testRun) {
+		var cp = new CountPixels(),
+			// Create white window which  will be used as background
+			win = Ti.UI.createWindow({
+				backgroundColor : '#ffffff',
+				width: 320,
+				height: 510
+			}),
+			// Create black view wich will be used as container
+			// Wich contain two colored bands
+			parentView = Ti.UI.createView({
+				top: 205,
+				left: 110,
+				height: 100,
+				width: 100,
+				backgroundColor: '#000000',
+			}),
+			// The green band
+			greenView = Ti.UI.createView({
+				top: 0,
+				height: 50,
+				width: 100,
+				backgroundColor: '#00ff00'
+			}),
+			// The red band
+			redView = Ti.UI.createView({
+				bottom: 0,			
+				height: 50,
+				width: 100,
+				backgroundColor: '#ff0000'
+			});
+
+		parentView.add(redView);
+		parentView.add(greenView);
+
+		//create matrix wich will be transform our veiew
+		var matrix = Ti.UI.create2DMatrix();
+		matrix = matrix.rotate(270);
+		matrix = matrix.scale(2, 2);
+
+		//this is the expected numbers of colored pixels in the view and their expected rectangle
+		//before transformation
+		var expectedRed = 5000,
+			expectedGreen = 5000,
+			redRectangle = {
+				top: 255,
+				left: 110,
+				height: 50,
+				width: 100
+			},
+			greenRectangle = {
+				top: 205,
+				left: 110,
+				height: 50,
+				width: 100
+			};
+
+		win.add(parentView);
+		parentView.addEventListener('postlayout', checkRedColor);
+		win.addEventListener('close', function() {
+			finish(testRun);
+		});
+
+		win.open();
+
+		var fin = (function() {
+			var repeat = true;
+			return function() {
+				if (repeat) {
+					// On the first call, it will transform the view
+					repeat = false;
+					expectedRed = 20000;
+					// View should be rotated on 270 degree and scale twice
+					expectedGreen = 20000;
+					// That's why we specify appropriative coordinates and expected counts
+					redRectangle = {
+						top: 155,
+						left: 160,
+						height: 200,
+						width: 100
+					},
+					greenRectangle = {
+						top: 155,
+						left: 60,
+						height: 200,
+						width: 100
+					},
+					parentView.applyProperties({
+						transform: matrix
+					});
+
+					setTimeout(checkRedColor, 500);
+				} else {
+					// On the second call, it will finish the test
+					win.close();
+				} 
+			}
+		}());
+
+		// Check red pixel count where the view should be located
+		function checkRedColor() {
+			cp.countPixels([255, 0, 0], 
+				win, 
+				function(count) {
+					valueOf(testRun, count).shouldBe(expectedRed);
+					checkGreenColor();	
+				},
+				redRectangle
+			);
+		}
+
+		// Check green pixel count where the view should be located
+		function checkGreenColor() {
+			cp.countPixels([0, 255, 0], 
+				win, 
+				function(count) {
+					valueOf(testRun, count).shouldBe(expectedGreen);
+					checkWhiteColor();	
+				},
+				greenRectangle
+			);
+		}
+
+		// Check white pixel count on window
+		function checkWhiteColor() {
+			cp.countPixels([255, 255, 255], 
+				win, 
+				function(count) {
+					valueOf(testRun, count).shouldBe(win.rect.width*win.rect.height - expectedRed - expectedGreen);
+					fin();	
+				}
+			);
+		}
 	}
 };

@@ -31,7 +31,8 @@ module.exports = new function() {
 			var data = e.data;
 			valueOf(testRun, data).shouldNotBeNull();
 			valueOf(testRun, data.place).shouldNotBeNull();
-			valueOf(testRun, data.place.name).shouldBe("San Francisco");
+			// yql data payload now contains array of objects
+			valueOf(testRun, data.place[0].name).shouldBe("San Francisco");
 			finish(testRun);
 		});
 	}
