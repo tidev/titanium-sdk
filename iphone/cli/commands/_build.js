@@ -1441,12 +1441,6 @@ build.prototype = {
 			return true;
 		}
 
-		// check if the deploy type is not development
-		if (this.deployType != 'development') {
-			this.logger.info(__('Forcing rebuild: deploy type is %s, so need to recompile ApplicationRouting.m', this.deployType));
-			return true;
-		}
-
 		// check if the target changed
 		if (this.target != manifest.target) {
 			this.logger.info(__('Forcing rebuild: target changed since last build'));
