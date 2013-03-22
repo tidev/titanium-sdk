@@ -52,6 +52,7 @@ import android.database.Cursor;
 import android.graphics.BitmapFactory;
 import android.hardware.Camera;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
@@ -215,7 +216,7 @@ public class MediaModule extends KrollModule
 
 		for (ResolveInfo rs : activities) {
 			try {
-				if (rs.activityInfo.applicationInfo.sourceDir.contains("HTC")) {
+				if (rs.activityInfo.applicationInfo.sourceDir.contains("HTC") || Build.MANUFACTURER.equals("HTC")) {
 					isHTCCameraApp = true;
 					break;
 				}
