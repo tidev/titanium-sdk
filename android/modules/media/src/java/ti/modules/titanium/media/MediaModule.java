@@ -67,6 +67,7 @@ public class MediaModule extends KrollModule
 	private static final String TAG = "TiMedia";
 
 	private static final long[] DEFAULT_VIBRATE_PATTERN = { 100L, 250L };
+	private static final String PHOTO_DCIM_CAMERA = "/sdcard/dcim/Camera";
 	private static final String FEATURE_CAMERA_FRONT = "android.hardware.camera.front"; // Needed until api 9 is our minimum supported.
 
 	protected static final int MSG_INVOKE_CALLBACK = KrollModule.MSG_LAST_ID + 100;
@@ -236,8 +237,15 @@ public class MediaModule extends KrollModule
 			} else {
 				if (activity.getIntent() != null) {
 					String name = TiApplication.getInstance().getAppInfo().getName();
-					File rootsd = Environment.getExternalStorageDirectory();
-					imageDir = new File(rootsd.getAbsolutePath() + "/dcim/Camera/", name);
+					// For HTC cameras, specifying the directory from getExternalStorageDirectory is /mnt/sdcard and
+					// using that path prevents the gallery from recognizing it. To avoid this we use /sdcard instead
+					// (this is a legacy path we've been using)
+					if (isHTCCameraApp) {
+						imageDir = new File(PHOTO_DCIM_CAMERA, name);
+					} else {
+						File rootsd = Environment.getExternalStorageDirectory();
+						imageDir = new File(rootsd.getAbsolutePath() + "/dcim/Camera/", name);
+					}
 					if (!imageDir.exists()) {
 						imageDir.mkdirs();
 						if (!imageDir.exists()) {
@@ -467,9 +475,8 @@ public class MediaModule extends KrollModule
 					// We need to move the image from dataPath to imageUrl
 					URL url;
 					try {
-						url = new URL(imageUrl);
 						if (!saveToPhotoGallery) {
-
+							url = new URL(imageUrl);
 							moveImage(dataPath, url.getPath());
 
 							// Update Content
@@ -486,8 +493,9 @@ public class MediaModule extends KrollModule
 							}
 
 							localImageUrl = imageUrl; // make sure it's a good URL before setting it to pass back.
-						} else {
+						} else if (imageUrl != null) {
 							// Delete the temp file since we want to use the one from the photo gallery
+							url = new URL(imageUrl);
 							File source = new File(url.getPath());
 							source.delete();
 						}
