@@ -133,11 +133,13 @@ def is_view_proxy(api):
 	if api.name == "Titanium.UI.View":
 		return True
 	else:
-		parent = api.parent
-		while parent is not None:
-			if parent.name == "Titanium.UI.View":
+		superclass_name = api.api_obj.get("extends")
+		while superclass_name is not None:
+			if superclass_name == "Titanium.UI.View":
 				return True
-			parent = parent.parent
+            print superclass_name + " is not Ti.UI.View"
+			superclass = all_annotated_apis[superclass_name]
+			superclass_name = superclass.api_obj.get("extends")
 	return False
 
 def transform_one_api(api):
@@ -145,6 +147,10 @@ def transform_one_api(api):
 	transformed["methods"] = to_json_methods(api)
 	transformed["events"] = to_json_events(api)
 	transformed["properties"] = to_json_properties(api)
+	if "extends" in api.api_obj:
+		transformed["extends"] = api.api_obj["extends"]
+	else:
+		transformed["extends"] = "Object"
 
 	if api.typestr == "module":
 		transformed["objects"] = find_proxy_names_in_module(api)
