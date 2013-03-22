@@ -159,7 +159,7 @@ methods:
         #### Alloy
 
             For Alloy, place the CommonJS modules in the `app/lib` directory of your Alloy project,
-            then load the module with `require` method without the `app/lib` path and `.js`
+            then load the module with the `require` method without the `app/lib` path and `.js`
             extension.
 
             For example, a module file `app/lib/myModule/module.js` may be loaded by
@@ -177,8 +177,6 @@ methods:
             
                 require('../myModule/module')
                 require ('/myModule/module')
-
-        ### Global scope
 
 
     returns:
