@@ -84,7 +84,7 @@ module.exports = new function() {
 
 	this.connectToDriver = function() {
 		var connectMessage = {type: "ready"};
-		if (Ti.Platform.name == "mobileweb") {
+		if (Ti.Platform.name == "mobileweb" || Ti.Platform.osname == "tizen") {
 			Ti.API.info("connecting to driver...");
 			harnessGlobal.util.sendData(connectMessage);
 
@@ -162,7 +162,7 @@ module.exports = new function() {
 							exceptionDetails = "unable to get exception details";
 						}
 
-						setResult(testRun, "exception", "<" + exceptionDetails + ">");
+						setResult(testRun, "exception", "<" + exceptionDetails + ">" + " " + (e.message ? " Message:" + e.message : ""));
 						sendResult();
 					}
 				}

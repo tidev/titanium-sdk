@@ -15,7 +15,7 @@
 	<fullscreen>false</fullscreen>
 	<navbar-hidden>false</navbar-hidden>
 	<analytics>false</analytics>
-	<guid>50c9d8b9-202b-42f5-b4c3-4c9e7cf7c725</guid>
+	<guid></guid>
 	<property name="ti.ui.defaultunit">system</property>
 	<iphone>
 		<orientations device="iphone">
@@ -47,8 +47,8 @@
 		</splash>
 		<theme>default</theme>
 	</mobileweb>
-	<tizen appid="zhrTuDSwYV">
-         <tizen:privilege name="http://tizen.org/privilege/tizen"/>
+	 <tizen appid="zhrTuDSwYV">
+        <tizen:privilege name="http://tizen.org/privilege/tizen"/>
         <tizen:privilege name="http://tizen.org/privilege/systeminfo"/>
         <tizen:privilege name="http://tizen.org/privilege/setting"/>
         <tizen:privilege name="http://tizen.org/privilege/power"/>
@@ -83,6 +83,7 @@
         <access origin="https://my.appcelerator.com/auth/login" subdomains="true"/>
         <access origin="http://appc.me/Test/Cookies/" subdomains="true"/>
     </tizen>
+	
     <modules>
         <module platform="tizen">tizen</module>
     </modules>

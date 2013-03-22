@@ -45,7 +45,7 @@ module.exports = new function() {
 				errorDetails = "unable to get exception details";
 			}
 
-			self.callback(testRun, "error", "<" + errorDetails + ">");
+			self.callback(testRun, "error", "<" + errorDetails + "> Message: " + message);
 		}
 	};
 
@@ -241,6 +241,22 @@ module.exports = new function() {
 		}
 	};
 
+	// This function is required for Tizen's browser which does not support
+	// indexOf for arrays.
+	Value.prototype.shouldContainDeprecated = function(expected) {
+		if (this.testRun.resultSet) {
+			return;
+		}
+
+		for (var i = 0, len = this.obj.length; i < len; i++) {
+			if (expected === this.obj[i]) {
+				return;
+			}
+		}
+
+		self.reportError(this.testRun, "should contain: " + expected + ", was: " + this.obj);
+	}
+
 	Value.prototype.shouldContain = function(expected) {
 		if (this.testRun.resultSet) {
 			return;
@@ -348,7 +364,7 @@ module.exports = new function() {
 				this.obj();
 
 			} catch (e) { 
-				self.reportError(this.testRun, "should not throw exception, but did");	
+				self.reportError(this.testRun, "should not throw exception, but did. Exception: " + e.message);
 			}
 
 		} else {
