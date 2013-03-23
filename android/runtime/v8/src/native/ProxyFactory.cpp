@@ -61,7 +61,7 @@ Handle<Object> ProxyFactory::createV8Proxy(jclass javaClass, jobject javaProxy)
 		// No info has been registered for this class yet, fall back
 		// to the binding lookup table
 		jstring javaClassName = JNIUtil::getClassName(javaClass);
-		Handle<Value> className = TypeConverter::javaStringToJsString(env, javaClassName);
+		Handle<Value> className = TypeConverter::javaStringToJsString(javaClassName);
 		env->DeleteLocalRef(javaClassName);
 
 		Handle<Object> exports = KrollBindings::getBinding(className->ToString());
@@ -165,14 +165,14 @@ jobject ProxyFactory::createJavaProxy(jclass javaClass, Local<Object> v8Proxy, c
 			Local<Object> scopeVars = arguments->Get(0)->ToObject();
 			if (V8Util::constructorNameMatches(scopeVars, "ScopeVars")) {
 				Local<Value> sourceUrl = scopeVars->Get(Proxy::sourceUrlSymbol);
-				javaSourceUrl = TypeConverter::jsValueToJavaString(env, sourceUrl);
+				javaSourceUrl = TypeConverter::jsValueToJavaString(sourceUrl);
 				start = 1;
 			}
 		}
 
-		javaArgs = TypeConverter::jsObjectIndexPropsToJavaArray(env, arguments, start, length);
+		javaArgs = TypeConverter::jsObjectIndexPropsToJavaArray(arguments, start, length);
 	} else {
-		javaArgs = TypeConverter::jsArgumentsToJavaArray(env, args);
+		javaArgs = TypeConverter::jsArgumentsToJavaArray(args);
 	}
 
 	jobject javaV8Object = env->NewObject(JNIUtil::v8ObjectClass,
