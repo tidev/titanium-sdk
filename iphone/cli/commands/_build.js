@@ -2251,7 +2251,9 @@ build.prototype = {
 								var srcFile = path.join(src, file),
 									destFile = path.join(dest, file);
 								if (fs.lstatSync(srcFile).isDirectory()) {
-									symlinkResources(srcFile, destFile, false, next);
+									setTimeout(function () {
+										symlinkResources(srcFile, destFile, false, next);
+									}, 1);
 								} else {
 									symlinkHook(srcFile, destFile, next);
 								}
@@ -2260,7 +2262,7 @@ build.prototype = {
 							}
 						};
 					}), cb);
-				} else if (cb) {
+				} else {
 					cb();
 				}
 			}.bind(this),
