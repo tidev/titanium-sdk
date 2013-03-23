@@ -515,12 +515,12 @@ jdoubleArray TypeConverter::jsArrayToJavaDoubleArray(JNIEnv *env, v8::Handle<v8:
 
 v8::Handle<v8::Array> TypeConverter::javaArrayToJsArray(jdoubleArray javaDoubleArray)
 {
-	return javaDoubleArrayToJsNumberArray(javaDoubleArray);
+	return javaDoubleArrayToJsNumberArray((jdoubleArray) javaDoubleArray);
 }
 
 v8::Handle<v8::Array> TypeConverter::javaArrayToJsArray(JNIEnv *env, jdoubleArray javaDoubleArray)
 {
-	return javaDoubleArrayToJsNumberArray(env, javaDoubleArray);
+	return javaDoubleArrayToJsNumberArray(env, (jdoubleArray) javaDoubleArray);
 }
 
 v8::Handle<v8::Array> TypeConverter::javaArrayToJsArray(jobjectArray javaObjectArray)
@@ -861,8 +861,6 @@ v8::Handle<v8::Array> TypeConverter::javaDoubleArrayToJsNumberArray(JNIEnv *env,
 	for (int i = 0; i < arrayLength; i++) {
 		jsArray->Set((uint32_t) i, v8::Number::New(arrayElements[i]));
 	}
-	env->ReleaseDoubleArrayElements(javaDoubleArray, arrayElements, JNI_ABORT);
-	//Since we were only reading, there is no need to copy back. Thus, Abort.
 	return jsArray;
 }
 
