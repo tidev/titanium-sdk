@@ -267,7 +267,7 @@ properties:
 
         The callback's argument is an object with a single property, `error`, containing the error
         string.
-    type: Callback<Object>
+    type: Callback<FailureResponse>
 
   - name: onload
     summary: Function to be called upon a successful response.
@@ -276,8 +276,8 @@ properties:
 
         To access response data and headers, access the `HTTPClient` object itself (accessible as
         `this` during the callback, or the `source` property of the callback event).
-    type: Callback<Object>
-
+    type: Callback<SuccessResponse>
+    
   - name: onreadystatechange
     summary: |
         Function to be called for each [readyState](Titanium.Network.HTTPClient.readyState) change.
