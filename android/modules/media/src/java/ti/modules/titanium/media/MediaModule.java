@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -52,6 +52,7 @@ import android.database.Cursor;
 import android.graphics.BitmapFactory;
 import android.hardware.Camera;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
@@ -215,7 +216,7 @@ public class MediaModule extends KrollModule
 
 		for (ResolveInfo rs : activities) {
 			try {
-				if (rs.activityInfo.applicationInfo.sourceDir.contains("HTC")) {
+				if (rs.activityInfo.applicationInfo.sourceDir.contains("HTC") || Build.MANUFACTURER.equals("HTC")) {
 					isHTCCameraApp = true;
 					break;
 				}
@@ -237,7 +238,15 @@ public class MediaModule extends KrollModule
 			} else {
 				if (activity.getIntent() != null) {
 					String name = TiApplication.getInstance().getAppInfo().getName();
-					imageDir = new File(PHOTO_DCIM_CAMERA, name);
+					// For HTC cameras, specifying the directory from getExternalStorageDirectory is /mnt/sdcard and
+					// using that path prevents the gallery from recognizing it. To avoid this we use /sdcard instead
+					// (this is a legacy path we've been using)
+					if (isHTCCameraApp) {
+						imageDir = new File(PHOTO_DCIM_CAMERA, name);
+					} else {
+						File rootsd = Environment.getExternalStorageDirectory();
+						imageDir = new File(rootsd.getAbsolutePath() + "/dcim/Camera/", name);
+					}
 					if (!imageDir.exists()) {
 						imageDir.mkdirs();
 						if (!imageDir.exists()) {
@@ -394,40 +403,10 @@ public class MediaModule extends KrollModule
 				}
 
 			} else {
+				// If data is null, the image is not automatically saved to the gallery, so we need to process it with
+				// the one we created
 				if (data == null) {
-					ContentValues values = new ContentValues(7);
-					values.put(Images.Media.TITLE, imageFile.getName());
-					values.put(Images.Media.DISPLAY_NAME, imageFile.getName());
-					values.put(Images.Media.DATE_TAKEN, new Date().getTime());
-					values.put(Images.Media.MIME_TYPE, "image/jpeg");
-					if (saveToPhotoGallery) {
-						values.put(Images.ImageColumns.BUCKET_ID, PHOTO_DCIM_CAMERA.toLowerCase().hashCode());
-						values.put(Images.ImageColumns.BUCKET_DISPLAY_NAME, "Camera");
-
-					} else {
-						values.put(Images.ImageColumns.BUCKET_ID, imageFile.getPath().toLowerCase().hashCode());
-						values.put(Images.ImageColumns.BUCKET_DISPLAY_NAME, imageFile.getName());
-					}
-					values.put("_data", imageFile.getAbsolutePath());
-
-					activity.getContentResolver().insert(Images.Media.EXTERNAL_CONTENT_URI, values);
-
-					// puts newly captured photo into the gallery
-					MediaScannerClient mediaScanner = new MediaScannerClient(activity, new String[] {imageUrl}, null, null);
-					mediaScanner.scan();
-
-					try {
-						if (successCallback != null) {
-							invokeCallback((TiBaseActivity) activity, successCallback, getKrollObject(), createDictForImage(imageFile.getAbsolutePath(), "image/jpeg"));
-						}
-
-					} catch (OutOfMemoryError e) {
-						String msg = "Not enough memory to get image: " + e.getMessage();
-						Log.e(TAG, msg);
-						if (errorCallback != null) {
-							invokeCallback((TiBaseActivity) activity, errorCallback, getKrollObject(), createErrorResponse(UNKNOWN_ERROR, msg));
-						}
-					}
+					processImage(activity);
 
 				} else {
 					// Get the content information about the saved image
@@ -449,17 +428,20 @@ public class MediaModule extends KrollModule
 					String dataPath = null;
 					String dateTaken = null;
 
-					Cursor c;
+					Cursor c = null;
+					boolean isDataValid = true;
 					if (data.getData() != null) {
 						c = activity.getContentResolver().query(data.getData(), projection, null, null, null);
 					}
-					else {
-						c = activity.getContentResolver().query(Images.Media.EXTERNAL_CONTENT_URI, projection, null, null, Images.ImageColumns.DATE_TAKEN);
+					if (c == null) {
+						c = activity.getContentResolver().query(Images.Media.EXTERNAL_CONTENT_URI, projection, null, null,
+							Images.ImageColumns.DATE_TAKEN);
+						isDataValid = false;
 					}
 					if (c != null) {
 						try {
 							boolean isCursorValid = false;
-							if (data.getData() != null) {
+							if (data.getData() != null && isDataValid) {
 								isCursorValid = c.moveToNext();
 							} else {
 								isCursorValid = c.moveToLast();
@@ -483,78 +465,132 @@ public class MediaModule extends KrollModule
 								c = null;
 							}
 						}
+					} else {
+						// If we can't get query the image, process it from the imageFile
+						processImage(activity);
+						return;
 					}
-					
+
 					String localImageUrl = dataPath;
-					
-					if (!saveToPhotoGallery) {
-						
-						// We need to move the image from dataPath to imageUrl
-						try {
-							URL url = new URL(imageUrl);
-							
-							File src = new File(dataPath);
-							File dst = new File(url.getPath());
-							
-							BufferedInputStream bis = null;
-							BufferedOutputStream bos = null;
-							
-							try {
-								bis = new BufferedInputStream(new FileInputStream(src), 8096);
-								bos = new BufferedOutputStream(new FileOutputStream(dst), 8096);
-								
-								byte[] buf = new byte[8096];
-								int len = 0;
-								
-								while((len = bis.read(buf)) != -1) {
-									bos.write(buf, 0, len);
-								}
 
-							} finally {
-								if (bis != null) {
-									bis.close();
-								}
+					// We need to move the image from dataPath to imageUrl
+					URL url;
+					try {
+						if (!saveToPhotoGallery) {
+							url = new URL(imageUrl);
+							moveImage(dataPath, url.getPath());
 
-								if (bos != null) {
-									bos.close();
-								}
-							}
-							
 							// Update Content
 							ContentValues values = new ContentValues();
 							values.put(Images.ImageColumns.BUCKET_ID, imageFile.getPath().toLowerCase().hashCode());
 							values.put(Images.ImageColumns.BUCKET_DISPLAY_NAME, imageFile.getName());
 							values.put("_data", imageFile.getAbsolutePath());
 
-							if (data.getData() != null) {
+							if (data.getData() != null && isDataValid) {
 								activity.getContentResolver().update(data.getData(), values, null, null);
 							} else {
-								activity.getContentResolver().update(Images.Media.EXTERNAL_CONTENT_URI, values, "datetaken = ?", new String[] {dateTaken});
+								activity.getContentResolver().update(Images.Media.EXTERNAL_CONTENT_URI, values,
+									"datetaken = ?", new String[] { dateTaken });
 							}
 
-							src.delete();
 							localImageUrl = imageUrl; // make sure it's a good URL before setting it to pass back.
-
-						} catch (MalformedURLException e) {
-							Log.e(TAG, "Invalid URL not moving image: " + e.getMessage());
-
-						} catch (IOException e) {
-							Log.e(TAG, "Unable to move file: " + e.getMessage(), e);
+						} else if (imageUrl != null) {
+							// Delete the temp file since we want to use the one from the photo gallery
+							url = new URL(imageUrl);
+							File source = new File(url.getPath());
+							source.delete();
 						}
+					} catch (MalformedURLException e) {
+						Log.e(TAG, "Invalid URL not moving image: " + e.getMessage());
+
 					}
-					
-					try {
-						if (successCallback != null) {
-							invokeCallback((TiBaseActivity) activity, successCallback, getKrollObject(), createDictForImage(localImageUrl, "image/jpeg"));
-						}
+					invokeSuccessCallback(activity, localImageUrl);
+				}
+			}
+		}
 
-					} catch (OutOfMemoryError e) {
-						String msg = "Not enough memory to get image: " + e.getMessage();
-						Log.e(TAG, msg);
-						if (errorCallback != null) {
-							invokeCallback((TiBaseActivity) activity, errorCallback, getKrollObject(), createErrorResponse(UNKNOWN_ERROR, msg));
-						}
+		private void moveImage(String source, String dest)
+		{
+			try {
+
+				BufferedInputStream bis = null;
+				BufferedOutputStream bos = null;
+
+				File src = new File(source);
+				File dst = new File(dest);
+
+				try {
+					bis = new BufferedInputStream(new FileInputStream(src), 8096);
+					bos = new BufferedOutputStream(new FileOutputStream(dst), 8096);
+
+					byte[] buf = new byte[8096];
+					int len = 0;
+
+					while ((len = bis.read(buf)) != -1) {
+						bos.write(buf, 0, len);
 					}
+
+				} finally {
+					if (bis != null) {
+						bis.close();
+					}
+
+					if (bos != null) {
+						bos.close();
+					}
+				}
+				src.delete();
+
+			} catch (IOException e) {
+				Log.e(TAG, "Unable to move file: " + e.getMessage(), e);
+			}
+		}
+
+		private void processImage(Activity activity)
+		{
+			String localUrl = imageUrl;
+			String localPath = imageFile.getAbsolutePath();
+			ContentValues values = new ContentValues(7);
+
+			values.put(Images.Media.TITLE, imageFile.getName());
+			values.put(Images.Media.DISPLAY_NAME, imageFile.getName());
+			values.put(Images.Media.DATE_TAKEN, new Date().getTime());
+			values.put(Images.Media.MIME_TYPE, "image/jpeg");
+			if (saveToPhotoGallery) {
+				File rootsd = Environment.getExternalStorageDirectory();
+				localPath = rootsd.getAbsolutePath() + "/dcim/Camera/" + imageFile.getName();
+				values.put(Images.ImageColumns.BUCKET_ID, localPath.toLowerCase().hashCode());
+				values.put(Images.ImageColumns.BUCKET_DISPLAY_NAME, "Camera");
+				moveImage(imageFile.getAbsolutePath(), localPath);
+				localUrl = "file://" + localPath;
+
+			} else {
+				values.put(Images.ImageColumns.BUCKET_ID, imageFile.getPath().toLowerCase().hashCode());
+				values.put(Images.ImageColumns.BUCKET_DISPLAY_NAME, imageFile.getName());
+			}
+			values.put("_data", localPath);
+
+			activity.getContentResolver().insert(Images.Media.EXTERNAL_CONTENT_URI, values);
+
+			// puts newly captured photo into the gallery
+			MediaScannerClient mediaScanner = new MediaScannerClient(activity, new String[] { localUrl }, null, null);
+			mediaScanner.scan();
+
+			invokeSuccessCallback(activity, localPath);
+		}
+
+		private void invokeSuccessCallback(Activity activity, String localImageUrl)
+		{
+			try {
+				if (successCallback != null) {
+					invokeCallback((TiBaseActivity) activity, successCallback, getKrollObject(), createDictForImage(localImageUrl, "image/jpeg"));
+				}
+
+			} catch (OutOfMemoryError e) {
+				String msg = "Not enough memory to get image: " + e.getMessage();
+				Log.e(TAG, msg);
+				if (errorCallback != null) {
+					invokeCallback((TiBaseActivity) activity, errorCallback, getKrollObject(), createErrorResponse(UNKNOWN_ERROR, msg));
 				}
 			}
 		}
