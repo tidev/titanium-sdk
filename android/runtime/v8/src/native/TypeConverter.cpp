@@ -183,7 +183,7 @@ jobject TypeConverter::jsObjectToJavaFunction(v8::Handle<v8::Object> jsObject)
 	if (!env) {
 		return NULL;
 	}
-	return TypeConverter::jsObjectToJavaFunction(env, jsObject);
+	return TypeConverter::jsObjectToJavaFunction(env,jsObject);
 }
 
 jobject TypeConverter::jsObjectToJavaFunction(JNIEnv *env, v8::Handle<v8::Object> jsObject)
@@ -201,7 +201,7 @@ v8::Handle<v8::Function> TypeConverter::javaObjectToJsFunction(jobject javaObjec
 	if (!env) {
 		return v8::Handle<v8::Function>();
 	}
-	return TypeConverter::javaObjectToJsFunction(env, javaObject);
+	return TypeConverter::javaObjectToJsFunction(env,javaObject);
 }
 
 v8::Handle<v8::Function> TypeConverter::javaObjectToJsFunction(JNIEnv *env, jobject javaObject)
@@ -257,7 +257,7 @@ v8::Handle<v8::Value> * TypeConverter::javaObjectArrayToJsArguments(JNIEnv *env,
 	for (int i = 0; i < javaArrayLength; i++)
 	{
 		jobject arrayElement = env->GetObjectArrayElement(javaObjectArray, i);
-		jsArguments[i] = TypeConverter::javaObjectToJsValue(env, arrayElement);
+		jsArguments[i] = TypeConverter::javaObjectToJsValue(arrayElement);
 		env->DeleteLocalRef(arrayElement);
 	}
 
@@ -393,7 +393,7 @@ v8::Handle<v8::Array> TypeConverter::javaArrayToJsArray(jintArray javaIntArray)
 	if (env == NULL) {
 		return v8::Handle<v8::Array>();
 	}
-	return TypeConverter::javaArrayToJsArray(env, javaIntArray);
+	return TypeConverter::javaArrayToJsArray(env,javaIntArray);
 }
 
 v8::Handle<v8::Array> TypeConverter::javaArrayToJsArray(JNIEnv *env, jintArray javaIntArray)
@@ -529,7 +529,7 @@ v8::Handle<v8::Array> TypeConverter::javaArrayToJsArray(jobjectArray javaObjectA
 	if (env == NULL) {
 		return v8::Handle<v8::Array>();
 	}
-	return TypeConverter::javaArrayToJsArray(env, javaObjectArray);
+	return TypeConverter::javaArrayToJsArray(env,javaObjectArray);
 }
 
 v8::Handle<v8::Array> TypeConverter::javaArrayToJsArray(JNIEnv *env, jobjectArray javaObjectArray)
@@ -539,7 +539,7 @@ v8::Handle<v8::Array> TypeConverter::javaArrayToJsArray(JNIEnv *env, jobjectArra
 
 	for (int i = 0; i < arrayLength; i++) {
 		jobject javaArrayElement = env->GetObjectArrayElement(javaObjectArray, i);
-		v8::Handle<v8::Value> jsArrayElement = TypeConverter::javaObjectToJsValue(env, javaArrayElement);
+		v8::Handle<v8::Value> jsArrayElement = TypeConverter::javaObjectToJsValue(javaArrayElement);
 		jsArray->Set((uint32_t) i, jsArrayElement);
 		env->DeleteLocalRef(javaArrayElement);
 	}
@@ -555,7 +555,7 @@ jobject TypeConverter::jsValueToJavaObject(v8::Local<v8::Value> jsValue, bool *i
 	if (env == NULL) {
 		return NULL;
 	}
-	return TypeConverter::jsValueToJavaObject(env,jsValue,isNew);
+	TypeConverter::jsValueToJavaObject(env,jsValue,isNew);
 }
 
 jobject TypeConverter::jsValueToJavaObject(JNIEnv *env, v8::Local<v8::Value> jsValue, bool *isNew)
@@ -576,19 +576,19 @@ jobject TypeConverter::jsValueToJavaObject(JNIEnv *env, v8::Local<v8::Value> jsV
 
 	} else if (jsValue->IsString()) {
 		*isNew = true;
-		return TypeConverter::jsStringToJavaString(env, jsValue->ToString());
+		return TypeConverter::jsStringToJavaString(jsValue->ToString());
 
 	} else if (jsValue->IsDate()) {
 		Local<Date> date = Local<Date>::Cast<Value>(jsValue);
-		return TypeConverter::jsDateToJavaDate(env, date);
+		return TypeConverter::jsDateToJavaDate(date);
 
 	} else if (jsValue->IsArray()) {
 		*isNew = true;
-		return TypeConverter::jsArrayToJavaArray(env, v8::Handle<v8::Array>::Cast(jsValue));
+		return TypeConverter::jsArrayToJavaArray(v8::Handle<v8::Array>::Cast(jsValue));
 
 	} else if (jsValue->IsFunction()) {
 		*isNew = true;
-		return TypeConverter::jsObjectToJavaFunction(env, jsValue->ToObject());
+		return TypeConverter::jsObjectToJavaFunction(jsValue->ToObject());
 
 	} else if (jsValue->IsObject()) {
 		v8::Handle<v8::Object> jsObject = jsValue->ToObject();
@@ -606,9 +606,9 @@ jobject TypeConverter::jsValueToJavaObject(JNIEnv *env, v8::Local<v8::Value> jsV
 			for (int i = 0; i < numKeys; i++) {
 				v8::Local<v8::Value> jsObjectPropertyKey = objectKeys->Get((uint32_t) i);
 				bool keyIsNew, valueIsNew;
-				jobject javaObjectPropertyKey = TypeConverter::jsValueToJavaObject(env, jsObjectPropertyKey, &keyIsNew);
+				jobject javaObjectPropertyKey = TypeConverter::jsValueToJavaObject(jsObjectPropertyKey, &keyIsNew);
 				v8::Local<v8::Value> jsObjectPropertyValue = jsObject->Get(jsObjectPropertyKey);
-				jobject javaObjectPropertyValue = TypeConverter::jsValueToJavaObject(env, jsObjectPropertyValue, &valueIsNew);
+				jobject javaObjectPropertyValue = TypeConverter::jsValueToJavaObject(jsObjectPropertyValue, &valueIsNew);
 
 				jobject result = env->CallObjectMethod(javaHashMap,
 				                                       JNIUtil::hashMapPutMethod,
@@ -660,14 +660,14 @@ jobject TypeConverter::jsValueToJavaError(JNIEnv *env, v8::Local<v8::Value> jsVa
 				v8::Local<v8::Value> jsObjectStackProperty = jsObject->GetRealNamedProperty(stackString);
 
 				return env->NewObject(JNIUtil::krollExceptionClass, JNIUtil::krollExceptionInitMethod,
-							TypeConverter::jsValueToJavaString(env, jsObjectMessageProperty), TypeConverter::jsValueToJavaString(env, jsObjectStackProperty));
+							TypeConverter::jsValueToJavaString(jsObjectMessageProperty), TypeConverter::jsValueToJavaString(jsObjectStackProperty));
 			}
 		}
 
 	} else  {
 		*isNew = true;
 		return env->NewObject(JNIUtil::krollExceptionClass, JNIUtil::krollExceptionInitMethod,
-			TypeConverter::jsValueToJavaString(env, jsValue), NULL);
+			TypeConverter::jsValueToJavaString(jsValue), NULL);
 	} 
 
 	if (!jsValue->IsNull() && !jsValue->IsUndefined()) {
@@ -702,13 +702,13 @@ v8::Handle<v8::Object> TypeConverter::javaHashMapToJsValue(JNIEnv *env, jobject 
 			jsPairKey = v8::String::New(nativeString, nativeStringLength);
 			env->ReleaseStringCritical(javaString, nativeString);
 		} else {
-			jsPairKey = TypeConverter::javaObjectToJsValue(env, javaPairKey);
+			jsPairKey = TypeConverter::javaObjectToJsValue(javaPairKey);
 		}
 
 		jobject javaPairValue = env->CallObjectMethod(javaObject, JNIUtil::hashMapGetMethod, javaPairKey);
 		env->DeleteLocalRef(javaPairKey);
 
-		jsObject->Set(jsPairKey, TypeConverter::javaObjectToJsValue(env, javaPairValue));
+		jsObject->Set(jsPairKey, TypeConverter::javaObjectToJsValue(javaPairValue));
 		env->DeleteLocalRef(javaPairValue);
 	}
 
@@ -747,10 +747,10 @@ v8::Handle<v8::Value> TypeConverter::javaObjectToJsValue(JNIEnv *env, jobject ja
 		return v8::Number::New((double) javaDouble);
 
 	} else if (env->IsInstanceOf(javaObject, JNIUtil::stringClass)) {
-		return TypeConverter::javaStringToJsString(env, (jstring) javaObject);
+		return TypeConverter::javaStringToJsString((jstring) javaObject);
 
 	} else if (env->IsInstanceOf(javaObject, JNIUtil::dateClass)) {
-		return TypeConverter::javaDateToJsDate(env, javaObject);
+		return TypeConverter::javaDateToJsDate(javaObject);
 
 	} else if (env->IsInstanceOf(javaObject, JNIUtil::hashMapClass)) {
 		return TypeConverter::javaHashMapToJsValue(env, javaObject);

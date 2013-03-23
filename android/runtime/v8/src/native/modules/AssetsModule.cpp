@@ -39,12 +39,12 @@ Handle<Value> AssetsModule::readAsset(const Arguments& args)
 		return JSException::Error("Missing required argument 'resourceName'.");
 	}
 
+	jstring resourceName = TypeConverter::jsStringToJavaString(args[0]->ToString());
+
 	JNIEnv *env = JNIScope::getEnv();
 	if (!env) {
 		return JSException::GetJNIEnvironmentError();
 	}
-
-	jstring resourceName = TypeConverter::jsStringToJavaString(env, args[0]->ToString());
 
 	jstring assetData = (jstring) env->CallStaticObjectMethod(
 		JNIUtil::krollAssetHelperClass,
@@ -134,7 +134,7 @@ Handle<Value> AssetsModule::fileExists(const Arguments& args)
 		return JSException::GetJNIEnvironmentError();
 	}
 
-	jstring resourcePath = TypeConverter::jsStringToJavaString(env, args[0]->ToString());
+	jstring resourcePath = TypeConverter::jsStringToJavaString(args[0]->ToString());
 
 	jboolean result = env->CallStaticBooleanMethod(
 		JNIUtil::krollAssetHelperClass,
