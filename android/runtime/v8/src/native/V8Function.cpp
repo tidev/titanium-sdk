@@ -41,7 +41,7 @@ JNIEXPORT jobject JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Function_nati
 	// create function arguments
 	int length;
 	v8::Handle<v8::Value> *jsFunctionArguments =
-		TypeConverter::javaObjectArrayToJsArguments(functionArguments, &length);
+		TypeConverter::javaObjectArrayToJsArguments(env, functionArguments, &length);
 
 	// call into the JS function with the provided argument
 	TryCatch tryCatch;
@@ -60,7 +60,7 @@ JNIEXPORT jobject JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Function_nati
 	}
 	
 	bool isNew;
-	return TypeConverter::jsValueToJavaObject(object, &isNew);
+	return TypeConverter::jsValueToJavaObject(env, object, &isNew);
 }
 
 JNIEXPORT void JNICALL

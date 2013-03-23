@@ -329,7 +329,7 @@ Handle<Value> ${className}::interceptor(Local<String> property, const AccessorIn
 	}
 
 	jobject javaProxy = proxy->getJavaObject();
-	jstring javaProperty = titanium::TypeConverter::jsStringToJavaString(property);
+	jstring javaProperty = titanium::TypeConverter::jsStringToJavaString(env, property);
 	jobject jResult = (jobject) env->CallObjectMethod(javaProxy, methodID, javaProperty);
 
 	if (!JavaObject::useGlobalRefs) {
@@ -347,7 +347,7 @@ Handle<Value> ${className}::interceptor(Local<String> property, const AccessorIn
 		return Null();
 	}
 
-	Handle<Value> v8Result = titanium::TypeConverter::javaObjectToJsValue(jResult);
+	Handle<Value> v8Result = titanium::TypeConverter::javaObjectToJsValue(env, jResult);
 	env->DeleteLocalRef(jResult);
 
 	if (v8Result->IsNumber()) {

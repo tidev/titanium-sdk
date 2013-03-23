@@ -327,7 +327,7 @@ v8::Handle<v8::Value> KrollBindings::getExternalCommonJsModule(const Arguments& 
 		}
 	}
 
-	v8::Handle<v8::Value> sourceCode = TypeConverter::javaStringToJsString(sourceJavaString);
+	v8::Handle<v8::Value> sourceCode = TypeConverter::javaStringToJsString(env, sourceJavaString);
 	return scope.Close(sourceCode);
 }
 
