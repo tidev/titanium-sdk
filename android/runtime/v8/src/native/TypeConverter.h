@@ -33,7 +33,7 @@ public:
 	static inline jint jsNumberToJavaInt(JNIEnv *env, v8::Handle<v8::Number> jsNumber) {
 		return jsNumberToJavaInt(jsNumber);
 	}
-	static inline v8::Handle<v8::Number> javaIntToJsNumber(JNIEnv *env, jshort javaInt) {
+	static inline v8::Handle<v8::Number> javaIntToJsNumber(JNIEnv *env, jint javaInt) {
 		return javaIntToJsNumber(javaInt);
 	}
 
