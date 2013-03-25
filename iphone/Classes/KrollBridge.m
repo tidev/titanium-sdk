@@ -473,6 +473,69 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 	[context invokeOnThread:self method:@selector(evalFileOnThread:context:) withObject:file condition:nil];
 }
 
+-(void)includeFile:(NSString *)file
+{
+	NSURL * oldUrl = [self currentURL];
+	TiModule* module = nil;
+
+	NSArray* components = [self fullPathAndModuleID:file];
+	NSString* fullPath = [components objectAtIndex:0];
+	NSString* moduleID = [components objectAtIndex:1];
+	NSString* leadingComponent = [[fullPath pathComponents] objectAtIndex:0];
+	BOOL isAbsolute = !([leadingComponent isEqualToString:@"."] || [leadingComponent isEqualToString:@".."]);
+
+	NSRange separatorLocation = [fullPath rangeOfString:@"/"];
+	NSString* moduleClassName = [self pathToModuleClassName:moduleID];
+	Class moduleClass = NSClassFromString(moduleClassName);
+
+	if (moduleClass != nil) {
+		module = [modules objectForKey:moduleID];
+	}
+
+	if (module != nil) {
+		NSData *data = nil;
+
+		NSString* assetPath = [fullPath substringFromIndex:separatorLocation.location+1];
+		DebugLog(@"[DEBUG] Include url: %@",assetPath);
+		data = [module loadModuleAsset:assetPath];
+		// Have to reset module so that this code doesn't get mixed in and is loaded as pure JS
+		module = nil;
+		
+		if (data == nil && isAbsolute) {
+			// We may have an absolute URL which tried to load from a module instead of a directory. Fix
+			// the fullpath back to the right value, so we can try again.
+			fullPath = [file hasPrefix:@"/"]?[file substringFromIndex:1]:file;
+			[self evalFile:fullPath];
+		}
+		else if (data != nil) {
+			[self setCurrentURL:[NSURL URLWithString:[fullPath stringByDeletingLastPathComponent] relativeToURL:[[self host] baseURL]]];
+			NSString * dataContents = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+			[self evalJSAndWait:dataContents];
+			[dataContents release];
+		}
+		else {
+			NSLog(@"[ERROR] Error Including file: %@",file);
+
+			evaluationError = YES;
+			TiScriptError *scriptError = nil;
+			scriptError = [[TiScriptError alloc] initWithMessage:[NSString stringWithFormat:@"Error Including file %@. File not found",file] sourceURL:nil lineNo:0];
+			[[TiExceptionHandler defaultExceptionHandler] reportScriptError:scriptError];
+			[scriptError release];
+			return;
+		}
+	}
+	else {
+		NSURL * rootURL = (oldUrl != nil)?oldUrl:[[self host] baseURL];
+
+		NSURL *fileurl = [TiUtils toURL:file relativeToURL:rootURL];
+		DebugLog(@"[DEBUG] Include url: %@",[fileurl absoluteString]);
+		[self setCurrentURL:fileurl];
+		[self evalFile:[fileurl absoluteString]];
+	}
+	
+	[self setCurrentURL:oldUrl];
+}
+
 - (void)fireEvent:(id)listener withObject:(id)obj remove:(BOOL)yn thisObject:(TiProxy*)thisObject_
 {
 	if (![listener isKindOfClass:[KrollCallback class]])
@@ -757,11 +820,8 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 	return modulename;
 }
 
--(id)require:(KrollContext*)kroll path:(NSString*)path
+-(NSArray*) fullPathAndModuleID:(NSString*)path
 {
-	TiModule* module = nil;
-	NSData *data = nil;
-	NSString *filepath = nil;
     NSString* fullPath = nil;
     NSURL* oldURL = [self currentURL];
     
@@ -773,6 +833,7 @@ CFMutableSetRef	krollBridgeRegistry = nil;
     NSString* workingPath = [oldURL relativePath];
 	fullPath = [path hasPrefix:@"/"]?[path substringFromIndex:1]:path;
 
+    
     NSString* moduleID = nil;
     NSString* leadingComponent = [[fullPath pathComponents] objectAtIndex:0];
     BOOL isAbsolute = !([leadingComponent isEqualToString:@"."] || [leadingComponent isEqualToString:@".."]);
@@ -787,7 +848,21 @@ CFMutableSetRef	krollBridgeRegistry = nil;
             [fullPath stringByStandardizingPath];
         moduleID = [[fullPath pathComponents] objectAtIndex:0];
     }
+    return [NSArray arrayWithObjects:fullPath, moduleID, nil];
+}
+
+-(id)require:(KrollContext*)kroll path:(NSString*)path
+{
+	TiModule* module = nil;
+	NSData *data = nil;
+	NSString *filepath = nil;
+    NSURL* oldURL = [self currentURL];
     
+    NSArray* components = [self fullPathAndModuleID:path];
+    NSString* fullPath = [components objectAtIndex:0];
+    NSString* moduleID = [components objectAtIndex:1];
+    NSString* leadingComponent = [[fullPath pathComponents] objectAtIndex:0];
+    BOOL isAbsolute = !([leadingComponent isEqualToString:@"."] || [leadingComponent isEqualToString:@".."]);
 
 	// Now that we have the full path, we can check and see if the module was loaded,
     // and return it if available.
@@ -850,7 +925,7 @@ loadNativeJS:
             // the fullpath back to the right value, so we can try again.
 			fullPath = [path hasPrefix:@"/"]?[path substringFromIndex:1]:path;
         }
-        else if (data != nil) {
+        else if (data != nil && [self currentURL] == nil) {
             // Set the current URL; it should be the fullPath relative to the host's base URL.
             [self setCurrentURL:[NSURL URLWithString:[fullPath stringByDeletingLastPathComponent] relativeToURL:[[self host] baseURL]]];
         }
