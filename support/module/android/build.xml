@@ -153,6 +153,7 @@ timodule.xml.
 	<target name="process.annotations" depends="init"
 		description="Processes @Kroll.proxy and @Kroll.module annotations">
 		<mkdir dir="${genjson}"/>
+		<mkdir dir="${genjava}"/>
 
 		<javac 
 			srcdir="${src}" 
