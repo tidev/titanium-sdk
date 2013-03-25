@@ -27,7 +27,6 @@ module.exports = new function() {
 		// {name: 'allPropertiesSupported'},
 		{name: 'getCpuProperty'},
 		{name: 'getStorageProperty'},
-		{name: 'getWifiNetworkProperty'},
 		{name: 'getCellularNetworkProperty'},
 		// {name: 'getEthernetNetworkProperty'},
 		{name: 'getSimProperty'},
@@ -142,33 +141,6 @@ module.exports = new function() {
 
 		valueOf(testRun, Tizen.SystemInfo.getPropertyValue).shouldBeFunction();
 		Tizen.SystemInfo.getPropertyValue(Tizen.SystemInfo.SYSTEM_INFO_PROPERTY_ID_STORAGE, onSuccessCallback, onErrorCallback);
-	}
-
-	this.getWifiNetworkProperty = function(testRun) {
-		// Test for Tizen Device API: SystemInfoWifiNetwork
-		function onSuccessCallback(systemInfoWifiNetwork) {
-			Ti.API.debug('Wifi network info: ' + JSON.stringify(systemInfoWifiNetwork));
-			
-			valueOf(testRun, systemInfoWifiNetwork).shouldBe('[object TizenSystemInfoSystemInfoWifiNetwork]');
-			
-			if (systemInfoWifiNetwork){
-				valueOf(testRun, systemInfoWifiNetwork.status).shouldBeString();
-				valueOf(testRun, systemInfoWifiNetwork.ssid).shouldBeString();
-				valueOf(testRun, systemInfoWifiNetwork.ipAddress).shouldBeString();
-				valueOf(testRun, systemInfoWifiNetwork.ipv6Address).shouldBeString();
-				valueOf(testRun, systemInfoWifiNetwork.signalStrength).shouldBeNumber();
-			}
-			finish(testRun);
-		}
-
-		function onErrorCallback(error) {
-			Ti.API.info('An error occurred on WifiNetwork property:' + error.message);
-			valueOf(testRun, error).shouldBe('[object TizenWebAPIError]');
-			finish(testRun);
-		}
-
-		valueOf(testRun, Tizen.SystemInfo.getPropertyValue).shouldBeFunction();
-		Tizen.SystemInfo.getPropertyValue(Tizen.SystemInfo.SYSTEM_INFO_PROPERTY_ID_WIFI_NETWORK, onSuccessCallback, onErrorCallback);
 	}
 
 	this.getCellularNetworkProperty = function(testRun) {

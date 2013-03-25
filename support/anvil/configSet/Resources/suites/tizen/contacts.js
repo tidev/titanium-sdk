@@ -335,11 +335,11 @@ module.exports = new function() {
 			logoURI: 'http://upload.wikimedia.org/wikipedia/commons/4/41/Chiswick_Lion.png'
 		}, status = true,
 		contact = new tizen.Contact({
-			organization: new tizen.ContactOrganization(organization)
+			organizations: [new tizen.ContactOrganization(organization)]
 		});
 		_addressbook.add(contact);
 		contact = _addressbook.get(contact.id);
-		status = ((organization.name === contact.organization.name) && (organization.department === contact.organization.department) && (organization.title === contact.organization.title) && (organization.role === contact.organization.role) && (organization.logoURI === contact.organization.logoURI));
+		status = ((organization.name === contact.organizations[0].name) && (organization.department === contact.organizations[0].department) && (organization.title === contact.organizations[0].title) && (organization.role === contact.organizations[0].role) && (organization.logoURI === contact.organizations[0].logoURI));
 		valueOf(testRun, status).shouldBeTrue();
 		finish(testRun);
 	}
