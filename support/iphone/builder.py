@@ -417,6 +417,9 @@ DEFAULTS_IMPL_HEADER= """#import "TiUtils.h"
 """
 
 FOOTER ="""
++(NSDictionary*)launchUrl {
+    return nil;
+}
 @end
 """
 
