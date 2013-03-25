@@ -82,6 +82,7 @@ public class TiWebViewClient extends WebViewClient
 		KrollDict data = new KrollDict();
 		data.put("url", failingUrl);
 		data.put("errorCode", errorCode);
+		data.putCodeAndMessage(errorCode, description);
 		data.put("message", description);
 		webView.getProxy().fireEvent("error", data);
 

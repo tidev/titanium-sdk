@@ -14,6 +14,7 @@ import java.util.List;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
+import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiApplication.ActivityTransitionListener;
 import org.appcelerator.titanium.TiBlob;
@@ -168,7 +169,7 @@ public class EmailDialogProxy extends TiViewProxy implements ActivityTransitionL
 					// see http://code.google.com/p/android/issues/detail?id=5512
 					KrollDict result = new KrollDict();
 					result.put("result", SENT); // TODO fix this when figure out above
-					result.put("success", true);
+					result.putCodeAndMessage(TiC.ERROR_CODE_NO_ERROR, null);
 					fireEvent("complete", result);
 				}
 
@@ -176,8 +177,7 @@ public class EmailDialogProxy extends TiViewProxy implements ActivityTransitionL
 				public void onError(Activity activity, int requestCode, Exception e) {
 					KrollDict result = new KrollDict();
 					result.put("result", FAILED);
-					result.put("error", e.getMessage());
-					result.put("success", false);
+					result.putCodeAndMessage(TiC.ERROR_CODE_UNKNOWN, e.getMessage());
 					fireEvent("complete", result);
 				}
 			});

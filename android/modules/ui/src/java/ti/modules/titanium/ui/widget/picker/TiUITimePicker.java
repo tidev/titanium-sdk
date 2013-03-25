@@ -142,7 +142,7 @@ public class TiUITimePicker extends TiUIView
 		if (!suppressChangeEvent) {
 			KrollDict data = new KrollDict();
 			data.put("value", calendar.getTime());
-			proxy.fireEvent("change", data);		
+			fireEvent("change", data);		
 		}
 		// Make sure .value is readable by user
 		proxy.setProperty("value", calendar.getTime());

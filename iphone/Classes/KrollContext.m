@@ -15,6 +15,7 @@
 #include <pthread.h>
 #import "TiDebugger.h"
 #import "TiExceptionHandler.h"
+#import "TiProfiler.h"
 
 #import "TiUIAlertDialogProxy.h"
 
@@ -122,6 +123,26 @@ static pthread_mutex_t KrollEntryLock;
 }
 
 @end
+
+TiContextRef appJsContextRef = NULL;
+KrollContext* appJsKrollContext = nil;
+
+KrollContext* GetKrollContext(TiContextRef context)
+{
+	if (context == appJsContextRef)
+	{
+		return appJsKrollContext;
+	}
+	static const char *krollNS = "Kroll";
+	TiGlobalContextRef globalContext = TiContextGetGlobalContext(context);
+	TiObjectRef global = TiContextGetGlobalObject(globalContext);
+	TiStringRef string = TiStringCreateWithUTF8CString(krollNS);
+	TiValueRef value = TiObjectGetProperty(globalContext, global, string, NULL);
+	KrollContext *ctx = (KrollContext*)TiObjectGetPrivate(TiValueToObject(globalContext, value, NULL));
+	TiStringRelease(string);
+	return ctx;
+}
+
 
 TiValueRef ThrowException (TiContextRef ctx, NSString *message, TiValueRef *exception)
 {
@@ -1014,6 +1035,13 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
     [self enqueue:blockOp];
 }
 
++ (void)invokeBlock:(void (^)())block
+{
+	pthread_mutex_lock(&KrollEntryLock);
+	block();
+	pthread_mutex_unlock(&KrollEntryLock);
+}
+
 - (void)bindCallback:(NSString*)name callback:(TiObjectCallAsFunctionCallback)fn
 {
 	// create the invoker bridge
@@ -1072,11 +1100,18 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 	
     incrementKrollCounter();
 
+	if (appJsKrollContext == nil) {
+		appJsKrollContext = self;
+		appJsContextRef = context;
+	}
+	
     // TODO: We might want to be smarter than this, and do some KVO on the delegate's
     // 'debugMode' property or something... and start/stop the debugger as necessary.
     if ([[self delegate] shouldDebugContext]) {
         debugger = TiDebuggerCreate(self,globalRef);
-    }
+    } else if ([[self delegate] shouldProfileContext]) {
+		TiProfilerEnable(globalRef);
+	}
 	
 	// we register an empty kroll string that allows us to pluck out this instance
 	KrollObject *kroll = [[KrollObject alloc] initWithTarget:nil context:self];
@@ -1384,6 +1419,11 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 	
     decrementKrollCounter();
     
+	if (appJsKrollContext == self) {
+		appJsContextRef = NULL;
+		appJsKrollContext = nil;
+	}
+
 	[kroll autorelease];
 	[pool release];
 }

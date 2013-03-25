@@ -72,21 +72,21 @@ public class TiUISlider extends TiUIView
 		SeekBar seekBar = (SeekBar) getNativeView();
 		
 		if (d.containsKey(TiC.PROPERTY_VALUE)) {
-			pos = TiConvert.toFloat(d, TiC.PROPERTY_VALUE);
+			pos = TiConvert.toFloat(d, TiC.PROPERTY_VALUE, 0);
 		}
-		if (d.containsKey("min")) {
-			min = TiConvert.toInt(d, "min");
+		if (d.containsKey(TiC.PROPERTY_MIN)) {
+			min = TiConvert.toInt(d.get(TiC.PROPERTY_MIN), 0);
 		}
-		if (d.containsKey("max")) {
-			max = TiConvert.toInt(d, "max");;
+		if (d.containsKey(TiC.PROPERTY_MAX)) {
+			max = TiConvert.toInt(d.get(TiC.PROPERTY_MAX), 0);;
 		}
 		if (d.containsKey("minRange")) {
-			minRange = TiConvert.toInt(d, "minRange");
+			minRange = TiConvert.toInt(d.get("minRange"), 0);
 		} else {
 			minRange = min;
 		}
 		if (d.containsKey("maxRange")) {
-			maxRange = TiConvert.toInt(d, "maxRange");
+			maxRange = TiConvert.toInt(d.get("maxRange"), 0);
 		} else {
 			maxRange = max;
 		}
@@ -193,7 +193,9 @@ public class TiUISlider extends TiUIView
 	@Override
 	public void propertyChanged(String key, Object oldValue, Object newValue, KrollProxy proxy)
 	{
-		Log.d(TAG, "Property: " + key + " old: " + oldValue + " new: " + newValue, Log.DEBUG_MODE);
+		if (Log.isDebugModeEnabled()) {
+			Log.d(TAG, "Property: " + key + " old: " + oldValue + " new: " + newValue, Log.DEBUG_MODE);
+		}
 		SeekBar seekBar = (SeekBar) getNativeView();
 		if (key.equals(TiC.PROPERTY_VALUE)) {
 			pos = TiConvert.toFloat(newValue);
@@ -291,18 +293,21 @@ public class TiUISlider extends TiUIView
 		data.put(TiC.PROPERTY_VALUE, scaledValue);
 		data.put(TiC.EVENT_PROPERTY_THUMB_OFFSET, offset);
 		data.put(TiC.EVENT_PROPERTY_THUMB_SIZE, size);
-		proxy.setProperty(TiC.PROPERTY_VALUE, scaledValue, false);
+		proxy.setProperty(TiC.PROPERTY_VALUE, scaledValue);
 
-		proxy.fireEvent(TiC.EVENT_CHANGE, data);
+		fireEvent(TiC.EVENT_CHANGE, data);
 	}
 
 	public void onStartTrackingTouch(SeekBar seekBar) {
+		KrollDict data = new KrollDict();
+		data.put(TiC.PROPERTY_VALUE, scaledValue());
+		fireEvent(TiC.EVENT_START, data, false);
 	}
 
 	public void onStopTrackingTouch(SeekBar seekBar) {
 		KrollDict data = new KrollDict();
 		data.put(TiC.PROPERTY_VALUE, scaledValue());
-		proxy.fireEvent(TiC.EVENT_STOP, data);
+		fireEvent(TiC.EVENT_STOP, data, false);
 	}
 
 	private float scaledValue() {

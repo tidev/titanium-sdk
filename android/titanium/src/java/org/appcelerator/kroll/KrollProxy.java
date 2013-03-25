@@ -14,6 +14,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.AsyncResult;
 import org.appcelerator.kroll.common.Log;
@@ -31,6 +32,8 @@ import android.app.Activity;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Pair;
+
+import org.json.JSONObject;
 
 /**
  * This is the parent class of all proxies. A proxy is a dynamic object that can be created or 
@@ -451,6 +454,10 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 	@Kroll.method
 	public void extend(KrollDict options)
 	{
+		if (options == null || options.isEmpty()) {
+			return;
+		}
+		
 		ArrayList<KrollPropertyChange> propertyChanges = new ArrayList<KrollPropertyChange>();
 		for (String name : options.keySet()) {
 			Object oldValue = properties.get(name);
@@ -571,17 +578,77 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 			message.sendToTarget();
 		}
 	}
-
+	
+	public class KrollPropertyChangeSet extends KrollPropertyChange {
+		public int entryCount;
+		public String[] keys;
+		public Object[] oldValues;
+		public Object[] newValues;
+		
+		public KrollPropertyChangeSet(int capacity) {
+			super(null,null,null);
+			entryCount = 0;
+			keys = new String[capacity];
+			oldValues = new Object[capacity];
+			newValues = new Object[capacity];
+		}
+		
+		public void addChange(String key, Object oldValue, Object newValue){
+			keys[entryCount] = key;
+			oldValues[entryCount] = oldValue;
+			newValues[entryCount] = newValue;
+			entryCount ++;
+		}
+		
+		public void fireEvent(KrollProxy proxy, KrollProxyListener listener) {
+			if (listener == null) {
+				return;
+			}
+			for (int i = 0; i < entryCount; i++) {
+				listener.propertyChanged(keys[i], oldValues[i], newValues[i], proxy);
+			}
+		}
+	}
+	
 	@Kroll.method
 	public void applyProperties(Object arg)
 	{
-		if (arg instanceof HashMap) {
-			HashMap props = (HashMap) arg;
-			for (Object name : props.keySet()) {
-				setPropertyAndFire(TiConvert.toString(name), props.get(name));
-			}
-		} else {
+		if (!(arg instanceof HashMap)) {
 			Log.w(TAG, "Cannot apply properties: invalid type for properties", Log.DEBUG_MODE);
+			return;
+		}
+		HashMap props = (HashMap) arg;
+		if (modelListener == null) {
+			for (Object name : props.keySet()) {
+				setProperty(TiConvert.toString(name), props.get(name));
+			}
+			return;
+		}
+		if (TiApplication.isUIThread()) {
+			for (Object key : props.keySet()) {
+				String name = TiConvert.toString(key);
+				Object value = props.get(key);
+				Object current = getProperty(name);
+				setProperty(name, value);
+				if (shouldFireChange(current, value)) {
+					modelListener.propertyChanged(name, current, value, this);
+				}
+			}
+			return;		
+		}
+		
+		KrollPropertyChangeSet changes = new KrollPropertyChangeSet(props.size());
+		for (Object key : props.keySet()) {
+			String name = TiConvert.toString(key);
+			Object value = props.get(key);
+			Object current = getProperty(name);
+			setProperty(name, value);
+			if (shouldFireChange(current, value)) {
+				changes.addChange(name, current, value);
+			}
+		}
+		if (changes.entryCount > 0) {
+			getMainHandler().obtainMessage(MSG_MODEL_PROPERTY_CHANGE, changes).sendToTarget();
 		}
 	}
 
@@ -674,24 +741,82 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public boolean doFireEvent(String event, Object data)
 	{
-		if (data == null) {
-			data = new KrollDict();
-		}
+		boolean bubbles = false;
+		boolean reportSuccess = false;
+		int code = 0;
+		KrollObject source = null;
+		String message = null;
 
-		if (data instanceof HashMap) {
+		KrollDict krollData = null;
+
+		/* TODO: Is eventListeners still used? */
+		if (!eventListeners.isEmpty()) {
 			HashMap<String, Object> dict = (HashMap) data;
-
-			Object source = dict.get(TiC.EVENT_PROPERTY_SOURCE);
-			if (source == null) {
+			if (dict == null) {
+				dict = new KrollDict();
 				dict.put(TiC.EVENT_PROPERTY_SOURCE, this);
 			}
+			else if (dict instanceof HashMap)
+			{
+				Object sourceProxy = dict.get(TiC.EVENT_PROPERTY_SOURCE);
+				if (sourceProxy == null) {
+					dict.put(TiC.EVENT_PROPERTY_SOURCE, this);
+				}
+			}
+			onEventFired(event, dict);
 		}
 
-		if (!eventListeners.isEmpty()) {
-			onEventFired(event, data);
+		if (data != null) {
+			if (data instanceof KrollDict) {
+				krollData = (KrollDict) data;
+			} else if (data instanceof HashMap) {
+				try {
+					krollData = new KrollDict((HashMap)data);
+				} catch(Exception e) {
+				}
+			} else if (data instanceof JSONObject) {
+				try {
+					krollData = new KrollDict((JSONObject)data);
+				} catch(Exception e) {
+				}
+			}
 		}
-
-		return getKrollObject().fireEvent(event, data);
+		
+		if (krollData != null) {
+			Object hashValue = krollData.get(TiC.PROPERTY_BUBBLES);
+			if (hashValue != null) {
+				bubbles = TiConvert.toBoolean(hashValue);
+				krollData.remove(TiC.PROPERTY_BUBBLES);
+			}
+			hashValue = krollData.get(TiC.PROPERTY_SUCCESS);
+			if (hashValue != null) {
+				reportSuccess = true;
+				krollData.remove(TiC.PROPERTY_SUCCESS);
+			}
+			hashValue = krollData.get(TiC.PROPERTY_CODE);
+			if (hashValue != null) {
+				reportSuccess = true;
+				code = TiConvert.toInt(hashValue);
+				krollData.remove(TiC.PROPERTY_CODE);
+			}
+			hashValue = krollData.get(TiC.EVENT_PROPERTY_ERROR);
+			if (hashValue != null) {
+				message = hashValue.toString();
+				krollData.remove(TiC.EVENT_PROPERTY_ERROR);
+			}
+			hashValue = krollData.get(TiC.EVENT_PROPERTY_SOURCE);
+			if (hashValue instanceof KrollProxy) {
+				if (hashValue != this) {
+					source = ((KrollProxy)hashValue).getKrollObject();
+				}
+				krollData.remove(TiC.EVENT_PROPERTY_SOURCE);
+			}
+			if (krollData.size() == 0){
+				krollData = null;
+			}
+		}
+		
+		return getKrollObject().fireEvent(source, event, krollData, bubbles, reportSuccess, code, message);
 	}
 
 	public void firePropertyChanged(String name, Object oldValue, Object newValue)
@@ -1011,7 +1136,9 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 				eventListeners.put(eventName, listeners);
 			}
 
-			Log.d(TAG, "Added for eventName '" + eventName + "' with id " + listenerId, Log.DEBUG_MODE);
+			if (Log.isDebugModeEnabled()) {
+				Log.d(TAG, "Added for eventName '" + eventName + "' with id " + listenerId, Log.DEBUG_MODE);
+			}
 			listenerId = listenerIdGenerator.incrementAndGet();
 			listeners.put(listenerId, callback);
 		}
@@ -1075,9 +1202,8 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 	protected KrollDict createErrorResponse(int code, String message)
 	{
 		KrollDict error = new KrollDict();
-		error.put(TiC.ERROR_PROPERTY_CODE, code);
+		error.putCodeAndMessage(code, message);
 		error.put(TiC.ERROR_PROPERTY_MESSAGE, message);
-
 		return error;
 	}
 

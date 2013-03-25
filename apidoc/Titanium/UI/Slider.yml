@@ -152,6 +152,36 @@ events:
         summary: X coordinate of the event from the `source` view's coordinate system.
         type: Number
 
+  - name: start
+    summary: Fired when the user starts tracking the slider.
+
+    platforms: [android, iphone, ipad]
+    since: 3.1.0
+    properties:
+
+      - name: value
+        summary: Current value of the slider.
+        type: Number
+
+      - name: bubbles
+        summary: False. This event does not bubble.
+        type: Boolean
+
+  - name: stop
+    summary: Fired when the user stops tracking the slider.
+
+    platforms: [android, iphone, ipad]
+    since: 3.1.0
+    properties:
+
+      - name: value
+        summary: Current value of the slider.
+        type: Number
+
+      - name: bubbles
+        summary: False. This event does not bubble.
+        type: Boolean
+
 properties:
 
   - name: disabledLeftTrackImage
@@ -173,6 +203,7 @@ properties:
     summary: Boolean to indicate the enabled state of the slider.
     type: Boolean
     default: Slider is enabled by default (property value may be `undefined`).
+    platforms: [android, ipad, iphone, mobileweb]
 
   - name: highlightedLeftTrackImage
     summary: Image URL of the slider left track when in the highlighted state.

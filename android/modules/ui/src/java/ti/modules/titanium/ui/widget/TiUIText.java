@@ -137,11 +137,11 @@ public class TiUIText extends TiUIView
 		super.processProperties(d);
 
 		if (d.containsKey(TiC.PROPERTY_ENABLED)) {
-			tv.setEnabled(d.getBoolean(TiC.PROPERTY_ENABLED));
+			tv.setEnabled(TiConvert.toBoolean(d, TiC.PROPERTY_ENABLED, true));
 		}
 		
 		if (d.containsKey(TiC.PROPERTY_MAX_LENGTH) && field) {
-			maxLength = TiConvert.toInt(d, TiC.PROPERTY_MAX_LENGTH);
+			maxLength = TiConvert.toInt(d.get(TiC.PROPERTY_MAX_LENGTH), -1);
 		}
 		if (d.containsKey(TiC.PROPERTY_VALUE)) {
 			tv.setText(d.getString(TiC.PROPERTY_VALUE));
@@ -180,7 +180,7 @@ public class TiUIText extends TiUIView
 		}
 		
 		if (d.containsKey(TiC.PROPERTY_RETURN_KEY_TYPE)) {
-			handleReturnKeyType(d.getInt(TiC.PROPERTY_RETURN_KEY_TYPE));
+			handleReturnKeyType(TiConvert.toInt(d.get(TiC.PROPERTY_RETURN_KEY_TYPE), RETURNKEY_DEFAULT));
 		}
 		
 		if (d.containsKey(TiC.PROPERTY_KEYBOARD_TYPE) || d.containsKey(TiC.PROPERTY_AUTOCORRECT) || d.containsKey(TiC.PROPERTY_PASSWORD_MASK) || d.containsKey(TiC.PROPERTY_AUTOCAPITALIZATION) || d.containsKey(TiC.PROPERTY_EDITABLE)) {
@@ -196,11 +196,13 @@ public class TiUIText extends TiUIView
 	@Override
 	public void propertyChanged(String key, Object oldValue, Object newValue, KrollProxy proxy)
 	{
-		Log.d(TAG, "Property: " + key + " old: " + oldValue + " new: " + newValue, Log.DEBUG_MODE);
+		if (Log.isDebugModeEnabled()) {
+			Log.d(TAG, "Property: " + key + " old: " + oldValue + " new: " + newValue, Log.DEBUG_MODE);
+		}
 		if (key.equals(TiC.PROPERTY_ENABLED)) {
 			tv.setEnabled(TiConvert.toBoolean(newValue));
 		} else if (key.equals(TiC.PROPERTY_VALUE)) {
-			tv.setText((String) newValue);
+			tv.setText(TiConvert.toString(newValue));
 		} else if (key.equals(TiC.PROPERTY_MAX_LENGTH)) {
 			maxLength = TiConvert.toInt(newValue);
 			//truncate if current text exceeds max length
@@ -287,7 +289,7 @@ public class TiUIText extends TiUIView
 			data.put("value", newValue);
 
 			proxy.setProperty(TiC.PROPERTY_VALUE, newValue);
-			proxy.fireEvent(TiC.EVENT_CHANGE, data);
+			fireEvent(TiC.EVENT_CHANGE, data);
 		}
 	}
 	
@@ -348,7 +350,7 @@ public class TiUIText extends TiUIView
 		if ((actionId == EditorInfo.IME_NULL && keyEvent != null) || 
 				actionId == EditorInfo.IME_ACTION_NEXT || 
 				actionId == EditorInfo.IME_ACTION_DONE ) {
-			proxy.fireEvent("return", data);
+			fireEvent("return", data);
 		}
 
 		Boolean enableReturnKey = (Boolean) proxy.getProperty(TiC.PROPERTY_ENABLE_RETURN_KEY);
@@ -377,17 +379,17 @@ public class TiUIText extends TiUIView
 		int autocorrect = InputType.TYPE_TEXT_FLAG_AUTO_CORRECT;
 		int autoCapValue = 0;
 
-		if (d.containsKey(TiC.PROPERTY_AUTOCORRECT) && !TiConvert.toBoolean(d, TiC.PROPERTY_AUTOCORRECT)) {
+		if (d.containsKey(TiC.PROPERTY_AUTOCORRECT) && !TiConvert.toBoolean(d, TiC.PROPERTY_AUTOCORRECT, true)) {
 			autocorrect = InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS;
 		}
 
 		if (d.containsKey(TiC.PROPERTY_EDITABLE)) {
-			editable = TiConvert.toBoolean(d, TiC.PROPERTY_EDITABLE);
+			editable = TiConvert.toBoolean(d, TiC.PROPERTY_EDITABLE, true);
 		}
 
 		if (d.containsKey(TiC.PROPERTY_AUTOCAPITALIZATION)) {
 
-			switch (TiConvert.toInt(d,TiC.PROPERTY_AUTOCAPITALIZATION)) {
+			switch (TiConvert.toInt(d.get(TiC.PROPERTY_AUTOCAPITALIZATION), TEXT_AUTOCAPITALIZATION_NONE)) {
 				case TEXT_AUTOCAPITALIZATION_NONE:
 					autoCapValue = 0;
 					break;
@@ -411,11 +413,11 @@ public class TiUIText extends TiUIView
 		}
 
 		if (d.containsKey(TiC.PROPERTY_PASSWORD_MASK)) {
-			passwordMask = TiConvert.toBoolean(d, TiC.PROPERTY_PASSWORD_MASK);
+			passwordMask = TiConvert.toBoolean(d, TiC.PROPERTY_PASSWORD_MASK, false);
 		}
 
 		if (d.containsKey(TiC.PROPERTY_KEYBOARD_TYPE)) {
-			type = TiConvert.toInt(d, TiC.PROPERTY_KEYBOARD_TYPE);
+			type = TiConvert.toInt(d.get(TiC.PROPERTY_KEYBOARD_TYPE), KEYBOARD_DEFAULT);
 		}
 
 		int typeModifiers = autocorrect | autoCapValue;
@@ -458,6 +460,7 @@ public class TiUIText extends TiUIView
 				textTypeAndClass |= InputType.TYPE_TEXT_VARIATION_URI;
 				break;
 			case KEYBOARD_DECIMAL_PAD:
+				textTypeAndClass |= (InputType.TYPE_NUMBER_FLAG_DECIMAL | InputType.TYPE_NUMBER_FLAG_SIGNED);
 			case KEYBOARD_NUMBER_PAD:
 				tv.setKeyListener(DigitsKeyListener.getInstance(true,true));
 				textTypeAndClass |= InputType.TYPE_CLASS_NUMBER;

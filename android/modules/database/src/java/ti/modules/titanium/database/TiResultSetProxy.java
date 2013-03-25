@@ -266,12 +266,13 @@ public class TiResultSetProxy extends KrollProxy
 	}
 
 	@Kroll.method
-	public void next() 
+	public boolean next() 
 	{
-		if(isValidRow()) {
-			rs.moveToNext();
+		if (isValidRow()) {
+			return rs.moveToNext();
 		} else {
 			Log.w(TAG, "Ignoring next, current row is invalid.");
 		}
+		return false;
 	}
 }

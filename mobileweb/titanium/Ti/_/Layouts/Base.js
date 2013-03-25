@@ -1,9 +1,10 @@
-define(["Ti/_/css", "Ti/_/declare", "Ti/_/style", "Ti/_/lang", "Ti/API", "Ti/UI", "Ti/_", "Ti/_/dom"],
+/*global define*/
+define(['Ti/_/css', 'Ti/_/declare', 'Ti/_/style', 'Ti/_/lang', 'Ti/API', 'Ti/UI', 'Ti/_', 'Ti/_/dom'],
 	function(css, declare, style, lang, API, UI, _, dom) {
 
 	var val = lang.val;
 
-	return declare("Ti._.Layouts.Base", null, {
+	return declare('Ti._.Layouts.Base', null, {
 
 		computedSize: {width: 0, height: 0},
 
@@ -17,7 +18,7 @@ define(["Ti/_/css", "Ti/_/declare", "Ti/_/style", "Ti/_/lang", "Ti/API", "Ti/UI"
 		},
 
 		handleInvalidState: function(child, parent) {
-			API.debug("WARNING: Attempting to layout element that has been destroyed.\n\t Removing the element from the parent.\n\t The parent has a widget ID of " + parent.widgetId + ".");
+			API.debug('WARNING: Attempting to layout element that has been destroyed.\n\t Removing the element from the parent.\n\t The parent has a widget ID of ' + parent.widgetId + '.');
 			var children = parent._children;
 			children.splice(children.indexOf(child),1);
 		},
@@ -27,7 +28,7 @@ define(["Ti/_/css", "Ti/_/declare", "Ti/_/style", "Ti/_/lang", "Ti/API", "Ti/UI"
 				if (value === UI.SIZE || value === UI.FILL) {
 					return value;
 				}
-				return ~(value + "").indexOf("%") ? "%" : "#";
+				return ~(value + '').indexOf('%') ? '%' : '#';
 			}
 		},
 
@@ -36,7 +37,7 @@ define(["Ti/_/css", "Ti/_/declare", "Ti/_/style", "Ti/_/lang", "Ti/API", "Ti/UI"
 			var animationCoefficients = node._animationCoefficients,
 				center,
 				results,
-				pixelUnits = "px";
+				pixelUnits = 'px';
 
 			(node.center || animation.center) && (center = {});
 			if (center) {

@@ -252,7 +252,7 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 		}
 
 		KrollDict dict = new KrollDict();
-		dict.put(TiC.PROPERTY_CODE, code);
+		dict.putCodeAndMessage(code, message);
 		dict.put(TiC.PROPERTY_MESSAGE, message);
 
 		errorCallback.callAsync(callbackContext, dict);

@@ -24,6 +24,7 @@ osx_dir = os.path.abspath(os.path.join(template_dir,'osx'))
 win32_dir = os.path.abspath(os.path.join(template_dir, 'win32'))
 mobileweb_dir = os.path.abspath(os.path.join(template_dir, 'mobileweb'))
 blackberry_dir = os.path.abspath(os.path.join(template_dir, 'blackberry'))
+tizen_dir = os.path.abspath(os.path.join(template_dir, 'tizen'))
 
 buildtime = datetime.datetime.now()
 ts = buildtime.strftime("%m/%d/%y %H:%M")
@@ -131,7 +132,7 @@ def zip_packaged_modules(zf, source_dir):
 def zip_android(zf, basepath, version):
 	android_dist_dir = os.path.join(top_dir, 'dist', 'android')
 
-	for jar in ['titanium.jar', 'kroll-apt.jar', 'kroll-common.jar', 'kroll-v8.jar', 'kroll-rhino.jar']:
+	for jar in ['titanium.jar', 'kroll-apt.jar', 'kroll-common.jar', 'kroll-v8.jar']:
 		jar_path = os.path.join(android_dist_dir, jar)
 		zf.write(jar_path, '%s/android/%s' % (basepath, jar))
 
@@ -148,7 +149,6 @@ def zip_android(zf, basepath, version):
 
 	android_runtime_dir = os.path.join(top_dir, 'android', 'runtime')
 	android_runtime_v8_dir = os.path.join(android_runtime_dir, 'v8')
-	android_runtime_rhino_dir = os.path.join(android_runtime_dir, 'rhino')
 
 	v8_src_native_dir = os.path.join(android_runtime_v8_dir, 'src', 'native')
 	add_headers(v8_src_native_dir)
@@ -169,9 +169,6 @@ def zip_android(zf, basepath, version):
 	jsmin_py = os.path.join(android_runtime_v8_dir, 'tools', 'jsmin.py')
 	zf.write(js2c_py, '%s/module/android/js2c.py' % basepath)
 	zf.write(jsmin_py, '%s/module/android/jsmin.py' % basepath)
-
-	js_jar = os.path.join(android_runtime_rhino_dir, 'lib', 'js.jar')
-	zf.write(js_jar, '%s/android/%s' % (basepath, 'js.jar'))
 
 	# include all native shared libraries
 	libs_dir = os.path.join(android_dist_dir, 'libs')
@@ -300,6 +297,7 @@ def zip_iphone_ipad(zf,basepath,platform,version,version_tag):
 	zf.write(os.path.join(ticore_lib,'libTiCore.a'),'%s/%s/libTiCore.a'%(basepath,platform))
 	zf.write(os.path.join(ticore_lib,'libtiverify.a'),'%s/%s/libtiverify.a'%(basepath,platform))
 	zf.write(os.path.join(ticore_lib,'libti_ios_debugger.a'),'%s/%s/libti_ios_debugger.a'%(basepath,platform))
+	zf.write(os.path.join(ticore_lib,'libti_ios_profiler.a'),'%s/%s/libti_ios_profiler.a'%(basepath,platform))
 
 	zf.writestr('%s/%s/package.json' % (basepath, platform), codecs.open(os.path.join(top_dir, 'iphone', 'package.json'), 'r', 'utf-8').read().replace('__VERSION__', version))
 
@@ -341,6 +339,21 @@ def zip_blackberry(zf, basepath, version):
 			if len(e)==2 and e[1] in ignoreExtensions: continue
 			from_ = os.path.join(root, file)
 			to_ = from_.replace(dir, os.path.join(basepath,'blackberry'), 1)
+			zf.write(from_, to_)
+
+def zip_tizen(zf, basepath, version):
+	dir = os.path.join(top_dir, 'tizen')
+
+	# for speed, mobileweb has its own zip logic
+	for root, dirs, files in os.walk(dir):
+		for name in ignoreDirs:
+			if name in dirs:
+				dirs.remove(name)
+		for file in files:
+			e = os.path.splitext(file)
+			if len(e)==2 and e[1] in ignoreExtensions: continue
+			from_ = os.path.join(root, file)
+			to_ = from_.replace(dir, os.path.join(basepath,'tizen'), 1)
 			zf.write(from_, to_)
 
 def resolve_npm_deps(dir, version, node_appc_branch):
@@ -445,7 +458,7 @@ def create_platform_zip(platform,dist_dir,osname,version,version_tag):
 	zf = zipfile.ZipFile(sdkzip, 'w', zipfile.ZIP_DEFLATED)
 	return (zf, basepath, sdkzip)
 
-def zip_mobilesdk(dist_dir, osname, version, module_apiversion, android, iphone, ipad, mobileweb, blackberry, version_tag, build_jsca):
+def zip_mobilesdk(dist_dir, osname, version, module_apiversion, android, iphone, ipad, mobileweb, blackberry, tizen, version_tag, build_jsca):
 	zf, basepath, filename = create_platform_zip('mobilesdk', dist_dir, osname, version, version_tag)
 
 	version_txt = """version=%s
@@ -459,7 +472,7 @@ githash=%s
 	for dir in os.listdir(top_dir):
 		if dir != 'support' and os.path.isdir(os.path.join(top_dir, dir)) and os.path.isfile(os.path.join(top_dir, dir, 'package.json')):
 			# if new platforms are added, be sure to add them to the line below!
-			if (dir == 'android' and android) or (osname == "osx" and dir == 'iphone' and (iphone or ipad)) or (dir == 'mobileweb' and mobileweb) or (dir == 'blackberry' and blackberry):
+			if (dir == 'android' and android) or (osname == "osx" and dir == 'iphone' and (iphone or ipad)) or (dir == 'mobileweb' and mobileweb) or (dir == 'blackberry' and blackberry) or (dir == 'tizen' and tizen):
 				platforms.append(dir)
 
 	manifest_json = '''{
@@ -511,6 +524,7 @@ githash=%s
 	if (iphone or ipad) and osname == "osx": zip_iphone_ipad(zf,basepath,'iphone',version,version_tag)
 	if mobileweb: zip_mobileweb(zf, basepath, version)
 	if blackberry: zip_blackberry(zf, basepath, version)
+	if tizen: zip_tizen(zf, basepath, version)
 	if osname == 'win32': zip_dir(zf, win32_dir, basepath)
 
 	zf.close()
@@ -519,16 +533,16 @@ class Packager(object):
 	def __init__(self, build_jsca=1):
 		self.build_jsca = build_jsca
 
-	def build(self, dist_dir, version, module_apiversion, android=True, iphone=True, ipad=True, mobileweb=True, blackberry=True, version_tag=None, node_appc_branch=False):
+	def build(self, dist_dir, version, module_apiversion, android=True, iphone=True, ipad=True, mobileweb=True, blackberry=True, tizen=True, version_tag=None, node_appc_branch=False):
 		if version_tag == None:
 			version_tag = version
 
 		# get all SDK level npm dependencies
 		resolve_npm_deps(template_dir, version, node_appc_branch)()
 
-		zip_mobilesdk(dist_dir, os_names[platform.system()], version, module_apiversion, android, iphone, ipad, mobileweb, blackberry, version_tag, self.build_jsca)
+		zip_mobilesdk(dist_dir, os_names[platform.system()], version, module_apiversion, android, iphone, ipad, mobileweb, blackberry, tizen, version_tag, self.build_jsca)
 
-	def build_all_platforms(self, dist_dir, version, module_apiversion, android=True, iphone=True, ipad=True, mobileweb=True, blackberry=True, version_tag=None, node_appc_branch=False):
+	def build_all_platforms(self, dist_dir, version, module_apiversion, android=True, iphone=True, ipad=True, mobileweb=True, blackberry=True, tizen=True, version_tag=None, node_appc_branch=False):
 		global packaging_all
 		packaging_all = True
 
@@ -541,7 +555,7 @@ class Packager(object):
 		resolve_npm_deps(template_dir, version, node_appc_branch)()
 
 		for os in os_names.values():
-			zip_mobilesdk(dist_dir, os, version, module_apiversion, android, iphone, ipad, mobileweb, blackberry, version_tag, self.build_jsca)
+			zip_mobilesdk(dist_dir, os, version, module_apiversion, android, iphone, ipad, mobileweb, blackberry, tizen, version_tag, self.build_jsca)
 
 if __name__ == '__main__':
 	Packager().build(os.path.abspath('../dist'), "1.1.0")

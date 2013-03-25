@@ -6,7 +6,6 @@
  */
 package ti.modules.titanium.map;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -19,11 +18,10 @@ import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiLifecycle.OnLifecycleEvent;
 import org.appcelerator.titanium.TiProperties;
-import org.appcelerator.titanium.io.TiBaseFile;
-import org.appcelerator.titanium.io.TiFileFactory;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiUIHelper;
+import org.appcelerator.titanium.view.TiDrawableReference;
 import org.appcelerator.titanium.view.TiUIView;
 
 import ti.modules.titanium.map.MapRoute.RouteOverlay;
@@ -107,7 +105,15 @@ public class TiMapView extends TiUIView
 		private int lastLongitudeSpan;
 		private boolean requestViewOnScreen = false;
 		private View view;
+		//Long click related variables
+		private static final int MIN_MILLISECONDS_FOR_LONG_CLICK = 800;
+		private static final float X_TOLERANCE=10;//x pixels that your finger can be off but still constitute a long press
+		private static final float Y_TOLERANCE=10;//y pixels that your finger can be off but still constitute a long press
 
+		private long longClickStartTime = 0;
+		private float longClickXCoordinate;
+		private float longClickYCoordinate;
+		
 		public LocalMapView(Context context, String apiKey)
 		{
 			super(context, apiKey);
@@ -118,6 +124,62 @@ public class TiMapView extends TiUIView
 		{
 			scrollEnabled = enable;
 		}
+		
+		@Override
+		public boolean onTouchEvent(android.view.MotionEvent ev)
+		{
+			int actionType = ev.getAction();
+
+			// Handle LongPress
+			if (proxy.hierarchyHasListener(TiC.EVENT_LONGPRESS)) {
+				if (actionType == MotionEvent.ACTION_DOWN) {
+					// Save the values to use in ACTION_MOVE and ACTION_UP
+					longClickStartTime = ev.getEventTime();
+					longClickXCoordinate = ev.getX();
+					longClickYCoordinate = ev.getY();
+				} else if (actionType == MotionEvent.ACTION_MOVE) {
+					if (ev.getPointerCount() > 1) {
+						// Multitouch
+						longClickStartTime = 0;
+					} else {
+						float xmove = ev.getX();
+						float ymove = ev.getY();
+						// See if the movement is within the tolerance boundary
+						float xlow = longClickXCoordinate - X_TOLERANCE;
+						float xhigh = longClickXCoordinate + X_TOLERANCE;
+						float ylow = longClickYCoordinate - Y_TOLERANCE;
+						float yhigh = longClickYCoordinate + Y_TOLERANCE;
+						if ((xmove < xlow || xmove > xhigh) || (ymove < ylow || ymove > yhigh)) {
+							// Out of range
+							longClickStartTime = 0;
+						}
+					}
+
+				} else if (actionType == MotionEvent.ACTION_UP) {
+					// determine if this was a long click:
+					long eventTime = ev.getEventTime();
+					long downTime = ev.getDownTime();// This should match longClickStartTime unless we reset it earlier
+					if (longClickStartTime == downTime) {
+						// See if it is within the threshhold
+						if ((eventTime - longClickStartTime) > MIN_MILLISECONDS_FOR_LONG_CLICK) {
+							// Is it within the boundary
+							float xup = ev.getX();
+							float yup = ev.getY();
+							float xlow = longClickXCoordinate - X_TOLERANCE;
+							float xhigh = longClickXCoordinate + X_TOLERANCE;
+							float ylow = longClickYCoordinate - Y_TOLERANCE;
+							float yhigh = longClickYCoordinate + Y_TOLERANCE;
+							if ((xup > xlow && xup < xhigh) && (yup > ylow && yup < yhigh)) {
+								// Treat it as a long press
+								proxy.fireEvent(TiC.EVENT_LONGPRESS, dictFromEvent(ev));
+							}
+						}
+					}
+				}
+			}
+			
+			return super.onTouchEvent(ev);	
+		}
 
 		@Override
 		public boolean dispatchTouchEvent(MotionEvent ev)
@@ -125,6 +187,7 @@ public class TiMapView extends TiUIView
 			if (!scrollEnabled && ev.getAction() == MotionEvent.ACTION_MOVE) {
 				return true;
 			}
+			
 
 			return super.dispatchTouchEvent(ev);
 		}
@@ -151,7 +214,7 @@ public class TiMapView extends TiUIView
 				lastLatitudeSpan = getLatitudeSpan();
 				lastLongitudeSpan = getLongitudeSpan();
 
-				HashMap<String, Object> location = new HashMap<String, Object>();
+				KrollDict location = new KrollDict();
 				location.put(TiC.PROPERTY_LATITUDE, scaleFromGoogle(lastLatitude));
 				location.put(TiC.PROPERTY_LONGITUDE, scaleFromGoogle(lastLongitude));
 				location.put(TiC.PROPERTY_LATITUDE_DELTA, scaleFromGoogle(lastLatitudeSpan));
@@ -488,7 +551,7 @@ public class TiMapView extends TiUIView
 
 		final TiViewProxy fproxy = proxy;
 
-		itemView = new TiOverlayItemView(proxy.getActivity());
+		itemView = new TiOverlayItemView(TiApplication.getInstance().getApplicationContext());
 		itemView.setOnOverlayClickedListener(new TiOverlayItemView.OnOverlayClicked(){
 			public void onClick(int lastIndex, String clickedItem) {
 				TiOverlayItem item = overlay.getItem(lastIndex);
@@ -994,7 +1057,7 @@ public class TiMapView extends TiUIView
 		if (view != null) {
 			if (userLocation) {
 				if (myLocation == null) {
-					myLocation = new MyLocationOverlay(proxy.getActivity(), view);
+					myLocation = new MyLocationOverlay(TiApplication.getInstance().getApplicationContext(), view);
 				}
 
 				List<Overlay> overlays = view.getOverlays();
@@ -1049,15 +1112,13 @@ public class TiMapView extends TiUIView
 	private Drawable makeMarker(String pinImage)
 	{
 		if (pinImage != null) {
-			String url = proxy.resolveUrl(null, pinImage);
-			TiBaseFile file = TiFileFactory.createTitaniumFile(new String[] { url }, false);
-			try {
-				Drawable d = new BitmapDrawable(mapWindow.getContext().getResources(), TiUIHelper.createBitmap(file
-					.getInputStream()));
+			TiDrawableReference drawableRef = TiDrawableReference.fromUrl(proxy, pinImage);
+			Drawable d = drawableRef.getDrawable();
+			if (d != null) {
 				d.setBounds(0, 0, d.getIntrinsicWidth(), d.getIntrinsicHeight());
 				return d;
-			} catch (IOException e) {
-				Log.e(TAG, "Error creating drawable from path: " + pinImage.toString(), e);
+			} else {
+				Log.e(TAG, "Unable to create Drawable from path:" + pinImage);
 			}
 		}
 		return null;
@@ -1082,6 +1143,14 @@ public class TiMapView extends TiUIView
 	private int scaleToGoogle(double value)
 	{
 		return (int)(value * 1000000);
+	}
+	
+	@Override
+	protected boolean allowRegisterForTouch()
+	{
+		// Skip TiUIView registration. 
+		// Handled inside the LocalMapView as it is not working in the TiUIView
+		return false;
 	}
 }
 

@@ -492,7 +492,7 @@ public class TiUIScrollableView extends TiUIView
 			ViewPager pager = (ViewPager) container;
 			TiViewProxy tiProxy = mViewProxies.get(position);
 			TiUIView tiView = tiProxy.getOrCreateView();
-			View view = tiView.getNativeView();
+			View view = tiView.getOuterView();
 			if (view.getParent() != null) {
 				pager.removeView(view);
 			}

@@ -882,6 +882,94 @@ properties:
     type: Number
     permission: read-only
     platforms: [android, iphone, ipad]
+
+  - name: LIST_ACCESSORY_TYPE_NONE
+    summary: Do not display anything on the right side of an item in a list view.
+    type: Number
+    permission: read-only
+    platforms: [android, iphone, ipad]
+    since: '3.1.0'
+
+  - name: LIST_ACCESSORY_TYPE_CHECKMARK
+    summary: Displays a checkmark on the right side of an item in a list view.
+    description: |
+        Use to indicate an item in a list is selected.
+    type: Number
+    permission: read-only
+    platforms: [android, iphone, ipad]
+    since: '3.1.0'
+
+  - name: LIST_ACCESSORY_TYPE_DETAIL
+    summary: Displays a detail disclosure button on the right side of an item in a list view.
+    description: |
+        Use to indicate that selecting this item results in the display of a detailed view of that item.
+    type: Number
+    permission: read-only
+    platforms: [android, iphone, ipad]
+    since: '3.1.0'
+
+  - name: LIST_ACCESSORY_TYPE_DISCLOSURE
+    summary: Displays a disclosure indicator on the right side of an item in a list view.
+    description: |
+        Use to indicate that selecting this item results in the display of another list, reflecting
+        the next level in the data model hierarchy.
+    type: Number
+    permission: read-only
+    platforms: [android, iphone, ipad]
+    since: '3.1.0'
+
+  - name: LIST_ITEM_TEMPLATE_DEFAULT
+    summary: |
+        A built-in style for an item with an image view and black, left-aligned title label.
+    description: |
+        The text label value and image value bind to the `title` and `image` properties, respectively,
+        of the data item. If a property is not set, that element is not displayed.
+
+        On Android, the image appears on the right side of the cell, and on iOS, the image appears
+        on the left side of the cell.
+    type: Number
+    permission: read-only
+    platforms: [android, iphone, ipad]
+    since: '3.1.0'
+
+  - name: LIST_ITEM_TEMPLATE_SETTINGS
+    summary: |
+        A built-in style for a item with an image view; a black, left-aligned title label; and a
+        smaller blue, right-aligned subtitle label.
+    description: |
+        The title label value, subtitle label value and image value bind to the `title`, `subtitle`
+        and `image` properties, respectively, of the data item. If a property is not set, that
+        element is not displayed.
+    type: Number
+    permission: read-only
+    platforms: [iphone, ipad]
+    since: '3.1.0'
+
+  - name: LIST_ITEM_TEMPLATE_CONTACTS
+    summary: |
+        A built-in style for an item with a title label on the left side of the cell with
+        right-aligned, blue text, which is next to a subtitle label with left-aligned, black text.
+    description: |
+        The title label value and subtitle label value bind to the `title` and `subtitle`
+        properties, respectively, of the data item. If a property is not set, that element is not
+        displayed.
+    type: Number
+    permission: read-only
+    platforms: [iphone, ipad]
+    since: '3.1.0'
+
+  - name: LIST_ITEM_TEMPLATE_SUBTITLE
+    summary: |
+        A built-in style for an item with an image view; a black, left-aligned title label across the
+        top of the cell and a subtitle label below it in smaller gray text.
+    description: |
+        The title label value, subtitle label value and image value bind to the `title`, `subtitle`
+        and `image` properties, respectively, of the data item. If a property is not set, that
+        element is not displayed.
+    type: Number
+    permission: read-only
+    platforms: [iphone, ipad]
+    since: '3.1.0'
     
   - name: NOTIFICATION_DURATION_LONG
     summary: Specifies a long duration for an Android Toast notification (<Titanium.UI.Notification>).

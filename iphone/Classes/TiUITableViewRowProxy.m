@@ -782,8 +782,8 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 					[proxy setSandboxBounds:rect];
 				}
 				[proxy windowWillOpen];
-				[uiview transferProxy:proxy deep:YES];
 				[proxy setReproxying:YES];
+				[uiview transferProxy:proxy deep:YES];
 				[self redelegateViews:proxy toView:contentView];
 				if (uiview == nil) {
 					[rowContainerView addSubview:[proxy view]];
@@ -791,6 +791,9 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 				[proxy setReproxying:NO];
 			}];
 		} else {
+			[[self children] enumerateObjectsUsingBlock:^(TiViewProxy *proxy, NSUInteger idx, BOOL *stop) {
+				[self redelegateViews:proxy toView:contentView];
+			}];
 			[rowContainerView setFrame:rect];
 			[contentView addSubview:rowContainerView];
 		}
@@ -924,7 +927,8 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 	return dict;
 }
 
--(void)fireEvent:(NSString *)type withObject:(id)obj withSource:(id)source propagate:(BOOL)propagate
+//TODO: Remove when deprication is done.
+-(void)fireEvent:(NSString*)type withObject:(id)obj withSource:(id)source propagate:(BOOL)propagate reportSuccess:(BOOL)report errorCode:(int)code message:(NSString*)message;
 {
 	// merge in any row level properties for the event
 	if (source!=self)
@@ -932,7 +936,13 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 		obj = [self createEventObject:obj];
 	}
 	[callbackCell handleEvent:type];
-	[super fireEvent:type withObject:obj withSource:source propagate:propagate];
+	[super fireEvent:type withObject:obj withSource:source propagate:propagate reportSuccess:report errorCode:code message:message];
+}
+
+-(void)fireEvent:(NSString*)type withObject:(id)obj propagate:(BOOL)propagate reportSuccess:(BOOL)report errorCode:(int)code message:(NSString*)message;
+{
+	[callbackCell handleEvent:type];
+	[super fireEvent:type withObject:obj propagate:propagate reportSuccess:report errorCode:code message:message];
 }
 
 -(void)setSelectedBackgroundColor:(id)arg

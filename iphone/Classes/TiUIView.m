@@ -291,7 +291,7 @@ DEFINE_EXCEPTIONS
 	NSURL *url = [TiUtils toURL:image proxy:proxy];
 	if (url==nil)
 	{
-		NSLog(@"[WARN] could not find image: %@",[url absoluteString]);
+		NSLog(@"[WARN] could not find image: %@",image);
 		return nil;
 	}
 	return [[ImageLoader sharedLoader] loadImmediateStretchableImage:url withLeftCap:leftCap topCap:topCap];
@@ -556,6 +556,8 @@ DEFINE_EXCEPTIONS
         if (bgImage != nil) {
             [self backgroundImageLayer].contentsScale = [bgImage scale];
             [self backgroundImageLayer].contentsCenter = TiDimensionLayerContentCenter(topCap, leftCap, topCap, leftCap, [bgImage size]);
+            [self backgroundImageLayer].magnificationFilter = @"nearest";
+            [self backgroundImageLayer].minificationFilter = @"nearest";
         }
     }
     

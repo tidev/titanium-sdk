@@ -18,8 +18,8 @@
  * BSD License
  * <http://pajhome.org.uk/crypt/md5/sha256.html>
  */
- 
- define(["Ti/_/encoding", "Ti/_/Evented", "Ti/_/lang", "Ti/Blob"], function(encoding, Evented, lang, Blob) {
+
+define(["Ti/_/encoding", "Ti/_/Evented", "Ti/_/lang", "Ti/Blob"], function(encoding, Evented, lang, Blob) {
 
 	function toWord(s, y) {
 		var wa = [],

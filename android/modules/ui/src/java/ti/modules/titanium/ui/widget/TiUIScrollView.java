@@ -400,7 +400,9 @@ public class TiUIScrollView extends TiUIView
 	@Override
 	public void propertyChanged(String key, Object oldValue, Object newValue, KrollProxy proxy)
 	{
-		Log.d(TAG, "Property: " + key + " old: " + oldValue + " new: " + newValue, Log.DEBUG_MODE);
+		if (Log.isDebugModeEnabled()) {
+			Log.d(TAG, "Property: " + key + " old: " + oldValue + " new: " + newValue, Log.DEBUG_MODE);
+		}
 		if (key.equals(TiC.PROPERTY_CONTENT_OFFSET)) {
 			setContentOffset(newValue);
 			scrollTo(offsetX, offsetY);
@@ -543,6 +545,20 @@ public class TiUIScrollView extends TiUIView
 		} else {
 			return ((TiHorizontalScrollView) nativeView).layout;
 		}
+	}
+	
+	@Override
+	protected void setOnClickListener(View view)
+	{
+		View targetView = view;
+		// Get the layout and attach the listeners to it
+		if (view instanceof TiVerticalScrollView) {
+			targetView = ((TiVerticalScrollView) nativeView).layout;
+		}
+		if (view instanceof TiHorizontalScrollView) {
+			targetView = ((TiHorizontalScrollView) nativeView).layout;
+		}
+		super.setOnClickListener(targetView);
 	}
 
 	public void setScrollingEnabled(Object value)

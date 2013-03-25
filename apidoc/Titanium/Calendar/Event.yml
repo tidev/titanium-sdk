@@ -1,0 +1,183 @@
+---
+name: Titanium.Calendar.Event
+summary: An object that represents a single event in a calendar.
+description: |
+    The API supports retrieving information about existing events and creating new events.  
+    Additionally, modifying or deleting existing events and creating recurring rules for events 
+    is also supported.
+    
+    See <Titanium.Calendar> for examples of retrieving event information and creating events.
+extends: Titanium.Proxy
+platforms: [iphone, ipad]
+since: "3.1.0"
+createable: false
+
+methods:
+  - name: createAlert
+    summary: Creates an alert for this event.
+    returns:
+        type: Titanium.Calendar.Alert
+    parameters:
+      - name: data
+        summary: Properties for the alert.
+        type: Dictionary<Titanium.Calendar.Alert>
+
+  - name: createRecurenceRule
+    summary: |
+        Creates an recurrence pattern for a recurring event.
+        All of the properties for the recurrence rule must be set during creation. 
+        The recurrence rule properties cannot be modified.
+    returns:
+        type: Titanium.Calendar.RecurrenceRule
+    parameters:
+      - name: data
+        summary: Properties for the recurrence rule.
+        type: Dictionary<Titanium.Calendar.RecurrenceRule>
+
+  - name: save
+    summary: Saves changes to an event permanently.
+    description: |
+        This method raises an exception if it is passed an event from another event store. 
+        
+        When an event is saved, it is updated in the Calendar database. Any fields you did 
+        not modify are updated to reflect the most recent value in the database. If the 
+        event has been deleted from the database, it is re-created as a new event.
+    returns:
+        type: Boolean
+    parameters:
+      - name: span
+        summary: |
+            The span to use. Indicates whether the save affects future instances of the 
+            event in the case of a recurring event. Use 
+            [SPAN_THISEVENT](Titanium.Calendar.SPAN_THISEVENT) or
+            [SPAN_FUTUREEVENTS](Titanium.Calendar.SPAN_FUTUREEVENTS).
+        type: Number
+        default: <Titanium.Calendar.SPAN_THISEVENT>
+
+  - name: remove
+    summary: Removes an event from the event store.
+    description: |
+        This method raises an exception if it is passed an event from another event store.
+    returns:
+        type: Boolean
+    parameters:
+      - name: span
+        summary: |
+            The span to use. Indicates whether to remove future instances of the event in 
+            the case of a recurring event.  Use 
+            [SPAN_THISEVENT](Titanium.Calendar.SPAN_THISEVENT) or
+            [SPAN_FUTUREEVENTS](Titanium.Calendar.SPAN_FUTUREEVENTS).
+        type: Number
+        default: <Titanium.Calendar.SPAN_THISEVENT>
+
+  - name: refresh
+    summary: Updates the event's data with the current information in the Calendar database.
+    description: |
+        This method should be only used on events that your application is editing, and only 
+        when your application receives the [change](Titanium.Calendar.change) notification. 
+        If this method returns NO, the event has been deleted or otherwise invalidated, 
+        and you should not continue to use it. 
+    returns:
+        type: Boolean
+
+  - name: addRecurrenceRule
+    summary: Adds a recurrence rule to the recurrence rule array.
+    parameters:
+      - name: rule
+        summary: The recurrence rule to be added.
+        type: Titanium.Calendar.RecurrenceRule
+    osver: {ios: {min: "5.0"}}
+
+  - name: removeRecurenceRule
+    summary: Removes a recurrence rule to the recurrence rule array.
+    parameters:
+      - name: rule
+        summary: The recurrence rule to be removed.
+        type: Titanium.Calendar.RecurrenceRule
+    osver: {ios: {min: "5.0"}}
+
+properties:
+  - name: alerts
+    summary: Existing alerts for this event.
+    type: Array<Titanium.Calendar.Alert>
+    
+  - name: allDay
+    summary: Indicates whether this event is all day.
+    type: Boolean
+    default: false
+
+  - name: begin
+    summary: Start date/time of this event.
+    type: Date
+    
+  - name: notes
+    summary: Notes for this event.
+    type: String
+    
+  - name: end
+    summary: End date/time of this event.
+    type: Date
+    
+  - name: hasAlarm
+    summary: Indicates whether an alarm is scheduled for this event.
+    type: Boolean
+    permission: read-only
+
+  - name: id
+    summary: Identifier of this event.
+    type: String
+    permission: read-only
+    
+  - name: location
+    summary: Location of this event.
+    type: String
+        
+  - name: status
+    summary: Status of this event.
+    description: |
+        One of [STATUS_NONE](Titanium.Calendar.STATUS_NONE), 
+        [STATUS_CANCELED](Titanium.Calendar.STATUS_CANCELED), 
+        [STATUS_CONFIRMED](Titanium.Calendar.STATUS_CONFIRMED), 
+        and [STATUS_TENTATIVE](Titanium.Calendar.STATUS_TENTATIVE).
+    type: Number
+    permission: read-only
+
+  - name: availability
+    summary: Availability of this event.
+    description: |
+        One of [AVAILABILITY_NOTSUPPORTED](Titanium.Calendar.AVAILABILITY_NOTSUPPORTED), 
+        [AVAILABILITY_BUSY](Titanium.Calendar.AVAILABILITY_BUSY), 
+        [AVAILABILITY_FREE](Titanium.Calendar.AVAILABILITY_FREE), 
+        [AVAILABILITY_TENTATIVE](Titanium.Calendar.AVAILABILITY_TENTATIVE), 
+        and [AVAILABILITY_UNAVAILABLE](Titanium.Calendar.AVAILABILITY_UNAVAILABLE).
+    type: Number
+    permission: read-only
+
+  - name: isDetached
+    summary: |
+        Boolean value that indicates whether an event is a detached instance of a 
+        repeating event.
+    description: |
+        This value is `YES` if and only if the event is part of a repeating event 
+        and one or more of its attributes have been modified from the repeating event's 
+        default attributes.
+    type: Boolean
+    permission: read-only
+    
+  - name: title
+    summary: Title of this event.
+    type: String
+    
+  - name: recurenceRule
+    summary: Recurrence rule associated with the event. (Available in iOS 4.0 through iOS 5.1.)
+    type: Titanium.Calendar.RecurrenceRule
+    osver: {ios: {max: "5.0"}}
+  - name: recurenceRules
+    summary: The recurrence rules for the calendar item. (Available in iOS 5.1 and above.)
+    type: Array<Titanium.Calendar.RecurrenceRule>
+    osver: {ios: {min: "5.0"}}
+
+  - name: alerts
+    summary: Alarms associated with the calendar item, as an array of <Titanium.Calendar.Alert> objects.
+    type: Array<Titanium.Calendar.Alert>
+    

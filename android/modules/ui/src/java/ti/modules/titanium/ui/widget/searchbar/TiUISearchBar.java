@@ -55,7 +55,7 @@ public class TiUISearchBar extends TiUIText
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}*/
-				proxy.fireEvent("cancel", null);
+				fireEvent("cancel", null);
 			}
 		});
 
@@ -102,7 +102,7 @@ public class TiUISearchBar extends TiUIText
 		super.processProperties(d);
 
 		if (d.containsKey("showCancel")) {
-			boolean showCancel = TiConvert.toBoolean(d, "showCancel");
+			boolean showCancel = TiConvert.toBoolean(d, "showCancel", false);
 			cancelBtn.setVisibility(showCancel ? View.VISIBLE : View.GONE);
 		} else if (d.containsKey("barColor")) {
 			nativeView.setBackgroundColor(TiConvert.toColor(d, "barColor"));

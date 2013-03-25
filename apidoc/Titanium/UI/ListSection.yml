@@ -1,0 +1,156 @@
+---
+name: Titanium.UI.ListSection
+summary: A list section is a container within a list view used to organize list items.
+description: |
+    Use the <Titanium.UI.createListSection> method to create a `ListSection`.
+
+    List sections are used to manipulate and organize list items contained within it.
+
+    For examples of using list sections, see the examples in <Titanium.UI.ListView> and
+    <Titanium.UI.ListItem>.
+platforms: [android, ipad, iphone]
+since: '3.1.0'
+extends: Titanium.Proxy
+excludes:
+    methods: [addEventListener, fireEvent, removeEventListener]
+    properties: [bubbleParent]
+properties:
+ 
+  - name: footerTitle
+    summary: Title of this section footer.
+    description: |
+        Using this property and `footerView` together is not supported. Use one or the other.
+
+        **Note:** the `footerView` property has not been implemented in this version of ListSection.
+    type: String
+
+  - name: headerTitle
+    summary: Title of this section header.
+    description: |
+        Using this property and `headerView` together is not supported. Use one or the other.
+
+        **Note:** the `headerView` property has not been implemented in this version of ListSection.
+    type: String
+
+  - name: items
+    summary: Items of this list section.
+    type: Array<ListDataItem>
+
+methods:
+
+  - name: setItems
+    summary: Sets the data entries in the list section.
+    description: |
+        On iOS, the list item(s) can be inserted with an animation by specifying the `animation` parameter.
+    parameters:
+      - name: dataItems
+        summary: List items to set.
+        type: Array<ListDataItem>
+
+      - name: animation
+        summary: Animation properties. (iOS only.)
+        type: Titanium.UI.iPhone.RowAnimationStyle
+        optional: true
+
+  - name: appendItems
+    summary: Appends the data entries to the end of the list section.
+    description: |
+        On iOS, the list item(s) can be inserted with an animation by specifying the `animation` parameter.
+    parameters:
+      - name: dataItems
+        summary: List items to add.
+        type: Array<ListDataItem>
+
+      - name: animation
+        summary: Animation properties. (iOS only.)
+        type: Titanium.UI.iPhone.RowAnimationStyle
+        optional: true
+
+  - name: insertItemsAt
+    summary: Inserts data entries to the list section at the specified index.
+    description: |
+        On iOS, the list item(s) can be inserted with an animation by specifying the `animation` parameter.
+    parameters:
+      - name: itemIndex
+        summary: Index of where to insert the items.
+        type: Number
+
+      - name: dataItems
+        summary: List items to insert.
+        type: Array<ListDataItem>
+
+      - name: animation
+        type: Titanium.UI.iPhone.RowAnimationStyle
+        summary: Animation properties. (iOS only.)
+        optional: true
+
+  - name: replaceItemsAt
+    summary: |
+        Removes count entries from the list section at the specified index,
+        then inserts data entries to the list section at the same index.
+    description: |
+        On iOS, the list item(s) can be replaced with an animation by specifying the `animation` parameter.
+    parameters:
+      - name: index
+        summary: Index of where to remove then insert items.
+        type: Number
+
+      - name: count
+        summary: Number of list items to remove.
+        type: Number
+
+      - name: dataItems
+        summary: List items to insert.
+        type: Array<ListDataItem>
+
+      - name: animation
+        summary: Animation properties. (iOS only.)
+        type: Titanium.UI.iPhone.RowAnimationStyle
+        optional: true
+
+  - name: deleteItemsAt
+    summary: Removes count entries from the list section at the specified index.
+    description: |
+        On iOS, the list item(s) can be removed with an animation by specifying the `animation` parameter.
+    parameters:
+      - name: itemIndex
+        summary: Index of where to remove items.
+        type: Number
+
+      - name: count
+        summary: Number of items to remove.
+        type: Number
+
+      - name: animation
+        summary: Animation properties. (iOS only.)
+        type: Titanium.UI.iPhone.RowAnimationStyle
+        optional: true
+
+  - name: getItemAt
+    summary: Returns the item entry from the list view at the specified index.
+    parameters:
+      - name: itemIndex
+        summary: Index of where to retrieve an item.
+        type: Number
+    returns:
+      - type: ListDataItem
+
+  - name: updateItemAt
+    summary: |
+        Updates an item at the specified index.
+    description: |
+        On iOS, the list item can be updated with an animation by specifying the `animation` parameter.
+    parameters:
+      - name: index
+        summary: Index of where to update the item.
+        type: Number
+
+      - name: dataItem
+        summary: List item to update.
+        type: ListDataItem
+
+      - name: animation
+        summary: Animation properties. (iOS only.)
+        type: Titanium.UI.iPhone.RowAnimationStyle
+        optional: true
+

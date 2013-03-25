@@ -101,13 +101,13 @@ examples:
             }, function (e) {
                 if (e.success) {
                     var post = e.posts[0];
-                    alert('Success:\\n' +
-                        'id: ' + post.id + '\\n' +
-                        'title: ' + post.title + '\\n' +
-                        'content: ' + post.content + '\\n' +
+                    alert('Success:\n' +
+                        'id: ' + post.id + '\n' +
+                        'title: ' + post.title + '\n' +
+                        'content: ' + post.content + '\n' +
                         'updated_at: ' + post.updated_at);
                 } else {
-                    alert('Error:\\n' +
+                    alert('Error:\n' +
                         ((e.error && e.message) || JSON.stringify(e)));
                 }
             });
@@ -121,13 +121,13 @@ examples:
             }, function (e) {
                 if (e.success) {
                     var post = e.posts[0];
-                    alert('Success:\\n' +
-                        'id: ' + post.id + '\\n' +
-                        'title: ' + post.title + '\\n' +
-                        'content: ' + post.content + '\\n' +
+                    alert('Success:\n' +
+                        'id: ' + post.id + '\n' +
+                        'title: ' + post.title + '\n' +
+                        'content: ' + post.content + '\n' +
                         'updated_at: ' + post.updated_at);
                 } else {
-                    alert('Error:\\n' +
+                    alert('Error:\n' +
                         ((e.error && e.message) || JSON.stringify(e)));
                 }
             });
@@ -144,18 +144,18 @@ examples:
                 }
             }, function (e) {
                 if (e.success) {
-                    alert('Success:\\n' +
+                    alert('Success:\n' +
                         'Count: ' + e.posts.length);
                     for (var i = 0; i < e.posts.length; i++) {
                         var post = e.posts[i];
-                        alert('id: ' + post.id + '\\n' +
-                            'id: ' + post.id + '\\n' +
-                            'title: ' + post.title + '\\n' +
-                            'content: ' + post.content + '\\n' +
+                        alert('id: ' + post.id + '\n' +
+                            'id: ' + post.id + '\n' +
+                            'title: ' + post.title + '\n' +
+                            'content: ' + post.content + '\n' +
                             'updated_at: ' + post.updated_at);
                     }
                 } else {
-                    alert('Error:\\n' +
+                    alert('Error:\n' +
                         ((e.error && e.message) || JSON.stringify(e)));
                 }
             });
@@ -170,13 +170,13 @@ examples:
             }, function (e) {
                 if (e.success) {
                     var post = e.posts[0];
-                    alert('Success:\\n' +
-                        'id: ' + post.id + '\\n' +
-                        'title: ' + post.title + '\\n' +
-                        'content: ' + post.content + '\\n' +
+                    alert('Success:\n' +
+                        'id: ' + post.id + '\n' +
+                        'title: ' + post.title + '\n' +
+                        'content: ' + post.content + '\n' +
                         'updated_at: ' + post.updated_at);
                 } else {
-                    alert('Error:\\n' +
+                    alert('Error:\n' +
                         ((e.error && e.message) || JSON.stringify(e)));
                 }
             });
@@ -191,7 +191,7 @@ examples:
                 if (e.success) {
                     alert('Success');
                 } else {
-                    alert('Error:\\n' +
+                    alert('Error:\n' +
                         ((e.error && e.message) || JSON.stringify(e)));
                 }
             });
