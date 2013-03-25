@@ -39,6 +39,7 @@ public class TiDefaultListViewTemplate extends TiListViewTemplate {
 
 		//Generate label proxy
 		LabelProxy labelProxy = new LabelProxy();
+		labelProxy.getProperties().put(TiC.PROPERTY_TOUCH_ENABLED, false);
 		labelProxy.setActivity(activity);
 		//Generate properties
 		defaultLabelProperties.put(TiC.PROPERTY_LEFT, "2%");
@@ -54,6 +55,7 @@ public class TiDefaultListViewTemplate extends TiListViewTemplate {
 		
 		//Generate image proxy
 		ImageViewProxy imageProxy = new ImageViewProxy();
+		imageProxy.getProperties().put(TiC.PROPERTY_TOUCH_ENABLED, false);
 		imageProxy.setActivity(activity);
 		//Generate properties
 		defaultImageProperties.put(TiC.PROPERTY_RIGHT, "0");
