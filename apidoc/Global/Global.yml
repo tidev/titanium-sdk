@@ -158,25 +158,25 @@ methods:
 
         #### Alloy
 
-            For Alloy, place the CommonJS modules in the `app/lib` directory of your Alloy project,
-            then load the module with the `require` method without the `app/lib` path and `.js`
-            extension.
+        For Alloy, place the CommonJS modules in the `app/lib` directory of your Alloy project,
+        then load the module with the `require` method without the `app/lib` path and `.js`
+        extension.
 
-            For example, a module file `app/lib/myModule/module.js` may be loaded by
-            `app/controllers/index.js` using:
+        For example, a module file `app/lib/myModule/module.js` may be loaded by
+        `app/controllers/index.js` using:
 
-                require('myModule/module');
+            require('myModule/module');
 
         #### Android
         
-            Additionally, on Android, an absolute path to a module may be specified using a path 
-            separator (`/`) at the beginning of the path.
+        Additionally, on Android, an absolute path to a module may be specified using a path
+        separator (`/`) at the beginning of the path.
             
-            For example, a module file `Resources/myModule/module.js` may be required by 
-            `Resources/example/example.js` using either of the following:
+        For example, a module file `Resources/myModule/module.js` may be required by
+        `Resources/example/example.js` using either of the following:
             
-                require('../myModule/module')
-                require ('/myModule/module')
+            require('../myModule/module')
+            require ('/myModule/module')
 
 
     returns:
