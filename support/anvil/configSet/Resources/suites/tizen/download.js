@@ -23,7 +23,8 @@ module.exports = new function() {
 		{name: 'checkDownload'},
 		{name: 'successDownloadFlowTest'},
 		{name: 'successDownloadTest'},
-		{name: 'failedDownloadTest'}
+		{name: 'failedDownloadTest'},
+		{name: 'getDownloadRequestTest'}
 	];
 
 	this.checkDownload  = function(testRun) {
@@ -216,5 +217,46 @@ module.exports = new function() {
 		valueOf(testRun, downloadRequest.toString()).shouldBe('[object TizenDownloadDownloadRequest]');
 		valueOf(testRun, downloadId).shouldBeGreaterThanEqual(0);
 		valueOf(testRun, downloadId).shouldBeNumber();
+	}
+
+	this.getDownloadRequestTest = function(testRun) {
+		var	downloadId,
+			request,
+			listener = {
+				onDataStream: function(downloadRequest, receivedSize, totalSize) {
+					Ti.API.debug('onDataStream event. id=' + downloadRequest.id + ', receivedSize=' + receivedSize + ', totalSize=' + totalSize);
+				},
+				onPause: function(downloadRequest) {
+					Ti.API.debug('onPause event. id=' + downloadRequest.id);
+				},
+				onCancel: function(downloadRequest) {
+					Ti.API.debug('onCancel event. id=' + downloadRequest.id);
+					finish(testRun);
+				},
+				onLoad: function(downloadRequest, fileName) {
+					Ti.API.debug('onLoad event. id=' + downloadRequest.id + ', fileName=' + fileName);
+					finish(testRun);
+				},
+				onError: function(downloadRequest, error) {
+					Ti.API.debug('onError event. id=' + downloadRequest.id + ', error=' + JSON.stringify(error));
+					reportError(testRun, JSON.stringify(error));
+				}
+			};
+
+		// Start downloading large file to initate callbacks.
+		downloadRequest = Tizen.Download.createDownloadRequest({
+			url: 'http://download.tizen.org/sdk/1_0-larkspur/pkg_list_windows',
+			destination: 'documents',
+			fileName: 'tmp' + (new Date().getTime())
+		});
+
+		downloadId = downloadRequest.send();
+		downloadRequest.setListener(listener);
+
+		valueOf(testRun, function(){
+			request = Tizen.Download.getDownloadRequest(downloadId);
+		}).shouldNotThrowException();
+
+		valueOf(testRun, request.toString()).shouldBe('[object TizenDownloadDownloadRequest]');
 	}
 }

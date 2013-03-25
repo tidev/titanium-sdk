@@ -8,13 +8,13 @@
 module.exports = new function() {
 	var finish,
 		valueOf,
-		powerObj;
+		Tizen;
 
 	this.init = function(testUtils) {
 		finish = testUtils.finish;
 		valueOf = testUtils.valueOf;
 		reportError = testUtils.reportError;
-		powerObj = require('Ti/Tizen/Power');
+		Tizen = require('tizen');
 	}
 
 	this.name = 'power';
@@ -25,35 +25,50 @@ module.exports = new function() {
 
 	this.checkPower  = function(testRun) {
 		Ti.API.debug('Checking power object availability.');
-		valueOf(testRun, powerObj).shouldBeObject();
-		valueOf(testRun, powerObj.request).shouldBeFunction();
-		valueOf(testRun, powerObj.release).shouldBeFunction();
+		valueOf(testRun, Tizen.Power).shouldBeObject();
+		valueOf(testRun, Tizen.Power.request).shouldBeFunction();
+		valueOf(testRun, Tizen.Power.release).shouldBeFunction();
+		valueOf(testRun, Tizen.Power.screenBrightness).shouldBeNumber();
+
+		valueOf(testRun, (0 <= Tizen.Power.screenBrightness && Tizen.Power.screenBrightness <= 1)).shouldBeTrue();
+
+		valueOf(testRun, function() {
+			Tizen.Power.turnScreenOff();
+		}).shouldNotThrowException();
+
+		valueOf(testRun, Tizen.Power.isScreenOn()).shouldBeFalse();
+
+		valueOf(testRun, function() {
+			Tizen.Power.turnScreenOn();
+		}).shouldNotThrowException();
+
+		valueOf(testRun, Tizen.Power.isScreenOn()).shouldBeTrue();
+
 		finish(testRun);
-	}
-	
+	}	
 
 	this.powerStateListener = function(testRun) {
 
 		function onScreenStateChanged(state) {
 			Ti.API.info("Screen state changed from " + state.previousState + " to " + state.changedState);
-			powerObj.turnScreenOn();
+			Tizen.Power.turnScreenOn();
 			finish(testRun);
 		}
 
 		valueOf(testRun, function() {
-			powerObj.request(powerObj.POWER_RESOURCE_SCREEN, powerObj.POWER_SCREEN_STATE_SCREEN_NORMAL);
+			Tizen.Power.request(Tizen.Power.POWER_RESOURCE_SCREEN, Tizen.Power.POWER_SCREEN_STATE_SCREEN_NORMAL);
 		}).shouldNotThrowException();
 
 		valueOf(testRun, function() {
-			powerObj.turnScreenOn();
+			Tizen.Power.turnScreenOn();
 		}).shouldNotThrowException();
 
 		valueOf(testRun, function() {
-			powerObj.addEventListener('screenStateChanged', onScreenStateChanged);
+			Tizen.Power.addEventListener('screenStateChanged', onScreenStateChanged);
 		}).shouldNotThrowException();
 
 		valueOf(testRun, function() {
-			powerObj.turnScreenOff();
+			Tizen.Power.turnScreenOff();
 		}).shouldNotThrowException();
 	}
 }

@@ -36,7 +36,8 @@ module.exports = new function() {
 		{name: 'testListenersSIM'},
 		//{name: 'testListenersEthernetNetwork'},
 		{name: 'testListenersCellularNetwork'},
-		{name: 'testListenersWifiNetwork'}
+		{name: 'testListenersWifiNetwork'},
+		{name: 'testGetCapabilities'}
 	];
 
 	this.checkSystemInfo  = function(testRun) {
@@ -256,6 +257,18 @@ module.exports = new function() {
 
 	this.testListenersSIM = function(testRun) {
 		checkCallbackMethod( {propertyName: Tizen.SystemInfo.SYSTEM_INFO_PROPERTY_ID_SIM, testRun: testRun, optionsParameter:{} });
+	}
+
+	this.testGetCapabilities = function(testRun) {
+		var capabilities;
+
+		valueOf(testRun, function(){
+			capabilities = Tizen.SystemInfo.getCapabilities();
+		}).shouldNotThrowException();
+
+		valueOf(testRun, capabilities.toString()).shouldBe('[object TizenSystemInfoSystemInfoDeviceCapability]');
+
+		finish(testRun);
 	}
 
 	// helper that allows to test addPropertyValueChangeListener, removePropertyValueChangeListener, SystemInfoOptions
