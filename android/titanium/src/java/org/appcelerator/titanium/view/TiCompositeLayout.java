@@ -207,19 +207,7 @@ public class TiCompositeLayout extends ViewGroup
 	@Override
 	protected LayoutParams generateDefaultLayoutParams()
 	{
-		// Default behavior is size since optionWidth/optionHeight is null, and autoFillsWidth/autoFillsHeight is false.
-		// Some classes such as ViewProxy will set autoFillsWidth/autoFillsHeight to true in order to trigger the fill
-		// behavior by default.
-		LayoutParams params = new LayoutParams();
-		params.optionLeft = null;
-		params.optionRight = null;
-		params.optionTop = null;
-		params.optionBottom = null;
-		params.optionZIndex = NOT_SET;
-		params.sizeOrFillHeightEnabled = true;
-		params.sizeOrFillWidthEnabled = true;
-
-		return params;
+		return new LayoutParams();
 	}
 
 	private static int getAsPercentageValue(double percentage, int value)
