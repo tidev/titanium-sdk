@@ -1467,7 +1467,7 @@ public abstract class TiUIView
 
 	public boolean fireEvent(String eventName, KrollDict data, boolean bubbles) {
 		if (data == null && additionalEventData != null) {
-			data = new KrollDict((HashMap)additionalEventData.clone());
+			data = new KrollDict(additionalEventData);
 		} else if (additionalEventData != null) {
 			data.putAll(additionalEventData);
 		}
