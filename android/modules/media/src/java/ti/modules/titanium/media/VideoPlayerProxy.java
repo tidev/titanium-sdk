@@ -542,6 +542,11 @@ public class VideoPlayerProxy extends TiViewProxy implements TiLifecycle.OnLifec
 	{
 		KrollDict args = new KrollDict();
 		args.put(TiC.EVENT_PROPERTY_REASON, reason);
+		if (reason == MediaModule.VIDEO_FINISH_REASON_PLAYBACK_ERROR) {
+			args.putCodeAndMessage(-1,"Video Playback encountered an error");
+		} else {
+			args.putCodeAndMessage(0,null);
+		}
 		fireEvent(TiC.EVENT_COMPLETE, args);
 	}
 
