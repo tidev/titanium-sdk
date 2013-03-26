@@ -198,6 +198,16 @@ NSArray* pickerKeySequence;
 
 #pragma mark Public APIs 
 
+- (id)value
+{
+    if (![NSThread isMainThread]) {
+		__block id result = nil;
+		TiThreadPerformOnMainThread(^{result = [[[self picker] value_] retain];}, YES);
+		return [result autorelease];
+	}
+	return [[self picker] value_];
+}
+
 -(void)add:(id)args
 {
 	// TODO: Probably take advantage of Jeff's performance improvements in ordinary views.
