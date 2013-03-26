@@ -147,7 +147,8 @@ public class TableViewProxy extends TiViewProxy
 	}
 
 	@Override
-	public boolean fireEvent(String eventName, Object data) {
+	public boolean fireEvent(String eventName, Object data, boolean bubbles)
+	{
 		if (eventName.equals(TiC.EVENT_LONGPRESS) && (data instanceof HashMap)) {
 			// The data object may already be in use by the runtime thread
 			// due to a child view's event fire. Create a copy to be thread safe.
@@ -163,7 +164,7 @@ public class TableViewProxy extends TiViewProxy
 			}
 		}
 
-		return super.fireEvent(eventName, data);
+		return super.fireEvent(eventName, data, bubbles);
 	}
 
 	@Kroll.method
