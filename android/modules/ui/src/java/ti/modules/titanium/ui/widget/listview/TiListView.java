@@ -66,6 +66,7 @@ public class TiListView extends TiUIView {
 	 */
 	public static List<String> MUST_SET_PROPERTIES = Arrays.asList(TiC.PROPERTY_VALUE);
 	
+	public static final int MIN_ROW_HEIGHT = 50;
 	public static final int HEADER_FOOTER_ITEM_TYPE = 0;
 	public static final int BUILT_IN_TEMPLATE_ITEM_TYPE = 1;
 	

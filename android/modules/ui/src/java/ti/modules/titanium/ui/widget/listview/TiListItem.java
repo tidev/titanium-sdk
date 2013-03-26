@@ -39,22 +39,16 @@ public class TiListItem extends TiUIView {
 	public void processProperties(KrollDict d) {
 
 		if (d.containsKey(TiC.PROPERTY_ACCESSORY_TYPE)) {
-			int color = -1;
 			int accessory = TiConvert.toInt(d.get(TiC.PROPERTY_ACCESSORY_TYPE), -1);
-			if (d.containsKey(TiC.PROPERTY_BACKGROUND_COLOR) && accessory != UIModule.LIST_ACCESSORY_TYPE_NONE) {
-				color = TiConvert.toColor(d, TiC.PROPERTY_BACKGROUND_COLOR);
-			}
-			handleAccessory(accessory, color);
+			handleAccessory(accessory);
 		} 
-		
 		super.processProperties(d);
 	}
 
-	private void handleAccessory(int accessory, int color) {
+	private void handleAccessory(int accessory) {
+		
 		ImageView accessoryImage = (ImageView) listItemLayout.findViewById(TiListView.accessory);
-		if (color != -1) {
-			accessoryImage.setBackgroundColor(color);
-		}
+
 		switch(accessory) {
 
 			case UIModule.LIST_ACCESSORY_TYPE_CHECKMARK:

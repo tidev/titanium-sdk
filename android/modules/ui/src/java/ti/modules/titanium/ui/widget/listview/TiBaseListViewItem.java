@@ -16,6 +16,7 @@ import org.appcelerator.titanium.view.TiUIView;
 import android.content.Context;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
+import android.view.View.MeasureSpec;
 
 public class TiBaseListViewItem extends TiCompositeLayout{
 
@@ -29,6 +30,7 @@ public class TiBaseListViewItem extends TiCompositeLayout{
 	public TiBaseListViewItem(Context context, AttributeSet set) {
 		super(context, set);
 		setId(TiListView.listContentId);
+		setMinimumHeight(TiListView.MIN_ROW_HEIGHT);
 		viewsMap = new HashMap<String, ViewItem>();
 		viewItem = new ViewItem(null, new KrollDict());
 	}
@@ -51,6 +53,15 @@ public class TiBaseListViewItem extends TiCompositeLayout{
 			return viewItem.getView();
 		}
 		return null;
+	}
+	
+	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+		int h = MeasureSpec.getSize(heightMeasureSpec);
+		int hMode = MeasureSpec.getMode(heightMeasureSpec);
+		if (h < TiListView.MIN_ROW_HEIGHT && hMode == MeasureSpec.EXACTLY) {
+			h = TiListView.MIN_ROW_HEIGHT;
+		}
+		super.onMeasure(widthMeasureSpec, MeasureSpec.makeMeasureSpec(h, hMode));
 	}
 	
 }
