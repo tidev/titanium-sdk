@@ -148,18 +148,31 @@ public class TableViewProxy extends TiViewProxy
 
 	@Override
 	public boolean fireEvent(String eventName, Object data) {
-		if (eventName.equals(TiC.EVENT_LONGPRESS) && (data instanceof HashMap)) {
+		if ((data instanceof HashMap) && (eventName.equals(TiC.EVENT_LONGPRESS) || 
+			eventName.equals(TiC.EVENT_LONGCLICK) || 
+			eventName.equals(TiC.EVENT_CLICK) || 
+			eventName.equals(TiC.EVENT_SINGLE_TAP) || 
+			eventName.equals(TiC.EVENT_DOUBLE_TAP) || 
+			eventName.equals(TiC.EVENT_SWIPE) || 
+			eventName.equals(TiC.EVENT_TOUCH_START) || 
+			eventName.equals(TiC.EVENT_TOUCH_CANCEL) || 
+			eventName.equals(TiC.EVENT_TOUCH_END))) {
+
 			// The data object may already be in use by the runtime thread
 			// due to a child view's event fire. Create a copy to be thread safe.
 			@SuppressWarnings("unchecked")
-			KrollDict dataCopy = new KrollDict((HashMap<String, Object>) data);
-			double x = dataCopy.getDouble(TiC.PROPERTY_X);
-			double y = dataCopy.getDouble(TiC.PROPERTY_Y);
-			int index = getTableView().getTableView().getIndexFromXY(x, y);
-			if (index != -1) {
-				Item item = getTableView().getTableView().getItemAtPosition(index);
-				TableViewRowProxy.fillClickEvent(dataCopy, getTableView().getModel(), item);
-				data = dataCopy;
+			KrollDict dataCopy = new KrollDict((HashMap<String, Object>)data);
+			
+			TiViewProxy source = (TiViewProxy)dataCopy.get(TiC.EVENT_PROPERTY_SOURCE);
+			TiUIView view  = source.peekView();
+			if (view != null && view.getNativeView() != null)
+			{
+				int index = getTableView().getTableView().getPositionForView(view.getNativeView());
+				if (index != -1) {
+					Item item = getTableView().getTableView().getItemAtPosition(index);
+					TableViewRowProxy.fillClickEvent(dataCopy, getTableView().getModel(), item);
+					data = dataCopy;
+				}
 			}
 		}
 
