@@ -1,0 +1,13 @@
+{
+	"author": "Bryan Hughes <bhughes@appcelerator.com>",
+	"name": "timob-mobileweb-dependency-analyzer",
+	"version": "0.1.0",
+	"main": "dependencyAnalyzer.js",
+	"dependencies": {
+		"uglify-js": ">=1.3.3",
+		"wrench": "1.3.x"
+	},
+	"engines": {
+		"node": ">=0.6.6"
+	}
+}

@@ -96,6 +96,10 @@ if ARGUMENTS.get('tizen',0):
 	build_type='tizen'
 	build_dirs=['tizen']
 
+if ARGUMENTS.get('ivi',0):
+	build_type='ivi'
+	build_dirs=['ivi']
+
 if ARGUMENTS.get('force_iphone',0):
 	force_iphone = True
 
@@ -177,6 +181,16 @@ if build_type in ['full', 'tizen'] and not only_package:
 		finally:
 			os.chdir(d)
 
+if build_type in ['full', 'ivi'] and not only_package:
+	d = os.getcwd()
+	if os.path.exists('ivi'):
+		os.chdir('ivi')
+		try:
+			if clean: build_type = "clean"
+			# nothing to do... yet
+		finally:
+			os.chdir(d)
+
 def install_mobilesdk(version_tag):
 	if (platform.system() == "Darwin"):
 		os_names = { "Windows":"win32", "Linux":"linux", "Darwin":"osx" }
@@ -193,15 +207,16 @@ def package_sdk(target, source, env):
 	mobileweb = build_type in ['full', 'mobileweb']
 	blackberry = build_type in ['full', 'blackberry']
 	tizen = build_type in ['full', 'tizen']
+	ivi = build_type in ['full', 'ivi']
 	package_all = ARGUMENTS.get('package_all', 0)
 	version_tag = ARGUMENTS.get('version_tag', version)
 	build_jsca = int(ARGUMENTS.get('build_jsca', 1))
 	print "Packaging MobileSDK (%s)..." % version_tag
 	packager = package.Packager(build_jsca=build_jsca)
 	if package_all:
-		packager.build_all_platforms(os.path.abspath('dist'), version, module_apiversion, android, iphone, ipad, mobileweb, blackberry, tizen, version_tag, node_appc_branch)
+		packager.build_all_platforms(os.path.abspath('dist'), version, module_apiversion, android, iphone, ipad, mobileweb, blackberry, tizen, ivi, version_tag, node_appc_branch)
 	else:
-		packager.build(os.path.abspath('dist'), version, module_apiversion, android, iphone, ipad, mobileweb, blackberry, tizen, version_tag, node_appc_branch)
+		packager.build(os.path.abspath('dist'), version, module_apiversion, android, iphone, ipad, mobileweb, blackberry, tizen, ivi, version_tag, node_appc_branch)
 	if install and not clean:
 		install_mobilesdk(version_tag)
 
