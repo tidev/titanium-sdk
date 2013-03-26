@@ -41,10 +41,6 @@
 	ENSURE_SINGLE_ARG_OR_NIL(args,NSDictionary);
 	[self rememberSelf];
 	ENSURE_UI_THREAD(show, args);
-	if (![NSThread isMainThread]) {
-		TiThreadPerformOnMainThread(^{[self show:args];}, YES);
-		return;
-	}	
 	BOOL animated = [TiUtils boolValue:@"animated" properties:args def:YES];
 
 	TiViewProxy* view = [args objectForKey:@"view"];
