@@ -10,6 +10,7 @@ package ti.modules.titanium.ui.widget.listview;
 import java.util.HashMap;
 
 import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.titanium.TiDimension;
 import org.appcelerator.titanium.view.TiCompositeLayout;
 import org.appcelerator.titanium.view.TiUIView;
 
@@ -22,6 +23,7 @@ public class TiBaseListViewItem extends TiCompositeLayout{
 
 	private HashMap<String, ViewItem> viewsMap;
 	private ViewItem viewItem;
+	private int minHeight;
 	public TiBaseListViewItem(Context context) {
 		super(context);
 		viewsMap = new HashMap<String, ViewItem>();
@@ -30,7 +32,9 @@ public class TiBaseListViewItem extends TiCompositeLayout{
 	public TiBaseListViewItem(Context context, AttributeSet set) {
 		super(context, set);
 		setId(TiListView.listContentId);
-		setMinimumHeight(TiListView.MIN_ROW_HEIGHT);
+		TiDimension heightDimension = new TiDimension(TiListView.MIN_ROW_HEIGHT, TiDimension.TYPE_UNDEFINED);
+		minHeight = heightDimension.getAsPixels(this);
+		setMinimumHeight(minHeight);
 		viewsMap = new HashMap<String, ViewItem>();
 		viewItem = new ViewItem(null, new KrollDict());
 	}
@@ -58,8 +62,8 @@ public class TiBaseListViewItem extends TiCompositeLayout{
 	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
 		int h = MeasureSpec.getSize(heightMeasureSpec);
 		int hMode = MeasureSpec.getMode(heightMeasureSpec);
-		if (h < TiListView.MIN_ROW_HEIGHT && hMode == MeasureSpec.EXACTLY) {
-			h = TiListView.MIN_ROW_HEIGHT;
+		if (h < minHeight && hMode == MeasureSpec.EXACTLY) {
+			h = minHeight;
 		}
 		super.onMeasure(widthMeasureSpec, MeasureSpec.makeMeasureSpec(h, hMode));
 	}
