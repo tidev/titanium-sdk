@@ -84,36 +84,38 @@ public class PropertiesModule extends KrollModule {
 	}
 	
 	@Kroll.method
-	public void setBool(String key, boolean value)
+	public void setBool(String key, Boolean value)
 	{
 		Object boolValue = getPreferenceValue(key);
-		if (boolValue == null || !boolValue.equals(value)) {
-			appProperties.setBool(key, value);
+		boolean valueToSet = (value != null) ? value.booleanValue() : false;
+		if (boolValue == null || !boolValue.equals(valueToSet)) {
+			appProperties.setBool(key, valueToSet);
 			fireEvent(TiC.EVENT_CHANGE, null);
 		}
-		
 
 	}
 
 	@Kroll.method
-	public void setDouble(String key, double value)
+	public void setDouble(String key, Double value)
 	{
 		Object doubleValue = getPreferenceValue(key);
-		//Since there is no double type in SharedPreferences, we store doubles as strings, i.e "10.0"
-		//so we need to convert before comparing.
-		if (doubleValue == null || !doubleValue.equals(String.valueOf(value))) {
-			appProperties.setDouble(key, value);
+		double valueToSet = (value != null) ? value.doubleValue() : 0;
+		// Since there is no double type in SharedPreferences, we store doubles as strings, i.e "10.0"
+		// so we need to convert before comparing.
+		if (doubleValue == null || !doubleValue.equals(String.valueOf(valueToSet))) {
+			appProperties.setDouble(key, valueToSet);
 			fireEvent(TiC.EVENT_CHANGE, null);
 		}
 
 	}
 
 	@Kroll.method
-	public void setInt(String key, int value)
+	public void setInt(String key, Integer value)
 	{
 		Object intValue = getPreferenceValue(key);
-		if (intValue == null || !intValue.equals(value)) {
-			appProperties.setInt(key, value);
+		int valueToSet = (value != null) ? value.intValue() : 0;
+		if (intValue == null || !intValue.equals(valueToSet)) {
+			appProperties.setInt(key, valueToSet);
 			fireEvent(TiC.EVENT_CHANGE, null);
 		}
 
