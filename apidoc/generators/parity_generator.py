@@ -4,6 +4,7 @@
 # Licensed under the Apache Public License (version 2)
 
 import os, sys, re
+from common import DEFAULT_PLATFORMS, pretty_platform_name
 
 this_dir = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.abspath(os.path.join(this_dir, "..")))
@@ -23,30 +24,9 @@ def is_special_toplevel_type(one_type):
 			return True
 	return False
 
-def has_ancestor(one_type, ancestor_name):
-	if one_type["name"] == ancestor_name:
-		return True
-	if "extends" in one_type and one_type["extends"] == ancestor_name:
-		return True
-	elif "extends" not in one_type:
-		if ancestor_name in special_toplevel_types:
-			# special case for "Global" and "Modules" types - they do not have @extends statement
-			return one_type["name"].find(ancestor_name) == 0
-		return False
-	else:
-		parent_type_name = one_type["extends"]
-		if (parent_type_name is None or not isinstance(parent_type_name, basestring) or
-			parent_type_name.lower() == "object"):
-			return False
-		if not parent_type_name in apis:
-			log.warn("%s extends %s but %s type information not found" % (one_type["name"],
-																		  parent_type_name, parent_type_name))
-			return False
-		return has_ancestor(apis[parent_type_name], ancestor_name)
-
 def get_platforms_available(platforms):
 	res = ""
-	for platform in ( "android", "iphone", "ipad", "mobileweb" ):
+	for platform in DEFAULT_PLATFORMS:
 		if any(platform == p["name"] for p in platforms):
 			res = res + "\t<td class=\"yes\">YES</td>\n"
 		else:
@@ -85,9 +65,8 @@ def generate(raw_apis, annotated_apis, options):
 		output.write("<tr>\n")
 		output.write("<th></th>\n")
 		
-		platform_names = { "android": "Android", "iphone": "iPhone", "ipad": "iPad", "mobileweb": "Mobile Web" }
-		for platform in ( "android", "iphone", "ipad", "mobileweb" ):
-			output.write("\t<th>%s</th>\n" % platform_names[platform])	
+		for platform in DEFAULT_PLATFORMS:
+			output.write("\t<th>%s</th>\n" % pretty_platform_name(platform))	
 		output.write("</tr>\n")
 
 		api_names = annotated_apis.keys()
@@ -97,7 +76,7 @@ def generate(raw_apis, annotated_apis, options):
 			
 			pseudo_text = ""
 			class_type = "normal_type"
-			if not (has_ancestor(raw_apis[name], "Titanium.Proxy") or is_special_toplevel_type(raw_apis[name])):
+			if annotated_obj.is_pseudotype and not is_special_toplevel_type(raw_apis[name]):
 				pseudo_text = "(<i>pseudotype</i>)"
 				class_type = "pseudo_type"
 			
