@@ -681,8 +681,15 @@ public class TiCompositeLayout extends ViewGroup
 		}
 		horiztonalLayoutPreviousRight = (optionRight == null) ? 0 : optionRight.getAsPixels(this);
 
-		int right = left + measuredWidth;
-		if (enableHorizontalWrap && ((right + horiztonalLayoutPreviousRight) > layoutRight)) {
+		int right;
+		// If it's fill width with horizontal wrap, just take up remaining space.
+		if(enableHorizontalWrap && params.autoFillsWidth && params.sizeOrFillWidthEnabled) {
+			right = measuredWidth;
+		} else {
+			right = left + measuredWidth;
+		}
+
+		if (enableHorizontalWrap && ((right + horiztonalLayoutPreviousRight) > layoutRight || left >= layoutRight)) {
 			// Too long for the current "line" that it's on. Need to move it down.
 			left = optionLeftValue;
 			right = measuredWidth + left;
