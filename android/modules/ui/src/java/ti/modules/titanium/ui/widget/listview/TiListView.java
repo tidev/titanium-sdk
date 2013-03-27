@@ -21,6 +21,7 @@ import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiRHelper;
 import org.appcelerator.titanium.util.TiRHelper.ResourceNotFoundException;
+import org.appcelerator.titanium.view.TiCompositeLayout.LayoutParams;
 import org.appcelerator.titanium.view.TiUIView;
 
 import ti.modules.titanium.ui.UIModule;
@@ -66,6 +67,7 @@ public class TiListView extends TiUIView {
 	 */
 	public static List<String> MUST_SET_PROPERTIES = Arrays.asList(TiC.PROPERTY_VALUE);
 	
+	public static final String MIN_ROW_HEIGHT = "30dp";
 	public static final int HEADER_FOOTER_ITEM_TYPE = 0;
 	public static final int BUILT_IN_TEMPLATE_ITEM_TYPE = 1;
 	
@@ -144,6 +146,9 @@ public class TiListView extends TiUIView {
 			} else {
 				content = inflater.inflate(listItemId, null);
 				TiBaseListViewItem itemContent = (TiBaseListViewItem) content.findViewById(listContentId);
+				LayoutParams params = new LayoutParams();
+				params.autoFillsWidth = true;
+				itemContent.setLayoutParams(params);
 				section.generateCellContent(sectionIndex, data, template, itemContent, sectionItemIndex, content);
 			}
 			return content;
