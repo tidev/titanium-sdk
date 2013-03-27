@@ -212,6 +212,14 @@ USE_PROXY_FOR_VERIFY_AUTORESIZING
 	}
 }
 
+- (id)value_
+{
+	if ([self isDatePicker] && ([(UIDatePicker*)picker datePickerMode] != UIDatePickerModeCountDownTimer)) {
+		return [(UIDatePicker*)[self picker] date];
+	}
+	return nil;
+}
+
 -(void)setLocale_:(id)value
 {
 	ENSURE_SINGLE_ARG_OR_NIL(value,NSString);
