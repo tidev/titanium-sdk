@@ -214,7 +214,7 @@ USE_PROXY_FOR_VERIFY_AUTORESIZING
 
 - (id)value_
 {
-	if ([self isDatePicker]) {
+	if ([self isDatePicker] && ([(UIDatePicker*)picker datePickerMode] != UIDatePickerModeCountDownTimer)) {
 		return [(UIDatePicker*)[self picker] date];
 	}
 	return nil;
