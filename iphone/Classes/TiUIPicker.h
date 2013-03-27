@@ -18,6 +18,8 @@
 	BOOL propertiesConfigured; // We're order-dependent on type being configured first, so have to re-configure after the initial setup.  What a pain!
 }
 
+@property (nonatomic, readonly, copy) id value_;
+
 -(NSArray*)columns;
 -(void)reloadColumn:(id)column;
 -(TiProxy*)selectedRowForColumn:(NSInteger)column;
