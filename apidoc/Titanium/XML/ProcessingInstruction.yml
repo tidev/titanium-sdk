@@ -7,7 +7,7 @@ summary: A way to keep processor-specific information in the text of the documen
     [DOM Level 3 API](http://www.w3.org/TR/DOM-Level-3-Core/core.html#ID-1004215813) implementation on Mobile Web.
 since: "0.9"
 createable: false
-platforms: [android, iphone, ipad, mobileweb]
+platforms: [android, iphone, ipad, mobileweb, tizen]
 properties:
   - name: data
     summary: >

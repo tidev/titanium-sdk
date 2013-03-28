@@ -5,12 +5,12 @@ summary: |
 description: |
     The Email Dialog is created by <Titanium.UI.createEmailDialog>.
     
-    On Mobile Web, the `to` addresses, `cc` addresses, `bcc` addresses, `subject`, and `body` are 
+    On Mobile Web and Tizen, the `to` addresses, `cc` addresses, `bcc` addresses, `subject`, and `body` are 
     appended together and formatted into a `mailto:` URL. This URL typically has a limit of 
     approximately 2000 characters.
 extends: Titanium.Proxy
 since: "0.8"
-platforms: [android, iphone, ipad, mobileweb]
+platforms: [android, iphone, ipad, mobileweb, tizen]
 
 methods:
   - name: addAttachment
@@ -45,7 +45,7 @@ events:
   - name: complete
     summary: Fired when this email dialog has completed sending an email.
     description: |
-        On Mobile Web, as the platform cannot determine whether a message has been sent or not, 
+        On Mobile Web and Tizen, as the platform cannot determine whether a message has been sent or not, 
         this event fires immediately after calling open() and always reports success.
     properties:
       - name: success
@@ -121,7 +121,7 @@ properties:
         [messageBody](Titanium.UI.EmailDialog.messageBody), should be sent as HTML content type 
         rather than plain text.
     description: |
-        On Mobile Web, while iPhone and iPad properly interpret HTML messages, some email clients, 
+        On Mobile Web and Tizen, while iPhone and iPad properly interpret HTML messages, some email clients, 
         especially those for the desktop, do not support them.
     type: Boolean
     default: false
