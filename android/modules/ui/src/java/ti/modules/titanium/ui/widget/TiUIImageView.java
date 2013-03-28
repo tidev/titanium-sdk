@@ -776,7 +776,8 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 			}
 			if (changeImage) {
 				// Check for orientation and decodeRetries only if an image is specified
-				if (d.containsKey(TiC.PROPERTY_AUTOROTATE)) {
+				Object autoRotate = d.get(TiC.PROPERTY_AUTOROTATE);
+				if (autoRotate != null && TiConvert.toBoolean(autoRotate)) {
 					view.setOrientation(source.getOrientation());
 				}
 				if (d.containsKey(TiC.PROPERTY_DECODE_RETRIES)) {
