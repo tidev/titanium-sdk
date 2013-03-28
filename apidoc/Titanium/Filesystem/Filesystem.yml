@@ -3,7 +3,7 @@ name: Titanium.Filesystem
 summary: The top level filesystem module, used to access files and directories on the device.
 extends: Titanium.Module
 since: "0.1"
-platforms: [android, iphone, ipad, mobileweb]
+platforms: [android, iphone, ipad, mobileweb, tizen]
 methods:
   - name: createTempDirectory
     summary: Creates a temporary directory and returns a [File](Titanium.Filesystem.File) object representing the new directory.
@@ -54,7 +54,7 @@ methods:
         Returns `true` on Android if an external storage device, such as an SD card, is
         available for reading and writing.
 
-        Returns `false` on iOS and Mobile Web.
+        Returns `false` on iOS, Mobile Web and Tizen.
     returns:
         type: Boolean
   - name: openStream

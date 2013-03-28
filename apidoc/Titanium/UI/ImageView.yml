@@ -43,22 +43,22 @@ methods:
         to appear on top of it.
 
         See also: <Titanium.UI.View.add>.
-    platforms: [iphone, ipad, mobileweb]
+    platforms: [iphone, ipad, mobileweb, tizen]
 
   - name: pause
     summary: Pauses a running animation. Use `resume` method to continue.
     description:  This method only works if multiple images are specified.
-    platforms: [android, iphone, ipad, mobileweb]
+    platforms: [android, iphone, ipad, mobileweb, tizen]
 
   - name: remove
     description: |
         See also: [add](Titanium.UI.ImageView.add), <Titanium.UI.View.add>.
-    platforms: [iphone, ipad, mobileweb]
+    platforms: [iphone, ipad, mobileweb, tizen]
     
   - name: resume
     summary: Resumes an animation from a `pause` state.
     description:  This method only works if multiple images are specified.
-    platforms: [android, iphone, ipad, mobileweb]
+    platforms: [android, iphone, ipad, mobileweb, tizen]
     
   - name: start
     summary: |
@@ -120,21 +120,21 @@ events:
 
   - name: pause
     summary: Fired when the animation pauses.
-    platforms: [android, iphone, ipad, mobileweb]
+    platforms: [android, iphone, ipad, mobileweb, tizen]
     since: { android: "2.1.1" }
 properties:
   - name: animating
     summary: |
         Indicates whether animation is running.
     type: Boolean
-    default: false on creation, true on load (Android), false (iPhone, iPad, Mobile Web)
+    default: false on creation, true on load (Android), false (iPhone, iPad, Mobile Web, Tizen)
     permission: read-only
   
   - name: autorotate
     summary: |
         Indicates whether the image should be rotated based on exif orientation data. 
         By default, this is false on android and true on iOS. 
-        The auto rotate behavior is not supported on Mobile Web.
+        The auto rotate behavior is not supported on Mobile Web and Tizen.
     type: Boolean
     default: false on android, true on iOS. 
     availability: creation
@@ -152,7 +152,7 @@ properties:
   - name: defaultImage
     summary: Local path to the default image to display while loading a remote image.
     type: String
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, tizen]
     
   - name: duration
     summary: Amount of time in milliseconds to animate one cycle.
@@ -163,7 +163,7 @@ properties:
         started, duration will be set to the number of images multiplied by 33 ms. If no images 
         are assigned, duration will be set to 100 ms.
         
-        On iOS and Mobile Web, prior to release 2.1.1, the default is 30 ms.
+        On iOS, Tizen and Mobile Web, prior to release 2.1.1, the default is 30 ms.
 
         On Android, if the value of duration is changed, [stop](Titanium.UI.ImageView.stop)
         and [start](Titanium.UI.ImageView.start) need to be called for the new value to take effect.
