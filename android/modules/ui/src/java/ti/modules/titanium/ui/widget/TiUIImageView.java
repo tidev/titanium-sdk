@@ -883,6 +883,9 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 			Drawable drawable = view.getImageDrawable();
 			if (drawable != null && drawable instanceof BitmapDrawable) {
 				Bitmap bitmap = ((BitmapDrawable) drawable).getBitmap();
+				if (bitmap == null && imageSources != null && imageSources.size() == 1) {
+					bitmap = imageSources.get(0).getBitmap(true);
+				}
 				return bitmap == null ? null : TiBlob.blobFromImage(bitmap);
 			}
 		}
