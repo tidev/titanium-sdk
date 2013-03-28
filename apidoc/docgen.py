@@ -9,7 +9,7 @@
 import os, sys, traceback
 import re, optparse
 import generators
-from common import lazyproperty, dict_has_non_empty_member, not_real_titanium_types
+from common import lazyproperty, dict_has_non_empty_member, not_real_titanium_types, DEFAULT_PLATFORMS, pretty_platform_name, first_version_for_platform
 
 try:
 	import yaml
@@ -34,9 +34,7 @@ sys.path.append(android_support_dir)
 from tilogger import *
 log = TiLogger(None)
 
-DEFAULT_PLATFORMS = ["android", "iphone", "ipad", "mobileweb"]
 DEFAULT_SINCE = "0.8"
-DEFAULT_MOBILEWEB_SINCE = "1.8"
 apis = {} # raw conversion from yaml
 annotated_apis = {} # made friendlier for templates, etc.
 current_api = None
@@ -68,19 +66,6 @@ def is_titanium_module(one_type):
 def is_titanium_proxy(one_type):
 	# When you use this, don't forget that modules are also proxies
 	return has_ancestor(one_type, "Titanium.Proxy")
-
-# iphone -> iPhone, etc.
-def pretty_platform_name(name):
-	if name.lower() == "iphone":
-		return "iPhone"
-	if name.lower() == "ipad":
-		return "iPad"
-	if name.lower() == "blackberry":
-		return "Blackberry"
-	if name.lower() == "android":
-		return "Android"
-	if name.lower() == "mobileweb":
-		return "Mobile Web"
 
 def combine_platforms_and_since(annotated_obj):
 	parent = annotated_obj.parent
@@ -114,18 +99,19 @@ def combine_platforms_and_since(annotated_obj):
 	since_is_dict = isinstance(since, dict)
 	for name in platforms:
 		one_platform = {"name": name, "pretty_name": pretty_platform_name(name)}
+		min_since = first_version_for_platform(one_platform["name"])
 		if not since_is_dict:
 			one_platform["since"] = since
-			if one_platform["name"] == "mobileweb":
+			if min_since is not None:
 				if len(since) >= 3:
-					if float(since[0:3]) < float(DEFAULT_MOBILEWEB_SINCE[0:3]):
-						one_platform["since"] = DEFAULT_MOBILEWEB_SINCE
+					if float(since[0:3]) < float(min_since):
+						one_platform["since"] = min_since
 		else:
 			if name in since:
 				one_platform["since"] = since[name]
 			else:
-				if one_platform["name"] == "mobileweb":
-					one_platform["since"] = DEFAULT_MOBILEWEB_SINCE
+				if min_since is not None:
+					one_platform["since"] = min_since
 				else:
 					one_platform["since"] = DEFAULT_SINCE
 		result.append(one_platform)
@@ -161,13 +147,16 @@ def load_one_yaml(filepath):
 			except:
 				pass
 
-def generate_output(options):
+def load_generators(options):
 	for output_type in options.formats.split(","):
 		try:
 			__import__("generators.%s_generator" % output_type)
 		except:
 			log.error("Output format %s is not recognized" % output_type)
 			sys.exit(1)
+
+def generate_output(options):
+	for output_type in options.formats.split(","):
 		if annotated_apis is None or len(annotated_apis) == 0:
 			annotate_apis()
 		generator = getattr(generators, "%s_generator" % output_type)
@@ -315,6 +304,7 @@ class AnnotatedProxy(AnnotatedApi):
 	def __init__(self, api_obj):
 		AnnotatedApi.__init__(self, api_obj)
 		self.typestr = "proxy"
+		self.is_pseudotype = not is_titanium_proxy(api_obj)
 
 	@classmethod
 	def render_getter_method(cls, getter_template_obj):
@@ -337,7 +327,7 @@ class AnnotatedProxy(AnnotatedApi):
 		if dict_has_non_empty_member(self.api_obj, "methods"):
 			methods = [AnnotatedMethod(m, self) for m in self.api_obj["methods"]]
 		# Not for "pseudo-types"
-		if is_titanium_proxy(self.api_obj):
+		if not self.is_pseudotype:
 			self.append_setters_getters(methods)
 			self.append_inherited_methods(methods)
 		return sorted(methods, key=lambda item: item.name)
@@ -637,6 +627,7 @@ def main():
 		log.trace("Setting output folder to %s because html files will be generated and now --output folder was specified" % dist_apidoc_dir)
 		options.output = dist_apidoc_dir
 
+	load_generators(options)
 	source_dirs = [ this_dir ] + args
 	process_yaml(source_dirs)
 	finish_partial_overrides()
