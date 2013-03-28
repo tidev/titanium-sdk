@@ -357,6 +357,21 @@ def zip_tizen(zf, basepath, version):
 			to_ = from_.replace(dir, os.path.join(basepath,'tizen'), 1)
 			zf.write(from_, to_)
 
+def zip_ivi(zf, basepath, version):
+	dir = os.path.join(top_dir, 'ivi')
+
+	# for speed, mobileweb has its own zip logic
+	for root, dirs, files in os.walk(dir):
+		for name in ignoreDirs:
+			if name in dirs:
+				dirs.remove(name)
+		for file in files:
+			e = os.path.splitext(file)
+			if len(e)==2 and e[1] in ignoreExtensions: continue
+			from_ = os.path.join(root, file)
+			to_ = from_.replace(dir, os.path.join(basepath,'ivi'), 1)
+			zf.write(from_, to_)
+
 def resolve_npm_deps(dir, version, node_appc_branch):
 	package_json_file = os.path.join(dir, 'package.json')
 	if os.path.exists(package_json_file):
@@ -526,6 +541,7 @@ githash=%s
 	if mobileweb: zip_mobileweb(zf, basepath, version)
 	if blackberry: zip_blackberry(zf, basepath, version)
 	if tizen: zip_tizen(zf, basepath, version)
+	if ivi: zip_ivi(zf, basepath, version)
 	if osname == 'win32': zip_dir(zf, win32_dir, basepath)
 
 	zf.close()
