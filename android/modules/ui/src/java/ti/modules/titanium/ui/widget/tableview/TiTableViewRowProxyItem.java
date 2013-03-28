@@ -7,7 +7,6 @@
 package ti.modules.titanium.ui.widget.tableview;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.common.Log;
@@ -79,7 +78,9 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 	public void setRowData(Item item) {
 		this.item = item;
 		TableViewRowProxy rp = getRowProxy();
-		rp.setTableViewItem(this);
+		if (this != rp.getTableViewRowProxyItem()) {
+			rp.setTableViewItem(this);
+		}
 		setRowData(rp);
 	}
 
@@ -101,49 +102,123 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 		views.add(newViewProxy.getOrCreateView());
 		return label;
 	}
+	
+	/*
+	 * Check if the two proxies are compatible outerView wise
+	 */
+	private boolean checkBorderProps(TiViewProxy oldProxy, TiViewProxy newProxy){
+		KrollDict oldProperties = oldProxy.getProperties();
+		KrollDict newProperties = newProxy.getProperties();
+		boolean oldHasBorder = oldProperties.containsKeyAndNotNull(TiC.PROPERTY_BORDER_COLOR) 
+				|| oldProperties.containsKeyAndNotNull(TiC.PROPERTY_BORDER_RADIUS)
+				|| oldProperties.containsKeyAndNotNull(TiC.PROPERTY_BORDER_WIDTH);
+		boolean newHasBorder = newProperties.containsKeyAndNotNull(TiC.PROPERTY_BORDER_COLOR) 
+				|| newProperties.containsKeyAndNotNull(TiC.PROPERTY_BORDER_RADIUS)
+				|| newProperties.containsKeyAndNotNull(TiC.PROPERTY_BORDER_WIDTH);;
+		
+		if (oldHasBorder == newHasBorder) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+	
+	/*
+	 * Check the view heirarchy
+	 */
+	private boolean checkViewHeirarchy(TiViewProxy oldProxy, TiViewProxy newProxy){
+		if (oldProxy == newProxy){
+			return true;
+		}
+		if(oldProxy.getClass() != newProxy.getClass()) {
+			//Check for type
+			return false;
+		} else if (!checkBorderProps(oldProxy, newProxy)) {
+			//Ensure they have same outerview
+			return false;
+		} else {
+			//Check children recursively
+			TiViewProxy[] oldChildren = oldProxy.getChildren();
+			TiViewProxy[] newChildren = newProxy.getChildren();
+			if (oldChildren.length != newChildren.length) {
+				return false;
+			} else {
+				int len = oldChildren.length;
+				for (int i=0;i<len;i++) {
+					if (!checkViewHeirarchy(oldChildren[i],newChildren[i])) {
+						return false;
+					}
+				}
+			}
+		}
+		//ok, all passed. Return true
+		return true;
+	}
+	
+	/*
+	 * Check if views can be reused. 
+	 */
+	private boolean canUseExistingViews(ArrayList<TiViewProxy> proxies){
+		
+		int len = proxies.size();
+		if(views != null && views.size() == len) {
+			for (int i=0;i<len;i++) {
+				TiUIView view = views.get(i);
+				if (view.getProxy() == null) {
+					return false;
+				} else if (!checkViewHeirarchy(view.getProxy(), proxies.get(i))) {
+					return false;
+				}
+			}
+			return true;
+		} 
+		
+		return false;
+	}
 
 	protected void refreshControls()
 	{
-		ArrayList<TiViewProxy> proxies = getRowProxy().getControls();
+		TableViewRowProxy parent = getRowProxy();
+		ArrayList<TiViewProxy> proxies = parent.getControls();
 		int len = proxies.size();
-
-		if (views == null) {
-			views = new ArrayList<TiUIView>(len);
-		} else if (views.size() != len) {
-			for (TiUIView view : views) {
-				View v = view.getNativeView();
-				if (v != null && v.getParent().equals(content)) {
-					content.removeView(v);
-				}
+		if (!canUseExistingViews(proxies)) {
+			content.removeAllViews();
+			if(views == null) {
+				views = new ArrayList<TiUIView>(len);
+			} else {
+				views.clear();
 			}
-			views = new ArrayList<TiUIView>(len);
-		}
-
-		for (int i = 0; i < len; i++) {
-			TiUIView view = views.size() > i ? views.get(i) : null;
-			TiViewProxy proxy = proxies.get(i);
-			if (view != null && view.getProxy() instanceof TableViewRowProxy) {
-				proxy = addViewToOldRow(i, view, proxy);
-				len++;
-			}
-			if (view == null) {
-				// In some cases the TiUIView for this proxy has been reassigned to another proxy
-				// We don't want to actually release it though, just reassign by creating a new view
-				view = proxy.forceCreateView();
+			
+			for (int i=0;i<len;i++){
+				TiViewProxy proxy = proxies.get(i);
 				clearChildViews(proxy);
-				if (i >= views.size()) {
-					views.add(view);
-				} else {
-					views.set(i, view);
+				TiUIView view = proxy.forceCreateView();
+				views.add(view);
+				View v = view.getOuterView();
+				if (v.getParent() == null) {
+					content.addView(v, view.getLayoutParams());
 				}
 			}
-
-			View v = view.getOuterView();
-			view.setProxy(proxy);
-			view.processProperties(proxy.getProperties());
-			applyChildProxies(proxy, view);
-			if (v.getParent() == null) {
-				content.addView(v, view.getLayoutParams());
+		} else {
+			//Ok the top level containers are the same. 
+			//Transfer over the views and modelListeners from the old proxy to the new proxy
+			for (int i=0;i<len;i++) {
+				TiUIView view = views.get(i);
+				TiViewProxy oldProxy = view.getProxy();
+				TiViewProxy newProxy = proxies.get(i);
+				
+				if (oldProxy != newProxy) {
+					oldProxy.setView(null);
+					oldProxy.setModelListener(null);
+					newProxy.setView(view);
+					view.setProxy(newProxy);
+					view.setParent(parent);
+					view.processProperties(newProxy.getProperties());
+					//Need to apply child properties.
+					applyChildProxies(newProxy, view);
+					//We'll do this last
+					newProxy.setModelListener(view);
+				}
 			}
 		}
 	}
@@ -163,7 +238,9 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 		for (TiUIView childView : view.getChildren()) {
 			TiViewProxy childProxy = childProxies[i];
 			childView.setProxy(childProxy);
+			childView.setParent(viewProxy);
 			childView.processProperties(childProxy.getProperties());
+			childProxy.setModelListener(childView);
 			applyChildProxies(childProxy, childView);
 			i++;
 		}
@@ -213,7 +290,7 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 		// Handle right image
 		boolean clearRightImage = true;
 		// It's one or the other, check or child.  If you set them both, child's gonna win.
-		HashMap props = rp.getProperties();
+		KrollDict props = rp.getProperties();
 		if (props.containsKey(TiC.PROPERTY_HAS_CHECK)) {
 			if (TiConvert.toBoolean(props, TiC.PROPERTY_HAS_CHECK)) {
 				if (hasCheckDrawable == null) {
@@ -366,7 +443,9 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 		top = 0;
 
 		int height = bottom - top;
-
+		
+		getRowProxy().setTableViewItem(this);
+		
 		if (leftImage != null && leftImage.getVisibility() != GONE) {
 			int w = leftImage.getMeasuredWidth();
 			int h = leftImage.getMeasuredHeight();
