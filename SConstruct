@@ -69,7 +69,7 @@ if clean and os.path.exists('iphone/iphone/build'):
 	shutil.rmtree('iphone/iphone/build')
 
 build_type = 'full'
-build_dirs = ['iphone', 'android', 'mobileweb', 'blackberry', 'tizen']
+build_dirs = ['iphone', 'android', 'mobileweb', 'blackberry', 'tizen', 'ivi']
 force_iphone = False
 
 if ARGUMENTS.get('iphone',0):
