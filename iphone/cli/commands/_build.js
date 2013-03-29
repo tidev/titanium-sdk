@@ -1332,10 +1332,10 @@ build.prototype = {
 			namespace = this.scrubName(this.tiapp.name),
 			copyFileRegExps = [
 				// note: order of regexps matters
+				[/TitaniumViewController/g, namespace + '$ViewController'],
 				[/TitaniumModule/g, namespace + '$Module'],
 				[/Titanium|Appcelerator/g, namespace],
 				[/titanium/g, '_' + namespace.toLowerCase()],
-				[new RegExp(namespace + '(' + namespace + '\\$?Module)', 'g'), '$1'],
 				[/(org|com)\.appcelerator/g, '$1.' + namespace.toLowerCase()],
 				[new RegExp('\\* ' + namespace + ' ' + namespace + ' Mobile', 'g'), '* Appcelerator Titanium Mobile'],
 				[new RegExp('\\* Copyright \\(c\\) \\d{4}(-\\d{4})? by ' + namespace + ', Inc\\.', 'g'), '* Copyright (c) 2009-' + (new Date).getFullYear() + ' by Appcelerator, Inc.'],
