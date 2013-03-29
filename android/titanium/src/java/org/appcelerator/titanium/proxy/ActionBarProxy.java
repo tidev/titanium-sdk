@@ -228,9 +228,9 @@ public class ActionBarProxy extends KrollProxy
 			case MSG_DISPLAY_HOME_AS_UP:
 				handlesetDisplayHomeAsUp(msg.getData().getBoolean(SHOW_HOME_AS_UP));
 				return true;
-                       case MSG_SET_NAVIGATION_MODE:
+			case MSG_SET_NAVIGATION_MODE:
 				handlesetNavigationMode(msg.getData().getInt(NAVIGATION_MODE));
-                                return true;
+				return true;
 			case MSG_SET_BACKGROUND_IMAGE:
 				handleSetBackgroundImage(msg.getData().getString(BACKGROUND_IMAGE));
 				return true;
