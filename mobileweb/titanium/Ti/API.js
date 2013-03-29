@@ -39,7 +39,7 @@ define(["Ti/_/Evented", "Ti/_/lang"], function(Evented, lang) {
 	}
 
 	api.log = function () {
-		var a = Array.prototype.slice.call(arguments);
+		var a = lang.toArray(arguments);
 		var fn = ~afns.indexOf(('' + a[0]).toLowerCase()) && a.shift().toLowerCase();
 		api[fn||'info'].apply(this, a);
 	};
