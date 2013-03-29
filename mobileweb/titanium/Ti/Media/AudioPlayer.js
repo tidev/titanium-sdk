@@ -1,13 +1,13 @@
-define(['Ti/_/declare', 'Ti/_/Media/Player'], function(declare, Player) {
+define(['Ti/_/declare', 'Ti/_/Media/Audio'], function(declare, Audio) {
 	
 	var messageMap = [void 0, 'Aborted', 'Decode error', 'Network error', 'Unsupported format'],
 		stateMap = ['buffering', 'initialized', 'paused', 'playing', 'starting',
 					'stopped', 'stopping','waiting for data', 'waiting for queue'];
 	
-	return declare('Ti.Media.AudioPlayer', Player, {
+	return declare('Ti.Media.AudioPlayer', Audio, {
 		
-		_changeState: function(newState, msg) {
-			Player.prototype._changeState.apply(this, arguments);
+		_changeState: function(newState, description) {
+			Audio.prototype._changeState.apply(this, arguments);
 			
 			var cons = this.constants.__values__,
 				evt = {};
@@ -42,8 +42,8 @@ define(['Ti/_/declare', 'Ti/_/Media/Player'], function(declare, Player) {
 			progress = Math.floor(this._audio.currentTime * 1000);
 			this.fireEvent( 'progress', { 'progress': progress } );// external (interface) event
 			
-			Player.prototype._timeupdate.apply(this, arguments);
-		}
+			Audio.prototype._timeupdate.apply(this, arguments);
+		},
 		
 		_beforeInit: function() {
 			this._audio.volume = this.volume;
@@ -52,7 +52,7 @@ define(['Ti/_/declare', 'Ti/_/Media/Player'], function(declare, Player) {
 		_afterInit: function() {
 			//autoplay or _nextCmd()
 			if (this.autoplay || this._nextCmd === this.start) {
-				audio.play();
+				this._audio.play();
 			} else if ( this._nextCmd ) {
 				this._nextCmd();
 			}
