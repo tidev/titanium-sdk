@@ -401,7 +401,8 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 	 * Transfer an existing view to this view proxy.
 	 * Special use in tableView. Do not use anywhere else.
 	 * Called from TiTableViewRowProxyItem.java
-	 * @param view
+	 * @param transferview - The view to transfer
+	 * @param oldProxy - The currentProxy of the view
 	 */
 	public void transferView(TiUIView transferview, TiViewProxy oldProxy) {
 		if(oldProxy != null) {
