@@ -33,6 +33,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.FrameLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -55,7 +56,6 @@ public class TiListView extends TiUIView {
 	private int titleId;
 	private View headerView;
 	private View footerView;
-	
 	private static final String TAG = "TiListView";
 	
 	/* We cache properties that already applied to the recycled list tiem in ViewItem.java
@@ -70,6 +70,61 @@ public class TiListView extends TiUIView {
 	public static final String MIN_ROW_HEIGHT = "30dp";
 	public static final int HEADER_FOOTER_ITEM_TYPE = 0;
 	public static final int BUILT_IN_TEMPLATE_ITEM_TYPE = 1;
+	
+	class ListViewWrapper extends FrameLayout {
+
+		public ListViewWrapper(Context context) {
+			super(context);
+		}
+		
+		@Override
+		protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
+			// To prevent undesired "focus" and "blur" events during layout caused
+			// by ListView temporarily taking focus, we will disable focus events until
+			// layout has finished.
+			// First check for a quick exit. listView can be null, such as if window closing.
+			if (listView == null) {
+				super.onLayout(changed, left, top, right, bottom);
+				return;
+			}
+			OnFocusChangeListener focusListener = null;
+			View focusedView = listView.findFocus();
+			if (focusedView != null) {
+				OnFocusChangeListener listener = focusedView.getOnFocusChangeListener();
+				if (listener != null && listener instanceof TiUIView) {
+					focusedView.setOnFocusChangeListener(null);
+					focusListener = listener;
+				}
+			}
+			
+			//We are temporarily going to block focus to descendants 
+			//because LinearLayout on layout will try to find a focusable descendant
+			if (focusedView != null) {
+				listView.setDescendantFocusability(ViewGroup.FOCUS_BLOCK_DESCENDANTS);
+			}
+			super.onLayout(changed, left, top, right, bottom);
+			//Now we reset the descendant focusability
+			listView.setDescendantFocusability(ViewGroup.FOCUS_AFTER_DESCENDANTS);
+
+			TiViewProxy viewProxy = proxy;
+			if (viewProxy != null && viewProxy.hasListeners(TiC.EVENT_POST_LAYOUT)) {
+				viewProxy.fireEvent(TiC.EVENT_POST_LAYOUT, null);
+			}
+
+			// Layout is finished, re-enable focus events.
+			if (focusListener != null) {
+				// If the configuration changed, we manually fire the blur event
+				if (changed) {
+					focusedView.setOnFocusChangeListener(focusListener);
+					focusListener.onFocusChange(focusedView, false);
+				} else {
+					//Ok right now focus is with listView. So set it back to the focusedView
+					focusedView.requestFocus();
+					focusedView.setOnFocusChangeListener(focusListener);
+				}
+			}
+		}
+	}
 	
 	public class TiBaseAdapter extends BaseAdapter {
 
@@ -167,7 +222,12 @@ public class TiListView extends TiUIView {
 		defaultTemplateBinding = UIModule.LIST_ITEM_TEMPLATE_DEFAULT;
 		
 		//initializing listView and adapter
+		ListViewWrapper wrapper = new ListViewWrapper(activity);
+		wrapper.setFocusable(false);
+		wrapper.setFocusableInTouchMode(false);
 		listView = new ListView(activity);
+		listView.setLayoutParams(new ViewGroup.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
+		wrapper.addView(listView);
 		adapter = new TiBaseAdapter(activity);
 		
 		//init inflater
@@ -180,6 +240,7 @@ public class TiListView extends TiUIView {
 		getLayoutParams().autoFillsWidth = true;
 		listView.setFocusable(true);
 		listView.setFocusableInTouchMode(true);
+		listView.setDescendantFocusability(ViewGroup.FOCUS_AFTER_DESCENDANTS);
 
 		try {
 			headerFooterId = TiRHelper.getResource("layout.titanium_ui_list_header_or_footer");
@@ -195,7 +256,7 @@ public class TiListView extends TiUIView {
 		}
 		
 		
-		setNativeView(listView);
+		setNativeView(wrapper);
 	}
 	
 	public void setHeaderTitle(String title) {
