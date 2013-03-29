@@ -74,7 +74,7 @@ public class TiListItem extends TiUIView {
 			public void onClick(View view)
 			{
 				KrollDict data = dictFromEvent(lastUpEvent);
-				handleFireItemClick(data);
+				handleFireItemClick(new KrollDict(data));
 				fireEvent(TiC.EVENT_CLICK, data);
 			}
 		});
