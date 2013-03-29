@@ -44,6 +44,6 @@
 //Returns the kroll object created iff the proxy has been registered. Otherwise, returns nil.
 - (id)krollObjectForProxy:(id)proxy;
 
--(void)includeFile:(NSString *)file;
+-(void)includeFile:(NSString *)file withBaseUrl:(NSURL*)baseUrl;
 
 @end

@@ -473,7 +473,7 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 	[context invokeOnThread:self method:@selector(evalFileOnThread:context:) withObject:file condition:nil];
 }
 
--(void)includeFile:(NSString *)file
+-(void)includeFile:(NSString *)file withBaseUrl:(NSURL*)baseUrl
 {
 	NSURL * oldUrl = [self currentURL];
 	TiModule* module = nil;
@@ -485,7 +485,7 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 	BOOL isAbsolute = !([leadingComponent isEqualToString:@"."] || [leadingComponent isEqualToString:@".."]);
 
 	NSRange separatorLocation = [fullPath rangeOfString:@"/"];
-	NSString* moduleClassName = [self pathToModuleClassName:moduleID];
+	NSString* moduleClassName = isAbsolute?[self pathToModuleClassName:moduleID]:@"";
 	Class moduleClass = NSClassFromString(moduleClassName);
 
 	if (moduleClass != nil) {
@@ -508,7 +508,7 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 			[self evalFile:fullPath];
 		}
 		else if (data != nil) {
-			[self setCurrentURL:[NSURL URLWithString:[fullPath stringByDeletingLastPathComponent] relativeToURL:[[self host] baseURL]]];
+			[self setCurrentURL:[NSURL URLWithString:[fullPath stringByDeletingLastPathComponent] relativeToURL:baseUrl]];
 			NSString * dataContents = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
 			[self evalJSAndWait:dataContents];
 			[dataContents release];
@@ -525,7 +525,7 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 		}
 	}
 	else {
-		NSURL * rootURL = (oldUrl != nil)?oldUrl:[[self host] baseURL];
+		NSURL * rootURL = (oldUrl != nil)?oldUrl:baseUrl;
 
 		NSURL *fileurl = [TiUtils toURL:file relativeToURL:rootURL];
 		DebugLog(@"[DEBUG] Include url: %@",[fileurl absoluteString]);
