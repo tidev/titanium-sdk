@@ -1,14 +1,14 @@
-define(['Ti/_/declare', 'Ti/_/Media/Player'], function(declare, Player) {
+define(['Ti/_/declare', 'Ti/_/Media/Audio'], function(declare, Audio) {
 	
 	var messageMap = [void 0, 'Aborted', 'Decode error', 'Network error', 'Unsupported format'],
 		ENDED = 9,
 		ABORT = 10,
 		ERROR = 11;
 	
-	return declare('Ti.Media.Sound', Player, {
+	return declare('Ti.Media.Sound', Audio, {
 		
-		_changeState: function(newState, msg) {
-			Player.prototype._changeState.apply(this, arguments);
+		_changeState: function(newState, description) {
+			Audio.prototype._changeState.apply(this, arguments);
 			var evt = {};
 			evt.src = this;
 			switch (this._currentState) {
@@ -19,14 +19,14 @@ define(['Ti/_/declare', 'Ti/_/Media/Player'], function(declare, Player) {
 					break;
 				case ERROR: 
 					evt.type = 'error';	
-					evt.message = msg;
+					evt.message = description;
 					this.fireEvent('error', evt);  // external (interface) event
 					break;
 			}
 		},
 		
 		_durationChange: function() {
-			var d = this._audio.duration;
+            var d = this._audio.duration;
 			// Blackberry OS 7 gives the initial duration as Infinity
 			// So we leave duration at zero until the duration of <audio> is finite.
 			d === Infinity || (this.constants.__values__.duration = Math.floor(d));
@@ -63,7 +63,7 @@ define(['Ti/_/declare', 'Ti/_/Media/Player'], function(declare, Player) {
 		
 		release: function() {
 			this.constants.__values__.duration = 0;
-			Player.prototype.release.apply(this, arguments);
+			Audio.prototype.release.apply(this, arguments);
 		},
 		
 		reset: function() {
