@@ -181,6 +181,9 @@ public class TiTableView extends FrameLayout
 						if (v.getRowData() != item) {
 							v = null;
 						}
+					} else if (v.getClassName().equals(TableViewProxy.CLASSNAME_HEADERVIEW)) {
+						//Always recreate the header view
+						v = null;
 					} else {
 						// otherwise compare class names
 						if (!v.getClassName().equals(item.className)) {
@@ -421,8 +424,17 @@ public class TiTableView extends FrameLayout
 
 	private View layoutHeaderOrFooter(TiViewProxy viewProxy)
 	{
-		TiUIView tiView = viewProxy.getOrCreateView();
-		View nativeView = tiView.getNativeView();
+		//We are always going to create a new view here. So detach outer view here and recreate
+		View outerView = (viewProxy.peekView() == null) ? null : viewProxy.peekView().getOuterView();
+		if (outerView != null) {
+			ViewParent vParent = outerView.getParent();
+			if ( (vParent != null) && (vParent instanceof ViewGroup) ) {
+				((ViewGroup)vParent).removeView(outerView);
+			}
+		}
+		TiBaseTableViewItem.clearChildViews(viewProxy);
+		TiUIView tiView = viewProxy.forceCreateView();
+		outerView = tiView.getOuterView();
 		TiCompositeLayout.LayoutParams params = tiView.getLayoutParams();
 
 		int width = AbsListView.LayoutParams.WRAP_CONTENT;
@@ -442,8 +454,8 @@ public class TiTableView extends FrameLayout
 			width = params.optionWidth.getAsPixels(listView);
 		}
 		AbsListView.LayoutParams p = new AbsListView.LayoutParams(width, height);
-		nativeView.setLayoutParams(p);
-		return nativeView;
+		outerView.setLayoutParams(p);
+		return outerView;
 	}
 
 	public void dataSetChanged() {

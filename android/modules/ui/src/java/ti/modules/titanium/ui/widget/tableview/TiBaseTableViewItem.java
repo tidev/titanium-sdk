@@ -12,6 +12,7 @@ import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.common.TiConfig;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
+import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiFileHelper;
 import org.appcelerator.titanium.util.TiPlatformHelper;
@@ -193,4 +194,14 @@ public abstract class TiBaseTableViewItem extends ViewGroup implements Handler.C
 	public void release() {
 		handler = null;
 	}
+	
+	protected static void clearChildViews(TiViewProxy parent)
+	{
+		for (TiViewProxy childProxy : parent.getChildren()) {
+			childProxy.setView(null);
+			clearChildViews(childProxy);
+		}
+	}
+
+
 }
