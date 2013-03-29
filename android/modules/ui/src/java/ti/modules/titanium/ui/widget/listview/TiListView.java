@@ -114,13 +114,14 @@ public class TiListView extends TiUIView {
 
 			// Layout is finished, re-enable focus events.
 			if (focusListener != null) {
-				focusedView.setOnFocusChangeListener(focusListener);
 				// If the configuration changed, we manually fire the blur event
 				if (changed) {
+					focusedView.setOnFocusChangeListener(focusListener);
 					focusListener.onFocusChange(focusedView, false);
 				} else {
 					//Ok right now focus is with listView. So set it back to the focusedView
 					focusedView.requestFocus();
+					focusedView.setOnFocusChangeListener(focusListener);
 				}
 			}
 		}
