@@ -33,12 +33,14 @@ public class ActionBarProxy extends KrollProxy
 	private static final int MSG_SET_LOGO = MSG_FIRST_ID + 105;
 	private static final int MSG_SET_ICON = MSG_FIRST_ID + 106;
 	private static final int MSG_SET_HOME_BUTTON_ENABLED = MSG_FIRST_ID + 107;
+	private static final int MSG_SET_NAVIGATION_MODE = MSG_FIRST_ID + 108;
 
 	private static final String SHOW_HOME_AS_UP = "showHomeAsUp";
 	private static final String BACKGROUND_IMAGE = "backgroundImage";
 	private static final String TITLE = "title";
 	private static final String LOGO = "logo";
 	private static final String ICON = "icon";
+	private static final String NAVIGATION_MODE = "navigationMode";
 
 	private ActionBar actionBar;
 
@@ -56,6 +58,18 @@ public class ActionBarProxy extends KrollProxy
 		} else {
 			Message message = getMainHandler().obtainMessage(MSG_DISPLAY_HOME_AS_UP, showHomeAsUp);
 			message.getData().putBoolean(SHOW_HOME_AS_UP, showHomeAsUp);
+			message.sendToTarget();
+		}
+	}
+
+	@Kroll.method @Kroll.setProperty
+	public void setNavigationMode(int navigationMode)
+	{
+		if (TiApplication.isUIThread()) {
+			handlesetNavigationMode(navigationMode);
+		} else {
+			Message message = getMainHandler().obtainMessage(MSG_SET_NAVIGATION_MODE, navigationMode);
+			message.getData().putInt(NAVIGATION_MODE, navigationMode);
 			message.sendToTarget();
 		}
 	}
@@ -91,6 +105,15 @@ public class ActionBarProxy extends KrollProxy
 			return null;
 		}
 		return (String) actionBar.getTitle();
+	}
+
+	@Kroll.method @Kroll.getProperty
+	public int getNavigationMode()
+	{
+		if (actionBar == null) {
+			return 0;
+		}
+		return (int) actionBar.getNavigationMode();
 	}
 
 	@Kroll.method
@@ -178,6 +201,11 @@ public class ActionBarProxy extends KrollProxy
 		actionBar.setDisplayHomeAsUpEnabled(showHomeAsUp);
 	}
 
+	private void handlesetNavigationMode(int navigationMode)
+	{
+		actionBar.setNavigationMode(navigationMode);
+	}
+
 	private void handleSetLogo(String url)
 	{
 		Drawable logo = getDrawableFromUrl(url);
@@ -200,6 +228,9 @@ public class ActionBarProxy extends KrollProxy
 			case MSG_DISPLAY_HOME_AS_UP:
 				handlesetDisplayHomeAsUp(msg.getData().getBoolean(SHOW_HOME_AS_UP));
 				return true;
+                       case MSG_SET_NAVIGATION_MODE:
+				handlesetNavigationMode(msg.getData().getInt(NAVIGATION_MODE));
+                                return true;
 			case MSG_SET_BACKGROUND_IMAGE:
 				handleSetBackgroundImage(msg.getData().getString(BACKGROUND_IMAGE));
 				return true;
