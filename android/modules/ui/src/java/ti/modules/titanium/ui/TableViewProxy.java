@@ -157,11 +157,12 @@ public class TableViewProxy extends TiViewProxy
 			if (dataCopy.containsKey(TiC.PROPERTY_X) && dataCopy.containsKey(TiC.PROPERTY_Y)) {
 				double x = dataCopy.getDouble(TiC.PROPERTY_X);
 				double y = dataCopy.getDouble(TiC.PROPERTY_Y);
+				Object source = dataCopy.get(TiC.PROPERTY_SOURCE);
 				int index = getTableView().getTableView().getIndexFromXY(x, y);
-				if (index != -1) {
+				if (index != -1 && source == this) {
 					Item item = getTableView().getTableView().getItemAtPosition(index);
-					TableViewRowProxy.fillClickEvent(dataCopy, getTableView().getModel(), item);
-					data = dataCopy;
+					dataCopy.put(TiC.PROPERTY_SOURCE, item.proxy);
+					return item.proxy.fireEvent(eventName, dataCopy, bubbles);
 				}
 			}
 		}
