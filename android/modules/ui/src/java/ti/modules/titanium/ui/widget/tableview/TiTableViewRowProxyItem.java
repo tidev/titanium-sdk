@@ -116,11 +116,7 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 				|| newProperties.containsKeyAndNotNull(TiC.PROPERTY_BORDER_RADIUS)
 				|| newProperties.containsKeyAndNotNull(TiC.PROPERTY_BORDER_WIDTH);;
 		
-		if (oldHasBorder == newHasBorder) {
-			return true;
-		} else {
-			return false;
-		}
+		return (oldHasBorder == newHasBorder);
 	}
 	
 	/*
@@ -134,7 +130,7 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 			//Check for type
 			return false;
 		} else if (!checkBorderProps(oldProxy, newProxy)) {
-			//Ensure they have same outerview
+			//Ensure they have compatible border props
 			return false;
 		} else {
 			//Check children recursively
@@ -200,8 +196,8 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 				}
 			}
 		} else {
-			//Ok the top level containers are the same. 
-			//Transfer over the views and modelListeners from the old proxy to the new proxy
+			//Ok the view heirarchies are the same. 
+			//Transfer over the views and modelListeners from the old proxies to the new proxies
 			for (int i=0;i<len;i++) {
 				TiUIView view = views.get(i);
 				TiViewProxy oldProxy = view.getProxy();
@@ -229,11 +225,17 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 		TiViewProxy childProxies[] = viewProxy.getChildren();
 		for (TiUIView childView : view.getChildren()) {
 			TiViewProxy childProxy = childProxies[i];
-			childView.setProxy(childProxy);
-			childView.setParent(viewProxy);
-			childView.processProperties(childProxy.getProperties());
-			childProxy.setModelListener(childView);
-			applyChildProxies(childProxy, childView);
+			TiViewProxy oldProxy = childView.getProxy();
+			if (childProxy != oldProxy) {
+				oldProxy.setView(null);
+				oldProxy.setModelListener(null);
+				childProxy.setView(childView);
+				childView.setProxy(childProxy);
+				childView.setParent(viewProxy);
+				childView.processProperties(childProxy.getProperties());
+				childProxy.setModelListener(childView);
+				applyChildProxies(childProxy, childView);
+			}
 			i++;
 		}
 	}
