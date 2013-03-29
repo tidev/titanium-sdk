@@ -396,6 +396,22 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 		view = null;
 		return getOrCreateView();
 	}
+	
+	/**
+	 * Transfer an existing view to this view proxy.
+	 * Special use in tableView. Do not use anywhere else.
+	 * Called from TiTableViewRowProxyItem.java
+	 * @param view
+	 */
+	public void transferView(TiUIView transferview, TiViewProxy oldProxy) {
+		if(oldProxy != null) {
+			oldProxy.setView(null);
+			oldProxy.setModelListener(null);
+		}
+		view = transferview;
+		modelListener = transferview;
+		view.setProxy(this);
+	}
 
 	/**
 	 * Creates or retrieves the view associated with this proxy.

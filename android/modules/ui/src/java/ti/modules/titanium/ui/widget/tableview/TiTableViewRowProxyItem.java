@@ -7,8 +7,8 @@
 package ti.modules.titanium.ui.widget.tableview;
 
 import java.util.ArrayList;
-
 import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.KrollPropertyChange;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.common.TiConfig;
 import org.appcelerator.titanium.TiC;
@@ -171,6 +171,51 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 		
 		return false;
 	}
+	
+	private ArrayList<KrollPropertyChange> getChangeSet( KrollDict oldProps, KrollDict newProps) {
+		ArrayList<KrollPropertyChange> propertyChanges = new ArrayList<KrollPropertyChange>();
+		/*
+		//First get the values that changed from the oldProps to the newProps
+		for (String name : oldProps.keySet()) {
+			Object oldValue = oldProps.get(name);
+			Object newValue = newProps.get(name);
+
+			if (!(oldValue == null && newValue == null)) {
+				if ((oldValue == null && newValue != null) || (newValue == null && oldValue != null) || (!oldValue.equals(newValue))) {
+					KrollPropertyChange pch = new KrollPropertyChange(name, oldValue, newValue);
+					propertyChanges.add(pch);
+				}
+			}
+		}
+		
+		//Second get the properties that are only in the newProps
+		for (String name : newProps.keySet()) {
+			if (!oldProps.containsKey(name)) {
+				KrollPropertyChange pch = new KrollPropertyChange(name, null, newProps.get(name));
+				propertyChanges.add(pch);
+			}
+		}
+		*/
+		/*
+		What we should do is above. But since we do not handle null values
+		properly in our SDK, we'll do it the short way which is an optimized
+		version of doing processProperties.
+		*/
+		 
+		for (String name : newProps.keySet()) {
+			Object oldValue = oldProps.get(name);
+			Object newValue = newProps.get(name);
+
+			if (!(oldValue == null && newValue == null)) {
+				if ((oldValue == null && newValue != null) || (newValue == null && oldValue != null) || (!oldValue.equals(newValue))) {
+					KrollPropertyChange pch = new KrollPropertyChange(name, oldValue, newValue);
+					propertyChanges.add(pch);
+				}
+			}
+		}
+		
+		return propertyChanges;
+	}
 
 	protected void refreshControls()
 	{
@@ -204,16 +249,11 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 				TiViewProxy newProxy = proxies.get(i);
 				
 				if (oldProxy != newProxy) {
-					oldProxy.setView(null);
-					oldProxy.setModelListener(null);
-					newProxy.setView(view);
-					view.setProxy(newProxy);
+					newProxy.transferView(view, oldProxy);
 					view.setParent(parent);
-					view.processProperties(newProxy.getProperties());
+					view.propertiesChanged(getChangeSet(oldProxy.getProperties(), newProxy.getProperties()), newProxy);
 					//Need to apply child properties.
 					applyChildProxies(newProxy, view);
-					//We'll do this last
-					newProxy.setModelListener(view);
 				}
 			}
 		}
@@ -227,13 +267,9 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 			TiViewProxy childProxy = childProxies[i];
 			TiViewProxy oldProxy = childView.getProxy();
 			if (childProxy != oldProxy) {
-				oldProxy.setView(null);
-				oldProxy.setModelListener(null);
-				childProxy.setView(childView);
-				childView.setProxy(childProxy);
+				childProxy.transferView(childView, oldProxy);
 				childView.setParent(viewProxy);
-				childView.processProperties(childProxy.getProperties());
-				childProxy.setModelListener(childView);
+				childView.propertiesChanged(getChangeSet(oldProxy.getProperties(), childProxy.getProperties()), childProxy);
 				applyChildProxies(childProxy, childView);
 			}
 			i++;
