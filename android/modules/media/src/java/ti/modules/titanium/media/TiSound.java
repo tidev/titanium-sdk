@@ -398,7 +398,9 @@ public class TiSound
 
 	public void onCompletion(MediaPlayer mp)
 	{
-		proxy.fireEvent(EVENT_COMPLETE, null);
+		KrollDict data = new KrollDict();
+		data.putCodeAndMessage(TiC.ERROR_CODE_NO_ERROR, null);
+		proxy.fireEvent(EVENT_COMPLETE, data);
 		stop();
 	}
 

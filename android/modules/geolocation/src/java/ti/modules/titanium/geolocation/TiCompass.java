@@ -133,6 +133,7 @@ public class TiCompass
 		}
 
 		KrollDict data = new KrollDict();
+		data.putCodeAndMessage(TiC.ERROR_CODE_NO_ERROR, null);
 		data.put(TiC.PROPERTY_HEADING, heading);
 		return data;
 	}
