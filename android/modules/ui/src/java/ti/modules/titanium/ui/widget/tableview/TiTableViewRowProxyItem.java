@@ -114,7 +114,7 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 				|| oldProperties.containsKeyAndNotNull(TiC.PROPERTY_BORDER_WIDTH);
 		boolean newHasBorder = newProperties.containsKeyAndNotNull(TiC.PROPERTY_BORDER_COLOR) 
 				|| newProperties.containsKeyAndNotNull(TiC.PROPERTY_BORDER_RADIUS)
-				|| newProperties.containsKeyAndNotNull(TiC.PROPERTY_BORDER_WIDTH);;
+				|| newProperties.containsKeyAndNotNull(TiC.PROPERTY_BORDER_WIDTH);
 		
 		return (oldHasBorder == newHasBorder);
 	}

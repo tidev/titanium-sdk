@@ -428,7 +428,7 @@ public class TiTableView extends FrameLayout
 		View outerView = (viewProxy.peekView() == null) ? null : viewProxy.peekView().getOuterView();
 		if (outerView != null) {
 			ViewParent vParent = outerView.getParent();
-			if ( (vParent != null) && (vParent instanceof ViewGroup) ) {
+			if ( vParent instanceof ViewGroup ) {
 				((ViewGroup)vParent).removeView(outerView);
 			}
 		}
