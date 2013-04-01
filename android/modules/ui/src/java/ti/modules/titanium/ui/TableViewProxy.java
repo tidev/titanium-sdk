@@ -149,18 +149,21 @@ public class TableViewProxy extends TiViewProxy
 	@Override
 	public boolean fireEvent(String eventName, Object data, boolean bubbles)
 	{
-		if (eventName.equals(TiC.EVENT_LONGPRESS) && (data instanceof HashMap)) {
+		if (data instanceof HashMap) {
 			// The data object may already be in use by the runtime thread
 			// due to a child view's event fire. Create a copy to be thread safe.
 			@SuppressWarnings("unchecked")
 			KrollDict dataCopy = new KrollDict((HashMap<String, Object>) data);
-			double x = dataCopy.getDouble(TiC.PROPERTY_X);
-			double y = dataCopy.getDouble(TiC.PROPERTY_Y);
-			int index = getTableView().getTableView().getIndexFromXY(x, y);
-			if (index != -1) {
-				Item item = getTableView().getTableView().getItemAtPosition(index);
-				TableViewRowProxy.fillClickEvent(dataCopy, getTableView().getModel(), item);
-				data = dataCopy;
+			if (dataCopy.containsKey(TiC.PROPERTY_X) && dataCopy.containsKey(TiC.PROPERTY_Y)) {
+				double x = dataCopy.getDouble(TiC.PROPERTY_X);
+				double y = dataCopy.getDouble(TiC.PROPERTY_Y);
+				Object source = dataCopy.get(TiC.PROPERTY_SOURCE);
+				int index = getTableView().getTableView().getIndexFromXY(x, y);
+				if (index != -1 && source == this) {
+					Item item = getTableView().getTableView().getItemAtPosition(index);
+					dataCopy.put(TiC.PROPERTY_SOURCE, item.proxy);
+					return item.proxy.fireEvent(eventName, dataCopy, bubbles);
+				}
 			}
 		}
 
