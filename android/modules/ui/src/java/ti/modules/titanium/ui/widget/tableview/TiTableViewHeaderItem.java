@@ -9,6 +9,7 @@ package ti.modules.titanium.ui.widget.tableview;
 import org.appcelerator.kroll.common.TiConfig;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.util.TiUIHelper;
+import org.appcelerator.titanium.view.TiBorderWrapperView;
 
 import ti.modules.titanium.ui.widget.tableview.TableViewModel.Item;
 import android.app.Activity;
@@ -17,6 +18,7 @@ import android.graphics.Color;
 import android.os.Handler;
 import android.view.Gravity;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -118,6 +120,9 @@ public class TiTableViewHeaderItem extends TiBaseTableViewItem
 			rowView.layout(left, 0, right, bottom - top);
 		} else {
 			headerView.layout(left, 0, right, bottom - top);
+			if (headerView instanceof TiBorderWrapperView) {
+				((ViewGroup)headerView).getChildAt(0).layout(left, 0, right, bottom - top);
+			}
 		}
 	}
 }
