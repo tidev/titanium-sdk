@@ -199,6 +199,7 @@
 	wrapperBounds.origin = CGPointZero;
 	wrapperBounds.size = newContentSize;
 	[wrapperView setFrame:wrapperBounds];
+	[self scrollViewDidZoom:scrollView];
 	needsHandleContentSize = NO;
 	[(TiUIScrollViewProxy *)[self proxy] layoutChildrenAfterContentSize:NO];
 }
