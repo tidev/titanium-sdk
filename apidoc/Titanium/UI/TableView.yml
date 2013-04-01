@@ -121,7 +121,6 @@ excludes:
 events:
   - name: click
     summary: Fired when a table row is clicked by the user.
-    platforms: [android, iphone, ipad, mobileweb]
     properties:
       - name: detail
         summary: |
@@ -162,10 +161,12 @@ events:
       - name: x
         summary: X coordinate of the event from the `source` view's coordinate system.
         type: Number
+        platforms: [mobileweb, iphone, ipad]
 
       - name: y
         summary: Y coordinate of the event from the `source` view's coordinate system.
         type: Number
+        platforms: [mobileweb, iphone, ipad]
         
   - name: dblclick
     summary: Fired when the device detects a double click against the view.
@@ -219,8 +220,30 @@ events:
     
   - name: doubletap
     summary: Fired when the device detects a double tap against this view.
-    platforms: [iphone, ipad, mobileweb]
     properties:
+
+      - name: index
+        summary: Row index.
+        type: Number
+
+      - name: row
+        summary: Table view row object.
+        type: Titanium.UI.TableViewRow
+
+      - name: rowData
+        summary: |
+            Properties of the row.
+
+            When the row is created implicitly using a JavaScript dictionary object,
+            use this property rather than `row` to access any custom row properties.
+
+            Here's an example of creating a row implicitly, which is not the recommended way.
+
+                var data = [{title:'Row 1', hasChild:true, color:'red', selectedColor:'#fff', special:'special 1'},];
+                var table = Ti.UI.createTableView({data: data});
+
+        type: Dictionary<Titanium.UI.TableViewRow>
+
       - name: x
         summary: X coordinate of the event from the `source` view's coordinate system.
         type: Number
@@ -240,8 +263,28 @@ events:
         A `longpress` and a `longclick` can occur together.  
         
         In contrast to a `longclick`, this event returns the `x` and `y` coordinates of the touch.
-    platforms: [android, iphone, ipad, mobileweb]
     properties:
+      - name: index
+        summary: Row index.
+        type: Number
+
+      - name: row
+        summary: Table view row object.
+        type: Titanium.UI.TableViewRow
+
+      - name: rowData
+        summary: |
+            Properties of the row.
+
+            When the row is created implicitly using a JavaScript dictionary object,
+            use this property rather than `row` to access any custom row properties.
+
+            Here's an example of creating a row implicitly, which is not the recommended way.
+
+                var data = [{title:'Row 1', hasChild:true, color:'red', selectedColor:'#fff', special:'special 1'},];
+                var table = Ti.UI.createTableView({data: data});
+
+        type: Dictionary<Titanium.UI.TableViewRow>
       - name: y
         summary: Y coordinate of the event from the `source` view's coordinate system.
         type: Number
@@ -417,8 +460,28 @@ events:
         
   - name: singletap
     summary: Fired when the device detects a single tap against the view.
-    platforms: [iphone, ipad, mobileweb]
     properties:
+      - name: index
+        summary: Row index.
+        type: Number
+
+      - name: row
+        summary: Table view row object.
+        type: Titanium.UI.TableViewRow
+
+      - name: rowData
+        summary: |
+            Properties of the row.
+
+            When the row is created implicitly using a JavaScript dictionary object,
+            use this property rather than `row` to access any custom row properties.
+
+            Here's an example of creating a row implicitly, which is not the recommended way.
+
+                var data = [{title:'Row 1', hasChild:true, color:'red', selectedColor:'#fff', special:'special 1'},];
+                var table = Ti.UI.createTableView({data: data});
+        type: Dictionary<Titanium.UI.TableViewRow>
+
       - name: x
         summary: X coordinate of the event from the `source` view's coordinate system.
         type: Number
@@ -434,7 +497,28 @@ events:
       - name: direction
         summary: Direction of the swipe, either `left` or `right`.
         type: String
-        
+
+      - name: index
+        summary: Row index.
+        type: Number
+
+      - name: row
+        summary: Table view row object.
+        type: Titanium.UI.TableViewRow
+
+      - name: rowData
+        summary: |
+            Properties of the row.
+
+            When the row is created implicitly using a JavaScript dictionary object,
+            use this property rather than `row` to access any custom row properties.
+
+            Here's an example of creating a row implicitly, which is not the recommended way.
+
+                var data = [{title:'Row 1', hasChild:true, color:'red', selectedColor:'#fff', special:'special 1'},];
+                var table = Ti.UI.createTableView({data: data});
+        type: Dictionary<Titanium.UI.TableViewRow>
+
       - name: x
         summary: X coordinate of the event's endpoint from the `source` view's coordinate system.
         type: Number
@@ -442,7 +526,7 @@ events:
       - name: y
         summary: Y coordinate of the event's endpoint from the `source` view's coordinate system.
         type: Number
-        
+
   - name: touchcancel
     summary: Fired when a touch gesture is interrupted by the device.
     description: |
@@ -465,7 +549,7 @@ events:
       - name: y
         summary: Y coordinate of the event from the `source` view's coordinate system.
         type: Number
-        
+
   - name: touchend
     summary: Fired when a touch gesture is complete.
     description: |
@@ -476,8 +560,28 @@ events:
         
         On Mobile Web, a scroll may occur in the middle of a touch, in which case a `touchend` 
         will fire immediately following the scroll.
-    platforms: [iphone, ipad, mobileweb]
     properties:
+      - name: index
+        summary: Row index.
+        type: Number
+
+      - name: row
+        summary: Table view row object.
+        type: Titanium.UI.TableViewRow
+
+      - name: rowData
+        summary: |
+            Properties of the row.
+
+            When the row is created implicitly using a JavaScript dictionary object,
+            use this property rather than `row` to access any custom row properties.
+
+            Here's an example of creating a row implicitly, which is not the recommended way.
+
+                var data = [{title:'Row 1', hasChild:true, color:'red', selectedColor:'#fff', special:'special 1'},];
+                var table = Ti.UI.createTableView({data: data});
+        type: Dictionary<Titanium.UI.TableViewRow>
+
       - name: x
         summary: X coordinate of the event from the `source` view's coordinate system.
         type: Number
@@ -512,6 +616,27 @@ events:
         will fire immediately following the scroll.
     platforms: [iphone, ipad, mobileweb]
     properties:
+      - name: index
+        summary: Row index.
+        type: Number
+
+      - name: row
+        summary: Table view row object.
+        type: Titanium.UI.TableViewRow
+
+      - name: rowData
+        summary: |
+            Properties of the row.
+
+            When the row is created implicitly using a JavaScript dictionary object,
+            use this property rather than `row` to access any custom row properties.
+
+            Here's an example of creating a row implicitly, which is not the recommended way.
+
+                var data = [{title:'Row 1', hasChild:true, color:'red', selectedColor:'#fff', special:'special 1'},];
+                var table = Ti.UI.createTableView({data: data});
+        type: Dictionary<Titanium.UI.TableViewRow>
+    
       - name: x
         summary: X coordinate of the event from the `source` view's coordinate system.
         type: Number
