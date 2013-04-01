@@ -50,7 +50,7 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/css", "Ti/_/style", 
 					css.add(node, "TiUIElementGradientActive");
 				}
 				this.selectedColor && (this._buttonTitle.color = this.selectedColor);
-			  this.backgroundSelectedColor && (this._backgroundColor = this.backgroundColor) && (this.backgroundColor = this.backgroundSelectedColor);
+				this.backgroundSelectedColor && setStyle(this.domNode,"backgroundColor",this.backgroundSelectedColor);
 			});
 			on(this, "touchend", this, function() {
 				if (this._hasDefaultLook) {
@@ -58,7 +58,7 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/css", "Ti/_/style", 
 					css.add(node, "TiUIElementGradient");
 				}
 				this.selectedColor && (this._buttonTitle.color = this.color || "#000");
-			  this.backgroundSelectedColor && (this.backgroundColor = this._backgroundColor);
+				this.backgroundSelectedColor && setStyle(this.domNode,"backgroundColor",this.backgroundColor);
 			});
 			on(node, "mouseout", this, function() {
 				this.selectedColor && (this._buttonTitle.color = this.color || "#000");
