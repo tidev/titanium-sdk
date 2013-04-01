@@ -75,24 +75,24 @@ module.exports = new function() {
 				top: 30,
 				width: 'auto',
 				height: 'auto',
-				autoLink: Ti.UI.LINKIFY_NONE
+				autoLink: Ti.UI.AUTOLINK_NONE
 			});
 
 		win.add(label1);
 		win.addEventListener('postlayout', checkAutolinkBefore);
 		win.open();
 
-		//check that our label with flag LINKIFY_NONE has no links inside
+		//check that our label with flag AUTOLINK_NONE has no links inside
 		function checkAutolinkBefore(){
 			var anchors = label1.domNode.getElementsByTagName('a');
 			valueOf(testRun, anchors.length).shouldBe(0);
 
-			label1.autoLink = Ti.UI.LINKIFY_ALL;
+			label1.autoLink = Ti.UI.AUTOLINK_ALL;
 			checkAutolinkAfter();
 		}
 
 		function checkAutolinkAfter() {
-			valueOf(testRun, label1.autoLink).shouldBe(Ti.UI.LINKIFY_ALL);
+			valueOf(testRun, label1.autoLink).shouldBe(Ti.UI.AUTOLINK_ALL);
 
 			var label = label1.domNode,
 				anchors = label.getElementsByTagName('a');
@@ -104,10 +104,8 @@ module.exports = new function() {
 					urlAnchor   = anchors[2];
 
 				valueOf(testRun, emailAnchor.innerHTML).shouldBe("test@test.com");
-				valueOf(testRun, emailAnchor.href).shouldBe("mailto:test@test.com");
 				valueOf(testRun, phoneAnchor.innerHTML).shouldBe("817-555-5555");
 				valueOf(testRun, urlAnchor.innerHTML).shouldBe("http://bit.ly");
-				valueOf(testRun, urlAnchor.href).shouldBe("http://bit.ly/");
 			}
 
 			win.close();
@@ -280,7 +278,7 @@ module.exports = new function() {
 				v_height,
 				view_bottom;
 
-			view_top = view_top.slice(0, -2);			
+			view_top = view_top.slice(0, -2);
 			v_height = text_view.style.height;
 			v_height = v_height.slice(0, -2);
 			view_bottom = testLabel.height - view_top - v_height;
