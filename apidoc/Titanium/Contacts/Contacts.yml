@@ -70,7 +70,7 @@ methods:
     platforms: [ipad, iphone, tizen]
     
   - name: getAllPeople
-    summary: Gets all people, unless a limit is specified. On Tizen, use Titanium.Contacts.Tizen.getAllPeople.
+    summary: Gets all people, unless a limit is specified. On Tizen, use [Titanium.Contacts.Tizen.getAllPeople](Titanium.Contacts.Tizen.getAllPeople).
     platforms: [android, iphone, ipad]
     returns:
         type: Array<Titanium.Contacts.Person>    
@@ -92,9 +92,10 @@ methods:
   - name: getPeopleWithName
     summary: |
         Gets people with a `firstName`, `middleName` or `lastName` field, or a combination 
-        of these fields, that match the specified name. On Tizen, use 
-        Titanium.Contacts.Tizen.getAllPeopleWithName.
-    platforms: [android, iphone, ipad]
+        of these fields, that match the specified name.
+        
+        On Tizen, use [Titanium.Contacts.Tizen.getPeopleWithName](Titanium.Contacts.Tizen.getPeopleWithName).
+    platforms: [android, iphone, ipad, tizen]
     returns:
         type: Array<Titanium.Contacts.Person>
     parameters:
@@ -232,8 +233,7 @@ properties:
         A [contactsAuthorization](Titanium.Contacts.contactsAuthorization) value 
         indicating that the application is authorized to use the address book.
     description: |
-        This value is always returned if the device is running an iOS release prior to 6.0, 
-        on Android and Tizen.
+        This value is always returned on Android and Tizen devices, as well as on iOS versions earlier than 6.0.
     type: Number
     permission: read-only
     platforms: [iphone, ipad, android, tizen]
@@ -271,11 +271,9 @@ properties:
     summary: Returns an authorization constant indicating if the application has access to the address book.
     description: |
          Always returns `AUTHORIZATION_AUTHORIZED` on iOS pre-6.0, Android and Tizen devices.
-
+         
          If `contactsAuthorization` is `AUTHORIZATION_RESTRICTED`, you should not
          attempt to re-authorize: this will lead to issues.
-
-         On Tizen always `AUTHORIZATION_RESTRICTED`.
     type: Number
     permission: read-only
     platforms: [iphone, ipad, android, tizen]

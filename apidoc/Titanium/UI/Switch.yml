@@ -68,11 +68,12 @@ properties:
     summary: |
         Horizontal text alignment of the switch title.
     description: |
-        When the switch [style](Titanium.UI.Switch.style) property is set to 
+        On Android, when the switch [style](Titanium.UI.Switch.style) property is set to 
         <Titanium.UI.Android.SWITCH_STYLE_CHECKBOX>, this property is only effective if the 
         [width](Titanium.UI.Switch.width) property is set to a value greater than the width of the 
-        [title](Titanium.UI.Switch.title) contents. On Mobile Web and Tizen this property is always supported, 
-        as the `style` property is not supported. 
+        [title](Titanium.UI.Switch.title) contents. 
+        
+        On Mobile Web and Tizen this property is always supported, as the `style` property is not supported. 
         
         One of the <Titanium.UI> text alignment constants, 
         [TEXT_ALIGNMENT_LEFT](Titanium.UI.TEXT_ALIGNMENT_LEFT), 

@@ -827,7 +827,7 @@ properties:
     permission: read-only
   - name: isCameraSupported
     summary: |
-        `true` if the device has camera support. On Tizen, true if application service with id 'org.tizen.camera-app' is installed.
+        `true` if the device has camera support.
     type: Boolean
     platforms: [iphone, ipad, android, tizen]
     permission: read-only

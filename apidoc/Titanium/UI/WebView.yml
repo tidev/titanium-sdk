@@ -441,10 +441,12 @@ properties:
     description: |
         This property changes as the content of the webview changes (such as when the user
         clicks a hyperlink inside the web view).
-
+        
         See also: [data](Titanium.UI.WebView.data) and [html](Titanium.UI.WebView.html).
-
-        On Tizen url can not be a file created by Ti.Filesystem.File (since Ti.Filesystem.File uses web storage). Url can be a physical local file (e.g. /opt/apps/kitchensink/index.html) or a regular remote url.
+        
+        On Tizen, the URL cannot refer to a [File](Titanium.Filesystem.File) object. 
+        `Ti.Filesystem` uses web storage, which can't be accessed directly from a web view. 
+        The URL can be a string that points to a physical file on Tizen's file system (e.g. /opt/apps/kitchensink/index.html), or a remote location.
     type: String
 
   - name: userAgent

@@ -349,7 +349,6 @@ events:
     
   - name: scroll
     summary: Fired when the table view is scrolled.
-    platforms: [android, iphone, ipad, mobileweb, tizen]
     properties:
       - name: contentOffset
         summary: Dictionary with `x` and `y` properties containing the content offset.
@@ -398,8 +397,7 @@ events:
     deprecated:
         since: "3.0.0"
         notes: Renamed to [scrollend](Titanium.UI.TableView.scrollend) (all lowercase).
-    summary: Fired when the table view stops scrolling
-    platforms: [android, iphone, ipad, mobileweb, tizen]
+    summary: Fired when the table view stops scrolling.
     properties:
       - name: contentSize
         summary: |
@@ -428,8 +426,7 @@ events:
         type: Number
 
   - name: scrollend
-    summary: fired when the table view stops scrolling
-    platforms: [android, iphone, ipad, mobileweb, tizen]
+    summary: Fired when the table view stops scrolling.
     properties:
       - name: contentSize
         summary: |

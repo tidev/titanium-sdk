@@ -18,7 +18,7 @@ methods:
     summary: Gets people that are members of this group.
     returns:
         type: Array<Titanium.Contacts.Person>
-    platforms: [iphone, ipad]
+    platforms: [android, iphone, ipad]
     
   - name: remove
     summary: Removes a person from this group.
@@ -38,7 +38,7 @@ methods:
             [CONTACTS_SORT_FIRST_NAME](Titanium.Contacts.CONTACTS_SORT_FIRST_NAME), 
             or [CONTACTS_SORT_LAST_NAME](Titanium.Contacts.CONTACTS_SORT_LAST_NAME).
         type: Number
-    platforms: [iphone, ipad, android]    
+    platforms: [android, iphone, ipad]    
 
 properties:
   - name: name

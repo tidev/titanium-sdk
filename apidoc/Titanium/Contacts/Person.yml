@@ -57,10 +57,11 @@ properties:
         [ISO 3166-1 alpha-2](http://en.wikipedia.org/wiki/ISO_3166-1_alpha-2#Officially_assigned_code_elements) 
         for a comprehensive list of codes.
         
-        Every new line in the `Street` value may be created using a backslash followed by a letter 
-        `n`, for example, `\n`.
+        Every new line in the `Street` value may be created using a backslash followed by a letter `n`, for example, `\n`.
+        
         On Tizen:
-        Key `other` does not supported. Values `County` and `CountryCode` are not supported on Tizen too.
+        
+        Key `other` is not supported. Values `County` and `CountryCode` are not supported on Tizen too.
 
     type: Dictionary
     
@@ -161,7 +162,9 @@ properties:
     description: |
         One of <Titanium.Contacts.CONTACTS_KIND_PERSON> or 
         <Titanium.Contacts.CONTACTS_KIND_ORGANIZATION>.
-        On Tizen always <Titanium.Contacts.CONTACTS_KIND_PERSON>.
+        
+        Tizen supports only <Titanium.Contacts.CONTACTS_KIND_PERSON>.
+        
     type: Number
     
   - name: lastName
@@ -214,15 +217,15 @@ properties:
         * Keys: any of `home`, `work`, `other`, `mobile`, `pager`, `workFax`, `homeFax`, `main`, 
         and/or `iPhone`.
         * Values: array of `string` type.
-        On Tizen only the following keys are supported: `work`, `home`, `mobile`, `pager`, `workFax`
+        
+        Tizen supports only the following keys: [`work`, `home`, `mobile`, `pager`, `workFax`].
+        
     type: Dictionary
     
   - name: prefix
     summary: Prefix for the person. Single value.
     type: String
     permission: read-only
-    description: |
-        On iPhone, iPad and Tizen is read-only.
     platforms: [iphone, ipad, tizen]
     
   - name: recordId
@@ -245,7 +248,7 @@ properties:
     summary: Suffix for the person. Single value.
     type: String
     permission: read-only
-    platforms: [iphone, ipad, tizen]
+    platforms: [iphone, ipad]
 
   - name: url
     summary: URLs of webpages associated with the person. Multi-value.
@@ -255,6 +258,6 @@ properties:
         * Keys: any of `homepage`, `home`, `work`, and/or `other`.
         * Values: array of `string` type.
         
-        Tizen supports only `homepage`
+        Tizen supports only `homepage`.
     type: Dictionary
     platforms: [android, iphone, ipad, tizen]

@@ -255,18 +255,15 @@ events:
       - name: success
         summary: Indicates a successful operation. Returns `true`.
         type: Boolean
-        platforms: [iphone, ipad, mobileweb]
-
+        
       - name: error
         summary: Error message, if any returned. Will be undefined.
         type: String
-        platforms: [iphone, ipad, mobileweb]
-    
+        
       - name: code
         summary: Error code. Error code will be 0.
         type: Number
-        platforms: [iphone, ipad, mobileweb]
-
+        
   - name: error
     summary: Fired when the map receives a mapping error.
     platforms: [iphone, ipad]

@@ -179,7 +179,6 @@ properties:
         behavior when the property is undefined is to center the text vertically.
     type: [Number,String]
     default: Titanium.UI.TEXT_VERTICAL_ALIGNMENT_CENTER on Mobile Web. Undefined on Android, iPhone and iPad.
-    platforms: [mobileweb, tizen, iphone, ipad, android]
     since: { iphone: "3.0.0", ipad: "3.0.0", mobileweb: "2.0.0", android: "3.0.0" }
     
 examples:
