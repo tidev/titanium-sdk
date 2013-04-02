@@ -974,18 +974,16 @@ public abstract class TiUIView
 					// If the view already has a parent, we need to detach it from the parent
 					// and add the borderView to the parent as the child
 					ViewGroup savedParent = null;
-					android.view.ViewGroup.LayoutParams savedLayoutParams = null;
 					if (nativeView.getParent() != null) {
 						ViewParent nativeParent = nativeView.getParent();
 						if (nativeParent instanceof ViewGroup) {
 							savedParent = (ViewGroup) nativeParent;
-							savedLayoutParams = savedParent.getLayoutParams();
 							savedParent.removeView(nativeView);
 						}
 					}
 					borderView.addView(nativeView, params);
 					if (savedParent != null) {
-						savedParent.addView(getOuterView(), savedLayoutParams);
+						savedParent.addView(borderView, getLayoutParams());
 					}
 					borderView.setVisibility(this.visibility);
 				}
