@@ -203,8 +203,7 @@ properties:
     summary: Boolean to indicate the enabled state of the slider.
     type: Boolean
     default: Slider is enabled by default (property value may be `undefined`).
-    platforms: [android, ipad, iphone, mobileweb, tizen]
-
+    
   - name: highlightedLeftTrackImage
     summary: Image URL of the slider left track when in the highlighted state.
     type: String
@@ -397,4 +396,3 @@ properties:
   - name: value
     summary: Current value of the slider.
     type: String
-    platforms: [android, iphone, ipad, mobileweb, tizen]
