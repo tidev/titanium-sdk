@@ -1138,7 +1138,7 @@ properties:
         Use with the <Titanium.UI.TextField.textAlign> and 
         <Titanium.UI.TextArea.textAlign> properties.
         
-        This constant is a string on android, and a number on iOS, tizen and mobileweb.
+        This constant is a string on Android, and a number on iOS, Tizen and Mobile Web.
     type: [Number, String]
     permission: read-only
     
@@ -1148,7 +1148,7 @@ properties:
         Use with the <Titanium.UI.TextField.textAlign> and 
         <Titanium.UI.TextArea.textAlign> properties.
         
-        This constant is a string on android, and a number on iOS, tizen and mobileweb.
+        This constant is a string on android, and a number on iOS, Tizen and Mobile Web.
     type: [Number, String]
     permission: read-only
     
@@ -1158,7 +1158,7 @@ properties:
         Use with the <Titanium.UI.TextField.textAlign> and 
         <Titanium.UI.TextArea.textAlign> properties.
         
-        This constant is a string on android, and a number on iOS, tizen and mobileweb.
+        This constant is a string on Android, and a number on iOS, Tizen and Mobile Web.
     type: [Number, String]
     permission: read-only
     

@@ -234,6 +234,12 @@ properties:
     default: false
     availability: creation
     platforms: [android]
+  - name: autoplay
+    summary: Indicates if an audio should automatically start playback.
+    type: Boolean
+    availability: creation
+    default: false
+    platforms: [tizen]  
   - name: bitRate
     summary: Bit rate of the current playback stream.
     type: Number
@@ -247,7 +253,7 @@ properties:
     permission: read-only
     platforms: [iphone, ipad, tizen]
   - name: paused
-    summary: Boolean indicating if audio playback is paused. Read only on Tizen.
+    summary: Boolean indicating if audio playback is paused.
     type: Boolean
   - name: playing
     summary: Boolean indicating if audio is currently playing.
@@ -295,8 +301,3 @@ properties:
     summary: Size of the buffer used for streaming, in bytes.
     type: Number
     platforms: [iphone, ipad]
-  - name: autoplay
-    summary: Indicates if an audio should automatically start playback.
-    type: Boolean
-    default: false
-    platforms: [tizen]

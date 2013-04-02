@@ -296,7 +296,7 @@ properties:
     summary: Determines whether scrolling is enabled for the view.
     type: Boolean
     default: true
-    platforms: [iphone, ipad, android, mobileweb, tizen]
+    platforms: [android, iphone, ipad, mobileweb, tizen]
     since: { iphone: "3.0.0", ipad: "3.0.0", android: "3.0.0", mobileweb: "3.0.0" }
 
   - name: showHorizontalScrollIndicator

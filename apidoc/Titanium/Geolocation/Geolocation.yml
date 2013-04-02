@@ -240,17 +240,17 @@ events:
     properties:
       - name: code
         summary: If `success` is false, the error code if available.
-        platforms: [iphone, ipad]
+        platforms: [android, iphone, ipad]
 
       - name: success
         summary: Indicate if the heading event was successfully received.
         type: Boolean
-        platforms: [iphone, ipad]
+        platforms: [android, iphone, ipad]
 
       - name: error
         summary: If `success` is false, a string describing the error.
         type: String
-        platforms: [iphone, ipad]
+        platforms: [android, iphone, ipad]
 
       - name: heading
         summary: Dictionary object containing the heading data.

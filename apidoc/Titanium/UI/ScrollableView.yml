@@ -163,7 +163,6 @@ events:
         Prior to 2.1, the scroll event did not fire consistently on all platforms. On iOS and Mobile
         Web, it fired when scrolling ended, and on Android, it fired when drag ended. You can restore
         the pre-2.1 behavior by listening for the `scrollEnd` or `dragEnd` events instead.
-    platforms: [iphone, ipad, android, mobileweb, tizen]
     properties:
 
       - name: currentPage
@@ -226,7 +225,6 @@ events:
 
   - name: scrollend
     summary: Fired when the view has stopped moving completely.
-    platforms: [iphone, ipad, android, mobileweb, tizen]
     properties:
       - name: currentPage
         summary: Index of the currently visible view of <Titanium.UI.ScrollableView.views>.

@@ -5,13 +5,12 @@ summary: |
 description: |
     Methods defined here provide their results via callbacks, rather than returning them synchronously.
 extends: Titanium.Module
-since: 3.0.2
+since: 3.1.0
 platforms: [tizen]
 
 methods:
   - name: getAllPeople
     summary: Gets all people from the contact list.
-    platforms: [tizen]
     parameters:
       - name: successCallback
         summary: Callback function that will be called when the operation is successful with the desired contact list as a parameter.
@@ -19,11 +18,10 @@ methods:
         
       - name: errorCallback
         summary: Callback function that will be called when the operation is not successful.
-        type: Callback<Tizen.WebAPIError>
+        type: Callback<WebAPIError>
 
   - name: getPeopleWithName
     summary: Gets all people from the contact list with the specified name.
-    platforms: [tizen]
     parameters:
       - name: name
         summary: The name to search for.
@@ -35,4 +33,4 @@ methods:
       - name: errorCallback
       
         summary: Callback function that will be called when the operation is not successful.
-        type: Callback<Tizen.WebAPIError>
+        type: Callback<WebAPIError>
