@@ -2890,6 +2890,33 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
 
 #pragma mark - View Templates
 
+-(void)addFromTemplate:(id)args
+{
+    ENSURE_SINGLE_ARG(args, NSDictionary);
+    
+	id<TiEvaluator> context = self.executionContext;
+	if (context == nil) {
+		context = self.pageContext;
+	}
+    TiViewProxy *templateView = [[self class] unarchiveFromTemplate:args inContext:context];
+    [self add:templateView];
+}
+
+-(id)getViewFromBindId:(id)args
+{
+    ENSURE_SINGLE_ARG(args, NSString);
+    TiViewProxy *returnedViewProxy = nil;
+    for(TiViewProxy *subview in [self children])
+    {
+        id bindId = [subview valueForKey:@"bindId"];
+        if (bindId != nil && [bindId isEqual:args]) {
+            return subview;
+        }
+        returnedViewProxy = [subview getViewFromBindId:args];
+	}
+    return returnedViewProxy;
+}
+
 - (void)unarchiveFromTemplate:(id)viewTemplate_
 {
 	TiViewTemplate *viewTemplate = [TiViewTemplate templateFromViewTemplate:viewTemplate_];
