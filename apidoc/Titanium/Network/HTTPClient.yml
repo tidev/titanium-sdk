@@ -27,6 +27,17 @@ description: |
         httpResponse = this.responseText;
         status = this.status;
 
+    #### Asynchronous vs. Synchronous HTTP Requests
+
+    By default, the `HTTPClient` makes asynchronous requests.  Asynchronous requests do not block
+    the application and use callbacks to process responses when they are received.
+
+    Synchronous requests block the execution of the application until it receives a response.
+    On the iOS and Mobile Web platforms,  you can make synchronous requests by setting the optional
+    `async` parameter to `false` when calling the [open](Titanium.Network.HTTPClient.open) method.
+
+    The Android platform does not support synchronous requests.
+
     #### Mobile Web Platform Implementation Notes
 
     Mobile Web is limited by the same-origin policy. According to W3C: "User agents
