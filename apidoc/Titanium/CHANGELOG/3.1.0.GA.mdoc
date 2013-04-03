@@ -11,7 +11,7 @@
   * [New Features](#features)
     * [ListView](#listview)
     * [iOS Contacts Reload Event](#ioscontactreload)
-  * [Depreactions](#deprecations)
+  * [Deprecations](#deprecations)
     * [Titanium Manifest File](#manifest)
     * [Global Context Available to CommonJS Modules](#commonjs)
   * [API Changes](#apichanges)
@@ -65,7 +65,7 @@ for information on getting started with BlackBerry 10 development.
 
 ## Notice of Breaking Changes in Release 3.1
 
-The following changes alter the behavior of the Titanium SDK from previous verisons, and may require
+The following changes alter the behavior of the Titanium SDK from previous versions, and may require
 code changes to run your application on Titanium SDK 3.1.
 
 <a name="facebook"></a>
@@ -88,7 +88,7 @@ For more information, refer to
 ### Google Maps v2 Module for Android
 
 A new open source Google Maps v2 module for Android replaces the built-in `Titanium.Map` proxy, which
-uses the deprectated Google Maps API v1.  For new development, applications need to use this module
+uses the deprecated Google Maps API v1.  For new development, applications need to use this module
 to add native maps support on the Android platform.
 
 If you have Google Maps API v1 keys, you may continue using the `Titanium.Map` proxy or use the new
@@ -177,7 +177,7 @@ use list items.
 You need to explicitly create a `ListSection` in order to add a `ListItem` to a `ListView`.
 You cannot directly add a `ListItem` to a `ListView`.
 In a `TableView`, a `TableViewRow` can be directly added to a `TableView` because a
-`TableViewSection` is implictly created and added to the `TableView`.
+`TableViewSection` is implicitly created and added to the `TableView`.
 
 A `ListItem` object is not created in the same method as a `TableViewRow`.
 A `ListItem` is create by passing an array of `ListDataItem` objects to the `ListSection`.
@@ -197,7 +197,7 @@ You cannot explicitly set properties or bind events for a `ListItem`.  You have 
 The differences listed are for the final planned list view and the current table view in Release 3.1.0.
 
   - **Missing TableViewRow properties**: The following properties and their accessors are not
-    avaialable for ListItem: `accessibilityLabel`, `className`, `editable`, `hasCheck`,
+    available for ListItem: `accessibilityLabel`, `className`, `editable`, `hasCheck`,
     `hasChild`, `hasDetail`, `leftImage`, `moveable` and `rightImage`.
 
       - For `hasCheck`, `hasChild`, and `hasDetail`, use the `accessoryType` property.
