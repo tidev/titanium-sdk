@@ -72,7 +72,7 @@ public class TiUIText extends TiUIView
 
 	private boolean field;
 	private int maxLength = -1;
-	// A flag to indicate if the text change is caused by the user or by the requirement of maxLength.
+	// A flag to indicate whether the text change is caused by the user or by the requirement of maxLength.
 	private boolean isTruncatingText = false;
 
 	protected TiEditText tv;
@@ -290,6 +290,7 @@ public class TiUIText extends TiUIView
 		 * Android bug url for reference: http://code.google.com/p/android/issues/detail?id=35757
 		 */
 		if (maxLength >= 0 && s.length() > maxLength) {
+			// Can only set truncated text in afterTextChanged. Otherwise, it will crash.
 			return;
 		}
 		String newText = tv.getText().toString();
