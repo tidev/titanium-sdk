@@ -570,14 +570,11 @@ examples:
             }
             var win = Ti.UI.createWindow({
                                     backgroundColor: 'white',
-                                    exitOnClose: true,
-                                    fullscreen: false,
-                                    layout: 'vertical',
                                     title: 'Calendar Demo'
                         });
             
             var label = Ti.UI.createLabel({
-                                    title:'Check console log',
+                                    text:'Check console log',
                                     height: Ti.UI.size,
                                     width: Ti.UI.size
                         });
