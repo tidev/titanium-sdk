@@ -1,8 +1,7 @@
 ---
 name: Titanium.Calendar
 summary: |
-    The Calendar module provides proxies and methods for accessing the native 
-    calendar functionality.
+    The Calendar module provides an API for accessing the native calendar functionality.
 description: |
     This module supports retrieving information about existing events and creating new events. 
     Modifying or deleting existing events and creating recurring events is also supported. 
@@ -464,7 +463,7 @@ examples:
             
             win.open();
 
-  - title: Create a Recurring Event with Alerts. 
+  - title: Create a Recurring Event with Alerts 
     example: |
         Create a recurring event with alerts.
         
@@ -556,10 +555,10 @@ examples:
                 var allAlerts = new Array(alert1,alert2);
                 event1.alerts = allAlerts;
                 var newRule = event1.createRecurenceRule({
-                                    frequency:Ti.Calendar.RECURRENCEFREQUENCY_MONTHLY,
-                                    interval:1,
-                                    daysOfTheWeek:[{dayOfWeek:1,week:2},{dayOfWeek:2}],
-                                    end:{occurrenceCount:10}
+                                    frequency: Ti.Calendar.RECURRENCEFREQUENCY_MONTHLY,
+                                    interval: 1,
+                                    daysOfTheWeek: [{dayOfWeek:1,week:2},{dayOfWeek:2}],
+                                    end: {occurrenceCount:10}
                             });
                 Ti.API.info('newRule : '+ newRule);
                 event1.recurrenceRules = [newRule];
@@ -574,7 +573,7 @@ examples:
                         });
             
             var label = Ti.UI.createLabel({
-                                    text:'Check console log',
+                                    text: 'Check console log',
                                     height: Ti.UI.size,
                                     width: Ti.UI.size
                         });
@@ -583,7 +582,7 @@ examples:
             if(Ti.Calendar.eventsAuthorization == Ti.Calendar.AUTHORIZATION_AUTHORIZED) {
                 performCalendarWriteFunctions();
             } else {
-                Ti.Calendar.requestEventsAuthorization(function ( e ) {
+                Ti.Calendar.requestEventsAuthorization(function(e){
                         if (e.success) {
                             performCalendarWriteFunctions();
                         } else {
