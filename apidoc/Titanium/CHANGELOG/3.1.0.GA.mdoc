@@ -11,6 +11,9 @@
   * [New Features](#features)
     * [ListView](#listview)
     * [iOS Contacts Reload Event](#ioscontactreload)
+  * [Deprecations](#deprecations)
+    * [Titanium Manifest File](#manifest)
+    * [Global Context Available to CommonJS Modules](#commonjs)
   * [API Changes](#apichanges)
     * [New APIs](#newapis)
     * [Deprecated APIs](#deprecated_apis)
@@ -52,7 +55,7 @@ for information on getting started with Tizen development.
 
 ### BlackBerry 10 Beta Release
 
-This release coincides with the Beta Release of BlackBerry 10  development support with the
+This release coincides with the Beta Release of BlackBerry 10 development support with the
 Titanium SDK.
 
 Refer to [Installing the BlackBerry NDK](http://docs.appcelerator.com/titanium/latest/#!/guide/Installing_the_BlackBerry_NDK)
@@ -62,7 +65,7 @@ for information on getting started with BlackBerry 10 development.
 
 ## Notice of Breaking Changes in Release 3.1
 
-The following changes alter the behavior of the Titanium SDK from previous verisons, and may require
+The following changes alter the behavior of the Titanium SDK from previous versions, and may require
 code changes to run your application on Titanium SDK 3.1.
 
 <a name="facebook"></a>
@@ -85,7 +88,7 @@ For more information, refer to
 ### Google Maps v2 Module for Android
 
 A new open source Google Maps v2 module for Android replaces the built-in `Titanium.Map` proxy, which
-uses the deprectated Google Maps API v1.  For new development, applications need to use this module
+uses the deprecated Google Maps API v1.  For new development, applications need to use this module
 to add native maps support on the Android platform.
 
 If you have Google Maps API v1 keys, you may continue using the `Titanium.Map` proxy or use the new
@@ -174,7 +177,7 @@ use list items.
 You need to explicitly create a `ListSection` in order to add a `ListItem` to a `ListView`.
 You cannot directly add a `ListItem` to a `ListView`.
 In a `TableView`, a `TableViewRow` can be directly added to a `TableView` because a
-`TableViewSection` is implictly created and added to the `TableView`.
+`TableViewSection` is implicitly created and added to the `TableView`.
 
 A `ListItem` object is not created in the same method as a `TableViewRow`.
 A `ListItem` is create by passing an array of `ListDataItem` objects to the `ListSection`.
@@ -194,7 +197,7 @@ You cannot explicitly set properties or bind events for a `ListItem`.  You have 
 The differences listed are for the final planned list view and the current table view in Release 3.1.0.
 
   - **Missing TableViewRow properties**: The following properties and their accessors are not
-    avaialable for ListItem: `accessibilityLabel`, `className`, `editable`, `hasCheck`,
+    available for ListItem: `accessibilityLabel`, `className`, `editable`, `hasCheck`,
     `hasChild`, `hasDetail`, `leftImage`, `moveable` and `rightImage`.
 
       - For `hasCheck`, `hasChild`, and `hasDetail`, use the `accessoryType` property.
@@ -247,6 +250,42 @@ To avoid this, listen for the
 [`reload`](http://docs.appcelerator.com/titanium/latest/#!/api/Titanium.Contacts.reload) event.
 When you receive a `reload` event, you should  assume that any existing `Person` or `Group` objects
 are invalid, and reload them from the `Contacts` module before modifying them.
+
+
+<a name="deprecations"></a>
+
+## Deprecations
+
+The following features have been marked deprecated and will be removed in a future Titanium SDK
+release.
+
+<a name="manifest"></a>
+
+### Titanium Manifest File
+
+The `manifest` file located in the top-level directory of a Titanium project is deprecated as of
+this release.  This file is created for all Titanium projects and contains project metadata,
+which can also be found in the `tiapp.xml` file.  This file is not used by the Titanium project.
+
+As of Release 3.2.0, this file will no longer be generated when creating a new project using either
+the CLI or Studio.
+
+<a name="commonjs"></a>
+
+### Global Context Available to CommonJS Modules
+
+Currently, CommonJS modules loaded into a Titanium application have access to the global context.
+Meaning any variable not declared locally using `var` can be accessed and modified in the
+application code and CommonJS modules if they have the same name.
+
+As of this release, this behavior works on Android, iOS and Mobile Web. Prior to Release 3.1.0,
+this behavior only worked on iOS and Mobile Web.
+
+The usage of the global context in CommonJS modules is unsupported and deprecated,
+and will be removed in a future Titanium SDK release.
+
+For recommended practices, refer to
+[CommonJS Modules in Titanium](http://docs.appcelerator.com/titanium/latest/#!/guide/CommonJS_Modules_in_Titanium)
 
 
 <a name="apichanges"></a>
