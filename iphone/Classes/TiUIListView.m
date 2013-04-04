@@ -397,6 +397,62 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 	BOOL animate = [TiUtils boolValue:@"animated" properties:properties def:NO];
 	return animate ? UITableViewRowAnimationFade : UITableViewRowAnimationNone;
 }
+#pragma Scroll View Delegate
+
+- (NSDictionary *) eventObjectForScrollView: (UIScrollView *) scrollView
+{
+	return [NSDictionary dictionaryWithObjectsAndKeys:
+			[TiUtils pointToDictionary:scrollView.contentOffset],@"contentOffset",
+			[TiUtils sizeToDictionary:scrollView.contentSize], @"contentSize",
+			[TiUtils sizeToDictionary:_tableView.bounds.size], @"size",
+			nil];
+}
+
+- (void)fireScrollEvent:(UIScrollView *)scrollView {
+	if ([self.proxy _hasListeners:@"scroll"])
+	{
+		[self.proxy fireEvent:@"scroll" withObject:[self eventObjectForScrollView:scrollView]];
+	}
+}
+
+- (void)scrollViewDidScroll:(UIScrollView *)scrollView
+{
+	if (scrollView.isDragging || scrollView.isDecelerating)
+	{
+        [self fireScrollEvent:scrollView];
+    }
+}
+
+- (void)scrollViewDidScrollToTop:(UIScrollView *)scrollView
+{
+    [self fireScrollEvent:scrollView];
+    
+}
+
+- (void)scrollViewWillBeginDragging:(UIScrollView *)scrollView
+{
+    if([self.proxy _hasListeners:@"dragstart"])
+	{
+        [self.proxy fireEvent:@"dragstart" withObject:nil];
+    }
+}
+
+- (void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate
+{
+	if ([self.proxy _hasListeners:@"dragend"])
+	{
+		[self.proxy fireEvent:@"dragend" withObject:[NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool:decelerate],@"decelerate",nil]]	;
+	}
+}
+
+
+- (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView
+{
+	if ([self.proxy _hasListeners:@"scrollend"])
+	{
+		[self.proxy fireEvent:@"scrollend" withObject:[self eventObjectForScrollView:scrollView]];
+	}
+}
 
 @end
 
