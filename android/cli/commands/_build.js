@@ -420,7 +420,7 @@ function build(logger, config, cli, finished) {
 						cli.argv['android-sdk'],
 						'-e'
 					], { stdio: 'inherit' });
-				} else if (cli.argv['target'] == 'device' && !cli.argv['debug-host']) {
+				} else if (cli.argv['target'] == 'device') {
 					// Since installing on device does not run
 					// the application we must send the "intent" ourselves.
 					// We will launch the MAIN activity for the application.
