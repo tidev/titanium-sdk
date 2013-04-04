@@ -538,7 +538,7 @@ examples:
                     date2 = new Date(new Date().getTime() + 900000);
                 Ti.API.info('Date1 : '+ date1 + 'Date2 : '+ date2);
                 var event1 = defCalendar.createEvent({
-                                     title:'Sample Event',
+                                    title: 'Sample Event',
                                     notes: 'This is a test event which has some values assigned to it.',
                                     location: 'Appcelerator Inc',
                                     begin: date1,
