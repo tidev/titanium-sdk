@@ -72,6 +72,8 @@ public class TiUIText extends TiUIView
 
 	private boolean field;
 	private int maxLength = -1;
+	// A flag to indicate if the text change is caused by the user or by the requirement of maxLength.
+	private boolean isTruncatingText = false;
 
 	protected TiEditText tv;
 	
@@ -105,7 +107,6 @@ public class TiUIText extends TiUIView
 			super.onLayout(changed, left, top, right, bottom);
 			TiUIHelper.firePostLayoutEvent(proxy);
 		}
-
 	}
 
 	public TiUIText(TiViewProxy proxy, boolean field)
@@ -258,43 +259,48 @@ public class TiUIText extends TiUIView
 	}
 
 	@Override
-	public void afterTextChanged(Editable tv)
+	public void afterTextChanged(Editable editable)
 	{
-		
+		if (maxLength >= 0 && editable.length() > maxLength) {
+			isTruncatingText = true;
+			String newText = editable.subSequence(0, maxLength).toString();
+			int cursor = tv.getSelectionStart();
+			if (cursor > maxLength) {
+				cursor = maxLength;
+			}
+			tv.setText(newText);
+			tv.setSelection(cursor);
+		}
+		isTruncatingText = false;
 	}
 
 	@Override
 	public void beforeTextChanged(CharSequence s, int start, int before, int count)
 	{
+
 	}
 
 	@Override
 	public void onTextChanged(CharSequence s, int start, int before, int count)
 	{
-
-		/** There is an Android bug regarding setting filter on EditText that impacts auto completion.
-		 *  Therefore we can't use filters to implement "maxLength" property. Instead we manipulate
-		 *  the text to achieve perfect parity with other platforms.
-		 *  Android bug url for reference: http://code.google.com/p/android/issues/detail?id=35757
+		/**
+		 * There is an Android bug regarding setting filter on EditText that impacts auto completion.
+		 * Therefore we can't use filters to implement "maxLength" property. Instead we manipulate
+		 * the text to achieve perfect parity with other platforms.
+		 * Android bug url for reference: http://code.google.com/p/android/issues/detail?id=35757
 		 */
-		Object prevText = proxy.getProperty(TiC.PROPERTY_VALUE);
 		if (maxLength >= 0 && s.length() > maxLength) {
-			String t = TiConvert.toString(prevText);
-			int cursor = tv.getSelectionStart() - 1;
-			tv.setText(t);
-			tv.setSelection(cursor);
 			return;
 		}
-		String newValue = tv.getText().toString();
-		if (proxy.shouldFireChange(prevText, newValue)) {
+		String newText = tv.getText().toString();
+		if (!isTruncatingText || (isTruncatingText && proxy.shouldFireChange(proxy.getProperty(TiC.PROPERTY_VALUE), newText))) {
 			KrollDict data = new KrollDict();
-			data.put("value", newValue);
-
-			proxy.setProperty(TiC.PROPERTY_VALUE, newValue);
+			data.put(TiC.PROPERTY_VALUE, newText);
+			proxy.setProperty(TiC.PROPERTY_VALUE, newText);
 			fireEvent(TiC.EVENT_CHANGE, data);
 		}
 	}
-	
+
 	@Override
 	public void focus()
 	{
