@@ -466,7 +466,7 @@ examples:
 
   - title: Create a Recurring Event with Alerts. 
     example: |
-        Creatie a recurring event with alerts.
+        Create a recurring event with alerts.
         
             function printEventDetails(eventID) {
                 Ti.API.info('eventID:' + eventID);
