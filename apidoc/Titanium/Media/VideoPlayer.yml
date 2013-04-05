@@ -454,7 +454,7 @@ events:
 
   - name: playing
     summary: Fired when the currently playing movie changes.
-    platforms: [iphone, ipad, mobileweb, tizen]
+    platforms: [android, iphone, ipad, mobileweb, tizen]
     properties:
       - name: url
         summary: URL of the media.
