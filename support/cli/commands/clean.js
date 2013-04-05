@@ -117,6 +117,8 @@ exports.run = function (logger, config, cli) {
 								next();
 							});
 						});
+					} else {
+						next();
 					}
 				};
 			}), function () {
