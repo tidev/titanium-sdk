@@ -25,7 +25,6 @@ import ti.modules.titanium.ui.TableViewProxy;
 import ti.modules.titanium.ui.TableViewRowProxy;
 import ti.modules.titanium.ui.widget.searchbar.TiUISearchBar.OnSearchChangeListener;
 import ti.modules.titanium.ui.widget.tableview.TableViewModel.Item;
-import android.R;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
@@ -403,7 +402,7 @@ public class TiTableView extends FrameLayout
 		if (currentSelector != selector) {
 			selector = new StateListDrawable();
 			TiTableViewSelector selectorDrawable = new TiTableViewSelector (listView);
-			selector.addState(new int[] {R.attr.state_pressed}, selectorDrawable);
+			selector.addState(new int[] {android.R.attr.state_pressed}, selectorDrawable);
 			listView.setSelector(selector);
 		}
 	}
