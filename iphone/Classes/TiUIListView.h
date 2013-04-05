@@ -8,7 +8,11 @@
 
 #import "TiUIView.h"
 
-@interface TiUIListView : TiUIView <UITableViewDelegate, UIScrollViewDelegate,  UITableViewDataSource, UIGestureRecognizerDelegate, TiScrolling >
+@interface TiUIListView : TiUIView <UITableViewDelegate, UIScrollViewDelegate,  UITableViewDataSource, UIGestureRecognizerDelegate, TiScrolling >{
+@private
+	UIView * tableHeaderPullView;
+    
+}
 
 @property (nonatomic, readonly) UITableView *tableView;
 
