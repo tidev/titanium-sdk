@@ -39,7 +39,7 @@
 		</splash>
 		<theme>default</theme>
 	</mobileweb>
-	<tizen appid="zhrTuDSwYV">
+	<tizen appid="zhrTuDSwYV" xmlns:tizen="http://ti.appcelerator.org">
     	<tizen:privilege name="http://tizen.org/privilege/tizen"/>
         <tizen:privilege name="http://tizen.org/privilege/systeminfo"/>
         <tizen:privilege name="http://tizen.org/privilege/setting"/>

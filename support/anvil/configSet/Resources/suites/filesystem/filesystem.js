@@ -296,7 +296,7 @@ module.exports = new function() {
 	}
 
 	this.fileStreamWriteTest = function(testRun) {
-		if (!isTizen && !isMobileWeb) {
+		if (!isTizen && !isMobileWeb) {		// due to unsupported Ti.Stream
 			var infile = Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory, 'suites/filesystem/stream_test_in.txt'),
 				instream = infile.open(Ti.Filesystem.MODE_READ),
 				outfile = Ti.Filesystem.getFile(Ti.Filesystem.applicationDataDirectory, 'fswritetest.jpg'),
@@ -327,7 +327,7 @@ module.exports = new function() {
 	}
 
 	this.fileStreamAppendTest = function(testRun) {
-		if(!isTizen && !isMobileWeb) {
+		if(!isTizen && !isMobileWeb) { 		// due to unsupported Ti.Stream
 			var infile = Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory, 'suites/filesystem/stream_test_in.txt'),
 				instream = infile.open(Ti.Filesystem.MODE_READ),
 				outfile = Ti.Filesystem.getFile(Ti.Filesystem.applicationDataDirectory, 'fsappendtest.jpg');
@@ -395,7 +395,8 @@ module.exports = new function() {
 
 			pumpTotal += e.bytesProcessed;
 		};
-		// Ti.Stream  does not suppotred on mobileweb and Tizen
+
+		// Ti.Stream not suppotred on mobileweb and Tizen
 		if (!isTizen && !isMobileWeb) {
 			var pumpStream = pumpInputFile.open(Ti.Filesystem.MODE_READ);
 			valueOf(testRun, pumpStream).shouldBeObject();
@@ -407,7 +408,7 @@ module.exports = new function() {
 	}
 
 	this.fileStreamWriteStreamTest = function(testRun) {
-		if (!isTizen && !isMobileWeb) {
+		if (!isTizen && !isMobileWeb) { // due to unsupported Ti.Stream
 			var inBuffer = Ti.createBuffer({value:"huray for data, lets have a party for data1 huray for data, lets have a party for data2 huray for data, lets have a party for data3"});
 			valueOf(testRun, inBuffer).shouldBeObject();
 			var inStream = Ti.Stream.createStream({source:inBuffer, mode:Ti.Stream.MODE_READ});
@@ -444,7 +445,7 @@ module.exports = new function() {
 	}
 
 	this.fileStreamTruncateTest = function(testRun) {
-		if (!isTizen && !isMobileWeb) {
+		if (!isTizen && !isMobileWeb) {     // due to unsupported Ti.Stream
 			var inBuffer = Ti.createBuffer({value:"huray for data, lets have a party for data1 huray for data, lets have a party for data2 huray for data, lets have a party for data3"});
 			valueOf(testRun, inBuffer).shouldBeObject();
 			var inStream = Ti.Stream.createStream({source:inBuffer, mode:Ti.Stream.MODE_READ});
@@ -619,7 +620,8 @@ module.exports = new function() {
     this.fileCopy = function(testRun) {
         // Try to create file and folder
         // Copy this file to this directory 
-        // Viryfy if file is present in the both places
+        // Verify if file is present in both places
+
         var f = Titanium.Filesystem.getFile(Titanium.Filesystem.resourcesDirectory, 'suites/filesystem/text.txt'),
             contents = f.read(),
             isFile,
@@ -641,7 +643,7 @@ module.exports = new function() {
         newFile.write(contents);
         valueOf(testRun, newFile.exists()).shouldBeTrue();
 
-        // remove destination file if it exists otherwise the test will fail on multiple runs
+        // remove destination file if it exists, otherwise the test will fail on multiple runs
         var destinationFile = Titanium.Filesystem.getFile(Titanium.Filesystem.applicationDataDirectory+'/copied.txt');
         if(destinationFile.exists()) {
             destinationFile.deleteFile();
@@ -669,6 +671,7 @@ module.exports = new function() {
     this.fileProperties = function(testRun) {
         // Try to create not empty file
         // Check the properties and methods for this file
+
         var f = Titanium.Filesystem.getFile(Titanium.Filesystem.resourcesDirectory, 'suites/filesystem/text.txt'),
             contents = f.read(),
             hid,
@@ -686,7 +689,6 @@ module.exports = new function() {
         newFile.write(contents, false);
         valueOf(testRun, newFile.exists()).shouldBeTrue();
 
-        //Hidden Test
         valueOf(testRun, newFile.hidden).shouldBeFalse();
 
         valueOf(testRun, function() {
@@ -793,8 +795,9 @@ module.exports = new function() {
 
     this.directoryListing = function(testRun) {
         // Try to create directory and file
-        // Try to create two directory in just created directory
+        // Try to create two directories in the created directory
         // Check the getDirectoryListing() method for directory and file
+
         var dirList,
             fileList,
             file = Titanium.Filesystem.getFile(Titanium.Filesystem.applicationDataDirectory, 'someFile.txt');
@@ -835,7 +838,6 @@ module.exports = new function() {
         finish(testRun);
     }
 
-
     this.tempDirAndFile = function(testRun) {
         // Try to create temp directory and temp file
         var tmpDir,
@@ -856,7 +858,7 @@ module.exports = new function() {
     }
 
     this.fsMethodAndProp = function(testRun){
-        // Check some filesystem's methods
+        // Check some filesystem's methods and properties
         var sep,
             lineEnding,
             resourcesDir;
@@ -893,9 +895,9 @@ module.exports = new function() {
         finish(testRun);
     }
 
-
     this.appendString = function(testRun){
-        // Try to append the string to a text file
+        // Try to append a string to a text file
+
         var f = Ti.Filesystem.getFile(Ti.Filesystem.applicationDataDirectory, 'data.txt'),
             appended_text = 'Some appended text',
             previous_text = "",
@@ -952,7 +954,7 @@ module.exports = new function() {
     }
 
     this.appendFile = function(testRun) {
-        // Try to append the file-source to a text file
+        // Try to append a file to a text file
         var source = Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory, 'suites/filesystem/file.txt'),
             dest = Ti.Filesystem.getFile(Ti.Filesystem.applicationDataDirectory, 'append_file.txt'),
             previous = "Some text",
@@ -980,7 +982,7 @@ module.exports = new function() {
     }
 
     this.resolveTest = function(testRun) {
-        // Try to create not empty file and check his method - resolve()
+        // Try to create non-empty file and check his method - resolve()
         var file = Ti.Filesystem.getFile(Ti.Filesystem.applicationDataDirectory, 'file.txt'),
             text = 'Some text',
             resolvedLink;
