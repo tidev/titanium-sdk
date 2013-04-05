@@ -23,7 +23,7 @@ description: |
     Make sure the window is modal and not full screen, and that the navigation bar is not hidden.
 extends: Titanium.UI.View
 since: "0.8"
-platforms: [android, iphone, ipad, mobileweb]
+platforms: [android, iphone, ipad, mobileweb, tizen]
 
 methods:
     # main doc inherited from Ti.UI.View.add
@@ -36,12 +36,12 @@ methods:
         to appear on top of it.
 
         See also: <Titanium.UI.View.add>.
-    platforms: [iphone, ipad, mobileweb]
+    platforms: [iphone, ipad, mobileweb, tizen]
 
   - name: remove
     description: |
         See also: [add](Titanium.UI.ProgressBar.add), <Titanium.UI.View.add>.
-    platforms: [iphone, ipad, mobileweb]
+    platforms: [iphone, ipad, mobileweb, tizen]
 
 properties:
 
