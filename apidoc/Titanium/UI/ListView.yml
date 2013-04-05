@@ -64,7 +64,7 @@ description: |
     You need to explicitly create a `ListSection` in order to add a `ListItem` to a `ListView`.
     You cannot directly add a `ListItem` to a `ListView`.
     In a `TableView`, a `TableViewRow` can be directly added to a `TableView` because a
-    `TableViewSection` is implictly created and added to the `TableView`.
+    `TableViewSection` is implicitly created and added to the `TableView`.
 
     A `ListItem` object is not created in the same method as a `TableViewRow`.
     A `ListItem` is create by passing an array of `ListDataItem` objects to the `ListSection`.
@@ -83,34 +83,34 @@ description: |
     **Note:** This is the first version of list view and some features have not been implemented.
     The differences listed are for the final planned list view and the current table view in Release 3.1.0.
 
-    - **Missing TableViewRow properties**: The following properties and their accessors are not
-      avaialable for ListItem: `accessibilityLabel`, `className`, `editable`, `hasCheck`,
+    - **TableViewRow properties**: The following properties and their accessors are not
+      available for ListItem: `accessibilityLabel`, `className`, `editable`, `hasCheck`,
       `hasChild`, `hasDetail`, `leftImage`, `moveable` and `rightImage`.
 
         - For `hasCheck`, `hasChild`, and `hasDetail`, use the `accessoryType` property.
         - For `leftImage` and `rightImage`, use the `image` property or create a custom item template.
 
-    - **Missing TableViewRow methods**: ListItem does not support any methods. Adding views and binding
+    - **TableViewRow methods**: ListItem does not support any methods. Adding views and binding
       event callbacks are supported through the item template.
 
-    - **Missing TableViewSection properties**: The following properties and their accessors are not
+    - **TableViewSection properties**: The following properties and their accessors are not
       supported by ListSection: `rows` and `rowCount`.
 
         - For `rows`, use the `items` property.
         - For `rowCount`, use the `itemCount` property. (Not yet implemented.)
 
-    - **Missing TableViewSection methods**: The following methods are not supported by ListSection:
+    - **TableViewSection methods**: The following methods are not supported by ListSection:
       `add`, `remove` and `rowAtIndex`.
 
         - For `rowAtIndex`, use the `getItemAt` method.
         - For `add` and `remove`, use the other ListSection methods to manipulate the ListItems in the
           ListSection.
 
-    - **Missing TableView properties**: The `data` property and its accessors are not available
+    - **TableView properties**: The `data` property and its accessors are not available
       for ListView. Use the `sections` property to set the ListSections for a ListView.  You
       cannot directly add ListItems to a ListView.
 
-    - **Missing TableView methods**: The following methods are not available to ListView:
+    - **TableView methods**: The following methods are not available to ListView:
       `appendRow`, `deleteRow`, `deselectRow`, `insertRowAfter`, `insertRowBefore`, `selectRow`,
       `updateRow`, `scrollToIndex` and `selectRow`.
 
@@ -257,6 +257,10 @@ methods:
 
   - name: scrollToItem
     summary: Scrolls to a specific item.
+    description: |
+        On Android 4.x, the list does not stop at the correct position.
+        This is a known bug in Android.
+        ([Android Issue #37278](https://code.google.com/p/android/issues/detail?id=37278))
     parameters:
       - name: sectionIndex
         summary: Section index.
