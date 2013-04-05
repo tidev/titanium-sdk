@@ -171,7 +171,7 @@ description: |
 
 extends: Titanium.Module
 since: "0.1"
-platforms: [android, iphone, ipad, mobileweb]
+platforms: [android, iphone, ipad, mobileweb, tizen]
 methods:
   - name: forwardGeocoder
     summary: Resolves an address to a location.
@@ -182,7 +182,7 @@ methods:
       - name: callback
         summary: Function to invoke on success or failure. 
         type: Callback<ForwardGeocodeResponse>
-    platforms: [android, iphone, ipad, mobileweb]
+    platforms: [android, iphone, ipad, mobileweb, tizen]
 
   - name: getCurrentHeading
     summary: Retrieves the current compass heading.
@@ -190,7 +190,7 @@ methods:
       - name: callback
         summary: Function to invoke on success or failure of obtaining the current heading.
         type: Callback<HeadingResponse>
-    platforms: [android, iphone, ipad, mobileweb]
+    platforms: [android, iphone, ipad, mobileweb, tizen]
 
   - name: getCurrentPosition
     summary: Retrieves the last known location from the device. 
@@ -203,7 +203,7 @@ methods:
       - name: callback
         summary: Function to invoke on success or failure of obtaining the current location. 
         type: Callback<LocationResults>
-    platforms: [android, iphone, ipad, mobileweb]
+    platforms: [android, iphone, ipad, mobileweb, tizen]
 
   - name: reverseGeocoder
     summary: Tries to resolve a location to an address.
@@ -224,7 +224,7 @@ methods:
       - name: callback
         summary: Function to invoke on success or failure. 
         type: Callback<ReverseGeocodeResponse>
-    platforms: [android, iphone, ipad, mobileweb]
+    platforms: [android, iphone, ipad, mobileweb, tizen]
 
 events:
 
@@ -240,23 +240,23 @@ events:
     properties:
       - name: code
         summary: If `success` is false, the error code if available.
-        platforms: [iphone, ipad, android]
+        platforms: [android, iphone, ipad]
 
       - name: success
         summary: Indicate if the heading event was successfully received.
         type: Boolean
-        platforms: [iphone, ipad, android]
+        platforms: [android, iphone, ipad]
 
       - name: error
         summary: If `success` is false, a string describing the error.
         type: String
-        platforms: [iphone, ipad, android]
+        platforms: [android, iphone, ipad]
 
       - name: heading
         summary: Dictionary object containing the heading data.
         type: HeadingData
 
-    platforms: [android, iphone, ipad, mobileweb]
+    platforms: [android, iphone, ipad, mobileweb, tizen]
 
   - name: location
     summary: Fired when a location update is received.
@@ -370,7 +370,7 @@ properties:
         Using this value on Android enables *simple mode* operation.
     type: Number
     permission: read-only
-    platforms: [android, iphone, ipad, mobileweb]
+    platforms: [android, iphone, ipad, mobileweb, tizen]
     since: "2.0.0"
     
   - name: ACCURACY_BEST_FOR_NAVIGATION
@@ -395,7 +395,7 @@ properties:
         Using this value on Android enables *simple mode* operation.
     type: Number
     permission: read-only
-    platforms: [android, iphone, ipad, mobileweb]
+    platforms: [android, iphone, ipad, mobileweb, tizen]
     since: "2.0.0"
 
   - name: AUTHORIZATION_AUTHORIZED
@@ -487,7 +487,7 @@ properties:
 
   - name: ERROR_TIMEOUT
     summary: Error indicating a timeout.
-    platforms: [mobileweb]
+    platforms: [mobileweb, tizen]
     type: Number
     permission: read-only
 
@@ -638,7 +638,7 @@ properties:
     summary: Indicates whether the current device supports a compass.
     type: Boolean
     permission: read-only
-    platforms: [android, iphone, ipad, mobileweb]
+    platforms: [android, iphone, ipad, mobileweb, tizen]
     since: { mobileweb: "2.1.0" }
 
   - name: headingFilter

@@ -26,7 +26,6 @@ events:
         
   - name: error
     summary: Fired when a banner could not be loaded.
-
     properties:
       - name: success
         summary: Indicates a successful operation. Returns `false`.

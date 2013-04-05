@@ -168,7 +168,7 @@ events:
       - name: reason
         summary: Human-readable text describing the reason for the change.
         type: String
-        platforms: [android, mobileweb]
+        platforms: [android, mobileweb, tizen]
 properties:
   - name: INADDR_ANY
     summary: |
@@ -407,7 +407,7 @@ properties:
         This function allows URLs to be formatted for use with the application's proxy to 
         get around cross domain issues.
     type: Callback<String>
-    platforms: [mobileweb]
+    platforms: [mobileweb, tizen]
 
 ---
 name: PushNotificationConfig

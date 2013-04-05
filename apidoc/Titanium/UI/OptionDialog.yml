@@ -85,7 +85,7 @@ events:
       - name: destructive
         summary: Index of the destructive option if defined or `-1` otherwise.
         type: Number
-        platforms: [iphone, ipad, mobileweb]
+        platforms: [iphone, ipad, mobileweb, tizen]
 
 methods:
   - name: show
@@ -114,6 +114,11 @@ properties:
     type: Titanium.UI.View
     platforms: [android]
     
+  - name: tizenView
+    summary: View to load inside the message area, to create a custom layout.
+    type: Titanium.UI.View
+    platforms: [tizen]
+
   - name: cancel
     summary: Index to define the cancel option.
     description: |
@@ -128,13 +133,13 @@ properties:
         Note that the cancel button is never shown on iPad, since the user can cancel the 
         dialog by clicking outside of the dialog. 
     type: Number
-    default: undefined (Android), -1 (iOS, Mobile Web)
+    default: undefined (Android), -1 (iOS, Mobile Web, Tizen)
 
   - name: destructive
     summary: Index to define the destructive option, indicated by a visual cue when rendered.
     type: Number
     default: -1
-    platforms: [iphone, ipad, mobileweb]
+    platforms: [iphone, ipad, mobileweb, tizen]
     availability: creation
     
   - name: options

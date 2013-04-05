@@ -632,3 +632,4 @@ properties:
   - name: result
     summary: JSON response returned by Facebook.
     type: String
+
