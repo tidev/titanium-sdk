@@ -72,7 +72,6 @@ public class TiUIText extends TiUIView
 
 	private boolean field;
 	private int maxLength = -1;
-	// A flag to indicate whether the text change is caused by the user or by the requirement of maxLength.
 	private boolean isTruncatingText = false;
 
 	protected TiEditText tv;
@@ -260,16 +259,18 @@ public class TiUIText extends TiUIView
 	public void afterTextChanged(Editable editable)
 	{
 		if (maxLength >= 0 && editable.length() > maxLength) {
+			// The input characters are more than maxLength. We need to truncate the text and reset text.
 			isTruncatingText = true;
 			String newText = editable.subSequence(0, maxLength).toString();
 			int cursor = tv.getSelectionStart();
 			if (cursor > maxLength) {
 				cursor = maxLength;
 			}
-			tv.setText(newText);
+			tv.setText(newText); // This method will invoke onTextChanged() and afterTextChanged().
 			tv.setSelection(cursor);
+		} else {
+			isTruncatingText = false;
 		}
-		isTruncatingText = false;
 	}
 
 	@Override
