@@ -952,7 +952,7 @@ build.prototype = {
 		afs.copyDirSyncRecursive(src, dest, opts || {
 			preserve: true,
 			logger: this.logger.debug,
-			ignoreDirs: ['.git','.svn', 'CVS'],
+			ignoreDirs: ['.git', '.svn', 'CVS'],
 			ignoreFiles: ['.gitignore', '.cvsignore']
 		});
 	},
@@ -961,7 +961,7 @@ build.prototype = {
 		afs.copyDirRecursive(src, dest, callback, opts || {
 			preserve: true,
 			logger: this.logger.debug,
-			ignoreDirs: ['.git','.svn', 'CVS'],
+			ignoreDirs: ['.git', '.svn', 'CVS'],
 			ignoreFiles: ['.gitignore', '.cvsignore']
 		});
 	},
