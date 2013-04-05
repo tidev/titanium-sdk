@@ -503,17 +503,8 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 	protected void onLayout(boolean changed, int left, int top, int right, int bottom)
 	{
 		// Make these associations here to avoid doing them on measurement passes
-		TableViewRowProxy rp = getRowProxy();
-		rp.setTableViewItem(this);
-		if (this.item.proxy.getChildren().length == 0) {
-			// old-style row
-			TiUIView childView = views.get(0);
-			childView.processProperties(filterProperties(rp.getProperties()));
-			childView.setProxy(rp);
-		}
-		else {
-			associateProxies(this.item.proxy.getChildren(), views);
-		}
+		getRowProxy().setTableViewItem(this);
+		
 		
 		int contentLeft = left;
 		int contentRight = right;
