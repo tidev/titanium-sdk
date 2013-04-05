@@ -21,7 +21,7 @@ events:
       - name: level
         summary: Percentage battery power level.
         type: Number
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, tizen]
     
 methods:
   - name: canOpenURL
@@ -56,10 +56,10 @@ methods:
   - name: is24HourTimeFormat
     summary: Returns whether the system settings are configured to show times in 24-hour format.
     description: |
-        On Mobile Web, this function always returns false.
+        On Mobile Web and Tizen, this function always returns false.
     returns:
         type: Boolean
-    platforms: [android, iphone, ipad, mobileweb]
+    platforms: [android, iphone, ipad, mobileweb, tizen]
     
 properties:
   - name: BATTERY_STATE_CHARGING
@@ -87,16 +87,19 @@ properties:
     summary: System's WIFI IP address. No other network types are supported.
     type: String
     permission: read-only
+    platforms: [android, iphone, ipad, tizen]
     
   - name: architecture
     summary: System's processor architecture.
     type: String
     permission: read-only
+    platforms: [android, iphone, ipad, tizen]
     
   - name: availableMemory
     summary: System's unused memory, measured in megabytes on iOS and bytes on Android.
     type: Number
     permission: read-only
+    platforms: [android, iphone, ipad]
     
   - name: batteryLevel
     summary: |
@@ -165,6 +168,7 @@ properties:
         unique device identification, which they have prohibited.
     type: String
     permission: read-only
+    platforms: [android, iphone, ipad]
   
   - name: manufacturer
     summary: Manufacturer of the device.
@@ -190,7 +194,7 @@ properties:
         Firefox 12 running on Ubuntu.
     type: String
     permission: read-only
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, tizen]
     examples:
       - title: Testing for a Virtual Device
         example: |
@@ -204,7 +208,7 @@ properties:
   - name: name
     summary: |
         Name of the platform. Returns `android` for the Android platform, `iPhone OS` for the iOS
-        platform (iPhone, iPad, or iPod Touch), and `mobileweb` for the Mobile Web platform.
+        platform (iPhone, iPad, or iPod Touch), `TIZEN` for Tizen platform and `mobileweb` for the Mobile Web platform.
     type: String
     permission: read-only
     
@@ -212,11 +216,12 @@ properties:
     summary: System's WIFI network mask. No other network types are supported.
     type: String
     permission: read-only
+    platforms: [android, iphone, ipad]
     
   - name: osname
     summary: |
         Short name of the system's Operating System. Returns `android` for the Android platfrom,
-        `iphone` for the iPhone or iPod Touch, `ipad` for the iPad, and `mobileweb` for the Mobile Web
+        `iphone` for the iPhone or iPod Touch, `ipad` for the iPad, `tizen` for Tizen platform and `mobileweb` for the Mobile Web
         platform.
     type: String
     permission: read-only
@@ -230,6 +235,7 @@ properties:
     summary: Number of processing cores.
     type: Number
     permission: read-only
+    platforms: [android, iphone, ipad]
     
   - name: runtime
     summary: Short name of the JavaScript runtime in use.
@@ -244,6 +250,7 @@ properties:
       System name, if set. On iOS, this can be found in Settings > General > About > Name.
     type: String
     permission: read-only
+    platforms: [android, iphone, ipad]
     
   - name: version
     summary: System's OS version.

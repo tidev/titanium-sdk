@@ -1,0 +1,52 @@
+---
+name: Titanium.App.Tizen
+summary: A module used to access Tizen application resources.
+description: |
+    For more information, refer to the official documentation on the Tizen Developer website about 
+    [application resources](https://developer.tizen.org/help/topic/org.tizen.web.appprogramming/html/guide/app_guide/app_guide.htm).
+extends: Titanium.Module
+since: "3.2"
+platforms: [tizen]
+
+methods:
+  - name: exit
+    summary: Exits the current application.
+
+  - name: hide
+    summary: Hides the current application.
+
+properties:
+  - name: id
+    summary: Returns the Tizen-specific identifier of the current (running) application for application management.
+    type: String
+    permission: read-only
+
+  - name: name
+    summary: Returns the Tizen-specific name of the current (running) application.
+    type: String
+    permission: read-only
+
+  - name: iconPath
+    summary: Returns the path where the icon for this application is stored in the file storage of the Tizen device.
+    type: String
+    permission: read-only
+
+  - name: show
+    summary: Determines whether the application information of the current application should be shown (such as in the menus) or not.
+    type: Boolean
+    permission: read-only
+
+  - name: categories
+    summary: The categories that the current app belongs to.
+    type: String[]
+    permission: read-only
+
+  - name: installDate
+    summary: The current application's install/update time.
+    permission: read-only
+    type: Date
+
+  - name: size
+    summary: The current application's size (installed space).
+    permission: read-only
+    type: Number

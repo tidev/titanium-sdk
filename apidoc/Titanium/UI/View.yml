@@ -43,19 +43,19 @@ description: |
         is 163DPI for iPhone/iPod touch and 132DPI for the iPad. A DIP
         corresponds to 2 pixels of width or height on a Retina display.
     
-    *   On Mobile Web, both DIP and pixel are equal to one browser pixel, which may
+    *   On Mobile Web and Tizen, both DIP and pixel are equal to one browser pixel, which may
         not correspond to a pixel on the display. From testing, most browsers seem to
         report a DPI value of 96DPI, regardless of the actual display density.
     
     The absolute measures, such as inches, are dependent on the device correctly reporting
-    its density. On Mobile Web, in particular, these values are unlikely to be exact.
+    its density. On Mobile Web and Tizen, in particular, these values are unlikely to be exact.
     
     If no units are specified, a system-default unit is assumed. The system default unit is:
     
     *    Pixels on Android.
     *    DIPs on iOS.
-    *    DIPs on Mobile Web (as described above, DIPs and pixels are interchangable on
-         Mobile Web).
+    *    DIPs on Mobile Web and Tizen(as described above, DIPs and pixels are interchangable on
+         Mobile Web and Tizen).
     
     On Android and iOS, the default unit can be overriden on a per-application level by setting the
     `ti.ui.defaultunit` property in `tiapp.xml`. For example, to use DIPs as the 
@@ -63,7 +63,7 @@ description: |
     
         <property name="ti.ui.defaultunit" type="string">dip</property>
     
-    (This property is not supported on Mobile Web.)
+    (This property is not supported on Mobile Web and Tizen.)
     
     The value for `ti.ui.defaultunit` can be any of the unit specifiers defined above, or 
     `system` to specify that the platform's default unit should be used.
@@ -99,7 +99,7 @@ description: |
         Spec. This value is not recommended for new development and will be deprecated in
         the future.
     
-        On Mobile Web, 'auto' always selects `SIZE` behavior.
+        On Mobile Web and Tizen, 'auto' always selects `SIZE` behavior.
     
     Sizes and positions can also be specified as a percentage of the parent's size, for 
     example, '50%'.
@@ -251,7 +251,7 @@ events:
         A `longpress` and a `longclick` can occur together.  
         
         In contrast to a `longclick`, this event returns the `x` and `y` coordinates of the touch.
-    platforms: [android, iphone, ipad, mobileweb]
+    platforms: [android, iphone, ipad, mobileweb, tizen]
     properties:
       - name: x
         summary: X coordinate of the event from the `source` view's coordinate system.
@@ -306,7 +306,7 @@ events:
         
   - name: swipe
     summary: Fired when the device detects a swipe gesture against the view.
-    platforms: [android,iphone,ipad,mobileweb]
+    platforms: [android,iphone,ipad,mobileweb, tizen]
     properties:
       - name: direction
         summary: Direction of the swipe--either 'left', 'right', 'up', or 'down'.
@@ -495,7 +495,7 @@ methods:
         reflect the original values set by the user, not the actual position of the view.
         
         The [rect](Titanium.UI.View.rect) property can be used to determine the actual size and 
-        position of the view. Note that on Mobile Web, the `rect` property is not updated after 
+        position of the view. Note that on Mobile Web and Tizen, the `rect` property is not updated after 
         animation. This is a known issue [TIMOB-8930](https://jira.appcelerator.org/browse/TIMOB-8930).
 
     parameters:
@@ -525,7 +525,7 @@ methods:
         To be notified when the layout pass completes, add a listener for the
         [postlayout](Titanium.UI.View.postlayout) event.
         
-        On Mobile Web, this method has no effect, but is included for parity.
+        On Mobile Web and Tizen, this method has no effect, but is included for parity.
         
   - name: hide
     summary: Hides this view.
@@ -563,14 +563,14 @@ methods:
         Note that _any_ property changes made during the batch update _may_ be deferred until
         `finishLayout` is called. This may vary somewhat by platform. For example, changing the
         text of a label may trigger a layout pass. In iOS, updating the label text is
-        deferred, while on Mobile Web, the label text is updated immediately but the control is 
+        deferred, while on Mobile Web and Tizen, the label text is updated immediately but the control is 
         not resized until `finishLayout` is called.
         
         See also: [updateLayout](Titanium.UI.View.updateLayout), 
         [finishLayout](Titanium.UI.View.finishLayout), 
         [postlayout](Titanium.UI.View.postlayout) event.
         
-        On Mobile Web, this method is included for parity only, and thus has no effect.
+        On Mobile Web and Tizen, this method is included for parity only, and thus has no effect.
     since: "2.0.0"
     deprecated:
         since: "3.0.0"
@@ -582,12 +582,13 @@ methods:
         The `honorScaleFactor` method is only supported on iOS.
     returns:
         type: Titanium.Blob
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, tizen]
     parameters:
       - name: callback
         summary: | 
             Function to be invoked upon completion. If non-null, this method will be performed 
             asynchronously. If null, it will be performed immediately.
+            On Tizen, this function is asynchronous only. The callback is mandatory and function always returns "undefined".
         type: Callback<Titanium.Blob>
         optional: true
         
@@ -622,7 +623,7 @@ methods:
         [finishLayout](Titanium.UI.View.finishLayout), 
         [postlayout](Titanium.UI.View.postlayout) event.
         
-        On Mobile Web, this method is included for parity only, and thus has no effect.
+        On Mobile Web and Tizen, this method is included for parity only, and thus has no effect.
     since: "2.0.0"
     deprecated:
         since: "3.0.0"
@@ -645,7 +646,7 @@ methods:
         the return value.
     returns:
         type: Point
-    platforms: [android, iphone, ipad, mobileweb]
+    platforms: [android, iphone, ipad, mobileweb, tizen]
     since: { android: "1.8", iphone: "1.8", ipad: "1.8", mobileweb: "2.0" }
     parameters:
       - name: point
@@ -792,7 +793,7 @@ properties:
     summary: A background gradient for the view.
     type: Gradient
     default: No gradient
-    platforms: [iphone,ipad,mobileweb,android]
+    platforms: [iphone,ipad,mobileweb, tizen,android]
     description: |
         A gradient can be defined as either linear or radial. A linear gradient varies continuously 
         along a line between the `startPoint` and `endPoint`.
@@ -814,7 +815,7 @@ properties:
         
             colors: [ { color: 'red', offset: 0.0}, { color: 'blue', offset: 0.25 }, { color: 'red', offset: 1.0 } ]
         
-        Mobile Web has two limitations: backfillStart and backfillEnd are ignored and the system 
+        Mobile Web and Tizen have two limitations: backfillStart and backfillEnd are ignored and the system 
         behaves as if they are true, and endPoint is not supported for radial gradients. 
 
         Android currently only supports linear gradients. It also ignores backfillStart and backfillEnd
@@ -911,14 +912,14 @@ properties:
         
         `focusable` must be true for normal views.
     type: String
-    platforms: [android, mobileweb]
+    platforms: [android, mobileweb, tizen]
     default: Background color of this view.
     
   - name: backgroundSelectedImage
     summary: Selected background image url for the view, specified as a local file path or URL.
     description: For normal views, the selected background is only used if `focusable` is `true`.
     type: String
-    platforms: [android, mobileweb]
+    platforms: [android, mobileweb, tizen]
     default: |
         If `backgroundSelectedImage` is undefined, and the normal background image
         `backgroundImage` is set, the normal image is used when this view is selected.
@@ -943,7 +944,7 @@ properties:
     summary: Border color of the view, as a color name or hex triplet.
     description: |
         For information about color values, see the "Colors" section of <Titanium.UI>. 
-    default: Same as the normal background color of this view (Android, Mobile Web), black (iOS).
+    default: Same as the normal background color of this view (Android, Mobile Web, Tizen), black (iOS).
     type: String
     
   - name: borderRadius
@@ -1011,7 +1012,7 @@ properties:
              view. The use of 'auto' is deprecated, and should be replaced with the `SIZE` or
              `FILL` constants if it is necessary to set the view's behavior explicitly.
         
-             On Mobile Web, 'auto' always selects `SIZE` behavior.
+             On Mobile Web and Tizen, 'auto' always selects `SIZE` behavior.
         
         This is an input property for specifying the view's height dimension. To determine the 
         view's size once rendered, use the [rect](Titanium.UI.View.rect) or 
@@ -1129,7 +1130,7 @@ properties:
             it is wrapped to a new row. The height of each row is equal to the maximum height of
             the children in that row.
             
-            Wrapping behavior is available on iOS, Android and Mobile Web (Release 2.1.0 and later).
+            Wrapping behavior is available on iOS, Android, Tizen and Mobile Web (Release 2.1.0 and later).
             When the `horizontalWrap` property is set to true, the first row is placed at the top of the 
             parent view, and successive rows are placed below the first row. Each child is 
             positioned vertically _within its row_ somewhat like composite layout mode. 
@@ -1210,7 +1211,7 @@ properties:
         <Titanium.UI.Android.SOFT_KEYBOARD_SHOW_ON_FOCUS>.
     type: Number
     default: <Titanium.UI.Android.SOFT_KEYBOARD_DEFAULT_ON_FOCUS>
-    platforms: [android]
+    platforms: [android, tizen]
     
   - name: top
     summary: The view's top position.
@@ -1231,7 +1232,7 @@ properties:
     
   - name: transform
     summary: Transformation matrix to apply to the view.
-    description: Android and Mobile Web only support 2DMatrix transforms.
+    description: Android, Tizen and Mobile Web only support 2DMatrix transforms.
     type: [ Titanium.UI.2DMatrix, Titanium.UI.3DMatrix ]
     default: Identity matrix
     
@@ -1256,7 +1257,7 @@ properties:
              view. The use of 'auto' is deprecated, and should be replaced with the `SIZE` or
              `FILL` constants if it is necessary to set the view's behavior explicitly.
         
-        On Mobile Web, 'auto' always selects `SIZE` behavior.
+        On Mobile Web and Tizen, 'auto' always selects `SIZE` behavior.
         
         This is an input property for specifying the view's width dimension. To determine 
         the view's size once rendered, use the [rect](Titanium.UI.View.rect) or
@@ -1327,7 +1328,7 @@ properties:
 ---
 name: Gradient
 summary: A simple object defining a color gradient.
-platforms: [iphone, ipad, mobileweb]
+platforms: [iphone, ipad, mobileweb, tizen]
 since: "1.8.0"
 properties:
   - name: type

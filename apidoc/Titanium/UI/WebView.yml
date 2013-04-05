@@ -78,7 +78,7 @@ methods:
               
           setHtml('<html><body>Hello, <a href="/documentation">Titanium</a>!</body></html>',
                   {baseURL:'http://developer.appcelerator.com/'});
-    platforms: [android, iphone, ipad, mobileweb]
+    platforms: [android, iphone, ipad, mobileweb, tizen]
     parameters:
 
       - name: html
@@ -93,14 +93,14 @@ methods:
   - name: canGoBack
     summary: Returns `true` if the web view can go back in its history list.
     description: |
-        For Mobile Web, returns true if `url` is set.
+        For Mobile Web and Tizen, returns true if `url` is set.
     returns:
         type: Boolean
 
   - name: canGoForward
     summary: Returns `true` if the web view can go forward in its history list.
     description: |
-        For Mobile Web, returns true if `url` is set.
+        For Mobile Web and Tizen, returns true if `url` is set.
     returns:
         type: Boolean
 
@@ -159,7 +159,7 @@ methods:
   - name: reload
     summary: Reloads the current webpage.
     description: |
-        For Mobile Web, when you reload, the last visited same domain page or the original `url` 
+        For Mobile Web and Tizen, when you reload, the last visited same domain page or the original `url` 
         is the page that is reloaded.
 
         You may need to simply reset the `url` property to reinitialize the WebView's iframe. 
@@ -187,7 +187,7 @@ methods:
   - name: setBasicAuthentication
     summary: |
         Sets the basic authentication for this web view to use on subsequent URl requests.
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, tizen]
     parameters:
 
       - name: username
@@ -205,13 +205,13 @@ methods:
         the parent and all other web views.  Generally, this feature does not work reliably and instead 
         you may choose to set the `hardStop` argument to true.
 
-        When `hardStop` is set to `true`, the Mobile Web platform will destroy the iFrame
+        When `hardStop` is set to `true`, the Mobile Web and Tizen platforms will destroy the iFrame
         used to display the content, so nothing is displayed where the web view used to
         be. The actual web view component is *not* destroyed, and you can redisplay it by
         calling [reload](Titanium.UI.WebView.reload), or by specifying new content.
     parameters:
       - name: hardStop
-        summary: Forces the web view to destroy the iFrame (Mobile Web only).
+        summary: Forces the web view to destroy the iFrame (Mobile Web and Tizen only).
         type: Boolean
 
 events:
@@ -219,7 +219,7 @@ events:
   - name: beforeload
     summary: Fired before the web view starts loading its content.
     description: |
-        For Mobile Web, if you pass the `url` into the constructor, you must attach the event listener 
+        For Mobile Web and Tizen, if you pass the `url` into the constructor, you must attach the event listener 
         before adding the web view to its parent, otherwise the event will fire before you have a 
         chance to add the event listener.
         
@@ -268,11 +268,11 @@ events:
       - name: url
         summary: URL of the web document.
         type: String
-        platforms: [iphone, ipad, mobileweb, android]
+        platforms: [iphone, ipad, mobileweb, tizen, android]
       - name: message
         summary: Error message. Use error instead.
         type: String
-        platforms: [iphone, ipad, mobileweb, android]
+        platforms: [iphone, ipad, mobileweb, tizen, android]
         deprecated:
             since: "3.1.0"
       - name: errorCode
@@ -285,7 +285,7 @@ events:
   - name: load
     summary: Fired when the web view content is loaded.
     description: |
-        For Mobile Web, the `url` returned in the load event is generally accurate when loading 
+        For Mobile Web and Tizen, the `url` returned in the load event is generally accurate when loading 
         same domain pages and remote pages that you explicitly set using the `url` property. 
         If you navigate to a remote page, then this `url` is set to the initial remote page's URL.
     properties:
@@ -299,7 +299,7 @@ properties:
     description: |
         Android only supports loading data from a `Blob`, not a `File`.
 
-        For Mobile Web, setting new content will reset the `url` and the WebView's history. The WebView's
+        For Mobile Web and Tizen, setting new content will reset the `url` and the WebView's history. The WebView's
         "onload" event will have already fired prior to the data being set inside the WebView.
 
         See also: [url](Titanium.UI.WebView.url) and [html](Titanium.UI.WebView.html).
@@ -331,15 +331,15 @@ properties:
         The web view's content can also be set using the [data](Titanium.UI.WebView.data) or 
         [url](Titanium.UI.WebView.url) properties.
 
-        #### Mobile Web Platform Notes
+        #### Mobile Web and Tizen Platform Notes
 
-        For Mobile Web, setting new content will reset the `url` and the WebView's
+        For Mobile Web and Tizen, setting new content will reset the `url` and the WebView's
         history. 
         
         Content added using the `html` property (or the `setHtml` method) will never
         receive an "onload" DOM event. 
 
-        When querying this the `html` property, Mobile Web returns a modified version of the original html. 
+        When querying this the `html` property, Mobile Web and Tizen return a modified version of the original html. 
         The `<html>` tag is stripped off, along with any comments outside of the `<html>` tag. Some default 
         attributes may be added as well. For example, a web page with the code:
         
@@ -411,7 +411,7 @@ properties:
   - name: showScrollbars
     summary: If `true`, scrollbars are displayed if content is larger than the web view.
     type: Boolean
-    platforms: [mobileweb]
+    platforms: [mobileweb, tizen]
     since: "1.8.2"
     default: true
 
@@ -441,8 +441,12 @@ properties:
     description: |
         This property changes as the content of the webview changes (such as when the user
         clicks a hyperlink inside the web view).
-
+        
         See also: [data](Titanium.UI.WebView.data) and [html](Titanium.UI.WebView.html).
+        
+        On Tizen, the URL cannot refer to a [File](Titanium.Filesystem.File) object. 
+        `Ti.Filesystem` uses web storage, which can't be accessed directly from a web view. 
+        The URL can be a string that points to a physical file on Tizen's file system (e.g. /opt/apps/kitchensink/index.html), or a remote location.
     type: String
 
   - name: userAgent

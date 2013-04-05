@@ -14,7 +14,7 @@ description: |
     into the tree, etc.  [Google is aware of the issue](http://code.google.com/p/android/issues/detail?id=7395).
 since: "0.9"
 createable: false
-platforms: [android, iphone, ipad, mobileweb]
+platforms: [android, iphone, ipad, mobileweb, tizen]
 properties:
   - name: entities
     summary: >

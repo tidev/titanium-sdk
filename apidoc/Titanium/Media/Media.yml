@@ -6,7 +6,7 @@ description: |
     as playing audio or recording video.
 extends: Titanium.Module
 since: "0.1"
-platforms: [android, iphone, ipad, mobileweb]
+platforms: [android, iphone, ipad, mobileweb, tizen]
 methods:
   - name: beep
     summary: Plays a device beep notification.
@@ -58,7 +58,7 @@ methods:
         type: MusicLibraryOptionsType
   - name: openPhotoGallery
     summary: Opens the photo gallery image picker.
-    platforms: [iphone, ipad, android]
+    platforms: [iphone, ipad, android, tizen]
     parameters:
       - name: options
         summary: Photo gallery options as described in <PhotoGalleryOptionsType>.
@@ -83,7 +83,7 @@ methods:
         have the appropriate extension for the data--for example, `image.jpg` or `video1.mov` work,
         but `video1.tmp` does not. Currently, the `.mp4` extension is not supported, but MP4
         files may be imported by saving them with the `.mov` extension.
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, tizen]
     parameters:
       - name: media
         summary: Media to save to the camera roll or media gallery. 
@@ -107,7 +107,7 @@ methods:
         If the `showControls` option is `false`, you must control the camera explicitly, using
         the [takePicture](Titanium.Media.takePicture) and [hideCamera](Titanium.Media.hideCamera) 
         methods.
-    platforms: [iphone, ipad, android]
+    platforms: [iphone, ipad, android, tizen]
     parameters:
       - name: options
         summary: A dictionary of camera options as described in <CameraOptionsType>.
@@ -145,11 +145,11 @@ methods:
       - name: callback
         summary: Function to call upon capture. 
         type: Callback<ScreenshotResult>
-    platforms: [iphone, ipad, android]
+    platforms: [iphone, ipad, android, tizen]
   - name: vibrate
     summary: Makes the device vibrate.
     description: |
-        On Android and Mobile Web, a `pattern` argument can be provided to specify a
+        On Android, Mobile Web and Tizen, a `pattern` argument can be provided to specify a
         vibration pattern.
 
         The `pattern` is an array of Number values.  Each number in the array is 
@@ -162,13 +162,13 @@ methods:
         Would cause the vibration to start immediately (delay = 0), and perform three
         long vibrations (500 ms) separated by short pauses (100ms).
         
-        On Mobile Web, calling `vibrate` without a `pattern` will stop the vibration.
+        On Mobile Web and Tizen, calling `vibrate` without a `pattern` will stop the vibration.
     parameters: 
       - name: pattern
         summary: Array of values identifying a vibrate pattern (only used on Android).
         optional: true
         type: Array<Number>
-    platforms: [iphone, ipad, android, mobileweb]
+    platforms: [iphone, ipad, android, mobileweb, tizen]
 events:
   - name: linechange
     summary: Fired when an audio line type change is detected.
@@ -649,22 +649,22 @@ properties:
     summary: Current media is playable.
     type: Number
     permission: read-only
-    platforms: [android, iphone, ipad, mobileweb]
+    platforms: [android, iphone, ipad, mobileweb, tizen]
   - name: VIDEO_LOAD_STATE_PLAYTHROUGH_OK
     summary: Playback will be automatically started in this state when `autoplay` is true.
     type: Number
     permission: read-only
-    platforms: [android, iphone, ipad, mobileweb]
+    platforms: [android, iphone, ipad, mobileweb, tizen]
   - name: VIDEO_LOAD_STATE_STALLED
     summary: Playback will be automatically paused in this state, if started.
     type: Number
     permission: read-only
-    platforms: [android, iphone, ipad, mobileweb]
+    platforms: [android, iphone, ipad, mobileweb, tizen]
   - name: VIDEO_LOAD_STATE_UNKNOWN
     summary: Current load state is not known.
     type: Number
     permission: read-only
-    platforms: [android, iphone, ipad, mobileweb]
+    platforms: [android, iphone, ipad, mobileweb, tizen]
   - name: VIDEO_MEDIA_TYPE_AUDIO
     summary: A audio type of media in the movie returned by <Titanium.Media.VideoPlayer> `mediaTypes` property.
     type: Number
@@ -689,12 +689,12 @@ properties:
     summary: Video playback is paused.
     type: Number
     permission: read-only
-    platforms: [android, iphone, ipad, mobileweb]
+    platforms: [android, iphone, ipad, mobileweb, tizen]
   - name: VIDEO_PLAYBACK_STATE_PLAYING
     summary: Video is being played.
     type: Number
     permission: read-only
-    platforms: [android, iphone, ipad, mobileweb]
+    platforms: [android, iphone, ipad, mobileweb, tizen]
   - name: VIDEO_PLAYBACK_STATE_SEEKING_BACKWARD
     summary: Video playback is rewinding.
     type: Number
@@ -709,17 +709,17 @@ properties:
     summary: Video playback is stopped.
     type: Number
     permission: read-only
-    platforms: [android, iphone, ipad, mobileweb]
+    platforms: [android, iphone, ipad, mobileweb, tizen]
   - name: VIDEO_REPEAT_MODE_NONE
     summary: Constant for disabling repeat on video playback.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad, mobileweb]
+    platforms: [iphone, ipad, mobileweb, tizen]
   - name: VIDEO_REPEAT_MODE_ONE
     summary: Constant for repeating one video (i.e., the one video will repeat constantly) during playback.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad, mobileweb]
+    platforms: [iphone, ipad, mobileweb, tizen]
   - name: VIDEO_SCALING_ASPECT_FILL
     summary: Scale video to fill the screen, clipping edges if necessary.
     description: |
@@ -829,7 +829,7 @@ properties:
     summary: |
         `true` if the device has camera support.
     type: Boolean
-    platforms: [iphone, ipad, android]
+    platforms: [iphone, ipad, android, tizen]
     permission: read-only
   - name: peakMicrophonePower
     summary: Current microphone level peak power in dB or -1 if microphone monitoring is disabled.
@@ -1200,7 +1200,7 @@ properties:
 ---
 name: ScreenshotResult
 summary: The parameter passed to the <Titanium.Media.takeScreenshot> callback.
-platforms: [iphone, ipad, android]
+platforms: [iphone, ipad, android, tizen]
 properties:
   - name: media
     summary: The screenshot image.
