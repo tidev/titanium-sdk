@@ -961,6 +961,9 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 	ourEvent = TiBindingEventCreateWithNSObjects(self, source, type, obj);
 	if (report || (code != 0)) {
 		TiBindingEventSetErrorCode(ourEvent, code);
+	}
+	if (message != nil)
+	{
 		TiBindingEventSetErrorMessageWithNSString(ourEvent, message);
 	}
 	TiBindingEventSetBubbles(ourEvent, propagate);
