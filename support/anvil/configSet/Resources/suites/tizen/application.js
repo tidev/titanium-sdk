@@ -25,9 +25,6 @@ module.exports = new function() {
 		{name: 'launchAppControl'},
 		{name: 'findAppControl'},
 		{name: 'calc_launch'}
-		// These tests impact to another and can not be launched with others
-		// {name: 'harness_hide'},
-		// {name: 'harness_hide_tiapp'}
 	];
 
 	function _runingAppWithId(runingAppArray, appId) {
@@ -320,62 +317,5 @@ module.exports = new function() {
 		}
 
 		Tizen.Apps.findAppControl(appControl, successCB, errorCB);
-	}
-
-	// Hides harnes app - MAY HAVE PROBLEM FOR OTHER TESTS
-	this.harness_hide = function(testRun) {
-		var currApp,
-			appId;
-
-		currApp = Tizen.Apps.getCurrentApplication();
-		appId = currApp.appInfo.id;
-
-		valueOf(testRun, currApp).shouldBe('[object TizenAppsApplication]');
-		valueOf(testRun, currApp.appInfo).shouldBe('[object TizenAppsApplicationInformation]');
-		valueOf(testRun, appId).shouldNotBeUndefined();
-		valueOf(testRun, function() {
-			Ti.API.info('hide current ');
-
-			currApp.hide();
-		}).shouldNotThrowException();
-		valueOf(testRun, function() {
-			Tizen.Apps.launch(appId);
-		}).shouldNotThrowException();
-
-		finish(testRun);
-	}
-
-	// Hides harnes app - MAY HAVE PROBLEM FOR OTHER TESTS
-	// This test uses Ti.App.Tizen object that represent current application
-	this.harness_hide_tiapp = function(testRun) {
-		var currApp,
-			appId;
-
-		currApp = Ti.App.Tizen;
-		appId = currApp.id;
-
-		valueOf(testRun, currApp).shouldBeObject();
-		valueOf(testRun, appId).shouldBeString();
-		valueOf(testRun, currApp.name).shouldBeString();
-		valueOf(testRun, currApp.iconPath).shouldBeString();
-		valueOf(testRun, currApp.version).shouldBeString();
-		valueOf(testRun, currApp.show).shouldBeBoolean();
-		valueOf(testRun, currApp.categories).shouldBeArray();
-		valueOf(testRun, currApp.installDate).shouldBeObject();
-		valueOf(testRun, currApp.size).shouldBeNumber();
-		valueOf(testRun, currApp.contextId).shouldBeString();
-
-		// Check functions
-		valueOf(testRun, currApp.hide).shouldBeFunction();
-		valueOf(testRun, currApp.exit).shouldBeFunction();
-
-		valueOf(testRun, function() {
-			currApp.hide();
-		}).shouldNotThrowException();
-		valueOf(testRun, function() {
-			Tizen.Apps.launch(appId);
-		}).shouldNotThrowException();
-
-		finish(testRun);
 	}
 }

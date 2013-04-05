@@ -120,7 +120,7 @@ module.exports = new function() {
 		alarmArr = Tizen.Alarm.getAll();
 		valueOf(testRun, alarmArr.length).shouldBe(0);
 
-		//Alarm in 10 seconds (relative)
+		// Alarm in 10 seconds (relative)
 		alarm = Tizen.Alarm.createAlarmRelative({
 			delay: 10
 		});
