@@ -65,7 +65,7 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 		addView(leftImage, new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
 
 		this.content = new TiCompositeLayout(activity);
-		addView(content, new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
+		addView(content, new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
 
 		this.rightImage = new ImageView(activity);
 		rightImage.setVisibility(GONE);
@@ -84,6 +84,9 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 	public void setRowData(Item item) {
 		this.item = item;
 		TableViewRowProxy rp = getRowProxy();
+		if (this != rp.getTableViewRowProxyItem()) {
+			rp.setTableViewItem(this);
+		}
 		setRowData(rp);
 	}
 
@@ -105,58 +108,89 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 	}
 
 	/*
+	 * Check if the two proxies are compatible outerView wise
+	 */
+	private boolean checkBorderProps(TiViewProxy oldProxy, TiViewProxy newProxy){
+		KrollDict oldProperties = oldProxy.getProperties();
+		KrollDict newProperties = newProxy.getProperties();
+		boolean oldHasBorder = oldProperties.containsKeyAndNotNull(TiC.PROPERTY_BORDER_COLOR) 
+				|| oldProperties.containsKeyAndNotNull(TiC.PROPERTY_BORDER_RADIUS)
+				|| oldProperties.containsKeyAndNotNull(TiC.PROPERTY_BORDER_WIDTH);
+		boolean newHasBorder = newProperties.containsKeyAndNotNull(TiC.PROPERTY_BORDER_COLOR) 
+				|| newProperties.containsKeyAndNotNull(TiC.PROPERTY_BORDER_RADIUS)
+				|| newProperties.containsKeyAndNotNull(TiC.PROPERTY_BORDER_WIDTH);
+
+		return (oldHasBorder == newHasBorder);
+	}
+
+	/*
+	 * Check the view heirarchy
+	 */
+	private boolean checkViewHeirarchy(TiViewProxy oldProxy, TiViewProxy newProxy){
+		if (oldProxy == newProxy){
+			return true;
+		}
+		if(oldProxy.getClass() != newProxy.getClass()) {
+			//Check for type
+			return false;
+		} else if (!checkBorderProps(oldProxy, newProxy)) {
+			//Ensure they have compatible border props
+			return false;
+		} else {
+			//Check children recursively
+			TiViewProxy[] oldChildren = oldProxy.getChildren();
+			TiViewProxy[] newChildren = newProxy.getChildren();
+			if (oldChildren.length != newChildren.length) {
+				return false;
+			} else {
+				int len = oldChildren.length;
+				for (int i=0;i<len;i++) {
+					if (!checkViewHeirarchy(oldChildren[i],newChildren[i])) {
+						return false;
+					}
+				}
+			}
+		}
+		//ok, all passed. Return true
+		return true;
+	}
+
+	/*
+	 * Check if views can be reused. 
+	 */
+	private boolean canUseExistingViews(ArrayList<TiViewProxy> proxies){
+
+		int len = proxies.size();
+		if(views != null && views.size() == len) {
+			for (int i=0;i<len;i++) {
+				TiUIView view = views.get(i);
+				if (view.getProxy() == null) {
+					return false;
+				} else if (!checkViewHeirarchy(view.getProxy(), proxies.get(i))) {
+					return false;
+				}
+			}
+			return true;
+		} 
+
+		return false;
+	}
+
+	/*
 	 * Create views for measurement or for layout.  For each view, apply the
 	 * properties from the appropriate proxy to the view.
 	 */
 	protected void createControls()
 	{
-		ArrayList<TiViewProxy> proxies = getRowProxy().getControls();
+		
+		TableViewRowProxy parent = getRowProxy();
+		ArrayList<TiViewProxy> proxies = parent.getControls();
 		int len = proxies.size();
-
-		if (views == null) {
-			views = new ArrayList<TiUIView>(len);
-		} else if (views.size() != len) {
-			for (TiUIView view : views) {
-				View v = view.getNativeView();
-				if (v != null && v.getParent().equals(content)) {
-					content.removeView(v);
-				}
-			}
-			views = new ArrayList<TiUIView>(len);
-		}
-
-		for (int i = 0; i < len; i++) {
-			TiUIView view = views.size() > i ? views.get(i) : null;
-			TiViewProxy proxy = proxies.get(i);
-			if (view != null && view.getProxy() instanceof TableViewRowProxy) {
-				proxy = addViewToOldRow(i, view, proxy);
-				len++;
-			}
-			if (view == null) {
-				// In some cases the TiUIView for this proxy has been reassigned to another proxy
-				// We don't want to actually release it though, just reassign by creating a new view.
-				//
-				// Not setting modelListener from here because this could be a measurement pass or
-				// a layout pass through getView(), which means that the view we have here may
-				// not be the one that gets displayed on the screen.  So we don't want to make
-				// any view-proxy association at this point.   We only want to make that association
-				// on a layout pass (i.e. when onLayout() gets called).
-				//
-				TiBaseTableViewItem.clearChildViews(proxy);
-				view = proxy.forceCreateView(false);  // false means don't set modelListener
-				if (i >= views.size()) {
-					views.add(view);
-				} else {
-					views.set(i, view);
-				}
-			}
-
-			View v = view.getOuterView();
-			view.processProperties(proxy.getProperties());
-			applyChildProperties(proxy, view);
-			if (v.getParent() == null) {
-				content.addView(v, view.getLayoutParams());
-			}
+		
+		if (!canUseExistingViews(proxies)) {
+			
+		} else {
+			
 		}
 	}
 
