@@ -2544,7 +2544,7 @@ build.prototype = {
 							var id = target.path.replace(/\./g, '_');
 							this.compileJsFile(id, target.from);
 							this.jsFilesToPrepare.push(id);
-							cb2();
+							setTimeout(cb2, 0);
 						})(compileTarget, function () {
 							cb();
 						});
