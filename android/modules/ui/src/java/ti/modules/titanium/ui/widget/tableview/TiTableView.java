@@ -303,7 +303,7 @@ public class TiTableView extends FrameLayout
 					eventArgs.put("size", size);
 					fProxy.fireEvent(TiC.EVENT_SCROLLEND, eventArgs);
 					// TODO: Deprecate old event
-					fProxy.fireEvent("scrollEnd", eventArgs);
+					fProxy.fireEvent("scrollEnd", new KrollDict(eventArgs));
 				}
 				else if (scrollState == OnScrollListener.SCROLL_STATE_TOUCH_SCROLL) {
 					scrollValid = true;
