@@ -247,3 +247,13 @@ static NSLock *callbackLock;
 }
 
 @end
+
+
+KrollWrapper * ConvertKrollCallbackToWrapper(KrollCallback *callback)
+{
+	KrollWrapper * wrapper = [[[KrollWrapper alloc] init] autorelease];
+	[wrapper setBridge:(KrollBridge*)[[callback context] delegate]];
+	[wrapper setJsobject:[callback function]];
+	return wrapper;
+}
+

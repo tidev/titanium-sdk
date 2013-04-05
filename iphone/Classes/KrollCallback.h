@@ -78,11 +78,4 @@
 
 @end
 
-static inline KrollWrapper * ConvertKrollCallbackToWrapper(KrollCallback *callback)
-{
-	KrollWrapper * wrapper = [[[KrollWrapper alloc] init] autorelease];
-	[wrapper setBridge:(KrollBridge*)[[callback context] delegate]];
-	[wrapper setJsobject:[callback function]];
-	return wrapper;
-}
-
+KrollWrapper * ConvertKrollCallbackToWrapper(KrollCallback *callback);
