@@ -606,21 +606,4 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 		}
 		
 	}
-	
-	protected void associateProxies(TiViewProxy[] proxies, List<TiUIView> views)
-	{
-		int i = 0;
-		for (TiUIView view : views) {
-			if (proxies.length < (i+1)) {
-				break;
-			}
-			TiViewProxy proxy = proxies[i];
-			proxy.setView(view);
-			view.setProxy(proxy);
-			proxy.setModelListener(view);
-			associateProxies(proxy.getChildren(), view.getChildren());
-			i++;
-		}
-	}
-
 }
