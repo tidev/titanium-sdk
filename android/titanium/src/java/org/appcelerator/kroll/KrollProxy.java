@@ -789,15 +789,18 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 				krollData.remove(TiC.PROPERTY_BUBBLES);
 			}
 			hashValue = krollData.get(TiC.PROPERTY_SUCCESS);
-			if (hashValue != null) {
-				reportSuccess = true;
-				krollData.remove(TiC.PROPERTY_SUCCESS);
-			}
-			hashValue = krollData.get(TiC.PROPERTY_CODE);
-			if (hashValue != null) {
-				reportSuccess = true;
-				code = TiConvert.toInt(hashValue);
-				krollData.remove(TiC.PROPERTY_CODE);
+			if (hashValue instanceof Boolean) {
+				boolean successValue = ((Boolean)hashValue).booleanValue();
+				hashValue = krollData.get(TiC.PROPERTY_CODE);
+				if (hashValue instanceof Integer) {
+					int codeValue = ((Integer)hashValue).intValue();
+					if (successValue == (codeValue == 0)) {
+						reportSuccess = true;
+						code = codeValue;
+						krollData.remove(TiC.PROPERTY_SUCCESS);
+						krollData.remove(TiC.PROPERTY_CODE);
+					}
+				}
 			}
 			hashValue = krollData.get(TiC.EVENT_PROPERTY_ERROR);
 			if (hashValue != null) {
