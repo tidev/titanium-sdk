@@ -103,11 +103,15 @@ Java_org_appcelerator_kroll_runtime_v8_V8Object_nativeFireEvent
 
 	jsData->Set(String::NewSymbol("source"), source);
 
-	if(reportSuccess || code != 0) {
+	if (reportSuccess || code != 0) {
 		jsData->Set(String::NewSymbol("success"), TypeConverter::javaBooleanToJsBoolean(code == 0));
 		jsData->Set(String::NewSymbol("code"), TypeConverter::javaIntToJsNumber(code));
+	}
+	
+	if (errorMessage != NULL) {
 		jsData->Set(String::NewSymbol("error"), TypeConverter::javaStringToJsString(env, errorMessage));
 	}
+
 	Handle<Value> result;
 	TryCatch tryCatch;
 	Handle<Value> args[] = { jsEvent, jsData };
