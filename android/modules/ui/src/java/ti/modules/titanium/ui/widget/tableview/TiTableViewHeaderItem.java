@@ -145,15 +145,6 @@ public class TiTableViewHeaderItem extends TiBaseTableViewItem
 		if (!isHeaderView) {
 			rowView.layout(left, 0, right, bottom - top);
 		} else {
-			//
-			// Do this association here, and NOT in getView().
-			//
-			TiViewProxy proxy = this.item.proxy;
-			proxy.setView(headerView);
-			headerView.setProxy(proxy);
-			proxy.setModelListener(headerView);
-			
-			
 			View view = headerView.getOuterView();
 			view.layout(left, 0, right, bottom - top);
 			// Also layout the inner native view when we have borders
