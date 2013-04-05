@@ -58,7 +58,8 @@ description: |
     *   On iOS, event listeners do not fire correctly when table view sections are added or
         updated using the `sections` property or `appendSection`, `insertSectionBefore`,
         `insertSectionAfter`, or `updateSection` methods. Adding sections using the `data` 
-        property is recommended until this issue is fixed.  
+        property is recommended for Release 3.0.x.  This issue has been fixed as of Release
+        3.1.0.
         ([TIMOB-12616](https://jira.appcelerator.org/browse/TIMOB-12616))
 
     *   On iOS, the first two arguments to the `updateSection` method are reversed.
@@ -1362,11 +1363,11 @@ examples:
             sectionFish.add(Ti.UI.createTableViewRow({ title: 'Cod' }));
             sectionFish.add(Ti.UI.createTableViewRow({ title: 'Haddock' }));
             
-            // Prior to Release 3.0, you can only add and remove sections by setting the data property:
-            table.data = [ sectionFish, sectionFruit, sectionVeg ];
+            // Prior to Release 3.0, you can only add and remove sections by setting the data property
+            // table.data = [ sectionFish, sectionFruit, sectionVeg ];
             // Due to a known issue, TIMOB-12616, the section access methods and sections
-            // property should not be used on iOS.
-            // table.insertSectionBefore(0, sectionFish);
+            // property should not be used on iOS with Release 3.0.x.
+            table.insertSectionBefore(0, sectionFish);
 
   - title: Table View with Composite Layout
     example: |
