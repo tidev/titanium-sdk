@@ -44,6 +44,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 	[_tableView release];
 	[_templates release];
 	[_defaultItemTemplate release];
+    RELEASE_TO_NIL(tableHeaderPullView);
     [super dealloc];
 }
 
@@ -87,6 +88,21 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 - (TiUIListViewProxy *)listViewProxy
 {
 	return (TiUIListViewProxy *)self.proxy;
+}
+
+-(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
+{
+	[super frameSizeChanged:frame bounds:bounds];
+	
+	if (tableHeaderPullView!=nil)
+	{
+		tableHeaderPullView.frame = CGRectMake(0.0f, 0.0f - self.tableView.bounds.size.height, self.tableView.bounds.size.width, self.tableView.bounds.size.height);
+		TiViewProxy *proxy = [self.proxy valueForUndefinedKey:@"headerPullView"];
+		[TiUtils setView:[proxy view] positionRect:[tableHeaderPullView bounds]];
+		[proxy windowWillOpen];
+		[proxy layoutChildren:NO];
+	}
+	
 }
 
 #pragma mark - Public API
@@ -173,6 +189,32 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 {
 	[self.proxy replaceValue:value forKey:@"allowsSelection" notification:NO];
     [[self tableView] setAllowsSelection:[TiUtils boolValue:value]];
+}
+
+-(void)setHeaderPullView_:(id)value
+{
+	ENSURE_TYPE_OR_NIL(value,TiViewProxy);
+	if (value==nil)
+	{
+		[tableHeaderPullView removeFromSuperview];
+		RELEASE_TO_NIL(tableHeaderPullView);
+	}
+	else
+	{
+        if (self.tableView.frame.size.width==0)
+        {
+            [self performSelector:@selector(setHeaderPullView_:) withObject:value afterDelay:0.1];
+            return;
+        }
+		tableHeaderPullView = [[UIView alloc] initWithFrame:CGRectMake(0.0f, 0.0f - self.tableView.bounds.size.height, self.tableView.bounds.size.width, self.tableView.bounds.size.height)];
+		tableHeaderPullView.backgroundColor = [UIColor lightGrayColor];
+		UIView *view = [value view];
+		[[self tableView] addSubview:tableHeaderPullView];
+		[tableHeaderPullView addSubview:view];
+		[TiUtils setView:view positionRect:[tableHeaderPullView bounds]];
+		[value windowWillOpen];
+		[value layoutChildren:NO];
+	}
 }
 
 #pragma mark - UITableViewDataSource
@@ -396,6 +438,62 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 	}
 	BOOL animate = [TiUtils boolValue:@"animated" properties:properties def:NO];
 	return animate ? UITableViewRowAnimationFade : UITableViewRowAnimationNone;
+}
+#pragma Scroll View Delegate
+
+- (NSDictionary *) eventObjectForScrollView: (UIScrollView *) scrollView
+{
+	return [NSDictionary dictionaryWithObjectsAndKeys:
+			[TiUtils pointToDictionary:scrollView.contentOffset],@"contentOffset",
+			[TiUtils sizeToDictionary:scrollView.contentSize], @"contentSize",
+			[TiUtils sizeToDictionary:_tableView.bounds.size], @"size",
+			nil];
+}
+
+- (void)fireScrollEvent:(UIScrollView *)scrollView {
+	if ([self.proxy _hasListeners:@"scroll"])
+	{
+		[self.proxy fireEvent:@"scroll" withObject:[self eventObjectForScrollView:scrollView]];
+	}
+}
+
+- (void)scrollViewDidScroll:(UIScrollView *)scrollView
+{
+	if (scrollView.isDragging || scrollView.isDecelerating)
+	{
+        [self fireScrollEvent:scrollView];
+    }
+}
+
+- (void)scrollViewDidScrollToTop:(UIScrollView *)scrollView
+{
+    [self fireScrollEvent:scrollView];
+    
+}
+
+- (void)scrollViewWillBeginDragging:(UIScrollView *)scrollView
+{
+    if([self.proxy _hasListeners:@"dragstart"])
+	{
+        [self.proxy fireEvent:@"dragstart" withObject:nil];
+    }
+}
+
+- (void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate
+{
+	if ([self.proxy _hasListeners:@"dragend"])
+	{
+		[self.proxy fireEvent:@"dragend" withObject:[NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool:decelerate],@"decelerate",nil]]	;
+	}
+}
+
+
+- (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView
+{
+	if ([self.proxy _hasListeners:@"scrollend"])
+	{
+		[self.proxy fireEvent:@"scrollend" withObject:[self eventObjectForScrollView:scrollView]];
+	}
 }
 
 @end
