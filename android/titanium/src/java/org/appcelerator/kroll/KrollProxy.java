@@ -800,9 +800,11 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 				krollData.remove(TiC.PROPERTY_CODE);
 			}
 			hashValue = krollData.get(TiC.EVENT_PROPERTY_ERROR);
-			if (hashValue != null) {
-				message = hashValue.toString();
+			if (hashValue instanceof String) {
+				message = (String) hashValue;
 				krollData.remove(TiC.EVENT_PROPERTY_ERROR);
+			} else {
+				Log.w(TAG, "DEPRECATION WARNING: The error object of an event payload must be of type string. The capability to use other types will be removed in a future version.", Log.DEBUG_MODE);
 			}
 			hashValue = krollData.get(TiC.EVENT_PROPERTY_SOURCE);
 			if (hashValue instanceof KrollProxy) {
