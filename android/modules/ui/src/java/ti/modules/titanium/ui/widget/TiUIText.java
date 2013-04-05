@@ -145,6 +145,8 @@ public class TiUIText extends TiUIView
 		}
 		if (d.containsKey(TiC.PROPERTY_VALUE)) {
 			tv.setText(d.getString(TiC.PROPERTY_VALUE));
+		} else {
+			tv.setText("");
 		}
 		
 		if (d.containsKey(TiC.PROPERTY_COLOR)) {

@@ -19,7 +19,7 @@ description: |
     See the examples for sample use of the `reload` event.
 extends: Titanium.Module
 since: "0.8"
-platforms: [android, iphone, ipad]
+platforms: [android, iphone, ipad, tizen]
 
 events:
   - name: reload
@@ -38,7 +38,7 @@ methods:
     description: This method must be followed by <Titanium.Contacts.save> to commit its changes.
     returns:
         type: Titanium.Contacts.Group
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, tizen]
     parameters:
       - name: parameters
         summary: |
@@ -53,7 +53,7 @@ methods:
         changes to the underlying contacts database.
     returns:
         type: Titanium.Contacts.Person
-    platforms: [android, ipad, iphone]
+    platforms: [android, ipad, iphone, tizen]
     since: {android: "2.1.0"}
     parameters:
       - name: parameters
@@ -67,10 +67,11 @@ methods:
     summary: Gets all groups.
     returns:
         type: Array<Titanium.Contacts.Group>
-    platforms: [ipad, iphone]
+    platforms: [ipad, iphone, tizen]
     
   - name: getAllPeople
-    summary: Gets all people, unless a limit is specified.
+    summary: Gets all people, unless a limit is specified. On Tizen, use [Titanium.Contacts.Tizen.getAllPeople](Titanium.Contacts.Tizen.getAllPeople).
+    platforms: [android, iphone, ipad]
     returns:
         type: Array<Titanium.Contacts.Person>    
     parameters:
@@ -82,7 +83,7 @@ methods:
     summary: Gets the group with the specified identifier.
     returns:
         type: Titanium.Contacts.Group
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, tizen]
     parameters:
       - name: id
         summary: Group identifier.
@@ -92,6 +93,9 @@ methods:
     summary: |
         Gets people with a `firstName`, `middleName` or `lastName` field, or a combination 
         of these fields, that match the specified name.
+        
+        On Tizen, use [Titanium.Contacts.Tizen.getPeopleWithName](Titanium.Contacts.Tizen.getPeopleWithName).
+    platforms: [android, iphone, ipad, tizen]
     returns:
         type: Array<Titanium.Contacts.Person>
     parameters:
@@ -111,7 +115,7 @@ methods:
   - name: removeGroup
     summary: Removes a group from the address book.
     description: This method must be followed by <Titanium.Contacts.save> to commit its changes.
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, tizen]
     parameters:
       - name: group
         summary: Contact group.
@@ -129,11 +133,11 @@ methods:
         exist once committed, it will no longer be valid. Continuing to use it will result in 
         unpredictable behavior, including crashes.
         
-        On Android:
+        On Android and Tizen:
         
         This method will remove the person from the Contacts book automatically. 
         
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, tizen]
     since: {android: "2.1.0"}
     parameters:
       - name: person
@@ -146,7 +150,7 @@ methods:
     
   - name: save
     summary: Commits all pending changes to the underlying contacts database.
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, tizen]
     parameters:
       - name: contacts
         summary: List of contacts to save. Used on Android only. 
@@ -168,6 +172,7 @@ methods:
 
   - name: requestAuthorization
     summary: If authorization is unknown, will bring up a dialog requesting permission.
+    platforms: [android, iphone, ipad]
     description: |
         Note that the callback may be synchronous or asynchronous. That is, it may be called
         during requestAuthorization or much later. See the "Request access to the address book"
@@ -228,11 +233,10 @@ properties:
         A [contactsAuthorization](Titanium.Contacts.contactsAuthorization) value 
         indicating that the application is authorized to use the address book.
     description: |
-        This value is always returned if the device is running an iOS release prior to 6.0 and
-        on Android.
+        This value is always returned on Android and Tizen devices, as well as on iOS versions earlier than 6.0.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad, android]
+    platforms: [iphone, ipad, android, tizen]
     since: 2.1.3
 
   - name: AUTHORIZATION_DENIED
@@ -241,7 +245,7 @@ properties:
         indicating that the application is not authorized to use the address book.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad, android]
+    platforms: [iphone, ipad, android, tizen]
     since: 2.1.3
 
   - name: AUTHORIZATION_RESTRICTED
@@ -251,7 +255,7 @@ properties:
         the user cannot change this application's status.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad, android]
+    platforms: [iphone, ipad, android, tizen]
     since: 2.1.3
 
   - name: AUTHORIZATION_UNKNOWN
@@ -260,19 +264,19 @@ properties:
         indicating that the authorization state is unknown.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad, android]
+    platforms: [iphone, ipad, android, tizen]
     since: 2.1.3
 
   - name: contactsAuthorization
     summary: Returns an authorization constant indicating if the application has access to the address book.
     description: |
-         Always returns `AUTHORIZATION_AUTHORIZED` on iOS pre-6.0 and Android devices.
+         Always returns `AUTHORIZATION_AUTHORIZED` on iOS pre-6.0, Android and Tizen devices.
          
          If `contactsAuthorization` is `AUTHORIZATION_RESTRICTED`, you should not
          attempt to re-authorize: this will lead to issues.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad, android]
+    platforms: [iphone, ipad, android, tizen]
     since: 2.1.3
 
 examples:
@@ -449,7 +453,7 @@ examples:
 ---
 name: showContactsParams
 summary: Dictionary of options for the <Titanium.Contacts.showContacts> method.
-platforms: [android, iphone, ipad]
+platforms: [android, iphone, ipad, tizen]
 
 properties:
 - name: animated

@@ -131,9 +131,9 @@ v8::Handle<v8::Value> TypeConverter::javaStringToJsString(JNIEnv *env, jstring j
 	}
 
 	int nativeStringLength = env->GetStringLength(javaString);
-	const jchar *nativeString = env->GetStringCritical(javaString, NULL);
+	const jchar *nativeString = env->GetStringChars(javaString, NULL);
 	v8::Handle<v8::String> jsString = v8::String::New(nativeString, nativeStringLength);
-	env->ReleaseStringCritical(javaString, nativeString);
+	env->ReleaseStringChars(javaString, nativeString);
 
 	return jsString;
 }
@@ -698,9 +698,9 @@ v8::Handle<v8::Object> TypeConverter::javaHashMapToJsValue(JNIEnv *env, jobject 
 		if (isStringHashMap) {
 			jstring javaString = (jstring)javaPairKey;
 			int nativeStringLength = env->GetStringLength(javaString);
-			const jchar *nativeString = env->GetStringCritical(javaString, NULL);
+			const jchar *nativeString = env->GetStringChars(javaString, NULL);
 			jsPairKey = v8::String::New(nativeString, nativeStringLength);
-			env->ReleaseStringCritical(javaString, nativeString);
+			env->ReleaseStringChars(javaString, nativeString);
 		} else {
 			jsPairKey = TypeConverter::javaObjectToJsValue(env, javaPairKey);
 		}

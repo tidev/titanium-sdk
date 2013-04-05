@@ -342,7 +342,8 @@ events:
             is used. Otherwise, this value will be -1.
         type: Number
         platforms: [android]
-    platforms: [android, mobileweb]
+    platforms: [android, mobileweb, tizen]
+
 
 
   - name: fullscreen
@@ -351,7 +352,7 @@ events:
         On iOS, this event is fired at the beginning of the transition to 
         fullscreen mode. A `duration` property is provided, indicating the duration
         of the animated transition to or from fullscreen mode.
-    platforms: [iphone, ipad, mobileweb]
+    platforms: [iphone, ipad, mobileweb, tizen]
     properties:
 
       - name: entering
@@ -453,7 +454,7 @@ events:
 
   - name: playing
     summary: Fired when the currently playing movie changes.
-    platforms: [android, iphone, ipad, mobileweb]
+    platforms: [iphone, ipad, mobileweb, tizen]
     properties:
       - name: url
         summary: URL of the media.
@@ -461,7 +462,7 @@ events:
 
   - name: preload
     summary: Fired when the movie has preloaded and is ready to play.
-    platforms: [android, mobileweb]
+    platforms: [android, mobileweb, tizen]
 
   - name: resize
     summary: Fired when the movie player is resized.
@@ -510,7 +511,7 @@ events:
       - name: x
         type: Number
         summary: X coordinate of the event from the `source` view's coordinate system.
-    platforms: [android, mobileweb]
+    platforms: [android, mobileweb, tizen]
 
   - name: singletap
     summary: Fired when the device detects a single tap against the view.
@@ -521,7 +522,7 @@ events:
       - name: x
         type: Number
         summary: X coordinate of the event from the `source` view's coordinate system.
-    platforms: [android, mobileweb]
+    platforms: [android, mobileweb, tizen]
 
   - name: touchcancel
     summary: Fired when a touch event is interrupted by the device.
@@ -535,7 +536,7 @@ events:
       - name: x
         type: Number
         summary: X coordinate of the event from the `source` view's coordinate system.
-    platforms: [android, mobileweb]
+    platforms: [android, mobileweb, tizen]
     
   - name: touchend
     summary: Fired when a touch event is completed.
@@ -546,7 +547,7 @@ events:
       - name: x
         type: Number
         summary: X coordinate of the event from the `source` view's coordinate system.
-    platforms: [android, mobileweb]
+    platforms: [android, mobileweb, tizen]
     
   - name: touchmove
     summary: Fired as soon as the device detects movement of a touch.
@@ -559,7 +560,7 @@ events:
       - name: x
         type: Number
         summary: X coordinate of the event from the `source` view's coordinate system.
-    platforms: [android, mobileweb]
+    platforms: [android, mobileweb, tizen]
 
 properties:
 
@@ -724,7 +725,7 @@ properties:
         Specify [VIDEO_REPEAT_MODE_NONE](Titanium.Media.VIDEO_REPEAT_MODE_NONE) to disable
         repeat, or [VIDEO_REPEAT_MODE_ONE](Titanium.Media.VIDEO_REPEAT_MODE_ONE) to repeat
         a single video continuously.
-    platforms: [iphone, ipad, mobileweb]
+    platforms: [iphone, ipad, mobileweb, tizen]
     type: Number
     default: Titanium.Media.VIDEO_REPEAT_MODE_NONE
 

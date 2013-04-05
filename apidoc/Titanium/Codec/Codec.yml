@@ -40,7 +40,7 @@ description: |
     
 extends: Titanium.Module
 since: "1.7"
-platforms: [android, iphone, ipad, mobileweb]
+platforms: [android, iphone, ipad, mobileweb, tizen]
 
 properties:
   - name: CHARSET_ASCII

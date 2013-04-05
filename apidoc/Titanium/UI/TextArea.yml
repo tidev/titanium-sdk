@@ -87,7 +87,7 @@ properties:
         On Android and iOS, the returned default value is undefined, and on Mobile Web, the returned
         default value is `false`, but all behave as if the value is `true`.
     type: Boolean
-    platforms: [android, iphone, ipad, mobileweb]
+    platforms: [android, iphone, ipad, mobileweb, tizen]
     
   - name: autoLink
     summary: Automatically convert text to clickable links. 
@@ -156,7 +156,7 @@ properties:
     summary: Determines whether this field is enabled.
     type: Boolean
     default: true
-    platforms: [android, ipad, iphone, mobileweb]
+    platforms: [android, ipad, iphone, mobileweb, tizen]
     
   - name: enableReturnKey
     summary: |
@@ -277,7 +277,7 @@ properties:
   - name: suppressReturn
     summary: Determines if the return key should be suppressed during text entry.
     type: Boolean
-    platforms: [iphone, ipad, mobileweb]
+    platforms: [iphone, ipad, mobileweb, tizen]
     
   - name: textAlign
     summary: Text alignment within this text area.

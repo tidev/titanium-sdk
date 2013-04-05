@@ -23,7 +23,7 @@ excludes:
     events: [ 'click', 'longclick', 'pinch', 'swipe', 'touchend', 'touchmove' ]
     properties: [ 'enabled' ]
 extends: Titanium.UI.View
-platforms: [android, iphone, ipad, mobileweb]
+platforms: [android, iphone, ipad, mobileweb, tizen]
 since: "0.8"
 
 methods:
@@ -163,7 +163,6 @@ events:
         Prior to 2.1, the scroll event did not fire consistently on all platforms. On iOS and Mobile
         Web, it fired when scrolling ended, and on Android, it fired when drag ended. You can restore
         the pre-2.1 behavior by listening for the `scrollEnd` or `dragEnd` events instead.
-    platforms: [iphone, ipad, android, mobileweb]
     properties:
 
       - name: currentPage
@@ -186,7 +185,7 @@ events:
         since: "3.0.0"
         notes: Renamed to [scrollend](Titanium.UI.ScrollableView.scrollend) (all lowercase).
     summary: Fired when the view has stopped moving completely.
-    platforms: [iphone, ipad, android, mobileweb]
+    platforms: [iphone, ipad, android, mobileweb, tizen]
     since: "2.1.0"
 
     properties:
@@ -207,14 +206,14 @@ events:
         A dragging gesture is when a touch remains in contact with the display to physically drag 
         the view, as opposed to it being the result of scrolling momentum.
     since: "2.1.0"
-    platforms: [mobileweb]
+    platforms: [mobileweb, tizen]
 
   - name: dragEnd
     deprecated:
        since: "3.0.0"
        notes: Renamed to [dragend](Titanium.UI.ScrollableView.dragend) (all lowercase).
     summary: Fired when the scrolling drag gesture on the view has been completed.
-    platforms: [android, mobileweb]
+    platforms: [android, mobileweb, tizen]
     since: "2.1.0"
     properties:
       - name: currentPage
@@ -226,7 +225,6 @@ events:
 
   - name: scrollend
     summary: Fired when the view has stopped moving completely.
-    platforms: [iphone, ipad, android, mobileweb]
     properties:
       - name: currentPage
         summary: Index of the currently visible view of <Titanium.UI.ScrollableView.views>.
@@ -242,12 +240,12 @@ events:
     description: |
         A dragging gesture is when a touch remains in contact with the display to physically drag 
         the view, as opposed to it being the result of scrolling momentum.
-    platforms: [mobileweb]
+    platforms: [mobileweb, tizen]
     since: '3.0.0'
 
   - name: dragend
     summary: Fired when the scrolling drag gesture on the view has been completed.
-    platforms: [android, mobileweb]
+    platforms: [android, mobileweb, tizen]
     since: "3.0.0"
     properties:
       - name: currentPage
@@ -311,7 +309,7 @@ properties:
     type: Number
     availability: creation
     default: 3000
-    platforms: [android, mobileweb]
+    platforms: [android, mobileweb, tizen]
     
   - name: pagingControlAlpha
     summary: Alpha value of the paging control.
@@ -345,7 +343,7 @@ properties:
     description: If this property is unset or `true`, scrolling is enabled.
     type: Boolean
     default: undefined (scrolling enabled)
-    platforms: [iphone, ipad, android, mobileweb]
+    platforms: [iphone, ipad, android, mobileweb, tizen]
     since: { android: "2.1.0", iphone: "2.0.0", ipad: "2.0.0", mobileweb: "3.0.0" }
 
   - name: views

@@ -1,8 +1,7 @@
 ---
 name: Titanium.Calendar
 summary: |
-    The Android.Calendar module provides proxies and methods for accessing the native 
-    calendar functionality.
+    The Calendar module provides an API for accessing the native calendar functionality.
 description: |
     This module supports retrieving information about existing events and creating new events. 
     Modifying or deleting existing events and creating recurring events is also supported. 
@@ -464,16 +463,16 @@ examples:
             
             win.open();
 
-  - title: Create an Recurring Event with Alerts. 
+  - title: Create a Recurring Event with Alerts 
     example: |
-        Creates an recurrin event with alerts.
+        Create a recurring event with alerts.
         
-          function printEventDetails(eventID) {
-               Ti.API.info('eventID:' + eventID);
-               var defCalendar = Ti.Calendar.defaultCalendar;
-               var eventFromCalendar = defCalendar.getEventById(eventID);
-               if (eventFromCalendar != null) {
-                    Ti.API.info('Trying to read back the event that we saved .....');
+            function printEventDetails(eventID) {
+                Ti.API.info('eventID:' + eventID);
+                var defCalendar = Ti.Calendar.defaultCalendar;
+                var eventFromCalendar = defCalendar.getEventById(eventID);
+                if (eventFromCalendar != null) {
+                    Ti.API.info('Printing event values ::');
                     Ti.API.info('title : '+ eventFromCalendar.title);
                     Ti.API.info('notes : ' + eventFromCalendar.notes);
                     Ti.API.info('location:' + eventFromCalendar.location);
@@ -488,142 +487,110 @@ examples:
                     var eventRule = eventFromCalendar.recurrenceRules;
                     Ti.API.info("recurrenceRules : " + eventRule);
                     for (var i = 0; i < eventRule.length; i++) {
-                         Ti.API.info("Rule # "+ i);
-                         Ti.API.info('frequency : ' + eventRule[i].frequency);
-                         Ti.API.info('interval : ' + eventRule[i].interval);
-                         Ti.API.info('daysofTheWeek : ' );
-                         var daysofTheWeek = eventRule[i].daysOfTheWeek; 
-                         for (var j = 0; j < daysofTheWeek.length; j++) {
-                              Ti.API.info('{ dayOfWeek : '+ daysofTheWeek[j].dayOfWeek +'weekNumber : '+daysofTheWeek[j].week +'}, ');
-                         }
-          
-                         Ti.API.info('firstDayOfTheWeek : ' + eventRule[i].firstDayOfTheWeek);
-                         //Ti.API.info('daysOfTheWeek : ' + eventRule[i].daysOfTheWeek);
-                         Ti.API.info('daysOfTheMonth : ');
-                         var daysOfTheMonth = eventRule[i].daysOfTheMonth;
-                         for(var j=0;j<daysOfTheMonth.length;j++) {
-                              Ti.API.info(' ' + daysOfTheMonth[j]);
-                         }
-                         
-                         Ti.API.info('daysOfTheYear : ');
-                         var daysOfTheYear = eventRule[i].daysOfTheYear;
-                         for(var j=0;i<daysOfTheYear.length;j++) {
-                              Ti.API.info(' ' + daysOfTheYear[j]);
-                         }
-          
-                         Ti.API.info('weeksOfTheYear : ');
-                         var weeksOfTheYear = eventRule[i].weeksOfTheYear;
-                         for(var j=0;j<weeksOfTheYear.length;j++) {
-                              Ti.API.info(' ' + weeksOfTheYear[j]);
-                         }
-                         Ti.API.info('monthsOfTheYear : ');
-          
-                         var monthsOfTheYear = eventRule[i].monthsOfTheYear;
-                         for(var j=0;j<monthsOfTheYear.length;j++) {
-                              Ti.API.info(' ' + monthsOfTheYear[j]);
-                         }
-                         Ti.API.info('daysOfTheYear : ');
-                         var setPositions = eventRule[i].setPositions;
-                         for(var j=0;j<setPositions.length;j++) {
-                              Ti.API.info(' ' + setPositions[j]);
-                         }
-          
-          
+                        Ti.API.info("Rule # "+ i);
+                        Ti.API.info('frequency : ' + eventRule[i].frequency);
+                        Ti.API.info('interval : ' + eventRule[i].interval);
+                        Ti.API.info('daysofTheWeek : ' );
+                        var daysofTheWeek = eventRule[i].daysOfTheWeek; 
+                        for (var j = 0; j < daysofTheWeek.length; j++) {
+                            Ti.API.info('{ dayOfWeek : '+ daysofTheWeek[j].dayOfWeek +'weekNumber : '+daysofTheWeek[j].week +'}, ');
+                        }
+                        Ti.API.info('firstDayOfTheWeek : ' + eventRule[i].firstDayOfTheWeek);
+                        Ti.API.info('daysOfTheMonth : ');
+                        var daysOfTheMonth = eventRule[i].daysOfTheMonth;
+                        for(var j=0;j<daysOfTheMonth.length;j++) {
+                            Ti.API.info(' ' + daysOfTheMonth[j]);
+                        }
+                        Ti.API.info('daysOfTheYear : ');
+                        var daysOfTheYear = eventRule[i].daysOfTheYear;
+                        for(var j=0;i<daysOfTheYear.length;j++) {
+                            Ti.API.info(' ' + daysOfTheYear[j]);
+                        }
+                        Ti.API.info('weeksOfTheYear : ');
+                        var weeksOfTheYear = eventRule[i].weeksOfTheYear;
+                        for(var j=0;j<weeksOfTheYear.length;j++) {
+                            Ti.API.info(' ' + weeksOfTheYear[j]);
+                        }
+                        Ti.API.info('monthsOfTheYear : ');
+                        var monthsOfTheYear = eventRule[i].monthsOfTheYear;
+                        for(var j=0;j<monthsOfTheYear.length;j++) {
+                            Ti.API.info(' ' + monthsOfTheYear[j]);
+                        }
+                        Ti.API.info('daysOfTheYear : ');
+                        var setPositions = eventRule[i].setPositions;
+                        for(var j=0;j<setPositions.length;j++) {
+                            Ti.API.info(' ' + setPositions[j]);
+                        }
                     };
                     Ti.API.info('alerts : '+ eventFromCalendar.alerts);
                     var newAlerts = eventFromCalendar.alerts;
+                    
                     for(var i=0 ; i < newAlerts.length ; i++) {
-                         Ti.API.info('*****ALert '+ i);
-                         Ti.API.info('absoluteDate :'+ newAlerts[i].absoluteDate);
-                         Ti.API.info('relativeOffset ;' + newAlerts[i].relativeOffset);
+                        Ti.API.info('*****ALert '+ i);
+                        Ti.API.info('absoluteDate :'+ newAlerts[i].absoluteDate);
+                        Ti.API.info('relativeOffset ;' + newAlerts[i].relativeOffset);
                     }
-          
-               } 
-          
-          }
-          
-          function performCalendarWriteFunctions(){
-               var defCalendar = Ti.Calendar.defaultCalendar;
-          
-               var date1 = new Date(new Date().getTime() + 3000),
+               }
+            }
+            function performCalendarWriteFunctions(){
+                var defCalendar = Ti.Calendar.defaultCalendar;
+                var date1 = new Date(new Date().getTime() + 3000),
                     date2 = new Date(new Date().getTime() + 900000);
-          
-               Ti.API.info('Date1 : '+ date1 + 'Date2 : '+ date2);
-          
-               var event1 = defCalendar.createEvent({
-                                   title:'Sample Event',
-                                   notes: 'This is a test event which has some random values assigned to it.',
-                                   location: 'Appcelerator Inc',
-                                   begin: date1,
-                                   end: date2,
-                                   availability: Ti.Calendar.AVAILABILITY_FREE,
-                                   allDay: false,
-                              });
-               var alert1 = event1.createAlert({
-                                   absoluteDate: new Date(new Date().getTime() - (1000*60*20))
-                              });
-               //Yeh more than one alert. what ... Just because we can and Apple don't do it... 
-               var alert2 = event1.createAlert({
+                Ti.API.info('Date1 : '+ date1 + 'Date2 : '+ date2);
+                var event1 = defCalendar.createEvent({
+                                    title: 'Sample Event',
+                                    notes: 'This is a test event which has some values assigned to it.',
+                                    location: 'Appcelerator Inc',
+                                    begin: date1,
+                                    end: date2,
+                                    availability: Ti.Calendar.AVAILABILITY_FREE,
+                                    allDay: false,
+                            });
+                var alert1 = event1.createAlert({
+                                    absoluteDate: new Date(new Date().getTime() - (1000*60*20))
+                            });
+                var alert2 = event1.createAlert({
                     relativeOffset:-(60*15)
-               })
-          
-               var allAlerts = new Array(alert1,alert2);
-          
-               event1.alerts = allAlerts;
-          
-               var newRule = event1.createRecurenceRule({
-                    frequency:Ti.Calendar.RECURRENCEFREQUENCY_MONTHLY,
-                    interval:1,
-                    daysOfTheWeek:[{dayOfWeek:1,week:2},{dayOfWeek:2}],
-                    end:{occurrenceCount:10}
-               });
-               Ti.API.info('newRule : '+ newRule);
-          
-               event1.recurrenceRules = [newRule];
-               Ti.API.info('Going to save event now');
-          
-           
-               event1.save(Ti.Calendar.SPAN_THISEVENT);
-          
-               Ti.API.info('done with saving event,\n Now trying to retreive it.');
-          
-               /*** Now that everything is peachy and saved lets read this sucker***/
-               printEventDetails(event1.id);
-          
-          }
-          
-          
-          var win = Ti.UI.createWindow({
-            backgroundColor: 'white',
-            exitOnClose: true,
-            fullscreen: false,
-            layout: 'vertical',
-            title: 'Calendar Demo'
-          });
-          
-          var label = Ti.UI.createLabel({
-               title:'Check console log',
-               height: Ti.UI.size,
-               width: Ti.UI.size
-          });
-          win.add(label);
-          
-          if(Ti.Calendar.eventsAuthorization == Ti.Calendar.AUTHORIZATION_AUTHORIZED) {
-               performCalendarWriteFunctions();
-          } else {
-               Ti.Calendar.requestEventsAuthorization(function(e){
-                    if (e.success) {
-                         performCalendarWriteFunctions();
-                    } else {
-                         alert('Access to calendar is not allowed');
-                    }
-               });
-          
-          }
-          
-          
-          win.open();
-
+                })
+                var allAlerts = new Array(alert1,alert2);
+                event1.alerts = allAlerts;
+                var newRule = event1.createRecurenceRule({
+                                    frequency: Ti.Calendar.RECURRENCEFREQUENCY_MONTHLY,
+                                    interval: 1,
+                                    daysOfTheWeek: [{dayOfWeek:1,week:2},{dayOfWeek:2}],
+                                    end: {occurrenceCount:10}
+                            });
+                Ti.API.info('newRule : '+ newRule);
+                event1.recurrenceRules = [newRule];
+                Ti.API.info('Going to save event now');
+                event1.save(Ti.Calendar.SPAN_THISEVENT);
+                Ti.API.info('Done with saving event,\n Now trying to retreive it.');
+                printEventDetails(event1.id);
+            }
+            var win = Ti.UI.createWindow({
+                                    backgroundColor: 'white',
+                                    title: 'Calendar Demo'
+                        });
+            
+            var label = Ti.UI.createLabel({
+                                    text: 'Check console log',
+                                    height: Ti.UI.size,
+                                    width: Ti.UI.size
+                        });
+            win.add(label);
+            
+            if(Ti.Calendar.eventsAuthorization == Ti.Calendar.AUTHORIZATION_AUTHORIZED) {
+                performCalendarWriteFunctions();
+            } else {
+                Ti.Calendar.requestEventsAuthorization(function(e){
+                        if (e.success) {
+                            performCalendarWriteFunctions();
+                        } else {
+                            alert('Access to calendar is not allowed');
+                        }
+                    });
+            }
+            win.open();
 ---
 name: EventsAuthorizationResponse
 summary: Argument passed to the callback when a request finishes successfully or erroneously.
