@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.KrollPropertyChange;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
@@ -176,6 +177,51 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 		return false;
 	}
 
+	private ArrayList<KrollPropertyChange> getChangeSet( KrollDict oldProps, KrollDict newProps) {
+		ArrayList<KrollPropertyChange> propertyChanges = new ArrayList<KrollPropertyChange>();
+		/*
+		//First get the values that changed from the oldProps to the newProps
+		for (String name : oldProps.keySet()) {
+			Object oldValue = oldProps.get(name);
+			Object newValue = newProps.get(name);
+
+			if (!(oldValue == null && newValue == null)) {
+				if ((oldValue == null && newValue != null) || (newValue == null && oldValue != null) || (!oldValue.equals(newValue))) {
+					KrollPropertyChange pch = new KrollPropertyChange(name, oldValue, newValue);
+					propertyChanges.add(pch);
+				}
+			}
+		}
+		
+		//Second get the properties that are only in the newProps
+		for (String name : newProps.keySet()) {
+			if (!oldProps.containsKey(name)) {
+				KrollPropertyChange pch = new KrollPropertyChange(name, null, newProps.get(name));
+				propertyChanges.add(pch);
+			}
+		}
+		*/
+		/*
+		What we should do is above. But since we do not handle null values
+		properly in our SDK, we'll do it the short way which is an optimized
+		version of doing processProperties.
+		*/
+
+		for (String name : newProps.keySet()) {
+			Object oldValue = oldProps.get(name);
+			Object newValue = newProps.get(name);
+
+			if (!(oldValue == null && newValue == null)) {
+				if ((oldValue == null && newValue != null) || (newValue == null && oldValue != null) || (!oldValue.equals(newValue))) {
+					KrollPropertyChange pch = new KrollPropertyChange(name, oldValue, newValue);
+					propertyChanges.add(pch);
+				}
+			}
+		}
+
+		return propertyChanges;
+	}
+
 	/*
 	 * Create views for measurement or for layout.  For each view, apply the
 	 * properties from the appropriate proxy to the view.
@@ -188,8 +234,39 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 		int len = proxies.size();
 		
 		if (!canUseExistingViews(proxies)) {
-			
+			content.removeAllViews();
+			if(views == null) {
+				views = new ArrayList<TiUIView>(len);
+			} else {
+				views.clear();
+			}
+
+			for (int i=0;i<len;i++){
+				TiViewProxy proxy = proxies.get(i);
+				TiBaseTableViewItem.clearChildViews(proxy);
+				TiUIView view = proxy.forceCreateView();
+				views.add(view);
+				View v = view.getOuterView();
+				if (v.getParent() == null) {
+					content.addView(v, view.getLayoutParams());
+				}
+			}			
 		} else {
+			//Ok the view heirarchies are the same. 
+			//Transfer over the views and modelListeners from the old proxies to the new proxies
+			for (int i=0;i<len;i++) {
+				TiUIView view = views.get(i);
+				TiViewProxy oldProxy = view.getProxy();
+				TiViewProxy newProxy = proxies.get(i);
+
+				if (oldProxy != newProxy) {
+					newProxy.transferView(view, oldProxy);
+					view.setParent(parent);
+					view.propertiesChanged(getChangeSet(oldProxy.getProperties(), newProxy.getProperties()), newProxy);
+					//Need to apply child properties.
+					applyChildProperties(newProxy, view);
+				}
+			}
 			
 		}
 	}
@@ -200,10 +277,15 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 		TiViewProxy childProxies[] = viewProxy.getChildren();
 		for (TiUIView childView : view.getChildren()) {
 			TiViewProxy childProxy = childProxies[i];
-			childView.processProperties(childProxy.getProperties());
-			applyChildProperties(childProxy, childView);
+			TiViewProxy oldProxy = childView.getProxy();
+			if (childProxy != oldProxy) {
+				childProxy.transferView(childView, oldProxy);
+				childView.setParent(viewProxy);
+				childView.propertiesChanged(getChangeSet(oldProxy.getProperties(), childProxy.getProperties()), childProxy);
+				applyChildProperties(childProxy, childView);
+			}
 			i++;
-		}
+	}
 	}
 
 	protected void refreshOldStyleRow()
