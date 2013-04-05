@@ -38,7 +38,7 @@ properties:
 
   - name: categories
     summary: The categories that the current app belongs to.
-    type: String[]
+    type: Array<String>
     permission: read-only
 
   - name: installDate
