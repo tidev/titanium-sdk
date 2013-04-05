@@ -264,6 +264,7 @@ module.exports = new function() {
 		}).shouldNotThrowException();
 	}
 
+	// Test folder synchronization
 	var syncFolder = function(testRun, emailService, folder, callback) {
 		var syncId;
 

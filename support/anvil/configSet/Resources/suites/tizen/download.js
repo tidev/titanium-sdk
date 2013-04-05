@@ -21,12 +21,12 @@ module.exports = new function() {
 	this.name = 'download';
 	this.tests = [
 		{name: 'checkDownload'},
-		{name: 'successDownloadFlowTest'},
 		{name: 'successDownloadTest'},
 		{name: 'failedDownloadTest'},
 		{name: 'getDownloadRequestTest'}
 	];
 
+	// Check the types of download-related entities
 	this.checkDownload  = function(testRun) {
 		// Test for Tizen Device API: Download
 		Ti.API.debug('Checking Download object availability.');
@@ -48,81 +48,7 @@ module.exports = new function() {
 		finish(testRun);
 	}
 
-	this.successDownloadFlowTest = function(testRun) {
-		var localTestRun = testRun,
-			downloadId,
-			wasResumed,
-			wasPaused,
-			waitTimeout = null,
-			listener = {
-				onDataStream: function(downloadRequest, receivedSize, totalSize) {
-					Ti.API.debug('onDataStream event. id=' + downloadRequest.id + ', receivedSize=' + receivedSize + ', totalSize=' + totalSize);
-
-					if (!wasPaused) {
-						wasPaused = true;
-						valueOf(testRun, downloadRequest.pause).shouldBeFunction();
-						downloadRequest.pause();
-					}
-
-					if (wasResumed) {
-						valueOf(testRun, downloadRequest.abort).shouldBeFunction();
-						downloadRequest.abort();
-					}
-				},
-				onPause: function(downloadRequest) {
-					Ti.API.debug('onPause event. id=' + downloadRequest.id);
-
-					clearFakeTimeout();
-					waitTimeout = setTimeout(function() {
-						valueOf(testRun, downloadRequest.resume).shouldBeFunction();
-
-						downloadRequest.resume();
-						wasResumed = true;
-					}, 500);
-				},
-				onCancel: function(downloadRequest) {
-					Ti.API.debug('onCancel event. id=' + downloadRequest.id);
-
-					clearFakeTimeout();
-					valueOf(localTestRun, downloadRequest.id).shouldBeGreaterThanEqual(0);
-					finish(localTestRun);
-				},
-				onLoad: function(downloadRequest, fileName) {
-					Ti.API.debug('onLoad event. id=' + downloadRequest.id +', fileName=' + fileName);
-
-					clearFakeTimeout();
-					valueOf(localTestRun, downloadRequest.id).shouldBeGreaterThanEqual(0);
-					finish(localTestRun);
-				},
-				onError: function(downloadRequest, error) {
-					Ti.API.debug('onError event. id=' + downloadRequest.id +', error=' + JSON.stringify(error));
-
-					valueOf(localTestRun, error).shouldBe('[object TizenWebAPIError]');					
-					clearFakeTimeout();
-					reportError(localTestRun, JSON.stringify(error));
-				}
-			};
-
-		// Clears timeout if it was set before.
-		function clearFakeTimeout(){
-			// cancel fake call if any
-			waitTimeout && clearTimeout(waitTimeout); 
-		}
-
-		// Downloading large file to test callbacks.
-		var downloadRequest = Tizen.Download.createDownloadRequest({
-			url: 'http://download.tizen.org/sdk/InstallManager/tizen-sdk-2.0-ubuntu32.bin',
-			destination: 'documents',
-			fileName: 'tmp' + (new Date().getTime())
-		});
-
-		downloadId = downloadRequest.send(listener);
-
-		valueOf(testRun, downloadRequest.toString()).shouldBe('[object TizenDownloadDownloadRequest]');	
-		valueOf(testRun, downloadId).shouldBeNumber();
-		valueOf(testRun, downloadId).shouldBeGreaterThanEqual(0);
-	}
-
+	// Negative test: how failed downloads are handled
 	this.failedDownloadTest = function(testRun) {
 		var	downloadId,
 			listener = {
@@ -149,9 +75,9 @@ module.exports = new function() {
 				}
 			};
 
-		// Start downloading large file to be able to test callbacks.
+		// Start downloading large file
 		var downloadRequest = Tizen.Download.createDownloadRequest({
-				url: 'http://download.tizen.org/Magic-Sofware-Package-v4.2.bin',
+				url: 'http://download.tizen.org/Magic-Sofware-Package-v4.2.bin',	// error 404
 				destination: 'documents',
 				fileName: 'tmp' + (new Date().getTime())
 			});
@@ -162,6 +88,7 @@ module.exports = new function() {
 		valueOf(testRun, downloadId).shouldBeGreaterThanEqual(0);
 	}
 
+	// Test the workflow of a successful download run
 	this.successDownloadTest = function(testRun) {
 		var	downloadId,
 			listener = {
@@ -219,6 +146,7 @@ module.exports = new function() {
 		valueOf(testRun, downloadId).shouldBeNumber();
 	}
 
+	// Test Tizen.Download.getDownloadRequest
 	this.getDownloadRequestTest = function(testRun) {
 		var	downloadId,
 			request,
