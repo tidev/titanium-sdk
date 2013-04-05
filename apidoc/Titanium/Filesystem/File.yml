@@ -48,7 +48,7 @@ description: |
 
 extends: Titanium.Proxy
 since: "0.1"
-platforms: [android, iphone, ipad, mobileweb]
+platforms: [android, iphone, ipad, mobileweb, tizen]
 createable: false
 examples: 
   - title: Reading a File
@@ -106,7 +106,7 @@ methods:
         type: [String,Titanium.Blob,Titanium.Filesystem.File]
     returns:
         type: Boolean
-    platforms: [iphone, ipad, mobileweb]
+    platforms: [iphone, ipad, mobileweb, tizen]
   - name: copy
     summary: Copies the file identified by this file object to a new path.
     description: Returns `true` if the copy succeeds.
@@ -116,7 +116,7 @@ methods:
         type: String
     returns:
         type: Boolean
-    platforms: [android, mobileweb]
+    platforms: [android, mobileweb, tizen]
   - name: createDirectory
     summary: Creates a directory at the path identified by this file object.
     description: |
@@ -134,7 +134,7 @@ methods:
         file already exists, or if the file couldn't be created for some other reason.
     returns:
         type: Boolean
-    platforms: [iphone, ipad, mobileweb]
+    platforms: [iphone, ipad, mobileweb, tizen]
   - name: createTimestamp
     summary: Returns the creation timestamp for the file identified by this file object.
     description: |
@@ -191,13 +191,13 @@ methods:
     summary: Returns `true` if this file object represents a directory. 
     returns:
         type: Boolean
-    platforms: [android, iphone, ipad, mobileweb]
+    platforms: [android, iphone, ipad, mobileweb, tizen]
     since: { iphone: "3.1.0", ipad: "3.1.0" }
   - name: isFile
     summary: Returns `true` if this file object represents an ordinary file.
     returns: 
         type: Boolean
-    platforms: [android, iphone, ipad, mobileweb]
+    platforms: [android, iphone, ipad, mobileweb, tizen]
     since: { iphone: "3.1.0", ipad: "3.1.0" }
   - name: modificationTimestamp
     summary: Returns the last modification time for this file.
@@ -297,17 +297,17 @@ properties:
     summary: |
         `true` if the file is executable.
     description: |
-        On iOS and Mobile Web, this property exists but is always `false`.
+        On iOS, Mobile Web and Tizen, this property exists but is always `false`.
     type: Boolean
-    platforms: [android, iphone, ipad, mobileweb]
+    platforms: [android, iphone, ipad, mobileweb, tizen]
     permission: read-only
   - name: hidden
     summary:
         Set to `true` if the file is hidden.
     description: |
-        On iOS and Mobile Web, this property exists but is always `false`.
+        On iOS, Mobile Web and Tizen, this property exists but is always `false`.
     type: Boolean
-    platforms: [android, iphone, ipad, mobileweb]
+    platforms: [android, iphone, ipad, mobileweb, tizen]
   - name: name
     summary: Name of the file.
     type: String
@@ -323,21 +323,21 @@ properties:
     summary: A `File` object representing the parent directory of the file identified by this object.
     type: Titanium.Filesystem.File
     permission: read-only
-    platforms: [android, mobileweb]
+    platforms: [android, mobileweb, tizen]
   - name: readonly
     summary: |
         `true` if the file identified by this object is read-only.
     description: |
-        On Mobile Web, this property exists but is always `true` for files in the resources directory
+        On Mobile Web and Tizen, this property exists but is always `true` for files in the resources directory
         and `false` for application data and temporary files.
     type: Boolean
     permission: read-only
-    platforms: [android, mobileweb]
+    platforms: [android, mobileweb, tizen]
   - name: size
     summary: Size, in bytes, of the file identified by this object.
     type: Number
     permission: read-only
-    platforms: [android, mobileweb]
+    platforms: [android, mobileweb, tizen]
   - name: remoteBackup
     summary: Value indicating whether or not to back up to a cloud service.
     description: |
@@ -358,7 +358,7 @@ properties:
     summary: |
         `true` if the file identified by this object is a symbolic link.
     description: |
-        On Mobile Web, this property exists but is always `false`.
+        On Mobile Web and Tizen, this property exists but is always `false`.
     type: Boolean
     permission: read-only
   - name: writable

@@ -7,7 +7,7 @@ description: |
     
     On iOS, the switch appears as an iOS on/off switch and doesn't have any text associated with it. 
     
-    On Mobile Web, a switch always has text associated with it, and appears as a toggle button, 
+    On Mobile Web and Tizen, a switch always has text associated with it, and appears as a toggle button, 
     similar to Android.
     
     Use the <Titanium.UI.createSwitch> method to create a switch.
@@ -25,12 +25,12 @@ methods:
         to appear on top of it.
 
         See also: <Titanium.UI.View.add>.
-    platforms: [mobileweb]
+    platforms: [mobileweb, tizen]
 
   - name: remove
     description: |
         See also: [add](Titanium.UI.Switch.add), <Titanium.UI.View.add>.
-    platforms: [mobileweb]
+    platforms: [mobileweb, tizen]
 
 properties:
   - name: color
@@ -38,7 +38,7 @@ properties:
     description: For information about color values, see the "Colors" section of <Titanium.UI>. 
     type: String
     default: black
-    platforms: [android, mobileweb]
+    platforms: [android, mobileweb, tizen]
     
   - name: enabled
     summary: Determines whether the switch is enabled.
@@ -49,12 +49,11 @@ properties:
          Set to `true` to enable or `false` to disable the switch.
     type: Boolean
     default: undefined (equivalent to enabled)
-    platforms: [android, ipad, iphone, mobileweb]
     
   - name: font
     summary: Font to use for the switch text.
     type: Font
-    platforms: [android, mobileweb]
+    platforms: [android, mobileweb, tizen]
     
   - name: style
     summary: Style of the switch. Enables either the toggle button (default) or checkbox.
@@ -69,11 +68,12 @@ properties:
     summary: |
         Horizontal text alignment of the switch title.
     description: |
-        When the switch [style](Titanium.UI.Switch.style) property is set to 
+        On Android, when the switch [style](Titanium.UI.Switch.style) property is set to 
         <Titanium.UI.Android.SWITCH_STYLE_CHECKBOX>, this property is only effective if the 
         [width](Titanium.UI.Switch.width) property is set to a value greater than the width of the 
-        [title](Titanium.UI.Switch.title) contents. On Mobile Web this property is always supported, 
-        as the `style` property is not supported. 
+        [title](Titanium.UI.Switch.title) contents. 
+        
+        On Mobile Web and Tizen this property is always supported, as the `style` property is not supported. 
         
         One of the <Titanium.UI> text alignment constants, 
         [TEXT_ALIGNMENT_LEFT](Titanium.UI.TEXT_ALIGNMENT_LEFT), 
@@ -84,7 +84,8 @@ properties:
         <Titanium.UI.TEXT_ALIGNMENT_CENTER> (toggle button, Android), 
         <Titanium.UI.TEXT_ALIGNMENT_LEFT> (checkbox, Android), 
         <Titanium.UI.TEXT_ALIGNMENT_CENTER> (Mobile Web)
-    platforms: [android, mobileweb]
+        <Titanium.UI.TEXT_ALIGNMENT_LEFT> (Tizen)
+    platforms: [android, mobileweb, tizen]
     
   - name: title
     summary: Text to display next to the switch, when the checkbox style is in use.
@@ -95,7 +96,7 @@ properties:
         Use the [textAlign](Titanium.UI.Switch.textAlign) property to align this text within the 
         switch.
     type: String
-    platforms: [android, mobileweb]
+    platforms: [android, mobileweb, tizen]
     
   - name: titleOff
     summary: Text to display on the switch in its "off" state, when the toggle button style is in use.
@@ -106,7 +107,7 @@ properties:
         changing size between its on/off state.
     type: String
     default: Off
-    platforms: [android, mobileweb]
+    platforms: [android, mobileweb, tizen]
     
   - name: titleOn
     summary: Text to display on the switch in its "on" state, when the toggle button style is in use.
@@ -117,7 +118,7 @@ properties:
         changing size between its on/off state.
     type: String
     default: On
-    platforms: [android, mobileweb]
+    platforms: [android, mobileweb, tizen]
     
   - name: value
     summary: |
@@ -131,7 +132,7 @@ properties:
         On iOS, be aware that this property must be set when the switch is rendered, otherwise it 
         will not be visible. This is a known issue. 
     type: Boolean
-    default: undefined (visual state off, Android), false (Mobile Web)
+    default: undefined (visual state off, Android), false (Mobile Web and Tizen)
     
   - name: verticalAlign
     summary: Vertical alignment for the text field.
@@ -142,7 +143,7 @@ properties:
         or [TEXT_VERTICAL_ALIGNMENT_TOP](Titanium.UI.TEXT_VERTICAL_ALIGNMENT_TOP).
     type: [Number,String]
     default: Titanium.UI.TEXT_VERTICAL_ALIGNMENT_CENTER
-    platforms: [android, mobileweb]
+    platforms: [android, mobileweb, tizen]
 
 events:
   - name: change
