@@ -124,7 +124,7 @@
 
 			id backgroundColorValue = [properties objectForKey:@"backgroundColor"];
 			if ([self shouldUpdateValue:backgroundColorValue forKeyPath:@"detailTextLabel.backgroundColor"]) {
-				UIColor *backgroundColor = backgroundColorValue != nil ? [[TiUtils colorValue:backgroundColorValue] _color] : nil;
+				UIColor *backgroundColor = backgroundColorValue != nil ? [[TiUtils colorValue:backgroundColorValue] _color] : [UIColor clearColor];
 				if (backgroundColor != nil) {
 					[self recordChangeValue:backgroundColorValue forKeyPath:@"detailTextLabel.backgroundColor" withBlock:^{
 						[self.detailTextLabel setBackgroundColor:backgroundColor];
@@ -170,7 +170,7 @@
 
 			backgroundColorValue = [properties objectForKey:@"backgroundColor"];
 			if ([self shouldUpdateValue:backgroundColorValue forKeyPath:@"textLabel.backgroundColor"]) {
-				UIColor *backgroundColor = backgroundColorValue != nil ? [[TiUtils colorValue:backgroundColorValue] _color] : nil;
+				UIColor *backgroundColor = backgroundColorValue != nil ? [[TiUtils colorValue:backgroundColorValue] _color] : [UIColor clearColor];
 				if (backgroundColor != nil) {
 					[self recordChangeValue:backgroundColorValue forKeyPath:@"textLabel.backgroundColor" withBlock:^{
 						[self.textLabel setBackgroundColor:backgroundColor];
@@ -227,7 +227,7 @@
 	}
 	id backgroundColorValue = [properties objectForKey:@"backgroundColor"];
 	if ([self shouldUpdateValue:backgroundColorValue forKeyPath:@"contentView.backgroundColor"]) {
-		UIColor *backgroundColor = backgroundColorValue != nil ? [[TiUtils colorValue:backgroundColorValue] _color] : nil;
+		UIColor *backgroundColor = backgroundColorValue != nil ? [[TiUtils colorValue:backgroundColorValue] _color] : [UIColor clearColor];
 		if (backgroundColor != nil) {
 			[self recordChangeValue:backgroundColorValue forKeyPath:@"contentView.backgroundColor" withBlock:^{
 				self.contentView.backgroundColor = backgroundColor;
