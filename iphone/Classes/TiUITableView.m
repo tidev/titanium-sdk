@@ -2418,6 +2418,12 @@ return result;	\
     animateHide = YES;
     [self hideSearchScreen:nil];
 }
+
+- (void)searchDisplayController:(UISearchDisplayController *)controller willUnloadSearchResultsTableView:(UITableView *)searchTableView
+{
+	[tableview reloadData];
+}
+
 @end
 
 #endif
