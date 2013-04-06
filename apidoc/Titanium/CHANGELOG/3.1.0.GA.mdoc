@@ -200,12 +200,12 @@ Instead, you pass an array of `ListDataItem` objects to the `ListSection`, and t
 list view manages the creation of list items dynamically.
 
 You cannot add views to a `ListItem` using the `add` method, which could be done with a
-`TableViewRow`. To add views to a `ListItem`, you need to define an <ItemTemplate>,
+`TableViewRow`. To add views to a `ListItem`, you need to define an `ItemTemplate`,
 which is bound to a list data item using the `template` property.
 
 You cannot explicitly set properties or bind events for a `ListItem`.  You have to set them using the
-`properties` dictionary of a <ListDataItem> or <ItemTemplate> and the `events` dictionary of the
-<ItemTemplate> or <ViewTemplate>, respectively.
+`properties` dictionary of a `ListDataItem` or `ItemTemplate` and the `events` dictionary of the
+`ItemTemplate` or `ViewTemplate`, respectively.
 
 #### API Differences
 
