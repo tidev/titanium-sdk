@@ -3,6 +3,8 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details. */
 
+// Simple automated tests for Titanium.UI.TableViewRow.
+
 module.exports = new function() {
 	var finish,
 		valueOf,
@@ -18,11 +20,9 @@ module.exports = new function() {
 		{name: "baseNoPix"}
 	];
 
-	// Helper function for creating testing environment
-	// Create window,
-	// Create tableView with two table Row
-	// parameter:postLayotCallback - function
-	// this function settedon on windows postlayout event
+	// Helper function for creating testing environment.
+	// Create a window, a tableView with two table Rows,
+	// and set a postLayout callback.
 	function createTestEnv(postLayotCallback) {
 		Ti.UI.backgroundColor = "white";
 		this.win = Ti.UI.createWindow();	
@@ -57,7 +57,7 @@ module.exports = new function() {
 		this.win.open();
 	}
 
-	// Test checking background TableView
+	// Test the types and values of properties of newly created TableViewRows.
 	this.baseNoPix = function(testRun) {
 		var testEnv = new createTestEnv(),		
 			section = testEnv.tableView.sections[0];

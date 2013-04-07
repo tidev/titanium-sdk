@@ -5,6 +5,8 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
+// Simple automated tests of Titanium.UI.TableViewSection.
+
 module.exports = new function() {
 	var finish,
 		valueOf,
@@ -26,6 +28,7 @@ module.exports = new function() {
 		{name: "addRemove"}
 	];
 
+	// Create a table view, add two sections, check if they are present.
 	this.createSection = function(testRun) {
 		var window = Ti.UI.createWindow();
 		window.open();
@@ -55,6 +58,7 @@ module.exports = new function() {
 		finish(testRun);
 	}
 	
+	// Check if, after adding two sections, the properties of the sections are sane.
 	this.getProp = function(testRun) {
 		var window = Ti.UI.createWindow();
 		window.open();
@@ -106,6 +110,9 @@ module.exports = new function() {
 		finish(testRun);
 	}
 
+	// Verify header and footer functionality of table view sections.
+	// Assign header and footer titles and views to the table view sections,
+	// and check that the values of the related properties are consistent.
 	this.setProp = function(testRun) {
 		var window = Ti.UI.createWindow();
 
@@ -133,7 +140,7 @@ module.exports = new function() {
 		var newFooterTitle = "New Footer Title",
 			newHeaderTitle = "New Header Title";
 
-		//Set New HeaderTitle and New FooterTitle to the section		
+		// Set New HeaderTitle and new FooterTitle to the section		
 		tv.sections[0].setHeaderTitle(newHeaderTitle);
 		tv.sections[0].setFooterTitle(newFooterTitle );
 		
@@ -165,6 +172,8 @@ module.exports = new function() {
 		finish(testRun);
 	}	
 
+	// After creation of multiple table view rows and sections, check if the
+	// resulting count of sections, and their respective rows, is correct.
 	this.rowCount = function(testRun) {
 		var window = Ti.UI.createWindow(),
 			section1 = Ti.UI.createTableViewSection({
@@ -222,7 +231,7 @@ module.exports = new function() {
 		finish(testRun);		
 	}
 
-	//Test access to the row from the section
+	// Test access to rows from sections.
 	this.rows = function(testRun) {			
 		var window = Ti.UI.createWindow(),
 			section1 = Ti.UI.createTableViewSection({
@@ -281,7 +290,7 @@ module.exports = new function() {
 		window.close();	
 	}	
 	
-	// Test adding and removing row from the section
+	// Test adding and removing rows from sections.
 	this.addRemove = function(testRun) {
 		var window = Ti.UI.createWindow(),
 			section1 = Ti.UI.createTableViewSection({
@@ -314,6 +323,7 @@ module.exports = new function() {
 
 		window.add(tv);	
 		
+		// Remove rows and check the row count.
 		valueOf(testRun,tv.sections[0].getRowCount()).shouldBe(1);		
 		valueOf(testRun, function() {
 			section1.remove(row);
@@ -325,6 +335,7 @@ module.exports = new function() {
 		}).shouldNotThrowException();
 		valueOf(testRun,tv.sections[1].getRowCount()).shouldBe(section2Count-1);	
 
+		// Check removal of rows that do not belong to a section.
 		row = Ti.UI.createTableViewRow({title:'This Row is fake'});
 
 		valueOf(testRun, function() {
@@ -332,27 +343,7 @@ module.exports = new function() {
 		}).shouldThrowException();		
 		valueOf(testRun, function() {
 			section2.remove(fakeRow);
-		}).shouldThrowException();			
-		
-		var existRemovedRow = false,
-			i = 0,
-			len = section1.getRows().length;
-		
-		for(; i < len; i++) {
-			if (section1.getRows()[i] === row) {
-				existRemovedRow = true;
-			}
-		}
-
-		valueOf(testRun,existRemovedRow).shouldBeFalse();
-
-		existRemovedRow = false;
-		
-		for(var i = 0, len = section2.getRows().length; i < len; i++){
-			(section1.getRows()[i] === lastRow) && (existRemovedRow = true);
-		}
-
-		valueOf(testRun,existRemovedRow).shouldBeFalse();			
+		}).shouldThrowException();					
 		
 		window.close();		
 		finish(testRun);
