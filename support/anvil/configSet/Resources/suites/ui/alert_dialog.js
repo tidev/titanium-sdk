@@ -3,6 +3,9 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details. */
 
+// Simple tests of Ti.UI.AlertDialog that verify whether it remembers its configuration
+// and if it doesn't crash when created.
+
 module.exports = new function() {
 	var finish,
 		valueOf;
@@ -21,6 +24,8 @@ module.exports = new function() {
 		{name: "testTitle"}
 	];
 
+	// Simulates file deletion (does not actually delete anything)
+	// Verifies that the dialog doesn't crash and remembers the buttons configured for it
 	this.testButtons = function(testRun) {
 		var dialog = Ti.UI.createAlertDialog({
 				message: 'Would you like to delete the file?',
@@ -39,6 +44,7 @@ module.exports = new function() {
 		finish(testRun);
 	}
 
+	// Verifies that the dialog doesn't crash and remembers which button is "cancel"
 	this.testCancel = function(testRun) {
 		var dialog = Ti.UI.createAlertDialog({
 				buttonNames: [ 'Confirm', 'Cancel', 'Help' ],
@@ -56,14 +62,15 @@ module.exports = new function() {
 		finish(testRun);
 	}
 
+	// Verifies that the dialog doesn't crash and remembers which button is "OK"
 	this.testOk = function(testRun) {
 		var dialog = Ti.UI.createAlertDialog({
 			buttonNames: [ 'Confirm', 'Cancel', 'Help' ],
 			message: 'Would you like to delete the file?',
 			title: 'Delete'
 		}),
-		ok = 'Delete',
-		gotten_ok;
+			ok = 'Delete',
+			gotten_ok;
 
 		dialog.ok = ok;
 		gotten_ok = dialog.getOk();
@@ -73,14 +80,15 @@ module.exports = new function() {
 		finish(testRun);
 	}
 
+	// Verifies that the dialog doesn't crash and remembers which text message it has
 	this.testMessage = function(testRun) {
 		var dialog = Ti.UI.createAlertDialog({
 			cancel: 1,
 			buttonNames: [ 'Confirm', 'Cancel', 'Help' ],
 			title: 'Delete'
 		}),
-		message = "my message",
-		gotten_message;
+			message = "my message",
+			gotten_message;
 
 		dialog.message = message;
 		gotten_message = dialog.getMessage();
@@ -90,6 +98,7 @@ module.exports = new function() {
 		finish(testRun);
 	}
 
+	// Verifies that the dialog doesn't crash and remembers which title it has
 	this.testTitle = function(testRun) {
 		var dialog = Ti.UI.createAlertDialog({
 			cancel: 1,

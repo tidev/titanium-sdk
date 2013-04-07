@@ -3,6 +3,8 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details. */
 
+// Simple automated tests of Ti.UI.Slider.
+
 module.exports = new function() {
 	var finish,
 		valueOf,
@@ -21,6 +23,7 @@ module.exports = new function() {
 		{name: "sliderMinMaxRange"}
 	];
 
+	// Helper function
 	function createTestSlider() {
 		var win = Ti.UI.createWindow(),
 			slider = Ti.UI.createSlider({
@@ -37,6 +40,7 @@ module.exports = new function() {
 		return slider;
 	}
 
+	// Verifies if basic methods and properties have the right type
 	this.sliderBasic = function(testRun) {
 		var testSlider = Ti.UI.createSlider();
 
@@ -46,6 +50,7 @@ module.exports = new function() {
 		finish(testRun);
 	}
 
+	// Verifies if slider's "change" event works
 	this.sliderEvents = function(testRun) {
 		var valueChangedEventFiresCount = 0;
 		var valueChangedEventTargetValue = 77;
@@ -68,6 +73,8 @@ module.exports = new function() {
 		}, 1000);
 	}
 
+	// Verifies if the slider's properties "min", "max", "minRange" and "maxRange" work properly
+	// by limiting the allowed range of the slider.
 	this.sliderMinMaxRange = function(testRun) {
 		var slider = createTestSlider();
 
@@ -80,13 +87,17 @@ module.exports = new function() {
 		slider.min = 99;
 		slider.max = 199
 
+		// Try to set a value too large:
 		slider.value = Math.pow(2,53);
+		// Slider value should remain the maximal allowed:
 		valueOf(testRun, slider.value ).shouldBe(199);
 
+		// Try to set a value too small:
 		slider.value = -99;
+		// Slider value should remain the minimal allowed:
 		valueOf(testRun, slider.value ).shouldBe(99);
 
-		// Not for iPhone!
+		// Not for iPhone (it doesn't have maxRange and minRange)
 		if (Ti.Platform.osname != "iphone" && Ti.Platform.osname != "ipad" ) {
 			slider.minRange = 150;
 			slider.maxRange = 160;
