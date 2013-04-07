@@ -689,6 +689,9 @@ public class TiCompositeLayout extends ViewGroup
 			horizontalLayoutTopBuffer = horizontalLayoutTopBuffer + horizontalLayoutLineHeight;
 			horizontalLayoutLineHeight = 0;
 		}
+		// cap the right to make sure views don't go off-screen when user supplies a width value that is >= screen
+		// width and this view is right to another view in horizontal layout.
+		right = Math.min(left + measuredWidth, layoutRight);
 		hpos[0] = left;
 		hpos[1] = right;
 		horizontalLayoutCurrentLeft = right;
