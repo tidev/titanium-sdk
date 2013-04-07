@@ -3,6 +3,8 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details. */
 
+// Simple automated tests of Ti.UI.ProgressBar.
+
 module.exports = new function() {
 	var finish,
 		valueOf;
@@ -17,6 +19,8 @@ module.exports = new function() {
 		{name: "testProperties"}
 	];
 
+	// Check the types of the properties of ProgressBar, and whether it remembers its
+	// configuration.
 	this.testProperties = function(testRun) {
 		var wind = Ti.UI.createWindow(),
 			pb = Titanium.UI.createProgressBar({

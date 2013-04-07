@@ -3,7 +3,7 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details. */
 
-// unfinished due to failure of base_no_pix
+// Simple automated tests of Ti.UI.ScrollView.
  
 module.exports = new function() {
 	var finish,
@@ -24,7 +24,7 @@ module.exports = new function() {
 		{name: "base_no_pix", timeout: 1000}
 	];
 	
-	// Helper function create Main window createScrollView and View
+	// Helper functions that create Main window createScrollView and View
 	function TestObjects() {
 		var win = Ti.UI.createWindow({
 				backgroundColor: 'white',
@@ -61,8 +61,8 @@ module.exports = new function() {
 		this.scrollView = scrollView;
 	}
 
-	// Test base functionality with NO pixels calculation
-	// Failed because https://jira.appcelerator.org/browse/TC-1741
+	// Test base functionality of Ti.UI.ScrollView.
+	// Fails because https://jira.appcelerator.org/browse/TC-1741
 	this.base_no_pix = function(testRun) {
 		var testObject = new TestObjects();
 		scrollView = testObject.scrollView;	

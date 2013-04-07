@@ -3,6 +3,8 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details. */
 
+// Simple automated tests of Ti.UI.OptionDialog.
+
 module.exports = new function() {
 	var finish,
 		valueOf;
@@ -20,6 +22,8 @@ module.exports = new function() {
 		{name: "testTitle"}
 	];
 
+	// Verify if the dialog displays the options properly, by analyzing the resulting
+	// HTML DOM entities.
 	this.testOptions = function(testRun) {
 		var wind = Ti.UI.createWindow(),
 			optionsDialogOpts = {
@@ -51,8 +55,8 @@ module.exports = new function() {
 
 		wind.open();
 
-		// In this test we found buttons of option dialog in DOM structure and combare their labels with 
-		// apropriate options, wich we assigned above
+		// In this test we find buttons of option dialog in DOM structure and compare their labels with 
+		// apropriate options, wich we assigned above.
 		function checkOptions() {
 			var dialog_node = document.getElementsByClassName('TiUIWindow')[1],
 				button_nodes = dialog_node.getElementsByClassName('TiUIButton');
@@ -78,6 +82,7 @@ module.exports = new function() {
 		}
 	}
 
+	// Check if the option dialog remembers which button is Cancel.
 	this.testCancel = function(testRun) {
 		var optionsDialogOpts = {
 				options: ['Option 1', 'Option 2', 'Option 3', 'Option 4'],
@@ -96,6 +101,8 @@ module.exports = new function() {
       	finish(testRun);
 	}
 
+	// Check if the option dialog remembers which button is destructive (visually
+	// marked as dangerous).
 	this.testDestructive = function(testRun) {
 		var optionsDialogOpts = {
 				options: ['Option 1', 'Option 2', 'Option 3', 'Option 4'],
@@ -114,6 +121,7 @@ module.exports = new function() {
       	finish(testRun);
 	}
 
+	// Check if the option dialog remembers which title it should show.
 	this.testTitle = function(testRun) {
 		var optionsDialogOpts = {
 				options: ['Option 1', 'Option 2', 'Option 3', 'Option 4'],
