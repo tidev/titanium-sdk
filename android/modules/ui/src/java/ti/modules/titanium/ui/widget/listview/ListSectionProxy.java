@@ -381,7 +381,9 @@ public class ListSectionProxy extends ViewProxy{
 		if (data instanceof Object[]) {
 			Object[] items = (Object[]) data;
 			itemProperties =  new ArrayList<Object>(Arrays.asList(items));
-			listItemData.clear();
+			if(listItemData){
+				listItemData.clear();
+			}
 			//only process items when listview's properties is processed.
 			if (getListView() == null) {
 				preload = true;
