@@ -556,7 +556,7 @@ DEFINE_EXCEPTIONS
         if (bgImage != nil) {
             [self backgroundImageLayer].contentsScale = [bgImage scale];
             [self backgroundImageLayer].contentsCenter = TiDimensionLayerContentCenter(topCap, leftCap, topCap, leftCap, [bgImage size]);
-            if (CGPointEqualToPoint([self backgroundImageLayer].contentsCenter.origin,CGPointZero)) {
+            if (!CGPointEqualToPoint([self backgroundImageLayer].contentsCenter.origin,CGPointZero)) {
                 [self backgroundImageLayer].magnificationFilter = @"nearest";
             } else {
                 [self backgroundImageLayer].magnificationFilter = @"linear";
