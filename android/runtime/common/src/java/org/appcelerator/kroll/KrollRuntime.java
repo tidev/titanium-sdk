@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2011-2012 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2011-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -380,6 +380,30 @@ public abstract class KrollRuntime implements Handler.Callback
 	public static int getServiceReceiverRefCount()
 	{
 		return serviceReceiverRefCount;
+	}
+
+	// For backwards compatibility
+	@Deprecated
+	public static void incrementServiceRefCount()
+	{
+		Log.w(TAG, "incrementServiceRefCount() is deprecated.  Please use incrementServiceReceiverRefCount() instead.",
+			Log.DEBUG_MODE);
+		incrementServiceReceiverRefCount();
+	}
+
+	@Deprecated
+	public static void decrementServiceRefCount()
+	{
+		Log.w(TAG, "decrementServiceRefCount() is deprecated.  Please use decrementServiceReceiverRefCount() instead.",
+			Log.DEBUG_MODE);
+		decrementServiceReceiverRefCount();
+	}
+
+	@Deprecated
+	public static int getServiceRefCount()
+	{
+		Log.w(TAG, "getServiceRefCount() is deprecated.  Please use getServiceReceiverRefCount() instead.", Log.DEBUG_MODE);
+		return getServiceReceiverRefCount();
 	}
 
 	private void internalDispose()
