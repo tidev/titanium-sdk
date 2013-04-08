@@ -2420,7 +2420,7 @@ return result;	\
 
 - (void) searchDisplayControllerDidEndSearch:(UISearchDisplayController *)controller
 {
-    animateHide = YES;;
+    animateHide = YES;
     [self performSelector:@selector(hideSearchScreen:) withObject:nil afterDelay:0.2];
 }
 @end
