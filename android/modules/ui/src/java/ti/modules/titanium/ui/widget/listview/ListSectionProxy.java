@@ -41,13 +41,13 @@ public class ListSectionProxy extends ViewProxy{
 	private TiBaseAdapter adapter;
 	private ArrayList<Object> itemProperties;
 	private boolean preload;
-	
+
 	private String headerTitle;
 	private String footerTitle;
-	
+
 	private WeakReference<TiListView> listView;
 	public TiDefaultListViewTemplate builtInTemplate;
-	
+
 	private static final int MSG_FIRST_ID = TiViewProxy.MSG_LAST_ID + 1;
 
 	private static final int MSG_SET_ITEMS = MSG_FIRST_ID + 700;
@@ -60,10 +60,10 @@ public class ListSectionProxy extends ViewProxy{
 	private static final int MSG_GET_ITEMS = MSG_FIRST_ID + 707;
 
 
-	
 
 
-	
+
+
 	public class ListItemData {
 		private KrollDict properties;
 		private TiListViewTemplate template;
@@ -71,23 +71,23 @@ public class ListSectionProxy extends ViewProxy{
 			this.properties = properties;
 			this.template = template;
 		}
-		
+
 		public KrollDict getProperties() {
 			return properties;
 		}
-		
+
 		public TiListViewTemplate getTemplate() {
 			return template;
 		}
 	}
-	
+
 	public ListSectionProxy () {
 		//initialize variables
 		listItemData = new ArrayList<ListItemData>();
 		itemCount = 0;
 		preload = false;
 	}
-	
+
 	public void handleCreationDict(KrollDict dict) {
 		//getting header/footer titles from creation dictionary
 		if (dict.containsKey(TiC.PROPERTY_HEADER_TITLE)) {
@@ -100,7 +100,7 @@ public class ListSectionProxy extends ViewProxy{
 			handleSetItems(dict.get(TiC.PROPERTY_ITEMS));
 		}
 	}
-	
+
 	public void setAdapter(TiBaseAdapter a) {
 		adapter = a;
 	}
@@ -112,12 +112,12 @@ public class ListSectionProxy extends ViewProxy{
 			adapter.notifyDataSetChanged();
 		}
 	}
-	
+
 	@Kroll.method @Kroll.getProperty
 	public String getHeaderTitle() {
 		return headerTitle;
 	}
-	
+
 	@Kroll.method @Kroll.setProperty
 	public void setFooterTitle(String headerTitle) {
 		this.footerTitle = headerTitle;
@@ -125,12 +125,12 @@ public class ListSectionProxy extends ViewProxy{
 			adapter.notifyDataSetChanged();
 		}
 	}
-	
+
 	@Kroll.method @Kroll.getProperty
 	public String getFooterTitle() {
 		return footerTitle;
 	}
-	
+
 	public String getHeaderOrFooterTitle(int index) {
 		if (isHeaderView(index)) {
 			return headerTitle;
@@ -141,7 +141,7 @@ public class ListSectionProxy extends ViewProxy{
 	}
 
 	@Override
-	public boolean handleMessage(Message msg) 
+	public boolean handleMessage(Message msg)
 	{
 		switch (msg.what) {
 
@@ -151,7 +151,7 @@ public class ListSectionProxy extends ViewProxy{
 				result.setResult(null);
 				return true;
 			}
-			
+
 			case MSG_GET_ITEMS: {
 				AsyncResult result = (AsyncResult) msg.obj;
 				result.setResult(itemProperties.toArray());
@@ -200,7 +200,7 @@ public class ListSectionProxy extends ViewProxy{
 				result.setResult(item);
 				return true;
 			}
-			
+
 			case MSG_UPDATE_ITEM_AT: {
 				AsyncResult result = (AsyncResult) msg.obj;
 				KrollDict data = (KrollDict) result.getArg();
@@ -225,7 +225,7 @@ public class ListSectionProxy extends ViewProxy{
 			return (KrollDict) TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_GET_ITEM_AT), index);
 		}
 	}
-	
+
 	private KrollDict handleGetItemAt(int index) {
 		if (itemProperties != null && index >= 0 && index < itemProperties.size()) {
 			return new KrollDict((HashMap)itemProperties.get(index));
@@ -241,7 +241,7 @@ public class ListSectionProxy extends ViewProxy{
 			TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_SET_ITEMS), data);
 		}
 	}
-	
+
 	@Kroll.method @Kroll.getProperty
 	public Object[] getItems() {
 		if (TiApplication.isUIThread()) {
@@ -250,7 +250,7 @@ public class ListSectionProxy extends ViewProxy{
 			return (Object[]) TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_GET_ITEMS));
 		}
 	}
-	
+
 	@Kroll.method
 	public void appendItems(Object data) {
 		if (TiApplication.isUIThread()) {
@@ -259,17 +259,17 @@ public class ListSectionProxy extends ViewProxy{
 			TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_APPEND_ITEMS), data);
 		}
 	}
-	
+
 	public boolean isIndexValid(int index) {
 		return (index >= 0) ? true : false;
 	}
-	
+
 	@Kroll.method
 	public void insertItemsAt(int index, Object data) {
 		if (!isIndexValid(index)) {
 			return;
 		}
-		
+
 		if (TiApplication.isUIThread()) {
 			handleInsertItemsAt(index, data);
 		} else {
@@ -279,7 +279,7 @@ public class ListSectionProxy extends ViewProxy{
 			TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_INSERT_ITEMS_AT), d);
 		}
 	}
-	
+
 	@Kroll.method
 	public void deleteItemsAt(int index, int count) {
 		if (!isIndexValid(index)) {
@@ -295,7 +295,7 @@ public class ListSectionProxy extends ViewProxy{
 			TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_DELETE_ITEMS_AT), d);
 		}
 	}
-	
+
 	@Kroll.method
 	public void replaceItemsAt(int index, int count, Object data) {
 		if (!isIndexValid(index)) {
@@ -312,7 +312,7 @@ public class ListSectionProxy extends ViewProxy{
 			TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_REPLACE_ITEMS_AT), d);
 		}
 	}
-	
+
 	@Kroll.method
 	public void updateItemAt(int index, Object data) {
 		if (!isIndexValid(index) || !(data instanceof HashMap)) {
@@ -329,14 +329,14 @@ public class ListSectionProxy extends ViewProxy{
 		}
 	}
 
-	
+
 	public void processPreloadData() {
 		if (itemProperties != null && preload) {
 			handleSetItems(itemProperties.toArray());
 			preload = false;
 		}
 	}
-	
+
 	public void refreshItems() {
 		handleSetItems(itemProperties.toArray());
 	}
@@ -345,7 +345,7 @@ public class ListSectionProxy extends ViewProxy{
 		if (listItemData == null) {
 			return;
 		}
-		
+
 		TiListViewTemplate[] temps = new TiListViewTemplate[items.length];
 		//First pass through data, we process template and update
 		//default properties based data given
@@ -381,7 +381,9 @@ public class ListSectionProxy extends ViewProxy{
 		if (data instanceof Object[]) {
 			Object[] items = (Object[]) data;
 			itemProperties =  new ArrayList<Object>(Arrays.asList(items));
-			listItemData.clear();
+            if(ListItemData != null){
+                listItemData.clear();
+            }
 			//only process items when listview's properties is processed.
 			if (getListView() == null) {
 				preload = true;
@@ -394,7 +396,7 @@ public class ListSectionProxy extends ViewProxy{
 			Log.e(TAG, "Invalid argument type to setData", Log.DEBUG_MODE);
 		}
 	}
-	
+
 	private void handleAppendItems(Object data) {
 		if (data instanceof Object[]) {
 			Object[] views = (Object[]) data;
@@ -415,16 +417,16 @@ public class ListSectionProxy extends ViewProxy{
 			itemCount += views.length;
 
 			processData(views, count);
-			
+
 		} else {
 			Log.e(TAG, "Invalid argument type to setData", Log.DEBUG_MODE);
 		}
 	}
-	
+
 	private void handleInsertItemsAt(int index, Object data) {
 		if (data instanceof Object[]) {
 			Object[] views = (Object[]) data;
-			
+
 			if (itemProperties == null) {
 				itemProperties = new ArrayList<Object>(Arrays.asList(views));
 			} else {
@@ -443,14 +445,14 @@ public class ListSectionProxy extends ViewProxy{
 				preload = true;
 				return;
 			}
-			
+
 			itemCount += views.length;
 			processData(views, index);
 		} else {
 			Log.e(TAG, "Invalid argument type to insertItemsAt", Log.DEBUG_MODE);
 		}
 	}
-	
+
 	private boolean deleteItems(int index, int count) {
 		boolean delete = false;
 		while (count > 0) {
@@ -466,14 +468,14 @@ public class ListSectionProxy extends ViewProxy{
 		}
 		return delete;
 	}
-	
+
 	private void handleDeleteItemsAt(int index, int count) {
 		deleteItems(index, count);
 		if (adapter != null) {
 			adapter.notifyDataSetChanged();
 		}
 	}
-	
+
 	private void handleReplaceItemsAt(int index, int count, Object data) {
 		if (count == 0) {
 			handleInsertItemsAt(index, data);
@@ -481,14 +483,14 @@ public class ListSectionProxy extends ViewProxy{
 			handleInsertItemsAt(index, data);
 		}
 	}
-	
+
 	private void handleUpdateItemAt(int index, Object data) {
 		handleReplaceItemsAt(index, 1, data);
 		setProperty(TiC.PROPERTY_ITEMS, itemProperties.toArray());
 	}
-	
+
 	private TiListViewTemplate processTemplate(KrollDict itemData, int index) {
-		
+
 		TiListView listView = getListView();
 		String defaultTemplateBinding = null;
 		if (listView != null) {
@@ -509,9 +511,9 @@ public class ListSectionProxy extends ViewProxy{
 			if (template == null) {
 				Log.e(TAG, "Template undefined");
 			}
-						
+
 			return template;
-			
+
 		} else {
 			//if a valid default template is specify, use that one
 			if (defaultTemplateBinding != null && !defaultTemplateBinding.equals(UIModule.LIST_ITEM_TEMPLATE_DEFAULT)) {
@@ -521,14 +523,14 @@ public class ListSectionProxy extends ViewProxy{
 				}
 			}
 			return processDefaultTemplate(itemData, index);
-		}	
-		
+		}
+
 	}
-	
+
 	private TiListViewTemplate processDefaultTemplate(KrollDict data, int index) {
 
 		if (builtInTemplate == null){
-		
+
 			//Create template and generate default properties
 			builtInTemplate = new TiDefaultListViewTemplate(UIModule.LIST_ITEM_TEMPLATE_DEFAULT, null, getActivity());
 			//Each template is treated as an item type, so we can reuse views efficiently.
@@ -555,17 +557,17 @@ public class ListSectionProxy extends ViewProxy{
 		//Get item proxy
 		TiViewProxy itemProxy = template.getRootItem().getViewProxy();
 		//Create corresponding TiUIView for item proxy
-		TiListItem item = new TiListItem(itemProxy, (TiCompositeLayout.LayoutParams)itemContent.getLayoutParams(), itemContent, item_layout);		
+		TiListItem item = new TiListItem(itemProxy, (TiCompositeLayout.LayoutParams)itemContent.getLayoutParams(), itemContent, item_layout);
 		//Connect native view with TiUIView so we can get it from recycled view.
 		itemContent.setTag(item);
-	
+
 		if (data != null && template != null) {
 			generateChildContentViews(template.getRootItem(), null, itemContent, true);
 			populateViews(data, itemContent, template, itemPosition, sectionIndex, item_layout);
 		}
 	}
-	
-	
+
+
 	public void generateChildContentViews(DataItem item, TiUIView parentContent, TiBaseListViewItem rootItem, boolean root) {
 
 		ArrayList<DataItem> childrenItem = item.getChildren();
@@ -576,7 +578,7 @@ public class ListSectionProxy extends ViewProxy{
 			view.registerForTouch();
 			generateChildContentViews(child, view, rootItem, false);
 			//Bind view to root.
-			
+
 			ViewItem viewItem = new ViewItem(view, new KrollDict());
 			rootItem.bindView(child.getBindingId(), viewItem);
 			//Add it to view hierarchy
@@ -588,7 +590,7 @@ public class ListSectionProxy extends ViewProxy{
 
 		}
 	}
-	
+
 	public void appendExtraEventData(TiUIView view, int itemIndex, int sectionIndex, String bindId, String itemId) {
 		KrollDict existingData = view.getAdditionalEventData();
 		if (existingData == null) {
@@ -617,7 +619,7 @@ public class ListSectionProxy extends ViewProxy{
 		}
 
 	}
-	
+
 	public void populateViews(KrollDict data, TiBaseListViewItem cellContent, TiListViewTemplate template, int itemIndex, int sectionIndex, View item_layout) {
 		Object cell = cellContent.getTag();
 		//Handling root item, since that is not in the views map.
@@ -625,7 +627,7 @@ public class ListSectionProxy extends ViewProxy{
 			Log.e(TAG, "Cell is not TiListItem. Something is wrong..", Log.DEBUG_MODE);
 			return;
 		}
-		
+
 		TiListItem listItem = (TiListItem) cell;
 		KrollDict listItemProperties;
 		String itemId = null;
@@ -633,17 +635,17 @@ public class ListSectionProxy extends ViewProxy{
 		if (data.containsKey(TiC.PROPERTY_PROPERTIES)) {
 			listItemProperties = new KrollDict((HashMap)data.get(TiC.PROPERTY_PROPERTIES));
 		} else {
-			listItemProperties = template.getRootItem().getDefaultProperties(); 
+			listItemProperties = template.getRootItem().getDefaultProperties();
 		}
-		
+
 		//find out if we need to update itemId
 		if (listItemProperties.containsKey(TiC.PROPERTY_ITEM_ID)) {
 			itemId = TiConvert.toString(listItemProperties.get(TiC.PROPERTY_ITEM_ID));
 		}
-		
+
 		//update extra event data for list item
 		appendExtraEventData(listItem, itemIndex, sectionIndex, TiC.PROPERTY_PROPERTIES, itemId);
-		
+
 		HashMap<String, ViewItem> views = (HashMap<String, ViewItem>) cellContent.getViewsMap();
 		//Loop through all our views and apply default properties
 		for (String binding: views.keySet()) {
@@ -671,9 +673,9 @@ public class ListSectionProxy extends ViewProxy{
 			} else {
 				Log.w(TAG, "Sorry, " + binding + " isn't a valid binding. Perhaps you made a typo?", Log.DEBUG_MODE);
 			}
-			
+
 		}
-		
+
 		//process listItem properties
 		KrollDict listItemDiff = cellContent.getViewItem().generateDiffProperties(listItemProperties);
 		if (!listItemDiff.isEmpty()) {
@@ -681,7 +683,7 @@ public class ListSectionProxy extends ViewProxy{
 		}
 
 	}
-	
+
 	public TiListViewTemplate getTemplateByIndex(int index) {
 		if (headerTitle != null) {
 			index -= 1;
@@ -705,31 +707,31 @@ public class ListSectionProxy extends ViewProxy{
 		}
 		return totalCount;
 	}
-	
+
 	public boolean isHeaderView(int pos) {
 		return (headerTitle != null && pos == 0) ;
 	}
-	
+
 	public boolean isFooterView(int pos) {
 		return (footerTitle != null && pos == getItemCount() - 1);
 	}
-	
+
 	public void setListView(TiListView l) {
 		listView = new WeakReference<TiListView>(l);
 	}
-	
+
 	public TiListView getListView() {
 		if (listView != null) {
 			return listView.get();
 		}
 		return null;
 	}
-	
+
 	/**
 	 * Attempt to give each existing template a type, if possible
 	 */
 	public void setTemplateType() {
-		
+
 		for (int i = 0; i < listItemData.size(); i++) {
 			TiListViewTemplate temp = listItemData.get(i).getTemplate();
 			TiListView listView = getListView();
@@ -738,33 +740,33 @@ public class ListSectionProxy extends ViewProxy{
 			}
 		}
 	}
-	
+
 	public KrollDict getListItemData(int position) {
 		if (headerTitle != null) {
 			position -= 1;
 		}
 		if (position >= 0 && position < listItemData.size()) {
 			return listItemData.get(position).getProperties();
-		} 
+		}
 		return null;
 	}
-	
+
 	public void release() {
 		if (listItemData != null) {
 			listItemData.clear();
 			listItemData = null;
 		}
-		
+
 		if (itemProperties != null) {
 			itemProperties.clear();
 			itemProperties = null;
 		}
-		
+
 		if (builtInTemplate != null) {
 			builtInTemplate.release();
 			builtInTemplate = null;
 		}
 		super.release();
 	}
-	
+
 }
