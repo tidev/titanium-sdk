@@ -25,6 +25,7 @@ import org.appcelerator.titanium.proxy.TiViewProxy;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.graphics.Color;
 import android.hardware.Camera;
 import android.hardware.Camera.AutoFocusCallback;
@@ -152,18 +153,41 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 
 		currentRotation = rotation;
 		Parameters param = camera.getParameters();
+		int orientation = TiApplication.getInstance().getResources().getConfiguration().orientation;
+		// The camera preview is always displayed in landscape mode. Need to rotate the preview according to
+		// the current orientation of the device.
 		switch (rotation) {
 			case Surface.ROTATION_0:
-				camera.setDisplayOrientation(90);
+				if (orientation == Configuration.ORIENTATION_PORTRAIT) {
+					// The "natural" orientation of the device is a portrait orientation, eg. phones.
+					// Need to rotate 90 degrees.
+					camera.setDisplayOrientation(90);
+				} else {
+					// The "natural" orientation of the device is a landscape orientation, eg. tablets.
+					// Set the camera to the starting position (0 degree).
+					camera.setDisplayOrientation(0);
+				}
 				break;
 			case Surface.ROTATION_90:
-				camera.setDisplayOrientation(0);
+				if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
+					camera.setDisplayOrientation(0);
+				} else {
+					camera.setDisplayOrientation(270);
+				}
 				break;
 			case Surface.ROTATION_180:
-				camera.setDisplayOrientation(270);
+				if (orientation == Configuration.ORIENTATION_PORTRAIT) {
+					camera.setDisplayOrientation(270);
+				} else {
+					camera.setDisplayOrientation(180);
+				}
 				break;
 			case Surface.ROTATION_270:
-				camera.setDisplayOrientation(180);
+				if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
+					camera.setDisplayOrientation(180);
+				} else {
+					camera.setDisplayOrientation(90);
+				}
 				break;
 		}
 
