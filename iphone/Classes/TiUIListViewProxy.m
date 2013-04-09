@@ -144,6 +144,12 @@
 	[self.listView tableView];
 }
 
+- (void)willShow
+{
+	[self.listView deselectAll:YES];
+	[super willShow];
+}
+
 #pragma mark - Public API
 
 - (void)setTemplates:(id)args
