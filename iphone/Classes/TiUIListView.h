@@ -10,9 +10,12 @@
 
 @interface TiUIListView : TiUIView <UITableViewDelegate, UITableViewDataSource, UIGestureRecognizerDelegate, TiScrolling >
 
+#pragma mark - Private APIs
+
 @property (nonatomic, readonly) UITableView *tableView;
 
 - (void)setTemplates_:(id)args;
+- (void)deselectAll:(BOOL)animated;
 
 + (UITableViewRowAnimation)animationStyleForProperties:(NSDictionary*)properties;
 
