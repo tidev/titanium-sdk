@@ -3,6 +3,8 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details. */
 
+// Simple automated tests of Ti.UI.Picker.
+
 module.exports = new function() {
 	var finish,
 		valueOf;
@@ -18,6 +20,7 @@ module.exports = new function() {
 		{name: "row", timeout: 5000}
 	];		
 
+	// Create a non-trivial picker, and check the types of properties and results of method calls.
 	this.column = function(testRun) {
 		var fruit = ['Bananas', 'Grapes', 'Blueberries', 'Strawberries'], 
 			column1 = Ti.UI.createPickerColumn(),
@@ -52,10 +55,9 @@ module.exports = new function() {
 		
 		finish(testRun);
 	}
-		
-		
+				
+	// Check if the picker remembers its contents.
 	this.row = function(testRun) {
-		// Check all methdos and properties for row
 		var row;
 		
 		valueOf(testRun, function() {

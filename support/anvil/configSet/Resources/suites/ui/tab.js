@@ -3,6 +3,8 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details. */
 
+// Simple automated tests for Ti.UI.TabGroup.
+
 module.exports = new function() {
 	var finish,
 		valueOf,
@@ -48,7 +50,7 @@ module.exports = new function() {
 		return _createTabGroupWithWindow(redWindow,greenWindow);
 	};	
 	
-	// Test base functionality WITHOUT pixel checking	
+	// Test types of basic properties, verify the tab group remembers its configuration.
 	this.base_no_pix = function(testRun) {
 		var wind = Titanium.UI.createWindow(),
 			redWin = Titanium.UI.createWindow({ backgroundColor: RED_RGB}),
@@ -80,7 +82,7 @@ module.exports = new function() {
 		});		
 	}
 
-	// Failed - https://jira.appcelerator.org/browse/TC-1740
+	// Fails because https://jira.appcelerator.org/browse/TC-1740
 	this.active_no_pix = function(testRun) {
 		var wind = Titanium.UI.createWindow(),
 			tabGroup = _createTabGroup();

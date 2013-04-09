@@ -10,6 +10,7 @@ module.exports = new function() {
 		valueOf,
 		reportError,
 		Tizen = require('tizen'),
+
 		// Helpers
 		finishError = function (testRun,errorMsg) {
 			Ti.API.info('The following error occurred: ' +  errorMsg);

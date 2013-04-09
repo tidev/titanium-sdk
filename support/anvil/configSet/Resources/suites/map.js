@@ -79,7 +79,7 @@ module.exports = new function() {
 
 		valueOf(testRun, map.annotations.length).shouldBeEqual(0);
 		
-		// Add one
+		// Add one annotation
 		valueOf(testRun, function() {
 			map.addAnnotation(annotation1);
 		}).shouldNotThrowException();
@@ -315,8 +315,7 @@ module.exports = new function() {
 		win.add(map);
 		win.open();
 	}
-		
-		
+				
 	this.annotation_methods = function(testRun) {
 		var annotation = Titanium.Map.createAnnotation({
 				latitude: 33.74511,
