@@ -146,7 +146,7 @@
 
 - (void)willShow
 {
-	 [self.listView deselectAll:YES];
+	[self.listView deselectAll:YES];
 	[super willShow];
 }
 
