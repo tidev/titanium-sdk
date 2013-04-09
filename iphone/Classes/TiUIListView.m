@@ -89,11 +89,13 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 	return (TiUIListViewProxy *)self.proxy;
 }
 
-#pragma mark - Public API
-
 - (void)deselectAll:(BOOL)animated
 {
-	[_tableView deselectRowAtIndexPath:_tableView.indexPathForSelectedRow animated:animated];
+	if (_tableView != nil) {
+		[_tableView.indexPathsForSelectedRows enumerateObjectsUsingBlock:^(NSIndexPath *indexPath, NSUInteger idx, BOOL *stop) {
+			[_tableView deselectRowAtIndexPath:indexPath animated:animated];
+		}];
+	}
 }
 
 - (void)setTemplates_:(id)args
@@ -105,6 +107,8 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 		[_tableView reloadData];
 	}
 }
+
+#pragma mark - Public API
 
 - (void)setDefaultItemTemplate_:(id)args
 {
