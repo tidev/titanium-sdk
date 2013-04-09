@@ -91,6 +91,11 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 
 #pragma mark - Public API
 
+- (void)deselectAll:(BOOL)animated
+{
+	[_tableView deselectRowAtIndexPath:_tableView.indexPathForSelectedRow animated:animated];
+}
+
 - (void)setTemplates_:(id)args
 {
 	ENSURE_TYPE_OR_NIL(args,NSDictionary);
