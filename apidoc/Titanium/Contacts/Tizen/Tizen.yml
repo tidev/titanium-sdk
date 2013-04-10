@@ -1,0 +1,36 @@
+---
+name: Titanium.Contacts.Tizen
+summary: |
+    The module containing Tizen-specific methods and properties pertaining to contacts.
+description: |
+    Methods defined here provide their results via callbacks, rather than returning them synchronously.
+extends: Titanium.Module
+since: 3.1.0
+platforms: [tizen]
+
+methods:
+  - name: getAllPeople
+    summary: Gets all people from the contact list.
+    parameters:
+      - name: successCallback
+        summary: Callback function that will be called when the operation is successful with the desired contact list as a parameter.
+        type: Callback<Titanium.Contacts.Person[]>
+        
+      - name: errorCallback
+        summary: Callback function that will be called when the operation is not successful.
+        type: Callback<WebAPIError>
+
+  - name: getPeopleWithName
+    summary: Gets all people from the contact list with the specified name.
+    parameters:
+      - name: name
+        summary: The name to search for.
+        type: String
+
+      - name: successCallback
+        summary: Callback function that will be called when the operation is successful with the desired contact list as a parameter.
+        type: Callback<Titanium.Contacts.Person[]>
+      - name: errorCallback
+      
+        summary: Callback function that will be called when the operation is not successful.
+        type: Callback<WebAPIError>

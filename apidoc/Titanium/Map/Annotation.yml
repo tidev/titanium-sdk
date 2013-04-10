@@ -44,7 +44,7 @@ description: |
     Use the <Titanium.Map.createAnnotation> method to create an annotation.
 extends: Titanium.Proxy
 since: "0.9"
-platforms: [android, iphone, ipad, mobileweb]
+platforms: [android, iphone, ipad, mobileweb, tizen]
 
 properties:
 
@@ -192,7 +192,7 @@ events:
         `title`, or `subtitle`. If the user deselects the annotation by clicking elsewhere
         in the map view, `clicksource` is `null`.
 
-    platforms: [iphone, ipad, mobileweb]
+    platforms: [iphone, ipad, mobileweb, tizen]
 
     properties:
 

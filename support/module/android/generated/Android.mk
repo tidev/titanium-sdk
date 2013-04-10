@@ -6,7 +6,7 @@ include $(CLEAR_VARS)
 
 THIS_DIR = $(LOCAL_PATH)
 LOCAL_MODULE := @MODULE_ID@
-LOCAL_CFLAGS := -g "-I$(TI_MOBILE_SDK)/android/native/include" -I$(SYSROOT)/usr/include
+LOCAL_CFLAGS := -g "-I$(TI_MOBILE_SDK)/android/native/include"
 
 # Several places in generated code we set some jvalues to NULL and
 # since NDK r8b we'd get warnings about each one.

@@ -11,7 +11,7 @@ summary: This interface represents an entity, either parsed or unparsed, in
     [DOM Level 3 API](http://www.w3.org/TR/DOM-Level-3-Core/core.html#ID-527DCFF2) implementation on Mobile Web.
 since: "0.9"
 createable: false
-platforms: [android, iphone, ipad, mobileweb]
+platforms: [android, iphone, ipad, mobileweb, tizen]
 properties:
   - name: notationName
     summary: For unparsed entities, the name of the notation for the entity. 

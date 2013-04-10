@@ -133,7 +133,7 @@ events:
         
   - name: close
     summary: Fired when the tab group is closed.
-    platforms: [iphone, ipad, mobileweb]
+    platforms: [iphone, ipad, mobileweb, tizen]
     
   - name: focus
     summary: |
@@ -199,7 +199,7 @@ methods:
     
   - name: removeTab
     summary: Removes a tab from the tab group.
-    platforms: [iphone, ipad, mobileweb]
+    platforms: [iphone, ipad, mobileweb, tizen]
     parameters:
       - name: tab
         summary: Tab to remove.
@@ -302,16 +302,16 @@ properties:
     type: String
     since: {android: "3.0.0", iphone: "3.0.0", ipad: "3.0.0", mobileweb: "2.0.0"}
     osver: {ios: {min: "5.0"}}
-    platforms: [android, iphone, ipad, mobileweb]
+    platforms: [android, iphone, ipad, mobileweb, tizen]
     
   - name: tabsBackgroundImage
     summary: Default background image for tabs.
     description: |
-        On MobileWeb, a tab's [backgroundImage](Titanium.UI.Tab.backgroundImage) property takes precedence if set.
+        On MobileWeb and Tizen, a tab's [backgroundImage](Titanium.UI.Tab.backgroundImage) property takes precedence if set.
         
         On iOS, requires iOS 5.0 or later; ignored on earlier versions.
     type: String
-    platforms: [mobileweb,iphone,ipad]
+    platforms: [mobileweb, iphone, ipad, tizen]
     since: { mobileweb: "2.0.0", iphone: "3.1.0", ipad: "3.1.0" }
     osver: {iOS: {min: "5.0"}}
 
@@ -333,7 +333,7 @@ properties:
     type: String
     since: {iphone: "3.1.0", ipad: "3.1.0" }
     osver: {ios: {min: "5.0"}}
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, tizen]
     
   - name: tabsBackgroundDisabledColor
     summary: Default background disabled color for tabs, as a color name or hex triplet.
@@ -343,7 +343,7 @@ properties:
         A tab's [backgroundDisabledColor](Titanium.UI.Tab.backgroundDisabledColor) property takes 
         precedence if set.
     type: String
-    platforms: [mobileweb]
+    platforms: [mobileweb, tizen]
     since: "2.0.0"
     
   - name: tabsBackgroundDisabledImage
@@ -352,7 +352,7 @@ properties:
         A tab's [backgroundDisabledImage](Titanium.UI.Tab.backgroundDisabledImage) property takes 
         precedence if set.
     type: String
-    platforms: [mobileweb]
+    platforms: [mobileweb, tizen]
     since: "2.0.0"
     
   - name: tabsBackgroundFocusedColor
@@ -363,7 +363,7 @@ properties:
         A tab's [backgroundFocusedColor](Titanium.UI.Tab.backgroundFocusedColor) property takes 
         precedence if set.
     type: String
-    platforms: [mobileweb]
+    platforms: [mobileweb, tizen]
     since: "2.0.0"
     
   - name: tabsBackgroundFocusedImage
@@ -372,7 +372,7 @@ properties:
         A tab's [backgroundFocusedImage](Titanium.UI.Tab.backgroundFocusedImage) property takes 
         precedence if set.
     type: String
-    platforms: [mobileweb]
+    platforms: [mobileweb, tizen]
     since: "2.0.0"
     
   - name: tabsBackgroundSelectedColor
@@ -383,7 +383,7 @@ properties:
         A tab's [backgroundSelectedColor](Titanium.UI.Tab.backgroundSelectedColor) property takes 
         precedence if set.
     type: String
-    platforms: [android, mobileweb]
+    platforms: [android, mobileweb, tizen]
     since: {android: "3.0.0", mobileweb: "2.0.0"}
     
   - name: tabsBackgroundSelectedImage
@@ -392,7 +392,7 @@ properties:
         A tab's [backgroundSelectedImage](Titanium.UI.Tab.backgroundSelectedImage) property takes 
         precedence if set.
     type: String
-    platforms: [mobileweb]
+    platforms: [mobileweb, tizen]
     since: "2.0.0"
     
   - name: activeTabBackgroundColor
@@ -402,15 +402,15 @@ properties:
         
         A tab's [backgroundColor](Titanium.UI.Tab.backgroundColor)  property takes precedence if set.
     type: String
-    platforms: [mobileweb]
+    platforms: [mobileweb, tizen]
     since: "2.0.0"
     
   - name: activeTabBackgroundImage
     summary: Default background image for the active tab.
     description: |
-        On MobileWeb, a tab's [backgroundImage](Titanium.UI.Tab.backgroundImage) property takes precedence if set.
+        On MobileWeb and Tizen, a tab's [backgroundImage](Titanium.UI.Tab.backgroundImage) property takes precedence if set.
     type: String
-    platforms: [mobileweb,iphone,ipad]
+    platforms: [mobileweb, iphone, ipad, tizen]
     since: { mobileweb: "2.0.0", iphone: "3.1.0", ipad: "3.1.0" }
     osver: {iOS: {min: "5.0"}}
     
@@ -422,7 +422,7 @@ properties:
         A tab's [backgroundDisabledColor](Titanium.UI.Tab.backgroundDisabledColor) property takes 
         precedence if set.
     type: String
-    platforms: [mobileweb]
+    platforms: [mobileweb, tizen]
     since: "2.0.0"
     
   - name: activeTabBackgroundDisabledImage
@@ -431,7 +431,7 @@ properties:
         A tab's [backgroundDisabledImage](Titanium.UI.Tab.backgroundDisabledImage) property takes 
         precedence if set.
     type: String
-    platforms: [mobileweb]
+    platforms: [mobileweb, tizen]
     since: "2.0.0"
     
   - name: activeTabBackgroundFocusedColor
@@ -442,7 +442,7 @@ properties:
         A tab's [backgroundFocusedColor](Titanium.UI.Tab.backgroundFocusedColor) property takes 
         precedence if set.
     type: String
-    platforms: [mobileweb]
+    platforms: [mobileweb, tizen]
     since: "2.0.0"
     
   - name: activeTabBackgroundFocusedImage
@@ -451,7 +451,7 @@ properties:
         A tab's [backgroundFocusedImage](Titanium.UI.Tab.backgroundFocusedImage) property takes 
         precedence if set.
     type: String
-    platforms: [mobileweb]
+    platforms: [mobileweb, tizen]
     since: "2.0.0"
     
   - name: activeTabBackgroundSelectedColor
@@ -462,7 +462,7 @@ properties:
         A tab's [backgroundSelectedColor](Titanium.UI.Tab.backgroundSelectedColor) property takes 
         precedence if set.
     type: String
-    platforms: [mobileweb]
+    platforms: [mobileweb, tizen]
     since: "2.0.0"
     
   - name: activeTabBackgroundSelectedImage
@@ -471,7 +471,7 @@ properties:
         A tab's [backgroundSelectedImage](Titanium.UI.Tab.backgroundSelectedImage) property takes 
         precedence if set.
     type: String
-    platforms: [mobileweb]
+    platforms: [mobileweb, tizen]
     since: "2.0.0"
     
   - name: tabDividerColor
@@ -479,7 +479,7 @@ properties:
     description: |
         For information about color values, see the "Colors" section of <Titanium.UI>. 
     type: String
-    platforms: [mobileweb]
+    platforms: [mobileweb, tizen]
     since: "2.0.0"
     
   - name: tabDividerWidth
@@ -488,7 +488,7 @@ properties:
         This width is relative to the tabgroup's parent. Can be either a float value or 
         a dimension string (for example, `'50%'` or `'auto'`).
     type: [Number, String]
-    platforms: [mobileweb]
+    platforms: [mobileweb, tizen]
     since: "2.0.0"
     
   - name: tabHeight
@@ -497,7 +497,7 @@ properties:
         This height is relative to the tabgroup's parent. Can be either a float value or 
         a dimension string (for example, `'50%'` or `'auto'`).
     type: [Number, String]
-    platforms: [mobileweb]
+    platforms: [mobileweb, tizen]
     since: "2.0.0"
     
   - name: tabsAtBottom
@@ -507,10 +507,8 @@ properties:
     description: Set to `false` to position tabs at the top of the screen.
     type: Boolean
     default: true
-    platforms: [mobileweb]
+    platforms: [mobileweb, tizen]
     since: "2.0.0"
-
-
 
 examples:
   - title: Alloy XML Markup
