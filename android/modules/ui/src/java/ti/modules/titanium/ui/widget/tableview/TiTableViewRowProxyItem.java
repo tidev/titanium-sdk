@@ -284,7 +284,7 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 				applyChildProperties(childProxy, childView);
 			}
 			i++;
-	}
+		}
 	}
 
 	protected void refreshOldStyleRow()
