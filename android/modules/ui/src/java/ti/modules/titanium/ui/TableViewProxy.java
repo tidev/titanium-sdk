@@ -23,6 +23,7 @@ import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.view.TiUIView;
 
 import ti.modules.titanium.ui.widget.TiUITableView;
+import ti.modules.titanium.ui.widget.tableview.TiTableView;
 import ti.modules.titanium.ui.widget.tableview.TableViewModel.Item;
 import android.app.Activity;
 import android.os.Message;
@@ -160,6 +161,9 @@ public class TableViewProxy extends TiViewProxy
 				Object source = dataCopy.get(TiC.PROPERTY_SOURCE);
 				int index = getTableView().getTableView().getIndexFromXY(x, y);
 				if (index != -1 && source == this) {
+					if (hasProperty(TiC.PROPERTY_HEADER_VIEW)) {
+						index -= 1;
+					}
 					Item item = getTableView().getTableView().getItemAtPosition(index);
 					dataCopy.put(TiC.PROPERTY_SOURCE, item.proxy);
 					return item.proxy.fireEvent(eventName, dataCopy, bubbles);
