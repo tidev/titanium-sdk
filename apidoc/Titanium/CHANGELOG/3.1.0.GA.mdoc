@@ -1,4 +1,4 @@
-# Titanium SDK 3.1.0 - 03/29/2013
+# Titanium SDK 3.1.0 Beta - 04/03/2013
 
 ##### Contents
 
@@ -8,18 +8,30 @@
   * [Notice of Breaking Changes in Release 3.1](#changes)
     * [Facebook Module](#facebook)
     * [Google Maps v2 Module for Android](#googlemaps)
+  * [Known Issues](#known_issues)
   * [New Features](#features)
     * [ListView](#listview)
-    * [iOS Contacts Reload Event](#ioscontactreload)
+    * [Alloy Updates](#alloy_updates)
+    * [EventKit UI Framework](#event_kit)
+    * [iOS6 Core Location AutoPause API](#core_location_autopause)
+    * [iOS Retina Simulator Support](#retina_sim)
+    * [BlackBerry and Tizen Platforms](#new_platforms)
+    * [New Modules](#new_modules)
+    * [iOS Contacts Reload Event](#ioscontactsreload)
+  * [Deprecations](#deprecations)
+    * [Titanium Manifest File](#manifest)
+    * [Global Context Available to CommonJS Modules](#commonjs)
   * [API Changes](#apichanges)
-    * [New APIs](#newapis)
+    * [New APIs](#new_apis)
     * [Deprecated APIs](#deprecated_apis)
 
 <a name="about"></a>
 
 ## About This Release
 
-This is a General Availability (GA) release of Titanium SDK 3.1, introducing a number of new features.
+This is a Beta release of Titanium SDK 3.1, introducing a number of new features.
+
+This is a pre-release version of the Titanium SDK, and should not be used for production use.
 
 Note that this release includes breaking changes. See [Notice of Breaking Changes in Release 3.1](#changes)
 for details.
@@ -52,7 +64,7 @@ for information on getting started with Tizen development.
 
 ### BlackBerry 10 Beta Release
 
-This release coincides with the Beta Release of BlackBerry 10  development support with the
+This release coincides with the Beta Release of BlackBerry 10 development support with the
 Titanium SDK.
 
 Refer to [Installing the BlackBerry NDK](http://docs.appcelerator.com/titanium/latest/#!/guide/Installing_the_BlackBerry_NDK)
@@ -62,7 +74,7 @@ for information on getting started with BlackBerry 10 development.
 
 ## Notice of Breaking Changes in Release 3.1
 
-The following changes alter the behavior of the Titanium SDK from previous verisons, and may require
+The following changes alter the behavior of the Titanium SDK from previous versions, and may require
 code changes to run your application on Titanium SDK 3.1.
 
 <a name="facebook"></a>
@@ -85,7 +97,7 @@ For more information, refer to
 ### Google Maps v2 Module for Android
 
 A new open source Google Maps v2 module for Android replaces the built-in `Titanium.Map` proxy, which
-uses the deprectated Google Maps API v1.  For new development, applications need to use this module
+uses the deprecated Google Maps API v1.  For new development, applications need to use this module
 to add native maps support on the Android platform.
 
 If you have Google Maps API v1 keys, you may continue using the `Titanium.Map` proxy or use the new
@@ -147,6 +159,13 @@ For more information, refer to
 [Modules.Map](http://docs.appcelerator.com/titanium/latest/#!/api/Modules.Map) and
 [Google Maps v2 for Android](http://docs.appcelerator.com/titanium/latest/#!/guide/Google_Maps_v2_for_Android).
 
+<a name="known_issues"></a>
+
+## Known Issues
+
+*   There is a known issue with installing the Studio Node.ACS plugin on Windows. On Windows 7, 
+    the Python executable must be present in the system path to install the Node.ACS
+    plugin ([TISTUD-4101](https://jira.appcelerator.org/browse/TISTUD-4101)).
 
 <a name="features"></a>
 
@@ -174,19 +193,19 @@ use list items.
 You need to explicitly create a `ListSection` in order to add a `ListItem` to a `ListView`.
 You cannot directly add a `ListItem` to a `ListView`.
 In a `TableView`, a `TableViewRow` can be directly added to a `TableView` because a
-`TableViewSection` is implictly created and added to the `TableView`.
+`TableViewSection` is implicitly created and added to the `TableView`.
 
-A `ListItem` object is not created in the same method as a `TableViewRow`.
-A `ListItem` is create by passing an array of `ListDataItem` objects to the `ListSection`.
-A `createListItem` method does not exist to create `ListItem` objects.
+With `ListView`, you can't create a `ListItem` object directly.
+Instead, you pass an array of `ListDataItem` objects to the `ListSection`, and the 
+list view manages the creation of list items dynamically.
 
 You cannot add views to a `ListItem` using the `add` method, which could be done with a
-`TableViewRow`. To add views to a `ListItem`, you need to define an <ItemTemplate>,
+`TableViewRow`. To add views to a `ListItem`, you need to define an `ItemTemplate`,
 which is bound to a list data item using the `template` property.
 
 You cannot explicitly set properties or bind events for a `ListItem`.  You have to set them using the
-`properties` dictionary of a <ListDataItem> or <ItemTemplate> and the `events` dictionary of the
-<ItemTemplate> or <ViewTemplate>, respectively.
+`properties` dictionary of a `ListDataItem` or `ItemTemplate` and the `events` dictionary of the
+`ItemTemplate` or `ViewTemplate`, respectively.
 
 #### API Differences
 
@@ -194,7 +213,7 @@ You cannot explicitly set properties or bind events for a `ListItem`.  You have 
 The differences listed are for the final planned list view and the current table view in Release 3.1.0.
 
   - **Missing TableViewRow properties**: The following properties and their accessors are not
-    avaialable for ListItem: `accessibilityLabel`, `className`, `editable`, `hasCheck`,
+    available for ListItem: `accessibilityLabel`, `className`, `editable`, `hasCheck`,
     `hasChild`, `hasDetail`, `leftImage`, `moveable` and `rightImage`.
 
       - For `hasCheck`, `hasChild`, and `hasDetail`, use the `accessoryType` property.
@@ -231,8 +250,84 @@ The differences listed are for the final planned list view and the current table
         You have to manipulate them with the ListSection they are contained in.
 
 For more information, refer to
-[Titanium.UI.ListView](http://docs.appcelerator.com/titanium/latest/#!/api/Titanium.UI.ListView).
+[Titanium.UI.ListView](http://docs.appcelerator.com/titanium/latest/#!/api/Titanium.UI.ListView)
+and the [ListView guide](http://docs.appcelerator.com/titanium/latest/#!/guide/ListViews).
 
+<a name="alloy_updates"></a>
+
+### Alloy Updates
+
+Alloy 1.1.0, released in coordination with this SDK release, includes new collection
+binding functionality.
+
+Studio 3.1.0 includes two new features related to Alloy: 
+
+*   Content assist in Alloy view XML files, TSS files, and controllers.
+
+*   Debugging support for Alloy applications. You can now set breakpoints in Alloy controllers
+    and the alloy.js file, instead of having to set breakpoints in the generated code.
+
+<a name="event_kit"></a>
+
+### EventKit UI Framework
+
+The iOS EventKit framework, allowing access to calendar events and reminders, is now
+available inside Titanium. See the
+[Titanium.Calendar API reference](http://docs.appcelerator.com/titanium/latest/#!/api/Titanium.Calendar)
+for details.
+
+<a name="core_location_autopause"></a>
+
+### iOS6 Core Location AutoPause API
+
+The iOS AutoPause API pauses the location updates when an application goes into the
+background. We've implemented access to this new API in Titanium. For more information,
+see 
+[pauseLocationUpdateAutomatically](http://docs.appcelerator.com/titanium/latest/#!/api/Titanium.Geolocation-property-pauseLocationUpdateAutomatically)
+in the Ti.Geolocation API reference.
+
+<a name="retina_sim"></a>
+
+### iOS Retina Simulator Support
+
+The iOS simulator now allows you to choose to launch in Retina mode on demand, rather than
+needing to switch the simulator manually.
+
+<a name="new_platforms"></a>
+
+### BlackBerry and Tizen Platforms
+
+This release includes support for Tizen and BlackBerry (Beta). 
+
+Use BlackBerry and Tizen from inside Studio 3.1.0. Create projects and run on simulator
+and device.
+
+For details on getting started with BlackBerry, see:
+
+*  [Installing the BlackBerry NDK](http://docs.appcelerator.com/titanium/3.0/#!/guide/Installing_the_BlackBerry_NDK) in the Titanium Guides.
+
+For details on getting started with Tizen, see: 
+
+*  [Installing the Tizen SDK](http://docs.appcelerator.com/titanium/3.0/#!/guide/Installing_the_Tizen_SDK) in the Titanium Guides.
+
+Note that the platform support for these new platforms is *not* reflected in the API docs.
+
+<a name="new_modules"></a>
+
+### New Modules
+
+In coordination with this release Appcelerator is releasing Facebook V3 (iOS and Android), Google Maps V2 (Android), Newsstand (iOS)
+and NFC (Android) modules.
+
+To support these new modules which are either currently packaged with the SDK or will be
+packaged with the SDK in the future, API docs for optional modules are now available in
+the [Modules](http://docs.appcelerator.com/titanium/latest/#!/api/Modules) namespace in the API reference.
+
+Docs for Facebook, Google Maps, and NFC are available on the documentation site:
+
+*   [Facebook Module API reference](http://docs.appcelerator.com/titanium/latest/#!/api/Modules.Facebook)
+*   [Google Maps v2 Module API reference](http://docs.appcelerator.com/titanium/latest/#!/api/Modules.Map)
+*   [NFC Module API reference](http://docs.appcelerator.com/titanium/latest/#!/api/Modules.Nfc)
 
 <a name="ioscontactsreload"></a>
 
@@ -244,98 +339,185 @@ not guaranteed to remain the same, so updating an object when it is out of sync 
 unpredictable results.
 
 To avoid this, listen for the 
-[`reload`](http://docs.appcelerator.com/titanium/latest/#!/api/Titanium.Contacts.reload) event.
+[`reload`](http://docs.appcelerator.com/titanium/latest/#!/api/Titanium.Contacts-event-reload) event.
 When you receive a `reload` event, you should  assume that any existing `Person` or `Group` objects
 are invalid, and reload them from the `Contacts` module before modifying them.
+
+
+<a name="deprecations"></a>
+
+## Deprecations
+
+The following features have been marked deprecated and will be removed in a future Titanium SDK
+release.
+
+<a name="manifest"></a>
+
+### Titanium Manifest File
+
+The `manifest` file located in the top-level directory of a Titanium project is deprecated as of
+this release.  This file is created for all Titanium projects and contains project metadata,
+which can also be found in the `tiapp.xml` file.  This file is not used by the Titanium project.
+
+As of Release 3.2.0, this file will no longer be generated when creating a new project using either
+the CLI or Studio.
+
+<a name="commonjs"></a>
+
+### Global Context Available to CommonJS Modules
+
+Currently, CommonJS modules loaded into a Titanium application have access to the global context.
+Meaning any variable not declared locally using `var` can be accessed and modified in the
+application code and CommonJS modules if they have the same name.
+
+As of this release, this behavior works on Android, iOS and Mobile Web. Prior to Release 3.1.0,
+this behavior only worked on iOS and Mobile Web.
+
+The usage of the global context in CommonJS modules is unsupported and deprecated,
+and will be removed in a future Titanium SDK release.
+
+For recommended practices, refer to
+[CommonJS Modules in Titanium](http://docs.appcelerator.com/titanium/latest/#!/guide/CommonJS_Modules_in_Titanium)
 
 
 <a name="apichanges"></a>
 
 ## API Changes
 
-<a name="newapis"></a>
+<a name="new_apis"></a>
 
-### New APIs
+<h2>New APIs</h2>
 
 The following APIs are new or have expanded platform support in Release
 3.1.0.
 
-| API | Type | Notes |
-|-----|------|-------|
-|EventsAuthorizationResponse|object|Argument passed to the callback when a request finishes successfully or erroneously. (New API, supported on iPhone and iPad.)|
-|Titanium.Android.BroadcastReceiver|object|The Titanium binding of an Android Broadcast Receiver. (New API, supported on Android.)|
-|Titanium.Android.createBroadcastReceiver|method|Creates and returns an instance of Titanium.Android.BroadcastReceiver. (New API, supported on Android.)|
-|Titanium.Android.registerBroadcastReceiver|method|Registers broadcast receiver for the given actions (New API, supported on Android.)|
-|Titanium.Android.unregisterBroadcastReceiver|method|Unregisters a broadcast receiver (New API, supported on Android.)|
-|Titanium.App.significanttimechange|event|Fired when there is a significant change in the time. (New API, supported on iPhone and iPad.)|
-|Titanium.Calendar|module|The Android.Calendar module provides proxies and methods for accessing the native calendar functionality. (New API, supported on iPhone and iPad.)|
-|Titanium.Calendar.Alert|object|An object that represents a single alert for an event in an calendar. (New API, supported on iPhone and iPad.)|
-|Titanium.Calendar.Calendar|object|An object that represents a single calendar. (New API, supported on iPhone and iPad.)|
-|Titanium.Calendar.Event|object|An object that represents a single event in a calendar. (New API, supported on iPhone and iPad.)|
-|Titanium.Calendar.RecurrenceRule|object|An object that is used to describe the recurrence pattern for a recurring event. (New API, supported on iPhone and iPad.)|
-|Titanium.Contacts.reload|event|Fired when the database backing the contacts module is modified (New API, supported on iPhone and iPad.)|
-|Titanium.Filesystem.File.isDirectory|method|Returns `true` if this file object represents a directory. (Added support for iPhone and iPad.)|
-|Titanium.Filesystem.File.isFile|method|Returns `true` if this file object represents an ordinary file. (Added support for iPhone and iPad.)|
-|Titanium.Geolocation.ACCURACY_BEST_FOR_NAVIGATION|property|Use with accuracy to request highest possible accuracy and combine it with additional sensor data. (New API, supported on iPhone and iPad.)|
-|Titanium.Geolocation.ACTIVITYTYPE_AUTOMOTIVE_NAVIGATION|property|The location data is used for tracking location changes to the automobile specifically during vehicular navigation. (New API, supported on iPhone and iPad.)|
-|Titanium.Geolocation.ACTIVITYTYPE_FITNESS|property|The location data is used for tracking any pedestrian-related activity. (New API, supported on iPhone and iPad.)|
-|Titanium.Geolocation.ACTIVITYTYPE_OTHER|property|The location data is being used for an unknown activity. (New API, supported on iPhone and iPad.)|
-|Titanium.Geolocation.ACTIVITYTYPE_OTHER_NAVIGATION|property|The location data is used for tracking movements of other types of vehicular navigation that are not automobile related.  (New API, supported on iPhone and iPad.)|
-|Titanium.Geolocation.activityType|property|The type of user activity to be associated with the location updates. Available in iOS 6.0 and later. (New API, supported on iPhone and iPad.)|
-|Titanium.Geolocation.getActivityType|method|Gets the value of the activityType property. (New API, supported on iPhone and iPad.)|
-|Titanium.Geolocation.getPauseLocationUpdateAutomatically|method|Gets the value of the pauseLocationUpdateAutomatically property. (New API, supported on iPhone and iPad.)|
-|Titanium.Geolocation.locationupdatepaused|event|Fired when location updates are paused by the OS. Available in iOS 6.0 and later. (New API, supported on iPhone and iPad.)|
-|Titanium.Geolocation.locationupdateresumed|event|Fired when location manager is resumed by the OS. Available in iOS 6.0 and later. (New API, supported on iPhone and iPad.)|
-|Titanium.Geolocation.pauseLocationUpdateAutomatically|property|Indicates whether the location updates may be paused. Available in iOS 6.0 and later. (New API, supported on iPhone and iPad.)|
-|Titanium.Geolocation.setActivityType|method|Sets the value of the activityType property. (New API, supported on iPhone and iPad.)|
-|Titanium.Geolocation.setPauseLocationUpdateAutomatically|method|Sets the value of the pauseLocationUpdateAutomatically property. (New API, supported on iPhone and iPad.)|
-|Titanium.Map.Annotation.customView|property|Defines a custom view to be used by the annotation. (New API, supported on iPhone and iPad.)|
-|Titanium.Map.Annotation.getCustomView|method|Gets the value of the customView property. (New API, supported on iPhone and iPad.)|
-|Titanium.Map.Annotation.setCustomView|method|Sets the value of the customView property. (New API, supported on iPhone and iPad.)|
-|Titanium.Map.View.longpress|event|Fired when the device detects a long press. (Added support for Android.)|
-|Titanium.UI.Android.OVER_SCROLL_ALWAYS|property|Always allow a user to over-scroll this view, provided it is a view that can scroll. (New API, supported on Android.)|
-|Titanium.UI.Android.OVER_SCROLL_IF_CONTENT_SCROLLS|property|Allow a user to over-scroll this view only if the content is large enough to meaningfully scroll, provided it is a view that can scroll. (New API, supported on Android.)|
-|Titanium.UI.Android.OVER_SCROLL_NEVER|property|Never allow a user to over-scroll this view. (New API, supported on Android.)|
-|Titanium.UI.DashboardView.pagechanged|event|Fired when the current page of the dashboard view changes. (New API, supported on iPhone and iPad.)|
-|Titanium.UI.ScrollView.getOverScrollMode|method|Gets the value of the overScrollMode property. (New API, supported on Android.)|
-|Titanium.UI.ScrollView.overScrollMode|property|One of Titanium.UI.Android.OVER_SCROLL_ALWAYS, Titanium.UI.Android.OVER_SCROLL_IF_CONTENT_SCROLLS, or Titanium.UI.Android.OVER_SCROLL_NEVER. (New API, supported on Android.)|
-|Titanium.UI.ScrollView.setOverScrollMode|method|Sets the value of the overScrollMode property. (New API, supported on Android.)|
-|Titanium.UI.ScrollableView.getOverScrollMode|method|Gets the value of the overScrollMode property. (New API, supported on Android.)|
-|Titanium.UI.ScrollableView.overScrollMode|property|One of Titanium.UI.Android.OVER_SCROLL_ALWAYS, Titanium.UI.Android.OVER_SCROLL_IF_CONTENT_SCROLLS, or Titanium.UI.Android.OVER_SCROLL_NEVER. (New API, supported on Android.)|
-|Titanium.UI.ScrollableView.setOverScrollMode|method|Sets the value of the overScrollMode property.(New API, supported on Android.)|
-|Titanium.UI.Slider.start|event|Fired when the user starts tracking the slider. (New API, supported on Android, iPhone and iPad.)|
-|Titanium.UI.Slider.stop|event|Fired when the user stops tracking the slider. (New API, supported on Android, iPhone and iPad.)|
-|Titanium.UI.Tab.activeIcon|property|Icon URL for this tab when active. (New API, supported on iPhone and iPad.)|
-|Titanium.UI.Tab.getActiveIcon|method|Gets the value of the activeIcon property. (New API, supported on iPhone and iPad.)|
-|Titanium.UI.Tab.setActiveIcon|method|Sets the value of the activeIcon property. (New API, supported on iPhone and iPad.)|
-|Titanium.UI.TabGroup.activeTabBackgroundImage|property|Default background image for the active tab. (Added support for iPhone and iPad.)|
-|Titanium.UI.TabGroup.activeTabIconTint|property|Color applied to active tabs icons, as a color name or hex triplet, where the tab's activeIcon was not defined. (New API, supported on iPhone and iPad.)|
-|Titanium.UI.TabGroup.shadowImage|property|Image of the shadow placed between the tab bar and the content area. (New API, supported on iPhone and iPad.)|
-|Titanium.UI.TabGroup.tabsBackgroundImage|property|Default background image for tabs. (Added support for iPhone and iPad.)|
-|Titanium.UI.TableView.getOverScrollMode|method|Gets the value of the overScrollMode property. (New API, supported on Android.)|
-|Titanium.UI.TableView.overScrollMode|property|One of Titanium.UI.Android.OVER_SCROLL_ALWAYS, Titanium.UI.Android.OVER_SCROLL_IF_CONTENT_SCROLLS, or Titanium.UI.Android.OVER_SCROLL_NEVER. (New API, supported on Android.)|
-|Titanium.UI.TableView.sections|property|Sections of this table. (Added support for Android.)|
-|Titanium.UI.TableView.setOverScrollMode|method|Sets the value of the overScrollMode property. (New API, supported on Android.)|
-|Titanium.UI.View.keypressed|event|Fired when a hardware key is pressed in the view. (New API, supported on Android.)|
-|Titanium.UI.View.removeAllChildren|method|Removes all child views from this view's hierarchy. (New API, supported on Android, iPhone and iPad.)|
-|Titanium.UI.WebView.getOverScrollMode|method|Gets the value of the overScrollMode property. (New API, supported on Android.)|
-|Titanium.UI.WebView.overScrollMode|property|One of Titanium.UI.Android.OVER_SCROLL_ALWAYS, Titanium.UI.Android.OVER_SCROLL_IF_CONTENT_SCROLLS, or Titanium.UI.Android.OVER_SCROLL_NEVER. (New API, supported on Android.)|
-|Titanium.UI.WebView.setOverScrollMode|method|Sets the value of the overScrollMode property. (New API, supported on Android.)|
-|Titanium.UI.iPad.SplitWindow.removeAllChildren|method|Removes all child views from this view's hierarchy. (New API, supported on iPad.)|
-|daysOfTheWeekDictionary|object|Dictionary containing `daysOfWeek` and `week`. (New API, supported on iPhone and iPad.)|
-|openWindowParams.activityEnterAnimation|property|Animation resource to run on the activity (heavyweight window) being opened. (New API, supported on Android.)|
-|openWindowParams.activityExitAnimation|property|Animation resource to run on the activity that is being put in background as a heavyweight window is being opened above it. (New API, supported on Android.)|
-|recurrenceEndDictionary|object|Dictionary containing either `endDate` or `occurrenceCount` property. (New API, supported on iPhone and iPad.)|
+<table>
+<tr><th>API</th><th>Type</th><th>Notes</th></tr>
+  <tr><td>Titanium.Android.BroadcastReceiver</td><td>object</td><td><p>The Titanium binding of an 
+Android Broadcast Receiver.
+ (New API, supported on Android.)</p></td></tr>
+  <tr><td>Titanium.Android.createBroadcastReceiver</td><td>method</td><td><p>Creates and returns an instance of Titanium.Android.BroadcastReceiver. (New API, supported on Android.)</p></td></tr>
+  <tr><td>Titanium.Android.registerBroadcastReceiver</td><td>method</td><td><p>Registers broadcast receiver for the given actions (New API, supported on Android.)</p></td></tr>
+  <tr><td>Titanium.Android.unregisterBroadcastReceiver</td><td>method</td><td><p>Unregisters a broadcast receiver (New API, supported on Android.)</p></td></tr>
+  <tr><td>Titanium.App.significanttimechange</td><td>event</td><td><p>Fired when there is a significant change in the time. (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.Calendar</td><td>module</td><td><p>The Android.Calendar module provides proxies and methods for accessing the native 
+calendar functionality.
+ (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.Calendar.Alert</td><td>object</td><td><p>An object that represents a single alert for an event in an calendar. (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.Calendar.Calendar</td><td>object</td><td><p>An object that represents a single calendar. (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.Calendar.Event</td><td>object</td><td><p>An object that represents a single event in a calendar. (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.Calendar.RecurrenceRule</td><td>object</td><td><p>An object that is used to describe the recurrence pattern for a recurring event. (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.Contacts.reload</td><td>event</td><td><p>Fired when the database backing the contacts module is modified externally. (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.Filesystem.File.isDirectory</td><td>method</td><td><p>Returns <code>true</code> if this file object represents a directory. (Added support for iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.Filesystem.File.isFile</td><td>method</td><td><p>Returns <code>true</code> if this file object represents an ordinary file. (Added support for iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.Geolocation.ACCURACY_BEST_FOR_NAVIGATION</td><td>property</td><td><p>Use with accuracy to request highest possible 
+accuracy and combine it with additional sensor data.
+ (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.Geolocation.ACTIVITYTYPE_AUTOMOTIVE_NAVIGATION</td><td>property</td><td><p>The location data is used for tracking location changes to the automobile specifically during vehicular navigation. (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.Geolocation.ACTIVITYTYPE_FITNESS</td><td>property</td><td><p>The location data is used for tracking any pedestrian-related activity. (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.Geolocation.ACTIVITYTYPE_OTHER</td><td>property</td><td><p>The location data is being used for an unknown activity. (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.Geolocation.ACTIVITYTYPE_OTHER_NAVIGATION</td><td>property</td><td><p>The location data is used for tracking movements of other types of vehicular 
+navigation that are not automobile related.
+ (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.Geolocation.activityType</td><td>property</td><td><p>The type of user activity to be associated with the location updates. Available in iOS 6.0 and later.
+ (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.Geolocation.getActivityType</td><td>method</td><td><p>Gets the value of the activityType property. (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.Geolocation.getPauseLocationUpdateAutomatically</td><td>method</td><td><p>Gets the value of the pauseLocationUpdateAutomatically property. (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.Geolocation.locationupdatepaused</td><td>event</td><td><p>Fired when location updates are paused by the OS. Available in iOS 6.0 and later. (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.Geolocation.locationupdateresumed</td><td>event</td><td><p>Fired when location manager is resumed by the OS. Available in iOS 6.0 and later. (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.Geolocation.pauseLocationUpdateAutomatically</td><td>property</td><td><p>Indicates whether the location updates may be paused. Available in iOS 6.0 and later. (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.Geolocation.setActivityType</td><td>method</td><td><p>Sets the value of the activityType property. (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.Geolocation.setPauseLocationUpdateAutomatically</td><td>method</td><td><p>Sets the value of the pauseLocationUpdateAutomatically property. (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.Map.Annotation.customView</td><td>property</td><td><p>Defines a custom view to be used by the annotation. (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.Map.Annotation.getCustomView</td><td>method</td><td><p>Gets the value of the customView property. (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.Map.Annotation.setCustomView</td><td>method</td><td><p>Sets the value of the customView property. (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.Map.View.longpress</td><td>event</td><td><p>Fired when the device detects a long press. (Added support for Android.)</p></td></tr>
+  <tr><td>Titanium.UI.Android.OVER_SCROLL_ALWAYS</td><td>property</td><td><p>Always allow a user to over-scroll this view, provided it is a view that can scroll. (New API, supported on Android.)</p></td></tr>
+  <tr><td>Titanium.UI.Android.OVER_SCROLL_IF_CONTENT_SCROLLS</td><td>property</td><td><p>Allow a user to over-scroll this view only if the content is large enough to meaningfully scroll, provided it is a view that can scroll. (New API, supported on Android.)</p></td></tr>
+  <tr><td>Titanium.UI.Android.OVER_SCROLL_NEVER</td><td>property</td><td><p>Never allow a user to over-scroll this view. (New API, supported on Android.)</p></td></tr>
+  <tr><td>Titanium.UI.DashboardView.pagechanged</td><td>event</td><td><p>Fired when the current page of the dashboard view changes. (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.LIST_ACCESSORY_TYPE_CHECKMARK</td><td>property</td><td><p>Displays a checkmark on the right side of an item in a list view. (New API, supported on Android, iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.LIST_ACCESSORY_TYPE_DETAIL</td><td>property</td><td><p>Displays a detail disclosure button on the right side of an item in a list view. (New API, supported on Android, iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.LIST_ACCESSORY_TYPE_DISCLOSURE</td><td>property</td><td><p>Displays a disclosure indicator on the right side of an item in a list view. (New API, supported on Android, iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.LIST_ACCESSORY_TYPE_NONE</td><td>property</td><td><p>Do not display anything on the right side of an item in a list view. (New API, supported on Android, iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.LIST_ITEM_TEMPLATE_CONTACTS</td><td>property</td><td><p>A built-in style for an item with a title label on the left side of the cell with
+right-aligned, blue text, which is next to a subtitle label with left-aligned, black text.
+ (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.LIST_ITEM_TEMPLATE_DEFAULT</td><td>property</td><td><p>A built-in style for an item with an image view and black, left-aligned title label.
+ (New API, supported on Android, iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.LIST_ITEM_TEMPLATE_SETTINGS</td><td>property</td><td><p>A built-in style for a item with an image view; a black, left-aligned title label; and a
+smaller blue, right-aligned subtitle label.
+ (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.LIST_ITEM_TEMPLATE_SUBTITLE</td><td>property</td><td><p>A built-in style for an item with an image view; a black, left-aligned title label across the
+top of the cell and a subtitle label below it in smaller gray text.
+ (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.ListItem</td><td>object</td><td><p>A list item is an individual item in a list section. (New API, supported on Android, iPad and iPhone.)</p></td></tr>
+  <tr><td>Titanium.UI.ListSection</td><td>object</td><td><p>A list section is a container within a list view used to organize list items. (New API, supported on Android, iPad and iPhone.)</p></td></tr>
+  <tr><td>Titanium.UI.ListView</td><td>object</td><td><p>A list view is used to present information, organized in to sections and items,
+in a vertically-scrolling view.
+ (New API, supported on Android, iPad and iPhone.)</p></td></tr>
+  <tr><td>Titanium.UI.ScrollView.getOverScrollMode</td><td>method</td><td><p>Gets the value of the overScrollMode property. (New API, supported on Android.)</p></td></tr>
+  <tr><td>Titanium.UI.ScrollView.overScrollMode</td><td>property</td><td><p>One of Titanium.UI.Android.OVER_SCROLL_ALWAYS, Titanium.UI.Android.OVER_SCROLL_IF_CONTENT_SCROLLS, or Titanium.UI.Android.OVER_SCROLL_NEVER. 
+ (New API, supported on Android.)</p></td></tr>
+  <tr><td>Titanium.UI.ScrollView.setOverScrollMode</td><td>method</td><td><p>Sets the value of the overScrollMode property. (New API, supported on Android.)</p></td></tr>
+  <tr><td>Titanium.UI.ScrollableView.getOverScrollMode</td><td>method</td><td><p>Gets the value of the overScrollMode property. (New API, supported on Android.)</p></td></tr>
+  <tr><td>Titanium.UI.ScrollableView.overScrollMode</td><td>property</td><td><p>One of Titanium.UI.Android.OVER_SCROLL_ALWAYS, Titanium.UI.Android.OVER_SCROLL_IF_CONTENT_SCROLLS, or Titanium.UI.Android.OVER_SCROLL_NEVER. 
+ (New API, supported on Android.)</p></td></tr>
+  <tr><td>Titanium.UI.ScrollableView.setOverScrollMode</td><td>method</td><td><p>Sets the value of the overScrollMode property. (New API, supported on Android.)</p></td></tr>
+  <tr><td>Titanium.UI.Slider.start</td><td>event</td><td><p>Fired when the user starts tracking the slider. (New API, supported on Android, iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.Slider.stop</td><td>event</td><td><p>Fired when the user stops tracking the slider. (New API, supported on Android, iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.Tab.activeIcon</td><td>property</td><td><p>Icon URL for this tab when active. (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.Tab.getActiveIcon</td><td>method</td><td><p>Gets the value of the activeIcon property. (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.Tab.setActiveIcon</td><td>method</td><td><p>Sets the value of the activeIcon property. (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.TabGroup.activeTabBackgroundImage</td><td>property</td><td><p>Default background image for the active tab. (Added support for iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.TabGroup.activeTabIconTint</td><td>property</td><td><p>Color applied to active tabs icons, as a color name or hex triplet, where the tab's activeIcon was not defined. (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.TabGroup.shadowImage</td><td>property</td><td><p>Image of the shadow placed between the tab bar and the content area. (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.TabGroup.tabsBackgroundImage</td><td>property</td><td><p>Default background image for tabs. (Added support for iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.TableView.getOverScrollMode</td><td>method</td><td><p>Gets the value of the overScrollMode property. (New API, supported on Android.)</p></td></tr>
+  <tr><td>Titanium.UI.TableView.overScrollMode</td><td>property</td><td><p>One of Titanium.UI.Android.OVER_SCROLL_ALWAYS, Titanium.UI.Android.OVER_SCROLL_IF_CONTENT_SCROLLS, or Titanium.UI.Android.OVER_SCROLL_NEVER. 
+ (New API, supported on Android.)</p></td></tr>
+  <tr><td>Titanium.UI.TableView.sections</td><td>property</td><td><p>Sections of this table. (Added support for Android.)</p></td></tr>
+  <tr><td>Titanium.UI.TableView.setOverScrollMode</td><td>method</td><td><p>Sets the value of the overScrollMode property. (New API, supported on Android.)</p></td></tr>
+  <tr><td>Titanium.UI.View.keypressed</td><td>event</td><td><p>Fired when a hardware key is pressed in the view. (New API, supported on Android.)</p></td></tr>
+  <tr><td>Titanium.UI.View.removeAllChildren</td><td>method</td><td><p>Removes all child views from this view's hierarchy. (New API, supported on Android, iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.WebView.getOverScrollMode</td><td>method</td><td><p>Gets the value of the overScrollMode property. (New API, supported on Android.)</p></td></tr>
+  <tr><td>Titanium.UI.WebView.overScrollMode</td><td>property</td><td><p>One of Titanium.UI.Android.OVER_SCROLL_ALWAYS, Titanium.UI.Android.OVER_SCROLL_IF_CONTENT_SCROLLS, or Titanium.UI.Android.OVER_SCROLL_NEVER. 
+ (New API, supported on Android.)</p></td></tr>
+  <tr><td>Titanium.UI.WebView.setOverScrollMode</td><td>method</td><td><p>Sets the value of the overScrollMode property. (New API, supported on Android.)</p></td></tr>
+  <tr><td>Titanium.UI.createListSection</td><td>method</td><td><p>Creates and returns an instance of Titanium.UI.ListSection. (New API, supported on Android, iPad and iPhone.)</p></td></tr>
+  <tr><td>Titanium.UI.createListView</td><td>method</td><td><p>Creates and returns an instance of Titanium.UI.ListView. (New API, supported on Android, iPad and iPhone.)</p></td></tr>
+  <tr><td>Titanium.UI.iPad.SplitWindow.removeAllChildren</td><td>method</td><td><p>Removes all child views from this view's hierarchy. (New API, supported on iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.iPhone.ListViewCellSelectionStyle</td><td>object</td><td><p>A set of constants for the style that can be used for the <code>selectionStyle</code> property of a
+ListItem, which is set in the <code>properties</code> dictionary of either the ListDataItem or
+ItemTemplate.
+ (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.iPhone.ListViewScrollPosition</td><td>object</td><td><p>A set of constants for the position value that can be used for the <code>position</code> property of 
+ListViewAnimationProperties when invoking the ListView's <code>scrollToItem</code>, <code>appendSection</code>,
+<code>deleteSectionAt</code>, <code>insertSectionAt</code> and <code>replaceSectionAt</code> methods.
+ (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.iPhone.ListViewStyle</td><td>object</td><td><p>A set of constants for the style that can be used for the <code>style</code> property of 
+Titanium.UI.ListView.
+ (New API, supported on iPhone and iPad.)</p></td></tr>
+<tr>
+</table>
 
 <a name="deprecated_apis"></a>
 
-### Deprecated APIs
+<h2>Deprecated APIs</h2>
 
 The following APIs are deprecated in Release 3.1.0.
 
-| API | Type | Notes |
-|-----|------|-------|
-|Titanium.Facebook|module|On Mobile Web, continue to use this module. On Android and iOS, use Modules.Facebook instead.|
-|Titanium.Facebook.LoginButton|object|On Mobile Web, continue to use this module. On Android and iOS, use Modules.Facebook.LoginButton instead.|
-
+<table>
+<tr><th>API</th><th>Type</th><th>Notes</th></tr>
+  <tr><td>Titanium.Facebook</td><td>module</td><td><p>On Mobile Web, continue to use this module.</p>
+<p>On Android and iOS, use Modules.Facebook instead.</p></td></tr>
+  <tr><td>Titanium.Facebook.LoginButton</td><td>object</td><td><p>On Mobile Web, continue to use this module.</p>
+<p>On Android and iOS, use Modules.Facebook.LoginButton instead.</p></td></tr>
+  <tr><td>Titanium.Media.Sound.error.message</td><td>event property</td><td></td></tr>
+  <tr><td>Titanium.Media.VideoPlayer.error.message</td><td>event property</td><td></td></tr>
+  <tr><td>Titanium.UI.WebView.error.errorCode</td><td>event property</td><td></td></tr>
+  <tr><td>Titanium.UI.WebView.error.message</td><td>event property</td><td></td></tr>
+  <tr><td>Titanium.UI.iOS.AdView.error.message</td><td>event property</td><td></td></tr>
+<tr>
+</table>
 

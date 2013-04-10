@@ -14,7 +14,7 @@ description: |
 
 extends: Titanium.Module
 since: "0.8"
-platforms: [android, iphone, ipad, mobileweb]
+platforms: [android, iphone, ipad, mobileweb, tizen]
 properties:
 
   - name: ANNOTATION_DRAG_STATE_NONE
@@ -114,7 +114,7 @@ properties:
     summary: Used with [mapType](Titanium.Map.View.mapType) to display the terrain that shows the position of all roads and some road names.
     type: Number
     permission: read-only
-    platforms: [mobileweb]
+    platforms: [mobileweb, tizen]
     
 examples:
   - title: Map Example

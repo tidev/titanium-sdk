@@ -1,0 +1,29 @@
+---
+name: WebAPIError
+summary: Generic error interface. 
+description: This interface will be used by the APIs in order to return them in the error callback of asynchronous methods. 
+since: 3.1.0
+platforms: [tizen]
+properties: 
+  - name: code
+    summary: 16-bit error code. Possible values are defined in [DOMException](http://www.w3.org/TR/dom/#error-types)
+    type: Number
+    permission: read-only
+
+  - name: name
+    summary: An error type. 
+    description: |
+        An error type. The name attribute must return the value it was initialized to. Possible values are the ones defined in [DOM error types](http://www.w3.org/TR/dom/#error-types) and the ones below:
+        
+        "UnknownError" - An unknown error has occurred.
+        "InvalidValuesError" - The content of an object does not contain valid values.
+        "IOError" - An error occurred in communication with the underlying implementation that meant the requested method could not complete.
+        "ServiceNotAvailableError" - The requested service is not available.
+
+    type: String
+    permission: read-only
+
+  - name: message
+    summary: An error message. Describes the details of the error encountered. This attribute is not intended to be used directly in the user interfaces as it is mainly intended to be useful for developers rather than end users. 
+    type: String
+    permission: read-only

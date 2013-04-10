@@ -1,0 +1,40 @@
+---
+name: Titanium.Contacts.Tizen.Group
+summary: An object which represents a group in the system contacts address book on Tizen platform.
+extends: Titanium.Proxy
+since: "3.1.0"
+platforms: [tizen]
+
+methods:
+
+  - name: members
+    summary: Gets people that are members of this group.
+    parameters:
+      - name: group
+        summary: The group for which to obtain members.
+        type: Ti.Contacts.Group
+      - name: successCallback
+        summary: The success callback 
+        type: Callback<Ti.Contacts.Tizen.Group_Tizen, Ti.Contacts.Person[]>
+      - name: errorCallback
+        summary: The error callback.
+        type: Callback<WebAPIError>
+
+  - name: sortedMembers
+    summary: Gets people that are members of this group, sorted in the specified order.
+    parameters:
+      - name: sortBy
+        summary: |
+            Method for sorting. One of 
+            [CONTACTS_SORT_FIRST_NAME](Titanium.Contacts.CONTACTS_SORT_FIRST_NAME), 
+            or [CONTACTS_SORT_LAST_NAME](Titanium.Contacts.CONTACTS_SORT_LAST_NAME).
+        type: Number
+      - name: group
+        summary: The group for which to obtain members.
+        type: Ti.Contacts.Group
+      - name: successCallback
+        summary: The success callback 
+        type: Callback<Ti.Contacts.Group_Tizen, Ti.Contacts.Person[]>
+      - name: errorCallback
+        summary: The error callback.
+        type: Callback<WebAPIError>

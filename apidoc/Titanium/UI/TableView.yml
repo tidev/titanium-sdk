@@ -58,7 +58,8 @@ description: |
     *   On iOS, event listeners do not fire correctly when table view sections are added or
         updated using the `sections` property or `appendSection`, `insertSectionBefore`,
         `insertSectionAfter`, or `updateSection` methods. Adding sections using the `data` 
-        property is recommended until this issue is fixed.  
+        property is recommended for Release 3.0.x.  This issue has been fixed as of Release
+        3.1.0.
         ([TIMOB-12616](https://jira.appcelerator.org/browse/TIMOB-12616))
 
     *   On iOS, the first two arguments to the `updateSection` method are reversed.
@@ -170,7 +171,7 @@ events:
         
   - name: dblclick
     summary: Fired when the device detects a double click against the view.
-    platforms: [mobileweb]
+    platforms: [mobileweb, tizen]
     properties:
       - name: x
         summary: X coordinate of the event from the `source` view's coordinate system.
@@ -336,7 +337,7 @@ events:
     description: |
         A pinch is a touch and expand or contract 
         with two fingers.  The event occurs continuously until a finger is lifted again.  
-    platforms: [mobileweb]
+    platforms: [mobileweb, tizen]
     since: "1.8.0"
     properties:
       - name: scale
@@ -349,24 +350,23 @@ events:
     
   - name: scroll
     summary: Fired when the table view is scrolled.
-    platforms: [android, iphone, ipad, mobileweb]
     properties:
       - name: contentOffset
         summary: Dictionary with `x` and `y` properties containing the content offset.
         type: Point
-        platforms: [iphone, ipad, mobileweb]
+        platforms: [iphone, ipad, mobileweb, tizen]
         
       - name: contentSize
         summary: |
             Dictionary with `width` and `height` properties containing the size of the content 
             (regardless of the display size in the case of scrolling).
         type: Dictionary
-        platforms: [iphone, ipad, mobileweb]
+        platforms: [iphone, ipad, mobileweb, tizen]
         
       - name: firstVisibleItem
         summary: Row index of the topmost visible row in the view.
         type: Number
-        platforms: [android, mobileweb]
+        platforms: [android, mobileweb, tizen]
         
       - name: size
         summary: |
@@ -377,41 +377,40 @@ events:
       - name: totalItemCount
         summary: Total number of rows in the view.
         type: Number
-        platforms: [android, mobileweb]
+        platforms: [android, mobileweb, tizen]
         
       - name: visibleItemCount
         summary: Number of rows currently visible in the view.
         type: Number
-        platforms: [android, mobileweb]
+        platforms: [android, mobileweb, tizen]
         
       - name: x
         summary: X coordinate of the event from the `source` view's coordinate system.
         type: Number
-        platforms: [mobileweb]
+        platforms: [mobileweb, tizen]
         
       - name: y
         summary: Y coordinate of the event from the `source` view's coordinate system.
         type: Number
-        platforms: [mobileweb]
+        platforms: [mobileweb, tizen]
         
   - name: scrollEnd
     deprecated:
         since: "3.0.0"
         notes: Renamed to [scrollend](Titanium.UI.TableView.scrollend) (all lowercase).
     summary: Fired when the table view stops scrolling.
-    platforms: [android, iphone, ipad, mobileweb]
     properties:
       - name: contentSize
         summary: |
             Dictionary with `width` and `height` properties containing the size of the content 
             (regardless of the display size in the case of scrolling).
         type: Dictionary
-        platforms: [iphone, ipad, mobileweb]
+        platforms: [iphone, ipad, mobileweb, tizen]
         
       - name: contentOffset
         summary: Dictionary with `x` and `y` properties containing the content offset.
         type: Point
-        platforms: [iphone, ipad, mobileweb]
+        platforms: [iphone, ipad, mobileweb, tizen]
         
       - name: size
         summary: |
@@ -429,19 +428,18 @@ events:
 
   - name: scrollend
     summary: Fired when the table view stops scrolling.
-    platforms: [android, iphone, ipad, mobileweb]
     properties:
       - name: contentSize
         summary: |
             Dictionary with `width` and `height` properties containing the size of the content 
             (regardless of the display size in the case of scrolling).
         type: Dictionary
-        platforms: [iphone, ipad, mobileweb]
+        platforms: [iphone, ipad, mobileweb, tizen]
         
       - name: contentOffset
         summary: Dictionary with `x` and `y` properties containing the content offset.
         type: Point
-        platforms: [iphone, ipad, mobileweb]
+        platforms: [iphone, ipad, mobileweb, tizen]
         
       - name: size
         summary: |
@@ -538,9 +536,9 @@ events:
         to scroll during a touch event, the appropriate row or table `touchcancel` event fire 
         before the `scroll` event begins.
         
-        On Mobile Web, a scroll may occur in the middle of a touch, in which case a `touchend` 
+        On Mobile Web and Tizen, a scroll may occur in the middle of a touch, in which case a `touchend` 
         will fire immediately following the scroll.
-    platforms: [iphone, ipad, mobileweb]
+    platforms: [iphone, ipad, mobileweb, tizen]
     properties:
       - name: x
         summary: X coordinate of the event from the `source` view's coordinate system.
@@ -558,7 +556,7 @@ events:
         to scroll during a touch event, the appropriate row or table `touchcancel` event fire 
         before the `scroll` event begins.
         
-        On Mobile Web, a scroll may occur in the middle of a touch, in which case a `touchend` 
+        On Mobile Web and Tizen, a scroll may occur in the middle of a touch, in which case a `touchend` 
         will fire immediately following the scroll.
     properties:
       - name: index
@@ -594,7 +592,7 @@ events:
     summary: Fired as soon as the device detects movement of a touch.
     description: |
         Event coordinates are always relative to the view in which the initial touch occurred
-    platforms: [mobileweb]
+    platforms: [mobileweb, tizen]
     properties:
       - name: x
         summary: X coordinate of the event from the `source` view's coordinate system.
@@ -612,9 +610,9 @@ events:
         to scroll during a touch event, the appropriate row or table `touchcancel` event fire 
         before the `scroll` event begins.
         
-        On Mobile Web, a scroll may occur in the middle of a touch, in which case a `touchend` 
+        On Mobile Web and Tizen, a scroll may occur in the middle of a touch, in which case a `touchend` 
         will fire immediately following the scroll.
-    platforms: [iphone, ipad, mobileweb]
+    platforms: [iphone, ipad, mobileweb, tizen]
     properties:
       - name: index
         summary: Row index.
@@ -647,7 +645,7 @@ events:
     
   - name: twofingertap
     summary: Fired when the device detects a two-finger tap against the view.
-    platforms: [iphone, ipad, mobileweb]
+    platforms: [iphone, ipad, mobileweb, tizen]
     properties:
       - name: x
         summary: X coordinate of the event from the `source` view's coordinate system.
@@ -665,7 +663,7 @@ events:
     description: |
         A dragging gesture is when a touch remains in contact with the display to physically drag 
         the view, as opposed to it being the result of scrolling momentum.
-    platforms: [iphone, ipad, mobileweb]
+    platforms: [iphone, ipad, mobileweb, tizen]
 
   - name: dragEnd
     deprecated:
@@ -675,7 +673,7 @@ events:
     description: |
         A dragging gesture is when a touch remains in contact with the display to physically drag 
         the view, as opposed to it being the result of scrolling momentum.
-    platforms: [iphone, ipad, mobileweb]
+    platforms: [iphone, ipad, mobileweb, tizen]
     properties:
       - name: decelerate
         summary: |
@@ -688,7 +686,7 @@ events:
     description: |
         A dragging gesture is when a touch remains in contact with the display to physically drag 
         the view, as opposed to it being the result of scrolling momentum.
-    platforms: [iphone, ipad, mobileweb]
+    platforms: [iphone, ipad, mobileweb, tizen]
     since: '3.0.0'
 
   - name: dragend
@@ -696,7 +694,7 @@ events:
     description: |
         A dragging gesture is when a touch remains in contact with the display to physically drag 
         the view, as opposed to it being the result of scrolling momentum.
-    platforms: [iphone, ipad, mobileweb]
+    platforms: [iphone, ipad, mobileweb, tizen]
     properties:
       - name: decelerate
         summary: |
@@ -744,7 +742,7 @@ methods:
         type: TableViewAnimationProperties
         optional: true
     since: 3.0.0
-    platforms: [android, mobileweb, iphone, ipad]
+    platforms: [android, mobileweb, tizen, iphone, ipad]
     
   - name: deleteRow
     summary: Deletes an existing row.
@@ -775,7 +773,7 @@ methods:
         type: TableViewAnimationProperties
         optional: true
     since: 3.0.0
-    platforms: [android, mobileweb, iphone, ipad]
+    platforms: [android, mobileweb, tizen, iphone, ipad]
     
   - name: deselectRow
     summary: Programmatically deselects a row.
@@ -831,7 +829,7 @@ methods:
         type: TableViewAnimationProperties
         optional: true
     since: 3.0.0
-    platforms: [android, mobileweb, iphone, ipad]
+    platforms: [android, mobileweb, tizen, iphone, ipad]
         
   - name: insertRowBefore
     summary: Inserts a row before another row.
@@ -879,7 +877,7 @@ methods:
         type: TableViewAnimationProperties
         optional: true
     since: 3.0.0
-    platforms: [android, mobileweb, iphone, ipad]
+    platforms: [android, mobileweb, tizen, iphone, ipad]
     
   - name: scrollToIndex
     summary: Scrolls the table view to ensure that the specified row is on screen.
@@ -914,7 +912,7 @@ methods:
         the top. A positive value scrolls it down, and a negative value scrolls the list up
         above the first item.
         
-        On Mobile Web, the `top` value is interpreted as a pixel offset between the top of the top
+        On Mobile Web and Tizen, the `top` value is interpreted as a pixel offset between the top of the top
         row of data and the top of the table view. So a `top` value of 0 scrolls the list to
         the top. A positive value scrolls it down. Values outside the scrollable range are clipped
         so that negative numbers scroll the list to the top, and large positive values scroll the
@@ -1011,7 +1009,7 @@ methods:
     description: |
         Known issues:
 
-        *   On iOS and Mobile Web, event listeners do not fire correctly after table view sections are 
+        *   On iOS, Mobile Web and Tizen, event listeners do not fire correctly after table view sections are 
             updated using the `updateSection` methods. 
             ([TIMOB-12616](https://jira.appcelerator.org/browse/TIMOB-12616),
             [TIMOB-12630](https://jira.appcelerator.org/browse/TIMOB-12630))
@@ -1031,7 +1029,7 @@ methods:
         summary: Animation properties. (iOS only.)
         type: TableViewAnimationProperties
     since: 3.0.0
-    platforms: [android, mobileweb, iphone, ipad]
+    platforms: [android, mobileweb, tizen, iphone, ipad]
 
 properties:
   - name: allowsSelection
@@ -1270,7 +1268,7 @@ properties:
     type: Number
     permission: read-only
     since: 3.0.0
-    platforms: [android, iphone, ipad, mobileweb]
+    platforms: [android, iphone, ipad, mobileweb, tizen]
 
   - name: sections
     summary: Sections of this table.
@@ -1281,7 +1279,7 @@ properties:
         for adding sections on iOS.
     type: Array<Titanium.UI.TableViewSection>
     since: { android: 3.1.0, iphone: 3.0.0, ipad: 3.0.0, mobileweb: 3.0.0 }
-    platforms: [android, iphone, ipad, mobileweb]
+    platforms: [android, iphone, ipad, mobileweb, tizen]
 
   - name: separatorColor
     summary: Separator line color between rows, as a color name or hex triplet.
@@ -1299,10 +1297,10 @@ properties:
         For iOS specify one of the 
         [TableViewSeparatorStyle](Titanium.UI.iPhone.TableViewSeparatorStyle) constants.
         
-        For Mobile Web specify one of the 
+        For Mobile Web and Tizen specify one of the 
         [TableViewSeparatorStyle](Titanium.UI.MobileWeb.TableViewSeparatorStyle) constants.
     type: Number
-    platforms: [iphone, ipad, mobileweb]
+    platforms: [iphone, ipad, mobileweb, tizen]
     
   - name: showVerticalScrollIndicator
     summary: Determines whether this table view displays a vertical scroll indicator.
@@ -1362,11 +1360,11 @@ examples:
             sectionFish.add(Ti.UI.createTableViewRow({ title: 'Cod' }));
             sectionFish.add(Ti.UI.createTableViewRow({ title: 'Haddock' }));
             
-            // Prior to Release 3.0, you can only add and remove sections by setting the data property:
-            table.data = [ sectionFish, sectionFruit, sectionVeg ];
+            // Prior to Release 3.0, you can only add and remove sections by setting the data property
+            // table.data = [ sectionFish, sectionFruit, sectionVeg ];
             // Due to a known issue, TIMOB-12616, the section access methods and sections
-            // property should not be used on iOS.
-            // table.insertSectionBefore(0, sectionFish);
+            // property should not be used on iOS with Release 3.0.x.
+            table.insertSectionBefore(0, sectionFish);
 
   - title: Table View with Composite Layout
     example: |

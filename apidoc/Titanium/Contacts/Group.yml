@@ -4,7 +4,7 @@ summary: An object which represents a group in the system contacts address book.
 description: See examples in <Titanium.Contacts> for more information.
 extends: Titanium.Proxy
 since: "1.4.0"
-platforms: [iphone, ipad]
+platforms: [iphone, ipad, tizen]
 
 methods:
   - name: add
@@ -18,6 +18,7 @@ methods:
     summary: Gets people that are members of this group.
     returns:
         type: Array<Titanium.Contacts.Person>
+    platforms: [android, iphone, ipad]
     
   - name: remove
     summary: Removes a person from this group.
@@ -37,6 +38,7 @@ methods:
             [CONTACTS_SORT_FIRST_NAME](Titanium.Contacts.CONTACTS_SORT_FIRST_NAME), 
             or [CONTACTS_SORT_LAST_NAME](Titanium.Contacts.CONTACTS_SORT_LAST_NAME).
         type: Number
+    platforms: [android, iphone, ipad]    
 
 properties:
   - name: name
@@ -46,4 +48,4 @@ properties:
   - name: recordId
     summary: Record identifier of the group. Single value.
     type: Number
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, tizen]

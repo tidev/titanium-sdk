@@ -131,7 +131,7 @@ properties:
         or [INPUT_BORDERSTYLE_ROUNDED](Titanium.UI.INPUT_BORDERSTYLE_ROUNDED).
     type: Number
     default: <Titanium.UI.INPUT_BORDERSTYLE_NONE>
-    platforms: [iphone, ipad, mobileweb]
+    platforms: [iphone, ipad, mobileweb, tizen]
     
   - name: clearButtonMode
     summary: Determines when the clear button is displayed.
@@ -171,7 +171,7 @@ properties:
     summary: Determines whether the field is enabled.
     type: Boolean
     default: true
-    platforms: [android, ipad, iphone, mobileweb]
+    platforms: [android, ipad, iphone, mobileweb, tizen]
     
   - name: enableReturnKey
     summary: |
@@ -349,7 +349,7 @@ properties:
   - name: suppressReturn
     summary: Determines whether the return key should be suppressed during entry.
     type: Boolean
-    platforms: [iphone, ipad, mobileweb]
+    platforms: [iphone, ipad, mobileweb, tizen]
     
   - name: textAlign
     summary: Text alignment within this text field.
@@ -391,7 +391,7 @@ properties:
     default: -1
     type: Number
     since: {android: "3.0.0"}
-    platforms: [android, iphone, mobileweb]
+    platforms: [android, iphone, mobileweb, tizen]
 
 events:
   - name: blur
