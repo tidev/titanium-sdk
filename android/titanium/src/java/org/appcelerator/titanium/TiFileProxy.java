@@ -92,12 +92,8 @@ public class TiFileProxy extends KrollProxy
 		}
 
 		Iterator<T> iter = objs.iterator();
-		// remove the following two lines, if you expect the Collection will behave well
-		if (!iter.hasNext()) {
-			return "";
-		}
 
-		StringBuffer buffer = new StringBuffer(String.valueOf(iter.next()));
+		StringBuffer buffer = new StringBuffer();
 		while (iter.hasNext()) {
 			buffer.append(delimiter).append(String.valueOf(iter.next()));
 		}
