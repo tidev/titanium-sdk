@@ -194,7 +194,10 @@ public class EventProxy extends KrollProxy {
 			eventValues.put(Events.EVENT_TIMEZONE, new Date().toString());
 		}
 
-		
+		if (data.containsKey("location")) {
+			event.location = TiConvert.toString(data, "location");
+			eventValues.put("eventLocation", event.location);
+		}
 		if (data.containsKey("description")) {
 			event.description = TiConvert.toString(data, "description");
 			eventValues.put("description", event.description);
