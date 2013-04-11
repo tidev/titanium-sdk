@@ -21,31 +21,33 @@ module.exports = new function() {
 		checkProperty = function (testRun, type, value) {
 			Tizen.SystemSetting.setProperty(type, value, 
 				// SuccessCallback
-				function() {
-					Tizen.SystemSetting.getProperty(type, 
-						function(propertyValue) {
-							Ti.API.info(type + '=' + propertyValue);
-							valueOf(value).shouldBe(propertyValue);
+				function(response) {
+					if (response.success) {
+						Tizen.SystemSetting.getProperty(type, 
+							function(response) {
+								if (response.success) {
+									var propertyValue = response.data;
+									Ti.API.info(type + '=' + propertyValue);
+									valueOf(value).shouldBe(propertyValue);
 
-							finish(testRun);
-						},
-						function(e){
-							finishError(testRun, e);
-						}
-					);
-				},
-				// ErrorCallback
-				function(e){
-					finishError(testRun, e);
-				} 
+									finish(testRun);
+								} else {
+									finishError(testRun, response.error);
+								}
+							}
+						);
+					} else {
+						finishError(testRun, response.error);
+					}
+				}
 			);
 		};
-	
+
 	// Tests
 	this.init = function(testUtils) {
 		finish = testUtils.finish;
 		valueOf = testUtils.valueOf;
-		reportError = testUtils.reportError;		
+		reportError = testUtils.reportError;
 	}
 
 	this.name = 'systemsetting';
