@@ -39,37 +39,8 @@
 		</splash>
 		<theme>default</theme>
 	</mobileweb>
-	<tizen appid="zhrTuDSwYV" xmlns:tizen="http://ti.appcelerator.org">
-        <tizen:privilege name="http://tizen.org/privilege/tizen"/>
+	<tizen appid="zhrTuDSwYV">
         <tizen:privilege name="http://tizen.org/privilege/systeminfo"/>
-        <tizen:privilege name="http://tizen.org/privilege/setting"/>
-        <tizen:privilege name="http://tizen.org/privilege/power"/>
-        <tizen:privilege name="http://tizen.org/privilege/notification.write"/>
-        <tizen:privilege name="http://tizen.org/privilege/notification.read"/>
-        <tizen:privilege name="http://tizen.org/privilege/nfc.tag"/>
-        <tizen:privilege name="http://tizen.org/privilege/nfc.p2p"/>
-        <tizen:privilege name="http://tizen.org/privilege/nfc.common"/>
-        <tizen:privilege name="http://tizen.org/privilege/nfc.cardemulation"/>
-        <tizen:privilege name="http://tizen.org/privilege/nfc.admin"/>
-        <tizen:privilege name="http://tizen.org/privilege/messaging.write"/>
-        <tizen:privilege name="http://tizen.org/privilege/messaging.send"/>
-        <tizen:privilege name="http://tizen.org/privilege/messaging.read"/>
-        <tizen:privilege name="http://tizen.org/privilege/filesystem.write"/>
-        <tizen:privilege name="http://tizen.org/privilege/filesystem.read"/>
-        <tizen:privilege name="http://tizen.org/privilege/download"/>
-        <tizen:privilege name="http://tizen.org/privilege/content.write"/>
-        <tizen:privilege name="http://tizen.org/privilege/content.read"/>
-        <tizen:privilege name="http://tizen.org/privilege/contact.write"/>
-        <tizen:privilege name="http://tizen.org/privilege/contact.read"/>
-        <tizen:privilege name="http://tizen.org/privilege/callhistory.write"/>
-        <tizen:privilege name="http://tizen.org/privilege/callhistory.read"/>
-        <tizen:privilege name="http://tizen.org/privilege/calendar.write"/>
-        <tizen:privilege name="http://tizen.org/privilege/calendar.read"/>
-        <tizen:privilege name="http://tizen.org/privilege/bluetooth.spp"/>
-        <tizen:privilege name="http://tizen.org/privilege/bluetooth.gap"/>
-        <tizen:privilege name="http://tizen.org/privilege/bluetooth.admin"/>
-        <tizen:privilege name="http://tizen.org/privilege/application.read"/>
-        <tizen:privilege name="http://tizen.org/privilege/application.launch"/>
         <access origin="*"/>
         <access origin="http://www.appcelerator.com" subdomains="true"/> 
         <access origin="https://my.appcelerator.com/auth/login" subdomains="true"/>

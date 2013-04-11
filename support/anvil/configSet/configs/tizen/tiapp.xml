@@ -73,9 +73,6 @@
         <tizen:privilege name="http://tizen.org/privilege/callhistory.read"/>
         <tizen:privilege name="http://tizen.org/privilege/calendar.write"/>
         <tizen:privilege name="http://tizen.org/privilege/calendar.read"/>
-        <tizen:privilege name="http://tizen.org/privilege/bluetooth.spp"/>
-        <tizen:privilege name="http://tizen.org/privilege/bluetooth.gap"/>
-        <tizen:privilege name="http://tizen.org/privilege/bluetooth.admin"/>
         <tizen:privilege name="http://tizen.org/privilege/application.read"/>
         <tizen:privilege name="http://tizen.org/privilege/application.launch"/>
         <tizen:privilege name="http://tizen.org/privilege/alarm"/>

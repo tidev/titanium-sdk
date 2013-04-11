@@ -3,6 +3,8 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details. */
 
+// Simple automated tests of Ti.UI.TabGroup.
+
 module.exports = new function() {
 	var finish,
 		valueOf,
@@ -19,7 +21,8 @@ module.exports = new function() {
 		{name: "base_no_pix"}
 	];
 	
-	// Test base functionality without pixels calculation
+	// Test base functionality: whether the types of properties are correct, whether
+	// setting tabs works without crashing, whether the tab group remembers its configuration.
 	this.base_no_pix = function(testRun) {
 		var wind = Titanium.UI.createWindow(),
 			tabGroup = Titanium.UI.createTabGroup(),

@@ -3,6 +3,8 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details. */
 
+// Simple tests of Ti.UI.Button.
+
 module.exports = new function() {
 	var finish,
 		valueOf,
@@ -20,7 +22,7 @@ module.exports = new function() {
 		reportError = testUtils.reportError;
 	};
 
-	// Test some button properties and functions
+	// Verifies if basic button properties and functions have the correct type and are sane
 	this.basic_test = function(testRun) {
 		Ti.API.info("Test basic_test start.");
 
@@ -70,7 +72,7 @@ module.exports = new function() {
         win.open();
 	}
 
-	// Test button events (all events are inherited)
+	// Test button events. Events are simulated using "fireEvent".
 	this.test_events = function(testRun) {
 		Ti.API.info("Start test test_events.");
 

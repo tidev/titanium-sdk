@@ -3,6 +3,8 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details. */
 
+// Simple automated tests of Ti.UI.Switch.
+
 module.exports = new function() {
 	var finish,
 	   valueOf;
@@ -18,10 +20,11 @@ module.exports = new function() {
 		{name: "action", timeout: 5000}
 	];
 		
+	
+	// Check the default values of properties;
+	// Change the values of properties with setters;
+	// Check the new values of properties with getters.
 	this.properties_methods = function(testRun) {
-		// Check the default values of properties
-		// Change the values of properties with set methods
-		// Check the new values of properties with get methods
 		var win = Ti.UI.createWindow({
 				backgroundColor: '#FF0000'
 			}),
@@ -83,10 +86,10 @@ module.exports = new function() {
 		win.open();
 	}
 
+	// Try to create the Switch and add to a window.
+	// Try to click on this switch.
+	// Check the value for this switch, it should be changed.
 	this.action = function(testRun) {
-		// Try to create the Switch and add to window.
-		// Try to click on this switch
-		// Check the value for this switch, should be changed		
 		var win = Ti.UI.createWindow({
 				backgroundColor: '#FF0000'
 			}),
