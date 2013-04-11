@@ -116,7 +116,7 @@
             [self updateBarImage];
         }
     }
-    [TiLayoutQueue addViewProxy:self];
+    [self willEnqueue];
 }
 
 -(void)_destroy
@@ -588,6 +588,12 @@
     availableTitleSize.width = barFrame.size.width - (2*TI_NAVBAR_BUTTON_WIDTH);
     availableTitleSize.height = barFrame.size.height;
 
+    //Check for titlePrompt. Ugly hack. Assuming 50% for prompt height.
+    if (ourNavItem.prompt != nil) {
+        availableTitleSize.height /= 2.0f;
+        barFrame.origin.y = barFrame.size.height = availableTitleSize.height;
+    }
+    
     TiViewProxy * titleControl = [self valueForKey:@"titleControl"];
 
     UIView * oldView = [ourNavItem titleView];
