@@ -213,7 +213,7 @@ module.exports = new function() {
 		// If can accept test as on success callback as without it.
 		function onSuccessCallback(dataObject) {
 			Ti.API.debug('Test completed by success callback with parameter: ' + JSON.stringify(dataObject|''));
-			valueOf(testRun, dataObject).shouldBe('[object TizenSystemInfoSystemInfoProperty]');
+			valueOf(testRun, dataObject).shouldBe('[object TizenSystemInfoSystemInfoStorage]');
 			clearFakeTimeout();  // Cancel fake timer call.
 
 			valueOf(testRun, dataObject).shouldNotBeNull();
