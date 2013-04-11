@@ -46,118 +46,116 @@ module.exports = new function() {
 
 	this.getCpuProperty = function(testRun) {
 		// Test for Tizen Device API: SystemInfoCpu.
-		function onSuccessCallback(cpuData) {
-			Ti.API.debug('The power CPU load level is ' + cpuData.load);
-
-			valueOf(testRun, cpuData.toString()).shouldBe('[object TizenSystemInfoSystemInfoCpu]');
-			valueOf(testRun, cpuData.load).shouldBeNumber(); // double!
-			finish(testRun);
-		}
-
-		function onErrorCallback(error) {
-			Ti.API.info('An error occurred on Cpu property:' + error.message);
-
-			valueOf(testRun, error.toString()).shouldBe('[object TizenWebAPIError]');
-			finish(testRun);
+		function callback(response) {
+			if (response.success) {
+				var cpuData = response.data;
+				console.debug('The power CPU load level is ' + cpuData.load);
+				valueOf(testRun, cpuData.toString()).shouldBe('[object TizenSystemInfoSystemInfoCpu]');
+				valueOf(testRun, cpuData.load).shouldBeNumber(); // double!
+				finish(testRun);
+			} else {
+				console.error('An error occurred on Cpu property:' + response.error);
+				finish(testRun);
+			}
 		}
 
 		valueOf(testRun, Tizen.SystemInfo.getPropertyValue).shouldBeFunction();
-		Tizen.SystemInfo.getPropertyValue(Tizen.SystemInfo.SYSTEM_INFO_PROPERTY_ID_CPU, onSuccessCallback, onErrorCallback);
+		Tizen.SystemInfo.getPropertyValue(Tizen.SystemInfo.SYSTEM_INFO_PROPERTY_ID_CPU, callback);
 	}
 
 	this.getStorageProperty = function(testRun) {
 		// Test for Tizen Device API: SystemInfoStorage and SystemInfoStorageUnit.
-		function onSuccessCallback(systemInfoStorage) {
-			Ti.API.debug('Storage info: ' + JSON.stringify(systemInfoStorage));
+		function callback(response) {
+			if (response.success) {
+				var systemInfoStorage = response.data;
+				console.debug('Storage info: ' + JSON.stringify(systemInfoStorage));
 
-			valueOf(testRun, systemInfoStorage.toString()).shouldBe('[object TizenSystemInfoSystemInfoStorage]');
+				valueOf(testRun, systemInfoStorage.toString()).shouldBe('[object TizenSystemInfoSystemInfoStorage]');
 
-			if (systemInfoStorage.units) {
-				var i = 0, 
-					len = systemInfoStorage.units.length,
-					current;
+				if (systemInfoStorage.units) {
+					var i = 0, 
+						len = systemInfoStorage.units.length,
+						current;
 
-				for (; i < len; i++) {
-					current  = systemInfoStorage.units[i];
+					for (; i < len; i++) {
+						current  = systemInfoStorage.units[i];
 
-					Ti.API.debug('Storage info: ' + JSON.stringify(current));
+						console.debug('Storage info: ' + JSON.stringify(current));
 
-					valueOf(testRun, current.toString()).shouldBe('[object TizenSystemInfoSystemInfoStorageUnit]');
+						valueOf(testRun, current.toString()).shouldBe('[object TizenSystemInfoSystemInfoStorageUnit]');
+					}
 				}
+
+				finish(testRun);
+			} else {
+				console.error('An error occurred on Storage property:' + response.error);
+				finish(testRun);
 			}
-
-			finish(testRun);
-		}
-
-		function onErrorCallback(error) {
-			Ti.API.info('An error occurred on Storage property:' + error.message);
-			valueOf(testRun, error.toString()).shouldBe('[object TizenWebAPIError]');
-			finish(testRun);
 		}
 
 		valueOf(testRun, Tizen.SystemInfo.getPropertyValue).shouldBeFunction();
-		Tizen.SystemInfo.getPropertyValue(Tizen.SystemInfo.SYSTEM_INFO_PROPERTY_ID_STORAGE, onSuccessCallback, onErrorCallback);
+		Tizen.SystemInfo.getPropertyValue(Tizen.SystemInfo.SYSTEM_INFO_PROPERTY_ID_STORAGE, callback);
 	}
 
 	this.getCellularNetworkProperty = function(testRun) {
 		// Test for Tizen Device API: SystemInfoCellularNetwork.
-		function onSuccessCallback(systemInfoCellularNetwork) {
-			Ti.API.debug('Cellular network info: ' + JSON.stringify(systemInfoCellularNetwork));
+		function callback(response) {
+			if (response.success) {
+				var systemInfoCellularNetwork = response.data;
+				console.debug('Cellular network info: ' + JSON.stringify(systemInfoCellularNetwork));
 
-			valueOf(testRun, systemInfoCellularNetwork).shouldBe('[object TizenSystemInfoSystemInfoCellularNetwork]');
+				valueOf(testRun, systemInfoCellularNetwork).shouldBe('[object TizenSystemInfoSystemInfoCellularNetwork]');
 
-			if (systemInfoCellularNetwork){
-				valueOf(testRun, systemInfoCellularNetwork.status).shouldBeString();
-				valueOf(testRun, systemInfoCellularNetwork.apn).shouldBeString();
-				valueOf(testRun, systemInfoCellularNetwork.ipAddress).shouldBeString();
-				valueOf(testRun, systemInfoCellularNetwork.ipv6Address).shouldBeString();
-				valueOf(testRun, systemInfoCellularNetwork.mcc).shouldBeNumber();
-				valueOf(testRun, systemInfoCellularNetwork.mnc).shouldBeNumber();
-				valueOf(testRun, systemInfoCellularNetwork.cellId).shouldBeNumber();
-				valueOf(testRun, systemInfoCellularNetwork.lac).shouldBeNumber();
-				valueOf(testRun, systemInfoCellularNetwork.isRoaming).shouldBeBoolean();
+				if (systemInfoCellularNetwork){
+					valueOf(testRun, systemInfoCellularNetwork.status).shouldBeString();
+					valueOf(testRun, systemInfoCellularNetwork.apn).shouldBeString();
+					valueOf(testRun, systemInfoCellularNetwork.ipAddress).shouldBeString();
+					valueOf(testRun, systemInfoCellularNetwork.ipv6Address).shouldBeString();
+					valueOf(testRun, systemInfoCellularNetwork.mcc).shouldBeNumber();
+					valueOf(testRun, systemInfoCellularNetwork.mnc).shouldBeNumber();
+					valueOf(testRun, systemInfoCellularNetwork.cellId).shouldBeNumber();
+					valueOf(testRun, systemInfoCellularNetwork.lac).shouldBeNumber();
+					valueOf(testRun, systemInfoCellularNetwork.isRoaming).shouldBeBoolean();
+				}
+				finish(testRun);
+			} else {
+				console.error('An error occurred on "CellularNetwork" property:' + response.error);
+				finish(testRun);
 			}
-			finish(testRun);
-		}
-
-		function onErrorCallback(error) {
-			Ti.API.info('An error occurred on "CellularNetwork" property:' + error.message);
-			valueOf(testRun, error).shouldBe('[object TizenWebAPIError]');
-			finish(testRun);
 		}
 
 		valueOf(testRun, Tizen.SystemInfo.getPropertyValue).shouldBeFunction();
-		Tizen.SystemInfo.getPropertyValue(Tizen.SystemInfo.SYSTEM_INFO_PROPERTY_ID_CELLULAR_NETWORK, onSuccessCallback, onErrorCallback);
+		Tizen.SystemInfo.getPropertyValue(Tizen.SystemInfo.SYSTEM_INFO_PROPERTY_ID_CELLULAR_NETWORK, callback);
 	}
 
 	this.getSimProperty = function(testRun) {
 		// Test for Tizen Device API: SystemInfoSIM.
-		function onSuccessCallback(systemInfoSIM) {
-			Ti.API.debug('SIM info: ' + JSON.stringify(systemInfoSIM));
+		function callback(response) {
+			if (response.success) {
+				var systemInfoSIM = response.data;
+				console.debug('SIM info: ' + JSON.stringify(systemInfoSIM));
 
-			valueOf(testRun, systemInfoSIM).shouldBe('[object TizenSystemInfoSystemInfoSIM]');
+				valueOf(testRun, systemInfoSIM).shouldBe('[object TizenSystemInfoSystemInfoSIM]');
 
-			if (systemInfoSIM) {
-				valueOf(testRun, systemInfoSIM.operatorName).shouldBeString();
-				valueOf(testRun, systemInfoSIM.msisdn).shouldBeString();
-				valueOf(testRun, systemInfoSIM.iccid).shouldBeString();
-				valueOf(testRun, systemInfoSIM.msin).shouldBeString();
-				valueOf(testRun, systemInfoSIM.spn).shouldBeString();
-				valueOf(testRun, systemInfoSIM.mcc).shouldBeNumber();
-				valueOf(testRun, systemInfoSIM.mnc).shouldBeNumber();
+				if (systemInfoSIM) {
+					valueOf(testRun, systemInfoSIM.operatorName).shouldBeString();
+					valueOf(testRun, systemInfoSIM.msisdn).shouldBeString();
+					valueOf(testRun, systemInfoSIM.iccid).shouldBeString();
+					valueOf(testRun, systemInfoSIM.msin).shouldBeString();
+					valueOf(testRun, systemInfoSIM.spn).shouldBeString();
+					valueOf(testRun, systemInfoSIM.mcc).shouldBeNumber();
+					valueOf(testRun, systemInfoSIM.mnc).shouldBeNumber();
+				}
+
+				finish(testRun);
+			} else {
+				console.error('An error occurred on SIM property:' + response.error);
+				finish(testRun)
 			}
-
-			finish(testRun);
-		}
-
-		function onErrorCallback(error) {
-			Ti.API.info('An error occurred on SIM property:' + error.message);
-			valueOf(testRun, error).shouldBe('[object TizenWebAPIError]');
-			finish(testRun);
 		}
 
 		valueOf(testRun, Tizen.SystemInfo.getPropertyValue).shouldBeFunction();
-		Tizen.SystemInfo.getPropertyValue(Tizen.SystemInfo.SYSTEM_INFO_PROPERTY_ID_SIM, onSuccessCallback, onErrorCallback);
+		Tizen.SystemInfo.getPropertyValue(Tizen.SystemInfo.SYSTEM_INFO_PROPERTY_ID_SIM, callback);
 	}
 
 	this.testListenersCpu = function(testRun) {
