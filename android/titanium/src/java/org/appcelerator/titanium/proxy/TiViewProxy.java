@@ -400,28 +400,27 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 		this.view = view;
 	}
 	
-	public TiUIView forceCreateView(boolean enableModelListener)
-	{
-		view = null;
-		return getOrCreateView(enableModelListener);
-	}
-
 	public TiUIView forceCreateView()
 	{
-		return forceCreateView(true);
+		view = null;
+		return getOrCreateView();
 	}
 
-	public TiUIView getOrCreateView(boolean enableModelListener)
-	{
-		if (activity == null || view != null) {
-			return view;
+	/**
+	 * Transfer an existing view to this view proxy.
+	 * Special use in tableView. Do not use anywhere else.
+	 * Called from TiTableViewRowProxyItem.java
+	 * @param transferview - The view to transfer
+	 * @param oldProxy - The currentProxy of the view
+	 */
+	public void transferView(TiUIView transferview, TiViewProxy oldProxy) {
+		if(oldProxy != null) {
+			oldProxy.setView(null);
+			oldProxy.setModelListener(null);
 		}
-
-		if (TiApplication.isUIThread()) {
-			return handleGetView(enableModelListener);
-		}
-
-		return (TiUIView) TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_GETVIEW), 0);
+		view = transferview;
+		modelListener = transferview;
+		view.setProxy(this);
 	}
 	
 	/**
@@ -431,10 +430,18 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 	 */
 	public TiUIView getOrCreateView()
 	{
-		return getOrCreateView(true);
-	}
+		if (activity == null || view != null) {
+			return view;
+		}
 
-	protected TiUIView handleGetView(boolean enableModelListener)
+		if (TiApplication.isUIThread()) {
+			return handleGetView();
+		}
+
+		return (TiUIView) TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_GETVIEW), 0);
+	}
+	
+	protected TiUIView handleGetView()
 	{
 		if (view == null) {
 			if (Log.isDebugModeEnabled()) {
@@ -450,33 +457,17 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 					Log.w(TAG, "Activity is null", Log.DEBUG_MODE);
 				}
 			}
-			realizeViews(view, enableModelListener);
+			realizeViews(view);
 			view.registerForTouch();
 			view.registerForKeyPress();
 		}
 		return view;
 	}
 	
-	protected TiUIView handleGetView()
+	public void realizeViews(TiUIView view)
 	{
-		return handleGetView(true);
-	}
-
-	public void realizeViews(TiUIView view, boolean enableModelListener)
-	{
-		if (enableModelListener)
-		{
-			setModelListener(view);
-		}
-		else
-		{
-			// Just call processProperties() to set them on this view.
-			// Note that this is done in setModelListener() when it is
-			// called.
-			view.processProperties(getProperties());
-		}
-
-
+		setModelListener(view);
+		
 		// Use a copy so bundle can be modified as it passes up the inheritance
 		// tree. Allows defaults to be added and keys removed.
 		if (children != null) {
@@ -497,11 +488,6 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 		}
 	}
 	
-	public void realizeViews(TiUIView view)
-	{
-		realizeViews(view, true);
-	}
-
 	public void releaseViews()
 	{
 		if (view != null) {
