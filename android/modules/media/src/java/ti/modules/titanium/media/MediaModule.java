@@ -473,24 +473,19 @@ public class MediaModule extends KrollModule
 
 					String localImageUrl = dataPath;
 
-					// We need to move the image from dataPath to imageUrl
 					URL url;
 					try {
 						if (!saveToPhotoGallery) {
+							// We need to move the image from dataPath to the temp file which will be deleted
+							// when the app exits.
 							url = new URL(imageUrl);
 							moveImage(dataPath, url.getPath());
 
-							// Update Content
-							ContentValues values = new ContentValues();
-							values.put(Images.ImageColumns.BUCKET_ID, imageFile.getPath().toLowerCase().hashCode());
-							values.put(Images.ImageColumns.BUCKET_DISPLAY_NAME, imageFile.getName());
-							values.put("_data", imageFile.getAbsolutePath());
-
+							// Delete the saved the image entry from the gallery DB.
 							if (data.getData() != null && isDataValid) {
-								activity.getContentResolver().update(data.getData(), values, null, null);
+								activity.getContentResolver().delete(data.getData(), null, null);
 							} else {
-								activity.getContentResolver().update(Images.Media.EXTERNAL_CONTENT_URI, values,
-									"datetaken = ?", new String[] { dateTaken });
+								activity.getContentResolver().delete(Images.Media.EXTERNAL_CONTENT_URI, "datetaken = ?", new String[] { dateTaken });
 							}
 
 							localImageUrl = imageUrl; // make sure it's a good URL before setting it to pass back.
@@ -550,13 +545,14 @@ public class MediaModule extends KrollModule
 		{
 			String localUrl = imageUrl;
 			String localPath = imageFile.getAbsolutePath();
-			ContentValues values = new ContentValues(7);
 
-			values.put(Images.Media.TITLE, imageFile.getName());
-			values.put(Images.Media.DISPLAY_NAME, imageFile.getName());
-			values.put(Images.Media.DATE_TAKEN, new Date().getTime());
-			values.put(Images.Media.MIME_TYPE, "image/jpeg");
 			if (saveToPhotoGallery) {
+				ContentValues values = new ContentValues(7);
+				values.put(Images.Media.TITLE, imageFile.getName());
+				values.put(Images.Media.DISPLAY_NAME, imageFile.getName());
+				values.put(Images.Media.DATE_TAKEN, new Date().getTime());
+				values.put(Images.Media.MIME_TYPE, "image/jpeg");
+
 				File rootsd = Environment.getExternalStorageDirectory();
 				localPath = rootsd.getAbsolutePath() + "/dcim/Camera/" + imageFile.getName();
 				values.put(Images.ImageColumns.BUCKET_ID, localPath.toLowerCase().hashCode());
@@ -564,18 +560,14 @@ public class MediaModule extends KrollModule
 				moveImage(imageFile.getAbsolutePath(), localPath);
 				localUrl = "file://" + localPath;
 
-			} else {
-				values.put(Images.ImageColumns.BUCKET_ID, imageFile.getPath().toLowerCase().hashCode());
-				values.put(Images.ImageColumns.BUCKET_DISPLAY_NAME, imageFile.getName());
+				values.put("_data", localPath);
+
+				activity.getContentResolver().insert(Images.Media.EXTERNAL_CONTENT_URI, values);
+
+				// puts newly captured photo into the gallery
+				MediaScannerClient mediaScanner = new MediaScannerClient(activity, new String[] { localUrl }, null, null);
+				mediaScanner.scan();
 			}
-			values.put("_data", localPath);
-
-			activity.getContentResolver().insert(Images.Media.EXTERNAL_CONTENT_URI, values);
-
-			// puts newly captured photo into the gallery
-			MediaScannerClient mediaScanner = new MediaScannerClient(activity, new String[] { localUrl }, null, null);
-			mediaScanner.scan();
-
 			invokeSuccessCallback(activity, localPath);
 		}
 
