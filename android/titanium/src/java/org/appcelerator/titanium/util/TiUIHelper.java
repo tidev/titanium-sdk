@@ -75,6 +75,7 @@ import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.View;
 import android.view.View.MeasureSpec;
+import android.view.ViewParent;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.TextView;
 
@@ -1004,5 +1005,18 @@ public class TiUIHelper
 		if (proxy != null && proxy.hasListeners(TiC.EVENT_POST_LAYOUT)) {
 			proxy.fireEvent(TiC.EVENT_POST_LAYOUT, null, false);
 		}
+	}
+
+	public static boolean isViewInsideViewOfClass(View view, Class<?>[] testClass) {
+		ViewParent parent = view.getParent();
+		if (parent != null) {
+			for (int i = 0; i < testClass.length; i++) {
+				if (testClass[i].isAssignableFrom(parent.getClass()))
+					return true;
+			}
+			if (parent instanceof View)
+				return isViewInsideViewOfClass((View)parent, testClass);
+		}
+		return false;
 	}
 }
