@@ -695,7 +695,11 @@ public class TiCompositeLayout extends ViewGroup
 			right = measuredWidth + left;
 			horizontalLayoutTopBuffer = horizontalLayoutTopBuffer + horizontalLayoutLineHeight;
 			horizontalLayoutLineHeight = 0;
+		} else if (!enableHorizontalWrap && params.autoFillsWidth && params.sizeOrFillWidthEnabled) {
+			// If there is no wrap, and width is fill behavior, cap it off at the width of the screen
+			right = Math.min(right, layoutRight);
 		}
+
 		hpos[0] = left;
 		hpos[1] = right;
 		horizontalLayoutCurrentLeft = right;
