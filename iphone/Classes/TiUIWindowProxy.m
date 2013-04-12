@@ -116,7 +116,7 @@
             [self updateBarImage];
         }
     }
-    [self willEnqueue];
+    [self willChangeSize];
 }
 
 -(void)_destroy
