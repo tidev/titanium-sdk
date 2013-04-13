@@ -332,7 +332,7 @@ def resource_drawable_folder(path):
 
 class Builder(object):
 
-	def __init__(self, name, sdk, project_dir, support_dir, app_id):
+	def __init__(self, name, sdk, project_dir, support_dir, app_id, is_emulator):
 		self.top_dir = project_dir
 		self.project_tiappxml = os.path.join(self.top_dir,'tiapp.xml')
 		self.project_dir = os.path.join(project_dir,'build','android')
@@ -394,20 +394,6 @@ class Builder(object):
 
 		json_contents = open(os.path.join(template_dir,'dependency.json')).read()
 		self.depends_map = simplejson.loads(json_contents)
-
-		self.set_java_commands()
-		# start in 1.4, you no longer need the build/android directory
-		# if missing, we'll create it on the fly
-		if not os.path.exists(self.project_dir) or not os.path.exists(os.path.join(self.project_dir,'AndroidManifest.xml')):
-			android_creator = Android(name, app_id, self.sdk, None, self.java)
-			parent_dir = os.path.dirname(self.top_dir)
-			if os.path.exists(self.top_dir):
-				android_creator.create(parent_dir, project_dir=self.top_dir, build_time=True)
-			else:
-				android_creator.create(parent_dir)
-			
-			self.force_rebuild = True
-			sys.stdout.flush()
 		
 		# favor the ANDROID_SDK_HOME environment variable if used
 		if os.environ.has_key('ANDROID_SDK_HOME') and os.path.exists(os.environ['ANDROID_SDK_HOME']):
@@ -420,11 +406,26 @@ class Builder(object):
 		else:
 			self.home_dir = os.path.join(os.path.expanduser('~'), '.titanium')
 			self.android_home_dir = os.path.join(os.path.expanduser('~'), '.android')
-		
+	
 		if not os.path.exists(self.home_dir):
 			os.makedirs(self.home_dir)
 		self.sdcard = os.path.join(self.home_dir,'android2.sdcard')
 		self.classname = Android.strip_classname(self.name)
+		
+		if not is_emulator:
+			self.set_java_commands()
+			# start in 1.4, you no longer need the build/android directory
+			# if missing, we'll create it on the fly
+			if not os.path.exists(self.project_dir) or not os.path.exists(os.path.join(self.project_dir,'AndroidManifest.xml')):
+				android_creator = Android(name, app_id, self.sdk, None, self.java)
+				parent_dir = os.path.dirname(self.top_dir)
+				if os.path.exists(self.top_dir):
+					android_creator.create(parent_dir, project_dir=self.top_dir, build_time=True)
+				else:
+					android_creator.create(parent_dir)
+			
+				self.force_rebuild = True
+				sys.stdout.flush()
 
 	def check_target_api_version(self, manifest_elements):
 		pattern = r'android:targetSdkVersion=\"(\d+)\"'
@@ -483,7 +484,7 @@ class Builder(object):
 		debug("Waiting for device to be ready ...")
 		t = time.time()
 		max_wait = 30
-		max_zero = 6
+		max_zero = 10
 		attempts = 0
 		zero_attempts = 0
 		timed_out = True
@@ -2427,6 +2428,7 @@ if __name__ == "__main__":
 
 	template_dir = os.path.abspath(os.path.dirname(sys._getframe(0).f_code.co_filename))
 	get_values_from_tiapp = False
+	is_emulator = False
 
 	if command == 'run':
 		if argc < 4:
@@ -2450,6 +2452,8 @@ if __name__ == "__main__":
 		avd_id = "7"
 		avd_skin = "HVGA"
 	else:
+		if command == 'emulator':
+			is_emulator = True
 		if argc < 6 or command == '--help' or (command=='distribute' and argc < 10):
 			usage()
 			
@@ -2466,7 +2470,7 @@ if __name__ == "__main__":
 	log = TiLogger(os.path.join(os.path.abspath(os.path.expanduser(dequote(project_dir))), 'build.log'))
 	log.debug(" ".join(sys.argv))
 	
-	builder = Builder(project_name,sdk_dir,project_dir,template_dir,app_id)
+	builder = Builder(project_name,sdk_dir,project_dir,template_dir,app_id,is_emulator)
 	builder.command = command
 
 	try:
