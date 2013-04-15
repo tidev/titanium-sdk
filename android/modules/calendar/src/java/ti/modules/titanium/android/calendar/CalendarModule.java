@@ -31,6 +31,8 @@ public class CalendarModule extends KrollModule
 	@Kroll.constant public static final int STATE_FIRED = AlertProxy.STATE_FIRED;
 	@Kroll.constant public static final int STATE_SCHEDULED = AlertProxy.STATE_SCHEDULED;
 
+	public static final String EVENT_LOCATION = "eventLocation";
+
 	public CalendarModule()
 	{
 		super();
