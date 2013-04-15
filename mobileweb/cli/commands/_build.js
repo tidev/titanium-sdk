@@ -141,7 +141,6 @@ function build(logger, config, cli, finished) {
 	this.locales = [];
 	this.appNames = {};
 	this.splashHtml = '';
-	this.codeProcessor = cli.codeProcessor;
 
 	var pkgJson = this.readTiPackageJson();
 	this.packages = [{
@@ -189,6 +188,9 @@ function build(logger, config, cli, finished) {
 		// that build.pre.compile was fired.
 		ti.validateAppJsExists(this.projectDir, this.logger);
 
+		// Note: code processor is a pre-compile hook
+		this.codeProcessor = cli.codeProcessor;
+
 		parallel(this, [
 			'copyFiles',
 			'findProjectDependencies'
@@ -227,7 +229,7 @@ function build(logger, config, cli, finished) {
 			});
 		});
 	}.bind(this));
-};
+}
 
 build.prototype = {
 
