@@ -201,7 +201,7 @@ properties:
         See also: [getResponseHeader](Titanium.Network.HTTPClient.getResponseHeader).
     type: String
     permission: read-only
-    platforms: [android, tizen]
+    platforms: [android]
     
   - name: autoEncodeUrl
     summary: Determines whether automatic encoding is enabled for the specified URL.
