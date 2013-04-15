@@ -145,8 +145,10 @@ module.exports = new function() {
         		callback_error(exception);
       		}
     	});
+		win.addEventListener('close', function(){
+			finish(testRun);
+		})
 		win.close();
-		finish(testRun);
 	}
 }
 

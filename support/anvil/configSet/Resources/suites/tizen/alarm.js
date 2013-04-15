@@ -41,7 +41,7 @@ module.exports = new function() {
 
 		valueOf(testRun, alarm.toString()).shouldBe('[object TizenAlarmAlarmRelative]');
 
-		Tizen.Alarm.add(alarm, 'http://tizen.org/alarm-clock');
+		Tizen.Alarm.add(alarm, 'org.tizen.browser');
 
 		// Set an alarm on December 21st 2012 08:00
 		alarm = Tizen.Alarm.createAlarmAbsolute({ 
@@ -50,7 +50,7 @@ module.exports = new function() {
 
 		valueOf(testRun, alarm.toString()).shouldBe('[object TizenAlarmAlarmAbsolute]');
 
-		Tizen.Alarm.add(alarm, 'http://tizen.org/alarm-clock');
+		Tizen.Alarm.add(alarm, 'org.tizen.browser');
 
 		tizenArr = Tizen.Alarm.getAll();
 
@@ -82,8 +82,8 @@ module.exports = new function() {
 			date: date
 		});
 		
-		Tizen.Alarm.add(alarm, 'http://tizen.org/alarm-clock');
-		Tizen.Alarm.add(alarm1, 'http://tizen.org/alarm-clock');
+		Tizen.Alarm.add(alarm, 'org.tizen.browser');
+		Tizen.Alarm.add(alarm1, 'org.tizen.browser');
 
 		relative_id = alarm.id;
 		absolute_id = alarm1.id;
@@ -127,8 +127,8 @@ module.exports = new function() {
 		alarm1 = Tizen.Alarm.createAlarmAbsolute({ 
 			date: date
 		});
-		Tizen.Alarm.add(alarm, 'http://tizen.org/alarm-clock');
-		Tizen.Alarm.add(alarm1, 'http://tizen.org/alarm-clock');
+		Tizen.Alarm.add(alarm, 'org.tizen.browser');
+		Tizen.Alarm.add(alarm1, 'org.tizen.browser');
 		relative_id = alarm.id;
 		absolute_id = alarm1.id;
 
@@ -154,7 +154,7 @@ module.exports = new function() {
 			delay: delay,
 			period: period
 		});
-		Tizen.Alarm.add(alarm, 'http://tizen.org/alarm-clock');
+		Tizen.Alarm.add(alarm, 'org.tizen.browser');
 		alarmId = alarm.id;
 
 		valueOf(testRun, function() {
@@ -188,7 +188,7 @@ module.exports = new function() {
 		alarm = Tizen.Alarm.createAlarmAbsolute({
 			date: date, period: period
 		});
-		Tizen.Alarm.add(alarm, 'http://tizen.org/alarm-clock');
+		Tizen.Alarm.add(alarm, 'org.tizen.browser');
 		alarmId = alarm.id;
 		remaining = alarm.getNextScheduledDate();
 
