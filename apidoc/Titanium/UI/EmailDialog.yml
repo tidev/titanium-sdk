@@ -82,17 +82,19 @@ properties:
     summary: Constant for the `CANCELLED` status result. On Android, this property exists but is not used.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, tizen]
     
   - name: FAILED
     summary: Constant for the `FAILED` status result.
     type: Number
     permission: read-only
+    platforms: [android, iphone, ipad, mobileweb]
     
   - name: SAVED
     summary: Constant for the `SAVED` status result. On Android, this property exists but is not used.
     type: Number
     permission: read-only
+    platforms: [android, iphone, ipad, mobileweb]
     
   - name: SENT
     summary: Constant for the `SENT` status result.
@@ -125,6 +127,7 @@ properties:
         especially those for the desktop, do not support them.
     type: Boolean
     default: false
+    platforms: [android, iphone, ipad, mobileweb]
     
   - name: messageBody
     summary: Email message body.
