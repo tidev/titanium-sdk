@@ -12,13 +12,10 @@ methods:
     parameters:
       - name: group
         summary: The group for which to obtain members.
-        type: Titanium.Contacts.Group
-      - name: successCallback
-        summary: The success callback 
-        type: Callback<Array<Titanium.Contacts.Person>>
-      - name: errorCallback
-        summary: The error callback.
-        type: Callback<WebAPIError>
+        type: Ti.Contacts.Group
+      - name: callback
+        summary: Callback function that will be called after the operation is performed.
+        type: Callback<Titanium.Contacts.Tizen.ContactsCallbackArgs>
 
   - name: sortedMembers
     summary: Gets people that are members of this group, sorted in the specified order.
@@ -31,10 +28,7 @@ methods:
         type: Number
       - name: group
         summary: The group for which to obtain members.
-        type: Titanium.Contacts.Group
-      - name: successCallback
-        summary: The success callback 
-        type: Callback<Array<Titanium.Contacts.Person>>
-      - name: errorCallback
-        summary: The error callback.
-        type: Callback<WebAPIError>
+      - name: callback
+        summary: Callback function that will be called after the operation is performed.
+        type: Callback<Titanium.Contacts.Tizen.ContactsCallbackArgs>
+        type: Ti.Contacts.Group
