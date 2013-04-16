@@ -18,47 +18,39 @@ module.exports = new function() {
 	}
 
 	this.name = "filesystem";
-    this.tests = (function() {
-        var arr = [
-            {name: "optionalArgAPIs"},
-            {name: "readWriteText"},
-            {name: "blobNativeFile"},
-            {name: "blobFile"},
-            {name: "dotSlash"},
-            {name: "appendStringTest"},
-            {name: "appendBlobTest"},
-            {name: "appendFileTest"},
-            {name: "fileStreamBasicTest"},
-            {name: "fileStreamWriteTest"},
-            {name: "fileStreamAppendTest"},
-            {name: "fileStreamPumpTest"},
-            {name: "fileStreamWriteStreamTest"},
-            {name: "fileStreamResourceFileTest"},
-            {name: "fileStreamTruncateTest"},
-            {name: "fileMove"},
-            {name: "tempDirTest"},
-            {name: "emptyFile"},
-            {name: "fileSize"},
-            {name: "mimeType"},
-            {name: "filesInApplicationCacheDirectoryExists"},
-            {name: "fileCopy"},
-            {name: "fileProperties"},
-            {name: "directoryListing"},
-            {name: "tempDirAndFile"},
-            {name: "fsMethodAndProp"}
-        ];
+    this.tests = [
+        {name: "optionalArgAPIs"},
+        {name: "readWriteText"},
+        {name: "blobNativeFile"},
+        {name: "blobFile"},
+        {name: "dotSlash"},
+        {name: "appendStringTest"},
+        {name: "appendBlobTest"},
+        {name: "appendFileTest"},
+        {name: "fileStreamBasicTest"},
+        {name: "fileStreamWriteTest"},
+        {name: "fileStreamAppendTest"},
+        {name: "fileStreamPumpTest"},
+        {name: "fileStreamWriteStreamTest"},
+        {name: "fileStreamResourceFileTest"},
+        {name: "fileStreamTruncateTest"},
+        {name: "fileMove"},
+        {name: "tempDirTest"},
+        {name: "emptyFile"},
+        {name: "fileSize"},
+        {name: "mimeType"},
+        {name: "filesInApplicationCacheDirectoryExists"},
+        {name: "fileCopy"},
+        {name: "fileProperties"},
+        {name: "directoryListing"},
+        {name: "tempDirAndFile"},
+        {name: "fsMethodAndProp"},
+        {name: "appendString"},
+        {name: "appendBlob"},
+        {name: "appendFile"},
+        {name: "resolveTest"}
+    ]
 
-        if (isTizen || isMobileWeb) {
-            arr = arr.concat([
-                {name: "appendString"},
-                {name: "appendBlob"},
-                {name: "appendFile"},
-                {name: "resolveTest"}
-            ]);
-        }
-
-        return arr;
-    }());
 
 	this.optionalArgAPIs = function(testRun) {
 		// https://appcelerator.lighthouseapp.com/projects/32238/tickets/2211-android-filesystem-test-generates-runtime-error
@@ -143,7 +135,7 @@ module.exports = new function() {
 	this.dotSlash = function(testRun) {
 		var f;
 		var blob;
-		valueOf(testRun, function(){f = Ti.Filesystem.getFile('suites/filesystem/file.txt');}).shouldNotThrowException();
+		valueOf(testRun, function(){f = Ti.Filesystem.getFile('./file.txt');}).shouldNotThrowException();
 		//Resource files are readonly, but only on device, not simulator. As such, we can't test
 		//the use case of where writable should be false.
 		valueOf(testRun, function(){blob = f.read();}).shouldNotThrowException();
@@ -262,7 +254,7 @@ module.exports = new function() {
 		valueOf(testRun, tempBuffer.length).shouldBe(tempBufferLength);
 
 		var bytesRead = resourceFileStream.read(tempBuffer);
-		while (bytesRead > 0) {
+		while(bytesRead > -1) {
 			Ti.API.info('bytes read ' + bytesRead);
 
 	 	   	// buffer is expanded to contain the new data and the length is updated to reflect this
@@ -296,79 +288,77 @@ module.exports = new function() {
 	}
 
 	this.fileStreamWriteTest = function(testRun) {
-		if (!isTizen && !isMobileWeb) {		// due to unsupported Ti.Stream
-			var infile = Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory, 'suites/filesystem/stream_test_in.txt'),
-				instream = infile.open(Ti.Filesystem.MODE_READ),
-				outfile = Ti.Filesystem.getFile(Ti.Filesystem.applicationDataDirectory, 'fswritetest.jpg'),
-				outstream = outfile.open(Ti.Filesystem.MODE_WRITE),
-				buffer = Ti.createBuffer({length: 20}),
-				totalWriteSize = 0,
-				size = 0;
+		var infile = Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory, 'suites/filesystem/stream_test_in.txt'),
+			instream = infile.open(Ti.Filesystem.MODE_READ),
+			outfile = Ti.Filesystem.getFile(Ti.Filesystem.applicationDataDirectory, 'fswritetest.jpg'),
+			outstream = outfile.open(Ti.Filesystem.MODE_WRITE),
+			buffer = Ti.createBuffer({length: 20}),
+			totalWriteSize = 0,
+			size = 0;
 
-			while ((size = instream.read(buffer)) > 0) {
-				outstream.write(buffer, 0, size);
-				totalWriteSize += size;
-			}
-
-			instream.close();
-			outstream.close();
-		
-		
-			infile = Ti.Filesystem.getFile(Ti.Filesystem.applicationDataDirectory, 'fswritetest.jpg');
-			instream = infile.open(Ti.Filesystem.MODE_READ);
-
-			var inBuffer = Ti.Stream.readAll(instream),
-				totalReadSize = inBuffer.length;
-
-			valueOf(testRun, totalReadSize).shouldBeExactly(totalWriteSize);
-			instream.close();
+		while ((size = instream.read(buffer)) > 0) {
+			outstream.write(buffer, 0, size);
+			totalWriteSize += size;
 		}
+
+		instream.close();
+		outstream.close();
+		
+		
+		infile = Ti.Filesystem.getFile(Ti.Filesystem.applicationDataDirectory, 'fswritetest.jpg');
+		instream = infile.open(Ti.Filesystem.MODE_READ);
+
+		var inBuffer = Ti.Stream.readAll(instream),
+			totalReadSize = inBuffer.length;
+
+		valueOf(testRun, totalReadSize).shouldBeExactly(totalWriteSize);
+		instream.close();
+		
 		finish(testRun);
 	}
 
 	this.fileStreamAppendTest = function(testRun) {
-		if(!isTizen && !isMobileWeb) { 		// due to unsupported Ti.Stream
-			var infile = Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory, 'suites/filesystem/stream_test_in.txt'),
-				instream = infile.open(Ti.Filesystem.MODE_READ),
-				outfile = Ti.Filesystem.getFile(Ti.Filesystem.applicationDataDirectory, 'fsappendtest.jpg');
+		var infile = Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory, 'suites/filesystem/stream_test_in.txt'),
+			instream = infile.open(Ti.Filesystem.MODE_READ),
+			outfile = Ti.Filesystem.getFile(Ti.Filesystem.applicationDataDirectory, 'fsappendtest.jpg');
 			
-			if (outfile.exists()) {
-				outfile.deleteFile();
-			}
-
-			var outstream = outfile.open(Ti.Filesystem.MODE_WRITE),
-				bytesStreamed = Ti.Stream.writeStream(instream, outstream, 40);
-
-			instream.close();
-			outstream.close();
-
-			infile = Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory, 'suites/filesystem/stream_test_in.txt');
-			instream = infile.open(Ti.Filesystem.MODE_READ);
-
-			var appendfile = Ti.Filesystem.getFile(Ti.Filesystem.applicationDataDirectory, 'fsappendtest.jpg'),
-				appendstream = appendfile.open(Ti.Filesystem.MODE_APPEND);
-
-			var buffer = Ti.createBuffer({length: 20}),
-				totalWriteSize = 0,
-				size = 0;
-
-			while ((size = instream.read(buffer)) > -1) {
-				appendstream.write(buffer, 0, size);
-				totalWriteSize += size;
-			}
-			instream.close();
-			appendstream.close();
-
-			infile = Ti.Filesystem.getFile(Ti.Filesystem.applicationDataDirectory, 'fsappendtest.jpg');
-			instream = infile.open(Ti.Filesystem.MODE_READ);
-			var inBuffer = Ti.Stream.readAll(instream);
-			var totalReadSize = inBuffer.length;
-			Ti.API.info('Total read size: '+totalReadSize);
-			Ti.API.info('Streamed: '+bytesStreamed);
-			Ti.API.info('Total write size: '+totalWriteSize);
-			valueOf(testRun, totalReadSize).shouldBeExactly(bytesStreamed + totalWriteSize);
-			instream.close();
+		if (outfile.exists()) {
+			outfile.deleteFile();
 		}
+
+		var outstream = outfile.open(Ti.Filesystem.MODE_WRITE),
+			bytesStreamed = Ti.Stream.writeStream(instream, outstream, 40);
+
+		instream.close();
+		outstream.close();
+
+		infile = Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory, 'suites/filesystem/stream_test_in.txt');
+		instream = infile.open(Ti.Filesystem.MODE_READ);
+
+		var appendfile = Ti.Filesystem.getFile(Ti.Filesystem.applicationDataDirectory, 'fsappendtest.jpg'),
+			appendstream = appendfile.open(Ti.Filesystem.MODE_APPEND);
+
+		var buffer = Ti.createBuffer({length: 20}),
+			totalWriteSize = 0,
+			size = 0;
+
+		while ((size = instream.read(buffer)) > -1) {
+			appendstream.write(buffer, 0, size);
+			totalWriteSize += size;
+		}
+		instream.close();
+		appendstream.close();
+
+		infile = Ti.Filesystem.getFile(Ti.Filesystem.applicationDataDirectory, 'fsappendtest.jpg');
+		instream = infile.open(Ti.Filesystem.MODE_READ);
+		var inBuffer = Ti.Stream.readAll(instream);
+		var totalReadSize = inBuffer.length;
+		Ti.API.info('Total read size: '+totalReadSize);
+		Ti.API.info('Streamed: '+bytesStreamed);
+		Ti.API.info('Total write size: '+totalWriteSize);
+		valueOf(testRun, totalReadSize).shouldBeExactly(bytesStreamed + totalWriteSize);
+		instream.close();
+		
 		finish(testRun);
 	}
 
@@ -396,37 +386,34 @@ module.exports = new function() {
 			pumpTotal += e.bytesProcessed;
 		};
 
-		// Ti.Stream not suppotred on mobileweb and Tizen
-		if (!isTizen && !isMobileWeb) {
-			var pumpStream = pumpInputFile.open(Ti.Filesystem.MODE_READ);
-			valueOf(testRun, pumpStream).shouldBeObject();
+		var pumpStream = pumpInputFile.open(Ti.Filesystem.MODE_READ);
+		valueOf(testRun, pumpStream).shouldBeObject();
 
-			Ti.Stream.pump(pumpStream, pumpCallback, step);
-			pumpStream.close();
-		}
+		Ti.Stream.pump(pumpStream, pumpCallback, step);
+		pumpStream.close();
+
 		finish(testRun);
 	}
 
 	this.fileStreamWriteStreamTest = function(testRun) {
-		if (!isTizen && !isMobileWeb) { // due to unsupported Ti.Stream
-			var inBuffer = Ti.createBuffer({value:"huray for data, lets have a party for data1 huray for data, lets have a party for data2 huray for data, lets have a party for data3"});
-			valueOf(testRun, inBuffer).shouldBeObject();
-			var inStream = Ti.Stream.createStream({source:inBuffer, mode:Ti.Stream.MODE_READ});
-			valueOf(testRun, inStream).shouldNotBeNull();
+		var inBuffer = Ti.createBuffer({value:"huray for data, lets have a party for data1 huray for data, lets have a party for data2 huray for data, lets have a party for data3"});
+		valueOf(testRun, inBuffer).shouldBeObject();
+		var inStream = Ti.Stream.createStream({source:inBuffer, mode:Ti.Stream.MODE_READ});
+		valueOf(testRun, inStream).shouldNotBeNull();
 
-			var outFileStream = Ti.Filesystem.openStream(Ti.Filesystem.MODE_WRITE, Ti.Filesystem.applicationDataDirectory, 'stream_test_out.txt');
-			valueOf(testRun, outFileStream).shouldBeObject();
+		var outFileStream = Ti.Filesystem.openStream(Ti.Filesystem.MODE_WRITE, Ti.Filesystem.applicationDataDirectory, 'stream_test_out.txt');
+		valueOf(testRun, outFileStream).shouldBeObject();
 
-			// writes all data from inBufferStream to outFileStream in chunks of 30
-			var bytesWritten = Ti.Stream.writeStream(inStream, outFileStream, 30);
+		// writes all data from inBufferStream to outFileStream in chunks of 30
+		var bytesWritten = Ti.Stream.writeStream(inStream, outFileStream, 30);
 
-			Ti.API.info('<' + bytesWritten + '> bytes written, closing both streams');
+		Ti.API.info('<' + bytesWritten + '> bytes written, closing both streams');
 
-			// assert that the length of the outBuffer is equal to the amount of bytes that were written
-			valueOf(testRun, bytesWritten).shouldBe(inBuffer.length);
+		// assert that the length of the outBuffer is equal to the amount of bytes that were written
+		valueOf(testRun, bytesWritten).shouldBe(inBuffer.length);
 
-			outFileStream.close();
-		}
+		outFileStream.close();
+
 		finish(testRun);
 	}
 
@@ -445,35 +432,34 @@ module.exports = new function() {
 	}
 
 	this.fileStreamTruncateTest = function(testRun) {
-		if (!isTizen && !isMobileWeb) {     // due to unsupported Ti.Stream
-			var inBuffer = Ti.createBuffer({value:"huray for data, lets have a party for data1 huray for data, lets have a party for data2 huray for data, lets have a party for data3"});
-			valueOf(testRun, inBuffer).shouldBeObject();
-			var inStream = Ti.Stream.createStream({source:inBuffer, mode:Ti.Stream.MODE_READ});
-			valueOf(testRun, inStream).shouldNotBeNull();
+		var inBuffer = Ti.createBuffer({value:"huray for data, lets have a party for data1 huray for data, lets have a party for data2 huray for data, lets have a party for data3"});
+		valueOf(testRun, inBuffer).shouldBeObject();
+		var inStream = Ti.Stream.createStream({source:inBuffer, mode:Ti.Stream.MODE_READ});
+		valueOf(testRun, inStream).shouldNotBeNull();
 
-			var outFileStream = Ti.Filesystem.openStream(Ti.Filesystem.MODE_WRITE, Ti.Filesystem.applicationDataDirectory, 'stream_test_truncate.txt');
-			valueOf(testRun, outFileStream).shouldBeObject();
+		var outFileStream = Ti.Filesystem.openStream(Ti.Filesystem.MODE_WRITE, Ti.Filesystem.applicationDataDirectory, 'stream_test_truncate.txt');
+		valueOf(testRun, outFileStream).shouldBeObject();
 
-			// writes all data from inBufferStream to outFileStream in chunks of 30
-			var bytesWritten = Ti.Stream.writeStream(inStream, outFileStream, 30);
-			Ti.API.info('<' + bytesWritten + '> bytes written, closing both streams');
+		// writes all data from inBufferStream to outFileStream in chunks of 30
+		var bytesWritten = Ti.Stream.writeStream(inStream, outFileStream, 30);
+		Ti.API.info('<' + bytesWritten + '> bytes written, closing both streams');
 
-			// assert that the length of the outBuffer is equal to the amount of bytes that were written
-			valueOf(testRun, bytesWritten).shouldBe(inBuffer.length);
-			outFileStream.close();
+		// assert that the length of the outBuffer is equal to the amount of bytes that were written
+		valueOf(testRun, bytesWritten).shouldBe(inBuffer.length);
+		outFileStream.close();
 
-			var outFileStream = Ti.Filesystem.openStream(Ti.Filesystem.MODE_WRITE, Ti.Filesystem.applicationDataDirectory, 'stream_test_truncate.txt');
-			valueOf(testRun, outFileStream).shouldBeObject();
-			outFileStream.close();
+		var outFileStream = Ti.Filesystem.openStream(Ti.Filesystem.MODE_WRITE, Ti.Filesystem.applicationDataDirectory, 'stream_test_truncate.txt');
+		valueOf(testRun, outFileStream).shouldBeObject();
+		outFileStream.close();
 
-			var inFileStream = Ti.Filesystem.openStream(Ti.Filesystem.MODE_READ, Ti.Filesystem.applicationDataDirectory, 'stream_test_truncate.txt');
-			valueOf(testRun, inFileStream).shouldBeObject();
+		var inFileStream = Ti.Filesystem.openStream(Ti.Filesystem.MODE_READ, Ti.Filesystem.applicationDataDirectory, 'stream_test_truncate.txt');
+		valueOf(testRun, inFileStream).shouldBeObject();
 
-			var truncateBuffer = Ti.Stream.readAll(inFileStream);
-			valueOf(testRun, truncateBuffer.length).shouldBeExactly(0);
+		var truncateBuffer = Ti.Stream.readAll(inFileStream);
+		valueOf(testRun, truncateBuffer.length).shouldBeExactly(0);
 
-			inFileStream.close();
-		}
+		inFileStream.close();
+
 		finish(testRun);
 	}
 
@@ -488,7 +474,7 @@ module.exports = new function() {
 		valueOf(testRun, newDir.exists()).shouldBeTrue();
 
 		var newFile = Titanium.Filesystem.getFile(newDir.nativePath,'newfile.txt');
-		newFile.write(contents);
+		newFile.write(f.read());
 		valueOf(testRun, newFile.exists()).shouldBeTrue();
 
 		// remove destination file if it exists otherwise the test will fail on multiple runs
@@ -649,11 +635,9 @@ module.exports = new function() {
             destinationFile.deleteFile();
         }
 
-        if (isTizen || isMobileWeb || isAndroid) {
-            valueOf(testRun, newFile.copy(Titanium.Filesystem.applicationDataDirectory+'/copied.txt')).shouldBeTrue();
-            copiedFile  = Titanium.Filesystem.getFile(Titanium.Filesystem.applicationDataDirectory+'/copied.txt');
-            valueOf(testRun, copiedFile.exists()).shouldBeTrue();
-        } 
+        valueOf(testRun, newFile.copy(Titanium.Filesystem.applicationDataDirectory+'/copied.txt')).shouldBeTrue();
+        copiedFile  = Titanium.Filesystem.getFile(Titanium.Filesystem.applicationDataDirectory+'/copied.txt');
+        valueOf(testRun, copiedFile.exists()).shouldBeTrue();
 
         newFile = Titanium.Filesystem.getFile(newDir.nativePath, 'newfile.txt');
 

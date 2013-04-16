@@ -40,7 +40,17 @@ var suites = [
 	{name: "ui_clipboard"},
 	{name: "ui_controls"},
 	{name: "utils/utils"},
-	{name: "yahoo"}
+	{name: "yahoo"},
+	{name: "ui/activity_indicator"},
+	{name: "ui/controls_slider"},
+	{name: "ui/mobile_navigation_group"},
+	{name: "ui/picker"},
+	{name: "ui/scroll_view"},
+	{name: "ui/switch"},
+	{name: "ui/tab"},
+	{name: "ui/tab_group"},
+	{name: "ui/table_view_row"},
+	{name: "ui/table_view_section"}
 ];
 
 if (Ti.Platform.osname === 'android') {
@@ -63,20 +73,10 @@ if (Ti.Platform.osname === 'android') {
 		{name: "iphone/iphone_ui"},
 		{name: "iphone/iphone_UI_3DMatrix"}
 	]);
-} else if (Ti.Platform.osname === 'tizen') {
+} else if(Ti.Platform.osname === 'tizen' || Ti.Platform.osname === 'mobileweb') {
 	suites = suites.concat([
-		{name: "ui/activity_indicator"},
-		{name: "ui/controls_slider"},
 		{name: "ui/label"},
-		{name: "ui/mobile_navigation_group"},
-		{name: "ui/option_dialog"},
-		{name: "ui/picker"},
-		{name: "ui/scroll_view"},
-		{name: "ui/switch"},
-		{name: "ui/tab"},
-		{name: "ui/tab_group"},
-		{name: "ui/table_view_row"},
-		{name: "ui/table_view_section"}
+		{name: "ui/option_dialog"}
 	]);
 }
 

@@ -54,11 +54,6 @@
         <tizen:privilege name="http://tizen.org/privilege/power"/>
         <tizen:privilege name="http://tizen.org/privilege/notification.write"/>
         <tizen:privilege name="http://tizen.org/privilege/notification.read"/>
-        <tizen:privilege name="http://tizen.org/privilege/nfc.tag"/>
-        <tizen:privilege name="http://tizen.org/privilege/nfc.p2p"/>
-        <tizen:privilege name="http://tizen.org/privilege/nfc.common"/>
-        <tizen:privilege name="http://tizen.org/privilege/nfc.cardemulation"/>
-        <tizen:privilege name="http://tizen.org/privilege/nfc.admin"/>
         <tizen:privilege name="http://tizen.org/privilege/messaging.write"/>
         <tizen:privilege name="http://tizen.org/privilege/messaging.send"/>
         <tizen:privilege name="http://tizen.org/privilege/messaging.read"/>

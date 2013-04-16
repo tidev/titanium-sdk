@@ -107,18 +107,8 @@ module.exports = new function() {
 	}
 
 	this.audioTimeValidation = function(testRun) {
-		var sound = Ti.Media.createSound();
-
-		if (isTizen) {
-			var f = Ti.Filesystem.getFile(Titanium.Filesystem.resourcesDirectory, "suites/media/sound.wav");
-			sound.url = f.nativePath;
-		} else {
-		    sound.url = "sound.wav";
-		}
-
-		// Play at 3 sec
+		var sound = Ti.Media.createSound({ url : "sound.wav" });
 		var initial_pos = 3000;
-
 		sound.time = initial_pos;
 		sound.setTime(initial_pos);
 		valueOf(testRun, sound.getTime()).shouldBe(initial_pos);
@@ -132,8 +122,8 @@ module.exports = new function() {
 			var time = sound.getTime();
 			Ti.API.info("PROGRESS: " + time);
 			valueOf(testRun, time).shouldBeGreaterThan(initial_pos);
-			// Assume we get an event in < 2 seconds.
-			valueOf(testRun, time).shouldBeLessThan(initial_pos + initial_pos); 
+			// assume we get an event in < 2 seconds.
+			valueOf(testRun, time).shouldBeLessThan(initial_pos + 3000); 
 			sound.stop();
 			sound = null;
 			finish(testRun);

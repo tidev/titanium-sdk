@@ -241,22 +241,6 @@ module.exports = new function() {
 		}
 	};
 
-	// This function is required for Tizen's browser which does not support
-	// indexOf for arrays.
-	Value.prototype.shouldContainDeprecated = function(expected) {
-		if (this.testRun.resultSet) {
-			return;
-		}
-
-		for (var i = 0, len = this.obj.length; i < len; i++) {
-			if (expected === this.obj[i]) {
-				return;
-			}
-		}
-
-		self.reportError(this.testRun, "should contain: " + expected + ", was: " + this.obj);
-	}
-
 	Value.prototype.shouldContain = function(expected) {
 		if (this.testRun.resultSet) {
 			return;
