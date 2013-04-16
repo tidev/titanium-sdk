@@ -123,10 +123,6 @@ exports.run = function (logger, config, cli) {
 		process.exit(1);
 	}
 
-	cli.sourceMaps = {
-		mappings: {}
-	};
-
 	require(buildModule).run(logger, config, cli, function (err) {
 		var delta = appc.time.prettyDiff(cli.startTime, Date.now());
 		if (err) {
