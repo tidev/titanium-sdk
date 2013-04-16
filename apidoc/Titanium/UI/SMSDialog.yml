@@ -17,6 +17,12 @@ methods:
     
   - name: open
     summary: Opens this SMS dialog.
+    description: |
+        To use this method, it is required to include the following privilege
+        in the tiapp.xml file of your Titanium application: http://tizen.org/privilege/application.launch
+    parameters:
+      - name: properties
+        type: Object
 
 events:
   - name: complete
