@@ -84,14 +84,22 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 	// This handles the memory cache of images.
 	private TiImageLruCache mMemoryCache = TiImageLruCache.getInstance();
 
-	public TiUIImageView(TiViewProxy proxy)
+	public TiUIImageView(final TiViewProxy proxy)
 	{
 		super(proxy);
 		imageViewProxy = (ImageViewProxy) proxy;
 
 		Log.d(TAG, "Creating an ImageView", Log.DEBUG_MODE);
 
-		TiImageView view = new TiImageView(proxy.getActivity());
+		TiImageView view = new TiImageView(proxy.getActivity())
+		{
+			@Override
+			protected void onLayout(boolean changed, int left, int top, int right, int bottom)
+			{
+				super.onLayout(changed, left, top, right, bottom);
+				TiUIHelper.firePostLayoutEvent(proxy);
+			}
+		};
 
 		downloadListener = new TiDownloadListener()
 		{
