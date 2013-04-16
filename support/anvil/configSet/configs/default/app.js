@@ -43,9 +43,7 @@ var suites = [
 	{name: "yahoo"},
 	{name: "ui/activity_indicator"},
 	{name: "ui/controls_slider"},
-	{name: "ui/label"},
 	{name: "ui/mobile_navigation_group"},
-	{name: "ui/option_dialog"},
 	{name: "ui/picker"},
 	{name: "ui/scroll_view"},
 	{name: "ui/switch"},
@@ -74,6 +72,11 @@ if (Ti.Platform.osname === 'android') {
 		{name: "iphone/iphone_2Dmatrix"},
 		{name: "iphone/iphone_ui"},
 		{name: "iphone/iphone_UI_3DMatrix"}
+	]);
+} else if(Ti.Platform.osname === 'tizen' || Ti.Platform.osname === 'mobileweb') {
+	suites = suites.concat([
+		{name: "ui/label"},
+		{name: "ui/option_dialog"}
 	]);
 }
 

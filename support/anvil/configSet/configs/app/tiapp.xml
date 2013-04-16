@@ -47,7 +47,7 @@
 		</splash>
 		<theme>default</theme>
 	</mobileweb>
-	<tizen appid="zhrTuDSwYV">
+	<tizen appid="zhrTuDSwYV" xmlns:tizen="http://ti.appcelerator.org">
         <tizen:privilege name="http://tizen.org/privilege/systeminfo"/>
         <access origin="*"/>
         <access origin="http://www.appcelerator.com" subdomains="true"/> 
