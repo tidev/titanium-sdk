@@ -18,7 +18,7 @@ module.exports = new function() {
 		valueOf = testUtils.valueOf;
 		reportError = testUtils.reportError;
 		Tizen = require('tizen');
-	}
+	};
 
 	this.name = 'call_history';
 	this.tests = [
@@ -27,7 +27,7 @@ module.exports = new function() {
 		{name: 'remove_batch'},
 		{name: 'remove_all'},
 		{name: 'listeners'}
-	]
+	];
 
 	// Search for history of call
 	this.call_history = function(testRun) {
@@ -50,7 +50,7 @@ module.exports = new function() {
 			}),
 			// Add filters
 			iFilter = Tizen.createCompositeFilter({
-				type: Tizen.COMPOSITE_FILTER_TYPE_INTERSECTION, 
+				type: Tizen.COMPOSITE_FILTER_TYPE_INTERSECTION,
 				filters: [
 					numberFilter,
 					tFilter
@@ -63,30 +63,32 @@ module.exports = new function() {
 		valueOf(testRun, numberFilter).shouldBeObject();
 		valueOf(testRun, iFilter).shouldBeObject();
 
-		function onSuccess(results) {
-			if (results.length <= 0) {
-				reportError(testRun, 'This test requires at least one call in the phone\'s call history. Please make several calls and restart the test.');
-				finish(testRun);
-			}
-			valueOf(testRun, results).shouldNotBeUndefined();
-			valueOf(testRun, results).shouldBeObject();
+		function onFind(response) {
+			if (response.success) {
+				var results = response.entries,
+					i;
+				if (results.length <= 0) {
+					reportError(testRun, 'This test requires at least one call in the phone\'s call history. Please make several calls and restart the test.');
+					finish(testRun);
+				}
+				valueOf(testRun, results).shouldNotBeUndefined();
+				valueOf(testRun, results).shouldBeObject();
 
-			for (var i in results) {
-				valueOf(testRun, results[i].uid).shouldBeString();
-				valueOf(testRun, results[i].remoteParties).shouldBeArray();
-				valueOf(testRun, results[i].startTime).shouldBeObject();
-				valueOf(testRun, results[i].direction).shouldBeString();
-				valueOf(testRun, results[i].type).shouldBeString();
-				valueOf(testRun, results[i].toString()).shouldBe('[object TizenCallHistoryCallHistoryEntry]');
+				for (i in results) {
+					valueOf(testRun, results[i].uid).shouldBeString();
+					valueOf(testRun, results[i].remoteParties).shouldBeArray();
+					valueOf(testRun, results[i].startTime).shouldBeObject();
+					valueOf(testRun, results[i].direction).shouldBeString();
+					valueOf(testRun, results[i].type).shouldBeString();
+					valueOf(testRun, results[i].toString()).shouldBe('[object TizenCallHistoryCallHistoryEntry]');
+				}
+			} else {
+				reportError(testRun, 'The following error occurred: ' +  response.error);
 			}
 		}
 
-		function onError(error) {
-			reportError(testRun, 'The following error occurred: ' +  error.message);
-		}
-
-		// Find call history
-		valueOf(testRun, function() { Tizen.CallHistory.find(onSuccess, onError, tFilter, sortMode); }).shouldNotThrowException();
+		// Find call history.
+		valueOf(testRun, function() { Tizen.CallHistory.find(onFind, tFilter, sortMode); }).shouldNotThrowException();
 
 		setTimeout(
 			function() {
@@ -94,58 +96,67 @@ module.exports = new function() {
 			},
 			10
 		);
-	}
+	};
 
 	// Remove: deletes a call history entries. 
 	this.remove = function(testRun) {
-		function onSuccess(results) {
-			valueOf(testRun, results).shouldNotBeUndefined();
-			valueOf(testRun, results).shouldBeObject();
+		function onFind(response) {
+			if (response.success) {
+				var results = response.entries;
+				valueOf(testRun, results).shouldNotBeUndefined();
+				valueOf(testRun, results).shouldBeObject();
 
-			if (results.length > 0) {
-				// Delete call from call history
-				valueOf(testRun, function() { Tizen.CallHistory.remove(results[0]); }).shouldNotThrowException();
+				if (results.length > 0) {
+					// Delete call from call history
+					valueOf(testRun, function() { Tizen.CallHistory.remove(results[0]); }).shouldNotThrowException();
+				} else {
+					reportError(testRun, 'This test requires at least one call in the phone\'s call history. Please make several calls and restart the test.');
+					finish(testRun);
+				}
 			} else {
-				reportError(testRun, 'This test requires at least one call in the phone\'s call history. Please make several calls and restart the test.');
+				reportError(testRun, 'The following error occurred: ' +  response.error);
+			}
+		}
+
+		valueOf(testRun, Tizen.CallHistory).shouldBeObject();
+
+		// Search for call history
+		valueOf(testRun, function() { Tizen.CallHistory.find(onFind); }).shouldNotThrowException();
+
+		setTimeout(
+			function() {
+				finish(testRun);
+			},
+			10
+		);
+	};
+
+	// Deletes a list of call history entries. 
+	this.remove_batch = function(testRun) {
+		function onFind(response) {
+			if (response.success) {
+				var results = response.entries;
+				valueOf(testRun, results).shouldBeObject();
+				// delete found history
+				valueOf(testRun, function() { Tizen.CallHistory.removeBatch(results, onRemove); }).shouldNotThrowException();
+			} else {
+				reportError(testRun, 'The following error occurred: ' +  response.error);
 				finish(testRun);
 			}
 		}
 
-		function onError(error) {
-			reportError(testRun, 'The following error occurred: ' +  error.message);
-		}
-
-		valueOf(testRun, Tizen.CallHistory).shouldBeObject();
-
-		// Search for call history
-		valueOf(testRun, function() { Tizen.CallHistory.find(onSuccess, onError); }).shouldNotThrowException();
-
-		setTimeout(
-			function() {
+		function onRemove(response) {
+			if (! response.success) {
+				reportError(testRun, 'This test requires at least one call in the phone\'s call history. Please make several calls and restart the test.');
+				reportError(testRun, 'The following error occurred: ' +  response.error);
 				finish(testRun);
-			},
-			10
-		);
-	}
-
-	// Deletes a list of call history entries. 
-	this.remove_batch = function(testRun) {
-		function onSuccess(results) {
-			valueOf(testRun, results).shouldBeObject();
-			// delete found history
-			valueOf(testRun, function() { Tizen.CallHistory.removeBatch(results, null, onError); }).shouldNotThrowException();
-		}
-
-		function onError(error) {
-			reportError(testRun, 'This test requires at least one call in the phone\'s call history. Please make several calls and restart the test.');
-			reportError(testRun, 'The following error occurred: ' +  error.message);
-			finish(testRun);
+			}
 		}
 
 		valueOf(testRun, Tizen.CallHistory).shouldBeObject();
 
 		// Search for call history
-		valueOf(testRun, function() { Tizen.CallHistory.find(onSuccess, onError); }).shouldNotThrowException();
+		valueOf(testRun, function() { Tizen.CallHistory.find(onFind); }).shouldNotThrowException();
 
 		// Give some time for execution
 		setTimeout(
@@ -154,18 +165,20 @@ module.exports = new function() {
 			},
 			10
 		);
-	}
+	};
 
 	// Deletes all call history. 
 	this.remove_all = function(testRun) {
-		function onError(error) {
-			reportError(testRun, 'The following error occurred: ' +  error.message);
-		}
-
 		valueOf(testRun, Tizen.CallHistory).shouldBeObject();
 
 		// Delete all call history
-		valueOf(testRun, function() { Tizen.CallHistory.removeAll(null, onError); }).shouldNotThrowException();
+		valueOf(testRun, function() {
+			Tizen.CallHistory.removeAll(function (response) {
+				if (! response.success) {
+					reportError(testRun, 'The following error occurred: ' +  response.error);
+				}
+			});
+		}).shouldNotThrowException();
 
 		// Give some time for execution
 		setTimeout(
@@ -174,7 +187,7 @@ module.exports = new function() {
 			},
 			10
 		);
-	}
+	};
 
 	// Observing of callHistory changes. 
 	this.listeners = function(testRun) {
@@ -209,5 +222,5 @@ module.exports = new function() {
 			},
 			10
 		);
-	}
-}
+	};
+};
