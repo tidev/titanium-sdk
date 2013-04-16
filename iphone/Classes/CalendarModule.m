@@ -182,7 +182,9 @@
     TiCalendarCalendar* calendar = [[[TiCalendarCalendar alloc] _initWithPageContext:[self executionContext] calendar:calendar_ module:self] autorelease];    return calendar;
 }
 
--(void) requestAuthorization:(id)args forEntityType:(EKEntityType)entityType
+#pragma mark - Public API
+
+-(void) requestEventsAuthorization:(id)args
 {
     ENSURE_SINGLE_ARG(args, KrollCallback);
 	KrollCallback * callback = args;
@@ -194,7 +196,7 @@
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_6_0
     if (iOS6API) {
         
-        long int permissions = [EKEventStore authorizationStatusForEntityType:entityType];
+        long int permissions = [EKEventStore authorizationStatusForEntityType:EKEntityTypeEvent];
 		switch (permissions) {
 			case EKAuthorizationStatusNotDetermined:
 				doPrompt = YES;
@@ -236,21 +238,7 @@
                                      
                                  }];
 	}, NO);
-#endif
-}
-
-#pragma mark - Public API
-
--(void) requestEventsAuthorization:(id)args
-{
-    ENSURE_SINGLE_ARG(args, KrollCallback);
-    [self requestAuthorization:args forEntityType:EKEntityTypeEvent];
-}
-
--(void) requestRemindersAuthorization:(id)args
-{
-    ENSURE_SINGLE_ARG(args, KrollCallback);
-    [self requestAuthorization:args forEntityType:EKEntityTypeReminder];
+#endif    
 }
 
 -(NSNumber*) eventsAuthorization
