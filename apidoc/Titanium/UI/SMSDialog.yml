@@ -17,9 +17,6 @@ methods:
     
   - name: open
     summary: Opens this SMS dialog.
-    parameters:
-      - name: properties
-        type: Object
 
 events:
   - name: complete
