@@ -11,8 +11,8 @@ description: |
     [tiapp.xml and timodule.xml Reference](http://docs.appcelerator.com/titanium/latest/#!/guide/tiapp.xml_and_timodule.xml_Reference).
 
 extends: Titanium.Module
-platforms: [iphone, ipad, android]
-since: {iphone: "3.1.0", ipad: "3.1.0", android: "3.2.0"}
+platforms: [android, iphone, ipad]
+since: {android: "3.2.0", iphone: "3.1.0", ipad: "3.1.0"}
 createable: false
 
 events:
@@ -38,7 +38,7 @@ methods:
       - name: id
         summary: Integer identifier of the calendar.
         type: Number
-    platforms: [iphone, ipad, android]
+    platforms: [android, iphone, ipad]
 
   - name: requestEventsAuthorization
     summary: If authorization is unknown, will bring up a dialog requesting permission.
@@ -173,7 +173,7 @@ properties:
         and [STATUS_TENTATIVE](Titanium.Calendar.STATUS_TENTATIVE).
     type: Number
     permission: read-only
-    platforms: [iphone, ipad, android]
+    platforms: [android, iphone, ipad]
 
   - name: STATUS_CONFIRMED
     summary:  Event confirmed status.
@@ -187,7 +187,7 @@ properties:
         and [STATUS_TENTATIVE](Titanium.Calendar.STATUS_TENTATIVE).
     type: Number
     permission: read-only
-    platforms: [iphone, ipad, android]
+    platforms: [android, iphone, ipad]
 
   - name: STATUS_TENTATIVE
     summary: Event tentative status.
@@ -201,7 +201,7 @@ properties:
         and [STATUS_TENTATIVE](Titanium.Calendar.STATUS_TENTATIVE).
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [android, iphone, ipad]
 
   - name: AVAILABILITY_NOTSUPPORTED
     summary: Availability settings are not supported by the event's calendar.
@@ -459,7 +459,7 @@ properties:
     summary: All calendars known to the native calendar app.
     type: Array<Titanium.Calendar.Calendar>
     permission: read-only
-    platforms: [iphone, ipad, android]
+    platforms: [android, iphone, ipad]
 
   - name: allEditableCalendars
     summary: |

@@ -8,8 +8,8 @@ description: |
     
     See <Titanium.Calendar> for examples of retrieving event information and creating events.
 extends: Titanium.Proxy
-platforms: [iphone, ipad, android]
-since: {iphone: "3.1.0", ipad: "3.1.0", android: "3.2.0"}
+platforms: [android, iphone, ipad]
+since: {android: "3.2.0", iphone: "3.1.0", ipad: "3.1.0"}
 createable: false
 
 methods:
@@ -21,7 +21,7 @@ methods:
       - name: data
         summary: Properties for the alert.
         type: Dictionary<Titanium.Calendar.Alert>
-    platforms: [iphone, ipad, android]
+    platforms: [android, iphone, ipad]
 
   - name: createReminder
     summary: Creates a reminder for this event.
@@ -141,7 +141,7 @@ properties:
     description: |
         This property is read-only on Android.
     type: Array<Titanium.Calendar.Alert>
-    platforms: [iphone, ipad, android]
+    platforms: [android, iphone, ipad]
 
   - name: allDay
     summary: Indicates whether this event is all day.
@@ -149,14 +149,14 @@ properties:
         This property is read-only on Android.
     type: Boolean
     default: false
-    platforms: [iphone, ipad, android]
+    platforms: [android, iphone, ipad]
 
   - name: begin
     summary: Start date/time of this event.
     description: |
         This property is read-only on Android.
     type: Date
-    platforms: [iphone, ipad, android]
+    platforms: [android, iphone, ipad]
 
   - name: notes
     summary: Notes for this event.
@@ -174,7 +174,7 @@ properties:
     description: |
         This property is read-only on Android.
     type: Date
-    platforms: [iphone, ipad, android]
+    platforms: [android, iphone, ipad]
 
   - name: extendedProperties
     summary: Extended properties of this event.
@@ -186,20 +186,20 @@ properties:
     summary: Indicates whether an alarm is scheduled for this event.
     type: Boolean
     permission: read-only
-    platforms: [iphone, ipad, android]
+    platforms: [android, iphone, ipad]
 
   - name: id
     summary: Identifier of this event.
     type: String
     permission: read-only
-    platforms: [iphone, ipad, android]
+    platforms: [android, iphone, ipad]
 
   - name: location
     summary: Location of this event.
     description: |
         This property is read-only on Android.
     type: String
-    platforms: [iphone, ipad, android]
+    platforms: [android, iphone, ipad]
     
   - name: reminders
     summary: Existing reminders for this event.
@@ -216,7 +216,7 @@ properties:
         and [STATUS_TENTATIVE](Titanium.Calendar.STATUS_TENTATIVE).
     type: Number
     permission: read-only
-    platforms: [iphone, ipad, android]
+    platforms: [android, iphone, ipad]
 
   - name: availability
     summary: Availability of this event.
@@ -247,7 +247,7 @@ properties:
     description: |
         This property is read-only on Android.
     type: String
-    platforms: [iphone, ipad, android]
+    platforms: [android, iphone, ipad]
     
   - name: recurenceRule
     summary: Recurrence rule associated with the event. (Available in iOS 4.0 through iOS 5.1.)
