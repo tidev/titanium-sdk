@@ -40,13 +40,16 @@ module.exports = new function() {
 
 	// Test - List of Installed Applications
 	this.apps_info = function(testRun) {
-		var isMemoAppOnEmulator,
+		var isMemoAppOnEmulator, applications
 			appInstalledCount = 0;
 
 		valueOf(testRun, function() {
-			Tizen.Apps.getAppsInfo(function(applications) {
+			Tizen.Apps.getAppsInfo(function(response) {
+				valueOf(testRun, response.success).shouldBeTrue();
+				applications = response.applications;
+
 				appInstalledCount = applications.length;
-				Ti.API.info("appInstalledCount: " + appInstalledCount);
+				Ti.API.info('appInstalledCount: ' + appInstalledCount);
 
 				valueOf(testRun, appInstalledCount).shouldBeGreaterThan(0);
 
@@ -113,11 +116,13 @@ module.exports = new function() {
 			runingAppArray;
 
 		valueOf(testRun, function() {
-			Tizen.Apps.getAppsContext(function(contexts) {
+			Tizen.Apps.getAppsContext(function(response) {
+				valueOf(testRun, response.success).shouldBeTrue();
 				var i = 0,
+					contexts = response.contexts,
 					contextsCount = contexts.length;
 
-				Ti.API.info("contextsCount: " + contextsCount);
+				Ti.API.info('contextsCount: ' + contextsCount);
 
 				for (; i < contextsCount; i++) {
 					valueOf(testRun, contexts[i].toString()).shouldBe('[object TizenAppsApplicationContext]');
@@ -153,8 +158,9 @@ module.exports = new function() {
 		valueOf(testRun, harness).shouldBe('[object TizenAppsApplicationInformation]');
 		valueOf(testRun, harness.id).shouldNotBeUndefined();
 		valueOf(testRun, function() {
-			Tizen.Apps.getAppsContext(function(contexts) {
-				runingAppArray = contexts;
+			Tizen.Apps.getAppsContext(function(response) {
+				valueOf(testRun, response.success).shouldBeTrue();
+				runingAppArray = response.contexts;
 			});
 		}).shouldNotThrowException();
 
@@ -188,7 +194,9 @@ module.exports = new function() {
 
 		// Call getAppsContext for recieving all running application
 		valueOf(testRun, function() {
-			Tizen.Apps.getAppsContext(function(contexts) {
+			Tizen.Apps.getAppsContext(function(response) {
+				valueOf(testRun, response.success).shouldBeTrue();
+				var contexts = response.contexts;
 				isRunningMemo = _runingAppWithId(contexts, MEMO_APP_ID);
 
 				valueOf(testRun, contexts.length).shouldBeGreaterThan(0);
@@ -204,17 +212,14 @@ module.exports = new function() {
 		var isError;
 
 		valueOf(testRun, function() {
-			Tizen.Apps.launch(
-				NOT_EXIST_APP_ID,
-				function() {
+			Tizen.Apps.launch(NOT_EXIST_APP_ID, function(response) {
+				if (response.success) {
 					Ti.APi.info('Launched success.');
-				}, 
-				function(error) {
-					Ti.API.error("Error: " + error.message);
-
+				} else {
+					Ti.API.error('Error: ' + response.error);
 					isError = true;
 				}
-			);
+			});
 		}).shouldNotThrowException();
 
 		setTimeout(function() {
@@ -226,50 +231,40 @@ module.exports = new function() {
 
 	// Test - launch image from another appControl
 	this.launchAppControl = function(testRun) {
-		var serviceLaunched,
-			isError = false,
-			appControl,
-			appControlReplyCallback = { 
-				// Callee sent a reply
-				onsuccess: function(data) {
-					Ti.API.info('Success reply.');
-
-					for (var i = 0; i < data.length; i++) {
-						valueOf(testRun, data[i]).shouldBeObject();
-					}
-				},
-				// Something went wrong
-				onfailure: function() {
-				   Ti.API.info('The launch application control failed.');
-
-				   reportError(testRun, 'The following error occurred: ' + e.message);
-				}
-			};
-
+		var isError;
 		valueOf(testRun, function() {
 			appControl = Tizen.Apps.createApplicationControl({
-				operation: "http://tizen.org/appcontrol/operation/create_content",
+				operation: 'http://tizen.org/appcontrol/operation/create_content',
 				uri: null,
-				mime: "image/jpeg",
+				mime: 'image/jpeg',
 				category: null
 			});
 		}).shouldNotThrowException();
 		valueOf(testRun, appControl).shouldBeObject();
 		valueOf(testRun, function() {
-			Tizen.Apps.launchAppControl(appControl, null,
-				function() {
+			Tizen.Apps.launchAppControl(appControl, null, function (response) {
+				if (response.success) {
 					serviceLaunched = true;
-
-					Ti.API.info("launch application control succeed"); 
-				},
-				function(e) {
+					Ti.API.info('Launch application control succeed.'); 
+				} else {
 					isError = true;
-
-					Ti.API.info("launch application control failed. reason: " + e.message); 
-					
-					reportError(testRun, 'The following error occurred: ' + e.message);
-				},
-				appControlReplyCallback
+					Ti.API.error('Launch application control failed. reason: ' + response.error); 
+					reportError(testRun, 'The following error occured: ' + response.error);
+				}
+			}, function (response) {
+				if (response.success) {
+					var i = 0,
+						data = response.data,
+						appsCount = data.length;
+					Ti.API.info('Success reply.');
+					for (; i < appsCount; i++) {
+						valueOf(testRun, data[i]).shouldBeObject();
+					}
+				} else  {
+					Ti.API.error('The launch application control failed.');
+					reportError(testRun, 'An error occured while launching application control.');
+				}
+			}
 			);
 		}).shouldNotThrowException();
 
@@ -283,8 +278,8 @@ module.exports = new function() {
 
 	this.findAppControl = function(testRun) {
 		var appControl,
-			operation = "http://tizen.org/appcontrol/operation/create_content",
-			mime = "image/jpeg";
+			operation = 'http://tizen.org/appcontrol/operation/create_content',
+			mime = 'image/jpeg';
 
 		valueOf(testRun, function() {
 			appControl = Tizen.Apps.createApplicationControl({
@@ -295,29 +290,28 @@ module.exports = new function() {
 			});
 		}).shouldNotThrowException();
 
-		function errorCB(error) {
-			reportError(testRun, 'The following error occurred: ' + error.message);
-			finish(testRun);
-		}
+		Tizen.Apps.findAppControl(appControl, function (response) {
+			if (response.success) {
+				var appInfos = response.appInfo;
+				Ti.API.info('successCB for findAppControl');
 
-		function successCB(appInfos, appControl) {
-			Ti.API.info('successCB for findAppControl');
+				valueOf(testRun, appInfos).shouldBeArray();
+				valueOf(testRun, appControl).shouldBeObject();
+				valueOf(testRun, appControl.operation).shouldBeEqual(operation);
+				valueOf(testRun, appControl.mime).shouldBeEqual(mime);
 
-			valueOf(testRun, appInfos).shouldBeArray();
-			valueOf(testRun, appControl).shouldBeObject();
-			valueOf(testRun, appControl.operation).shouldBeEqual(operation);
-			valueOf(testRun, appControl.mime).shouldBeEqual(mime);
- 
-			for (var i = 0, len = appInfos.length; i < len; i++) {
-				valueOf(testRun, appInfos[i]).shouldBe('[object TizenAppsApplicationInformation]');
-				valueOf(testRun, appInfos[i].id).shouldBeString();
-				valueOf(testRun, appInfos[i].name).shouldBeString();
+				for (var i = 0, len = appInfos.length; i < len; i++) {
+					valueOf(testRun, appInfos[i]).shouldBe('[object TizenAppsApplicationInformation]');
+					valueOf(testRun, appInfos[i].id).shouldBeString();
+					valueOf(testRun, appInfos[i].name).shouldBeString();
+				}
+
+				finish(testRun);
+			} else {
+				reportError(testRun, 'The following error occurred: ' + response.error);
+				finish(testRun);
 			}
-
-			finish(testRun);
-		}
-
-		Tizen.Apps.findAppControl(appControl, successCB, errorCB);
+		});
 	}
 
 }

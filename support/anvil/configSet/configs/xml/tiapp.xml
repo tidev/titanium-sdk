@@ -32,7 +32,7 @@
 	<property name="ti.android.threadstacksize" type="int">32768</property>
 	<property name="ti.ios.enablecoverage" type="bool">true</property>
 	<property name="ti.ios.enablemdfind" type="bool">false</property>
-	<tizen appid="zhrTuDSwYV">
+	<tizen appid="zhrTuDSwYV" xmlns:tizen="http://ti.appcelerator.org">
         <tizen:privilege name="http://tizen.org/privilege/systeminfo"/>
         <access origin="*"/>
         <access origin="http://www.appcelerator.com" subdomains="true"/> 
