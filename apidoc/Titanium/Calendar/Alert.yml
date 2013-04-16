@@ -2,8 +2,8 @@
 name: Titanium.Calendar.Alert
 summary: An object that represents a single alert for an event in an calendar.
 extends: Titanium.Proxy
-since: {iphone: "3.1.0", ipad: "3.1.0", android: "3.2.0"}
-platforms: [iphone, ipad, android]
+since: {android: "3.2.0", iphone: "3.1.0", ipad: "3.1.0"}
+platforms: [android, iphone, ipad]
 createable: false
 
 properties:
