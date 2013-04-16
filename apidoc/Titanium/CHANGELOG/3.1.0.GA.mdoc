@@ -1,4 +1,4 @@
-# Titanium SDK 3.1.0 Beta - 04/03/2013
+# Titanium SDK 3.1.0 - 04/16/2013
 
 ##### Contents
 
@@ -18,6 +18,7 @@
     * [BlackBerry and Tizen Platforms](#new_platforms)
     * [New Modules](#new_modules)
     * [iOS Contacts Reload Event](#ioscontactsreload)
+    * [iOS TabGroup Customization](#customtabgroups)
   * [Deprecations](#deprecations)
     * [Titanium Manifest File](#manifest)
     * [Global Context Available to CommonJS Modules](#commonjs)
@@ -29,9 +30,7 @@
 
 ## About This Release
 
-This is a Beta release of Titanium SDK 3.1, introducing a number of new features.
-
-This is a pre-release version of the Titanium SDK, and should not be used for production use.
+This is a General Availability (GA) release of Titanium SDK and Titanium Studio 3.1, introducing a number of new features.
 
 Note that this release includes breaking changes. See [Notice of Breaking Changes in Release 3.1](#changes)
 for details.
@@ -163,9 +162,16 @@ For more information, refer to
 
 ## Known Issues
 
-*   There is a known issue with installing the Studio Node.ACS plugin on Windows. On Windows 7, 
-    the Python executable must be present in the system path to install the Node.ACS
-    plugin ([TISTUD-4101](https://jira.appcelerator.org/browse/TISTUD-4101)).
+### iOS 6 Calendar and Contact Permissions
+
+If you build your application with Xcode 4.4.1/iOS 5.1, by default, your application will
+not have access to an iOS 6 device's calendar and contacts. Because of iOS 6's new privacy settings
+and the Titanium SDK's support for the EventKit UI framework, only applications built for iOS 6
+devices are provided with these default permissions.
+
+To allow the application access to an iOS 6 device's calendar and contacts, go to
+**Settings** > **Privacy** and enable the application.
+
 
 <a name="features"></a>
 
@@ -343,6 +349,13 @@ To avoid this, listen for the
 When you receive a `reload` event, you should  assume that any existing `Person` or `Group` objects
 are invalid, and reload them from the `Contacts` module before modifying them.
 
+<a name="customtabgroups"></a>
+
+### iOS TabGroup Customization
+
+Several new properties are available for customizing tab groups on iOS. These include
+`activeIcon` on the Tab object and `activeTabIconTint`, `activeTabBackgroundImage`,
+`shadowImage`, and `tabsBackgroundImage` on the TabGroup object.
 
 <a name="deprecations"></a>
 
