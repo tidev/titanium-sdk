@@ -27,7 +27,8 @@ module.exports = new function() {
 		{name: 'createEvents'},
 		{name: 'createEventsBatch'},
 		{name: 'updateEventsBatch'},
-		{name: 'changeCallbacks'}
+		{name: 'changeCallbacks'},
+		{name: 'createAttendee'}
 	]
 
 	var finishError = function (testRun, errorMsg) {
@@ -596,5 +597,70 @@ module.exports = new function() {
 
 			errorCB(e);
 		}
+	};
+
+	this.createAttendee = function(testRun) {
+		// this test checks Tizen.Calendar.Attendee
+		var calendar = Tizen.Calendar.getDefaultCalendar('EVENT'),
+			today = new Date(),
+			h = today.getHours(),
+			m = today.getMinutes(),
+			dd = today.getDate(),
+			mm = today.getMonth(),
+			yy = today.getFullYear(),
+			
+			startDate = new Date(yy, mm, dd, h, m),
+			ev = Tizen.Calendar.createCalendarEvent({
+				description: 'SuperEvent...',
+				summary: 'Summary',
+				startDate: startDate,
+				duration: 3600000,
+				location: 'Lviv'
+			}),
+
+			// create attendee wich will be tested below
+			attendee = Tizen.Calendar.createCalendarAttendee({
+				uri: 'mailto:bob@domain.com',
+			    attendeeInitDict: {role: Tizen.Calendar.ATTENDEE_ROLE_CHAIR, rsvp: true}
+			});
+			
+		valueOf(testRun, calendar).shouldBe('[object TizenCalendarCalendarInstance]');
+		valueOf(testRun, startDate).shouldBeObject();
+		valueOf(testRun, ev).shouldBe('[object TizenCalendarCalendarEvent]');
+		valueOf(testRun, calendar.find).shouldBeFunction();
+		valueOf(testRun, calendar.removeBatch).shouldBeFunction();
+ 
+		// add attendee to calendar event
+		valueOf(testRun, function(){
+			ev.attendees = [attendee];
+		}).shouldNotThrowException();
+		
+		calendar.add(ev);
+
+		valueOf(testRun, ev.id).shouldBe('[object TizenCalendarCalendarEventId]');
+		valueOf(testRun, ev.id.uid).shouldNotBeUndefined();
+
+		var evId = ev.id;
+
+		Ti.API.info('event id:' + ev.id + '; ev.id.uid:' + ev.id.uid + ' has been added');	
+
+		setTimeout(function() {
+			var event = calendar.get(evId),
+				at = event.attendees[0];
+			valueOf(testRun, event).shouldBe('[object TizenCalendarCalendarEvent]');
+			valueOf(testRun, event.id).shouldBe('[object TizenCalendarCalendarEventId]');
+			valueOf(testRun, event.id.uid).shouldNotBeUndefined();
+			valueOf(testRun, event.description).shouldContain('SuperEvent');
+
+			// check attendee and attendee properties
+			// they should be the same as appropriate properties, which we passed
+			valueOf(testRun, at).shouldBe('[object TizenCalendarCalendarAttendee]');
+			valueOf(testRun, at.uri).shouldBe('mailto:bob@domain.com');
+			valueOf(testRun, at.rsvp).shouldBeTrue();
+			valueOf(testRun, at.role).shouldBe(Tizen.Calendar.ATTENDEE_ROLE_CHAIR);
+			
+			finish(testRun);
+		}, 1000);
+		
 	};
 }
