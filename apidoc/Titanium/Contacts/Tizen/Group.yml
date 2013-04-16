@@ -1,7 +1,11 @@
 ---
 name: Titanium.Contacts.Tizen.Group
-summary: Provides APIs for working with groups in the system contacts address book on Tizen platform.
-extends: Titanium.Module
+summary: An object which represents a group in the system contacts address book on Tizen platform.
+description: |
+    Tizen-specific, group-related extensions to Titanium contacts API.
+
+    To use this namespace, it is required to include the following privilege in the tiapp.xml file of your Titanium application: http://tizen.org/privilege/contact.read
+extends: Titanium.Proxy
 since: "3.1.0"
 platforms: [tizen]
 
