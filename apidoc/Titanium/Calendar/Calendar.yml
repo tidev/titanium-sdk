@@ -56,7 +56,7 @@ properties:
   - name: METHOD_ALERT
     summary: Reminder alert delivery method.
     description: |
-        Used with <Titanium.Android.Calendar.Reminder>.
+        Used with <Titanium.Calendar.Reminder>.
 
         One of the group of reminder method constants,
         [METHOD_ALERT](Titanium.Calendar.METHOD_ALERT),
