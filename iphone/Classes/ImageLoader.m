@@ -38,6 +38,7 @@
     NSString* localPath;
     NSURL* remoteURL;
     
+    NSDate* lastModified;
     BOOL local;
 }
 
@@ -49,6 +50,7 @@
 @property(nonatomic,readwrite) TiDimension leftCap;
 @property(nonatomic,readwrite) TiDimension topCap;
 @property(nonatomic,readwrite) BOOL hires;
+@property(nonatomic,retain) NSDate* lastModified;
 
 -(ImageCacheEntry*)initWithURL:(NSURL*)url;
 
@@ -58,11 +60,12 @@
 
 +(NSString*)cachePathForURL:(NSURL*)url;
 
+
 @end
 
 @implementation ImageCacheEntry
 
-@synthesize fullImage, leftCap, topCap, hires, localPath, stretchableImage, recentlyResizedImage;
+@synthesize fullImage, leftCap, topCap, hires, localPath, stretchableImage, recentlyResizedImage, lastModified;
 
 - (UIImage *)fullImage {
 	if(fullImage == nil) {
@@ -74,18 +77,20 @@
 #endif
         RELEASE_TO_NIL(stretchableImage);
         RELEASE_TO_NIL(recentlyResizedImage);
-        
+        RELEASE_TO_NIL(lastModified);
 		fullImage = [[UIImage alloc] initWithContentsOfFile:localPath];
+       
+        lastModified = [[[[NSFileManager defaultManager] attributesOfItemAtPath:localPath error:nil]  objectForKey:NSFileModificationDate] retain];
 	}
 	return fullImage;
 }
 
-- (void)setData:(NSData *)data 
+- (void)setData:(NSData *)data
 {	
     RELEASE_TO_NIL(fullImage);
     RELEASE_TO_NIL(stretchableImage);
     RELEASE_TO_NIL(recentlyResizedImage);
-    
+    RELEASE_TO_NIL(lastModified);
     fullImage = [[UIImage alloc] initWithData:data];
     [self serialize:data];
 }
@@ -450,6 +455,7 @@ DEFINE_EXCEPTIONS
     
     if ([image isKindOfClass:[UIImage class]]) {
         [newEntry setFullImage:image];
+        [newEntry setLastModified:[[[NSFileManager defaultManager] attributesOfItemAtPath:newEntry.localPath error:nil]  objectForKey:NSFileModificationDate]];
     }
     else if ([image isKindOfClass:[NSData class]]) {
         [newEntry setData:image];
@@ -493,9 +499,22 @@ DEFINE_EXCEPTIONS
 	NSString * urlString = [url absoluteString];
 	ImageCacheEntry * result = [cache objectForKey:urlString];
 
+
 #ifdef DEBUG_IMAGE_CACHE
     NSLog(@"[CACHE DEBUG] cache[%@] : %@", urlString, result);
 #endif
+    if (result != nil) {
+        if (result.localPath && result.lastModified) {
+            NSError* error = nil;
+            NSDate* currentTimeStamp = [[[NSFileManager defaultManager] attributesOfItemAtPath:result.localPath  error:&error]  objectForKey:NSFileModificationDate];
+            
+            if (![currentTimeStamp isEqualToDate:result.lastModified]) {
+               //We should remove the cached image as the local file backing cached image has changed.
+               [self purge:url];
+               result = nil;
+           }
+        }
+    }
     
     if (result == nil) {
         if ([url isFileURL]) // Load up straight from disk
