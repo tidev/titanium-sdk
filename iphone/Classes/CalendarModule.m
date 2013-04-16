@@ -18,6 +18,13 @@
 #define EKAuthorizationStatusRestricted 1
 #define EKAuthorizationStatusDenied 2
 #define EKAuthorizationStatusAuthorized 3
+
+enum {
+    EKEntityTypeEvent,
+    EKEntityTypeReminder
+};
+typedef NSUInteger EKEntityType;
+
 #endif
 
 @implementation CalendarModule
