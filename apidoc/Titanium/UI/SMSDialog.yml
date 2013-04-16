@@ -1,0 +1,70 @@
+---
+name: Titanium.UI.SMSDialog
+summary: |
+    An SMS dialog is a modal window that allows users to compose and send an SMS.
+description: |
+    The SMS Dialog is created by <Titanium.UI.createSMSDialog>.
+
+extends: Titanium.Proxy
+since: "0.8"
+platforms: [tizen]
+
+methods:    
+  - name: isSupported
+    summary: Indicates whether sending SMS is supported by the system.
+    returns:
+        type: Boolean
+    
+  - name: open
+    summary: Opens this SMS dialog.
+    parameters:
+      - name: properties
+        type: Object
+
+events:
+  - name: complete
+    summary: Fired when this SMS dialog has completed sending a SMS.
+    properties:
+      - name: success
+        summary: |
+            Indicates if the SMS was handled successfully.
+            Returns `true` if request succeeded, `false` otherwise. Note that SMS being
+            deleted or saved for later do count as success.
+        type: Boolean
+      
+      - name: result
+        summary: |
+            Status of the SMS send process. One of [SENT](Titanium.UI.SMSDialog.SENT), 
+            [CANCELLED](Titanium.UI.SMSDialog.CANCELLED).
+        type: Number
+        
+properties:
+  - name: CANCELLED
+    summary: Constant for the `CANCELLED` status result.
+    type: Number
+    permission: read-only
+    platforms: [tizen]
+    
+  - name: SENT
+    summary: Constant for the `SENT` status result.
+    type: Number
+    permission: read-only
+    platforms: [tizen]
+    
+  - name: messageBody
+    summary: SMS message body.
+    type: String
+    
+  - name: toRecipients
+    summary: Recipients of the SMS included via the main `TO` field.
+    type: Array<String>
+    
+examples:
+  - title: Simple SMS Dialog with Attachment
+    example: |        
+        Create and send an SMS.
+        
+            var smsDialog = Ti.UI.createSMSDialog();
+            smsDialog.toRecipients = ['123123'];
+            smsDialog.messageBody = 'Appcelerator Titanium Rocks!';
+            smsDialog.open();  
