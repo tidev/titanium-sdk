@@ -249,6 +249,7 @@
         if ([remoteURL isFileURL]) {
             localPath = [[remoteURL path] retain];
             local = YES;
+            lastModified = [[[NSFileManager defaultManager] attributesOfItemAtPath:localPath error:nil]  objectForKey:NSFileModificationDate];
         }
         else {
             localPath = [[ImageCacheEntry cachePathForURL:url] retain];
@@ -264,7 +265,7 @@
 	RELEASE_TO_NIL(stretchableImage);
 	RELEASE_TO_NIL(fullImage);
     RELEASE_TO_NIL(remoteURL);
-    
+    RELEASE_TO_NIL(lastModified);
 	[super dealloc];
 }
 
@@ -455,7 +456,6 @@ DEFINE_EXCEPTIONS
     
     if ([image isKindOfClass:[UIImage class]]) {
         [newEntry setFullImage:image];
-        [newEntry setLastModified:[[[NSFileManager defaultManager] attributesOfItemAtPath:newEntry.localPath error:nil]  objectForKey:NSFileModificationDate]];
     }
     else if ([image isKindOfClass:[NSData class]]) {
         [newEntry setData:image];
