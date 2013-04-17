@@ -66,6 +66,6 @@ properties:
   - name: data
     summary: The list of contacts that the operation produced.
     description: Will be undefined if `success` is `false`.
-    type: Array<Titanium.Contacts.Person[]>
+    type: Array<Titanium.Contacts.Person>
     since: "3.1.0"
 

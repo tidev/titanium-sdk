@@ -19,7 +19,7 @@ methods:
         type: Ti.Contacts.Group
       - name: callback
         summary: Callback function that will be called after the operation is performed.
-        type: Callback<Titanium.Contacts.Tizen.ContactsCallbackArgs>
+        type: Callback<ContactsCallbackArgs>
 
   - name: sortedMembers
     summary: Gets people that are members of this group, sorted in the specified order.
@@ -34,5 +34,5 @@ methods:
         summary: The group for which to obtain members.
       - name: callback
         summary: Callback function that will be called after the operation is performed.
-        type: Callback<Titanium.Contacts.Tizen.ContactsCallbackArgs>
-        type: Ti.Contacts.Group
+        type: Callback<ContactsCallbackArgs>
+
