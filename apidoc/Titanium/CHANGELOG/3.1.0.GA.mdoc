@@ -5,6 +5,9 @@
   * [About This Release](#about)
     * [Tizen General Availability Release](#tizen)
     * [BlackBerry 10 Beta Release](#blackberry)
+  * [Installation Notes](#install)
+    * [Upgrading Pre-GA npm Packages](#upgrading_npm)
+    * [Installing Studio Web Plugins](#studio_web_plugins)
   * [Notice of Breaking Changes in Release 3.1](#changes)
     * [Facebook Module](#facebook)
     * [Google Maps v2 Module for Android](#googlemaps)
@@ -22,6 +25,7 @@
   * [Deprecations](#deprecations)
     * [Titanium Manifest File](#manifest)
     * [Global Context Available to CommonJS Modules](#commonjs)
+    * [Android ServiceReferenceCount Module APIs](#serviceref)
   * [API Changes](#apichanges)
     * [New APIs](#new_apis)
     * [Deprecated APIs](#deprecated_apis)
@@ -66,8 +70,76 @@ for information on getting started with Tizen development.
 This release coincides with the Beta Release of BlackBerry 10 development support with the
 Titanium SDK.
 
+Note that BlackBerry is *not* included in SDK 3.1.0. To build for BlackBerry, you must
+have the BlackBerry beta version of the Titanium SDK installed. For best results, use the BlackBerry
+SDK with a 3.1.1 preview build of Studio, which includes support for Alloy on BlackBerry.
+
+The BlackBerry beta SDK and Studio preview are available from:
+
+*   [http://preview.appcelerator.com/studio/bb](http://preview.appcelerator.com/studio/bb)
+
+Note that the BlackBerry beta SDK has not been tested for any other platforms.
+
 Refer to [Installing the BlackBerry NDK](http://docs.appcelerator.com/titanium/latest/#!/guide/Installing_the_BlackBerry_NDK)
 for information on getting started with BlackBerry 10 development.
+
+<a name="install"></a>
+
+## Installation Notes
+
+<a name="upgrading_npm"></a>
+
+### Upgrading Pre-GA npm Packages
+
+If you previously installed the Beta or Release Candidate versions of the Titanium CLI
+and Alloy, you need to first uninstall these components before installing or updating to
+3.1.0.GA.
+
+To check the current versions run the following commands:
+
+    npm list -g titanium
+    npm list -g alloy
+
+If either package has a version number ending in `-alpha`, `-beta`, or `-cr`, you should uninstall the package
+manually before installing 3.1.0.GA.
+
+To uninstall these packages:
+
+    npm remove -g titanium
+    npm remove -g alloy
+
+Note: You may need to use <code>sudo</code> before these terminal commands on OSX and Linux.
+
+If you are using Titanium Studio, these components will be updated if you chose to install
+additional Titanium updates or from the **Help** menu, select **Check for Titanium Updates**.
+
+If you are using the Titainium CLI, you need to reinstall the CLI and Alloy from the terminal:
+
+    npm install -g titanium
+    npm install -g alloy
+
+If you should run into any issues, run `npm cache clean` and then retry the steps above.
+
+<a name="studio_web_plugins"></a>
+
+### Installing Studio Web Plugins
+
+The web development plugins, PHP, Ruby and PyDev are no longer bundled with Studio by
+default. These plugins are still available as optional downloads. to install these
+plugins:
+
+1.  Launch Titanium Studio.
+2.  Click **Help** > **Install New Software**.
+3.  In the **Work with** field, enter the update URL for the package you want to install
+    and press <Enter>. The update URLs are:
+    
+    * PHP - http://download.appcelerator.com/aptana/studio3/php/update/stable
+    * Ruby - http://download.appcelerator.com/aptana/studio3/ruby/update/stable
+    * Pydev - http://download.appcelerator.com/aptana/studio3/pydev/update/stable
+
+4.  In the **Available Software** dialog, select the checkbox next to the package name and click **Next**.
+5.  Follow the prompts to complete the installation wizard.
+
 
 <a name="changes"></a>
 
@@ -89,7 +161,6 @@ supports the native iOS 6 Facebook login.
 
 For more information, refer to
 [Modules.Facebook](http://docs.appcelerator.com/titanium/latest/#!/api/Modules.Facebook).
-
 
 <a name="googlemaps"></a>
 
@@ -123,17 +194,20 @@ exceptions:
     depending on the region viewed.  Set the View's `traffic` property to `true` to enable this behavior.
   * **Additional Annotation colors.** The new Google Map v2 module has more color constants besides
     ANNOTATION_GREEN and ANNOTATION_RED.
+  * **Support for custom annotation views.** Instead of a pin image, you can specify a
+    custom view for the pin using the
+    [`customView`](http://docs.appcelerator.com/titanium/latest/#!/api/Modules.Map.Annotation-property-customView) property. 
+    (This property has also been added to Titanium.Map.Annotation for iOS.)
+
 
 #### Behavior changes
 
   * **Route class.** In the Google Maps v2 module, you need to create a Route object before adding it.
     Previously in the `Titanium.Map` proxy, routes were created using an abstract data type with the
     `addRoute` method.
-  * **Missing Annotation properties.** The following properties and their accessors are not supported on the
-    Annotation class in the Google Maps v2 module: `animate`, `leftButton`, `leftView`, `rightButton`,
-    `rightView`, `subtitleid` and `titleid`. The module only supports the Google Maps Android API v2 native
-    markers.
-  * **Missing View properties.** The following properties and their accessors are not supported on the View
+  * **Annotation properties.** The `animate` property is not supported. The module only supports the 
+    Google Maps Android API v2 native markers.
+  * **View properties.** The following properties and their accessors are not supported on the View
     class in the Google Maps v2 module: `hideAnnotationWhenTouchMap`, `latitudeDelta`, `longitudeDelta` and
     `regionFit`.
       * For the `hideAnnotationWhenTouchMap` property, annotations can be deselected by either touching the
@@ -142,13 +216,9 @@ exceptions:
         both methods of deselecting an annotation work by default.
       * The `latitudeDelta` and `longitudeDelta` properties were read-only properties in the `Titanium.Map` proxy
         that can be accessed using View's `region` property with the Google Maps v2 module.
-  * **Missing View methods.** The following methods are not supported on the View class in the Google Maps
-    v2 module: `setLocation` and `zoom`.  Use the View's `region` property to set a new region.
-      * For `setLocation`, set the `latitude` and `longitude` properties to set a new location.
-      * For `zoom`, set the `latitudeDelta` and `longitudeDelta` properties to set a new zoom level.
   * **View `regionchanged` event.** This event returns the new `latitude` and `longitude` coordinates of the
     changed View not the `region` object.
-  * **Missing Map constants.**
+  * **Map constants.**
       * The STANDARD_TYPE constant is missing from the Google Maps v2 module.  Use the NORMAL_TYPE constant
         instead.
       * The ANNOTATION_PURPLE constant is missing from the Google Maps v2 module.  Use the ANNOTATION_VIOLET
@@ -157,6 +227,7 @@ exceptions:
 For more information, refer to
 [Modules.Map](http://docs.appcelerator.com/titanium/latest/#!/api/Modules.Map) and
 [Google Maps v2 for Android](http://docs.appcelerator.com/titanium/latest/#!/guide/Google_Maps_v2_for_Android).
+
 
 <a name="known_issues"></a>
 
@@ -218,7 +289,7 @@ You cannot explicitly set properties or bind events for a `ListItem`.  You have 
 **Note:** This is the first version of list view and some features have not been implemented.
 The differences listed are for the final planned list view and the current table view in Release 3.1.0.
 
-  - **Missing TableViewRow properties**: The following properties and their accessors are not
+  - **TableViewRow properties**: The following properties and their accessors are not
     available for ListItem: `accessibilityLabel`, `className`, `editable`, `hasCheck`,
     `hasChild`, `hasDetail`, `leftImage`, `moveable` and `rightImage`.
 
@@ -226,27 +297,27 @@ The differences listed are for the final planned list view and the current table
       - For `leftImage` and `rightImage`, use the `image` property or create a custom item
         template.
 
-  - **Missing TableViewRow methods**: ListItem does not support any methods. Adding views and
+  - **TableViewRow methods**: ListItem does not support any methods. Adding views and
     binding event callbacks are supported through the item template.
 
-  - **Missing TableViewSection properties**: The following properties and their accessors are not
+  - **TableViewSection properties**: The following properties and their accessors are not
     supported by ListSection: `rows` and `rowCount`.
 
       - For `rows`, use the `items` property.
       - For `rowCount`, use the `itemCount` property. (Not yet implemented.)
 
-  - **Missing TableViewSection methods**: The following methods are not supported by ListSection:
+  - **TableViewSection methods**: The following methods are not supported by ListSection:
     `add`, `remove` and `rowAtIndex`.
 
       - For `rowAtIndex`, use the `getItemAt` method.
       - For `add` and `remove`, use the other ListSection methods to manipulate the ListItems in
         the ListSection.
 
-  - **Missing TableView properties**: The `data` property and its accessors are not available
+  - **TableView properties**: The `data` property and its accessors are not available
     for ListView. Use the `sections` property to set the ListSections for a ListView.  You
     cannot directly add ListItems to a ListView.
 
-  - **Missing TableView methods**: The following methods are not available to ListView:
+  - **TableView methods**: The following methods are not available to ListView:
     `appendRow`, `deleteRow`, `deselectRow`, `insertRowAfter`, `insertRowBefore`, `selectRow`,
     `updateRow`, `scrollToIndex` and `selectRow`.
 
@@ -392,6 +463,13 @@ and will be removed in a future Titanium SDK release.
 For recommended practices, refer to
 [CommonJS Modules in Titanium](http://docs.appcelerator.com/titanium/latest/#!/guide/CommonJS_Modules_in_Titanium)
 
+<a name="serviceref"></a>
+
+### Android ServiceReferenceCount Module API Methods
+
+The undocumented module API methods `incrementServiceReferenceCount`,
+`decrementServiceReferenceCount`, and `getServiceReferenceCount` are
+deprecated and will be removed in the future. ([TIMOB-13443](https://jira.appcelerator.org/browse/TIMOB-13443))
 
 <a name="apichanges"></a>
 
