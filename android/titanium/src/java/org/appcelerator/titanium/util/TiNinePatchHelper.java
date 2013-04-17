@@ -57,8 +57,8 @@ public class TiNinePatchHelper
 
 	private boolean isNinePatch(Bitmap b) {
 		// NinePatch image is a standard PNG image that includes an extra 1-pixel-wide border.
-		// It must have black lines in the top and left to define the stretchable section.
-		// It may have black lines in the bottom and right to define the drawable section.
+		// It must have black lines in the top and left part of the border to define the stretchable section.
+		// It may have black lines in the bottom and right part of the border to define the drawable section.
 		if (!b.hasAlpha()) {
 			return false;
 		}
