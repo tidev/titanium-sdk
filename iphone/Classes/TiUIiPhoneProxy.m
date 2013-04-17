@@ -207,10 +207,10 @@ RELEASE_TO_NIL(x); \
 DEFINE_SUBPROXY_AS(ListViewStyle,TableViewStyle, listViewStyle);
 #endif
 #ifdef USE_TI_UIIPHONELISTVIEWSCROLLPOSITION
-DEFINE_SUBPROXY_AS(ListViewScrollPosition, TableViewScrollPosition,listViewScrollPosition);
+DEFINE_SUBPROXY_AS(ListViewScrollPosition, TableViewScrollPosition, listViewScrollPosition);
 #endif
 #ifdef USE_TI_UIIPHONELISTVIEWCELLSELECTIONSTYLE
-DEFINE_SUBPROXY_AS(ListViewCellSelectionStyle, TableViewCellSelectionStyle,tableViewCellSelectionStyle);
+DEFINE_SUBPROXY_AS(ListViewCellSelectionStyle, TableViewCellSelectionStyle, listViewCellSelectionStyle);
 #endif
 
 #define RESPONDS_TO_3_2_STATUSBAR_SELECTOR \

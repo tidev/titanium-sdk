@@ -71,12 +71,10 @@ exports.config = function (logger, config, cli) {
 							},
 							required: true
 						},
-						/*
 						'avd-abi': {
 							abbr: 'B',
 							desc: __('the abi for the avd')
 						},
-						*/
 						'avd-id': {
 							abbr: 'I',
 							desc: __('the id for the avd'),
@@ -247,11 +245,9 @@ exports.validate = function (logger, config, cli) {
 		if (!cli.argv['avd-skin']) {
 			cli.argv['avd-skin'] = 'HVGA';
 		}
-		/*
 		if (!cli.argv['avd-abi']) {
 			cli.argv['avd-abi'] = androidEnv.targets[cli.argv['avd-id']].abis[0] || androidEnv.targets['7'].abis[0] || 'armeabi';
 		}
-		*/
 	}
 	
 	// Validate arguments for dist-playstore
@@ -367,79 +363,144 @@ function sendAnalytics(cli) {
 
 function build(logger, config, cli, finished) {
 	cli.fireHook('build.pre.compile', this, function (e) {
-		var emulatorCmd = [],
-			cmd = [],
-			cmdSpawn,
-			env = process.env,
-			options = {
-				stdio: 'inherit',
-				env: env
-			};
-
-		if (cli.argv['skip-js-minify']) {
-			env.SKIP_JS_MINIFY = '1';
+		var env = {};
+		for (var i in process.env) {
+			env[i] = process.env[i];
 		}
 
-		cli.createHook('build.android.setBuilderPyEnv', this)(env, function () {
-			// Make sure we have an app.js. This used to be validated in validate(), but since plugins like
-			// Alloy generate an app.js, it may not have existed during validate(), but should exist now
-			// that build.pre.compile was fired.
-			ti.validateAppJsExists(cli.argv['project-dir'], logger);
+		// Make sure we have an app.js. This used to be validated in validate(), but since plugins like
+		// Alloy generate an app.js, it may not have existed during validate(), but should exist now
+		// that build.pre.compile was fired.
+		ti.validateAppJsExists(cli.argv['project-dir'], logger);
 
-			// not actually used, yet
-			// logger.info(__('Compiling "%s" build', cli.argv['deploy-type']));
+		if (cli.argv['skip-js-minify']) {
+			process.env.SKIP_JS_MINIFY = '1';
+		}
 
-			ti.legacy.constructLegacyCommand(cli, cli.tiapp, cli.argv.platform , cmd, emulatorCmd);
+		cli.createHook('build.android.setBuilderPyEnv', this, function (e, cb) {
+			env = e;
+			cb();
+		})(env, function () {
+			var emulatorCmd = [],
+				buildCmd = [],
+				emulatorProcess,
+				buildProcess,
+				logcatProcess,
+				adbProcess,
+				emulatorRunning = false;
 
-			// console.log('Forking correct SDK command: ' + ('python ' + cmd.join(' ')).cyan + '\n');
+			ti.legacy.constructLegacyCommand(cli, cli.tiapp, cli.argv.platform, buildCmd, emulatorCmd);
 
-			if (emulatorCmd.length > 0) {
-				spawn('python', emulatorCmd, { detached: true }).on('exit', function(code) {
-					if (code) {
-						finished && finished('An error occurred while running the command: ' + ('python ' + cmd.join(' ')).cyan + '\n');
+			if (emulatorCmd.length) {
+				logger.info(__('Running emulator process: %s', ('python "' + emulatorCmd.join('" "') + '"').cyan));
+
+				emulatorRunning = true;
+				emulatorProcess = spawn('python', emulatorCmd, { detached: true, stdio: 'ignore' });
+
+				emulatorProcess.on('exit', function (code, signal) {
+					if (code || buildProcess) {
+						if (code) {
+							emulatorRunning = false;
+							logger.error(__('Emulator process exited with code %s', code) + '\n');
+							logcatProcess && logcatProcess.kill('SIGKILL');
+							adbProcess && adbProcess.kill('SIGKILL');
+							buildProcess && buildProcess.kill('SIGKILL');
+						} else {
+							// is the emulator really running?
+							var results = '',
+								devicesProcess = spawn(path.join(androidEnv.sdkPath, 'platform-tools', 'adb'), ['devices']);
+
+							devicesProcess.stdout.on('data', function (data) {
+								results += data.toString();
+							});
+
+							devicesProcess.on('exit', function (code, status) {
+								if (results.indexOf('emulator') != -1) {
+									logger.info(__('Emulator is running') + '\n');
+								} else {
+									emulatorRunning = false;
+									logger.info(__('Emulator process exited successfully') + '\n');
+									logcatProcess && logcatProcess.kill('SIGKILL');
+									adbProcess && adbProcess.kill('SIGKILL');
+									buildProcess && buildProcess.kill('SIGKILL');
+									emulatorProcess = buildProcess = logcatProcess = adbProcess = null;
+								}
+							});
+						}
 					}
-				});
-
-				// TODO Remove this when we don't want to wrap the python scripts anymore.
-				// We have to send the analytics here because for the emulator command, we will never 'exit' properly, 
-				// as a result send won't get called on exit
-				cli.sendAnalytics();
+				}.bind(this));
 			}
 
-			cmdSpawn = spawn('python', cmd, options);
+			logger.info(__('Running build process: %s', (Object.keys(env).filter(function (i) { return !process.env[i]; }).map(function (k) {
+				return env[k].indexOf(' ') != -1 ? (k + '="' + env[k] + '"') : (k + '=' + env[k]);
+			}).join(' ') + ' python "' + buildCmd.join('" "') + '"').cyan));
 
-			cmdSpawn.on('exit', function(code) {
-				var err;
+			buildProcess = spawn('python', buildCmd, {
+				env: env,
+				stdio: 'inherit'
+			});
+
+			buildProcess.on('exit', function (code, signal) {
 				if (code) {
-					err = 'An error occurred while running the command: ' + ('python ' + cmd.join(' ')).cyan + '\n';
-				} else if (cli.argv['target'] == 'emulator') {
-					// Call the logcat command in the old builder.py after the emulator, so we get logcat output
-					spawn('python', [
-						path.join(path.resolve(cli.env.sdks[cli.tiapp['sdk-version']].path), cli.argv.platform, 'builder.py'),
-						'logcat',
-						cli.argv['android-sdk'],
-						'-e'
-					], { stdio: 'inherit' });
-				} else if (cli.argv['target'] == 'device') {
-					// Since installing on device does not run
-					// the application we must send the "intent" ourselves.
-					// We will launch the MAIN activity for the application.
-					logger.info(__('Launching appliation on device.'));
-					spawn(path.join(config.android.sdkPath, 'platform-tools', 'adb'), [
-						'shell', 'am', 'start',
-						'-a', 'android.intent.action.MAIN',
-						'-c', 'android.intent.category.LAUNCHER',
-						'-n', cli.tiapp.id + '/.' + appnameToClassname(cli.tiapp.name) + 'Activity',
-						'-f', '0x10200000'
-					], { stdio: 'inherit' }).on('exit', function (code) {
-						if (code) {
-							err = __('Failed to launch application.');
+					// build failed, error out
+					logger.error(__('Build process exited with code %s', code));
+					emulatorProcess && emulatorProcess.kill('SIGKILL');
+					finished && finished(code);
+					finished = buildProcess = emulatorProcess = null;
+
+				} else {
+					// we call finished here to display the build time and fire post build plugins
+					finished && finished();
+
+					if (cli.argv.target == 'emulator') {
+						if (!emulatorRunning) {
+							logger.info(__('Emulator not running, exiting...') + '\n');
+						} else {
+							// Call the logcat command in the old builder.py after the emulator, so we get logcat output
+							var args = [
+								path.join(path.resolve(cli.env.sdks[cli.tiapp['sdk-version']].path), cli.argv.platform, 'builder.py'),
+								'logcat',
+								cli.argv['android-sdk'],
+								'-e'
+							];
+							logger.info(__('Running logcat process: %s', ('python "' + args.join('" "') + '"').cyan));
+							logcatProcess = spawn('python', args, {
+								stdio: 'inherit'
+							});
+							logcatProcess.on('exit', function (code) {
+								if (code) {
+									logger.error(__('Logcat failed with exit code %s', code) + '\n');
+								} else {
+									logger.info(__('Logcat shutdown successfully') + '\n');
+								}
+							});
 						}
-						finished && finished.call(this, err);
-					});
-					return; // Do not finish until the app is running.
+
+					} else if (cli.argv.target == 'device') {
+						// Since installing on device does not run
+						// the application we must send the "intent" ourselves.
+						// We will launch the MAIN activity for the application.
+						var adbCmd = path.join(androidEnv.sdkPath, 'platform-tools', 'adb'),
+							args = [
+								'-d', 'shell', 'am', 'start',
+								'-a', 'android.intent.action.MAIN',
+								'-c', 'android.intent.category.LAUNCHER',
+								'-n', cli.tiapp.id + '/.' + appnameToClassname(cli.tiapp.name) + 'Activity',
+								'-f', '0x10200000'
+							];
+						logger.info(__('Launching application on device: %s', (adbCmd + ' "' + args.join('" "') + '"').cyan));
+						adbProcess = spawn(adbCmd, args, {
+							stdio: 'inherit'
+						});
+						adbProcess.on('exit', function (code) {
+							if (code) {
+								logger.error(__('Install app failed with exit code %s', code) + '\n');
+							} else {
+								logger.info(__('App installer shutdown successfully') + '\n');
+							}
+						});
+					}
 				}
-				finished && finished.call(this, err);
 			}.bind(this));
 		});
 	});
