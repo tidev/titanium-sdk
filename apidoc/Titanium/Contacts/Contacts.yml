@@ -102,7 +102,7 @@ methods:
     summary: |
         Gets people with a `firstName`, `middleName` or `lastName` field, or a combination 
         of these fields, that match the specified name.
-        
+    description: |
         On Tizen, use [Titanium.Contacts.Tizen.getPeopleWithName](Titanium.Contacts.Tizen.getPeopleWithName).
     platforms: [android, iphone, ipad]
     returns:
