@@ -2443,118 +2443,127 @@ build.prototype = {
 		if (afs.exists(src)) {
 			var compiledTargets = {},
 				ignoreRegExp = /^\.gitignore|\.cvsignore|\.DS_Store|\.git|\.svn|_svn|CVS$/,
-				recursivelyCopy = function (from, to, rel, ignore) {
+				recursivelyCopy = function (from, to, rel, ignore, done) {
 					wrench.mkdirSyncRecursive(to);
-					fs.readdirSync(from).forEach(function (file) {
-						var f = path.join(from, file),
-							t = f.replace(from, to),
-							fstat = fs.lstatSync(f),
-							p = rel ? rel + '/' + file : file;
-						if (ignoreRegExp.test(file) || (ignore && ignore.indexOf(file) != -1)) {
-							this.logger.debug(__('Ignoring %s', f.cyan));
-						} else if (fstat.isDirectory()) {
-							recursivelyCopy(f, t, p);
-						} else if (!/\.jss$/.test(file)) {
-							var m = file.match(/\.(html|css|js)$/)
-							if (m) {
-								compiledTargets[m[1]] || (compiledTargets[m[1]] = []);
-								compiledTargets[m[1]].push({
-									path: p,
-									from: f,
-									to: t
-								});
+					series(this, fs.readdirSync(from).map(function (file) {
+						return function (next) {
+							var f = path.join(from, file),
+								t = f.replace(from, to),
+								fstat = fs.lstatSync(f),
+								p = rel ? rel + '/' + file : file;
+							if (ignoreRegExp.test(file) || (ignore && ignore.indexOf(file) != -1)) {
+								this.logger.debug(__('Ignoring %s', f.cyan));
+							} else if (fstat.isDirectory()) {
+								recursivelyCopy(f, t, p, next);
+								return;
+							} else if (!/\.jss$/.test(file)) {
+								var m = file.match(/\.(html|css|js)$/)
+								if (m) {
+									compiledTargets[m[1]] || (compiledTargets[m[1]] = []);
+									compiledTargets[m[1]].push({
+										path: p,
+										from: f,
+										to: t
+									});
+								}
+								// only copy the file for test/production and if it's not a js file, otherwise
+								// it will get compiled below
+								if ((this.deployType == 'development' || !m || !/css|js/.test(m[1])) && (!afs.exists(t) || fstat.size != fs.lstatSync(t).size)) {
+									this.cli.createHook('build.ios.copyResource', this, function (srcFile, destFile, cb) {
+										afs.copyFileSync(srcFile, destFile, { logger: this.logger.debug });
+										setTimeout(cb, 0);
+									})(f, t, function () {
+										next();
+									});
+									return;
+								}
 							}
-							// only copy the file for test/production and if it's not a js file, otherwise
-							// it will get compiled below
-							if ((this.deployType == 'development' || !m || !/css|js/.test(m[1])) && (!afs.exists(t) || fstat.size != fs.lstatSync(t).size)) {
-								// TODO: add build.ios.copyResource hook!
-								afs.copyFileSync(f, t, { logger: this.logger.debug });
-							}
-						}
-					}, this);
+							setTimeout(next, 0);
+						}.bind(this);
+					}.bind(this)), done);
 				}.bind(this);
 
-			recursivelyCopy(src, dest, null, ti.availablePlatformsNames);
+			recursivelyCopy(src, dest, null, ti.availablePlatformsNames, function () {
+				/*
+				The following code scans all html files for script tags referencing app:// js files, however in
+				production/test, we actually want this files minified and prepared. In development builds, we
+				don't care if it's minified and we don't want to prepare the file anyways.
 
-			/*
-			The following code scans all html files for script tags referencing app:// js files, however in
-			production/test, we actually want this files minified and prepared. In development builds, we
-			don't care if it's minified and we don't want to prepare the file anyways.
+				So, long story short, I don't think we need the following code, but I'm gonna keep it around for
+				a bit since it took me a while to code.
 
-			So, long story short, I don't think we need the following code, but I'm gonna keep it around for
-			a bit since it took me a while to code.
+				if (compiledTargets.html) {
+					var compiled = [];
 
-			if (compiledTargets.html) {
-				var compiled = [];
+					compiledTargets.html.forEach(function (target) {
+						if (compiledTargets.js) {
+							var dom = new DOMParser().parseFromString(fs.readFileSync(target.from).toString(), 'text/html'),
+								doc = dom && dom.documentElement,
+								scripts = doc && doc.getElementsByTagName('script'),
+								i, j, len, m, src;
 
-				compiledTargets.html.forEach(function (target) {
-					if (compiledTargets.js) {
-						var dom = new DOMParser().parseFromString(fs.readFileSync(target.from).toString(), 'text/html'),
-							doc = dom && dom.documentElement,
-							scripts = doc && doc.getElementsByTagName('script'),
-							i, j, len, m, src;
-
-						if (scripts) {
-							for (i = 0, len = scripts.length; i < len; i++) {
-								src = scripts[i].getAttribute('src');
-								m = src && src.match(/^app\:\/\/(.+)/);
-								if (m) {
-									src = path.join(path.dirname(target.from), m[1]);
-									for (j = 0; j < compiledTargets.js.length; j++) {
-										if (compiledTargets.js[j].from == src) {
-											this.logger.debug(__('Minifying app:// JavaScript file: %s', src.cyan));
-											compiled.push(compiledTargets.js[j]);
-											compiledTargets.js.splice(j, 1);
-											break;
+							if (scripts) {
+								for (i = 0, len = scripts.length; i < len; i++) {
+									src = scripts[i].getAttribute('src');
+									m = src && src.match(/^app\:\/\/(.+)/);
+									if (m) {
+										src = path.join(path.dirname(target.from), m[1]);
+										for (j = 0; j < compiledTargets.js.length; j++) {
+											if (compiledTargets.js[j].from == src) {
+												this.logger.debug(__('Minifying app:// JavaScript file: %s', src.cyan));
+												compiled.push(compiledTargets.js[j]);
+												compiledTargets.js.splice(j, 1);
+												break;
+											}
 										}
 									}
 								}
 							}
 						}
-					}
-					afs.copyFileSync(target.from, target.to, { logger: this.logger.debug });
-				}, this);
+						afs.copyFileSync(target.from, target.to, { logger: this.logger.debug });
+					}, this);
 
-				compiled.forEach(function (c) {
-					this.logger.debug(__('Writing minifying JavaScript file: %s', c.to.cyan));
-					fs.writeFileSync(
-						c.to,
-						UglifyJS.minify(c.from).code.replace(/Titanium\./g,'Ti.')
-					);
-				}, this);
-			}
-			*/
-
-			// minify css files
-			compiledTargets.css && compiledTargets.css.forEach(function (file) {
-				// TODO: add hook!
-				if (this.deployType == 'development') {
-					afs.copyFileSync(file.from, file.to, { logger: this.logger.debug });
-				} else {
-					this.logger.debug(__('Writing minified CSS file: %s', file.to.cyan));
-					fs.writeFileSync(file.to, cleanCSS.process(fs.readFileSync(file.from).toString()));
+					compiled.forEach(function (c) {
+						this.logger.debug(__('Writing minifying JavaScript file: %s', c.to.cyan));
+						fs.writeFileSync(
+							c.to,
+							UglifyJS.minify(c.from).code.replace(/Titanium\./g,'Ti.')
+						);
+					}, this);
 				}
-			}, this);
+				*/
 
-			// minify js files
-			if (compiledTargets.js) {
-				series(this, compiledTargets.js.map(function (compileTarget) {
-					return function (cb) {
-						this.cli.createHook('build.ios.compileJsFile', this, function (target, cb2) {
-							var id = target.path.replace(/\./g, '_');
-							this.compileJsFile(id, target.from);
-							this.jsFilesToPrepare.push(id);
-							setTimeout(cb2, 0);
-						})(compileTarget, function () {
-							cb();
-						});
-					};
-				}), function () {
+				// minify css files
+				compiledTargets.css && compiledTargets.css.forEach(function (file) {
+					// TODO: add hook!
+					if (this.deployType == 'development') {
+						afs.copyFileSync(file.from, file.to, { logger: this.logger.debug });
+					} else {
+						this.logger.debug(__('Writing minified CSS file: %s', file.to.cyan));
+						fs.writeFileSync(file.to, cleanCSS.process(fs.readFileSync(file.from).toString()));
+					}
+				}, this);
+
+				// minify js files
+				if (compiledTargets.js) {
+					series(this, compiledTargets.js.map(function (compileTarget) {
+						return function (cb) {
+							this.cli.createHook('build.ios.compileJsFile', this, function (target, cb2) {
+								var id = target.path.replace(/\./g, '_');
+								this.compileJsFile(id, target.from);
+								this.jsFilesToPrepare.push(id);
+								setTimeout(cb2, 0);
+							})(compileTarget, function () {
+								cb();
+							});
+						};
+					}), function () {
+						callback();
+					});
+				} else {
 					callback();
-				});
-			} else {
-				callback();
-			}
+				}
+			});
 		} else {
 			callback();
 		}
