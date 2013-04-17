@@ -13,6 +13,7 @@ if os.path.exists(commonSupportDir):
 
 import codecs, optparse, platform
 import markdown
+from common import DEFAULT_PLATFORMS
 
 try:
 	import yaml
@@ -23,8 +24,6 @@ except:
 	print >> sys.stderr, ""
 	sys.exit(1)
 
-
-VALID_PLATFORMS = ["android", "iphone", "ipad", "mobileweb"]
 VALID_KEYS = {
 		"type": ["name", "summary", "description", "createable", "platforms", "extends",
 			"excludes", "since", "deprecated", "osver", "examples", "methods", "properties",
@@ -218,8 +217,8 @@ def validatePlatforms(tracker, platforms):
 	if type(platforms) != list:
 		tracker.trackError('"platforms" specified, but isn\'t a list: %s' % platforms)
 	for p in platforms:
-		if p not in VALID_PLATFORMS:
-			tracker.trackError('platform specifier "%s" is not valid. Valid platforms are: %s.' % (p, VALID_PLATFORMS))
+		if p not in DEFAULT_PLATFORMS:
+			tracker.trackError('platform specifier "%s" is not valid. Valid platforms are: %s.' % (p, DEFAULT_PLATFORMS))
 
 def validateSince(tracker, since):
 	if type(since) not in [str, dict]:
@@ -469,7 +468,7 @@ def loadTypesFromDocgen():
 	global typesFromDocgen
 	import docgen
 	docgen.log.level = 2 # INFO
-	docgen.process_yaml()
+	docgen.process_yaml([apiDocDir])
 	docgen.finish_partial_overrides()
 	typesFromDocgen = docgen.apis
 

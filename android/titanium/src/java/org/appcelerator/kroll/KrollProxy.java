@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -454,6 +454,10 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 	@Kroll.method
 	public void extend(KrollDict options)
 	{
+		if (options == null || options.isEmpty()) {
+			return;
+		}
+		
 		ArrayList<KrollPropertyChange> propertyChanges = new ArrayList<KrollPropertyChange>();
 		for (String name : options.keySet()) {
 			Object oldValue = properties.get(name);
@@ -574,17 +578,77 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 			message.sendToTarget();
 		}
 	}
-
+	
+	public class KrollPropertyChangeSet extends KrollPropertyChange {
+		public int entryCount;
+		public String[] keys;
+		public Object[] oldValues;
+		public Object[] newValues;
+		
+		public KrollPropertyChangeSet(int capacity) {
+			super(null,null,null);
+			entryCount = 0;
+			keys = new String[capacity];
+			oldValues = new Object[capacity];
+			newValues = new Object[capacity];
+		}
+		
+		public void addChange(String key, Object oldValue, Object newValue){
+			keys[entryCount] = key;
+			oldValues[entryCount] = oldValue;
+			newValues[entryCount] = newValue;
+			entryCount ++;
+		}
+		
+		public void fireEvent(KrollProxy proxy, KrollProxyListener listener) {
+			if (listener == null) {
+				return;
+			}
+			for (int i = 0; i < entryCount; i++) {
+				listener.propertyChanged(keys[i], oldValues[i], newValues[i], proxy);
+			}
+		}
+	}
+	
 	@Kroll.method
 	public void applyProperties(Object arg)
 	{
-		if (arg instanceof HashMap) {
-			HashMap props = (HashMap) arg;
-			for (Object name : props.keySet()) {
-				setPropertyAndFire(TiConvert.toString(name), props.get(name));
-			}
-		} else {
+		if (!(arg instanceof HashMap)) {
 			Log.w(TAG, "Cannot apply properties: invalid type for properties", Log.DEBUG_MODE);
+			return;
+		}
+		HashMap props = (HashMap) arg;
+		if (modelListener == null) {
+			for (Object name : props.keySet()) {
+				setProperty(TiConvert.toString(name), props.get(name));
+			}
+			return;
+		}
+		if (TiApplication.isUIThread()) {
+			for (Object key : props.keySet()) {
+				String name = TiConvert.toString(key);
+				Object value = props.get(key);
+				Object current = getProperty(name);
+				setProperty(name, value);
+				if (shouldFireChange(current, value)) {
+					modelListener.propertyChanged(name, current, value, this);
+				}
+			}
+			return;		
+		}
+		
+		KrollPropertyChangeSet changes = new KrollPropertyChangeSet(props.size());
+		for (Object key : props.keySet()) {
+			String name = TiConvert.toString(key);
+			Object value = props.get(key);
+			Object current = getProperty(name);
+			setProperty(name, value);
+			if (shouldFireChange(current, value)) {
+				changes.addChange(name, current, value);
+			}
+		}
+		if (changes.entryCount > 0) {
+			getMainHandler().obtainMessage(MSG_MODEL_PROPERTY_CHANGE, changes).sendToTarget();
 		}
 	}
 
@@ -725,20 +789,33 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 				krollData.remove(TiC.PROPERTY_BUBBLES);
 			}
 			hashValue = krollData.get(TiC.PROPERTY_SUCCESS);
-			if (hashValue != null) {
-				reportSuccess = true;
-				krollData.remove(TiC.PROPERTY_SUCCESS);
-			}
-			hashValue = krollData.get(TiC.PROPERTY_CODE);
-			if (hashValue != null) {
-				reportSuccess = true;
-				code = TiConvert.toInt(hashValue);
-				krollData.remove(TiC.PROPERTY_CODE);
+			if (hashValue instanceof Boolean) {
+				boolean successValue = ((Boolean)hashValue).booleanValue();
+				hashValue = krollData.get(TiC.PROPERTY_CODE);
+				if (hashValue instanceof Integer) {
+					int codeValue = ((Integer)hashValue).intValue();
+					if (successValue == (codeValue == 0)) {
+						reportSuccess = true;
+						code = codeValue;
+						krollData.remove(TiC.PROPERTY_SUCCESS);
+						krollData.remove(TiC.PROPERTY_CODE);
+					} else {
+						Log.w(TAG, "DEPRECATION WARNING: Events with 'code' and 'success' should have success be true if and only if code is nonzero. For java modules, consider the putCodeAndMessage() method to do this for you. The capability to use other types will be removed in a future version.", Log.DEBUG_MODE);					
+					}
+				} else if ( successValue ) {
+					Log.w(TAG, "DEPRECATION WARNING: Events with 'success' of true should have an integer 'code' property that is 0. For java modules, consider the putCodeAndMessage() method to do this for you. The capability to use other types will be removed in a future version.", Log.DEBUG_MODE);					
+				} else {
+					Log.w(TAG, "DEPRECATION WARNING: Events with 'success' of false should have an integer 'code' property that is nonzero. For java modules, consider the putCodeAndMessage() method to do this for you. The capability to use other types will be removed in a future version.", Log.DEBUG_MODE);					
+				}
+			} else if (hashValue != null) {
+				Log.w(TAG, "DEPRECATION WARNING: The 'success' event property is reserved to be a boolean. For java modules, consider the putCodeAndMessage() method to do this for you. The capability to use other types will be removed in a future version.", Log.DEBUG_MODE);
 			}
 			hashValue = krollData.get(TiC.EVENT_PROPERTY_ERROR);
-			if (hashValue != null) {
-				message = hashValue.toString();
+			if (hashValue instanceof String) {
+				message = (String) hashValue;
 				krollData.remove(TiC.EVENT_PROPERTY_ERROR);
+			} else if (hashValue != null) {
+				Log.w(TAG, "DEPRECATION WARNING: The 'error' event property is reserved to be a string. For java modules, consider the putCodeAndMessage() method to do this for you. The capability to use other types will be removed in a future version.", Log.DEBUG_MODE);
 			}
 			hashValue = krollData.get(TiC.EVENT_PROPERTY_SOURCE);
 			if (hashValue instanceof KrollProxy) {
@@ -1072,7 +1149,9 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 				eventListeners.put(eventName, listeners);
 			}
 
-			Log.d(TAG, "Added for eventName '" + eventName + "' with id " + listenerId, Log.DEBUG_MODE);
+			if (Log.isDebugModeEnabled()) {
+				Log.d(TAG, "Added for eventName '" + eventName + "' with id " + listenerId, Log.DEBUG_MODE);
+			}
 			listenerId = listenerIdGenerator.incrementAndGet();
 			listeners.put(listenerId, callback);
 		}

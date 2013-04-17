@@ -76,7 +76,7 @@ static const NSInteger kDashboardViewDefaultColumnCount = 3;
 {
 	[self launcher];
     
-    NSArray* items = [launcher items];
+    NSArray* items = [launcher launcheritems_];
     for (LauncherItem* item in items) {
         [launcher removeItem:item animated:NO];
     }

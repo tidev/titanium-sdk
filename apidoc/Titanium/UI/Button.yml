@@ -93,12 +93,12 @@ methods:
         to appear on top of it.
 
         See also: <Titanium.UI.View.add>.
-    platforms: [iphone, ipad, mobileweb]
+    platforms: [iphone, ipad, mobileweb, tizen]
 
   - name: remove
     description: |
         See also: [add](Titanium.UI.Button.add), <Titanium.UI.View.add>.
-    platforms: [iphone, ipad, mobileweb]
+    platforms: [iphone, ipad, mobileweb, tizen]
 
 properties:
   - name: backgroundImage
@@ -143,7 +143,7 @@ properties:
     summary: Set to `true` to enable the button, `false` to disable the button.
     type: Boolean
     default: true
-    platforms: [android, ipad, iphone, mobileweb]
+    platforms: [android, ipad, iphone, mobileweb, tizen]
   - name: font
     summary: Font to use for the button text.
     type: Font
@@ -160,7 +160,7 @@ properties:
     description: |
         For information about color values, see the "Colors" section of <Titanium.UI>. 
     type: String
-    platforms: [iphone,ipad,mobileweb]
+    platforms: [iphone,ipad,mobileweb, tizen]
   - name: style
     summary: Style constant for the button, as defined in <Titanium.UI.iPhone.SystemButtonStyle>.
     type: Number
@@ -192,7 +192,7 @@ properties:
         [TEXT_VERTICAL_ALIGNMENT_TOP](Titanium.UI.TEXT_VERTICAL_ALIGNMENT_TOP).
     type: [Number,String]
     default: Titanium.UI.TEXT_VERTICAL_ALIGNMENT_CENTER
-    platforms: [android, mobileweb]
+    platforms: [android, mobileweb, tizen]
 examples:
   - title: Simple Button Example
     example: |

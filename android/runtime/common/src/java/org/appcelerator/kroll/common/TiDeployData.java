@@ -27,6 +27,8 @@ public class TiDeployData
 
 	protected static final String DEBUGGER_ENABLED = "debuggerEnabled";
 	protected static final String DEBUGGER_PORT = "debuggerPort";
+	protected static final String PROFILER_ENABLED = "profilerEnabled";
+	protected static final String PROFILER_PORT = "profilerPort";
 	protected static final String FASTDEV_PORT = "fastdevPort";
 	protected static final String FASTDEV_LISTEN = "fastdevListen";
 
@@ -82,6 +84,30 @@ public class TiDeployData
 		}
 
 		return deployData.optInt(DEBUGGER_PORT, -1);
+	}
+
+	/**
+	 * @return Whether or not the profiler server is enabled
+	 */
+	public boolean isProfilerEnabled()
+	{
+		if (deployData == null) {
+			return false;
+		}
+
+		return deployData.optBoolean(PROFILER_ENABLED, false);
+	}
+
+	/**
+	 * @return The profiler server port, or -1
+	 */
+	public int getProfilerPort()
+	{
+		if (deployData == null) {
+			return -1;
+		}
+
+		return deployData.optInt(PROFILER_PORT, -1);
 	}
 
 	/**

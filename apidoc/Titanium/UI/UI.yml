@@ -177,7 +177,7 @@ properties:
         slowly and speeds up.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad, mobileweb]
+    platforms: [iphone, ipad, mobileweb, tizen]
     
   - name: ANIMATION_CURVE_EASE_IN_OUT
     summary: |
@@ -185,7 +185,7 @@ properties:
         slowly, and speeds up, then slows down at the end of the animation.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad, mobileweb]
+    platforms: [iphone, ipad, mobileweb, tizen]
     
   - name: ANIMATION_CURVE_EASE_OUT
     summary: |
@@ -193,7 +193,7 @@ properties:
         quickly, then slows down at the end of the animation.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad, mobileweb]
+    platforms: [iphone, ipad, mobileweb, tizen]
     
   - name: ANIMATION_CURVE_LINEAR
     summary: |
@@ -201,7 +201,7 @@ properties:
         at a constant rate.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad, mobileweb]
+    platforms: [iphone, ipad, mobileweb, tizen]
     
   - name: AUTODETECT_ADDRESS
     deprecated:
@@ -684,7 +684,7 @@ properties:
         a size of <Titanium.UI.SIZE>. Otherwise, the child inherits a size of <Titanium.UI.FILL>.
     type: String
     permission: read-only
-    platforms: [mobileweb]
+    platforms: [mobileweb, tizen]
     since: "2.0.0"
     
   - name: INPUT_BORDERSTYLE_BEZEL
@@ -778,7 +778,7 @@ properties:
         Use with the <Titanium.UI.TextField.keyboardType> and <Titanium.UI.TextArea.keyboardType> 
         properties.
         
-        On MobileWeb, if you enable `passwordType`, the `keyboardType` value will be overridden with 
+        On MobileWeb and Tizen, if you enable `passwordType`, the `keyboardType` value will be overridden with 
         `KEYBOARD_DEFAULT`.
     type: Number
     permission: read-only
@@ -798,7 +798,7 @@ properties:
         Use with the <Titanium.UI.TextField.keyboardType> and <Titanium.UI.TextArea.keyboardType> 
         properties.
         
-        Note: on MobileWeb, if you enable `passwordType`, the `keyboardType` value will be 
+        Note: on MobileWeb and Tizen, if you enable `passwordType`, the `keyboardType` value will be 
         overridden with `KEYBOARD_DEFAULT`.
     type: Number
     permission: read-only
@@ -827,7 +827,7 @@ properties:
         Use with the <Titanium.UI.TextField.keyboardType> and <Titanium.UI.TextArea.keyboardType> 
         properties.
         
-        On MobileWeb, if you enable `passwordType`, the `keyboardType` value will be overridden with 
+        On MobileWeb and Tizen, if you enable `passwordType`, the `keyboardType` value will be overridden with 
         `KEYBOARD_DEFAULT`.
     type: Number
     permission: read-only
@@ -838,7 +838,7 @@ properties:
         Use with the <Titanium.UI.TextField.keyboardType> and <Titanium.UI.TextArea.keyboardType> 
         properties.
         
-        On MobileWeb, if you enable `passwordType`, the `keyboardType` value will be overridden with 
+        On MobileWeb and Tizen, if you enable `passwordType`, the `keyboardType` value will be overridden with 
         `KEYBOARD_DEFAULT`.
     type: Number
     permission: read-only
@@ -849,7 +849,7 @@ properties:
         Use with the <Titanium.UI.TextField.keyboardType> and <Titanium.UI.TextArea.keyboardType> 
         properties.
         
-        On MobileWeb, if you enable `passwordType`, the `keyboardType` value will be overridden with 
+        On MobileWeb and Tizen, if you enable `passwordType`, the `keyboardType` value will be overridden with 
         `KEYBOARD_DEFAULT`.
     type: Number
     permission: read-only
@@ -882,6 +882,94 @@ properties:
     type: Number
     permission: read-only
     platforms: [android, iphone, ipad]
+
+  - name: LIST_ACCESSORY_TYPE_NONE
+    summary: Do not display anything on the right side of an item in a list view.
+    type: Number
+    permission: read-only
+    platforms: [android, iphone, ipad]
+    since: '3.1.0'
+
+  - name: LIST_ACCESSORY_TYPE_CHECKMARK
+    summary: Displays a checkmark on the right side of an item in a list view.
+    description: |
+        Use to indicate an item in a list is selected.
+    type: Number
+    permission: read-only
+    platforms: [android, iphone, ipad]
+    since: '3.1.0'
+
+  - name: LIST_ACCESSORY_TYPE_DETAIL
+    summary: Displays a detail disclosure button on the right side of an item in a list view.
+    description: |
+        Use to indicate that selecting this item results in the display of a detailed view of that item.
+    type: Number
+    permission: read-only
+    platforms: [android, iphone, ipad]
+    since: '3.1.0'
+
+  - name: LIST_ACCESSORY_TYPE_DISCLOSURE
+    summary: Displays a disclosure indicator on the right side of an item in a list view.
+    description: |
+        Use to indicate that selecting this item results in the display of another list, reflecting
+        the next level in the data model hierarchy.
+    type: Number
+    permission: read-only
+    platforms: [android, iphone, ipad]
+    since: '3.1.0'
+
+  - name: LIST_ITEM_TEMPLATE_DEFAULT
+    summary: |
+        A built-in style for an item with an image view and black, left-aligned title label.
+    description: |
+        The text label value and image value bind to the `title` and `image` properties, respectively,
+        of the data item. If a property is not set, that element is not displayed.
+
+        On Android, the image appears on the right side of the cell, and on iOS, the image appears
+        on the left side of the cell.
+    type: Number
+    permission: read-only
+    platforms: [android, iphone, ipad]
+    since: '3.1.0'
+
+  - name: LIST_ITEM_TEMPLATE_SETTINGS
+    summary: |
+        A built-in style for a item with an image view; a black, left-aligned title label; and a
+        smaller blue, right-aligned subtitle label.
+    description: |
+        The title label value, subtitle label value and image value bind to the `title`, `subtitle`
+        and `image` properties, respectively, of the data item. If a property is not set, that
+        element is not displayed.
+    type: Number
+    permission: read-only
+    platforms: [iphone, ipad]
+    since: '3.1.0'
+
+  - name: LIST_ITEM_TEMPLATE_CONTACTS
+    summary: |
+        A built-in style for an item with a title label on the left side of the cell with
+        right-aligned, blue text, which is next to a subtitle label with left-aligned, black text.
+    description: |
+        The title label value and subtitle label value bind to the `title` and `subtitle`
+        properties, respectively, of the data item. If a property is not set, that element is not
+        displayed.
+    type: Number
+    permission: read-only
+    platforms: [iphone, ipad]
+    since: '3.1.0'
+
+  - name: LIST_ITEM_TEMPLATE_SUBTITLE
+    summary: |
+        A built-in style for an item with an image view; a black, left-aligned title label across the
+        top of the cell and a subtitle label below it in smaller gray text.
+    description: |
+        The title label value, subtitle label value and image value bind to the `title`, `subtitle`
+        and `image` properties, respectively, of the data item. If a property is not set, that
+        element is not displayed.
+    type: Number
+    permission: read-only
+    platforms: [iphone, ipad]
+    since: '3.1.0'
     
   - name: NOTIFICATION_DURATION_LONG
     summary: Specifies a long duration for an Android Toast notification (<Titanium.UI.Notification>).
@@ -1050,7 +1138,7 @@ properties:
         Use with the <Titanium.UI.TextField.textAlign> and 
         <Titanium.UI.TextArea.textAlign> properties.
         
-        This constant is a string on android, and a number on iOS and mobileweb.
+        This constant is a string on Android, and a number on iOS, Tizen and Mobile Web.
     type: [Number, String]
     permission: read-only
     
@@ -1060,7 +1148,7 @@ properties:
         Use with the <Titanium.UI.TextField.textAlign> and 
         <Titanium.UI.TextArea.textAlign> properties.
         
-        This constant is a string on android, and a number on iOS and mobileweb.
+        This constant is a string on android, and a number on iOS, Tizen and Mobile Web.
     type: [Number, String]
     permission: read-only
     
@@ -1070,7 +1158,7 @@ properties:
         Use with the <Titanium.UI.TextField.textAlign> and 
         <Titanium.UI.TextArea.textAlign> properties.
         
-        This constant is a string on android, and a number on iOS and mobileweb.
+        This constant is a string on Android, and a number on iOS, Tizen and Mobile Web.
     type: [Number, String]
     permission: read-only
     
@@ -1104,7 +1192,7 @@ properties:
         Use with the <Titanium.UI.TextField.autocapitalization> and 
         <Titanium.UI.TextArea.autocapitalization> properties.
         
-        Mobile Web does not support this because it would interfere with the native capitalization 
+        Mobile Web and Tizen does not support this because it would interfere with the native capitalization 
         of the mobile browser.
     type: Number
     permission: read-only
@@ -1116,7 +1204,7 @@ properties:
         Use with the <Titanium.UI.TextField.verticalAlign> and 
         <Titanium.UI.TextArea.verticalAlign> properties.
         
-        This constant is a string on android, and a number on iOS and mobileweb.
+        This constant is a string on android, and a number on iOS, tizen and mobileweb.
     type: [Number, String]
     permission: read-only
     
@@ -1126,7 +1214,7 @@ properties:
         Use with the <Titanium.UI.TextField.verticalAlign> and 
         <Titanium.UI.TextArea.verticalAlign> properties.
         
-        This constant is a string on android, and a number on iOS and mobileweb.
+        This constant is a string on android, and a number on iOS, tizen and mobileweb.
     type: [Number, String]
     permission: read-only
     
@@ -1136,7 +1224,7 @@ properties:
         Use with the <Titanium.UI.TextField.verticalAlign> and 
         <Titanium.UI.TextArea.verticalAlign> properties.
         
-        This constant is a string on android, and a number on iOS and mobileweb.
+        This constant is a string on android, and a number on iOS, tizen and mobileweb.
     type: [Number, String]
     permission: read-only
     

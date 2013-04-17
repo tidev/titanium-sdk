@@ -88,7 +88,7 @@ module.exports = new function() {
 
 		common.createHarness(
 			"ios",
-			"\"" + path.resolve(driverGlobal.config.currentTiSdkDir, "titanium.py") + "\" create --dir=" + path.resolve(driverGlobal.harnessDir, "ios") + " --platform=iphone --name=harness --type=project --id=com.appcelerator.harness",
+			"\"" + path.resolve(driverGlobal.config.targetTiSdkDir, "titanium.py") + "\" create --dir=" + path.resolve(driverGlobal.harnessDir, "ios") + " --platform=iphone --name=harness --type=project --id=com.appcelerator.harness",
 			successCallback,
 			errorCallback
 			);
@@ -130,7 +130,7 @@ module.exports = new function() {
 			error reporting to work correctly when the simulator fails to launch
 			*/
 			var args = ["simulator", simVersion, path.resolve(driverGlobal.harnessDir, "ios", "harness"), "com.appcelerator.harness", "harness"];
-			driverUtils.runProcess(path.resolve(driverGlobal.config.currentTiSdkDir, "iphone", "builder.py"), args, stdoutCallback, 0, function(code) {
+			driverUtils.runProcess(path.resolve(driverGlobal.config.targetTiSdkDir, "iphone", "builder.py"), args, stdoutCallback, 0, function(code) {
 				if (code !== 0) {
 					driverUtils.log("error encountered when running harness: " + code);
 					errorCallback();

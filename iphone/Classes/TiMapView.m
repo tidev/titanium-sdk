@@ -63,7 +63,7 @@
 {
     if (map==nil)
     {
-        map = [[MKMapView alloc] initWithFrame:CGRectMake(0, 0, 100, 100)];
+        map = [[MKMapView alloc] initWithFrame:CGRectZero];
         map.delegate = self;
         map.userInteractionEnabled = YES;
         map.showsUserLocation = YES; // defaults
@@ -100,10 +100,30 @@
 	[self render];
 }
 
+-(void)setBounds:(CGRect)bounds
+{
+    //TIMOB-13102.
+    //When the bounds change the mapview fires the regionDidChangeAnimated delegate method
+    //Here we update the region property which is not what we want.
+    //Instead we set a forceRender flag and render in frameSizeChanged and capture updated
+    //region there.
+    CGRect oldBounds = (map == nil) ? [self bounds]:[map bounds];
+    forceRender = !CGRectEqualToRect(oldBounds, bounds);
+    ignoreRegionChanged = YES;
+    [super setBounds:bounds];
+    ignoreRegionChanged = NO;
+}
+
 -(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
 {
     [TiUtils setView:[self map] positionRect:bounds];
     [super frameSizeChanged:frame bounds:bounds];
+    if (forceRender) {
+        //Set this to NO so that region gets captured.
+        ignoreRegionChanged = NO;
+        [self render];
+        forceRender = NO;
+    }
 }
 
 -(TiMapAnnotationProxy*)annotationFromArg:(id)arg
@@ -505,6 +525,9 @@
 
 - (void)mapView:(MKMapView *)mapView regionDidChangeAnimated:(BOOL)animated
 {
+    if (ignoreRegionChanged) {
+        return;
+    }
     region = [mapView region];
     [self.proxy replaceValue:[self dictionaryFromRegion] forKey:@"region" notification:NO];
 	if ([self.proxy _hasListeners:@"regionChanged"])

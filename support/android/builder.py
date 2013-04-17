@@ -332,7 +332,7 @@ def resource_drawable_folder(path):
 
 class Builder(object):
 
-	def __init__(self, name, sdk, project_dir, support_dir, app_id):
+	def __init__(self, name, sdk, project_dir, support_dir, app_id, is_emulator):
 		self.top_dir = project_dir
 		self.project_tiappxml = os.path.join(self.top_dir,'tiapp.xml')
 		self.project_dir = os.path.join(project_dir,'build','android')
@@ -347,6 +347,8 @@ class Builder(object):
 		self.force_rebuild = False
 		self.debugger_host = None
 		self.debugger_port = -1
+		self.profiler_host = None
+		self.profiler_port = -1
 		self.fastdev_port = -1
 		self.fastdev = False
 		self.compile_js = False
@@ -392,21 +394,6 @@ class Builder(object):
 
 		json_contents = open(os.path.join(template_dir,'dependency.json')).read()
 		self.depends_map = simplejson.loads(json_contents)
-		self.runtime = self.tiappxml.app_properties.get('ti.android.runtime', self.depends_map['runtimes']['defaultRuntime'])
-
-		self.set_java_commands()
-		# start in 1.4, you no longer need the build/android directory
-		# if missing, we'll create it on the fly
-		if not os.path.exists(self.project_dir) or not os.path.exists(os.path.join(self.project_dir,'AndroidManifest.xml')):
-			android_creator = Android(name, app_id, self.sdk, None, self.java)
-			parent_dir = os.path.dirname(self.top_dir)
-			if os.path.exists(self.top_dir):
-				android_creator.create(parent_dir, project_dir=self.top_dir, build_time=True)
-			else:
-				android_creator.create(parent_dir)
-			
-			self.force_rebuild = True
-			sys.stdout.flush()
 		
 		# favor the ANDROID_SDK_HOME environment variable if used
 		if os.environ.has_key('ANDROID_SDK_HOME') and os.path.exists(os.environ['ANDROID_SDK_HOME']):
@@ -419,11 +406,26 @@ class Builder(object):
 		else:
 			self.home_dir = os.path.join(os.path.expanduser('~'), '.titanium')
 			self.android_home_dir = os.path.join(os.path.expanduser('~'), '.android')
-		
+	
 		if not os.path.exists(self.home_dir):
 			os.makedirs(self.home_dir)
 		self.sdcard = os.path.join(self.home_dir,'android2.sdcard')
 		self.classname = Android.strip_classname(self.name)
+		
+		if not is_emulator:
+			self.set_java_commands()
+			# start in 1.4, you no longer need the build/android directory
+			# if missing, we'll create it on the fly
+			if not os.path.exists(self.project_dir) or not os.path.exists(os.path.join(self.project_dir,'AndroidManifest.xml')):
+				android_creator = Android(name, app_id, self.sdk, None, self.java)
+				parent_dir = os.path.dirname(self.top_dir)
+				if os.path.exists(self.top_dir):
+					android_creator.create(parent_dir, project_dir=self.top_dir, build_time=True)
+				else:
+					android_creator.create(parent_dir)
+			
+				self.force_rebuild = True
+				sys.stdout.flush()
 
 	def check_target_api_version(self, manifest_elements):
 		pattern = r'android:targetSdkVersion=\"(\d+)\"'
@@ -482,7 +484,7 @@ class Builder(object):
 		debug("Waiting for device to be ready ...")
 		t = time.time()
 		max_wait = 30
-		max_zero = 6
+		max_zero = 10
 		attempts = 0
 		zero_attempts = 0
 		timed_out = True
@@ -884,6 +886,7 @@ class Builder(object):
 				parent = os.path.dirname(dest)
 				if not os.path.exists(parent):
 					os.makedirs(parent)
+				
 				trace("COPYING %s FILE: %s => %s" % (delta.get_status_str(), path, dest))
 				shutil.copy(path, dest)
 				if (path.startswith(resources_dir) or path.startswith(android_resources_dir)) and path.endswith(".js"):
@@ -896,7 +899,28 @@ class Builder(object):
 						relative_path = make_relative(delta.get_path(), resources_dir)
 					relative_path = relative_path.replace("\\", "/")
 					self.run_adb('push', delta.get_path(), "%s/%s" % (self.sdcard_resources, relative_path))
-
+		
+		if os.environ.has_key('LIVEVIEW'):
+			debug("LiveView enabled")
+			appjs = os.path.join(self.assets_resources_dir, 'app.js')
+			_appjs = os.path.join(self.assets_resources_dir, '_app.js')
+ 			liveviewjs = os.path.join(self.assets_resources_dir, 'liveview.js')
+			self.non_orphans.append('_app.js')
+			
+			if not os.path.exists(appjs):
+				debug('app.js not found: %s' % appjs)
+			
+			if not os.path.exists(liveviewjs):
+				debug('liveviewjs.js not found: %s' % liveviewjs)
+			
+ 			if os.path.exists(appjs) and os.path.exists(liveviewjs):
+ 				trace("COPYING %s => %s" % (appjs, _appjs))
+	 			shutil.copy(appjs, _appjs)
+				trace("COPYING %s => %s" % (liveviewjs, appjs))
+				shutil.copy(liveviewjs, appjs)
+		else:
+			debug('LiveView not enabled')
+		
 		index_json_path = os.path.join(self.assets_dir, "index.json")
 		if len(self.project_deltas) > 0 or not os.path.exists(index_json_path):
 			requireIndex.generateJSON(self.assets_dir, index_json_path)
@@ -1531,6 +1555,7 @@ class Builder(object):
 		classpath = os.pathsep.join([classpath, os.path.join(self.support_dir, 'lib', 'titanium-verify.jar')])
 		if self.deploy_type != 'production':
 			classpath = os.pathsep.join([classpath, os.path.join(self.support_dir, 'lib', 'titanium-debug.jar')])
+			classpath = os.pathsep.join([classpath, os.path.join(self.support_dir, 'lib', 'titanium-profiler.jar')])
 
 		debug("Building Java Sources: " + " ".join(src_list))
 		javac_command = [self.javac, '-encoding', 'utf8',
@@ -1656,11 +1681,6 @@ class Builder(object):
 		# add module native libraries
 		for module in self.modules:
 			exclude_libs = []
-			if self.runtime != 'v8':
-				# Don't need the v8 version of the module itself.
-				# (But of course we do want any other native libraries
-				# that the module developer may have packaged.)
-				exclude_libs.append('lib%s.so' % module.manifest.moduleid)
 			add_native_libs(module.get_resource('libs'), exclude_libs)
 
 		# add any native libraries : libs/**/*.so -> lib/**/*.so
@@ -1677,12 +1697,13 @@ class Builder(object):
 				# x86 only in non-production builds for now.
 				continue
 
-			# libtiverify is always included, even if targeting rhino.
+			# libtiverify is always included
 			apk_zip.write(os.path.join(lib_source_dir, 'libtiverify.so'), lib_dest_dir + 'libtiverify.so')
+			# profiler
+			apk_zip.write(os.path.join(lib_source_dir, 'libtiprofiler.so'), lib_dest_dir + 'libtiprofiler.so')
 
-			if self.runtime == 'v8':
-				for fname in ('libkroll-v8.so', 'libstlport_shared.so'):
-					apk_zip.write(os.path.join(lib_source_dir, fname), lib_dest_dir + fname)
+			for fname in ('libkroll-v8.so', 'libstlport_shared.so'):
+				apk_zip.write(os.path.join(lib_source_dir, fname), lib_dest_dir + fname)
 
 		self.apk_updated = True
 
@@ -1924,6 +1945,8 @@ class Builder(object):
 		deploy_data = {
 			"debuggerEnabled": self.debugger_host != None,
 			"debuggerPort": self.debugger_port,
+			"profilerEnabled": self.profiler_host != None,
+			"profilerPort": self.profiler_port,
 			"fastdevPort": self.fastdev_port
 		}
 		deploy_json = os.path.join(self.project_dir, 'bin', 'deploy.json')
@@ -1974,7 +1997,7 @@ class Builder(object):
 			finally:
 				res_zip_file.close()
 
-	def build_and_run(self, install, avd_id, keystore=None, keystore_pass='tirocks', keystore_alias='tidev', dist_dir=None, build_only=False, device_args=None, debugger_host=None):
+	def build_and_run(self, install, avd_id, keystore=None, keystore_pass='tirocks', keystore_alias='tidev', dist_dir=None, build_only=False, device_args=None, debugger_host=None, profiler_host=None):
 		deploy_type = 'development'
 		self.build_only = build_only
 		self.device_args = device_args
@@ -2154,6 +2177,12 @@ class Builder(object):
 				self.debugger_port = int(hostport[1])
 			debugger_enabled = self.debugger_host != None and len(self.debugger_host) > 0
 
+			if (not profiler_host is None) and len(profiler_host) > 0:
+				hostport = profiler_host.split(":")
+				self.profiler_host = hostport[0]
+				self.profiler_port = int(hostport[1])
+			profiler_enabled = self.profiler_host != None and len(self.profiler_host) > 0
+
 			# Detect which modules are being used.
 			# We need to know this info in a few places, so the info is saved
 			# in self.missing_modules and self.modules
@@ -2277,6 +2306,7 @@ class Builder(object):
 				dex_args.append(os.path.join(self.support_dir, 'lib', 'titanium-verify.jar'))
 				if self.deploy_type != 'production':
 					dex_args.append(os.path.join(self.support_dir, 'lib', 'titanium-debug.jar'))
+					dex_args.append(os.path.join(self.support_dir, 'lib', 'titanium-profiler.jar'))
 					# the verifier depends on Ti.Network classes, so we may need to inject it
 					has_network_jar = False
 					for jar in self.android_jars:
@@ -2333,10 +2363,16 @@ class Builder(object):
 			self.post_build()
 
 			# Enable port forwarding for debugger if application
-			# acts as the server. Currently only V8 runtime uses this mode.
-			if debugger_enabled and self.runtime == 'v8':
+			# acts as the server.
+			if debugger_enabled:
 				info('Forwarding host port %s to device for debugging.' % self.debugger_port)
 				forwardPort = 'tcp:%s' % self.debugger_port
+				self.sdk.run_adb(['forward', forwardPort, forwardPort])
+
+			# Enable port forwarding for profiler
+			if profiler_enabled:
+				info('Forwarding host port %s to device for profiling.' % self.profiler_port)
+				forwardPort = 'tcp:%s' % self.profiler_port
 				self.sdk.run_adb(['forward', forwardPort, forwardPort])
 
 			#intermediary code for on-device debugging (later)
@@ -2392,6 +2428,7 @@ if __name__ == "__main__":
 
 	template_dir = os.path.abspath(os.path.dirname(sys._getframe(0).f_code.co_filename))
 	get_values_from_tiapp = False
+	is_emulator = False
 
 	if command == 'run':
 		if argc < 4:
@@ -2415,6 +2452,8 @@ if __name__ == "__main__":
 		avd_id = "7"
 		avd_skin = "HVGA"
 	else:
+		if command == 'emulator':
+			is_emulator = True
 		if argc < 6 or command == '--help' or (command=='distribute' and argc < 10):
 			usage()
 			
@@ -2431,7 +2470,7 @@ if __name__ == "__main__":
 	log = TiLogger(os.path.join(os.path.abspath(os.path.expanduser(dequote(project_dir))), 'build.log'))
 	log.debug(" ".join(sys.argv))
 	
-	builder = Builder(project_name,sdk_dir,project_dir,template_dir,app_id)
+	builder = Builder(project_name,sdk_dir,project_dir,template_dir,app_id,is_emulator)
 	builder.command = command
 
 	try:
@@ -2481,9 +2520,12 @@ if __name__ == "__main__":
 			info("Building %s for Android ... one moment" % project_name)
 			avd_id = dequote(sys.argv[6])
 			debugger_host = None
-			if len(sys.argv) > 8:
+			profiler_host = None
+			if len(sys.argv) > 9 and sys.argv[9] == 'profiler':
+				profiler_host = dequote(sys.argv[8])
+			elif len(sys.argv) > 8:
 				debugger_host = dequote(sys.argv[8])
-			builder.build_and_run(False, avd_id, debugger_host=debugger_host)
+			builder.build_and_run(False, avd_id, debugger_host=debugger_host, profiler_host=profiler_host)
 		elif command == 'install':
 			avd_id = dequote(sys.argv[6])
 			device_args = ['-d']
@@ -2493,7 +2535,12 @@ if __name__ == "__main__":
 			# to Windows it just looks like a serial number is passed in (the debugger_host
 			# argument shifts left to take over the empty argument.)
 			debugger_host = None
-			if len(sys.argv) >= 9 and len(sys.argv[8]) > 0:
+			profiler_host = None
+			if len(sys.argv) >= 10 and sys.argv[9] == 'profiler':
+				profiler_host = dequote(sys.argv[8])
+				if len(sys.argv[7]) > 0:
+					device_args = ['-s', sys.argv[7]]
+			elif len(sys.argv) >= 9 and len(sys.argv[8]) > 0:
 				debugger_host = dequote(sys.argv[8])
 				if len(sys.argv[7]) > 0:
 					device_args = ['-s', sys.argv[7]]
@@ -2503,7 +2550,7 @@ if __name__ == "__main__":
 					debugger_host = arg7
 				else:
 					device_args = ['-s', arg7]
-			builder.build_and_run(True, avd_id, device_args=device_args, debugger_host=debugger_host)
+			builder.build_and_run(True, avd_id, device_args=device_args, debugger_host=debugger_host, profiler_host=profiler_host)
 		elif command == 'distribute':
 			key = os.path.abspath(os.path.expanduser(dequote(sys.argv[6])))
 			password = dequote(sys.argv[7])

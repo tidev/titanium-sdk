@@ -94,16 +94,15 @@ public class TiUIButton extends TiUIView
 			String verticalAlign = d.getString(TiC.PROPERTY_VERTICAL_ALIGN);
 			TiUIHelper.setAlignment(btn, null, verticalAlign);
 		}
-		if (d.containsKey(TiC.PROPERTY_OPACITY)) {
-			setOpacityForButton(TiConvert.toFloat(d, TiC.PROPERTY_OPACITY, 1f));
-		}
 		btn.invalidate();
 	}
 
 	@Override
 	public void propertyChanged(String key, Object oldValue, Object newValue, KrollProxy proxy)
 	{
-		Log.d(TAG, "Property: " + key + " old: " + oldValue + " new: " + newValue, Log.DEBUG_MODE);
+		if (Log.isDebugModeEnabled()) {
+			Log.d(TAG, "Property: " + key + " old: " + oldValue + " new: " + newValue, Log.DEBUG_MODE);
+		}
 		Button btn = (Button) getNativeView();
 		if (key.equals(TiC.PROPERTY_TITLE)) {
 			btn.setText((String) newValue);
@@ -169,16 +168,16 @@ public class TiUIButton extends TiUIView
 	}
 
 	@Override
-	public void setOpacity(float opacity)
+	protected void setOpacity(View view, float opacity)
 	{
 		setOpacityForButton(opacity);
-		super.setOpacity(opacity);
+		super.setOpacity(view, opacity);
 	}
 
 	@Override
 	public void clearOpacity(View view)
 	{
-		super.clearOpacity(view);
 		clearOpacityForButton();
+		super.clearOpacity(view);
 	}
 }

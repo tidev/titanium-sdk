@@ -54,7 +54,7 @@ public class TiUINativePicker extends TiUIPicker
 					KrollDict data = new KrollDict();
 					data.put(TiC.PROPERTY_X, event.getX());
 					data.put(TiC.PROPERTY_Y, event.getY());
-					proxy.fireEvent(TiC.EVENT_CLICK, data);
+					fireEvent(TiC.EVENT_CLICK, data);
 				}
 				return super.onTouchEvent(event);
 			}

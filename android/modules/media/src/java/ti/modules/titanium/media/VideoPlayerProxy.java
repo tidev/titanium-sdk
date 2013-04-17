@@ -542,7 +542,19 @@ public class VideoPlayerProxy extends TiViewProxy implements TiLifecycle.OnLifec
 	{
 		KrollDict args = new KrollDict();
 		args.put(TiC.EVENT_PROPERTY_REASON, reason);
+		if (reason == MediaModule.VIDEO_FINISH_REASON_PLAYBACK_ERROR) {
+			args.putCodeAndMessage(-1,"Video Playback encountered an error");
+		} else {
+			args.putCodeAndMessage(0,null);
+		}
 		fireEvent(TiC.EVENT_COMPLETE, args);
+	}
+	
+	public void firePlaying()
+	{
+		KrollDict args = new KrollDict();
+		args.put(TiC.EVENT_PROPERTY_URL, getProperty(TiC.PROPERTY_URL));
+		fireEvent(TiC.EVENT_PLAYING, args);
 	}
 
 	public void onPlaybackReady(int duration)
@@ -571,6 +583,11 @@ public class VideoPlayerProxy extends TiViewProxy implements TiLifecycle.OnLifec
 	public void onPlaybackStarted()
 	{
 		firePlaybackState(MediaModule.VIDEO_PLAYBACK_STATE_PLAYING);
+	}
+	
+	public void onPlaying()
+	{
+		firePlaying();
 	}
 
 	public void onPlaybackPaused()

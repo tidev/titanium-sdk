@@ -34,7 +34,6 @@ class android(module.ModulePlatform):
 			self.sdk.get_android_jar(),
 			self.sdk.get_maps_jar(),
 			'/'.join([sdk_android_dir, 'titanium.jar']),
-			'/'.join([sdk_android_dir, 'js.jar']),
 			'/'.join([sdk_android_dir, 'kroll-common.jar']),
 			'/'.join([sdk_android_dir, 'kroll-apt.jar'])
 		]

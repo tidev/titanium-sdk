@@ -79,7 +79,7 @@ public class TiUISearchView extends TiUIView implements SearchView.OnQueryTextLi
 
 	@Override
 	public boolean onClose() {
-		proxy.fireEvent(TiC.EVENT_CANCEL, null);
+		fireEvent(TiC.EVENT_CANCEL, null);
 		return false;
 	}
 
@@ -89,14 +89,14 @@ public class TiUISearchView extends TiUIView implements SearchView.OnQueryTextLi
 		if (searchChangeListener != null) {
 			searchChangeListener.filterBy(query);
 		}
-		proxy.fireEvent(TiC.EVENT_CHANGE, null);
+		fireEvent(TiC.EVENT_CHANGE, null);
 		return false;
 	}
 
 	@Override
 	public boolean onQueryTextSubmit(String query) {
 		TiUIHelper.showSoftKeyboard(nativeView, false);
-		proxy.fireEvent(TiC.EVENT_SUBMIT, null);
+		fireEvent(TiC.EVENT_SUBMIT, null);
 		return false;
 	}
 

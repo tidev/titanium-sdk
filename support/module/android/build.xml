@@ -11,9 +11,7 @@ dist
   - compile
     - process.annotations
 	  - init
-	- generate.bindings
-	  - generate.rhino.bindings
-	  - generate.v8.bindings
+	- generate.v8.bindings
 	- pre.compile
 	- js.compile
 	- ndk.build
@@ -33,13 +31,12 @@ build/generated/org/appcelerator/titanium/bindings/[module_name].json
 file and is later packaged in the module jar as well as being used
 by subsequent steps in this compilation process.
 
-(2) (generate.bindings and its rhino & v8 dependencies) This step
+(2) (generate.bindings v8 dependencies) This step
 uses the KrollBindingGenerator stand-alone java program to create
 the binding layer and bootstraps for the module.  (see https://github.com/appcelerator/titanium_mobile/blob/master/android/kroll-apt/src/java/org/appcelerator/kroll/annotations/generator/KrollBindingGenerator.java.)
 
 It takes the JSON file created in step (1) above and, using the metadata therein,
-produces .cpp and .h files (for V8) down in build/generated/jni, and [Proxy/Module]Prototype.java
-(for rhino) down in build/generated/java.
+produces .cpp and .h files (for V8) down in build/generated/jni.
 
 It then uses bootstrap.py (see https://github.com/appcelerator/titanium_mobile/blob/master/support/module/android/bootstrap.py) to produce [Name]Bootstrap.java, [Name]Bootstrap.cpp,
 bootstrap.js and KrollGeneratedBindings.gperf.
@@ -177,40 +174,27 @@ timodule.xml.
 	</target>
 
 	<macrodef name="generate.runtime.bindings">
-		<attribute name="runtime"/>
 		<attribute name="outdir"/>
 		<sequential>
 			<java classname="org.appcelerator.kroll.annotations.generator.KrollBindingGenerator" classpathref="project.classpath">
-				<!-- runtime to generate for -->
-				<arg value="@{runtime}"/>
 				<!-- output directory -->
 				<arg value="@{outdir}"/>
 				<!-- isModule -->
 				<arg value="true"/>
 				<!-- modulePackage -->
 				<arg value="${manifest.moduleid}"/>
-				<!-- moduleClassName -->
-				<arg value="${manifest.name}GeneratedBindings"/>
-
 				<!-- binding json -->
 				<arg value="${genjson}/org/appcelerator/titanium/bindings/${manifest.name}.json"/>
 			</java>
 		</sequential>
 	</macrodef>
 
-	<target name="generate.rhino.bindings">
-		<generate.runtime.bindings runtime="rhino" outdir="${genjava}"/>
-		<antcall target="generate.rhino.idswitch"/>
-	</target>
-
 	<target name="generate.v8.bindings">
-		<generate.runtime.bindings runtime="v8" outdir="${genjni}"/>
+		<generate.runtime.bindings outdir="${genjni}"/>
 		<property name="bootstrap.py" location="${ti.module.support.dir}/android/bootstrap.py"/>
 		<property name="js2c.py" location="${ti.module.support.dir}/android/js2c.py"/>
 
 		<python file="${bootstrap.py}">
-			<!-- js runtime -->
-			<arg value="v8"/>
 			<!-- module id -->
 			<arg value="${manifest.moduleid}"/>
 			<!-- module name -->
@@ -222,36 +206,7 @@ timodule.xml.
 		</python>
 	</target>
 
-	<target name="generate.bindings" depends="generate.rhino.bindings,generate.v8.bindings">
-	</target>
-
-	<property name="rhino.idswitch" value="org.mozilla.javascript.tools.idswitch.Main"/>
-
-	<macrodef name="idswitch">
-		<attribute name="file"/>
-		<sequential>
-			<java classpathref="project.classpath" classname="${rhino.idswitch}" failonerror="true" logerror="true">
-				<arg file="@{file}"/>
-			</java>
-		</sequential>
-	</macrodef>
-
-	<!--
-	Generates an optimized id switch statement for prototype
-	and instance IDs
-	-->
-	<target name="generate.rhino.idswitch">
-		<path id="rhino.prototypes">
-			<fileset dir="${gen}" includes="**/*.java"/>
-		</path>
-
-		<for param="prototype">
-			<path refid="rhino.prototypes"/>
-			<sequential>
-				<echo>Generating IDs for @{prototype}</echo>
-				<idswitch file="@{prototype}"/>
-			</sequential>
-		</for>
+	<target name="generate.bindings" depends="generate.v8.bindings">
 	</target>
 
 	<target name="pre.compile">
