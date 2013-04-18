@@ -294,9 +294,9 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 	{
 		final double ASPECT_TOLERANCE = 0.01;
 		double targetRatio = (double) w / h;
-		if (sizes == null)
+		if (sizes == null) {
 			return null;
-
+		}
 		Size optimalSize = null;
 		double minDiff = Double.MAX_VALUE;
 
@@ -305,8 +305,9 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 		// Try to find an size match aspect ratio and size
 		for (Size size : sizes) {
 			double ratio = (double) size.width / size.height;
-			if (Math.abs(ratio - targetRatio) > ASPECT_TOLERANCE)
+			if (Math.abs(ratio - targetRatio) > ASPECT_TOLERANCE) {
 				continue;
+			}
 			if (Math.abs(size.height - targetHeight) < minDiff) {
 				optimalSize = size;
 				minDiff = Math.abs(size.height - targetHeight);
