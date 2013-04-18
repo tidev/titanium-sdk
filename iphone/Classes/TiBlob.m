@@ -293,7 +293,7 @@ static NSString *const MIMETYPE_JPEG = @"image/jpeg";
 	}
 	if (writeData!=nil)
 	{
-		[writeData writeToFile:destination atomically:YES];
+		return [writeData writeToFile:destination atomically:YES];
 	}
 	return NO;
 }
