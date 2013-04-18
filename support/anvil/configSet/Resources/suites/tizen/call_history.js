@@ -191,26 +191,18 @@ module.exports = new function() {
 
 	// Observing of callHistory changes. 
 	this.listeners = function(testRun) {
-		var handle,
-			onListenerCB = {
-				onadded: function(newItems) {
-					valueOf(testRun, newItems).shouldBeObject();
-				},
-				onchanged: function(changedItems) {
-					valueOf(testRun, changedItems).shouldBeObject();
-				}
-			};
+		function onItemsAdded () {
+			console.log('This callback should fire after new call is added.');
+		}
 
 		valueOf(testRun, Tizen.CallHistory).shouldBeObject();
 
 		try {
 			// Add new listener
-			valueOf(testRun, function() { handle = Tizen.CallHistory.addChangeListener(onListenerCB); }).shouldNotThrowException();
-			valueOf(testRun, handle).shouldNotBeNull();
-			valueOf(testRun, handle).shouldBeNumber();
+			valueOf(testRun, function() { Tizen.CallHistory.addEventListener('itemsadded', onItemsAdded); }).shouldNotThrowException();
 
 			// Remove added listener
-			valueOf(testRun, function() { Tizen.CallHistory.removeChangeListener(handle); }).shouldNotThrowException();
+			valueOf(testRun, function() { Tizen.CallHistory.removeChangeListener('itemsadded', onItemsAdded); }).shouldNotThrowException();
 		} catch (error) {
 			reportError(testRun, 'The following error occurred: ' +  error.message);
 		}
