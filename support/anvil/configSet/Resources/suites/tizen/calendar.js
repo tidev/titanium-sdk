@@ -559,45 +559,22 @@ module.exports = new function() {
 
 					callback && callback(checkedEvent);
 				}
-			},
-			watcher = {
-				onitemsadded: function(items) {
-					checkEvent('ADDED', items, function(event) {
-						Ti.API.info('Item added');
-
-						event.summary = 'UPDATED';
-						calendar.update(event);
-					});
-				},
-				onitemsupdated: function(items) {
-					checkEvent('UPDATED', items, function(event) {
-						Ti.API.info('Item updated.');
-
-						event.summary = 'REMOVED';
-						calendar.remove(event.id);
-					});
-				},
-				onitemsremoved: function(ids) {
-					if (ids.indexOf(eventUID)) {
-						Ti.API.info('REMOVED: '+ eventUID);
-
-						successCB();
-					} else {
-						errorCB({message: 'Cannot find ' + eventUID + ' in list of IDs'});
-					}
-				}
 			};
 
 		try {
 			// Add Listener
-			var watcherId = calendar.addChangeListener(watcher, errorCB),
-				ev = Tizen.Calendar.createCalendarEvent({
+			var ev = Tizen.Calendar.createCalendarEvent({
 					description: 'test events',
 					summary: 'ADDED',
 					startDate: new Date(yy, mm, dd, h, m),
 					duration: 3600000,
 					location: 'Lviv'
 				});
+
+			calendar.addEventListener('itemsadded', function(e){
+				valueOf(testRun, e.items[0].toString()).shouldBe('[object TizenCalendarCalendarEvent]');
+				finish(testRun);
+			});
 
 			valueOf(testRun, calendar).shouldBe('[object TizenCalendarCalendarInstance]');
 			valueOf(testRun, calendar.add).shouldBeFunction();
