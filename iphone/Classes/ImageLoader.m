@@ -50,7 +50,8 @@
 @property(nonatomic,readwrite) TiDimension leftCap;
 @property(nonatomic,readwrite) TiDimension topCap;
 @property(nonatomic,readwrite) BOOL hires;
-@property(nonatomic,retain) NSDate* lastModified;
+@property(nonatomic,readonly) NSDate* lastModified;
+@property(nonatomic,readonly) BOOL local;
 
 -(ImageCacheEntry*)initWithURL:(NSURL*)url;
 
@@ -59,13 +60,12 @@
 -(void)serialize:(NSData*)data;
 
 +(NSString*)cachePathForURL:(NSURL*)url;
--(BOOL)isLocal;
 
 @end
 
 @implementation ImageCacheEntry
 
-@synthesize fullImage, leftCap, topCap, hires, localPath, stretchableImage, recentlyResizedImage, lastModified;
+@synthesize fullImage, leftCap, topCap, hires, localPath, stretchableImage, recentlyResizedImage, lastModified, local;
 
 - (UIImage *)fullImage {
 	if(fullImage == nil) {
@@ -84,9 +84,6 @@
         }
 	}
 	return fullImage;
-}
-- (BOOL)isLocal {
-    return local;
 }
 
 - (void)setData:(NSData *)data
@@ -508,7 +505,7 @@ DEFINE_EXCEPTIONS
     NSLog(@"[CACHE DEBUG] cache[%@] : %@", urlString, result);
 #endif
     if (result != nil) {
-        if ([result isLocal]) {
+        if ([result local]) {
             NSError* error = nil;
             NSDate* currentTimeStamp = [[[NSFileManager defaultManager] attributesOfItemAtPath:result.localPath  error:&error]  objectForKey:NSFileModificationDate];
             
