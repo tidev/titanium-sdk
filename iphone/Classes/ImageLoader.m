@@ -59,7 +59,7 @@
 -(void)serialize:(NSData*)data;
 
 +(NSString*)cachePathForURL:(NSURL*)url;
-
+-(BOOL)isLocal;
 
 @end
 
@@ -79,10 +79,14 @@
         RELEASE_TO_NIL(recentlyResizedImage);
         RELEASE_TO_NIL(lastModified);
 		fullImage = [[UIImage alloc] initWithContentsOfFile:localPath];
-       
-        lastModified = [[[[NSFileManager defaultManager] attributesOfItemAtPath:localPath error:nil]  objectForKey:NSFileModificationDate] retain];
+        if (local) {
+            lastModified = [[[[NSFileManager defaultManager] attributesOfItemAtPath:localPath error:nil]  objectForKey:NSFileModificationDate] retain];
+        }
 	}
 	return fullImage;
+}
+- (BOOL)isLocal {
+    return local;
 }
 
 - (void)setData:(NSData *)data
@@ -249,7 +253,7 @@
         if ([remoteURL isFileURL]) {
             localPath = [[remoteURL path] retain];
             local = YES;
-            lastModified = [[[NSFileManager defaultManager] attributesOfItemAtPath:localPath error:nil]  objectForKey:NSFileModificationDate];
+            lastModified = [[[[NSFileManager defaultManager] attributesOfItemAtPath:localPath error:nil]  objectForKey:NSFileModificationDate] retain];
         }
         else {
             localPath = [[ImageCacheEntry cachePathForURL:url] retain];
@@ -504,7 +508,7 @@ DEFINE_EXCEPTIONS
     NSLog(@"[CACHE DEBUG] cache[%@] : %@", urlString, result);
 #endif
     if (result != nil) {
-        if (result.localPath && result.lastModified) {
+        if ([result isLocal]) {
             NSError* error = nil;
             NSDate* currentTimeStamp = [[[NSFileManager defaultManager] attributesOfItemAtPath:result.localPath  error:&error]  objectForKey:NSFileModificationDate];
             
