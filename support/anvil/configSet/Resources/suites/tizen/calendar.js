@@ -15,7 +15,7 @@ module.exports = new function() {
 		finish = testUtils.finish;
 		valueOf = testUtils.valueOf;
 		reportError = testUtils.reportError;
-	}
+	};
 
 	this.name = 'calendar';
 	this.tests = [
@@ -29,7 +29,7 @@ module.exports = new function() {
 		{name: 'updateEventsBatch'},
 		{name: 'changeCallbacks'},
 		{name: 'createAttendee'}
-	]
+	];
 
 	var finishError = function (testRun, errorMsg) {
 		Ti.API.info('The following error occurred: ' +  errorMsg);
@@ -94,42 +94,42 @@ module.exports = new function() {
 		Ti.API.info('Start to find items.');
 
 		calendar.find(
-			function(items) {
-				// Check that array is not empty
-				if (!items || items.length == 0) {
-					errorCB({message: 'Array items is empty'});
+			function(response) {
+				if (response.success) {
+					var items = response.items;
+					// Check that array is not empty
+					if (!items || items.length === 0) {
+						errorCB({message: 'Array items is empty'});
 
-					return;
+						return;
+					}
+
+					valueOf(testRun, items.length).shouldBe(1);
+					valueOf(testRun, items[0]).shouldBe('[object TizenCalendarCalendarItem]');
+
+					Ti.API.info(calendarType + ' id:' + items[0].id + '; id.uid:' + items[0].id.uid + ' has been found');
+
+					if (calendarType == 'TASK') {
+						valueOf(testRun, items[0].id).shouldBeString();
+						valueOf(testRun, items[0].id).shouldBe(item.id);
+					}
+
+					if (calendarType == 'EVENT') {
+						valueOf(testRun, items[0].id).shouldBe('[object TizenCalendarCalendarEventId]');
+						valueOf(testRun, items[0].id.uid).shouldBe(item.id.uid);
+					}
+
+					// Clear and finish
+					calendar.remove(items[0].id);
+
+					Ti.API.info('Finish test.');
+
+					finish(testRun);
+				} else {
+					Ti.API.error("In CB function: " + response.error);
+
+					finishError(testRun, response.error);
 				}
-
-				valueOf(testRun, items.length).shouldBe(1);
-				valueOf(testRun, items[0]).shouldBe('[object TizenCalendarCalendarItem]');				
-
-				Ti.API.info(calendarType + ' id:' + items[0].id + '; id.uid:' + items[0].id.uid + ' has been found');
-
-				if (calendarType == 'TASK') {
-					valueOf(testRun, items[0].id).shouldBeString();
-					valueOf(testRun, items[0].id).shouldBe(item.id);
-				}
-
-				if (calendarType == 'EVENT') {
-					valueOf(testRun, items[0].id).shouldBe('[object TizenCalendarCalendarEventId]');
-					valueOf(testRun, items[0].id.uid).shouldBe(item.id.uid);
-				}
-
-				// Clear and finish
-				calendar.remove(items[0].id);
-
-				Ti.API.info('Finish test.');
-
-				finish(testRun);
-			},
-			function(e) {
-				Ti.API.error("In errorCB function. Type: " + e.type);
-
-				valueOf(testRun, e).shouldBe('[object TizenWebAPIError]');
-
-				finishError(testRun, e);
 			},
 			filter
 		);
@@ -142,20 +142,25 @@ module.exports = new function() {
 			finishError(testRun,e);
 		}
 
-		function successCB(calendars) {
-			Ti.API.info(calendars.length + " item found.");
+		function successCB(response) {
+			if (response.success) {
+				var calendars = response.calendars;
+				Ti.API.info(calendars.length + " item found.");
 
-			valueOf(testRun, calendars.length).shouldBeGreaterThan(0);
+				valueOf(testRun, calendars.length).shouldBeGreaterThan(0);
 
-			for (var i = 0, len = calendars.length; i < len; i++) {				
-				Ti.API.info('The calendar id:' + calendars[i].id + ', name:' + calendars[i].name + ', accountServiceId:' + calendars[i].accountServiceId);
+				for (var i = 0, len = calendars.length; i < len; i++) {				
+					Ti.API.info('The calendar id:' + calendars[i].id + ', name:' + calendars[i].name + ', accountServiceId:' + calendars[i].accountServiceId);
 
-				valueOf(testRun, calendars[i]).shouldBe('[object TizenCalendarCalendarInstance]');
-				valueOf(testRun, calendars[i].id).shouldNotBeUndefined();
-				valueOf(testRun, calendars[i].id).shouldNotBeNull();
+					valueOf(testRun, calendars[i]).shouldBe('[object TizenCalendarCalendarInstance]');
+					valueOf(testRun, calendars[i].id).shouldNotBeUndefined();
+					valueOf(testRun, calendars[i].id).shouldNotBeNull();
+				}
+
+				finish(testRun);
+			} else {
+				finishError(testRun, response.error);
 			}
-
-			finish(testRun);
 		}
 
 		valueOf(testRun, Tizen).shouldBeObject();
@@ -163,33 +168,32 @@ module.exports = new function() {
 
 		Ti.API.info("Test getCalendars method for 'EVENT'.");
 
-		Tizen.Calendar.getCalendars('EVENT', successCB, errorCB);
+		Tizen.Calendar.getCalendars('EVENT', successCB);
 	};
 	
 	this.getTaskCalendars = function(testRun) {
-		function errorCB(e) {
-			valueOf(testRun, e).shouldBe('[object TizenWebAPIError]');
+		function successCB(response) {
+			if (response.success) {
+				var calendars = response.calendars;
+				valueOf(testRun, calendars.length).shouldBeGreaterThan(0);
 
-			finishError(testRun, e);
-		}
+				for (var i = 0, len = calendars.length; i < len; i++) {
+					Ti.API.info('The calendar id:' + calendars[i].id + ', name:' + calendars[i].name + ', accountServiceId:' + calendars[i].accountServiceId);
 
-		function successCB(calendars) {
-			valueOf(testRun, calendars.length).shouldBeGreaterThan(0);
+					valueOf(testRun, calendars[i]).shouldBe('[object TizenCalendarCalendarInstance]');
+					valueOf(testRun, calendars[i].id).shouldNotBeUndefined();
+					valueOf(testRun, calendars[i].id).shouldNotBeNull();
+				}
 
-			for (var i = 0, len = calendars.length; i < len; i++) {
-				Ti.API.info('The calendar id:' + calendars[i].id + ', name:' + calendars[i].name + ', accountServiceId:' + calendars[i].accountServiceId);
-
-				valueOf(testRun, calendars[i]).shouldBe('[object TizenCalendarCalendarInstance]');
-				valueOf(testRun, calendars[i].id).shouldNotBeUndefined();
-				valueOf(testRun, calendars[i].id).shouldNotBeNull();
+				finish(testRun);
+			} else {
+				finishError(testRun, response.error);
 			}
-
-			finish(testRun);
 		}
 
 		Ti.API.info("Test getCalendars method for 'TASK'.");
 
-		Tizen.Calendar.getCalendars('TASK', successCB, errorCB);
+		Tizen.Calendar.getCalendars('TASK', successCB);
 	};
 	
 	this.getDefaultCalendar = function(testRun) {
@@ -217,11 +221,11 @@ module.exports = new function() {
 
 	this.createEvent = function(testRun) {
 		return createCalendarItem(testRun, 'EVENT');
-	}
+	};
 
 	this.createTask = function(testRun) {
 		return createCalendarItem(testRun, 'TASK');
-	}
+	};
 
 	this.createEvents = function(testRun) {
 		var calendar = Tizen.Calendar.getDefaultCalendar('EVENT'),
@@ -255,10 +259,14 @@ module.exports = new function() {
 			finishError(testRun, e);
 		}
 		
-		function successCB() {
-			Ti.API.info('Finish test.');
+		function successCB(response) {
+			if (response.success) {
+				Ti.API.info('Finish test.');
 
-			finish(testRun);
+				finish(testRun);
+			} else {
+				finishError(testRun, response.message);
+			}
 		}
 
 		valueOf(testRun, calendar).shouldBe('[object TizenCalendarCalendarInstance]');
@@ -299,37 +307,41 @@ module.exports = new function() {
 		Ti.API.info('event id:' + ev.id + '; ev.id.uid:' + ev.id.uid + ' has been added');	
 
 		calendar.find(
-			function(events) {
-				// Check that array is not empty
-				if (!events || events.length == 0) {
-					errorCB({message:'Array of events is empty'});
+			function(response) {
+				if (response.success) {
+					// Check that array is not empty
+					var events = response.items;
+					if (!events || events.length === 0) {
+						errorCB({message:'Array of events is empty'});
 
-					return;
+						return;
+					}
+
+					valueOf(testRun, events.length).shouldBeGreaterThan(1);
+					
+					var idEvents = [],
+						i = 0,
+						len = events.length;
+
+					for(; i < len; i++) {
+						valueOf(testRun, events[i]).shouldBe('[object TizenCalendarCalendarItem]');
+						valueOf(testRun, events[i].id).shouldBe('[object TizenCalendarCalendarEventId]');
+						valueOf(testRun, events[i].id.uid).shouldNotBeUndefined();
+						valueOf(testRun, events[i].description).shouldContain('SuperEvent');
+
+						Ti.API.info('event id:' + events[i].id +'; ev.id.uid:' + events[i].id.uid + ' has been found');
+
+						idEvents.push(events[i].id);
+					}
+
+					// Clear events and finish	
+					calendar.removeBatch(idEvents, successCB);
+
+					finish(testRun);
+				} else {
+					errorCB(message.error);
 				}
-
-				valueOf(testRun, events.length).shouldBeGreaterThan(1);
-				
-				var idEvents = [],
-					i = 0,
-					len = events.length;
-
-				for(; i < len; i++) {
-					valueOf(testRun, events[i]).shouldBe('[object TizenCalendarCalendarItem]');
-					valueOf(testRun, events[i].id).shouldBe('[object TizenCalendarCalendarEventId]');
-					valueOf(testRun, events[i].id.uid).shouldNotBeUndefined();
-					valueOf(testRun, events[i].description).shouldContain('SuperEvent');
-
-					Ti.API.info('event id:' + events[i].id +'; ev.id.uid:' + events[i].id.uid + ' has been found');
-
-					idEvents.push(events[i].id);
-				}
-
-				// Clear events and finish	
-				calendar.removeBatch(idEvents, successCB, errorCB);
-
-				finish(testRun);
 			},
-			errorCB,
 			filter,
 			sortingMode
 		);
@@ -362,47 +374,51 @@ module.exports = new function() {
 		valueOf(testRun, ev1).shouldBe('[object TizenCalendarCalendarEvent]');
 		valueOf(testRun, ev2).shouldBe('[object TizenCalendarCalendarEvent]');
 
-		function errorCB(e) {
-			valueOf(testRun, e).shouldBe('[object TizenWebAPIError]');
+		function successCB(response) {
+			if (response.success) {
+				Ti.API.info('Finish createEventsBatch test.');
 
-			finishError(testRun, e);
+				finish(testRun);
+			} else {
+				finishError(testRun, response.error);
+			}
 		}
 
-		function successCB() {
-			Ti.API.info('Finish createEventsBatch test.');
+		function addEventsBatchCB(response) {
+			if(response.success) {
+				var events = response.items;
 
-			finish(testRun);
-		}
+				if (!events || events.length === 0) {
+					errorCB({message:'Array of events is empty'});
 
-		function addEventsBatchCB(events) {
-			if (!events || events.length == 0) {
-				errorCB({message:'Array of events is empty'});
+					return;
+				}
 
-				return;
+				valueOf(testRun, events.length).shouldBeGreaterThan(1);
+
+				var idEvents = [],
+					i = 0,
+					len = events.length;
+
+				for(; i < len; i++) {
+					Ti.API.info('event id:' + events[i].id + '; ev.id.uid:' + events[i].id.uid + ' has been added');
+
+					valueOf(testRun, events[i]).shouldBe('[object TizenCalendarCalendarItem]');
+					valueOf(testRun, events[i].id).shouldBe('[object TizenCalendarCalendarEventId]');
+					valueOf(testRun, events[i].id.uid).shouldNotBeUndefined();
+
+					idEvents.push(events[i].id);
+				}
+
+				// Clear events and finish	
+				calendar.removeBatch(idEvents, successCB);
+			} else {
+				finishError(testRun, response.error);
 			}
-
-			valueOf(testRun, events.length).shouldBeGreaterThan(1);
-
-			var idEvents = [],
-				i = 0,
-				len = events.length;
-
-			for(; i < len; i++) {
-				Ti.API.info('event id:' + events[i].id + '; ev.id.uid:' + events[i].id.uid + ' has been added');
-
-				valueOf(testRun, events[i]).shouldBe('[object TizenCalendarCalendarItem]');
-				valueOf(testRun, events[i].id).shouldBe('[object TizenCalendarCalendarEventId]');
-				valueOf(testRun, events[i].id.uid).shouldNotBeUndefined();
-
-				idEvents.push(events[i].id);
-			}
-
-			// Clear events and finish	
-			calendar.removeBatch(idEvents, successCB, errorCB);
 		}	
 
 		// Create and addBatch
-		calendar.addBatch([ev1, ev2], addEventsBatchCB, errorCB);
+		calendar.addBatch([ev1, ev2], addEventsBatchCB);
 	};
 	
 	this.updateEventsBatch = function(testRun) {
@@ -417,50 +433,53 @@ module.exports = new function() {
 			isUpdated;		
 
 		function errorCB(e) {
-			valueOf(testRun, e).shouldBe('[object TizenWebAPIError]');
-
 			finishError(testRun, e);
 		}
 		
-		function successCB() {
-			Ti.API.info('Finish updateEventsBatch test.');
+		function updateEventsCB(response) {
+			if(response.success) {
 
-			finish(testRun);
-		}
-		
-		function updateEventsCB() {
-			// Find again
-			calendar.find(findEventsCB, errorCB, filter);
-		}
-		
-		function findEventsCB(events) {
-			// Check that array is not empty
-			if (!events || events.length == 0) {
-				errorCB({message: 'Array events is empty'});
-				return;
+				// Find again
+				calendar.find(findEventsCB, filter);
+			} else {
+				finishError(testRun, response.error);
 			}
-			
-			Ti.API.info('event ev.id.uid:' + events[0].id.uid + 'has been found, summary:' + events[0].summary);
+		}
+		
+		function findEventsCB(response) {
+			if (response.success) {
+				var events = response.items;
 
-			// Update or finish
-			if (!isUpdated) {
-				try {
-					valueOf(testRun, events[0]).shouldBe('[object TizenCalendarCalendarItem]');
+				// Check that array is not empty
+				if (!events || events.length === 0) {
+					errorCB('Array events is empty');
+					return;
+				}
+				
+				Ti.API.info('event ev.id.uid:' + events[0].id.uid + 'has been found, summary:' + events[0].summary);
 
-					events[0].summary = 'new summary 1';
-					calendar.updateBatch([events[0]], updateEventsCB, errorCB);
-					isUpdated = true;
-				} catch (e) {
-					finishError(testRun, e);
+				// Update or finish
+				if (!isUpdated) {
+					try {
+						valueOf(testRun, events[0]).shouldBe('[object TizenCalendarCalendarItem]');
+
+						events[0].summary = 'new summary 1';
+						calendar.updateBatch([events[0]], updateEventsCB);
+						isUpdated = true;
+					} catch (e) {
+						finishError(testRun, e);
+					}
+				} else {
+					// Check updated values
+					valueOf(testRun, events[0].summary).shouldBe('new summary 1');
+
+					// Clear and finish
+					calendar.remove(events[0].id);
+
+					finish(testRun);
 				}
 			} else {
-				// Check updated values
-				valueOf(testRun, events[0].summary).shouldBe('new summary 1');
-
-				// Clear and finish
-				calendar.remove(events[0].id);
-
-				finish(testRun);
+				errorCB(response.error);
 			}
 		}
 
@@ -492,7 +511,7 @@ module.exports = new function() {
 		valueOf(testRun, calendar).shouldBe('[object TizenCalendarCalendarInstance]');
 		valueOf(testRun, filter).shouldBe('[object TizenAttributeFilter]');
 
-		calendar.find(findEventsCB, errorCB, filter);
+		calendar.find(findEventsCB, filter);
 	};
 	
 	this.changeCallbacks = function(testRun) {
@@ -551,12 +570,12 @@ module.exports = new function() {
 					});
 				},
 				onitemsupdated: function(items) {
-					 checkEvent('UPDATED', items, function(event) {
+					checkEvent('UPDATED', items, function(event) {
 						Ti.API.info('Item updated.');
 
 						event.summary = 'REMOVED';
 						calendar.remove(event.id);
-					 });
+					});
 				},
 				onitemsremoved: function(ids) {
 					if (ids.indexOf(eventUID)) {
@@ -621,7 +640,9 @@ module.exports = new function() {
 			// create attendee wich will be tested below
 			attendee = Tizen.Calendar.createCalendarAttendee({
 				uri: 'mailto:bob@domain.com',
-			    attendeeInitDict: {role: Tizen.Calendar.ATTENDEE_ROLE_CHAIR, rsvp: true}
+				attendeeInitDict: {
+					role: Tizen.Calendar.ATTENDEE_ROLE_CHAIR, rsvp: true
+				}
 			});
 			
 		valueOf(testRun, calendar).shouldBe('[object TizenCalendarCalendarInstance]');
@@ -661,6 +682,5 @@ module.exports = new function() {
 			
 			finish(testRun);
 		}, 1000);
-		
 	};
 }
