@@ -71,12 +71,10 @@ exports.config = function (logger, config, cli) {
 							},
 							required: true
 						},
-						/*
 						'avd-abi': {
 							abbr: 'B',
 							desc: __('the abi for the avd')
 						},
-						*/
 						'avd-id': {
 							abbr: 'I',
 							desc: __('the id for the avd'),
@@ -247,11 +245,9 @@ exports.validate = function (logger, config, cli) {
 		if (!cli.argv['avd-skin']) {
 			cli.argv['avd-skin'] = 'HVGA';
 		}
-		/*
 		if (!cli.argv['avd-abi']) {
 			cli.argv['avd-abi'] = androidEnv.targets[cli.argv['avd-id']].abis[0] || androidEnv.targets['7'].abis[0] || 'armeabi';
 		}
-		*/
 	}
 	
 	// Validate arguments for dist-playstore
