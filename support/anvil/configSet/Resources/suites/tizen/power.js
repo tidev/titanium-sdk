@@ -64,7 +64,7 @@ module.exports = new function() {
 		}).shouldNotThrowException();
 
 		valueOf(testRun, function() {
-			Tizen.Power.addEventListener('screenStateChanged', onScreenStateChanged);
+			Tizen.Power.addEventListener('screenstateshanged', onScreenStateChanged);
 		}).shouldNotThrowException();
 
 		valueOf(testRun, function() {
