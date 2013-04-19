@@ -42,10 +42,11 @@ module.exports = new function() {
 			Tizen.Power.turnScreenOn();
 		}).shouldNotThrowException();
 
-		valueOf(testRun, Tizen.Power.isScreenOn()).shouldBeTrue();
-
-		finish(testRun);
-	}	
+		setTimeout(function () {
+            valueOf(testRun, Tizen.Power.isScreenOn()).shouldBeTrue();
+            finish(testRun);
+        }, 500);
+	}
 
 	this.powerStateListener = function(testRun) {
 
@@ -64,7 +65,7 @@ module.exports = new function() {
 		}).shouldNotThrowException();
 
 		valueOf(testRun, function() {
-			Tizen.Power.addEventListener('screenstateshanged', onScreenStateChanged);
+			Tizen.Power.addEventListener('screenstatechanged', onScreenStateChanged);
 		}).shouldNotThrowException();
 
 		valueOf(testRun, function() {
