@@ -156,14 +156,14 @@
 	{
 		case TiDimensionTypeDip:
 		{
-			minimumContentWidth = contentWidth.value;
+			minimumContentWidth = MAX(contentWidth.value,newContentSize.width);
 			break;
 		}
         case TiDimensionTypeUndefined:
         case TiDimensionTypeAutoSize:
 		case TiDimensionTypeAuto: // TODO: This may break the layout spec for content "auto"
 		{
-			minimumContentWidth = [(TiViewProxy *)[self proxy] autoWidthForSize:[self bounds].size];
+			minimumContentWidth = [(TiViewProxy *)[self proxy] autoWidthForSize:newContentSize];
 			break;
 		}
         case TiDimensionTypeAutoFill: // Assume that "fill" means "fill scrollview bounds"; not in spec
@@ -177,14 +177,14 @@
 	{
 		case TiDimensionTypeDip:
 		{
-			minimumContentHeight = contentHeight.value;
+			minimumContentHeight = MAX(contentHeight.value,newContentSize.height);
 			break;
 		}
         case TiDimensionTypeUndefined:
         case TiDimensionTypeAutoSize:
 		case TiDimensionTypeAuto: // TODO: This may break the layout spec for content "auto"            
 		{
-			minimumContentHeight=[(TiViewProxy *)[self proxy] autoHeightForSize:[self bounds].size];
+			minimumContentHeight=[(TiViewProxy *)[self proxy] autoHeightForSize:newContentSize];
 			break;
 		}
         case TiDimensionTypeAutoFill: // Assume that "fill" means "fill scrollview bounds"; not in spec           
