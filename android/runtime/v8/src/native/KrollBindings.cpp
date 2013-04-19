@@ -41,6 +41,7 @@ std::map<std::string, bindings::BindEntry*> KrollBindings::externalBindings;
 std::map<std::string, jobject> KrollBindings::externalCommonJsModules;
 std::map<std::string, jmethodID> KrollBindings::commonJsSourceRetrievalMethods;
 std::vector<LookupFunction> KrollBindings::externalLookups;
+std::map<std::string, bindings::BindEntry*> KrollBindings::externalLookupBindings;
 
 void KrollBindings::initFunctions(Handle<Object> exports)
 {
@@ -182,6 +183,7 @@ Handle<Object> KrollBindings::getBinding(Handle<String> binding)
 			Local<Object> exports = Object::New();
 			external->bind(exports);
 			bindingCache->Set(binding, exports);
+			externalLookupBindings[*bindingValue] = external;
 
 			return exports;
 		}
@@ -238,7 +240,15 @@ void KrollBindings::dispose()
 			native->dispose();
 			continue;
 		}
+
+		struct titanium::bindings::BindEntry *lookup = externalLookupBindings[*binding];
+		if (lookup && lookup->dispose) {
+			lookup->dispose();
+			continue;
+		}
 	}
+
+	externalLookupBindings.clear();
 
 	bindingCache.Dispose();
 	bindingCache = Persistent<Object>();
