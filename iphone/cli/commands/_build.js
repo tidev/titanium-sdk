@@ -2454,7 +2454,7 @@ build.prototype = {
 							if (ignoreRegExp.test(file) || (ignore && ignore.indexOf(file) != -1)) {
 								this.logger.debug(__('Ignoring %s', f.cyan));
 							} else if (fstat.isDirectory()) {
-								recursivelyCopy(f, t, p, next);
+								recursivelyCopy(f, t, p, null, next);
 								return;
 							} else if (!/\.jss$/.test(file)) {
 								var m = file.match(/\.(html|css|js)$/)
