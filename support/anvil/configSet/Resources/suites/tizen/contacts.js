@@ -553,7 +553,7 @@ module.exports = new function() {
 				valueOf(testRun, persons.length).shouldBeGreaterThan(9);
 				finish(testRun);
 			} else {
-				reportError(testRun, 'The following error occured: ' + err.message);
+				reportError(testRun, 'The following error occured: ' + response.error);
 			}
 		});
 	}
@@ -600,14 +600,17 @@ module.exports = new function() {
 					});
 				}
 
-				Ti.Contacts.Tizen.getPeopleWithName("John Smith", function(persons) {
-					valueOf(testRun, persons.length).shouldBe(5);
-					finish(testRun);
-				}, function(err) {
-					reportError(testRun, 'The following error occured: ' + err.message);
+				Ti.Contacts.Tizen.getPeopleWithName("John Smith", 
+				function(response){
+					if(response.success){
+						valueOf(testRun, response.persons.length).shouldBe(5);
+						finish(testRun);
+					} else {
+						reportError(testRun, 'The following error occured: ' + response.error);
+					}
 				});
 			} else {
-				reportError(testRun, 'The following error occured: ' + err.message);
+				reportError(testRun, 'The following error occured: ' + response.error);
 			}
 		});
 	}
@@ -656,16 +659,19 @@ module.exports = new function() {
 				person.firstName = 'Oleh';
 
 				Ti.Contacts.save([person]);
-				Ti.Contacts.Tizen.getAllPeople(function(persons) {
-					valueOf(testRun, persons.length).shouldBe(1);
-					var contact = Ti.Contacts.getPersonByID(person.id);
-					valueOf(testRun, contact.firstName).shouldBe('Oleh');
-					finish(testRun);
-				}, function(err) {
-					reportError(testRun, 'The following error occured: ' + err.message);
+				Ti.Contacts.Tizen.getAllPeople(function(response) {
+					if (response.success) {
+						var persons = response.persons;
+						valueOf(testRun, persons.length).shouldBe(1);
+						var contact = Ti.Contacts.getPersonByID(person.id);
+						valueOf(testRun, contact.firstName).shouldBe('Oleh');
+						finish(testRun);
+					} else {
+						reportError(testRun, 'The following error occured: ' + response.error);
+					}
 				});
 			} else {
-				reportError(testRun, 'The following error occured: ' + err.message);
+				reportError(testRun, 'The following error occured: ' + response.error);
 			}
 		});
 	}
