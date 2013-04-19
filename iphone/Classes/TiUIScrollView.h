@@ -25,6 +25,7 @@
 	TiDimension contentHeight;
 	
 	CGFloat minimumContentHeight;
+	CGFloat minimumContentWidth;
 	
 	BOOL needsHandleContentSize;
 	

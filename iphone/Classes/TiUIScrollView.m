@@ -156,18 +156,19 @@
 	{
 		case TiDimensionTypeDip:
 		{
-			newContentSize.width = MAX(newContentSize.width,contentWidth.value);
+			minimumContentWidth = MAX(contentWidth.value,newContentSize.width);
 			break;
 		}
         case TiDimensionTypeUndefined:
         case TiDimensionTypeAutoSize:
 		case TiDimensionTypeAuto: // TODO: This may break the layout spec for content "auto"
 		{
-			newContentSize.width = MAX(newContentSize.width,[(TiViewProxy *)[self proxy] autoWidthForSize:[self bounds].size]);
+			minimumContentWidth = [(TiViewProxy *)[self proxy] autoWidthForSize:newContentSize];
 			break;
 		}
         case TiDimensionTypeAutoFill: // Assume that "fill" means "fill scrollview bounds"; not in spec
 		default: {
+			minimumContentWidth = newContentSize.width;
 			break;
 		}
 	}
@@ -176,14 +177,14 @@
 	{
 		case TiDimensionTypeDip:
 		{
-			minimumContentHeight = contentHeight.value;
+			minimumContentHeight = MAX(contentHeight.value,newContentSize.height);
 			break;
 		}
         case TiDimensionTypeUndefined:
         case TiDimensionTypeAutoSize:
 		case TiDimensionTypeAuto: // TODO: This may break the layout spec for content "auto"            
 		{
-			minimumContentHeight=[(TiViewProxy *)[self proxy] autoHeightForSize:[self bounds].size];
+			minimumContentHeight=[(TiViewProxy *)[self proxy] autoHeightForSize:newContentSize];
 			break;
 		}
         case TiDimensionTypeAutoFill: // Assume that "fill" means "fill scrollview bounds"; not in spec           
@@ -191,14 +192,15 @@
 			minimumContentHeight = newContentSize.height;
 			break;
 	}
-	newContentSize.width *= scale;
-	newContentSize.height = scale * MAX(newContentSize.height,minimumContentHeight);
+	CGRect wrapperBounds = CGRectZero;
+	wrapperBounds.size.width = scale*minimumContentWidth;
+	wrapperBounds.size.height = scale*minimumContentHeight;
+	newContentSize.width = MAX(newContentSize.width,wrapperBounds.size.width);
+	newContentSize.height = MAX(newContentSize.height,wrapperBounds.size.height);
 
 	[scrollView setContentSize:newContentSize];
-	CGRect wrapperBounds;
-	wrapperBounds.origin = CGPointZero;
-	wrapperBounds.size = newContentSize;
 	[wrapperView setFrame:wrapperBounds];
+	[self scrollViewDidZoom:scrollView];
 	needsHandleContentSize = NO;
 	[(TiUIScrollViewProxy *)[self proxy] layoutChildrenAfterContentSize:NO];
 }
@@ -363,14 +365,14 @@
 {
 	CGSize boundsSize = scrollView.bounds.size;
     CGRect frameToCenter = wrapperView.frame;
-	if (TiDimensionIsAuto(contentWidth) || TiDimensionIsAutoSize(contentWidth)) {
+	if (TiDimensionIsAuto(contentWidth) || TiDimensionIsAutoSize(contentWidth) || TiDimensionIsUndefined(contentWidth)) {
 		if (frameToCenter.size.width < boundsSize.width) {
 			frameToCenter.origin.x = (boundsSize.width - frameToCenter.size.width) / 2;
 		} else {
 			frameToCenter.origin.x = 0;
 		}
 	}
-	if (TiDimensionIsAuto(contentHeight) || TiDimensionIsAutoSize(contentHeight)) {
+	if (TiDimensionIsAuto(contentHeight) || TiDimensionIsAutoSize(contentHeight) || TiDimensionIsUndefined(contentHeight)) {
 		if (frameToCenter.size.height < boundsSize.height) {
 			frameToCenter.origin.y = (boundsSize.height - frameToCenter.size.height) / 2;
 		} else {

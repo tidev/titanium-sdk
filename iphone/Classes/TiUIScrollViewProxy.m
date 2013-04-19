@@ -269,9 +269,13 @@ static NSArray* scrollViewKeySequence;
     if (TiDimensionIsAutoFill(contentHeight) || TiDimensionIsDip(contentHeight) || TiDimensionIsPercent(contentHeight)) {
         flexibleContentHeight = NO;
     }
+    /*
+     wrapperview bounds are now independent of contentSize. So this is not needed.
+     See TIMOB-13243
+    */
     
-    contentSize.size.width = MAX(contentSize.size.width,viewBounds.size.width);
-    contentSize.size.height = MAX(contentSize.size.height,viewBounds.size.height);
+    //contentSize.size.width = MAX(contentSize.size.width,viewBounds.size.width);
+    //contentSize.size.height = MAX(contentSize.size.height,viewBounds.size.height);
     
     if (TiLayoutRuleIsVertical(layoutProperties.layoutStyle)) {
         if (TiDimensionIsPercent(child->layoutProperties.height)){
