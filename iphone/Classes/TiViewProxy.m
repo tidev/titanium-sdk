@@ -1343,6 +1343,21 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap,horizontalWrap,horizontalWrap,[self willCha
 
 #pragma mark Building up and Tearing down
 
+-(void)resetDefaultValues
+{
+    autoresizeCache = UIViewAutoresizingNone;
+    sizeCache = CGRectZero;
+    sandboxBounds = CGRectZero;
+    positionCache = CGPointZero;
+    repositioning = NO;
+    parentVisible = NO;
+    viewInitialized = NO;
+    readyToCreateView = defaultReadyToCreateView;
+    windowOpened = NO;
+    windowOpening = NO;
+    dirtyflags = 0;
+}
+
 -(id)init
 {
 	if ((self = [super init]))
@@ -1350,6 +1365,8 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap,horizontalWrap,horizontalWrap,[self willCha
 		destroyLock = [[NSRecursiveLock alloc] init];
 		pthread_rwlock_init(&childrenLock, NULL);
 		bubbleParent = YES;
+        hidden = NO;
+        [self resetDefaultValues];
 	}
 	return self;
 }
@@ -1510,6 +1527,8 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap,horizontalWrap,horizontalWrap,[self willCha
     [[self children] makeObjectsPerformSelector:@selector(detachView)];
     pthread_rwlock_unlock(&childrenLock);
 	[destroyLock unlock];
+    [self resetDefaultValues];
+
 }
 
 -(void)_destroy

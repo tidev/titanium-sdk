@@ -94,6 +94,15 @@ TiOrientationFlags TiOrientationFlagsFromObject(id args)
 	}
 }
 
+-(id)init
+{
+	if ((self = [super init]))
+	{
+        opened = NO;
+	}
+	return self;
+}
+
 -(void) dealloc {
     
 	RELEASE_TO_NIL(navController);
@@ -511,6 +520,7 @@ TiOrientationFlags TiOrientationFlagsFromObject(id args)
 	}
 	
 	self.navController = navController_;
+    sandboxBounds = [self getInitFrameFromFrame:[self.navController.view bounds]];
 	navWindow = YES;
 	[self view];
 	if ([self _handleOpen:nil])
