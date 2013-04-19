@@ -170,6 +170,11 @@ A new open source Google Maps v2 module for Android replaces the built-in `Titan
 uses the deprecated Google Maps API v1.  For new development, applications need to use this module
 to add native maps support on the Android platform.
 
+The Google Maps v2 module is **not** included in the SDK for Release 3.1. You can download
+it from the Marketplace or from github:
+
+*   [https://github.com/appcelerator/titanium_modules/tree/master/map/mobile/android/dist](https://github.com/appcelerator/titanium_modules/tree/master/map/mobile/android/dist)
+
 If you have Google Maps API v1 keys, you may continue using the `Titanium.Map` proxy or use the new
 Google Maps v2 module.
 
@@ -367,8 +372,14 @@ in the Ti.Geolocation API reference.
 
 ### iOS Retina Simulator Support
 
-The iOS simulator now allows you to choose to launch in Retina mode on demand, rather than
-needing to switch the simulator manually.
+The iOS simulator now allows you to choose the default simulator type to launch--either
+non-Retina, Retina, or Retina tall. To select the simulator type:
+
+1. In the Preferences dialog, navigate to **Studio** > **Platforms** > **iOS**.
+2. Choose a simulator type from the **Default Display** list and click **OK**.
+
+A subsequent release will include the ability to change the simulator type from the Run
+Configurations dialog when launching in the simulator.
 
 <a name="new_platforms"></a>
 
