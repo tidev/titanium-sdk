@@ -547,11 +547,14 @@ module.exports = new function() {
 			});
 		}
 
-		Ti.Contacts.Tizen.getAllPeople(function(persons) {
-			valueOf(testRun, persons.length).shouldBeGreaterThan(9);
-			finish(testRun);
-		},  function(err) {
-			reportError(testRun, 'The following error occured: ' + err.message);
+		Ti.Contacts.Tizen.getAllPeople(function(response) {
+			if (response.success) {
+				var persons = response.persons;
+				valueOf(testRun, persons.length).shouldBeGreaterThan(9);
+				finish(testRun);
+			} else {
+				reportError(testRun, 'The following error occured: ' + err.message);
+			}
 		});
 	}
 
@@ -571,38 +574,41 @@ module.exports = new function() {
 
 	this.getPeopleWithName = function(testRun) {
 		// Remove all contacts
-		Ti.Contacts.Tizen.getAllPeople(function(persons) {
-			var i = 0, 
-				personsCount = persons.length;
+		Ti.Contacts.Tizen.getAllPeople(function(response) {
+			if (response.success) {
+				var i = 0,
+					persons = response.persons,
+					personsCount = persons.length;
 
-			for (; i < personsCount; i++) {
-				Ti.Contacts.removePerson(persons[i]);
-			}
+				for (; i < personsCount; i++) {
+					Ti.Contacts.removePerson(persons[i]);
+				}
 
-			// Add 5 contacts with names John Smith
-			for (i = 0; i < 5; i++) {
-				Ti.Contacts.createPerson({
-					firstName: "John",
-					lastName: "Smith"
+				// Add 5 contacts with names John Smith
+				for (i = 0; i < 5; i++) {
+					Ti.Contacts.createPerson({
+						firstName: "John",
+						lastName: "Smith"
+					});
+				}
+
+				// Add 5 contacts with names Mark Duglas
+				for (i = 0; i < 5; i++) {
+					Ti.Contacts.createPerson({
+						firstName: "Mark",
+						lastName: "Duglas"
+					});
+				}
+
+				Ti.Contacts.Tizen.getPeopleWithName("John Smith", function(persons) {
+					valueOf(testRun, persons.length).shouldBe(5);
+					finish(testRun);
+				}, function(err) {
+					reportError(testRun, 'The following error occured: ' + err.message);
 				});
-			}
-
-			// Add 5 contacts with names Mark Duglas
-			for (i = 0; i < 5; i++) {
-				Ti.Contacts.createPerson({
-					firstName: "Mark",
-					lastName: "Duglas"
-				});
-			}
-
-			Ti.Contacts.Tizen.getPeopleWithName("John Smith", function(persons) {
-				valueOf(testRun, persons.length).shouldBe(5);
-				finish(testRun);
-			}, function(err) {
+			} else {
 				reportError(testRun, 'The following error occured: ' + err.message);
-			});
-		},  function(err) {
-			reportError(testRun, 'The following error occured: ' + err.message);
+			}
 		});
 	}
 
@@ -632,32 +638,35 @@ module.exports = new function() {
 	}
 
 	this.saveContact = function(testRun) {
-		Ti.Contacts.Tizen.getAllPeople(function(persons){
-			var i = 0, 
-				personsCount = persons.length;
+		Ti.Contacts.Tizen.getAllPeople(function(response) {
+			if (response.success) {
+				var i = 0,
+					persons = response.persons,
+					personsCount = persons.length;
 
-			for (; i < personsCount; i++) {
-				Ti.Contacts.removePerson(persons[i]);
-			}
+				for (; i < personsCount; i++) {
+					Ti.Contacts.removePerson(persons[i]);
+				}
 
-			var person = Ti.Contacts.createPerson({
-				firstName: 'John',
-				lastName: 'Smith'
-			});
+				var person = Ti.Contacts.createPerson({
+					firstName: 'John',
+					lastName: 'Smith'
+				});
 
-			person.firstName = 'Oleh';
+				person.firstName = 'Oleh';
 
-			Ti.Contacts.save([person]);
-			Ti.Contacts.Tizen.getAllPeople(function(persons) {
-				valueOf(testRun, persons.length).shouldBe(1);
-				var contact = Ti.Contacts.getPersonByID(person.id);
-				valueOf(testRun, contact.firstName).shouldBe('Oleh');
-				finish(testRun);
-			}, function(err) {
+				Ti.Contacts.save([person]);
+				Ti.Contacts.Tizen.getAllPeople(function(persons) {
+					valueOf(testRun, persons.length).shouldBe(1);
+					var contact = Ti.Contacts.getPersonByID(person.id);
+					valueOf(testRun, contact.firstName).shouldBe('Oleh');
+					finish(testRun);
+				}, function(err) {
+					reportError(testRun, 'The following error occured: ' + err.message);
+				});
+			} else {
 				reportError(testRun, 'The following error occured: ' + err.message);
-			});
-		}, function(err) {
-			reportError(testRun, 'The following error occured: ' + err.message);
+			}
 		});
 	}
 }
