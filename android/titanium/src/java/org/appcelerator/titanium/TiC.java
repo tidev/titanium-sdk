@@ -2251,6 +2251,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_ZOOM_ENABLED = "zoomEnabled";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_ZORDER_ON_TOP = "zOrderOnTop";
 	public static final String SIZE_AUTO = "auto";
 	public static final String URL_APP_PREFIX = "app://";
 	public static final String URL_APP_SCHEME = "app";
