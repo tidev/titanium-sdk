@@ -613,15 +613,20 @@ module.exports = new function() {
 				duration: 3600000,
 				location: 'Lviv'
 			}),
-
+			contactRef = Tizen.createContactRef({
+				addressBookId: 'null',
+				contactId: '267'
+			}),
 			// create attendee wich will be tested below
 			attendee = Tizen.Calendar.createCalendarAttendee({
 				uri: 'mailto:bob@domain.com',
 				attendeeInitDict: {
-					role: Tizen.Calendar.ATTENDEE_ROLE_CHAIR, rsvp: true
-				}
+					role: Tizen.Calendar.ATTENDEE_ROLE_CHAIR,
+					rsvp: true
+				},
+				calendarRef: contactRef
 			});
-			
+		valueOf(testRun, attendee.calendarRef).shouldBe('[object TizenContactContactRef]');
 		valueOf(testRun, calendar).shouldBe('[object TizenCalendarCalendarInstance]');
 		valueOf(testRun, startDate).shouldBeObject();
 		valueOf(testRun, ev).shouldBe('[object TizenCalendarCalendarEvent]');
