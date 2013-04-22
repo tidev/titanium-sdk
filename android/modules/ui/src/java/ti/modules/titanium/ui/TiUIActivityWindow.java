@@ -240,6 +240,12 @@ public class TiUIActivityWindow extends TiUIView
 
 			} else {
 				windowActivity.finish();
+
+				Object enterAnim = options.get(TiC.PROPERTY_ACTIVITY_ENTER_ANIMATION);
+				Object exitAnim = options.get(TiC.PROPERTY_ACTIVITY_EXIT_ANIMATION);
+				if (enterAnim != null && exitAnim != null) {
+					windowActivity.overridePendingTransition(TiConvert.toInt(enterAnim), TiConvert.toInt(exitAnim));
+				}
 			}
 
 			// Finishing an activity is not synchronous, so we remove the activity from the activity stack here
