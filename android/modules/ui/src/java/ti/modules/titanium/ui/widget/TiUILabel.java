@@ -28,7 +28,7 @@ import android.widget.TextView;
 public class TiUILabel extends TiUIView
 {
 	private static final String TAG = "TiUILabel";
-	
+
 	private int defaultColor;
 	private boolean wordWrap = true;
 
@@ -41,7 +41,8 @@ public class TiUILabel extends TiUIView
 			@Override
 			protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec)
 			{
-				if (!wordWrap) {
+				// Only allow label to exceed the size of parent when it's size behavior with wordwrap disabled
+				if (!wordWrap && layoutParams.optionWidth == null && !layoutParams.autoFillsWidth) {
 					widthMeasureSpec = MeasureSpec.makeMeasureSpec(MeasureSpec.getSize(widthMeasureSpec),
 						MeasureSpec.UNSPECIFIED);
 					heightMeasureSpec = MeasureSpec.makeMeasureSpec(MeasureSpec.getSize(heightMeasureSpec),

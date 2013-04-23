@@ -61,7 +61,7 @@ define(["Ti/_/has"], function(has) {
 						d = dest[p] || (dest[p] = {});
 						d.__values__ || (d.__values__ = {});
 						for (i in src[p]) {
-							(function(property, externalDest, internalDest, valueDest, /* setter/getter, getter, or value */ descriptor, capitalizedName, writable) {
+							(function(property, externalDest, internalDest, /* setter/getter, getter, or value */ descriptor, capitalizedName, writable) {
 								var o = is(descriptor, "Object"),
 									getter = o && is(descriptor.get, "Function") && descriptor.get,
 									setter = o && is(descriptor.set, "Function") && descriptor.set,
@@ -69,21 +69,21 @@ define(["Ti/_/has"], function(has) {
 									post = pt === "Function" ? descriptor.post : pt === "String" ? hitch(externalDest, descriptor.post) : 0;
 
 								if (o && (getter || setter || post)) {
-									valueDest[property] = descriptor.value;
+									internalDest.__values__[property] = descriptor.value;
 								} else if (is(descriptor, "Function")) {
 									getter = descriptor;
 								} else {
-									valueDest[property] = descriptor;
+									internalDest.__values__[property] = descriptor;
 								}
 
 								// first set the internal private interface
 								Object.defineProperty(internalDest, property, {
 									get: function() {
-										return getter ? getter.call(externalDest, valueDest[property]) : valueDest[property];
+										return getter ? getter.call(externalDest, internalDest.__values__[property]) : internalDest.__values__[property];
 									},
 									set: function(v) {
-										var args = [v, valueDest[property], property];
-										args[0] = valueDest[property] = setter ? setter.apply(externalDest, args) : v;
+										var args = [v, internalDest.__values__[property], property];
+										args[0] = internalDest.__values__[property] = setter ? setter.apply(externalDest, args) : v;
 										post && post.apply(externalDest, args);
 									},
 									configurable: true,
@@ -109,7 +109,7 @@ define(["Ti/_/has"], function(has) {
 									externalDest["get" + capitalizedName] = function() { return internalDest[property]; };
 									writable && (externalDest["set" + capitalizedName] = function(v) { return internalDest[property] = v; });
 								}
-							}(i, dest, d, d.__values__, src[p][i], i.substring(0, 1).toUpperCase() + i.substring(1), special[p]));
+							}(i, dest, d, src[p][i], i.substring(0, 1).toUpperCase() + i.substring(1), special[p]));
 						}
 					} else if (everything) {
 						dest[p] = src[p];

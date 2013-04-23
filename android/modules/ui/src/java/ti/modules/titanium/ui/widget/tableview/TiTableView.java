@@ -25,7 +25,6 @@ import ti.modules.titanium.ui.TableViewProxy;
 import ti.modules.titanium.ui.TableViewRowProxy;
 import ti.modules.titanium.ui.widget.searchbar.TiUISearchBar.OnSearchChangeListener;
 import ti.modules.titanium.ui.widget.tableview.TableViewModel.Item;
-import android.R;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
@@ -191,6 +190,9 @@ public class TiTableView extends FrameLayout
 						if (v.getRowData() != item) {
 							v = null;
 						}
+					} else if (v.getClassName().equals(TableViewProxy.CLASSNAME_HEADERVIEW)) {
+						//Always recreate the header view
+						v = null;
 					} else {
 						// otherwise compare class names
 						if (!v.getClassName().equals(item.className)) {
@@ -205,15 +207,8 @@ public class TiTableView extends FrameLayout
 				if (item.className.equals(TableViewProxy.CLASSNAME_HEADERVIEW)) {
 					TiViewProxy vproxy = item.proxy;
 					TiUIView headerView = layoutHeaderOrFooter(vproxy);
-					ViewParent viewParent = headerView.getOuterView().getParent();
-					if (viewParent != null && viewParent instanceof ViewGroup) {
-						Log.d(TAG, "Header view has not been removed from parent. Detaching header view...",
-							Log.DEBUG_MODE);
-						((ViewGroup) viewParent).removeView(headerView.getOuterView());
-					}
 					v = new TiTableViewHeaderItem(proxy.getActivity(), headerView);
 					v.setClassName(TableViewProxy.CLASSNAME_HEADERVIEW);
-					v.setRowData(item);
 					return v;
 				} else if (item.className.equals(TableViewProxy.CLASSNAME_HEADER)) {
 					v = new TiTableViewHeaderItem(proxy.getActivity());
@@ -229,7 +224,7 @@ public class TiTableView extends FrameLayout
 					v.setClassName(item.className);
 				}
 				v.setLayoutParams(new AbsListView.LayoutParams(
-					AbsListView.LayoutParams.FILL_PARENT, AbsListView.LayoutParams.FILL_PARENT));
+					AbsListView.LayoutParams.MATCH_PARENT, AbsListView.LayoutParams.MATCH_PARENT));
 			}
 			v.setRowData(item);
 			return v;
@@ -407,7 +402,7 @@ public class TiTableView extends FrameLayout
 		if (currentSelector != selector) {
 			selector = new StateListDrawable();
 			TiTableViewSelector selectorDrawable = new TiTableViewSelector (listView);
-			selector.addState(new int[] {R.attr.state_pressed}, selectorDrawable);
+			selector.addState(new int[] {android.R.attr.state_pressed}, selectorDrawable);
 			listView.setSelector(selector);
 		}
 	}
@@ -455,8 +450,16 @@ public class TiTableView extends FrameLayout
 
 	private TiUIView layoutHeaderOrFooter(TiViewProxy viewProxy)
 	{
+		//We are always going to create a new view here. So detach outer view here and recreate
+		View outerView = (viewProxy.peekView() == null) ? null : viewProxy.peekView().getOuterView();
+		if (outerView != null) {
+			ViewParent vParent = outerView.getParent();
+			if ( vParent instanceof ViewGroup ) {
+				((ViewGroup)vParent).removeView(outerView);
+			}
+		}
 		TiBaseTableViewItem.clearChildViews(viewProxy);
-		TiUIView tiView = viewProxy.forceCreateView(false);		// false means don't set model listener
+		TiUIView tiView = viewProxy.forceCreateView();
 		View nativeView = tiView.getOuterView();
 		TiCompositeLayout.LayoutParams params = tiView.getLayoutParams();
 
@@ -464,14 +467,14 @@ public class TiTableView extends FrameLayout
 		int height = AbsListView.LayoutParams.WRAP_CONTENT;
 		if (params.sizeOrFillHeightEnabled) {
 			if (params.autoFillsHeight) {
-				height = AbsListView.LayoutParams.FILL_PARENT;
+				height = AbsListView.LayoutParams.MATCH_PARENT;
 			}
 		} else if (params.optionHeight != null) {
 			height = params.optionHeight.getAsPixels(listView);
 		}
 		if (params.sizeOrFillWidthEnabled) {
 			if (params.autoFillsWidth) {
-				width = AbsListView.LayoutParams.FILL_PARENT;
+				width = AbsListView.LayoutParams.MATCH_PARENT;
 			}
 		} else if (params.optionWidth != null) {
 			width = params.optionWidth.getAsPixels(listView);

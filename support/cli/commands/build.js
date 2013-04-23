@@ -11,8 +11,7 @@ var appc = require('node-appc'),
 	__n = i18n.__n,
 	afs = appc.fs,
 	ti = require('titanium-sdk'),
-	path = require('path'),
-	codeProcessor = require('titanium-code-processor');
+	path = require('path');
 
 // TODO: need to support building modules... how do we know if --dir is a module or app? where is the module _build.js located?
 
@@ -124,113 +123,12 @@ exports.run = function (logger, config, cli) {
 		process.exit(1);
 	}
 
-	function buildModuleRun() {
-		require(buildModule).run(logger, config, cli, function (err) {
-			var delta = appc.time.prettyDiff(cli.startTime, Date.now());
-			if (err) {
-				logger.error(__('Project failed to build after %s', delta) + '\n');
-			} else {
-				logger.info(__('Project built successfully in %s', delta) + '\n');
-			}
-		});
-	}
-
-	// Run the code processor, if it is enabled
-	if (cli.tiapp['code-processor'] && cli.tiapp['code-processor'].enabled) {
-		var codeProcessorPluginDir = path.resolve(path.join(global.titaniumCodeProcessorLibDir, '..', 'plugins')),
-			parsedModules = {},
-			moduleSearchPaths,
-			plugins = [];
-
-		moduleSearchPaths = [ cli.argv['project-dir'], afs.resolvePath(path.join(__dirname, '..', '..')) ];
-		if (config.paths && Array.isArray(config.paths.modules)) {
-			moduleSearchPaths = moduleSearchPaths.concat(config.paths.modules);
+	require(buildModule).run(logger, config, cli, function (err) {
+		var delta = appc.time.prettyDiff(cli.startTime, Date.now());
+		if (err) {
+			logger.error(__('Project failed to build after %s', delta) + '\n');
+		} else {
+			logger.info(__('Project built successfully in %s', delta) + '\n');
 		}
-
-		// Get the list of modules
-		parsedModules.commonjs = {};
-		parsedModules[platform] = {};
-		appc.timodule.find(cli.tiapp.modules, cli.argv.$originalPlatform !== platform ?
-				[ cli.argv.$originalPlatform, platform ] : platform,
-				cli.argv['deploy-type'] || 'development', cli.tiapp['sdk-version'], moduleSearchPaths, logger, function (modules) {
-			modules.found.forEach(function (module) {
-				if (module.platform.indexOf(platform) !== -1) {
-					parsedModules[platform][module.id] = null;
-				} else if (module.platform.indexOf('commonjs') !== -1) {
-					parsedModules.commonjs[module.id] = module.modulePath;
-				}
-			});
-
-			// Run the code processor
-			codeProcessor.run(
-				appc.fs.resolvePath(path.join(cli.argv['project-dir'], 'Resources', 'app.js')),
-				appc.util.mix({
-					invokeMethods: true,
-					evaluateLoops: true,
-					processUnvisitedCode: true,
-					suppressResults: true,
-					logConsoleCalls: false,
-				}, cli.tiapp['code-processor'].options),
-				[
-					{
-						path: path.join(codeProcessorPluginDir, 'common-globals'),
-						options: {}
-					},
-					{
-						path: path.join(codeProcessorPluginDir, 'require-provider'),
-						options: {
-							platform: cli.argv.platform,
-							modules: parsedModules
-						}
-					},
-					{
-						path: path.join(codeProcessorPluginDir, 'ti-api-provider'),
-						options: {
-							platform: cli.argv.platform,
-							sdkPath: path.resolve(path.join(__dirname, '..', '..'))
-						}
-					},
-					{
-						path: path.join(codeProcessorPluginDir, 'ti-api-usage-finder'),
-						options: {}
-					},
-					{
-						path: path.join(codeProcessorPluginDir, 'ti-api-platform-validator'),
-						options: {
-							platform: cli.argv.platform
-						}
-					},
-					{
-						path: path.join(codeProcessorPluginDir, 'ti-api-deprecation-finder'),
-						options: {}
-					}
-				],
-				logger, function() {
-					// Parse the results
-					var codeProcessorResults = codeProcessor.getResults(),
-						errors = codeProcessorResults.errors,
-						warnings = codeProcessorResults.warnings,
-						data,
-						i, len;
-					for(i = 0, len = errors.length; i < len; i++) {
-						data = errors[i];
-						logger.error('Titanium Code Processor error: ' + data.description + ' (' + data.file + ':' + data.line + ':' + data.column + ')');
-					}
-					for(i = 0, len = warnings.length; i < len; i++) {
-						data = warnings[i];
-						logger.warn('Titanium Code Processor warning: ' + data.description + ' (' + data.file + ':' + data.line + ':' + data.column + ')');
-					}
-					if (errors.length) {
-						logger.warn('The Titanium Code Processor detected errors in the project, results will be discarded');
-					} else {
-						cli.codeProcessor = codeProcessorResults;
-					}
-
-					// Build the project
-					buildModuleRun();
-				});
-		});
-	} else {
-		buildModuleRun();
-	}
+	});
 };
