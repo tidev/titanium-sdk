@@ -41,6 +41,7 @@ current_api = None
 ignore_dirs = (".git", ".svn", "CVS")
 ignore_files = ("template.yml",)
 warn_inherited = False # see optparse option with same name in main()
+options = None
 
 def has_ancestor(one_type, ancestor_name):
 	if one_type["name"] == ancestor_name:
@@ -163,8 +164,14 @@ def generate_output(options):
 		generator.generate(apis, annotated_apis, options)
 
 def process_yaml(source_dirs):
-	global apis
+	global apis, options
 	log.info("Parsing YAML files")
+	
+	if options and options.exclude_external and len(source_dirs) <= 1:
+		log.error("At least one path must be passed when using -e or --exclude-external")
+		sys.exit(1)
+	tag_external = True if options and options.exclude_external else False
+	
 	for source_dir in source_dirs:
 		for root, dirs, files in os.walk(source_dir):
 			for name in ignore_dirs:
@@ -183,7 +190,9 @@ def process_yaml(source_dirs):
 					for one_type in types:
 						if one_type["name"] in apis:
 							log.warn("%s has a duplicate" % one_type["name"])
+						one_type["external"] = tag_external
 						apis[one_type["name"]] = one_type
+		tag_external = False
 
 # If documentation for a method/event/property only "partially overrides"
 # the documentation for the super type, this will fill in the rest of
@@ -292,6 +301,10 @@ class AnnotatedApi(object):
 			self.optional = api_obj["optional"]
 		else:
 			self.optional = None
+		if "external" in api_obj:
+			self.external = api_obj["external"]
+		else:
+			self.external = False
 
 	@lazyproperty
 	def platforms(self):
@@ -574,7 +587,7 @@ class AnnotatedEvent(AnnotatedApi):
 		return sorted(properties, key=lambda item: item.name)
 
 def main():
-	global this_dir, log, warn_inherited
+	global this_dir, log, warn_inherited, options
 	titanium_dir = os.path.dirname(this_dir)
 	dist_apidoc_dir = os.path.join(titanium_dir, "dist", "apidoc")
 	sys.path.append(os.path.join(titanium_dir, "build"))
@@ -616,6 +629,11 @@ def main():
 			dest="warn_inherited",
 			action="store_true",
 			help="Show a warning if the documentation for a method/property/event only partially overrides its super type's documentation, in which case the missing information is inherited from the super type documentation.",
+			default=False)
+	parser.add_option("-e", "--exclude-external",
+			dest="exclude_external",
+			action="store_true",
+			help="Will not generate output from the titanium doc foler, must pass a path to a documentation folder",
 			default=False)
 	(options, args) = parser.parse_args()
 	warn_inherited = options.warn_inherited
