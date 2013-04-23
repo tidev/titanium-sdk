@@ -56,7 +56,7 @@ properties:
         [AUTOLINK_NONE](Titanium.UI.AUTOLINK_NONE),
         [AUTOLINK_PHONE_NUMBERS](Titanium.UI.AUTOLINK_PHONE_NUMBERS),
         and [AUTOLINK_URLS](Titanium.UI.AUTOLINK_URLS).
-        To use this property on Tizen, it is required to include the following privilege 
+        To use this property on Tizen, you must include the following privilege 
         in the tiapp.xml file of your Titanium application: http://tizen.org/privilege/application.launch
 
     type: Number
