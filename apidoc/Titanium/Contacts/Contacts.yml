@@ -41,8 +41,8 @@ methods:
         To use this method on Tizen, you must include the following privileges in the `tiapp.xml` file 
         of your Titanium application: 
 
-        - `http://tizen.org/privilege/contact.read`
-        - `http://tizen.org/privilege/contact.write`
+        * `http://tizen.org/privilege/contact.read`
+        * `http://tizen.org/privilege/contact.write`
         
     returns:
         type: Titanium.Contacts.Group
@@ -63,8 +63,8 @@ methods:
         To use this method on Tizen, you must include the following privileges in the `tiapp.xml` file 
         of your Titanium application: 
 
-        - `http://tizen.org/privilege/contact.read`
-        - `http://tizen.org/privilege/contact.write`
+        * `http://tizen.org/privilege/contact.read`
+        * `http://tizen.org/privilege/contact.write`
         
     returns:
         type: Titanium.Contacts.Person
@@ -82,7 +82,10 @@ methods:
     summary: Gets all groups.
     description: |
         To use this method on Tizen, you must include the following privilege in the `tiapp.xml` file 
-        of your Titanium application: `http://tizen.org/privilege/contact.read`
+        of your Titanium application: 
+
+        * `http://tizen.org/privilege/contact.read`
+        
     returns:
         type: Array<Titanium.Contacts.Group>
     platforms: [ipad, iphone, tizen]
@@ -101,7 +104,10 @@ methods:
     summary: Gets the group with the specified identifier.
     description: |
         To use this method on Tizen, you must include the following privilege in the `tiapp.xml` file 
-        of your Titanium application: `http://tizen.org/privilege/contact.read`
+        of your Titanium application: 
+
+        * `http://tizen.org/privilege/contact.read`
+        
     returns:
         type: Titanium.Contacts.Group
     platforms: [iphone, ipad, tizen]
@@ -128,7 +134,10 @@ methods:
     summary: Gets the person with the specified identifier.
     description: |
         To use this method on Tizen, you must include the following privilege in the `tiapp.xml` file 
-        of your Titanium application: `http://tizen.org/privilege/contact.read`
+        of your Titanium application: 
+
+        * `http://tizen.org/privilege/contact.read`
+        
     returns:
         type: Titanium.Contacts.Person
     parameters:
@@ -144,8 +153,8 @@ methods:
         To use this method on Tizen, you must include the following privileges in the `tiapp.xml` file 
         of your Titanium application: 
 
-        - `http://tizen.org/privilege/contact.read`
-        - `http://tizen.org/privilege/contact.write`
+        * `http://tizen.org/privilege/contact.read`
+        * `http://tizen.org/privilege/contact.write`
         
     platforms: [iphone, ipad, tizen]
     parameters:
@@ -172,8 +181,8 @@ methods:
         To use this method on Tizen, you must include the following privileges in the `tiapp.xml` file 
         of your Titanium application: 
 
-        - `http://tizen.org/privilege/contact.read`
-        - `http://tizen.org/privilege/contact.write`
+        * `http://tizen.org/privilege/contact.read`
+        * `http://tizen.org/privilege/contact.write`
         
     platforms: [android, iphone, ipad, tizen]
     since: {android: "2.1.0"}
@@ -192,8 +201,8 @@ methods:
         To use this method on Tizen, you must include the following privileges in the `tiapp.xml` file 
         of your Titanium application: 
 
-        - `http://tizen.org/privilege/contact.read`
-        - `http://tizen.org/privilege/contact.write`
+        * `http://tizen.org/privilege/contact.read`
+        * `http://tizen.org/privilege/contact.write`
         
     platforms: [android, iphone, ipad, tizen]
     parameters:
@@ -212,7 +221,10 @@ methods:
     summary: Displays a picker that allows a person to be selected.
     description: |
         To use this method on Tizen, you must include the following privilege in the `tiapp.xml` file 
-        of your Titanium application: `http://tizen.org/privilege/contact.read`
+        of your Titanium application: 
+
+        * `http://tizen.org/privilege/contact.read`
+        
     parameters:
       - name: params
         summary: Argument containing parameters for this method. Optional on Android.
