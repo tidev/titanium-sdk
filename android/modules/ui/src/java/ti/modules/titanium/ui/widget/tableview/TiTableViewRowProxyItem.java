@@ -8,9 +8,9 @@ package ti.modules.titanium.ui.widget.tableview;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 
 import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.KrollPropertyChange;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
@@ -65,7 +65,7 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 		addView(leftImage, new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
 
 		this.content = new TiCompositeLayout(activity);
-		addView(content, new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
+		addView(content, new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
 
 		this.rightImage = new ImageView(activity);
 		rightImage.setVisibility(GONE);
@@ -84,6 +84,9 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 	public void setRowData(Item item) {
 		this.item = item;
 		TableViewRowProxy rp = getRowProxy();
+		if (this != rp.getTableViewRowProxyItem()) {
+			rp.setTableViewItem(this);
+		}
 		setRowData(rp);
 	}
 
@@ -105,58 +108,165 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 	}
 
 	/*
+	 * Check if the two proxies are compatible outerView wise
+	 */
+	private boolean checkBorderProps(TiViewProxy oldProxy, TiViewProxy newProxy){
+		KrollDict oldProperties = oldProxy.getProperties();
+		KrollDict newProperties = newProxy.getProperties();
+		boolean oldHasBorder = oldProperties.containsKeyAndNotNull(TiC.PROPERTY_BORDER_COLOR) 
+				|| oldProperties.containsKeyAndNotNull(TiC.PROPERTY_BORDER_RADIUS)
+				|| oldProperties.containsKeyAndNotNull(TiC.PROPERTY_BORDER_WIDTH);
+		boolean newHasBorder = newProperties.containsKeyAndNotNull(TiC.PROPERTY_BORDER_COLOR) 
+				|| newProperties.containsKeyAndNotNull(TiC.PROPERTY_BORDER_RADIUS)
+				|| newProperties.containsKeyAndNotNull(TiC.PROPERTY_BORDER_WIDTH);
+
+		return (oldHasBorder == newHasBorder);
+	}
+
+	/*
+	 * Check the view heirarchy
+	 */
+	private boolean checkViewHeirarchy(TiViewProxy oldProxy, TiViewProxy newProxy){
+		if (oldProxy == newProxy){
+			return true;
+		}
+		if(oldProxy.getClass() != newProxy.getClass()) {
+			//Check for type
+			return false;
+		} else if (!checkBorderProps(oldProxy, newProxy)) {
+			//Ensure they have compatible border props
+			return false;
+		} else {
+			//Check children recursively
+			TiViewProxy[] oldChildren = oldProxy.getChildren();
+			TiViewProxy[] newChildren = newProxy.getChildren();
+			if (oldChildren.length != newChildren.length) {
+				return false;
+			} else {
+				int len = oldChildren.length;
+				for (int i=0;i<len;i++) {
+					if (!checkViewHeirarchy(oldChildren[i],newChildren[i])) {
+						return false;
+					}
+				}
+			}
+		}
+		//ok, all passed. Return true
+		return true;
+	}
+
+	/*
+	 * Check if views can be reused. 
+	 */
+	private boolean canUseExistingViews(ArrayList<TiViewProxy> proxies){
+
+		int len = proxies.size();
+		if(views != null && views.size() == len) {
+			for (int i=0;i<len;i++) {
+				TiUIView view = views.get(i);
+				if (view.getProxy() == null) {
+					return false;
+				} else if (!checkViewHeirarchy(view.getProxy(), proxies.get(i))) {
+					return false;
+				}
+			}
+			return true;
+		} 
+
+		return false;
+	}
+
+	private ArrayList<KrollPropertyChange> getChangeSet( KrollDict oldProps, KrollDict newProps) {
+		ArrayList<KrollPropertyChange> propertyChanges = new ArrayList<KrollPropertyChange>();
+		/*
+		//First get the values that changed from the oldProps to the newProps
+		for (String name : oldProps.keySet()) {
+			Object oldValue = oldProps.get(name);
+			Object newValue = newProps.get(name);
+
+			if (!(oldValue == null && newValue == null)) {
+				if ((oldValue == null && newValue != null) || (newValue == null && oldValue != null) || (!oldValue.equals(newValue))) {
+					KrollPropertyChange pch = new KrollPropertyChange(name, oldValue, newValue);
+					propertyChanges.add(pch);
+				}
+			}
+		}
+		
+		//Second get the properties that are only in the newProps
+		for (String name : newProps.keySet()) {
+			if (!oldProps.containsKey(name)) {
+				KrollPropertyChange pch = new KrollPropertyChange(name, null, newProps.get(name));
+				propertyChanges.add(pch);
+			}
+		}
+		*/
+		/*
+		What we should do is above. But since we do not handle null values
+		properly in our SDK, we'll do it the short way which is an optimized
+		version of doing processProperties.
+		*/
+
+		for (String name : newProps.keySet()) {
+			Object oldValue = oldProps.get(name);
+			Object newValue = newProps.get(name);
+
+			if (!(oldValue == null && newValue == null)) {
+				if ((oldValue == null && newValue != null) || (newValue == null && oldValue != null) || (!oldValue.equals(newValue))) {
+					KrollPropertyChange pch = new KrollPropertyChange(name, oldValue, newValue);
+					propertyChanges.add(pch);
+				}
+			}
+		}
+
+		return propertyChanges;
+	}
+
+	/*
 	 * Create views for measurement or for layout.  For each view, apply the
 	 * properties from the appropriate proxy to the view.
 	 */
 	protected void createControls()
 	{
-		ArrayList<TiViewProxy> proxies = getRowProxy().getControls();
+		
+		TableViewRowProxy parent = getRowProxy();
+		ArrayList<TiViewProxy> proxies = parent.getControls();
 		int len = proxies.size();
-
-		if (views == null) {
-			views = new ArrayList<TiUIView>(len);
-		} else if (views.size() != len) {
-			for (TiUIView view : views) {
-				View v = view.getNativeView();
-				if (v != null && v.getParent().equals(content)) {
-					content.removeView(v);
-				}
+		
+		if (!canUseExistingViews(proxies)) {
+			content.removeAllViews();
+			if(views == null) {
+				views = new ArrayList<TiUIView>(len);
+			} else {
+				views.clear();
 			}
-			views = new ArrayList<TiUIView>(len);
-		}
 
-		for (int i = 0; i < len; i++) {
-			TiUIView view = views.size() > i ? views.get(i) : null;
-			TiViewProxy proxy = proxies.get(i);
-			if (view != null && view.getProxy() instanceof TableViewRowProxy) {
-				proxy = addViewToOldRow(i, view, proxy);
-				len++;
-			}
-			if (view == null) {
-				// In some cases the TiUIView for this proxy has been reassigned to another proxy
-				// We don't want to actually release it though, just reassign by creating a new view.
-				//
-				// Not setting modelListener from here because this could be a measurement pass or
-				// a layout pass through getView(), which means that the view we have here may
-				// not be the one that gets displayed on the screen.  So we don't want to make
-				// any view-proxy association at this point.   We only want to make that association
-				// on a layout pass (i.e. when onLayout() gets called).
-				//
+			for (int i=0;i<len;i++){
+				TiViewProxy proxy = proxies.get(i);
 				TiBaseTableViewItem.clearChildViews(proxy);
-				view = proxy.forceCreateView(false);  // false means don't set modelListener
-				if (i >= views.size()) {
-					views.add(view);
-				} else {
-					views.set(i, view);
+				TiUIView view = proxy.forceCreateView();
+				views.add(view);
+				View v = view.getOuterView();
+				if (v.getParent() == null) {
+					content.addView(v, view.getLayoutParams());
+				}
+			}			
+		} else {
+			//Ok the view heirarchies are the same. 
+			//Transfer over the views and modelListeners from the old proxies to the new proxies
+			for (int i=0;i<len;i++) {
+				TiUIView view = views.get(i);
+				TiViewProxy oldProxy = view.getProxy();
+				TiViewProxy newProxy = proxies.get(i);
+
+				if (oldProxy != newProxy) {
+					newProxy.transferView(view, oldProxy);
+					view.setParent(parent);
+					view.propertiesChanged(getChangeSet(oldProxy.getProperties(), newProxy.getProperties()), newProxy);
+					//Need to apply child properties.
+					applyChildProperties(newProxy, view);
 				}
 			}
-
-			View v = view.getOuterView();
-			view.processProperties(proxy.getProperties());
-			applyChildProperties(proxy, view);
-			if (v.getParent() == null) {
-				content.addView(v, view.getLayoutParams());
-			}
+			
 		}
 	}
 
@@ -166,8 +276,13 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 		TiViewProxy childProxies[] = viewProxy.getChildren();
 		for (TiUIView childView : view.getChildren()) {
 			TiViewProxy childProxy = childProxies[i];
-			childView.processProperties(childProxy.getProperties());
-			applyChildProperties(childProxy, childView);
+			TiViewProxy oldProxy = childView.getProxy();
+			if (childProxy != oldProxy) {
+				childProxy.transferView(childView, oldProxy);
+				childView.setParent(viewProxy);
+				childView.propertiesChanged(getChangeSet(oldProxy.getProperties(), childProxy.getProperties()), childProxy);
+				applyChildProperties(childProxy, childView);
+			}
 			i++;
 		}
 	}
@@ -387,17 +502,8 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 	protected void onLayout(boolean changed, int left, int top, int right, int bottom)
 	{
 		// Make these associations here to avoid doing them on measurement passes
-		TableViewRowProxy rp = getRowProxy();
-		rp.setTableViewItem(this);
-		if (this.item.proxy.getChildren().length == 0) {
-			// old-style row
-			TiUIView childView = views.get(0);
-			childView.processProperties(filterProperties(rp.getProperties()));
-			childView.setProxy(rp);
-		}
-		else {
-			associateProxies(this.item.proxy.getChildren(), views);
-		}
+		getRowProxy().setTableViewItem(this);
+		
 		
 		int contentLeft = left;
 		int contentRight = right;
@@ -499,21 +605,4 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 		}
 		
 	}
-	
-	protected void associateProxies(TiViewProxy[] proxies, List<TiUIView> views)
-	{
-		int i = 0;
-		for (TiUIView view : views) {
-			if (proxies.length < (i+1)) {
-				break;
-			}
-			TiViewProxy proxy = proxies[i];
-			proxy.setView(view);
-			view.setProxy(proxy);
-			proxy.setModelListener(view);
-			associateProxies(proxy.getChildren(), view.getChildren());
-			i++;
-		}
-	}
-
 }
