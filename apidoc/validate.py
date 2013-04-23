@@ -537,18 +537,21 @@ def validateRefs():
 						validateRef(pTracker, property['type'], 'type')
 
 
-def validateDir(dir):
-	for root, dirs, files in os.walk(dir):
-		for file in files:
-			if file.endswith(".yml") and file != "template.yml":
-				absolutePath = os.path.join(root, file)
-				try:
-					validateTDoc(absolutePath)
-				except Exception, e:
-					print >> sys.stderr, ("Error parsing %s: %s:" % (os.path.join(root,file), str(e)))
+def validateDir(source_dirs):
+	for dir in source_dirs:
+		for root, dirs, files in os.walk(dir):
+			for file in files:
+				if file.endswith(".yml") and file != "template.yml":
+					absolutePath = os.path.join(root, file)
+					try:
+						validateTDoc(absolutePath)
+					except Exception, e:
+						print >> sys.stderr, ("Error parsing %s: %s:" % (os.path.join(root,file), str(e)))
 	validateRefs()
 
-def printStatus(dir=None):
+def printStatus(dirs=None):
+	dirs_length = len(dirs)
+	home_doc_dir = dirs[0]
 	if options.format == 'pretty':
 		printer = PrettyPrinter()
 	elif options.format == 'simple':
@@ -562,7 +565,9 @@ def printStatus(dir=None):
 	for key in keys:
 		tdocPath = key
 		tdocTypes = types[key]
-		if dir: tdocPath = tdocPath[len(dir)+1:]
+		if dirs_length == 1 : tdocPath = tdocPath[len(home_doc_dir):]
+		if not options.dir and dirs_length > 1 and tdocPath.startswith(home_doc_dir):
+			continue
 		for type in tdocTypes:
 			printer.printStatus(tdocPath, errorTrackers[type["name"]])
 			
@@ -588,7 +593,7 @@ def main(args):
 	parser.add_option('--warn-summary', dest='validateSummary',
 		action='store_true', default=False, help='validate summary field')
 	global options
-	(options, args) = parser.parse_args(args)
+	(options, args) = parser.parse_args()
 
 	dir=None
 	if options.file is not None:
@@ -601,8 +606,18 @@ def main(args):
 		validateTDoc(options.file)
 	else:
 		dir = options.dir or apiDocDir
-		validateDir(dir)
-	printStatus(dir)
+		# The doc directories to validate can be set in two ways
+		# 1. Using -d or -dir followed by a doc path
+		#     - This will take one directory
+		#     - The titanium docs dir will not be included automatically
+		# 2. Follow up validate with a list of doc directories separated by spaces
+		#     - Multiple directories can be validated at once
+		#     _ The titanium docs dir will be included automatically
+		# To validate multiple directories but not include the titanium docs dir combine the
+		# two methods passing the first directory with -dir and the rest separated by spaces
+		source_dirs = [ dir ] + args
+		validateDir(source_dirs)
+	printStatus(source_dirs)
 
 if __name__ == "__main__":
 	main(sys.argv)
