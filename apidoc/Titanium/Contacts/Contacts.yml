@@ -81,7 +81,8 @@ methods:
   - name: getAllGroups
     summary: Gets all groups.
     description: |
-        To use this method on Tizen, you must include the following privilege in the `tiapp.xml` file of your Titanium application: http://tizen.org/privilege/contact.read
+        To use this method on Tizen, you must include the following privilege in the `tiapp.xml` file 
+        of your Titanium application: `http://tizen.org/privilege/contact.read`
     returns:
         type: Array<Titanium.Contacts.Group>
     platforms: [ipad, iphone, tizen]
@@ -99,7 +100,8 @@ methods:
   - name: getGroupByID
     summary: Gets the group with the specified identifier.
     description: |
-        To use this method on Tizen, you must include the following privilege in the `tiapp.xml` file of your Titanium application: http://tizen.org/privilege/contact.read
+        To use this method on Tizen, you must include the following privilege in the `tiapp.xml` file 
+        of your Titanium application: `http://tizen.org/privilege/contact.read`
     returns:
         type: Titanium.Contacts.Group
     platforms: [iphone, ipad, tizen]
@@ -125,7 +127,8 @@ methods:
   - name: getPersonByID
     summary: Gets the person with the specified identifier.
     description: |
-        To use this method on Tizen, you must include the following privilege in the `tiapp.xml` file of your Titanium application: http://tizen.org/privilege/contact.read
+        To use this method on Tizen, you must include the following privilege in the `tiapp.xml` file 
+        of your Titanium application: `http://tizen.org/privilege/contact.read`
     returns:
         type: Titanium.Contacts.Person
     parameters:
@@ -208,7 +211,8 @@ methods:
   - name: showContacts
     summary: Displays a picker that allows a person to be selected.
     description: |
-        To use this method on Tizen, you must include the following privilege in the `tiapp.xml` file of your Titanium application: http://tizen.org/privilege/contact.read
+        To use this method on Tizen, you must include the following privilege in the `tiapp.xml` file 
+        of your Titanium application: `http://tizen.org/privilege/contact.read`
     parameters:
       - name: params
         summary: Argument containing parameters for this method. Optional on Android.
