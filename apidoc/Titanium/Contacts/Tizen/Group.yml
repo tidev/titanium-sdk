@@ -4,7 +4,7 @@ summary: An object which represents a group in the system contacts address book 
 description: |
     Tizen-specific, group-related extensions to Titanium contacts API.
 
-    To use this namespace, you must include the following privilege in the tiapp.xml file of your Titanium application: http://tizen.org/privilege/contact.read
+    To use this namespace, you must include the following privilege in the `tiapp.xml` file of your Titanium application: http://tizen.org/privilege/contact.read
 extends: Titanium.Proxy
 since: "3.1.0"
 platforms: [tizen]

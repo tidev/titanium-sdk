@@ -36,7 +36,7 @@ methods:
     summary: Opens this email dialog.
     description: |
         To use this method on Tizen, you must include the following privilege
-        in the tiapp.xml file of your Titanium application: http://tizen.org/privilege/application.launch
+        in the `tiapp.xml` file of your Titanium application: http://tizen.org/privilege/application.launch
     parameters:
       - name: properties
         summary: |

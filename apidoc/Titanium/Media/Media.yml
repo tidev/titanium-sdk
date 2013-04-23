@@ -60,7 +60,7 @@ methods:
     summary: Opens the photo gallery image picker.
     description: |
         To use this method on Tizen, you must include the following privileges 
-        in the tiapp.xml file of your Titanium application: http://tizen.org/privilege/application.launch,
+        in the `tiapp.xml` file of your Titanium application: http://tizen.org/privilege/application.launch,
         http://tizen.org/privilege/filesystem.read
     platforms: [iphone, ipad, android, tizen]
     parameters:
@@ -89,7 +89,7 @@ methods:
         files may be imported by saving them with the `.mov` extension.
 
         To use this method on Tizen, you must include the following privileges 
-        in the tiapp.xml file of your Titanium application: http://tizen.org/privilege/application.launch,
+        in the `tiapp.xml` file of your Titanium application: http://tizen.org/privilege/application.launch,
         http://tizen.org/privilege/filesystem.read, http://tizen.org/privilege/filesystem.write
     platforms: [iphone, ipad, tizen]
     parameters:
@@ -119,7 +119,7 @@ methods:
         #### Tizen Platform Notes
         
         To use this method on Tizen, you must include the following privilege
-        in the tiapp.xml file of your Titanium application: http://tizen.org/privilege/application.launch
+        in the `tiapp.xml` file of your Titanium application: http://tizen.org/privilege/application.launch
     platforms: [iphone, ipad, android, tizen]
     parameters:
       - name: options
