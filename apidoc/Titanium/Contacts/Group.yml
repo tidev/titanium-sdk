@@ -13,7 +13,12 @@ methods:
   - name: add
     summary: Adds a person to this group.
     description: |    
-        To use this method on Tizen, you must include the following privileges in the `tiapp.xml` file of your Titanium application: http://tizen.org/privilege/contact.read, http://tizen.org/privilege/contact.write
+        To use this method on Tizen, you must include the following privileges in the `tiapp.xml` file 
+        of your Titanium application: 
+
+        - `http://tizen.org/privilege/contact.read`
+        - `http://tizen.org/privilege/contact.write`
+        
     parameters:
       - name: person
         summary: Person to add.
@@ -28,7 +33,12 @@ methods:
   - name: remove
     summary: Removes a person from this group.
     description: |    
-        To use this method on Tizen, you must include the following privileges in the `tiapp.xml` file of your Titanium application: http://tizen.org/privilege/contact.read, http://tizen.org/privilege/contact.write
+        To use this method on Tizen, you must include the following privileges in the `tiapp.xml` file 
+        of your Titanium application: 
+
+        - `http://tizen.org/privilege/contact.read`
+        - `http://tizen.org/privilege/contact.write`
+        
     parameters:
       - name: person
         summary: Person to remove.
