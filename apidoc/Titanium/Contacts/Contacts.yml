@@ -197,9 +197,9 @@ methods:
     
   - name: save
     summary: Commits all pending changes to the underlying contacts database.
-    description:
+    description: |
         To use this method on Tizen, you must include the following privileges in the `tiapp.xml` file 
-        of your Titanium application: 
+        of your Titanium application:
 
         * `http://tizen.org/privilege/contact.read`
         * `http://tizen.org/privilege/contact.write`
