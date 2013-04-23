@@ -5,7 +5,10 @@ description: |
     Tizen-specific, group-related extensions to Titanium contacts API.
 
     To use this namespace, you must include the following privilege in the `tiapp.xml` file 
-    of your Titanium application: `http://tizen.org/privilege/contact.read`
+    of your Titanium application: 
+
+    * `http://tizen.org/privilege/contact.read`
+    
 extends: Titanium.Proxy
 since: "3.1.0"
 platforms: [tizen]

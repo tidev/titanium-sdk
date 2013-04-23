@@ -34,10 +34,14 @@ description: |
     
     #### Tizen platform notes
     
-    For read-only usage of this namespace on Tizen, you must include the following privilege in the `tiapp.xml`
-    file of your Titanium application: `http://tizen.org/privilege/contact.read`.
-    To create instances of this interface on Tizen, it is also required to include the following privilege in 
-    the `tiapp.xml` file of your Titanium application: `http://tizen.org/privilege/contact.write`.
+    For read-only access to contacts, you must include the following privilege in your `tiapp.xml` file:
+    
+    * `http://tizen.org/privilege/contact.read`
+    
+    For read-write access to contacts, you must also include:
+    
+    * `http://tizen.org/privilege/contact.write`
+    
 extends: Titanium.Proxy
 since: "0.8"
 platforms: [android, iphone, ipad, tizen]
