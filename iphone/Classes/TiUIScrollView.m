@@ -12,6 +12,43 @@
 
 @implementation TiUIScrollViewImpl
 
+//TIMOB-12988 Additions BEGIN.
+/*
+ * If you log the scrollRectToVisible and setContentOffset calls, you can see
+ * IOS is passing values we do not want. This is a hack to workaround 
+ * bad contentoffset call. We calculate it correctly in our own code
+ * and that call follows soon after.
+ * Happens on IOS 5.1, 5.0 and 4.3. Not on iOS 6. Although values passed in are identical. Timing?
+ * Delete this block when we drop support for older versions of IOS.
+ */
+-(void) delayContentOffset
+{
+    if(!ignore){
+        [self setContentOffset:offsetPoint animated:offsetAnimated];
+    }
+}
+
+- (void)setContentOffset:(CGPoint)contentOffset animated:(BOOL)animated
+{
+    if (delay && ![TiUtils isIOS6OrGreater]) {
+        delay = NO;
+        ignore = NO;
+        offsetPoint = contentOffset;
+        offsetAnimated = animated;
+        [self performSelector:@selector(delayContentOffset) withObject:nil afterDelay:0.2];
+        return;
+    }
+    ignore = YES;
+    [super setContentOffset:contentOffset animated:animated];
+}
+
+- (void)scrollRectToVisible:(CGRect)rect animated:(BOOL)animated
+{
+    delay = YES;
+    [super scrollRectToVisible:rect animated:animated];
+}
+//TIMOB-12988 Additions END.
+
 -(void)setTouchHandler:(TiUIView*)handler
 {
     //Assign only. No retain
@@ -199,6 +236,7 @@
 	wrapperBounds.origin = CGPointZero;
 	wrapperBounds.size = newContentSize;
 	[wrapperView setFrame:wrapperBounds];
+	[self scrollViewDidZoom:scrollView];
 	needsHandleContentSize = NO;
 	[(TiUIScrollViewProxy *)[self proxy] layoutChildrenAfterContentSize:NO];
 }
@@ -363,14 +401,14 @@
 {
 	CGSize boundsSize = scrollView.bounds.size;
     CGRect frameToCenter = wrapperView.frame;
-	if (TiDimensionIsAuto(contentWidth) || TiDimensionIsAutoSize(contentWidth)) {
+	if (TiDimensionIsAuto(contentWidth) || TiDimensionIsAutoSize(contentWidth) || TiDimensionIsUndefined(contentWidth)) {
 		if (frameToCenter.size.width < boundsSize.width) {
 			frameToCenter.origin.x = (boundsSize.width - frameToCenter.size.width) / 2;
 		} else {
 			frameToCenter.origin.x = 0;
 		}
 	}
-	if (TiDimensionIsAuto(contentHeight) || TiDimensionIsAutoSize(contentHeight)) {
+	if (TiDimensionIsAuto(contentHeight) || TiDimensionIsAutoSize(contentHeight) || TiDimensionIsUndefined(contentHeight)) {
 		if (frameToCenter.size.height < boundsSize.height) {
 			frameToCenter.origin.y = (boundsSize.height - frameToCenter.size.height) / 2;
 		} else {
