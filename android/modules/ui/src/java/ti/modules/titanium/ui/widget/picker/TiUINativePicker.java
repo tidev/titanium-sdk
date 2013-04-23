@@ -21,6 +21,7 @@ import ti.modules.titanium.ui.PickerProxy;
 import android.app.Activity;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewParent;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
@@ -175,6 +176,12 @@ public class TiUINativePicker extends TiUIPicker
 			return;
 		}
 		fireSelectionChange(0, position);
+
+		// Invalidate the parent view after the item is selected (TIMOB-13540).
+		ViewParent p = nativeView.getParent();
+		if (p instanceof View) {
+			((View) p).invalidate();
+		}
 	}
 
 	@Override
