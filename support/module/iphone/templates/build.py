@@ -200,7 +200,7 @@ def generate_apidoc(apidoc_build_path):
 	ti_root = string.strip(subprocess.check_output(["echo $TI_ROOT"], shell=True))
 	if not len(ti_root) > 0:
 		warn("Not generating documentation from the apidoc folder. The titanium_mobile repo could not be found.")
-		warn("Alias the folder containing the titanium_mobile repo to $TI_ROOT")
+		warn("Set the TI_ROOT environment variable to the parent folder where the titanium_mobile repo resides (eg.'export TI_ROOT=/Path').")
 		return False
 	docgen = os.path.join(ti_root, "titanium_mobile", "apidoc", "docgen.py")
 	if not os.path.exists(docgen):
