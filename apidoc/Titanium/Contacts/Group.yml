@@ -5,7 +5,10 @@ description: |
     See examples in <Titanium.Contacts> for more information.
     
     To use this namespace on Tizen, you must include the following privilege in the `tiapp.xml` file 
-    of your Titanium application: `http://tizen.org/privilege/contact.read`
+    of your Titanium application: 
+
+    * `http://tizen.org/privilege/contact.read`
+    
 extends: Titanium.Proxy
 since: "1.4.0"
 platforms: [iphone, ipad, tizen]
@@ -17,8 +20,8 @@ methods:
         To use this method on Tizen, you must include the following privileges in the `tiapp.xml` file 
         of your Titanium application: 
 
-        - `http://tizen.org/privilege/contact.read`
-        - `http://tizen.org/privilege/contact.write`
+        * `http://tizen.org/privilege/contact.read`
+        * `http://tizen.org/privilege/contact.write`
         
     parameters:
       - name: person
@@ -37,8 +40,8 @@ methods:
         To use this method on Tizen, you must include the following privileges in the `tiapp.xml` file 
         of your Titanium application: 
 
-        - `http://tizen.org/privilege/contact.read`
-        - `http://tizen.org/privilege/contact.write`
+        * `http://tizen.org/privilege/contact.read`
+        * `http://tizen.org/privilege/contact.write`
         
     parameters:
       - name: person

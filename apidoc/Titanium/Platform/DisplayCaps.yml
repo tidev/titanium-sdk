@@ -17,7 +17,10 @@ description: |
     be called.
 
     To use this namespace on Tizen, you must include the following privilege in the `tiapp.xml` 
-    file of your Titanium application: `http://tizen.org/privilege/systeminfo`
+    file of your Titanium application: 
+
+    * `http://tizen.org/privilege/systeminfo`
+    
 extends: Titanium.Proxy
 since: "0.8"
 createable: false
