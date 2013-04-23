@@ -6,7 +6,7 @@ description: |
     Methods defined here provide their results via callbacks, rather than returning them synchronously.
     
     To use the methods of this interface, you must include the following privilege in the `tiapp.xml` 
-    file of your Titanium application: http://tizen.org/privilege/contact.read
+    file of your Titanium application: `http://tizen.org/privilege/contact.read`
 extends: Titanium.Module
 since: 3.1.0
 platforms: [tizen]
