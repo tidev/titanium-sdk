@@ -94,7 +94,6 @@ properties:
     summary: Constant for the `FAILED` status result.
     type: Number
     permission: read-only
-    platforms: [android, iphone, ipad, mobileweb]
     
   - name: SAVED
     summary: Constant for the `SAVED` status result. On Android, this property exists but is not used.
