@@ -52,7 +52,8 @@ module.exports = new function() {
 				location: 'Lviv'
 			},
 			filter,
-			item;
+			item,
+			calendarFromGet;
 
 		valueOf(testRun, startDate).shouldBeObject();
 		valueOf(testRun, startDate instanceof Date).shouldBeTrue();		
@@ -80,6 +81,16 @@ module.exports = new function() {
 
 		calendar.add(item);
 
+		valueOf(testRun, function(){
+			calendarFromGet = calendar.get(item.id);
+		}).shouldNotThrowException();
+
+		if (calendarType == 'EVENT') {
+			valueOf(testRun, calendarFromGet).shouldBe('[object TizenCalendarCalendarEvent]');
+		} else {
+			valueOf(testRun, calendarFromGet).shouldBe('[object TizenCalendarCalendarTask]');
+		}
+		
 		Ti.API.info(calendarType +' id:' + item.id + '; id.uid:' + item.id.uid + ' has been added');
 
 		// Check item
