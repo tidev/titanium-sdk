@@ -7,16 +7,19 @@ description: |
     Use the <Titanium.UI.createListView> method to create a `ListView`.
     
     A `ListView` object is a container for [ListSection](Titanium.UI.ListSection) 
-    objects that are, in turn, containers for [ListItem](Titanium.UI.ListItem) objects. 
+    objects that are, in turn, containers for [ListItem](Titanium.UI.ListItem) objects.
 
     **Note:** this is the first version of list view. Not all features from the specification
     are implemented in this version.  A complete list of implemented features is schedule for
     the next list version, which is planned for Release 3.2.0.
 
+    For more instructions and examples of using ListView, refer to the
+    [ListViews guide](http://docs.appcelerator.com/titanium/latest/#!/guide/ListViews)
+
     #### Creating a List
 
     To create a list, pass an array of <ListDataItem> objects to the ListSection's
-    [setItems](Titanium.UI.ListSection.setItems) method, which creates and adds each array 
+    [items](Titanium.UI.ListSection.items) property, which creates and adds each array
     element as a row to a single [ListSection](Titanium.UI.ListSection). Use the ListView's
     [sections](Titanium.UI.ListView.sections) property to add the section(s) to the list view.
 
@@ -32,7 +35,7 @@ description: |
     property in the item data to a child view component.
 
     Map the template to a style name using the <Titanium.UI.ListView.templates> property, then use
-    the style name to  set the <Titanium.UI.ListView.defaultItemTemplate> property to globally change 
+    the style name to  set the <Titanium.UI.ListView.defaultItemTemplate> property to globally change
     all item styles or set the <ListDataItem.template> property when passing in your list data
     to apply the template to that one list item or to override the globally defined template.
 
@@ -54,21 +57,25 @@ description: |
     Both list view and table view present data to user as a vertically scrolling list of rows.
     However, list view uses a data-oriented approach versus table view's view-oriented approach.
 
-    Because of list view's approach, list view's performance is faster but limits access to items
-    in the list, that is, you cannot directly manipulate the views, set view properties and bind event
-    callbacks the same way as you can with table view rows. The next subsection describes how to
-    use list items.
+    ListView is designed for performance. One side effect of the design is that you cannot directly
+    manipulate the views–add children, set view properties and bind event callbacks–as you can in
+    TableView. Instead, you interact with liste item indirectly, using templates and data items. The
+    next subsection describes how to use list items.
 
     ##### ListItem versus TableViewRow
 
-    You need to explicitly create a `ListSection` in order to add a `ListItem` to a `ListView`.
+    With TableView, you can directly add rows to a table view using the data property and its accessors.
+    With TableViewRows, you can directly create a row using the `Ti.UI.createTableViewRow` and customize
+    its styling by setting its view properties. You can add view subcomponents to the row using the add
+    method.
+
+    With ListView, you need to explicitly create a `ListSection` in order to add a `ListItem` to a `ListView`.
     You cannot directly add a `ListItem` to a `ListView`.
     In a `TableView`, a `TableViewRow` can be directly added to a `TableView` because a
     `TableViewSection` is implicitly created and added to the `TableView`.
 
     A `ListItem` object is not created in the same method as a `TableViewRow`.
     A `ListItem` is create by passing an array of `ListDataItem` objects to the `ListSection`.
-    A `createListItem` method does not exist to create `ListItem` objects.
 
     You cannot add views to a `ListItem` using the `add` method, which could be done with a
     `TableViewRow`. To add views to a `ListItem`, you need to define an <ItemTemplate>,
@@ -118,6 +125,12 @@ description: |
         - For `selectRow`, use the `selectItem` method. (Currently implemented only for iOS.)
         - For all other row methods, you cannot manipulate ListItems with a ListView.
           You have to manipulate them with the ListSection they are contained in.
+
+    - **To be implemented in V2**:
+
+        - **ListView**: `headerPullView`, `headerView`, `footerView`, `scrollable`, `separatorColor`
+          and `separatorStyle` properties.
+        - **ListSection**: `headerView`, `itemCount` and `footerView` properties.
 
     #### List and Scroll Views
 
