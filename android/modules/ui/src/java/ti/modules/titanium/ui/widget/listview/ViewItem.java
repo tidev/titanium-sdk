@@ -38,7 +38,7 @@ public class ViewItem {
 
 		for (String appliedProp : this.properties.keySet()) {
 			if (!properties.containsKey(appliedProp)) {
-				diffProperties.put(appliedProp, null);
+				applyProperty(appliedProp, null);
 			}
 		}
 		

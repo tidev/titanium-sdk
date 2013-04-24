@@ -21,34 +21,39 @@ import ti.modules.titanium.ui.UIModule;
 import android.app.Activity;
 
 @Kroll.proxy(creatableInModule = UIModule.class)
-public class ListItemProxy extends TiViewProxy {
+public class ListItemProxy extends TiViewProxy
+{
 	protected WeakReference<TiViewProxy> listProxy;
-	
-	public TiUIView createView(Activity activity) {
+
+	public TiUIView createView(Activity activity)
+	{
 		return new TiListItem(this);
 	}
 
-	public void setListProxy(TiViewProxy list) {
+	public void setListProxy(TiViewProxy list)
+	{
 		listProxy = new WeakReference<TiViewProxy>(list);
 	}
-	
-	public TiViewProxy getListProxy() {
+
+	public TiViewProxy getListProxy()
+	{
 		if (listProxy != null) {
 			return listProxy.get();
 		}
 		return null;
 	}
-	
-	public boolean fireEvent(final String event, final Object data)
+
+	public boolean fireEvent(final String event, final Object data, boolean bubbles)
 	{
 		fireItemClick(event, data);
-		return super.fireEvent(event, data);
+		return super.fireEvent(event, data, bubbles);
 	}
-	
-	private void fireItemClick(String event, Object data) {
+
+	private void fireItemClick(String event, Object data)
+	{
 		if (event.equals(TiC.EVENT_CLICK) && data instanceof HashMap) {
 			KrollDict eventData = new KrollDict((HashMap) data);
-			String source = TiConvert.toString(eventData.get(TiC.EVENT_PROPERTY_SOURCE));
+			Object source = eventData.get(TiC.EVENT_PROPERTY_SOURCE);
 			if (source != null && !source.equals(this) && listProxy != null) {
 				TiViewProxy listViewProxy = listProxy.get();
 				if (listViewProxy != null) {
@@ -58,7 +63,8 @@ public class ListItemProxy extends TiViewProxy {
 		}
 	}
 
-	public void release() {
+	public void release()
+	{
 		super.release();
 		if (listProxy != null) {
 			listProxy = null;

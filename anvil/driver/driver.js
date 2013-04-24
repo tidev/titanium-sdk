@@ -96,7 +96,10 @@ var driverUtils = require("./driverUtils");
 var mode;
 
 function printUsageAndExit() {
-	console.log("\nUsage: \"node driver.js --platform=<platform> [--mode=<mode>] [--log-level=<log level>] [--command=<command>]\"\n"
+	console.log("\nUsage: \"node driver.js --platform=<platform> [--sdk-version=<version>] [--mode=<mode>] [--log-level=<log level>] [--command=<command>]\"\n"
+		+ "SDK Version (optional - default is newest installed version):\n"
+		+ "    The name of the version directory, such as '3.0.2.GA'\n"
+		+ "\n"
 		+ "Modes (optional - default is local):\n"
 		+ "    local - run Driver locally via manual commands (default)\n"
 		+ "    remote - run Driver remotely (this should never be selected by hand)\n"
@@ -151,7 +154,13 @@ function processCommandLineArgs(callback) {
 	 * mode represents whether the driver is being run via command line(local) or remotely
 	 * such as would be the case for CI integration(remote)
 	 */
-	var modeArg = driverUtils.getArgument(process.argv, "--mode");
+
+	var argv = process.argv;
+	if (argv.indexOf("--help") >= 0 || argv.indexOf("-h") >= 0) {
+		printUsageAndExit();
+	}
+
+	var modeArg = driverUtils.getArgument(argv, "--mode");
 	if ((typeof modeArg) === "undefined") {
 		modeArg = "local";
 	}
@@ -174,7 +183,7 @@ function processCommandLineArgs(callback) {
 	 * logLevel represents the level of logging that will be printed out to the console.
 	 * NOTE: this does not change what gets written to the log file
 	 */
-	var logLevelArg = driverUtils.getArgument(process.argv, "--log-level");
+	var logLevelArg = driverUtils.getArgument(argv, "--log-level");
 	if ((typeof logLevelArg) !== "undefined") {
 		var logLevel = driverGlobal.logLevels[logLevelArg];
 		if ((typeof logLevel) === "undefined") {
@@ -186,7 +195,7 @@ function processCommandLineArgs(callback) {
 	}
 
 	// load platform module
-	var platformArg = driverUtils.getArgument(process.argv, "--platform");
+	var platformArg = driverUtils.getArgument(argv, "--platform");
 	if ((typeof platformArg) !== "undefined") {
 		var specifiedPlatform = driverGlobal.platforms[platformArg];
 		if ((typeof specifiedPlatform) === "undefined") {

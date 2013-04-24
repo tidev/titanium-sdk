@@ -21,7 +21,7 @@ module.exports = new function() {
 	var readlineInterface = readline.createInterface(process.stdin, process.stdout);
 
 	this.start = function() {
-		driverUtils.setCurrentTiSdk();
+		driverUtils.setTargetTiSdk();
 
 		var command = driverUtils.getArgument(process.argv, "--command");
 		if ((typeof command) === "undefined") {

@@ -130,13 +130,13 @@ examples:
             }, function (e) {
                 if (e.success) {
                     var collection = e.collections[0];
-                    alert('Success:\\n' +
-                        'id: ' + collection.id + '\\n' +
-                        'name: ' + collection.name + '\\n' +
-                        'count: ' + collection.counts.total_photos + '\\n'
+                    alert('Success:\n' +
+                        'id: ' + collection.id + '\n' +
+                        'name: ' + collection.name + '\n' +
+                        'count: ' + collection.counts.total_photos + '\n'
                         'updated_at: ' + collection.updated_at);
                 } else {
-                    alert('Error:\\n' +
+                    alert('Error:\n' +
                         ((e.error && e.message) || JSON.stringify(e)));
                 }
             });
@@ -150,13 +150,13 @@ examples:
             }, function (e) {
                 if (e.success) {
                     var collection = e.collections[0];
-                    alert('Success:\\n' +
-                        'id: ' + collection.id + '\\n' +
-                        'name: ' + collection.name + '\\n' +
-                        'count: ' + collection.counts.total_photos + '\\n'
+                    alert('Success:\n' +
+                        'id: ' + collection.id + '\n' +
+                        'name: ' + collection.name + '\n' +
+                        'count: ' + collection.counts.total_photos + '\n'
                         'updated_at: ' + collection.updated_at);
                 } else {
-                    alert('Error:\\n' +
+                    alert('Error:\n' +
                         ((e.error && e.message) || JSON.stringify(e)));
                 }
             });
@@ -169,18 +169,18 @@ examples:
                 user_id: savedUserId
             }, function (e) {
                 if (e.success) {
-                    alert('Success:\\n' +
+                    alert('Success:\n' +
                         'Count: ' + e.collections.length);
                     for (var i = 0; i < e.collections.length; i++) {
                         var collection = e.collections[i];
-                        alert('Success:\\n' +
-                            'id: ' + collection.id + '\\n' +
-                            'name: ' + collection.name + '\\n' +
-                            'count: ' + collection.counts.total_photos + '\\n'
+                        alert('Success:\n' +
+                            'id: ' + collection.id + '\n' +
+                            'name: ' + collection.name + '\n' +
+                            'count: ' + collection.counts.total_photos + '\n'
                             'updated_at: ' + collection.updated_at);
                     }
                 } else {
-                    alert('Error:\\n' +
+                    alert('Error:\n' +
                         ((e.error && e.message) || JSON.stringify(e)));
                 }
             });
@@ -195,18 +195,18 @@ examples:
                 collection_id: savedCollectionId
             }, function (e) {
                 if (e.success) {
-                    alert('Success:\\n' +
+                    alert('Success:\n' +
                         'Count: ' + e.collections.length);
                     for (var i = 0; i < e.collections.length; i++) {
                         var collection = e.collections[i];
-                        alert('Success:\\n' +
-                            'id: ' + collection.id + '\\n' +
-                            'name: ' + collection.name + '\\n' +
-                            'count: ' + collection.counts.total_photos + '\\n'
+                        alert('Success:\n' +
+                            'id: ' + collection.id + '\n' +
+                            'name: ' + collection.name + '\n' +
+                            'count: ' + collection.counts.total_photos + '\n'
                             'updated_at: ' + collection.updated_at);
                     }
                 } else {
-                    alert('Error:\\n' +
+                    alert('Error:\n' +
                         ((e.error && e.message) || JSON.stringify(e)));
                 }
             });
@@ -224,19 +224,19 @@ examples:
                     if (!e.photos) {
                         alert('Success: No photos');
                     } else {
-                        alert('Success:\\n' +
+                        alert('Success:\n' +
                             'Count: ' + e.collections.length);
                         for (var i = 0; i < e.collections.length; i++) {
                             var collection = e.collections[i];
-                            alert('Success:\\n' +
-                                'id: ' + collection.id + '\\n' +
-                                'name: ' + collection.name + '\\n' +
-                                'count: ' + collection.counts.total_photos + '\\n'
+                            alert('Success:\n' +
+                                'id: ' + collection.id + '\n' +
+                                'name: ' + collection.name + '\n' +
+                                'count: ' + collection.counts.total_photos + '\n'
                                 'updated_at: ' + collection.updated_at);
                         }
                     }
                 } else {
-                    alert('Error:\\n' +
+                    alert('Error:\n' +
                         ((e.error && e.message) || JSON.stringify(e)));
                 }
             });
@@ -251,13 +251,13 @@ examples:
             }, function (e) {
                 if (e.success) {
                     var collection = e.collections[0];
-                    alert('Success:\\n' +
-                        'id: ' + collection.id + '\\n' +
-                        'name: ' + collection.name + '\\n' +
-                        'count: ' + collection.counts.total_photos + '\\n'
+                    alert('Success:\n' +
+                        'id: ' + collection.id + '\n' +
+                        'name: ' + collection.name + '\n' +
+                        'count: ' + collection.counts.total_photos + '\n'
                         'updated_at: ' + collection.updated_at);
                 } else {
-                    alert('Error:\\n' +
+                    alert('Error:\n' +
                         ((e.error && e.message) || JSON.stringify(e)));
                 }
             });
@@ -272,7 +272,7 @@ examples:
                 if (e.success) {
                     alert('Success');
                 } else {
-                    alert('Error:\\n' +
+                    alert('Error:\n' +
                         ((e.error && e.message) || JSON.stringify(e)));
                 }
             });

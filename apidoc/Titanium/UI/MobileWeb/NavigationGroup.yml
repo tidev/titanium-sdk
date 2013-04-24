@@ -7,7 +7,7 @@ description: |
     The navigation group is created with the method <Titanium.UI.MobileWeb.createNavigationGroup>.
     The `window` property must be set initially in the constructor when creating a navigation group.
     All navigation groups must have a root window that cannot be removed.
-platforms: [mobileweb]
+platforms: [mobileweb, tizen]
 extends: Titanium.UI.View
 since: "2.0.0"
 excludes: { methods: [removeAllChildren] }

@@ -27,6 +27,17 @@ description: |
         httpResponse = this.responseText;
         status = this.status;
 
+    #### Asynchronous vs. Synchronous HTTP Requests
+
+    By default, the `HTTPClient` makes asynchronous requests.  Asynchronous requests do not block
+    the application and use callbacks to process responses when they are received.
+
+    Synchronous requests block the execution of the application until it receives a response.
+    On the iOS and Mobile Web platforms,  you can make synchronous requests by setting the optional
+    `async` parameter to `false` when calling the [open](Titanium.Network.HTTPClient.open) method.
+
+    The Android platform does not support synchronous requests.
+
     #### Mobile Web Platform Implementation Notes
 
     Mobile Web is limited by the same-origin policy. According to W3C: "User agents
@@ -98,7 +109,7 @@ methods:
         type: String
 
       - name: async
-        summary: Determines whether the request should be made asynchronously. Only used on iOS and Mobile Web.
+        summary: Determines whether the request should be made asynchronously. Only used on iOS, Mobile Web and Tizen.
         type: Boolean
         optional: true
         default: true
@@ -139,7 +150,7 @@ methods:
   - name: setTimeout
     summary: Sets the request timeout.
     description: |
-        On Mobile Web, the timeout only works when making asynchronous requests.
+        On Mobile Web and Tizen, the timeout only works when making asynchronous requests.
     parameters:
       - name: timeout
         summary: Timeout in milliseconds.
@@ -190,8 +201,8 @@ properties:
         See also: [getResponseHeader](Titanium.Network.HTTPClient.getResponseHeader).
     type: String
     permission: read-only
-    platforms: [android]
-
+    platforms: [android, tizen]
+    
   - name: autoEncodeUrl
     summary: Determines whether automatic encoding is enabled for the specified URL.
     description: Set to `false` to disable automatic URL-encoding.
@@ -241,10 +252,11 @@ properties:
     description: |
         On iOS, can only be set **after** calling [open](Titanium.Network.HTTPClient.open).
 
-        On Mobile Web, can be set anytime prior to calling [send](Titanium.Network.HTTPClient.send).
+        
+        On Mobile Web and Tizen, can be set anytime prior to calling [send](Titanium.Network.HTTPClient.send).
         The file must be writable such as the application data directory or temp directory.
     type: String
-    platforms: [iphone, ipad, mobileweb]
+    platforms: [iphone, ipad, mobileweb, tizen]
 
   - name: location
     summary: Absolute URL of the request.
@@ -267,7 +279,7 @@ properties:
 
         The callback's argument is an object with a single property, `error`, containing the error
         string.
-    type: Callback<Object>
+    type: Callback<FailureResponse>
 
   - name: onload
     summary: Function to be called upon a successful response.
@@ -276,8 +288,8 @@ properties:
 
         To access response data and headers, access the `HTTPClient` object itself (accessible as
         `this` during the callback, or the `source` property of the callback event).
-    type: Callback<Object>
-
+    type: Callback<SuccessResponse>
+    
   - name: onreadystatechange
     summary: |
         Function to be called for each [readyState](Titanium.Network.HTTPClient.readyState) change.
@@ -358,7 +370,7 @@ properties:
   - name: timeout
     summary: Timeout in milliseconds when the connection should be aborted.
     description: |
-        On Mobile Web, the timeout only works when making asynchronous requests.
+        On Mobile Web and Tizen, the timeout only works when making asynchronous requests.
     type: Number
 
   - name: username
@@ -387,8 +399,8 @@ properties:
         request to be asynchronous.
     type: Boolean
     default: false
-    platforms: [mobileweb]
-
+    platforms: [mobileweb, tizen]
+    
   - name: tlsVersion
     summary: Sets the TLS version to use for handshakes.
     description: |

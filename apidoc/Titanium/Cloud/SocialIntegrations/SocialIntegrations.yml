@@ -81,12 +81,12 @@ examples:
             }, function (e) {
                 if (e.success) {
                     var user = e.users[0];
-                    alert('Success:\\n' +
-                        'id: ' + user.id + '\\n' +
-                        'first name: ' + user.first_name + '\\n' +
+                    alert('Success:\n' +
+                        'id: ' + user.id + '\n' +
+                        'first name: ' + user.first_name + '\n' +
                         'last name: ' + user.last_name);
                 } else {
-                    alert('Error:\\n' +
+                    alert('Error:\n' +
                         ((e.error && e.message) || JSON.stringify(e)));
                 }
             });
@@ -101,12 +101,12 @@ examples:
             }, function (e) {
                 if (e.success) {
                     var user = e.users[0];
-                    alert('Success:\\n' +
-                        'id: ' + user.id + '\\n' +
-                        'first name: ' + user.first_name + '\\n' +
+                    alert('Success:\n' +
+                        'id: ' + user.id + '\n' +
+                        'first name: ' + user.first_name + '\n' +
                         'last name: ' + user.last_name);
                 } else {
-                    alert('Error:\\n' +
+                    alert('Error:\n' +
                         ((e.error && e.message) || JSON.stringify(e)));
                 }
             });
@@ -117,16 +117,16 @@ examples:
         
             Cloud.SocialIntegrations.searchFacebookFriends(function (e){
                 if (e.success) {
-                    alert('Success:\\n' +
+                    alert('Success:\n' +
                         'Count: ' + e.users.length);
                     for (var i = 0; i < e.users.length; i++) {
                         var user = e.users[i];
-                        alert('id: ' + user.id + '\\n' +
-                            'first name: ' + user.first_name + '\\n' +
+                        alert('id: ' + user.id + '\n' +
+                            'first name: ' + user.first_name + '\n' +
                             'last name: ' + user.last_name);
                      }
                 } else {
-                    alert('Error:\\n' +
+                    alert('Error:\n' +
                         ((e.error && e.message) || JSON.stringify(e)));
                 }
             });

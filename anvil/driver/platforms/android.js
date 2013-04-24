@@ -73,7 +73,7 @@ module.exports = new function() {
 
 		common.createHarness(
 			"android",
-			"\"" + path.resolve(driverGlobal.config.currentTiSdkDir, "titanium.py") + "\" " + argString,
+			"\"" + path.resolve(driverGlobal.config.targetTiSdkDir, "titanium.py") + "\" " + argString,
 			successCallback,
 			errorCallback
 			);
@@ -86,7 +86,7 @@ module.exports = new function() {
 	var buildHarness = function(successCallback, errorCallback) {
 		var buildCallback = function() {
 			var args = [
-				path.resolve(driverGlobal.config.currentTiSdkDir, "android", "builder.py"),
+				path.resolve(driverGlobal.config.targetTiSdkDir, "android", "builder.py"),
 				"build",
 				"harness",
 				path.resolve(driverGlobal.config.androidSdkDir),

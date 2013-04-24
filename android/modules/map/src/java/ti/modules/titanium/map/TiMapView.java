@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -76,11 +76,9 @@ public class TiMapView extends TiUIView
 	private static final int MSG_SET_USERLOCATION = 304;
 	private static final int MSG_SET_SCROLLENABLED = 305;
 	private static final int MSG_CHANGE_ZOOM = 306;
-	private static final int MSG_ADD_ANNOTATION = 307;
-	private static final int MSG_REMOVE_ANNOTATION = 308;
-	private static final int MSG_SELECT_ANNOTATION = 309;
-	private static final int MSG_REMOVE_ALL_ANNOTATIONS = 310;
-	private static final int MSG_UPDATE_ANNOTATIONS = 311;
+	private static final int MSG_SELECT_ANNOTATION = 307;
+	private static final int MSG_UPDATE_ANNOTATIONS = 308;
+	private static final int MSG_EVENT_LONG_PRESS = 309;
 
 	private boolean scrollEnabled;
 	private boolean regionFit;
@@ -110,7 +108,6 @@ public class TiMapView extends TiUIView
 		private static final float X_TOLERANCE=10;//x pixels that your finger can be off but still constitute a long press
 		private static final float Y_TOLERANCE=10;//y pixels that your finger can be off but still constitute a long press
 
-		private long longClickStartTime = 0;
 		private float longClickXCoordinate;
 		private float longClickYCoordinate;
 		
@@ -124,61 +121,41 @@ public class TiMapView extends TiUIView
 		{
 			scrollEnabled = enable;
 		}
-		
+
 		@Override
 		public boolean onTouchEvent(android.view.MotionEvent ev)
 		{
-			int actionType = ev.getAction();
-
 			// Handle LongPress
 			if (proxy.hierarchyHasListener(TiC.EVENT_LONGPRESS)) {
-				if (actionType == MotionEvent.ACTION_DOWN) {
-					// Save the values to use in ACTION_MOVE and ACTION_UP
-					longClickStartTime = ev.getEventTime();
-					longClickXCoordinate = ev.getX();
-					longClickYCoordinate = ev.getY();
-				} else if (actionType == MotionEvent.ACTION_MOVE) {
-					if (ev.getPointerCount() > 1) {
-						// Multitouch
-						longClickStartTime = 0;
-					} else {
-						float xmove = ev.getX();
-						float ymove = ev.getY();
+				int actionType = ev.getAction();
+
+				switch (actionType) {
+					case MotionEvent.ACTION_DOWN:
+						Message msg = handler.obtainMessage(MSG_EVENT_LONG_PRESS);
+						msg.obj = dictFromEvent(ev);
+						longClickXCoordinate = ev.getX();
+						longClickYCoordinate = ev.getY();
+						handler.sendMessageDelayed(msg, MIN_MILLISECONDS_FOR_LONG_CLICK);
+						break;
+					case MotionEvent.ACTION_MOVE:
+						float xValue = ev.getX();
+						float yValue = ev.getY();
 						// See if the movement is within the tolerance boundary
 						float xlow = longClickXCoordinate - X_TOLERANCE;
 						float xhigh = longClickXCoordinate + X_TOLERANCE;
 						float ylow = longClickYCoordinate - Y_TOLERANCE;
 						float yhigh = longClickYCoordinate + Y_TOLERANCE;
-						if ((xmove < xlow || xmove > xhigh) || (ymove < ylow || ymove > yhigh)) {
-							// Out of range
-							longClickStartTime = 0;
-						}
-					}
 
-				} else if (actionType == MotionEvent.ACTION_UP) {
-					// determine if this was a long click:
-					long eventTime = ev.getEventTime();
-					long downTime = ev.getDownTime();// This should match longClickStartTime unless we reset it earlier
-					if (longClickStartTime == downTime) {
-						// See if it is within the threshhold
-						if ((eventTime - longClickStartTime) > MIN_MILLISECONDS_FOR_LONG_CLICK) {
-							// Is it within the boundary
-							float xup = ev.getX();
-							float yup = ev.getY();
-							float xlow = longClickXCoordinate - X_TOLERANCE;
-							float xhigh = longClickXCoordinate + X_TOLERANCE;
-							float ylow = longClickYCoordinate - Y_TOLERANCE;
-							float yhigh = longClickYCoordinate + Y_TOLERANCE;
-							if ((xup > xlow && xup < xhigh) && (yup > ylow && yup < yhigh)) {
-								// Treat it as a long press
-								proxy.fireEvent(TiC.EVENT_LONGPRESS, dictFromEvent(ev));
-							}
+						if ((xValue < xlow || xValue > xhigh) || (yValue < ylow || yValue > yhigh)) {
+							handler.removeMessages(MSG_EVENT_LONG_PRESS);
 						}
-					}
+						break;
+					case MotionEvent.ACTION_UP:
+						handler.removeMessages(MSG_EVENT_LONG_PRESS);
 				}
 			}
-			
-			return super.onTouchEvent(ev);	
+
+			return super.onTouchEvent(ev);
 		}
 
 		@Override
@@ -187,7 +164,6 @@ public class TiMapView extends TiUIView
 			if (!scrollEnabled && ev.getAction() == MotionEvent.ACTION_MOVE) {
 				return true;
 			}
-			
 
 			return super.dispatchTouchEvent(ev);
 		}
@@ -200,7 +176,6 @@ public class TiMapView extends TiUIView
 			}
 			return super.dispatchTrackballEvent(ev);
 		}
-	
 
 		@Override
 		public void computeScroll()
@@ -265,7 +240,7 @@ public class TiMapView extends TiUIView
 			}
 		}
 	}
-	
+
 	class TitaniumOverlay extends ItemizedOverlay<TiOverlayItem>
 	{
 		ArrayList<AnnotationProxy> annotations;
@@ -576,7 +551,13 @@ public class TiMapView extends TiUIView
 
 	public boolean handleMessage(Message msg)
 	{
-		switch(msg.what) {
+		switch (msg.what) {
+			case MSG_EVENT_LONG_PRESS:
+				if (proxy != null) {
+					proxy.fireEvent(TiC.EVENT_LONGPRESS, msg.obj);
+				}
+				return true;
+
 			case MSG_SET_LOCATION : {
 				doSetLocation((KrollDict) msg.obj);
 				return true;
@@ -1153,5 +1134,3 @@ public class TiMapView extends TiUIView
 		return false;
 	}
 }
-
-

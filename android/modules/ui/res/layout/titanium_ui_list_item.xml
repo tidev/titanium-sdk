@@ -1,34 +1,35 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="wrap_content"
     android:focusable="false"
     android:focusableInTouchMode="false"
     android:orientation="horizontal" >
 
-    <ti.modules.titanium.ui.widget.listview.ListItemLayout
-        android:layout_width="0dp"
+    <org.appcelerator.titanium.view.TiCompositeLayout
+        android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:clickable="false"
         android:focusable="false"
         android:focusableInTouchMode="false" >
 
         <ti.modules.titanium.ui.widget.listview.TiBaseListViewItem
             android:id="@+id/titanium_ui_list_item_content"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
-    </ti.modules.titanium.ui.widget.listview.ListItemLayout>
+            android:layout_height="wrap_content"  />
+
+    </org.appcelerator.titanium.view.TiCompositeLayout>
 
     <ImageView
         android:id="@+id/titanium_ui_list_item_accessoryType"
         android:layout_width="wrap_content"
         android:layout_height="fill_parent"
         android:adjustViewBounds="true"
+        android:layout_gravity="right"
         android:contentDescription="One of the following images: checkmark, child, or disclosure"
         android:focusable="false"
         android:focusableInTouchMode="false"
-        android:maxWidth="35dp"
+        android:maxHeight="25dp"
+        android:maxWidth="25dp"
         android:scaleType="centerInside" />
 
-</LinearLayout>
+</FrameLayout>

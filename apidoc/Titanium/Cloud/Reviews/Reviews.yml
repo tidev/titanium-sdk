@@ -100,13 +100,13 @@ examples:
             }, function (e) {
                 if (e.success) {
                     var review = e.reviews[0];
-                    alert('Success:\\n' +
-                        'id: ' + review.id + '\\n' +
-                        'rating: ' + review.rating + '\\n' +
-                        'content: ' + review.content + '\\n' +
+                    alert('Success:\n' +
+                        'id: ' + review.id + '\n' +
+                        'rating: ' + review.rating + '\n' +
+                        'content: ' + review.content + '\n' +
                         'updated_at: ' + review.updated_at);
                 } else {
-                    alert('Error:\\n' +
+                    alert('Error:\n' +
                         ((e.error && e.message) || JSON.stringify(e)));
                 }
             });
@@ -121,13 +121,13 @@ examples:
             }, function (e) {
                 if (e.success) {
                     var review = e.reviews[0];
-                    alert('Success:\\n' +
-                        'id: ' + review.id + '\\n' +
-                        'rating: ' + review.rating + '\\n' +
-                        'content: ' + review.content + '\\n' +
+                    alert('Success:\n' +
+                        'id: ' + review.id + '\n' +
+                        'rating: ' + review.rating + '\n' +
+                        'content: ' + review.content + '\n' +
                         'updated_at: ' + review.updated_at);
                 } else {
-                    alert('Error:\\n' +
+                    alert('Error:\n' +
                         ((e.error && e.message) || JSON.stringify(e)));
                 }
             });
@@ -144,18 +144,18 @@ examples:
                 }
             }, function (e) {
                 if (e.success) {
-                    alert('Success:\\n' +
+                    alert('Success:\n' +
                         'Count: ' + e.reviews.length);
                     for (var i = 0; i < e.reviews.length; i++) {
                         var review = e.reviews[i];
-                        alert('id: ' + review.id + '\\n' +
-                            'id: ' + review.id + '\\n' +
-                            'rating: ' + review.rating + '\\n' +
-                            'content: ' + review.content + '\\n' +
+                        alert('id: ' + review.id + '\n' +
+                            'id: ' + review.id + '\n' +
+                            'rating: ' + review.rating + '\n' +
+                            'content: ' + review.content + '\n' +
                             'updated_at: ' + review.updated_at);
                     }
                 } else {
-                    alert('Error:\\n' +
+                    alert('Error:\n' +
                         ((e.error && e.message) || JSON.stringify(e)));
                 }
             });
@@ -172,13 +172,13 @@ examples:
             }, function (e) {
                 if (e.success) {
                     var review = e.reviews[0];
-                    alert('Success:\\n' +
-                        'id: ' + review.id + '\\n' +
-                        'rating: ' + review.rating + '\\n' +
-                        'content: ' + review.content + '\\n' +
+                    alert('Success:\n' +
+                        'id: ' + review.id + '\n' +
+                        'rating: ' + review.rating + '\n' +
+                        'content: ' + review.content + '\n' +
                         'updated_at: ' + review.updated_at);
                 } else {
-                    alert('Error:\\n' +
+                    alert('Error:\n' +
                         ((e.error && e.message) || JSON.stringify(e)));
                 }
             });
@@ -194,7 +194,7 @@ examples:
                 if (e.success) {
                     alert('Success');
                 } else {
-                    alert('Error:\\n' +
+                    alert('Error:\n' +
                         ((e.error && e.message) || JSON.stringify(e)));
                 }
             });

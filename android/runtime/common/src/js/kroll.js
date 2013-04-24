@@ -117,7 +117,7 @@
 	};
 
 	NativeModule.wrapper = [
-		'(function (exports, require, module, __filename, __dirname, Titanium, Ti, global, kroll) {\n',
+		'(function (exports, require, module, __filename, __dirname, Titanium, Ti, global, kroll) {',
 		'\n});' ];
 
 	NativeModule.prototype.compile = function() {

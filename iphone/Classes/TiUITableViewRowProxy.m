@@ -714,7 +714,7 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 	// this method is called when the cell is initially created
 	// to be initialized. on subsequent repaints of a re-used
 	// table cell, the updateChildren below will be called instead
-	configuredChildren = YES;
+	configuredChildren = NO;
 	if ([[self children] count] > 0)
 	{
 		UIView *contentView = cell.contentView;
@@ -852,7 +852,7 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 
 -(void)triggerRowUpdate
 {	
-	if ([self isAttached] && !modifyingRow && !attaching)
+	if ([self isAttached] && self.viewAttached && !modifyingRow && !attaching)
 	{
 		if (OSAtomicTestAndSetBarrier(NEEDS_UPDATE_ROW, &dirtyRowFlags)) {
 			return;

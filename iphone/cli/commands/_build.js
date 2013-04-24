@@ -399,35 +399,37 @@ exports.validate = function (logger, config, cli) {
 	if (!cli.argv.xcode || !process.env.TITANIUM_CLI_XCODEBUILD) {
 		// make sure the app doesn't have any blacklisted directories in the Resources directory and warn about graylisted names
 		var resourcesDir = path.join(cli.argv['project-dir'], 'Resources');
-		fs.readdirSync(resourcesDir).forEach(function (filename) {
-			var lcaseFilename = filename.toLowerCase(),
-				isDir = fs.lstatSync(path.join(resourcesDir, filename)).isDirectory();
-
-			if (blacklistDirectories.indexOf(lcaseFilename) != -1) {
-				if (isDir) {
-					logger.error(__('Found blacklisted directory in the Resources directory') + '\n');
-					logger.error(__('The directory "%s" is a reserved word.', filename));
-					logger.error(__('You must rename this directory to something else.') + '\n');
-				} else {
-					logger.error(__('Found blacklisted file in the Resources directory') + '\n');
-					logger.error(__('The file "%s" is a reserved word.', filename));
-					logger.error(__('You must rename this file to something else.') + '\n');
+		if (afs.exists(resourcesDir)) {
+			fs.readdirSync(resourcesDir).forEach(function (filename) {
+				var lcaseFilename = filename.toLowerCase(),
+					isDir = fs.lstatSync(path.join(resourcesDir, filename)).isDirectory();
+	
+				if (blacklistDirectories.indexOf(lcaseFilename) != -1) {
+					if (isDir) {
+						logger.error(__('Found blacklisted directory in the Resources directory') + '\n');
+						logger.error(__('The directory "%s" is a reserved word.', filename));
+						logger.error(__('You must rename this directory to something else.') + '\n');
+					} else {
+						logger.error(__('Found blacklisted file in the Resources directory') + '\n');
+						logger.error(__('The file "%s" is a reserved word.', filename));
+						logger.error(__('You must rename this file to something else.') + '\n');
+					}
+					process.exit(1);
+				} else if (graylistDirectories.indexOf(lcaseFilename) != -1) {
+					if (isDir) {
+						logger.warn(__('Found graylisted directory in the Resources directory'));
+						logger.warn(__('The directory "%s" is potentially a reserved word.', filename));
+						logger.warn(__('There is a good chance your app will be rejected by Apple.'));
+						logger.warn(__('It is highly recommended you rename this directory to something else.'));
+					} else {
+						logger.warn(__('Found graylisted file in the Resources directory'));
+						logger.warn(__('The file "%s" is potentially a reserved word.', filename));
+						logger.warn(__('There is a good chance your app will be rejected by Apple.'));
+						logger.warn(__('It is highly recommended you rename this file to something else.'));
+					}
 				}
-				process.exit(1);
-			} else if (graylistDirectories.indexOf(lcaseFilename) != -1) {
-				if (isDir) {
-					logger.warn(__('Found graylisted directory in the Resources directory'));
-					logger.warn(__('The directory "%s" is potentially a reserved word.', filename));
-					logger.warn(__('There is a good chance your app will be rejected by Apple.'));
-					logger.warn(__('It is highly recommended you rename this directory to something else.'));
-				} else {
-					logger.warn(__('Found graylisted file in the Resources directory'));
-					logger.warn(__('The file "%s" is potentially a reserved word.', filename));
-					logger.warn(__('There is a good chance your app will be rejected by Apple.'));
-					logger.warn(__('It is highly recommended you rename this file to something else.'));
-				}
-			}
-		});
+			});
+		}
 	}
 
 	ti.validateTiappXml(logger, cli.tiapp);
@@ -950,7 +952,7 @@ build.prototype = {
 		afs.copyDirSyncRecursive(src, dest, opts || {
 			preserve: true,
 			logger: this.logger.debug,
-			ignoreDirs: ['.git','.svn', 'CVS'],
+			ignoreDirs: ['.git', '.svn', 'CVS'],
 			ignoreFiles: ['.gitignore', '.cvsignore']
 		});
 	},
@@ -959,7 +961,7 @@ build.prototype = {
 		afs.copyDirRecursive(src, dest, callback, opts || {
 			preserve: true,
 			logger: this.logger.debug,
-			ignoreDirs: ['.git','.svn', 'CVS'],
+			ignoreDirs: ['.git', '.svn', 'CVS'],
 			ignoreFiles: ['.gitignore', '.cvsignore']
 		});
 	},
@@ -1047,7 +1049,7 @@ build.prototype = {
 
 				parallel(this, [
 					function (next) {
-						if (this.target == 'simulator') {
+						if (this.target == 'simulator' && this.deployType == 'development') {
 							if (this.forceCopy) {
 								this.logger.info(__('Forcing copying of files instead of creating symlinks'));
 							} else {
@@ -1068,6 +1070,13 @@ build.prototype = {
 					'copyGraphics',
 					'writeBuildManifest'
 				], function () {
+					// this is a hack... for non-deployment builds we need to force xcode so that the pre-compile phase
+					// is run and the ApplicationRouting.m gets updated
+					if (!this.forceRebuild && this.deployType != 'development') {
+						this.logger.info(__('Forcing rebuild: deploy type is %s, so need to recompile ApplicationRouting.m', this.deployType));
+						this.forceRebuild = true;
+					}
+
 					if (this.forceRebuild || this.target != 'simulator' || !afs.exists(this.xcodeAppDir, this.tiapp.name)) {
 						this.logger.info(__('Invoking xcodebuild'));
 						this.invokeXcodeBuild(finished);
@@ -1323,10 +1332,10 @@ build.prototype = {
 			namespace = this.scrubName(this.tiapp.name),
 			copyFileRegExps = [
 				// note: order of regexps matters
+				[/TitaniumViewController/g, namespace + '$ViewController'],
 				[/TitaniumModule/g, namespace + '$Module'],
 				[/Titanium|Appcelerator/g, namespace],
 				[/titanium/g, '_' + namespace.toLowerCase()],
-				[new RegExp(namespace + '(' + namespace + '\\$?Module)', 'g'), '$1'],
 				[/(org|com)\.appcelerator/g, '$1.' + namespace.toLowerCase()],
 				[new RegExp('\\* ' + namespace + ' ' + namespace + ' Mobile', 'g'), '* Appcelerator Titanium Mobile'],
 				[new RegExp('\\* Copyright \\(c\\) \\d{4}(-\\d{4})? by ' + namespace + ', Inc\\.', 'g'), '* Copyright (c) 2009-' + (new Date).getFullYear() + ' by Appcelerator, Inc.'],
@@ -1441,6 +1450,14 @@ build.prototype = {
 			return true;
 		}
 
+		// check if the target changed
+		if (this.target != manifest.target) {
+			this.logger.info(__('Forcing rebuild: target changed since last build'));
+			this.logger.info('  ' + __('Was: %s', this.buildManifest.target));
+			this.logger.info('  ' + __('Now: %s', this.target));
+			return true;
+		}
+
 		if (afs.exists(this.xcodeProjectConfigFile)) {
 			// we have a previous build, see if the Titanium SDK changed
 			var conf = fs.readFileSync(this.xcodeProjectConfigFile).toString(),
@@ -1466,14 +1483,6 @@ build.prototype = {
 		// check that we have a libTiCore hash
 		if (!manifest.tiCoreHash) {
 			this.logger.info(__('Forcing rebuild: incomplete version file %s', this.buildVersionFile.cyan));
-			return true;
-		}
-
-		// check if the target changed
-		if (this.libTiCoreHash != manifest.tiCoreHash) {
-			this.logger.info(__('Forcing rebuild: libTiCore hash changed since last build'));
-			this.logger.info('  ' + __('Was: %s', this.buildManifest.target));
-			this.logger.info('  ' + __('Now: %s', this.target));
 			return true;
 		}
 
@@ -2242,7 +2251,9 @@ build.prototype = {
 								var srcFile = path.join(src, file),
 									destFile = path.join(dest, file);
 								if (fs.lstatSync(srcFile).isDirectory()) {
-									symlinkResources(srcFile, destFile, false, next);
+									setTimeout(function () {
+										symlinkResources(srcFile, destFile, false, next);
+									}, 1);
 								} else {
 									symlinkHook(srcFile, destFile, next);
 								}
@@ -2251,7 +2262,7 @@ build.prototype = {
 							}
 						};
 					}), cb);
-				} else if (cb) {
+				} else {
 					cb();
 				}
 			}.bind(this),
@@ -2432,118 +2443,127 @@ build.prototype = {
 		if (afs.exists(src)) {
 			var compiledTargets = {},
 				ignoreRegExp = /^\.gitignore|\.cvsignore|\.DS_Store|\.git|\.svn|_svn|CVS$/,
-				recursivelyCopy = function (from, to, rel, ignore) {
+				recursivelyCopy = function (from, to, rel, ignore, done) {
 					wrench.mkdirSyncRecursive(to);
-					fs.readdirSync(from).forEach(function (file) {
-						var f = path.join(from, file),
-							t = f.replace(from, to),
-							fstat = fs.lstatSync(f),
-							p = rel ? rel + '/' + file : file;
-						if (ignoreRegExp.test(file) || (ignore && ignore.indexOf(file) != -1)) {
-							this.logger.debug(__('Ignoring %s', f.cyan));
-						} else if (fstat.isDirectory()) {
-							recursivelyCopy(f, t, p);
-						} else if (!/\.jss$/.test(file)) {
-							var m = file.match(/\.(html|css|js)$/)
-							if (m) {
-								compiledTargets[m[1]] || (compiledTargets[m[1]] = []);
-								compiledTargets[m[1]].push({
-									path: p,
-									from: f,
-									to: t
-								});
+					series(this, fs.readdirSync(from).map(function (file) {
+						return function (next) {
+							var f = path.join(from, file),
+								t = f.replace(from, to),
+								fstat = fs.lstatSync(f),
+								p = rel ? rel + '/' + file : file;
+							if (ignoreRegExp.test(file) || (ignore && ignore.indexOf(file) != -1)) {
+								this.logger.debug(__('Ignoring %s', f.cyan));
+							} else if (fstat.isDirectory()) {
+								recursivelyCopy(f, t, p, null, next);
+								return;
+							} else if (!/\.jss$/.test(file)) {
+								var m = file.match(/\.(html|css|js)$/)
+								if (m) {
+									compiledTargets[m[1]] || (compiledTargets[m[1]] = []);
+									compiledTargets[m[1]].push({
+										path: p,
+										from: f,
+										to: t
+									});
+								}
+								// only copy the file for test/production and if it's not a js file, otherwise
+								// it will get compiled below
+								if ((this.deployType == 'development' || !m || !/css|js/.test(m[1])) && (!afs.exists(t) || fstat.size != fs.lstatSync(t).size)) {
+									this.cli.createHook('build.ios.copyResource', this, function (srcFile, destFile, cb) {
+										afs.copyFileSync(srcFile, destFile, { logger: this.logger.debug });
+										setTimeout(cb, 0);
+									})(f, t, function () {
+										next();
+									});
+									return;
+								}
 							}
-							// only copy the file for test/production and if it's not a js file, otherwise
-							// it will get compiled below
-							if ((this.deployType == 'development' || !m || !/css|js/.test(m[1])) && (!afs.exists(t) || fstat.size != fs.lstatSync(t).size)) {
-								// TODO: add build.ios.copyResource hook!
-								afs.copyFileSync(f, t, { logger: this.logger.debug });
-							}
-						}
-					}, this);
+							setTimeout(next, 0);
+						}.bind(this);
+					}.bind(this)), done);
 				}.bind(this);
 
-			recursivelyCopy(src, dest, null, ti.availablePlatformsNames);
+			recursivelyCopy(src, dest, null, ti.availablePlatformsNames, function () {
+				/*
+				The following code scans all html files for script tags referencing app:// js files, however in
+				production/test, we actually want this files minified and prepared. In development builds, we
+				don't care if it's minified and we don't want to prepare the file anyways.
 
-			/*
-			The following code scans all html files for script tags referencing app:// js files, however in
-			production/test, we actually want this files minified and prepared. In development builds, we
-			don't care if it's minified and we don't want to prepare the file anyways.
+				So, long story short, I don't think we need the following code, but I'm gonna keep it around for
+				a bit since it took me a while to code.
 
-			So, long story short, I don't think we need the following code, but I'm gonna keep it around for
-			a bit since it took me a while to code.
+				if (compiledTargets.html) {
+					var compiled = [];
 
-			if (compiledTargets.html) {
-				var compiled = [];
+					compiledTargets.html.forEach(function (target) {
+						if (compiledTargets.js) {
+							var dom = new DOMParser().parseFromString(fs.readFileSync(target.from).toString(), 'text/html'),
+								doc = dom && dom.documentElement,
+								scripts = doc && doc.getElementsByTagName('script'),
+								i, j, len, m, src;
 
-				compiledTargets.html.forEach(function (target) {
-					if (compiledTargets.js) {
-						var dom = new DOMParser().parseFromString(fs.readFileSync(target.from).toString(), 'text/html'),
-							doc = dom && dom.documentElement,
-							scripts = doc && doc.getElementsByTagName('script'),
-							i, j, len, m, src;
-
-						if (scripts) {
-							for (i = 0, len = scripts.length; i < len; i++) {
-								src = scripts[i].getAttribute('src');
-								m = src && src.match(/^app\:\/\/(.+)/);
-								if (m) {
-									src = path.join(path.dirname(target.from), m[1]);
-									for (j = 0; j < compiledTargets.js.length; j++) {
-										if (compiledTargets.js[j].from == src) {
-											this.logger.debug(__('Minifying app:// JavaScript file: %s', src.cyan));
-											compiled.push(compiledTargets.js[j]);
-											compiledTargets.js.splice(j, 1);
-											break;
+							if (scripts) {
+								for (i = 0, len = scripts.length; i < len; i++) {
+									src = scripts[i].getAttribute('src');
+									m = src && src.match(/^app\:\/\/(.+)/);
+									if (m) {
+										src = path.join(path.dirname(target.from), m[1]);
+										for (j = 0; j < compiledTargets.js.length; j++) {
+											if (compiledTargets.js[j].from == src) {
+												this.logger.debug(__('Minifying app:// JavaScript file: %s', src.cyan));
+												compiled.push(compiledTargets.js[j]);
+												compiledTargets.js.splice(j, 1);
+												break;
+											}
 										}
 									}
 								}
 							}
 						}
-					}
-					afs.copyFileSync(target.from, target.to, { logger: this.logger.debug });
-				}, this);
+						afs.copyFileSync(target.from, target.to, { logger: this.logger.debug });
+					}, this);
 
-				compiled.forEach(function (c) {
-					this.logger.debug(__('Writing minifying JavaScript file: %s', c.to.cyan));
-					fs.writeFileSync(
-						c.to,
-						UglifyJS.minify(c.from).code.replace(/Titanium\./g,'Ti.')
-					);
-				}, this);
-			}
-			*/
-
-			// minify css files
-			compiledTargets.css && compiledTargets.css.forEach(function (file) {
-				// TODO: add hook!
-				if (this.deployType == 'development') {
-					afs.copyFileSync(file.from, file.to, { logger: this.logger.debug });
-				} else {
-					this.logger.debug(__('Writing minified CSS file: %s', file.to.cyan));
-					fs.writeFileSync(file.to, cleanCSS.process(fs.readFileSync(file.from).toString()));
+					compiled.forEach(function (c) {
+						this.logger.debug(__('Writing minifying JavaScript file: %s', c.to.cyan));
+						fs.writeFileSync(
+							c.to,
+							UglifyJS.minify(c.from).code.replace(/Titanium\./g,'Ti.')
+						);
+					}, this);
 				}
-			}, this);
+				*/
 
-			// minify js files
-			if (compiledTargets.js) {
-				series(this, compiledTargets.js.map(function (compileTarget) {
-					return function (cb) {
-						this.cli.createHook('build.ios.compileJsFile', this, function (target, cb2) {
-							var id = target.path.replace(/\./g, '_');
-							this.compileJsFile(id, target.from);
-							this.jsFilesToPrepare.push(id);
-							cb2();
-						})(compileTarget, function () {
-							cb();
-						});
-					};
-				}), function () {
+				// minify css files
+				compiledTargets.css && compiledTargets.css.forEach(function (file) {
+					// TODO: add hook!
+					if (this.deployType == 'development') {
+						afs.copyFileSync(file.from, file.to, { logger: this.logger.debug });
+					} else {
+						this.logger.debug(__('Writing minified CSS file: %s', file.to.cyan));
+						fs.writeFileSync(file.to, cleanCSS.process(fs.readFileSync(file.from).toString()));
+					}
+				}, this);
+
+				// minify js files
+				if (compiledTargets.js) {
+					series(this, compiledTargets.js.map(function (compileTarget) {
+						return function (cb) {
+							this.cli.createHook('build.ios.compileJsFile', this, function (target, cb2) {
+								var id = target.path.replace(/\./g, '_');
+								this.compileJsFile(id, target.from);
+								this.jsFilesToPrepare.push(id);
+								setTimeout(cb2, 0);
+							})(compileTarget, function () {
+								cb();
+							});
+						};
+					}), function () {
+						callback();
+					});
+				} else {
 					callback();
-				});
-			} else {
-				callback();
-			}
+				}
+			});
 		} else {
 			callback();
 		}

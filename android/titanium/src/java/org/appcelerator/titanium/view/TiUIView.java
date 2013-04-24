@@ -325,7 +325,9 @@ public abstract class TiUIView
 			}
 		}
 
-		Log.d(TAG, "starting animation: " + as, Log.DEBUG_MODE);
+		if (Log.isDebugModeEnabled()) {
+			Log.d(TAG, "starting animation: " + as, Log.DEBUG_MODE);
+		}
 		nativeView.startAnimation(as);
 
 		if (invalidateParent) {
@@ -646,7 +648,7 @@ public abstract class TiUIView
 		} else if (key.equals(TiC.PROPERTY_ACCESSIBILITY_HIDDEN)) {
 			applyAccessibilityHidden(newValue);
 
-		} else {
+		} else if (Log.isDebugModeEnabled()) {
 			Log.d(TAG, "Unhandled property key: " + key, Log.DEBUG_MODE);
 		}
 	}
@@ -777,11 +779,6 @@ public abstract class TiUIView
 			});
 			fireEvent(TiC.EVENT_FOCUS, getFocusEventObject(hasFocus));
 		} else {
-			TiMessenger.postOnMain(new Runnable() {
-				public void run() {
-					TiUIHelper.showSoftKeyboard(v, false);
-				}
-			});
 			fireEvent(TiC.EVENT_BLUR, getFocusEventObject(hasFocus));
 		}
 	}
@@ -815,17 +812,26 @@ public abstract class TiUIView
 	{
 		if (nativeView != null) {
 			nativeView.clearFocus();
+			TiMessenger.postOnMain(new Runnable() {
+				public void run() {
+					TiUIHelper.showSoftKeyboard(nativeView, false);
+				}
+			});
 		}
 	}
 
 	public void release()
 	{
-		Log.d(TAG, "Releasing: " + this, Log.DEBUG_MODE);
+		if (Log.isDebugModeEnabled()) {
+			Log.d(TAG, "Releasing: " + this, Log.DEBUG_MODE);
+		}
 		View nv = getNativeView();
 		if (nv != null) {
 			if (nv instanceof ViewGroup) {
 				ViewGroup vg = (ViewGroup) nv;
-				Log.d(TAG, "Group has: " + vg.getChildCount(), Log.DEBUG_MODE);
+				if (Log.isDebugModeEnabled()) {
+					Log.d(TAG, "Group has: " + vg.getChildCount(), Log.DEBUG_MODE);
+				}
 				if (!(vg instanceof AdapterView<?>)) {
 					vg.removeAllViews();
 				}
@@ -968,18 +974,16 @@ public abstract class TiUIView
 					// If the view already has a parent, we need to detach it from the parent
 					// and add the borderView to the parent as the child
 					ViewGroup savedParent = null;
-					android.view.ViewGroup.LayoutParams savedLayoutParams = null;
 					if (nativeView.getParent() != null) {
 						ViewParent nativeParent = nativeView.getParent();
 						if (nativeParent instanceof ViewGroup) {
 							savedParent = (ViewGroup) nativeParent;
-							savedLayoutParams = savedParent.getLayoutParams();
 							savedParent.removeView(nativeView);
 						}
 					}
 					borderView.addView(nativeView, params);
 					if (savedParent != null) {
-						savedParent.addView(getOuterView(), savedLayoutParams);
+						savedParent.addView(borderView, getLayoutParams());
 					}
 					borderView.setVisibility(this.visibility);
 				}
@@ -1461,7 +1465,7 @@ public abstract class TiUIView
 
 	public boolean fireEvent(String eventName, KrollDict data, boolean bubbles) {
 		if (data == null && additionalEventData != null) {
-			data = new KrollDict((HashMap)additionalEventData.clone());
+			data = new KrollDict(additionalEventData);
 		} else if (additionalEventData != null) {
 			data.putAll(additionalEventData);
 		}

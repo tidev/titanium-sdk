@@ -114,10 +114,15 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 
 		//TODO eventManager.addOnEventChangeListener(this);
 	}
-
+	
+	private static HashMap<TiUrl,String> styleSheetUrlCache = new HashMap<TiUrl,String>(5);
 	protected String getBaseUrlForStylesheet()
 	{
 		TiUrl creationUrl = getCreationUrl();
+		if (styleSheetUrlCache.containsKey(creationUrl)) {
+			return styleSheetUrlCache.get(creationUrl);
+		}
+
 		String baseUrl = creationUrl.baseUrl;
 		if (baseUrl == null || (baseUrl.equals("app://") && creationUrl.url.equals(""))) {
 			baseUrl = "app://app.js";
@@ -129,7 +134,8 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 		if (idx != -1) {
 			baseUrl = baseUrl.substring(idx + 1).replace(".js", "");
 		}
-
+		
+		styleSheetUrlCache.put(creationUrl,baseUrl);
 		return baseUrl;
 	}
 
@@ -163,19 +169,19 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 
 		String baseUrl = getBaseUrlForStylesheet();
 		KrollDict dict = TiApplication.getInstance().getStylesheet(baseUrl, styleClasses, viewId);
-		if (dict.size() > 0) {
-			extend(dict);
+		if (dict == null || dict.isEmpty()) {
+			return options;
 		}
-
-		Log.d(TAG, "trying to get stylesheet for base:" + baseUrl + ",classes:" + styleClasses + ",id:" + viewId + ",dict:"
-			+ dict, Log.DEBUG_MODE);
-		if (dict != null) {
-			// merge in our stylesheet details to the passed in dictionary
-			// our passed in dictionary takes precedence over the stylesheet
-			dict.putAll(options);
-			return dict;
+		
+		extend(dict);
+		if (Log.isDebugModeEnabled()) {
+			Log.d(TAG, "trying to get stylesheet for base:" + baseUrl + ",classes:" + styleClasses + ",id:" + viewId + ",dict:"
+				+ dict, Log.DEBUG_MODE);
 		}
-		return options;
+		// merge in our stylesheet details to the passed in dictionary
+		// our passed in dictionary takes precedence over the stylesheet
+		dict.putAll(options);
+		return dict;
 	}
 
 	public TiAnimationBuilder getPendingAnimation()
@@ -394,28 +400,27 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 		this.view = view;
 	}
 	
-	public TiUIView forceCreateView(boolean enableModelListener)
-	{
-		view = null;
-		return getOrCreateView(enableModelListener);
-	}
-
 	public TiUIView forceCreateView()
 	{
-		return forceCreateView(true);
+		view = null;
+		return getOrCreateView();
 	}
 
-	public TiUIView getOrCreateView(boolean enableModelListener)
-	{
-		if (activity == null || view != null) {
-			return view;
+	/**
+	 * Transfer an existing view to this view proxy.
+	 * Special use in tableView. Do not use anywhere else.
+	 * Called from TiTableViewRowProxyItem.java
+	 * @param transferview - The view to transfer
+	 * @param oldProxy - The currentProxy of the view
+	 */
+	public void transferView(TiUIView transferview, TiViewProxy oldProxy) {
+		if(oldProxy != null) {
+			oldProxy.setView(null);
+			oldProxy.setModelListener(null);
 		}
-
-		if (TiApplication.isUIThread()) {
-			return handleGetView(enableModelListener);
-		}
-
-		return (TiUIView) TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_GETVIEW), 0);
+		view = transferview;
+		modelListener = transferview;
+		view.setProxy(this);
 	}
 	
 	/**
@@ -425,13 +430,23 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 	 */
 	public TiUIView getOrCreateView()
 	{
-		return getOrCreateView(true);
-	}
+		if (activity == null || view != null) {
+			return view;
+		}
 
-	protected TiUIView handleGetView(boolean enableModelListener)
+		if (TiApplication.isUIThread()) {
+			return handleGetView();
+		}
+
+		return (TiUIView) TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_GETVIEW), 0);
+	}
+	
+	protected TiUIView handleGetView()
 	{
 		if (view == null) {
-			Log.d(TAG, "getView: " + getClass().getSimpleName(), Log.DEBUG_MODE);
+			if (Log.isDebugModeEnabled()) {
+				Log.d(TAG, "getView: " + getClass().getSimpleName(), Log.DEBUG_MODE);
+			}
 
 			Activity activity = getActivity();
 			view = createView(activity);
@@ -442,33 +457,17 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 					Log.w(TAG, "Activity is null", Log.DEBUG_MODE);
 				}
 			}
-			realizeViews(view, enableModelListener);
+			realizeViews(view);
 			view.registerForTouch();
 			view.registerForKeyPress();
 		}
 		return view;
 	}
 	
-	protected TiUIView handleGetView()
+	public void realizeViews(TiUIView view)
 	{
-		return handleGetView(true);
-	}
-
-	public void realizeViews(TiUIView view, boolean enableModelListener)
-	{
-		if (enableModelListener)
-		{
-			setModelListener(view);
-		}
-		else
-		{
-			// Just call processProperties() to set them on this view.
-			// Note that this is done in setModelListener() when it is
-			// called.
-			view.processProperties(getProperties());
-		}
-
-
+		setModelListener(view);
+		
 		// Use a copy so bundle can be modified as it passes up the inheritance
 		// tree. Allows defaults to be added and keys removed.
 		if (children != null) {
@@ -489,11 +488,6 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 		}
 	}
 	
-	public void realizeViews(TiUIView view)
-	{
-		realizeViews(view, true);
-	}
-
 	public void releaseViews()
 	{
 		if (view != null) {
@@ -1006,8 +1000,10 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 		nativeView.getLocationInWindow(viewLocation);
 		destNativeView.getLocationInWindow(destLocation);
 
-		Log.d(TAG, "nativeView location in window, x: " + viewLocation[0] + ", y: " + viewLocation[1], Log.DEBUG_MODE);
-		Log.d(TAG, "destNativeView location in window, x: " + destLocation[0] + ", y: " + destLocation[1], Log.DEBUG_MODE);
+		if (Log.isDebugModeEnabled()) {
+			Log.d(TAG, "nativeView location in window, x: " + viewLocation[0] + ", y: " + viewLocation[1], Log.DEBUG_MODE);
+			Log.d(TAG, "destNativeView location in window, x: " + destLocation[0] + ", y: " + destLocation[1], Log.DEBUG_MODE);
+		}
 
 		int pointWindowX = viewLocation[0] + x;
 		int pointWindowY = viewLocation[1] + y;

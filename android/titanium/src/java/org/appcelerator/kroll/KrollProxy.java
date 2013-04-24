@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -380,6 +380,9 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 			return;
 		}
 
+		if (dict.containsKey(TiC.PROPERTY_BUBBLE_PARENT)) {
+			bubbleParent = TiConvert.toBoolean(dict, TiC.PROPERTY_BUBBLE_PARENT, true);
+		}
 		properties.putAll(dict);
 		handleDefaultValues();
 		handleLocaleProperties();
@@ -454,6 +457,10 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 	@Kroll.method
 	public void extend(KrollDict options)
 	{
+		if (options == null || options.isEmpty()) {
+			return;
+		}
+		
 		ArrayList<KrollPropertyChange> propertyChanges = new ArrayList<KrollPropertyChange>();
 		for (String name : options.keySet()) {
 			Object oldValue = properties.get(name);
@@ -785,20 +792,33 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 				krollData.remove(TiC.PROPERTY_BUBBLES);
 			}
 			hashValue = krollData.get(TiC.PROPERTY_SUCCESS);
-			if (hashValue != null) {
-				reportSuccess = true;
-				krollData.remove(TiC.PROPERTY_SUCCESS);
-			}
-			hashValue = krollData.get(TiC.PROPERTY_CODE);
-			if (hashValue != null) {
-				reportSuccess = true;
-				code = TiConvert.toInt(hashValue);
-				krollData.remove(TiC.PROPERTY_CODE);
+			if (hashValue instanceof Boolean) {
+				boolean successValue = ((Boolean)hashValue).booleanValue();
+				hashValue = krollData.get(TiC.PROPERTY_CODE);
+				if (hashValue instanceof Integer) {
+					int codeValue = ((Integer)hashValue).intValue();
+					if (successValue == (codeValue == 0)) {
+						reportSuccess = true;
+						code = codeValue;
+						krollData.remove(TiC.PROPERTY_SUCCESS);
+						krollData.remove(TiC.PROPERTY_CODE);
+					} else {
+						Log.w(TAG, "DEPRECATION WARNING: Events with 'code' and 'success' should have success be true if and only if code is nonzero. For java modules, consider the putCodeAndMessage() method to do this for you. The capability to use other types will be removed in a future version.", Log.DEBUG_MODE);					
+					}
+				} else if ( successValue ) {
+					Log.w(TAG, "DEPRECATION WARNING: Events with 'success' of true should have an integer 'code' property that is 0. For java modules, consider the putCodeAndMessage() method to do this for you. The capability to use other types will be removed in a future version.", Log.DEBUG_MODE);					
+				} else {
+					Log.w(TAG, "DEPRECATION WARNING: Events with 'success' of false should have an integer 'code' property that is nonzero. For java modules, consider the putCodeAndMessage() method to do this for you. The capability to use other types will be removed in a future version.", Log.DEBUG_MODE);					
+				}
+			} else if (hashValue != null) {
+				Log.w(TAG, "DEPRECATION WARNING: The 'success' event property is reserved to be a boolean. For java modules, consider the putCodeAndMessage() method to do this for you. The capability to use other types will be removed in a future version.", Log.DEBUG_MODE);
 			}
 			hashValue = krollData.get(TiC.EVENT_PROPERTY_ERROR);
-			if (hashValue != null) {
-				message = hashValue.toString();
+			if (hashValue instanceof String) {
+				message = (String) hashValue;
 				krollData.remove(TiC.EVENT_PROPERTY_ERROR);
+			} else if (hashValue != null) {
+				Log.w(TAG, "DEPRECATION WARNING: The 'error' event property is reserved to be a string. For java modules, consider the putCodeAndMessage() method to do this for you. The capability to use other types will be removed in a future version.", Log.DEBUG_MODE);
 			}
 			hashValue = krollData.get(TiC.EVENT_PROPERTY_SOURCE);
 			if (hashValue instanceof KrollProxy) {
@@ -1132,7 +1152,9 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 				eventListeners.put(eventName, listeners);
 			}
 
-			Log.d(TAG, "Added for eventName '" + eventName + "' with id " + listenerId, Log.DEBUG_MODE);
+			if (Log.isDebugModeEnabled()) {
+				Log.d(TAG, "Added for eventName '" + eventName + "' with id " + listenerId, Log.DEBUG_MODE);
+			}
 			listenerId = listenerIdGenerator.incrementAndGet();
 			listeners.put(listenerId, callback);
 		}

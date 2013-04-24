@@ -298,27 +298,6 @@ def transform_type(type):
 		type = "Callback<%s>" % (type)
 	return type
 
-def has_ancestor(one_type, ancestor_name):
-	if one_type["name"] == ancestor_name:
-		return True
-	if "extends" in one_type and one_type["extends"] == ancestor_name:
-		return True
-	elif "extends" not in one_type:
-		if ancestor_name in special_toplevel_types:
-			# special case for "Global" and "Modules" types - they do not have @extends statement
-			return one_type["name"].find(ancestor_name) == 0
-		return False
-	else:
-		parent_type_name = one_type["extends"]
-		if (parent_type_name is None or not isinstance(parent_type_name, basestring) or
-			parent_type_name.lower() == "object"):
-			return False
-		if not parent_type_name in apis:
-			log.warn("%s extends %s but %s type information not found" % (one_type["name"],
-																		  parent_type_name, parent_type_name))
-			return False
-		return has_ancestor(apis[parent_type_name], ancestor_name)
-
 def is_special_toplevel_type(one_type):
 	for special_type in special_toplevel_types:
 		if one_type["name"].find(special_type) == 0:
@@ -419,7 +398,7 @@ def generate(raw_apis, annotated_apis, options):
 				else:
 					write_utf8(output, '\t * @typestr %s\n' % (typestr))
 			
-			if not (has_ancestor(raw_apis[name], "Titanium.Proxy") or is_special_toplevel_type(raw_apis[name])):
+			if annotated_obj.is_pseudotype and not is_special_toplevel_type(annotated_obj.api_obj):
 				write_utf8(output, "\t * @pseudo\n")
 			write_utf8(output, output_properties_for_obj(annotated_obj))
 			write_utf8(output, get_summary_and_description(annotated_obj.api_obj))

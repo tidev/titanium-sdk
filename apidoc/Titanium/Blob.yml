@@ -8,7 +8,7 @@ description: |
     Blobs are often used to store text or image data. 
     The `Blob` object includes a number of properties and methods specific to image blobs.
 
-    Android and Mobile Web support an [append](Titanium.Blob.append) method, but
+    Android, Mobile Web and Tizen support an [append](Titanium.Blob.append) method, but
     otherwise blobs are immutable. 
 
     The <Titanium.Utils> module provides several utility methods for working with 
@@ -31,7 +31,7 @@ description: |
 
 extends: Titanium.Proxy
 since: "0.9"
-platforms: [android, iphone, ipad, mobileweb]
+platforms: [android, iphone, ipad, mobileweb, tizen]
 createable: false
 properties:
 
@@ -65,7 +65,7 @@ properties:
     description: |
         If this blob doesn't represent an image, `height` is 0.
 
-        On Mobile Web, the `height` is not available until the image loads. It is advised 
+        On Mobile Web and Tizen, the `height` is not available until the image loads. It is advised 
         to set a timeout to wait for the image to load before accessing the `height`.
         
     permission: read-only
@@ -76,7 +76,7 @@ properties:
     description: |
         If this blob doesn't represent an image, `height` is 0.
 
-        On Mobile Web, the `width` is not available until the image loads. It is advised to set a timeout 
+        On Mobile Web and Tizen, the `width` is not available until the image loads. It is advised to set a timeout 
         to wait for the image to load before accessing the `width`.
     permission: read-only
 
@@ -97,10 +97,10 @@ properties:
         If this blob represents an image, this is the total number of pixels in the image.
         Otherwise it returns the number of bytes in the binary data.
 
-        On Mobile Web, always returns the number of bytes of the blob. Note that internally, 
+        On Mobile Web and Tizen, always returns the number of bytes of the blob. Note that internally, 
         binary data is stored base64 encoded and `size` represents the number of bytes before 
         base64 encoding.
-    platforms: [iphone, ipad, mobileweb]
+    platforms: [iphone, ipad, mobileweb, tizen]
     permission: read-only
 
 methods:
@@ -110,11 +110,11 @@ methods:
         type: String
     summary: Returns a string representation of this blob.
     description: |
-        On Mobile Web, if the blob is binary, `toString` returns a base64 encoded data URI.
+        On Mobile Web and Tizen, if the blob is binary, `toString` returns a base64 encoded data URI.
 
   - name: append
     summary: Appends the data from another blob to this blob.
-    platforms: [android, mobileweb]
+    platforms: [android, mobileweb, tizen]
     parameters:
       - name: blob
         type: Titanium.Blob

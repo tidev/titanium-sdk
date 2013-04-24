@@ -666,7 +666,9 @@ public class TiDrawableReference
 					b = bTemp;
 					bTemp = null;
 				} else {
-					Log.d(TAG, "Scaling bitmap to " + destWidth + "x" + destHeight, Log.DEBUG_MODE);
+					if (Log.isDebugModeEnabled()) {
+						Log.d(TAG, "Scaling bitmap to " + destWidth + "x" + destHeight, Log.DEBUG_MODE);
+					}
 
 					// If anyDensity=false, meaning Android is automatically scaling
 					// pixel dimensions, need to do that here as well, because Bitmap width/height

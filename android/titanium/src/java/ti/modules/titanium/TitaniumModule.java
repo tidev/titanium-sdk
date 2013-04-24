@@ -362,7 +362,9 @@ public class TitaniumModule extends KrollModule
 			}
 
 		} catch (TiRHelper.ResourceNotFoundException e) {
-			Log.d(TAG, "Resource string with key '" + key + "' not found.  Returning default value.", Log.DEBUG_MODE);
+			if (Log.isDebugModeEnabled()) {
+				Log.d(TAG, "Resource string with key '" + key + "' not found.  Returning default value.", Log.DEBUG_MODE);
+			}
 
 			return defaultValue;
 

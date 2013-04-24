@@ -20,9 +20,9 @@ exports.bootstrap = function(Titanium) {
 		var tabGroup = new TabGroup(options);
 
 		if (options) {
-			tabGroup.tabs = options.tabs || [];
+			tabGroup._tabs = options.tabs || [];
 		} else {
-			tabGroup.tabs = [];
+			tabGroup._tabs = [];
 		}
 
 		// Keeps track of the current tab group state
@@ -49,7 +49,7 @@ exports.bootstrap = function(Titanium) {
 			handle.dispose();
 		});
 
-		this.setTabs(this.tabs);
+		this.setTabs(this._tabs);
 		_open.call(this, options);
 
 		this.currentState = this.state.opened;
@@ -57,32 +57,34 @@ exports.bootstrap = function(Titanium) {
 
 	var _addTab = TabGroup.prototype.addTab;
 	TabGroup.prototype.addTab = function(tab) {
-		this.tabs.push(tab);
+		this._tabs.push(tab);
 		if (this.currentState == this.state.opened) {
 			_addTab.call(this, tab);
 		}
 	}
 
 	TabGroup.prototype.getTabs = function() {
-		return this.tabs;
+		return this._tabs;
 	}
 
 	var _setTabs = TabGroup.prototype.setTabs;
 	TabGroup.prototype.setTabs = function(tabs) {
+
 		if (!Array.isArray(tabs)) {
 			kroll.log(TAG, "Invalid type of tabs for setTabs()");
 			return;
 		}
 
 		if (this.currentState != this.state.opened) {
-			this.tabs = tabs;
-			if (this.currentState == this.state.opening) {
-				_setTabs.call(this, tabs);
-			}
+			this._tabs = tabs;
+			_setTabs.call(this, tabs);
+			
 		} else {
 			kroll.log(TAG, "Cannot set tabs after tab group opens");
 		}
 	}
+
+	Object.defineProperty(TabGroup.prototype, "tabs", { get: TabGroup.prototype.getTabs, set: TabGroup.prototype.setTabs });
 
 }
 

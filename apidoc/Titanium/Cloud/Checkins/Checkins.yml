@@ -83,11 +83,11 @@ examples:
             }, function (e) {
                 if (e.success) {
                     var checkin = e.checkins[0];
-                    alert('Success:\\n' +
-                        'id: ' + checkin.id + '\\n' +
+                    alert('Success:\n' +
+                        'id: ' + checkin.id + '\n' +
                         'place: ' + checkin.place.name);
                 } else {
-                    alert('Error:\\n' +
+                    alert('Error:\n' +
                         ((e.error && e.message) || JSON.stringify(e)));
                 }
             });
@@ -104,14 +104,14 @@ examples:
                 if (e.success) {
                     for (var i = 0; i < e.checkins.length; i++) {
                         var checkin = e.checkins[i];
-                        alert('Success:\\n' +
-                           'id: ' + checkin.id + '\\n' +
-                           'place: ' + checkin.place.name + '\\n' +
-                           'updated_at: ' + checkin.updated_at + '\\n' +
+                        alert('Success:\n' +
+                           'id: ' + checkin.id + '\n' +
+                           'place: ' + checkin.place.name + '\n' +
+                           'updated_at: ' + checkin.updated_at + '\n' +
                            'user: ' + checkin.user.first_name + ' ' + checkin.user.last_name);
                      }
                 } else {
-                    alert('Error:\\n' +
+                    alert('Error:\n' +
                         ((e.error && e.message) || JSON.stringify(e)));
                 }
             });
@@ -125,12 +125,12 @@ examples:
             }, function (e) {
                 if (e.success) {
                     var checkin = e.checkins[0];
-                    alert('Success:\\n' +
-                        'id: ' + checkin.id + '\\n' +
-                        'place: ' + checkin.place.name + '\\n' +
+                    alert('Success:\n' +
+                        'id: ' + checkin.id + '\n' +
+                        'place: ' + checkin.place.name + '\n' +
                         'updated_at: ' + checkin.updated_at);
                 } else {
-                    alert('Error:\\n' +
+                    alert('Error:\n' +
                         ((e.error && e.message) || JSON.stringify(e)));
                 }
             });
@@ -145,7 +145,7 @@ examples:
                 if (e.success) {
                     alert('Success');
                 } else {
-                    alert('Error:\\n' +
+                    alert('Error:\n' +
                         ((e.error && e.message) || JSON.stringify(e)));
                 }
             });

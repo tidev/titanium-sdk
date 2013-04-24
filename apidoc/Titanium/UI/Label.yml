@@ -16,12 +16,12 @@ methods:
         to appear on top of it.
 
         See also: <Titanium.UI.View.add>.
-    platforms: [iphone, ipad, mobileweb]
+    platforms: [iphone, ipad, mobileweb, tizen]
 
   - name: remove
     description: |
         See also: [add](Titanium.UI.Label.add), <Titanium.UI.View.add>.
-    platforms: [iphone, ipad, mobileweb]
+    platforms: [iphone, ipad, mobileweb, tizen]
 
 properties:
 
@@ -50,8 +50,15 @@ properties:
         [LINKIFY_MAP_ADDRESSES](Titanium.UI.Android.LINKIFY_MAP_ADDRESSES),
         [LINKIFY_PHONE_NUMBERS](Titanium.UI.Android.LINKIFY_PHONE_NUMBERS),
         and [LINKIFY_WEB_URLS](Titanium.UI.Android.LINKIFY_WEB_URLS).
+
+        On Tizen, only the following flags are supported:
+        [AUTOLINK_EMAIL_ADDRESSES](Titanium.UI.AUTOLINK_EMAIL_ADDRESSES),
+        [AUTOLINK_NONE](Titanium.UI.AUTOLINK_NONE),
+        [AUTOLINK_PHONE_NUMBERS](Titanium.UI.AUTOLINK_PHONE_NUMBERS),
+        and [AUTOLINK_URLS](Titanium.UI.AUTOLINK_URLS).
+
     type: Number
-    platforms: [android]
+    platforms: [android, tizen]
     
   - name: backgroundPaddingBottom
     summary: Number of pixels to extend the background image past the label on the bottom.
@@ -84,7 +91,7 @@ properties:
         Turn on/off the addition of ellipses at the end of the label if the text is too large to fit.
     type: Boolean
     default: false
-    platforms: [android, mobileweb]
+    platforms: [android, mobileweb, tizen]
     
   - name: font
     summary: Font to use for the label text.
@@ -102,7 +109,7 @@ properties:
     
   - name: html
     summary: Simple HTML formatting.
-    platforms: [android, mobileweb]
+    platforms: [android, mobileweb, tizen]
     type: String
     
   - name: minimumFontSize
@@ -117,12 +124,12 @@ properties:
     description: |
         For information about color values, see the "Colors" section of <Titanium.UI>. 
     type: String
-    platforms: [iphone, ipad, mobileweb]
+    platforms: [iphone, ipad, mobileweb, tizen]
     
   - name: shadowOffset
     summary: Shadow offset as a dictionary with the properties `x` and `y`.
     type: Object
-    platforms: [iphone, ipad, mobileweb]
+    platforms: [iphone, ipad, mobileweb, tizen]
     
   - name: text
     summary: Label text.
@@ -154,7 +161,7 @@ properties:
     summary: Enable or disable word wrapping in the label.
     type: Boolean
     default: true
-    platforms: [android, mobileweb]
+    platforms: [android, mobileweb, tizen]
     
   - name: verticalAlign
     summary: |
@@ -172,7 +179,6 @@ properties:
         behavior when the property is undefined is to center the text vertically.
     type: [Number,String]
     default: Titanium.UI.TEXT_VERTICAL_ALIGNMENT_CENTER on Mobile Web. Undefined on Android, iPhone and iPad.
-    platforms: [mobileweb, iphone, ipad, android]
     since: { iphone: "3.0.0", ipad: "3.0.0", mobileweb: "2.0.0", android: "3.0.0" }
     
 examples:

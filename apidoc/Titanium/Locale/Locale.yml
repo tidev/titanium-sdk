@@ -10,12 +10,12 @@ description: |
     The macro `L` can be used as an alias for the <Titanium.Locale.getString> method.
 extends: Titanium.Module
 since: "1.5"
-platforms: [android, iphone, ipad, mobileweb]
+platforms: [android, iphone, ipad, mobileweb, tizen]
 
 methods:
   - name: formatTelephoneNumber
     summary: Formats a telephone number according to the current system locale.
-    platforms: [android]
+    platforms: [android, tizen]
     returns:
         type: String
     parameters:
@@ -30,7 +30,7 @@ methods:
         `getCurrencyCode('en-US')` returns `USD`. See the `xe.com` website 
         [Currency List](http://www.xe.com/iso4217.php#section2) section of the `www.xe.com` website for 
         reference.
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, tizen]
     returns:
         type: String
     parameters:
@@ -50,7 +50,7 @@ methods:
         `getCurrencySymbol('USD')` returns `$`. See the 
         [Currency Symbols](http://www.xe.com/symbols.php#section2) section of the 
         `www.xe.com` website for reference.
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, tizen]
     returns:
         type: String
     parameters:
@@ -68,7 +68,7 @@ methods:
         `getLocaleCurrencySymbol('en-US')` returns `$`. See the 
         [Currency Symbols](http://www.xe.com/symbols.php#section2) section of the 
         `www.xe.com` website for reference.
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, tizen]
     returns:
         type: String
     parameters:
@@ -151,7 +151,7 @@ properties:
         This property holds a value such as `US` or `GB`. See the 
         [ISO 3166-1 alpha-2](http://en.wikipedia.org/wiki/ISO_3166-1_alpha-2#Officially_assigned_code_elements) 
         country codes section of wikipedia for reference.
-    platforms: [android, mobileweb]
+    platforms: [android, mobileweb, tizen]
     type: String
     permission: read-only
     
