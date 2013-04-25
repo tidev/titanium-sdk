@@ -56,7 +56,8 @@ module.exports = new function() {
 		{name: "getPeopleWithName"},
 		{name: "getPersonById"},
 		{name: "removePerson"},
-		{name: "saveContact"}
+		{name: "saveContact"},
+		{name: "contactTizenGroup"}
 	]
 
 	this.getDefaultAddressBook = function(testRun) {
@@ -674,5 +675,47 @@ module.exports = new function() {
 				reportError(testRun, 'The following error occured: ' + response.error);
 			}
 		});
+	}
+
+	this.contactTizenGroup = function(testRun) {
+		var group = Ti.Contacts.createGroup({name: 'Test_Group'}),
+			person1 = Ti.Contacts.createPerson({
+				firstName: 'John',
+				lastName: 'Doe'
+			}),
+			person2 = Ti.Contacts.createPerson({
+				firstName: 'Sem',
+				lastName: 'Halk'
+			});
+
+		group.add(person1);
+		group.add(person2);
+
+		function checkSortedMembers(group){
+			Ti.Contacts.Tizen.Group.sortedMembers(Ti.Contacts.CONTACTS_SORT_FIRST_NAME, group, function(response){
+				if(response.success) {
+					//Failed because tizen cannot add contact to group
+					//https://bugs.tizen.org/jira/browse/TWEB-108
+					valueOf(testRun, response.persons.length).shouldBe(2);
+					finish(testRun);
+				} else {
+					reportError(testRun, 'The following error occurred: ' +  response.error);
+					finish(testRun);
+				}
+			});
+		}
+
+		Ti.Contacts.Tizen.Group.members(group, function(response){
+			if(response.success) {
+				//Failed because tizen cannot add contact to group
+				//https://bugs.tizen.org/jira/browse/TWEB-108
+				valueOf(testRun, response.persons.length).shouldBe(2);
+				checkSortedMembers(group);
+			} else {
+				reportError(testRun, 'The following error occurred: ' +  response.error);
+				finish(testRun);
+			}
+		});
+
 	}
 }
