@@ -8,7 +8,7 @@ summary: The <Titanium.XML.DOMImplementation> interface provides a number of met
     [DOM Level 3 API](http://www.w3.org/TR/DOM-Level-3-Core/core.html#ID-102161490) implementation on Mobile Web.
 since: "1.8"
 createable: false
-platforms: [android, iphone, ipad, mobileweb]
+platforms: [android, iphone, ipad, mobileweb, tizen]
 methods:
   - name: createDocument
     summary: Creates an <Titanium.XML.Document> object of the specified type with its document

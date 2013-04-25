@@ -20,7 +20,7 @@ exports.desc = __('removes previous build directories');
 
 exports.config = function (logger, config, cli) {
 	return function (finished) {
-		cli.createHook('config.clean', function (callback) {
+		cli.createHook('clean.config', function (callback) {
 			callback({
 				options: appc.util.mix({
 					platform: {
@@ -84,33 +84,49 @@ exports.run = function (logger, config, cli) {
 	if (cli.argv.platforms) {
 		async.series(cli.argv.platforms.map(function (platform) {
 			return function (next) {
-				cli.createHook('config.clean.' + platform, function (callback) {
-					var dir = path.join(buildDir, platform);
-					if (appc.fs.exists(dir)) {
-						logger.debug(__('Deleting %s', dir.cyan));
-						wrench.rmdirSyncRecursive(dir);
-					} else {
-						logger.debug(__('Directory does not exist %s', dir.cyan));
-					}
-					callback();
-				})(function () {
-					next();
+				cli.fireHook('clean.pre', function () {
+					cli.fireHook('clean.' + platform + '.pre', function () {
+						var dir = path.join(buildDir, platform);
+						if (appc.fs.exists(dir)) {
+							logger.debug(__('Deleting %s', dir.cyan));
+							wrench.rmdirSyncRecursive(dir);
+						} else {
+							logger.debug(__('Directory does not exist %s', dir.cyan));
+						}
+						cli.fireHook('clean.' + platform + '.post', function () {
+							cli.fireHook('clean.post', function () {
+								next();
+							});
+						});
+					});
 				});
 			};
 		}), done);
 	} else if (appc.fs.exists(buildDir)) {
 		logger.debug(__('Deleting all platform build directories'));
 
-		cli.createHook('config.clean', function (callback) {
-			fs.readdirSync(buildDir).forEach(function (dir) {
-				dir = path.join(buildDir, dir);
-				if (fs.lstatSync(dir).isDirectory()) {
-					logger.debug(__('Deleting %s', dir.cyan));
-					wrench.rmdirSyncRecursive(dir);
-				}
+		cli.fireHook('clean.pre', function () {
+			async.series(fs.readdirSync(buildDir).map(function (dir) {
+				return function (next) {
+					var fulldir = path.join(buildDir, dir);
+					if (fs.lstatSync(fulldir).isDirectory()) {
+						cli.fireHook('clean.' + dir + '.pre', function () {
+							logger.debug(__('Deleting %s', fulldir.cyan));
+							wrench.rmdirSyncRecursive(fulldir);
+							cli.fireHook('clean.' + dir + '.post', function () {
+								next();
+							});
+						});
+					} else {
+						next();
+					}
+				};
+			}), function () {
+				cli.fireHook('clean.post', function () {
+					done();
+				});
 			});
-			callback();
-		})(done);
+		});
 	} else {
 		logger.debug(__('Directory does not exist %s', buildDir.cyan));
 		done();

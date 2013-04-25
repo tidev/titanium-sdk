@@ -17,7 +17,6 @@ import org.appcelerator.titanium.util.TiFileHelper;
 import org.appcelerator.titanium.util.TiPlatformHelper;
 
 import ti.modules.titanium.ui.widget.tableview.TableViewModel.Item;
-import android.R;
 import android.app.Activity;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;

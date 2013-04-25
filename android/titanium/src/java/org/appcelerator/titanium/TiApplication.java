@@ -590,7 +590,7 @@ public abstract class TiApplication extends Application implements Handler.Callb
 		if (stylesheet != null) {
 			return stylesheet.getStylesheet(objectId, classes, density, basename);
 		}
-		return new KrollDict();
+		return null;
 	}
 
 	public void registerProxy(KrollProxy proxy)

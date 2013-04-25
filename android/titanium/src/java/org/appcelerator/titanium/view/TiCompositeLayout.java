@@ -187,14 +187,16 @@ public class TiCompositeLayout extends ViewGroup
 
 	public void onChildViewAdded(View parent, View child) {
 		needsSort = true;
-		if (parent != null && child != null) {
+		if (Log.isDebugModeEnabled() && parent != null && child != null) {
 			Log.d(TAG, "Attaching: " + viewToString(child) + " to " + viewToString(parent), Log.DEBUG_MODE);
 		}
 	}
 
 	public void onChildViewRemoved(View parent, View child) {
 		needsSort = true;
-		Log.d(TAG, "Removing: " + viewToString(child) + " from " + viewToString(parent), Log.DEBUG_MODE);
+		if (Log.isDebugModeEnabled()) {
+			Log.d(TAG, "Removing: " + viewToString(child) + " from " + viewToString(parent), Log.DEBUG_MODE);
+		}
 	}
 
 	@Override
@@ -205,19 +207,7 @@ public class TiCompositeLayout extends ViewGroup
 	@Override
 	protected LayoutParams generateDefaultLayoutParams()
 	{
-		// Default behavior is size since optionWidth/optionHeight is null, and autoFillsWidth/autoFillsHeight is false.
-		// Some classes such as ViewProxy will set autoFillsWidth/autoFillsHeight to true in order to trigger the fill
-		// behavior by default.
-		LayoutParams params = new LayoutParams();
-		params.optionLeft = null;
-		params.optionRight = null;
-		params.optionTop = null;
-		params.optionBottom = null;
-		params.optionZIndex = NOT_SET;
-		params.sizeOrFillHeightEnabled = true;
-		params.sizeOrFillWidthEnabled = true;
-
-		return params;
+		return new LayoutParams();
 	}
 
 	private static int getAsPercentageValue(double percentage, int value)
@@ -559,8 +549,10 @@ public class TiCompositeLayout extends ViewGroup
 					}
 				}
 
-				Log.d(TAG, child.getClass().getName() + " {" + horizontal[0] + "," + vertical[0] + "," + horizontal[1] + ","
-					+ vertical[1] + "}", Log.DEBUG_MODE);
+				if (Log.isDebugModeEnabled()) {
+					Log.d(TAG, child.getClass().getName() + " {" + horizontal[0] + "," + vertical[0] + "," + horizontal[1] + ","
+						+ vertical[1] + "}", Log.DEBUG_MODE);
+				}
 
 				int newWidth = horizontal[1] - horizontal[0];
 				int newHeight = vertical[1] - vertical[0];
@@ -689,14 +681,25 @@ public class TiCompositeLayout extends ViewGroup
 		}
 		horiztonalLayoutPreviousRight = (optionRight == null) ? 0 : optionRight.getAsPixels(this);
 
-		int right = left + measuredWidth;
-		if (enableHorizontalWrap && ((right + horiztonalLayoutPreviousRight) > layoutRight)) {
+		int right;
+		// If it's fill width with horizontal wrap, just take up remaining space.
+		if(enableHorizontalWrap && params.autoFillsWidth && params.sizeOrFillWidthEnabled) {
+			right = measuredWidth;
+		} else {
+			right = left + measuredWidth;
+		}
+
+		if (enableHorizontalWrap && ((right + horiztonalLayoutPreviousRight) > layoutRight || left >= layoutRight)) {
 			// Too long for the current "line" that it's on. Need to move it down.
 			left = optionLeftValue;
 			right = measuredWidth + left;
 			horizontalLayoutTopBuffer = horizontalLayoutTopBuffer + horizontalLayoutLineHeight;
 			horizontalLayoutLineHeight = 0;
+		} else if (!enableHorizontalWrap && params.autoFillsWidth && params.sizeOrFillWidthEnabled) {
+			// If there is no wrap, and width is fill behavior, cap it off at the width of the screen
+			right = Math.min(right, layoutRight);
 		}
+
 		hpos[0] = left;
 		hpos[1] = right;
 		horizontalLayoutCurrentLeft = right;

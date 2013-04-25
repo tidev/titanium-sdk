@@ -838,13 +838,31 @@ NSArray* moviePlayerKeys = nil;
 	{
 		if ([self _hasListeners:@"complete"])
 		{
-			NSMutableDictionary *event = [NSMutableDictionary dictionary];
 			NSNumber *reason = [[notification userInfo] objectForKey:MPMoviePlayerPlaybackDidFinishReasonUserInfoKey];
+
+			NSString * errorMessage;
+			int errorCode;
+			if ([reason intValue] == MPMovieFinishReasonPlaybackError)
+			{
+				errorMessage = @"Video Playback encountered an error";
+				errorCode = -1;
+			}
+			else
+			{
+				errorMessage = nil;
+				errorCode = 0;
+			}
+
+			NSMutableDictionary *event;
 			if (reason!=nil)
 			{
-				[event setObject:reason forKey:@"reason"];
+				event = [NSDictionary dictionaryWithObject:reason forKey:@"reason"];
 			}
-			[self fireEvent:@"complete" withObject:event];
+			else
+			{
+				event = nil;
+			}
+			[self fireEvent:@"complete" withObject:event errorCode:errorCode message:errorMessage];
 		}
 		playing = NO;
 	}

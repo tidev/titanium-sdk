@@ -67,11 +67,11 @@ examples:
             }, function (e) {
                 if (e.success) {
                     var status = e.statuses[0];
-                    alert('Success:\\n' +
-                        'id: ' + status.id + '\\n' +
+                    alert('Success:\n' +
+                        'id: ' + status.id + '\n' +
                         'place: ' + status.place.name);
                 } else {
-                    alert('Error:\\n' +
+                    alert('Error:\n' +
                         ((e.error && e.message) || JSON.stringify(e)));
                 }
             });
@@ -84,16 +84,16 @@ examples:
                 user_id: someUserId
             }, function (e) {
                 if (e.success) {
-                    alert('Success:\\n' +
+                    alert('Success:\n' +
                         'Count: ' + e.statuses.length);
                     for (var i = 0; i < e.statuses.length; i++) {
                         var status = e.statuses[i];
-                        alert('id: ' + status.id + '\\n' +
-                              'message: ' + status.message + '\\n' +
+                        alert('id: ' + status.id + '\n' +
+                              'message: ' + status.message + '\n' +
                               'updated_at: ' + status.updated_at);
                     }
                 } else {
-                    alert('Error:\\n' +
+                    alert('Error:\n' +
                         ((e.error && e.message) || JSON.stringify(e)));
                 }
             });
@@ -110,13 +110,13 @@ examples:
                 if (e.success) {
                     for (var i = 0; i < e.statuses.length; i++) {
                         var status = e.statuses[i];
-                        alert('Success:\\n' +
-                           'id: ' + status.id + '\\n' +
-                           'message: ' + status.message + '\\n' +
+                        alert('Success:\n' +
+                           'id: ' + status.id + '\n' +
+                           'message: ' + status.message + '\n' +
                            'updated_at: ' + status.updated_at);
                      }
                 } else {
-                    alert('Error:\\n' +
+                    alert('Error:\n' +
                         ((e.error && e.message) || JSON.stringify(e)));
                 }
             });

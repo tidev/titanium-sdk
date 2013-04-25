@@ -95,10 +95,11 @@
 -(void)prepareForReuse
 {
 	[super prepareForReuse];
+    
 	if (proxy.callbackCell == self) {
 		[proxy prepareTableRowForReuse];
 	}
-	[self setProxy:nil];
+	//[self setProxy:nil];
 	
 	// TODO: HACK: In the case of abnormally large table view cells, we have to reset the size.
 	// This is because the view drawing subsystem takes the cell frame to be the sandbox bounds when drawing views,
@@ -106,9 +107,9 @@
 	// them go.
 
 	CGRect oldFrame = [[self contentView] frame];
-    CGSize cellSize = [self computeCellSize];
+	//CGSize cellSize = [self computeCellSize];
     
-	[[self contentView] setFrame:CGRectMake(oldFrame.origin.x, oldFrame.origin.y, cellSize.width, cellSize.height)];
+	[[self contentView] setFrame:CGRectMake(oldFrame.origin.x, oldFrame.origin.y, 0,0)];
 }
 
 - (UIView *)hitTest:(CGPoint) point withEvent:(UIEvent *)event 
@@ -465,7 +466,7 @@
     if (animation == UITableViewRowAnimationNone) {
 		TiThreadPerformOnMainThread(^{
 			[table reloadData];
-		}, NO);
+		}, YES);
         return;
     }
     
@@ -1288,6 +1289,7 @@
     // NOTE: Because of how tableview row reloads are scheduled, we always need to do this
     // because of where the hide might be triggered from.
     
+    
     NSArray* visibleRows = [tableview indexPathsForVisibleRows];
     [tableview reloadRowsAtIndexPaths:visibleRows withRowAnimation:UITableViewRowAnimationNone];
     
@@ -1367,9 +1369,13 @@
 	// called when text starts editing
 	[self showSearchScreen:nil];
     searchActivated = YES;
-    [tableview reloadData];
+    [[searchController searchResultsTableView] reloadData];
 }
-
+/*
+ * This is no longer required since we do it from the 
+ * searchDisplayControllerDidEndSearch method
+ */
+/*
 - (void)searchBarTextDidEndEditing:(UISearchBar *)searchBar
 {
     if (searchActivated && ([searchBar.text length] == 0)) {
@@ -1377,7 +1383,7 @@
         [tableview reloadData];
     }
 }
-
+*/
 - (void)searchBar:(UISearchBar *)searchBar textDidChange:(NSString *)searchText
 {
 	[self setSearchString:searchText];
@@ -1823,12 +1829,17 @@ return result;	\
 	
 	TiUITableViewRowProxy *row = [self rowForIndexPath:index];
 	[row triggerAttach];
-	
+    
 	// the classname for all rows that have the same substainal layout will be the same
 	// we reuse them for speed
 	UITableViewCell *cell = [ourTableView dequeueReusableCellWithIdentifier:row.tableClass];
+
 	if (cell == nil)
 	{
+        if (row.callbackCell != nil) {
+            //Ensure that the proxy is associated with one cell only
+            [row.callbackCell setProxy:nil];
+        }
 		cell = [[[TiUITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:row.tableClass row:row] autorelease];
         CGSize cellSize = [(TiUITableViewCell*)cell computeCellSize];
 		[cell setBounds:CGRectMake(0, 0, cellSize.width,cellSize.height)];
@@ -1836,6 +1847,8 @@ return result;	\
 	}
 	else
 	{
+        //Ensure that the row is detached if reusing cells did not do so.
+        [row prepareTableRowForReuse];
         // Have to reset the proxy on the cell, and the row's callback cell, as it may have been cleared in reuse operations (or reassigned)
         [(TiUITableViewCell*)cell setProxy:row];
         [row setCallbackCell:(TiUITableViewCell*)cell];
@@ -2412,11 +2425,10 @@ return result;	\
 
 #pragma mark Search Display Controller Delegates
 
-
 - (void) searchDisplayControllerDidEndSearch:(UISearchDisplayController *)controller
 {
     animateHide = YES;
-    [self hideSearchScreen:nil];
+    [self performSelector:@selector(hideSearchScreen:) withObject:nil afterDelay:0.2];
 }
 @end
 

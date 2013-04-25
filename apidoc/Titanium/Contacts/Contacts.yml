@@ -3,20 +3,31 @@ name: Titanium.Contacts
 summary: |
     The top-level Contacts module, used for accessing and modifying the system contacts address book.
 description: |
- 
     See examples for more information.
+
+    #### iOS Platform Notes
+
+    On iOS, the contacts database may be modified by an external application, causing any `Person` or
+    `Group` objects you've retrieved to be out of sync with the database. The IDs of these objects are
+    not guaranteed to remain the same, so updating an object when it is out of sync may have
+    unpredictable results.
+
+    To avoid this, listen for the [reload](Titanium.Contacts.reload) event. When you receive a
+    `reload` event, you should assume that any existing `Person` or `Group` objects are invalid and
+    reload them from the `Contacts` module before modifying them.
+
+    See the examples for sample use of the `reload` event.
 extends: Titanium.Module
 since: "0.8"
-platforms: [android, iphone, ipad]
+platforms: [android, iphone, ipad, tizen]
 
 events:
   - name: reload
-    summary: Fired when the database backing the contacts module is modified
+    summary: Fired when the database backing the contacts module is modified externally.
     description: |
-        This event signifies that the addressbook reference will be recreated. All existing 
-        [Person](Titanium.Contacts.Person) and [Group](Titanium.Contacts.Group) instances will 
-        still exist but changes to them that modify the addressbook will result in unpredictable
-        behavior.
+        If you have an existing reference to a `Person` or `Group` object, you should obtain
+        a new reference from the `Contacts` module. Using the existing object may result
+        in unpredictable behavior, such as updating the wrong contact.
     platforms: [iphone, ipad]
     since: "3.1.0"
 
@@ -27,7 +38,7 @@ methods:
     description: This method must be followed by <Titanium.Contacts.save> to commit its changes.
     returns:
         type: Titanium.Contacts.Group
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, tizen]
     parameters:
       - name: parameters
         summary: |
@@ -42,7 +53,7 @@ methods:
         changes to the underlying contacts database.
     returns:
         type: Titanium.Contacts.Person
-    platforms: [android, ipad, iphone]
+    platforms: [android, ipad, iphone, tizen]
     since: {android: "2.1.0"}
     parameters:
       - name: parameters
@@ -56,10 +67,11 @@ methods:
     summary: Gets all groups.
     returns:
         type: Array<Titanium.Contacts.Group>
-    platforms: [ipad, iphone]
+    platforms: [ipad, iphone, tizen]
     
   - name: getAllPeople
-    summary: Gets all people, unless a limit is specified.
+    summary: Gets all people, unless a limit is specified. On Tizen, use [Titanium.Contacts.Tizen.getAllPeople](Titanium.Contacts.Tizen.getAllPeople).
+    platforms: [android, iphone, ipad]
     returns:
         type: Array<Titanium.Contacts.Person>    
     parameters:
@@ -71,7 +83,7 @@ methods:
     summary: Gets the group with the specified identifier.
     returns:
         type: Titanium.Contacts.Group
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, tizen]
     parameters:
       - name: id
         summary: Group identifier.
@@ -81,6 +93,9 @@ methods:
     summary: |
         Gets people with a `firstName`, `middleName` or `lastName` field, or a combination 
         of these fields, that match the specified name.
+        
+        On Tizen, use [Titanium.Contacts.Tizen.getPeopleWithName](Titanium.Contacts.Tizen.getPeopleWithName).
+    platforms: [android, iphone, ipad, tizen]
     returns:
         type: Array<Titanium.Contacts.Person>
     parameters:
@@ -100,7 +115,7 @@ methods:
   - name: removeGroup
     summary: Removes a group from the address book.
     description: This method must be followed by <Titanium.Contacts.save> to commit its changes.
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, tizen]
     parameters:
       - name: group
         summary: Contact group.
@@ -118,11 +133,11 @@ methods:
         exist once committed, it will no longer be valid. Continuing to use it will result in 
         unpredictable behavior, including crashes.
         
-        On Android:
+        On Android and Tizen:
         
         This method will remove the person from the Contacts book automatically. 
         
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, tizen]
     since: {android: "2.1.0"}
     parameters:
       - name: person
@@ -135,7 +150,7 @@ methods:
     
   - name: save
     summary: Commits all pending changes to the underlying contacts database.
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, tizen]
     parameters:
       - name: contacts
         summary: List of contacts to save. Used on Android only. 
@@ -157,6 +172,7 @@ methods:
 
   - name: requestAuthorization
     summary: If authorization is unknown, will bring up a dialog requesting permission.
+    platforms: [android, iphone, ipad]
     description: |
         Note that the callback may be synchronous or asynchronous. That is, it may be called
         during requestAuthorization or much later. See the "Request access to the address book"
@@ -217,11 +233,10 @@ properties:
         A [contactsAuthorization](Titanium.Contacts.contactsAuthorization) value 
         indicating that the application is authorized to use the address book.
     description: |
-        This value is always returned if the device is running an iOS release prior to 6.0 and
-        on Android.
+        This value is always returned on Android and Tizen devices, as well as on iOS versions earlier than 6.0.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad, android]
+    platforms: [iphone, ipad, android, tizen]
     since: 2.1.3
 
   - name: AUTHORIZATION_DENIED
@@ -230,7 +245,7 @@ properties:
         indicating that the application is not authorized to use the address book.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad, android]
+    platforms: [iphone, ipad, android, tizen]
     since: 2.1.3
 
   - name: AUTHORIZATION_RESTRICTED
@@ -240,7 +255,7 @@ properties:
         the user cannot change this application's status.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad, android]
+    platforms: [iphone, ipad, android, tizen]
     since: 2.1.3
 
   - name: AUTHORIZATION_UNKNOWN
@@ -249,19 +264,19 @@ properties:
         indicating that the authorization state is unknown.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad, android]
+    platforms: [iphone, ipad, android, tizen]
     since: 2.1.3
 
   - name: contactsAuthorization
     summary: Returns an authorization constant indicating if the application has access to the address book.
     description: |
-         Always returns `AUTHORIZATION_AUTHORIZED` on iOS pre-6.0 and Android devices.
+         Always returns `AUTHORIZATION_AUTHORIZED` on iOS pre-6.0, Android and Tizen devices.
          
          If `contactsAuthorization` is `AUTHORIZATION_RESTRICTED`, you should not
          attempt to re-authorize: this will lead to issues.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad, android]
+    platforms: [iphone, ipad, android, tizen]
     since: 2.1.3
 
 examples:
@@ -398,10 +413,47 @@ examples:
             });
             Ti.API.info('Contact saved');
 
+  - title: Repopulate contact data if it was modified externally
+    example: |
+        Listen for the `reload` event to repopulate the contact data
+        if it was modified externally, for example, in the iOS Contacts app.
+
+            var win = Ti.UI.createWindow();
+            var table = Ti.UI.createTableView();
+
+            // Repopulate contact data
+            function reloadContacts() {
+                var contacts = Ti.Contacts.getAllPeople();
+                var data = [];
+                for (var i = 0; i < contacts.length; i++) {
+                    var title = contacts[i].fullName;
+                    if (!title || title.length === 0) {
+                        title = "(no name)";
+                    }
+                    var row = Ti.UI.createTableViewRow({
+                        title: title
+                    });
+                    data.push(row);
+                }
+                table.data = data;
+            }
+
+            Ti.Contacts.addEventListener('reload', function(e){
+                alert('Reloading contacts. Your contacts were changed externally!');
+                reloadContacts();
+            });
+
+            // initial call to populate contact data
+            reloadContacts();
+
+            win.add(table);
+            win.open();
+
+
 ---
 name: showContactsParams
 summary: Dictionary of options for the <Titanium.Contacts.showContacts> method.
-platforms: [android, iphone, ipad]
+platforms: [android, iphone, ipad, tizen]
 
 properties:
 - name: animated
@@ -435,19 +487,4 @@ properties:
 ---
 name: ContactsAuthorizationResponse
 summary: Argument passed to the callback when a request finishes successfully or erroneously.
-
-properties:
-  - name: success
-    summary: Indicates whether the request succeeded.
-    description: Returns `true` if request succeeded.
-    type: Boolean
-    
-  - name: error
-    summary: Error message, if any returned.
-    description: May be undefined if `success` is `true`.
-    type: String
-    
-  - name: code
-    summary: Error code, if any returned.
-    description: May be undefined if `success` is `true`.
-    type: Number
+extends: ErrorResponse

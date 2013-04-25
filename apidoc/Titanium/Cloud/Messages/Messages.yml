@@ -163,13 +163,13 @@ examples:
             }, function (e) {
                 if (e.success) {
                     var message = e.messages[0];
-                    alert('Success:\\n' +
-                        'id: ' + message.id + '\\n' +
-                        'subject: ' + message.subject + '\\n' +
-                        'body: ' + message.body + '\\n' +
+                    alert('Success:\n' +
+                        'id: ' + message.id + '\n' +
+                        'subject: ' + message.subject + '\n' +
+                        'body: ' + message.body + '\n' +
                         'updated_at: ' + message.updated_at);
                 } else {
-                    alert('Error:\\n' +
+                    alert('Error:\n' +
                         ((e.error && e.message) || JSON.stringify(e)));
                 }
             });
@@ -184,13 +184,13 @@ examples:
             }, function (e) {
                 if (e.success) {
                     var message = e.messages[0];
-                    alert('Success:\\n' +
-                        'id: ' + message.id + '\\n' +
-                        'subject: ' + message.subject + '\\n' +
-                        'body: ' + message.body + '\\n' +
+                    alert('Success:\n' +
+                        'id: ' + message.id + '\n' +
+                        'subject: ' + message.subject + '\n' +
+                        'body: ' + message.body + '\n' +
                         'updated_at: ' + message.updated_at);
                 } else {
-                    alert('Error:\\n' +
+                    alert('Error:\n' +
                         ((e.error && e.message) || JSON.stringify(e)));
                 }
             });
@@ -204,13 +204,13 @@ examples:
             }, function (e) {
                 if (e.success) {
                     var message = e.messages[0];
-                    alert('Success:\\n' +
-                        'id: ' + message.id + '\\n' +
-                        'subject: ' + message.subject + '\\n' +
-                        'body: ' + message.body + '\\n' +
+                    alert('Success:\n' +
+                        'id: ' + message.id + '\n' +
+                        'subject: ' + message.subject + '\n' +
+                        'body: ' + message.body + '\n' +
                         'updated_at: ' + message.updated_at);
                 } else {
-                    alert('Error:\\n' +
+                    alert('Error:\n' +
                         ((e.error && e.message) || JSON.stringify(e)));
                 }
             });
@@ -221,18 +221,18 @@ examples:
 
             Cloud.Messages.showInbox(function (e) {
                 if (e.success) {
-                    alert('Success:\\n' +
+                    alert('Success:\n' +
                         'Count: ' + e.messages.length);
                     for (var i = 0; i < e.messages.length; i++) {
                         var message = e.messages[i];
-                        alert('Success:\\n' +
-                            'id: ' + message.id + '\\n' +
-                            'subject: ' + message.subject + '\\n' +
-                            'body: ' + message.body + '\\n' +
+                        alert('Success:\n' +
+                            'id: ' + message.id + '\n' +
+                            'subject: ' + message.subject + '\n' +
+                            'body: ' + message.body + '\n' +
                             'updated_at: ' + message.updated_at);
                     }
                 } else {
-                    alert('Error:\\n' +
+                    alert('Error:\n' +
                         ((e.error && e.message) || JSON.stringify(e)));
                 }
             });
@@ -243,18 +243,18 @@ examples:
 
             Cloud.Messages.showSent(function (e) {
                 if (e.success) {
-                    alert('Success:\\n' +
+                    alert('Success:\n' +
                         'Count: ' + e.messages.length);
                     for (var i = 0; i < e.messages.length; i++) {
                         var message = e.messages[i];
-                        alert('Success:\\n' +
-                            'id: ' + message.id + '\\n' +
-                            'subject: ' + message.subject + '\\n' +
-                            'body: ' + message.body + '\\n' +
+                        alert('Success:\n' +
+                            'id: ' + message.id + '\n' +
+                            'subject: ' + message.subject + '\n' +
+                            'body: ' + message.body + '\n' +
                             'updated_at: ' + message.updated_at);
                     }
                 } else {
-                    alert('Error:\\n' +
+                    alert('Error:\n' +
                         ((e.error && e.message) || JSON.stringify(e)));
                 }
             });
@@ -265,19 +265,19 @@ examples:
 
             Cloud.Messages.showThreads(function (e) {
                 if (e.success) {
-                    alert('Success:\\n' +
+                    alert('Success:\n' +
                         'Count: ' + e.messages.length);
                     for (var i = 0; i < e.messages.length; i++) {
                         var message = e.messages[i];
-                        alert('Success:\\n' +
-                            'id: ' + message.id + '\\n' +
-                            'thread id: ' + message.thread_id + '\\n' +
-                            'subject: ' + message.subject + '\\n' +
-                            'body: ' + message.body + '\\n' +
+                        alert('Success:\n' +
+                            'id: ' + message.id + '\n' +
+                            'thread id: ' + message.thread_id + '\n' +
+                            'subject: ' + message.subject + '\n' +
+                            'body: ' + message.body + '\n' +
                             'updated_at: ' + message.updated_at);
                     }
                 } else {
-                    alert('Error:\\n' +
+                    alert('Error:\n' +
                         ((e.error && e.message) || JSON.stringify(e)));
                 }
             });
@@ -290,19 +290,19 @@ examples:
                 thread_id: savedThreadId
             }, function (e) {
                 if (e.success) {
-                    alert('Success:\\n' +
+                    alert('Success:\n' +
                         'Count: ' + e.messages.length);
                     for (var i = 0; i < e.messages.length; i++) {
                         var message = e.messages[i];
-                        alert('Success:\\n' +
-                            'id: ' + message.id + '\\n' +
-                            'thread id: ' + message.thread_id + '\\n' +
-                            'subject: ' + message.subject + '\\n' +
-                            'body: ' + message.body + '\\n' +
+                        alert('Success:\n' +
+                            'id: ' + message.id + '\n' +
+                            'thread id: ' + message.thread_id + '\n' +
+                            'subject: ' + message.subject + '\n' +
+                            'body: ' + message.body + '\n' +
                             'updated_at: ' + message.updated_at);
                     }
                 } else {
-                    alert('Error:\\n' +
+                    alert('Error:\n' +
                         ((e.error && e.message) || JSON.stringify(e)));
                 }
             });
@@ -317,7 +317,7 @@ examples:
                 if (e.success) {
                     alert('Removed');
                 } else {
-                    alert('Error:\\n' +
+                    alert('Error:\n' +
                         ((e.error && e.message) || JSON.stringify(e)));
                 }
             });
@@ -332,7 +332,7 @@ examples:
                 if (e.success) {
                     alert('Removed');
                 } else {
-                    alert('Error:\\n' +
+                    alert('Error:\n' +
                         ((e.error && e.message) || JSON.stringify(e)));
                 }
             });

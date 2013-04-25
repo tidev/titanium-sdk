@@ -509,7 +509,7 @@ fails, a JS exception is returned.
 	if (!${expr}->IsNull()) {
 		${type} ${current_arg} = ${valueExpr};
 		jArguments[${index}].${info.jvalue} =
-			titanium::TypeConverter::${info.jsToJavaConverter}(${current_arg}<#if checkNew>, &isNew_${index}</#if>);
+			titanium::TypeConverter::${info.jsToJavaConverter}(env, ${current_arg}<#if checkNew>, &isNew_${index}</#if>);
 	} else {
 		jArguments[${index}].${info.jvalue} = NULL;
 	}
@@ -528,7 +528,7 @@ fails, a JS exception is returned.
 	jobjectArray varArgs = env->NewObjectArray(length, titanium::JNIUtil::objectClass, NULL);
 	for (uint32_t i = 0; i < length; ++i) {
 		bool isNew;
-		jobject arg = titanium::TypeConverter::jsValueToJavaObject(args[i+${start}], &isNew);
+		jobject arg = titanium::TypeConverter::jsValueToJavaObject(env, args[i+${start}], &isNew);
 		env->SetObjectArrayElement(varArgs, i, arg);
 		if (isNew) {
 			env->DeleteLocalRef(arg);
@@ -562,7 +562,7 @@ fails, a JS exception is returned.
 
 	<#if method.hasInvocation>
 	Handle<Object> scopeVars = args[0]->ToObject();
-	jstring sourceUrl = titanium::TypeConverter::jsValueToJavaString(
+	jstring sourceUrl = titanium::TypeConverter::jsValueToJavaString(env, 
 		scopeVars->Get(Proxy::sourceUrlSymbol));
 	jArguments[0].l = env->NewObject(titanium::JNIUtil::krollInvocationClass,
 		titanium::JNIUtil::krollInvocationInitMethod, sourceUrl);
@@ -655,7 +655,7 @@ beprovided to handle the result.
 	</#if>
 
 	<#if hasResult>
-	Handle<${jsType}> v8Result = titanium::TypeConverter::${info.javaToJsConverter}(jResult);
+	Handle<${jsType}> v8Result = titanium::TypeConverter::${info.javaToJsConverter}(env, jResult);
 
 	<#if info.javaDeleteLocalRef!false>
 	env->DeleteLocalRef(jResult);

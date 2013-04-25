@@ -100,12 +100,12 @@ examples:
             }, function (e) {
                 if (e.success) {
                     var file = e.files[0];
-                    alert('Success:\\n' +
-                        'id: ' + file.id + '\\n' +
-                        'name: ' + file.name + '\\n' +
+                    alert('Success:\n' +
+                        'id: ' + file.id + '\n' +
+                        'name: ' + file.name + '\n' +
                         'updated_at: ' + file.updated_at);
                 } else {
-                    alert('Error:\\n' +
+                    alert('Error:\n' +
                         ((e.error && e.message) || JSON.stringify(e)));
                 }
             });
@@ -119,12 +119,12 @@ examples:
             }, function (e) {
                 if (e.success) {
                     var file = e.files[0];
-                    alert('Success:\\n' +
-                        'id: ' + file.id + '\\n' +
-                        'name: ' + file.name + '\\n' +
+                    alert('Success:\n' +
+                        'id: ' + file.id + '\n' +
+                        'name: ' + file.name + '\n' +
                         'updated_at: ' + file.updated_at);
                 } else {
-                    alert('Error:\\n' +
+                    alert('Error:\n' +
                         ((e.error && e.message) || JSON.stringify(e)));
                 }
             });
@@ -138,16 +138,16 @@ examples:
                 per_page: 20
             }, function (e) {
                 if (e.success) {
-                    alert('Success:\\n' +
+                    alert('Success:\n' +
                         'Count: ' + e.files.length);
                     for (var i = 0; i < e.files.length; i++) {
                         var file = e.files[i];
-                        alert('id: ' + file.id + '\\n' +
-                            'name: ' + file.name + '\\n' +
+                        alert('id: ' + file.id + '\n' +
+                            'name: ' + file.name + '\n' +
                             'updated_at: ' + file.updated_at);
                     }
                 } else {
-                    alert('Error:\\n' +
+                    alert('Error:\n' +
                         ((e.error && e.message) || JSON.stringify(e)));
                 }
             });
@@ -162,12 +162,12 @@ examples:
             }, function (e) {
                 if (e.success) {
                     var file = e.files[0];
-                    alert('Success:\\n' +
-                        'id: ' + file.id + '\\n' +
-                        'name: ' + file.name + '\\n' +
+                    alert('Success:\n' +
+                        'id: ' + file.id + '\n' +
+                        'name: ' + file.name + '\n' +
                         'updated_at: ' + file.updated_at);
                 } else {
-                    alert('Error:\\n' +
+                    alert('Error:\n' +
                         ((e.error && e.message) || JSON.stringify(e)));
                 }
             });
@@ -182,7 +182,7 @@ examples:
                 if (e.success) {
                     alert('Removed');
                 } else {
-                    alert('Error:\\n' +
+                    alert('Error:\n' +
                         ((e.error && e.message) || JSON.stringify(e)));
                 }
             });

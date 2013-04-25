@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -89,27 +89,32 @@ public class TableViewRowProxy extends TiViewProxy
 	}
 
 	@Override
-	public TiUIView createView(Activity activity) {
+	public TiUIView createView(Activity activity)
+	{
 		return null;
 	}
 
-	public ArrayList<TiViewProxy> getControls() {
+	public ArrayList<TiViewProxy> getControls()
+	{
 		return controls;
 	}
 
-	public boolean hasControls() {
+	public boolean hasControls()
+	{
 		return (controls != null && controls.size() > 0);
 	}
-	
-	@Override 
-	public TiViewProxy[] getChildren() {
+
+	@Override
+	public TiViewProxy[] getChildren()
+	{
 		if (controls == null) {
 			return new TiViewProxy[0];
 		}
 		return controls.toArray(new TiViewProxy[controls.size()]);
 	}
 
-	public void add(TiViewProxy control) {
+	public void add(TiViewProxy control)
+	{
 		if (controls == null) {
 			controls = new ArrayList<TiViewProxy>();
 		}
@@ -117,52 +122,57 @@ public class TableViewRowProxy extends TiViewProxy
 		control.setParent(this);
 		if (tableViewItem != null) {
 			Message message = getMainHandler().obtainMessage(MSG_SET_DATA);
-			//Message msg = getUIHandler().obtainMessage(MSG_SET_DATA);
+			// Message msg = getUIHandler().obtainMessage(MSG_SET_DATA);
 			message.sendToTarget();
 		}
 	}
 
 	@Override
-	public void remove(TiViewProxy control) {
+	public void remove(TiViewProxy control)
+	{
 		if (controls == null) {
 			return;
 		}
 		controls.remove(control);
 		if (tableViewItem != null) {
 			Message message = getMainHandler().obtainMessage(MSG_SET_DATA);
-			//Message msg = getUIHandler().obtainMessage(MSG_SET_DATA);
+			// Message msg = getUIHandler().obtainMessage(MSG_SET_DATA);
 			message.sendToTarget();
 		}
 	}
 
-	public void setTableViewItem(TiTableViewRowProxyItem item) {
+	public void setTableViewItem(TiTableViewRowProxyItem item)
+	{
 		this.tableViewItem = item;
 	}
 
-	public TableViewProxy getTable() {
+	public TableViewProxy getTable()
+	{
 		TiViewProxy parent = getParent();
 		while (!(parent instanceof TableViewProxy) && parent != null) {
 			parent = parent.getParent();
 		}
-		return (TableViewProxy)parent;
+		return (TableViewProxy) parent;
 	}
 
 	@Override
-	public void setProperty(String name, Object value, boolean fireChange) {
+	public void setProperty(String name, Object value, boolean fireChange)
+	{
 		super.setProperty(name, value, fireChange);
 		if (tableViewItem != null) {
 			if (TiApplication.isUIThread()) {
 				tableViewItem.setRowData(this);
 			} else {
 				Message message = getMainHandler().obtainMessage(MSG_SET_DATA);
-				//Message msg = getUIHandler().obtainMessage(MSG_SET_DATA);
+				// Message msg = getUIHandler().obtainMessage(MSG_SET_DATA);
 				message.sendToTarget();
 			}
 		}
 	}
 
 	@Override
-	public boolean handleMessage(Message msg) {
+	public boolean handleMessage(Message msg)
+	{
 		if (msg.what == MSG_SET_DATA) {
 			if (tableViewItem != null) {
 				tableViewItem.setRowData(this);
@@ -176,13 +186,13 @@ public class TableViewRowProxy extends TiViewProxy
 		return super.handleMessage(msg);
 	}
 
-	public static void fillClickEvent(HashMap<String, Object> data, TableViewModel model, Item item) {
-		
-		//Don't include rowData if we click on a section
+	public static void fillClickEvent(HashMap<String, Object> data, TableViewModel model, Item item)
+	{
+		// Don't include rowData if we click on a section
 		if (!(item.proxy instanceof TableViewSectionProxy)) {
 			data.put(TiC.PROPERTY_ROW_DATA, item.rowData);
 		}
-		
+
 		data.put(TiC.PROPERTY_SECTION, model.getSection(item.sectionIndex));
 		data.put(TiC.EVENT_PROPERTY_ROW, item.proxy);
 		data.put(TiC.EVENT_PROPERTY_INDEX, item.index);
@@ -190,10 +200,11 @@ public class TableViewRowProxy extends TiViewProxy
 	}
 
 	@Override
-	public boolean fireEvent(String eventName, Object data)	{
-		if (eventName.equals(TiC.EVENT_CLICK) || eventName.equals(TiC.EVENT_LONGCLICK)) {
-			// Inject row click data for events coming from row children.
-			TableViewProxy table = getTable();
+	public boolean fireEvent(String eventName, Object data, boolean bubbles)
+	{
+		// Inject row click data for events coming from row children.
+		TableViewProxy table = getTable();
+		if (tableViewItem != null) {
 			Item item = tableViewItem.getRowData();
 			if (table != null && item != null && data instanceof HashMap) {
 				// The data object may already be in use by the runtime thread
@@ -204,7 +215,8 @@ public class TableViewRowProxy extends TiViewProxy
 				data = dataCopy;
 			}
 		}
-		return super.fireEvent(eventName, data);
+
+		return super.fireEvent(eventName, data, bubbles);
 	}
 
 	@Override
@@ -217,18 +229,20 @@ public class TableViewRowProxy extends TiViewProxy
 		}
 	}
 
-	public void setLabelsClickable(boolean clickable) {
+	public void setLabelsClickable(boolean clickable)
+	{
 		if (controls != null) {
 			for (TiViewProxy control : controls) {
 				if (control instanceof LabelProxy) {
-					((LabelProxy)control).setClickable(clickable);
+					((LabelProxy) control).setClickable(clickable);
 				}
 			}
 		}
 	}
 
 	@Override
-	public void releaseViews() {
+	public void releaseViews()
+	{
 		super.releaseViews();
 		if (tableViewItem != null) {
 			tableViewItem.release();
@@ -241,7 +255,8 @@ public class TableViewRowProxy extends TiViewProxy
 		}
 	}
 
-	public TiTableViewRowProxyItem getTableViewRowProxyItem() {
+	public TiTableViewRowProxyItem getTableViewRowProxyItem()
+	{
 		return tableViewItem;
 	}
 }

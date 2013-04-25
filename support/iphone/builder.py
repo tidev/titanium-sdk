@@ -407,6 +407,9 @@ DEFAULTS_IMPL_HEADER= """#import "TiUtils.h"
 #import "ApplicationDefaults.h"
  
 @implementation ApplicationDefaults
++(NSDictionary*)launchUrl {
+    return nil;
+}
   
 + (NSMutableDictionary*) copyDefaults
 {

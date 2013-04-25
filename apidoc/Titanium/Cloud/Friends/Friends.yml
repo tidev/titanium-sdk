@@ -99,7 +99,7 @@ examples:
                 if (e.success) {
                     alert('Friend(s) added');
                 } else {
-                    alert('Error:\\n' +
+                    alert('Error:\n' +
                         ((e.error && e.message) || JSON.stringify(e)));
                 }
             });
@@ -110,16 +110,16 @@ examples:
 
             Cloud.Friends.requests(function (e) {
                 if (e.success) {
-                    alert('Success:\\n' +
+                    alert('Success:\n' +
                         'Count: ' + e.friend_requests.length);
                     for (var i = 0; i < e.friend_requests.length; i++) {
                         var user = e.friend_requests[i].user;
-                        alert('id: ' + user.id + '\\n' +
-                            'first name: ' + user.first_name + '\\n' +
+                        alert('id: ' + user.id + '\n' +
+                            'first name: ' + user.first_name + '\n' +
                             'last name: ' + user.last_name);
                     }
                 } else {
-                    alert('Error:\\n' +
+                    alert('Error:\n' +
                         ((e.error && e.message) || JSON.stringify(e)));
                 }
             });
@@ -134,7 +134,7 @@ examples:
                 if (e.success) {
                     alert('Friend(s) approved');
                 } else {
-                    alert('Error:\\n' +
+                    alert('Error:\n' +
                         ((e.error && e.message) || JSON.stringify(e)));
                 }
             });
@@ -149,7 +149,7 @@ examples:
                 if (e.success) {
                     alert('Friend(s) removed');
                 } else {
-                    alert('Error:\\n' +
+                    alert('Error:\n' +
                         ((e.error && e.message) || JSON.stringify(e)));
                 }
             });
@@ -162,16 +162,16 @@ examples:
                 user_id: searchID
             }, function (e) {
                 if (e.success) {
-                    alert('Success:\\n' +
+                    alert('Success:\n' +
                         'Count: ' + e.users.length);
                     for (var i = 0; i < e.users.length; i++) {
                         var user = e.users[i];
-                        alert('id: ' + user.id + '\\n' +
-                            'first name: ' + user.first_name + '\\n' +
+                        alert('id: ' + user.id + '\n' +
+                            'first name: ' + user.first_name + '\n' +
                             'last name: ' + user.last_name);
                     }
                 } else {
-                    alert('Error:\\n' +
+                    alert('Error:\n' +
                         ((e.error && e.message) || JSON.stringify(e)));
                 }
             });

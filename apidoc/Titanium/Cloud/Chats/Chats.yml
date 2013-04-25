@@ -71,13 +71,13 @@ examples:
                 if (e.success) {
                     for (var i = 0; i < e.chats.length; i++) {
                         var chat = e.chats[i];
-                        alert('Success:\\n' +
-                            'From: ' + chat.from.first_name + ' ' + chat.from.last_name + '\\n' +
-                            'Updated: ' + chat.updated_at + '\\n' +
+                        alert('Success:\n' +
+                            'From: ' + chat.from.first_name + ' ' + chat.from.last_name + '\n' +
+                            'Updated: ' + chat.updated_at + '\n' +
                             'Message: ' + chat.message);
                     }
                 } else {
-                    alert('Error:\\n' +
+                    alert('Error:\n' +
                         ((e.error && e.message) || JSON.stringify(e)));
                 }
             });
@@ -95,13 +95,13 @@ examples:
                 if (e.success) {
                     for (var i = 0; i < e.chats.length; i++) {
                         var chat = e.chats[i];
-                        alert('Success:\\n' +
-                            'From: ' + chat.from.first_name + ' ' + chat.from.last_name + '\\n' +
-                            'Updated: ' + chat.updated_at + '\\n' +
+                        alert('Success:\n' +
+                            'From: ' + chat.from.first_name + ' ' + chat.from.last_name + '\n' +
+                            'Updated: ' + chat.updated_at + '\n' +
                             'Message: ' + chat.message);
                     }
                 } else {
-                    alert('Error:\\n' +
+                    alert('Error:\n' +
                         ((e.error && e.message) || JSON.stringify(e)));
                 }
             });
@@ -115,13 +115,13 @@ examples:
                 if (e.success) {
                     for (var i = 0; i < e.chats.length; i++) {
                         var group = e.chat_groups[i];
-                        alert('Success:\\n' +
-                            'id: ' + group.id + '\\n' +
-                            'created_at: ' + group.created_at + '\\n' +
+                        alert('Success:\n' +
+                            'id: ' + group.id + '\n' +
+                            'created_at: ' + group.created_at + '\n' +
                             'number of users: ' + group.participate_users.length);
                     }
                 } else {
-                    alert('Error:\\n' +
+                    alert('Error:\n' +
                         ((e.error && e.message) || JSON.stringify(e)));
                 }
             });
