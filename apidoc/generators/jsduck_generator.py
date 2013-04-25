@@ -502,6 +502,7 @@ def generate(raw_apis, annotated_apis, options):
 				write_utf8(output, "/**\n\t * @event %s\n" % (k.name))
 				write_utf8(output, get_summary_and_description(obj))
 				write_utf8(output, output_examples_for_obj(obj))
+				write_utf8(output, output_deprecation_for_obj(k))
 
 				if k.properties is not None:
 					for param in k.properties:
