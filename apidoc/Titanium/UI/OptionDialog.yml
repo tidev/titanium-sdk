@@ -114,11 +114,6 @@ properties:
     type: Titanium.UI.View
     platforms: [android]
     
-  - name: tizenView
-    summary: View to load inside the message area, to create a custom layout.
-    type: Titanium.UI.View
-    platforms: [tizen]
-
   - name: cancel
     summary: Index to define the cancel option.
     description: |
