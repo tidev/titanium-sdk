@@ -39,8 +39,8 @@ events:
       
       - name: result
         summary: |
-            Status of the SMS send process. One of [SENT](Titanium.UI.SMSDialog.SENT), 
-            [CANCELLED](Titanium.UI.SMSDialog.CANCELLED), [FAILED](Titanium.UI.SMSDialog.FAILED), .
+            Status of the SMS send process: either [SENT](Titanium.UI.SMSDialog.SENT),  
+            [CANCELLED](Titanium.UI.SMSDialog.CANCELLED), or [FAILED](Titanium.UI.SMSDialog.FAILED).
         type: Number
         
 properties:
@@ -76,6 +76,6 @@ examples:
         Create and send an SMS.
         
             var smsDialog = Ti.UI.createSMSDialog();
-            smsDialog.toRecipients = ['123123'];
+            smsDialog.toRecipients = ['5550122'];
             smsDialog.messageBody = 'Appcelerator Titanium Rocks!';
             smsDialog.open();  
