@@ -24,7 +24,8 @@ module.exports = new function() {
 		{name: "horizontalNoWrapTopPaddingSIZEHeight"},
 		{name: "horizontalWrapTopPaddingSIZEHeight"},
 		{name: "verticalWithTopBottomPadding"},
-		{name: "horizontalWrapWithSIZEWidth"}
+		{name: "horizontalWrapWithSIZEWidth"},
+		{name: "horizontalWrapWithFILLWidth"}
 	];
 
 	this.horizontalTopBottomUndefinedHeight = function(testRun) {
@@ -346,5 +347,77 @@ module.exports = new function() {
 
 		win.add(topView);
 		win.open();
+	};
+
+	this.horizontalWrapWithFILLWidth = function(testRun) {
+		var win2 = Titanium.UI.createWindow({  
+		    title:'Tab 2',
+		    backgroundColor:'#fff'
+		});
+
+		var fieldWrapper = Ti.UI.createView({
+		    top: 0,
+		    left: 0,
+		    backgroundColor: '#ff0',
+		    layout:'horizontal'
+		});
+		var Label = Ti.UI.createLabel({
+		    text: 'Test text field',
+		    height: 20,
+		    width: 20
+		});
+		var Spacer = Ti.UI.createView({
+		    width: 10,
+		    height: 10,
+		    backgroundColor: '#0f0',
+		});
+
+		var textfield = Titanium.UI.createTextField({
+		    width: Ti.UI.FILL,
+		    hintText: 'hint text',
+			height: '35'
+		});
+
+		var view3 = Ti.UI.createView({
+		    width: Ti.UI.FILL,
+		    height: 10,
+		    backgroundColor: 'purple'
+		});
+
+		var view4= Ti.UI.createView({
+		    width: 30,
+		    height: 10,
+		    backgroundColor: 'red'
+		});
+
+		var view5= Ti.UI.createView({
+		    width: 30,
+		    height: 10,
+		    backgroundColor: 'white'
+		});
+
+		win2.addEventListener("postlayout", function(e){
+			// purple view should be in 2nd row
+			valueOf(testRun, view3.rect.x).shouldBe(30);
+			valueOf(testRun, view3.rect.y).shouldBe(35);
+
+			// red view should be first view in 2nd row
+			valueOf(testRun, view4.rect.x).shouldBe(0);
+			valueOf(testRun, view4.rect.y).shouldBe(35);
+
+			// white view should be on the third row
+			valueOf(testRun, view5.rect.x).shouldBe(0);
+			valueOf(testRun, view5.rect.y).shouldBe(45); // 35 (TextField) + 10 (view4)
+			finish(testRun);
+		});
+
+		fieldWrapper.add(Label);
+		fieldWrapper.add(Spacer);
+		fieldWrapper.add(textfield);
+		fieldWrapper.add(view4);
+		fieldWrapper.add(view3);
+		fieldWrapper.add(view5);
+		win2.add(fieldWrapper);
+		win2.open();
 	};
 };

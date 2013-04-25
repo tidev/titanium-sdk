@@ -68,11 +68,11 @@ properties:
         [ISO 3166-1 alpha-2](http://en.wikipedia.org/wiki/ISO_3166-1_alpha-2#Officially_assigned_code_elements) 
         for a comprehensive list of codes.
         
-        Every new line in the `Street` value may be created using a backslash followed by a letter `n`, for example, `\n`.
-        
         On Tizen:
         
-        Key `other` is not supported. Values `County` and `CountryCode` are not supported on Tizen too.
+        The `other` contact type is not supported, and `County` and `CountryCode` values are not supported.
+
+        Every new line in the `Street` value may be created using a backslash followed by a letter `n`, for example, `\n`.
 
     type: Dictionary
     
@@ -116,7 +116,7 @@ properties:
         * Keys: any of `home`, `work`, and/or `other`.
         * Values: array of `string` type.
 
-        Key `other` does not supported on Tizen.
+        Key `other` is not supported on Tizen.
     type: Dictionary
     
   - name: firstName
@@ -229,7 +229,7 @@ properties:
         and/or `iPhone`.
         * Values: array of `string` type.
         
-        Tizen supports only the following keys: [`work`, `home`, `mobile`, `pager`, `workFax`].
+        Tizen supports only the following keys: `work`, `home`, `mobile`, `pager`, and `workFax`.
         
     type: Dictionary
     

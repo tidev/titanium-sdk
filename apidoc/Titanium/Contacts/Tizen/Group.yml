@@ -1,6 +1,7 @@
 ---
 name: Titanium.Contacts.Tizen.Group
-summary: An object which represents a group in the system contacts address book on Tizen platform.
+summary: Provides APIs for working with groups in the system contacts address book on Tizen platform.
+extends: Titanium.Module
 description: |
     Tizen-specific, group-related extensions to Titanium contacts API.
 
@@ -8,8 +9,7 @@ description: |
     of your Titanium application: 
 
     * `http://tizen.org/privilege/contact.read`
-    
-extends: Titanium.Proxy
+
 since: "3.1.0"
 platforms: [tizen]
 
@@ -20,7 +20,7 @@ methods:
     parameters:
       - name: group
         summary: The group for which to obtain members.
-        type: Ti.Contacts.Group
+        type: Titanium.Contacts.Group
       - name: callback
         summary: Callback function that will be called after the operation is performed.
         type: Callback<ContactsCallbackArgs>
@@ -36,6 +36,7 @@ methods:
         type: Number
       - name: group
         summary: The group for which to obtain members.
+        type: Titanium.Contacts.Group
       - name: callback
         summary: Callback function that will be called after the operation is performed.
         type: Callback<ContactsCallbackArgs>

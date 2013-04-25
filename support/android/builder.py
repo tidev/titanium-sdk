@@ -983,11 +983,17 @@ class Builder(object):
 			'Contacts.getAllGroups' : CONTACTS_READ_PERMISSION,
 			'Contacts.getGroupByID' : CONTACTS_READ_PERMISSION,
 			
-			# CALENDAR
+			# Old CALENDAR
 			'Android.Calendar.getAllAlerts' : CALENDAR_PERMISSION,
 			'Android.Calendar.getAllCalendars' : CALENDAR_PERMISSION,
 			'Android.Calendar.getCalendarById' : CALENDAR_PERMISSION,
 			'Android.Calendar.getSelectableCalendars' : CALENDAR_PERMISSION,
+
+			# CALENDAR
+			'Calendar.getAllAlerts' : CALENDAR_PERMISSION,
+			'Calendar.getAllCalendars' : CALENDAR_PERMISSION,
+			'Calendar.getCalendarById' : CALENDAR_PERMISSION,
+			'Calendar.getSelectableCalendars' : CALENDAR_PERMISSION,
 
 			# WALLPAPER
 			'Media.Android.setSystemWallpaper' : WALLPAPER_PERMISSION,
