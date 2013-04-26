@@ -14,6 +14,7 @@ import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
+import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.util.TiConvert;
 
@@ -194,7 +195,10 @@ public class EventProxy extends KrollProxy {
 			eventValues.put(Events.EVENT_TIMEZONE, new Date().toString());
 		}
 
-		
+		if (data.containsKey(TiC.PROPERTY_LOCATION)) {
+			event.location = TiConvert.toString(data, TiC.PROPERTY_LOCATION);
+			eventValues.put(CalendarModule.EVENT_LOCATION, event.location);
+		}
 		if (data.containsKey("description")) {
 			event.description = TiConvert.toString(data, "description");
 			eventValues.put("description", event.description);
