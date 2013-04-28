@@ -1,5 +1,5 @@
-define(["Ti/_", "Ti/_/declare", "Ti/_/encoding", "Ti/_/lang", "Ti/API", "Ti/Blob"],
-	function(_, declare, encoding, lang, API, Blob) {
+define(["Ti/_", "Ti/_/Evented", "Ti/_/declare", "Ti/_/encoding", "Ti/_/lang", "Ti/API", "Ti/Blob"],
+	function(_, Evented, declare, encoding, lang, API, Blob) {
 
 	var reg,
 		regDate = Date.now(),
@@ -168,7 +168,7 @@ define(["Ti/_", "Ti/_/declare", "Ti/_/encoding", "Ti/_/lang", "Ti/API", "Ti/Blob
 		"tmp://": 0
 	}, Date.now()));
 
-	return File = declare("Ti._.Filesystem.Local", null, {
+	return File = declare("Ti._.Filesystem.Local", Evented, {
 
 		constructor: function(path) {
 			if (is(path, "String")) {

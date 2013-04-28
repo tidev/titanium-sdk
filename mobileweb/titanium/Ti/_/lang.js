@@ -7,7 +7,7 @@
  * <http://dojotoolkit.org>
  */
 
-define(["Ti/_/has"], function(has) {
+define(['Ti/_/has'], function(has) {
 	var global = this,
 		hitch,
 		is = require.is;
@@ -18,7 +18,7 @@ define(["Ti/_/has"], function(has) {
 
 	function hitchArgs(scope, method) {
 		var pre = toArray(arguments, 2),
-			named = is(method, "String");
+			named = typeof method == 'string';
 		return function() {
 			var s = scope || global,
 				f = named ? s[method] : method;
@@ -35,7 +35,7 @@ define(["Ti/_/has"], function(has) {
 				method = scope;
 				scope = null;
 			}
-			if (is(method, "String")) {
+			if (typeof method == 'string') {
 				scope = scope || global;
 				if (!scope[method]) {
 					throw(['hitch: scope["', method, '"] is null (scope="', scope, '")'].join(''));
@@ -50,7 +50,7 @@ define(["Ti/_/has"], function(has) {
 		},
 
 		isDef: function(it) {
-			return !is(it, "Undefined");
+			return it !== void 0;
 		},
 
 		mixProps: function(dest, src, everything) {
@@ -62,15 +62,15 @@ define(["Ti/_/has"], function(has) {
 						d.__values__ || (d.__values__ = {});
 						for (i in src[p]) {
 							(function(property, externalDest, internalDest, /* setter/getter, getter, or value */ descriptor, capitalizedName, writable) {
-								var o = is(descriptor, "Object"),
-									getter = o && is(descriptor.get, "Function") && descriptor.get,
-									setter = o && is(descriptor.set, "Function") && descriptor.set,
+								var o = typeof descriptor == 'Object',
+									getter = o && typeof descriptor.get == 'function' && descriptor.get,
+									setter = o && typeof descriptor.set == 'function' && descriptor.set,
 									pt = o && is(descriptor.post),
-									post = pt === "Function" ? descriptor.post : pt === "String" ? hitch(externalDest, descriptor.post) : 0;
+									post = pt === 'Function' ? descriptor.post : pt === 'String' ? hitch(externalDest, descriptor.post) : 0;
 
 								if (o && (getter || setter || post)) {
 									internalDest.__values__[property] = descriptor.value;
-								} else if (is(descriptor, "Function")) {
+								} else if (typeof descriptor == 'function') {
 									getter = descriptor;
 								} else {
 									internalDest.__values__[property] = descriptor;
@@ -105,9 +105,9 @@ define(["Ti/_/has"], function(has) {
 									enumerable: true
 								});
 
-								if (has("declare-property-methods") && (writable || property.toUpperCase() !== property)) {
-									externalDest["get" + capitalizedName] = function() { return internalDest[property]; };
-									writable && (externalDest["set" + capitalizedName] = function(v) { return internalDest[property] = v; });
+								if (has('declare-property-methods') && (writable || property.toUpperCase() !== property)) {
+									externalDest['get' + capitalizedName] = function() { return internalDest[property]; };
+									writable && (externalDest['set' + capitalizedName] = function(v) { return internalDest[property] = v; });
 								}
 							}(i, dest, d, src[p][i], i.substring(0, 1).toUpperCase() + i.substring(1), special[p]));
 						}
@@ -122,7 +122,7 @@ define(["Ti/_/has"], function(has) {
 		generateAccessors: function(definition, readOnlyProps, props) {
 			
 			function generateGetter(prop) {
-				var getterName = "get" + prop.substring(0, 1).toUpperCase() + prop.substring(1);
+				var getterName = 'get' + prop.substring(0, 1).toUpperCase() + prop.substring(1);
 				if (!(getterName in definition.prototype)) {
 					definition.prototype[getterName] = function() {
 						return this[prop];
@@ -131,7 +131,7 @@ define(["Ti/_/has"], function(has) {
 			}
 			
 			function generateSetter(prop) {
-				var setterName = "set" + prop.substring(0, 1).toUpperCase() + prop.substring(1);
+				var setterName = 'set' + prop.substring(0, 1).toUpperCase() + prop.substring(1);
 				if (!(setterName in definition.prototype)) {
 					definition.prototype[setterName] = function(value) {
 						return this[prop] = value;
@@ -139,15 +139,15 @@ define(["Ti/_/has"], function(has) {
 				}
 			}
 			
-			readOnlyProps && readOnlyProps.split(",").forEach(generateGetter);
-			props && props.split(",").forEach(function(prop) {
+			readOnlyProps && readOnlyProps.split(',').forEach(generateGetter);
+			props && props.split(',').forEach(function(prop) {
 				generateGetter(prop);
 				generateSetter(prop);
 			});
 		},
 
 		setObject: function(name) {
-			var parts = name.split("."),
+			var parts = name.split('.'),
 				q = parts.pop(),
 				obj = window,
 				i = 0,
@@ -165,7 +165,8 @@ define(["Ti/_/has"], function(has) {
 				r = q in obj ? obj[q] : {};
 				// need to mix args into values
 				for (i = 1; i < arguments.length; i++) {
-					is(a = arguments[i], "Object") ? this.mixProps(r, a, 1) : (r = a);
+					a = arguments[i];
+					typeof a == 'object' ? this.mixProps(r, a, 1) : (r = a);
 				}
 			}
 
@@ -184,15 +185,15 @@ define(["Ti/_/has"], function(has) {
 
 			for (prop in obj) {
 				if (obj.hasOwnProperty(prop)) {
-					is(value = obj[prop], "Array") || (value = [value]);
-					prop = enc(prop) + "=";
+					Array.isArray(value = obj[prop]) || (value = [value]);
+					prop = enc(prop) + '=';
 					for (i = 0, l = value.length; i < l;) {
 						pairs.push(prop + enc(value[i++]));
 					}
 				}
 			}
 
-			return pairs.join("&");
+			return pairs.join('&');
 		},
 
 		val: function(originalValue, defaultValue) {

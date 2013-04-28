@@ -192,10 +192,6 @@
 		"Ti/_/Layouts/ConstrainingHorizontal",
 		"Ti/_/Layouts/ConstrainingVertical"
 	],
-	"Ti/_/Promise": [
-		"./declare",
-		"./lang"
-	],
 	"Ti/_/ready": [],
 	"Ti/_/string": [
 		"Ti/_",
@@ -210,6 +206,7 @@
 	"Ti/_/text": [],
 	"Ti/_/Filesystem/Local": [
 		"Ti/_",
+		"Ti/_/Evented",
 		"Ti/_/declare",
 		"Ti/_/encoding",
 		"Ti/_/lang",
@@ -377,7 +374,6 @@
 	],
 	"Ti/Filesystem/File": [
 		"Ti/_/declare",
-		"Ti/_/Evented",
 		"Ti/_/Filesystem/Local",
 		"Ti/App/Properties"
 	],
@@ -392,7 +388,6 @@
 	],
 	"Ti/Map/View": [
 		"Ti/_/declare",
-		"Ti/_/Evented",
 		"Ti/_/Map/Google",
 		"Ti/App/Properties"
 	],

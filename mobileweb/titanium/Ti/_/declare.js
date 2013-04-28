@@ -7,12 +7,12 @@
  * <http://dojotoolkit.org>
  */
 
-define(["Ti/_", "Ti/_/lang"], function(_, lang) {
-	var is = require.is,
-		mix = require.mix,
+define(['Ti/_', 'Ti/_/lang'], function(_, lang) {
+	var mix = require.mix,
 		counter = 0,
 		classCounters = {},
-		objProto = Object.prototype;
+		objProto = Object.prototype,
+		specialPropsRegExp = /^constructor|properties|constants|__values__$/;
 
 	// C3 Method Resolution Order (see http://www.python.org/download/releases/2.3/mro/)
 	function c3mro(bases, className) {
@@ -29,9 +29,9 @@ define(["Ti/_", "Ti/_/lang"], function(_, lang) {
 			base = bases[i];
 			if (!base) {
 				throw new Error('Unknown base class for "' + className + '" [' + i + ']');
-			} else if (is(base, "Object")) {
+			} else if (typeof base == 'object') {
 				base = bases[i] = makeFunction(base);
-			} else if (!is(base, "Function")) {
+			} else if (typeof base != 'function') {
 				throw new Error('Base class not a function for "' + className + '" [' + i + ']');
 			}
 			lin = base._meta ? base._meta.bases : [base];
@@ -39,7 +39,7 @@ define(["Ti/_", "Ti/_/lang"], function(_, lang) {
 			// add bases to the name map
 			for (j = lin.length - 1; j >= 0; --j) {
 				proto = lin[j].prototype;
-				proto.hasOwnProperty("declaredClass") || (proto.declaredClass = "uniqName_" + (counter++));
+				proto.hasOwnProperty('declaredClass') || (proto.declaredClass = 'uniqName_' + (counter++));
 				name = proto.declaredClass;
 				if (!nameMap.hasOwnProperty(name)) {
 					nameMap[name] = {count: 0, refs: [], cls: lin[j]};
@@ -94,54 +94,53 @@ define(["Ti/_", "Ti/_/lang"], function(_, lang) {
 		return result;
 	}
 
-	function makeConstructor(bases, ctorSpecial) {
+var stats = [];
+
+setTimeout(function () {
+	var x = 0, min, max;
+	stats.forEach(function (y) {
+		x += y;
+		if (!min || y < min) {
+			min = y;
+		}
+		if (!max || y > max) {
+			max = y;
+		}
+	});
+	console.log(stats);
+	console.log('total = ' + x);
+	console.log('max = ' + max);
+	console.log('min = ' + min);
+	console.log('avg = ' + (x / stats.length));
+}, 15000);
+
+	function makeConstructor(bases) {
 		return function() {
-			var a = arguments,
-				args = a,
+			var start = +new Date,
+				a = arguments,
 				a0 = a[0],
-				f, i, m,
-				l = bases.length,
-				preArgs,
+				f, m,
+				i = bases.length,
 				dc = this.declaredClass;
 
 			if (dc) {
 				classCounters[dc] || (classCounters[dc] = 0);
-				this.widgetId = dc + ":" + (classCounters[dc]++);
+				this.widgetId = dc + ':' + (classCounters[dc]++);
 			}
 
-			// 1) call two types of the preamble
-			if (ctorSpecial && (a0 && a0.preamble || this.preamble)) {
-				// full blown ritual
-				preArgs = new Array(bases.length);
-				// prepare parameters
-				preArgs[0] = a;
-				for (i = 0;;) {
-					// process the preamble of the 1st argument
-					(a0 = a[0]) && (f = a0.preamble) && (a = f.apply(this, a) || a);
-					// process the preamble of this class
-					f = bases[i].prototype;
-					f = f.hasOwnProperty("preamble") && f.preamble;
-					f && (a = f.apply(this, a) || a);
-					if (++i === l) {
-						break;
-					}
-					preArgs[i] = a;
-				}
-			}
-
-			// 2) call all non-trivial constructors using prepared arguments
-			for (i = l - 1; i >= 0; --i) {
-				f = bases[i];
+			// call all non-trivial constructors using prepared arguments
+			while (i) {
+				f = bases[--i];
 				m = f._meta;
 				if (m) {
 					f = m.ctor;
 					lang.mixProps(this, m.hidden);
 				}
-				is(f, "Function") && f.apply(this, preArgs ? preArgs[i] : a);
+				typeof f == 'function' && f.apply(this, a);
 			}
 
-			// 3) mixin args if any
-			if (is(a0, "Object")) {
+			// mixin args if any
+			if (typeof a0 == 'object') {
 				f = this.constants;
 				for (i in a0) {
 					a0.hasOwnProperty(i) && ((f && i in f ? f.__values__ : this)[i] = a0[i]);
@@ -150,12 +149,14 @@ define(["Ti/_", "Ti/_/lang"], function(_, lang) {
 
 			// add the toString() function for all our objects
 			this.toString === objProto.toString && (this.toString = function() {
-				return "[object " + (dc ? dc.replace(/\./g, '') : 'Object') + "]";
+				return '[object ' + (dc ? dc.replace(/\./g, '') : 'Object') + ']';
 			});
 
-			// 4) continue the original ritual: call the postscript
+			// continue the original ritual: call the postscript
 			f = this.postscript;
-			f && f.apply(this, args);
+			f && f.apply(this, a);
+
+			stats.push(+new Date - start);
 		};
 	}
 
@@ -171,12 +172,93 @@ define(["Ti/_", "Ti/_/lang"], function(_, lang) {
 
 	function mixClass(dest, src) {
 		for (var p in src) {
-			if (src.hasOwnProperty(p) && !/^(constructor|properties|constants|__values__)$/.test(p)) {
-				is(src[p], "Function") && (src[p].nom = name);
-				dest[p] = src[p];
-			}
+			src.hasOwnProperty(p) && !specialPropsRegExp.test(p) && (dest[p] = src[p]);
 		}
 		return dest;
+	}
+
+	function declare2(className, superclass, definition) {
+		if (typeof className != 'string') {
+			definition = superclass;
+			superclass = className;
+			className = '';
+		}
+		definition = definition || {};
+
+debugger;
+
+		var bases = [],
+			proto = {},
+			ctors = [],
+			ctor = new Function,
+			i;
+
+		if (Array.isArray(superclass)) {
+			//bases = c3mro(superclass, className);
+			//superclass = bases[mixins = bases.length - bases[0]];
+		} else if (typeof superclass == 'function') {
+			lang.mixProps(proto, superclass, 1);
+			lang.mixProps(proto, definition, 1);
+			i = superclass.constructor;
+			typeof i == 'function' && ctors.push(i);
+		} else if (typeof superclass == 'object') {
+			lang.mixProps(proto, superclass, 1);
+		}
+
+		i = definition.constructor;
+		if (typeof i == 'function' && i != objProto.constructor) {
+			ctors.shift(i);
+			proto.constructor = i;
+		}
+
+		ctor.constructor = function () {
+			var start = +new Date,
+				a = arguments,
+				a0 = a[0],
+				i = ctors.length,
+				f, m,
+				dc = this.declaredClass;
+
+			if (dc) {
+				classCounters[dc] || (classCounters[dc] = 0);
+				this.widgetId = dc + ':' + (classCounters[dc]++);
+			}
+/*
+			// call all non-trivial constructors using prepared arguments
+			while (i) {
+				f = ctors[--i];
+				m = f._meta;
+				if (m) {
+					f = m.ctor;
+				}
+				typeof f == 'function' && f.apply(this, a);
+			}
+
+			// mixin args if any
+			if (typeof a0 == 'object') {
+				f = this.constants;
+				for (i in a0) {
+					a0.hasOwnProperty(i) && ((f && i in f ? f.__values__ : this)[i] = a0[i]);
+				}
+			}
+*/
+			// add the toString() function for all our objects
+			this.toString === objProto.toString && (this.toString = function() {
+				return '[object ' + (dc ? dc.replace(/\./g, '') : 'Object') + ']';
+			});
+
+			// continue the original ritual: call the postscript
+			f = this.postscript;
+			f && f.apply(this, a);
+
+			stats.push(+new Date - start);
+		};
+
+		ctor.prototype = proto;
+
+		className && lang.setObject(proto.declaredClass = className, ctor);
+
+		return ctor;
 	}
 
 	function declare(className, superclass, definition) {
@@ -192,10 +274,10 @@ define(["Ti/_", "Ti/_/lang"], function(_, lang) {
 		// definition: Object
 		//		The definition of the class.
 
-		if (!is(className, "String")) {
+		if (typeof className != 'string') {
 			definition = superclass;
 			superclass = className;
-			className = "";
+			className = '';
 		}
 		definition = definition || {};
 
@@ -204,18 +286,17 @@ define(["Ti/_", "Ti/_/lang"], function(_, lang) {
 			i,
 			mixins = 1,
 			proto = {},
-			superclassType = is(superclass),
 			t;
 
 		// build the array of bases
-		if (superclassType === "Array") {
+		if (Array.isArray(superclass)) {
 			bases = c3mro(superclass, className);
 			superclass = bases[mixins = bases.length - bases[0]];
-		} else if (superclassType === "Function") {
+		} else if (typeof superclass == 'function') {
 			t = superclass._meta;
 			bases = bases.concat(t ? t.bases : superclass);
-		} else if (superclassType === "Object") {
-			bases[1] = superclass = makeFunction(superclass);
+		} else if (typeof superclass == 'object') {
+			superclass = makeFunction(superclass);
 		} else {
 			superclass = 0;
 		}
@@ -244,45 +325,22 @@ define(["Ti/_", "Ti/_/lang"], function(_, lang) {
 			}
 		}
 
-		// add all properties except constructor, properties, and constants
+		// add all properties except constructor, properties, constants, and __values__
 		mixClass(proto, definition);
 
 		// if the definition is not an object, then we want to use its constructor
 		t = definition.constructor;
-		if (t !== objProto.constructor) {
-			t.nom = "constructor";
-			proto.constructor = t;
-		}
+		t != objProto.constructor && (proto.constructor = t);
 
 		// build the constructor and add meta information to the constructor
-		mix(bases[0] = ctor = makeConstructor(bases, t), {
+		proto.constructor = bases[0] = ctor = mix(makeConstructor(bases), {
 			_meta: {
 				bases: bases,
 				hidden: definition,
 				ctor: definition.constructor
 			},
 			superclass: superclass && superclass.prototype,
-			extend: function(src) {
-				mixClass(this.prototype, src);
-				return this;
-			},
 			prototype: proto
-		});
-
-		// add "standard" methods to the prototype
-		mix(proto, {
-			constructor: ctor,
-			isInstanceOf: function(cls) {
-				var bases = this.constructor._meta.bases,
-					i = 0,
-					l = bases.length;
-				for (; i < l; ++i) {
-					if (bases[i] === cls) {
-						return true;
-					}
-				}
-				return this instanceof cls;
-			}
 		});
 
 		// add name if specified
