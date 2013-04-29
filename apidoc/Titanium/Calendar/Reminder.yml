@@ -10,7 +10,7 @@ description: |
 
 extends: Titanium.Proxy
 platforms: [android]
-since: "3.2.0"
+since: "3.1.1"
 createable: false
 
 properties:

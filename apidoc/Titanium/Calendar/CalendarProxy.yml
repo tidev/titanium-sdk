@@ -3,7 +3,7 @@ name: Titanium.Calendar.Calendar
 summary: An object that represents a single calendar.
 extends: Titanium.Proxy
 platforms: [android, iphone, ipad]
-since: {android: "3.2.0", iphone: "3.1.0", ipad: "3.1.0"}
+since: {android: "3.1.1", iphone: "3.1.0", ipad: "3.1.0"}
 createable: false
 
 methods:
