@@ -24,12 +24,13 @@ import org.appcelerator.titanium.util.TiRHelper;
 import android.content.Context;
 import android.content.res.AssetFileDescriptor;
 import android.media.MediaPlayer;
+import android.media.MediaPlayer.OnPreparedListener;
 import android.net.Uri;
 import android.webkit.URLUtil;
 
 public class TiSound
 	implements MediaPlayer.OnCompletionListener, MediaPlayer.OnErrorListener, KrollProxyListener,
-	MediaPlayer.OnBufferingUpdateListener, MediaPlayer.OnInfoListener
+	MediaPlayer.OnBufferingUpdateListener, MediaPlayer.OnInfoListener, OnPreparedListener
 {
 	private static final String TAG = "TiSound";
 
@@ -120,8 +121,13 @@ public class TiSound
 			mp.setOnErrorListener(this);
 			mp.setOnInfoListener(this);
 			mp.setOnBufferingUpdateListener(this);
-			
-			mp.prepare(); // Probably need to allow for Async
+			if (remote) { // try async
+				mp.setOnPreparedListener(this);
+				mp.prepareAsync();
+			} else {
+				mp.prepare();
+				startPlaying();
+			}
 			setState(STATE_INITIALIZED);
 
 			setVolume(volume);
@@ -181,19 +187,7 @@ public class TiSound
 				initialize();
 			}
 
-			if (mp != null) {
-				if (!isPlaying()) {
-					Log.d(TAG, "audio is not playing, starting.", Log.DEBUG_MODE);
-					Log.d(TAG, "Play: Volume set to " + volume, Log.DEBUG_MODE);
-					mp.start();
-					setState(STATE_PLAYING);
-					paused = false;
-					if (remote) {
-						startProgressTimer();
-					}
-				}
-				setState(STATE_PLAYING);
-			}
+			
 		} catch (Throwable t) {
 			Log.w(TAG, "Issue while playing : " , t);
 			reset();
@@ -548,5 +542,33 @@ public class TiSound
 		for (KrollPropertyChange change : changes) {
 			propertyChanged(change.getName(), change.getOldValue(), change.getNewValue(), proxy);
 		}
-	}	
+	}
+
+	private void startPlaying()
+	{
+		try {
+			if (mp != null) {
+				if (!isPlaying()) {
+					Log.d(TAG, "audio is not playing, starting.", Log.DEBUG_MODE);
+					Log.d(TAG, "Play: Volume set to " + volume, Log.DEBUG_MODE);
+					mp.start();
+					setState(STATE_PLAYING);
+					paused = false;
+					if (remote) {
+						startProgressTimer();
+					}
+				}
+				setState(STATE_PLAYING);
+			}
+		} catch (Throwable t) {
+			Log.w(TAG, "Issue while playing : ", t);
+			reset();
+		}
+	}
+
+	@Override
+	public void onPrepared(MediaPlayer mp)
+	{
+		startPlaying();
+	}
 }
