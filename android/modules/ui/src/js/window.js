@@ -415,9 +415,10 @@ exports.bootstrapWindow = function(Titanium) {
 		} else {
 			if (this.view.parent != null) {
 				// make sure to remove the children otherwise when the window is opened a second time
-				// the children views wont be added again to the native view
-				this.removeChildren();
+				// the children views wont be added again to the native view.
+				// Remove the view from the window first and then remove all the children.
 				this.window.remove(this.view);
+				this.removeChildren();
 				this.window = null;
 			}
 			this.removeSelfFromStack();
