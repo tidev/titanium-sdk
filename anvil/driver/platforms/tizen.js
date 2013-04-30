@@ -67,7 +67,7 @@ module.exports = new function() {
 
 		common.createHarness(
 			"tizen",
-			"\"" + path.resolve(driverGlobal.config.currentTiSdkDir, "project.py") + "\" " + argString,
+			"\"" + path.resolve(driverGlobal.config.targetTiSdkDir, "project.py") + "\" " + argString,
 			successCallback,
 			errorCallback
 		);
