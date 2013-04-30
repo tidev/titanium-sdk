@@ -7,7 +7,7 @@
 
 // start customization here
 var suites = [
-	//{name: "tizen/messaging"},
+	{name: "tizen/messaging"},
 	{name: "tizen/calendar"},
 	{name: "tizen/alarm"},
 	{name: "tizen/contacts"},
