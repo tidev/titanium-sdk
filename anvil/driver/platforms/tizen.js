@@ -58,7 +58,7 @@ module.exports = new function() {
 	};
 
 	var createHarness = function(successCallback, errorCallback) {
-		var argString = "harness com.appcelerator.harness " + path.resolve(driverGlobal.harnessDir, "tizen tizen") + " " + driverGlobal.config.currentTiSdkDir;
+		var argString = "harness com.appcelerator.harness " + path.resolve(driverGlobal.harnessDir, "tizen tizen") + " " + driverGlobal.config.targetTiSdkDir;
 
 		// Due to python behavior on windows, we need to escape the slashes in the argument string
 		if (os.platform().substr(0, 3) === "win") {
