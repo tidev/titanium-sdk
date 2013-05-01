@@ -2,8 +2,8 @@
 name: Titanium.Calendar.Calendar
 summary: An object that represents a single calendar.
 extends: Titanium.Proxy
-platforms: [iphone, ipad]
-since: "3.1.0"
+platforms: [android, iphone, ipad]
+since: {android: "3.1.1", iphone: "3.1.0", ipad: "3.1.0"}
 createable: false
 
 methods:
@@ -15,6 +15,7 @@ methods:
       - name: properties
         summary: Properties of the event
         type: Dictionary<Titanium.Calendar.Event>
+    platforms: [android, iphone, ipad]
         
   - name: getEventById
     summary: Gets the event with the specified identifier.
@@ -24,6 +25,7 @@ methods:
       - name: id
         summary: Identifier of the event.
         type: Number
+    platforms: [android, iphone, ipad]
         
   - name: getEventsBetweenDates
     summary: Gets events that occur between two dates.
@@ -37,6 +39,7 @@ methods:
       - name: date2
         summary: End date.
         type: Date
+    platforms: [android, iphone, ipad]
         
   - name: getEventsInDate
     summary: Gets events that occur on a specified date.
@@ -54,6 +57,7 @@ methods:
       - name: day
         summary: Day of the month of the events.
         type: Number
+    platforms: [android, iphone, ipad]
         
   - name: getEventsInMonth
     summary: Gets events that occur during a specified month.
@@ -67,6 +71,7 @@ methods:
       - name: month
         summary: Month of the events, as a zero-based integer with January at 0 and December at 11.
         type: Number
+    platforms: [android, iphone, ipad]
         
   - name: getEventsInYear
     summary: Gets all events that occur during a specified year.
@@ -76,6 +81,7 @@ methods:
       - name: year
         summary: Year of the events.
         type: Number
+    platforms: [android, iphone, ipad]
         
 properties:
   - name: hidden
@@ -83,15 +89,27 @@ properties:
     description: This property is `true` when this calendar is editable.
     type: Boolean
     permission: read-only
+    platforms: [android, iphone, ipad]
     
   - name: id
     summary: Identifier of this calendar. Available only in iOS 5.0 and above.
     type: String
     permission: read-only
     osver: {ios: {min: "5.0"}}
+    platforms: [android, iphone, ipad]
     
   - name: name
     summary: Display name of this calendar.
     type: String
     permission: read-only
-    
+    platforms: [android, iphone, ipad]
+
+  - name: selected
+    summary: Indicates whether the calendar is selected.
+    description: |
+        Set to `true` when this calendar is selected.
+
+        See <Titanium.Calendar> for examples.
+    type: Boolean
+    permission: read-only
+    platforms: [android]
