@@ -185,11 +185,12 @@ public class TiSound
 			if (mp == null) {
 				setState(STATE_STARTING);
 				initialize();
+			} else {
+				startPlaying();
 			}
 
-			
 		} catch (Throwable t) {
-			Log.w(TAG, "Issue while playing : " , t);
+			Log.w(TAG, "Issue while playing : ", t);
 			reset();
 		}
 	}
