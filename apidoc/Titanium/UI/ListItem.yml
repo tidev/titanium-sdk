@@ -269,10 +269,9 @@ examples:
             };
 
             /*
-               The following JSON API calls copy the plainTemplate object minus functions
-               and is equivalent to using jQuery.extend(true, {}, oldObject).
+               The following JSON API calls copy the plainTemplate object minus functions.
                This method of copying an object is simple but not quick.
-               If performance is a factor, create your own method to copy an object or use jQuery.extend.
+               If performance is a factor, create your own method to copy an object.
             */
             var redTemplate = JSON.parse(JSON.stringify(plainTemplate));
             // Change the text color to red
