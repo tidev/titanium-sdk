@@ -2,8 +2,8 @@
 name: Titanium.Calendar.Alert
 summary: An object that represents a single alert for an event in an calendar.
 extends: Titanium.Proxy
-since: "3.1.0"
-platforms: [iphone, ipad]
+since: {android: "3.1.1", iphone: "3.1.0", ipad: "3.1.0"}
+platforms: [android, iphone, ipad]
 createable: false
 
 properties:
@@ -14,7 +14,7 @@ properties:
         the relative offset and becomes an absolute alarm.
     type: Date
     platforms: [iphone, ipad]
-    
+
   - name: relativeOffset
     summary: The offset from the start of an event, at which the alarm fires.
     description: |
@@ -23,3 +23,49 @@ properties:
     type: Number
     platforms: [iphone, ipad]
 
+  - name: alarmTime
+    summary: Date/time at which this alert alarm is set to trigger.
+    type: Date
+    permission: read-only
+    platforms: [android]
+
+  - name: begin
+    summary: Start date/time for the corresponding event.
+    type: Date
+    permission: read-only
+    platforms: [android]
+
+  - name: end
+    summary: End date/time for the corresponding event.
+    type: Date
+    permission: read-only
+    platforms: [android]
+
+  - name: eventId
+    summary: Identifier of the event for which this alert is set.
+    type: Number
+    permission: read-only
+
+  - name: id
+    summary: Identifier of this alert.
+    type: String
+    permission: read-only
+    platforms: [android]
+
+  - name: minutes
+    summary: |
+        Reminder notice period in minutes, that determines how long prior to the event this alert 
+        should trigger.
+    type: Number
+    permission: read-only
+    platforms: [android]
+
+  - name: state
+    summary: The current state of the alert.
+    description: |
+        One of [STATE_DISMISSED](Titanium.Calendar.STATE_DISMISSED),
+        [STATE_FIRED](Titanium.Calendar.STATE_FIRED),
+        or [STATE_SCHEDULED](Titanium.Calendar.STATE_SCHEDULED).
+    type: Number
+    permission: read-only
+    platforms: [android]

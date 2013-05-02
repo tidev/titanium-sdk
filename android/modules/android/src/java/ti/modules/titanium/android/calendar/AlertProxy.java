@@ -1,3 +1,10 @@
+/**
+ * Appcelerator Titanium Mobile
+ * Copyright (c) 2011-2013 by Appcelerator, Inc. All Rights Reserved.
+ * Licensed under the terms of the Apache Public License
+ * Please see the LICENSE included with this distribution for details.
+ */
+
 package ti.modules.titanium.android.calendar;
 
 import java.util.ArrayList;
@@ -18,13 +25,14 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 
+@Deprecated
 @Kroll.proxy(parentModule=CalendarModule.class)
 public class AlertProxy extends KrollProxy {
 
 	public static final int STATE_SCHEDULED = 0;
 	public static final int STATE_FIRED = 1;
 	public static final int STATE_DISMISSED = 2;
-	
+
 	protected String id, eventId;
 	protected Date begin, end;
 	protected Date alarmTime;
@@ -39,7 +47,7 @@ public class AlertProxy extends KrollProxy {
 	{
 		this();
 	}
-	
+
 	public static String getAlertsUri() {
 		return CalendarProxy.getBaseCalendarUri() + "/calendar_alerts";
 	}
@@ -48,16 +56,15 @@ public class AlertProxy extends KrollProxy {
 		return CalendarProxy.getBaseCalendarUri() + "/calendar_alerts/by_instance";
 	}
 
-	public static ArrayList<AlertProxy> queryAlerts(String query, String queryArgs[], String orderBy) {
+	public static ArrayList<AlertProxy> queryAlerts(String query, String queryArgs[], String orderBy)
+	{
 		ArrayList<AlertProxy> alerts = new ArrayList<AlertProxy>();
 		ContentResolver contentResolver = TiApplication.getInstance().getContentResolver();
-		
-		Cursor cursor = contentResolver.query(Uri.parse(getAlertsUri()),
-			new String[] { "_id", "event_id", "begin", "end", "alarmTime", "state", "minutes"},
-			query, queryArgs, orderBy);
-		
-		if (cursor!=null)
-		{
+
+		Cursor cursor = contentResolver.query(Uri.parse(getAlertsUri()), new String[] { "_id", "event_id", "begin", "end",
+			"alarmTime", "state", "minutes" }, query, queryArgs, orderBy);
+
+		if (cursor != null) {
 			while (cursor.moveToNext()) {
 				AlertProxy alert = new AlertProxy();
 				alert.id = cursor.getString(0);
@@ -72,7 +79,7 @@ public class AlertProxy extends KrollProxy {
 
 			cursor.close();
 		}
-		
+
 		return alerts;
 	}
 
@@ -89,14 +96,15 @@ public class AlertProxy extends KrollProxy {
 		return AlertProxy.getAlertsForEvent(event);
 	}
 
-	public static AlertProxy createAlert(EventProxy event, int minutes) {
+	public static AlertProxy createAlert(EventProxy event, int minutes)
+	{
 		ContentResolver contentResolver = TiApplication.getInstance().getContentResolver();
 		ContentValues values = new ContentValues();
-		
+
 		Calendar alarmTime = Calendar.getInstance();
 		alarmTime.setTime(event.getBegin());
 		alarmTime.add(Calendar.MINUTE, -minutes);
-		
+
 		values.put("event_id", event.getId());
 		values.put("begin", event.getBegin().getTime());
 		values.put("end", event.getEnd().getTime());
@@ -106,10 +114,10 @@ public class AlertProxy extends KrollProxy {
 		values.put("creationTime", System.currentTimeMillis());
 		values.put("receivedTime", 0);
 		values.put("notifyTime", 0);
-		
+
 		Uri alertUri = contentResolver.insert(Uri.parse(getAlertsUri()), values);
 		String alertId = alertUri.getLastPathSegment();
-		
+
 		AlertProxy alert = new AlertProxy();
 		alert.id = alertId;
 		alert.begin = event.getBegin();
@@ -150,12 +158,12 @@ public class AlertProxy extends KrollProxy {
 	public String getId() {
 		return id;
 	}
-	
+
 	@Kroll.getProperty @Kroll.method
 	public String getEventId() {
 		return eventId;
 	}
-	
+
 	@Kroll.getProperty @Kroll.method
 	public Date getBegin() {
 		return begin;

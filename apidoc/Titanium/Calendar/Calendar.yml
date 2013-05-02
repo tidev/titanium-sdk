@@ -4,11 +4,15 @@ summary: |
     The Calendar module provides an API for accessing the native calendar functionality.
 description: |
     This module supports retrieving information about existing events and creating new events. 
-    Modifying or deleting existing events and creating recurring events is also supported. 
+    Modifying or deleting existing events and creating recurring events are only supported on iOS.
+
+    Currently, on Android, calendar permissions must be explicitly configured in `tiapp.xml` in order to access the
+    calendar. See "Common Requirements" in
+    [tiapp.xml and timodule.xml Reference](http://docs.appcelerator.com/titanium/latest/#!/guide/tiapp.xml_and_timodule.xml_Reference).
 
 extends: Titanium.Module
-platforms: [iphone, ipad]
-since: "3.1.0"
+platforms: [android, iphone, ipad]
+since: {android: "3.1.1", iphone: "3.1.0", ipad: "3.1.0"}
 createable: false
 
 events:
@@ -34,7 +38,7 @@ methods:
       - name: id
         summary: Integer identifier of the calendar.
         type: Number
-    platforms: [iphone, ipad]
+    platforms: [android, iphone, ipad]
 
   - name: requestEventsAuthorization
     summary: If authorization is unknown, will bring up a dialog requesting permission.
@@ -46,84 +50,184 @@ methods:
       - name: callback
         summary: Callback function to execute when when authorization is no longer unknown.
         type: Callback<EventsAuthorizationResponse>
+    platforms: [iphone, ipad]
         
 properties:
+  - name: METHOD_ALERT
+    summary: Reminder alert delivery method.
+    description: |
+        Used with <Titanium.Calendar.Reminder>.
+
+        One of the group of reminder method constants,
+        [METHOD_ALERT](Titanium.Calendar.METHOD_ALERT),
+        [METHOD_DEFAULT](Titanium.Calendar.METHOD_DEFAULT),
+        [METHOD_EMAIL](Titanium.Calendar.METHOD_EMAIL),
+        and [METHOD_SMS](Titanium.Calendar.METHOD_SMS).
+    type: Number
+    permission: read-only
+    platforms: [android]
+
+  - name: METHOD_DEFAULT
+    summary: Reminder default delivery method.
+    description: |
+        Used with <Titanium.Calendar.Reminder>.
+
+        One of the group of reminder method constants,
+        [METHOD_ALERT](Titanium.Calendar.METHOD_ALERT),
+        [METHOD_DEFAULT](Titanium.Calendar.METHOD_DEFAULT),
+        [METHOD_EMAIL](Titanium.Calendar.METHOD_EMAIL),
+        and [METHOD_SMS](Titanium.Calendar.METHOD_SMS).
+    type: Number
+    permission: read-only
+    platforms: [android]
+
+  - name: METHOD_EMAIL
+    summary: Reminder email delivery method.
+    description: |
+        Used with <Titanium.Calendar.Reminder>.
+
+        One of the group of reminder method constants,
+        [METHOD_ALERT](Titanium.Calendar.METHOD_ALERT), 
+        [METHOD_DEFAULT](Titanium.Calendar.METHOD_DEFAULT),
+        [METHOD_EMAIL](Titanium.Calendar.METHOD_EMAIL),
+        and [METHOD_SMS](Titanium.Calendar.METHOD_SMS).
+    type: Number
+    permission: read-only
+    platforms: [android]
+
+  - name: METHOD_SMS
+    summary: Reminder SMS delivery method.
+    description: |
+        Used with <Titanium.Calendar.Reminder>.
+
+        One of the group of reminder method constants,
+        [METHOD_ALERT](Titanium.Calendar.METHOD_ALERT),
+        [METHOD_DEFAULT](Titanium.Calendar.METHOD_DEFAULT),
+        [METHOD_EMAIL](Titanium.Calendar.METHOD_EMAIL),
+        and [METHOD_SMS](Titanium.Calendar.METHOD_SMS).
+    type: Number
+    permission: read-only
+    platforms: [android]
+
+  - name: STATE_DISMISSED
+    summary: Alert dismissed state.
+    description: |
+        Used with <Titanium.Calendar.Alert>.
+
+        One of the group of reminder method constants,
+        [STATE_DISMISSED](Titanium.Calendar.STATE_DISMISSED),
+        [STATE_FIRED](Titanium.Calendar.STATE_FIRED),
+        and [STATE_SCHEDULED](Titanium.Calendar.STATE_SCHEDULED).
+    type: Number
+    permission: read-only
+    platforms: [android]
+
+  - name: STATE_FIRED
+    summary: Alert fired state.
+    description: |
+        Used with <Titanium.Calendar.Alert>.
+
+        One of the group of reminder method constants,
+        [STATE_DISMISSED](Titanium.Calendar.STATE_DISMISSED),
+        [STATE_FIRED](Titanium.Calendar.STATE_FIRED),
+        and [STATE_SCHEDULED](Titanium.Calendar.STATE_SCHEDULED).
+    type: Number
+    permission: read-only
+    platforms: [android]
+
+  - name: STATE_SCHEDULED
+    summary: Alert scheduled status.
+    description: |
+        Used with <Titanium.Calendar.Alert>.
+
+        One of the group of reminder method constants,
+        [STATE_DISMISSED](Titanium.Calendar.STATE_DISMISSED),
+        [STATE_FIRED](Titanium.Calendar.STATE_FIRED),
+        and [STATE_SCHEDULED](Titanium.Calendar.STATE_SCHEDULED).
+    type: Number
+    permission: read-only
+    platforms: [android]
+
   - name: STATUS_NONE
     summary: Event has no status.
     description: |
         A [event status]<Titanium.Calendar.Event.status> value.
-        
-        One of the group of event "status" constants, 
-        [STATUS_CANCELED](Titanium.Calendar.STATUS_CANCELED), 
-        [STATUS_CONFIRMED](Titanium.Calendar.STATUS_CONFIRMED), 
+
+        One of the group of event "status" constants,
+        [STATUS_CANCELED](Titanium.Calendar.STATUS_CANCELED),
+        [STATUS_CONFIRMED](Titanium.Calendar.STATUS_CONFIRMED),
         and [STATUS_TENTATIVE](Titanium.Calendar.STATUS_TENTATIVE).
     type: Number
     permission: read-only
+    platforms: [iphone, ipad]
 
   - name: STATUS_CANCELED
     summary: Event canceled status.
     description: |
         A [event status]<Titanium.Calendar.Event.status> value.
-        
-        One of the group of event "status" constants, 
-        [STATUS_NONE](Titanium.Calendar.STATUS_NONE), 
-        [STATUS_CANCELED](Titanium.Calendar.STATUS_CANCELED), 
-        [STATUS_CONFIRMED](Titanium.Calendar.STATUS_CONFIRMED), 
+
+        One of the group of event "status" constants,
+        [STATUS_NONE](Titanium.Calendar.STATUS_NONE),
+        [STATUS_CANCELED](Titanium.Calendar.STATUS_CANCELED),
+        [STATUS_CONFIRMED](Titanium.Calendar.STATUS_CONFIRMED),
         and [STATUS_TENTATIVE](Titanium.Calendar.STATUS_TENTATIVE).
     type: Number
     permission: read-only
-    
+    platforms: [android, iphone, ipad]
+
   - name: STATUS_CONFIRMED
     summary:  Event confirmed status.
     description: |
         A [event status]<Titanium.Calendar.Event.status> value.
-        
-        One of the group of event "status" constants, 
+
+        One of the group of event "status" constants,
         [STATUS_NONE](Titanium.Calendar.STATUS_NONE),
-        [STATUS_CANCELED](Titanium.Calendar.STATUS_CANCELED), 
-        [STATUS_CONFIRMED](Titanium.Calendar.STATUS_CONFIRMED), 
+        [STATUS_CANCELED](Titanium.Calendar.STATUS_CANCELED),
+        [STATUS_CONFIRMED](Titanium.Calendar.STATUS_CONFIRMED),
         and [STATUS_TENTATIVE](Titanium.Calendar.STATUS_TENTATIVE).
     type: Number
     permission: read-only
-    
+    platforms: [android, iphone, ipad]
+
   - name: STATUS_TENTATIVE
     summary: Event tentative status.
     description: |
         A [event status]<Titanium.Calendar.Event.status> value.
-        
+
         One of the group of event "status" constants,
-        [STATUS_NONE](Titanium.Calendar.STATUS_NONE), 
-        [STATUS_CANCELED](Titanium.Calendar.STATUS_CANCELED), 
-        [STATUS_CONFIRMED](Titanium.Calendar.STATUS_CONFIRMED), 
+        [STATUS_NONE](Titanium.Calendar.STATUS_NONE),
+        [STATUS_CANCELED](Titanium.Calendar.STATUS_CANCELED),
+        [STATUS_CONFIRMED](Titanium.Calendar.STATUS_CONFIRMED),
         and [STATUS_TENTATIVE](Titanium.Calendar.STATUS_TENTATIVE).
     type: Number
     permission: read-only
+    platforms: [android, iphone, ipad]
 
   - name: AVAILABILITY_NOTSUPPORTED
     summary: Availability settings are not supported by the event's calendar.
     description: |
         A [event availability](Titanium.Calendar.Event.availability) value.
-        
-        One of the group of event method constants, 
-        [AVAILABILITY_NOTSUPPORTED](Titanium.Calendar.AVAILABILITY_NOTSUPPORTED), 
-        [AVAILABILITY_BUSY](Titanium.Calendar.AVAILABILITY_BUSY), 
-        [AVAILABILITY_FREE](Titanium.Calendar.AVAILABILITY_FREE), 
-        [AVAILABILITY_TENTATIVE](Titanium.Calendar.AVAILABILITY_TENTATIVE), 
+
+        One of the group of event method constants,
+        [AVAILABILITY_NOTSUPPORTED](Titanium.Calendar.AVAILABILITY_NOTSUPPORTED),
+        [AVAILABILITY_BUSY](Titanium.Calendar.AVAILABILITY_BUSY),
+        [AVAILABILITY_FREE](Titanium.Calendar.AVAILABILITY_FREE),
+        [AVAILABILITY_TENTATIVE](Titanium.Calendar.AVAILABILITY_TENTATIVE),
         and [AVAILABILITY_UNAVAILABLE](Titanium.Calendar.AVAILABILITY_UNAVAILABLE).
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
-    
+
   - name: AVAILABILITY_BUSY
     summary: Event has a busy availability setting.
     description: |
         A [event availability](Titanium.Calendar.Event.availability) value.
-        
-        One of the group of event method constants, 
-        [AVAILABILITY_NOTSUPPORTED](Titanium.Calendar.AVAILABILITY_NOTSUPPORTED), 
-        [AVAILABILITY_BUSY](Titanium.Calendar.AVAILABILITY_BUSY), 
-        [AVAILABILITY_FREE](Titanium.Calendar.AVAILABILITY_FREE), 
-        [AVAILABILITY_TENTATIVE](Titanium.Calendar.AVAILABILITY_TENTATIVE), 
+
+        One of the group of event method constants,
+        [AVAILABILITY_NOTSUPPORTED](Titanium.Calendar.AVAILABILITY_NOTSUPPORTED),
+        [AVAILABILITY_BUSY](Titanium.Calendar.AVAILABILITY_BUSY),
+        [AVAILABILITY_FREE](Titanium.Calendar.AVAILABILITY_FREE),
+        [AVAILABILITY_TENTATIVE](Titanium.Calendar.AVAILABILITY_TENTATIVE),
         and [AVAILABILITY_UNAVAILABLE](Titanium.Calendar.AVAILABILITY_UNAVAILABLE).
     type: Number
     permission: read-only
@@ -133,12 +237,12 @@ properties:
     summary: Event has a free availability setting.
     description: |
         A [event availability](Titanium.Calendar.Event.availability) value.
-        
-        One of the group of event method constants, 
-        [AVAILABILITY_NOTSUPPORTED](Titanium.Calendar.AVAILABILITY_NOTSUPPORTED), 
-        [AVAILABILITY_BUSY](Titanium.Calendar.AVAILABILITY_BUSY), 
-        [AVAILABILITY_FREE](Titanium.Calendar.AVAILABILITY_FREE), 
-        [AVAILABILITY_TENTATIVE](Titanium.Calendar.AVAILABILITY_TENTATIVE), 
+
+        One of the group of event method constants,
+        [AVAILABILITY_NOTSUPPORTED](Titanium.Calendar.AVAILABILITY_NOTSUPPORTED),
+        [AVAILABILITY_BUSY](Titanium.Calendar.AVAILABILITY_BUSY),
+        [AVAILABILITY_FREE](Titanium.Calendar.AVAILABILITY_FREE),
+        [AVAILABILITY_TENTATIVE](Titanium.Calendar.AVAILABILITY_TENTATIVE),
         and [AVAILABILITY_UNAVAILABLE](Titanium.Calendar.AVAILABILITY_UNAVAILABLE).
     type: Number
     permission: read-only
@@ -148,12 +252,12 @@ properties:
     summary: Event has a tentative availability setting.
     description: |
         A [event availability](Titanium.Calendar.Event.availability) value.
-        
-        One of the group of event method constants, 
-        [AVAILABILITY_NOTSUPPORTED](Titanium.Calendar.AVAILABILITY_NOTSUPPORTED), 
-        [AVAILABILITY_BUSY](Titanium.Calendar.AVAILABILITY_BUSY), 
-        [AVAILABILITY_FREE](Titanium.Calendar.AVAILABILITY_FREE), 
-        [AVAILABILITY_TENTATIVE](Titanium.Calendar.AVAILABILITY_TENTATIVE), 
+
+        One of the group of event method constants,
+        [AVAILABILITY_NOTSUPPORTED](Titanium.Calendar.AVAILABILITY_NOTSUPPORTED),
+        [AVAILABILITY_BUSY](Titanium.Calendar.AVAILABILITY_BUSY),
+        [AVAILABILITY_FREE](Titanium.Calendar.AVAILABILITY_FREE),
+        [AVAILABILITY_TENTATIVE](Titanium.Calendar.AVAILABILITY_TENTATIVE),
         and [AVAILABILITY_UNAVAILABLE](Titanium.Calendar.AVAILABILITY_UNAVAILABLE).
     type: Number
     permission: read-only
@@ -163,12 +267,12 @@ properties:
     summary: Event has a tentative availability setting.
     description: |
         A [event availability](Titanium.Calendar.Event.availability) value.
-        
-        One of the group of event method constants, 
-        [AVAILABILITY_NOTSUPPORTED](Titanium.Calendar.AVAILABILITY_NOTSUPPORTED), 
-        [AVAILABILITY_BUSY](Titanium.Calendar.AVAILABILITY_BUSY), 
-        [AVAILABILITY_FREE](Titanium.Calendar.AVAILABILITY_FREE), 
-        [AVAILABILITY_TENTATIVE](Titanium.Calendar.AVAILABILITY_TENTATIVE), 
+
+        One of the group of event method constants,
+        [AVAILABILITY_NOTSUPPORTED](Titanium.Calendar.AVAILABILITY_NOTSUPPORTED),
+        [AVAILABILITY_BUSY](Titanium.Calendar.AVAILABILITY_BUSY),
+        [AVAILABILITY_FREE](Titanium.Calendar.AVAILABILITY_FREE),
+        [AVAILABILITY_TENTATIVE](Titanium.Calendar.AVAILABILITY_TENTATIVE),
         and [AVAILABILITY_UNAVAILABLE](Titanium.Calendar.AVAILABILITY_UNAVAILABLE).
     type: Number
     permission: read-only
@@ -237,6 +341,7 @@ properties:
         and [RECURRENCEFREQUENCY_YEARLY](Titanium.Calendar.RECURRENCEFREQUENCY_YEARLY).
     type: Number
     permission: read-only
+    platforms: [iphone, ipad]
 
   - name: RECURRENCEFREQUENCY_WEEKLY
     summary: Indicates a weekly recurrence rule for a events reccurance frequency.
@@ -250,6 +355,7 @@ properties:
         and [RECURRENCEFREQUENCY_YEARLY](Titanium.Calendar.RECURRENCEFREQUENCY_YEARLY).
     type: Number
     permission: read-only
+    platforms: [iphone, ipad]
 
   - name: RECURRENCEFREQUENCY_MONTHLY
     summary: Indicates a monthly recurrence rule for a events reccurance frequency.
@@ -263,6 +369,7 @@ properties:
         and [RECURRENCEFREQUENCY_YEARLY](Titanium.Calendar.RECURRENCEFREQUENCY_YEARLY).
     type: Number
     permission: read-only
+    platforms: [iphone, ipad]
 
   - name: RECURRENCEFREQUENCY_YEARLY
     summary: Indicates a yearly recurrence rule for a events reccurance frequency.
@@ -276,6 +383,63 @@ properties:
         and [RECURRENCEFREQUENCY_YEARLY](Titanium.Calendar.RECURRENCEFREQUENCY_YEARLY).
     type: Number
     permission: read-only
+    platforms: [iphone, ipad]
+
+  - name: VISIBILITY_CONFIDENTIAL
+    summary: Event confidential visibility.
+    description: |
+        Used with <Titanium.Calendar.Event>.
+
+        One of the group of reminder method constants,
+        [VISIBILITY_CONFIDENTIAL](Titanium.Calendar.VISIBILITY_CONFIDENTIAL),
+        [VISIBILITY_DEFAULT](Titanium.Calendar.VISIBILITY_DEFAULT),
+        [VISIBILITY_PRIVATE](Titanium.Calendar.VISIBILITY_PRIVATE),
+        and [VISIBILITY_PUBLIC](Titanium.Calendar.VISIBILITY_PUBLIC).
+    type: Number
+    permission: read-only
+    platforms: [android]
+
+  - name: VISIBILITY_DEFAULT
+    summary: Event default visibility.
+    description: |
+        Used with <Titanium.Calendar.Event>.
+
+        One of the group of reminder method constants,
+        [VISIBILITY_CONFIDENTIAL](Titanium.Calendar.VISIBILITY_CONFIDENTIAL),
+        [VISIBILITY_DEFAULT](Titanium.Calendar.VISIBILITY_DEFAULT),
+        [VISIBILITY_PRIVATE](Titanium.Calendar.VISIBILITY_PRIVATE),
+        and [VISIBILITY_PUBLIC](Titanium.Calendar.VISIBILITY_PUBLIC).
+    type: Number
+    permission: read-only
+    platforms: [android]
+
+  - name: VISIBILITY_PRIVATE
+    summary: Event private visibility.
+    description: |
+        Used with <Titanium.Calendar.Event>.
+
+        One of the group of reminder method constants,
+        [VISIBILITY_CONFIDENTIAL](Titanium.Calendar.VISIBILITY_CONFIDENTIAL),
+        [VISIBILITY_DEFAULT](Titanium.Calendar.VISIBILITY_DEFAULT),
+        [VISIBILITY_PRIVATE](Titanium.Calendar.VISIBILITY_PRIVATE),
+        and [VISIBILITY_PUBLIC](Titanium.Calendar.VISIBILITY_PUBLIC).
+    type: Number
+    permission: read-only
+    platforms: [android]
+
+  - name: VISIBILITY_PUBLIC
+    summary: Event public visibility.
+    description: |
+        Used with <Titanium.Calendar.Event>.
+
+        One of the group of reminder method constants, 
+        [VISIBILITY_CONFIDENTIAL](Titanium.Calendar.VISIBILITY_CONFIDENTIAL),
+        [VISIBILITY_DEFAULT](Titanium.Calendar.VISIBILITY_DEFAULT),
+        [VISIBILITY_PRIVATE](Titanium.Calendar.VISIBILITY_PRIVATE),
+        and [VISIBILITY_PUBLIC](Titanium.Calendar.VISIBILITY_PUBLIC).
+    type: Number
+    permission: read-only
+    platforms: [android]
 
   - name: eventsAuthorization
     summary: Returns an authorization constant indicating if the application has access to the events in the EventKit.
@@ -285,10 +449,17 @@ properties:
     permission: read-only
     platforms: [iphone, ipad]
 
+  - name: allAlerts
+    summary: All alerts in selected calendars.
+    type: Array<Titanium.Calendar.Alert>
+    permission: read-only
+    platforms: [android]
+
   - name: allCalendars
     summary: All calendars known to the native calendar app.
     type: Array<Titanium.Calendar.Calendar>
     permission: read-only
+    platforms: [android, iphone, ipad]
 
   - name: allEditableCalendars
     summary: |
@@ -296,15 +467,72 @@ properties:
         delete items in the calendar.
     type: Array<Titanium.Calendar.Calendar>
     permission: read-only
+    platforms: [iphone, ipad]
+
+  - name: selectableCalendars
+    summary: |
+        All calendars selected within the native calendar app, which may be a subset of `allCalendars`. 
+    description: |
+        The native calendar application may know via the registered webservices, such as Gooogle or 
+        Facebook accounts about calendars that it has access to but have not been selected to be 
+        displayed in the native calendar app.
+    type: Array<Titanium.Calendar.Calendar>
+    permission: read-only
+    platforms: [android]
 
   - name: defaultCalendar
     summary: |
         Calendar that events are added to by default, as specified by user settings.
     type: Titanium.Calendar.Calendar
     permission: read-only
+    platforms: [iphone, ipad]
 
 examples:
+  - title: All Calendars vs Selectable Calendars
+    example: |
+        Print the names of all calendars, and the names of calendars that 
+        have been selected in the native Android calendar application.
+
+            function showCalendars(calendars) {
+                for (var i = 0; i < calendars.length; i++) {
+                    Ti.API.info(calendars[i].name);
+                }
+            }
+
+            Ti.API.info('ALL CALENDARS:');
+            showCalendars(Ti.Calendar.allCalendars);
+            if (Ti.Platform.osname === 'android') {
+                Ti.API.info('SELECTABLE CALENDARS:');
+                showCalendars(Ti.Calendar.selectableCalendars);
+            }
+
+  - title: Create an Event and Reminder on Android
+    example: |
+        Creates an event and adds an e-mail reminder for 10 minutes before the event.
         
+            var CALENDAR_TO_USE = 3;
+            var calendar = Ti.Calendar.getCalendarById(CALENDAR_TO_USE);
+
+            // Create the event
+            var eventBegins = new Date(2010, 11, 26, 12, 0, 0);
+            var eventEnds = new Date(2010, 11, 26, 14, 0, 0);
+            var details = {
+                title: 'Do some stuff',
+                description: "I'm going to do some stuff at this time.",
+                begin: eventBegins,
+                end: eventEnds
+            };
+
+            var event = calendar.createEvent(details);
+
+            // Now add a reminder via e-mail for 10 minutes before the event.
+            var reminderDetails = {
+                minutes: 10,
+                method: Ti.Calendar.METHOD_EMAIL
+            };
+
+            event.createReminder(reminderDetails);
+
   - title: Events in a year
     example: |
         Create a picker to allow an existing calendar to be selected and, when a button is clicked, 
@@ -314,7 +542,7 @@ examples:
             var selectedCalendarName;
             var selectedid;
             var pickerData = [];
-            
+            var osname = Ti.Platform.osname;
             
             //**read events from calendar*******
             function performCalendarReadFunctions(){
@@ -388,8 +616,28 @@ examples:
                     Ti.API.info('Calendar was of type' + calendar);
                     Ti.API.info('calendar that we are going to fetch is :: '+ calendar.id + ' name:' + calendar.name);
                     
+                    function printReminder(r) {
+                    	if (osname === 'android') {
+                    		var typetext = '[method unknown]';
+                    		if (r.method == Ti.Calendar.METHOD_EMAIL) {
+                    			typetext = 'Email';
+                    		} else if (r.method == Ti.Calendar.METHOD_SMS) {
+                    			typetext = 'SMS';
+                    		} else if (r.method == Ti.Calendar.METHOD_ALERT) {
+                    			typetext = 'Alert';
+                    		} else if (r.method == Ti.Calendar.METHOD_DEFAULT) {
+                    			typetext = '[default reminder method]';
+                    		}
+                    		print(typetext + ' reminder to be sent ' + r.minutes + ' minutes before the event');
+                    	}
+                	}
+                    
                     function printAlert(a) {
-                      print('Alert id ' + a.id + ' begin ' + a.begin + '; end ' + a.end + '; alarmTime ' + a.alarmTime + '; minutes ' + a.minutes);
+                    	if (osname === 'android') {
+                      		print('Alert id ' + a.id + ' begin ' + a.begin + '; end ' + a.end + '; alarmTime ' + a.alarmTime + '; minutes ' + a.minutes);
+                    	} else if (osname === 'iphone' || osname === 'ipad') {
+                    		print('Alert absoluteDate ' + a.absoluteDate + ' relativeOffset ' + a.relativeOffset);
+                    	}
                     }
                     
                     function printEvent(event) {
@@ -399,6 +647,13 @@ examples:
                         print('Event: ' + event.title + '; ' + event.begin + ' ' + event.begin+ '-' + event.end);
                       }
                       
+                      var reminders = event.reminders;
+                      if (reminders && reminders.length) {
+                      	print('There is/are ' + reminders.length + ' reminder(s)');
+                      	for (var i = 0; i < reminders.length; i++) {
+                      		printReminder(reminders[i]);
+                      	}
+                      }
                       print('hasAlarm? ' + event.hasAlarm);
                       var alerts = event.alerts;
                       if (alerts && alerts.length) {
@@ -447,23 +702,25 @@ examples:
               title: 'Calendar Demo'
             });
             
-            if(Ti.Calendar.eventsAuthorization == Ti.Calendar.AUTHORIZATION_AUTHORIZED) {
-                performCalendarReadFunctions();
-            } else {
-                Ti.Calendar.requestEventsAuthorization(function(e){
-                    if (e.success) {
-                        performCalendarReadFunctions();
-                    } else {
-                        alert('Access to calendar is not allowed');
-                    }
-                });
-            
+            if (osname === 'android') {
+            	performCalendarReadFunctions();
+            } else if (osname === 'iphone' || osname === 'ipad') {
+            	if (Ti.Calendar.eventsAuthorization == Ti.Calendar.AUTHORIZATION_AUTHORIZED) {
+                	performCalendarReadFunctions();
+            	} else {
+                	Ti.Calendar.requestEventsAuthorization(function(e){
+                    	if (e.success) {
+                        	performCalendarReadFunctions();
+                    	} else {
+                        	alert('Access to calendar is not allowed');
+                    	}
+                	});
+            	}
             }
-            
             
             win.open();
 
-  - title: Create a Recurring Event with Alerts 
+  - title: Create a Recurring Event with Alerts on iOS
     example: |
         Create a recurring event with alerts.
         
