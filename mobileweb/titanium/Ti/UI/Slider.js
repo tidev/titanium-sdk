@@ -31,7 +31,7 @@ define(['Ti/_/declare', 'Ti/_/UI/Widget', 'Ti/_/dom', 'Ti/_/css', 'Ti/_/style', 
 		},
 
 		_constrainedUpdate: function(value) {
-			this.properties.__values__.value = this._constrainValue(value);
+			this.__values__.properties.value = this._constrainValue(value);
 			this._updatePosition();
 		},
 

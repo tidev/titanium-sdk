@@ -7,7 +7,7 @@
  * <http://dojotoolkit.org>
  */
 
-define(['Ti/_/has'], function(has) {
+define(['Ti/_/has'], function (has) {
 	var global = this,
 		hitch,
 		is = require.is;
@@ -19,7 +19,7 @@ define(['Ti/_/has'], function(has) {
 	function hitchArgs(scope, method) {
 		var pre = toArray(arguments, 2),
 			named = typeof method == 'string';
-		return function() {
+		return function () {
 			var s = scope || global,
 				f = named ? s[method] : method;
 			return f && f.apply(s, pre.concat(toArray(arguments)));
@@ -27,7 +27,7 @@ define(['Ti/_/has'], function(has) {
 	}
 
 	return {
-		hitch: hitch = function(scope, method) {
+		hitch: hitch = function (scope, method) {
 			if (arguments.length > 2) {
 				return hitchArgs.apply(global, arguments);
 			}
@@ -40,91 +40,110 @@ define(['Ti/_/has'], function(has) {
 				if (!scope[method]) {
 					throw(['hitch: scope["', method, '"] is null (scope="', scope, '")'].join(''));
 				}
-				return function() {
+				return function () {
 					return scope[method].apply(scope, arguments || []);
 				};
 			}
-			return !scope ? method : function() {
+			return !scope ? method : function () {
 				return method.apply(scope, arguments || []);
 			};
 		},
 
-		isDef: function(it) {
+		isDef: function (it) {
 			return it !== void 0;
 		},
 
-		mixProps: function(dest, src, everything) {
-			var d, i, p, v, special = { properties: 1, constants: 0 };
-			for (p in src) {
-				if (src.hasOwnProperty(p) && !/^(constructor|__values__)$/.test(p)) {
-					if (special.hasOwnProperty(p)) {
-						d = dest[p] || (dest[p] = {});
-						d.__values__ || (d.__values__ = {});
-						for (i in src[p]) {
-							(function(property, externalDest, internalDest, /* setter/getter, getter, or value */ descriptor, capitalizedName, writable) {
-								var o = typeof descriptor == 'Object',
-									getter = o && typeof descriptor.get == 'function' && descriptor.get,
-									setter = o && typeof descriptor.set == 'function' && descriptor.set,
-									pt = o && is(descriptor.post),
-									post = pt === 'Function' ? descriptor.post : pt === 'String' ? hitch(externalDest, descriptor.post) : 0;
+		mixProps: function (dest, src, setDefaults) {
+			var prop, name, destDef, source,
+				srcDef = src.__def__,
+				ignore = /^constructor|__values__|__def__|declaredClass$/,
+				special = { properties: 1, constants: 0 };
 
-								if (o && (getter || setter || post)) {
-									internalDest.__values__[property] = descriptor.value;
-								} else if (typeof descriptor == 'function') {
-									getter = descriptor;
-								} else {
-									internalDest.__values__[property] = descriptor;
-								}
+			for (prop in src) {
+				if (src.hasOwnProperty(prop) && !ignore.test(prop)) {
+					// check if this prop is "properties" or "constants"
+					if (special.hasOwnProperty(prop)) {
+						// if the src has a __def__, then we want to use the src.__def__ version to
+						// get the original property descriptor
+						source = srcDef ? srcDef[prop] : src[prop];
 
-								// first set the internal private interface
-								Object.defineProperty(internalDest, property, {
-									get: function() {
-										return getter ? getter.call(externalDest, internalDest.__values__[property]) : internalDest.__values__[property];
-									},
-									set: function(v) {
-										var args = [v, internalDest.__values__[property], property];
-										args[0] = internalDest.__values__[property] = setter ? setter.apply(externalDest, args) : v;
-										post && post.apply(externalDest, args);
-									},
-									configurable: true,
-									enumerable: true
-								});
+						// make sure the properties/constants destination exists
+						dest[prop] || (dest[prop] = {});
 
-								// this is the public interface
-								Object.defineProperty(dest, property, {
-									get: function() {
-										return internalDest[property];
-									},
-									set: function(v) {
+						// this is where we store original source property's definition
+						dest.__def__ || (dest.__def__ = {});
+						destDef = dest.__def__[prop] || (dest.__def__[prop] = {});
+
+						// loop over each prop in the source
+						for (name in source) {
+							// don't copy props that already exist in the destination
+							if (!srcDef || !destDef.hasOwnProperty(name)) {
+								// copy the original source property's definition
+								srcDef && (destDef[name] = srcDef[prop][name]);
+
+								// define and call the function that wires up the properties
+								(function (type, property, /* setter/getter, getter, or value */ descriptor, capitalizedName, writable) {
+									var isObj = descriptor && typeof descriptor == 'object',
+										getter = isObj && descriptor.get,
+										setter = isObj && descriptor.set,
+										post = isObj && descriptor.post,
+										set = function (v) {
+											var d = this.__values__[type],
+												args = [v, d[property], property];
+											args[0] = d[property] = setter ? (typeof setter == 'string' ? this[setter] : setter).apply(this, args) : v;
+											post && (typeof post == 'function' ? post : this[post]).apply(this, args);
+										},
+										desc = {
+											get: function () {
+												var v = this.__values__[type][property];
+												return getter ? (typeof getter == 'string' ? this[getter] : getter).call(this, v) : v;
+											},
+											set: set,
+											configurable: true,
+											enumerable: true
+										};
+
+									if (isObj && (getter || setter || post)) {
+										setDefaults && (dest.__values__[type][property] = descriptor.value);
+									} else if (typeof descriptor == 'function') {
+										getter = descriptor;
+									} else if (setDefaults) {
+										dest.__values__[type][property] = descriptor;
+									}
+
+									// the internal private interface
+									Object.defineProperty(dest[type], property, desc);
+
+									// the public interface
+									desc.set = function (v) {
 										if (!writable) {
 											throw new Error('Property "' + property + '" is read only');
 										}
-										internalDest[property] = v;
-									},
-									configurable: true,
-									enumerable: true
-								});
+										set.call(this, v);
+									};
+									Object.defineProperty(dest, property, desc);
 
-								if (has('declare-property-methods') && (writable || property.toUpperCase() !== property)) {
-									externalDest['get' + capitalizedName] = function() { return internalDest[property]; };
-									writable && (externalDest['set' + capitalizedName] = function(v) { return internalDest[property] = v; });
-								}
-							}(i, dest, d, src[p][i], i.substring(0, 1).toUpperCase() + i.substring(1), special[p]));
+									// if it's writable or it's not an uppercase constant name, create the getter/setter
+									if (writable || property.toUpperCase() !== property) {
+										dest['get' + capitalizedName] = desc.get;
+										writable && (dest['set' + capitalizedName] = desc.set);
+									}
+								}(prop, name, source[name], name.substring(0, 1).toUpperCase() + name.substring(1), special[prop]));
+							}
 						}
-					} else if (everything) {
-						dest[p] = src[p];
+					} else if (!srcDef || ((!srcDef.properties || !srcDef.properties.hasOwnProperty(prop)) && (!srcDef.constants || !srcDef.constants.hasOwnProperty(prop)))) {
+						dest[prop] = src[prop];
 					}
 				}
 			}
 			return dest;
 		},
-		
-		generateAccessors: function(definition, readOnlyProps, props) {
-			
+
+		generateAccessors: function (definition, readOnlyProps, props) {
 			function generateGetter(prop) {
 				var getterName = 'get' + prop.substring(0, 1).toUpperCase() + prop.substring(1);
 				if (!(getterName in definition.prototype)) {
-					definition.prototype[getterName] = function() {
+					definition.prototype[getterName] = function () {
 						return this[prop];
 					}
 				}
@@ -133,20 +152,20 @@ define(['Ti/_/has'], function(has) {
 			function generateSetter(prop) {
 				var setterName = 'set' + prop.substring(0, 1).toUpperCase() + prop.substring(1);
 				if (!(setterName in definition.prototype)) {
-					definition.prototype[setterName] = function(value) {
+					definition.prototype[setterName] = function (value) {
 						return this[prop] = value;
 					}
 				}
 			}
 			
 			readOnlyProps && readOnlyProps.split(',').forEach(generateGetter);
-			props && props.split(',').forEach(function(prop) {
+			props && props.split(',').forEach(function (prop) {
 				generateGetter(prop);
 				generateSetter(prop);
 			});
 		},
 
-		setObject: function(name) {
+		setObject: function (name) {
 			var parts = name.split('.'),
 				q = parts.pop(),
 				obj = window,
@@ -166,7 +185,15 @@ define(['Ti/_/has'], function(has) {
 				// need to mix args into values
 				for (i = 1; i < arguments.length; i++) {
 					a = arguments[i];
-					typeof a == 'object' ? this.mixProps(r, a, 1) : (r = a);
+					if (a && typeof a == 'object') {
+						// if the destination is a plain object, then we need to initialize the property store
+						r.__values__ || (r.__values__ = { constants:{}, properties:{} });
+
+						// mix the props
+						this.mixProps(r, a, 1);
+					} else {
+						r = a;
+					}
 				}
 			}
 
@@ -175,7 +202,7 @@ define(['Ti/_/has'], function(has) {
 
 		toArray: toArray,
 
-		urlEncode: function(obj) {
+		urlEncode: function (obj) {
 			var enc = encodeURIComponent,
 				pairs = [],
 				prop,
@@ -196,7 +223,7 @@ define(['Ti/_/has'], function(has) {
 			return pairs.join('&');
 		},
 
-		val: function(originalValue, defaultValue) {
+		val: function (originalValue, defaultValue) {
 			return originalValue === void 0 ? defaultValue : originalValue;
 		}
 	};

@@ -23,7 +23,7 @@ define(["Ti/_", "Ti/_/declare", "Ti/_/has", "Ti/_/lang", "Ti/_/Evented", "Ti/Fil
 			];
 
 			xhr.onreadystatechange = lang.hitch(this, function() {
-				var c = this.constants,
+				var c = this.__values__.constants,
 					f,
 					onload = this.onload;
 
@@ -85,7 +85,7 @@ define(["Ti/_", "Ti/_/declare", "Ti/_/has", "Ti/_/lang", "Ti/_/Evented", "Ti/Fil
 			clearTimeout(this._timeoutTimer);
 			this._aborted = 1;
 			this.connected && this._xhr.abort();
-			this.constants.readyState = this.UNSENT;
+			this.__value__.constants.readyState = this.UNSENT;
 			this._fireStateChange();
 		},
 
@@ -99,7 +99,7 @@ define(["Ti/_", "Ti/_/declare", "Ti/_/has", "Ti/_/lang", "Ti/_/Evented", "Ti/Fil
 
 		open: function(method, url, async) {
 			var httpURLFormatter = Ti.Network.httpURLFormatter,
-				c = this.constants,
+				c = this.__value__.constants,
 				wc = this.withCredentials,
 				loc = _.getAbsolutePath(httpURLFormatter ? httpURLFormatter(url) : url),
 				parts = loc.match(/^((?:.+\:)?\/\/)?(?:.+@)?(.*)$/);

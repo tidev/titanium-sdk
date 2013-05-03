@@ -197,7 +197,7 @@ define(
 		},
 
 		_setWindow: function(win) {
-			this.constants.currentWindow = win;
+			this.__values__.constants.currentWindow = win;
 		},
 
 		_removeWindow: function(win) {
@@ -350,7 +350,7 @@ define(
 
 				// Layout all nodes that need it
 				if (layoutRootNode) {
-					var props = container.properties.__values__,
+					var props = container.__values__.properties,
 						width = container._measuredWidth = props.width = global.innerWidth,
 						height = container._measuredHeight = props.height = global.innerHeight;
 					container._measuredSandboxWidth = width;
