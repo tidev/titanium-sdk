@@ -223,7 +223,7 @@ define(["Ti/_", "Ti/_/Evented", "Ti/_/declare", "Ti/_/encoding", "Ti/_/lang", "T
 					return !this.readonly;
 				},
 				set: function(value) {
-					return this.__value__.constants.readonly = !value;
+					return this.__values__.constants.readonly = !value;
 				},
 				value: true
 			}

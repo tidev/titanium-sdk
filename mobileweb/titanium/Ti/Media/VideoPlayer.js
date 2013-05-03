@@ -106,7 +106,7 @@ define(["Ti/_/declare", "Ti/_/dom", "Ti/_/event", "Ti/_/lang", "Ti/Media", "Ti/U
 			},
 			url: {
 				set: function(value) {
-					this.__value__.constants.playing = false;
+					this.__values__.constants.playing = false;
 					this._currentState = STOPPED;
 					this.__values__.properties.url = value;
 					this._createVideo();
@@ -127,13 +127,13 @@ define(["Ti/_/declare", "Ti/_/dom", "Ti/_/event", "Ti/_/lang", "Ti/Media", "Ti/U
 
 		_set: function(type, state) {
 			var evt = {};
-			evt[type] = this.__value__.constants[type] = state;
+			evt[type] = this.__values__.constants[type] = state;
 			this.fireEvent(type.toLowerCase(), evt);
 		},
 
 		_complete: function(evt) {
 			var ended = evt.type === "ended";
-			this.__value__.constants.playing = false;
+			this.__values__.constants.playing = false;
 			this._currentState = STOPPED;
 			this.fireEvent("complete", {
 				reason: ended ? Media.VIDEO_FINISH_REASON_PLAYBACK_ENDED : Media.VIDEO_FINISH_REASON_USER_EXITED
@@ -151,7 +151,7 @@ define(["Ti/_/declare", "Ti/_/dom", "Ti/_/event", "Ti/_/lang", "Ti/Media", "Ti/U
 
 		_durationChange: function() {
 			var d = this._video.duration * 1000,
-				c = this.__value__.constants;
+				c = this.__values__.constants;
 			if (d !== Infinity) {
 				this.duration || this.fireEvent("durationavailable", {
 					duration: d
@@ -162,7 +162,7 @@ define(["Ti/_/declare", "Ti/_/dom", "Ti/_/event", "Ti/_/lang", "Ti/Media", "Ti/U
 
 		_paused: function() {
 			var pbs = Media.VIDEO_PLAYBACK_STATE_STOPPED;
-			this.__value__.constants.playing = false;
+			this.__values__.constants.playing = false;
 			if (this._currentState === PLAYING) {
 				this._currentState = PAUSED;
 				pbs = Media.VIDEO_PLAYBACK_STATE_PAUSED;
@@ -176,7 +176,7 @@ define(["Ti/_/declare", "Ti/_/dom", "Ti/_/event", "Ti/_/lang", "Ti/Media", "Ti/U
 			var i, match,
 				video = this._video,
 				url = this.url,
-				c = this.__value__.constants;
+				c = this.__values__.constants;
 
 			if (!url) {
 				return;
@@ -280,7 +280,7 @@ define(["Ti/_/declare", "Ti/_/dom", "Ti/_/event", "Ti/_/lang", "Ti/Media", "Ti/U
 				video = this._video,
 				parent = video && video.parentNode;
 			this._currentState = STOPPED;
-			this.__value__.constants.playing = false;
+			this.__values__.constants.playing = false;
 			if (parent) {
 				event.off(this._handles);
 				parent.removeChild(video);
