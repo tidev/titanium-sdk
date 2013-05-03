@@ -87,18 +87,20 @@ define(['Ti/_/has'], function (has) {
 										getter = isObj && descriptor.get,
 										setter = isObj && descriptor.set,
 										post = isObj && descriptor.post,
-										set = function (v) {
-											var d = this.__values__[type],
-												args = [v, d[property], property];
-											args[0] = d[property] = setter ? (typeof setter == 'string' ? this[setter] : setter).apply(this, args) : v;
-											post && (typeof post == 'function' ? post : this[post]).apply(this, args);
-										},
 										desc = {
 											get: function () {
 												var v = this.__values__[type][property];
 												return getter ? (typeof getter == 'string' ? this[getter] : getter).call(this, v) : v;
 											},
-											set: set,
+											set: function (v) {
+												if (!writable) {
+													throw new Error('Property "' + property + '" is read only');
+												}
+												var d = this.__values__[type],
+													args = [v, d[property], property];
+												args[0] = d[property] = setter ? (typeof setter == 'string' ? this[setter] : setter).apply(this, args) : v;
+												post && (typeof post == 'function' ? post : this[post]).apply(this, args);
+											},
 											configurable: true,
 											enumerable: true
 										};
@@ -111,16 +113,6 @@ define(['Ti/_/has'], function (has) {
 										dest.__values__[type][property] = descriptor;
 									}
 
-									// the internal private interface
-									Object.defineProperty(dest[type], property, desc);
-
-									// the public interface
-									desc.set = function (v) {
-										if (!writable) {
-											throw new Error('Property "' + property + '" is read only');
-										}
-										set.call(this, v);
-									};
 									Object.defineProperty(dest, property, desc);
 
 									// if it's writable or it's not an uppercase constant name, create the getter/setter

@@ -39,6 +39,7 @@ define(['Ti/_', 'Ti/_/lang'], function(_, lang) {
 			lang.mixProps(proto, superclass);
 		}
 
+		proto.declaredClass = className;
 		lang.mixProps(proto, definition);
 		proto.__ctors__ = ctors;
 
@@ -99,7 +100,7 @@ define(['Ti/_', 'Ti/_/lang'], function(_, lang) {
 
 		ctor.prototype = proto;
 
-		className && lang.setObject(proto.declaredClass = className, ctor);
+		className && lang.setObject(className, ctor);
 
 		return ctor;
 	}
