@@ -31,6 +31,17 @@ description: |
     will exist as a key with the same name.
     
     See examples in <Titanium.Contacts> for more information.
+    
+    #### Tizen platform notes
+    
+    For read-only access to contacts, you must include the following privilege in your `tiapp.xml` file:
+    
+    * `http://tizen.org/privilege/contact.read`
+    
+    For read-write access to contacts, you must also include:
+    
+    * `http://tizen.org/privilege/contact.write`
+    
 extends: Titanium.Proxy
 since: "0.8"
 platforms: [android, iphone, ipad, tizen]

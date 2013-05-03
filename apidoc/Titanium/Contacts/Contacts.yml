@@ -35,7 +35,15 @@ events:
 methods:
   - name: createGroup
     summary: Creates and returns an instance of <Titanium.Contacts.Group>.
-    description: This method must be followed by <Titanium.Contacts.save> to commit its changes.
+    description: |
+        This method must be followed by <Titanium.Contacts.save> to commit its changes.
+        
+        To use this method on Tizen, you must include the following privileges in the `tiapp.xml` file 
+        of your Titanium application: 
+
+        * `http://tizen.org/privilege/contact.read`
+        * `http://tizen.org/privilege/contact.write`
+        
     returns:
         type: Titanium.Contacts.Group
     platforms: [iphone, ipad, tizen]
@@ -51,6 +59,13 @@ methods:
     summary: |
         Creates and returns an instance of <Titanium.Contacts.Person>, and commits all pending 
         changes to the underlying contacts database.
+    description: |
+        To use this method on Tizen, you must include the following privileges in the `tiapp.xml` file 
+        of your Titanium application: 
+
+        * `http://tizen.org/privilege/contact.read`
+        * `http://tizen.org/privilege/contact.write`
+        
     returns:
         type: Titanium.Contacts.Person
     platforms: [android, ipad, iphone, tizen]
@@ -65,6 +80,12 @@ methods:
     
   - name: getAllGroups
     summary: Gets all groups.
+    description: |
+        To use this method on Tizen, you must include the following privilege in the `tiapp.xml` file 
+        of your Titanium application: 
+
+        * `http://tizen.org/privilege/contact.read`
+        
     returns:
         type: Array<Titanium.Contacts.Group>
     platforms: [ipad, iphone, tizen]
@@ -81,6 +102,12 @@ methods:
     
   - name: getGroupByID
     summary: Gets the group with the specified identifier.
+    description: |
+        To use this method on Tizen, you must include the following privilege in the `tiapp.xml` file 
+        of your Titanium application: 
+
+        * `http://tizen.org/privilege/contact.read`
+        
     returns:
         type: Titanium.Contacts.Group
     platforms: [iphone, ipad, tizen]
@@ -93,9 +120,9 @@ methods:
     summary: |
         Gets people with a `firstName`, `middleName` or `lastName` field, or a combination 
         of these fields, that match the specified name.
-        
+    description: |
         On Tizen, use [Titanium.Contacts.Tizen.getPeopleWithName](Titanium.Contacts.Tizen.getPeopleWithName).
-    platforms: [android, iphone, ipad, tizen]
+    platforms: [android, iphone, ipad]
     returns:
         type: Array<Titanium.Contacts.Person>
     parameters:
@@ -105,6 +132,12 @@ methods:
         
   - name: getPersonByID
     summary: Gets the person with the specified identifier.
+    description: |
+        To use this method on Tizen, you must include the following privilege in the `tiapp.xml` file 
+        of your Titanium application: 
+
+        * `http://tizen.org/privilege/contact.read`
+        
     returns:
         type: Titanium.Contacts.Person
     parameters:
@@ -114,7 +147,15 @@ methods:
         
   - name: removeGroup
     summary: Removes a group from the address book.
-    description: This method must be followed by <Titanium.Contacts.save> to commit its changes.
+    description: |
+        This method must be followed by <Titanium.Contacts.save> to commit its changes.
+
+        To use this method on Tizen, you must include the following privileges in the `tiapp.xml` file 
+        of your Titanium application: 
+
+        * `http://tizen.org/privilege/contact.read`
+        * `http://tizen.org/privilege/contact.write`
+        
     platforms: [iphone, ipad, tizen]
     parameters:
       - name: group
@@ -137,6 +178,12 @@ methods:
         
         This method will remove the person from the Contacts book automatically. 
         
+        To use this method on Tizen, you must include the following privileges in the `tiapp.xml` file 
+        of your Titanium application: 
+
+        * `http://tizen.org/privilege/contact.read`
+        * `http://tizen.org/privilege/contact.write`
+        
     platforms: [android, iphone, ipad, tizen]
     since: {android: "2.1.0"}
     parameters:
@@ -150,6 +197,13 @@ methods:
     
   - name: save
     summary: Commits all pending changes to the underlying contacts database.
+    description: |
+        To use this method on Tizen, you must include the following privileges in the `tiapp.xml` file 
+        of your Titanium application:
+
+        * `http://tizen.org/privilege/contact.read`
+        * `http://tizen.org/privilege/contact.write`
+        
     platforms: [android, iphone, ipad, tizen]
     parameters:
       - name: contacts
@@ -165,6 +219,12 @@ methods:
         
   - name: showContacts
     summary: Displays a picker that allows a person to be selected.
+    description: |
+        To use this method on Tizen, you must include the following privilege in the `tiapp.xml` file 
+        of your Titanium application: 
+
+        * `http://tizen.org/privilege/contact.read`
+        
     parameters:
       - name: params
         summary: Argument containing parameters for this method. Optional on Android.
