@@ -43,7 +43,7 @@ define(['Ti/_', 'Ti/_/lang'], function(_, lang) {
 		lang.mixProps(proto, definition);
 		proto.__ctors__ = ctors;
 
-		ctor = new Function('con', 'return function ' + (className && className.replace(fnRegExp, '') || 'anonClass') + '(){con.apply(this,arguments);};')(function () {
+		ctor = new Function('con', 'return function ' + (className && className.replace(fnRegExp, '') || 'Anonymous') + 'Constructor(){con.apply(this,arguments);};')(function () {
 			var dc = this.declaredClass,
 				a = arguments,
 				a0 = a[0],
