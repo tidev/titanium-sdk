@@ -34,16 +34,16 @@ define(['Ti/_', 'Ti/_/lang'], function(_, lang) {
 		if (typeof superclass == 'function') {
 			tmp = superclass.prototype;
 			tmp.__ctors__ && (ctors = ctors.concat(tmp.__ctors__));
-			lang.mixProps(proto, tmp);
+			lang.mixProps(proto, tmp, 0, 1);
 		} else if (superclass && typeof superclass == 'object') {
-			lang.mixProps(proto, superclass);
+			lang.mixProps(proto, superclass, 0, 1);
 		}
 
 		proto.declaredClass = className;
 		lang.mixProps(proto, definition);
 		proto.__ctors__ = ctors;
 
-		ctor = new Function('con', 'return function ' + (className && className.replace(fnRegExp, '') || 'Anonymous') + 'Constructor(){con.apply(this,arguments);};')(function () {
+		ctor = new Function('con', 'return function ' + (className && className.replace(fnRegExp, '') || 'AnonymousClass') + '(){con.apply(this,arguments);};')(function () {
 			var dc = this.declaredClass,
 				a = arguments,
 				a0 = a[0],

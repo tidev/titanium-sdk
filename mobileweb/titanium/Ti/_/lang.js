@@ -53,33 +53,32 @@ define(['Ti/_/has'], function (has) {
 			return it !== void 0;
 		},
 
-		mixProps: function (dest, src, setDefaults) {
-			var prop, name, destDef, source,
+		mixProps: function (dest, src, setDefaults, copyDefs) {
+			var prop, propObj, name, destDef, destExists,
 				srcDef = src.__def__,
+				source = srcDef || src,
 				ignore = /^constructor|__values__|__def__|declaredClass$/,
 				special = { properties: 1, constants: 0 };
 
-			for (prop in src) {
-				if (src.hasOwnProperty(prop) && !ignore.test(prop)) {
+			// copyDefs is only true if declare() is mixing in a superclass
+			copyDefs && dest.__def__ || (dest.__def__ = {});
+
+			for (prop in source) {
+				if (source.hasOwnProperty(prop) && !ignore.test(prop)) {
 					// check if this prop is "properties" or "constants"
 					if (special.hasOwnProperty(prop)) {
-						// if the src has a __def__, then we want to use the src.__def__ version to
-						// get the original property descriptor
-						source = srcDef ? srcDef[prop] : src[prop];
-
-						// make sure the properties/constants destination exists
-						dest[prop] || (dest[prop] = {});
-
 						// this is where we store original source property's definition
-						dest.__def__ || (dest.__def__ = {});
 						destDef = dest.__def__[prop] || (dest.__def__[prop] = {});
 
 						// loop over each prop in the source
-						for (name in source) {
+						propObj = source[prop];
+						for (name in propObj) {
+							destExists = destDef.hasOwnProperty(name);
+
 							// don't copy props that already exist in the destination
-							if (!srcDef || !destDef.hasOwnProperty(name)) {
+							if (!srcDef || !destExists) {
 								// copy the original source property's definition
-								srcDef && (destDef[name] = srcDef[prop][name]);
+								destExists || (destDef[name] = propObj[name]);
 
 								// define and call the function that wires up the properties
 								(function (type, property, /* setter/getter, getter, or value */ descriptor, capitalizedName, writable) {
@@ -120,11 +119,12 @@ define(['Ti/_/has'], function (has) {
 										dest['get' + capitalizedName] = desc.get;
 										writable && (dest['set' + capitalizedName] = desc.set);
 									}
-								}(prop, name, source[name], name.substring(0, 1).toUpperCase() + name.substring(1), special[prop]));
+								}(prop, name, propObj[name], name.substring(0, 1).toUpperCase() + name.substring(1), special[prop]));
 							}
 						}
 					} else if (!srcDef || ((!srcDef.properties || !srcDef.properties.hasOwnProperty(prop)) && (!srcDef.constants || !srcDef.constants.hasOwnProperty(prop)))) {
-						dest[prop] = src[prop];
+						copyDefs && dest.__def__.hasOwnProperty(prop) || (dest.__def__[prop] = source[prop]);
+						dest[prop] = source[prop];
 					}
 				}
 			}
