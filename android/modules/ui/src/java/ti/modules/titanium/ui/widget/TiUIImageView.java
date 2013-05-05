@@ -91,15 +91,7 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 
 		Log.d(TAG, "Creating an ImageView", Log.DEBUG_MODE);
 
-		TiImageView view = new TiImageView(proxy.getActivity())
-		{
-			@Override
-			protected void onLayout(boolean changed, int left, int top, int right, int bottom)
-			{
-				super.onLayout(changed, left, top, right, bottom);
-				TiUIHelper.firePostLayoutEvent(proxy);
-			}
-		};
+		TiImageView view = new TiImageView(proxy.getActivity(), proxy);
 
 		downloadListener = new TiDownloadListener()
 		{
