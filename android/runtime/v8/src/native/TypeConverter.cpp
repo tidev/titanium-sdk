@@ -350,14 +350,13 @@ jshortArray TypeConverter::jsArrayToJavaShortArray(JNIEnv *env, v8::Handle<v8::A
 
 v8::Handle<v8::Array> TypeConverter::javaArrayToJsArray(jshortArray javaShortArray)
 {
-	return javaDoubleArrayToJsNumberArray((jdoubleArray) javaShortArray);
+	return javaShortArrayToJsNumberArray(javaShortArray);
 }
 
 v8::Handle<v8::Array> TypeConverter::javaArrayToJsArray(JNIEnv *env, jshortArray javaShortArray)
 {
-	return javaDoubleArrayToJsNumberArray(env, (jdoubleArray) javaShortArray);
+	return javaShortArrayToJsNumberArray(env, javaShortArray);
 }
-
 
 jintArray TypeConverter::jsArrayToJavaIntArray(v8::Handle<v8::Array> jsArray)
 {
@@ -905,7 +904,29 @@ v8::Handle<v8::Array> TypeConverter::javaFloatArrayToJsNumberArray(JNIEnv *env, 
 	for (int i = 0; i < arrayLength; i++) {
 		jsArray->Set((uint32_t) i, v8::Number::New(arrayElements[i]));
 	}
+	env->ReleaseFloatArrayElements(javaFloatArray, arrayElements, JNI_ABORT);
 	return jsArray;
 }
 
+v8::Handle<v8::Array> TypeConverter::javaShortArrayToJsNumberArray(jshortArray javaShortArray)
+{
+	JNIEnv *env = JNIScope::getEnv();
+	if (env == NULL) {
+		return v8::Handle<v8::Array>();
+	}
+	return TypeConverter::javaShortArrayToJsNumberArray(env, javaShortArray);
+}
+
+v8::Handle<v8::Array> TypeConverter::javaShortArrayToJsNumberArray(JNIEnv *env, jshortArray javaShortArray)
+{
+	int arrayLength = env->GetArrayLength(javaShortArray);
+	v8::Handle<v8::Array> jsArray = v8::Array::New(arrayLength);
+
+	jshort *arrayElements = env->GetShortArrayElements(javaShortArray, 0);
+	for (int i = 0; i < arrayLength; i++) {
+		jsArray->Set((uint32_t) i, v8::Number::New(arrayElements[i]));
+	}
+	env->ReleaseShortArrayElements(javaShortArray, arrayElements, JNI_ABORT);
+	return jsArray;
+}
 

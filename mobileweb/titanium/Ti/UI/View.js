@@ -12,7 +12,7 @@ define(['Ti/_/declare', 'Ti/_/UI/Element', 'Ti/_/string', 'Ti/_/Layouts', 'Ti/UI
 		},
 
 		/**
-		 * Marks a view as "published," meaning it will show up in {@link Ti#UI#View#children} and can be the source of
+		 * Marks a view as 'published,' meaning it will show up in {@link Ti#UI#View#children} and can be the source of
 		 * UI events.
 		 *
 		 * @private
@@ -25,7 +25,7 @@ define(['Ti/_/declare', 'Ti/_/UI/Element', 'Ti/_/string', 'Ti/_/Layouts', 'Ti/UI
 		},
 
 		/**
-		 * Marks a view as "unpublished," meaning it will <em>not</em> show up in {@link Ti#UI#View#children} and can
+		 * Marks a view as 'unpublished,' meaning it will <em>not</em> show up in {@link Ti#UI#View#children} and can
 		 * <em>not</em> be the source of UI events.
 		 *
 		 * @private

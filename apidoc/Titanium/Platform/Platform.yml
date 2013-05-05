@@ -3,6 +3,12 @@ name: Titanium.Platform
 summary: |
   The top-level Platform module.  The Platform module is used to access the device's platform-related 
   functionality.
+  
+  To use this API on Tizen, you must include the following privilege in the `tiapp.xml` 
+  file of your Titanium application: 
+
+  * `http://tizen.org/privilege/systeminfo`
+  
 extends: Titanium.Module
 since: "0.1"
 

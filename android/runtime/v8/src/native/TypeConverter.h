@@ -183,10 +183,12 @@ private:
 	static v8::Handle<v8::Array> javaDoubleArrayToJsNumberArray(jdoubleArray javaDoubleArray);
 	static v8::Handle<v8::Array> javaLongArrayToJsNumberArray(jlongArray javaLongArray);
 	static v8::Handle<v8::Array> javaFloatArrayToJsNumberArray(jfloatArray javaFloatArray);
+	static v8::Handle<v8::Array> javaShortArrayToJsNumberArray(jshortArray javaShortArray);
 
 	static v8::Handle<v8::Array> javaDoubleArrayToJsNumberArray(JNIEnv *env, jdoubleArray javaDoubleArray);
 	static v8::Handle<v8::Array> javaLongArrayToJsNumberArray(JNIEnv *env, jlongArray javaLongArray);
 	static v8::Handle<v8::Array> javaFloatArrayToJsNumberArray(JNIEnv *env, jfloatArray javaFloatArray);
+	static v8::Handle<v8::Array> javaShortArrayToJsNumberArray(JNIEnv *env, jshortArray javaShortArray);
 
 };
 }
