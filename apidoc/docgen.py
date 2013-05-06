@@ -163,8 +163,8 @@ def generate_output(options):
 		generator = getattr(generators, "%s_generator" % output_type)
 		generator.generate(apis, annotated_apis, options)
 
-def process_yaml(source_dirs):
-	global apis, options
+def process_yaml(source_dirs, options=None):
+	global apis
 	log.info("Parsing YAML files")
 	
 	if options and options.exclude_external and len(source_dirs) <= 1:
@@ -647,7 +647,7 @@ def main():
 
 	load_generators(options)
 	source_dirs = [ this_dir ] + args
-	process_yaml(source_dirs)
+	process_yaml(source_dirs, options)
 	finish_partial_overrides()
 	generate_output(options)
 
