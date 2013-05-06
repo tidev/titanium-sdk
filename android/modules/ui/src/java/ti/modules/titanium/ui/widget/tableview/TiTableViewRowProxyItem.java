@@ -299,6 +299,16 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 				rp.setProperty(TiC.PROPERTY_TOUCH_ENABLED, false);
 			}
 		}
+		// Check if this was a regular row and the control was removed
+		// if so, cleanup the views
+		if (views != null && views.size() > 0) {
+			TiUIView rv = views.get(0);
+			if (!(rv instanceof TiUILabel)) {
+				content.removeAllViews();
+				views.clear();
+				views = null;
+			}
+		}
 		if (views == null) {
 			views = new ArrayList<TiUIView>();
 			views.add(new TiUILabel(rp));

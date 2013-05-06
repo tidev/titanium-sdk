@@ -379,15 +379,16 @@ public abstract class TiUIView
 		if (animBuilder == null) {
 			animBuilder = new TiAnimationBuilder();
 		}
-		if (nativeView != null) {
+		View outerView = getOuterView();
+		if (outerView != null) {
 			if (matrix != null) {
 				TiMatrixAnimation matrixAnimation = animBuilder.createMatrixAnimation(matrix);
 				matrixAnimation.interpolate = false;
 				matrixAnimation.setDuration(1);
 				matrixAnimation.setFillAfter(true);
-				nativeView.startAnimation(matrixAnimation);
+				outerView.startAnimation(matrixAnimation);
 			} else {
-				nativeView.clearAnimation();
+				outerView.clearAnimation();
 			}
 		}
 	}
