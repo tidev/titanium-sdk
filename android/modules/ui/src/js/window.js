@@ -220,6 +220,7 @@ exports.bootstrapWindow = function(Titanium) {
 		if (this.isActivity) {
 			this.window = new ActivityWindow(this._properties);
 			this.view = this.window;
+			this.addChildren();
 			needsOpen = true;
 
 		} else {
@@ -242,9 +243,6 @@ exports.bootstrapWindow = function(Titanium) {
 
 		if (needsOpen) {
 			this.window.on("windowCreated", function () {
-				// Add children before the view is set
-				self.addChildren();
-				
 				self.postOpen();
 				self.fireEvent("open");
 			});
