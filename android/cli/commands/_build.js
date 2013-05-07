@@ -1,3 +1,5 @@
+
+
 /*
  * build.js: Titanium Android CLI build command
  *
@@ -239,14 +241,49 @@ exports.validate = function (logger, config, cli) {
 	
 	// Set defaults for target Emulator
 	if (cli.argv.target == 'emulator') {
-		if (isNaN(parseInt(cli.argv['avd-id']))) {
-			cli.argv['avd-id'] = 7;
-		}
 		if (!cli.argv['avd-skin']) {
 			cli.argv['avd-skin'] = 'HVGA';
 		}
+
+		var avdid = parseInt(cli.argv['avd-id']);
+
+		// double check and make sure that the avd-id passed (or the default)
+		// exists as an android target and if not, deal with it vs. bombing
+		if (!isNaN(avdid) || !androidEnv.targets || !androidEnv.targets[avdid]) {
+			var keys = Object.keys(androidEnv.targets || {}),
+				name;
+
+			avdid = 0;
+			for (var c = 0; c < keys.length; c++) {
+				var target = androidEnv.targets[keys[c]],
+					api = target['api-level'];
+
+				// search for the first api >7 (which is what titanium requires)
+				if (api > 7) {
+					avdid = keys[c];
+					name = target.name;
+					break;
+				}
+			}
+
+			if (avdid) {
+				// if we found a valid avd id, let's use it but warn the user
+				logger.warn(__('AVD id %s not found. Please use --avd-id to specify the correct version. Launching with the AVD id %s (%s).', cli.argv['avd-id'], avdid, name));
+				cli.argv['avd-id'] = avdid;
+			} else {
+				// if we couldn't find one
+				logger.error(__('AVD id %s not found. Please use --avd-id to specify the correct version.', cli.argv['avd-id']));
+				process.exit(1);
+			}
+		}
+
 		if (!cli.argv['avd-abi']) {
-			cli.argv['avd-abi'] = androidEnv.targets[cli.argv['avd-id']].abis[0] || androidEnv.targets['7'].abis[0] || 'armeabi';
+			// check to make sure exists
+			if (androidEnv.targets && androidEnv.targets[cli.argv['avd-id']]) {
+				cli.argv['avd-abi'] = androidEnv.targets[cli.argv['avd-id']].abis[0] || androidEnv.targets['7'].abis[0] || 'armeabi';
+			} else {
+				logger.warn(__('AVD id %s not found. Please use --avd-id to specify the correct version. Ignoring --avd-abi',cli.argv['avd-id']));
+			}
 		}
 	}
 	
