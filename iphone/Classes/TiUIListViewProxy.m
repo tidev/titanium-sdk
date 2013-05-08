@@ -402,6 +402,23 @@
 	}];
 }
 
+-(void)setContentInsets:(id)args
+{
+    id arg1;
+    id arg2;
+    if ([args isKindOfClass:[NSDictionary class]]) {
+        arg1 = args;
+        arg2 = [NSDictionary dictionary];
+    }
+    else {
+        arg1 = [args objectAtIndex:0];
+        arg2 = [args count] > 1 ? [args objectAtIndex:1] : [NSDictionary dictionary];
+    }
+    TiThreadPerformOnMainThread(^{
+        [self.listView setContentInsets_:arg1 withObject:arg2];
+    }, NO);
+}
+
 DEFINE_DEF_BOOL_PROP(willScrollOnStatusTap,YES);
 
 @end

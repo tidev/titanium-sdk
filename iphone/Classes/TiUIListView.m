@@ -125,7 +125,21 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     },NO);
 }
 
-#pragma mark - Public API
+-(void)setContentInsets_:(id)value withObject:(id)props
+{
+    UIEdgeInsets insets = [TiUtils contentInsets:value];
+    BOOL animated = [TiUtils boolValue:@"animated" properties:props def:NO];
+    void (^setInset)(void) = ^{
+        [_tableView setContentInset:insets];
+    };
+    if (animated) {
+        double duration = [TiUtils doubleValue:@"duration" properties:props def:300]/1000;
+        [UIView animateWithDuration:duration animations:setInset];
+    }
+    else {
+        setInset();
+    }
+}
 
 - (void)setTemplates_:(id)args
 {
@@ -136,6 +150,8 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 		[_tableView reloadData];
 	}
 }
+
+#pragma mark - Public API
 
 -(void)setCanScroll_:(id)args
 {
