@@ -108,6 +108,17 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 	}
 }
 
+-(void)setSeparatorStyle_:(id)arg
+{
+    [[self tableView] setSeparatorStyle:[TiUtils intValue:arg]];
+}
+
+-(void)setSeparatorColor_:(id)arg
+{
+    TiColor *color = [TiUtils colorValue:arg];
+    [[self tableView] setSeparatorColor:[color _color]];
+}
+
 #pragma mark - Public API
 
 - (void)setDefaultItemTemplate_:(id)args
