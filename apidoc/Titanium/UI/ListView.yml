@@ -55,11 +55,11 @@ description: |
     `ListItem` is analogous to `TableViewRow`.
 
     Both list view and table view present data to user as a vertically scrolling list of rows.
-    However, list view uses a data-oriented approach versus table view's view-oriented approach.
+    However, list view uses a data--oriented approach versus table view's view--oriented approach.
 
     ListView is designed for performance. One side effect of the design is that you cannot directly
     manipulate the views–add children, set view properties and bind event callbacks–as you can in
-    TableView. Instead, you interact with liste item indirectly, using templates and data items. The
+    TableView. Instead, you interact with list items indirectly, using templates and data items. The
     next subsection describes how to use list items.
 
     ##### ListItem versus TableViewRow
