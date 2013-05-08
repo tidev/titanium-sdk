@@ -32,6 +32,12 @@
     return self;
 }
 
+-(void)_initWithProperties:(NSDictionary *)properties
+{
+    [self initializeProperty:@"canScroll" defaultValue:NUMBOOL(YES)];
+    [super _initWithProperties:properties];
+}
+
 - (void)dealloc
 {
 	[_operationQueue release];

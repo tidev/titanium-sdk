@@ -137,6 +137,12 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 	}
 }
 
+-(void)setCanScroll_:(id)args
+{
+    UITableView *table = [self tableView];
+    [table setScrollEnabled:[TiUtils boolValue:args def:YES]];
+}
+
 -(void)setSeparatorStyle_:(id)arg
 {
     [[self tableView] setSeparatorStyle:[TiUtils intValue:arg]];
