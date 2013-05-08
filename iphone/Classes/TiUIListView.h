@@ -7,8 +7,9 @@
 #ifdef USE_TI_UILISTVIEW
 
 #import "TiUIView.h"
+#import "TiUIListViewProxy.h"
 
-@interface TiUIListView : TiUIView <UITableViewDelegate, UITableViewDataSource, UIGestureRecognizerDelegate, TiScrolling >
+@interface TiUIListView : TiUIView <UITableViewDelegate, UITableViewDataSource, UIGestureRecognizerDelegate, TiScrolling, TiProxyObserver >
 
 #pragma mark - Private APIs
 

@@ -7,7 +7,6 @@
 #ifdef USE_TI_UILISTVIEW
 
 #import "TiUIListView.h"
-#import "TiUIListViewProxy.h"
 #import "TiUIListSectionProxy.h"
 #import "TiUIListItem.h"
 #import "TiUIListItemProxy.h"
@@ -79,6 +78,18 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 	return _tableView;
 }
 
+-(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
+{
+    [super frameSizeChanged:frame bounds:bounds];
+    
+    if (_headerViewProxy != nil) {
+        [_headerViewProxy parentSizeWillChange];
+    }
+    if (_footerViewProxy != nil) {
+        [_footerViewProxy parentSizeWillChange];
+    }
+}
+
 - (id)accessibilityElement
 {
 	return self.tableView;
@@ -97,6 +108,24 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 		}];
 	}
 }
+
+-(void)proxyDidRelayout:(id)sender
+{
+    TiThreadPerformOnMainThread(^{
+        if ( (sender == _headerViewProxy) && (_headerViewProxy != nil) ) {
+            UIView* headerView = [[self tableView] tableHeaderView];
+            [headerView setFrame:[headerView bounds]];
+            [[self tableView] setTableHeaderView:headerView];
+        }
+        else if ( (sender == _footerViewProxy) && (_footerViewProxy != nil) ) {
+            UIView *footerView = [[self tableView] tableFooterView];
+            [footerView setFrame:[footerView bounds]];
+            [[self tableView] setTableFooterView:footerView];
+        }
+    },NO);
+}
+
+#pragma mark - Public API
 
 - (void)setTemplates_:(id)args
 {
@@ -118,8 +147,6 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     TiColor *color = [TiUtils colorValue:arg];
     [[self tableView] setSeparatorColor:[color _color]];
 }
-
-#pragma mark - Public API
 
 - (void)setDefaultItemTemplate_:(id)args
 {
@@ -152,8 +179,10 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 - (void)setHeaderTitle_:(id)args
 {
     if (_headerViewProxy != nil) {
+        [_headerViewProxy windowWillClose];
         [_headerViewProxy setProxyObserver:nil];
         [[self proxy] forgetProxy:_headerViewProxy];
+        [_headerViewProxy windowDidClose];
         _headerViewProxy = nil;
     }
 	[self.proxy replaceValue:args forKey:@"headerTitle" notification:NO];
@@ -163,12 +192,81 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 - (void)setFooterTitle_:(id)args
 {
     if (_footerViewProxy != nil) {
+        [_footerViewProxy windowWillClose];
         [_footerViewProxy setProxyObserver:nil];
         [[self proxy] forgetProxy:_footerViewProxy];
+        [_footerViewProxy windowDidClose];
         _footerViewProxy = nil;
     }
 	[self.proxy replaceValue:args forKey:@"footerTitle" notification:NO];
 	[self.tableView setTableFooterView:[[self class] titleViewForText:[TiUtils stringValue:args] inTable:self.tableView footer:YES]];
+}
+
+-(void)setHeaderView_:(id)args
+{
+    ENSURE_SINGLE_ARG_OR_NIL(args,TiViewProxy);
+    if (args!=nil) {
+        TiUIView *view = (TiUIView*) [args view];
+        UITableView *table = [self tableView];
+        [table setTableHeaderView:view];
+        if (_headerViewProxy != nil) {
+            [_headerViewProxy windowWillClose];
+            [_headerViewProxy setProxyObserver:nil];
+            [[self proxy] forgetProxy:_headerViewProxy];
+            [_headerViewProxy windowDidClose];
+        }
+        _headerViewProxy = args;
+        [_headerViewProxy setProxyObserver:self];
+        [[self proxy] rememberProxy:_headerViewProxy];
+        [_headerViewProxy windowWillOpen];
+        _headerViewProxy.parentVisible = YES;
+        [_headerViewProxy refreshSize];
+        [_headerViewProxy willChangeSize];
+        [_headerViewProxy windowDidOpen];
+    }
+    else {
+        if (_headerViewProxy != nil) {
+            [_headerViewProxy windowWillClose];
+            [_headerViewProxy setProxyObserver:nil];
+            [[self proxy] forgetProxy:_headerViewProxy];
+            [_headerViewProxy windowDidClose];
+            _headerViewProxy = nil;
+        }
+        [[self tableView] setTableHeaderView:nil];
+    }
+}
+
+-(void)setFooterView_:(id)args
+{
+    ENSURE_SINGLE_ARG_OR_NIL(args,TiViewProxy);
+    if (args!=nil) {
+        UIView *view = [args view];
+        [[self tableView] setTableFooterView:view];
+        if (_footerViewProxy != nil) {
+            [_footerViewProxy windowWillClose];
+            [_footerViewProxy setProxyObserver:nil];
+            [[self proxy] forgetProxy:_footerViewProxy];
+            [_footerViewProxy windowDidClose];
+        }
+        _footerViewProxy = args;
+        [_footerViewProxy setProxyObserver:self];
+        [[self proxy] rememberProxy:_footerViewProxy];
+        [_footerViewProxy windowWillOpen];
+        _footerViewProxy.parentVisible = YES;
+        [_footerViewProxy refreshSize];
+        [_footerViewProxy willChangeSize];
+        [_footerViewProxy windowDidOpen];
+    }
+    else {
+        if (_footerViewProxy != nil) {
+            [_footerViewProxy windowWillClose];
+            [_footerViewProxy setProxyObserver:nil];
+            [[self proxy] forgetProxy:_footerViewProxy];
+            [_footerViewProxy windowDidClose];
+            _footerViewProxy = nil;
+        }
+        [[self tableView] setTableFooterView:nil];
+    }
 }
 
 - (void)setScrollIndicatorStyle_:(id)value
