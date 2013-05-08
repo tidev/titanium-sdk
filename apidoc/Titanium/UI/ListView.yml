@@ -13,14 +13,14 @@ description: |
     are implemented in this version.  A complete list of implemented features is schedule for
     the next list version, which is planned for Release 3.2.0.
 
-    For more instructions and examples of using ListView, refer to the
+    For more instructions and examples of using `ListView`, refer to the
     [ListViews guide](http://docs.appcelerator.com/titanium/latest/#!/guide/ListViews)
 
     #### Creating a List
 
-    To create a list, pass an array of <ListDataItem> objects to the ListSection's
+    To create a list, pass an array of <ListDataItem> objects to the list section's
     [items](Titanium.UI.ListSection.items) property, which creates and adds each array
-    element as a row to a single [ListSection](Titanium.UI.ListSection). Use the ListView's
+    element as a row to a single [ListSection](Titanium.UI.ListSection). Use the list view's
     [sections](Titanium.UI.ListView.sections) property to add the section(s) to the list view.
 
     By default, only the `image`, `title` and `accessoryType` of a list data item
@@ -57,19 +57,19 @@ description: |
     Both list view and table view present data to user as a vertically scrolling list of rows.
     However, list view uses a data--oriented approach versus table view's view--oriented approach.
 
-    ListView is designed for performance. One side effect of the design is that you cannot directly
+    List view is designed for performance. One side effect of the design is that you cannot directly
     manipulate the views–add children, set view properties and bind event callbacks–as you can in
-    TableView. Instead, you interact with list items indirectly, using templates and data items. The
+    `TableView`. Instead, you interact with list items indirectly, using templates and data items. The
     next subsection describes how to use list items.
 
     ##### ListItem versus TableViewRow
 
-    With TableView, you can directly add rows to a table view using the data property and its accessors.
-    With TableViewRows, you can directly create a row using the `Ti.UI.createTableViewRow` and customize
+    With `TableView`, you can directly add rows to a table view using the data property and its accessors.
+    With `TableViewRows`, you can directly create a row using the `Ti.UI.createTableViewRow` and customize
     its styling by setting its view properties. You can add view subcomponents to the row using the add
     method.
 
-    With ListView, you need to explicitly create a `ListSection` in order to add a `ListItem` to a `ListView`.
+    With `ListView`, you need to explicitly create a `ListSection` in order to add a `ListItem` to a `ListView`.
     You cannot directly add a `ListItem` to a `ListView`.
     In a `TableView`, a `TableViewRow` can be directly added to a `TableView` because a
     `TableViewSection` is implicitly created and added to the `TableView`.
@@ -91,40 +91,40 @@ description: |
     The differences listed are for the final planned list view and the current table view in Release 3.1.0.
 
     - **TableViewRow properties**: The following properties and their accessors are not
-      available for ListItem: `accessibilityLabel`, `className`, `editable`, `hasCheck`,
+      available for `ListItem`: `accessibilityLabel`, `className`, `editable`, `hasCheck`,
       `hasChild`, `hasDetail`, `leftImage`, `moveable` and `rightImage`.
 
         - For `hasCheck`, `hasChild`, and `hasDetail`, use the `accessoryType` property.
         - For `leftImage` and `rightImage`, use the `image` property or create a custom item template.
 
-    - **TableViewRow methods**: ListItem does not support any methods. Adding views and binding
+    - **TableViewRow methods**: `ListItem` does not support any methods. Adding views and binding
       event callbacks are supported through the item template.
 
     - **TableViewSection properties**: The following properties and their accessors are not
-      supported by ListSection: `rows` and `rowCount`.
+      supported by `ListSection`: `rows` and `rowCount`.
 
         - For `rows`, use the `items` property.
         - For `rowCount`, use the `itemCount` property. (Not yet implemented.)
 
-    - **TableViewSection methods**: The following methods are not supported by ListSection:
+    - **TableViewSection methods**: The following methods are not supported by `ListSection`:
       `add`, `remove` and `rowAtIndex`.
 
         - For `rowAtIndex`, use the `getItemAt` method.
-        - For `add` and `remove`, use the other ListSection methods to manipulate the ListItems in the
-          ListSection.
+        - For `add` and `remove`, use the other `ListSection` methods to manipulate the `ListItem`
+          objects in the `ListSection`.
 
     - **TableView properties**: The `data` property and its accessors are not available
-      for ListView. Use the `sections` property to set the ListSections for a ListView.  You
-      cannot directly add ListItems to a ListView.
+      for `ListView`. Use the `sections` property to set the `ListSections` for a `ListView`.  You
+      cannot directly add `ListItem` objects to a `ListView`.
 
-    - **TableView methods**: The following methods are not available to ListView:
+    - **TableView methods**: The following methods are not available to `ListView`:
       `appendRow`, `deleteRow`, `deselectRow`, `insertRowAfter`, `insertRowBefore`, `selectRow`,
       `updateRow`, `scrollToIndex` and `selectRow`.
 
         - For `scrollToIndex`, use the `scrollToItem` method.
         - For `selectRow`, use the `selectItem` method. (Currently implemented only for iOS.)
-        - For all other row methods, you cannot manipulate ListItems with a ListView.
-          You have to manipulate them with the ListSection they are contained in.
+        - For all other row methods, you cannot manipulate `ListItems` with a `ListView`.
+          You have to manipulate them with the `ListSection` they are contained in.
 
     - **To be implemented in V2**:
 
@@ -144,7 +144,7 @@ description: |
     in a window that is configured with
     [SOFT_INPUT_ADJUST_PAN](Titanium.UI.Android.SOFT_INPUT_ADJUST_PAN), it is expected for the 
     text field to automatically move to a visible position after it is focused and the software
-    keyboard displayed. However, due to a known problem caused by native Android's ListView behavior,
+    keyboard displayed. However, due to a known problem caused by native Android's `ListView` behavior,
     the keyboard is likely to completely obscure the text field.
 
     To mitigate this, a `ScrollView` may be used instead of a list view, as demonstrated in the
