@@ -1088,9 +1088,11 @@ build.prototype = {
 					}
 				});
 			});
-			// Remove any unnecessary splash screen images
-			// Call this here to ensure it is called every time during the build process 
-			this.verifySplashScreens();
+			if (!this.cli.argv.xcode) {
+				// Remove any unnecessary splash screen images
+				// Call it here if only if there is no xcode-prepare phase.
+				this.verifySplashScreens();
+			}
 		}.bind(this));
 	},
 
