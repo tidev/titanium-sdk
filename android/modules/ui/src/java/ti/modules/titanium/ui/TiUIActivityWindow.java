@@ -145,6 +145,11 @@ public class TiUIActivityWindow extends TiUIView
 		windowActivity = activity;
 		proxy.setActivity(activity);
 		bindProxies();
+
+		// Add children before the activity finishes creating, so the window background color won't show up
+		// before the children are displayed. (TIMOB-7584)
+		proxy.realizeViews(this);
+
 		proxy.fireSyncEvent("windowCreated", null);
 	}
 
