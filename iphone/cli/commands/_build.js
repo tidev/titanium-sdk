@@ -1088,6 +1088,9 @@ build.prototype = {
 					}
 				});
 			});
+			// Remove any unnecessary splash screen images
+			// Call this here to ensure it is called every time during the build process 
+			this.verifySplashScreens();
 		}.bind(this));
 	},
 
@@ -1960,6 +1963,27 @@ build.prototype = {
 		);
 	},
 
+	verifySplashScreens: function () {
+		if (this.deviceFamily == 'iphone') {
+			['Default-Landscape.png',
+			'Default-Landscape@2x.png',
+			'Default-Portrait.png',
+			'Default-Portrait@2x.png',
+			'Default-LandscapeLeft.png',
+			'Default-LandscapeLeft@2x.png',
+			'Default-LandscapeRight.png',
+			'Default-LandscapeRight@2x.png',
+			'Default-PortraitUpsideDown.png',
+			'Default-PortraitUpsideDown@2x.png'].forEach(function (splashImage) {
+				var filePath = path.join(this.xcodeAppDir, splashImage);
+				if(afs.exists(filePath)) {
+					this.logger.debug(__('Removing File %s,', splashImage.cyan));
+					fs.unlinkSync(filePath);
+				}
+			}, this);
+		}
+	},
+
 	copyLocalizedSplashScreens: function () {
 		ti.i18n.splashScreens(this.projectDir, this.logger).forEach(function (splashImage) {
 			var token = splashImage.split('/'),
@@ -2738,6 +2762,8 @@ build.prototype = {
 				next();
 			}
 		], function () {
+			// TODO: We should not need to call this here, but it seems some where in xcode-prepare phase resources are getting copied over again.
+			this.verifySplashScreens(); 
 			// localize the splash screen after the resources files have been copied
 			this.copyLocalizedSplashScreens();
 
