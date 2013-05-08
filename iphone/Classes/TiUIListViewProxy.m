@@ -376,6 +376,26 @@
 	}];
 }
 
+- (void)deselectItem:(id)args
+{
+	ENSURE_ARG_COUNT(args, 2);
+	NSUInteger sectionIndex = [TiUtils intValue:[args objectAtIndex:0]];
+	NSUInteger itemIndex = [TiUtils intValue:[args objectAtIndex:1]];
+	[self dispatchUpdateAction:^(UITableView *tableView) {
+		if ([_sections count] <= sectionIndex) {
+			DebugLog(@"[WARN] ListView: Select section index is out of range");
+			return;
+		}
+		TiUIListSectionProxy *section = [_sections objectAtIndex:sectionIndex];
+		if (section.itemCount <= itemIndex) {
+			DebugLog(@"[WARN] ListView: Select item index is out of range");
+			return;
+		}
+		NSIndexPath *indexPath = [NSIndexPath indexPathForRow:itemIndex inSection:sectionIndex];
+		[tableView deselectRowAtIndexPath:indexPath animated:YES];
+	}];
+}
+
 DEFINE_DEF_BOOL_PROP(willScrollOnStatusTap,YES);
 
 @end
