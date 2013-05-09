@@ -697,14 +697,14 @@ DEFINE_EXCEPTIONS
     //a full layout of this view and associated views in the animation block.
     if ([self.proxy isKindOfClass:[TiViewProxy class]] && [(TiViewProxy*)self.proxy willBeRelaying]) {
 		DebugLog(@"[DEBUG] Ti.View.animate() called while view waiting to relayout: Will re-attempt", self);
-		if (animationDelayGuard++ > 3) {
+		if (animationDelayGuardForLayout++ > 3) {
             DebugLog(@"[DEBUG] Animation guard triggered, exceeded timeout for layout to occur. Continuing.");
         } else {
             [self performSelector:@selector(animate:) withObject:newAnimation afterDelay:0.02];
             return;
         }
     }
-    animationDelayGuard = 0;    
+    animationDelayGuardForLayout = 0;    
 
 	if (newAnimation != nil)
 	{
