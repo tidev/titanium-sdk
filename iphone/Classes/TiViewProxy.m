@@ -1349,7 +1349,7 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap,horizontalWrap,horizontalWrap,[self willCha
 	{
 		destroyLock = [[NSRecursiveLock alloc] init];
 		pthread_rwlock_init(&childrenLock, NULL);
-		bubbleParent = YES;
+		_bubbleParent = YES;
 	}
 	return self;
 }
