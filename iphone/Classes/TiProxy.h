@@ -100,7 +100,7 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
  */
 @interface TiProxy : NSObject<KrollTargetable> {
 @public
-	BOOL bubbleParent;
+	BOOL _bubbleParent;
 
 @private
 	NSMutableDictionary *listeners;
@@ -225,7 +225,8 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
  is the type that has a parent to bubble to (This is primairly views, but may
  have some exceptions).
  */
-@property(nonatomic,readwrite,assign) BOOL bubbleParent;
+-(NSNumber*)bubbleParent;
+-(void)setBubbleParent:(id)arg;
 
 #pragma mark Utility
 -(KrollObject *)krollObjectForContext:(KrollContext *)context;
