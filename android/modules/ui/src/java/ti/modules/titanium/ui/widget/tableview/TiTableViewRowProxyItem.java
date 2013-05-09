@@ -306,7 +306,7 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 		TiUILabel t = (TiUILabel) views.get(0);
 		t.setProxy(rp);
 		t.processProperties(filterProperties(rp.getProperties()));
-		View v = t.getNativeView();
+		View v = t.getOuterView();
 		if (v.getParent() == null) {
 			TiCompositeLayout.LayoutParams params = (TiCompositeLayout.LayoutParams) t.getLayoutParams();
 			params.optionLeft = new TiDimension(5, TiDimension.TYPE_LEFT);
