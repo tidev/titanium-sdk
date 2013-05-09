@@ -351,7 +351,6 @@
 	TiAnimation * newAnimation = [TiAnimation animationFromArg:arg context:[self executionContext] create:NO];
 	[self rememberProxy:newAnimation];
 	TiThreadPerformOnMainThread(^{
-		[parent contentsWillChange];
 		if ([view superview]==nil)
 		{
 			VerboseLog(@"Entering animation without a superview Parent is %@, props are %@",parent,dynprops);
