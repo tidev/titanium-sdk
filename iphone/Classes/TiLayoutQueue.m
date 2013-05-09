@@ -11,6 +11,7 @@
 #import <pthread.h>
 
 #define LAYOUT_TIMER_INTERVAL	0.05
+#define LAYOUT_START_INTERVAL	0.01
 
 
 NSMutableArray * layoutArray = nil;
@@ -91,7 +92,7 @@ void performLayoutRefresh(CFRunLoopTimerRef timer, void *info)
 	if (layoutTimer == NULL)
 	{
 		layoutTimer = CFRunLoopTimerCreate(NULL,
-				CFAbsoluteTimeGetCurrent()+LAYOUT_TIMER_INTERVAL,
+				CFAbsoluteTimeGetCurrent()+LAYOUT_START_INTERVAL,
 				LAYOUT_TIMER_INTERVAL,
 				0, 0, performLayoutRefresh, NULL);
 		CFRunLoopAddTimer(CFRunLoopGetMain(), layoutTimer, kCFRunLoopCommonModes);
