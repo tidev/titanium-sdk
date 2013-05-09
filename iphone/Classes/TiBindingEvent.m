@@ -115,7 +115,7 @@ TiProxy * TiBindingEventNextBubbleTargetProxy(TiBindingEvent event, TiProxy * cu
 {
 	while (![currentTarget _hasListeners:event->eventString] || parentOnly)
 	{
-		if (![currentTarget bubbleParent] || !event->bubbles || event->cancelBubble)
+		if (!currentTarget->_bubbleParent || !event->bubbles || event->cancelBubble)
 		{ //If currentTarget is nil, this triggers as well.
 			return nil;
 		}
