@@ -62,6 +62,9 @@
 	[_dataItem release];
 	[_proxy release];
 	[_bindings release];
+	[gradientLayer release];
+	[backgroundGradient release];
+	[selectedBackgroundGradient release];
 	[super dealloc];
 }
 
@@ -89,6 +92,96 @@
 		// prevent any crashes that could be caused by unsupported layouts
 		_proxy.layoutProperties->layoutStyle = TiLayoutRuleAbsolute;
 		[_proxy layoutChildren:NO];
+	}
+}
+
+#pragma mark - Gradient Support 
+-(BOOL) selectedOrHighlighted
+{
+	return [self isSelected] || [self isHighlighted];
+}
+
+-(void) updateGradientLayer:(BOOL)useSelected withAnimation:(BOOL)animated
+{
+	TiGradient * currentGradient = useSelected?selectedBackgroundGradient:backgroundGradient;
+    
+	if(currentGradient == nil)
+	{
+		[gradientLayer removeFromSuperlayer];
+		//Because there's the chance that the other state still has the gradient, let's keep it around.
+		return;
+	}
+    
+	CALayer * ourLayer = [self layer];
+	
+	if(gradientLayer == nil)
+	{
+		gradientLayer = [[TiGradientLayer alloc] init];
+		[gradientLayer setNeedsDisplayOnBoundsChange:YES];
+		[gradientLayer setFrame:[self bounds]];
+	}
+    
+	[gradientLayer setGradient:currentGradient];
+	if([gradientLayer superlayer] != ourLayer)
+	{
+        CALayer* contentLayer = [[self contentView] layer];
+		[ourLayer insertSublayer:gradientLayer below:contentLayer];
+        
+        // If we're working with a row that just has a label drawn on it, we need to
+        // set the background color of the label explicitly
+        if ([[self textLabel] text] != nil) {
+            [[self textLabel] setBackgroundColor:[UIColor clearColor]];
+        }
+	}
+    if (animated) {
+        CABasicAnimation *flash = [CABasicAnimation animationWithKeyPath:@"opacity"];
+        flash.fromValue = [NSNumber numberWithFloat:0.0];
+        flash.toValue = [NSNumber numberWithFloat:1.0];
+        flash.duration = 1.0;
+        [gradientLayer addAnimation:flash forKey:@"flashAnimation"];
+    }
+	[gradientLayer setNeedsDisplay];
+}
+
+-(void)setSelected:(BOOL)yn animated:(BOOL)animated
+{
+    [super setSelected:yn animated:animated];
+    [self updateGradientLayer:yn|[self isHighlighted] withAnimation:animated];
+}
+
+-(void)setHighlighted:(BOOL)yn animated:(BOOL)animated
+{
+    [super setHighlighted:yn animated:animated];
+    [self updateGradientLayer:yn|[self isSelected] withAnimation:animated];
+}
+
+-(void) setBackgroundGradient_:(TiGradient *)newGradient
+{
+	if(newGradient == backgroundGradient)
+	{
+		return;
+	}
+	[backgroundGradient release];
+	backgroundGradient = [newGradient retain];
+	
+	if(![self selectedOrHighlighted])
+	{
+		[self updateGradientLayer:NO withAnimation:NO];
+	}
+}
+
+-(void) setSelectedBackgroundGradient_:(TiGradient *)newGradient
+{
+	if(newGradient == selectedBackgroundGradient)
+	{
+		return;
+	}
+	[selectedBackgroundGradient release];
+	selectedBackgroundGradient = [newGradient retain];
+	
+	if([self selectedOrHighlighted])
+	{
+		[self updateGradientLayer:YES withAnimation:NO];
 	}
 }
 

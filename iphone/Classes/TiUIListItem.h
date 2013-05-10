@@ -15,6 +15,11 @@ enum {
 };
 
 @interface TiUIListItem : UITableViewCell
+{
+	TiGradientLayer * gradientLayer;
+	TiGradient * backgroundGradient;
+	TiGradient * selectedBackgroundGradient;
+}
 
 @property (nonatomic, readonly) NSInteger templateStyle;
 @property (nonatomic, readonly) TiUIListItemProxy *proxy;
