@@ -107,11 +107,13 @@ public class TiUIWebView extends TiUIView
 				}
 			}
 			
+			boolean swipeHandled = detector.onTouchEvent(ev);
+			
 			// Don't return here -- must call super.onTouchEvent()
 			
 			boolean superHandled = super.onTouchEvent(ev);
 			
-			return (superHandled || handled);
+			return (superHandled || handled || swipeHandled);
 		}
 
 		@SuppressWarnings("deprecation")
