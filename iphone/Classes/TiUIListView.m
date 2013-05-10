@@ -151,6 +151,32 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 	}
 }
 
+-(TiUIView*)sectionView:(NSInteger)section forLocation:(NSString*)location section:(TiUIListSectionProxy**)sectionResult
+{
+    TiUIListSectionProxy *proxy = [self.listViewProxy sectionForIndex:section];
+    //In the event that proxy is nil, this all flows out to returning nil safely anyways.
+    if (sectionResult!=nil) {
+        *sectionResult = proxy;
+    }
+    TiViewProxy* viewproxy = [proxy valueForKey:location];
+    if (viewproxy!=nil && [viewproxy isKindOfClass:[TiViewProxy class]]) {
+        LayoutConstraint *viewLayout = [viewproxy layoutProperties];
+        //If height is not dip, explicitly set it to SIZE
+        if (viewLayout->height.type != TiDimensionTypeDip) {
+            viewLayout->height = TiDimensionAutoSize;
+        }
+        
+        TiUIView* theView = [viewproxy view];
+        if (![viewproxy viewAttached]) {
+            [viewproxy windowWillOpen];
+            [viewproxy willShow];
+            [viewproxy windowDidOpen];
+        }
+        return theView;
+    }
+    return nil;
+}
+
 #pragma mark - Public API
 
 -(void)setCanScroll_:(id)args
@@ -372,6 +398,111 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 }
 
 #pragma mark - UITableViewDelegate
+
+- (UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section
+{
+    return [self sectionView:section forLocation:@"headerView" section:nil];
+}
+
+- (UIView *)tableView:(UITableView *)tableView viewForFooterInSection:(NSInteger)section
+{
+    return [self sectionView:section forLocation:@"footerView" section:nil];
+}
+
+#define DEFAULT_SECTION_HEADERFOOTER_HEIGHT 20.0
+
+- (CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section
+{
+    TiUIListSectionProxy *sectionProxy = [self.listViewProxy sectionForIndex:section];
+    TiUIView *view = [self sectionView:section forLocation:@"headerView" section:nil];
+	
+    CGFloat size = 0.0;
+    if (view!=nil) {
+        TiViewProxy* viewProxy = (TiViewProxy*) [view proxy];
+        LayoutConstraint *viewLayout = [viewProxy layoutProperties];
+        switch (viewLayout->height.type)
+        {
+            case TiDimensionTypeDip:
+                size += viewLayout->height.value;
+                break;
+            case TiDimensionTypeAuto:
+            case TiDimensionTypeAutoSize:
+                size += [viewProxy autoHeightForSize:[self.tableView bounds].size];
+                break;
+            default:
+                size+=DEFAULT_SECTION_HEADERFOOTER_HEIGHT;
+                break;
+        }
+    }
+    /*
+     * This behavior is slightly more complex between iOS 4 and iOS 5 than you might believe, and Apple's
+     * documentation is once again misleading. It states that in iOS 4 this value was "ignored if
+     * -[delegate tableView:viewForHeaderInSection:] returned nil" but apparently a non-nil value for
+     * -[delegate tableView:titleForHeaderInSection:] is considered a valid value for height handling as well,
+     * provided it is NOT the empty string.
+     *
+     * So for parity with iOS 4, iOS 5 must similarly treat the empty string header as a 'nil' value and
+     * return a 0.0 height that is overridden by the system.
+     */
+    else if ([sectionProxy headerTitle]!=nil) {
+        if ([TiUtils isIOS5OrGreater] && [[sectionProxy headerTitle] isEqualToString:@""]) {
+            return size;
+        }
+        size+=[tableView sectionHeaderHeight];
+        
+        if (size < DEFAULT_SECTION_HEADERFOOTER_HEIGHT) {
+            size += DEFAULT_SECTION_HEADERFOOTER_HEIGHT;
+        }
+    }
+    return size;
+}
+
+- (CGFloat)tableView:(UITableView *)tableView heightForFooterInSection:(NSInteger)section
+{
+    TiUIListSectionProxy *sectionProxy = [self.listViewProxy sectionForIndex:section];
+    TiUIView *view = [self sectionView:section forLocation:@"footerView" section:nil];
+	
+    CGFloat size = 0.0;
+    if (view!=nil) {
+        TiViewProxy* viewProxy = (TiViewProxy*) [view proxy];
+        LayoutConstraint *viewLayout = [viewProxy layoutProperties];
+        switch (viewLayout->height.type)
+        {
+            case TiDimensionTypeDip:
+                size += viewLayout->height.value;
+                break;
+            case TiDimensionTypeAuto:
+            case TiDimensionTypeAutoSize:
+                size += [viewProxy autoHeightForSize:[self.tableView bounds].size];
+                break;
+            default:
+                size+=DEFAULT_SECTION_HEADERFOOTER_HEIGHT;
+                break;
+        }
+    }
+    /*
+     * This behavior is slightly more complex between iOS 4 and iOS 5 than you might believe, and Apple's
+     * documentation is once again misleading. It states that in iOS 4 this value was "ignored if
+     * -[delegate tableView:viewForHeaderInSection:] returned nil" but apparently a non-nil value for
+     * -[delegate tableView:titleForHeaderInSection:] is considered a valid value for height handling as well,
+     * provided it is NOT the empty string.
+     *
+     * So for parity with iOS 4, iOS 5 must similarly treat the empty string header as a 'nil' value and
+     * return a 0.0 height that is overridden by the system.
+     */
+    else if ([sectionProxy headerTitle]!=nil) {
+        if ([TiUtils isIOS5OrGreater] && [[sectionProxy headerTitle] isEqualToString:@""]) {
+            return size;
+        }
+        size+=[tableView sectionFooterHeight];
+        
+        if (size < DEFAULT_SECTION_HEADERFOOTER_HEIGHT) {
+            size += DEFAULT_SECTION_HEADERFOOTER_HEIGHT;
+        }
+    }
+    return size;
+}
+
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
 {
