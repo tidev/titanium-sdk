@@ -55,6 +55,22 @@ void performLayoutRefresh(CFRunLoopTimerRef timer, void *info)
 	pthread_mutex_init(&layoutMutex, NULL);
 }
 
++(void)resetQueue
+{
+	pthread_mutex_lock(&layoutMutex);
+	[layoutArray release];
+	layoutArray = nil;
+	
+	if (layoutTimer != NULL)
+	{
+		CFRunLoopTimerInvalidate(layoutTimer);
+		CFRelease(layoutTimer);
+		layoutTimer = NULL;
+	}
+	
+	pthread_mutex_unlock(&layoutMutex);
+}
+
 +(void)layoutProxy:(TiViewProxy*)thisProxy
 {
     if ([thisProxy viewAttached]) {
