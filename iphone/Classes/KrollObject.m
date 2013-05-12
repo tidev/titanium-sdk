@@ -894,7 +894,7 @@ bool KrollHasInstance(TiContextRef ctx, TiObjectRef constructor, TiValueRef poss
 			return;
 		}
 		selector = NSSelectorFromString([NSString stringWithFormat:@"set%@:",name]);
-		if ([target respondsToSelector:selector] && ![name isEqualToString:@"ZIndex"] && ![name isEqualToString:@"BubbleParent"])//TODO: Quick hack is quick.
+		if ([target respondsToSelector:selector] && ![name isEqualToString:@"ZIndex"])//TODO: Quick hack is quick.
 		{
 			[target performSelector:selector withObject:value];
 		}

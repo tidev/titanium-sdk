@@ -1,3 +1,5 @@
+
+
 /*
  * build.js: Titanium Android CLI build command
  *
@@ -78,8 +80,7 @@ exports.config = function (logger, config, cli) {
 						'avd-id': {
 							abbr: 'I',
 							desc: __('the id for the avd'),
-							hint: __('id'),
-							default: 7
+							hint: __('id')
 						},
 						/*
 						'avd-name': {
@@ -239,14 +240,63 @@ exports.validate = function (logger, config, cli) {
 	
 	// Set defaults for target Emulator
 	if (cli.argv.target == 'emulator') {
-		if (isNaN(parseInt(cli.argv['avd-id']))) {
-			cli.argv['avd-id'] = 7;
+		var avdid = parseInt(cli.argv['avd-id']);
+
+		// double check and make sure that the avd-id passed (or the default)
+		// exists as an android target and if not, deal with it vs. bombing
+		if (isNaN(avdid) || !androidEnv.targets || !androidEnv.targets[avdid]) {
+			var keys = Object.keys(androidEnv.targets || {}),
+				name,
+				skins;
+
+			avdid = 0;
+			for (var c = 0; c < keys.length; c++) {
+				var target = androidEnv.targets[keys[c]],
+					api = target['api-level'];
+
+				// search for the first api > 10 (Android 2.3.3) which is what titanium requires
+				if (api >= 10) {
+					avdid = keys[c];
+					name = target.name;
+					skins = target.skins;
+					break;
+				}
+			}
+
+			if (avdid) {
+				// if we found a valid avd id, let's use it but warn the user
+				if (cli.argv['avd-id']) {
+					logger.warn(__('AVD ID %s not found. Launching with the AVD ID %s%s.',
+						(''+cli.argv['avd-id']).cyan, (''+avdid).cyan, name ? ' (' + name + ')' : ''));
+				} else {
+					logger.warn(__('No AVD ID specified. Launching with the AVD ID %s%s.',
+						(''+avdid).cyan, name ? ' (' + name + ')' : ''));
+				}
+				cli.argv['avd-id'] = avdid;
+				var s = skins.length && skins[skins.length - 1];
+				if (s && skins && skins.indexOf(cli.argv['avd-skin']) == -1) {
+					logger.warn(__('AVD ID %s does not support skin %s. Launching with the AVD skin %s.',
+						avdid, (''+cli.argv['avd-skin']).cyan, (''+s).cyan));
+					cli.argv['avd-skin'] = s;
+				}
+			} else {
+				// if we couldn't find one
+				if (cli.argv['avd-id']) {
+					logger.error(__('AVD ID %s not found and no suitable Android SDKs found. Please install Android SDK 2.3.3 or newer.', (''+cli.argv['avd-id']).cyan) + '\n');
+				} else {
+					logger.error(__('No suitable Android SDKs found. Please install Android SDK 2.3.3 or newer.', (''+cli.argv['avd-id']).cyan) + '\n');
+				}
+				process.exit(1);
+			}
 		}
-		if (!cli.argv['avd-skin']) {
-			cli.argv['avd-skin'] = 'HVGA';
-		}
+
 		if (!cli.argv['avd-abi']) {
-			cli.argv['avd-abi'] = androidEnv.targets[cli.argv['avd-id']].abis[0] || androidEnv.targets['7'].abis[0] || 'armeabi';
+			// check to make sure exists
+			if (androidEnv.targets && androidEnv.targets[cli.argv['avd-id']]) {
+				cli.argv['avd-abi'] = androidEnv.targets[cli.argv['avd-id']].abis[0] || androidEnv.targets['7'].abis[0] || 'armeabi';
+			} else {
+				logger.warn(__('AVD ID %s not found. Please use %s to specify a valid AVD ID. Ignoring --avd-abi.', cli.argv['avd-id'], '--avd-id'.cyan));
+			}
 		}
 	}
 	
@@ -264,7 +314,7 @@ exports.validate = function (logger, config, cli) {
 		
 		cli.argv.keystore = afs.resolvePath(cli.argv.keystore);
 		if (!afs.exists(cli.argv.keystore) || !fs.statSync(cli.argv.keystore).isFile()) {
-			logger.error(__('Invalid keystore file "%s"', cli.argv.keystore) + '\n');
+			logger.error(__('Invalid keystore file: %s', cli.argv.keystore.cyan) + '\n');
 			process.exit(1);
 		}
 		
