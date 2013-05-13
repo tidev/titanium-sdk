@@ -888,8 +888,8 @@ function build(logger, config, cli, finished) {
 		}
 	}, this);
 
-	this.logger.info(__('Build type: %s', this.deployType.cyan));
 	this.logger.debug(__('Titanium iOS SDK directory: %s', this.titaniumIosSdkPath.cyan));
+	this.logger.info(__('Deploy type: %s', this.deployType.cyan));
 	this.logger.info(__('Building for target: %s', this.target.cyan));
 	this.logger.info(__('Building using iOS SDK: %s', version.format(this.iosSdkVersion, 2).cyan));
 	if (this.target == 'simulator') {
@@ -2266,7 +2266,7 @@ build.prototype = {
 
 					series(this, fs.readdirSync(src).map(function (file) {
 						return function (next) {
-							if (!ignoreRegExp.test(file) && (!doIgnoreDirs || ti.availablePlatformsNames.indexOf(file) == -1)) {
+							if ((this.deviceFamily != 'iphone' || ipadSplashImages.indexOf(file) == -1) && !ignoreRegExp.test(file) && (!doIgnoreDirs || ti.availablePlatformsNames.indexOf(file) == -1)) {
 								var srcFile = path.join(src, file),
 									destFile = path.join(dest, file);
 								if (fs.statSync(srcFile).isDirectory()) {
@@ -2489,12 +2489,9 @@ build.prototype = {
 	},
 
 	compileResources: function (src, dest, callback) {
-		if (afs.exists(src)) {
+		if ((this.target != 'simulator' || this.deployType != 'development') && afs.exists(src)) {
 			var compiledTargets = {},
 				ignoreRegExp = /^\.gitignore|\.cvsignore|\.DS_Store|\.git|\.svn|_svn|CVS$/,
-				copyOpts = {
-					logger: this.logger.debug
-				},
 				recursivelyCopy = function (from, to, rel, ignore, done) {
 					wrench.mkdirSyncRecursive(to);
 					series(this, fs.readdirSync(from).map(function (file) {
@@ -2520,9 +2517,9 @@ build.prototype = {
 								}
 								// only copy the file for test/production and if it's not a js file, otherwise
 								// it will get compiled below
-								if ((this.deployType == 'development' || !m || !/css|js/.test(m[1])) && (!afs.exists(t) || fstat.size != fs.statSync(t).size)) {
+								if ((this.deviceFamily != 'iphone' || ipadSplashImages.indexOf(file) == -1) && ((this.deployType == 'development' || !m || !/css|js/.test(m[1])) && (!afs.exists(t) || fstat.size != fs.statSync(t).size))) {
 									this.cli.createHook('build.ios.copyResource', this, function (srcFile, destFile, cb) {
-										afs.copyFileSync(srcFile, destFile, copyOpts);
+										afs.copyFileSync(srcFile, destFile, { logger: this.logger.debug });
 										setTimeout(cb, 0);
 									})(f, t, function () {
 										next();
@@ -2534,10 +2531,6 @@ build.prototype = {
 						}.bind(this);
 					}.bind(this)), done);
 				}.bind(this);
-
-			if (/^.+\/Resources\/(ios|iphone)$/.test(src) && this.deviceFamily == 'iphone') {
-				copyOpts.rootIgnore = ipadSplashImages;
-			}
 
 			recursivelyCopy(src, dest, null, ti.availablePlatformsNames, function () {
 				/*
