@@ -67,6 +67,18 @@ var ti = require('titanium-sdk'),
 	graylistDirectories = [
 		'frameworks',
 		'plugins'
+	],
+	ipadSplashImages = [
+		'Default-Landscape.png',
+		'Default-Landscape@2x.png',
+		'Default-Portrait.png',
+		'Default-Portrait@2x.png',
+		'Default-LandscapeLeft.png',
+		'Default-LandscapeLeft@2x.png',
+		'Default-LandscapeRight.png',
+		'Default-LandscapeRight@2x.png',
+		'Default-PortraitUpsideDown.png',
+		'Default-PortraitUpsideDown@2x.png'
 	];
 
 // silence uglify's default warn mechanism
@@ -85,7 +97,7 @@ exports.config = function (logger, config, cli) {
 				lowerCasedDevNames = iosEnv.certs.devNames.map(function (s) { return s.toLowerCase(); }),
 				lowerCasedDistNames = iosEnv.certs.distNames.map(function (s) { return s.toLowerCase(); }),
 				humanize = require('humanize'),
-				libTiCoreSize = humanize.filesize(fs.lstatSync(afs.resolvePath(__dirname, '..', '..', 'libTiCore.a')).size, 1024, 1).toUpperCase();
+				libTiCoreSize = humanize.filesize(fs.statSync(afs.resolvePath(__dirname, '..', '..', 'libTiCore.a')).size, 1024, 1).toUpperCase();
 
 			// attempt to resolve a default ios developer cert name (used for device builds)
 			if (process.env.CODE_SIGN_IDENTITY) {
@@ -402,7 +414,7 @@ exports.validate = function (logger, config, cli) {
 		if (afs.exists(resourcesDir)) {
 			fs.readdirSync(resourcesDir).forEach(function (filename) {
 				var lcaseFilename = filename.toLowerCase(),
-					isDir = fs.lstatSync(path.join(resourcesDir, filename)).isDirectory();
+					isDir = fs.statSync(path.join(resourcesDir, filename)).isDirectory();
 	
 				if (blacklistDirectories.indexOf(lcaseFilename) != -1) {
 					if (isDir) {
@@ -969,7 +981,7 @@ build.prototype = {
 	hashFile: function (file, limit) {
 		var result = '';
 		if (afs.exists(file)) {
-			var size = limit || fs.lstatSync(file).size,
+			var size = limit || fs.statSync(file).size,
 				buffer = new Buffer(size),
 				fd = fs.openSync(file, 'r');
 			if (fd) {
@@ -1049,11 +1061,50 @@ build.prototype = {
 
 				parallel(this, [
 					function (next) {
-						if (this.target == 'simulator' && this.deployType == 'development') {
-							if (this.forceCopy) {
-								this.logger.info(__('Forcing copying of files instead of creating symlinks'));
+						if (this.target == 'simulator') {
+							if (this.deployType == 'development') {
+								if (this.forceCopy) {
+									this.logger.info(__('Forcing copying of files instead of creating symlinks'));
+								} else {
+									return this.createSymlinks(next);
+								}
 							} else {
-								return this.createSymlinks(next);
+								// during simulator we need to copy in standard built-in module files
+								// since we might not run the compiler on subsequent launches
+								this.copyDirSync(path.join(this.titaniumIosSdkPath, 'modules'), path.join(this.xcodeAppDir, 'modules'));
+
+								var copyOpts = {
+									preserve: true,
+									logger: this.logger.debug,
+									ignoreDirs: ['.git', '.svn', 'CVS'],
+									ignoreFiles: ['.gitignore', '.cvsignore']
+								};
+
+								if (this.deviceFamily == 'iphone') {
+									copyOpts.rootIgnore = ipadSplashImages;
+								}
+
+								// when in simulator since we point to the resources directory, we need
+								// to explicitly copy over any files
+								['ios', 'iphone'].forEach(function (name) {
+									var dir = path.join(this.projectDir, 'Resources', name);
+									afs.exists(dir) && this.copyDirSync(dir, this.xcodeAppDir, copyOpts);
+
+									dir = path.join(this.projectDir, 'platform', name);
+									afs.exists(dir) && this.copyDirSync(dir, this.xcodeAppDir, copyOpts);
+								}, this);
+
+								// copy the custom fonts
+								fs.readdirSync(path.join(this.projectDir, 'Resources')).forEach(function (file) {
+									var src = path.join(this.projectDir, 'Resources', file);
+									if (fs.statSync(src).isFile() && /.+\.(ttf|otf)$/.test(file)) {
+										this.logger.info(__('Detected custom font: %s', file));
+
+										var dest = path.join(this.xcodeAppDir, file);
+										afs.exists(dest) && fs.unlinkSync(dest);
+										afs.copyFileSync(src, dest, { logger: this.logger.debug });
+									}
+								}, this);
 							}
 						}
 						next();
@@ -1063,7 +1114,6 @@ build.prototype = {
 					'injectModulesIntoXcodeProject',
 					'injectApplicationDefaults', // if ApplicationDefaults.m was modified, forceRebuild will be set to true
 					'copyTitaniumLibraries',
-					'copySimulatorSpecificFiles',
 					'copyModuleResources',
 					'copyCommonJSModules',
 					'copyItunesArtwork',
@@ -1692,37 +1742,6 @@ build.prototype = {
 		}.bind(this));
 	},
 
-	copySimulatorSpecificFiles: function (callback) {
-		if (this.target == 'simulator') {
-			// during simulator we need to copy in standard built-in module files
-			// since we might not run the compiler on subsequent launches
-			this.copyDirSync(path.join(this.titaniumIosSdkPath, 'modules'), path.join(this.xcodeAppDir, 'modules'));
-
-			// when in simulator since we point to the resources directory, we need
-			// to explicitly copy over any files
-			['ios', 'iphone'].forEach(function (name) {
-				var dir = path.join(this.projectDir, 'Resources', name);
-				afs.exists(dir) && this.copyDirSync(dir, this.xcodeAppDir);
-
-				dir = path.join(this.projectDir, 'platform', name);
-				afs.exists(dir) && this.copyDirSync(dir, this.xcodeAppDir);
-			}, this);
-
-			// copy the custom fonts
-			fs.readdirSync(path.join(this.projectDir, 'Resources')).forEach(function (file) {
-				var src = path.join(this.projectDir, 'Resources', file);
-				if (fs.lstatSync(src).isFile() && /.+\.(ttf|otf)$/.test(file)) {
-					this.logger.info(__('Detected custom font: %s', file));
-
-					var dest = path.join(this.xcodeAppDir, file);
-					afs.exists(dest) && fs.unlinkSync(dest);
-					afs.copyFileSync(src, dest, { logger: this.logger.debug });
-				}
-			}, this);
-		}
-		callback();
-	},
-
 	injectApplicationDefaults: function (callback) {
 		var props = this.tiapp.properties || {},
 			dest = path.join(this.buildDir, 'Classes', 'ApplicationDefaults.m'),
@@ -1849,7 +1868,7 @@ build.prototype = {
 			fs.readdirSync(this.projectDir).forEach(function (file) {
 				var src = path.join(this.projectDir, file),
 					m = file.match(/^iTunesArtwork(@2x)?$/i);
-				if (m && fs.lstatSync(src).isFile()) {
+				if (m && fs.statSync(src).isFile()) {
 					afs.copyFileSync(src, path.join(this.xcodeAppDir, 'iTunesArtwork' + (m[1] ? m[1].toLowerCase() : '')), {
 						logger: this.logger.debug
 					});
@@ -2238,7 +2257,7 @@ build.prototype = {
 				this.logger.debug(__('Symlinking %s => %s', srcFile.cyan, destFile.cyan));
 				afs.exists(destFile) && fs.unlinkSync(destFile);
 				fs.symlinkSync(srcFile, destFile);
-				cb();
+				setTimeout(cb, 1);
 			}),
 			symlinkResources = function (src, dest, doIgnoreDirs, cb) {
 				if (afs.exists(src)) {
@@ -2250,7 +2269,7 @@ build.prototype = {
 							if (!ignoreRegExp.test(file) && (!doIgnoreDirs || ti.availablePlatformsNames.indexOf(file) == -1)) {
 								var srcFile = path.join(src, file),
 									destFile = path.join(dest, file);
-								if (fs.lstatSync(srcFile).isDirectory()) {
+								if (fs.statSync(srcFile).isDirectory()) {
 									setTimeout(function () {
 										symlinkResources(srcFile, destFile, false, next);
 									}, 1);
@@ -2392,13 +2411,19 @@ build.prototype = {
 				}
 			}),
 			out = [],
-			err = [];
+			err = [],
+			stopOutputting = false;
 
 		p.stdout.on('data', function (data) {
 			data.toString().split('\n').forEach(function (line) {
 				if (line.length) {
 					out.push(line);
-					this.logger.trace(line);
+					if (line.indexOf('Failed to minify') != -1) {
+						stopOutputting = true;
+					}
+					if (!stopOutputting) {
+						this.logger.trace(line);
+					}
 				}
 			}, this);
 		}.bind(this));
@@ -2407,25 +2432,49 @@ build.prototype = {
 			data.toString().split('\n').forEach(function (line) {
 				if (line.length) {
 					err.push(line);
-					this.logger.error(line);
 				}
 			}, this);
 		}.bind(this));
 
 		p.on('exit', function (code, signal) {
 			if (code) {
-				err = err.join('\n');
-				if (err.indexOf('Check dependencies') != -1) {
+				// first see if we errored due to a dependency issue
+				if (err.join('\n').indexOf('Check dependencies') != -1) {
 					var len = out.length;
 					for (var i = len - 1; i >= 0; i--) {
 						if (out[i].indexOf('Check dependencies') != -1) {
+							if (out[out.length - 1].indexOf('Command /bin/sh failed with exit code') != -1) {
+								len--;
+							}
 							for (var j = i + 1; j < len; j++) {
 								this.logger.error('Error details: ' + out[j]);
 							}
-							break;
+							this.logger.log();
+							process.exit(1);
 						}
 					}
 				}
+
+				// next see if it was a minification issue
+				var len = out.length;
+				for (var i = len - 1, k = 0; i >= 0 && k < 10; i--, k++) {
+					if (out[i].indexOf('Failed to minify') != -1) {
+						if (out[out.length - 1].indexOf('Command /bin/sh failed with exit code') != -1) {
+							len--;
+						}
+						while (i < len) {
+							this.logger.log(out[i++]);
+						}
+						this.logger.log();
+						process.exit(1);
+					}
+				}
+
+				// just print the entire error buffer
+				err.forEach(function (line) {
+					this.logger.error(line);
+				}, this);
+				this.logger.log();
 				process.exit(1);
 			}
 
@@ -2443,13 +2492,16 @@ build.prototype = {
 		if (afs.exists(src)) {
 			var compiledTargets = {},
 				ignoreRegExp = /^\.gitignore|\.cvsignore|\.DS_Store|\.git|\.svn|_svn|CVS$/,
+				copyOpts = {
+					logger: this.logger.debug
+				},
 				recursivelyCopy = function (from, to, rel, ignore, done) {
 					wrench.mkdirSyncRecursive(to);
 					series(this, fs.readdirSync(from).map(function (file) {
 						return function (next) {
 							var f = path.join(from, file),
 								t = f.replace(from, to),
-								fstat = fs.lstatSync(f),
+								fstat = fs.statSync(f),
 								p = rel ? rel + '/' + file : file;
 							if (ignoreRegExp.test(file) || (ignore && ignore.indexOf(file) != -1)) {
 								this.logger.debug(__('Ignoring %s', f.cyan));
@@ -2468,9 +2520,9 @@ build.prototype = {
 								}
 								// only copy the file for test/production and if it's not a js file, otherwise
 								// it will get compiled below
-								if ((this.deployType == 'development' || !m || !/css|js/.test(m[1])) && (!afs.exists(t) || fstat.size != fs.lstatSync(t).size)) {
+								if ((this.deployType == 'development' || !m || !/css|js/.test(m[1])) && (!afs.exists(t) || fstat.size != fs.statSync(t).size)) {
 									this.cli.createHook('build.ios.copyResource', this, function (srcFile, destFile, cb) {
-										afs.copyFileSync(srcFile, destFile, { logger: this.logger.debug });
+										afs.copyFileSync(srcFile, destFile, copyOpts);
 										setTimeout(cb, 0);
 									})(f, t, function () {
 										next();
@@ -2482,6 +2534,10 @@ build.prototype = {
 						}.bind(this);
 					}.bind(this)), done);
 				}.bind(this);
+
+			if (/^.+\/Resources\/(ios|iphone)$/.test(src) && this.deviceFamily == 'iphone') {
+				copyOpts.rootIgnore = ipadSplashImages;
+			}
 
 			recursivelyCopy(src, dest, null, ti.availablePlatformsNames, function () {
 				/*
