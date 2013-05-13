@@ -490,8 +490,8 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
      * So for parity with iOS 4, iOS 5 must similarly treat the empty string header as a 'nil' value and
      * return a 0.0 height that is overridden by the system.
      */
-    else if ([sectionProxy headerTitle]!=nil) {
-        if ([TiUtils isIOS5OrGreater] && [[sectionProxy headerTitle] isEqualToString:@""]) {
+    else if ([sectionProxy footerTitle]!=nil) {
+        if ([TiUtils isIOS5OrGreater] && [[sectionProxy footerTitle] isEqualToString:@""]) {
             return size;
         }
         size+=[tableView sectionFooterHeight];
