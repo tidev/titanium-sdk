@@ -1,9 +1,14 @@
 ---
 name: Titanium.Media
-summary: The top level Media module.  
+summary: The top-level Media module.
 description: |
-    The Media module is used accessing the device's media related  functionality such 
-    as playing audio or recording video.
+    The Media module is used to access the device's media-related functionality, such
+    as using the device's camera and photo gallery, playing media files, or recording
+    audio or video.
+
+    For examples of using the Media APIs, refer to the
+    [Working with Media APIs guide](http://docs.appcelerator.com/titanium/latest/#!/guide/Working_with_Media_APIs)
+    in addition to the other media submodule API documentation.
 extends: Titanium.Module
 since: "0.1"
 platforms: [android, iphone, ipad, mobileweb, tizen]
