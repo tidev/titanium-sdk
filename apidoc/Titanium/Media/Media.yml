@@ -7,7 +7,7 @@ description: |
     audio or video.
 
     For examples of using the Media APIs, refer to the
-    [Working with Media APIs guide](http://docs.appcelerator.com/titanium/latest/#!/api/Titanium.Media)
+    [Working with Media APIs guide](http://docs.appcelerator.com/titanium/latest/#!/guide/Working_with_Media_APIs)
     in addition to the other media submodule API documentation.
 extends: Titanium.Module
 since: "0.1"
