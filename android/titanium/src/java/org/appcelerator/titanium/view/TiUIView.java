@@ -938,7 +938,8 @@ public abstract class TiUIView
 				applyCustomBackground(false);
 			}
 
-			Drawable bgDrawable = TiUIHelper.buildBackgroundDrawable(
+			if (background != null) {
+				Drawable bgDrawable = TiUIHelper.buildBackgroundDrawable(
 					bg,
 					TiConvert.toBoolean(d, TiC.PROPERTY_BACKGROUND_REPEAT, false),
 					bgColor,
@@ -950,7 +951,8 @@ public abstract class TiUIView
 					bgFocusedColor,
 					gradientDrawable);
 
-			background.setBackgroundDrawable(bgDrawable);
+				background.setBackgroundDrawable(bgDrawable);
+			}
 		}
 	}
 
