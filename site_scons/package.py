@@ -112,13 +112,13 @@ def zip2zip(src_zip, dest_zip, prepend_path=None):
 		zinfo.filename = new_name
 		dest_zip.writestr(zinfo, f.read())
 
-def zip_packaged_modules(zf, source_dir):
+def zip_packaged_modules(zf, source_dir, iphone=False):
 	for root, dirs, files in os.walk(source_dir):
 		for name in ignoreDirs:
 			if name in dirs:
 				dirs.remove(name)
 		for fname in files:
-			if not fname.lower().endswith(".zip"):
+			if not fname.lower().endswith(".zip") or (not iphone and "iphone" in fname.lower()):
 				continue
 			source_zip = zipfile.ZipFile(os.path.join(root, fname), "r")
 			rel_path = root.replace(source_dir, "").replace("\\", "/")
@@ -517,7 +517,7 @@ githash=%s
 	if osname == 'osx':
 		ignore_paths.append(os.path.join(template_dir, 'win32'))
 
-	zip_packaged_modules(zf, os.path.join(template_dir, "module", "packaged"))
+	zip_packaged_modules(zf, os.path.join(template_dir, "module", "packaged"), osname == 'osx')
 	zip_dir(zf, all_dir, basepath)
 	zip_dir(zf, template_dir, basepath, ignore_paths=ignore_paths, ignore_files=[os.path.join(template_dir, 'package.json')])
 	if android: zip_android(zf, basepath, version)
