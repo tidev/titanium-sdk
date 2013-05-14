@@ -9,6 +9,7 @@
 #import <UIKit/UIKit.h>
 #import "TiUIListView.h"
 #import "TiUIListItemProxy.h"
+#import "TiSelectedCellbackgroundView.h"
 
 enum {
 	TiUIListItemTemplateStyleCustom = -1
@@ -29,7 +30,7 @@ enum {
 - (id)initWithProxy:(TiUIListItemProxy *)proxy reuseIdentifier:(NSString *)reuseIdentifier;
 
 - (BOOL)canApplyDataItem:(NSDictionary *)otherItem;
-
+- (void)setPosition:(int)position isGrouped:(BOOL)grouped;
 @end
 
 #endif

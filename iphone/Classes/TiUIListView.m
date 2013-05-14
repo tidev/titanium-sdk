@@ -382,6 +382,25 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 		[cellProxy release];
 		[cell autorelease];
 	}
+
+    BOOL isgrouped = (tableView.style == UITableViewStyleGrouped);
+    if (isgrouped) {
+        NSInteger maxItem = [self.listViewProxy sectionForIndex:indexPath.section].itemCount;
+        if (indexPath.row == 0) {
+            if (maxItem == 1) {
+                [cell setPosition:TiCellBackgroundViewPositionSingleLine isGrouped:YES];
+            } else {
+                [cell setPosition:TiCellBackgroundViewPositionTop isGrouped:YES];
+            }
+        } else if (indexPath.row == (maxItem - 1) ) {
+            [cell setPosition:TiCellBackgroundViewPositionBottom isGrouped:YES];
+        } else {
+            [cell setPosition:TiCellBackgroundViewPositionMiddle isGrouped:YES];
+        }
+    } else {
+        [cell setPosition:TiCellBackgroundViewPositionMiddle isGrouped:NO];
+    }
+    
 	cell.dataItem = item;
 	cell.proxy.indexPath = indexPath;
 	return cell;
