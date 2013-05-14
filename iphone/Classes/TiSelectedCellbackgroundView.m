@@ -1,10 +1,9 @@
-//
-//  TiSelectedCellbackgroundView.m
-//  Titanium
-//
-//  Created by Vishal Duggal on 5/13/13.
-//
-//
+/**
+ * Appcelerator Titanium Mobile
+ * Copyright (c) 2013 by Appcelerator, Inc. All Rights Reserved.
+ * Licensed under the terms of the Apache Public License
+ * Please see the LICENSE included with this distribution for details.
+ */
 #if defined(USE_TI_UITABLEVIEW) || defined(USE_TI_UILISTVIEW)
 
 #import "TiSelectedCellbackgroundView.h"
