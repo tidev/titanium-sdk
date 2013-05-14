@@ -104,6 +104,8 @@
             [_bgView setFrame:bounds];
         }
         [_bgView setNeedsDisplay];
+    } else if ([self.backgroundView isKindOfClass:[TiSelectedCellBackgroundView class]]) {
+        [self.backgroundView setNeedsDisplay];
     }
 	[super layoutSubviews];
 	if (_templateStyle == TiUIListItemTemplateStyleCustom) {
@@ -271,11 +273,11 @@
     
     if (sbgImage != nil) {
         if ([self.selectedBackgroundView isKindOfClass:[UIImageView class]]) {
-            [(UIImageView*)self.selectedBackgroundView setImage:bgImage];
+            [(UIImageView*)self.selectedBackgroundView setImage:sbgImage];
             [(UIImageView*)self.selectedBackgroundView setBackgroundColor:((sbgColor == nil) ? [UIColor clearColor] : sbgColor)];
         } else {
             UIImageView *view_ = [[[UIImageView alloc] initWithFrame:CGRectZero] autorelease];
-            [view_ setImage:bgImage];
+            [view_ setImage:sbgImage];
             [view_ setBackgroundColor:((sbgColor == nil) ? [UIColor clearColor] : sbgColor)];
             self.selectedBackgroundView = view_;
         }
