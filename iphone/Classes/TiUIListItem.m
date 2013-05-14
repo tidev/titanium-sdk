@@ -142,15 +142,9 @@
 	[gradientLayer setGradient:currentGradient];
 	if([gradientLayer superlayer] != ourLayer)
 	{
-        CALayer* contentLayer = [[self contentView] layer];
+		CALayer* contentLayer = [[self contentView] layer];
 		[ourLayer insertSublayer:gradientLayer below:contentLayer];
-        
-        // If we're working with a row that just has a label drawn on it, we need to
-        // set the background color of the label explicitly
-        if ([[self textLabel] text] != nil) {
-            [[self textLabel] setBackgroundColor:[UIColor clearColor]];
-        }
-	}
+    }
     if (animated) {
         CABasicAnimation *flash = [CABasicAnimation animationWithKeyPath:@"opacity"];
         flash.fromValue = [NSNumber numberWithFloat:0.0];
