@@ -217,7 +217,7 @@
         //By default this is not nil. So we will add the stuff as subviews to this
         UIView* superView = [self backgroundView];
         if (bgImage != nil) {
-            if ([_bgView isKindOfClass:[UIImageView class]] == NO) {
+            if (![_bgView isKindOfClass:[UIImageView class]]) {
                 [_bgView removeFromSuperview];
                 RELEASE_TO_NIL(_bgView);
                 _bgView = [[UIImageView alloc] initWithFrame:CGRectZero];
@@ -228,7 +228,7 @@
             [_bgView setBackgroundColor:((bgColor == nil) ? [UIColor clearColor] : bgColor)];
         } else {
             if (bgColor != nil) {
-                if ([_bgView isKindOfClass:[TiSelectedCellBackgroundView class]] == NO) {
+                if (![_bgView isKindOfClass:[TiSelectedCellBackgroundView class]]) {
                     [_bgView removeFromSuperview];
                     RELEASE_TO_NIL(_bgView);
                     _bgView = [[TiSelectedCellBackgroundView alloc] initWithFrame:CGRectZero];
@@ -258,7 +258,7 @@
             }
         } else {
             if (bgColor != nil) {
-                if ([self.backgroundView isKindOfClass:[TiSelectedCellBackgroundView class]] == NO) {
+                if (![self.backgroundView isKindOfClass:[TiSelectedCellBackgroundView class]]) {
                     self.backgroundView = [[[TiSelectedCellBackgroundView alloc] initWithFrame:CGRectZero] autorelease];
                 }
                 TiSelectedCellBackgroundView *bgView = (TiSelectedCellBackgroundView*)self.backgroundView;
@@ -282,7 +282,7 @@
             self.selectedBackgroundView = view_;
         }
     } else {
-        if ([self.selectedBackgroundView isKindOfClass:[TiSelectedCellBackgroundView class]] == NO) {
+        if (![self.selectedBackgroundView isKindOfClass:[TiSelectedCellBackgroundView class]]) {
             self.selectedBackgroundView = [[[TiSelectedCellBackgroundView alloc] initWithFrame:CGRectZero] autorelease];
         }
         TiSelectedCellBackgroundView *selectedBGView = (TiSelectedCellBackgroundView*)self.selectedBackgroundView;
@@ -329,17 +329,6 @@
 		case UITableViewCellStyleValue2:
 			self.detailTextLabel.text = [[properties objectForKey:@"subtitle"] description];
             self.detailTextLabel.backgroundColor = [UIColor clearColor];
-            /*
-			id backgroundColorValue = [properties objectForKey:@"backgroundColor"];
-			if ([self shouldUpdateValue:backgroundColorValue forKeyPath:@"detailTextLabel.backgroundColor"]) {
-				UIColor *backgroundColor = backgroundColorValue != nil ? [[TiUtils colorValue:backgroundColorValue] _color] : [UIColor clearColor];
-				if (backgroundColor != nil) {
-					[self recordChangeValue:backgroundColorValue forKeyPath:@"detailTextLabel.backgroundColor" withBlock:^{
-						[self.detailTextLabel setBackgroundColor:backgroundColor];
-					}];
-				}
-			}
-            */
 			// pass through
 		case UITableViewCellStyleDefault:
 			self.textLabel.text = [[properties objectForKey:@"title"] description];
@@ -376,17 +365,6 @@
 					}];
 				}
 			}
-            /*
-			backgroundColorValue = [properties objectForKey:@"backgroundColor"];
-			if ([self shouldUpdateValue:backgroundColorValue forKeyPath:@"textLabel.backgroundColor"]) {
-				UIColor *backgroundColor = backgroundColorValue != nil ? [[TiUtils colorValue:backgroundColorValue] _color] : [UIColor clearColor];
-				if (backgroundColor != nil) {
-					[self recordChangeValue:backgroundColorValue forKeyPath:@"textLabel.backgroundColor" withBlock:^{
-						[self.textLabel setBackgroundColor:backgroundColor];
-					}];
-				}
-			}
-            */
 			break;
 			
 		default:
@@ -447,17 +425,7 @@
 	id selectedbackgroundColorValue = [properties objectForKey:@"selectedBackgroundColor"];
 	id backgroundImageValue = [properties objectForKey:@"backgroundImage"];
 	id selectedBackgroundImageValue = [properties objectForKey:@"selectedBackgroundImage"];
-    [self applyBackgroundWithColor:backgroundColorValue image:backgroundImageValue selectedColor:selectedbackgroundColorValue selectedImage:selectedBackgroundImageValue];
-    /*
-	if ([self shouldUpdateValue:backgroundColorValue forKeyPath:@"contentView.backgroundColor"]) {
-		UIColor *backgroundColor = backgroundColorValue != nil ? [[TiUtils colorValue:backgroundColorValue] _color] : [UIColor clearColor];
-		if (backgroundColor != nil) {
-			[self recordChangeValue:backgroundColorValue forKeyPath:@"contentView.backgroundColor" withBlock:^{
-				self.contentView.backgroundColor = backgroundColor;
-			}];
-		}
-	}
-	*/
+	[self applyBackgroundWithColor:backgroundColorValue image:backgroundImageValue selectedColor:selectedbackgroundColorValue selectedImage:selectedBackgroundImageValue];
 	[_resetKeys enumerateObjectsUsingBlock:^(NSString *keyPath, BOOL *stop) {
 		id value = [_initialValues objectForKey:keyPath];
 		[self setValue:(value != [NSNull null] ? value : nil) forKeyPath:keyPath];

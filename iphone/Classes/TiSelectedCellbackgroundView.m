@@ -52,7 +52,7 @@ static void addRoundedRectToPath(CGContextRef context, CGRect rect,
 
 -(BOOL)isOpaque
 {
-    return NO;
+    return (CGColorGetAlpha([fillColor CGColor]) == 1.0);
 }
 
 -(void)drawRect:(CGRect)rect

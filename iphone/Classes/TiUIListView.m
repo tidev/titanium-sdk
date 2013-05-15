@@ -112,12 +112,12 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 -(void)proxyDidRelayout:(id)sender
 {
     TiThreadPerformOnMainThread(^{
-        if ( (sender == _headerViewProxy) && (_headerViewProxy != nil) ) {
+        if (sender == _headerViewProxy) {
             UIView* headerView = [[self tableView] tableHeaderView];
             [headerView setFrame:[headerView bounds]];
             [[self tableView] setTableHeaderView:headerView];
         }
-        else if ( (sender == _footerViewProxy) && (_footerViewProxy != nil) ) {
+        else if (sender == _footerViewProxy) {
             UIView *footerView = [[self tableView] tableFooterView];
             [footerView setFrame:[footerView bounds]];
             [[self tableView] setTableFooterView:footerView];
@@ -383,8 +383,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 		[cell autorelease];
 	}
 
-    BOOL isgrouped = (tableView.style == UITableViewStyleGrouped);
-    if (isgrouped) {
+    if (tableView.style == UITableViewStyleGrouped) {
         NSInteger maxItem = [self.listViewProxy sectionForIndex:indexPath.section].itemCount;
         if (indexPath.row == 0) {
             if (maxItem == 1) {
@@ -464,7 +463,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
      * return a 0.0 height that is overridden by the system.
      */
     else if ([sectionProxy headerTitle]!=nil) {
-        if ([TiUtils isIOS5OrGreater] && [[sectionProxy headerTitle] isEqualToString:@""]) {
+        if ([[sectionProxy headerTitle] isEqualToString:@""]) {
             return size;
         }
         size+=[tableView sectionHeaderHeight];
@@ -510,7 +509,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
      * return a 0.0 height that is overridden by the system.
      */
     else if ([sectionProxy footerTitle]!=nil) {
-        if ([TiUtils isIOS5OrGreater] && [[sectionProxy footerTitle] isEqualToString:@""]) {
+        if ([[sectionProxy footerTitle] isEqualToString:@""]) {
             return size;
         }
         size+=[tableView sectionFooterHeight];
