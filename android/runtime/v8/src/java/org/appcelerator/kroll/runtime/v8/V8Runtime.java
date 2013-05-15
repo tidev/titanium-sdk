@@ -64,8 +64,8 @@ public final class V8Runtime extends KrollRuntime implements Handler.Callback
 			DBG = false;
 		}
 
-		nativeInit(useGlobalRefs, deployData.getDebuggerPort(), DBG);
-		
+		nativeInit(useGlobalRefs, deployData.getDebuggerPort(), DBG, deployData.isProfilerEnabled());
+
 		if (deployData.isDebuggerEnabled()) {
 			dispatchDebugMessages();
 		} else if (deployData.isProfilerEnabled()) {
@@ -219,7 +219,7 @@ public final class V8Runtime extends KrollRuntime implements Handler.Callback
 	}
 
 	// JNI method prototypes
-	private native void nativeInit(boolean useGlobalRefs, int debuggerPort, boolean DBG);
+	private native void nativeInit(boolean useGlobalRefs, int debuggerPort, boolean DBG, boolean profilerEnabled);
 	private native void nativeRunModule(String source, String filename, KrollProxySupport activityProxy);
 	private native Object nativeEvalString(String source, String filename);
 	private native void nativeProcessDebugMessages();
