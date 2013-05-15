@@ -333,7 +333,7 @@ properties:
     type: String
     since: {iphone: "3.1.0", ipad: "3.1.0" }
     osver: {ios: {min: "5.0"}}
-    platforms: [iphone, ipad, tizen]
+    platforms: [iphone, ipad]
     
   - name: tabsBackgroundDisabledColor
     summary: Default background disabled color for tabs, as a color name or hex triplet.

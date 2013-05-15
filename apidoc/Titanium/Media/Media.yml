@@ -56,6 +56,13 @@ methods:
     description: |
         If `autohide` is set to `false`, you must hide the library explicitly using 
         [hideMusicLibrary](Titanium.Media.hideMusicLibrary).
+
+        #### Tizen Platform Notes
+
+        From the `options` parameter, only the `success` and `error` fields are used. The
+        `success` callback is called when the music library is opened, but not when an item is
+        selected. Notificationa about item selection is currently not supported.
+        
     platforms: [iphone, ipad]
     parameters:
       - name: options
@@ -64,11 +71,15 @@ methods:
   - name: openPhotoGallery
     summary: Opens the photo gallery image picker.
     description: |
+        #### Tizen Platform Notes
+
         To use this method on Tizen, you must include the following privileges 
         in the `tiapp.xml` file of your Titanium application: 
 
         * `http://tizen.org/privilege/application.launch`
         * `http://tizen.org/privilege/filesystem.read`
+
+        From the `options` parameter, only the `success` and `error` fields are used. 
         
     platforms: [iphone, ipad, android, tizen]
     parameters:
@@ -96,12 +107,16 @@ methods:
         but `video1.tmp` does not. Currently, the `.mp4` extension is not supported, but MP4
         files may be imported by saving them with the `.mov` extension.
 
+        #### Tizen Platform Notes
+
         To use this method on Tizen, you must include the following privileges 
         in the `tiapp.xml` file of your Titanium application: 
 
         * `http://tizen.org/privilege/application.launch`
         * `http://tizen.org/privilege/filesystem.read`
         * `http://tizen.org/privilege/filesystem.write`
+
+        From the `options` parameter, only the `success` and `error` fields are used.
         
     platforms: [iphone, ipad, tizen]
     parameters:
@@ -134,6 +149,8 @@ methods:
         in the `tiapp.xml` file of your Titanium application: 
 
         * `http://tizen.org/privilege/application.launch`
+
+        From the `options` parameter, only the `success` and `error` fields are used. 
         
     platforms: [iphone, ipad, android, tizen]
     parameters:
