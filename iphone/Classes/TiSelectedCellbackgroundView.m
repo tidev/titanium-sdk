@@ -44,6 +44,15 @@ static void addRoundedRectToPath(CGContextRef context, CGRect rect,
 
 @synthesize position,fillColor,grouped;
 
+- (id)initWithFrame:(CGRect)frame {
+    if (self = [super initWithFrame:frame])
+    {
+        fillColor = [UIColor clearColor];
+        position = TiCellBackgroundViewPositionMiddle;
+    }
+    return self;
+}
+
 -(void)dealloc
 {
 	[fillColor release];
