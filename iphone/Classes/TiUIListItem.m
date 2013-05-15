@@ -10,6 +10,7 @@
 #import "TiUtils.h"
 #import "TiViewProxy.h"
 #import "ImageLoader.h"
+#import "Webcolor.h"
 
 @implementation TiUIListItem {
 	TiUIListItemProxy *_proxy;
@@ -19,6 +20,9 @@
 	NSMutableSet *_resetKeys;
 	NSDictionary *_dataItem;
 	NSDictionary *_bindings;
+    int _positionMask;
+    BOOL _grouped;
+    UIView* _bgView;
 }
 
 @synthesize templateStyle = _templateStyle;
@@ -62,6 +66,11 @@
 	[_dataItem release];
 	[_proxy release];
 	[_bindings release];
+	[gradientLayer release];
+	[backgroundGradient release];
+	[selectedBackgroundGradient release];
+    [_bgView removeFromSuperview];
+    [_bgView release];
 	[super dealloc];
 }
 
@@ -84,12 +93,210 @@
 
 - (void)layoutSubviews
 {
+    if (_bgView != nil) {
+        if ([_bgView superview] == nil) {
+            [self.backgroundView addSubview:_bgView];
+        }
+        CGRect bounds = [self.backgroundView bounds];
+        if ((_positionMask == TiCellBackgroundViewPositionTop) || (_positionMask == TiCellBackgroundViewPositionSingleLine) ) {
+            [_bgView setFrame:CGRectMake(0, 1, bounds.size.width, bounds.size.height -2)];
+        } else {
+            [_bgView setFrame:bounds];
+        }
+        [_bgView setNeedsDisplay];
+    } else if ([self.backgroundView isKindOfClass:[TiSelectedCellBackgroundView class]]) {
+        [self.backgroundView setNeedsDisplay];
+    }
 	[super layoutSubviews];
 	if (_templateStyle == TiUIListItemTemplateStyleCustom) {
 		// prevent any crashes that could be caused by unsupported layouts
 		_proxy.layoutProperties->layoutStyle = TiLayoutRuleAbsolute;
 		[_proxy layoutChildren:NO];
 	}
+}
+
+#pragma mark - Background Support 
+-(BOOL) selectedOrHighlighted
+{
+	return [self isSelected] || [self isHighlighted];
+}
+
+-(void) updateGradientLayer:(BOOL)useSelected withAnimation:(BOOL)animated
+{
+	TiGradient * currentGradient = useSelected?selectedBackgroundGradient:backgroundGradient;
+    
+	if(currentGradient == nil)
+	{
+		[gradientLayer removeFromSuperlayer];
+		//Because there's the chance that the other state still has the gradient, let's keep it around.
+		return;
+	}
+    
+	CALayer * ourLayer = [self layer];
+	
+	if(gradientLayer == nil)
+	{
+		gradientLayer = [[TiGradientLayer alloc] init];
+		[gradientLayer setNeedsDisplayOnBoundsChange:YES];
+		[gradientLayer setFrame:[self bounds]];
+	}
+    
+	[gradientLayer setGradient:currentGradient];
+	if([gradientLayer superlayer] != ourLayer)
+	{
+		CALayer* contentLayer = [[self contentView] layer];
+		[ourLayer insertSublayer:gradientLayer below:contentLayer];
+    }
+    if (animated) {
+        CABasicAnimation *flash = [CABasicAnimation animationWithKeyPath:@"opacity"];
+        flash.fromValue = [NSNumber numberWithFloat:0.0];
+        flash.toValue = [NSNumber numberWithFloat:1.0];
+        flash.duration = 1.0;
+        [gradientLayer addAnimation:flash forKey:@"flashAnimation"];
+    }
+	[gradientLayer setNeedsDisplay];
+}
+
+-(void)setSelected:(BOOL)yn animated:(BOOL)animated
+{
+    [super setSelected:yn animated:animated];
+    [self updateGradientLayer:yn|[self isHighlighted] withAnimation:animated];
+}
+
+-(void)setHighlighted:(BOOL)yn animated:(BOOL)animated
+{
+    [super setHighlighted:yn animated:animated];
+    [self updateGradientLayer:yn|[self isSelected] withAnimation:animated];
+}
+
+-(void) setBackgroundGradient_:(TiGradient *)newGradient
+{
+	if(newGradient == backgroundGradient)
+	{
+		return;
+	}
+	[backgroundGradient release];
+	backgroundGradient = [newGradient retain];
+	
+	if(![self selectedOrHighlighted])
+	{
+		[self updateGradientLayer:NO withAnimation:NO];
+	}
+}
+
+-(void) setSelectedBackgroundGradient_:(TiGradient *)newGradient
+{
+	if(newGradient == selectedBackgroundGradient)
+	{
+		return;
+	}
+	[selectedBackgroundGradient release];
+	selectedBackgroundGradient = [newGradient retain];
+	
+	if([self selectedOrHighlighted])
+	{
+		[self updateGradientLayer:YES withAnimation:NO];
+	}
+}
+
+-(void)setPosition:(int)position isGrouped:(BOOL)grouped
+{
+    _positionMask = position;
+    _grouped = grouped;
+}
+
+-(void) applyBackgroundWithColor:(id)backgroundColor image:(id)backgroundImage selectedColor:(id)selectedBackgroundColor selectedImage:(id)selectedBackgroundImage
+{
+    UIColor* bgColor = (backgroundColor != nil) ? ([[TiUtils colorValue:backgroundColor] _color]) : nil;
+    UIColor* sbgColor = (selectedBackgroundColor != nil) ? ([[TiUtils colorValue:selectedBackgroundColor] _color]) : nil;
+    UIImage *bgImage = [[ImageLoader sharedLoader] loadImmediateStretchableImage:[TiUtils toURL:backgroundImage proxy:_proxy] withLeftCap:TiDimensionAuto topCap:TiDimensionAuto];
+    UIImage *sbgImage = [[ImageLoader sharedLoader] loadImmediateStretchableImage:[TiUtils toURL:selectedBackgroundImage proxy:_proxy] withLeftCap:TiDimensionAuto topCap:TiDimensionAuto];
+    
+    if (_grouped) {
+        //Setting the backgroundView on grouped style is a little complicated
+        //By default this is not nil. So we will add the stuff as subviews to this
+        UIView* superView = [self backgroundView];
+        if (bgImage != nil) {
+            if (![_bgView isKindOfClass:[UIImageView class]]) {
+                [_bgView removeFromSuperview];
+                RELEASE_TO_NIL(_bgView);
+                _bgView = [[UIImageView alloc] initWithFrame:CGRectZero];
+                _bgView.autoresizingMask = UIViewAutoresizingFlexibleWidth;
+                [superView addSubview:_bgView];
+            }
+            [(UIImageView*)_bgView setImage:bgImage];
+            [_bgView setBackgroundColor:((bgColor == nil) ? [UIColor clearColor] : bgColor)];
+        } else {
+            if (bgColor != nil) {
+                if (![_bgView isKindOfClass:[TiSelectedCellBackgroundView class]]) {
+                    [_bgView removeFromSuperview];
+                    RELEASE_TO_NIL(_bgView);
+                    _bgView = [[TiSelectedCellBackgroundView alloc] initWithFrame:CGRectZero];
+                    _bgView.autoresizingMask = UIViewAutoresizingFlexibleWidth;
+                    [superView addSubview:_bgView];
+                }
+                ((TiSelectedCellBackgroundView*)_bgView).grouped = _grouped;
+                ((TiSelectedCellBackgroundView*)_bgView).fillColor = bgColor;
+                ((TiSelectedCellBackgroundView*)_bgView).position = _positionMask;
+                
+            } else {
+                [_bgView removeFromSuperview];
+                RELEASE_TO_NIL(_bgView);
+            }
+        }
+    } else {
+        if (bgImage != nil) {
+            //Set the backgroundView to ImageView and set its backgroundColor to bgColor
+            if ([self.backgroundView isKindOfClass:[UIImageView class]]) {
+                [(UIImageView*)self.backgroundView setImage:bgImage];
+                [(UIImageView*)self.backgroundView setBackgroundColor:((bgColor == nil) ? [UIColor clearColor] : bgColor)];
+            } else {
+                UIImageView *view_ = [[[UIImageView alloc] initWithFrame:CGRectZero] autorelease];
+                [view_ setImage:bgImage];
+                [view_ setBackgroundColor:((bgColor == nil) ? [UIColor clearColor] : bgColor)];
+                self.backgroundView = view_;
+            }
+        } else {
+            if (bgColor != nil) {
+                if (![self.backgroundView isKindOfClass:[TiSelectedCellBackgroundView class]]) {
+                    self.backgroundView = [[[TiSelectedCellBackgroundView alloc] initWithFrame:CGRectZero] autorelease];
+                }
+                TiSelectedCellBackgroundView *bgView = (TiSelectedCellBackgroundView*)self.backgroundView;
+                bgView.grouped = _grouped;
+                bgView.fillColor = bgColor;
+                [bgView setPosition:_positionMask];
+            } else {
+                self.backgroundView = nil;
+            }
+        }
+    }
+    
+    if (sbgImage != nil) {
+        if ([self.selectedBackgroundView isKindOfClass:[UIImageView class]]) {
+            [(UIImageView*)self.selectedBackgroundView setImage:sbgImage];
+            [(UIImageView*)self.selectedBackgroundView setBackgroundColor:((sbgColor == nil) ? [UIColor clearColor] : sbgColor)];
+        } else {
+            UIImageView *view_ = [[[UIImageView alloc] initWithFrame:CGRectZero] autorelease];
+            [view_ setImage:sbgImage];
+            [view_ setBackgroundColor:((sbgColor == nil) ? [UIColor clearColor] : sbgColor)];
+            self.selectedBackgroundView = view_;
+        }
+    } else {
+        if (![self.selectedBackgroundView isKindOfClass:[TiSelectedCellBackgroundView class]]) {
+            self.selectedBackgroundView = [[[TiSelectedCellBackgroundView alloc] initWithFrame:CGRectZero] autorelease];
+        }
+        TiSelectedCellBackgroundView *selectedBGView = (TiSelectedCellBackgroundView*)self.selectedBackgroundView;
+        selectedBGView.grouped = _grouped;
+        if (sbgColor == nil) {
+            switch (self.selectionStyle) {
+                case UITableViewCellSelectionStyleBlue:sbgColor = [Webcolor webColorNamed:@"#0272ed"];break;
+                case UITableViewCellSelectionStyleGray:sbgColor = [Webcolor webColorNamed:@"#bbb"];break;
+                case UITableViewCellSelectionStyleNone:sbgColor = [UIColor clearColor];break;
+            }
+        }
+        selectedBGView.fillColor = sbgColor;
+        [selectedBGView setPosition:_positionMask];
+    }
 }
 
 - (BOOL)canApplyDataItem:(NSDictionary *)otherItem;
@@ -121,20 +328,11 @@
 		case UITableViewCellStyleValue1:
 		case UITableViewCellStyleValue2:
 			self.detailTextLabel.text = [[properties objectForKey:@"subtitle"] description];
-
-			id backgroundColorValue = [properties objectForKey:@"backgroundColor"];
-			if ([self shouldUpdateValue:backgroundColorValue forKeyPath:@"detailTextLabel.backgroundColor"]) {
-				UIColor *backgroundColor = backgroundColorValue != nil ? [[TiUtils colorValue:backgroundColorValue] _color] : [UIColor clearColor];
-				if (backgroundColor != nil) {
-					[self recordChangeValue:backgroundColorValue forKeyPath:@"detailTextLabel.backgroundColor" withBlock:^{
-						[self.detailTextLabel setBackgroundColor:backgroundColor];
-					}];
-				}
-			}
-
+            self.detailTextLabel.backgroundColor = [UIColor clearColor];
 			// pass through
 		case UITableViewCellStyleDefault:
 			self.textLabel.text = [[properties objectForKey:@"title"] description];
+            self.textLabel.backgroundColor = [UIColor clearColor];
 			if (_templateStyle != UITableViewCellStyleValue2) {
 				id imageValue = [properties objectForKey:@"image"];
 				if ([self shouldUpdateValue:imageValue forKeyPath:@"imageView.image"]) {
@@ -167,17 +365,6 @@
 					}];
 				}
 			}
-
-			backgroundColorValue = [properties objectForKey:@"backgroundColor"];
-			if ([self shouldUpdateValue:backgroundColorValue forKeyPath:@"textLabel.backgroundColor"]) {
-				UIColor *backgroundColor = backgroundColorValue != nil ? [[TiUtils colorValue:backgroundColorValue] _color] : [UIColor clearColor];
-				if (backgroundColor != nil) {
-					[self recordChangeValue:backgroundColorValue forKeyPath:@"textLabel.backgroundColor" withBlock:^{
-						[self.textLabel setBackgroundColor:backgroundColor];
-					}];
-				}
-			}
-
 			break;
 			
 		default:
@@ -225,16 +412,20 @@
 			}];
 		}
 	}
-	id backgroundColorValue = [properties objectForKey:@"backgroundColor"];
-	if ([self shouldUpdateValue:backgroundColorValue forKeyPath:@"contentView.backgroundColor"]) {
-		UIColor *backgroundColor = backgroundColorValue != nil ? [[TiUtils colorValue:backgroundColorValue] _color] : [UIColor clearColor];
-		if (backgroundColor != nil) {
-			[self recordChangeValue:backgroundColorValue forKeyPath:@"contentView.backgroundColor" withBlock:^{
-				self.contentView.backgroundColor = backgroundColor;
-			}];
-		}
-	}
+    
+    id backgroundGradientValue = [properties objectForKey:@"backgroundGradient"];
+    [self setBackgroundGradient_:backgroundGradientValue];
 	
+    
+    id selectedBackgroundGradientValue = [properties objectForKey:@"selectedBackgroundGradient"];
+    [self setSelectedBackgroundGradient_:selectedBackgroundGradientValue];
+	
+
+	id backgroundColorValue = [properties objectForKey:@"backgroundColor"];
+	id selectedbackgroundColorValue = [properties objectForKey:@"selectedBackgroundColor"];
+	id backgroundImageValue = [properties objectForKey:@"backgroundImage"];
+	id selectedBackgroundImageValue = [properties objectForKey:@"selectedBackgroundImage"];
+	[self applyBackgroundWithColor:backgroundColorValue image:backgroundImageValue selectedColor:selectedbackgroundColorValue selectedImage:selectedBackgroundImageValue];
 	[_resetKeys enumerateObjectsUsingBlock:^(NSString *keyPath, BOOL *stop) {
 		id value = [_initialValues objectForKey:keyPath];
 		[self setValue:(value != [NSNull null] ? value : nil) forKeyPath:keyPath];

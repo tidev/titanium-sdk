@@ -9,12 +9,18 @@
 #import <UIKit/UIKit.h>
 #import "TiUIListView.h"
 #import "TiUIListItemProxy.h"
+#import "TiSelectedCellbackgroundView.h"
 
 enum {
 	TiUIListItemTemplateStyleCustom = -1
 };
 
 @interface TiUIListItem : UITableViewCell
+{
+	TiGradientLayer * gradientLayer;
+	TiGradient * backgroundGradient;
+	TiGradient * selectedBackgroundGradient;
+}
 
 @property (nonatomic, readonly) NSInteger templateStyle;
 @property (nonatomic, readonly) TiUIListItemProxy *proxy;
@@ -24,7 +30,7 @@ enum {
 - (id)initWithProxy:(TiUIListItemProxy *)proxy reuseIdentifier:(NSString *)reuseIdentifier;
 
 - (BOOL)canApplyDataItem:(NSDictionary *)otherItem;
-
+- (void)setPosition:(int)position isGrouped:(BOOL)grouped;
 @end
 
 #endif
