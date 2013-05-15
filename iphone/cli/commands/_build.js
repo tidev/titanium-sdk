@@ -2253,26 +2253,35 @@ build.prototype = {
 
 	createSymlinks: function (callback) {
 		var ignoreRegExp = /^\.gitignore|\.cvsignore|\.DS_Store|\.git|\.svn|_svn|CVS$/,
+			unsymlinkableFileRegExp = /^Default.*\.png$/,
 			symlinkHook = this.cli.createHook('build.ios.copyResource', this, function (srcFile, destFile, cb) {
 				this.logger.debug(__('Symlinking %s => %s', srcFile.cyan, destFile.cyan));
 				afs.exists(destFile) && fs.unlinkSync(destFile);
 				fs.symlinkSync(srcFile, destFile);
 				setTimeout(cb, 1);
 			}),
-			symlinkResources = function (src, dest, doIgnoreDirs, cb) {
+			symlinkResources = function (src, dest, collapseIosIphoneDirs, cb) {
 				if (afs.exists(src)) {
 					this.logger.debug(__('Walking directory %s', src.cyan));
 					wrench.mkdirSyncRecursive(dest);
 
 					series(this, fs.readdirSync(src).map(function (file) {
 						return function (next) {
-							if ((this.deviceFamily != 'iphone' || ipadSplashImages.indexOf(file) == -1) && !ignoreRegExp.test(file) && (!doIgnoreDirs || ti.availablePlatformsNames.indexOf(file) == -1)) {
+							var isIosIphoneDir = file == 'ios' || file == 'iphone';
+							// if this is a iphone-only build, do not copy any ipad images
+							// if this is an ignored file, do not copy the file
+							// if we're collapsing ios/iphone dir to the root and it's not mobileweb or android
+							// then copy the file!
+							if ((this.deviceFamily != 'iphone' || ipadSplashImages.indexOf(file) == -1) && !ignoreRegExp.test(file) && (!collapseIosIphoneDirs || isIosIphoneDir || ti.availablePlatformsNames.indexOf(file) == -1)) {
 								var srcFile = path.join(src, file),
 									destFile = path.join(dest, file);
 								if (fs.statSync(srcFile).isDirectory()) {
 									setTimeout(function () {
-										symlinkResources(srcFile, destFile, false, next);
+										symlinkResources(srcFile, collapseIosIphoneDirs && isIosIphoneDir ? path.dirname(destFile) : destFile, false, next);
 									}, 1);
+								} else if (unsymlinkableFileRegExp.test(file) || file == this.tiapp.icon) {
+									afs.copyFileSync(srcFile, destFile, { logger: this.logger.debug });
+									next();
 								} else {
 									symlinkHook(srcFile, destFile, next);
 								}
@@ -2300,10 +2309,13 @@ build.prototype = {
 				symlinkResources(path.join(this.projectDir, 'platform', 'iphone'), this.xcodeAppDir, false, next);
 			},
 			function (next) {
-				symlinkResources(path.join(this.projectDir, 'modules', 'ios'), destModulesDir, true, next);
+				symlinkResources(path.join(this.projectDir, 'modules', 'ios'), destModulesDir, false, next);
 			},
 			function (next) {
-				symlinkResources(path.join(this.projectDir, 'modules', 'iphone'), destModulesDir, true, next);
+				symlinkResources(path.join(this.projectDir, 'modules', 'iphone'), destModulesDir, false, next);
+			},
+			function (next) {
+				symlinkResources(path.join(this.titaniumIosSdkPath, 'modules'), path.join(this.xcodeAppDir, 'modules'), false, next);
 			}
 		], function () {
 			// reset the application routing
