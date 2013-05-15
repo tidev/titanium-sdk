@@ -2256,7 +2256,10 @@ build.prototype = {
 			unsymlinkableFileRegExp = /^Default.*\.png$/,
 			symlinkHook = this.cli.createHook('build.ios.copyResource', this, function (srcFile, destFile, cb) {
 				this.logger.debug(__('Symlinking %s => %s', srcFile.cyan, destFile.cyan));
-				afs.exists(destFile) && fs.unlinkSync(destFile);
+				try {
+					// check if the file exists, even if it's a broken symlink
+					fs.lstatSync(destFile) && fs.unlinkSync(destFile);
+				} catch (ex) {}
 				fs.symlinkSync(srcFile, destFile);
 				setTimeout(cb, 1);
 			}),
