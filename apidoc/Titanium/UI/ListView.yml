@@ -58,7 +58,7 @@ description: |
     However, list view uses a data--oriented approach versus table view's view--oriented approach.
 
     List view is designed for performance. One side effect of the design is that you cannot directly
-    manipulate the views–add children, set view properties and bind event callbacks–as you can in
+    manipulate the views--add children, set view properties and bind event callbacks--as you can in
     `TableView`. Instead, you interact with list items indirectly, using templates and data items. The
     next subsection describes how to use list items.
 
