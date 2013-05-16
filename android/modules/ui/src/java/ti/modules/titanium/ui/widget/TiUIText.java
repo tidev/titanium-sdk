@@ -295,7 +295,7 @@ public class TiUIText extends TiUIView
 			return;
 		}
 		String newText = tv.getText().toString();
-		if (!isTruncatingText || (isTruncatingText && proxy.shouldFireChange(proxy.getProperty(TiC.PROPERTY_VALUE), newText))) {
+		if (proxy.shouldFireChange(proxy.getProperty(TiC.PROPERTY_VALUE), newText)) {
 			KrollDict data = new KrollDict();
 			data.put(TiC.PROPERTY_VALUE, newText);
 			proxy.setProperty(TiC.PROPERTY_VALUE, newText);
