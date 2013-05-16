@@ -404,12 +404,19 @@ public class TiAnimationBuilder
 			if (height != null) {
 				optionHeight = new TiDimension(height, TiDimension.TYPE_HEIGHT);
 			} else {
-				optionHeight = new TiDimension(w, TiDimension.TYPE_HEIGHT);
+				optionHeight = new TiDimension(h, TiDimension.TYPE_HEIGHT);
 				optionHeight.setUnits(TypedValue.COMPLEX_UNIT_PX);
 			}
 
-			int toWidth = optionWidth.getAsPixels(view);
-			int toHeight = optionHeight.getAsPixels(view);
+			ViewParent parent = view.getParent();
+			View parentView = null;
+
+			if (parent instanceof View) {
+				parentView = (View) parent;
+			}
+
+			int toWidth = optionWidth.getAsPixels((parentView != null) ? parentView : view);
+			int toHeight = optionHeight.getAsPixels((parentView != null) ? parentView : view);
 
 			SizeAnimation sizeAnimation = new SizeAnimation(view, w, h, toWidth, toHeight);
 
