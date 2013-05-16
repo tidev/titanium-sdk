@@ -61,6 +61,9 @@
 #ifdef USE_TI_UIIPHONELISTVIEWCELLSELECTIONSTYLE
 	TiProxy *listViewCellSelectionStyle;
 #endif
+#ifdef USE_TI_UIIPHONELISTVIEWSEPARATORSTYLE
+	TiProxy *listViewSeparatorStyle;
+#endif
 }
 
 #ifdef USE_TI_UIIPHONEANIMATIONSTYLE
@@ -113,6 +116,9 @@
 #endif
 #ifdef USE_TI_UIIPHONELISTVIEWCELLSELECTIONSTYLE
 @property(nonatomic,readonly) TiProxy* ListViewCellSelectionStyle;
+#endif
+#ifdef USE_TI_UIIPHONELISTVIEWSEPARATORSTYLE
+@property(nonatomic,readonly) TiProxy* ListViewSeparatorStyle;
 #endif
 
 

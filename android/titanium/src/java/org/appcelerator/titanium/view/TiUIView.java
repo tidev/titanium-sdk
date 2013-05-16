@@ -122,6 +122,8 @@ public abstract class TiUIView
 
 	//to maintain sync visibility between borderview and view. Default is visible
 	private int visibility = View.VISIBLE;
+	
+	protected GestureDetector detector = null;
 
 
 	/**
@@ -1141,7 +1143,7 @@ public abstract class TiUIView
 				}
 			});
 
-		final GestureDetector detector = new GestureDetector(touchable.getContext(), new SimpleOnGestureListener()
+		detector = new GestureDetector(touchable.getContext(), new SimpleOnGestureListener()
 		{
 			@Override
 			public boolean onDoubleTap(MotionEvent e)
