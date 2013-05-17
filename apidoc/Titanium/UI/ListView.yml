@@ -141,7 +141,7 @@ platforms: [android, ipad, iphone]
 extends: Titanium.UI.View
 since: '3.1.0'
 excludes:
-    events: [focus]
+    events: [focus,keypressed,longclick,touchcancel,touchend,touchmove,touchstart]
     properties: [backgroundSelectedColor, backgroundSelectedImage, enabled]
 events:
   - name: itemclick
@@ -180,6 +180,27 @@ events:
             clicked.
         type: Boolean
         platforms: [iphone, ipad]
+
+  - name: dblclick
+    platforms: [iphone,ipad]
+
+  - name: doubletap
+    platforms: [iphone,ipad]
+
+  - name: longpress
+    platforms: [iphone,ipad]
+
+  - name: pinch
+    platforms: [iphone,ipad]
+
+  - name: singletap
+    platforms: [iphone,ipad]
+
+  - name: swipe
+    platforms: [iphone,ipad]
+
+  - name: twofingertap
+    platforms: [iphone,ipad]
 
 properties:
 
