@@ -1,16 +1,16 @@
-define(["Ti/_/declare", "Ti/_/dom", "Ti/_/UI/Element", "Ti/_/lang", "Ti/_/string", "Ti/_/Layouts", "Ti/_/style", "Ti/UI"],
+define(['Ti/_/declare', 'Ti/_/dom', 'Ti/_/UI/Element', 'Ti/_/lang', 'Ti/_/string', 'Ti/_/Layouts', 'Ti/_/style', 'Ti/UI'],
 	function(declare, dom, Element, lang, string, Layouts, style, UI) {
 
-	return declare("Ti.UI.View", Element, {
+	return declare('Ti.UI.View', Element, {
 
 		constructor: function() {
 			this.constants.__values__.children = [];
-			this.layout = "composite";
+			this.layout = 'composite';
 			this.containerNode = this.domNode;
 		},
 
 		/**
-		 * Marks a view as "published," meaning it will show up in {@link Ti#UI#View#children} and can be the source of
+		 * Marks a view as 'published,' meaning it will show up in {@link Ti#UI#View#children} and can be the source of
 		 * UI events.
 		 *
 		 * @private
@@ -23,7 +23,7 @@ define(["Ti/_/declare", "Ti/_/dom", "Ti/_/UI/Element", "Ti/_/lang", "Ti/_/string
 		},
 
 		/**
-		 * Marks a view as "unpublished," meaning it will <em>not</em> show up in {@link Ti#UI#View#children} and can
+		 * Marks a view as 'unpublished,' meaning it will <em>not</em> show up in {@link Ti#UI#View#children} and can
 		 * <em>not</em> be the source of UI events.
 		 *
 		 * @private
@@ -57,15 +57,15 @@ define(["Ti/_/declare", "Ti/_/dom", "Ti/_/UI/Element", "Ti/_/lang", "Ti/_/string
 		properties: {
 			layout: {
 				set: function(value) {
-					var match = value.match(/^(horizontal|vertical|constrainingHorizontal|constrainingVertical)$/);
-					value = match ? match[0] : "composite";
+					var match = value && value.match(/^(horizontal|vertical|constrainingHorizontal|constrainingVertical)$/);
+					value = match ? match[0] : 'composite';
 
 					if (this._layout) {
 						this._layout.destroy();
 						this._layout = null;
 					}
 
-					this._layout = new Layouts[string.capitalize(value === "horizontal" && !this.horizontalWrap ? "constrainingHorizontal" : value)](this);
+					this._layout = new Layouts[string.capitalize(value === 'horizontal' && !this.horizontalWrap ? 'constrainingHorizontal' : value)](this);
 
 					return value;
 				}
