@@ -5,7 +5,7 @@
 
 import os, sys, platform, glob, subprocess, types, re
 
-DEFAULT_API_LEVEL = 8
+DEFAULT_API_LEVEL = 10
 
 android_api_levels = {
 	3: 'android-1.5',
