@@ -69,7 +69,7 @@ java_keywords = [
 ]
 
 
-MIN_API_LEVEL = 8
+MIN_API_LEVEL = 10
 HONEYCOMB_MR2_LEVEL = 13
 KNOWN_ABIS = ("armeabi", "armeabi-v7a", "x86")
 
