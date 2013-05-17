@@ -26,7 +26,7 @@ var ti = require('titanium-sdk'),
 	version = appc.version,
 	parallel = appc.async.parallel,
 	series = appc.async.series,
-	minIosSdkVersion = '4.0',
+	minIosSdkVersion = '5.0',
 	iosEnv,
 	devNameIdRegExp = /\([0-9A-Za-z]*\)$/,
 	targets = ['simulator', 'device', 'dist-appstore', 'dist-adhoc'],
@@ -908,9 +908,9 @@ function build(logger, config, cli, finished) {
 
 	// validate the min-ios-ver from the tiapp.xml
 	this.minIosVer = this.tiapp.ios && this.tiapp.ios['min-ios-ver'] || minIosSdkVersion;
-	if (version.gte(this.iosSdkVersion, '6.0') && version.lt(this.minIosVer, '4.3')) {
-		this.logger.info(__('Building for iOS %s; using %s as minimum iOS version', version.format(this.iosSdkVersion, 2).cyan, '4.3'.cyan));
-		this.minIosVer = '4.3';
+	if (version.gte(this.iosSdkVersion, '6.0') && version.lt(this.minIosVer, '5.0')) {
+		this.logger.info(__('Building for iOS %s; using %s as minimum iOS version', version.format(this.iosSdkVersion, 2).cyan, '5.0'.cyan));
+		this.minIosVer = '5.0';
 	} else if (version.lt(this.minIosVer, minIosSdkVersion)) {
 		this.logger.info(__('The %s of the iOS section in the tiapp.xml is lower than minimum supported version: Using %s as minimum', 'min-ios-ver'.cyan, version.format(minIosSdkVersion, 2).cyan));
 		this.minIosVer = minIosSdkVersion;
