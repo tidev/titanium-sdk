@@ -120,6 +120,12 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 	id<TiEvaluator> executionContext;
 }
 
+/* Convenience method, especially for autoloading modules. The selector
+ * is a class method taking one argument, which is the TiBindingRunLoop
+ * started.
+ */
++(void)performSelectorDuringRunLoopStart:(SEL)selector;
+
 -(void)boundBridge:(id<TiEvaluator>)newBridge withKrollObject:(KrollObject *)newKrollObject;
 -(void)unboundBridge:(id<TiEvaluator>)oldBridge;
 
