@@ -55,10 +55,8 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 		[appDelegate endBackgrounding];
 		/* End backgrounding simulation */
 		
-		/* Disconnect the old view system */
+		/* Disconnect the old view system, intentionally leak controller and UIWindow */
 		[[appDelegate window] removeFromSuperview];
-		[[appDelegate window] autorelease];
-		[viewController autorelease];
 
 		/* Disconnect the old modules. */
 		NSNotificationCenter * nc = [NSNotificationCenter defaultCenter];
