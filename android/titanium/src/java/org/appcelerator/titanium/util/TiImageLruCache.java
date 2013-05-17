@@ -41,7 +41,7 @@ public class TiImageLruCache extends LruCache<Integer, Bitmap>
 	{
 		// The cache size will be measured in kilobytes rather than
 		// number of items.
-		if (android.os.Build.VERSION.SDK_INT >= TiC.API_LEVEL_HONEYCOMB) {
+		if (android.os.Build.VERSION.SDK_INT > TiC.API_LEVEL_HONEYCOMB) {
 			return bitmap.getByteCount() / 1024;
 		} else {
 			return bitmap.getRowBytes() * bitmap.getHeight() / 1024;
