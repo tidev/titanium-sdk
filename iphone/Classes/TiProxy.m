@@ -185,9 +185,26 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 	}
 }
 
+typedef struct {
+	Class class;
+	SEL selector;
+} TiClassSelectorPair;
 
+void TiClassSelectorFunction(TiBindingRunLoop runloop, void * payload)
+{
+	TiClassSelectorPair * pair = payload;
+	[(Class)(pair->class) performSelector:(SEL)(pair->selector) withObject:runloop];
+}
 
 @implementation TiProxy
+
++(void)performSelectorDuringRunLoopStart:(SEL)selector
+{
+	TiClassSelectorPair * pair = malloc(sizeof(TiClassSelectorPair));
+	pair->class = [self class];
+	pair->selector = selector;
+	TiBindingRunLoopCallOnStart(TiClassSelectorFunction,pair);
+}
 
 @synthesize pageContext, executionContext;
 @synthesize modelDelegate;

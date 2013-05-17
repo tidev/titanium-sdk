@@ -357,6 +357,8 @@ public class TiListView extends TiUIView {
 		} else if (key.equals(TiC.PROPERTY_DEFAULT_ITEM_TEMPLATE) && newValue != null) {
 			defaultTemplateBinding = TiConvert.toString(newValue);
 			refreshItems();
+		} else {
+			super.propertyChanged(key, oldValue, newValue, proxy);
 		}
 	}
 

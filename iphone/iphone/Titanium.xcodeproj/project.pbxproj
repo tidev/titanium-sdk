@@ -552,6 +552,9 @@
 		84BBA58816570F90006B8C22 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 84BBA58716570F90006B8C22 /* Security.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
 		84BBA58A16570FA0006B8C22 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 84BBA58716570F90006B8C22 /* Security.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
 		84BBA58B16570FAF006B8C22 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 84BBA58716570F90006B8C22 /* Security.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
+		84C3870217417CB800970D26 /* TiSelectedCellbackgroundView.m in Sources */ = {isa = PBXBuildFile; fileRef = 84C3870117417CB800970D26 /* TiSelectedCellbackgroundView.m */; };
+		84C3870317417CB800970D26 /* TiSelectedCellbackgroundView.m in Sources */ = {isa = PBXBuildFile; fileRef = 84C3870117417CB800970D26 /* TiSelectedCellbackgroundView.m */; };
+		84C3870417417CB800970D26 /* TiSelectedCellbackgroundView.m in Sources */ = {isa = PBXBuildFile; fileRef = 84C3870117417CB800970D26 /* TiSelectedCellbackgroundView.m */; };
 		84D541A31460B2E0005338D1 /* TiDOMNotationProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 84D541A21460B2DF005338D1 /* TiDOMNotationProxy.m */; };
 		84D541A41460B2E0005338D1 /* TiDOMNotationProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 84D541A21460B2DF005338D1 /* TiDOMNotationProxy.m */; };
 		84D541A51460B2E0005338D1 /* TiDOMNotationProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 84D541A21460B2DF005338D1 /* TiDOMNotationProxy.m */; };
@@ -1443,6 +1446,8 @@
 		848C25A2145F501600E1B0F1 /* TiDOMDocFragProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiDOMDocFragProxy.h; sourceTree = "<group>"; };
 		848C25A3145F501600E1B0F1 /* TiDOMDocFragProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiDOMDocFragProxy.m; sourceTree = "<group>"; };
 		84BBA58716570F90006B8C22 /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
+		84C3870017417CB800970D26 /* TiSelectedCellbackgroundView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiSelectedCellbackgroundView.h; sourceTree = "<group>"; };
+		84C3870117417CB800970D26 /* TiSelectedCellbackgroundView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiSelectedCellbackgroundView.m; sourceTree = "<group>"; };
 		84D541A11460B2DF005338D1 /* TiDOMNotationProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiDOMNotationProxy.h; sourceTree = "<group>"; };
 		84D541A21460B2DF005338D1 /* TiDOMNotationProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiDOMNotationProxy.m; sourceTree = "<group>"; };
 		84D541A61460B3C7005338D1 /* TiDOMEntityProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiDOMEntityProxy.h; sourceTree = "<group>"; };
@@ -1975,6 +1980,8 @@
 				B468B4F011B5816F007D1C1E /* TiLayoutQueue.m */,
 				DAA72341156D642400757987 /* TiConsole.h */,
 				DAA72342156D642400757987 /* TiConsole.m */,
+				84C3870017417CB800970D26 /* TiSelectedCellbackgroundView.h */,
+				84C3870117417CB800970D26 /* TiSelectedCellbackgroundView.m */,
 			);
 			name = Utils;
 			sourceTree = "<group>";
@@ -3448,6 +3455,7 @@
 				502A68E316EEAA7500661EF6 /* TiUIListView.m in Sources */,
 				502A68E616EEAA7500661EF6 /* TiUIListViewProxy.m in Sources */,
 				502A68EB16F0428500661EF6 /* TiViewTemplate.m in Sources */,
+				84C3870217417CB800970D26 /* TiSelectedCellbackgroundView.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3730,6 +3738,7 @@
 				502A68E416EEAA7500661EF6 /* TiUIListView.m in Sources */,
 				502A68E716EEAA7500661EF6 /* TiUIListViewProxy.m in Sources */,
 				502A68EC16F0428500661EF6 /* TiViewTemplate.m in Sources */,
+				84C3870317417CB800970D26 /* TiSelectedCellbackgroundView.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -4012,6 +4021,7 @@
 				502A68E516EEAA7500661EF6 /* TiUIListView.m in Sources */,
 				502A68E816EEAA7500661EF6 /* TiUIListViewProxy.m in Sources */,
 				502A68ED16F0428500661EF6 /* TiViewTemplate.m in Sources */,
+				84C3870417417CB800970D26 /* TiSelectedCellbackgroundView.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

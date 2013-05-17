@@ -32,6 +32,12 @@
     return self;
 }
 
+-(void)_initWithProperties:(NSDictionary *)properties
+{
+    [self initializeProperty:@"canScroll" defaultValue:NUMBOOL(YES)];
+    [super _initWithProperties:properties];
+}
+
 - (void)dealloc
 {
 	[_operationQueue release];
@@ -374,6 +380,43 @@
 		[tableView selectRowAtIndexPath:indexPath animated:YES scrollPosition:UITableViewScrollPositionNone];
 		[tableView scrollToRowAtIndexPath:indexPath atScrollPosition:UITableViewScrollPositionNone animated:YES];
 	}];
+}
+
+- (void)deselectItem:(id)args
+{
+	ENSURE_ARG_COUNT(args, 2);
+	NSUInteger sectionIndex = [TiUtils intValue:[args objectAtIndex:0]];
+	NSUInteger itemIndex = [TiUtils intValue:[args objectAtIndex:1]];
+	[self dispatchUpdateAction:^(UITableView *tableView) {
+		if ([_sections count] <= sectionIndex) {
+			DebugLog(@"[WARN] ListView: Select section index is out of range");
+			return;
+		}
+		TiUIListSectionProxy *section = [_sections objectAtIndex:sectionIndex];
+		if (section.itemCount <= itemIndex) {
+			DebugLog(@"[WARN] ListView: Select item index is out of range");
+			return;
+		}
+		NSIndexPath *indexPath = [NSIndexPath indexPathForRow:itemIndex inSection:sectionIndex];
+		[tableView deselectRowAtIndexPath:indexPath animated:YES];
+	}];
+}
+
+-(void)setContentInsets:(id)args
+{
+    id arg1;
+    id arg2;
+    if ([args isKindOfClass:[NSDictionary class]]) {
+        arg1 = args;
+        arg2 = nil;
+    }
+    else {
+        arg1 = [args objectAtIndex:0];
+        arg2 = [args count] > 1 ? [args objectAtIndex:1] : nil;
+    }
+    TiThreadPerformOnMainThread(^{
+        [self.listView setContentInsets_:arg1 withObject:arg2];
+    }, NO);
 }
 
 DEFINE_DEF_BOOL_PROP(willScrollOnStatusTap,YES);
