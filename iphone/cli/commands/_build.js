@@ -2263,24 +2263,19 @@ build.prototype = {
 				fs.symlinkSync(srcFile, destFile);
 				setTimeout(cb, 1);
 			}),
-			symlinkResources = function (src, dest, collapseIosIphoneDirs, cb) {
+			symlinkResources = function (src, dest, ignorePlatformDirs, cb) {
 				if (afs.exists(src)) {
 					this.logger.debug(__('Walking directory %s', src.cyan));
 					wrench.mkdirSyncRecursive(dest);
 
 					series(this, fs.readdirSync(src).map(function (file) {
 						return function (next) {
-							var isIosIphoneDir = file == 'ios' || file == 'iphone';
-							// if this is a iphone-only build, do not copy any ipad images
-							// if this is an ignored file, do not copy the file
-							// if we're collapsing ios/iphone dir to the root and it's not mobileweb or android
-							// then copy the file!
-							if ((this.deviceFamily != 'iphone' || ipadSplashImages.indexOf(file) == -1) && !ignoreRegExp.test(file) && (!collapseIosIphoneDirs || isIosIphoneDir || ti.availablePlatformsNames.indexOf(file) == -1)) {
+							if ((this.deviceFamily != 'iphone' || ipadSplashImages.indexOf(file) == -1) && !ignoreRegExp.test(file) && (!ignorePlatformDirs || ti.availablePlatformsNames.indexOf(file) == -1)) {
 								var srcFile = path.join(src, file),
 									destFile = path.join(dest, file);
 								if (fs.statSync(srcFile).isDirectory()) {
 									setTimeout(function () {
-										symlinkResources(srcFile, collapseIosIphoneDirs && isIosIphoneDir ? path.dirname(destFile) : destFile, false, next);
+										symlinkResources(srcFile, destFile, false, next);
 									}, 1);
 								} else if (unsymlinkableFileRegExp.test(file) || file == this.tiapp.icon) {
 									afs.copyFileSync(srcFile, destFile, { logger: this.logger.debug });
@@ -2304,6 +2299,12 @@ build.prototype = {
 		series(this, [
 			function (next) {
 				symlinkResources(path.join(this.projectDir, 'Resources'), this.xcodeAppDir, true, next);
+			},
+			function (next) {
+				symlinkResources(path.join(this.projectDir, 'Resources', 'ios'), this.xcodeAppDir, false, next);
+			},
+			function (next) {
+				symlinkResources(path.join(this.projectDir, 'Resources', 'iphone'), this.xcodeAppDir, false, next);
 			},
 			function (next) {
 				symlinkResources(path.join(this.projectDir, 'platform', 'ios'), this.xcodeAppDir, false, next);
