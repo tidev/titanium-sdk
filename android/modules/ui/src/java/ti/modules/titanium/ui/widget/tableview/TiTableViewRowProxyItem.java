@@ -299,6 +299,16 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 				rp.setProperty(TiC.PROPERTY_TOUCH_ENABLED, false);
 			}
 		}
+		// Check if this was a regular row and the control was removed
+		// if so, cleanup the views
+		if (views != null && views.size() > 0) {
+			TiUIView rv = views.get(0);
+			if (!(rv instanceof TiUILabel)) {
+				content.removeAllViews();
+				views.clear();
+				views = null;
+			}
+		}
 		if (views == null) {
 			views = new ArrayList<TiUIView>();
 			views.add(new TiUILabel(rp));
@@ -306,7 +316,7 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 		TiUILabel t = (TiUILabel) views.get(0);
 		t.setProxy(rp);
 		t.processProperties(filterProperties(rp.getProperties()));
-		View v = t.getNativeView();
+		View v = t.getOuterView();
 		if (v.getParent() == null) {
 			TiCompositeLayout.LayoutParams params = (TiCompositeLayout.LayoutParams) t.getLayoutParams();
 			params.optionLeft = new TiDimension(5, TiDimension.TYPE_LEFT);

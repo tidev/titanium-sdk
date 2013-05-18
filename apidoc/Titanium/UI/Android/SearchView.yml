@@ -94,7 +94,7 @@ examples:
             var search;
             var searchAsChild = false;
 
-            if (Ti.Platform.name == 'android' && Ti.Platform.Android.API_LEVEL > 11) {
+            if (Ti.Platform.name == 'android' && Ti.Platform.Android.API_LEVEL >= 11) {
                 // Use action bar search view
                 search = Ti.UI.Android.createSearchView({
                     hintText: "Table Search"
@@ -152,7 +152,7 @@ examples:
 
         index.js:
 
-            if (OS_ANDROID && Ti.Platform.Android.API_LEVEL > 11) {
+            if (OS_ANDROID && Ti.Platform.Android.API_LEVEL >= 11) {
                 // use action bar search view
                 var search = Alloy.createController("searchview").getView();
                 $.tableview.searchAsChild = false;

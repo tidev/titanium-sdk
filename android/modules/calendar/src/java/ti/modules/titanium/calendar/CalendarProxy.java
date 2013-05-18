@@ -1,4 +1,11 @@
-package ti.modules.titanium.android.calendar;
+/**
+ * Appcelerator Titanium Mobile
+ * Copyright (c) 2011-2013 by Appcelerator, Inc. All Rights Reserved.
+ * Licensed under the terms of the Apache Public License
+ * Please see the LICENSE included with this distribution for details.
+ */
+
+package ti.modules.titanium.calendar;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -26,7 +33,7 @@ public class CalendarProxy extends KrollProxy {
 	public CalendarProxy(String id, String name, boolean selected, boolean hidden)
 	{
 		super();
-		
+
 		this.id = id;
 		this.name = name;
 		this.selected = selected;
@@ -43,7 +50,7 @@ public class CalendarProxy extends KrollProxy {
 		if (Build.VERSION.SDK_INT >= 8) { // FROYO, 2.2
 			return "content://com.android.calendar";
 		}
-		
+
 		return "content://calendar";
 	}
 
@@ -51,7 +58,7 @@ public class CalendarProxy extends KrollProxy {
 	{
 		ArrayList<CalendarProxy> calendars = new ArrayList<CalendarProxy>();
 		ContentResolver contentResolver = TiApplication.getInstance().getContentResolver();
-		
+
 		Cursor cursor = null;
 		if (Build.VERSION.SDK_INT >= 14) { // ICE_CREAM_SANDWICH, 4.0
 			cursor = contentResolver.query(Uri.parse(getBaseCalendarUri() + "/calendars"),
@@ -65,7 +72,7 @@ public class CalendarProxy extends KrollProxy {
 			cursor = contentResolver.query(Uri.parse(getBaseCalendarUri() + "/calendars"),
 				new String[] { "_id", "displayName", "selected", "hidden" }, query, queryArgs, null);
 		}
-		
+
 		// calendars can be null
 		if (cursor!=null)
 		{
@@ -82,7 +89,7 @@ public class CalendarProxy extends KrollProxy {
 				calendars.add(new CalendarProxy(id, name, selected, hidden));
 			}
 		}
-		
+
 		return calendars;
 	}
 
@@ -97,13 +104,13 @@ public class CalendarProxy extends KrollProxy {
 		Calendar jan1 = Calendar.getInstance();
 		jan1.clear();
 		jan1.set(year, 0, 1);
-		
+
 		long date1 = jan1.getTimeInMillis();
 		long date2 = date1 + DateUtils.YEAR_IN_MILLIS;
 		ArrayList<EventProxy> events = EventProxy.queryEventsBetweenDates(date1, date2, this);
 		return events.toArray(new EventProxy[events.size()]);
 	}
-	
+
 	@Kroll.method
 	public EventProxy[] getEventsInMonth(int year, int month)
 	{
@@ -113,17 +120,17 @@ public class CalendarProxy extends KrollProxy {
 		Calendar lastOfTheMonth = Calendar.getInstance();
 		lastOfTheMonth.clear();
 		lastOfTheMonth.set(year, month, 1, 23, 59, 59);
-		
+
 		int lastDay = lastOfTheMonth.getActualMaximum(Calendar.DAY_OF_MONTH);
 		lastOfTheMonth.set(Calendar.DAY_OF_MONTH, lastDay);
-		
+
 		long date1 = firstOfTheMonth.getTimeInMillis();
 		long date2 = lastOfTheMonth.getTimeInMillis();
-		
+
 		ArrayList<EventProxy> events = EventProxy.queryEventsBetweenDates(date1, date2, this);
 		return events.toArray(new EventProxy[events.size()]);
 	}
-	
+
 	@Kroll.method
 	public EventProxy[] getEventsInDate(int year, int month, int day)
 	{
@@ -133,14 +140,14 @@ public class CalendarProxy extends KrollProxy {
 		Calendar endOfDay = Calendar.getInstance();
 		endOfDay.clear();
 		endOfDay.set(year, month, day, 23, 59, 59);
-		
+
 		long date1 = beginningOfDay.getTimeInMillis();
 		long date2 = endOfDay.getTimeInMillis();
-		
+
 		ArrayList<EventProxy> events = EventProxy.queryEventsBetweenDates(date1, date2, this);
 		return events.toArray(new EventProxy[events.size()]);
 	}
-	
+
 	@Kroll.method
 	public EventProxy[] getEventsBetweenDates(Date date1, Date date2)
 	{
@@ -158,7 +165,7 @@ public class CalendarProxy extends KrollProxy {
 
 		return events.toArray(new EventProxy[events.size()]);
 	}
-	
+
 	@Kroll.method
 	public EventProxy getEventById(int id)
 	{
@@ -167,31 +174,31 @@ public class CalendarProxy extends KrollProxy {
 			return events.get(0);
 		} else return null;
 	}
-	
+
 	@Kroll.method
 	public EventProxy createEvent(KrollDict data)
 	{
 		return EventProxy.createEvent(this, data);
 	}
-	
+
 	@Kroll.getProperty @Kroll.method
 	public String getName()
 	{
 		return name;
 	}
-	
+
 	@Kroll.getProperty @Kroll.method
 	public String getId()
 	{
 		return id;
 	}
-	
+
 	@Kroll.getProperty @Kroll.method
 	public boolean getSelected()
 	{
 		return selected;
 	}
-	
+
 	@Kroll.getProperty @Kroll.method
 	public boolean getHidden()
 	{

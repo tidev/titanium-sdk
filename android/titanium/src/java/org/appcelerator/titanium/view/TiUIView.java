@@ -122,6 +122,8 @@ public abstract class TiUIView
 
 	//to maintain sync visibility between borderview and view. Default is visible
 	private int visibility = View.VISIBLE;
+	
+	protected GestureDetector detector = null;
 
 
 	/**
@@ -379,15 +381,16 @@ public abstract class TiUIView
 		if (animBuilder == null) {
 			animBuilder = new TiAnimationBuilder();
 		}
-		if (nativeView != null) {
+		View outerView = getOuterView();
+		if (outerView != null) {
 			if (matrix != null) {
 				TiMatrixAnimation matrixAnimation = animBuilder.createMatrixAnimation(matrix);
 				matrixAnimation.interpolate = false;
 				matrixAnimation.setDuration(1);
 				matrixAnimation.setFillAfter(true);
-				nativeView.startAnimation(matrixAnimation);
+				outerView.startAnimation(matrixAnimation);
 			} else {
-				nativeView.clearAnimation();
+				outerView.clearAnimation();
 			}
 		}
 	}
@@ -938,7 +941,8 @@ public abstract class TiUIView
 				applyCustomBackground(false);
 			}
 
-			Drawable bgDrawable = TiUIHelper.buildBackgroundDrawable(
+			if (background != null) {
+				Drawable bgDrawable = TiUIHelper.buildBackgroundDrawable(
 					bg,
 					TiConvert.toBoolean(d, TiC.PROPERTY_BACKGROUND_REPEAT, false),
 					bgColor,
@@ -950,7 +954,8 @@ public abstract class TiUIView
 					bgFocusedColor,
 					gradientDrawable);
 
-			background.setBackgroundDrawable(bgDrawable);
+				background.setBackgroundDrawable(bgDrawable);
+			}
 		}
 	}
 
@@ -1138,7 +1143,7 @@ public abstract class TiUIView
 				}
 			});
 
-		final GestureDetector detector = new GestureDetector(touchable.getContext(), new SimpleOnGestureListener()
+		detector = new GestureDetector(touchable.getContext(), new SimpleOnGestureListener()
 		{
 			@Override
 			public boolean onDoubleTap(MotionEvent e)

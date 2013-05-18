@@ -7,7 +7,6 @@
 #ifdef USE_TI_UILISTVIEW
 
 #import "TiUIListView.h"
-#import "TiUIListViewProxy.h"
 #import "TiUIListSectionProxy.h"
 #import "TiUIListItem.h"
 #import "TiUIListItemProxy.h"
@@ -79,6 +78,18 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 	return _tableView;
 }
 
+-(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
+{
+    [super frameSizeChanged:frame bounds:bounds];
+    
+    if (_headerViewProxy != nil) {
+        [_headerViewProxy parentSizeWillChange];
+    }
+    if (_footerViewProxy != nil) {
+        [_footerViewProxy parentSizeWillChange];
+    }
+}
+
 - (id)accessibilityElement
 {
 	return self.tableView;
@@ -98,6 +109,38 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 	}
 }
 
+-(void)proxyDidRelayout:(id)sender
+{
+    TiThreadPerformOnMainThread(^{
+        if (sender == _headerViewProxy) {
+            UIView* headerView = [[self tableView] tableHeaderView];
+            [headerView setFrame:[headerView bounds]];
+            [[self tableView] setTableHeaderView:headerView];
+        }
+        else if (sender == _footerViewProxy) {
+            UIView *footerView = [[self tableView] tableFooterView];
+            [footerView setFrame:[footerView bounds]];
+            [[self tableView] setTableFooterView:footerView];
+        }
+    },NO);
+}
+
+-(void)setContentInsets_:(id)value withObject:(id)props
+{
+    UIEdgeInsets insets = [TiUtils contentInsets:value];
+    BOOL animated = [TiUtils boolValue:@"animated" properties:props def:NO];
+    void (^setInset)(void) = ^{
+        [_tableView setContentInset:insets];
+    };
+    if (animated) {
+        double duration = [TiUtils doubleValue:@"duration" properties:props def:300]/1000;
+        [UIView animateWithDuration:duration animations:setInset];
+    }
+    else {
+        setInset();
+    }
+}
+
 - (void)setTemplates_:(id)args
 {
 	ENSURE_TYPE_OR_NIL(args,NSDictionary);
@@ -108,7 +151,50 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 	}
 }
 
+-(TiUIView*)sectionView:(NSInteger)section forLocation:(NSString*)location section:(TiUIListSectionProxy**)sectionResult
+{
+    TiUIListSectionProxy *proxy = [self.listViewProxy sectionForIndex:section];
+    //In the event that proxy is nil, this all flows out to returning nil safely anyways.
+    if (sectionResult!=nil) {
+        *sectionResult = proxy;
+    }
+    TiViewProxy* viewproxy = [proxy valueForKey:location];
+    if (viewproxy!=nil && [viewproxy isKindOfClass:[TiViewProxy class]]) {
+        LayoutConstraint *viewLayout = [viewproxy layoutProperties];
+        //If height is not dip, explicitly set it to SIZE
+        if (viewLayout->height.type != TiDimensionTypeDip) {
+            viewLayout->height = TiDimensionAutoSize;
+        }
+        
+        TiUIView* theView = [viewproxy view];
+        if (![viewproxy viewAttached]) {
+            [viewproxy windowWillOpen];
+            [viewproxy willShow];
+            [viewproxy windowDidOpen];
+        }
+        return theView;
+    }
+    return nil;
+}
+
 #pragma mark - Public API
+
+-(void)setCanScroll_:(id)args
+{
+    UITableView *table = [self tableView];
+    [table setScrollEnabled:[TiUtils boolValue:args def:YES]];
+}
+
+-(void)setSeparatorStyle_:(id)arg
+{
+    [[self tableView] setSeparatorStyle:[TiUtils intValue:arg]];
+}
+
+-(void)setSeparatorColor_:(id)arg
+{
+    TiColor *color = [TiUtils colorValue:arg];
+    [[self tableView] setSeparatorColor:[color _color]];
+}
 
 - (void)setDefaultItemTemplate_:(id)args
 {
@@ -141,8 +227,10 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 - (void)setHeaderTitle_:(id)args
 {
     if (_headerViewProxy != nil) {
+        [_headerViewProxy windowWillClose];
         [_headerViewProxy setProxyObserver:nil];
         [[self proxy] forgetProxy:_headerViewProxy];
+        [_headerViewProxy windowDidClose];
         _headerViewProxy = nil;
     }
 	[self.proxy replaceValue:args forKey:@"headerTitle" notification:NO];
@@ -152,12 +240,81 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 - (void)setFooterTitle_:(id)args
 {
     if (_footerViewProxy != nil) {
+        [_footerViewProxy windowWillClose];
         [_footerViewProxy setProxyObserver:nil];
         [[self proxy] forgetProxy:_footerViewProxy];
+        [_footerViewProxy windowDidClose];
         _footerViewProxy = nil;
     }
 	[self.proxy replaceValue:args forKey:@"footerTitle" notification:NO];
 	[self.tableView setTableFooterView:[[self class] titleViewForText:[TiUtils stringValue:args] inTable:self.tableView footer:YES]];
+}
+
+-(void)setHeaderView_:(id)args
+{
+    ENSURE_SINGLE_ARG_OR_NIL(args,TiViewProxy);
+    if (args!=nil) {
+        TiUIView *view = (TiUIView*) [args view];
+        UITableView *table = [self tableView];
+        [table setTableHeaderView:view];
+        if (_headerViewProxy != nil) {
+            [_headerViewProxy windowWillClose];
+            [_headerViewProxy setProxyObserver:nil];
+            [[self proxy] forgetProxy:_headerViewProxy];
+            [_headerViewProxy windowDidClose];
+        }
+        _headerViewProxy = args;
+        [_headerViewProxy setProxyObserver:self];
+        [[self proxy] rememberProxy:_headerViewProxy];
+        [_headerViewProxy windowWillOpen];
+        _headerViewProxy.parentVisible = YES;
+        [_headerViewProxy refreshSize];
+        [_headerViewProxy willChangeSize];
+        [_headerViewProxy windowDidOpen];
+    }
+    else {
+        if (_headerViewProxy != nil) {
+            [_headerViewProxy windowWillClose];
+            [_headerViewProxy setProxyObserver:nil];
+            [[self proxy] forgetProxy:_headerViewProxy];
+            [_headerViewProxy windowDidClose];
+            _headerViewProxy = nil;
+        }
+        [[self tableView] setTableHeaderView:nil];
+    }
+}
+
+-(void)setFooterView_:(id)args
+{
+    ENSURE_SINGLE_ARG_OR_NIL(args,TiViewProxy);
+    if (args!=nil) {
+        UIView *view = [args view];
+        [[self tableView] setTableFooterView:view];
+        if (_footerViewProxy != nil) {
+            [_footerViewProxy windowWillClose];
+            [_footerViewProxy setProxyObserver:nil];
+            [[self proxy] forgetProxy:_footerViewProxy];
+            [_footerViewProxy windowDidClose];
+        }
+        _footerViewProxy = args;
+        [_footerViewProxy setProxyObserver:self];
+        [[self proxy] rememberProxy:_footerViewProxy];
+        [_footerViewProxy windowWillOpen];
+        _footerViewProxy.parentVisible = YES;
+        [_footerViewProxy refreshSize];
+        [_footerViewProxy willChangeSize];
+        [_footerViewProxy windowDidOpen];
+    }
+    else {
+        if (_footerViewProxy != nil) {
+            [_footerViewProxy windowWillClose];
+            [_footerViewProxy setProxyObserver:nil];
+            [[self proxy] forgetProxy:_footerViewProxy];
+            [_footerViewProxy windowDidClose];
+            _footerViewProxy = nil;
+        }
+        [[self tableView] setTableFooterView:nil];
+    }
 }
 
 - (void)setScrollIndicatorStyle_:(id)value
@@ -225,6 +382,24 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 		[cellProxy release];
 		[cell autorelease];
 	}
+
+    if (tableView.style == UITableViewStyleGrouped) {
+        NSInteger maxItem = [self.listViewProxy sectionForIndex:indexPath.section].itemCount;
+        if (indexPath.row == 0) {
+            if (maxItem == 1) {
+                [cell setPosition:TiCellBackgroundViewPositionSingleLine isGrouped:YES];
+            } else {
+                [cell setPosition:TiCellBackgroundViewPositionTop isGrouped:YES];
+            }
+        } else if (indexPath.row == (maxItem - 1) ) {
+            [cell setPosition:TiCellBackgroundViewPositionBottom isGrouped:YES];
+        } else {
+            [cell setPosition:TiCellBackgroundViewPositionMiddle isGrouped:YES];
+        }
+    } else {
+        [cell setPosition:TiCellBackgroundViewPositionMiddle isGrouped:NO];
+    }
+    
 	cell.dataItem = item;
 	cell.proxy.indexPath = indexPath;
 	return cell;
@@ -241,6 +416,111 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 }
 
 #pragma mark - UITableViewDelegate
+
+- (UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section
+{
+    return [self sectionView:section forLocation:@"headerView" section:nil];
+}
+
+- (UIView *)tableView:(UITableView *)tableView viewForFooterInSection:(NSInteger)section
+{
+    return [self sectionView:section forLocation:@"footerView" section:nil];
+}
+
+#define DEFAULT_SECTION_HEADERFOOTER_HEIGHT 20.0
+
+- (CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section
+{
+    TiUIListSectionProxy *sectionProxy = [self.listViewProxy sectionForIndex:section];
+    TiUIView *view = [self sectionView:section forLocation:@"headerView" section:nil];
+	
+    CGFloat size = 0.0;
+    if (view!=nil) {
+        TiViewProxy* viewProxy = (TiViewProxy*) [view proxy];
+        LayoutConstraint *viewLayout = [viewProxy layoutProperties];
+        switch (viewLayout->height.type)
+        {
+            case TiDimensionTypeDip:
+                size += viewLayout->height.value;
+                break;
+            case TiDimensionTypeAuto:
+            case TiDimensionTypeAutoSize:
+                size += [viewProxy autoHeightForSize:[self.tableView bounds].size];
+                break;
+            default:
+                size+=DEFAULT_SECTION_HEADERFOOTER_HEIGHT;
+                break;
+        }
+    }
+    /*
+     * This behavior is slightly more complex between iOS 4 and iOS 5 than you might believe, and Apple's
+     * documentation is once again misleading. It states that in iOS 4 this value was "ignored if
+     * -[delegate tableView:viewForHeaderInSection:] returned nil" but apparently a non-nil value for
+     * -[delegate tableView:titleForHeaderInSection:] is considered a valid value for height handling as well,
+     * provided it is NOT the empty string.
+     *
+     * So for parity with iOS 4, iOS 5 must similarly treat the empty string header as a 'nil' value and
+     * return a 0.0 height that is overridden by the system.
+     */
+    else if ([sectionProxy headerTitle]!=nil) {
+        if ([[sectionProxy headerTitle] isEqualToString:@""]) {
+            return size;
+        }
+        size+=[tableView sectionHeaderHeight];
+        
+        if (size < DEFAULT_SECTION_HEADERFOOTER_HEIGHT) {
+            size += DEFAULT_SECTION_HEADERFOOTER_HEIGHT;
+        }
+    }
+    return size;
+}
+
+- (CGFloat)tableView:(UITableView *)tableView heightForFooterInSection:(NSInteger)section
+{
+    TiUIListSectionProxy *sectionProxy = [self.listViewProxy sectionForIndex:section];
+    TiUIView *view = [self sectionView:section forLocation:@"footerView" section:nil];
+	
+    CGFloat size = 0.0;
+    if (view!=nil) {
+        TiViewProxy* viewProxy = (TiViewProxy*) [view proxy];
+        LayoutConstraint *viewLayout = [viewProxy layoutProperties];
+        switch (viewLayout->height.type)
+        {
+            case TiDimensionTypeDip:
+                size += viewLayout->height.value;
+                break;
+            case TiDimensionTypeAuto:
+            case TiDimensionTypeAutoSize:
+                size += [viewProxy autoHeightForSize:[self.tableView bounds].size];
+                break;
+            default:
+                size+=DEFAULT_SECTION_HEADERFOOTER_HEIGHT;
+                break;
+        }
+    }
+    /*
+     * This behavior is slightly more complex between iOS 4 and iOS 5 than you might believe, and Apple's
+     * documentation is once again misleading. It states that in iOS 4 this value was "ignored if
+     * -[delegate tableView:viewForHeaderInSection:] returned nil" but apparently a non-nil value for
+     * -[delegate tableView:titleForHeaderInSection:] is considered a valid value for height handling as well,
+     * provided it is NOT the empty string.
+     *
+     * So for parity with iOS 4, iOS 5 must similarly treat the empty string header as a 'nil' value and
+     * return a 0.0 height that is overridden by the system.
+     */
+    else if ([sectionProxy footerTitle]!=nil) {
+        if ([[sectionProxy footerTitle] isEqualToString:@""]) {
+            return size;
+        }
+        size+=[tableView sectionFooterHeight];
+        
+        if (size < DEFAULT_SECTION_HEADERFOOTER_HEIGHT) {
+            size += DEFAULT_SECTION_HEADERFOOTER_HEIGHT;
+        }
+    }
+    return size;
+}
+
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
 {

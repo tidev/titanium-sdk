@@ -94,8 +94,20 @@ public class Ti2DMatrix extends KrollProxy
 			op.rotateFrom = 0;
 			op.rotateTo = TiConvert.toFloat(dict, TiC.PROPERTY_ROTATE);
 			handleAnchorPoint(dict);
-		}
-		if (dict.containsKey(TiC.PROPERTY_SCALE)) {
+
+			// If scale also specified in creation dict,
+			// then we need to link a scaling matrix separately.
+			if (dict.containsKey(TiC.PROPERTY_SCALE)) {
+				KrollDict newDict = new KrollDict();
+				newDict.put(TiC.PROPERTY_SCALE, dict.get(TiC.PROPERTY_SCALE));
+				if (dict.containsKey(TiC.PROPERTY_ANCHOR_POINT)) {
+					newDict.put(TiC.PROPERTY_ANCHOR_POINT, dict.get(TiC.PROPERTY_ANCHOR_POINT));
+				}
+				prev = new Ti2DMatrix();
+				prev.handleCreationDict(newDict);
+			}
+
+		} else if (dict.containsKey(TiC.PROPERTY_SCALE)) {
 			op = new Operation(Operation.TYPE_SCALE);
 			op.scaleFromX = op.scaleFromY = 1.0f;
 			op.scaleToX = op.scaleToY = TiConvert.toFloat(dict, TiC.PROPERTY_SCALE);

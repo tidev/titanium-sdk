@@ -582,7 +582,7 @@ methods:
         The `honorScaleFactor` method is only supported on iOS.
     returns:
         type: Titanium.Blob
-    platforms: [android, iphone, ipad, tizen]
+    platforms: [android, iphone, ipad]
     parameters:
       - name: callback
         summary: | 

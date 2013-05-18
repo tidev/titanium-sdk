@@ -350,9 +350,6 @@ public class TiTableView extends FrameLayout
 					if (!(view instanceof TiBaseTableViewItem)) {
 						return;
 					}
-					if (TiTableView.this.proxy.hasProperty(TiC.PROPERTY_HEADER_VIEW)) {
-						position -= 1;
-					}
 					rowClicked((TiBaseTableViewItem)view, position, false);
 				}
 			}
@@ -408,6 +405,9 @@ public class TiTableView extends FrameLayout
 	}
 	
 	public Item getItemAtPosition(int position) {
+		if (proxy.hasProperty(TiC.PROPERTY_HEADER_VIEW)) {
+			position -= 1;
+		}
 		return viewModel.getViewModel().get(adapter.index.get(position));
 	}
 

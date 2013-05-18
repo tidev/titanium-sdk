@@ -103,8 +103,8 @@ description: |
     
     The value for each setting that will be used is based on the following rules: 
     
-    * OAuth is preferred over apiKey. If both the OAuth key and OAuth secret are provided then 
-      OAuth will be used; otherwise, apiKey will be used.
+    * apiKey is preferred over OAuth. If apiKey is provided then 
+      apiKey will be used; otherwise, OAuth will be used.
     * If a deployment-specific setting is provided (production or development) then that value will 
       be used for the current deployment environment.
     

@@ -429,8 +429,11 @@ def generate(raw_apis, annotated_apis, options):
 
 				if obj.has_key('type'):
 					write_utf8(output, "\t * @type %s\n" % (transform_type(obj["type"])))
-				if obj.has_key('permission') and obj["permission"] == "read-only":
-					write_utf8(output, "\t * @readonly\n")
+				if obj.has_key('permission'):
+					if obj["permission"] == "read-only":
+						write_utf8(output, "\t * @readonly\n")
+					elif obj["permission"] == "write-only":
+						write_utf8(output, "\t * @writeonly\n")
 				write_utf8(output, output_properties_for_obj(k))
 				write_utf8(output, get_summary_and_description(obj))
 				write_utf8(output, output_examples_for_obj(obj))
@@ -502,6 +505,7 @@ def generate(raw_apis, annotated_apis, options):
 				write_utf8(output, "/**\n\t * @event %s\n" % (k.name))
 				write_utf8(output, get_summary_and_description(obj))
 				write_utf8(output, output_examples_for_obj(obj))
+				write_utf8(output, output_deprecation_for_obj(k))
 
 				if k.properties is not None:
 					for param in k.properties:

@@ -12,6 +12,11 @@ description: |
 
     For all other socket needs, use <Titanium.Network.Socket.TCP>.
     
+    To use this API on Tizen, you must include the following privilege in the `tiapp.xml` 
+    file of your Titanium application: 
+
+    * `http://tizen.org/privilege/systeminfo`
+    
 extends: Titanium.Module
 since: "0.1"
 methods:

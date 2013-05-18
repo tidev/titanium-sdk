@@ -1,12 +1,12 @@
 {
-	"min_api_level": "8",
+	"min_api_level": "10",
 	"dependencies":
 	{
 		"accelerometer":[],
 		"analytics":[],
 		"android":[],
 		"app":[],
-		"calendar":["android"],
+		"calendar":[],
 		"contacts":[],
 		"database":[],
 		"filesystem":[],
