@@ -26,7 +26,7 @@ var ti = require('titanium-sdk'),
 	version = appc.version,
 	parallel = appc.async.parallel,
 	series = appc.async.series,
-	minIosSdkVersion = '4.0',
+	minIosSdkVersion = '5.0',
 	iosEnv,
 	devNameIdRegExp = /\([0-9A-Za-z]*\)$/,
 	targets = ['simulator', 'device', 'dist-appstore', 'dist-adhoc'],
@@ -908,9 +908,9 @@ function build(logger, config, cli, finished) {
 
 	// validate the min-ios-ver from the tiapp.xml
 	this.minIosVer = this.tiapp.ios && this.tiapp.ios['min-ios-ver'] || minIosSdkVersion;
-	if (version.gte(this.iosSdkVersion, '6.0') && version.lt(this.minIosVer, '4.3')) {
-		this.logger.info(__('Building for iOS %s; using %s as minimum iOS version', version.format(this.iosSdkVersion, 2).cyan, '4.3'.cyan));
-		this.minIosVer = '4.3';
+	if (version.gte(this.iosSdkVersion, '6.0') && version.lt(this.minIosVer, '5.0')) {
+		this.logger.info(__('Building for iOS %s; using %s as minimum iOS version', version.format(this.iosSdkVersion, 2).cyan, '5.0'.cyan));
+		this.minIosVer = '5.0';
 	} else if (version.lt(this.minIosVer, minIosSdkVersion)) {
 		this.logger.info(__('The %s of the iOS section in the tiapp.xml is lower than minimum supported version: Using %s as minimum', 'min-ios-ver'.cyan, version.format(minIosSdkVersion, 2).cyan));
 		this.minIosVer = minIosSdkVersion;
@@ -1060,55 +1060,7 @@ build.prototype = {
 				wrench.mkdirSyncRecursive(this.xcodeAppDir);
 
 				parallel(this, [
-					function (next) {
-						if (this.target == 'simulator') {
-							if (this.deployType == 'development') {
-								if (this.forceCopy) {
-									this.logger.info(__('Forcing copying of files instead of creating symlinks'));
-								} else {
-									return this.createSymlinks(next);
-								}
-							} else {
-								// during simulator we need to copy in standard built-in module files
-								// since we might not run the compiler on subsequent launches
-								this.copyDirSync(path.join(this.titaniumIosSdkPath, 'modules'), path.join(this.xcodeAppDir, 'modules'));
-
-								var copyOpts = {
-									preserve: true,
-									logger: this.logger.debug,
-									ignoreDirs: ['.git', '.svn', 'CVS'],
-									ignoreFiles: ['.gitignore', '.cvsignore']
-								};
-
-								if (this.deviceFamily == 'iphone') {
-									copyOpts.rootIgnore = ipadSplashImages;
-								}
-
-								// when in simulator since we point to the resources directory, we need
-								// to explicitly copy over any files
-								['ios', 'iphone'].forEach(function (name) {
-									var dir = path.join(this.projectDir, 'Resources', name);
-									afs.exists(dir) && this.copyDirSync(dir, this.xcodeAppDir, copyOpts);
-
-									dir = path.join(this.projectDir, 'platform', name);
-									afs.exists(dir) && this.copyDirSync(dir, this.xcodeAppDir, copyOpts);
-								}, this);
-
-								// copy the custom fonts
-								fs.readdirSync(path.join(this.projectDir, 'Resources')).forEach(function (file) {
-									var src = path.join(this.projectDir, 'Resources', file);
-									if (fs.statSync(src).isFile() && /.+\.(ttf|otf)$/.test(file)) {
-										this.logger.info(__('Detected custom font: %s', file));
-
-										var dest = path.join(this.xcodeAppDir, file);
-										afs.exists(dest) && fs.unlinkSync(dest);
-										afs.copyFileSync(src, dest, { logger: this.logger.debug });
-									}
-								}, this);
-							}
-						}
-						next();
-					},
+					'createSymlinks',
 					'createDebuggerPlist',
 					'createProfilerPlist',
 					'injectModulesIntoXcodeProject',
@@ -1147,6 +1099,7 @@ build.prototype = {
 			plist = new appc.plist(),
 			iphone = this.tiapp.iphone,
 			ios = this.tiapp.ios,
+			defaultInfoPlist = path.join(this.titaniumIosSdkPath, 'Info.plist'),
 			fbAppId = this.tiapp.properties && this.tiapp.properties['ti.facebook.appid'] && this.tiapp.properties['ti.facebook.appid']['value'],
 			iconName = this.tiapp.icon.replace(/(.+)(\..*)$/, '$1'), // note: this is basically stripping the file extension
 			consts = {
@@ -1171,8 +1124,9 @@ build.prototype = {
 			});
 		}
 
-		if (afs.exists(this.titaniumIosSdkPath, 'Info.plist')) {
-			plist.parse(fs.readFileSync(path.join(this.titaniumIosSdkPath, 'Info.plist')).toString().replace(/(__.+__)/g, function (match, key, format) {
+		// default info.plist
+		if (afs.exists(defaultInfoPlist)) {
+			plist.parse(fs.readFileSync(defaultInfoPlist).toString().replace(/(__.+__)/g, function (match, key, format) {
 				return consts.hasOwnProperty(key) ? consts[key] : '<!-- ' + key + ' -->'; // if they key is not a match, just comment out the key
 			}));
 		}
@@ -1285,6 +1239,31 @@ build.prototype = {
 			}
 		}, this);
 
+		// scan for ttf and otf font files
+		var fontMap = {},
+			resourceDir = path.join(this.projectDir, 'Resources'),
+			iphoneDir = path.join(resourceDir, 'iphone'),
+			iosDir = path.join(resourceDir, 'ios');
+
+		(plist.UIAppFonts || []).forEach(function (f) {
+			fontMap[f] = 1;
+		});
+
+		(function scanFonts(dir, isRoot) {
+			afs.exists(dir) && fs.readdirSync(dir).forEach(function (file) {
+				var p = path.join(dir, file);
+				if (fs.statSync(p).isDirectory() && (!isRoot || file == 'iphone' || file == 'ios' || ti.availablePlatformsNames.indexOf(file) == -1)) {
+					scanFonts(p);
+				} else if (/\.(otf|ttf)$/i.test(file)) {
+					fontMap['/' + p.replace(iphoneDir, '').replace(iosDir, '').replace(resourceDir, '').replace(/^\//, '')] = 1;
+				}
+			});
+		}(resourceDir, true));
+
+		var fonts = Object.keys(fontMap);
+		fonts.length && (plist.UIAppFonts = fonts);
+
+		// write the Info.plist
 		fs.writeFileSync(dest, plist.toString('xml'));
 
 		callback();
@@ -2252,87 +2231,112 @@ build.prototype = {
 	},
 
 	createSymlinks: function (callback) {
-		var ignoreRegExp = /^\.gitignore|\.cvsignore|\.DS_Store|\.git|\.svn|_svn|CVS$/,
-			symlinkHook = this.cli.createHook('build.ios.copyResource', this, function (srcFile, destFile, cb) {
-				this.logger.debug(__('Symlinking %s => %s', srcFile.cyan, destFile.cyan));
-				afs.exists(destFile) && fs.unlinkSync(destFile);
-				fs.symlinkSync(srcFile, destFile);
-				setTimeout(cb, 1);
-			}),
-			symlinkResources = function (src, dest, doIgnoreDirs, cb) {
-				if (afs.exists(src)) {
-					this.logger.debug(__('Walking directory %s', src.cyan));
-					wrench.mkdirSyncRecursive(dest);
+		if (this.target == 'simulator' && this.deployType == 'development') {
+			var ignoreRegExp = /^\.gitignore|\.cvsignore|\.DS_Store|\.git|\.svn|_svn|CVS$/,
+				icon = (this.tiapp.icon || 'appicon.png').match(/^(.*)\.(.+)$/),
+				unsymlinkableFileRegExp = new RegExp("^Default.*\.png|.+\.(otf|ttf)|iTunesArtwork" + (icon ? '|' + icon[1].replace(/\./g, '\\.') + '.*\\.' + icon[2] : '') + "$"),
+				symlinkHook = this.cli.createHook('build.ios.copyResource', this, function (srcFile, destFile, cb) {
+					this.logger.debug(__('Symlinking %s => %s', srcFile.cyan, destFile.cyan));
+					try {
+						// check if the file exists, even if it's a broken symlink
+						fs.lstatSync(destFile) && fs.unlinkSync(destFile);
+					} catch (ex) {}
+					fs.symlinkSync(srcFile, destFile);
+					setTimeout(cb, 1);
+				}),
+				symlinkResources = function (src, dest, doIgnoreDirs, cb) {
+					if (afs.exists(src)) {
+						this.logger.debug(__('Walking directory %s', src.cyan));
+						wrench.mkdirSyncRecursive(dest);
 
-					series(this, fs.readdirSync(src).map(function (file) {
-						return function (next) {
-							if ((this.deviceFamily != 'iphone' || ipadSplashImages.indexOf(file) == -1) && !ignoreRegExp.test(file) && (!doIgnoreDirs || ti.availablePlatformsNames.indexOf(file) == -1)) {
-								var srcFile = path.join(src, file),
-									destFile = path.join(dest, file);
-								if (fs.statSync(srcFile).isDirectory()) {
-									setTimeout(function () {
-										symlinkResources(srcFile, destFile, false, next);
-									}, 1);
+						series(this, fs.readdirSync(src).map(function (file) {
+							return function (next) {
+								if ((this.deviceFamily != 'iphone' || ipadSplashImages.indexOf(file) == -1) && !ignoreRegExp.test(file) && (!doIgnoreDirs || ti.availablePlatformsNames.indexOf(file) == -1)) {
+									var srcFile = path.join(src, file),
+										destFile = path.join(dest, file);
+									if (fs.statSync(srcFile).isDirectory()) {
+										setTimeout(function () {
+											symlinkResources(srcFile, destFile, false, next);
+										}, 1);
+									} else if (this.forceCopy || unsymlinkableFileRegExp.test(file)) {
+										afs.copyFileSync(srcFile, destFile, { logger: this.logger.debug });
+										next();
+									} else {
+										symlinkHook(srcFile, destFile, next);
+									}
 								} else {
-									symlinkHook(srcFile, destFile, next);
+									next();
 								}
-							} else {
-								next();
-							}
-						};
-					}), cb);
-				} else {
-					cb();
-				}
-			}.bind(this),
-			destModulesDir = path.join(this.xcodeAppDir, 'modules');
+							};
+						}), cb);
+					} else {
+						cb();
+					}
+				}.bind(this),
+				destModulesDir = path.join(this.xcodeAppDir, 'modules');
 
-		this.logger.info(__('Creating symlinks for simulator build'));
-
-		series(this, [
-			function (next) {
-				symlinkResources(path.join(this.projectDir, 'Resources'), this.xcodeAppDir, true, next);
-			},
-			function (next) {
-				symlinkResources(path.join(this.projectDir, 'platform', 'ios'), this.xcodeAppDir, false, next);
-			},
-			function (next) {
-				symlinkResources(path.join(this.projectDir, 'platform', 'iphone'), this.xcodeAppDir, false, next);
-			},
-			function (next) {
-				symlinkResources(path.join(this.projectDir, 'modules', 'ios'), destModulesDir, true, next);
-			},
-			function (next) {
-				symlinkResources(path.join(this.projectDir, 'modules', 'iphone'), destModulesDir, true, next);
+			if (this.forceCopy) {
+				this.logger.info(__('Forcing copying of files instead of creating symlinks'));
+			} else {
+				this.logger.info(__('Creating symlinks for simulator build'));
 			}
-		], function () {
-			// reset the application routing
-			wrench.mkdirSyncRecursive(path.join(this.buildDir, 'Classes'));
-			fs.writeFile(path.join(this.buildDir, 'Classes', 'ApplicationRouting.m'), [
-				'/**',
-				' * Appcelerator Titanium Mobile',
-				' * Copyright (c) 2009-' + (new Date).getFullYear() + ' by Appcelerator, Inc. All Rights Reserved.',
-				' * Licensed under the terms of the Apache Public License',
-				' * Please see the LICENSE included with this distribution for details.',
-				' *',
-				' * WARNING: This is generated code. Do not modify. Your changes *will* be lost.',
-				' */',
-				'',
-				'#import <Foundation/Foundation.h>',
-				'#import "ApplicationRouting.h"',
-				'',
-				'extern NSData* filterDataInRange(NSData* thedata, NSRange range);',
-				'',
-				'@implementation ApplicationRouting',
-				'',
-				'+ (NSData*) resolveAppAsset:(NSString*)path;',
-				'{',
-				'	return nil;',
-				'}',
-				'',
-				'@end'
-			].join('\n'), callback);
-		});
+
+			series(this, [
+				function (next) {
+					symlinkResources(path.join(this.projectDir, 'Resources'), this.xcodeAppDir, true, next);
+				},
+				function (next) {
+					symlinkResources(path.join(this.projectDir, 'Resources', 'ios'), this.xcodeAppDir, false, next);
+				},
+				function (next) {
+					symlinkResources(path.join(this.projectDir, 'Resources', 'iphone'), this.xcodeAppDir, false, next);
+				},
+				function (next) {
+					symlinkResources(path.join(this.projectDir, 'platform', 'ios'), this.xcodeAppDir, false, next);
+				},
+				function (next) {
+					symlinkResources(path.join(this.projectDir, 'platform', 'iphone'), this.xcodeAppDir, false, next);
+				},
+				function (next) {
+					symlinkResources(path.join(this.projectDir, 'modules', 'ios'), destModulesDir, false, next);
+				},
+				function (next) {
+					symlinkResources(path.join(this.projectDir, 'modules', 'iphone'), destModulesDir, false, next);
+				},
+				function (next) {
+					symlinkResources(path.join(this.titaniumIosSdkPath, 'modules'), path.join(this.xcodeAppDir, 'modules'), false, next);
+				}
+			], function () {
+				// reset the application routing
+				wrench.mkdirSyncRecursive(path.join(this.buildDir, 'Classes'));
+				fs.writeFile(path.join(this.buildDir, 'Classes', 'ApplicationRouting.m'), [
+					'/**',
+					' * Appcelerator Titanium Mobile',
+					' * Copyright (c) 2009-' + (new Date).getFullYear() + ' by Appcelerator, Inc. All Rights Reserved.',
+					' * Licensed under the terms of the Apache Public License',
+					' * Please see the LICENSE included with this distribution for details.',
+					' *',
+					' * WARNING: This is generated code. Do not modify. Your changes *will* be lost.',
+					' */',
+					'',
+					'#import <Foundation/Foundation.h>',
+					'#import "ApplicationRouting.h"',
+					'',
+					'extern NSData* filterDataInRange(NSData* thedata, NSRange range);',
+					'',
+					'@implementation ApplicationRouting',
+					'',
+					'+ (NSData*) resolveAppAsset:(NSString*)path;',
+					'{',
+					'	return nil;',
+					'}',
+					'',
+					'@end'
+				].join('\n'), callback);
+			});
+		} else {
+			callback();
+		}
 	},
 
 	compileJSS: function (callback) {
