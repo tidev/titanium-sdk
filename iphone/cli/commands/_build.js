@@ -2305,7 +2305,9 @@ build.prototype = {
 				},
 				function (next) {
 					symlinkResources(path.join(this.titaniumIosSdkPath, 'modules'), path.join(this.xcodeAppDir, 'modules'), false, next);
-				}
+				},
+				'compileJSS',
+				'compileI18N'
 			], function () {
 				// reset the application routing
 				wrench.mkdirSyncRecursive(path.join(this.buildDir, 'Classes'));

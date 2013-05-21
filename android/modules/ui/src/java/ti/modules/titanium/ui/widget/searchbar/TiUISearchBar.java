@@ -13,10 +13,12 @@ import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiUIHelper;
 
 import ti.modules.titanium.ui.widget.TiUIText;
+import android.text.InputType;
 import android.view.Gravity;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup.LayoutParams;
+import android.view.inputmethod.EditorInfo;
 import android.widget.ImageButton;
 import android.widget.RelativeLayout;
 
@@ -33,6 +35,9 @@ public class TiUISearchBar extends TiUIText
 	public TiUISearchBar(final TiViewProxy proxy)
 	{
 		super(proxy, true);
+		
+		TiEditText tv = (TiEditText) getNativeView();
+		tv.setImeOptions(EditorInfo.IME_ACTION_DONE);
 
 		// TODO Add Filter support
 
