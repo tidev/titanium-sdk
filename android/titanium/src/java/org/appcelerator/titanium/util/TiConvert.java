@@ -281,10 +281,6 @@ public class TiConvert
 			dirty = true;
 		}
 
-		if (hashMap.containsKey(TiC.PROPERTY_TRANSFORM)) {
-			layoutParams.optionTransform = (Ti2DMatrix) hashMap.get(TiC.PROPERTY_TRANSFORM);
-		}
-
 		return dirty;
 	}
 
