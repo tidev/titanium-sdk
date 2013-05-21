@@ -26,6 +26,7 @@ import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiUIView;
 
 import android.app.Activity;
+import android.view.ViewGroup.LayoutParams;
 import android.widget.LinearLayout;
 
 public class TiUIDateSpinner extends TiUIView
@@ -89,22 +90,26 @@ public class TiUIDateSpinner extends TiUIView
 			}
 		};
 		layout.setOrientation(LinearLayout.HORIZONTAL);
-		
+	
 		if (proxy.hasProperty("dayBeforeMonth")) {
 			// TODO dayBeforeMonth = TiConvert.toBoolean(proxy.getProperties(), "dayBeforeMonth");
 		}
 		
 		if (dayBeforeMonth) {
-			layout.addView(dayWheel);
-			layout.addView(monthWheel);
+			addViewToPicker(dayWheel, layout);
+			addViewToPicker(monthWheel, layout);
 		} else {
-			layout.addView(monthWheel);
-			layout.addView(dayWheel);
+			addViewToPicker(monthWheel, layout);
+			addViewToPicker(dayWheel, layout);
 		}
 		
-		layout.addView(yearWheel);
+		addViewToPicker(yearWheel, layout);
 		setNativeView(layout);
 		
+	}
+	
+	private void addViewToPicker(WheelView v, LinearLayout layout) {
+		layout.addView(v, new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT, (float) .33));
 	}
 	
 	@Override
