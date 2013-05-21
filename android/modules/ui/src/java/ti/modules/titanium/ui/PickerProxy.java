@@ -504,6 +504,9 @@ public class PickerProxy extends TiViewProxy implements PickerColumnListener
 		PickerColumnProxy column = getColumn(0);
 		if (column == null && createIfMissing) {
 			column = new PickerColumnProxy();
+			//Force applying default values
+			KrollDict d = new KrollDict();
+			column.handleCreationDict(d);
 			add(column);
 		}
 		return column;
