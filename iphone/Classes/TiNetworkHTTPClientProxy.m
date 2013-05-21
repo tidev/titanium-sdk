@@ -411,7 +411,7 @@ extern NSString * const TI_APPLICATION_DEPLOYTYPE;
 	
 	[request addRequestHeader:@"User-Agent" value:[[TiApp app] userAgent]];
 	
-    [request addRequestHeader:@"X-Titanium-Id" value:TI_APPLICATION_GUID]; 
+    [request addRequestHeader:[NSString stringWithFormat:@"%s-%s%s-%s", "X","Tita","nium","Id"] value:TI_APPLICATION_GUID];
     
 	// twitter specifically disallows X-Requested-With so we only add this normal
 	// XHR header if not going to twitter. however, other services generally expect
