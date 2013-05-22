@@ -124,7 +124,7 @@ define(["Ti/_", "Ti/_/declare", "Ti/_/has", "Ti/_/lang", "Ti/_/Evented", "Ti/Fil
 				has("ti-instrumentation") && (this._requestInstrumentationTest = instrumentation.startTest("HTTP Request")),
 				args = is(args, "Object") ? lang.urlEncode(args) : args;
 				args && this._xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-				this._xhr.setRequestHeader('X-Titanium-Id', App.getGUID());
+				this._xhr.setRequestHeader('X-Titanium-Id', App.guid);
 				this._xhr.send(args);
 				clearTimeout(this._timeoutTimer);
 				timeout && (this._timeoutTimer = setTimeout(lang.hitch(this, function() {
