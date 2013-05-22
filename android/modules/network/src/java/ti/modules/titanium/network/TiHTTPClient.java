@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2010-2012 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2010-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -112,6 +112,7 @@ public class TiHTTPClient
 	private static final int DEFAULT_MAX_BUFFER_SIZE = 512 * 1024;
 	private static final String PROPERTY_MAX_BUFFER_SIZE = "ti.android.httpclient.maxbuffersize";
 	private static final int PROTOCOL_DEFAULT_PORT = -1;
+	private static final String TITANIUM_ID_HEADER = "X-Titanium-Id";
 
 	private static final String[] FALLBACK_CHARSETS = {HTTP.UTF_8, HTTP.ISO_8859_1};
 
@@ -1150,6 +1151,7 @@ public class TiHTTPClient
 		Log.d(TAG, this.url, Log.DEBUG_MODE);
 
 		request = new DefaultHttpRequestFactory().newHttpRequest(method, this.url);
+		request.setHeader(TITANIUM_ID_HEADER, TiApplication.getInstance().getAppGUID());
 		for (String header : headers.keySet()) {
 			request.setHeader(header, headers.get(header));
 		}
@@ -1184,7 +1186,7 @@ public class TiHTTPClient
 					String scheme = authSchemes.nextElement();
 					client.getAuthSchemes().register(scheme, customAuthenticators.get(scheme));
 				}
-				
+
 				// lazy get client each time in case the validatesSecureCertificate() changes
 				client = getClient(validatesSecureCertificate());
 				if (credentials != null) {
