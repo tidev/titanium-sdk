@@ -175,6 +175,13 @@ class AndroidSDK:
 				return sdk_platform_tools
 		return None
 
+	def get_build_tools_dir(self):
+		if self.android_sdk is not None:
+			build_tools = os.path.join(self.android_sdk, 'build-tools')
+			if os.path.exists(build_tools):
+				return build_tools
+		return None
+
 	def get_api_level(self):
 		return self.api_level
 
@@ -195,13 +202,23 @@ class AndroidSDK:
 	def get_platform_tool(self, tool):
 		platform_tools_dir = self.get_platform_tools_dir()
 		sdk_platform_tools_dir = self.get_sdk_platform_tools_dir()
+		build_tools_dir = self.get_build_tools_dir()
 		tool_path = None
 		if platform_tools_dir is not None:
 			tool_path = self.get_tool(platform_tools_dir, tool)
 		if tool_path is None and sdk_platform_tools_dir is not None:
 			tool_path = self.get_tool(sdk_platform_tools_dir, tool)
 		if tool_path is None or not os.path.exists(tool_path):
-			return self.get_sdk_tool(tool)
+			tool_path = self.get_sdk_tool(tool)
+		if tool_path is None and build_tools_dir is not None:
+			# Many tools were moved to build-tools/17.0.0 in sdk tools r22
+
+			# Here, we list all the directories in build-tools and check inside
+			# each one for the tool we are looking for (there can be future versions besides 17.0.0).
+			for dirname in os.listdir(build_tools_dir):
+				if os.path.exists(os.path.join(build_tools_dir, dirname, tool)):
+					return os.path.join(build_tools_dir, dirname, tool)
+
 		return tool_path
 
 	def get_dx(self):
