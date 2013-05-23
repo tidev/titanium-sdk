@@ -186,8 +186,9 @@ Module.prototype.loadExternalModule = function(id, externalBinding, context) {
 		return wrapper;
 	}
 
-	kroll.log(TAG, "Unable to load external module: " + id);
-
+	if (kroll.DBG) {
+		kroll.log(TAG, "Unable to load external module: " + id);
+	}
 }
 
 // Require another module as a child of this module.
@@ -279,7 +280,9 @@ Module.prototype.require = function (request, context, useCache) {
 		throw new Error("Requested module not found: " + request);
 	}
 
-	kroll.log(TAG, 'Loading module: ' + request + ' -> ' + filename);
+	if (kroll.DBG) {
+		kroll.log(TAG, 'Loading module: ' + request + ' -> ' + filename);
+	}
 
 	var module = new Module(id, this, context);
 
