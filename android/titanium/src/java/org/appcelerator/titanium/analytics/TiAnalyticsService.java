@@ -116,13 +116,15 @@ public class TiAnalyticsService extends Service
 								if (Log.isDebugModeEnabled()) {
 									Log.d(TAG, "Sending " + records.length() + " analytics events.");
 								}
-						   		try {
+								try {
 									String jsonData = records.toString() + "\n";
+									String postUrl = TiApplication.getInstance() == null ? ANALYTICS_URL : ANALYTICS_URL
+										+ TiApplication.getInstance().getAppGUID();
 
-							   		HttpPost httpPost = new HttpPost(ANALYTICS_URL + TiApplication.getInstance().getAppGUID());
-							   		StringEntity entity = new StringEntity(jsonData);
-							   		entity.setContentType("text/json");
-							   		httpPost.setEntity(entity);
+									HttpPost httpPost = new HttpPost(postUrl);
+									StringEntity entity = new StringEntity(jsonData);
+									entity.setContentType("text/json");
+									httpPost.setEntity(entity);
 
 							   		HttpParams httpParams = new BasicHttpParams();
 							   		HttpConnectionParams.setConnectionTimeout(httpParams, 5000); //TODO use property
