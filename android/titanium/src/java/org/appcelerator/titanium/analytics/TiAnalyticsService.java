@@ -39,7 +39,7 @@ public class TiAnalyticsService extends Service
 	@SuppressWarnings("unused")
 	private final static int BUCKET_SIZE_SLOW_NETWORK = 5;
 
-	private final static String ANALYTICS_URL = "https://api.appcelerator.net/p/v2/mobile-track/";
+	private final static String ANALYTICS_URL = "https://api.appcelerator.net/p/v3/mobile-track/";
 
 	private static AtomicBoolean sending;
 
