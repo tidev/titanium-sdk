@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -20,6 +20,7 @@ import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 import org.appcelerator.kroll.common.Log;
+import org.appcelerator.titanium.TiApplication;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -38,7 +39,7 @@ public class TiAnalyticsService extends Service
 	@SuppressWarnings("unused")
 	private final static int BUCKET_SIZE_SLOW_NETWORK = 5;
 
-	private final static String ANALYTICS_URL = "https://api.appcelerator.net/p/v2/mobile-track";
+	private final static String ANALYTICS_URL = "https://api.appcelerator.net/p/v3/mobile-track/";
 
 	private static AtomicBoolean sending;
 
@@ -112,14 +113,18 @@ public class TiAnalyticsService extends Service
 							}
 							boolean deleteEvents = true;
 							if (records.length() > 0) {
-								String jsonData = records.toString() + "\n";
+								if (Log.isDebugModeEnabled()) {
+									Log.d(TAG, "Sending " + records.length() + " analytics events.");
+								}
+								try {
+									String jsonData = records.toString() + "\n";
+									String postUrl = TiApplication.getInstance() == null ? ANALYTICS_URL : ANALYTICS_URL
+										+ TiApplication.getInstance().getAppGUID();
 
-								Log.d(TAG, "Sending " + records.length() + " analytics events.", Log.DEBUG_MODE);
-						   		try {
-							   		HttpPost httpPost = new HttpPost(ANALYTICS_URL);
-							   		StringEntity entity = new StringEntity(jsonData);
-							   		entity.setContentType("text/json");
-							   		httpPost.setEntity(entity);
+									HttpPost httpPost = new HttpPost(postUrl);
+									StringEntity entity = new StringEntity(jsonData);
+									entity.setContentType("text/json");
+									httpPost.setEntity(entity);
 
 							   		HttpParams httpParams = new BasicHttpParams();
 							   		HttpConnectionParams.setConnectionTimeout(httpParams, 5000); //TODO use property
