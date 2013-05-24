@@ -1,0 +1,914 @@
+# Titanium SDK 3.0.0 - 12/14/2012
+
+##### Contents
+
+*   [About This Release](#about)
+*   [Notice of Breaking Changes in Release 3.0](#breaking)
+    *   [Node.js Requirement](#breaking-node)
+    *   [Android TabGroup Changes](#breaking-tabgroup)
+    *   [Android ActivityIndicator Changes](#breaking-activity)
+    *   [Rhino Runtime No Longer Officially Supported](#breaking-rhino)
+    *   [Removal of Deprecated APIs](#breaking-removed)
+*   [New Features](#new)
+    *   [On-Device Debugging](#debug)
+    *   [Alloy Framework](#alloy)
+    *   [Command-Line Interface](#cli)
+    *   [UI Event Bubbling Changes](#event_bubbling)
+    *   [Android Action Bar Support](#action_bar)
+    *   [Accessibility Features](#accessibility)
+    *   [Titanium Studio iOS Packaging Change](#studio_notes)
+    *   [Other New Features](#miscellaneous)
+*   [Known SDK Issues](#known_issues)
+*   [Known Studio Issues](#studio_issues)
+*   [API Changes](#changes)
+    *   [New APIs](#new_apis)
+    *   [Deprecated APIs](#deprecated_apis)
+    *   [Removed APIs](#removed_apis)
+
+<a name="about"></a>
+
+## About This Release
+
+This is the General Availability (GA) release of Titanium SDK 3.0, introducing a number of new features.
+
+Note that this release includes breaking changes. See 
+[Notice of Breaking Changes in Release 3.0](#breaking) for details.
+
+This release includes over 500 bug fixes and improvements:
+
+* [Full list of Issues that were addressed in Release 3.0.0](http://jira.appcelerator.org/secure/IssueNavigator.jspa?mode=hide&requestId=14142)
+
+* [Fixed Android Issues](http://jira.appcelerator.org/secure/IssueNavigator.jspa?mode=hide&requestId=14143)
+
+* [Fixed iOS Issues](http://jira.appcelerator.org/secure/IssueNavigator.jspa?mode=hide&requestId=13739)
+
+* [Fixed Mobile Web Issues](http://jira.appcelerator.org/secure/IssueNavigator.jspa?mode=hide&requestId=14145)
+
+See [New Features](#new) for a summary of new features in this release. 
+
+<a name="breaking"></a>
+
+## Notice of Breaking Changes in Release 3.0
+
+The following changes alter the behavior of the Titanium SDK from previous verisons, and
+may require code changes to run your application on Titanium SDK 3.0.
+
+<a name="breaking-node"></a>
+
+###  Node.js Requirement
+
+You must install Node.js to use the new Titanium command-line interface (CLI) and Titanium
+SDK 3.0. See [Installing Node](http://docs.appcelerator.com/titanium/latest/#!/guide/Installing_Node) for
+details.
+
+<a name="breaking-tabgroup"></a>
+
+### Android TabGroup Changes
+
+A number of changes were made to the Android TabGroup to support action bar tabs. These
+changes may affect existing applications, even if they do **not** use the action bar.
+
+The changes made to enable the action bar on Android required changes to the way that TabGroups operate. These changes affect all android applications that use tab groups, whether or not they use the action bar. 
+
+#### Action Bar Tabs
+
+When building an application with <code>targetSdkVersion</code> of 11 (Android 3.0/Honeycomb) or later, tab groups will be represented with action bar tabs, instead of with the older-style tab group. If you are already building your application with <code>targetSdkVersion</code> of 11 or later, the appearance of your tab groups will change when you build with SDK 3.0.
+
+A subsequent blog post will describe how you can take advantage of the action bar in SDK 3.0.
+
+#### TabGroup Activities
+
+In previous versions of the SDK, each tab group window was in its own activity. In SDK 3.0, the tab group has its own Android activity (exposed as <code>TabGroup.activity</code>). The individual tab windows all share the same activity. This may affect you, for example, if you are creating a different options menu for each window, since you can only associate a single <code>onCreateOptionsMenu</code> callback with the tab group.
+
+To switch menu items when the tabs are switched, you can use the new <code><a href="http://docs.appcelerator.com/titanium/latest/#!/api/Titanium.Android.Activity-method-invalidateOptionsMenu" title="Activity.invalidateOptionsMenu" target="_blank">Activity.invalidateOptionsMenu</a></code> method whenever you want to change the contents of the options menu. For example, you could call <code>invalidateOptionsMenu</code> in the focus event handler for each tab window, and add logic in the <code>onCreateOptionsMenu</code> callback to create the appropriate menu items for the active tab.
+
+#### Application Title Bar
+
+In previous versions of the SDK, the tab group was automatically set to fullscreen, so no title bar appeared. In SDK 3.0, the window title bar is shown by default, as it is for iOS tab groups.
+
+
+To restore the previous behavior, set the <code>TabGroup.navBarHidden</code> property to <code>true</code>. This property, which works identically to the <code>Window.navBarHidden</code> property, is new in SDK 3.0.
+
+<a name="breaking-activity"></a>
+
+### Android ActivityIndicator Changes
+
+In SDK 3.0, the Android <code><a href="http://docs.appcelerator.com/titanium/latest/#!/api/Titanium.UI.ActivityIndicator">ActivityIndicator</a></code> has been reimplemented to create parity with iOS and Mobile Web. The old <code>ActivityIndicator</code> presented a modal dialog on Android. The new <code>ActivityIndicator</code> is a view that must be added to another view or window in order to be displayed, as on iOS and Mobile Web. (Unlike the iOS activity indicator, however, the Android activity indicator can't be placed in the window title bar.)
+
+In addition, Android and Mobile Web now support <code>Ti.UI.ActivityIndicatorStyle</code>, which contains the same constants as <code>Ti.UI.iPhone.ActivityIndicatorStyle</code>. iOS will support <code>Ti.UI.ActivityIndicatorStyle</code> in a subsequent release.
+
+A new, Android-specific <code><a href="http://docs.appcelerator.com/titanium/latest/#!/api/Titanium.UI.Android.ProgressIndicator">ProgressIndicator</a></code> object replaces the old Android activity indicator. You can use ProgressIndicator to create either a modal dialog <em><strong>or</strong></em> a progress bar in the window title. 
+
+Code using the old Android activity indicator will break, since the new activity indicator must be added to a view. To update code for 3.0, you can switch to using the new activity indicator like you do on iOS or Mobile Web. Or to retain the previous behavior, switch to a <code>ProgressIndicator</code>.
+
+For example, given the sample code for <code>ActivityIndicator</code> in prior releases:
+
+<pre>
+var activityIndicator = Ti.UI.createActivityIndicator({
+  color: 'green',
+  font: {fontFamily:'Helvetica Neue', fontSize:26, fontWeight:'bold'},
+  message: 'Loading...',
+  style:Ti.UI.iPhone.ActivityIndicatorStyle.DARK,
+  top:10,
+  left:10,
+  height:'auto',
+  width:'auto'
+});
+
+// On iOS, the activity indicator must be added to a window or view for it to appear
+if (Ti.Platform.name === 'iPhone OS'){
+  win2.add(activityIndicator);
+}
+</pre>
+
+This legacy code looks different on iOS and Android and won't work at all on Mobile Web. But a few small changes gives you the same results on all three platforms: 
+
+<pre>
+var activityIndicator = Ti.UI.createActivityIndicator({
+  color: 'green',
+  font: {fontFamily:'Helvetica Neue', fontSize:26, fontWeight:'bold'},
+  message: 'Loading...',
+  style: (Ti.Platform.name === 'iPhone OS' ? Ti.UI.iPhone.ActivityIndicatorStyle.DARK : Ti.UI.ActivityIndicatorStyle.DARK),
+  top:10,
+  left:10,
+  height:'auto',
+  width:'auto'
+});
+
+win2.add(activityIndicator);
+</pre>
+
+To use the modal activity dialog instead, you'd add code something like this:
+
+<pre>
+var activityIndicator;
+if (Ti.Platform.name === 'android') {
+  activityIndicator = Ti.UI.Android.createProgressIndicator({
+    message : 'Loading...',
+    location : Ti.UI.Android.PROGRESS_INDICATOR_DIALOG,   // display in dialog 
+    type : Ti.UI.Android.PROGRESS_INDICATOR_INDETERMINANT // display a spinner
+  });
+} else {
+  activityIndicator = Ti.UI.createActivityIndicator({
+    ... // etc.
+</pre>
+
+Like activity indicator, you must call <code>show</code> on the progress indicator to make it appear.
+
+<a name="breaking-rhino"></a>
+
+### Rhino Runtime No Longer Officially Supported
+
+With this release, the Rhino runtime is no longer officially supported on Android. The
+ability to switch runtimes is disabled by default in Studio 3.0 when building with SDK 3.0
+and later. 
+
+The Rhino runtime is still included in the SDK, and can be enabled by by manually adding
+the `ti.android.runtime` property to the `tiapp.xml` file.
+
+<a name="breaking-removed"></a>
+
+### Removal of Deprecated APIs
+
+Some long-deprecated APIs are being removed in this release. All of these APIs have direct replacements.
+See [Removed APIs](#removed_apis) for details.
+
+<a name="new"></a>
+
+## New Features in this Release
+
+This section lists major new features in this release.
+
+<a name="debug"></a>
+
+### On-Device Debugging 
+
+This release adds support for on-device debugging on Android and iOS. For iOS, on-device
+debugging requires that both the device and the computer running Studio are on the same Wi-Fi
+network. On Android, debugging takes places over a USB connection.
+
+For details, see the following topics in the Titanium Guides:
+
+*   [Debugging Titanium Applications](http://docs.appcelerator.com/titanium/latest/#!/guide/Debugging_Titanium_Applications)
+*   [Debugging on Android
+Devices](http://docs.appcelerator.com/titanium/latest/#!/guide/Debugging_on_Android_Devices)
+*   [Debugging on iOS
+Devices](http://docs.appcelerator.com/titanium/latest/#!/guide/Debugging_on_iOS_Devices)
+
+<a name="alloy"></a>
+
+### Alloy Framework
+
+This release coincides with the beta release of Alloy, a model-view-controller (MVC)
+framework for Titanium. 
+
+Alloy is installed automatically if you install Titanium Studio 3.0. If you're using
+Titanium from the command line, you can install Alloy manually using `npm`. 
+
+For installation instructions and an introduction to the Alloy framework, see:
+
+*   [Alloy Quick Start](http://docs.appcelerator.com/titanium/latest/#!/guide/Alloy_Quick_Start)
+*   [Alloy Concepts](http://docs.appcelerator.com/titanium/latest/#!/guide/Alloy_Concepts)
+
+<a name="cli"></a>
+
+### Titanium Command-Line Interface
+
+This release includes a preview of a new, Node.js-based command-line interface, `titanium`, intended
+to replace the Python `titanium.py` and `builder.py` scripts. For this release, 
+some tasks are delegated to the Python scripts, so Python is still required to build
+projects.
+
+To use this release, you must install Node.js. See 
+[Installing Node](http://docs.appcelerator.com/titanium/latest/#!/guide/Installing_Node) for
+details.
+
+For this release, Studio installs the new CLI and uses the new CLI when building with SDK
+3.0 and later. The legacy command-line interfaceis used when building with for earlier SDKs.
+
+If you are not using Studio, you can install the new CLI using `npm`. 
+
+In addition to creating and building application and module projects, the `titanium` CLI can also manage
+downloading and installing titanium SDKs. The CLI will also serve as a front-end to other
+Appcelerator command-line tools, such as the Alloy command-line interface.
+
+The CLI is currently considered to be Beta quality. In particular, for Alloy projects it may be necessary to
+use the Alloy command-line interface directly, and the legacy Python CLI is still required
+to create and build iOS and Android native modules.
+
+For details, see:
+
+*   [Titanium Command-Line Interface
+Reference](http://docs.appcelerator.com/titanium/latest/#!/guide/Titanium_Command-Line_Interface_Reference)
+in the Titanium Guides.
+
+
+<a name="event_bubbling"></a>
+
+### UI Event Bubbling Changes
+
+In the Titanium SDK, UI events bubble up to the parent view. Whether an event bubbles depends 
+on the type of event, and the type of view in which it occurred.
+In previous releases there has not been a clear definition of which events bubble, and in which views.  
+In addition, there was no way for the developer to *stop* a given event from bubbling up.
+
+This release introduces some controls for event bubbling, without changing the
+default behavior for event bubbling -- that is, if you make no changes to your
+application, event bubbling should occur exactly as it did in Release 2.X. The event
+bubbling changes are supported in iOS and Android at this point. Support will be added for 
+Mobile Web in a future release.
+
+#### Event Bubbling Chain
+
+UI events can bubble up from the view that was actually touched through parent views
+(objects that inherit from `Ti.UI.View`), as well as certain "view-like" objects which
+act as containers for views.
+
+For example, a `TableViewSection` object acts as a container for `TableViewRow`
+objects. However, in iOS, the `TableViewSection` is not itself a view. Since it serves
+as a logical container for views, it takes part in the bubbling chain. From the point of
+view of event bubbling, the section acts as parent to the rows it contains, and the table
+acts as parent for its rows.
+
+Top-level containers, such as windows, have no parents in the view hierarchy, so event
+bubbling ends when it reaches a top-level container. Top-level containers include:
+
+* NavigationGroup
+* SplitWindow
+* TabGroup
+* Window
+
+#### Bubbling and Non-Bubbling Events
+
+Events that represent user input (`click`, `touchmove`, `swipe`) are bubbling events. Other
+events, such as focus and scroll, are view-specific. They represent views reacting to user
+input, and they do not bubble. 
+
+The following events bubble:
+
+*   `click`
+*   `dblclick`
+*   `doubletap`
+*   `longclick`
+*   `longpress`
+*   `pinch`
+*   `singletap`
+*   `swipe`
+*   `touchcancel`
+*   `touchend`
+*   `touchmove`
+*   `touchstart`
+*   `twofingertap`
+
+That is, all of the events defined by `Titanium.UI.View` _except_ 'postlayout'.
+
+#### Event Bubbling API Changes
+
+This release adds several features that allow more control over event bubbling. The 
+`Titanium.Event` object has two new properties:
+
+<table>
+<tr>
+<th>API</th><th>Type</th><th>Description</th>
+</tr>
+<tr>
+<td><code>bubbles</code></td>
+<td>boolean</td>
+<td><p>Indicates whether the event can bubble. This property is set at
+creation time and cannot be changed. For events fired by the Titanium SDK, this property
+is set to ensure that event-bubbling behavior matches the 2.X event bubbling
+behavior.</p>
+<p> When firing custom events, `bubbles` can be specified as part of the event data to
+enable or disable bubbling. </p>
+</td>
+</tr>
+<tr>
+<td><code>cancelBubble</code></td>
+<td>boolean</td>
+<td>If `true`, stops the event from propagating any further. The
+`cancelBubble` property is always `false` when an event handler is invoked. While
+handling the event, the application can set `cancelBubble` to true to prevent any
+further bubbling.</td>
+</tr>
+</table>
+
+In addition, all views and view-like objects have a new `bubbleParent` property, which
+determines whether the view bubbles to its parent. This property is read/write. By
+default, `bubbleParent` is set so that event bubbling behavior for a given view matches
+its 2.X event bubbling behavior. This property is defined as a property of
+`Titanium.Proxy`--the parent of all Titanium objects. However, the property is only used
+on views and view-like objects that act as containers for views.
+
+#### Event Bubbling Notes
+
+*   Event bubbling happens after native event handling. That is, native event handling (such 
+    as highlighting a view) has already happened before any event fires.
+
+*   Multiple events of different types are treated separately. That is, if the user lifting
+    their finger triggers `touchup`, `tap`, and `click` events, any actions done on the
+    `touchup` event (such as setting `cancelBubble`) do not affect the bubbling or firing
+    of either `tap` or `click` events.
+
+<a name="action_bar"></a>
+
+### Android Action Bar Support
+
+This release includes partial support for the Android action bar element. In particular,
+the following features are supported:
+
+*   Tab groups are displayed using action bar-based tabs.
+*   Option menu items can be displayed as action items in the action bar.
+*   Expanding and collapsing action items are supported.
+*   Changing option menu items dynamically.
+*   Receive click events on the action bar home icon.
+*   Changing the display of the icon dynamically (for example, adding the "Up" affordance to the
+    icon).
+*   Changing the action bar's title, icon and background color.
+*   Showing and hiding the action bar.
+
+The following features are *not* supported:
+
+*   Search widget in the action bar. The Android SearchView, which can be used as an
+    action bar item, is not exposed in the Titanium API.
+
+*   Drawer-style navigation. Only tab navigation is supported--depending on the available
+    screen space, tabs may be displayed as standard tabs, scrolling tabs, or drop-down 
+    navigation.
+
+*   Contextual action bars are not supported.
+
+*   Action providers are not supported.
+
+To enable the action bar features, applications must be built with a target SDK version of
+11 (Android 3.0/Honeycomb) or higher. For expanding and collapsing action items, the target SDK 
+version must be at least 14. To set the target SDK version, add code like this in 
+your `tiapp.xml` file:
+
+    <android xmlns:android="http://schemas.android.com/apk/res/android">
+        <tool-api-level>11</tool-api-level>
+        <manifest>
+            <uses-sdk android:targetSdkVersion="11"/>
+            <!-- other manifest entries -->
+        </manifest>
+    </android>
+
+The `tool-api-level` identifies the version of the Android tools to use. If in doubt, use
+a recent version, such as 15. This does not have to correspond to the targetSdkVersion.
+
+For tab groups, the new action bar tabs will automatically be used on devices that support
+them. Note that with the new-style tab group, all of the windows in a tab group share a
+single activity, so if you are trying to set the contents of the options menu separately
+for each tab window, this will not work.  
+
+For action items, you can add items to the action bar by creating menu items and
+specifying the new
+[`showAsAction`](http://docs.appcelerator.com/titanium/latest/#!/api/Titanium.Android.MenuItem-property-showAsAction)
+property to `SHOW_AS_ACTION_ALWAYS`, `SHOW_AS_ACTION_IF_ROOM`,
+`SHOW_AS_ACTION_WITH_TEXT` or `SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW`. For example:
+
+    win1.activity.onCreateOptionsMenu = function(e) {
+        var menu = e.menu;
+        var menuItem = menu.add({
+            title : "Item 1",
+            icon : "images/random_icon.png",
+            showAsAction : Ti.Android.SHOW_AS_ACTION_IF_ROOM
+        });
+        menuItem.addEventListener("click", function(e) {
+            Ti.API.info("Action Item Clicked!");
+        });
+    };
+
+(Use `TabGroup.getActivity` to obtain the activity for the tab group.)
+
+Since the options menu is considered always open when the action bar is in use,
+`onCreateOptionsMenu` is only called when the window or tab group is opened. To force the 
+`onCreateOptionsMenu` method to be executed again, call `Activity.invalidateOptionsMenu`. 
+
+In previous releases, only a few menu item properties could be specified in the `add` method. In this release, the `add` method has been extended to accept all of the properties that are useful at creation time.
+
+Android has very specific guidelines for action item icons, including density-specific size requirements. So you'll probably want to generate icons for each density and store them in the density-specific folders in `Resources/android`. For example, `Resources/android/images/res-hdpi`. 
+
+To specify a view to use in place of the the default action item button, use the `actionView`
+property. If `showAsAction` is set to `SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW` is specified, the icon or title
+is shown when the item is collapsed, and the action view is shown when the item is expanded. There are 
+also two new methods, `expandActionView` and `collapseActionView`, and accompanying `expand` and 
+`collapse` events.  
+
+When you add an action view to an action bar, the native view underlying the Titanium view
+is inserted into the action bar. 
+
+Direct access to some action bar methods and properties is available through the
+`Activity.actionBar` property. The activity and action bar objects are not
+created until the associated window or tab group is opened. Initial updates to these
+objects should be done in the `open` event handler for the window or tab group. 
+
+Currently, the tab group activity is only available from using the `TabGroup.getActivity`
+method. 
+
+To receive a callback when the home icon is clicked, set the `ActionBar.onHomeIconItemSelected`
+property to a callback function:
+
+    win.addEventListener("open", function(evt) {
+        var actionBar = win.activity.actionBar;
+        actionBar.onHomeIconItemSelected = function() {
+            Ti.API.info("Home clicked!");
+        };  
+    });
+
+You can use the `ActionBar` `title`, `backgroundImage`, `icon`, and `logo` properties to
+set the title, app icon, and app logo used in the action bar, respectively. Set the
+`ActionBar.displayHomeAsUp` property to `true` to display the "up" affordance. `ActionBar`
+also provides `show` and `hide` methods to show and hide the actionbar. For example, to
+show the "up" affordance on a tab group's action bar you could use code like this:
+
+    var activity = tabGroup.getActivity();
+    if (activity != undefined && activity.actionBar != undefined) {
+        activity.actionBar.displayHomeAsUp = true;
+    }
+
+See also:
+
+*   [Android Action Bar](http://docs.appcelerator.com/titanium/latest/#!/guide/Android_Action_Bar) in the Titanium Guides.
+*   [Action Bar](http://developer.android.com/guide/topics/ui/actionbar.html) in the Android API Guides.
+*   [Android Themes](http://docs.appcelerator.com/titanium/latest/#!/guide/Android_Themes) in the Titanium Guides.
+
+<a name="accessibility"></a>
+
+### Accessibility Features
+
+This release includes support for voice-over accessibility features on iOS and Android.
+All view elements support a set of new accessibility properties, which can be used to
+specify the voice-over text associated with a given UI element.
+
+<table>
+<tr>
+<th>Property</th><th>Description</th>
+</tr>
+<tr>
+<td>accessibilityHidden</td>
+<td>Whether the view should be "hidden" from (i.e., ignored by) the accessibility service.</td>
+</tr>
+<tr>
+<td>accessibilityHint</td>
+<td>Briefly describes what performing an action (such as a click) on the view will do.</td>
+</tr>
+<tr>
+<td>accessibilityLabel</td>
+<td>A succinct label identifying the view for the device's accessibility service.</td>
+</tr>
+<tr>
+<td>accessibilityValue</td>
+<td>A string describing the value (if any) of the view for the device's accessibility service.</td>
+</tr>
+</table>
+
+In addition, there are several new system-level events related to accessibility. The new 
+[accessibilityChanged](http://docs.appcelerator.com/titanium/latest/#!/api/Titanium.App-event-accessibilitychanged),
+event is fired when the system's accessibility mode is changed.
+
+The application can also fire a system event to ask the system to make a voice
+announcement. On iOS the application can also fire events to notify the accessibility system that the
+layout or current screen has changed. For details on these events, see the discussion on
+the [Ti.App](http://docs.appcelerator.com/titanium/latest/#!/api/Titanium.App) reference
+page.
+
+
+<a name="studio_notes"></a>
+
+### Titanium Studio iOS Packaging Change
+
+In this release, there is a change to Titanium Studio's handling of iOS builds for
+distribution. When you select **Package** > **Distribute - Ad Hoc/Enterprise**, the 
+build is saved to the designated folder, but **not** saved to the Xcode organizer. When 
+you select **Package** > **Distribute - Apple iTunes Store**, the build is saved to the 
+Xcode organizer. 
+
+
+<a name="miscellaneous"></a>
+
+###  Other New Features
+
+Some other new features in SDK 3.0 include:
+
+*   [TIMOB-11755](https://jira.appcelerator.org/browse/TIMOB-11755), 
+    [TIMOB-11756](https://jira.appcelerator.org/browse/TIMOB-11756) Added username,
+    password, and domain properties to HTTPClient. The new properties are currently
+    supported on iOS and Android. Mobile Web support will be added in a subsequent
+    release.
+*   [TIMOB-10232](https://jira.appcelerator.org/browse/TIMOB-10232) Android: Capturing 
+     onKeyPress from the hardware keyboard.
+
+<a name="known_issues"></a>
+
+## Known SDK Issues
+
+The following are newly-discovered issues and regressions in this release.
+
+*   [TIMOB-11555](https://jira.appcelerator.org/browse/TIMOB-11555). Cannot create a
+    cloud-enabled project using the new CLI.
+
+*   [TIMOB-12093](https://jira.appcelerator.org/browse/TIMOB-12093). Default distribution name for iOS 
+    must be specified in lowercase. 
+
+    When doing a iOS dist-adhoc or dist-appstore build, you need to specify a `--distribution-name` argument. 
+    However, you can save your distribution name in the CLI config file so that you don't need to specify 
+    it each time.
+
+    However, the distribution name from the CLI config file is only applied if the name was saved in 
+    all lower case. For example:
+
+        titanium config ios.distributionName "Appcelerator, Inc." # won't work
+
+        titanium config ios.distributionName "appcelerator, inc." # works!
+
+    This is **not** a problem if you specify the `--distribution-name` on the command line; only if the 
+    distribution name is taken from the configuration file. This issue does not affect builds from Studio.
+    
+*   [TIMOB-12094](https://jira.appcelerator.org/browse/TIMOB-12094). Invalid code in app.js causes
+    silent pre-compilation failure on iOS. If there are syntax errors in app.js, the build fails
+    in the pre-compilation phase, but the failure is not detected and Xcode continues to install the 
+    application on device. When the application is run, it fails with an error message stating that app.js 
+    can't be found.
+
+<a name="studio_issues"></a>
+
+## Known Studio Issues
+
+*   [TISTUD-2614](http://jira.appcelerator.org/browse/TISTUD-2614). Studio fails when
+    attempting to unpublish a Node.ACS application. You can unpublish an application 
+    from the command line using the following command:
+
+        acs unpublish -a <app_version> [ <app_name> | -d <app_dir> ]
+
+    Where &lt;app_version&gt; is the version number you want to unpublish. You must specify
+    either an &lt;app_name&gt; or the **-d** &lt;app_dir&gt; options, unless you are running the
+    command from the application folder.
+
+*   [TISTUD-2629](http://jira.appcelerator.org/browse/TISTUD-2629). The Node.ACS Tail Logs 
+    command fails in Studio. You can run **acs logcat** from the command line instead.
+
+        acs logcat -a <app_version> [ <app_name> | -d <app_dir> ]
+
+<a name="changes"></a>
+
+## API Changes
+
+This section lists new APIs, deprecated APIs, and APIs that have been removed from the
+SDK.
+
+<a name="new_apis"></a>
+
+<h3>New APIs</h3>
+
+The following APIs are new or have expanded platform support in Release
+3.0.0.
+
+<table>
+<tr><th>API</th><th>Type</th><th>Notes</th></tr>
+  <tr><td>Titanium.Android.ActionBar</td><td>object</td><td><p>The Titanium binding of an Android Action Bar. (New API, supported on Android.)</p></td></tr>
+  <tr><td>Titanium.Android.Activity.invalidateOptionsMenu</td><td>method</td><td><p>Declares that the option menu has changed and should be recreated. (New API, supported on Android.)</p></td></tr>
+  <tr><td>Titanium.Android.Activity.newintent</td><td>event</td><td><p>Fired when the activity is already running and certain flags are set in its intent. (New API, supported on Android.)</p></td></tr>
+  <tr><td>Titanium.Android.Activity.openOptionsMenu</td><td>method</td><td><p>Programmatically opens the options menu. (New API, supported on Android.)</p></td></tr>
+  <tr><td>Titanium.Android.MenuItem.actionView</td><td>property</td><td><p>A custom view that replaces the default menu item button. (New API, supported on Android.)</p></td></tr>
+  <tr><td>Titanium.Android.MenuItem.actionViewExpanded</td><td>property</td><td><p>True if this menu item's action view has been expanded. (New API, supported on Android.)</p></td></tr>
+  <tr><td>Titanium.Android.MenuItem.collapse</td><td>event</td><td><p>Fired when the action view has been collapsed. (New API, supported on Android.)</p></td></tr>
+  <tr><td>Titanium.Android.MenuItem.collapseActionView</td><td>method</td><td><p>Collapse the action view associated with this menu item. (New API, supported on Android.)</p></td></tr>
+  <tr><td>Titanium.Android.MenuItem.expand</td><td>event</td><td><p>Fired when the action view has been expanded. (New API, supported on Android.)</p></td></tr>
+  <tr><td>Titanium.Android.MenuItem.expandActionView</td><td>method</td><td><p>Expand the action view associated with this menu item. (New API, supported on Android.)</p></td></tr>
+  <tr><td>Titanium.Android.MenuItem.getActionView</td><td>method</td><td><p>Gets the value of the actionView property. (New API, supported on Android.)</p></td></tr>
+  <tr><td>Titanium.Android.MenuItem.setActionView</td><td>method</td><td><p>Sets the value of the actionView property. (New API, supported on Android.)</p></td></tr>
+  <tr><td>Titanium.Android.MenuItem.setShowAsAction</td><td>method</td><td><p>Sets the value of the showAsAction property. (New API, supported on Android.)</p></td></tr>
+  <tr><td>Titanium.Android.MenuItem.showAsAction</td><td>property</td><td><p>A set of flags that controls how this item appears in the action bar. (New API, supported on Android.)</p></td></tr>
+  <tr><td>Titanium.Android.SHOW_AS_ACTION_ALWAYS</td><td>property</td><td><p>Always show this item as an action button in the action bar. (New API, supported on Android.)</p></td></tr>
+  <tr><td>Titanium.Android.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW</td><td>property</td><td><p>The action view can collapse to a normal menu item. (New API, supported on Android.)</p></td></tr>
+  <tr><td>Titanium.Android.SHOW_AS_ACTION_IF_ROOM</td><td>property</td><td><p>Show this item as an action button if the system decides there is room for it.
+ (New API, supported on Android.)</p></td></tr>
+  <tr><td>Titanium.Android.SHOW_AS_ACTION_NEVER</td><td>property</td><td><p>Never display this item as an action button in the action bar. (New API, supported on Android.)</p></td></tr>
+  <tr><td>Titanium.Android.SHOW_AS_ACTION_WITH_TEXT</td><td>property</td><td><p>When this item is in the action bar, always show it with a text label. (New API, supported on Android.)</p></td></tr>
+  <tr><td>Titanium.App.EVENT_ACCESSIBILITY_ANNOUNCEMENT</td><td>property</td><td><p>Convenience constant for system event "accessibilityannouncement". (New API, supported on Android, iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.App.EVENT_ACCESSIBILITY_CHANGED</td><td>property</td><td><p>Convenience constant for system event "accessibilitychanged". (New API, supported on Android, iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.App.Properties.change</td><td>event</td><td><p>Fired when a property is changed. (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.App.accessibilitychanged</td><td>event</td><td><p>Fired by the system when the device's accessibility service is turned on or off. (New API, supported on Android, iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.App.disableNetworkActivityIndicator</td><td>property</td><td><p>Prevents network activity indicator from being displayed.
+ (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.App.fireSystemEvent</td><td>method</td><td><p>Fire a system-level event such as Titanium.App.EVENT_ACCESSIBILITY_ANNOUNCEMENT. (New API, supported on Android, iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.App.getDisableNetworkActivityIndicator</td><td>method</td><td><p>Gets the value of the disableNetworkActivityIndicator property. (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.App.iOS.EVENT_ACCESSIBILITY_LAYOUT_CHANGED</td><td>property</td><td><p>Convenience constant for system event "accessibilitylayoutchanged". (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.App.iOS.EVENT_ACCESSIBILITY_SCREEN_CHANGED</td><td>property</td><td><p>Convenience constant for system event "accessibilityscreenchanged". (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.App.keyboardframechanged</td><td>event</td><td><p>Fired when the soft keyboard is presented, on and off the screen. (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.App.setDisableNetworkActivityIndicator</td><td>method</td><td><p>Sets the value of the disableNetworkActivityIndicator property. (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.Blob.imageAsCropped</td><td>method</td><td><p>Creates a new blob by cropping the underlying image to the specified dimensions. (Added support for Android.)</p></td></tr>
+  <tr><td>Titanium.Blob.imageAsResized</td><td>method</td><td><p>Creates a new blob by resizing and scaling the underlying image to the specified dimensions. (Added support for Android.)</p></td></tr>
+  <tr><td>Titanium.Blob.imageAsThumbnail</td><td>method</td><td><p>Returns a thumbnail version of the underlying image, optionally with a border and rounded corners. (Added support for Android.)</p></td></tr>
+  <tr><td>Titanium.Blob.imageWithAlpha</td><td>method</td><td><p>Returns a copy of the underlying image with an added alpha channel. (Added support for Android.)</p></td></tr>
+  <tr><td>Titanium.Blob.imageWithRoundedCorner</td><td>method</td><td><p>Returns a copy of the underlying image with rounded corners added. (Added support for Android.)</p></td></tr>
+  <tr><td>Titanium.Blob.imageWithTransparentBorder</td><td>method</td><td><p>Returns a copy of the underlying image with an added transparent border. (Added support for Android.)</p></td></tr>
+  <tr><td>Titanium.Contacts.save</td><td>method</td><td><p>Commits all pending changes to the underlying contacts database. (Added support for Android.)</p></td></tr>
+  <tr><td>Titanium.Event.bubbles</td><td>property</td><td><p>True if the event will try to bubble up if possible. (New API, supported on iPhone, iPad and Android.)</p></td></tr>
+  <tr><td>Titanium.Event.cancelBubble</td><td>property</td><td><p>Set to true to stop the event from bubbling. (New API, supported on iPhone, iPad and Android.)</p></td></tr>
+  <tr><td>Titanium.Geolocation.MobileWeb.bubbleParent</td><td>property</td><td><p>Indicates if the proxy will bubble an event to its parent. (New API, supported on Mobile Web.)</p></td></tr>
+  <tr><td>Titanium.Geolocation.MobileWeb.getBubbleParent</td><td>method</td><td><p>Gets the value of the bubbleParent property. (New API, supported on Mobile Web.)</p></td></tr>
+  <tr><td>Titanium.Geolocation.MobileWeb.setBubbleParent</td><td>method</td><td><p>Sets the value of the bubbleParent property. (New API, supported on Mobile Web.)</p></td></tr>
+  <tr><td>Titanium.Map.View.hideAnnotationWhenTouchMap</td><td>property</td><td><p>Hide the annotation when clicking in the map view outside of the annotation. (New API, supported on Android.)</p></td></tr>
+  <tr><td>Titanium.Map.View.latitudeDelta</td><td>property</td><td><p>The amount of north-to-south distance displayed on the map, measured in decimal degrees. (Added support for Android.)</p></td></tr>
+  <tr><td>Titanium.Map.View.longitudeDelta</td><td>property</td><td><p>The amount of east-to-west distance displayed on the map, measured in decimal degrees. (Added support for Android.)</p></td></tr>
+  <tr><td>Titanium.Map.View.regionchanged</td><td>event</td><td><p>Fired when the mapping region changes.
+ (New API, supported on Android, iPhone, iPad and Mobile Web.)</p></td></tr>
+  <tr><td>Titanium.Media.MusicPlayer.playingchange</td><td>event</td><td><p>Fired when the currently playing media item changes. (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.Media.MusicPlayer.statechange</td><td>event</td><td><p>Fired when the music player's playback state changes. (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.Media.MusicPlayer.volumechange</td><td>event</td><td><p>Fired when the volume changes. (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.Media.VideoPlayer.durationavailable</td><td>event</td><td><p>Fired when the video duration is available. (New API, supported on Android, iPhone, iPad and Mobile Web.)</p></td></tr>
+  <tr><td>Titanium.Media.VideoPlayer.mediatypesavailable</td><td>event</td><td><p>Fired when the media types in the current movie are determined. (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.Media.VideoPlayer.naturalsizeavailable</td><td>event</td><td><p>Fired when the natural size of the current movie is determined. (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.Media.VideoPlayer.playbackstate</td><td>event</td><td><p>Fired when the playbackState changes. (New API, supported on Android, iPhone, iPad and Mobile Web.)</p></td></tr>
+  <tr><td>Titanium.Media.VideoPlayer.sourcechange</td><td>event</td><td><p>Fired when the sourceType property
+changes.
+ (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.Network.BonjourBrowser.updatedservices</td><td>event</td><td><p>Fired when the discovered services list is updated (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.Network.HTTPClient.addAuthFactory</td><td>method</td><td><p>Registers a new AuthSchemeFactory for a given scheme. (New API, supported on Android.)</p></td></tr>
+  <tr><td>Titanium.Network.HTTPClient.domain</td><td>property</td><td><p>Sets the domain parameter for authentication credentials. (New API, supported on Android, iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.Network.HTTPClient.getDomain</td><td>method</td><td><p>Gets the value of the domain property. (New API, supported on Android, iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.Network.HTTPClient.getPassword</td><td>method</td><td><p>Gets the value of the password property. (New API, supported on Android, iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.Network.HTTPClient.getUsername</td><td>method</td><td><p>Gets the value of the username property. (New API, supported on Android, iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.Network.HTTPClient.password</td><td>property</td><td><p>Sets the password parameter for authentication credentials. (New API, supported on Android, iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.Network.HTTPClient.setDomain</td><td>method</td><td><p>Sets the value of the domain property. (New API, supported on Android, iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.Network.HTTPClient.setPassword</td><td>method</td><td><p>Sets the value of the password property. (New API, supported on Android, iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.Network.HTTPClient.setUsername</td><td>method</td><td><p>Sets the value of the username property. (New API, supported on Android, iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.Network.HTTPClient.username</td><td>property</td><td><p>Sets the username parameter for authentication credentials. (New API, supported on Android, iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.Platform.getManufacturer</td><td>method</td><td><p>Gets the value of the manufacturer property. (New API, supported on Android, iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.Platform.manufacturer</td><td>property</td><td><p>Manufacturer of the device. (New API, supported on Android, iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.Proxy.ApplyProperties</td><td>method</td><td><p>Applies the properties to the proxy. (New API, supported on Android, iPhone, iPad and Mobile Web.)</p></td></tr>
+  <tr><td>Titanium.Proxy.bubbleParent</td><td>property</td><td><p>Indicates if the proxy will bubble an event to its parent. (New API, supported on iPhone, iPad and Android.)</p></td></tr>
+  <tr><td>Titanium.Proxy.getBubbleParent</td><td>method</td><td><p>Gets the value of the bubbleParent property. (New API, supported on iPhone, iPad and Android.)</p></td></tr>
+  <tr><td>Titanium.Proxy.setBubbleParent</td><td>method</td><td><p>Sets the value of the bubbleParent property. (New API, supported on iPhone, iPad and Android.)</p></td></tr>
+  <tr><td>Titanium.UI.AUTOLINK_ALL</td><td>property</td><td><p>Converts all detectable types of data into clickable links. (New API, supported on Android, iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.AUTOLINK_EMAIL_ADDRESSES</td><td>property</td><td><p>Converts strings formatted as email addresses into clickable links. (New API, supported on Android, iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.AUTOLINK_MAP_ADDRESSES</td><td>property</td><td><p>Converts strings formatted as addresses into clickable links. (New API, supported on Android, iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.AUTOLINK_NONE</td><td>property</td><td><p>Disables converting strings into clickable links. (New API, supported on Android, iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.AUTOLINK_PHONE_NUMBERS</td><td>property</td><td><p>Converts strings formatted as phone numbers into clickable links. (New API, supported on Android, iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.AUTOLINK_URLS</td><td>property</td><td><p>Converts strings formatted as URLs into clickable links. (New API, supported on Android, iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.ActivityIndicatorStyle</td><td>module</td><td><p>A set of constants for the styles available for Titanium.UI.ActivityIndicator objects. (Added support for Android.)</p></td></tr>
+  <tr><td>Titanium.UI.AlertDialog.getPersistent</td><td>method</td><td><p>Gets the value of the persistent property. (New API, supported on Android, iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.AlertDialog.getStyle</td><td>method</td><td><p>Gets the value of the style property. (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.AlertDialog.persistent</td><td>property</td><td><p>Boolean value indicating if the alert dialog should only be cancelled by user gesture or by hide method. (New API, supported on Android, iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.AlertDialog.setPersistent</td><td>method</td><td><p>Sets the value of the persistent property. (New API, supported on Android, iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.AlertDialog.setStyle</td><td>method</td><td><p>Sets the value of the style property. (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.AlertDialog.style</td><td>property</td><td><p>The style for the alert dialog. (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.Android.PROGRESS_INDICATOR_DETERMINANT</td><td>property</td><td><p>Used with the Titanium.UI.Android.ProgressIndicator.type property to indicate an ongoing 
+activity of determinate length.
+ (New API, supported on Android.)</p></td></tr>
+  <tr><td>Titanium.UI.Android.PROGRESS_INDICATOR_DIALOG</td><td>property</td><td><p>Display Titanium.UI.Android.ProgressIndicator as a modal dialog. (default) (New API, supported on Android.)</p></td></tr>
+  <tr><td>Titanium.UI.Android.PROGRESS_INDICATOR_INDETERMINANT</td><td>property</td><td><p>Used with the Titanium.UI.Android.ProgressIndicator.type property to indicate an ongoing 
+activity of indeterminate length. (default)
+ (New API, supported on Android.)</p></td></tr>
+  <tr><td>Titanium.UI.Android.PROGRESS_INDICATOR_STATUS_BAR</td><td>property</td><td><p>Display Titanium.UI.Android.ProgressIndicator as a horizontal progress bar in the title of 
+the window.
+ (New API, supported on Android.)</p></td></tr>
+  <tr><td>Titanium.UI.Android.ProgressIndicator</td><td>object</td><td><p>A progress dialog or a horizontal progress bar in the title of the window. (New API, supported on Android.)</p></td></tr>
+  <tr><td>Titanium.UI.Android.createProgressIndicator</td><td>method</td><td><p>Creates and returns an instance of Titanium.UI.Android.ProgressIndicator. (New API, supported on Android.)</p></td></tr>
+  <tr><td>Titanium.UI.DashboardView.columnCount</td><td>property</td><td><p>The number of columns of items in the view. (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.DashboardView.dragend</td><td>event</td><td><p>Fired when an item finishes being dragged in edit mode. (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.DashboardView.dragstart</td><td>event</td><td><p>Fired when an item starts being dragged in edit mode. (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.DashboardView.getColumnCount</td><td>method</td><td><p>Gets the value of the columnCount property. (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.DashboardView.getRowCount</td><td>method</td><td><p>Gets the value of the rowCount property. (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.DashboardView.rowCount</td><td>property</td><td><p>The number of rows of items in the view. (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.ImageView.autorotate</td><td>property</td><td><p>Indicates whether the image should be rotated based on exif orientation data. 
+By default, this is false on android and true on iOS. 
+The auto rotate behavior is not supported on Mobile Web.
+ (New API, supported on Android, iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.ImageView.getAutorotate</td><td>method</td><td><p>Gets the value of the autorotate property. (New API, supported on Android, iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.Label.verticalAlign</td><td>property</td><td><p>Vertical text alignment, specified using one of the 
+vertical alignment constants from Titanium.UI: 
+TEXT_VERTICAL_ALIGNMENT_BOTTOM, 
+TEXT_VERTICAL_ALIGNMENT_CENTER, or 
+TEXT_VERTICAL_ALIGNMENT_TOP.
+ (Added support for iPhone, iPad and Android.)</p></td></tr>
+  <tr><td>Titanium.UI.MobileWeb.NavigationGroup.bubbleParent</td><td>property</td><td><p>Indicates if the proxy will bubble an event to its parent. (New API, supported on Mobile Web.)</p></td></tr>
+  <tr><td>Titanium.UI.MobileWeb.NavigationGroup.getBubbleParent</td><td>method</td><td><p>Gets the value of the bubbleParent property. (New API, supported on Mobile Web.)</p></td></tr>
+  <tr><td>Titanium.UI.MobileWeb.NavigationGroup.setBubbleParent</td><td>method</td><td><p>Sets the value of the bubbleParent property. (New API, supported on Mobile Web.)</p></td></tr>
+  <tr><td>Titanium.UI.MobileWeb.TableViewSeparatorStyle.bubbleParent</td><td>property</td><td><p>Indicates if the proxy will bubble an event to its parent. (New API, supported on Mobile Web.)</p></td></tr>
+  <tr><td>Titanium.UI.MobileWeb.TableViewSeparatorStyle.getBubbleParent</td><td>method</td><td><p>Gets the value of the bubbleParent property. (New API, supported on Mobile Web.)</p></td></tr>
+  <tr><td>Titanium.UI.MobileWeb.TableViewSeparatorStyle.setBubbleParent</td><td>method</td><td><p>Sets the value of the bubbleParent property. (New API, supported on Mobile Web.)</p></td></tr>
+  <tr><td>Titanium.UI.MobileWeb.bubbleParent</td><td>property</td><td><p>Indicates if the proxy will bubble an event to its parent. (New API, supported on Mobile Web.)</p></td></tr>
+  <tr><td>Titanium.UI.MobileWeb.getBubbleParent</td><td>method</td><td><p>Gets the value of the bubbleParent property. (New API, supported on Mobile Web.)</p></td></tr>
+  <tr><td>Titanium.UI.MobileWeb.setBubbleParent</td><td>method</td><td><p>Sets the value of the bubbleParent property. (New API, supported on Mobile Web.)</p></td></tr>
+  <tr><td>Titanium.UI.OptionDialog.getPersistent</td><td>method</td><td><p>Gets the value of the persistent property. (New API, supported on Android, iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.OptionDialog.persistent</td><td>property</td><td><p>Boolean value indicating if the option dialog should only be cancelled by user gesture or by hide method. (New API, supported on Android, iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.OptionDialog.setPersistent</td><td>method</td><td><p>Sets the value of the persistent property. (New API, supported on Android, iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.Picker.click</td><td>event</td><td><p>Fired when the device detects a click against the view. (New API, supported on Android.)</p></td></tr>
+  <tr><td>Titanium.UI.ScrollView.dragend</td><td>event</td><td><p>Fired when the scrollable region stops being dragged. (New API, supported on iPhone, iPad and Mobile Web.)</p></td></tr>
+  <tr><td>Titanium.UI.ScrollView.dragstart</td><td>event</td><td><p>Fired when the scrollable region starts being dragged. (New API, supported on iPhone, iPad and Mobile Web.)</p></td></tr>
+  <tr><td>Titanium.UI.ScrollView.scrollend</td><td>event</td><td><p>Fired when the view has stopped moving completely. (New API, supported on Mobile Web.)</p></td></tr>
+  <tr><td>Titanium.UI.ScrollView.scrollingEnabled</td><td>property</td><td><p>Determines whether scrolling is enabled for the view. (New API, supported on iPhone, iPad, Android and Mobile Web.)</p></td></tr>
+  <tr><td>Titanium.UI.ScrollableView.dragend</td><td>event</td><td><p>Fired when the scrolling drag gesture on the view has been completed. (New API, supported on Android and Mobile Web.)</p></td></tr>
+  <tr><td>Titanium.UI.ScrollableView.dragstart</td><td>event</td><td><p>Fired when the scrollable region starts being dragged. (New API, supported on Mobile Web.)</p></td></tr>
+  <tr><td>Titanium.UI.ScrollableView.scrollend</td><td>event</td><td><p>Fired when the view has stopped moving completely. (New API, supported on iPhone, iPad, Android and Mobile Web.)</p></td></tr>
+  <tr><td>Titanium.UI.ScrollableView.scrollingEnabled</td><td>property</td><td><p>Determines whether scrolling is enabled for the view. (Added support for Mobile Web.)</p></td></tr>
+  <tr><td>Titanium.UI.Slider.getLeftTrackLeftCap</td><td>method</td><td><p>Gets the value of the leftTrackLeftCap property. (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.Slider.getLeftTrackTopCap</td><td>method</td><td><p>Gets the value of the leftTrackTopCap property. (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.Slider.getRightTrackLeftCap</td><td>method</td><td><p>Gets the value of the rightTrackLeftCap property. (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.Slider.getRightTrackTopCap</td><td>method</td><td><p>Gets the value of the rightTrackTopCap property. (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.Slider.leftTrackLeftCap</td><td>property</td><td><p>Size of the left end cap for the leftTrackImage, disabledLeftTrackImage, highlightedLeftTrackImage and selectedLeftTrackImage properties. (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.Slider.leftTrackTopCap</td><td>property</td><td><p>Size of the top end cap for the leftTrackImage, disabledLeftTrackImage, highlightedLeftTrackImage and selectedLeftTrackImage properties. (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.Slider.rightTrackLeftCap</td><td>property</td><td><p>Size of the left end cap for the rightTrackImage, disabledRightTrackImage, highlightedRightTrackImage and selectedRightTrackImage properties. (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.Slider.rightTrackTopCap</td><td>property</td><td><p>Size of the top end cap for the rightTrackImage, disabledRightTrackImage, highlightedRightTrackImage and selectedRightTrackImage properties. (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.Slider.setLeftTrackLeftCap</td><td>method</td><td><p>Sets the value of the leftTrackLeftCap property. (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.Slider.setLeftTrackTopCap</td><td>method</td><td><p>Sets the value of the leftTrackTopCap property. (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.Slider.setRightTrackLeftCap</td><td>method</td><td><p>Sets the value of the rightTrackLeftCap property. (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.Slider.setRightTrackTopCap</td><td>method</td><td><p>Sets the value of the rightTrackTopCap property. (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.TabGroup.tabsBackgroundColor</td><td>property</td><td><p>Default background color for inactive tabs, as a color name or hex triplet. (Added support for Android, iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.TabGroup.tabsBackgroundSelectedColor</td><td>property</td><td><p>Default background selected color for tabs, as a color name or hex triplet. (Added support for Android.)</p></td></tr>
+  <tr><td>Titanium.UI.TableView.appendSection</td><td>method</td><td><p>Appends a single section or an array of sections to the end of the table. (New API, supported on Android, Mobile Web, iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.TableView.deleteSection</td><td>method</td><td><p>Deletes an existing section. (New API, supported on Android, Mobile Web, iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.TableView.dragend</td><td>event</td><td><p>Fired when the scrollable region stops being dragged. (New API, supported on iPhone, iPad and Mobile Web.)</p></td></tr>
+  <tr><td>Titanium.UI.TableView.dragstart</td><td>event</td><td><p>Fired when the scrollable region starts being dragged. (New API, supported on iPhone, iPad and Mobile Web.)</p></td></tr>
+  <tr><td>Titanium.UI.TableView.getSectionCount</td><td>method</td><td><p>Gets the value of the sectionCount property. (New API, supported on Android, iPhone, iPad and Mobile Web.)</p></td></tr>
+  <tr><td>Titanium.UI.TableView.getSections</td><td>method</td><td><p>Gets the value of the sections property. (New API, supported on Android, iPhone, iPad and Mobile Web.)</p></td></tr>
+  <tr><td>Titanium.UI.TableView.insertSectionAfter</td><td>method</td><td><p>Inserts a section after another section. (New API, supported on Android, Mobile Web, iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.TableView.insertSectionBefore</td><td>method</td><td><p>Inserts a section before another section. (New API, supported on Android, Mobile Web, iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.TableView.scrollend</td><td>event</td><td><p>fired when the table view stops scrolling (New API, supported on Android, iPhone, iPad and Mobile Web.)</p></td></tr>
+  <tr><td>Titanium.UI.TableView.sectionCount</td><td>property</td><td><p>Number of sections in this table view. (New API, supported on Android, iPhone, iPad and Mobile Web.)</p></td></tr>
+  <tr><td>Titanium.UI.TableView.sections</td><td>property</td><td><p>Sections of this table. (New API, supported on Android, iPhone, iPad and Mobile Web.)</p></td></tr>
+  <tr><td>Titanium.UI.TableView.selectRow</td><td>method</td><td><p>Programmatically selects a row. In Android, it sets the currently selected item. If in touch mode,
+the item will not be selected but it will still be positioned appropriately. If the specified 
+selection position is less than 0, then the item at position 0 will be selected.
+ (Added support for Android.)</p></td></tr>
+  <tr><td>Titanium.UI.TableView.setSections</td><td>method</td><td><p>Sets the value of the sections property. (New API, supported on Android, iPhone, iPad and Mobile Web.)</p></td></tr>
+  <tr><td>Titanium.UI.TableView.updateSection</td><td>method</td><td><p>Updates an existing section, optionally with animation (New API, supported on Android, Mobile Web, iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.TextArea.autoLink</td><td>property</td><td><p>Automatically convert text to clickable links. (Added support for Android.)</p></td></tr>
+  <tr><td>Titanium.UI.TextArea.maxLength</td><td>property</td><td><p>Maximum length of text field input. (New API, supported on Android, iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.TextArea.setSelection</td><td>method</td><td><p>Selects the text in range (start, end). (New API, supported on Android, iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.TextField.autoLink</td><td>property</td><td><p>Automatically convert text to clickable links. (New API, supported on Android.)</p></td></tr>
+  <tr><td>Titanium.UI.TextField.getAutoLink</td><td>method</td><td><p>Gets the value of the autoLink property. (New API, supported on Android.)</p></td></tr>
+  <tr><td>Titanium.UI.TextField.maxLength</td><td>property</td><td><p>Maximum length of text field input. (Added support for Android.)</p></td></tr>
+  <tr><td>Titanium.UI.TextField.setAutoLink</td><td>method</td><td><p>Sets the value of the autoLink property. (New API, supported on Android.)</p></td></tr>
+  <tr><td>Titanium.UI.TextField.setSelection</td><td>method</td><td><p>Selects the text in range (start, end). (New API, supported on Android, iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.URL_ERROR_AUTHENTICATION</td><td>property</td><td><p>Authentication error code reported via Titanium.UI.WebView.error. (New API, supported on Android, iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.URL_ERROR_BAD_URL</td><td>property</td><td><p>Bad url error code reported via Titanium.UI.WebView.error. (New API, supported on Android, iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.URL_ERROR_CONNECT</td><td>property</td><td><p>Error code reported via Titanium.UI.WebView.error for a failure to connect to host. (New API, supported on Android, iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.URL_ERROR_FILE</td><td>property</td><td><p>Error code reported via Titanium.UI.WebView.error for a failure to access a file resource on a host, except "file not found", which has its own constant. (New API, supported on Android, iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.URL_ERROR_FILE_NOT_FOUND</td><td>property</td><td><p>Error code reported via Titanium.UI.WebView.error when a requested file does not exist on the host. (New API, supported on Android, iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.URL_ERROR_HOST_LOOKUP</td><td>property</td><td><p>Error code reported via Titanium.UI.WebView.error when a host name cannot be resolved, such as via a DNS lookup error. (New API, supported on Android, iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.URL_ERROR_REDIRECT_LOOP</td><td>property</td><td><p>Error code reported via Titanium.UI.WebView.error when a redirect loop is detected. (New API, supported on Android, iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.URL_ERROR_SSL_FAILED</td><td>property</td><td><p>Error code reported via Titanium.UI.WebView.error for an SSL failure. (New API, supported on Android, iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.URL_ERROR_TIMEOUT</td><td>property</td><td><p>Error code reported via Titanium.UI.WebView.error when a timeout occurs. (New API, supported on Android, iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.URL_ERROR_UNKNOWN</td><td>property</td><td><p>Error code reported via Titanium.UI.WebView.error when an unknown error occurs. (New API, supported on Android, iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.URL_ERROR_UNSUPPORTED_SCHEME</td><td>property</td><td><p>Error code reported via Titanium.UI.WebView.error when a url contains an unsupported scheme. (New API, supported on Android, iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.View.AccessibilityHidden</td><td>property</td><td><p>Whether the view should be "hidden" from (i.e., ignored by) the accessibility service. (New API, supported on Android, iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.View.AccessibilityHint</td><td>property</td><td><p>Briefly describes what performing an action (such as a click) on the view will do. (New API, supported on Android, iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.View.AccessibilityLabel</td><td>property</td><td><p>A succint label identifying the view for the device's accessibility service. (New API, supported on Android, iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.View.AccessibilityValue</td><td>property</td><td><p>A string describing the value (if any) of the view for the device's accessibility service. (New API, supported on Android, iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.View.GetAccessibilityHidden</td><td>method</td><td><p>Gets the value of the accessibilityHidden property. (New API, supported on Android, iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.View.GetAccessibilityHint</td><td>method</td><td><p>Gets the value of the accessibilityHint property. (New API, supported on Android, iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.View.GetAccessibilityLabel</td><td>method</td><td><p>Gets the value of the accessibilityLabel property. (New API, supported on Android, iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.View.GetAccessibilityValue</td><td>method</td><td><p>Gets the value of the accessibilityValue property. (New API, supported on Android, iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.View.keypressed</td><td>event</td><td><p>Fired when a hardware key is pressed in the view. (New API, supported on Android.)</p></td></tr>
+  <tr><td>Titanium.UI.View.SetAccessibilityHidden</td><td>method</td><td><p>Sets the value of the accessibilityHidden property. (New API, supported on Android, iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.View.SetAccessibilityHint</td><td>method</td><td><p>Sets the value of the accessibilityHint property. (New API, supported on Android, iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.View.SetAccessibilityLabel</td><td>method</td><td><p>Sets the value of the accessibilityLabel property. (New API, supported on Android, iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.View.SetAccessibilityValue</td><td>method</td><td><p>Sets the value of the accessibilityValue property. (New API, supported on Android, iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.View.twofingertap</td><td>event</td><td><p>Fired when the device detects a two-finger tap against the view. (Added support for Android.)</p></td></tr>
+  <tr><td>Titanium.UI.WebView.getHideLoadIndicator</td><td>method</td><td><p>Gets the value of the hideLoadIndicator property. (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.WebView.hideLoadIndicator</td><td>property</td><td><p>Hides activity indicator when loading remote URL. (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.WebView.setHideLoadIndicator</td><td>method</td><td><p>Sets the value of the hideLoadIndicator property. (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.Window.androidback</td><td>event</td><td><p>Fired when the back button is pressed by the user. (New API, supported on Android.)</p></td></tr>
+  <tr><td>Titanium.UI.Window.androidcamera</td><td>event</td><td><p>Fired when the Camera button is released. (New API, supported on Android.)</p></td></tr>
+  <tr><td>Titanium.UI.Window.androidfocus</td><td>event</td><td><p>Fired when the Camera button is half-pressed then released. (New API, supported on Android.)</p></td></tr>
+  <tr><td>Titanium.UI.Window.androidsearch</td><td>event</td><td><p>Fired when the Search button is released. (New API, supported on Android.)</p></td></tr>
+  <tr><td>Titanium.UI.Window.androidvoldown</td><td>event</td><td><p>Fired when the volume down button is released. (New API, supported on Android.)</p></td></tr>
+  <tr><td>Titanium.UI.Window.androidvolup</td><td>event</td><td><p>Fired when the volume up button is released. (New API, supported on Android.)</p></td></tr>
+  <tr><td>Titanium.UI.Window.orientation</td><td>property</td><td><p>Current orientation of the window. (Added support for iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.iPhone.AlertDialogStyle</td><td>object</td><td><p>A set of constants for the style that can be used for the <code>style</code> property of 
+Titanium.UI.AlertDialog.
+ (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>zoomScaleOption</td><td>object</td><td><p>Optional parameter for setZoomScale method. (New API, supported on iPhone and iPad.)</p></td></tr>
+<tr>
+</table>
+
+<a name="deprecated_apis"></a>
+
+<h3>Deprecated APIs</h3>
+
+The following APIs are deprecated in Release 3.0.0.
+
+<table>
+<tr><th>API</th><th>Type</th><th>Notes</th></tr>
+  <tr><td>Titanium.Android.Activity.newIntent</td><td>event</td><td><p>Renamed to newintent
+(all lowercase).</p></td></tr>
+  <tr><td>Titanium.App.keyboardFrameChanged</td><td>event</td><td><p>Renamed to keyboardframechanged
+(all lowercase).</p></td></tr>
+  <tr><td>Titanium.Map.View.regionChanged</td><td>event</td><td><p>Renamed to regionchanged
+(all lowercase).</p></td></tr>
+  <tr><td>Titanium.Media.MusicPlayer.playingChange</td><td>event</td><td><p>Renamed to playingchange
+(all lowercase).</p></td></tr>
+  <tr><td>Titanium.Media.MusicPlayer.stateChange</td><td>event</td><td><p>Renamed to statechange
+(all lowercase).</p></td></tr>
+  <tr><td>Titanium.Media.MusicPlayer.volumeChange</td><td>event</td><td><p>Renamed to volumechange
+(all lowercase).</p></td></tr>
+  <tr><td>Titanium.Media.VideoPlayer.durationAvailable</td><td>event</td><td><p>Renamed to durationavailable
+(all lowercase).</p></td></tr>
+  <tr><td>Titanium.Media.VideoPlayer.mediaTypesAvailable</td><td>event</td><td><p>Renamed to mediatypesavailable
+(all lowercase).</p></td></tr>
+  <tr><td>Titanium.Media.VideoPlayer.naturalSizeAvailable</td><td>event</td><td><p>Renamed to naturalsizeavailable
+(all lowercase).</p></td></tr>
+  <tr><td>Titanium.Media.VideoPlayer.playbackState</td><td>event</td><td><p>Renamed to playbackstate
+(all lowercase).</p></td></tr>
+  <tr><td>Titanium.Media.VideoPlayer.sourceChange</td><td>event</td><td><p>Renamed to sourcechange
+(all lowercase).</p></td></tr>
+  <tr><td>Titanium.Network.BonjourBrowser.updatedServices</td><td>event</td><td><p>Renamed to updatedservices
+(all lowercase).</p></td></tr>
+  <tr><td>Titanium.UI.Android.LINKIFY_ALL</td><td>property</td><td><p>Use Titanium.UI.AUTOLINK_ALL instead.</p></td></tr>
+  <tr><td>Titanium.UI.Android.LINKIFY_EMAIL_ADDRESSES</td><td>property</td><td><p>Use Titanium.UI.AUTOLINK_EMAIL_ADDRESSES instead.</p></td></tr>
+  <tr><td>Titanium.UI.Android.LINKIFY_MAP_ADDRESSES</td><td>property</td><td><p>Use Titanium.UI.AUTOLINK_MAP_ADDRESSES instead.</p></td></tr>
+  <tr><td>Titanium.UI.Android.LINKIFY_PHONE_NUMBERS</td><td>property</td><td><p>Use Titanium.UI.AUTOLINK_PHONE_NUMBERS instead.</p></td></tr>
+  <tr><td>Titanium.UI.Android.LINKIFY_WEB_URLS</td><td>property</td><td><p>Use Titanium.UI.AUTOLINK_URLS instead.</p></td></tr>
+  <tr><td>Titanium.UI.DashboardView.dragEnd</td><td>event</td><td></td></tr>
+  <tr><td>Titanium.UI.DashboardView.dragStart</td><td>event</td><td></td></tr>
+  <tr><td>Titanium.UI.ScrollableView.dragEnd</td><td>event</td><td><p>Renamed to dragend (all lowercase).</p></td></tr>
+  <tr><td>Titanium.UI.ScrollableView.dragStart</td><td>event</td><td><p>Renamed to dragstart (all lowercase).</p></td></tr>
+  <tr><td>Titanium.UI.ScrollableView.scrollEnd</td><td>event</td><td><p>Renamed to scrollend (all lowercase).</p></td></tr>
+  <tr><td>Titanium.UI.TableView.dragEnd</td><td>event</td><td><p>Renamed to dragend (all lowercase).</p></td></tr>
+  <tr><td>Titanium.UI.TableView.dragStart</td><td>event</td><td><p>Renamed to dragstart (all lowercase).</p></td></tr>
+  <tr><td>Titanium.UI.TableView.scrollEnd</td><td>event</td><td><p>Renamed to scrollend (all lowercase).</p></td></tr>
+  <tr><td>Titanium.UI.View.finishLayout</td><td>method</td><td><p>Use the applyProperties method to batch-update layout properties.</p></td></tr>
+  <tr><td>Titanium.UI.View.startLayout</td><td>method</td><td><p>Use the applyProperties method to batch-update layout properties.</p></td></tr>
+  <tr><td>Titanium.UI.View.updateLayout</td><td>method</td><td><p>Use the applyProperties method to batch-update layout properties.</p></td></tr>
+  <tr><td>Titanium.UI.Window.android:back</td><td>event</td><td><p>Renamed to androidback (without a colon).</p></td></tr>
+  <tr><td>Titanium.UI.Window.android:camera</td><td>event</td><td><p>Renamed to androidcamera (without a colon).</p></td></tr>
+  <tr><td>Titanium.UI.Window.android:focus</td><td>event</td><td><p>Renamed to androidfocus (without a colon).</p></td></tr>
+  <tr><td>Titanium.UI.Window.android:search</td><td>event</td><td><p>Renamed to androidsearch (without a colon).</p></td></tr>
+  <tr><td>Titanium.UI.Window.android:voldown</td><td>event</td><td><p>Renamed to androidvoldown (without a colon).</p></td></tr>
+  <tr><td>Titanium.UI.Window.android:volup</td><td>event</td><td><p>Renamed to androidvolup (without a colon).</p></td></tr>
+  <tr><td>Titanium.UI.iOS.AUTODETECT_ADDRESS</td><td>property</td><td><p>Use Titanium.UI.AUTOLINK_MAP_ADDRESSES instead.</p></td></tr>
+  <tr><td>Titanium.UI.iOS.AUTODETECT_ALL</td><td>property</td><td><p>Use Titanium.UI.AUTOLINK_ALL instead.</p></td></tr>
+  <tr><td>Titanium.UI.iOS.AUTODETECT_CALENDAR</td><td>property</td><td><p>Use Titanium.UI.AUTOLINK_CALENDAR instead.</p></td></tr>
+  <tr><td>Titanium.UI.iOS.AUTODETECT_LINK</td><td>property</td><td><p>Use Titanium.UI.AUTOLINK_URLS instead.</p></td></tr>
+  <tr><td>Titanium.UI.iOS.AUTODETECT_NONE</td><td>property</td><td><p>Use Titanium.UI.AUTOLINK_NONE instead.</p></td></tr>
+  <tr><td>Titanium.UI.iOS.AUTODETECT_PHONE</td><td>property</td><td><p>Use Titanium.UI.AUTOLINK_PHONE_NUMBERS instead.</p></td></tr>
+  <tr><td>Titanium.UI.iPad.DocumentViewer</td><td>object</td><td><p>Use Titanium.UI.iOS.DocumentViewer instead.</p></td></tr>
+  <tr><td>Titanium.UI.iPad.createDocumentViewer</td><td>method</td><td><p>Use Titanium.UI.iOS.DocumentViewer instead.</p></td></tr>
+<tr>
+</table>
+
+<a name="removed_apis"></a>
+
+<h3>Removed APIs</h3>
+
+The following APIs have been removed in Release 3.0.0.
+
+<table>
+<tr><th>API</th><th>Type</th><th>Notes</th></tr>
+  <tr><td>Titanium.Media.VideoPlayer.contentURL</td><td>property</td><td><p>Use the url property instead.</p></td></tr>
+  <tr><td>Titanium.Media.VideoPlayer.getContentURL</td><td>method</td><td></td></tr>
+  <tr><td>Titanium.Media.VideoPlayer.setContentURL</td><td>method</td><td></td></tr>
+  <tr><td>Titanium.Network.addConnectivityListener</td><td>method</td><td><p>Use the change event to monitor connectivity changes.</p></td></tr>
+  <tr><td>Titanium.Network.removeConnectivityListener</td><td>method</td><td><p>Use the change event to monitor connectivity changes.</p></td></tr>
+  <tr><td>Titanium.UI.ImageView.getUrl</td><td>method</td><td></td></tr>
+  <tr><td>Titanium.UI.ImageView.setUrl</td><td>method</td><td></td></tr>
+  <tr><td>Titanium.UI.ImageView.url</td><td>property</td><td><p>Use image instead.</p></td></tr>
+  <tr><td>Titanium.UI.getOrientation</td><td>method</td><td></td></tr>
+  <tr><td>Titanium.UI.orientation</td><td>property</td><td><p>Use Titanium.UI.Window.orientationModes instead.</p></td></tr>
+  <tr><td>Titanium.UI.setOrientation</td><td>method</td><td></td></tr>
+<tr>
+</table>
+
