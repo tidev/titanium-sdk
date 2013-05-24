@@ -12,7 +12,9 @@ import java.util.Date;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.common.Log;
+import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.TiViewProxy;
+import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiUIView;
 
@@ -82,6 +84,9 @@ public class TiUIDatePicker extends TiUIView
 
         	this.maxDate = maxDateCalendar.getTime();
         }
+		if (d.containsKey(TiC.PROPERTY_CALENDAR_VIEW_SHOWN)) {
+			setCalendarView(TiConvert.toBoolean(d, TiC.PROPERTY_CALENDAR_VIEW_SHOWN));
+		}
         if (d.containsKey("minuteInterval")) {
             int mi = d.getInt("minuteInterval");
             if (mi >= 1 && mi <= 30 && mi % 60 == 0) {
@@ -110,11 +115,14 @@ public class TiUIDatePicker extends TiUIView
 	public void propertyChanged(String key, Object oldValue, Object newValue,
 			KrollProxy proxy)
 	{
-		if (key.equals("value"))
-		{
-			Date date = (Date)newValue;
+		if (key.equals("value")) {
+			Date date = (Date) newValue;
 			setValue(date.getTime());
 		}
+		if (key.equals(TiC.PROPERTY_CALENDAR_VIEW_SHOWN)) {
+			setCalendarView(TiConvert.toBoolean(newValue));
+		}
+
 		super.propertyChanged(key, oldValue, newValue, proxy);
 	}
 	
@@ -160,4 +168,11 @@ public class TiUIDatePicker extends TiUIView
 				.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH));
 		suppressChangeEvent = false;
 	}
+	
+	public void setCalendarView(boolean value)
+	{
+		DatePicker picker = (DatePicker) getNativeView();
+		picker.setCalendarViewShown(value);
+	}
+
 }
