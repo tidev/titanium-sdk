@@ -210,14 +210,15 @@ class AndroidSDK:
 			tool_path = self.get_tool(sdk_platform_tools_dir, tool)
 		if tool_path is None or not os.path.exists(tool_path):
 			tool_path = self.get_sdk_tool(tool)
+		# Many tools were moved to build-tools/17.0.0 (or something equivalent in windows) in sdk tools r22
 		if tool_path is None and build_tools_dir is not None:
-			# Many tools were moved to build-tools/17.0.0 in sdk tools r22
-
 			# Here, we list all the directories in build-tools and check inside
 			# each one for the tool we are looking for (there can be future versions besides 17.0.0).
 			for dirname in os.listdir(build_tools_dir):
-				if os.path.exists(os.path.join(build_tools_dir, dirname, tool)):
-					return os.path.join(build_tools_dir, dirname, tool)
+				build_tools_version_dir = os.path.join(build_tools_dir, dirname)
+				tool_path = self.get_tool(build_tools_version_dir, tool)
+				if tool_path is not None:
+					break
 
 		return tool_path
 
@@ -227,10 +228,26 @@ class AndroidSDK:
 	def get_dx_jar(self):
 		platform_tools_dir = self.get_platform_tools_dir()
 		sdk_platform_tools_dir = self.get_sdk_platform_tools_dir()
+		build_tools_dir = self.get_build_tools_dir()
+		dx_jar_path = None
+
 		if platform_tools_dir is not None:
-			return os.path.join(platform_tools_dir, 'lib', 'dx.jar')
-		elif sdk_platform_tools_dir is not None:
-			return os.path.join(sdk_platform_tools_dir, 'lib', 'dx.jar')
+			dx_jar_path = self.get_lib_dx_jar(platform_tools_dir)
+		if sdk_platform_tools_dir is not None and dx_jar_path is None:
+			dx_jar_path = self.get_lib_dx_jar(sdk_platform_tools_dir)
+		if build_tools_dir is not None and dx_jar_path is None:
+			for dirname in os.listdir(build_tools_dir):
+				build_tools_version_dir = os.path.join(build_tools_dir, dirname)
+				dx_jar_path = self.get_lib_dx_jar(build_tools_version_dir)
+				if dx_jar_path is not None:
+					break
+		return dx_jar_path
+
+	def get_lib_dx_jar(self, topdir):
+		if topdir is not None:
+			lib_dx_jar_path = os.path.join(topdir, 'lib', 'dx.jar')
+			if os.path.exists(lib_dx_jar_path):
+				return lib_dx_jar_path
 		return None
 
 	def get_dexdump(self):
