@@ -275,6 +275,12 @@ public class TiListView extends TiUIView {
 		}
 	}
 	
+	@Override
+	public void registerForTouch()
+	{
+		registerForTouch(listView);
+	}
+	
 	public void processProperties(KrollDict d) {
 		
 		if (d.containsKey(TiC.PROPERTY_TEMPLATES)) {
