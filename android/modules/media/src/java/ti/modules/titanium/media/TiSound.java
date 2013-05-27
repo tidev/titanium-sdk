@@ -316,7 +316,6 @@ public class TiSound
 			}
 		}
 
-		proxy.setProperty(TiC.PROPERTY_TIME, position);
 	}
 
 	private void setState(int state)
