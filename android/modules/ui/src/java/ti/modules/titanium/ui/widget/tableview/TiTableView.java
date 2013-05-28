@@ -440,9 +440,7 @@ public class TiTableView extends FrameLayout
 			// The event will bubble up to the parent.
 			if (rp.hierarchyHasListener(eventName)) {
 				rp.fireEvent(eventName, event);
-				if (longClick) {
-					longClickFired = true;
-				}
+				longClickFired = true;
 			}
 		}
 		if (longClick && !longClickFired) {
