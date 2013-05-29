@@ -112,7 +112,7 @@ class LocaleCompiler(object):
 			sfile.close()
 			dfile.close()
 			sindex = scontent.find('</resources>')
-			dindex = dcontent.find('<resources>') + 11
+			dindex = dcontent.find('>', dcontent.find('<resources')) + 1
 			content_to_write = scontent[:sindex] + dcontent[dindex:]
 			wfile = open(to_, 'w')
 			wfile.write(content_to_write)
