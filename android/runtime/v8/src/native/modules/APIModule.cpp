@@ -165,6 +165,9 @@ void APIModule::logInternal(int logLevel, const char *messageTag, const char *me
 	if (logLevel == LOG_LEVEL_TRACE) {
 		__android_log_write(ANDROID_LOG_VERBOSE, messageTag, message);
 	} else if (logLevel < LOG_LEVEL_INFO) {
+        if (!V8Runtime::DBG) {
+            return;
+        }
 		__android_log_write(ANDROID_LOG_DEBUG, messageTag, message);
 	} else if (logLevel < LOG_LEVEL_WARN) {
 		__android_log_write(ANDROID_LOG_INFO, messageTag, message);
