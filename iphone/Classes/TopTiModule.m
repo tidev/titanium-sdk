@@ -61,7 +61,7 @@
 	[context setCurrentURL:oldUrl];
 }
 
--(id)ressourcesRelativePath
+-(id)resourcesRelativePath
 {
 	id<TiEvaluator> context = [self executionContext];
 	NSURL * oldUrl = [context currentURL];
