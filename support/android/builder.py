@@ -332,7 +332,7 @@ def resource_drawable_folder(path):
 			return 'drawable-%s' % folder.replace('res-', '')
 
 def remove_duplicate_nodes_in_res_file(full_path, node_names_to_check):
-	f = codecs.open(full_path, 'r')
+	f = open(full_path, 'r')
 	contents = f.read()
 	f.close()
 	doc = parseString(contents)
