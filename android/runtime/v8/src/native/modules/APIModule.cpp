@@ -68,6 +68,10 @@ void APIModule::Initialize(Handle<Object> target)
 
 Handle<Value> APIModule::logDebug(const Arguments& args)
 {
+    if (!V8Runtime::DBG) {
+        return Undefined();
+    }
+
     HandleScope scope;
 	String::Utf8Value message(APIModule::combineLogMessages(args));
 	APIModule::logInternal(LOG_LEVEL_DEBUG, LCAT, *message);
