@@ -370,7 +370,8 @@ public class Log
 
 	public static boolean isDebugModeEnabled()
 	{
-		return TiConfig.DEBUG;
+		//return TiConfig.DEBUG;
+		return true;
 	}
 
 	private static int processLog(int severity, String tag, String msg, String mode)

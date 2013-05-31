@@ -37,7 +37,7 @@ public class TiAnalyticsEvent
 	private static final String TAG = "TitaniumAnalyticsEvent";
 
 	private static TimeZone utc = TimeZone.getTimeZone("UTC");
-	private static SimpleDateFormat isoDateFormatter =
+	public static SimpleDateFormat isoDateFormatter =
 		new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
 	static {
 		// Workaround for setting the timezone since there is a bug in android 2.2 and earlier

@@ -110,9 +110,14 @@ public class TiAnalyticsService extends Service
 								// and a queue blocked by bad records.
 								eventIds[i] = id;
 								records.put(events.get(id));
+								
+								JSONObject obj = events.get(id);
+								Log.d(TAG, "Sending event: type = " + obj.getString("type") + ", timestamp = " + obj.getString("ts"));
 							}
 							boolean deleteEvents = true;
 							if (records.length() > 0) {
+								// Disable the network connection for test only
+								/*
 								if (Log.isDebugModeEnabled()) {
 									Log.d(TAG, "Sending " + records.length() + " analytics events.");
 								}
@@ -141,7 +146,7 @@ public class TiAnalyticsService extends Service
 						   			deleteEvents = false;
 						   			records = null;
 						   			break;
-						   		}
+						   		}*/
 							}
 
 							records = null;

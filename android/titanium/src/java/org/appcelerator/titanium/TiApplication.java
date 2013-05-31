@@ -12,6 +12,7 @@ import java.io.InputStream;
 import java.lang.Thread.UncaughtExceptionHandler;
 import java.lang.ref.SoftReference;
 import java.lang.ref.WeakReference;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -462,11 +463,11 @@ public abstract class TiApplication extends Application implements Handler.Callb
 				postAnalyticsEvent(TiAnalyticsEventFactory.createAppEnrollEvent(this,deployType));
 			}
 
-			if (needsStartEvent()) {
-				String deployType = systemProperties.getString("ti.deploytype", "unknown");
-
-				postAnalyticsEvent(TiAnalyticsEventFactory.createAppStartEvent(this, deployType));
-			}
+//			if (needsStartEvent()) {
+//				String deployType = systemProperties.getString("ti.deploytype", "unknown");
+//
+//				postAnalyticsEvent(TiAnalyticsEventFactory.createAppStartEvent(this, deployType));
+//			}
 
 		} else {
 			needsEnrollEvent = false;
@@ -661,16 +662,37 @@ public abstract class TiApplication extends Application implements Handler.Callb
 			}
 
 		} else if (event.getEventType() == TiAnalyticsEventFactory.EVENT_APP_START) {
-			if (needsStartEvent) {
-				analyticsModel.addEvent(event);
-				needsStartEvent = false;
-				sendAnalytics();
-				lastAnalyticsTriggered = System.currentTimeMillis();
+			//if (needsStartEvent) {
+			HashMap<Integer,String> tsForEndEvent = analyticsModel.getLastTimestampForEventType(TiAnalyticsEventFactory.EVENT_APP_END);
+			if (tsForEndEvent.size() == 1) {
+				for (Integer key : tsForEndEvent.keySet()) {
+					try {
+						long lastEnd = TiAnalyticsEvent.isoDateFormatter.parse(tsForEndEvent.get(key)).getTime(); //in millisecond
+						long start = TiAnalyticsEvent.isoDateFormatter.parse(event.getEventTimestamp()).getTime();
+						// If the new activity starts immediately after the previous activity pauses, we consider
+						// the app is still in foreground so will not send any analytics events
+						if (start - lastEnd < 5000) {
+							analyticsModel.deleteEvents(new int[] {key});
+							return;
+						}
+					} catch (ParseException e) {
+						Log.e(TAG, "Incorrect timestamp. Unable to send the ti.start event.", e);
+						//TODO: handle this error
+					}
+				}
 			}
+			analyticsModel.addEvent(event);
+			sendAnalytics();
+			lastAnalyticsTriggered = System.currentTimeMillis();
+//				analyticsModel.addEvent(event);
+//				needsStartEvent = false;
+//				sendAnalytics();
+//				lastAnalyticsTriggered = System.currentTimeMillis();
+			//}
 			return;
 
 		} else if (event.getEventType() == TiAnalyticsEventFactory.EVENT_APP_END) {
-			needsStartEvent = true;
+//			needsStartEvent = true;
 			analyticsModel.addEvent(event);
 			sendAnalytics();
 
