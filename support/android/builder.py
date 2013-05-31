@@ -1571,23 +1571,6 @@ class Builder(object):
 		src_list = []
 		self.module_jars = []
 
-		class_delta = timedelta(seconds=1)
-		for java_file in self.recurse([self.project_src_dir, self.project_gen_dir], '*.java'):
-			if self.project_src_dir in java_file:
-				relative_path = java_file[len(self.project_src_dir)+1:]
-			else:
-				relative_path = java_file[len(self.project_gen_dir)+1:]
-			class_file = os.path.join(self.classes_dir, relative_path.replace('.java', '.class'))
-
-			if Deltafy.needs_update(java_file, class_file) > 0:
-				# the file list file still needs each file escaped apparently
-				debug("adding %s to javac build list" % java_file)
-				src_list.append('"%s"' % java_file.replace("\\", "\\\\"))
-
-		if len(src_list) == 0:
-			# No sources are older than their classfile counterparts, we can skip javac / dex
-			return False
-
 		classpath = os.pathsep.join([self.android_jar, os.pathsep.join(self.android_jars)])
 
 		project_module_dir = os.path.join(self.top_dir,'modules','android')
@@ -1609,6 +1592,22 @@ class Builder(object):
 			classpath = os.pathsep.join([classpath, os.path.join(self.support_dir, 'lib', 'titanium-debug.jar')])
 			classpath = os.pathsep.join([classpath, os.path.join(self.support_dir, 'lib', 'titanium-profiler.jar')])
 
+		for java_file in self.recurse([self.project_src_dir, self.project_gen_dir], '*.java'):
+			if self.project_src_dir in java_file:
+				relative_path = java_file[len(self.project_src_dir)+1:]
+			else:
+				relative_path = java_file[len(self.project_gen_dir)+1:]
+			class_file = os.path.join(self.classes_dir, relative_path.replace('.java', '.class'))
+
+			if Deltafy.needs_update(java_file, class_file) > 0:
+				# the file list file still needs each file escaped apparently
+				debug("adding %s to javac build list" % java_file)
+				src_list.append('"%s"' % java_file.replace("\\", "\\\\"))
+                
+		if len(src_list) == 0:
+			# No sources are older than their classfile counterparts, we can skip javac / dex
+			return False
+                
 		debug("Building Java Sources: " + " ".join(src_list))
 		javac_command = [self.javac, '-encoding', 'utf8',
 			'-classpath', classpath, '-d', self.classes_dir, '-proc:none',
