@@ -278,6 +278,37 @@ public class TiAnalyticsModel extends SQLiteOpenHelper{
 		return result;
 	}
 
+	public HashMap<Integer,String> getLastTimestampForEventType(String type) {
+		HashMap<Integer, String> result = new HashMap<Integer,String>();
+		SQLiteDatabase db = null;
+		Cursor c = null;
+		try {
+			db = getReadableDatabase();
+
+			String sql =
+				"select _id, Timestamp from Events where Type=\"" + type + "\"" + " order by Timestamp desc";
+
+			c = db.rawQuery(sql, null);
+
+			while(c.moveToNext()) {
+				result.put(c.getInt(0), c.getString(1));
+				Log.d(TAG, "get timestamp for event " + type + ", id = " + c.getInt(0) + ", timestamp = " + c.getString(1));
+				return result;
+			}
+		} catch (SQLException e) {
+			Log.e(TAG, "Error retrieving timpestamp for event " + type + ": ", e);
+		} finally {
+			if (c != null) {
+				c.close();
+			}
+			if (db != null) {
+				db.close();
+			}
+		}
+
+		return result;
+	}
+
 	public boolean needsEnrollEvent() {
 		boolean result = false;
 

@@ -18,6 +18,7 @@ import org.appcelerator.kroll.KrollRuntime;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.common.TiMessenger;
 import org.appcelerator.titanium.TiLifecycle.OnLifecycleEvent;
+import org.appcelerator.titanium.analytics.TiAnalyticsEventFactory;
 import org.appcelerator.titanium.proxy.ActionBarProxy;
 import org.appcelerator.titanium.proxy.ActivityProxy;
 import org.appcelerator.titanium.proxy.IntentProxy;
@@ -927,6 +928,10 @@ public abstract class TiBaseActivity extends FragmentActivity
 				}
 			}
 		}
+
+		if (tiApp != null) {
+			tiApp.postAnalyticsEvent(TiAnalyticsEventFactory.createAppEndEvent());
+		}
 	}
 
 	@Override
@@ -974,6 +979,9 @@ public abstract class TiBaseActivity extends FragmentActivity
 		}
 
 		isResumed = true;
+		
+		String deployType = tiApp.getSystemProperties().getString("ti.deploytype", "unknown");
+		tiApp.postAnalyticsEvent(TiAnalyticsEventFactory.createAppStartEvent(tiApp, deployType));
 	}
 
 	@Override
