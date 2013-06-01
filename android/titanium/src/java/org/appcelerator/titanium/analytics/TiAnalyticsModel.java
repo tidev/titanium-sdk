@@ -141,6 +141,19 @@ public class TiAnalyticsModel extends SQLiteOpenHelper{
 
 	public void addEvent(final TiAnalyticsEvent event)
 	{
+		if (Log.isDebugModeEnabled()) {
+			StringBuilder sb = new StringBuilder();
+			sb.append("add Analytics Event to db: type=").append(event.getEventType())
+				.append("\n event=").append(event.getEventEvent())
+				.append("\n timestamp=").append(event.getEventTimestamp())
+				.append("\n mid=").append(event.getEventMid())
+				.append("\n sid=").append(event.getEventSid())
+				.append("\n aguid=").append(event.getEventAppGuid())
+				.append("\n isJSON=").append(event.mustExpandPayload())
+				.append("\n payload=").append(event.getEventPayload());
+			Log.d(TAG, sb.toString());
+		}
+
 		SQLiteDatabase db = null;
 		try {
 			db = getWritableDatabase();
@@ -292,7 +305,9 @@ public class TiAnalyticsModel extends SQLiteOpenHelper{
 
 			while(c.moveToNext()) {
 				result.put(c.getInt(0), c.getString(1));
-				Log.d(TAG, "get timestamp for event " + type + ", id = " + c.getInt(0) + ", timestamp = " + c.getString(1));
+				if (Log.isDebugModeEnabled()) {
+					Log.d(TAG, "get the most recent timestamp for event " + type + ", id = " + c.getInt(0) + ", timestamp = " + c.getString(1));
+				}
 				return result;
 			}
 		} catch (SQLException e) {

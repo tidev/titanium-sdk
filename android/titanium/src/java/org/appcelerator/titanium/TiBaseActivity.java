@@ -929,6 +929,7 @@ public abstract class TiBaseActivity extends FragmentActivity
 			}
 		}
 
+		// Checkpoint for ti.end event
 		if (tiApp != null) {
 			tiApp.postAnalyticsEvent(TiAnalyticsEventFactory.createAppEndEvent());
 		}
@@ -979,7 +980,8 @@ public abstract class TiBaseActivity extends FragmentActivity
 		}
 
 		isResumed = true;
-		
+
+		// Checkpoint for ti.start event
 		String deployType = tiApp.getSystemProperties().getString("ti.deploytype", "unknown");
 		tiApp.postAnalyticsEvent(TiAnalyticsEventFactory.createAppStartEvent(tiApp, deployType));
 	}
