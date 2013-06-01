@@ -291,6 +291,9 @@ public class TiAnalyticsModel extends SQLiteOpenHelper{
 		return result;
 	}
 
+	/*
+	 * Get the most recent timestamp given the event type.
+	 */
 	public HashMap<Integer,String> getLastTimestampForEventType(String type) {
 		HashMap<Integer, String> result = new HashMap<Integer,String>();
 		SQLiteDatabase db = null;

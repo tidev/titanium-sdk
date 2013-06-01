@@ -11,7 +11,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.appcelerator.kroll.KrollRuntime;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.util.KrollAssetHelper;
-import org.appcelerator.titanium.analytics.TiAnalyticsEventFactory;
 import org.appcelerator.titanium.util.TiColorHelper;
 import org.appcelerator.titanium.util.TiPlatformHelper;
 import org.appcelerator.titanium.util.TiUrl;
