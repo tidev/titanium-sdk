@@ -13,6 +13,7 @@ import java.lang.Thread.UncaughtExceptionHandler;
 import java.lang.ref.SoftReference;
 import java.lang.ref.WeakReference;
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -648,8 +649,9 @@ public abstract class TiApplication extends Application implements Handler.Callb
 			if (tsForEndEvent.size() == 1) {
 				for (Integer key : tsForEndEvent.keySet()) {
 					try {
-						long lastEnd = TiAnalyticsEvent.isoDateFormatter.parse(tsForEndEvent.get(key)).getTime(); //in millisecond
-						long start = TiAnalyticsEvent.isoDateFormatter.parse(event.getEventTimestamp()).getTime();
+						SimpleDateFormat dateFormat = TiAnalyticsEvent.getDateFormatForTimestamp();
+						long lastEnd = dateFormat.parse(tsForEndEvent.get(key)).getTime(); //in millisecond
+						long start = dateFormat.parse(event.getEventTimestamp()).getTime();
 						// If the new activity starts immediately after the previous activity pauses, we consider
 						// the app is still in foreground so will not send any analytics events
 						if (start - lastEnd < TIME_SEPARATION_ANALYTICS) {
