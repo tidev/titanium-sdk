@@ -110,9 +110,9 @@ public class TiAnalyticsService extends Service
 								// and a queue blocked by bad records.
 								eventIds[i] = id;
 								records.put(events.get(id));
-								
-								JSONObject obj = events.get(id);
+
 								if (Log.isDebugModeEnabled()) {
+									JSONObject obj = events.get(id);
 									Log.d(TAG, "Sending event: type = " + obj.getString("type") + ", timestamp = " + obj.getString("ts"));
 								}
 							}
