@@ -373,9 +373,6 @@ public class TiTableView extends FrameLayout
 				if (tvItem == null) {
 					return false;
 				}
-				if (TiTableView.this.proxy.hasProperty(TiC.PROPERTY_HEADER_VIEW)) {
-					position -= 1;
-				}
 				return rowClicked(tvItem, position, true);
 			}
 		});
