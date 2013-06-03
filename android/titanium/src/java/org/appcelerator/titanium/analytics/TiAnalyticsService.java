@@ -6,8 +6,8 @@
  */
 package org.appcelerator.titanium.analytics;
 
-import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.http.client.HttpClient;
@@ -96,7 +96,7 @@ public class TiAnalyticsService extends Service
 					while(model.hasEvents()) {
 						if(canSend())
 						{
-							HashMap<Integer,JSONObject> events = model.getEventsAsJSON(BUCKET_SIZE_FAST_NETWORK);
+							LinkedHashMap<Integer,JSONObject> events = model.getEventsAsJSON(BUCKET_SIZE_FAST_NETWORK);
 
 							int len = events.size();
 							int[] eventIds = new int[len];
