@@ -12,6 +12,8 @@ import java.io.InputStream;
 import java.lang.Thread.UncaughtExceptionHandler;
 import java.lang.ref.SoftReference;
 import java.lang.ref.WeakReference;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -66,6 +68,7 @@ public abstract class TiApplication extends Application implements Handler.Callb
 	private static final String SYSTEM_UNIT = "system";
 	private static final String TAG = "TiApplication";
 	private static final long STATS_WAIT = 300000;
+	private static final long TIME_SEPARATION_ANALYTICS = 1000;
 	private static final int MSG_SEND_ANALYTICS = 100;
 	private static final long SEND_ANALYTICS_DELAY = 30000; // Time analytics send request sits in queue before starting service.
 	private static final String PROPERTY_DEPLOY_TYPE = "ti.deploytype";
@@ -462,12 +465,6 @@ public abstract class TiApplication extends Application implements Handler.Callb
 				postAnalyticsEvent(TiAnalyticsEventFactory.createAppEnrollEvent(this,deployType));
 			}
 
-			if (needsStartEvent()) {
-				String deployType = systemProperties.getString("ti.deploytype", "unknown");
-
-				postAnalyticsEvent(TiAnalyticsEventFactory.createAppStartEvent(this, deployType));
-			}
-
 		} else {
 			needsEnrollEvent = false;
 			needsStartEvent = false;
@@ -639,19 +636,6 @@ public abstract class TiApplication extends Application implements Handler.Callb
 			return;
 		}
 
-		if (Log.isDebugModeEnabled()) {
-			StringBuilder sb = new StringBuilder();
-			sb.append("Analytics Event: type=").append(event.getEventType())
-				.append("\n event=").append(event.getEventEvent())
-				.append("\n timestamp=").append(event.getEventTimestamp())
-				.append("\n mid=").append(event.getEventMid())
-				.append("\n sid=").append(event.getEventSid())
-				.append("\n aguid=").append(event.getEventAppGuid())
-				.append("\n isJSON=").append(event.mustExpandPayload())
-				.append("\n payload=").append(event.getEventPayload());
-			Log.d(TAG, sb.toString());
-		}
-
 		if (event.getEventType() == TiAnalyticsEventFactory.EVENT_APP_ENROLL) {
 			if (needsEnrollEvent) {
 				analyticsModel.addEvent(event);
@@ -661,16 +645,30 @@ public abstract class TiApplication extends Application implements Handler.Callb
 			}
 
 		} else if (event.getEventType() == TiAnalyticsEventFactory.EVENT_APP_START) {
-			if (needsStartEvent) {
-				analyticsModel.addEvent(event);
-				needsStartEvent = false;
-				sendAnalytics();
-				lastAnalyticsTriggered = System.currentTimeMillis();
+			HashMap<Integer,String> tsForEndEvent = analyticsModel.getLastTimestampForEventType(TiAnalyticsEventFactory.EVENT_APP_END);
+			if (tsForEndEvent.size() == 1) {
+				for (Integer key : tsForEndEvent.keySet()) {
+					try {
+						SimpleDateFormat dateFormat = TiAnalyticsEvent.getDateFormatForTimestamp();
+						long lastEnd = dateFormat.parse(tsForEndEvent.get(key)).getTime(); //in millisecond
+						long start = dateFormat.parse(event.getEventTimestamp()).getTime();
+						// If the new activity starts immediately after the previous activity pauses, we consider
+						// the app is still in foreground so will not send any analytics events
+						if (start - lastEnd < TIME_SEPARATION_ANALYTICS) {
+							analyticsModel.deleteEvents(new int[] {key});
+							return;
+						}
+					} catch (ParseException e) {
+						Log.e(TAG, "Incorrect timestamp. Unable to send the ti.start event.", e);
+					}
+				}
 			}
+			analyticsModel.addEvent(event);
+			sendAnalytics();
+			lastAnalyticsTriggered = System.currentTimeMillis();
 			return;
 
 		} else if (event.getEventType() == TiAnalyticsEventFactory.EVENT_APP_END) {
-			needsStartEvent = true;
 			analyticsModel.addEvent(event);
 			sendAnalytics();
 
