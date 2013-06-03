@@ -143,7 +143,7 @@ examples:
             
             var mapview = Titanium.Map.createView({
                 mapType: Titanium.Map.STANDARD_TYPE,
-                region: {latitude:33.74511, longitude:-84.38993,
+                region: {latitude:37.390749, longitude:-122.081651,
                          latitudeDelta:0.01, longitudeDelta:0.01},
                 animate:true,
                 regionFit:true,
