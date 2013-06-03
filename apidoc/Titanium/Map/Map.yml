@@ -166,7 +166,7 @@ examples:
             });
             win.open();
 
-            // For the iOS platfom, wait for the complete event to ensure the region is set
+            // For the iOS platform, wait for the complete event to ensure the region is set
             if (Ti.Platform.name == 'iPhone OS') {
                 mapview.addEventListener('complete', function(evt){
                     mapview.region = {
@@ -217,7 +217,7 @@ examples:
             };
 
             function setRegion(evt) {
-                // For the iOS platfom, wait for the complete event to ensure the region is set
+                // For the iOS platform, wait for the complete event to ensure the region is set
                 if (OS_IOS) {
                     $.mapview.region = {
                         latitude:37.390749, longitude:-122.081651,
