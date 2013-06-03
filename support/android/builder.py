@@ -19,6 +19,9 @@ from xml.dom.minidom import parseString
 from tilogger import *
 from datetime import datetime, timedelta
 
+reload(sys) # this is required to prevent the following error: "AttributeError: 'module' object has no attribute 'setdefaultencoding'"
+sys.setdefaultencoding("utf_8") # Fix umlaut issues
+
 template_dir = os.path.abspath(os.path.dirname(sys._getframe(0).f_code.co_filename))
 top_support_dir = os.path.dirname(template_dir)
 sys.path.append(top_support_dir)
