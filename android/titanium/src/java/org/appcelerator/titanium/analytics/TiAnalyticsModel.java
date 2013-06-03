@@ -248,7 +248,7 @@ public class TiAnalyticsModel extends SQLiteOpenHelper{
 
 			String sql =
 				"select _id, EventId, Type, Event, Timestamp, MID, SID, AppGUID, isJSON, Payload from Events " +
-				" order by 1 limit " +
+				" order by Timestamp asc limit " +
 				limit
 				;
 
@@ -306,12 +306,11 @@ public class TiAnalyticsModel extends SQLiteOpenHelper{
 
 			c = db.rawQuery(sql, null);
 
-			while(c.moveToNext()) {
+			if (c.moveToNext()) {
 				result.put(c.getInt(0), c.getString(1));
 				if (Log.isDebugModeEnabled()) {
 					Log.d(TAG, "get the most recent timestamp for event " + type + ", id = " + c.getInt(0) + ", timestamp = " + c.getString(1));
 				}
-				return result;
 			}
 		} catch (SQLException e) {
 			Log.e(TAG, "Error retrieving timpestamp for event " + type + ": ", e);
