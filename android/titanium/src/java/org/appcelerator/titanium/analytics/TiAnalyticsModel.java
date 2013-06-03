@@ -7,6 +7,7 @@
 package org.appcelerator.titanium.analytics;
 
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.util.TiPlatformHelper;
@@ -197,6 +198,7 @@ public class TiAnalyticsModel extends SQLiteOpenHelper{
 				}
 				sb.append(")");
 				db.execSQL(sb.toString());
+				Log.d(TAG, "delete Analytics Event: " + sb.toString(), Log.DEBUG_MODE);
 			} catch (SQLException e) {
 				Log.e(TAG, "Error deleting events :" + e);
 			} finally {
@@ -238,8 +240,9 @@ public class TiAnalyticsModel extends SQLiteOpenHelper{
 		return result;
 	}
 
-	public HashMap<Integer,JSONObject> getEventsAsJSON(int limit) {
-		HashMap<Integer, JSONObject> result = new HashMap<Integer,JSONObject>(limit);
+	public LinkedHashMap<Integer,JSONObject> getEventsAsJSON(int limit) {
+		// Use LinkedHashMap to preserve the item order in which keys were inserted into the map.
+		LinkedHashMap<Integer, JSONObject> result = new LinkedHashMap<Integer,JSONObject>(limit);
 
 		SQLiteDatabase db = null;
 		Cursor c = null;
