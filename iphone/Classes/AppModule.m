@@ -44,7 +44,7 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 		/* Force window proxy closure, and wipe away the view update queue */
 		NSArray * proxyArray = [[viewController valueForKey:@"windowProxies"] copy];
 		for (TiWindowProxy * thisWindowProxy in proxyArray) {
-			[thisWindowProxy close:@{@"animated":@NO}];
+			[thisWindowProxy close:[NSDictionary dictionaryWithObject:NO forKey:@"animated"]];
 		}
 		[TiLayoutQueue resetQueue];
 		[proxyArray release];
