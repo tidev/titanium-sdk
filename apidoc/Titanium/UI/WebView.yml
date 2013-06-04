@@ -354,6 +354,17 @@ properties:
         See also: [data](Titanium.UI.WebView.data) and [url](Titanium.UI.WebView.url).
     type: String
 
+  - name: ignoreSslError
+    summary: Controls whether to ignore invalid SSL certificates or not.
+    description: |
+        If set to `true`, the web page loads despite having an invalid SSL certificate.
+
+        If set to `false`, a web page with an invalid SSL certificate does not load.
+    type: Boolean
+    default: undefined but behaves as false
+    since: "3.0.0"
+    platforms: [android]
+
   - name: loading
     summary: Indicates if the webview is loading content.
     type: Boolean
