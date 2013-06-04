@@ -87,6 +87,11 @@ description: |
     * "swipe delete" - without either of the table editing or moving modes enabled, a left or right 
     swipe gesture on a row reveals a delete button on the right-hand side of the row.
     
+    Note that because the operating system handles the functionality of the swipe delete, the OS will
+    capture swipe events and not bubble the event to Titanium listeners. As such, if you rely on
+    swipe events, you must not set editing to true on such rows, and simulate the functionality you
+    need.
+    
     When `editable` and `moveable` properties are set on the table view, they are known as `inherited`, 
     whereas when set on a row, they are known as `explicit`. As their resulting behavior may not 
     follow their literal meaning, depending on the combination of `editing` and `moving` modes that 

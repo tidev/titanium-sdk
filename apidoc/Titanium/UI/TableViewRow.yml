@@ -73,7 +73,11 @@ description: |
     A typical solution is to use a standard view as a container, or wrapper, for all each row's child 
     views, because it recognizes <Titanium.UI.View.swipe> events and allows them to pass to the table. 
     Each child view should have touch events disabled, so that the container view provides a reliable 
-    source for these events. Refer to the "Row Swipe Gestures" example for a demonstration. 
+    source for these events. Refer to the "Row Swipe Gestures" example for a demonstration.
+    
+    For iOS, read the [Row Editing and Moving Modes notes on TableView](Titanium.UI.TableView) regarding
+    the interactions between edit modes and swipes.
+    
 extends: Titanium.UI.View
 since: "0.9"
 excludes:
