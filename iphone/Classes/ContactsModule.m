@@ -488,7 +488,7 @@ void CMExternalChangeCallback (ABAddressBookRef notifyAddressBook,CFDictionaryRe
 -(void)removeGroup:(id)arg
 {
 	ENSURE_SINGLE_ARG(arg,TiContactsGroup)
-	ENSURE_UI_THREAD(removePerson,arg)
+	ENSURE_UI_THREAD(removeGroup,arg)
 	
 	[self removeRecord:[arg record]];
 }
