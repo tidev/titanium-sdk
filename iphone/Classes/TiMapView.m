@@ -728,7 +728,7 @@
         if (annView==nil) {
             if ([identifier isEqualToString:@"timap-customView"]) {
                 annView = [[[TiMapCustomAnnotationView alloc] initWithAnnotation:ann reuseIdentifier:identifier map:self] autorelease];
-                id offsetValue = [ann valueForUndefinedKey: @"centerOffset"];
+                CGPoint offsetValue = [ann valueForUndefinedKey: @"centerOffset"];
                 if(offsetValue != nil){
                     CGPoint centerOffset = [TiUtils pointValue: offsetValue];
                     annView.centerOffset = centerOffset;
@@ -736,7 +736,7 @@
             }
             else if ([identifier isEqualToString:@"timap-image"]) {
                 annView=[[[TiMapImageAnnotationView alloc] initWithAnnotation:ann reuseIdentifier:identifier map:self image:image] autorelease];
-                id offsetValue = [ann valueForUndefinedKey: @"centerOffset"];
+                CGPoint offsetValue = [ann valueForUndefinedKey: @"centerOffset"];
                 if(offsetValue != nil){
                     CGPoint centerOffset = [TiUtils pointValue: offsetValue];
                     annView.centerOffset = centerOffset;
@@ -748,7 +748,7 @@
         }
         if ([identifier isEqualToString:@"timap-customView"]) {
             [((TiMapCustomAnnotationView*)annView) setProxy:customView];
-            id offsetValue = [ann valueForUndefinedKey: @"centerOffset"];
+            CGPoint offsetValue = [ann valueForUndefinedKey: @"centerOffset"];
             if(offsetValue != nil){
                 CGPoint centerOffset = [TiUtils pointValue: offsetValue];
                 annView.centerOffset = centerOffset;
@@ -756,7 +756,7 @@
         }
         else if ([identifier isEqualToString:@"timap-image"]) {
             annView.image = image;
-            id offsetValue = [ann valueForUndefinedKey: @"centerOffset"];
+            CGPoint offsetValue = [ann valueForUndefinedKey: @"centerOffset"];
             if(offsetValue != nil){
                 CGPoint centerOffset = [TiUtils pointValue: offsetValue];
                 annView.centerOffset = centerOffset;

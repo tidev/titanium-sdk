@@ -311,9 +311,9 @@
     }
 }
 
-- (void)setCenterOffset:(id)centeroffset
+- (void)setCenterOffset:(CGPoint)centeroffset
 {
-	id current = [self valueForUndefinedKey:@"centerOffset"];
+	CGPoint current = [self valueForUndefinedKey:@"centerOffset"];
 	[self replaceValue:centeroffset forKey:@"centerOffset" notification:NO];
 	if (current!=centeroffset)
 	{
