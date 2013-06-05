@@ -37,6 +37,7 @@ import android.os.Looper;
 import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
+import android.support.v4.content.LocalBroadcastManager;
 import android.view.View;
 import android.view.View.OnFocusChangeListener;
 import android.view.ViewGroup.LayoutParams;
@@ -117,6 +118,10 @@ public class TiUIActivityWindow extends TiUIView
 		if (animated != null) {
 			animate = TiConvert.toBoolean(animated);
 		}
+		
+		// Broadcast message to inform that a new activity is about to be started.
+		intent.setAction("org.appcelerator.action.NEW_TI_ACTIVITY");
+		LocalBroadcastManager.getInstance(activity.getApplicationContext()).sendBroadcastSync(intent);
 
 		if (!animate) {
 			intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
