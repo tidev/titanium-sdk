@@ -256,7 +256,18 @@ build.prototype = {
 		this.logger.info(__('Copying project files'));
 		if (afs.exists(this.buildDir)) {
 			this.logger.debug(__('Deleting existing build directory'));
-			wrench.rmdirSyncRecursive(this.buildDir);
+			try {
+				wrench.rmdirSyncRecursive(this.buildDir);
+			} catch (e) {
+				this.logger.error(__('Failed to remove build directory "%s".', this.buildDir));
+				if (e.message.indexOf('resource busy or locked') != -1) {
+					this.logger.error(__('Build directory is busy or locked'));
+					this.logger.error(__('Check that you don\'t have any terminal sessions or programs with open files in the build directory') + '\n');
+				} else {
+					this.logger.error(e.message + '\n');
+				}
+				process.exit(1);
+			}
 		}
 		wrench.mkdirSyncRecursive(this.buildDir);
 		afs.copyDirSyncRecursive(this.mobilewebThemeDir, this.buildDir + '/themes', { preserve: true, logger: this.logger.debug });
