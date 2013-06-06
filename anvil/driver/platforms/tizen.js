@@ -259,7 +259,7 @@ module.exports = new function() {
 	var runHarness = function(successCallback, errorCallback) {
 		process.chdir(path.resolve(driverGlobal.harnessDir, "tizen/harness/build/tizen"));
 
-		driverUtils.runCommand("web-run -i zhrTuDSwYV", driverUtils.logStdout, function(error) {
+		driverUtils.runCommand("web-run -i zhrTuDSwYV.testharness", driverUtils.logStdout, function(error) {
 			if (error !== null) {
 				driverUtils.log("error encountered when running harness: " + error.message);
 				errorCallback && errorCallback();
