@@ -644,7 +644,10 @@ public abstract class TiUIView
 			if (nativeView != null) {
 				nativeView.setKeepScreenOn(TiConvert.toBoolean(newValue));
 			}
-
+		} else if (key.equals(TiC.PROPERTY_TOUCH_PASSTHROUGH)) {
+			if (nativeView instanceof TiCompositeLayout) {
+				((TiCompositeLayout) nativeView).setTouchPassThrough(TiConvert.toBoolean(newValue));
+			}
 		} else if (key.indexOf("accessibility") == 0 && !key.equals(TiC.PROPERTY_ACCESSIBILITY_HIDDEN)) {
 			applyContentDescription();
 
@@ -676,6 +679,12 @@ public abstract class TiUIView
 		if (d.containsKey(TiC.PROPERTY_HORIZONTAL_WRAP)) {
 			if (nativeView instanceof TiCompositeLayout) {
 				((TiCompositeLayout) nativeView).setEnableHorizontalWrap(TiConvert.toBoolean(d,TiC.PROPERTY_HORIZONTAL_WRAP,true));
+			}
+		}
+
+		if (d.containsKey(TiC.PROPERTY_TOUCH_PASSTHROUGH)) {
+			if (nativeView instanceof TiCompositeLayout) {
+				((TiCompositeLayout) nativeView).setTouchPassThrough(TiConvert.toBoolean(d, TiC.PROPERTY_TOUCH_PASSTHROUGH));
 			}
 		}
 

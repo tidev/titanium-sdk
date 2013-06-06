@@ -215,7 +215,7 @@ DEFINE_EXCEPTIONS
 	self = [super init];
 	if (self != nil)
 	{
-
+		touchPassThrough = false;
 	}
 	return self;
 }
@@ -635,6 +635,15 @@ DEFINE_EXCEPTIONS
 
 -(BOOL) touchEnabled {
 	return touchEnabled;
+}
+
+-(void)setTouchPassThrough_:(id)arg
+{
+	touchPassThrough = [TiUtils boolValue:arg];
+}
+
+-(BOOL)touchPassThrough {
+    return touchPassThrough;
 }
 
 -(UIView *)gradientWrapperView
@@ -1100,7 +1109,12 @@ DEFINE_EXCEPTIONS
 	}
      */
 	
-    return [super hitTest:point withEvent:event];
+	UIView *hitView = [super hitTest:point withEvent:event];
+	if (touchPassThrough && hitView == self)
+	{
+		return nil;
+	}
+	return hitView;
 }
 
 // TODO: Revisit this design decision in post-1.3.0
