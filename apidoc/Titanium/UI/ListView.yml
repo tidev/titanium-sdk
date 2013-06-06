@@ -1,0 +1,521 @@
+---
+name: Titanium.UI.ListView
+summary: |
+    A list view is used to present information, organized in to sections and items,
+    in a vertically-scrolling view.
+description: |
+    Use the <Titanium.UI.createListView> method to create a `ListView`.
+    
+    A `ListView` object is a container for [ListSection](Titanium.UI.ListSection) 
+    objects that are, in turn, containers for [ListItem](Titanium.UI.ListItem) objects.
+
+    **Note:** this is the first version of list view. Not all features from the specification
+    are implemented in this version.  A complete list of implemented features is schedule for
+    the next list version, which is planned for Release 3.2.0.
+
+    For more instructions and examples of using `ListView`, refer to the
+    [ListViews guide](http://docs.appcelerator.com/titanium/latest/#!/guide/ListViews)
+
+    #### Creating a List
+
+    To create a list, pass an array of <ListDataItem> objects to the list section's
+    [items](Titanium.UI.ListSection.items) property, which creates and adds each array
+    element as a row to a single [ListSection](Titanium.UI.ListSection). Use the list view's
+    [sections](Titanium.UI.ListView.sections) property to add the section(s) to the list view.
+
+    By default, only the `image`, `title` and `accessoryType` of a list data item
+    are displayed in the list. Refer to the next section for using an item template.
+
+    See the "List View Sections" example.
+
+    #### Customizing the List Items
+
+    To create a custom list view, you need to define an <ItemTemplate> and define each view
+    component you want to add. Use the `bindId` property of the child template to bind a dictionary
+    property in the item data to a child view component.
+
+    Map the template to a style name using the <Titanium.UI.ListView.templates> property, then use
+    the style name to  set the <Titanium.UI.ListView.defaultItemTemplate> property to globally change
+    all item styles or set the <ListDataItem.template> property when passing in your list data
+    to apply the template to that one list item or to override the globally defined template.
+
+    On iOS, you can specify one of the template constants for the <ListDataItem.template> property
+    or <Titanium.UI.ListView.defaultItemTemplate>:
+    <Titanium.UI.LIST_ITEM_TEMPLATE_CONTACTS>, <Titanium.UI.LIST_ITEM_TEMPLATE_SETTINGS>
+    or <Titanium.UI.LIST_ITEM_TEMPLATE_SUBTITLE>.
+
+    See <Titanium.UI.ListItem> for a detailed description of creating list items with a custom
+    item template and see the "List View with Custom Item Template" example for a sample.
+
+    #### List and Table Views
+
+    This section describes the differences between the new list view and the old table view.
+
+    `ListView` is analogous to `TableView`, `ListSection` is analogous to `TableViewSection`, and
+    `ListItem` is analogous to `TableViewRow`.
+
+    Both list view and table view present data to user as a vertically scrolling list of rows.
+    However, list view uses a data-oriented approach versus table view's view-oriented approach.
+
+    List view is designed for performance. One side effect of the design is that you cannot directly
+    manipulate the views--add children, set view properties and bind event callbacks--as you can in
+    `TableView`. Instead, you interact with list items indirectly, using templates and data items. The
+    next subsection describes how to use list items.
+
+    ##### ListItem versus TableViewRow
+
+    With `TableView`, you can directly add rows to a table view using the data property and its accessors.
+    With `TableViewRows`, you can directly create a row using the `Ti.UI.createTableViewRow` and customize
+    its styling by setting its view properties. You can add view subcomponents to the row using the add
+    method.
+
+    With `ListView`, you need to explicitly create a `ListSection` in order to add a `ListItem` to a `ListView`.
+    You cannot directly add a `ListItem` to a `ListView`.
+    In a `TableView`, a `TableViewRow` can be directly added to a `TableView` because a
+    `TableViewSection` is implicitly created and added to the `TableView`.
+
+    A `ListItem` object is not created in the same method as a `TableViewRow`.
+    A `ListItem` is create by passing an array of `ListDataItem` objects to the `ListSection`.
+
+    You cannot add views to a `ListItem` using the `add` method, which could be done with a
+    `TableViewRow`. To add views to a `ListItem`, you need to define an <ItemTemplate>,
+    which is bound to a list data item using the `template` property.
+
+    You cannot explicitly set properties or bind events for a `ListItem`.  You have to set them using the
+    `properties` dictionary of a <ListDataItem> or <ItemTemplate> and the `events` dictionary of the
+    <ItemTemplate> or <ViewTemplate>, respectively.
+
+    ##### API Differences
+
+    **Note:** This is the first version of list view and some features have not been implemented.
+    The differences listed are for the final planned list view and the current table view in Release 3.1.0.
+
+    - **TableViewRow properties**: The following properties and their accessors are not
+      available for `ListItem`: `accessibilityLabel`, `className`, `editable`, `hasCheck`,
+      `hasChild`, `hasDetail`, `leftImage`, `moveable` and `rightImage`.
+
+        - For `hasCheck`, `hasChild`, and `hasDetail`, use the `accessoryType` property.
+        - For `leftImage` and `rightImage`, use the `image` property or create a custom item template.
+
+    - **TableViewRow methods**: `ListItem` does not support any methods. Adding views and binding
+      event callbacks are supported through the item template.
+
+    - **TableViewSection properties**: The following properties and their accessors are not
+      supported by `ListSection`: `rows` and `rowCount`.
+
+        - For `rows`, use the `items` property.
+        - For `rowCount`, use the `itemCount` property. (Not yet implemented.)
+
+    - **TableViewSection methods**: The following methods are not supported by `ListSection`:
+      `add`, `remove` and `rowAtIndex`.
+
+        - For `rowAtIndex`, use the `getItemAt` method.
+        - For `add` and `remove`, use the other `ListSection` methods to manipulate the `ListItem`
+          objects in the `ListSection`.
+
+    - **TableView properties**: The `data` property and its accessors are not available
+      for `ListView`. Use the `sections` property to set the `ListSections` for a `ListView`.  You
+      cannot directly add `ListItem` objects to a `ListView`.
+
+    - **TableView methods**: The following methods are not available to `ListView`:
+      `appendRow`, `deleteRow`, `deselectRow`, `insertRowAfter`, `insertRowBefore`, `selectRow`,
+      `updateRow`, `scrollToIndex` and `selectRow`.
+
+        - For `scrollToIndex`, use the `scrollToItem` method.
+        - For `selectRow`, use the `selectItem` method. (Currently implemented only for iOS.)
+        - For all other row methods, you cannot manipulate `ListItems` with a `ListView`.
+          You have to manipulate them with the `ListSection` they are contained in.
+
+    - **To be implemented in V2**:
+
+        - **ListView**: `headerPullView`, `headerView`, `footerView`, `scrollable`, `separatorColor`
+          and `separatorStyle` properties.
+        - **ListSection**: `headerView`, `itemCount` and `footerView` properties.
+
+    #### List and Scroll Views
+
+    As a list view inherently scrolls, it creates a very poor user experience when it contains
+    other scrolling views, such as a [ScrollableView](Titanium.UI.ScrollableView) or
+    [TextArea](Titanium.UI.TextArea). Thus, this layout is strongly discouraged.
+
+    #### TextFields in Lists with SOFT_INPUT_ADJUST_PAN (Android)
+
+    When a [TextField](Titanium.UI.TextField) is placed in a row near the bottom of a `ListView`,
+    in a window that is configured with
+    [SOFT_INPUT_ADJUST_PAN](Titanium.UI.Android.SOFT_INPUT_ADJUST_PAN), it is expected for the 
+    text field to automatically move to a visible position after it is focused and the software
+    keyboard displayed. However, due to a known problem caused by native Android's `ListView` behavior,
+    the keyboard is likely to completely obscure the text field.
+
+    To mitigate this, a `ScrollView` may be used instead of a list view, as demonstrated in the
+    [ScrollView](Titanium.UI.ScrollView), "Scroll View as a Table View", example.
+
+platforms: [android, ipad, iphone]
+extends: Titanium.UI.View
+since: '3.1.0'
+excludes:
+    events: [focus]
+    properties: [backgroundSelectedColor, backgroundSelectedImage, enabled]
+events:
+  - name: itemclick
+    summary: Fired when a list row is clicked by the user.
+    description: |
+        Do not rely on the `source` property to determine which item fired the event.  Use the
+        `sectionIndex` and `itemIndex`, or the `itemId` to determine the list item that generated
+        the event, and use the `bindId` to check which child control fired the event. 
+    properties:
+      - name: section
+        summary: List section if the item is contained in a list section.
+        type: Titanium.UI.ListSection
+
+      - name: sectionIndex
+        summary: Section index.
+        type: Number
+
+      - name: itemIndex
+        summary: Item index.
+        type: Number
+
+      - name: itemId
+        summary: The item ID bound to the list item that generated the event.
+        type: String
+
+      - name: bindId
+        summary: The bind ID of the control that generated this event, if one exists.
+        type: String
+
+      - name: accessoryClicked
+        summary: |
+            Returns `true` if the detail button is clicked else returns `false`.
+
+            Only returns `true` if the `accessoryType` property is set to
+            <Titanium.UI.LIST_ACCESSORY_TYPE_DETAIL>.  All other accessories return `false` if
+            clicked.
+        type: Boolean
+        platforms: [iphone, ipad]
+
+properties:
+
+  - name: templates
+    summary: Contain key-value pairs mapping a style name (key) to an <ItemTemplate> (value).
+    description: |
+        This property cannot be changed once a window has been opened.
+    type: Dictionary
+    availability: creation
+
+  - name: sections
+    summary: Sections of this list.
+    type: Array<Titanium.UI.ListSection>
+
+  - name: defaultItemTemplate
+    summary: Sets the default template for list data items that do not specify the `template` property.
+    description: |
+        Can be set to any of the built-in templates or those defined in the `templates` property.
+
+        Can be changed dynamically.
+    type: [String, Number]
+    default: Titanium.UI.LIST_ITEM_TEMPLATE_DEFAULT
+
+  - name: footerTitle
+    summary: List view footer title.
+    type: String
+
+  - name: headerTitle
+    summary: List view header title.
+    type: String
+
+  - name: scrollIndicatorStyle
+    summary: |
+        Style of the scrollbar, specified using one of the constants from
+        <Titanium.UI.iPhone.ScrollIndicatorStyle>.
+    type: Number
+    default: <Titanium.UI.iPhone.ScrollIndicatorStyle.DEFAULT>
+    platforms: [iphone, ipad]
+
+  - name: willScrollOnStatusTap
+    summary: Controls the scroll-to-top gesture.
+    description: |
+        If the user taps on the status bar, the view scrolls to the top.
+        This gesture works when you have a single visible list view.
+        If there are multiple list views, table views, web views, text areas, and/or scroll views visible,
+        you need to disable (set to `false`) this property on the views you **DO NOT** want to
+        enable this behavior for.  The remaining view responds to the scroll-to-top gesture.
+    type: Boolean
+    default: true
+    platforms: [iphone,ipad]
+
+  - name: sectionCount
+    summary: Number of sections in this list view.
+    type: Number
+    permission: read-only
+
+  - name: showVerticalScrollIndicator
+    summary: Determines whether this list view displays a vertical scroll indicator.
+    description: Set to `false` to hide the vertical scroll indicator.
+    type: Boolean
+    default: true
+
+  - name: style
+    summary: |
+        Style of the list view, specified using one of the constants from
+        <Titanium.UI.iPhone.ListViewStyle>.
+    description: Style should always be set before setting the sections on list view.
+    type: Number
+    default: Titanium.UI.iPhone.ListViewStyle.PLAIN
+    platforms: [iphone, ipad]
+    availability: creation
+
+
+methods:
+
+  - name: scrollToItem
+    summary: Scrolls to a specific item.
+    description: |
+        On Android 4.x, the list does not stop at the correct position.
+        This is a known bug in Android.
+        ([Android Issue #37278](https://code.google.com/p/android/issues/detail?id=37278))
+    parameters:
+      - name: sectionIndex
+        summary: Section index.
+        type: Number
+
+      - name: itemIndex
+        summary: Item index.
+        type: Number
+
+      - name: animation
+        summary: Animation properties. (iOS only.)
+        type: ListViewAnimationProperties
+        optional: true
+
+  - name: appendSection
+    summary: Appends a single section or an array of sections to the end of the list.
+    description: |
+        On iOS, the section(s) can be inserted with an animation by specifying the `animation`
+        parameter.
+    parameters:
+      - name: section
+        summary: Section or sections to add to the list.
+        type: [Titanium.UI.ListSection, Array<Titanium.UI.ListSection>]
+
+      - name: animation
+        summary: Animation properties. (iOS only.)
+        type: ListViewAnimationProperties
+        optional: true
+
+  - name: deleteSectionAt
+    summary: Deletes an existing section.
+    description: |
+        On iOS, the section can be deleted with an animation by specifying the `animation` parameter.
+    parameters:
+      - name: sectionIndex
+        summary: Index of the section to delete.
+        type: Number
+
+      - name: animation
+        summary: Animation properties. (iOS only.)
+        type: ListViewAnimationProperties
+        optional: true
+
+  - name: insertSectionAt
+    summary: Inserts a section or an array of sections at a specific index.
+    description: |
+        Existing sections at that index and after are pushed down.
+
+        On iOS, the section(s) may be inserted with an animation by setting the `animation` parameter.
+    parameters:
+      - name: sectionIndex
+        summary: Index of the section to insert before.
+        type: Number
+
+      - name: section
+        summary: Section or sections to insert.
+        type: [Titanium.UI.ListSection, Array<Titanium.UI.ListSection>]
+
+      - name: animation
+        summary: Animation properties. (iOS only.)
+        type: ListViewAnimationProperties
+        optional: true
+
+  - name: replaceSectionAt
+    summary: Replaces an existing section.
+    description: |
+        On iOS, the section may be replaced with an animation by setting the `animation` parameter.
+    parameters:
+      - name: sectionIndex
+        summary: Index of the section to update.
+        type: Number
+
+      - name: section
+        summary: section data to update.
+        type: Titanium.UI.ListSection
+
+      - name: animation
+        summary: Animation properties. (iOS only.)
+        type: ListViewAnimationProperties
+
+  - name: selectItem
+    summary: Selects an item in the list using the specified item and section indices.
+    parameters:
+      - name: sectionIndex
+        summary: Index of the section the item is in.
+        type: Number
+
+      - name: itemIndex
+        summary: Index of the item to select.
+        type: Number
+    platforms: [ipad,iphone]
+
+
+examples:
+  - title: List View Sections
+    example: |
+        Creates a list with three sections, each with two rows.
+        Adds two sections to the table before and one after it is rendered.
+
+            var win = Ti.UI.createWindow({backgroundColor: 'white'});
+            var listView = Ti.UI.createListView();
+            var sections = [];
+
+            var fruitSection = Ti.UI.createListSection({ headerTitle: 'Fruits'});
+            var fruitDataSet = [
+                {properties: { title: 'Apple'}},
+                {properties: { title: 'Banana'}},
+            ];
+            fruitSection.setItems(fruitDataSet);
+            sections.push(fruitSection);
+
+            var vegSection = Ti.UI.createListSection({ headerTitle: 'Vegetables'});
+            var vegDataSet = [
+                {properties: { title: 'Carrots'}},
+                {properties: { title: 'Potatoes'}},
+            ];
+            vegSection.setItems(vegDataSet);
+            sections.push(vegSection);
+
+            listView.sections = sections;
+            win.add(listView);
+            win.open();
+
+            var fishSection = Ti.UI.createListSection({ headerTitle: 'Fish'});
+            var fishDataSet = [
+                {properties: { title: 'Cod'}},
+                {properties: { title: 'Haddock'}},
+            ];
+            fishSection.setItems(fishDataSet);
+            listView.appendSection(fishSection);
+
+  - title: List View with Custom Item Template
+    example: |
+        Modifies the previous example to create a list using an item template to customize the view layout.
+
+            var win = Ti.UI.createWindow({backgroundColor: 'white'});
+
+            // Create a custom template that displays an image on the left, 
+            // then a title next to it with a subtitle below it.
+            var myTemplate = {
+                childTemplates: [
+                    {                            // Image justified left
+                        type: 'Ti.UI.ImageView', // Use an image view for the image
+                        bindId: 'pic',           // Maps to a custom pic property of the item data
+                        properties: {            // Sets the image view  properties
+                            width: '50dp', height: '50dp', left: 0
+                        }
+                    },
+                    {                            // Title 
+                        type: 'Ti.UI.Label',     // Use a label for the title 
+                        bindId: 'info',          // Maps to a custom info property of the item data
+                        properties: {            // Sets the label properties
+                            color: 'black',
+                            font: { fontFamily:'Arial', fontSize: '20dp', fontWeight:'bold' },
+                            left: '60dp', top: 0,
+                        }
+                    },
+                    {                            // Subtitle
+                        type: 'Ti.UI.Label',     // Use a label for the subtitle
+                        bindId: 'es_info',       // Maps to a custom es_info property of the item data
+                        properties: {            // Sets the label properties
+                            color: 'gray',
+                            font: { fontFamily:'Arial', fontSize: '14dp' },
+                            left: '60dp', top: '25dp',
+                        }
+                    }
+                ]
+            };
+
+            var listView = Ti.UI.createListView({
+                // Maps myTemplate dictionary to 'template' string
+                templates: { 'template': myTemplate },
+                // Use 'template', that is, the myTemplate dict created earlier
+                // for all items as long as the template property is not defined for an item.
+                defaultItemTemplate: 'template'
+            });
+            var sections = [];
+
+            var fruitSection = Ti.UI.createListSection({ headerTitle: 'Fruits / Frutas'});
+            var fruitDataSet = [
+                // the text property of info maps to the text property of the title label
+                // the text property of es_info maps to text property of the subtitle label
+                // the image property of pic maps to the image property of the image view
+                { info: {text: 'Apple'}, es_info: {text: 'Manzana'}, pic: {image: 'apple.png'}},
+                { info: {text: 'Banana'}, es_info: {text: 'Banana'}, pic: {image: 'banana.png'}}
+            ];
+            fruitSection.setItems(fruitDataSet);
+            sections.push(fruitSection);
+
+            var vegSection = Ti.UI.createListSection({ headerTitle: 'Vegetables / Verduras'});
+            var vegDataSet = [
+                { info: {text: 'Carrot'}, es_info: {text: 'Zanahoria'}, pic: {image: 'carrot.png'}},
+                { info: {text: 'Potato'}, es_info: {text: 'Patata'}, pic: {image: 'potato.png'}}
+            ];
+            vegSection.setItems(vegDataSet);
+            sections.push(vegSection);
+
+            var grainSection = Ti.UI.createListSection({ headerTitle: 'Grains / Granos'});
+            var grainDataSet = [
+                { info: {text: 'Corn'}, es_info: {text: 'Maiz'}, pic: {image: 'corn.png'}},
+                { info: {text: 'Rice'}, es_info: {text: 'Arroz'}, pic: {image: 'rice.png'}}
+            ];
+            grainSection.setItems(grainDataSet);
+            sections.push(grainSection);
+
+            listView.setSections(sections);
+            win.add(listView);
+            win.open();
+
+
+---
+name: ListViewAnimationProperties
+summary: |
+    A simple object for specifying the animation properties to use when inserting or deleting
+    sections or cells, or scrolling the list.
+description: |
+    These properties are only used on iOS. Not all properties apply to all methods.
+
+    `animationStyle` does not apply to the `scrollToItem` method.
+
+    `positon` only applies to the `scrollToItem` method.
+platforms: [iphone, ipad]
+since: '3.1.0'
+properties:
+  - name: animated
+    summary: Whether this list change should be animated. Ignored if any `animationStyle` value is specified.
+    type: Boolean
+    default: true
+
+  - name: animationStyle
+    summary: |
+        Type of animation to use for cell insertions and deletions. One of the animation style
+        constants defined in <Titanium.UI.iPhone.RowAnimationStyle>.
+    type: Number
+    default: |
+        If `animated` is `true` but no `animationStyle` is specified, the style defaults to 
+        [FADE](Titanium.UI.iPhone.RowAnimationStyle.FADE).
+
+  - name: position
+    summary: |
+        Specifies what position to scroll the selected cell to. One of the position constants from 
+        <Titanium.UI.iPhone.ListViewScrollPosition>.
+    type: Number
+    default: Titanium.UI.iPhone.ListViewScrollPosition.NONE
+

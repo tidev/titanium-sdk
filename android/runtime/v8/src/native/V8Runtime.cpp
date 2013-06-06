@@ -148,8 +148,14 @@ using namespace titanium;
  * Method:    nativeInit
  * Signature: (Lorg/appcelerator/kroll/runtime/v8/V8Runtime;)J
  */
-JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nativeInit(JNIEnv *env, jobject self, jboolean useGlobalRefs, jint debuggerPort, jboolean DBG)
+JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nativeInit(JNIEnv *env, jobject self, jboolean useGlobalRefs, jint debuggerPort, jboolean DBG, jboolean profilerEnabled)
 {
+	if (profilerEnabled) {
+		char* argv[] = { const_cast<char*>(""), const_cast<char*>("--expose-gc") };
+		int argc = sizeof(argv)/sizeof(*argv);
+		V8::SetFlagsFromCommandLine(&argc, argv, false);
+	}
+
 	HandleScope scope;
 	titanium::JNIScope jniScope(env);
 
@@ -164,7 +170,7 @@ JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nativeIn
 	V8Runtime::javaInstance = env->NewGlobalRef(self);
 	JNIUtil::initCache();
 
-	Persistent<Context> context = Persistent<Context>::New(Context::New());
+	Persistent<Context> context = Context::New();
 	context->Enter();
 
 	V8Runtime::globalContext = context;
@@ -203,9 +209,9 @@ JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nativeRu
 			Handle<Function>::Cast(moduleObject->Get(String::New("runModule"))));
 	}
 
-	Handle<Value> jsSource = TypeConverter::javaStringToJsString(source);
-	Handle<Value> jsFilename = TypeConverter::javaStringToJsString(filename);
-	Handle<Value> jsActivity = TypeConverter::javaObjectToJsValue(activityProxy);
+	Handle<Value> jsSource = TypeConverter::javaStringToJsString(env, source);
+	Handle<Value> jsFilename = TypeConverter::javaStringToJsString(env, filename);
+	Handle<Value> jsActivity = TypeConverter::javaObjectToJsValue(env, activityProxy);
 
 	Handle<Value> args[] = { jsSource, jsFilename, jsActivity };
 	TryCatch tryCatch;
@@ -224,13 +230,13 @@ JNIEXPORT jobject JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nativ
 	ENTER_V8(V8Runtime::globalContext);
 	titanium::JNIScope jniScope(env);
 
-	Handle<Value> jsSource = TypeConverter::javaStringToJsString(source);
+	Handle<Value> jsSource = TypeConverter::javaStringToJsString(env, source);
 	if (jsSource.IsEmpty() || !jsSource->IsString()) {
 		LOGE(TAG, "Error converting Javascript string, aborting evalString");
 		return NULL;
 	}
 
-	Handle<Value> jsFilename = TypeConverter::javaStringToJsString(filename);
+	Handle<Value> jsFilename = TypeConverter::javaStringToJsString(env, filename);
 
 	TryCatch tryCatch;
 	Handle<Script> script = Script::Compile(jsSource->ToString(), jsFilename);
@@ -242,7 +248,7 @@ JNIEXPORT jobject JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nativ
 		return NULL;
 	}
 
-	return TypeConverter::jsValueToJavaObject(result);
+	return TypeConverter::jsValueToJavaObject(env, result);
 }
 
 JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nativeProcessDebugMessages(JNIEnv *env, jobject self)

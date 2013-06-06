@@ -31,11 +31,34 @@ public class TiResourceFile extends TiBaseFile
 	private static final String TAG = "TiResourceFile";
 
 	private final String path;
+	private boolean typeFetched = false;
 
 	public TiResourceFile(String path)
 	{
 		super(TYPE_RESOURCE);
 		this.path = path;
+	}
+
+	@Override
+	public boolean isDirectory()
+	{
+		if (typeFetched) {
+			return this.typeDir;
+		}
+
+		fetchType();
+		return this.typeDir;
+	}
+
+	@Override
+	public boolean isFile()
+	{
+		if (typeFetched) {
+			return this.typeFile;
+		}
+
+		fetchType();
+		return this.typeFile;
 	}
 
 	@Override
@@ -242,5 +265,28 @@ public class TiResourceFile extends TiBaseFile
 	public String toString ()
 	{
 		return toURL();
+	}
+
+	private void fetchType ()
+	{
+		InputStream is = null;
+		try {
+			is = getInputStream();
+			this.typeDir = false;
+			this.typeFile = true;
+		} catch (IOException e) {
+			// getInputStream() will throw a FileNotFoundException if it is a directory or it does not exist.
+			this.typeDir = true;
+			this.typeFile = false;
+		} finally {
+			if (is != null) {
+				try {
+					is.close();
+				} catch (IOException e) {
+					// Ignore
+				}
+			}
+		}
+		typeFetched = true;
 	}
 }

@@ -7,6 +7,8 @@
 
 #import "TiColor.h"
 #import "Webcolor.h"
+#import "TiBase.h"
+#import "TiUtils.h"
 //TODO: Move all of Webcolor into TiColor.
 
 @implementation TiColor
@@ -26,7 +28,10 @@
 			return nil;
 		}
 	}
-
+    if ([TiUtils isIOS6OrGreater] && (translatedColor == [UIColor groupTableViewBackgroundColor])) {
+        DebugLog(@"[WARN]Group style table view backgrounds can no longer be represented by a simple color. Reverting to black");
+        translatedColor = [UIColor blackColor];
+    }
 	result = [[self alloc] initWithColor:translatedColor name:name];
 	return [result autorelease];
 }

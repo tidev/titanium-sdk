@@ -73,7 +73,7 @@ public abstract class TiJSActivity extends TiLaunchActivity
 		setLayoutProxy(window);
 
 		// The UIWindow needs to be created before we run the script
-		activityWindow = new TiUIActivityWindow((TiActivityWindowProxy)window, this, layout);
+		activityWindow = new TiUIActivityWindow((TiActivityWindowProxy)window, this, getLayout());
 		super.windowCreated();
 	}
 

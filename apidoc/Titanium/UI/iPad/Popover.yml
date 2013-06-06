@@ -9,20 +9,32 @@ description: |
     the entire screen in the way that a modal view does. The popover content is layered on top of 
     the existing content in a special type of window. The popover remains visible until the user 
     taps outside of the popover window or it is explicitly dismissed.
-    
+
+    A <Titanium.UI.iPhone.NavigationGroup> may be added as a view in a popover. Do not add top-level
+    view containers, such as a `Window` or `TabGroup`, to a popover.  Adding top-level view containers
+    may have unintended side effects.
+
     ![popover](http://img.skitch.com/20100406-pmssjk1a3a65s6ui8qnbqi59c4.png)
 extends: Titanium.UI.View
 since: "1.2"
+excludes: {
+    events: [longclick],
+    methods: [getBackgroundDisabledColor, getBackgroundDisabledImage, getBackgroundFocusedColor,
+              getBackgroundFocusedImage, getBackgroundSelectedColor, getBackgroundSelectedImage,
+              getFocusable, getKeepScreenOn, getSoftKeyboardOnFocus,
+              setBackgroundDisabledColor, setBackgroundDisabledImage, setBackgroundFocusedColor,
+              setBackgroundFocusedImage, setBackgroundSelectedColor, setBackgroundSelectedImage,
+              setFocusable, setKeepScreenOn, setSoftKeyboardOnFocus,
+    ],
+    properties: [backgroundDisabledColor, backgroundDisabledImage, backgroundFocusedColor,
+                 backgroundFocusedImage, backgroundSelectedColor, backgroundSelectedImage,
+                 focusable, keepScreenOn, softKeyboardOnFocus
+    ]
+}
 
 events:
   - name: hide
     summary: Fired when the popover is hidden.
-    properties:
-      - name: x
-        summary: X coordinate of the event from the `source` view's coordinate system.
-      
-      - name: y
-        summary: Y coordinate of the event from the `source` view's coordinate system.
         
 methods:
   - name: setHeight
@@ -58,26 +70,88 @@ properties:
     summary: Left button in the navigation area of the popover.
     type: Object
     
+  - name: rightNavButton
+    summary: Right button in the navigation area of the popover.
+    type: Object
+
   - name: title
     summary: Title of the navigation area of the popover.
     type: String
 
 examples:
-  - title: Simple Popover
+  - title: Simple Popover with a Title and Right Button
     example: |
         In this example, we create a simple popover and position it near the button.
-        
-            var popover = Ti.UI.iPad.createPopover({ height: 100, width: 100 });
-            popover.add(view);
-            popover.show({ view: button });
-  
-  - title: Popover with title and nav button
-    example: |
-        In this example, we create a popover with a title and right navigation button.
-        
-            var popover = Ti.UI.iPad.createPopover({
-            	width: 250, 
-            	height: 100,
-            	title: 'Yo Yo',
-            	rightNavButton: button
+
+            var win = Ti.UI.createWindow();
+
+            var button = Ti.UI.createButton({title: 'Open Popover!'});
+            button.addEventListener('click', function(e){
+                popover.show({ view: button });
             });
+            win.add(button);
+
+            var view = Ti.UI.createView({backgroundColor: 'green'});
+            view.add(Ti.UI.createLabel({text: "It's not easy being green."}));
+
+            var rightButton = Ti.UI.createButton({title: 'Robin'});
+            rightButton.addEventListener('click', function(e){
+                alert("But green's the color of spring.");
+            });
+
+            var popover = Ti.UI.iPad.createPopover({
+                width: 250,
+                height: 100,
+                title: 'Kermit',
+                rightNavButton: rightButton
+            });
+            popover.add(view);
+
+            win.open();
+
+
+  - title: Alloy XML Markup
+    example: |
+        Previous example as an Alloy project.
+
+        index.xml
+
+            <Alloy>
+                <Window>
+                    <Button id="button" onClick="openPopover">Open Popover!</Button>
+                </Window>
+            </Alloy>
+
+        index.js
+
+            function openPopover() {
+                var popover = Alloy.createController('popover').getView();
+                popover.show({view:$.button});
+            };
+
+            $.index.open();
+
+        popover.xml
+
+            <Alloy>
+                <Popover title='Kermit' height='100' width='250'>
+                    <!-- Prior to Alloy 1.1.0, this property was set in the controller. -->
+                    <RightNavButton>
+                        <Button onClick='showAlert'>Robin</Button>
+                    </RightNavButton>
+                    <View backgroundColor='green'>
+                        <Label>It's not easy being green.</Label>
+                    </View>
+                </Popover>
+            </Alloy>
+
+        popover.js
+
+            function showAlert(e) {
+                alert('But green is the color of spring.');
+            };
+
+            // Prior to Alloy 1.1.0, the rightNavButton property was set in the controller.
+            // var button = Ti.UI.createButton({title: 'Robin'});
+            // button.addEventListener('click', showAlert);
+            // $.popover.rightNavButton = button;

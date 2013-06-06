@@ -8,6 +8,7 @@
 #import "TiEvaluator.h"
 #import "KrollCallback.h"
 #import "KrollObject.h"
+#import "TiBindingRunLoop.h"
 #import <pthread.h>
 
 @class KrollBridge;
@@ -98,6 +99,9 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
  The base class for Titanium proxies.
  */
 @interface TiProxy : NSObject<KrollTargetable> {
+@public
+	BOOL _bubbleParent;
+
 @private
 	NSMutableDictionary *listeners;
 	BOOL destroyed;
@@ -116,12 +120,22 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 	id<TiEvaluator> executionContext;
 }
 
+/* Convenience method, especially for autoloading modules. The selector
+ * is a class method taking one argument, which is the TiBindingRunLoop
+ * started.
+ */
++(void)performSelectorDuringRunLoopStart:(SEL)selector;
+
 -(void)boundBridge:(id<TiEvaluator>)newBridge withKrollObject:(KrollObject *)newKrollObject;
 -(void)unboundBridge:(id<TiEvaluator>)oldBridge;
 
 
 @property(readonly,nonatomic)			id<TiEvaluator> pageContext;
 @property(readonly,nonatomic)			id<TiEvaluator> executionContext;
+
+@property(readonly,nonatomic)			int bindingRunLoopCount;
+@property(readonly,nonatomic)			TiBindingRunLoop primaryBindingRunLoop;
+@property(readonly,nonatomic)			NSArray * bindingRunLoopArray;
 
 /**
  Provides access to proxy delegate.
@@ -188,6 +202,38 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
  */
 -(BOOL)inReproxy;
 
+#pragma Subclassable
+
+/**
+ Returns proxy that should receive the event next in a case of bubbling.
+ Return nil if the class does not bubble or there is no parent. Optionally
+ return nil if bubbleParent is false -- i.e., bubbleParent must be checked
+ as well.
+ 
+ Override this method for views that do not follow the standard children/parent
+ model (e.g., table rows). Note that this is NOT for use by JS, because this is
+ intentionally an iOS-only solution.
+ */
+-(TiProxy *)parentForBubbling;
+
+/**
+ Returns an array of properties that must be set on the proxy object in a specific order, ordered from first to last.
+ Any properties which are not in this list are set after the listed properties, and are set in undefined order.
+ 
+ Override this method if the order in which properties are set is significant.
+ @return The array of property keys.
+ */
+-(NSArray *)keySequence;
+
+#pragma JS-facing
+/**
+ Indicates that this proxy should honor bubbling of user events, if the proxy
+ is the type that has a parent to bubble to (This is primairly views, but may
+ have some exceptions).
+ */
+-(NSNumber*)bubbleParent;
+-(void)setBubbleParent:(id)arg;
+
 #pragma mark Utility
 -(KrollObject *)krollObjectForContext:(KrollContext *)context;
 
@@ -238,25 +284,32 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
  */
 -(id<NSFastEnumeration>)allKeys;
 
-/**
- Returns an array of properties that must be set on the proxy object in a specific order, ordered from first to last.
- Any properties which are not in this list are set after the listed properties, and are set in undefined order.
- 
- Override this method if the order in which properties are set is significant.
- @return The array of property keys.
- */
--(NSArray *)keySequence;
-
 +(void)throwException:(NSString *) reason subreason:(NSString*)subreason location:(NSString *)location;
 -(void)throwException:(NSString *) reason subreason:(NSString*)subreason location:(NSString *)location;
 -(void)addEventListener:(NSArray*)args;
 -(void)removeEventListener:(NSArray*)args;
 
+
+
 -(void)fireEvent:(id)args;
 -(void)fireEvent:(NSString*)type withObject:(id)obj;
+
+//For UI events:
+-(void)fireEvent:(NSString*)type withObject:(id)obj propagate:(BOOL)yn;
+
+//For events that report an error or success
+-(void)fireEvent:(NSString*)type withObject:(id)obj errorCode:(int)code message:(NSString*)message;
+
+//What classes should actually override:
+-(void)fireEvent:(NSString*)type withObject:(id)obj propagate:(BOOL)propagate reportSuccess:(BOOL)report errorCode:(int)code message:(NSString*)message;
+
+//Temporary override point during the transition. Both the one below AND the one above should be overridden if needed.
+-(void)fireEvent:(NSString*)type withObject:(id)obj withSource:(id)source propagate:(BOOL)propagate reportSuccess:(BOOL)report errorCode:(int)code message:(NSString*)message;
+
+//** Deprecated: bubbling is done at a lower point so source is always 'self' at this point.
 -(void)fireEvent:(NSString*)type withObject:(id)obj withSource:(id)source;
 -(void)fireEvent:(NSString*)type withObject:(id)obj withSource:(id)source propagate:(BOOL)yn;
--(void)fireEvent:(NSString*)type withObject:(id)obj propagate:(BOOL)yn;
+
 
 /**
  Returns a dictionary of all properties set on the proxy object.
@@ -288,5 +341,7 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 -(id)sanitizeURL:(id)value;
 
 -(void)setExecutionContext:(id<TiEvaluator>)context;
+
++ (id)createProxy:(NSString *)qualifiedName withProperties:(NSDictionary *)properties inContext:(id<TiEvaluator>)context;
 
 @end

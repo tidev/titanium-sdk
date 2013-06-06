@@ -81,6 +81,9 @@ public class UtilsModule extends KrollModule
 	@Kroll.method
 	public String md5HexDigest(Object obj)
 	{
+		if (obj instanceof TiBlob) {
+			return DigestUtils.md5Hex(((TiBlob) obj).getBytes());
+		}
 		String data = convertToString(obj);
 		if (data != null) {
 			return DigestUtils.md5Hex(data);
@@ -91,6 +94,9 @@ public class UtilsModule extends KrollModule
 	@Kroll.method
 	public String sha1(Object obj)
 	{
+		if (obj instanceof TiBlob) {
+			return DigestUtils.shaHex(((TiBlob) obj).getBytes());
+		}
 		String data = convertToString(obj);
 		if (data != null) {
 			return DigestUtils.shaHex(data);
@@ -107,11 +113,16 @@ public class UtilsModule extends KrollModule
 	@Kroll.method
 	public String sha256(Object obj)
 	{
-		String data = convertToString(obj);
 		// NOTE: DigestUtils with the version before 1.4 doesn't have the function sha256Hex,
 		// so we deal with it ourselves
 		try {
-			byte[] b = data.getBytes();
+			byte[] b = null;
+			if (obj instanceof TiBlob) {
+				b = ((TiBlob) obj).getBytes();
+			} else {
+				String data = convertToString(obj);
+				b = data.getBytes();
+			}
 			MessageDigest algorithm = MessageDigest.getInstance("SHA-256");
 			algorithm.reset();
 			algorithm.update(b);

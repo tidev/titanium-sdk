@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2011-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -48,6 +48,7 @@ public:
 	static jclass floatClass;
 	static jclass doubleClass;
 	static jclass booleanClass;
+	static jclass stringArrayClass;
 	static jclass objectArrayClass;
 	static jclass shortArrayClass;
 	static jclass intArrayClass;
@@ -69,6 +70,7 @@ public:
 	static jclass v8FunctionClass;
 	static jclass krollRuntimeClass;
 	static jclass krollInvocationClass;
+	static jclass krollExceptionClass;
 	static jclass krollObjectClass;
 	static jclass krollProxyClass;
 	static jclass krollAssetHelperClass;
@@ -111,6 +113,7 @@ public:
 
 	static jint krollRuntimeDontIntercept;
 	static jmethodID krollInvocationInitMethod;
+	static jmethodID krollExceptionInitMethod;
 	static jmethodID krollObjectSetHasListenersForEventTypeMethod;
 	static jmethodID krollObjectOnEventFiredMethod;
 	static jmethodID krollProxyCreateProxyMethod;
@@ -122,7 +125,7 @@ public:
 	static jmethodID krollProxyOnPropertyChangedMethod;
 	static jmethodID krollProxyOnPropertiesChangedMethod;
 	static jmethodID krollLoggingLogWithDefaultLoggerMethod;
-	static jmethodID openErrorDialogMethod;
+	static jmethodID krollRuntimeDispatchExceptionMethod;
 
 	static jmethodID krollAssetHelperReadAssetMethod;
 	static jmethodID krollAssetHelperFileExistsMethod;

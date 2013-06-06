@@ -12,9 +12,27 @@ description: |
 
     For all other socket needs, use <Titanium.Network.Socket.TCP>.
     
+    To use this API on Tizen, you must include the following privilege in the `tiapp.xml` 
+    file of your Titanium application: 
+
+    * `http://tizen.org/privilege/systeminfo`
+    
 extends: Titanium.Module
 since: "0.1"
 methods:
+  - name: addConnectivityListener
+    deprecated:
+        since: "1.7.0"
+        removed: "3.0.0"
+        notes: Use the [change](Titanium.Network.change) event to monitor connectivity changes.
+    summary: |
+        Legacy method to add a connectivity listener to listen for network changes.
+    parameters:
+      - name: callback
+        summary: Callback function to invoke upon network connectivity changes.
+        type: Callback<Object>
+    platforms: [iphone, ipad]
+    
   - name: createBonjourBrowser
     summary: Creates and returns a `BonjourBrowser` object.
     platforms: [iphone, ipad]
@@ -57,15 +75,15 @@ methods:
         optional: true
         type: Dictionary<Titanium.Network.BonjourService>
   - name: createTCPSocket
-    summary: Use <Titanium.Network.Socket.createTCP> instead.
-    description: |
+    deprecated:
+        since: "1.7.0"
+        notes: Use <Titanium.Network.Socket.createTCP> instead.
+    summary: |
         Legacy method to create and return an instance of <Titanium.Network.TCPSocket>.
-
+    description: |
         Note that `TCPSocket` is still used with the Bonjour services. For other uses,
         see <Titanium.Network.Socket.TCP>.
     platforms: [iphone, ipad, mobileweb]
-    deprecated:
-        since: "1.7.0"
     returns:
         type: Titanium.Network.TCPSocket
     parameters:
@@ -115,6 +133,20 @@ methods:
       - name: config
         summary: Dictionary specifying push-notification related options. 
         type: PushNotificationConfig
+
+  - name: removeConnectivityListener
+    deprecated:
+        since: "1.7.0"
+        removed: "3.0.0"
+        notes: Use the [change](Titanium.Network.change) event to monitor connectivity changes.
+    summary: |
+        Legacy method to remove a connectivity listener.
+    parameters:
+      - name: callback
+        summary: Callback function to remove.
+        type: Callback<Object>
+    platforms: [iphone, ipad]
+    
   - name: unregisterForPushNotifications
     summary: Unregisters the application for push notifications.
     description: |
@@ -141,7 +173,7 @@ events:
       - name: reason
         summary: Human-readable text describing the reason for the change.
         type: String
-        platforms: [android, mobileweb]
+        platforms: [android, mobileweb, tizen]
 properties:
   - name: INADDR_ANY
     summary: |
@@ -221,90 +253,101 @@ properties:
     permission: read-only
     platforms: [iphone, ipad]
   - name: READ_MODE
+    deprecated:
+        since: "1.7.0"
+        notes: |
+            Used with the deprecated <Titanium.Network.TCPSocket> only.
+
+            See <Titanium.Network.Socket> for constants used with
+            <Titanium.Network.Socket.TCP> sockets.
     summary: Constant value specifying read-only mode for sockets.
-    description: Used with the deprecated <Titanium.Network.TCPSocket> only.
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
-    deprecated: 
-        since: "1.7.0"
   - name: READ_WRITE_MODE
+    deprecated:
+        since: "1.7.0"
+        notes: |
+            Used with the deprecated <Titanium.Network.TCPSocket> only.
+
+            See <Titanium.Network.Socket> for constants used with
+            <Titanium.Network.Socket.TCP> sockets.
     summary: Constant value specifying read-write mode for sockets.
-    description: Used with the deprecated <Titanium.Network.TCPSocket> only.
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
-    deprecated: 
-        since: "1.7.0"
   - name: SOCKET_CLOSED
+    deprecated:
+        since: "1.7.0"
+        notes: |
+            Used with the deprecated <Titanium.Network.TCPSocket> only.
+
+            See <Titanium.Network.Socket> for constants used with
+            <Titanium.Network.Socket.TCP> sockets.
     summary: Constant value representing a socket in the CLOSED state.
-    description: |
-        Used with the deprecated <Titanium.Network.TCPSocket> only.
-
-        See <Titanium.Network.Socket> for constants used with
-        <Titanium.Network.Socket.TCP> sockets.
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
-    deprecated: 
-        since: "1.7.0"
   - name: SOCKET_CONNECTED
+    deprecated:
+        since: "1.7.0"
+        notes: |
+            Used with the deprecated <Titanium.Network.TCPSocket> only.
+
+            See <Titanium.Network.Socket> for constants used with
+            <Titanium.Network.Socket.TCP> sockets.
     summary: Constant value representing a socket in the CONNECTED state.
-    description: |
-        Used with the deprecated <Titanium.Network.TCPSocket> only.
-
-        See <Titanium.Network.Socket> for constants used with
-        <Titanium.Network.Socket.TCP> sockets.
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
-    deprecated: 
-        since: "1.7.0"
   - name: SOCKET_ERROR
+    deprecated:
+        since: "1.7.0"
+        notes: |
+            Used with the deprecated <Titanium.Network.TCPSocket> only.
+
+            See <Titanium.Network.Socket> for constants used with
+            <Titanium.Network.Socket.TCP> sockets.
     summary: Constant value representing a socket in the ERROR state.
-    description: |
-        Used with the deprecated <Titanium.Network.TCPSocket> only.
-
-        See <Titanium.Network.Socket> for constants used with
-        <Titanium.Network.Socket.TCP> sockets.
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
-    deprecated: 
-        since: "1.7.0"
   - name: SOCKET_INITIALIZED
+    deprecated:
+        since: "1.7.0"
+        notes: |
+            Used with the deprecated <Titanium.Network.TCPSocket> only.
+
+            See <Titanium.Network.Socket> for constants used with
+            <Titanium.Network.Socket.TCP> sockets.
     summary: Constant value representing a socket in the INITIALIZED state.
-    description: |
-        Used with the deprecated <Titanium.Network.TCPSocket> only.
-
-        See <Titanium.Network.Socket> for constants used with
-        <Titanium.Network.Socket.TCP> sockets.
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
-    deprecated: 
-        since: "1.7.0"
   - name: SOCKET_LISTENING
-    summary: Constant value representing a socket in the LISTENING state.
-    description: |
-        Used with the deprecated <Titanium.Network.TCPSocket> only.
+    deprecated:
+        since: "1.7.0"
+        notes: |
+            Used with the deprecated <Titanium.Network.TCPSocket> only.
 
-        See <Titanium.Network.Socket> for constants used with
-        <Titanium.Network.Socket.TCP> sockets.
+            See <Titanium.Network.Socket> for constants used with
+            <Titanium.Network.Socket.TCP> sockets.
+    summary: Constant value representing a socket in the LISTENING state.
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
-    deprecated: 
-        since: "1.7.0"
   - name: WRITE_MODE
+    deprecated:
+        since: "1.7.0"
+        notes: |
+            Used with the deprecated <Titanium.Network.TCPSocket> only.
+
+            See <Titanium.Network.Socket> for constants used with
+            <Titanium.Network.Socket.TCP> sockets.
     summary: Constant value specifying write-only mode for sockets.
-    description: |
-        Used with the deprecated <Titanium.Network.TCPSocket> only.
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
-    deprecated: 
-        since: "1.7.0"
   - name: TLS_VERSION_1_0
     summary: Constant value specifying TLS version 1.0 for SSL.
     type: Number
@@ -369,7 +412,7 @@ properties:
         This function allows URLs to be formatted for use with the application's proxy to 
         get around cross domain issues.
     type: Callback<String>
-    platforms: [mobileweb]
+    platforms: [mobileweb, tizen]
 
 ---
 name: PushNotificationConfig
@@ -397,6 +440,7 @@ name: PushNotificationSuccessArg
 summary: |
     A simple object passed to the 
     [registerForPushNotifications](Titanium.Network.registerForPushNotifications) success callback.
+extends: SuccessResponse
 properties: 
   - name: type
     summary: The value of this string is always "remote".
@@ -405,18 +449,47 @@ properties:
     summary: The device token which this device was registered for.
     type: String
 
+  - name: success
+    summary: Indicates if the operation succeeded. Returns `true`.
+    description: Returns `true`.
+    type: Boolean
+    since: "3.1.0"
+
+  - name: error
+    summary: Error message, if any returned.
+    description: Will be undefined.
+    type: String
+    since: "3.1.0"
+    
+  - name: code
+    summary: Error code. Returns 0.
+    description: Error code will be 0.
+    type: Number
+    since: "3.1.0"
+
 ---
 name: PushNotificationErrorArg
 summary: |
     A simple object passed to the 
     [registerForPushNotifications](Titanium.Network.registerForPushNotifications) error callback.
+extends: FailureResponse
 properties: 
   - name: type
     summary: The value of this string is always "remote".
     type: String
-  - name: error 
-    summary: Description of the error.
-    type: String
+  - name: success
+    summary: Indicates if the operation succeeded. Returns `false`.
+    description: Returns `false`.
+    type: Boolean
+    since: "3.1.0"
+    
+  - name: code
+    summary: Error code. Returns a non-zero value.
+    description: |
+        If the error was generated by the operating system, that system's error value
+        is used. Otherwise, this value will be -1.
+    type: Number
+    since: "3.1.0"
 
 ---
 name: PushNotificationData
@@ -430,3 +503,8 @@ properties:
         [application:didReceiveRemoteNotification in the UIApplicationDelegate Protocol
         Reference](http://developer.apple.com/library/ios/#DOCUMENTATION/UIKit/Reference/UIApplicationDelegate_Protocol/Reference/Reference.html#//apple_ref/occ/intfm/UIApplicationDelegate/application:didReceiveRemoteNotification:)
     type: Dictionary
+  - name: inBackground
+    summary: |
+        Boolean indicating if notification was received while app was in background. 
+        This property became available in Titanium Mobile 3.1.0 for iOS.
+    type: Boolean

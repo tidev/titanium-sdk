@@ -12,6 +12,11 @@
 @private
     TiUIView * touchHandler;
     UIView * touchedContentView;
+    //TIMOB-12988 Additions
+    BOOL delay;
+    BOOL ignore;
+    BOOL offsetAnimated;
+    CGPoint offsetPoint;
 }
 -(void)setTouchHandler:(TiUIView*)handler;
 @end
@@ -40,6 +45,7 @@
 -(BOOL)handleContentSizeIfNeeded;
 -(void)handleContentSize;
 -(void)setContentOffset_:(id)value withObject:(id)property;
+-(void)setZoomScale_:(id)value withObject:(id)property;
 -(UIView *)wrapperView;
 -(void)scrollToBottom;
 

@@ -6,9 +6,11 @@ description: |
     Use the <Titanium.UI.createPickerRow> method to create a picker row control.
     
     Views added to picker rows is only supported on iOS.
-platforms: [android, iphone, ipad, mobileweb]
+platforms: [android, iphone, ipad, mobileweb, tizen]
 extends: Titanium.UI.View
 since: "0.9"
+excludes:
+    properties: [enabled]
 
 methods:
   - name: add
@@ -25,7 +27,7 @@ properties:
     description: |
         For information about color values, see the "Colors" section of <Titanium.UI>. 
     type: String
-    platforms: [mobileweb]
+    platforms: [mobileweb, tizen]
   - name: fontSize
     summary: Font size for displaying item text. Ignored when using a custom view.
     type: Number
@@ -33,7 +35,7 @@ properties:
   - name: font
     summary: Font to use for the item text.
     type: Font
-    platforms: [mobileweb]
+    platforms: [mobileweb, tizen]
   - name: title
     summary: Item text.
     type: String
@@ -83,7 +85,6 @@ examples:
             var picker = Ti.UI.createPicker({
               top:50,
               columns: [column1, column2],
-              visibleItems: 3,
               selectionIndicator: true
             });
 
@@ -94,3 +95,45 @@ examples:
             // must be after picker has been displayed
             picker.setSelectedRow(0, 2, false); // select Mangos
             picker.setSelectedRow(1, 3, false); // select Orange
+
+  - title: Alloy XML Markup
+    example: |
+        Previous example as an Alloy view.
+
+        pickerrowexample.xml
+
+            <Alloy>
+                <Window id="win" backgroundColor="white" layout="vertical" exitOnClose="true">
+                    <Picker id="picker" top="50" selectionIndicator="true">
+                        <PickerColumn id="column1">
+
+                            <!-- On iOS, views can be added to picker rows -->
+                            <PickerRow>
+                                <Label color="red" textAlign="left" width="126">Bananas</Label>
+                            </PickerRow>
+                            <PickerRow>
+                                <Label color="red" textAlign="left" width="126">Strawberries</Label>
+                            </PickerRow>
+                            <PickerRow>
+                                <Label color="red" textAlign="left" width="126">Mangos</Label>
+                            </PickerRow>
+                            <PickerRow>
+                                <Label color="red" textAlign="left" width="126">Grapes</Label>
+                            </PickerRow>
+                        </PickerColumn>
+
+                        <!-- Picker shorthand notation -->
+                        <Column id="column2">
+                            <Row title="red"/>
+                            <Row title="green"/>
+                            <Row title="blue"/>
+                            <Row title="orange"/>
+                        </Column>
+                    </Picker>
+                </Window>
+            </Alloy>
+
+        pickerrowexample.js:
+
+            $.picker.setSelectedRow(0, 2, false);
+            $.picker.setSelectedRow(1, 3, false);

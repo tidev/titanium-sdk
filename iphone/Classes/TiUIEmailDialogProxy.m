@@ -56,7 +56,8 @@
 - (void)open:(id)args
 {
 	[self rememberSelf];
-	ENSURE_TYPE_OR_NIL(args,NSDictionary);
+	NSDictionary* properties = nil;
+	ENSURE_ARG_OR_NIL_AT_INDEX(properties, args, 0, NSDictionary);
 	Class arrayClass = [NSArray class];
 	NSArray * toArray = [self valueForUndefinedKey:@"toRecipients"];
 	ENSURE_CLASS_OR_NIL(toArray,arrayClass);
@@ -72,11 +73,8 @@
 
 	if (![MFMailComposeViewController canSendMail])
 	{
-		NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:NUMINT(MFMailComposeResultFailed),@"result",
-							   NUMBOOL(NO),@"success",
-							   @"system can't send email",@"error",
-							   nil];
-		[self fireEvent:@"complete" withObject:event];
+		NSDictionary *event = [NSDictionary dictionaryWithObject:NUMINT(MFMailComposeResultFailed) forKey:@"result"];
+		[self fireEvent:@"complete" withObject:event errorCode:MFMailComposeResultFailed message:@"system can't send email"];
 		return;
 	}
 
@@ -129,7 +127,7 @@
 		}
 	}
 	
-	BOOL animated = [TiUtils boolValue:@"animated" properties:args def:YES];
+	BOOL animated = [TiUtils boolValue:@"animated" properties:properties def:YES];
 	[self retain];
 	[[TiApp app] showModalController:composer animated:animated];
 }
@@ -155,11 +153,8 @@ MAKE_SYSTEM_PROP(FAILED,MFMailComposeResultFailed);
 	composer = nil;
 	if ([self _hasListeners:@"complete"])
 	{
-		NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:NUMINT(result),@"result",
-							   NUMBOOL(result==MFMailComposeResultSent),@"success",
-							   error,@"error",
-							   nil];
-		[self fireEvent:@"complete" withObject:event];
+		NSDictionary *event = [NSDictionary dictionaryWithObject:NUMINT(result) forKey:@"result"];
+		[self fireEvent:@"complete" withObject:event errorCode:[error code] message:[TiUtils messageFromError:error]];
 	}
 	[self forgetSelf];
 	[self autorelease];

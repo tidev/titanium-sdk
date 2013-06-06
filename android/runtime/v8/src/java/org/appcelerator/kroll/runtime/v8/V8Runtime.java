@@ -6,6 +6,7 @@
  */
 package org.appcelerator.kroll.runtime.v8;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -63,10 +64,18 @@ public final class V8Runtime extends KrollRuntime implements Handler.Callback
 			DBG = false;
 		}
 
-		nativeInit(useGlobalRefs, deployData.getDebuggerPort(), DBG);
-		
+		nativeInit(useGlobalRefs, deployData.getDebuggerPort(), DBG, deployData.isProfilerEnabled());
+
 		if (deployData.isDebuggerEnabled()) {
 			dispatchDebugMessages();
+		} else if (deployData.isProfilerEnabled()) {
+			try {
+				Class<?> clazz = Class.forName("org.appcelerator.titanium.profiler.TiProfiler");
+				Method method = clazz.getMethod("startProfiler", new Class[0]);
+				method.invoke(clazz, new Object[0]);
+			} catch (Exception e) {
+				Log.e(TAG, "Unable to load profiler.", e);
+			}
 		}
 
 		loadExternalModules();
@@ -131,6 +140,16 @@ public final class V8Runtime extends KrollRuntime implements Handler.Callback
 	@Override
 	public void doDispose()
 	{
+		TiDeployData deployData = getKrollApplication().getDeployData();
+		if (deployData.isProfilerEnabled()) {
+			try {
+				Class<?> clazz = Class.forName("org.appcelerator.titanium.profiler.TiProfiler");
+				Method method = clazz.getMethod("stopProfiler", new Class[0]);
+				method.invoke(clazz, new Object[0]);
+			} catch (Exception e) {
+				Log.e(TAG, "Unable to stop profiler.", e);
+			}
+		}
 		nativeDispose();
 	}
 
@@ -200,7 +219,7 @@ public final class V8Runtime extends KrollRuntime implements Handler.Callback
 	}
 
 	// JNI method prototypes
-	private native void nativeInit(boolean useGlobalRefs, int debuggerPort, boolean DBG);
+	private native void nativeInit(boolean useGlobalRefs, int debuggerPort, boolean DBG, boolean profilerEnabled);
 	private native void nativeRunModule(String source, String filename, KrollProxySupport activityProxy);
 	private native Object nativeEvalString(String source, String filename);
 	private native void nativeProcessDebugMessages();

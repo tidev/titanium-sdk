@@ -63,17 +63,22 @@ public class TiUIProgressBar extends TiUIView {
 		}
 		updateProgress();
 	}
-	
+
 	@Override
-	public void propertyChanged(String key, Object oldValue, Object newValue,
-			KrollProxy proxy) {
+	public void propertyChanged(String key, Object oldValue, Object newValue, KrollProxy proxy)
+	{
 		super.propertyChanged(key, oldValue, newValue, proxy);
-		
+
 		if (key.equals(TiC.PROPERTY_VALUE) || key.equals("min") || key.equals("max")) {
 			updateProgress();
+		} else if (key.equals(TiC.PROPERTY_MESSAGE)) {
+			String message = TiConvert.toString(newValue);
+			if (message != null) {
+				handleSetMessage(message);
+			}
 		}
 	}
-	
+
 	private double getMin() {
 		Object value = proxy.getProperty("min");
 		if (value == null) {

@@ -44,7 +44,7 @@ description: |
     Use the <Titanium.Map.createAnnotation> method to create an annotation.
 extends: Titanium.Proxy
 since: "0.9"
-platforms: [android, iphone, ipad, mobileweb]
+platforms: [android, iphone, ipad, mobileweb, tizen]
 
 properties:
 
@@ -53,6 +53,15 @@ properties:
     description: |
         Must be set before the annotation is added to the map view.
     type: Boolean
+
+  - name: customView
+    summary: Defines a custom view to be used by the annotation.
+    description: |
+        A custom View to display for the annotation. **User interaction is disabled on the view.**
+        No view interaction events (click, touchstart etc) will be fired.
+    type: Titanium.UI.View
+    platforms: [iphone, ipad]
+    since: "3.1.0"
 
   - name: draggable
     summary: Determines whether the pin can be dragged by the user.
@@ -66,7 +75,7 @@ properties:
   - name: image
     summary: Image to use for the the pin.
     description: |
-        The image can be specified using a local URL or an image `Blob`.
+        The image can be specified using a local URL or an image `Blob`. This is ignored if the customView property is set.
     type: [String, Titanium.Blob]
     default: If not specified, a standard map pin image is used.
 
@@ -99,9 +108,10 @@ properties:
     platforms: [android, iphone, ipad]
 
   - name: pinImage
-    summary: Use <Titanium.Map.Annotation.image> property instead.
     deprecated:
         since: "1.4"
+        notes: Use <Titanium.Map.Annotation.image> property instead.
+    summary: Image for the pin instead of the default image.
     platforms: [android]
     type: String
 
@@ -174,7 +184,7 @@ events:
         `title`, or `subtitle`. If the user deselects the annotation by clicking elsewhere
         in the map view, `clicksource` is `null`.
 
-    platforms: [iphone, ipad, mobileweb]
+    platforms: [iphone, ipad, mobileweb, tizen]
 
     properties:
 

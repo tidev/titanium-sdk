@@ -19,11 +19,11 @@ description: |
     removed for performance and parity reasons. As they still remain in <Titanium.UI.ScrollView>, 
     the equivalent functionality may be obtained by adding a `ScrollView` to `ScrollableView`. See 
     the "Simple Scrollable View with 2 Zoomable Images" example for a demonstration.
-excludes: { 
-    events: [ 'click', 'longclick', 'pinch', 'scrollEnd', 'swipe', 'touchend', 'touchmove' ]
-}
+excludes:
+    events: [ 'click', 'longclick', 'pinch', 'swipe', 'touchend', 'touchmove' ]
+    properties: [ 'enabled' ]
 extends: Titanium.UI.View
-platforms: [android, iphone, ipad, mobileweb]
+platforms: [android, iphone, ipad, mobileweb, tizen]
 since: "0.8"
 
 methods:
@@ -163,7 +163,6 @@ events:
         Prior to 2.1, the scroll event did not fire consistently on all platforms. On iOS and Mobile
         Web, it fired when scrolling ended, and on Android, it fired when drag ended. You can restore
         the pre-2.1 behavior by listening for the `scrollEnd` or `dragEnd` events instead.
-    platforms: [iphone, ipad, android, mobileweb]
     properties:
 
       - name: currentPage
@@ -182,13 +181,12 @@ events:
         type: Titanium.UI.View
 
   - name: scrollEnd
-    summary: Fired when the view has stopped moving completely.
-    description: |
-        This event has been deprecated and renamed scrollend (lower case).
-    platforms: [iphone, ipad, android, mobileweb]
-    since: "2.1.0"
     deprecated:
-        since: "2.2.0"
+        since: "3.0.0"
+        notes: Renamed to [scrollend](Titanium.UI.ScrollableView.scrollend) (all lowercase).
+    summary: Fired when the view has stopped moving completely.
+    platforms: [iphone, ipad, android, mobileweb, tizen]
+    since: "2.1.0"
 
     properties:
       - name: currentPage
@@ -200,22 +198,22 @@ events:
         type: Titanium.UI.View
 
   - name: dragStart
+    deprecated:
+        since: "3.0.0"
+        notes: Renamed to [dragstart](Titanium.UI.ScrollableView.dragstart) (all lowercase).
     summary: Fired when the scrollable region starts being dragged.
-    description: |
-        This event has been deprecated and renamed dragstart (lower case).
     description: |
         A dragging gesture is when a touch remains in contact with the display to physically drag 
         the view, as opposed to it being the result of scrolling momentum.
     since: "2.1.0"
-    platforms: [mobileweb]
-    deprecated:
-        since: "2.2.0"
+    platforms: [mobileweb, tizen]
 
   - name: dragEnd
+    deprecated:
+       since: "3.0.0"
+       notes: Renamed to [dragend](Titanium.UI.ScrollableView.dragend) (all lowercase).
     summary: Fired when the scrolling drag gesture on the view has been completed.
-    description: |
-        This event has been deprecated and renamed dragend (lower case).
-    platforms: [android, mobileweb]
+    platforms: [android, mobileweb, tizen]
     since: "2.1.0"
     properties:
       - name: currentPage
@@ -224,12 +222,9 @@ events:
       - name: view
         summary: The currently visible view.
         type: Titanium.UI.View
-    deprecated:
-        since: "2.2.0"
 
   - name: scrollend
     summary: Fired when the view has stopped moving completely.
-    platforms: [iphone, ipad, android, mobileweb]
     properties:
       - name: currentPage
         summary: Index of the currently visible view of <Titanium.UI.ScrollableView.views>.
@@ -238,20 +233,20 @@ events:
       - name: view
         summary: The currently visible view.
         type: Titanium.UI.View
-    since: '2.2.0'
+    since: '3.0.0'
 
   - name: dragstart
     summary: Fired when the scrollable region starts being dragged.
     description: |
         A dragging gesture is when a touch remains in contact with the display to physically drag 
         the view, as opposed to it being the result of scrolling momentum.
-    platforms: [mobileweb]
-    since: '2.2.0'
+    platforms: [mobileweb, tizen]
+    since: '3.0.0'
 
   - name: dragend
     summary: Fired when the scrolling drag gesture on the view has been completed.
-    platforms: [android, mobileweb]
-    since: "2.2.0"
+    platforms: [android, mobileweb, tizen]
+    since: "3.0.0"
     properties:
       - name: currentPage
         summary: Index of the currently visible view of <Titanium.UI.ScrollableView.views>.
@@ -280,7 +275,14 @@ properties:
     default: false
     platforms: [iphone, ipad]
 
-    
+  - name: overScrollMode
+    summary: |
+      One of <Titanium.UI.Android.OVER_SCROLL_ALWAYS>, <Titanium.UI.Android.OVER_SCROLL_IF_CONTENT_SCROLLS>, or <Titanium.UI.Android.OVER_SCROLL_NEVER>. 
+    type: Number
+    default: Titanium.UI.Android.OVER_SCROLL_ALWAYS
+    platforms: [android]
+    since: "3.1.0"
+
   - name: pagingControlColor
     summary: Color of the paging control, as a color name or hex triplet.
     description: |
@@ -307,7 +309,7 @@ properties:
     type: Number
     availability: creation
     default: 3000
-    platforms: [android, mobileweb]
+    platforms: [android, mobileweb, tizen]
     
   - name: pagingControlAlpha
     summary: Alpha value of the paging control.
@@ -341,8 +343,8 @@ properties:
     description: If this property is unset or `true`, scrolling is enabled.
     type: Boolean
     default: undefined (scrolling enabled)
-    platforms: [iphone, ipad, android, mobileweb]
-    since: { android: "2.1", iphone: "2.0", ipad: "2.0", mobileweb: "2.2" }
+    platforms: [iphone, ipad, android, mobileweb, tizen]
+    since: { android: "2.1.0", iphone: "2.0.0", ipad: "2.0.0", mobileweb: "3.0.0" }
 
   - name: views
     summary: Sets the pages within this Scrollable View.
@@ -421,3 +423,17 @@ examples:
                 views:[img1Wrapper, img2Wrapper]
             });
             win.add(photosView);
+
+  - title: Alloy XML Markup
+    example: |
+       First example as an Alloy view.
+
+           <Alloy>
+               <Window id="win">
+                   <ScrollableView id="scrollableView" showPagingControl="true">
+                       <View id="view1" backgroundColor="#123" />
+                       <View id="view2" backgroundColor="#246" />
+                       <View id="view3" backgroundColor="#48b" />
+                   </ScrollableView>
+               </Window>
+           </Alloy>

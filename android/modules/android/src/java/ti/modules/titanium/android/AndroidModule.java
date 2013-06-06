@@ -9,6 +9,7 @@ package ti.modules.titanium.android;
 import java.util.List;
 
 import org.appcelerator.kroll.KrollModule;
+import org.appcelerator.kroll.KrollRuntime;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
@@ -27,6 +28,7 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.ActivityInfo;
 import android.media.AudioManager;
 import android.view.MenuItem;
@@ -339,6 +341,37 @@ public class AndroidModule extends KrollModule
 			}
 		}
 		return false;
+	}
+
+	@Kroll.method
+	public void registerBroadcastReceiver(BroadcastReceiverProxy receiverProxy, Object[] args)
+	{
+		if (receiverProxy != null && args != null && args.length > 0 && args[0] instanceof Object[]) {
+			IntentFilter filter = new IntentFilter();
+			Object[] actions = (Object[]) args[0];
+
+			for (Object action : actions) {
+				filter.addAction(TiConvert.toString(action));
+			}
+
+			TiApplication.getInstance().getApplicationContext()
+				.registerReceiver(receiverProxy.getBroadcastReceiver(), filter);
+			KrollRuntime.incrementServiceReceiverRefCount();
+		}
+	}
+
+	@Kroll.method
+	public void unregisterBroadcastReceiver(BroadcastReceiverProxy receiverProxy)
+	{
+		if (receiverProxy != null) {
+			try {
+				TiApplication.getInstance().getApplicationContext().unregisterReceiver(receiverProxy.getBroadcastReceiver());
+				KrollRuntime.decrementServiceReceiverRefCount();
+			} catch (Exception e) {
+				Log.e(TAG, "Unable to unregister broadcast receiver: " + e.getMessage());
+			}
+
+		}
 	}
 
 	/**

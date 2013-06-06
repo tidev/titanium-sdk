@@ -20,7 +20,7 @@ NSArray* pickerKeySequence;
 {
 	if (pickerKeySequence == nil)
 	{
-		pickerKeySequence = [[NSArray arrayWithObjects:@"type",@"minDate",@"maxDate",nil] retain];
+		pickerKeySequence = [[NSArray arrayWithObjects:@"type",@"minDate",@"maxDate",@"minuteInterval",nil] retain];
 	}
 	return pickerKeySequence;
 }
@@ -197,6 +197,16 @@ NSArray* pickerKeySequence;
 }
 
 #pragma mark Public APIs 
+
+- (id)value
+{
+    if (![NSThread isMainThread]) {
+		__block id result = nil;
+		TiThreadPerformOnMainThread(^{result = [[[self picker] value_] retain];}, YES);
+		return [result autorelease];
+	}
+	return [[self picker] value_];
+}
 
 -(void)add:(id)args
 {

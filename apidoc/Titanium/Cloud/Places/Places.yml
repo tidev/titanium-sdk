@@ -122,12 +122,12 @@ examples:
             }, function (e) {
                 if (e.success) {
                     var place = e.places[0];
-                    alert('Success:\\n' +
-                        'id: ' + place.id + '\\n' +
-                        'name: ' + place.name + '\\n' +
+                    alert('Success:\n' +
+                        'id: ' + place.id + '\n' +
+                        'name: ' + place.name + '\n' +
                         'updated_at: ' + place.updated_at);
                 } else {
-                    alert('Error:\\n' +
+                    alert('Error:\n' +
                         ((e.error && e.message) || JSON.stringify(e)));
                 }
             });
@@ -141,12 +141,12 @@ examples:
             }, function (e) {
                 if (e.success) {
                     var place = e.places[0];
-                    alert('Success:\\n' +
-                        'id: ' + place.id + '\\n' +
-                        'name: ' + place.name + '\\n' +
+                    alert('Success:\n' +
+                        'id: ' + place.id + '\n' +
+                        'name: ' + place.name + '\n' +
                         'updated_at: ' + place.updated_at);
                 } else {
-                    alert('Error:\\n' +
+                    alert('Error:\n' +
                         ((e.error && e.message) || JSON.stringify(e)));
                 }
             });
@@ -160,18 +160,18 @@ examples:
                 longitude: lon
             }, function (e) {
                 if (e.success) {
-                    alert('Success:\\n' +
+                    alert('Success:\n' +
                         'Count: ' + e.places.length);
                     for (var i = 0; i < e.places.length; i++) {
                         var place = e.places[i];
-                        alert('id: ' + place.id + '\\n' +
-                              'name: ' + place.name + '\\n' +
-                              'longitude: ' + place.longitude + '\\n' +
-                              'latitude: ' + place.latitude + '\\n' +
+                        alert('id: ' + place.id + '\n' +
+                              'name: ' + place.name + '\n' +
+                              'longitude: ' + place.longitude + '\n' +
+                              'latitude: ' + place.latitude + '\n' +
                               'updated_at: ' + place.updated_at);
                     }
                 } else {
-                    alert('Error:\\n' +
+                    alert('Error:\n' +
                         ((e.error && e.message) || JSON.stringify(e)));
                 }
             });
@@ -191,18 +191,18 @@ examples:
                 }
             }, function (e) {
                 if (e.success) {
-                    alert('Success:\\n' +
+                    alert('Success:\n' +
                         'Count: ' + e.places.length);
                     for (var i = 0; i < e.places.length; i++) {
                         var place = e.places[i];
-                        alert('id: ' + place.id + '\\n' +
-                              'name: ' + place.name + '\\n' +
-                              'longitude: ' + place.longitude + '\\n' +
-                              'latitude: ' + place.latitude + '\\n' +
+                        alert('id: ' + place.id + '\n' +
+                              'name: ' + place.name + '\n' +
+                              'longitude: ' + place.longitude + '\n' +
+                              'latitude: ' + place.latitude + '\n' +
                               'updated_at: ' + place.updated_at);
                     }
                 } else {
-                    alert('Error:\\n' +
+                    alert('Error:\n' +
                         ((e.error && e.message) || JSON.stringify(e)));
                 }
             });
@@ -217,12 +217,12 @@ examples:
             }, function (e) {
                 if (e.success) {
                     var place = e.places[0];
-                    alert('Success:\\n' +
-                        'id: ' + place.id + '\\n' +
-                        'name: ' + place.name + '\\n' +
+                    alert('Success:\n' +
+                        'id: ' + place.id + '\n' +
+                        'name: ' + place.name + '\n' +
                         'updated_at: ' + place.updated_at);
                 } else {
-                    alert('Error:\\n' +
+                    alert('Error:\n' +
                         ((e.error && e.message) || JSON.stringify(e)));
                 }
             });
@@ -237,7 +237,7 @@ examples:
                 if (e.success) {
                     alert('Success');
                 } else {
-                    alert('Error:\\n' +
+                    alert('Error:\n' +
                         ((e.error && e.message) || JSON.stringify(e)));
                 }
             });

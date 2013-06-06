@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -120,7 +120,6 @@ public class TiAnalyticsEventFactory
 			json.put("os", TiPlatformHelper.getOS());
 			json.put("osver", TiPlatformHelper.getVersion());
 			json.put("version", application.getTiBuildVersion());
-			json.put("un", TiPlatformHelper.getUsername());
 			json.put("model", TiPlatformHelper.getModel());
 			json.put("app_version", application.getAppInfo().getVersion());
 			json.put("nettype", TiPlatformHelper.getNetworkTypeName());

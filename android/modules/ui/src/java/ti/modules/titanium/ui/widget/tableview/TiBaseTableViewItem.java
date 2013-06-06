@@ -11,12 +11,12 @@ import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
+import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiFileHelper;
 import org.appcelerator.titanium.util.TiPlatformHelper;
 
 import ti.modules.titanium.ui.widget.tableview.TableViewModel.Item;
-import android.R;
 import android.app.Activity;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -25,6 +25,7 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.StateListDrawable;
+import android.os.Build;
 import android.os.Handler;
 import android.os.Message;
 import android.util.DisplayMetrics;
@@ -49,22 +50,31 @@ public abstract class TiBaseTableViewItem extends ViewGroup implements Handler.C
 		if (TiBaseTableViewItem.childIndicatorBitmap == null || TiBaseTableViewItem.checkIndicatorBitmap == null) {
 			synchronized(TiBaseTableViewItem.class) {
 				// recheck to so we don't leak a bitmap.
-				
+				int density = TiPlatformHelper.applicationLogicalDensity;
 				if (childIndicatorBitmap == null) {
 					String path = "/org/appcelerator/titanium/res/drawable/btn_more.png"; // default medium
-					switch (TiPlatformHelper.applicationLogicalDensity) {
+					
+					switch (density) {
 						case DisplayMetrics.DENSITY_HIGH : path = "/org/appcelerator/titanium/res/drawable/btn_more_48.png"; break;
 						case DisplayMetrics.DENSITY_LOW : path = "/org/appcelerator/titanium/res/drawable/btn_more_18.png"; break;
+					}
+					
+					if (Build.VERSION.SDK_INT >= 9 && density == DisplayMetrics.DENSITY_XHIGH) {
+						path = "/org/appcelerator/titanium/res/drawable/btn_more_64.png";
 					}
 					childIndicatorBitmap = BitmapFactory.decodeStream(KrollDict.class.getResourceAsStream(path));
 				}
 				if (checkIndicatorBitmap == null) {
 					String path = "/org/appcelerator/titanium/res/drawable/btn_check_buttonless_on.png"; // default medium
-					switch (TiPlatformHelper.applicationLogicalDensity) {
+					switch (density) {
 						case DisplayMetrics.DENSITY_HIGH : path = "/org/appcelerator/titanium/res/drawable/btn_check_buttonless_on_48.png"; break;
 						case DisplayMetrics.DENSITY_LOW : path = "/org/appcelerator/titanium/res/drawable/btn_check_buttonless_on_1ow 8.png"; break;
 					}
-					checkIndicatorBitmap = BitmapFactory.decodeStream(KrollDict.class.getResourceAsStream(path));					
+					
+					if (Build.VERSION.SDK_INT >= 9 && density == DisplayMetrics.DENSITY_XHIGH) {
+						path = "/org/appcelerator/titanium/res/drawable/btn_check_buttonless_on_64.png";
+					} 
+					checkIndicatorBitmap = BitmapFactory.decodeStream(KrollDict.class.getResourceAsStream(path));
 				}
 			}
 		}
@@ -140,35 +150,17 @@ public abstract class TiBaseTableViewItem extends ViewGroup implements Handler.C
 	{
 		StateListDrawable stateDrawable = new StateListDrawable();
 
-		if (d.containsKey(TiC.PROPERTY_BACKGROUND_SELECTED_IMAGE)
-		|| d.containsKey(TiC.PROPERTY_BACKGROUND_SELECTED_COLOR)) {
-			// use transparent highlight selector drawable is visible over background
-			ColorDrawable transparent = new ColorDrawable(Color.TRANSPARENT);
-			stateDrawable.addState(new int[] {
-				android.R.attr.state_window_focused,
-				android.R.attr.state_enabled,
-				android.R.attr.state_pressed }, transparent);
-			stateDrawable.addState(new int[] { android.R.attr.state_selected }, transparent);
-		}
-		else
-		{
-			// set default drawable to system default manually so it works with custom background
-			Drawable defaultDrawable = getResources().getDrawable(R.drawable.list_selector_background);
-			stateDrawable.addState(new int[] {
-				android.R.attr.state_window_focused,
-				android.R.attr.state_enabled,
-				android.R.attr.state_pressed }, defaultDrawable);
-			stateDrawable.addState(new int[] { android.R.attr.state_selected }, defaultDrawable);
-		}
+		// use transparent highlight so the selector drawable is visible over background
+		ColorDrawable transparent = new ColorDrawable(Color.TRANSPARENT);
+		stateDrawable.addState(new int[] { android.R.attr.state_window_focused, android.R.attr.state_enabled,
+			android.R.attr.state_pressed }, transparent);
+		stateDrawable.addState(new int[] { android.R.attr.state_selected }, transparent);
 
-		stateDrawable.addState(new int[] {
-			android.R.attr.state_focused,
-			android.R.attr.state_window_focused,
+		stateDrawable.addState(new int[] { android.R.attr.state_focused, android.R.attr.state_window_focused,
 			android.R.attr.state_enabled }, drawable);
 		stateDrawable.addState(new int[0], drawable);
 
-		if (d.containsKey(TiC.PROPERTY_OPACITY))
-		{
+		if (d.containsKey(TiC.PROPERTY_OPACITY)) {
 			stateDrawable.setAlpha(Math.round(TiConvert.toFloat(d, TiC.PROPERTY_OPACITY) * 255));
 		}
 		setBackgroundDrawable(stateDrawable);
@@ -191,4 +183,13 @@ public abstract class TiBaseTableViewItem extends ViewGroup implements Handler.C
 	public void release() {
 		handler = null;
 	}
+	
+	protected static void clearChildViews(TiViewProxy parent)
+	{
+		for (TiViewProxy childProxy : parent.getChildren()) {
+			childProxy.setView(null);
+			TiBaseTableViewItem.clearChildViews(childProxy);
+		}
+	}
+
 }

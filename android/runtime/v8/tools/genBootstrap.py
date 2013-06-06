@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 #
 # Appcelerator Titanium Mobile
-# Copyright (c) 2011-2012 by Appcelerator, Inc. All Rights Reserved.
+# Copyright (c) 2011-2013 by Appcelerator, Inc. All Rights Reserved.
 # Licensed under the terms of the Apache Public License
 # Please see the LICENSE included with this distribution for details.
 #
@@ -88,8 +88,7 @@ def main():
 	runtime = options.runtime
 	bindings = loadBindings()
 
-	b = bootstrap.Bootstrap(runtime, bindings,
-		moduleId="titanium", moduleName="Titanium")
+	b = bootstrap.Bootstrap(bindings, moduleId="titanium", moduleName="Titanium")
 
 	jsTemplate = open(os.path.join(thisDir, "bootstrap.js")).read()
 	gperfTemplate = open(os.path.join(thisDir, "bootstrap.gperf")).read()

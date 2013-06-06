@@ -31,6 +31,7 @@
 // these transform values will scale it when we have our own overlay
 
 #define CAMERA_TRANSFORM_Y 1.23
+#define CAMERA_TRANSFORM_Y_ALT 1.67
 #define CAMERA_TRANSFORM_X 1
 
 enum  
@@ -98,6 +99,7 @@ static NSDictionary* TI_filterableItemProperties;
 -(void)destroyPicker
 {
 	RELEASE_TO_NIL(popover);
+	[self forgetProxy:cameraView];
     RELEASE_TO_NIL(cameraView);
 	RELEASE_TO_NIL(editor);
 	RELEASE_TO_NIL(editorSuccessCallback);
@@ -141,7 +143,7 @@ static NSDictionary* TI_filterableItemProperties;
 	[self destroyPicker];
 	if (listener!=nil)
 	{
-		NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:NUMBOOL(false),@"success",NUMINT(code),@"code",nil];
+		NSDictionary *event = [TiUtils dictionaryWithCode:code message:nil];
 		[NSThread detachNewThreadSelector:@selector(dispatchCallback:) toTarget:self withObject:[NSArray arrayWithObjects:@"error",event,listener,nil]];
 	}
 }
@@ -152,7 +154,8 @@ static NSDictionary* TI_filterableItemProperties;
 	[self destroyPicker];
 	if (listener!=nil)
 	{
-		[NSThread detachNewThreadSelector:@selector(dispatchCallback:) toTarget:self withObject:[NSArray arrayWithObjects:@"cancel",[NSDictionary dictionary],listener,nil]];
+		NSMutableDictionary * event = [TiUtils dictionaryWithCode:-1 message:@"The user cancelled the picker"];
+		[NSThread detachNewThreadSelector:@selector(dispatchCallback:) toTarget:self withObject:[NSArray arrayWithObjects:@"cancel",event,listener,nil]];
 	}
 }
 
@@ -215,7 +218,7 @@ static NSDictionary* TI_filterableItemProperties;
 	else
 	{
 		RELEASE_TO_NIL(popover);
-		UIView *poView = [tiApp controller].view;
+		UIView *poView = [[[tiApp controller] topWindow] view];
 		CGRect poFrame;
 		TiViewProxy* popoverViewProxy = [args objectForKey:@"popoverView"];
 		UIPopoverArrowDirection arrow = [TiUtils intValue:@"arrowDirection" properties:args def:UIPopoverArrowDirectionAny];
@@ -232,6 +235,11 @@ static NSDictionary* TI_filterableItemProperties;
 			poFrame.size.height = 50;
 		}
 
+		if ([poView window] == nil) {
+			// No window, so we can't display the popover...
+			DebugLog(@"[WARN] Unable to display picker; view is not attached to the current window");
+			return;
+		}
 		//FROM APPLE DOCS
 		//If you presented the popover from a target rectangle in a view, the popover controller does not attempt to reposition the popover. 
 		//In thosecases, you must manually hide the popover or present it again from an appropriate new position.
@@ -282,10 +290,16 @@ static NSDictionary* TI_filterableItemProperties;
 	if (popover) {
 		//GO AHEAD AND RE-PRESENT THE POPOVER NOW 
 		CGRect popOverRect = [popoverView bounds];
-		if (popoverView == [[TiApp app] controller].view) {
+		if (popoverView == [[[[TiApp app] controller] topWindow] view]) {
 			popOverRect.size.height = 50;
 		}
-		[popover presentPopoverFromRect:popOverRect inView:popoverView permittedArrowDirections:arrowDirection animated:NO];
+        if ([popoverView window] == nil) {
+            // No window, so we can't display the popover...
+            DebugLog(@"[WARN] Unable to display picker; view is not attached to the current window");
+        }
+        else {
+            [popover presentPopoverFromRect:popOverRect inView:popoverView permittedArrowDirections:arrowDirection animated:NO];
+        }
 	}
 	isPresenting = NO;
 }
@@ -303,9 +317,11 @@ static NSDictionary* TI_filterableItemProperties;
 	else
 	{
 		[[TiApp app] hideModalController:picker_ animated:animatedPicker];
+		[[TiApp controller] repositionSubviews];
 	}
     if (cameraView != nil) {
         [cameraView windowDidClose];
+		[self forgetProxy:cameraView];
         RELEASE_TO_NIL(cameraView);
     }
 }
@@ -455,7 +471,12 @@ static NSDictionary* TI_filterableItemProperties;
 		else if (cameraView!=nil)
 		{
 			// we use our own fullscreen transform if the developer didn't supply one
-			picker.cameraViewTransform = CGAffineTransformScale(picker.cameraViewTransform, CAMERA_TRANSFORM_X, CAMERA_TRANSFORM_Y);
+            if ([TiUtils isRetinaFourInch]) {
+                picker.cameraViewTransform = CGAffineTransformScale(picker.cameraViewTransform, CAMERA_TRANSFORM_X, CAMERA_TRANSFORM_Y_ALT);
+            }
+            else {
+                picker.cameraViewTransform = CGAffineTransformScale(picker.cameraViewTransform, CAMERA_TRANSFORM_X, CAMERA_TRANSFORM_Y);
+            }
 		}
 	}
 	
@@ -480,7 +501,8 @@ static NSDictionary* TI_filterableItemProperties;
 	if (error != nil) {
 		KrollCallback* errorCallback = [saveCallbacks objectForKey:@"error"];
 		if (errorCallback != nil) {
-			NSDictionary* event = [NSDictionary dictionaryWithObjectsAndKeys:[error localizedDescription],@"error",blob,@"image",nil];
+			NSMutableDictionary * event = [TiUtils dictionaryWithCode:[error code] message:[TiUtils messageFromError:error]];
+			[event setObject:blob forKey:@"image"];
 			[NSThread detachNewThreadSelector:@selector(dispatchCallback:) toTarget:self withObject:[NSArray arrayWithObjects:@"error",event,errorCallback,nil]];
 		}
 		return;
@@ -488,7 +510,8 @@ static NSDictionary* TI_filterableItemProperties;
 
 	KrollCallback* successCallback = [saveCallbacks objectForKey:@"success"];
 	if (successCallback != nil) {
-		NSDictionary* event = [NSDictionary dictionaryWithObject:blob forKey:@"image"];
+		NSMutableDictionary * event = [TiUtils dictionaryWithCode:0 message:nil];
+		[event setObject:blob forKey:@"image"];
 		[NSThread detachNewThreadSelector:@selector(dispatchCallback:) toTarget:self withObject:[NSArray arrayWithObjects:@"success",event,successCallback,nil]];
 	}
 }
@@ -499,7 +522,8 @@ static NSDictionary* TI_filterableItemProperties;
 	if (error != nil) {
 		KrollCallback* errorCallback = [saveCallbacks objectForKey:@"error"];
 		if (errorCallback != nil) {
-			NSDictionary* event = [NSDictionary dictionaryWithObjectsAndKeys:[error localizedDescription],@"error",path,@"path",nil];
+			NSMutableDictionary * event = [TiUtils dictionaryWithCode:[error code] message:[TiUtils messageFromError:error]];
+			[event setObject:path forKey:@"path"];
 			[NSThread detachNewThreadSelector:@selector(dispatchCallback:) toTarget:self withObject:[NSArray arrayWithObjects:@"error",event,errorCallback,nil]];			
 		}
 		return;
@@ -507,8 +531,9 @@ static NSDictionary* TI_filterableItemProperties;
 	
 	KrollCallback* successCallback = [saveCallbacks objectForKey:@"success"];
 	if (successCallback != nil) {
-		NSDictionary* event = [NSDictionary dictionaryWithObject:path forKey:@"path"];
-		[NSThread detachNewThreadSelector:@selector(dispatchCallback:) toTarget:self withObject:[NSArray arrayWithObjects:@"success",event,successCallback,nil]];					
+		NSMutableDictionary * event = [TiUtils dictionaryWithCode:0 message:nil];
+		[event setObject:path forKey:@"path"];
+		[NSThread detachNewThreadSelector:@selector(dispatchCallback:) toTarget:self withObject:[NSArray arrayWithObjects:@"success",event,successCallback,nil]];
 	}
     
     // This object was retained for use in this callback; release it.
@@ -894,7 +919,12 @@ MAKE_SYSTEM_PROP(VIDEO_FINISH_REASON_USER_EXITED,MPMovieFinishReasonUserExited);
 -(void)showCamera:(id)args
 {
 	ENSURE_SINGLE_ARG_OR_NIL(args,NSDictionary);
-	ENSURE_UI_THREAD(showCamera,args);
+	if (![NSThread isMainThread]) {
+		[self rememberProxy:[args objectForKey:@"overlay"]];
+		TiThreadPerformOnMainThread(^{[self showCamera:args];},NO);
+		return;
+	}
+
 	[self showPicker:args isCamera:YES];
 }
 
@@ -1012,8 +1042,8 @@ MAKE_SYSTEM_PROP(VIDEO_FINISH_REASON_USER_EXITED,MPMovieFinishReasonUserExited);
                     [blob writeTo:filePath error:&error];
                     
                     if (error != nil) {
-                        NSDictionary* event = [NSDictionary dictionaryWithObject:[NSString stringWithFormat:@"problem writing to temporary file %@: %@", filePath, [error localizedDescription]]
-                                                                          forKey:@"error"];
+						NSString * message = [NSString stringWithFormat:@"problem writing to temporary file %@: %@", filePath, [TiUtils messageFromError:error]];
+						NSMutableDictionary * event = [TiUtils dictionaryWithCode:[error code] message:message];
                         [self dispatchCallback:[NSArray arrayWithObjects:@"error",event,[saveCallbacks valueForKey:@"error"],nil]];
                         return;
                     }
@@ -1023,8 +1053,7 @@ MAKE_SYSTEM_PROP(VIDEO_FINISH_REASON_USER_EXITED,MPMovieFinishReasonUserExited);
                     break;
                 }
                 default: {
-                    NSDictionary* event = [NSDictionary dictionaryWithObject:@"invalid media format: MIME type was video/, but data is image"
-                                                                      forKey:@"error"];
+					NSMutableDictionary * event = [TiUtils dictionaryWithCode:-1 message:@"invalid media format: MIME type was video/, but data is image"];
                     [self dispatchCallback:[NSArray arrayWithObjects:@"error",event,[saveCallbacks valueForKey:@"error"],nil]];
                     return;
                 }
@@ -1051,12 +1080,11 @@ MAKE_SYSTEM_PROP(VIDEO_FINISH_REASON_USER_EXITED,MPMovieFinishReasonUserExited);
 	{
 		KrollCallback* errorCallback = [saveCallbacks valueForKey:@"error"];
 		if (errorCallback != nil) {
-			NSDictionary* event = [NSDictionary dictionaryWithObject:[NSString stringWithFormat:@"invalid media type: Exepcted either TiBlob or TiFile, was: %@",[image class]]
-															  forKey:@"error"];
+			NSMutableDictionary * event = [TiUtils dictionaryWithCode:-1 message:[NSString stringWithFormat:@"invalid media type: Exepcted either TiBlob or TiFile, was: %@",JavascriptNameForClass([image class])]];
 			[self dispatchCallback:[NSArray arrayWithObjects:@"error",event,errorCallback,nil]];
 		} else {
 			[self throwException:@"invalid media type" 
-					   subreason:[NSString stringWithFormat:@"expected either TiBlob or TiFile, was: %@",[image class]] 
+					   subreason:[NSString stringWithFormat:@"expected either TiBlob or TiFile, was: %@",JavascriptNameForClass([image class])]
 						location:CODELOCATION];
 		}
 	}
@@ -1104,9 +1132,11 @@ MAKE_SYSTEM_PROP(VIDEO_FINISH_REASON_USER_EXITED,MPMovieFinishReasonUserExited);
 		}
 		else {
 			[[TiApp app] hideModalController:picker animated:animatedPicker];
+			[[TiApp controller] repositionSubviews];
 		}
         if (cameraView != nil) {
             [cameraView windowDidClose];
+			[self forgetProxy:cameraView];
             RELEASE_TO_NIL(cameraView);
         }
 		[self destroyPicker];
@@ -1188,6 +1218,7 @@ MAKE_SYSTEM_PROP(VIDEO_FINISH_REASON_USER_EXITED,MPMovieFinishReasonUserExited);
 	if (musicPicker != nil)
 	{
 		[[TiApp app] hideModalController:musicPicker animated:animatedPicker];
+		[[TiApp controller] repositionSubviews];
 		[self destroyPicker];
 	}
 }
@@ -1375,8 +1406,9 @@ MAKE_SYSTEM_PROP(VIDEO_FINISH_REASON_USER_EXITED,MPMovieFinishReasonUserExited);
 							   nil];
 	}
 
-	NSMutableDictionary *dictionary = [NSMutableDictionary dictionaryWithObjectsAndKeys:
-			mediaType,@"mediaType",media,@"media",nil];
+	NSMutableDictionary *dictionary = [TiUtils dictionaryWithCode:0 message:nil];
+	[dictionary setObject:mediaType forKey:@"mediaType"];
+	[dictionary setObject:media forKey:@"media"];
 
 	if (thumbnail!=nil)
 	{
@@ -1412,7 +1444,10 @@ MAKE_SYSTEM_PROP(VIDEO_FINISH_REASON_USER_EXITED,MPMovieFinishReasonUserExited);
 		[items addObject:newItem];
 	}
 	
-	NSDictionary* picked = [NSDictionary dictionaryWithObjectsAndKeys:representative,@"representative",mediaTypes,@"types",items,@"items",nil];
+	NSMutableDictionary* picked = [TiUtils dictionaryWithCode:0 message:nil];
+	[picked setObject:representative forKey:@"representative"];
+	[picked setObject:mediaTypes forKey:@"types"];
+	[picked setObject:items forKey:@"items"];
 	
 	[self sendPickerSuccess:picked];
 }
@@ -1530,7 +1565,9 @@ MAKE_SYSTEM_PROP(VIDEO_FINISH_REASON_USER_EXITED,MPMovieFinishReasonUserExited);
 	{
 		TiBlob *media = [[[TiBlob alloc]initWithFile:editedVideoPath] autorelease];
 		[media setMimeType:@"video/mpeg" type:TiBlobTypeFile];
-		NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:NUMBOOL(true),@"success",media,@"media",NUMBOOL(false),@"cancel",nil];
+		NSMutableDictionary * event = [TiUtils dictionaryWithCode:0 message:nil];
+		[event setObject:NUMBOOL(NO) forKey:@"cancel"];
+		[event setObject:media forKey:@"media"];
 		[NSThread detachNewThreadSelector:@selector(dispatchCallback:) toTarget:self withObject:[NSArray arrayWithObjects:@"error",event,listener,nil]];
 	}
 }
@@ -1543,7 +1580,8 @@ MAKE_SYSTEM_PROP(VIDEO_FINISH_REASON_USER_EXITED,MPMovieFinishReasonUserExited);
 
 	if (listener!=nil) 
 	{
-		NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:NUMBOOL(false),@"success",NUMBOOL(true),@"cancel",nil];
+		NSMutableDictionary * event = [TiUtils dictionaryWithCode:-1 message:@"The user cancelled"];
+		[event setObject:NUMBOOL(YES) forKey:@"cancel"];
 		[NSThread detachNewThreadSelector:@selector(dispatchCallback:) toTarget:self withObject:[NSArray arrayWithObjects:@"error",event,listener,nil]];
 	}
 }
@@ -1556,7 +1594,8 @@ MAKE_SYSTEM_PROP(VIDEO_FINISH_REASON_USER_EXITED,MPMovieFinishReasonUserExited);
 
 	if (listener!=nil)
 	{
-		NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:NUMBOOL(false),@"success",NUMBOOL(false),@"cancel",[error description],@"error",nil];
+		NSMutableDictionary * event = [TiUtils dictionaryWithCode:[error code] message:[TiUtils messageFromError:error]];
+		[event setObject:NUMBOOL(NO) forKey:@"cancel"];
 		[NSThread detachNewThreadSelector:@selector(dispatchCallback:) toTarget:self withObject:[NSArray arrayWithObjects:@"error",event,listener,nil]];
 	}
 }

@@ -7,6 +7,7 @@
 package ti.modules.titanium.map;
 
 import org.appcelerator.kroll.common.Log;
+import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiFileHelper;
@@ -21,6 +22,7 @@ import android.os.Build;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
@@ -90,7 +92,7 @@ public class TiOverlayItemView extends FrameLayout
 		};
 		title.setId(200);
 		title.setTextColor(Color.argb(255, 216,216,216));
-		title.setTag("title");
+		title.setTag(TiC.PROPERTY_TITLE);
 		TiUIHelper.styleText(title, "sans-serif", "15sip", "bold");
 		params = createBaseParams();
 		params.addRule(RelativeLayout.ALIGN_TOP);
@@ -99,7 +101,7 @@ public class TiOverlayItemView extends FrameLayout
 		snippet = new TextView(context);
 		snippet.setId(201);
 		snippet.setTextColor(Color.argb(255, 192,192,192));
-		snippet.setTag("subtitle");
+		snippet.setTag(TiC.PROPERTY_SUBTITLE);
 		TiUIHelper.styleText(snippet, "sans-serif", "10sip", "bold");
 		params = createBaseParams();
 		params.addRule(RelativeLayout.BELOW, 200);
@@ -224,11 +226,19 @@ public class TiOverlayItemView extends FrameLayout
 			Rect hitRect = new Rect();
 
 			int count = hitTestList.length;
-			for(int i = 0; i < count; i++) {
+			for (int i = 0; i < count; i++) {
 				View v = hitTestList[i];
 				String tag = (String) v.getTag();
 				if (v.getVisibility() == View.VISIBLE && tag != null) {
 					v.getHitRect(hitRect);
+
+					// The title and subtitle are the children of a relative layout which is the child of this.
+					if (tag == TiC.PROPERTY_TITLE || tag == TiC.PROPERTY_SUBTITLE) {
+						Rect textLayoutRect = new Rect();
+						((ViewGroup) (v.getParent())).getHitRect(textLayoutRect);
+						hitRect.offset(textLayoutRect.left, textLayoutRect.top);
+					}
+
 					if (hitRect.contains(x, y)) {
 						if (overlayClickedListener != null) {
 							overlayClickedListener.onClick(lastIndex, tag);

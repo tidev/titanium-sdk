@@ -12,6 +12,8 @@ import java.io.InputStream;
 import java.lang.Thread.UncaughtExceptionHandler;
 import java.lang.ref.SoftReference;
 import java.lang.ref.WeakReference;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -38,6 +40,7 @@ import org.appcelerator.titanium.analytics.TiAnalyticsEventFactory;
 import org.appcelerator.titanium.analytics.TiAnalyticsModel;
 import org.appcelerator.titanium.analytics.TiAnalyticsService;
 import org.appcelerator.titanium.util.TiFileHelper;
+import org.appcelerator.titanium.util.TiImageLruCache;
 import org.appcelerator.titanium.util.TiPlatformHelper;
 import org.appcelerator.titanium.util.TiResponseCache;
 import org.appcelerator.titanium.util.TiUIHelper;
@@ -46,15 +49,16 @@ import org.appcelerator.titanium.util.TiWeakList;
 import ti.modules.titanium.TitaniumModule;
 import android.app.Activity;
 import android.app.Application;
-import android.app.TabActivity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.util.DisplayMetrics;
+import android.view.accessibility.AccessibilityManager;
 
 /**
  * The main application entry point for all Titanium applications and services.
@@ -64,6 +68,7 @@ public abstract class TiApplication extends Application implements Handler.Callb
 	private static final String SYSTEM_UNIT = "system";
 	private static final String TAG = "TiApplication";
 	private static final long STATS_WAIT = 300000;
+	private static final long TIME_SEPARATION_ANALYTICS = 1000;
 	private static final int MSG_SEND_ANALYTICS = 100;
 	private static final long SEND_ANALYTICS_DELAY = 30000; // Time analytics send request sits in queue before starting service.
 	private static final String PROPERTY_DEPLOY_TYPE = "ti.deploytype";
@@ -82,6 +87,7 @@ public abstract class TiApplication extends Application implements Handler.Callb
 	public static final int DEFAULT_THREAD_STACK_SIZE = 16 * 1024; // 16K as a "sane" default
 	public static final String APPLICATION_PREFERENCES_NAME = "titanium";
 	public static final String PROPERTY_FASTDEV = "ti.android.fastdev";
+	public static final int TRIM_MEMORY_RUNNING_LOW = 10; // Application.TRIM_MEMORY_RUNNING_LOW for API 16+
 
 	private boolean restartPending = false;
 	private String baseUrl;
@@ -99,6 +105,7 @@ public abstract class TiApplication extends Application implements Handler.Callb
 	private String defaultUnit;
 	private TiResponseCache responseCache;
 	private BroadcastReceiver externalStorageReceiver;
+	private AccessibilityManager accessibilityManager = null;
 
 	protected TiAnalyticsModel analyticsModel;
 	protected Intent analyticsIntent;
@@ -197,11 +204,15 @@ public abstract class TiApplication extends Application implements Handler.Callb
 		Activity currentActivity;
 
 		for (int i = activityStack.size() - 1; i >= 0; i--) {
-			activityRef = activityStack.get(i);
-			if (activityRef != null) {
-				currentActivity = activityRef.get();
-				if (currentActivity != null && !currentActivity.isFinishing()) {
-					currentActivity.finish();
+			// We need to check the stack size here again. Since we call finish(), that could potentially
+			// change the activity stack while we are looping through them. TIMOB-12487
+			if (i < activityStack.size()) {
+				activityRef = activityStack.get(i);
+				if (activityRef != null) {
+					currentActivity = activityRef.get();
+					if (currentActivity != null && !currentActivity.isFinishing()) {
+						currentActivity.finish();
+					}
 				}
 			}
 		}
@@ -361,7 +372,26 @@ public abstract class TiApplication extends Application implements Handler.Callb
 	public void onTerminate()
 	{
 		stopExternalStorageMonitor();
+		accessibilityManager = null;
 		super.onTerminate();
+	}
+
+	@Override
+	public void onLowMemory ()
+	{
+		// Release all the cached images
+		TiImageLruCache.getInstance().evictAll();
+		super.onLowMemory();
+	}
+
+	@Override
+	public void onTrimMemory(int level)
+	{
+		if (Build.VERSION.SDK_INT >= TiC.API_LEVEL_HONEYCOMB && level >= TRIM_MEMORY_RUNNING_LOW) {
+			// Release all the cached images
+			TiImageLruCache.getInstance().evictAll();
+		}
+		super.onTrimMemory(level);
 	}
 
 	public void postAppInfo()
@@ -387,8 +417,9 @@ public abstract class TiApplication extends Application implements Handler.Callb
 		// Register the default cache handler
 		responseCache = new TiResponseCache(getRemoteCacheDir(), this);
 		TiResponseCache.setDefault(responseCache);
+		KrollRuntime.setPrimaryExceptionHandler(new TiExceptionHandler());
 	}
-	
+
 	private File getRemoteCacheDir()
 	{
 		File cacheDir = new File(tempFileHelper.getTempDirectory(), "remote-cache");
@@ -434,12 +465,6 @@ public abstract class TiApplication extends Application implements Handler.Callb
 				postAnalyticsEvent(TiAnalyticsEventFactory.createAppEnrollEvent(this,deployType));
 			}
 
-			if (needsStartEvent()) {
-				String deployType = systemProperties.getString("ti.deploytype", "unknown");
-
-				postAnalyticsEvent(TiAnalyticsEventFactory.createAppStartEvent(this, deployType));
-			}
-
 		} else {
 			needsEnrollEvent = false;
 			needsStartEvent = false;
@@ -478,19 +503,7 @@ public abstract class TiApplication extends Application implements Handler.Callb
 	public void setCurrentActivity(Activity callingActivity, Activity newValue)
 	{
 		synchronized (this) {
-			// TabActivity (the container for tab activities) doesn't pause itself while it's
-			// children tabs are being paused and resumed (while switching tabs), so this
-			// covers that special case
 			Activity currentActivity = getCurrentActivity();
-			if (currentActivity instanceof TabActivity && newValue instanceof TiActivity) {
-				TiActivity tiActivity = (TiActivity)newValue;
-				if (tiActivity.isTab()) {
-					this.currentActivity = new WeakReference<Activity>(newValue);
-
-					return;
-				}
-			}
-
 			if (currentActivity == null || (callingActivity == currentActivity && newValue == null)) {
 				this.currentActivity = new WeakReference<Activity>(newValue);
 			}
@@ -574,7 +587,7 @@ public abstract class TiApplication extends Application implements Handler.Callb
 		if (stylesheet != null) {
 			return stylesheet.getStylesheet(objectId, classes, density, basename);
 		}
-		return new KrollDict();
+		return null;
 	}
 
 	public void registerProxy(KrollProxy proxy)
@@ -623,19 +636,6 @@ public abstract class TiApplication extends Application implements Handler.Callb
 			return;
 		}
 
-		if (Log.isDebugModeEnabled()) {
-			StringBuilder sb = new StringBuilder();
-			sb.append("Analytics Event: type=").append(event.getEventType())
-				.append("\n event=").append(event.getEventEvent())
-				.append("\n timestamp=").append(event.getEventTimestamp())
-				.append("\n mid=").append(event.getEventMid())
-				.append("\n sid=").append(event.getEventSid())
-				.append("\n aguid=").append(event.getEventAppGuid())
-				.append("\n isJSON=").append(event.mustExpandPayload())
-				.append("\n payload=").append(event.getEventPayload());
-			Log.d(TAG, sb.toString());
-		}
-
 		if (event.getEventType() == TiAnalyticsEventFactory.EVENT_APP_ENROLL) {
 			if (needsEnrollEvent) {
 				analyticsModel.addEvent(event);
@@ -645,16 +645,30 @@ public abstract class TiApplication extends Application implements Handler.Callb
 			}
 
 		} else if (event.getEventType() == TiAnalyticsEventFactory.EVENT_APP_START) {
-			if (needsStartEvent) {
-				analyticsModel.addEvent(event);
-				needsStartEvent = false;
-				sendAnalytics();
-				lastAnalyticsTriggered = System.currentTimeMillis();
+			HashMap<Integer,String> tsForEndEvent = analyticsModel.getLastTimestampForEventType(TiAnalyticsEventFactory.EVENT_APP_END);
+			if (tsForEndEvent.size() == 1) {
+				for (Integer key : tsForEndEvent.keySet()) {
+					try {
+						SimpleDateFormat dateFormat = TiAnalyticsEvent.getDateFormatForTimestamp();
+						long lastEnd = dateFormat.parse(tsForEndEvent.get(key)).getTime(); //in millisecond
+						long start = dateFormat.parse(event.getEventTimestamp()).getTime();
+						// If the new activity starts immediately after the previous activity pauses, we consider
+						// the app is still in foreground so will not send any analytics events
+						if (start - lastEnd < TIME_SEPARATION_ANALYTICS) {
+							analyticsModel.deleteEvents(new int[] {key});
+							return;
+						}
+					} catch (ParseException e) {
+						Log.e(TAG, "Incorrect timestamp. Unable to send the ti.start event.", e);
+					}
+				}
 			}
+			analyticsModel.addEvent(event);
+			sendAnalytics();
+			lastAnalyticsTriggered = System.currentTimeMillis();
 			return;
 
 		} else if (event.getEventType() == TiAnalyticsEventFactory.EVENT_APP_END) {
-			needsStartEvent = true;
 			analyticsModel.addEvent(event);
 			sendAnalytics();
 
@@ -885,8 +899,16 @@ public abstract class TiApplication extends Application implements Handler.Callb
 			TiApplication.activityTransitionListeners.clear();
 		}
 		if (TiApplication.activityStack != null) {
-			TiApplication.activityTransitionListeners.clear();
+			TiApplication.activityStack.clear();
 		}
+	}
+
+	public AccessibilityManager getAccessibilityManager()
+	{
+		if (accessibilityManager == null) {
+			accessibilityManager = (AccessibilityManager) getSystemService(Context.ACCESSIBILITY_SERVICE);
+		}
+		return accessibilityManager;
 	}
 
 	public abstract void verifyCustomModules(TiRootActivity rootActivity);

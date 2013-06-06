@@ -238,7 +238,7 @@ public class TiUITimeSpinner extends TiUIView
 		if (!suppressChangeEvent) {
 			KrollDict data = new KrollDict();
 			data.put("value", dateval);
-			proxy.fireEvent("change", data);
+			fireEvent("change", data);
 		}
 	}
 

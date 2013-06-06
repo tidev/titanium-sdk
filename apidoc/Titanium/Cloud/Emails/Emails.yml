@@ -33,7 +33,7 @@ examples:
                 if (e.success) {
                     alert('Success');
                 } else {
-                    alert('Error:\\n' +
+                    alert('Error:\n' +
                         ((e.error && e.message) || JSON.stringify(e)));
                 }
             });

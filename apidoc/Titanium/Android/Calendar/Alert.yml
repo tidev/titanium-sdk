@@ -5,6 +5,7 @@ extends: Titanium.Proxy
 since: "1.5"
 platforms: [android]
 createable: false
+deprecated: {since: "3.2.0"}
 
 properties:
   - name: alarmTime

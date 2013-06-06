@@ -37,7 +37,11 @@ extern "C" {
 #ifndef __IPHONE_5_1
 #define __IPHONE_5_1 50100
 #endif
-    
+
+#ifndef __IPHONE_6_0
+#define __IPHONE_6_0 60000
+#endif
+	
 #ifdef DEBUG
 	// Kroll memory debugging
 	#define KROLLBRIDGE_MEMORY_DEBUG MEMORY_DEBUG
@@ -75,7 +79,20 @@ NSMutableDictionary* TiCreateNonRetainingDictionary();
 
 CGPoint midpointBetweenPoints(CGPoint a, CGPoint b);
 void TiLogMessage(NSString* str, ...);
-    
+
+/**
+ * Protocol for classes to provide their JavaScript details (class name, in particular).
+ */
+@protocol JavascriptClass <NSObject>
+@required
++ (NSString *)javascriptClassName;
+@end
+
+NSString *JavascriptNameForClass(Class c);
+
+#define CLASS2JS(x)		JavascriptNameForClass(x)
+#define OBJTYPE2JS(x)	JavascriptNameForClass([x class])
+
 #define degreesToRadians(x) (M_PI * x / 180.0)
 #define radiansToDegrees(x) (x * (180.0 / M_PI))
 
@@ -85,7 +102,7 @@ void TiLogMessage(NSString* str, ...);
 #define RELEASE_TO_NIL_AUTORELEASE(x) { if (x!=nil) { [x autorelease]; x = nil; } }
 #define RELEASE_AND_REPLACE(x,y) { [x release]; x = [y retain]; }
 
-#define CODELOCATION	[NSString stringWithFormat:@" in %s (%@:%d)",__FUNCTION__,[[NSString stringWithFormat:@"%s",__FILE__] lastPathComponent],__LINE__]
+#define CODELOCATION	[NSString stringWithFormat:@"%s (%@:%d)",__FUNCTION__,[[NSString stringWithFormat:@"%s",__FILE__] lastPathComponent],__LINE__]
 
 #define NULL_IF_NIL(x)	({ id xx = (x); (xx==nil)?[NSNull null]:xx; })
 
@@ -112,7 +129,7 @@ x = (t*)[x objectAtIndex:0]; \
 } \
 if (![x isKindOfClass:[t class]]) \
 {\
-[self throwException:TiExceptionInvalidType subreason:[NSString stringWithFormat:@"expected: %@, was: %@",[t class],[x class]] location:CODELOCATION]; \
+[self throwException:TiExceptionInvalidType subreason:[NSString stringWithFormat:@"expected: %@, was: %@",CLASS2JS([t class]),OBJTYPE2JS(x)] location:CODELOCATION]; \
 }\
 
 #define ENSURE_SINGLE_ARG_OR_NIL(x,t) \
@@ -124,7 +141,7 @@ x = (t*)[x objectAtIndex:0]; \
 } \
 if (![x isKindOfClass:[t class]]) \
 {\
-[self throwException:TiExceptionInvalidType subreason:[NSString stringWithFormat:@"expected: %@, was: %@",[t class],[x class]] location:CODELOCATION]; \
+[self throwException:TiExceptionInvalidType subreason:[NSString stringWithFormat:@"expected: %@, was: %@",CLASS2JS([t class]),OBJTYPE2JS(x)] location:CODELOCATION]; \
 }\
 }\
 
@@ -135,7 +152,7 @@ out = (type*)[args objectAtIndex:index]; \
 } \
 if (![out isKindOfClass:[type class]]) \
 { \
-[self throwException:TiExceptionInvalidType subreason:[NSString stringWithFormat:@"expected: %@, was: %@",[type class],[out class]] location:CODELOCATION]; \
+[self throwException:TiExceptionInvalidType subreason:[NSString stringWithFormat:@"expected: %@, was: %@",CLASS2JS([type class]),OBJTYPE2JS(out)] location:CODELOCATION]; \
 } \
 
 
@@ -152,13 +169,13 @@ else { \
 out = nil; \
 } \
 if (out && ![out isKindOfClass:[type class]]) { \
-[self throwException:TiExceptionInvalidType subreason:[NSString stringWithFormat:@"expected: %@, was: %@",[type class],[out class]] location:CODELOCATION]; \
+[self throwException:TiExceptionInvalidType subreason:[NSString stringWithFormat:@"expected: %@, was: %@",CLASS2JS([type class]),OBJTYPE2JS(out)] location:CODELOCATION]; \
 } \
 } \
 
 #define COERCE_TO_INT(out,in) \
 if (![in respondsToSelector:@selector(intValue)]) {\
-[self throwException:TiExceptionInvalidType subreason:[NSString stringWithFormat:@"cannot coerce type %@ to int",[in class]] location:CODELOCATION]; \
+[self throwException:TiExceptionInvalidType subreason:[NSString stringWithFormat:@"cannot coerce type %@ to int",OBJTYPE2JS(in)] location:CODELOCATION]; \
 }\
 out = [in intValue]; \
 
@@ -217,7 +234,7 @@ COERCE_TO_INT(out,tmp);\
 #define ENSURE_CLASS(x,t) \
 if (![x isKindOfClass:t]) \
 { \
-[self throwException:TiExceptionInvalidType subreason:[NSString stringWithFormat:@"expected: %@, was: %@",t,[x class]] location:CODELOCATION]; \
+[self throwException:TiExceptionInvalidType subreason:[NSString stringWithFormat:@"expected: %@, was: %@",CLASS2JS(t),OBJTYPE2JS(x)] location:CODELOCATION]; \
 }\
 
 #define ENSURE_TYPE(x,t) ENSURE_CLASS(x,[t class])
@@ -226,7 +243,7 @@ if (![x isKindOfClass:t]) \
 #define ENSURE_METHOD(x,t) \
 if (![x respondsToSelector:@selector(t)]) \
 { \
-[self throwException:TiExceptionInvalidType subreason:[NSString stringWithFormat:@"%@ doesn't respond to method: %@",[x class],@#t] location:CODELOCATION]; \
+[self throwException:TiExceptionInvalidType subreason:[NSString stringWithFormat:@"%@ doesn't respond to method: %@",OBJTYPE2JS(x),@#t] location:CODELOCATION]; \
 }\
 
 #define IS_NULL_OR_NIL(x)	((x==nil) || ((id)x==[NSNull null]))
@@ -238,7 +255,7 @@ if (IS_NULL_OR_NIL(x))	\
 }	\
 else if (![x isKindOfClass:t])	\
 { \
-	[self throwException:TiExceptionInvalidType subreason:[NSString stringWithFormat:@"expected: %@ or nil, was: %@",t, [x class]] location:CODELOCATION]; \
+	[self throwException:TiExceptionInvalidType subreason:[NSString stringWithFormat:@"expected: %@ or nil, was: %@",CLASS2JS(t), OBJTYPE2JS(x)] location:CODELOCATION]; \
 }\
 
 #define ENSURE_TYPE_OR_NIL(x,t) ENSURE_CLASS_OR_NIL(x,[t class])
@@ -285,21 +302,19 @@ if ((__x<__minX) || (__x>__maxX)) \
 #define ENSURE_ARRAY(x) ENSURE_TYPE(x,NSArray)
 #define ENSURE_STRING(x) ENSURE_TYPE(x,NSString)
 
-void TiExceptionThrowWithNameAndReason(NSString * exceptionName, NSString * message);
+void TiExceptionThrowWithNameAndReason(NSString *exceptionName, NSString *reason, NSString *subreason, NSString *location);
 	
 #define DEFINE_EXCEPTIONS \
 - (void) throwException:(NSString *) reason subreason:(NSString*)subreason location:(NSString *)location\
 {\
 	NSString * exceptionName = [@"org.appcelerator." stringByAppendingString:NSStringFromClass([self class])];\
-	NSString * message = [NSString stringWithFormat:@"%@. %@ %@",reason,(subreason!=nil?subreason:@""),(location!=nil?location:@"")];\
-	TiExceptionThrowWithNameAndReason(exceptionName,message);\
+	TiExceptionThrowWithNameAndReason(exceptionName,reason,subreason,location);\
 }\
 \
 + (void) throwException:(NSString *) reason subreason:(NSString*)subreason location:(NSString *)location\
 {\
 	NSString * exceptionName = @"org.appcelerator";\
-	NSString * message = [NSString stringWithFormat:@"%@. %@ %@",reason,(subreason!=nil?subreason:@""),(location!=nil?location:@"")];\
-	TiExceptionThrowWithNameAndReason(exceptionName,message);\
+	TiExceptionThrowWithNameAndReason(exceptionName,reason,subreason,location);\
 }\
 
 
@@ -566,7 +581,9 @@ extern NSString* const kTiUnitDip;
 extern NSString* const kTiUnitDipAlternate;
 extern NSString* const kTiUnitSystem;
 extern NSString* const kTiUnitPercent;
-    
+
+extern NSString* const kTiExceptionSubreason;
+extern NSString* const kTiExceptionLocation;
 
 
 #ifndef ASI_AUTOUPDATE_NETWORK_INDICATOR

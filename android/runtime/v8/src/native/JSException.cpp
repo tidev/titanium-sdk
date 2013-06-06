@@ -39,7 +39,7 @@ Handle<Value> JSException::fromJavaException(jthrowable javaException)
 		return THROW("Java Exception occurred");
 	}
 
-	Handle<Value> jsMessage = TypeConverter::javaStringToJsString(message);
+	Handle<Value> jsMessage = TypeConverter::javaStringToJsString(env, message);
 	env->DeleteLocalRef(message);
 
 	if (deleteRef) {

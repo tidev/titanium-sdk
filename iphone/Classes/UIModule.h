@@ -163,6 +163,16 @@
 @property(nonatomic,readonly) NSNumber *URL_ERROR_UNKNOWN;
 @property(nonatomic,readonly) NSNumber *URL_ERROR_UNSUPPORTED_SCHEME;
 
+@property(nonatomic,readonly) NSNumber *LIST_ITEM_TEMPLATE_DEFAULT;
+@property(nonatomic,readonly) NSNumber *LIST_ITEM_TEMPLATE_SETTINGS;
+@property(nonatomic,readonly) NSNumber *LIST_ITEM_TEMPLATE_CONTACTS;
+@property(nonatomic,readonly) NSNumber *LIST_ITEM_TEMPLATE_SUBTITLE;
+
+@property(nonatomic,readonly) NSNumber *LIST_ACCESSORY_TYPE_NONE;
+@property(nonatomic,readonly) NSNumber *LIST_ACCESSORY_TYPE_CHECKMARK;
+@property(nonatomic,readonly) NSNumber *LIST_ACCESSORY_TYPE_DETAIL;
+@property(nonatomic,readonly) NSNumber *LIST_ACCESSORY_TYPE_DISCLOSURE;
+
 #ifdef USE_TI_UI2DMATRIX
 -(id)create2DMatrix:(id)args;
 #endif

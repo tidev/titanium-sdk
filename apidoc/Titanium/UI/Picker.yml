@@ -4,13 +4,28 @@ summary: |
     A control used to select one or more fixed values.
 description: |
     Use the <Titanium.UI.createPicker> method to create a picker control.
-    
+
     On Android, the `useSpinner` property must be enabled to support multiple columns.
+    By default, the spinner is automatically sized to fit its content and can overflow
+    to additional spinner rows. The size of the picker can be adjusted with the `width`
+    and `height` properties, but may omit picker columns or cut off picker rows
+    if the size is set too small.
     
-    Adding views to picker rows is only supported on iOS.
+    On iOS, by default, the size of the picker, including its background, is fixed at the
+    same size as the iPhone keyboard to respect the
+    [iOS Human Interface Guidelines](https://developer.apple.com/library/ios/#documentation/UserExperience/Conceptual/MobileHIG/UIElementGuidelines/UIElementGuidelines.html#//apple_ref/doc/uid/TP40006556-CH13-SW23).
+    The size of the picker should not be modified.
+    The contents of the picker are sized to fit the picker, which may cut off text
+    in the picker rows. Adding views to picker rows is also supported on iOS.
+
+    On iPad, Apple recommends using a picker only in a popover.  Since the size of the picker
+    cannot be adjusted, it is not suitable for the main screen.
+
+    On Mobile Web and Tizen, by default, the picker fills the entire view it is contained in
+    but is adjustable using the `width` and `height` properties.
 extends: Titanium.Proxy
 since: "0.8"
-platforms: [android, iphone, ipad, mobileweb]
+platforms: [android, iphone, ipad, mobileweb, tizen]
 methods:
   - name: add
     summary: Adds rows or columns to the picker.
@@ -20,7 +35,7 @@ methods:
             A row, set of rows, a column of rows or a set of columns of rows. When this method is 
             used to add a row or set of rows, a single-column picker is created.
         type: [Array<Titanium.UI.PickerRow>, Titanium.UI.PickerRow, Array<Titanium.UI.PickerColumn>, Titanium.UI.PickerColumn]
-    platforms: [iphone, ipad]
+    platforms: [android, iphone, ipad]
 
   - name: getSelectedRow
     summary: Gets the selected row for a column, or `null` if none exists.
@@ -113,19 +128,19 @@ events:
     properties:
       - name: columnIndex
         summary: |
-            Selected column index. On iOS and Mobile Web, only applicable to <Titanium.UI.PICKER_TYPE_PLAIN> 
+            Selected column index. On iOS, Tizen and Mobile Web, only applicable to <Titanium.UI.PICKER_TYPE_PLAIN> 
             picker types.
         type: Number
         
       - name: rowIndex
         summary: |
-            Selected row index. On iOS and Mobile Web, only applicable to <Titanium.UI.PICKER_TYPE_PLAIN> 
+            Selected row index. On iOS, Tizen and Mobile Web, only applicable to <Titanium.UI.PICKER_TYPE_PLAIN> 
             picker types.
         type: Number
         
       - name: column
         summary: |
-            The column object. On iOS and Mobile Web, only applicable to <Titanium.UI.PICKER_TYPE_PLAIN> 
+            The column object. On iOS, Tizen and Mobile Web, only applicable to <Titanium.UI.PICKER_TYPE_PLAIN> 
             picker types.
         type: Titanium.UI.PickerColumn
         
@@ -142,7 +157,7 @@ events:
         
       - name: row
         summary: |
-            The row object. On iOS and Mobile Web, only applicable to <Titanium.UI.PICKER_TYPE_PLAIN> picker types.
+            The row object. On iOS, Tizen and Mobile Web, only applicable to <Titanium.UI.PICKER_TYPE_PLAIN> picker types.
         type: Titanium.UI.PickerRow
         
       - name: selectedValue
@@ -150,6 +165,22 @@ events:
             Array of selected values, one element per column in the picker. Applicable to 
             <Titanium.UI.PICKER_TYPE_PLAIN> picker types.
         type: Array<String>
+        
+  - name: click
+    summary: Fired when the device detects a click against the view.
+    platforms: [android]
+    since: "3.0.0"
+    description: |
+        This event is only available for non-spinner plain pickers. 
+    properties:
+      - name: x
+        type: Number
+        summary: X coordinate of the event from the `source` view's coordinate system.
+    
+      - name: y
+        summary: Y coordinate of the event from the `source` view's coordinate system.
+        type: Number
+        
 properties:
   - name: columns
     summary: Columns used for this picker, as an array of <Titanium.UI.PickerColumn> objects.
@@ -246,12 +277,12 @@ properties:
     description: |
         One of <Titanium.UI.PICKER_TYPE_PLAIN>, 
         <Titanium.UI.PICKER_TYPE_DATE>, <Titanium.UI.PICKER_TYPE_TIME>, 
-        <Titanium.UI.PICKER_TYPE_DATE_AND_TIME> (Mobile Web, iPhone, iPad-only) 
+        <Titanium.UI.PICKER_TYPE_DATE_AND_TIME> (Mobile Web, Tizen, iPhone, iPad-only) 
         and <Titanium.UI.PICKER_TYPE_COUNT_DOWN_TIMER> (iPhone, iPad-only.). 
         
-        Mobile Web relies on input types for date and time types, but as of Q1 2012 these input types 
+        Mobile Web and Tizen rely on input types for date and time types, but as of Q1 2012 these input types 
         are not supported on most browsers, those that do support it support it poorly, and no fall-back 
-        exists. It is recommended not to use these types on Mobile Web until browser support improves.
+        exists. It is recommended not to use these types on Mobile Web and Tizen until browser support improves.
     type: Number
     default: <Titanium.UI.PICKER_TYPE_PLAIN>
     
@@ -284,7 +315,6 @@ properties:
     description: |
         The spinner-style Android picker shows 5 rows by default; one selected in the middle and 2 
         above and below. Set to an odd number to ensure the selected row is in the middle.
-        
     type: Number
     default: 5
     platforms: [android]
@@ -330,7 +360,8 @@ examples:
             });
 
             var picker = Ti.UI.createPicker({
-              top:50
+              top:50,
+              useSpinner: true
             });
             picker.selectionIndicator = true;
 
@@ -419,4 +450,33 @@ examples:
               }
             });
             
+  - title: Alloy XML Markup
+    example: |
+        Previous multi-column picker example as an Alloy view.
 
+        multicolumnpicker.xml
+
+            <Alloy>
+                <Window id="win" backgroundColor="white" layout="vertical" exitOnClose="true">
+                    <Picker id="picker" top="50" selectionIndicator="true" useSpinner="true">
+                        <PickerColumn id="column1">
+                            <PickerRow title="Bananas"/>
+                            <PickerRow title="Strawberries"/>
+                            <PickerRow title="Mangos"/>
+                            <PickerRow title="Grapes"/>
+                        </PickerColumn>
+                        <!-- Picker shorthand notation -->
+                        <Column id="column2">
+                            <Row title="red"/>
+                            <Row title="green"/>
+                            <Row title="blue"/>
+                            <Row title="orange"/>
+                        </Column>
+                    </Picker>
+                </Window>
+            </Alloy>
+
+        multicolumnpicker.js:
+
+            $.picker.setSelectedRow(0, 2, false);
+            $.picker.setSelectedRow(1, 3, false);

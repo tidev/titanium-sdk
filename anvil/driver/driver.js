@@ -91,12 +91,15 @@
 var fs = require("fs");
 var path = require("path");
 
-var util = require("./util");
+var driverUtils = require("./driverUtils");
 
 var mode;
 
 function printUsageAndExit() {
-	console.log("\nUsage: \"node driver.js --platform=<platform> [--mode=<mode>] [--log-level=<log level>] [--command=<command>]\"\n"
+	console.log("\nUsage: \"node driver.js --platform=<platform> [--sdk-version=<version>] [--mode=<mode>] [--log-level=<log level>] [--command=<command>]\"\n"
+		+ "SDK Version (optional - default is newest installed version):\n"
+		+ "    The name of the version directory, such as '3.0.2.GA'\n"
+		+ "\n"
 		+ "Modes (optional - default is local):\n"
 		+ "    local - run Driver locally via manual commands (default)\n"
 		+ "    remote - run Driver remotely (this should never be selected by hand)\n"
@@ -126,15 +129,15 @@ function init() {
 	};
 
 	driverGlobal.driverDir = __dirname;
-	driverGlobal.configSetDir = driverGlobal.driverDir + "/configSet";
-	driverGlobal.harnessTemplateDir = driverGlobal.driverDir + "/harnessResourcesTemplate";
+	driverGlobal.configSetDir = path.resolve(driverGlobal.driverDir, "..", "..", "support", "anvil", "configSet");
+	driverGlobal.harnessTemplateDir = path.resolve(driverGlobal.driverDir, "harnessResourcesTemplate");
 
 	driverGlobal.platforms = {};
 
 	var platforms = ["android", "ios", "mobileweb"];
 	for (var i = 0; i < platforms.length; i++) {
 		try {
-			driverGlobal.platforms[platforms[i]] = require(driverGlobal.driverDir + "/platforms/" + platforms[i]);;
+			driverGlobal.platforms[platforms[i]] = require(path.resolve(driverGlobal.driverDir, "platforms", platforms[i]));
 
 		} catch(e) {
 			console.log("exception occurred when loading platform module for <" + platforms[i] + ">: " + e);
@@ -150,12 +153,18 @@ function processCommandLineArgs(callback) {
 	 * mode represents whether the driver is being run via command line(local) or remotely
 	 * such as would be the case for CI integration(remote)
 	 */
-	var modeArg = util.getArgument(process.argv, "--mode");
+
+	var argv = process.argv;
+	if (argv.indexOf("--help") >= 0 || argv.indexOf("-h") >= 0) {
+		printUsageAndExit();
+	}
+
+	var modeArg = driverUtils.getArgument(argv, "--mode");
 	if ((typeof modeArg) === "undefined") {
 		modeArg = "local";
 	}
 
-	var modePath = driverGlobal.driverDir + "/" + modeArg + "Mode.js";
+	var modePath = path.resolve(driverGlobal.driverDir, modeArg + "Mode.js");
 	if (!(path.existsSync(modePath))) {
 		console.log("unable to find the specified mode: " + modeArg);
 		printUsageAndExit();
@@ -173,7 +182,7 @@ function processCommandLineArgs(callback) {
 	 * logLevel represents the level of logging that will be printed out to the console.
 	 * NOTE: this does not change what gets written to the log file
 	 */
-	var logLevelArg = util.getArgument(process.argv, "--log-level");
+	var logLevelArg = driverUtils.getArgument(argv, "--log-level");
 	if ((typeof logLevelArg) !== "undefined") {
 		var logLevel = driverGlobal.logLevels[logLevelArg];
 		if ((typeof logLevel) === "undefined") {
@@ -185,7 +194,7 @@ function processCommandLineArgs(callback) {
 	}
 
 	// load platform module
-	var platformArg = util.getArgument(process.argv, "--platform");
+	var platformArg = driverUtils.getArgument(argv, "--platform");
 	if ((typeof platformArg) !== "undefined") {
 		var specifiedPlatform = driverGlobal.platforms[platformArg];
 		if ((typeof specifiedPlatform) === "undefined") {
@@ -197,13 +206,13 @@ function processCommandLineArgs(callback) {
 }
 
 function loadConfigModule() {
-	var configModulePath = __dirname + "/config.js";
+	var configModulePath = path.resolve(__dirname, "config.js");
 	if (!(path.existsSync(configModulePath))) {
 		console.log("No config module found!  Do the following:\n" +
-			util.getTabs(1) + "1) copy the exampleConfig.js to config.js in the root driver directory\n" +
-			util.getTabs(1) + "2) update the config.js with appropriate values based on the comments in\n" +
-			util.getTabs(1) + "   the exampleConfig.js file\n" +
-			util.getTabs(1) + "3) restart driver\n");
+			driverUtils.getTabs(1) + "1) copy the exampleConfig.js to config.js in the root driver directory\n" +
+			driverUtils.getTabs(1) + "2) update the config.js with appropriate values based on the comments in\n" +
+			driverUtils.getTabs(1) + "   the exampleConfig.js file\n" +
+			driverUtils.getTabs(1) + "3) restart driver\n");
 
 		process.exit(1);
 	}
@@ -217,32 +226,11 @@ function loadConfigModule() {
 		process.exit(1);
 	}
 
-	function checkConfigItem(configItemName, configItemValue, expectedType) {
-		var configItemType = (typeof configItemValue);
-		if (configItemType === "undefined") {
-			printFailureAndExit(configItemName + " property in the config module cannot be undefined");
-
-		} else if (configItemType !== expectedType) {
-			printFailureAndExit("androidSdkDir property in the config module should be <" + expectedType +
-				"> but was <" + configItemType + ">");
-		}
-	}
-
-	function printFailureAndExit(errorMessage) {
-		console.log(errorMessage);
-		process.exit(1);
-	}
-
-	checkConfigItem("androidSdkDir", config.androidSdkDir, "string");
-	checkConfigItem("tiSdkDir", config.tiSdkDir, "string");
-	checkConfigItem("maxLogs", config.maxLogs, "number");
-	checkConfigItem("androidSocketPort", config.androidSocketPort, "number");
-	checkConfigItem("iosSocketPort", config.iosSocketPort, "number");
-	checkConfigItem("maxSocketConnectAttempts", config.maxSocketConnectAttempts, "number");
-	checkConfigItem("httpPort", config.httpPort, "number");
-	checkConfigItem("defaultTestTimeout", config.defaultTestTimeout, "number");
-	checkConfigItem("tabString", config.tabString, "string");
-	checkConfigItem("defaultIosSimVersion", config.defaultIosSimVersion, "string");
+	driverUtils.checkConfigItem("tiSdkDirs", config.tiSdkDirs, "string");
+	driverUtils.checkConfigItem("maxLogs", config.maxLogs, "number");
+	driverUtils.checkConfigItem("maxSocketConnectAttempts", config.maxSocketConnectAttempts, "number");
+	driverUtils.checkConfigItem("defaultTestTimeout", config.defaultTestTimeout, "number");
+	driverUtils.checkConfigItem("tabString", config.tabString, "string");
 
 	// load the defaultPlatform config property and set the global platform property if needed
 	new function() {
@@ -272,9 +260,9 @@ function loadConfigModule() {
 
 	// load the tempDir config property and setup other properties that rely on the tempDir property
 	new function() {
-		checkConfigItem("tempDir", config.tempDir, "string");
-		driverGlobal.harnessDir = config.tempDir + "/harness";
-		driverGlobal.logsDir = config.tempDir + "/logs";
+		driverUtils.checkConfigItem("tempDir", config.tempDir, "string");
+		driverGlobal.harnessDir = path.resolve(config.tempDir, "harness");
+		driverGlobal.logsDir = path.resolve(config.tempDir, "logs");
 	}
 
 	/*
@@ -282,7 +270,7 @@ function loadConfigModule() {
 	property
 	*/
 	new function() {
-		checkConfigItem("defaultLogLevel", config.defaultLogLevel, "string");
+		driverUtils.checkConfigItem("defaultLogLevel", config.defaultLogLevel, "string");
 
 		// translate the defaultLogLevel from string to number value defined in logLevels
 		if (driverGlobal.logLevels[config.defaultLogLevel]) {
@@ -302,23 +290,10 @@ function loadConfigModule() {
 }
 
 function setupTempDirs() {
-	function createDir(dir) {
-		if (path.existsSync(dir)) {
-			return;
-		}
-
-		try {
-			fs.mkdirSync(dir, 0777);
-
-		} catch(e) {
-			console.log("exception <" + e + "> occurred when creating " + dir);
-		}
-	}
-
-	createDir(driverGlobal.config.tempDir);
-	createDir(driverGlobal.harnessDir);
-	createDir(driverGlobal.logsDir);
-	createDir(driverGlobal.logsDir + "/" + driverGlobal.platform.name);
+	driverUtils.createDir(driverGlobal.config.tempDir);
+	driverUtils.createDir(driverGlobal.harnessDir);
+	driverUtils.createDir(driverGlobal.logsDir);
+	driverUtils.createDir(path.resolve(driverGlobal.logsDir, driverGlobal.platform.name));
 }
 
 init();

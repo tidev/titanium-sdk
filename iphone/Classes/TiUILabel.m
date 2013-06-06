@@ -18,6 +18,7 @@
 -(id)init
 {
     if (self = [super init]) {
+        bgdLayer = nil;
         padding = CGRectZero;
         initialLabelFrame = CGRectZero;
         verticalAlign = -1;
@@ -28,7 +29,7 @@
 -(void)dealloc
 {
     RELEASE_TO_NIL(label);
-    RELEASE_TO_NIL(backgroundView);
+    RELEASE_TO_NIL(bgdLayer);
     [super dealloc];
 }
 
@@ -46,7 +47,7 @@
 	CGSize maxSize = CGSizeMake(suggestedWidth<=0 ? 480 : suggestedWidth, 10000);
 	CGSize shadowOffset = [label shadowOffset];
 	requiresLayout = YES;
-	if ((suggestedWidth > 0) && [value characterAtIndex:value.length-1] == ' ') {
+	if ((suggestedWidth > 0) && [value hasSuffix:@" "]) {
 		// (CGSize)sizeWithFont:(UIFont *)font constrainedToSize:(CGSize)size lineBreakMode:(UILineBreakMode)lineBreakMode method truncates
 		// the string having trailing spaces when given size parameter width is equal to the expected return width, so we adjust it here.
 		maxSize.width += 0.00001;
@@ -86,7 +87,7 @@
             default:
                 break;
         }
-        
+
         if (originX < 0) {
             originX = 0;
         }
@@ -107,28 +108,22 @@
                 }
                 break;
         }
-    
+
         [label setFrame:CGRectIntegral(labelRect)];
     }
     else {
         [label setFrame:initialLabelFrame];
     }
 
-    if (repad &&
-        backgroundView != nil && 
-        !CGRectIsEmpty(initialLabelFrame))
+    if (bgdLayer != nil && !CGRectIsEmpty(initialLabelFrame))
     {
-        [backgroundView setFrame:CGRectMake(initialLabelFrame.origin.x - padding.origin.x,
-                                            initialLabelFrame.origin.y - padding.origin.y,
-                                            initialLabelFrame.size.width + padding.origin.x + padding.size.width,
-                                            initialLabelFrame.size.height + padding.origin.y + padding.size.height)];
-        repad = NO;
+        [self updateBackgroundImageFrameWithPadding];
     }
 	return;
 }
 
 // FIXME: This isn't quite true.  But the brilliant soluton wasn't so brilliant, because it screwed with layout in unpredictable ways.
-//	Sadly, there was a brilliant solution for fixing the blurring here, but it turns out there's a 
+//	Sadly, there was a brilliant solution for fixing the blurring here, but it turns out there's a
 //	quicker fix: Make sure the label itself has an even height and width. Everything else is irrelevant.
 -(void)setCenter:(CGPoint)newCenter
 {
@@ -139,9 +134,8 @@
 {
 	initialLabelFrame = bounds;
     
-    repad = YES;
     [self padLabel];
-    
+
     [super frameSizeChanged:frame bounds:bounds];
 }
 
@@ -153,9 +147,14 @@
         label.backgroundColor = [UIColor clearColor];
         label.numberOfLines = 0;
         [self addSubview:label];
-        self.clipsToBounds = YES;
+//        self.clipsToBounds = YES;
 	}
 	return label;
+}
+
+- (id)accessibilityElement
+{
+	return [self label];
 }
 
 -(void)setHighlighted:(BOOL)newValue
@@ -173,6 +172,15 @@
 	 */
 	[self setHighlighted:NO];
 	[super didMoveToSuperview];
+}
+
+- (void)didMoveToWindow
+{
+    /*
+     * See above
+     */
+    [self setHighlighted:NO];
+    [super didMoveToWindow];
 }
 
 -(BOOL)isHighlighted
@@ -230,64 +238,55 @@
         [[self label] setAdjustsFontSizeToFitWidth:YES];
         [[self label] setMinimumFontSize:newSize];
     }
-    
+
+}
+
+-(CALayer *)backgroundImageLayer
+{
+    if (bgdLayer == nil)
+    {
+        bgdLayer = [[CALayer alloc]init];
+        bgdLayer.frame = self.layer.bounds;
+        [self.layer insertSublayer:bgdLayer atIndex:0];
+    }
+	return bgdLayer;
+}
+-(void) updateBackgroundImageFrameWithPadding
+{
+    CGRect backgroundFrame = CGRectMake(self.bounds.origin.x - padding.origin.x,
+               self.bounds.origin.y - padding.origin.y,
+               self.bounds.size.width + padding.origin.x + padding.size.width,
+                                        self.bounds.size.height + padding.origin.y + padding.size.height);
+    [self backgroundImageLayer].frame = backgroundFrame;
 }
 
 -(void)setBackgroundImage_:(id)url
 {
-    if (url != nil) {
-        UIImage* bgImage = [self loadImage:url];
-        if (backgroundView == nil) {
-            backgroundView = [[UIImageView alloc] initWithImage:bgImage];
-            backgroundView.userInteractionEnabled = NO;
-            [self insertSubview:backgroundView atIndex:0];
-            repad = YES;
-            [self padLabel];
-        }
-        else {
-            backgroundView.image = bgImage;
-            [backgroundView setNeedsDisplay];
-            
-            repad = YES;
-            [self padLabel];
-        }
-    }
-    else {
-        if (backgroundView) {
-            [backgroundView removeFromSuperview];
-            RELEASE_TO_NIL(backgroundView);
-        }
-    }
-    
-    self.backgroundImage = url;
+    [super setBackgroundImage_:url];
 }
 
 -(void)setBackgroundPaddingLeft_:(id)left
 {
     padding.origin.x = [TiUtils floatValue:left];
-    repad = YES;
-    [self padLabel];
+    [self updateBackgroundImageFrameWithPadding];
 }
 
 -(void)setBackgroundPaddingRight_:(id)right
 {
     padding.size.width = [TiUtils floatValue:right];
-    repad = YES;
-    [self padLabel];
+    [self updateBackgroundImageFrameWithPadding];
 }
 
 -(void)setBackgroundPaddingTop_:(id)top
 {
     padding.origin.y = [TiUtils floatValue:top];
-    repad = YES;
-    [self padLabel];
+    [self updateBackgroundImageFrameWithPadding];
 }
 
 -(void)setBackgroundPaddingBottom_:(id)bottom
 {
     padding.size.height = [TiUtils floatValue:bottom];
-    repad = YES;
-    [self padLabel];
+    [self updateBackgroundImageFrameWithPadding];
 }
 
 -(void)setTextAlign_:(id)alignment

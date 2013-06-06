@@ -9,7 +9,9 @@ package ti.modules.titanium.ui.widget.picker;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.common.Log;
+import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiUIView;
@@ -17,7 +19,10 @@ import org.appcelerator.titanium.view.TiUIView;
 import ti.modules.titanium.ui.PickerColumnProxy;
 import ti.modules.titanium.ui.PickerProxy;
 import android.app.Activity;
+import android.os.Build;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewParent;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
@@ -44,10 +49,22 @@ public class TiUINativePicker extends TiUIPicker
 				super.onLayout(changed, left, top, right, bottom);
 				TiUIHelper.firePostLayoutEvent(proxy);
 			}
+			
+			@Override
+			public boolean onTouchEvent(MotionEvent event) {
+				if (event.getAction() == MotionEvent.ACTION_UP) {
+					KrollDict data = new KrollDict();
+					data.put(TiC.PROPERTY_X, event.getX());
+					data.put(TiC.PROPERTY_Y, event.getY());
+					fireEvent(TiC.EVENT_CLICK, data);
+				}
+				return super.onTouchEvent(event);
+			}
 		};
 		setNativeView(spinner);
 		refreshNativeView();
 		preselectRows();
+
 		spinner.setOnItemSelectedListener(this);
 	}
 	
@@ -160,6 +177,14 @@ public class TiUINativePicker extends TiUIPicker
 			return;
 		}
 		fireSelectionChange(0, position);
+
+		// Invalidate the parent view after the item is selected (TIMOB-13540).
+		if (Build.VERSION.SDK_INT >= TiC.API_LEVEL_HONEYCOMB) {
+			ViewParent p = nativeView.getParent();
+			if (p instanceof View) {
+				((View) p).invalidate();
+			}
+		}
 	}
 
 	@Override

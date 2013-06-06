@@ -9,6 +9,7 @@ package ti.modules.titanium.geolocation;
 import java.util.Calendar;
 import java.util.HashMap;
 
+import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollFunction;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiC;
@@ -96,7 +97,7 @@ public class TiCompass
 		float y = event.values[1];
 		float z = event.values[2];
 
-		HashMap<String, Object> heading = new HashMap<String, Object>();
+		KrollDict heading = new KrollDict();
 		heading.put(TiC.EVENT_PROPERTY_TYPE, TiC.EVENT_HEADING);
 		heading.put(TiC.PROPERTY_TIMESTAMP, timestamp);
 		heading.put(TiC.PROPERTY_X, x);
@@ -131,7 +132,8 @@ public class TiCompass
 			heading.put(TiC.PROPERTY_TRUE_HEADING, trueHeading);
 		}
 
-		HashMap<String, Object> data = new HashMap<String, Object>();
+		KrollDict data = new KrollDict();
+		data.putCodeAndMessage(TiC.ERROR_CODE_NO_ERROR, null);
 		data.put(TiC.PROPERTY_HEADING, heading);
 		return data;
 	}

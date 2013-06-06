@@ -12,6 +12,55 @@
 #include <pthread.h>
 #include <sys/time.h>
 
+#if DEBUG
+
+#include <assert.h>
+#include <stdbool.h>
+#include <sys/types.h>
+#include <unistd.h>
+#include <sys/sysctl.h>
+
+#endif
+
+static bool ApplicationBeingDebugged(void)
+// Returns true if the current process is being debugged (either
+// running under the debugger or has a debugger attached post facto).
+{
+#if TARGET_IPHONE_SIMULATOR
+    return 1;
+#elif DEBUG
+    int                 junk;
+    int                 mib[4];
+    struct kinfo_proc   info;
+    size_t              size;
+    
+    // Initialize the flags so that, if sysctl fails for some bizarre
+    // reason, we get a predictable result.
+    
+    info.kp_proc.p_flag = 0;
+    
+    // Initialize mib, which tells sysctl the info we want, in this case
+    // we're looking for information about a specific process ID.
+    
+    mib[0] = CTL_KERN;
+    mib[1] = KERN_PROC;
+    mib[2] = KERN_PROC_PID;
+    mib[3] = getpid();
+    
+    // Call sysctl.
+    
+    size = sizeof(info);
+    junk = sysctl(mib, sizeof(mib) / sizeof(*mib), &info, &size, NULL, 0);
+    if(junk != 0){
+        return 0;
+    }
+    // We're being debugged if the P_TRACED flag is set.
+    return ( (info.kp_proc.p_flag & P_TRACED) != 0 );
+#else
+    return 0;
+#endif
+}
+
 NSMutableArray* TiCreateNonRetainingArray() 
 {
 	CFArrayCallBacks callbacks = kCFTypeArrayCallBacks;
@@ -45,19 +94,27 @@ void TiLogMessage(NSString* str, ...) {
         TiDebuggerLogMessage(OUT, message);
     }
     else {
-        const char* s = [message UTF8String];
-        if (s[0]=='[')
-        {
-            fprintf(stderr,"%s\n", s);
-            fflush(stderr);
+        
+        if (ApplicationBeingDebugged()) {
+            const char* s = [message UTF8String];
+            if (s[0]=='[')
+            {
+                fprintf(stderr,"%s\n", s);
+                fflush(stderr);
+            }
+            else
+            {
+                fprintf(stderr,"[DEBUG] %s\n", s);
+                fflush(stderr);
+            }
         }
-        else
-        {
-            fprintf(stderr,"[DEBUG] %s\n", s);
-            fflush(stderr);
+        else{
+#pragma push
+#undef NSLog
+            NSLog(@"%@",message);
+#pragma pop
         }
     }
-
     [message release];
 }
 
@@ -101,17 +158,36 @@ NSString* const kTiUnitDipAlternate = @"dp";
 NSString* const kTiUnitSystem = @"system";
 NSString* const kTiUnitPercent = @"%";
 
+NSString* const kTiExceptionSubreason = @"TiExceptionSubreason";
+NSString* const kTiExceptionLocation = @"TiExceptionLocation";
 
 
 
 BOOL TiExceptionIsSafeOnMainThread = NO;
 
-void TiExceptionThrowWithNameAndReason(NSString * exceptionName, NSString * message)
+void TiExceptionThrowWithNameAndReason(NSString *exceptionName, NSString *reason, NSString *subreason, NSString *location)
 {
-	NSLog(@"[ERROR] %@",message);
 	if (TiExceptionIsSafeOnMainThread || ![NSThread isMainThread]) {
-		@throw [NSException exceptionWithName:exceptionName reason:message userInfo:nil];
+		NSDictionary *details = [NSDictionary dictionaryWithObjectsAndKeys:subreason, kTiExceptionSubreason, location, kTiExceptionLocation, nil];
+		@throw [NSException exceptionWithName:exceptionName reason:reason userInfo:details];
+	} else {
+		NSString * message = [NSString stringWithFormat:@"%@. %@ %@",reason,(subreason!=nil?subreason:@""),(location!=nil?location:@"")];
+		NSLog(@"[ERROR] %@", message);
 	}
+}
+
+NSString *JavascriptNameForClass(Class c)
+{
+	if([c isSubclassOfClass:[NSString class]]) return @"String";
+	else if([c isSubclassOfClass:[NSNumber class]]) return @"Number";
+	else if([c isSubclassOfClass:[NSArray class]]) return @"Array";
+	else if([c isSubclassOfClass:[NSDictionary class]]) return @"Object";
+	else if([c isSubclassOfClass:[KrollCallback class]]) return @"Function";
+	else if([c isSubclassOfClass:[KrollWrapper class]]) return @"Function";
+	else if ([c conformsToProtocol:@protocol(JavascriptClass)]) {
+		return [(id<JavascriptClass>)c javascriptClassName];
+	}
+	return NSStringFromClass(c);
 }
 
 void TiThreadReleaseOnMainThread(id releasedObject,BOOL waitForFinish)

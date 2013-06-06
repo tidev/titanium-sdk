@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -14,6 +14,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.AsyncResult;
 import org.appcelerator.kroll.common.Log;
@@ -31,6 +32,8 @@ import android.app.Activity;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Pair;
+
+import org.json.JSONObject;
 
 /**
  * This is the parent class of all proxies. A proxy is a dynamic object that can be created or 
@@ -79,6 +82,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 	protected Handler runtimeHandler = null;
 
 	private KrollDict langConversionTable = null;
+	private boolean bubbleParent = true;
 
 	public static final String PROXY_ID_PREFIX = "proxy$";
 
@@ -306,7 +310,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 	 * @param newLookupId the new lookup identifier
 	 * @return a pair containing the name of the target property which was updated and the new value set on it.
 	 */
-	private Pair<String, String> updateLocaleProperty(String localeProperty, String newLookupId)
+	public Pair<String, String> updateLocaleProperty(String localeProperty, String newLookupId)
 	{
 		if (langConversionTable == null) {
 			return null;
@@ -337,7 +341,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 	 * @param propertyName name of the property to check (ex: titleid)
 	 * @return true if this property is a locale property
 	 */
-	private boolean isLocaleProperty(String propertyName)
+	public boolean isLocaleProperty(String propertyName)
 	{
 		return propertyName.endsWith("id");
 	}
@@ -376,6 +380,9 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 			return;
 		}
 
+		if (dict.containsKey(TiC.PROPERTY_BUBBLE_PARENT)) {
+			bubbleParent = TiConvert.toBoolean(dict, TiC.PROPERTY_BUBBLE_PARENT, true);
+		}
 		properties.putAll(dict);
 		handleDefaultValues();
 		handleLocaleProperties();
@@ -450,6 +457,10 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 	@Kroll.method
 	public void extend(KrollDict options)
 	{
+		if (options == null || options.isEmpty()) {
+			return;
+		}
+		
 		ArrayList<KrollPropertyChange> propertyChanges = new ArrayList<KrollPropertyChange>();
 		for (String name : options.keySet()) {
 			Object oldValue = properties.get(name);
@@ -570,17 +581,77 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 			message.sendToTarget();
 		}
 	}
-
+	
+	public class KrollPropertyChangeSet extends KrollPropertyChange {
+		public int entryCount;
+		public String[] keys;
+		public Object[] oldValues;
+		public Object[] newValues;
+		
+		public KrollPropertyChangeSet(int capacity) {
+			super(null,null,null);
+			entryCount = 0;
+			keys = new String[capacity];
+			oldValues = new Object[capacity];
+			newValues = new Object[capacity];
+		}
+		
+		public void addChange(String key, Object oldValue, Object newValue){
+			keys[entryCount] = key;
+			oldValues[entryCount] = oldValue;
+			newValues[entryCount] = newValue;
+			entryCount ++;
+		}
+		
+		public void fireEvent(KrollProxy proxy, KrollProxyListener listener) {
+			if (listener == null) {
+				return;
+			}
+			for (int i = 0; i < entryCount; i++) {
+				listener.propertyChanged(keys[i], oldValues[i], newValues[i], proxy);
+			}
+		}
+	}
+	
 	@Kroll.method
 	public void applyProperties(Object arg)
 	{
-		if (arg instanceof HashMap) {
-			HashMap props = (HashMap) arg;
-			for (Object name : props.keySet()) {
-				setPropertyAndFire(TiConvert.toString(name), props.get(name));
-			}
-		} else {
+		if (!(arg instanceof HashMap)) {
 			Log.w(TAG, "Cannot apply properties: invalid type for properties", Log.DEBUG_MODE);
+			return;
+		}
+		HashMap props = (HashMap) arg;
+		if (modelListener == null) {
+			for (Object name : props.keySet()) {
+				setProperty(TiConvert.toString(name), props.get(name));
+			}
+			return;
+		}
+		if (TiApplication.isUIThread()) {
+			for (Object key : props.keySet()) {
+				String name = TiConvert.toString(key);
+				Object value = props.get(key);
+				Object current = getProperty(name);
+				setProperty(name, value);
+				if (shouldFireChange(current, value)) {
+					modelListener.propertyChanged(name, current, value, this);
+				}
+			}
+			return;		
+		}
+		
+		KrollPropertyChangeSet changes = new KrollPropertyChangeSet(props.size());
+		for (Object key : props.keySet()) {
+			String name = TiConvert.toString(key);
+			Object value = props.get(key);
+			Object current = getProperty(name);
+			setProperty(name, value);
+			if (shouldFireChange(current, value)) {
+				changes.addChange(name, current, value);
+			}
+		}
+		if (changes.entryCount > 0) {
+			getMainHandler().obtainMessage(MSG_MODEL_PROPERTY_CHANGE, changes).sendToTarget();
 		}
 	}
 
@@ -603,6 +674,18 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 		getKrollObject().setProperty(name, value);
 	}
 
+	@Kroll.getProperty @Kroll.method
+	public boolean getBubbleParent()
+	{
+		return bubbleParent;
+	}
+
+	@Kroll.setProperty @Kroll.method
+	public void setBubbleParent(Object value)
+	{
+		bubbleParent = TiConvert.toBoolean(value);
+	}
+
 	/**
 	 * Fires an event asynchronously via KrollRuntime thread, which can be intercepted on JS side.
 	 * @param event the event to be fired.
@@ -616,7 +699,26 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 		message.getData().putString(PROPERTY_NAME, event);
 		message.sendToTarget();
 
-		return hasListeners(event);
+		return hierarchyHasListener(event);
+	}
+
+	/**
+	 * Send an event to the view who is next to receive the event.
+	 *
+	 * @param eventName event to send to the next view
+	 * @param data the data to include in the event
+	 * @return true if the event was handled
+	 */
+	@Kroll.method(name = "_fireEventToParent")
+	public boolean fireEventToParent(String eventName, Object data)
+	{
+		if (bubbleParent) {
+			KrollProxy parentProxy = getParentForBubbling();
+			if (parentProxy != null) {
+				return parentProxy.fireEvent(eventName, data);
+			}
+		}
+		return false;
 	}
 
 	/**
@@ -642,24 +744,95 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public boolean doFireEvent(String event, Object data)
 	{
-		if (data == null) {
-			data = new KrollDict();
-		}
+		boolean bubbles = false;
+		boolean reportSuccess = false;
+		int code = 0;
+		KrollObject source = null;
+		String message = null;
 
-		if (data instanceof HashMap) {
+		KrollDict krollData = null;
+
+		/* TODO: Is eventListeners still used? */
+		if (!eventListeners.isEmpty()) {
 			HashMap<String, Object> dict = (HashMap) data;
-
-			Object source = dict.get(TiC.EVENT_PROPERTY_SOURCE);
-			if (source == null) {
+			if (dict == null) {
+				dict = new KrollDict();
 				dict.put(TiC.EVENT_PROPERTY_SOURCE, this);
 			}
+			else if (dict instanceof HashMap)
+			{
+				Object sourceProxy = dict.get(TiC.EVENT_PROPERTY_SOURCE);
+				if (sourceProxy == null) {
+					dict.put(TiC.EVENT_PROPERTY_SOURCE, this);
+				}
+			}
+			onEventFired(event, dict);
 		}
 
-		if (!eventListeners.isEmpty()) {
-			onEventFired(event, data);
+		if (data != null) {
+			if (data instanceof KrollDict) {
+				krollData = (KrollDict) data;
+			} else if (data instanceof HashMap) {
+				try {
+					krollData = new KrollDict((HashMap)data);
+				} catch(Exception e) {
+				}
+			} else if (data instanceof JSONObject) {
+				try {
+					krollData = new KrollDict((JSONObject)data);
+				} catch(Exception e) {
+				}
+			}
 		}
-
-		return getKrollObject().fireEvent(event, data);
+		
+		if (krollData != null) {
+			Object hashValue = krollData.get(TiC.PROPERTY_BUBBLES);
+			if (hashValue != null) {
+				bubbles = TiConvert.toBoolean(hashValue);
+				krollData.remove(TiC.PROPERTY_BUBBLES);
+			}
+			hashValue = krollData.get(TiC.PROPERTY_SUCCESS);
+			if (hashValue instanceof Boolean) {
+				boolean successValue = ((Boolean)hashValue).booleanValue();
+				hashValue = krollData.get(TiC.PROPERTY_CODE);
+				if (hashValue instanceof Integer) {
+					int codeValue = ((Integer)hashValue).intValue();
+					if (successValue == (codeValue == 0)) {
+						reportSuccess = true;
+						code = codeValue;
+						krollData.remove(TiC.PROPERTY_SUCCESS);
+						krollData.remove(TiC.PROPERTY_CODE);
+					} else {
+						Log.w(TAG, "DEPRECATION WARNING: Events with 'code' and 'success' should have success be true if and only if code is nonzero. For java modules, consider the putCodeAndMessage() method to do this for you. The capability to use other types will be removed in a future version.", Log.DEBUG_MODE);					
+					}
+				} else if ( successValue ) {
+					Log.w(TAG, "DEPRECATION WARNING: Events with 'success' of true should have an integer 'code' property that is 0. For java modules, consider the putCodeAndMessage() method to do this for you. The capability to use other types will be removed in a future version.", Log.DEBUG_MODE);					
+				} else {
+					Log.w(TAG, "DEPRECATION WARNING: Events with 'success' of false should have an integer 'code' property that is nonzero. For java modules, consider the putCodeAndMessage() method to do this for you. The capability to use other types will be removed in a future version.", Log.DEBUG_MODE);					
+				}
+			} else if (hashValue != null) {
+				Log.w(TAG, "DEPRECATION WARNING: The 'success' event property is reserved to be a boolean. For java modules, consider the putCodeAndMessage() method to do this for you. The capability to use other types will be removed in a future version.", Log.DEBUG_MODE);
+			}
+			hashValue = krollData.get(TiC.EVENT_PROPERTY_ERROR);
+			if (hashValue instanceof String) {
+				message = (String) hashValue;
+				krollData.remove(TiC.EVENT_PROPERTY_ERROR);
+			} else if (hashValue != null) {
+				Log.w(TAG, "DEPRECATION WARNING: The 'error' event property is reserved to be a string. For java modules, consider the putCodeAndMessage() method to do this for you. The capability to use other types will be removed in a future version.", Log.DEBUG_MODE);
+			}
+			hashValue = krollData.get(TiC.EVENT_PROPERTY_SOURCE);
+			if (hashValue instanceof KrollProxy) {
+				if (hashValue != this) {
+					source = ((KrollProxy)hashValue).getKrollObject();
+				}
+				krollData.remove(TiC.EVENT_PROPERTY_SOURCE);
+			}
+			if (krollData.size() == 0){
+				krollData = null;
+			}
+		}
+		
+		return getKrollObject().fireEvent(source, event, krollData, bubbles, reportSuccess, code, message);
 	}
 
 	public void firePropertyChanged(String name, Object oldValue, Object newValue)
@@ -690,6 +863,25 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 	public boolean hasListeners(String event)
 	{
 		return getKrollObject().hasListeners(event);
+	}
+
+	/**
+	 * Returns true if any view in the hierarchy has the event listener.
+	 */
+	public boolean hierarchyHasListener(String event)
+	{
+		boolean hasListener = hasListeners(event);
+
+		// Checks whether the parent has the listener or not
+		if (!hasListener) {
+			KrollProxy parentProxy = getParentForBubbling();
+			if (parentProxy != null) {
+				boolean parentHasListener = parentProxy.hierarchyHasListener(event);
+				hasListener = hasListener || parentHasListener;
+			}
+		}
+
+		return hasListener;
 	}
 
 	public boolean shouldFireChange(Object oldValue, Object newValue)
@@ -727,7 +919,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 
 		if (isLocaleProperty(name)) {
 			Log.i(TAG, "Updating locale: " + name, Log.DEBUG_MODE);
-			Pair<String, String> update = updateLocaleProperty(name, value.toString());
+			Pair<String, String> update = updateLocaleProperty(name, TiConvert.toString(value));
 			if (update != null) {
 				propertyName = update.first;
 				newValue = update.second;
@@ -736,9 +928,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 
 		Object oldValue = properties.get(propertyName);
 		properties.put(propertyName, newValue);
-		if (shouldFireChange(oldValue, newValue)) {
-			firePropertyChanged(propertyName, oldValue, newValue);
-		}
+		firePropertyChanged(propertyName, oldValue, newValue);
 	}
 
 	public void onPropertiesChanged(Object[][] changes)
@@ -781,6 +971,18 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 			return ((TiBaseActivity) activity).getActivityProxy();
 		}
 
+		return null;
+	}
+
+	/**
+	 * Returns proxy that should receive the event next in a case of bubbling. Return null if the class does not
+	 * bubble or there is no parent. Optionally return null if the "bubbleParent" property is false -- i.e.,
+	 * bubbleParent must be checked as well.
+	 *
+	 * @return proxy which is next to receive events
+	 */
+	public KrollProxy getParentForBubbling()
+	{
 		return null;
 	}
 
@@ -950,7 +1152,9 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 				eventListeners.put(eventName, listeners);
 			}
 
-			Log.d(TAG, "Added for eventName '" + eventName + "' with id " + listenerId, Log.DEBUG_MODE);
+			if (Log.isDebugModeEnabled()) {
+				Log.d(TAG, "Added for eventName '" + eventName + "' with id " + listenerId, Log.DEBUG_MODE);
+			}
 			listenerId = listenerIdGenerator.incrementAndGet();
 			listeners.put(listenerId, callback);
 		}
@@ -1014,9 +1218,8 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 	protected KrollDict createErrorResponse(int code, String message)
 	{
 		KrollDict error = new KrollDict();
-		error.put(TiC.ERROR_PROPERTY_CODE, code);
+		error.putCodeAndMessage(code, message);
 		error.put(TiC.ERROR_PROPERTY_MESSAGE, message);
-
 		return error;
 	}
 
@@ -1038,39 +1241,5 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 		return new TiContext(getActivity(), proxyId);
 	}
 
-	// TODO RM_TICONTEXT
-	@Deprecated
-	public Object sendBlockingUiMessage(int what, Object asyncArg)
-	{
-		return sendBlockingUiMessage(getMainHandler().obtainMessage(what), new AsyncResult(asyncArg));
-	}
-
-	// TODO RM_TICONTEXT
-	@Deprecated
-	public Object sendBlockingUiMessage(int what, int arg1)
-	{
-		return sendBlockingUiMessage(getMainHandler().obtainMessage(what, arg1), new AsyncResult());
-	}
-
-	// TODO RM_TICONTEXT
-	@Deprecated
-	public Object sendBlockingUiMessage(int what, Object asyncArg, int arg1, int arg2)
-	{
-		return sendBlockingUiMessage(getMainHandler().obtainMessage(what, arg1, arg2), new AsyncResult(asyncArg));
-	}
-
-	// TODO RM_TICONTEXT
-	@Deprecated
-	public Object sendBlockingUiMessage(Message message, AsyncResult asyncResult)
-	{
-		// If current thread is the UI thread, dispatch message directly.
-		if (TiApplication.isUIThread()) {
-			handleMessage(message);
-
-			return asyncResult.getResultUnsafe();
-		}
-
-		return TiMessenger.sendBlockingMainMessage(message, asyncResult.getArg());
-	}
 }
 

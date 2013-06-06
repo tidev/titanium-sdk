@@ -212,8 +212,6 @@ methods:
     since: 2.1.2
     platforms: [android, iphone, ipad]
     summary: Checks if the user is authenticated with 3-Legged OAuth.
-    deprecated:
-        since: "2.1.2"
     description: |
         True is returned after successfully calling <Titanium.Cloud.Users.secureCreate> or
         <Titanium.Cloud.Users.secureLogin>, and false after successfully calling
@@ -235,12 +233,13 @@ examples:
             }, function (e) {
                 if (e.success) {
                     var user = e.users[0];
-                    alert('Success:\\n' +
-                        'id: ' + user.id + '\\n' +
-                        'first name: ' + user.first_name + '\\n' +
+                    alert('Success:\n' +
+                        'id: ' + user.id + '\n' +
+                        'sessionId: ' + Cloud.sessionId + '\n' +
+                        'first name: ' + user.first_name + '\n' +
                         'last name: ' + user.last_name);
                 } else {
-                    alert('Error:\\n' +
+                    alert('Error:\n' +
                         ((e.error && e.message) || JSON.stringify(e)));
                 }
             });
@@ -255,12 +254,13 @@ examples:
             }, function (e) {
                 if (e.success) {
                     var user = e.users[0];
-                    alert('Success:\\n' +
-                        'id: ' + user.id + '\\n' +
-                        'first name: ' + user.first_name + '\\n' +
+                    alert('Success:\n' +
+                        'id: ' + user.id + '\n' +
+                        'sessionId: ' + Cloud.sessionId + '\n' +
+                        'first name: ' + user.first_name + '\n' +
                         'last name: ' + user.last_name);
                 } else {
-                    alert('Error:\\n' +
+                    alert('Error:\n' +
                         ((e.error && e.message) || JSON.stringify(e)));
                 }
             });
@@ -274,12 +274,12 @@ examples:
             }, function (e) {
                 if (e.success) {
                     var user = e.users[0];
-                    alert('Success:\\n' +
-                        'id: ' + user.id + '\\n' +
-                        'first name: ' + user.first_name + '\\n' +
+                    alert('Success:\n' +
+                        'id: ' + user.id + '\n' +
+                        'first name: ' + user.first_name + '\n' +
                         'last name: ' + user.last_name);
                 } else {
-                    alert('Error:\\n' +
+                    alert('Error:\n' +
                         ((e.error && e.message) || JSON.stringify(e)));
                 }
             });
@@ -291,12 +291,12 @@ examples:
             Cloud.Users.showMe(function (e) {
                 if (e.success) {
                     var user = e.users[0];
-                    alert('Success:\\n' +
-                        'id: ' + user.id + '\\n' +
-                        'first name: ' + user.first_name + '\\n' +
+                    alert('Success:\n' +
+                        'id: ' + user.id + '\n' +
+                        'first name: ' + user.first_name + '\n' +
                         'last name: ' + user.last_name);
                 } else {
-                    alert('Error:\\n' +
+                    alert('Error:\n' +
                         ((e.error && e.message) || JSON.stringify(e)));
                 }
             });
@@ -309,16 +309,16 @@ examples:
                 q: 'test'
             }, function (e) {
                 if (e.success) {
-                    alert('Success:\\n' +
+                    alert('Success:\n' +
                         'Count: ' + e.users.length);
                     for (var i = 0; i < e.users.length; i++) {
                         var user = e.users[i];
-                        alert('id: ' + user.id + '\\n' +
-                            'first name: ' + user.first_name + '\\n' +
+                        alert('id: ' + user.id + '\n' +
+                            'first name: ' + user.first_name + '\n' +
                             'last name: ' + user.last_name);
                      }
                 } else {
-                    alert('Error:\\n' +
+                    alert('Error:\n' +
                         ((e.error && e.message) || JSON.stringify(e)));
                 }
             });
@@ -337,16 +337,16 @@ examples:
                 }
             }, function (e) {
                 if (e.success) {
-                    alert('Success:\\n' +
+                    alert('Success:\n' +
                         'Count: ' + e.users.length);
                     for (var i = 0; i < e.users.length; i++) {
                         var user = e.users[i];
-                        alert('id: ' + user.id + '\\n' +
-                            'first name: ' + user.first_name + '\\n' +
+                        alert('id: ' + user.id + '\n' +
+                            'first name: ' + user.first_name + '\n' +
                             'last name: ' + user.last_name);
                      }
                 } else {
-                    alert('Error:\\n' +
+                    alert('Error:\n' +
                         ((e.error && e.message) || JSON.stringify(e)));
                 }
             });
@@ -366,12 +366,12 @@ examples:
             }, function (e) {
                 if (e.success) {
                     var user = e.users[0];
-                    alert('Success:\\n' +
-                        'id: ' + user.id + '\\n' +
-                        'first name: ' + user.first_name + '\\n' +
+                    alert('Success:\n' +
+                        'id: ' + user.id + '\n' +
+                        'first name: ' + user.first_name + '\n' +
                         'last name: ' + user.last_name);
                 } else {
-                    alert('Error:\\n' +
+                    alert('Error:\n' +
                         ((e.error && e.message) || JSON.stringify(e)));
                 }
             });
@@ -384,7 +384,7 @@ examples:
                 if (e.success) {
                     alert('Success: Logged out');
                 } else {
-                    alert('Error:\\n' +
+                    alert('Error:\n' +
                         ((e.error && e.message) || JSON.stringify(e)));
                 }
             });
@@ -397,7 +397,7 @@ examples:
                 if (e.success) {
                     alert('Success: Removed');
                 } else {
-                    alert('Error:\\n' +
+                    alert('Error:\n' +
                         ((e.error && e.message) || JSON.stringify(e)));
                 }
             });
@@ -412,7 +412,7 @@ examples:
                 if (e.success) {
                     alert('Success: Reset Request Sent');
                 } else {
-                    alert('Error:\\n' +
+                    alert('Error:\n' +
                         ((e.error && e.message) || JSON.stringify(e)));
                 }
             });
@@ -425,11 +425,11 @@ examples:
                 title: 'Sign Up Here'
             }, function (e) {
                 if (e.success) {
-                    alert('Success:\\n' +
-                        'accessToken: ' + e.accessToken + '\\n' +
-                        'expiresIn: ' + e.expiresIn);
+                    alert('Success:\n' +
+                        'accessToken: ' + Cloud.accessToken + '\n' +
+                        'expiresIn: ' + Cloud.expiresIn);
                 } else {
-                    alert('Error:\\n' +
+                    alert('Error:\n' +
                         ((e.error && e.message) || JSON.stringify(e)));
                 }
             });
@@ -442,11 +442,11 @@ examples:
                 title: 'Log In Here'
             }, function (e) {
                 if (e.success) {
-                    alert('Success:\\n' +
-                        'accessToken: ' + e.accessToken + '\\n' +
-                        'expiresIn: ' + e.expiresIn);
+                    alert('Success:\n' +
+                        'accessToken: ' + Cloud.accessToken + '\n' +
+                        'expiresIn: ' + Cloud.expiresIn);
                 } else {
-                    alert('Error:\\n' +
+                    alert('Error:\n' +
                         ((e.error && e.message) || JSON.stringify(e)));
                 }
             });

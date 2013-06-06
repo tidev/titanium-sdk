@@ -6,7 +6,22 @@ platforms: [android, iphone, ipad]
 properties:
   - name: source
     summary: Source object that fired the event.
+    permission: read-only
     type: Object
   - name: type
     summary: Name of the event fired.
+    permission: read-only
     type: String
+  - name: bubbles
+    summary: True if the event will try to bubble up if possible.
+    permission: read-only
+    type: Boolean
+    platforms: [iphone, ipad, android]
+    since: "3.0.0"
+  - name: cancelBubble
+    summary: Set to true to stop the event from bubbling.
+    default: false
+    type: Boolean
+    platforms: [iphone, ipad, android]
+    since: "3.0.0"
+

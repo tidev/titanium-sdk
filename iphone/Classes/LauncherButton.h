@@ -47,7 +47,6 @@
 
 @property(nonatomic) BOOL dragging;
 @property(nonatomic) BOOL editing;
-
 @end
 
 
