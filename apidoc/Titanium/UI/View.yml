@@ -1230,6 +1230,13 @@ properties:
     type: Boolean
     default: true
     
+  - name: touchPassThrough
+    summary: Determines whether view should be "transparent" to touch events.
+    description: If true, touch events will be passed to the view behind it.
+    type: Boolean
+    default: true
+    platforms: [android, iphone, ipad]
+    
   - name: transform
     summary: Transformation matrix to apply to the view.
     description: Android, Tizen and Mobile Web only support 2DMatrix transforms.
