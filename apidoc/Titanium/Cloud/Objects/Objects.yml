@@ -105,14 +105,14 @@ examples:
             }, function (e) {
                 if (e.success) {
                     var car = e.cars[0];
-                    alert('Success:\\n' +
-                        'id: ' + car.id + '\\n' +
-                        'make: ' + car.make + '\\n' +
-                        'color: ' + car.color + '\\n' +
-                        'year: ' + car.year + '\\n' +
+                    alert('Success:\n' +
+                        'id: ' + car.id + '\n' +
+                        'make: ' + car.make + '\n' +
+                        'color: ' + car.color + '\n' +
+                        'year: ' + car.year + '\n' +
                         'created_at: ' + car.created_at);
                 } else {
-                    alert('Error:\\n' +
+                    alert('Error:\n' +
                         ((e.error && e.message) || JSON.stringify(e)));
                 }
             });
@@ -126,18 +126,18 @@ examples:
                 ids: [ savedCar1.id, savedCar2.id ]
             }, function (e) {
                 if (e.success) {
-                    alert('Success:\\n' +
+                    alert('Success:\n' +
                         'Count: ' + e.cars.length);
                     for (var i = 0; i < e.cars.length; i++) {
                         var car = e.cars[i];
-                        alert('id: ' + cars.id + '\\n' +
-                            'make: ' + car.make + '\\n' +
-                            'color: ' + car.color + '\\n' +
-                            'year: ' + car.year + '\\n' +
+                        alert('id: ' + cars.id + '\n' +
+                            'make: ' + car.make + '\n' +
+                            'color: ' + car.color + '\n' +
+                            'year: ' + car.year + '\n' +
                             'created_at: ' + car.created_at);
                     }
                 } else {
-                    alert('Error:\\n' +
+                    alert('Error:\n' +
                         ((e.error && e.message) || JSON.stringify(e)));
                 }
             });
@@ -156,15 +156,15 @@ examples:
             }, function (e) {
                 if (e.success) {
                     var car = e.cars[0];
-                    alert('Success:\\n' +
-                        'id: ' + car.id + '\\n' +
-                        'make: ' + car.make + '\\n' +
-                        'color: ' + car.color + '\\n' +
-                        'year: ' + car.year + '\\n' +
-                        'mileage: ' + car.mileage + '\\n' +
+                    alert('Success:\n' +
+                        'id: ' + car.id + '\n' +
+                        'make: ' + car.make + '\n' +
+                        'color: ' + car.color + '\n' +
+                        'year: ' + car.year + '\n' +
+                        'mileage: ' + car.mileage + '\n' +
                         'updated_at: ' + car.updated_at);
                 } else {
-                    alert('Error:\\n' +
+                    alert('Error:\n' +
                         ((e.error && e.message) || JSON.stringify(e)));
                 }
             });
@@ -180,7 +180,7 @@ examples:
                 if (e.success) {
                     alert('Success');
                 } else {
-                    alert('Error:\\n' +
+                    alert('Error:\n' +
                         ((e.error && e.message) || JSON.stringify(e)));
                 }
             });
@@ -198,18 +198,18 @@ examples:
                 }
             }, function (e) {
                 if (e.success) {
-                    alert('Success:\\n' +
+                    alert('Success:\n' +
                         'Count: ' + e.cars.length);
                     for (var i = 0; i < e.cars.length; i++) {
                         var car = e.cars[i];
-                        alert('id: ' + cars.id + '\\n' +
-                            'make: ' + car.make + '\\n' +
-                            'color: ' + car.color + '\\n' +
-                            'year: ' + car.year + '\\n' +
+                        alert('id: ' + cars.id + '\n' +
+                            'make: ' + car.make + '\n' +
+                            'color: ' + car.color + '\n' +
+                            'year: ' + car.year + '\n' +
                             'created_at: ' + car.created_at);
                     }
                 } else {
-                    alert('Error:\\n' +
+                    alert('Error:\n' +
                         ((e.error && e.message) || JSON.stringify(e)));
                 }
             });

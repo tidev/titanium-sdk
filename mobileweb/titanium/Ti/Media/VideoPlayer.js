@@ -128,7 +128,7 @@ define(["Ti/_/declare", "Ti/_/dom", "Ti/_/event", "Ti/_/lang", "Ti/Media", "Ti/U
 		_set: function(type, state) {
 			var evt = {};
 			evt[type] = this.constants[type] = state;
-			this.fireEvent(type === "loadState" ? type.toLowerCase() : type, evt);
+			this.fireEvent(type.toLowerCase(), evt);
 		},
 
 		_complete: function(evt) {
@@ -153,7 +153,7 @@ define(["Ti/_/declare", "Ti/_/dom", "Ti/_/event", "Ti/_/lang", "Ti/Media", "Ti/U
 			var d = this._video.duration * 1000,
 				c = this.constants;
 			if (d !== Infinity) {
-				this.duration || this.fireEvent("durationAvailable", {
+				this.duration || this.fireEvent("durationavailable", {
 					duration: d
 				});
 				c.duration = c.playableDuration = c.endPlaybackTime = d;

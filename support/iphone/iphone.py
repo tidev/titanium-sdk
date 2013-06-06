@@ -32,7 +32,7 @@ class IPhone(object):
 			os.makedirs(iphone_dir)
 		
 		version = os.path.basename(os.path.abspath(os.path.join(template_dir,'../')))
-		project = Projector(self.name,version,template_dir,project_dir,self.id)
+		project = Projector(self.name,version,template_dir,project_dir,self.id, None)
 		project.create(template_dir,iphone_dir)	
 		
 		iphone_project_resources = os.path.join(project_dir,'Resources','iphone')

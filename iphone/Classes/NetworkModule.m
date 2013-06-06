@@ -13,6 +13,7 @@
 #import "TiBlob.h"
 #import "TiNetworkSocketProxy.h"
 #import "ASIHTTPRequest.h"
+#import "TiUtils.h"
 
 NSString* const INADDR_ANY_token = @"INADDR_ANY";
 
@@ -137,24 +138,6 @@ NSString* const INADDR_ANY_token = @"INADDR_ANY";
 	id arg = [args objectAtIndex:0];
 	NSString *encodedString = [TiUtils stringValue:arg];
 	return [(NSString *)CFURLCreateStringByReplacingPercentEscapesUsingEncoding(NULL, (CFStringRef)encodedString, CFSTR(""), kCFStringEncodingUTF8) autorelease];
-}
-
--(void)addConnectivityListener:(id)args
-{
-    DEPRECATED_REPLACED(@"Network.addConnectivityListener", @"1.8", @"Ti.Network.addEventListener('change',...)");
-	id arg = [args objectAtIndex:0];
-	ENSURE_TYPE(arg,KrollCallback);
-	NSArray *newargs = [NSArray arrayWithObjects:@"change",arg,nil];
-	[self addEventListener:newargs];
-}
-
--(void)removeConnectivityListener:(id)args
-{
-    DEPRECATED_REPLACED(@"Network.removeConnectivityListener", @"1.8", @"Ti.Network.removeEventListener('change',...)");    
-	id arg = [args objectAtIndex:0];
-	ENSURE_TYPE(arg,KrollCallback);
-	NSArray *newargs = [NSArray arrayWithObjects:@"change",arg,nil];
-	[self removeEventListener:newargs];
 }
 
 // Socket submodule
@@ -316,7 +299,9 @@ MAKE_SYSTEM_PROP(TLS_VERSION_1_2, TLS_VERSION_1_2);
 	id currentNotification = [[TiApp app] remoteNotification];
 	if (currentNotification!=nil && pushNotificationCallback!=nil)
 	{
-		id event = [NSDictionary dictionaryWithObject:currentNotification forKey:@"data"];
+		NSMutableDictionary * event = [TiUtils dictionaryWithCode:0 message:nil];
+		[event setObject:currentNotification forKey:@"data"];
+		[event setObject:NUMBOOL(YES) forKey:@"inBackground"];
 		[self _fireEventToListener:@"remote" withObject:event listener:pushNotificationCallback thisObject:nil];
 	}
 }
@@ -336,10 +321,11 @@ MAKE_SYSTEM_PROP(TLS_VERSION_1_2, TLS_VERSION_1_2);
 	// called by TiApp
 	if (pushNotificationSuccess!=nil)
 	{
-		NSString *token = [[[[deviceToken description] stringByReplacingOccurrencesOfString:@"<"withString:@""] 
+		NSString *token = [[[[deviceToken description] stringByReplacingOccurrencesOfString:@"<"withString:@""]
 							stringByReplacingOccurrencesOfString:@">" withString:@""] 
 						   stringByReplacingOccurrencesOfString: @" " withString: @""];
-		NSDictionary *event = [NSDictionary dictionaryWithObject:token forKey:@"deviceToken"];
+		NSMutableDictionary * event = [TiUtils dictionaryWithCode:0 message:nil];
+		[event setObject:token forKey:@"deviceToken"];
 		[self _fireEventToListener:@"remote" withObject:event listener:pushNotificationSuccess thisObject:nil];
 	}
 }
@@ -349,7 +335,10 @@ MAKE_SYSTEM_PROP(TLS_VERSION_1_2, TLS_VERSION_1_2);
 	// called by TiApp
 	if (pushNotificationCallback!=nil)
 	{
-		id event = [NSDictionary dictionaryWithObject:userInfo forKey:@"data"];
+		NSMutableDictionary * event = [TiUtils dictionaryWithCode:0 message:nil];
+		[event setObject:userInfo forKey:@"data"];
+		BOOL inBackground = (application.applicationState != UIApplicationStateActive);
+		[event setObject:NUMBOOL(inBackground) forKey:@"inBackground"];
 		[self _fireEventToListener:@"remote" withObject:event listener:pushNotificationCallback thisObject:nil];
 	}
 }
@@ -359,7 +348,8 @@ MAKE_SYSTEM_PROP(TLS_VERSION_1_2, TLS_VERSION_1_2);
 	// called by TiApp
 	if (pushNotificationError!=nil)
 	{
-		NSDictionary *event = [NSDictionary dictionaryWithObject:[error description] forKey:@"error"];
+		NSString * message = [TiUtils messageFromError:error];
+		NSMutableDictionary * event = [TiUtils dictionaryWithCode:[error code] message:message];
 		[self _fireEventToListener:@"remote" withObject:event listener:pushNotificationError thisObject:nil];
 	}
 }

@@ -176,12 +176,12 @@ examples:
             }, function (e) {
                 if (e.success) {
                     var event = e.events[0];
-                    alert('Success:\\n' +
-                        'id: ' + event.id + '\\n' +
-                        'name: ' + event.name + '\\n' +
+                    alert('Success:\n' +
+                        'id: ' + event.id + '\n' +
+                        'name: ' + event.name + '\n' +
                         'updated_at: ' + event.updated_at);
                 } else {
-                    alert('Error:\\n' +
+                    alert('Error:\n' +
                         ((e.error && e.message) || JSON.stringify(e)));
                 }
             });
@@ -195,12 +195,12 @@ examples:
             }, function (e) {
                 if (e.success) {
                     var event = e.events[0];
-                    alert('Success:\\n' +
-                        'id: ' + event.id + '\\n' +
-                        'name: ' + event.name + '\\n' +
+                    alert('Success:\n' +
+                        'id: ' + event.id + '\n' +
+                        'name: ' + event.name + '\n' +
                         'updated_at: ' + event.updated_at);
                 } else {
-                    alert('Error:\\n' +
+                    alert('Error:\n' +
                         ((e.error && e.message) || JSON.stringify(e)));
                 }
             });
@@ -213,17 +213,17 @@ examples:
                 event_id: savedEventId
             }, function (e) {
                 if (e.success) {
-                    alert('Success:\\n' +
+                    alert('Success:\n' +
                         'Count: ' + e.event_occurrences.length);
                     for (var i = 0; i < e.event_occurrences.length; i++) {
                         var event = e.event_occurrences[i].event;
-                        alert('id: ' + event.id + '\\n' +
-                              'name: ' + event.name + '\\n' +
-                              'start time: ' + event.start_time + '\\n' +
+                        alert('id: ' + event.id + '\n' +
+                              'name: ' + event.name + '\n' +
+                              'start time: ' + event.start_time + '\n' +
                               'updated_at: ' + place.updated_at);
                     }
                 } else {
-                    alert('Error:\\n' +
+                    alert('Error:\n' +
                         ((e.error && e.message) || JSON.stringify(e)));
                 }
             });
@@ -234,17 +234,17 @@ examples:
 
             Cloud.Events.query(function (e) {
                 if (e.success) {
-                    alert('Success:\\n' +
+                    alert('Success:\n' +
                         'Count: ' + e.events.length);
                     for (var i = 0; i < e.events.length; i++) {
                         var event = e.events[i];
-                        alert('id: ' + event.id + '\\n' +
-                              'name: ' + event.name + '\\n' +
-                              'start time: ' + event.start_time + '\\n' +
+                        alert('id: ' + event.id + '\n' +
+                              'name: ' + event.name + '\n' +
+                              'start time: ' + event.start_time + '\n' +
                               'updated_at: ' + place.updated_at);
                     }
                 } else {
-                    alert('Error:\\n' +
+                    alert('Error:\n' +
                         ((e.error && e.message) || JSON.stringify(e)));
                 }
             });
@@ -255,17 +255,17 @@ examples:
 
             Cloud.Events.queryOccurrences(function (e) {
                 if (e.success) {
-                    alert('Success:\\n' +
+                    alert('Success:\n' +
                         'Count: ' + e.event_occurrences.length);
                     for (var i = 0; i < e.event_occurrences.length; i++) {
                         var event = e.event_occurrences[i].event;
-                        alert('id: ' + event.id + '\\n' +
-                              'name: ' + event.name + '\\n' +
-                              'start time: ' + event.start_time + '\\n' +
+                        alert('id: ' + event.id + '\n' +
+                              'name: ' + event.name + '\n' +
+                              'start time: ' + event.start_time + '\n' +
                               'updated_at: ' + place.updated_at);
                     }
                 } else {
-                    alert('Error:\\n' +
+                    alert('Error:\n' +
                         ((e.error && e.message) || JSON.stringify(e)));
                 }
             });
@@ -279,17 +279,17 @@ examples:
                 start_time: startTime,
             }, function (e) {
                 if (e.success) {
-                    alert('Success:\\n' +
+                    alert('Success:\n' +
                         'Count: ' + e.events.length);
                     for (var i = 0; i < e.events.length; i++) {
                         var event = e.events[i];
-                        alert('id: ' + event.id + '\\n' +
-                              'name: ' + event.name + '\\n' +
-                              'start time: ' + event.start_time + '\\n' +
+                        alert('id: ' + event.id + '\n' +
+                              'name: ' + event.name + '\n' +
+                              'start time: ' + event.start_time + '\n' +
                               'updated_at: ' + place.updated_at);
                     }
                 } else {
-                    alert('Error:\\n' +
+                    alert('Error:\n' +
                         ((e.error && e.message) || JSON.stringify(e)));
                 }
             });
@@ -303,17 +303,17 @@ examples:
                 start_time: startTime
             }, function (e) {
                 if (e.success) {
-                    alert('Success:\\n' +
+                    alert('Success:\n' +
                         'Count: ' + e.event_occurrences.length);
                     for (var i = 0; i < e.event_occurrences.length; i++) {
                         var event = e.event_occurrences[i].event;
-                        alert('id: ' + event.id + '\\n' +
-                              'name: ' + event.name + '\\n' +
-                              'start time: ' + event.start_time + '\\n' +
+                        alert('id: ' + event.id + '\n' +
+                              'name: ' + event.name + '\n' +
+                              'start time: ' + event.start_time + '\n' +
                               'updated_at: ' + place.updated_at);
                     }
                 } else {
-                    alert('Error:\\n' +
+                    alert('Error:\n' +
                         ((e.error && e.message) || JSON.stringify(e)));
                 }
             });
@@ -327,18 +327,18 @@ examples:
                 longitude: lon
             }, function (e) {
                 if (e.success) {
-                    alert('Success:\\n' +
+                    alert('Success:\n' +
                         'Count: ' + e.events.length);
                     for (var i = 0; i < e.events.length; i++) {
                         var event = e.events[i];
-                        alert('id: ' + event.id + '\\n' +
-                              'name: ' + event.name + '\\n' +
-                              'longitude: ' + event.longitude + '\\n' +
-                              'latitude: ' + event.latitude + '\\n' +
+                        alert('id: ' + event.id + '\n' +
+                              'name: ' + event.name + '\n' +
+                              'longitude: ' + event.longitude + '\n' +
+                              'latitude: ' + event.latitude + '\n' +
                               'updated_at: ' + event.updated_at);
                     }
                 } else {
-                    alert('Error:\\n' +
+                    alert('Error:\n' +
                         ((e.error && e.message) || JSON.stringify(e)));
                 }
             });
@@ -357,12 +357,12 @@ examples:
             }, function (e) {
                 if (e.success) {
                     var event = e.events[0];
-                    alert('Success:\\n' +
-                        'id: ' + event.id + '\\n' +
-                        'name: ' + event.name + '\\n' +
+                    alert('Success:\n' +
+                        'id: ' + event.id + '\n' +
+                        'name: ' + event.name + '\n' +
                         'updated_at: ' + event.updated_at);
                 } else {
-                    alert('Error:\\n' +
+                    alert('Error:\n' +
                         ((e.error && e.message) || JSON.stringify(e)));
                 }
             });
@@ -377,7 +377,7 @@ examples:
                 if (e.success) {
                     alert('Removed');
                 } else {
-                    alert('Error:\\n' +
+                    alert('Error:\n' +
                         ((e.error && e.message) || JSON.stringify(e)));
                 }
             });

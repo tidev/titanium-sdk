@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -164,6 +164,16 @@ MAKE_SYSTEM_PROP(AUTOLINK_EMAIL_ADDRESSES,UIDataDetectorTypeLink);
 MAKE_SYSTEM_PROP(AUTOLINK_MAP_ADDRESSES,UIDataDetectorTypeAddress);
 MAKE_SYSTEM_PROP(AUTOLINK_CALENDAR,UIDataDetectorTypeCalendarEvent);
 
+MAKE_SYSTEM_PROP(LIST_ITEM_TEMPLATE_DEFAULT,UITableViewCellStyleDefault);
+MAKE_SYSTEM_PROP(LIST_ITEM_TEMPLATE_SETTINGS,UITableViewCellStyleValue1);
+MAKE_SYSTEM_PROP(LIST_ITEM_TEMPLATE_CONTACTS,UITableViewCellStyleValue2);
+MAKE_SYSTEM_PROP(LIST_ITEM_TEMPLATE_SUBTITLE,UITableViewCellStyleSubtitle);
+
+MAKE_SYSTEM_PROP(LIST_ACCESSORY_TYPE_NONE,UITableViewCellAccessoryNone);
+MAKE_SYSTEM_PROP(LIST_ACCESSORY_TYPE_CHECKMARK,UITableViewCellAccessoryCheckmark);
+MAKE_SYSTEM_PROP(LIST_ACCESSORY_TYPE_DETAIL,UITableViewCellAccessoryDetailDisclosureButton);
+MAKE_SYSTEM_PROP(LIST_ACCESSORY_TYPE_DISCLOSURE,UITableViewCellAccessoryDisclosureIndicator);
+
 MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(BLEND_MODE_NORMAL,kCGBlendModeNormal, @"UI.BLEND_MODE_NORMAL", @"1.8.0", @"Ti.UI.iOS.BLEND_MODE_NORMAL");
 MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(BLEND_MODE_MULTIPLY,kCGBlendModeMultiply, @"UI.BLEND_MODE_MULTIPLY", @"1.8.0", @"Ti.UI.iOS.BLEND_MODE_MULTIPLY");
 MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(BLEND_MODE_SCREEN,kCGBlendModeScreen, @"UI.BLEND_MODE_SCREEN", @"1.8.0", @"Ti.UI.iOS.BLEND_MODE_SCREEN");
@@ -279,8 +289,10 @@ MAKE_SYSTEM_PROP(FACE_DOWN,UIDeviceOrientationFaceDown);
 	return NUMBOOL([UIApplication sharedApplication].statusBarOrientation==UIInterfaceOrientationPortrait);
 }
 
+//Deprecated since 1.7.2
 -(NSNumber*)orientation
 {
+    DebugLog(@"Ti.UI.orientation is deprecated since 1.7.2 .");
 	return NUMINT([UIApplication sharedApplication].statusBarOrientation);
 }
 

@@ -19,28 +19,28 @@
 
 NSString * const ASStatusChangedNotification = @"ASStatusChangedNotification";
 
-NSString * const AS_NO_ERROR_STRING = @"No error.";
-NSString * const AS_FILE_STREAM_GET_PROPERTY_FAILED_STRING = @"File stream get property failed.";
-NSString * const AS_FILE_STREAM_SEEK_FAILED_STRING = @"File stream seek failed.";
-NSString * const AS_FILE_STREAM_PARSE_BYTES_FAILED_STRING = @"Parse bytes failed.";
-NSString * const AS_FILE_STREAM_OPEN_FAILED_STRING = @"Open audio file stream failed.";
-NSString * const AS_FILE_STREAM_CLOSE_FAILED_STRING = @"Close audio file stream failed.";
-NSString * const AS_AUDIO_QUEUE_CREATION_FAILED_STRING = @"Audio queue creation failed.";
-NSString * const AS_AUDIO_QUEUE_BUFFER_ALLOCATION_FAILED_STRING = @"Audio buffer allocation failed.";
-NSString * const AS_AUDIO_QUEUE_ENQUEUE_FAILED_STRING = @"Queueing of audio buffer failed.";
-NSString * const AS_AUDIO_QUEUE_ADD_LISTENER_FAILED_STRING = @"Audio queue add listener failed.";
-NSString * const AS_AUDIO_QUEUE_REMOVE_LISTENER_FAILED_STRING = @"Audio queue remove listener failed.";
-NSString * const AS_AUDIO_QUEUE_START_FAILED_STRING = @"Audio queue start failed.";
-NSString * const AS_AUDIO_QUEUE_BUFFER_MISMATCH_STRING = @"Audio queue buffers don't match.";
-NSString * const AS_AUDIO_QUEUE_DISPOSE_FAILED_STRING = @"Audio queue dispose failed.";
-NSString * const AS_AUDIO_QUEUE_PAUSE_FAILED_STRING = @"Audio queue pause failed.";
-NSString * const AS_AUDIO_QUEUE_STOP_FAILED_STRING = @"Audio queue stop failed.";
-NSString * const AS_AUDIO_DATA_NOT_FOUND_STRING = @"No audio data found.";
-NSString * const AS_AUDIO_QUEUE_FLUSH_FAILED_STRING = @"Audio queue flush failed.";
-NSString * const AS_GET_AUDIO_TIME_FAILED_STRING = @"Audio queue get current time failed.";
-NSString * const AS_AUDIO_STREAMER_FAILED_STRING = @"Audio playback failed";
-NSString * const AS_NETWORK_CONNECTION_FAILED_STRING = @"Network connection failed";
-NSString * const AS_AUDIO_BUFFER_TOO_SMALL_STRING = @"Audio packets are larger than kAQBufSize.";
+static NSString * const AS_NO_ERROR_STRING = @"No error.";
+static NSString * const AS_FILE_STREAM_GET_PROPERTY_FAILED_STRING = @"File stream get property failed.";
+static NSString * const AS_FILE_STREAM_SEEK_FAILED_STRING = @"File stream seek failed.";
+static NSString * const AS_FILE_STREAM_PARSE_BYTES_FAILED_STRING = @"Parse bytes failed.";
+static NSString * const AS_FILE_STREAM_OPEN_FAILED_STRING = @"Open audio file stream failed.";
+static NSString * const AS_FILE_STREAM_CLOSE_FAILED_STRING = @"Close audio file stream failed.";
+static NSString * const AS_AUDIO_QUEUE_CREATION_FAILED_STRING = @"Audio queue creation failed.";
+static NSString * const AS_AUDIO_QUEUE_BUFFER_ALLOCATION_FAILED_STRING = @"Audio buffer allocation failed.";
+static NSString * const AS_AUDIO_QUEUE_ENQUEUE_FAILED_STRING = @"Queueing of audio buffer failed.";
+static NSString * const AS_AUDIO_QUEUE_ADD_LISTENER_FAILED_STRING = @"Audio queue add listener failed.";
+static NSString * const AS_AUDIO_QUEUE_REMOVE_LISTENER_FAILED_STRING = @"Audio queue remove listener failed.";
+static NSString * const AS_AUDIO_QUEUE_START_FAILED_STRING = @"Audio queue start failed.";
+static NSString * const AS_AUDIO_QUEUE_BUFFER_MISMATCH_STRING = @"Audio queue buffers don't match.";
+static NSString * const AS_AUDIO_QUEUE_DISPOSE_FAILED_STRING = @"Audio queue dispose failed.";
+static NSString * const AS_AUDIO_QUEUE_PAUSE_FAILED_STRING = @"Audio queue pause failed.";
+static NSString * const AS_AUDIO_QUEUE_STOP_FAILED_STRING = @"Audio queue stop failed.";
+static NSString * const AS_AUDIO_DATA_NOT_FOUND_STRING = @"No audio data found.";
+static NSString * const AS_AUDIO_QUEUE_FLUSH_FAILED_STRING = @"Audio queue flush failed.";
+static NSString * const AS_GET_AUDIO_TIME_FAILED_STRING = @"Audio queue get current time failed.";
+static NSString * const AS_AUDIO_STREAMER_FAILED_STRING = @"Audio playback failed";
+static NSString * const AS_NETWORK_CONNECTION_FAILED_STRING = @"Network connection failed";
+static NSString * const AS_AUDIO_BUFFER_TOO_SMALL_STRING = @"Audio packets are larger than kAQBufSize.";
 
 
 @implementation AudioStreamer
@@ -80,7 +80,7 @@ NSString * const AS_AUDIO_BUFFER_TOO_SMALL_STRING = @"Audio packets are larger t
 //
 // returns the string representation of the error code
 //
-+ (NSString *)stringForErrorCode:(TI_AudioStreamerErrorCode)anErrorCode
++ (NSString *)stringForErrorCode:(AudioStreamerErrorCode)anErrorCode
 {
 	switch (anErrorCode)
 	{
@@ -154,14 +154,14 @@ NSString * const AS_AUDIO_BUFFER_TOO_SMALL_STRING = @"Audio packets are larger t
 }
 
 // Properties
-RUN_ON_STREAMER_SET(setErrorCode,TI_AudioStreamerErrorCode)
+RUN_ON_STREAMER_SET(setErrorCode,AudioStreamerErrorCode)
 RUN_ON_STREAMER_SET(setBitRate,UInt32)
 RUN_ON_STREAMER_SET(setBufferSize, NSUInteger)
 RUN_ON_STREAMER_SET(setVolume, double)
 
-RUN_ON_STREAMER_RETURN(errorCode, TI_AudioStreamerErrorCode)
+RUN_ON_STREAMER_RETURN(errorCode, AudioStreamerErrorCode)
 RUN_ON_STREAMER_RETURN(bitRate, UInt32)
-RUN_ON_STREAMER_RETURN(state, TI_AudioStreamerState)
+RUN_ON_STREAMER_RETURN(state, AudioStreamerState)
 RUN_ON_STREAMER_RETURN(progress, double)
 RUN_ON_STREAMER_RETURN(bufferSize, NSUInteger)
 RUN_ON_STREAMER_RETURN(volume, double)

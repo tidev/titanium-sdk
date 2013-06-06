@@ -13,7 +13,25 @@
 #import "TiApp.h"
 #import "TiBase.h"
 
+#pragma Backwards compatibility for pre-iOS 6.0
+
+#if __IPHONE_OS_VERSION_MAX_ALLOWED < __IPHONE_6_0
+//TODO: Should we warn that they need to update to the latest XCode is this is happening?
+#define kABAuthorizationStatusNotDetermined 0
+#define kABAuthorizationStatusRestricted 1
+#define kABAuthorizationStatusDenied 2
+#define kABAuthorizationStatusAuthorized 3
+#endif
+
 @implementation ContactsModule
+
+void CMExternalChangeCallback (ABAddressBookRef notifyAddressBook,CFDictionaryRef info,void *context)
+{
+    DebugLog(@"Got External Change Callback");
+    ContactsModule* theModule = (ContactsModule*) context;
+    theModule->reloadAddressBook = YES;
+    [theModule fireEvent:@"reload" withObject:nil];
+}
 
 // We'll force the address book to only be accessed on the main thread, for consistency.  Otherwise
 // we could run into cross-thread memory issues.
@@ -23,25 +41,46 @@
 		return NULL;
 	}
 	
+    if (reloadAddressBook && (addressBook != NULL) ) {
+        [self releaseAddressBook];
+        addressBook = NULL;
+    }
+    reloadAddressBook = NO;
+    
 	if (addressBook == NULL) {
-		addressBook = ABAddressBookCreate();
+		if (iOS6API) {
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_6_0
+			addressBook = ABAddressBookCreateWithOptions(NULL, NULL);
+#endif
+		} else {
+			addressBook = ABAddressBookCreate();
+		}
+		if (addressBook == NULL) {
+			DebugLog(@"[WARN] Could not create an address book. Make sure you have gotten permission first.");
+		} else {
+			ABAddressBookRegisterExternalChangeCallback(addressBook, CMExternalChangeCallback, self);
+		}
 	}
 	return addressBook;
 }
 
 -(void)releaseAddressBook
 {
-	TiThreadPerformOnMainThread(^{CFRelease(addressBook);}, YES);
+	TiThreadPerformOnMainThread(^{
+        ABAddressBookUnregisterExternalChangeCallback(addressBook, CMExternalChangeCallback, self);
+        CFRelease(addressBook);
+    }, YES);
 }
 
 -(void)startup
 {
 	[super startup];
 	addressBook = NULL;
-    
-    // Force address book creation so that our properties are properly initialized - they aren't
-    // defined until the address book is loaded, for some reason.
-	TiThreadPerformOnMainThread(^{[self addressBook];}, YES);
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_6_0
+    if (ABAddressBookGetAuthorizationStatus != NULL) {
+		iOS6API = YES;
+	}
+#endif
 }
 
 -(void)dealloc
@@ -50,8 +89,9 @@
 	RELEASE_TO_NIL(cancelCallback)
 	RELEASE_TO_NIL(selectedPersonCallback)
 	RELEASE_TO_NIL(selectedPropertyCallback)
-	
-	[self releaseAddressBook];
+	if (addressBook != NULL) {
+		[self releaseAddressBook];
+	}
 	[super dealloc];
 }
 
@@ -73,13 +113,78 @@
 
 #pragma mark Public API
 
+-(void) requestAuthorization:(id)args
+{
+	ENSURE_SINGLE_ARG(args, KrollCallback);
+	KrollCallback * callback = args;
+	NSString * error = nil;
+	int code = 0;
+	bool doPrompt = NO;
+	
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_6_0
+	if(iOS6API){
+		long int permissions = ABAddressBookGetAuthorizationStatus();
+		switch (permissions) {
+			case kABAuthorizationStatusNotDetermined:
+				doPrompt = YES;
+				break;
+			case kABAuthorizationStatusAuthorized:
+				break;
+			case kABAuthorizationStatusDenied:
+				code = kABAuthorizationStatusDenied;
+				error = @"The user has denied access to the address book";
+			case kABAuthorizationStatusRestricted:
+				code = kABAuthorizationStatusRestricted;
+				error = @"The user is unable to allow access to the address book";
+			default:
+				break;
+		}
+	}
+#endif
+	if (!doPrompt) {
+		NSDictionary * propertiesDict = [TiUtils dictionaryWithCode:code message:error];
+		NSArray * invocationArray = [[NSArray alloc] initWithObjects:&propertiesDict count:1];
+
+		[callback call:invocationArray thisObject:self];
+		[invocationArray release];
+		return;
+	}
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_6_0
+	TiThreadPerformOnMainThread(^(){
+		ABAddressBookRef ourAddressBook = [self addressBook];
+		ABAddressBookRequestAccessWithCompletion(ourAddressBook, ^(bool granted, CFErrorRef error) {
+			NSError * errorObj = (NSError *)error;
+			NSDictionary * propertiesDict = [TiUtils dictionaryWithCode:[errorObj code] message:[TiUtils messageFromError:errorObj]];
+			
+			KrollEvent * invocationEvent = [[KrollEvent alloc] initWithCallback:callback eventObject:propertiesDict thisObject:self];
+			[[callback context] enqueue:invocationEvent];
+		});
+	}, NO);
+#endif
+}
+
+
+
+-(NSNumber*) contactsAuthorization
+{
+	long int result = kABAuthorizationStatusAuthorized;
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_6_0
+	if (iOS6API) { //5.1 and before: We always had permission.
+		result = ABAddressBookGetAuthorizationStatus();
+	}
+#endif
+	return [NSNumber numberWithLong:result];
+}
+
 -(void)save:(id)unused
 {
 	ENSURE_UI_THREAD(save, unused)
-	// ABAddressBookHasUnsavedChanges is broken in pre-3.2
-	//if (ABAddressBookHasUnsavedChanges([self addressBook])) {
 	CFErrorRef error;
-	if (!ABAddressBookSave([self addressBook], &error)) {
+	ABAddressBookRef ourAddressBook = [self addressBook];
+	if (ourAddressBook == NULL) {
+		return;
+	}
+	if (!ABAddressBookSave(ourAddressBook, &error)) {
 		CFStringRef errorStr = CFErrorCopyDescription(error);
 		NSString* str = [NSString stringWithString:(NSString*)errorStr];
 		CFRelease(errorStr);
@@ -88,16 +193,16 @@
 				   subreason:nil
 					location:CODELOCATION];
 	}
-	//}
 }
 
 -(void)revert:(id)unused
 {
 	ENSURE_UI_THREAD(revert, unused)
-	// ABAddressBookHasUnsavedChanges is broken in pre-3.2
-	//if (ABAddressBookHasUnsavedChanges([self addressBook])) {
-	ABAddressBookRevert([self addressBook]);
-	//}
+	ABAddressBookRef ourAddressBook = [self addressBook];
+	if (ourAddressBook == NULL) {
+		return;
+	}
+	ABAddressBookRevert(ourAddressBook);
 }
 
 -(void)showContacts:(id)args
@@ -144,8 +249,12 @@
 	__block int idNum = [TiUtils intValue:arg];
 	__block BOOL validId = NO;	
 	dispatch_sync(dispatch_get_main_queue(),^{
+		ABAddressBookRef ourAddressBook = [self addressBook];
+		if (ourAddressBook == NULL) {
+			return;
+		}
 		ABRecordRef record = NULL;
-		record = ABAddressBookGetPersonWithRecordID(addressBook, idNum);
+		record = ABAddressBookGetPersonWithRecordID(ourAddressBook, idNum);
 		if (record != NULL)
 		{
 			validId = YES;
@@ -164,8 +273,12 @@
 	__block int idNum = [TiUtils intValue:arg];
 	__block BOOL validId = NO;	
 	dispatch_sync(dispatch_get_main_queue(),^{
+		ABAddressBookRef ourAddressBook = [self addressBook];
+		if (ourAddressBook == NULL) {
+			return;
+		}
 		ABRecordRef record = NULL;
-		record = ABAddressBookGetGroupWithRecordID(addressBook, idNum);
+		record = ABAddressBookGetGroupWithRecordID(ourAddressBook, idNum);
 		if (record != NULL) 
 		{
 			validId = YES;
@@ -188,8 +301,11 @@
 		TiThreadPerformOnMainThread(^{result = [[self getPeopleWithName:arg] retain];}, YES);
 		return [result autorelease];
 	}
-	
-	CFArrayRef peopleRefs = ABAddressBookCopyPeopleWithName([self addressBook], (CFStringRef)arg);
+	ABAddressBookRef ourAddressBook = [self addressBook];
+	if (ourAddressBook == NULL) {
+		return nil;
+	}
+	CFArrayRef peopleRefs = ABAddressBookCopyPeopleWithName(ourAddressBook, (CFStringRef)arg);
 	if (peopleRefs == NULL) {
 		return nil;
 	}
@@ -213,8 +329,11 @@
 		TiThreadPerformOnMainThread(^{result = [[self getAllPeople:unused] retain];}, YES);
 		return [result autorelease];
 	}
-	
-	CFArrayRef peopleRefs = ABAddressBookCopyArrayOfAllPeople([self addressBook]);
+	ABAddressBookRef ourAddressBook = [self addressBook];
+	if (ourAddressBook == NULL) {
+		return nil;
+	}
+	CFArrayRef peopleRefs = ABAddressBookCopyArrayOfAllPeople(ourAddressBook);
 	if (peopleRefs == NULL) {
 		return nil;
 	}
@@ -238,8 +357,11 @@
 		TiThreadPerformOnMainThread(^{result = [[self getAllGroups:unused] retain];}, YES);
 		return [result autorelease];
 	}
-	
-	CFArrayRef groupRefs = ABAddressBookCopyArrayOfAllGroups([self addressBook]);
+	ABAddressBookRef ourAddressBook = [self addressBook];
+	if (ourAddressBook == NULL) {
+		return nil;
+	}
+	CFArrayRef groupRefs = ABAddressBookCopyArrayOfAllGroups(ourAddressBook);
 	if (groupRefs == NULL) {
 		return nil;
 	}
@@ -265,17 +387,23 @@
 		TiThreadPerformOnMainThread(^{result = [[self createPerson:arg] retain];}, YES);
 		return [result autorelease];
 	}
-	
-	if (ABAddressBookHasUnsavedChanges([self addressBook])) {
+	ABAddressBookRef ourAddressBook = [self addressBook];
+	if (ourAddressBook == NULL) {
+		[self throwException:@"Cannot access address book"
+				   subreason:nil
+					location:CODELOCATION];
+	}
+	if (ABAddressBookHasUnsavedChanges(ourAddressBook)) {
 		[self throwException:@"Cannot create a new entry with unsaved changes"
 				   subreason:nil
 					location:CODELOCATION];
+		return nil;
 	}
 	
 	ABRecordRef record = ABPersonCreate();
 	[(id)record autorelease];
 	CFErrorRef error;
-	if (!ABAddressBookAddRecord([self addressBook], record, &error)) {
+	if (!ABAddressBookAddRecord(ourAddressBook, record, &error)) {
 		CFStringRef errorStr = CFErrorCopyDescription(error);
 		NSString* str = [NSString stringWithString:(NSString*)errorStr];
 		CFRelease(errorStr);
@@ -283,6 +411,7 @@
 		[self throwException:[NSString stringWithFormat:@"Failed to add person: %@",str]
 				   subreason:nil
 					location:CODELOCATION];
+		return nil;
 	}
 	[self save:nil];
 	
@@ -317,7 +446,13 @@
 		return [result autorelease];
 	}
 	
-	if (ABAddressBookHasUnsavedChanges([self addressBook])) {
+	ABAddressBookRef ourAddressBook = [self addressBook];
+	if (ourAddressBook == NULL) {
+		[self throwException:@"Cannot access address book"
+				   subreason:nil
+					location:CODELOCATION];
+	}
+	if (ABAddressBookHasUnsavedChanges(ourAddressBook)) {
 		[self throwException:@"Cannot create a new entry with unsaved changes"
 				   subreason:nil
 					location:CODELOCATION];
@@ -326,7 +461,7 @@
 	ABRecordRef record = ABGroupCreate();
 	[(id)record autorelease];
 	CFErrorRef error;
-	if (!ABAddressBookAddRecord([self addressBook], record, &error)) {
+	if (!ABAddressBookAddRecord(ourAddressBook, record, &error)) {
 		CFStringRef errorStr = CFErrorCopyDescription(error);
 		NSString* str = [NSString stringWithString:(NSString*)errorStr];
 		CFRelease(errorStr);
@@ -353,7 +488,7 @@
 -(void)removeGroup:(id)arg
 {
 	ENSURE_SINGLE_ARG(arg,TiContactsGroup)
-	ENSURE_UI_THREAD(removePerson,arg)
+	ENSURE_UI_THREAD(removeGroup,arg)
 	
 	[self removeRecord:[arg record]];
 }
@@ -365,6 +500,11 @@ MAKE_SYSTEM_NUMBER(CONTACTS_KIND_ORGANIZATION,[[(NSNumber*)kABPersonKindOrganiza
 
 MAKE_SYSTEM_PROP(CONTACTS_SORT_FIRST_NAME,kABPersonSortByFirstName);
 MAKE_SYSTEM_PROP(CONTACTS_SORT_LAST_NAME,kABPersonSortByLastName);
+
+MAKE_SYSTEM_PROP(AUTHORIZATION_UNKNOWN, kABAuthorizationStatusNotDetermined);
+MAKE_SYSTEM_PROP(AUTHORIZATION_RESTRICTED, kABAuthorizationStatusRestricted);
+MAKE_SYSTEM_PROP(AUTHORIZATION_DENIED, kABAuthorizationStatusDenied);
+MAKE_SYSTEM_PROP(AUTHORIZATION_AUTHORIZED, kABAuthorizationStatusAuthorized);
 
 #pragma mark Picker delegate functions
 

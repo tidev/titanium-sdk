@@ -9,7 +9,7 @@
 import os, sys, traceback
 import re, optparse
 import generators
-from common import lazyproperty, dict_has_non_empty_member, not_real_titanium_types
+from common import lazyproperty, dict_has_non_empty_member, not_real_titanium_types, DEFAULT_PLATFORMS, pretty_platform_name, first_version_for_platform
 
 try:
 	import yaml
@@ -34,9 +34,7 @@ sys.path.append(android_support_dir)
 from tilogger import *
 log = TiLogger(None)
 
-DEFAULT_PLATFORMS = ["android", "iphone", "ipad", "mobileweb"]
 DEFAULT_SINCE = "0.8"
-DEFAULT_MOBILEWEB_SINCE = "1.8"
 apis = {} # raw conversion from yaml
 annotated_apis = {} # made friendlier for templates, etc.
 current_api = None
@@ -68,19 +66,6 @@ def is_titanium_module(one_type):
 def is_titanium_proxy(one_type):
 	# When you use this, don't forget that modules are also proxies
 	return has_ancestor(one_type, "Titanium.Proxy")
-
-# iphone -> iPhone, etc.
-def pretty_platform_name(name):
-	if name.lower() == "iphone":
-		return "iPhone"
-	if name.lower() == "ipad":
-		return "iPad"
-	if name.lower() == "blackberry":
-		return "Blackberry"
-	if name.lower() == "android":
-		return "Android"
-	if name.lower() == "mobileweb":
-		return "Mobile Web"
 
 def combine_platforms_and_since(annotated_obj):
 	parent = annotated_obj.parent
@@ -114,18 +99,19 @@ def combine_platforms_and_since(annotated_obj):
 	since_is_dict = isinstance(since, dict)
 	for name in platforms:
 		one_platform = {"name": name, "pretty_name": pretty_platform_name(name)}
+		min_since = first_version_for_platform(one_platform["name"])
 		if not since_is_dict:
 			one_platform["since"] = since
-			if one_platform["name"] == "mobileweb":
+			if min_since is not None:
 				if len(since) >= 3:
-					if float(since[0:3]) < float(DEFAULT_MOBILEWEB_SINCE[0:3]):
-						one_platform["since"] = DEFAULT_MOBILEWEB_SINCE
+					if float(since[0:3]) < float(min_since):
+						one_platform["since"] = min_since
 		else:
 			if name in since:
 				one_platform["since"] = since[name]
 			else:
-				if one_platform["name"] == "mobileweb":
-					one_platform["since"] = DEFAULT_MOBILEWEB_SINCE
+				if min_since is not None:
+					one_platform["since"] = min_since
 				else:
 					one_platform["since"] = DEFAULT_SINCE
 		result.append(one_platform)
@@ -161,39 +147,43 @@ def load_one_yaml(filepath):
 			except:
 				pass
 
-def generate_output(options):
+def load_generators(options):
 	for output_type in options.formats.split(","):
 		try:
 			__import__("generators.%s_generator" % output_type)
 		except:
 			log.error("Output format %s is not recognized" % output_type)
 			sys.exit(1)
+
+def generate_output(options):
+	for output_type in options.formats.split(","):
 		if annotated_apis is None or len(annotated_apis) == 0:
 			annotate_apis()
 		generator = getattr(generators, "%s_generator" % output_type)
 		generator.generate(apis, annotated_apis, options)
 
-def process_yaml():
+def process_yaml(source_dirs):
 	global apis
 	log.info("Parsing YAML files")
-	for root, dirs, files in os.walk(this_dir):
-		for name in ignore_dirs:
-			if name in dirs:
-				dirs.remove(name) # don't visit ignored directoriess
-		for filename in files:
-			if os.path.splitext(filename)[-1] != ".yml" or filename in ignore_files:
-				continue
-			filepath = os.path.join(root, filename)
-			log.trace("Processing: %s" % filepath)
-			types = None
-			types = load_one_yaml(filepath)
-			if types is None:
-				log.trace("%s skipped" % filepath)
-			else:
-				for one_type in types:
-					if one_type["name"] in apis:
-						log.warn("%s has a duplicate" % one_type["name"])
-					apis[one_type["name"]] = one_type
+	for source_dir in source_dirs:
+		for root, dirs, files in os.walk(source_dir):
+			for name in ignore_dirs:
+				if name in dirs:
+					dirs.remove(name) # don't visit ignored directoriess
+			for filename in files:
+				if os.path.splitext(filename)[-1] != ".yml" or filename in ignore_files:
+					continue
+				filepath = os.path.join(root, filename)
+				log.trace("Processing: %s" % filepath)
+				types = None
+				types = load_one_yaml(filepath)
+				if types is None:
+					log.trace("%s skipped" % filepath)
+				else:
+					for one_type in types:
+						if one_type["name"] in apis:
+							log.warn("%s has a duplicate" % one_type["name"])
+						apis[one_type["name"]] = one_type
 
 # If documentation for a method/event/property only "partially overrides"
 # the documentation for the super type, this will fill in the rest of
@@ -288,7 +278,14 @@ class AnnotatedApi(object):
 		else:
 			self.availability = None
 		if "default" in api_obj:
-			self.default = api_obj["default"]
+			# TIDOC-708: avoid capitalizing booleans
+			if isinstance(api_obj["default"], bool):
+				if api_obj["default"]:
+					self.default = "true"
+				else:
+					self.default = "false"
+			else:
+				self.default = api_obj["default"]
 		else:
 			self.default = None
 		if "optional" in api_obj:
@@ -307,6 +304,7 @@ class AnnotatedProxy(AnnotatedApi):
 	def __init__(self, api_obj):
 		AnnotatedApi.__init__(self, api_obj)
 		self.typestr = "proxy"
+		self.is_pseudotype = not is_titanium_proxy(api_obj)
 
 	@classmethod
 	def render_getter_method(cls, getter_template_obj):
@@ -329,7 +327,7 @@ class AnnotatedProxy(AnnotatedApi):
 		if dict_has_non_empty_member(self.api_obj, "methods"):
 			methods = [AnnotatedMethod(m, self) for m in self.api_obj["methods"]]
 		# Not for "pseudo-types"
-		if is_titanium_proxy(self.api_obj):
+		if not self.is_pseudotype:
 			self.append_setters_getters(methods)
 			self.append_inherited_methods(methods)
 		return sorted(methods, key=lambda item: item.name)
@@ -418,6 +416,10 @@ class AnnotatedProxy(AnnotatedApi):
 		if "excludes" in self.api_obj and att_list_name in self.api_obj["excludes"]:
 			excluded_names = self.api_obj["excludes"][att_list_name]
 
+		class_platforms = []
+		if dict_has_non_empty_member(self.api_obj, "platforms"):
+			class_platforms = self.api_obj["platforms"]
+
 		while (super_type_name is not None and len(super_type_name) > 0
 				and super_type_name in apis):
 			super_type = apis[super_type_name]
@@ -425,6 +427,20 @@ class AnnotatedProxy(AnnotatedApi):
 				for new_item in super_type[att_list_name]:
 					if new_item["name"] in existing_names or new_item["name"] in excluded_names:
 						continue
+
+					# TIDOC-920. Crosscheck class with attributes to see if the platforms match
+					# If not, add them to the excludes list
+					if class_platforms and dict_has_non_empty_member(new_item, "platforms"):
+						attr_platforms = new_item["platforms"]
+						platform_match = False;
+						for attr_platform_name in attr_platforms:
+							if attr_platform_name in class_platforms:
+								platform_match = True;
+								break
+						if not platform_match:
+							excluded_names.append(new_item["name"])
+							continue
+
 					new_instance = class_type(new_item, self)
 					new_instance.inherited_from = super_type_name
 					att_list.append(new_instance)
@@ -434,6 +450,11 @@ class AnnotatedProxy(AnnotatedApi):
 				super_type_name = super_type["extends"]
 			else:
 				super_type_name = None
+
+		if excluded_names:
+			if "excludes" not in self.api_obj:
+				self.api_obj["excludes"] = {};
+			self.api_obj["excludes"][att_list_name] = excluded_names
 
 	def append_inherited_methods(self, methods):
 		self.append_inherited_attributes(methods, "methods")
@@ -473,10 +494,9 @@ class AnnotatedModule(AnnotatedProxy):
 			if method_name in existing_names:
 				continue
 			method_template_obj = {"proxy_name": proxy.name}
-			if "platforms" in proxy.api_obj:
-				method_template_obj["platforms"] = yaml.dump(proxy.api_obj["platforms"])
-			if "since" in proxy.api_obj:
-				method_template_obj["since"] = yaml.dump(proxy.api_obj["since"])
+			for key in ("platforms", "since", "deprecated"):
+				if key in proxy.api_obj:
+					method_template_obj[key] = yaml.dump(proxy.api_obj[key])
 			generated_method = yaml.load(AnnotatedModule.render_create_proxy_method(method_template_obj))
 			methods.append(AnnotatedMethod(generated_method, self))
 
@@ -517,6 +537,10 @@ class AnnotatedMethodParameter(AnnotatedApi):
 		self.parent = annotated_parent
 		self.typestr = "parameter"
 		self.yaml_source_folder = self.parent.yaml_source_folder
+		if "repeatable" in api_obj:
+			self.repeatable = api_obj["repeatable"]
+		else:
+			self.repeatable = None
 
 class AnnotatedProperty(AnnotatedApi):
 	def __init__(self, api_obj, annotated_parent):
@@ -603,7 +627,9 @@ def main():
 		log.trace("Setting output folder to %s because html files will be generated and now --output folder was specified" % dist_apidoc_dir)
 		options.output = dist_apidoc_dir
 
-	process_yaml()
+	load_generators(options)
+	source_dirs = [ this_dir ] + args
+	process_yaml(source_dirs)
 	finish_partial_overrides()
 	generate_output(options)
 

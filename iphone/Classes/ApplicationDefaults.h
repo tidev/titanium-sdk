@@ -14,4 +14,5 @@
 	
 }
 + (NSMutableDictionary *) copyDefaults;
++ (NSDictionary*) launchUrl;
 @end

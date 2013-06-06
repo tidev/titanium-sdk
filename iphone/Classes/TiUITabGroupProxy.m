@@ -13,6 +13,17 @@
 
 @implementation TiUITabGroupProxy
 
+static NSArray* tabGroupKeySequence;
+-(NSArray *)keySequence
+{
+    if (tabGroupKeySequence == nil)
+    {
+        //URL has to be processed first since the spinner depends on URL being remote
+        tabGroupKeySequence = [[NSArray arrayWithObjects:@"tabs",@"activeTab",nil] retain];
+    }
+    return tabGroupKeySequence;
+}
+
 - (void)willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration
 {
 	if ([self viewAttached])
@@ -26,8 +37,10 @@
 {
 	for (id thisTab in tabs)
 	{
+        [thisTab removeFromTabGroup];
 		[thisTab setParentOrientationController:nil];
 		[thisTab setTabGroup:nil];
+        [self forgetProxy:thisTab];
 	}
 	RELEASE_TO_NIL(tabs);
 	[super dealloc];

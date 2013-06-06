@@ -19,16 +19,15 @@ description: |
     
     #### Android Platform Notes
 
+    On Android, this module requires a Google Maps API v1 key. As of March 3, 2013,
+    Google is no longer issuing Maps API v1 keys.  If you want to add native maps support
+    to your Android application, you need to use the [Google Maps v2 module](Modules.Map).
+
     Android supports only a **single** map view per application. This limitation is
     imposed by Android, not by Titanium. Attempting to add a second map view results in
     an exception being thrown.
-    
-    For Android, you must obtain an Android Maps API key from Google before using maps in a production
-    application. You can sign up for the Maps API key on the Google Code web site:
-    
-    * <a href="http://code.google.com/android/maps-api-signup.html">code.google.com/android/maps-api-signup.html</a> 
-    
-    When you get a Maps API key, edit your `tiapp.xml` file and add your new key as the
+
+    If you have a Maps API v1 key, edit your `tiapp.xml` file and add your new key as the
     value for the  `ti.android.google.map.api.key.production` property.
     
     A development API key is included in the default `tiapp.xml` file. You can use this
@@ -42,9 +41,9 @@ description: |
     In addition to annotations, iOS supports adding routes to a map view, using
     [addRoute](Titanium.Map.View.addRoute).
     
-    #### Mobile Web Platform Notes
+    #### Mobile Web and Tizen Platform Notes
     
-    For Mobile Web, the default map provider is Google. Google Maps does not require you to obtain an API key,
+    For Mobile Web and Tizen, the default map provider is Google. Google Maps does not require you to obtain an API key,
     however it is encouraged that you use an API key so that you can monitor your Maps API usage. You can sign
     up for the Maps API key on the Google Code web site:
     
@@ -59,12 +58,11 @@ description: |
         	</map>
         </mobileweb>
 extends: Titanium.UI.View
-excludes: {
-    events: [ 'singletap', 'doubletap', 'dblclick', 'longclick', 'longpress', 'pinch',
-    'swipe', 'touchstart', 'touchend', 'touchcancel', 'touchmove', 'twofingertap' ]
-}
+excludes:
+    events: [ 'singletap', 'doubletap', 'dblclick', 'focus', 'longclick', 'pinch', 'swipe', 'touchstart', 'touchend', 'touchcancel', 'touchmove', 'twofingertap' ]
+    properties: ['enabled']
 since: "0.8"
-platforms: [android, iphone, ipad, mobileweb]
+platforms: [android, iphone, ipad, mobileweb, tizen]
 methods:
 
   - name: addAnnotation
@@ -73,7 +71,7 @@ methods:
       - name: annotation
         summary: Either a dictionary of properties for the annotation or a <Titanium.Map.Annotation> instance.
         type: [Dictionary<Titanium.Map.Annotation>, Titanium.Map.Annotation]
-    platforms: [android, iphone, ipad, mobileweb]
+    platforms: [android, iphone, ipad, mobileweb, tizen]
 
   - name: addAnnotations
     summary: Adds one or more new annotations to the map.
@@ -83,7 +81,7 @@ methods:
             Array of [Annotation](Titanium.Map.Annotation) objects, or an array of
             dictionaries describing of properties for the annotation.
         type: [Array<Titanium.Map.Annotation>, Array<Dictionary<Titanium.Map.Annotation>>]
-    platforms: [android, iphone, ipad, mobileweb]
+    platforms: [android, iphone, ipad, mobileweb, tizen]
 
   - name: addRoute
     summary: Adds a route to the map.
@@ -91,7 +89,7 @@ methods:
       - name: route
         summary: Simple dictionary object describing the route.
         type: MapRouteType
-    platforms: [android, iphone, ipad, mobileweb]
+    platforms: [android, iphone, ipad, mobileweb, tizen]
     since: { android: "2.1.0" }
 
   - name: deselectAnnotation
@@ -102,11 +100,11 @@ methods:
       - name: annotation
         summary: Annotation to deselect, identified by an annotation title or a <Titanium.Map.Annotation> reference.
         type: [String,Titanium.Map.Annotation]
-    platforms: [android, iphone, ipad, mobileweb]
+    platforms: [android, iphone, ipad, mobileweb, tizen]
 
   - name: removeAllAnnotations
     summary: Removes all annotations from the map.
-    platforms: [android, iphone, ipad, mobileweb]
+    platforms: [android, iphone, ipad, mobileweb, tizen]
 
   - name: removeAnnotation
     summary: Removes an existing annotation from the map.
@@ -114,7 +112,7 @@ methods:
       - name: annotation
         summary: Annotation to remove, identified by an annotation title or a <Titanium.Map.Annotation> reference.
         type: [String, Titanium.Map.Annotation]
-    platforms: [android, iphone, ipad, mobileweb]
+    platforms: [android, iphone, ipad, mobileweb, tizen]
 
   - name: removeAnnotations
     summary: Removes one or more existing annotations from the map.
@@ -125,7 +123,7 @@ methods:
       - name: annotations
         summary: Array of annotations to remove.
         type: [Array<String>, Array<Titanium.Map.Annotation>]
-    platforms: [iphone, ipad, mobileweb]
+    platforms: [iphone, ipad, mobileweb, tizen]
 
   - name: removeRoute
     summary: Remove a previously added route. 
@@ -133,7 +131,7 @@ methods:
       - name: route
         summary: Same route object passed to [addRoute](Titanium.Map.View.addRoute).
         type: MapRouteType
-    platforms: [android, iphone, ipad, mobileweb]
+    platforms: [android, iphone, ipad, mobileweb, tizen]
     since: { android: "2.1.0" }
 
   - name: selectAnnotation
@@ -192,7 +190,9 @@ events:
         - The user deselects an annotation.
 
         On iOS, the user deselects an annotation by clicking in the map view outside of
-        the annotation. On Android, the user deselects an annotation by clicking on the 
+        the annotation. On Android, if [hideAnnotationWhenTouchMap](Titanium.Map.View.hideAnnotationWhenTouchMap)
+        is set to true, the user deselects an annotation by clicking in the map view outside of
+        the annotation. Otherwise, the user deselects an annotation by clicking on the
         annotation pin.
 
         The `click` event includes a value, `clicksource`, which describes the part of the 
@@ -204,20 +204,17 @@ events:
         `title`, or `subtitle`. If the user deselects the annotation by clicking elsewhere
         in the map view, `clicksource` is `null`.
 
-        On Android, the `clicksource` can be one of `pin`, `leftButton`,
-        `rightButton`, `leftPane`, or `rightPane`. Because the user deselects an
-        annotation by clicking on the pin, `clicksource` is `pin` for both 
-        selection and deselection.
-
-        On Android, no event is generated when the user clicks on the title, subtitle, or
-        the background of the annotation.
+        On Android, the `clicksource` can be one of `pin`, `title`,
+        `subtitle`, `leftPane`, or `rightPane`. If the user deselects an
+        annotation by clicking on the pin, `clicksource` is `pin`. If the user deselects the
+        annotation by clicking elsewhere in the map view, `clicksource` is `null`.
 
     properties:
 
       - name: index
         summary: the annotation index.
         type: Number
-        platforms: [iphone, ipad, mobileweb]
+        platforms: [iphone, ipad, mobileweb, tizen]
 
       - name: title
         summary: Title of the annotation.
@@ -226,12 +223,12 @@ events:
       - name: subtitle
         summary: Subtitle of the annotation.
         type: String
-        platforms: [android, mobileweb]
+        platforms: [android, mobileweb, tizen]
         
       - name: map
         summary: The map view instance.
         type: Titanium.Map.View
-        platforms: [iphone, ipad, mobileweb]
+        platforms: [iphone, ipad, mobileweb, tizen]
 
       - name: clicksource
         summary: Source of the click event, such as `pin`, or `leftButton`.
@@ -244,25 +241,55 @@ events:
       - name: latitude
         summary: Latitude of the clicked annotation.
         type: Number
-        platforms: [android, mobileweb]
+        platforms: [android, mobileweb, tizen]
     
       - name: longitude
         summary: Longitude of the clicked annotation.
         type: Number
-        platforms: [android, mobileweb]
+        platforms: [android, mobileweb, tizen]
 
   - name: complete
     summary: Fired when the map completes loading.
-    platforms: [iphone, ipad, mobileweb]
-
+    platforms: [iphone, ipad, mobileweb, tizen]
+    properties:
+      - name: success
+        summary: Indicates a successful operation. Returns `true`.
+        type: Boolean
+        
+      - name: error
+        summary: Error message, if any returned. Will be undefined.
+        type: String
+        
+      - name: code
+        summary: Error code. Error code will be 0.
+        type: Number
+        
   - name: error
     summary: Fired when the map receives a mapping error.
     platforms: [iphone, ipad]
+    properties:
+      - name: success
+        summary: Indicates a successful operation. Returns `false`.
+        type: Boolean
+
+      - name: error
+        summary: Error message, if any returned. May be undefined.
+        type: String
+    
+      - name: code
+        summary: |
+            Error code.
+            If the error was generated by the operating system, that system's error value
+            is used. Otherwise, this value will be -1.
+        type: Number
 
   - name: loading
     summary: Fired when the map begins loading.
-    platforms: [iphone, ipad, mobileweb]
-
+    platforms: [iphone, ipad, mobileweb, tizen]
+  
+  - name: longpress
+    since: { android: 3.1.0 }
+  
   - name: pinchangedragstate
     summary: Fired when the user interacts with a draggable annotation.
     properties:
@@ -306,7 +333,13 @@ events:
     since: "2.1.0"
 
   - name: regionChanged
-    summary: Fired when the mapping region changes.
+    deprecated:
+        since: "3.0.0"
+        notes: |
+            Renamed to [regionchanged](Titanium.Map.View.regionchanged)
+            (all lowercase).
+    summary: |
+        Fired when the mapping region changes.
     properties:
       - name: longitude
         summary: Longitude value for the center point of the map, in decimal degrees.
@@ -321,6 +354,24 @@ events:
         summary: Latitude value for the center point of the map, in decimal degrees.
         type: Number
 
+  - name: regionchanged
+    summary: |
+        Fired when the mapping region changes.
+    properties:
+      - name: longitude
+        summary: Longitude value for the center point of the map, in decimal degrees.
+        type: Number
+      - name: latitudeDelta
+        summary: The amount of north-to-south distance displayed on the map, measured in decimal degrees.
+        type: Number
+      - name: longitudeDelta
+        summary: The amount of east-to-west distance displayed on the map, measured in decimal degrees.
+        type: Number
+      - name: latitude
+        summary: Latitude value for the center point of the map, in decimal degrees.
+        type: Number
+    since: '3.0.0'
+
 properties:
 
   - name: animate
@@ -331,11 +382,26 @@ properties:
   - name: animated
     summary: Indicates if changes to the mapping region should be animated.
     type: Boolean
-    platforms: [mobileweb]
+    platforms: [mobileweb, tizen]
 
   - name: annotations
     summary: An array of annotations to add to the map.
+    description: |
+        There is no guarantee that the order of elements in the `annotations` property will be 
+        maintained when creating, adding or deleting annotations from the Ti.Map.View object.
+        If the application depends on the annotations being in a set order, it should keep 
+        references to all of the annotations in a separate array.
     type: Array<Titanium.Map.Annotation>
+
+  - name: hideAnnotationWhenTouchMap
+    summary: Hide the annotation when clicking in the map view outside of the annotation.
+    description: |
+        If 'false', the user deselects an annotation by clicking on the annotation pin.
+        If 'true', the user deselects an annotation by clicking in the map view outside of the annotation.
+    type: Boolean
+    default: false
+    platforms: [android]
+    since: {android: "3.0.0"}
 
   - name: mapType
     summary: |
@@ -345,6 +411,10 @@ properties:
   - name: region
     summary: |
         A dictionary specifying the location and zoom level of the map.
+
+        On the iOS platform, this property can only be set after the map view is loaded.
+        To ensure this property is set when the application starts, wait for the
+        [complete][Titanium.UI.Map-event-complete] event.
     type: MapRegionType
 
   - name: regionFit
@@ -368,13 +438,13 @@ properties:
     summary: The amount of north-to-south distance displayed on the map, measured in decimal degrees.
     type: Number
     permission: read-only
-    since: {android: "2.2.0", iphone: "1.9.0", ipad: "1.9.0", mobileweb: "1.9.0"}
+    since: {android: "3.0.0", iphone: "2.0.0", ipad: "2.0.0", mobileweb: "2.0.0"}
 
   - name: longitudeDelta
     summary: The amount of east-to-west distance displayed on the map, measured in decimal degrees.
     type: Number
     permission: read-only
-    since: {android: "2.2.0", iphone: "1.9.0", ipad: "1.9.0", mobileweb: "1.9.0"}
+    since: {android: "3.0.0", iphone: "2.0.0", ipad: "2.0.0", mobileweb: "2.0.0"}
 
 ---
 name: MapRegionType
@@ -432,7 +502,7 @@ properties:
 ---
 name: MapRouteType
 summary: Simple object defining a map route.
-platforms: [android, iphone, ipad, mobileweb]
+platforms: [android, iphone, ipad, mobileweb, tizen]
 properties:
 
   - name: name

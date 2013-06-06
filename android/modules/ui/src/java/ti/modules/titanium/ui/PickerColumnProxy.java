@@ -11,6 +11,7 @@ import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.AsyncResult;
 import org.appcelerator.kroll.common.TiMessenger;
 import org.appcelerator.titanium.TiApplication;
+import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.view.TiUIView;
@@ -30,6 +31,7 @@ public class PickerColumnProxy extends TiViewProxy implements PickerRowListener
 	private static final int MSG_ADD = MSG_FIRST_ID + 100;
 	private static final int MSG_REMOVE = MSG_FIRST_ID + 101;
 	private static final int MSG_SET_ROWS = MSG_FIRST_ID + 102;
+	private static final int MSG_ADD_ARRAY = MSG_FIRST_ID + 103;
 	private PickerColumnListener columnListener  = null;
 	private boolean useSpinner = false;
 	private boolean suppressListenerEvents = false;
@@ -38,6 +40,7 @@ public class PickerColumnProxy extends TiViewProxy implements PickerRowListener
 	public PickerColumnProxy()
 	{
 		super();
+		defaultValues.put(TiC.PROPERTY_WIDTH, TiC.LAYOUT_FILL);
 	}
 
 	public PickerColumnProxy(TiContext tiContext)
@@ -63,6 +66,13 @@ public class PickerColumnProxy extends TiViewProxy implements PickerRowListener
 				result.setResult(null);
 				return true;
 			}
+			case MSG_ADD_ARRAY: {
+				AsyncResult result = (AsyncResult)msg.obj;
+				handleAddRowArray((Object [])result.getArg());
+				result.setResult(null);
+				return true;
+			}
+				
 			case MSG_REMOVE: {
 				AsyncResult result = (AsyncResult)msg.obj;
 				handleRemoveRow((TiViewProxy)result.getArg());
@@ -96,9 +106,22 @@ public class PickerColumnProxy extends TiViewProxy implements PickerRowListener
 	{
 		if (TiApplication.isUIThread()) {
 			handleAddRow(o);
-
 		} else {
 			TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_ADD), o);
+		}
+	}
+	
+	private void handleAddRowArray(Object[] o)
+	{
+		for (Object oChild: o)
+		{
+			if (oChild instanceof PickerRowProxy) {
+				handleAddRow((PickerRowProxy) oChild);
+			}
+			else
+			{
+				Log.w(TAG, "add() unsupported argument type: " + oChild.getClass().getSimpleName());
+			}
 		}
 	}
 	
@@ -144,26 +167,33 @@ public class PickerColumnProxy extends TiViewProxy implements PickerRowListener
 	}
 
 	@Kroll.method
-	public void addRow(PickerRowProxy row)
+	public void addRow(Object row)
 	{
-		this.add(row);
+		if (row instanceof PickerRowProxy) {
+			this.add((PickerRowProxy) row);
+		} else {
+			Log.w(TAG, "Unable to add the row. Invalid type for row.");
+		}
 	}
 
 	protected void addRows(Object[] rows) 
 	{
-		for (Object obj :rows) {
-			if (obj instanceof PickerRowProxy) {
-				this.add((PickerRowProxy)obj);
-			} else {
-				Log.w(TAG, "Unexpected type not added to picker column: " + obj.getClass().getName());
-			}
+		if (TiApplication.isUIThread()) {
+			handleAddRowArray(rows);
+
+		} else {
+			TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_ADD_ARRAY), rows);
 		}
 	}
 
 	@Kroll.method
-	public void removeRow(PickerRowProxy row) 
+	public void removeRow(Object row)
 	{
-		this.remove(row);
+		if (row instanceof PickerRowProxy) {
+			this.remove((PickerRowProxy) row);
+		} else {
+			Log.w(TAG, "Unable to remove the row. Invalid type for row.");
+		}
 	}
 
 	@Kroll.getProperty @Kroll.method

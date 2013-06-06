@@ -10,7 +10,7 @@
 #import "ASIHTTPRequestDelegate.h"
 #import "ASIProgressDelegate.h"
 
-@interface TI_ASINetworkQueue : NSOperationQueue <TI_ASIProgressDelegate, TI_ASIHTTPRequestDelegate, NSCopying> {
+@interface ASINetworkQueue : NSOperationQueue <ASIProgressDelegate, ASIHTTPRequestDelegate, NSCopying> {
 	
 	// Delegate will get didFail + didFinish messages (if set)
 	id delegate;
@@ -106,5 +106,3 @@
 @property (assign) unsigned long long totalBytesToDownload;
 
 @end
-
-@compatibility_alias ASINetworkQueue TI_ASINetworkQueue;

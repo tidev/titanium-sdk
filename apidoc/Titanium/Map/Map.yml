@@ -1,9 +1,20 @@
 ---
 name: Titanium.Map
 summary: The top level Map module.  The Map module is used for creating in-application native maps.
+description: |
+    #### Android Platform Notes
+
+    This module provides native map support using Google Maps API v1. As of March 3, 2013,
+    Google is no longer issuing Google Maps API v1 keys and this module can no longer be used to
+    support native maps on Android unless you have these keys.
+
+    For new Android applications, use the [Google Maps v2 add-on module](Modules.Map)
+    to add native maps support for your application. If you have an application that still uses the old keys,
+    you can either transition to the new module or continue using the built-in Titanium.Maps module.
+
 extends: Titanium.Module
 since: "0.8"
-platforms: [android, iphone, ipad, mobileweb]
+platforms: [android, iphone, ipad, mobileweb, tizen]
 properties:
 
   - name: ANNOTATION_DRAG_STATE_NONE
@@ -103,7 +114,7 @@ properties:
     summary: Used with [mapType](Titanium.Map.View.mapType) to display the terrain that shows the position of all roads and some road names.
     type: Number
     permission: read-only
-    platforms: [mobileweb]
+    platforms: [mobileweb, tizen]
     
 examples:
   - title: Map Example
@@ -111,31 +122,33 @@ examples:
         This is a basic map example that places a custom annotation on the map, and 
         listens for click events on the annotation. 
 
-        In this example, a custom property (`myid`) is added to the annotation objct.
+        In this example, a custom property (`myid`) is added to the annotation object.
         While adding custom members to a Titanium object is not generally recommended,
         in this case it provides a mechanism for uniquely identifying an annotation. This
         can be useful, for example, if the annotations are dynamically generated 
         and it is not practical to identify them by title.
+
+            var win = Titanium.UI.createWindow();
         
             var mountainView = Titanium.Map.createAnnotation({
-            	latitude:37.390749,
-            	longitude:-122.081651,
-            	title:"Appcelerator Headquarters",
-            	subtitle:'Mountain View, CA',
-            	pincolor:Titanium.Map.ANNOTATION_RED,
-            	animate:true,
-            	leftButton: '../images/appcelerator_small.png',
-            	myid:1 // Custom property to uniquely identify this annotation.
+                latitude:37.390749,
+                longitude:-122.081651,
+                title:"Appcelerator Headquarters",
+                subtitle:'Mountain View, CA',
+                pincolor:Titanium.Map.ANNOTATION_RED,
+                animate:true,
+                leftButton: '../images/appcelerator_small.png',
+                myid:1 // Custom property to uniquely identify this annotation.
             });
             
             var mapview = Titanium.Map.createView({
-            	mapType: Titanium.Map.STANDARD_TYPE,
-            	region: {latitude:33.74511, longitude:-84.38993, 
-            			latitudeDelta:0.01, longitudeDelta:0.01},
-            	animate:true,
-            	regionFit:true,
-            	userLocation:true,
-            	annotations:[mountainView]
+                mapType: Titanium.Map.STANDARD_TYPE,
+                region: {latitude:37.390749, longitude:-122.081651,
+                         latitudeDelta:0.01, longitudeDelta:0.01},
+                animate:true,
+                regionFit:true,
+                userLocation:true,
+                annotations:[mountainView]
             });
             
             win.add(mapview);
@@ -151,5 +164,71 @@ examples:
                     Ti.API.info("Annotation " + evt.title + ", left button clicked.");
                 }
             });
+            win.open();
 
-        
+            // For the iOS platform, wait for the complete event to ensure the region is set
+            if (Ti.Platform.name == 'iPhone OS') {
+                mapview.addEventListener('complete', function(evt){
+                    mapview.region = {
+                        latitude:37.390749, longitude:-122.081651,
+                        latitudeDelta:0.01, longitudeDelta:0.01
+                    };
+                });
+            }
+
+  - title: Alloy XML Markup
+    example: |
+        Previous example as an Alloy view.
+
+        index.xml:
+
+            <Alloy>
+                <Window id="win">
+
+                    <!-- Note the ns attribute is used to change the default namespace. -->
+                    <View id="mapview" ns="Ti.Map" onClick="doClick" onComplete="setRegion"
+                        animate="true" regionFit="true" userLocation="true"
+                        mapType="Ti.Map.STANDARD_TYPE" >
+
+                        <Annotation id="mountainView"
+                          latitude="37.390749" longitude="-122.081651"
+                          title="Appcelerator Headquarters" subtitle="Mountain View, CA"
+                          pincolor="Titanium.Map.ANNOTATION_RED"
+                          leftButton="/images/appcelerator_small.png"
+                          myid="1"/>
+
+                        <!-- Place other child views here, such as an ImageView to add an overlay. -->
+
+                    </View>
+                </Window>
+            </Alloy>
+
+        index.js:
+
+            function doClick(evt){
+                Ti.API.info("Annotation " + evt.title + " clicked, id: " + evt.annotation.myid);
+
+                // Check for all of the possible names that clicksouce
+                // can report for the left button/view.
+                if (evt.clicksource == 'leftButton' || evt.clicksource == 'leftPane' ||
+                    evt.clicksource == 'leftView') {
+                    Ti.API.info("Annotation " + evt.title + ", left button clicked.");
+                }
+            };
+
+            function setRegion(evt) {
+                // For the iOS platform, wait for the complete event to ensure the region is set
+                if (OS_IOS) {
+                    $.mapview.region = {
+                        latitude:37.390749, longitude:-122.081651,
+                        latitudeDelta:0.01, longitudeDelta:0.01
+                    };
+                }
+            }
+
+            // These parameters can also be defined in the TSS file.
+            $.mapview.annotations = [$.mountainView];
+            $.mapview.region = {latitude:37.390749, longitude:-122.081651, latitudeDelta:0.01, longitudeDelta:0.01};
+
+            $.win.open
+

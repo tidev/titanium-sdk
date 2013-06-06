@@ -29,40 +29,78 @@ methods:
         
 properties:
   - name: LINKIFY_ALL
-    summary: Use <Titanium.UI.AUTOLINK_ALL> instead.
+    deprecated:
+        since: "3.0.0"
+        notes: Use <Titanium.UI.AUTOLINK_ALL> instead.
+    summary: Converts all detectable types of data into clickable links.
     type: Number
     permission: read-only
-    deprecated:
-        since: "2.2.0"
-    
+
   - name: LINKIFY_EMAIL_ADDRESSES
-    summary: Use <Titanium.UI.AUTOLINK_EMAIL_ADDRESSES> instead.
+    deprecated:
+        since: "3.0.0"
+        notes: Use <Titanium.UI.AUTOLINK_EMAIL_ADDRESSES> instead.
+    summary: Converts strings formatted as email addresses into clickable links.
     type: Number
     permission: read-only
-    deprecated:
-        since: "2.2.0"
-    
+
   - name: LINKIFY_MAP_ADDRESSES
-    summary: Use <Titanium.UI.AUTOLINK_MAP_ADDRESSES> instead.
+    deprecated:
+        since: "3.0.0"
+        notes: Use <Titanium.UI.AUTOLINK_MAP_ADDRESSES> instead.
+    summary: Converts strings formatted as addresses into clickable links.
     type: Number
     permission: read-only
-    deprecated:
-        since: "2.2.0"
-    
+
   - name: LINKIFY_PHONE_NUMBERS
-    summary: Use <Titanium.UI.AUTOLINK_PHONE_NUMBERS> instead.
+    deprecated:
+        since: "3.0.0"
+        notes: Use <Titanium.UI.AUTOLINK_PHONE_NUMBERS> instead.
+    summary: Converts strings formatted as phone numbers into clickable links.
     type: Number
     permission: read-only
-    deprecated:
-        since: "2.2.0"
-    
+
   - name: LINKIFY_WEB_URLS
-    summary: Use <Titanium.UI.AUTOLINK_URLS> instead.
+    deprecated:
+        since: "3.0.0"
+        notes: Use <Titanium.UI.AUTOLINK_URLS> instead.
+    summary: Converts strings formatted as URLs into clickable links.
     type: Number
     permission: read-only
-    deprecated:
-        since: "2.2.0"
-    
+
+  - name: OVER_SCROLL_ALWAYS
+    summary: Always allow a user to over-scroll this view, provided it is a view that can scroll.
+    description: |
+        Use this with the following properties - <Titanium.UI.ScrollableView.overScrollMode>, <Titanium.UI.ScrollView.overScrollMode>, 
+        <Titanium.UI.TableView.overScrollMode> and <Titanium.UI.WebView.overScrollMode>. 
+
+        Only applicable when <Titanium.Platform.Android.API_LEVEL> is 9 or above.
+    type: Number
+    permission: read-only
+    since: "3.1.0"
+
+  - name: OVER_SCROLL_IF_CONTENT_SCROLLS
+    summary: Allow a user to over-scroll this view only if the content is large enough to meaningfully scroll, provided it is a view that can scroll.
+    description: |
+        Use this with the following properties - <Titanium.UI.ScrollableView.overScrollMode>, <Titanium.UI.ScrollView.overScrollMode>, 
+        <Titanium.UI.TableView.overScrollMode> and <Titanium.UI.WebView.overScrollMode>. 
+
+        Only applicable when <Titanium.Platform.Android.API_LEVEL> is 9 or above.
+    type: Number
+    permission: read-only
+    since: "3.1.0"
+
+  - name: OVER_SCROLL_NEVER
+    summary: Never allow a user to over-scroll this view.
+    description: |
+        Use this with the following properties - <Titanium.UI.ScrollableView.overScrollMode>, <Titanium.UI.ScrollView.overScrollMode>, 
+        <Titanium.UI.TableView.overScrollMode> and <Titanium.UI.WebView.overScrollMode>. 
+
+        Only applicable when <Titanium.Platform.Android.API_LEVEL> is 9 or above.
+    type: Number
+    permission: read-only
+    since: "3.1.0"
+
   - name: PIXEL_FORMAT_A_8
     summary: |
         Android A_8 pixel format for <Titanium.UI.Window>. Selecting the correct pixel format 
@@ -236,7 +274,7 @@ properties:
     description: Used with the <Titanium.UI.Android.ProgressIndicator.location> property.
     type: Number
     permission: read-only
-    since: "2.2.0"
+    since: "3.0.0"
 
   - name: PROGRESS_INDICATOR_STATUS_BAR
     summary: |
@@ -245,7 +283,7 @@ properties:
     description: Used with the <Titanium.UI.Android.ProgressIndicator.location> property.
     type: Number
     permission: read-only
-    since: "2.2.0"
+    since: "3.0.0"
 
   - name: PROGRESS_INDICATOR_INDETERMINANT
     summary: |
@@ -253,7 +291,7 @@ properties:
        activity of indeterminate length. (default)
     type: Number
     permission: read-only
-    since: "2.2.0"
+    since: "3.0.0"
 
   - name: PROGRESS_INDICATOR_DETERMINANT
     summary: |
@@ -261,7 +299,7 @@ properties:
         activity of determinate length.
     type: Number
     permission: read-only
-    since: "2.2.0"
+    since: "3.0.0"
     
   - name: SOFT_INPUT_ADJUST_PAN
     summary: |

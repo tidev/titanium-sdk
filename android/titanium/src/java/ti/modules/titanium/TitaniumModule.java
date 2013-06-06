@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -19,7 +19,7 @@ import java.util.Stack;
 
 import org.appcelerator.kroll.KrollFunction;
 import org.appcelerator.kroll.KrollModule;
-import org.appcelerator.kroll.KrollRuntime;
+import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
@@ -31,12 +31,15 @@ import org.appcelerator.titanium.util.TiUIHelper;
 import android.app.Activity;
 import android.os.Environment;
 import android.os.Handler;
+import android.os.Message;
 import android.util.SparseArray;
 
 @Kroll.module @Kroll.topLevel({"Ti", "Titanium"})
 public class TitaniumModule extends KrollModule
 {
 	private static final String TAG = "TitaniumModule";
+
+	private static final int MSG_ALERT = KrollProxy.MSG_LAST_ID + 100;
 
 	private Stack<String> basePath;
 	private Map<String, NumberFormat> numberFormats = java.util.Collections.synchronizedMap(
@@ -236,19 +239,17 @@ public class TitaniumModule extends KrollModule
 		}
 		*/
 
-		TiUIHelper.doOkDialog("Alert", msg, null);
+		if (TiApplication.isUIThread()) {
+			TiUIHelper.doOkDialog("Alert", msg, null);
+		} else {
+			getMainHandler().obtainMessage(MSG_ALERT, msg).sendToTarget();
+		}
 	}
 
 	@Kroll.method @Kroll.topLevel("String.format")
 	public String stringFormat(String format, Object args[])
 	{
 		try {
-			// Rhino will always convert Number values to doubles.
-			// To prevent conversion errors we will change all decimal
-			// format arguments to floating point.
-			if (KrollRuntime.getInstance().getRuntimeName().equals("rhino")) {
-				format = format.replaceAll("%d", "%1.0f");
-			}
 
 			// in case someone passes an iphone formatter symbol, convert
 			format = format.replaceAll("%@", "%s");
@@ -361,7 +362,9 @@ public class TitaniumModule extends KrollModule
 			}
 
 		} catch (TiRHelper.ResourceNotFoundException e) {
-			Log.d(TAG, "Resource string with key '" + key + "' not found.  Returning default value.", Log.DEBUG_MODE);
+			if (Log.isDebugModeEnabled()) {
+				Log.d(TAG, "Resource string with key '" + key + "' not found.  Returning default value.", Log.DEBUG_MODE);
+			}
 
 			return defaultValue;
 
@@ -393,5 +396,20 @@ public class TitaniumModule extends KrollModule
 			Log.e(TAG, e.getMessage(), e);
 		}
 	}
+
+	@Override
+	public boolean handleMessage(Message msg)
+	{
+		switch (msg.what) {
+			case MSG_ALERT: {
+				TiUIHelper.doOkDialog("Alert", (String) msg.obj, null);
+
+				return true;
+			}
+		}
+
+		return super.handleMessage(msg);
+	}
+
 }
 

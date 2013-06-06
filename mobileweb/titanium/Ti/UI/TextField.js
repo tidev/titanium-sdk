@@ -5,7 +5,8 @@ define(["Ti/_/declare", "Ti/_/UI/TextBox", "Ti/_/css", "Ti/_/dom", "Ti/_/lang", 
 		keyboardPost = {
 			post: "_setKeyboardType"
 		},
-		setStyle = style.set;
+		setStyle = style.set,
+		on = require.on;
 
 	return declare("Ti.UI.TextField", TextBox, {
 
@@ -20,14 +21,35 @@ define(["Ti/_/declare", "Ti/_/UI/TextBox", "Ti/_/css", "Ti/_/dom", "Ti/_/lang", 
 			this._setKeyboardType();
 			this.borderStyle = UI.INPUT_BORDERSTYLE_BEZEL;
 
-			this._disconnectFocusEvent = require.on(field, "focus", this, function() {
-				this.clearOnEdit && (field.value = "");
+			this._disconnectFocusEvent = on(field, "focus", this, function() {
+				this._focused = 1;
+				this._setInternalText(this.clearOnEdit ? "" : this._getInternalText());
+			});
+			this._disconnectBlurEvent = on(field, "blur", this, function() {
+				this._focused = 0;
+				this._updateInternalText();
 			});
 		},
 
 		destroy: function() {
 			this._disconnectFocusEvent();
+			this._disconnectBlurEvent();
 			TextBox.prototype.destroy.apply(this, arguments);
+		},
+		
+		_showingHint: 1,
+
+		_setInternalText: function(value) {
+			var showingHint = !this._focused && !value;
+			if (showingHint !== this._showingHint) {
+				this._showingHint = showingHint;
+				this._setKeyboardType();
+			}
+			TextBox.prototype._setInternalText.call(this, showingHint ? this.hintText : value);
+		},
+		
+		_getInternalText: function() {
+			return this._showingHint ? "" : TextBox.prototype._getInternalText.call(this);
 		},
 
         _defaultWidth: UI.SIZE,
@@ -47,7 +69,7 @@ define(["Ti/_/declare", "Ti/_/UI/TextBox", "Ti/_/css", "Ti/_/dom", "Ti/_/lang", 
 
 		_setKeyboardType: function() {
 			var type = "text";
-			if (this.passwordMask) {
+			if (this.passwordMask && !this._showingHint) {
 				type = "password";
 			} else {
 				switch (this.keyboardType) {
@@ -91,12 +113,8 @@ define(["Ti/_/declare", "Ti/_/UI/TextBox", "Ti/_/css", "Ti/_/dom", "Ti/_/lang", 
 			clearOnEdit: false,
 
 			hintText: {
-				set: function(value) {
-					try { // IE9 doesn't support placeholder and throws an exception if you try and set it.
-						this._field.placeholder = value;
-					} catch(e) {}
-					return value;
-				}
+				post: "_updateInternalText",
+				value: ""
 			},
 
 			keyboardType: keyboardPost,

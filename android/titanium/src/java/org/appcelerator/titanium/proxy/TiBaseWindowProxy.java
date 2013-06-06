@@ -1,12 +1,17 @@
 package org.appcelerator.titanium.proxy;
 
+import java.lang.ref.WeakReference;
+
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.annotations.Kroll;
+import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBaseActivity;
+import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.view.TiUIView;
 
 import android.app.Activity;
+import android.util.Pair;
 
 /**
  * This class exists to allow JS wrapping of the abstract methods
@@ -15,7 +20,10 @@ import android.app.Activity;
 public class TiBaseWindowProxy extends TiWindowProxy
 {
 	private static final String TAG = "TiBaseWindow";
-
+	
+	private WeakReference<TiBaseActivity> hostActivity;
+	
+	private TiViewProxy mViewProxy;
 
 	/**
 	 * Called to associate a view with a JS window wrapper 
@@ -27,6 +35,7 @@ public class TiBaseWindowProxy extends TiWindowProxy
 		TiUIView view = viewProxy.peekView();
 		setView(view);
 		setModelListener(view);
+		mViewProxy = viewProxy;
 	}
 	
 	@Kroll.method
@@ -35,7 +44,9 @@ public class TiBaseWindowProxy extends TiWindowProxy
 		// adding window to stack
 		Activity topActivity = TiApplication.getAppCurrentActivity();
 		if (topActivity instanceof TiBaseActivity) {
-			((TiBaseActivity)topActivity).addWindowToStack(this);
+			TiBaseActivity baseActivity = (TiBaseActivity)topActivity;
+			hostActivity = new WeakReference<TiBaseActivity>(baseActivity);
+			baseActivity.addWindowToStack(this);
 		}
 	}
 	
@@ -43,9 +54,9 @@ public class TiBaseWindowProxy extends TiWindowProxy
 	public void removeSelfFromStack() 
 	{
 		// removing window from stack
-		Activity topActivity = TiApplication.getAppCurrentActivity();
-		if (topActivity instanceof TiBaseActivity) {
-			((TiBaseActivity)topActivity).removeWindowFromStack(this);
+		TiBaseActivity activity = (hostActivity != null) ? hostActivity.get() : null;
+		if (activity != null) {
+			activity.removeWindowFromStack(this);
 		}
 	}
 
@@ -79,6 +90,43 @@ public class TiBaseWindowProxy extends TiWindowProxy
 	protected Activity getWindowActivity()
 	{
 		return null;
+	}
+	
+	@Override
+	public void onPropertyChanged(String name, Object value) {
+		//
+		// Set on both proxies.  We must set on the viewProxy
+		// first for things to work correctly.
+		//
+		if (mViewProxy != null) {
+			
+			String propertyName = name;
+			Object newValue = value;
+
+			if (mViewProxy.isLocaleProperty(name)) {
+				Log.i(TAG, "Updating locale: " + name, Log.DEBUG_MODE);
+				Pair<String, String> update = mViewProxy.updateLocaleProperty(name, TiConvert.toString(value));
+				if (update != null) {
+					propertyName = update.first;
+					newValue = update.second;
+				}
+			}
+
+			mViewProxy.setProperty(propertyName, newValue);
+		}
+		super.onPropertyChanged(name, value);
+	}
+	
+	@Override 
+	public void setProperty(String name, Object value) {
+		//
+		// Set on both proxies.  We must set on the viewProxy
+		// first for things to work correctly.
+		//
+		if (mViewProxy != null) {
+			mViewProxy.setProperty(name,  value);
+		}
+		super.setProperty(name, value);	
 	}
 
 }

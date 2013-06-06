@@ -24,7 +24,6 @@ import org.appcelerator.titanium.TiTranslucentActivity;
 import org.appcelerator.titanium.proxy.ActivityProxy;
 import org.appcelerator.titanium.proxy.TiWindowProxy;
 import org.appcelerator.titanium.util.TiConvert;
-import org.appcelerator.titanium.util.TiFileHelper;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiCompositeLayout;
 import org.appcelerator.titanium.view.TiCompositeLayout.LayoutArrangement;
@@ -106,12 +105,15 @@ public class TiUIActivityWindow extends TiUIView
 		handleBooted();
 	}
 
-	protected void createNewActivity(HashMap options)
+	protected void createNewActivity(HashMap<String, Object> options)
 	{
 		Activity activity = proxy.getActivity();
 		Intent intent = createIntent(activity);
 
 		Object animated = options.get(TiC.PROPERTY_ANIMATED);
+		Object enterAnim = options.get(TiC.PROPERTY_ACTIVITY_ENTER_ANIMATION);
+		Object exitAnim = options.get(TiC.PROPERTY_ACTIVITY_EXIT_ANIMATION);
+
 		if (animated != null) {
 			animate = TiConvert.toBoolean(animated);
 		}
@@ -120,9 +122,17 @@ public class TiUIActivityWindow extends TiUIView
 			intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
 			intent.putExtra(TiC.PROPERTY_ANIMATE, false);
 			activity.startActivity(intent);
-			TiUIHelper.overridePendingTransition(activity);
+			activity.overridePendingTransition(0, 0); // Suppress default transition.
 
 		} else {
+			if (enterAnim != null) {
+				intent.putExtra(TiC.INTENT_PROPERTY_ENTER_ANIMATION, TiConvert.toInt(enterAnim));
+			}
+
+			if (exitAnim != null) {
+				intent.putExtra(TiC.INTENT_PROPERTY_EXIT_ANIMATION, TiConvert.toInt(exitAnim));
+			}
+
 			activity.startActivity(intent);
 		}
 	}
@@ -226,7 +236,7 @@ public class TiUIActivityWindow extends TiUIView
 		if (windowActivity != null) {
 			if (!animateOnClose) {
 				windowActivity.finish();
-				TiUIHelper.overridePendingTransition(windowActivity);
+				windowActivity.overridePendingTransition(0, 0); // Suppress default transition.
 
 			} else {
 				windowActivity.finish();
@@ -320,18 +330,19 @@ public class TiUIActivityWindow extends TiUIView
 	private void handleBackground(Drawable drawable, Object opacityValue, boolean post)
 	{
 		if (drawable != null) {
+			float opacity = 1f;
+			
 			if (opacityValue != null) { // lightweight opacity will get handled via super because nativeView won't be null.
-				setActivityOpacity(drawable, TiConvert.toFloat(opacityValue), true);
+				try {
+					opacity = TiConvert.toFloat(opacityValue);
+				} catch (NumberFormatException e) {
+					opacity = 1f;
+				}
 			}
 
+			setActivityOpacity(drawable, opacity, true);
 			setActivityBackground(drawable, post);
 		}
-	}
-
-	private void handleBackgroundColor(Object value, boolean post)
-	{
-		Object opacity = proxy.getProperty(TiC.PROPERTY_OPACITY);
-		handleBackgroundColor(value, opacity, post);
 	}
 
 	private void setActivityOpacity(Drawable background, float opacity, boolean firstTime)
@@ -347,54 +358,41 @@ public class TiUIActivityWindow extends TiUIView
 		background.setAlpha(alpha);
 	}
 
-	private void handleBackgroundColor(Object value, Object opacityValue, boolean post)
+	private void handleActivityBackgroundDrawable(Object bgColor, Object bgImage, Object opacityValue, boolean tile, boolean post)
 	{
-		if (value != null) {
-			Drawable cd = TiConvert.toColorDrawable(TiConvert.toString(value));
-			handleBackground(cd, opacityValue, post);
-
-		} else {
-			Log.w(TAG, "Unable to set opacity w/o a backgroundColor");
+		//Maximum of 2 drawables, color and image
+		String colorString = null;
+		if (bgColor != null) {
+			colorString = TiConvert.toString(bgColor);
 		}
-	}
-
-	private void handleBackgroundImage(Object value, boolean post)
-	{
-		Object opacity = proxy.getProperty(TiC.PROPERTY_OPACITY);
-		handleBackgroundImage(value, opacity, post);
-	}
-
-	private void handleBackgroundImage(Object value, Object opacityValue, boolean post)
-	{
-		if (value != null) {
-			String path = proxy.resolveUrl(null, TiConvert.toString(value));
-			TiFileHelper tfh = new TiFileHelper(TiApplication.getInstance());
-			Drawable bd = tfh.loadDrawable(path, false);
-			handleBackground(bd, opacityValue, post);
+		
+		String path = null;
+		if (bgImage != null) {
+			path = proxy.resolveUrl(null, TiConvert.toString(bgImage));
 		}
+		
+		Drawable bd = TiUIHelper.buildBackgroundDrawable(colorString, path, tile, null);
+		handleBackground(bd,opacityValue,post);
 	}
-
+	
 	@Override
 	public void processProperties(KrollDict d)
 	{
 		// Prefer image to color.
-		if (d.containsKey(TiC.PROPERTY_BACKGROUND_IMAGE)) {
-			if (d.containsKey(TiC.PROPERTY_OPACITY)) {
-				handleBackgroundImage(d.get(TiC.PROPERTY_BACKGROUND_IMAGE), d.get(TiC.PROPERTY_OPACITY), true);
-
-			} else {
-				handleBackgroundImage(d.get(TiC.PROPERTY_BACKGROUND_IMAGE), true);
+		
+		if (d.containsKey(TiC.PROPERTY_BACKGROUND_IMAGE) || d.containsKey(TiC.PROPERTY_BACKGROUND_COLOR) || d.containsKey(TiC.PROPERTY_OPACITY)) {
+			boolean tile = false;
+			if (d.containsKey(TiC.PROPERTY_BACKGROUND_REPEAT)) {
+				tile = TiConvert.toBoolean(d.get(TiC.PROPERTY_BACKGROUND_REPEAT));
 			}
+			handleActivityBackgroundDrawable(d.get(TiC.PROPERTY_BACKGROUND_COLOR), d.get(TiC.PROPERTY_BACKGROUND_IMAGE), d.get(TiC.PROPERTY_OPACITY), tile, true);
 
-		} else if (d.containsKey(TiC.PROPERTY_BACKGROUND_COLOR)) {
-			if (d.containsKey(TiC.PROPERTY_OPACITY)) {
-				handleBackgroundColor(d.get(TiC.PROPERTY_BACKGROUND_COLOR), d.get(TiC.PROPERTY_OPACITY), true);
-
-			} else {
-				handleBackgroundColor(d.get(TiC.PROPERTY_BACKGROUND_COLOR), true);
-			}
+			// Don't allow default processing.
+			d.remove(TiC.PROPERTY_BACKGROUND_IMAGE);
+			d.remove(TiC.PROPERTY_BACKGROUND_COLOR);
+			d.remove(TiC.PROPERTY_BACKGROUND_REPEAT);
 		}
-
+		
 		if (d.containsKey(TiC.PROPERTY_TITLE)) {
 			String title = TiConvert.toString(d, TiC.PROPERTY_TITLE);
 
@@ -407,14 +405,11 @@ public class TiUIActivityWindow extends TiUIView
 		}
 
 		if (d.containsKey(TiC.PROPERTY_LAYOUT)) {
-			TiCompositeLayout layout = null;
-
 			if (windowActivity instanceof TiActivity) {
-				layout = ((TiActivity)windowActivity).getLayout();
-			}
-
-			if (layout != null) {
-				layout.setLayoutArrangement(TiConvert.toString(d, TiC.PROPERTY_LAYOUT));
+				View layout = ((TiActivity)windowActivity).getLayout();
+				if (layout instanceof TiCompositeLayout) {
+					((TiCompositeLayout) layout).setLayoutArrangement(TiConvert.toString(d, TiC.PROPERTY_LAYOUT));
+				}
 			}
 		}
 
@@ -433,15 +428,13 @@ public class TiUIActivityWindow extends TiUIView
 		if (d.containsKey(TiC.PROPERTY_ACTIVITY)) {
 			Object activityObject = d.get(TiC.PROPERTY_ACTIVITY);
 			ActivityProxy activityProxy = getProxy().getActivityProxy();
-			if (activityObject instanceof HashMap && activityProxy != null) {
-				KrollDict options = new KrollDict((HashMap) activityObject);
+			if (activityObject instanceof HashMap<?, ?> && activityProxy != null) {
+				@SuppressWarnings("unchecked")
+				KrollDict options = new KrollDict((HashMap<String, Object>) activityObject);
 				activityProxy.handleCreationDict(options);
 			}
 		}
 
-		// Don't allow default processing.
-		d.remove(TiC.PROPERTY_BACKGROUND_IMAGE);
-		d.remove(TiC.PROPERTY_BACKGROUND_COLOR);
 		super.processProperties(d);
 	}
 
@@ -449,16 +442,25 @@ public class TiUIActivityWindow extends TiUIView
 	public void propertyChanged(String key, Object oldValue, Object newValue, KrollProxy proxy)
 	{
 		if (key.equals(TiC.PROPERTY_BACKGROUND_IMAGE)) {
-			if (newValue != null) {
-				handleBackgroundImage(newValue, false);
-
-			} else {
-				handleBackgroundColor(proxy.getProperty(TiC.PROPERTY_BACKGROUND_COLOR), false);
+			boolean tile = false;
+			Object prop = proxy.getProperty(TiC.PROPERTY_BACKGROUND_REPEAT);
+			if (prop != null) {
+				tile = TiConvert.toBoolean(prop);
 			}
-
+			handleActivityBackgroundDrawable(proxy.getProperty(TiC.PROPERTY_BACKGROUND_COLOR), newValue, proxy.getProperty(TiC.PROPERTY_OPACITY), tile, false);
+			
 		} else if (key.equals(TiC.PROPERTY_BACKGROUND_COLOR)) {
-			handleBackgroundColor(newValue, false);
-
+			boolean tile = false;
+			Object prop = proxy.getProperty(TiC.PROPERTY_BACKGROUND_REPEAT);
+			if (prop != null) {
+				tile = TiConvert.toBoolean(prop);
+			}
+			handleActivityBackgroundDrawable(newValue, proxy.getProperty(TiC.PROPERTY_BACKGROUND_IMAGE), proxy.getProperty(TiC.PROPERTY_OPACITY), tile, false);
+			
+		} else if (key.equals(TiC.PROPERTY_BACKGROUND_REPEAT)) {
+			boolean tile = TiConvert.toBoolean(newValue);
+			handleActivityBackgroundDrawable(proxy.getProperty(TiC.PROPERTY_BACKGROUND_COLOR), proxy.getProperty(TiC.PROPERTY_BACKGROUND_IMAGE), proxy.getProperty(TiC.PROPERTY_OPACITY), tile, false);
+			
 		} else if (key.equals(TiC.PROPERTY_WIDTH) || key.equals(TiC.PROPERTY_HEIGHT)) {
 			Window w = windowActivity.getWindow();
 			int width = lastWidth;
@@ -498,14 +500,11 @@ public class TiUIActivityWindow extends TiUIView
 			}
 
 		} else if (key.equals(TiC.PROPERTY_LAYOUT)) {
-			TiCompositeLayout layout = null;
-
 			if (windowActivity instanceof TiActivity) {
-				layout = ((TiActivity)windowActivity).getLayout();
-			}
-
-			if (layout != null) {
-				layout.setLayoutArrangement(TiConvert.toString(newValue));
+				View layout = ((TiActivity)windowActivity).getLayout();
+				if (layout instanceof TiCompositeLayout) {
+					((TiCompositeLayout) layout).setLayoutArrangement(TiConvert.toString(newValue));
+				}
 			}
 
 		} else if (key.equals(TiC.PROPERTY_OPACITY)) {

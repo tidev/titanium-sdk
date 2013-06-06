@@ -1,8 +1,18 @@
 ---
 name: Titanium.Facebook
+deprecated:
+    since: "3.1.0"
+    notes: |
+        On Mobile Web, continue to use this module.
+
+        On Android and iOS, use <Modules.Facebook> instead.
 summary: |
     The top level Facebook module.  
 description: |
+    **Note:** In Titanium 3.1, the `Titianium.Facebook` module on Android and iOS is replaced by the
+    <Modules.Facebook> add-on module that uses more recent versions of the native Facebook SDKs for
+    Android and iOS. For Mobile Web, continue to use `Titanium.Facebook`.
+
     The Facebook module is used for connecting your application with 
     Facebook. This module supports the following features:
 
@@ -95,7 +105,7 @@ description: |
     You must still set Ti.Facebook.appid within your app itself to use the facebook module.  
     This property is used only for configuring your app to interface with the facebook 
     login process.
-
+    
     #### Previous Versions
     Titanium Mobile SDK 1.6.0 marked a significant change for this module.  Older versions of 
     the module were not compatible with the new Graph API.  Applications written for the 
@@ -103,8 +113,8 @@ description: |
     Nor is the code shown in the examples here backwards-compatible with pre-1.6.0 Titanium 
     Mobile SDK.
 extends: Titanium.Module
-since: "0.8"
-platforms: [android, iphone, ipad]
+since: { android: "0.8", iphone: "0.8", ipad: "0.8", mobileweb: "2.0" }
+platforms: [android, ipad, iphone, mobileweb]
 methods:
 
   - name: authorize
@@ -112,7 +122,7 @@ methods:
         Prompts the user to log in (if not already logged in) and authorize your application.  
     description: |
         Be sure to set your [appid](Titanium.Facebook.appid) and your required 
-        [permissions](Titanium.Facebook.permissions] before calling `authorize`.
+        [permissions](Titanium.Facebook.permissions) before calling `authorize`.
 
         A [login](Titanium.Facebook.login) event is generated to indicate successful or
         unsuccessful login attempt.
@@ -138,7 +148,7 @@ methods:
 
       - name: callback
         summary: Callback to invoke  when the user completes or cancels the dialog.
-        type: Callback<FacebookDialogResponse>
+        type: Callback<FacebookDialogResponsev1>
 
   - name: logout
     summary: Clears the OAuth `accessToken` and logs out the user.
@@ -162,7 +172,7 @@ methods:
 
       - name: callback
         summary: Callback to invoke  when the request completes.
-        type: Callback<FacebookRESTResponse>
+        type: Callback<FacebookRESTResponsev1>
 
   - name: requestWithGraphPath
     summary: Makes a Facebook Graph API request.
@@ -194,7 +204,7 @@ methods:
 
       - name: callback
         summary: Callback to invoke  when the request completes.
-        type: Callback<FacebookGraphResponse>
+        type: Callback<FacebookGraphResponsev1>
 
 events:
 
@@ -550,7 +560,7 @@ examples:
 
         * [Facebook Dialog Reference](http://developers.facebook.com/docs/reference/dialogs/) 
 ---
-name: FacebookGraphResponse
+name: FacebookGraphResponsev1
 summary: |
     Argument passed to the graph API callback, in response to a
     [requestWithGraphPath](Titanium.Facebook.requestWithGraphPath) call.
@@ -574,7 +584,7 @@ properties:
 
 
 ---
-name: FacebookDialogResponse
+name: FacebookDialogResponsev1
 summary: Argument passed to the dialog callback when a dialog is completed or canceled.
 description: |
     The `success` and `cancelled` properties may not be reliable for dialogs. In the event
@@ -601,7 +611,7 @@ properties:
 
 
 ---
-name: FacebookRESTResponse
+name: FacebookRESTResponsev1
 summary: |
     Argument passed to the REST API callback when a request completes (successfully
     or unsuccessfully).

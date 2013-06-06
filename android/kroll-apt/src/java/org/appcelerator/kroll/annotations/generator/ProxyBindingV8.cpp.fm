@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2011-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -329,7 +329,7 @@ Handle<Value> ${className}::interceptor(Local<String> property, const AccessorIn
 	}
 
 	jobject javaProxy = proxy->getJavaObject();
-	jstring javaProperty = titanium::TypeConverter::jsStringToJavaString(property);
+	jstring javaProperty = titanium::TypeConverter::jsStringToJavaString(env, property);
 	jobject jResult = (jobject) env->CallObjectMethod(javaProxy, methodID, javaProperty);
 
 	if (!JavaObject::useGlobalRefs) {
@@ -347,7 +347,7 @@ Handle<Value> ${className}::interceptor(Local<String> property, const AccessorIn
 		return Null();
 	}
 
-	Handle<Value> v8Result = titanium::TypeConverter::javaObjectToJsValue(jResult);
+	Handle<Value> v8Result = titanium::TypeConverter::javaObjectToJsValue(env, jResult);
 	env->DeleteLocalRef(jResult);
 
 	if (v8Result->IsNumber()) {

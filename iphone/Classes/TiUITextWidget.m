@@ -30,6 +30,10 @@
 -(void)setValue_:(id)value
 {
     NSString* string = [TiUtils stringValue:value];
+    if (string == nil)
+	{
+		return;
+	}
     if (maxLength > -1 && [string length] > maxLength) {
         string = [string substringToIndex:maxLength];
     }
@@ -74,6 +78,11 @@
 -(UIView *)textWidgetView
 {
 	return nil;
+}
+
+- (id)accessibilityElement
+{
+	return [self textWidgetView];
 }
 
 #pragma mark Common values

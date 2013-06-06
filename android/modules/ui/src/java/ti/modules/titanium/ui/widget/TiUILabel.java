@@ -29,12 +29,29 @@ public class TiUILabel extends TiUIView
 {
 	private static final String TAG = "TiUILabel";
 
+	private int defaultColor;
+	private boolean wordWrap = true;
+
 	public TiUILabel(final TiViewProxy proxy)
 	{
 		super(proxy);
 		Log.d(TAG, "Creating a text label", Log.DEBUG_MODE);
 		TextView tv = new TextView(getProxy().getActivity())
 		{
+			@Override
+			protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec)
+			{
+				// Only allow label to exceed the size of parent when it's size behavior with wordwrap disabled
+				if (!wordWrap && layoutParams.optionWidth == null && !layoutParams.autoFillsWidth) {
+					widthMeasureSpec = MeasureSpec.makeMeasureSpec(MeasureSpec.getSize(widthMeasureSpec),
+						MeasureSpec.UNSPECIFIED);
+					heightMeasureSpec = MeasureSpec.makeMeasureSpec(MeasureSpec.getSize(heightMeasureSpec),
+						MeasureSpec.UNSPECIFIED);
+				}
+
+				super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+			}
+
 			@Override
 			protected void onLayout(boolean changed, int left, int top, int right, int bottom)
 			{
@@ -50,7 +67,11 @@ public class TiUILabel extends TiUIView
 		tv.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_MULTI_LINE);
 		tv.setKeyListener(null);
 		tv.setFocusable(false);
+		tv.setSingleLine(false);
+		TiUIHelper.styleText(tv, null);
+		defaultColor = tv.getCurrentTextColor();
 		setNativeView(tv);
+
 	}
 
 	@Override
@@ -59,9 +80,14 @@ public class TiUILabel extends TiUIView
 		super.processProperties(d);
 
 		TextView tv = (TextView) getNativeView();
+		
 		// Only accept one, prefer text to title.
 		if (d.containsKey(TiC.PROPERTY_HTML)) {
-			tv.setText(Html.fromHtml(TiConvert.toString(d, TiC.PROPERTY_HTML)), TextView.BufferType.SPANNABLE);
+			String html = TiConvert.toString(d, TiC.PROPERTY_HTML);
+			if (html == null) {
+				html = "";
+			}
+			tv.setText(Html.fromHtml(html), TextView.BufferType.SPANNABLE);
 		} else if (d.containsKey(TiC.PROPERTY_TEXT)) {
 			tv.setText(TiConvert.toString(d,TiC.PROPERTY_TEXT));
 		} else if (d.containsKey(TiC.PROPERTY_TITLE)) { //TODO this may not need to be supported.
@@ -69,7 +95,12 @@ public class TiUILabel extends TiUIView
 		}
 
 		if (d.containsKey(TiC.PROPERTY_COLOR)) {
-			tv.setTextColor(TiConvert.toColor(d, TiC.PROPERTY_COLOR));
+			Object color = d.get(TiC.PROPERTY_COLOR);
+			if (color == null) {
+				tv.setTextColor(defaultColor);
+			} else {
+				tv.setTextColor(TiConvert.toColor(d, TiC.PROPERTY_COLOR));
+			}
 		}
 		if (d.containsKey(TiC.PROPERTY_HIGHLIGHTED_COLOR)) {
 			tv.setHighlightColor(TiConvert.toColor(d, TiC.PROPERTY_HIGHLIGHTED_COLOR));
@@ -79,18 +110,19 @@ public class TiUILabel extends TiUIView
 		}
 		if (d.containsKey(TiC.PROPERTY_TEXT_ALIGN) || d.containsKey(TiC.PROPERTY_VERTICAL_ALIGN)) {
 			String textAlign = d.optString(TiC.PROPERTY_TEXT_ALIGN, "left");
-			String verticalAlign = d.optString(TiC.PROPERTY_VERTICAL_ALIGN, "center");
+			String verticalAlign = d.optString(TiC.PROPERTY_VERTICAL_ALIGN, "middle");
 			TiUIHelper.setAlignment(tv, textAlign, verticalAlign);
 		}
 		if (d.containsKey(TiC.PROPERTY_ELLIPSIZE)) {
-			if (TiConvert.toBoolean(d, TiC.PROPERTY_ELLIPSIZE)) {
+			if (TiConvert.toBoolean(d, TiC.PROPERTY_ELLIPSIZE, false)) {
 				tv.setEllipsize(TruncateAt.END);
 			} else {
 				tv.setEllipsize(null);
 			}
 		}
 		if (d.containsKey(TiC.PROPERTY_WORD_WRAP)) {
-			tv.setSingleLine(!TiConvert.toBoolean(d, TiC.PROPERTY_WORD_WRAP));
+			wordWrap = TiConvert.toBoolean(d, TiC.PROPERTY_WORD_WRAP, true);
+			tv.setSingleLine(!wordWrap);
 		}
 		// This needs to be the last operation.
 		TiUIHelper.linkifyIfEnabled(tv, d.get(TiC.PROPERTY_AUTO_LINK));
@@ -123,13 +155,13 @@ public class TiUILabel extends TiUIView
 			TiUIHelper.styleText(tv, (HashMap) newValue);
 			tv.requestLayout();
 		} else if (key.equals(TiC.PROPERTY_ELLIPSIZE)) {
-			if (TiConvert.toBoolean(newValue)) {
+			if (TiConvert.toBoolean(newValue, false)) {
 				tv.setEllipsize(TruncateAt.END);
 			} else {
 				tv.setEllipsize(null);
 			}
 		} else if (key.equals(TiC.PROPERTY_WORD_WRAP)) {
-			tv.setSingleLine(!TiConvert.toBoolean(newValue));
+			tv.setSingleLine(!TiConvert.toBoolean(newValue, true));
 		} else if (key.equals(TiC.PROPERTY_AUTO_LINK)) {
 			Linkify.addLinks(tv, TiConvert.toInt(newValue));
 		} else {

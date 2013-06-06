@@ -6,7 +6,7 @@ define(["Ti/_", "Ti/_/dom", "Ti/_/has", "Ti/_/lang", "Ti/App", "Ti/Platform"],
 		cfg = require.config,
 		analyticsEnabled = App.analytics,
 		analyticsLastSent = null,
-		analyticsUrl = "https://api.appcelerator.net/p/v2/mobile-web-track",
+		analyticsUrl = "https://api.appcelerator.net/p/v3/mobile-web-track/" + App.guid,
 		pending = {},
 		sendTimer,
 		sendDelay = 60000,
@@ -147,7 +147,7 @@ define(["Ti/_", "Ti/_/dom", "Ti/_/has", "Ti/_/lang", "Ti/App", "Ti/Platform"],
 
 	function setStorage(data) {
 		localStorage.setItem("ti:analyticsEvents", JSON.stringify(data));
-	}	
+	}
 
 	function onSuccess(response) {
 		if (is(response.data, "Object") && response.data.success) {

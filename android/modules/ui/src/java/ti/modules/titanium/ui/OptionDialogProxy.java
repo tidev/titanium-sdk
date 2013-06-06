@@ -21,7 +21,8 @@ import android.app.Activity;
 	TiC.PROPERTY_OPTIONS,
 	TiC.PROPERTY_SELECTED_INDEX,
 	TiC.PROPERTY_TITLE,
-	TiC.PROPERTY_TITLEID
+	TiC.PROPERTY_TITLEID,
+	TiC.PROPERTY_PERSISTENT
 })
 public class OptionDialogProxy extends TiDialogProxy
 {

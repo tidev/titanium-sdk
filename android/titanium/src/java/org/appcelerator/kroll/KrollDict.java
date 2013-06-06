@@ -11,6 +11,7 @@ import java.util.Iterator;
 import java.util.Map;
 
 import org.appcelerator.titanium.util.TiConvert;
+import org.appcelerator.titanium.TiC;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -44,11 +45,12 @@ public class KrollDict
 			put(key, json);
 		}
 	}
-	
+		
 	public static Object fromJSON(Object value) {
 		try {
 			if (value instanceof JSONObject) {
 				return new KrollDict((JSONObject)value);
+
 			} else if (value instanceof JSONArray) {
 				JSONArray array = (JSONArray)value;
 				Object[] values = new Object[array.length()];
@@ -56,10 +58,15 @@ public class KrollDict
 					values[i] = fromJSON(array.get(i));
 				}
 				return values;
+
+			} else if (value == JSONObject.NULL) {
+				return null;
+
 			}
 		} catch (JSONException e) {
 			Log.e(TAG, "Error parsing JSON", e);
 		}
+
 		return value;
 	}
 
@@ -79,6 +86,14 @@ public class KrollDict
 	 */
 	public KrollDict(int size) {
 		super(size);
+	}
+
+	public void putCodeAndMessage(int code, String message) {
+		this.put(TiC.PROPERTY_SUCCESS,new Boolean(code==0));
+		this.put(TiC.PROPERTY_CODE,new Integer(code));
+		if (message != null){
+			this.put(TiC.EVENT_PROPERTY_ERROR,message);
+		}
 	}
 
 	public boolean containsKeyAndNotNull(String key) {
@@ -141,12 +156,13 @@ public class KrollDict
 		return TiConvert.toStringArray((Object[])get(key));
 	}
 
+	@SuppressWarnings("unchecked")
 	public KrollDict getKrollDict(String key) {
 		Object value = get(key);
 		if (value instanceof KrollDict) {
 			return (KrollDict) value;
 		} else if (value instanceof HashMap) {
-			return new KrollDict((HashMap)value);
+			return new KrollDict((HashMap<String, Object>) value);
 		} else {
 			return null;
 		}

@@ -29,7 +29,10 @@ static NSDictionary* multiValueLabels;
 	
 	if (record == NULL) {
 		if (recordId != kABRecordInvalidID) {
-			record = ABAddressBookGetPersonWithRecordID([module addressBook], recordId);
+			ABAddressBookRef ourAddressBook = [module addressBook];
+			if (ourAddressBook != NULL) {
+				record = ABAddressBookGetPersonWithRecordID(ourAddressBook, recordId);
+			}
 		}
 	}
 	return record;

@@ -61,7 +61,7 @@ typedef enum
 	AS_STOPPED,
 	AS_PAUSED,
 	AS_FLUSHING_EOF
-} TI_AudioStreamerState;
+} AudioStreamerState;
 
 typedef enum
 {
@@ -70,7 +70,7 @@ typedef enum
 	AS_STOPPING_USER_ACTION,
 	AS_STOPPING_ERROR,
 	AS_STOPPING_TEMPORARILY
-} TI_AudioStreamerStopReason;
+} AudioStreamerStopReason;
 
 typedef enum
 {
@@ -96,7 +96,7 @@ typedef enum
 	AS_AUDIO_STREAMER_FAILED,
 	AS_GET_AUDIO_TIME_FAILED,
 	AS_AUDIO_BUFFER_TOO_SMALL
-} TI_AudioStreamerErrorCode;
+} AudioStreamerErrorCode;
 
 extern NSString * const ASStatusChangedNotification;
 
@@ -106,8 +106,8 @@ extern NSString * const ASStatusChangedNotification;
 
 
 @protocol AudioStreamerProtocol<NSObject>
-@property TI_AudioStreamerErrorCode errorCode;
-@property (nonatomic, readonly) TI_AudioStreamerState state;
+@property AudioStreamerErrorCode errorCode;
+@property (nonatomic, readonly) AudioStreamerState state;
 @property (readonly) double progress;
 @property (readwrite) UInt32 bitRate;
 @property (readwrite) double volume;
@@ -123,17 +123,15 @@ extern NSString * const ASStatusChangedNotification;
 - (BOOL)isIdle;
 @end
 
-@interface TI_AudioStreamer : NSObject<AudioStreamerProtocol,AudioStreamerDelegate>
+@interface AudioStreamer : NSObject<AudioStreamerProtocol,AudioStreamerDelegate>
 {
 	id<AudioStreamerProtocol> streamer;
 	id<AudioStreamerDelegate> delegate;
 }
 
 - (id)initWithURL:(NSURL *)aURL;
-+ (NSString*)stringForErrorCode:(TI_AudioStreamerErrorCode)code;
++ (NSString*)stringForErrorCode:(AudioStreamerErrorCode)code;
 
 @end
-
-@compatibility_alias AudioStreamer TI_AudioStreamer;
 
 #endif

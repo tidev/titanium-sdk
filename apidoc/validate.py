@@ -13,6 +13,7 @@ if os.path.exists(commonSupportDir):
 
 import codecs, optparse, platform
 import markdown
+from common import DEFAULT_PLATFORMS
 
 try:
 	import yaml
@@ -23,21 +24,20 @@ except:
 	print >> sys.stderr, ""
 	sys.exit(1)
 
-
-VALID_PLATFORMS = ["android", "iphone", "ipad", "mobileweb"]
 VALID_KEYS = {
 		"type": ["name", "summary", "description", "createable", "platforms", "extends",
 			"excludes", "since", "deprecated", "osver", "examples", "methods", "properties",
 			"events"],
 		"method": ["name", "summary", "description", "returns", "platforms", "since",
 			"deprecated", "osver", "examples", "parameters"],
-		"parameter": ["name", "summary", "type", "optional", "default"],
+		"parameter": ["name", "summary", "type", "optional", "default", "repeatable"],
 		"property": ["name", "summary", "description", "type", "platforms", "since",
 			"deprecated", "osver", "examples", "permission", "availability", "accessors",
 			"optional", "value", "default"],
 		"event": ["name", "summary", "description", "extends", "platforms", "since",
 			"deprecated", "osver", "properties"],
-		"eventprop": ["name", "summary", "type", "platforms", "deprecated"]
+		"eventprop": ["name", "summary", "type", "platforms", "deprecated"],
+		"deprecated": ["since", "removed", "notes"]
 		}
 
 types = {}
@@ -152,11 +152,13 @@ class ErrorTracker(object):
 				return True
 		return False
 
-def validateKeys(tracker, obj, objType):
+def validateKeys(tracker, obj, objType, displayName=None):
 	validKeys = VALID_KEYS[objType]
 	if not isinstance(obj, dict):
 		return
-	if "name" in obj:
+	if displayName:
+		objName = displayName
+	elif "name" in obj:
 		objName = obj["name"]
 	else:
 		objName = "object"
@@ -215,8 +217,8 @@ def validatePlatforms(tracker, platforms):
 	if type(platforms) != list:
 		tracker.trackError('"platforms" specified, but isn\'t a list: %s' % platforms)
 	for p in platforms:
-		if p not in VALID_PLATFORMS:
-			tracker.trackError('platform specifier "%s" is not valid. Valid platforms are: %s.' % (p, VALID_PLATFORMS))
+		if p not in DEFAULT_PLATFORMS:
+			tracker.trackError('platform specifier "%s" is not valid. Valid platforms are: %s.' % (p, DEFAULT_PLATFORMS))
 
 def validateSince(tracker, since):
 	if type(since) not in [str, dict]:
@@ -225,6 +227,7 @@ def validateSince(tracker, since):
 def validateDeprecated(tracker, deprecated):
 	if type(deprecated) != dict or 'since' not in deprecated:
 			tracker.trackError('"deprecated" should be a dictionary with "since" and optional "removed" versions: %s' % deprecated)
+	validateKeys(tracker, deprecated, "deprecated", "deprecated")
 
 def validateOsVer(tracker, osver):
 	if type(osver) != dict:
@@ -314,6 +317,9 @@ def validateCommon(tracker, map):
 
 	if 'optional' in map:
 		validateIsBool(tracker, 'optional', map['optional'])
+
+	if 'repeatable' in map:
+		validateIsBool(tracker, 'repeatable', map['repeatable'])
 
 	if 'notes' in map:
 		tracker.trackError('"notes" field is no longer valid')
@@ -462,18 +468,25 @@ def loadTypesFromDocgen():
 	global typesFromDocgen
 	import docgen
 	docgen.log.level = 2 # INFO
-	docgen.process_yaml()
+	docgen.process_yaml([apiDocDir])
 	docgen.finish_partial_overrides()
 	typesFromDocgen = docgen.apis
 
 def validateTDoc(tdocPath):
 	global typesFromDocgen
-	if not typesFromDocgen:
-		loadTypesFromDocgen()
 
 	tdocTypes = [type for type in yaml.load_all(codecs.open(tdocPath, 'r', 'utf8').read())]
+
 	if options.parseOnly:
 		return
+
+	if not typesFromDocgen:
+		try:
+			loadTypesFromDocgen()
+		except Exception, e:
+			# This should be fatal
+			print >> sys.stderr, e
+			sys.exit(1)
 
 	for type in tdocTypes:
 		validateType(type)
@@ -523,18 +536,21 @@ def validateRefs():
 						validateRef(pTracker, property['type'], 'type')
 
 
-def validateDir(dir):
-	for root, dirs, files in os.walk(dir):
-		for file in files:
-			if file.endswith(".yml") and file != "template.yml":
-				absolutePath = os.path.join(root, file)
-				try:
-					validateTDoc(absolutePath)
-				except Exception, e:
-					print >> sys.stderr, ("Error parsing %s: %s:" % (os.path.join(root,file), str(e)))
+def validateDir(source_dirs):
+	for dir in source_dirs:
+		for root, dirs, files in os.walk(dir):
+			for file in files:
+				if file.endswith(".yml") and file != "template.yml":
+					absolutePath = os.path.join(root, file)
+					try:
+						validateTDoc(absolutePath)
+					except Exception, e:
+						print >> sys.stderr, ("Error parsing %s: %s:" % (os.path.join(root,file), str(e)))
 	validateRefs()
 
-def printStatus(dir=None):
+def printStatus(dirs=None):
+	dirs_length = len(dirs)
+	home_doc_dir = dirs[0]
 	if options.format == 'pretty':
 		printer = PrettyPrinter()
 	elif options.format == 'simple':
@@ -548,7 +564,9 @@ def printStatus(dir=None):
 	for key in keys:
 		tdocPath = key
 		tdocTypes = types[key]
-		if dir: tdocPath = tdocPath[len(dir)+1:]
+		if dirs_length == 1 : tdocPath = tdocPath[len(home_doc_dir):]
+		if not options.dir and dirs_length > 1 and tdocPath.startswith(home_doc_dir):
+			continue
 		for type in tdocTypes:
 			printer.printStatus(tdocPath, errorTrackers[type["name"]])
 			
@@ -574,7 +592,7 @@ def main(args):
 	parser.add_option('--warn-summary', dest='validateSummary',
 		action='store_true', default=False, help='validate summary field')
 	global options
-	(options, args) = parser.parse_args(args)
+	(options, args) = parser.parse_args()
 
 	dir=None
 	if options.file is not None:
@@ -587,8 +605,18 @@ def main(args):
 		validateTDoc(options.file)
 	else:
 		dir = options.dir or apiDocDir
-		validateDir(dir)
-	printStatus(dir)
+		# The doc directories to validate can be set in two ways
+		# 1. Using -d or -dir followed by a doc path
+		#     - This will take one directory
+		#     - The titanium docs dir will not be included automatically
+		# 2. Follow up validate with a list of doc directories separated by spaces
+		#     - Multiple directories can be validated at once
+		#     _ The titanium docs dir will be included automatically
+		# To validate multiple directories but not include the titanium docs dir combine the
+		# two methods passing the first directory with -dir and the rest separated by spaces
+		source_dirs = [ dir ] + args
+		validateDir(source_dirs)
+	printStatus(source_dirs)
 
 if __name__ == "__main__":
 	main(sys.argv)

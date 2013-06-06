@@ -5,7 +5,7 @@
 
 import os, sys, platform, glob, subprocess, types, re
 
-DEFAULT_API_LEVEL = 8
+DEFAULT_API_LEVEL = 10
 
 android_api_levels = {
 	3: 'android-1.5',
@@ -46,9 +46,47 @@ class AndroidSDK:
 		self.android_sdk = self.find_sdk(android_sdk)
 		if self.android_sdk is None:
 			raise Exception('No Android SDK directory found')
-		self.api_level = api_level
+		self.set_api_level(api_level)
+
+	def set_api_level(self, level):
+		self.api_level = level
 		self.find_platform_dir()
 		self.find_google_apis_dir()
+
+	def try_best_match_api_level(self, level):
+		# Don't go backwards
+		if level <= self.api_level:
+			return
+
+		orig_level = self.api_level
+		orig_platform_dir = self.platform_dir
+		orig_google_apis_dir = self.google_apis_dir
+
+		check_level = level
+		while check_level > orig_level:
+			self.find_platform_dir(check_level, False)
+			if self.platform_dir:
+				self.api_level = check_level
+				print "[INFO] Targeting Android SDK version %s" % self.api_level
+				break
+			check_level -= 1
+
+		if not self.platform_dir:
+			# Couldn't match.  Set it back and return.
+			self.platform_dir = orig_platform_dir
+			return
+
+		# Now give the Google APIs a chance to match.
+		check_level = level
+		while check_level > orig_level:
+			self.find_google_apis_dir(check_level)
+			if self.google_apis_dir:
+				break
+			check_level -= 1
+
+		if not self.google_apis_dir:
+			# Couldn't match, so set it back to what it was.
+			self.google_apis_dir = orig_google_apis_dir
 
 	def find_sdk(self, supplied):
 		if platform.system() == 'Windows':
@@ -80,23 +118,29 @@ class AndroidSDK:
 			return dirs[0]
 		return None
 
-	def find_platform_dir(self):
-		platform_dir = self.find_dir(self.api_level, os.path.join('platforms', 'android-'))
+	def find_platform_dir(self, api_level=-1, raise_error=True):
+		if api_level == -1:
+			api_level = self.api_level
+
+		platform_dir = self.find_dir(api_level, os.path.join('platforms', 'android-'))
 		if platform_dir is None:
-			old_style_dir = os.path.join(self.android_sdk, 'platforms', android_api_levels[self.api_level])
+			old_style_dir = os.path.join(self.android_sdk, 'platforms', android_api_levels[api_level])
 			if os.path.exists(old_style_dir):
 				platform_dir = old_style_dir
-		if platform_dir is None:
-			raise Exception("No \"%s\" or \"%s\" in the Android SDK" % ('android-%s' % self.api_level, android_api_levels[self.api_level]))
+		if platform_dir is None and raise_error:
+			raise Exception("No \"%s\" or \"%s\" in the Android SDK" % ('android-%s' % api_level, android_api_levels[api_level]))
 		self.platform_dir = platform_dir
 
-	def find_google_apis_dir(self):
+	def find_google_apis_dir(self, api_level=-1):
+		if api_level == -1:
+			api_level = self.api_level
+
 		if 'GOOGLE_APIS' in os.environ:
 			self.google_apis_dir = os.environ['GOOGLE_APIS']
 			return self.google_apis_dir
-		self.google_apis_dir = self.find_dir(self.api_level, os.path.join('add-ons', 'google_apis-'))
+		self.google_apis_dir = self.find_dir(api_level, os.path.join('add-ons', 'google_apis-'))
 		if self.google_apis_dir is None:
-			self.google_apis_dir = self.find_dir(self.api_level, os.path.join('add-ons', 'addon?google?apis?google*'))
+			self.google_apis_dir = self.find_dir(api_level, os.path.join('add-ons', 'addon?google?apis?google*'))
 
 	def get_maps_jar(self):
 		if self.google_apis_dir is not None:
@@ -131,6 +175,13 @@ class AndroidSDK:
 				return sdk_platform_tools
 		return None
 
+	def get_build_tools_dir(self):
+		if self.android_sdk is not None:
+			build_tools = os.path.join(self.android_sdk, 'build-tools')
+			if os.path.exists(build_tools):
+				return build_tools
+		return None
+
 	def get_api_level(self):
 		return self.api_level
 
@@ -151,13 +202,24 @@ class AndroidSDK:
 	def get_platform_tool(self, tool):
 		platform_tools_dir = self.get_platform_tools_dir()
 		sdk_platform_tools_dir = self.get_sdk_platform_tools_dir()
+		build_tools_dir = self.get_build_tools_dir()
 		tool_path = None
 		if platform_tools_dir is not None:
 			tool_path = self.get_tool(platform_tools_dir, tool)
 		if tool_path is None and sdk_platform_tools_dir is not None:
 			tool_path = self.get_tool(sdk_platform_tools_dir, tool)
 		if tool_path is None or not os.path.exists(tool_path):
-			return self.get_sdk_tool(tool)
+			tool_path = self.get_sdk_tool(tool)
+		# Many tools were moved to build-tools/17.0.0 (or something equivalent in windows) in sdk tools r22
+		if tool_path is None and build_tools_dir is not None:
+			# Here, we list all the directories in build-tools and check inside
+			# each one for the tool we are looking for (there can be future versions besides 17.0.0).
+			for dirname in os.listdir(build_tools_dir):
+				build_tools_version_dir = os.path.join(build_tools_dir, dirname)
+				tool_path = self.get_tool(build_tools_version_dir, tool)
+				if tool_path is not None:
+					break
+
 		return tool_path
 
 	def get_dx(self):
@@ -166,10 +228,26 @@ class AndroidSDK:
 	def get_dx_jar(self):
 		platform_tools_dir = self.get_platform_tools_dir()
 		sdk_platform_tools_dir = self.get_sdk_platform_tools_dir()
+		build_tools_dir = self.get_build_tools_dir()
+		dx_jar_path = None
+
 		if platform_tools_dir is not None:
-			return os.path.join(platform_tools_dir, 'lib', 'dx.jar')
-		elif sdk_platform_tools_dir is not None:
-			return os.path.join(sdk_platform_tools_dir, 'lib', 'dx.jar')
+			dx_jar_path = self.get_lib_dx_jar(platform_tools_dir)
+		if sdk_platform_tools_dir is not None and dx_jar_path is None:
+			dx_jar_path = self.get_lib_dx_jar(sdk_platform_tools_dir)
+		if build_tools_dir is not None and dx_jar_path is None:
+			for dirname in os.listdir(build_tools_dir):
+				build_tools_version_dir = os.path.join(build_tools_dir, dirname)
+				dx_jar_path = self.get_lib_dx_jar(build_tools_version_dir)
+				if dx_jar_path is not None:
+					break
+		return dx_jar_path
+
+	def get_lib_dx_jar(self, topdir):
+		if topdir is not None:
+			lib_dx_jar_path = os.path.join(topdir, 'lib', 'dx.jar')
+			if os.path.exists(lib_dx_jar_path):
+				return lib_dx_jar_path
 		return None
 
 	def get_dexdump(self):

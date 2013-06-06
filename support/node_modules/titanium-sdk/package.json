@@ -1,0 +1,28 @@
+{
+	"name": "titanium-sdk",
+	"description": "Appcelerator Titanium SDK Library",
+	"keywords": [
+		"appcelerator",
+		"titanium",
+		"mobile"
+	],
+	"version": "0.1.0",
+	"author": {
+		"name": "Appcelerator, Inc.",
+		"email": "info@appcelerator.com"
+	},
+	"maintainers": [
+		{"name": "Chris Barber", "email": "cbarber@appcelerator.com"}
+	],
+	"license": "Apache Public License v2",
+	"main": "./lib/titanium",
+	"directories": {
+		"lib": "./lib"
+	},
+	"engines": {
+		"node": ">=0.6.6"
+	},
+	"scripts": {
+		"test": "node tests/run.js"
+	}
+}

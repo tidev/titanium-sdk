@@ -15,6 +15,9 @@
 #import "LauncherItem.h"
 #import "LauncherButton.h"
 
+static const NSInteger kDashboardViewDefaultRowCount = 3;
+static const NSInteger kDashboardViewDefaultColumnCount = 3;
+
 @implementation TiUIDashboardView
 
 -(void)dealloc
@@ -32,7 +35,11 @@
 {
 	if (launcher==nil)
 	{
-		launcher = [[LauncherView alloc] initWithFrame:CGRectMake(0, 0, 320, 400)];
+		int rowCount = [TiUtils intValue:[self.proxy valueForKey:@"rowCount"] def:kDashboardViewDefaultRowCount];
+		int columnCount = [TiUtils intValue:[self.proxy valueForKey:@"columnCount"] def:kDashboardViewDefaultColumnCount];
+		launcher = [[LauncherView alloc] initWithFrame:CGRectMake(0, 0, 320, 400) 
+                                          withRowCount:rowCount 
+                                       withColumnCount:columnCount];
 		launcher.delegate = self;
         [launcher setEditable:[[[self proxy] valueForUndefinedKey:@"editable"] boolValue]];
 		[self addSubview:launcher];
@@ -40,15 +47,17 @@
 	return launcher;
 }
 
+- (id)accessibilityElement
+{
+	return [self launcher];
+}
+
 -(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
 {
 	if (!CGRectIsEmpty(bounds))
 	{
 		[TiUtils setView:launcher positionRect:bounds];
-		if(launcher.editing == NO)
-		{
-			[launcher recreateButtons];
-		}
+		[launcher layoutButtons];
 	}
     [super frameSizeChanged:frame bounds:bounds];
 }
@@ -67,7 +76,7 @@
 {
 	[self launcher];
     
-    NSArray* items = [launcher items];
+    NSArray* items = [launcher launcheritems_];
     for (LauncherItem* item in items) {
         [launcher removeItem:item animated:NO];
     }
@@ -90,6 +99,15 @@
 
 
 #pragma mark Delegates 
+
+- (void)launcherView:(LauncherView*)launcher didChangePage:(NSNumber*)pageNo;
+{
+    if ([self.proxy _hasListeners:@"pagechanged"]) {
+        NSMutableDictionary *event = [NSMutableDictionary dictionary];
+        [event setObject:pageNo forKey:@"pageNo"];
+        [self.proxy fireEvent:@"pagechanged" withObject:event propagate:NO];
+    }
+}
 
 - (void)launcherView:(LauncherView*)launcher didAddItem:(LauncherItem*)item
 {

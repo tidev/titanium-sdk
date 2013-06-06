@@ -1,6 +1,6 @@
 {
 	"name": "Ti",
-	"description": "The mobile web platform for rapidly developing applications",
+	"description": "The Titanium Mobile Web AMD package",
 	"version": "__VERSION__",
 	"keywords": ["Titanium", "Ti", "mobile", "JavaScript"],
 	"licenses": [
@@ -11,12 +11,12 @@
 	],
 	"repositories": [
 		{
-			"type": "git", 
+			"type": "git",
 			"url": "https://github.com/appcelerator/titanium_mobile.git",
 			"path": "packages/Ti"
 		}
 	],
-	"homepage": "https://github.com/appcelerator/titanium_mobile.git",
+	"homepage": "https://github.com/appcelerator/titanium_mobile",
 	"directories": {
 		"lib": "."
 	},

@@ -79,6 +79,13 @@ public class UIModule extends KrollModule implements Handler.Callback
 	@Kroll.constant public static final int INPUT_BUTTONMODE_ONFOCUS = 0;
 	@Kroll.constant public static final int INPUT_BUTTONMODE_ALWAYS = 1;
 	@Kroll.constant public static final int INPUT_BUTTONMODE_NEVER = 2;
+	
+	@Kroll.constant public static final String LIST_ITEM_TEMPLATE_DEFAULT = "listDefaultTemplate";
+	@Kroll.constant public static final int LIST_ACCESSORY_TYPE_NONE = 0;
+	@Kroll.constant public static final int LIST_ACCESSORY_TYPE_CHECKMARK = 1;
+	@Kroll.constant public static final int LIST_ACCESSORY_TYPE_DETAIL = 2;
+	@Kroll.constant public static final int LIST_ACCESSORY_TYPE_DISCLOSURE = 3;
+
 
 	@Kroll.constant public static final int MAP_VIEW_STANDARD = 1;
 	@Kroll.constant public static final int MAP_VIEW_SATELLITE = 2;
@@ -141,8 +148,7 @@ public class UIModule extends KrollModule implements Handler.Callback
 
 	protected static final int MSG_SET_BACKGROUND_COLOR = KrollProxy.MSG_LAST_ID + 100;
 	protected static final int MSG_SET_BACKGROUND_IMAGE = KrollProxy.MSG_LAST_ID + 101;
-	protected static final int MSG_SET_ORIENTATION = KrollProxy.MSG_LAST_ID + 102;
-	protected static final int MSG_LAST_ID = MSG_SET_ORIENTATION;
+	protected static final int MSG_LAST_ID = MSG_SET_BACKGROUND_IMAGE;
 
 
 	public UIModule()
@@ -207,17 +213,6 @@ public class UIModule extends KrollModule implements Handler.Callback
 		}
 	}
 
-	@Kroll.setProperty(runOnUiThread=true) @Kroll.method(runOnUiThread=true)
-	public void setOrientation(int tiOrientationMode)
-	{
-		if (TiApplication.isUIThread()) {
-			doSetOrientation(tiOrientationMode);
-
-		} else {
-			Message message = getMainHandler().obtainMessage(MSG_SET_ORIENTATION, tiOrientationMode);
-			message.sendToTarget();
-		}
-	}
 
 	@Kroll.method
 	public double convertUnits(String convertFromValue, String convertToUnits)
@@ -293,11 +288,6 @@ public class UIModule extends KrollModule implements Handler.Callback
 			}
 			case MSG_SET_BACKGROUND_IMAGE: {
 				doSetBackgroundImage(message.obj);
-
-				return true;
-			}
-			case MSG_SET_ORIENTATION: {
-				doSetOrientation((Integer)message.obj);
 
 				return true;
 			}

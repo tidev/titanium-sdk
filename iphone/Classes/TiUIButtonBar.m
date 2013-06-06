@@ -48,18 +48,26 @@
 	return segmentedControl;
 }
 
+- (id)accessibilityElement
+{
+	return [self segmentedControl];
+}
+
 // For regression #1880.  Because there are essentially TWO kinds of 'width' going on with tabbed/button bars
 // (width of all elements, width of the proxy) we assume that if the user has set the width of the bar completely,
 // AND the width of the proxy is undefined, they want magic!
 -(void)frameSizeChanged:(CGRect)frame_ bounds:(CGRect)bounds_
 {
-	// Treat 'undefined' like 'auto' when we have an available width for ALL control segments
-	if (controlSpecifiedWidth && TiDimensionIsUndefined([(TiViewProxy*)[self proxy] layoutProperties]->width)) {
-		UISegmentedControl* ourControl = [self segmentedControl];
-		CGRect controlBounds = bounds_;
-		controlBounds.size = [ourControl sizeThatFits:CGSizeZero];
-		[ourControl setBounds:controlBounds];
-	}
+    // Treat 'undefined' like 'auto' when we have an available width for ALL control segments
+    UISegmentedControl* ourControl = [self segmentedControl];
+    if (controlSpecifiedWidth && TiDimensionIsUndefined([(TiViewProxy*)[self proxy] layoutProperties]->width)) {
+        CGRect controlBounds = bounds_;
+        controlBounds.size = [ourControl sizeThatFits:CGSizeZero];
+        [ourControl setBounds:controlBounds];
+    }
+    else {
+        [ourControl setFrame:bounds_];
+    }
     [super frameSizeChanged:frame_ bounds:bounds_];
 }
 
@@ -158,6 +166,7 @@
 		UIImage * thisSegmentImage = nil;
 		CGFloat thisSegmentWidth = 0;
 		BOOL thisSegmentEnabled = YES;
+		NSString *thisSegmentAccessibilityLabel = nil;
 		
 		if ([thisSegmentEntry isKindOfClass:[NSDictionary class]])
 		{
@@ -165,10 +174,14 @@
 			thisSegmentImage = [TiUtils image:[thisSegmentEntry objectForKey:@"image"] proxy:[self proxy]];
 			thisSegmentWidth = [TiUtils floatValue:@"width" properties:thisSegmentEntry];
 			thisSegmentEnabled = [TiUtils boolValue:@"enabled" properties:thisSegmentEntry def:YES];
+			thisSegmentAccessibilityLabel = [TiUtils stringValue:@"accessibilityLabel" properties:thisSegmentEntry];
 		}
 
 		if (thisSegmentImage != nil)
 		{
+			if (thisSegmentAccessibilityLabel != nil) {
+				thisSegmentImage.accessibilityLabel = thisSegmentAccessibilityLabel;
+			}
 			[segmentedControl insertSegmentWithImage:thisSegmentImage atIndex:thisSegmentIndex animated:NO];
 		}
 		else
@@ -176,6 +189,9 @@
 			if (thisSegmentTitle == nil)
 			{
 				thisSegmentTitle = @"";
+			}
+			if (thisSegmentAccessibilityLabel != nil) {
+				thisSegmentTitle.accessibilityLabel = thisSegmentAccessibilityLabel;
 			}
 			[segmentedControl insertSegmentWithTitle:thisSegmentTitle atIndex:thisSegmentIndex animated:NO];
 		}

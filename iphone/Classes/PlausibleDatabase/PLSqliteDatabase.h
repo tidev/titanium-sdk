@@ -29,9 +29,9 @@
 
 #import <sqlite3.h>
 
-extern NSString *TI_PLSqliteException;
+extern NSString *PLSqliteException;
 
-@interface TI_PLSqliteDatabase : NSObject <TI_PLDatabase> {
+@interface PLSqliteDatabase : NSObject <PLDatabase> {
 @private
     /** Path to the database file. */
     NSString *_path;
@@ -54,16 +54,14 @@ extern NSString *TI_PLSqliteException;
 
 @end
 
-@compatibility_alias PLSqliteDatabase TI_PLSqliteDatabase;
-
 #ifdef PL_DB_PRIVATE
 
-@interface TI_PLSqliteDatabase (PLSqliteDatabaseLibraryPrivate)
+@interface PLSqliteDatabase (PLSqliteDatabaseLibraryPrivate)
 
 - (int) lastErrorCode;
 - (NSString *) lastErrorMessage;
 
-- (BOOL) populateError: (NSError **) result withErrorCode: (TI_PLDatabaseError) errorCode
+- (BOOL) populateError: (NSError **) result withErrorCode: (PLDatabaseError) errorCode
            description: (NSString *) localizedDescription queryString: (NSString *) queryString;
 
 @end

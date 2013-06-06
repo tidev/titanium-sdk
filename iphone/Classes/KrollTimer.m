@@ -9,6 +9,7 @@
 #import "KrollObject.h"
 #import "TiUtils.h"
 #import "TiBase.h"
+#import "TiExceptionHandler.h"
 
 @implementation KrollTimer
 
@@ -67,7 +68,7 @@
 	if (exception!=NULL)
 	{
 		id excm = [KrollObject toID:kroll value:exception];
-		DebugLog(@"[ERROR] While executing Timer, received script error. '%@'",[TiUtils exceptionMessage:excm]);
+		[[TiExceptionHandler defaultExceptionHandler] reportScriptError:[TiUtils scriptErrorValue:excm]];
 	}
 	[invokeCond unlockWithCondition:1];
 }

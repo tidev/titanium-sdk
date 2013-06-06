@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -13,11 +13,12 @@ import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.proxy.TiWindowProxy;
+import org.appcelerator.titanium.util.TiConvert;
+import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiUIView;
 
-import ti.modules.titanium.ui.widget.TiUITabGroup;
+import ti.modules.titanium.ui.widget.tabgroup.TiUIAbstractTab;
 import android.app.Activity;
-import android.os.Message;
 
 @Kroll.proxy(creatableInModule=UIModule.class,
 propertyAccessors = {
@@ -27,16 +28,13 @@ propertyAccessors = {
 })
 public class TabProxy extends TiViewProxy
 {
+	@SuppressWarnings("unused")
 	private static final String TAG = "TabProxy";
 
-	private TiWindowProxy win;
 	private TabGroupProxy tabGroupProxy;
+	private TiWindowProxy window;
+	private boolean windowOpened = false;
 	private int windowId;
-	private String currentBackgroundColor = "";
-	private static final int MSG_FIRST_ID = TiViewProxy.MSG_LAST_ID + 1;
-	private final int MSG_TAB_BACKGROUND_COLOR_CHANGED = MSG_FIRST_ID + 101;
-	private final int MSG_TAB_BACKGROUND_SELECTED_COLOR_CHANGED = MSG_FIRST_ID + 102;
-
 
 	public TabProxy()
 	{
@@ -72,20 +70,26 @@ public class TabProxy extends TiViewProxy
 		}
 	}
 
-	public void setCurrentBackgroundColor(String color)
-	{
-		currentBackgroundColor = color;
+	@Kroll.getProperty @Kroll.method
+	public boolean getActive() {
+		if (tabGroupProxy != null) {
+			return tabGroupProxy.getActiveTab() == this;
+		}
+
+		return false;
 	}
 
-	public String getCurrentBackgroundColor()
-	{
-		return currentBackgroundColor;
+	@Kroll.setProperty @Kroll.method
+	public void setActive(boolean active) {
+		if (tabGroupProxy != null) {
+			tabGroupProxy.setActiveTab(this);
+		}
 	}
 
-	@Kroll.method @Kroll.setProperty
+	@Kroll.method
 	public void setWindow(TiWindowProxy window)
 	{
-		this.win = window;
+		this.window = window;
 
 		// don't call setProperty cause the property is already set on the JS
 		// object and thus we don't need to cross back over the bridge, we just
@@ -96,16 +100,22 @@ public class TabProxy extends TiViewProxy
 			return;
 		}
 
-		this.win.setTabProxy(this);
-		this.win.setTabGroupProxy(tabGroupProxy);
+		this.window.setTabProxy(this);
+
+		if (tabGroupProxy != null) {
+			// Set window's tab group if this tab has been added to a group.
+			this.window.setTabGroupProxy(tabGroupProxy);
+		}
+
 		//Send out a sync event to indicate window is added to tab
-		this.win.fireSyncEvent(TiC.EVENT_ADDED_TO_TAB, null);
+		this.window.fireSyncEvent(TiC.EVENT_ADDED_TO_TAB, null);
+		// TODO: Deprecate old event
+		this.window.fireSyncEvent("addedToTab", null);
 	}
 
-	@Kroll.method @Kroll.getProperty
 	public TiWindowProxy getWindow()
 	{
-		return this.win;
+		return this.window;
 	}
 
 	@Kroll.method @Kroll.getProperty
@@ -118,27 +128,18 @@ public class TabProxy extends TiViewProxy
 	{
 		setParent(tabGroupProxy);
 		this.tabGroupProxy = tabGroupProxy;
+
+		if (window != null) {
+			// If a window was set before the tab
+			// was added to a group we need to initialize
+			// the window's tab group reference.
+			window.setTabGroupProxy(tabGroupProxy);
+		}
 	}
 
 	public void setWindowId(int id)
 	{
 		windowId = id;
-	}
-	
-	public String getBackgroundColor() {
-		if (hasProperty(TiC.PROPERTY_BACKGROUND_COLOR)) {
-			return getProperty(TiC.PROPERTY_BACKGROUND_COLOR).toString();
-		} else {
-			return null;
-		}
-	}
-	
-	public String getBackgroundSelectedColor() {
-		if (hasProperty(TiC.PROPERTY_BACKGROUND_SELECTED_COLOR)) {
-			return getProperty(TiC.PROPERTY_BACKGROUND_SELECTED_COLOR).toString();
-		} else {
-			return null;
-		}
 	}
 	
 	public int getWindowId() 
@@ -150,72 +151,88 @@ public class TabProxy extends TiViewProxy
 	public void releaseViews()
 	{
 		super.releaseViews();
-		if (win != null) {
-			win.setTabProxy(null);
-			win.setTabGroupProxy(null);
-			win.releaseViews();
+		if (window != null) {
+			window.setTabProxy(null);
+			window.setTabGroupProxy(null);
+			window.releaseViews();
 		}
 	}
-	
-	public void setTabBackgroundColor() 
-	{
-		int index = tabGroupProxy.getTabList().indexOf(this);
-		TiUITabGroup tg = (TiUITabGroup)tabGroupProxy.peekView();
-		if (tg != null) {
-			tg.setTabBackgroundColor(index);
-		}
-	}
-	
-	public void setTabBackgroundSelectedColor()
-	{
-		TiUITabGroup tg = (TiUITabGroup)tabGroupProxy.peekView();
-		if (tg != null) {
-			tg.setTabBackgroundSelectedColor();
-		}
-	}
-	
-	@Override
-	public void onPropertyChanged(String name, Object value) 
-	{
-		super.onPropertyChanged(name, value);
-		if (name.equals(TiC.PROPERTY_BACKGROUND_COLOR)) {
-			
-			//This needs to run on main thread.
-			if (TiApplication.isUIThread()) {
-				setTabBackgroundColor();
-				return;
-			}
-			
-			getMainHandler().obtainMessage(MSG_TAB_BACKGROUND_COLOR_CHANGED).sendToTarget();
-			
-		} else if (name.equals(TiC.PROPERTY_BACKGROUND_SELECTED_COLOR)) {
-			
-			//This needs to run on main thread.
-			if (TiApplication.isUIThread()) {
-				setTabBackgroundSelectedColor();
-				return;
-			}
-			
-			getMainHandler().obtainMessage(MSG_TAB_BACKGROUND_SELECTED_COLOR_CHANGED).sendToTarget();
 
-		}
-	}
-	
-	@Override
-	public boolean handleMessage(Message msg)
+	/**
+	 * Get the color of the tab when it is active.
+	 *
+	 * @return the active color if specified, otherwise returns zero.
+	 */
+	public int getActiveTabColor()
 	{
-		switch (msg.what) {
-			case MSG_TAB_BACKGROUND_SELECTED_COLOR_CHANGED: {
-				setTabBackgroundSelectedColor();
-				return true;
-			}
-			case MSG_TAB_BACKGROUND_COLOR_CHANGED: {
-				setTabBackgroundColor();
-				return true;
-			}
-			default: {
-				return super.handleMessage(msg);
-			}
+		Object color = getProperty(TiC.PROPERTY_BACKGROUND_SELECTED_COLOR);
+		if (color == null) {
+			color = tabGroupProxy.getProperty(TiC.PROPERTY_ACTIVE_TAB_BACKGROUND_COLOR);
+		}
+
+		if (color != null) {
+			return TiConvert.toColor(color.toString());
+		}
+
+		return 0;
+	}
+
+	/**
+	 * Get the color of the tab when it is inactive.
+	 *
+	 * @return the inactive color if specified, otherwise returns zero.
+	 */
+	public int getTabColor()
+	{
+		Object color = getProperty(TiC.PROPERTY_BACKGROUND_COLOR);
+		if (color == null) {
+			color = tabGroupProxy.getProperty(TiC.PROPERTY_TABS_BACKGROUND_COLOR);
+		}
+
+		if (color != null) {
+			return TiConvert.toColor(color.toString());
+		}
+
+		return 0;
+	}
+
+	void onFocusChanged(boolean focused, KrollDict eventData)
+	{
+		// Windows are lazily opened when the tab is first focused.
+		if (window != null && !windowOpened) {
+			windowOpened = true;
+			window.fireEvent(TiC.EVENT_OPEN, null, false);
+		}
+		
+		//When tab loses focus, we hide the soft keyboard.
+		Activity currentActivity = TiApplication.getAppCurrentActivity();
+		if (!focused && currentActivity != null) {
+			TiUIHelper.showSoftKeyboard(currentActivity.getWindow().getDecorView(), false);
+		}
+
+		// The focus and blur events for tab changes propagate like so:
+		//    window -> tab -> tab group
+		//    
+		// The window is optional and will be skipped if it does not exist.		
+		String event = focused ? TiC.EVENT_FOCUS : TiC.EVENT_BLUR;
+		
+		if (window != null) {
+			window.fireEvent(event, null, false);
+		}
+		fireEvent(event, eventData, true);
+		
+	}
+
+	void close() {
+		if (windowOpened && window != null) {
+			windowOpened = false;
+			window.fireSyncEvent(TiC.EVENT_CLOSE, null);
 		}
 	}
+
+	void onSelectionChanged(boolean selected)
+	{
+		((TiUIAbstractTab) view).onSelectionChange(selected);
+	}
+
 }

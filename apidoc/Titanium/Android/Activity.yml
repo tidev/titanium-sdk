@@ -14,6 +14,15 @@ description: |
     new `Activity`. A *lightweight* window runs inside the same activity as the code that
     created it. 
 
+    The activity is not created until the window is opened. When a window is created,
+    its `activity` property refers to an empty JavaScript object.
+    You can use it, for example, to add an options menu by setting `onCreateOptionsMenu`.
+    After the window is opened, a real Activity object is created and the properties from
+    the JavaScript object are copied over.
+    The `activity` property now refers to this real Activity object,
+    which you can use to call the various Activity methods. For example, to use the
+    `invalidateOptionsMenu` method, you need to get the activity proxy after the window is opened.
+
     See: [android.app.Activity](http://developer.android.com/reference/android/app/Activity.html)
     in the Android API Reference.
 
@@ -72,6 +81,14 @@ methods:
       - name: format
         summary: Optional format arguments for the String resource. May be repeated.
         type: Object
+
+  - name: invalidateOptionsMenu
+    summary: Declares that the option menu has changed and should be recreated.
+    description: |
+        This method needs to be used in Android 3.0 and above when changing menus at runtime.  See
+        [changingTheMenu](http://developer.android.com/guide/topics/ui/menus.html#ChangingTheMenu) in 
+        the Android API Reference for more details. 
+    since: "3.0.0"
 
   - name: setRequestedOrientation
     summary: Sets the requested Activity orientation. 
@@ -142,7 +159,10 @@ methods:
         
   - name: openOptionsMenu
     summary: Programmatically opens the options menu.
-    since: "2.2.0"
+    description: |
+        See also: [onMenuOpened](http://developer.android.com/reference/android/app/Activity.html#onMenuOpened(int, android.view.Menu))
+        in the Android API Reference.
+    since: "3.0.0"
 events:
 
   - name: create
@@ -159,6 +179,22 @@ events:
         in the Android Developer Reference.
 
   - name: newIntent
+    deprecated:
+        since: "3.0.0"
+        notes: |
+            Renamed to [newintent](Titanium.Android.Activity.newintent)
+            (all lowercase).
+    summary: Fired when the activity is already running and certain flags are set in its intent. 
+    description: |
+        See also:
+        [onNewIntent](http://developer.android.com/reference/android/app/Activity.html#onNewIntent(android.content.Intent))
+        in the Android Developer Reference.
+    properties:
+      - name: intent
+        summary: The `Intent` passed to the native `onNewIntent` method.
+        type: Titanium.Android.Intent
+
+  - name: newintent
     summary: Fired when the activity is already running and certain flags are set in its intent. 
     description: |
         See also:
@@ -169,6 +205,7 @@ events:
       - name: intent
         summary: The `Intent` passed to the native `onNewIntent` method.
         type: Titanium.Android.Intent
+    since: '3.0.0'
 
   - name: pause
     summary: Fired when the activity is paused.
@@ -196,6 +233,14 @@ events:
         in the Android Developer Reference.
 
 properties:
+
+  - name: actionBar
+    summary: The action bar for this activity.
+    description: |
+        See also: [Action Bar](http://developer.android.com/guide/topics/ui/actionbar.html) in
+        the Android Developer Reference.
+    type: Titanium.Android.ActionBar
+    permission: read-only
 
   - name: intent
     summary: The `Intent` that was used to start this Activity.

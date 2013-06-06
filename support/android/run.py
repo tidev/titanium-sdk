@@ -25,10 +25,19 @@ def check_and_print_err(err, warning_regex):
 		sys.stderr.flush()
 	return errored
 
-def run(args, ignore_error=False, debug=True, ignore_output=False, warning_regex=None, return_error=False, return_process=False):
+def run(args, ignore_error=False, debug=True, ignore_output=False, warning_regex=None,
+		return_error=False, return_process=False, protect_arg_positions=None):
 	if debug:
-		print "[DEBUG] %s" % (subprocess.list2cmdline(args))
+		args_to_log = list(args)
+		if protect_arg_positions:
+			for position in protect_arg_positions:
+				if position >= len(args_to_log):
+					continue
+				args_to_log[position] = "*" * len(args_to_log[position])
+
+		print "[DEBUG] %s" % subprocess.list2cmdline(args_to_log)
 		sys.stdout.flush()
+
 	if ignore_output:
 		subprocess.Popen(args, stderr=subprocess.PIPE, stdout=subprocess.PIPE).wait()
 		return None

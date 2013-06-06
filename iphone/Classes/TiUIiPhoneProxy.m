@@ -62,6 +62,21 @@
 #ifdef USE_TI_UIIPADSPLITWINDOW
 	#import "TiUIiPadSplitWindowProxy.h"
 #endif
+#ifdef USE_TI_UIIPHONEALERTDIALOGSTYLE
+ 	#import "TiUIiPhoneAlertDialogStyleProxy.h"
+#endif
+#ifdef USE_TI_UIIPHONELISTVIEWSTYLE
+	#import "TiUIiPhoneTableViewStyleProxy.h"
+#endif
+#ifdef USE_TI_UIIPHONELISTVIEWSCROLLPOSITION
+	#import "TiUIiPhoneTableViewScrollPositionProxy.h"
+#endif
+#ifdef USE_TI_UIIPHONELISTVIEWCELLSELECTIONSTYLE
+#import "TiUIiPhoneTableViewCellSelectionStyleProxy.h"
+#endif
+#ifdef USE_TI_UIIPHONELISTVIEWSEPARATORSTYLE
+#import "TiUIiPhoneTableViewSeparatorStyleProxy.h"
+#endif
 
 @implementation TiUIiPhoneProxy
 
@@ -112,6 +127,21 @@ RELEASE_TO_NIL(x); \
 #ifdef USE_TI_UIIPHONETABLEVIEWCELLSELECTIONSTYLE
 	FORGET_AND_RELEASE(tableViewCellSelectionStyle);
 #endif
+#ifdef USE_TI_UIIPHONEALERTDIALOGSTYLE
+	FORGET_AND_RELEASE(alertDialogStyle);
+#endif
+#ifdef USE_TI_UIIPHONELISTVIEWSTYLE
+	FORGET_AND_RELEASE(listViewStyle);
+#endif
+#ifdef USE_TI_UIIPHONELISTVIEWSCROLLPOSITION
+	FORGET_AND_RELEASE(listViewScrollPosition);
+#endif
+#ifdef USE_TI_UIIPHONELISTVIEWCELLSELECTIONSTYLE
+	FORGET_AND_RELEASE(listViewCellSelectionStyle);
+#endif
+#ifdef USE_TI_UIIPHONELISTVIEWSEPARATORSTYLE
+	FORGET_AND_RELEASE(listViewSeparatorStyle);
+#endif
 	[super dealloc];
 }
 
@@ -122,6 +152,17 @@ RELEASE_TO_NIL(x); \
 	{	\
 		ivarName = [[TiUIiPhone##methodName##Proxy alloc] _initWithPageContext:[self executionContext]];	\
         [self rememberProxy:ivarName]; \
+	}	\
+	return ivarName;	\
+}	\
+
+#define DEFINE_SUBPROXY_AS(methodName,className, ivarName)	\
+-(TiProxy*)methodName	\
+{	\
+	if (ivarName==nil)	\
+	{	\
+		ivarName = [[TiUIiPhone##className##Proxy alloc] _initWithPageContext:[self executionContext]];	\
+		[self rememberProxy:ivarName]; \
 	}	\
 	return ivarName;	\
 }	\
@@ -164,6 +205,21 @@ RELEASE_TO_NIL(x); \
 #endif
 #ifdef USE_TI_UIIPHONETABLEVIEWCELLSELECTIONSTYLE
 	DEFINE_SUBPROXY(TableViewCellSelectionStyle,tableViewCellSelectionStyle);
+#endif
+#ifdef USE_TI_UIIPHONEALERTDIALOGSTYLE
+	DEFINE_SUBPROXY(AlertDialogStyle, alertDialogStyle);
+#endif
+#ifdef USE_TI_UIIPHONELISTVIEWSTYLE
+DEFINE_SUBPROXY_AS(ListViewStyle,TableViewStyle, listViewStyle);
+#endif
+#ifdef USE_TI_UIIPHONELISTVIEWSCROLLPOSITION
+DEFINE_SUBPROXY_AS(ListViewScrollPosition, TableViewScrollPosition, listViewScrollPosition);
+#endif
+#ifdef USE_TI_UIIPHONELISTVIEWCELLSELECTIONSTYLE
+DEFINE_SUBPROXY_AS(ListViewCellSelectionStyle, TableViewCellSelectionStyle, listViewCellSelectionStyle);
+#endif
+#ifdef USE_TI_UIIPHONELISTVIEWSEPARATORSTYLE
+DEFINE_SUBPROXY_AS(ListViewSeparatorStyle, TableViewSeparatorStyle, listViewSeparatorStyle);
 #endif
 
 #define RESPONDS_TO_3_2_STATUSBAR_SELECTOR \
@@ -343,6 +399,21 @@ MAKE_SYSTEM_PROP(MODAL_PRESENTATION_CURRENT_CONTEXT,UIModalPresentationCurrentCo
 #endif
 #ifdef USE_TI_UIIPHONETABLEVIEWCELLSELECTIONSTYLE
 	FORGET_AND_RELEASE(tableViewCellSelectionStyle);
+#endif
+#ifdef USE_TI_UIIPHONEALERTDIALOGSTYLE
+	FORGET_AND_RELEASE(alertDialogStyle);
+#endif
+#ifdef USE_TI_UIIPHONELISTVIEWSTYLE
+	FORGET_AND_RELEASE(listViewStyle);
+#endif
+#ifdef USE_TI_UIIPHONELISTVIEWSCROLLPOSITION
+	FORGET_AND_RELEASE(listViewScrollPosition);
+#endif
+#ifdef USE_TI_UIIPHONELISTVIEWCELLSELECTIONSTYLE
+	FORGET_AND_RELEASE(listViewCellSelectionStyle);
+#endif
+#ifdef USE_TI_UIIPHONELISTVIEWSEPARATORSTYLE
+	FORGET_AND_RELEASE(listViewSeparatorStyle);
 #endif
 	[super didReceiveMemoryWarning:notification];
 }

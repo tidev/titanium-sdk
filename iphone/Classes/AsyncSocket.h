@@ -10,26 +10,26 @@
 
 #import <Foundation/Foundation.h>
 
-@class TI_AsyncSocket;
-@class TI_AsyncReadPacket;
-@class TI_AsyncWritePacket;
+@class AsyncSocket;
+@class AsyncReadPacket;
+@class AsyncWritePacket;
 
-extern NSString *const TI_AsyncSocketException;
-extern NSString *const TI_AsyncSocketErrorDomain;
+extern NSString *const AsyncSocketException;
+extern NSString *const AsyncSocketErrorDomain;
 
-enum TI_AsyncSocketError
+enum AsyncSocketError
 {
-	TI_AsyncSocketCFSocketError = kCFSocketError,	// From CFSocketError enum.
-	TI_AsyncSocketNoError = 0,						// Never used.
-	TI_AsyncSocketCanceledError,					// onSocketWillConnect: returned NO.
-	TI_AsyncSocketConnectTimeoutError,
-	TI_AsyncSocketReadMaxedOutError,               // Reached set maxLength without completing
-	TI_AsyncSocketReadTimeoutError,
-	TI_AsyncSocketWriteTimeoutError
+	AsyncSocketCFSocketError = kCFSocketError,	// From CFSocketError enum.
+	AsyncSocketNoError = 0,						// Never used.
+	AsyncSocketCanceledError,					// onSocketWillConnect: returned NO.
+	AsyncSocketConnectTimeoutError,
+	AsyncSocketReadMaxedOutError,               // Reached set maxLength without completing
+	AsyncSocketReadTimeoutError,
+	AsyncSocketWriteTimeoutError
 };
-typedef enum TI_AsyncSocketError TI_AsyncSocketError;
+typedef enum AsyncSocketError AsyncSocketError;
 
-@protocol TI_AsyncSocketDelegate
+@protocol AsyncSocketDelegate
 @optional
 
 /**
@@ -38,7 +38,7 @@ typedef enum TI_AsyncSocketError TI_AsyncSocketError;
  * When connecting, this delegate method may be called
  * before"onSocket:didAcceptNewSocket:" or "onSocket:didConnectToHost:".
 **/
-- (BOOL)onSocket:(TI_AsyncSocket *)sock shouldDisconnectWithError:(NSError *)err;
+- (BOOL)onSocket:(AsyncSocket *)sock shouldDisconnectWithError:(NSError *)err;
 
 /**
  * Called when a socket disconnects with or without error.  If you want to release a socket after it disconnects,
@@ -47,30 +47,30 @@ typedef enum TI_AsyncSocketError TI_AsyncSocketError;
  * If you call the disconnect method, and the socket wasn't already disconnected,
  * this delegate method will be called before the disconnect method returns.
 **/
-- (void)onSocketDidDisconnect:(TI_AsyncSocket *)sock;
+- (void)onSocketDidDisconnect:(AsyncSocket *)sock;
 
 /**
  * Called when a socket accepts a connection (listening w/autoaccept 'YES').  Another socket is spawned to handle it. The new socket will have
  * the same delegate and will call "onSocket:didConnectToHost:port:".
 **/
-- (void)onSocket:(TI_AsyncSocket *)sock didAcceptNewSocket:(TI_AsyncSocket *)newSocket;
+- (void)onSocket:(AsyncSocket *)sock didAcceptNewSocket:(AsyncSocket *)newSocket;
 
 /**
  * Called when there is a connection to accept (listening w/autoaccept 'NO').  Can retrieve the BSD socket
  * handle from the passed socket and call accept() on it, guaranteed to nonblock
 **/
-- (void)onSocketHasConnectionToAccept:(TI_AsyncSocket *)sock;
+- (void)onSocketHasConnectionToAccept:(AsyncSocket *)sock;
 
 /**
  * Called when a new socket is spawned to handle a connection.  This method should return the run-loop of the
  * thread on which the new socket and its delegate should operate. If omitted, [NSRunLoop currentRunLoop] is used.
 **/
-- (NSRunLoop *)onSocket:(TI_AsyncSocket *)sock wantsRunLoopForNewSocket:(TI_AsyncSocket *)newSocket;
+- (NSRunLoop *)onSocket:(AsyncSocket *)sock wantsRunLoopForNewSocket:(AsyncSocket *)newSocket;
 
 /**
  * Called when the socket has been attached to run loop, etc. and is ready to hit the big time.
  */
--(void)onSocketReadyInRunLoop:(TI_AsyncSocket *)sock;
+-(void)onSocketReadyInRunLoop:(AsyncSocket *)sock;
 
 /**
  * Called when a socket is about to connect. This method should return YES to continue, or NO to abort.
@@ -83,37 +83,37 @@ typedef enum TI_AsyncSocketError TI_AsyncSocketError;
  * CFSocket and CFSocketNativeHandle (BSD socket) as desired prior to connection. You will be able to access and
  * configure the CFReadStream and CFWriteStream in the onSocket:didConnectToHost:port: method.
 **/
-- (BOOL)onSocketWillConnect:(TI_AsyncSocket *)sock;
+- (BOOL)onSocketWillConnect:(AsyncSocket *)sock;
 
 /**
  * Called when a socket connects and is ready for reading and writing.
  * The host parameter will be an IP address, not a DNS name.
 **/
-- (void)onSocket:(TI_AsyncSocket *)sock didConnectToHost:(NSString *)host port:(UInt16)port;
+- (void)onSocket:(AsyncSocket *)sock didConnectToHost:(NSString *)host port:(UInt16)port;
 
 /**
  * Called when a socket has completed reading the requested data into memory.
  * Not called if there is an error.
 **/
-- (void)onSocket:(TI_AsyncSocket *)sock didReadData:(NSData *)data withTag:(long)tag;
+- (void)onSocket:(AsyncSocket *)sock didReadData:(NSData *)data withTag:(long)tag;
 
 /**
  * Called when a socket has read in data, but has not yet completed the read.
  * This would occur if using readToData: or readToLength: methods.
  * It may be used to for things such as updating progress bars.
 **/
-- (void)onSocket:(TI_AsyncSocket *)sock didReadPartialDataOfLength:(NSUInteger)partialLength tag:(long)tag;
+- (void)onSocket:(AsyncSocket *)sock didReadPartialDataOfLength:(NSUInteger)partialLength tag:(long)tag;
 
 /**
  * Called when a socket has completed writing the requested data. Not called if there is an error.
 **/
-- (void)onSocket:(TI_AsyncSocket *)sock didWriteDataWithTag:(long)tag;
+- (void)onSocket:(AsyncSocket *)sock didWriteDataWithTag:(long)tag;
 
 /**
  * Called when a socket has written some data, but has not yet completed the entire write.
  * It may be used to for things such as updating progress bars.
 **/
-- (void)onSocket:(TI_AsyncSocket *)sock didWritePartialDataOfLength:(NSUInteger)partialLength tag:(long)tag;
+- (void)onSocket:(AsyncSocket *)sock didWritePartialDataOfLength:(NSUInteger)partialLength tag:(long)tag;
 
 /**
  * Called if a read operation has reached its timeout without completing.
@@ -126,7 +126,7 @@ typedef enum TI_AsyncSocketError TI_AsyncSocketError;
  * 
  * Note that this method may be called multiple times for a single read if you return positive numbers.
 **/
-- (NSTimeInterval)onSocket:(TI_AsyncSocket *)sock
+- (NSTimeInterval)onSocket:(AsyncSocket *)sock
   shouldTimeoutReadWithTag:(long)tag
                    elapsed:(NSTimeInterval)elapsed
                  bytesDone:(NSUInteger)length;
@@ -142,7 +142,7 @@ typedef enum TI_AsyncSocketError TI_AsyncSocketError;
  * 
  * Note that this method may be called multiple times for a single write if you return positive numbers.
 **/
-- (NSTimeInterval)onSocket:(TI_AsyncSocket *)sock
+- (NSTimeInterval)onSocket:(AsyncSocket *)sock
  shouldTimeoutWriteWithTag:(long)tag
                    elapsed:(NSTimeInterval)elapsed
                  bytesDone:(NSUInteger)length;
@@ -154,7 +154,7 @@ typedef enum TI_AsyncSocketError TI_AsyncSocketError;
  * If a SSL/TLS negotiation fails (invalid certificate, etc) then the socket will immediately close,
  * and the onSocket:willDisconnectWithError: delegate method will be called with the specific SSL error code.
 **/
-- (void)onSocketDidSecure:(TI_AsyncSocket *)sock;
+- (void)onSocketDidSecure:(AsyncSocket *)sock;
 
 @end
 
@@ -162,7 +162,7 @@ typedef enum TI_AsyncSocketError TI_AsyncSocketError;
 #pragma mark -
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-@interface TI_AsyncSocket : NSObject
+@interface AsyncSocket : NSObject
 {
 	CFSocketNativeHandle theNativeSocket4;
 	CFSocketNativeHandle theNativeSocket6;
@@ -182,12 +182,12 @@ typedef enum TI_AsyncSocketError TI_AsyncSocketError;
 	NSTimer *theConnectTimer;
 
 	NSMutableArray *theReadQueue;
-	TI_AsyncReadPacket *theCurrentRead;
+	AsyncReadPacket *theCurrentRead;
 	NSTimer *theReadTimer;
 	NSMutableData *partialReadBuffer;
 	
 	NSMutableArray *theWriteQueue;
-	TI_AsyncWritePacket *theCurrentWrite;
+	AsyncWritePacket *theCurrentWrite;
 	NSTimer *theWriteTimer;
 
 	id theDelegate;
@@ -273,7 +273,7 @@ typedef enum TI_AsyncSocketError TI_AsyncSocketError;
  * This method is used to create a new async socket from an accepted socket, and fires the onSocket:didAcceptNewSocket: delegate callback.
  * Returns the new async socket, or nil if the accept failed.
 **/
-- (TI_AsyncSocket*)doAcceptFromSocket:(CFSocketRef)parentSocket withNewNativeSocket:(CFSocketNativeHandle)newNativeSocket;
+- (AsyncSocket*)doAcceptFromSocket:(CFSocketRef)parentSocket withNewNativeSocket:(CFSocketNativeHandle)newNativeSocket;
 
 /**
  * Connects to the given host and port.
@@ -688,5 +688,3 @@ typedef enum TI_AsyncSocketError TI_AsyncSocketError;
 + (NSData *)ZeroData;   // 0x00
 
 @end
-
-@compatibility_alias AsyncSocket TI_AsyncSocket;

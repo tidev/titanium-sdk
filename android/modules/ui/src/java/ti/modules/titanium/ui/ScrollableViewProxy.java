@@ -25,7 +25,10 @@ import ti.modules.titanium.ui.widget.TiUIScrollableView;
 import android.app.Activity;
 import android.os.Message;
 
-@Kroll.proxy(creatableInModule=UIModule.class, propertyAccessors={TiC.PROPERTY_SHOW_PAGING_CONTROL})
+@Kroll.proxy(creatableInModule=UIModule.class, propertyAccessors={
+	TiC.PROPERTY_SHOW_PAGING_CONTROL,
+	TiC.PROPERTY_OVER_SCROLL_MODE
+})
 public class ScrollableViewProxy extends TiViewProxy
 {
 	private static final String TAG = "TiScrollableView";
@@ -51,6 +54,7 @@ public class ScrollableViewProxy extends TiViewProxy
 		super();
 		inScroll = new AtomicBoolean(false);
 		defaultValues.put(TiC.PROPERTY_SHOW_PAGING_CONTROL, false);
+		defaultValues.put(TiC.PROPERTY_OVER_SCROLL_MODE, 0);
 	}
 
 	public ScrollableViewProxy(TiContext context)
@@ -216,7 +220,14 @@ public class ScrollableViewProxy extends TiViewProxy
 			options.put("view", currentView);
 			options.put("currentPage", currentPage);
 			fireEvent(TiC.EVENT_DRAGEND, options);
-		} 
+		}
+		// TODO: Deprecate old event
+		if (hasListeners("dragEnd")) {
+			KrollDict options = new KrollDict();
+			options.put("view", currentView);
+			options.put("currentPage", currentPage);
+			fireEvent("dragEnd", options);
+		}
 	}
 
 	public void fireScrollEnd(int currentPage, TiViewProxy currentView)
@@ -226,7 +237,14 @@ public class ScrollableViewProxy extends TiViewProxy
 			options.put("view", currentView);
 			options.put("currentPage", currentPage);
 			fireEvent(TiC.EVENT_SCROLLEND, options);
-		} 
+		}
+		// TODO: Deprecate old event
+		if (hasListeners("scrollEnd")) {
+			KrollDict options = new KrollDict();
+			options.put("view", currentView);
+			options.put("currentPage", currentPage);
+			fireEvent("scrollEnd", options);
+		}
 	}
 
 	public void fireScroll(int currentPage, float currentPageAsFloat, TiViewProxy currentView)

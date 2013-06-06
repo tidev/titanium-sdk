@@ -23,6 +23,10 @@ description: |
     using these properties adds a border on all four sides of the control, which may be
     undesirable.
 
+    Due to an iOS limitation, the buttons in the toolbar only support the `click` event.
+    The native object underlying a toolbar button does not generate standard view events,
+    such as `touchstart` and `touchend`.
+
     See also:
 
     *  [Toolbar in the iOS Human Interface Guidelines.](http://developer.apple.com/library/ios/#documentation/UserExperience/Conceptual/MobileHIG/UIElementGuidelines/UIElementGuidelines.html#//apple_ref/doc/uid/TP40006556-CH13-SW10)
@@ -109,3 +113,26 @@ examples:
         controls on either side of it. Available space in the toolbar is divided between all of the 
         flexible space buttons in the toolbar. Without the flexible spaces in this example, 
         the toolbar buttons would be grouped tightly together on the left side of the toolbar.
+
+  - title: Alloy XML Markup
+    example: |
+        Previous example as an Alloy view.
+
+            <Alloy>
+                <Window id="win">
+                    <Toolbar platform="ios" bottom="0" borderTop="true" borderBottom="false">
+
+                        <!-- The Items tag sets the Toolbar.items property. -->
+                        <Items>
+                            <Button id="send" title="Send" style="Ti.UI.iPhone.SystemButtonStyle.DONE" />
+                            <FlexSpace/>
+                            <Button id="camera" systemButton="Ti.UI.iPhone.SystemButton.CAMERA" />
+                            <FlexSpace/>
+                            <Button id="cancel" systemButton="Ti.UI.iPhone.SystemButton.CANCEL" />
+                        </Items>
+
+                        <!-- Place additional views for the Toolbar here. -->
+
+                    </Toolbar>
+                </Window>
+            </Alloy>

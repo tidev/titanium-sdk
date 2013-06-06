@@ -12,6 +12,43 @@
 
 @implementation TiUIScrollViewImpl
 
+//TIMOB-12988 Additions BEGIN.
+/*
+ * If you log the scrollRectToVisible and setContentOffset calls, you can see
+ * IOS is passing values we do not want. This is a hack to workaround 
+ * bad contentoffset call. We calculate it correctly in our own code
+ * and that call follows soon after.
+ * Happens on IOS 5.1, 5.0 and 4.3. Not on iOS 6. Although values passed in are identical. Timing?
+ * Delete this block when we drop support for older versions of IOS.
+ */
+-(void) delayContentOffset
+{
+    if(!ignore){
+        [self setContentOffset:offsetPoint animated:offsetAnimated];
+    }
+}
+
+- (void)setContentOffset:(CGPoint)contentOffset animated:(BOOL)animated
+{
+    if (delay && ![TiUtils isIOS6OrGreater]) {
+        delay = NO;
+        ignore = NO;
+        offsetPoint = contentOffset;
+        offsetAnimated = animated;
+        [self performSelector:@selector(delayContentOffset) withObject:nil afterDelay:0.2];
+        return;
+    }
+    ignore = YES;
+    [super setContentOffset:contentOffset animated:animated];
+}
+
+- (void)scrollRectToVisible:(CGRect)rect animated:(BOOL)animated
+{
+    delay = YES;
+    [super scrollRectToVisible:rect animated:animated];
+}
+//TIMOB-12988 Additions END.
+
 -(void)setTouchHandler:(TiUIView*)handler
 {
     //Assign only. No retain
@@ -109,6 +146,11 @@
 	return scrollView;
 }
 
+- (id)accessibilityElement
+{
+	return [self scrollView];
+}
+
 -(void)setNeedsHandleContentSizeIfAutosizing
 {
 	if (TiDimensionIsAuto(contentWidth) || TiDimensionIsAuto(contentHeight) ||
@@ -194,6 +236,7 @@
 	wrapperBounds.origin = CGPointZero;
 	wrapperBounds.size = newContentSize;
 	[wrapperView setFrame:wrapperBounds];
+	[self scrollViewDidZoom:scrollView];
 	needsHandleContentSize = NO;
 	[(TiUIScrollViewProxy *)[self proxy] layoutChildrenAfterContentSize:NO];
 }
@@ -229,12 +272,14 @@
 -(void)setContentWidth_:(id)value
 {
 	contentWidth = [TiUtils dimensionValue:value];
+    [self.proxy replaceValue:value forKey:@"contentWidth" notification:NO];
 	[self performSelector:@selector(setNeedsHandleContentSize) withObject:nil afterDelay:.1];
 }
 
 -(void)setContentHeight_:(id)value
 {
 	contentHeight = [TiUtils dimensionValue:value];
+    [self.proxy replaceValue:value forKey:@"contentHeight" notification:NO];
 	[self performSelector:@selector(setNeedsHandleContentSize) withObject:nil afterDelay:.1];
 }
 
@@ -287,10 +332,11 @@
 	[[self scrollView] setContentOffset:newOffset animated:animated];
 }
 
--(void)setZoomScale_:(id)args
+-(void)setZoomScale_:(id)value withObject:(id)property
 {
-	CGFloat scale = [TiUtils floatValue:args def:1.0];
-	[[self scrollView] setZoomScale:scale];
+	CGFloat scale = [TiUtils floatValue:value def:1.0];
+	BOOL animated = [TiUtils boolValue:@"animated" properties:property def:NO];
+	[[self scrollView] setZoomScale:scale animated:animated];
 	scale = [[self scrollView] zoomScale]; //Why are we doing this? Because of minZoomScale or maxZoomScale.
 	[[self proxy] replaceValue:NUMFLOAT(scale) forKey:@"zoomScale" notification:NO];
 	if ([self.proxy _hasListeners:@"scale"])
@@ -306,10 +352,10 @@
     CGFloat val = [TiUtils floatValue:args def:1.0];
     [[self scrollView] setMaximumZoomScale:val];
     if ([[self scrollView] zoomScale] > val) {
-        [self setZoomScale_:args];
+        [self setZoomScale_:args withObject:nil];
     }
     else if ([[self scrollView] zoomScale] < [[self scrollView] minimumZoomScale]){
-        [self setZoomScale_:[NSNumber numberWithFloat:[[self scrollView] minimumZoomScale]]];
+        [self setZoomScale_:[NSNumber numberWithFloat:[[self scrollView] minimumZoomScale]] withObject:nil];
     }
 }
 
@@ -318,7 +364,7 @@
     CGFloat val = [TiUtils floatValue:args def:1.0];
     [[self scrollView] setMinimumZoomScale:val];
     if ([[self scrollView] zoomScale] < val) {
-        [self setZoomScale_:args];
+        [self setZoomScale_:args withObject:nil];
     }
 }
 
@@ -355,14 +401,14 @@
 {
 	CGSize boundsSize = scrollView.bounds.size;
     CGRect frameToCenter = wrapperView.frame;
-	if (TiDimensionIsAuto(contentWidth)) {
+	if (TiDimensionIsAuto(contentWidth) || TiDimensionIsAutoSize(contentWidth) || TiDimensionIsUndefined(contentWidth)) {
 		if (frameToCenter.size.width < boundsSize.width) {
 			frameToCenter.origin.x = (boundsSize.width - frameToCenter.size.width) / 2;
 		} else {
 			frameToCenter.origin.x = 0;
 		}
 	}
-	if (TiDimensionIsAuto(contentHeight)) {
+	if (TiDimensionIsAuto(contentHeight) || TiDimensionIsAutoSize(contentHeight) || TiDimensionIsUndefined(contentHeight)) {
 		if (frameToCenter.size.height < boundsSize.height) {
 			frameToCenter.origin.y = (boundsSize.height - frameToCenter.size.height) / 2;
 		} else {

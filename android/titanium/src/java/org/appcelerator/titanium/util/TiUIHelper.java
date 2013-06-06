@@ -9,6 +9,7 @@ package org.appcelerator.titanium.util;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.ref.WeakReference;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -55,6 +56,7 @@ import android.graphics.ColorFilter;
 import android.graphics.ColorMatrix;
 import android.graphics.ColorMatrixColorFilter;
 import android.graphics.Paint;
+import android.graphics.PixelFormat;
 import android.graphics.Rect;
 import android.graphics.Shader;
 import android.graphics.Typeface;
@@ -188,7 +190,7 @@ public class TiUIHelper
 					Activity ownerActivity = ((AlertDialog)dialog).getOwnerActivity();
 					//if activity is not finishing, remove dialog to free memory
 					if (ownerActivity != null && !ownerActivity.isFinishing()) {
-						((TiBaseActivity)ownerActivity).removeDialog((AlertDialog)dialog);
+						((TiBaseActivity)ownerActivity).removeDialog((AlertDialog) dialog);
 					}
 				}};
 		}
@@ -203,7 +205,8 @@ public class TiUIHelper
 							.setPositiveButton(android.R.string.ok, fListener)
 							.setCancelable(false).create();
 					if (activity instanceof TiBaseActivity) {
-						((TiBaseActivity)activity).addDialog(dialog);
+						TiBaseActivity baseActivity = (TiBaseActivity) activity;
+						baseActivity.addDialog(baseActivity.new DialogWrapper(dialog, true, new WeakReference<TiBaseActivity>(baseActivity)));
 						dialog.setOwnerActivity(activity);
 					}
 					dialog.show();
@@ -214,45 +217,60 @@ public class TiUIHelper
 		});
 	}
 
-	public static int toTypefaceStyle(String fontWeight) {
+	public static int toTypefaceStyle(String fontWeight, String fontStyle)
+	{
 		int style = Typeface.NORMAL;
+
 		if (fontWeight != null) {
-			if(fontWeight.equals("bold")) {
-				style = Typeface.BOLD;
+			if (fontWeight.equals("bold")) {
+				if (fontStyle != null && fontStyle.equals("italic")) {
+					style = Typeface.BOLD_ITALIC;
+				} else {
+					style = Typeface.BOLD;
+				}
+			} else if (fontStyle != null && fontStyle.equals("italic")) {
+				style = Typeface.ITALIC;
 			}
+		} else if (fontStyle != null && fontStyle.equals("italic")) {
+			style = Typeface.ITALIC;
 		}
 		return style;
 	}
 
 	public static int getSizeUnits(String size) {
-		//int units = TypedValue.COMPLEX_UNIT_SP;
 		int units = TypedValue.COMPLEX_UNIT_PX;
+		String unitString = null;
 
 		if (size != null) {
 			Matcher m = SIZED_VALUE.matcher(size.trim());
 			if (m.matches()) {
 				if (m.groupCount() == 2) {
-					String unit = m.group(2);
-					if (TiDimension.UNIT_PX.equals(unit)) {
-						units = TypedValue.COMPLEX_UNIT_PX;
-					} else if (TiDimension.UNIT_PT.equals(unit)) {
-						units = TypedValue.COMPLEX_UNIT_PT;
-					} else if (TiDimension.UNIT_DP.equals(unit) || TiDimension.UNIT_DIP.equals(unit)) {
-						units = TypedValue.COMPLEX_UNIT_DIP;
-					} else if (TiDimension.UNIT_SP.equals(unit) || TiDimension.UNIT_SIP.equals(unit)) {
-						units = TypedValue.COMPLEX_UNIT_SP;
-					} else if (TiDimension.UNIT_MM.equals(unit)) {
-						units = TypedValue.COMPLEX_UNIT_MM;
-					} else if (TiDimension.UNIT_CM.equals(unit)) {
-						units = TiDimension.COMPLEX_UNIT_CM;
-					} else if (TiDimension.UNIT_IN.equals(unit)) {
-						units = TypedValue.COMPLEX_UNIT_IN;
-					} else {
-						if (unit != null) {
-							Log.w(TAG, "Unknown unit: " + unit, Log.DEBUG_MODE);
-						}
-					}
+					unitString = m.group(2);
 				}
+			}
+		}
+
+		if (unitString == null) {
+			unitString = TiApplication.getInstance().getDefaultUnit();
+		}
+
+		if (TiDimension.UNIT_PX.equals(unitString) || TiDimension.UNIT_SYSTEM.equals(unitString)) {
+			units = TypedValue.COMPLEX_UNIT_PX;
+		} else if (TiDimension.UNIT_PT.equals(unitString)) {
+			units = TypedValue.COMPLEX_UNIT_PT;
+		} else if (TiDimension.UNIT_DP.equals(unitString) || TiDimension.UNIT_DIP.equals(unitString)) {
+			units = TypedValue.COMPLEX_UNIT_DIP;
+		} else if (TiDimension.UNIT_SP.equals(unitString) || TiDimension.UNIT_SIP.equals(unitString)) {
+			units = TypedValue.COMPLEX_UNIT_SP;
+		} else if (TiDimension.UNIT_MM.equals(unitString)) {
+			units = TypedValue.COMPLEX_UNIT_MM;
+		} else if (TiDimension.UNIT_CM.equals(unitString)) {
+			units = TiDimension.COMPLEX_UNIT_CM;
+		} else if (TiDimension.UNIT_IN.equals(unitString)) {
+			units = TypedValue.COMPLEX_UNIT_IN;
+		} else {
+			if (unitString != null) {
+				Log.w(TAG, "Unknown unit: " + unitString, Log.DEBUG_MODE);
 			}
 		}
 
@@ -290,9 +308,16 @@ public class TiUIHelper
 	}
 
 	public static void styleText(TextView tv, HashMap<String, Object> d) {
+	
+		if (d == null) {
+			TiUIHelper.styleText(tv, null, null, null);
+			return;
+		}
+		
 		String fontSize = null;
 		String fontWeight = null;
 		String fontFamily = null;
+		String fontStyle = null;
 
 		if (d.containsKey("fontSize")) {
 			fontSize = TiConvert.toString(d, "fontSize");
@@ -303,13 +328,22 @@ public class TiUIHelper
 		if (d.containsKey("fontFamily")) {
 			fontFamily = TiConvert.toString(d, "fontFamily");
 		}
-		TiUIHelper.styleText(tv, fontFamily, fontSize, fontWeight);
+		if (d.containsKey("fontStyle")) {
+			fontStyle = TiConvert.toString(d, "fontStyle");
+		}
+		TiUIHelper.styleText(tv, fontFamily, fontSize, fontWeight, fontStyle);
 	}
 
-	public static void styleText(TextView tv, String fontFamily, String fontSize, String fontWeight) {
+	public static void styleText(TextView tv, String fontFamily, String fontSize, String fontWeight)
+	{
+		styleText(tv, fontFamily, fontSize, fontWeight, null);
+	}
+
+	public static void styleText(TextView tv, String fontFamily, String fontSize, String fontWeight, String fontStyle)
+	{
 		Typeface tf = tv.getTypeface();
 		tf = toTypeface(tv.getContext(), fontFamily);
-		tv.setTypeface(tf, toTypefaceStyle(fontWeight));
+		tv.setTypeface(tf, toTypefaceStyle(fontWeight, fontStyle));
 		tv.setTextSize(getSizeUnits(fontSize), getSize(fontSize));
 	}
 
@@ -452,7 +486,7 @@ public class TiUIHelper
 		textView.setPadding(rawHPadding, rawVPadding, rawHPadding, rawVPadding);
 	}
 
-	private static Drawable buildBackgroundDrawable(String color, String image, boolean tileImage, Drawable gradientDrawable)
+	public static Drawable buildBackgroundDrawable(String color, String image, boolean tileImage, Drawable gradientDrawable)
 	{
 		// Create an array of the layers that will compose this background.
 		// Note that the order in which the layers is important to get the
@@ -471,26 +505,15 @@ public class TiUIHelper
 		Drawable imageDrawable = null;
 		if (image != null) {
 			TiFileHelper tfh = TiFileHelper.getInstance();
-			Context appContext = TiApplication.getInstance();
+			imageDrawable = tfh.loadDrawable(image, false, true);
 
 			if (tileImage) {
-				InputStream inputStream;
-				try {
-					inputStream = tfh.openInputStream(image, false);
-					if (inputStream != null) {
-						BitmapDrawable tiledBackground = new BitmapDrawable(appContext.getResources(), inputStream);
-						tiledBackground.setTileModeX(Shader.TileMode.REPEAT);
-						tiledBackground.setTileModeY(Shader.TileMode.REPEAT);
-
-						imageDrawable = tiledBackground;
-					}
-
-				} catch (IOException e) {
-					Log.e(TAG, "Exception occured when trying to open stream to specified background image: ", e);
+				if (imageDrawable instanceof BitmapDrawable) {
+					BitmapDrawable tiledBackground = (BitmapDrawable) imageDrawable;
+					tiledBackground.setTileModeX(Shader.TileMode.REPEAT);
+					tiledBackground.setTileModeY(Shader.TileMode.REPEAT);
+					imageDrawable = tiledBackground;
 				}
-
-			} else {
-				imageDrawable = tfh.loadDrawable(image, false, true);
 			}
 
 			if (imageDrawable != null) {
@@ -563,18 +586,18 @@ public class TiUIHelper
 	public static KrollDict createDictForImage(int width, int height, byte[] data)
 	{
 		KrollDict d = new KrollDict();
-		d.put("x", 0);
-		d.put("y", 0);
-		d.put("width", width);
-		d.put("height", height);
+		d.put(TiC.PROPERTY_X, 0);
+		d.put(TiC.PROPERTY_Y, 0);
+		d.put(TiC.PROPERTY_WIDTH, width);
+		d.put(TiC.PROPERTY_HEIGHT, height);
 
 		KrollDict cropRect = new KrollDict();
-		cropRect.put("x", 0);
-		cropRect.put("y", 0);
-		cropRect.put("width", width);
-		cropRect.put("height", height);
-		d.put("cropRect", cropRect);
-		d.put("media", TiBlob.blobFromData(data, "image/png"));
+		cropRect.put(TiC.PROPERTY_X, 0);
+		cropRect.put(TiC.PROPERTY_X, 0);
+		cropRect.put(TiC.PROPERTY_WIDTH, width);
+		cropRect.put(TiC.PROPERTY_HEIGHT, height);
+		d.put(TiC.PROPERTY_CROP_RECT, cropRect);
+		d.put(TiC.PROPERTY_MEDIA, TiBlob.blobFromData(data, "image/png"));
 
 		return d;
 	}
@@ -582,8 +605,8 @@ public class TiUIHelper
 	public static TiBlob getImageFromDict(KrollDict dict)
 	{
 		if (dict != null) {
-			if (dict.containsKey("media")) {
-				Object media = dict.get("media");
+			if (dict.containsKey(TiC.PROPERTY_MEDIA)) {
+				Object media = dict.get(TiC.PROPERTY_MEDIA);
 				if (media instanceof TiBlob) {
 					return (TiBlob) media;
 				}
@@ -601,45 +624,59 @@ public class TiUIHelper
 			int height = view.getHeight();
 
 			// maybe move this out to a separate method once other refactor regarding "getWidth", etc is done
-			if(view.getWidth() == 0) {
-				if(proxyDict != null) {
-					if(proxyDict.containsKey(TiC.PROPERTY_WIDTH)) {
-						TiDimension widthDimension = new TiDimension(proxyDict.getString(TiC.PROPERTY_WIDTH), TiDimension.TYPE_WIDTH);
-						width = widthDimension.getAsPixels(view);
-					}
-				}
+			if (view.getWidth() == 0 && proxyDict != null && proxyDict.containsKey(TiC.PROPERTY_WIDTH)) {
+				TiDimension widthDimension = new TiDimension(proxyDict.getString(TiC.PROPERTY_WIDTH), TiDimension.TYPE_WIDTH);
+				width = widthDimension.getAsPixels(view);
 			}
-			if(view.getHeight() == 0) {
-				if(proxyDict != null) {
-					if(proxyDict.containsKey(TiC.PROPERTY_HEIGHT)) {
-						TiDimension heightDimension = new TiDimension(proxyDict.getString(TiC.PROPERTY_HEIGHT), TiDimension.TYPE_HEIGHT);
-						height = heightDimension.getAsPixels(view);
-					}
-				}
+			if (view.getHeight() == 0 && proxyDict != null && proxyDict.containsKey(TiC.PROPERTY_HEIGHT)) {
+				TiDimension heightDimension = new TiDimension(proxyDict.getString(TiC.PROPERTY_HEIGHT),
+					TiDimension.TYPE_HEIGHT);
+				height = heightDimension.getAsPixels(view);
 			}
-			view.measure(MeasureSpec.makeMeasureSpec(width, MeasureSpec.EXACTLY), MeasureSpec.makeMeasureSpec(height, MeasureSpec.EXACTLY));
+
+			int wmode = width == 0 ? MeasureSpec.UNSPECIFIED : MeasureSpec.EXACTLY;
+			int hmode = height == 0 ? MeasureSpec.UNSPECIFIED : MeasureSpec.EXACTLY;
+			view.measure(MeasureSpec.makeMeasureSpec(width, wmode), MeasureSpec.makeMeasureSpec(height, hmode));
+
+			// Will force the view to layout itself, grab dimensions
+			width = view.getMeasuredWidth();
+			height = view.getMeasuredHeight();
+
+			// set a default BS value if the dimension is still 0 and log a warning
+			if (width == 0) {
+				width = 100;
+				Log.e(TAG, "Width property is 0 for view, display view before calling toImage()", Log.DEBUG_MODE);
+			}
+			if (height == 0) {
+				height = 100;
+				Log.e(TAG, "Height property is 0 for view, display view before calling toImage()", Log.DEBUG_MODE);
+			}
+
 			if (view.getParent() == null) {
 				Log.i(TAG, "View does not have parent, calling layout", Log.DEBUG_MODE);
 				view.layout(0, 0, width, height);
 			}
 
-			// now that we have forced the view to layout itself, grab dimensions
-			width = view.getMeasuredWidth();
-			height = view.getMeasuredHeight();
+			// opacity should support transparency by default
+			Config bitmapConfig = Config.ARGB_8888;
 
-			// set a default BS value if the dimension is still 0 and log a warning
-			if(width == 0) {
-				width = 100;
-				Log.e(TAG, "Width property is 0 for view, display view before calling toImage()", Log.DEBUG_MODE);
-			}
-			if(height == 0) {
-				height = 100;
-				Log.e(TAG, "Height property is 0 for view, display view before calling toImage()", Log.DEBUG_MODE);
+			Drawable viewBackground = view.getBackground();
+			if (viewBackground != null) {
+				/*
+				 * If the background is opaque then we should be able to safely use a space saving format that
+				 * does not support the alpha channel. Basically, if a view has a background color set then the
+				 * the pixel format will be opaque. If a background image supports an alpha channel, the pixel
+				 * format will report transparency (even if the image doesn't actually look transparent). In
+				 * short, most of the time the Config.ARGB_8888 format will be used when viewToImage is used
+				 * but in the cases where the background is opaque, the lower memory approach will be used.
+				 */
+				if (viewBackground.getOpacity() == PixelFormat.OPAQUE) {
+					bitmapConfig = Config.RGB_565;
+				}
 			}
 
-			Bitmap bitmap = Bitmap.createBitmap(width, height, Config.RGB_565);
+			Bitmap bitmap = Bitmap.createBitmap(width, height, bitmapConfig);
 			Canvas canvas = new Canvas(bitmap);
-
 			view.draw(canvas);
 
 			ByteArrayOutputStream bos = new ByteArrayOutputStream();
@@ -810,16 +847,21 @@ public class TiUIHelper
 
 	public static Drawable getResourceDrawable(Object path)
 	{
-		Drawable d;
-
-		if (path instanceof String) {
-			TiUrl imageUrl = new TiUrl((String) path);
-			TiFileHelper tfh = new TiFileHelper(TiApplication.getInstance());
-			d = tfh.loadDrawable(imageUrl.resolve(), false);
-		} else {
-			d = TiDrawableReference.fromObject(TiApplication.getInstance().getCurrentActivity(), path).getDrawable();
+		Drawable d = null;
+		
+		try {
+	
+			if (path instanceof String) {
+				TiUrl imageUrl = new TiUrl((String) path);
+				TiFileHelper tfh = new TiFileHelper(TiApplication.getInstance());
+				d = tfh.loadDrawable(imageUrl.resolve(), false);
+			} else {
+				d = TiDrawableReference.fromObject(TiApplication.getInstance().getCurrentActivity(), path).getDrawable();
+			}
+		} catch (Exception e) {
+			Log.w(TAG, "Could not load drawable "+e.getMessage(), Log.DEBUG_MODE);
+			d = null;
 		}
-
 		return d;
 	}
 
@@ -907,7 +949,6 @@ public class TiUIHelper
 			if (model != null && model.toLowerCase().startsWith("droid")) {
 				useForce = true;
 			}
-			
 			if (show) {
 				imm.showSoftInput(view, useForce ? InputMethodManager.SHOW_FORCED : InputMethodManager.SHOW_IMPLICIT);
 			} else {

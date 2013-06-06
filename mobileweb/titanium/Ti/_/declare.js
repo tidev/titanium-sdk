@@ -99,13 +99,15 @@ define(["Ti/_", "Ti/_/lang"], function(_, lang) {
 			var a = arguments,
 				args = a,
 				a0 = a[0],
-				f, i, m, p,
+				f, i, m,
 				l = bases.length,
 				preArgs,
 				dc = this.declaredClass;
 
-			classCounters[dc] || (classCounters[dc] = 0);
-			this.widgetId = dc + ":" + (classCounters[dc]++);
+			if (dc) {
+				classCounters[dc] || (classCounters[dc] = 0);
+				this.widgetId = dc + ":" + (classCounters[dc]++);
+			}
 
 			// 1) call two types of the preamble
 			if (ctorSpecial && (a0 && a0.preamble || this.preamble)) {
@@ -148,7 +150,7 @@ define(["Ti/_", "Ti/_/lang"], function(_, lang) {
 
 			// add the toString() function for all our objects
 			this.toString === objProto.toString && (this.toString = function() {
-				return "[object " + dc.replace(/\./g, '') + "]";
+				return "[object " + (dc ? dc.replace(/\./g, '') : 'Object') + "]";
 			});
 
 			// 4) continue the original ritual: call the postscript

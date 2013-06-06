@@ -11,9 +11,7 @@ dist
   - compile
     - process.annotations
 	  - init
-	- generate.bindings
-	  - generate.rhino.bindings
-	  - generate.v8.bindings
+	- generate.v8.bindings
 	- pre.compile
 	- js.compile
 	- ndk.build
@@ -33,23 +31,22 @@ build/generated/org/appcelerator/titanium/bindings/[module_name].json
 file and is later packaged in the module jar as well as being used
 by subsequent steps in this compilation process.
 
-(2) (generate.bindings and its rhino & v8 dependencies) This step
+(2) (generate.bindings v8 dependencies) This step
 uses the KrollBindingGenerator stand-alone java program to create
 the binding layer and bootstraps for the module.  (see https://github.com/appcelerator/titanium_mobile/blob/master/android/kroll-apt/src/java/org/appcelerator/kroll/annotations/generator/KrollBindingGenerator.java.)
 
 It takes the JSON file created in step (1) above and, using the metadata therein,
-produces .cpp and .h files (for V8) down in build/generated/jni, and [Proxy/Module]Prototype.java
-(for rhino) down in build/generated/java.
+produces .cpp and .h files (for V8) down in build/generated/jni.
 
 It then uses bootstrap.py (see https://github.com/appcelerator/titanium_mobile/blob/master/support/module/android/bootstrap.py) to produce [Name]Bootstrap.java, [Name]Bootstrap.cpp,
 bootstrap.js and KrollGeneratedBindings.gperf.
 
-(3) (js.compile) If the file assets/[moduleid].js is located, then
-this "native module" that is being built is actually just carrying around
-a CommonJS module. So if that file is found, it goes through our
-jspacker.py and gets encrypted and placed into a Java class file just
-like we do for JS files in production mode when compiling a normal Titanium
-Android project.
+(3) (js.compile) If JavaScript files are found in the assets/ directory,
+then they go through our jspacker.py and get encrypted and placed into
+a Java class file just like we do for JS files in production mode when
+compiling a normal Titanium Android project. In this way, module developers
+can use these native module projects as a means of creating CommonJS modules
+which are distributed in an encrypted form.
 
 (4) (ndk.build) This step runs the stock Android NDK ndk-build command
 after setting up the appropriate environment for it. It copies the
@@ -79,7 +76,7 @@ Post-Compilation:
 
 The last steps of the "dist" target are responsible for packaging up
 the module jar (including putting anything in assets/ into the jar, except
-for the CommonJS module, if any, since that gets compiled),
+for JavaScript files, if any, since they get compiled),
 then zipping it together with the manifest, any docs, other libs in
 the lib folder as well as example/* and platform/* and the
 timodule.xml.
@@ -92,6 +89,7 @@ timodule.xml.
 	<property file="${ti.module.root}/build.properties"/>
 	<property name="android.jar" location="${android.platform}/android.jar"/>
 	<property name="ti.module.support.dir" location="${titanium.platform}/../module"/>
+	<property name="titanium.py" location="${titanium.platform}/../titanium.py"/>
 
 	<!-- the manifest format seems to be compatible w/ the properties format -->
 	<property file="${ti.module.root}/manifest" prefix="manifest"/>
@@ -111,7 +109,6 @@ timodule.xml.
 	<property name="genjava" location="${build}/generated/java"/>
 	<property name="genjni" location="${build}/generated/jni"/>
 	<property name="genjni.local" location="${genjni}-local"/>
-	<property name="genjs" location="${build}/generated/js"/>
 	<property name="classes" location="${build}/classes"/>
 	<property name="docs" location="${build}/docs"/>
 	<property name="dist" location="${ti.module.root}/dist"/>
@@ -119,8 +116,6 @@ timodule.xml.
 	<property name="jni" location="${ti.module.root}/jni"/>
 	<property name="libs" location="${ti.module.root}/libs"/>
 	<property name="assets" location="${ti.module.root}/assets"/>
-	<property name="jsmodule.source" location="${assets}/${manifest.moduleid}.js"/>
-	<property name="jsmodule.compiled" location="${genjs}/${manifest.moduleid}.js"/>
 	<property name="javac.debug" value="true"/>
 
 	<path id="project.classpath">
@@ -135,12 +130,25 @@ timodule.xml.
 		<pathelement path="${google.apis}/libs/maps.jar"/>
 	</path>
 
-	<target name="init">
+	<target name="python.set.exec">
+		<property name="python.bat" location="${titanium.platform}/../python.bat"/>
+		<condition property="python.exec" value="${python.bat}" else="python">
+			<os family="windows"/>
+		</condition>
+	</target>
+
+	<target name="python.check" depends="python.set.exec">
+		<echo>Testing for Python</echo>
+		<exec failonerror="true" executable="${python.exec}">
+			<arg line="--version"/>
+		</exec>
+	</target>
+
+	<target name="init" depends="python.check">
 		<mkdir dir="${classes}"/>
 		<mkdir dir="${gen}"/>
 		<mkdir dir="${dist}"/>
 	</target>
-
 
 	<target name="process.annotations" depends="init"
 		description="Processes @Kroll.proxy and @Kroll.module annotations">
@@ -165,40 +173,27 @@ timodule.xml.
 	</target>
 
 	<macrodef name="generate.runtime.bindings">
-		<attribute name="runtime"/>
 		<attribute name="outdir"/>
 		<sequential>
 			<java classname="org.appcelerator.kroll.annotations.generator.KrollBindingGenerator" classpathref="project.classpath">
-				<!-- runtime to generate for -->
-				<arg value="@{runtime}"/>
 				<!-- output directory -->
 				<arg value="@{outdir}"/>
 				<!-- isModule -->
 				<arg value="true"/>
 				<!-- modulePackage -->
 				<arg value="${manifest.moduleid}"/>
-				<!-- moduleClassName -->
-				<arg value="${manifest.name}GeneratedBindings"/>
-
 				<!-- binding json -->
 				<arg value="${genjson}/org/appcelerator/titanium/bindings/${manifest.name}.json"/>
 			</java>
 		</sequential>
 	</macrodef>
 
-	<target name="generate.rhino.bindings">
-		<generate.runtime.bindings runtime="rhino" outdir="${genjava}"/>
-		<antcall target="generate.rhino.idswitch"/>
-	</target>
-
 	<target name="generate.v8.bindings">
-		<generate.runtime.bindings runtime="v8" outdir="${genjni}"/>
+		<generate.runtime.bindings outdir="${genjni}"/>
 		<property name="bootstrap.py" location="${ti.module.support.dir}/android/bootstrap.py"/>
 		<property name="js2c.py" location="${ti.module.support.dir}/android/js2c.py"/>
 
 		<python file="${bootstrap.py}">
-			<!-- js runtime -->
-			<arg value="v8"/>
 			<!-- module id -->
 			<arg value="${manifest.moduleid}"/>
 			<!-- module name -->
@@ -210,50 +205,18 @@ timodule.xml.
 		</python>
 	</target>
 
-	<target name="generate.bindings" depends="generate.rhino.bindings,generate.v8.bindings">
-	</target>
-
-	<property name="rhino.idswitch" value="org.mozilla.javascript.tools.idswitch.Main"/>
-
-	<macrodef name="idswitch">
-		<attribute name="file"/>
-		<sequential>
-			<java classpathref="project.classpath" classname="${rhino.idswitch}" failonerror="true" logerror="true">
-				<arg file="@{file}"/>
-			</java>
-		</sequential>
-	</macrodef>
-
-	<!--
-	Generates an optimized id switch statement for prototype
-	and instance IDs
-	-->
-	<target name="generate.rhino.idswitch">
-		<path id="rhino.prototypes">
-			<fileset dir="${gen}" includes="**/*.java"/>
-		</path>
-
-		<for param="prototype">
-			<path refid="rhino.prototypes"/>
-			<sequential>
-				<echo>Generating IDs for @{prototype}</echo>
-				<idswitch file="@{prototype}"/>
-			</sequential>
-		</for>
+	<target name="generate.bindings" depends="generate.v8.bindings">
 	</target>
 
 	<target name="pre.compile">
 		<available file="${ti.module.root}/jni" type="dir" property="jni.local"/>
-		<available file="${jsmodule.source}" type="file" property="isJSModule"/>
-		<!-- If applicable, will set commonjs key value in manifest and
-		prepare a Java class that will hand-off the source code to that JavaScript
-		at runtime of the Titanium application the module is used in.-->
-		<property name="android.py" location="${ti.module.support.dir}/android/android.py"/>
-		<python file="${android.py}">
-			<arg value="--prepare-commonjs"/>
-			<arg value="${ti.module.root}"/>
-		</python>
-
+		<condition property="isJSModule">
+			<resourcecount count="0" when="greater">
+				<fileset dir="${assets}">
+					<include name="**/*.js"/>
+				</fileset>
+			</resourcecount>
+		</condition>
 	</target>
 
 	<target name="compile" depends="process.annotations,generate.bindings,pre.compile,js.compile,ndk.build,ndk.build.local" description="Compile this module's source code">
@@ -281,7 +244,7 @@ timodule.xml.
 	<macrodef name="check.ndk">
 		<sequential>
 			<property environment="env"/>
-			<fail message="Neither the ANDROID_NDK environment variable, or the android.ndk property is not set to an existing Android NDK installation (check your module's build.properties)">
+			<fail message="Neither the ANDROID_NDK environment variable, or the android.ndk property is not set to an existing Android NDK installation (check your module's build.properties). ">
 				<condition>
 					<not>
 						<or>
@@ -308,7 +271,8 @@ timodule.xml.
 			
 			<property name="mobilesdk.dir" location="${titanium.platform}/.."/>
 			<property name="ndk.verbose" value="0"/>
-			<property name="tmpdir" value="${java.io.tmpdir}/${user.name}/${ant.project.name}-generated" />
+			<propertyregex property="user.name.nospaces" input="${user.name}" regexp=" " replace="_" global="true" defaultValue="${user.name}"/>
+			<property name="tmpdir" value="${java.io.tmpdir}/${user.name.nospaces}/${ant.project.name}-generated" />
 
 			<mkdir dir="${tmpdir}" />
 			<copy todir="${tmpdir}" preservelastmodified="true" overwrite="true" includeEmptyDirs="true">
@@ -370,37 +334,27 @@ timodule.xml.
 	</target>
 	
 	<target name="js.compile" if="${isJSModule}">
-		<echo>CommonJS module ${jsmodule.source} found. Compiling.</echo>
-		<mkdir dir="${genjs}"/>
-
-		<!-- Closure compiler -->
-		<java jar="${titanium.platform}/lib/closure-compiler.jar" fork="true" failonerror="true">
-			<arg value="--js"/>
-			<arg value="${jsmodule.source}"/>
-			<arg value="--js_output_file"/>
-			<arg value="${jsmodule.compiled}"/>
-			<arg value="--jscomp_off=internetExplorerChecks"/>
-		</java>
-
-		<!-- Packer -->
-		<property name="jspacker.py" location="${titanium.platform}/jspacker.py"/>
-		<python file="${jspacker.py}">
-			<!-- generated/js dir -->
-			<arg value="${genjs}"/>
-			<!-- commonjs file -->
-			<arg value="${jsmodule.compiled}"/>
-			<!-- package -->
-			<arg value="${manifest.moduleid}"/>
-			<!-- output dir -->
-			<arg value="${genjava}"/>
+		<echo>CommonJS module files found. Compiling.</echo>
+		<!-- If applicable, will set commonjs key value in manifest and
+		prepare a Java class that will hand-off the source code to that JavaScript
+		at runtime of the Titanium application the module is used in. The compiling
+		and packing of the JavaScript assets occurs here.-->
+		<property name="android.py" location="${ti.module.support.dir}/android/android.py"/>
+		<python file="${android.py}">
+			<arg value="--prepare-commonjs"/>
+			<arg value="${ti.module.root}"/>
 		</python>
-
 	</target>
 
 	<target name="ndk.build.local" if="${jni.local}">
 		<check.ndk/>
 		<mkdir dir="${genjni.local}"/>
-		<copy todir="${genjni.local}">
+		<copy todir="${genjni.local}"
+			file="${module.generated.dir}/Application.mk">
+			<filterset refid="ndk.filter"/>
+		</copy>
+		<mkdir dir="${genjni.local}/jni"/>
+		<copy todir="${genjni.local}/jni">
 			<fileset dir="${ti.module.root}/jni">
 				<include name="**"/>
 			</fileset>
@@ -446,7 +400,7 @@ timodule.xml.
 		<property name="module.jar" location="${dist}/${ant.project.name}.jar"/>
 		<jar destfile="${module.jar}">
 			<fileset dir="${classes}"/>
-			<fileset dir="${ti.module.root}" includes="assets/**" excludes="assets/README assets/${manifest.moduleid}.js"/>
+			<fileset dir="${ti.module.root}" includes="assets/**" excludes="assets/README assets/*.js assets/**/*.js"/>
 		</jar>
 		<antcall target="post.jar"/>
 		<property name="zip.prefix" value="modules/android/${module.id}/${manifest.version}"/>
@@ -492,35 +446,24 @@ timodule.xml.
 		</delete>
 	</target>
 	
-	<property name="titanium.py" location="${titanium.platform}/../titanium.py"/>
-	<property name="titanium.bat" location="${titanium.platform}/../titanium.bat"/>
 
 	<macrodef name="titanium">
 		<attribute name="command"/>
 		<element name="args" implicit="true" optional="true"/>
 		<sequential>
-			<!-- Python needs to be on the path in OSX / Linux -->
-			<condition property="titanium.exec" value="${titanium.bat}" else="${titanium.py}">
-				<os family="windows"/>
-			</condition>
-			<exec executable="${titanium.exec}" dir="${basedir}">
-				<env key="ANT_HOME" file="${ant.home}"/>
+			<python file="${titanium.py}">
 				<arg value="@{command}"/>
 				<args/>
-			</exec>
+			</python>
 		</sequential>
 	</macrodef>
-
-	<property name="python.bat" location="${titanium.platform}/../python.bat"/>
-	<condition property="python.exec" value="${python.bat}" else="python">
-		<os family="windows"/>
-	</condition>
 
 	<macrodef name="python">
 		<attribute name="file"/>
 		<element name="args" implicit="true" optional="true"/>
 		<sequential>
 			<exec executable="${python.exec}" dir="${basedir}">
+				<env key="ANT_HOME" file="${ant.home}"/>
 				<arg value="@{file}"/>
 				<args/>
 			</exec>
@@ -542,7 +485,7 @@ timodule.xml.
 	<target name="pre.docgen">
 	</target>
 
-	<target name="docgen" depends="pre.docgen" description="Generate HTML documentation from Markdown">
+	<target name="docgen" depends="init,pre.docgen" description="Generate HTML documentation from Markdown">
 		<titanium command="docgen"/>
 		<antcall target="post.docgen"/>
 	</target>

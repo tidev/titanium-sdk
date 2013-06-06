@@ -101,6 +101,15 @@ properties:
         Note that this behavior is rather disruptive to users, and is strongly discouraged.
     type: Boolean
     default: false
+  - name: singleCallback
+    summary: Set to true to trigger a single callback for the selected push notification when multiple push notifications are displayed in the tray.
+    description: |
+        In previous versions of the module, clicking on one of the application's push notifications triggered the callbacks for all of the application's push notifications.
+        The new module retains the same behavior by default.
+        
+        Set this property to true to receive a single callback for the push notification selected by the user, regardless of how many push notifications are displayed in the tray.
+    type: Boolean
+    default: false
 events:
   - name: trayClickLaunchedApp
     summary: Fired when a tray notification is shown and the application is not running.

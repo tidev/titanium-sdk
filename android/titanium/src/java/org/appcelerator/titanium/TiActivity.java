@@ -12,20 +12,14 @@ import android.os.Bundle;
 
 public class TiActivity extends TiBaseActivity
 {
-	private boolean isTab = false;
-	private static final String TAG = "TiActivity";
-
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
-		// TODO Auto-generated method stub
 		super.onCreate(savedInstanceState);
 		Intent intent = getIntent();
 		if (intent == null) {
 			return;
 		}
-
-		isTab = intent.getBooleanExtra(TiC.INTENT_PROPERTY_IS_TAB, false);
 	}
 
 	@Override
@@ -42,10 +36,6 @@ public class TiActivity extends TiBaseActivity
 		if (getTiApp().isRestartPending()) {
 			return;
 		}
-
-		if (isTab()) {
-			TiApplication.addToActivityStack(this);
-		}
 	}
 
 	@Override
@@ -56,14 +46,6 @@ public class TiActivity extends TiBaseActivity
 		if (getTiApp().isRestartPending()) {
 			return;
 		}
-
-		if (isTab()) {
-			TiApplication.removeFromActivityStack(this);
-		}
 	}
 
-	public boolean isTab()
-	{
-		return isTab;
-	}
 }

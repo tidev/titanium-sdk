@@ -119,7 +119,7 @@ static void MyCFSocketCallback(CFSocketRef, CFSocketCallBackType, CFDataRef, con
 /**
  * The AsyncSendPacket encompasses the instructions for a single send/write.
 **/
-@interface TI_AsyncSendPacket : NSObject
+@interface AsyncSendPacket : NSObject
 {
 @public
 	NSData *buffer;
@@ -129,8 +129,6 @@ static void MyCFSocketCallback(CFSocketRef, CFSocketCallBackType, CFDataRef, con
 }
 - (id)initWithData:(NSData *)d address:(NSData *)a timeout:(NSTimeInterval)t tag:(long)i;
 @end
-
-@compatibility_alias AsyncSendPacket TI_AsyncSendPacket;
 
 @implementation AsyncSendPacket
 
@@ -162,7 +160,7 @@ static void MyCFSocketCallback(CFSocketRef, CFSocketCallBackType, CFDataRef, con
 /**
  * The AsyncReceivePacket encompasses the instructions for a single receive/read.
 **/
-@interface TI_AsyncReceivePacket : NSObject
+@interface AsyncReceivePacket : NSObject
 {
 @public
 	NSTimeInterval timeout;
@@ -173,8 +171,6 @@ static void MyCFSocketCallback(CFSocketRef, CFSocketCallBackType, CFDataRef, con
 }
 - (id)initWithTimeout:(NSTimeInterval)t tag:(long)i;
 @end
-
-@compatibility_alias AsyncReceivePacket TI_AsyncReceivePacket;
 
 @implementation AsyncReceivePacket
 

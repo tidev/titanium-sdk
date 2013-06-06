@@ -1,7 +1,6 @@
 ---
 name: Titanium.UI.ActivityIndicator
 summary: An activity indicator that lets the user know an action is taking place. 
-    
 description:  |
     An activity indicator can be used to show the progress of an operation in the UI to let the 
     user know that some action is taking place. An activity indicator consists of a spinning 
@@ -13,6 +12,15 @@ description:  |
     The activity indicator is a view like any other view, and must be
     added to a window or other top-level view before it can be shown. Note that, unlike most views, 
     the activity indicator is hidden by default and must be shown explicitly.
+
+    #### Android Platform Notes
+
+    Prior to SDK 3.0, activity indicator on Android produced a modal dialog containing a spinner or
+    progress bar. In SDK 3.0, this legacy Android activity indicator was renamed to
+    <Titanium.UI.Android.ProgressIndicator>.
+
+    In SDK 3.0, use `ActivityIndicator` for a view that can be added as a child of another view.
+    Use `ProgressIndicator` to display a progress indicator in a modal dialog or window title bar.
 extends: Titanium.Proxy
 since: "0.8"
 methods:
@@ -26,7 +34,7 @@ methods:
         to appear on top of it.
 
         See also: <Titanium.UI.View.add>.
-    platforms: [iphone, ipad, mobileweb]
+    platforms: [iphone, ipad, mobileweb, tizen]
 
   - name: hide
     summary: Hides the activity indicator and stops the animation.
@@ -37,7 +45,7 @@ methods:
         Adding children to an `ActivityIndicator` is not supported on all platforms.
 
         See also: [add](Titanium.UI.ActivityIndicator.add), <Titanium.UI.View.add>.
-    platforms: [iphone, ipad, mobileweb]
+    platforms: [iphone, ipad, mobileweb, tizen]
     
   - name: show
     summary: Shows the activity indicator and starts the animation.
@@ -115,8 +123,8 @@ properties:
     summary: Color of the animated indicator.
     since: "2.1.0"
     type: String
-    default: "#fff"
-    platforms: [mobileweb]
+    default: <pre>#fff</pre>
+    platforms: [mobileweb, tizen]
     
   - name: indicatorDiameter
     summary: Diameter of the indicator.
@@ -125,7 +133,7 @@ properties:
     since: "2.1.0"
     type: String
     default: 36
-    platforms: [mobileweb]
+    platforms: [mobileweb, tizen]
 
   - name: top
     summary: Top position of the view.
@@ -158,9 +166,12 @@ examples:
               fullscreen: true
             });
 
-            var style = Ti.UI.ActivityIndicatorStyle.DARK;
+            var style;
             if (Ti.Platform.name === 'iPhone OS'){
               style = Ti.UI.iPhone.ActivityIndicatorStyle.DARK;
+            }
+            else {
+              style = Ti.UI.ActivityIndicatorStyle.DARK;
             }
             var activityIndicator = Ti.UI.createActivityIndicator({
               color: 'green',
@@ -190,3 +201,42 @@ examples:
 
             win1.open();
             win2.open();
+
+  - title: Alloy XML Markup
+    example: |
+        Previous example as two Alloy views.
+
+        win1.xml:
+
+            <Alloy>
+                <Window onOpen="openWin2" backgroundColor="blue" />
+            </Alloy>
+
+        win1.js:
+
+            function openWin2 () {
+                var win2 = Alloy.createController('win2').getView();
+                win2.open();
+            }
+
+        win2.xml:
+
+            <Alloy>
+                <Window onOpen="showIndicator" fullscreen="true" backgroundColor="yellow">
+
+                    <!-- Define the styling properties in the TSS file -->
+                    <ActivityIndicator id="activityIndicator" message="Loading..."/>
+                </Window>
+            </Alloy>
+
+        win2.js:
+
+            function showIndicator(e){
+                $.activityIndicator.show();
+                // do some work that takes 6 seconds
+                // ie. replace the following setTimeout block with your code
+                setTimeout(function(){
+                    e.source.close();
+                    $.activityIndicator.hide();
+                }, 6000);
+            }

@@ -30,7 +30,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #import <Foundation/Foundation.h>
 
 // Have to rename this symbol to avoid conflicts; see below
-extern NSString * TI_SBJSONErrorDomain;
+extern NSString * SBJSONErrorDomain;
 
 enum {
     EUNSUPPORTED = 1,
@@ -88,7 +88,7 @@ anything else not in the JSON specification.
 
 // In order to preserve our SBJSON modifications while allowing modules to use their own (and updated)
 // SBJSON, we have to have an internal name for this class and alias it.
-@interface TI_SBJSON : NSObject {
+@interface SBJSON : NSObject {
     BOOL humanReadable;
     BOOL sortKeys;
     NSUInteger maxDepth;
@@ -142,5 +142,3 @@ anything else not in the JSON specification.
     			 error:(NSError**)error;
 
 @end
-
-@compatibility_alias SBJSON TI_SBJSON;

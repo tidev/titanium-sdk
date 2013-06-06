@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -131,32 +131,6 @@ public class TiPlatformHelper
 		}
 	}
 
-	/*
-	public static void initializeRhinoDateFormats(Context context)
-	{
-		// http://jira.appcelerator.org/browse/TIMOB-3742
-		// toLocaleTimeString / toLocaleString don't honor the user's 24 hour setting
-		if (NativeDate.localeDateFormatter != null) return;
-
-		NativeDate.localeDateFormatter = android.text.format.DateFormat.getLongDateFormat(context);
-		NativeDate.localeTimeFormatter = android.text.format.DateFormat.getTimeFormat(context);
-
-		SimpleDateFormat timeFormat = (SimpleDateFormat)
-			DateFormat.getDateTimeInstance(DateFormat.LONG, DateFormat.LONG);
-
-		if (android.text.format.DateFormat.is24HourFormat(context)) {
-			if (timeFormat != null) {
-				String pattern = timeFormat.toLocalizedPattern();
-				// Switch to 24 hour format: h->H, AM/PM goes away
-				pattern = pattern.replaceAll("h", "H");
-				pattern = pattern.replaceAll("a", "");
-				timeFormat = new SimpleDateFormat(pattern, Locale.getDefault());
-			}
-		}
-
-		NativeDate.localeDateTimeFormatter = timeFormat;
-	}*/
-
 	public static ITiAppInfo getAppInfo() {
 		return TiApplication.getInstance().getAppInfo();
 	}
@@ -194,6 +168,10 @@ public class TiPlatformHelper
 
 	public static String getModel() {
 		return Build.MODEL;
+	}
+
+	public static String getManufacturer() {
+		return Build.MANUFACTURER;
 	}
 
 	public static String getOstype() {

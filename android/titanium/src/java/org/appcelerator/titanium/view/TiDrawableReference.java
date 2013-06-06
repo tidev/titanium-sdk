@@ -1,11 +1,12 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
 package org.appcelerator.titanium.view;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.ref.SoftReference;
@@ -25,11 +26,11 @@ import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiDimension;
 import org.appcelerator.titanium.io.TiBaseFile;
 import org.appcelerator.titanium.io.TiFileFactory;
-import org.appcelerator.titanium.util.TiBackgroundImageLoadTask;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiDownloadListener;
 import org.appcelerator.titanium.util.TiDownloadManager;
 import org.appcelerator.titanium.util.TiFileHelper;
+import org.appcelerator.titanium.util.TiImageLruCache;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.util.TiUrl;
 
@@ -38,8 +39,10 @@ import android.content.pm.ApplicationInfo;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.media.ExifInterface;
 import android.util.DisplayMetrics;
 import android.view.View;
 import android.webkit.URLUtil;
@@ -68,6 +71,7 @@ public class TiDrawableReference
 	}
 
 	private static final String TAG = "TiDrawableReference";
+	private static final String FILE_PREFIX = "file://";
 	private static final int UNKNOWN = -1;
 	private static final int DEFAULT_SAMPLE_SIZE = 1;
 	private int resourceId = UNKNOWN;
@@ -77,6 +81,12 @@ public class TiDrawableReference
 	private DrawableReferenceType type;
 	private boolean oomOccurred = false;
 	private boolean anyDensityFalse = false;
+	private boolean autoRotate;
+	private int orientation = -1;
+
+	// TIMOB-3599: A bug in Gingerbread forces us to retry decoding bitmaps when they initially fail
+	public static final int DEFAULT_DECODE_RETRIES = 5;
+	private int decodeRetries;
 
 	private SoftReference<Activity> softActivity = null;
 
@@ -92,6 +102,7 @@ public class TiDrawableReference
 			appInfo = TiApplication.getInstance().getApplicationInfo();
 		}
 		anyDensityFalse = (appInfo.flags & ApplicationInfo.FLAG_SUPPORTS_SCREEN_DENSITIES) == 0;
+		decodeRetries = DEFAULT_DECODE_RETRIES;
 	}
 
 	/**
@@ -270,34 +281,100 @@ public class TiDrawableReference
 	 */
 	public Bitmap getBitmap()
 	{
-		InputStream is = getInputStream();
-		if (is == null) {
-			Log.w(TAG, "Could not open stream to get bitmap");
-			return null;
-		}
+		return getBitmap(false);
+	}
 
+	/**
+	 * Gets the bitmap from the resource without respect to sampling/scaling.
+	 * When needRetry is set to true, it will retry loading when decode fails.
+	 * If decode fails because of out of memory, clear the memory and call GC and retry loading a smaller image.
+	 * If decode fails because of the odd Android 2.3/Gingerbread behavior (TIMOB-3599), retry loading the original image.
+	 * This method should be called from a background thread when needRetry is set to true because it may block
+	 * the thread if it needs to retry several times.
+	 * @param needRetry If true, it will retry loading when decode fails.
+	 * @return Bitmap, or null if errors occurred while trying to load or fetch it.
+	 * @module.api
+	 */
+	public Bitmap getBitmap(boolean needRetry)
+	{
+		InputStream is = getInputStream();
 		Bitmap b = null;
+		BitmapFactory.Options opts = new BitmapFactory.Options();
+		opts.inInputShareable = true;
+		opts.inPurgeable = true;
+		opts.inPreferredConfig = Bitmap.Config.RGB_565;
 
 		try {
-			BitmapFactory.Options opts = new BitmapFactory.Options();
-			opts.inInputShareable = true;
-			opts.inPurgeable = true;
-
-			try {
-				oomOccurred = false;
-				b = BitmapFactory.decodeStream(is, null, opts);
-			} catch (OutOfMemoryError e) {
-				oomOccurred = true;
-				Log.e(TAG, "Unable to load bitmap. Not enough memory: " + e.getMessage(), e);
+			if (needRetry) {
+				for (int i = 0; i < decodeRetries; i++) {
+					// getInputStream() fails sometimes but after retry it will get
+					// input stream successfully.
+					if (is == null) {
+						Log.i(TAG, "Unable to get input stream for bitmap. Will retry.", Log.DEBUG_MODE);
+						try {
+							Thread.sleep(100);
+						} catch (InterruptedException ie) {
+							// Ignore
+						}
+						is = getInputStream();
+						continue;
+					}
+					try {
+						oomOccurred = false;
+						b = BitmapFactory.decodeStream(is, null, opts);
+						if (b != null) {
+							break;
+						}
+						// Decode fails because of TIMOB-3599.
+						// Really odd Android 2.3/Gingerbread behavior -- BitmapFactory.decode* Skia functions
+						// fail randomly and seemingly without a cause. Retry 5 times by default w/ 250ms between each try.
+						// Usually the 2nd or 3rd try succeeds, but the "decodeRetries" property in ImageView
+						// will allow users to tweak this if needed
+						Log.i(TAG, "Unable to decode bitmap. Will retry.", Log.DEBUG_MODE);
+						try {
+							Thread.sleep(250);
+						} catch (InterruptedException ie) {
+							// Ignore
+						}
+					} catch (OutOfMemoryError e) { // Decode fails because of out of memory
+						oomOccurred = true;
+						Log.e(TAG, "Unable to load bitmap. Not enough memory: " + e.getMessage(), e);
+						Log.i(TAG, "Clear memory cache and signal a GC. Will retry load.", Log.DEBUG_MODE);
+						TiImageLruCache.getInstance().evictAll();
+						System.gc(); // See if we can force a compaction
+						try {
+							Thread.sleep(1000);
+						} catch (InterruptedException ie) {
+							// Ignore
+						}
+						opts.inSampleSize = (int) Math.pow(2, i);
+					}
+				}
+			} else {
+				if (is == null) {
+					Log.w(TAG, "Could not open stream to get bitmap");
+					return null;
+				}
+				try {
+					oomOccurred = false;
+					b = BitmapFactory.decodeStream(is, null, opts);
+				} catch (OutOfMemoryError e) {
+					oomOccurred = true;
+					Log.e(TAG, "Unable to load bitmap. Not enough memory: " + e.getMessage(), e);
+				}
 			}
-		
 		} finally {
+			if (is == null) {
+				Log.w(TAG, "Could not open stream to get bitmap");
+				return null;
+			}
 			try {
 				is.close();
 			} catch (IOException e) {
 				Log.e(TAG, "Problem closing stream: " + e.getMessage(), e);
 			}
 		}
+
 		return b;
 	}
 
@@ -519,8 +596,7 @@ public class TiDrawableReference
 		}
 
 		if (destWidth <= 0 || destHeight <= 0) {
-			// calcDestSize() should actually prevent this from happening, but just in case...
-			Log.w(TAG, "Bitmap final bounds could not be determined.  If bitmap is loaded, it won't be scaled.");
+			// If we can't determine the size, then return null instead of an unscaled bitmap
 			return getBitmap();
 		}
 
@@ -574,12 +650,25 @@ public class TiDrawableReference
 				displayMetrics.setToDefaults();
 				bTemp.setDensity(displayMetrics.densityDpi);
 
+				// Orient the image when orientation is set.
+				if (autoRotate) {
+					// Only set the orientation if it is uninitialized
+					if(orientation < 0) {
+						orientation = getOrientation();
+					}
+					if (orientation > 0) {
+						return getRotatedBitmap(bTemp, orientation);
+					}
+				}
+
 				if (bTemp.getNinePatchChunk() != null) {
 					// Don't scale nine-patches
 					b = bTemp;
 					bTemp = null;
 				} else {
-					Log.d(TAG, "Scaling bitmap to " + destWidth + "x" + destHeight, Log.DEBUG_MODE);
+					if (Log.isDebugModeEnabled()) {
+						Log.d(TAG, "Scaling bitmap to " + destWidth + "x" + destHeight, Log.DEBUG_MODE);
+					}
 
 					// If anyDensity=false, meaning Android is automatically scaling
 					// pixel dimensions, need to do that here as well, because Bitmap width/height
@@ -588,17 +677,25 @@ public class TiDrawableReference
 						destWidth = (int) (destWidth * displayMetrics.density + 0.5f); // 0.5 is to force round up of dimension. Casting to int drops decimals.
 						destHeight = (int) (destHeight * displayMetrics.density + 0.5f);
 					}
+
+					// Created a scaled copy of the bitmap. Note we will get
+					// back the same bitmap if no scaling is required.
 					b = Bitmap.createScaledBitmap(bTemp, destWidth, destHeight, true);
 				}
+
 			} catch (OutOfMemoryError e) {
 				oomOccurred = true;
 				Log.e(TAG, "Unable to load bitmap. Not enough memory: " + e.getMessage(), e);
+
 			} finally {
-				if (bTemp != null) {
+				// Recycle the temporary bitmap only if it isn't
+				// the same instance as our scaled bitmap.
+				if (bTemp != null && bTemp != b) {
 					bTemp.recycle();
 					bTemp = null;
 				}
 			}
+
 		} finally {
 			try {
 				is.close();
@@ -632,18 +729,6 @@ public class TiDrawableReference
 		} catch (NullPointerException e) {
 			Log.e(TAG, "NullPointerException: " + url, e);
 		}
-	}
-
-	/**
-	 * Just runs .load(url) on the passed TiBackgroundImageLoadTask.
-	 * @param asyncTask
-	 */
-	public void getBitmapAsync(TiBackgroundImageLoadTask asyncTask)
-	{
-		if (!isNetworkUrl()) {
-			Log.w(TAG, "getBitmapAsync called on non-network url.  Will attempt load.", Log.DEBUG_MODE);
-		}
-		asyncTask.load(url);
 	}
 
 	/**
@@ -708,7 +793,7 @@ public class TiDrawableReference
 			} catch (IOException e) {
 				Log.e(TAG, "Problem opening stream with url " + url + ": " + e.getMessage(), e);
 			}
-			
+
 		} else if (isTypeFile() && file != null) {
 			try {
 				stream = file.getInputStream();
@@ -776,6 +861,72 @@ public class TiDrawableReference
 	public boolean outOfMemoryOccurred()
 	{
 		return oomOccurred;
+	}
+
+	private Bitmap getRotatedBitmap(Bitmap src, int orientation) {
+		Matrix m = new Matrix();
+		m.postRotate(orientation);
+		return Bitmap.createBitmap(src, 0, 0, src.getWidth(), src.getHeight(), m, false);
+	}
+
+	public int getOrientation()
+	{
+		String path = null;
+		int orientation = 0;
+
+		if (isTypeBlob() && blob != null) {
+			path = blob.getNativePath();
+		} else if (isTypeFile() && file != null) {
+			path = file.getNativeFile().getAbsolutePath();
+		} else {
+			InputStream is = getInputStream();
+			if (is != null) {
+				File file = TiFileHelper.getInstance().getTempFileFromInputStream(is, "EXIF-TMP", true);
+				path = file.getAbsolutePath();
+			}
+		}
+
+		try {
+			if (path == null) {
+				Log.e(TAG,
+					"Path of image file could not determined. Could not create an exifInterface from an invalid path.");
+				return 0;
+			}
+
+			// Remove path prefix
+			if (path.startsWith(FILE_PREFIX)) {
+				path = path.replaceFirst(FILE_PREFIX, "");
+			}
+
+			ExifInterface exifInterface = new ExifInterface(path);
+			orientation = exifInterface.getAttributeInt(ExifInterface.TAG_ORIENTATION, 0);
+
+			if (orientation == ExifInterface.ORIENTATION_ROTATE_90) {
+				orientation = 90;
+			} else if (orientation == ExifInterface.ORIENTATION_ROTATE_180) {
+				orientation = 180;
+			} else if (orientation == ExifInterface.ORIENTATION_ROTATE_270) {
+				orientation = 270;
+			} else {
+				orientation = 0;
+			}
+
+		} catch (IOException e) {
+			Log.e(TAG, "Error creating exifInterface, could not determine orientation.", Log.DEBUG_MODE);
+		}
+
+		return orientation;
+
+	}
+
+	public void setAutoRotate(boolean autoRotate)
+	{
+		this.autoRotate = autoRotate;
+	}
+
+	public void setDecodeRetries(int decodeRetries)
+	{
+		this.decodeRetries = decodeRetries;
 	}
 
 	public String getUrl()

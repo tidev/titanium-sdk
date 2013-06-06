@@ -521,6 +521,8 @@ public class VideoPlayerProxy extends TiViewProxy implements TiLifecycle.OnLifec
 		KrollDict data = new KrollDict();
 		data.put(TiC.EVENT_PROPERTY_PLAYBACK_STATE, state);
 		fireEvent(TiC.EVENT_PLAYBACK_STATE, data);
+		// TODO: Deprecate old event
+		fireEvent("playbackState", data);
 	}
 
 	public void fireLoadState(int state)
@@ -540,7 +542,19 @@ public class VideoPlayerProxy extends TiViewProxy implements TiLifecycle.OnLifec
 	{
 		KrollDict args = new KrollDict();
 		args.put(TiC.EVENT_PROPERTY_REASON, reason);
+		if (reason == MediaModule.VIDEO_FINISH_REASON_PLAYBACK_ERROR) {
+			args.putCodeAndMessage(-1,"Video Playback encountered an error");
+		} else {
+			args.putCodeAndMessage(0,null);
+		}
 		fireEvent(TiC.EVENT_COMPLETE, args);
+	}
+	
+	public void firePlaying()
+	{
+		KrollDict args = new KrollDict();
+		args.put(TiC.EVENT_PROPERTY_URL, getProperty(TiC.PROPERTY_URL));
+		fireEvent(TiC.EVENT_PLAYING, args);
 	}
 
 	public void onPlaybackReady(int duration)
@@ -554,6 +568,9 @@ public class VideoPlayerProxy extends TiViewProxy implements TiLifecycle.OnLifec
 			setProperty(TiC.PROPERTY_INITIAL_PLAYBACK_TIME, 0);
 		}
 		fireEvent(TiC.EVENT_DURATION_AVAILABLE, data);
+		// TODO: Deprecate old event
+		fireEvent("durationAvailable", data);
+
 		fireEvent(TiC.EVENT_PRELOAD, null);
 		fireEvent(TiC.EVENT_LOAD, null); // No distinction between load and preload in our case.
 		fireLoadState(MediaModule.VIDEO_LOAD_STATE_PLAYABLE);
@@ -566,6 +583,11 @@ public class VideoPlayerProxy extends TiViewProxy implements TiLifecycle.OnLifec
 	public void onPlaybackStarted()
 	{
 		firePlaybackState(MediaModule.VIDEO_PLAYBACK_STATE_PLAYING);
+	}
+	
+	public void onPlaying()
+	{
+		firePlaying();
 	}
 
 	public void onPlaybackPaused()
@@ -599,6 +621,7 @@ public class VideoPlayerProxy extends TiViewProxy implements TiLifecycle.OnLifec
 		firePlaybackState(MediaModule.VIDEO_PLAYBACK_STATE_INTERRUPTED);
 		KrollDict data = new KrollDict();
 		data.put(TiC.EVENT_PROPERTY_MESSAGE, message);
+		data.putCodeAndMessage(what, message);
 		fireEvent(TiC.EVENT_ERROR, data);
 		fireLoadState(MediaModule.VIDEO_LOAD_STATE_UNKNOWN);
 		fireComplete(MediaModule.VIDEO_FINISH_REASON_PLAYBACK_ERROR);

@@ -107,6 +107,11 @@ public class PlatformModule extends KrollModule
 	}
 
 	@Kroll.getProperty @Kroll.method
+	public String getManufacturer() {
+		return TiPlatformHelper.getManufacturer();
+	}
+
+	@Kroll.getProperty @Kroll.method
 	public String getOstype() {
 		return TiPlatformHelper.getOstype();
 	}

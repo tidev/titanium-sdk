@@ -24,6 +24,8 @@ description: |
     to "horizontal".  If `scrollType` is set, it overrides the deduced setting.
 extends: Titanium.UI.View
 since: "0.9"
+excludes:
+    properties: [ enabled ]
 
 methods:
   - name: scrollTo
@@ -39,7 +41,7 @@ methods:
         
   - name: setContentOffset
     summary: Sets the value of the [contentOffset](Titanium.UI.ScrollView.contentOffset) property.
-    platforms: [iphone, ipad, mobileweb]
+    platforms: [iphone, ipad, mobileweb, tizen]
     parameters:
       - name: contentOffset
         summary: |
@@ -49,6 +51,19 @@ methods:
       - name: animated
         summary: Determines whether the scrollable region reposition should be animated 
         type: contentOffsetOption
+        optional: true
+
+  - name: setZoomScale
+    summary: Sets the value of the [zoomScale](Titanium.UI.ScrollView.zoomScale) property.
+    platforms: [iphone, ipad]
+    parameters:
+      - name: zoomScale
+        summary: Scaling factor of the scroll view's content.
+        type: Number
+        
+      - name: animated
+        summary: Determines whether the scrollable region reposition should be animated 
+        type: zoomScaleOption
         optional: true
         
   - name: scrollToBottom
@@ -69,13 +84,6 @@ events:
     summary: Fired when the zoom scale factor changes.
     platforms: [iphone, ipad]
     properties:
-      - name: globalPoint
-        summary: X and Y coordinates of the event from the display's coordinate system.
-        type: Dictionary
-        platforms: [iphone, ipad]
-        deprecated:
-            since: "1.8.0"
-
       - name: scale
         summary: New scaling factor as a float.
         type: Number
@@ -86,7 +94,7 @@ events:
       - name: decelerating
         summary: Indicates whether the scroll is decelerating.
         type: Boolean
-        platforms: [iphone, ipad, mobileweb]
+        platforms: [iphone, ipad, mobileweb, tizen]
 
       - name: dragging
         summary: |
@@ -94,15 +102,8 @@ events:
             remained in contact with the display to physically drag the view, as opposed to it being 
             the result of scrolling momentum.
         type: Boolean
-        platforms: [iphone, ipad, mobileweb]
+        platforms: [iphone, ipad, mobileweb, tizen]
         
-      - name: globalPoint
-        summary: X and Y coordinates of the event from the display's coordinate system.
-        type: Dictionary
-        platforms: [iphone, ipad]
-        deprecated:
-            since: "1.8.0"
-            
       - name: x
         summary: X coordinate of the event from the `source` view's coordinate system.
         type: Number
@@ -113,33 +114,71 @@ events:
 
   - name: scrollEnd
     summary: Fired when the view has stopped moving completely.
-    platforms: [mobileweb]
+    description: |
+        This event has been deprecated and renamed scrollend (lower case).
+    platforms: [mobileweb, tizen]
     since: "2.1.0"
 
   - name: dragStart
     summary: Fired when the scrollable region starts being dragged.
     description: |
+        This event has been deprecated and renamed dragstart (lower case).
+
         A dragging gesture is when a touch remains in contact with the display to physically drag 
         the view, as opposed to it being the result of scrolling momentum.
-    platforms: [iphone, ipad, mobileweb]
+    platforms: [iphone, ipad, mobileweb, tizen]
    
   - name: dragEnd
     summary: Fired when the scrollable region stops being dragged.
     description: |
+        This event has been deprecated and renamed dragend (lower case).
+
         A dragging gesture is when a touch remains in contact with the display to physically drag 
         the view, as opposed to it being the result of scrolling momentum.
-    platforms: [iphone, ipad, mobileweb]
+    platforms: [iphone, ipad, mobileweb, tizen]
     properties:
       - name: decelerate
         summary: |
             Indicates whether scrolling will continue but decelerate, now that the drag gesture has 
             been released by the touch. If `false`, scrolling will stop immediately.
         type: Boolean
+
+  - name: scrollend
+    summary: Fired when the view has stopped moving completely.
+    platforms: [mobileweb, tizen]
+    since: "3.0.0"
+
+  - name: dragstart
+    summary: Fired when the scrollable region starts being dragged.
+    description: |
+        A dragging gesture is when a touch remains in contact with the display to physically drag 
+        the view, as opposed to it being the result of scrolling momentum.
+    platforms: [iphone, ipad, mobileweb, tizen]
+    since: "3.0.0"
+   
+  - name: dragend
+    summary: Fired when the scrollable region stops being dragged.
+    description: |
+        A dragging gesture is when a touch remains in contact with the display to physically drag 
+        the view, as opposed to it being the result of scrolling momentum.
+    platforms: [iphone, ipad, mobileweb, tizen]
+    properties:
+      - name: decelerate
+        summary: |
+            Indicates whether scrolling will continue but decelerate, now that the drag gesture has 
+            been released by the touch. If `false`, scrolling will stop immediately.
+        type: Boolean
+    since: "3.0.0"
+
 properties:
   - name: canCancelEvents
-    summary: |
-        Determines whether this scroll view can cancel subview touches in order to scroll instead.
-    description: Set to `false` to ensure that subview touches always take effect.
+    summary: Determines whether this scroll view can cancel subview touches in order to scroll instead.
+    description: |
+        On iOS, this property maps to the native `canCancelContentTouches` property which controls 
+        whether touches in the content view always lead to tracking. See [UIScrollView](http://developer.apple.com/library/ios/#documentation/uikit/reference/UIScrollView_Class/Reference/UIScrollView.html) for more details.
+
+        On Android, setting this property to false prevents the scroll view from intercepting 
+        any touch events from its subviews. Note that this behavior may be slightly different from iOS.
     type: Boolean
     default: true
     platforms: [android, iphone, ipad]
@@ -174,7 +213,7 @@ properties:
         This property takes precedence over the `horizontalBounce` and `verticalBounce` properties.
     type: Boolean
     default: false
-    platforms: [iphone, ipad, mobileweb]
+    platforms: [iphone, ipad, mobileweb, tizen]
     
   - name: horizontalBounce
     summary: Determines whether horizontal scroll bounce of the scrollable region is enabled.
@@ -189,7 +228,7 @@ properties:
         `verticalBounce` properties.
     type: Boolean
     default: true
-    platforms: [iphone, ipad, mobileweb]
+    platforms: [iphone, ipad, mobileweb, tizen]
     
   - name: maxZoomScale
     summary: Maximum scaling factor of the scrollable region and its content.
@@ -212,6 +251,14 @@ properties:
     type: Number
     default: 1.0
     platforms: [iphone, ipad]
+
+  - name: overScrollMode
+    summary: |
+      One of <Titanium.UI.Android.OVER_SCROLL_ALWAYS>, <Titanium.UI.Android.OVER_SCROLL_IF_CONTENT_SCROLLS>, or <Titanium.UI.Android.OVER_SCROLL_NEVER>. 
+    type: Number
+    default: Titanium.UI.Android.OVER_SCROLL_ALWAYS
+    platforms: [android]
+    since: "3.1.0"
 
   - name: scrollsToTop
     summary: Controls whether the scroll-to-top gesture is effective.
@@ -249,8 +296,8 @@ properties:
     summary: Determines whether scrolling is enabled for the view.
     type: Boolean
     default: true
-    platforms: [iphone, ipad, android, mobileweb]
-    since: { iphone: "2.2", ipad: "2.2", android: "2.2", mobileweb: "2.2" }
+    platforms: [android, iphone, ipad, mobileweb, tizen]
+    since: { iphone: "3.0.0", ipad: "3.0.0", android: "3.0.0", mobileweb: "3.0.0" }
 
   - name: showHorizontalScrollIndicator
     summary: Determines whether the horizontal scroll indicator is visible.
@@ -277,10 +324,10 @@ properties:
         `verticalBounce` properties.
     type: Boolean
     default: true
-    platforms: [iphone, ipad, mobileweb]
+    platforms: [iphone, ipad, mobileweb, tizen]
     
   - name: zoomScale
-    summary: Scaling factor of the scrollable region and its content.
+    summary: Scaling factor of the scroll view's content.
     description: |
         This value is bound by the [minZoomScale](Titanium.UI.ScrollView.minZoomScale) and [maxZoomScale](Titanium.UI.ScrollView.maxZoomScale) properties.
     type: Number
@@ -370,6 +417,17 @@ examples:
             win.add(label);
             win.open();
 
+  - title: Alloy XML Markup
+    example: |
+       Previous simple scroll view example as an Alloy view.
+
+           <Alloy>
+               <Window id="win" backgroundColor="white" exitOnClose="true" fullscreen="false" title="ScrollView Demo">
+                   <ScrollView id="scrollView" showVerticalScrollIndicator="true" showHorizontalScrollIndicator="true" height="80%" width="80%">
+                       <View id="view" backgroundColor="#336699" borderRaduis="10" top="10" height="2000" width="1000" />
+                   </ScrollView>
+               </Window>
+           </Alloy>
 ---
 name: contentOffsetOption
 summary: Optional parameter for [setContentOffset](Titanium.UI.ScrollView.setContentOffset) method.
@@ -386,5 +444,20 @@ properties:
   - name: animated
     summary: Determines whether the scroll view's content area change is animated.
     type: Boolean
+---
+name: zoomScaleOption
+summary: Optional parameter for [setZoomScale](Titanium.UI.ScrollView.setZoomScale) method.
+description: |
+    On iOS, the optional parameter `animated` to enable the animation while the scroll view 
+    zooms. For example
 
+        setZoomScale(2, {animated:true})
+optional: true
+since: 3.0.0
+platforms: [iphone, ipad]
+
+properties:
+  - name: animated
+    summary: Determines whether the scroll view's zooming is animated.
+    type: Boolean
         

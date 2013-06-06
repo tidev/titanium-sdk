@@ -138,7 +138,7 @@ examples:
                 if (e.success) {
                     alert('Created!');
                 } else {
-                    alert('Error:\\n' +
+                    alert('Error:\n' +
                         ((e.error && e.message) || JSON.stringify(e)));
                 }
             });
@@ -157,7 +157,7 @@ examples:
                 if (e.success) {
                     alert('Updated!');
                 } else {
-                    alert('Error:\\n' +
+                    alert('Error:\n' +
                         ((e.error && e.message) || JSON.stringify(e)));
                 }
             });
@@ -172,7 +172,7 @@ examples:
                 if (e.success) {
                     alert('Shown!');
                 } else {
-                    alert('Error:\\n' +
+                    alert('Error:\n' +
                         ((e.error && e.message) || JSON.stringify(e)));
                 }
             });
@@ -187,7 +187,7 @@ examples:
                 if (e.success) {
                     alert('Removed!');
                 } else {
-                    alert('Error:\\n' +
+                    alert('Error:\n' +
                         ((e.error && e.message) || JSON.stringify(e)));
                 }
             });
@@ -204,7 +204,7 @@ examples:
                 if (e.success) {
                     alert('Added!');
                 } else {
-                    alert('Error:\\n' +
+                    alert('Error:\n' +
                         ((e.error && e.message) || JSON.stringify(e)));
                 }
             });
@@ -221,7 +221,7 @@ examples:
                 if (e.success) {
                     alert('Removed!');
                 } else {
-                    alert('Error:\\n' +
+                    alert('Error:\n' +
                         ((e.error && e.message) || JSON.stringify(e)));
                 }
             });
@@ -238,7 +238,7 @@ examples:
                     alert('Read Permission: ' + e.permission['read permission'] +
                           '\nWrite Permission: ' + e.permission['write permission']);
                 } else {
-                    alert('Error:\\n' +
+                    alert('Error:\n' +
                         ((e.error && e.message) || JSON.stringify(e)));
                 }
             });

@@ -66,6 +66,11 @@ USE_PROXY_FOR_VERIFY_AUTORESIZING
 	return picker;
 }
 
+- (id)accessibilityElement
+{
+	return [self picker];
+}
+
 -(BOOL)isDatePicker
 {
 	return type != -1;
@@ -207,6 +212,14 @@ USE_PROXY_FOR_VERIFY_AUTORESIZING
 	}
 }
 
+- (id)value_
+{
+	if ([self isDatePicker] && ([(UIDatePicker*)picker datePickerMode] != UIDatePickerModeCountDownTimer)) {
+		return [(UIDatePicker*)[self picker] date];
+	}
+	return nil;
+}
+
 -(void)setLocale_:(id)value
 {
 	ENSURE_SINGLE_ARG_OR_NIL(value,NSString);
@@ -341,11 +354,16 @@ USE_PROXY_FOR_VERIFY_AUTORESIZING
 	else 
 	{
 		UIView* returnView = [rowproxy view];
-		UIView* wrapperView = [[[UIView alloc] initWithFrame:frame]autorelease];
-		[wrapperView setAutoresizingMask:UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight];
-		[wrapperView setBackgroundColor:[UIColor clearColor]];
-		returnView.frame = wrapperView.bounds;
-		[wrapperView addSubview:returnView];
+		#define WRAPPER_TAG 101
+		UIView* wrapperView =[returnView superview];
+		if (wrapperView.tag != WRAPPER_TAG) {
+			wrapperView = [[[UIView alloc] initWithFrame:frame] autorelease];
+			wrapperView.tag = WRAPPER_TAG;
+			[wrapperView setAutoresizingMask:UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight];
+			[wrapperView setBackgroundColor:[UIColor clearColor]];
+			returnView.frame = wrapperView.bounds;
+			[wrapperView addSubview:returnView];
+		}
 		return wrapperView;
 	}
 }

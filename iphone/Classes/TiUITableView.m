@@ -94,11 +94,12 @@
 
 -(void)prepareForReuse
 {
+	[super prepareForReuse];
+    
 	if (proxy.callbackCell == self) {
 		[proxy prepareTableRowForReuse];
 	}
-	[self setProxy:nil];
-	[super prepareForReuse];
+	//[self setProxy:nil];
 	
 	// TODO: HACK: In the case of abnormally large table view cells, we have to reset the size.
 	// This is because the view drawing subsystem takes the cell frame to be the sandbox bounds when drawing views,
@@ -106,9 +107,9 @@
 	// them go.
 
 	CGRect oldFrame = [[self contentView] frame];
-    CGSize cellSize = [self computeCellSize];
+	//CGSize cellSize = [self computeCellSize];
     
-	[[self contentView] setFrame:CGRectMake(oldFrame.origin.x, oldFrame.origin.y, cellSize.width, cellSize.height)];
+	[[self contentView] setFrame:CGRectMake(oldFrame.origin.x, oldFrame.origin.y, 0,0)];
 }
 
 - (UIView *)hitTest:(CGPoint) point withEvent:(UIEvent *)event 
@@ -120,19 +121,34 @@
 -(void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
 {
     if ( ([[event touchesForView:self.contentView] count] > 0) || ([[event touchesForView:self.accessoryView] count] > 0) 
-        || ([[event touchesForView:self.imageView] count] > 0) ) {
+        || ([[event touchesForView:self.imageView] count] > 0) || ([[event touchesForView:self.proxy.currentRowContainerView] count]> 0 )) {
         if ([proxy _hasListeners:@"touchstart"])
         {
             [proxy fireEvent:@"touchstart" withObject:[proxy createEventObject:nil] propagate:YES];
         }
     }
+        
     [super touchesBegan:touches withEvent:event];
+}
+
+- (void)touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event
+{
+    if ([[event touchesForView:self.contentView] count] > 0 || ([[event touchesForView:self.accessoryView] count] > 0)
+        || ([[event touchesForView:self.imageView] count] > 0) || ([[event touchesForView:self.proxy.currentRowContainerView] count]> 0 )) {
+        if ([proxy _hasListeners:@"touchmove"])
+        {
+            UITouch *touch = [touches anyObject];
+            NSMutableDictionary *evt = [NSMutableDictionary dictionaryWithDictionary:[TiUtils pointToDictionary:[touch locationInView:self]]];
+            [proxy fireEvent:@"touchmove" withObject:evt propagate:YES];
+        }
+    }
+    [super touchesMoved:touches withEvent:event];
 }
 
 -(void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event
 {
     if ( ([[event touchesForView:self.contentView] count] > 0) || ([[event touchesForView:self.accessoryView] count] > 0) 
-        || ([[event touchesForView:self.imageView] count] > 0) ) {
+        || ([[event touchesForView:self.imageView] count] > 0) || ([[event touchesForView:self.proxy.currentRowContainerView] count]> 0 )) {
         if ([proxy _hasListeners:@"touchend"])
         {
             [proxy fireEvent:@"touchend" withObject:[proxy createEventObject:nil] propagate:YES];
@@ -175,7 +191,7 @@
 }
 
 
--(void) updateGradientLayer:(BOOL)useSelected
+-(void) updateGradientLayer:(BOOL)useSelected withAnimation:(BOOL)animated
 {
 	TiGradient * currentGradient = useSelected?selectedBackgroundGradient:backgroundGradient;
 
@@ -185,7 +201,7 @@
 		//Because there's the chance that the other state still has the gradient, let's keep it around.
 		return;
 	}
-	
+
 	CALayer * ourLayer = [self layer];
 	
 	if(gradientLayer == nil)
@@ -207,31 +223,38 @@
             [[self textLabel] setBackgroundColor:[UIColor clearColor]];
         }
 	}
+    if (animated) {
+        CABasicAnimation *flash = [CABasicAnimation animationWithKeyPath:@"opacity"];
+        flash.fromValue = [NSNumber numberWithFloat:0.0];
+        flash.toValue = [NSNumber numberWithFloat:1.0];
+        flash.duration = 1.0;
+        [gradientLayer addAnimation:flash forKey:@"flashAnimation"];
+    }
 	[gradientLayer setNeedsDisplay];
 }
 
 -(void)setSelected:(BOOL)yn animated:(BOOL)animated
 {
     [super setSelected:yn animated:animated];
-    [self updateGradientLayer:yn|[self isHighlighted]];
+    [self updateGradientLayer:yn|[self isHighlighted] withAnimation:animated];
 }
 
 -(void)setHighlighted:(BOOL)yn animated:(BOOL)animated
 {
     [super setHighlighted:yn animated:animated];
-    [self updateGradientLayer:yn|[self isSelected]];
+    [self updateGradientLayer:yn|[self isSelected] withAnimation:animated];
 }
 
 -(void)setHighlighted:(BOOL)yn
 {
     [super setHighlighted:yn];
-    [self updateGradientLayer:yn|[self isHighlighted]];
+    [self updateGradientLayer:yn|[self isSelected] withAnimation:NO];
 }
 
 -(void)setSelected:(BOOL)yn
 {
     [super setSelected:yn];
-    [self updateGradientLayer:yn|[self isHighlighted]];
+    [self updateGradientLayer:yn|[self isHighlighted] withAnimation:NO];
 }
 
 -(void) setBackgroundGradient_:(TiGradient *)newGradient
@@ -245,7 +268,7 @@
 	
 	if(![self selectedOrHighlighted])
 	{
-		[self updateGradientLayer:NO];
+		[self updateGradientLayer:NO withAnimation:NO];
 	}
 }
 
@@ -260,7 +283,7 @@
 	
 	if([self selectedOrHighlighted])
 	{
-		[self updateGradientLayer:YES];
+		[self updateGradientLayer:YES withAnimation:NO];
 	}
 }
 
@@ -353,7 +376,7 @@
 	
 	// WORKAROUND FOR APPLE BUG: 4.2 and lower don't like setting background color for grouped table views on iPad.
 	// So, we check the table style and device, and if they match up wrong, we replace the background view with our own.
-	if ([table style] == UITableViewStyleGrouped && [TiUtils isIPad]) {
+	if ([table style] == UITableViewStyleGrouped && ([TiUtils isIPad] || [TiUtils isIOS6OrGreater])) {
 		UIView* bgView = [[[UIView alloc] initWithFrame:[table frame]] autorelease];
 		[table setBackgroundView:bgView];
 	}
@@ -386,8 +409,17 @@
 		if (TiDimensionIsDip(rowHeight))
 		{
 			[tableview setRowHeight:rowHeight.value];
-		}		
-		[self setBackgroundColor:[TiUtils colorValue:[[self proxy] valueForKey:@"backgroundColor"]] onTable:tableview];
+		}
+		
+        BOOL initBackGround = YES;
+        id bgInitValue = [[self proxy] valueForKey:@"backgroundColor"];
+        if ([TiUtils isIOS6OrGreater] && (style == UITableViewStyleGrouped)) {
+            //If it is IOS 6 and style is grouped do not call this method unless a backgroundColor is specified
+            initBackGround = (bgInitValue != nil);
+        }
+        if (initBackGround) {
+            [self setBackgroundColor:[TiUtils colorValue:bgInitValue] onTable:tableview];
+        }
 		
 		[self updateSearchView];
 	}
@@ -397,6 +429,11 @@
 	}
 	
 	return tableview;
+}
+
+- (id)accessibilityElement
+{
+	return [self tableView];
 }
 
 -(NSInteger)indexForRow:(TiUITableViewRowProxy*)row
@@ -427,14 +464,9 @@
     // way, meaning that we have to explicitly reload the whole visible table to get
     // the "right" behavior.
     if (animation == UITableViewRowAnimationNone) {
-        if (![NSThread isMainThread]) {
-            dispatch_async(dispatch_get_main_queue(), ^{
-                [table reloadData];
-            });
-        }
-        else {
-            [table reloadData];            
-        }
+		TiThreadPerformOnMainThread(^{
+			[table reloadData];
+		}, YES);
         return;
     }
     
@@ -471,15 +503,13 @@
 	//won't have any problems in the case that it is actually nil.	
 	TiUITableViewProxy * ourProxy = (TiUITableViewProxy *)[self proxy];
 
-	int oldCount = [(TiUITableViewProxy *)[self proxy] sectionCount];
+	int oldCount = [ourProxy sectionCount];
 	
-	for (TiUITableViewSectionProxy *section in [(TiUITableViewProxy *)[self proxy] sections])
+	for (TiUITableViewSectionProxy *section in [(TiUITableViewProxy *)[self proxy] internalSections])
 	{
 		if ([section parent] == ourProxy)
 		{
-			[section setTable:nil];
-			[section setParent:nil];
-			[self.proxy forgetProxy:section];
+			[ourProxy forgetSection:section];
 		}
 	}
 	
@@ -490,24 +520,21 @@
         [self tableView];
     }
     
-	[ourProxy setSections:data];
+	[ourProxy setInternalSections:data];
 
 	int newCount = 0;	//Since we're iterating anyways, we might as well not get count.
 
-	for (TiUITableViewSectionProxy *section in [(TiUITableViewProxy *)[self proxy] sections])
+	for (TiUITableViewSectionProxy *section in [(TiUITableViewProxy *)[self proxy] internalSections])
 	{
 		[section setTable:self];
-		[section setParent:ourProxy];
 		[section setSection:newCount ++];
-		[section reorderRows];
+		[ourProxy rememberSection:section];
 		//TODO: Shouldn't this be done by Section itself? Doesn't it already?
 		for (TiUITableViewRowProxy *row in section)
 		{
 			row.section = section;
 			row.parent = section;
 		}
-		[self.proxy rememberProxy:section];
-
 	}
 
 	[self reloadDataFromCount:oldCount toCount:newCount animation:animation];
@@ -593,7 +620,7 @@
 //for this protection.
 -(TiUITableViewSectionProxy *)sectionForIndex:(NSInteger) index
 {
-	NSArray * sections = [(TiUITableViewProxy *)[self proxy] sections];
+	NSArray * sections = [(TiUITableViewProxy *)[self proxy] internalSections];
 	if(index >= [sections count])
 	{
 		return nil;
@@ -601,14 +628,36 @@
 	return [sections objectAtIndex:index];
 }
 
+-(void)refreshSearchControllerUsingReload:(BOOL)reloadSearch
+{
+	if ([searchController isActive]) {
+		[self updateSearchResultIndexes];
+        
+		// Because -[UITableView reloadData] queues on the main runloop, we need to sync the search
+		// table reload to the same method. The only time we reloadData, though, is when setting the
+		// data, so toggle a flag to indicate what the search should do.
+		if (reloadSearch) {
+			[[searchController searchResultsTableView] reloadData];
+		}
+		else {
+			[[searchController searchResultsTableView] reloadSections:[NSIndexSet indexSetWithIndex:0]
+                                                     withRowAnimation:UITableViewRowAnimationFade];
+		}
+    }
+    else if (searchHidden) {
+        [self hideSearchScreen:nil];
+    }
+}
+
 -(void)dispatchAction:(TiUITableViewAction*)action
 {
 	ENSURE_UI_THREAD(dispatchAction,action);
 	
-	NSMutableArray * sections = [(TiUITableViewProxy *)[self proxy] sections];
+	NSMutableArray * sections = [(TiUITableViewProxy *)[self proxy] internalSections];
     BOOL reloadSearch = NO;
 
 	TiViewProxy<TiKeyboardFocusableView> * chosenField = [[[TiApp controller] keyboardFocusedProxy] retain];
+	BOOL hasFocus = [chosenField focused];
 	BOOL oldSuppress = [chosenField suppressFocusEvents];
 	[chosenField setSuppressFocusEvents:YES];
 	switch (action.type)
@@ -779,27 +828,12 @@
             break;
         }
 	}
-	[chosenField focus:nil];
+	if (hasFocus) {
+		[chosenField focus:nil];
+	}
 	[chosenField setSuppressFocusEvents:oldSuppress];
 	[chosenField release];
-
-	if ([searchController isActive]) {
-		[self updateSearchResultIndexes];
-        
-		// Because -[UITableView reloadData] queues on the main runloop, we need to sync the search
-		// table reload to the same method. The only time we reloadData, though, is when setting the
-		// data, so toggle a flag to indicate what the search should do.
-		if (reloadSearch) {
-			[[searchController searchResultsTableView] reloadData];
-		}
-		else {
-			[[searchController searchResultsTableView] reloadSections:[NSIndexSet indexSetWithIndex:0]
-                                                     withRowAnimation:UITableViewRowAnimationFade];
-		}
-    }
-    else if (searchHidden) {
-        [self hideSearchScreen:nil];
-    }
+	[self refreshSearchControllerUsingReload:reloadSearch];
 }
 
 -(UIView*)titleViewForText:(NSString*)text footer:(BOOL)footer
@@ -862,7 +896,7 @@
 		index = [self indexPathFromSearchIndex:[indexPath row]];
 	}
 	int sectionIdx = [index section];
-	NSArray * sections = [(TiUITableViewProxy *)[self proxy] sections];
+	NSArray * sections = [(TiUITableViewProxy *)[self proxy] internalSections];
 	TiUITableViewSectionProxy *section = [self sectionForIndex:sectionIdx];
 	
 	int rowIndex = [index row];
@@ -910,9 +944,6 @@
 	[eventObject setObject:NUMFLOAT(point.x) forKey:@"x"];
 	[eventObject setObject:NUMFLOAT(point.y) forKey:@"y"];
 
-	CGPoint globalPoint = [thisCell convertPoint:point toView:nil];
-	[eventObject setObject:[TiUtils pointToDictionary:globalPoint] forKey:@"globalPoint"];
-	
     // Hiding the search screen after a search should not be something we do automatically;
     // see the behavior of, say, Contacts. If users want to hide search, they can do so
     // in an event callback.
@@ -1125,7 +1156,7 @@
 	
 	NSStringCompareOptions searchOpts = (filterCaseInsensitive ? NSCaseInsensitiveSearch : 0);
 	
-	for (TiUITableViewSectionProxy * thisSection in [(TiUITableViewProxy *)[self proxy] sections]) 
+	for (TiUITableViewSectionProxy * thisSection in [(TiUITableViewProxy *)[self proxy] internalSections]) 
 	{
 		NSMutableIndexSet * thisIndexSet = [searchResultIndexEnumerator nextObject];
 		if (thisIndexSet == nil)
@@ -1258,6 +1289,7 @@
     // NOTE: Because of how tableview row reloads are scheduled, we always need to do this
     // because of where the hide might be triggered from.
     
+    
     NSArray* visibleRows = [tableview indexPathsForVisibleRows];
     [tableview reloadRowsAtIndexPaths:visibleRows withRowAnimation:UITableViewRowAnimationNone];
     
@@ -1337,9 +1369,13 @@
 	// called when text starts editing
 	[self showSearchScreen:nil];
     searchActivated = YES;
-    [tableview reloadData];
+    [[searchController searchResultsTableView] reloadData];
 }
-
+/*
+ * This is no longer required since we do it from the 
+ * searchDisplayControllerDidEndSearch method
+ */
+/*
 - (void)searchBarTextDidEndEditing:(UISearchBar *)searchBar
 {
     if (searchActivated && ([searchBar.text length] == 0)) {
@@ -1347,7 +1383,7 @@
         [tableview reloadData];
     }
 }
-
+*/
 - (void)searchBar:(UISearchBar *)searchBar textDidChange:(NSString *)searchText
 {
 	[self setSearchString:searchText];
@@ -1643,14 +1679,9 @@
 
     // Instead of calling back through our mechanism to reload specific sections, because the entire index of the table
     // has been regenerated, we can assume it's okay to just reload the whole dataset.
-    if ([NSThread isMainThread]) {
-        [[self tableView] reloadData];
-    }
-    else {
-        dispatch_async(dispatch_get_main_queue(), ^{
-            [[self tableView] reloadData];
-        });
-    }
+	TiThreadPerformOnMainThread(^{
+		[[self tableView] reloadData];
+	}, NO);
 }
 
 -(void)setFilterCaseInsensitive_:(id)caseBool
@@ -1798,13 +1829,17 @@ return result;	\
 	
 	TiUITableViewRowProxy *row = [self rowForIndexPath:index];
 	[row triggerAttach];
-	
+    
 	// the classname for all rows that have the same substainal layout will be the same
 	// we reuse them for speed
 	UITableViewCell *cell = [ourTableView dequeueReusableCellWithIdentifier:row.tableClass];
-	[row prepareTableRowForReuse];
+
 	if (cell == nil)
 	{
+        if (row.callbackCell != nil) {
+            //Ensure that the proxy is associated with one cell only
+            [row.callbackCell setProxy:nil];
+        }
 		cell = [[[TiUITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:row.tableClass row:row] autorelease];
         CGSize cellSize = [(TiUITableViewCell*)cell computeCellSize];
 		[cell setBounds:CGRectMake(0, 0, cellSize.width,cellSize.height)];
@@ -1812,6 +1847,8 @@ return result;	\
 	}
 	else
 	{
+        //Ensure that the row is detached if reusing cells did not do so.
+        [row prepareTableRowForReuse];
         // Have to reset the proxy on the cell, and the row's callback cell, as it may have been cleared in reuse operations (or reassigned)
         [(TiUITableViewCell*)cell setProxy:row];
         [row setCallbackCell:(TiUITableViewCell*)cell];
@@ -1862,7 +1899,7 @@ return result;	\
         // If the section is empty, we want to remove it as well.
         BOOL emptySection = ([[section rows] count] == 0);
         if (emptySection) {
-            [[(TiUITableViewProxy *)[self proxy] sections] removeObjectAtIndex:[indexPath section]];
+            [[(TiUITableViewProxy *)[self proxy] internalSections] removeObjectAtIndex:[indexPath section]];
         }
 
 		[table beginUpdates];
@@ -2078,7 +2115,13 @@ return result;	\
 		}
 	}
 	UIColor * cellColor = [Webcolor webColorNamed:color];
-	cell.backgroundColor = (cellColor != nil)?cellColor:[UIColor whiteColor];
+	if (cellColor == nil) {
+		cellColor = [UIColor whiteColor];
+	}
+	cell.backgroundColor = cellColor;
+	if(CGColorGetAlpha([cellColor CGColor])<1.0) {
+		[[cell textLabel] setBackgroundColor:[UIColor clearColor]];
+	}
 }
 
 - (NSString *)tableView:(UITableView *)ourTableView titleForDeleteConfirmationButtonForRowAtIndexPath:(NSIndexPath *)indexPath
@@ -2382,11 +2425,10 @@ return result;	\
 
 #pragma mark Search Display Controller Delegates
 
-
 - (void) searchDisplayControllerDidEndSearch:(UISearchDisplayController *)controller
 {
     animateHide = YES;
-    [self hideSearchScreen:nil];
+    [self performSelector:@selector(hideSearchScreen:) withObject:nil afterDelay:0.2];
 }
 @end
 

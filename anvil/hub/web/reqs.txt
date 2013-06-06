@@ -1,0 +1,2 @@
+requires jqplot installed into titanium_mobile/anvil/hub/web/jqplot
+

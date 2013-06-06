@@ -17,14 +17,18 @@ import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.view.TiUIView;
 
+import ti.modules.titanium.ui.SearchBarProxy;
 import ti.modules.titanium.ui.TableViewProxy;
 import ti.modules.titanium.ui.widget.searchbar.TiUISearchBar;
+import ti.modules.titanium.ui.widget.searchview.TiUISearchView;
 import ti.modules.titanium.ui.widget.tableview.TableViewModel;
 import ti.modules.titanium.ui.widget.tableview.TiTableView;
 import ti.modules.titanium.ui.widget.tableview.TiTableView.OnItemClickedListener;
 import ti.modules.titanium.ui.widget.tableview.TiTableView.OnItemLongClickedListener;
 import android.app.Activity;
+import android.os.Build;
 import android.view.Gravity;
+import android.view.View;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 
@@ -110,41 +114,51 @@ public class TiUITableView extends TiUIView
 		tableView.setOnItemLongClickListener(this);
 
 		if (d.containsKey(TiC.PROPERTY_SEARCH)) {
-			RelativeLayout layout = new RelativeLayout(proxy.getActivity());
-			layout.setGravity(Gravity.NO_GRAVITY);
-			layout.setPadding(0, 0, 0, 0);
-
 			TiViewProxy searchView = (TiViewProxy) d.get(TiC.PROPERTY_SEARCH);
-			TiUISearchBar searchBar = (TiUISearchBar)searchView.getOrCreateView();
-			searchBar.setOnSearchChangeListener(tableView);
-			searchBar.getNativeView().setId(102);
-
-			RelativeLayout.LayoutParams p = new RelativeLayout.LayoutParams(
-					RelativeLayout.LayoutParams.FILL_PARENT,
-					RelativeLayout.LayoutParams.FILL_PARENT);
-			p.addRule(RelativeLayout.ALIGN_PARENT_TOP);
-			p.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
-			p.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
-
-			TiDimension rawHeight;
-			if (searchView.hasProperty("height")) {
-				rawHeight = TiConvert.toTiDimension(searchView.getProperty("height"), 0);
+			TiUIView search = searchView.getOrCreateView();
+			if (searchView instanceof SearchBarProxy) {
+				((TiUISearchBar)search).setOnSearchChangeListener(tableView);
 			} else {
-				rawHeight = TiConvert.toTiDimension("52dp", 0);
+				((TiUISearchView)search).setOnSearchChangeListener(tableView);
 			}
-			p.height = rawHeight.getAsPixels(layout);
+			if (!(d.containsKey(TiC.PROPERTY_SEARCH_AS_CHILD) && !TiConvert.toBoolean(d.get(TiC.PROPERTY_SEARCH_AS_CHILD)))) {
 
-			layout.addView(searchBar.getNativeView(), p);
 
-			p = new RelativeLayout.LayoutParams(
-				RelativeLayout.LayoutParams.FILL_PARENT,
-				RelativeLayout.LayoutParams.FILL_PARENT);
-			p.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
-			p.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
-			p.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
-			p.addRule(RelativeLayout.BELOW, 102);
-			layout.addView(tableView, p);
-			setNativeView(layout);
+				search.getNativeView().setId(102);
+
+				RelativeLayout layout = new RelativeLayout(proxy.getActivity());
+				layout.setGravity(Gravity.NO_GRAVITY);
+				layout.setPadding(0, 0, 0, 0);
+
+				RelativeLayout.LayoutParams p = new RelativeLayout.LayoutParams(
+						RelativeLayout.LayoutParams.FILL_PARENT,
+						RelativeLayout.LayoutParams.FILL_PARENT);
+				p.addRule(RelativeLayout.ALIGN_PARENT_TOP);
+				p.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
+				p.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
+
+				TiDimension rawHeight;
+				if (searchView.hasProperty("height")) {
+					rawHeight = TiConvert.toTiDimension(searchView.getProperty("height"), 0);
+				} else {
+					rawHeight = TiConvert.toTiDimension("52dp", 0);
+				}
+				p.height = rawHeight.getAsPixels(layout);
+
+				layout.addView(search.getNativeView(), p);
+
+				p = new RelativeLayout.LayoutParams(
+						RelativeLayout.LayoutParams.FILL_PARENT,
+						RelativeLayout.LayoutParams.FILL_PARENT);
+				p.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
+				p.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
+				p.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
+				p.addRule(RelativeLayout.BELOW, 102);
+				layout.addView(tableView, p);
+				setNativeView(layout);
+			} else {
+				setNativeView(tableView);
+			}
 		} else {
 			setNativeView(tableView);
 		}
@@ -157,6 +171,11 @@ public class TiUITableView extends TiUIView
 			tableView.setFilterAttribute(TiC.PROPERTY_TITLE);
 		}
 
+		if (d.containsKey(TiC.PROPERTY_OVER_SCROLL_MODE)) {
+			if (Build.VERSION.SDK_INT >= 9) {
+				getListView().setOverScrollMode(TiConvert.toInt(d.get(TiC.PROPERTY_OVER_SCROLL_MODE), View.OVER_SCROLL_ALWAYS));
+			}
+		}
 		boolean filterCaseInsensitive = true;
 		if (d.containsKey(TiC.PROPERTY_FILTER_CASE_INSENSITIVE)) {
 			filterCaseInsensitive = TiConvert.toBoolean(d, TiC.PROPERTY_FILTER_CASE_INSENSITIVE);
@@ -201,9 +220,17 @@ public class TiUITableView extends TiUIView
 	@Override
 	public void propertyChanged(String key, Object oldValue, Object newValue, KrollProxy proxy)
 	{
-		Log.d(TAG, "Property: " + key + " old: " + oldValue + " new: " + newValue, Log.DEBUG_MODE);
+		if (Log.isDebugModeEnabled()) {
+			Log.d(TAG, "Property: " + key + " old: " + oldValue + " new: " + newValue, Log.DEBUG_MODE);
+		}
 		if (key.equals(TiC.PROPERTY_SEPARATOR_COLOR)) {
 			tableView.setSeparatorColor(TiConvert.toString(newValue));
+		} else if (TiC.PROPERTY_OVER_SCROLL_MODE.equals(key)) {
+			if (Build.VERSION.SDK_INT >= 9) {
+				getListView().setOverScrollMode(TiConvert.toInt(newValue, View.OVER_SCROLL_ALWAYS));
+			}
+		} else if (TiC.PROPERTY_MIN_ROW_HEIGHT.equals(key)) {
+			updateView();
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}

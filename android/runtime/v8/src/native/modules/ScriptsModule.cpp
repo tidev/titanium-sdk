@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2011-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -14,6 +14,7 @@
 #include "V8Util.h"
 #include "JNIUtil.h"
 #include "TypeConverter.h"
+#include "JSException.h"
 
 #define TAG "ScriptsModule"
 
@@ -49,25 +50,16 @@ WrappedContext::WrappedContext(Persistent<Context> context)
 
 WrappedContext::~WrappedContext()
 {
-	context_.Dispose();
-	if (!initCallback_.IsEmpty()) {
-		initCallback_.Dispose();
+	if (!context_.IsEmpty()) {
+		context_->DetachGlobal();
+		context_.Dispose();
+		context_.Clear();
 	}
 }
 
 Persistent<Context> WrappedContext::GetV8Context()
 {
 	return context_;
-}
-
-Persistent<Function> WrappedContext::GetInitCallback()
-{
-	return initCallback_;
-}
-
-void WrappedContext::SetInitCallback(Persistent<Function> initCallback)
-{
-	initCallback_ = initCallback;
 }
 
 void WrappedScript::Initialize(Handle<Object> target)
@@ -78,12 +70,12 @@ void WrappedScript::Initialize(Handle<Object> target)
 	constructor_template->InstanceTemplate()->SetInternalFieldCount(1);
 	constructor_template->SetClassName(String::NewSymbol("Script"));
 
-	DEFINE_PROTOTYPE_METHOD(constructor_template, "createContext", WrappedScript::CreateContext);
 	DEFINE_PROTOTYPE_METHOD(constructor_template, "runInContext", WrappedScript::RunInContext);
 	DEFINE_PROTOTYPE_METHOD(constructor_template, "runInThisContext", WrappedScript::RunInThisContext);
 	DEFINE_PROTOTYPE_METHOD(constructor_template, "runInNewContext", WrappedScript::RunInNewContext);
 
 	DEFINE_METHOD(constructor_template, "createContext", WrappedScript::CreateContext);
+	DEFINE_METHOD(constructor_template, "disposeContext", WrappedScript::DisposeContext);
 	DEFINE_METHOD(constructor_template, "runInContext", WrappedScript::CompileRunInContext);
 	DEFINE_METHOD(constructor_template, "runInThisContext", WrappedScript::CompileRunInThisContext);
 	DEFINE_METHOD(constructor_template, "runInNewContext", WrappedScript::CompileRunInNewContext);
@@ -132,13 +124,21 @@ Handle<Value> WrappedScript::CreateContext(const Arguments& args)
 			}
 			global->Set(key, value);
 		}
-
-		if (args.Length() > 1 && args[1]->IsFunction()) {
-			wrappedContext->SetInitCallback(Persistent<Function>::New(Handle<Function>::Cast(args[1])));
-		}
 	}
 
 	return scope.Close(global);
+}
+
+Handle<Value> WrappedScript::DisposeContext(const Arguments& args)
+{
+	HandleScope scope;
+
+	if (args.Length() < 1) {
+		return JSException::Error("Must pass the context as the first argument.");
+	}
+
+	WrappedContext* wrappedContext = WrappedContext::Unwrap(args[0]->ToObject());
+	delete wrappedContext;
 }
 
 Handle<Value> WrappedScript::RunInContext(const Arguments& args)
@@ -234,16 +234,6 @@ Handle<Value> WrappedScript::EvalMachine(const Arguments& args)
 	if (context_flag == userContext || context_flag == newContext) {
 		// Enter the context
 		context->Enter();
-
-		// Call the initCallback, if it exists
-		if (nContext) {
-			Persistent<Function> initCallback = nContext->GetInitCallback();
-
-			if (!initCallback.IsEmpty()) {
-				Handle<Value> callbackArgs[] = { contextArg, context->Global() };
-				initCallback->Call(contextArg, 2, callbackArgs);
-			}
-		}
 	}
 
 	Handle<Value> result;

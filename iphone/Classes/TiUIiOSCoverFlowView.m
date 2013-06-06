@@ -58,6 +58,11 @@
 	return view;
 }
 
+- (id)accessibilityElement
+{
+	return [self view];
+}
+
 -(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
 {
 	for (UIView *child in [self subviews])

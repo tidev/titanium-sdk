@@ -8,7 +8,11 @@ var EventEmitter = require("events").EventEmitter,
 	assets = kroll.binding("assets"),
 	vm = require("vm"),
 	url = require("url"),
-	Script = kroll.binding('evals').Script;
+	path = require('path'),
+	Script = kroll.binding('evals').Script,
+	NativeModule = require('native_module'),
+	bootstrap = require('bootstrap'),
+	PersistentHandle = require('ui').PersistentHandle;
 
 var TAG = "Window";
 
@@ -17,7 +21,7 @@ exports.bootstrapWindow = function(Titanium) {
 	var newActivityRequiredKeys = ["fullscreen", "navBarHidden", "modal", "windowSoftInputMode"];
 	
 	//list of TiBaseWindow event listeners
-	var windowEventListeners = ["open", "close", "focus", "blur"];
+	var windowEventListeners = ["open", "close", "focus", "blur", "androidback"];
 
 	// Backward compatibility for lightweight windows
 	var UI = Titanium.UI;
@@ -172,6 +176,7 @@ exports.bootstrapWindow = function(Titanium) {
 
 	Window.prototype.open = function(options) {
 		var self = this;
+
 		// if the window is not closed, do not open
 		if (this.currentState != this.state.closed) {
 			if (kroll.DBG) {
@@ -181,6 +186,12 @@ exports.bootstrapWindow = function(Titanium) {
 			return;
 		}
 		this.currentState = this.state.opening;
+
+		// Retain the window until it has been closed.
+		var handle = new PersistentHandle(this);
+		this.on("close", function() {
+			handle.dispose();
+		});
 		
 		if (!options) {
 			options = {};
@@ -199,7 +210,6 @@ exports.bootstrapWindow = function(Titanium) {
 		if (!this.isActivity && "tabOpen" in this._properties && options.tabOpen) {
 			this.isActivity = true;
 		}
-        
 
 		// Set any cached properties on the properties given to the "true" view
 		if (this.propertyCache) {
@@ -230,7 +240,6 @@ exports.bootstrapWindow = function(Titanium) {
 
 		this.setWindowView(this.view);
 
-
 		if (needsOpen) {
 			this.window.on("windowCreated", function () {
 				// Add children before the view is set
@@ -260,20 +269,19 @@ exports.bootstrapWindow = function(Titanium) {
 		this.window = existingWindow;
 		this.view = this.window;
 		this.setWindowView(this.view);
-
 		this.addChildren();
-
 		var self = this;
-		this.window.on("open", function () {
-			self.postOpen();
-			self.fireEvent("open");
+		this.on("open", function () {
+			self.postOpen(true);
 		});
 	}
 
-	Window.prototype.postOpen = function() {
+	Window.prototype.postOpen = function(isTab) {
 		// Set view and model listener after the window opens
 		this.setWindowView(this.view);
-		this.addSelfToStack();
+		if (!isTab) {
+			this.addSelfToStack();
+		}
 
 		if ("url" in this._properties) {
 			this.loadUrl();
@@ -286,11 +294,19 @@ exports.bootstrapWindow = function(Titanium) {
 		 		this.view.addEventListener(event, listeners[i].listener, this); 
 		 	} 
 		}
+		
 		var self = this;
 		this.view.addEventListener("closeFromActivity", function(e) {
 			self.window = null;
 			self.view = null;
 			self.currentState = self.state.closed;
+
+			// Dispose the URL context if the window's activity
+			// is destroyed since close() will not get called.
+			if (self._urlContext) {
+				Script.disposeContext(self._urlContext);
+				self._urlContext = null;
+			}
 		}, this);
 		
 		if (this.cachedActivityProxy) {
@@ -305,29 +321,19 @@ exports.bootstrapWindow = function(Titanium) {
 		this.addPostOpenChildren();
 	}
 
-	Window.prototype.runWindowUrl = function(scopeVars) {
-		var parent = this._module || kroll.Module.main;
-		var moduleId = this.url;
-
-		if (this.url.indexOf(".js") == this.url.length - 3) {
-			moduleId = this.url.substring(0, this.url.length - 3);
-		}
-
-		parent.require(moduleId, scopeVars, false);
-	}
-
 	Window.prototype.loadUrl = function() {
 		if (this.url == null) {
 			return;
 		}
 
-//		if (kroll.DBG) {
-//			kroll.log(TAG, "Loading window with URL: " + this.url);
-//		}
+		var resolvedUrl = url.resolve(this._sourceUrl, this.url);
+		if (!resolvedUrl.assetPath) {
+			kroll.log(TAG, "Window URL must be a resources file.");
+			return;
+		}
 
 		// Reset creationUrl of the window
-		var currentUrl = url.resolve(this._sourceUrl, this.url);
-		this.window.setCreationUrl(currentUrl.href);
+		this.window.setCreationUrl(resolvedUrl.href);
 
 		var scopeVars = {
 			currentWindow: this,
@@ -335,9 +341,60 @@ exports.bootstrapWindow = function(Titanium) {
 			currentTab: this.tab,
 			currentTabGroup: this.tabGroup
 		};
-		scopeVars = Titanium.initScopeVars(scopeVars, currentUrl);
+		var scriptPath = this.resolveFilePathFromURL(resolvedUrl);
 
-		this.runWindowUrl(scopeVars);
+		// Use scriptPath as the base URL since that's where we found the window URL.
+		scopeVars = Titanium.initScopeVars(scopeVars, scriptPath.replace("Resources/", "app://"));
+
+		var context = this._urlContext = Script.createContext(scopeVars);
+		// Set up the global object which is needed when calling the Ti.include function from the new window context.
+		scopeVars.global = context;
+		context.Titanium = context.Ti = new Titanium.Wrapper(scopeVars);
+		context.console = NativeModule.require('console');
+		bootstrap.bootstrapGlobals(context, Titanium);
+
+		if (!scriptPath) {
+			kroll.log(TAG, "Window URL not found: " + this.url);
+			return;
+		}
+
+		var relScriptPath = scriptPath.replace("Resources/", "");
+		var scriptSource = assets.readAsset(scriptPath);
+
+		// Set up paths, filename and require for the new window context.
+		var module = new kroll.Module("app:///" + relScriptPath, this._module || kroll.Module.main, context);
+		module.paths = [path.dirname(scriptPath)];
+		module.filename = scriptPath;
+		context.require = function(request, context) {
+			return module.require(request, context);
+		};
+
+		Script.runInContext(scriptSource, context, relScriptPath, true);
+	}
+
+	// Determine the full path of the file which is defined by the "url" property.
+	Window.prototype.resolveFilePathFromURL = function(resolvedURL) {
+		var parentModule = this._module || kroll.Module.main,
+			resolved = url.toAssetPath(resolvedURL),
+			moduleId = this.url;
+
+		// Return "resolvedURL" if it is a valid path.
+		if (parentModule.filenameExists(resolved) || assets.fileExists(resolved)) {
+			return resolved;
+
+		// Otherwise, try each possible path where the module's source file could be located.
+		} else {
+			if (moduleId.indexOf(".js") == moduleId.length - 3) {
+				moduleId = moduleId.substring(0, moduleId.length -3);
+			}
+			resolved = parentModule.resolveFilename(moduleId);
+			// Return the file path if the file exists.
+			if (resolved) {
+				return resolved[1];
+			}
+		}
+
+		return null;
 	}
 
 	Window.prototype.close = function(options) {
@@ -358,18 +415,30 @@ exports.bootstrapWindow = function(Titanium) {
 		} else {
 			if (this.view.parent != null) {
 				// make sure to remove the children otherwise when the window is opened a second time
-				// the children views wont be added again to the native view
-				this.removeChildren();
+				// the children views wont be added again to the native view.
+				// Remove the view from the window first and then remove all the children.
 				this.window.remove(this.view);
+				this.removeChildren();
 				this.window = null;
 			}
 			this.removeSelfFromStack();
 			this.currentState = this.state.closed;
 			this.fireEvent("close");
 		}
+
+		// Dispose the URL script context if one was created during open.
+		if (this._urlContext) {
+			Script.disposeContext(this._urlContext);
+			this._urlContext = null;
+		}
 	}
 
 	Window.prototype.add = function(view) {
+
+		if (view instanceof TiWindow) {
+			throw new Error("Cannot add window/tabGroup to another window/tabGroup.");	    
+		}
+
 		if (this.view) {
 		
 			// If the window is already opened, add the child to this.view directly
@@ -466,6 +535,9 @@ exports.bootstrapWindow = function(Titanium) {
 
 		} else {
 			this.view.addEventListener(event, listener, this); 
+			if (event == 'android:back' && this.view._internalActivity) {
+				this.view._internalActivity.addEventListener(event, listener, this);  
+			}
 		}
 	}
 	
@@ -475,6 +547,9 @@ exports.bootstrapWindow = function(Titanium) {
 
 		} else {
 			this.view.removeEventListener(event, listener);
+			if (event == 'android:back' && this.view._internalActivity) {
+				this.view._internalActivity.removeEventListener(event, listener);  
+			}
 		}
 	}
 

@@ -230,17 +230,39 @@ public class PickerProxy extends TiViewProxy implements PickerColumnListener
 	{
 		if (child instanceof PickerColumnProxy) {
 			PickerColumnProxy column = (PickerColumnProxy)child;
-			prepareColumn(column);
-			super.add(column);
-			if (peekView() instanceof TiUIPicker) {
-				((TiUIPicker)peekView()).onColumnAdded(children.indexOf(column));
-			}
+			addColumn(column);
 		} else if (child instanceof PickerRowProxy) {
 			getFirstColumn(true).add((PickerRowProxy)child);
 		} else if (child.getClass().isArray()) {
-			getFirstColumn(true).addRows((Object[])child);
+			Object[] obj = (Object[])child;
+			Object firstObj = obj[0];
+			if (firstObj instanceof PickerRowProxy) {
+				getFirstColumn(true).addRows(obj);
+			} else if (firstObj instanceof PickerColumnProxy) {
+				addColumns(obj);
+			}
 		} else {
 			Log.w(TAG, "Unexpected type not added to picker: " + child.getClass().getName());
+		}
+	}
+
+	private void addColumns(Object[] columns)
+	{
+		for (Object obj :columns) {
+			if (obj instanceof PickerColumnProxy) {
+				addColumn((PickerColumnProxy)obj);
+			} else {
+				Log.w(TAG, "Unexpected type not added to picker: " + obj.getClass().getName());
+			}
+		}
+	}
+
+	private void addColumn(PickerColumnProxy column)
+	{
+		prepareColumn(column);
+		super.add(column);
+		if (peekView() instanceof TiUIPicker) {
+			((TiUIPicker)peekView()).onColumnAdded(children.indexOf(column));
 		}
 	}
 
@@ -482,6 +504,9 @@ public class PickerProxy extends TiViewProxy implements PickerColumnListener
 		PickerColumnProxy column = getColumn(0);
 		if (column == null && createIfMissing) {
 			column = new PickerColumnProxy();
+			//Force applying default values
+			KrollDict d = new KrollDict();
+			column.handleCreationDict(d);
 			add(column);
 		}
 		return column;

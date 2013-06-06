@@ -34,7 +34,7 @@
  * PLResultSet instances implement no locking and must not be shared between threads
  * without external synchronization.
  */
-@protocol TI_PLResultSet
+@protocol PLResultSet
 
 /**
  * Move the result cursor to the next available row. If no further rows

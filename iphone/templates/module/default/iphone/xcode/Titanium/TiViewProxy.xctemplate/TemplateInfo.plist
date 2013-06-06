@@ -1,0 +1,8 @@
+{
+	MainTemplateFile = "class.m";
+	"CounterpartTemplateFile" = "class.h";
+	Description = "A Titanium view proxy class file, with an optional header which includes the \"TiViewProxy.h\" header.";
+	Platforms = (
+		"com.apple.platform.iphoneos",
+	);
+}

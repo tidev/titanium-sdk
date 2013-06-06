@@ -53,7 +53,7 @@
  * PLDatabase instances implement no locking and must not be shared between threads
  * without external synchronization.
  */
-@protocol TI_PLDatabase
+@protocol PLDatabase
 
 /**
  * Test that the connection is active.
@@ -81,7 +81,7 @@
  * @param statement SQL statement to prepare.
  * @return The prepared statement, or nil if it could not be prepared.
  */
-- (NSObject<TI_PLPreparedStatement> *) prepareStatement: (NSString *) statement;
+- (NSObject<PLPreparedStatement> *) prepareStatement: (NSString *) statement;
 
 /**
  * Prepare and return a new PLPreparedStatement.
@@ -93,7 +93,7 @@
  * parameter, and no error information will be provided.
  * @return The prepared statement, or nil if it could not be prepared.
  */
-- (NSObject<TI_PLPreparedStatement> *) prepareStatement: (NSString *) statement error: (NSError **) outError;
+- (NSObject<PLPreparedStatement> *) prepareStatement: (NSString *) statement error: (NSError **) outError;
 
 
 /**
@@ -130,7 +130,7 @@
  * @param statement SQL statement to execute.
  * @return PLResultSet on success, or nil on failure.
  */
-- (NSObject<TI_PLResultSet> *) executeQuery: (NSString *) statement, ...;
+- (NSObject<PLResultSet> *) executeQuery: (NSString *) statement, ...;
 
 /**
  * Execute a query, returning a PLResultSet.
@@ -145,7 +145,7 @@
  * @param statement SQL statement to execute.
  * @return PLResultSet on success, or nil on failure.
  */
-- (NSObject<TI_PLResultSet> *) executeQueryAndReturnError: (NSError **) error statement: (NSString *) statement, ...;
+- (NSObject<PLResultSet> *) executeQueryAndReturnError: (NSError **) error statement: (NSString *) statement, ...;
 
 
 /**

@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2011-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -134,13 +134,13 @@ void V8Util::openJSErrorDialog(TryCatch &tryCatch)
 	Handle<Message> message = tryCatch.Message();
 
 	jstring title = env->NewStringUTF("Runtime Error");
-	jstring errorMessage = TypeConverter::jsValueToJavaString(message->Get());
-	jstring resourceName = TypeConverter::jsValueToJavaString(message->GetScriptResourceName());
-	jstring sourceLine = TypeConverter::jsValueToJavaString(message->GetSourceLine());
+	jstring errorMessage = TypeConverter::jsValueToJavaString(env, message->Get());
+	jstring resourceName = TypeConverter::jsValueToJavaString(env, message->GetScriptResourceName());
+	jstring sourceLine = TypeConverter::jsValueToJavaString(env, message->GetSourceLine());
 
 	env->CallStaticVoidMethod(
-		JNIUtil::tiJsErrorDialogClass,
-		JNIUtil::openErrorDialogMethod,
+		JNIUtil::krollRuntimeClass,
+		JNIUtil::krollRuntimeDispatchExceptionMethod,
 		title,
 		errorMessage,
 		resourceName,

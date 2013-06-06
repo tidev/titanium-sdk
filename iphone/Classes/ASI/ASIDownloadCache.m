@@ -36,7 +36,7 @@ static NSArray *fileExtensionsToHandleAsHTML = nil;
 {
 	self = [super init];
 	[self setShouldRespectCacheControlHeaders:YES];
-	[self setDefaultCachePolicy:TI_ASIUseDefaultCachePolicy];
+	[self setDefaultCachePolicy:ASIUseDefaultCachePolicy];
 	[self setAccessLock:[[[NSRecursiveLock alloc] init] autorelease]];
 	return self;
 }
@@ -73,7 +73,7 @@ static NSArray *fileExtensionsToHandleAsHTML = nil;
 - (void)setStoragePath:(NSString *)path
 {
 	[[self accessLock] lock];
-	[self clearCachedResponsesForStoragePolicy:TI_ASICacheForSessionDurationCacheStoragePolicy];
+	[self clearCachedResponsesForStoragePolicy:ASICacheForSessionDurationCacheStoragePolicy];
 	[storagePath release];
 	storagePath = [path retain];
 
@@ -94,7 +94,7 @@ static NSArray *fileExtensionsToHandleAsHTML = nil;
 			}
 		}
 	}
-	[self clearCachedResponsesForStoragePolicy:TI_ASICacheForSessionDurationCacheStoragePolicy];
+	[self clearCachedResponsesForStoragePolicy:ASICacheForSessionDurationCacheStoragePolicy];
 	[[self accessLock] unlock];
 }
 
@@ -122,7 +122,7 @@ static NSArray *fileExtensionsToHandleAsHTML = nil;
 {
 	[[self accessLock] lock];
 
-	if ([request error] || ![request responseHeaders] || ([request cachePolicy] & TI_ASIDoNotWriteToCacheCachePolicy)) {
+	if ([request error] || ![request responseHeaders] || ([request cachePolicy] & ASIDoNotWriteToCacheCachePolicy)) {
 		[[self accessLock] unlock];
 		return;
 	}
@@ -258,7 +258,7 @@ static NSArray *fileExtensionsToHandleAsHTML = nil;
 		return nil;
 	}
 
-	NSString *path = [[self storagePath] stringByAppendingPathComponent:([request cacheStoragePolicy] == TI_ASICacheForSessionDurationCacheStoragePolicy ? sessionCacheFolder : permanentCacheFolder)];
+	NSString *path = [[self storagePath] stringByAppendingPathComponent:([request cacheStoragePolicy] == ASICacheForSessionDurationCacheStoragePolicy ? sessionCacheFolder : permanentCacheFolder)];
 
 	// Grab the file extension, if there is one. We do this so we can save the cached response with the same file extension - this is important if you want to display locally cached data in a web view 
 	NSString *extension = [[[request url] path] pathExtension];
@@ -280,7 +280,7 @@ static NSArray *fileExtensionsToHandleAsHTML = nil;
 		[[self accessLock] unlock];
 		return nil;
 	}
-	NSString *path = [[self storagePath] stringByAppendingPathComponent:([request cacheStoragePolicy] == TI_ASICacheForSessionDurationCacheStoragePolicy ? sessionCacheFolder : permanentCacheFolder)];
+	NSString *path = [[self storagePath] stringByAppendingPathComponent:([request cacheStoragePolicy] == ASICacheForSessionDurationCacheStoragePolicy ? sessionCacheFolder : permanentCacheFolder)];
 	path =  [path stringByAppendingPathComponent:[[[self class] keyForURL:[request url]] stringByAppendingPathExtension:@"cachedheaders"]];
 	[[self accessLock] unlock];
 	return path;
@@ -371,34 +371,34 @@ static NSArray *fileExtensionsToHandleAsHTML = nil;
 	return YES;
 }
 
-- (TI_ASICachePolicy)defaultCachePolicy
+- (ASICachePolicy)defaultCachePolicy
 {
 	[[self accessLock] lock];
-	TI_ASICachePolicy cp = defaultCachePolicy;
+	ASICachePolicy cp = defaultCachePolicy;
 	[[self accessLock] unlock];
 	return cp;
 }
 
 
-- (void)setDefaultCachePolicy:(TI_ASICachePolicy)cachePolicy
+- (void)setDefaultCachePolicy:(ASICachePolicy)cachePolicy
 {
 	[[self accessLock] lock];
 	if (!cachePolicy) {
-		defaultCachePolicy = TI_ASIAskServerIfModifiedWhenStaleCachePolicy;
+		defaultCachePolicy = ASIAskServerIfModifiedWhenStaleCachePolicy;
 	}  else {
 		defaultCachePolicy = cachePolicy;	
 	}
 	[[self accessLock] unlock];
 }
 
-- (void)clearCachedResponsesForStoragePolicy:(TI_ASICacheStoragePolicy)storagePolicy
+- (void)clearCachedResponsesForStoragePolicy:(ASICacheStoragePolicy)storagePolicy
 {
 	[[self accessLock] lock];
 	if (![self storagePath]) {
 		[[self accessLock] unlock];
 		return;
 	}
-	NSString *path = [[self storagePath] stringByAppendingPathComponent:(storagePolicy == TI_ASICacheForSessionDurationCacheStoragePolicy ? sessionCacheFolder : permanentCacheFolder)];
+	NSString *path = [[self storagePath] stringByAppendingPathComponent:(storagePolicy == ASICacheForSessionDurationCacheStoragePolicy ? sessionCacheFolder : permanentCacheFolder)];
 
 	NSFileManager *fileManager = [[[NSFileManager alloc] init] autorelease];
 
@@ -463,11 +463,11 @@ static NSArray *fileExtensionsToHandleAsHTML = nil;
 - (BOOL)canUseCachedDataForRequest:(ASIHTTPRequest *)request
 {
 	// Ensure the request is allowed to read from the cache
-	if ([request cachePolicy] & TI_ASIDoNotReadFromCacheCachePolicy) {
+	if ([request cachePolicy] & ASIDoNotReadFromCacheCachePolicy) {
 		return NO;
 
 	// If we don't want to load the request whatever happens, always pretend we have cached data even if we don't
-	} else if ([request cachePolicy] & TI_ASIDontLoadCachePolicy) {
+	} else if ([request cachePolicy] & ASIDontLoadCachePolicy) {
 		return YES;
 	}
 
@@ -483,21 +483,21 @@ static NSArray *fileExtensionsToHandleAsHTML = nil;
 	// If we get here, we have cached data
 
 	// If we have cached data, we can use it
-	if ([request cachePolicy] & TI_ASIOnlyLoadIfNotCachedCachePolicy) {
+	if ([request cachePolicy] & ASIOnlyLoadIfNotCachedCachePolicy) {
 		return YES;
 
 	// If we want to fallback to the cache after an error
-	} else if ([request complete] && [request cachePolicy] & TI_ASIFallbackToCacheIfLoadFailsCachePolicy) {
+	} else if ([request complete] && [request cachePolicy] & ASIFallbackToCacheIfLoadFailsCachePolicy) {
 		return YES;
 
 	// If we have cached data that is current, we can use it
-	} else if ([request cachePolicy] & TI_ASIAskServerIfModifiedWhenStaleCachePolicy) {
+	} else if ([request cachePolicy] & ASIAskServerIfModifiedWhenStaleCachePolicy) {
 		if ([self isCachedDataCurrentForRequest:request]) {
 			return YES;
 		}
 
 	// If we've got headers from a conditional GET and the cached data is still current, we can use it
-	} else if ([request cachePolicy] & TI_ASIAskServerIfModifiedCachePolicy) {
+	} else if ([request cachePolicy] & ASIAskServerIfModifiedCachePolicy) {
 		if (![request responseHeaders]) {
 			return NO;
 		} else if ([self isCachedDataCurrentForRequest:request]) {
