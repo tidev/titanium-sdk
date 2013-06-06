@@ -239,7 +239,35 @@ public class TiUIActivityWindow extends TiUIView
 				windowActivity.overridePendingTransition(0, 0); // Suppress default transition.
 
 			} else {
+				
 				windowActivity.finish();
+				final int NO_VAL = -1;
+				int enterAnim = NO_VAL;
+				int exitAnim = NO_VAL;
+
+				if (options != null) {
+
+					if (!options.isNull(TiC.PROPERTY_ACTIVITY_ENTER_ANIMATION)) {
+						enterAnim = options.optInt(TiC.PROPERTY_ACTIVITY_ENTER_ANIMATION, NO_VAL);
+					}
+					if (!options.isNull(TiC.PROPERTY_ACTIVITY_EXIT_ANIMATION)) {
+						exitAnim = options.optInt(TiC.PROPERTY_ACTIVITY_EXIT_ANIMATION, NO_VAL);
+					}
+				}
+
+				if (enterAnim != NO_VAL || exitAnim != NO_VAL) {
+					// If one of them is set, set both of them since
+					// overridePendingTransition requires both.
+					if (enterAnim == NO_VAL) {
+						enterAnim = 0;
+					}
+
+					if (exitAnim == NO_VAL) {
+						exitAnim = 0;
+					}
+
+					windowActivity.overridePendingTransition(enterAnim, exitAnim);
+				}
 			}
 
 			// Finishing an activity is not synchronous, so we remove the activity from the activity stack here
