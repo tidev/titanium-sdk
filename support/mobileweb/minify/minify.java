@@ -67,6 +67,7 @@ public class minify {
 				if (files[i].isDirectory()
 					&& !files[i].getName().equals(".git")
 					&& !files[i].getName().equals(".svn")
+					&& !files[i].getName().equals(".hg")
 					&& !files[i].getName().equals("_svn")
 					&& !files[i].getName().equals("CSV")
 				) {

@@ -964,7 +964,7 @@ build.prototype = {
 		afs.copyDirSyncRecursive(src, dest, opts || {
 			preserve: true,
 			logger: this.logger.debug,
-			ignoreDirs: ['.git', '.svn', 'CVS'],
+			ignoreDirs: ['.git', '.hg','.svn', 'CVS'],
 			ignoreFiles: ['.gitignore', '.cvsignore']
 		});
 	},
@@ -973,7 +973,7 @@ build.prototype = {
 		afs.copyDirRecursive(src, dest, callback, opts || {
 			preserve: true,
 			logger: this.logger.debug,
-			ignoreDirs: ['.git', '.svn', 'CVS'],
+			ignoreDirs: ['.git', '.hg','.svn', 'CVS'],
 			ignoreFiles: ['.gitignore', '.cvsignore']
 		});
 	},
@@ -1374,7 +1374,7 @@ build.prototype = {
 			copyOpts = {
 				preserve: true,
 				logger: this.logger.debug,
-				ignoreDirs: ['.git','.svn', 'CVS'],
+				ignoreDirs: ['.git','.hg','.svn', 'CVS'],
 				ignoreFiles: ['.gitignore', '.cvsignore', 'bridge.txt', 'libTitanium.a'],
 				callback: function (src, dest, contents, logger) {
 					if (extRegExp.test(src) && src.indexOf('TiCore') == -1) {
@@ -2232,7 +2232,7 @@ build.prototype = {
 
 	createSymlinks: function (callback) {
 		if (this.target == 'simulator' && this.deployType == 'development') {
-			var ignoreRegExp = /^\.gitignore|\.cvsignore|\.DS_Store|\.git|\.svn|_svn|CVS$/,
+			var ignoreRegExp = /^\.gitignore|\.cvsignore|\.DS_Store|\.git|\.hg|\.svn|_svn|CVS$/,
 				icon = (this.tiapp.icon || 'appicon.png').match(/^(.*)\.(.+)$/),
 				unsymlinkableFileRegExp = new RegExp("^Default.*\.png|.+\.(otf|ttf)|iTunesArtwork" + (icon ? '|' + icon[1].replace(/\./g, '\\.') + '.*\\.' + icon[2] : '') + "$"),
 				symlinkHook = this.cli.createHook('build.ios.copyResource', this, function (srcFile, destFile, cb) {
@@ -2497,7 +2497,7 @@ build.prototype = {
 	compileResources: function (src, dest, callback) {
 		if ((this.target != 'simulator' || this.deployType != 'development') && afs.exists(src)) {
 			var compiledTargets = {},
-				ignoreRegExp = /^\.gitignore|\.cvsignore|\.DS_Store|\.git|\.svn|_svn|CVS$/,
+				ignoreRegExp = /^\.gitignore|\.cvsignore|\.DS_Store|\.git|\.hg|\.svn|_svn|CVS$/,
 				recursivelyCopy = function (from, to, rel, ignore, done) {
 					wrench.mkdirSyncRecursive(to);
 					series(this, fs.readdirSync(from).map(function (file) {

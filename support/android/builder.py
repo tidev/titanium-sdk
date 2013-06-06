@@ -43,7 +43,7 @@ import requireIndex
 resourceFiles = ['strings.xml', 'attrs.xml', 'styles.xml', 'bools.xml', 'colors.xml',
 				'dimens.xml', 'ids.xml', 'integers.xml', 'arrays.xml']
 ignoreFiles = ['.gitignore', '.cvsignore', '.DS_Store'];
-ignoreDirs = ['.git','.svn','_svn', 'CVS'];
+ignoreDirs = ['.git','.hg','.svn','_svn', 'CVS'];
 android_avd_hw = {'hw.camera': 'yes', 'hw.gps':'yes'}
 res_skips = ['style']
 log = None

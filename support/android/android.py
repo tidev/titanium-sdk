@@ -30,7 +30,7 @@ from module import ModuleDetector
 import simplejson
 
 ignoreFiles = ['.gitignore', '.cvsignore', '.DS_Store'];
-ignoreDirs = ['.git','.svn','_svn', 'CVS'];
+ignoreDirs = ['.git','.hg','.svn','_svn', 'CVS'];
 
 def run(args):
 	return subprocess.Popen(args, stderr=subprocess.STDOUT, stdout=subprocess.PIPE).communicate()[0]

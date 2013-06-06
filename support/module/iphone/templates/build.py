@@ -138,7 +138,7 @@ def validate_manifest():
 	return manifest,path
 
 ignoreFiles = ['.DS_Store','.gitignore','libTitanium.a','titanium.jar','README']
-ignoreDirs = ['.DS_Store','.svn','.git','CVSROOT']
+ignoreDirs = ['.DS_Store','.hg','.svn','.git','CVSROOT']
 
 def zip_dir(zf,dir,basepath,ignoreExt=[]):
 	if not os.path.exists(dir): return

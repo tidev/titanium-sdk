@@ -16,7 +16,7 @@ from manifest import Manifest
 from tiapp import TiAppXML
 
 ignoreFiles = ['.gitignore', '.cvsignore', '.DS_Store'];
-ignoreDirs = ['.git','.svn','_svn','CVS'];
+ignoreDirs = ['.git','.hg','.svn','_svn','CVS'];
 nonFilterFiles = ['.png','.gif','.jpg','.zip','.a','.o', '.jar']
 
 class ModulePlatform(object):

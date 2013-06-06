@@ -13,7 +13,7 @@ sys.path.append(os.path.join(template_dir,'../'))
 from tiapp import *
 
 ignoreFiles = ['.gitignore', '.cvsignore']
-ignoreDirs = ['.git','.svn', 'CVS']
+ignoreDirs = ['.git','.hg','.svn', 'CVS']
 
 class LocaleCompiler(object):
 	def __init__(self,name,dir,platform,mode='simulator',outdir=None):

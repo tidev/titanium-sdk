@@ -16,7 +16,7 @@ sys.path.append(common_support_dir)
 import simplejson as json
 
 ignoreFiles = ['.gitignore', '.cvsignore','.DS_Store'];
-ignoreDirs = ['.git','.svn', 'CVS'];
+ignoreDirs = ['.git','.hg','.svn', 'CVS'];
 
 depends = {}
 
