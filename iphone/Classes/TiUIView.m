@@ -1110,10 +1110,8 @@ DEFINE_EXCEPTIONS
      */
 	
 	UIView *hitView = [super hitTest:point withEvent:event];
-	if (touchPassThrough)
+	if (touchPassThrough && hitView == self)
 	{
-		if (hitView != self) 
-			return hitView;
 		return nil;
 	}
 	return hitView;
