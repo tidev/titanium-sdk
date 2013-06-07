@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -23,7 +23,7 @@ import android.app.Activity;
 	TiC.PROPERTY_VOLUME
 })
 public class SoundProxy extends KrollProxy
-	implements org.appcelerator.titanium.TiLifecycle.OnLifecycleEvent
+	implements org.appcelerator.titanium.TiLifecycle.OnLifecycleEvent, org.appcelerator.titanium.TiLifecycle.OnWindowFocusChangedEvent
 {
 	private static final String TAG = "SoundProxy";
 
@@ -49,7 +49,8 @@ public class SoundProxy extends KrollProxy
 	@Override
 	protected void initActivity(Activity activity) {
 		super.initActivity(activity);
-		((TiBaseActivity)activity).addOnLifecycleEventListener(this);
+		((TiBaseActivity) activity).addOnLifecycleEventListener(this);
+		((TiBaseActivity) activity).addOnWindowFocusChangedEventListener(this);
 	}
 
 	private String parseURL(Object url)
@@ -240,11 +241,6 @@ public class SoundProxy extends KrollProxy
 	}
 
 	public void onResume(Activity activity) {
-		if (!allowBackground()) {
-			if (snd != null) {
-				snd.onResume();
-			}
-		}
 	}
 
 	public void onPause(Activity activity) {
@@ -265,5 +261,13 @@ public class SoundProxy extends KrollProxy
 		snd = null;
 	}
 
+	public void onWindowFocusChanged(boolean hasFocus)
+	{
+		if (hasFocus && !allowBackground()) {
+			if (snd != null) {
+				snd.onResume();
+			}
+		}
+	}
 
 }

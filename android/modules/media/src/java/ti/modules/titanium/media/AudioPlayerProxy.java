@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -14,6 +14,7 @@ import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiLifecycle.OnLifecycleEvent;
+import org.appcelerator.titanium.TiLifecycle.OnWindowFocusChangedEvent;
 import org.appcelerator.titanium.util.TiConvert;
 
 import ti.modules.titanium.filesystem.FileProxy;
@@ -23,7 +24,7 @@ import android.app.Activity;
 	TiC.PROPERTY_VOLUME
 })
 public class AudioPlayerProxy extends KrollProxy
-	implements OnLifecycleEvent
+	implements OnLifecycleEvent, OnWindowFocusChangedEvent
 {
 	private static final String TAG = "AudioPlayerProxy";
 
@@ -58,7 +59,8 @@ public class AudioPlayerProxy extends KrollProxy
 	@Override
 	protected void initActivity(Activity activity) {
 		super.initActivity(activity);
-		((TiBaseActivity)getActivity()).addOnLifecycleEventListener(this);
+		((TiBaseActivity) getActivity()).addOnLifecycleEventListener(this);
+		((TiBaseActivity) getActivity()).addOnWindowFocusChangedEventListener(this);
 	}
 
 	@Override
@@ -176,11 +178,6 @@ public class AudioPlayerProxy extends KrollProxy
 	}
 
 	public void onResume(Activity activity) {
-		if (!allowBackground()) {
-			if (snd != null) {
-				snd.onResume();
-			}
-		}
 	}
 
 	public void onPause(Activity activity) {
@@ -199,5 +196,14 @@ public class AudioPlayerProxy extends KrollProxy
 			snd.onDestroy();
 		}
 		snd = null;
+	}
+
+	public void onWindowFocusChanged(boolean hasFocus)
+	{
+		if (hasFocus && !allowBackground()) {
+			if (snd != null) {
+				snd.onResume();
+			}
+		}
 	}
 }
