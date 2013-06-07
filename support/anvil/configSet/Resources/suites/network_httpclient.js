@@ -21,12 +21,16 @@ module.exports = new function() {
 		{name: "emptyPOSTSend", timeout: 30000},
 		{name: "responseHeadersBug", timeout: 30000},
 		{name: "requestHeaderMethods", timeout: 30000},
-		{name: "clearCookiePositiveTest", timeout: 30000},
-		{name: "clearCookieUnaffectedCheck", timeout: 30000},
 		{name: "setCookieClearCookieWithMultipleHTTPClients", timeout: 30000},
 		{name: "callbackTestForGETMethod", timeout: 30000},
 		{name: "callbackTestForPOSTMethod", timeout: 30000}
 	]
+
+	// Ti.Network.HTTPClient.clearCookies is not supported on Tizen
+	if (Ti.Platform.osname !== 'tizen') {
+		this.tests.push({name: "clearCookiePositiveTest", timeout: 30000});		
+		this.tests.push({name: "clearCookieUnaffectedCheck", timeout: 30000});
+	}
 
 	this.apiTest = function(testRun) {
 		valueOf(testRun, Ti.Network.createHTTPClient).shouldNotBeNull();

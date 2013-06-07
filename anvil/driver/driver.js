@@ -108,6 +108,7 @@ function printUsageAndExit() {
 		+ "    android - starts driver for Android\n"
 		+ "    ios - starts driver for iOS\n"
 		+ "    mobileweb - starts driver for Mobile Web\n"
+		+ "    tizen - starts driver for Tizen\n"
 		+ "\n"
 		+ "Log level:\n"
 		+ "    quiet - only print test results summary and error output\n"
@@ -134,7 +135,7 @@ function init() {
 
 	driverGlobal.platforms = {};
 
-	var platforms = ["android", "ios", "mobileweb"];
+	var platforms = ["android", "ios", "mobileweb", "tizen"];
 	for (var i = 0; i < platforms.length; i++) {
 		try {
 			driverGlobal.platforms[platforms[i]] = require(path.resolve(driverGlobal.driverDir, "platforms", platforms[i]));

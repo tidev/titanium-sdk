@@ -24,6 +24,9 @@ module.exports = new function() {
 
 		if (Ti.Platform.name == "android") {
 			valueOf(testRun, test.backgroundColor).shouldBe("red");
+		} else if (Ti.Platform.osname == "tizen") {
+			// In Tizen, test.backgroundColor is undefined by default.
+			valueOf(testRun, test.backgroundColor).shouldBeUndefined();
 		} else {
 			valueOf(testRun, test.backgroundColor).shouldBe("blue");
 		}

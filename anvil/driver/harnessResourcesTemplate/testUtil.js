@@ -45,7 +45,7 @@ module.exports = new function() {
 				errorDetails = "unable to get exception details";
 			}
 
-			self.callback(testRun, "error", "<" + errorDetails + ">");
+			self.callback(testRun, "error", "<" + errorDetails + "> Message: " + message);
 		}
 	};
 
@@ -348,7 +348,7 @@ module.exports = new function() {
 				this.obj();
 
 			} catch (e) { 
-				self.reportError(this.testRun, "should not throw exception, but did");	
+				self.reportError(this.testRun, "should not throw exception, but did. Exception: " + e.message);
 			}
 
 		} else {

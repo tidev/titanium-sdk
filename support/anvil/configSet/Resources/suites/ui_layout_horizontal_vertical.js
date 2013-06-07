@@ -6,8 +6,15 @@
  */
 
 module.exports = new function() {
-	var finish;
-	var valueOf;
+	var finish,
+		valueOf,
+		openEvent = (Ti.Platform.osname === 'tizen') || (Ti.Platform.osname === 'mobileweb') ? "postlayout" : "open";
+
+	this.init = function(testUtils) {
+		finish = testUtils.finish;
+		valueOf = testUtils.valueOf;
+	};
+
 	this.init = function(testUtils) {
 		finish = testUtils.finish;
 		valueOf = testUtils.valueOf;
@@ -40,7 +47,7 @@ module.exports = new function() {
 		parent.add(child2);
 		parent.add(child3);
 
-		win.addEventListener("open", function(e) {
+		win.addEventListener(openEvent, function(e) {
 			valueOf(testRun, child1.rect.height).shouldBe(50);
 			valueOf(testRun, child1.rect.width).shouldBe(40);
 			valueOf(testRun, child1.rect.y).shouldBe(10);
@@ -75,7 +82,7 @@ module.exports = new function() {
 		parent.add(child2);
 		parent.add(child3);
 
-		win.addEventListener("open", function(e) {
+		win.addEventListener(openEvent, function(e) {
 			valueOf(testRun, child1.rect.height).shouldBe(50);
 			valueOf(testRun, child1.rect.width).shouldBe(180);
 			valueOf(testRun, child1.rect.y).shouldBe(0);
@@ -113,7 +120,7 @@ module.exports = new function() {
 		parent.add(child2);
 		parent.add(child3);
 
-		win.addEventListener("open", function(e) {
+		win.addEventListener(openEvent, function(e) {
 			valueOf(testRun, child1.rect.height).shouldBe(50);
 			valueOf(testRun, child1.rect.width).shouldBe(180);
 			// (300-50)/2
@@ -148,7 +155,7 @@ module.exports = new function() {
 		parent.add(child2);
 		parent.add(child3);
 
-		win.addEventListener("open", function(e) {
+		win.addEventListener(openEvent, function(e) {
 			valueOf(testRun, child1.rect.height).shouldBe(50);
 			valueOf(testRun, child1.rect.width).shouldBe(40);
 			valueOf(testRun, child1.rect.y).shouldBe(10);
@@ -311,7 +318,7 @@ module.exports = new function() {
 			backgroundColor : 'green'
 		})
 
-		win.addEventListener("open", function(e){
+		win.addEventListener(openEvent, function(e){
 			valueOf(testRun, view1.rect.y).shouldBe(5);
 			valueOf(testRun, view2.rect.y).shouldBe(115);
 			valueOf(testRun, container.rect.height).shouldBe(220);

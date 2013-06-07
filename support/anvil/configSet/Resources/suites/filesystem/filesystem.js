@@ -6,37 +6,51 @@
  */
 
 module.exports = new function() {
-	var finish;
-	var valueOf;
+	var finish,
+		valueOf,
+		isTizen = Ti.Platform.osname === 'tizen',
+		isMobileWeb = Ti.Platform.osname === 'mobileweb',
+		isAndroid = Ti.Platform.osname === 'android';
+
 	this.init = function(testUtils) {
 		finish = testUtils.finish;
 		valueOf = testUtils.valueOf;
 	}
 
 	this.name = "filesystem";
-	this.tests = [
-		{name: "optionalArgAPIs"},
-		{name: "readWriteText"},
-		{name: "blobNativeFile"},
-		{name: "blobFile"},
-		{name: "dotSlash"},
-		{name: "appendStringTest"},
-		{name: "appendBlobTest"},
-		{name: "appendFileTest"},
-		{name: "fileStreamBasicTest"},
-		{name: "fileStreamWriteTest"},
-		{name: "fileStreamAppendTest"},
-		{name: "fileStreamPumpTest"},
-		{name: "fileStreamWriteStreamTest"},
-		{name: "fileStreamResourceFileTest"},
-		{name: "fileStreamTruncateTest"},
-		{name: "fileMove"},
-		{name: "tempDirTest"},
-		{name: "emptyFile"},
-		{name: "fileSize"},
-		{name: "mimeType"},
-		{name: "filesInApplicationCacheDirectoryExists"}
-	]
+    this.tests = [
+        {name: "optionalArgAPIs"},
+        {name: "readWriteText"},
+        {name: "blobNativeFile"},
+        {name: "blobFile"},
+        {name: "dotSlash"},
+        {name: "appendStringTest"},
+        {name: "appendBlobTest"},
+        {name: "appendFileTest"},
+        {name: "fileStreamBasicTest"},
+        {name: "fileStreamWriteTest"},
+        {name: "fileStreamAppendTest"},
+        {name: "fileStreamPumpTest"},
+        {name: "fileStreamWriteStreamTest"},
+        {name: "fileStreamResourceFileTest"},
+        {name: "fileStreamTruncateTest"},
+        {name: "fileMove"},
+        {name: "tempDirTest"},
+        {name: "emptyFile"},
+        {name: "fileSize"},
+        {name: "mimeType"},
+        {name: "filesInApplicationCacheDirectoryExists"},
+        {name: "fileCopy"},
+        {name: "fileProperties"},
+        {name: "directoryListing"},
+        {name: "tempDirAndFile"},
+        {name: "fsMethodAndProp"},
+        {name: "appendString"},
+        {name: "appendBlob"},
+        {name: "appendFile"},
+        {name: "resolveTest"}
+    ]
+
 
 	this.optionalArgAPIs = function(testRun) {
 		// https://appcelerator.lighthouseapp.com/projects/32238/tickets/2211-android-filesystem-test-generates-runtime-error
@@ -209,6 +223,9 @@ module.exports = new function() {
 	}
 
 	this.fileStreamBasicTest = function(testRun) {
+        var isReadable,
+            isWriteable;
+
 		valueOf(testRun, Ti.createBuffer).shouldBeFunction();
 		valueOf(testRun, Ti.Filesystem.openStream).shouldBeFunction();
 
@@ -216,6 +233,17 @@ module.exports = new function() {
 		valueOf(testRun, resourceFileStream).shouldBeObject();
 		valueOf(testRun, resourceFileStream.read).shouldBeFunction();
 		valueOf(testRun, resourceFileStream.write).shouldBeFunction();
+
+        valueOf(testRun, function() {
+            isReadable = resourceFileStream.isReadable();
+        }).shouldNotThrowException();
+
+        valueOf(testRun, function() {
+            isWriteable = resourceFileStream.isWriteable();
+        }).shouldNotThrowException();
+
+        valueOf(testRun, isReadable).shouldBeTrue();
+        valueOf(testRun, isWriteable).shouldBeFalse();
 
 		var inBuffer = Ti.createBuffer();
 		valueOf(testRun, inBuffer).shouldBeObject();
@@ -260,52 +288,60 @@ module.exports = new function() {
 	}
 
 	this.fileStreamWriteTest = function(testRun) {
-		var infile = Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory, 'suites/filesystem/stream_test_in.txt');
-		var instream = infile.open(Ti.Filesystem.MODE_READ);
-		var outfile = Ti.Filesystem.getFile(Ti.Filesystem.applicationDataDirectory, 'fswritetest.jpg');
-		var outstream = outfile.open(Ti.Filesystem.MODE_WRITE);
+		var infile = Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory, 'suites/filesystem/stream_test_in.txt'),
+			instream = infile.open(Ti.Filesystem.MODE_READ),
+			outfile = Ti.Filesystem.getFile(Ti.Filesystem.applicationDataDirectory, 'fswritetest.jpg'),
+			outstream = outfile.open(Ti.Filesystem.MODE_WRITE),
+			buffer = Ti.createBuffer({length: 20}),
+			totalWriteSize = 0,
+			size = 0;
 
-		var buffer = Ti.createBuffer({length: 20});
-		var totalWriteSize = 0;
-		var size = 0;
-		while ((size = instream.read(buffer)) > -1) {
+		while ((size = instream.read(buffer)) > 0) {
 			outstream.write(buffer, 0, size);
 			totalWriteSize += size;
 		}
+
 		instream.close();
 		outstream.close();
-
+		
+		
 		infile = Ti.Filesystem.getFile(Ti.Filesystem.applicationDataDirectory, 'fswritetest.jpg');
 		instream = infile.open(Ti.Filesystem.MODE_READ);
-		var inBuffer = Ti.Stream.readAll(instream);
-		var totalReadSize = inBuffer.length;
+
+		var inBuffer = Ti.Stream.readAll(instream),
+			totalReadSize = inBuffer.length;
+
 		valueOf(testRun, totalReadSize).shouldBeExactly(totalWriteSize);
 		instream.close();
-
+		
 		finish(testRun);
 	}
 
 	this.fileStreamAppendTest = function(testRun) {
-		var infile = Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory, 'suites/filesystem/stream_test_in.txt');
-		var instream = infile.open(Ti.Filesystem.MODE_READ);
-		var outfile = Ti.Filesystem.getFile(Ti.Filesystem.applicationDataDirectory, 'fsappendtest.jpg');
-		if(outfile.exists()) {
+		var infile = Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory, 'suites/filesystem/stream_test_in.txt'),
+			instream = infile.open(Ti.Filesystem.MODE_READ),
+			outfile = Ti.Filesystem.getFile(Ti.Filesystem.applicationDataDirectory, 'fsappendtest.jpg');
+			
+		if (outfile.exists()) {
 			outfile.deleteFile();
 		}
-		var outstream = outfile.open(Ti.Filesystem.MODE_WRITE);
 
-		var bytesStreamed = Ti.Stream.writeStream(instream, outstream, 40);
+		var outstream = outfile.open(Ti.Filesystem.MODE_WRITE),
+			bytesStreamed = Ti.Stream.writeStream(instream, outstream, 40);
+
 		instream.close();
 		outstream.close();
 
 		infile = Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory, 'suites/filesystem/stream_test_in.txt');
 		instream = infile.open(Ti.Filesystem.MODE_READ);
-		var appendfile = Ti.Filesystem.getFile(Ti.Filesystem.applicationDataDirectory, 'fsappendtest.jpg');
-		var appendstream = appendfile.open(Ti.Filesystem.MODE_APPEND);
 
-		var buffer = Ti.createBuffer({length: 20});
-		var totalWriteSize = 0;
-		var size = 0;
+		var appendfile = Ti.Filesystem.getFile(Ti.Filesystem.applicationDataDirectory, 'fsappendtest.jpg'),
+			appendstream = appendfile.open(Ti.Filesystem.MODE_APPEND);
+
+		var buffer = Ti.createBuffer({length: 20}),
+			totalWriteSize = 0,
+			size = 0;
+
 		while ((size = instream.read(buffer)) > -1) {
 			appendstream.write(buffer, 0, size);
 			totalWriteSize += size;
@@ -322,7 +358,7 @@ module.exports = new function() {
 		Ti.API.info('Total write size: '+totalWriteSize);
 		valueOf(testRun, totalReadSize).shouldBeExactly(bytesStreamed + totalWriteSize);
 		instream.close();
-
+		
 		finish(testRun);
 	}
 
@@ -370,6 +406,7 @@ module.exports = new function() {
 
 		// writes all data from inBufferStream to outFileStream in chunks of 30
 		var bytesWritten = Ti.Stream.writeStream(inStream, outFileStream, 30);
+
 		Ti.API.info('<' + bytesWritten + '> bytes written, closing both streams');
 
 		// assert that the length of the outBuffer is equal to the amount of bytes that were written
@@ -448,6 +485,9 @@ module.exports = new function() {
 
 		valueOf(testRun, newFile.move(Titanium.Filesystem.applicationDataDirectory+'/moved.txt')).shouldBeTrue();
 
+        newFile = Titanium.Filesystem.getFile(newDir.nativePath, 'newfile.txt');
+        valueOf(testRun, newFile.exists()).shouldBeFalse();
+
 		finish(testRun);
 	}
 
@@ -462,9 +502,9 @@ module.exports = new function() {
 		tempFileOutStream.write(outBuffer); //write inBuffer to outfile
 		tempFileOutStream.close();
 
-		var inBuffer = Ti.createBuffer({length:200}); // have to set length on read buffer or no data will be read
-		var tempFileInStream = Ti.Filesystem.openStream(Ti.Filesystem.MODE_READ, Ti.Filesystem.tempDirectory, filename);
-		bytesRead = tempFileInStream.read(inBuffer); //read 200 byes of data from outfile into outBuffer
+		var inBuffer = Ti.createBuffer({length:200}), // have to set length on read buffer or no data will be read
+			tempFileInStream = Ti.Filesystem.openStream(Ti.Filesystem.MODE_READ, Ti.Filesystem.tempDirectory, filename),
+			bytesRead = tempFileInStream.read(inBuffer); //read 200 byes of data from outfile into outBuffer
 		tempFileInStream.close();
 
 		for (var i=0; i < bytesRead; i++) {
@@ -562,4 +602,388 @@ module.exports = new function() {
 
 		finish(testRun);
 	}
+
+    this.fileCopy = function(testRun) {
+        // Try to create file and folder
+        // Copy this file to this directory 
+        // Verify if file is present in both places
+
+        var f = Titanium.Filesystem.getFile(Titanium.Filesystem.resourcesDirectory, 'suites/filesystem/text.txt'),
+            contents = f.read(),
+            isFile,
+            copiedFile,
+			newDir = Titanium.Filesystem.getFile(Titanium.Filesystem.applicationDataDirectory,'copydir');
+
+        if (!newDir.exists()) {
+            newDir.createDirectory();
+        }
+
+        valueOf(testRun, function() {
+            isFile = newDir.isFile();
+        }).shouldNotThrowException();
+
+        valueOf(testRun, isFile).shouldBeFalse();
+        valueOf(testRun, newDir.exists()).shouldBeTrue();
+
+        var newFile = Titanium.Filesystem.getFile(newDir.nativePath, 'newfile.txt');
+        newFile.write(contents);
+        valueOf(testRun, newFile.exists()).shouldBeTrue();
+
+        // remove destination file if it exists, otherwise the test will fail on multiple runs
+        var destinationFile = Titanium.Filesystem.getFile(Titanium.Filesystem.applicationDataDirectory+'/copied.txt');
+        if(destinationFile.exists()) {
+            destinationFile.deleteFile();
+        }
+
+        valueOf(testRun, newFile.copy(Titanium.Filesystem.applicationDataDirectory+'/copied.txt')).shouldBeTrue();
+        copiedFile  = Titanium.Filesystem.getFile(Titanium.Filesystem.applicationDataDirectory+'/copied.txt');
+        valueOf(testRun, copiedFile.exists()).shouldBeTrue();
+
+        newFile = Titanium.Filesystem.getFile(newDir.nativePath, 'newfile.txt');
+
+        valueOf(testRun, function() {
+            isFile = newFile.isFile();
+        }).shouldNotThrowException();
+
+        valueOf(testRun, isFile).shouldBeTrue();
+        valueOf(testRun, newFile.exists()).shouldBeTrue();
+
+        finish(testRun);
+    }
+
+
+    this.fileProperties = function(testRun) {
+        // Try to create not empty file
+        // Check the properties and methods for this file
+
+        var f = Titanium.Filesystem.getFile(Titanium.Filesystem.resourcesDirectory, 'suites/filesystem/text.txt'),
+            contents = f.read(),
+            hid,
+            name,
+            timeNow,
+            ext,
+            fileParent,
+            readOnly,
+            fileExecutable,
+            fileSymbolicLink,
+            fileTimestamp,
+            fileModificationTimestamp,
+            newFile = Titanium.Filesystem.getFile(Titanium.Filesystem.applicationDataDirectory,'newFile.txt');
+
+        newFile.write(contents, false);
+        valueOf(testRun, newFile.exists()).shouldBeTrue();
+
+        valueOf(testRun, newFile.hidden).shouldBeFalse();
+
+        valueOf(testRun, function() {
+            hid = newFile.getHidden();
+        }).shouldNotThrowException();
+
+        valueOf(testRun, hid).shouldBeFalse();
+
+        valueOf(testRun, function() {
+            newFile.setHidden(true);
+        }).shouldNotThrowException();
+
+        valueOf(testRun, newFile.hidden).shouldBeTrue();
+
+        valueOf(testRun, function() {
+            hid = newFile.getHidden();
+        }).shouldNotThrowException();
+
+        valueOf(testRun, hid).shouldBeTrue();
+        
+        // Name of File Test
+        valueOf(testRun, function() {
+            name = newFile.getName();
+        }).shouldNotThrowException();
+
+        valueOf(testRun, name).shouldBeEqual('newFile.txt');
+        valueOf(testRun, newFile.name).shouldBeEqual('newFile.txt');
+
+        valueOf(testRun, newFile.rename('supernewfile.txt')).shouldBeTrue();
+
+        newFile = Titanium.Filesystem.getFile(Titanium.Filesystem.applicationDataDirectory, 'supernewfile.txt');
+        newFile = Titanium.Filesystem.getFile(Titanium.Filesystem.applicationDataDirectory, 'newfile.txt');
+
+        valueOf(testRun, newFile.exists()).shouldBeFalse();
+
+        newFile = Titanium.Filesystem.getFile(Titanium.Filesystem.applicationDataDirectory, 'supernewfile.txt');
+
+        valueOf(testRun, newFile.exists()).shouldBeTrue();
+        
+        // Parent of a file Test
+        valueOf(testRun, function() {
+			fileParent = newFile.getParent();
+        }).shouldNotThrowException();
+
+        valueOf(testRun, newFile.parent).shouldBeObject();
+        valueOf(testRun, fileParent).shouldBeObject();
+
+        // Readonly Test
+        valueOf(testRun, function() {
+            readOnly = newFile.getReadonly();
+        }).shouldNotThrowException();
+
+        valueOf(testRun, readOnly).shouldBeFalse();
+        valueOf(testRun, newFile.readonly).shouldBeFalse(); 
+
+        // Local files is readonly  
+        valueOf(testRun, function() {
+            readOnly = f.getReadonly();
+        }).shouldNotThrowException();
+
+        valueOf(testRun, readOnly).shouldBeTrue();
+        valueOf(testRun, f.readonly).shouldBeTrue();
+
+        // Executable Test
+        valueOf(testRun, function() {
+            fileExecutable = newFile.getExecutable();
+        }).shouldNotThrowException();
+
+        valueOf(testRun, fileExecutable).shouldBeFalse();
+        valueOf(testRun, newFile.executable).shouldBeFalse(); 
+
+        // SymbolicLink Test
+        valueOf(testRun, function() {
+            fileSymbolicLink = newFile.getSymbolicLink();
+        }).shouldNotThrowException();
+
+        valueOf(testRun, fileSymbolicLink).shouldBeFalse();
+        valueOf(testRun, newFile.symbolicLink).shouldBeFalse(); 
+
+        // Extension Test
+        valueOf(testRun, function() {
+            ext = newFile.extension();
+        }).shouldNotThrowException();
+
+        valueOf(testRun, ext).shouldBeEqual('txt');
+
+        // Timestamp Test
+        valueOf(testRun, function() {
+            fileTimestamp = newFile.createTimestamp();
+        }).shouldNotThrowException();
+
+        valueOf(testRun, function() {
+            fileModificationTimestamp = newFile.modificationTimestamp();
+        }).shouldNotThrowException();
+        
+        timeNow = new Date().getTime();
+        valueOf(testRun, fileTimestamp).shouldBeNumber();
+        valueOf(testRun, fileModificationTimestamp).shouldBeNumber();
+        valueOf(testRun, fileTimestamp - timeNow).shouldBeLessThan(1000);
+        valueOf(testRun, fileModificationTimestamp - timeNow).shouldBeLessThan(1000);
+
+        finish(testRun);
+    }
+
+    this.directoryListing = function(testRun) {
+        // Try to create directory and file
+        // Try to create two directories in the created directory
+        // Check the getDirectoryListing() method for directory and file
+
+        var dirList,
+            fileList,
+            file = Titanium.Filesystem.getFile(Titanium.Filesystem.applicationDataDirectory, 'someFile.txt');
+
+        if (file.exists() == false) {
+            file.createFile();
+        }
+
+        var newDir = Titanium.Filesystem.getFile(Titanium.Filesystem.applicationDataDirectory,'newdir');
+
+        if (!newDir.exists()) {
+            newDir.createDirectory();
+        }
+        var newDir1 = Titanium.Filesystem.getFile(Titanium.Filesystem.applicationDataDirectory,'newdir/newdir1');
+
+        if (!newDir1.exists()) {
+            newDir1.createDirectory();
+        }
+
+        var newDir2 = Titanium.Filesystem.getFile(Titanium.Filesystem.applicationDataDirectory,'newdir/newdir2');
+
+        if (!newDir2.exists()) {
+            newDir2.createDirectory();
+        }
+
+        valueOf(testRun, function() {
+            dirList = newDir.getDirectoryListing();
+        }).shouldNotThrowException();
+
+        valueOf(testRun, dirList).shouldBeArray();
+        valueOf(testRun, dirList.length).shouldBeEqual(2);
+        valueOf(testRun, dirList[0]).shouldBeEqual('newdir1');
+        valueOf(testRun, dirList[1]).shouldBeEqual('newdir2');
+
+        // Fails for file
+        valueOf(testRun, file.getDirectoryListing()).shouldBeNull();
+
+        finish(testRun);
+    }
+
+    this.tempDirAndFile = function(testRun) {
+        // Try to create temp directory and temp file
+        var tmpDir,
+            tmpFile;
+
+        valueOf(testRun, function() {
+            tmpDir = Ti.Filesystem.createTempDirectory();
+        }).shouldNotThrowException();
+
+        valueOf(testRun, function() {
+            tmpFile = Ti.Filesystem.createTempFile();
+        }).shouldNotThrowException();        
+
+        valueOf(testRun, tmpDir.exists()).shouldBeTrue();
+        valueOf(testRun, tmpFile.exists()).shouldBeTrue();
+
+        finish(testRun);
+    }
+
+    this.fsMethodAndProp = function(testRun){
+        // Check some filesystem's methods and properties
+        var sep,
+            lineEnding,
+            resourcesDir;
+
+        valueOf(testRun, function() {
+            sep = Ti.Filesystem.getSeparator();
+        }).shouldNotThrowException();
+        valueOf(testRun, Ti.Filesystem.separator).shouldBeEqual(sep);
+
+        if (isTizen) { 
+            valueOf(testRun, sep).shouldBeEqual('/');        
+        }
+
+        valueOf(testRun, function() {
+            resourcesDir = Ti.Filesystem.getResourcesDirectory();
+        }).shouldNotThrowException();
+
+        valueOf(testRun, resourcesDir).shouldBeEqual(resourcesDir);
+
+        if (isTizen) {
+            valueOf(testRun, Ti.Filesystem.resourcesDirectory).shouldBeEqual('/');
+        }
+
+        valueOf(testRun, function() {
+            lineEnding = Ti.Filesystem.getLineEnding();
+        }).shouldNotThrowException();
+
+        valueOf(testRun, Ti.Filesystem.lineEnding).shouldBeEqual(lineEnding);
+        
+        if (isTizen){
+            valueOf(testRun, lineEnding).shouldBeEqual('\n');
+        }
+
+        finish(testRun);
+    }
+
+    this.appendString = function(testRun){
+        // Try to append a string to a text file
+
+        var f = Ti.Filesystem.getFile(Ti.Filesystem.applicationDataDirectory, 'data.txt'),
+            appended_text = 'Some appended text',
+            previous_text = "",
+            final_blob,
+            prev_blob;
+
+        valueOf(testRun, f).shouldNotBeNull();
+
+        // Check if the file exists before trying to read from it!
+        if (f.exists()) {
+            valueOf(testRun, function() {
+                prev_blob = f.read();
+                previous_text = prev_blob.text;
+            }).shouldNotThrowException();
+        }
+
+        valueOf(testRun, function() {
+            f.append(appended_text);
+        }).shouldNotThrowException();
+
+        final_blob = f.read();
+        valueOf(testRun, final_blob).shouldNotBeNull();
+        valueOf(testRun, final_blob.text).shouldBe(previous_text + appended_text);
+
+        finish(testRun);
+    }
+
+    this.appendBlob = function(testRun){
+        // Try to append the blob to a text file
+        var blob = Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory, 'suites/filesystem/file.txt').read(),
+            dest = Ti.Filesystem.getFile(Ti.Filesystem.applicationDataDirectory, 'append_blob.txt'),
+            previous = "",
+            final_blob,
+            dest_blob;
+
+        valueOf(testRun, blob).shouldNotBeNull();
+        valueOf(testRun, dest).shouldNotBeNull();
+
+        if (dest.exists()) {
+            dest_blob = dest.read();
+            valueOf(testRun, dest_blob).shouldNotBeNull();
+            previous = dest_blob.text;
+        }
+
+        valueOf(testRun, function() {
+            dest.append(blob);
+        }).shouldNotThrowException();
+
+        final_blob = dest.read();
+        valueOf(testRun, final_blob).shouldNotBeNull();
+        valueOf(testRun, final_blob.text).shouldBe(previous + blob.text);
+
+        finish(testRun);
+    }
+
+    this.appendFile = function(testRun) {
+        // Try to append a file to a text file
+        var source = Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory, 'suites/filesystem/file.txt'),
+            dest = Ti.Filesystem.getFile(Ti.Filesystem.applicationDataDirectory, 'append_file.txt'),
+            previous = "Some text",
+            source_blob,
+            dest_blob;
+
+        valueOf(testRun, source).shouldNotBeNull();
+        valueOf(testRun, dest).shouldNotBeNull();
+
+        dest.write(previous);
+
+        valueOf(testRun, function() {
+            dest.append(source);
+        }).shouldNotThrowException();
+
+        source_blob = source.read();
+        valueOf(testRun, source_blob).shouldNotBeNull();
+
+        dest_blob = dest.read();
+        valueOf(testRun, dest_blob).shouldNotBeNull();
+
+        valueOf(testRun, dest_blob.text).shouldBe(previous + source_blob.text);
+
+        finish(testRun);
+    }
+
+    this.resolveTest = function(testRun) {
+        // Try to create non-empty file and check his method - resolve()
+        var file = Ti.Filesystem.getFile(Ti.Filesystem.applicationDataDirectory, 'file.txt'),
+            text = 'Some text',
+            resolvedLink;
+
+        if (file.exists()) {
+            text = file.read().text;
+        } else {
+            file.write(text);
+        }
+
+        valueOf(testRun, function() {
+            resolvedLink = file.resolve();
+        }).shouldNotThrowException();
+
+        valueOf(testRun, resolvedLink).shouldBeEqual(file.nativePath);
+        valueOf(testRun, resolvedLink).shouldBeEqual(Ti.Filesystem.applicationDataDirectory + 'file.txt');
+
+        finish(testRun);
+    }
 }

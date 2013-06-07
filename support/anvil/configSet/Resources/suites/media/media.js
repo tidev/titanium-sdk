@@ -7,7 +7,9 @@
 
 module.exports = new function() {
 	var finish;
-	var valueOf;
+	var valueOf,
+		isTizen = Ti.Platform.osname === 'tizen';
+
 	this.init = function(testUtils) {
 		finish = testUtils.finish;
 		valueOf = testUtils.valueOf;
@@ -77,8 +79,8 @@ module.exports = new function() {
 		if (!isAndroid) valueOf(testRun, player.idle).shouldBeBoolean();
 		if (!isAndroid) valueOf(testRun, player.state).shouldBeNumber();
 		valueOf(testRun, player.paused).shouldBeBoolean();
-		if (!isAndroid) valueOf(testRun, player.waiting).shouldBeBoolean();
-		if (!isAndroid) valueOf(testRun, player.bufferSize).shouldBeNumber();
+		if (!(isAndroid || isTizen)) valueOf(testRun, player.waiting).shouldBeBoolean();
+		if (!(isAndroid || isTizen)) valueOf(testRun, player.bufferSize).shouldBeNumber();
 
 		finish(testRun);
 	}
@@ -92,7 +94,7 @@ module.exports = new function() {
 		valueOf(testRun, player.add).shouldBeFunction();
 		valueOf(testRun, player.pause).shouldBeFunction();
 		valueOf(testRun, player.play).shouldBeFunction(); // this is the documented way to start playback.
-		valueOf(testRun, player.start).shouldBeFunction(); // backwards compat.
+		isTizen || valueOf(testRun, player.start).shouldBeFunction(); // backwards compat.
 		valueOf(testRun, player.stop).shouldBeFunction();
 		if (!isAndroid) valueOf(testRun, player.setUrl).shouldBeFunction();
 		valueOf(testRun, player.hide).shouldBeFunction();
@@ -111,7 +113,11 @@ module.exports = new function() {
 		sound.setTime(initial_pos);
 		valueOf(testRun, sound.getTime()).shouldBe(initial_pos);
 		valueOf(testRun, sound.time).shouldBe(initial_pos);
+
+		// Play
 		sound.play();
+
+		// Check time
 		setTimeout(function(e) {
 			var time = sound.getTime();
 			Ti.API.info("PROGRESS: " + time);

@@ -21,9 +21,11 @@ module.exports = new function() {
 	]
 
 	this.textControlsTextValueInitialValue = function(testRun) {
-		var f = Ti.UI.createLabel();
-		valueOf(testRun, f.text).shouldBe('');
-		
+		var f = Ti.UI.createLabel(),
+			isTizen = Ti.Platform.osname === 'tizen';
+
+		isTizen ? valueOf(testRun, f.text).shouldBeUndefined() : valueOf(testRun, f.text).shouldBe('');
+
 		f = Ti.UI.createTextField();
 		valueOf(testRun, f.value).shouldBe('');
 
@@ -34,7 +36,7 @@ module.exports = new function() {
 		valueOf(testRun, f.value).shouldBe('');
 		
 		f = Ti.UI.createButton();
-		valueOf(testRun, f.title).shouldBe('');
+		isTizen ? valueOf(testRun, f.title).shouldBeUndefined() : valueOf(testRun, f.title).shouldBe('');
 
 		finish(testRun);
 	}
@@ -138,13 +140,15 @@ module.exports = new function() {
         		valueOf(testRun, scrollingEvents[numEvents - 1].view).shouldBe(view2);
 
         		Ti.API.debug('passed');
-        		finish(testRun);
+				win.close();
       		} catch (exception) {
         		callback_error(exception);
       		}
     	});
-
-		finish(testRun);
+		win.addEventListener('close', function(){
+			finish(testRun);
+		})
+		win.close();
 	}
 }
 

@@ -84,7 +84,7 @@ module.exports = new function() {
 	};
 
 	this.sendData = function(data) {
-		if (Ti.Platform.name == "mobileweb") {
+		if (Ti.Platform.name == "mobileweb" || Ti.Platform.osname == "tizen") {
 			sendHttpData(data);
 
 		} else {

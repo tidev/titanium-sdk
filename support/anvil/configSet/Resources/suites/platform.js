@@ -18,6 +18,10 @@ module.exports = new function() {
 		{name: "apiPoints"}
 	]
 
+	if (Ti.Platform.osname === 'tizen' || Ti.Platform.osname === 'mobileweb') {
+		this.tests.push({name: "displayCaps"});
+	}
+
 	this.apiPoints = function(testRun) {
 		valueOf(testRun, Ti.Platform.createUUID).shouldBeFunction();
 		valueOf(testRun, Ti.Platform.openURL).shouldBeFunction();
@@ -55,6 +59,30 @@ module.exports = new function() {
     	} else {
         	valueOf(testRun, Ti.Platform.runtime.length).shouldBeGreaterThan(0);
     	}
+
+		finish(testRun);
+	}
+
+	this.displayCaps = function(testRun) {
+		// In Mobile Web-based platforms, the platform's reported display capabilities
+		// correspond to those of the browser that hosts the running application.
+		var body = document.body,
+			measureDiv = document.createElement('div'),
+			dpi;
+
+		// Absolute width of the display		
+		valueOf(testRun, Ti.Platform.displayCaps.platformWidth).shouldBeEqual(window.innerWidth);
+		// Absolute height of the display
+		valueOf(testRun, Ti.Platform.displayCaps.platformHeight).shouldBeEqual(window.innerHeight);
+
+		measureDiv.style.width = "1in";
+		measureDiv.style.visibility = "hidden";
+		body.appendChild(measureDiv);
+		dpi = parseInt(measureDiv.clientWidth);
+		body.removeChild(measureDiv);
+
+		// Display density expressed as dots-per-inch
+		valueOf(testRun, Ti.Platform.displayCaps.dpi).shouldBeEqual(dpi);
 
 		finish(testRun);
 	}

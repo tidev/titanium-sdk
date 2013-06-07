@@ -5,9 +5,17 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
+// To simplify platform checks we are adding this variables
+var isTizen = Ti.Platform.osname === 'tizen',
+	isMobileWeb = Ti.Platform.osname === 'mobileweb',
+	isAndroid = Ti.Platform.osname === 'android';
+
 module.exports = new function() {
-	var finish;
-	var valueOf;
+	var finish,
+		valueOf,
+		// For Tizen and mobileWeb all valued based on rendering results are avalible only on "postlayout" event.
+		openEvent = isTizen || isMobileWeb ? "postlayout" : "open";
+
 	this.init = function(testUtils) {
 		finish = testUtils.finish;
 		valueOf = testUtils.valueOf;
@@ -65,7 +73,7 @@ module.exports = new function() {
 		});
 		win.add(view);
 		win.add(label);
-		win.addEventListener("open", function(e) {
+		win.addEventListener(openEvent, function(e) {
 			valueOf(testRun, view.size).shouldNotBeUndefined();
 			valueOf(testRun, view.size.width).shouldNotBeUndefined();
 			valueOf(testRun, view.size.height).shouldNotBeUndefined();
@@ -124,7 +132,7 @@ module.exports = new function() {
 		});
 		win.add(view);
 		win.add(view2);
-		win.addEventListener("open", function(e) {
+		win.addEventListener(openEvent, function(e) {
 			valueOf(testRun, view.left).shouldBe(10);
 			valueOf(testRun, view.rect.x).shouldBe(10);
 			valueOf(testRun, view.rect.width).shouldBe(10);
@@ -152,7 +160,7 @@ module.exports = new function() {
 		});
 		win.add(view);
 		win.add(view2);
-		win.addEventListener("open", function(e) {
+		win.addEventListener(openEvent, function(e) {
 			valueOf(testRun, view.top).shouldBe(10);
 			valueOf(testRun, view.rect.y).shouldBe(10);
 			valueOf(testRun, view.rect.height).shouldBe(10);
@@ -178,14 +186,18 @@ module.exports = new function() {
 			height: 40, width: 40
 		});
 		win.add(view);
-		win.addEventListener("open", function(e) {
-			valueOf(testRun, view.center.x).shouldBe(50);
-			valueOf(testRun, view.center.y).shouldBe(50);
+
+		// This test runs on "open" event for Android\iOS and on "postlayout" on tizen and mobileweb
+		win.addEventListener(openEvent, function(e) {
 			valueOf(testRun, view.rect.x).shouldBe(30);
 			valueOf(testRun, view.rect.y).shouldBe(30);
 
+			valueOf(testRun, view.center.x).shouldBe(50);
+			valueOf(testRun, view.center.y).shouldBe(50);
+
 			finish(testRun);
 		});
+
 		win.open();
 	};
 
@@ -197,7 +209,7 @@ module.exports = new function() {
 			width: 10, height: 10
 		});
 		win.add(view);
-		win.addEventListener("open", function(e) {
+		win.addEventListener(openEvent, function(e) {
 			valueOf(testRun, view.width).shouldBe(10);
 			valueOf(testRun, view.size.width).shouldBe(10);
 			valueOf(testRun, view.height).shouldBe(10);
@@ -270,7 +282,7 @@ module.exports = new function() {
 			right: 10
 		});
 
-		win.addEventListener('open', function(e){
+		win.addEventListener(openEvent, function(e){
 			valueOf(testRun, view1.width).shouldBeUndefined();
 			valueOf(testRun, view2.width).shouldBeUndefined();
 			valueOf(testRun, view3.width).shouldBeUndefined();
@@ -306,7 +318,7 @@ module.exports = new function() {
 			width: 120
 		});
 
-		win.addEventListener('open', function(e){
+		win.addEventListener(openEvent, function(e){
 			valueOf(testRun, view1.left).shouldBeUndefined();
 			valueOf(testRun, view2.left).shouldBeUndefined();
 			valueOf(testRun, view3.left).shouldBeUndefined();
@@ -361,7 +373,7 @@ module.exports = new function() {
 			left:10
 		});
 
-		win.addEventListener('open', function(e){
+		win.addEventListener(openEvent, function(e){
 			valueOf(testRun, view.right).shouldBeUndefined();
 			valueOf(testRun, view.rect.width).shouldBe(80);
 			valueOf(testRun, view.rect.x).shouldBe(10);
@@ -395,7 +407,7 @@ module.exports = new function() {
 			bottom: 10
 		});
 
-		win.addEventListener('open', function(e){
+		win.addEventListener(openEvent, function(e){
 			valueOf(testRun, view1.height).shouldBeUndefined();
 			valueOf(testRun, view2.height).shouldBeUndefined();
 			valueOf(testRun, view3.height).shouldBeUndefined();
@@ -431,7 +443,7 @@ module.exports = new function() {
 			height: 100
 		});
 
-		win.addEventListener('open', function(e){
+		win.addEventListener(openEvent, function(e){
 			//Static Tops
 			valueOf(testRun, view1.top).shouldBeUndefined();
 			valueOf(testRun, view2.top).shouldBeUndefined();
@@ -494,7 +506,7 @@ module.exports = new function() {
 			width: 10
 		});
 
-		win.addEventListener('open', function(e){
+		win.addEventListener(openEvent, function(e){
 			valueOf(testRun, view.size.width).shouldBe(10);
 
 			finish(testRun);
@@ -515,7 +527,7 @@ module.exports = new function() {
 			center: {x:30}
 		});
 
-		win.addEventListener('open', function(e){
+		win.addEventListener(openEvent, function(e){
 			valueOf(testRun, view.size.width).shouldBe(40);
 
 			finish(testRun);
@@ -540,7 +552,7 @@ module.exports = new function() {
 			right: 50
 		});
 
-		win.addEventListener('open', function(e){
+		win.addEventListener(openEvent, function(e){
 			valueOf(testRun, viewChild.size.width).shouldBe(100);
 
 			finish(testRun);
@@ -562,7 +574,7 @@ module.exports = new function() {
 			height: 10
 		});
 
-		win.addEventListener('open', function(e){
+		win.addEventListener(openEvent, function(e){
 			valueOf(testRun, view.size.height).shouldBe(10);
 
 			finish(testRun);
@@ -583,7 +595,7 @@ module.exports = new function() {
 			center: {y: 30}
 		});
 
-		win.addEventListener('open', function(e){
+		win.addEventListener(openEvent, function(e){
 			valueOf(testRun, view.size.height).shouldBe(40);
 
 			finish(testRun);
@@ -608,7 +620,7 @@ module.exports = new function() {
 			bottom: 50
 		});
 
-		win.addEventListener('open', function(e){
+		win.addEventListener(openEvent, function(e){
 			valueOf(testRun, viewChild.size.height).shouldBe(100);
 
 			finish(testRun);
@@ -666,9 +678,11 @@ module.exports = new function() {
 			showHorizontalScrollIndicator : true
 		});
 
-		win.addEventListener('open', function(e){
+		//We need to keep how many events we have handled as we need to subscribe on the two different events but have only one finalizer.
+		var eventsHandled = 0;
 
-			var isAndroid = (Ti.Platform.osname === 'android');
+		// this test runs on "open" event 
+		win.addEventListener('open', function(e){
 			//LABEL HAS SIZE AUTO BEHAVIOR. 
 			//SCROLLVIEW HAS FILL BEHAVIOR
 			//LABEL will have 0 size (no text)
@@ -686,25 +700,30 @@ module.exports = new function() {
 				valueOf(testRun, scrollView.size.width).shouldBe(0);
 				valueOf(testRun, scrollView.size.height).shouldBe(0);
 
-				valueOf(testRun, label2.size.height).shouldNotBe(0);
-				valueOf(testRun, label2.size.width).shouldNotBe(0);
-
-				valueOf(testRun, scrollView2.size.height).shouldNotBe(0);
-				valueOf(testRun, scrollView2.size.width).shouldNotBe(0);
-
 				valueOf(testRun, label2.size.width).shouldBe(scrollView2.size.width);
 				valueOf(testRun, label2.size.height).shouldBe(scrollView2.size.height);
 			}
 
 			// This is not working yet due to TIMOB-5303
-
 			// valueOf(testRun, scrollView3.size.height).shouldNotBe(0);
 			// valueOf(testRun, scrollView3.size.width).shouldNotBe(0);
-			// 
 			// valueOf(testRun, view.size.width).shouldBe(scrollView3.size.width);
 			// valueOf(testRun, view.size.height).shouldBe(scrollView3.size.height);
 
-			finish(testRun);
+			//if we had finised another event hanling before we got here - finish this test run
+			if ((++eventsHandled) == 2){finish(testRun);};
+		});
+
+		// this test runs on "open" event for Android\iOS and on "postlayout" on tizen and mobileweb
+		win.addEventListener(openEvent, function(e) {
+			valueOf(testRun, label2.size.height).shouldNotBe(0);
+			valueOf(testRun, label2.size.width).shouldNotBe(0);
+
+			valueOf(testRun, scrollView2.size.height).shouldNotBe(0);
+			valueOf(testRun, scrollView2.size.width).shouldNotBe(0);
+
+			//if we had finised another event hanling before we got here - finish this test run			
+			if ((++eventsHandled) == 2){finish(testRun);};
 		});
 
 		view.add(scrollView);
@@ -754,7 +773,8 @@ module.exports = new function() {
 		});
 		parent.add(child);
 		win.add(parent);
-		win.addEventListener("open", function(e) {
+		// this test runs on "open" event for Android\iOS and on "postlayout" on tizen and mobileweb
+		win.addEventListener(openEvent, function(e) {
 			valueOf(testRun, parent.size.width).shouldBe(40);
 			valueOf(testRun, parent.size.height).shouldBe(50);
 			valueOf(testRun, child.size.width).shouldBe(40);
@@ -790,7 +810,8 @@ module.exports = new function() {
 		parent.add(child1);
 		grandParent.add(parent);
 		win.add(grandParent);
-		win.addEventListener("open", function(e) {
+		// this test runs on "open" event for Android\iOS and on "postlayout" on tizen and mobileweb
+		win.addEventListener(openEvent, function(e) {
 			valueOf(testRun, grandParent.size.width).shouldBe(200);
 			valueOf(testRun, grandParent.size.height).shouldBe(300);
 
@@ -825,7 +846,7 @@ module.exports = new function() {
 		parent.add(child);
 		win.add(parent);
 		win.addEventListener("open", function(e) {
-			if (Ti.Platform.osname === 'android') {
+			if (isAndroid) {
 				valueOf(testRun, parent.size.width).shouldBe(40);
 			} else if (Ti.Platform.osname === 'iphone' || Ti.Platform.osname === 'ipad' ) {
 				valueOf(testRun, parent.size.height).shouldBe(50);
@@ -861,7 +882,7 @@ module.exports = new function() {
 		win.add(child);
 		win.add(child1);
 		win.add(child2);
-		win.addEventListener("open", function(e) {
+		win.addEventListener(openEvent, function(e) {
 			valueOf(testRun, child.size.width).shouldNotBe(0);
 			valueOf(testRun, child.size.height).shouldNotBe(0);
 			
@@ -914,7 +935,7 @@ module.exports = new function() {
 		var view2 = Ti.UI.createView({
 		});
 		scrollView.add(view2);
-		win.addEventListener("open", function(e) {
+		win.addEventListener(openEvent, function(e) {
 			valueOf(testRun, view2.size.width).shouldBe(scrollView.size.width);
 			valueOf(testRun, view2.size.height).shouldBe(2000);
 
@@ -1020,7 +1041,7 @@ module.exports = new function() {
 		scrollView.add(button);
 		win.add(NavBarView);
 		win.add(scrollView);
-		win.addEventListener("open", function(e) {
+		win.addEventListener(openEvent, function(e) {
 			valueOf(testRun, scrollView.size.height).shouldBe(50);
 			valueOf(testRun, scrollView.size.width).shouldBe(100);
 
@@ -1055,7 +1076,7 @@ module.exports = new function() {
 		        top: 20
 		    }));
 		}
-		win.addEventListener("open", function(e) {
+		win.addEventListener(openEvent, function(e) {
 			valueOf(testRun, innerView.size.height).shouldBe(1200);
 			valueOf(testRun, innerView.size.width).shouldBe(scrollView.size.width);
 
@@ -1069,7 +1090,7 @@ module.exports = new function() {
 		// android
 		var dpi = Ti.Platform.displayCaps.dpi;
 
-		if (Ti.Platform.osname === 'android') {
+		if (isAndroid) {
 			// 1087 
 			valueOf(testRun, Ti.UI.convertUnits('1in', Ti.UI.UNIT_PX)).shouldBe(dpi);
 			valueOf(testRun, Ti.UI.convertUnits('100', Ti.UI.UNIT_PX)).shouldBe(100);
@@ -1087,7 +1108,7 @@ module.exports = new function() {
 		valueOf(testRun, Math.round(Ti.UI.convertUnits(dpi.toString(), Ti.UI.UNIT_MM))).shouldBe(25);
 		// 1089
 		valueOf(testRun, Math.round(Ti.UI.convertUnits(dpi.toString(), Ti.UI.UNIT_CM))).shouldBe(3);
-		
+
 		// 1088
 		valueOf(testRun, Math.round(Ti.UI.convertUnits(dpi.toString(), Ti.UI.UNIT_MM))).shouldBe(25);
 		// 1089
@@ -1096,12 +1117,15 @@ module.exports = new function() {
 		valueOf(testRun, Math.round(Ti.UI.convertUnits(dpi.toString(), Ti.UI.UNIT_IN))).shouldBe(1);
 		
 		// 1093
-		valueOf(testRun, Ti.UI.convertUnits('100cm', Ti.UI.UNIT_MM)).shouldBe(1000);
+		// result of Ti.UI.convertUnits is float it is NOT equals to INT and its normal. So we round it!
+		//
+		valueOf(testRun, Math.round(Ti.UI.convertUnits('100cm', Ti.UI.UNIT_MM))).shouldBe(1000);
 		// 1094
-		valueOf(testRun, Ti.UI.convertUnits('100in', Ti.UI.UNIT_CM)).shouldBe(254);
+		// result of Ti.UI.convertUnits is float it is NOT equals to INT and its normal. So we round it!
+		valueOf(testRun, Math.round(Ti.UI.convertUnits('100in', Ti.UI.UNIT_CM))).shouldBe(254);
 		
 		// 1097
-		valueOf(testRun, Ti.UI.convertUnits('abc', Ti.UI.UNIT_PX)).shouldBe(0);
+		valueOf(testRun, Math.round(Ti.UI.convertUnits('abc', Ti.UI.UNIT_PX))).shouldBe(0);
 
 		finish(testRun);
 	};
@@ -1115,7 +1139,7 @@ module.exports = new function() {
 			top: 10, bottom: 10
 		});
 		win.add(label);
-		win.addEventListener("open", function(e) {
+		win.addEventListener(openEvent, function(e) {
 			valueOf(testRun, label.size.width).shouldBe(80);
 			valueOf(testRun, label.size.height).shouldBe(80);
 			valueOf(testRun, label.left).shouldBe(10);

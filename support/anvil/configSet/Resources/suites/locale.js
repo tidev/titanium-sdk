@@ -16,7 +16,9 @@ module.exports = new function() {
 	this.name = "locale";
 	this.tests = [
 		{name: "localePPEnhancements"},
-		{name: "stringPPEnhancements"}
+		{name: "localeFormatTelephoneNumber"},
+		{name: "stringPPEnhancements"},
+		{name: "stringFormatDateTime"}
 	]
 
 	this.localePPEnhancements = function(testRun) {
@@ -36,6 +38,39 @@ module.exports = new function() {
 		valueOf(testRun, String.formatDecimal(2.5, '000.000')).shouldBe('002.500');
 		valueOf(testRun, String.formatDecimal(2.5, 'de-DE')).shouldBe('2,5');
 		valueOf(testRun, String.formatDecimal(2.5, 'de-DE', '000.0000')).shouldBe('002,5000');
+
+		finish(testRun);
+	}
+
+	this.localeFormatTelephoneNumber = function(testRun) {
+		valueOf(testRun, Ti.Locale.formatTelephoneNumber('+3-8-0-6-6-5-5-5-2-2-1-1')).shouldBe('+380665552211');
+		valueOf(testRun, Ti.Locale.formatTelephoneNumber('211')).shouldBe('211'); //invalid number
+		valueOf(testRun, Ti.Locale.formatTelephoneNumber('+17327572923')).shouldBe('+1-732-757-2923');
+		valueOf(testRun, Ti.Locale.formatTelephoneNumber('+810223231234')).shouldBe('+810223231234'); // wrong JP number
+		valueOf(testRun, Ti.Locale.formatTelephoneNumber('+81528323123')).shouldBe('+8152-832-3123'); // valid JP number
+
+		finish(testRun);
+	}
+
+	this.stringFormatDateTime = function(testRun) {
+		var d = new Date(2013, 1, 1, 01, 02, 03, 04);
+
+		valueOf(testRun, Ti.Locale.getCurrentLanguage()).shouldBe('en');
+		valueOf(testRun, Ti.Locale.getCurrentLocale()).shouldBe('en-US');
+		valueOf(testRun, String.formatTime(d)).shouldBe(String.formatTime(d, 'short'));
+		valueOf(testRun, String.formatDate(d)).shouldBe(String.formatDate(d, 'short'));
+
+		if (Ti.Platform.osname === 'tizen' || Ti.Platform.osname === 'mobileweb') {
+			valueOf(testRun, String.formatDate(d, 'long')).shouldBe('Friday, February 01, 2013');
+			valueOf(testRun, String.formatDate(d, 'short')).shouldBe('2/1/2013');
+			valueOf(testRun, String.formatTime(d, 'long')).shouldBe('1:02:03 AM');
+			valueOf(testRun, String.formatTime(d, 'short')).shouldBe('1:02 AM');
+		} else {
+			valueOf(testRun, String.formatDate(d, 'long')).shouldBe('February 01, 2013'); 
+			valueOf(testRun, String.formatDate(d, 'short')).shouldBe('02/01/13'); 
+			valueOf(testRun, String.formatTime(d, 'long')).shouldBe('1:02:03AM'); 
+			valueOf(testRun, String.formatTime(d, 'short')).shouldBe('1:02AM'); 
+		}
 
 		finish(testRun);
 	}
