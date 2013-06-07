@@ -69,7 +69,7 @@ public abstract class TiBaseActivity extends FragmentActivity
 	private boolean onDestroyFired = false;
 	private int originalOrientationMode = -1;
 	private TiWeakList<OnLifecycleEvent> lifecycleListeners = new TiWeakList<OnLifecycleEvent>();
-	private TiWeakList<OnWindowFocusChangedEvent> windowFocusChangedListeners = new TiWeakList<TiLifecycle.OnWindowFocusChangedEvent>();
+	private TiWeakList<OnWindowFocusChangedEvent> windowFocusChangedListeners = new TiWeakList<OnWindowFocusChangedEvent>();
 
 	protected View layout;
 	protected TiActivitySupportHelper supportHelper;
