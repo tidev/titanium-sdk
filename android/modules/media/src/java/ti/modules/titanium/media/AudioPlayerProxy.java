@@ -39,6 +39,8 @@ public class AudioPlayerProxy extends KrollProxy
 	@Kroll.constant public static final int STATE_WAITING_FOR_QUEUE = TiSound.STATE_WAITING_FOR_QUEUE;
 	
 	protected TiSound snd;
+	private boolean windowFocused;
+	private boolean resumeInOnWindowFocusChanged;
 
 	public AudioPlayerProxy()
 	{
@@ -177,7 +179,15 @@ public class AudioPlayerProxy extends KrollProxy
 	public void onStart(Activity activity) {
 	}
 
-	public void onResume(Activity activity) {
+	public void onResume(Activity activity)
+	{
+		if (windowFocused && !allowBackground()) {
+			if (snd != null) {
+				snd.onResume();
+			}
+		} else {
+			resumeInOnWindowFocusChanged = true;
+		}
 	}
 
 	public void onPause(Activity activity) {
@@ -200,10 +210,12 @@ public class AudioPlayerProxy extends KrollProxy
 
 	public void onWindowFocusChanged(boolean hasFocus)
 	{
-		if (hasFocus && !allowBackground()) {
+		windowFocused = hasFocus;
+		if (resumeInOnWindowFocusChanged && !allowBackground()) {
 			if (snd != null) {
 				snd.onResume();
 			}
+			resumeInOnWindowFocusChanged = false;
 		}
 	}
 }

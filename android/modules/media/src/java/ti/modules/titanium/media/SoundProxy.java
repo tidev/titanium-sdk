@@ -28,6 +28,8 @@ public class SoundProxy extends KrollProxy
 	private static final String TAG = "SoundProxy";
 
 	protected TiSound snd;
+	private boolean windowFocused;
+	private boolean resumeInOnWindowFocusChanged;
 
 	public SoundProxy()
 	{
@@ -237,13 +239,23 @@ public class SoundProxy extends KrollProxy
 		return allow;
 	}
 
-	public void onStart(Activity activity) {
+	public void onStart(Activity activity)
+	{
 	}
 
-	public void onResume(Activity activity) {
+	public void onResume(Activity activity)
+	{
+		if (windowFocused && !allowBackground()) {
+			if (snd != null) {
+				snd.onResume();
+			}
+		} else {
+			resumeInOnWindowFocusChanged = true;
+		}
 	}
 
-	public void onPause(Activity activity) {
+	public void onPause(Activity activity)
+	{
 		if (!allowBackground()) {
 			if (snd != null) {
 				snd.onPause();
@@ -251,10 +263,12 @@ public class SoundProxy extends KrollProxy
 		}
 	}
 
-	public void onStop(Activity activity) {
+	public void onStop(Activity activity)
+	{
 	}
 
-	public void onDestroy(Activity activity) {
+	public void onDestroy(Activity activity)
+	{
 		if (snd != null) {
 			snd.onDestroy();
 		}
@@ -263,10 +277,12 @@ public class SoundProxy extends KrollProxy
 
 	public void onWindowFocusChanged(boolean hasFocus)
 	{
-		if (hasFocus && !allowBackground()) {
+		windowFocused = hasFocus;
+		if (resumeInOnWindowFocusChanged && !allowBackground()) {
 			if (snd != null) {
 				snd.onResume();
 			}
+			resumeInOnWindowFocusChanged = false;
 		}
 	}
 
