@@ -6,6 +6,7 @@
  */
 package ti.modules.titanium.media;
 
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.List;
 import java.util.Timer;
@@ -25,6 +26,7 @@ import android.content.Context;
 import android.content.res.AssetFileDescriptor;
 import android.media.MediaPlayer;
 import android.net.Uri;
+import android.os.Build;
 import android.webkit.URLUtil;
 
 public class TiSound
@@ -108,7 +110,24 @@ public class TiSound
 			} else {
 				Uri uri = Uri.parse(url);
 				if (uri.getScheme().equals(TiC.PROPERTY_FILE)) {
-					mp.setDataSource(uri.getPath());
+					if (Build.VERSION.SDK_INT >= TiC.API_LEVEL_HONEYCOMB) {
+						mp.setDataSource(uri.getPath());
+					} else {
+						// For 2.2 and below, MediaPlayer uses the native player which requires
+						// files to have worldreadable access, workaround is to open an input
+						// stream to the file and give that to the player.
+						FileInputStream fis = null;
+						try {
+							fis = new FileInputStream(uri.getPath());
+							mp.setDataSource(fis.getFD());
+						} catch (IOException e) {
+							Log.e(TAG, "Error setting file descriptor: ", e);
+						} finally {
+							if (fis != null) {
+								fis.close();
+							}
+						}
+					}
 				} else {
 					remote = true;
 					mp.setDataSource(url);
