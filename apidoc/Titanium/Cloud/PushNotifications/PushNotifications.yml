@@ -79,6 +79,51 @@ methods:
         summary: Callback function to execute when the method completes.
         type: Callback<CloudPushNotificationsResponse>
 
+  - name: notify_tokens
+    summary: Send a push notification to tokens on a channel.
+    description: |
+        
+        See [Push Notifications: Notify_tokens](http://docs.appcelerator.com/cloud/latest/#!/api/PushNotifications-method-notify_tokens)
+        for the request parameters supported by this method.
+    parameters:
+      - name: parameters
+        summary: Parameters to send in the request.
+        type: Dictionary
+        
+      - name: callback
+        summary: Callback function to execute when the method completes.
+        type: Callback<CloudPushNotificationsResponse>
+  
+  - name: subscribe_token
+    summary: Subscribe a mobile device to a push notification channel.
+    description: |
+        
+        See [Push Notifications: Subscribe_token](http://docs.appcelerator.com/cloud/latest/#!/api/PushNotifications-method-subscribe_token)
+        for the request parameters supported by this method.
+    parameters:
+      - name: parameters
+        summary: Parameters to send in the request.
+        type: Dictionary
+        
+      - name: callback
+        summary: Callback function to execute when the method completes.
+        type: Callback<CloudPushNotificationsResponse>
+  
+  - name: unsubscribe_token
+    summary: Unsubscribe a mobile device from a push notification channel.
+    description: |
+        
+        See [Push Notifications: Unsubscribe_token](http://docs.appcelerator.com/cloud/latest/#!/api/PushNotifications-method-unsubscribe_token)
+        for the request parameters supported by this method.
+    parameters:
+      - name: parameters
+        summary: Parameters to send in the request.
+        type: Dictionary
+        
+      - name: callback
+        summary: Callback function to execute when the method completes.
+        type: Callback<CloudPushNotificationsResponse>
+
 examples:
   - title: Subscribe to Channel
     example: |
@@ -119,6 +164,55 @@ examples:
             Cloud.PushNotifications.notify({
                 channel: 'friend_request',
                 payload: 'Welcome to push notifications'
+            }, function (e) {
+                if (e.success) {
+                    alert('Success');
+                } else {
+                    alert('Error:\n' +
+                        ((e.error && e.message) || JSON.stringify(e)));
+                }
+            });
+
+  - title: Subscribe a token to Channel without authenticating user
+    example: |
+        This example subscribes to a push notification channel without authenticating user and checks the response.
+        
+            Cloud.PushNotifications.subscribe_token({
+                channel: 'friend_request',
+                device_token: myPushDeviceToken
+            }, function (e) {
+                if (e.success) {
+                    alert('Success');
+                } else {
+                    alert('Error:\n' +
+                        ((e.error && e.message) || JSON.stringify(e)));
+                }
+            });
+
+  - title: Unsubscribe a token to Channel without authenticating user
+    example: |
+        This example unsubscribes from a push notification channel without authenticating user and checks the response.
+        
+            Cloud.PushNotifications.unsubscribe_token({
+                channel: 'friend_request',
+                device_token: myPushDeviceToken
+            }, function (e) {
+                if (e.success) {
+                    alert('Success');
+                } else {
+                    alert('Error:\n' +
+                        ((e.error && e.message) || JSON.stringify(e)));
+                }
+            });
+
+  - title: Notify to tokens on Channel without authenticating user
+    example: |
+        This example sends a push notification to a channel without authenticating user and checks the response.
+        
+            Cloud.PushNotifications.notify_tokens({
+                channel: 'friend_request',
+                payload: 'Welcome to push notifications',
+                to_tokens: '<token 1>, <token 2>'
             }, function (e) {
                 if (e.success) {
                     alert('Success');
