@@ -48,7 +48,7 @@
         return;
     }
 
-    if (region.center.latitude!=0 && region.center.longitude!=0)
+    if (region.center.latitude!=0 && region.center.longitude!=0 && !isnan(region.center.latitude) && !isnan(region.center.longitude))
     {
         if (regionFits) {
             [map setRegion:[map regionThatFits:region] animated:animate];
