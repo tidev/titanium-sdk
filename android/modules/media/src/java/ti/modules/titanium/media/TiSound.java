@@ -110,7 +110,7 @@ public class TiSound
 			} else {
 				Uri uri = Uri.parse(url);
 				if (uri.getScheme().equals(TiC.PROPERTY_FILE)) {
-					if (Build.VERSION.SDK_INT >= TiC.API_LEVEL_HONEYCOMB) {
+					if (Build.VERSION.SDK_INT >= TiC.API_LEVEL_ICE_CREAM_SANDWICH) {
 						mp.setDataSource(uri.getPath());
 					} else {
 						// For 2.2 and below, MediaPlayer uses the native player which requires
