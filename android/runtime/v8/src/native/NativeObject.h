@@ -17,6 +17,11 @@ namespace titanium {
 
 class ProxyFactory;
 
+// A native object which is wrapped by a JavaScript object.
+// Once the wrapping JavaScript object is no longer reachable
+// this native object will be automatically deleted. This is
+// used to store "user data" in the JavaScript object for use
+// inside method and property callbacks.
 class NativeObject
 {
 public:
