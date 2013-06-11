@@ -71,9 +71,6 @@ description: |
     `accessToken`; the application must provide storage that matches its security
     requirements.
 
-    By default, Ti.Cloud always uses SSL for communicating with the ACS servers, unless
-    the [useSecure](Titanium.Cloud.useSecure) flag is set to `false`.
-
     3-Legged OAuth, using [secureLogin](Titanium.Cloud.Users.secureLogin) and
     [secureCreate](Titanium.Cloud.Users.secureCreate) is the preferred authentication
     method in most cases. However, if your application is using 3-Legged OAuth, all of its
@@ -119,6 +116,23 @@ description: |
         <property name="acs-authbase-url-development" type="string">AUTHENTICATION URL HERE</property>
         <property name="acs-authbase-url-production" type="string">AUTHENTICATION URL HERE</property>
         <property name="acs-authbase-url" type="string">AUTHENTICATION URL HERE</property>
+
+    By default, Ti.Cloud always uses SSL for communicating with the ACS servers. This behavior can be overridden 
+    by setting the URLs with their non-SSL counterpart.
+
+        <property name="acs-base-url" type="string">http://api.cloud.appcelerator.com</property>
+        <property name="acs-authbase-url" type="string">http://secure-identity.cloud.appcelerator.com</property>
+
+    #### Pre 3.1.1 Release behavior
+    Before Release 3.1.1 specify URLs without the protocol:
+
+        <property name="acs-base-url" type="string">api.cloud.appcelerator.com</property>
+        <property name="acs-authbase-url" type="string">secure-identity.cloud.appcelerator.com</property>
+
+    To disable SSL, add this line to the application code:
+
+        Cloud.useSecure = false;
+
 extends: Titanium.Module
 excludes: { methods: [ 'addEventListener', 'fireEvent', 'removeEventListener',  ] }
 since: "2.0"
@@ -178,6 +192,14 @@ properties:
     summary: Indicates whether to use SSL when sending requests to ACS.
     type: Boolean
     default: true
+    deprecated:
+        since: "2.0"
+        removed: "3.1.1"
+        notes: |
+            To disable SSL, set the `acs-base-url` and `acs-authbase-url` properties in the `tiapp.xml` using the HTTP URL.
+            To enable SSL, use the HTTPS URL.
+
+                <property name="acs-base-url" type="string">http://api.cloud.appcelerator.com</property>
 
   - name: sessionId
     since: "2.1.2"
