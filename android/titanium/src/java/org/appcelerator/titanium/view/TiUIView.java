@@ -33,9 +33,11 @@ import org.appcelerator.titanium.view.TiGradientDrawable.GradientType;
 
 import android.app.Activity;
 import android.content.Context;
+import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Point;
 import android.graphics.Rect;
+import android.graphics.RectF;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.support.v4.view.ViewCompat;
@@ -375,6 +377,22 @@ public abstract class TiUIView
 			|| d.containsKeyAndNotNull(TiC.PROPERTY_BACKGROUND_FOCUSED_COLOR);
 	}
 
+	public float[] getPreTranslationValue(float[] points)
+	{
+		if (layoutParams.optionTransform != null) {
+			TiMatrixAnimation matrixAnimation = animBuilder.createMatrixAnimation(layoutParams.optionTransform);
+			int width = getNativeView().getWidth();
+			int height = getNativeView().getHeight();
+			Matrix m = matrixAnimation.getFinalMatrix(width, height);
+			// Get the translation values
+			float[] values = new float[9];
+			m.getValues(values);
+			points[0] = points[0] - values[2];
+			points[1] = points[1] - values[5];
+		}
+		return points;
+	}
+	
 	protected void applyTransform(Ti2DMatrix matrix)
 	{
 		layoutParams.optionTransform = matrix;
