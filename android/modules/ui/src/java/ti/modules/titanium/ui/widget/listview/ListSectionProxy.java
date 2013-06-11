@@ -730,11 +730,14 @@ public class ListSectionProxy extends ViewProxy{
 	 */
 	public void setTemplateType() {
 		
-		for (int i = 0; i < listItemData.size(); i++) {
-			TiListViewTemplate temp = listItemData.get(i).getTemplate();
-			TiListView listView = getListView();
-			if (temp.getType() == -1) {
-				temp.setType(listView.getItemType());
+		if (listItemData != null)
+		{
+			for (int i = 0; i < listItemData.size(); i++) {
+				TiListViewTemplate temp = listItemData.get(i).getTemplate();
+				TiListView listView = getListView();
+				if (temp.getType() == -1) {
+					temp.setType(listView.getItemType());
+				}
 			}
 		}
 	}
