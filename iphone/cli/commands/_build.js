@@ -415,7 +415,7 @@ exports.validate = function (logger, config, cli) {
 			fs.readdirSync(resourcesDir).forEach(function (filename) {
 				var lcaseFilename = filename.toLowerCase(),
 					isDir = fs.statSync(path.join(resourcesDir, filename)).isDirectory();
-	
+
 				if (blacklistDirectories.indexOf(lcaseFilename) != -1) {
 					if (isDir) {
 						logger.error(__('Found blacklisted directory in the Resources directory') + '\n');
@@ -2411,6 +2411,7 @@ build.prototype = {
 				cwd: this.buildDir,
 				env: {
 					DEVELOPER_DIR: this.xcodeEnv.path,
+					TMPDIR: process.env.TMPDIR,
 					HOME: process.env.HOME,
 					PATH: process.env.PATH,
 					TITANIUM_CLI_XCODEBUILD: 'Enjoy hacking? http://jobs.appcelerator.com/'
