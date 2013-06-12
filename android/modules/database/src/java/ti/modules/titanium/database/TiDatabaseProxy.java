@@ -114,7 +114,7 @@ public class TiDatabaseProxy extends KrollProxy
 			// if you don't. Just expecting them on select or pragma may be enough, but
 			// it may need additional tuning. The better solution would be to expose
 			// both types of queries through the Titanium API.
-			if (lcSql.startsWith("select") || lcSql.startsWith("pragma")) {
+			if (lcSql.startsWith("select") || (lcSql.startsWith("pragma") && !lcSql.contains("="))) {
 				c = db.rawQuery(sql, newArgs);
 	 			if (c != null) {
 					// Most non-SELECT statements won't actually return data, but some such as

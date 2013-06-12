@@ -110,6 +110,7 @@ timodule.xml.
 	<property name="genjni" location="${build}/generated/jni"/>
 	<property name="genjni.local" location="${genjni}-local"/>
 	<property name="classes" location="${build}/classes"/>
+	<property name="bin" location="bin"/>
 	<property name="docs" location="${build}/docs"/>
 	<property name="dist" location="${ti.module.root}/dist"/>
 	<property name="lib" location="${ti.module.root}/lib"/>
@@ -430,6 +431,7 @@ timodule.xml.
 
 	<target name="clean" description="Cleans classes and dist files" depends="ndk.clean,pre.clean">
 		<delete dir="${classes}"/>
+		<delete dir="${bin}"/>
 		<delete dir="${dist}"/>
 		<delete includeemptydirs="true" failonerror="false">
 			<fileset dir="${gen}" includes="**/*"/>

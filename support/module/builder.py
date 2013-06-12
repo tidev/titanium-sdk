@@ -61,8 +61,8 @@ def run_ant(project_dir):
 
 	run(ant_args, cwd=project_dir)
 
-ignoreFiles = ['.gitignore', '.cvsignore', '.DS_Store'];
-ignoreDirs = ['.git','.svn','_svn','CVS'];
+ignoreFiles = ['.gitignore', '.cvsignore', '.DS_Store','tiapp.xml'];
+ignoreDirs = ['.git','.svn','_svn','CVS','platform','i18n'];
 android_sdk = None
 
 def copy_resources(source, target):
@@ -82,6 +82,39 @@ def copy_resources(source, target):
 				os.makedirs(to_directory)
 			shutil.copyfile(from_, to_)
 
+def copy_platform(source, target):
+	if not os.path.exists(os.path.expanduser(target)):
+		os.makedirs(os.path.expanduser(target))
+	for root, dirs, files in os.walk(source):
+		for name in ignoreDirs:
+			if name in dirs:
+				dirs.remove(name) # don't visit ignored directories 
+		for file in files:
+			if file in ignoreFiles:
+				continue
+			from_ = os.path.join(root, file)
+			to_ = os.path.expanduser(from_.replace(source, target, 1))
+			to_directory = os.path.expanduser(split(to_)[0])
+			if not exists(to_directory):
+				os.makedirs(to_directory)
+			shutil.copyfile(from_, to_)
+			
+def copy_i18n(source, target):
+	if not os.path.exists(os.path.expanduser(target)):
+		os.makedirs(os.path.expanduser(target))
+	for root, dirs, files in os.walk(source):
+		for name in ignoreDirs:
+			if name in dirs:
+				dirs.remove(name) # don't visit ignored directories 
+		for file in files:
+			if file in ignoreFiles:
+				continue
+			from_ = os.path.join(root, file)
+			to_ = os.path.expanduser(from_.replace(source, target, 1))
+			to_directory = os.path.expanduser(split(to_)[0])
+			if not exists(to_directory):
+				os.makedirs(to_directory)
+			shutil.copyfile(from_, to_)
 
 def is_ios(platform):
 	return platform == 'iphone' or platform == 'ipad' or platform == 'ios'
@@ -108,12 +141,20 @@ def stage(platform, project_dir, manifest, callback):
 		
 		gen_project_dir = os.path.join(dir, name)
 		gen_resources_dir = os.path.join(gen_project_dir, 'Resources')
+		gen_platform_dir = os.path.join(gen_project_dir, 'platform')
+		gen_i18n_dir = os.path.join(gen_project_dir, 'i18n')
 		
 		# copy in our example source
 		copy_resources(os.path.join(project_dir, 'example'), gen_resources_dir)
+		copy_platform(os.path.join(project_dir, 'example/platform'),gen_platform_dir)
+		copy_i18n(os.path.join(project_dir, 'example/i18n'),gen_i18n_dir)
 
 		# patch in our tiapp.xml
 		tiapp = os.path.join(gen_project_dir, 'tiapp.xml')
+		example_dir = os.path.join(project_dir, 'example')
+		example_tiapp = os.path.join(example_dir, 'tiapp.xml')
+		if os.path.exists(example_tiapp):
+		  shutil.copyfile(example_tiapp,tiapp)
 		xml = open(tiapp).read()
 		tiappf = open(tiapp,'w')
 		xml = xml.replace('<guid/>', '<guid></guid>')
