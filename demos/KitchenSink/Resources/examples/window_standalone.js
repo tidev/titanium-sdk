@@ -36,7 +36,7 @@ b1.addEventListener('click', function()
 	// create a button to close window
 	var b = Titanium.UI.createButton({
 		title:'Close',
-		height:30,
+		height:40,
 		width:150
 	});
 	w.add(b);
@@ -82,7 +82,7 @@ b2.addEventListener('click', function()
 	// create a button to close window
 	var b = Titanium.UI.createButton({
 		title:'Close',
-		height:30,
+		height:40,
 		width:150
 	});
 	w.add(b);
@@ -247,7 +247,7 @@ b6.addEventListener('click', function()
 	// create a button to close window
 	var b = Titanium.UI.createButton({
 		title:'Close',
-		height:30,
+		height:40,
 		width:150
 	});
 	w.add(b);

@@ -59,7 +59,7 @@ var save = Titanium.UI.createButton({
 	title:'Save my Information',
 	top:170,
 	left:30,
-	height:30,
+	height:40,
 	width:250
 });
 win.add(save);
