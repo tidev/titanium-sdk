@@ -450,6 +450,14 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 	}
 }
 
+-(void)openurl:(id)sender
+{
+	if ([self _hasListeners:@"openurl"])
+	{
+		[self fireEvent:@"openurl" withObject:nil];
+	}
+}
+
 #pragma mark Delegate stuff
 
 -(void)proximityDetectionChanged:(NSNotification*)note
