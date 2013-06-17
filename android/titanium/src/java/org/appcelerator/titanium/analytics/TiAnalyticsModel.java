@@ -7,6 +7,7 @@
 package org.appcelerator.titanium.analytics;
 
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.util.TiPlatformHelper;
@@ -141,6 +142,19 @@ public class TiAnalyticsModel extends SQLiteOpenHelper{
 
 	public void addEvent(final TiAnalyticsEvent event)
 	{
+		if (Log.isDebugModeEnabled()) {
+			StringBuilder sb = new StringBuilder();
+			sb.append("add Analytics Event to db: type=").append(event.getEventType())
+				.append("\n event=").append(event.getEventEvent())
+				.append("\n timestamp=").append(event.getEventTimestamp())
+				.append("\n mid=").append(event.getEventMid())
+				.append("\n sid=").append(event.getEventSid())
+				.append("\n aguid=").append(event.getEventAppGuid())
+				.append("\n isJSON=").append(event.mustExpandPayload())
+				.append("\n payload=").append(event.getEventPayload());
+			Log.d(TAG, sb.toString());
+		}
+
 		SQLiteDatabase db = null;
 		try {
 			db = getWritableDatabase();
@@ -184,6 +198,7 @@ public class TiAnalyticsModel extends SQLiteOpenHelper{
 				}
 				sb.append(")");
 				db.execSQL(sb.toString());
+				Log.d(TAG, "delete Analytics Event: " + sb.toString(), Log.DEBUG_MODE);
 			} catch (SQLException e) {
 				Log.e(TAG, "Error deleting events :" + e);
 			} finally {
@@ -225,8 +240,9 @@ public class TiAnalyticsModel extends SQLiteOpenHelper{
 		return result;
 	}
 
-	public HashMap<Integer,JSONObject> getEventsAsJSON(int limit) {
-		HashMap<Integer, JSONObject> result = new HashMap<Integer,JSONObject>(limit);
+	public LinkedHashMap<Integer,JSONObject> getEventsAsJSON(int limit) {
+		// Use LinkedHashMap to preserve the item order in which keys were inserted into the map.
+		LinkedHashMap<Integer, JSONObject> result = new LinkedHashMap<Integer,JSONObject>(limit);
 
 		SQLiteDatabase db = null;
 		Cursor c = null;
@@ -235,7 +251,7 @@ public class TiAnalyticsModel extends SQLiteOpenHelper{
 
 			String sql =
 				"select _id, EventId, Type, Event, Timestamp, MID, SID, AppGUID, isJSON, Payload from Events " +
-				" order by 1 limit " +
+				" order by Timestamp asc limit " +
 				limit
 				;
 
@@ -266,6 +282,41 @@ public class TiAnalyticsModel extends SQLiteOpenHelper{
 			Log.e(TAG, "Error creating JSON.", e);
 		} catch (SQLException e) {
 			Log.e(TAG, "Error retrieving events to send as JSON: ", e);
+		} finally {
+			if (c != null) {
+				c.close();
+			}
+			if (db != null) {
+				db.close();
+			}
+		}
+
+		return result;
+	}
+
+	/*
+	 * Get the most recent timestamp given the event type.
+	 */
+	public HashMap<Integer,String> getLastTimestampForEventType(String type) {
+		HashMap<Integer, String> result = new HashMap<Integer,String>();
+		SQLiteDatabase db = null;
+		Cursor c = null;
+		try {
+			db = getReadableDatabase();
+
+			String sql =
+				"select _id, Timestamp from Events where Type=\"" + type + "\"" + " order by Timestamp desc";
+
+			c = db.rawQuery(sql, null);
+
+			if (c.moveToNext()) {
+				result.put(c.getInt(0), c.getString(1));
+				if (Log.isDebugModeEnabled()) {
+					Log.d(TAG, "get the most recent timestamp for event " + type + ", id = " + c.getInt(0) + ", timestamp = " + c.getString(1));
+				}
+			}
+		} catch (SQLException e) {
+			Log.e(TAG, "Error retrieving timpestamp for event " + type + ": ", e);
 		} finally {
 			if (c != null) {
 				c.close();

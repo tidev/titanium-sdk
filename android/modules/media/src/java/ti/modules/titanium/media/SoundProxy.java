@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -23,11 +23,13 @@ import android.app.Activity;
 	TiC.PROPERTY_VOLUME
 })
 public class SoundProxy extends KrollProxy
-	implements org.appcelerator.titanium.TiLifecycle.OnLifecycleEvent
+	implements org.appcelerator.titanium.TiLifecycle.OnLifecycleEvent, org.appcelerator.titanium.TiLifecycle.OnWindowFocusChangedEvent
 {
 	private static final String TAG = "SoundProxy";
 
 	protected TiSound snd;
+	private boolean windowFocused;
+	private boolean resumeInOnWindowFocusChanged;
 
 	public SoundProxy()
 	{
@@ -49,7 +51,8 @@ public class SoundProxy extends KrollProxy
 	@Override
 	protected void initActivity(Activity activity) {
 		super.initActivity(activity);
-		((TiBaseActivity)activity).addOnLifecycleEventListener(this);
+		((TiBaseActivity) activity).addOnLifecycleEventListener(this);
+		((TiBaseActivity) activity).addOnWindowFocusChangedEventListener(this);
 	}
 
 	private String parseURL(Object url)
@@ -236,18 +239,23 @@ public class SoundProxy extends KrollProxy
 		return allow;
 	}
 
-	public void onStart(Activity activity) {
+	public void onStart(Activity activity)
+	{
 	}
 
-	public void onResume(Activity activity) {
-		if (!allowBackground()) {
+	public void onResume(Activity activity)
+	{
+		if (windowFocused && !allowBackground()) {
 			if (snd != null) {
 				snd.onResume();
 			}
+		} else {
+			resumeInOnWindowFocusChanged = true;
 		}
 	}
 
-	public void onPause(Activity activity) {
+	public void onPause(Activity activity)
+	{
 		if (!allowBackground()) {
 			if (snd != null) {
 				snd.onPause();
@@ -255,15 +263,27 @@ public class SoundProxy extends KrollProxy
 		}
 	}
 
-	public void onStop(Activity activity) {
+	public void onStop(Activity activity)
+	{
 	}
 
-	public void onDestroy(Activity activity) {
+	public void onDestroy(Activity activity)
+	{
 		if (snd != null) {
 			snd.onDestroy();
 		}
 		snd = null;
 	}
 
+	public void onWindowFocusChanged(boolean hasFocus)
+	{
+		windowFocused = hasFocus;
+		if (resumeInOnWindowFocusChanged && !allowBackground()) {
+			if (snd != null) {
+				snd.onResume();
+			}
+			resumeInOnWindowFocusChanged = false;
+		}
+	}
 
 }

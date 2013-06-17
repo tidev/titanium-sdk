@@ -411,6 +411,10 @@ properties:
   - name: region
     summary: |
         A dictionary specifying the location and zoom level of the map.
+
+        On the iOS platform, this property can only be set after the map view is loaded.
+        To ensure this property is set when the application starts, wait for the
+        [complete][Titanium.UI.Map-event-complete] event.
     type: MapRegionType
 
   - name: regionFit

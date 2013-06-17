@@ -213,9 +213,8 @@ NSString * const TI_DB_VERSION = @"1";
 	
 	if (url == nil)
 	{
-		//https://api.appcelerator.net/p/v2/mobile-track
-		NSString * kTiAnalyticsUrl = stringWithHexString(@"68747470733a2f2f6170692e61707063656c657261746f722e6e65742f702f76322f6d6f62696c652d747261636b");
-		url = [[NSURL URLWithString:kTiAnalyticsUrl] retain];
+		NSString * kTiAnalyticsUrl = stringWithHexString(@"68747470733a2f2f6170692e61707063656c657261746f722e6e65742f702f76332f6d6f62696c652d747261636b2f");
+		url = [[NSURL URLWithString:[kTiAnalyticsUrl stringByAppendingString:TI_APPLICATION_GUID]] retain];
 	}
 	
 	ASIHTTPRequest* request = [ASIHTTPRequest requestWithURL:url];
