@@ -3,6 +3,8 @@
 ##### Contents
 
   * [About This Release](#about)
+  * [Installation Notes](#install)
+    * [Upgrading Pre-GA npm Packages](#upgrading_npm)
   * [Notice of Breaking Changes](#changes)
     * [Minimum Supported Android SDK](#min_android)
     * [Minimum Supported iOS Version](#min_ios)
@@ -29,6 +31,46 @@
 
 Titanium SDK Release 3.1.1 is a service pack release of the Titanium SDK,
 addressing high-priority issues in previous releases.
+
+<a name="install"></a>
+
+## Installation Notes
+
+<a name="upgrading_npm"></a>
+
+### Upgrading Pre-GA npm Packages
+
+If you previously installed the Release Candidate versions of the Titanium CLI, Titanium Code
+Processor/Analyzer, and Alloy, you need to first uninstall these components before installing or updating to
+3.1.1.GA.
+
+To check the current versions run the following commands:
+
+    npm list -g titanium
+    npm list -g titanium-code-processor
+    npm list -g alloy
+
+If either package has a version number ending in `-alpha`, `-beta`, or `-cr`, you should uninstall
+the package manually before installing 3.1.1.GA.
+
+To uninstall these packages:
+
+    npm remove -g titanium
+    npm remove -g titanium-code-processor
+    npm remove -g alloy
+
+Note: You may need to use <code>sudo</code> before these terminal commands on OSX and Linux.
+
+If you are using Titanium Studio, these components will be updated if you chose to install
+additional Titanium updates or from the **Help** menu, select **Check for Titanium Updates**.
+
+If you are using the Titainium CLI, you need to reinstall the CLI, Code Processor and Alloy from the terminal:
+
+    npm install -g titanium
+    npm install -g titanium-code-processor
+    npm install -g alloy
+
+If you should run into any issues, run `npm cache clean` and then retry the steps above.
 
 <a name="changes"></a>
 
