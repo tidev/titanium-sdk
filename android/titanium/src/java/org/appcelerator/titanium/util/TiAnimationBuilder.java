@@ -626,9 +626,24 @@ public class TiAnimationBuilder
 		public void onAnimationEnd(Animation a)
 		{
 			if (relayoutChild) {
-				LayoutParams params = (LayoutParams) view.getLayoutParams();
-				TiConvert.fillLayout(options, params);
-				view.setLayoutParams(params);
+
+				// Do it only for TiCompositeLayout.LayoutParams, for border views
+
+				// height and width are defined as 'MATCH_PARENT' and no change is
+
+				// needed
+
+				if (view.getLayoutParams() instanceof TiCompositeLayout.LayoutParams) {
+
+					LayoutParams params = (LayoutParams)
+
+					view.getLayoutParams();
+
+					TiConvert.fillLayout(options, params);
+
+					view.setLayoutParams(params);
+
+				}
 				view.clearAnimation();
 				relayoutChild = false;
 				// TIMOB-11298 Propagate layout property changes to proxy
