@@ -633,7 +633,7 @@ TiOrientationFlags TiOrientationFlagsFromObject(id args)
 				// to wait until the modal dialog is dismissed before we remove our view 
 				// otherwise, you'll see the view popup as the window is lowering
 				modalFlag = NO;
-				[self performSelector:@selector(close:) withObject:nil afterDelay:0.3];
+				[self performSelector:@selector(close:) withObject:nil afterDelay:0.5];
 				return;
 			}
 		}
