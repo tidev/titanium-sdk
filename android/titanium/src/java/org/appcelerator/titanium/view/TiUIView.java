@@ -1464,6 +1464,11 @@ public abstract class TiUIView
 		});
 	}
 	
+	public KrollDict dictFromLastUpdateEvent()
+	{
+		return dictFromEvent(lastUpEvent);
+	}
+	
 	public boolean fireEvent(String eventName, KrollDict data) {
 		return fireEvent(eventName, data, true);
 	}

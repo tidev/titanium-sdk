@@ -422,7 +422,7 @@ public class TiTableView extends FrameLayout
 	protected boolean rowClicked(TiBaseTableViewItem rowView, int position, boolean longClick) {
 		String viewClicked = rowView.getLastClickedViewName();
 		Item item = getItemAtPosition(position);
-		KrollDict event = new KrollDict();
+		KrollDict event = proxy.getTableView().dictFromLastUpdateEvent();
 		String eventName = longClick ? TiC.EVENT_LONGCLICK : TiC.EVENT_CLICK;
 		TableViewRowProxy.fillClickEvent(event, viewModel, item);
 		if (viewClicked != null) {
