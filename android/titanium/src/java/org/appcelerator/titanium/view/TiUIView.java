@@ -90,6 +90,7 @@ public abstract class TiUIView
 	protected ArrayList<TiUIView> children = new ArrayList<TiUIView>();
 
 	protected LayoutParams layoutParams;
+	protected TiAnimationBuilder animBuilder;
 	protected TiBackgroundDrawable background;
 	
 	protected KrollDict additionalEventData;
@@ -375,9 +376,12 @@ public abstract class TiUIView
 			|| d.containsKeyAndNotNull(TiC.PROPERTY_BACKGROUND_FOCUSED_COLOR);
 	}
 
-	protected void applyTransform(final Ti2DMatrix matrix)
+	protected void applyTransform(Ti2DMatrix matrix)
 	{
 		layoutParams.optionTransform = matrix;
+		if (animBuilder == null) {
+			animBuilder = new TiAnimationBuilder();
+		}
 
 		View outerView = getOuterView();
 		if (outerView == null) {
@@ -401,7 +405,6 @@ public abstract class TiUIView
 		options.put(TiC.PROPERTY_TRANSFORM, matrixApply);
 		options.put(TiC.PROPERTY_DURATION, 1);
 
-		TiAnimationBuilder animBuilder = new TiAnimationBuilder();
 		animBuilder.applyOptions(options);
 		animBuilder.start(this.proxy, outerView);
 	}
