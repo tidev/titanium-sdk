@@ -828,6 +828,7 @@ public class TiCompositeLayout extends ViewGroup
 		public TiDimension optionBottom = null;
 		public TiDimension optionWidth = null;
 		public TiDimension optionHeight = null;
+		public Ti2DMatrix optionTransform = null;
 
 		// This are flags to determine whether we are using fill or size behavior
 		public boolean sizeOrFillHeightEnabled = true;

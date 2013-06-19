@@ -377,6 +377,8 @@ public abstract class TiUIView
 
 	protected void applyTransform(final Ti2DMatrix matrix)
 	{
+		layoutParams.optionTransform = matrix;
+
 		View outerView = getOuterView();
 		if (outerView == null) {
 			return;
