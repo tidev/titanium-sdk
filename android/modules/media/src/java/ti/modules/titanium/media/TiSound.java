@@ -70,6 +70,10 @@ public class TiSound
 	protected boolean playOnResume;
 	protected boolean remote;
 	protected Timer progressTimer;
+	
+	private boolean initialized = false;
+	private boolean pausePending = false;
+	private boolean stopPending = false;
 
 	public TiSound(KrollProxy proxy)
 	{
@@ -78,8 +82,7 @@ public class TiSound
 		this.remote = false;
 	}
 
-	protected void initialize()
-		throws IOException
+	protected void initializeAndPlay() throws IOException
 	{
 		try {
 			mp = new MediaPlayer();
@@ -126,16 +129,17 @@ public class TiSound
 				mp.prepareAsync();
 			} else {
 				mp.prepare();
+				setState(STATE_INITIALIZED);
+				initialized = true;
+				setVolume(volume);
+				if (proxy.hasProperty(TiC.PROPERTY_TIME)) {
+					setTime(TiConvert.toInt(proxy.getProperty(TiC.PROPERTY_TIME)));
+				}
 				startPlaying();
 			}
-			setState(STATE_INITIALIZED);
-
-			setVolume(volume);
-			if (proxy.hasProperty(TiC.PROPERTY_TIME)) {
-				setTime(TiConvert.toInt(proxy.getProperty(TiC.PROPERTY_TIME)));
-			}
+			
 		} catch (Throwable t) {
-			Log.w(TAG, "Issue while initializing : " , t);
+			Log.w(TAG, "Issue while initializing : ", t);
 			release();
 			setState(STATE_STOPPED);
 		}
@@ -172,6 +176,8 @@ public class TiSound
 					mp.pause();
 					paused = true;
 					setState(STATE_PAUSED);
+				} else if (!initialized) {
+					pausePending = true;
 				}
 			}
 		} catch (Throwable t) {
@@ -184,7 +190,7 @@ public class TiSound
 		try {
 			if (mp == null) {
 				setState(STATE_STARTING);
-				initialize();
+				initializeAndPlay();
 			} else {
 				startPlaying();
 			}
@@ -380,9 +386,11 @@ public class TiSound
 					} catch (IllegalStateException e) {
 						Log.w(TAG, "Error while preparing audio after stop(). Ignoring.", Log.DEBUG_MODE);
 					}
+				} else if (!initialized) {
+					stopPending = true;
 				}
 
-				if(isPaused()) {
+				if (isPaused()) {
 					paused = false;
 				}
 			}
@@ -570,6 +578,14 @@ public class TiSound
 	@Override
 	public void onPrepared(MediaPlayer mp)
 	{
-		startPlaying();
+		setState(STATE_INITIALIZED);
+		initialized = true;
+		setVolume(volume);
+		if (proxy.hasProperty(TiC.PROPERTY_TIME)) {
+			setTime(TiConvert.toInt(proxy.getProperty(TiC.PROPERTY_TIME)));
+		}
+		if (!pausePending && !stopPending) {
+			startPlaying();
+		}
 	}
 }
