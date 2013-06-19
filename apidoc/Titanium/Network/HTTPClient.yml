@@ -85,7 +85,7 @@ methods:
     description: |
         Use this method to add support for X.509 certifcate-base keypairs.
 
-        If this method is used to create a custom SSLContext, the `validatesSecureCertifacte`
+        If this method is used to create a custom SSLContext, the `validatesSecureCertificate`
         property is ignored.
     parameters:
       - name: X509KeyManager
@@ -99,7 +99,7 @@ methods:
     description: |
         Use this method to add support for X.509 certifcates.
 
-        If this method is used to create a custom SSLContext, the `validatesSecureCertifacte`
+        If this method is used to create a custom SSLContext, the `validatesSecureCertificate`
         property is ignored.
     parameters:
       - name: X509TrustManager
