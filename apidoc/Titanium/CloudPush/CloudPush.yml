@@ -41,6 +41,36 @@ description: |
     *WARNING*: The default properties of this module are used until you set a property for the first time. Because the
     properties are persisted to the device settings (via <Titanium.App.Properties>), the most recent value you set will
     always be used.
+
+    #### Custom AndroidManifest.xml File
+
+    If you are using a custom `AndroidManifest.xml` file with your Titanium application, you need to
+    add the following keys to the manifest section of the `AndroidManifest.xml` file to enable push
+    notifications:
+
+        <application>
+            <service android:name="com.appcelerator.cloud.push.PushService" />
+            <receiver android:name="ti.cloudpush.IntentReceiver" />
+            <receiver android:name="ti.cloudpush.CustomReceiver">
+                <intent-filter>
+                    <action android:name="android.intent.action.BOOT_COMPLETED" />
+                    <action android:name="android.intent.action.USER_PRESENT" />
+                    <action android:name="com.appcelerator.cloud.push.PushService.MSG_ARRIVAL" />
+                    <category android:name="android.intent.category.HOME" />
+                </intent-filter>
+                <meta-data
+                    android:name="com.appcelerator.cloud.push.BroadcastReceiver.ArrivalActivity"
+                    android:value="ti.cloudpush.CustomReceiver" />
+                </receiver>
+            </application>
+
+        <uses-permission android:name="android.permission.INTERNET" />
+        <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+        <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+        <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+        <uses-permission android:name="android.permission.VIBRATE" />
+        <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+
 platforms: [android]
 since: "2.0.0"
 extends: Titanium.Module
