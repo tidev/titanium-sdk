@@ -45,8 +45,11 @@ description: |
     #### Custom AndroidManifest.xml File
 
     If you are using a custom `AndroidManifest.xml` file with your Titanium application, you need to
-    add the following keys to the manifest section of the `AndroidManifest.xml` file to enable push
+    add the keys shown below to the manifest section of the `AndroidManifest.xml` file to enable push
     notifications:
+
+    You do not need to add these keys to the `tiapp.xml` file, only to a custom Android manifest
+    file if you chose to include one with your Titanium project.
 
         <application>
             <service android:name="com.appcelerator.cloud.push.PushService" />
