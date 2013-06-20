@@ -18,13 +18,17 @@
 static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint point);
 
 @implementation TiUIListView {
-	UITableView *_tableView;
-	NSDictionary *_templates;
-	id _defaultItemTemplate;
-	TiDimension _rowHeight;
+    UITableView *_tableView;
+    NSDictionary *_templates;
+    id _defaultItemTemplate;
+    TiDimension _rowHeight;
     TiViewProxy *_headerViewProxy;
     TiViewProxy *_footerViewProxy;
-	CGPoint tapPoint;
+    TiViewProxy *_pullViewProxy;
+    UIView *_pullViewWrapper;
+    CGFloat pullThreshhold;
+    BOOL pullActive;
+    CGPoint tapPoint;
 }
 
 - (id)init
@@ -38,11 +42,13 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 
 - (void)dealloc
 {
-	_tableView.delegate = nil;
-	_tableView.dataSource = nil;
-	[_tableView release];
-	[_templates release];
-	[_defaultItemTemplate release];
+    _tableView.delegate = nil;
+    _tableView.dataSource = nil;
+    [_tableView release];
+    [_templates release];
+    [_defaultItemTemplate release];
+    RELEASE_TO_NIL(_pullViewWrapper);
+    RELEASE_TO_NIL(_pullViewProxy);
     [super dealloc];
 }
 
@@ -88,6 +94,9 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     if (_footerViewProxy != nil) {
         [_footerViewProxy parentSizeWillChange];
     }
+    if (_pullViewProxy != nil) {
+        [_pullViewProxy parentSizeWillChange];
+    }
 }
 
 - (id)accessibilityElement
@@ -121,6 +130,8 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
             UIView *footerView = [[self tableView] tableFooterView];
             [footerView setFrame:[footerView bounds]];
             [[self tableView] setTableFooterView:footerView];
+        } else if (sender == _pullViewProxy) {
+            pullThreshhold = 0.0 - [_pullViewProxy view].bounds.size.height;
         }
     },NO);
 }
@@ -315,6 +326,59 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
         }
         [[self tableView] setTableFooterView:nil];
     }
+}
+
+-(void)setPullView_:(id)args
+{
+    ENSURE_SINGLE_ARG_OR_NIL(args,TiViewProxy);
+    if (args == nil) {
+        [_pullViewProxy windowWillClose];
+        [_pullViewWrapper removeFromSuperview];
+        [_pullViewProxy windowDidClose];
+        RELEASE_TO_NIL(_pullViewWrapper);
+        RELEASE_TO_NIL(_pullViewProxy);
+    } else {
+        if ([self tableView].bounds.size.width==0)
+        {
+            [self performSelector:@selector(setPullView_:) withObject:args afterDelay:0.1];
+            return;
+        }
+        if (_pullViewProxy != nil) {
+            [_pullViewProxy setProxyObserver:nil];
+            [_pullViewProxy windowWillClose];
+            [_pullViewProxy windowDidClose];
+            RELEASE_TO_NIL(_pullViewProxy);
+        }
+        if (_pullViewWrapper == nil) {
+            _pullViewWrapper = [[UIView alloc] init];
+            _pullViewWrapper.backgroundColor = [UIColor lightGrayColor];
+            [_tableView addSubview:_pullViewWrapper];
+        }
+        CGSize refSize = _tableView.bounds.size;
+        [_pullViewWrapper setFrame:CGRectMake(0.0, 0.0 - refSize.height, refSize.width, refSize.height)];
+        _pullViewProxy = [args retain];
+        LayoutConstraint *viewLayout = [_pullViewProxy layoutProperties];
+        //If height is not dip, explicitly set it to SIZE
+        if (viewLayout->height.type != TiDimensionTypeDip) {
+            viewLayout->height = TiDimensionAutoSize;
+        }
+        //If bottom is not dip set it to 0
+        if (viewLayout->bottom.type != TiDimensionTypeDip) {
+            viewLayout->bottom = TiDimensionZero;
+        }
+        //Remove other vertical positioning constraints
+        viewLayout->top = TiDimensionUndefined;
+        viewLayout->centerY = TiDimensionUndefined;
+        
+        [_pullViewProxy setProxyObserver:self];
+        [_pullViewProxy windowWillOpen];
+        [_pullViewWrapper addSubview:[_pullViewProxy view]];
+        _pullViewProxy.parentVisible = YES;
+        [_pullViewProxy refreshSize];
+        [_pullViewProxy willChangeSize];
+        [_pullViewProxy windowDidOpen];
+    }
+    
 }
 
 - (void)setScrollIndicatorStyle_:(id)value
@@ -562,6 +626,21 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView
 {
     //Events - pull (maybe scroll later)
+    
+    if (![self.proxy _hasListeners:@"pull"]) {
+		return;
+	}
+    
+    if ( (_pullViewProxy != nil) && ([scrollView isTracking]) ) {
+        if ( (scrollView.contentOffset.y < pullThreshhold) && (pullActive == NO) ) {
+            pullActive = YES;
+            [self.proxy fireEvent:@"pull" withObject:[NSDictionary dictionaryWithObjectsAndKeys:NUMBOOL(pullActive),@"active",nil]];
+        } else if ( (scrollView.contentOffset.y > pullThreshhold) && (pullActive == YES) ) {
+            pullActive = NO;
+            [self.proxy fireEvent:@"pull" withObject:[NSDictionary dictionaryWithObjectsAndKeys:NUMBOOL(pullActive),@"active",nil]];
+        }
+    }
+    
 }
 
 - (void)scrollViewWillBeginDragging:(UIScrollView *)scrollView
@@ -572,6 +651,14 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 - (void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate
 {
     //Events - pullend (maybe dragend later)
+    
+    if (![self.proxy _hasListeners:@"pullend"]) {
+		return;
+	}
+    if ( (_pullViewProxy != nil) && (pullActive == YES) ) {
+        pullActive = NO;
+        [self.proxy fireEvent:@"pullend" withObject:nil];
+    }
 }
 
 - (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView
