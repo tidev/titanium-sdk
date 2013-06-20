@@ -25,7 +25,7 @@ public class TiAnalyticsModel extends SQLiteOpenHelper{
 	private static final String TAG = "TiAnalyticsDb";
 
 	private static final String DB_NAME = "tianalytics.db";
-	private static final int DB_VERSION = 4;
+	private static final int DB_VERSION = 5;
 
 	public TiAnalyticsModel(Context context)
 	{
@@ -72,6 +72,10 @@ public class TiAnalyticsModel extends SQLiteOpenHelper{
 			case 3 :
 				doMigration_3(db);
 				version = 4;
+				break;
+			case 4 :
+				doMigration_4(db);
+				version = 5;
 				break;
 			default :
 				throw new IllegalStateException("Missing migration path version=" + version);
@@ -139,6 +143,32 @@ public class TiAnalyticsModel extends SQLiteOpenHelper{
 			;
 		db.execSQL(sql);
 	}
+	
+	private void doMigration_4(SQLiteDatabase db)
+	{
+		// We're still in working toward 1.0 of analytics, drop unsent data
+		String sql =
+			"drop table if exists Events"
+			;
+		db.execSQL(sql);
+
+		sql =
+			"create table Events (" +
+			"  _id INTEGER PRIMARY KEY AUTOINCREMENT, " +
+			"  EventId TEXT, " +
+			"  Type TEXT, " +
+			"  Event TEXT, " +
+			"  Timestamp TEXT, " +
+			"  MID TEXT, " +
+			"  SID TEXT, " +
+			"  AppGUID TEXT, " +
+			"  isJSON INTEGER, " +
+			"  Payload TEXT, " +
+			"  Deploytype TEXT " +
+			");"
+			;
+		db.execSQL(sql);
+	}
 
 	public void addEvent(final TiAnalyticsEvent event)
 	{
@@ -151,7 +181,8 @@ public class TiAnalyticsModel extends SQLiteOpenHelper{
 				.append("\n sid=").append(event.getEventSid())
 				.append("\n aguid=").append(event.getEventAppGuid())
 				.append("\n isJSON=").append(event.mustExpandPayload())
-				.append("\n payload=").append(event.getEventPayload());
+				.append("\n payload=").append(event.getEventPayload())
+				.append("\n deploytype=").append(event.getEventDeployType());
 			Log.d(TAG, sb.toString());
 		}
 
@@ -159,7 +190,7 @@ public class TiAnalyticsModel extends SQLiteOpenHelper{
 		try {
 			db = getWritableDatabase();
 			String sql =
-				"insert into Events(EventId, Type, Event, Timestamp, MID, SID, AppGUID, isJSON, Payload) values(?,?,?,?,?,?,?,?,?)"
+				"insert into Events(EventId, Type, Event, Timestamp, MID, SID, AppGUID, isJSON, Payload, Deploytype) values(?,?,?,?,?,?,?,?,?,?)"
 				;
 			Object[] args = {
 				TiPlatformHelper.createEventId(),
@@ -170,7 +201,8 @@ public class TiAnalyticsModel extends SQLiteOpenHelper{
 				event.getEventSid(),
 				event.getEventAppGuid(),
 				event.mustExpandPayload() ? 1 : 0,
-				event.getEventPayload()
+				event.getEventPayload(),
+				event.getEventDeployType()
 			};
 			db.execSQL(sql, args);
 		} catch (SQLException e) {
@@ -250,7 +282,7 @@ public class TiAnalyticsModel extends SQLiteOpenHelper{
 			db = getReadableDatabase();
 
 			String sql =
-				"select _id, EventId, Type, Event, Timestamp, MID, SID, AppGUID, isJSON, Payload from Events " +
+				"select _id, EventId, Type, Event, Timestamp, MID, SID, AppGUID, isJSON, Payload, Deploytype from Events " +
 				" order by Timestamp asc limit " +
 				limit
 				;
@@ -275,7 +307,7 @@ public class TiAnalyticsModel extends SQLiteOpenHelper{
 				} else {
 					json.put("data", c.getString(9));
 				}
-
+				json.put("deploytype", c.getString(10));
 				result.put(seq, json);
 			}
 		} catch (JSONException e) {

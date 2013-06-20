@@ -12,6 +12,7 @@ import java.util.Date;
 import java.util.TimeZone;
 
 import org.appcelerator.kroll.common.Log;
+import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.util.TiPlatformHelper;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -28,6 +29,7 @@ import org.json.JSONObject;
 //- sid     	-- the session id (created once per application start/stop) (string)
 //- name     	-- the name of the event (string)
 //- data		-- the event data (NULL value if none provided) (object)
+//- deploytype	-- deploy type (string)
 
 /**
  * This is the parent class of all Titanium analytics events.
@@ -52,6 +54,7 @@ public class TiAnalyticsEvent
 	private String eventSid;
 	private String eventPayload;
 	private String eventAppGuid;
+	private String eventDeployType;
 
 	private boolean expandPayload;
 
@@ -83,6 +86,7 @@ public class TiAnalyticsEvent
 		this.eventMid = TiPlatformHelper.getMobileId();
 		this.eventSid = TiPlatformHelper.getSessionId();
 		this.eventAppGuid = TiPlatformHelper.getAppInfo().getGUID();
+		this.eventDeployType = TiApplication.getInstance().getDeployType();
 		this.eventPayload = eventPayload.toString();
 		this.expandPayload = true;
 	}
@@ -113,6 +117,10 @@ public class TiAnalyticsEvent
 
 	public String getEventPayload() {
 		return eventPayload;
+	}
+	
+	public String getEventDeployType() {
+		return eventDeployType;
 	}
 
 	public boolean mustExpandPayload() {
