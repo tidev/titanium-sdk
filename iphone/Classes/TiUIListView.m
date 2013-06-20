@@ -655,8 +655,8 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     //Events - pullend (maybe dragend later)
     
     if (![self.proxy _hasListeners:@"pullend"]) {
-		return;
-	}
+        return;
+    }
     if ( (_pullViewProxy != nil) && (pullActive == YES) ) {
         pullActive = NO;
         [self.proxy fireEvent:@"pullend" withObject:nil];
