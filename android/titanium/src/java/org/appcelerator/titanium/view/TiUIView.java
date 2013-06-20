@@ -122,6 +122,8 @@ public abstract class TiUIView
 
 	//to maintain sync visibility between borderview and view. Default is visible
 	private int visibility = View.VISIBLE;
+	
+	protected GestureDetector detector = null;
 
 
 	/**
@@ -939,7 +941,8 @@ public abstract class TiUIView
 				applyCustomBackground(false);
 			}
 
-			Drawable bgDrawable = TiUIHelper.buildBackgroundDrawable(
+			if (background != null) {
+				Drawable bgDrawable = TiUIHelper.buildBackgroundDrawable(
 					bg,
 					TiConvert.toBoolean(d, TiC.PROPERTY_BACKGROUND_REPEAT, false),
 					bgColor,
@@ -951,7 +954,8 @@ public abstract class TiUIView
 					bgFocusedColor,
 					gradientDrawable);
 
-			background.setBackgroundDrawable(bgDrawable);
+				background.setBackgroundDrawable(bgDrawable);
+			}
 		}
 	}
 
@@ -1081,7 +1085,7 @@ public abstract class TiUIView
 
 	public View getOuterView()
 	{
-		return borderView == null ? nativeView : borderView;
+		return borderView == null ? getNativeView() : borderView;
 	}
 
 	public void registerForTouch()
@@ -1139,7 +1143,7 @@ public abstract class TiUIView
 				}
 			});
 
-		final GestureDetector detector = new GestureDetector(touchable.getContext(), new SimpleOnGestureListener()
+		detector = new GestureDetector(touchable.getContext(), new SimpleOnGestureListener()
 		{
 			@Override
 			public boolean onDoubleTap(MotionEvent e)

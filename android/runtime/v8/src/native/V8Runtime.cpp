@@ -148,12 +148,14 @@ using namespace titanium;
  * Method:    nativeInit
  * Signature: (Lorg/appcelerator/kroll/runtime/v8/V8Runtime;)J
  */
-JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nativeInit(JNIEnv *env, jobject self, jboolean useGlobalRefs, jint debuggerPort, jboolean DBG)
+JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nativeInit(JNIEnv *env, jobject self, jboolean useGlobalRefs, jint debuggerPort, jboolean DBG, jboolean profilerEnabled)
 {
-	char* argv[] = { const_cast<char*>(""), const_cast<char*>("--expose-gc") };
-	int argc = sizeof(argv)/sizeof(*argv);
-	V8::SetFlagsFromCommandLine(&argc, argv, false);
-	
+	if (profilerEnabled) {
+		char* argv[] = { const_cast<char*>(""), const_cast<char*>("--expose-gc") };
+		int argc = sizeof(argv)/sizeof(*argv);
+		V8::SetFlagsFromCommandLine(&argc, argv, false);
+	}
+
 	HandleScope scope;
 	titanium::JNIScope jniScope(env);
 

@@ -154,6 +154,11 @@ public class TiDownloadManager implements Handler.Callback
 
 				sendMessage(uri, MSG_FIRE_DOWNLOAD_FINISHED);
 			} catch (Exception e) {
+				
+				synchronized (downloadingURIs) {
+					downloadingURIs.remove(DigestUtils.shaHex(uri.toString()));
+				}				
+				
 				// fire a download fail event if we are unable to download
 				sendMessage(uri, MSG_FIRE_DOWNLOAD_FAILED);
 				Log.e(TAG, "Exception downloading " + uri, e);

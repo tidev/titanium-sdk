@@ -36,6 +36,7 @@ public class BufferProxy extends KrollProxy
 
 	public BufferProxy()
 	{
+		this(0);
 	}
 
 	public BufferProxy(int bufferSize)

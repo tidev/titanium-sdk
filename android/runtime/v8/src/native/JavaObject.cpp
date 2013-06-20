@@ -37,6 +37,9 @@ static struct {
 #define UPDATE_STATS(total, detached)
 #endif
 
+// Callback for V8 letting us know the JavaScript object is no longer reachable.
+// Once we receive this callback we can safely release our strong reference
+// on the wrapped Java object so it can become eligible for collection.
 static void DetachCallback(v8::Persistent<v8::Value> value, void *data)
 {
 	JavaObject *javaObject = static_cast<JavaObject*>(data);
@@ -56,6 +59,8 @@ JavaObject::JavaObject(jobject javaObject)
 	}
 }
 
+// Create a strong reference to the wrapped Java object
+// to prevent it from becoming garbage collected by Dalvik.
 void JavaObject::newGlobalRef()
 {
 	JNIEnv *env = JNIUtil::getJNIEnv();
@@ -76,6 +81,9 @@ void JavaObject::newGlobalRef()
 	}
 }
 
+// Returns a global reference to the wrapped Java object.
+// If the object has become "detached" this will re-attach
+// it to ensure the Java object will not get collected.
 jobject JavaObject::getJavaObject()
 {
 	if (useGlobalRefs) {
@@ -105,6 +113,10 @@ jobject JavaObject::getJavaObject()
 	}
 }
 
+// Convert our strong reference to the Java object into a weak
+// reference to allow it to become eligible for collection by Dalvik.
+// This typically happens once V8 has detected the JavaScript object
+// that wraps the Java object is no longer reachable.
 void JavaObject::weakGlobalRef()
 {
 	JNIEnv *env = JNIUtil::getJNIEnv();
@@ -122,6 +134,9 @@ void JavaObject::weakGlobalRef()
 	isWeakRef_ = true;
 }
 
+// Deletes the reference to the wrapped Java object.
+// This should only happen once this object is no longer
+// needed and about to be deleted.
 void JavaObject::deleteGlobalRef()
 {
 	JNIEnv *env = JNIUtil::getJNIEnv();
@@ -158,6 +173,10 @@ void JavaObject::wrap(Handle<Object> jsObject)
 	handle_->SetPointerInInternalField(0, this);
 }
 
+// Attaches the Java object to this native wrapper.
+// This wrapper will create a global reference to the
+// Java object and keep it from becoming collected by Dalvik
+// until it is detached or made weak (weakGlobalRef()).
 void JavaObject::attach(jobject javaObject)
 {
 	ASSERT((javaObject && javaObject_ == NULL) || javaObject == NULL);

@@ -60,6 +60,7 @@ void ModifyScrollViewForKeyboardHeightAndContentHeightWithResponderRect(UIScroll
 	BOOL touchEnabled;
 
 	unsigned int animationDelayGuard;
+	unsigned int animationDelayGuardForLayout;
 	
 	// Touch detection
     BOOL changedInteraction;

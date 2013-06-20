@@ -11,6 +11,7 @@ import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.AsyncResult;
 import org.appcelerator.kroll.common.TiMessenger;
 import org.appcelerator.titanium.TiApplication;
+import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.view.TiUIView;
@@ -39,6 +40,7 @@ public class PickerColumnProxy extends TiViewProxy implements PickerRowListener
 	public PickerColumnProxy()
 	{
 		super();
+		defaultValues.put(TiC.PROPERTY_WIDTH, TiC.LAYOUT_FILL);
 	}
 
 	public PickerColumnProxy(TiContext tiContext)

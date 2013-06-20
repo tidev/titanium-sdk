@@ -589,12 +589,12 @@ description: |
     windows. Closing a window removes the window and its children from the render stack.
 
     Windows *contain* other views, but in general they are not *contained* inside
-    other views. There are a few specialized top-level views that manage windows,
-    including:
+    other views. There are a few specialized views that manage windows:
     
     * [NavigationGroup](Titanium.UI.iPhone.NavigationGroup)
     * [SplitWindow](Titanium.UI.iPad.SplitWindow)
-    * [TabGroup](Titanium.UI.TabGroup). 
+    * [TabGroup](Titanium.UI.TabGroup)
+    * [Tab](Titanium.UI.Tab)
 
     By default, windows occupy the entire screen except for the navigation bar, 
     status bar, and in the case of windows contained in tab groups, the tab bar.

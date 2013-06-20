@@ -18,6 +18,8 @@ import org.appcelerator.kroll.KrollRuntime;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.common.TiMessenger;
 import org.appcelerator.titanium.TiLifecycle.OnLifecycleEvent;
+import org.appcelerator.titanium.TiLifecycle.OnWindowFocusChangedEvent;
+import org.appcelerator.titanium.analytics.TiAnalyticsEventFactory;
 import org.appcelerator.titanium.proxy.ActionBarProxy;
 import org.appcelerator.titanium.proxy.ActivityProxy;
 import org.appcelerator.titanium.proxy.IntentProxy;
@@ -67,6 +69,7 @@ public abstract class TiBaseActivity extends FragmentActivity
 	private boolean onDestroyFired = false;
 	private int originalOrientationMode = -1;
 	private TiWeakList<OnLifecycleEvent> lifecycleListeners = new TiWeakList<OnLifecycleEvent>();
+	private TiWeakList<OnWindowFocusChangedEvent> windowFocusChangedListeners = new TiWeakList<OnWindowFocusChangedEvent>();
 
 	protected View layout;
 	protected TiActivitySupportHelper supportHelper;
@@ -829,9 +832,14 @@ public abstract class TiBaseActivity extends FragmentActivity
 		}
 	}
 
-	public void addOnLifecycleEventListener(TiLifecycle.OnLifecycleEvent listener)
+	public void addOnLifecycleEventListener(OnLifecycleEvent listener)
 	{
-		lifecycleListeners.add(new WeakReference<TiLifecycle.OnLifecycleEvent>(listener));
+		lifecycleListeners.add(new WeakReference<OnLifecycleEvent>(listener));
+	}
+
+	public void addOnWindowFocusChangedEventListener(OnWindowFocusChangedEvent listener)
+	{
+		windowFocusChangedListeners.add(new WeakReference<OnWindowFocusChangedEvent>(listener));
 	}
 
 	public void removeOnLifecycleEventListener(OnLifecycleEvent listener)
@@ -855,6 +863,22 @@ public abstract class TiBaseActivity extends FragmentActivity
 				dialogs.remove(p);
 			}
 		}
+	}
+
+	@Override
+	public void onWindowFocusChanged(boolean hasFocus)
+	{
+		synchronized (windowFocusChangedListeners.synchronizedList()) {
+			for (OnWindowFocusChangedEvent listener : windowFocusChangedListeners.nonNull()) {
+				try {
+					listener.onWindowFocusChanged(hasFocus);
+
+				} catch (Throwable t) {
+					Log.e(TAG, "Error dispatching onWindowFocusChanged event: " + t.getMessage(), t);
+				}
+			}
+		}
+		super.onWindowFocusChanged(hasFocus);
 	}
 
 	@Override
@@ -907,6 +931,11 @@ public abstract class TiBaseActivity extends FragmentActivity
 				}
 			}
 		}
+
+		// Checkpoint for ti.end event
+		if (tiApp != null) {
+			tiApp.postAnalyticsEvent(TiAnalyticsEventFactory.createAppEndEvent());
+		}
 	}
 
 	@Override
@@ -954,6 +983,10 @@ public abstract class TiBaseActivity extends FragmentActivity
 		}
 
 		isResumed = true;
+
+		// Checkpoint for ti.start event
+		String deployType = tiApp.getSystemProperties().getString("ti.deploytype", "unknown");
+		tiApp.postAnalyticsEvent(TiAnalyticsEventFactory.createAppStartEvent(tiApp, deployType));
 	}
 
 	@Override

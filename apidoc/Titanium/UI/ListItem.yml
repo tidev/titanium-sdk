@@ -53,13 +53,13 @@ description: |
     Unlike other views, you cannot use the `addEventListener` method to bind callbacks to events for a
     ListItem.
 
-    Use the ListView's [itemclick](Titanium.UI.ListView.itemclick) event to monitor click events on
+    Use list view's [itemclick](Titanium.UI.ListView.itemclick) event to monitor click events on
     items in the list view. Do not rely on the `source` property to determine which item fired the
     event.  Either use the `sectionIndex` and `itemIndex`, or the `itemId` to determine the list item
     that generated the event, and use the `bindId` to check which child control fired the event.
     See "Default List Item" for an example of using the `itemclick` event.
 
-    To monitor events that bubble to the ListItem or to monitor events of the view subcomponents,
+    To monitor events that bubble to the `ListItem` or to monitor events of the view subcomponents,
     bind them to the item by using the `events` dictionary of the item template or the child view
     templates, respectively. Add the bindings as key-value pairs, where the key is the event name
     and the value is the callback (or array of callbacks for multiple bindings). See "List Items
@@ -268,8 +268,11 @@ examples:
                 events: {click: toggleCheck }
             };
 
-            // The following API calls are equivalent to using jQuery.extend(true, {}, oldObject)
-            // Copy the plainTemplate
+            /*
+               The following JSON API calls copy the plainTemplate object minus functions.
+               This method of copying an object is simple but not quick.
+               If performance is a factor, create your own method to copy an object.
+            */
             var redTemplate = JSON.parse(JSON.stringify(plainTemplate));
             // Change the text color to red
             redTemplate.childTemplates[1].properties.color = 'red';
@@ -424,7 +427,8 @@ properties:
   - name: properties
     type: Dictionary<Titanium.UI.ListItem>
     summary: |
-        Contains key-value pairs of view properties and their values that are applied to the ListItem.
+        Contains key-value pairs of view properties and their values that are applied to the
+        `ListItem`.
     description: |
         If there are properties set in the <ItemTemplate> (not the children view templates),
         the values set in the list data item override the template's properties.
