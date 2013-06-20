@@ -386,9 +386,7 @@ public abstract class TiBaseActivity extends FragmentActivity
 	protected void setFullscreen(boolean fullscreen)
 	{
 		if (fullscreen) {
-			getWindow().setFlags(
-				WindowManager.LayoutParams.FLAG_FULLSCREEN,
-				WindowManager.LayoutParams.FLAG_FULLSCREEN);
+			getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
 		}
 	}
 
@@ -422,8 +420,10 @@ public abstract class TiBaseActivity extends FragmentActivity
 		setNavBarHidden(navBarHidden);
 
 		if (modal) {
-			getWindow().setFlags(WindowManager.LayoutParams.FLAG_BLUR_BEHIND,
-				WindowManager.LayoutParams.FLAG_BLUR_BEHIND);
+			if (Build.VERSION.SDK_INT < TiC.API_LEVEL_ICE_CREAM_SANDWICH) {
+				// This flag is deprecated in API 14. On ICS, the background is not blurred but straight black.
+				getWindow().addFlags(WindowManager.LayoutParams.FLAG_BLUR_BEHIND);
+			}
 		}
 
 		if (hasSoftInputMode) {
@@ -477,32 +477,12 @@ public abstract class TiBaseActivity extends FragmentActivity
 
 		Intent intent = getIntent();
 		if (intent != null) {
-
-			// Activity transition
-			final int NO_VAL = -1;
-			int enterAnim = intent.getIntExtra(TiC.INTENT_PROPERTY_ENTER_ANIMATION, NO_VAL);
-			int exitAnim = intent.getIntExtra(TiC.INTENT_PROPERTY_EXIT_ANIMATION, NO_VAL);
-
-			if (enterAnim != NO_VAL || exitAnim != NO_VAL) {
-				// If one of them is set, set both of them since
-				// overridePendingTransition requires both.
-				if (enterAnim == NO_VAL) {
-					enterAnim = 0;
-				}
-
-				if (exitAnim == NO_VAL) {
-					exitAnim = 0;
-				}
-
-				this.overridePendingTransition(enterAnim, exitAnim);
-			}
-
 			if (intent.hasExtra(TiC.INTENT_PROPERTY_MESSENGER)) {
 				messenger = (Messenger) intent.getParcelableExtra(TiC.INTENT_PROPERTY_MESSENGER);
 				msgActivityCreatedId = intent.getIntExtra(TiC.INTENT_PROPERTY_MSG_ACTIVITY_CREATED_ID, -1);
 				msgId = intent.getIntExtra(TiC.INTENT_PROPERTY_MSG_ID, -1);
 			}
-			
+
 			if (intent.hasExtra(TiC.PROPERTY_WINDOW_PIXEL_FORMAT)) {
 				getWindow().setFormat(intent.getIntExtra(TiC.PROPERTY_WINDOW_PIXEL_FORMAT, PixelFormat.UNKNOWN));
 			}
@@ -1174,7 +1154,11 @@ public abstract class TiBaseActivity extends FragmentActivity
 
 		//LW windows
 		if (window == null && view != null) {
-			view.releaseViews();
+			if (view instanceof TiWindowProxy) {
+				((TiWindowProxy) view).close(null);
+			} else {
+				view.releaseViews();
+			}
 			view = null;
 		}
 
@@ -1219,8 +1203,6 @@ public abstract class TiBaseActivity extends FragmentActivity
 	{
 		super.finish();
 
-		boolean animate = getIntentBoolean(TiC.PROPERTY_ANIMATE, true);
-		
 		if (shouldFinishRootActivity()) {
 			TiApplication app = getTiApp();
 			if (app != null) {
@@ -1229,10 +1211,6 @@ public abstract class TiBaseActivity extends FragmentActivity
 					rootActivity.finish();
 				}
 			}
-		}
-
-		if (!animate) {
-			this.overridePendingTransition(0, 0); // Suppress default transition.
 		}
 	}
 
