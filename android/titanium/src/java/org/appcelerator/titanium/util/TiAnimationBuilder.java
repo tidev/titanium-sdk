@@ -628,21 +628,12 @@ public class TiAnimationBuilder
 			if (relayoutChild) {
 
 				// Do it only for TiCompositeLayout.LayoutParams, for border views
-
 				// height and width are defined as 'MATCH_PARENT' and no change is
-
 				// needed
-
 				if (view.getLayoutParams() instanceof TiCompositeLayout.LayoutParams) {
-
-					LayoutParams params = (LayoutParams)
-
-					view.getLayoutParams();
-
+					LayoutParams params = (LayoutParams) view.getLayoutParams();
 					TiConvert.fillLayout(options, params);
-
 					view.setLayoutParams(params);
-
 				}
 				view.clearAnimation();
 				relayoutChild = false;
