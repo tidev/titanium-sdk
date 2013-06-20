@@ -626,7 +626,6 @@ public class TiAnimationBuilder
 		public void onAnimationEnd(Animation a)
 		{
 			if (relayoutChild) {
-
 				// Do it only for TiCompositeLayout.LayoutParams, for border views
 				// height and width are defined as 'MATCH_PARENT' and no change is
 				// needed
