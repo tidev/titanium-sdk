@@ -94,7 +94,8 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     if (_footerViewProxy != nil) {
         [_footerViewProxy parentSizeWillChange];
     }
-    if (_pullViewProxy != nil) {
+    if (_pullViewWrapper != nil) {
+        _pullViewWrapper.frame = CGRectMake(0.0f, 0.0f - bounds.size.height, bounds.size.width, bounds.size.height);
         [_pullViewProxy parentSizeWillChange];
     }
 }
