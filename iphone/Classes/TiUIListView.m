@@ -628,10 +628,9 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView
 {
     //Events - pull (maybe scroll later)
-    
     if (![self.proxy _hasListeners:@"pull"]) {
-		return;
-	}
+        return;
+    }
     
     if ( (_pullViewProxy != nil) && ([scrollView isTracking]) ) {
         if ( (scrollView.contentOffset.y < pullThreshhold) && (pullActive == NO) ) {
@@ -653,7 +652,6 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 - (void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate
 {
     //Events - pullend (maybe dragend later)
-    
     if (![self.proxy _hasListeners:@"pullend"]) {
         return;
     }
