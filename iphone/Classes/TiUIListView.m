@@ -558,6 +558,34 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 	[self fireClickForItemAtIndexPath:indexPath tableView:tableView accessoryButtonTapped:YES];
 }
 
+#pragma ScrollView Delegate
+- (void)scrollViewDidScroll:(UIScrollView *)scrollView
+{
+    //Events - pull (maybe scroll later)
+}
+
+- (void)scrollViewWillBeginDragging:(UIScrollView *)scrollView
+{
+    //Events - None (maybe dragstart later)
+}
+
+- (void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate
+{
+    //Events - pullend (maybe dragend later)
+}
+
+- (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView
+{
+    //Events - none (maybe scrollend later)
+}
+
+- (void)scrollViewDidScrollToTop:(UIScrollView *)scrollView
+{
+    //Events none (maybe scroll later)
+}
+
+
+
 #pragma mark - TiScrolling
 
 -(void)keyboardDidShowAtHeight:(CGFloat)keyboardTop
