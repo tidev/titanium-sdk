@@ -408,6 +408,7 @@ public abstract class TiApplication extends Application implements Handler.Callb
 		}
 
 		TiConfig.DEBUG = TiConfig.LOGD = systemProperties.getBool("ti.android.debug", false);
+		TiConfig.LEGACY_WINDOW = systemProperties.getBool("ti.android.useLegacyWindow", false);
 
 		startExternalStorageMonitor();
 		

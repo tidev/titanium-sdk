@@ -33,16 +33,11 @@ PersistentHandle.prototype.dispose = function() {
 exports.PersistentHandle = PersistentHandle;
 
 exports.bootstrap = function(Titanium) {
-	var Window = require("window").bootstrapWindow(Titanium);
+	require("window").bootstrap(Titanium);
 	require("tabgroup").bootstrap(Titanium);
 	require("tab").bootstrap(Titanium);
 	require("listview").bootstrap(Titanium);
 	require("webview").bootstrap(Titanium);
-
-	// Since Rhino doesn't use lazy bootstrap directly,
-	// we need to just bite the bullet and assign these here
-	Titanium.UI.Window = Window;
-	Titanium.UI.createWindow = Window.createWindow;
 
 	Titanium.invocationAPIs.push({namespace: "UI", api: "createWindow"});
 	Titanium.invocationAPIs.push({namespace: "UI", api: "createTabGroup"});

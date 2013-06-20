@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
 	package="${config['appid']}" android:versionCode="${config['appversion']}"
 	android:versionName="${config['appversion']}">
-	<uses-sdk android:minSdkVersion="8" />
+	<uses-sdk android:minSdkVersion="10" />
 
 	<!-- TI_MANIFEST -->
 
@@ -28,11 +28,6 @@
 		<activity android:name="org.appcelerator.titanium.TiTranslucentActivity"
 			android:configChanges="keyboardHidden|orientation"
 			android:theme="@android:style/Theme.Translucent" />
-		<activity android:name="org.appcelerator.titanium.TiModalActivity"
-			android:configChanges="keyboardHidden|orientation"
-			android:theme="@android:style/Theme.Translucent" />
-		<activity android:name="ti.modules.titanium.ui.TiTabActivity"
-			android:configChanges="keyboardHidden|orientation" />
 		<activity android:name="ti.modules.titanium.ui.android.TiPreferencesActivity" />
 
 		<service android:name="org.appcelerator.titanium.analytics.TiAnalyticsService"
