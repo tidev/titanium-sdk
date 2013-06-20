@@ -132,7 +132,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
             [footerView setFrame:[footerView bounds]];
             [[self tableView] setTableFooterView:footerView];
         } else if (sender == _pullViewProxy) {
-            pullThreshhold = 0.0 - [_pullViewProxy view].bounds.size.height;
+            pullThreshhold = ([_pullViewProxy view].frame.origin.y - _pullViewWrapper.bounds.size.height);
         }
     },NO);
 }
@@ -333,6 +333,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 {
     ENSURE_SINGLE_ARG_OR_NIL(args,TiViewProxy);
     if (args == nil) {
+        [_pullViewProxy setProxyObserver:nil];
         [_pullViewProxy windowWillClose];
         [_pullViewWrapper removeFromSuperview];
         [_pullViewProxy windowDidClose];
