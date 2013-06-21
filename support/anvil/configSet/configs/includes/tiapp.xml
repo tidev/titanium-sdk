@@ -17,6 +17,7 @@
 	<analytics>false</analytics>
 	<guid></guid>
 	<property name="ti.ui.defaultunit">system</property>
+	<property name="ti.android.useLegacyWindow" type="bool">true</property>
 	<iphone>
 		<orientations device="iphone">
 			<orientation>Ti.UI.PORTRAIT</orientation>

@@ -61,6 +61,12 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 	private boolean lightweight = false;
 
 
+	public WindowProxy()
+	{
+		super();
+		defaultValues.put(TiC.PROPERTY_WINDOW_PIXEL_FORMAT, PixelFormat.UNKNOWN);
+	}
+
 	@Override
 	protected KrollDict getLangConversionTable()
 	{
@@ -87,6 +93,10 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 			TiBaseActivity baseActivity = (TiBaseActivity) topActivity;
 			baseActivity.getActivityProxy().getDecorView().add(this);
 			windowActivity = new WeakReference<TiBaseActivity>(baseActivity);
+
+			// Need to handle the cached activity proxy properties and url window in the JS side.
+			callPropertySync(PROPERTY_POST_WINDOW_CREATED, null);
+
 			opened = true;
 			fireEvent(TiC.EVENT_OPEN, null);
 
