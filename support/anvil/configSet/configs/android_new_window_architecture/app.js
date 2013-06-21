@@ -1,17 +1,22 @@
 /*
  * Appcelerator Titanium Mobile
- * Copyright (c) 2011-2012 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
 
-// start customization here
 var suites = [];
 
 if (Ti.Platform.osname === 'android') {
 	suites = suites.concat([
-		{name: "android/android_calendar/android_calendar"}
+		{name: "ui/ui"},
+		{name: "ui_controls"},
+		{name: "android/android_ui/android_ui"},
+		{name: "includes/includes"},
+		{name: "ui_layout"},
+		{name: "ui_layout_horizontal_vertical"}
 	]);
+
 }
 
 
