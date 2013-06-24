@@ -574,7 +574,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
         [theSection deleteItemAtIndex:fromRowIndex];
         
         //Insert the data
-        [theSection setItemAtIndex:theItem withIndex:toRowIndex];
+        [theSection addItem:theItem atIndex:toRowIndex];
         
         //Fire the move Event if required
         NSString *eventName = @"move";
@@ -613,7 +613,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
         [fromSection deleteItemAtIndex:fromRowIndex];
         
         //Insert the data
-        [toSection setItemAtIndex:theItem withIndex:toRowIndex];
+        [toSection addItem:theItem atIndex:toRowIndex];
         
         //Fire the move Event if required
         NSString *eventName = @"move";

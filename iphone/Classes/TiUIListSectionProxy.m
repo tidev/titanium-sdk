@@ -68,10 +68,10 @@
     }
 }
 
-- (void) setItemAtIndex:(NSDictionary*)item withIndex:(NSUInteger)index
+- (void) addItem:(NSDictionary*)item atIndex:(NSUInteger)index
 {
     if (index > [_items count]) {
-        DebugLog(@"[WARN] ListSectionProxy: setItemAtIndex index is out of range");
+        DebugLog(@"[WARN] ListSectionProxy: addItem:atIndex: index is out of range");
     } else {
         if (index == [_items count]) {
             [_items addObject:item];

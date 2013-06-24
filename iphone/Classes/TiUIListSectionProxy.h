@@ -24,7 +24,7 @@
 // Private API. Used by ListView directly. Not for public comsumption
 - (NSDictionary *)itemAtIndex:(NSUInteger)index;
 - (void) deleteItemAtIndex:(NSUInteger)index;
-- (void) setItemAtIndex:(NSDictionary*)item withIndex:(NSUInteger)index;
+- (void) addItem:(NSDictionary*)item atIndex:(NSUInteger)index;
 
 // Public API
 @property (nonatomic, readonly) NSUInteger itemCount;
