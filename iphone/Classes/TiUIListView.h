@@ -9,7 +9,7 @@
 #import "TiUIView.h"
 #import "TiUIListViewProxy.h"
 
-@interface TiUIListView : TiUIView <UITableViewDelegate, UITableViewDataSource, UIGestureRecognizerDelegate, TiScrolling, TiProxyObserver >
+@interface TiUIListView : TiUIView <UITableViewDelegate, UITableViewDataSource, UIScrollViewDelegate, UIGestureRecognizerDelegate, TiScrolling, TiProxyObserver >
 
 #pragma mark - Private APIs
 
