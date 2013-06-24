@@ -15,6 +15,7 @@
 @property (nonatomic, readonly) NSNumber *sectionCount;
 
 - (TiUIListSectionProxy *)sectionForIndex:(NSUInteger)index;
+- (void) deleteSectionAtIndex:(NSUInteger)index;
 
 @end
 
