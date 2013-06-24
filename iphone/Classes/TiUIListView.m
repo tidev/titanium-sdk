@@ -499,7 +499,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
             if (itemId != nil) {
                 [eventObject setObject:itemId forKey:@"itemId"];
             }
-            [self.proxy fireEvent:eventName withObject:eventObject];
+            [self.proxy fireEvent:eventName withObject:eventObject withSource:self.proxy propagate:NO reportSuccess:NO errorCode:0 message:nil];
             [eventObject release];
         }
         [theItem release];
@@ -660,7 +660,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
             if (itemId != nil) {
                 [eventObject setObject:itemId forKey:@"itemId"];
             }
-            [self.proxy fireEvent:eventName withObject:eventObject];
+            [self.proxy fireEvent:eventName withObject:eventObject withSource:self.proxy propagate:NO reportSuccess:NO errorCode:0 message:nil];
             [eventObject release];
         }
         
@@ -947,10 +947,10 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     if ( (_pullViewProxy != nil) && ([scrollView isTracking]) ) {
         if ( (scrollView.contentOffset.y < pullThreshhold) && (pullActive == NO) ) {
             pullActive = YES;
-            [self.proxy fireEvent:@"pull" withObject:[NSDictionary dictionaryWithObjectsAndKeys:NUMBOOL(pullActive),@"active",nil]];
+            [self.proxy fireEvent:@"pull" withObject:[NSDictionary dictionaryWithObjectsAndKeys:NUMBOOL(pullActive),@"active",nil] withSource:self.proxy propagate:NO reportSuccess:NO errorCode:0 message:nil];
         } else if ( (scrollView.contentOffset.y > pullThreshhold) && (pullActive == YES) ) {
             pullActive = NO;
-            [self.proxy fireEvent:@"pull" withObject:[NSDictionary dictionaryWithObjectsAndKeys:NUMBOOL(pullActive),@"active",nil]];
+            [self.proxy fireEvent:@"pull" withObject:[NSDictionary dictionaryWithObjectsAndKeys:NUMBOOL(pullActive),@"active",nil] withSource:self.proxy propagate:NO reportSuccess:NO errorCode:0 message:nil];
         }
     }
     
@@ -969,7 +969,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     }
     if ( (_pullViewProxy != nil) && (pullActive == YES) ) {
         pullActive = NO;
-        [self.proxy fireEvent:@"pullend" withObject:nil];
+        [self.proxy fireEvent:@"pullend" withObject:nil withSource:self.proxy propagate:NO reportSuccess:NO errorCode:0 message:nil];
     }
 }
 
