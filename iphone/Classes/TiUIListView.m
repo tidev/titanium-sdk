@@ -361,22 +361,29 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 
 #pragma mark - Editing Support
 
+-(id)valueWithKey:(NSString*)key atIndexPath:(NSIndexPath*)indexPath
+{
+    NSDictionary *item = [[self.listViewProxy sectionForIndex:indexPath.section] itemAtIndex:indexPath.row];
+    id propertiesValue = [item objectForKey:@"properties"];
+    NSDictionary *properties = ([propertiesValue isKindOfClass:[NSDictionary class]]) ? propertiesValue : nil;
+    id theValue = [properties objectForKey:key];
+    if (theValue == nil) {
+        id templateId = [item objectForKey:@"template"];
+        if (templateId == nil) {
+            templateId = _defaultItemTemplate;
+        }
+        if (![templateId isKindOfClass:[NSNumber class]]) {
+            TiViewTemplate *template = [_templates objectForKey:templateId];
+            theValue = [template.properties objectForKey:key];
+        }
+    }
+    
+    return theValue;
+}
+
 -(BOOL)canEditRowAtIndexPath:(NSIndexPath *)indexPath
 {
-	NSDictionary *item = [[self.listViewProxy sectionForIndex:indexPath.section] itemAtIndex:indexPath.row];
-	id propertiesValue = [item objectForKey:@"properties"];
-	NSDictionary *properties = ([propertiesValue isKindOfClass:[NSDictionary class]]) ? propertiesValue : nil;
-	id editValue = [properties objectForKey:@"canEdit"];
-	if (editValue == nil) {
-		id templateId = [item objectForKey:@"template"];
-		if (templateId == nil) {
-			templateId = _defaultItemTemplate;
-		}
-		if (![templateId isKindOfClass:[NSNumber class]]) {
-			TiViewTemplate *template = [_templates objectForKey:templateId];
-			editValue = [template.properties objectForKey:@"canEdit"];
-		}
-	}
+    id editValue = [self valueWithKey:@"canEdit" atIndexPath:indexPath];
     //canEdit if undefined is false
     return [TiUtils boolValue:editValue def:NO];
 }
@@ -384,27 +391,13 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 
 -(BOOL)canMoveRowAtIndexPath:(NSIndexPath *)indexPath
 {
-	NSDictionary *item = [[self.listViewProxy sectionForIndex:indexPath.section] itemAtIndex:indexPath.row];
-	id propertiesValue = [item objectForKey:@"properties"];
-	NSDictionary *properties = ([propertiesValue isKindOfClass:[NSDictionary class]]) ? propertiesValue : nil;
-	id editValue = [properties objectForKey:@"canMove"];
-	if (editValue == nil) {
-		id templateId = [item objectForKey:@"template"];
-		if (templateId == nil) {
-			templateId = _defaultItemTemplate;
-		}
-		if (![templateId isKindOfClass:[NSNumber class]]) {
-			TiViewTemplate *template = [_templates objectForKey:templateId];
-			editValue = [template.properties objectForKey:@"canMove"];
-		}
-	}
-    //canEdit if undefined is false
-    return [TiUtils boolValue:editValue def:NO];
+    id moveValue = [self valueWithKey:@"canMove" atIndexPath:indexPath];
+    //canMove if undefined is false
+    return [TiUtils boolValue:moveValue def:NO];
 }
 
-/*
- DATASOURCE METHODS. KEPT OUT OF OTHER BLOCKS FOR CLARITY
-*/
+#pragma mark - Editing Support Datasource methods.
+
 - (BOOL)tableView:(UITableView *)tableView canEditRowAtIndexPath:(NSIndexPath *)indexPath
 {
     if ([self canEditRowAtIndexPath:indexPath]) {
@@ -521,9 +514,8 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     }
 }
 
-/*
- DELEGATE METHODS. KEPT OUT OF OTHER BLOCKS FOR CLARITY
-*/
+#pragma mark - Editing Support Delegate Methods.
+
 - (UITableViewCellEditingStyle)tableView:(UITableView *)tableView editingStyleForRowAtIndexPath:(NSIndexPath *)indexPath
 {
     //No support for insert style yet
