@@ -29,6 +29,8 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     CGFloat pullThreshhold;
     BOOL pullActive;
     CGPoint tapPoint;
+    BOOL editing;
+    BOOL pruneSections;
 }
 
 - (id)init
@@ -190,6 +192,11 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 }
 
 #pragma mark - Public API
+
+-(void)setPruneSectionsOnEdit_:(id)args
+{
+    pruneSections = [TiUtils boolValue:args def:NO];
+}
 
 -(void)setCanScroll_:(id)args
 {
@@ -407,17 +414,322 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     [[self tableView] setAllowsSelection:[TiUtils boolValue:value]];
 }
 
+-(void)setEditing_:(id)args
+{
+    if ([TiUtils boolValue:args def:NO] != editing) {
+        editing = !editing;
+        [self.proxy replaceValue:NUMBOOL(editing) forKey:@"editing" notification:NO];
+        [[self tableView] beginUpdates];
+        [_tableView setEditing:editing animated:YES];
+        [_tableView endUpdates];
+    }
+}
+
+#pragma mark - Editing Support
+
+-(id)valueWithKey:(NSString*)key atIndexPath:(NSIndexPath*)indexPath
+{
+    NSDictionary *item = [[self.listViewProxy sectionForIndex:indexPath.section] itemAtIndex:indexPath.row];
+    id propertiesValue = [item objectForKey:@"properties"];
+    NSDictionary *properties = ([propertiesValue isKindOfClass:[NSDictionary class]]) ? propertiesValue : nil;
+    id theValue = [properties objectForKey:key];
+    if (theValue == nil) {
+        id templateId = [item objectForKey:@"template"];
+        if (templateId == nil) {
+            templateId = _defaultItemTemplate;
+        }
+        if (![templateId isKindOfClass:[NSNumber class]]) {
+            TiViewTemplate *template = [_templates objectForKey:templateId];
+            theValue = [template.properties objectForKey:key];
+        }
+    }
+    
+    return theValue;
+}
+
+-(BOOL)canEditRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    id editValue = [self valueWithKey:@"canEdit" atIndexPath:indexPath];
+    //canEdit if undefined is false
+    return [TiUtils boolValue:editValue def:NO];
+}
+
+
+-(BOOL)canMoveRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    id moveValue = [self valueWithKey:@"canMove" atIndexPath:indexPath];
+    //canMove if undefined is false
+    return [TiUtils boolValue:moveValue def:NO];
+}
+
+#pragma mark - Editing Support Datasource methods.
+
+- (BOOL)tableView:(UITableView *)tableView canEditRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    if ([self canEditRowAtIndexPath:indexPath]) {
+        return YES;
+    }
+    if (editing) {
+        return [self canMoveRowAtIndexPath:indexPath];
+    }
+    return NO;
+}
+
+- (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    if (editingStyle == UITableViewCellEditingStyleDelete) {
+        TiUIListSectionProxy* theSection = [[self.listViewProxy sectionForIndex:indexPath.section] retain];
+        NSDictionary *theItem = [[theSection itemAtIndex:indexPath.row] retain];
+        
+        //Delete Data
+        [theSection deleteItemAtIndex:indexPath.row];
+        
+        //Fire the delete Event if required
+        NSString *eventName = @"delete";
+        if ([self.proxy _hasListeners:eventName]) {
+        
+            NSMutableDictionary *eventObject = [[NSMutableDictionary alloc] initWithObjectsAndKeys:
+                                                theSection, @"section",
+                                                NUMINT(indexPath.section), @"sectionIndex",
+                                                NUMINT(indexPath.row), @"itemIndex",
+                                                nil];
+            id propertiesValue = [theItem objectForKey:@"properties"];
+            NSDictionary *properties = ([propertiesValue isKindOfClass:[NSDictionary class]]) ? propertiesValue : nil;
+            id itemId = [properties objectForKey:@"itemId"];
+            if (itemId != nil) {
+                [eventObject setObject:itemId forKey:@"itemId"];
+            }
+            [self.proxy fireEvent:eventName withObject:eventObject];
+            [eventObject release];
+        }
+        [theItem release];
+        
+        BOOL emptySection = NO;
+        
+        if ([theSection itemCount] == 0) {
+            emptySection = YES;
+            if (pruneSections) {
+                [self.listViewProxy deleteSectionAtIndex:indexPath.section];
+            }
+        }
+        
+        BOOL emptyTable = NO;
+        NSUInteger sectionCount = [[self.listViewProxy sectionCount] unsignedIntValue];
+        if ( sectionCount == 0) {
+            emptyTable = YES;
+        }
+        
+        //Reload the data now.
+        [tableView beginUpdates];
+        if (emptyTable) {
+            //Table is empty. Just reload fake section with FADE animation to clear out header and footers
+            NSIndexSet *theSet = [NSIndexSet indexSetWithIndex:0];
+            [tableView reloadSections:theSet withRowAnimation:UITableViewRowAnimationFade];
+        } else if (emptySection) {
+            //Section is empty.
+            if (pruneSections) {
+                //Delete the section
+                
+                BOOL needsReload = (indexPath.section < sectionCount);
+                //If this is not the last section we need to set indices for all the sections coming in after this that are visible.
+                //Otherwise the events will not work properly since the indexPath stored in the cell will be incorrect.
+                
+                if (needsReload) {
+                    NSArray* visibleRows = [tableView indexPathsForVisibleRows];
+                    [visibleRows enumerateObjectsUsingBlock:^(NSIndexPath *vIndexPath, NSUInteger idx, BOOL *stop) {
+                        if (vIndexPath.section > indexPath.section) {
+                            //This belongs to the next section. So set the right indexPath otherwise events wont work properly.
+                            NSIndexPath *newIndex = [NSIndexPath indexPathForRow:vIndexPath.row inSection:(vIndexPath.section -1)];
+                            UITableViewCell* theCell = [tableView cellForRowAtIndexPath:vIndexPath];
+                            if ([theCell isKindOfClass:[TiUIListItem class]]) {
+                                ((TiUIListItem*)theCell).proxy.indexPath = newIndex;
+                            }
+                        }
+                    }];
+                }
+                NSIndexSet *deleteSet = [NSIndexSet indexSetWithIndex:indexPath.section];
+                [tableView deleteSections:deleteSet withRowAnimation:UITableViewRowAnimationFade];
+            } else {
+                //Just delete the row. Section stays
+                [tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationFade];
+            }
+        } else {
+            //Just delete the row.
+            BOOL needsReload = (indexPath.row < [theSection itemCount]);
+            //If this is not the last row need to set indices for all rows in the section following this row.
+            //Otherwise the events will not work properly since the indexPath stored in the cell will be incorrect.
+            
+            if (needsReload) {
+                NSArray* visibleRows = [tableView indexPathsForVisibleRows];
+                [visibleRows enumerateObjectsUsingBlock:^(NSIndexPath *vIndexPath, NSUInteger idx, BOOL *stop) {
+                    if ( (vIndexPath.section == indexPath.section) && (vIndexPath.row > indexPath.row) ) {
+                        //This belongs to the same section. So set the right indexPath otherwise events wont work properly.
+                        NSIndexPath *newIndex = [NSIndexPath indexPathForRow:(vIndexPath.row - 1) inSection:(vIndexPath.section)];
+                        UITableViewCell* theCell = [tableView cellForRowAtIndexPath:vIndexPath];
+                        if ([theCell isKindOfClass:[TiUIListItem class]]) {
+                            ((TiUIListItem*)theCell).proxy.indexPath = newIndex;
+                        }
+                    }
+                }];
+            }
+            [tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationFade];
+        
+        }
+        [tableView endUpdates];
+        [theSection release];
+    }
+}
+
+#pragma mark - Editing Support Delegate Methods.
+
+- (UITableViewCellEditingStyle)tableView:(UITableView *)tableView editingStyleForRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    //No support for insert style yet
+    if ([self canEditRowAtIndexPath:indexPath]) {
+        return UITableViewCellEditingStyleDelete;
+    } else {
+        return UITableViewCellEditingStyleNone;
+    }
+}
+
+- (BOOL)tableView:(UITableView *)tableView shouldIndentWhileEditingRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    return [self canEditRowAtIndexPath:indexPath];
+}
+
+- (void)tableView:(UITableView *)tableView willBeginEditingRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    editing = YES;
+    [self.proxy replaceValue:NUMBOOL(editing) forKey:@"editing" notification:NO];
+}
+
+- (void)tableView:(UITableView *)tableView didEndEditingRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    editing = [_tableView isEditing];
+    [self.proxy replaceValue:NUMBOOL(editing) forKey:@"editing" notification:NO];
+    if (!editing) {
+        [_tableView reloadData];
+    }
+}
+
 #pragma mark - UITableViewDataSource
+
+- (BOOL)tableView:(UITableView *)tableView canMoveRowAtIndexPath:(NSIndexPath *)indexPath
+{
+	return [self canMoveRowAtIndexPath:indexPath];
+}
+
+- (void)tableView:(UITableView *)tableView moveRowAtIndexPath:(NSIndexPath *)fromIndexPath toIndexPath:(NSIndexPath *)toIndexPath
+{
+    int fromSectionIndex = [fromIndexPath section];
+    int fromRowIndex = [fromIndexPath row];
+    int toSectionIndex = [toIndexPath section];
+    int toRowIndex = [toIndexPath row];
+    
+    
+    
+    if (fromSectionIndex == toSectionIndex) {
+        if (fromRowIndex == toRowIndex) {
+            return;
+        }
+        //Moving a row in the same index. Just move and reload section
+        TiUIListSectionProxy* theSection = [[self.listViewProxy sectionForIndex:fromSectionIndex] retain];
+        NSDictionary *theItem = [[theSection itemAtIndex:fromRowIndex] retain];
+        
+        //Delete Data
+        [theSection deleteItemAtIndex:fromRowIndex];
+        
+        //Insert the data
+        [theSection addItem:theItem atIndex:toRowIndex];
+        
+        //Fire the move Event if required
+        NSString *eventName = @"move";
+        if ([self.proxy _hasListeners:eventName]) {
+            
+            NSMutableDictionary *eventObject = [[NSMutableDictionary alloc] initWithObjectsAndKeys:
+                                                theSection, @"section",
+                                                NUMINT(fromSectionIndex), @"sectionIndex",
+                                                NUMINT(fromRowIndex), @"itemIndex",
+                                                theSection,@"targetSection",
+                                                NUMINT(toSectionIndex), @"targetSectionIndex",
+                                                NUMINT(toRowIndex), @"targetItemIndex",
+                                                nil];
+            id propertiesValue = [theItem objectForKey:@"properties"];
+            NSDictionary *properties = ([propertiesValue isKindOfClass:[NSDictionary class]]) ? propertiesValue : nil;
+            id itemId = [properties objectForKey:@"itemId"];
+            if (itemId != nil) {
+                [eventObject setObject:itemId forKey:@"itemId"];
+            }
+            [self.proxy fireEvent:eventName withObject:eventObject];
+            [eventObject release];
+        }
+        
+        [tableView reloadData];
+        
+        [theSection release];
+        [theItem release];
+        
+        
+    } else {
+        TiUIListSectionProxy* fromSection = [[self.listViewProxy sectionForIndex:fromSectionIndex] retain];
+        NSDictionary *theItem = [[fromSection itemAtIndex:fromRowIndex] retain];
+        TiUIListSectionProxy* toSection = [[self.listViewProxy sectionForIndex:toSectionIndex] retain];
+        
+        //Delete Data
+        [fromSection deleteItemAtIndex:fromRowIndex];
+        
+        //Insert the data
+        [toSection addItem:theItem atIndex:toRowIndex];
+        
+        //Fire the move Event if required
+        NSString *eventName = @"move";
+        if ([self.proxy _hasListeners:eventName]) {
+            
+            NSMutableDictionary *eventObject = [[NSMutableDictionary alloc] initWithObjectsAndKeys:
+                                                fromSection, @"section",
+                                                NUMINT(fromSectionIndex), @"sectionIndex",
+                                                NUMINT(fromRowIndex), @"itemIndex",
+                                                toSection,@"targetSection",
+                                                NUMINT(toSectionIndex), @"targetSectionIndex",
+                                                NUMINT(toRowIndex), @"targetItemIndex",
+                                                nil];
+            id propertiesValue = [theItem objectForKey:@"properties"];
+            NSDictionary *properties = ([propertiesValue isKindOfClass:[NSDictionary class]]) ? propertiesValue : nil;
+            id itemId = [properties objectForKey:@"itemId"];
+            if (itemId != nil) {
+                [eventObject setObject:itemId forKey:@"itemId"];
+            }
+            [self.proxy fireEvent:eventName withObject:eventObject];
+            [eventObject release];
+        }
+        
+        if ([fromSection itemCount] == 0) {
+            if (pruneSections) {
+                [self.listViewProxy deleteSectionAtIndex:fromSectionIndex];
+            }
+        }
+        
+        [tableView reloadData];
+        
+        [fromSection release];
+        [toSection release];
+        [theItem release];
+    }
+}
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
 {
-	NSUInteger sectionCount = [self.listViewProxy.sectionCount unsignedIntegerValue];
-	return sectionCount;
+    NSUInteger sectionCount = [self.listViewProxy.sectionCount unsignedIntegerValue];
+    return MAX(1,sectionCount);
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
-	return [self.listViewProxy sectionForIndex:section].itemCount;
+    TiUIListSectionProxy* theSection = [self.listViewProxy sectionForIndex:section];
+    if (theSection != nil) {
+        return theSection.itemCount;
+    }
+    return 0;
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath

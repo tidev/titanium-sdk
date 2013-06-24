@@ -135,6 +135,18 @@
 	return nil;
 }
 
+- (void) deleteSectionAtIndex:(NSUInteger)index
+{
+    if ([_sections count] <= index) {
+        DebugLog(@"[WARN] ListViewProxy: Delete section index is out of range");
+        return;
+    }
+    TiUIListSectionProxy *section = [_sections objectAtIndex:index];
+    [_sections removeObjectAtIndex:index];
+    section.delegate = nil;
+    [self forgetProxy:section];
+}
+
 - (NSArray *)keySequence
 {
 	static dispatch_once_t onceToken;
