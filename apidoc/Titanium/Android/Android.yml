@@ -157,6 +157,15 @@ methods:
             An `Intent` created with [createServiceIntent](Titanium.Android.createServiceIntent),
             which specifies the service to stop.
         type: Titanium.Android.Intent
+        
+  - name: createBroadcastIntent
+    summary: Create an `Intent` to be used in broadcast.
+    returns:
+        type: Titanium.Android.Intent
+    parameters:
+      - name: options
+        summary: Options for the Intent.
+        type: BroadcastIntentOptions
 
 properties:
 
@@ -1531,3 +1540,45 @@ properties:
     type: Number
     optional: true
     default: Titanium.Android.START_REDELIVER_INTENT
+---
+name: BroadcastIntentOptions
+summary: Options passed to <Titanium.Android.createBroadcastIntent>.
+properties:
+
+  - name: action
+    summary: The action associated with this intent.
+    description: 
+        Specify one of the `ACTION` constants from <Titanium.Android>, or 
+        an application-specific custom action string.
+    type: String
+
+  - name: className
+    summary: |
+        The Java class name of the activity associated with this intent
+        ([packageName](Titanium.Android.Intent.packageName) must also be set).
+    type: String
+
+  - name: data
+    summary: The Intent's Data URI. 
+    description: |
+        The data URI can be set when the intent is created. It is read-only after the
+        intent is created.
+
+        For more information on data URIs, see:
+        [Intent.setData in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#setData(android.net.Uri))
+    type: String
+
+  - name: flags
+    summary: Intent flags. See the `FLAG_` constants in <Titanium.Android>.
+    type: Number
+
+  - name: packageName
+    summary: The fully-qualified Java package name of the activity.
+    type: String
+
+  - name: url
+    summary: The URL to a Titanium JavaScript Activity.
+    type: String
+
+
+    

@@ -163,6 +163,24 @@ methods:
         See also: [onMenuOpened](http://developer.android.com/reference/android/app/Activity.html#onMenuOpened(int, android.view.Menu))
         in the Android API Reference.
     since: "3.0.0"
+    
+  - name: sendBroadcast
+    summary: Broadcast the passed in `Intent` to all `BroadcastReceiver`s. 
+    parameters:
+      - name: intent
+        summary: Description of the activity to start.
+        type: Titanium.Android.Intent
+
+  - name: sendBroadcastWithPermission
+    summary: Broadcast the passed in `Intent` to all `BroadcastReceiver`s with an optional permission. 
+    parameters:
+      - name: intent
+        summary: Description of the activity to start.
+        type: Titanium.Android.Intent
+      - name: receiverPermission
+        summary: Name of the permission that the receiver should hold in order to receive the broadcast.
+        type: String
+        optional: true
 events:
 
   - name: create
