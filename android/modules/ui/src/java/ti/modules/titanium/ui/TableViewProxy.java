@@ -338,7 +338,7 @@ public class TableViewProxy extends TiViewProxy
 				getTableView().setModelDirty();
 				updateView();
 			} else {
-				throw new IllegalStateException("Unable to delete row. Index out of range. Non-existent row at " + index);
+				Log.e(TAG, "Unable to delete row. Index out of range. Non-existent row at " + index);
 			}
 		} else if (row instanceof TableViewRowProxy) {
 			TableViewRowProxy rowProxy = (TableViewRowProxy) row;
