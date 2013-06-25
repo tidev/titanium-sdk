@@ -576,6 +576,9 @@ public abstract class TiUIView
 					Integer bgColor = TiConvert.toColor(d, TiC.PROPERTY_BACKGROUND_COLOR);
 					if (!nativeViewNull) {
 						nativeView.setBackgroundColor(bgColor);
+						if (proxy.hasProperty(TiC.PROPERTY_OPACITY)) {
+							setOpacity(TiConvert.toFloat(proxy.getProperty(TiC.PROPERTY_OPACITY), 1f));
+						}
 						nativeView.postInvalidate();
 					}
 				} else {
