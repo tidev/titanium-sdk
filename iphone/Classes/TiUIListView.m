@@ -538,7 +538,15 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 -(void)setKeepSectionsInSearch_:(id)args
 {
     [self.proxy replaceValue:args forKey:@"keepSectionsInSearch" notification:NO];
-    keepSectionsInSearch = [TiUtils boolValue:args def:NO];
+    if (searchViewProxy == nil) {
+        keepSectionsInSearch = [TiUtils boolValue:args def:NO];
+        if (searchActive) {
+            [self buildResultsForSearchText];
+            [_tableView reloadData];
+        }
+    } else {
+        keepSectionsInSearch = NO;
+    }
 }
 
 - (void)setScrollIndicatorStyle_:(id)value
@@ -581,6 +589,14 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 {
     caseInsensitiveSearch = [TiUtils boolValue:args def:YES];
     [self.proxy replaceValue:NUMBOOL(caseInsensitiveSearch) forKey:@"caseInsensitiveSearch" notification:NO];
+    if (searchActive) {
+        [self buildResultsForSearchText];
+        if ([searchController isActive]) {
+            [[searchController searchResultsTableView] reloadData];
+        } else {
+            [_tableView reloadData];
+        }
+    }
 }
 
 -(void)setSearchText_:(id)args
