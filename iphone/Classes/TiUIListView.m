@@ -35,6 +35,11 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     UITableViewController *tableController;
     UISearchDisplayController *searchController;
 
+    NSMutableArray * sectionTitles;
+    NSMutableArray * sectionIndices;
+    NSMutableArray * filteredTitles;
+    NSMutableArray * filteredIndices;
+
     UIView *_pullViewWrapper;
     CGFloat pullThreshhold;
 
@@ -76,6 +81,10 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     RELEASE_TO_NIL(searchViewProxy);
     RELEASE_TO_NIL(tableController);
     RELEASE_TO_NIL(searchController);
+    RELEASE_TO_NIL(sectionTitles);
+    RELEASE_TO_NIL(sectionIndices);
+    RELEASE_TO_NIL(filteredTitles);
+    RELEASE_TO_NIL(filteredIndices);
     [super dealloc];
 }
 
@@ -289,6 +298,8 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 -(void)buildResultsForSearchText
 {
     searchActive = !([searchString length] == 0);
+    RELEASE_TO_NIL(filteredIndices);
+    RELEASE_TO_NIL(filteredTitles);
     if (searchActive) {
         //Initialize
         if(_searchResults == nil) {
@@ -315,6 +326,21 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
             if (thisSection != nil) {
                 if ([thisSection count] > 0) {
                     [_searchResults addObject:thisSection];
+                    
+                    if (sectionTitles != nil && sectionIndices != nil) {
+                        NSNumber* theIndex = [NSNumber numberWithInt:i];
+                        if ([sectionIndices containsObject:theIndex]) {
+                            id theTitle = [sectionTitles objectAtIndex:[sectionIndices indexOfObject:theIndex]];
+                            if (filteredTitles == nil) {
+                                filteredTitles = [[NSMutableArray alloc] init];
+                            }
+                            if (filteredIndices == nil) {
+                                filteredIndices = [[NSMutableArray alloc] init];
+                            }
+                            [filteredTitles addObject:theTitle];
+                            [filteredIndices addObject:[NSNumber numberWithInt:([_searchResults count] -1)]];
+                        }
+                    }
                 }
                 [thisSection release];
             }
@@ -509,34 +535,6 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     
 }
 
--(void)setSearchView_:(id)args
-{
-    ENSURE_TYPE_OR_NIL(args,TiUISearchBarProxy);
-    [self.proxy replaceValue:args forKey:@"searchView" notification:NO];
-    [self tableView];
-    [searchViewProxy setDelegate:nil];
-    RELEASE_TO_NIL(searchViewProxy);
-    RELEASE_TO_NIL(tableController);
-    RELEASE_TO_NIL(searchController);
-    [_searchWrapper removeAllChildren:nil];
-
-    if (args != nil) {
-        searchViewProxy = [args retain];
-        [searchViewProxy setDelegate:self];
-		tableController = [[UITableViewController alloc] init];
-		tableController.tableView = [self tableView];
-		searchController = [[UISearchDisplayController alloc] initWithSearchBar:[searchViewProxy searchBar] contentsController:tableController];
-		searchController.searchResultsDataSource = self;
-		searchController.searchResultsDelegate = self;
-		searchController.delegate = self;
-        [_searchWrapper add:searchViewProxy];
-        keepSectionsInSearch = NO;
-    } else {
-        keepSectionsInSearch = [TiUtils boolValue:[self.proxy valueForKey:@"keepSectionsInSearch"] def:NO];
-    }
-    
-}
-
 -(void)setKeepSectionsInSearch_:(id)args
 {
     [self.proxy replaceValue:args forKey:@"keepSectionsInSearch" notification:NO];
@@ -578,6 +576,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     }
 }
 
+#pragma mark - Search Support
 -(void)setCaseInsensitiveSearch_:(id)args
 {
     caseInsensitiveSearch = [TiUtils boolValue:args def:YES];
@@ -595,6 +594,123 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     searchString = [TiUtils stringValue:args];
     [self buildResultsForSearchText];
     [_tableView reloadData];
+}
+
+-(void)setSearchView_:(id)args
+{
+    ENSURE_TYPE_OR_NIL(args,TiUISearchBarProxy);
+    [self.proxy replaceValue:args forKey:@"searchView" notification:NO];
+    [self tableView];
+    [searchViewProxy setDelegate:nil];
+    RELEASE_TO_NIL(searchViewProxy);
+    RELEASE_TO_NIL(tableController);
+    RELEASE_TO_NIL(searchController);
+    [_searchWrapper removeAllChildren:nil];
+    
+    if (args != nil) {
+        searchViewProxy = [args retain];
+        [searchViewProxy setDelegate:self];
+		tableController = [[UITableViewController alloc] init];
+		tableController.tableView = [self tableView];
+		searchController = [[UISearchDisplayController alloc] initWithSearchBar:[searchViewProxy searchBar] contentsController:tableController];
+		searchController.searchResultsDataSource = self;
+		searchController.searchResultsDelegate = self;
+		searchController.delegate = self;
+        [_searchWrapper add:searchViewProxy];
+        keepSectionsInSearch = NO;
+    } else {
+        keepSectionsInSearch = [TiUtils boolValue:[self.proxy valueForKey:@"keepSectionsInSearch"] def:NO];
+    }
+    
+}
+
+#pragma mark - SectionIndexTitle Support
+
+-(void)setSectionIndexTitles_:(id)args
+{
+    ENSURE_TYPE_OR_NIL(args, NSArray);
+    
+	RELEASE_TO_NIL(sectionTitles);
+	RELEASE_TO_NIL(sectionIndices);
+    RELEASE_TO_NIL(filteredTitles);
+    RELEASE_TO_NIL(filteredIndices);
+    
+    NSArray* theIndex = args;
+	if ([theIndex count] > 0) {
+        sectionTitles = [[NSMutableArray alloc] initWithCapacity:[theIndex count]];
+        sectionIndices = [[NSMutableArray alloc] initWithCapacity:[theIndex count]];
+        
+        for (NSDictionary *entry in theIndex) {
+            ENSURE_DICT(entry);
+            NSString *title = [entry objectForKey:@"title"];
+            id index = [entry objectForKey:@"index"];
+            [sectionTitles addObject:title];
+            [sectionIndices addObject:[NSNumber numberWithInt:[TiUtils intValue:index]]];
+        }
+    }
+    if (searchViewProxy == nil) {
+        if (searchActive) {
+            [self buildResultsForSearchText];
+        }
+        [_tableView reloadSectionIndexTitles];
+    }
+}
+
+#pragma mark - SectionIndexTitle Support Datasource methods.
+
+-(NSArray *)sectionIndexTitlesForTableView:(UITableView *)tableView
+{
+    if (tableView != _tableView) {
+        return nil;
+    }
+    
+    if (editing) {
+        return nil;
+    }
+    
+    if (searchActive) {
+        if (keepSectionsInSearch && ([_searchResults count] > 0) ) {
+            return filteredTitles;
+        } else {
+            return nil;
+        }
+    }
+    
+    return sectionTitles;
+}
+
+-(NSInteger)tableView:(UITableView *)tableView sectionForSectionIndexTitle:(NSString *)title atIndex:(NSInteger)theIndex
+{
+    if (tableView != _tableView) {
+        return 0;
+    }
+    
+    if (editing) {
+        return 0;
+    }
+    
+    if (searchActive) {
+        if (keepSectionsInSearch && ([_searchResults count] > 0) && (filteredTitles != nil) && (filteredIndices != nil) ) {
+            // get the index for the title
+            int index = [filteredTitles indexOfObject:title];
+            if (index > 0 && (index < [filteredIndices count]) ) {
+                return [[filteredIndices objectAtIndex:index] intValue];
+            }
+            return 0;
+        } else {
+            return 0;
+        }
+    }
+    
+    if ( (sectionTitles != nil) && (sectionIndices != nil) ) {
+		// get the index for the title
+		int index = [sectionTitles indexOfObject:title];
+        if (index > 0 && (index < [sectionIndices count]) ) {
+            return [[sectionIndices objectAtIndex:index] intValue];
+        }
+		return 0;
+	}
+    return 0;
 }
 
 #pragma mark - Editing Support
