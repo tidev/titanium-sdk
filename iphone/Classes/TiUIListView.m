@@ -622,16 +622,16 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     RELEASE_TO_NIL(tableController);
     RELEASE_TO_NIL(searchController);
     [_searchWrapper removeAllChildren:nil];
-    
+
     if (args != nil) {
         searchViewProxy = [args retain];
         [searchViewProxy setDelegate:self];
-		tableController = [[UITableViewController alloc] init];
-		tableController.tableView = [self tableView];
-		searchController = [[UISearchDisplayController alloc] initWithSearchBar:[searchViewProxy searchBar] contentsController:tableController];
-		searchController.searchResultsDataSource = self;
-		searchController.searchResultsDelegate = self;
-		searchController.delegate = self;
+        tableController = [[UITableViewController alloc] init];
+        tableController.tableView = [self tableView];
+        searchController = [[UISearchDisplayController alloc] initWithSearchBar:[searchViewProxy searchBar] contentsController:tableController];
+        searchController.searchResultsDataSource = self;
+        searchController.searchResultsDelegate = self;
+        searchController.delegate = self;
         [_searchWrapper add:searchViewProxy];
         keepSectionsInSearch = NO;
     } else {
@@ -646,8 +646,8 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 {
     ENSURE_TYPE_OR_NIL(args, NSArray);
     
-	RELEASE_TO_NIL(sectionTitles);
-	RELEASE_TO_NIL(sectionIndices);
+    RELEASE_TO_NIL(sectionTitles);
+    RELEASE_TO_NIL(sectionIndices);
     RELEASE_TO_NIL(filteredTitles);
     RELEASE_TO_NIL(filteredIndices);
     
@@ -719,13 +719,13 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     }
     
     if ( (sectionTitles != nil) && (sectionIndices != nil) ) {
-		// get the index for the title
-		int index = [sectionTitles indexOfObject:title];
+        // get the index for the title
+        int index = [sectionTitles indexOfObject:title];
         if (index > 0 && (index < [sectionIndices count]) ) {
             return [[sectionIndices objectAtIndex:index] intValue];
         }
-		return 0;
-	}
+        return 0;
+    }
     return 0;
 }
 
@@ -1406,7 +1406,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 - (void)searchBarSearchButtonClicked:(UISearchBar *)searchBar
 {
     [searchBar resignFirstResponder];
-	[self makeRootViewFirstResponder];
+    [self makeRootViewFirstResponder];
 }
 
 - (void)searchBarCancelButtonClicked:(UISearchBar *) searchBar
@@ -1435,7 +1435,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 -(void)keyboardDidShowAtHeight:(CGFloat)keyboardTop
 {
     CGRect minimumContentRect = [_tableView bounds];
-	InsetScrollViewForKeyboard(_tableView,keyboardTop,minimumContentRect.size.height + minimumContentRect.origin.y);
+    InsetScrollViewForKeyboard(_tableView,keyboardTop,minimumContentRect.size.height + minimumContentRect.origin.y);
 }
 
 -(void)scrollToShowView:(TiUIView *)firstResponderView withKeyboardHeight:(CGFloat)keyboardTop
