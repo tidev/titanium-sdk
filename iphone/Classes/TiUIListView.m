@@ -10,8 +10,8 @@
 #import "TiUIListSectionProxy.h"
 #import "TiUIListItem.h"
 #import "TiUIListItemProxy.h"
-#import "TiApp.h"
 #import "TiUILabelProxy.h"
+#import "TiUISearchBarProxy.h"
 
 @interface TiUIListView ()
 @property (nonatomic, readonly) TiUIListViewProxy *listViewProxy;
@@ -23,18 +23,26 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     UITableView *_tableView;
     NSDictionary *_templates;
     id _defaultItemTemplate;
+
     TiDimension _rowHeight;
     TiViewProxy *_headerViewProxy;
     TiViewProxy *_searchWrapper;
     TiViewProxy *_headerWrapper;
     TiViewProxy *_footerViewProxy;
     TiViewProxy *_pullViewProxy;
+
+    TiUISearchBarProxy *searchViewProxy;
+    UITableViewController *tableController;
+    UISearchDisplayController *searchController;
+
     UIView *_pullViewWrapper;
     CGFloat pullThreshhold;
+
     BOOL pullActive;
     CGPoint tapPoint;
     BOOL editing;
     BOOL pruneSections;
+
     BOOL caseInsensitiveSearch;
     NSString* searchString;
     BOOL searchActive;
@@ -65,6 +73,9 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     RELEASE_TO_NIL(_searchWrapper);
     RELEASE_TO_NIL(_headerWrapper)
     RELEASE_TO_NIL(_footerViewProxy);
+    RELEASE_TO_NIL(searchViewProxy);
+    RELEASE_TO_NIL(tableController);
+    RELEASE_TO_NIL(searchController);
     [super dealloc];
 }
 
@@ -313,7 +324,6 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     } else {
         RELEASE_TO_NIL(_searchResults);
     }
-    [_tableView reloadData];
 }
 
 -(NSIndexPath*)pathForSearchPath:(NSIndexPath*)indexPath
@@ -407,6 +417,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 {
     ENSURE_SINGLE_ARG_OR_NIL(args,TiViewProxy);
     [self.proxy replaceValue:args forKey:@"headerView" notification:NO];
+    [self tableView];
     [_headerWrapper removeAllChildren:nil];
     if (args!=nil) {
         [_headerWrapper add:(TiViewProxy*) args];
@@ -417,6 +428,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 {
     ENSURE_SINGLE_ARG_OR_NIL(args,TiViewProxy);
     [self.proxy replaceValue:args forKey:@"footerView" notification:NO];
+    [self tableView];
     [_footerViewProxy removeAllChildren:nil];
     if (args!=nil) {
         [_footerViewProxy add:(TiViewProxy*) args];
@@ -477,6 +489,34 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     
 }
 
+-(void)setSearchView_:(id)args
+{
+    ENSURE_TYPE_OR_NIL(args,TiUISearchBarProxy);
+    [self.proxy replaceValue:args forKey:@"searchView" notification:NO];
+    [self tableView];
+    [searchViewProxy setDelegate:nil];
+    RELEASE_TO_NIL(searchViewProxy);
+    RELEASE_TO_NIL(tableController);
+    RELEASE_TO_NIL(searchController);
+    [_searchWrapper removeAllChildren:nil];
+
+    if (args != nil) {
+        searchViewProxy = [args retain];
+        [searchViewProxy setDelegate:self];
+		tableController = [[UITableViewController alloc] init];
+		tableController.tableView = [self tableView];
+		searchController = [[UISearchDisplayController alloc] initWithSearchBar:[searchViewProxy searchBar] contentsController:tableController];
+		searchController.searchResultsDataSource = self;
+		searchController.searchResultsDelegate = self;
+		searchController.delegate = self;
+        [_searchWrapper add:searchViewProxy];
+        keepSectionsInSearch = NO;
+    } else {
+        keepSectionsInSearch = [TiUtils boolValue:[self.proxy valueForKey:@"keepSectionsInSearch"] def:NO];
+    }
+    
+}
+
 - (void)setScrollIndicatorStyle_:(id)value
 {
 	[self.proxy replaceValue:value forKey:@"scrollIndicatorStyle" notification:NO];
@@ -528,6 +568,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     }
     searchString = [TiUtils stringValue:args];
     [self buildResultsForSearchText];
+    [_tableView reloadData];
 }
 
 #pragma mark - Editing Support
@@ -1177,6 +1218,56 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 - (void)scrollViewDidScrollToTop:(UIScrollView *)scrollView
 {
     //Events none (maybe scroll later)
+}
+
+#pragma mark - UISearchBarDelegate Methods
+- (void)searchBarTextDidBeginEditing:(UISearchBar *)searchBar
+{
+    searchString = (searchBar.text == nil) ? @"" : searchBar.text;
+    [self buildResultsForSearchText];
+    [[searchController searchResultsTableView] reloadData];
+}
+
+- (void)searchBarTextDidEndEditing:(UISearchBar *)searchBar
+{
+    if ([searchBar.text length] == 0) {
+        searchString = @"";
+        [self buildResultsForSearchText];
+        if ([searchController isActive]) {
+            [searchController setActive:NO animated:YES];
+        }
+    }
+}
+
+- (void)searchBar:(UISearchBar *)searchBar textDidChange:(NSString *)searchText
+{
+    searchString = (searchText == nil) ? @"" : searchText;
+    [self buildResultsForSearchText];
+}
+
+- (void)searchBarSearchButtonClicked:(UISearchBar *)searchBar
+{
+    [searchBar resignFirstResponder];
+	[self makeRootViewFirstResponder];
+}
+
+- (void)searchBarCancelButtonClicked:(UISearchBar *) searchBar
+{
+    searchString = @"";
+    [searchBar setText:searchString];
+    [self buildResultsForSearchText];
+}
+
+#pragma mark - UISearchDisplayDelegate Methods
+
+- (void) searchDisplayControllerDidEndSearch:(UISearchDisplayController *)controller
+{
+    searchString = @"";
+    [self buildResultsForSearchText];
+    if ([searchController isActive]) {
+        [searchController setActive:NO animated:YES];
+    }
+    [_tableView reloadData];
 }
 
 
