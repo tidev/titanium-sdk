@@ -537,6 +537,12 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     
 }
 
+-(void)setKeepSectionsInSearch_:(id)args
+{
+    [self.proxy replaceValue:args forKey:@"keepSectionsInSearch" notification:NO];
+    keepSectionsInSearch = [TiUtils boolValue:args def:NO];
+}
+
 - (void)setScrollIndicatorStyle_:(id)value
 {
 	[self.proxy replaceValue:value forKey:@"scrollIndicatorStyle" notification:NO];
