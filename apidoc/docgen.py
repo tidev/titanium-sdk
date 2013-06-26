@@ -67,6 +67,21 @@ def is_titanium_proxy(one_type):
 	# When you use this, don't forget that modules are also proxies
 	return has_ancestor(one_type, "Titanium.Proxy")
 
+# TIDOC-1080: Support exclude-platforms tag
+def exclude_platforms(obj, parent):
+	platforms = None
+	if parent is not None:
+		all_platforms = None
+		if dict_has_non_empty_member(parent.api_obj, "platforms"):
+			all_platforms = parent.api_obj["platforms"]
+		else:
+			all_platforms = DEFAULT_PLATFORMS
+		if all_platforms is not None:
+			platforms = [x for x in all_platforms if x not in obj["exclude-platforms"]]
+	if not platforms:
+		log.warn("No platforms for %s" % (obj["name"]))
+	return platforms
+
 def combine_platforms_and_since(annotated_obj):
 	parent = annotated_obj.parent
 	obj = annotated_obj.api_obj
@@ -522,6 +537,10 @@ class AnnotatedMethod(AnnotatedApi):
 		self.typestr = "method"
 		self.parent = annotated_parent
 		self.yaml_source_folder = self.parent.yaml_source_folder
+		if dict_has_non_empty_member(api_obj, "exclude-platforms") and not dict_has_non_empty_member(api_obj, "platforms"):
+			platforms = exclude_platforms(api_obj, annotated_parent);
+			if platforms:
+				api_obj["platforms"] = platforms
 
 	@lazyproperty
 	def parameters(self):
@@ -548,6 +567,10 @@ class AnnotatedProperty(AnnotatedApi):
 		self.typestr = "property"
 		self.parent = annotated_parent
 		self.yaml_source_folder = self.parent.yaml_source_folder
+		if dict_has_non_empty_member(api_obj, "exclude-platforms") and not dict_has_non_empty_member(api_obj, "platforms"):
+			platforms = exclude_platforms(api_obj, annotated_parent);
+			if platforms:
+				api_obj["platforms"] = platforms
 
 class AnnotatedEvent(AnnotatedApi):
 	def __init__(self, api_obj, annotated_parent):
@@ -555,6 +578,10 @@ class AnnotatedEvent(AnnotatedApi):
 		self.typestr = "event"
 		self.parent = annotated_parent
 		self.yaml_source_folder = self.parent.yaml_source_folder
+		if dict_has_non_empty_member(api_obj, "exclude-platforms") and not dict_has_non_empty_member(api_obj, "platforms"):
+			platforms = exclude_platforms(api_obj, annotated_parent);
+			if platforms:
+				api_obj["platforms"] = platforms
 
 	@lazyproperty
 	def properties(self):
