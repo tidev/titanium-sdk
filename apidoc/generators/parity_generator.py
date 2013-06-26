@@ -130,6 +130,9 @@ def generate(raw_apis, annotated_apis, options):
 		rows_html = ""
 		for name in api_names:
 			annotated_obj = annotated_apis[name]
+			# Objects marked as external should be ignored
+			if annotated_obj.external:
+				continue
 			
 			pseudo_text = ""
 			class_type = "normal_type"
