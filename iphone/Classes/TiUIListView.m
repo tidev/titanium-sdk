@@ -79,10 +79,26 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     [super dealloc];
 }
 
--(void)configureHeadersAndFooters
+-(void)configureFooter
+{
+    if (_footerViewProxy == nil) {
+        _footerViewProxy = [[TiViewProxy alloc] init];
+        LayoutConstraint* viewLayout = [_footerViewProxy layoutProperties];
+        viewLayout->width = TiDimensionAutoFill;
+        viewLayout->height = TiDimensionAutoSize;
+        [_footerViewProxy setProxyObserver:self];
+        [self.tableView setTableFooterView:[_footerViewProxy view]];
+        [_footerViewProxy windowWillOpen];
+        [_footerViewProxy setParentVisible:YES];
+        [_footerViewProxy windowDidOpen];
+    }
+    
+}
+
+-(void)configureHeaders
 {
     _headerViewProxy = [[TiViewProxy alloc] init];
-    LayoutConstraint *viewLayout = [_headerViewProxy layoutProperties];
+    LayoutConstraint* viewLayout = [_headerViewProxy layoutProperties];
     viewLayout->width = TiDimensionAutoFill;
     viewLayout->height = TiDimensionAutoSize;
     viewLayout->layoutStyle = TiLayoutRuleVertical;
@@ -100,25 +116,14 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     [_headerViewProxy add:_searchWrapper];
     [_headerViewProxy add:_headerWrapper];
     
-    _footerViewProxy = [[TiViewProxy alloc] init];
-    viewLayout = [_footerViewProxy layoutProperties];
-    viewLayout->width = TiDimensionAutoFill;
-    viewLayout->height = TiDimensionAutoSize;
-    
     [_headerViewProxy setProxyObserver:self];
-    [_footerViewProxy setProxyObserver:self];
     
     [_tableView setTableHeaderView:[_headerViewProxy view]];
-    [_tableView setTableFooterView:[_footerViewProxy view]];
     
     [_headerViewProxy windowWillOpen];
     [_headerViewProxy setParentVisible:YES];
     [_headerViewProxy windowDidOpen];
     
-    [_footerViewProxy windowWillOpen];
-    [_footerViewProxy setParentVisible:YES];
-    [_footerViewProxy windowDidOpen];
-
 }
 
 - (UITableView *)tableView
@@ -147,7 +152,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
         [_tableView addGestureRecognizer:tapGestureRecognizer];
         [tapGestureRecognizer release];
 
-        [self configureHeadersAndFooters];
+        [self configureHeaders];
     }
     if ([_tableView superview] != self) {
         [self addSubview:_tableView];
@@ -407,10 +412,19 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 
 - (void)setFooterTitle_:(id)args
 {
-    [_footerViewProxy removeAllChildren:nil];
     [self.proxy replaceValue:args forKey:@"footerTitle" notification:NO];
-    TiViewProxy *theProxy = [[self class] titleViewForText:[TiUtils stringValue:args] inTable:[self tableView] footer:YES];
-    [_footerViewProxy add:theProxy];
+    if (IS_NULL_OR_NIL(args)) {
+        [_footerViewProxy setProxyObserver:nil];
+        [_footerViewProxy windowWillClose];
+        [self.tableView setTableFooterView:nil];
+        [_footerViewProxy windowDidClose];
+        RELEASE_TO_NIL(_footerViewProxy);
+    } else {
+        [self configureFooter];
+        [_footerViewProxy removeAllChildren:nil];
+        TiViewProxy *theProxy = [[self class] titleViewForText:[TiUtils stringValue:args] inTable:[self tableView] footer:YES];
+        [_footerViewProxy add:theProxy];
+    }
 }
 
 -(void)setHeaderView_:(id)args
@@ -428,9 +442,15 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 {
     ENSURE_SINGLE_ARG_OR_NIL(args,TiViewProxy);
     [self.proxy replaceValue:args forKey:@"footerView" notification:NO];
-    [self tableView];
-    [_footerViewProxy removeAllChildren:nil];
-    if (args!=nil) {
+    if (IS_NULL_OR_NIL(args)) {
+        [_footerViewProxy setProxyObserver:nil];
+        [_footerViewProxy windowWillClose];
+        [self.tableView setTableFooterView:nil];
+        [_footerViewProxy windowDidClose];
+        RELEASE_TO_NIL(_footerViewProxy);
+    } else {
+        [self configureFooter];
+        [_footerViewProxy removeAllChildren:nil];
         [_footerViewProxy add:(TiViewProxy*) args];
     }
 }
