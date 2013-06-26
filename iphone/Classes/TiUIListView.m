@@ -10,6 +10,7 @@
 #import "TiUIListSectionProxy.h"
 #import "TiUIListItem.h"
 #import "TiUIListItemProxy.h"
+#import "TiApp.h"
 
 @interface TiUIListView ()
 @property (nonatomic, readonly) TiUIListViewProxy *listViewProxy;
@@ -31,13 +32,18 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     CGPoint tapPoint;
     BOOL editing;
     BOOL pruneSections;
+    BOOL caseInsensitiveSearch;
+    NSString* searchString;
+    BOOL searchActive;
+    BOOL keepSectionsInSearch;
+    NSMutableArray* _searchResults;
 }
 
 - (id)init
 {
     self = [super init];
     if (self) {
-		_defaultItemTemplate = [[NSNumber numberWithUnsignedInteger:UITableViewCellStyleDefault] retain];
+        _defaultItemTemplate = [[NSNumber numberWithUnsignedInteger:UITableViewCellStyleDefault] retain];
     }
     return self;
 }
@@ -49,6 +55,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     [_tableView release];
     [_templates release];
     [_defaultItemTemplate release];
+    RELEASE_TO_NIL(_searchResults);
     RELEASE_TO_NIL(_pullViewWrapper);
     RELEASE_TO_NIL(_pullViewProxy);
     [super dealloc];
@@ -189,6 +196,97 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
         return theView;
     }
     return nil;
+}
+
+#pragma mark - Helper Methods
+
+-(id)valueWithKey:(NSString*)key atIndexPath:(NSIndexPath*)indexPath
+{
+    NSDictionary *item = [[self.listViewProxy sectionForIndex:indexPath.section] itemAtIndex:indexPath.row];
+    id propertiesValue = [item objectForKey:@"properties"];
+    NSDictionary *properties = ([propertiesValue isKindOfClass:[NSDictionary class]]) ? propertiesValue : nil;
+    id theValue = [properties objectForKey:key];
+    if (theValue == nil) {
+        id templateId = [item objectForKey:@"template"];
+        if (templateId == nil) {
+            templateId = _defaultItemTemplate;
+        }
+        if (![templateId isKindOfClass:[NSNumber class]]) {
+            TiViewTemplate *template = [_templates objectForKey:templateId];
+            theValue = [template.properties objectForKey:key];
+        }
+    }
+    
+    return theValue;
+}
+
+-(void)buildResultsForSearchText
+{
+    searchActive = !([searchString length] == 0);
+    if (searchActive) {
+        //Initialize
+        if(_searchResults == nil) {
+            _searchResults = [[NSMutableArray alloc] init];
+        }
+        //Clear Out
+        [_searchResults removeAllObjects];
+        
+        //Search Options
+        NSStringCompareOptions searchOpts = (caseInsensitiveSearch ? NSCaseInsensitiveSearch : 0);
+        
+        NSUInteger maxSection = [[self.listViewProxy sectionCount] unsignedIntegerValue];
+        NSMutableArray* singleSection = keepSectionsInSearch ? nil : [[NSMutableArray alloc] init];
+        for (int i = 0; i < maxSection; i++) {
+            NSMutableArray* thisSection = keepSectionsInSearch ? [[NSMutableArray alloc] init] : nil;
+            NSUInteger maxItems = [[self.listViewProxy sectionForIndex:i] itemCount];
+            for (int j = 0; j < maxItems; j++) {
+                NSIndexPath* thePath = [NSIndexPath indexPathForRow:j inSection:i];
+                id theValue = [self valueWithKey:@"searchableText" atIndexPath:thePath];
+                if (theValue!=nil && [[TiUtils stringValue:theValue] rangeOfString:searchString options:searchOpts].location != NSNotFound) {
+                    (thisSection != nil) ? [thisSection addObject:thePath] : [singleSection addObject:thePath];
+                }
+            }
+            if (thisSection != nil) {
+                if ([thisSection count] > 0) {
+                    [_searchResults addObject:thisSection];
+                }
+                [thisSection release];
+            }
+        }
+        if (singleSection != nil) {
+            if ([singleSection count] > 0) {
+                [_searchResults addObject:singleSection];
+            }
+            [singleSection release];
+        }
+        
+    } else {
+        RELEASE_TO_NIL(_searchResults);
+    }
+    [_tableView reloadData];
+    
+    // Update keyboard status to ensure that any fields actively being edited remain in view
+    if ([[[TiApp app] controller] keyboardVisible]) {
+        [[[TiApp app] controller] performSelector:@selector(handleNewKeyboardStatus) withObject:nil afterDelay:0.1];
+    }}
+
+-(NSIndexPath*)pathForSearchPath:(NSIndexPath*)indexPath
+{
+    if (_searchResults != nil) {
+        NSArray* sectionResults = [_searchResults objectAtIndex:indexPath.section];
+        return [sectionResults objectAtIndex:indexPath.row];
+    }
+    return indexPath;
+}
+
+-(NSInteger)sectionForSearchSection:(NSInteger)section
+{
+    if (_searchResults != nil) {
+        NSArray* sectionResults = [_searchResults objectAtIndex:section];
+        NSIndexPath* thePath = [sectionResults objectAtIndex:0];
+        return thePath.section;
+    }
+    return section;
 }
 
 #pragma mark - Public API
@@ -425,27 +523,25 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     }
 }
 
-#pragma mark - Editing Support
-
--(id)valueWithKey:(NSString*)key atIndexPath:(NSIndexPath*)indexPath
+-(void)setCaseInsensitiveSearch_:(id)args
 {
-    NSDictionary *item = [[self.listViewProxy sectionForIndex:indexPath.section] itemAtIndex:indexPath.row];
-    id propertiesValue = [item objectForKey:@"properties"];
-    NSDictionary *properties = ([propertiesValue isKindOfClass:[NSDictionary class]]) ? propertiesValue : nil;
-    id theValue = [properties objectForKey:key];
-    if (theValue == nil) {
-        id templateId = [item objectForKey:@"template"];
-        if (templateId == nil) {
-            templateId = _defaultItemTemplate;
-        }
-        if (![templateId isKindOfClass:[NSNumber class]]) {
-            TiViewTemplate *template = [_templates objectForKey:templateId];
-            theValue = [template.properties objectForKey:key];
-        }
-    }
-    
-    return theValue;
+    caseInsensitiveSearch = [TiUtils boolValue:args def:YES];
+    [self.proxy replaceValue:NUMBOOL(caseInsensitiveSearch) forKey:@"caseInsensitiveSearch" notification:NO];
 }
+
+-(void)setSearchText_:(id)args
+{
+    [self.proxy replaceValue:args forKey:@"searchText" notification:NO];
+    id searchView = [self.proxy valueForKey:@"searchView"];
+    if (!IS_NULL_OR_NIL(searchView)) {
+        DebugLog(@"Can not use searchText with searchView. Ignoring call.");
+        return;
+    }
+    searchString = [TiUtils stringValue:args];
+    [self buildResultsForSearchText];
+}
+
+#pragma mark - Editing Support
 
 -(BOOL)canEditRowAtIndexPath:(NSIndexPath *)indexPath
 {
@@ -466,6 +562,14 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 
 - (BOOL)tableView:(UITableView *)tableView canEditRowAtIndexPath:(NSIndexPath *)indexPath
 {
+    if (tableView != _tableView) {
+        return NO;
+    }
+    
+    if (searchActive) {
+        return NO;
+    }
+    
     if ([self canEditRowAtIndexPath:indexPath]) {
         return YES;
     }
@@ -616,6 +720,14 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 
 - (BOOL)tableView:(UITableView *)tableView canMoveRowAtIndexPath:(NSIndexPath *)indexPath
 {
+    if (tableView != _tableView) {
+        return NO;
+    }
+    
+    if (searchActive) {
+        return NO;
+    }
+    
 	return [self canMoveRowAtIndexPath:indexPath];
 }
 
@@ -719,50 +831,75 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
 {
-    NSUInteger sectionCount = [self.listViewProxy.sectionCount unsignedIntegerValue];
+    NSUInteger sectionCount = 0;
+    
+    if (_searchResults != nil) {
+        sectionCount = [_searchResults count];
+    } else {
+        sectionCount = [self.listViewProxy.sectionCount unsignedIntegerValue];
+    }
     return MAX(1,sectionCount);
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
-    TiUIListSectionProxy* theSection = [self.listViewProxy sectionForIndex:section];
-    if (theSection != nil) {
-        return theSection.itemCount;
+    if (_searchResults != nil) {
+        if ([_searchResults count] <= section) {
+            return 0;
+        }
+        NSArray* theSection = [_searchResults objectAtIndex:section];
+        return [theSection count];
+        
+    } else {
+        TiUIListSectionProxy* theSection = [self.listViewProxy sectionForIndex:section];
+        if (theSection != nil) {
+            return theSection.itemCount;
+        }
+        return 0;
     }
-    return 0;
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-	NSDictionary *item = [[self.listViewProxy sectionForIndex:indexPath.section] itemAtIndex:indexPath.row];
-	id templateId = [item objectForKey:@"template"];
-	if (templateId == nil) {
-		templateId = _defaultItemTemplate;
-	}
-	NSString *cellIdentifier = [templateId isKindOfClass:[NSNumber class]] ? [NSString stringWithFormat:@"TiUIListView__internal%@", templateId]: [templateId description];
-	TiUIListItem *cell = [tableView dequeueReusableCellWithIdentifier:cellIdentifier];
-	if (cell == nil) {
-		id<TiEvaluator> context = self.listViewProxy.executionContext;
-		if (context == nil) {
-			context = self.listViewProxy.pageContext;
-		}
-		TiUIListItemProxy *cellProxy = [[TiUIListItemProxy alloc] initWithListViewProxy:self.listViewProxy inContext:context];
-		if ([templateId isKindOfClass:[NSNumber class]]) {
-			UITableViewCellStyle cellStyle = [templateId unsignedIntegerValue];
-			cell = [[TiUIListItem alloc] initWithStyle:cellStyle reuseIdentifier:cellIdentifier proxy:cellProxy];
-		} else {
-			cell = [[TiUIListItem alloc] initWithProxy:cellProxy reuseIdentifier:cellIdentifier];
-			id template = [_templates objectForKey:templateId];
-			if (template != nil) {
-				[cellProxy unarchiveFromTemplate:template];
-			}
-		}
-		[cellProxy release];
-		[cell autorelease];
-	}
+    NSIndexPath* realIndexPath = [self pathForSearchPath:indexPath];
+    TiUIListSectionProxy* theSection = [self.listViewProxy sectionForIndex:realIndexPath.section];
+    NSInteger maxItem = 0;
+    
+    if (_searchResults != nil) {
+        NSArray* sectionResults = [_searchResults objectAtIndex:indexPath.section];
+        maxItem = [sectionResults count];
+    } else {
+        maxItem = theSection.itemCount;
+    }
+    
+    NSDictionary *item = [theSection itemAtIndex:realIndexPath.row];
+    id templateId = [item objectForKey:@"template"];
+    if (templateId == nil) {
+        templateId = _defaultItemTemplate;
+    }
+    NSString *cellIdentifier = [templateId isKindOfClass:[NSNumber class]] ? [NSString stringWithFormat:@"TiUIListView__internal%@", templateId]: [templateId description];
+    TiUIListItem *cell = [tableView dequeueReusableCellWithIdentifier:cellIdentifier];
+    if (cell == nil) {
+        id<TiEvaluator> context = self.listViewProxy.executionContext;
+        if (context == nil) {
+            context = self.listViewProxy.pageContext;
+        }
+        TiUIListItemProxy *cellProxy = [[TiUIListItemProxy alloc] initWithListViewProxy:self.listViewProxy inContext:context];
+        if ([templateId isKindOfClass:[NSNumber class]]) {
+            UITableViewCellStyle cellStyle = [templateId unsignedIntegerValue];
+            cell = [[TiUIListItem alloc] initWithStyle:cellStyle reuseIdentifier:cellIdentifier proxy:cellProxy];
+        } else {
+            cell = [[TiUIListItem alloc] initWithProxy:cellProxy reuseIdentifier:cellIdentifier];
+            id template = [_templates objectForKey:templateId];
+            if (template != nil) {
+                [cellProxy unarchiveFromTemplate:template];
+            }
+        }
+        [cellProxy release];
+        [cell autorelease];
+    }
 
     if (tableView.style == UITableViewStyleGrouped) {
-        NSInteger maxItem = [self.listViewProxy sectionForIndex:indexPath.section].itemCount;
         if (indexPath.row == 0) {
             if (maxItem == 1) {
                 [cell setPosition:TiCellBackgroundViewPositionSingleLine isGrouped:YES];
@@ -777,31 +914,82 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     } else {
         [cell setPosition:TiCellBackgroundViewPositionMiddle isGrouped:NO];
     }
-    
-	cell.dataItem = item;
-	cell.proxy.indexPath = indexPath;
-	return cell;
+
+    cell.dataItem = item;
+    cell.proxy.indexPath = realIndexPath;
+    return cell;
 }
 
 - (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section
-{	
-	return [[self.listViewProxy sectionForIndex:section] headerTitle];
+{
+    if (tableView != _tableView) {
+        return nil;
+    }
+    
+    if (searchActive) {
+        if (keepSectionsInSearch && ([_searchResults count] > 0) ) {
+            NSInteger realSection = [self sectionForSearchSection:section];
+            return [[self.listViewProxy sectionForIndex:realSection] headerTitle];
+        } else {
+            return nil;
+        }
+    }
+    
+    return [[self.listViewProxy sectionForIndex:section] headerTitle];
 }
 
 - (NSString *)tableView:(UITableView *)tableView titleForFooterInSection:(NSInteger)section
 {
-	return [[self.listViewProxy sectionForIndex:section] footerTitle];
+    if (tableView != _tableView) {
+        return nil;
+    }
+    
+    if (searchActive) {
+        if (keepSectionsInSearch && ([_searchResults count] > 0) ) {
+            NSInteger realSection = [self sectionForSearchSection:section];
+            return [[self.listViewProxy sectionForIndex:realSection] headerTitle];
+        } else {
+            return nil;
+        }
+    }
+    return [[self.listViewProxy sectionForIndex:section] footerTitle];
 }
 
 #pragma mark - UITableViewDelegate
 
 - (UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section
 {
+    if (tableView != _tableView) {
+        return nil;
+    }
+    
+    if (searchActive) {
+        if (keepSectionsInSearch && ([_searchResults count] > 0) ) {
+            NSInteger realSection = [self sectionForSearchSection:section];
+            return [self sectionView:realSection forLocation:@"headerView" section:nil];
+        } else {
+            return nil;
+        }
+    }
+
     return [self sectionView:section forLocation:@"headerView" section:nil];
 }
 
 - (UIView *)tableView:(UITableView *)tableView viewForFooterInSection:(NSInteger)section
 {
+    if (tableView != _tableView) {
+        return nil;
+    }
+    
+    if (searchActive) {
+        if (keepSectionsInSearch && ([_searchResults count] > 0) ) {
+            NSInteger realSection = [self sectionForSearchSection:section];
+            return [self sectionView:realSection forLocation:@"footerView" section:nil];
+        } else {
+            return nil;
+        }
+    }
+    
     return [self sectionView:section forLocation:@"footerView" section:nil];
 }
 
@@ -809,8 +997,22 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 
 - (CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section
 {
-    TiUIListSectionProxy *sectionProxy = [self.listViewProxy sectionForIndex:section];
-    TiUIView *view = [self sectionView:section forLocation:@"headerView" section:nil];
+    if (tableView != _tableView) {
+        return 0.0;
+    }
+    
+    NSInteger realSection = section;
+    
+    if (searchActive) {
+        if (keepSectionsInSearch && ([_searchResults count] > 0) ) {
+            realSection = [self sectionForSearchSection:section];
+        } else {
+            return 0.0;
+        }
+    }
+    
+    TiUIListSectionProxy *sectionProxy = [self.listViewProxy sectionForIndex:realSection];
+    TiUIView *view = [self sectionView:realSection forLocation:@"headerView" section:nil];
 	
     CGFloat size = 0.0;
     if (view!=nil) {
@@ -855,8 +1057,22 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 
 - (CGFloat)tableView:(UITableView *)tableView heightForFooterInSection:(NSInteger)section
 {
-    TiUIListSectionProxy *sectionProxy = [self.listViewProxy sectionForIndex:section];
-    TiUIView *view = [self sectionView:section forLocation:@"footerView" section:nil];
+    if (tableView != _tableView) {
+        return 0.0;
+    }
+    
+    NSInteger realSection = section;
+    
+    if (searchActive) {
+        if (keepSectionsInSearch && ([_searchResults count] > 0) ) {
+            realSection = [self sectionForSearchSection:section];
+        } else {
+            return 0.0;
+        }
+    }
+
+    TiUIListSectionProxy *sectionProxy = [self.listViewProxy sectionForIndex:realSection];
+    TiUIView *view = [self sectionView:realSection forLocation:@"footerView" section:nil];
 	
     CGFloat size = 0.0;
     if (view!=nil) {
@@ -902,28 +1118,18 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-	NSDictionary *item = [[self.listViewProxy sectionForIndex:indexPath.section] itemAtIndex:indexPath.row];
-	id propertiesValue = [item objectForKey:@"properties"];
-	NSDictionary *properties = ([propertiesValue isKindOfClass:[NSDictionary class]]) ? propertiesValue : nil;
-	id heightValue = [properties objectForKey:@"height"];
-	if (heightValue == nil) {
-		id templateId = [item objectForKey:@"template"];
-		if (templateId == nil) {
-			templateId = _defaultItemTemplate;
-		}
-		if (![templateId isKindOfClass:[NSNumber class]]) {
-			TiViewTemplate *template = [_templates objectForKey:templateId];
-			heightValue = [template.properties objectForKey:@"height"];
-		}
-	}
-	TiDimension height = _rowHeight;
-	if (heightValue != nil) {
-		height = [TiUtils dimensionValue:heightValue];
-	}
-	if (TiDimensionIsDip(height)) {
-		return height.value;
-	}
-	return 44;
+    NSIndexPath* realPath = [self pathForSearchPath:indexPath];
+    
+    id heightValue = [self valueWithKey:@"height" atIndexPath:realPath];
+    
+    TiDimension height = _rowHeight;
+    if (heightValue != nil) {
+        height = [TiUtils dimensionValue:heightValue];
+    }
+    if (TiDimensionIsDip(height)) {
+        return height.value;
+    }
+    return 44;
 }
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
@@ -936,7 +1142,8 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 	[self fireClickForItemAtIndexPath:indexPath tableView:tableView accessoryButtonTapped:YES];
 }
 
-#pragma ScrollView Delegate
+#pragma mark - ScrollView Delegate
+
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView
 {
     //Events - pull (maybe scroll later)
@@ -989,18 +1196,14 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 
 -(void)keyboardDidShowAtHeight:(CGFloat)keyboardTop
 {
-	int lastSectionIndex = [self.listViewProxy.sectionCount unsignedIntegerValue] - 1;
-	ENSURE_CONSISTENCY(lastSectionIndex>=0);
-	CGRect minimumContentRect = [_tableView rectForSection:lastSectionIndex];
+    CGRect minimumContentRect = [_tableView bounds];
 	InsetScrollViewForKeyboard(_tableView,keyboardTop,minimumContentRect.size.height + minimumContentRect.origin.y);
 }
 
 -(void)scrollToShowView:(TiUIView *)firstResponderView withKeyboardHeight:(CGFloat)keyboardTop
 {
     if ([_tableView isScrollEnabled]) {
-        int lastSectionIndex = [self.listViewProxy.sectionCount unsignedIntegerValue] - 1;
-        ENSURE_CONSISTENCY(lastSectionIndex>=0);
-        CGRect minimumContentRect = [_tableView rectForSection:lastSectionIndex];
+        CGRect minimumContentRect = [_tableView bounds];
         
         CGRect responderRect = [self convertRect:[firstResponderView bounds] fromView:firstResponderView];
         CGPoint offsetPoint = [_tableView contentOffset];

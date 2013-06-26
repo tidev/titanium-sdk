@@ -35,6 +35,7 @@
 -(void)_initWithProperties:(NSDictionary *)properties
 {
     [self initializeProperty:@"canScroll" defaultValue:NUMBOOL(YES)];
+    [self initializeProperty:@"caseInsensitiveSearch" defaultValue:NUMBOOL(YES)];
     [super _initWithProperties:properties];
 }
 
