@@ -1119,7 +1119,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     if (searchActive) {
         if (keepSectionsInSearch && ([_searchResults count] > 0) ) {
             NSInteger realSection = [self sectionForSearchSection:section];
-            return [[self.listViewProxy sectionForIndex:realSection] headerTitle];
+            return [[self.listViewProxy sectionForIndex:realSection] footerTitle];
         } else {
             return nil;
         }
