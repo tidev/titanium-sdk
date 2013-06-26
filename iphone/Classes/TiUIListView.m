@@ -11,6 +11,7 @@
 #import "TiUIListItem.h"
 #import "TiUIListItemProxy.h"
 #import "TiApp.h"
+#import "TiUILabelProxy.h"
 
 @interface TiUIListView ()
 @property (nonatomic, readonly) TiUIListViewProxy *listViewProxy;
@@ -24,6 +25,8 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     id _defaultItemTemplate;
     TiDimension _rowHeight;
     TiViewProxy *_headerViewProxy;
+    TiViewProxy *_searchWrapper;
+    TiViewProxy *_headerWrapper;
     TiViewProxy *_footerViewProxy;
     TiViewProxy *_pullViewProxy;
     UIView *_pullViewWrapper;
@@ -58,39 +61,87 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     RELEASE_TO_NIL(_searchResults);
     RELEASE_TO_NIL(_pullViewWrapper);
     RELEASE_TO_NIL(_pullViewProxy);
+    RELEASE_TO_NIL(_headerViewProxy);
+    RELEASE_TO_NIL(_searchWrapper);
+    RELEASE_TO_NIL(_headerWrapper)
+    RELEASE_TO_NIL(_footerViewProxy);
     [super dealloc];
+}
+
+-(void)configureHeadersAndFooters
+{
+    _headerViewProxy = [[TiViewProxy alloc] init];
+    LayoutConstraint *viewLayout = [_headerViewProxy layoutProperties];
+    viewLayout->width = TiDimensionAutoFill;
+    viewLayout->height = TiDimensionAutoSize;
+    viewLayout->layoutStyle = TiLayoutRuleVertical;
+    
+    _searchWrapper = [[TiViewProxy alloc] init];
+    viewLayout = [_searchWrapper layoutProperties];
+    viewLayout->width = TiDimensionAutoFill;
+    viewLayout->height = TiDimensionAutoSize;
+    
+    _headerWrapper = [[TiViewProxy alloc] init];
+    viewLayout = [_headerWrapper layoutProperties];
+    viewLayout->width = TiDimensionAutoFill;
+    viewLayout->height = TiDimensionAutoSize;
+    
+    [_headerViewProxy add:_searchWrapper];
+    [_headerViewProxy add:_headerWrapper];
+    
+    _footerViewProxy = [[TiViewProxy alloc] init];
+    viewLayout = [_footerViewProxy layoutProperties];
+    viewLayout->width = TiDimensionAutoFill;
+    viewLayout->height = TiDimensionAutoSize;
+    
+    [_headerViewProxy setProxyObserver:self];
+    [_footerViewProxy setProxyObserver:self];
+    
+    [_tableView setTableHeaderView:[_headerViewProxy view]];
+    [_tableView setTableFooterView:[_footerViewProxy view]];
+    
+    [_headerViewProxy windowWillOpen];
+    [_headerViewProxy setParentVisible:YES];
+    [_headerViewProxy windowDidOpen];
+    
+    [_footerViewProxy windowWillOpen];
+    [_footerViewProxy setParentVisible:YES];
+    [_footerViewProxy windowDidOpen];
+
 }
 
 - (UITableView *)tableView
 {
-	if (_tableView == nil) {
-		UITableViewStyle style = [TiUtils intValue:[self.proxy valueForKey:@"style"] def:UITableViewStylePlain];
+    if (_tableView == nil) {
+        UITableViewStyle style = [TiUtils intValue:[self.proxy valueForKey:@"style"] def:UITableViewStylePlain];
 
-		_tableView = [[UITableView alloc] initWithFrame:self.bounds style:style];
-		_tableView.autoresizingMask = UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight;
-		_tableView.delegate = self;
-		_tableView.dataSource = self;
-		
-		if (TiDimensionIsDip(_rowHeight)) {
-			[_tableView setRowHeight:_rowHeight.value];
-		}
-		id backgroundColor = [self.proxy valueForKey:@"backgroundColor"];
-		BOOL doSetBackground = YES;
-		if ([TiUtils isIOS6OrGreater] && (style == UITableViewStyleGrouped)) {
-			doSetBackground = (backgroundColor != nil);
-		}
-		if (doSetBackground) {
-			[[self class] setBackgroundColor:[TiUtils colorValue:backgroundColor] onTable:_tableView];
-		}
-		UITapGestureRecognizer *tapGestureRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleTap:)];
-		tapGestureRecognizer.delegate = self;
-		[_tableView addGestureRecognizer:tapGestureRecognizer];
-		[tapGestureRecognizer release];
-	}
-	if ([_tableView superview] != self) {
-		[self addSubview:_tableView];
-	}
-	return _tableView;
+        _tableView = [[UITableView alloc] initWithFrame:self.bounds style:style];
+        _tableView.autoresizingMask = UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight;
+        _tableView.delegate = self;
+        _tableView.dataSource = self;
+
+        if (TiDimensionIsDip(_rowHeight)) {
+            [_tableView setRowHeight:_rowHeight.value];
+        }
+        id backgroundColor = [self.proxy valueForKey:@"backgroundColor"];
+        BOOL doSetBackground = YES;
+        if ([TiUtils isIOS6OrGreater] && (style == UITableViewStyleGrouped)) {
+            doSetBackground = (backgroundColor != nil);
+        }
+        if (doSetBackground) {
+            [[self class] setBackgroundColor:[TiUtils colorValue:backgroundColor] onTable:_tableView];
+        }
+        UITapGestureRecognizer *tapGestureRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleTap:)];
+        tapGestureRecognizer.delegate = self;
+        [_tableView addGestureRecognizer:tapGestureRecognizer];
+        [tapGestureRecognizer release];
+
+        [self configureHeadersAndFooters];
+    }
+    if ([_tableView superview] != self) {
+        [self addSubview:_tableView];
+    }
+    return _tableView;
 }
 
 -(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
@@ -135,8 +186,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
             UIView* headerView = [[self tableView] tableHeaderView];
             [headerView setFrame:[headerView bounds]];
             [[self tableView] setTableHeaderView:headerView];
-        }
-        else if (sender == _footerViewProxy) {
+        } else if (sender == _footerViewProxy) {
             UIView *footerView = [[self tableView] tableFooterView];
             [footerView setFrame:[footerView bounds]];
             [[self tableView] setTableFooterView:footerView];
@@ -264,11 +314,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
         RELEASE_TO_NIL(_searchResults);
     }
     [_tableView reloadData];
-    
-    // Update keyboard status to ensure that any fields actively being edited remain in view
-    if ([[[TiApp app] controller] keyboardVisible]) {
-        [[[TiApp app] controller] performSelector:@selector(handleNewKeyboardStatus) withObject:nil afterDelay:0.1];
-    }}
+}
 
 -(NSIndexPath*)pathForSearchPath:(NSIndexPath*)indexPath
 {
@@ -343,94 +389,37 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 
 - (void)setHeaderTitle_:(id)args
 {
-    if (_headerViewProxy != nil) {
-        [_headerViewProxy windowWillClose];
-        [_headerViewProxy setProxyObserver:nil];
-        [[self proxy] forgetProxy:_headerViewProxy];
-        [_headerViewProxy windowDidClose];
-        _headerViewProxy = nil;
-    }
-	[self.proxy replaceValue:args forKey:@"headerTitle" notification:NO];
-	[self.tableView setTableHeaderView:[[self class] titleViewForText:[TiUtils stringValue:args] inTable:self.tableView footer:NO]];
+    [_headerWrapper removeAllChildren:nil];
+    [self.proxy replaceValue:args forKey:@"headerTitle" notification:NO];
+    TiViewProxy *theProxy = [[self class] titleViewForText:[TiUtils stringValue:args] inTable:[self tableView] footer:NO];
+    [_headerWrapper add:theProxy];
 }
 
 - (void)setFooterTitle_:(id)args
 {
-    if (_footerViewProxy != nil) {
-        [_footerViewProxy windowWillClose];
-        [_footerViewProxy setProxyObserver:nil];
-        [[self proxy] forgetProxy:_footerViewProxy];
-        [_footerViewProxy windowDidClose];
-        _footerViewProxy = nil;
-    }
-	[self.proxy replaceValue:args forKey:@"footerTitle" notification:NO];
-	[self.tableView setTableFooterView:[[self class] titleViewForText:[TiUtils stringValue:args] inTable:self.tableView footer:YES]];
+    [_footerViewProxy removeAllChildren:nil];
+    [self.proxy replaceValue:args forKey:@"footerTitle" notification:NO];
+    TiViewProxy *theProxy = [[self class] titleViewForText:[TiUtils stringValue:args] inTable:[self tableView] footer:YES];
+    [_footerViewProxy add:theProxy];
 }
 
 -(void)setHeaderView_:(id)args
 {
     ENSURE_SINGLE_ARG_OR_NIL(args,TiViewProxy);
+    [self.proxy replaceValue:args forKey:@"headerView" notification:NO];
+    [_headerWrapper removeAllChildren:nil];
     if (args!=nil) {
-        TiUIView *view = (TiUIView*) [args view];
-        UITableView *table = [self tableView];
-        [table setTableHeaderView:view];
-        if (_headerViewProxy != nil) {
-            [_headerViewProxy windowWillClose];
-            [_headerViewProxy setProxyObserver:nil];
-            [[self proxy] forgetProxy:_headerViewProxy];
-            [_headerViewProxy windowDidClose];
-        }
-        _headerViewProxy = args;
-        [_headerViewProxy setProxyObserver:self];
-        [[self proxy] rememberProxy:_headerViewProxy];
-        [_headerViewProxy windowWillOpen];
-        _headerViewProxy.parentVisible = YES;
-        [_headerViewProxy refreshSize];
-        [_headerViewProxy willChangeSize];
-        [_headerViewProxy windowDidOpen];
-    }
-    else {
-        if (_headerViewProxy != nil) {
-            [_headerViewProxy windowWillClose];
-            [_headerViewProxy setProxyObserver:nil];
-            [[self proxy] forgetProxy:_headerViewProxy];
-            [_headerViewProxy windowDidClose];
-            _headerViewProxy = nil;
-        }
-        [[self tableView] setTableHeaderView:nil];
+        [_headerWrapper add:(TiViewProxy*) args];
     }
 }
 
 -(void)setFooterView_:(id)args
 {
     ENSURE_SINGLE_ARG_OR_NIL(args,TiViewProxy);
+    [self.proxy replaceValue:args forKey:@"footerView" notification:NO];
+    [_footerViewProxy removeAllChildren:nil];
     if (args!=nil) {
-        UIView *view = [args view];
-        [[self tableView] setTableFooterView:view];
-        if (_footerViewProxy != nil) {
-            [_footerViewProxy windowWillClose];
-            [_footerViewProxy setProxyObserver:nil];
-            [[self proxy] forgetProxy:_footerViewProxy];
-            [_footerViewProxy windowDidClose];
-        }
-        _footerViewProxy = args;
-        [_footerViewProxy setProxyObserver:self];
-        [[self proxy] rememberProxy:_footerViewProxy];
-        [_footerViewProxy windowWillOpen];
-        _footerViewProxy.parentVisible = YES;
-        [_footerViewProxy refreshSize];
-        [_footerViewProxy willChangeSize];
-        [_footerViewProxy windowDidOpen];
-    }
-    else {
-        if (_footerViewProxy != nil) {
-            [_footerViewProxy windowWillClose];
-            [_footerViewProxy setProxyObserver:nil];
-            [[self proxy] forgetProxy:_footerViewProxy];
-            [_footerViewProxy windowDidClose];
-            _footerViewProxy = nil;
-        }
-        [[self tableView] setTableFooterView:nil];
+        [_footerViewProxy add:(TiViewProxy*) args];
     }
 }
 
@@ -1282,28 +1271,24 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 	[table setOpaque:![[table backgroundColor] isEqual:[UIColor clearColor]]];
 }
 
-+ (UIView*)titleViewForText:(NSString*)text inTable:(UITableView *)tableView footer:(BOOL)footer
++ (TiViewProxy*)titleViewForText:(NSString*)text inTable:(UITableView *)tableView footer:(BOOL)footer
 {
-	CGSize maxSize = CGSizeMake(320, 1000);
-	UIFont *font = [UIFont boldSystemFontOfSize:17];
-	CGSize size = [text sizeWithFont:font constrainedToSize:maxSize lineBreakMode:UILineBreakModeTailTruncation];
-	size.height += 20;
-	
-	int x = (tableView.style==UITableViewStyleGrouped) ? 15 : 10;
-	UIView *containerView = [[[UIView alloc] initWithFrame:CGRectMake(0, 0, size.width, size.height)] autorelease];
-    UILabel *headerLabel = [[[UILabel alloc] initWithFrame:CGRectMake(x, 0, size.width, size.height)] autorelease];
-	
-    headerLabel.text = text;
-	headerLabel.baselineAdjustment = UIBaselineAdjustmentAlignCenters;
-    headerLabel.textColor = [UIColor blackColor];
-    headerLabel.shadowColor = [UIColor whiteColor];
-    headerLabel.shadowOffset = CGSizeMake(0, 1);
-	headerLabel.font = font;
-    headerLabel.backgroundColor = [UIColor clearColor];
-    headerLabel.numberOfLines = 0;
-    [containerView addSubview:headerLabel];
-	
-	return containerView;
+    TiUILabelProxy* titleProxy = [[TiUILabelProxy alloc] init];
+    [titleProxy setValue:[NSDictionary dictionaryWithObjectsAndKeys:@"17",@"fontSize",@"bold",@"fontWeight", nil] forKey:@"font"];
+    [titleProxy setValue:text forKey:@"text"];
+    [titleProxy setValue:@"black" forKey:@"color"];
+    [titleProxy setValue:@"white" forKey:@"shadowColor"];
+    [titleProxy setValue:[NSDictionary dictionaryWithObjectsAndKeys:@"0",@"x",@"1",@"y", nil] forKey:@"shadowOffset"];
+    
+    LayoutConstraint *viewLayout = [titleProxy layoutProperties];
+    viewLayout->width = TiDimensionAutoFill;
+    viewLayout->height = TiDimensionAutoSize;
+    viewLayout->top = TiDimensionDip(10.0);
+    viewLayout->bottom = TiDimensionDip(10.0);
+    viewLayout->left = ([tableView style] == UITableViewStyleGrouped) ? TiDimensionDip(15.0) : TiDimensionDip(10.0);
+    viewLayout->right = ([tableView style] == UITableViewStyleGrouped) ? TiDimensionDip(15.0) : TiDimensionDip(10.0);
+
+    return [titleProxy autorelease];
 }
 
 + (UITableViewRowAnimation)animationStyleForProperties:(NSDictionary*)properties
