@@ -118,14 +118,11 @@ class Android(object):
 
 	def build_app_info(self, project_dir):
 		tiapp = ElementTree()
-		assets_tiappxml = os.path.join(project_dir, 'build', 'android', 'bin', 'assets', 'tiapp.xml')
 		
 		self.app_info = {'fullscreen':'false','navbar-hidden':'false'}
 		self.app_properties = {}
-		if not os.path.exists(assets_tiappxml):
-			shutil.copy(os.path.join(project_dir, 'tiapp.xml'), assets_tiappxml)
 		
-		tiapp.parse(open(assets_tiappxml, 'r'))
+		tiapp.parse(open(os.path.join(project_dir, 'tiapp.xml'), 'r'))
 		for key in ['id', 'name', 'version', 'publisher', 'url', 'copyright',
 			'description', 'icon', 'analytics', 'guid', 'navbar-hidden', 'fullscreen']:
 			el = tiapp.find(key)
