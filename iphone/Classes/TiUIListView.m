@@ -88,51 +88,50 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     [super dealloc];
 }
 
+-(TiViewProxy*)initWrapperProxy
+{
+    TiViewProxy* theProxy = [[TiViewProxy alloc] init];
+    LayoutConstraint* viewLayout = [theProxy layoutProperties];
+    viewLayout->width = TiDimensionAutoFill;
+    viewLayout->height = TiDimensionAutoSize;
+    return theProxy;
+}
+
+-(void)setHeaderFooter:(TiViewProxy*)theProxy isHeader:(BOOL)header
+{
+    [theProxy setProxyObserver:self];
+    if (header) {
+        [self.tableView setTableHeaderView:[theProxy view]];
+    } else {
+        [self.tableView setTableFooterView:[theProxy view]];
+    }
+    [theProxy windowWillOpen];
+    [theProxy setParentVisible:YES];
+    [theProxy windowDidOpen];
+}
+
 -(void)configureFooter
 {
     if (_footerViewProxy == nil) {
-        _footerViewProxy = [[TiViewProxy alloc] init];
-        LayoutConstraint* viewLayout = [_footerViewProxy layoutProperties];
-        viewLayout->width = TiDimensionAutoFill;
-        viewLayout->height = TiDimensionAutoSize;
-        [_footerViewProxy setProxyObserver:self];
-        [self.tableView setTableFooterView:[_footerViewProxy view]];
-        [_footerViewProxy windowWillOpen];
-        [_footerViewProxy setParentVisible:YES];
-        [_footerViewProxy windowDidOpen];
+        _footerViewProxy = [self initWrapperProxy];
+        [self setHeaderFooter:_footerViewProxy isHeader:NO];
     }
     
 }
 
 -(void)configureHeaders
 {
-    _headerViewProxy = [[TiViewProxy alloc] init];
+    _headerViewProxy = [self initWrapperProxy];
     LayoutConstraint* viewLayout = [_headerViewProxy layoutProperties];
-    viewLayout->width = TiDimensionAutoFill;
-    viewLayout->height = TiDimensionAutoSize;
     viewLayout->layoutStyle = TiLayoutRuleVertical;
     
-    _searchWrapper = [[TiViewProxy alloc] init];
-    viewLayout = [_searchWrapper layoutProperties];
-    viewLayout->width = TiDimensionAutoFill;
-    viewLayout->height = TiDimensionAutoSize;
-    
-    _headerWrapper = [[TiViewProxy alloc] init];
-    viewLayout = [_headerWrapper layoutProperties];
-    viewLayout->width = TiDimensionAutoFill;
-    viewLayout->height = TiDimensionAutoSize;
-    
+    _searchWrapper = [self initWrapperProxy];
+    _headerWrapper = [self initWrapperProxy];
+
     [_headerViewProxy add:_searchWrapper];
     [_headerViewProxy add:_headerWrapper];
     
-    [_headerViewProxy setProxyObserver:self];
-    
-    [_tableView setTableHeaderView:[_headerViewProxy view]];
-    
-    [_headerViewProxy windowWillOpen];
-    [_headerViewProxy setParentVisible:YES];
-    [_headerViewProxy windowDidOpen];
-    
+    [self setHeaderFooter:_headerViewProxy isHeader:YES];
 }
 
 - (UITableView *)tableView
@@ -297,7 +296,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 
 -(void)buildResultsForSearchText
 {
-    searchActive = !([searchString length] == 0);
+    searchActive = ([searchString length] > 0);
     RELEASE_TO_NIL(filteredIndices);
     RELEASE_TO_NIL(filteredTitles);
     if (searchActive) {
