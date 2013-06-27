@@ -576,7 +576,8 @@ public abstract class TiUIView
 					Integer bgColor = TiConvert.toColor(d, TiC.PROPERTY_BACKGROUND_COLOR);
 					if (!nativeViewNull) {
 						nativeView.setBackgroundColor(bgColor);
-						if (proxy.hasProperty(TiC.PROPERTY_OPACITY)) {
+						// A bug only on Android 2.3 (TIMOB-14311).
+						if (Build.VERSION.SDK_INT < TiC.API_LEVEL_HONEYCOMB && proxy.hasProperty(TiC.PROPERTY_OPACITY)) {
 							setOpacity(TiConvert.toFloat(proxy.getProperty(TiC.PROPERTY_OPACITY), 1f));
 						}
 						nativeView.postInvalidate();
