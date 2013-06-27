@@ -112,6 +112,46 @@ properties:
     default: Transparent
     accessors: false
 
+  - name: backgroundImage
+    summary: Background image to render when the item is not selected.
+    description: |
+        Must be a local resource.
+    type: String
+    since: 3.2.0
+    platforms: [iphone, ipad]
+    accessors: false
+
+  - name: backgroundGradient
+    summary: Background gradient to render when the item is not selected.
+    type: Gradient
+    since: 3.2.0
+    platforms: [iphone, ipad]
+    accessors: false
+
+  - name: selectedBackgroundColor
+    summary: Background color of the view, as a color name or hex triplet when item is selected.
+    description: |
+        For information about color values, see the "Colors" section of <Titanium.UI>.
+    type: String
+    default: Transparent
+    accessors: false
+
+  - name: selectedBackgroundImage
+    summary: Background image to render when the item is selected.
+    description: |
+        Must be a local resource.
+    type: String
+    since: 3.2.0
+    platforms: [iphone, ipad]
+    accessors: false
+
+  - name: selectedBackgroundGradient
+    summary: Background gradient to render when the item is selected.
+    type: Gradient
+    since: 3.2.0
+    platforms: [iphone, ipad]
+    accessors: false
+
   - name: color
     summary: Default text color of the item when not selected, as a color name or hex triplet.
     description: |
