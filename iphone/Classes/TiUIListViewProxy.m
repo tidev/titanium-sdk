@@ -58,6 +58,15 @@
 		block(nil);
 		return;
 	}
+    
+    if ([self.listView isSearchActive]) {
+        block(nil);
+        TiThreadPerformOnMainThread(^{
+            [self.listView updateSearchResults:nil];
+        }, NO);
+        return;
+    }
+    
 	BOOL triggerMainThread;
 	pthread_mutex_lock(&_operationQueueMutex);
 	triggerMainThread = [_operationQueue count] == 0;

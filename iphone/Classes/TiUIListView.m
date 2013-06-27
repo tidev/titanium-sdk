@@ -357,6 +357,23 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     }
 }
 
+-(BOOL) isSearchActive
+{
+    return searchActive || [searchController isActive];
+}
+
+- (void)updateSearchResults:(id)unused
+{
+    if (searchActive) {
+        [self buildResultsForSearchText];
+    }
+    if ([searchController isActive]) {
+        [[searchController searchResultsTableView] reloadData];
+    } else {
+        [_tableView reloadData];
+    }
+}
+
 -(NSIndexPath*)pathForSearchPath:(NSIndexPath*)indexPath
 {
     if (_searchResults != nil) {
