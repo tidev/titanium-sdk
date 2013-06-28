@@ -150,6 +150,30 @@ description: |
     To mitigate this, a `ScrollView` may be used instead of a list view, as demonstrated in the
     [ScrollView](Titanium.UI.ScrollView), "Scroll View as a Table View", example.
 
+    #### Editing Support (IOS)
+
+    Editing a list view through user initiated actions is supported through the following properties.
+
+    - **ListItem properties**:
+        - [canEdit](Titanium.UI.ListItem.canEdit) - When this is set to true, it allows the item to be deleted 
+          from the List View through a user initiated action. The item can only be deleted when the List View is 
+          in editing mode. The ListView can enter 'editing' mode either by explicitly setting the [editing](Titanium.UI.ListView.editing)
+          property to true, or by swiping accross an item whose canEdit property is set to true. When the user
+          deletes the item, a [delete](Titanium.UI.ListView.delete) event is fired.
+
+        - [canMove](Titanium.UI.ListItem.canMove) - When this item is set to true, it allows the item to be moved
+          to a different location within the List View. The item can only be moved when the List View is put in 
+          editing mode by explicitly setting the [editing](Titanium.UI.ListView.editing) property to true. When the 
+          user moves an item, a [move](Titanium.UI.ListView.move) event is fired.
+
+    - **ListView properties**:
+        - [editing](Titanium.UI.ListView.editing) - Determines if the List View is in a state where items can
+          be deleted or reordered.
+
+        - [pruneSectionsOnEdit](Titanium.UI.ListView.pruneSectionsOnEdit) - When this property is set to true and the 
+          user action results in a section having no other items, the section is deleted from the List View.Please note 
+          that this property only applies to the sections whose items are being edited.
+
 platforms: [android, ipad, iphone]
 extends: Titanium.UI.View
 since: '3.1.0'
@@ -194,6 +218,83 @@ events:
         type: Boolean
         platforms: [iphone, ipad]
 
+  - name: delete
+    summary: Fired when a list row is deleted by the user.
+    description: |
+        Do not rely on the `source` property to determine which item fired the event.  Use the
+        `sectionIndex` and `itemIndex`, or the `itemId` to determine the list item that generated
+        the event, and use the `bindId` to check which child control fired the event. 
+
+        Note that the `sectionIndex` and `itemIndex` properties of this event correspond to the List View state
+        before the user action.
+    platforms: [iphone, ipad]
+    since: 3.2.0
+    properties:
+      - name: section
+        summary: List section from which the item is deleted.
+        type: Titanium.UI.ListSection
+
+      - name: sectionIndex
+        summary: Section index.
+        type: Number
+
+      - name: itemIndex
+        summary: Item index.
+        type: Number
+
+      - name: itemId
+        summary: The item ID bound to the list item that generated the event.
+        type: String
+
+      - name: bubbles
+        summary: false. This event does not bubble.
+        type: Boolean
+
+  - name: move
+    summary: Fired when a list row is moved to a different location by the user.
+    description: |
+        Do not rely on the `source` property to determine which item fired the event.  Use the
+        `sectionIndex` and `itemIndex`, or the `itemId` to determine the list item that generated
+        the event, and use the `bindId` to check which child control fired the event. 
+
+        Note that the `sectionIndex`,`itemIndex`,`targetSectionIndex` and `targetItemIndex` properties of this event correspond to the List View state
+        before the user action.
+    platforms: [iphone, ipad]
+    since: 3.2.0
+    properties:
+      - name: section
+        summary: List section from which the item is moved.
+        type: Titanium.UI.ListSection
+
+      - name: sectionIndex
+        summary: Section index.
+        type: Number
+
+      - name: itemIndex
+        summary: Item index.
+        type: Number
+
+      - name: targetSection
+        summary: List section to which the item is moved. Might be the same as `section` property.
+        type: Titanium.UI.ListSection
+
+      - name: targetSectionIndex
+        summary: Section index.
+        type: Number
+
+      - name: targetItemIndex
+        summary: Position within the targetSection.
+        type: Number
+
+      - name: itemId
+        summary: The item ID bound to the list item that generated the event.
+        type: String
+
+      - name: bubbles
+        summary: false. This event does not bubble.
+        type: Boolean
+
+
 properties:
 
   - name: canScroll
@@ -201,6 +302,24 @@ properties:
     description: Set to false to disable scrolling.
     type: Boolean
     default: true
+    since: 3.2.0
+    platforms: [iphone, ipad]
+
+  - name: editing
+    summary: Determines if the list view is currently in editing mode.
+    description: |
+        For more information see the "Editing Support" section of <Titanium.UI.ListView> 
+    type: Boolean
+    default: false
+    since: 3.2.0
+    platforms: [iphone, ipad]
+
+  - name: pruneSectionsOnEdit
+    summary: Determines if empty sections are retained when the user completes editing the list View.
+    description: |
+        For more information see the "Editing Support" section of <Titanium.UI.ListView> 
+    type: Boolean
+    default: false
     since: 3.2.0
     platforms: [iphone, ipad]
 
