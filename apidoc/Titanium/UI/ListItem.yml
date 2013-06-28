@@ -172,6 +172,15 @@ properties:
     platforms: [iphone, ipad]
     accessors: false
 
+  - name: searchableText
+    summary: The text to match against when the [ListView](Titanium.UI.ListView) is performing a search.
+    description: |
+        Used in conjunction with [searchView](Titanium.UI.ListView.searchView), [searchText](Titanium.UI.ListView.searchText) and [caseInsensitiveSearch](Titanium.UI.ListView.caseInsensitiveSearch) properties of ListView
+    type: String
+    since: 3.2.0
+    platforms: [iphone, ipad]
+    accessors: false
+
   - name: color
     summary: Default text color of the item when not selected, as a color name or hex triplet.
     description: |

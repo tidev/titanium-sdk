@@ -168,7 +168,7 @@ description: |
           user moves an item, a [move](Titanium.UI.ListView.move) event is fired.
 
     - **ListView properties**:
-    
+
         - [editing](Titanium.UI.ListView.editing) - Determines if the List View is in a state where items can
           be deleted or reordered.
 
@@ -397,6 +397,46 @@ properties:
 
         See the code example on pullView to  see how it may be utilized.
     type: Titanium.UI.View
+    platforms: [iphone, ipad]
+    since: 3.2.0
+
+  - name: searchView
+    summary: Search field to use for the list view.
+    description: |
+        Provides the same functionality as the [search](Titanium.UI.TableView.Search) property in [TableView](Titanium.UI.TableView).
+        Used in conjunction with [caseInsensitiveSearch](Titanium.UI.ListView.caseInsensitiveSearch) property of List View and [searchableText](Titanium.UI.ListItem.searchableText) property of List Item.
+    type: [Titanium.UI.SearchBar]
+    platforms: [iphone, ipad]
+    since: 3.2.0
+
+  - name: searchText
+    summary: The string to use as search parameter.
+    description: |
+        Provides a generic search API for the List View. This property can not be used when the [searchView](Titanium.UI.ListView.searchView) property is set.
+        Used in conjunction with [caseInsensitiveSearch](Titanium.UI.ListView.caseInsensitiveSearch) property of List View and [searchableText](Titanium.UI.ListItem.searchableText) property of List Item.
+
+        When using this property the [style](Titanium.UI.ListView.style) property of the List View is honored. If the [keepSectionsInSearch](Titanium.UI.ListView.keepSectionsInSearch) property
+        is set to true then section information is preserved in the search results, otherwise the search results are displayed in a single section.
+    type: String
+    platforms: [iphone, ipad]
+    since: 3.2.0
+
+  - name: caseInsensitiveSearch
+    summary: Determines if the search performed is case insensitive.
+    description: |
+        Used in conjunction with [searchView](Titanium.UI.ListView.searchView) and  [searchText](Titanium.UI.ListView.searchText) properties of 
+        List View and [searchableText](Titanium.UI.ListItem.searchableText) property of List Item.
+    type: Boolean
+    default: true
+    platforms: [iphone, ipad]
+    since: 3.2.0
+
+  - name: keepSectionsInSearch
+    summary: Determines if the section information is displayed in the search results when using the searchText property.
+    description: |
+        Used in conjunction with [searchText](Titanium.UI.ListView.searchText) property of List View and [searchableText](Titanium.UI.ListItem.searchableText) property of List Item.
+    type: Boolean
+    default: false
     platforms: [iphone, ipad]
     since: 3.2.0
 
