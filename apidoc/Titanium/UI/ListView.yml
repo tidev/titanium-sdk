@@ -155,6 +155,7 @@ description: |
     Editing a list view through user initiated actions is supported through the following properties.
 
     - **ListItem properties**:
+
         - [canEdit](Titanium.UI.ListItem.canEdit) - When this is set to true, it allows the item to be deleted 
           from the List View through a user initiated action. The item can only be deleted when the List View is 
           in editing mode. The ListView can enter 'editing' mode either by explicitly setting the [editing](Titanium.UI.ListView.editing)
@@ -167,6 +168,7 @@ description: |
           user moves an item, a [move](Titanium.UI.ListView.move) event is fired.
 
     - **ListView properties**:
+    
         - [editing](Titanium.UI.ListView.editing) - Determines if the List View is in a state where items can
           be deleted or reordered.
 
@@ -294,6 +296,28 @@ events:
         summary: false. This event does not bubble.
         type: Boolean
 
+  - name: pull
+    summary: Fired when the user drags the list view past the top edge of the pullView.
+    platforms: [iphone, ipad]
+    since: 3.2.0
+    properties:
+      - name: active
+        summary: Determines if the pullView is completely visible (true) or partially hidden (false).
+        type: Boolean
+
+      - name: bubbles
+        summary: false. This event does not bubble.
+        type: Boolean
+
+  - name: pullend
+    summary: Fired when the user stops dragging the list view and the pullView is completely visible.
+    platforms: [iphone, ipad]
+    since: 3.2.0
+    properties:
+      - name: bubbles
+        summary: false. This event does not bubble.
+        type: Boolean
+
 
 properties:
 
@@ -363,6 +387,19 @@ properties:
     since: 3.2.0
     platforms: [iphone, ipad]
 
+  - name: pullView
+    summary: |
+        View positioned above the first row that is only revealed when the user drags the table 
+        contents down.
+    description: |
+        A `pullView` is a UI control that is often used to provide a convenient way for the user to refresh a table's data. 
+        Typically used with the [setContentInsets](Titanium.UI.ListView.setContentInsets) method.
+
+        See the code example on pullView to  see how it may be utilized.
+    type: Titanium.UI.View
+    platforms: [iphone, ipad]
+    since: 3.2.0
+
   - name: scrollIndicatorStyle
     summary: |
         Style of the scrollbar, specified using one of the constants from
@@ -405,7 +442,7 @@ properties:
     default: platform-specific default color
     since: 3.2.0
     platforms: [iphone, ipad]
-    
+
   - name: separatorStyle
     summary: Separator style constant. 
     description: |
@@ -676,6 +713,164 @@ examples:
             win.add(listView);
             win.open();
 
+  - title: List View with a pullView (IOS only supported since 3.2.0)
+    example: |
+        This sample shows how the [pullView](Titanium.UI.ListView.pullView) property could be
+        utilized along with the [pull](Titanium.UI.ListView.pull) and [pullend](Titanium.UI.ListView.pullend) events to
+        create a refresh control.
+
+            var win = Ti.UI.createWindow({backgroundColor: 'white'});
+            var listView = Ti.UI.createListView({height:'90%', top:0});
+            var sections = [];
+
+            var fruitSection = Ti.UI.createListSection({ headerTitle: 'Fruits'});
+            var fruitDataSet = [
+                {properties: { title: 'Apple'}},
+                {properties: { title: 'Banana'}},
+            ];
+            fruitSection.setItems(fruitDataSet);
+            sections.push(fruitSection);
+
+            var vegSection = Ti.UI.createListSection({ headerTitle: 'Vegetables'});
+            var vegDataSet = [
+                {properties: { title: 'Carrots'}},
+                {properties: { title: 'Potatoes'}},
+            ];
+            vegSection.setItems(vegDataSet);
+
+            var fishSection = Ti.UI.createListSection({ headerTitle: 'Fish'});
+            var fishDataSet = [
+                {properties: { title: 'Cod'}},
+                {properties: { title: 'Haddock'}},
+            ];
+            fishSection.setItems(fishDataSet);
+            listView.sections = sections;
+            var refreshCount = 0;
+
+            function getFormattedDate(){
+                var date = new Date();
+                return date.getMonth() + '/' + date.getDate() + '/' + date.getFullYear() + ' ' + date.getHours() + ':' + date.getMinutes();
+            }
+ 
+            function resetPullHeader(){
+                actInd.hide();
+                imageArrow.transform=Ti.UI.create2DMatrix();
+                if (refreshCount < 2) {
+                    imageArrow.show();
+                    labelStatus.text = 'Pull down to refresh...';
+                    labelLastUpdated.text = 'Last Updated: ' + getFormattedDate();
+                } else {
+                    labelStatus.text = 'Nothing To Refresh';
+                    labelLastUpdated.text = 'Last Updated: ' + getFormattedDate();
+                    listView.removeEventListener('pull', pullListener);
+                    listView.removeEventListener('pullend', pullendListener);
+                    eventStatus.text = 'Removed event listeners.';
+                }
+                listView.setContentInsets({top:0}, {animated:true});
+            }
+ 
+            function loadTableData()
+            {
+                if (refreshCount == 0) {
+                    listView.appendSection(vegSection);
+                } else if (refreshCount == 1) {
+                    listView.appendSection(fishSection);
+                } 
+                refreshCount ++;
+                resetPullHeader();
+            }
+
+            function pullListener(e){
+                eventStatus.text = 'EVENT pull FIRED. e.active = '+e.active;
+                if (e.active == false) {
+                    var unrotate = Ti.UI.create2DMatrix();
+                    imageArrow.animate({transform:unrotate, duration:180});
+                    labelStatus.text = 'Pull down to refresh...';
+                } else {
+                    var rotate = Ti.UI.create2DMatrix().rotate(180);
+                    imageArrow.animate({transform:rotate, duration:180});
+                    if (refreshCount == 0) {
+                        labelStatus.text = 'Release to get Vegetables...';
+                    } else {
+                        labelStatus.text = 'Release to get Fish...';
+                    }
+                }
+            }
+
+            function pullendListener(e){
+                eventStatus.text = 'EVENT pullend FIRED.';
+             
+                if (refreshCount == 0) {
+                    labelStatus.text = 'Loading Vegetables...';        
+                } else {
+                    labelStatus.text = 'Loading Fish...';
+                }
+                imageArrow.hide();
+                actInd.show();
+                listView.setContentInsets({top:80}, {animated:true});
+                setTimeout(function(){
+                    loadTableData();
+                }, 2000);
+            }
+
+            var tableHeader = Ti.UI.createView({
+                backgroundColor:'#e2e7ed',
+                width:320, height:80
+            });
+
+            var border = Ti.UI.createView({
+                backgroundColor:'#576c89',
+                bottom:0,
+                height:2
+            });
+            tableHeader.add(border);
+
+            var imageArrow = Ti.UI.createImageView({
+                image:'https://github.com/appcelerator/titanium_mobile/raw/master/demos/KitchenSink/Resources/images/whiteArrow.png',
+                left:20, bottom:10,
+                width:23, height:60
+            });
+            tableHeader.add(imageArrow);
+
+            var labelStatus = Ti.UI.createLabel({
+                color:'#576c89',
+                font:{fontSize:13, fontWeight:'bold'},
+                text:'Pull down to refresh...',
+                textAlign:'center',
+                left:55, bottom:30,
+                width:200
+            });
+            tableHeader.add(labelStatus);
+
+            var labelLastUpdated = Ti.UI.createLabel({
+                color:'#576c89',
+                font:{fontSize:12},
+                text:'Last Updated: ' + getFormattedDate(),
+                textAlign:'center',
+                left:55, bottom:15,
+                width:200
+            });
+            tableHeader.add(labelLastUpdated);
+
+            var actInd = Ti.UI.createActivityIndicator({
+                left:20, bottom:13,
+                width:30, height:30
+            });
+            tableHeader.add(actInd);
+            listView.pullView = tableHeader;
+            listView.addEventListener('pull', pullListener);
+            listView.addEventListener('pullend',pullendListener);
+
+            var eventStatus = Ti.UI.createLabel({
+                font:{fontSize:13, fontWeight:'bold'},
+                text: 'Event data will show here',
+                bottom:0,
+                height:'10%'
+            })
+
+            win.add(listView);
+            win.add(eventStatus);
+            win.open();
 
 ---
 name: ListViewAnimationProperties
