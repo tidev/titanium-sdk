@@ -440,6 +440,15 @@ properties:
     platforms: [iphone, ipad]
     since: 3.2.0
 
+  - name: sectionIndexTitles
+    summary: Array of objects (with `title` and `index` properties) to control the list view index.
+    description: |
+        If an index array is specified, an index bar is displayed on the right-hand side of the list view.
+        Clicking on a title in the index bar scrolls the list view to the section index associated with that title.
+    type: Array<ListViewIndexEntry>
+    platforms: [iphone, ipad]
+    since: 3.2.0
+
   - name: scrollIndicatorStyle
     summary: |
         Style of the scrollbar, specified using one of the constants from
@@ -946,6 +955,22 @@ properties:
         <Titanium.UI.iPhone.ListViewScrollPosition>.
     type: Number
     default: Titanium.UI.iPhone.ListViewScrollPosition.NONE
+
+---
+name: ListViewIndexEntry
+summary: A simple object that represents an index entry in a `ListView`.
+description: |
+    Used in conjunction with the [sectionIndexTitles](Titanium.UI.ListView.sectionIndexTitles) property of the List View.
+platforms: [iphone, ipad]
+since: 3.2.0
+properties:
+  - name: title
+    summary: Title to display in the index bar.
+    type: String
+    
+  - name: index
+    summary: Section index associated with this title.
+    type: Number
 
 ---
 name: ListViewContentInsetOption
