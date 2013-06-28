@@ -438,7 +438,6 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 
 - (void)setBackgroundColor_:(id)arg
 {
-	[self.proxy replaceValue:arg forKey:@"backgroundColor" notification:NO];
 	if (_tableView != nil) {
 		[[self class] setBackgroundColor:[TiUtils colorValue:arg] onTable:_tableView];
 	}
@@ -447,14 +446,12 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 - (void)setHeaderTitle_:(id)args
 {
     [_headerWrapper removeAllChildren:nil];
-    [self.proxy replaceValue:args forKey:@"headerTitle" notification:NO];
     TiViewProxy *theProxy = [[self class] titleViewForText:[TiUtils stringValue:args] inTable:[self tableView] footer:NO];
     [_headerWrapper add:theProxy];
 }
 
 - (void)setFooterTitle_:(id)args
 {
-    [self.proxy replaceValue:args forKey:@"footerTitle" notification:NO];
     if (IS_NULL_OR_NIL(args)) {
         [_footerViewProxy setProxyObserver:nil];
         [_footerViewProxy windowWillClose];
@@ -472,7 +469,6 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 -(void)setHeaderView_:(id)args
 {
     ENSURE_SINGLE_ARG_OR_NIL(args,TiViewProxy);
-    [self.proxy replaceValue:args forKey:@"headerView" notification:NO];
     [self tableView];
     [_headerWrapper removeAllChildren:nil];
     if (args!=nil) {
@@ -483,7 +479,6 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 -(void)setFooterView_:(id)args
 {
     ENSURE_SINGLE_ARG_OR_NIL(args,TiViewProxy);
-    [self.proxy replaceValue:args forKey:@"footerView" notification:NO];
     if (IS_NULL_OR_NIL(args)) {
         [_footerViewProxy setProxyObserver:nil];
         [_footerViewProxy windowWillClose];
@@ -553,7 +548,6 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 
 -(void)setKeepSectionsInSearch_:(id)args
 {
-    [self.proxy replaceValue:args forKey:@"keepSectionsInSearch" notification:NO];
     if (searchViewProxy == nil) {
         keepSectionsInSearch = [TiUtils boolValue:args def:NO];
         if (searchActive) {
@@ -567,25 +561,21 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 
 - (void)setScrollIndicatorStyle_:(id)value
 {
-	[self.proxy replaceValue:value forKey:@"scrollIndicatorStyle" notification:NO];
 	[self.tableView setIndicatorStyle:[TiUtils intValue:value def:UIScrollViewIndicatorStyleDefault]];
 }
 
 - (void)setWillScrollOnStatusTap_:(id)value
 {
-	[self.proxy replaceValue:value forKey:@"willScrollOnStatusTap" notification:NO];
 	[self.tableView setScrollsToTop:[TiUtils boolValue:value def:YES]];
 }
 
 - (void)setShowVerticalScrollIndicator_:(id)value
 {
-	[self.proxy replaceValue:value forKey:@"showVerticalScrollIndicator" notification:NO];
 	[self.tableView setShowsVerticalScrollIndicator:[TiUtils boolValue:value]];
 }
 
 -(void)setAllowsSelection_:(id)value
 {
-	[self.proxy replaceValue:value forKey:@"allowsSelection" notification:NO];
     [[self tableView] setAllowsSelection:[TiUtils boolValue:value]];
 }
 
@@ -617,7 +607,6 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 
 -(void)setSearchText_:(id)args
 {
-    [self.proxy replaceValue:args forKey:@"searchText" notification:NO];
     id searchView = [self.proxy valueForKey:@"searchView"];
     if (!IS_NULL_OR_NIL(searchView)) {
         DebugLog(@"Can not use searchText with searchView. Ignoring call.");
@@ -631,7 +620,6 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 -(void)setSearchView_:(id)args
 {
     ENSURE_TYPE_OR_NIL(args,TiUISearchBarProxy);
-    [self.proxy replaceValue:args forKey:@"searchView" notification:NO];
     [self tableView];
     [searchViewProxy setDelegate:nil];
     RELEASE_TO_NIL(searchViewProxy);
