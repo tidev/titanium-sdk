@@ -297,7 +297,7 @@ events:
         type: Boolean
 
   - name: pull
-    summary: Fired when the user drags the list view past the top edge of the pullView.
+    summary: Fired when the user drags the list view past the top edge of the [pullView](Titanium.UI.ListView.pullView).
     platforms: [iphone, ipad]
     since: 3.2.0
     properties:
@@ -310,7 +310,7 @@ events:
         type: Boolean
 
   - name: pullend
-    summary: Fired when the user stops dragging the list view and the pullView is completely visible.
+    summary: Fired when the user stops dragging the list view and the [pullView](Titanium.UI.ListView.pullView) is completely visible.
     platforms: [iphone, ipad]
     since: 3.2.0
     properties:
@@ -388,12 +388,10 @@ properties:
     platforms: [iphone, ipad]
 
   - name: pullView
-    summary: |
-        View positioned above the first row that is only revealed when the user drags the table 
-        contents down.
+    summary: View positioned above the first row that is only revealed when the user drags the list view contents down.
     description: |
         A `pullView` is a UI control that is often used to provide a convenient way for the user to refresh a table's data. 
-        Typically used with the [setContentInsets](Titanium.UI.ListView.setContentInsets) method.
+        Typically used in conjunction with [setContentInsets](Titanium.UI.ListView.setContentInsets) method and [pull](Titanium.UI.ListView.pull) and [pullend](Titanium.UI.ListView.pullend) events.
 
         See the code example on pullView to  see how it may be utilized.
     type: Titanium.UI.View
