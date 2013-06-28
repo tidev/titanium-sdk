@@ -583,7 +583,6 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 {
     if ([TiUtils boolValue:args def:NO] != editing) {
         editing = !editing;
-        [self.proxy replaceValue:NUMBOOL(editing) forKey:@"editing" notification:NO];
         [[self tableView] beginUpdates];
         [_tableView setEditing:editing animated:YES];
         [_tableView endUpdates];
@@ -594,7 +593,6 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 -(void)setCaseInsensitiveSearch_:(id)args
 {
     caseInsensitiveSearch = [TiUtils boolValue:args def:YES];
-    [self.proxy replaceValue:NUMBOOL(caseInsensitiveSearch) forKey:@"caseInsensitiveSearch" notification:NO];
     if (searchActive) {
         [self buildResultsForSearchText];
         if ([searchController isActive]) {
