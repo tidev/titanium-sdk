@@ -165,6 +165,19 @@ RUN_ON_STREAMER_RETURN(state, AudioStreamerState)
 RUN_ON_STREAMER_RETURN(progress, double)
 RUN_ON_STREAMER_RETURN(bufferSize, NSUInteger)
 RUN_ON_STREAMER_RETURN(volume, double)
+-(double)duration
+{
+    if ([TiUtils isiPhoneOS3_2OrGreater])
+    {
+        return [(AudioStreamerCUR*)streamer duration];
+    }
+    else
+    {
+        NSLog(@"[WARN] Returning 0 for duration since it is not supported for older pre-iOS 3.2 BC streamer");
+        
+        return 0.0;
+    }
+} 
 
 // Functions
 RUN_ON_STREAMER_RETURN(isPlaying, BOOL)

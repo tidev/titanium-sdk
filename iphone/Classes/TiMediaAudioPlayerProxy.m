@@ -167,6 +167,7 @@ PLAYER_PROP_BOOL(paused,isPaused);
 PLAYER_PROP_DOUBLE(bitRate,bitRate);
 PLAYER_PROP_DOUBLE(progress,progress);
 PLAYER_PROP_DOUBLE(state,state);
+PLAYER_PROP_DOUBLE(duration,duration);
 
 -(NSNumber *)volume
 {
