@@ -10,10 +10,14 @@ import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
+import org.appcelerator.titanium.util.TiFileHelper;
 import org.appcelerator.titanium.util.TiUIHelper;
 
 import ti.modules.titanium.ui.widget.TiUIText;
+import android.graphics.drawable.Drawable;
 import android.text.InputType;
+import android.text.TextUtils.TruncateAt;
+import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -21,11 +25,13 @@ import android.view.ViewGroup.LayoutParams;
 import android.view.inputmethod.EditorInfo;
 import android.widget.ImageButton;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 
 public class TiUISearchBar extends TiUIText
 {
 	protected ImageButton cancelBtn;
-	
+	private TextView promptText;
+
 	public interface OnSearchChangeListener {
 		public void filterBy(String text);
 	}
@@ -37,6 +43,9 @@ public class TiUISearchBar extends TiUIText
 		super(proxy, true);
 		
 		TiEditText tv = (TiEditText) getNativeView();
+		promptText = new TextView(proxy.getActivity());
+		promptText.setEllipsize(TruncateAt.END);
+		promptText.setSingleLine(true);
 		tv.setImeOptions(EditorInfo.IME_ACTION_DONE);
 
 		// TODO Add Filter support
@@ -75,9 +84,16 @@ public class TiUISearchBar extends TiUIText
 		};
 
 		layout.setGravity(Gravity.NO_GRAVITY);
-		layout.setPadding(0,0,0,0);
+		layout.setPadding(0, 0, 0, 0);
+		int promptWidth = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 150, proxy.getActivity()
+			.getResources().getDisplayMetrics());
+		RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(promptWidth, LayoutParams.WRAP_CONTENT);
+		params.addRule(RelativeLayout.CENTER_IN_PARENT);
+		params.addRule(RelativeLayout.ALIGN_PARENT_TOP);
+		promptText.setGravity(Gravity.CENTER_HORIZONTAL);
+		layout.addView(promptText, params);
 
-		RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT);
+		params = new RelativeLayout.LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT);
 		params.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
 		params.addRule(RelativeLayout.CENTER_VERTICAL);
 		params.addRule(RelativeLayout.LEFT_OF, 101);
@@ -109,8 +125,21 @@ public class TiUISearchBar extends TiUIText
 		if (d.containsKey("showCancel")) {
 			boolean showCancel = TiConvert.toBoolean(d, "showCancel", false);
 			cancelBtn.setVisibility(showCancel ? View.VISIBLE : View.GONE);
-		} else if (d.containsKey("barColor")) {
+		}
+		if (d.containsKey("barColor")) {
 			nativeView.setBackgroundColor(TiConvert.toColor(d, "barColor"));
+		}
+		if (d.containsKey("prompt")) {
+			String strPrompt = TiConvert.toString(d, "prompt");
+			promptText.setText(strPrompt);
+		}
+		if (d.containsKey("backgroundImage")) {
+
+			Object bkgdImage = proxy.getProperty("backgroundImage");
+			TiFileHelper tfh = new TiFileHelper(tv.getContext());
+			String url = proxy.resolveUrl(null, bkgdImage.toString());
+			Drawable background = tfh.loadDrawable(url, false);
+			nativeView.setBackgroundDrawable(background);
 		}
 	}
 
