@@ -23,8 +23,6 @@ public class TiConfig
 	* <pre>
 	* &lt;property name="ti.android.debug" type="bool"&gt;true&lt;/property&gt;
 	* </pre>
-	* Whether or not using legacy window. This is set in the application's <code>tiapp.xml</code> with the 
-	* <code>ti.android.useLegacyWindow</code> property
 	* @module.api
 	*/
 	public static boolean LOGD = Config.DEBUG;
@@ -32,5 +30,4 @@ public class TiConfig
 	public static boolean DEBUG = Config.DEBUG;
 	public static boolean RELEASE = !Config.DEBUG;
 	public static boolean PROFILE = Config.PROFILE;
-	public static boolean LEGACY_WINDOW = false;
 }

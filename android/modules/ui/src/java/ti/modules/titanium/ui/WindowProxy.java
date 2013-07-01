@@ -12,10 +12,7 @@ import java.util.HashMap;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.annotations.Kroll;
-import org.appcelerator.kroll.common.AsyncResult;
 import org.appcelerator.kroll.common.Log;
-import org.appcelerator.kroll.common.TiConfig;
-import org.appcelerator.kroll.common.TiMessenger;
 import org.appcelerator.titanium.TiActivity;
 import org.appcelerator.titanium.TiActivityWindow;
 import org.appcelerator.titanium.TiActivityWindows;
@@ -24,6 +21,7 @@ import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiTranslucentActivity;
 import org.appcelerator.titanium.proxy.ActivityProxy;
+import org.appcelerator.titanium.proxy.DecorViewProxy;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.proxy.TiWindowProxy;
 import org.appcelerator.titanium.util.TiConvert;
@@ -51,7 +49,6 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 	private static final int MSG_FIRST_ID = TiViewProxy.MSG_LAST_ID + 1;
 	private static final int MSG_SET_PIXEL_FORMAT = MSG_FIRST_ID + 100;
 	private static final int MSG_SET_TITLE = MSG_FIRST_ID + 101;
-	private static final int MSG_SET_OPACITY = MSG_FIRST_ID + 102;
 	protected static final int MSG_LAST_ID = MSG_FIRST_ID + 999;
 
 	private WeakReference<TiBaseActivity> windowActivity;
@@ -91,17 +88,25 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 		Activity topActivity = TiApplication.getAppCurrentActivity();
 		if (topActivity instanceof TiBaseActivity) {
 			TiBaseActivity baseActivity = (TiBaseActivity) topActivity;
-			baseActivity.getActivityProxy().getDecorView().add(this);
-			windowActivity = new WeakReference<TiBaseActivity>(baseActivity);
+			ActivityProxy activityProxy = baseActivity.getActivityProxy();
+			if (activityProxy != null) {
+				DecorViewProxy decorView = activityProxy.getDecorView();
+				if (decorView != null) {
+					decorView.add(this);
+					windowActivity = new WeakReference<TiBaseActivity>(baseActivity);
 
-			// Need to handle the cached activity proxy properties and url window in the JS side.
-			callPropertySync(PROPERTY_POST_WINDOW_CREATED, null);
+					// Need to handle the cached activity proxy properties and url window in the JS side.
+					callPropertySync(PROPERTY_POST_WINDOW_CREATED, null);
 
-			opened = true;
-			fireEvent(TiC.EVENT_OPEN, null);
+					opened = true;
+					fireEvent(TiC.EVENT_OPEN, null);
 
-			baseActivity.addWindowToStack(this);
+					baseActivity.addWindowToStack(this);
+					return;
+				}
+			}
 		}
+		Log.e(TAG, "Unable to open the lightweight window because the current activity is not available.");
 	}
 
 	public void removeLightweightWindowFromStack()
@@ -146,13 +151,15 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 		// If "ti.android.useLegacyWindow" is set to true in the tiapp.xml, follow the old window behavior:
 		// create a HW window if any of the four properties, "fullscreen", "navBarHidden", "windowSoftInputMode" and
 		// "modal", is specified; otherwise create a LW window.
-		} else if (TiConfig.LEGACY_WINDOW && !hasProperty(TiC.PROPERTY_FULLSCREEN)
+		} else if (TiApplication.USE_LEGACY_WINDOW && !hasProperty(TiC.PROPERTY_FULLSCREEN)
 			&& !hasProperty(TiC.PROPERTY_NAV_BAR_HIDDEN) && !hasProperty(TiC.PROPERTY_WINDOW_SOFT_INPUT_MODE)
 			&& !hasProperty(TiC.PROPERTY_MODAL)) {
 			lightweight = true;
 		}
 
-		Log.d(TAG, "open the window: lightweight = " + lightweight, Log.DEBUG_MODE);
+		if (Log.isDebugModeEnabled()) {
+			Log.d(TAG, "open the window: lightweight = " + lightweight);
+		}
 
 		if (lightweight) {
 			addLightweightWindowToStack();
@@ -306,14 +313,9 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 	{
 		if (!lightweight && windowActivity != null && windowActivity.get() != null) {
 			if (TiC.PROPERTY_WINDOW_PIXEL_FORMAT.equals(name)) {
-				TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_SET_PIXEL_FORMAT), value);
+				getMainHandler().obtainMessage(MSG_SET_PIXEL_FORMAT, value).sendToTarget();
 			} else if (TiC.PROPERTY_TITLE.equals(name)) {
-				TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_SET_TITLE), value);
-			} else if (TiC.PROPERTY_OPACITY.equals(name)) {
-				// We don't change the opacity of the window background for a modal window.
-				if (!TiConvert.toBoolean(getProperty(TiC.PROPERTY_MODAL), false)) {
-					TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_SET_OPACITY), value);
-				}
+				getMainHandler().obtainMessage(MSG_SET_TITLE, value).sendToTarget();
 			}
 		}
 
@@ -325,26 +327,21 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 	{
 		switch (msg.what) {
 			case MSG_SET_PIXEL_FORMAT: {
-				AsyncResult result = (AsyncResult) msg.obj;
-				Window win = windowActivity.get().getWindow();
-				win.setFormat(TiConvert.toInt((Object)(result.getArg()), PixelFormat.UNKNOWN));
-				win.getDecorView().invalidate();
-				result.setResult(null);
+				Activity activity = getWindowActivity();
+				if (activity != null) {
+					Window win = activity.getWindow();
+					if (win != null) {
+						win.setFormat(TiConvert.toInt((Object)(msg.obj), PixelFormat.UNKNOWN));
+						win.getDecorView().invalidate();
+					}
+				}
 				return true;
 			}
 			case MSG_SET_TITLE: {
-				AsyncResult result = (AsyncResult) msg.obj;
-				windowActivity.get().setTitle(TiConvert.toString((Object)(result.getArg()), ""));
-				result.setResult(null);
-				return true;
-			}
-			case MSG_SET_OPACITY: {
-				AsyncResult result = (AsyncResult) msg.obj;
-				// The background of the window activity will always be transparent if the opacity is given.
-				// If no backgroundColor or backgroundImage is given, the window will be completely transparent.
-				Drawable background = new ColorDrawable(0x00000000);
-				windowActivity.get().getWindow().setBackgroundDrawable(background);
-				result.setResult(null);
+				Activity activity = getWindowActivity();
+				if (activity != null) {
+					activity.setTitle(TiConvert.toString((Object)(msg.obj), ""));
+				}
 				return true;
 			}
 		}

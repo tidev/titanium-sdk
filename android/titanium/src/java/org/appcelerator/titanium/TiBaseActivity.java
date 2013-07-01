@@ -1175,11 +1175,7 @@ public abstract class TiBaseActivity extends FragmentActivity
 
 		//LW windows
 		if (window == null && view != null) {
-			if (view instanceof TiWindowProxy) {
-				((TiWindowProxy) view).close(null);
-			} else {
-				view.releaseViews();
-			}
+			view.releaseViews();
 			view = null;
 		}
 
