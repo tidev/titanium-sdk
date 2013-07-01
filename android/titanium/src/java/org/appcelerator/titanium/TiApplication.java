@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -47,6 +47,7 @@ import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.util.TiWeakList;
 
 import ti.modules.titanium.TitaniumModule;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Application;
 import android.content.BroadcastReceiver;
@@ -389,6 +390,7 @@ public abstract class TiApplication extends Application implements Handler.Callb
 		super.onLowMemory();
 	}
 
+	@SuppressLint("NewApi")
 	@Override
 	public void onTrimMemory(int level)
 	{
@@ -533,7 +535,6 @@ public abstract class TiApplication extends Application implements Handler.Callb
 
 	public void addAppEventProxy(KrollProxy appEventProxy)
 	{
-		Log.e(TAG, "APP PROXY: " + appEventProxy);
 		if (appEventProxy != null && !appEventProxies.contains(appEventProxy)) {
 			appEventProxies.add(new WeakReference<KrollProxy>(appEventProxy));
 		}

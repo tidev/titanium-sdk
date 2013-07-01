@@ -767,4 +767,9 @@ public class ListSectionProxy extends ViewProxy{
 		super.release();
 	}
 	
+	public void releaseViews()
+	{
+		listView = null;
+	}
+	
 }

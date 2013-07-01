@@ -47,6 +47,7 @@
 	return _delegate != nil ? _delegate : self;
 }
 
+// These API's are used by the ListView directly. Not for public consumption
 - (NSDictionary *)itemAtIndex:(NSUInteger)index
 {
 	if (index < [_items count]) {
@@ -57,6 +58,30 @@
 	}
 	return nil;
 }
+
+- (void) deleteItemAtIndex:(NSUInteger)index
+{
+    if ([_items count] <= index) {
+        DebugLog(@"[WARN] ListSectionProxy: deleteItemAtIndex index is out of range");
+    } else {
+        [_items removeObjectAtIndex:index];
+    }
+}
+
+- (void) addItem:(NSDictionary*)item atIndex:(NSUInteger)index
+{
+    if (index > [_items count]) {
+        DebugLog(@"[WARN] ListSectionProxy: addItem:atIndex: index is out of range");
+    } else {
+        if (index == [_items count]) {
+            [_items addObject:item];
+        } else {
+            [_items insertObject:item atIndex:index];
+        }
+    }
+}
+
+
 
 #pragma mark - Public API
 

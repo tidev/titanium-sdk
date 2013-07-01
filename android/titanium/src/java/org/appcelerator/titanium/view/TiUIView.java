@@ -31,6 +31,7 @@ import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiCompositeLayout.LayoutParams;
 import org.appcelerator.titanium.view.TiGradientDrawable.GradientType;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Paint;
@@ -1264,18 +1265,25 @@ public abstract class TiUIView
 			return;
 		}
 		
-		registerTouchEvents(touchable);
-		
-		// Previously, we used the single tap handling above to fire our click event.  It doesn't
-		// work: a single tap is not the same as a click.  A click can be held for a while before
-		// lifting the finger; a single-tap is only generated from a quick tap (which will also cause
-		// a click.)  We wanted to do it in single-tap handling presumably because the singletap
-		// listener gets a MotionEvent, which gives us the information we want to provide to our
-		// users in our click event, whereas Android's standard OnClickListener does _not_ contain
-		// that info.  However, an "up" seems to always occur before the click listener gets invoked,
-		// so we store the last up event's x,y coordinates (see onTouch above) and use them here.
-		// Note: AdapterView throws an exception if you try to put a click listener on it.
-		doSetClickable(touchable);
+		boolean clickable = true;
+		if (proxy.hasProperty(TiC.PROPERTY_TOUCH_ENABLED)) {
+			clickable = (Boolean) proxy.getProperty(TiC.PROPERTY_TOUCH_ENABLED);
+		}
+
+		if (clickable) {
+			registerTouchEvents(touchable);
+
+			// Previously, we used the single tap handling above to fire our click event. It doesn't
+			// work: a single tap is not the same as a click. A click can be held for a while before
+			// lifting the finger; a single-tap is only generated from a quick tap (which will also cause
+			// a click.) We wanted to do it in single-tap handling presumably because the singletap
+			// listener gets a MotionEvent, which gives us the information we want to provide to our
+			// users in our click event, whereas Android's standard OnClickListener does _not_ contain
+			// that info. However, an "up" seems to always occur before the click listener gets invoked,
+			// so we store the last up event's x,y coordinates (see onTouch above) and use them here.
+			// Note: AdapterView throws an exception if you try to put a click listener on it.
+			doSetClickable(touchable);
+		}
 	}
 
 
@@ -1354,6 +1362,7 @@ public abstract class TiUIView
 	 * Sets the nativeView's opacity.
 	 * @param opacity the opacity to set.
 	 */
+	@SuppressLint("NewApi")
 	public void setOpacity(float opacity)
 	{
 		if (opacity < 0 || opacity > 1) {

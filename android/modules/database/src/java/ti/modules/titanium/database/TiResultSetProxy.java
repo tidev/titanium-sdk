@@ -258,7 +258,7 @@ public class TiResultSetProxy extends KrollProxy
 		return 0;
 	}
 
-	@Kroll.method
+	@Kroll.getProperty @Kroll.method
 	public boolean isValidRow() 
 	{
 		boolean valid = false;

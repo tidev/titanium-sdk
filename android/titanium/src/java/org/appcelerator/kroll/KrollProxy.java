@@ -715,11 +715,14 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 	 */
 	public boolean fireEvent(String event, Object data)
 	{
-		Message message = getRuntimeHandler().obtainMessage(MSG_FIRE_EVENT, data);
-		message.getData().putString(PROPERTY_NAME, event);
-		message.sendToTarget();
+		if (hierarchyHasListener(event)) {
+			Message message = getRuntimeHandler().obtainMessage(MSG_FIRE_EVENT, data);
+			message.getData().putString(PROPERTY_NAME, event);
+			message.sendToTarget();
+			return true;
+		}
 
-		return hierarchyHasListener(event);
+		return false;
 	}
 
 	/**
@@ -750,15 +753,18 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 	 */
 	public boolean fireSyncEvent(String event, Object data)
 	{
-		if (KrollRuntime.getInstance().isRuntimeThread()) {
-			return doFireEvent(event, data);
+		if (hierarchyHasListener(event)) {
+			if (KrollRuntime.getInstance().isRuntimeThread()) {
+				return doFireEvent(event, data);
 
-		} else {
-			Message message = getRuntimeHandler().obtainMessage(MSG_FIRE_SYNC_EVENT);
-			message.getData().putString(PROPERTY_NAME, event);
+			} else {
+				Message message = getRuntimeHandler().obtainMessage(MSG_FIRE_SYNC_EVENT);
+				message.getData().putString(PROPERTY_NAME, event);
 
-			return (Boolean) TiMessenger.sendBlockingRuntimeMessage(message, data);
+				return (Boolean) TiMessenger.sendBlockingRuntimeMessage(message, data);
+			}
 		}
+		return false;
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
@@ -895,9 +901,8 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 		// Checks whether the parent has the listener or not
 		if (!hasListener) {
 			KrollProxy parentProxy = getParentForBubbling();
-			if (parentProxy != null) {
-				boolean parentHasListener = parentProxy.hierarchyHasListener(event);
-				hasListener = hasListener || parentHasListener;
+			if (parentProxy != null && bubbleParent) {
+				return parentProxy.hierarchyHasListener(event);
 			}
 		}
 

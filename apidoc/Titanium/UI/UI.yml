@@ -777,9 +777,8 @@ properties:
     description: |
         Use with the <Titanium.UI.TextField.keyboardType> and <Titanium.UI.TextArea.keyboardType> 
         properties.
-        
-        On MobileWeb and Tizen, if you enable `passwordType`, the `keyboardType` value will be overridden with 
-        `KEYBOARD_DEFAULT`.
+
+        On iPad, this behaves the same as <Titanium.UI.KEYBOARD_DEFAULT>.
     type: Number
     permission: read-only
     platforms: [android, iphone, ipad]
@@ -826,6 +825,8 @@ properties:
     description: |
         Use with the <Titanium.UI.TextField.keyboardType> and <Titanium.UI.TextArea.keyboardType> 
         properties.
+
+        On iPad, this behaves the same as <Titanium.UI.KEYBOARD_NUMBERS_PUNCTUATION>.
         
         On MobileWeb and Tizen, if you enable `passwordType`, the `keyboardType` value will be overridden with 
         `KEYBOARD_DEFAULT`.
@@ -837,6 +838,8 @@ properties:
     description: |
         Use with the <Titanium.UI.TextField.keyboardType> and <Titanium.UI.TextArea.keyboardType> 
         properties.
+
+        On iPad, this behaves the same as <Titanium.UI.KEYBOARD_NUMBERS_PUNCTUATION>.
         
         On MobileWeb and Tizen, if you enable `passwordType`, the `keyboardType` value will be overridden with 
         `KEYBOARD_DEFAULT`.
