@@ -260,7 +260,7 @@ properties:
         at creation time or in the `options` dictionary passed to the 
         [Window.open](Titanium.UI.Window.open) method.
 
-        On Android, setting this property forces the creation of a heavyweight window before SDK 3.2.0.
+        On Android, setting this property forces the creation of a heavyweight window before Titanium 3.2.0.
         See "Android Heavyweight and Lightweight Windows" in the main description of this class for more
         information.
     platforms: [android, iphone, ipad]
@@ -286,7 +286,7 @@ properties:
         you set `fullscreen:true`, the status bar will still be visible *if* it was visible
         in the previous window. `navBarHidden` and `modal` do work fine together, however.
 
-        On Android, setting this property forces the creation of a heavyweight window before SDK 3.2.0. See "Android
+        On Android, setting this property forces the creation of a heavyweight window before Titanium 3.2.0. See "Android
         Heavyweight and Lightweight Windows" in the main description of this class for more
         information.
         
@@ -311,7 +311,7 @@ properties:
         Must be specified at creation time or in the `options` dictionary passed to the 
         [Window.open](Titanium.UI.Window.open) method.
 
-        On Android, setting this property forces the creation of a heavyweight window before SDK 3.2.0. See "Android
+        On Android, setting this property forces the creation of a heavyweight window before Titanium 3.2.0. See "Android
         Heavyweight and Lightweight Windows" in the main description of this class for more
         information.
     platforms: [android, iphone, ipad, mobileweb, tizen]
@@ -520,7 +520,7 @@ properties:
         must be configured with the `Keyboard Support` setting set to `No`. Note that it is always 
         recommended to test an application on a physical device to understand its true behavior.
 
-        Setting this property forces the creation of a heavyweight window before SDK 3.2.0. See "Android Heavyweight
+        Setting this property forces the creation of a heavyweight window before Titanium 3.2.0. See "Android Heavyweight
         and Lightweight Windows" in the main description of this class for more information.
         
         This property is capable of representing two settings from the following two groups of 
@@ -792,8 +792,7 @@ description: |
     - A *heavyweight* window is associated with a new Android 
       [Activity](Titanium.Android.Activity).
 
-    - A *lightweight* window is a fullscreen view, and runs in the same Android Activity 
-      as the code that created it.
+    - A *lightweight* window is a fullscreen view, and runs in the current Android Activity.
 
     The [createWindow](Titanium.UI.createWindow) call creates a heavyweight window 
     if any of the following properties are defined (set to either `true` or `false`)
@@ -833,7 +832,7 @@ description: |
     you are leaving should fade out:
 
         var win2 = Ti.UI.createWindow({
-            fullscreen: false // Makes it heavyweight before SDK 3.2.0
+            fullscreen: false // Makes it heavyweight before Titanium 3.2.0
         });
 
         win2.open({
@@ -899,8 +898,8 @@ properties:
         On Android, this property supports animated transitions on heavyweight windows
         except for modal windows (`modal:true`).  See "Android Heavyweight and Lightweight
         Windows" in the main description of Titanium.UI.Window for more information. The
-        transitions are on by default, but you can set this to `false` to stop them
-        if you wish.
+        transitions are on by default, but you can disable this behavior by setting this value
+        to `false`.
 
         On iOS, only use this property to disable animated transitions on modal windows. 
         This property has unintended side effects on non-modal windows if it is defined. 
@@ -910,7 +909,7 @@ properties:
   - name: bottom
     summary: Window's bottom position, in platform-specific units.
     description: |
-        On Android, before SDK 3.2.0, this property only works with lightweight windows.
+        On Android, before Titanium 3.2.0, this property only works with lightweight windows.
         See "Android Heavyweight and Lightweight Windows" in the main description
         of Titanium.UI.Window for more information.
     type: [Number,String]
@@ -924,7 +923,7 @@ properties:
   - name: height
     summary: Window's height, in platform-specific units.
     description: |
-        On Android, before SDK 3.2.0, this property only works with lightweight windows.
+        On Android, before Titanium 3.2.0, this property only works with lightweight windows.
         See "Android Heavyweight and Lightweight Windows" in the main description 
         of Titanium.UI.Window for more information.
     type: [Number,String]
@@ -932,7 +931,7 @@ properties:
   - name: left
     summary: Window's left position, in platform-specific units.
     description: |
-        On Android, before SDK 3.2.0, this property only works with lightweight windows.
+        On Android, before Titanium 3.2.0, this property only works with lightweight windows.
         See "Android Heavyweight and Lightweight Windows" in the main description 
         of Titanium.UI.Window for more information.
     type: [Number,String]
@@ -975,7 +974,7 @@ properties:
   - name: right
     summary: Window's right position, in platform-specific units.
     description: |
-        On Android, before SDK 3.2.0, this property only works with lightweight windows.
+        On Android, before Titanium 3.2.0, this property only works with lightweight windows.
         See "Android Heavyweight and Lightweight Windows" in the main description 
         of Titanium.UI.Window for more information.
     type: [Number,String]
@@ -984,7 +983,7 @@ properties:
   - name: top
     summary: Window's top position, in platform-specific units.
     description: |
-        On Android, before SDK 3.2.0, this property only works with lightweight windows.
+        On Android, before Titanium 3.2.0, this property only works with lightweight windows.
         See "Android Heavyweight and Lightweight Windows" in the main description 
         of Titanium.UI.Window for more information.
     type: [Number,String]
@@ -1006,7 +1005,7 @@ properties:
   - name: width
     summary: Window's width, in platform-specific units.
     description: |
-        On Android, before SDK 3.2.0, this property only works with lightweight windows.
+        On Android, before Titanium 3.2.0, this property only works with lightweight windows.
         See "Android Heavyweight and Lightweight Windows" in the main description 
         of Titanium.UI.Window for more information.
     type: [Number,String]
@@ -1055,8 +1054,8 @@ properties:
         This property supports animated transitions on heavyweight windows
         except for modal windows (`modal:true`).  See "Android Heavyweight and Lightweight
         Windows" in the main description of Titanium.UI.Window for more information. The
-        transitions are on by default, but you can set this to `false` to stop them
-        if you wish.
+        transitions are on by default, but you can disable this behavior by setting this value
+        to `false`.
     type: Boolean
     default: true
 
