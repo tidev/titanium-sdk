@@ -159,7 +159,7 @@ description: |
         - [canEdit](Titanium.UI.ListItem.canEdit) - When this is set to true, it allows the item to be deleted 
           from the List View through a user initiated action. The item can only be deleted when the List View is 
           in editing mode. The ListView can enter 'editing' mode either by explicitly setting the [editing](Titanium.UI.ListView.editing)
-          property to true, or by swiping accross an item whose canEdit property is set to true. When the user
+          property to true, or by swiping accross an item whose `canEdit` property is set to true. When the user
           deletes the item, a [delete](Titanium.UI.ListView.delete) event is fired.
 
         - [canMove](Titanium.UI.ListItem.canMove) - When this item is set to true, it allows the item to be moved
@@ -173,7 +173,7 @@ description: |
           be deleted or reordered.
 
         - [pruneSectionsOnEdit](Titanium.UI.ListView.pruneSectionsOnEdit) - When this property is set to true and the 
-          user action results in a section having no other items, the section is deleted from the List View.Please note 
+          user action results in a section having no other items, the section is deleted from the List View. Please note 
           that this property only applies to the sections whose items are being edited.
 
 platforms: [android, ipad, iphone]
@@ -285,7 +285,7 @@ events:
         type: Number
 
       - name: targetItemIndex
-        summary: Position within the targetSection.
+        summary: Position within the `targetSection`.
         type: Number
 
       - name: itemId
@@ -302,7 +302,7 @@ events:
     since: 3.2.0
     properties:
       - name: active
-        summary: Determines if the pullView is completely visible (true) or partially hidden (false).
+        summary: Determines if the `pullView` is completely visible (true) or partially hidden (false).
         type: Boolean
 
       - name: bubbles
@@ -332,16 +332,16 @@ properties:
   - name: editing
     summary: Determines if the list view is currently in editing mode.
     description: |
-        For more information see the "Editing Support" section of <Titanium.UI.ListView> 
+        For more information see the "Editing Support" section of <Titanium.UI.ListView>.
     type: Boolean
     default: false
     since: 3.2.0
     platforms: [iphone, ipad]
 
   - name: pruneSectionsOnEdit
-    summary: Determines if empty sections are retained when the user completes editing the list View.
+    summary: Determines if empty sections are retained when the user completes editing the list view.
     description: |
-        For more information see the "Editing Support" section of <Titanium.UI.ListView> 
+        For more information see the "Editing Support" section of <Titanium.UI.ListView>.
     type: Boolean
     default: false
     since: 3.2.0
@@ -393,7 +393,7 @@ properties:
         A `pullView` is a UI control that is often used to provide a convenient way for the user to refresh a table's data. 
         Typically used in conjunction with [setContentInsets](Titanium.UI.ListView.setContentInsets) method and [pull](Titanium.UI.ListView.pull) and [pullend](Titanium.UI.ListView.pullend) events.
 
-        See the code example on pullView to  see how it may be utilized.
+        See the code example on `pullView` to  see how it may be utilized.
     type: Titanium.UI.View
     platforms: [iphone, ipad]
     since: 3.2.0
@@ -408,7 +408,7 @@ properties:
     since: 3.2.0
 
   - name: searchText
-    summary: The string to use as search parameter.
+    summary: The string to use as the search parameter.
     description: |
         Provides a generic search API for the List View. This property can not be used when the [searchView](Titanium.UI.ListView.searchView) property is set.
         Used in conjunction with [caseInsensitiveSearch](Titanium.UI.ListView.caseInsensitiveSearch) property of List View and [searchableText](Titanium.UI.ListItem.searchableText) property of List Item.
@@ -430,7 +430,7 @@ properties:
     since: 3.2.0
 
   - name: keepSectionsInSearch
-    summary: Determines if the section information is displayed in the search results when using the searchText property.
+    summary: Determines if the section information is displayed in the search results when using the `searchText` property.
     description: |
         Used in conjunction with [searchText](Titanium.UI.ListView.searchText) property of List View and [searchableText](Titanium.UI.ListItem.searchableText) property of List Item.
     type: Boolean
@@ -624,7 +624,7 @@ methods:
     platforms: [ipad,iphone]
 
   - name: setContentInsets
-    summary: Sets this listview's content insets.
+    summary: Sets this list view's content insets.
     description: |
         A list view is essentially a scroll view that contains a set of static row views that 
         represents the content. Thus, the `setContentInsets` method facilitates a margin, or inset, 
@@ -974,7 +974,7 @@ properties:
 name: ListViewContentInsetOption
 summary: Optional parameter for [setContentInsets](Titanium.UI.ListView.setContentInsets) method.
 description: |
-    On iOS, the optional parameters `animated` and `duration`to enable the animation and duration 
+    On iOS, the optional parameters `animated` and `duration` to enable the animation and duration 
     for animation while the content insets are updated. For example
 
         setContentInset({top:50,bottom:100}, {animated:true, duration:3000})
@@ -984,7 +984,7 @@ platforms: [iphone, ipad]
 
 properties:
   - name: animated
-    summary: Determines whether the table view's content inset change is animated.
+    summary: Determines whether the list view's content inset change is animated.
     type: Boolean
     default: false
     

@@ -133,6 +133,8 @@ properties:
     description: |
         For information about color values, see the "Colors" section of <Titanium.UI>.
     type: String
+    since: 3.2.0
+    platforms: [iphone, ipad]
     default: Transparent
     accessors: false
 
@@ -155,7 +157,7 @@ properties:
   - name: canEdit
     summary: Specifies if the item can be deleted by a user initiated action.
     description: |
-        For more information see the "Editing Support" section of <Titanium.UI.ListView> 
+        For more information see the "Editing Support" section of <Titanium.UI.ListView>.
     type: Boolean
     default: false
     since: 3.2.0
@@ -165,7 +167,7 @@ properties:
   - name: canMove
     summary: Specifies if the item can be reordered within the list view by a user initiated action.
     description: |
-        For more information see the "Editing Support" section of <Titanium.UI.ListView> 
+        For more information see the "Editing Support" section of <Titanium.UI.ListView>.
     type: Boolean
     default: false
     since: 3.2.0
@@ -175,7 +177,7 @@ properties:
   - name: searchableText
     summary: The text to match against when the [ListView](Titanium.UI.ListView) is performing a search.
     description: |
-        Used in conjunction with [searchView](Titanium.UI.ListView.searchView), [searchText](Titanium.UI.ListView.searchText) and [caseInsensitiveSearch](Titanium.UI.ListView.caseInsensitiveSearch) properties of ListView
+        Used in conjunction with [searchView](Titanium.UI.ListView.searchView), [searchText](Titanium.UI.ListView.searchText) and [caseInsensitiveSearch](Titanium.UI.ListView.caseInsensitiveSearch) properties of ListView.
     type: String
     since: 3.2.0
     platforms: [iphone, ipad]
