@@ -76,6 +76,7 @@ public abstract class TiApplication extends Application implements Handler.Callb
 	private static final String PROPERTY_COMPILE_JS = "ti.android.compilejs";
 	private static final String PROPERTY_ENABLE_COVERAGE = "ti.android.enablecoverage";
 	private static final String PROPERTY_DEFAULT_UNIT = "ti.ui.defaultunit";
+	private static final String PROPERTY_USE_LEGACY_WINDOW = "ti.android.useLegacyWindow";
 	private static long lastAnalyticsTriggered = 0;
 	private static long mainThreadId = 0;
 
@@ -88,6 +89,10 @@ public abstract class TiApplication extends Application implements Handler.Callb
 	public static final String APPLICATION_PREFERENCES_NAME = "titanium";
 	public static final String PROPERTY_FASTDEV = "ti.android.fastdev";
 	public static final int TRIM_MEMORY_RUNNING_LOW = 10; // Application.TRIM_MEMORY_RUNNING_LOW for API 16+
+
+	// Whether or not using legacy window. This is set in the application's tiapp.xml with the
+	// "ti.android.useLegacyWindow" property.
+	public static boolean USE_LEGACY_WINDOW = false;
 
 	private boolean restartPending = false;
 	private String baseUrl;
@@ -411,7 +416,7 @@ public abstract class TiApplication extends Application implements Handler.Callb
 		}
 
 		TiConfig.DEBUG = TiConfig.LOGD = systemProperties.getBool("ti.android.debug", false);
-		TiConfig.LEGACY_WINDOW = systemProperties.getBool("ti.android.useLegacyWindow", false);
+		USE_LEGACY_WINDOW = systemProperties.getBool(PROPERTY_USE_LEGACY_WINDOW, false);
 
 		startExternalStorageMonitor();
 		

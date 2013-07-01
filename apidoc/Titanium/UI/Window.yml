@@ -279,10 +279,10 @@ properties:
         [Window.open](Titanium.UI.Window.open) method.
 
         Android note:  Android modal windows are translucent. Before Android API 14, everything behind the
-        modal window is blurred. On API 14 and above, blurring is no longer supported because the flag 
+        modal window is blurred. On API 14 and above, blurring is no longer supported and will not work as expected because the flag
         [FLAG_BLUR_BEHIND](http://developer.android.com/reference/android/view/WindowManager.LayoutParams.html#FLAG_BLUR_BEHIND)
         is deprecated. The combination of `fullscreen:true` and `modal:true` will not work as
-        expected. In Android, the contents of a translucent window cannot appear above the status bar.  I.e., even though
+        expected. In Android, the contents of a translucent window cannot appear above the status bar.  I.e. even though
         you set `fullscreen:true`, the status bar will still be visible *if* it was visible
         in the previous window. `navBarHidden` and `modal` do work fine together, however.
 
@@ -787,7 +787,7 @@ description: |
 
     #### Android Heavyweight and Lightweight Windows
 
-    ***Before SDK 3.2.0***, in Android, Titanium windows can be heavyweight or lightweight:
+    ***Before Titanium 3.2.0*** in Android, Titanium windows can be heavyweight or lightweight:
 
     - A *heavyweight* window is associated with a new Android 
       [Activity](Titanium.Android.Activity).
@@ -804,7 +804,7 @@ description: |
     * `modal`
     * `windowSoftInputMode`
 
-    ***Starting from SDK 3.2.0***, in Android, all the windows are heavyweight. If you still want
+    ***Starting from Titanium 3.2.0*** in Android, all the windows are heavyweight. If you still want
     the old behavior, you can enable the `ti.android.useLegacyWindow` property in the `tiapp.xml`:
 
         <property name="ti.android.useLegacyWindow" type="bool">true</property>
@@ -1014,7 +1014,7 @@ properties:
   - name: activityEnterAnimation
     summary: Animation resource to run on the activity (heavyweight window) being opened.
     description: |
-      The value will be ignored if <openWindowParams.animated> is set to false.
+      This value will be ignored if <openWindowParams.animated> is set to false.
       See "Heavyweight Window Transitions in Android" in the main description of Titanium.UI.Window
       for more information.
     type: Number
@@ -1033,7 +1033,7 @@ properties:
     summary: Animation resource to run on the activity that is being put in background
         as a heavyweight window is being opened above it.
     description: |
-      The value will be ignored if <openWindowParams.animated> is set to false.
+      This value will be ignored if <openWindowParams.animated> is set to false.
       See "Heavyweight Window Transitions in Android" in the main description of Titanium.UI.Window
       for more information.
     type: Number
@@ -1063,7 +1063,7 @@ properties:
   - name: activityEnterAnimation
     summary: Animation resource to use for the incoming activity.
     description: |
-      The value will be ignored if <closeWindowParams.animated> is set to false.
+      This value will be ignored if <closeWindowParams.animated> is set to false.
       See "Heavyweight Window Transitions in Android" in the main description of Titanium.UI.Window
       for more information.
     type: Number
@@ -1071,7 +1071,7 @@ properties:
   - name: activityExitAnimation
     summary: Animation resource to use for the outgoing activity (heavyweight window).
     description: |
-      The value will be ignored if <closeWindowParams.animated> is set to false.
+      This value will be ignored if <closeWindowParams.animated> is set to false.
       See "Heavyweight Window Transitions in Android" in the main description of Titanium.UI.Window
       for more information.
     type: Number
