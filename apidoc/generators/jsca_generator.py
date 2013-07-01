@@ -91,6 +91,45 @@ def to_jsca_examples(api):
 	else:
 		return []
 
+def is_view_proxy(api):
+	if api.typestr != "proxy":
+		return
+	if api.name == "Titanium.UI.View":
+		return True
+	else:
+		superclass_name = api.api_obj.get("extends")
+		while superclass_name is not None:
+			if superclass_name == "Titanium.UI.View":
+				return True
+			superclass = all_annotated_apis[superclass_name]
+			superclass_name = superclass.api_obj.get("extends")
+	return False
+
+def find_proxy_names_in_module(module):
+	return [proxy.name for proxy in all_annotated_apis.values() if proxy.typestr == "proxy" and proxy.parent is module]
+
+def to_jsca_extends(api):
+	transformed = {}
+	if "extends" in api.api_obj:
+		transformed["extends"] = api.api_obj["extends"]
+	else:
+		transformed["extends"] = "Object"
+
+	if api.typestr == "module":
+		transformed["objects"] = find_proxy_names_in_module(api)
+		transformed["type"] = "module"
+		transformed["subtype"] = None
+	elif api.typestr == "proxy":
+		transformed["type"] = "object"
+		if is_view_proxy(api):
+			transformed["subtype"] = "view"
+		else:
+			transformed["subtype"] = "proxy"
+	else:
+		transformed["type"] = "object"
+		transformed["subtype"] = None
+	return transformed
+
 def to_jsca_type_name(type_info):
 	if isinstance(type_info, list) or isinstance(type_info, tuple) and len(type_info) > 0:
 		# Currently the JSCA spec allows for just one type per parameter/property/returnType.
@@ -240,7 +279,8 @@ def to_jsca_type(api):
 			"events": to_jsca_events(api.events),
 			"remarks": to_jsca_remarks(api),
 			"userAgents": to_jsca_userAgents(api.platforms),
-			"since": to_jsca_since(api.platforms)
+			"since": to_jsca_since(api.platforms),
+			"extends": to_jsca_extends(api)
 			}
 	# TIMOB-7169. If it's a proxy (non-module) and it has no "class properties",
 	# mark it as internal.  This avoids it being displayed in Code Assist.
