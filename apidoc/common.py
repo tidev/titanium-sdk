@@ -9,6 +9,11 @@
 import os, sys, re
 simple_tag_pattern = re.compile(r"<[^>]*?>")
 not_real_titanium_types = ("Titanium.Proxy", "Titanium.Module", "Titanium.Event")
+DEFAULT_PLATFORMS = ["android", "iphone", "ipad", "mobileweb", "tizen"]
+platform_names = { "android": "Android", "blackberry": "BlackBerry", 
+				"iphone": "iPhone", "ipad": "iPad", "mobileweb": "Mobile Web", "tizen": "Tizen" }
+initial_platform_version = { "blackberry": "3.1", "mobileweb" : "1.8", "tizen": "3.1" }
+platform_namespaces = [ "Android", "iOS",  "iPhone", "iPad", "MobileWeb", "BlackBerry", "Tizen" ]
 
 # odict source is in docgen folder (parent of this folder).
 # Newer versions of Python also have OrderedDict.
@@ -55,3 +60,22 @@ def to_ordered_dict(orig_dict, key_order):
 		if not key in already_added:
 			odict[key] = orig_dict[key]
 	return odict
+
+def pretty_platform_name(platform):
+	name = platform.lower()
+	if name in platform_names:
+		return platform_names[name]
+	else:
+		return name
+
+def first_version_for_platform(platform):
+	name = platform.lower()
+	if name in initial_platform_version:
+		return initial_platform_version[name]
+	else:
+		return None
+		
+def is_platform_specific_namespace(name):
+	if any(map(lambda x: x in platform_namespaces, name.split("."))):
+		return True
+	return False

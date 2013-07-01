@@ -27,6 +27,8 @@ import android.widget.Button;
 public class TiUIButton extends TiUIView
 {
 	private static final String TAG = "TiUIButton";
+	
+	private int defaultColor;
 
 	public TiUIButton(final TiViewProxy proxy)
 	{
@@ -41,8 +43,8 @@ public class TiUIButton extends TiUIView
 				TiUIHelper.firePostLayoutEvent(proxy);
 			}
 		};
-		btn.setPadding(8, 0, 8, 0);
 		btn.setGravity(Gravity.CENTER);
+		defaultColor = btn.getCurrentTextColor();
 		setNativeView(btn);
 	}
 
@@ -65,12 +67,21 @@ public class TiUIButton extends TiUIView
 				Drawable image = drawableRef.getDrawable();
 				btn.setCompoundDrawablesWithIntrinsicBounds(image, null, null, null);
 			}
+		} else if (d.containsKey(TiC.PROPERTY_BACKGROUND_COLOR) || d.containsKey(TiC.PROPERTY_BACKGROUND_IMAGE)) {
+			// Reset the padding here if the background color/image is set. By default the padding will be calculated
+			// for the button, but if we set a background color, it will not look centered unless we reset the padding.
+			btn.setPadding(8, 0, 8, 0);
 		}
 		if (d.containsKey(TiC.PROPERTY_TITLE)) {
 			btn.setText(d.getString(TiC.PROPERTY_TITLE));
 		}
 		if (d.containsKey(TiC.PROPERTY_COLOR)) {
-			btn.setTextColor(TiConvert.toColor(d, TiC.PROPERTY_COLOR));
+			Object color = d.get(TiC.PROPERTY_COLOR);
+			if (color == null) {
+				btn.setTextColor(defaultColor);
+			} else {
+				btn.setTextColor(TiConvert.toColor(d, TiC.PROPERTY_COLOR));
+			}
 		}
 		if (d.containsKey(TiC.PROPERTY_FONT)) {
 			TiUIHelper.styleText(btn, d.getKrollDict(TiC.PROPERTY_FONT));
@@ -83,16 +94,15 @@ public class TiUIButton extends TiUIView
 			String verticalAlign = d.getString(TiC.PROPERTY_VERTICAL_ALIGN);
 			TiUIHelper.setAlignment(btn, null, verticalAlign);
 		}
-		if (d.containsKey(TiC.PROPERTY_OPACITY)) {
-			setOpacityForButton(TiConvert.toFloat(d, TiC.PROPERTY_OPACITY, 1f));
-		}
 		btn.invalidate();
 	}
 
 	@Override
 	public void propertyChanged(String key, Object oldValue, Object newValue, KrollProxy proxy)
 	{
-		Log.d(TAG, "Property: " + key + " old: " + oldValue + " new: " + newValue, Log.DEBUG_MODE);
+		if (Log.isDebugModeEnabled()) {
+			Log.d(TAG, "Property: " + key + " old: " + oldValue + " new: " + newValue, Log.DEBUG_MODE);
+		}
 		Button btn = (Button) getNativeView();
 		if (key.equals(TiC.PROPERTY_TITLE)) {
 			btn.setText((String) newValue);
@@ -158,16 +168,16 @@ public class TiUIButton extends TiUIView
 	}
 
 	@Override
-	public void setOpacity(float opacity)
+	protected void setOpacity(View view, float opacity)
 	{
 		setOpacityForButton(opacity);
-		super.setOpacity(opacity);
+		super.setOpacity(view, opacity);
 	}
 
 	@Override
 	public void clearOpacity(View view)
 	{
-		super.clearOpacity(view);
 		clearOpacityForButton();
+		super.clearOpacity(view);
 	}
 }

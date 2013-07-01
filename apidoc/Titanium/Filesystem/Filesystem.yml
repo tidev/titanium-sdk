@@ -3,7 +3,7 @@ name: Titanium.Filesystem
 summary: The top level filesystem module, used to access files and directories on the device.
 extends: Titanium.Module
 since: "0.1"
-platforms: [android, iphone, ipad, mobileweb]
+platforms: [android, iphone, ipad, mobileweb, tizen]
 methods:
   - name: createTempDirectory
     summary: Creates a temporary directory and returns a [File](Titanium.Filesystem.File) object representing the new directory.
@@ -54,7 +54,7 @@ methods:
         Returns `true` on Android if an external storage device, such as an SD card, is
         available for reading and writing.
 
-        Returns `false` on iOS and Mobile Web.
+        Returns `false` on iOS, Mobile Web and Tizen.
     returns:
         type: Boolean
   - name: openStream
@@ -170,6 +170,28 @@ properties:
 
         Note that when running on the simulator, the resources directory may be writable,
         but it is not writable on device.
+    type: String
+    permission: read-only
+  - name: resRawDirectory
+    summary: Path to the application's raw resource directory.
+    description: |
+        On Android, the raw resources directory can be used for resources that need to be
+        accessed as individual files, not included in the Android resources bundle. For
+        example, sound files placed in the raw resources directory can be accessed by 
+        notifications, which cannot access sound files from the resource
+        directory.
+
+        To use raw resources, place files in the `platform/android/res/raw` folder, where 
+        `platform` is at the top level of the project, not inside the `Resources` folder. You
+        will need to create the `platform` folder and subfolders.
+
+        This directory is read-only. If you need to modify any files in this directory,
+        they must first be copied to another directory, such as  
+        [applicationDataDirectory](Titanium.Filesystem.applicationDataDirectory) or
+        [tempDirectory](Titanium.Filesystem.tempDirectory). 
+        
+    platforms: [android]
+    since: "3.0.2"
     type: String
     permission: read-only
   - name: separator

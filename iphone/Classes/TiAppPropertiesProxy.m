@@ -9,7 +9,9 @@
 #import "TiAppPropertiesProxy.h"
 #import "TiUtils.h"
 
-@implementation TiAppPropertiesProxy
+@implementation TiAppPropertiesProxy {
+	NSData *_defaultsNull;
+}
 
 -(void)dealloc
 {
@@ -17,6 +19,7 @@
 		[[NSNotificationCenter defaultCenter] removeObserver:self];
 	}, YES);
 	RELEASE_TO_NIL(defaultsObject);
+	RELEASE_TO_NIL(_defaultsNull);
 	[super dealloc];
 }
 
@@ -43,6 +46,7 @@
 -(void)_configure
 {
 	defaultsObject = [[NSUserDefaults standardUserDefaults] retain];
+	_defaultsNull = [[NSData alloc] initWithBytes:"NULL" length:4];
 	[super _configure];
 }
 
@@ -86,13 +90,27 @@ if (![self propertyExists:key]) return defaultValue; \
 -(id)getList:(id)args
 {
 	GETPROP
-	return [defaultsObject arrayForKey:key];
+	NSArray *value = [defaultsObject arrayForKey:key];
+	NSMutableArray *array = [[[NSMutableArray alloc] initWithCapacity:[value count]] autorelease];
+	[(NSArray *)value enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+		if ([obj isKindOfClass:[NSData class]] && [_defaultsNull isEqualToData:obj]) {
+			obj = [NSNull null];
+		}
+		[array addObject:obj];
+	}];
+	return array;
 }
 
 -(id)getObject:(id)args
 {
-	GETPROP
-	return [defaultsObject dictionaryForKey:key];
+    GETPROP
+    id theObject = [defaultsObject objectForKey:key];
+    if ([theObject isKindOfClass:[NSData class]]) {
+        return [NSKeyedUnarchiver unarchiveObjectWithData:theObject];
+    }
+    else {
+        return theObject;
+    }
 }
 
 #define SETPROP \
@@ -141,15 +159,26 @@ if ([self propertyExists:key] && [ [defaultsObject objectForKey:key] isEqual:val
 -(void)setList:(id)args
 {
 	SETPROP
+	if ([value isKindOfClass:[NSArray class]]) {
+		NSMutableArray *array = [[[NSMutableArray alloc] initWithCapacity:[value count]] autorelease];
+		[(NSArray *)value enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+			if ([obj isKindOfClass:[NSNull class]]) {
+				obj = _defaultsNull;
+			}
+			[array addObject:obj];
+		}];
+		value = array;
+	}
 	[defaultsObject setObject:value forKey:key];
 	[defaultsObject synchronize];
 }
 
 -(void)setObject:(id)args
 {
-	SETPROP
-	[defaultsObject setObject:value forKey:key];
-	[defaultsObject synchronize];
+    SETPROP
+    NSData* encoded = [NSKeyedArchiver archivedDataWithRootObject:value];
+    [defaultsObject setObject:encoded forKey:key];
+    [defaultsObject synchronize];
 }
 
 -(void)removeProperty:(id)args

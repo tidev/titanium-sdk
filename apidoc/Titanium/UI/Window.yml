@@ -3,6 +3,7 @@ name: Titanium.UI.Window
 summary: The Window is an empty drawing surface or container.
 extends: Titanium.UI.View
 since: "0.9"
+excludes: { methods:[removeAllChildren] }
 
 methods:
   - name: close
@@ -167,26 +168,48 @@ events:
 
   - name: blur
     summary: Fired when the window loses focus.
+    description: |
+        On Android, this event also fires before putting the activity in the background
+        (before the activity enters the pause state).
 
+        On iOS, this event does not fire before putting the application in the background.
+        The application needs to monitor the <Titanium.App.pause> event.
+        See <Titanium.App> for more information on the iOS application lifecycle.
   - name: close
     summary: Fired when the window is closed.
 
   - name: focus
     summary: Fired when the window gains focus.
     description: |
-      The listener for this event must be defined before this window 
-      is opened.
+        The listener for this event must be defined before this window
+        is opened.
+
+        On Android, this event also fires when the activity enters the foreground
+        (after the activity enters the resume state).
+
+        On iOS, this event does not fire after the application returns to the foreground
+        if it was previously backgrounded.
+        The application needs to monitor the <Titanium.App.resumed> event.
+        See <Titanium.App> for more information on the iOS application lifecycle.
   - name: open
     summary: Fired when the window is opened.
     description: |
-      The listener for this event must be defined before this window 
-      is opened.
+        The listener for this event must be defined before this window
+        is opened.
 
 properties:
   - name: activity
     summary: |
-      For heavyweight windows, this property contains a reference to the
-      Android Activity object associated with this window.
+        For heavyweight windows, this property contains a reference to the
+        Android Activity object associated with this window.
+    description: |
+        An Activity object is not created until the window is opened.
+        Before the window is opened, `activity` refers to an empty JavaScript object.
+        You can be set properties on this object, but cannot invoke any Activity methods on it.
+        Once the window is opened, the actual Activity object is created,
+        using any properties set on the JavaScript object. At this point, you can call methods
+        on the activity and access any properties that are set when the activity is created,
+        for example, [actionBar](Titanium.Android.Activity.actionBar).
     platforms: [android]
     type: Titanium.Android.Activity
 
@@ -206,12 +229,12 @@ properties:
         Background color for the nav bar, as a color name or hex triplet.
     description: |
         For information about color values, see the "Colors" section of <Titanium.UI>. 
-    platforms: [iphone, ipad, mobileweb]
+    platforms: [iphone, ipad, mobileweb, tizen]
     type: String
 
   - name: barImage
     summary: Background image for the nav bar, specified as a URL to a local image.
-    platforms: [iphone, ipad, mobileweb]
+    platforms: [iphone, ipad, mobileweb, tizen]
     type: String
 
   - name: exitOnClose
@@ -243,7 +266,7 @@ properties:
 
   - name: leftNavButton
     summary: View to show in the left nav bar area.
-    platforms: [iphone, ipad, mobileweb]
+    platforms: [iphone, ipad, mobileweb, tizen]
     type: Titanium.UI.View
 
   - name: modal
@@ -264,12 +287,12 @@ properties:
         bad visual/redraw behavior after the modal is dismissed, due to how
         iOS manages modal transitions.
         
-        Mobile Web note: On Mobile Web, windows are always modal, blocking input to underlying 
+        Mobile Web and Tizen note: On Mobile Web and Tizen, windows are always modal, blocking input to underlying 
         windows. If the window does not occupy the full screen, setting `modal` to `true` provides 
         a visual cue by dimming any background windows. If the window occupies the full screen, 
         `modal` has no effect.
 
-        On Mobile Web and iOS, the modal property has no effect on whether the window is 
+        On Mobile Web, Tizen and iOS, the modal property has no effect on whether the window is 
         translucent or opaque.
     type: Boolean
     default: false
@@ -280,7 +303,7 @@ properties:
         On Android, setting this property forces the creation of a heavyweight window. See "Android
         Heavyweight and Lightweight Windows" in the main description of this class for more
         information.
-    platforms: [android, iphone, ipad, mobileweb]
+    platforms: [android, iphone, ipad, mobileweb, tizen]
     default: false
     type: Boolean
 
@@ -404,12 +427,14 @@ properties:
         See
         the discussion of the [orientationModes](Titanium.UI.Window.orientationModes)
         property for more information on how the screen orientation is determined.
-    platforms: [android]
+    platforms: [android, iphone, ipad]
+    since: {iphone: "3.0.0", ipad: "3.0.0"}
     type: Number
+    permission: read-only
 
   - name: rightNavButton
     summary: View to show in the right nav bar area.
-    platforms: [iphone, ipad, mobileweb]
+    platforms: [iphone, ipad, mobileweb, tizen]
     type: Titanium.UI.View
 
   - name: tabBarHidden
@@ -428,12 +453,12 @@ properties:
 
   - name: titleControl
     summary: View to show in the title area of the nav bar.
-    platforms: [iphone, ipad, mobileweb]
+    platforms: [iphone, ipad, mobileweb, tizen]
     type: Titanium.UI.View
 
   - name: titleImage
     summary: Image to show in the title area of the nav bar, specified as a local file path or URL.
-    platforms: [iphone, ipad, mobileweb]
+    platforms: [iphone, ipad, mobileweb, tizen]
     type: String
 
   - name: titlePrompt
@@ -461,7 +486,7 @@ properties:
 
   - name: translucent
     summary: Boolean value indicating if the nav bar is translucent.
-    platforms: [iphone, ipad, mobileweb]
+    platforms: [iphone, ipad, mobileweb, tizen]
     default: false
     type: Boolean
 
@@ -564,12 +589,12 @@ description: |
     windows. Closing a window removes the window and its children from the render stack.
 
     Windows *contain* other views, but in general they are not *contained* inside
-    other views. There are a few specialized top-level views that manage windows,
-    including:
+    other views. There are a few specialized views that manage windows:
     
     * [NavigationGroup](Titanium.UI.iPhone.NavigationGroup)
     * [SplitWindow](Titanium.UI.iPad.SplitWindow)
-    * [TabGroup](Titanium.UI.TabGroup). 
+    * [TabGroup](Titanium.UI.TabGroup)
+    * [Tab](Titanium.UI.Tab)
 
     By default, windows occupy the entire screen except for the navigation bar, 
     status bar, and in the case of windows contained in tab groups, the tab bar.
@@ -676,9 +701,9 @@ description: |
 
     #### Animations
 
-    Windows can be animated like any normal [View](Titanium.UI.View).  To transition between
-    2 windows, you can use the `transition` property on an animation.  For example, to flip
-    right-to-left between two windows, you could do the following:
+    Windows can be animated like any normal [View](Titanium.UI.View). To transition between
+    2 windows, you can use the `transition` property on an animation (not supported on Android).
+    For example, to flip right-to-left between two windows, you could do the following:
 
         var window2 = Titanium.UI.createWindow({url:'foo.js'});
         var t = Ti.UI.iPhone.AnimationStyle.FLIP_FROM_LEFT;
@@ -721,6 +746,10 @@ description: |
           var t2 = Titanium.UI.create2DMatrix();
           w.animate({transform:t2, duration:200});
         });
+
+    Note that to animate an Android heavyweight window while you open it, you need
+    to follow a specific procedure which is explained below in "Heavyweight
+    Window Transitions in Android".
 
     #### iPad Modal Windows
 
@@ -772,6 +801,44 @@ description: |
     A heavyweight window is always created when you open a new window from inside a 
     [TabGroup](Titanium.UI.TabGroup).
 
+    #### Heavyweight Window Transitions in Android
+
+    As explained above, heavyweight windows are their own Android Activity. The only way
+    to animate the opening of an Activity in Android is to apply an animation _resource_ to
+    it.  Passing a <Titanium.UI.Animation> object as a parameter to <Titanium.UI.Window.open>
+    will have no effect if the window being opened is heavyweight and thus opens its own Activity.
+
+    Instead, in the parameter dictionary you pass to <Titanium.UI.Window.open>, you should set the
+    [activityEnterAnimation](openWindowParams.activityEnterAnimation) and
+    [activityExitAnimation](openWindowParams.activityExitAnimation) keys to
+    animation resources. `activityEnterAnimation` should be set to the animation you want to run
+    on the new window (activity), while `activityExitAnimation` should be set to the animation you
+    want to run on the window (activity) that you are leaving as you open the new heavyweight window
+    above it.
+
+    Animation resources are available through the `R` object. Use either <Titanium.Android.R> for
+    built-in resources or <Titanium.App.Android.R> for resources that you package in your application.
+
+    As an example, you may wish for the window that you are opening to fade in while the window
+    you are leaving should fade out:
+
+        var win2 = Ti.UI.createWindow({
+            fullscreen: false // Makes it heavyweight
+        });
+
+        win2.open({
+            activityEnterAnimation: Ti.Android.R.anim.fade_in,
+            activityExitAnimation: Ti.Android.R.anim.fade_out
+        });
+
+    See the official Android [R.anim](http://developer.android.com/reference/android/R.anim.html) documentation
+    for information about built-in animations.
+
+    For information on creating your own animation resource XML files, see "[View Animation](http://developer.android.com/guide/topics/resources/animation-resource.html#View)"
+    in Android's Resources documentation. After creating an animation resource file, you can place it under
+    `platform/android/res/anim` in your Titanium project folder and it will be packaged in your app's APK
+    and then available via <Titanium.App.Android.R>.
+
     #### Android "root" Windows
 
     In Android, you may wish to specify that a window which you create (such as the first
@@ -798,7 +865,15 @@ examples:
                backgroundColor:'red'
             });
             window.open({fullscreen:true});
-        
+
+  - title: Alloy XML Markup
+    example: |
+        Previous example as an Alloy view.
+
+            <Alloy>
+                <Window id="win" backgroundColor="red" fullscreen="true" />
+            </Alloy>
+
 ---
 name: openWindowParams
 summary: Dictionary of options for the <Titanium.UI.Window.open> method.
@@ -813,7 +888,9 @@ properties:
     description: |
         On Android, this property supports animated transitions on heavyweight windows
         except for modal windows (`modal:true`).  See "Android Heavyweight and Lightweight
-        Windows" in the main description of Titanium.UI.Window for more information.
+        Windows" in the main description of Titanium.UI.Window for more information. The
+        transitions are on by default, but you can set this to `false` to stop them
+        if you wish.
 
         On iOS, only use this property to disable animated transitions on modal windows. 
         This property has unintended side effects on non-modal windows if it is defined. 
@@ -922,4 +999,32 @@ properties:
         See "Android Heavyweight and Lightweight Windows" in the main description 
         of Titanium.UI.Window for more information.
     type: [Number,String]
+
+  - name: activityEnterAnimation
+    summary: Animation resource to run on the activity (heavyweight window) being opened.
+    description: |
+      See "Heavyweight Window Transitions in Android" in the main description of Titanium.UI.Window
+      for more information.
+    type: Number
+    platforms: [android]
+    since: "3.1.0"
+    examples:
+      - title: Sliding in a new Window
+        example: |
+                var win2 = Ti.UI.createWindow({fullscreen:false});
+                win2.open({
+                    activityEnterAnimation: Ti.Android.R.anim.slide_in_left,
+                    activityExitAnimation: Ti.Android.R.anim.slide_out_right
+                });
+
+
+  - name: activityExitAnimation
+    summary: Animation resource to run on the activity that is being put in background
+        as a heavyweight window is being opened above it.
+    description: |
+      See "Heavyweight Window Transitions in Android" in the main description of Titanium.UI.Window
+      for more information.
+    type: Number
+    platforms: [android]
+    since: "3.1.0"
 

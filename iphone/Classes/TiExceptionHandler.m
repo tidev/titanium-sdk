@@ -116,7 +116,7 @@ void SignalHandler(int signal)
 
 - (void)reportScriptError:(TiScriptError *)scriptError
 {
-	DebugLog(@"[ERROR] Script Error = %@.", scriptError);
+	DebugLog(@"[ERROR] Script Error %@", [scriptError detailedDescription]);
 	
 	id <TiExceptionHandlerDelegate> currentDelegate = _delegate;
 	if (currentDelegate == nil) {
@@ -185,6 +185,8 @@ void SignalHandler(int signal)
 @synthesize message = _message;
 @synthesize sourceURL = _sourceURL;
 @synthesize lineNo = _lineNo;
+@synthesize dictionaryValue = _dictionaryValue;
+@synthesize backtrace = _backtrace;
 
 - (id)initWithMessage:(NSString *)message sourceURL:(NSString *)sourceURL lineNo:(NSInteger)lineNo
 {
@@ -202,13 +204,21 @@ void SignalHandler(int signal)
 	NSString *message = [[dictionary objectForKey:@"message"] description];
 	NSString *sourceURL = [[dictionary objectForKey:@"sourceURL"] description];
 	NSInteger lineNo = [[dictionary objectForKey:@"line"] integerValue];
-    return [self initWithMessage:message sourceURL:sourceURL lineNo:lineNo];
+
+	self = [self initWithMessage:message sourceURL:sourceURL lineNo:lineNo];
+	if (self) {
+		_backtrace = [[[dictionary objectForKey:@"backtrace"] description] copy];
+		_dictionaryValue = [dictionary copy];
+	}
+	return self;
 }
 
 - (void)dealloc
 {
 	RELEASE_TO_NIL(_message);
 	RELEASE_TO_NIL(_sourceURL);
+	RELEASE_TO_NIL(_backtrace);
+	RELEASE_TO_NIL(_dictionaryValue);
     [super dealloc];
 }
 
@@ -219,6 +229,11 @@ void SignalHandler(int signal)
 	} else {
 		return [NSString stringWithFormat:@"%@", self.message];
 	}
+}
+
+- (NSString *)detailedDescription
+{
+	return _dictionaryValue != nil ? [_dictionaryValue description] : [self description];
 }
 
 @end

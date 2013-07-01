@@ -13,6 +13,7 @@ import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.proxy.TiViewProxy;
+import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.view.TiUIView;
 
 import ti.modules.titanium.ui.widget.TiUIText;
@@ -72,10 +73,7 @@ public class TextAreaProxy extends TiViewProxy
 	public Boolean hasText()
 	{
 		Object text = getProperty(TiC.PROPERTY_VALUE);
-		if (text != null && text instanceof String) {
-			return (((String)text).length() > 0);
-		}
-		return false;
+		return (TiConvert.toString(text, "").length() > 0);
 	}
 	
 	@Kroll.method

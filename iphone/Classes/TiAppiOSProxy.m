@@ -188,6 +188,9 @@
 	[self fireEvent:@"notification" withObject:notification];
 }
 
+MAKE_SYSTEM_STR(EVENT_ACCESSIBILITY_LAYOUT_CHANGED,@"accessibilitylayoutchanged");
+MAKE_SYSTEM_STR(EVENT_ACCESSIBILITY_SCREEN_CHANGED,@"accessibilityscreenchanged");
+
 
 @end
 

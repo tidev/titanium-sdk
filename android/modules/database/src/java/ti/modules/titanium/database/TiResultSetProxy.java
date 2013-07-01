@@ -11,6 +11,7 @@ import java.util.HashMap;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
+import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.util.TiConvert;
 
@@ -108,6 +109,8 @@ public class TiResultSetProxy extends KrollProxy
 					result = cursor.getDouble(index);
 				} else if (cursor.isLong(index)) {
 					result = cursor.getLong(index);
+				} else if (cursor.isBlob(index)) {
+					result = TiBlob.blobFromData(cursor.getBlob(index));
 				} else if (cursor.isNull(index)) {
 					result = null;
 				} else {
@@ -255,7 +258,7 @@ public class TiResultSetProxy extends KrollProxy
 		return 0;
 	}
 
-	@Kroll.method
+	@Kroll.getProperty @Kroll.method
 	public boolean isValidRow() 
 	{
 		boolean valid = false;
@@ -266,12 +269,13 @@ public class TiResultSetProxy extends KrollProxy
 	}
 
 	@Kroll.method
-	public void next() 
+	public boolean next() 
 	{
-		if(isValidRow()) {
-			rs.moveToNext();
+		if (isValidRow()) {
+			return rs.moveToNext();
 		} else {
 			Log.w(TAG, "Ignoring next, current row is invalid.");
 		}
+		return false;
 	}
 }

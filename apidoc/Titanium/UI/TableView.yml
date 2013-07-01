@@ -49,6 +49,27 @@ description: |
     
     To mitigate this, a `ScrollView` may be used instead of a table view, as demonstrated in the 
     [ScrollView](Titanium.UI.ScrollView), "Scroll View as a Table View", example. 
+
+    #### Known Issues
+
+    There are known issues with the `sections` property and associated methods added in
+    Release 3.0:
+
+    *   On iOS, event listeners do not fire correctly when table view sections are added or
+        updated using the `sections` property or `appendSection`, `insertSectionBefore`,
+        `insertSectionAfter`, or `updateSection` methods. Adding sections using the `data` 
+        property is recommended for Release 3.0.x.  This issue has been fixed as of Release
+        3.1.0.
+        ([TIMOB-12616](https://jira.appcelerator.org/browse/TIMOB-12616))
+
+    *   On iOS, the first two arguments to the `updateSection` method are reversed.
+        ([TIMOB-12625](https://jira.appcelerator.org/browse/TIMOB-12625))
+
+    *   On Android, the `sections` property is a read-only property.
+        ([TIMOB-12620](https://jira.appcelerator.org/browse/TIMOB-12620))
+
+    *   On Mobile Web, click events fail to fire after calling the `updateSection` method.
+        ([TIMOB-12630](https://jira.appcelerator.org/browse/TIMOB-12630))
     
     #### Row Editing and Moving Modes (iOS only)
     
@@ -65,6 +86,11 @@ description: |
     reveals a delete button on the right-hand side of that row when clicked.
     * "swipe delete" - without either of the table editing or moving modes enabled, a left or right 
     swipe gesture on a row reveals a delete button on the right-hand side of the row.
+    
+    Note that because the operating system handles the functionality of the swipe delete, the OS will
+    capture swipe events and not bubble the event to Titanium listeners. As such, if you rely on
+    swipe events, you must not set editing to true on such rows, and simulate the functionality you
+    need.
     
     When `editable` and `moveable` properties are set on the table view, they are known as `inherited`, 
     whereas when set on a row, they are known as `explicit`. As their resulting behavior may not 
@@ -94,29 +120,19 @@ description: |
     * Inherited `moveable` property is always `true`. Explicit `moveable` property may be set.
 extends: Titanium.UI.View
 since: "0.8"
-excludes: {
-    properties: [backgroundSelectedColor, backgroundSelectedImage]
-}
+excludes:
+    events: [focus]
+    properties: [backgroundSelectedColor, backgroundSelectedImage, enabled]
 
 events:
   - name: click
     summary: Fired when a table row is clicked by the user.
-    platforms: [android, iphone, ipad, mobileweb]
     properties:
       - name: detail
         summary: |
             Indicates whether the detail button was clicked. Only `true` if `row.hasDetail` is 
             `true` and the detail button was clicked.
         type: Boolean
-        
-      - name: globalPoint
-        summary: |
-            Coordinates `x` and `y` describing the location of the event in terms of screen 
-            coordinates.
-        type: Dictionary
-        deprecated:
-            since: "1.8.0"
-        platforms: [iphone, ipad]
         
       - name: index
         summary: Row index.
@@ -128,7 +144,9 @@ events:
 
       - name: rowData
         summary: |
-            Properties of the row.  When the row is created implicitly using a JavaScript dictionary object,
+            Properties of the row.
+            
+            When the row is created implicitly using a JavaScript dictionary object,
             use this property rather than `row` to access any custom row properties.
             
             Here's an example of creating a row implicitly, which is not the recommended way.
@@ -149,24 +167,17 @@ events:
       - name: x
         summary: X coordinate of the event from the `source` view's coordinate system.
         type: Number
+        platforms: [mobileweb, iphone, ipad]
 
       - name: y
         summary: Y coordinate of the event from the `source` view's coordinate system.
         type: Number
+        platforms: [mobileweb, iphone, ipad]
         
   - name: dblclick
     summary: Fired when the device detects a double click against the view.
-    platforms: [mobileweb]
+    platforms: [mobileweb, tizen]
     properties:
-      - name: globalPoint
-        summary: |
-            Coordinates `x` and `y` describing the location of the event in terms of screen 
-            coordinates.
-        type: Dictionary
-        deprecated:
-            since: "1.8.0"
-        platforms: [iphone, ipad]
-        
       - name: x
         summary: X coordinate of the event from the `source` view's coordinate system.
         type: Number
@@ -182,15 +193,6 @@ events:
       - name: detail
         summary: Indicates whether the delete button was clicked. Always `false` for this event.
         type: Boolean
-        
-      - name: globalPoint
-        summary: |
-            Coordinates `x` and `y` describing the location of the event in terms of screen 
-            coordinates.
-        type: Dictionary
-        deprecated:
-            since: "1.8.0"
-        platforms: [iphone, ipad]
         
       - name: index
         summary: Row index.
@@ -224,17 +226,30 @@ events:
     
   - name: doubletap
     summary: Fired when the device detects a double tap against this view.
-    platforms: [iphone, ipad, mobileweb]
     properties:
-      - name: globalPoint
+
+      - name: index
+        summary: Row index.
+        type: Number
+
+      - name: row
+        summary: Table view row object.
+        type: Titanium.UI.TableViewRow
+
+      - name: rowData
         summary: |
-            Coordinates `x` and `y` describing the location of the event in terms of screen 
-            coordinates.
-        type: Dictionary
-        deprecated:
-            since: "1.8.0"
-        platforms: [iphone, ipad]
-        
+            Properties of the row.
+
+            When the row is created implicitly using a JavaScript dictionary object,
+            use this property rather than `row` to access any custom row properties.
+
+            Here's an example of creating a row implicitly, which is not the recommended way.
+
+                var data = [{title:'Row 1', hasChild:true, color:'red', selectedColor:'#fff', special:'special 1'},];
+                var table = Ti.UI.createTableView({data: data});
+
+        type: Dictionary<Titanium.UI.TableViewRow>
+
       - name: x
         summary: X coordinate of the event from the `source` view's coordinate system.
         type: Number
@@ -254,8 +269,28 @@ events:
         A `longpress` and a `longclick` can occur together.  
         
         In contrast to a `longclick`, this event returns the `x` and `y` coordinates of the touch.
-    platforms: [android, iphone, ipad, mobileweb]
     properties:
+      - name: index
+        summary: Row index.
+        type: Number
+
+      - name: row
+        summary: Table view row object.
+        type: Titanium.UI.TableViewRow
+
+      - name: rowData
+        summary: |
+            Properties of the row.
+
+            When the row is created implicitly using a JavaScript dictionary object,
+            use this property rather than `row` to access any custom row properties.
+
+            Here's an example of creating a row implicitly, which is not the recommended way.
+
+                var data = [{title:'Row 1', hasChild:true, color:'red', selectedColor:'#fff', special:'special 1'},];
+                var table = Ti.UI.createTableView({data: data});
+
+        type: Dictionary<Titanium.UI.TableViewRow>
       - name: y
         summary: Y coordinate of the event from the `source` view's coordinate system.
         type: Number
@@ -271,15 +306,6 @@ events:
       - name: detail
         summary: Boolean to indicate if the right area was clicked. Always `false` for this event.
         type: Boolean
-        
-      - name: globalPoint
-        summary: |
-            Coordinates `x` and `y` describing the location of the event in terms of screen 
-            coordinates.
-        type: Dictionary
-        deprecated:
-            since: "1.8.0"
-        platforms: [iphone, ipad]
         
       - name: index
         summary: Row index.
@@ -316,7 +342,7 @@ events:
     description: |
         A pinch is a touch and expand or contract 
         with two fingers.  The event occurs continuously until a finger is lifted again.  
-    platforms: [mobileweb]
+    platforms: [mobileweb, tizen]
     since: "1.8.0"
     properties:
       - name: scale
@@ -329,24 +355,23 @@ events:
     
   - name: scroll
     summary: Fired when the table view is scrolled.
-    platforms: [android, iphone, ipad, mobileweb]
     properties:
       - name: contentOffset
         summary: Dictionary with `x` and `y` properties containing the content offset.
         type: Point
-        platforms: [iphone, ipad, mobileweb]
+        platforms: [iphone, ipad, mobileweb, tizen]
         
       - name: contentSize
         summary: |
             Dictionary with `width` and `height` properties containing the size of the content 
             (regardless of the display size in the case of scrolling).
         type: Dictionary
-        platforms: [iphone, ipad, mobileweb]
+        platforms: [iphone, ipad, mobileweb, tizen]
         
       - name: firstVisibleItem
         summary: Row index of the topmost visible row in the view.
         type: Number
-        platforms: [android, mobileweb]
+        platforms: [android, mobileweb, tizen]
         
       - name: size
         summary: |
@@ -357,41 +382,40 @@ events:
       - name: totalItemCount
         summary: Total number of rows in the view.
         type: Number
-        platforms: [android, mobileweb]
+        platforms: [android, mobileweb, tizen]
         
       - name: visibleItemCount
         summary: Number of rows currently visible in the view.
         type: Number
-        platforms: [android, mobileweb]
+        platforms: [android, mobileweb, tizen]
         
       - name: x
         summary: X coordinate of the event from the `source` view's coordinate system.
         type: Number
-        platforms: [mobileweb]
+        platforms: [mobileweb, tizen]
         
       - name: y
         summary: Y coordinate of the event from the `source` view's coordinate system.
         type: Number
-        platforms: [mobileweb]
+        platforms: [mobileweb, tizen]
         
   - name: scrollEnd
     deprecated:
         since: "3.0.0"
         notes: Renamed to [scrollend](Titanium.UI.TableView.scrollend) (all lowercase).
-    summary: Fired when the table view stops scrolling
-    platforms: [android, iphone, ipad, mobileweb]
+    summary: Fired when the table view stops scrolling.
     properties:
       - name: contentSize
         summary: |
             Dictionary with `width` and `height` properties containing the size of the content 
             (regardless of the display size in the case of scrolling).
         type: Dictionary
-        platforms: [iphone, ipad, mobileweb]
+        platforms: [iphone, ipad, mobileweb, tizen]
         
       - name: contentOffset
         summary: Dictionary with `x` and `y` properties containing the content offset.
         type: Point
-        platforms: [iphone, ipad, mobileweb]
+        platforms: [iphone, ipad, mobileweb, tizen]
         
       - name: size
         summary: |
@@ -408,20 +432,19 @@ events:
         type: Number
 
   - name: scrollend
-    summary: fired when the table view stops scrolling
-    platforms: [android, iphone, ipad, mobileweb]
+    summary: Fired when the table view stops scrolling.
     properties:
       - name: contentSize
         summary: |
             Dictionary with `width` and `height` properties containing the size of the content 
             (regardless of the display size in the case of scrolling).
         type: Dictionary
-        platforms: [iphone, ipad, mobileweb]
+        platforms: [iphone, ipad, mobileweb, tizen]
         
       - name: contentOffset
         summary: Dictionary with `x` and `y` properties containing the content offset.
         type: Point
-        platforms: [iphone, ipad, mobileweb]
+        platforms: [iphone, ipad, mobileweb, tizen]
         
       - name: size
         summary: |
@@ -440,8 +463,28 @@ events:
         
   - name: singletap
     summary: Fired when the device detects a single tap against the view.
-    platforms: [iphone, ipad, mobileweb]
     properties:
+      - name: index
+        summary: Row index.
+        type: Number
+
+      - name: row
+        summary: Table view row object.
+        type: Titanium.UI.TableViewRow
+
+      - name: rowData
+        summary: |
+            Properties of the row.
+
+            When the row is created implicitly using a JavaScript dictionary object,
+            use this property rather than `row` to access any custom row properties.
+
+            Here's an example of creating a row implicitly, which is not the recommended way.
+
+                var data = [{title:'Row 1', hasChild:true, color:'red', selectedColor:'#fff', special:'special 1'},];
+                var table = Ti.UI.createTableView({data: data});
+        type: Dictionary<Titanium.UI.TableViewRow>
+
       - name: x
         summary: X coordinate of the event from the `source` view's coordinate system.
         type: Number
@@ -457,16 +500,28 @@ events:
       - name: direction
         summary: Direction of the swipe, either `left` or `right`.
         type: String
-        
-      - name: globalPoint
+
+      - name: index
+        summary: Row index.
+        type: Number
+
+      - name: row
+        summary: Table view row object.
+        type: Titanium.UI.TableViewRow
+
+      - name: rowData
         summary: |
-            Coordinates `x` and `y` describing the location of the event in terms of screen 
-            coordinates.
-        type: Dictionary
-        deprecated:
-            since: "1.8.0"
-        platforms: [iphone, ipad]
-        
+            Properties of the row.
+
+            When the row is created implicitly using a JavaScript dictionary object,
+            use this property rather than `row` to access any custom row properties.
+
+            Here's an example of creating a row implicitly, which is not the recommended way.
+
+                var data = [{title:'Row 1', hasChild:true, color:'red', selectedColor:'#fff', special:'special 1'},];
+                var table = Ti.UI.createTableView({data: data});
+        type: Dictionary<Titanium.UI.TableViewRow>
+
       - name: x
         summary: X coordinate of the event's endpoint from the `source` view's coordinate system.
         type: Number
@@ -474,7 +529,7 @@ events:
       - name: y
         summary: Y coordinate of the event's endpoint from the `source` view's coordinate system.
         type: Number
-        
+
   - name: touchcancel
     summary: Fired when a touch gesture is interrupted by the device.
     description: |
@@ -486,19 +541,10 @@ events:
         to scroll during a touch event, the appropriate row or table `touchcancel` event fire 
         before the `scroll` event begins.
         
-        On Mobile Web, a scroll may occur in the middle of a touch, in which case a `touchend` 
+        On Mobile Web and Tizen, a scroll may occur in the middle of a touch, in which case a `touchend` 
         will fire immediately following the scroll.
-    platforms: [iphone, ipad, mobileweb]
+    platforms: [iphone, ipad, mobileweb, tizen]
     properties:
-      - name: globalPoint
-        summary: |
-            Coordinates `x` and `y` describing the location of the event in terms of screen 
-            coordinates.
-        type: Dictionary
-        deprecated:
-            since: "1.8.0"
-        platforms: [iphone, ipad]
-        
       - name: x
         summary: X coordinate of the event from the `source` view's coordinate system.
         type: Number
@@ -506,7 +552,7 @@ events:
       - name: y
         summary: Y coordinate of the event from the `source` view's coordinate system.
         type: Number
-        
+
   - name: touchend
     summary: Fired when a touch gesture is complete.
     description: |
@@ -515,19 +561,30 @@ events:
         to scroll during a touch event, the appropriate row or table `touchcancel` event fire 
         before the `scroll` event begins.
         
-        On Mobile Web, a scroll may occur in the middle of a touch, in which case a `touchend` 
+        On Mobile Web and Tizen, a scroll may occur in the middle of a touch, in which case a `touchend` 
         will fire immediately following the scroll.
-    platforms: [iphone, ipad, mobileweb]
     properties:
-      - name: globalPoint
+      - name: index
+        summary: Row index.
+        type: Number
+
+      - name: row
+        summary: Table view row object.
+        type: Titanium.UI.TableViewRow
+
+      - name: rowData
         summary: |
-            Coordinates `x` and `y` describing the location of the event in terms of screen 
-            coordinates.
-        type: Dictionary
-        deprecated:
-            since: "1.8.0"
-        platforms: [iphone, ipad]
-        
+            Properties of the row.
+
+            When the row is created implicitly using a JavaScript dictionary object,
+            use this property rather than `row` to access any custom row properties.
+
+            Here's an example of creating a row implicitly, which is not the recommended way.
+
+                var data = [{title:'Row 1', hasChild:true, color:'red', selectedColor:'#fff', special:'special 1'},];
+                var table = Ti.UI.createTableView({data: data});
+        type: Dictionary<Titanium.UI.TableViewRow>
+
       - name: x
         summary: X coordinate of the event from the `source` view's coordinate system.
         type: Number
@@ -540,17 +597,8 @@ events:
     summary: Fired as soon as the device detects movement of a touch.
     description: |
         Event coordinates are always relative to the view in which the initial touch occurred
-    platforms: [mobileweb]
+    platforms: [mobileweb, tizen]
     properties:
-      - name: globalPoint
-        summary: |
-            Coordinates `x` and `y` describing the location of the event in terms of screen 
-            coordinates.
-        type: Dictionary
-        deprecated:
-            since: "1.8.0"
-        platforms: [iphone, ipad]
-        
       - name: x
         summary: X coordinate of the event from the `source` view's coordinate system.
         type: Number
@@ -567,19 +615,31 @@ events:
         to scroll during a touch event, the appropriate row or table `touchcancel` event fire 
         before the `scroll` event begins.
         
-        On Mobile Web, a scroll may occur in the middle of a touch, in which case a `touchend` 
+        On Mobile Web and Tizen, a scroll may occur in the middle of a touch, in which case a `touchend` 
         will fire immediately following the scroll.
-    platforms: [iphone, ipad, mobileweb]
+    platforms: [iphone, ipad, mobileweb, tizen]
     properties:
-      - name: globalPoint
+      - name: index
+        summary: Row index.
+        type: Number
+
+      - name: row
+        summary: Table view row object.
+        type: Titanium.UI.TableViewRow
+
+      - name: rowData
         summary: |
-            Coordinates `x` and `y` describing the location of the event in terms of screen 
-            coordinates.
-        type: Dictionary
-        deprecated:
-            since: "1.8.0"
-        platforms: [iphone, ipad]
-        
+            Properties of the row.
+
+            When the row is created implicitly using a JavaScript dictionary object,
+            use this property rather than `row` to access any custom row properties.
+
+            Here's an example of creating a row implicitly, which is not the recommended way.
+
+                var data = [{title:'Row 1', hasChild:true, color:'red', selectedColor:'#fff', special:'special 1'},];
+                var table = Ti.UI.createTableView({data: data});
+        type: Dictionary<Titanium.UI.TableViewRow>
+    
       - name: x
         summary: X coordinate of the event from the `source` view's coordinate system.
         type: Number
@@ -590,17 +650,8 @@ events:
     
   - name: twofingertap
     summary: Fired when the device detects a two-finger tap against the view.
-    platforms: [iphone, ipad, mobileweb]
+    platforms: [iphone, ipad, mobileweb, tizen]
     properties:
-      - name: globalPoint
-        summary: |
-            Coordinates `x` and `y` describing the location of the event in terms of screen 
-            coordinates.
-        type: Dictionary
-        deprecated:
-            since: "1.8.0"
-        platforms: [iphone, ipad]
-        
       - name: x
         summary: X coordinate of the event from the `source` view's coordinate system.
         type: Number
@@ -617,7 +668,7 @@ events:
     description: |
         A dragging gesture is when a touch remains in contact with the display to physically drag 
         the view, as opposed to it being the result of scrolling momentum.
-    platforms: [iphone, ipad, mobileweb]
+    platforms: [iphone, ipad, mobileweb, tizen]
 
   - name: dragEnd
     deprecated:
@@ -627,7 +678,7 @@ events:
     description: |
         A dragging gesture is when a touch remains in contact with the display to physically drag 
         the view, as opposed to it being the result of scrolling momentum.
-    platforms: [iphone, ipad, mobileweb]
+    platforms: [iphone, ipad, mobileweb, tizen]
     properties:
       - name: decelerate
         summary: |
@@ -640,7 +691,7 @@ events:
     description: |
         A dragging gesture is when a touch remains in contact with the display to physically drag 
         the view, as opposed to it being the result of scrolling momentum.
-    platforms: [iphone, ipad, mobileweb]
+    platforms: [iphone, ipad, mobileweb, tizen]
     since: '3.0.0'
 
   - name: dragend
@@ -648,7 +699,7 @@ events:
     description: |
         A dragging gesture is when a touch remains in contact with the display to physically drag 
         the view, as opposed to it being the result of scrolling momentum.
-    platforms: [iphone, ipad, mobileweb]
+    platforms: [iphone, ipad, mobileweb, tizen]
     properties:
       - name: decelerate
         summary: |
@@ -659,10 +710,8 @@ events:
 
 methods:
   - name: appendRow
-    summary: Appends one or more rows to the table.
+    summary: Appends a single row or an array of rows to the end of the table.
     description: |
-        Appends a single row or an array of rows to the end of the table.
-        
         Each row can be passed as a [TableViewRow](Titanium.UI.TableViewRow) object, or as 
         dictionary specifying the properties for a table row, in which case this `TableView` will 
         create `TableViewRow` objects as needed. 
@@ -679,15 +728,15 @@ methods:
         optional: true
         
   - name: appendSection
-    summary: Appends one or more sections to the table.
+    summary: Appends a single section or an array of sections to the end of the table.
     description: |
-        Appends a single section or an array of sections to the end of the table.
-        
-        Each row can be passed as a [TableViewSection](Titanium.UI.TableViewSection) object, or as 
+        Each section can be passed as a [TableViewSection](Titanium.UI.TableViewSection) object, or as
         dictionary specifying the properties for a table section, in which case this `TableView` will 
         create `TableViewSection` objects as needed. 
         
-        On iOS, the row(s) can be inserted with animation by specifying a `properties` parameter.
+        On iOS, the section(s) can be inserted with animation by specifying a `properties` parameter.
+
+        Due to a known issue, TIMOB-12616, this method should not be used for adding sections on iOS.
     parameters:
       - name: section
         summary: Section or section to add to the table.
@@ -698,16 +747,17 @@ methods:
         type: TableViewAnimationProperties
         optional: true
     since: 3.0.0
-    platforms: [android, mobileweb, iphone, ipad]
+    platforms: [android, mobileweb, tizen, iphone, ipad]
     
   - name: deleteRow
     summary: Deletes an existing row.
     description: |
         On iOS, the row can be deleted with animation by specifying a `properties` parameter.
+        Starting in SDK 3.1.0, the row can be specified using <Titanium.UI.TableViewRow> on Android and iOS.
     parameters:
       - name: row
-        summary: Index of the row to delete.
-        type: Number
+        summary: Index of the row to delete, or the row object to delete.
+        type: [Number, Titanium.UI.TableViewRow]
         
       - name: animation
         summary: Animation properties. (iOS only.)
@@ -728,7 +778,7 @@ methods:
         type: TableViewAnimationProperties
         optional: true
     since: 3.0.0
-    platforms: [android, mobileweb, iphone, ipad]
+    platforms: [android, mobileweb, tizen, iphone, ipad]
     
   - name: deselectRow
     summary: Programmatically deselects a row.
@@ -768,6 +818,8 @@ methods:
         create `TableViewSection` objects as needed. 
         
         On iOS, the section(s) may be inserted with animation by setting the `animation` parameter.
+
+        Due to a known issue, TIMOB-12616, this method should not be used for adding sections on iOS.
     parameters:
       - name: index
         summary: Index of the section to insert after.
@@ -782,7 +834,7 @@ methods:
         type: TableViewAnimationProperties
         optional: true
     since: 3.0.0
-    platforms: [android, mobileweb, iphone, ipad]
+    platforms: [android, mobileweb, tizen, iphone, ipad]
         
   - name: insertRowBefore
     summary: Inserts a row before another row.
@@ -814,6 +866,8 @@ methods:
         create `TableViewSection` objects as needed. 
         
         On iOS, the section(s) may be inserted with animation by setting the `animation` parameter.
+
+        Due to a known issue, TIMOB-12616, this method should not be used for adding sections on iOS.
     parameters:
       - name: index
         summary: Index of the section to insert before.
@@ -828,7 +882,7 @@ methods:
         type: TableViewAnimationProperties
         optional: true
     since: 3.0.0
-    platforms: [android, mobileweb, iphone, ipad]
+    platforms: [android, mobileweb, tizen, iphone, ipad]
     
   - name: scrollToIndex
     summary: Scrolls the table view to ensure that the specified row is on screen.
@@ -863,7 +917,7 @@ methods:
         the top. A positive value scrolls it down, and a negative value scrolls the list up
         above the first item.
         
-        On Mobile Web, the `top` value is interpreted as a pixel offset between the top of the top
+        On Mobile Web and Tizen, the `top` value is interpreted as a pixel offset between the top of the top
         row of data and the top of the table view. So a `top` value of 0 scrolls the list to
         the top. A positive value scrolls it down. Values outside the scrollable range are clipped
         so that negative numbers scroll the list to the top, and large positive values scroll the
@@ -941,7 +995,7 @@ methods:
     since: "2.1.0"
 
   - name: updateRow
-    summary: Updates an existing row, optionally with animation
+    summary: Updates an existing row, optionally with animation.
     parameters:
       - name: index
         summary: Index of the row to update.
@@ -956,7 +1010,17 @@ methods:
         type: TableViewAnimationProperties
 
   - name: updateSection
-    summary: Updates an existing section, optionally with animation
+    summary: Updates an existing section, optionally with animation.
+    description: |
+        Known issues:
+
+        *   On iOS, Mobile Web and Tizen, event listeners do not fire correctly after table view sections are 
+            updated using the `updateSection` methods. 
+            ([TIMOB-12616](https://jira.appcelerator.org/browse/TIMOB-12616),
+            [TIMOB-12630](https://jira.appcelerator.org/browse/TIMOB-12630))
+
+        *   On iOS, the first two arguments to the `updateSection` method are reversed.
+            ([TIMOB-12625](https://jira.appcelerator.org/browse/TIMOB-12625))
     parameters:
       - name: index
         summary: Index of the section to update.
@@ -970,7 +1034,7 @@ methods:
         summary: Animation properties. (iOS only.)
         type: TableViewAnimationProperties
     since: 3.0.0
-    platforms: [android, mobileweb, iphone, ipad]
+    platforms: [android, mobileweb, tizen, iphone, ipad]
 
 properties:
   - name: allowsSelection
@@ -992,10 +1056,13 @@ properties:
     description: |
         For information about color values, see the "Colors" section of <Titanium.UI>. 
         
-        On iPhone and iPod Touch only, this property accepts a value of `'stripped'`, in addition to 
-        the standard color names described in the link above. This results in a pin-striped gray. 
-        Note that, due to a bug, `'stripped'` is misspelt, and so is likely to change in the near 
-        future to `'striped'`.
+        Prior to iOS 6, it was possible to explicitly specify a color value of
+        <Titanium.UI.iOS.COLOR_GROUP_TABLEVIEW_BACKGROUND> or 'stripped' (sic) to select the iOS group
+        tableview background texture. On iPhone and iPod Touch, this produces a pinstriped texture; on iPad,
+        it is transparent.
+
+        In iOS 6, there is no way to explicitly specify the group tableview background texture. The color
+        values <Titanium.UI.iOS.COLOR_GROUP_TABLEVIEW_BACKGROUND> or 'stripped' are interpreted as black.
     type: String
     
   - name: data
@@ -1141,6 +1208,14 @@ properties:
     default: false
     platforms: [iphone, ipad]
     
+  - name: overScrollMode
+    summary: |
+      One of <Titanium.UI.Android.OVER_SCROLL_ALWAYS>, <Titanium.UI.Android.OVER_SCROLL_IF_CONTENT_SCROLLS>, or <Titanium.UI.Android.OVER_SCROLL_NEVER>. 
+    type: Number
+    default: Titanium.UI.Android.OVER_SCROLL_ALWAYS
+    platforms: [android]
+    since: "3.1.0"
+
   - name: rowHeight
     summary: Default row height for table view rows.
     type: Number
@@ -1175,8 +1250,16 @@ properties:
 
   - name: search
     summary: Search field to use for the table view.
-    type: Titanium.UI.SearchBar
+    type: [Titanium.UI.SearchBar, Titanium.UI.Android.SearchView]
     platforms: [android, iphone, ipad]
+    
+  - name: searchAsChild
+    summary: Determines whether the [SearchBar](Titanium.UI.SearchBar) or [SearchView](Titanium.UI.Android.SearchView) appears as part of the TableView.
+    description: Set to false if the search view will be displayed in the action bar.
+    type: Boolean
+    default: true
+    since: 3.0.2
+    platforms: [android]
     
   - name: searchHidden
     summary: Determines whether the search field is visible.
@@ -1190,13 +1273,18 @@ properties:
     type: Number
     permission: read-only
     since: 3.0.0
-    platforms: [android, iphone, ipad, mobileweb]
+    platforms: [android, iphone, ipad, mobileweb, tizen]
 
   - name: sections
     summary: Sections of this table.
+    description: |
+        In Release 3.0, this property is read-only on Android.
+
+        Due to a known issue, TIMOB-12616, the `sections` property should not be used
+        for adding sections on iOS.
     type: Array<Titanium.UI.TableViewSection>
-    since: 3.0.0
-    platforms: [android, iphone, ipad, mobileweb]
+    since: { android: 3.1.0, iphone: 3.0.0, ipad: 3.0.0, mobileweb: 3.0.0 }
+    platforms: [android, iphone, ipad, mobileweb, tizen]
 
   - name: separatorColor
     summary: Separator line color between rows, as a color name or hex triplet.
@@ -1214,10 +1302,10 @@ properties:
         For iOS specify one of the 
         [TableViewSeparatorStyle](Titanium.UI.iPhone.TableViewSeparatorStyle) constants.
         
-        For Mobile Web specify one of the 
+        For Mobile Web and Tizen specify one of the 
         [TableViewSeparatorStyle](Titanium.UI.MobileWeb.TableViewSeparatorStyle) constants.
     type: Number
-    platforms: [iphone, ipad, mobileweb]
+    platforms: [iphone, ipad, mobileweb, tizen]
     
   - name: showVerticalScrollIndicator
     summary: Determines whether this table view displays a vertical scroll indicator.
@@ -1253,7 +1341,7 @@ examples:
   - title: Table View Sections
     example: |
         Create a table with three sections, each with two rows. Add two sections to the table 
-        before and one after it is rendered. 
+        before and one after it is rendered. This sample only works on Release 3.0 and later.
         
             Ti.UI.backgroundColor = 'white';
             var win = Ti.UI.createWindow();
@@ -1277,8 +1365,12 @@ examples:
             sectionFish.add(Ti.UI.createTableViewRow({ title: 'Cod' }));
             sectionFish.add(Ti.UI.createTableViewRow({ title: 'Haddock' }));
             
-            table.setData([ sectionFish, sectionFruit, sectionVeg ]);
-        
+            // Prior to Release 3.0, you can only add and remove sections by setting the data property
+            // table.data = [ sectionFish, sectionFruit, sectionVeg ];
+            // Due to a known issue, TIMOB-12616, the section access methods and sections
+            // property should not be used on iOS with Release 3.0.x.
+            table.insertSectionBefore(0, sectionFish);
+
   - title: Table View with Composite Layout
     example: |
         Create a table of rows that contain a custom child-view layout.
@@ -1360,6 +1452,29 @@ examples:
             
             win.add(tableView);
             win.open();
+
+  - title: Alloy XML Markup
+    example: |
+        Previous table view sections example as an Alloy view.
+
+            <Alloy>
+                <Window id="win" backgroundColor="white">
+                    <TableView id="table">
+                        <TableViewSection id="sectionFruit" headerTitle="Fruit">
+                            <TableViewRow title="Apple"/>
+                            <TableViewRow title="Bananas"/>
+                        </TableViewSection>
+                        <TableViewSection id="sectionVeg" headerTitle="Vegetables">
+                            <TableViewRow title="Carrots"/>
+                            <TableViewRow title="Potatoes"/>
+                        </TableViewSection>
+                        <TableViewSection id="sectionFish" headerTitle="Fish">
+                            <TableViewRow title="Cod"/>
+                            <TableViewRow title="Haddock"/>
+                        </TableViewSection>
+                    </TableView>
+                </Window>
+            </Alloy>
 
 ---
 name: TableViewAnimationProperties

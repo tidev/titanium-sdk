@@ -8,8 +8,10 @@ package org.appcelerator.titanium.util;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.HashMap;
 
 import org.appcelerator.kroll.common.Log;
+import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.io.TiBaseFile;
 import org.appcelerator.titanium.io.TiFileFactory;
@@ -33,7 +35,7 @@ public class TiUrl
 
 	public String baseUrl;
 	public String url;
-
+	
 	public TiUrl(String url)
 	{
 		this(TiC.URL_APP_PREFIX, url);
@@ -100,8 +102,13 @@ public class TiUrl
 		return bUrl;
 	}
 
+	private static HashMap<String,TiUrl> proxyUrlCache = new HashMap<String,TiUrl>(5);
 	public static TiUrl createProxyUrl(String url)
 	{
+		if (proxyUrlCache.containsKey(url)) {
+			return proxyUrlCache.get(url);
+		}
+	
 		if (url == null) {
 			return new TiUrl(null);
 		}
@@ -113,7 +120,9 @@ public class TiUrl
 		}
 
 		String path = url.substring(lastSlash + 1);
-		return new TiUrl(baseUrl, path);
+		TiUrl result = new TiUrl(baseUrl, path);
+		proxyUrlCache.put(url,result);
+		return result;
 	}
 
 	public static TiUrl normalizeWindowUrl(String url) 
@@ -128,9 +137,11 @@ public class TiUrl
 
 	public static TiUrl normalizeWindowUrl(String baseUrl, String url)
 	{
-		Log.d(TAG, "Window Base URL: " + baseUrl, Log.DEBUG_MODE);
-		if (url != null) {
-			Log.d(TAG, "Window Relative URL: " + url, Log.DEBUG_MODE);
+		if (Log.isDebugModeEnabled()) {
+			Log.d(TAG, "Window Base URL: " + baseUrl, Log.DEBUG_MODE);
+			if (url != null) {
+				Log.d(TAG, "Window Relative URL: " + url, Log.DEBUG_MODE);
+			}
 		}
 		try {
 			URI uri = new URI(url);
@@ -197,6 +208,22 @@ public class TiUrl
 	{
 		if (!TiFileFactory.isLocalScheme(path)) {
 			return path;
+		}
+
+		if (path.startsWith("android.resource://" + TiApplication.getInstance().getPackageName() + "/raw/")) {
+			Uri upath = Uri.parse(path);
+			String fileName = upath.getLastPathSegment();
+
+			int lastPeriodPos = fileName.lastIndexOf('.');
+			String fileNameWithoutExt;
+			if (lastPeriodPos <= 0) {
+				fileNameWithoutExt = fileName;
+			} else {
+				fileNameWithoutExt = fileName.substring(0, lastPeriodPos);
+			}
+			String newPath = path.substring(0, path.length() - fileName.length()) + fileNameWithoutExt;
+			return newPath;
+
 		}
 
 		String result = null;

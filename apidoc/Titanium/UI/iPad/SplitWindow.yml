@@ -86,3 +86,26 @@ examples:
             });
             
             splitwin.open();
+
+
+  - title: Alloy XML Markup
+    example: |
+        This is an example of a Split Window as an Alloy view.
+
+        Note that the SplitWindow element will only accept two Windows as children.
+        The first window is the `masterView` and the second window is the `detailView`.
+        It can also accept the Require tag to include a Ti.UI.Window view.
+
+            <Alloy>
+                <SplitWindow>
+                    <!-- First window is the masterView -->
+                    <Window>
+                        <Label>I am the master view.</Label>
+                    </Window>
+
+                    <!-- Second window is the detailView -->
+                    <Window>
+                        <Label>I am the detail view.</Label>
+                    </Window>
+                </SplitWindow>
+            </Alloy>

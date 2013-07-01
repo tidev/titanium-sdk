@@ -6,6 +6,7 @@
  */
 package ti.modules.titanium.media;
 
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.List;
 import java.util.Timer;
@@ -19,11 +20,13 @@ import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.util.TiConvert;
+import org.appcelerator.titanium.util.TiRHelper;
 
 import android.content.Context;
 import android.content.res.AssetFileDescriptor;
 import android.media.MediaPlayer;
 import android.net.Uri;
+import android.os.Build;
 import android.webkit.URLUtil;
 
 public class TiSound
@@ -82,12 +85,18 @@ public class TiSound
 		try {
 			mp = new MediaPlayer();
 			String url = TiConvert.toString(proxy.getProperty(TiC.PROPERTY_URL));
-			if (URLUtil.isAssetUrl(url)) {
+			boolean isAsset = URLUtil.isAssetUrl(url);
+			if (isAsset || url.startsWith("android.resource")) {
 				Context context = TiApplication.getInstance();
-				String path = url.substring(TiConvert.ASSET_URL.length());
 				AssetFileDescriptor afd = null;
 				try {
-					afd = context.getAssets().openFd(path);
+					if (isAsset) {
+						String path = url.substring(TiConvert.ASSET_URL.length());
+						afd = context.getAssets().openFd(path);
+					} else {
+						Uri uri = Uri.parse(url);
+						afd = context.getResources().openRawResourceFd(TiRHelper.getResource("raw." + uri.getLastPathSegment()));
+					}
 					// Why mp.setDataSource(afd) doesn't work is a problem for another day.
 					// http://groups.google.com/group/android-developers/browse_thread/thread/225c4c150be92416
 					mp.setDataSource(afd.getFileDescriptor(), afd.getStartOffset(), afd.getLength());
@@ -101,7 +110,24 @@ public class TiSound
 			} else {
 				Uri uri = Uri.parse(url);
 				if (uri.getScheme().equals(TiC.PROPERTY_FILE)) {
-					mp.setDataSource(uri.getPath());
+					if (Build.VERSION.SDK_INT >= TiC.API_LEVEL_ICE_CREAM_SANDWICH) {
+						mp.setDataSource(uri.getPath());
+					} else {
+						// For 2.2 and below, MediaPlayer uses the native player which requires
+						// files to have worldreadable access, workaround is to open an input
+						// stream to the file and give that to the player.
+						FileInputStream fis = null;
+						try {
+							fis = new FileInputStream(uri.getPath());
+							mp.setDataSource(fis.getFD());
+						} catch (IOException e) {
+							Log.e(TAG, "Error setting file descriptor: ", e);
+						} finally {
+							if (fis != null) {
+								fis.close();
+							}
+						}
+					}
 				} else {
 					remote = true;
 					mp.setDataSource(url);
@@ -391,7 +417,9 @@ public class TiSound
 
 	public void onCompletion(MediaPlayer mp)
 	{
-		proxy.fireEvent(EVENT_COMPLETE, null);
+		KrollDict data = new KrollDict();
+		data.putCodeAndMessage(TiC.ERROR_CODE_NO_ERROR, null);
+		proxy.fireEvent(EVENT_COMPLETE, data);
 		stop();
 	}
 
@@ -416,8 +444,7 @@ public class TiSound
 		}
 
 		KrollDict data = new KrollDict();
-		data.put(TiC.PROPERTY_CODE, 0);
-		data.put(TiC.PROPERTY_MESSAGE, msg);
+		data.putCodeAndMessage(TiC.ERROR_CODE_UNKNOWN, msg);
 		proxy.fireEvent(EVENT_ERROR, data);
 
 		return true;
@@ -426,7 +453,10 @@ public class TiSound
 	@Override
 	public boolean onError(MediaPlayer mp, int what, int extra)
 	{
-		int code = 0;
+		int code = what;
+		if(what == 0) {
+			code = -1;
+		}
 		String msg = "Unknown media error.";
 		if (what == MediaPlayer.MEDIA_ERROR_SERVER_DIED) {
 			msg = "Media server died";
@@ -434,7 +464,7 @@ public class TiSound
 		release();
 
 		KrollDict data = new KrollDict();
-		data.put(TiC.PROPERTY_CODE, code);
+		data.putCodeAndMessage(code, msg);
 		data.put(TiC.PROPERTY_MESSAGE, msg);
 		proxy.fireEvent(EVENT_ERROR, data);
 

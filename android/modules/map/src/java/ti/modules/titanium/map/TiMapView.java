@@ -1,12 +1,11 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
 package ti.modules.titanium.map;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -19,11 +18,10 @@ import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiLifecycle.OnLifecycleEvent;
 import org.appcelerator.titanium.TiProperties;
-import org.appcelerator.titanium.io.TiBaseFile;
-import org.appcelerator.titanium.io.TiFileFactory;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiUIHelper;
+import org.appcelerator.titanium.view.TiDrawableReference;
 import org.appcelerator.titanium.view.TiUIView;
 
 import ti.modules.titanium.map.MapRoute.RouteOverlay;
@@ -78,11 +76,9 @@ public class TiMapView extends TiUIView
 	private static final int MSG_SET_USERLOCATION = 304;
 	private static final int MSG_SET_SCROLLENABLED = 305;
 	private static final int MSG_CHANGE_ZOOM = 306;
-	private static final int MSG_ADD_ANNOTATION = 307;
-	private static final int MSG_REMOVE_ANNOTATION = 308;
-	private static final int MSG_SELECT_ANNOTATION = 309;
-	private static final int MSG_REMOVE_ALL_ANNOTATIONS = 310;
-	private static final int MSG_UPDATE_ANNOTATIONS = 311;
+	private static final int MSG_SELECT_ANNOTATION = 307;
+	private static final int MSG_UPDATE_ANNOTATIONS = 308;
+	private static final int MSG_EVENT_LONG_PRESS = 309;
 
 	private boolean scrollEnabled;
 	private boolean regionFit;
@@ -107,7 +103,14 @@ public class TiMapView extends TiUIView
 		private int lastLongitudeSpan;
 		private boolean requestViewOnScreen = false;
 		private View view;
+		//Long click related variables
+		private static final int MIN_MILLISECONDS_FOR_LONG_CLICK = 800;
+		private static final float X_TOLERANCE=10;//x pixels that your finger can be off but still constitute a long press
+		private static final float Y_TOLERANCE=10;//y pixels that your finger can be off but still constitute a long press
 
+		private float longClickXCoordinate;
+		private float longClickYCoordinate;
+		
 		public LocalMapView(Context context, String apiKey)
 		{
 			super(context, apiKey);
@@ -117,6 +120,42 @@ public class TiMapView extends TiUIView
 		public void setScrollable(boolean enable)
 		{
 			scrollEnabled = enable;
+		}
+
+		@Override
+		public boolean onTouchEvent(android.view.MotionEvent ev)
+		{
+			// Handle LongPress
+			if (proxy.hierarchyHasListener(TiC.EVENT_LONGPRESS)) {
+				int actionType = ev.getAction();
+
+				switch (actionType) {
+					case MotionEvent.ACTION_DOWN:
+						Message msg = handler.obtainMessage(MSG_EVENT_LONG_PRESS);
+						msg.obj = dictFromEvent(ev);
+						longClickXCoordinate = ev.getX();
+						longClickYCoordinate = ev.getY();
+						handler.sendMessageDelayed(msg, MIN_MILLISECONDS_FOR_LONG_CLICK);
+						break;
+					case MotionEvent.ACTION_MOVE:
+						float xValue = ev.getX();
+						float yValue = ev.getY();
+						// See if the movement is within the tolerance boundary
+						float xlow = longClickXCoordinate - X_TOLERANCE;
+						float xhigh = longClickXCoordinate + X_TOLERANCE;
+						float ylow = longClickYCoordinate - Y_TOLERANCE;
+						float yhigh = longClickYCoordinate + Y_TOLERANCE;
+
+						if ((xValue < xlow || xValue > xhigh) || (yValue < ylow || yValue > yhigh)) {
+							handler.removeMessages(MSG_EVENT_LONG_PRESS);
+						}
+						break;
+					case MotionEvent.ACTION_UP:
+						handler.removeMessages(MSG_EVENT_LONG_PRESS);
+				}
+			}
+
+			return super.onTouchEvent(ev);
 		}
 
 		@Override
@@ -137,7 +176,6 @@ public class TiMapView extends TiUIView
 			}
 			return super.dispatchTrackballEvent(ev);
 		}
-	
 
 		@Override
 		public void computeScroll()
@@ -151,7 +189,7 @@ public class TiMapView extends TiUIView
 				lastLatitudeSpan = getLatitudeSpan();
 				lastLongitudeSpan = getLongitudeSpan();
 
-				HashMap<String, Object> location = new HashMap<String, Object>();
+				KrollDict location = new KrollDict();
 				location.put(TiC.PROPERTY_LATITUDE, scaleFromGoogle(lastLatitude));
 				location.put(TiC.PROPERTY_LONGITUDE, scaleFromGoogle(lastLongitude));
 				location.put(TiC.PROPERTY_LATITUDE_DELTA, scaleFromGoogle(lastLatitudeSpan));
@@ -202,7 +240,7 @@ public class TiMapView extends TiUIView
 			}
 		}
 	}
-	
+
 	class TitaniumOverlay extends ItemizedOverlay<TiOverlayItem>
 	{
 		ArrayList<AnnotationProxy> annotations;
@@ -488,7 +526,7 @@ public class TiMapView extends TiUIView
 
 		final TiViewProxy fproxy = proxy;
 
-		itemView = new TiOverlayItemView(proxy.getActivity());
+		itemView = new TiOverlayItemView(TiApplication.getInstance().getApplicationContext());
 		itemView.setOnOverlayClickedListener(new TiOverlayItemView.OnOverlayClicked(){
 			public void onClick(int lastIndex, String clickedItem) {
 				TiOverlayItem item = overlay.getItem(lastIndex);
@@ -513,7 +551,13 @@ public class TiMapView extends TiUIView
 
 	public boolean handleMessage(Message msg)
 	{
-		switch(msg.what) {
+		switch (msg.what) {
+			case MSG_EVENT_LONG_PRESS:
+				if (proxy != null) {
+					proxy.fireEvent(TiC.EVENT_LONGPRESS, msg.obj);
+				}
+				return true;
+
 			case MSG_SET_LOCATION : {
 				doSetLocation((KrollDict) msg.obj);
 				return true;
@@ -994,7 +1038,7 @@ public class TiMapView extends TiUIView
 		if (view != null) {
 			if (userLocation) {
 				if (myLocation == null) {
-					myLocation = new MyLocationOverlay(proxy.getActivity(), view);
+					myLocation = new MyLocationOverlay(TiApplication.getInstance().getApplicationContext(), view);
 				}
 
 				List<Overlay> overlays = view.getOverlays();
@@ -1049,15 +1093,13 @@ public class TiMapView extends TiUIView
 	private Drawable makeMarker(String pinImage)
 	{
 		if (pinImage != null) {
-			String url = proxy.resolveUrl(null, pinImage);
-			TiBaseFile file = TiFileFactory.createTitaniumFile(new String[] { url }, false);
-			try {
-				Drawable d = new BitmapDrawable(mapWindow.getContext().getResources(), TiUIHelper.createBitmap(file
-					.getInputStream()));
+			TiDrawableReference drawableRef = TiDrawableReference.fromUrl(proxy, pinImage);
+			Drawable d = drawableRef.getDrawable();
+			if (d != null) {
 				d.setBounds(0, 0, d.getIntrinsicWidth(), d.getIntrinsicHeight());
 				return d;
-			} catch (IOException e) {
-				Log.e(TAG, "Error creating drawable from path: " + pinImage.toString(), e);
+			} else {
+				Log.e(TAG, "Unable to create Drawable from path:" + pinImage);
 			}
 		}
 		return null;
@@ -1083,6 +1125,12 @@ public class TiMapView extends TiUIView
 	{
 		return (int)(value * 1000000);
 	}
+	
+	@Override
+	protected boolean allowRegisterForTouch()
+	{
+		// Skip TiUIView registration. 
+		// Handled inside the LocalMapView as it is not working in the TiUIView
+		return false;
+	}
 }
-
-

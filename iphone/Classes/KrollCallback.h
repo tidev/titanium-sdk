@@ -77,3 +77,5 @@
 -(void)unprotectJsobject;
 
 @end
+
+KrollWrapper * ConvertKrollCallbackToWrapper(KrollCallback *callback);

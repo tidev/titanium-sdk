@@ -72,6 +72,7 @@ public class TiUIText extends TiUIView
 
 	private boolean field;
 	private int maxLength = -1;
+	private boolean isTruncatingText = false;
 
 	protected TiEditText tv;
 	
@@ -105,7 +106,6 @@ public class TiUIText extends TiUIView
 			super.onLayout(changed, left, top, right, bottom);
 			TiUIHelper.firePostLayoutEvent(proxy);
 		}
-
 	}
 
 	public TiUIText(TiViewProxy proxy, boolean field)
@@ -137,14 +137,16 @@ public class TiUIText extends TiUIView
 		super.processProperties(d);
 
 		if (d.containsKey(TiC.PROPERTY_ENABLED)) {
-			tv.setEnabled(d.getBoolean(TiC.PROPERTY_ENABLED));
+			tv.setEnabled(TiConvert.toBoolean(d, TiC.PROPERTY_ENABLED, true));
 		}
 		
 		if (d.containsKey(TiC.PROPERTY_MAX_LENGTH) && field) {
-			maxLength = TiConvert.toInt(d, TiC.PROPERTY_MAX_LENGTH);
+			maxLength = TiConvert.toInt(d.get(TiC.PROPERTY_MAX_LENGTH), -1);
 		}
 		if (d.containsKey(TiC.PROPERTY_VALUE)) {
 			tv.setText(d.getString(TiC.PROPERTY_VALUE));
+		} else {
+			tv.setText("");
 		}
 		
 		if (d.containsKey(TiC.PROPERTY_COLOR)) {
@@ -180,7 +182,7 @@ public class TiUIText extends TiUIView
 		}
 		
 		if (d.containsKey(TiC.PROPERTY_RETURN_KEY_TYPE)) {
-			handleReturnKeyType(d.getInt(TiC.PROPERTY_RETURN_KEY_TYPE));
+			handleReturnKeyType(TiConvert.toInt(d.get(TiC.PROPERTY_RETURN_KEY_TYPE), RETURNKEY_DEFAULT));
 		}
 		
 		if (d.containsKey(TiC.PROPERTY_KEYBOARD_TYPE) || d.containsKey(TiC.PROPERTY_AUTOCORRECT) || d.containsKey(TiC.PROPERTY_PASSWORD_MASK) || d.containsKey(TiC.PROPERTY_AUTOCAPITALIZATION) || d.containsKey(TiC.PROPERTY_EDITABLE)) {
@@ -196,11 +198,13 @@ public class TiUIText extends TiUIView
 	@Override
 	public void propertyChanged(String key, Object oldValue, Object newValue, KrollProxy proxy)
 	{
-		Log.d(TAG, "Property: " + key + " old: " + oldValue + " new: " + newValue, Log.DEBUG_MODE);
+		if (Log.isDebugModeEnabled()) {
+			Log.d(TAG, "Property: " + key + " old: " + oldValue + " new: " + newValue, Log.DEBUG_MODE);
+		}
 		if (key.equals(TiC.PROPERTY_ENABLED)) {
 			tv.setEnabled(TiConvert.toBoolean(newValue));
 		} else if (key.equals(TiC.PROPERTY_VALUE)) {
-			tv.setText((String) newValue);
+			tv.setText(TiConvert.toString(newValue));
 		} else if (key.equals(TiC.PROPERTY_MAX_LENGTH)) {
 			maxLength = TiConvert.toInt(newValue);
 			//truncate if current text exceeds max length
@@ -254,43 +258,51 @@ public class TiUIText extends TiUIView
 	}
 
 	@Override
-	public void afterTextChanged(Editable tv)
+	public void afterTextChanged(Editable editable)
 	{
-		
+		if (maxLength >= 0 && editable.length() > maxLength) {
+			// The input characters are more than maxLength. We need to truncate the text and reset text.
+			isTruncatingText = true;
+			String newText = editable.subSequence(0, maxLength).toString();
+			int cursor = tv.getSelectionStart();
+			if (cursor > maxLength) {
+				cursor = maxLength;
+			}
+			tv.setText(newText); // This method will invoke onTextChanged() and afterTextChanged().
+			tv.setSelection(cursor);
+		} else {
+			isTruncatingText = false;
+		}
 	}
 
 	@Override
 	public void beforeTextChanged(CharSequence s, int start, int before, int count)
 	{
+
 	}
 
 	@Override
 	public void onTextChanged(CharSequence s, int start, int before, int count)
 	{
-
-		/** There is an Android bug regarding setting filter on EditText that impacts auto completion.
-		 *  Therefore we can't use filters to implement "maxLength" property. Instead we manipulate
-		 *  the text to achieve perfect parity with other platforms.
-		 *  Android bug url for reference: http://code.google.com/p/android/issues/detail?id=35757
+		/**
+		 * There is an Android bug regarding setting filter on EditText that impacts auto completion.
+		 * Therefore we can't use filters to implement "maxLength" property. Instead we manipulate
+		 * the text to achieve perfect parity with other platforms.
+		 * Android bug url for reference: http://code.google.com/p/android/issues/detail?id=35757
 		 */
-		Object prevText = proxy.getProperty(TiC.PROPERTY_VALUE);
 		if (maxLength >= 0 && s.length() > maxLength) {
-			String t = TiConvert.toString(prevText);
-			int cursor = tv.getSelectionStart() - 1;
-			tv.setText(t);
-			tv.setSelection(cursor);
+			// Can only set truncated text in afterTextChanged. Otherwise, it will crash.
 			return;
 		}
-		String newValue = tv.getText().toString();
-		if (proxy.shouldFireChange(prevText, newValue)) {
+		String newText = tv.getText().toString();
+		if (!isTruncatingText || (isTruncatingText && proxy.shouldFireChange(proxy.getProperty(TiC.PROPERTY_VALUE), newText))) {
 			KrollDict data = new KrollDict();
-			data.put("value", newValue);
-
-			proxy.setProperty(TiC.PROPERTY_VALUE, newValue);
-			proxy.fireEvent(TiC.EVENT_CHANGE, data);
+			data.put(TiC.PROPERTY_VALUE, newText);
+			proxy.setProperty(TiC.PROPERTY_VALUE, newText);
+			fireEvent(TiC.EVENT_CHANGE, data);
 		}
 	}
-	
+
 	@Override
 	public void focus()
 	{
@@ -348,7 +360,7 @@ public class TiUIText extends TiUIView
 		if ((actionId == EditorInfo.IME_NULL && keyEvent != null) || 
 				actionId == EditorInfo.IME_ACTION_NEXT || 
 				actionId == EditorInfo.IME_ACTION_DONE ) {
-			proxy.fireEvent("return", data);
+			fireEvent("return", data);
 		}
 
 		Boolean enableReturnKey = (Boolean) proxy.getProperty(TiC.PROPERTY_ENABLE_RETURN_KEY);
@@ -377,17 +389,17 @@ public class TiUIText extends TiUIView
 		int autocorrect = InputType.TYPE_TEXT_FLAG_AUTO_CORRECT;
 		int autoCapValue = 0;
 
-		if (d.containsKey(TiC.PROPERTY_AUTOCORRECT) && !TiConvert.toBoolean(d, TiC.PROPERTY_AUTOCORRECT)) {
+		if (d.containsKey(TiC.PROPERTY_AUTOCORRECT) && !TiConvert.toBoolean(d, TiC.PROPERTY_AUTOCORRECT, true)) {
 			autocorrect = InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS;
 		}
 
 		if (d.containsKey(TiC.PROPERTY_EDITABLE)) {
-			editable = TiConvert.toBoolean(d, TiC.PROPERTY_EDITABLE);
+			editable = TiConvert.toBoolean(d, TiC.PROPERTY_EDITABLE, true);
 		}
 
 		if (d.containsKey(TiC.PROPERTY_AUTOCAPITALIZATION)) {
 
-			switch (TiConvert.toInt(d,TiC.PROPERTY_AUTOCAPITALIZATION)) {
+			switch (TiConvert.toInt(d.get(TiC.PROPERTY_AUTOCAPITALIZATION), TEXT_AUTOCAPITALIZATION_NONE)) {
 				case TEXT_AUTOCAPITALIZATION_NONE:
 					autoCapValue = 0;
 					break;
@@ -411,11 +423,11 @@ public class TiUIText extends TiUIView
 		}
 
 		if (d.containsKey(TiC.PROPERTY_PASSWORD_MASK)) {
-			passwordMask = TiConvert.toBoolean(d, TiC.PROPERTY_PASSWORD_MASK);
+			passwordMask = TiConvert.toBoolean(d, TiC.PROPERTY_PASSWORD_MASK, false);
 		}
 
 		if (d.containsKey(TiC.PROPERTY_KEYBOARD_TYPE)) {
-			type = TiConvert.toInt(d, TiC.PROPERTY_KEYBOARD_TYPE);
+			type = TiConvert.toInt(d.get(TiC.PROPERTY_KEYBOARD_TYPE), KEYBOARD_DEFAULT);
 		}
 
 		int typeModifiers = autocorrect | autoCapValue;
@@ -458,6 +470,7 @@ public class TiUIText extends TiUIView
 				textTypeAndClass |= InputType.TYPE_TEXT_VARIATION_URI;
 				break;
 			case KEYBOARD_DECIMAL_PAD:
+				textTypeAndClass |= (InputType.TYPE_NUMBER_FLAG_DECIMAL | InputType.TYPE_NUMBER_FLAG_SIGNED);
 			case KEYBOARD_NUMBER_PAD:
 				tv.setKeyListener(DigitsKeyListener.getInstance(true,true));
 				textTypeAndClass |= InputType.TYPE_CLASS_NUMBER;
@@ -471,19 +484,23 @@ public class TiUIText extends TiUIView
 				break;
 		}
 		if (passwordMask) {
-			tv.setTransformationMethod(PasswordTransformationMethod.getInstance());
 			textTypeAndClass |= InputType.TYPE_TEXT_VARIATION_PASSWORD;
+			// Sometimes password transformation does not work properly when the input type is set after the transformation method.
+			// This issue has been filed at http://code.google.com/p/android/issues/detail?id=7092
+			tv.setInputType(textTypeAndClass);
+			tv.setTransformationMethod(PasswordTransformationMethod.getInstance());
+
 			//turn off text UI in landscape mode b/c Android numeric passwords are not masked correctly in landscape mode.
 			if (type == KEYBOARD_NUMBERS_PUNCTUATION || type == KEYBOARD_DECIMAL_PAD || type == KEYBOARD_NUMBER_PAD) {
 				tv.setImeOptions(EditorInfo.IME_FLAG_NO_EXTRACT_UI);
 			}
 
 		} else {
+			tv.setInputType(textTypeAndClass);
 			if (tv.getTransformationMethod() instanceof PasswordTransformationMethod) {
 				tv.setTransformationMethod(null);
 			}
 		}
-		tv.setInputType(textTypeAndClass);
 		if (!editable) {
 			tv.setKeyListener(null);
 			tv.setCursorVisible(false);

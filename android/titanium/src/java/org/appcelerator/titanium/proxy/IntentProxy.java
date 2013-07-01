@@ -7,6 +7,7 @@
 package org.appcelerator.titanium.proxy;
 
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
 import java.util.List;
@@ -20,6 +21,7 @@ import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.util.TiConvert;
 
+import android.graphics.Bitmap;
 import android.content.Intent;
 import android.net.Uri;
 import android.text.TextUtils;
@@ -150,7 +152,6 @@ public class IntentProxy extends KrollProxy
 			}
 		}
 
-
 		if (type == null) {
 			if (action != null && action.equals(Intent.ACTION_SEND)) {
 				type = "text/plain";
@@ -172,8 +173,6 @@ public class IntentProxy extends KrollProxy
 		}
 	}
 
-
-
 	@Kroll.method
 	public void putExtra(String key, Object value)
 	{
@@ -193,7 +192,6 @@ public class IntentProxy extends KrollProxy
 			intent.putExtra(key, TiConvert.toString(value));
 		}
 	}
-
 
 	@Kroll.method
 	public void addFlags(int flags)
@@ -280,24 +278,53 @@ public class IntentProxy extends KrollProxy
 	@Kroll.method
 	public TiBlob getBlobExtra(String name)
 	{
+		InputStream is = null;
+		ByteArrayOutputStream bos = null;
 		try {
-			Uri uri = (Uri) intent.getExtras().getParcelable(name);
-			InputStream is = TiApplication.getInstance().getContentResolver().openInputStream(uri);
 
-			ByteArrayOutputStream bos = new ByteArrayOutputStream();
-			int len;
-			int size = 4096;
-			byte[] buf = new byte[size];
-			while ((len = is.read(buf, 0, size)) != -1) {
-				bos.write(buf, 0, len);
+			Object returnData = intent.getExtras().getParcelable(name);
+			if (returnData instanceof Uri) {
+
+				Uri uri = (Uri) returnData;
+				is = TiApplication.getInstance().getContentResolver().openInputStream(uri);
+
+				bos = new ByteArrayOutputStream();
+
+				int len;
+				int size = 4096;
+				byte[] buf = new byte[size];
+				while ((len = is.read(buf, 0, size)) != -1) {
+					bos.write(buf, 0, len);
+				}
+				buf = bos.toByteArray();
+
+				return TiBlob.blobFromData(buf);
+			} else if (returnData instanceof Bitmap) {
+
+				Bitmap returnBitmapData = (Bitmap) returnData;
+				return TiBlob.blobFromImage(returnBitmapData);
 			}
-			buf = bos.toByteArray();
 
-			return TiBlob.blobFromData(buf);
 		} catch (Exception e) {
 			Log.e(TAG, "Error getting blob extra: " + e.getMessage(), e);
 			return null;
+		} finally {
+			if (is != null) {
+				try {
+					is.close();
+				} catch (IOException e) {
+					Log.e(TAG, e.getMessage(), Log.DEBUG_MODE);
+				}
+			}
+			if (bos != null) {
+				try {
+					bos.close();
+				} catch (IOException e) {
+					Log.e(TAG, e.getMessage(), Log.DEBUG_MODE);
+				}
+			}
 		}
+		return null;
 	}
 
 	@Kroll.method @Kroll.getProperty

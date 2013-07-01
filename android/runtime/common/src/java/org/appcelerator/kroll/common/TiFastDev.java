@@ -25,8 +25,12 @@ import org.appcelerator.kroll.util.TiTempFileHelper;
 import android.app.Application;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Looper;
 import android.os.Process;
+import android.os.StrictMode;
+import android.os.StrictMode.ThreadPolicy;
+import android.os.StrictMode.ThreadPolicy.Builder;
 import android.widget.Toast;
 
 /**
@@ -82,6 +86,14 @@ public class TiFastDev
 	{
 		if (app == null) {
 			return;
+		}
+		
+		//Starting with API 10, Android default policy is strict mode, which means
+		//all networking can't be done on the main thread. In this case we choose
+		//to change the policy to avoid exceptions.
+		if (Build.VERSION.SDK_INT >= 10) {
+			Builder policy = new ThreadPolicy.Builder().permitNetwork();
+			StrictMode.setThreadPolicy(policy.build());
 		}
 
 		appGuid = app.getAppGUID();
@@ -154,9 +166,13 @@ public class TiFastDev
 			Looper.prepare();
 		}
 
-		Context ctx = KrollRuntime.getInstance().getKrollApplication().getCurrentActivity();
-		Toast toast = Toast.makeText(ctx, message, Toast.LENGTH_LONG);
-		toast.show();
+		KrollRuntime kRuntime = KrollRuntime.getInstance();
+		if (kRuntime != null) {
+			Context ctx = kRuntime.getKrollApplication().getCurrentActivity();
+			Toast toast = Toast.makeText(ctx, message, Toast.LENGTH_LONG);
+			toast.show();
+		}
+		
 	}
 
 	protected void showDisabledWarning(Exception e)

@@ -13,6 +13,7 @@
 #import "NSData+Additions.h"
 #import "ImageLoader.h"
 #import "TiDebugger.h"
+#import "TiProfiler.h"
 #import <QuartzCore/QuartzCore.h>
 #import <AVFoundation/AVFoundation.h>
 #import "ApplicationDefaults.h"
@@ -167,6 +168,21 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 	[appDefaults release];
 }
 
+- (void) launchToUrl
+{
+    NSDictionary *launchDefaults = [ApplicationDefaults launchUrl];
+    if (launchDefaults != nil) {
+        UIApplication* app = [UIApplication sharedApplication];
+        NSURL *url = [NSURL URLWithString:[launchDefaults objectForKey:@"application-launch-url"]];
+        if ([app canOpenURL:url]) {
+            [app openURL:url];
+        }
+        else {
+            DebugLog(@"[WARN] The launch-url provided : %@ is invalid.", [launchDefaults objectForKey:@"application-launch-url"]);
+        }
+    }
+}
+
 - (void)boot
 {
 	DebugLog(@"[INFO] %@/%@ (%s.__GITHASH__)",TI_APPLICATION_NAME,TI_APPLICATION_VERSION,TI_VERSION_STR);
@@ -190,13 +206,45 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 		{
 			NSArray *hosts = nil;
 			NSString *hostsString = [params objectForKey:@"hosts"];
-			if (![hosts isEqualToString:@"__DEBUGGER_HOSTS__"]) {
+			if (![hostsString isEqualToString:@"__DEBUGGER_HOSTS__"]) {
 				hosts = [hostsString componentsSeparatedByCharactersInSet:[NSCharacterSet characterSetWithCharactersInString:@","]];
 			}
 			TiDebuggerDiscoveryStart(airkey, hosts, ^(NSString *host, NSInteger port) {
 				if (host != nil) {
 					[self setDebugMode:YES];
 					TiDebuggerStart(host, port);
+				}
+				[self appBoot];
+			});
+			[params release];
+			return;
+		}
+		[params release];
+#endif
+    }
+	filePath = [[NSBundle mainBundle] pathForResource:@"profiler" ofType:@"plist"];
+	if (!self.debugMode && filePath != nil) {
+        NSMutableDictionary *params = [[NSMutableDictionary alloc] initWithContentsOfFile:filePath];
+        NSString *host = [params objectForKey:@"host"];
+        NSInteger port = [[params objectForKey:@"port"] integerValue];
+        NSString *airkey = [params objectForKey:@"airkey"];
+        if (([host length] > 0) && ![host isEqualToString:@"__PROFILER_HOST__"])
+        {
+            [self setProfileMode:YES];
+            TiProfilerStart(host, port);
+        }
+#if !TARGET_IPHONE_SIMULATOR
+		else if (([airkey length] > 0) && ![airkey isEqualToString:@"__PROFILER_AIRKEY__"])
+		{
+			NSArray *hosts = nil;
+			NSString *hostsString = [params objectForKey:@"hosts"];
+			if (![hostsString isEqualToString:@"__PROFILER_HOSTS__"]) {
+				hosts = [hostsString componentsSeparatedByCharactersInSet:[NSCharacterSet characterSetWithCharactersInString:@","]];
+			}
+			TiProfilerDiscoveryStart(airkey, hosts, ^(NSString *host, NSInteger port) {
+				if (host != nil) {
+					[self setProfileMode:YES];
+					TiProfilerStart(host, port);
 				}
 				[self appBoot];
 			});
@@ -240,6 +288,7 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 	[TiExceptionHandler defaultExceptionHandler];
 	[self initController];
 	[self loadUserDefaults];
+    [self launchToUrl];
 	[self boot];
 }
 
@@ -283,6 +332,9 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 	NSString *sourceBundleId = [launchOptions objectForKey:UIApplicationLaunchOptionsSourceApplicationKey];
 	NSDictionary *notification = [launchOptions objectForKey:UIApplicationLaunchOptionsRemoteNotificationKey];
 	
+    [launchOptions setObject:NUMBOOL([[launchOptions objectForKey:UIApplicationLaunchOptionsLocationKey] boolValue]) forKey:@"launchOptionsLocationKey"];
+    [launchOptions removeObjectForKey:UIApplicationLaunchOptionsLocationKey];
+    
 	localNotification = [[[self class] dictionaryWithLocalNotification:[launchOptions objectForKey:UIApplicationLaunchOptionsLocalNotificationKey]] retain];
 	[launchOptions removeObjectForKey:UIApplicationLaunchOptionsLocalNotificationKey];
 	
@@ -301,6 +353,7 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 	{
 		[self generateNotification:notification];
 	}
+    [self launchToUrl];
 	[self loadUserDefaults];
 	[self boot];
 	
@@ -598,7 +651,12 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 
 - (NSUInteger)application:(UIApplication *)application supportedInterfaceOrientationsForWindow:(UIWindow *)window
 {
-    return [controller supportedInterfaceOrientations];
+    if ([self windowIsKeyWindow]) {
+        return [controller supportedInterfaceOrientations];
+    }
+    
+    //UIInterfaceOrientationMaskAll = 30;
+    return 30;
 }
 
 - (void)dealloc 

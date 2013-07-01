@@ -21,8 +21,10 @@ import org.appcelerator.titanium.view.TiCompositeLayout.LayoutParams;
 import org.appcelerator.titanium.view.TiUIView;
 
 import ti.modules.titanium.ui.ScrollableViewProxy;
+import ti.modules.titanium.ui.widget.TiUIScrollView.TiScrollViewLayout;
 import android.app.Activity;
 import android.content.Context;
+import android.os.Build;
 import android.os.Parcelable;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
@@ -280,6 +282,12 @@ public class TiUIScrollableView extends TiUIView
 		if (d.containsKey(TiC.PROPERTY_SCROLLING_ENABLED)) {
 			mEnabled = TiConvert.toBoolean(d, TiC.PROPERTY_SCROLLING_ENABLED);
 		}
+		
+		if (d.containsKey(TiC.PROPERTY_OVER_SCROLL_MODE)) {
+			if (Build.VERSION.SDK_INT >= 9) {
+				mPager.setOverScrollMode(TiConvert.toInt(d.get(TiC.PROPERTY_OVER_SCROLL_MODE), View.OVER_SCROLL_ALWAYS));
+			}
+		}
 
 		super.processProperties(d);
 
@@ -300,6 +308,10 @@ public class TiUIScrollableView extends TiUIView
 			}
 		} else if (TiC.PROPERTY_SCROLLING_ENABLED.equals(key)) {
 			mEnabled = TiConvert.toBoolean(newValue);
+		} else if (TiC.PROPERTY_OVER_SCROLL_MODE.equals(key)){
+			if (Build.VERSION.SDK_INT >= 9) {
+				mPager.setOverScrollMode(TiConvert.toInt(newValue, View.OVER_SCROLL_ALWAYS));
+			}
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}
@@ -480,7 +492,7 @@ public class TiUIScrollableView extends TiUIView
 			ViewPager pager = (ViewPager) container;
 			TiViewProxy tiProxy = mViewProxies.get(position);
 			TiUIView tiView = tiProxy.getOrCreateView();
-			View view = tiView.getNativeView();
+			View view = tiView.getOuterView();
 			if (view.getParent() != null) {
 				pager.removeView(view);
 			}
@@ -536,6 +548,27 @@ public class TiUIScrollableView extends TiUIView
 				showPager();
 			}
 			return super.onTrackballEvent(event);
+		}
+
+		@Override
+		public boolean dispatchTouchEvent(MotionEvent ev)
+		{
+			// If the parent is a scroll view, then we prevent the scroll view from intercepting touch events
+			if (getParent() instanceof TiScrollViewLayout) {
+				int action = ev.getAction();
+				switch (action) {
+					case MotionEvent.ACTION_DOWN:
+						requestDisallowInterceptTouchEvent(true);
+						break;
+
+					case MotionEvent.ACTION_UP:
+					case MotionEvent.ACTION_CANCEL:
+						requestDisallowInterceptTouchEvent(false);
+						break;
+
+				}
+			}
+			return super.dispatchTouchEvent(ev);
 		}
 
 		@Override

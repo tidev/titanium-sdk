@@ -22,6 +22,23 @@ examples:
             });
             toast.show();
 
+  - title: Alloy XML Markup
+    example: |
+        Previous example as an Alloy view.
+
+        index.xml
+
+            <Alloy>
+                <Window>
+                    <Notification id="toast" platform="android" message="Please Stand By" duration="Ti.UI.NOTIFICATION_DURATION_LONG" />
+                </Window>
+            </Alloy>
+
+        index.js
+
+            $.index.open();
+            $.toast.show();
+
 methods:
 - name: show 
   summary: Show the notification.

@@ -35,7 +35,7 @@ description: |
     can, but when memory runs low it terminates suspended apps to reclaim that memory. Apps 
     that consume large amounts of memory while in the background are the first apps to be terminated.
     
-    **Responding To interruptions**
+    **Responding To Interruptions**
     
     ***System Alerts***
     
@@ -83,6 +83,14 @@ description: |
     <tr><th rowspan="2" align="left">Sleep/Wake Button</th><td> iOS 4.X</td><td align="center">pause</td><td  align="center"><td align="center"><td align="center"> resumed</tr >
     <tr><td>iOS 5.0 +</td><td align="center">pause</td><td align="center">paused</td><td align="center">resume<td align="center">resumed</td></tr>
     <tr><th colspan="2" align="left">Home Button (backgrounding)<td align="center">pause<td align="center">paused<td align="center"> resume<td align="center">resumed</tr></table>
+
+    ***Blur and Focus Events***
+
+    When using the iOS pause/resume feature, the `blur` and `focus` events do not fire
+    before the application enters the background or after it returns to the foreground,
+    respectively.  Instead, the application needs to monitor the `pause` and `resumed` events,
+    which relies on the underlying iOS events to determine the application state rather than the
+    UI events.
     
     #### Application Level Events
 
@@ -126,31 +134,32 @@ description: |
     The following accessibility events can be fired by your application to alert the accessibility
     system of a particular condition or to ask it to perform an action.
 
-    These events are fired using <Ti.App.fireSystemEvent>, which is available in Titanium Mobile 3.0.0.
+    These events are fired using <Titanium.App.fireSystemEvent>, which is available in Titanium Mobile 3.0.0.
 
-    * <Ti.App.EVENT_ACCESSIBILITY_ANNOUNCEMENT>, available in iOS and Android, asks the device's
+    * <Titanium.App.EVENT_ACCESSIBILITY_ANNOUNCEMENT>, available in iOS and Android, asks the device's
     accessibility system to make an announcement. The announcement itself is a string passed as the second
-    argument to <Ti.App.fireSystemEvent>. *How* the device's accessibility actually makes that announcement
+    argument to <Titanium.App.fireSystemEvent>. *How* the device's accessibility actually makes that announcement
     depends on what accessibility services are activated on the device. The most common are VoiceOver on
     iOS and TalkBack on Android. Each of those would read the announcement aloud.
 
             Ti.App.fireSystemEvent(Ti.App.EVENT_ACCESSIBILITY_ANNOUNCEMENT, "Welcome to my App");
 
-    * <Ti.App.iOS.EVENT_ACCESSIBILITY_LAYOUT_CHANGED>, available only on iOS, can be used to alert
+    * <Titanium.App.iOS.EVENT_ACCESSIBILITY_LAYOUT_CHANGED>, available only on iOS, can be used to alert
     the accessibility system that the layout of the screen has changed, such as when an element
     appears or disappears. When your application fires this event, Titanium calls `UIAccessibilityLayoutChangedNotification`
-    in the iOS [UIAccessibility Protocol](http://developer.apple.com/library/ios/#documentation/uikit/reference/UIAccessibility_Protocol/Introduction/Introduction.html).  No second parameter is required when firing this event with <Ti.App.fireSystemEvent>.
+    in the iOS [UIAccessibility Protocol](http://developer.apple.com/library/ios/#documentation/uikit/reference/UIAccessibility_Protocol/Introduction/Introduction.html).
+    No second parameter is required when firing this event with <Titanium.App.fireSystemEvent>.
 
-    * <Ti.App.iOS.EVENT_ACCESSIBILITY_SCREEN_CHANGED>, available only on iOS, can be used to alert
+    * <Titanium.App.iOS.EVENT_ACCESSIBILITY_SCREEN_CHANGED>, available only on iOS, can be used to alert
     the accessibility system when a new view appears that comprises a major portion of the screen.
     When your application fires this event, Titanium calls `UIAccessibilityScreenChangedNotification`
     in the iOS [UIAccessibility Protocol](http://developer.apple.com/library/ios/#documentation/uikit/reference/UIAccessibility_Protocol/Introduction/Introduction.html).
-    No second parameter is required when firing this event with <Ti.App.fireSystemEvent>.
+    No second parameter is required when firing this event with <Titanium.App.fireSystemEvent>.
 
     ##### Listening for Accessibility Events
 
     Currently there is only one system accessibility event which your application can listen for using
-    <Ti.App.addEventListener>, namely <Ti.App.accessibilitychanged>.  This event, available on iOS and on Android
+    <Titanium.App.addEventListener>, namely <Titanium.App.accessibilitychanged>.  This event, available on iOS and on Android
     (for devices running Ice Cream Sandwich or greater), is fired when the device's accessibility service is turned
     on or off. The object passed as a parameter to the listener function contains an `enabled` property which is
     `true` if the accessibility service is now turned on, or `false` otherwise.
@@ -191,7 +200,10 @@ events:
   - name: paused
     summary: Fired when the application transitions to the background on a multitasked system.
     description: |
-        Available on iOS 4.0 and later.
+        On iOS 4.0 and later, this event only fires when putting the application in the background
+        using the home button.
+
+        On iOS 5.0 and later, this event also fires when using the sleep/wake or power button.
         
         This event fires when the user leaves the application.
         
@@ -218,7 +230,10 @@ events:
   - name: resume
     summary: Fired when the application returns to the foreground on a multitasked system.
     description: |
-        Available on iOS 4.0 and later.
+        On iOS 4.0 and later, this event only fires when putting the application in the background
+        using the home button.
+
+        On iOS 5.0 and later, this event also fires when using the sleep/wake or power button.
         
         Note that this event does not fire for pauses resulting from notifications or incoming phone 
         calls.
@@ -269,10 +284,20 @@ events:
         is being dissmissed.
     platforms: [iphone, ipad]
     since: '3.0.0'
-    
+
+  - name: significanttimechange
+    summary: Fired when there is a significant change in the time.
+    description: |
+        Examples of significant time changes include the arrival of midnight, an update to the time by a carrier, 
+        and the change to daylight savings time. If your application is currently in `paused` state, this message 
+        will be is queued until your application returns to the foreground, at which point it is delievered. If multiple 
+        changes occur, only the most recent one is delievered.
+    platforms: [iphone, ipad]
+    since: '3.1.0'
+
 methods:
   - name: fireSystemEvent
-    summary: Fire a system-level event such as <Ti.App.EVENT_ACCESSIBILITY_ANNOUNCEMENT>.
+    summary: Fire a system-level event such as <Titanium.App.EVENT_ACCESSIBILITY_ANNOUNCEMENT>.
     platforms: [android, iphone, ipad]
     since: "3.0.0"
     parameters:
@@ -286,9 +311,12 @@ methods:
 
   - name: getArguments
     summary: Returns the arguments passed to the application on startup.
+    description : |
+        On Android, use the [intent](Titanium.Android.Activity.intent) property of the activity to
+        retrieve the parameters passed to launch the application activity.
     platforms: [iphone, ipad]
     returns:
-        type: Dictionary
+        type: launchOptions
 
 properties:
   - name: EVENT_ACCESSIBILITY_ANNOUNCEMENT
@@ -305,6 +333,11 @@ properties:
     platforms: [android, iphone, ipad]
     since: "3.0.0"
 
+  - name: accessibilityEnabled
+    summary: Indicates whether Accessibility is enabled by the system.
+    type: Boolean
+    permission: read-only
+ 
   - name: analytics
     summary: Indicates whether Analytics is enabled, determined by `tiapp.xml`.
     type: Boolean
@@ -421,3 +454,28 @@ properties:
     type: Boolean
     permission: read-only
     platforms: [iphone, ipad]
+
+---
+name: launchOptions
+summary: |
+    Dictionary describing the arguments passed to the application on startup.
+    Use the [getArguments](Titanium.App.getArguments) method to retrieve the launch options.
+properties:
+  - name: url
+    summary: |
+        This key indicates that the application was launched in order to open
+        the specified URL.
+    type: String
+
+  - name: source
+    summary: |
+        This key indicates that the application was launched by another
+        application with the specified bundle ID.
+    type: String
+
+  - name: launchOptionsLocationKey
+    summary: |
+        If set to `true`, this key indicates that the application was launched in response to an
+        incoming location event.
+    type: Boolean
+    default: false

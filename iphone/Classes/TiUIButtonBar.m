@@ -48,6 +48,11 @@
 	return segmentedControl;
 }
 
+- (id)accessibilityElement
+{
+	return [self segmentedControl];
+}
+
 // For regression #1880.  Because there are essentially TWO kinds of 'width' going on with tabbed/button bars
 // (width of all elements, width of the proxy) we assume that if the user has set the width of the bar completely,
 // AND the width of the proxy is undefined, they want magic!
@@ -161,6 +166,7 @@
 		UIImage * thisSegmentImage = nil;
 		CGFloat thisSegmentWidth = 0;
 		BOOL thisSegmentEnabled = YES;
+		NSString *thisSegmentAccessibilityLabel = nil;
 		
 		if ([thisSegmentEntry isKindOfClass:[NSDictionary class]])
 		{
@@ -168,10 +174,14 @@
 			thisSegmentImage = [TiUtils image:[thisSegmentEntry objectForKey:@"image"] proxy:[self proxy]];
 			thisSegmentWidth = [TiUtils floatValue:@"width" properties:thisSegmentEntry];
 			thisSegmentEnabled = [TiUtils boolValue:@"enabled" properties:thisSegmentEntry def:YES];
+			thisSegmentAccessibilityLabel = [TiUtils stringValue:@"accessibilityLabel" properties:thisSegmentEntry];
 		}
 
 		if (thisSegmentImage != nil)
 		{
+			if (thisSegmentAccessibilityLabel != nil) {
+				thisSegmentImage.accessibilityLabel = thisSegmentAccessibilityLabel;
+			}
 			[segmentedControl insertSegmentWithImage:thisSegmentImage atIndex:thisSegmentIndex animated:NO];
 		}
 		else
@@ -179,6 +189,9 @@
 			if (thisSegmentTitle == nil)
 			{
 				thisSegmentTitle = @"";
+			}
+			if (thisSegmentAccessibilityLabel != nil) {
+				thisSegmentTitle.accessibilityLabel = thisSegmentAccessibilityLabel;
 			}
 			[segmentedControl insertSegmentWithTitle:thisSegmentTitle atIndex:thisSegmentIndex animated:NO];
 		}

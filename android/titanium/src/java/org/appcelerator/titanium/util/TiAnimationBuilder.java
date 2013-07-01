@@ -384,8 +384,10 @@ public class TiAnimationBuilder
 			// need to re-layout.
 			relayoutChild = (autoreverse == null || !autoreverse.booleanValue());
 
-			Log.d(TAG, "animate " + viewProxy + " relative to self: " + (horizontal[0] - x) + ", " + (vertical[0] - y),
-				Log.DEBUG_MODE);
+			if (Log.isDebugModeEnabled()) {
+				Log.d(TAG, "animate " + viewProxy + " relative to self: " + (horizontal[0] - x) + ", " + (vertical[0] - y),
+					Log.DEBUG_MODE);
+			}
 
 		}
 
@@ -402,12 +404,19 @@ public class TiAnimationBuilder
 			if (height != null) {
 				optionHeight = new TiDimension(height, TiDimension.TYPE_HEIGHT);
 			} else {
-				optionHeight = new TiDimension(w, TiDimension.TYPE_HEIGHT);
+				optionHeight = new TiDimension(h, TiDimension.TYPE_HEIGHT);
 				optionHeight.setUnits(TypedValue.COMPLEX_UNIT_PX);
 			}
+			
+			ViewParent parent = view.getParent();
+			View parentView = null;
 
-			int toWidth = optionWidth.getAsPixels(view);
-			int toHeight = optionHeight.getAsPixels(view);
+			if (parent instanceof View) {
+				parentView = (View) parent;
+			}
+
+			int toWidth = optionWidth.getAsPixels((parentView != null)?parentView:view);
+			int toHeight = optionHeight.getAsPixels((parentView != null)?parentView:view);
 
 			SizeAnimation sizeAnimation = new SizeAnimation(view, w, h, toWidth, toHeight);
 
@@ -464,8 +473,10 @@ public class TiAnimationBuilder
 			this.toWidth = toWidth;
 			this.toHeight = toHeight;
 
-			Log.d(TAG, "animate view from (" + fromWidth + "x" + fromHeight + ") to (" + toWidth + "x" + toHeight + ")",
-				Log.DEBUG_MODE);
+			if (Log.isDebugModeEnabled()) {
+				Log.d(TAG, "animate view from (" + fromWidth + "x" + fromHeight + ") to (" + toWidth + "x" + toHeight + ")",
+					Log.DEBUG_MODE);
+			}
 		}
 
 		@Override
@@ -615,11 +626,25 @@ public class TiAnimationBuilder
 		public void onAnimationEnd(Animation a)
 		{
 			if (relayoutChild) {
-				LayoutParams params = (LayoutParams) view.getLayoutParams();
-				TiConvert.fillLayout(options, params);
-				view.setLayoutParams(params);
+				// Do it only for TiCompositeLayout.LayoutParams, for border views
+				// height and width are defined as 'MATCH_PARENT' and no change is
+				// needed
+				if (view.getLayoutParams() instanceof TiCompositeLayout.LayoutParams) {
+					LayoutParams params = (LayoutParams) view.getLayoutParams();
+					TiConvert.fillLayout(options, params);
+					view.setLayoutParams(params);
+				}
 				view.clearAnimation();
 				relayoutChild = false;
+				// TIMOB-11298 Propagate layout property changes to proxy
+				for (Object key : options.keySet()) {
+					if (TiC.PROPERTY_TOP.equals(key) || TiC.PROPERTY_BOTTOM.equals(key) || TiC.PROPERTY_LEFT.equals(key)
+						|| TiC.PROPERTY_RIGHT.equals(key) || TiC.PROPERTY_CENTER.equals(key)
+						|| TiC.PROPERTY_WIDTH.equals(key) || TiC.PROPERTY_HEIGHT.equals(key)
+						|| TiC.PROPERTY_BACKGROUND_COLOR.equals(key)) {
+						viewProxy.setProperty((String) key, options.get(key));
+					}
+				}
 			}
 
 			if (applyOpacity && (autoreverse == null || !autoreverse.booleanValue())) {
@@ -671,7 +696,7 @@ public class TiAnimationBuilder
 				}
 			}
 		}
-
+		
 		public void onAnimationRepeat(Animation a)
 		{
 		}

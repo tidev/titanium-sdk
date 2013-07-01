@@ -8,6 +8,7 @@ package ti.modules.titanium.ui.widget.tabgroup;
 
 import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiLifecycle.OnLifecycleEvent;
+import org.appcelerator.titanium.view.TiCompositeLayout;
 
 import ti.modules.titanium.ui.TabGroupProxy;
 import ti.modules.titanium.ui.TabProxy;
@@ -16,6 +17,8 @@ import android.app.ActionBar.Tab;
 import android.app.ActionBar.TabListener;
 import android.app.Activity;
 import android.app.FragmentTransaction;
+import android.view.ViewGroup;
+import android.widget.FrameLayout;
 
 /**
  * Tab group implementation using the Action Bar navigation tabs.
@@ -44,6 +47,19 @@ public class TiUIActionBarTabGroup extends TiUIAbstractTabGroup implements TabLi
 		actionBar = activity.getActionBar();
 		actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
 		actionBar.setDisplayShowTitleEnabled(false);
+
+		// Create a view to present the contents of the currently selected tab.
+		FrameLayout tabContent = new FrameLayout(activity);
+		tabContent.setId(android.R.id.tabcontent);
+		TiCompositeLayout.LayoutParams params = new TiCompositeLayout.LayoutParams();
+		params.autoFillsHeight = true;
+		params.autoFillsWidth = true;
+		((ViewGroup) activity.getLayout()).addView(tabContent, params);
+
+		// The tab content view will act as the "native" view for the group.
+		// Note: since the tab bar is NOT part of the content, animations
+		// will not transform it along with the rest of the group.
+		setNativeView(tabContent);
 	}
 
 	@Override
@@ -105,7 +121,7 @@ public class TiUIActionBarTabGroup extends TiUIAbstractTabGroup implements TabLi
 			// If not we will create it here then attach it
 			// to the tab group activity inside the "content" container.
 			tabView.initializeFragment();
-			ft.add(android.R.id.content, tabView.fragment);
+			ft.add(android.R.id.tabcontent, tabView.fragment);
 
 		} else {
 			// If the fragment is already attached just make it visible.

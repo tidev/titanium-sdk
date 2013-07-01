@@ -23,6 +23,9 @@ description: |
     Android. This is a known parity issue
     ([TIMOB-2945](https://jira.appcelerator.org/browse/TIMOB-2945)).
 
+    On the iOS platform, closing the database also closes the result set, that is,
+    you can only access the result set if the database is currently open.
+
 methods:
   - name: close
     summary: |
@@ -136,7 +139,7 @@ properties:
     summary: The number of columns in this result set.
     type: Number
     permission: read-only
-    platforms: [android, iphone, ipad]
+    platforms: [android]
 
   - name: rowCount
     summary: The number of rows in this result set.
@@ -147,7 +150,7 @@ properties:
     summary: Indicates whether the current row is valid.
     type: Boolean
     permission: read-only
-    platforms: [iphone,ipad]
+    platforms: [iphone,ipad,android]
 
 examples:
   - title: Using ResultSet
@@ -169,7 +172,6 @@ examples:
             db.execute('INSERT INTO people (name, phone_number, city) VALUES (?, ?, ?)', personArray);
             
             var rows = db.execute('SELECT rowid,name,phone_number,city FROM people');
-            db.close();
             
             Ti.API.info('Row count: ' + rows.rowCount);
             var fieldCount;
@@ -186,6 +188,7 @@ examples:
               rows.next();
             }
             rows.close();
+            db.close();
         
         Note that the above `SELECT` query contains the [rowid](http://www.sqlite.org/lang_createtable.html#rowid)
         field, which contains an SQLite-specific unique identifier for each row.

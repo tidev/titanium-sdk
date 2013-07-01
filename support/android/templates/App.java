@@ -5,12 +5,7 @@
  */
 package ${config['appid']};
 
-% if runtime == "v8":
 import org.appcelerator.kroll.runtime.v8.V8Runtime;
-% else:
-import org.appcelerator.kroll.runtime.rhino.RhinoRuntime;
-import org.appcelerator.kroll.runtime.rhino.KrollBindings;
-% endif
 
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.KrollModuleInfo;
@@ -42,18 +37,7 @@ public final class ${config['classname']}Application extends TiApplication
 		    KrollAssetHelper.setAssetCrypt(new AssetCryptImpl());
 		% endif
 
-		% if config['deploy_type'] != 'production' and runtime == "rhino":
-			ti.modules.titanium.debug.DebugModule debugger = new ti.modules.titanium.debug.DebugModule();
-			registerModuleInstance("debug", debugger);
-		% endif
-
-		% if runtime == "v8":
 		V8Runtime runtime = new V8Runtime();
-		% else:
-		RhinoRuntime runtime = new RhinoRuntime();
-		% endif
-
-		% if runtime == "v8":
 
 		% for module in custom_modules:
 		<%
@@ -67,13 +51,7 @@ public final class ${config['classname']}Application extends TiApplication
 		% endif
 		% endfor
 
-		% endif
-
 		KrollRuntime.init(this, runtime);
-
-		% if config['deploy_type'] != 'production' and runtime == "rhino":
-			debugger.startDebugger();
-		% endif
 
 		stylesheet = new ApplicationStylesheet();
 		postOnCreate();
@@ -110,14 +88,6 @@ public final class ${config['classname']}Application extends TiApplication
 		manifest = module['manifest']
 		isJSMod = (module.has_key('is_native_js_module') and module['is_native_js_module'])
 		%>
-
-		% if runtime == "rhino":
-		KrollBindings.addExternalBinding("${manifest.moduleid}", ${module['class_name']}Prototype.class);
-		${manifest.moduleid}.${manifest.name}GeneratedBindings.init();
-		% endif
-		% if runtime == "rhino" and isJSMod:
-		KrollBindings.addExternalCommonJsModule("${manifest.moduleid}", ${manifest.moduleid}.CommonJsSourceProvider.class);
-		% endif
 
 		moduleInfo = new KrollModuleInfo(
 			"${manifest.name}", "${manifest.moduleid}", "${manifest.guid}", "${manifest.version}",

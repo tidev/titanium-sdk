@@ -241,7 +241,7 @@ class ModuleDetector(object):
 			return '<any %s>' % property
 		return module_dep[property]
 
-	def find_app_modules(self, tiapp, platform):
+	def find_app_modules(self, tiapp, platform, app_deploy_type):
 		missing = []
 		modules = []
 		if 'modules' not in tiapp.properties: return missing, modules
@@ -259,8 +259,57 @@ class ModuleDetector(object):
 			if module == None:
 				print '[WARN] Could not find Titanium Module id: %s, version: %s, platform: %s' % (module_dep['id'], version_desc, platform_desc)
 				missing.append(module_dep)
+
 			else:
-				modules.append(module)
+				valid_module_already_exists = 0
+
+				for i in range(len(modules)):
+					stored_module = modules[i]
+
+					# find a duplicate instance of the module already stored
+					if (stored_module.manifest.moduleid == module.manifest.moduleid) and \
+						(stored_module.manifest.platform == module.manifest.platform):
+
+						# does the new module have a "real" deploy type set?
+						if module_dep['deploy-type']:
+							# if the stored module has a default deploy type and the new module has a real deploy type
+							# make sure the stored module is still valid.  IE: the default only works for !production
+							# when other entries for this module have a real deploy type so the stored module must be 
+							# removed
+							if (stored_module.deploy_type == None) and (app_deploy_type == 'production'):
+								# remove the stored module from the stored list
+								del modules[i]
+
+							else:
+								valid_module_already_exists = 1
+
+						else:
+							valid_module_already_exists = 1
+
+						break
+
+				if valid_module_already_exists == 0:
+					is_valid_deploy_type = 0
+
+					# if the module doesn't have a "real" deploy type set then it is valid for all app
+					# deploy types
+					if module_dep['deploy-type']:
+						# make sure that the specified module deploy type is valid based on the deploy type of the app
+						if ((app_deploy_type == 'production') and (module_dep['deploy-type'] == 'production')) or \
+							((app_deploy_type != 'production') and (module_dep['deploy-type'] != 'production')):
+
+							is_valid_deploy_type = 1
+
+						else:
+							print '[DEBUG] Not including module as there is no valid module deploy type for the app deploy type: %s' % app_deploy_type
+
+					else:
+						is_valid_deploy_type = 1
+
+
+					if is_valid_deploy_type:
+						module.deploy_type = module_dep['deploy-type']
+						modules.append(module)
 
 		return missing, modules
 

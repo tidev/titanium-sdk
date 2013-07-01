@@ -72,6 +72,7 @@ class TiAppXML(object):
 		self.app_properties = {}
 		self.android = {}
 		self.android_manifest = {}
+		self.blackberry = {}
 		self.iphone = {}
 		self.ios = {};
 		
@@ -92,12 +93,15 @@ class TiAppXML(object):
 						if module.nodeType == 1:
 							version = module.getAttribute('version')
 							platform = module.getAttribute('platform')
+							deploy_type = module.getAttribute('deploy-type')
 							module_id = getText(module.childNodes)
 							self.properties['modules'].append({
 								'id': module_id,
 								'version': version,
-								'platform': platform
+								'platform': platform,
+								'deploy-type': deploy_type
 							})
+
 				# handle plugins
 				elif child.nodeName == 'plugins':
 					for plugin in child.childNodes:
@@ -107,6 +111,8 @@ class TiAppXML(object):
 							self.properties['plugins'].append({'name':name,'version':ver})
 				elif child.nodeName == 'android':
 					self.parse_android(child)
+				elif child.nodeName == 'blackberry':
+					self.parse_blackberry(child)
 				elif child.nodeName == 'iphone':
 					self.parse_iphone(child)
 				elif child.nodeName == 'ios':
@@ -114,7 +120,7 @@ class TiAppXML(object):
 				elif child.nodeName == 'property':
 					name = child.getAttribute('name')
 					value = getText(child.childNodes)
-					print "[TRACE] app property, %s : %s" % (name, value)
+					# print "[TRACE] app property, %s : %s" % (name, value)
 					self.app_properties[name] = value
 					
 				# properties of the app
@@ -247,6 +253,10 @@ class TiAppXML(object):
 		for child in node.childNodes:
 			if child.nodeName in parse_tags:
 				local_objects['parse_'+child.nodeName.replace('-', '_')](child)
+
+	def parse_blackberry(self, node):
+		for child in node.childNodes:
+			self.blackberry[child.nodeName] = getText(child.childNodes)
 
 	def parse_iphone(self, node):
 		def translate_orientation(orientation):

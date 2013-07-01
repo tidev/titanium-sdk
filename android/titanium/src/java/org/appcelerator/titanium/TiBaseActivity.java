@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -12,10 +12,15 @@ import java.util.Stack;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.KrollFunction;
+import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.KrollRuntime;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.common.TiMessenger;
 import org.appcelerator.titanium.TiLifecycle.OnLifecycleEvent;
+import org.appcelerator.titanium.TiLifecycle.OnWindowFocusChangedEvent;
+import org.appcelerator.titanium.analytics.TiAnalyticsEventFactory;
+import org.appcelerator.titanium.proxy.ActionBarProxy;
 import org.appcelerator.titanium.proxy.ActivityProxy;
 import org.appcelerator.titanium.proxy.IntentProxy;
 import org.appcelerator.titanium.proxy.TiViewProxy;
@@ -42,6 +47,7 @@ import android.os.Bundle;
 import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
+import android.support.v4.app.FragmentActivity;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -53,7 +59,7 @@ import android.view.WindowManager;
  * The base class for all non tab Titanium activities. To learn more about Activities, see the
  * <a href="http://developer.android.com/reference/android/app/Activity.html">Android Activity documentation</a>.
  */
-public abstract class TiBaseActivity extends Activity 
+public abstract class TiBaseActivity extends FragmentActivity 
 	implements TiActivitySupport/*, ITiWindowHandler*/
 {
 	private static final String TAG = "TiBaseActivity";
@@ -63,6 +69,7 @@ public abstract class TiBaseActivity extends Activity
 	private boolean onDestroyFired = false;
 	private int originalOrientationMode = -1;
 	private TiWeakList<OnLifecycleEvent> lifecycleListeners = new TiWeakList<OnLifecycleEvent>();
+	private TiWeakList<OnWindowFocusChangedEvent> windowFocusChangedListeners = new TiWeakList<OnWindowFocusChangedEvent>();
 
 	protected View layout;
 	protected TiActivitySupportHelper supportHelper;
@@ -470,6 +477,26 @@ public abstract class TiBaseActivity extends Activity
 
 		Intent intent = getIntent();
 		if (intent != null) {
+
+			// Activity transition
+			final int NO_VAL = -1;
+			int enterAnim = intent.getIntExtra(TiC.INTENT_PROPERTY_ENTER_ANIMATION, NO_VAL);
+			int exitAnim = intent.getIntExtra(TiC.INTENT_PROPERTY_EXIT_ANIMATION, NO_VAL);
+
+			if (enterAnim != NO_VAL || exitAnim != NO_VAL) {
+				// If one of them is set, set both of them since
+				// overridePendingTransition requires both.
+				if (enterAnim == NO_VAL) {
+					enterAnim = 0;
+				}
+
+				if (exitAnim == NO_VAL) {
+					exitAnim = 0;
+				}
+
+				this.overridePendingTransition(enterAnim, exitAnim);
+			}
+
 			if (intent.hasExtra(TiC.INTENT_PROPERTY_MESSENGER)) {
 				messenger = (Messenger) intent.getParcelableExtra(TiC.INTENT_PROPERTY_MESSENGER);
 				msgActivityCreatedId = intent.getIntExtra(TiC.INTENT_PROPERTY_MSG_ACTIVITY_CREATED_ID, -1);
@@ -624,14 +651,25 @@ public abstract class TiBaseActivity extends Activity
 
 		switch(event.getKeyCode()) {
 			case KeyEvent.KEYCODE_BACK : {
-				// Deprecated and replaced by "androidback" event.
-				if (window.hasListeners("android:back")) {
-					if (event.getAction() == KeyEvent.ACTION_UP) {
-						window.fireEvent("android:back", null);
+				
+				if (event.getAction() == KeyEvent.ACTION_UP) {
+					String backEvent = "android:back";
+					KrollProxy proxy = null;
+					//android:back could be fired from a tabGroup window (activityProxy)
+					//or hw window (window).This event is added specifically to the activity
+					//proxy of a tab group in window.js
+					if (activityProxy.hasListeners(backEvent)) {
+						proxy = activityProxy;
+					} else if (window.hasListeners(backEvent)) {
+						proxy = window;
 					}
-					handled = true;
+					
+					if (proxy != null) {
+						proxy.fireEvent(backEvent, null);
+						handled = true;
+					}
+					
 				}
-
 				break;
 			}
 			case KeyEvent.KEYCODE_CAMERA : {
@@ -738,7 +776,7 @@ public abstract class TiBaseActivity extends Activity
 		if (activityProxy == null) {
 			return false;
 		}
-		
+
 		if (menuHelper == null) {
 			menuHelper = new TiMenuSupport(activityProxy);
 		}
@@ -749,7 +787,24 @@ public abstract class TiBaseActivity extends Activity
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item)
 	{
-		return menuHelper.onOptionsItemSelected(item);
+		switch (item.getItemId()) {
+			case android.R.id.home:
+				if (activityProxy != null) {
+					ActionBarProxy actionBarProxy = activityProxy.getActionBar();
+					if (actionBarProxy != null) {
+						KrollFunction onHomeIconItemSelected = (KrollFunction) actionBarProxy
+							.getProperty(TiC.PROPERTY_ON_HOME_ICON_ITEM_SELECTED);
+						KrollDict event = new KrollDict();
+						event.put(TiC.EVENT_PROPERTY_SOURCE, actionBarProxy);
+						if (onHomeIconItemSelected != null) {
+							onHomeIconItemSelected.call(activityProxy.getKrollObject(), new Object[] { event });
+						}
+					}
+				}
+				return true;
+			default:
+				return menuHelper.onOptionsItemSelected(item);
+		}
 	}
 
 	@Override
@@ -757,7 +812,7 @@ public abstract class TiBaseActivity extends Activity
 	{
 		return menuHelper.onPrepareOptionsMenu(super.onPrepareOptionsMenu(menu), menu);
 	}
-	
+
 	public static void callOrientationChangedListener(Configuration newConfig) 
 	{
 		if (orientationChangedListener != null && previousOrientation != newConfig.orientation) {
@@ -797,9 +852,14 @@ public abstract class TiBaseActivity extends Activity
 		}
 	}
 
-	public void addOnLifecycleEventListener(TiLifecycle.OnLifecycleEvent listener)
+	public void addOnLifecycleEventListener(OnLifecycleEvent listener)
 	{
-		lifecycleListeners.add(new WeakReference<TiLifecycle.OnLifecycleEvent>(listener));
+		lifecycleListeners.add(new WeakReference<OnLifecycleEvent>(listener));
+	}
+
+	public void addOnWindowFocusChangedEventListener(OnWindowFocusChangedEvent listener)
+	{
+		windowFocusChangedListeners.add(new WeakReference<OnWindowFocusChangedEvent>(listener));
 	}
 
 	public void removeOnLifecycleEventListener(OnLifecycleEvent listener)
@@ -823,6 +883,22 @@ public abstract class TiBaseActivity extends Activity
 				dialogs.remove(p);
 			}
 		}
+	}
+
+	@Override
+	public void onWindowFocusChanged(boolean hasFocus)
+	{
+		synchronized (windowFocusChangedListeners.synchronizedList()) {
+			for (OnWindowFocusChangedEvent listener : windowFocusChangedListeners.nonNull()) {
+				try {
+					listener.onWindowFocusChanged(hasFocus);
+
+				} catch (Throwable t) {
+					Log.e(TAG, "Error dispatching onWindowFocusChanged event: " + t.getMessage(), t);
+				}
+			}
+		}
+		super.onWindowFocusChanged(hasFocus);
 	}
 
 	@Override
@@ -875,6 +951,11 @@ public abstract class TiBaseActivity extends Activity
 				}
 			}
 		}
+
+		// Checkpoint for ti.end event
+		if (tiApp != null) {
+			tiApp.postAnalyticsEvent(TiAnalyticsEventFactory.createAppEndEvent());
+		}
 	}
 
 	@Override
@@ -922,6 +1003,10 @@ public abstract class TiBaseActivity extends Activity
 		}
 
 		isResumed = true;
+
+		// Checkpoint for ti.start event
+		String deployType = tiApp.getSystemProperties().getString("ti.deploytype", "unknown");
+		tiApp.postAnalyticsEvent(TiAnalyticsEventFactory.createAppStartEvent(tiApp, deployType));
 	}
 
 	@Override
@@ -1108,6 +1193,12 @@ public abstract class TiBaseActivity extends Activity
 		}
 		layout = null;
 
+		//LW windows
+		if (window == null && view != null) {
+			view.releaseViews();
+			view = null;
+		}
+
 		if (window != null) {
 			window.closeFromActivity();
 			window = null;
@@ -1147,14 +1238,9 @@ public abstract class TiBaseActivity extends Activity
 	@Override
 	public void finish()
 	{
-		if (window != null) {
-			KrollDict data = new KrollDict();
-			data.put(TiC.EVENT_PROPERTY_SOURCE, window);
-			window.fireSyncEvent(TiC.EVENT_CLOSE, data);
-		}
+		super.finish();
 
 		boolean animate = getIntentBoolean(TiC.PROPERTY_ANIMATE, true);
-
 		
 		if (shouldFinishRootActivity()) {
 			TiApplication app = getTiApp();
@@ -1166,10 +1252,8 @@ public abstract class TiBaseActivity extends Activity
 			}
 		}
 
-		super.finish();
-
 		if (!animate) {
-			TiUIHelper.overridePendingTransition(this);
+			this.overridePendingTransition(0, 0); // Suppress default transition.
 		}
 	}
 

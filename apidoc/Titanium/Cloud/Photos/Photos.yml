@@ -115,13 +115,13 @@ examples:
             }, function (e) {
                 if (e.success) {
                     var photo = e.photos[0];
-                    alert('Success:\\n' +
-                        'id: ' + photo.id + '\\n' +
-                        'filename: ' + photo.filename + '\\n' +
+                    alert('Success:\n' +
+                        'id: ' + photo.id + '\n' +
+                        'filename: ' + photo.filename + '\n' +
                         'size: ' + photo.size,
                         'updated_at: ' + photo.updated_at);
                 } else {
-                    alert('Error:\\n' +
+                    alert('Error:\n' +
                         ((e.error && e.message) || JSON.stringify(e)));
                 }
             });
@@ -135,12 +135,12 @@ examples:
             }, function (e) {
                 if (e.success) {
                     var photo = e.photos[0];
-                    alert('Success:\\n' +
-                        'id: ' + photo.id + '\\n' +
-                        'filename: ' + photo.filename + '\\n' +
+                    alert('Success:\n' +
+                        'id: ' + photo.id + '\n' +
+                        'filename: ' + photo.filename + '\n' +
                         'updated_at: ' + photo.updated_at);
                 } else {
-                    alert('Error:\\n' +
+                    alert('Error:\n' +
                         ((e.error && e.message) || JSON.stringify(e)));
                 }
             });
@@ -153,17 +153,17 @@ examples:
                 user_id: savedUserId
             }, function (e) {
                 if (e.success) {
-                    alert('Success:\\n' +
+                    alert('Success:\n' +
                         'Count: ' + e.photos.length);
                     for (var i = 0; i < e.photos.length; i++) {
                         var photo = e.photos[i];
-                        alert('id: ' + photo.id + '\\n' +
-                              'name: ' + photo.name + '\\n' +
-                              'filename: ' + photo.filename + '\\n' +
+                        alert('id: ' + photo.id + '\n' +
+                              'name: ' + photo.name + '\n' +
+                              'filename: ' + photo.filename + '\n' +
                               'updated_at: ' + photo.updated_at);
                     }
                 } else {
-                    alert('Error:\\n' +
+                    alert('Error:\n' +
                         ((e.error && e.message) || JSON.stringify(e)));
                 }
             });
@@ -183,17 +183,17 @@ examples:
                 }
             }, function (e) {
                 if (e.success) {
-                    alert('Success:\\n' +
+                    alert('Success:\n' +
                         'Count: ' + e.photos.length);
                     for (var i = 0; i < e.photos.length; i++) {
                         var photo = e.photos[i];
-                        alert('id: ' + photo.id + '\\n' +
-                              'name: ' + photo.name + '\\n' +
-                              'filename: ' + photo.filename + '\\n' +
+                        alert('id: ' + photo.id + '\n' +
+                              'name: ' + photo.name + '\n' +
+                              'filename: ' + photo.filename + '\n' +
                               'updated_at: ' + photo.updated_at);
                     }
                 } else {
-                    alert('Error:\\n' +
+                    alert('Error:\n' +
                         ((e.error && e.message) || JSON.stringify(e)));
                 }
             });
@@ -209,12 +209,12 @@ examples:
             }, function (e) {
                 if (e.success) {
                     var photo = e.photos[0];
-                    alert('Success:\\n' +
-                        'id: ' + photo.id + '\\n' +
-                        'filename: ' + photo.filename + '\\n' +
+                    alert('Success:\n' +
+                        'id: ' + photo.id + '\n' +
+                        'filename: ' + photo.filename + '\n' +
                         'updated_at: ' + photo.updated_at);
                 } else {
-                    alert('Error:\\n' +
+                    alert('Error:\n' +
                         ((e.error && e.message) || JSON.stringify(e)));
                 }
             });
@@ -229,7 +229,7 @@ examples:
                 if (e.success) {
                     alert('Success');
                 } else {
-                    alert('Error:\\n' +
+                    alert('Error:\n' +
                         ((e.error && e.message) || JSON.stringify(e)));
                 }
             });

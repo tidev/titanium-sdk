@@ -47,6 +47,7 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 	private static final int MSG_REMOVE_TAB = MSG_FIRST_ID + 101;
 	private static final int MSG_SET_ACTIVE_TAB = MSG_FIRST_ID + 102;
 	private static final int MSG_GET_ACTIVE_TAB = MSG_FIRST_ID + 103;
+	private static final int MSG_SET_TABS = MSG_FIRST_ID + 104;
 
 	protected static final int MSG_LAST_ID = MSG_FIRST_ID + 999;
 
@@ -69,13 +70,13 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 	public boolean handleMessage(Message msg)
 	{
 		switch (msg.what) {
-			case MSG_ADD_TAB : {
+			case MSG_ADD_TAB: {
 				AsyncResult result = (AsyncResult) msg.obj;
 				handleAddTab((TabProxy) result.getArg());
 				result.setResult(null);
 				return true;
 			}
-			case MSG_REMOVE_TAB : {
+			case MSG_REMOVE_TAB: {
 				AsyncResult result = (AsyncResult) msg.obj;
 				handleRemoveTab((TabProxy) result.getArg());
 				result.setResult(null);
@@ -90,6 +91,12 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 			case MSG_GET_ACTIVE_TAB: {
 				AsyncResult result = (AsyncResult) msg.obj;
 				result.setResult(handleGetActiveTab());
+				return true;
+			}
+			case MSG_SET_TABS: {
+				AsyncResult result = (AsyncResult) msg.obj;
+				handleSetTabs(result.getArg());
+				result.setResult(null);
 				return true;
 			}
 			default : {
@@ -210,6 +217,30 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 		}
 	}
 
+	@Kroll.method
+	public void setTabs(Object obj)
+	{
+		if (TiApplication.isUIThread()) {
+			handleSetTabs(obj);
+			return;
+		}
+
+		TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_SET_TABS), obj);
+	}
+
+	private void handleSetTabs(Object obj)
+	{
+		tabs.clear();
+		if (obj instanceof Object[]) {
+			Object[] objArray = (Object[]) obj;
+			for (Object tabProxy : objArray) {
+				if (tabProxy instanceof TabProxy) {
+					handleAddTab((TabProxy) tabProxy);
+				}
+			}
+		}
+	}
+
 	@Override
 	public void handleCreationDict(KrollDict options) {
 		super.handleCreationDict(options);
@@ -271,6 +302,7 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 	public void windowCreated(TiBaseActivity activity) {
 		tabGroupActivity = new WeakReference<Activity>(activity);
 		activity.setWindowProxy(this);
+		setActivity(activity);
 
 		// Use the navigation tabs if this platform supports the action bar.
 		// Otherwise we will fall back to using the TabHost implementation.
@@ -340,9 +372,21 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 		opened = false;
 
 		Activity activity = tabGroupActivity.get();
-		if (activity != null) {
+		if (activity != null && !activity.isFinishing()) {
 			activity.finish();
 		}
+	}
+
+	@Override
+	public void closeFromActivity() {
+		// Allow each tab to close its window before the tab group closes.
+		for (TabProxy tab : tabs) {
+			tab.close();
+		}
+
+		// Call super to fire the close event on the tab group.
+		// This event must fire after each tab has been closed.
+		super.closeFromActivity();
 	}
 
 	@Override
@@ -359,6 +403,7 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 		if (selectedTab == null) {
 			// If no tab is selected fall back to the default behavior.
 			super.onWindowFocusChange(focused);
+			return;
 		}
 
 		// When the tab group gains focus we need to re-focus

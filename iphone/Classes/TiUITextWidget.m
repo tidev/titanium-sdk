@@ -80,6 +80,11 @@
 	return nil;
 }
 
+- (id)accessibilityElement
+{
+	return [self textWidgetView];
+}
+
 #pragma mark Common values
 
 -(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds

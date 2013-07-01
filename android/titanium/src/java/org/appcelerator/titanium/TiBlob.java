@@ -124,7 +124,7 @@ public class TiBlob extends KrollProxy
 		blob.loadBitmapInfo();
 		return blob;
 	}
-
+	
 	/**
 	 * Creates a blob from a bitmap.
 	 * @param image the image used to create blob.
@@ -133,10 +133,18 @@ public class TiBlob extends KrollProxy
 	 */
 	public static TiBlob blobFromImage(Bitmap image)
 	{
+	
 		ByteArrayOutputStream bos = new ByteArrayOutputStream();
 		byte data[] = new byte[0];
-		if (image.compress(CompressFormat.PNG, 100, bos)) {
-			data = bos.toByteArray();
+		if (image.hasAlpha()) {
+			if (image.compress(CompressFormat.PNG, 100, bos)) {
+				data = bos.toByteArray();
+			}
+		}
+		else {
+			if (image.compress(CompressFormat.JPEG, 100, bos)) {
+				data = bos.toByteArray();
+			}
 		}
 
 		TiBlob blob = new TiBlob(TYPE_IMAGE, data, "image/bitmap");
@@ -186,7 +194,7 @@ public class TiBlob extends KrollProxy
 		if (is != null) {
 			try {
 				mt = URLConnection.guessContentTypeFromStream(is);
-			} catch (IOException e) {
+			} catch (Exception e) {
 				Log.e(TAG, e.getMessage(), e, Log.DEBUG_MODE);
 			}
 		}

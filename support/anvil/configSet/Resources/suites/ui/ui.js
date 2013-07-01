@@ -19,6 +19,7 @@ module.exports = new function() {
 		{name: "webviewBindingUnavailable", timeout: 15000},
 		{name: "webviewBindingAvailable", timeout: 10000},
 		{name: "webviewBindingAvailableAfterSetHtml", timeout: 10000},
+		{name: "webviewFireEvent", timeout: 10000},
 		{name: "dotslashWindow"},
 		{name: "absoluteAndRelativeWinURLs", timeout: 10000},
 		{name: "appendRowWithHeader"},
@@ -91,6 +92,33 @@ module.exports = new function() {
 		wv.addEventListener('load', listener);
 		w.add(wv);
 		wv.html = "<html><body>x</body></html>";
+	}
+
+	this.webviewFireEvent = function(testRun) {
+		var w = Ti.UI.createWindow();
+		w.open();
+
+		function onEventFired(e) {
+			valueOf(testRun, e.object).shouldBeObject();
+			valueOf(testRun, e.object.string).shouldBeString();
+			valueOf(testRun, e.object.number).shouldBeNumber();
+			valueOf(testRun, e.object.nullObject).shouldBeNull();
+			valueOf(testRun, e.object.array).shouldBeArray();
+
+			valueOf(testRun, e.object.array.length).shouldBe(4);
+			valueOf(testRun, e.object.array[0]).shouldBeObject();
+			valueOf(testRun, e.object.array[1]).shouldBeString();
+			valueOf(testRun, e.object.array[2]).shouldBeNumber();
+			valueOf(testRun, e.object.array[3]).shouldBeNull();
+
+			Ti.App.removeEventListener('webViewEvent', onEventFired);
+			finish(testRun);
+		}
+
+		Ti.App.addEventListener('webViewEvent', onEventFired);
+
+		var wv = Ti.UI.createWebView({url: 'test-fire-event.html'});
+		w.add(wv);
 	}
 
 	//https://appcelerator.lighthouseapp.com/projects/32238/tickets/2443-android-paths-beginning-with-are-not-recognised

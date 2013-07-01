@@ -122,7 +122,7 @@ properties:
         
         A maximum of 3 buttons is supported on Android.
     type: Array<String>
-    default: null (Android), ['OK'] (iOS)
+    default: No buttons (Android), Single "OK" button (iOS, Mobile Web)
     availability: creation
 
   - name: cancel
@@ -140,7 +140,7 @@ properties:
     summary: Key identifying a string in the locale file to use for the message text.
     type: String
     accessors: false
-    platforms: [android, iphone, ipad, mobileweb]
+    platforms: [android, iphone, ipad, mobileweb, tizen]
 
   - name: style
     summary: The style for the alert dialog.
@@ -165,7 +165,7 @@ properties:
     summary: Key identifying a string in the locale file to use for the title text. 
     type: String
     accessors: false
-    platforms: [android, iphone, ipad, mobileweb]
+    platforms: [android, iphone, ipad, mobileweb, tizen]
 
   - name: ok
     summary: Text for the `OK` button.
@@ -180,7 +180,7 @@ properties:
         If `buttonNames` is defined, this property is ignored.
     type: String
     accessors: false
-    platforms: [iphone, ipad, mobileweb]
+    platforms: [iphone, ipad, mobileweb, tizen]
     
   - name: persistent
     summary: Boolean value indicating if the alert dialog should only be cancelled by user 
@@ -286,3 +286,36 @@ examples:
               dialog.show();
             });
             win.open();
+
+  - title: Alloy XML Markup
+    example: |
+        Previous three-button alert dialog example as an Alloy view.
+
+        alertdialog.xml:
+
+            <Alloy>
+                <Window id="win" onClick="showDialog" title="Click window to test" backgroundColor="white"
+                    exitOnClose="true" fullscreen="false" >
+
+                    <AlertDialog id="dialog" onClick="doClick" title="Delete"
+                        message="Would you like to delete the file?" cancel="1">
+
+                        <!-- The ButtonNames tag sets the buttonNames property. -->
+                        <ButtonNames>
+                            <ButtonName>Confirm</ButtonName>
+                            <ButtonName>Cancel</ButtonName>
+                            <ButtonName>Help</ButtonName>
+                        </ButtonNames>
+                    </AlertDialog>
+                </Window>
+            </Alloy>
+
+        alertdialog.js:
+
+            function showDialog(){
+                $.dialog.show();
+            };
+
+            function doClick(e){
+                Ti.API.info('e.text: ' + e.text);
+            };

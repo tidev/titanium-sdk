@@ -157,7 +157,10 @@ static NSString* ARG_KEY = @"arg";
         [self cleanupSocket];
         
         if (error != nil) {
-            NSDictionary* event = [NSDictionary dictionaryWithObjectsAndKeys:self,@"socket",[err localizedDescription],@"error",NUMINT([err code]),@"errorCode", nil];
+			NSString * message = [TiUtils messageFromError:err];
+			NSMutableDictionary * event = [TiUtils dictionaryWithCode:[err code] message:message];
+			[event setObject:self forKey:@"socket"];
+			[event setObject:NUMINT([err code]) forKey:@"errorCode"];
             [self _fireEventToListener:@"error" withObject:event listener:error thisObject:self];
         }
         
@@ -427,7 +430,9 @@ TYPESAFE_SETTER(setError, error, KrollCallback)
     // TODO: Put this in the write()/read() wrappers when they're being called consistently, blah blah blah
     if ([[buffer data] length] == 0 && length != 0) {
         if (callback != nil) {
-            NSDictionary* event = [NSDictionary dictionaryWithObjectsAndKeys:self,@"source",NUMINT(0),@"bytesProcessed", nil];
+            NSMutableDictionary* event = [TiUtils dictionaryWithCode:0 message:nil];
+			[event setObject:self forKey:@"source"];
+			[event setObject:NUMINT(0) forKey:@"bytesProcessed"];
             [self _fireEventToListener:@"read" withObject:event listener:callback thisObject:nil];
         }
         return 0;
@@ -484,7 +489,11 @@ TYPESAFE_SETTER(setError, error, KrollCallback)
     // TODO: Put this in the write()/read() wrappers when they're being called consistently, blah blah blah
     if ([[buffer data] length] == 0) {
         if (callback != nil) {
-            NSDictionary* event = [NSDictionary dictionaryWithObjectsAndKeys:self,@"source",NUMINT(0),@"bytesProcessed",NUMINT(0),@"errorState",@"",@"errorDescription", nil];
+            NSMutableDictionary* event = [TiUtils dictionaryWithCode:0 message:nil];
+			[event setObject:self forKey:@"source"];
+			[event setObject:NUMINT(0) forKey:@"bytesProcessed"];
+			[event setObject:NUMINT(0) forKey:@"errorState"];
+			[event setObject:@"" forKey:@"errorDescription"];
             [self _fireEventToListener:@"write" withObject:event listener:callback thisObject:nil];
         }
         return 0;
@@ -706,12 +715,18 @@ TYPESAFE_SETTER(setError, error, KrollCallback)
         // That means inside asynchSocket, we're going to have to start tracking the read/write ops manually.  More mods.
         for (NSDictionary* info in [operationInfo objectEnumerator]) {
             KrollCallback* callback = [info valueForKey:@"callback"];
-            NSDictionary* event = [NSDictionary dictionaryWithObjectsAndKeys:NUMINT([err code]),@"errorState",[err localizedDescription],@"errorDescription", nil];
+			NSString * message = [TiUtils messageFromError:err];
+			NSMutableDictionary * event = [TiUtils dictionaryWithCode:[err code] message:message];
+			[event setObject:NUMINT([err code]) forKey:@"errorState"];
+			[event setObject:message forKey:@"errorDescription"];
             [self _fireEventToListener:@"error" withObject:event listener:callback thisObject:nil];
         }
         
         if (error != nil) {
-            NSDictionary* event = [NSDictionary dictionaryWithObjectsAndKeys:self,@"socket",NUMINT([err code]),@"errorCode",[err localizedDescription],@"error",nil];
+			NSString * message = [TiUtils messageFromError:err];
+			NSMutableDictionary * event = [TiUtils dictionaryWithCode:[err code] message:message];
+			[event setObject:NUMINT([err code]) forKey:@"errorCode"];
+			[event setObject:self forKey:@"socket"];
             [self _fireEventToListener:@"error" withObject:event listener:error thisObject:self];
         }
         
@@ -723,30 +738,33 @@ TYPESAFE_SETTER(setError, error, KrollCallback)
         for (NSDictionary* info in [operationInfo objectEnumerator]) {
             KrollCallback* callback = [info valueForKey:@"callback"];
             ReadDestination type = [[info objectForKey:@"type"] intValue];
-            NSDictionary* event = nil;
+            NSMutableDictionary* event = [TiUtils dictionaryWithCode:0 message:nil];
+			[event setObject:NUMINT(0) forKey:@"errorState"];
+			[event setObject:@"" forKey:@"errorDescription"];
+			[event setObject:NUMINT(-1) forKey:@"bytesProcessed"];
             NSString* name = nil;
             
             switch (type) {
                 case TO_BUFFER: {
                     name = @"read";
-                    
-                    event = [NSDictionary dictionaryWithObjectsAndKeys:NUMINT(0),@"errorState",@"",@"errorDescription",NUMINT(-1),@"bytesProcessed",self,@"source", nil];
+					[event setObject:self forKey:@"source"];
                     break;
                 }
                 case TO_STREAM: {
                     name = @"writeStream";
                     id<TiStreamInternal> stream = [info valueForKey:@"destination"];
-                    
-                    event = [NSDictionary dictionaryWithObjectsAndKeys:NUMINT(0),@"errorState",@"",@"errorDescription",NUMINT(-1),@"bytesProcessed",self,@"fromStream",stream,@"toStream", nil];
+					[event setObject:self forKey:@"fromStream"];
+					[event setObject:stream forKey:@"toStream"];
                 }
                 case TO_CALLBACK: {
                     name = @"pump";
-                    
-                    event = [NSDictionary dictionaryWithObjectsAndKeys:NUMINT(0),@"errorState",@"",@"errorDescription",NUMINT(-1),@"bytesProcessed",self,@"source",NUMINT(readDataLength),@"totalBytesProcessed",[NSNull null],@"buffer",nil];
+					[event setObject:self forKey:@"source"];
+					[event setObject:NUMINT(readDataLength) forKey:@"totalBytesProcessed"];
+					[event setObject:[NSNull null] forKey:@"buffer"];
                 }
                 default: {
                     name = @"write";
-                    event = [NSDictionary dictionaryWithObjectsAndKeys:NUMINT(0),@"errorState",@"",@"errorDescription",NUMINT(-1),@"bytesProcessed",self,@"source", nil];
+					[event setObject:self forKey:@"source"];
                     break;
                 }
             }
@@ -771,8 +789,10 @@ TYPESAFE_SETTER(setError, error, KrollCallback)
     if (tag > -1) {
         NSDictionary* info = [operationInfo objectForKey:NUMINT(tag)];
         KrollCallback* callback = [info valueForKey:@"callback"];
-        
-        NSDictionary* event = [NSDictionary dictionaryWithObjectsAndKeys:[info valueForKey:@"bytesProcessed"],@"bytesProcessed",NUMINT(0),@"errorState",@"",@"errorDescription",nil];
+		NSMutableDictionary* event = [TiUtils dictionaryWithCode:0 message:nil];
+		[event setObject:[info valueForKey:@"bytesProcessed"] forKey:@"bytesProcessed"];
+		[event setObject:NUMINT(0) forKey:@"errorState"];
+		[event setObject:@"" forKey:@"errorDescription"];
         [self _fireEventToListener:@"write" withObject:event listener:callback thisObject:self];
         [operationInfo removeObjectForKey:NUMINT(tag)];
     } 
@@ -798,8 +818,12 @@ TYPESAFE_SETTER(setError, error, KrollCallback)
             case TO_BUFFER: {
                 KrollCallback* callback = [info valueForKey:@"callback"];
                 TiBuffer* buffer = [info valueForKey:@"buffer"];
-                
-                NSDictionary* event = [NSDictionary dictionaryWithObjectsAndKeys:buffer,@"buffer",NUMINT([data length]),@"bytesProcessed",NUMINT(0),@"errorState",@"",@"errorDescription", nil];
+
+				NSMutableDictionary* event = [TiUtils dictionaryWithCode:0 message:nil];
+				[event setObject:buffer forKey:@"buffer"];
+				[event setObject:NUMINT([data length]) forKey:@"bytesProcessed"];
+				[event setObject:NUMINT(0) forKey:@"errorState"];
+				[event setObject:@"" forKey:@"errorDescription"];
                 [self _fireEventToListener:@"read" withObject:event listener:callback thisObject:self];
                 break;
             }
@@ -829,7 +853,13 @@ TYPESAFE_SETTER(setError, error, KrollCallback)
                 [tempBuffer setData:[NSMutableData dataWithData:data]];
                 readDataLength += [data length];
                 
-                NSDictionary* event = [NSDictionary dictionaryWithObjectsAndKeys:self,@"source",tempBuffer,@"buffer",NUMINT([data length]),@"bytesProcessed",NUMINT(readDataLength),@"totalBytesProcessed", NUMINT(0),@"errorState",@"",@"errorDescription",nil];
+				NSMutableDictionary* event = [TiUtils dictionaryWithCode:0 message:nil];
+				[event setObject:self forKey:@"source"];
+				[event setObject:tempBuffer forKey:@"buffer"];
+				[event setObject:NUMINT([data length]) forKey:@"bytesProcessed"];
+				[event setObject:NUMINT(readDataLength) forKey:@"totalBytesProcessed"];
+				[event setObject:NUMINT(0) forKey:@"errorState"];
+				[event setObject:@"" forKey:@"errorDescription"];
                 [self _fireEventToListener:@"pump" withObject:event listener:callback thisObject:nil];
                 
                 // ... And queue up the next pump.

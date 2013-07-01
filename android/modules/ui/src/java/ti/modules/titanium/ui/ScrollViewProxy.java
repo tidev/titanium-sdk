@@ -27,7 +27,8 @@ import android.os.Message;
 	TiC.PROPERTY_SHOW_VERTICAL_SCROLL_INDICATOR,
 	TiC.PROPERTY_SCROLL_TYPE,
 	TiC.PROPERTY_CONTENT_OFFSET,
-	TiC.PROPERTY_CAN_CANCEL_EVENTS
+	TiC.PROPERTY_CAN_CANCEL_EVENTS,
+	TiC.PROPERTY_OVER_SCROLL_MODE
 })
 public class ScrollViewProxy extends TiViewProxy
 	implements Handler.Callback
@@ -41,7 +42,7 @@ public class ScrollViewProxy extends TiViewProxy
 	public ScrollViewProxy()
 	{
 		super();
-		
+		defaultValues.put(TiC.PROPERTY_OVER_SCROLL_MODE, 0);
 	}
 
 	public ScrollViewProxy(TiContext context)

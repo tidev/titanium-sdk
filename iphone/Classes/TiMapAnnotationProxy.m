@@ -289,6 +289,28 @@
 	}
 }
 
+-(void)setCustomView:(id)customView
+{
+	id current = [self valueForUndefinedKey:@"customView"];
+	[self replaceValue:customView forKey:@"customView" notification:NO];
+	if ([current isEqual: customView] == NO)
+	{
+        [current setProxyObserver:nil];
+        [self forgetProxy:current];
+        [self rememberProxy:customView];
+        [customView setProxyObserver:self];
+        [self setNeedsRefreshingWithSelection:YES];
+	}
+}
+
+-(void)proxyDidRelayout:(id)sender
+{
+    id current = [self valueForUndefinedKey:@"customView"];
+    if ( ([current isEqual:sender] == YES) && (self.placed) ) {
+        [self setNeedsRefreshingWithSelection:YES];
+    }
+}
+
 
 -(int)tag
 {
