@@ -126,12 +126,6 @@ description: |
         - For all other row methods, you cannot manipulate `ListItems` with a `ListView`.
           You have to manipulate them with the `ListSection` they are contained in.
 
-    - **To be implemented in V2**:
-
-        - **ListView**: `headerPullView`, `headerView`, `footerView`, `scrollable`, `separatorColor`
-          and `separatorStyle` properties.
-        - **ListSection**: `headerView`, `itemCount` and `footerView` properties.
-
     #### List and Scroll Views
 
     As a list view inherently scrolls, it creates a very poor user experience when it contains
