@@ -20,17 +20,29 @@ properties:
     summary: Title of this section footer.
     description: |
         Using this property and `footerView` together is not supported. Use one or the other.
-
-        **Note:** the `footerView` property has not been implemented in this version of ListSection.
     type: String
+
+  - name: footerView
+    summary: View to use for this section footer.
+    description: |
+        Using this property and `footerTitle` together is not supported. Use one or the other. 
+    type: Titanium.UI.View
+    since: 3.2.0
+    platforms: [iphone, ipad]
 
   - name: headerTitle
     summary: Title of this section header.
     description: |
         Using this property and `headerView` together is not supported. Use one or the other.
-
-        **Note:** the `headerView` property has not been implemented in this version of ListSection.
     type: String
+
+  - name: headerView
+    summary: View to use for this section header.
+    description: |
+        Using this property and `headerTitle` together is not supported. Use one or the other. 
+    type: Titanium.UI.View
+    since: 3.2.0
+    platforms: [iphone, ipad]
 
   - name: items
     summary: Items of this list section.
