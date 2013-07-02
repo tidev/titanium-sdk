@@ -311,6 +311,15 @@
     }
 }
 
+- (void)setCenterOffset:(CGPoint)centeroffset
+{
+	CGPoint current = [self valueForUndefinedKey:@"centerOffset"];
+	[self replaceValue:centeroffset forKey:@"centerOffset" notification:NO];
+	if (current!=centeroffset)
+	{
+	  [self setNeedsRefreshingWithSelection:YES];
+	}
+}
 
 -(int)tag
 {

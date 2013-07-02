@@ -728,9 +728,19 @@
         if (annView==nil) {
             if ([identifier isEqualToString:@"timap-customView"]) {
                 annView = [[[TiMapCustomAnnotationView alloc] initWithAnnotation:ann reuseIdentifier:identifier map:self] autorelease];
+                CGPoint offsetValue = [ann valueForUndefinedKey: @"centerOffset"];
+                if(offsetValue != nil){
+                    CGPoint centerOffset = [TiUtils pointValue: offsetValue];
+                    annView.centerOffset = centerOffset;
+                }
             }
             else if ([identifier isEqualToString:@"timap-image"]) {
                 annView=[[[TiMapImageAnnotationView alloc] initWithAnnotation:ann reuseIdentifier:identifier map:self image:image] autorelease];
+                CGPoint offsetValue = [ann valueForUndefinedKey: @"centerOffset"];
+                if(offsetValue != nil){
+                    CGPoint centerOffset = [TiUtils pointValue: offsetValue];
+                    annView.centerOffset = centerOffset;
+                }
             }
             else {
                 annView=[[[TiMapPinAnnotationView alloc] initWithAnnotation:ann reuseIdentifier:identifier map:self] autorelease];
@@ -738,9 +748,19 @@
         }
         if ([identifier isEqualToString:@"timap-customView"]) {
             [((TiMapCustomAnnotationView*)annView) setProxy:customView];
+            CGPoint offsetValue = [ann valueForUndefinedKey: @"centerOffset"];
+            if(offsetValue != nil){
+                CGPoint centerOffset = [TiUtils pointValue: offsetValue];
+                annView.centerOffset = centerOffset;
+            }
         }
         else if ([identifier isEqualToString:@"timap-image"]) {
             annView.image = image;
+            CGPoint offsetValue = [ann valueForUndefinedKey: @"centerOffset"];
+            if(offsetValue != nil){
+                CGPoint centerOffset = [TiUtils pointValue: offsetValue];
+                annView.centerOffset = centerOffset;
+            }
         }
         else {
             MKPinAnnotationView *pinview = (MKPinAnnotationView*)annView;
