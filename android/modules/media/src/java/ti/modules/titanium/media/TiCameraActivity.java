@@ -124,13 +124,6 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 
 		setContentView(cameraLayout);
 
-		camera = Camera.open();
-		if (camera != null) {
-			supportedPreviewSizes = camera.getParameters().getSupportedPreviewSizes();
-		} else {
-			onError(MediaModule.UNKNOWN_ERROR, "Unable to access the first back-facing camera.");
-			finish();
-		}
 	}
 
 	public void surfaceChanged(SurfaceHolder previewHolder, int format, int width, int height)
@@ -245,7 +238,15 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 	protected void onResume()
 	{
 		super.onResume();
-
+		if (camera == null) {
+			camera = Camera.open();
+		}
+		if (camera != null) {
+			supportedPreviewSizes = camera.getParameters().getSupportedPreviewSizes();
+		} else {
+			onError(MediaModule.UNKNOWN_ERROR, "Unable to access the first back-facing camera.");
+			finish();
+		}
 		cameraActivity = this;
 		previewLayout.addView(preview, new FrameLayout.LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
 		cameraLayout.addView(localOverlayProxy.getOrCreateView().getNativeView(), new FrameLayout.LayoutParams(
