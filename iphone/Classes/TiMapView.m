@@ -750,6 +750,7 @@
         }
         annView.canShowCallout = YES;
         annView.enabled = YES;
+        annView.centerOffset = ann.offset;
         UIView *left = [ann leftViewAccessory];
         UIView *right = [ann rightViewAccessory];
         if (left!=nil) {
