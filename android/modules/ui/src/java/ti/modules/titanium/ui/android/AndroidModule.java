@@ -96,13 +96,14 @@ public class AndroidModule extends KrollModule
 	@Kroll.method
 	public void openPreferences(@Kroll.argument(optional=true) String prefsName)
 	{
+		Activity activity = TiApplication.getAppRootOrCurrentActivity();
 		if (activity != null) {
 			
-			Intent i = new Intent(getActivity(), TiPreferencesActivity.class);
+			Intent i = new Intent(activity, TiPreferencesActivity.class);
 			if (prefsName != null) {
 				i.putExtra("prefsName", prefsName);
 			}
-			getActivity().startActivity(i);
+			activity.startActivity(i);
 		} else {
 			Log.w(TAG, "Unable to open preferences. Activity is null", Log.DEBUG_MODE);
 		}
