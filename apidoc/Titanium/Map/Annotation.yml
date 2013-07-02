@@ -60,7 +60,7 @@ properties:
         Set the center offset point for an image or custom view in an annotation. Should be an object (x/y pair).
     type: Point
     platforms: [iphone, ipad]
-    since: "3.0.2"
+    since: "3.1.2"
 
   - name: customView
     summary: Defines a custom view to be used by the annotation.
