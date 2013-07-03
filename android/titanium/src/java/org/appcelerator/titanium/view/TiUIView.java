@@ -631,6 +631,9 @@ public abstract class TiUIView
 
 				if (key.equals(TiC.PROPERTY_OPACITY)) {
 					setOpacity(TiConvert.toFloat(newValue, 1f));
+				} else if (Build.VERSION.SDK_INT < TiC.API_LEVEL_HONEYCOMB && proxy.hasProperty(TiC.PROPERTY_OPACITY)) {
+					// A bug only on Android 2.3 (TIMOB-14311).
+					setOpacity(TiConvert.toFloat(proxy.getProperty(TiC.PROPERTY_OPACITY), 1f));
 				}
 
 			}
