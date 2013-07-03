@@ -34,6 +34,7 @@ import android.graphics.PixelFormat;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Message;
+import android.view.ViewGroup.LayoutParams;
 import android.view.Window;
 
 @Kroll.proxy(creatableInModule=UIModule.class, propertyAccessors={
@@ -49,6 +50,7 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 	private static final int MSG_FIRST_ID = TiViewProxy.MSG_LAST_ID + 1;
 	private static final int MSG_SET_PIXEL_FORMAT = MSG_FIRST_ID + 100;
 	private static final int MSG_SET_TITLE = MSG_FIRST_ID + 101;
+	private static final int MSG_SET_WIDTH_HEIGHT = MSG_FIRST_ID + 102;
 	protected static final int MSG_LAST_ID = MSG_FIRST_ID + 999;
 
 	private WeakReference<TiBaseActivity> windowActivity;
@@ -164,6 +166,11 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 		if (lightweight) {
 			addLightweightWindowToStack();
 		} else {
+			// The "top", "bottom", "left" and "right" properties do not work for heavyweight windows.
+			properties.remove(TiC.PROPERTY_TOP);
+			properties.remove(TiC.PROPERTY_BOTTOM);
+			properties.remove(TiC.PROPERTY_LEFT);
+			properties.remove(TiC.PROPERTY_RIGHT);
 			super.open(arg);
 		}
 	}
@@ -243,6 +250,7 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 			}
 		}
 
+		Window win = activity.getWindow();
 		// Handle the background of the window activity if it is a translucent activity.
 		// If it is a modal window, set a translucent dimmed background to the window.
 		// If the opacity is given, set a transparent background to the window. In this case, if no backgroundColor or
@@ -255,7 +263,14 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 			background = new ColorDrawable(0x00000000);
 		}
 		if (background != null) {
-			activity.getWindow().setBackgroundDrawable(background);
+			win.setBackgroundDrawable(background);
+		}
+
+		// Handle the width and height of the window.
+		if (hasProperty(TiC.PROPERTY_WIDTH) || hasProperty(TiC.PROPERTY_HEIGHT)) {
+			int w = TiConvert.toInt(getProperty(TiC.PROPERTY_WIDTH), LayoutParams.MATCH_PARENT);
+			int h = TiConvert.toInt(getProperty(TiC.PROPERTY_HEIGHT), LayoutParams.MATCH_PARENT);
+			win.setLayout(w, h);
 		}
 
 		activity.getActivityProxy().getDecorView().add(this);
@@ -308,15 +323,57 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 	@Override
 	public void onPropertyChanged(String name, Object value)
 	{
-		if (!lightweight && windowActivity != null && windowActivity.get() != null) {
+		if (!lightweight) {
 			if (TiC.PROPERTY_WINDOW_PIXEL_FORMAT.equals(name)) {
 				getMainHandler().obtainMessage(MSG_SET_PIXEL_FORMAT, value).sendToTarget();
 			} else if (TiC.PROPERTY_TITLE.equals(name)) {
 				getMainHandler().obtainMessage(MSG_SET_TITLE, value).sendToTarget();
+			} else if (TiC.PROPERTY_TOP.equals(name) || TiC.PROPERTY_BOTTOM.equals(name) || TiC.PROPERTY_LEFT.equals(name)
+				|| TiC.PROPERTY_RIGHT.equals(name)) {
+				// The "top", "bottom", "left" and "right" properties do not work for heavyweight windows.
+				return;
 			}
 		}
 
 		super.onPropertyChanged(name, value);
+	}
+
+	@Override
+	@Kroll.setProperty(retain=false) @Kroll.method
+	public void setWidth(Object width)
+	{
+		if (!lightweight) {
+			Object current = getProperty(TiC.PROPERTY_WIDTH);
+			if (shouldFireChange(current, width)) {
+				int w = TiConvert.toInt(width, LayoutParams.MATCH_PARENT);
+				int h = TiConvert.toInt(getProperty(TiC.PROPERTY_HEIGHT), LayoutParams.MATCH_PARENT);
+				if (TiApplication.isUIThread()) {
+					setWindowWidthHeight(w, h);
+				} else {
+					getMainHandler().obtainMessage(MSG_SET_WIDTH_HEIGHT, w, h).sendToTarget();
+				}
+			}
+		}
+		super.setWidth(width);
+	}
+
+	@Override
+	@Kroll.setProperty(retain=false) @Kroll.method
+	public void setHeight(Object height)
+	{
+		if (!lightweight) {
+			Object current = getProperty(TiC.PROPERTY_HEIGHT);
+			if (shouldFireChange(current, height)) {
+				int h = TiConvert.toInt(height, LayoutParams.MATCH_PARENT);
+				int w = TiConvert.toInt(getProperty(TiC.PROPERTY_WIDTH), LayoutParams.MATCH_PARENT);
+				if (TiApplication.isUIThread()) {
+					setWindowWidthHeight(w, h);
+				} else {
+					getMainHandler().obtainMessage(MSG_SET_WIDTH_HEIGHT, w, h).sendToTarget();
+				}
+			}
+		}
+		super.setHeight(height);
 	}
 
 	@Override
@@ -341,8 +398,23 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 				}
 				return true;
 			}
+			case MSG_SET_WIDTH_HEIGHT: {
+				setWindowWidthHeight(msg.arg1, msg.arg2);
+				return true;
+			}
 		}
 		return super.handleMessage(msg);
+	}
+
+	private void setWindowWidthHeight(int w, int h)
+	{
+		Activity activity = getWindowActivity();
+		if (activity != null) {
+			Window win = activity.getWindow();
+			if (win != null) {
+				win.setLayout(w, h);
+			}
+		}
 	}
 
 	@Kroll.method(name = "_getWindowActivityProxy")

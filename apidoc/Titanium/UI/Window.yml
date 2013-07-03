@@ -909,7 +909,7 @@ properties:
   - name: bottom
     summary: Window's bottom position, in platform-specific units.
     description: |
-        On Android, before Titanium 3.2.0, this property only works with lightweight windows.
+        On Android, this property only works with lightweight windows.
         See "Android Heavyweight and Lightweight Windows" in the main description
         of Titanium.UI.Window for more information.
     type: [Number,String]
@@ -931,7 +931,7 @@ properties:
   - name: left
     summary: Window's left position, in platform-specific units.
     description: |
-        On Android, before Titanium 3.2.0, this property only works with lightweight windows.
+        On Android, this property only works with lightweight windows.
         See "Android Heavyweight and Lightweight Windows" in the main description 
         of Titanium.UI.Window for more information.
     type: [Number,String]
@@ -974,7 +974,7 @@ properties:
   - name: right
     summary: Window's right position, in platform-specific units.
     description: |
-        On Android, before Titanium 3.2.0, this property only works with lightweight windows.
+        On Android, this property only works with lightweight windows.
         See "Android Heavyweight and Lightweight Windows" in the main description 
         of Titanium.UI.Window for more information.
     type: [Number,String]
@@ -983,7 +983,7 @@ properties:
   - name: top
     summary: Window's top position, in platform-specific units.
     description: |
-        On Android, before Titanium 3.2.0, this property only works with lightweight windows.
+        On Android, this property only works with lightweight windows.
         See "Android Heavyweight and Lightweight Windows" in the main description 
         of Titanium.UI.Window for more information.
     type: [Number,String]
