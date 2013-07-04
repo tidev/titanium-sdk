@@ -8,14 +8,13 @@ package ti.modules.titanium.ui.widget.searchbar;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
+import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiFileHelper;
 import org.appcelerator.titanium.util.TiUIHelper;
-
 import ti.modules.titanium.ui.widget.TiUIText;
 import android.graphics.drawable.Drawable;
-import android.text.InputType;
 import android.text.TextUtils.TruncateAt;
 import android.util.TypedValue;
 import android.view.Gravity;
@@ -122,20 +121,19 @@ public class TiUISearchBar extends TiUIText
 	{
 		super.processProperties(d);
 
-		if (d.containsKey("showCancel")) {
-			boolean showCancel = TiConvert.toBoolean(d, "showCancel", false);
+		if (d.containsKey(TiC.PROPERTY_SHOW_CANCEL)) {
+			boolean showCancel = TiConvert.toBoolean(d, TiC.PROPERTY_SHOW_CANCEL, false);
 			cancelBtn.setVisibility(showCancel ? View.VISIBLE : View.GONE);
 		}
-		if (d.containsKey("barColor")) {
-			nativeView.setBackgroundColor(TiConvert.toColor(d, "barColor"));
+		if (d.containsKey(TiC.PROPERTY_BAR_COLOR)) {
+			nativeView.setBackgroundColor(TiConvert.toColor(d, TiC.PROPERTY_BAR_COLOR));
 		}
-		if (d.containsKey("prompt")) {
-			String strPrompt = TiConvert.toString(d, "prompt");
+		if (d.containsKey(TiC.PROPERTY_PROMPT)) {
+			String strPrompt = TiConvert.toString(d, TiC.PROPERTY_PROMPT);
 			promptText.setText(strPrompt);
 		}
-		if (d.containsKey("backgroundImage")) {
-
-			Object bkgdImage = proxy.getProperty("backgroundImage");
+		if (d.containsKey(TiC.PROPERTY_BACKGROUND_IMAGE)) {
+			String bkgdImage = TiConvert.toString(proxy.getProperty(TiC.PROPERTY_BACKGROUND_IMAGE));
 			TiFileHelper tfh = new TiFileHelper(tv.getContext());
 			String url = proxy.resolveUrl(null, bkgdImage.toString());
 			Drawable background = tfh.loadDrawable(url, false);
@@ -146,12 +144,22 @@ public class TiUISearchBar extends TiUIText
 	@Override
 	public void propertyChanged(String key, Object oldValue, Object newValue, KrollProxy proxy)
 	{
-		if (key.equals("showCancel")) {
+		if (key.equals(TiC.PROPERTY_SHOW_CANCEL)) {
 			boolean showCancel = TiConvert.toBoolean(newValue);
 			cancelBtn.setVisibility(showCancel ? View.VISIBLE : View.GONE);
-		} else if (key.equals("barColor")) {
+		} else if (key.equals(TiC.PROPERTY_BAR_COLOR)) {
 			nativeView.setBackgroundColor(TiConvert.toColor(TiConvert.toString(newValue)));
-		} else {
+		} else if (key.equals(TiC.PROPERTY_PROMPT)) {
+			String strPrompt = TiConvert.toString(newValue);
+			promptText.setText(strPrompt);
+		} else if (key.equals(TiC.PROPERTY_BACKGROUND_IMAGE)) {
+			String bkgdImage = TiConvert.toString(newValue);
+			TiFileHelper tfh = new TiFileHelper(tv.getContext());
+			String url = proxy.resolveUrl(null, bkgdImage.toString());
+			Drawable background = tfh.loadDrawable(url, false);
+			nativeView.setBackgroundDrawable(background);
+		}
+		else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}
 	}
