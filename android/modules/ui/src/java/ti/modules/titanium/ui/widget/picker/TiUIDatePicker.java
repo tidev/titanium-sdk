@@ -19,6 +19,7 @@ import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiUIView;
 
 import android.app.Activity;
+import android.os.Build;
 import android.widget.DatePicker;
 import android.widget.DatePicker.OnDateChangedListener;
 
@@ -171,8 +172,10 @@ public class TiUIDatePicker extends TiUIView
 	
 	public void setCalendarView(boolean value)
 	{
-		DatePicker picker = (DatePicker) getNativeView();
-		picker.setCalendarViewShown(value);
+		if (Build.VERSION.SDK_INT >= 11) {
+			DatePicker picker = (DatePicker) getNativeView();
+			picker.setCalendarViewShown(value);
+		}
 	}
 
 }
