@@ -155,11 +155,10 @@ public class TiUISearchBar extends TiUIText
 		} else if (key.equals(TiC.PROPERTY_BACKGROUND_IMAGE)) {
 			String bkgdImage = TiConvert.toString(newValue);
 			TiFileHelper tfh = new TiFileHelper(tv.getContext());
-			String url = proxy.resolveUrl(null, bkgdImage.toString());
+			String url = proxy.resolveUrl(null, bkgdImage);
 			Drawable background = tfh.loadDrawable(url, false);
 			nativeView.setBackgroundDrawable(background);
-		}
-		else {
+		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}
 	}
