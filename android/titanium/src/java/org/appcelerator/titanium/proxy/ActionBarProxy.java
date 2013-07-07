@@ -144,44 +144,52 @@ public class ActionBarProxy extends KrollProxy
 	private void handleSetIcon(String url)
 	{
 		Drawable icon = getDrawableFromUrl(url);
-		if (icon != null) {
+		if ((icon != null) && (actionBar != null)) {
 			actionBar.setIcon(icon);
 		}
 	}
 
 	private void handleSetTitle(String title)
 	{
-		actionBar.setDisplayShowTitleEnabled(true);
-		actionBar.setTitle(title);
+		if (actionBar != null) {
+			actionBar.setDisplayShowTitleEnabled(true);
+			actionBar.setTitle(title);
+		}
 	}
 
 	private void handleShow()
 	{
-		actionBar.show();
+		if (actionBar != null) {
+			actionBar.show();
+		}
 	}
 
 	private void handleHide()
 	{
-		actionBar.hide();
+		if (actionBar != null) {
+			actionBar.hide();
+		}
 	}
 
 	private void handleSetBackgroundImage(String url)
 	{
 		Drawable backgroundImage = getDrawableFromUrl(url);
-		if (backgroundImage != null) {
+		if ((backgroundImage != null) && (actionBar != null)){
 			actionBar.setBackgroundDrawable(backgroundImage);
 		}
 	}
 
 	private void handlesetDisplayHomeAsUp(boolean showHomeAsUp)
-	{
-		actionBar.setDisplayHomeAsUpEnabled(showHomeAsUp);
+	{	
+		if (actionBar != null) {
+			actionBar.setDisplayHomeAsUpEnabled(showHomeAsUp);
+		}
 	}
 
 	private void handleSetLogo(String url)
 	{
 		Drawable logo = getDrawableFromUrl(url);
-		if (logo != null) {
+		if ((logo != null) && (actionBar != null)) {
 			actionBar.setLogo(logo);
 		}
 	}
