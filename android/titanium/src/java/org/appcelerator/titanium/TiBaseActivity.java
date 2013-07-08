@@ -250,7 +250,9 @@ public abstract class TiBaseActivity extends FragmentActivity
 
 	public void addDialog(DialogWrapper d) 
 	{
-		dialogs.add(d);
+		if (!dialogs.contains(d)) {
+			dialogs.add(d);
+		}
 	}
 	
 	public void removeDialog(Dialog d) 
