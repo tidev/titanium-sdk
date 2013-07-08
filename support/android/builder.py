@@ -1646,6 +1646,7 @@ class Builder(object):
 			if path.split('/')[-1].startswith('.'): return True
 			if ext == '.class': return True
 			if 'org/appcelerator/titanium/bindings' in path and ext == '.json': return True
+			if 'tiapp' in path and ext =='.xml': return True
 
 		def skip_js_file(path):
 			return self.compile_js is True and \
@@ -2197,9 +2198,7 @@ class Builder(object):
 			if not os.path.exists(self.assets_resources_dir):
 				os.makedirs(self.assets_resources_dir)
 
-			shutil.copy(self.project_tiappxml, self.assets_dir)
-			finalxml = os.path.join(self.assets_dir,'tiapp.xml')
-			self.tiapp = TiAppXML(finalxml)
+			self.tiapp = TiAppXML(self.project_tiappxml)
 			self.tiapp.setDeployType(deploy_type)
 			self.sdcard_copy = False
 			sdcard_property = "ti.android.loadfromsdcard"
