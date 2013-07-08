@@ -15,6 +15,7 @@
 #import "Webcolor.h"
 #import "ImageLoader.h"
 #import "TiSelectedCellbackgroundView.h"
+#import "TiLayoutQueue.h"
 #import <libkern/OSAtomic.h>
 
 NSString * const defaultRowTableClass = @"_default_";
@@ -540,6 +541,17 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 -(UIView*) currentRowContainerView
 {
     return rowContainerView;
+}
+//Private method :For internal use only. Called from layoutSubviews of the cell.
+-(void)triggerLayout
+{
+    if (modifyingRow) {
+        return;
+    }
+    modifyingRow = YES;
+    [TiLayoutQueue layoutProxy:self];
+    modifyingRow = NO;
+    
 }
 
 - (void)prepareTableRowForReuse
