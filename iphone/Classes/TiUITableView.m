@@ -182,7 +182,7 @@
     
     // In order to avoid ugly visual behavior, whenever a cell is laid out, we MUST relayout the
     // row concurrently.
-    [TiLayoutQueue layoutProxy:proxy];
+    [proxy triggerLayout];
 }
 
 -(BOOL) selectedOrHighlighted

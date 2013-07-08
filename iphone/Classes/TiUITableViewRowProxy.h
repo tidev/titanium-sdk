@@ -61,6 +61,7 @@ typedef enum
 -(void)triggerAttach;
 -(void)updateRow:(NSDictionary*)data withObject:(NSDictionary*)properties;
 -(UIView*) currentRowContainerView; //Private method :For internal use only.
+-(void)triggerLayout; //Private method :For internal use only. Called from layoutSubviews of the cell.
 
 @end
 
