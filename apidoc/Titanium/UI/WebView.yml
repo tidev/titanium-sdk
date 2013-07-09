@@ -24,6 +24,17 @@ description: |
 
     Web views are more expensive to create than other native views because of the requirement to
     load the HTML browser into memory.
+
+    #### Local JavaScript Files
+
+    If you are referencing local JavaScript files, that is, any file with a '.js' extension,
+    in HTML from a WebView, the build process for creating a package breaks these references.
+    All JavaScript files are removed and their content is encrypted and obfuscated into one resource.
+    To exclude these local JavaScript files from being processed during the build process,
+    rename the file extension of these files to '.jslocal' instead of '.js'.
+
+    The build process for testing your application on the simulator, emulator or device does not
+    break these references.  The references are only broken when building a distribution package.
     
     #### iOS Platform Implementation Notes
 
