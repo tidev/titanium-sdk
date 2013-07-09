@@ -27,15 +27,20 @@ description: |
 
     #### Local JavaScript Files
 
-    If you are referencing local JavaScript files, that is, any file with a '.js' extension,
-    in HTML from a WebView, the build process for creating a package breaks these references.
-    All JavaScript files are removed and their content is encrypted and obfuscated into one resource.
-    To exclude these local JavaScript files from being processed during the build process,
-    rename the file extension of these files to '.jslocal' instead of '.js'.
+    During the build process for creating a package, all JavaScript files, that is, any file with a
+    '.js' extension, are removed and their content is encrypted and obfuscated into one resource,
+    which breaks references to these files if they are loaded externally.
+
+    For JavaScript files referenced in static local HTML files, these JavaScript files are omitted
+    from processing and left entact, which means they can be correctly referenced in the WebView.
+
+    For local JavaScript files not referenced in static local HTML files, for example, a
+    dynamically-genereated HTML file referencing a local JavaScript file,
+    rename the file extension of the local JavaScript files to '.jslocal' instead of '.js'.
 
     The build process for testing your application on the simulator, emulator or device does not
     break these references.  The references are only broken when building a distribution package.
-    
+
     #### iOS Platform Implementation Notes
 
     On the iOS platform, the native web view handles scrolling and other related touch
