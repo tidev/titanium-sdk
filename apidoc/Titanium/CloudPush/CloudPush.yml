@@ -12,6 +12,10 @@ description: |
     version 2.0.0. To use it, you must require it, like this:
     
         var CloudPush = require('ti.cloudpush');
+
+    Then, call the `retrieveDeviceToken` method before setting the `enabled` property to `true`
+    to enable the device to receive push notifications. You must call `retrieveDeviceToken` before
+    any other CloudPush API call or else the device will not receive push notifications.
     
     This module must also be added to the modules section in your tiapp.xml. This can be done using the Modules list in
     the Titanium Studio TiApp Editor, or by editing the XML directly and adding the following line to the modules
@@ -50,6 +54,9 @@ methods:
     description: |
         This token is used in calls to the Appcelerator Cloud Service's subscribe or unsubscribe to push notification
         channels. This token is unique to each application and device.
+
+        You must call this method before making any other CloudPush API calls or else the device
+        cannot receive push notifications.
     parameters:
       - name: config
         summary: Dictionary specifying token retrieval related options. 
