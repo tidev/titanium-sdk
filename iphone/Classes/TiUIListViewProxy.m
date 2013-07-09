@@ -35,6 +35,7 @@
 -(void)_initWithProperties:(NSDictionary *)properties
 {
     [self initializeProperty:@"canScroll" defaultValue:NUMBOOL(YES)];
+    [self initializeProperty:@"caseInsensitiveSearch" defaultValue:NUMBOOL(YES)];
     [super _initWithProperties:properties];
 }
 
@@ -57,6 +58,15 @@
 		block(nil);
 		return;
 	}
+    
+    if ([self.listView isSearchActive]) {
+        block(nil);
+        TiThreadPerformOnMainThread(^{
+            [self.listView updateSearchResults:nil];
+        }, NO);
+        return;
+    }
+    
 	BOOL triggerMainThread;
 	pthread_mutex_lock(&_operationQueueMutex);
 	triggerMainThread = [_operationQueue count] == 0;
@@ -133,6 +143,18 @@
 		return [_sections objectAtIndex:index];
 	}
 	return nil;
+}
+
+- (void) deleteSectionAtIndex:(NSUInteger)index
+{
+    if ([_sections count] <= index) {
+        DebugLog(@"[WARN] ListViewProxy: Delete section index is out of range");
+        return;
+    }
+    TiUIListSectionProxy *section = [_sections objectAtIndex:index];
+    [_sections removeObjectAtIndex:index];
+    section.delegate = nil;
+    [self forgetProxy:section];
 }
 
 - (NSArray *)keySequence

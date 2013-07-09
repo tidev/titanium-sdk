@@ -10,6 +10,7 @@ import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
+import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.util.TiConvert;
 
@@ -101,13 +102,6 @@ public class TiDatabaseProxy extends KrollProxy
 
 		TiResultSetProxy rs = null;
 		Cursor c = null;
-		String[] newArgs = null;
-		if (sqlArgs != null) {
-			newArgs = new String[sqlArgs.length];
-			for(int i = 0; i < sqlArgs.length; i++) {
-				newArgs[i] = TiConvert.toString(sqlArgs[i]);
-			}
-		}
 		try {
 			String lcSql = sql.toLowerCase().trim(); 
 			// You must use execSQL unless you are expecting a resultset, changes aren't committed
@@ -115,7 +109,14 @@ public class TiDatabaseProxy extends KrollProxy
 			// it may need additional tuning. The better solution would be to expose
 			// both types of queries through the Titanium API.
 			if (lcSql.startsWith("select") || lcSql.startsWith("pragma")) {
-				c = db.rawQuery(sql, newArgs);
+				String[] selectArgs = null;
+				if (sqlArgs != null) {
+					selectArgs = new String[sqlArgs.length];
+					for (int i = 0; i < sqlArgs.length; i++) {
+						selectArgs[i] = TiConvert.toString(sqlArgs[i]);
+					}
+				}
+				c = db.rawQuery(sql, selectArgs);
 	 			if (c != null) {
 					// Most non-SELECT statements won't actually return data, but some such as
 					// PRAGMA do. If there are no results, just return null.
@@ -137,6 +138,17 @@ public class TiDatabaseProxy extends KrollProxy
 					rs = new TiResultSetProxy(null); // because iPhone does it this way.
 				}
 			} else {
+				Object[] newArgs = null;
+				if (sqlArgs != null) {
+					newArgs = new Object[sqlArgs.length];
+					for (int i = 0; i < sqlArgs.length; i++) {
+						if (sqlArgs[i] instanceof TiBlob) {
+							newArgs[i] = ((TiBlob) sqlArgs[i]).getBytes();
+						} else {
+							newArgs[i] = TiConvert.toString(sqlArgs[i]);
+						}
+					}
+				}
 				db.execSQL(sql, newArgs);
 			}
 		} catch (SQLException e) {

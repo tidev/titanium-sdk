@@ -1649,6 +1649,7 @@ class Builder(object):
 			if path.split('/')[-1].startswith('.'): return True
 			if ext == '.class': return True
 			if 'org/appcelerator/titanium/bindings' in path and ext == '.json': return True
+			if 'tiapp' in path and ext =='.xml': return True
 
 		def skip_js_file(path):
 			return self.compile_js is True and \
@@ -2200,9 +2201,7 @@ class Builder(object):
 			if not os.path.exists(self.assets_resources_dir):
 				os.makedirs(self.assets_resources_dir)
 
-			shutil.copy(self.project_tiappxml, self.assets_dir)
-			finalxml = os.path.join(self.assets_dir,'tiapp.xml')
-			self.tiapp = TiAppXML(finalxml)
+			self.tiapp = TiAppXML(self.project_tiappxml)
 			self.tiapp.setDeployType(deploy_type)
 			self.sdcard_copy = False
 			sdcard_property = "ti.android.loadfromsdcard"
@@ -2353,6 +2352,24 @@ class Builder(object):
 					dex_args = [self.java, '-Xmx1024M', '-Djava.ext.dirs=%s' % self.sdk.get_platform_tools_dir(), '-jar', self.sdk.get_dx_jar()]
 				else:
 					dex_args = [dx, '-JXmx1536M', '-JXX:-UseGCOverheadLimit']
+
+				# Look for New Relic module
+				newrelic_module = None
+				for module in self.modules:
+					if module.path.find("newrelic") > 0:
+						newrelic_module = module
+						break
+
+				# If New Relic is present, add its Java agent to the dex arguments.
+				if newrelic_module:
+					info("Adding New Relic support.")
+
+					# Copy the dexer java agent jar to a tempfile. Eliminates white space from
+					# the module path which causes problems with the dex -Jjavaagent argument.
+					temp_jar = tempfile.NamedTemporaryFile(suffix='.jar', delete=True)
+					shutil.copyfile(os.path.join(newrelic_module.path, 'class.rewriter.jar'), temp_jar.name)
+					dex_args += ['-Jjavaagent:' + os.path.join(temp_jar.name)]
+
 				dex_args += ['--dex', '--output='+self.classes_dex, self.classes_dir]
 				dex_args += self.android_jars
 				dex_args += self.module_jars

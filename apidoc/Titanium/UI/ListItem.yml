@@ -112,6 +112,77 @@ properties:
     default: Transparent
     accessors: false
 
+  - name: backgroundImage
+    summary: Background image to render when the item is not selected.
+    description: |
+        Must be a local resource.
+    type: String
+    since: 3.2.0
+    platforms: [iphone, ipad]
+    accessors: false
+
+  - name: backgroundGradient
+    summary: Background gradient to render when the item is not selected.
+    type: Gradient
+    since: 3.2.0
+    platforms: [iphone, ipad]
+    accessors: false
+
+  - name: selectedBackgroundColor
+    summary: Background color of the view, as a color name or hex triplet when item is selected.
+    description: |
+        For information about color values, see the "Colors" section of <Titanium.UI>.
+    type: String
+    since: 3.2.0
+    platforms: [iphone, ipad]
+    default: Transparent
+    accessors: false
+
+  - name: selectedBackgroundImage
+    summary: Background image to render when the item is selected.
+    description: |
+        Must be a local resource.
+    type: String
+    since: 3.2.0
+    platforms: [iphone, ipad]
+    accessors: false
+
+  - name: selectedBackgroundGradient
+    summary: Background gradient to render when the item is selected.
+    type: Gradient
+    since: 3.2.0
+    platforms: [iphone, ipad]
+    accessors: false
+
+  - name: canEdit
+    summary: Specifies if the item can be deleted by a user initiated action.
+    description: |
+        For more information see the "Editing Support" section of <Titanium.UI.ListView>.
+    type: Boolean
+    default: false
+    since: 3.2.0
+    platforms: [iphone, ipad]
+    accessors: false
+
+  - name: canMove
+    summary: Specifies if the item can be reordered within the list view by a user initiated action.
+    description: |
+        For more information see the "Editing Support" section of <Titanium.UI.ListView>.
+    type: Boolean
+    default: false
+    since: 3.2.0
+    platforms: [iphone, ipad]
+    accessors: false
+
+  - name: searchableText
+    summary: The text to match against when the [ListView](Titanium.UI.ListView) is performing a search.
+    description: |
+        Used in conjunction with [searchView](Titanium.UI.ListView.searchView), [searchText](Titanium.UI.ListView.searchText) and [caseInsensitiveSearch](Titanium.UI.ListView.caseInsensitiveSearch) properties of ListView.
+    type: String
+    since: 3.2.0
+    platforms: [iphone, ipad]
+    accessors: false
+
   - name: color
     summary: Default text color of the item when not selected, as a color name or hex triplet.
     description: |
