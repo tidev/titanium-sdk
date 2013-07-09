@@ -33,6 +33,8 @@ import org.appcelerator.titanium.view.TiAnimation;
 import org.appcelerator.titanium.view.TiUIView;
 
 import android.app.Activity;
+import android.graphics.Matrix;
+import android.graphics.RectF;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Message;
@@ -1009,10 +1011,14 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 
 		int pointWindowX = viewLocation[0] + x;
 		int pointWindowY = viewLocation[1] + y;
+	
+		// Apply reverse transformation to get the original location
+		float[] points = new float[] { pointWindowX - destLocation[0], pointWindowY - destLocation[1] };
+		points = destView.getPreTranslationValue(points);
 
 		KrollDict destPoint = new KrollDict();
-		destPoint.put(TiC.PROPERTY_X, pointWindowX - destLocation[0]);
-		destPoint.put(TiC.PROPERTY_Y, pointWindowY - destLocation[1]);
+		destPoint.put(TiC.PROPERTY_X, (int) points[0]);
+		destPoint.put(TiC.PROPERTY_Y, (int) points[1]);
 		return destPoint;
 	}
 
