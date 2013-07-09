@@ -240,6 +240,15 @@ properties:
     platforms: [iphone, ipad, mobileweb, tizen]
     type: String
 
+  - name: bottom
+    summary: Window's bottom position, in platform-specific units.
+    description: |
+        On Android, this property only works with lightweight windows.
+        See "Android Heavyweight and Lightweight Windows" in the main description
+        of Titanium.UI.Window for more information.
+    type: [Number,String]
+    default: 0
+
   - name: exitOnClose
     summary: |
         Boolean value indicating if the application should exit when the Android
@@ -266,6 +275,15 @@ properties:
     platforms: [android, iphone, ipad]
     type: Boolean
     default: false
+
+  - name: left
+    summary: Window's left position, in platform-specific units.
+    description: |
+        On Android, this property only works with lightweight windows.
+        See "Android Heavyweight and Lightweight Windows" in the main description
+        of Titanium.UI.Window for more information.
+    type: [Number,String]
+    default: 0
 
   - name: leftNavButton
     summary: View to show in the left nav bar area.
@@ -443,6 +461,15 @@ properties:
     type: Number
     permission: read-only
 
+  - name: right
+    summary: Window's right position, in platform-specific units.
+    description: |
+        On Android, this property only works with lightweight windows.
+        See "Android Heavyweight and Lightweight Windows" in the main description
+        of Titanium.UI.Window for more information.
+    type: [Number,String]
+    default: 0
+
   - name: rightNavButton
     summary: View to show in the right nav bar area.
     platforms: [iphone, ipad, mobileweb, tizen]
@@ -494,6 +521,15 @@ properties:
         the window is the child of a tab.
     platforms: [iphone, ipad]
     type: Array<Object>
+
+  - name: top
+    summary: Window's top position, in platform-specific units.
+    description: |
+        On Android, this property only works with lightweight windows.
+        See "Android Heavyweight and Lightweight Windows" in the main description
+        of Titanium.UI.Window for more information.
+    type: [Number,String]
+    default: 0
 
   - name: translucent
     summary: Boolean value indicating if the nav bar is translucent.
