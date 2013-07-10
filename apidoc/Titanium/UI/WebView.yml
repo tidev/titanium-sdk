@@ -29,17 +29,17 @@ description: |
 
     During the build process for creating a package, all JavaScript files, that is, any file with a
     '.js' extension, are removed and their content is encrypted and obfuscated into one resource,
-    which breaks references to these files if they are loaded externally.
+    causing these files to not load properly in a WebView if they are loaded externally.
 
     For JavaScript files referenced in static local HTML files, these JavaScript files are omitted
-    from processing and left entact, which means they can be correctly referenced in the WebView.
+    from processing and left intact, which means they can be correctly loaded in the WebView.
 
     For local JavaScript files not referenced in static local HTML files, for example, a
     dynamically-genereated HTML file referencing a local JavaScript file,
     rename the file extension of the local JavaScript files to '.jslocal' instead of '.js'.
 
     The build process for testing your application on the simulator, emulator or device does not
-    break these references.  The references are only broken when building a distribution package.
+    affect the loading of local JavaScript files.
 
     #### iOS Platform Implementation Notes
 
