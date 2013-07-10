@@ -2781,10 +2781,12 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
 			[ourView insertSubview:childView atIndex:insertPosition];
 			pthread_rwlock_unlock(&childrenLock); // must release before calling resize
 			
-            if ( !CGSizeEqualToSize(child.sandboxBounds.size, bounds.size) ) {
-                //Child will not resize if sandbox size does not change
-                [self childWillResize:child];
-            }
+//            TIMOB-14488. This is a bad message. We should not be signalling a child
+//            resize to the parent when the parent is laying out the child.
+//            if ( !CGSizeEqualToSize(child.sandboxBounds.size, bounds.size) ) {
+//                //Child will not resize if sandbox size does not change
+//                [self childWillResize:child];
+//            }
 		}
 	}
 	[child setSandboxBounds:bounds];
