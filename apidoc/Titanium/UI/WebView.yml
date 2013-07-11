@@ -24,7 +24,23 @@ description: |
 
     Web views are more expensive to create than other native views because of the requirement to
     load the HTML browser into memory.
-    
+
+    #### Local JavaScript Files
+
+    During the build process for creating a package, all JavaScript files, that is, any file with a
+    '.js' extension, are removed and their content is encrypted and obfuscated into one resource,
+    causing these files to not load properly in a WebView if they are loaded externally.
+
+    For JavaScript files referenced in static local HTML files, these JavaScript files are omitted
+    from processing and left intact, which means they can be correctly loaded in the WebView.
+
+    For local JavaScript files not referenced in static local HTML files, for example, a
+    dynamically-genereated HTML file referencing a local JavaScript file,
+    rename the file extension of the local JavaScript files to '.jslocal' instead of '.js'.
+
+    The build process for testing your application on the simulator, emulator or device does not
+    affect the loading of local JavaScript files.
+
     #### iOS Platform Implementation Notes
 
     On the iOS platform, the native web view handles scrolling and other related touch
