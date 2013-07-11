@@ -128,6 +128,11 @@ bool Base64AllocAndEncodeData(const void *inInputData, size_t inInputDataSize, c
     return [UIViewController instancesRespondToSelector:@selector(shouldAutomaticallyForwardRotationMethods)];
 }
 
++(BOOL)isIOS7OrGreater
+{
+    return [UIViewController instancesRespondToSelector:@selector(childViewControllerForStatusBarStyle)];
+}
+
 +(BOOL)isIPad
 {
 	return [[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPad;
