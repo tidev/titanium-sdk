@@ -407,6 +407,87 @@ examples:
             win.add(listView);
             win.open();
 
+
+  - title: Alloy XML Markup
+    example: |
+        Previous example as an Alloy view. List view markup is supported in Alloy 1.2.0 and later.
+
+        `app/views/index.xml`:
+
+            <Alloy>
+                <Window backgroundColor="white">
+                    <ListView id="listView" defaultItemTemplate="uncheck">
+
+                        <!-- The Templates tag sets the ListView's templates property -->
+
+                        <Templates>
+
+                            <!-- Define your item templates within the Templates tags or use the
+                                 Require tag to include a view that only contains a tempalte -->
+
+                            <ItemTemplate name="uncheck" onClick="toggleCheck">
+                                <ImageView bindId="pic" id="icon"/>
+                                <Label bindId="title" id="title" color="black" />
+                                <Label bindId="subtitle" id="subtitle" color="black" />
+                            </ItemTemplate>
+                            <ItemTemplate name="check"  onClick="toggleCheck">
+                                <ImageView bindId="pic" id="icon"/>
+                                <Label bindId="title" id="title" color="red"/>
+                                <Label bindId="subtitle" id="subtitle" color="red"/>
+                            </ItemTemplate>
+
+                        </Templates>
+
+                        <ListSection>
+
+                            <!-- You can specify any ListItem or ListDataItem properties in ListItem -->
+
+                            <!-- Specify data to bind to the item template with inline attributes
+                                 defined as <bindId>:<Ti.UI.Component.property> -->
+
+                            <ListItem title:text="Take Out the Trash" subtitle:text="Yakko" pic:image="/trash.png"
+                                itemId="trash" accessoryType="Ti.UI.LIST_ACCESSORY_TYPE_NONE"/>
+                            <ListItem title:text="Do the Dishes" subtitle:text="Wakko" pic:image="/dishes.png"
+                                itemId="dishes" accessoryType="Ti.UI.LIST_ACCESSORY_TYPE_NONE"/>
+                            <ListItem title:text="Walk the Dog" subtitle:text="Dot" pic:image="/doggie.png"
+                                itemId="doggie" accessoryType="Ti.UI.LIST_ACCESSORY_TYPE_NONE"/>
+
+                        </ListSection>
+                    </ListView>
+                </Window>
+            </Alloy>
+
+        `app/styles/index.tss`:
+
+            "#icon" : {
+                width: '50dp', height: '50dp', left: 0
+            },
+            "#title" : {
+                font: { fontFamily:'Arial', fontSize: '20dp', fontWeight:'bold' },
+                left: '60dp', top: 0
+            },
+            "#subtitle" : {
+                font: { fontFamily:'Arial', fontSize: '14dp' },
+                left: '60dp', top: '25dp'
+            }
+
+        `app/controllers/index.js`:
+
+            function toggleCheck (e) {
+                var section = $.listView.sections[e.sectionIndex];
+                var item = section.getItemAt(e.itemIndex);
+                if (item.properties.accessoryType == Ti.UI.LIST_ACCESSORY_TYPE_NONE) {
+                    item.properties.accessoryType = Ti.UI.LIST_ACCESSORY_TYPE_CHECKMARK;
+                    item.template = 'check';
+                }
+                else {
+                    item.properties.accessoryType = Ti.UI.LIST_ACCESSORY_TYPE_NONE;
+                    item.template = 'uncheck';
+                }
+                section.updateItemAt(e.itemIndex, item);
+            }
+            $.index.open();
+
 ---
 name: ItemTemplate
 summary: Template that represents the basic appearance of a list item.
