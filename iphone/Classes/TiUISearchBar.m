@@ -126,6 +126,10 @@
 	[search setBarStyle:[TiUtils barStyleForColor:newBarColor]];
 	[search setTintColor:[TiUtils barColorForColor:newBarColor]];
 	[search setTranslucent:[TiUtils barTranslucencyForColor:newBarColor]];
+    
+	if ([TiUtils isIOS7OrGreater]) {
+		[search performSelector:@selector(setBarTintColor:) withObject:newBarColor];
+	}
 }
 
 -(CALayer *)backgroundImageLayer
