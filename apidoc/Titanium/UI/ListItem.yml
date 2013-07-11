@@ -353,13 +353,13 @@ examples:
 
                             <ItemTemplate name="uncheck" onClick="toggleCheck">
                                 <ImageView bindId="pic" id="icon"/>
-                                <Label bindId="title" id="title" color="black" />
-                                <Label bindId="subtitle" id="subtitle" color="black" />
+                                <Label bindId="title" id="label1" color="black" />
+                                <Label bindId="subtitle" id="label2" color="black" />
                             </ItemTemplate>
                             <ItemTemplate name="check"  onClick="toggleCheck">
                                 <ImageView bindId="pic" id="icon"/>
-                                <Label bindId="title" id="title" color="red"/>
-                                <Label bindId="subtitle" id="subtitle" color="red"/>
+                                <Label bindId="title" id="label1" color="red"/>
+                                <Label bindId="subtitle" id="label2" color="red"/>
                             </ItemTemplate>
 
                         </Templates>
@@ -388,11 +388,11 @@ examples:
             "#icon" : {
                 width: '50dp', height: '50dp', left: 0
             },
-            "#title" : {
+            "#label1" : {
                 font: { fontFamily:'Arial', fontSize: '20dp', fontWeight:'bold' },
                 left: '60dp', top: 0
             },
-            "#subtitle" : {
+            "#label2" : {
                 font: { fontFamily:'Arial', fontSize: '14dp' },
                 left: '60dp', top: '25dp'
             }
