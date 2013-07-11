@@ -1345,15 +1345,23 @@ if ([str isEqualToString:@#orientation]) return (UIDeviceOrientation)orientation
 	UIBarStyle barStyle = [self barStyleForColor:color];
 	BOOL isTranslucent = [self barTranslucencyForColor:color];
 
+	BOOL isIOS7 = [self isIOS7OrGreater];
+
 	UINavigationBar * navBar = [navController navigationBar];
 	[navBar setBarStyle:barStyle];
 	[navBar setTranslucent:isTranslucent];
 	[navBar setTintColor:barColor];
+	if(isIOS7) {
+		[navBar performSelector:@selector(setBarTintColor:) withObject:barColor];
+	}
 
 	UIToolbar * toolBar = [navController toolbar];
 	[toolBar setBarStyle:barStyle];
 	[toolBar setTranslucent:isTranslucent];
 	[toolBar setTintColor:barColor];
+	if(isIOS7) {
+		[toolBar performSelector:@selector(setBarTintColor:) withObject:barColor];
+	}
 }
 
 +(NSString*)replaceString:(NSString *)string characters:(NSCharacterSet *)characterSet withString:(NSString *)replacementString
