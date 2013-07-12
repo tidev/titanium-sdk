@@ -44,9 +44,20 @@ exports.bootstrap = function(Titanium) {
 		var handle = new PersistentHandle(this);
 
 		var self = this;
-		this.on('close', function() {
+		this.on("close", function(e) {
+			if (e._closeFromActivityForcedToDestroy) {
+				if (kroll.DBG) {
+					kroll.log(TAG, "Tabgroup is closed because the activity is forced to destroy by Android OS.");
+				}
+				return;
+			}
+
 			self.currentState = self.state.closed;
 			handle.dispose();
+
+			if (kroll.DBG) {
+				kroll.log(TAG, "Tabgroup is closed normally.");
+			}
 		});
 
 		this.setTabs(this._tabs);
