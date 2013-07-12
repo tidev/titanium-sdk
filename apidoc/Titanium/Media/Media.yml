@@ -393,6 +393,24 @@ properties:
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
+  - name: CAMERA_FRONT
+    summary: Constant specifying the front camera.
+    type: Number
+    permission: read-only
+    platforms: [iphone, ipad, android]
+    since:
+        iphone: "3.2.0"
+        ipad: "3.2.0"
+        android: "3.2.0"
+  - name: CAMERA_REAR
+    summary: Constant indicating the rear camera.
+    type: Number
+    permission: read-only
+    platforms: [iphone, ipad, android]
+    since:
+        iphone: "3.2.0"
+        ipad: "3.2.0"
+        android: "3.2.0"
   - name: DEVICE_BUSY
     summary: Constant for media device busy error.
     type: Number
@@ -828,6 +846,15 @@ properties:
         for audio properties on the Media module, but the iPod may be active).
     type: Number
     platforms: [iphone, ipad]
+  - name: availableCameras
+    summary: Array indicating which cameras are available, `CAMERA_FRONT`, `CAMERA_REAR` or both.
+    type: Array<Number>
+    platforms: [iphone, ipad, android]
+    since:
+        iphone: "3.2.0"
+        ipad: "3.2.0"
+        android: "3.2.0"
+    permission: read-only
   - name: availableCameraMediaTypes
     summary: Array of media type constants supported for the camera.
     type: Array<Object>
