@@ -75,6 +75,7 @@ TiOrientationFlags TiOrientationFlagsFromObject(id args)
 	if (controller == nil)
 	{
 		controller = [[TiViewController alloc] initWithViewProxy:self];
+		[TiUtils configureController:controller withObject:self];
 	}
 	return controller;
 }
@@ -339,7 +340,7 @@ TiOrientationFlags TiOrientationFlagsFromObject(id args)
 		controller = [controller_ retain];
 		[(TiViewController *)controller setProxy:self];
 		tab = (TiViewProxy<TiTab>*)[tab_ retain];
-		
+		[TiUtils configureController:controller withObject:self];
 		[self _tabAttached];
 	}
 	else

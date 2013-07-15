@@ -1361,12 +1361,25 @@ if ([str isEqualToString:@#orientation]) return (UIDeviceOrientation)orientation
     
     NSUInteger result = 0;
     for (id mode in prop) {
-        result = result || [TiUtils intValue:mode def:0];
+        int value = [TiUtils intValue:mode def:0];
+        switch (value) {
+            case 0:
+            case 1:
+            case 2:
+            case 4:
+            case 8:
+            case 15:
+                result = result | value;
+                break;
+            default:
+                DebugLog(@"Invalid value passed for extendEdges %d",value);
+                break;
+        }
     }
     return result;
 }
 
-+(void)configureController:(id<TiUIViewControllerIOS7Support>)controller withObject:(id)object
++(void)configureController:(id)controller withObject:(id)object
 {
     if ([self isIOS7OrGreater]) {
         id edgesValue = nil;
@@ -1380,13 +1393,12 @@ if ([str isEqualToString:@#orientation]) return (UIDeviceOrientation)orientation
             edgesValue = [(NSDictionary*)object objectForKey:@"extendEdges"];
             includeOpaque = [(NSDictionary*)object objectForKey:@"includeOpaqueBars"];
             autoAdjust = [(NSDictionary*)object objectForKey:@"autoAdjustScrollViewInsets"];
-        } else {
-            DebugLog(@"Invalid parameter passed to configureController");
-        }
+        } 
+        id<TiUIViewControllerIOS7Support> theController = controller;
         
-        [controller setEdgesForExtendedLayout:[self extendedEdgesFromProp:edgesValue]];
-        [controller setExtendedLayoutIncludesOpaqueBars:[self boolValue:includeOpaque def:NO]];
-        [controller setAutomaticallyAdjustsScrollViewInsets:[self boolValue:autoAdjust def:YES]];
+        [theController setEdgesForExtendedLayout:[self extendedEdgesFromProp:edgesValue]];
+        [theController setExtendedLayoutIncludesOpaqueBars:[self boolValue:includeOpaque def:NO]];
+        [theController setAutomaticallyAdjustsScrollViewInsets:[self boolValue:autoAdjust def:YES]];
     }
 }
 
