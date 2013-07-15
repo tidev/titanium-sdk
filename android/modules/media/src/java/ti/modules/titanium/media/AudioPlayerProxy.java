@@ -112,15 +112,7 @@ public class AudioPlayerProxy extends KrollProxy
 		return false;
 	}
 	
-	@Kroll.setProperty @Kroll.method
-	public void setTime(int time){
-		if(time != 0){
-			setProperty(TiC.PROPERTY_TIME, time);
-			
-		}
-	}
 	
-
 	// An alias for play so that
 	@Kroll.method
 	public void start() {
