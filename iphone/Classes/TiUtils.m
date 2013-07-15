@@ -60,6 +60,21 @@ bool Base64AllocAndEncodeData(const void *inInputData, size_t inInputDataSize, c
 	return YES;
 }
 
+/**
+ The class represent root controller in a view hierarchy.
+ */
+@protocol TiUIViewControllerIOS7Support <NSObject>
+/* Legacy support: UIViewController methods introduced in iOS 7.0
+ * For those still on 5.x and 6.x, we have to declare these methods so the
+ * the compiler knows the right return datatypes.
+ */
+@optional
+@property(nonatomic,assign) NSUInteger edgesForExtendedLayout; // Defaults to UIRectEdgeAll on iOS7. We will set to UIRectEdgeNone
+@property(nonatomic,assign) BOOL extendedLayoutIncludesOpaqueBars; // Defaults to NO, but bars are translucent by default on 7_0.
+@property(nonatomic,assign) BOOL automaticallyAdjustsScrollViewInsets; // Defaults to YES
+@end
+
+
 @implementation TiUtils
 
 +(int) dpi
@@ -1338,6 +1353,42 @@ if ([str isEqualToString:@#orientation]) return (UIDeviceOrientation)orientation
 	return UIBarStyleDefault;
 }
 
++(NSUInteger)extendedEdgesFromProp:(id)prop
+{
+    if (![prop isKindOfClass:[NSArray class]]) {
+        return 0;
+    }
+    
+    NSUInteger result = 0;
+    for (id mode in prop) {
+        result = result || [TiUtils intValue:mode def:0];
+    }
+    return result;
+}
+
++(void)configureController:(id<TiUIViewControllerIOS7Support>)controller withObject:(id)object
+{
+    if ([self isIOS7OrGreater]) {
+        id edgesValue = nil;
+        id includeOpaque = nil;
+        id autoAdjust = nil;
+        if ([object isKindOfClass:[TiProxy class]]) {
+            edgesValue = [(TiProxy*)object valueForUndefinedKey:@"extendEdges"];
+            includeOpaque = [(TiProxy*)object valueForUndefinedKey:@"includeOpaqueBars"];
+            autoAdjust = [(TiProxy*)object valueForUndefinedKey:@"autoAdjustScrollViewInsets"];
+        } else if ([object isKindOfClass:[NSDictionary class]]){
+            edgesValue = [(NSDictionary*)object objectForKey:@"extendEdges"];
+            includeOpaque = [(NSDictionary*)object objectForKey:@"includeOpaqueBars"];
+            autoAdjust = [(NSDictionary*)object objectForKey:@"autoAdjustScrollViewInsets"];
+        } else {
+            DebugLog(@"Invalid parameter passed to configureController");
+        }
+        
+        [controller setEdgesForExtendedLayout:[self extendedEdgesFromProp:edgesValue]];
+        [controller setExtendedLayoutIncludesOpaqueBars:[self boolValue:includeOpaque def:NO]];
+        [controller setAutomaticallyAdjustsScrollViewInsets:[self boolValue:autoAdjust def:YES]];
+    }
+}
 
 +(void)applyColor:(TiColor *)color toNavigationController:(UINavigationController *)navController
 {
