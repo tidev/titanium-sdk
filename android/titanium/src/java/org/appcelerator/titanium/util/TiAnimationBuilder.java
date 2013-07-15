@@ -347,7 +347,10 @@ public class TiAnimationBuilder
 			// our custom TiMatrixAnimation.
 			List<Operation> operations = tdm.getAllOperations();
 			for (Operation operation : operations) {
-				setAnchor(w, h, operation.anchorX, operation.anchorY);
+				if (operation.anchorX != Ti2DMatrix.DEFAULT_ANCHOR_VALUE
+						|| operation.anchorY != Ti2DMatrix.DEFAULT_ANCHOR_VALUE) {
+					setAnchor(w, h, operation.anchorX, operation.anchorY);
+				}
 				switch (operation.type) {
 				case Operation.TYPE_ROTATE:
 					includesRotation = true;

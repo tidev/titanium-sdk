@@ -402,7 +402,7 @@ public abstract class TiUIView
 					.translate(0d, 0d).scale(new Object[] { 1d, 1d });
 		}
 
-		HashMap<String, Object> options = new HashMap<String, Object>(3);
+		HashMap<String, Object> options = new HashMap<String, Object>(2);
 		options.put(TiC.PROPERTY_TRANSFORM, matrixApply);
 		options.put(TiC.PROPERTY_DURATION, 1);
 
