@@ -512,6 +512,8 @@ typedef enum {
  */
 +(BOOL)isRetinaFourInch;
 
++(void)configureController:(id)controller withObject:(id)object;
+
 +(int)dpi;
 
 +(NSStringEncoding)charsetToEncoding:(NSString*)charset;
