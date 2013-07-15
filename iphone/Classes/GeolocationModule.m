@@ -692,7 +692,7 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 {
     if ([TiUtils isIOS6OrGreater]) {
         activityType = [TiUtils intValue:value];
-        TiThreadPerformOnMainThread(^{[locationManager setActivityType:accuracy];}, NO);
+        TiThreadPerformOnMainThread(^{[locationManager setActivityType:activityType];}, NO);
     }
     
 }
