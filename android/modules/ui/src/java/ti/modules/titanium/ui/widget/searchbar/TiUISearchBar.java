@@ -84,9 +84,7 @@ public class TiUISearchBar extends TiUIText
 
 		layout.setGravity(Gravity.NO_GRAVITY);
 		layout.setPadding(0, 0, 0, 0);
-		int promptWidth = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 150, proxy.getActivity()
-			.getResources().getDisplayMetrics());
-		RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(promptWidth, LayoutParams.WRAP_CONTENT);
+		RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT);
 		params.addRule(RelativeLayout.CENTER_IN_PARENT);
 		params.addRule(RelativeLayout.ALIGN_PARENT_TOP);
 		promptText.setGravity(Gravity.CENTER_HORIZONTAL);
