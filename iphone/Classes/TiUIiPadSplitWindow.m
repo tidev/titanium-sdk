@@ -55,9 +55,9 @@ UIViewController * ControllerForProxy(TiViewProxy * proxy)
 		controller = [[MGSplitViewController alloc] init];		
 		[controller setViewControllers:[NSArray arrayWithObjects:
 				ControllerForProxy(masterProxy),ControllerForProxy(detailProxy),nil]];
-
+		[TiUtils configureController:controller withObject:nil];
 		controller.delegate = self;
-
+        
 		UIView * controllerView = [controller view];
 		
 		[controllerView setFrame:[self bounds]];

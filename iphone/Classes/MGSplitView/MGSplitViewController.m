@@ -992,7 +992,7 @@
 	if (!newMaster) {
 		newMaster = [NSNull null];
 	}
-	
+	[TiUtils configureController:master withObject:nil];
 	BOOL changed = YES;
 	if ([_viewControllers count] > 0) {
 		if ([_viewControllers objectAtIndex:0] == newMaster) {
@@ -1030,7 +1030,7 @@
 		_viewControllers = [[NSMutableArray alloc] initWithCapacity:2];
 		[_viewControllers addObject:[NSNull null]];
 	}
-	
+	[TiUtils configureController:detail withObject:nil];
 	BOOL changed = YES;
 	if ([_viewControllers count] > 1) {
 		if ([_viewControllers objectAtIndex:1] == detail) {
