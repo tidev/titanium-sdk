@@ -629,6 +629,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
         searchViewProxy = [args retain];
         [searchViewProxy setDelegate:self];
         tableController = [[UITableViewController alloc] init];
+        [TiUtils configureController:tableController withObject:nil];
         tableController.tableView = [self tableView];
         searchController = [[UISearchDisplayController alloc] initWithSearchBar:[searchViewProxy searchBar] contentsController:tableController];
         searchController.searchResultsDataSource = self;

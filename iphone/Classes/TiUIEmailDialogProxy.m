@@ -86,6 +86,7 @@
 	{
 		[[composer navigationBar] setTintColor:barColor];
 		if([TiUtils isIOS7OrGreater]) {
+			[TiUtils configureController:composer withObject:nil];
 			[[composer navigationBar] performSelector:@selector(setBarTintColor:) withObject:barColor];
 		}
 	}
