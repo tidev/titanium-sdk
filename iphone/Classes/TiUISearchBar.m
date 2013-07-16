@@ -128,7 +128,7 @@
 	[search setTranslucent:[TiUtils barTranslucencyForColor:newBarColor]];
     
 	if ([TiUtils isIOS7OrGreater]) {
-		[search performSelector:@selector(setBarTintColor:) withObject:newBarColor];
+		[search performSelector:@selector(setBarTintColor:) withObject:[newBarColor _color]];
 	}
 }
 
