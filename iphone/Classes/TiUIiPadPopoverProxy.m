@@ -92,6 +92,7 @@ TiUIiPadPopoverProxy * currentlyDisplaying = nil;
 	if (navigationController == nil)
 	{
 		navigationController = [[UINavigationController alloc] initWithRootViewController:[self viewController]];
+		[TiUtils configureController:navigationController withObject:nil];
 	}
 	return navigationController;
 }
@@ -115,6 +116,7 @@ TiUIiPadPopoverProxy * currentlyDisplaying = nil;
  *	variable so that the UIViewController mojo isn't thrown off for sizing.
  */
 		[viewController setView:[self view]];
+		[TiUtils configureController:navigationController withObject:nil];
 	}
 	return viewController;
 }
