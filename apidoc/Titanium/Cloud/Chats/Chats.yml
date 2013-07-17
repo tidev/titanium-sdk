@@ -27,7 +27,7 @@ methods:
     description: |
         Requires user login. 
         
-        See [Chats: List Chat Groups](http://cloud.appcelerator.com/docs/api/v1/chats/chatgroup)
+        See [Chats: List Chat Groups](http://cloud.appcelerator.com/docs/api/v1/chats/get_chat_groups)
         for the request parameters supported by this method.
         
         Data is returned in the `chat_groups` property of the parameter passed to the callback.
