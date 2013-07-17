@@ -150,10 +150,11 @@
 	[[self toolBar] setBarStyle:[TiUtils barStyleForColor:newBarColor]];
 	[toolBar setTranslucent:[TiUtils barTranslucencyForColor:newBarColor]];
 	UIColor* barColor = [TiUtils barColorForColor:newBarColor];
-	[toolBar setTintColor:barColor];
 
 	if ([TiUtils isIOS7OrGreater]) {
 		[toolBar performSelector:@selector(setBarTintColor:) withObject:barColor];
+	} else {
+		[toolBar setTintColor:barColor];
 	}
 }
 

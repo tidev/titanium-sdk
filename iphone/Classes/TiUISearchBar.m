@@ -129,11 +129,12 @@
 	UISearchBar *search = [self searchBar];
 	
 	[search setBarStyle:[TiUtils barStyleForColor:newBarColor]];
-	[search setTintColor:[TiUtils barColorForColor:newBarColor]];
 	[search setTranslucent:[TiUtils barTranslucencyForColor:newBarColor]];
-    
+	UIColor* theColor = [TiUtils barColorForColor:newBarColor];
 	if ([TiUtils isIOS7OrGreater]) {
-		[search performSelector:@selector(setBarTintColor:) withObject:[newBarColor _color]];
+		[search performSelector:@selector(setBarTintColor:) withObject:theColor];
+	} else {
+		[search setTintColor:theColor];
 	}
 }
 
