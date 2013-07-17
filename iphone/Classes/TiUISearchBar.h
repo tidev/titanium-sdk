@@ -9,6 +9,11 @@
 #define USE_TI_UISEARCHBAR
 #endif
 #endif
+#ifdef USE_TI_UILISTVIEW
+#ifndef USE_TI_UISEARCHBAR
+#define USE_TI_UISEARCHBAR
+#endif
+#endif
 
 #ifdef USE_TI_UISEARCHBAR
 
