@@ -7,6 +7,7 @@
 package ti.modules.titanium.ui.widget;
 
 import java.util.HashMap;
+import java.util.List;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
@@ -618,6 +619,20 @@ public class TiUIScrollView extends TiUIView
 					children.remove(child);
 					child.setParent(null);
 				}
+			}
+		}
+	}
+	
+	@Override
+	public void resort()
+	{
+		List<TiUIView> childrenItem = getChildren();
+		int count = childrenItem.size();
+		if (count > 0) {
+			TiUIView child = childrenItem.get(0);
+			View vl = child.getNativeView();
+			if (vl.getParent() instanceof TiCompositeLayout) {
+				((TiCompositeLayout) vl.getParent()).resort();
 			}
 		}
 	}

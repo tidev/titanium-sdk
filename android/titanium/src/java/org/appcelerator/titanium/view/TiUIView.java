@@ -434,14 +434,11 @@ public abstract class TiUIView
 				TiMatrixAnimation matrixAnimation = (TiMatrixAnimation) a;
 				matrixAnimation.invalidateWithMatrix(nativeView);
 			}
-			if (informParent) {				
+			if (informParent) {
 				if (parent != null) {
 					TiUIView uiv = parent.peekView();
 					if (uiv != null) {
-						View v = uiv.getNativeView();
-						if (v instanceof TiCompositeLayout) {
-							((TiCompositeLayout) v).resort();
-						}
+						uiv.resort();
 					}
 				}
 			}
@@ -449,6 +446,13 @@ public abstract class TiUIView
 		}
 	}
 
+	public void resort()
+	{
+		View v = getNativeView();
+		if (v instanceof TiCompositeLayout) {
+			((TiCompositeLayout) v).resort();
+		}
+	}
 	public boolean iszIndexChanged()
 	{
 		return zIndexChanged;
