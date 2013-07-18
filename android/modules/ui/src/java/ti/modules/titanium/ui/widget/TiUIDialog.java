@@ -252,13 +252,11 @@ public class TiUIDialog extends TiUIView
 	public void show(KrollDict options)
 	{
 		AlertDialog dialog = dialogWrapper.getDialog();
-		if (dialogWrapper.getActivity() == null) {
-			Activity currentActivity = getCurrentActivity();
-			TiBaseActivity dialogActivity = (TiBaseActivity) currentActivity;
-			dialogWrapper.setActivity(new WeakReference<TiBaseActivity>(dialogActivity));
-		}
-
 		if (dialog == null) {
+			if (dialogWrapper.getActivity() == null) {
+				TiBaseActivity dialogActivity = (TiBaseActivity) getCurrentActivity();
+				dialogWrapper.setActivity(new WeakReference<TiBaseActivity>(dialogActivity));
+			}
 			processProperties(proxy.getProperties());
 			getBuilder().setOnCancelListener(new OnCancelListener() {
 				@Override
