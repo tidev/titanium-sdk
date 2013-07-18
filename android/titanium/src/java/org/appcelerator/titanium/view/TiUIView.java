@@ -561,7 +561,8 @@ public abstract class TiUIView
 			registerForKeyPress(nativeView, TiConvert.toBoolean(newValue, false));
 		} else if (key.equals(TiC.PROPERTY_TOUCH_ENABLED)) {
 			doSetClickable(TiConvert.toBoolean(newValue));
-		} else if (key.equals(TiC.PROPERTY_VISIBLE) && newValue != null) {
+		} else if (key.equals(TiC.PROPERTY_VISIBLE)) {
+			newValue = (newValue == null) ? false : newValue;
 			this.setVisibility(TiConvert.toBoolean(newValue) ? View.VISIBLE : View.INVISIBLE);
 		} else if (key.equals(TiC.PROPERTY_ENABLED)) {
 			nativeView.setEnabled(TiConvert.toBoolean(newValue));
