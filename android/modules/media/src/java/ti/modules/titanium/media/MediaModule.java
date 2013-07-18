@@ -42,7 +42,6 @@ import org.appcelerator.titanium.util.TiUIHelper;
 
 import ti.modules.titanium.media.android.AndroidModule.MediaScannerClient;
 import android.app.Activity;
-import android.app.Application;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
@@ -51,6 +50,7 @@ import android.content.pm.ResolveInfo;
 import android.database.Cursor;
 import android.graphics.BitmapFactory;
 import android.hardware.Camera;
+import android.hardware.Camera.CameraInfo;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
@@ -69,7 +69,6 @@ public class MediaModule extends KrollModule
 
 	private static final long[] DEFAULT_VIBRATE_PATTERN = { 100L, 250L };
 	private static final String PHOTO_DCIM_CAMERA = "/sdcard/dcim/Camera";
-	private static final String FEATURE_CAMERA_FRONT = "android.hardware.camera.front"; // Needed until api 9 is our minimum supported.
 
 	protected static final int MSG_INVOKE_CALLBACK = KrollModule.MSG_LAST_ID + 100;
 	protected static final int MSG_LAST_ID = MSG_INVOKE_CALLBACK;
@@ -112,6 +111,9 @@ public class MediaModule extends KrollModule
 
 	@Kroll.constant public static final String MEDIA_TYPE_PHOTO = "public.image";
 	@Kroll.constant public static final String MEDIA_TYPE_VIDEO = "public.video";
+
+	@Kroll.constant public static final int CAMERA_FRONT = 0;
+	@Kroll.constant public static final int CAMERA_REAR = 1;
 
 	public MediaModule()
 	{
@@ -851,19 +853,40 @@ public class MediaModule extends KrollModule
 	@Kroll.method @Kroll.getProperty
 	public boolean getIsCameraSupported()
 	{
-		Application application = TiApplication.getInstance();
-		if (application == null) {
-			Log.w(TAG, "Could not retrieve application instance, returning false for isCameraSupported.", Log.DEBUG_MODE);
-			return false;
+		return Camera.getNumberOfCameras() > 0;
+	}
+
+	@Kroll.method
+	@Kroll.getProperty
+	public int[] getAvailableCameras()
+	{
+		int cameraCount = Camera.getNumberOfCameras();
+		if (cameraCount == 0) {
+			return null;
 		}
 
-		PackageManager pm = application.getPackageManager();
-		if (pm == null) {
-			Log.w(TAG, "Could not retrieve PackageManager instance, returning false for isCameraSupported.", Log.DEBUG_MODE);
+		int[] result = new int[cameraCount];
+
+		CameraInfo cameraInfo = new CameraInfo();
+
+		for (int i = 0; i < cameraCount; i++) {
+			Camera.getCameraInfo(i, cameraInfo);
+			switch (cameraInfo.facing) {
+				case CameraInfo.CAMERA_FACING_FRONT:
+					result[i] = CAMERA_FRONT;
+					break;
+				case CameraInfo.CAMERA_FACING_BACK:
+					result[i] = CAMERA_REAR;
+					break;
+				default:
+					// This would be odd. As of API level 17,
+					// there are just the two options.
+					result[i] = -1;
+			}
 		}
 
-		return pm.hasSystemFeature(PackageManager.FEATURE_CAMERA) ||
-				pm.hasSystemFeature(FEATURE_CAMERA_FRONT);
+		return result;
+
 	}
 }
 
