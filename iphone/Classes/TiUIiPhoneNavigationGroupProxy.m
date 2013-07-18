@@ -109,13 +109,13 @@
 	[parentOrientationController childOrientationControllerChangedFlags:self];
 }
 
--(void)windowDidClose
+-(void)detachView
 {
 	WARN_IF_BACKGROUND_THREAD;
 	if ([self viewAttached]) {
 		[(TiUIiPhoneNavigationGroup*)[self view] close];
 	}
-	[super windowDidClose];
+	[super detachView];
 }
 
 @end
