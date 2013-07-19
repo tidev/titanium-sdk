@@ -103,10 +103,11 @@ public abstract class TiBaseActivity extends FragmentActivity
 		
 		public TiBaseActivity getActivity()
 		{
-			if (dialogActivity == null)
+			if (dialogActivity == null) {
 				return null;
-			else
+			} else {
 				return dialogActivity.get();
+			}
 		}
 
 		public void setActivity(WeakReference<TiBaseActivity> da)
