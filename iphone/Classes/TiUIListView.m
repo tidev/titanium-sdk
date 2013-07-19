@@ -1428,6 +1428,17 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     if ([searchController isActive]) {
         [searchController setActive:NO animated:YES];
     }
+    //IOS7 DP3. TableView seems to be adding the searchView to
+    //tableView. Bug on IOS7?
+    if ([TiUtils isIOS7OrGreater]) {
+        if (![[[controller searchBar] superview] isKindOfClass:[TiUIView class]]) {
+            if ([[searchViewProxy view] respondsToSelector:@selector(searchBar)]) {
+                [[searchViewProxy view] performSelector:@selector(searchBar)];
+            } else {
+                [_headerViewProxy layoutChildren:NO];
+            }
+        }
+    }
     [_tableView reloadData];
 }
 
