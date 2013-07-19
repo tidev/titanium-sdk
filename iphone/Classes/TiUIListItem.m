@@ -292,7 +292,8 @@
             switch (self.selectionStyle) {
                 case UITableViewCellSelectionStyleGray:sbgColor = [Webcolor webColorNamed:@"#bbb"];break;
                 case UITableViewCellSelectionStyleNone:sbgColor = [UIColor clearColor];break;
-                default:sbgColor = [Webcolor webColorNamed:@"#0272ed"];break;
+                case UITableViewCellSelectionStyleBlue:sbgColor = [Webcolor webColorNamed:@"#0272ed"];break;
+                default:sbgColor = [TiUtils isIOS7OrGreater] ? [Webcolor webColorNamed:@"#e0e0e0"] : [Webcolor webColorNamed:@"#0272ed"];break;
             }
         }
         selectedBGView.fillColor = sbgColor;
