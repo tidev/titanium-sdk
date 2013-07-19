@@ -126,6 +126,9 @@ public abstract class TiApplication extends Application implements Handler.Callb
 	protected static ArrayList<ActivityTransitionListener> activityTransitionListeners = new ArrayList<ActivityTransitionListener>();
 	protected static TiWeakList<Activity> activityStack = new TiWeakList<Activity>();
 
+	public TiAnalyticsEvent lastAnalyticsEvent;
+	public String lastEventID;
+
 	public static interface ActivityTransitionListener
 	{
 		public void onActivityTransition(boolean state);
@@ -642,10 +645,10 @@ public abstract class TiApplication extends Application implements Handler.Callb
 			Log.i(TAG, "Analytics are disabled, ignoring postAnalyticsEvent", Log.DEBUG_MODE);
 			return;
 		}
-
+		lastAnalyticsEvent = event;
 		if (event.getEventType() == TiAnalyticsEventFactory.EVENT_APP_ENROLL) {
 			if (needsEnrollEvent) {
-				analyticsModel.addEvent(event);
+				lastEventID = analyticsModel.addEvent(event);
 				needsEnrollEvent = false;
 				sendAnalytics();
 				analyticsModel.markEnrolled();
@@ -670,17 +673,17 @@ public abstract class TiApplication extends Application implements Handler.Callb
 					}
 				}
 			}
-			analyticsModel.addEvent(event);
+			lastEventID = analyticsModel.addEvent(event);
 			sendAnalytics();
 			lastAnalyticsTriggered = System.currentTimeMillis();
 			return;
 
 		} else if (event.getEventType() == TiAnalyticsEventFactory.EVENT_APP_END) {
-			analyticsModel.addEvent(event);
+			lastEventID = analyticsModel.addEvent(event);
 			sendAnalytics();
 
 		} else {
-			analyticsModel.addEvent(event);
+			lastEventID = analyticsModel.addEvent(event);
 			long now = System.currentTimeMillis();
 			if (now - lastAnalyticsTriggered >= STATS_WAIT) {
 				sendAnalytics();
