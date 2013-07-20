@@ -31,6 +31,7 @@ import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiCompositeLayout.LayoutParams;
 import org.appcelerator.titanium.view.TiGradientDrawable.GradientType;
 
+import android.annotation.TargetApi;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
@@ -60,7 +61,6 @@ import android.view.View.OnTouchListener;
 import android.view.ViewGroup;
 import android.view.ViewParent;
 import android.view.animation.Animation;
-import android.view.animation.AnimationSet;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 
@@ -286,6 +286,7 @@ public abstract class TiUIView
 		// Pre-honeycomb, if one animation clobbers another you get a problem whereby the background of the
 		// animated view's parent (or the grandparent) bleeds through.  It seems to improve if you cancel and clear
 		// the older animation.  So here we cancel and clear, then re-queue the desired animation.
+
 		if (Build.VERSION.SDK_INT < TiC.API_LEVEL_HONEYCOMB) {
 			Animation currentAnimation = nativeView.getAnimation();
 			if (currentAnimation != null && currentAnimation.hasStarted() && !currentAnimation.hasEnded()) {
@@ -305,7 +306,6 @@ public abstract class TiUIView
 		}
 
 		proxy.clearAnimation(builder);
-		AnimationSet as = builder.render(proxy, nativeView);
 
 		// If a view is "visible" but not currently seen (such as because it's covered or
 		// its position is currently set to be fully outside its parent's region),
@@ -331,9 +331,10 @@ public abstract class TiUIView
 		}
 
 		if (Log.isDebugModeEnabled()) {
-			Log.d(TAG, "starting animation: " + as, Log.DEBUG_MODE);
+			Log.d(TAG, "starting animation", Log.DEBUG_MODE);
 		}
-		nativeView.startAnimation(as);
+
+		builder.start(proxy, nativeView);
 
 		if (invalidateParent) {
 			((View) viewParent).postInvalidate();
@@ -400,23 +401,36 @@ public abstract class TiUIView
 		if (animBuilder == null) {
 			animBuilder = new TiAnimationBuilder();
 		}
+
 		View outerView = getOuterView();
-		if (outerView != null) {
-			if (matrix != null) {
-				TiMatrixAnimation matrixAnimation = animBuilder.createMatrixAnimation(matrix);
-				matrixAnimation.interpolate = false;
-				matrixAnimation.setDuration(1);
-				matrixAnimation.setFillAfter(true);
-				outerView.startAnimation(matrixAnimation);
-			} else {
-				outerView.clearAnimation();
-			}
+		if (outerView == null) {
+			return;
 		}
+
+		boolean clearTransform = (matrix == null);
+		Ti2DMatrix matrixApply = matrix; // To not change original.
+
+		if (clearTransform) {
+			outerView.clearAnimation();
+			// Since we may have used property animators, which
+			// do not set the animation property of a view,
+			// we should also quickly apply a matrix with
+			// no rotation, no rotation and scale of 1.
+			matrixApply = (new Ti2DMatrix()).rotate(new Object[] { 0d })
+					.translate(0d, 0d).scale(new Object[] { 1d, 1d });
+		}
+
+		HashMap<String, Object> options = new HashMap<String, Object>(2);
+		options.put(TiC.PROPERTY_TRANSFORM, matrixApply);
+		options.put(TiC.PROPERTY_DURATION, 1);
+
+		animBuilder.applyOptions(options);
+		animBuilder.start(this.proxy, outerView);
 	}
 
-	public void forceLayoutNativeView(boolean imformParent)
+	public void forceLayoutNativeView(boolean informParent)
 	{
-		layoutNativeView(imformParent);
+		layoutNativeView(informParent);
 	}
 
 	protected void layoutNativeView()
@@ -1400,7 +1414,7 @@ public abstract class TiUIView
 		}
 		if (nativeView != null) {
 			if (HONEYCOMB_OR_GREATER) {
-				nativeView.setAlpha(opacity);
+				setAlpha(nativeView, opacity);
 			} else {
 				setOpacity(nativeView, opacity);
 			}
@@ -1409,7 +1423,18 @@ public abstract class TiUIView
 	}
 
 	/**
-	 * Sets the view's opacity.
+	 * Sets the view's alpha (Honeycomb or later).
+	 * @param view The native view object
+	 * @param alpha The new alpha value
+	 */
+	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
+	protected void setAlpha(View view, float alpha)
+	{
+		view.setAlpha(alpha);
+	}
+
+	/**
+	 * Sets the view's opacity (pre-Honeycomb).
 	 * @param view the view object.
 	 * @param opacity the opacity to set.
 	 */
