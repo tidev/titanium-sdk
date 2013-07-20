@@ -158,4 +158,14 @@ public class TiBackgroundDrawable extends StateListDrawable {
 		super.setAlpha(alpha);
 		this.alpha = alpha;
 	}
+
+	@Override
+	public Drawable getCurrent()
+	{
+		if (background != null) {
+			return background.getCurrent();
+		}
+		return super.getCurrent();
+	}
+
 }
