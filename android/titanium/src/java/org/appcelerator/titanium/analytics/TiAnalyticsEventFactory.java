@@ -254,6 +254,16 @@ public class TiAnalyticsEventFactory
 		return result;
 	}
 
+	public static String locationToJSONString(Location loc)
+	{
+		try {
+			JSONObject result = locationToJSONObject(loc);
+			return result.toString();
+		} catch (JSONException e) {
+		}
+		return null;
+	}
+
 	protected static JSONObject locationToJSONObject(Location loc) throws JSONException
 	{
 		JSONObject result = new JSONObject();
