@@ -24,6 +24,7 @@ exports.bootstrap = function(Titanium) {
 		var window = new Window(options);
 		window._sourceUrl = scopeVars.sourceUrl;
 		window._module = scopeVars.module;
+		window._children = [];
 
 		return window;
 	}
@@ -61,6 +62,32 @@ exports.bootstrap = function(Titanium) {
 		});
 
 		_open.call(this, options);
+	}
+
+	var _add = Window.prototype.add;
+	Window.prototype.add = function(child) {
+		_add.call(this, child);
+
+		// The children have to be retained by the window in the Javascript side
+		// in order to let V8 know the relationship between children and the window.
+		// Therefore, as long as the window is open, all its children won't be detached
+		// or garbage collected and V8 will recoganize the closures and retain all
+		// the related proxies.
+		this._children.push(child);
+	}
+
+	var _remove = Window.prototype.remove;
+	Window.prototype.remove = function(child) {
+		_remove.call(this, child);
+
+		// Remove the child in the Javascript side so it can be detached and garbage collected.
+		var children = this._children;
+		if (children) {
+			var childIndex = children.indexOf(child);
+			if (childIndex != -1) {
+				children.splice(childIndex, 1);
+			}
+		}
 	}
 
 	Window.prototype.postWindowCreated = function() {
