@@ -331,7 +331,7 @@ properties:
 
         On Android, setting this property forces the creation of a heavyweight window before Titanium 3.2.0. See "Android
         Heavyweight and Lightweight Windows" in the main description of this class for more
-        information.
+        information. Setting this property to true disables the Action Bar since it is part of the navigation title bar.
     platforms: [android, iphone, ipad, mobileweb, tizen]
     default: false
     type: Boolean

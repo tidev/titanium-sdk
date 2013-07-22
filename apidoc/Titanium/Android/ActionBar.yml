@@ -9,6 +9,9 @@ description: |
     To access the action bar, you must first open a heavyweight window or tab group that
     uses one of the action bar themes (such as the Android Holo theme). You can then
     access the action bar from the window or tab group's [activity](Titanium.Android.Activity). 
+    In addition, setting the [Window.navBarHidden](Titanium.UI.Window.navBarHidden) or
+    [TabGroup.navBarHidden](Titanium.UI.TabGroup.navBarHidden) property to true disables the
+    Action Bar since it is part of the navigation title bar.
 
     You can add action items to the action bar by defining an Android menu and setting the
     menu items to display as action items. See [Menu](Titanium.Android.Menu) and

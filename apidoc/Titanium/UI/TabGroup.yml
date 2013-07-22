@@ -263,7 +263,8 @@ properties:
     description: |
         On other platforms, use [Window.navBarHidden](Titanium.UI.Window.navBarHidden) to
         show and hide the nav bar for a tab group. On Android, the nav bar can only be
-        shown or hidden for the whole tab group.
+        shown or hidden for the whole tab group. Setting this property to true disables 
+        the Action Bar since it is part of the navigation title bar.
     platforms: [android]
     default: false
     type: Boolean

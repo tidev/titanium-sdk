@@ -8,6 +8,7 @@ package org.appcelerator.titanium.proxy;
 
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
+import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.util.TiFileHelper;
@@ -39,6 +40,8 @@ public class ActionBarProxy extends KrollProxy
 	private static final String TITLE = "title";
 	private static final String LOGO = "logo";
 	private static final String ICON = "icon";
+
+	private static final String TAG = "ActionBarProxy";
 
 	private ActionBar actionBar;
 
@@ -143,30 +146,52 @@ public class ActionBarProxy extends KrollProxy
 
 	private void handleSetIcon(String url)
 	{
+		if (actionBar == null) {
+			Log.w(TAG, "ActionBar is not enabled");
+			return;
+		}
+
 		Drawable icon = getDrawableFromUrl(url);
 		if (icon != null) {
 			actionBar.setIcon(icon);
-		}
+		} 
 	}
 
 	private void handleSetTitle(String title)
 	{
-		actionBar.setDisplayShowTitleEnabled(true);
-		actionBar.setTitle(title);
+		if (actionBar != null) {
+			actionBar.setDisplayShowTitleEnabled(true);
+			actionBar.setTitle(title);
+		} else {
+			Log.w(TAG, "ActionBar is not enabled");
+		}
 	}
 
 	private void handleShow()
 	{
-		actionBar.show();
+		if (actionBar != null) {
+			actionBar.show();
+		} else {
+			Log.w(TAG, "ActionBar is not enabled");
+		}
 	}
 
 	private void handleHide()
 	{
-		actionBar.hide();
+		if (actionBar != null) {
+			actionBar.hide();
+		} else {
+			Log.w(TAG, "ActionBar is not enabled");
+		}
 	}
 
 	private void handleSetBackgroundImage(String url)
 	{
+		if (actionBar == null) {
+			Log.w(TAG, "ActionBar is not enabled");
+			return;
+		}
+
 		Drawable backgroundImage = getDrawableFromUrl(url);
 		if (backgroundImage != null) {
 			actionBar.setBackgroundDrawable(backgroundImage);
@@ -175,11 +200,20 @@ public class ActionBarProxy extends KrollProxy
 
 	private void handlesetDisplayHomeAsUp(boolean showHomeAsUp)
 	{
-		actionBar.setDisplayHomeAsUpEnabled(showHomeAsUp);
+		if (actionBar != null) {
+			actionBar.setDisplayHomeAsUpEnabled(showHomeAsUp);
+		} else {
+			Log.w(TAG, "ActionBar is not enabled");
+		}
 	}
 
 	private void handleSetLogo(String url)
 	{
+		if (actionBar == null) {
+			Log.w(TAG, "ActionBar is not enabled");
+			return;
+		}
+
 		Drawable logo = getDrawableFromUrl(url);
 		if (logo != null) {
 			actionBar.setLogo(logo);
