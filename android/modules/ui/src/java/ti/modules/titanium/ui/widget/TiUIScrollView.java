@@ -626,15 +626,10 @@ public class TiUIScrollView extends TiUIView
 	@Override
 	public void resort()
 	{
-		List<TiUIView> childrenItem = getChildren();
-		int count = childrenItem.size();
-		if (count > 0) {
-			TiUIView child = childrenItem.get(0);
-			View vl = child.getNativeView();
-			if (vl.getParent() instanceof TiCompositeLayout) {
-				((TiCompositeLayout) vl.getParent()).resort();
-			}
+		View v = getLayout();
+		if ( v instanceof TiCompositeLayout) {
+			((TiCompositeLayout) v).resort();
 		}
-	}
+ 	}
 
 }
