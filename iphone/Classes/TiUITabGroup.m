@@ -27,12 +27,12 @@ DEFINE_EXCEPTIONS
 
 -(UITabBarController*)tabController
 {
-	if (controller==nil)
-	{
-		controller = [[UITabBarController alloc] init];
-		controller.delegate = self;
-	}
-	return controller;
+    if (controller==nil) {
+        controller = [[UITabBarController alloc] init];
+        controller.delegate = self;
+        controller.moreNavigationController.delegate = self;
+    }
+    return controller;
 }
 
 - (id)accessibilityElement
