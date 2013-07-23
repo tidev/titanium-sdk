@@ -35,6 +35,7 @@ import android.annotation.TargetApi;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
+import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Point;
@@ -1063,7 +1064,7 @@ public abstract class TiUIView
 	private void handleBorderProperty(String property, Object value)
 	{
 		if (TiC.PROPERTY_BORDER_COLOR.equals(property)) {
-			borderView.setColor(TiConvert.toColor(value.toString()));
+			borderView.setColor(value != null ? TiConvert.toColor(value.toString()) : Color.TRANSPARENT);
 		} else if (TiC.PROPERTY_BORDER_RADIUS.equals(property)) {
 			float radius = TiConvert.toFloat(value, 0f);
 			if (radius > 0f && HONEYCOMB_OR_GREATER) {
