@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -477,8 +477,8 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String EVENT_UNFOCUSED = "unfocused";
-	public static final String INTENT_PROPERTY_ENTER_ANIMATION = "enterAnimation";
-	public static final String INTENT_PROPERTY_EXIT_ANIMATION = "exitAnimation";
+	public static final String INTENT_PROPERTY_ENTER_ANIMATION = "activityEnterAnimation";
+	public static final String INTENT_PROPERTY_EXIT_ANIMATION = "activityExitAnimation";
 	public static final String INTENT_PROPERTY_FINISH_ROOT = "finishRoot";
 	public static final String INTENT_PROPERTY_IS_TAB = "isTab";
 	public static final String INTENT_PROPERTY_LAYOUT = "layout";

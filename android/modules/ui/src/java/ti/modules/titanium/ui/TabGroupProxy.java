@@ -491,12 +491,4 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 	{
 		return (tabGroupActivity != null) ? tabGroupActivity.get() : null;
 	}
-
-	@Kroll.method @Kroll.setProperty
-	@Override
-	public void setOrientationModes(int[] modes) {
-		// Unlike Windows this setter is not defined in JavaScript.
-		// We need to expose it here with an annotation.
-		super.setOrientationModes(modes);
-	}
 }
