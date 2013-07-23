@@ -212,9 +212,10 @@
     UIImage *bgImage = [[ImageLoader sharedLoader] loadImmediateStretchableImage:[TiUtils toURL:backgroundImage proxy:_proxy] withLeftCap:TiDimensionAuto topCap:TiDimensionAuto];
     UIImage *sbgImage = [[ImageLoader sharedLoader] loadImmediateStretchableImage:[TiUtils toURL:selectedBackgroundImage proxy:_proxy] withLeftCap:TiDimensionAuto topCap:TiDimensionAuto];
     
-    if (_grouped) {
+    if (_grouped && ![TiUtils isIOS7OrGreater]) {
         //Setting the backgroundView on grouped style is a little complicated
         //By default this is not nil. So we will add the stuff as subviews to this
+        //ios7 does not seem to have a backgroundView for style grouped.
         UIView* superView = [self backgroundView];
         if (bgImage != nil) {
             if (![_bgView isKindOfClass:[UIImageView class]]) {
@@ -289,9 +290,10 @@
         selectedBGView.grouped = _grouped;
         if (sbgColor == nil) {
             switch (self.selectionStyle) {
-                case UITableViewCellSelectionStyleBlue:sbgColor = [Webcolor webColorNamed:@"#0272ed"];break;
                 case UITableViewCellSelectionStyleGray:sbgColor = [Webcolor webColorNamed:@"#bbb"];break;
                 case UITableViewCellSelectionStyleNone:sbgColor = [UIColor clearColor];break;
+                case UITableViewCellSelectionStyleBlue:sbgColor = [Webcolor webColorNamed:@"#0272ed"];break;
+                default:sbgColor = [TiUtils isIOS7OrGreater] ? [Webcolor webColorNamed:@"#e0e0e0"] : [Webcolor webColorNamed:@"#0272ed"];break;
             }
         }
         selectedBGView.fillColor = sbgColor;
