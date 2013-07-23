@@ -416,7 +416,10 @@ public abstract class TiApplication extends Application implements Handler.Callb
 		}
 
 		TiConfig.DEBUG = TiConfig.LOGD = systemProperties.getBool("ti.android.debug", false);
-		USE_LEGACY_WINDOW = systemProperties.getBool(PROPERTY_USE_LEGACY_WINDOW, false);
+
+		// The property "ti.android.useLegacyWindow" is introduced in SDK 3.2.0.
+		// Before 3.2.0, we still use the old behavior.
+		USE_LEGACY_WINDOW = true;
 
 		startExternalStorageMonitor();
 		

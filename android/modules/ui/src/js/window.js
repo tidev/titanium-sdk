@@ -71,7 +71,7 @@ exports.bootstrap = function(Titanium) {
 		// The children have to be retained by the window in the Javascript side
 		// in order to let V8 know the relationship between children and the window.
 		// Therefore, as long as the window is open, all its children won't be detached
-		// or garbage collected and V8 will recoganize the closures and retain all
+		// or garbage collected and V8 will recognize the closures and retain all
 		// the related proxies.
 		this._children.push(child);
 	}

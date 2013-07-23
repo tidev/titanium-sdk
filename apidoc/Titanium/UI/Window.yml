@@ -269,7 +269,7 @@ properties:
         at creation time or in the `options` dictionary passed to the 
         [Window.open](Titanium.UI.Window.open) method.
 
-        On Android, setting this property forces the creation of a heavyweight window before Titanium 3.2.0.
+        On Android, setting this property forces the creation of a heavyweight window.
         See "Android Heavyweight and Lightweight Windows" in the main description of this class for more
         information.
     platforms: [android, iphone, ipad]
@@ -304,7 +304,7 @@ properties:
         you set `fullscreen:true`, the status bar will still be visible *if* it was visible
         in the previous window. `navBarHidden` and `modal` do work fine together, however.
 
-        On Android, setting this property forces the creation of a heavyweight window before Titanium 3.2.0. See "Android
+        On Android, setting this property forces the creation of a heavyweight window. See "Android
         Heavyweight and Lightweight Windows" in the main description of this class for more
         information.
         
@@ -329,7 +329,7 @@ properties:
         Must be specified at creation time or in the `options` dictionary passed to the 
         [Window.open](Titanium.UI.Window.open) method.
 
-        On Android, setting this property forces the creation of a heavyweight window before Titanium 3.2.0. See "Android
+        On Android, setting this property forces the creation of a heavyweight window. See "Android
         Heavyweight and Lightweight Windows" in the main description of this class for more
         information.
     platforms: [android, iphone, ipad, mobileweb, tizen]
@@ -556,7 +556,7 @@ properties:
         must be configured with the `Keyboard Support` setting set to `No`. Note that it is always 
         recommended to test an application on a physical device to understand its true behavior.
 
-        Setting this property forces the creation of a heavyweight window before Titanium 3.2.0. See "Android Heavyweight
+        Setting this property forces the creation of a heavyweight window. See "Android Heavyweight
         and Lightweight Windows" in the main description of this class for more information.
         
         This property is capable of representing two settings from the following two groups of 
@@ -823,7 +823,7 @@ description: |
 
     #### Android Heavyweight and Lightweight Windows
 
-    ***Before Titanium 3.2.0*** in Android, Titanium windows can be heavyweight or lightweight:
+    In Android, Titanium windows can be heavyweight or lightweight:
 
     - A *heavyweight* window is associated with a new Android 
       [Activity](Titanium.Android.Activity).
@@ -838,11 +838,6 @@ description: |
     * `navBarHidden`
     * `modal`
     * `windowSoftInputMode`
-
-    ***Starting from Titanium 3.2.0*** in Android, all the windows are heavyweight. If you still want
-    the old behavior, you can enable the `ti.android.useLegacyWindow` property in the `tiapp.xml`:
-
-        <property name="ti.android.useLegacyWindow" type="bool">true</property>
 
     A heavyweight window is always created when you open a new window from inside a 
     [TabGroup](Titanium.UI.TabGroup).
@@ -868,7 +863,7 @@ description: |
     you are leaving should fade out:
 
         var win2 = Ti.UI.createWindow({
-            fullscreen: false // Makes it heavyweight before Titanium 3.2.0
+            fullscreen: false // Makes it heavyweight
         });
 
         win2.open({
@@ -959,7 +954,7 @@ properties:
   - name: height
     summary: Window's height, in platform-specific units.
     description: |
-        On Android, before Titanium 3.2.0, this property only works with lightweight windows.
+        On Android, before Titanium 3.1.2, this property only works with lightweight windows.
         See "Android Heavyweight and Lightweight Windows" in the main description 
         of Titanium.UI.Window for more information.
     type: [Number,String]
@@ -1041,7 +1036,7 @@ properties:
   - name: width
     summary: Window's width, in platform-specific units.
     description: |
-        On Android, before Titanium 3.2.0, this property only works with lightweight windows.
+        On Android, before Titanium 3.1.2, this property only works with lightweight windows.
         See "Android Heavyweight and Lightweight Windows" in the main description 
         of Titanium.UI.Window for more information.
     type: [Number,String]
@@ -1078,7 +1073,7 @@ properties:
 ---
 name: closeWindowParams
 summary: Dictionary of options for the <Titanium.UI.Window.close> method.
-since: 3.2.0
+since: 3.1.2
 platforms: [android]
 
 properties:

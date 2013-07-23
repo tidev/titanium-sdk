@@ -150,6 +150,7 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 		if (hasProperty("tabOpen")) {
 			lightweight = false;
 
+		// The property "ti.android.useLegacyWindow" is introduced in SDK 3.2.0.
 		// If "ti.android.useLegacyWindow" is set to true in the tiapp.xml, follow the old window behavior:
 		// create a HW window if any of the four properties, "fullscreen", "navBarHidden", "windowSoftInputMode" and
 		// "modal", is specified; otherwise create a LW window.
