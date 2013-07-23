@@ -16,7 +16,6 @@
 	<navbar-hidden>false</navbar-hidden>
 	<analytics>false</analytics>
 	<guid>CF0D2CB7-B4BD-488F-9F8E-669E6B53E0C4</guid>
-	<property name="ti.android.useLegacyWindow" type="bool">true</property>
 	<android>
 		<screens small="false" normal="true" large="true" anyDensity="false" />
 		<manifest>
@@ -34,3 +33,4 @@
 	<property name="ti.ios.enablecoverage" type="bool">true</property>
 	<property name="ti.ios.enablemdfind" type="bool">false</property>
 </ti:app>
+
