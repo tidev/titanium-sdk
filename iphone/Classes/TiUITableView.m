@@ -2247,7 +2247,7 @@ return result;	\
 -(CGFloat)computeRowWidth
 {
     CGFloat rowWidth = tableview.bounds.size.width;
-	if (self.tableView.style == UITableViewStyleGrouped) {
+	if ((self.tableView.style == UITableViewStyleGrouped) && (![TiUtils isIOS7OrGreater]) ){
 		rowWidth -= GROUPED_MARGIN_WIDTH;
 	}
     
