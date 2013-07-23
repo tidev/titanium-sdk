@@ -731,7 +731,12 @@ public abstract class TiUIView
 		}
 		
 		if (d.containsKey(TiC.PROPERTY_VISIBLE) && !nativeViewNull) {
-			this.setVisibility(TiConvert.toBoolean(d, TiC.PROPERTY_VISIBLE, false) ? View.VISIBLE : View.INVISIBLE);
+			Object visible = d.get(TiC.PROPERTY_VISIBLE);
+			if (visible != null) {
+				setVisibility(TiConvert.toBoolean(visible, true) ? View.VISIBLE : View.INVISIBLE);
+			} else {
+				setVisibility(View.INVISIBLE);
+			}
 		}
 		if (d.containsKey(TiC.PROPERTY_ENABLED) && !nativeViewNull) {
 			nativeView.setEnabled(TiConvert.toBoolean(d, TiC.PROPERTY_ENABLED, true));
