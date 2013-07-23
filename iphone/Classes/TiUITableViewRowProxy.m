@@ -21,7 +21,7 @@ NSString * const defaultRowTableClass = @"_default_";
 #define CHILD_ACCESSORY_WIDTH 20.0
 #define CHECK_ACCESSORY_WIDTH 20.0
 #define DETAIL_ACCESSORY_WIDTH 33.0
-
+#define IOS7_ACCESSORY_EXTRA_OFFSET 15.0
 // TODO: Clean this up a bit
 #define NEEDS_UPDATE_ROW 1
 
@@ -353,34 +353,42 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 
 -(CGFloat)sizeWidthForDecorations:(CGFloat)oldWidth forceResizing:(BOOL)force
 {
-	CGFloat width = oldWidth;
-	if (force || !configuredChildren) {
-		if ([TiUtils boolValue:[self valueForKey:@"hasChild"] def:NO]) {
-			width -= CHILD_ACCESSORY_WIDTH;
-		}
-		else if ([TiUtils boolValue:[self valueForKey:@"hasDetail"] def:NO]) {
-			width -= DETAIL_ACCESSORY_WIDTH;
-		}
-		else if ([TiUtils boolValue:[self valueForKey:@"hasCheck"] def:NO]) {
-			width -= CHECK_ACCESSORY_WIDTH;
-		}
+    CGFloat width = oldWidth;
+    BOOL updateForiOS7 = NO;
+    if (force || !configuredChildren) {
+        if ([TiUtils boolValue:[self valueForKey:@"hasChild"] def:NO]) {
+            width -= CHILD_ACCESSORY_WIDTH;
+            updateForiOS7 = YES;
+        }
+        else if ([TiUtils boolValue:[self valueForKey:@"hasDetail"] def:NO]) {
+            width -= DETAIL_ACCESSORY_WIDTH;
+            updateForiOS7 = YES;
+        }
+        else if ([TiUtils boolValue:[self valueForKey:@"hasCheck"] def:NO]) {
+            width -= CHECK_ACCESSORY_WIDTH;
+            updateForiOS7 = YES;
+        }
 		
-		id rightImage = [self valueForKey:@"rightImage"];
-		if (rightImage != nil) {
-			NSURL *url = [TiUtils toURL:rightImage proxy:self];
-			UIImage *image = [[ImageLoader sharedLoader] loadImmediateImage:url];
-			width -= [image size].width;
-		}
+        id rightImage = [self valueForKey:@"rightImage"];
+        if (rightImage != nil) {
+            NSURL *url = [TiUtils toURL:rightImage proxy:self];
+            UIImage *image = [[ImageLoader sharedLoader] loadImmediateImage:url];
+            width -= [image size].width;
+        }
 		
-		id leftImage = [self valueForKey:@"leftImage"];
-		if (leftImage != nil) {
-			NSURL *url = [TiUtils toURL:leftImage proxy:self];
-			UIImage *image = [[ImageLoader sharedLoader] loadImmediateImage:url];
-			width -= [image size].width;			
-		}
-	}
+        id leftImage = [self valueForKey:@"leftImage"];
+        if (leftImage != nil) {
+            NSURL *url = [TiUtils toURL:leftImage proxy:self];
+            UIImage *image = [[ImageLoader sharedLoader] loadImmediateImage:url];
+            width -= [image size].width;
+        }
+    }
+    
+    if (updateForiOS7 && [TiUtils isIOS7OrGreater]) {
+        width -= IOS7_ACCESSORY_EXTRA_OFFSET;
+    }
 	
-	return width;
+    return width;
 }
 
 -(CGFloat)rowHeight:(CGFloat)width
