@@ -26,10 +26,9 @@ UIViewController * ControllerForProxy(TiViewProxy * proxy);
 
 UIViewController * ControllerForProxy(TiViewProxy * proxy)
 {
-	if([proxy respondsToSelector:@selector(controller)])
-	{
-	//	return [(TiWindowProxy *)proxy controller];
-	}
+    if (![proxy conformsToProtocol:@protocol(TiUIViewController)]) {
+        DebugLog(@"[WARN] SplitView - The proxy %@ does not conform to TiUIViewController protocol.", proxy);
+    }
 
 	[[proxy view] setAutoresizingMask:UIViewAutoresizingNone];
 
@@ -55,9 +54,9 @@ UIViewController * ControllerForProxy(TiViewProxy * proxy)
 		controller = [[MGSplitViewController alloc] init];		
 		[controller setViewControllers:[NSArray arrayWithObjects:
 				ControllerForProxy(masterProxy),ControllerForProxy(detailProxy),nil]];
-
+		[TiUtils configureController:controller withObject:nil];
 		controller.delegate = self;
-
+        
 		UIView * controllerView = [controller view];
 		
 		[controllerView setFrame:[self bounds]];

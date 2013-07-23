@@ -4,7 +4,7 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-#ifdef USE_TI_UITABLEVIEW
+#if defined(USE_TI_UITABLEVIEW) || defined(USE_TI_UILISTVIEW)
 #ifndef USE_TI_UISEARCHBAR
 #define USE_TI_UISEARCHBAR
 #endif
@@ -39,8 +39,12 @@
 		[searchView setAutoresizingMask:UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight];
 		[searchView setDelegate:self];
 		[searchView setShowsCancelButton:[(TiUISearchBarProxy *)[self proxy] showsCancelButton]];
-		[self addSubview:searchView];
 	}
+    //IOS7 DP3 bug fix. See searchcontroller delegate method in listView.
+    if ([searchView superview] != self) {
+        [self addSubview:searchView];
+        [searchView setFrame:[self bounds]];
+    }
 	return searchView;
 }	
 
@@ -124,8 +128,13 @@
 	UISearchBar *search = [self searchBar];
 	
 	[search setBarStyle:[TiUtils barStyleForColor:newBarColor]];
-	[search setTintColor:[TiUtils barColorForColor:newBarColor]];
 	[search setTranslucent:[TiUtils barTranslucencyForColor:newBarColor]];
+	UIColor* theColor = [TiUtils barColorForColor:newBarColor];
+	if ([TiUtils isIOS7OrGreater]) {
+		[search performSelector:@selector(setBarTintColor:) withObject:theColor];
+	} else {
+		[search setTintColor:theColor];
+	}
 }
 
 -(CALayer *)backgroundImageLayer
