@@ -73,6 +73,7 @@ public abstract class TiBaseActivity extends FragmentActivity
 
 	protected View layout;
 	protected TiActivitySupportHelper supportHelper;
+	protected int supportHelperId = -1;
 	protected TiWindowProxy window;
 	protected TiViewProxy view;
 	protected ActivityProxy activityProxy;
@@ -469,8 +470,11 @@ public abstract class TiBaseActivity extends FragmentActivity
 			return;
 		}
 
+		// If all the activities has been killed and the runtime has been disposed, we cannot recover one
+		// specific activity because the info of the top-most view proxy has been lost (TiActivityWindows.dispose()).
+		// In this case, we have to restart the app.
 		if (TiBaseActivity.isUnsupportedReLaunch(this, savedInstanceState)) {
-			Log.w(TAG, "Unsupported, out-of-order activity creation. Finishing.");
+			Log.w(TAG, "Runtime has been disposed. Finishing.");
 			super.onCreate(savedInstanceState);
 			tiApp.scheduleRestart(250);
 			finish();
@@ -582,6 +586,8 @@ public abstract class TiBaseActivity extends FragmentActivity
 	{
 		if (supportHelper == null) {
 			this.supportHelper = new TiActivitySupportHelper(this);
+			// Register the supportHelper so we can get it back when the activity is recovered from force-quitting.
+			supportHelperId = TiActivitySupportHelpers.addSupportHelper(supportHelper);
 		}
 
 		return supportHelper;
@@ -1161,19 +1167,14 @@ public abstract class TiBaseActivity extends FragmentActivity
 
 		super.onDestroy();
 
-		// Our Activities are currently unable to recover from Android-forced restarts,
-		// so we need to relaunch the application entirely.
-		if (!isFinishing())
-		{
-			if (!shouldFinishRootActivity()) {
-				// Put it in, because we want it to finish root in this case.
-				getIntent().putExtra(TiC.INTENT_PROPERTY_FINISH_ROOT, true);
-			}
+		boolean isFinishing = isFinishing();
 
-			tiApp.scheduleRestart(250);
-			finish();
-
-			return;
+		// If the activity is finishing, remove the windowId and supportHelperId so the window and supportHelper can be released.
+		// If the activity is forced to destroy by Android OS, keep the windowId and supportHelperId so the activity can be recovered.
+		if (isFinishing) {
+			int windowId = getIntentInt(TiC.INTENT_PROPERTY_WINDOW_ID, -1);
+			TiActivityWindows.removeWindow(windowId);
+			TiActivitySupportHelpers.removeSupportHelper(supportHelperId);
 		}
 
 		fireOnDestroy();
@@ -1191,7 +1192,7 @@ public abstract class TiBaseActivity extends FragmentActivity
 		}
 
 		if (window != null) {
-			window.closeFromActivity();
+			window.closeFromActivity(isFinishing);
 			window = null;
 		}
 
@@ -1205,8 +1206,36 @@ public abstract class TiBaseActivity extends FragmentActivity
 			activityProxy = null;
 		}
 
-		KrollRuntime.decrementActivityRefCount();
+		// Don't dispose the runtime if the activity is forced to destroy by Android,
+		// so we can recover the activity later.
+		KrollRuntime.decrementActivityRefCount(isFinishing);
 		KrollRuntime.suggestGC();
+	}
+
+	@Override
+	protected void onSaveInstanceState(Bundle outState)
+	{
+		super.onSaveInstanceState(outState);
+
+		// If the activity is forced to destroy by Android, save the supportHelperId so
+		// we can get it back when the activity is recovered.
+		if (!isFinishing() && supportHelper != null) {
+			outState.putInt("supportHelperId", supportHelperId);
+		}
+	}
+
+	@Override
+	protected void onRestoreInstanceState(Bundle savedInstanceState)
+	{
+		super.onRestoreInstanceState(savedInstanceState);
+
+		if (savedInstanceState.containsKey("supportHelperId")) {
+			supportHelperId = savedInstanceState.getInt("supportHelperId");
+			supportHelper = TiActivitySupportHelpers.retrieveSupportHelper(this, supportHelperId);
+			if (supportHelper == null) {
+				Log.e(TAG, "Unable to retrieve the activity support helper.");
+			}
+		}
 	}
 
 	// called in order to ensure that the onDestroy call is only acted upon once.
@@ -1235,8 +1264,15 @@ public abstract class TiBaseActivity extends FragmentActivity
 			TiApplication app = getTiApp();
 			if (app != null) {
 				TiRootActivity rootActivity = app.getRootActivity();
-				if (rootActivity != null && !(rootActivity.equals(this))) {
+				if (rootActivity != null && !(rootActivity.equals(this)) && !rootActivity.isFinishing()) {
 					rootActivity.finish();
+				} else if (rootActivity == null && !app.isRestartPending()) {
+					// When the root activity has been killed and garbage collected and the app is not scheduled to restart,
+					// we need to force finish the root activity while this activity has an intent to finish root.
+					// This happens when the "Don't keep activities" option is enabled and the user stays in some activity
+					// (eg. heavyweight window, tabgroup) other than the root activity for a while and then he wants to back
+					// out the app.
+					app.setForceFinishRootActivity(true);
 				}
 			}
 		}
@@ -1282,29 +1318,18 @@ public abstract class TiBaseActivity extends FragmentActivity
 	}
 
 	/**
-	 * Called by the onCreate methods of TiBaseActivity and TiTabActivity (the latter does
-	 * not extend the former) to determine if an unsupported application re-launch appears to
-	 * be occurring. It's here simply as a convenience for both classes to use it without duplication.
+	 * Called by the onCreate methods of TiBaseActivity to determine if an unsupported application
+	 * re-launch appears to be occurring.
 	 * @param activity The Activity getting the onCreate
 	 * @param savedInstanceState The argument passed to the onCreate. A non-null value is a "tell"
 	 * that the system is re-starting a killed application.
 	 */
 	public static boolean isUnsupportedReLaunch(Activity activity, Bundle savedInstanceState)
 	{
-		if (savedInstanceState != null && !(activity instanceof TiLaunchActivity) &&
-			!(TiApplication.getInstance().activityStackHasLaunchActivity())) {
-			/**
-			 * This state "looks like" the following has occurred:
-			 *
-			 * a) The app was running, but Android killed it off (such as, to save memory),
-			 * or a third-party task killer killed it.
-			 * b)  The app is now re-starting, and this activity -- which is *not*
-			 * a launch activity -- is being asked by Android to come into the foreground,
-			 * with none of our launch activities "behind" it.
-			 *
-			 * This is a situation we can't currently handle.  We count on a "normal" lifecycle
-			 * beginning with a launch activity.
-			 */
+		// If all the activities has been killed and the runtime has been disposed, we have to relaunch
+		// the app.
+		if (KrollRuntime.getInstance().getRuntimeState() == KrollRuntime.State.DISPOSED &&
+				savedInstanceState != null && !(activity instanceof TiLaunchActivity)) {
 			return true;
 		}
 		return false;

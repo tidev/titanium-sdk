@@ -158,6 +158,14 @@ public class TabProxy extends TiViewProxy
 		}
 	}
 
+	public void releaseViewsForActivityForcedToDestroy()
+	{
+		super.releaseViews();
+		if (window != null) {
+			window.releaseViews();
+		}
+	}
+
 	/**
 	 * Get the color of the tab when it is active.
 	 *
@@ -223,10 +231,15 @@ public class TabProxy extends TiViewProxy
 		
 	}
 
-	void close() {
+	void close(boolean activityIsFinishing) {
 		if (windowOpened && window != null) {
 			windowOpened = false;
-			window.fireSyncEvent(TiC.EVENT_CLOSE, null);
+			KrollDict data = null;
+			if (!activityIsFinishing) {
+				data = new KrollDict();
+				data.put("_closeFromActivityForcedToDestroy", true);
+			}
+			window.fireSyncEvent(TiC.EVENT_CLOSE, data);
 		}
 	}
 
