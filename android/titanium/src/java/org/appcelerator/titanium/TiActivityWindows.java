@@ -30,7 +30,6 @@ public class TiActivityWindows
 		TiActivityWindow window = windows.get(windowId);
 		if (window != null) {
 			window.windowCreated(activity);
-			windows.remove(windowId);
 		}
 	}
 

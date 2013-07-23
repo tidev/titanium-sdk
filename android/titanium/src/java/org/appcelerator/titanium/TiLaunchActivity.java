@@ -422,14 +422,18 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 
 	/**
 	 * Determines whether to immediately kill of (i.e., finish()) this instance
-	 * of the activity because it is not really the task root activity, and thus
-	 * is likely a byproduct of Android bug 2373. There are two conditions when
+	 * of the activity because the app is trying to back out while the root activity
+	 * has been killed and garbage collected, or it is not really the task root activity,
+	 * and thus is likely a byproduct of Android bug 2373. There are three conditions when
 	 * we'll finish it:
 	 *
-	 * <p>(1) The Titanium developer has explicitly said she wants it shut down,
+	 * <p>(1) The user is backing out the app but the root activity has been killed
+	 * and garbage collected; or
+	 *
+	 * <p>(2) The Titanium developer has explicitly said she wants it shut down,
 	 * by setting the "finishfalseroot" property; or
 	 *
-	 * <p>(2) We recognize a specific condition we've seen on Kindle Fires. For whatever
+	 * <p>(3) We recognize a specific condition we've seen on Kindle Fires. For whatever
 	 * reason, the Fire always tries to re-launch the launch activity
 	 * (i.e., a new instance of it) whenever the user selects the application
 	 * from the application drawer/shelf after the app has been restarted because
@@ -445,6 +449,17 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 	protected boolean willFinishFalseRootActivity(Bundle savedInstanceState)
 	{
 		finishing2373 = false;
+
+		TiApplication tiApp = TiApplication.getInstance();
+
+		if (tiApp.getForceFinishRootActivity()) {
+			finishing2373 = true;
+			tiApp.setForceFinishRootActivity(false); // reset the value
+			activityOnCreate(savedInstanceState);
+			finish();
+			Log.d(TAG, "willFinishFalseRootActivity: TiApplication.forceFinishRoot = true");
+			return finishing2373;
+		}
 
 		if (isTaskRoot()) {
 			// Not a "false root" activity. This activity
@@ -470,7 +485,6 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 			return finishing2373;
 		}
 
-		TiApplication tiApp = TiApplication.getInstance();
 		TiProperties systemProperties = null;
 
 		if (tiApp != null) {
