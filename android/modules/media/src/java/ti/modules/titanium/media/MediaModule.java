@@ -41,6 +41,7 @@ import org.appcelerator.titanium.util.TiIntentWrapper;
 import org.appcelerator.titanium.util.TiUIHelper;
 
 import ti.modules.titanium.media.android.AndroidModule.MediaScannerClient;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.ContentValues;
 import android.content.Context;
@@ -138,7 +139,7 @@ public class MediaModule extends KrollModule
 	}
 
 	@Kroll.method
-	public void showCamera(HashMap options)
+	public void showCamera(@SuppressWarnings("rawtypes") HashMap options)
 	{
 		Activity activity = TiApplication.getInstance().getCurrentActivity();
 
@@ -172,6 +173,15 @@ public class MediaModule extends KrollModule
 			TiCameraActivity.errorCallback = errorCallback;
 			TiCameraActivity.cancelCallback	= cancelCallback;
 			TiCameraActivity.saveToPhotoGallery = saveToPhotoGallery;
+			TiCameraActivity.whichCamera = CAMERA_REAR; // default.
+
+			// This option is only applicable when running the custom
+			// TiCameraActivity, since we can't direct the built-in
+			// Activity to open a specific camera.
+			Object whichCamera = options.get("whichCamera");
+			if (whichCamera != null) {
+				TiCameraActivity.whichCamera = TiConvert.toInt(whichCamera);
+			}
 
 			Intent intent = new Intent(activity, TiCameraActivity.class);
 			activity.startActivity(intent);
@@ -543,6 +553,7 @@ public class MediaModule extends KrollModule
 			}
 		}
 
+		@SuppressLint("DefaultLocale")
 		private void processImage(Activity activity)
 		{
 			String localUrl = imageUrl;
@@ -850,7 +861,21 @@ public class MediaModule extends KrollModule
 		}
 	}
 
-	@Kroll.method @Kroll.getProperty
+	@Kroll.method
+	public void switchCamera(int whichCamera)
+	{
+		TiCameraActivity activity = TiCameraActivity.cameraActivity;
+
+		if (activity == null || !activity.isPreviewRunning()) {
+			Log.e(TAG, "Camera preview is not open, unable to switch camera.");
+			return;
+		}
+
+		activity.switchCamera(whichCamera);
+	}
+
+	@Kroll.method
+	@Kroll.getProperty
 	public boolean getIsCameraSupported()
 	{
 		return Camera.getNumberOfCameras() > 0;
