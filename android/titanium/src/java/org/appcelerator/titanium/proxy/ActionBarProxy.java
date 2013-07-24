@@ -160,7 +160,6 @@ public class ActionBarProxy extends KrollProxy
 	private void handleSetTitle(String title)
 	{
 		if (actionBar != null) {
-			actionBar.setDisplayShowTitleEnabled(true);
 			actionBar.setTitle(title);
 		} else {
 			Log.w(TAG, "ActionBar is not enabled");
@@ -194,6 +193,8 @@ public class ActionBarProxy extends KrollProxy
 
 		Drawable backgroundImage = getDrawableFromUrl(url);
 		if (backgroundImage != null) {
+			actionBar.setDisplayShowTitleEnabled(false);
+			actionBar.setDisplayShowTitleEnabled(true);
 			actionBar.setBackgroundDrawable(backgroundImage);
 		}
 	}
