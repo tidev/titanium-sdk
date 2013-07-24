@@ -433,15 +433,17 @@ public class TiTableView extends FrameLayout
 		}
 		event.put(TiC.EVENT_PROPERTY_SEARCH_MODE, adapter.isFiltered());
 
-		if(item.proxy != null && item.proxy instanceof TableViewRowProxy) {
+		boolean longClickFired = false;
+		if (item.proxy != null && item.proxy instanceof TableViewRowProxy) {
 			TableViewRowProxy rp = (TableViewRowProxy) item.proxy;
 			event.put(TiC.EVENT_PROPERTY_SOURCE, rp);
 			// The event will bubble up to the parent.
 			if (rp.hierarchyHasListener(eventName)) {
 				rp.fireEvent(eventName, event);
+				longClickFired = true;
 			}
 		}
-		if (longClick) {
+		if (longClick && !longClickFired) {
 			return itemLongClickListener.onLongClick(event);
 		} else {
 			return false; // standard (not-long) click handling has no return value.
