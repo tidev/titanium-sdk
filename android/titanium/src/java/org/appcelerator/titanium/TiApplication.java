@@ -111,6 +111,7 @@ public abstract class TiApplication extends Application implements Handler.Callb
 	private TiResponseCache responseCache;
 	private BroadcastReceiver externalStorageReceiver;
 	private AccessibilityManager accessibilityManager = null;
+	private boolean forceFinishRootActivity = false;
 
 	protected TiAnalyticsModel analyticsModel;
 	protected Intent analyticsIntent;
@@ -513,7 +514,7 @@ public abstract class TiApplication extends Application implements Handler.Callb
 	{
 		synchronized (this) {
 			Activity currentActivity = getCurrentActivity();
-			if (currentActivity == null || (callingActivity == currentActivity && newValue == null)) {
+			if (currentActivity == null || callingActivity == currentActivity) {
 				this.currentActivity = new WeakReference<Activity>(newValue);
 			}
 		}
@@ -886,6 +887,7 @@ public abstract class TiApplication extends Application implements Handler.Callb
 	public void dispose()
 	{
 		TiActivityWindows.dispose();
+		TiActivitySupportHelpers.dispose();
 		TiFileHelper.getInstance().destroyTempFiles();
 	}
 
@@ -918,6 +920,16 @@ public abstract class TiApplication extends Application implements Handler.Callb
 			accessibilityManager = (AccessibilityManager) getSystemService(Context.ACCESSIBILITY_SERVICE);
 		}
 		return accessibilityManager;
+	}
+
+	public void setForceFinishRootActivity(boolean forced)
+	{
+		forceFinishRootActivity = forced;
+	}
+
+	public boolean getForceFinishRootActivity()
+	{
+		return forceFinishRootActivity;
 	}
 
 	public abstract void verifyCustomModules(TiRootActivity rootActivity);
