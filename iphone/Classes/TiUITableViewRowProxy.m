@@ -528,78 +528,52 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 		cell.backgroundView = nil;
 	}
 	
-	id selBgImage = [self valueForKey:@"selectedBackgroundImage"];
-	if (selBgImage!=nil)
-	{
-		NSURL *url = [TiUtils toURL:selBgImage proxy:(TiProxy*)table.proxy];
-		UIImage *image = [[ImageLoader sharedLoader] loadImmediateStretchableImage:url withLeftCap:leftCap topCap:topCap];
-		if ([cell.selectedBackgroundView isKindOfClass:[UIImageView class]]==NO)
-		{
-			UIImageView *view_ = [[[UIImageView alloc] initWithFrame:CGRectZero] autorelease];
-			cell.selectedBackgroundView = view_;
-		}
-		if (image!=((UIImageView*)cell.selectedBackgroundView).image)
-		{
-			((UIImageView*)cell.selectedBackgroundView).image = image;
-		}
-	}
-	else if (selBgColor==nil && cell.selectedBackgroundView!=nil && [cell.selectedBackgroundView isKindOfClass:[UIImageView class]] && ((UIImageView*)cell.selectedBackgroundView).image!=nil)
-	{
-		cell.selectedBackgroundView = nil;
-	}
-	
-	if (selBgImage==nil && (selBgColor!=nil || [[table tableView] style]==UITableViewStyleGrouped))
-	{
-		if (selBgColor==nil)
-		{
-			// if we have a grouped view with no selected background color, we 
-			// need to setup a cell and force the color otherwise you'll get
-			// square corners on a rounded row
-			if ([cell selectionStyle]==UITableViewCellSelectionStyleBlue)
-			{
-				selBgColor = @"#0272ed";
-			}
-			else if ([cell selectionStyle]==UITableViewCellSelectionStyleGray)
-			{
-				selBgColor = @"#bbb";
-			}
-			else 
-			{
-				selBgColor = @"#fff";
-			}
-		}
-		if (cell.selectedBackgroundView == nil || [cell.selectedBackgroundView isKindOfClass:[TiSelectedCellBackgroundView class]]==NO)
-		{								
-			cell.selectedBackgroundView = [[[TiSelectedCellBackgroundView alloc] initWithFrame:CGRectZero] autorelease];
-		}
-		TiSelectedCellBackgroundView *selectedBGView = (TiSelectedCellBackgroundView*)cell.selectedBackgroundView;
-		int count = [section rowCount];
-		if (count == 1)
-		{
-			selectedBGView.position = TiCellBackgroundViewPositionSingleLine;
-		}
-		else 
-		{
-			if (row == 0)
-			{
-				selectedBGView.position = TiCellBackgroundViewPositionTop;
-			}
-			else if (row == count-1)
-			{
-				selectedBGView.position = TiCellBackgroundViewPositionBottom;
-			}
-			else 
-			{
-				selectedBGView.position = TiCellBackgroundViewPositionMiddle;
-			}
-		}
-		selectedBGView.fillColor = [Webcolor webColorNamed:selBgColor];	
-		selectedBGView.grouped = [[table tableView] style]==UITableViewStyleGrouped;
-	}
-	else if (cell.selectedBackgroundView!=nil)
-	{
-		cell.selectedBackgroundView.backgroundColor = nil;
-	}
+    id selBgImage = [self valueForKey:@"selectedBackgroundImage"];
+    if (selBgImage!=nil) {
+        NSURL *url = [TiUtils toURL:selBgImage proxy:(TiProxy*)table.proxy];
+        UIImage *image = [[ImageLoader sharedLoader] loadImmediateStretchableImage:url withLeftCap:leftCap topCap:topCap];
+        if ([cell.selectedBackgroundView isKindOfClass:[UIImageView class]]==NO) {
+            UIImageView *view_ = [[[UIImageView alloc] initWithFrame:CGRectZero] autorelease];
+            cell.selectedBackgroundView = view_;
+        }
+        if (image!=((UIImageView*)cell.selectedBackgroundView).image) {
+            ((UIImageView*)cell.selectedBackgroundView).image = image;
+        }
+        
+        UIColor* theColor = [Webcolor webColorNamed:selBgColor];
+        cell.selectedBackgroundView.backgroundColor = ((theColor == nil)?[UIColor clearColor]:theColor);
+    } else {
+        if (![cell.selectedBackgroundView isKindOfClass:[TiSelectedCellBackgroundView class]]) {
+            cell.selectedBackgroundView = [[[TiSelectedCellBackgroundView alloc] initWithFrame:CGRectZero] autorelease];
+        }
+        TiSelectedCellBackgroundView *selectedBGView = (TiSelectedCellBackgroundView*)cell.selectedBackgroundView;
+        selectedBGView.grouped = [[table tableView] style]==UITableViewStyleGrouped;
+        UIColor* theColor = [Webcolor webColorNamed:selBgColor];
+        if (theColor == nil) {
+            switch (cell.selectionStyle) {
+                case UITableViewCellSelectionStyleGray:theColor = [Webcolor webColorNamed:@"#bbb"];break;
+                case UITableViewCellSelectionStyleNone:theColor = [UIColor clearColor];break;
+                case UITableViewCellSelectionStyleBlue:theColor = [Webcolor webColorNamed:@"#0272ed"];break;
+                default:theColor = [TiUtils isIOS7OrGreater] ? [Webcolor webColorNamed:@"#e0e0e0"] : [Webcolor webColorNamed:@"#0272ed"];break;
+            }
+        }
+        selectedBGView.fillColor = theColor;
+        int count = [section rowCount];
+        if (count == 1) {
+            selectedBGView.position = TiCellBackgroundViewPositionSingleLine;
+        }
+        else {
+            if (row == 0) {
+                selectedBGView.position = TiCellBackgroundViewPositionTop;
+            }
+            else if (row == count-1) {
+                selectedBGView.position = TiCellBackgroundViewPositionBottom;
+            }
+            else {
+                selectedBGView.position = TiCellBackgroundViewPositionMiddle;
+            }
+        }
+    }
 }
 
 -(void)configureLeftSide:(UITableViewCell*)cell
