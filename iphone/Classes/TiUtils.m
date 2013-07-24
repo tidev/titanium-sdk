@@ -1398,7 +1398,7 @@ if ([str isEqualToString:@#orientation]) return (UIDeviceOrientation)orientation
         
         [theController setEdgesForExtendedLayout:[self extendedEdgesFromProp:edgesValue]];
         [theController setExtendedLayoutIncludesOpaqueBars:[self boolValue:includeOpaque def:NO]];
-        [theController setAutomaticallyAdjustsScrollViewInsets:[self boolValue:autoAdjust def:YES]];
+        [theController setAutomaticallyAdjustsScrollViewInsets:[self boolValue:autoAdjust def:NO]];
     }
 }
 
