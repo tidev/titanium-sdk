@@ -76,7 +76,7 @@ define(
 				(evt._elements || (evt._elements = [])).push(self);
 			});
 
-			var values = self.constants.__values__;
+			var values = self.__values__.constants;
 			self._layoutCoefficients = {
 				width: {
 					x1: 0,

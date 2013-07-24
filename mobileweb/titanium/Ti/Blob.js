@@ -10,7 +10,7 @@ define(["Ti/_", "Ti/_/declare", "Ti/_/Evented"], function(_, declare, Evented) {
 		postscript: function() {
 			var type = this.mimeType,
 				img,
-				v = this.constants.__values__;
+				v = this.__values__.constants;
 
 			(this._isBinary = _.isBinaryMimeType(type)) && (v.size = v.length);
 
