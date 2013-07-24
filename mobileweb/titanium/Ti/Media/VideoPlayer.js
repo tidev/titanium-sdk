@@ -106,9 +106,9 @@ define(["Ti/_/declare", "Ti/_/dom", "Ti/_/event", "Ti/_/lang", "Ti/Media", "Ti/U
 			},
 			url: {
 				set: function(value) {
-					this.constants.playing = false;
+					this.__values__.constants.playing = false;
 					this._currentState = STOPPED;
-					this.properties.__values__.url = value;
+					this.__values__.properties.url = value;
 					this._createVideo();
 					return value;
 				}
@@ -127,13 +127,13 @@ define(["Ti/_/declare", "Ti/_/dom", "Ti/_/event", "Ti/_/lang", "Ti/Media", "Ti/U
 
 		_set: function(type, state) {
 			var evt = {};
-			evt[type] = this.constants[type] = state;
+			evt[type] = this.__values__.constants[type] = state;
 			this.fireEvent(type.toLowerCase(), evt);
 		},
 
 		_complete: function(evt) {
 			var ended = evt.type === "ended";
-			this.constants.playing = false;
+			this.__values__.constants.playing = false;
 			this._currentState = STOPPED;
 			this.fireEvent("complete", {
 				reason: ended ? Media.VIDEO_FINISH_REASON_PLAYBACK_ENDED : Media.VIDEO_FINISH_REASON_USER_EXITED
@@ -146,12 +146,12 @@ define(["Ti/_/declare", "Ti/_/dom", "Ti/_/event", "Ti/_/lang", "Ti/Media", "Ti/U
 		},
 
 		_fullscreenChange: function(e) {
-			this.properties.__values__.fullscreen = !isFullScreen(this.fullscreen);
+			this.__values__.properties.fullscreen = !isFullScreen(this.fullscreen);
 		},
 
 		_durationChange: function() {
 			var d = this._video.duration * 1000,
-				c = this.constants;
+				c = this.__values__.constants;
 			if (d !== Infinity) {
 				this.duration || this.fireEvent("durationavailable", {
 					duration: d
@@ -162,7 +162,7 @@ define(["Ti/_/declare", "Ti/_/dom", "Ti/_/event", "Ti/_/lang", "Ti/Media", "Ti/U
 
 		_paused: function() {
 			var pbs = Media.VIDEO_PLAYBACK_STATE_STOPPED;
-			this.constants.playing = false;
+			this.__values__.constants.playing = false;
 			if (this._currentState === PLAYING) {
 				this._currentState = PAUSED;
 				pbs = Media.VIDEO_PLAYBACK_STATE_PAUSED;
@@ -175,7 +175,8 @@ define(["Ti/_/declare", "Ti/_/dom", "Ti/_/event", "Ti/_/lang", "Ti/Media", "Ti/U
 		_createVideo: function(dontCreate) {
 			var i, match,
 				video = this._video,
-				url = this.url;
+				url = this.url,
+				c = this.__values__.constants;
 
 			if (!url) {
 				return;
@@ -197,7 +198,7 @@ define(["Ti/_/declare", "Ti/_/dom", "Ti/_/event", "Ti/_/lang", "Ti/Media", "Ti/U
 			this._handles = [
 				on(video, "playing", this, function() {
 					this._currentState = PLAYING;
-					this.constants.playing = true;
+					c.playing = true;
 					this.fireEvent("playing", {
 						url: video.currentSrc
 					});
@@ -218,7 +219,7 @@ define(["Ti/_/declare", "Ti/_/dom", "Ti/_/event", "Ti/_/lang", "Ti/Media", "Ti/U
 				on(video, "loadedmetadata", this, "_durationChange"),
 				on(video, "durationchange", this, "_durationChange"),
 				on(video, "timeupdate", this, function() {
-					this.constants.currentPlaybackTime = this._video.currentTime * 1000;
+					c.currentPlaybackTime = this._video.currentTime * 1000;
 					this._currentState === STOPPING && this.pause();
 				}),
 				on(video, "error", this, function() {
@@ -229,7 +230,7 @@ define(["Ti/_/declare", "Ti/_/dom", "Ti/_/event", "Ti/_/lang", "Ti/Media", "Ti/U
 						case 3: msg = "Network error"; break;
 						case 4: msg = "Unsupported format";
 					}
-					this.constants.playing = false;
+					c.playing = false;
 					this._set("loadState", Media.VIDEO_LOAD_STATE_UNKNOWN);
 					this.fireEvent("error", {
 						message: msg
@@ -279,7 +280,7 @@ define(["Ti/_/declare", "Ti/_/dom", "Ti/_/event", "Ti/_/lang", "Ti/Media", "Ti/U
 				video = this._video,
 				parent = video && video.parentNode;
 			this._currentState = STOPPED;
-			this.constants.playing = false;
+			this.__values__.constants.playing = false;
 			if (parent) {
 				event.off(this._handles);
 				parent.removeChild(video);

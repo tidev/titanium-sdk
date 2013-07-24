@@ -241,7 +241,7 @@ define(["Ti/_/declare", "Ti/_/event", "Ti/UI/View", "Ti/_/UI/Widget", "Ti/UI", "
 								height: UI.INHERIT
 							});
 							dateTimeInput.addEventListener("change", function(e) {
-								self.properties.__values__.value = e.value;
+								self.__values__.properties.value = e.value;
 								self.fireEvent("change",e);
 							});
 							dateTimeInput.min = self.min;

@@ -16,7 +16,7 @@ define(['Ti/_/declare', 'Ti/_/lang', 'Ti/UI/View', 'Ti/_/dom', 'Ti/_/css', 'Ti/_
 
 		constructor: function() {
 
-			this._layout = new ConstrainingHorizontal(this);
+			this._layout = new ConstrainingHorizontal({ element: this });
 
 			this._add(this._leftImageView = UI.createImageView({
 				width: UI.SIZE,

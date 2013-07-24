@@ -10,7 +10,7 @@ define(['Ti/_/css', 'Ti/_/declare', 'Ti/UI/View', 'Ti/UI', 'Ti/_/lang'],
 
 		constructor: function(args) {
 			var self = this,
-				win = self.constants.window = args && args.window,
+				win = self.__values__.constants.window = args && args.window,
 				navBarContainer = self._navBarContainer = UI.createView({
 					height: 50,
 					width: UI.FILL,
