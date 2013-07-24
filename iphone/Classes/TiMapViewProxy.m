@@ -309,7 +309,7 @@
 
 -(void)removeAnnotations:(id)arg
 {
-	ENSURE_TYPE(arg,NSArray)
+    ENSURE_SINGLE_ARG(arg,NSArray)
     for (id ann in arg) {
         if ([ann isKindOfClass:[TiMapAnnotationProxy class]]) {
             [self forgetProxy:ann];

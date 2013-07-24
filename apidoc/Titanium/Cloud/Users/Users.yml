@@ -105,7 +105,7 @@ methods:
     description: |
         Requires user login. 
         
-        See [Users: Show Current User Profile](http://cloud.appcelerator.com/docs/api/v1/users/showme)
+        See [Users: Show Current User Profile](http://cloud.appcelerator.com/docs/api/v1/users/show_me)
         for the request parameters supported by this method.
         
         Data is returned in the `users` property of the parameter passed to the callback.
@@ -151,7 +151,7 @@ methods:
   - name: requestResetPassword
     summary: Send an email to user to recover lost password.
     description: |
-        See [Users: Send a reset password email to User](http://cloud.appcelerator.com/docs/api/v1/users/reset_password)
+        See [Users: Send a reset password email to User](http://cloud.appcelerator.com/docs/api/v1/users/request_reset_password)
         for the request parameters supported by this method.
         
         Data is returned in the `users` property of the parameter passed to the callback.
