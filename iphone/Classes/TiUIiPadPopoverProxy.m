@@ -116,7 +116,7 @@ TiUIiPadPopoverProxy * currentlyDisplaying = nil;
  *	variable so that the UIViewController mojo isn't thrown off for sizing.
  */
 		[viewController setView:[self view]];
-		[TiUtils configureController:navigationController withObject:nil];
+		[TiUtils configureController:viewController withObject:nil];
 	}
 	return viewController;
 }
