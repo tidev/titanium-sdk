@@ -564,8 +564,10 @@ TiOrientationFlags TiOrientationFlagsFromObject(id args)
 			 ![TiUtils boolValue:@"closeByTab" properties:[args objectAtIndex:0] def:NO]))
 		{
 			NSMutableArray* closeArgs = [NSMutableArray arrayWithObject:self];
-			if (args != nil) {
+			if ([args isKindOfClass:[NSArray class]]) {
 				[closeArgs addObject:[args objectAtIndex:0]];
+			} else if (args != nil) {
+				[closeArgs addObject:args];
 			}
 			[self forgetProxy:closeAnimation];
 			RELEASE_TO_NIL(closeAnimation);
@@ -600,13 +602,17 @@ TiOrientationFlags TiOrientationFlagsFromObject(id args)
 -(void)closeOnUIThread:(id)args
 {
 	[self windowWillClose];
-
+	BOOL animated;
+	id propsDict = args;
+	if ([args isKindOfClass:[NSArray class]] && ([args count] > 0)) {
+		propsDict = [args objectAtIndex:0];
+	}
+	animated = [TiUtils boolValue:@"animated" properties:propsDict def:YES]; //TiUtils checks to see if NSDictionary
+	
+	
 	//TEMP hack until we can figure out split view issue
     // appears to be a dead code
 	if ((tempController != nil) && modalFlag) {
-        BOOL animated = (args!=nil && [args isKindOfClass:[NSDictionary class]]) ? 
-            [TiUtils boolValue:@"animated" properties:[args objectAtIndex:0] def:YES] : YES;
-
         [tempController dismissModalViewControllerAnimated:animated];
 
         if (!animated) {
@@ -625,7 +631,6 @@ TiOrientationFlags TiOrientationFlagsFromObject(id args)
 
 		if (modalFlag)
 		{
-			BOOL animated = args!=nil && [args isKindOfClass:[NSDictionary class]] ? [TiUtils boolValue:@"animated" properties:[args objectAtIndex:0] def:YES] : YES;
 			[[TiApp app] hideModalController:vc animated:animated];
 			if (animated)
 			{
