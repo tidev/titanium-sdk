@@ -150,7 +150,7 @@ static void addRoundedRectToPath(CGContextRef context, CGRect rect,
 
 -(void)setPosition:(TiCellBackgroundViewPosition)inPosition
 {
-	if(position != inPosition)
+	if((position != inPosition) && (![TiUtils isIOS7OrGreater]))
 	{
 		position = inPosition;
 		[self setNeedsDisplay];
