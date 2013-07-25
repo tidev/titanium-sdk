@@ -43,7 +43,7 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 
 		/* Force window proxy closure, and wipe away the view update queue */
 		NSArray * proxyArray = [[viewController valueForKey:@"windowProxies"] copy];
-		NSArray * closeArgs = @[@{@"animated":@NO}];
+		NSArray * closeArgs = [NSArray arrayWithObject:[NSDictionary dictionaryWithObject:NUMBOOL(NO) forKey:@"animated"]];
 		for (TiWindowProxy * thisWindowProxy in proxyArray) {
 			[thisWindowProxy close:closeArgs];
 		}
