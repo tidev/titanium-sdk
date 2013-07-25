@@ -776,7 +776,7 @@ properties:
     platforms: [iphone,ipad]
     since: "3.1.0"
 
-  - name: lastEvent
+  - name: lastGeolocation
     summary: JSON representation of the last geolocation received.
     description: |
          LastEvent is the JSON version of the last geolocation sent by the OS. This does not
