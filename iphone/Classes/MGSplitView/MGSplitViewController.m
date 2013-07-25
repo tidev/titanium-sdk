@@ -285,7 +285,7 @@
 	
 	// Layout the master, divider and detail views.
 	CGRect newFrame = CGRectMake(0, 0, width, height);
-    if ([UIViewController instancesRespondToSelector:@selector(childViewControllerForStatusBarStyle)]) {
+    if ([TiUtils isIOS7OrGreater]) {
         newFrame.origin.y = fullSize.origin.y;
     }
 	UIViewController *controller;
@@ -442,7 +442,7 @@
 	}
 	
 	
-    if ([UIViewController instancesRespondToSelector:@selector(childViewControllerForStatusBarStyle)]) {
+    if ([TiUtils isIOS7OrGreater]) {
         //IOS7 has turned off rounded corners on its viewcontrollers.
         //No need to add these anymore.
         [(MGSplitView*)[self view] setLayingOut:NO];
