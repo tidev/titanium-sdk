@@ -279,6 +279,14 @@ MAKE_SYSTEM_PROP(UNKNOWN,UIDeviceOrientationUnknown);
 MAKE_SYSTEM_PROP(FACE_UP,UIDeviceOrientationFaceUp);
 MAKE_SYSTEM_PROP(FACE_DOWN,UIDeviceOrientationFaceDown);
 
+MAKE_SYSTEM_PROP(EXTEND_EDGE_NONE,0);   //UIRectEdgeNone
+MAKE_SYSTEM_PROP(EXTEND_EDGE_TOP,1);    //UIRectEdgeTop
+MAKE_SYSTEM_PROP(EXTEND_EDGE_LEFT,2);   //UIEdgeRectLeft
+MAKE_SYSTEM_PROP(EXTEND_EDGE_BOTTOM,4); //UIEdgeRectBottom
+MAKE_SYSTEM_PROP(EXTEND_EDGE_RIGHT,8);  //UIEdgeRectRight
+MAKE_SYSTEM_PROP(EXTEND_EDGE_ALL,15);   //UIEdgeRectAll
+
+
 -(NSNumber*)isLandscape:(id)args
 {
 	return NUMBOOL([UIApplication sharedApplication].statusBarOrientation!=UIInterfaceOrientationPortrait);

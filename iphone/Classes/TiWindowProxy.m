@@ -75,6 +75,7 @@ TiOrientationFlags TiOrientationFlagsFromObject(id args)
 	if (controller == nil)
 	{
 		controller = [[TiViewController alloc] initWithViewProxy:self];
+		[TiUtils configureController:controller withObject:nil];
 	}
 	return controller;
 }
@@ -339,7 +340,7 @@ TiOrientationFlags TiOrientationFlagsFromObject(id args)
 		controller = [controller_ retain];
 		[(TiViewController *)controller setProxy:self];
 		tab = (TiViewProxy<TiTab>*)[tab_ retain];
-		
+		[TiUtils configureController:controller withObject:nil];
 		[self _tabAttached];
 	}
 	else
@@ -458,7 +459,7 @@ TiOrientationFlags TiOrientationFlagsFromObject(id args)
 			TiViewController *wc = (TiViewController*)[self controller];
 
 			UINavigationController *nc = [[[UINavigationController alloc] initWithRootViewController:wc] autorelease];
-
+			[TiUtils configureController:nc withObject:nil];
 			BOOL navBarHidden = [self argOrWindowProperty:@"navBarHidden" args:args];
 			[nc setNavigationBarHidden:navBarHidden];
 
