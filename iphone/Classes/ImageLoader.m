@@ -127,7 +127,7 @@
                                 maxHeight/2  : 
                                 TiDimensionCalculateValue(topCap, maxHeight);
         
-        if ([TiUtils isIOS5OrGreater]) {
+        if ([theImage respondsToSelector:@selector(resizableImageWithCapInsets:resizingMode:)]) {
             
             if (left >= maxWidth) {
                 left = maxWidth - 2;
@@ -145,13 +145,7 @@
             if ((top + bottom) >= maxHeight) {
                 bottom = maxHeight - (top + 1);
             }
-            if ([theImage respondsToSelector:@selector(resizableImageWithCapInsets:resizingMode:)]) {
-                //1 = UIImageResizingModeStretch
-                stretchableImage = [[theImage resizableImageWithCapInsets:UIEdgeInsetsMake(top, left, bottom, right) resizingMode:1] retain];
-            }
-            else {
-                stretchableImage = [[theImage resizableImageWithCapInsets:UIEdgeInsetsMake(top, left, bottom, right)] retain];
-            }
+            stretchableImage = [[theImage resizableImageWithCapInsets:UIEdgeInsetsMake(top, left, bottom, right) resizingMode:UIImageResizingModeStretch] retain];
         }
         else
         {
