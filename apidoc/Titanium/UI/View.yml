@@ -909,7 +909,7 @@ properties:
   - name: backgroundLeftCap
     summary: Size of the left end cap.
     description: |
-        See the section on backgroundLeftCap and backgroundTopCap behavior on iOS.
+        See the section on backgroundLeftCap and backgroundTopCap behavior on iOS in <Titanium.UI.View>.
     type: Number
     platforms: [iphone, ipad]
     default: 0
@@ -936,7 +936,7 @@ properties:
   - name: backgroundTopCap
     summary: Size of the top end cap.
     description: |
-        See the section on backgroundLeftCap and backgroundTopCap behavior on iOS.
+        See the section on backgroundLeftCap and backgroundTopCap behavior on iOS in <Titanium.UI.View>.
     type: Number
     platforms: [iphone, ipad]
     default: 0
