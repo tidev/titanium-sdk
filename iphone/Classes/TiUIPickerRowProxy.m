@@ -37,7 +37,7 @@
             pickerLabel = [[[UILabel alloc] initWithFrame:theFrame] autorelease];
             [pickerLabel setTextAlignment:UITextAlignmentLeft];
             [pickerLabel setBackgroundColor:[UIColor clearColor]];
-            float fontSize = [TiUtils floatValue:[self valueForUndefinedKey:@"fontSize"] def:[TiUtils floatValue:[self valueForUndefinedKey:@"fontSize"] def:18.0]];
+            float fontSize = [TiUtils floatValue:[self valueForUndefinedKey:@"fontSize"] def:18.0];
             [pickerLabel setFont:[UIFont boldSystemFontOfSize:fontSize]];
         }
         [pickerLabel setText:title];
